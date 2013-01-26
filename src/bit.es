@@ -312,11 +312,14 @@ public class Bit {
             localPlatform = platforms[0]
             if (!Path(localPlatform + '.bit').exists) {
                 trace('Generate', 'Create platform bit file: ' + localPlatform + '.bit')
+                /* MOB UNUSED
                 if (!options.configure) {
+                    //  MOB - or should we use a default build
                     App.args.push('-without')
                     App.args.push('all')
                     options.configure = Path('.')
                 }
+                */
             }
             /* Must continue if probe can't locate tools, but does know a default */
             options['continue'] = true
@@ -629,6 +632,9 @@ public class Bit {
         }
         if (options.release) {
             bit.settings.debug = false
+        }
+        if (bit.settings.debug == undefined) {
+            bit.settings.debug = true
         }
         /* Disable/enable was originally --unset|--set */
         for each (field in poptions.disable) {
@@ -1548,8 +1554,8 @@ public class Bit {
             }
             if (target.platforms) {
                 if (!target.platforms.contains(currentPlatform) &&
-                    !(currentPlatform == localPlatform && target.platforms.contains('local')) &&
-                    !(currentPlatform != localPlatform && target.platforms.contains('cross'))) {
+                    !(samePlatform(currentPlatform, localPlatform) && target.platforms.contains('local')) &&
+                    !(!samePlatform(currentPlatform, localPlatform) && target.platforms.contains('cross'))) {
                         target.enable = false
                 }
             }
@@ -3179,6 +3185,7 @@ public class Bit {
                 }
             }
         } else {
+            //  MOB - should be configurable
             programs = Path("/usr/local/bin")
         }
         return programs.portable
@@ -3242,6 +3249,7 @@ public class Bit {
             bit.dir.programs = programFiles()
             bit.dir.programFiles = Path(bit.dir.programs.name.replace(' (x86)', ''))
         } else {
+            //  MOB - should be configurable
             bit.dir.programs = Path('/usr/local/bin')
         }
         bit.platform = { 
@@ -3303,9 +3311,15 @@ public class Bit {
         applyEnv()
         setPathEnvVar(bit)
         castDirTypes()
-        if (platform == localPlatform) {
+        if (samePlatform(platform, localPlatform)) {
             bit.globals.LBIN = localBin = bit.dir.bin.portable
         }
+    }
+
+    function samePlatform(p1, p2): Boolean {
+        let [os1, arch1] = p1.split('-')
+        let [os2, arch2] = p2.split('-')
+        return os1 == os2 && arch1 == arch2
     }
 
     function quickLoad(bitfile: Path) {

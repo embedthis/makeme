@@ -31,7 +31,7 @@ Bit.load({
         version: '0.8.0',
         buildNumber: '0',
 
-        sync: [ 'bitos', 'est', 'mpr', 'pcre', 'http', 'ejs' ],
+        sync: [ 'bitos', 'est', 'mpr', 'pcre', 'http', 'ejs', 'sqlite' ],
         packs: [ 'bits/packs' ],
         /* Must build locally to build tools */
         platforms: [ 'local' ],

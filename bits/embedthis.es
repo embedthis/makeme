@@ -7,6 +7,7 @@
 
 require ejs.tar
 require ejs.unix
+require ejs.zlib
 
 public function getWebUser(): String {
     let passwdFile: Path = Path("/etc/passwd")
@@ -170,11 +171,7 @@ function installCallback(src: Path, dest: Path, options = {}): Boolean {
         vtrace('Compress', dest.relative)
         let zname = Path(dest.name + '.gz')
         zname.remove()
-        use namespace 'ejs.zlib'
-        if (!global.Zlib) {
-            global.load('ejs.zlib.mod')
-        }
-        global.Zlib.compress(dest.name, zname)
+        Zlib.compress(dest.name, zname)
         dest.remove()
     }
     if (App.uid == 0 && dest.extension == 'so' && Config.OS == 'linux' && options.task == 'install') {
@@ -222,13 +219,6 @@ public function install(src, dest: Path, options = {}) {
 }
 
 public function package(pkg: Path, formats) {
-    /*
-        Dynamically zlib load to avoid a hard dependency
-     */
-    use namespace 'ejs.zlib'
-    if (!global.Zlib) {
-        global.load('ejs.zlib.mod')
-    }
     bit.dir.pkg.makeDir()
     bit.dir.rel.makeDir()
     if (!(formats is Array)) formats = [formats]
@@ -277,8 +267,7 @@ function packageSimple(pkg: Path, options, fmt) {
     trace('Package', zname)
     let tar = new Tar(name, options)
     tar.create(pkg.files('**', {exclude: /\/$/, missing: undefined}))
-    use namespace 'ejs.zlib'
-    global.Zlib.compress(tar.name, zname)
+    Zlib.compress(tar.name, zname)
     if (!bit.options.keep) {
         name.remove()
     }
@@ -321,8 +310,7 @@ function packageTar(pkg: Path, options) {
     trace('Package', zname)
     tar.create(files)
 
-    use namespace 'ejs.zlib'
-    global.Zlib.compress(name, zname)
+    Zlib.compress(name, zname)
     name.remove()
     rel.join('md5-' + base).joinExt('tgz.txt', true).write(md5(zname.readString()))
     let generic = rel.join(s.product + '-tar' + '.tgz')
@@ -600,12 +588,10 @@ function packageWindows(pkg: Path, options) {
 public function syncup(from: Path, to: Path) {
     let tartemp: Path
     if (from.name.endsWith('.tgz') || from.name.endsWith('.gz')) {
-        use namespace 'ejs.zlib'
-        global.load('ejs.zlib.mod')
         if (!from.exists) {
             throw 'Can\'t find package: ' + from
         }
-        global.Zlib.uncompress(from, from.replaceExt('tartemp'))
+        Zlib.uncompress(from, from.replaceExt('tartemp'))
         from = from.replaceExt('tartemp')
         tartemp = from
     }
