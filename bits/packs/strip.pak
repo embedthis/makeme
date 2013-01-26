@@ -1,0 +1,6 @@
+/*
+    strip.pak - Strip package for Bit
+ */
+
+program('strip', 'Strip Symbols Tool')
+

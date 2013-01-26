@@ -1,0 +1,5 @@
+/*
+    utest.pak - Utest for Bit
+ */
+
+program('utest', 'Unit Test Tool')

@@ -1,0 +1,5 @@
+/*
+    dsi.pak - dsi package for Bit
+ */
+
+program('dsi', 'Developer Server Side Include Tool')

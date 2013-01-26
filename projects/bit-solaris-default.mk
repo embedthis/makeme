@@ -1,0 +1,313 @@
+#
+#   bit-solaris-default.mk -- Makefile to build Embedthis Bit for solaris
+#
+
+PRODUCT         ?= bit
+VERSION         ?= 0.8.0
+BUILD_NUMBER    ?= 0
+PROFILE         ?= default
+ARCH            ?= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
+OS              ?= solaris
+CC              ?= /usr/bin/gcc
+LD              ?= /usr/bin/ld
+CONFIG          ?= $(OS)-$(ARCH)-$(PROFILE)
+
+CFLAGS          += -fPIC -Os -w
+DFLAGS          += -D_REENTRANT -DPIC$(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS)))
+IFLAGS          += -I$(CONFIG)/inc
+LDFLAGS         += 
+LIBPATHS        += -L$(CONFIG)/bin
+LIBS            += -llxnet -lrt -lsocket -lpthread -lm -ldl
+
+DEBUG           ?= release
+CFLAGS-debug    := -g
+CFLAGS-release  := -O2
+DFLAGS-debug    := -DBIT_DEBUG
+DFLAGS-release  := 
+LDFLAGS-debug   := -g
+LDFLAGS-release := 
+CFLAGS          += $(CFLAGS-$(PROFILE))
+DFLAGS          += $(DFLAGS-$(PROFILE))
+LDFLAGS         += $(LDFLAGS-$(PROFILE))
+
+all compile: prep \
+        $(CONFIG)/bin/ca.crt \
+        $(CONFIG)/bin/libmpr.so \
+        $(CONFIG)/bin/libmprssl.so \
+        $(CONFIG)/bin/libpcre.so \
+        $(CONFIG)/bin/libsqlite3.so \
+        $(CONFIG)/bin/sqlite \
+        $(CONFIG)/bin/libhttp.so \
+        $(CONFIG)/bin/http \
+        $(CONFIG)/bin/http-ca.crt \
+        $(CONFIG)/bin/libejs.so \
+        $(CONFIG)/bin/ejs \
+        $(CONFIG)/bin/ejsc \
+        $(CONFIG)/bin/ejs.mod \
+        $(CONFIG)/bin/bit.es \
+        $(CONFIG)/bin/bit \
+        $(CONFIG)/bin/bits
+
+.PHONY: prep
+
+prep:
+	@if [ "$(CONFIG)" = "" ] ; then echo WARNING: CONFIG not set ; exit 255 ; fi
+	@[ ! -x $(CONFIG)/inc ] && mkdir -p $(CONFIG)/inc $(CONFIG)/obj $(CONFIG)/lib $(CONFIG)/bin ; true
+	@[ ! -f $(CONFIG)/inc/bit.h ] && cp projects/bit-$(OS)-$(PROFILE)-bit.h $(CONFIG)/inc/bit.h ; true
+	@[ ! -f $(CONFIG)/inc/bitos.h ] && cp src/bitos.h $(CONFIG)/inc/bitos.h ; true
+	@if ! diff $(CONFIG)/inc/bit.h projects/bit-$(OS)-$(PROFILE)-bit.h >/dev/null ; then\
+		echo cp projects/bit-$(OS)-$(PROFILE)-bit.h $(CONFIG)/inc/bit.h  ; \
+		cp projects/bit-$(OS)-$(PROFILE)-bit.h $(CONFIG)/inc/bit.h  ; \
+	fi; true
+	@echo $(DFLAGS) $(CFLAGS) >projects/.flags
+
+clean:
+	rm -rf $(CONFIG)/bin/ca.crt
+	rm -rf $(CONFIG)/bin/libmpr.so
+	rm -rf $(CONFIG)/bin/libmprssl.so
+	rm -rf $(CONFIG)/bin/libpcre.so
+	rm -rf $(CONFIG)/bin/libsqlite3.so
+	rm -rf $(CONFIG)/bin/sqlite
+	rm -rf $(CONFIG)/bin/libhttp.so
+	rm -rf $(CONFIG)/bin/http
+	rm -rf $(CONFIG)/bin/http-ca.crt
+	rm -rf $(CONFIG)/bin/libejs.so
+	rm -rf $(CONFIG)/bin/ejs
+	rm -rf $(CONFIG)/bin/ejsc
+	rm -rf $(CONFIG)/bin/ejs.mod
+	rm -rf $(CONFIG)/obj/estLib.o
+	rm -rf $(CONFIG)/obj/mprLib.o
+	rm -rf $(CONFIG)/obj/mprSsl.o
+	rm -rf $(CONFIG)/obj/manager.o
+	rm -rf $(CONFIG)/obj/makerom.o
+	rm -rf $(CONFIG)/obj/pcre.o
+	rm -rf $(CONFIG)/obj/sqlite3.o
+	rm -rf $(CONFIG)/obj/sqlite.o
+	rm -rf $(CONFIG)/obj/httpLib.o
+	rm -rf $(CONFIG)/obj/http.o
+	rm -rf $(CONFIG)/obj/ejsLib.o
+	rm -rf $(CONFIG)/obj/ejs.o
+	rm -rf $(CONFIG)/obj/ejsc.o
+	rm -rf $(CONFIG)/obj/removeFiles.o
+	rm -rf $(CONFIG)/obj/bit.o
+
+clobber: clean
+	rm -fr ./$(CONFIG)
+
+$(CONFIG)/bin/ca.crt: 
+	rm -fr $(CONFIG)/bin/ca.crt
+	cp -r src/deps/est/ca.crt $(CONFIG)/bin/ca.crt
+
+$(CONFIG)/inc/bitos.h: 
+	rm -fr $(CONFIG)/inc/bitos.h
+	cp -r src/bitos.h $(CONFIG)/inc/bitos.h
+
+$(CONFIG)/inc/mpr.h:  \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/bitos.h
+	rm -fr $(CONFIG)/inc/mpr.h
+	cp -r src/deps/mpr/mpr.h $(CONFIG)/inc/mpr.h
+
+$(CONFIG)/obj/mprLib.o: \
+        src/deps/mpr/mprLib.c \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/mpr.h
+	$(LDFLAGS)$(LDFLAGS)$(CC) -c -o $(CONFIG)/obj/mprLib.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/mpr/mprLib.c
+
+$(CONFIG)/bin/libmpr.so:  \
+        $(CONFIG)/inc/mpr.h \
+        $(CONFIG)/obj/mprLib.o
+	$(LDFLAGS)$(LDFLAGS)$(CC) -shared -o $(CONFIG)/bin/libmpr.so $(LIBPATHS) $(CONFIG)/obj/mprLib.o $(LIBS)
+
+$(CONFIG)/inc/est.h:  \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/bitos.h
+	rm -fr $(CONFIG)/inc/est.h
+	cp -r src/deps/est/est.h $(CONFIG)/inc/est.h
+
+$(CONFIG)/obj/mprSsl.o: \
+        src/deps/mpr/mprSsl.c \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/mpr.h \
+        $(CONFIG)/inc/est.h
+	$(LDFLAGS)$(LDFLAGS)$(CC) -c -o $(CONFIG)/obj/mprSsl.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/mpr/mprSsl.c
+
+$(CONFIG)/bin/libmprssl.so:  \
+        $(CONFIG)/bin/libmpr.so \
+        $(CONFIG)/obj/mprSsl.o
+	$(LDFLAGS)$(LDFLAGS)$(CC) -shared -o $(CONFIG)/bin/libmprssl.so $(LIBPATHS) $(CONFIG)/obj/mprSsl.o -lmpr $(LIBS)
+
+$(CONFIG)/inc/pcre.h:  \
+        $(CONFIG)/inc/bit.h
+	rm -fr $(CONFIG)/inc/pcre.h
+	cp -r src/deps/pcre/pcre.h $(CONFIG)/inc/pcre.h
+
+$(CONFIG)/obj/pcre.o: \
+        src/deps/pcre/pcre.c \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/pcre.h
+	$(LDFLAGS)$(LDFLAGS)$(CC) -c -o $(CONFIG)/obj/pcre.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/pcre/pcre.c
+
+$(CONFIG)/bin/libpcre.so:  \
+        $(CONFIG)/inc/pcre.h \
+        $(CONFIG)/obj/pcre.o
+	$(LDFLAGS)$(LDFLAGS)$(CC) -shared -o $(CONFIG)/bin/libpcre.so $(LIBPATHS) $(CONFIG)/obj/pcre.o $(LIBS)
+
+$(CONFIG)/inc/sqlite3.h:  \
+        $(CONFIG)/inc/bit.h
+	rm -fr $(CONFIG)/inc/sqlite3.h
+	cp -r src/deps/sqlite/sqlite3.h $(CONFIG)/inc/sqlite3.h
+
+$(CONFIG)/obj/sqlite3.o: \
+        src/deps/sqlite/sqlite3.c \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/sqlite3.h
+	$(LDFLAGS)$(LDFLAGS)$(CC) -c -o $(CONFIG)/obj/sqlite3.o -fPIC -Os -w $(DFLAGS) -I$(CONFIG)/inc src/deps/sqlite/sqlite3.c
+
+$(CONFIG)/bin/libsqlite3.so:  \
+        $(CONFIG)/inc/sqlite3.h \
+        $(CONFIG)/obj/sqlite3.o
+	$(LDFLAGS)$(LDFLAGS)$(CC) -shared -o $(CONFIG)/bin/libsqlite3.so $(LIBPATHS) $(CONFIG)/obj/sqlite3.o $(LIBS)
+
+$(CONFIG)/obj/sqlite.o: \
+        src/deps/sqlite/sqlite.c \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/sqlite3.h
+	$(LDFLAGS)$(LDFLAGS)$(CC) -c -o $(CONFIG)/obj/sqlite.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/sqlite/sqlite.c
+
+$(CONFIG)/bin/sqlite:  \
+        $(CONFIG)/bin/libsqlite3.so \
+        $(CONFIG)/obj/sqlite.o
+	$(LDFLAGS)$(LDFLAGS)$(CC) -o $(CONFIG)/bin/sqlite $(LIBPATHS) $(CONFIG)/obj/sqlite.o -lsqlite3 $(LIBS) -lsqlite3 -llxnet -lrt -lsocket -lpthread -lm -ldl 
+
+$(CONFIG)/inc/http.h:  \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/mpr.h
+	rm -fr $(CONFIG)/inc/http.h
+	cp -r src/deps/http/http.h $(CONFIG)/inc/http.h
+
+$(CONFIG)/obj/httpLib.o: \
+        src/deps/http/httpLib.c \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/http.h
+	$(LDFLAGS)$(LDFLAGS)$(CC) -c -o $(CONFIG)/obj/httpLib.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/http/httpLib.c
+
+$(CONFIG)/bin/libhttp.so:  \
+        $(CONFIG)/bin/libmpr.so \
+        $(CONFIG)/bin/libpcre.so \
+        $(CONFIG)/inc/http.h \
+        $(CONFIG)/obj/httpLib.o
+	$(LDFLAGS)$(LDFLAGS)$(CC) -shared -o $(CONFIG)/bin/libhttp.so $(LIBPATHS) $(CONFIG)/obj/httpLib.o -lpcre -lmpr $(LIBS)
+
+$(CONFIG)/obj/http.o: \
+        src/deps/http/http.c \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/http.h
+	$(LDFLAGS)$(LDFLAGS)$(CC) -c -o $(CONFIG)/obj/http.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/http/http.c
+
+$(CONFIG)/bin/http:  \
+        $(CONFIG)/bin/libhttp.so \
+        $(CONFIG)/obj/http.o
+	$(LDFLAGS)$(LDFLAGS)$(CC) -o $(CONFIG)/bin/http $(LIBPATHS) $(CONFIG)/obj/http.o -lhttp $(LIBS) -lpcre -lmpr -lhttp -llxnet -lrt -lsocket -lpthread -lm -ldl -lpcre -lmpr 
+
+$(CONFIG)/bin/http-ca.crt: 
+	rm -fr $(CONFIG)/bin/http-ca.crt
+	cp -r src/deps/http/http-ca.crt $(CONFIG)/bin/http-ca.crt
+
+$(CONFIG)/inc/ejs.slots.h:  \
+        $(CONFIG)/inc/bit.h
+	rm -fr $(CONFIG)/inc/ejs.slots.h
+	cp -r src/deps/ejs/ejs.slots.h $(CONFIG)/inc/ejs.slots.h
+
+$(CONFIG)/inc/ejs.h:  \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/bitos.h \
+        $(CONFIG)/inc/mpr.h \
+        $(CONFIG)/inc/http.h \
+        $(CONFIG)/inc/ejs.slots.h
+	rm -fr $(CONFIG)/inc/ejs.h
+	cp -r src/deps/ejs/ejs.h $(CONFIG)/inc/ejs.h
+
+$(CONFIG)/inc/ejsByteGoto.h: 
+	rm -fr $(CONFIG)/inc/ejsByteGoto.h
+	cp -r src/deps/ejs/ejsByteGoto.h $(CONFIG)/inc/ejsByteGoto.h
+
+$(CONFIG)/obj/ejsLib.o: \
+        src/deps/ejs/ejsLib.c \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/ejs.h \
+        $(CONFIG)/inc/mpr.h \
+        $(CONFIG)/inc/pcre.h \
+        $(CONFIG)/inc/sqlite3.h
+	$(LDFLAGS)$(LDFLAGS)$(CC) -c -o $(CONFIG)/obj/ejsLib.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/ejs/ejsLib.c
+
+$(CONFIG)/bin/libejs.so:  \
+        $(CONFIG)/bin/libhttp.so \
+        $(CONFIG)/bin/libpcre.so \
+        $(CONFIG)/bin/libmpr.so \
+        $(CONFIG)/bin/libsqlite3.so \
+        $(CONFIG)/inc/ejs.h \
+        $(CONFIG)/inc/ejs.slots.h \
+        $(CONFIG)/inc/ejsByteGoto.h \
+        $(CONFIG)/obj/ejsLib.o
+	$(LDFLAGS)$(LDFLAGS)$(CC) -shared -o $(CONFIG)/bin/libejs.so $(LIBPATHS) $(CONFIG)/obj/ejsLib.o -lsqlite3 -lmpr -lpcre -lhttp $(LIBS) -lpcre -lmpr
+
+$(CONFIG)/obj/ejs.o: \
+        src/deps/ejs/ejs.c \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/ejs.h
+	$(LDFLAGS)$(LDFLAGS)$(CC) -c -o $(CONFIG)/obj/ejs.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/ejs/ejs.c
+
+$(CONFIG)/bin/ejs:  \
+        $(CONFIG)/bin/libejs.so \
+        $(CONFIG)/obj/ejs.o
+	$(LDFLAGS)$(LDFLAGS)$(CC) -o $(CONFIG)/bin/ejs $(LIBPATHS) $(CONFIG)/obj/ejs.o -lejs $(LIBS) -lsqlite3 -lmpr -lpcre -lhttp -lejs -llxnet -lrt -lsocket -lpthread -lm -ldl -lsqlite3 -lmpr -lpcre -lhttp 
+
+$(CONFIG)/obj/ejsc.o: \
+        src/deps/ejs/ejsc.c \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/ejs.h
+	$(LDFLAGS)$(LDFLAGS)$(CC) -c -o $(CONFIG)/obj/ejsc.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/ejs/ejsc.c
+
+$(CONFIG)/bin/ejsc:  \
+        $(CONFIG)/bin/libejs.so \
+        $(CONFIG)/obj/ejsc.o
+	$(LDFLAGS)$(LDFLAGS)$(CC) -o $(CONFIG)/bin/ejsc $(LIBPATHS) $(CONFIG)/obj/ejsc.o -lejs $(LIBS) -lsqlite3 -lmpr -lpcre -lhttp -lejs -llxnet -lrt -lsocket -lpthread -lm -ldl -lsqlite3 -lmpr -lpcre -lhttp 
+
+$(CONFIG)/bin/ejs.mod:  \
+        $(CONFIG)/bin/ejsc
+	cd src/deps/ejs >/dev/null ;\
+		../../../$(CONFIG)/bin/ejsc --out ../../../$(CONFIG)/bin/ejs.mod --optimize 9 --bind --require null ejs.es ;\
+		cd - >/dev/null 
+
+$(CONFIG)/bin/bit.es: 
+	rm -fr $(CONFIG)/bin/bit.es
+	cp -r src/bit.es $(CONFIG)/bin/bit.es
+
+$(CONFIG)/bin/bits: 
+	cd . >/dev/null ;\
+		rm -fr ./$(CONFIG)/bin/bits ;\
+	cp -r bits ./$(CONFIG)/bin ;\
+		cd - >/dev/null 
+
+$(CONFIG)/obj/bit.o: \
+        src/bit.c \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/ejs.h
+	$(LDFLAGS)$(LDFLAGS)$(CC) -c -o $(CONFIG)/obj/bit.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/bit.c
+
+$(CONFIG)/bin/bit:  \
+        $(CONFIG)/bin/libmpr.so \
+        $(CONFIG)/bin/libhttp.so \
+        $(CONFIG)/bin/libejs.so \
+        $(CONFIG)/bin/bits \
+        $(CONFIG)/bin/bit.es \
+        $(CONFIG)/inc/bitos.h \
+        $(CONFIG)/obj/bit.o
+	$(LDFLAGS)$(LDFLAGS)$(CC) -o $(CONFIG)/bin/bit $(LIBPATHS) $(CONFIG)/obj/bit.o $(CONFIG)/obj/mprLib.o $(CONFIG)/obj/pcre.o $(CONFIG)/obj/httpLib.o $(CONFIG)/obj/sqlite3.o $(CONFIG)/obj/ejsLib.o $(LIBS) -llxnet -lrt -lsocket -lpthread -lm -ldl 
+
+version: 
+	cd bits >/dev/null ;\
+		@echo 0.8.0-0 ;\
+		cd - >/dev/null 
+

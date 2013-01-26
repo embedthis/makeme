@@ -1,0 +1,16 @@
+/*
+    package.bit
+ */
+
+Bit.load({
+    targets: {
+        removeFiles: {
+            enable: bit.platform.like == 'windows',
+            type: 'exe',
+            rule: 'gui'
+            sources: [ 'windows/removeFiles.c' ],
+            depends: [ 'libmpr' ],
+            platforms: [ 'local' ],
+        },
+    },
+})

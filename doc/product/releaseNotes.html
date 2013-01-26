@@ -1,0 +1,156 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis Build It! 0.8.0 Documentation</title>
+    <meta name="keywords" content="Bit, Build It!, JavaScript"/>
+	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
+	<meta name="robots" content="index,follow" />
+	<link href="../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../iehacks.css" rel="stylesheet" type="text/css" />
+    </![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo"  href="http://embedthis.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form">Loading</div>
+                <div class='version'>Embedthis Bit 0.8.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../index.html">Home</a>
+<!-- EndDsi -->
+             &gt; <b>Release Notes</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            <h1>Quick Nav</h1>
+            <ul>
+                <li><a href="#requirements">System Requirements</a></li>
+                <li><a href="#releaseBuild">Release Build</a></li>
+                <li><a href="#hints">Helpful Hints</a></li>
+                <li><a href="#limitations">Limitations and Special Notes</a></li>
+                <li><a href="#resolvedIssues">Resolved Issues</a></li>
+                <li style="list-style: none">
+                    <h1>See Also</h1>
+                    <ul>
+                        <li><a href="changeLog.html">Change Log</a></li>
+                        <li><a href="install/index.html">Installation Overview</a></li>
+                        <li><a href="../guide/ejs/source/building.html">Building Guide</a></li>
+                        <li><a href="../guide/ejs/source/porting.html">Porting Guide</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="contentLeft">
+            <h1>Release Notes</h1>
+            <p>Welcome to the Embedthis Ejscript&trade; installation release notes. This document provides
+            release-specific information for Ejscript.</p>
+            <p>This release is an preview release to enable developers to have early access to the Ejscript language.
+            It is currently pre-release and is incomplete in functionality, quality and compliance with the ECMAScript
+            3 specifications.</p>
+            <h2 class="section">Licensing</h2>
+            <p>This software is copyrighted and distributed under license. It is available under a GPLv2 open source
+            license and an optional <a href="http://embedthis.com/licensing/index.html">commercial license</a>.
+            Please read the LICENSE.md for details.</p>
+            <p>Ejscript includes support for several external packages such as MatrixSSL, OpenSSL and SQLite. These
+            packages have their own licenses. Make sure you check the packages license details to ensure you are
+            complying with their licenses.</p><a id="requirements"></a>
+            <h2 class="section">System Requirements</h2>
+            <p>Binary releases are supplied for the following operating systems.</p>
+            <ul>
+                <li>Windows (XP, Vista, Windows-7)</li>
+                <li>MAC OS X (Lion x64)</li>
+            </ul>
+            <p>The following operating systems may be supported by recompiling Ejscript from source.</p>
+            <ul>
+                <li>FreeBSD</li>
+                <li>Linux 2.4 and 2.6</li>
+                <li>VxWorks 5.4 and 6.X</li>
+                <li>Windows</li>
+            </ul>
+            <p>The following CPU architectures are supported: arm, mips, ppc, xscale, x86, x64, sparc.</p>
+            <h2 class="section">Run-time System Requirements</h2>
+            <p>To install Ejscript on a development system and run Ejscript programs, your system will need at least
+            the following:</p>
+            <ul>
+                <li>40 MB Disk</li>
+                <li>1 GB RAM</li>
+            </ul>
+            <p>To deploy Ejscript in an embedded environment, you will need at least the following:</p>
+            <ul>
+                <li>1-2 MB Disk / ROM space</li>
+                <li>2-4 MB RAM</li>
+            </ul>
+            <p>To rebuild Ejscript from source code, you will need at least</p>
+            <ul>
+                <li>60 MB disk space</li>
+            </ul>
+            <h2 class="section">Development Environment Hardware Platform Support</h2>
+            <p>If you wish to build Ejscript from source code, you will need to use a C compiler and associated
+            development tools. Several development environments are supported. You may choose any of the following to
+            compile and build samples and source code.</p>
+            <ul>
+                <li>UNIX/Linux GNU tools</li>
+                <li>Windows Visual Studio (Visual Studio 2008 and Visual Studio 2008 Express).</li>
+                <li>Windows XP with Cygwin UNIX emulation tools. See <a href=
+                "http://www.cygwin.com/">www.cygwin.com</a>.</li>
+                <li>WindRiver Tornado Development Tools.</li>
+            </ul><a id="releaseBuild"></a> <a id="hints"></a>
+            <h2 class="section">Helpful Hints</h2>
+            <h3>Debug Trace and Logging</h3>
+            <p>Ejscript has a debug logging and trace facility that can help when debugging configuration issues or
+            developing your application code that uses Ejscript. You can see each script statement as it is executed
+            and what byte codes the VM is executing. You can vary the level of logging via the <b>--log logfile</b>
+            command line switch for the <b>ejs</b> command. The log command line switch has the
+            format</p>
+            <blockquote>
+                <pre>
+ejs --log logFile:logLevel
+</pre>
+            </blockquote>
+            <p>The log level can be from 0 to 9, with 9 being the most verbose level. If compiling your scripts with
+            debug enabled via the --debug switch, a log level setting of 5 will trace each source statement and
+            assembly byte code to the log file.</p><a id="limitations"></a>
+            <!--
+            <h2 class="section">Limitations and Special Notes</h2>
+            <ul>
+                <li>This release snapshot is not yet fully compliant with ECMAscript 3. This will be rectified by the
+                1.0 release.</li>
+            </ul>
+            -->
+            
+            <a id="resolvedIssues"></a>
+            <h3>Resolved Issues</h3>
+            <p>See the new features and fixes in the <a href="changeLog.html">Change Log</a> document.</p>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2013. 
+            All rights reserved. Embedthis, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          'partner-pub-9935546676162772:ysvxxv4n9rx');
+
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+</body>
+</html>

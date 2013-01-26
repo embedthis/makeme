@@ -1,0 +1,45 @@
+/*
+    mpr.bit -- Bit File to build the combo MPR release
+ */
+
+Bit.load({
+
+    targets: {
+        libmpr: {
+            type: 'lib',
+            sources: [ 'mprLib.c' ],
+            headers: [ '*.h' ],
+        },
+
+        libmprssl: {
+            type: 'lib',
+            depends: [ 'libmpr', 'libest', 'openssl', 'matrixssl', 'mocana' ],
+            sources: [ 'mprSsl.c' ],
+        },
+
+        manager: {
+            enable: 'bit.settings.mpr.manager',
+            type: 'exe',
+            path: '${BIN}/${settings.mpr.manager}${EXE}'
+            rule: 'gui',
+            depends: [ 'libmpr' ],
+            sources: [ 'manager.c' ],
+            scripts: { prebuild: "if (bit.settings.mpr) { bit.settings.mpr.manager ||= 'manager'}" },
+        },
+
+        makerom: {
+            enable: 'bit.settings.rom',
+            type: 'exe',
+            depends: [ 'libmpr', ],
+            sources: ['makerom.c'],
+            platforms: [ 'local' ],
+        },
+	},
+
+    packs: {
+        est: {},
+        matrixssl: {},
+        openssl: {},
+        mocana: {},
+    },
+})

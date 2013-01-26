@@ -1,0 +1,55 @@
+<BODY><PRE>
+MAKEROM(1)                       User Commands                      MAKEROM(1)
+
+<B>NAME</B>
+       makerom - Compile files into C source code
+
+<B>SYNOPSIS</B>
+       <B>makerom [options] files ... &gtoutput.c</B>
+
+       [<I>--files fileList</I>] [<I>--name structName</I>] [<I>--prefix prefix</I>]
+
+<B>DESCRIPTION</B>
+       To  enable files to be accessed on embedded systems without a file sys-
+       tem, the <B>makerom </B>command converts arbitrary files into C code that  can
+       be  compiled and linked into a program. This is useful for applications
+       that must execute completely from ROM and not  access  a  file  system.
+       This  facility can also enhance security by preventing the modification
+       of files.
+
+       The MPR portable runtime provides routines which can  then  read  these
+       files much as you would read any file on disk.
+
+<B>OPTIONS</B>
+       <B>--files fileList</B>
+              Option to provide a list of files that should be converted.  <B>--p</B>
+              <B>prefix </B>Specifies a prefix to remove from each  of  the  compiled
+              file names.
+
+       <B>--name structName</B>
+              Specifies  the name of top level C structure that holds the con-
+              verted files.
+
+       <B>--prefix prefix</B>
+              Specifies a leading file name prefix to  remove  from  the  file
+              names.
+
+<B>EXAMPLE</B>
+       This  example  will  create  a list of web files and then convert these
+       files into C structures in the file romFiles.c.
+
+           find web -type f -print &gtfileList
+
+           makerom --files filelist &gtromFiles.c
+
+           cc -o romFiles.o romFiles.c
+
+<B>REPORTING BUGS</B>
+       Report bugs to &ltdev@embedthis.com&gt.
+
+<B>COPYRIGHT</B>
+       Copyright (C) 2003-2013 Embedthis Software.
+
+<B>SEE ALSO</B>
+makerom                           March 2013                        MAKEROM(1)
+</PRE></BODY>

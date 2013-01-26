@@ -1,0 +1,19 @@
+/*
+    link.pak - Linker package for Bit
+ */
+
+pack('link', 'Link Editor Program')
+
+let name = (bit.platform.like == 'windows') ? 'link.exe' : 'ld'
+let link = probe(name, {fullpath: true, search: bit.packs.compiler.search, default: name})
+
+if (bit.platform.dev == 'windows-x86' && bit.platform.arch == 'x64') {
+    if (!link.dirname.join('cvtres.exe').exists) {
+        stderr.writeLine()
+        trace('Warn', 'Can\'t  find cvtres.exe in link.dirname. Linking may not be successful.')
+        stderr.writeLine('This is a known issue with a missing cvtres.exe in the x86_64 Visual Studio directory.')
+        stderr.writeLine('Upgrade Visual Studio.\n')
+    }
+}
+
+Bit.load({packs: { link: { path: link }}})

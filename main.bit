@@ -1,0 +1,166 @@
+/*
+    main.bit -- Main Bit file for the Bit utility
+ */
+
+Bit.load({
+    blend: [
+        "src/deps/est/est.bit",
+        "src/deps/mpr/mpr.bit",
+        "src/deps/pcre/pcre.bit",
+        "src/deps/sqlite/sqlite.bit",
+        "src/deps/http/http.bit",
+        "src/deps/ejs/ejs.bit",
+        "package/package.bit",
+        "doc/doc.bit",
+        "${BITS}/embedthis.bit",
+    ],
+
+    '+modules': [
+        'support.es',
+    ],
+
+    customize: [
+        /* Optionally load this if present. Feel free to create and customize */
+        'custom.bit',
+    ],
+
+    settings: {
+        product: 'bit',
+        title: 'Embedthis Bit',
+        company: 'Embedthis',
+        version: '0.8.0',
+        buildNumber: '0',
+
+        sync: [ 'bitos', 'est', 'mpr', 'pcre', 'http', 'ejs' ],
+        packs: [ 'bits/packs' ],
+        /* Must build locally to build tools */
+        platforms: [ 'local' ],
+        static: false,
+        tune: 'size',
+
+        /*
+            Optional packs to automatically discover and configure
+         */
+        '+discover': [ 'dsi', 'ejscript', 'est', 'man', 'man2html', 'pmaker' ],
+        '+required': [ 'pcre', 'http', 'sqlite', 'ejscript' ],
+
+        /*
+            Packs to disable when using --without all
+         */
+        'without-all': [ 'dsi', 'est', 'man', 'man2html'],
+
+        /*
+            Packs to disable when using --without default (generating packages)
+         */
+        'without-default': [ 'dsi', 'est', 'man', 'man2html' ],
+    },
+
+    targets: {
+        'bit.es': {
+            type: 'file',
+            precious: true,
+            files: [ 'src/bit.es' ],
+            platforms: [ 'local' ],
+        },
+
+        'bit': {
+            type: 'exe',
+            path: '${BIN}/bit${EXE}',
+            headers: [ 'src/*.h' ],
+            sources: [ 'src/*.c' ],
+            static: true,
+            active: true,
+            precious: true,
+            depends: [ 'libmpr', 'libhttp', 'libejs', 'bits', 'bit.es' ],
+            platforms: [ 'local' ],
+        },
+
+        bits: {
+            path: '${BIN}/bits',
+            files: [ 'bits/**' ],
+            precious: true,
+            build: "
+                trace('Copy', 'Bit bits')
+                rmdir(bit.dir.lib.join('bits'))
+                mkdir(bit.dir.lib.join('bits'))
+                cp('bits', bit.dir.lib)
+            "
+            'generate-nmake': '\
+                if exist "${BIN}\\bits" rd /Q /S "${BIN}\\bits"
+                if not exist "${BIN}\\bits" md "${BIN}\\bits"
+                xcopy /S /Y "bits" "${BIN}\\bits"
+            ',
+            'generate-sh': "\
+                rm -fr ${BIN}/bits
+                cp -r bits ${BIN}
+            ",
+            platforms: [ 'local' ],
+        },
+
+        install: {
+            depends: ['build'],
+            action: "installBinary()",
+        },
+
+        package: {
+            enable: "'${OS}' == 'linux' || '${OS}' == 'macosx' || '${OS}' == 'windows'",
+            depends: ['packageBinary', 'packageSource'],
+        },
+
+        packageBinary: {
+            depends: ['build'],
+            action: "packageBinaryFiles()",
+        },
+
+        packageSource: {
+            depends: ['build'],
+            action: "packageSourceFiles()",
+        },
+
+        uninstall: {
+            action: "uninstallBinary()"
+        },
+
+        testPackage: {
+            type: 'test',
+            action: "
+                let package = packageName()
+                if (!package || !package.exists || bit.settings.depth < 2) {
+                    trace('Test', 'testPackage -- SKIPPED (Runs at depth 2 on windows or macosx)')
+                } else {
+                    if (Config.OS == 'macosx' && App.uid != 0) {
+                        trace('Test', 'testPackage -- SKIPPED (Must run as root)')
+                    } else {
+                        trace('Test', 'testPackage')
+                        if (bit.prefixes.bin.join('uninstall').exists) {
+                            trace('Test', 'Cleanup prior to installation')
+                            uninstallPackage()
+                            checkUninstalled()
+                        }
+                        installPackage()
+                        if (missing = checkInstalled()) {
+                            trace('Test', 'Install is missing files: ' + missing)
+                        }
+                        let s = bit.settings
+                        trace('Test', 'bit -V')
+                        assert(Cmd.run([bit.prefixes.bin.join('bit'), '-V']).trim() == s.version + '-' + s.buildNumber)
+                        uninstallPackage()
+                        if (Config.OS == 'windows') App.sleep(1000)
+                        if (existing = checkUninstalled()) {
+                            trace('Warning', 'The uninstall for testPackage was not clean: ' + existing)
+                        } else {
+                            trace('Test', 'Uninstall is clean')
+                        }
+                    }
+                }
+            ",
+        },
+    },
+    packs: {
+        est: {},
+        matrixssl: {},
+        openssl: {},
+        mocana: {},
+        _sqlite: { enable: false },
+    },
+})

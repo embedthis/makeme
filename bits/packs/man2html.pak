@@ -1,0 +1,6 @@
+/*
+    man2html.pak - Strip package for Bit
+ */
+
+program('man2html', 'Manual Page to HTML Converter')
+

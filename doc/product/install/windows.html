@@ -1,0 +1,144 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis Build It! 0.8.0 Documentation</title>
+    <meta name="keywords" content="Bit, Build It!, JavaScript"/>
+	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
+	<meta name="robots" content="index,follow" />
+	<link href="../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../iehacks.css" rel="stylesheet" type="text/css" />
+    </![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo"  href="http://embedthis.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form">Loading</div>
+                <div class='version'>Embedthis Bit 0.8.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt; <a href="index.html">Installation</a> &gt; <b>Installing on Windows</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            <h1>Quick Nav</h1>
+            <ul>
+                <li><a href="#exe">Installing the EXE Image</a></li>
+                <li><a href="#removing">Removing Ejscript</a></li>
+                <li><a href="#silentInstallation">Silent Installation</a></li>
+                <li><a href="#running">Running Ejscript</a></li>
+            </ul>
+            <h1>See Also</h1>
+            <ul>
+                <li><a href="../changeLog.html">Change Log</a></li>
+                <li><a href="../releaseNotes.html">Release Notes</a></li>
+                <li><a href="index.html">Installation Overview</a></li>
+                <li><a href="linux.html">Installing on Linux</a></li>
+                <li><a href="mac.html">Installing on MAC OS X</a></li>
+                <li><a href="packages.html">Supporting Packages</a></li>
+            </ul>
+        </div>
+        <div class="contentLeft">
+            <h1>Installing on Windows</h1>
+            <p>The Ejscript install package for Windows is an installation executable compressed in a ZIP file called:</p>
+            <pre>
+ejs-VERSION-BUILD-ms-windows-CPU.exe.zip
+</pre>
+            <p>The distribution image contains the binary distribution, documentation and development libraries and
+            headers in the one package. During installation you will have the option of installing the full package or
+            portions of the distribution.</p><a id="exe"></a>
+            <h2 class="section">Installing the EXE Image</h2>
+            <ol>
+                <li>Login with administrator privileges.</li>
+                <li>Run winzip and extract the contents of the zipped EXE install image to a folder of your
+                choosing.</li>
+                <li>Browse to the location holding the EXE install image and run it.</li>
+            </ol><a id="removing"></a>
+            <h2 class="section">Removing Ejscript</h2>
+            <ol>
+                <li>Login with administrator privileges</li>
+                <li>Run the <b>Add / Remove Programs</b> applet from the <b>control panel</b>.</li>
+                <li>Select <b>Embedthis Ejscript</b> and choose remove.</li>
+            </ol><a id="silentInstallation"></a>
+            <h2 class="section">Silent Installation</h2>
+            <p>If you need to do batch or unattended installations, you can install Ejscript silently. Use the /silent
+            switch to suppress questions and /verysilent to suppress all visual output.</p><a id="running"></a>
+            <h2 class="section">Running Ejscript</h2>
+            <p>To run the ejs shell:</p>
+            <ol>
+                <li>Select Program Files &gt; Embedthis Ejscript &gt; Embedthis Ejscript Shell:</li>
+                <li>A command.com window will appear</li>
+                <li>To exit the application, close the window</li>
+            </ol><img src="../../images/windows-ejs.jpg" alt="windows" />
+            <h3>Other Commands</h3>
+            <p>The installation will install five commands:</p>
+            <table title="commands">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>bit</td>
+                    <td>The bit build and configuration tool is used to configure and build products. It is a
+                        modern replacement for autoconf and make.</td>
+                </tr>
+                <tr>
+                    <td>ejs</td>
+                    <td>The Ejscript command shell. This command can parse and execute ejs scripts from files or typed
+                    interactively on the console. This command contains both the Ejscript compiler and virtual
+                    machine.</td>
+                </tr>
+                <tr>
+                    <td>ejsc</td>
+                    <td>The Ejscript compiler. This command can compile scripts into byte code form for later running
+						via the <em>ejs</em> command.</td>
+                </tr>
+                <tr>
+                    <td>ejsmod</td>
+                    <td>The Ejscript module manager. This command generates assembler source code listings, HTML
+                    documentation and symbolic slot offset header files.</td>
+                </tr>
+                <tr>
+                    <td>mvc</td>
+					<td>The Ejscript Model-View-Controller web framework generator and manager. This command assists to
+						create Ejscript Web applications that use the Ejscript Web Framework.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2013. 
+            All rights reserved. Embedthis, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          'partner-pub-9935546676162772:ysvxxv4n9rx');
+
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+</body>
+</html>

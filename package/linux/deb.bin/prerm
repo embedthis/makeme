@@ -1,0 +1,32 @@
+#!/bin/sh
+# 	prerm -- Pre removal script for Ejscript
+#
+#	Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
+#
+
+BIT_PRODUCT=${settings.product}
+BIT_NAME="${settings.title}"
+BIT_BIN_PREFIX="${prefixes.bin}"
+BIT_CFG_PREFIX="${prefixes.config}"
+
+###############################################################################
+#
+#	Main
+#
+cd /
+action=$1
+case $action in
+	remove)					# when new
+        "$BIT_BIN_PREFIX/linkup" Remove /
+		;;
+	upgrade)				# when old
+        "$BIT_BIN_PREFIX/linkup" Remove /
+		;;
+	failed-upgrade)			# when new
+		oldVersion=$2
+		;;
+	deconfigure)			# when old
+		# 	deconfigure in-favor package-being-installed version removing 
+		#	conflicting-package version
+esac
+exit 0

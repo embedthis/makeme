@@ -1,0 +1,14 @@
+#!/bin/bash
+#
+#	postflight -- Post flight script for binary install
+#	Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
+#
+###############################################################################
+
+PKG_DIR="$1"
+INS_DIR="$2"
+BIN_DIR="${prefixes.bin}"
+
+${BIN_DIR}/linkup Install
+
+exit 0

@@ -1,0 +1,73 @@
+/*
+    standard.bit -- Standard Build Settings and Targets
+ */
+
+Bit.load({
+	dir: {
+		cfg:    '${platform.name}',
+		bin:    '${dir.cfg}/bin',
+        flat:   '${dir.cfg}/flat',
+		inc:    '${dir.cfg}/inc',
+		lib:    '${dir.cfg}/bin',
+		obj:    '${dir.cfg}/obj',
+        packs:  '../packages-${platform.name}',
+        pkg:    '${dir.cfg}/pkg',
+		proj: 	'${dir.top}/projects',
+        rel:    '${dir.top}/releases',
+	},
+
+    defaults: {
+        '+includes': [
+            '${dir.inc}',
+        ],
+    },
+
+    targets: {
+        clean: {
+            action: "
+                action('cleanTargets')
+                safeRemove('${REL}')
+                safeRemove('${PKG}')
+                safeRemove('${FLAT}')
+            ",
+        },
+
+        clobber: {
+            depends: ['clean'],
+            action: "
+                rmdir(['${TOP}/*-*-debug', '${TOP}/*-*-release'])
+                rm('${TOP}/*-*.bit')
+                rmdir('${TOP}/releases')
+            "
+        },
+
+        compile: {
+            depends: ['build'],
+        },
+
+        configure: {
+            type: 'configure',
+        },
+
+        reconfigure: {
+            type: 'reconfigure',
+        },
+
+        dump: {
+            type: 'dump',
+        },
+
+        generate: {
+            type: 'generate',
+        },
+
+        rebuild: {
+            type: 'rebuild',
+        },
+
+        version: {
+            action: "print(bit.settings.version)",
+            generate: "@echo ${settings.version}-${settings.buildNumber}",
+        },
+    },
+})

@@ -1,0 +1,236 @@
+/*
+    compiler.pak - Compile package for Bit
+ */
+
+pack('compiler', "C/C++ Compiler")
+
+let cc: Path?
+let platform = bit.platform
+let path: Path? = bit.packs.compiler.path
+let settings = getDefaultSettings(platform)
+
+try {
+    if (platform.like == 'posix') {
+        path ||= (platform.os == 'macosx') ? 'clang' : 'gcc'
+        try {
+            /* Try this, because when cross-generating we won't be able to find compiler */
+            cc = probe(path, {fullpath: true})
+            Bit.load({packs: { compiler: { path: cc }}})
+        } catch {}
+
+    } else if (platform.like == 'windows') {
+        let search
+        let vsdir: Path
+        if (Config.OS == 'windows') {
+            /*
+                The VS bin+lib directories contain 32 bit compilers and libraries
+                The native VS 64 bit versions are under bin/amd64 and lib/x64
+                The cross compile for 64 bit on 32 bit systems is under bin/x86_64 and lib/x64
+                The cross compile for 32 bit on 64 bit systems can use the default 32 bit bin + lib
+
+                See: http://msdn.microsoft.com/en-us/library/x4d2c09s(v=vs.80).aspx
+                Also: http://blogs.msdn.com/b/david.wang/archive/2006/03/26/howto-detect-process-bitness.aspx
+             */
+            search = bit.dir.programs.files('Microsoft Visual Studio*/VC/Bin').sort().reverse()
+            if (!search || search.length == 0) {
+                throw 'Can\'t find Visual Studio installation'
+            }
+            vsdir = Path(search[0]).parent.parent
+            if (platform.arch == 'x64') {
+                if (Config.CPU == 'x64') {
+                    /* Running on a 64 bit */
+                    search = search.map(function(e) Path(e).join('amd64'))
+                } else {
+                    /* Cross compile for 64 bits on 32 bits */
+                    search = search.map(function(e) Path(e).join('x86_amd64'))
+                }
+            }
+        }
+        let vv: Path = Path('$(VS)')
+        let vsbin, vslib, defs, version
+        if (Config.OS != 'windows') {
+            cc = 'cl.exe'
+            vsdir = vv
+            vsbin = vsdir.join('VC/Bin'),
+            vslib = vsdir.join('VC/lib')
+            defs = []
+            version = 0
+        } else {
+            path ||= 'cl.exe'
+            cc = probe(path, {fullpath: true, search: search})
+            vsbin = cc.dirname
+            if (bit.platform.arch == 'x64') {
+                vslib = vsbin.join('../../lib/amd64').normalize
+            } else {
+                vslib = vsbin.join('../lib').normalize
+            }
+            version = vsdir.name.match(/\d*\.\d/)[0]
+            defs = [ '-DBIT_VISUAL_STUDIO_VERSION="' + version + '"']
+        }
+        Bit.load({packs: { compiler: { path: cc, dir: vsdir, search: search, definitions: defs, version: version }}})
+        bit.env.PATH += [
+            vsbin,
+            vsdir.join('Common7/IDE'),
+            vsdir.join('Common7/Tools'),
+            vsdir.join('SDK/v3.5/bin'),
+            vsdir.join('VC/VCPackages'),
+        ]
+        bit.env.INCLUDE += [
+            vsdir.join('VC/INCLUDE')
+        ]
+        bit.env.LIB += [ vslib ]
+
+    } else if (platform.os == 'vxworks') {
+        if (!path) {
+            if (platform.arch.match(/^i386$|^i486$$/)) {
+                path = 'cc386'
+            } else if (platform.arch.match(/^i[56]86$|^pentium$|^x86$/)) {
+                path = 'ccpentium'
+            } else if (platform.arch.match(/^ppc/)) {
+                path = 'ccppc'
+            } else if (platform.arch.match(/^xscale|^arm/)) {
+                path = 'ccarm'
+            } else if (platform.arch.match(/^68/)) {
+                path = 'cc68k'
+            } else if (platform.arch.match(/^sh/)) {
+                path = 'ccsh'
+            } else if (platform.arch.match(/^mips$/)) {
+                path = 'ccmips'
+            } else {
+                throw 'Unsupported CPU architecture: ' + platform.arch
+            }
+        }
+        cc = probe(path, {fullpath: true, search: bit.packs.vxworks.search})
+        bit.env.WIND_CCNAME = path.basename
+        Bit.load({packs: { compiler: { path: cc, name: path.basename }}})
+    }
+
+    if (bit.options.gen && Config.OS != platform.os) {
+        /* Can't sleuth when generating for a cross-platform */
+
+    } else if (cc && (platform.like == 'posix' || (platform.os == 'vxworks' && Config.OS == 'linux'))) {
+        settings.hasDoubleBraces = compile(cc, '', '#include <stdarg.h>\nva_list d = {{0}};')
+        settings.hasMtune = compile(cc, '-mtune=generic', 'int main() { return 0;}')
+        settings.hasStackProtector = compile(cc, '-fno-stack-protector', 'int main() { return 0;}')
+        settings.hasSync = compile(cc, '', '#include <stdio.h>\nint main() { __sync_synchronize(); return 0; }')
+        settings.warnUnused = compile(cc, '-Wno-unused-result',
+            '#include <stdio.h>\n#include <stdlib.h>\nint main() { realloc(0, 1024); return 0; }')
+        settings.warn64to32 = compile(cc, '-Wshorten-64-to-32', 'int main() { return 0;}')
+
+        if (platform.os != 'vxworks') {
+            settings.hasLibRt = compile(cc, '',
+                '#define _GNU_SOURCE\n#include <time.h>\nint main() { struct timespec tv; clock_gettime(CLOCK_REALTIME, &tv); return 0; }')
+            settings.hasDynLoad = compile(cc, '',
+                '#include <stdio.h>\n#include <dlfcn.h>\nint main() { dlopen(\"test.so\", 0); return 0; }')
+            settings.hasLibEdit = compile(cc, '',
+                '#include <histedit.h>\nint main() { history_init(); return 0; }')
+            settings.hasMmu = compile(cc, '',
+                '#include <stdio.h>\n#include <unistd.h>\nint main() { fork(); return 0; }')
+            settings.hasPam = compile(cc, '',
+                '#include <security/pam_appl.h>\nint main() { void *x = pam_start; return x != 0; }')
+            settings.hasSyncCas = compile(cc, '',
+                '#include <stdio.h>\nint main() { void *ptr = 0; __sync_bool_compare_and_swap(&ptr, ptr, ptr); return 0; }')
+            settings.hasUnnamedUnions = compile(cc, '', 
+                '#include <stdio.h>\nint main() { struct test { union { int x; int y; };}; return 0; }')
+        }
+    }
+} catch (e) { print("bit compiler.pak error: ", e)}
+
+Bit.load({ settings: settings })
+
+/*
+    Test compile to determine supported compiler switches
+ */
+function compile(cc: Path, command: String, contents: String = null): Boolean {
+    let file
+    if (contents) {
+        //  TODO - refactor dir for temp file
+        file = Path('/tmp/bit-' + App.pid + '.c')
+        if (bit.platform.os == 'VXWORKS') {
+            contents = '#define _VSB_CONFIG_FILE "vsbConfig.h\n' + contents
+        }
+        file.write(contents + '\n')
+        command += ' -c ' + file
+    }
+    command = '' + cc + ' -Werror -Wall ' + command
+    strace('Compile', command)
+    strace('Program', contents)
+    let cmd
+    try {
+        cmd = new Cmd
+        cmd.env = bit.env
+        cmd.start(command)
+        if (cmd.status != 0) {
+            strace('Result', '  ' + cmd.error)
+        }
+    } finally {
+        if (file) {
+            file.remove()
+            file.basename.replaceExt('o').remove()
+        }
+    }
+    return cmd.status == 0
+}
+
+
+function getDefaultSettings(platform) {
+    let settings
+    if (platform.like == 'windows') {
+        settings = {
+            hasDynLoad: true,
+            hasLibEdit: false,
+            hasLibRt: false,
+            hasMmu: true,
+            hasUnnamedUnions: true,
+        }
+    } else if (platform.os == 'linux') {
+        settings = {
+            hasDoubleBraces: false,
+            hasDynLoad: true,
+            hasLibEdit: false,
+            hasLibRt: true,
+            hasMmu: true,
+            hasMtune: true,
+            hasPam: false,
+            hasStackProtector: true,
+            hasSync: true,
+            hasSyncCas: false,
+            hasUnnamedUnions: true,
+            warn64to32: false,
+            warnUnused: true,
+        }
+    } else if (platform.os == 'macosx') {
+        settings = {
+            hasDoubleBraces: true,
+            hasLibEdit: true,
+            hasLibRt: false,
+            hasDynLoad: true,
+            hasMmu: true,
+            hasMtune: true,
+            hasPam: false,
+            hasStackProtector: true,
+            hasSync: true,
+            hasSyncCas: true,
+            hasUnnamedUnions: true,
+            warn64to32: false,
+            warnUnused: false,
+        }
+    } else {
+        settings = {
+            hasDoubleBraces: true,
+            hasLibEdit: false,
+            hasLibRt: false,
+            hasDynLoad: true,
+            hasMmu: true,
+            hasMtune: true,
+            hasPam: false,
+            hasStackProtector: true,
+            hasSync: false,
+            hasSyncCas: false,
+            hasUnnamedUnions: true,
+            warn64to32: false,
+            warnUnused: false,
+        }
+    }
+    return settings
+}

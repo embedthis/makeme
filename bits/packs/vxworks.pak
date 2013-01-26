@@ -1,0 +1,81 @@
+/*
+    vxworks.pak - VxWorks tools
+ */
+
+pack('vxworks', 'VxWorks SDK')
+let path: Path? = bit.packs.vxworks.path
+if (!path) {
+    /*
+        Search for WorkBench/Tornado in common places
+     */
+    let search = []
+    let base = App.getenv('WIND_BASE')
+    if (base) {
+        search += [base]
+    }
+    for each (drive in (FileSystem.drives() - ['A', 'B'])) {
+        search += Path(drive + ':/').files('WindRiver/vxworks-*')
+    }
+    search += Path('/WindRiver').files('vxworks-*') +
+        Path('/usr/src/WindRiver').files('vxworks-*') +
+        Path(App.getenv('HOME') + '/WindRiver').files('vxworks-*')
+    path = probe('target/h/vxWorks.h', {search: search.sort().reverse()})
+}
+
+let cfg = {
+    dir: path,
+    path: path,
+    includes: [ path.join('target/h'), path.join('target/h/wrn/coreip') ],
+}
+
+Bit.load({packs: { vxworks: cfg}})
+
+bit.env.WIND_BASE = path
+bit.env.WIND_HOME = path.dirname
+bit.env.WIND_PLATFORM = path.basename
+
+if (Config.OS == 'windows') {
+    bit.env.WIND_HOST_TYPE = 'x86-win32'
+
+} else if (Config.OS == 'linux') {
+    if (path.join('host/x86-linux').exists) {
+        bit.env.WIND_HOST_TYPE = 'x86-linux'
+    } else if (path.join('host/x86-linux2').exists) {
+        bit.env.WIND_HOST_TYPE = 'x86-linux2'
+    } else {
+        throw 'Can\'t determine the WIND_HOST_TYPE'
+    }
+
+} else if (Config.OS == 'solaris') {
+    bit.env.WIND_HOST_TYPE = 'solaris2'
+
+} else {
+    throw bit.platform.os + ' is not a supported O/S for VxWorks cross compilation'
+}
+
+let version: String = path.basename.toString().split('-')[1]
+let major: Number = version.split('.')[0] cast Number
+
+let env = bit.env
+if (major >= 6) {
+    env.WIND_HOME = path.dirname
+    env.WIND_GNU_PATH = path.dirname.files('gnu/*-' + env.WIND_PLATFORM).sort().reverse()[0]
+    bit.packs.vxworks.search = [
+        env.WIND_GNU_PATH.join(env.WIND_HOST_TYPE, 'bin'),
+        env.WIND_GNU_PATH.join(env.WIND_HOST_TYPE, bit.platform.arch + '-wrs-vxworks/bin'),
+        env.WIND_BASE.join('host', env.WIND_HOST_TYPE, 'bin'),
+        env.WIND_BASE.join('/host/resource/hutils/tcl'),
+        env.WIND_HOME.files('workbench*/foundation/' + env.WIND_HOST_TYPE + '/bin').sort().reverse()[0],
+    ]
+} else {
+    env.WIND_HOME = path
+    env.WIND_GNU_PATH = ''
+    bit.packs.vxworks.search = [
+        env.WIND_BASE.join('host', env.WIND_HOST_TYPE, 'bin'),
+        env.WIND_BASE.join('/host/resource/hutils/tcl'),
+        env.WIND_HOME.files('workbench*/foundation/' + env.WIND_HOST_TYPE + '/bin').sort().reverse()[0],
+    ]
+}
+bit.env.DIST = 'WindRiver'
+bit.env.DIST_VER = version
+// bit.env.DIST_MAJOR = major

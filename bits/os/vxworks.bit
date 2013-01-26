@@ -1,0 +1,90 @@
+/*
+    vxworks.bit -- VxWorks Settings
+ */
+Bit.load({
+    blend: [    
+        'gcc.bit',
+    ],
+    ext: {
+        exe:   'out',
+        lib:   'a',
+        res:   'res',
+        o:      'o',
+        shlib: 'out',
+        shobj: 'out',
+    },
+
+    prefixes: {
+        config:     '/etc/${settings.product}',
+        product:    '/usr/lib/${settings.product}',
+        productver: '${prefixes.product}/${settings.version}',
+        bin:        '${prefixes.productver}/${platform.name}/bin',
+        inc:        '${prefixes.productver}/${platform.name}/inc',
+        log:        '/var/log/${settings.product}',
+        spool:      '/var/spool/${settings.product}',
+        src:        '/usr/src/${settings.product}-${settings.version}',
+        web:        '/var/www/${settings.product}-default',
+        bin:        '${prefixes.productver}/${platform.name}/bin',
+    },
+
+    settings: {
+        /* Order matters */
+        '+required': [ 'vxworks', 'compiler', 'lib', 'link' ],
+    },
+
+    defaults: {
+        '+defines': [
+            '-DVXWORKS',
+            '-DRW_MULTI_THREAD',
+            '-D_GNU_TOOL',
+        ],
+        '+compiler': [
+            '-fno-builtin',
+             '-fno-defer-pop',
+             '-fvolatile',
+        ],
+        '+libraries': [ 'gcc' ],
+        '+libpaths': [ ],
+        '+linker': [ '-Wl,-r' ],
+        scripts: {
+            '+preblend': "
+                //  TODO - move to pack
+                let defaults = bit.defaults
+                let arch = bit.platform.arch
+                let cpu
+                if (arch == 'i386') {
+                    cpu = 'I80386'
+                } else if (arch == 'i486') {
+                    cpu = 'I80486'
+                } else if (arch.match(/^i.86$|^x86$/)) {
+                    cpu = 'PENTIUM'
+                } else {
+                    /* Set to compiles don't fail */
+                    cpu = arch.toUpper()
+                    if (arch == 'mips') {
+                        cpu = 'mips32'
+                    } else if (arch == 'arm') {
+                        cpu = 'ARM7TDMI'
+                    }
+                }
+                cpu = bit.platform.cpu || cpu
+                defaults.defines.push('-DCPU=' + cpu.toUpper())
+                if (arch.match(/mips/)) {
+                    /* Don't use mips global pointer */
+                    defaults.compiler.push('-G 0')
+                }
+                defaults.includes += bit.packs.vxworks.includes
+                defaults.libpaths.push(bit.dir.lib)
+            ",
+        },
+    },
+    rules: {
+        'c->c':   '${packs.compiler.path} -E ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${IN}',
+        'c->o':   '${packs.compiler.path} -c -o ${OUT} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${IN}',
+        'cpp->o': '${packs.compiler.path} -c -o ${OUT} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${IN}',
+        'shlib':  '${packs.compiler.path} -r -o ${OUT} ${LDFLAGS} ${LIBPATHS} ${IN} ${LIBS}'
+        'lib':    '${packs.lib.path} -cr ${OUT} ${IN}'
+        'exe':    '${packs.compiler.path} -o ${OUT} ${LDFLAGS} ${LIBPATHS} ${IN} ${LIBS} ${LDFLAGS}'
+        'gui':    '${packs.compiler.path} -o ${OUT} ${LDFLAGS} ${LIBPATHS} ${IN} ${LIBS} ${LDFLAGS}'
+    },
+})

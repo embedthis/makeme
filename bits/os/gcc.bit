@@ -1,0 +1,75 @@
+/*
+    gcc.bit -- GCC Build Settings
+ */
+
+Bit.load({
+    defaults: {
+        '+compiler': [ '-Wall' ],
+        '+defines':  [ '-D_REENTRANT' ],
+        '+libraries':[],
+        '+libpaths':[],
+        '+linker':[],
+
+        scripts: {
+            '+preblend': "
+                let arch = bit.platform.arch
+                let defaults = bit.defaults
+                blend(defaults, {
+                    '+compiler': [], '+defines': [], '+libraries': [], '+libpaths': [], '+linker': []}, {combine: true}
+                )
+                if (bit.platform.os == 'linux') {
+                    defaults.linker.push('-rdynamic')
+                }
+                if (bit.platform.os != 'vxworks') {
+                    defaults.compiler.push('-fPIC')
+                    defaults.defines.push('-DPIC')
+                    defaults.libraries += ['pthread', 'm']
+                }
+                if (bit.settings.hasLibRt) {
+                    defaults.libraries += ['rt']
+                }
+                if (bit.settings.hasDynLoad) {
+                    defaults.libraries += ['dl']
+                }
+                if (bit.settings.preprocess) {
+                    defaults.compiler.push('-E')
+                }
+                defaults.libpaths.push(bit.dir.lib)
+                if (bit.settings.debug) {
+                    defaults.defines.push('-DBIT_DEBUG')
+                    defaults.compiler.push('-g')
+                    defaults.linker.push('-g')
+                } else if (bit.settings.tune == 'size') {
+                    defaults.compiler.push('-Os')
+                } else {
+                    defaults.compiler.push('-O2')
+                }
+                if (bit.settings.warnUnused) {
+                    defaults.compiler.push('-Wno-unused-result')
+                }
+                if (bit.settings.warn64to32) {
+                    defaults.compiler.push('-Wshorten-64-to-32')
+                }
+                if (arch.startsWith('arm')) {
+                    defaults.compiler.push('-mno-sched-prolog')
+                } else if (arch.startsWith('ppc')) {
+                    defaults.defines.push('-D_GNU_TOOL')
+                }
+            ",
+        },
+    },
+    rules: {
+        'c->c':   '${packs.compiler.path} -E ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${IN}',
+        'c->o':   '${packs.compiler.path} -c -o ${OUT} ${MTUNE} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${IN}',
+        'cpp->o': '${packs.compiler.path} -c -o ${OUT} -arch ${CC_ARCH} ${MTUNE} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${IN}',
+        'shlib':  '${packs.compiler.path} -shared -o ${OUT} ${LDFLAGS} ${LIBPATHS} ${IN} ${LIBS}',
+        'lib':    '${packs.lib.path} -cr ${OUT} ${IN}',
+        'exe':    '${packs.compiler.path} -o ${OUT} ${LDFLAGS} ${LIBPATHS} ${IN} ${LIBS} ${LIBS} ${LDFLAGS}',
+        'gui':    '${packs.compiler.path} -o ${OUT} ${LDFLAGS} ${LIBPATHS} ${IN} ${LIBS} ${LIBS} ${LDFLAGS}'
+        'res':    '${packs.rc.path} -o ${OUT} ${IN}',
+    },
+    ccArch: {
+        x86: 'i686',
+        x64: 'x86_64',
+    },
+})

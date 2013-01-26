@@ -1,0 +1,17 @@
+Package: ${settings.product}
+Version: ${settings.version}
+Section: devel
+Priority: optional
+Architecture: ${platform.mappedCpu}
+Depends: libc6
+Provides: ejs
+Replaces: ejs, ejs-dev, ejs-bin
+Conflicts: ejs, ejs-dev, ejs-bin
+Installed-Size: 10
+Maintainer: Embedthis Development <dev@embedthis.com>
+Description: Embedthis Ejscript
+ Ejscript is a powerful server-side JavaScript language and web framework suitable for dynamic web applications.
+ .
+ more information about Ejscript can be found at:
+ <URL:http://ejscript.org>
+ <URL:http://embedthis.com>

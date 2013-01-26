@@ -1,0 +1,96 @@
+/*
+    simple.bit -- Build configuration setup for stand-alone bit files.
+ */
+
+Bit.load({
+	dir: {
+		cfg:   '.',
+		bin:   '.',
+		inc:   '.',
+		lib:   '.',
+		obj:   '.',
+	},
+
+    targets: {
+        clean: {
+            action: "action('cleanTargets')",
+        },
+
+        compile: {
+            depends: ['build'],
+        },
+
+        rebuild: {
+            type: 'rebuild',
+        },
+    },
+
+    packs: {
+        compiler: {
+            enable: true,
+            path: "cc",
+        },
+    },
+
+    scripts: {
+        onload: "
+            bit.settings.version ||= '1.0.0'
+            if (bit.platform.like == 'windows') {
+                settings = {
+                    hasMmu: true,
+                    hasPam: false,
+                    hasDynLoad: true,
+                    hasUnnamedUnions: true,
+                }
+                bit.packs.compiler.path = 'cl.exe'
+
+            } else if (bit.platform.os == 'linux') {
+                settings = {
+                    hasDoubleBraces: false,
+                    hasDynLoad: true,
+                    hasLibEdit: false,
+                    hasMmu: true,
+                    hasMtune: true,
+                    hasPam: false,
+                    hasStackProtector: true,
+                    hasSync: true,
+                    hasSyncCas: true,
+                    hasUnnamedUnions: true,
+                    warn64to32: false,
+                    warnUnused: true,
+                }
+            } else if (bit.platform.os == 'macosx') {
+                settings = {
+                    hasDoubleBraces: true,
+                    hasLibEdit: true,
+                    hasDynLoad: true,
+                    hasMmu: true,
+                    hasMtune: true,
+                    hasPam: true,
+                    hasStackProtector: true,
+                    hasSync: true,
+                    hasSyncCas: true,
+                    hasUnnamedUnions: true,
+                    warn64to32: false,
+                    warnUnused: false,
+                }
+            } else {
+                settings = {
+                    hasDoubleBraces: true,
+                    hasLibEdit: false,
+                    hasDynLoad: true,
+                    hasMmu: true,
+                    hasMtune: true,
+                    hasPam: false,
+                    hasStackProtector: true,
+                    hasSync: true,
+                    hasSyncCas: true,
+                    hasUnnamedUnions: true,
+                    warn64to32: false,
+                    warnUnused: false,
+                }
+            }
+            blend(bit.settings, settings)
+        ",
+    },
+})

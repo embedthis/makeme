@@ -1,0 +1,79 @@
+/*
+    macosx.bit -- MAC OS X Settings
+ */
+
+Bit.load({
+    blend: [    
+        'posix.bit',
+    ],
+
+    ext: {
+        'shlib': 'dylib',
+        'shobj': 'dylib',
+    },
+
+    defaults: {
+        '+compiler': [ 
+            '-Wall',
+            '-Wno-deprecated-declarations',
+        ],
+        '+defines':  [ ],
+        '+libraries':[ 'pthread', 'm' ],
+        '+libpaths': [ ],
+        'linker':    [
+            '-Wl,-rpath,@executable_path/',
+            '-Wl,-rpath,@loader_path/',
+        ],
+        scripts: {
+            'preblend': "
+                let defaults = bit.defaults
+                let arch = bit.platform.arch
+                defaults.libpaths.push(bit.dir.bin)
+                if (bit.settings.hasDynLoad) {
+                    defaults.libraries.push('dl')
+                }
+                if (bit.settings.preprocess) {
+                    defaults.compiler.push('-E')
+                } else {
+                    if (!defaults['override-compiler']) {
+                        if (bit.settings.debug) {
+                            defaults.compiler += ['-g']
+                            defaults.linker.push('-g')
+                            defaults.defines.push('-DBIT_DEBUG')
+                        } else if (bit.settings.tune == 'size') {
+                            defaults.compiler += ['-Os']
+                        } else {
+                            defaults.compiler += ['-O3']
+                        }
+                        if (bit.settings.warnUnused) {
+                            defaults.compiler.push('-Wno-unused-result')
+                        }
+                        if (bit.settings.warn64to32) {
+                            defaults.compiler.push('-Wshorten-64-to-32')
+                        }
+                    }
+                }
+            ",
+            'prebuild': "
+                if (bit.target.type == 'lib') {
+                    bit.target.linker.push('-compatibility_version ' + bit.settings.version)
+                    bit.target.linker.push('-current_version ' + bit.settings.version)
+                }
+            ",
+        },
+    },
+
+    rules: {
+        'c->c':   '${packs.compiler.path} -E -arch ${CC_ARCH} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${IN}',
+        'c->o':   '${packs.compiler.path} -c -o ${OUT} -arch ${CC_ARCH} ${MTUNE} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${IN}',
+        'cpp->o': '${packs.compiler.path} -c -o ${OUT} -arch ${CC_ARCH} ${MTUNE} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${IN}',
+        'shlib':  '${packs.compiler.path} -dynamiclib -o ${OUT} -arch ${CC_ARCH} ${LDFLAGS} ${LIBPATHS} -install_name @rpath/${LIBNAME} ${IN} ${LIBS}',
+        'lib':    '${packs.lib.path} -cr ${OUT} ${IN}',
+        'exe':    '${packs.compiler.path} -o ${OUT} -arch ${CC_ARCH} ${LDFLAGS} ${LIBPATHS} ${IN} ${LIBS}',
+        'gui':    '${packs.compiler.path} -o ${OUT} -arch ${CC_ARCH} ${LDFLAGS} ${LIBPATHS} ${IN} ${LIBS}',
+    },
+    ccArch: {
+        x86: 'i686',
+        x64: 'x86_64',
+    },
+})

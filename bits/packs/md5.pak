@@ -1,0 +1,15 @@
+/*
+    md5.pak - Strip package for Bit
+ */
+
+pack('md5', 'Message Digest Tool')
+
+let path = bit.packs.md5.path || 'md5'
+let md5 = probe(path, {'continue': true, fullpath: true})
+if (!md5) md5 = probe('md5sum', {'continue': true, fullpath: true})
+if (!md5) {
+    /* This will throw */
+    probe('md5sum')
+}
+Bit.load({packs: { md5: {path: md5}}})
+

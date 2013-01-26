@@ -1,0 +1,84 @@
+/*
+    mocana.pak -- Mocana NanoSSL package search
+ */
+
+pack('mocana', 'Mocana NanoSSL (SSL)')
+
+if (bit.packs.ssl && bit.packs.ssl.enable === false) {
+    throw "SSL has been disabled"
+}
+if (bit.packs.est && bit.packs.est.enable && bit.packs.est.explicit && !bit.packs.mocana.explicit) {
+    throw "Disable mocana. Defer to EST SSL"
+}
+
+let path: Path? = bit.packs.mocana.path
+if (!path) {
+    if (bit.dir.packs.join('mocana/latest').exists && Config.OS != 'windows') {
+        path = bit.dir.packs.join('mocana/latest')
+    } else {
+        let versions = sortVersions(bit.dir.packs.join('mocana').files('mocana-5*'))
+        if (!versions.length || versions.length == 0) {
+            throw 'Can\'t find Mocana NanoSSL'
+        }
+        path = versions[0]
+    }
+}
+
+let cfg = {}
+if (bit.platform.os == 'windows') {
+    let search = [path.join('bin')]
+    let lib = probe('libssls.lib', {fullpath: true, search: search}).absolute
+    let dir = lib.parent
+    search = [path.join('src')]
+    let incdir = probe('common/moptions.h', {search: search}).absolute
+    cfg = {
+        dir: dir,
+        path: path,
+        defines: [ '-D__RTOS_OSX__', '-D__ENABLE_MOCANA_SSL_SERVER__', '-D__ENABLE_ALL_DEBUGGING__', 
+            '-D__ENABLE_MOCANA_DEBUG_CONSOLE__', '-D__MOCANA_DUMP_CONSOLE_TO_STDOUT__',
+            '-D__ENABLE_MOCANA_PEM_CONVERSION__']
+        includes: [ incdir ],
+        libraries: [ 'ssls' ],
+        libpaths: [ lib.parent ],
+        imports: [ lib ],
+    }
+
+} else if (bit.platform.os == 'macosx') {
+    let search = [path.join('bin')]
+    let lib = probe('libssls.a', {fullpath: true, search: search}).absolute
+    let dir = lib.parent
+    let search = [path.join('src')]
+    let incdir = probe('common/moptions.h', {search: search}).absolute
+    cfg = {
+        dir: dir,
+        path: path,
+        defines: [ '-D__RTOS_OSX__', '-D__ENABLE_MOCANA_SSL_SERVER__', '-D__ENABLE_ALL_DEBUGGING__', 
+            '-D__ENABLE_MOCANA_DEBUG_CONSOLE__', '-D__MOCANA_DUMP_CONSOLE_TO_STDOUT__',
+            '-D__ENABLE_MOCANA_PEM_CONVERSION__']
+        includes: [ incdir ],
+        libraries: [ 'ssls' ],
+        libpaths: [ lib.parent ],
+        imports: [ lib ]
+    }
+
+} else {
+    let search = [path.join('bin')]
+    let lib = probe('libssls.a', {fullpath: true, search: search}).absolute
+    let dir = lib.parent
+    search = [path.join('src')]
+    let incdir = probe('common/moptions.h', {search: search}).absolute
+    cfg = {
+        dir: dir,
+        path: path,
+        defines: [ '-D__RTOS_OSX__', '-D__ENABLE_MOCANA_SSL_SERVER__', '-D__ENABLE_ALL_DEBUGGING__', 
+            '-D__ENABLE_MOCANA_DEBUG_CONSOLE__', '-D__MOCANA_DUMP_CONSOLE_TO_STDOUT__',
+            '-D__ENABLE_MOCANA_PEM_CONVERSION__']
+        includes: [ incdir ],
+        libraries: [ 'ssls' ],
+        libpaths: [ lib.parent ],
+        imports: [ lib ],
+    }
+}
+let template = {packs: { mocana: cfg}}
+Bit.load(template)
+bit.settings.ssl = true

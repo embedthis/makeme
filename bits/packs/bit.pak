@@ -1,0 +1,11 @@
+/*
+    bit.pak - Build It.
+ */
+
+let MIN_BIT = bit.settings.bit || '2.0.1'
+let path = program('bit', 'Build It tool')
+let version = [MIN_BIT, Cmd.run([path, '-V']).trim()].sort(null, -1)[0]
+
+if (version == MIN_BIT) {
+    throw 'Please upgrade \"bit\" to ' + MIN_BIT + '\n'
+}

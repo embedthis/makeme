@@ -1,0 +1,30 @@
+#!/bin/sh
+#
+#   configure -- Configure for building
+#
+#   Configure will invoke bit configure to prepare for building. If bit is not installed,
+#   configuration is not required. Variables can be passed to make to modify the build.
+#
+NAME=bit
+OS=`uname | sed 's/CYGWIN.*/windows/;s/Darwin/macosx/' | tr '[A-Z]' '[a-z]'`
+PROFILE=debug
+EXT=mk
+MIN_BIT=0.8.0
+
+if ! type bit >/dev/null 2>&1 ; then
+    echo '' >&2
+    echo "To configure ${NAME}, the \"bit\" tool is required. You can continue with a" >&2
+    echo 'default build by using make.' >&2
+    make help
+    exit 0
+fi
+
+ver=`(echo $MIN_BIT ; bit -V) | sort -r | head -n 1`
+if [ "${MIN_BIT}" = "${ver}" ] ; then
+    echo Please upgrade \"bit\" to $MIN_BIT
+    exit 255
+fi
+if [ -f start.bit ] ; then
+    bit clean >/dev/null 2>&1
+fi
+bit configure "$@"

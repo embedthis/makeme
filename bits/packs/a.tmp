@@ -1,0 +1,3 @@
+if (bit.packs.est && bit.packs.est.enable && !bit.packs.est.explicit) {
+    bit.packs.ets.enable = false
+}

@@ -1,0 +1,36 @@
+/*
+    pmaker.pak - Utilities to make distribution packages 
+ */
+
+pack('pmaker', 'Package Maker Tool')
+
+let path
+switch (bit.platform.os) {
+case 'macosx':
+    let search = [
+        '/Applications', 
+        '/Applications/Utilities', 
+        '/Xcode4/Applications/Utilities', 
+        '/Developer/Applications/Utilities' 
+    ]
+    path = probe(bit.packs.pmaker.path || 'PackageMaker.app', {fullpath: true, search: search})
+    path = path.join('Contents/MacOS/PackageMaker')
+    break
+
+case 'windows':
+    let search = bit.dir.programs.files('Inno Setup*').sort().reverse()
+    path = probe(bit.packs.pmaker.path || 'iscc.exe', {fullpath: true, search: search})
+    break
+
+case 'linux':
+    if (bit.platform.dist == 'ubuntu') {
+        path = probe(bit.packs.pmaker.path || 'dpkg', {fullpath: true})
+    } else if (bit.platform.dist == 'fedora') {
+        path = probe(bit.packs.pmaker.path || 'rpmbuild', {fullpath: true})
+    }
+    break
+}
+
+if (path) {
+    Bit.load({packs: { pmaker: {path: path}}})
+}

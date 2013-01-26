@@ -1,0 +1,17 @@
+/*
+    linux.bit -- Linux Settings
+ */
+
+Bit.load({
+    blend: [    
+        'posix.bit',
+        'gcc.bit',
+    ],
+    defaults: {
+        '+linker': [ 
+            '-Wl,--enable-new-dtags', 
+            '-Wl,-rpath,$ORIGIN/',
+            '-Wl,-rpath,$ORIGIN/../bin',
+        ],
+    },
+})

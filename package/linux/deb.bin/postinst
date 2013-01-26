@@ -1,0 +1,31 @@
+#!/bin/sh
+# 	postinst -- Post installation script for Ejscript
+#
+#	Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
+#
+
+BIT_PRODUCT=${settings.product}
+BIT_NAME="${settings.title}
+BIT_BIN_PREFIX="${prefixes.bin}"
+
+###############################################################################
+#
+#	Main
+#
+
+cd /
+action=$1
+
+case $action in
+	configure)							# when new
+        "$BIT_BIN_PREFIX/linkup" Install /
+        echo
+		echo "$BIT_NAME installation successful."
+		;;
+	abort-upgrade)						# when old
+		;;
+	abort-remove)
+		# 	sometimes conflictor's-postinst abort-remove in-favor package new-version
+		;;
+esac
+exit 0

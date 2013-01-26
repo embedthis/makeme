@@ -1,0 +1,79 @@
+/*
+    matrixssl.pak -- MatrixSSL package search
+ */
+
+pack('matrixssl', 'MatrixSSL (SSL)')
+
+if (bit.packs.ssl && bit.packs.ssl.enable === false) {
+    throw "SSL has been disabled"
+}
+if (bit.packs.est && bit.packs.est.enable && bit.packs.est.explicit && !bit.packs.matrixssl.explicit) {
+    throw "Disable matrixssl. Defer to EST SSL"
+}
+
+let path: Path? = bit.packs.matrixssl.path
+if (!path) {
+    if (bit.dir.packs.join('matrixssl/latest').exists && Config.OS != 'windows') {
+        path = bit.dir.packs.join('matrixssl/latest')
+    } else {
+        let versions = sortVersions(bit.dir.packs.join('matrixssl').files('matrixssl-3*'))
+        if (!versions.length || versions.length == 0) {
+            throw 'Can\'t find matrixssl'
+        }
+        path = versions[0]
+    }
+}
+
+let cfg = {}
+if (bit.platform.os == 'windows') {
+    let search = [path.join('Release') ]
+    let lib = probe('libmatrixssl.dll', {fullpath: true, search: search}).absolute
+    let dir = lib.parent.parent
+    search = [path.join('matrixssl')]
+    let incdir = probe('matrixsslApi.h', {search: search}).absolute
+    cfg = {
+        dir: dir,
+        path: path,
+        defines: [ '-DWIN32', '-DMATRIX_USE_FILE_SYSTEM' ],
+        includes: [ incdir, incdir.parent ],
+        libraries: [ 'libmatrixssl.lib' ],
+        libpaths: [ lib.parent ],
+        imports: [ lib, lib.replaceExt('lib') ]
+    }
+
+} else if (bit.platform.os == 'macosx') {
+    let search = [path]
+    let lib = probe('libmatrixssl.dylib', {fullpath: true, search: search}).absolute
+    let dir = lib.parent
+    let search = [path.join('matrixssl')]
+    let incdir = probe('matrixsslApi.h', {search: search}).absolute
+    cfg = {
+        dir: dir,
+        path: path,
+        defines: [ '-DPOSIX', '-DMATRIX_USE_FILE_SYSTEM' ],
+        includes: [ incdir, incdir.parent ],
+        libraries: [ 'matrixssl' ],
+        libpaths: [ lib.parent ],
+        imports: [ lib ]
+    }
+
+} else {
+    let search = [path]
+    let lib = probe('libmatrixssl.so', {fullpath: true, search: search}).absolute
+    let dir = lib.parent.parent
+    search = [path.join('matrixssl')]
+    let incdir = probe('matrixsslApi.h', {search: search}).absolute
+    cfg = {
+        dir: dir,
+        path: path,
+        defines: [ '-DPOSIX', '-DMATRIX_USE_FILE_SYSTEM' ],
+        includes: [ incdir, incdir.parent ],
+        libraries: [ 'matrixssl' ],
+        libpaths: [ lib.parent ],
+        imports: [ lib ],
+    }
+}
+
+let template = {packs: { matrixssl: cfg}}
+Bit.load(template)
+bit.settings.ssl = true

@@ -1,0 +1,963 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis Build It! 0.8.0 Documentation</title>
+    <meta name="keywords" content="Bit, Build It!, JavaScript"/>
+	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
+	<meta name="robots" content="index,follow" />
+	<link href="doc.css" rel="stylesheet" type="text/css" />
+	<link href="print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="iehacks.css" rel="stylesheet" type="text/css" />
+    </![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo"  href="http://embedthis.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form">Loading</div>
+                <div class='version'>Embedthis Bit 0.8.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="index.html">Home</a>
+<!-- EndDsi -->
+             &gt;<a href="index.html">User Guide</a>&gt; <b>Bit</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            
+                <h1>Quick Nav </h1>
+                <ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#whyBit">Why Bit?</a></li>
+<li><a href="#features">Features</a></li>
+<li><a href="#niceBits">Nice Bits</a></li>
+<li><a href="#simpleBitFile">Simple Bit File</a></li>
+<li><a href="#invocation">Invocation</a></li>
+<li><a href="#stylesOfUse">Styles of Use</a></li>
+<li><a href="#targets">Targets</a></li>
+<li><a href="#configuring">Configuring</a></li>
+<li><a href="#crossCompiling">Cross-Compiling</a></li>
+<li><a href="#projectGeneration">Project Generation</a></li>
+<li><a href="#dependencies">Dependencies</a></li>
+<li><a href="#defaultProperties">Default Properties</a></li>
+<li><a href="#bitFiles">Bit Files</a></li>
+<li><a href="#loadOrder">Load Order</a></li>
+<li><a href="#propertyBlending">Property Blending</a></li>
+<li><a href="#tokenExpansion">Token Expansion</a></li>
+<li><a href="#propertyCollections">Property Collections</a></li>
+<li><a href="#targetTypes">Target Types</a></li>
+<li><a href="#buildingTargets">Building Targets</a></li>
+<li><a href="#selectingTargets">Selecting Targets</a></li>
+<li><a href="#buildEvents">Build Events</a></li>
+<li><a href="#scripts">Scripts</a></li>
+<li><a href="#debugging">Debugging</a></li>
+<li><a href="#commandOptions">Command Options</a></li>
+<li><a href="#learnMore">Learn More</a></li>
+<li><a href="#example">Example</a></li>
+                </ul>
+                <h1>See Also</h1>
+                <ul>
+                  <li><a href="../../../guide/ejs/overview.html">Ejscript Overview</a></li>
+                  <li><a href="../../../guide/ejs/features.html">Language Features</a></li>
+                  <li><a href="../../../guide/ejs/users/compiler.html">Using the Compiler</a></li>
+                  <li><a href="../../../guide/ejs/users/shell.html">Command Shell</a></li>
+                </ul>
+        </div>
+        <div class="contentLeft">
+            <h1>Building with Bit</h1>
+            <p>Bit means <em>Build It</em>, and it is a modern replacement for the venerable 
+            <a href="http://en.wikipedia.org/wiki/Make_(software)">make</a> and not so popular 
+            <a href="http://en.wikipedia.org/wiki/Autoconf">autoconf</a> utilities. Bit manages the building of
+            programs and products by simply and efficiently determining which pieces have been updated and thus which
+            components need to be rebuilt. It easily handles the direct compilation and generation of projects.</p>
+        <a id="overview"></a>
+        <h2>Overview</h2>
+        <p>Bit parses bit files that have a <em>.bit</em> extension. Bit files are  are JavaScript files that 
+            load a JavaScript literal that describes what to build. Arbitrary JavaScript is permitted in bit files, but 
+            typically little script code is needed.</p>
+        <p>Bit files specify targets to build. These can be libraries, executables or other actions to be run. Bit has
+        built-in rules to compile source code, build libraries, executables, copy files, build packages and generate IDE
+        projects. So you need to type very little to do the common tasks of building.</p>
+        <p>Bit files can intelligently inherit global settings for a project and can override or augment values
+        locally. Bit files run with a current directory set to that of the bit file itself, so it can reference
+        easily reference local resources. Bit projects are fully relocatable and avoid absolute directory
+        references.</p>
+        <p>Bit searches for required and optional tools and supports a "configure" phase for building. Bit supports
+        cross-platform building by determining the required compiler switches, file extensions and installation
+        directories.</p>
+        <a id="whyBit"></a>
+        <h2>Why Bit?</h2>
+        <p>Many projects rely on autoconf to configure products and make to build. But autoconf is a baroque maze of
+        scripts and make is provides too little support for easily building executable and libraries in a cross platform
+        manner. Further, neither of these tools work well for Windows and embedded platforms like VxWorks. 
+        Consequently, creating portable Makefiles and autoconf scripts that will work on a variety of platforms
+        and support cross compilation is an exercise in patience. Often the result is slow, fragile build
+        systems, especially on Windows.</p>
+        <p>Bit replaces both autoconf and make with a single utility: <em>bit</em>. Bit provides a higher level of
+        abstraction to easily specify the targets to build (libraries and executables). It can build directly on Linux,
+        Mac or Windows and cross compile for other platforms. It will generate native projects for Visual Studio,
+        XCode, Make, Nmake and shell scripts. Bit builds fast without the complexity of autoconf and
+        make.</p>
+        <p>Bit was initiated after evaluating Make, CMake and GYP for use by Appweb and Ejscript in an embedded,
+        cross compilation environment. While all three can be made to work, we were expending a large percentage of
+        time on the build system and less on the actual product. Our design goals were:</p>
+        <ul>
+            <li>Easily manage cross-compilation and cross-compilers</li>
+            <li>Support discovery, configuration and integration of external third-party packages</li>
+            <li>Generate native projects for IDE integration</li>
+            <li>Build quickly on windows without relying on Cygwin</li>
+            <li>Support for the entire build cycle: C dependencies, compilation, test and packaging</li>
+            <li>Be hackable and extendable</li>
+        </ul>
+        <a id="features"></a>
+        <h2>Features</h2>
+        <p>Bit is implemented primarily as a single Ejscript of some 3K lines and is very hackable. It has the
+        following major features:</p>
+        <ul>
+            <li>Configuration and component discovery (replaces autoconf)</li>
+            <li>Compiler capability sleuthing</li>
+            <li>Generation of a configuration source header (bit.h)</li>
+            <li>Generation of Xcode, Visual Studio, Make, Nmake and shell script projects</li>
+            <li>Automatic C/C++ source code dependencies</li>
+            <li>Cross platform. Easily handles Windows, Linux and Mac builds</li>
+            <li>Easy cross-compilation</li>
+            <li>Building outside source tree for read-only file systems</li>
+            <li>Bit files are JavaScript source and are easily modified and extended</li>
+            <li>Multiple build profiles (debug, release, ...)</li>
+            <li>Very fast configuration and building times, even on windows</li>
+       </ul>
+       <a id="niceBits"></a>
+       <h2>Nice Bits</h2>
+       <p>While Bit has a strong feature set, there are some characteristics that make building with Bit especially
+       nice:</p>
+       <ul>
+           <li>Unified project view. No "make" style recursion required.</li>
+           <li>Bit configuration may be comprised by multiple bit files</li>
+           <li>Bit file targets and scripts are relative to their own directory</li>
+           <li>Targets can be named symbolically not just by the target path.</li>
+           <li>Bit provides a "why" option (bit --why) to display why a target was or was not rebuilt</li>
+           <li>Bit files and targets intelligently inherit of outer project properties</li>
+           <li>Bit scripts run using the working directory of the bit file</li>
+        </ul>
+        <a id="simpleBitFile"></a>
+        <h2>Simple Bit File</h2>
+        <p>A bit file is a JavaScript file with a <em>.bit</em> extension that invokes Bit.load() to process a set of build
+        instructions. The build instructions are expressed as a JavaScript object literal that is supplied via
+        the Bit.load() call.</p>
+        <pre>
+Bit.load({
+    targets: {
+        /* Build the rocket executable */
+        rocket: {
+            type: 'exe',
+            sources: ['*.c'],
+        },
+    }, 
+})
+</pre>
+        <p>To build the rocket, enter:</p>
+        <pre>bit rocket</pre>
+        <a id="invocation"></a>
+        <h2>Invocation</h2>
+        <p>When bit is invoked, it searches for a <em>start.bit</em> file in the current directory. If one if not found, it
+        searches up the parent directory chain for one. Bit then loads this start.bit file and commences processing
+        its build instructions. A start.bit file may in turn load other bit files.</p>
+        <a id="stylesOfUse"></a>
+        <h2>Styles of Use</h2>
+        <p>There are two styles of use for Bit:</p>
+        <ul>
+            <li>Standalone Use</li>
+            <li>Configured Use</li>
+        </ul>
+        <h3>Standalone Use</h3>
+        <p>A standalone start.bit file may be used to express simple build targets that do not requiring any prior
+        configuration step. The start.bit file contains targets that specify the recipes to build those targets.</p>
+        <h3>Configured Use</h3>
+        <p>Some products/projects require a configuration phase prior to building with Bit. Configuration involves discovering
+        the tools and components available on the current system and the available compiler tool chain support. For
+        configured products, Bit is first invoked with a <em>configure</em> target. Bit then reads a <em>main.bit</em> file which
+        describes the project, and generates a start.bit and platform bit file that describes the system.  Configured
+        use also supports cross-compilation and project file generation for use in IDEs.</p>
+        <a id="targets"></a>
+        <h2>Targets</h2>
+        <p>Bit is typically invoked with zero or more targets on the command line to build. If invoked with zero
+        targets, Bit will build all the out-of-date targets. If a one or more targets are specified, only those targets
+        will be brought up to date.</p>
+        <p>To build all targets: </p>
+            <pre>bit</pre>
+        <p>To build several named targets:</p>
+        <pre>bit libengine librocket space-program</pre>
+        <p>Bit pre-defines several special targets:</p>
+        <ul>
+            <li>configure &mdash; To configure prior to building</li>
+            <li>build &mdash; To build all targets</li>
+            <li>compile &mdash; Same as 'build'</li>
+            <li>clean &mdash; To clean built targets and prepare for rebuilding</li>
+            <li>rebuild &mdash; Clean and build</li>
+        </ul>
+        <a id="configuring"></a>
+        <h2>Configuring</h2>
+        <p>To configure a product before building, run Bit using the <em>configure</em> target or alternatively use the
+        <em>--config</em> switch. When configuring, Bit will determine the capabilities of the current system and search
+        for extension packs. It will then create will create a platform configuration bit file that documents the
+        current system.  The build output directory is of the form: OS-ARCH-PROFILE.
+        It will also create a build output directory and a bit.h header. </p>
+        <p>When configuring, Bit will load the <em>main.bit</em> file to determine how to configure the build. It will
+        use the settings.required and settings.optional properties in the main.bit file for the list of required tools and
+        extension packages to locate. Bit will search for these packages and will create definitions in the platform bit
+        file for each package/tool.</p>
+        
+        <p>For example, this is a typical <em>settings</em> configuration:</p>
+<pre>
+settings: {
+    product: 'mpr',
+    title: 'Multithreaded Portable Runtime',
+    company: 'Embedthis',
+    version: '4.0.5',
+    buildNumber: '4',
+    '+required': [ 'utest' ],
+    '+optional':  [ 'doxygen', 'man', 'man2html', 'md5', 'openssl', 'ssl' ],
+},
+</pre>
+        <p>The <em>required</em> property defines the packages that are required to be present on the system to build. The
+        plus symbol (+) before these properties indicates that these values should be added to pre-defined values. 
+        Bit will define the required tools of <em>compiler</em> and <em>linker</em> as part of its standard definitions.</p>
+        <h3>Out-of-source Tree Builds</h3>
+        <p>Bit supports building from read-only source trees. To do this, use <em>bit -config path</em> when
+        configuring. Run this from a writable directory and reference the read-only source tree via the
+        <em>-config</em> switch. Bit will create the start.bit, platform bit file and platform output build directory in the
+        writable (current) directory. Thereafter run <em>bit</em> from the writable directory for all operations.</p>
+        <a id="crossCompiling"></a>
+        <h2>Cross-Compiling</h2>
+        <p>To build a product for platform different to that of the local system is called cross compiling.
+        Sometimes this cross compiling is just for a different instruction set (say x64 instead of x86). Other times
+        it is for a completely different operating system and/or CPU architecture. In such cases a cross-compiler
+        may be required to build for the target platform.</p>
+        <p>Bit supports cross compiling via the <em>bit --platform OS-ARCH configure</em> switch. This adds a platform to the
+        list of platforms to be made when building. Multiple platforms may be specified and the <em>local</em> platform alias
+        may be used for the local development platform.</p>
+       <p>Some products require local building to make tools that are required to build for any platform. These
+       products add a "platforms: ['local']" property to their settings collection in the main.bit file. This
+       automatically adds the local platform to the platforms list and is the same as adding <em>--platform local</em> on the
+       command line when configuring.</p>
+            <pre>bit --platform windows-x64 -configure .</pre>
+       <p>This will create a windows-x64.bit configuration file and a start.es that references it. The platform
+       switch does not need to be restated after configuration.</p>
+        <h2>Environment Variables</h2>
+        <p>Bit has default command paths and command flags for the compiler, linker and other tools. These can be overridden
+        by providing environment variables containing alternate flags to use. </p>
+        <p>Use the variables AR, CC and LD to specify the path to the archiver, compiler and linker tools.
+        Use CFLAGS to provide compiler flags, DFLAGS for
+        pre-processor definitions, IFLAGS for compiler include paths and LDFLAGS for linker flags.</p>
+        <p>If these flags are
+        provided to bit when building, they apply to that run only. If the flags are provide when configuring, they are
+        saved in the generated platform build file and apply to all subsequent runs.
+        For example:
+            <pre>CC=/path/to/compiler CFLAGS=-w bit configure</pre>
+        <a id="projectGeneration"></a>
+        <h2>Project Generation</h2>
+        <p>Bit can generate generate complete project files for building using: make, nmake, Visual Studio, Xcode or
+        plain shell scripts. Bit uses the <em>--gen</em> command line switch to specify the projects to build. Bit is capable of
+        cross-generating projects for non-native platforms. For example: you can generate an Xcode project for Mac OS
+        X on a Windows system.</p>
+            <pre>bit --continue --platform macosx-x64 configure -gen xcode,make,sh</pre>
+        <p>This will generate Xcode, make and shell script projects for a Mac OS X 64-bit. The <em>--continue</em> switch indicates
+        that generation should continue even if the required compilers and build tools are not present on the development system.</p>
+        <a id="dependencies"></a>
+        <h2>Dependencies</h2>
+        <p>Bit targets can depend on other targets that must be built first. Bit targets have a name which may be
+        depended upon by another target. For example:</p>
+<pre>
+targets {
+    first: {
+        build: "print('Build First')",
+    },
+    second: {
+        depends: ['first'],
+        build: "print('Build Second')",
+    }, 
+}
+</pre>
+        <p>Before Bit begins building, it parses the entire bit file configuration and determines which targets depend
+        on what. It then builds the targets in the required build order. It successfully detects and handles dependency
+        loops.</p>
+        <a id="defaultProperties"></a>
+        <h2>Default Properties</h2>
+        <p>Often targets need very similar configuration. Bit provides a <em>defaults</em> collection of properties that are inherited
+        by all targets. It also provides an <em>internal</em> collection of properties that are inherited by only the targets in the
+        same bit file. For example:</p>
+<pre>
+defaults: {
+    '+defines': [ '-DTUNE=SPEED ],
+    '+libraries': [ 'math' ],
+}
+</pre>
+        <p>This will use the <em>TUNE=SPEED</em> compiler definition when compiling all source files, and the
+        <em>math</em> library when
+        linking executables (and libraries on some systems).</p>
+        <a id="bitFiles"></a>
+        <h2>Bit Files</h2>
+        <p>A bit file is a JavaScript file that invokes <em>Bit.load</em> to supply build instructions. The argument to
+        Bit.load is a bit object literal. Typically this is expressed as a JavaScript object literal, but it could be
+        constructed in other ways via JavaScript code. A typically project may load many bit files that are blended
+        together into a single, unified view of project. This view is held in a global object called <em>bit</em>. Note
+        this is lower case. Use the 'bit --dump' command line option to save the unified project view in a dump file
+        that can be viewed in any source editor.</p>
+        <h3>Blending Bit Files</h3>
+        <p>Before Bit loads a bit file, it loads some standard definitions for the current operating system. These are
+        loaded from the bit installation directory or from the <em>bits</em> directory if the bit configuration has been
+        imported (see the --import switch). Bit files may specify other bit files to load via the <em>blend</em>
+        collection. For example:
+        <pre>
+Bit.load({
+    blend: [
+        'another.bit',
+    ],
+})
+</pre>
+        <a id="loadOrder"></a>
+        <h3>Load Order</h3>
+        <p>Bit files are loaded depth-first. This means that bit files specified in the blend[] collection will be
+        loaded first before the contents of the bit file that referenced them.  Run bit with the --verbose switch to see
+        what bit files are loaded and in what order.</p>
+        <a id="propertyBlending"></a>
+        <h3>Property Blending and Inheritance</h3>
+        <p>When a user bit literal is loaded, it is blended with existing bit configuration from previously loaded bit
+        files by overwriting or augmenting prior definitions. Bit facilitates this by extending the standard JSON syntax 
+        with blend prefixes: <em>+</em>, <em>-</em> and <em>=</em>. For example:
+        <pre>
+Bit.load({
+    defaults: {
+        '+defines': [ '-DMY_FEATURE=1' ],
+        '-compiler': [ '-Wall' ],
+    },
+    settings: {
+        title: "My App",
+    },
+})
+</pre>
+        <p>The <em>+defines</em> property will add <em>-DMY_FEATURE=1</em> to the list of compiler definitions. the
+        <em>-compiler</em> property will subtract <em>-Wall</em> from the list of compiler switches. Using a <em>=</em>
+        prefix will overwrite an existing property definition. The default is to overwrite property definitions. </p>
+        <p>The property prefixes are used for simple property key/value pairs. Objects and arrays always have their properties
+        blended (added).</p> 
+        <a id="tokenExpansion"></a>
+        <h3>Property Token Expansion</h3>
+        <p>To make it easy to dynamically compute file paths, strings have tokens automatically expanded. Tokens take
+the form: "${TOKEN}". For example:
+<pre>
+myTarget: {
+    enable: "'${OS}' == 'linux',
+    type: 'exe',
+    sources: [ '*.c' ],
+},
+</pre>
+        <p>Tokens are expanded using values from the <em>bit</em> global object. For example: OS is expanded using the
+        value of the bit.globals.OS property. Token expansion uses three sets of values:</p>
+        <ul>
+            <li>Top level bit.* properties</li>
+            <li>bit.globals.* properties</li>
+            <li>Rule specific tokens when compiling or linking</li>
+        </ul>
+        <p>The following bit.globals.* are defined for use by tokens:</p>
+        <table title="globals">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
+            <tr><td>ARCH</td><td>CPU architecture: x86, x64, ppc, ...</td></tr>
+            <tr><td>CONFIG</td><td>Platform configuration: OS-ARCH-PROFILE</td></tr>
+            <tr><td>EXE</td><td>Executable extension: .exe</td></tr>
+            <tr><td>GCC_ARCH</td><td>CPU architecture mapped to a GCC architecture: x86_64, i686, ...</td></tr>
+            <tr><td>LIKE</td><td>Set to windows or posix if relevant</td></tr>
+            <tr><td>O</td><td>Compiled object file extension: .o, .obj</td></tr>
+            <tr><td>OS</td><td>Operating system: linux, windows, ...</td></tr>
+            <tr><td>PLATFORM</td><td>Platform string: OS-ARCH</td></tr>
+            <tr><td>SHOBJ</td><td>Shared object extension: .so, .dll</td></tr>
+            <tr><td>SHLIB</td><td>Shared object library extension: .so, .lib</td></tr>
+            <tr><td>BIN</td><td>Binary outputs directory: OS-ARCH-PROFILE/bin</td></tr>
+            <tr><td>CFG</td><td>Configuration outputs directory: OS-ARCH-PROFILE</td></tr>
+            <tr><td>BITS</td><td>Directory holding standard bit files</td></tr>
+            <tr><td>INC</td><td>Standard include directory</td></tr>
+            <tr><td>OBJ</td><td>Directory holding compiled files: OS-ARCH-PROFILE/obj</td></tr>
+            <tr><td>PACKS</td><td>Directory holding bit package extension files</td></tr>
+            <tr><td>SRC</td><td>Directory of the source tree to be built</td></tr>
+            <tr><td>TOP</td><td>Top directory where the project is being built</td></tr>
+            </tbody>
+        </table>
+        
+        <a id="propertyCollections"></a>
+        <h3>Top Level Property Collections</h3>
+        <p>Here is a non-exhaustive description of the important top-level Bit property collections:</p>
+        
+        <table title="top-level collections">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>defaults</td><td>Default properties to be inherited by all targets</td></tr>
+                <tr><td>dir</td><td>Directories</td></tr>
+                <tr><td>ext</td><td>File extensions</td></tr>
+                <tr><td>globals</td><td>Global values to use in property token expansion</td></tr>
+                <tr><td>internal</td><td>Default properties to be inherited by only the targets in the same bit file</td></tr>
+                <tr><td>options</td><td>Supplied command line options</td></tr>
+                <tr><td>platform</td><td>Description of the current platform. Has properties for operating system
+                        and CPU architecture.</td></tr>
+                <tr><td>prefixes</td><td>Installation directory prefixes</td></tr>
+                <tr><td>rules</td><td>Command rules for compiling, building libraries and executables</td></tr>
+                <tr><td>packs</td><td>Discovered extension packs</td></tr>
+                <tr><td>blend</td><td>Bit files to blend</td></tr>
+                <tr><td>customize</td><td>Optional bit file to load after fully loading all blended bit files</td></tr>
+                <tr><td>settings</td><td>Project top-level settings. This includes name, version, description etc.</td></tr>
+                <tr><td>usage</td><td>Additional usage message to emit for bit command line errors</td></tr>
+                <tr><td>modules</td><td>Ejscript modules to load</td></tr>
+                <tr><td>profiles</td><td>Build profiles. Standard profiles are: debug and release</td></tr>
+                <tr><td>targets</td><td>Targets to build. Each target is its own collection of properties</td></tr>
+            </tbody>
+        </table>
+        <h3>Platform Collection</h3>
+        <p>The platform collection defines properties for:
+        <table title="platform collection">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>os</td><td>Operating system: linux, windows, vxworks, ...</td></tr>
+                <tr><td>arch</td><td>CPU architecture: arm, ppc, x64, x86, ...</td></tr>
+                <tr><td>like</td><td>Set to 'windows' or 'posix' if true</td></tr>
+                <tr><td>profile</td><td>Build profile selected: 'debug', 'release', ...</td></tr>
+            </tbody>
+        </table>
+        <h3>Packs Collection</h3>
+        <p>The packs collection defines a collection for each extension pack that bit examined when configuring. Each
+        pack will have properties for: 
+        <table title="packs collection">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>enable</td><td>Set to true if the pack was found on the system</td></tr>
+                <tr><td>description</td><td>Descriptive name of the pack</td></tr>
+                <tr><td>path</td><td>If found, the path to the pack directory or binary</td></tr>
+                <tr><td>compiler</td><td>Compiler options when building targets that depend on this pack</td></tr>
+                <tr><td>defines</td><td>Compiler definitions when building targets that depend on this pack</td></tr>
+                <tr><td>includes</td><td>Compiler include directories to use when building targets that depend on this
+                        pack</td></tr>
+                <tr><td>libraries</td><td>Libraries to link with when building targets that depend on this pack</td></tr>
+                <tr><td>libpaths</td><td>Library search paths to use when building targets that depend on this pack</td></tr>
+                <tr><td>linker</td><td>Linker options to use when building targets that depend on this pack</td></tr>
+                <tr><td>imports</td><td>Files to import from this pack before building</td></tr>
+            </tbody>
+        </table>
+        <h3>Settings Collection</h3>
+        <p>The settings collection specifies the top level project/product names. It is required in the main.bit file.</p>
+        <table title="settings">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>company</td><td>Company name</td></tr>
+                <tr><td>product</td><td>Product or project name. Should be one word, lower case without spaces</td></tr>
+                <tr><td>title</td><td>Descriptive one sentence title for the product</td></tr>
+                <tr><td>version</td><td>Product version string. Should be of the form: MAJOR.MINOR.PATCH </td></tr>
+                <tr><td>buildNumber</td><td>Build number string</td></tr>
+                <tr><td>optional</td><td>List of optional packs to discover when configuring </td></tr>
+                <tr><td>required</td><td>List of required packs to discover when configuring </td></tr>
+                <tr><td>static</td><td>Build using static linking instead of building shared libraries</td></tr>
+                <tr><td>without-all</td><td>List of packs to disable when doing '--without all configure'</td></tr>
+            </tbody>
+        </table>
+        <h3>Targets Collection</h3>
+        <table title="targets">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>name</td><td>Target name. This name is used rather than the collection name</td></tr>
+                <tr><td>home</td><td>Home directory to use when resolving paths for this target</td></tr>
+                <tr><td>type</td><td>Type of target: exe, lib, action, obj, header, ...</td></tr>
+                <tr><td>enable</td><td>Set to true if the pack was found on the system</td></tr>
+                <tr><td>compiler</td><td>Compiler options</td></tr>
+                <tr><td>defines</td><td>Compiler definitions</td></tr>
+                <tr><td>includes</td><td>Compiler include directories</td></tr>
+                <tr><td>libraries</td><td>Libraries to link</td></tr>
+                <tr><td>libpaths</td><td>Library search paths</td></tr>
+                <tr><td>linker</td><td>Linker options</td></tr>
+                <tr><td>path</td><td>Path to the result of building the target. If set, this is used for dependency
+                        calculations. If updated, all targets that depend on this target will be rebuilt.</td></tr>
+                <tr><td>scripts</td><td>Scripts for the target. See <a href="#scripts">scripts</a> for details</td></tr>
+                <tr><td>sources</td><td>Array of source file patterns to compile for the target. Use normal * as a
+                        wild-card, ** as a wild-card that descends directories. Use the exclude property to exclude </td></tr>
+                <tr><td>headers</td><td>Linker options</td></tr>
+                <tr><td>include</td><td>Regular expression of file patterns to include from the sources list. 
+                    This is a filter that is applied to the sources list after expanding the sources wildcards</td></tr>
+                <tr><td>depends</td><td>Linker options</td></tr>
+                <tr><td>exclude</td><td>Regular expression of file patterns to exclude from the sources list
+                    This is a filter that is applied to the sources list after expanding the sources wildcards</td></tr>
+                <tr><td>rule</td><td>Build command template to use when invoking compiler and linker. Typically not
+                        explicitly set unless overriding for some reason. Set to: 'c-&gt;o', 'cpp-&gt;o', 'lib', 'exe', 'gui'.
+                        Rules are automatically selected for 'lib' and 'exe' targets. </td>
+                <tr><td>platforms</td><td>Platforms for which this target should be built. Set to OS-ARCH or 'local'</td></tr>
+            </tbody>
+        </table>
+        <a id="targetTypes"></a>
+        <h3>Target Types</h3>
+        <p>There are several standard target types for which Bit has in-built knowledge of how to build:</p>
+        <ul>
+            <li>Compiled Objects</li>
+            <li>Libraries (shared and static)</li>
+            <li>Executables Libraries</li>
+            <li>Copy Files</li>
+        </ul>
+        <h4>Libraries</h4>
+        <p>To build a library, set the <em>type</em> property to 'lib', define the source files to compile via the
+        <em>sources</em> property. For example:
+<pre>
+libname: {
+    type: 'lib',
+    sources: '*.c',
+},
+</pre>
+        <p>The targets for the compiled objects are created automatically as are the source header dependencies.
+            Update a header, and the library will be rebuilt when bit is next invoked.</p>
+            <p>By default, a shared library will be built. To build a static library, set the 
+                <i>static</i> property to true.</p>
+<pre>
+libname: {
+    type: 'lib',
+    sources: '*.c',
+    static: true,
+},
+</pre>
+            <h4>Executables</h4>
+            <p>To build an executable, set the <em>type</em> property to 'exe', define the source files to compile via the
+            <em>sources</em> property (if any). Define required libraries via the <em>depends property</em>. 
+            For example:</p>
+<pre>
+bingo: {
+    type: 'exe',
+    sources: [ 'bingo.c' ],
+    depends: [ 'libgame'],
+},
+</pre>
+            <p>To do a static link of all the sources and libraries, set the <i>static</i> property to true.
+            This will link the executable directly with all the objects of the sources and the objects of
+            any dependant libraries.</p>
+<pre>
+bingo: {
+    type: 'exe',
+    sources: [ 'bingo.c' ],
+    depends: [ 'libgame'],
+    static: true,
+},
+</pre>
+        <h4>Copy Files</h4>
+        <p>A copy target specifies a set of input files and an output destination. It uses the Ejscript Path.copy
+        method to copy the files.</p>
+<pre>
+setup: {
+    path: '${CFG}/web',
+    files: [ 'web/readme.html' ],
+},
+</pre>
+        <p>This example will copy the specified readme file to the web directory under the platform output
+        directory.</p>
+        <a id="buildingTargets"></a>
+        <h3>Building Targets</h3>
+        <p>Bit builds targets according to a defined life cycle.
+        <ul>
+            <li>A bit object is created an initialized with the standard and per-O/S definitions</li>
+            <li>The start.bit file is loaded</li>
+            <li>All bit files referenced in the start.bit blend[] collection are loaded. This continues recursively,
+                depth first.</li>
+            <li>The next bit files referenced in the start.bit platform[] collection is selected. Each of the steps below
+                are applied for each platform to build.</li>
+            <li>The platform bit file is loaded and all referenced bit files in blend[] are loaded depth-first. After
+                loading each script.</li>
+            <li>The <em>dir</em> and <em>bit.global</em> properties are initialized</li>
+            <li>Targets are enabled or disabled depending on their <em>enable</em> property expression</li>
+            <li>A list of top-level targets to build is created based on the bit commandline and target dependencies.
+            See below <a href="#selectingTargets">Selecting Targets</a> for more details.</li>
+            <li>Those targets to build are processed and their properties are blended with the defaults/internal
+                properties</li>
+            <li>The target dependencies are resolved and added to the target list</li>
+            <li>The target sources have wild-cards expanded. Targets are dynamically created for all objects to be
+            built. The C/C++ source files are parsed and header targets are built for non-system include directives that
+            have no leading spaces. i.e. #include "filename" starting in column 0.</li>
+            <li>The target is built. If the target is an executable, library, or object, it is built using the
+                transition rules specified in bit.rules. If the target has a <em>build</em> event script, it is run.</li>
+        </ul>
+        <a id="selectingTargets"></a>
+        <h3>Selecting Targets</h3>
+        <p>Bit follows a simple process when selecting the targets to build.</p>
+        <ol>
+            <li>The set of names specified on the bit command line is used as a starting target list. If the name 
+                does not match a target name, the list of targets is search to see if the name matches any targets with
+            a type of that name. All matching targets are added to the list. For example: this allows targets of type
+            <em>clean</em> to be run when <em>bit clean</em> is invoked.</li>
+            <li>Targets that are disabled (<em>enable</em> property evaluates to false) are removed from the list</li>
+            <li>Targets referenced in the <em>depends</em> property are added to the list (recursively)</li>
+            <li>Additional targets are created dynamically for source items to be compiled and include headers</li>
+        </ol>
+        <p>To reiterate, there are thus two paradigms when invoking bit:</p>
+        <ul> 
+            <li><em>bit target ...</em></li>
+            <li><em>bit action ...</em></li>
+        </ul> 
+        <p>When specifying a name that is a target, these must match the target name property. When specifying an action,
+            these must match a target type property.</p>
+        <a id="buildEvents"></a>
+        <h3>Build Events</h3>
+        <p>When building, Bit will fire events that may trigger scripts to run. Here is a list of events:</p>
+        <table title="events">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>postresolve</td><td>Fired after resolving dependencies for a target</td></tr>
+                <tr><td>presource</td><td>Fired before expanding source wildcards and creating object targets</td></tr>
+                <tr><td>postblend</td><td>Fired after blending defaults for a target</td></tr>
+                <tr><td>prebuild</td><td>Fired before building a target</td></tr>
+                <tr><td>precompile</td><td>Fired before compiling a source file used by a target</td></tr>
+                <tr><td>postconfig</td><td>Fired after creating bit.h when configuring</td></tr>
+            </tbody>
+        </table>
+        
+        <a id="scripts"></a>
+        <h3>Scripts</h3>
+        <p>Target scripts may be specified three ways:</p>
+        <ul>
+            <li>Build target scripts</li>
+            <li>Action target scripts</li>
+            <li>Long-hand scripts</li>
+        </ul>
+        <h4>Build Target Scripts</h4>
+        <p>Build target scripts run when a default build (bit build) is run. These scripts use the
+        <em>build</em> property. For example:</p>
+<pre>
+targets: {
+    cleanJunk: {
+        build: "
+            trace('Clean', 'Cleaning junk')
+            rm('file.junk')
+        ",
+    }
+}
+</pre>
+        <p>When <em>bit</em> is invoked, the script for the <em>cleanJunk</em> target will be run. Note that in
+        Ejscript, quoted literals can span multiple lines. No backquoting at the end of the line is required.</p>
+        <h4>Action Scripts</h4>
+        <p>Action scripts do not run by default. Rather, they are run when they are explicitly invoked on the command
+        line or another target is invoked that references them as a dependency. 
+        These scripts use the <em>action</em> property. For example:</p>
+<pre>
+targets: {
+    'generate-doc': {
+        build: "
+            run('bash ./generate-documentation')
+        ",
+    }
+}
+</pre>
+        <p>When <em>bit generate-doc</em> is run, this generate-documentation script will be run. </p>
+        <h4>Long-hand Scripts</h4>
+        <p>A target can specify multiple scripts that are run at various stages of the building life cycle. These are
+        specified via the scripts collection of a target.</p>
+<pre>
+targets: {
+    libglow: {
+        type: 'lib',
+        sources: '*.c',
+        <b>scripts: {
+            prebuild: [
+                {
+                    home: '.',
+                    shell: 'bash',
+                    script: '
+                        ./build-prep
+                    ',
+                }
+            ],
+        },</b>
+    },
+}
+</pre>
+        <p>The scripts collection is an object hash with properties for life cycle events. When the specific event is
+        triggered, the script is run. For each event, there can be multiple scripts which are run in-order. Each script
+        has a home directory which becomes the current directory for the script, a shell interpreter to execute the
+        script and the script contents.</p>
+        <p>Note that the <em>build</em> and <em>action</em> scripts translate under-the-hood into the same long form.
+        The action script becomes a target with a type of <em>action</em> and an event of <em>build</em>. A build script
+        becomes a target with a type of <em>build</em> and an event of <em>build</em>.</p>
+        <a id="debugging"></a>
+        <h2>Debugging</h2>
+        <p>With Make and other build tools, it is difficult to determine why a target is or is not being built. Bit
+        provides a <em>--why</em> command line switch to diagnose problematic build sequences. This switch displays the
+        reason why each target was or was not built.</p>
+        <p>In a complex project containing many Bit files, it can be helpful to see the entire bit configuration in one
+        file. Use the <em>--dump</em> switch to save a copy of the entire configuration. In the dump, 
+            build defaults are fully expanded to each target contains the expanded configuration that will be used to build
+            the target.</p> <p>By default, Bit builds relatively quietly and stops on the first build error. To see the
+            commands Bit is issuing, use the <em>--show</em> switch. To build totally quietly, use the <em>--quiet</em>
+            switch. To continue building despite build errors, use the <em>--continue</em> switch.</p>
+        <a id="commandOptions"></a>
+        <h2>Command Options</h2>
+        <p>Bit command line options can be prefixed with either a single or double minus, i.e. <em>-switch</em> or
+        <em>--switch</em>.</p>
+        <table title="options">
+            <thead>
+                <tr><th>Option</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>--benchmark</td>
+                    <td>Measure the elapsed time to run bit.</td>
+                </tr>
+                <tr>
+                    <td>--configure path-to-source</td>
+                    <td><p>Configure the project to prepare for building. This configures Bit for building the project
+                        based on the instructions specified in a <em>'main.bit</em> located in the specified path source
+                        tree.  When run, bit will create a platform configuration bit file, a build output directory and
+                        bit.h header. The configuration directory is of the form: OS-ARCH-PROFILE where OS may be
+                        freebsd, linux, macosx, solaris, vxworks, windows and ARCH is arm, mips, ppc, x64 or x86.
+                        PROFILE is typically set to debug or release. For example: <em>macosx-x86_64-debug</em> The
+                        configuration bit file omits the PROFILE. For example: <em>linux-x86.bit</em>.</p>
+                        <p>Bit will use the settings.required and settings.optional properties in the main.bit for a
+                        list of packages to use. When configuring, bit will search for these packages and will
+                        create definitions in the configuration bit file for later use.</p>
+                    </td>
+                </tr>
+                    <tr><td>--continue</td>
+                        <td>Continue to build despite any build errors. Normal operation is to stop building if any
+                            build errors are encountered.</td>
+                </tr>
+                <tr>
+                    <td>--debug</td>
+                    <td>Same as --profile debug</td>
+                </tr>
+                <tr>
+                    <td>--diagnose</td>
+                    <td>Run bit with stack backtrace display on errors.</td>
+                </tr>
+                <tr>
+                    <td>--dump </td>
+                    <td>Dump the aggregate bit configuration into a single dump bit file.</td>
+                </tr>
+                <tr>
+                    <td>--file bitfile</td>
+                    <td>Use the alternate named bit file instead of start.bit or main.bit.</td>
+                </tr>
+                <tr>
+                    <td>--force</td>
+                    <td>Override warnings and proceed with the operation.</td>
+                </tr>
+                <tr>
+                    <td class="nowrap">--gen [make|nmake|sh|vs|xcode]</td>
+                    <td>Generate project files for the current platform. This will generate project files under
+                        the <em>projects</em> directory. The projects are based on the current configuration. If
+                        cross-generating projects, you will typically need to also use -configure.</td>
+                </tr>
+                <tr>
+                    <td>--keep </td>
+                    <td>Keep some intermediate build files. This is currently used by some documentation generation
+                        targets.</td> </tr>
+                <tr>
+                    <td>--log logName[:logLevel]</td>
+                    <td>Specify a file to log internal execution messages. Bit will log execution related trace to the
+                        log file. The log level specifies the desired verbosity of output. Level 0 is the least verbose
+                        and level 9 is the most. The <em>-v</em> switch is an alias for <em>--log stderr:2</em>.</td>
+                </tr>
+                <tr>
+                    <td>--nocross</td>
+                    <td>Don't cross-build, rather build natively for the development system. This is useful when
+                        configuring for a platform that can build and run natively on the development system. For
+                        example: Linux 64-bit systems can run 32-bit applications, so <br/>
+                        <em>bit --nocross --platform linux-x86 configure</em> <br/>
+                        can directly target the 32-bit platform without cross-building.</td>
+                </tr>
+                <tr>
+                    <td>--out path</td>
+                    <td>Save Bit trace output to a file instead of displaying to the console.</td>
+                </tr>
+                <tr>
+                    <td>--platform os-arch</td>
+                    <td><p>Add a platform to build for cross-compilation. Multiple platforms can be added. You may use
+                        <em>local</em> for the local platform. Options specified after the platform apply to the prior
+                        platform. For example:</p>
+                        <p>bit --platform linux-x86 --without all --platform linux-arm --with ejscript configure</p></td>
+                </tr>
+                <tr>
+                    <td class="nowrap">--profile [debug|release|...]</td>
+                    <td>Use the specified profile when building. This options is provided once when configuring and the
+                        result is saved in the plat- form.profile property in the configuration bit file. Custom
+                        profiles can be added to the main.bit or start.bit files.</td> 
+                </tr>
+                <tr>
+                    <td>--quiet</td>
+                    <td>Quiet operation. Suppresses output trace.</td>
+                </tr>
+                <tr>
+                    <td>--set key=value</td>
+                    <td>Set a settings property to a given value. For example: <em>bit -set version=1.0</em> will update the
+                        settings.version property. Use this when running <em>bit configure</em> to persist your 
+                        changes in the configuration bit file.</td>
+                </tr>
+                <tr>
+                    <td>--show </td>
+                    <td>Show the actual commands executed by bit.</td>
+                </tr>
+                <tr>
+                    <td>--static </td>
+                    <td>Build using static linking instead of creating shared libraries.</td>
+                </tr>
+                <tr>
+                    <td>--rebuild</td>
+                    <td>Rebuild the specified targets. Can also use <em>bit rebuild</em>.</td>
+                </tr>
+                <tr>
+                    <td>--release</td>
+                    <td>Select the release profile. Same as --profile release.</td>
+                </tr>
+                <tr>
+                    <td>--unset key=value</td>
+                    <td>Clear a settings property. Use this when running <em>bit configure</em> to persist your changes in
+                        the configuration bit file.</td> 
+                </tr>
+                <tr>
+                    <td>--version</td>
+                    <td>Print the ejs command version and exit.</td>
+                </tr>
+                <tr>
+                    <td>--verbose</td>
+                    <td>Run in verbose mode with more trace about Bit activities.</td>
+                </tr>
+                <tr>
+                    <td>--with PACK[=path]</td>
+                    <td>Build with the named pack located at the optional path. If the path is omitted, a search is
+                        performed for the pack at default locations. Packs must have a pack description file installed
+                        under <em>bits/packs</em> in the bit installation.</td>
+                </tr>
+                <tr>
+                    <td>--without PACK</td>
+                    <td>Build without the named pack.</td>
+                </tr>
+            </tbody>
+        </table>
+        <a id="learnMore"></a>
+        <h2>To Learn More</h2>
+        <p>Here are some example bit files in the Appweb and Ejscript products:</p>
+        <ul>
+            <li><a
+                href="https://github.com/embedthis/appweb-4/blob/master/main.bit">Appweb main.bit &mdash; product level
+                bit file</a></li>
+            <li><a href="https://github.com/embedthis/appweb-4/blob/master/src/server/server.bit">Appweb
+                src/server/server.bit &mdash; bit file to build appweb binary</a></li>
+            <li><a href="https://github.com/embedthis/appweb-4/blob/master/src/libappweb.bit">Appweb
+                src/libappweb.bit &mdash; bit file to build appweb library</a></li>
+            <li><a href="https://github.com/embedthis/appweb-4/blob/master/src/modules/modules.bit">Appweb
+                src/modules/modules.bit &mdash; bit file to build appweb modules</a></li>
+            <li><a href="https://github.com/embedthis/appweb-4/blob/master/test/test.bit">Appweb
+                test/test.bit &mdash; bit file to unit test appweb</a></li>
+            <li><a href="https://github.com/embedthis/ejs-2/blob/master/src/core/core.bit">Ejscript
+                src/core/core.bit &mdash; bit file to build the ejscript module</a></li>
+            <li><a href="https://github.com/embedthis/ejs-2/blob/master/src/cmd/cmd.bit">Ejscript
+                src/cmd/cmd.bit &mdash; bit file to build the ejscript executables</a></li>
+        </ul>
+        <a id="example"></a>
+        <p>Here is a sample main.bit file:</p>
+<pre>
+/*
+    main.bit -- Main Bit File
+ */
+Bit.load({
+    blend: [
+        /* Blend these bit files. Loaded before this file is processed */
+        'company.bit',
+    ],
+    customize: [
+        /* Optionally load this if present to overwrite any property */
+        'custom.bit',
+    ],
+    '+modules': [
+        /* Can put scripts or compiled mod file shere */
+        'bits/company.es',
+    ],
+    /*
+        Core settings
+     */
+    settings: {
+        product: 'rocket',
+        title: 'Acme Rocket',
+        company: 'Acme',
+        version: '1.0.0',
+        buildNumber: '0',
+        static: false,
+    },
+    targets: {
+        librocket: {
+            /* Target to build a library */
+            type: 'lib',
+            sources: [
+                /* Use all C source in rocket */
+                'rocket/*.c'
+                /* Use all C source anywher under space */
+                'space/**.c'
+            ],
+            /* Exclude any files with gemini or mercury in the name */
+            exclude: /mercury|gemini/,
+            /* Export these headers to the 'platform/inc' directory */
+            headers:     [ 'rocket/rocket.h' ],
+            /* Use these defines */
+            '+defines':  [ '-DION_DRIVE', ],
+            /* Search this directory for includes */
+            '+includes': [ 'rocket', ],
+            /* Add these compiler switches */
+            '+compiler': [ '-Wall', ],
+        },
+        saturn: {
+            /* Target to build an executable */
+            type: 'exe',
+            sources: [ 'saturn.c' ],
+            depends: [ 'librocket'],
+        },
+        'saturn-gui': {
+            /* Target to build an executable only on windows */
+            enable: bit.platform.os == 'windows',
+            name: 'gsaturn',
+            sources: [ 'saturnGui.c' ],
+            depends: [ 'librocket'],
+        },
+    },
+})
+</pre>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="product/copyright.html" >&copy; Embedthis Software LLC, 2003-2013. 
+            All rights reserved. Embedthis, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          'partner-pub-9935546676162772:ysvxxv4n9rx');
+
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+</body>
+</html>

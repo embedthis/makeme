@@ -1,0 +1,7 @@
+/*
+    dumpbin.pak - Dumpbin package for Bit
+ */
+
+pack('dumpbin', 'Windows Symbols Tool')
+let dumpbin = probe('dumpbin.exe', {fullpath: true, search: bit.packs.compiler.search})
+Bit.load({packs: { dumpbin: { path: dumpbin }}})

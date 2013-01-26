@@ -1,0 +1,76 @@
+#!/bin/bash
+#
+#   Create or modify symlinks for the most recent installed versions of Bit
+#
+#   Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
+#
+
+TASK=$1
+PRODUCT=bit
+ROOT_DIR="${2%/}"
+EXE=
+INC_DIR="${ROOT_DIR}/usr/include"
+MAN_DIR="${ROOT_DIR}/usr/share/man"
+PROGRAMS="bit"
+
+if [ -x "${ROOT_DIR}/usr/local/bin" ] ; then
+    BIN_DIR="${ROOT_DIR}/usr/local/bin"
+else 
+    BIN_DIR="${ROOT_DIR}/usr/bin"
+fi
+
+prefix="${ROOT_DIR}/usr/lib/${PRODUCT}"
+version=
+
+if [ "$TASK" = "Remove" ] ; then
+    for name in $PROGRAMS ; do
+        rm -f "${BIN_DIR}/$name"
+    done
+    rm -rf  "${INC_DIR}/${PRODUCT}"
+else
+    for v in `ls $prefix 2>/dev/null | egrep -v '[a-zA-Z@!_\-]' | sort -n -r`
+    do
+        if [ -x "$prefix/$v/bin/bit" ] ; then
+            version=$v
+            break
+        fi
+    done
+
+    if [ "$version" = "" ] ; then
+        latest=${prefix}
+    else
+        latest=${prefix}/$version
+    fi  
+    rm -f "${prefix}/latest"
+    ln -s "${version}" "${prefix}/latest"
+
+    bin="${latest}/bin"
+    inc="${latest}/inc"
+    man="${latest}/doc/man/man1"
+    lib="${latest}/lib"
+
+    [ ! -x "${BIN_DIR}" ] && mkdir -p "${BIN_DIR}"
+
+    home=`pwd`
+    for name in $PROGRAMS ; do
+        name=${name}${EXE}
+        rm -f "${BIN_DIR}/${name}"
+        if [ -f "${bin}/${name}" ] ; then
+            ln -s "${bin}/${name}" "${BIN_DIR}/${name}"
+        fi
+    done
+    if [ -d "${inc}" ] ; then
+        [ ! -x "${INC_DIR}" ] && mkdir -p "${INC_DIR}"
+        rm -rf  "${INC_DIR}/${PRODUCT}"
+        ln -s "${inc}" "${INC_DIR}/${PRODUCT}"
+    fi
+    if [ -d "${man}" ] ; then
+        [ ! -x "${MAN_DIR}" ] && mkdir -p "${MAN_DIR}/man1"
+        for f in ${man}/*.1.gz
+        do
+            name=`basename "$f"`
+            rm -f "${MAN_DIR}/man1/${name}"
+            ln -s "${f}" "${MAN_DIR}/man1/${name}"
+        done
+    fi
+fi
