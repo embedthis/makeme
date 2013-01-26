@@ -3299,7 +3299,7 @@ public class Bit {
         }
         expandTokens(bit)
         if (!bit.dir.packs.exists) {
-            let pdir = bit.dir.home.join('packages-' + bit.platform.name)
+            let pdir = bit.dir.home.join('packages-' + bit.platform.os + '-' + bit.platform.arch)
             if (pdir.exists) {
                 bit.dir.packs = pdir
             }
