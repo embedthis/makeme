@@ -1,0 +1,35 @@
+/*
+    sqlite.bit -- Bit File for SQLite
+ */
+
+Bit.load({
+
+    targets: {
+        libsqlite3: {
+            enable: 'bit.packs.sqlite.enable',
+            type: 'lib',
+            headers: [ '*.h' ],
+            sources: [ 'sqlite3.c' ],
+            '-compiler': [
+                '-Wall',
+                '-Wshorten-64-to-32',
+            ],
+            scripts: {
+                '+precompile': "
+                    if (bit.packs.compiler.path.basename == 'gcc') {
+                        bit.target.compiler.push('-w')
+                    } else if (bit.packs.compiler.path.basename == 'clang') {
+                        bit.target.compiler.push('-w')
+                    }
+                ",
+            },
+        },
+        sqlite: {
+            enable: 'bit.packs.sqlite.enable',
+            type: 'exe'
+            sources: ['sqlite.c'],
+            depends: ['libsqlite3'],
+            platforms: [ 'local' ],
+        },
+	},
+})
