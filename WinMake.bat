@@ -1,1 +1,1 @@
-projects\windows x86 -f projects/appweb-windows-debug.nmake all
+projects\windows x86 -f projects/bit-windows-debug.nmake all
