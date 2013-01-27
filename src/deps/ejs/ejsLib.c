@@ -35199,10 +35199,12 @@ PUBLIC int ejsBlendObject(Ejs *ejs, EjsObj *dest, EjsObj *src, int flags)
         /* Allow this - blend nothing */
         return 0;
     }
+#if FUTURE
     if (!ejsIsPot(ejs, src)) {
         ejsThrowArgError(ejs, "source is not an object");
         return -1;
     }
+#endif
     count = ejsGetLength(ejs, src);
     start = (flags & EJS_BLEND_SUBCLASSES) ? 0 : TYPE(src)->numInherited;
     deep = (flags & EJS_BLEND_DEEP) ? 1 : 0;
@@ -48868,8 +48870,8 @@ PUBLIC EjsType *ejsFinalizeScriptType(Ejs *ejs, EjsName qname, int size, void *m
 }
 
 
-PUBLIC EjsType *ejsConfigureType(Ejs *ejs, EjsType *type, EjsModule *up, EjsType *baseType, int numTypeProp, int numInstanceProp, 
-    int64 attributes)
+PUBLIC EjsType *ejsConfigureType(Ejs *ejs, EjsType *type, EjsModule *up, EjsType *baseType, int numTypeProp, 
+        int numInstanceProp, int64 attributes)
 {
     type->module = up;
 
@@ -55072,8 +55074,8 @@ static void indent(MprBuf *bp, int level)
     #define unlink      _unlink
     #define write       _write
     extern void sleep(int secs);
-    extern int _getpid();
-    extern int _getch();
+    // extern int _getpid();
+    // extern int _getch();
 #endif
 #endif /* WINMAP_H */
 
@@ -65068,27 +65070,6 @@ PUBLIC int ejs_db_sqlite_Init(Ejs *ejs, MprModule *mp)
     return ejsAddNativeModule(ejs, "ejs.db.sqlite", configureSqliteTypes, _ES_CHECKSUM_ejs_db_sqlite, EJS_LOADER_ETERNAL);
 }
 
-#else 
-
-static int configureSqliteTypes(Ejs *ejs)
-{
-    EjsType     *type;
-    EjsPot      *prototype;
-    
-    if ((type = ejsFinalizeScriptType(ejs, N("ejs.db.sqlite", "Sqlite"), sizeof(EjsPot), NULL, EJS_TYPE_POT)) == 0) {
-        return 0;
-    }
-    prototype = type->prototype;
-    ejsBindConstructor(ejs, type, NULL);
-    ejsBindMethod(ejs, prototype, ES_ejs_db_sqlite_Sqlite_close, NULL);
-    ejsBindMethod(ejs, prototype, ES_ejs_db_sqlite_Sqlite_sql, NULL);
-    return 0;
-}
-
-PUBLIC int ejs_db_sqlite_Init(Ejs *ejs, MprModule *mp)
-{
-    return ejsAddNativeModule(ejs, "ejs.db.sqlite", configureSqliteTypes, _ES_CHECKSUM_ejs_db_sqlite, EJS_LOADER_ETERNAL);
-}
 #endif /* BIT_PACK_SQLITE */
 
 /*
@@ -73908,14 +73889,15 @@ static int initializeModule(Ejs *ejs, EjsModule *mp)
             nativeModule = ejsLookupNativeModule(ejs, ejsToMulti(ejs, mp->name));
             if (nativeModule == NULL) {
                 if (ejs->exception == 0) {
-                    ejsThrowIOError(ejs, "Cannot load or initialize the native module %@ in file \"%s\"", mp->name, mp->path);
+                    ejsThrowIOError(ejs, "Cannot load or initialize the native module %@ in file \"%s\"", 
+                        mp->name, mp->path);
                 }
                 return MPR_ERR_CANT_INITIALIZE;
             }
             if (!(ejs->flags & EJS_FLAG_NO_INIT)) {
                 if (nativeModule->checksum != mp->checksum) {
-                    ejsThrowIOError(ejs, "Module \"%s\" does not match native code (%d, %d)", mp->path, 
-                            nativeModule->checksum, mp->checksum);
+                    ejsThrowIOError(ejs, "Module \"%s\" XXX does not match native code (%d, %d)", mp->path, 
+                        nativeModule->checksum, mp->checksum);
                     return MPR_ERR_BAD_STATE;
                 }
             }

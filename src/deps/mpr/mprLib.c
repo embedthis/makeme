@@ -11479,6 +11479,7 @@ static MprObj *deserialize(MprJson *jp)
                 Value: String, "{" or "]"
              */
             value = 0;
+            valueType = MPR_JSON_STRING;
             if (index < 0) {
                 if ((name = parseName(jp)) == 0) {
                     return 0;

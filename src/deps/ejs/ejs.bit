@@ -9,7 +9,7 @@ Bit.load({
 
     targets: {
         libejs: {
-            enable: 'bit.packs.ejscript.enable',
+            enable: 'bit.packs.ejscript.enable || bit.settings.ejscript',
             type: 'lib',
             sources: [ 'ejsLib.c' ],
             headers: [ '*.h' ],
@@ -24,7 +24,7 @@ Bit.load({
         },
 
         ejs: {
-            enable: 'bit.packs.ejscript.enable',
+            enable: 'bit.packs.ejscript.enable || bit.settings.ejscript',
             type: 'exe',
             sources: [ 'ejs.c' ],
             depends: [ 'libejs' ],
@@ -38,14 +38,14 @@ Bit.load({
         },
 
         ejsc: {
-            enable: 'bit.packs.ejscript.enable',
+            enable: 'bit.packs.ejscript.enable || bit.settings.ejscript',
             type: 'exe',
             sources: [ 'ejsc.c' ],
             depends: [ 'libejs' ],
         },
 
 		'ejs.mod': {
-            enable: 'bit.packs.ejscript.enable',
+            enable: 'bit.packs.ejscript.enable || bit.settings.ejscript',
             files: [ 'ejs.es' ],
             path: "${BIN}/ejs.mod",
             //  Add --debug for debug symbols
