@@ -13,6 +13,9 @@
 #ifndef BIT_COMPANY
     #define BIT_COMPANY "Embedthis"
 #endif
+#ifndef BIT_DEBUG
+    #define BIT_DEBUG 1
+#endif
 #ifndef BIT_DEPTH
     #define BIT_DEPTH 1
 #endif
@@ -71,7 +74,7 @@
     #define BIT_STATIC 0
 #endif
 #ifndef BIT_SYNC
-    #define BIT_SYNC "bitos,est,mpr,pcre,http,ejs"
+    #define BIT_SYNC "bitos,est,mpr,pcre,http,ejs,sqlite"
 #endif
 #ifndef BIT_TITLE
     #define BIT_TITLE "Embedthis Bit"
@@ -225,7 +228,7 @@
     #define BIT_PACK_EJSCRIPT_PATH "/Users/mob/git/bit/src/deps/ejs"
 #endif
 #ifndef BIT_PACK_HTTP_PATH
-    #define BIT_PACK_HTTP_PATH "/Users/mob/git/bit/macosx-x64-debug/bin/http"
+    #define BIT_PACK_HTTP_PATH "/Users/mob/git/bit/macosx-x64-default/bin/http"
 #endif
 #ifndef BIT_PACK_LIB_PATH
     #define BIT_PACK_LIB_PATH "/usr/bin/ar"

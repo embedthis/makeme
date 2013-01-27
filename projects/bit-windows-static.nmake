@@ -20,10 +20,10 @@ CONFIG   = $(OS)-$(ARCH)-$(PROFILE)
 CC       = cl
 LD       = link
 RC       = rc
-CFLAGS   = -nologo -GR- -W3 -O2 -MD
-DFLAGS   = -D_REENTRANT -D_MT
+CFLAGS   = -nologo -GR- -W3 -Zi -Od -MDd
+DFLAGS   = -D_REENTRANT -D_MT -DBIT_DEBUG
 IFLAGS   = -I$(CONFIG)\inc
-LDFLAGS  = -nologo -nodefaultlib -incremental:no -machine:$(ARCH)
+LDFLAGS  = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
 LIBPATHS = -libpath:$(CONFIG)\bin
 LIBS     = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
 
@@ -31,6 +31,7 @@ all compile: prep \
         $(CONFIG)\bin\ca.crt \
         $(CONFIG)\bin\libmpr.lib \
         $(CONFIG)\bin\libmprssl.lib \
+        $(CONFIG)\bin\makerom.exe \
         $(CONFIG)\bin\libpcre.lib \
         $(CONFIG)\bin\libsqlite3.lib \
         $(CONFIG)\bin\sqlite.exe \
@@ -63,6 +64,7 @@ clean:
 	-if exist $(CONFIG)\bin\ca.crt del /Q $(CONFIG)\bin\ca.crt
 	-if exist $(CONFIG)\bin\libmpr.lib del /Q $(CONFIG)\bin\libmpr.lib
 	-if exist $(CONFIG)\bin\libmprssl.lib del /Q $(CONFIG)\bin\libmprssl.lib
+	-if exist $(CONFIG)\bin\makerom.exe del /Q $(CONFIG)\bin\makerom.exe
 	-if exist $(CONFIG)\bin\libpcre.lib del /Q $(CONFIG)\bin\libpcre.lib
 	-if exist $(CONFIG)\bin\libsqlite3.lib del /Q $(CONFIG)\bin\libsqlite3.lib
 	-if exist $(CONFIG)\bin\sqlite.exe del /Q $(CONFIG)\bin\sqlite.exe
@@ -132,6 +134,17 @@ $(CONFIG)\bin\libmprssl.lib:  \
         $(CONFIG)\bin\libmpr.lib \
         $(CONFIG)\obj\mprSsl.obj
 	"lib.exe" -nologo -out:$(CONFIG)\bin\libmprssl.lib $(CONFIG)\obj\mprSsl.obj
+
+$(CONFIG)\obj\makerom.obj: \
+        src\deps\mpr\makerom.c \
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\mpr.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\makerom.obj -Fd$(CONFIG)\obj\makerom.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc src\deps\mpr\makerom.c
+
+$(CONFIG)\bin\makerom.exe:  \
+        $(CONFIG)\bin\libmpr.lib \
+        $(CONFIG)\obj\makerom.obj
+	"$(LD)" -out:$(CONFIG)\bin\makerom.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\makerom.obj libmpr.lib $(LIBS)
 
 $(CONFIG)\inc\pcre.h:  \
         $(CONFIG)\inc\bit.h
@@ -317,4 +330,42 @@ version:
 	cd bits
 		@echo 0.8.0-0
 		cd ..
+
+install: 
+	cd .
+		sudo make root-install
+		cd .
+
+install-prep:  \
+        compile
+	cd .
+		$(eval $(shell $(BIN)/ejs bits/getbitvals projects/$(NAME)-$(OS)-$(PROFILE)-bit.h 
+	PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX BIN_PREFIX 
+	>.prefixes; chmod 666 .prefixes))
+	$(eval include .prefixes)
+		cd .
+
+root-install:  \
+        compile \
+        install-prep
+	cd .
+		rm -f $(BIT_PRD_PREFIX)/latest $(LBIN)/bit 
+	install -d -m 755 $(BIT_CFG_PREFIX) $(BIT_BIN_PREFIX)
+	install -m 755 $(wildcard $(BIN)/*) $(BIT_BIN_PREFIX)
+	ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest
+	ln -s $(BIT_BIN_PREFIX)/bit $(LBIN)/bit
+	exit 0
+		cd .
+
+uninstall: 
+	cd .
+		sudo make root-uninstall
+		cd .
+
+root-uninstall:  \
+        compile \
+        install-prep
+	cd .
+		echo rm -fr $(BIT_PRD_PREFIX)
+		cd .
 

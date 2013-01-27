@@ -13,6 +13,9 @@
 #ifndef BIT_COMPANY
     #define BIT_COMPANY "Embedthis"
 #endif
+#ifndef BIT_DEBUG
+    #define BIT_DEBUG 1
+#endif
 #ifndef BIT_DEPTH
     #define BIT_DEPTH 1
 #endif
@@ -53,7 +56,7 @@
     #define BIT_STATIC 1
 #endif
 #ifndef BIT_SYNC
-    #define BIT_SYNC "bitos,est,mpr,pcre,http,ejs"
+    #define BIT_SYNC "bitos,est,mpr,pcre,http,ejs,sqlite"
 #endif
 #ifndef BIT_TITLE
     #define BIT_TITLE "Embedthis Bit"

@@ -12,10 +12,10 @@ OS="macosx"
 CONFIG="${OS}-${ARCH}-${PROFILE}"
 CC="/usr/bin/clang"
 LD="/usr/bin/ld"
-CFLAGS="-Os   -w"
-DFLAGS=""
+CFLAGS="-w"
+DFLAGS="-DBIT_DEBUG"
 IFLAGS="-I${CONFIG}/inc"
-LDFLAGS="-Wl,-rpath,@executable_path/ -Wl,-rpath,@loader_path/"
+LDFLAGS="-Wl,-rpath,@executable_path/ -Wl,-rpath,@loader_path/ -g"
 LIBPATHS="-L${CONFIG}/bin"
 LIBS="-lpthread -lm -ldl"
 
@@ -36,45 +36,49 @@ cp -r src/bitos.h ${CONFIG}/inc/bitos.h
 rm -rf ${CONFIG}/inc/mpr.h
 cp -r src/deps/mpr/mpr.h ${CONFIG}/inc/mpr.h
 
-${DFLAGS}${CC} -c -o ${CONFIG}/obj/mprLib.o -arch x86_64 ${CFLAGS} -I${CONFIG}/inc src/deps/mpr/mprLib.c
+${CC} -c -o ${CONFIG}/obj/mprLib.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc src/deps/mpr/mprLib.c
 
-${DFLAGS}${CC} -dynamiclib -o ${CONFIG}/bin/libmpr.dylib -arch x86_64 ${LDFLAGS} -compatibility_version 0.8.0 -current_version 0.8.0 ${LIBPATHS} -install_name @rpath/libmpr.dylib ${CONFIG}/obj/mprLib.o ${LIBS}
+${CC} -dynamiclib -o ${CONFIG}/bin/libmpr.dylib -arch x86_64 ${LDFLAGS} -compatibility_version 0.8.0 -current_version 0.8.0 ${LIBPATHS} -install_name @rpath/libmpr.dylib ${CONFIG}/obj/mprLib.o ${LIBS}
 
 rm -rf ${CONFIG}/inc/est.h
 cp -r src/deps/est/est.h ${CONFIG}/inc/est.h
 
-${DFLAGS}${CC} -c -o ${CONFIG}/obj/mprSsl.o -arch x86_64 ${CFLAGS} -I${CONFIG}/inc src/deps/mpr/mprSsl.c
+${CC} -c -o ${CONFIG}/obj/mprSsl.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc src/deps/mpr/mprSsl.c
 
-${DFLAGS}${CC} -dynamiclib -o ${CONFIG}/bin/libmprssl.dylib -arch x86_64 ${LDFLAGS} -compatibility_version 0.8.0 -current_version 0.8.0 ${LIBPATHS} -install_name @rpath/libmprssl.dylib ${CONFIG}/obj/mprSsl.o -lmpr ${LIBS}
+${CC} -dynamiclib -o ${CONFIG}/bin/libmprssl.dylib -arch x86_64 ${LDFLAGS} -compatibility_version 0.8.0 -current_version 0.8.0 ${LIBPATHS} -install_name @rpath/libmprssl.dylib ${CONFIG}/obj/mprSsl.o -lmpr ${LIBS}
+
+${CC} -c -o ${CONFIG}/obj/makerom.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc src/deps/mpr/makerom.c
+
+${CC} -o ${CONFIG}/bin/makerom -arch x86_64 ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/makerom.o -lmpr ${LIBS}
 
 rm -rf ${CONFIG}/inc/pcre.h
 cp -r src/deps/pcre/pcre.h ${CONFIG}/inc/pcre.h
 
-${DFLAGS}${CC} -c -o ${CONFIG}/obj/pcre.o -arch x86_64 ${CFLAGS} -I${CONFIG}/inc src/deps/pcre/pcre.c
+${CC} -c -o ${CONFIG}/obj/pcre.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc src/deps/pcre/pcre.c
 
-${DFLAGS}${CC} -dynamiclib -o ${CONFIG}/bin/libpcre.dylib -arch x86_64 ${LDFLAGS} -compatibility_version 0.8.0 -current_version 0.8.0 ${LIBPATHS} -install_name @rpath/libpcre.dylib ${CONFIG}/obj/pcre.o ${LIBS}
+${CC} -dynamiclib -o ${CONFIG}/bin/libpcre.dylib -arch x86_64 ${LDFLAGS} -compatibility_version 0.8.0 -current_version 0.8.0 ${LIBPATHS} -install_name @rpath/libpcre.dylib ${CONFIG}/obj/pcre.o ${LIBS}
 
 rm -rf ${CONFIG}/inc/sqlite3.h
 cp -r src/deps/sqlite/sqlite3.h ${CONFIG}/inc/sqlite3.h
 
-${DFLAGS}${CC} -c -o ${CONFIG}/obj/sqlite3.o -arch x86_64 -Os -I${CONFIG}/inc src/deps/sqlite/sqlite3.c
+${CC} -c -o ${CONFIG}/obj/sqlite3.o -arch x86_64 ${DFLAGS} -I${CONFIG}/inc src/deps/sqlite/sqlite3.c
 
-${DFLAGS}${CC} -dynamiclib -o ${CONFIG}/bin/libsqlite3.dylib -arch x86_64 ${LDFLAGS} -compatibility_version 0.8.0 -current_version 0.8.0 ${LIBPATHS} -install_name @rpath/libsqlite3.dylib ${CONFIG}/obj/sqlite3.o ${LIBS}
+${CC} -dynamiclib -o ${CONFIG}/bin/libsqlite3.dylib -arch x86_64 ${LDFLAGS} -compatibility_version 0.8.0 -current_version 0.8.0 ${LIBPATHS} -install_name @rpath/libsqlite3.dylib ${CONFIG}/obj/sqlite3.o ${LIBS}
 
-${DFLAGS}${CC} -c -o ${CONFIG}/obj/sqlite.o -arch x86_64 ${CFLAGS} -I${CONFIG}/inc src/deps/sqlite/sqlite.c
+${CC} -c -o ${CONFIG}/obj/sqlite.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc src/deps/sqlite/sqlite.c
 
-${DFLAGS}${CC} -o ${CONFIG}/bin/sqlite -arch x86_64 ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/sqlite.o -lsqlite3 ${LIBS}
+${CC} -o ${CONFIG}/bin/sqlite -arch x86_64 ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/sqlite.o -lsqlite3 ${LIBS}
 
 rm -rf ${CONFIG}/inc/http.h
 cp -r src/deps/http/http.h ${CONFIG}/inc/http.h
 
-${DFLAGS}${CC} -c -o ${CONFIG}/obj/httpLib.o -arch x86_64 ${CFLAGS} -I${CONFIG}/inc src/deps/http/httpLib.c
+${CC} -c -o ${CONFIG}/obj/httpLib.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc src/deps/http/httpLib.c
 
-${DFLAGS}${CC} -dynamiclib -o ${CONFIG}/bin/libhttp.dylib -arch x86_64 ${LDFLAGS} -compatibility_version 0.8.0 -current_version 0.8.0 ${LIBPATHS} -install_name @rpath/libhttp.dylib ${CONFIG}/obj/httpLib.o -lpcre -lmpr ${LIBS}
+${CC} -dynamiclib -o ${CONFIG}/bin/libhttp.dylib -arch x86_64 ${LDFLAGS} -compatibility_version 0.8.0 -current_version 0.8.0 ${LIBPATHS} -install_name @rpath/libhttp.dylib ${CONFIG}/obj/httpLib.o -lpcre -lmpr ${LIBS}
 
-${DFLAGS}${CC} -c -o ${CONFIG}/obj/http.o -arch x86_64 ${CFLAGS} -I${CONFIG}/inc src/deps/http/http.c
+${CC} -c -o ${CONFIG}/obj/http.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc src/deps/http/http.c
 
-${DFLAGS}${CC} -o ${CONFIG}/bin/http -arch x86_64 ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/http.o -lhttp ${LIBS} -lpcre -lmpr
+${CC} -o ${CONFIG}/bin/http -arch x86_64 ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/http.o -lhttp ${LIBS} -lpcre -lmpr
 
 rm -rf ${CONFIG}/bin/http-ca.crt
 cp -r src/deps/http/http-ca.crt ${CONFIG}/bin/http-ca.crt
@@ -88,17 +92,17 @@ cp -r src/deps/ejs/ejs.h ${CONFIG}/inc/ejs.h
 rm -rf ${CONFIG}/inc/ejsByteGoto.h
 cp -r src/deps/ejs/ejsByteGoto.h ${CONFIG}/inc/ejsByteGoto.h
 
-${DFLAGS}${CC} -c -o ${CONFIG}/obj/ejsLib.o -arch x86_64 ${CFLAGS} -I${CONFIG}/inc src/deps/ejs/ejsLib.c
+${CC} -c -o ${CONFIG}/obj/ejsLib.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc src/deps/ejs/ejsLib.c
 
-${DFLAGS}${CC} -dynamiclib -o ${CONFIG}/bin/libejs.dylib -arch x86_64 ${LDFLAGS} -compatibility_version 0.8.0 -current_version 0.8.0 ${LIBPATHS} -install_name @rpath/libejs.dylib ${CONFIG}/obj/ejsLib.o -lsqlite3 -lmpr -lpcre -lhttp ${LIBS} -lpcre -lmpr
+${CC} -dynamiclib -o ${CONFIG}/bin/libejs.dylib -arch x86_64 ${LDFLAGS} -compatibility_version 0.8.0 -current_version 0.8.0 ${LIBPATHS} -install_name @rpath/libejs.dylib ${CONFIG}/obj/ejsLib.o -lsqlite3 -lmpr -lpcre -lhttp ${LIBS} -lpcre -lmpr
 
-${DFLAGS}${CC} -c -o ${CONFIG}/obj/ejs.o -arch x86_64 ${CFLAGS} -I${CONFIG}/inc src/deps/ejs/ejs.c
+${CC} -c -o ${CONFIG}/obj/ejs.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc src/deps/ejs/ejs.c
 
-${DFLAGS}${CC} -o ${CONFIG}/bin/ejs -arch x86_64 ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/ejs.o -lejs ${LIBS} -lsqlite3 -lmpr -lpcre -lhttp -ledit
+${CC} -o ${CONFIG}/bin/ejs -arch x86_64 ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/ejs.o -lejs ${LIBS} -lsqlite3 -lmpr -lpcre -lhttp -ledit
 
-${DFLAGS}${CC} -c -o ${CONFIG}/obj/ejsc.o -arch x86_64 ${CFLAGS} -I${CONFIG}/inc src/deps/ejs/ejsc.c
+${CC} -c -o ${CONFIG}/obj/ejsc.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc src/deps/ejs/ejsc.c
 
-${DFLAGS}${CC} -o ${CONFIG}/bin/ejsc -arch x86_64 ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/ejsc.o -lejs ${LIBS} -lsqlite3 -lmpr -lpcre -lhttp
+${CC} -o ${CONFIG}/bin/ejsc -arch x86_64 ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/ejsc.o -lejs ${LIBS} -lsqlite3 -lmpr -lpcre -lhttp
 
 cd src/deps/ejs >/dev/null ;\
 ../../../${CONFIG}/bin/ejsc --out ../../../${CONFIG}/bin/ejs.mod --optimize 9 --bind --require null ejs.es ;\
@@ -112,8 +116,13 @@ rm -fr ./${CONFIG}/bin/bits ;\
 cp -r bits ./${CONFIG}/bin ;\
 cd - >/dev/null 
 
-${DFLAGS}${CC} -c -o ${CONFIG}/obj/bit.o -arch x86_64 ${CFLAGS} -I${CONFIG}/inc src/bit.c
+${CC} -c -o ${CONFIG}/obj/bit.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc src/bit.c
 
-${DFLAGS}${CC} -o ${CONFIG}/bin/bit -arch x86_64 ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/bit.o ${CONFIG}/obj/mprLib.o ${CONFIG}/obj/pcre.o ${CONFIG}/obj/httpLib.o ${CONFIG}/obj/sqlite3.o ${CONFIG}/obj/ejsLib.o ${LIBS}
+${CC} -o ${CONFIG}/bin/bit -arch x86_64 ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/bit.o ${CONFIG}/obj/mprLib.o ${CONFIG}/obj/pcre.o ${CONFIG}/obj/httpLib.o ${CONFIG}/obj/sqlite3.o ${CONFIG}/obj/ejsLib.o ${LIBS}
 
+#  Omit build script undefined
+#  Omit build script undefined
+#  Omit build script undefined
+#  Omit build script undefined
+#  Omit build script undefined
 #  Omit build script undefined

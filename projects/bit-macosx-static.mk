@@ -12,28 +12,29 @@ CC              ?= /usr/bin/clang
 LD              ?= /usr/bin/ld
 CONFIG          ?= $(OS)-$(ARCH)-$(PROFILE)
 
-CFLAGS          += -Os   -w
+CFLAGS          += -w
 DFLAGS          += $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS)))
 IFLAGS          += -I$(CONFIG)/inc
 LDFLAGS         += '-Wl,-rpath,@executable_path/' '-Wl,-rpath,@loader_path/'
 LIBPATHS        += -L$(CONFIG)/bin
 LIBS            += -lpthread -lm -ldl
 
-DEBUG           ?= release
+DEBUG           ?= debug
 CFLAGS-debug    := -g
-CFLAGS-release  := -O2
 DFLAGS-debug    := -DBIT_DEBUG
-DFLAGS-release  := 
 LDFLAGS-debug   := -g
+DFLAGS-release  := 
+CFLAGS-release  := -O2
 LDFLAGS-release := 
-CFLAGS          += $(CFLAGS-$(PROFILE))
-DFLAGS          += $(DFLAGS-$(PROFILE))
-LDFLAGS         += $(LDFLAGS-$(PROFILE))
+CFLAGS          += $(CFLAGS-$(DEBUG))
+DFLAGS          += $(DFLAGS-$(DEBUG))
+LDFLAGS         += $(LDFLAGS-$(DEBUG))
 
 all compile: prep \
         $(CONFIG)/bin/ca.crt \
         $(CONFIG)/bin/libmpr.a \
         $(CONFIG)/bin/libmprssl.a \
+        $(CONFIG)/bin/makerom \
         $(CONFIG)/bin/libpcre.a \
         $(CONFIG)/bin/libsqlite3.a \
         $(CONFIG)/bin/sqlite \
@@ -65,6 +66,7 @@ clean:
 	rm -rf $(CONFIG)/bin/ca.crt
 	rm -rf $(CONFIG)/bin/libmpr.a
 	rm -rf $(CONFIG)/bin/libmprssl.a
+	rm -rf $(CONFIG)/bin/makerom
 	rm -rf $(CONFIG)/bin/libpcre.a
 	rm -rf $(CONFIG)/bin/libsqlite3.a
 	rm -rf $(CONFIG)/bin/sqlite
@@ -112,12 +114,12 @@ $(CONFIG)/obj/mprLib.o: \
         src/deps/mpr/mprLib.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/mpr.h
-	$(DFLAGS)$(CC) -c -o $(CONFIG)/obj/mprLib.o -arch x86_64 $(CFLAGS) -I$(CONFIG)/inc src/deps/mpr/mprLib.c
+	$(CC) -c -o $(CONFIG)/obj/mprLib.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/mpr/mprLib.c
 
 $(CONFIG)/bin/libmpr.a:  \
         $(CONFIG)/inc/mpr.h \
         $(CONFIG)/obj/mprLib.o
-	$(DFLAGS)/usr/bin/ar -cr $(CONFIG)/bin/libmpr.a $(CONFIG)/obj/mprLib.o
+	/usr/bin/ar -cr $(CONFIG)/bin/libmpr.a $(CONFIG)/obj/mprLib.o
 
 $(CONFIG)/inc/est.h:  \
         $(CONFIG)/inc/bit.h \
@@ -130,12 +132,23 @@ $(CONFIG)/obj/mprSsl.o: \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/mpr.h \
         $(CONFIG)/inc/est.h
-	$(DFLAGS)$(CC) -c -o $(CONFIG)/obj/mprSsl.o -arch x86_64 $(CFLAGS) -I$(CONFIG)/inc src/deps/mpr/mprSsl.c
+	$(CC) -c -o $(CONFIG)/obj/mprSsl.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/mpr/mprSsl.c
 
 $(CONFIG)/bin/libmprssl.a:  \
         $(CONFIG)/bin/libmpr.a \
         $(CONFIG)/obj/mprSsl.o
-	$(DFLAGS)/usr/bin/ar -cr $(CONFIG)/bin/libmprssl.a $(CONFIG)/obj/mprSsl.o
+	/usr/bin/ar -cr $(CONFIG)/bin/libmprssl.a $(CONFIG)/obj/mprSsl.o
+
+$(CONFIG)/obj/makerom.o: \
+        src/deps/mpr/makerom.c \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/mpr.h
+	$(CC) -c -o $(CONFIG)/obj/makerom.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/mpr/makerom.c
+
+$(CONFIG)/bin/makerom:  \
+        $(CONFIG)/bin/libmpr.a \
+        $(CONFIG)/obj/makerom.o
+	$(CC) -o $(CONFIG)/bin/makerom -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/makerom.o -lmpr $(LIBS)
 
 $(CONFIG)/inc/pcre.h:  \
         $(CONFIG)/inc/bit.h
@@ -146,12 +159,12 @@ $(CONFIG)/obj/pcre.o: \
         src/deps/pcre/pcre.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/pcre.h
-	$(DFLAGS)$(CC) -c -o $(CONFIG)/obj/pcre.o -arch x86_64 $(CFLAGS) -I$(CONFIG)/inc src/deps/pcre/pcre.c
+	$(CC) -c -o $(CONFIG)/obj/pcre.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/pcre/pcre.c
 
 $(CONFIG)/bin/libpcre.a:  \
         $(CONFIG)/inc/pcre.h \
         $(CONFIG)/obj/pcre.o
-	$(DFLAGS)/usr/bin/ar -cr $(CONFIG)/bin/libpcre.a $(CONFIG)/obj/pcre.o
+	/usr/bin/ar -cr $(CONFIG)/bin/libpcre.a $(CONFIG)/obj/pcre.o
 
 $(CONFIG)/inc/sqlite3.h:  \
         $(CONFIG)/inc/bit.h
@@ -162,23 +175,23 @@ $(CONFIG)/obj/sqlite3.o: \
         src/deps/sqlite/sqlite3.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/sqlite3.h
-	$(DFLAGS)$(CC) -c -o $(CONFIG)/obj/sqlite3.o -arch x86_64 -Os -w -I$(CONFIG)/inc src/deps/sqlite/sqlite3.c
+	$(CC) -c -o $(CONFIG)/obj/sqlite3.o -arch x86_64 -w $(DFLAGS) -I$(CONFIG)/inc src/deps/sqlite/sqlite3.c
 
 $(CONFIG)/bin/libsqlite3.a:  \
         $(CONFIG)/inc/sqlite3.h \
         $(CONFIG)/obj/sqlite3.o
-	$(DFLAGS)/usr/bin/ar -cr $(CONFIG)/bin/libsqlite3.a $(CONFIG)/obj/sqlite3.o
+	/usr/bin/ar -cr $(CONFIG)/bin/libsqlite3.a $(CONFIG)/obj/sqlite3.o
 
 $(CONFIG)/obj/sqlite.o: \
         src/deps/sqlite/sqlite.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/sqlite3.h
-	$(DFLAGS)$(CC) -c -o $(CONFIG)/obj/sqlite.o -arch x86_64 $(CFLAGS) -I$(CONFIG)/inc src/deps/sqlite/sqlite.c
+	$(CC) -c -o $(CONFIG)/obj/sqlite.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/sqlite/sqlite.c
 
 $(CONFIG)/bin/sqlite:  \
         $(CONFIG)/bin/libsqlite3.a \
         $(CONFIG)/obj/sqlite.o
-	$(DFLAGS)$(CC) -o $(CONFIG)/bin/sqlite -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/sqlite.o -lsqlite3 $(LIBS)
+	$(CC) -o $(CONFIG)/bin/sqlite -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/sqlite.o -lsqlite3 $(LIBS)
 
 $(CONFIG)/inc/http.h:  \
         $(CONFIG)/inc/bit.h \
@@ -190,25 +203,25 @@ $(CONFIG)/obj/httpLib.o: \
         src/deps/http/httpLib.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/http.h
-	$(DFLAGS)$(CC) -c -o $(CONFIG)/obj/httpLib.o -arch x86_64 $(CFLAGS) -I$(CONFIG)/inc src/deps/http/httpLib.c
+	$(CC) -c -o $(CONFIG)/obj/httpLib.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/http/httpLib.c
 
 $(CONFIG)/bin/libhttp.a:  \
         $(CONFIG)/bin/libmpr.a \
         $(CONFIG)/bin/libpcre.a \
         $(CONFIG)/inc/http.h \
         $(CONFIG)/obj/httpLib.o
-	$(DFLAGS)/usr/bin/ar -cr $(CONFIG)/bin/libhttp.a $(CONFIG)/obj/httpLib.o
+	/usr/bin/ar -cr $(CONFIG)/bin/libhttp.a $(CONFIG)/obj/httpLib.o
 
 $(CONFIG)/obj/http.o: \
         src/deps/http/http.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/http.h
-	$(DFLAGS)$(CC) -c -o $(CONFIG)/obj/http.o -arch x86_64 $(CFLAGS) -I$(CONFIG)/inc src/deps/http/http.c
+	$(CC) -c -o $(CONFIG)/obj/http.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/http/http.c
 
 $(CONFIG)/bin/http:  \
         $(CONFIG)/bin/libhttp.a \
         $(CONFIG)/obj/http.o
-	$(DFLAGS)$(CC) -o $(CONFIG)/bin/http -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/http.o -lhttp $(LIBS) -lpcre -lmpr
+	$(CC) -o $(CONFIG)/bin/http -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/http.o -lhttp $(LIBS) -lpcre -lmpr
 
 $(CONFIG)/bin/http-ca.crt: 
 	rm -fr $(CONFIG)/bin/http-ca.crt
@@ -239,7 +252,7 @@ $(CONFIG)/obj/ejsLib.o: \
         $(CONFIG)/inc/mpr.h \
         $(CONFIG)/inc/pcre.h \
         $(CONFIG)/inc/sqlite3.h
-	$(DFLAGS)$(CC) -c -o $(CONFIG)/obj/ejsLib.o -arch x86_64 $(CFLAGS) -I$(CONFIG)/inc src/deps/ejs/ejsLib.c
+	$(CC) -c -o $(CONFIG)/obj/ejsLib.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/ejs/ejsLib.c
 
 $(CONFIG)/bin/libejs.a:  \
         $(CONFIG)/bin/libhttp.a \
@@ -250,29 +263,29 @@ $(CONFIG)/bin/libejs.a:  \
         $(CONFIG)/inc/ejs.slots.h \
         $(CONFIG)/inc/ejsByteGoto.h \
         $(CONFIG)/obj/ejsLib.o
-	$(DFLAGS)/usr/bin/ar -cr $(CONFIG)/bin/libejs.a $(CONFIG)/obj/ejsLib.o
+	/usr/bin/ar -cr $(CONFIG)/bin/libejs.a $(CONFIG)/obj/ejsLib.o
 
 $(CONFIG)/obj/ejs.o: \
         src/deps/ejs/ejs.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/ejs.h
-	$(DFLAGS)$(CC) -c -o $(CONFIG)/obj/ejs.o -arch x86_64 $(CFLAGS) -I$(CONFIG)/inc src/deps/ejs/ejs.c
+	$(CC) -c -o $(CONFIG)/obj/ejs.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/ejs/ejs.c
 
 $(CONFIG)/bin/ejs:  \
         $(CONFIG)/bin/libejs.a \
         $(CONFIG)/obj/ejs.o
-	$(DFLAGS)$(CC) -o $(CONFIG)/bin/ejs -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejs.o -lejs $(LIBS) -lsqlite3 -lmpr -lpcre -lhttp -ledit -ledit
+	$(CC) -o $(CONFIG)/bin/ejs -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejs.o -lejs $(LIBS) -lsqlite3 -lmpr -lpcre -lhttp -ledit -ledit
 
 $(CONFIG)/obj/ejsc.o: \
         src/deps/ejs/ejsc.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/ejs.h
-	$(DFLAGS)$(CC) -c -o $(CONFIG)/obj/ejsc.o -arch x86_64 $(CFLAGS) -I$(CONFIG)/inc src/deps/ejs/ejsc.c
+	$(CC) -c -o $(CONFIG)/obj/ejsc.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/ejs/ejsc.c
 
 $(CONFIG)/bin/ejsc:  \
         $(CONFIG)/bin/libejs.a \
         $(CONFIG)/obj/ejsc.o
-	$(DFLAGS)$(CC) -o $(CONFIG)/bin/ejsc -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejsc.o -lejs $(LIBS) -lsqlite3 -lmpr -lpcre -lhttp
+	$(CC) -o $(CONFIG)/bin/ejsc -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejsc.o -lejs $(LIBS) -lsqlite3 -lmpr -lpcre -lhttp
 
 $(CONFIG)/bin/ejs.mod:  \
         $(CONFIG)/bin/ejsc
@@ -294,7 +307,7 @@ $(CONFIG)/obj/bit.o: \
         src/bit.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/ejs.h
-	$(DFLAGS)$(CC) -c -o $(CONFIG)/obj/bit.o -arch x86_64 $(CFLAGS) -I$(CONFIG)/inc src/bit.c
+	$(CC) -c -o $(CONFIG)/obj/bit.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/bit.c
 
 $(CONFIG)/bin/bit:  \
         $(CONFIG)/bin/libmpr.a \
@@ -304,10 +317,48 @@ $(CONFIG)/bin/bit:  \
         $(CONFIG)/bin/bit.es \
         $(CONFIG)/inc/bitos.h \
         $(CONFIG)/obj/bit.o
-	$(DFLAGS)$(CC) -o $(CONFIG)/bin/bit -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/bit.o $(CONFIG)/obj/mprLib.o $(CONFIG)/obj/pcre.o $(CONFIG)/obj/httpLib.o $(CONFIG)/obj/sqlite3.o $(CONFIG)/obj/ejsLib.o $(LIBS)
+	$(CC) -o $(CONFIG)/bin/bit -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/bit.o $(CONFIG)/obj/mprLib.o $(CONFIG)/obj/pcre.o $(CONFIG)/obj/httpLib.o $(CONFIG)/obj/sqlite3.o $(CONFIG)/obj/ejsLib.o $(LIBS)
 
 version: 
 	cd bits >/dev/null ;\
 		@echo 0.8.0-0 ;\
+		cd - >/dev/null 
+
+install: 
+	cd . >/dev/null ;\
+		sudo make root-install ;\
+		cd - >/dev/null 
+
+install-prep:  \
+        compile
+	cd . >/dev/null ;\
+		$(eval $(shell $(BIN)/ejs bits/getbitvals projects/$(NAME)-$(OS)-$(PROFILE)-bit.h  ;\
+	PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX BIN_PREFIX  ;\
+	>.prefixes; chmod 666 .prefixes)) ;\
+	$(eval include .prefixes) ;\
+		cd - >/dev/null 
+
+root-install:  \
+        compile \
+        install-prep
+	cd . >/dev/null ;\
+		rm -f $(BIT_PRD_PREFIX)/latest $(LBIN)/bit  ;\
+	install -d -m 755 $(BIT_CFG_PREFIX) $(BIT_BIN_PREFIX) ;\
+	install -m 755 $(wildcard $(BIN)/*) $(BIT_BIN_PREFIX) ;\
+	ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest ;\
+	ln -s $(BIT_BIN_PREFIX)/bit $(LBIN)/bit ;\
+	exit 0 ;\
+		cd - >/dev/null 
+
+uninstall: 
+	cd . >/dev/null ;\
+		sudo make root-uninstall ;\
+		cd - >/dev/null 
+
+root-uninstall:  \
+        compile \
+        install-prep
+	cd . >/dev/null ;\
+		echo rm -fr $(BIT_PRD_PREFIX) ;\
 		cd - >/dev/null 
 

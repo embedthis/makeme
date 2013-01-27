@@ -12,28 +12,29 @@ CC              ?= /usr/bin/gcc
 LD              ?= /usr/bin/ld
 CONFIG          ?= $(OS)-$(ARCH)-$(PROFILE)
 
-CFLAGS          += -fPIC -Os  -w
-DFLAGS          += -D_REENTRANT -DPIC$(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS)))
+CFLAGS          += -fPIC   -w
+DFLAGS          += -D_REENTRANT -DPIC $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS)))
 IFLAGS          += -I$(CONFIG)/inc
 LDFLAGS         += '-Wl,--enable-new-dtags' '-Wl,-rpath,$$ORIGIN/' '-Wl,-rpath,$$ORIGIN/../bin' '-rdynamic'
 LIBPATHS        += -L$(CONFIG)/bin
 LIBS            += -lpthread -lm -lrt -ldl
 
-DEBUG           ?= release
+DEBUG           ?= debug
 CFLAGS-debug    := -g
-CFLAGS-release  := -O2
 DFLAGS-debug    := -DBIT_DEBUG
-DFLAGS-release  := 
 LDFLAGS-debug   := -g
+DFLAGS-release  := 
+CFLAGS-release  := -O2
 LDFLAGS-release := 
-CFLAGS          += $(CFLAGS-$(PROFILE))
-DFLAGS          += $(DFLAGS-$(PROFILE))
-LDFLAGS         += $(LDFLAGS-$(PROFILE))
+CFLAGS          += $(CFLAGS-$(DEBUG))
+DFLAGS          += $(DFLAGS-$(DEBUG))
+LDFLAGS         += $(LDFLAGS-$(DEBUG))
 
 all compile: prep \
         $(CONFIG)/bin/ca.crt \
         $(CONFIG)/bin/libmpr.so \
         $(CONFIG)/bin/libmprssl.so \
+        $(CONFIG)/bin/makerom \
         $(CONFIG)/bin/libpcre.so \
         $(CONFIG)/bin/libsqlite3.so \
         $(CONFIG)/bin/sqlite \
@@ -65,6 +66,7 @@ clean:
 	rm -rf $(CONFIG)/bin/ca.crt
 	rm -rf $(CONFIG)/bin/libmpr.so
 	rm -rf $(CONFIG)/bin/libmprssl.so
+	rm -rf $(CONFIG)/bin/makerom
 	rm -rf $(CONFIG)/bin/libpcre.so
 	rm -rf $(CONFIG)/bin/libsqlite3.so
 	rm -rf $(CONFIG)/bin/sqlite
@@ -137,6 +139,17 @@ $(CONFIG)/bin/libmprssl.so:  \
         $(CONFIG)/obj/mprSsl.o
 	$(CC) -shared -o $(CONFIG)/bin/libmprssl.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/mprSsl.o -lmpr $(LIBS)
 
+$(CONFIG)/obj/makerom.o: \
+        src/deps/mpr/makerom.c \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/mpr.h
+	$(CC) -c -o $(CONFIG)/obj/makerom.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/mpr/makerom.c
+
+$(CONFIG)/bin/makerom:  \
+        $(CONFIG)/bin/libmpr.so \
+        $(CONFIG)/obj/makerom.o
+	$(CC) -o $(CONFIG)/bin/makerom $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/makerom.o -lmpr $(LIBS) -lmpr -lpthread -lm -lrt -ldl $(LDFLAGS)
+
 $(CONFIG)/inc/pcre.h:  \
         $(CONFIG)/inc/bit.h
 	rm -fr $(CONFIG)/inc/pcre.h
@@ -162,7 +175,7 @@ $(CONFIG)/obj/sqlite3.o: \
         src/deps/sqlite/sqlite3.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/sqlite3.h
-	$(CC) -c -o $(CONFIG)/obj/sqlite3.o -fPIC -Os -w $(DFLAGS) -I$(CONFIG)/inc src/deps/sqlite/sqlite3.c
+	$(CC) -c -o $(CONFIG)/obj/sqlite3.o -fPIC -w $(DFLAGS) -I$(CONFIG)/inc src/deps/sqlite/sqlite3.c
 
 $(CONFIG)/bin/libsqlite3.so:  \
         $(CONFIG)/inc/sqlite3.h \
@@ -309,5 +322,43 @@ $(CONFIG)/bin/bit:  \
 version: 
 	cd bits >/dev/null ;\
 		@echo 0.8.0-0 ;\
+		cd - >/dev/null 
+
+install: 
+	cd . >/dev/null ;\
+		sudo make root-install ;\
+		cd - >/dev/null 
+
+install-prep:  \
+        compile
+	cd . >/dev/null ;\
+		$(eval $(shell $(BIN)/ejs bits/getbitvals projects/$(NAME)-$(OS)-$(PROFILE)-bit.h  ;\
+	PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX BIN_PREFIX  ;\
+	>.prefixes; chmod 666 .prefixes)) ;\
+	$(eval include .prefixes) ;\
+		cd - >/dev/null 
+
+root-install:  \
+        compile \
+        install-prep
+	cd . >/dev/null ;\
+		rm -f $(BIT_PRD_PREFIX)/latest $(LBIN)/bit  ;\
+	install -d -m 755 $(BIT_CFG_PREFIX) $(BIT_BIN_PREFIX) ;\
+	install -m 755 $(wildcard $(BIN)/*) $(BIT_BIN_PREFIX) ;\
+	ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest ;\
+	ln -s $(BIT_BIN_PREFIX)/bit $(LBIN)/bit ;\
+	exit 0 ;\
+		cd - >/dev/null 
+
+uninstall: 
+	cd . >/dev/null ;\
+		sudo make root-uninstall ;\
+		cd - >/dev/null 
+
+root-uninstall:  \
+        compile \
+        install-prep
+	cd . >/dev/null ;\
+		echo rm -fr $(BIT_PRD_PREFIX) ;\
 		cd - >/dev/null 
 
