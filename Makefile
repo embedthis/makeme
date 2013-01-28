@@ -40,7 +40,7 @@ ifeq ($(PROCESSOR_ARCHITEW6432),AMD64)
 else
     ARCH?=x86
 endif
-    MAKE:= projects/windows.bat $(ARCH)
+    MAKE:= projects/windows.bat
     EXT := nmake
 else
 	ARCH:= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
@@ -52,7 +52,7 @@ BIN 	:= $(OS)-$(ARCH)-$(PROFILE)/bin
 all compile:
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@
 
-clean clobber install uninstall run:
+clean clobber install uninstall run install-prep:
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@
 
 regen:
