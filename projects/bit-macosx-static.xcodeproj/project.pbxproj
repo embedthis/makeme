@@ -1156,7 +1156,6 @@ cp -r src/bit.es macosx-x64-static/bin/bit.es
 ../bits/packs/sqlite.pak,
 ../bits/packs/ssl.pak,
 ../bits/packs/strip.pak,
-../bits/packs/t.es,
 ../bits/packs/tidy.pak,
 ../bits/packs/utest.pak,
 ../bits/packs/vxworks.pak,

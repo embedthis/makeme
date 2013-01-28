@@ -333,24 +333,23 @@ version:
 	@echo 0.8.0-0
 	cd ..
 
-install:  \
-        compile
-	nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake $(MAKEFLAGS) root-install
+install: 
+	nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-install
 
 install-prep:  \
         compile
-!IF EXISTS(.prefixes)
-!ELSE
-	.\$(CONFIG)\bin\ejs bits/getbitvals projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX BIN_PREFIX UBIN_PREFIX >.prefixes; chmod 666 .prefixes
-	nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake $@
-!ENDIF
+	.\$(CONFIG)\bin\ejs bits/getbitvals projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX UBIN_PREFIX >.prefixes
 
 root-install:  \
         install-prep
-	xopy /I /S /Y /Q $(CONFIG)\bin* "$(BIT_BIN_PREFIX)"
+!IF EXISTS(.prefixes)
+	xcopy /I /S /Y /Q $(CONFIG)\bin "$(BIT_BIN_PREFIX)"
+!ELSE
+	nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake $@
+!ENDIF
 
 uninstall: 
-	nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake $(MAKEFLAGS) root-uninstall
+	nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-uninstall
 
 root-uninstall:  \
         compile \
