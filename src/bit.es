@@ -1396,10 +1396,10 @@ public class Bit {
         genout.writeLine('LDFLAGS  = ' + repvar(gen.linker).replace(/-machine:x86/, '-machine:$$(ARCH)'))
         genout.writeLine('LIBPATHS = ' + repvar(gen.libpaths).replace(/\//g, '\\'))
         genout.writeLine('LIBS     = ' + gen.libraries + '\n')
+        genout.writeLine('!IF EXISTS(.prefixes)\n!INCLUDE .prefixes\n!ENDIF\n')
         genout.writeLine('all compile: prep \\\n        ' + genAll())
         genout.writeLine('.PHONY: prep\n\nprep:')
         genout.writeLine('!IF "$(VSINSTALLDIR)" == ""\n\techo "Visual Studio vars not set. Run vcvars.bat."\n\texit 255\n!ENDIF')
-        genout.writeLine('!IF EXISTS(.prefixes)\n!INCLUDE .prefixes\n!ENDIF')
         genout.writeLine('\t@if not exist $(CONFIG)\\inc md $(CONFIG)\\inc')
         genout.writeLine('\t@if not exist $(CONFIG)\\obj md $(CONFIG)\\obj')
         genout.writeLine('\t@if not exist $(CONFIG)\\bin md $(CONFIG)\\bin')
@@ -2419,7 +2419,8 @@ public class Bit {
         } else {
             prefix = suffix = ''
         }
-        if (target.home.relative.startsWith('..')) {
+        let rhome = target.home.relative
+        if (rhome == '.' || rhome.startsWith('..')) {
             /* Don't change directory out of source tree. Necessary for actions in standard.bit */
             prefix = suffix = ''
         }
@@ -2443,7 +2444,10 @@ public class Bit {
             }
             let cmd = target['generate-make'] || target['generate-sh'] || target.generate
             if (cmd) {
-                cmd = (prefix + cmd.trim() + suffix).replace(/^\s*/mg, '\t')
+                cmd = prefix + cmd.trim() + suffix
+                // cmd = cmd.replace(/^\s*/mg, '\t')
+                cmd = cmd.replace(/^\s*/mg, '')
+                cmd = cmd.replace(/^/mg, '\t')
                 cmd = cmd.replace(/$/mg, ';\\').replace(/;\\;\\/g, ' ;\\').trim(';\\')
                 cmd = expand(cmd, {fill: null}).expand(target.vars, {fill: ''})
                 cmd = repvar2(cmd, target.home)
@@ -2460,7 +2464,9 @@ public class Bit {
             if (cmd) {
                 //  MOB - generalize out
                 cmd = cmd.trim().replace(/^cp /, 'copy ')
-                cmd = (prefix + cmd + suffix).replace(/^[ \t]*/mg, '\t')
+                cmd = prefix + cmd + suffix
+                cmd = cmd.replace(/^[ \t]*/mg, '')
+                cmd = cmd.replace(/^([^!])/mg, '\t$&')
                 let saveDir = []
                 if (bit.platform.os == 'windows') {
                     for (n in bit.globals) {

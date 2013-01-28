@@ -119,10 +119,8 @@ cd - >/dev/null
 rm -rf ${CONFIG}/bin/bit.es
 cp -r src/bit.es ${CONFIG}/bin/bit.es
 
-cd . >/dev/null ;\
 rm -fr ./${CONFIG}/bin/bits ;\
-cp -r bits ./${CONFIG}/bin ;\
-cd - >/dev/null 
+cp -r bits ./${CONFIG}/bin 
 
 "${CC}" -c -Fo${CONFIG}/obj/bit.obj -Fd${CONFIG}/obj/bit.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc src/bit.c
 

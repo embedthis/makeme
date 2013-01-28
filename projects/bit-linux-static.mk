@@ -298,10 +298,8 @@ $(CONFIG)/bin/bit.es:
 	cp -r src/bit.es $(CONFIG)/bin/bit.es
 
 $(CONFIG)/bin/bits: 
-	cd . >/dev/null ;\
-		rm -fr ./$(CONFIG)/bin/bits ;\
-	cp -r bits ./$(CONFIG)/bin ;\
-		cd - >/dev/null 
+	rm -fr ./$(CONFIG)/bin/bits ;\
+		cp -r bits ./$(CONFIG)/bin 
 
 $(CONFIG)/obj/bit.o: \
         src/bit.c \
@@ -326,38 +324,27 @@ version:
 
 install:  \
         compile
-	cd . >/dev/null ;\
-		sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-install ;\
-		cd - >/dev/null 
+	sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-install 
 
 install-prep:  \
         compile
-	cd . >/dev/null ;\
-		./$(CONFIG)/bin/ejs bits/getbitvals projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX BIN_PREFIX UBIN_PREFIX >.prefixes; chmod 666 .prefixes ;\
-	echo $(eval include .prefixes) ;\
-		cd - >/dev/null 
+	./$(CONFIG)/bin/ejs bits/getbitvals projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX BIN_PREFIX UBIN_PREFIX >.prefixes; chmod 666 .prefixes ;\
+		echo $(eval include .prefixes) 
 
 root-install:  \
         install-prep
-	cd . >/dev/null ;\
-		rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit  ;\
-	install -d -m 755 $(BIT_BIN_PREFIX) ;\
-	cp -R -P $(CONFIG)/bin/* $(BIT_BIN_PREFIX) ;\
-	chown -R root:bin $(BIT_BIN_PREFIX) ;\
-	ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest ;\
-	ln -s $(BIT_BIN_PREFIX)/bit $(BIT_UBIN_PREFIX)/bit ;\
-	exit 0 ;\
-		cd - >/dev/null 
+	rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit  ;\
+		install -d -m 755 $(BIT_BIN_PREFIX) ;\
+		cp -R -P $(CONFIG)/bin/* $(BIT_BIN_PREFIX) ;\
+		chown -R root:bin $(BIT_BIN_PREFIX) ;\
+		ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest ;\
+		ln -s $(BIT_BIN_PREFIX)/bit $(BIT_UBIN_PREFIX)/bit 
 
 uninstall: 
-	cd . >/dev/null ;\
-		sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-uninstall ;\
-		cd - >/dev/null 
+	sudo $(MAKE) -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-uninstall 
 
 root-uninstall:  \
         compile \
         install-prep
-	cd . >/dev/null ;\
-		rm -fr $(BIT_PRD_PREFIX) ;\
-		cd - >/dev/null 
+	rm -fr $(BIT_PRD_PREFIX) 
 

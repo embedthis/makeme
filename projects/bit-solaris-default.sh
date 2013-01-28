@@ -111,10 +111,8 @@ cd - >/dev/null
 rm -rf ${CONFIG}/bin/bit.es
 cp -r src/bit.es ${CONFIG}/bin/bit.es
 
-cd . >/dev/null ;\
 rm -fr ./${CONFIG}/bin/bits ;\
-cp -r bits ./${CONFIG}/bin ;\
-cd - >/dev/null 
+cp -r bits ./${CONFIG}/bin 
 
 ${CC} -c -o ${CONFIG}/obj/bit.o -fPIC ${LDFLAGS} ${DFLAGS} -I${CONFIG}/inc src/bit.c
 

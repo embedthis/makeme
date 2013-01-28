@@ -27,6 +27,10 @@ LDFLAGS  = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
 LIBPATHS = -libpath:$(CONFIG)\bin
 LIBS     = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
 
+!IF EXISTS(.prefixes)
+!INCLUDE .prefixes
+!ENDIF
+
 all compile: prep \
         $(CONFIG)\bin\ca.crt \
         $(CONFIG)\bin\libmpr.lib \
@@ -286,8 +290,8 @@ $(CONFIG)\bin\ejsc.exe:  \
 $(CONFIG)\bin\ejs.mod:  \
         $(CONFIG)\bin\ejsc.exe
 	cd src\deps\ejs
-		"..\..\..\$(CONFIG)\bin\ejsc" --out "..\..\..\$(CONFIG)\bin\ejs.mod" --optimize 9 --bind --require null "ejs.es"
-		cd ..\..\..
+	"..\..\..\$(CONFIG)\bin\ejsc" --out "..\..\..\$(CONFIG)\bin\ejs.mod" --optimize 9 --bind --require null "ejs.es"
+	cd ..\..\..
 
 $(CONFIG)\obj\removeFiles.obj: \
         package\windows\removeFiles.c \
@@ -304,11 +308,9 @@ $(CONFIG)\bin\bit.es:
 	copy /Y src\bit.es $(CONFIG)\bin\bit.es
 
 $(CONFIG)\bin\bits: 
-	cd .
-		if exist ".\$(CONFIG)\bin\bits" rd /Q /S ".\$(CONFIG)\bin\bits"
+	if exist ".\$(CONFIG)\bin\bits" rd /Q /S ".\$(CONFIG)\bin\bits"
 	if not exist ".\$(CONFIG)\bin\bits" md ".\$(CONFIG)\bin\bits"
 	xcopy /S /Y "bits" ".\$(CONFIG)\bin\bits"
-		cd .
 
 $(CONFIG)\obj\bit.obj: \
         src\bit.c \
@@ -328,43 +330,30 @@ $(CONFIG)\bin\bit.exe:  \
 
 version: 
 	cd bits
-		@echo 0.8.0-0
-		cd ..
+	@echo 0.8.0-0
+	cd ..
 
 install:  \
         compile
-	cd .
-		sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-install
-		cd .
+	nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake $(MAKEFLAGS) root-install
 
 install-prep:  \
         compile
-	cd .
-		.\$(CONFIG)\bin\ejs bits/getbitvals projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX BIN_PREFIX UBIN_PREFIX >.prefixes; chmod 666 .prefixes
-	echo $(eval include .prefixes)
-		cd .
+!IF EXISTS(.prefixes)
+!ELSE
+	.\$(CONFIG)\bin\ejs bits/getbitvals projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX BIN_PREFIX UBIN_PREFIX >.prefixes; chmod 666 .prefixes
+	nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake $@
+!ENDIF
 
 root-install:  \
         install-prep
-	cd .
-		rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit 
-	install -d -m 755 $(BIT_BIN_PREFIX)
-	cp -R -P $(CONFIG)/bin/* $(BIT_BIN_PREFIX)
-	chown -R root:bin $(BIT_BIN_PREFIX)
-	ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest
-	ln -s $(BIT_BIN_PREFIX)/bit $(BIT_UBIN_PREFIX)/bit
-	exit 0
-		cd .
+	xopy /I /S /Y /Q $(CONFIG)\bin* "$(BIT_BIN_PREFIX)"
 
 uninstall: 
-	cd .
-		sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-uninstall
-		cd .
+	nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake $(MAKEFLAGS) root-uninstall
 
 root-uninstall:  \
         compile \
         install-prep
-	cd .
-		rm -fr $(BIT_PRD_PREFIX)
-		cd .
+	del /Q "$(BIT_PRD_PREFIX)"
 
