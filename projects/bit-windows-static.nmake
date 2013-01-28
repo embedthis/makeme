@@ -2,16 +2,16 @@
 #   bit-windows-static.nmake -- Makefile to build Embedthis Bit for windows
 #
 
-PRODUCT         =bit
-VERSION         =0.8.0
-BUILD_NUMBER    =0
-PROFILE  = static
+PRODUCT         = bit
+VERSION         = 0.8.0
+BUILD_NUMBER    = 0
+PROFILE   = static
 PA        = $(PROCESSOR_ARCHITECTURE)
 !IF "$(PA)" == "AMD64"
 ARCH     = x64
 ENTRY    = _DllMainCRTStartup
 !ELSE
-ARCH  = x86
+ARCH     = x86
 ENTRY    = _DllMainCRTStartup@12
 !ENDIF
 
@@ -331,39 +331,40 @@ version:
 		@echo 0.8.0-0
 		cd ..
 
-install: 
+install:  \
+        compile
 	cd .
-		sudo make root-install
+		sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-install
 		cd .
 
 install-prep:  \
         compile
 	cd .
-		$(BIN)/ejs bits/getbitvals projects/$(NAME)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX BIN_PREFIX >.prefixes; chmod 666 .prefixes
+		.\$(CONFIG)\bin\ejs bits/getbitvals projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX BIN_PREFIX UBIN_PREFIX >.prefixes; chmod 666 .prefixes
 	echo $(eval include .prefixes)
 		cd .
 
 root-install:  \
-        compile \
         install-prep
 	cd .
-		rm -f $(BIT_PRD_PREFIX)/latest /bit 
-	install -d -m 755 $(BIT_CFG_PREFIX) $(BIT_BIN_PREFIX)
-	install -m 755 $(wildcard $(BIN)/*) $(BIT_BIN_PREFIX)
+		rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit 
+	install -d -m 755 $(BIT_BIN_PREFIX)
+	cp -R -P $(CONFIG)/bin/* $(BIT_BIN_PREFIX)
+	chown -R root:bin $(BIT_BIN_PREFIX)
 	ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest
-	ln -s $(BIT_BIN_PREFIX)/bit /bit
+	ln -s $(BIT_BIN_PREFIX)/bit $(BIT_UBIN_PREFIX)/bit
 	exit 0
 		cd .
 
 uninstall: 
 	cd .
-		sudo make root-uninstall
+		sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-uninstall
 		cd .
 
 root-uninstall:  \
         compile \
         install-prep
 	cd .
-		echo rm -fr $(BIT_PRD_PREFIX)
+		rm -fr $(BIT_PRD_PREFIX)
 		cd .
 

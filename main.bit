@@ -98,40 +98,41 @@ Bit.load({
         },
 
         install: {
-            depends: ['build'],
+            depends: ['compile'],
             action: "installBinary()",
-            'generate-make': "sudo make root-install",
+            'generate-make': "sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-install",
         },
 
 		'install-prep': {
 			action: '',
 			depends: ['compile'],
             'generate-make': "
-				$(BIN)/ejs bits/getbitvals projects/$(NAME)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX BIN_PREFIX >.prefixes; chmod 666 .prefixes
+				${BIN}/ejs bits/getbitvals projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX BIN_PREFIX UBIN_PREFIX >.prefixes; chmod 666 .prefixes
 				echo $(eval include .prefixes)",
 		},
 
         'root-install': {
 			action: '',
-			depends: ['compile', 'install-prep'],
+			depends: ['install-prep'],
             'generate-make': "
-				rm -f $(BIT_PRD_PREFIX)/latest ${dir.ubin}/bit 
-				install -d -m 755 $(BIT_CFG_PREFIX) $(BIT_BIN_PREFIX)
-				install -m 755 $(wildcard $(BIN)/*) $(BIT_BIN_PREFIX)
+				rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit 
+				install -d -m 755 $(BIT_BIN_PREFIX)
+				cp -R -P ${dir.bin}/* $(BIT_BIN_PREFIX)
+                chown -R root:bin $(BIT_BIN_PREFIX)
 				ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest
-				ln -s $(BIT_BIN_PREFIX)/bit ${dir.ubin}/bit
+				ln -s $(BIT_BIN_PREFIX)/bit $(BIT_UBIN_PREFIX)/bit
 				exit 0",
         },
 
         uninstall: {
             action: "uninstallBinary()"
-			generate: "sudo make root-uninstall",
+            'generate-make': "sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-uninstall",
         },
 
         'root-uninstall': {
 			action: '',
 			depends: ['compile', 'install-prep'],
-            'generate-make': "echo rm -fr $(BIT_PRD_PREFIX)"
+            'generate-make': "rm -fr $(BIT_PRD_PREFIX)"
 		},
 
         package: {
