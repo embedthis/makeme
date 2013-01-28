@@ -101,38 +101,37 @@ Bit.load({
             depends: ['compile'],
             action: "installBinary()",
             'generate-make': "sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-install",
+            'generate-nmake': "
+				nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake $(MAKEFLAGS) root-install
+			",
         },
 
 		'install-prep': {
 			action: '',
 			depends: ['compile'],
             'generate-make': "
+!IF EXISTS(.prefixes)
+!ELSE
 				${BIN}/ejs bits/getbitvals projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX BIN_PREFIX UBIN_PREFIX >.prefixes; chmod 666 .prefixes
-				echo $(eval include .prefixes)",
+				nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake $@
+!ENDIF",
 		},
 
         'root-install': {
 			action: '',
 			depends: ['install-prep'],
-            'generate-make': "
-				rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit 
-				install -d -m 755 $(BIT_BIN_PREFIX)
-				cp -R -P ${dir.bin}/* $(BIT_BIN_PREFIX)
-                chown -R root:bin $(BIT_BIN_PREFIX)
-				ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest
-				ln -s $(BIT_BIN_PREFIX)/bit $(BIT_UBIN_PREFIX)/bit
-				exit 0",
+            'generate-make': "xopy /I /S /Y /Q $(CONFIG)\\bin\* \"$(BIT_BIN_PREFIX)\"",
         },
 
         uninstall: {
             action: "uninstallBinary()"
-            'generate-make': "sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-uninstall",
+            'generate-make': "nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake $(MAKEFLAGS) root-uninstall",
         },
 
         'root-uninstall': {
 			action: '',
 			depends: ['compile', 'install-prep'],
-            'generate-make': "rm -fr $(BIT_PRD_PREFIX)"
+            'generate-make': "echo del /Q \"$(BIT_PRD_PREFIX)\""
 		},
 
         package: {

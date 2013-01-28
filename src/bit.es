@@ -1399,6 +1399,7 @@ public class Bit {
         genout.writeLine('all compile: prep \\\n        ' + genAll())
         genout.writeLine('.PHONY: prep\n\nprep:')
         genout.writeLine('!IF "$(VSINSTALLDIR)" == ""\n\techo "Visual Studio vars not set. Run vcvars.bat."\n\texit 255\n!ENDIF')
+        genout.writeLine('!IF EXISTS(.prefixes)\n!INCLUDE .prefixes\n!ENDIF')
         genout.writeLine('\t@if not exist $(CONFIG)\\inc md $(CONFIG)\\inc')
         genout.writeLine('\t@if not exist $(CONFIG)\\obj md $(CONFIG)\\obj')
         genout.writeLine('\t@if not exist $(CONFIG)\\bin md $(CONFIG)\\bin')
