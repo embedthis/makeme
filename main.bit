@@ -41,7 +41,7 @@ Bit.load({
         /*
             Optional packs to automatically discover and configure
          */
-        '+discover': [ 'dsi', 'ejscript', 'est', 'man', 'man2html', 'pmaker' ],
+        '+discover': [ 'dsi', 'ejscript', 'est', 'man', 'man2html', 'pmaker', 'zip' ],
         '+required': [ 'pcre', 'http', 'sqlite', 'ejscript' ],
 
         /*
