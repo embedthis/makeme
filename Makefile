@@ -55,6 +55,10 @@ all compile:
 clean clobber install uninstall run:
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@
 
+regen:
+	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) compile
+	$(OS)-$(ARCH)-$(PROFILE)/bin/bit --release configure build
+
 help:
 	@echo '' >&2
 	@echo 'With make, the default configuration can be modified by setting make' >&2
