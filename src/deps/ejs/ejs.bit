@@ -51,13 +51,13 @@ Bit.load({
             //  Add --debug for debug symbols
             build: "
                 trace('Compile', 'ejs.mod')
-                run('${BIN}/ejsc --out ${BIN}/ejs.mod --optimize 9 --bind --require null ejs.es')
+                run('${LBIN}/ejsc --out ${BIN}/ejs.mod --optimize 9 --bind --require null ejs.es')
             ",
             'generate-nmake': '\
-                "${BIN}\\ejsc" --out "${BIN}/ejs.mod" --optimize 9 --bind --require null "ejs.es"
+                "${LBIN}\\ejsc" --out "${BIN}/ejs.mod" --optimize 9 --bind --require null "ejs.es"
             ',
             'generate-sh': '\
-                ${BIN}/ejsc --out ${BIN}/ejs.mod --optimize 9 --bind --require null ejs.es 
+                ${LBIN}/ejsc --out ${BIN}/ejs.mod --optimize 9 --bind --require null ejs.es 
             ',
             depends: [ 'ejsc' ],
 		},

@@ -547,6 +547,7 @@ public class Bit {
         def(f, 'BIT_SRC_PREFIX', '"' + bit.prefixes.src + '"')
         def(f, 'BIT_VER_PREFIX', '"' + bit.prefixes.productver + '"')
         def(f, 'BIT_WEB_PREFIX', '"' + bit.prefixes.web + '"')
+        def(f, 'BIT_UBIN_PREFIX', '"' + bit.prefixes.ubin + '"')
 
         /* Suffixes */
         f.writeLine('\n/* Suffixes */')
@@ -3172,7 +3173,9 @@ public class Bit {
             If we are a 32 bit program, we don't get to see /Program Files (x86)
          */
         let programs: Path
-        if (Config.OS == 'windows') {
+        if (Config.OS != 'windows') {
+            return Path("/Program Files")
+        } else {
             let pvar = App.getenv('PROGRAMFILES')
             let pf64 = Path(pvar + ' (x86)')
             programs = Path(pf64.exists ? pf64 : pvar)
@@ -3184,9 +3187,6 @@ public class Bit {
                     }
                 }
             }
-        } else {
-            //  MOB - should be configurable
-            programs = Path("/usr/local/bin")
         }
         return programs.portable
     }
@@ -3245,13 +3245,6 @@ public class Bit {
         bit.dir.top = '.'
         bit.dir.home = Path(App.getenv('HOME')).portable
 
-        if (kind == 'windows') {
-            bit.dir.programs = programFiles()
-            bit.dir.programFiles = Path(bit.dir.programs.name.replace(' (x86)', ''))
-        } else {
-            //  MOB - should be configurable
-            bit.dir.programs = Path('/usr/local/bin')
-        }
         bit.platform = { 
             name: platform, 
             os: os,
@@ -3279,6 +3272,10 @@ public class Bit {
                     loadBitFile(path)
                 }
             }
+        }
+        if (kind == 'windows') {
+            bit.dir.programFiles = programFiles()
+            bit.dir.programFilesBare = Path(bit.dir.programFiles.name.replace(' (x86)', ''))
         }
         if (options.configure && options.prefix) {
             bit.prefixes ||= {}

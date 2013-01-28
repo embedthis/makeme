@@ -126,6 +126,9 @@
 #ifndef BIT_WEB_PREFIX
     #define BIT_WEB_PREFIX "/var/www/bit-default"
 #endif
+#ifndef BIT_UBIN_PREFIX
+    #define BIT_UBIN_PREFIX "/usr/local/bin"
+#endif
 
 /* Suffixes */
 #ifndef BIT_EXE

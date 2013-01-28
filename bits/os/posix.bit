@@ -23,7 +23,7 @@ Bit.load({
         spool:      '/var/spool/${settings.product}',
         src:        '/usr/src/${settings.product}-${settings.version}',
         web:        '/var/www/${settings.product}-default',
-        lbin:       '/usr/local/bin',
+        ubin:       '/usr/local/bin',
     },
 
     settings: {

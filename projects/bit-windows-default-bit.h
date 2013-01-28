@@ -102,6 +102,9 @@
 #ifndef BIT_WEB_PREFIX
     #define BIT_WEB_PREFIX "C:/Program Files (x86)/Embedthis Bit/web"
 #endif
+#ifndef BIT_UBIN_PREFIX
+    #define BIT_UBIN_PREFIX "C:/Program Files (x86)/Embedthis Bit/bin"
+#endif
 
 /* Suffixes */
 #ifndef BIT_EXE

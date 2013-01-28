@@ -14,16 +14,19 @@ Bit.load({
 
     prefixes: {
         /* Prefixes are used when doing bit install */
-        product:    'C:/Program Files/${settings.title}',
-        productver: '${prefixes.product}',
-        config:     '${prefixes.product}',
-        bin:        '${prefixes.product}/bin',
-        inc:        '${prefixes.product}/inc',
-        log:        '${prefixes.product}/logs',
-        spool:      '${prefixes.product}/tmp',
-        src:        '${prefixes.product}/src',
-        web:        '${prefixes.product}/web',
-        lbin:       '${prefixes.product}/bin',
+        /* ProgramFiles may get (x86) added if on a 64-bit system */
+        programFilesBare:   'C:/Program Files',
+        programFiles:       'C:/Program Files',
+        product:            'C:/Program Files/${settings.title}',
+        productver:         '${prefixes.product}',
+        config:             '${prefixes.product}',
+        bin:                '${prefixes.product}/bin',
+        inc:                '${prefixes.product}/inc',
+        log:                '${prefixes.product}/logs',
+        spool:              '${prefixes.product}/tmp',
+        src:                '${prefixes.product}/src',
+        web:                '${prefixes.product}/web',
+        ubin:               '${prefixes.product}/bin',
     },
 
     settings: {

@@ -332,21 +332,19 @@ install:
 install-prep:  \
         compile
 	cd . >/dev/null ;\
-		$(eval $(shell $(BIN)/ejs bits/getbitvals projects/$(NAME)-$(OS)-$(PROFILE)-bit.h  ;\
-	PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX BIN_PREFIX  ;\
-	>.prefixes; chmod 666 .prefixes)) ;\
-	$(eval include .prefixes) ;\
+		$(BIN)/ejs bits/getbitvals projects/$(NAME)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX BIN_PREFIX >.prefixes; chmod 666 .prefixes ;\
+	echo $(eval include .prefixes) ;\
 		cd - >/dev/null 
 
 root-install:  \
         compile \
         install-prep
 	cd . >/dev/null ;\
-		rm -f $(BIT_PRD_PREFIX)/latest $(LBIN)/bit  ;\
+		rm -f $(BIT_PRD_PREFIX)/latest /bit  ;\
 	install -d -m 755 $(BIT_CFG_PREFIX) $(BIT_BIN_PREFIX) ;\
 	install -m 755 $(wildcard $(BIN)/*) $(BIT_BIN_PREFIX) ;\
 	ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest ;\
-	ln -s $(BIT_BIN_PREFIX)/bit $(LBIN)/bit ;\
+	ln -s $(BIT_BIN_PREFIX)/bit /bit ;\
 	exit 0 ;\
 		cd - >/dev/null 
 

@@ -28322,7 +28322,7 @@ PUBLIC int ejsInsertItem(Ejs *ejs, EjsArray *ap, int index, EjsAny *item)
 
 PUBLIC EjsString *ejsJoinArray(Ejs *ejs, EjsArray *ap, EjsString *join)
 {
-    return joinArray(ejs, ap, 1, (EjsObj**) &join);
+    return joinArray(ejs, ap, 1, (EjsObj**) (void*) &join);
 }
 
 
@@ -43270,7 +43270,7 @@ PUBLIC EjsPath *ejsCreatePath(Ejs *ejs, EjsString *path)
     if ((fp = ejsCreateObj(ejs, ESV(Path), 0)) == 0) {
         return 0;
     }
-    pathConstructor(ejs, fp, 1, (EjsObj**) &path);
+    pathConstructor(ejs, fp, 1, (EjsObj**) (void*) &path);
     return fp;
 }
 
@@ -49855,7 +49855,7 @@ static EjsAny *invokeUriOperator(Ejs *ejs, EjsUri *lhs, int opcode,  EjsUri *rhs
         Binary operators
      */
     case EJS_OP_ADD:
-        return uri_join(ejs, lhs, 1, (EjsObj**) &rhs);
+        return uri_join(ejs, lhs, 1, (EjsObj**) (void*) &rhs);
 
     default:
         ejsThrowTypeError(ejs, "Opcode %d not implemented for type %@", opcode, TYPE(lhs)->qname.name);
@@ -50814,7 +50814,7 @@ PUBLIC EjsUri *ejsCreateUri(Ejs *ejs, EjsString *path)
     if ((up = ejsCreateObj(ejs, ESV(Uri), 0)) == NULL) {
         return 0;
     }
-    uri_constructor(ejs, up, 1, (EjsObj**) &path);
+    uri_constructor(ejs, up, 1, (EjsObj**) (void*) &path);
     return up;
 }
 
@@ -56033,7 +56033,7 @@ const unsigned long FAR * ZEXPORT get_crc_table()
     if (crc_table_empty)
         make_crc_table();
 #endif /* DYNAMIC_CRC_TABLE */
-    return (const unsigned long FAR *)crc_table;
+    return (const unsigned long FAR *) (void*) crc_table;
 }
 
 /* ========================================================================= */
@@ -58885,7 +58885,7 @@ local int gz_load(state, buf, len, have)
 
     *have = 0;
     do {
-        ret = (int) read(state->fd, buf + *have, (int) (len - *have));
+        ret = (int) read(state->fd,(void*) (buf + *have), (int) (len - *have));
         if (ret <= 0)
             break;
         *have += ret;
@@ -59530,7 +59530,7 @@ local int gz_comp(state, flush)
 
     /* write directly if requested */
     if (state->direct) {
-        got = (int) write(state->fd, strm->next_in, (int) strm->avail_in);
+        got = (int) write(state->fd, (void*) strm->next_in, (int) strm->avail_in);
         if (got < 0 || (unsigned)got != strm->avail_in) {
             gz_error(state, Z_ERRNO, zstrerror());
             return -1;
@@ -59547,7 +59547,7 @@ local int gz_comp(state, flush)
         if (strm->avail_out == 0 || (flush != Z_NO_FLUSH &&
             (flush != Z_FINISH || ret == Z_STREAM_END))) {
             have = (unsigned)(strm->next_out - state->x.next);
-            if (have && ((got = (int) write(state->fd, state->x.next, (int) have)) < 0 ||
+            if (have && ((got = (int) write(state->fd, (void*) state->x.next, (int) have)) < 0 ||
                          (unsigned)got != have)) {
                 gz_error(state, Z_ERRNO, zstrerror());
                 return -1;
@@ -77658,7 +77658,7 @@ int ejsSendEvent(Ejs *ejs, EjsObj *emitter, cchar *name, EjsAny *thisObj, EjsAny
 {
     EjsObj  **argv;
 
-    argv = (EjsObj**) &arg;
+    argv = (EjsObj**) (void*) &arg;
     return ejsSendEventv(ejs, emitter, name, thisObj, 1, argv);
 }
 

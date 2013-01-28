@@ -24,7 +24,7 @@ Bit.load({
         spool:      '/var/spool/${settings.product}',
         src:        '/usr/src/${settings.product}-${settings.version}',
         web:        '/var/www/${settings.product}-default',
-        bin:        '${prefixes.productver}/${platform.name}/bin',
+        ubin:       '${prefixes.productver}/${platform.name}/bin',
     },
 
     settings: {

@@ -18,7 +18,7 @@ Bit.load({
         },
 
         manager: {
-            enable: 'bit.settings.mpr.manager',
+            enable: 'bit.settings.mpr && bit.settings.mpr.manager',
             type: 'exe',
             path: '${BIN}/${settings.mpr.manager}${EXE}'
             rule: 'gui',

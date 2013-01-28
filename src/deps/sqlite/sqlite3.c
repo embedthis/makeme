@@ -23870,7 +23870,7 @@ static int seekAndWrite(unixFile *id, i64 offset, const void *pBuf, int cnt){
     }
     return -1;
   }
-  got = write(id->h, pBuf, cnt);
+  got = write(id->h, (void*) pBuf, cnt);
 #endif
   TIMER_END;
   if( got<0 ){
@@ -91048,7 +91048,10 @@ SQLITE_PRIVATE void (*sqlite3IoTrace)(const char*, ...) = 0;
 **
 ** See also the "PRAGMA temp_store_directory" SQL command.
 */
-SQLITE_API char *sqlite3_temp_directory = 0;
+#if _WIN32
+SQLITE_API SQLITE_EXTERN 
+#endif
+    char *sqlite3_temp_directory = 0;
 
 /*
 ** Initialize SQLite.  
