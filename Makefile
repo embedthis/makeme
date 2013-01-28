@@ -52,7 +52,7 @@ BIN 	:= $(OS)-$(ARCH)-$(PROFILE)/bin
 all compile:
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@
 
-clean clobber install uninstall run:
+clean clobber install uninstall run install-prep:
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@
 
 regen:

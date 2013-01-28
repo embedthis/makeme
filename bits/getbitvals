@@ -1,0 +1,15 @@
+let path = Path(App.args[1])
+let data = path.readString()
+
+for each (arg in App.args.slice(2)) {
+    let re = RegExp('define BIT_' + arg + ' "(.*)"', 'm')
+    print('BIT_' + arg + '=' + data.match(re)[1])
+}
+
+let flags = Path('projects/.flags')
+if (flags.exists) {
+    data = flags.readString()
+    for each (word in data.match(/-D([^\s]*=[01])/g)) {
+        print(word.trim('-D'))
+    }
+}

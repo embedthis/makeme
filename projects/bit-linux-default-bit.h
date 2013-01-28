@@ -20,7 +20,7 @@
     #define BIT_DEPTH 1
 #endif
 #ifndef BIT_DISCOVER
-    #define BIT_DISCOVER "dsi,ejscript,est,man,man2html,pmaker"
+    #define BIT_DISCOVER "dsi,ejscript,est,man,man2html,pmaker,zip"
 #endif
 #ifndef BIT_EJS_ONE_MODULE
     #define BIT_EJS_ONE_MODULE 1
@@ -224,6 +224,9 @@
 #ifndef BIT_PACK_SQLITE
     #define BIT_PACK_SQLITE 1
 #endif
+#ifndef BIT_PACK_ZIP
+    #define BIT_PACK_ZIP 1
+#endif
 #ifndef BIT_PACK_COMPILER_PATH
     #define BIT_PACK_COMPILER_PATH "/usr/bin/gcc"
 #endif
@@ -244,4 +247,7 @@
 #endif
 #ifndef BIT_PACK_SQLITE_PATH
     #define BIT_PACK_SQLITE_PATH "/Users/mob/git/bit/src/deps/sqlite"
+#endif
+#ifndef BIT_PACK_ZIP_PATH
+    #define BIT_PACK_ZIP_PATH "/usr/bin/zip"
 #endif

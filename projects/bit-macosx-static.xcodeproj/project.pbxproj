@@ -1090,7 +1090,7 @@ cp -r http-ca.crt ../../${CFG_DIR}/bin/http-ca.crt
 			shellPath = /bin/bash;
 			shellScript = "PATH=$PATH:/usr/local/bin
 cd ../src/deps/ejs
-../../../macosx-x64-static/bin/ejsc --out ../../../macosx-x64-static/bin/ejs.mod --optimize 9 --bind --require null ejs.es";
+/Users/mob/git/bit/macosx-x64-static/bin/ejsc --out ../../../macosx-x64-static/bin/ejs.mod --optimize 9 --bind --require null ejs.es";
 		};
 		8730DF748730F2B200000014 /* ShellScript for bit.es */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1120,6 +1120,7 @@ cp -r src/bit.es macosx-x64-static/bin/bit.es
 ../bits/embedthis.bit,
 ../bits/embedthis.es,
 ../bits/gendoc.es,
+../bits/getbitvals,
 ../bits/os,
 ../bits/os/freebsd.bit,
 ../bits/os/gcc.bit,

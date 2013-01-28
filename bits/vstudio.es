@@ -523,15 +523,17 @@ function projCustomBuildStep(base, target) {
     command = command.replace(/^cp /mg, 'copy ').trim()
     if (command != '') {
         command = prefix + command + suffix
-        let saveBin = bit.BIN, saveLib = bit.LIB
+        let saveBin = bit.BIN, saveLib = bit.LIB, saveLbin = bit.LBIN
         bit.BIN = '$(BinDir)'
+        bit.LBIN = '$(BinDir)'
         bit.LIB = '$(BinDir)'
         output('
   <CustomBuildStep>
     <Command>' + command + '</Command>
     <Outputs>' + wpath(outfile) + '</Outputs>
   </CustomBuildStep>')
-        bit.BIN = saveBin
+        bit.BIN = saveLbin
+        bit.LBIN = saveBin
         bit.LIB = saveLib
     }
 }

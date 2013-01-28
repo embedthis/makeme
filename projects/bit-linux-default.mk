@@ -324,39 +324,40 @@ version:
 		@echo 0.8.0-0 ;\
 		cd - >/dev/null 
 
-install: 
+install:  \
+        compile
 	cd . >/dev/null ;\
-		sudo make root-install ;\
+		sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-install ;\
 		cd - >/dev/null 
 
 install-prep:  \
         compile
 	cd . >/dev/null ;\
-		$(BIN)/ejs bits/getbitvals projects/$(NAME)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX BIN_PREFIX >.prefixes; chmod 666 .prefixes ;\
+		./$(CONFIG)/bin/ejs bits/getbitvals projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX BIN_PREFIX UBIN_PREFIX >.prefixes; chmod 666 .prefixes ;\
 	echo $(eval include .prefixes) ;\
 		cd - >/dev/null 
 
 root-install:  \
-        compile \
         install-prep
 	cd . >/dev/null ;\
-		rm -f $(BIT_PRD_PREFIX)/latest /bit  ;\
-	install -d -m 755 $(BIT_CFG_PREFIX) $(BIT_BIN_PREFIX) ;\
-	install -m 755 $(wildcard $(BIN)/*) $(BIT_BIN_PREFIX) ;\
+		rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit  ;\
+	install -d -m 755 $(BIT_BIN_PREFIX) ;\
+	cp -R -P $(CONFIG)/bin/* $(BIT_BIN_PREFIX) ;\
+	chown -R root:bin $(BIT_BIN_PREFIX) ;\
 	ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest ;\
-	ln -s $(BIT_BIN_PREFIX)/bit /bit ;\
+	ln -s $(BIT_BIN_PREFIX)/bit $(BIT_UBIN_PREFIX)/bit ;\
 	exit 0 ;\
 		cd - >/dev/null 
 
 uninstall: 
 	cd . >/dev/null ;\
-		sudo make root-uninstall ;\
+		sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-uninstall ;\
 		cd - >/dev/null 
 
 root-uninstall:  \
         compile \
         install-prep
 	cd . >/dev/null ;\
-		echo rm -fr $(BIT_PRD_PREFIX) ;\
+		rm -fr $(BIT_PRD_PREFIX) ;\
 		cd - >/dev/null 
 
