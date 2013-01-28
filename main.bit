@@ -98,26 +98,19 @@ Bit.load({
         },
 
         install: {
-            depends: ['compile'],
             action: "installBinary()",
             'generate-make': "sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-install",
-            'generate-nmake': "
-				nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake $(MAKEFLAGS) root-install
-			",
+            'generate-nmake': "nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-install",
         },
 
 		'install-prep': {
 			action: '',
 			depends: ['compile'],
             'generate-make': "
-			    ${BIN}/ejs bits/getbitvals projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX BIN_PREFIX UBIN_PREFIX >.prefixes; chmod 666 .prefixes
+			    ${BIN}/ejs bits/getbitvals projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX UBIN_PREFIX >.prefixes; chmod 666 .prefixes
                 echo $(eval include .prefixes)",
             'generate-nmake': "
-!IF EXISTS(.prefixes)
-!ELSE
-				${BIN}/ejs bits/getbitvals projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX BIN_PREFIX UBIN_PREFIX >.prefixes; chmod 666 .prefixes
-				nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake $@
-!ENDIF",
+				${BIN}/ejs bits/getbitvals projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX UBIN_PREFIX >.prefixes",
 		},
 
         'root-install': {
@@ -131,13 +124,19 @@ Bit.load({
                 ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest
                 ln -s $(BIT_BIN_PREFIX)/bit $(BIT_UBIN_PREFIX)/bit
             ",
-            'generate-nmake': "xopy /I /S /Y /Q $(CONFIG)\\bin\* \"$(BIT_BIN_PREFIX)\"",
+            'generate-nmake': "
+                !IF EXISTS(.prefixes)
+                    xcopy /I /S /Y /Q $(CONFIG)\\bin \"$(BIT_BIN_PREFIX)\"
+                !ELSE
+				    nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake $@
+                !ENDIF
+            ",
         },
 
         uninstall: {
             action: "uninstallBinary()"
             'generate-make': "sudo $(MAKE) -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-uninstall",
-            'generate-nmake': "nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake $(MAKEFLAGS) root-uninstall",
+            'generate-nmake': "nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-uninstall",
         },
 
         'root-uninstall': {

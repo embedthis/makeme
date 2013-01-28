@@ -851,11 +851,11 @@ ${RELEASE_SETTINGS}
 		};'
 
     let compiler = bit.packs.compiler.path.basename == 'gcc' ? 
-                  'com.apple.compilers.llvmgcc42' : 'com.apple.compilers.llvm.clang.1_0'
+          'com.apple.compilers.llvmgcc42' : 'com.apple.compilers.llvm.clang.1_0'
     let overridable = appendSetting('', defaults.compiler, 
-            ['GCC_WARN_64_TO_32_BIT_CONVERSION'], 'shorten-64-to-32')
+        ['GCC_WARN_64_TO_32_BIT_CONVERSION'], 'shorten-64-to-32')
     overridable += appendSetting(overridable, defaults.compiler, 
-            ['GCC_WARN_UNUSED_VARIABLE', 'GCC_WARN_UNUSED_FUNCTION', 'GCC_WARN_UNUSED_LABEL'], 'unused-result')
+        ['GCC_WARN_UNUSED_VARIABLE', 'GCC_WARN_UNUSED_FUNCTION', 'GCC_WARN_UNUSED_LABEL'], 'unused-result')
     overridable += appendSetting(overridable, defaults.compiler, ['GCC_WARN_INHIBIT_ALL_WARNINGS'], '-w')
     makeDirGlobals(base)
     output(section.expand(ids, eo).expand({

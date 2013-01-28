@@ -16,7 +16,9 @@ try {
             /* Try this, because when cross-generating we won't be able to find compiler */
             cc = probe(path, {fullpath: true})
             Bit.load({packs: { compiler: { path: cc }}})
-        } catch {}
+        } catch {
+            Bit.load({packs: { compiler: { path: '' }}})
+        }
 
     } else if (platform.like == 'windows') {
         let search

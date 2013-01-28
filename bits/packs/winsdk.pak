@@ -8,13 +8,13 @@ let winsdk: Path
 let search = bit.packs.winsdk.path
 let newsdk, bin
 if (!search) {
-    /* Windows SDK 8 is now under /Program Files (x86)/Windows Kits/8.0 */
-    search = bit.dir.programFiles.files('Windows Kits/*').sort().reverse()
+    /* Windows SDK 8 is under /Program Files (x86)/Windows Kits/8.0 */
+    search = bit.dir.programFilesFor32.files('Windows Kits/*').sort().reverse()
     if (search.length) {
         newsdk = true
     } else {
-        /* Old Windows SDK is now under /Program Files/Microsoft SDKs/Windows */
-        search = bit.dir.programFilesBare.files('Microsoft SDKs/Windows/*').sort().reverse()
+        /* Old Windows SDK is under /Program Files (x86)/Microsoft SDKs/Windows */
+        search = bit.dir.programFilesFor32.files('Microsoft SDKs/Windows/*').sort().reverse()
     }
     if (search.length == 0 && Config.OS == 'windows') {
         throw 'Can\'t find the Windows SDK. Download from http://msdn.microsoft.com/en-us/windows/desktop/hh852363.aspx'

@@ -3174,7 +3174,10 @@ public class Bit {
         return ""
     }
 
-    function programFiles(): Path {
+    /*
+        Return the program files for 32 bit. Will be either /Program Files for 32-bit, or /Program Files (x86) for 64-bit
+     */
+    function programFilesFor32(): Path {
         /*
             If we are a 32 bit program, we don't get to see /Program Files (x86)
          */
@@ -3182,9 +3185,9 @@ public class Bit {
         if (Config.OS != 'windows') {
             return Path("/Program Files")
         } else {
-            let pvar = App.getenv('PROGRAMFILES')
-            let pf64 = Path(pvar + ' (x86)')
-            programs = Path(pf64.exists ? pf64 : pvar)
+            let pf = App.getenv('PROGRAMFILES')
+            let pf64 = App.getenv('PROCESSOR_ARCHITEW6432') ? Path(pf + ' (x86)') : pf
+            programs = Path(pf64.exists ? pf64 : pf)
             if (!programs) {
                 for each (drive in (FileSystem.drives() - ['A', 'B'])) {
                     let pf = Path(drive + ':\\').files('Program Files*')
@@ -3294,8 +3297,8 @@ public class Bit {
             }
         }
         if (kind == 'windows') {
-            bit.dir.programFiles = programFiles()
-            bit.dir.programFilesBare = Path(bit.dir.programFiles.name.replace(' (x86)', ''))
+            bit.dir.programFilesFor32 = programFilesFor32()
+            bit.dir.programFiles = Path(bit.dir.programFilesFor32.name.replace(' (x86)', ''))
         }
         if (options.configure && options.prefix) {
             bit.prefixes ||= {}
