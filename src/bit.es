@@ -393,6 +393,7 @@ public class Bit {
             settings.platforms = settings.platforms.transform(function(e) e == 'local' ? localPlatform : e)
             platforms = (settings.platforms + platforms).unique()
         }
+        verifyPlatforms()
         for each (platform in platforms) {
             currentPlatform = platform
             trace('Configure', platform)
@@ -3227,6 +3228,20 @@ public class Bit {
         }
 */
         dir.removeAll()
+    }
+
+    function verifyPlatforms() {
+        for (i in platforms) {
+            let platform = platforms[i]
+            let [os, arch, profile] = platform.split('-') 
+            if (!arch) {
+                arch = Config.CPU
+            }
+            if (!profile) {
+                profile = (options.release) ? 'release' : 'debug'
+            }
+            platforms[i] = os + '-' + arch + '-' + profile
+        }
     }
 
     /*
