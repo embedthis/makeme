@@ -1,1 +1,1 @@
-projects\windows x86 -f projects/bit-windows-default.nmake all
+projects\windows -f projects/bit-windows-default.nmake all
