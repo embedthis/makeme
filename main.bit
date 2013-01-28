@@ -119,6 +119,7 @@ Bit.load({
             'generate-make': "
                 rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit 
                 install -d -m 755 $(BIT_BIN_PREFIX)
+                install -m 755 doc/man/bit.1 /usr/share/man/man1
                 cp -R -P ${dir.bin}/* $(BIT_BIN_PREFIX)
                 chown -R root:bin $(BIT_BIN_PREFIX)
                 ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest
@@ -135,14 +136,14 @@ Bit.load({
 
         uninstall: {
             action: "uninstallBinary()"
-            'generate-make': "sudo $(MAKE) -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-uninstall",
+            'generate-make': "sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-uninstall",
             'generate-nmake': "nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-uninstall",
         },
 
         'root-uninstall': {
 			action: '',
 			depends: ['compile', 'install-prep'],
-            'generate-make': "rm -fr $(BIT_PRD_PREFIX)",
+            'generate-make': "rm -fr $(BIT_PRD_PREFIX) /usr/share/man/man1/bit.1",
             'generate-nmake': "del /Q \"$(BIT_PRD_PREFIX)\"",
 		},
 

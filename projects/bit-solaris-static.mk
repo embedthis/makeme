@@ -334,16 +334,17 @@ root-install:  \
         install-prep
 	rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit  ;\
 		install -d -m 755 $(BIT_BIN_PREFIX) ;\
+		install -m 755 doc/man/bit.1 /usr/share/man/man1 ;\
 		cp -R -P $(CONFIG)/bin/* $(BIT_BIN_PREFIX) ;\
 		chown -R root:bin $(BIT_BIN_PREFIX) ;\
 		ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest ;\
 		ln -s $(BIT_BIN_PREFIX)/bit $(BIT_UBIN_PREFIX)/bit 
 
 uninstall: 
-	sudo $(MAKE) -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-uninstall 
+	sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-uninstall 
 
 root-uninstall:  \
         compile \
         install-prep
-	rm -fr $(BIT_PRD_PREFIX) 
+	rm -fr $(BIT_PRD_PREFIX) /usr/share/man/man1/bit.1 
 
