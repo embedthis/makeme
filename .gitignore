@@ -23,3 +23,4 @@ start.bit
 projects/.flags
 macosx-x64-mine
 macosx-x64-default
+*.guid
