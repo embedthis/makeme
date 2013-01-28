@@ -786,7 +786,7 @@ public class Bit {
     }
 
     public function findPack(pack) {
-        let path = bit.dir.bits.join('packs', pack + '.pak')
+        let path = Path(bit.dir.bits).join('packs', pack + '.pak')
         if (!path.exists) {
             for each (d in bit.settings.packs) {
                 path = Path(bit.dir.src).join(d, pack + '.pak')
@@ -1207,7 +1207,6 @@ public class Bit {
         selectedTargets = defaultTargets
         if (generating) return
         gen = {
-            //  ZZZ MOB -- review name
             configuration:  bit.platform.name
             compiler:       bit.defaults.compiler.join(' '),
             defines:        bit.defaults.defines.join(' '),
@@ -1226,7 +1225,6 @@ public class Bit {
         */
         for each (item in options.gen) {
             generating = item
-            //  ZZZ MOB should use platform.name
             let base = bit.dir.proj.join(bit.settings.product + '-' + bit.platform.os + '-' + bit.platform.profile)
             let path = bit.original.dir.inc.join('bit.h')
             let hfile = bit.dir.src.join('projects', 
