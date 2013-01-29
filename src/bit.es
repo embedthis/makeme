@@ -448,10 +448,6 @@ public class Bit {
             packs: bit.packs,
             env: bit.env,
         })
-/* ZZ
-        nbit.platform.configuration = bit.platform.name + '-' + '${platform.profile}'
- */
-
         for (let [key, value] in bit.settings) {
             /* Copy over non-standard settings. These include compiler sleuthing settings.  */
             nbit.settings[key] = value
@@ -3280,7 +3276,7 @@ public class Bit {
      */
     function makeBit(platform: String, bitfile: Path) {
         let [os, arch, profile] = platform.split('-') 
-        let [,cpu] = (arch || '').split(":")
+        let [arch,cpu] = (arch || '').split(":")
         let kind = like(os)
         global.bit = bit = makeBareBit()
         bit.dir.src = options.configure || Path('.')
