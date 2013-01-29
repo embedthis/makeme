@@ -549,6 +549,7 @@ public class Bit {
         def(f, 'BIT_VER_PREFIX', '"' + bit.prefixes.productver + '"')
         def(f, 'BIT_WEB_PREFIX', '"' + bit.prefixes.web + '"')
         def(f, 'BIT_UBIN_PREFIX', '"' + bit.prefixes.ubin + '"')
+        def(f, 'BIT_MAN_PREFIX', '"' + bit.prefixes.man + '"')
 
         /* Suffixes */
         f.writeLine('\n/* Suffixes */')

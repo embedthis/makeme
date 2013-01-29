@@ -29,6 +29,7 @@ Bit.load({
         src:                '${prefixes.product}/src',
         web:                '${prefixes.product}/web',
         ubin:               '${prefixes.product}/bin',
+        man:                '${prefixes.product}/man',
     },
 
     settings: {

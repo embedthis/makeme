@@ -24,6 +24,7 @@ Bit.load({
         src:        '/usr/src/${settings.product}-${settings.version}',
         web:        '/var/www/${settings.product}-default',
         ubin:       '/usr/local/bin',
+        man:        '/usr/local/share/man/man1',
     },
 
     settings: {

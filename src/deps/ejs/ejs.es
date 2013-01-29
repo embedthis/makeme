@@ -9800,7 +9800,9 @@ module ejs {
             Replace all the matches. This call replaces all matching substrings with the corresponding array element.
             If the array element is not a string, it is converted to a string before replacement.
             @param str String to match and replace.
-            @param replacement Replacement text
+            @param replacement Replacement text. This can contain $& to insert the matched substring,
+                $` to insert the portion preceeding that matched substring, $' to insert the portion following the 
+                matched substring, $n where n is the nth parentesized substring or $$ to insert a literal $ character.
             @return A string with zero, one or more substitutions in it.
             @spec ejs
          */
