@@ -354,7 +354,6 @@ uninstall:
 	nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-uninstall
 
 root-uninstall:  \
-        compile \
         install-prep
 	del /Q "$(BIT_PRD_PREFIX)"
 

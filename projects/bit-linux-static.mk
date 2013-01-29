@@ -345,7 +345,6 @@ uninstall:
 	sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-uninstall 
 
 root-uninstall:  \
-        compile \
         install-prep
 	rm -fr $(BIT_PRD_PREFIX) /usr/share/man/man1/bit.1 
 
