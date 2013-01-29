@@ -20,15 +20,15 @@ Bit.load({
         projects: {
             action: "
                 let bitcmd = Cmd.locate('bit')
-                for each (profile in ['default', 'static']) {
+                for each (profile in ['default']) {
                     for each (name in ['linux-x86', 'macosx-x64', 'solaris-x86', 'windows-x86']) {
                         let formats
                         if (name == 'windows-x86') {
-                            formats = '-gen sh,nmake'
+                            formats = '-gen nmake'
                         } else if (name == 'macosx-x64') {
-                            formats = '-gen sh,make'
+                            formats = '-gen make'
                         } else {
-                            formats = '-gen sh,make'
+                            formats = '-gen make'
                         }
                         let without = ' -without default '
                         if (profile == 'static') {

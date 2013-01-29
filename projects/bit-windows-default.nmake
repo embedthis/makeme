@@ -96,7 +96,7 @@ clean:
 	-if exist $(CONFIG)\obj\removeFiles.obj del /Q $(CONFIG)\obj\removeFiles.obj
 	-if exist $(CONFIG)\obj\bit.obj del /Q $(CONFIG)\obj\bit.obj
 
-$(CONFIG)\bin\ca.crt: 
+$(CONFIG)\bin\ca.crt: src/deps/est/ca.crt
 	-if exist $(CONFIG)\bin\ca.crt del /Q $(CONFIG)\bin\ca.crt
 	copy /Y src\deps\est\ca.crt $(CONFIG)\bin\ca.crt
 
@@ -223,7 +223,7 @@ $(CONFIG)\bin\http.exe:  \
         $(CONFIG)\obj\http.obj
 	"$(LD)" -out:$(CONFIG)\bin\http.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\http.obj libhttp.lib $(LIBS) libpcre.lib libmpr.lib
 
-$(CONFIG)\bin\http-ca.crt: 
+$(CONFIG)\bin\http-ca.crt: src/deps/http/http-ca.crt
 	-if exist $(CONFIG)\bin\http-ca.crt del /Q $(CONFIG)\bin\http-ca.crt
 	copy /Y src\deps\http\http-ca.crt $(CONFIG)\bin\http-ca.crt
 
@@ -303,7 +303,7 @@ $(CONFIG)\bin\removeFiles.exe:  \
         $(CONFIG)\obj\removeFiles.obj
 	"$(LD)" -out:$(CONFIG)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\removeFiles.obj libmpr.lib $(LIBS)
 
-$(CONFIG)\bin\bit.es: 
+$(CONFIG)\bin\bit.es: src/bit.es
 	-if exist $(CONFIG)\bin\bit.es del /Q $(CONFIG)\bin\bit.es
 	copy /Y src\bit.es $(CONFIG)\bin\bit.es
 
@@ -333,15 +333,12 @@ version:
 	@echo 0.8.0-0
 	cd ..
 
-install: 
-	nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-install
-
-install-prep:  \
-        compile
+$(CONFIG)\inc\.prefixes: projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h
 	.\$(CONFIG)\bin\ejs bits/getbitvals projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX UBIN_PREFIX >.prefixes
 
 root-install:  \
-        install-prep
+        compile \
+        $(CONFIG)\inc\.prefixes
 !IF EXISTS(.prefixes)
 	xcopy /I /S /Y /Q $(CONFIG)\bin "$(BIT_BIN_PREFIX)"
 	del /Q $(BIT_BIN_PREFIX)\sqlite $(BIT_BIN_PREFIX)\makerom $(BIT_BIN_PREFIX)\ejsc
@@ -350,10 +347,13 @@ root-install:  \
 	nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake $@
 !ENDIF
 
-uninstall: 
-	nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-uninstall
+install: 
+	nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-install
 
 root-uninstall:  \
-        install-prep
+        $(CONFIG)\inc\.prefixes
 	del /Q "$(BIT_PRD_PREFIX)"
+
+uninstall: 
+	nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-uninstall
 

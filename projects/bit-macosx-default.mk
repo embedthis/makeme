@@ -8,7 +8,7 @@ BUILD_NUMBER    ?= 0
 PROFILE         ?= default
 ARCH            ?= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 OS              ?= macosx
-CC              ?= /usr/bin/clang
+CC              ?= 
 LD              ?= /usr/bin/ld
 CONFIG          ?= $(OS)-$(ARCH)-$(PROFILE)
 
@@ -29,6 +29,10 @@ LDFLAGS-release :=
 CFLAGS          += $(CFLAGS-$(DEBUG))
 DFLAGS          += $(DFLAGS-$(DEBUG))
 LDFLAGS         += $(LDFLAGS-$(DEBUG))
+
+ifeq ($(wildcard $(CONFIG)/inc/.prefixes*),$(CONFIG)/inc/.prefixes)
+    include $(CONFIG)/inc/.prefixes
+endif
 
 all compile: prep \
         $(CONFIG)/bin/ca.crt \
@@ -96,7 +100,7 @@ clean:
 clobber: clean
 	rm -fr ./$(CONFIG)
 
-$(CONFIG)/bin/ca.crt: 
+$(CONFIG)/bin/ca.crt: src/deps/est/ca.crt
 	rm -fr $(CONFIG)/bin/ca.crt
 	cp -r src/deps/est/ca.crt $(CONFIG)/bin/ca.crt
 
@@ -119,7 +123,7 @@ $(CONFIG)/obj/mprLib.o: \
 $(CONFIG)/bin/libmpr.dylib:  \
         $(CONFIG)/inc/mpr.h \
         $(CONFIG)/obj/mprLib.o
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libmpr.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libmpr.dylib $(CONFIG)/obj/mprLib.o $(LIBS)
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libmpr.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libmpr.dylib $(CONFIG)/obj/mprLib.o $(LIBS)
 
 $(CONFIG)/inc/est.h:  \
         $(CONFIG)/inc/bit.h \
@@ -137,7 +141,7 @@ $(CONFIG)/obj/mprSsl.o: \
 $(CONFIG)/bin/libmprssl.dylib:  \
         $(CONFIG)/bin/libmpr.dylib \
         $(CONFIG)/obj/mprSsl.o
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libmprssl.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libmprssl.dylib $(CONFIG)/obj/mprSsl.o -lmpr $(LIBS)
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libmprssl.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libmprssl.dylib $(CONFIG)/obj/mprSsl.o -lmpr $(LIBS)
 
 $(CONFIG)/obj/makerom.o: \
         src/deps/mpr/makerom.c \
@@ -164,7 +168,7 @@ $(CONFIG)/obj/pcre.o: \
 $(CONFIG)/bin/libpcre.dylib:  \
         $(CONFIG)/inc/pcre.h \
         $(CONFIG)/obj/pcre.o
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libpcre.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libpcre.dylib $(CONFIG)/obj/pcre.o $(LIBS)
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libpcre.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libpcre.dylib $(CONFIG)/obj/pcre.o $(LIBS)
 
 $(CONFIG)/inc/sqlite3.h:  \
         $(CONFIG)/inc/bit.h
@@ -175,12 +179,12 @@ $(CONFIG)/obj/sqlite3.o: \
         src/deps/sqlite/sqlite3.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/sqlite3.h
-	$(CC) -c -o $(CONFIG)/obj/sqlite3.o -arch x86_64 -w $(DFLAGS) -I$(CONFIG)/inc src/deps/sqlite/sqlite3.c
+	$(CC) -c -o $(CONFIG)/obj/sqlite3.o -arch x86_64 $(DFLAGS) -I$(CONFIG)/inc src/deps/sqlite/sqlite3.c
 
 $(CONFIG)/bin/libsqlite3.dylib:  \
         $(CONFIG)/inc/sqlite3.h \
         $(CONFIG)/obj/sqlite3.o
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libsqlite3.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libsqlite3.dylib $(CONFIG)/obj/sqlite3.o $(LIBS)
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libsqlite3.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libsqlite3.dylib $(CONFIG)/obj/sqlite3.o $(LIBS)
 
 $(CONFIG)/obj/sqlite.o: \
         src/deps/sqlite/sqlite.c \
@@ -210,7 +214,7 @@ $(CONFIG)/bin/libhttp.dylib:  \
         $(CONFIG)/bin/libpcre.dylib \
         $(CONFIG)/inc/http.h \
         $(CONFIG)/obj/httpLib.o
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libhttp.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libhttp.dylib $(CONFIG)/obj/httpLib.o -lpcre -lmpr $(LIBS)
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libhttp.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libhttp.dylib $(CONFIG)/obj/httpLib.o -lpcre -lmpr $(LIBS)
 
 $(CONFIG)/obj/http.o: \
         src/deps/http/http.c \
@@ -223,7 +227,7 @@ $(CONFIG)/bin/http:  \
         $(CONFIG)/obj/http.o
 	$(CC) -o $(CONFIG)/bin/http -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/http.o -lhttp $(LIBS) -lpcre -lmpr
 
-$(CONFIG)/bin/http-ca.crt: 
+$(CONFIG)/bin/http-ca.crt: src/deps/http/http-ca.crt
 	rm -fr $(CONFIG)/bin/http-ca.crt
 	cp -r src/deps/http/http-ca.crt $(CONFIG)/bin/http-ca.crt
 
@@ -263,7 +267,7 @@ $(CONFIG)/bin/libejs.dylib:  \
         $(CONFIG)/inc/ejs.slots.h \
         $(CONFIG)/inc/ejsByteGoto.h \
         $(CONFIG)/obj/ejsLib.o
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libejs.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libejs.dylib $(CONFIG)/obj/ejsLib.o -lsqlite3 -lmpr -lpcre -lhttp $(LIBS) -lpcre -lmpr
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libejs.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libejs.dylib $(CONFIG)/obj/ejsLib.o -lsqlite3 -lmpr -lpcre -lhttp $(LIBS) -lpcre -lmpr
 
 $(CONFIG)/obj/ejs.o: \
         src/deps/ejs/ejs.c \
@@ -274,7 +278,7 @@ $(CONFIG)/obj/ejs.o: \
 $(CONFIG)/bin/ejs:  \
         $(CONFIG)/bin/libejs.dylib \
         $(CONFIG)/obj/ejs.o
-	$(CC) -o $(CONFIG)/bin/ejs -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejs.o -lejs $(LIBS) -lsqlite3 -lmpr -lpcre -lhttp -ledit -ledit
+	$(CC) -o $(CONFIG)/bin/ejs -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejs.o -lejs $(LIBS) -lsqlite3 -lmpr -lpcre -lhttp -ledit
 
 $(CONFIG)/obj/ejsc.o: \
         src/deps/ejs/ejsc.c \
@@ -289,17 +293,15 @@ $(CONFIG)/bin/ejsc:  \
 
 $(CONFIG)/bin/ejs.mod:  \
         $(CONFIG)/bin/ejsc
-	cd src/deps/ejs >/dev/null ;\
-		../../../$(CONFIG)/bin/ejsc --out ../../../$(CONFIG)/bin/ejs.mod --optimize 9 --bind --require null ejs.es ;\
-		cd - >/dev/null 
+	cd src/deps/ejs >/dev/null; ../../../$(CONFIG)/bin/ejsc --out ../../../$(CONFIG)/bin/ejs.mod --optimize 9 --bind --require null ejs.es ; cd - >/dev/null
 
-$(CONFIG)/bin/bit.es: 
+$(CONFIG)/bin/bit.es: src/bit.es
 	rm -fr $(CONFIG)/bin/bit.es
 	cp -r src/bit.es $(CONFIG)/bin/bit.es
 
 $(CONFIG)/bin/bits: 
-	rm -fr ./$(CONFIG)/bin/bits ;\
-		cp -r bits ./$(CONFIG)/bin 
+	rm -fr ./$(CONFIG)/bin/bits
+		cp -r bits ./$(CONFIG)/bin
 
 $(CONFIG)/obj/bit.o: \
         src/bit.c \
@@ -318,33 +320,33 @@ $(CONFIG)/bin/bit:  \
 	$(CC) -o $(CONFIG)/bin/bit -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/bit.o $(CONFIG)/obj/mprLib.o $(CONFIG)/obj/pcre.o $(CONFIG)/obj/httpLib.o $(CONFIG)/obj/sqlite3.o $(CONFIG)/obj/ejsLib.o $(LIBS)
 
 version: 
-	cd bits >/dev/null ;\
-		@echo 0.8.0-0 ;\
-		cd - >/dev/null 
+	@cd bits >/dev/null; echo 0.8.0-0 ; cd - >/dev/null
 
-install: 
-	sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-install 
-
-install-prep:  \
-        compile
-	./$(CONFIG)/bin/ejs bits/getbitvals projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX UBIN_PREFIX >.prefixes; chmod 666 .prefixes ;\
-		echo $(eval include .prefixes) 
+$(CONFIG)/inc/.prefixes: projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h
+	./$(CONFIG)/bin/ejs bits/getbitvals projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX UBIN_PREFIX >./$(CONFIG)/inc/.prefixes; chmod 666 ./$(CONFIG)/inc/.prefixes
 
 root-install:  \
-        install-prep
-	rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit  ;\
-		install -d -m 755 $(BIT_BIN_PREFIX) ;\
-		install -m 755 doc/man/bit.1 /usr/share/man/man1 ;\
-		cp -R -P $(CONFIG)/bin/* $(BIT_BIN_PREFIX) ;\
-		rm -f $(BIT_BIN_PREFIX)/sqlite $(BIT_BIN_PREFIX)/makerom $(BIT_BIN_PREFIX)/ejsc $(BIT_BIN_PREFIX)/ejs ;\
-		$(BIT_BIN_PREFIX)/http ;\
-		ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest ;\
-		ln -s $(BIT_BIN_PREFIX)/bit $(BIT_UBIN_PREFIX)/bit 
+        compile \
+        $(CONFIG)/inc/.prefixes
+ifeq ($(BIT_BIN_PREFIX),)
+		sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $@
+else
+		rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit 
+		install -d -m 755 $(BIT_BIN_PREFIX)
+		install -m 755 doc/man/bit.1 /usr/share/man/man1
+		cp -R -P $(CONFIG)/bin/* $(BIT_BIN_PREFIX)
+		rm -f $(BIT_BIN_PREFIX)/sqlite $(BIT_BIN_PREFIX)/makerom $(BIT_BIN_PREFIX)/ejsc $(BIT_BIN_PREFIX)/ejs $(BIT_BIN_PREFIX)/http
+		ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest
+		ln -s $(BIT_BIN_PREFIX)/bit $(BIT_UBIN_PREFIX)/bit
+endif
 
-uninstall: 
-	sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-uninstall 
+install: 
+	sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk root-install
 
 root-uninstall:  \
-        install-prep
-	rm -fr $(BIT_PRD_PREFIX) /usr/share/man/man1/bit.1 
+        $(CONFIG)/inc/.prefixes
+	rm -fr $(BIT_PRD_PREFIX) /usr/share/man/man1/bit.1
+
+uninstall: 
+	sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk root-uninstall
 

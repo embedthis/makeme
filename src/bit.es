@@ -2443,7 +2443,7 @@ public class Bit {
                 cmd = repvar2(cmd, target.home)
                 genWrite(cmd + '\n')
             } else {
-                genout.writeLine('#  Omit build script ' + target.path)
+                genout.writeLine('#  Omit build script ' + target.name)
             }
 
         } else if (generating == 'make') {
