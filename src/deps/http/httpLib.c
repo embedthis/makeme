@@ -10235,7 +10235,10 @@ static int secureCondition(HttpConn *conn, HttpRoute *route, HttpRouteOp *op)
             httpAddHeader(conn, "Strict-Transport-Security", "%d", age / MPR_TICKS_PER_SEC);
         }
     }
-    return conn->secure ? HTTP_ROUTE_OK : HTTP_ROUTE_REJECT;
+    if (!conn->secure) {
+        httpError(conn, HTTP_CODE_UNAUTHORIZED, "Must use SSL");
+    }
+    return HTTP_ROUTE_OK;
 }
 
 /********************************* Updates ******************************/
