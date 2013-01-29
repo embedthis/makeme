@@ -10221,18 +10221,16 @@ static int matchCondition(HttpConn *conn, HttpRoute *route, HttpRouteOp *op)
  */
 static int secureCondition(HttpConn *conn, HttpRoute *route, HttpRouteOp *op)
 {
-    ssize   age;
-    int     domains;
+    int64   age;
 
     assert(conn);
     if (op->details && op->details) {
         /* Negative age means subDomains == true */
         age = stoi(op->details);
-        domains = (age < 0);
         if (age < 0) {
-            httpAddHeader(conn, "Strict-Transport-Security", "%d; includeSubDomains", -age / MPR_TICKS_PER_SEC);
+            httpAddHeader(conn, "Strict-Transport-Security", "%Ld; includeSubDomains", -age / MPR_TICKS_PER_SEC);
         } else {
-            httpAddHeader(conn, "Strict-Transport-Security", "%d", age / MPR_TICKS_PER_SEC);
+            httpAddHeader(conn, "Strict-Transport-Security", "%Ld", age / MPR_TICKS_PER_SEC);
         }
     }
     if (!conn->secure) {
