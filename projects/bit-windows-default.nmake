@@ -344,6 +344,8 @@ root-install:  \
         install-prep
 !IF EXISTS(.prefixes)
 	xcopy /I /S /Y /Q $(CONFIG)\bin "$(BIT_BIN_PREFIX)"
+	del /Q $(BIT_BIN_PREFIX)\sqlite $(BIT_BIN_PREFIX)\makerom $(BIT_BIN_PREFIX)\ejsc
+	$(BIT_BIN_PREFIX)\ejs $(BIT_BIN_PREFIX)\http
 !ELSE
 	nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake $@
 !ENDIF

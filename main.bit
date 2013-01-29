@@ -121,13 +121,16 @@ Bit.load({
                 install -d -m 755 $(BIT_BIN_PREFIX)
                 install -m 755 doc/man/bit.1 /usr/share/man/man1
                 cp -R -P ${dir.bin}/* $(BIT_BIN_PREFIX)
-                chown -R root:bin $(BIT_BIN_PREFIX)
+                rm -f $(BIT_BIN_PREFIX)/sqlite $(BIT_BIN_PREFIX)/makerom $(BIT_BIN_PREFIX)/ejsc $(BIT_BIN_PREFIX)/ejs
+$(BIT_BIN_PREFIX)/http
                 ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest
                 ln -s $(BIT_BIN_PREFIX)/bit $(BIT_UBIN_PREFIX)/bit
             ",
             'generate-nmake': "
                 !IF EXISTS(.prefixes)
                     xcopy /I /S /Y /Q $(CONFIG)\\bin \"$(BIT_BIN_PREFIX)\"
+                    del /Q $(BIT_BIN_PREFIX)\\sqlite $(BIT_BIN_PREFIX)\\makerom $(BIT_BIN_PREFIX)\\ejsc
+$(BIT_BIN_PREFIX)\\ejs $(BIT_BIN_PREFIX)\\http
                 !ELSE
 				    nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake $@
                 !ENDIF
@@ -142,7 +145,7 @@ Bit.load({
 
         'root-uninstall': {
 			action: '',
-			depends: ['compile', 'install-prep'],
+			depends: ['install-prep'],
             'generate-make': "rm -fr $(BIT_PRD_PREFIX) /usr/share/man/man1/bit.1",
             'generate-nmake': "del /Q \"$(BIT_PRD_PREFIX)\"",
 		},
