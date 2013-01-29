@@ -1019,6 +1019,7 @@ public class Bit {
         for (let [tname,target] in o.targets) {
             target.name ||= tname
             target.home ||= home
+            home = target.home
             target.vars ||= {}
             if (target.path) {
                 if (!target.path.startsWith('${')) {
@@ -1341,6 +1342,7 @@ public class Bit {
         genout.writeLine('LDFLAGS         += $(LDFLAGS-$(DEBUG))\n')
         genout.writeLine('ifeq ($(wildcard $(CONFIG)/inc/.prefixes*),$(CONFIG)/inc/.prefixes)\n    include $(CONFIG)/inc/.prefixes\nendif\n')
 
+        genout.writeLine('unexport CDPATH\n')
         genout.writeLine('all compile: prep \\\n        ' + genAll())
         genout.writeLine('.PHONY: prep\n\nprep:')
         genout.writeLine('\t@if [ "$(CONFIG)" = "" ] ; then echo WARNING: CONFIG not set ; exit 255 ; fi')
@@ -1628,6 +1630,7 @@ public class Bit {
 
     /*
         Set target output paths. Uses the default locations for libraries, executables and files
+        MOB - rename. Doing more than this.
      */
     function setDefaultTargetPath() {
         for each (target in bit.targets) {
@@ -1652,6 +1655,16 @@ public class Bit {
             }
             if (target.path) {
                 target.path = Path(expand(target.path, {fill: '${}'}))
+            }
+            if (target.home) {
+                target.home = Path(expand(target.home, {fill: '${}'}))
+            }
+            for (let [when, item] in target.scripts) {
+                for each (script in item) {
+                    if (script.home) {
+                        script.home = Path(expand(script.home, {fill: '${}'}))
+                    }
+                }
             }
         }
     }
@@ -1966,6 +1979,9 @@ public class Bit {
         for each (target in bit.targets) {
             if (target.path) {
                 target.path = Path(target.path)
+            }
+            if (target.home) {
+                target.home = Path(target.home)
             }
             for (i in target.includes) {
                 target.includes[i] = Path(target.includes[i])
@@ -2411,8 +2427,8 @@ public class Bit {
 
         let prefix, suffix
         if (generating == 'sh' || generating == 'make') {
-            prefix = 'cd ' + target.home.relative + ' >/dev/null'
-            suffix = 'cd - >/dev/null'
+            prefix = 'cd ' + target.home.relative
+            suffix = 'cd ' + bit.dir.top.relativeTo(target.home)
         } else if (generating == 'nmake') {
             prefix = 'cd ' + target.home.relative.windows + '\n'
             suffix = '\ncd ' + bit.dir.src.relativeTo(target.home).windows
@@ -2453,18 +2469,16 @@ public class Bit {
             }
             let cmd = target['generate-make'] || target['generate-sh'] || target.generate
             if (cmd) {
-                cmd = cmd.trim().replace(/^\s*/mg, '')
+                cmd = cmd.trim().replace(/^\s*/mg, '\t')
                 cmd = cmd.replace(/\\\n/mg, '')
-                if (prefix || suffix) {
-                    if (cmd.startsWith('@')) {
-                        cmd = cmd.slice(1).replace(/^.*$/mg, '\t@' + prefix + '; $& ; ' + suffix)
-                    } else {
-                        cmd = cmd.replace(/^.*$/mg, '\t' + prefix + '; $& ; ' + suffix)
-                    }
-                } else {
-                    cmd = cmd.replace(/^/mg, '\t')
-                }
                 cmd = cmd.replace(/^\t*(ifeq|ifneq|else|endif)/mg, '$1')
+                if (prefix || suffix) {
+                    if (cmd.startsWith('\t@')) {
+                        cmd = cmd.slice(2).replace(/^\s*(.*)$/mg, '\t@' + prefix + '; $1 ; ' + suffix)
+                    } else {
+                        cmd = cmd.replace(/^\s(.*)$/mg, '\t' + prefix + '; $1 ; ' + suffix)
+                    }
+                }
                 cmd = expand(cmd, {fill: null}).expand(target.vars, {fill: ''})
                 cmd = repvar2(cmd, target.home)
                 genWrite(cmd + '\n')

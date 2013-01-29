@@ -334,7 +334,7 @@ version:
 	cd ..
 
 $(CONFIG)\inc\.prefixes: projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h
-	.\$(CONFIG)\bin\ejs bits/getbitvals projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX UBIN_PREFIX >.prefixes
+	.\$(CONFIG)\bin\ejs bits/getbitvals ./projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX UBIN_PREFIX >.prefixes
 
 root-install:  \
         compile \
@@ -344,16 +344,16 @@ root-install:  \
 	del /Q $(BIT_BIN_PREFIX)\sqlite $(BIT_BIN_PREFIX)\makerom $(BIT_BIN_PREFIX)\ejsc
 	$(BIT_BIN_PREFIX)\ejs $(BIT_BIN_PREFIX)\http
 !ELSE
-	nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake $@
+	nmake -nologo -f ./projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake $@
 !ENDIF
 
 install: 
-	nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-install
+	nmake -nologo -f ./projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-install
 
 root-uninstall:  \
         $(CONFIG)\inc\.prefixes
 	del /Q "$(BIT_PRD_PREFIX)"
 
 uninstall: 
-	nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-uninstall
+	nmake -nologo -f ./projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-uninstall
 

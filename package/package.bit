@@ -12,5 +12,122 @@ Bit.load({
             depends: [ 'libmpr' ],
             platforms: [ 'local' ],
         },
+
+		'.prefixes': {
+            home: '${TOP}',
+			action: '',
+            path: '${INC}/.prefixes',
+            files: [ '${TOP}/projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h' ],
+            'generate-make': "
+			    ${BIN}/ejs ${TOP}/bits/getbitvals ${TOP}/projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX UBIN_PREFIX >${INC}/.prefixes; chmod 666 ${INC}/.prefixes",
+            'generate-nmake': "
+				${BIN}/ejs bits/getbitvals ${TOP}/projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX UBIN_PREFIX >.prefixes",
+		},
+
+        'root-install': {
+            home: '${TOP}',
+			action: '',
+			depends: ['compile', '.prefixes'],
+            'generate-make': "
+                ifeq ($(BIT_BIN_PREFIX),)
+                    sudo $(MAKE) -C ${TOP} -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $@
+                else
+                    rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit
+                    install -d -m 755 $(BIT_BIN_PREFIX)
+                    cp ${TOP}/doc/man/bit.1 /usr/share/man/man1
+                    cp -R -P ${BIN}/* $(BIT_BIN_PREFIX)
+                    rm -f $(BIT_BIN_PREFIX)/sqlite $(BIT_BIN_PREFIX)/makerom $(BIT_BIN_PREFIX)/ejsc $(BIT_BIN_PREFIX)/ejs $(BIT_BIN_PREFIX)/http
+                    ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest
+                    for n in bit http; do \\
+                        rm -f $(BIT_UBIN_PREFIX)/$$n ; \\
+                        ln -s $(BIT_BIN_PREFIX)/$$n $(BIT_UBIN_PREFIX)/$$n ; \\
+                    done
+                endif
+            ",
+            'generate-nmake': "
+                !IF EXISTS(.prefixes)
+                    xcopy /I /S /Y /Q $(CONFIG)\\bin \"$(BIT_BIN_PREFIX)\"
+                    del /Q $(BIT_BIN_PREFIX)\\sqlite $(BIT_BIN_PREFIX)\\makerom $(BIT_BIN_PREFIX)\\ejsc
+$(BIT_BIN_PREFIX)\\ejs $(BIT_BIN_PREFIX)\\http
+                !ELSE
+				    nmake -nologo -f ${TOP}/projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake $@
+                !ENDIF
+            ",
+        },
+
+        install: {
+            home: '${TOP}',
+            action: "installBinary()",
+            'generate-make': "sudo $(MAKE) -C ${TOP} -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk root-install",
+            'generate-nmake': "nmake -nologo -f ${TOP}/projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-install",
+        },
+
+        'root-uninstall': {
+            home: '${TOP}',
+			action: '',
+			depends: ['.prefixes'],
+            'generate-make': "rm -fr $(BIT_PRD_PREFIX) /usr/share/man/man1/bit.1",
+            'generate-nmake': "del /Q \"$(BIT_PRD_PREFIX)\"",
+		},
+
+        uninstall: {
+            home: '${TOP}',
+            action: "uninstallBinary()"
+            'generate-make': "sudo $(MAKE) -C ${TOP} -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk root-uninstall",
+            'generate-nmake': "nmake -nologo -f ${TOP}/projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-uninstall",
+        },
+
+        package: {
+            home: '${TOP}',
+            enable: "'${OS}' == 'linux' || '${OS}' == 'macosx' || '${OS}' == 'windows'",
+            depends: ['packageBinary', 'packageSource'],
+        },
+
+        packageBinary: {
+            home: '${TOP}',
+            depends: ['build'],
+            action: "packageBinaryFiles()",
+        },
+
+        packageSource: {
+            home: '${TOP}',
+            depends: ['build'],
+            action: "packageSourceFiles()",
+        },
+
+        testPackage: {
+            type: 'test',
+            action: "
+                let package = packageName()
+                if (!package || !package.exists || bit.settings.depth < 2) {
+                    trace('Test', 'testPackage -- SKIPPED (Runs at depth 2 on windows or macosx)')
+                } else {
+                    if (Config.OS == 'macosx' && App.uid != 0) {
+                        trace('Test', 'testPackage -- SKIPPED (Must run as root)')
+                    } else {
+                        trace('Test', 'testPackage')
+                        if (bit.prefixes.bin.join('uninstall').exists) {
+                            trace('Test', 'Cleanup prior to installation')
+                            uninstallPackage()
+                            checkUninstalled()
+                        }
+                        installPackage()
+                        if (missing = checkInstalled()) {
+                            trace('Test', 'Install is missing files: ' + missing)
+                        }
+                        let s = bit.settings
+                        trace('Test', 'bit -V')
+                        assert(Cmd.run([bit.prefixes.bin.join('bit'), '-V']).trim() == s.version + '-' + s.buildNumber)
+                        uninstallPackage()
+                        if (Config.OS == 'windows') App.sleep(1000)
+                        if (existing = checkUninstalled()) {
+                            trace('Warning', 'The uninstall for testPackage was not clean: ' + existing)
+                        } else {
+                            trace('Test', 'Uninstall is clean')
+                        }
+                    }
+                }
+            ",
+        },
     },
 })
