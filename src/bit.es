@@ -2431,6 +2431,7 @@ public class Bit {
             let cmd = target['generate-sh'] || target.shell
             if (cmd) {
                 cmd = cmd.trim()
+                cmd = cmd.replace(/\\\n/mg, '')
                 if (prefix || suffix) {
                     if (cmd.startsWith('@')) {
                         cmd = cmd.slice(1).replace(/^.*$/mg, '\t@' + prefix + '; $& ; ' + suffix)
@@ -2456,6 +2457,7 @@ public class Bit {
             let cmd = target['generate-make'] || target['generate-sh'] || target.generate
             if (cmd) {
                 cmd = cmd.trim().replace(/^\s*/mg, '')
+                cmd = cmd.replace(/\\\n/mg, '')
                 if (prefix || suffix) {
                     if (cmd.startsWith('@')) {
                         cmd = cmd.slice(1).replace(/^.*$/mg, '\t@' + prefix + '; $& ; ' + suffix)
@@ -2479,7 +2481,7 @@ public class Bit {
             }
             let cmd = target['generate-nmake'] || target['generate-make'] || target['generate']
             if (cmd) {
-                //  MOB - generalize out
+                cmd = cmd.replace(/\\\n/mg, '')
                 cmd = cmd.trim().replace(/^cp /, 'copy ')
                 cmd = prefix + cmd + suffix
                 cmd = cmd.replace(/^[ \t]*/mg, '')
