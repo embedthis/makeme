@@ -2050,6 +2050,7 @@ public class Bit {
                 } else if (!Path(dname).exists) {
                     if (!bit.packs[dname]) {
                         print('Unknown dependency "' + dname + '" in target "' + target.name + '"')
+                        target.building = false
                         return
                     }
                 }
