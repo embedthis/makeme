@@ -67,11 +67,11 @@ help:
 	@echo 'With make, the default configuration can be modified by setting make' >&2
 	@echo 'variables. Set to 0 to disable and 1 to enable:' >&2
 	@echo '' >&2
-	@echo '      PROFILE            # Select default or static for static linking'
-	@echo '      BIT_MPR_LOGGING    # Enable application logging'
-	@echo '      BIT_MPR_TRACING    # Enable debug tracing'
-	@echo '      BIT_PACK_EST       # Enable the EST SSL stack'
-	@echo ''
+	@echo '      PROFILE            # Select default or static for static linking' >&2
+	@echo '      BIT_MPR_LOGGING    # Enable application logging' >&2
+	@echo '      BIT_MPR_TRACING    # Enable debug tracing' >&2
+	@echo '      BIT_PACK_EST       # Enable the EST SSL stack' >&2
+	@echo '' >&2
 	@echo 'For example, to disable CGI:' >&2
 	@echo '' >&2
 	@echo '      make BIT_PACK_CGI=0' >&2

@@ -2,8 +2,8 @@
 #
 #   configure -- Configure for building
 #
-#   Configure will invoke bit configure to prepare for building. If bit is not installed,
-#   configuration is not required. Variables can be passed to make to modify the build.
+#   Configure will invoke bit configure to prepare for building. If bit is not yet built or
+#   installed, configuration is not required. Variables can be passed to make to modify the build.
 #
 NAME=bit
 OS=`uname | sed 's/CYGWIN.*/windows/;s/Darwin/macosx/' | tr '[A-Z]' '[a-z]'`

@@ -3356,6 +3356,7 @@ public class Bit {
     }
 
     function samePlatform(p1, p2): Boolean {
+        if (!p1 || !p2) return false
         let [os1, arch1] = p1.split('-')
         let [os2, arch2] = p2.split('-')
         return os1 == os2 && arch1 == arch2
