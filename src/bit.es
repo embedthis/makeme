@@ -1543,7 +1543,8 @@ public class Bit {
                             target.enable = true
                         }
                     } catch (e) {
-                        vtrace('Enable', 'Can\'t run enable script for ' + target.name + '\n' + e)
+                        vtrace('Enable', 'Cannot run enable script for ' + target.name + '\n' + e)
+print("SCRIPT", script)
                         target.enable = false
                     }
                 }
@@ -3194,7 +3195,7 @@ public class Bit {
     /*
         Return the program files for 32 bit. Will be either /Program Files for 32-bit, or /Program Files (x86) for 64-bit
      */
-    function programFilesFor32(): Path {
+    function programFiles32(): Path {
         /*
             If we are a 32 bit program, we don't get to see /Program Files (x86)
          */
@@ -3202,9 +3203,13 @@ public class Bit {
         if (Config.OS != 'windows') {
             return Path("/Program Files")
         } else {
-            let pf = App.getenv('PROGRAMFILES')
-            let pf64 = App.getenv('PROCESSOR_ARCHITEW6432') ? Path(pf + ' (x86)') : pf
-            programs = Path(pf64.exists ? pf64 : pf)
+            programs = Path(App.getenv('PROGRAMFILES'))
+            if (App.getenv('PROCESSOR_ARCHITECTURE') == 'AMD64' || App.getenv('PROCESSOR_ARCHITEW6432') == 'AMD64') {
+                let pf32 = Path(programs + ' (x86)')
+                if (pf32.exists) {
+                    programs = pf32
+                }
+            }
             if (!programs) {
                 for each (drive in (FileSystem.drives() - ['A', 'B'])) {
                     let pf = Path(drive + ':\\').files('Program Files*')
@@ -3314,8 +3319,8 @@ public class Bit {
             }
         }
         if (kind == 'windows') {
-            bit.dir.programFilesFor32 = programFilesFor32()
-            bit.dir.programFiles = Path(bit.dir.programFilesFor32.name.replace(' (x86)', ''))
+            bit.dir.programFiles32 = programFiles32()
+            bit.dir.programFiles = Path(bit.dir.programFiles32.name.replace(' (x86)', ''))
         }
         if (options.configure && options.prefix) {
             bit.prefixes ||= {}
