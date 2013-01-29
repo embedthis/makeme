@@ -1130,7 +1130,7 @@ cp -r http-ca.crt ../../${CFG_DIR}/bin/http-ca.crt
 			shellPath = /bin/bash;
 			shellScript = "PATH=$PATH:/usr/local/bin
 cd ../src/deps/ejs
-/home/mob/bit/macosx-x64-default/bin/ejsc --out ../../../macosx-x64-default/bin/ejs.mod --optimize 9 --bind --require null ejs.es";
+/Users/mob/git/bit/macosx-x64-default/bin/ejsc --out ../../../macosx-x64-default/bin/ejs.mod --optimize 9 --bind --require null ejs.es";
 		};
 		493D3589493D470700000014 /* ShellScript for bit.es */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1202,6 +1202,8 @@ cp -r src/bit.es macosx-x64-default/bin/bit.es
 ../bits/packs/winsdk.pak,
 ../bits/packs/zip.pak,
 ../bits/packs/zlib.pak,
+../bits/sample-main.bit,
+../bits/sample-start.bit,
 ../bits/simple.bit,
 ../bits/standard.bit,
 ../bits/vstudio.es,
@@ -1707,6 +1709,16 @@ fi";
                 DSTROOT = "/tmp/bit.dst";
                 OBJROOT = "$(OBJ_DIR)";
                 SYMROOT = "$(BIN_DIR)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_UNUSED_VARIABLE = NO;
+				GCC_WARN_UNUSED_FUNCTION = NO;
+				GCC_WARN_UNUSED_LABEL = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_UNUSED_VARIABLE = NO;
+				GCC_WARN_UNUSED_FUNCTION = NO;
+				GCC_WARN_UNUSED_LABEL = NO;
 
                 /* Debug Settings */
 				COPY_PHASE_STRIP = NO;
@@ -1767,12 +1779,22 @@ fi";
                 DSTROOT = "/tmp/bit.dst";
                 OBJROOT = "$(OBJ_DIR)";
                 SYMROOT = "$(BIN_DIR)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_UNUSED_VARIABLE = NO;
+				GCC_WARN_UNUSED_FUNCTION = NO;
+				GCC_WARN_UNUSED_LABEL = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_UNUSED_VARIABLE = NO;
+				GCC_WARN_UNUSED_FUNCTION = NO;
+				GCC_WARN_UNUSED_LABEL = NO;
 
                 /* Release Settings */
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_OPTIMIZATION_LEVEL = s;
-                GCC_WARN_UNINITIALIZED_AUTOS = null;
+                GCC_WARN_UNINITIALIZED_AUTOS = NO;
 				HEADER_SEARCH_PATHS = (
 					"../macosx-x64-default/inc",
 					"$(inherited)"
@@ -1910,6 +1932,7 @@ fi";
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = libsqlite3;
+				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
@@ -1922,6 +1945,7 @@ fi";
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = libsqlite3;
+				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 
 
 			};

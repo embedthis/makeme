@@ -8,7 +8,7 @@ BUILD_NUMBER    ?= 0
 PROFILE         ?= default
 ARCH            ?= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 OS              ?= macosx
-CC              ?= 
+CC              ?= /usr/bin/clang
 LD              ?= /usr/bin/ld
 CONFIG          ?= $(OS)-$(ARCH)-$(PROFILE)
 

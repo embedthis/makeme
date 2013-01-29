@@ -231,13 +231,13 @@
     #define BIT_PACK_ZIP 1
 #endif
 #ifndef BIT_PACK_COMPILER_PATH
-    #define BIT_PACK_COMPILER_PATH "/usr/lib/ccache/gcc"
+    #define BIT_PACK_COMPILER_PATH "/usr/bin/gcc"
 #endif
 #ifndef BIT_PACK_EJSCRIPT_PATH
-    #define BIT_PACK_EJSCRIPT_PATH "/home/mob/bit/src/deps/ejs"
+    #define BIT_PACK_EJSCRIPT_PATH "/Users/mob/git/bit/src/deps/ejs"
 #endif
 #ifndef BIT_PACK_HTTP_PATH
-    #define BIT_PACK_HTTP_PATH "/home/mob/bit/linux-x86-debug/bin/http"
+    #define BIT_PACK_HTTP_PATH "/Users/mob/git/bit/macosx-x64-debug/bin/http"
 #endif
 #ifndef BIT_PACK_LIB_PATH
     #define BIT_PACK_LIB_PATH "/usr/bin/ar"
@@ -246,13 +246,13 @@
     #define BIT_PACK_LINK_PATH "/usr/bin/ld"
 #endif
 #ifndef BIT_PACK_PCRE_PATH
-    #define BIT_PACK_PCRE_PATH "/home/mob/bit/src/deps/pcre"
+    #define BIT_PACK_PCRE_PATH "/Users/mob/git/bit/src/deps/pcre"
 #endif
 #ifndef BIT_PACK_PMAKER_PATH
     #define BIT_PACK_PMAKER_PATH "undefined"
 #endif
 #ifndef BIT_PACK_SQLITE_PATH
-    #define BIT_PACK_SQLITE_PATH "/home/mob/bit/src/deps/sqlite"
+    #define BIT_PACK_SQLITE_PATH "/Users/mob/git/bit/src/deps/sqlite"
 #endif
 #ifndef BIT_PACK_ZIP_PATH
     #define BIT_PACK_ZIP_PATH "/usr/bin/zip"
