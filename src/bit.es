@@ -1543,8 +1543,8 @@ public class Bit {
                             target.enable = true
                         }
                     } catch (e) {
-                        vtrace('Enable', 'Cannot run enable script for ' + target.name + '\n' + e)
-print("SCRIPT", script)
+                        vtrace('Enable', 'Cannot run enable script for ' + target.name)
+                        App.log.debug(3, e)
                         target.enable = false
                     }
                 }
