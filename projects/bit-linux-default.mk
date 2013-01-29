@@ -301,7 +301,7 @@ $(CONFIG)/bin/bit.es: src/bit.es
 
 $(CONFIG)/bin/bits: 
 	rm -fr ./$(CONFIG)/bin/bits
-		cp -r bits ./$(CONFIG)/bin
+	cp -r bits ./$(CONFIG)/bin
 
 $(CONFIG)/obj/bit.o: \
         src/bit.c \
@@ -329,15 +329,15 @@ root-install:  \
         compile \
         $(CONFIG)/inc/.prefixes
 ifeq ($(BIT_BIN_PREFIX),)
-		sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $@
+	sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $@
 else
-		rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit 
-		install -d -m 755 $(BIT_BIN_PREFIX)
-		install -m 755 doc/man/bit.1 /usr/share/man/man1
-		cp -R -P $(CONFIG)/bin/* $(BIT_BIN_PREFIX)
-		rm -f $(BIT_BIN_PREFIX)/sqlite $(BIT_BIN_PREFIX)/makerom $(BIT_BIN_PREFIX)/ejsc $(BIT_BIN_PREFIX)/ejs $(BIT_BIN_PREFIX)/http
-		ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest
-		ln -s $(BIT_BIN_PREFIX)/bit $(BIT_UBIN_PREFIX)/bit
+	rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit 
+	install -d -m 755 $(BIT_BIN_PREFIX)
+	install -m 755 doc/man/bit.1 /usr/share/man/man1
+	cp -R -P $(CONFIG)/bin/* $(BIT_BIN_PREFIX)
+	rm -f $(BIT_BIN_PREFIX)/sqlite $(BIT_BIN_PREFIX)/makerom $(BIT_BIN_PREFIX)/ejsc $(BIT_BIN_PREFIX)/ejs $(BIT_BIN_PREFIX)/http
+	ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest
+	ln -s $(BIT_BIN_PREFIX)/bit $(BIT_UBIN_PREFIX)/bit
 endif
 
 install: 

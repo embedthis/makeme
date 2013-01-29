@@ -46511,7 +46511,8 @@ static EjsString *replace(Ejs *ejs, EjsString *sp, int argc, EjsObj **argv)
     if (ejsIs(ejs, argv[0], RegExp)) {
         EjsRegExp   *rp;
         wchar       *cp, *lastReplace, *end;
-        int         count, endLastMatch, startNextMatch, submatch;
+        ssize       endLastMatch, startNextMatch, submatch;
+        int         count;
 
         rp = (EjsRegExp*) argv[0];
 
@@ -46522,7 +46523,7 @@ static EjsString *replace(Ejs *ejs, EjsString *sp, int argc, EjsObj **argv)
             if (startNextMatch > sp->length) {
                 break;
             }
-            count = pcre_exec(rp->compiled, NULL, sp->value, (int) sp->length, startNextMatch, 0, matches, 
+            count = pcre_exec(rp->compiled, NULL, sp->value, (int) sp->length, (int) startNextMatch, 0, matches,
                     sizeof(matches) / sizeof(int));
             if (count <= 0) {
                 break;
@@ -46589,7 +46590,19 @@ static EjsString *replace(Ejs *ejs, EjsString *sp, int argc, EjsObj **argv)
                 result = buildString(ejs, result, lastReplace, (int) (cp - lastReplace));
             }
             endLastMatch = matches[1];
-            startNextMatch = (startNextMatch == endLastMatch) ? startNextMatch + 1 : endLastMatch;
+            if (startNextMatch == endLastMatch) {
+                if (rp->multiline) {
+                    if ((cp = strchr(&sp->value[endLastMatch], '\n')) != 0) {
+                        startNextMatch = (int) (cp - sp->value + 1);
+                    } else {
+                        break;
+                    }
+                } else {
+                    startNextMatch++;
+                }
+            } else {
+                startNextMatch = endLastMatch;
+            }
         } while (rp->global);
 
         if (endLastMatch < sp->length) {
