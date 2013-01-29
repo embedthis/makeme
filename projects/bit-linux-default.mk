@@ -8,7 +8,7 @@ BUILD_NUMBER    ?= 0
 PROFILE         ?= default
 ARCH            ?= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 OS              ?= linux
-CC              ?= /usr/bin/gcc
+CC              ?= /usr/lib/ccache/gcc
 LD              ?= /usr/bin/ld
 CONFIG          ?= $(OS)-$(ARCH)-$(PROFILE)
 
@@ -29,6 +29,10 @@ LDFLAGS-release :=
 CFLAGS          += $(CFLAGS-$(DEBUG))
 DFLAGS          += $(DFLAGS-$(DEBUG))
 LDFLAGS         += $(LDFLAGS-$(DEBUG))
+
+ifeq ($(wildcard $(CONFIG)/inc/.prefixes*),$(CONFIG)/inc/.prefixes)
+    include $(CONFIG)/inc/.prefixes
+endif
 
 all compile: prep \
         $(CONFIG)/bin/ca.crt \
@@ -96,7 +100,7 @@ clean:
 clobber: clean
 	rm -fr ./$(CONFIG)
 
-$(CONFIG)/bin/ca.crt: 
+$(CONFIG)/bin/ca.crt: src/deps/est/ca.crt
 	rm -fr $(CONFIG)/bin/ca.crt
 	cp -r src/deps/est/ca.crt $(CONFIG)/bin/ca.crt
 
@@ -175,7 +179,7 @@ $(CONFIG)/obj/sqlite3.o: \
         src/deps/sqlite/sqlite3.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/sqlite3.h
-	$(CC) -c -o $(CONFIG)/obj/sqlite3.o -fPIC -w $(DFLAGS) -I$(CONFIG)/inc src/deps/sqlite/sqlite3.c
+	$(CC) -c -o $(CONFIG)/obj/sqlite3.o -fPIC $(DFLAGS) -I$(CONFIG)/inc src/deps/sqlite/sqlite3.c
 
 $(CONFIG)/bin/libsqlite3.so:  \
         $(CONFIG)/inc/sqlite3.h \
@@ -223,7 +227,7 @@ $(CONFIG)/bin/http:  \
         $(CONFIG)/obj/http.o
 	$(CC) -o $(CONFIG)/bin/http $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/http.o -lhttp $(LIBS) -lpcre -lmpr -lhttp -lpthread -lm -lrt -ldl -lpcre -lmpr $(LDFLAGS)
 
-$(CONFIG)/bin/http-ca.crt: 
+$(CONFIG)/bin/http-ca.crt: src/deps/http/http-ca.crt
 	rm -fr $(CONFIG)/bin/http-ca.crt
 	cp -r src/deps/http/http-ca.crt $(CONFIG)/bin/http-ca.crt
 
@@ -289,17 +293,15 @@ $(CONFIG)/bin/ejsc:  \
 
 $(CONFIG)/bin/ejs.mod:  \
         $(CONFIG)/bin/ejsc
-	cd src/deps/ejs >/dev/null ;\
-		../../../$(CONFIG)/bin/ejsc --out ../../../$(CONFIG)/bin/ejs.mod --optimize 9 --bind --require null ejs.es ;\
-		cd - >/dev/null 
+	cd src/deps/ejs >/dev/null; ../../../$(CONFIG)/bin/ejsc --out ../../../$(CONFIG)/bin/ejs.mod --optimize 9 --bind --require null ejs.es ; cd - >/dev/null
 
-$(CONFIG)/bin/bit.es: 
+$(CONFIG)/bin/bit.es: src/bit.es
 	rm -fr $(CONFIG)/bin/bit.es
 	cp -r src/bit.es $(CONFIG)/bin/bit.es
 
 $(CONFIG)/bin/bits: 
-	rm -fr ./$(CONFIG)/bin/bits ;\
-		cp -r bits ./$(CONFIG)/bin 
+	rm -fr ./$(CONFIG)/bin/bits
+		cp -r bits ./$(CONFIG)/bin
 
 $(CONFIG)/obj/bit.o: \
         src/bit.c \
@@ -318,33 +320,33 @@ $(CONFIG)/bin/bit:  \
 	$(CC) -o $(CONFIG)/bin/bit $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/bit.o $(CONFIG)/obj/mprLib.o $(CONFIG)/obj/pcre.o $(CONFIG)/obj/httpLib.o $(CONFIG)/obj/sqlite3.o $(CONFIG)/obj/ejsLib.o $(LIBS) -lpthread -lm -lrt -ldl $(LDFLAGS)
 
 version: 
-	cd bits >/dev/null ;\
-		@echo 0.8.0-0 ;\
-		cd - >/dev/null 
+	@cd bits >/dev/null; echo 0.8.0-0 ; cd - >/dev/null
 
-install: 
-	sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-install 
-
-install-prep:  \
-        compile
-	./$(CONFIG)/bin/ejs bits/getbitvals projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX UBIN_PREFIX >.prefixes; chmod 666 .prefixes ;\
-		echo $(eval include .prefixes) 
+$(CONFIG)/inc/.prefixes: projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h
+	./$(CONFIG)/bin/ejs bits/getbitvals projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX UBIN_PREFIX >./$(CONFIG)/inc/.prefixes; chmod 666 ./$(CONFIG)/inc/.prefixes
 
 root-install:  \
-        install-prep
-	rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit  ;\
-		install -d -m 755 $(BIT_BIN_PREFIX) ;\
-		install -m 755 doc/man/bit.1 /usr/share/man/man1 ;\
-		cp -R -P $(CONFIG)/bin/* $(BIT_BIN_PREFIX) ;\
-		rm -f $(BIT_BIN_PREFIX)/sqlite $(BIT_BIN_PREFIX)/makerom $(BIT_BIN_PREFIX)/ejsc $(BIT_BIN_PREFIX)/ejs ;\
-		$(BIT_BIN_PREFIX)/http ;\
-		ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest ;\
-		ln -s $(BIT_BIN_PREFIX)/bit $(BIT_UBIN_PREFIX)/bit 
+        compile \
+        $(CONFIG)/inc/.prefixes
+ifeq ($(BIT_BIN_PREFIX),)
+		sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $@
+else
+		rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit 
+		install -d -m 755 $(BIT_BIN_PREFIX)
+		install -m 755 doc/man/bit.1 /usr/share/man/man1
+		cp -R -P $(CONFIG)/bin/* $(BIT_BIN_PREFIX)
+		rm -f $(BIT_BIN_PREFIX)/sqlite $(BIT_BIN_PREFIX)/makerom $(BIT_BIN_PREFIX)/ejsc $(BIT_BIN_PREFIX)/ejs $(BIT_BIN_PREFIX)/http
+		ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest
+		ln -s $(BIT_BIN_PREFIX)/bit $(BIT_UBIN_PREFIX)/bit
+endif
 
-uninstall: 
-	sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-uninstall 
+install: 
+	sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk root-install
 
 root-uninstall:  \
-        install-prep
-	rm -fr $(BIT_PRD_PREFIX) /usr/share/man/man1/bit.1 
+        $(CONFIG)/inc/.prefixes
+	rm -fr $(BIT_PRD_PREFIX) /usr/share/man/man1/bit.1
+
+uninstall: 
+	sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk root-uninstall
 

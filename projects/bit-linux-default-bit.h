@@ -44,7 +44,7 @@
     #define BIT_HAS_MTUNE 1
 #endif
 #ifndef BIT_HAS_PAM
-    #define BIT_HAS_PAM 0
+    #define BIT_HAS_PAM 1
 #endif
 #ifndef BIT_HAS_STACK_PROTECTOR
     #define BIT_HAS_STACK_PROTECTOR 1
@@ -53,7 +53,7 @@
     #define BIT_HAS_SYNC 1
 #endif
 #ifndef BIT_HAS_SYNC_CAS
-    #define BIT_HAS_SYNC_CAS 0
+    #define BIT_HAS_SYNC_CAS 1
 #endif
 #ifndef BIT_HAS_UNNAMED_UNIONS
     #define BIT_HAS_UNNAMED_UNIONS 1
@@ -129,6 +129,9 @@
 #ifndef BIT_UBIN_PREFIX
     #define BIT_UBIN_PREFIX "/usr/local/bin"
 #endif
+#ifndef BIT_MAN_PREFIX
+    #define BIT_MAN_PREFIX "/usr/local/share/man/man1"
+#endif
 
 /* Suffixes */
 #ifndef BIT_EXE
@@ -149,7 +152,7 @@
 
 /* Profile */
 #ifndef BIT_CONFIG_CMD
-    #define BIT_CONFIG_CMD "bit -d -q -platform linux-x86-default -without default -configure . -gen sh,make"
+    #define BIT_CONFIG_CMD "bit -d -q -platform linux-x86-default -without default -configure . -gen make"
 #endif
 #ifndef BIT_BIT_PRODUCT
     #define BIT_BIT_PRODUCT 1
@@ -219,7 +222,7 @@
     #define BIT_PACK_PCRE 1
 #endif
 #ifndef BIT_PACK_PMAKER
-    #define BIT_PACK_PMAKER 0
+    #define BIT_PACK_PMAKER 1
 #endif
 #ifndef BIT_PACK_SQLITE
     #define BIT_PACK_SQLITE 1
@@ -228,13 +231,13 @@
     #define BIT_PACK_ZIP 1
 #endif
 #ifndef BIT_PACK_COMPILER_PATH
-    #define BIT_PACK_COMPILER_PATH "/usr/bin/gcc"
+    #define BIT_PACK_COMPILER_PATH "/usr/lib/ccache/gcc"
 #endif
 #ifndef BIT_PACK_EJSCRIPT_PATH
-    #define BIT_PACK_EJSCRIPT_PATH "/Users/mob/git/bit/src/deps/ejs"
+    #define BIT_PACK_EJSCRIPT_PATH "/home/mob/bit/src/deps/ejs"
 #endif
 #ifndef BIT_PACK_HTTP_PATH
-    #define BIT_PACK_HTTP_PATH "/Users/mob/git/bit/macosx-x64-debug/bin/http"
+    #define BIT_PACK_HTTP_PATH "/home/mob/bit/linux-x86-default/bin/http"
 #endif
 #ifndef BIT_PACK_LIB_PATH
     #define BIT_PACK_LIB_PATH "/usr/bin/ar"
@@ -243,10 +246,13 @@
     #define BIT_PACK_LINK_PATH "/usr/bin/ld"
 #endif
 #ifndef BIT_PACK_PCRE_PATH
-    #define BIT_PACK_PCRE_PATH "/Users/mob/git/bit/src/deps/pcre"
+    #define BIT_PACK_PCRE_PATH "/home/mob/bit/src/deps/pcre"
+#endif
+#ifndef BIT_PACK_PMAKER_PATH
+    #define BIT_PACK_PMAKER_PATH "/usr/bin/dpkg"
 #endif
 #ifndef BIT_PACK_SQLITE_PATH
-    #define BIT_PACK_SQLITE_PATH "/Users/mob/git/bit/src/deps/sqlite"
+    #define BIT_PACK_SQLITE_PATH "/home/mob/bit/src/deps/sqlite"
 #endif
 #ifndef BIT_PACK_ZIP_PATH
     #define BIT_PACK_ZIP_PATH "/usr/bin/zip"

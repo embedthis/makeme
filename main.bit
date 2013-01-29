@@ -97,34 +97,31 @@ Bit.load({
             platforms: [ 'local' ],
         },
 
-        install: {
-            action: "installBinary()",
-            'generate-make': "sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-install",
-            'generate-nmake': "nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-install",
-        },
-
-		'install-prep': {
+		'.prefixes': {
 			action: '',
-			depends: ['compile'],
+            path: '${INC}/.prefixes',
+            files: [ 'projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h' ],
             'generate-make': "
-			    ${BIN}/ejs bits/getbitvals projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX UBIN_PREFIX >.prefixes; chmod 666 .prefixes
-                echo $(eval include .prefixes)",
+			    ${BIN}/ejs bits/getbitvals projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX UBIN_PREFIX >${INC}/.prefixes; chmod 666 ${INC}/.prefixes",
             'generate-nmake': "
 				${BIN}/ejs bits/getbitvals projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX UBIN_PREFIX >.prefixes",
 		},
 
         'root-install': {
 			action: '',
-			depends: ['install-prep'],
+			depends: ['compile', '.prefixes'],
             'generate-make': "
-                rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit 
-                install -d -m 755 $(BIT_BIN_PREFIX)
-                install -m 755 doc/man/bit.1 /usr/share/man/man1
-                cp -R -P ${dir.bin}/* $(BIT_BIN_PREFIX)
-                rm -f $(BIT_BIN_PREFIX)/sqlite $(BIT_BIN_PREFIX)/makerom $(BIT_BIN_PREFIX)/ejsc $(BIT_BIN_PREFIX)/ejs
-$(BIT_BIN_PREFIX)/http
-                ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest
-                ln -s $(BIT_BIN_PREFIX)/bit $(BIT_UBIN_PREFIX)/bit
+                ifeq ($(BIT_BIN_PREFIX),)
+                    sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $@
+                else
+                    rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit 
+                    install -d -m 755 $(BIT_BIN_PREFIX)
+                    install -m 755 doc/man/bit.1 /usr/share/man/man1
+                    cp -R -P ${dir.bin}/* $(BIT_BIN_PREFIX)
+                    rm -f $(BIT_BIN_PREFIX)/sqlite $(BIT_BIN_PREFIX)/makerom $(BIT_BIN_PREFIX)/ejsc $(BIT_BIN_PREFIX)/ejs $(BIT_BIN_PREFIX)/http
+                    ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest
+                    ln -s $(BIT_BIN_PREFIX)/bit $(BIT_UBIN_PREFIX)/bit
+                endif
             ",
             'generate-nmake': "
                 !IF EXISTS(.prefixes)
@@ -137,18 +134,24 @@ $(BIT_BIN_PREFIX)\\ejs $(BIT_BIN_PREFIX)\\http
             ",
         },
 
-        uninstall: {
-            action: "uninstallBinary()"
-            'generate-make': "sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-uninstall",
-            'generate-nmake': "nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-uninstall",
+        install: {
+            action: "installBinary()",
+            'generate-make': "sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk root-install",
+            'generate-nmake': "nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-install",
         },
 
         'root-uninstall': {
 			action: '',
-			depends: ['install-prep'],
+			depends: ['.prefixes'],
             'generate-make': "rm -fr $(BIT_PRD_PREFIX) /usr/share/man/man1/bit.1",
             'generate-nmake': "del /Q \"$(BIT_PRD_PREFIX)\"",
 		},
+
+        uninstall: {
+            action: "uninstallBinary()"
+            'generate-make': "sudo $(MAKE) -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk root-uninstall",
+            'generate-nmake': "nmake -nologo -f projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-uninstall",
+        },
 
         package: {
             enable: "'${OS}' == 'linux' || '${OS}' == 'macosx' || '${OS}' == 'windows'",

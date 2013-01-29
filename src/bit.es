@@ -1343,6 +1343,7 @@ public class Bit {
         genout.writeLine('CFLAGS          += $(CFLAGS-$(DEBUG))')
         genout.writeLine('DFLAGS          += $(DFLAGS-$(DEBUG))')
         genout.writeLine('LDFLAGS         += $(LDFLAGS-$(DEBUG))\n')
+        genout.writeLine('ifeq ($(wildcard $(CONFIG)/inc/.prefixes*),$(CONFIG)/inc/.prefixes)\n    include $(CONFIG)/inc/.prefixes\nendif\n')
 
         genout.writeLine('all compile: prep \\\n        ' + genAll())
         genout.writeLine('.PHONY: prep\n\nprep:')
@@ -2412,8 +2413,8 @@ public class Bit {
 
         let prefix, suffix
         if (generating == 'sh' || generating == 'make') {
-            prefix = 'cd ' + target.home.relative + ' >/dev/null\n'
-            suffix = '\ncd - >/dev/null'
+            prefix = 'cd ' + target.home.relative + ' >/dev/null'
+            suffix = 'cd - >/dev/null'
         } else if (generating == 'nmake') {
             prefix = 'cd ' + target.home.relative.windows + '\n'
             suffix = '\ncd ' + bit.dir.src.relativeTo(target.home).windows
@@ -2429,6 +2430,7 @@ public class Bit {
             let cmd = target['generate-sh'] || target.shell
             if (cmd) {
                 cmd = (prefix + cmd.trim() + suffix).replace(/^[ \t]*/mg, '')
+//  MOB - fix with same as make
                 cmd = cmd.replace(/$/mg, ';\\').replace(/;\\;\\/g, ' ;\\').trim(';\\')
                 cmd = expand(cmd, {fill: null}).expand(target.vars, {fill: ''})
                 cmd = repvar2(cmd, target.home)
@@ -2445,11 +2447,17 @@ public class Bit {
             }
             let cmd = target['generate-make'] || target['generate-sh'] || target.generate
             if (cmd) {
-                cmd = prefix + cmd.trim() + suffix
-                // cmd = cmd.replace(/^\s*/mg, '\t')
-                cmd = cmd.replace(/^\s*/mg, '')
-                cmd = cmd.replace(/^/mg, '\t')
-                cmd = cmd.replace(/$/mg, ';\\').replace(/;\\;\\/g, ' ;\\').trim(';\\')
+                cmd = cmd.trim().replace(/^\s*/mg, '')
+                if (prefix || suffix) {
+                    if (cmd.startsWith('@')) {
+                        cmd = cmd.slice(1).replace(/^.*$/mg, '\t@' + prefix + '; $& ; ' + suffix)
+                    } else {
+                        cmd = cmd.replace(/^.*$/mg, '\t' + prefix + '; $& ; ' + suffix)
+                    }
+                } else {
+                    cmd = cmd.replace(/^/mg, '\t')
+                }
+                cmd = cmd.replace(/^\t*(ifeq|ifneq|else|endif)/mg, '$1')
                 cmd = expand(cmd, {fill: null}).expand(target.vars, {fill: ''})
                 cmd = repvar2(cmd, target.home)
                 genWrite(cmd + '\n')
@@ -2599,8 +2607,13 @@ public class Bit {
      */
     function getTargetDeps(target): String {
         let deps = []
+        if (target.type == 'file' || target.type == 'script' || target.type == 'action') {
+            for each (file in target.files) {
+                deps.push(file)
+            }
+        }
         if (!target.depends || target.depends.length == 0) {
-            return ''
+            return deps
         } else {
             for each (let dname in target.depends) {
                 let dep = bit.targets[dname]
@@ -2921,9 +2934,6 @@ public class Bit {
             let path
             for each (dir in target.includes) {
                 path = Path(dir).join(ifile)
-                //  MOB - removed path.exists for some reason.
-                //  But it needs to be here to try to find a header under src instead of *debug/inc
-                //  This was the ejsmod.h bug
                 if (path.exists && !path.isDir) {
                     break
                 }
