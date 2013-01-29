@@ -2429,9 +2429,16 @@ public class Bit {
         if (generating == 'sh') {
             let cmd = target['generate-sh'] || target.shell
             if (cmd) {
-                cmd = (prefix + cmd.trim() + suffix).replace(/^[ \t]*/mg, '')
-//  MOB - fix with same as make
-                cmd = cmd.replace(/$/mg, ';\\').replace(/;\\;\\/g, ' ;\\').trim(';\\')
+                cmd = cmd.trim()
+                if (prefix || suffix) {
+                    if (cmd.startsWith('@')) {
+                        cmd = cmd.slice(1).replace(/^.*$/mg, '\t@' + prefix + '; $& ; ' + suffix)
+                    } else {
+                        cmd = cmd.replace(/^.*$/mg, '\t' + prefix + '; $& ; ' + suffix)
+                    }
+                } else {
+                    cmd = cmd.replace(/^/mg, '\t')
+                }
                 cmd = expand(cmd, {fill: null}).expand(target.vars, {fill: ''})
                 cmd = repvar2(cmd, target.home)
                 genWrite(cmd + '\n')
