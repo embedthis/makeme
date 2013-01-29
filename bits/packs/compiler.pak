@@ -33,7 +33,7 @@ try {
                 See: http://msdn.microsoft.com/en-us/library/x4d2c09s(v=vs.80).aspx
                 Also: http://blogs.msdn.com/b/david.wang/archive/2006/03/26/howto-detect-process-bitness.aspx
              */
-            search = bit.dir.programFiles.files('Microsoft Visual Studio*/VC/Bin').sort().reverse()
+            search = bit.dir.programFiles32.files('Microsoft Visual Studio*/VC/Bin').sort().reverse()
             if (!search || search.length == 0) {
                 throw 'Can\'t find Visual Studio installation'
             }

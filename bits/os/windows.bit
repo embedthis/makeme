@@ -16,9 +16,9 @@ Bit.load({
         Prefixes are used when doing bit install 
      */
     prefixes: {
+        /* programFiles may get (x86) at run-time if on a 64-bit system */
         programFiles:       'C:/Program Files',
-        /* programFilesFor32 may get (x86) added if on a 64-bit system */
-        programFilesFor32:  'C:/Program Files',
+        programFiles32:     'C:/Program Files',
         product:            'C:/Program Files/${settings.title}',
         productver:         '${prefixes.product}',
         config:             '${prefixes.product}',

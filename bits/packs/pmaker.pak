@@ -18,7 +18,7 @@ case 'macosx':
     break
 
 case 'windows':
-    let search = bit.dir.programFilesFor32.files('Inno Setup*').sort().reverse()
+    let search = bit.dir.programFiles32.files('Inno Setup*').sort().reverse()
     path = probe(bit.packs.pmaker.path || 'iscc.exe', {fullpath: true, search: search})
     break
 
