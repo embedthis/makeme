@@ -1281,8 +1281,9 @@ public class Bit {
         genout.writeLine('LDFLAGS="' + repvar(gen.linker).replace(/\$ORIGIN/g, '\\$$ORIGIN') + '"')
         genout.writeLine('LIBPATHS="' + repvar(gen.libpaths) + '"')
         genout.writeLine('LIBS="' + gen.libraries + '"\n')
-        genout.writeLine('[ ! -x ${CONFIG}/inc ] && ' + 
-            'mkdir -p ${CONFIG}/inc ${CONFIG}/obj ${CONFIG}/lib ${CONFIG}/bin\n')
+        genout.writeLine('[ ! -x ${CONFIG}/inc ] && ' + 'mkdir -p ${CONFIG}/inc\n')
+        genout.writeLine('[ ! -x ${CONFIG}/bin ] && ' + 'mkdir -p ${CONFIG}/bin\n')
+        genout.writeLine('[ ! -x ${CONFIG}/obj ] && ' + 'mkdir -p ${CONFIG}/obj\n')
         genout.writeLine('[ ! -f ${CONFIG}/inc/bit.h ] && ' + 
             'cp projects/' + bit.settings.product + '-${OS}-${PROFILE}-bit.h ${CONFIG}/inc/bit.h')
         genout.writeLine('[ ! -f ${CONFIG}/inc/bitos.h ] && cp ${SRC}/src/bitos.h ${CONFIG}/inc/bitos.h')
@@ -1346,8 +1347,9 @@ public class Bit {
         genout.writeLine('all compile: prep \\\n        ' + genAll())
         genout.writeLine('.PHONY: prep\n\nprep:')
         genout.writeLine('\t@if [ "$(CONFIG)" = "" ] ; then echo WARNING: CONFIG not set ; exit 255 ; fi')
-        genout.writeLine('\t@[ ! -x $(CONFIG)/inc ] && ' + 
-            'mkdir -p $(CONFIG)/inc $(CONFIG)/obj $(CONFIG)/lib $(CONFIG)/bin ; true')
+        genout.writeLine('\t@[ ! -x $(CONFIG)/bin ] && ' + 'mkdir -p $(CONFIG)/bin; true')
+        genout.writeLine('\t@[ ! -x $(CONFIG)/inc ] && ' + 'mkdir -p $(CONFIG)/inc; true')
+        genout.writeLine('\t@[ ! -x $(CONFIG)/obj ] && ' + 'mkdir -p $(CONFIG)/obj; true')
         genout.writeLine('\t@[ ! -f $(CONFIG)/inc/bit.h ] && ' + 
             'cp projects/' + bit.settings.product + '-$(OS)-$(PROFILE)-bit.h $(CONFIG)/inc/bit.h ; true')
         genout.writeLine('\t@[ ! -f $(CONFIG)/inc/bitos.h ] && cp src/bitos.h $(CONFIG)/inc/bitos.h ; true')
@@ -1400,9 +1402,9 @@ public class Bit {
         genout.writeLine('all compile: prep \\\n        ' + genAll())
         genout.writeLine('.PHONY: prep\n\nprep:')
         genout.writeLine('!IF "$(VSINSTALLDIR)" == ""\n\techo "Visual Studio vars not set. Run vcvars.bat."\n\texit 255\n!ENDIF')
+        genout.writeLine('\t@if not exist $(CONFIG)\\bin md $(CONFIG)\\bin')
         genout.writeLine('\t@if not exist $(CONFIG)\\inc md $(CONFIG)\\inc')
         genout.writeLine('\t@if not exist $(CONFIG)\\obj md $(CONFIG)\\obj')
-        genout.writeLine('\t@if not exist $(CONFIG)\\bin md $(CONFIG)\\bin')
         genout.writeLine('\t@if not exist $(CONFIG)\\inc\\bit.h ' +
             'copy projects\\' + bit.settings.product + '-$(OS)-$(PROFILE)-bit.h $(CONFIG)\\inc\\bit.h')
         genout.writeLine('\t@echo $(DFLAGS) $(CFLAGS) >projects/.flags\n')

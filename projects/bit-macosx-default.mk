@@ -59,7 +59,9 @@ all compile: prep \
 
 prep:
 	@if [ "$(CONFIG)" = "" ] ; then echo WARNING: CONFIG not set ; exit 255 ; fi
-	@[ ! -x $(CONFIG)/inc ] && mkdir -p $(CONFIG)/inc $(CONFIG)/obj $(CONFIG)/lib $(CONFIG)/bin ; true
+	@[ ! -x $(CONFIG)/bin ] && mkdir -p $(CONFIG)/bin; true
+	@[ ! -x $(CONFIG)/inc ] && mkdir -p $(CONFIG)/inc; true
+	@[ ! -x $(CONFIG)/obj ] && mkdir -p $(CONFIG)/obj; true
 	@[ ! -f $(CONFIG)/inc/bit.h ] && cp projects/bit-$(OS)-$(PROFILE)-bit.h $(CONFIG)/inc/bit.h ; true
 	@[ ! -f $(CONFIG)/inc/bitos.h ] && cp src/bitos.h $(CONFIG)/inc/bitos.h ; true
 	@if ! diff $(CONFIG)/inc/bit.h projects/bit-$(OS)-$(PROFILE)-bit.h >/dev/null ; then\
@@ -342,7 +344,8 @@ else
 	for n in bit http; do 	rm -f $(BIT_UBIN_PREFIX)/$$n ; 	ln -s $(BIT_BIN_PREFIX)/$$n $(BIT_UBIN_PREFIX)/$$n ; 	done
 endif
 
-install: 
+install:  \
+        compile
 	sudo $(MAKE) -C . -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk root-install
 
 root-uninstall:  \

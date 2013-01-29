@@ -58,9 +58,9 @@ prep:
 	echo "Visual Studio vars not set. Run vcvars.bat."
 	exit 255
 !ENDIF
+	@if not exist $(CONFIG)\bin md $(CONFIG)\bin
 	@if not exist $(CONFIG)\inc md $(CONFIG)\inc
 	@if not exist $(CONFIG)\obj md $(CONFIG)\obj
-	@if not exist $(CONFIG)\bin md $(CONFIG)\bin
 	@if not exist $(CONFIG)\inc\bit.h copy projects\bit-$(OS)-$(PROFILE)-bit.h $(CONFIG)\inc\bit.h
 	@echo $(DFLAGS) $(CFLAGS) >projects/.flags
 
@@ -334,7 +334,7 @@ version:
 	cd ..
 
 $(CONFIG)\inc\.prefixes: projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h
-	.\$(CONFIG)\bin\ejs bits/getbitvals ./projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX UBIN_PREFIX >.prefixes
+	.\$(CONFIG)\bin\ejs ./bits/getbitvals ./projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX UBIN_PREFIX >.prefixes
 
 root-install:  \
         compile \
@@ -347,7 +347,8 @@ root-install:  \
 	nmake -nologo -f ./projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake $@
 !ENDIF
 
-install: 
+install:  \
+        compile
 	nmake -nologo -f ./projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-install
 
 root-uninstall:  \

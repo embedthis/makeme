@@ -21,7 +21,7 @@ Bit.load({
             'generate-make': "
 			    ${BIN}/ejs ${TOP}/bits/getbitvals ${TOP}/projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX UBIN_PREFIX >${INC}/.prefixes; chmod 666 ${INC}/.prefixes",
             'generate-nmake': "
-				${BIN}/ejs bits/getbitvals ${TOP}/projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX UBIN_PREFIX >.prefixes",
+				${BIN}/ejs ${TOP}/bits/getbitvals ${TOP}/projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX UBIN_PREFIX >.prefixes",
 		},
 
         'root-install': {
@@ -57,6 +57,7 @@ $(BIT_BIN_PREFIX)\\ejs $(BIT_BIN_PREFIX)\\http
 
         install: {
             home: '${TOP}',
+            depends: ['compile'],
             action: "installBinary()",
             'generate-make': "sudo $(MAKE) -C ${TOP} -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk root-install",
             'generate-nmake': "nmake -nologo -f ${TOP}/projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-install",
