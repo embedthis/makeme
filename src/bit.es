@@ -1315,6 +1315,26 @@ public class Bit {
         }
         genout.writeLine('CONFIG          ?= $(OS)-$(ARCH)-$(PROFILE)\n')
 
+        let prd = bit.prefixes.product
+        let ver = bit.prefixes.productver
+        for (let [name,value] in bit.prefixes) {
+            if (name == 'spool') {
+                name = 'spl'
+            } else if (name == 'product') {
+                name = 'prd'
+            } else if (name == 'productver') {
+                name = 'ver'
+            } else if (name == 'config') {
+                name = 'cfg'
+            }
+            if (value.startsWith(ver.name) && value != ver) {
+                value = value.replace(ver.name, '$(BIT_VER_PREFIX)')
+            } else if (value.startsWith(prd.name) && value != prd) {
+                value = value.replace(prd.name, '$(BIT_PRD_PREFIX)')
+            }
+            genout.writeLine('%-15s ?= %s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
+        }
+        genout.writeLine('')
         let cflags = gen.compiler
         for each (word in minimalCflags) {
             cflags = cflags.replace(word, '')
@@ -1341,12 +1361,16 @@ public class Bit {
         genout.writeLine('CFLAGS          += $(CFLAGS-$(DEBUG))')
         genout.writeLine('DFLAGS          += $(DFLAGS-$(DEBUG))')
         genout.writeLine('LDFLAGS         += $(LDFLAGS-$(DEBUG))\n')
+
+        /*UNUSED
         genout.writeLine('ifeq ($(wildcard $(CONFIG)/inc/.prefixes*),$(CONFIG)/inc/.prefixes)\n    include $(CONFIG)/inc/.prefixes\nendif\n')
+        */
 
         genout.writeLine('unexport CDPATH\n')
         genout.writeLine('all compile: prep \\\n        ' + genAll())
         genout.writeLine('.PHONY: prep\n\nprep:')
         genout.writeLine('\t@if [ "$(CONFIG)" = "" ] ; then echo WARNING: CONFIG not set ; exit 255 ; fi')
+        genout.writeLine('\t@if [ "$(BIT_PRD_PREFIX)" = "" ] ; then echo WARNING: BIT_PRD_PREFIX not set ; exit 255 ; fi')
         genout.writeLine('\t@[ ! -x $(CONFIG)/bin ] && ' + 'mkdir -p $(CONFIG)/bin; true')
         genout.writeLine('\t@[ ! -x $(CONFIG)/inc ] && ' + 'mkdir -p $(CONFIG)/inc; true')
         genout.writeLine('\t@[ ! -x $(CONFIG)/obj ] && ' + 'mkdir -p $(CONFIG)/obj; true')
@@ -1402,6 +1426,7 @@ public class Bit {
         genout.writeLine('all compile: prep \\\n        ' + genAll())
         genout.writeLine('.PHONY: prep\n\nprep:')
         genout.writeLine('!IF "$(VSINSTALLDIR)" == ""\n\techo "Visual Studio vars not set. Run vcvars.bat."\n\texit 255\n!ENDIF')
+        genout.writeLine('!IF "$(BIT_PRD_PREFIX)" == ""\n\techo "BIT_PRD_PREFIX not set."\n\texit 255\n!ENDIF')
         genout.writeLine('\t@if not exist $(CONFIG)\\bin md $(CONFIG)\\bin')
         genout.writeLine('\t@if not exist $(CONFIG)\\inc md $(CONFIG)\\inc')
         genout.writeLine('\t@if not exist $(CONFIG)\\obj md $(CONFIG)\\obj')

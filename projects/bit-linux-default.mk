@@ -12,6 +12,18 @@ CC              ?= /usr/bin/gcc
 LD              ?= /usr/bin/ld
 CONFIG          ?= $(OS)-$(ARCH)-$(PROFILE)
 
+BIT_CFG_PREFIX  ?= /etc/bit
+BIT_PRD_PREFIX  ?= /usr/lib/bit
+BIT_VER_PREFIX  ?= $(BIT_PRD_PREFIX)/0.8.0
+BIT_BIN_PREFIX  ?= $(BIT_VER_PREFIX)/bin
+BIT_INC_PREFIX  ?= $(BIT_VER_PREFIX)/inc
+BIT_LOG_PREFIX  ?= /var/log/bit
+BIT_SPL_PREFIX  ?= /var/spool/bit
+BIT_SRC_PREFIX  ?= /usr/src/bit-0.8.0
+BIT_WEB_PREFIX  ?= /var/www/bit-default
+BIT_UBIN_PREFIX ?= /usr/local/bin
+BIT_MAN_PREFIX  ?= /usr/local/share/man/man1
+
 CFLAGS          += -fPIC   -w
 DFLAGS          += -D_REENTRANT -DPIC $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS)))
 IFLAGS          += -I$(CONFIG)/inc
@@ -29,10 +41,6 @@ LDFLAGS-release :=
 CFLAGS          += $(CFLAGS-$(DEBUG))
 DFLAGS          += $(DFLAGS-$(DEBUG))
 LDFLAGS         += $(LDFLAGS-$(DEBUG))
-
-ifeq ($(wildcard $(CONFIG)/inc/.prefixes*),$(CONFIG)/inc/.prefixes)
-    include $(CONFIG)/inc/.prefixes
-endif
 
 unexport CDPATH
 
@@ -59,6 +67,7 @@ all compile: prep \
 
 prep:
 	@if [ "$(CONFIG)" = "" ] ; then echo WARNING: CONFIG not set ; exit 255 ; fi
+	@if [ "$(BIT_PRD_PREFIX)" = "" ] ; then echo WARNING: BIT_PRD_PREFIX not set ; exit 255 ; fi
 	@[ ! -x $(CONFIG)/bin ] && mkdir -p $(CONFIG)/bin; true
 	@[ ! -x $(CONFIG)/inc ] && mkdir -p $(CONFIG)/inc; true
 	@[ ! -x $(CONFIG)/obj ] && mkdir -p $(CONFIG)/obj; true
@@ -326,32 +335,23 @@ $(CONFIG)/bin/bit:  \
 version: 
 	@cd bits; echo 0.8.0-0 ; cd ..
 
-$(CONFIG)/inc/.prefixes: projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h
-	./$(CONFIG)/bin/ejs ./bits/getbitvals ./projects/$(PRODUCT)-$(OS)-$(PROFILE)-bit.h PRODUCT VERSION CFG_PREFIX PRD_PREFIX WEB_PREFIX LOG_PREFIX BIN_PREFIX SPL_PREFIX UBIN_PREFIX >./$(CONFIG)/inc/.prefixes; chmod 666 ./$(CONFIG)/inc/.prefixes
-
 root-install:  \
-        compile \
-        $(CONFIG)/inc/.prefixes
-ifeq ($(BIT_BIN_PREFIX),)
-	sudo $(MAKE) -C . -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $@
-else
+        compile
 	rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit
 	install -d -m 755 $(BIT_BIN_PREFIX)
-	cp ./doc/man/bit.1 /usr/share/man/man1
+	cp ./doc/man/bit.1 $(BIT_MAN_PREFIX)
 	cp -R -P ./$(CONFIG)/bin/* $(BIT_BIN_PREFIX)
 	rm -f $(BIT_BIN_PREFIX)/sqlite $(BIT_BIN_PREFIX)/makerom $(BIT_BIN_PREFIX)/ejsc $(BIT_BIN_PREFIX)/ejs $(BIT_BIN_PREFIX)/http
 	ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest
 	for n in bit http; do 	rm -f $(BIT_UBIN_PREFIX)/$$n ; 	ln -s $(BIT_BIN_PREFIX)/$$n $(BIT_UBIN_PREFIX)/$$n ; 	done
-endif
 
 install:  \
         compile
-	sudo $(MAKE) -C . -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk root-install
+	sudo $(MAKE) -C . -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-install
 
-root-uninstall:  \
-        $(CONFIG)/inc/.prefixes
-	rm -fr $(BIT_PRD_PREFIX) /usr/share/man/man1/bit.1
+root-uninstall: 
+	rm -fr $(BIT_PRD_PREFIX) $(BIT_MAN_PREFIX)/bit.1
 
 uninstall: 
-	sudo $(MAKE) -C . -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk root-uninstall
+	sudo $(MAKE) -C . -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-uninstall
 
