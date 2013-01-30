@@ -172,6 +172,9 @@ public function uninstallBinary() {
         file.remove()
     }
     for each (prefix in bit.prefixes) {
+        if (!prefix.name.contains(bit.settings.product)) {
+            continue
+        }
         for each (dir in prefix.files('**', {include: /\/$/}).sort().reverse()) {
             vtrace('Remove', dir)
             dir.remove()
