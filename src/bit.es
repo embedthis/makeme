@@ -10,8 +10,6 @@ require ejs.unix
 
 public class Bit {
     public var initialized: Boolean
-
-    private static const VERSION: Number = 0.2
     private static const MAIN: Path = Path('main.bit')
     private static const START: Path = Path('start.bit')
     private static const supportedOS = ['freebsd', 'linux', 'macosx', 'solaris', 'vxworks', 'windows']
@@ -386,6 +384,9 @@ public class Bit {
         vtrace('Load', 'Preload main.bit to determine required platforms')
         quickLoad(options.configure.join(MAIN))
         let settings = bit.settings
+        if (settings.bit && makeVersion(Config.Version) < makeVersion(settings.bit)) {
+            throw 'This product requires a newer version of Bit. Please upgrade Bit to ' + settings.bit + '\n'
+        }
         if (settings.platforms && !options.gen && !options.nocross) {
             if (!(settings.platforms is Array)) {
                 settings.platforms = [settings.platforms]
@@ -2751,7 +2752,7 @@ public class Bit {
     public function setRuleVars(target, base: Path = App.dir) {
         let tv = target.vars || {}
         if (target.home) {
-            tv.HOME = target.home.relativeTo(base)
+            tv.HOME = Path(target.home).relativeTo(base)
         }
         if (target.path) {
             tv.OUT = target.path.relativeTo(base)
@@ -3479,6 +3480,21 @@ public class Bit {
         let result = expand(rule).expand(target.vars, {fill: ''})
         target.vars = {}
         return result
+    }
+
+    let VER_FACTOR = 1000                                                                            
+
+    function makeVersion(version: String): Number {
+        let parts = version.trim().split(".")
+        let patch = 0, minor = 0
+        let major = parts[0] cast Number
+        if (parts.length > 1) {
+            minor = parts[1] cast Number
+        }
+        if (parts.length > 2) {
+            patch = parts[2] cast Number
+        }
+        return (((major * VER_FACTOR) + minor) * VER_FACTOR) + patch
     }
 }
 
