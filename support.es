@@ -159,11 +159,10 @@ public function uninstallBinary() {
     if (Config.OS != 'windows' && App.uid != 0) {
         throw 'Must run as root. Use \"sudo bit uninstall\"'
     }
-    trace('Uninstall', bit.settings.title)                                                     
     let fileslog = bit.prefixes.productver.join('files.log')
     if (fileslog.exists) {
         for each (let file: Path in fileslog.readLines()) {
-            vtrace('Remove', file)
+            strace('Remove', file)
             file.remove()
         }
     }
@@ -172,14 +171,16 @@ public function uninstallBinary() {
         file.remove()
     }
     for each (prefix in bit.prefixes) {
-        if (!prefix.name.contains(bit.settings.product)) {
-            continue
+        if (bit.platform.os == 'windows') {
+            if (!prefix.name.contains(bit.settings.title)) continue
+        } else {
+            if (!prefix.name.contains(bit.settings.product)) continue
         }
         for each (dir in prefix.files('**', {include: /\/$/}).sort().reverse()) {
-            vtrace('Remove', dir)
+            strace('Remove', dir)
             dir.remove()
         }
-        vtrace('Remove', prefix)
+        strace('Remove', prefix)
         prefix.remove()
     }
     updateLatestLink()
