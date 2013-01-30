@@ -1,4 +1,4 @@
-Embedthis ESSL License
+Embedthis EST License
 
 This software is distributed under commercial and open source licenses. You may use the GPLv2 License below License or
 you may acquire a commercial license from Embedthis Software. You agree to be fully bound by the terms of either
