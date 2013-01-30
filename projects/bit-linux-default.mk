@@ -117,20 +117,19 @@ $(CONFIG)/bin/ca.crt: src/deps/est/ca.crt
 	rm -fr $(CONFIG)/bin/ca.crt
 	cp -r src/deps/est/ca.crt $(CONFIG)/bin/ca.crt
 
+$(CONFIG)/inc/mpr.h: 
+	rm -fr $(CONFIG)/inc/mpr.h
+	cp -r src/deps/mpr/mpr.h $(CONFIG)/inc/mpr.h
+
 $(CONFIG)/inc/bitos.h: 
 	rm -fr $(CONFIG)/inc/bitos.h
 	cp -r src/bitos.h $(CONFIG)/inc/bitos.h
 
-$(CONFIG)/inc/mpr.h:  \
-        $(CONFIG)/inc/bit.h \
-        $(CONFIG)/inc/bitos.h
-	rm -fr $(CONFIG)/inc/mpr.h
-	cp -r src/deps/mpr/mpr.h $(CONFIG)/inc/mpr.h
-
 $(CONFIG)/obj/mprLib.o: \
         src/deps/mpr/mprLib.c \
         $(CONFIG)/inc/bit.h \
-        $(CONFIG)/inc/mpr.h
+        $(CONFIG)/inc/mpr.h \
+        $(CONFIG)/inc/bitos.h
 	$(CC) -c -o $(CONFIG)/obj/mprLib.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/mpr/mprLib.c
 
 $(CONFIG)/bin/libmpr.so:  \
@@ -138,9 +137,7 @@ $(CONFIG)/bin/libmpr.so:  \
         $(CONFIG)/obj/mprLib.o
 	$(CC) -shared -o $(CONFIG)/bin/libmpr.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/mprLib.o $(LIBS)
 
-$(CONFIG)/inc/est.h:  \
-        $(CONFIG)/inc/bit.h \
-        $(CONFIG)/inc/bitos.h
+$(CONFIG)/inc/est.h: 
 	rm -fr $(CONFIG)/inc/est.h
 	cp -r src/deps/est/est.h $(CONFIG)/inc/est.h
 
@@ -167,8 +164,7 @@ $(CONFIG)/bin/makerom:  \
         $(CONFIG)/obj/makerom.o
 	$(CC) -o $(CONFIG)/bin/makerom $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/makerom.o -lmpr $(LIBS) -lmpr -lpthread -lm -lrt -ldl $(LDFLAGS)
 
-$(CONFIG)/inc/pcre.h:  \
-        $(CONFIG)/inc/bit.h
+$(CONFIG)/inc/pcre.h: 
 	rm -fr $(CONFIG)/inc/pcre.h
 	cp -r src/deps/pcre/pcre.h $(CONFIG)/inc/pcre.h
 
@@ -183,8 +179,7 @@ $(CONFIG)/bin/libpcre.so:  \
         $(CONFIG)/obj/pcre.o
 	$(CC) -shared -o $(CONFIG)/bin/libpcre.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/pcre.o $(LIBS)
 
-$(CONFIG)/inc/sqlite3.h:  \
-        $(CONFIG)/inc/bit.h
+$(CONFIG)/inc/sqlite3.h: 
 	rm -fr $(CONFIG)/inc/sqlite3.h
 	cp -r src/deps/sqlite/sqlite3.h $(CONFIG)/inc/sqlite3.h
 
@@ -210,16 +205,15 @@ $(CONFIG)/bin/sqlite:  \
         $(CONFIG)/obj/sqlite.o
 	$(CC) -o $(CONFIG)/bin/sqlite $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/sqlite.o -lsqlite3 $(LIBS) -lsqlite3 -lpthread -lm -lrt -ldl $(LDFLAGS)
 
-$(CONFIG)/inc/http.h:  \
-        $(CONFIG)/inc/bit.h \
-        $(CONFIG)/inc/mpr.h
+$(CONFIG)/inc/http.h: 
 	rm -fr $(CONFIG)/inc/http.h
 	cp -r src/deps/http/http.h $(CONFIG)/inc/http.h
 
 $(CONFIG)/obj/httpLib.o: \
         src/deps/http/httpLib.c \
         $(CONFIG)/inc/bit.h \
-        $(CONFIG)/inc/http.h
+        $(CONFIG)/inc/http.h \
+        $(CONFIG)/inc/mpr.h
 	$(CC) -c -o $(CONFIG)/obj/httpLib.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/http/httpLib.c
 
 $(CONFIG)/bin/libhttp.so:  \
@@ -244,19 +238,14 @@ $(CONFIG)/bin/http-ca.crt: src/deps/http/http-ca.crt
 	rm -fr $(CONFIG)/bin/http-ca.crt
 	cp -r src/deps/http/http-ca.crt $(CONFIG)/bin/http-ca.crt
 
+$(CONFIG)/inc/ejs.h: 
+	rm -fr $(CONFIG)/inc/ejs.h
+	cp -r src/deps/ejs/ejs.h $(CONFIG)/inc/ejs.h
+
 $(CONFIG)/inc/ejs.slots.h:  \
         $(CONFIG)/inc/bit.h
 	rm -fr $(CONFIG)/inc/ejs.slots.h
 	cp -r src/deps/ejs/ejs.slots.h $(CONFIG)/inc/ejs.slots.h
-
-$(CONFIG)/inc/ejs.h:  \
-        $(CONFIG)/inc/bit.h \
-        $(CONFIG)/inc/bitos.h \
-        $(CONFIG)/inc/mpr.h \
-        $(CONFIG)/inc/http.h \
-        $(CONFIG)/inc/ejs.slots.h
-	rm -fr $(CONFIG)/inc/ejs.h
-	cp -r src/deps/ejs/ejs.h $(CONFIG)/inc/ejs.h
 
 $(CONFIG)/inc/ejsByteGoto.h: 
 	rm -fr $(CONFIG)/inc/ejsByteGoto.h
@@ -268,7 +257,10 @@ $(CONFIG)/obj/ejsLib.o: \
         $(CONFIG)/inc/ejs.h \
         $(CONFIG)/inc/mpr.h \
         $(CONFIG)/inc/pcre.h \
-        $(CONFIG)/inc/sqlite3.h
+        $(CONFIG)/inc/sqlite3.h \
+        $(CONFIG)/inc/bitos.h \
+        $(CONFIG)/inc/http.h \
+        $(CONFIG)/inc/ejs.slots.h
 	$(CC) -c -o $(CONFIG)/obj/ejsLib.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/ejs/ejsLib.c
 
 $(CONFIG)/bin/libejs.so:  \

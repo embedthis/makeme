@@ -524,43 +524,45 @@
 		493D3589493D470700000031 /* mprLib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mprLib.c; path = src/deps/mpr/mprLib.c; sourceTree = "<group>"; };
 		493D3589493D4707000000A3 /* bit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bit.h; path = macosx-x64-default/inc/bit.h; sourceTree = "<group>"; };
 		493D3589493D4707000000A4 /* mpr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mpr.h; path = macosx-x64-default/inc/mpr.h; sourceTree = "<group>"; };
+		493D3589493D4707000000A5 /* bitos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bitos.h; path = macosx-x64-default/inc/bitos.h; sourceTree = "<group>"; };
 		493D3589493D470700000049 /* libmpr */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libmpr.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		493D3589493D470700000033 /* mprSsl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mprSsl.c; path = src/deps/mpr/mprSsl.c; sourceTree = "<group>"; };
-		493D3589493D4707000000A5 /* est.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = est.h; path = macosx-x64-default/inc/est.h; sourceTree = "<group>"; };
-		493D3589493D4707000000A6 /* libmprssl */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libmprssl.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		493D3589493D4707000000A6 /* est.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = est.h; path = macosx-x64-default/inc/est.h; sourceTree = "<group>"; };
+		493D3589493D4707000000A7 /* libmprssl */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libmprssl.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		493D3589493D470700000035 /* makerom.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = makerom.c; path = src/deps/mpr/makerom.c; sourceTree = "<group>"; };
-		493D3589493D4707000000A7 /* makerom */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = makerom; sourceTree = BUILT_PRODUCTS_DIR; };
+		493D3589493D4707000000A8 /* makerom */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = makerom; sourceTree = BUILT_PRODUCTS_DIR; };
 		493D3589493D470700000037 /* pcre.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pcre.c; path = src/deps/pcre/pcre.c; sourceTree = "<group>"; };
-		493D3589493D4707000000A8 /* pcre.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pcre.h; path = macosx-x64-default/inc/pcre.h; sourceTree = "<group>"; };
+		493D3589493D4707000000A9 /* pcre.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pcre.h; path = macosx-x64-default/inc/pcre.h; sourceTree = "<group>"; };
 		493D3589493D47070000004E /* libpcre */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpcre.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		493D3589493D470700000039 /* sqlite3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sqlite3.c; path = src/deps/sqlite/sqlite3.c; sourceTree = "<group>"; };
-		493D3589493D4707000000A9 /* sqlite3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sqlite3.h; path = macosx-x64-default/inc/sqlite3.h; sourceTree = "<group>"; };
+		493D3589493D4707000000AA /* sqlite3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sqlite3.h; path = macosx-x64-default/inc/sqlite3.h; sourceTree = "<group>"; };
 		493D3589493D47070000004C /* libsqlite3 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libsqlite3.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		493D3589493D47070000003B /* sqlite.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sqlite.c; path = src/deps/sqlite/sqlite.c; sourceTree = "<group>"; };
-		493D3589493D4707000000AA /* sqlite */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = sqlite; sourceTree = BUILT_PRODUCTS_DIR; };
+		493D3589493D4707000000AB /* sqlite */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = sqlite; sourceTree = BUILT_PRODUCTS_DIR; };
 		493D3589493D47070000003D /* httpLib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = httpLib.c; path = src/deps/http/httpLib.c; sourceTree = "<group>"; };
-		493D3589493D4707000000AB /* http.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = http.h; path = macosx-x64-default/inc/http.h; sourceTree = "<group>"; };
+		493D3589493D4707000000AC /* http.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = http.h; path = macosx-x64-default/inc/http.h; sourceTree = "<group>"; };
 		493D3589493D470700000051 /* libhttp */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libhttp.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		493D3589493D47070000003F /* http.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = http.c; path = src/deps/http/http.c; sourceTree = "<group>"; };
-		493D3589493D4707000000AC /* http */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = http; sourceTree = BUILT_PRODUCTS_DIR; };
+		493D3589493D4707000000AD /* http */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = http; sourceTree = BUILT_PRODUCTS_DIR; };
 		493D3589493D470700000041 /* ejsLib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ejsLib.c; path = src/deps/ejs/ejsLib.c; sourceTree = "<group>"; };
-		493D3589493D4707000000AD /* ejs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ejs.h; path = macosx-x64-default/inc/ejs.h; sourceTree = "<group>"; };
+		493D3589493D4707000000AE /* ejs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ejs.h; path = macosx-x64-default/inc/ejs.h; sourceTree = "<group>"; };
+		493D3589493D4707000000AF /* ejs.slots.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ejs.slots.h; path = macosx-x64-default/inc/ejs.slots.h; sourceTree = "<group>"; };
 		493D3589493D470700000059 /* libejs */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libejs.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		493D3589493D470700000043 /* ejs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ejs.c; path = src/deps/ejs/ejs.c; sourceTree = "<group>"; };
-		493D3589493D4707000000AE /* ejs */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ejs; sourceTree = BUILT_PRODUCTS_DIR; };
+		493D3589493D4707000000B0 /* ejs */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ejs; sourceTree = BUILT_PRODUCTS_DIR; };
 		493D3589493D470700000045 /* ejsc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ejsc.c; path = src/deps/ejs/ejsc.c; sourceTree = "<group>"; };
-		493D3589493D4707000000AF /* ejsc */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ejsc; sourceTree = BUILT_PRODUCTS_DIR; };
+		493D3589493D4707000000B1 /* ejsc */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ejsc; sourceTree = BUILT_PRODUCTS_DIR; };
 		493D3589493D470700000047 /* bit.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = bit.c; path = src/bit.c; sourceTree = "<group>"; };
 		493D3589493D470700000031 /* mprLib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mprLib.c; path = src/deps/mpr/mprLib.c; sourceTree = "<group>"; };
 		493D3589493D470700000037 /* pcre.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pcre.c; path = src/deps/pcre/pcre.c; sourceTree = "<group>"; };
 		493D3589493D47070000003D /* httpLib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = httpLib.c; path = src/deps/http/httpLib.c; sourceTree = "<group>"; };
 		493D3589493D470700000039 /* sqlite3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sqlite3.c; path = src/deps/sqlite/sqlite3.c; sourceTree = "<group>"; };
 		493D3589493D470700000041 /* ejsLib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ejsLib.c; path = src/deps/ejs/ejsLib.c; sourceTree = "<group>"; };
-		493D3589493D4707000000B0 /* bit */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = bit; sourceTree = BUILT_PRODUCTS_DIR; };
+		493D3589493D4707000000B2 /* bit */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = bit; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		493D3589493D4707000000B1 /* Frameworks and Libraries for libmpr */ = {
+		493D3589493D4707000000B3 /* Frameworks and Libraries for libmpr */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
@@ -568,7 +570,7 @@
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
-		493D3589493D4707000000B2 /* Frameworks and Libraries for libmprssl */ = {
+		493D3589493D4707000000B4 /* Frameworks and Libraries for libmprssl */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
@@ -576,7 +578,7 @@
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
-		493D3589493D4707000000B3 /* Frameworks and Libraries for makerom */ = {
+		493D3589493D4707000000B5 /* Frameworks and Libraries for makerom */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
@@ -584,7 +586,7 @@
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
-		493D3589493D4707000000B4 /* Frameworks and Libraries for libpcre */ = {
+		493D3589493D4707000000B6 /* Frameworks and Libraries for libpcre */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
@@ -592,7 +594,7 @@
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
-		493D3589493D4707000000B5 /* Frameworks and Libraries for libsqlite3 */ = {
+		493D3589493D4707000000B7 /* Frameworks and Libraries for libsqlite3 */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
@@ -600,7 +602,7 @@
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
-		493D3589493D4707000000B6 /* Frameworks and Libraries for sqlite */ = {
+		493D3589493D4707000000B8 /* Frameworks and Libraries for sqlite */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
@@ -608,7 +610,7 @@
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
-		493D3589493D4707000000B7 /* Frameworks and Libraries for libhttp */ = {
+		493D3589493D4707000000B9 /* Frameworks and Libraries for libhttp */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
@@ -617,7 +619,7 @@
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
-		493D3589493D4707000000B8 /* Frameworks and Libraries for http */ = {
+		493D3589493D4707000000BA /* Frameworks and Libraries for http */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
@@ -627,7 +629,7 @@
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
-		493D3589493D4707000000B9 /* Frameworks and Libraries for libejs */ = {
+		493D3589493D4707000000BB /* Frameworks and Libraries for libejs */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
@@ -640,7 +642,7 @@
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
-		493D3589493D4707000000BA /* Frameworks and Libraries for ejs */ = {
+		493D3589493D4707000000BC /* Frameworks and Libraries for ejs */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
@@ -652,7 +654,7 @@
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
-		493D3589493D4707000000BB /* Frameworks and Libraries for ejsc */ = {
+		493D3589493D4707000000BD /* Frameworks and Libraries for ejsc */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
@@ -664,7 +666,7 @@
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
-		493D3589493D4707000000BC /* Frameworks and Libraries for bit */ = {
+		493D3589493D4707000000BE /* Frameworks and Libraries for bit */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
@@ -675,49 +677,50 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		493D3589493D4707000000BD /* Top Group */ = {
+		493D3589493D4707000000BF /* Top Group */ = {
             isa = PBXGroup;
             children = (
-				493D3589493D4707000000BE /* libejs */,
-				493D3589493D4707000000BF /* libhttp */,
-				493D3589493D4707000000C0 /* libmpr */,
-				493D3589493D4707000000C1 /* libmprssl */,
-				493D3589493D4707000000C2 /* libpcre */,
-				493D3589493D4707000000C3 /* libsqlite3 */,
-				493D3589493D4707000000C4 /* bit */,
-				493D3589493D4707000000C5 /* ejs */,
-				493D3589493D4707000000C6 /* ejsc */,
-				493D3589493D4707000000C7 /* http */,
-				493D3589493D4707000000C8 /* makerom */,
-				493D3589493D4707000000C9 /* sqlite */,
-				493D3589493D4707000000CA /* Products */,
+				493D3589493D4707000000C0 /* libejs */,
+				493D3589493D4707000000C1 /* libhttp */,
+				493D3589493D4707000000C2 /* libmpr */,
+				493D3589493D4707000000C3 /* libmprssl */,
+				493D3589493D4707000000C4 /* libpcre */,
+				493D3589493D4707000000C5 /* libsqlite3 */,
+				493D3589493D4707000000C6 /* bit */,
+				493D3589493D4707000000C7 /* ejs */,
+				493D3589493D4707000000C8 /* ejsc */,
+				493D3589493D4707000000C9 /* http */,
+				493D3589493D4707000000CA /* makerom */,
+				493D3589493D4707000000CB /* sqlite */,
+				493D3589493D4707000000CC /* Products */,
 			);
             sourceTree = "<group>";
         };
-		493D3589493D4707000000C0 /* libmpr */ = {
+		493D3589493D4707000000C2 /* libmpr */ = {
             isa = PBXGroup;
             children = (
 				493D3589493D4707000000A3 /* bit.h */,
 				493D3589493D4707000000A4 /* mpr.h */,
+				493D3589493D4707000000A5 /* bitos.h */,
 				493D3589493D470700000031 /* mprLib.c */,
 			);
             name = "libmpr";
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		493D3589493D4707000000C1 /* libmprssl */ = {
+		493D3589493D4707000000C3 /* libmprssl */ = {
             isa = PBXGroup;
             children = (
 				493D3589493D4707000000A3 /* bit.h */,
 				493D3589493D4707000000A4 /* mpr.h */,
-				493D3589493D4707000000A5 /* est.h */,
+				493D3589493D4707000000A6 /* est.h */,
 				493D3589493D470700000033 /* mprSsl.c */,
 			);
             name = "libmprssl";
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		493D3589493D4707000000C8 /* makerom */ = {
+		493D3589493D4707000000CA /* makerom */ = {
             isa = PBXGroup;
             children = (
 				493D3589493D4707000000A3 /* bit.h */,
@@ -728,123 +731,127 @@
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		493D3589493D4707000000C2 /* libpcre */ = {
+		493D3589493D4707000000C4 /* libpcre */ = {
             isa = PBXGroup;
             children = (
 				493D3589493D4707000000A3 /* bit.h */,
-				493D3589493D4707000000A8 /* pcre.h */,
+				493D3589493D4707000000A9 /* pcre.h */,
 				493D3589493D470700000037 /* pcre.c */,
 			);
             name = "libpcre";
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		493D3589493D4707000000C3 /* libsqlite3 */ = {
+		493D3589493D4707000000C5 /* libsqlite3 */ = {
             isa = PBXGroup;
             children = (
 				493D3589493D4707000000A3 /* bit.h */,
-				493D3589493D4707000000A9 /* sqlite3.h */,
+				493D3589493D4707000000AA /* sqlite3.h */,
 				493D3589493D470700000039 /* sqlite3.c */,
 			);
             name = "libsqlite3";
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		493D3589493D4707000000C9 /* sqlite */ = {
+		493D3589493D4707000000CB /* sqlite */ = {
             isa = PBXGroup;
             children = (
 				493D3589493D4707000000A3 /* bit.h */,
-				493D3589493D4707000000A9 /* sqlite3.h */,
+				493D3589493D4707000000AA /* sqlite3.h */,
 				493D3589493D47070000003B /* sqlite.c */,
 			);
             name = "sqlite";
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		493D3589493D4707000000BF /* libhttp */ = {
+		493D3589493D4707000000C1 /* libhttp */ = {
             isa = PBXGroup;
             children = (
 				493D3589493D4707000000A3 /* bit.h */,
-				493D3589493D4707000000AB /* http.h */,
+				493D3589493D4707000000AC /* http.h */,
+				493D3589493D4707000000A4 /* mpr.h */,
 				493D3589493D47070000003D /* httpLib.c */,
 			);
             name = "libhttp";
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		493D3589493D4707000000C7 /* http */ = {
+		493D3589493D4707000000C9 /* http */ = {
             isa = PBXGroup;
             children = (
 				493D3589493D4707000000A3 /* bit.h */,
-				493D3589493D4707000000AB /* http.h */,
+				493D3589493D4707000000AC /* http.h */,
 				493D3589493D47070000003F /* http.c */,
 			);
             name = "http";
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		493D3589493D4707000000BE /* libejs */ = {
+		493D3589493D4707000000C0 /* libejs */ = {
             isa = PBXGroup;
             children = (
 				493D3589493D4707000000A3 /* bit.h */,
-				493D3589493D4707000000AD /* ejs.h */,
+				493D3589493D4707000000AE /* ejs.h */,
 				493D3589493D4707000000A4 /* mpr.h */,
-				493D3589493D4707000000A8 /* pcre.h */,
-				493D3589493D4707000000A9 /* sqlite3.h */,
+				493D3589493D4707000000A9 /* pcre.h */,
+				493D3589493D4707000000AA /* sqlite3.h */,
+				493D3589493D4707000000A5 /* bitos.h */,
+				493D3589493D4707000000AC /* http.h */,
+				493D3589493D4707000000AF /* ejs.slots.h */,
 				493D3589493D470700000041 /* ejsLib.c */,
 			);
             name = "libejs";
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		493D3589493D4707000000C5 /* ejs */ = {
+		493D3589493D4707000000C7 /* ejs */ = {
             isa = PBXGroup;
             children = (
 				493D3589493D4707000000A3 /* bit.h */,
-				493D3589493D4707000000AD /* ejs.h */,
+				493D3589493D4707000000AE /* ejs.h */,
 				493D3589493D470700000043 /* ejs.c */,
 			);
             name = "ejs";
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		493D3589493D4707000000C6 /* ejsc */ = {
+		493D3589493D4707000000C8 /* ejsc */ = {
             isa = PBXGroup;
             children = (
 				493D3589493D4707000000A3 /* bit.h */,
-				493D3589493D4707000000AD /* ejs.h */,
+				493D3589493D4707000000AE /* ejs.h */,
 				493D3589493D470700000045 /* ejsc.c */,
 			);
             name = "ejsc";
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		493D3589493D4707000000C4 /* bit */ = {
+		493D3589493D4707000000C6 /* bit */ = {
             isa = PBXGroup;
             children = (
 				493D3589493D4707000000A3 /* bit.h */,
-				493D3589493D4707000000AD /* ejs.h */,
+				493D3589493D4707000000AE /* ejs.h */,
 				493D3589493D470700000047 /* bit.c */,
 			);
             name = "bit";
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		493D3589493D4707000000CA /* Products */ = {
+		493D3589493D4707000000CC /* Products */ = {
             isa = PBXGroup;
             children = (
 				493D3589493D470700000049 /* libmpr */,
-				493D3589493D4707000000A6 /* libmprssl */,
-				493D3589493D4707000000A7 /* makerom */,
+				493D3589493D4707000000A7 /* libmprssl */,
+				493D3589493D4707000000A8 /* makerom */,
 				493D3589493D47070000004E /* libpcre */,
 				493D3589493D47070000004C /* libsqlite3 */,
-				493D3589493D4707000000AA /* sqlite */,
+				493D3589493D4707000000AB /* sqlite */,
 				493D3589493D470700000051 /* libhttp */,
-				493D3589493D4707000000AC /* http */,
+				493D3589493D4707000000AD /* http */,
 				493D3589493D470700000059 /* libejs */,
-				493D3589493D4707000000AE /* ejs */,
-				493D3589493D4707000000AF /* ejsc */,
-				493D3589493D4707000000B0 /* bit */,
+				493D3589493D4707000000B0 /* ejs */,
+				493D3589493D4707000000B1 /* ejsc */,
+				493D3589493D4707000000B2 /* bit */,
 			);
             name = "Products";
             path = ..;
@@ -855,15 +862,15 @@
 /* Begin PBXNativeTarget section */
 		493D3589493D470700000066 /* libmpr */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 493D3589493D4707000000CC /* Build configuration list for PBXNativeTarget "libmpr" */;
+			buildConfigurationList = 493D3589493D4707000000CE /* Build configuration list for PBXNativeTarget "libmpr" */;
 			buildPhases = (
-				493D3589493D4707000000CB /* Sources */,
-				493D3589493D4707000000B1 /* Frameworks */,
+				493D3589493D4707000000CD /* Sources */,
+				493D3589493D4707000000B3 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				493D3589493D4707000000CD /* Prep */,				
+				493D3589493D4707000000CF /* Prep */,				
 			);
 			name = libmpr;
 			productName = bit;
@@ -872,51 +879,51 @@
 		};
 		493D3589493D47070000008F /* libmprssl */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 493D3589493D4707000000CF /* Build configuration list for PBXNativeTarget "libmprssl" */;
+			buildConfigurationList = 493D3589493D4707000000D1 /* Build configuration list for PBXNativeTarget "libmprssl" */;
 			buildPhases = (
-				493D3589493D4707000000CE /* Sources */,
-				493D3589493D4707000000B2 /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				493D3589493D4707000000D0 /* libmpr */,
-				493D3589493D4707000000D1 /* Prep */,				
-			);
-			name = libmprssl;
-			productName = bit;
-			productReference = 493D3589493D4707000000A6 /* libmprssl */;
-			productType = "com.apple.product-type.library.dynamic";
-		};
-		493D3589493D470700000091 /* makerom */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 493D3589493D4707000000D3 /* Build configuration list for PBXNativeTarget "makerom" */;
-			buildPhases = (
-				493D3589493D4707000000D2 /* Sources */,
-				493D3589493D4707000000B3 /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				493D3589493D4707000000D4 /* libmpr */,
-				493D3589493D4707000000D5 /* Prep */,				
-			);
-			name = makerom;
-			productName = bit;
-			productReference = 493D3589493D4707000000A7 /* makerom */;
-			productType = "com.apple.product-type.tool";
-		};
-		493D3589493D470700000071 /* libpcre */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 493D3589493D4707000000D7 /* Build configuration list for PBXNativeTarget "libpcre" */;
-			buildPhases = (
-				493D3589493D4707000000D6 /* Sources */,
+				493D3589493D4707000000D0 /* Sources */,
 				493D3589493D4707000000B4 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				493D3589493D4707000000D8 /* Prep */,				
+				493D3589493D4707000000D2 /* libmpr */,
+				493D3589493D4707000000D3 /* Prep */,				
+			);
+			name = libmprssl;
+			productName = bit;
+			productReference = 493D3589493D4707000000A7 /* libmprssl */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		493D3589493D470700000091 /* makerom */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 493D3589493D4707000000D5 /* Build configuration list for PBXNativeTarget "makerom" */;
+			buildPhases = (
+				493D3589493D4707000000D4 /* Sources */,
+				493D3589493D4707000000B5 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				493D3589493D4707000000D6 /* libmpr */,
+				493D3589493D4707000000D7 /* Prep */,				
+			);
+			name = makerom;
+			productName = bit;
+			productReference = 493D3589493D4707000000A8 /* makerom */;
+			productType = "com.apple.product-type.tool";
+		};
+		493D3589493D470700000071 /* libpcre */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 493D3589493D4707000000D9 /* Build configuration list for PBXNativeTarget "libpcre" */;
+			buildPhases = (
+				493D3589493D4707000000D8 /* Sources */,
+				493D3589493D4707000000B6 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				493D3589493D4707000000DA /* Prep */,				
 			);
 			name = libpcre;
 			productName = bit;
@@ -925,15 +932,15 @@
 		};
 		493D3589493D47070000006D /* libsqlite3 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 493D3589493D4707000000DA /* Build configuration list for PBXNativeTarget "libsqlite3" */;
+			buildConfigurationList = 493D3589493D4707000000DC /* Build configuration list for PBXNativeTarget "libsqlite3" */;
 			buildPhases = (
-				493D3589493D4707000000D9 /* Sources */,
-				493D3589493D4707000000B5 /* Frameworks */,
+				493D3589493D4707000000DB /* Sources */,
+				493D3589493D4707000000B7 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				493D3589493D4707000000DB /* Prep */,				
+				493D3589493D4707000000DD /* Prep */,				
 			);
 			name = libsqlite3;
 			productName = bit;
@@ -942,35 +949,35 @@
 		};
 		493D3589493D470700000095 /* sqlite */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 493D3589493D4707000000DD /* Build configuration list for PBXNativeTarget "sqlite" */;
+			buildConfigurationList = 493D3589493D4707000000DF /* Build configuration list for PBXNativeTarget "sqlite" */;
 			buildPhases = (
-				493D3589493D4707000000DC /* Sources */,
-				493D3589493D4707000000B6 /* Frameworks */,
+				493D3589493D4707000000DE /* Sources */,
+				493D3589493D4707000000B8 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				493D3589493D4707000000DE /* libsqlite3 */,
-				493D3589493D4707000000DF /* Prep */,				
+				493D3589493D4707000000E0 /* libsqlite3 */,
+				493D3589493D4707000000E1 /* Prep */,				
 			);
 			name = sqlite;
 			productName = bit;
-			productReference = 493D3589493D4707000000AA /* sqlite */;
+			productReference = 493D3589493D4707000000AB /* sqlite */;
 			productType = "com.apple.product-type.tool";
 		};
 		493D3589493D470700000074 /* libhttp */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 493D3589493D4707000000E1 /* Build configuration list for PBXNativeTarget "libhttp" */;
+			buildConfigurationList = 493D3589493D4707000000E3 /* Build configuration list for PBXNativeTarget "libhttp" */;
 			buildPhases = (
-				493D3589493D4707000000E0 /* Sources */,
-				493D3589493D4707000000B7 /* Frameworks */,
+				493D3589493D4707000000E2 /* Sources */,
+				493D3589493D4707000000B9 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				493D3589493D4707000000E2 /* libmpr */,
-				493D3589493D4707000000E3 /* libpcre */,
-				493D3589493D4707000000E4 /* Prep */,				
+				493D3589493D4707000000E4 /* libmpr */,
+				493D3589493D4707000000E5 /* libpcre */,
+				493D3589493D4707000000E6 /* Prep */,				
 			);
 			name = libhttp;
 			productName = bit;
@@ -979,37 +986,37 @@
 		};
 		493D3589493D470700000098 /* http */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 493D3589493D4707000000E6 /* Build configuration list for PBXNativeTarget "http" */;
+			buildConfigurationList = 493D3589493D4707000000E8 /* Build configuration list for PBXNativeTarget "http" */;
 			buildPhases = (
-				493D3589493D4707000000E5 /* Sources */,
-				493D3589493D4707000000B8 /* Frameworks */,
+				493D3589493D4707000000E7 /* Sources */,
+				493D3589493D4707000000BA /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				493D3589493D4707000000E7 /* libhttp */,
-				493D3589493D4707000000E8 /* Prep */,				
+				493D3589493D4707000000E9 /* libhttp */,
+				493D3589493D4707000000EA /* Prep */,				
 			);
 			name = http;
 			productName = bit;
-			productReference = 493D3589493D4707000000AC /* http */;
+			productReference = 493D3589493D4707000000AD /* http */;
 			productType = "com.apple.product-type.tool";
 		};
 		493D3589493D47070000007D /* libejs */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 493D3589493D4707000000EA /* Build configuration list for PBXNativeTarget "libejs" */;
+			buildConfigurationList = 493D3589493D4707000000EC /* Build configuration list for PBXNativeTarget "libejs" */;
 			buildPhases = (
-				493D3589493D4707000000E9 /* Sources */,
-				493D3589493D4707000000B9 /* Frameworks */,
+				493D3589493D4707000000EB /* Sources */,
+				493D3589493D4707000000BB /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				493D3589493D4707000000EB /* libhttp */,
-				493D3589493D4707000000EC /* libpcre */,
-				493D3589493D4707000000ED /* libmpr */,
-				493D3589493D4707000000EE /* libsqlite3 */,
-				493D3589493D4707000000EF /* Prep */,				
+				493D3589493D4707000000ED /* libhttp */,
+				493D3589493D4707000000EE /* libpcre */,
+				493D3589493D4707000000EF /* libmpr */,
+				493D3589493D4707000000F0 /* libsqlite3 */,
+				493D3589493D4707000000F1 /* Prep */,				
 			);
 			name = libejs;
 			productName = bit;
@@ -1018,60 +1025,60 @@
 		};
 		493D3589493D47070000009C /* ejs */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 493D3589493D4707000000F1 /* Build configuration list for PBXNativeTarget "ejs" */;
+			buildConfigurationList = 493D3589493D4707000000F3 /* Build configuration list for PBXNativeTarget "ejs" */;
 			buildPhases = (
-				493D3589493D4707000000F0 /* Sources */,
-				493D3589493D4707000000BA /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				493D3589493D4707000000F2 /* libejs */,
-				493D3589493D4707000000F3 /* Prep */,				
-			);
-			name = ejs;
-			productName = bit;
-			productReference = 493D3589493D4707000000AE /* ejs */;
-			productType = "com.apple.product-type.tool";
-		};
-		493D3589493D470700000082 /* ejsc */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 493D3589493D4707000000F5 /* Build configuration list for PBXNativeTarget "ejsc" */;
-			buildPhases = (
-				493D3589493D4707000000F4 /* Sources */,
-				493D3589493D4707000000BB /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				493D3589493D4707000000F6 /* libejs */,
-				493D3589493D4707000000F7 /* Prep */,				
-			);
-			name = ejsc;
-			productName = bit;
-			productReference = 493D3589493D4707000000AF /* ejsc */;
-			productType = "com.apple.product-type.tool";
-		};
-		493D3589493D4707000000A1 /* bit */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 493D3589493D4707000000F9 /* Build configuration list for PBXNativeTarget "bit" */;
-			buildPhases = (
-				493D3589493D4707000000F8 /* Sources */,
+				493D3589493D4707000000F2 /* Sources */,
 				493D3589493D4707000000BC /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				493D3589493D4707000000FA /* libmpr */,
-				493D3589493D4707000000FB /* libhttp */,
-				493D3589493D4707000000FC /* libejs */,
-				493D3589493D4707000000FD /* bits */,
-				493D3589493D4707000000FE /* bit.es */,
-				493D3589493D4707000000FF /* Prep */,				
+				493D3589493D4707000000F4 /* libejs */,
+				493D3589493D4707000000F5 /* Prep */,				
+			);
+			name = ejs;
+			productName = bit;
+			productReference = 493D3589493D4707000000B0 /* ejs */;
+			productType = "com.apple.product-type.tool";
+		};
+		493D3589493D470700000082 /* ejsc */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 493D3589493D4707000000F7 /* Build configuration list for PBXNativeTarget "ejsc" */;
+			buildPhases = (
+				493D3589493D4707000000F6 /* Sources */,
+				493D3589493D4707000000BD /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				493D3589493D4707000000F8 /* libejs */,
+				493D3589493D4707000000F9 /* Prep */,				
+			);
+			name = ejsc;
+			productName = bit;
+			productReference = 493D3589493D4707000000B1 /* ejsc */;
+			productType = "com.apple.product-type.tool";
+		};
+		493D3589493D4707000000A1 /* bit */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 493D3589493D4707000000FB /* Build configuration list for PBXNativeTarget "bit" */;
+			buildPhases = (
+				493D3589493D4707000000FA /* Sources */,
+				493D3589493D4707000000BE /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				493D3589493D4707000000FC /* libmpr */,
+				493D3589493D4707000000FD /* libhttp */,
+				493D3589493D4707000000FE /* libejs */,
+				493D3589493D4707000000FF /* bits */,
+				493D3589493D470700000100 /* bit.es */,
+				493D3589493D470700000101 /* Prep */,				
 			);
 			name = bit;
 			productName = bit;
-			productReference = 493D3589493D4707000000B0 /* bit */;
+			productReference = 493D3589493D4707000000B2 /* bit */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -1283,8 +1290,8 @@ fi";
 			knownRegions = (
 				en,
 			);
-			mainGroup = 493D3589493D4707000000BD;
-			productRefGroup = 493D3589493D4707000000CA /* Products */;
+			mainGroup = 493D3589493D4707000000BF;
+			productRefGroup = 493D3589493D4707000000CC /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -1312,7 +1319,7 @@ fi";
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		493D3589493D4707000000CB /* libmpr Sources */ = {
+		493D3589493D4707000000CD /* libmpr Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1320,7 +1327,7 @@ fi";
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		493D3589493D4707000000CE /* libmprssl Sources */ = {
+		493D3589493D4707000000D0 /* libmprssl Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1328,7 +1335,7 @@ fi";
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		493D3589493D4707000000D2 /* makerom Sources */ = {
+		493D3589493D4707000000D4 /* makerom Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1336,7 +1343,7 @@ fi";
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		493D3589493D4707000000D6 /* libpcre Sources */ = {
+		493D3589493D4707000000D8 /* libpcre Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1344,7 +1351,7 @@ fi";
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		493D3589493D4707000000D9 /* libsqlite3 Sources */ = {
+		493D3589493D4707000000DB /* libsqlite3 Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1352,7 +1359,7 @@ fi";
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		493D3589493D4707000000DC /* sqlite Sources */ = {
+		493D3589493D4707000000DE /* sqlite Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1360,7 +1367,7 @@ fi";
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		493D3589493D4707000000E0 /* libhttp Sources */ = {
+		493D3589493D4707000000E2 /* libhttp Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1368,7 +1375,7 @@ fi";
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		493D3589493D4707000000E5 /* http Sources */ = {
+		493D3589493D4707000000E7 /* http Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1376,7 +1383,7 @@ fi";
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		493D3589493D4707000000E9 /* libejs Sources */ = {
+		493D3589493D4707000000EB /* libejs Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1384,7 +1391,7 @@ fi";
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		493D3589493D4707000000F0 /* ejs Sources */ = {
+		493D3589493D4707000000F2 /* ejs Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1392,7 +1399,7 @@ fi";
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		493D3589493D4707000000F4 /* ejsc Sources */ = {
+		493D3589493D4707000000F6 /* ejsc Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1400,7 +1407,7 @@ fi";
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		493D3589493D4707000000F8 /* bit Sources */ = {
+		493D3589493D4707000000FA /* bit Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1421,72 +1428,72 @@ fi";
 			target = 493D3589493D47070000002E /* Prep */;
 			targetProxy = 493D3589493D470700000063 /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000CD /* PBXTargetDependency libmpr depends on Prep */ = {
+		493D3589493D4707000000CF /* PBXTargetDependency libmpr depends on Prep */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D47070000002E /* Prep */;
 			targetProxy = 493D3589493D470700000064 /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000D0 /* PBXTargetDependency libmprssl depends on libmpr */ = {
+		493D3589493D4707000000D2 /* PBXTargetDependency libmprssl depends on libmpr */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D470700000066 /* libmpr */;
 			targetProxy = 493D3589493D470700000065 /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000D1 /* PBXTargetDependency libmprssl depends on Prep */ = {
+		493D3589493D4707000000D3 /* PBXTargetDependency libmprssl depends on Prep */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D47070000002E /* Prep */;
 			targetProxy = 493D3589493D470700000067 /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000D4 /* PBXTargetDependency makerom depends on libmpr */ = {
+		493D3589493D4707000000D6 /* PBXTargetDependency makerom depends on libmpr */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D470700000066 /* libmpr */;
 			targetProxy = 493D3589493D470700000068 /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000D5 /* PBXTargetDependency makerom depends on Prep */ = {
+		493D3589493D4707000000D7 /* PBXTargetDependency makerom depends on Prep */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D47070000002E /* Prep */;
 			targetProxy = 493D3589493D470700000069 /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000D8 /* PBXTargetDependency libpcre depends on Prep */ = {
+		493D3589493D4707000000DA /* PBXTargetDependency libpcre depends on Prep */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D47070000002E /* Prep */;
 			targetProxy = 493D3589493D47070000006A /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000DB /* PBXTargetDependency libsqlite3 depends on Prep */ = {
+		493D3589493D4707000000DD /* PBXTargetDependency libsqlite3 depends on Prep */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D47070000002E /* Prep */;
 			targetProxy = 493D3589493D47070000006B /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000DE /* PBXTargetDependency sqlite depends on libsqlite3 */ = {
+		493D3589493D4707000000E0 /* PBXTargetDependency sqlite depends on libsqlite3 */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D47070000006D /* libsqlite3 */;
 			targetProxy = 493D3589493D47070000006C /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000DF /* PBXTargetDependency sqlite depends on Prep */ = {
+		493D3589493D4707000000E1 /* PBXTargetDependency sqlite depends on Prep */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D47070000002E /* Prep */;
 			targetProxy = 493D3589493D47070000006E /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000E2 /* PBXTargetDependency libhttp depends on libmpr */ = {
+		493D3589493D4707000000E4 /* PBXTargetDependency libhttp depends on libmpr */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D470700000066 /* libmpr */;
 			targetProxy = 493D3589493D47070000006F /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000E3 /* PBXTargetDependency libhttp depends on libpcre */ = {
+		493D3589493D4707000000E5 /* PBXTargetDependency libhttp depends on libpcre */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D470700000071 /* libpcre */;
 			targetProxy = 493D3589493D470700000070 /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000E4 /* PBXTargetDependency libhttp depends on Prep */ = {
+		493D3589493D4707000000E6 /* PBXTargetDependency libhttp depends on Prep */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D47070000002E /* Prep */;
 			targetProxy = 493D3589493D470700000072 /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000E7 /* PBXTargetDependency http depends on libhttp */ = {
+		493D3589493D4707000000E9 /* PBXTargetDependency http depends on libhttp */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D470700000074 /* libhttp */;
 			targetProxy = 493D3589493D470700000073 /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000E8 /* PBXTargetDependency http depends on Prep */ = {
+		493D3589493D4707000000EA /* PBXTargetDependency http depends on Prep */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D47070000002E /* Prep */;
 			targetProxy = 493D3589493D470700000075 /* PBXContainerItemProxy */;
@@ -1496,47 +1503,47 @@ fi";
 			target = 493D3589493D47070000002E /* Prep */;
 			targetProxy = 493D3589493D470700000076 /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000EB /* PBXTargetDependency libejs depends on libhttp */ = {
+		493D3589493D4707000000ED /* PBXTargetDependency libejs depends on libhttp */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D470700000074 /* libhttp */;
 			targetProxy = 493D3589493D470700000077 /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000EC /* PBXTargetDependency libejs depends on libpcre */ = {
+		493D3589493D4707000000EE /* PBXTargetDependency libejs depends on libpcre */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D470700000071 /* libpcre */;
 			targetProxy = 493D3589493D470700000078 /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000ED /* PBXTargetDependency libejs depends on libmpr */ = {
+		493D3589493D4707000000EF /* PBXTargetDependency libejs depends on libmpr */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D470700000066 /* libmpr */;
 			targetProxy = 493D3589493D470700000079 /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000EE /* PBXTargetDependency libejs depends on libsqlite3 */ = {
+		493D3589493D4707000000F0 /* PBXTargetDependency libejs depends on libsqlite3 */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D47070000006D /* libsqlite3 */;
 			targetProxy = 493D3589493D47070000007A /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000EF /* PBXTargetDependency libejs depends on Prep */ = {
+		493D3589493D4707000000F1 /* PBXTargetDependency libejs depends on Prep */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D47070000002E /* Prep */;
 			targetProxy = 493D3589493D47070000007B /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000F2 /* PBXTargetDependency ejs depends on libejs */ = {
+		493D3589493D4707000000F4 /* PBXTargetDependency ejs depends on libejs */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D47070000007D /* libejs */;
 			targetProxy = 493D3589493D47070000007C /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000F3 /* PBXTargetDependency ejs depends on Prep */ = {
+		493D3589493D4707000000F5 /* PBXTargetDependency ejs depends on Prep */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D47070000002E /* Prep */;
 			targetProxy = 493D3589493D47070000007E /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000F6 /* PBXTargetDependency ejsc depends on libejs */ = {
+		493D3589493D4707000000F8 /* PBXTargetDependency ejsc depends on libejs */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D47070000007D /* libejs */;
 			targetProxy = 493D3589493D47070000007F /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000F7 /* PBXTargetDependency ejsc depends on Prep */ = {
+		493D3589493D4707000000F9 /* PBXTargetDependency ejsc depends on Prep */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D47070000002E /* Prep */;
 			targetProxy = 493D3589493D470700000080 /* PBXContainerItemProxy */;
@@ -1556,32 +1563,32 @@ fi";
 			target = 493D3589493D47070000002E /* Prep */;
 			targetProxy = 493D3589493D470700000084 /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000FA /* PBXTargetDependency bit depends on libmpr */ = {
+		493D3589493D4707000000FC /* PBXTargetDependency bit depends on libmpr */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D470700000066 /* libmpr */;
 			targetProxy = 493D3589493D470700000085 /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000FB /* PBXTargetDependency bit depends on libhttp */ = {
+		493D3589493D4707000000FD /* PBXTargetDependency bit depends on libhttp */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D470700000074 /* libhttp */;
 			targetProxy = 493D3589493D470700000086 /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000FC /* PBXTargetDependency bit depends on libejs */ = {
+		493D3589493D4707000000FE /* PBXTargetDependency bit depends on libejs */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D47070000007D /* libejs */;
 			targetProxy = 493D3589493D470700000087 /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000FD /* PBXTargetDependency bit depends on bits */ = {
+		493D3589493D4707000000FF /* PBXTargetDependency bit depends on bits */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D470700000017 /* bits */;
 			targetProxy = 493D3589493D470700000088 /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000FE /* PBXTargetDependency bit depends on bit.es */ = {
+		493D3589493D470700000100 /* PBXTargetDependency bit depends on bit.es */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D470700000013 /* bit.es */;
 			targetProxy = 493D3589493D470700000089 /* PBXContainerItemProxy */;
 		};
-		493D3589493D4707000000FF /* PBXTargetDependency bit depends on Prep */ = {
+		493D3589493D470700000101 /* PBXTargetDependency bit depends on Prep */ = {
 			isa = PBXTargetDependency;
 			target = 493D3589493D47070000002E /* Prep */;
 			targetProxy = 493D3589493D47070000008A /* PBXContainerItemProxy */;
@@ -1819,31 +1826,10 @@ fi";
 			};
 			name = Release;
 		};
-		493D3589493D470700000100 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				PRODUCT_NAME = ca-crt;
-
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"BIT_DEBUG",
-					"$(inherited)"
-				);
-			};
-			name = Debug;
-		};
-		493D3589493D470700000101 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				PRODUCT_NAME = ca-crt;
-
-
-			};
-			name = Release;
-		};
 		493D3589493D470700000102 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = libmpr;
+				PRODUCT_NAME = ca-crt;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
@@ -1855,7 +1841,7 @@ fi";
 		493D3589493D470700000103 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = libmpr;
+				PRODUCT_NAME = ca-crt;
 
 
 			};
@@ -1864,7 +1850,7 @@ fi";
 		493D3589493D470700000104 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = libmprssl;
+				PRODUCT_NAME = libmpr;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
@@ -1876,7 +1862,7 @@ fi";
 		493D3589493D470700000105 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = libmprssl;
+				PRODUCT_NAME = libmpr;
 
 
 			};
@@ -1885,7 +1871,7 @@ fi";
 		493D3589493D470700000106 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = makerom;
+				PRODUCT_NAME = libmprssl;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
@@ -1897,7 +1883,7 @@ fi";
 		493D3589493D470700000107 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = makerom;
+				PRODUCT_NAME = libmprssl;
 
 
 			};
@@ -1906,10 +1892,9 @@ fi";
 		493D3589493D470700000108 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = libpcre;
+				PRODUCT_NAME = makerom;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"PCRE_CHAR=char",
 					"BIT_DEBUG",
 					"$(inherited)"
 				);
@@ -1919,22 +1904,19 @@ fi";
 		493D3589493D470700000109 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = libpcre;
+				PRODUCT_NAME = makerom;
 
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"PCRE_CHAR=char",
-					"$(inherited)"
-				);
+
 			};
 			name = Release;
 		};
 		493D3589493D47070000010A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = libsqlite3;
-				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
+				PRODUCT_NAME = libpcre;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"PCRE_CHAR=char",
 					"BIT_DEBUG",
 					"$(inherited)"
 				);
@@ -1944,17 +1926,20 @@ fi";
 		493D3589493D47070000010B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = libsqlite3;
-				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
+				PRODUCT_NAME = libpcre;
 
-
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"PCRE_CHAR=char",
+					"$(inherited)"
+				);
 			};
 			name = Release;
 		};
 		493D3589493D47070000010C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = sqlite;
+				PRODUCT_NAME = libsqlite3;
+				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
@@ -1966,7 +1951,8 @@ fi";
 		493D3589493D47070000010D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = sqlite;
+				PRODUCT_NAME = libsqlite3;
+				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 
 
 			};
@@ -1975,7 +1961,7 @@ fi";
 		493D3589493D47070000010E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = libhttp;
+				PRODUCT_NAME = sqlite;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
@@ -1987,7 +1973,7 @@ fi";
 		493D3589493D47070000010F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = libhttp;
+				PRODUCT_NAME = sqlite;
 
 
 			};
@@ -1996,7 +1982,7 @@ fi";
 		493D3589493D470700000110 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = http;
+				PRODUCT_NAME = libhttp;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
@@ -2008,7 +1994,7 @@ fi";
 		493D3589493D470700000111 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = http;
+				PRODUCT_NAME = libhttp;
 
 
 			};
@@ -2017,7 +2003,7 @@ fi";
 		493D3589493D470700000112 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = http-ca.crt;
+				PRODUCT_NAME = http;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
@@ -2029,7 +2015,7 @@ fi";
 		493D3589493D470700000113 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = http-ca.crt;
+				PRODUCT_NAME = http;
 
 
 			};
@@ -2038,7 +2024,7 @@ fi";
 		493D3589493D470700000114 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = libejs;
+				PRODUCT_NAME = http-ca.crt;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
@@ -2050,7 +2036,7 @@ fi";
 		493D3589493D470700000115 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = libejs;
+				PRODUCT_NAME = http-ca.crt;
 
 
 			};
@@ -2059,29 +2045,20 @@ fi";
 		493D3589493D470700000116 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = ejs;
+				PRODUCT_NAME = libejs;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
 					"$(inherited)"
 				);
-				OTHER_LDFLAGS = (
-					"-ledit",
-					"$(inherited)"
-				);
-
 			};
 			name = Debug;
 		};
 		493D3589493D470700000117 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = ejs;
+				PRODUCT_NAME = libejs;
 
-				OTHER_LDFLAGS = (
-					"-ledit",
-					"$(inherited)"
-				);
 
 			};
 			name = Release;
@@ -2089,20 +2066,29 @@ fi";
 		493D3589493D470700000118 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = ejsc;
+				PRODUCT_NAME = ejs;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
 					"$(inherited)"
 				);
+				OTHER_LDFLAGS = (
+					"-ledit",
+					"$(inherited)"
+				);
+
 			};
 			name = Debug;
 		};
 		493D3589493D470700000119 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = ejsc;
+				PRODUCT_NAME = ejs;
 
+				OTHER_LDFLAGS = (
+					"-ledit",
+					"$(inherited)"
+				);
 
 			};
 			name = Release;
@@ -2110,7 +2096,7 @@ fi";
 		493D3589493D47070000011A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = ejs.mod;
+				PRODUCT_NAME = ejsc;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
@@ -2122,7 +2108,7 @@ fi";
 		493D3589493D47070000011B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = ejs.mod;
+				PRODUCT_NAME = ejsc;
 
 
 			};
@@ -2131,7 +2117,7 @@ fi";
 		493D3589493D47070000011C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = bit.es;
+				PRODUCT_NAME = ejs.mod;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
@@ -2143,7 +2129,7 @@ fi";
 		493D3589493D47070000011D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = bit.es;
+				PRODUCT_NAME = ejs.mod;
 
 
 			};
@@ -2152,27 +2138,20 @@ fi";
 		493D3589493D47070000011E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = bit;
+				PRODUCT_NAME = bit.es;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
 					"$(inherited)"
 				);
-				OTHER_LDFLAGS = ();
-
-				MACH_O_TYPE = staticlib;
-
 			};
 			name = Debug;
 		};
 		493D3589493D47070000011F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = bit;
+				PRODUCT_NAME = bit.es;
 
-				OTHER_LDFLAGS = ();
-
-				MACH_O_TYPE = staticlib;
 
 			};
 			name = Release;
@@ -2180,20 +2159,27 @@ fi";
 		493D3589493D470700000120 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = bits;
+				PRODUCT_NAME = bit;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
 					"$(inherited)"
 				);
+				OTHER_LDFLAGS = ();
+
+				MACH_O_TYPE = staticlib;
+
 			};
 			name = Debug;
 		};
 		493D3589493D470700000121 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = bits;
+				PRODUCT_NAME = bit;
 
+				OTHER_LDFLAGS = ();
+
+				MACH_O_TYPE = staticlib;
 
 			};
 			name = Release;
@@ -2201,7 +2187,7 @@ fi";
 		493D3589493D470700000122 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = All;
+				PRODUCT_NAME = bits;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
@@ -2213,13 +2199,34 @@ fi";
 		493D3589493D470700000123 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = All;
+				PRODUCT_NAME = bits;
 
 
 			};
 			name = Release;
 		};
 		493D3589493D470700000124 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"BIT_DEBUG",
+					"$(inherited)"
+				);
+			};
+			name = Debug;
+		};
+		493D3589493D470700000125 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = All;
+
+
+			};
+			name = Release;
+		};
+		493D3589493D470700000126 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = Prep;
@@ -2231,7 +2238,7 @@ fi";
 			};
 			name = Debug;
 		};
-		493D3589493D470700000125 /* Release */ = {
+		493D3589493D470700000127 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = Prep;
@@ -2255,22 +2262,13 @@ fi";
 		493D3589493D470700000005 /* Build configuration list for PBXNativeTarget "ca-crt" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				493D3589493D470700000100 /* Debug */,
-				493D3589493D470700000101 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		493D3589493D4707000000CC /* Build configuration list for PBXNativeTarget "libmpr" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
 				493D3589493D470700000102 /* Debug */,
 				493D3589493D470700000103 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		493D3589493D4707000000CF /* Build configuration list for PBXNativeTarget "libmprssl" */ = {
+		493D3589493D4707000000CE /* Build configuration list for PBXNativeTarget "libmpr" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				493D3589493D470700000104 /* Debug */,
@@ -2279,7 +2277,7 @@ fi";
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		493D3589493D4707000000D3 /* Build configuration list for PBXNativeTarget "makerom" */ = {
+		493D3589493D4707000000D1 /* Build configuration list for PBXNativeTarget "libmprssl" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				493D3589493D470700000106 /* Debug */,
@@ -2288,7 +2286,7 @@ fi";
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		493D3589493D4707000000D7 /* Build configuration list for PBXNativeTarget "libpcre" */ = {
+		493D3589493D4707000000D5 /* Build configuration list for PBXNativeTarget "makerom" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				493D3589493D470700000108 /* Debug */,
@@ -2297,7 +2295,7 @@ fi";
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		493D3589493D4707000000DA /* Build configuration list for PBXNativeTarget "libsqlite3" */ = {
+		493D3589493D4707000000D9 /* Build configuration list for PBXNativeTarget "libpcre" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				493D3589493D47070000010A /* Debug */,
@@ -2306,7 +2304,7 @@ fi";
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		493D3589493D4707000000DD /* Build configuration list for PBXNativeTarget "sqlite" */ = {
+		493D3589493D4707000000DC /* Build configuration list for PBXNativeTarget "libsqlite3" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				493D3589493D47070000010C /* Debug */,
@@ -2315,7 +2313,7 @@ fi";
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		493D3589493D4707000000E1 /* Build configuration list for PBXNativeTarget "libhttp" */ = {
+		493D3589493D4707000000DF /* Build configuration list for PBXNativeTarget "sqlite" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				493D3589493D47070000010E /* Debug */,
@@ -2324,7 +2322,7 @@ fi";
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		493D3589493D4707000000E6 /* Build configuration list for PBXNativeTarget "http" */ = {
+		493D3589493D4707000000E3 /* Build configuration list for PBXNativeTarget "libhttp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				493D3589493D470700000110 /* Debug */,
@@ -2333,7 +2331,7 @@ fi";
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		493D3589493D470700000009 /* Build configuration list for PBXNativeTarget "http-ca.crt" */ = {
+		493D3589493D4707000000E8 /* Build configuration list for PBXNativeTarget "http" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				493D3589493D470700000112 /* Debug */,
@@ -2342,7 +2340,7 @@ fi";
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		493D3589493D4707000000EA /* Build configuration list for PBXNativeTarget "libejs" */ = {
+		493D3589493D470700000009 /* Build configuration list for PBXNativeTarget "http-ca.crt" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				493D3589493D470700000114 /* Debug */,
@@ -2351,7 +2349,7 @@ fi";
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		493D3589493D4707000000F1 /* Build configuration list for PBXNativeTarget "ejs" */ = {
+		493D3589493D4707000000EC /* Build configuration list for PBXNativeTarget "libejs" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				493D3589493D470700000116 /* Debug */,
@@ -2360,7 +2358,7 @@ fi";
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		493D3589493D4707000000F5 /* Build configuration list for PBXNativeTarget "ejsc" */ = {
+		493D3589493D4707000000F3 /* Build configuration list for PBXNativeTarget "ejs" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				493D3589493D470700000118 /* Debug */,
@@ -2369,7 +2367,7 @@ fi";
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		493D3589493D47070000000D /* Build configuration list for PBXNativeTarget "ejs.mod" */ = {
+		493D3589493D4707000000F7 /* Build configuration list for PBXNativeTarget "ejsc" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				493D3589493D47070000011A /* Debug */,
@@ -2378,7 +2376,7 @@ fi";
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		493D3589493D470700000012 /* Build configuration list for PBXNativeTarget "bit.es" */ = {
+		493D3589493D47070000000D /* Build configuration list for PBXNativeTarget "ejs.mod" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				493D3589493D47070000011C /* Debug */,
@@ -2387,7 +2385,7 @@ fi";
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		493D3589493D4707000000F9 /* Build configuration list for PBXNativeTarget "bit" */ = {
+		493D3589493D470700000012 /* Build configuration list for PBXNativeTarget "bit.es" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				493D3589493D47070000011E /* Debug */,
@@ -2396,7 +2394,7 @@ fi";
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		493D3589493D470700000016 /* Build configuration list for PBXNativeTarget "bits" */ = {
+		493D3589493D4707000000FB /* Build configuration list for PBXNativeTarget "bit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				493D3589493D470700000120 /* Debug */,
@@ -2405,7 +2403,7 @@ fi";
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		493D3589493D47070000001A /* Build configuration list for PBXNativeTarget "All" */ = {
+		493D3589493D470700000016 /* Build configuration list for PBXNativeTarget "bits" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				493D3589493D470700000122 /* Debug */,
@@ -2414,11 +2412,20 @@ fi";
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		493D3589493D47070000002D /* Build configuration list for PBXNativeTarget "Prep" */ = {
+		493D3589493D47070000001A /* Build configuration list for PBXNativeTarget "All" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				493D3589493D470700000124 /* Debug */,
 				493D3589493D470700000125 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		493D3589493D47070000002D /* Build configuration list for PBXNativeTarget "Prep" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				493D3589493D470700000126 /* Debug */,
+				493D3589493D470700000127 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
