@@ -3023,12 +3023,17 @@ public class Bit {
         target.makedep = true
         for each (header in depends) {
             if (!bit.targets[header]) {
-                bit.targets[header] = { name: header, enable: true, path: header, 
+                bit.targets[header] = { name: header, enable: true, path: Path(header),
                     type: 'header', files: [ header ], vars: {}, includes: target.includes }
             }
             let h = bit.targets[header]
             if (h && !h.makedep) {
                 makeDepends(h)
+                if (target.path.extension != 'h') {
+                    /* Pull up nested headers */
+                    depends = (depends + h.depends).unique()
+                    delete h.depends
+                }
             }
         }
         target.depends = depends
