@@ -1327,9 +1327,9 @@ public class Bit {
             } else if (name == 'config') {
                 name = 'cfg'
             }
-            if (value.startsWith(ver.name) && value != ver) {
+            if (value.startsWith(ver.name) && name != 'ver') {
                 value = value.replace(ver.name, '$(BIT_VER_PREFIX)')
-            } else if (value.startsWith(prd.name) && value != prd) {
+            } else if (value.startsWith(prd.name) && name != 'prd') {
                 value = value.replace(prd.name, '$(BIT_PRD_PREFIX)')
             }
             genout.writeLine('%-15s ?= %s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
@@ -1422,7 +1422,31 @@ public class Bit {
         genout.writeLine('LDFLAGS  = ' + repvar(gen.linker).replace(/-machine:x86/, '-machine:$$(ARCH)'))
         genout.writeLine('LIBPATHS = ' + repvar(gen.libpaths).replace(/\//g, '\\'))
         genout.writeLine('LIBS     = ' + gen.libraries + '\n')
-        genout.writeLine('!IF EXISTS(.prefixes)\n!INCLUDE .prefixes\n!ENDIF\n')
+
+        let prd = bit.prefixes.product
+        let ver = bit.prefixes.productver
+        for (let [name,value] in bit.prefixes) {
+            if (name.startsWith('programFiles')) continue
+            if (name == 'spool') {
+                name = 'spl'
+            } else if (name == 'product') {
+                name = 'prd'
+            } else if (name == 'productver') {
+                name = 'ver'
+            } else if (name == 'config') {
+                name = 'cfg'
+            }
+            if (name != 'prd') {
+                if (value.startsWith(prd.name)) {
+                    value = value.replace(prd, '$(BIT_PRD_PREFIX)')
+                } else if (value.startsWith(ver) && name != 'ver') {
+                    value = value.replace(ver.name, '$(BIT_VER_PREFIX)')
+                }
+            }
+            genout.writeLine('%-15s = %s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
+        }
+        genout.writeLine('')
+
         genout.writeLine('all compile: prep \\\n        ' + genAll())
         genout.writeLine('.PHONY: prep\n\nprep:')
         genout.writeLine('!IF "$(VSINSTALLDIR)" == ""\n\techo "Visual Studio vars not set. Run vcvars.bat."\n\texit 255\n!ENDIF')
@@ -3360,6 +3384,10 @@ public class Bit {
             }
         }
         if (kind == 'windows') {
+            /*
+                If 32 bit, /Program Files
+                If 64 bit, /Program Files, for 64 bit programs, /Program Files (x86) for 32 bit programs
+             */
             bit.dir.programFiles32 = programFiles32()
             bit.dir.programFiles = Path(bit.dir.programFiles32.name.replace(' (x86)', ''))
         }

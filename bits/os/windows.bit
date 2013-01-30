@@ -16,7 +16,7 @@ Bit.load({
         Prefixes are used when doing bit install 
      */
     prefixes: {
-        /* programFiles may get (x86) at run-time if on a 64-bit system */
+        /* programFiles32 may get (x86) at run-time if on a 64-bit system */
         programFiles:       'C:/Program Files',
         programFiles32:     'C:/Program Files',
         product:            'C:/Program Files/${settings.title}',
@@ -35,15 +35,6 @@ Bit.load({
     settings: {
         /* order matters */
         '+required': [ 'winsdk', 'compiler', 'lib', 'link', 'dumpbin', 'rc' ],
-    },
-
-    scripts: {
-        onload: "
-            if (bit.platform.arch == 'x86' && Config.CPU == 'x64') {
-                /* 32 bit build on a 64 bit system */
-                bit.prefixes.product = 'C:/Program Files (x86)/$${settings.title}'
-            }
-        ",
     },
 
     defaults: {

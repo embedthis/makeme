@@ -27,9 +27,17 @@ LDFLAGS  = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
 LIBPATHS = -libpath:$(CONFIG)\bin
 LIBS     = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
 
-!IF EXISTS(.prefixes)
-!INCLUDE .prefixes
-!ENDIF
+BIT_PRD_PREFIX  = C:/Program Files/Embedthis Bit
+BIT_VER_PREFIX  = $(BIT_PRD_PREFIX)
+BIT_CFG_PREFIX  = $(BIT_PRD_PREFIX)
+BIT_BIN_PREFIX  = $(BIT_PRD_PREFIX)/bin
+BIT_INC_PREFIX  = $(BIT_PRD_PREFIX)/inc
+BIT_LOG_PREFIX  = $(BIT_PRD_PREFIX)/logs
+BIT_SPL_PREFIX  = $(BIT_PRD_PREFIX)/tmp
+BIT_SRC_PREFIX  = $(BIT_PRD_PREFIX)/src
+BIT_WEB_PREFIX  = $(BIT_PRD_PREFIX)/web
+BIT_UBIN_PREFIX = $(BIT_PRD_PREFIX)/bin
+BIT_MAN_PREFIX  = $(BIT_PRD_PREFIX)/man
 
 all compile: prep \
         $(CONFIG)\bin\ca.crt \
