@@ -237,8 +237,7 @@ $(CONFIG)\inc\ejs.h:
 	-if exist $(CONFIG)\inc\ejs.h del /Q $(CONFIG)\inc\ejs.h
 	copy /Y src\deps\ejs\ejs.h $(CONFIG)\inc\ejs.h
 
-$(CONFIG)\inc\ejs.slots.h:  \
-        $(CONFIG)\inc\bit.h
+$(CONFIG)\inc\ejs.slots.h: 
 	-if exist $(CONFIG)\inc\ejs.slots.h del /Q $(CONFIG)\inc\ejs.slots.h
 	copy /Y src\deps\ejs\ejs.slots.h $(CONFIG)\inc\ejs.slots.h
 

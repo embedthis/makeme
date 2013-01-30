@@ -2994,7 +2994,7 @@ public class Bit {
         }
         let depends = [ ]
         let bith = bit.dir.inc.join('bit.h')
-        if (target.name != bith) {
+        if ((target.type == 'obj' || target.type == 'lib' || target.type == 'exe') && target.name != bith) {
             depends = [ bith ]
         }
         /*
@@ -3029,14 +3029,16 @@ public class Bit {
             let h = bit.targets[header]
             if (h && !h.makedep) {
                 makeDepends(h)
-                if (target.path.extension != 'h') {
+                if (h.depends && target.path.extension != 'h') {
                     /* Pull up nested headers */
                     depends = (depends + h.depends).unique()
                     delete h.depends
                 }
             }
         }
-        target.depends = depends
+        if (depends.length > 0) {
+            target.depends = depends
+        }
         return depends
     }
 

@@ -242,8 +242,7 @@ $(CONFIG)/inc/ejs.h:
 	rm -fr $(CONFIG)/inc/ejs.h
 	cp -r src/deps/ejs/ejs.h $(CONFIG)/inc/ejs.h
 
-$(CONFIG)/inc/ejs.slots.h:  \
-        $(CONFIG)/inc/bit.h
+$(CONFIG)/inc/ejs.slots.h: 
 	rm -fr $(CONFIG)/inc/ejs.slots.h
 	cp -r src/deps/ejs/ejs.slots.h $(CONFIG)/inc/ejs.slots.h
 
