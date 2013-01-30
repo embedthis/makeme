@@ -534,7 +534,6 @@ public class Bit {
         writeSettings(f, "BIT", settings)
 
         f.writeLine('\n/* Prefixes */')
-        let base = (settings.name == 'ejs') ? bit.prefixes.productver : bit.prefixes.product
         def(f, 'BIT_CFG_PREFIX', '"' + bit.prefixes.config + '"')
         def(f, 'BIT_BIN_PREFIX', '"' + bit.prefixes.bin + '"')
         def(f, 'BIT_INC_PREFIX', '"' + bit.prefixes.inc + '"')

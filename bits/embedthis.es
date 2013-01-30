@@ -79,7 +79,7 @@ function installCallback(src: Path, dest: Path, options = {}): Boolean {
         if (options.compress) {
             dest = Path(dest.name + '.gz')
         }
-        vtrace(options.task.toPascal(), dest.relative)
+        strace(options.task.toPascal(), dest.relative)
         dest.remove()
         return true
     }
@@ -94,7 +94,7 @@ function installCallback(src: Path, dest: Path, options = {}): Boolean {
             ((src.isDir || src.extension.match(/exe|lib|so|dylib|sh|es/)) ? 0755 : 0644)
     }
     if (options.cat) {
-        vtrace('Combine', dest.relative + ' += ' + src.relative)
+        strace('Combine', dest.relative + ' += ' + src.relative)
         if (!dest.exists) {
             if (options.title) {
                 if (options.textfile) {
@@ -131,7 +131,7 @@ function installCallback(src: Path, dest: Path, options = {}): Boolean {
         dest.append(data)
         dest.setAttributes(attributes)
     } else {
-        vtrace(options.task.toPascal(), dest.relative)
+        strace(options.task.toPascal(), dest.relative)
         if (src.isDir) {
             dest.makeDir()
             attributes.permissions = 0755
@@ -150,7 +150,7 @@ function installCallback(src: Path, dest: Path, options = {}): Boolean {
         }
     }
     if (options.expand) {
-        vtrace('Patch', dest)
+        strace('Patch', dest)
         let o = bit
         if (options.expand != true) {
             o = options.expand
@@ -159,16 +159,16 @@ function installCallback(src: Path, dest: Path, options = {}): Boolean {
         dest.setAttributes(attributes)
     }
     if (options.fold) {
-        vtrace('Fold', dest)
+        strace('Fold', dest)
         foldLines(dest, options)
         dest.setAttributes(attributes)
     }
     if (options.strip && bit.packs.strip) {
-        vtrace('Strip', dest)
+        strace('Strip', dest)
         Cmd.run(bit.packs.strip.path + ' ' + dest)
     }
     if (options.compress) {
-        vtrace('Compress', dest.relative)
+        strace('Compress', dest.relative)
         let zname = Path(dest.name + '.gz')
         zname.remove()
         Zlib.compress(dest.name, zname)
