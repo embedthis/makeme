@@ -10228,13 +10228,13 @@ static int secureCondition(HttpConn *conn, HttpRoute *route, HttpRouteOp *op)
         /* Negative age means subDomains == true */
         age = stoi(op->details);
         if (age < 0) {
-            httpAddHeader(conn, "Strict-Transport-Security", "%Ld; includeSubDomains", -age / MPR_TICKS_PER_SEC);
+            httpAddHeader(conn, "Strict-Transport-Security", "max-age=%Ld; includeSubDomains", -age / MPR_TICKS_PER_SEC);
         } else {
-            httpAddHeader(conn, "Strict-Transport-Security", "%Ld", age / MPR_TICKS_PER_SEC);
+            httpAddHeader(conn, "Strict-Transport-Security", "max-age=%Ld", age / MPR_TICKS_PER_SEC);
         }
     }
     if (!conn->secure) {
-        httpError(conn, HTTP_CODE_UNAUTHORIZED, "Must use SSL");
+        httpError(conn, HTTP_CODE_UNAUTHORIZED, "SSL required for this route");
     }
     return HTTP_ROUTE_OK;
 }
