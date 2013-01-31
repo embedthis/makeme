@@ -64549,9 +64549,9 @@ void ZLIB_INTERNAL zcfree (opaque, ptr)
 
 
 #if BIT_PACK_SQLITE && BIT_EJS_DB
-
+    /* Indent to no create dependency */
     #include    "sqlite3.h"
-    #include    "ejs.db.sqlite.slots.h"
+
 
 /*********************************** Locals ***********************************/
 /*
