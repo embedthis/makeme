@@ -64547,7 +64547,7 @@ void ZLIB_INTERNAL zcfree (opaque, ptr)
 
 #if BIT_PACK_SQLITE
 
-#include    "sqlite3.h"
+    #include    "sqlite3.h"
 
 
 /*********************************** Locals ***********************************/
