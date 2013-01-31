@@ -3,8 +3,8 @@
 #
 
 PRODUCT         = bit
-VERSION         = 0.8.0
-BUILD_NUMBER    = 0
+VERSION         = 0.8.1
+BUILD_NUMBER    = 1
 PROFILE   = default
 PA        = $(PROCESSOR_ARCHITECTURE)
 !IF "$(PA)" == "AMD64"
@@ -299,7 +299,7 @@ $(CONFIG)\bin\bit.exe:  \
 
 version: 
 	cd bits
-	@echo 0.8.0-0
+	@echo 0.8.1-1
 	cd ..
 
 root-install:  \

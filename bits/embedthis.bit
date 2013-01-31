@@ -49,13 +49,10 @@ Bit.load({
                 for each (profile in ['default', 'static']) {
                     for each (name in ['linux-x86', 'macosx-x64', 'solaris-x86', 'windows-x86']) {
                         let platform = name + '-' + profile
-                        if (platform != bit.platform.name) {
-                            rm(bit.dir.top.join(platform + '.bit'))
-                            rmdir(bit.dir.top.join(platform))
-                        }
+                        rm(bit.dir.top.join(platform + '.bit'))
+                        rmdir(bit.dir.top.join(platform))
                     }
                 }
-                run(bitcmd + ' -q -configure .', bit.target.runopt)
             ",
         },
 
