@@ -922,8 +922,11 @@ public class Bit {
         if (!bitfile.exists) {
             throw 'Can\'t find ' + bitfile
         }
-        quickLoad(MAIN)
-        let ver = bit.settings.version + '-' + bit.settings.buildNumber
+        let ver
+        if (MAIN.exists) {
+            quickLoad(MAIN)
+            ver = bit.settings.version + '-' + bit.settings.buildNumber
+        }
         quickLoad(bitfile)
         if (bit.platforms) {
             platforms = bit.platforms
@@ -933,7 +936,7 @@ public class Bit {
                 if (index == (bit.platforms.length - 1)) {
                     bit.platform.last = true
                 }
-                if (ver != (bit.settings.version + '-' + bit.settings.buildNumber)) {
+                if (ver && (ver != (bit.settings.version + '-' + bit.settings.buildNumber))) {
                     trace('Upgrade', 'Main.bit has been updated, reconfiguring ...')
                     reconfigure()
                 }
