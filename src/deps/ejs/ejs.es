@@ -3036,6 +3036,18 @@ module ejs {
 
         /** @hide */
         native static const SQLITE: Boolean
+        /** @hide */
+        native static const DB: Boolean
+        /** @hide */
+        native static const MAPPER: Boolean
+        /** @hide */
+        native static const WEB: Boolean
+        /** @hide */
+        native static const MAIL: Boolean
+        /** @hide */
+        native static const TEMPLATE: Boolean
+        /** @hide */
+        native static const TAR: Boolean
     }
 }
 
@@ -13352,6 +13364,7 @@ module ejs {
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
+# Config.DB
 module ejs.db {
 
     /**
@@ -13693,34 +13706,17 @@ module ejs.db {
     }
 }
 
-
 /*
     @copy   default
-    
+
     Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2013. All Rights Reserved.
-    
+
     This software is distributed under commercial and open source licenses.
-    You may use the GPL open source license described below or you may acquire 
-    a commercial license from Embedthis Software. You agree to be fully bound 
-    by the terms of either license. Consult the LICENSE.md distributed with 
-    this software for full details.
-    
-    This software is open source; you can redistribute it and/or modify it 
-    under the terms of the GNU General Public License as published by the 
-    Free Software Foundation; either version 2 of the License, or (at your 
-    option) any later version. See the GNU General Public License for more 
-    details at: http://www.embedthis.com/downloads/gplLicense.html
-    
-    This program is distributed WITHOUT ANY WARRANTY; without even the 
-    implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-    
-    This GPL license does NOT permit incorporating this software into 
-    proprietary programs. If you are unable to comply with the GPL, you must
-    acquire a commercial license to use this software. Commercial licenses 
-    for this software and support services are available from Embedthis 
-    Software at http://www.embedthis.com 
-    
+    You may use the Embedthis Open Source license or you may acquire a 
+    commercial license from Embedthis Software. You agree to be fully bound
+    by the terms of either license. Consult the LICENSE.md distributed with
+    this software for full details and other copyrights.
+
     Local variables:
     tab-width: 4
     c-basic-offset: 4
@@ -13742,6 +13738,7 @@ module ejs.db {
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
+# Config.DB
 module ejs.db {
 
     /**
@@ -13831,34 +13828,17 @@ module ejs.db {
     }
 }
 
-
 /*
     @copy   default
-    
+
     Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2013. All Rights Reserved.
-    
+
     This software is distributed under commercial and open source licenses.
-    You may use the GPL open source license described below or you may acquire 
-    a commercial license from Embedthis Software. You agree to be fully bound 
-    by the terms of either license. Consult the LICENSE.md distributed with 
-    this software for full details.
-    
-    This software is open source; you can redistribute it and/or modify it 
-    under the terms of the GNU General Public License as published by the 
-    Free Software Foundation; either version 2 of the License, or (at your 
-    option) any later version. See the GNU General Public License for more 
-    details at: http://www.embedthis.com/downloads/gplLicense.html
-    
-    This program is distributed WITHOUT ANY WARRANTY; without even the 
-    implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-    
-    This GPL license does NOT permit incorporating this software into 
-    proprietary programs. If you are unable to comply with the GPL, you must
-    acquire a commercial license to use this software. Commercial licenses 
-    for this software and support services are available from Embedthis 
-    Software at http://www.embedthis.com 
-    
+    You may use the Embedthis Open Source license or you may acquire a 
+    commercial license from Embedthis Software. You agree to be fully bound
+    by the terms of either license. Consult the LICENSE.md distributed with
+    this software for full details and other copyrights.
+
     Local variables:
     tab-width: 4
     c-basic-offset: 4
@@ -13880,6 +13860,7 @@ module ejs.db {
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
+# Config.DB
 module ejs.db.mapper {
 
     require ejs.db
@@ -15143,34 +15124,17 @@ var before = Memory.resident
     }
 }
 
-
 /*
     @copy   default
-    
+
     Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2013. All Rights Reserved.
-    
+
     This software is distributed under commercial and open source licenses.
-    You may use the GPL open source license described below or you may acquire 
-    a commercial license from Embedthis Software. You agree to be fully bound 
-    by the terms of either license. Consult the LICENSE.md distributed with 
-    this software for full details.
-    
-    This software is open source; you can redistribute it and/or modify it 
-    under the terms of the GNU General Public License as published by the 
-    Free Software Foundation; either version 2 of the License, or (at your 
-    option) any later version. See the GNU General Public License for more 
-    details at: http://www.embedthis.com/downloads/gplLicense.html
-    
-    This program is distributed WITHOUT ANY WARRANTY; without even the 
-    implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-    
-    This GPL license does NOT permit incorporating this software into 
-    proprietary programs. If you are unable to comply with the GPL, you must
-    acquire a commercial license to use this software. Commercial licenses 
-    for this software and support services are available from Embedthis 
-    Software at http://www.embedthis.com 
-    
+    You may use the Embedthis Open Source license or you may acquire a 
+    commercial license from Embedthis Software. You agree to be fully bound
+    by the terms of either license. Consult the LICENSE.md distributed with
+    this software for full details and other copyrights.
+
     Local variables:
     tab-width: 4
     c-basic-offset: 4
@@ -15192,6 +15156,7 @@ var before = Memory.resident
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
+# Config.DB && Config.SQLITE
 module ejs.db.sqlite {
 
     /**
@@ -15199,7 +15164,6 @@ module ejs.db.sqlite {
         @spec ejs
         @stabilitiy prototype
      */
-    # Config.SQLITE
     class Sqlite {
 
         /*
@@ -15499,31 +15463,15 @@ module ejs.db.sqlite {
 
 /*
     @copy   default
-    
+
     Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2013. All Rights Reserved.
-    
+
     This software is distributed under commercial and open source licenses.
-    You may use the GPL open source license described below or you may acquire 
-    a commercial license from Embedthis Software. You agree to be fully bound 
-    by the terms of either license. Consult the LICENSE.md distributed with 
-    this software for full details.
-    
-    This software is open source; you can redistribute it and/or modify it 
-    under the terms of the GNU General Public License as published by the 
-    Free Software Foundation; either version 2 of the License, or (at your 
-    option) any later version. See the GNU General Public License for more 
-    details at: http://www.embedthis.com/downloads/gplLicense.html
-    
-    This program is distributed WITHOUT ANY WARRANTY; without even the 
-    implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-    
-    This GPL license does NOT permit incorporating this software into 
-    proprietary programs. If you are unable to comply with the GPL, you must
-    acquire a commercial license to use this software. Commercial licenses 
-    for this software and support services are available from Embedthis 
-    Software at http://www.embedthis.com 
-    
+    You may use the Embedthis Open Source license or you may acquire a 
+    commercial license from Embedthis Software. You agree to be fully bound
+    by the terms of either license. Consult the LICENSE.md distributed with
+    this software for full details and other copyrights.
+
     Local variables:
     tab-width: 4
     c-basic-offset: 4
@@ -16267,31 +16215,15 @@ module ejs.template  {
 
 /*
     @copy   default
-  
+
     Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2013. All Rights Reserved.
-  
+
     This software is distributed under commercial and open source licenses.
-    You may use the GPL open source license described below or you may acquire
-    a commercial license from Embedthis Software. You agree to be fully bound
+    You may use the Embedthis Open Source license or you may acquire a 
+    commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details.
-  
-    This software is open source; you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by the
-    Free Software Foundation; either version 2 of the License, or (at your
-    option) any later version. See the GNU General Public License for more
-    details at: http://www.embedthis.com/downloads/gplLicense.html
-  
-    This program is distributed WITHOUT ANY WARRANTY; without even the
-    implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  
-    This GPL license does NOT permit incorporating this software into
-    proprietary programs. If you are unable to comply with the GPL, you must
-    acquire a commercial license to use this software. Commercial licenses
-    for this software and support services are available from Embedthis
-    Software at http://www.embedthis.com
-  
+    this software for full details and other copyrights.
+
     Local variables:
     tab-width: 4
     c-basic-offset: 4
@@ -16688,31 +16620,15 @@ module ejs.unix {
 
 /*
     @copy   default
-    
+
     Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2013. All Rights Reserved.
-    
+
     This software is distributed under commercial and open source licenses.
-    You may use the GPL open source license described below or you may acquire 
-    a commercial license from Embedthis Software. You agree to be fully bound 
-    by the terms of either license. Consult the LICENSE.md distributed with 
-    this software for full details.
-    
-    This software is open source; you can redistribute it and/or modify it 
-    under the terms of the GNU General Public License as published by the 
-    Free Software Foundation; either version 2 of the License, or (at your 
-    option) any later version. See the GNU General Public License for more 
-    details at: http://www.embedthis.com/downloads/gplLicense.html
-    
-    This program is distributed WITHOUT ANY WARRANTY; without even the 
-    implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-    
-    This GPL license does NOT permit incorporating this software into 
-    proprietary programs. If you are unable to comply with the GPL, you must
-    acquire a commercial license to use this software. Commercial licenses 
-    for this software and support services are available from Embedthis 
-    Software at http://www.embedthis.com 
-    
+    You may use the Embedthis Open Source license or you may acquire a 
+    commercial license from Embedthis Software. You agree to be fully bound
+    by the terms of either license. Consult the LICENSE.md distributed with
+    this software for full details and other copyrights.
+
     Local variables:
     tab-width: 4
     c-basic-offset: 4
@@ -16735,6 +16651,7 @@ module ejs.unix {
         exports.app = Cascade(app)
  */
 
+# Config.WEB
 module ejs.web {
     /** 
         Cascade middleware script for web apps.
@@ -16788,6 +16705,7 @@ module ejs.web {
     CommonLog.es -- Common Log Format logger.
  */
 
+# Config.WEB
 module ejs.web {
     /** 
         Common Log web server logging. 
@@ -16872,6 +16790,7 @@ module ejs.web {
     ContentType.es -- Define Content-Type headers
  */
 
+# Config.WEB
 module ejs.web {
 
     /**
@@ -16936,6 +16855,7 @@ module ejs.web {
     Controller.es -- MVC Controller class.
  */
 
+# Config.WEB
 module ejs.web {
     /**
         Namespace for all action methods 
@@ -17893,6 +17813,7 @@ module ejs.web {
     Dir.es - Directory content handler
  */
 
+# Config.WEB
 module ejs.web {
 
     /** 
@@ -17974,6 +17895,7 @@ module ejs.web {
    GoogleConnector.es -- View connector for the Google Visualization library
  */
 
+# Config.WEB
 module ejs.web {
 
     /**
@@ -18191,6 +18113,7 @@ module ejs.web {
         exports.app = Head(app)
  */
 
+# Config.WEB
 module ejs.web {
     /** 
         Head wrapper middleware. Return the headers and omit the body for HTTP HEAD requests. HEAD requests should still
@@ -18247,6 +18170,7 @@ module ejs.web {
    Html.es -- HtmlViewConnector. This provides HTML view support.
  */
 
+# Config.WEB
 module ejs.web {
 
     /**
@@ -18983,6 +18907,7 @@ module ejs.web {
     Copyright (c) All Rights Reserved. See details at the end of the file.
 */
 
+# Config.WEB
 module ejs.web {
 
     /**
@@ -19694,6 +19619,7 @@ server.listen("127.0.0.1:7777")
     MethodOverride.es - Override the method type based on the Method-Override header
  */
 
+# Config.WEB
 module ejs.web {
 
     /**
@@ -19748,6 +19674,7 @@ module ejs.web {
     Middleware.es - Wrap a web app with defined middleware
  */
 
+# Config.WEB
 module ejs.web {
 
     /** 
@@ -19797,6 +19724,7 @@ module ejs.web {
     Mvc.es -- Model View Controller (MVC) web app management
  */
 
+# Config.WEB
 module ejs.web {
 
     /** 
@@ -20074,6 +20002,7 @@ module ejs.web {
     low-level properties and methods to inspect and control the request. Request objects support the CommonJS JSGI 
     protocol specification. 
  */
+# Config.WEB
 module ejs.web {
 
     /**
@@ -21291,6 +21220,7 @@ MOB - DEBUG
     Router.es - Web Request router. Route incoming client HTTP requests.
  */
 
+# Config.WEB
 module ejs.web {
 
     /** 
@@ -22365,6 +22295,7 @@ module ejs.web {
     Script.es -- Ejscript templated web content handler
  */
 
+# Config.WEB
 module ejs.web {
 
     /**
@@ -22434,6 +22365,7 @@ module ejs.web {
     Session.es -- Session state management
  */
 
+# Config.WEB
 module ejs.web {
     /** 
         Session state storage class. 
@@ -22501,6 +22433,7 @@ module ejs.web {
     Show exceptions to the client 
  */
 
+# Config.WEB
 module ejs.web {
     /** 
         ShowExceptions middleware wrapper. This catches exceptions and formats the result back to the client.
@@ -22552,6 +22485,7 @@ module ejs.web {
     Static.es - Static content handler
  */
 
+# Config.WEB
 module ejs.web {
 
     /** 
@@ -22776,6 +22710,7 @@ module ejs.web {
     Template.es -- Ejscript templated web content handler
  */
 
+# Config.WEB
 module ejs.web {
     /** 
         Template middleware filter. This interprets the output of an inner web app as a template page which is processed.
@@ -22874,6 +22809,7 @@ module ejs.web {
     uploadedFile.es - Description of an uploaded file. Instances are created and stored in Request.files.
  */
 
+# Config.WEB
 module ejs.web {
 
     /** 
@@ -22944,6 +22880,7 @@ module ejs.web {
     UrlMap.es - Simple Url Router
  */
 
+# Config.WEB
 module ejs.web {
 
     /** 
@@ -23035,6 +22972,7 @@ module ejs.web {
     Utils.es -- Utility routines for the web framework.
  */
 
+# Config.WEB
 module ejs.web {
 
     /** @hide */
@@ -23174,6 +23112,7 @@ module ejs.web {
 /**
     View.es -- View class 
  */
+# Config.WEB
 module ejs.web {
 
     //  MOB - is this necessary?
@@ -24239,31 +24178,15 @@ module ejs.tar {
 
 /*
     @copy   default
-    
+
     Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2013. All Rights Reserved.
-    
+
     This software is distributed under commercial and open source licenses.
-    You may use the GPL open source license described below or you may acquire 
-    a commercial license from Embedthis Software. You agree to be fully bound 
-    by the terms of either license. Consult the LICENSE.md distributed with 
-    this software for full details.
-    
-    This software is open source; you can redistribute it and/or modify it 
-    under the terms of the GNU General Public License as published by the 
-    Free Software Foundation; either version 2 of the License, or (at your 
-    option) any later version. See the GNU General Public License for more 
-    details at: http://www.embedthis.com/downloads/gplLicense.html
-    
-    This program is distributed WITHOUT ANY WARRANTY; without even the 
-    implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-    
-    This GPL license does NOT permit incorporating this software into 
-    proprietary programs. If you are unable to comply with the GPL, you must
-    acquire a commercial license to use this software. Commercial licenses 
-    for this software and support services are available from Embedthis 
-    Software at http://www.embedthis.com 
- *
+    You may use the Embedthis Open Source license or you may acquire a 
+    commercial license from Embedthis Software. You agree to be fully bound
+    by the terms of either license. Consult the LICENSE.md distributed with
+    this software for full details and other copyrights.
+
     Local variables:
     tab-width: 4
     c-basic-offset: 4
@@ -24309,31 +24232,15 @@ module ejs.zlib {
 
 /*
     @copy   default
-    
+
     Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2013. All Rights Reserved.
-    
+
     This software is distributed under commercial and open source licenses.
-    You may use the GPL open source license described below or you may acquire 
-    a commercial license from Embedthis Software. You agree to be fully bound 
-    by the terms of either license. Consult the LICENSE.md distributed with 
-    this software for full details.
-    
-    This software is open source; you can redistribute it and/or modify it 
-    under the terms of the GNU General Public License as published by the 
-    Free Software Foundation; either version 2 of the License, or (at your 
-    option) any later version. See the GNU General Public License for more 
-    details at: http://www.embedthis.com/downloads/gplLicense.html
-    
-    This program is distributed WITHOUT ANY WARRANTY; without even the 
-    implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-    
-    This GPL license does NOT permit incorporating this software into 
-    proprietary programs. If you are unable to comply with the GPL, you must
-    acquire a commercial license to use this software. Commercial licenses 
-    for this software and support services are available from Embedthis 
-    Software at http://www.embedthis.com 
-    
+    You may use the Embedthis Open Source license or you may acquire a 
+    commercial license from Embedthis Software. You agree to be fully bound
+    by the terms of either license. Consult the LICENSE.md distributed with
+    this software for full details and other copyrights.
+
     Local variables:
     tab-width: 4
     c-basic-offset: 4

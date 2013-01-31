@@ -7,7 +7,6 @@ Bit.load({
         "src/deps/est/est.bit",
         "src/deps/mpr/mpr.bit",
         "src/deps/pcre/pcre.bit",
-        "src/deps/sqlite/sqlite.bit",
         "src/deps/http/http.bit",
         "src/deps/ejs/ejs.bit",
         "package/package.bit",
@@ -31,7 +30,7 @@ Bit.load({
         version: '0.8.0',
         buildNumber: '0',
 
-        sync: [ 'bitos', 'est', 'mpr', 'pcre', 'http', 'ejs', 'sqlite' ],
+        sync: [ 'bitos', 'est', 'mpr', 'pcre', 'http', 'ejs' ],
         packs: [ 'bits/packs' ],
         /* Must build locally to build tools */
         platforms: [ 'local' ],
@@ -42,7 +41,7 @@ Bit.load({
             Optional packs to automatically discover and configure
          */
         '+discover': [ 'dsi', 'ejscript', 'est', 'man', 'man2html', 'pmaker', 'zip' ],
-        '+required': [ 'pcre', 'http', 'sqlite', 'ejscript' ],
+        '+required': [ 'pcre', 'http', 'ejscript' ],
 
         /*
             Packs to disable when using --without all
@@ -53,6 +52,53 @@ Bit.load({
             Packs to disable when using --without default (generating packages)
          */
         'without-default': [ 'dsi', 'est', 'man', 'man2html' ],
+
+        ejs: {
+            /*
+                Control if ejs.* is enabled or disabled
+             */
+            db: false,
+            mail: false,
+            mapper: false,
+            tar: true,                                                                                     
+            template: false,
+            web: false,
+        }, 
+
+        /*
+            EST SSL stack configuration
+         */
+        est: {
+            camellia: false,
+            padlock: false,
+            sslClient: false,
+            des: false,
+            testCerts: false,
+            xtea: false,
+            romTables: false,
+            genPrime: false,
+        },
+
+        http: {
+            /* Use PAM (Plugable Authentication Module) to store passwords */
+            pam: false,
+        },
+                                                                                                           
+        mpr: {                                                                                             
+            /*                                                                                             
+                Enable logging via mprLog to the log file. Error messages are always enabled.              
+                The default is to enable logging for both debug and release builds.                        
+             */                                                                                            
+            logging: true,                                                                                 
+
+            /*                                                                                             
+                Enable debug trace and asserts to the log file.                                            
+                This is enabled by default for debug builds.                                               
+                tracing: true,                                                                             
+             */                                                                                            
+        },
+
+        tune: 'speed',
     },
 
     targets: {
@@ -97,11 +143,18 @@ Bit.load({
             platforms: [ 'local' ],
         },
     },
+
+
+    usage: {
+        // 'mpr.logging':  'Enable application logging (true|false)',
+        // 'mpr.tracing':  'Enable debug tracing (true|false)',                                               
+    },
+
     packs: {
         est: {},
         matrixssl: {},
         openssl: {},
         mocana: {},
-        _sqlite: { enable: false },
+        sqlite: { enable: false },
     },
 })

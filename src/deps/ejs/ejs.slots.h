@@ -782,7 +782,13 @@
 #define ES_Config_Legacy                                               9
 #define ES_Config_SSL                                                  10
 #define ES_Config_SQLITE                                               11
-#define ES_Config_NUM_CLASS_PROP                                       12
+#define ES_Config_DB                                                   12
+#define ES_Config_MAPPER                                               13
+#define ES_Config_WEB                                                  14
+#define ES_Config_MAIL                                                 15
+#define ES_Config_TEMPLATE                                             16
+#define ES_Config_TAR                                                  17
+#define ES_Config_NUM_CLASS_PROP                                       18
 
 /*
    Prototype (instance) slots for "Config" type 
@@ -2584,7 +2590,7 @@
 #define ES_XMLList_NUM_INSTANCE_PROP                                   20
 #define ES_XMLList_NUM_INHERITED_PROP                                  0
 
-#define _ES_CHECKSUM_ejs   1500077
+#define _ES_CHECKSUM_ejs   1502018
 
 #endif
 

@@ -19228,10 +19228,12 @@ static void standardSignalHandler(void *ignored, MprSignal *sp)
     } else if (sp->signo == SIGPIPE || sp->signo == SIGXFSZ) {
         /* Ignore */
 
-#if EMBEDTHIS
     } else if (sp->signo == SIGSEGV || sp->signo == SIGBUS) {
+#if EMBEDTHIS
         printf("PAUSED for watson to debug\n");
         sleep(120);
+#else
+        exit(255);
 #endif
 
     } else {
@@ -21455,6 +21457,34 @@ PUBLIC char *sfmtv(cchar *format, va_list arg)
 }
 
 
+#if FUTURE || 1
+
+#define HASH_PRIME 0x01000193
+
+PUBLIC uint shash(cchar *cname, ssize len)
+{
+    uint    hash;
+
+    assert(cname);
+    assert(0 <= len && len < MAXINT);
+
+    if (cname == 0) {
+        return 0;
+    }
+    hash = (uint) len;
+    while (len-- > 0) {
+        hash ^= *cname++;
+#if 1
+        hash *= HASH_PRIME;
+#else
+        hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
+#endif
+
+    }
+    return hash;
+}
+#else
+
 /*
     Compute a hash for a C string
     Inspired by Paul Hsieh (c) 2004-2008, see http://www.azillionmonkeys.com/qed/hash.html)
@@ -21504,6 +21534,7 @@ PUBLIC uint shash(cchar *cname, ssize len)
     hash += hash >> 6;
     return hash;
 }
+#endif
 
 
 /*
