@@ -7731,7 +7731,9 @@ static void createInitializer(EcCompiler *cp, EjsModule *mp)
         We can safely just ignore this debug code.
      */
     if (!mp->hasInitializer || !mp->code) {
+#if UNUSED
         mp->hasInitializer = 0;
+#endif
         LEAVE(cp);
         return;
     }
@@ -8131,7 +8133,6 @@ static void processModule(EcCompiler *cp, EjsModule *mp)
     }
     assert(mp->code);
     assert(mp->file);
-
     code = state->code;
 
     if (mp->hasInitializer) {
@@ -8152,14 +8153,16 @@ static void processModule(EcCompiler *cp, EjsModule *mp)
         LEAVE(cp);
         return;
     }
-    if (! cp->outputFile) {
+    if (!cp->outputFile) {
         mprCloseFile(mp->file);
-        mp->file = 0;
-        mp->code = 0;
-    } else {
-        mp->code = 0;
     }
     mp->file = 0;
+#if UNUSED
+    /*
+        Can't remove because then compileInner can't add the compiled modules to the interpreter if code is zero.
+     */
+    mp->code = 0;
+#endif
 }
 
 
@@ -64545,10 +64548,10 @@ void ZLIB_INTERNAL zcfree (opaque, ptr)
 
 
 
-#if BIT_PACK_SQLITE
+#if BIT_PACK_SQLITE && BIT_EJS_DB
 
     #include    "sqlite3.h"
-
+    #include    "ejs.db.sqlite.slots.h"
 
 /*********************************** Locals ***********************************/
 /*
@@ -65026,6 +65029,9 @@ PUBLIC int ejs_db_sqlite_Init(Ejs *ejs, MprModule *mp)
  */
 /********************************** Includes **********************************/
 
+#include    "bit.h"
+
+#if BIT_EJS_WEB
 
 
 
@@ -65975,6 +65981,7 @@ void ejsConfigureHttpServerType(Ejs *ejs)
     ejsLoadHttpService(ejs);
     ejsAddWebHandler(ejs->http, NULL);
 }
+#endif
 
 
 /*
@@ -66010,6 +66017,9 @@ void ejsConfigureHttpServerType(Ejs *ejs)
  */
 /********************************** Includes **********************************/
 
+#include    "bit.h"
+
+#if BIT_EJS_WEB
 
 
 
@@ -67571,6 +67581,7 @@ void ejsConfigureRequestType(Ejs *ejs)
     ejsBindMethod(ejs, prototype, ES_ejs_web_Request_writeFile, req_writeFile);
     ejsBindMethod(ejs, prototype, ES_ejs_web_Request_written, req_written);
 }
+#endif
 
 
 /*
@@ -67607,6 +67618,9 @@ void ejsConfigureRequestType(Ejs *ejs)
 
 /********************************** Includes **********************************/
 
+#include    "bit.h"
+
+#if BIT_EJS_WEB
 
 
 
@@ -67842,6 +67856,7 @@ void ejsConfigureSessionType(Ejs *ejs)
     ejsBindAccess(ejs, type, ES_ejs_web_Session_destorySession, sess_destroySession, 0);
     ejsBindAccess(ejs, type, ES_ejs_web_Session_key, sess_key, 0);
 }
+#endif
 
 
 /*
@@ -67877,6 +67892,9 @@ void ejsConfigureSessionType(Ejs *ejs)
  */
 /********************************** Includes **********************************/
 
+#include    "bit.h"
+
+#if BIT_EJS_WEB
 
 
 
@@ -67921,6 +67939,7 @@ int ejs_web_Init(Ejs *ejs, MprModule *mp)
 {
     return ejsAddNativeModule(ejs, "ejs.web", configureWebTypes, _ES_CHECKSUM_ejs_web, EJS_LOADER_ETERNAL);
 }
+#endif
 
 
 /*

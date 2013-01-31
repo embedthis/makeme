@@ -13860,7 +13860,7 @@ module ejs.db {
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
-# Config.DB
+# Config.DB && Config.MAPPER
 module ejs.db.mapper {
 
     require ejs.db
@@ -15541,6 +15541,7 @@ module ejs.mail {
     Tar.es -- Tar archive management
  */
 
+# Config.TAR
 module ejs.tar {
 
     const BlockSize = 512
@@ -15922,6 +15923,7 @@ module ejs.tar {
     TemplateParser.es -- Ejscript web templating parser. 
  */
 
+# Config.TEMPLATE
 module ejs.template  {
 
     /*
