@@ -224,7 +224,6 @@ $(CONFIG)/obj/ejsLib.o: \
         $(CONFIG)/inc/ejs.h \
         $(CONFIG)/inc/mpr.h \
         $(CONFIG)/inc/pcre.h \
-        $(CONFIG)/inc/sqlite3.h \
         $(CONFIG)/inc/bitos.h \
         $(CONFIG)/inc/http.h \
         $(CONFIG)/inc/ejs.slots.h
