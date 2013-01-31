@@ -63,6 +63,7 @@ Bit.load({
             tar: true,                                                                                     
             template: false,
             web: false,
+            zlib: true,
         }, 
 
         /*
