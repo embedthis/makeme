@@ -117,7 +117,7 @@
 
   <ItemDefinitionGroup>
   <Link>
-    <AdditionalDependencies>libsqlite3.lib;libmpr.lib;libpcre.lib;libhttp.lib;libpcre.lib;libmpr.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    <AdditionalDependencies>libmpr.lib;libpcre.lib;libhttp.lib;libpcre.lib;libmpr.lib;%(AdditionalDependencies)</AdditionalDependencies>
     <AdditionalLibraryDirectories>$(OutDir);$(Cfg)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
   </Link>
 
@@ -148,13 +148,6 @@ cd ..\..\..\projects\bit-windows-default</Command>
 <ItemGroup>
   <ProjectReference Include="libmpr.vcxproj">
   <Project>02ca7374-d1aa-425d-8f85-9ad8320980e7</Project>
-  <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-  </ProjectReference>
-</ItemGroup>
-
-<ItemGroup>
-  <ProjectReference Include="libsqlite3.vcxproj">
-  <Project>d4814736-a38e-42ac-9dc9-0fb4ecbc3ea9</Project>
   <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
   </ProjectReference>
 </ItemGroup>

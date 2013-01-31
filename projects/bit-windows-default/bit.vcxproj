@@ -104,7 +104,6 @@
     <ClCompile Include="..\..\src\deps\mpr\mprLib.c" />
     <ClCompile Include="..\..\src\deps\pcre\pcre.c" />
     <ClCompile Include="..\..\src\deps\http\httpLib.c" />
-    <ClCompile Include="..\..\src\deps\sqlite\sqlite3.c" />
     <ClCompile Include="..\..\src\deps\ejs\ejsLib.c" />
   </ItemGroup>
 

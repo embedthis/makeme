@@ -33,19 +33,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpcre", "bit-windows-defa
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libsqlite3", "bit-windows-default\libsqlite3.vcxproj", "{D4814736-A38E-42AC-9DC9-0FB4ECBC3EA9}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sqlite", "bit-windows-default\sqlite.vcxproj", "{1EBABE70-8151-41B9-9E7B-6448CF9BB3E3}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
-	EndProjectSection
-	ProjectSection(ProjectDependencies) = postProject
-		{D4814736-A38E-42AC-9DC9-0FB4ECBC3EA9} = {D4814736-A38E-42AC-9DC9-0FB4ECBC3EA9}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libhttp", "bit-windows-default\libhttp.vcxproj", "{55D3272A-C6B1-45CB-9B3B-7BD1FF9B0ED9}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
@@ -82,9 +69,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libejs", "bit-windows-defau
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
 		{02CA7374-D1AA-425D-8F85-9AD8320980E7} = {02CA7374-D1AA-425D-8F85-9AD8320980E7}
-	EndProjectSection
-	ProjectSection(ProjectDependencies) = postProject
-		{D4814736-A38E-42AC-9DC9-0FB4ECBC3EA9} = {D4814736-A38E-42AC-9DC9-0FB4ECBC3EA9}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ejs", "bit-windows-default\ejs.vcxproj", "{6CAC7DCC-92AE-4A66-9054-4A9E8C6C55A0}"
@@ -206,22 +190,6 @@ Global
 {4BDD6F9C-78F4-4F4C-9A4B-9EBD713D1D00}.Release|Win32.Build.0 = Release|Win32
 {4BDD6F9C-78F4-4F4C-9A4B-9EBD713D1D00}.Release|x64.ActiveCfg = Release|x64
 {4BDD6F9C-78F4-4F4C-9A4B-9EBD713D1D00}.Release|x64.Build.0 = Release|x64
-{D4814736-A38E-42AC-9DC9-0FB4ECBC3EA9}.Debug|Win32.ActiveCfg = Debug|Win32
-{D4814736-A38E-42AC-9DC9-0FB4ECBC3EA9}.Debug|Win32.Build.0 = Debug|Win32
-{D4814736-A38E-42AC-9DC9-0FB4ECBC3EA9}.Debug|x64.ActiveCfg = Debug|x64
-{D4814736-A38E-42AC-9DC9-0FB4ECBC3EA9}.Debug|x64.Build.0 = Debug|x64
-{D4814736-A38E-42AC-9DC9-0FB4ECBC3EA9}.Release|Win32.ActiveCfg = Release|Win32
-{D4814736-A38E-42AC-9DC9-0FB4ECBC3EA9}.Release|Win32.Build.0 = Release|Win32
-{D4814736-A38E-42AC-9DC9-0FB4ECBC3EA9}.Release|x64.ActiveCfg = Release|x64
-{D4814736-A38E-42AC-9DC9-0FB4ECBC3EA9}.Release|x64.Build.0 = Release|x64
-{1EBABE70-8151-41B9-9E7B-6448CF9BB3E3}.Debug|Win32.ActiveCfg = Debug|Win32
-{1EBABE70-8151-41B9-9E7B-6448CF9BB3E3}.Debug|Win32.Build.0 = Debug|Win32
-{1EBABE70-8151-41B9-9E7B-6448CF9BB3E3}.Debug|x64.ActiveCfg = Debug|x64
-{1EBABE70-8151-41B9-9E7B-6448CF9BB3E3}.Debug|x64.Build.0 = Debug|x64
-{1EBABE70-8151-41B9-9E7B-6448CF9BB3E3}.Release|Win32.ActiveCfg = Release|Win32
-{1EBABE70-8151-41B9-9E7B-6448CF9BB3E3}.Release|Win32.Build.0 = Release|Win32
-{1EBABE70-8151-41B9-9E7B-6448CF9BB3E3}.Release|x64.ActiveCfg = Release|x64
-{1EBABE70-8151-41B9-9E7B-6448CF9BB3E3}.Release|x64.Build.0 = Release|x64
 {55D3272A-C6B1-45CB-9B3B-7BD1FF9B0ED9}.Debug|Win32.ActiveCfg = Debug|Win32
 {55D3272A-C6B1-45CB-9B3B-7BD1FF9B0ED9}.Debug|Win32.Build.0 = Debug|Win32
 {55D3272A-C6B1-45CB-9B3B-7BD1FF9B0ED9}.Debug|x64.ActiveCfg = Debug|x64

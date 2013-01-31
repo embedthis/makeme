@@ -50,8 +50,6 @@ all compile: prep \
         $(CONFIG)/bin/libmprssl.dylib \
         $(CONFIG)/bin/makerom \
         $(CONFIG)/bin/libpcre.dylib \
-        $(CONFIG)/bin/libsqlite3.dylib \
-        $(CONFIG)/bin/sqlite \
         $(CONFIG)/bin/libhttp.dylib \
         $(CONFIG)/bin/http \
         $(CONFIG)/bin/http-ca.crt \
@@ -85,8 +83,6 @@ clean:
 	rm -rf $(CONFIG)/bin/libmprssl.dylib
 	rm -rf $(CONFIG)/bin/makerom
 	rm -rf $(CONFIG)/bin/libpcre.dylib
-	rm -rf $(CONFIG)/bin/libsqlite3.dylib
-	rm -rf $(CONFIG)/bin/sqlite
 	rm -rf $(CONFIG)/bin/libhttp.dylib
 	rm -rf $(CONFIG)/bin/http
 	rm -rf $(CONFIG)/bin/http-ca.crt
@@ -100,8 +96,6 @@ clean:
 	rm -rf $(CONFIG)/obj/manager.o
 	rm -rf $(CONFIG)/obj/makerom.o
 	rm -rf $(CONFIG)/obj/pcre.o
-	rm -rf $(CONFIG)/obj/sqlite3.o
-	rm -rf $(CONFIG)/obj/sqlite.o
 	rm -rf $(CONFIG)/obj/httpLib.o
 	rm -rf $(CONFIG)/obj/http.o
 	rm -rf $(CONFIG)/obj/ejsLib.o
@@ -179,32 +173,6 @@ $(CONFIG)/bin/libpcre.dylib:  \
         $(CONFIG)/obj/pcre.o
 	$(CC) -dynamiclib -o $(CONFIG)/bin/libpcre.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libpcre.dylib $(CONFIG)/obj/pcre.o $(LIBS)
 
-$(CONFIG)/inc/sqlite3.h: 
-	rm -fr $(CONFIG)/inc/sqlite3.h
-	cp -r src/deps/sqlite/sqlite3.h $(CONFIG)/inc/sqlite3.h
-
-$(CONFIG)/obj/sqlite3.o: \
-        src/deps/sqlite/sqlite3.c \
-        $(CONFIG)/inc/bit.h \
-        $(CONFIG)/inc/sqlite3.h
-	$(CC) -c -o $(CONFIG)/obj/sqlite3.o -arch x86_64 $(DFLAGS) -I$(CONFIG)/inc src/deps/sqlite/sqlite3.c
-
-$(CONFIG)/bin/libsqlite3.dylib:  \
-        $(CONFIG)/inc/sqlite3.h \
-        $(CONFIG)/obj/sqlite3.o
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libsqlite3.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libsqlite3.dylib $(CONFIG)/obj/sqlite3.o $(LIBS)
-
-$(CONFIG)/obj/sqlite.o: \
-        src/deps/sqlite/sqlite.c \
-        $(CONFIG)/inc/bit.h \
-        $(CONFIG)/inc/sqlite3.h
-	$(CC) -c -o $(CONFIG)/obj/sqlite.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/sqlite/sqlite.c
-
-$(CONFIG)/bin/sqlite:  \
-        $(CONFIG)/bin/libsqlite3.dylib \
-        $(CONFIG)/obj/sqlite.o
-	$(CC) -o $(CONFIG)/bin/sqlite -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/sqlite.o -lsqlite3 $(LIBS)
-
 $(CONFIG)/inc/http.h: 
 	rm -fr $(CONFIG)/inc/http.h
 	cp -r src/deps/http/http.h $(CONFIG)/inc/http.h
@@ -266,12 +234,11 @@ $(CONFIG)/bin/libejs.dylib:  \
         $(CONFIG)/bin/libhttp.dylib \
         $(CONFIG)/bin/libpcre.dylib \
         $(CONFIG)/bin/libmpr.dylib \
-        $(CONFIG)/bin/libsqlite3.dylib \
         $(CONFIG)/inc/ejs.h \
         $(CONFIG)/inc/ejs.slots.h \
         $(CONFIG)/inc/ejsByteGoto.h \
         $(CONFIG)/obj/ejsLib.o
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libejs.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libejs.dylib $(CONFIG)/obj/ejsLib.o -lsqlite3 -lmpr -lpcre -lhttp $(LIBS) -lpcre -lmpr
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libejs.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libejs.dylib $(CONFIG)/obj/ejsLib.o -lmpr -lpcre -lhttp $(LIBS) -lpcre -lmpr
 
 $(CONFIG)/obj/ejs.o: \
         src/deps/ejs/ejs.c \
@@ -282,7 +249,7 @@ $(CONFIG)/obj/ejs.o: \
 $(CONFIG)/bin/ejs:  \
         $(CONFIG)/bin/libejs.dylib \
         $(CONFIG)/obj/ejs.o
-	$(CC) -o $(CONFIG)/bin/ejs -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejs.o -lejs $(LIBS) -lsqlite3 -lmpr -lpcre -lhttp -ledit
+	$(CC) -o $(CONFIG)/bin/ejs -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejs.o -lejs $(LIBS) -lmpr -lpcre -lhttp -ledit
 
 $(CONFIG)/obj/ejsc.o: \
         src/deps/ejs/ejsc.c \
@@ -293,7 +260,7 @@ $(CONFIG)/obj/ejsc.o: \
 $(CONFIG)/bin/ejsc:  \
         $(CONFIG)/bin/libejs.dylib \
         $(CONFIG)/obj/ejsc.o
-	$(CC) -o $(CONFIG)/bin/ejsc -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejsc.o -lejs $(LIBS) -lsqlite3 -lmpr -lpcre -lhttp
+	$(CC) -o $(CONFIG)/bin/ejsc -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejsc.o -lejs $(LIBS) -lmpr -lpcre -lhttp
 
 $(CONFIG)/bin/ejs.mod:  \
         $(CONFIG)/bin/ejsc
@@ -321,7 +288,7 @@ $(CONFIG)/bin/bit:  \
         $(CONFIG)/bin/bit.es \
         $(CONFIG)/inc/bitos.h \
         $(CONFIG)/obj/bit.o
-	$(CC) -o $(CONFIG)/bin/bit -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/bit.o $(CONFIG)/obj/mprLib.o $(CONFIG)/obj/pcre.o $(CONFIG)/obj/httpLib.o $(CONFIG)/obj/sqlite3.o $(CONFIG)/obj/ejsLib.o $(LIBS)
+	$(CC) -o $(CONFIG)/bin/bit -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/bit.o $(CONFIG)/obj/mprLib.o $(CONFIG)/obj/pcre.o $(CONFIG)/obj/httpLib.o $(CONFIG)/obj/ejsLib.o $(LIBS)
 
 version: 
 	@cd bits; echo 0.8.0-0 ; cd ..

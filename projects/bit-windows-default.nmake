@@ -45,8 +45,6 @@ all compile: prep \
         $(CONFIG)\bin\libmprssl.dll \
         $(CONFIG)\bin\makerom.exe \
         $(CONFIG)\bin\libpcre.dll \
-        $(CONFIG)\bin\libsqlite3.dll \
-        $(CONFIG)\bin\sqlite.exe \
         $(CONFIG)\bin\libhttp.dll \
         $(CONFIG)\bin\http.exe \
         $(CONFIG)\bin\http-ca.crt \
@@ -82,8 +80,6 @@ clean:
 	-if exist $(CONFIG)\bin\libmprssl.dll del /Q $(CONFIG)\bin\libmprssl.dll
 	-if exist $(CONFIG)\bin\makerom.exe del /Q $(CONFIG)\bin\makerom.exe
 	-if exist $(CONFIG)\bin\libpcre.dll del /Q $(CONFIG)\bin\libpcre.dll
-	-if exist $(CONFIG)\bin\libsqlite3.dll del /Q $(CONFIG)\bin\libsqlite3.dll
-	-if exist $(CONFIG)\bin\sqlite.exe del /Q $(CONFIG)\bin\sqlite.exe
 	-if exist $(CONFIG)\bin\libhttp.dll del /Q $(CONFIG)\bin\libhttp.dll
 	-if exist $(CONFIG)\bin\http.exe del /Q $(CONFIG)\bin\http.exe
 	-if exist $(CONFIG)\bin\http-ca.crt del /Q $(CONFIG)\bin\http-ca.crt
@@ -98,8 +94,6 @@ clean:
 	-if exist $(CONFIG)\obj\manager.obj del /Q $(CONFIG)\obj\manager.obj
 	-if exist $(CONFIG)\obj\makerom.obj del /Q $(CONFIG)\obj\makerom.obj
 	-if exist $(CONFIG)\obj\pcre.obj del /Q $(CONFIG)\obj\pcre.obj
-	-if exist $(CONFIG)\obj\sqlite3.obj del /Q $(CONFIG)\obj\sqlite3.obj
-	-if exist $(CONFIG)\obj\sqlite.obj del /Q $(CONFIG)\obj\sqlite.obj
 	-if exist $(CONFIG)\obj\httpLib.obj del /Q $(CONFIG)\obj\httpLib.obj
 	-if exist $(CONFIG)\obj\http.obj del /Q $(CONFIG)\obj\http.obj
 	-if exist $(CONFIG)\obj\ejsLib.obj del /Q $(CONFIG)\obj\ejsLib.obj
@@ -174,32 +168,6 @@ $(CONFIG)\bin\libpcre.dll:  \
         $(CONFIG)\obj\pcre.obj
 	"$(LD)" -dll -out:$(CONFIG)\bin\libpcre.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\pcre.obj $(LIBS)
 
-$(CONFIG)\inc\sqlite3.h: 
-	-if exist $(CONFIG)\inc\sqlite3.h del /Q $(CONFIG)\inc\sqlite3.h
-	copy /Y src\deps\sqlite\sqlite3.h $(CONFIG)\inc\sqlite3.h
-
-$(CONFIG)\obj\sqlite3.obj: \
-        src\deps\sqlite\sqlite3.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\sqlite3.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\sqlite3.obj -Fd$(CONFIG)\obj\sqlite3.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc src\deps\sqlite\sqlite3.c
-
-$(CONFIG)\bin\libsqlite3.dll:  \
-        $(CONFIG)\inc\sqlite3.h \
-        $(CONFIG)\obj\sqlite3.obj
-	"$(LD)" -dll -out:$(CONFIG)\bin\libsqlite3.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\sqlite3.obj $(LIBS)
-
-$(CONFIG)\obj\sqlite.obj: \
-        src\deps\sqlite\sqlite.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\sqlite3.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\sqlite.obj -Fd$(CONFIG)\obj\sqlite.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc src\deps\sqlite\sqlite.c
-
-$(CONFIG)\bin\sqlite.exe:  \
-        $(CONFIG)\bin\libsqlite3.dll \
-        $(CONFIG)\obj\sqlite.obj
-	"$(LD)" -out:$(CONFIG)\bin\sqlite.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\sqlite.obj libsqlite3.lib $(LIBS)
-
 $(CONFIG)\inc\http.h: 
 	-if exist $(CONFIG)\inc\http.h del /Q $(CONFIG)\inc\http.h
 	copy /Y src\deps\http\http.h $(CONFIG)\inc\http.h
@@ -261,12 +229,11 @@ $(CONFIG)\bin\libejs.dll:  \
         $(CONFIG)\bin\libhttp.dll \
         $(CONFIG)\bin\libpcre.dll \
         $(CONFIG)\bin\libmpr.dll \
-        $(CONFIG)\bin\libsqlite3.dll \
         $(CONFIG)\inc\ejs.h \
         $(CONFIG)\inc\ejs.slots.h \
         $(CONFIG)\inc\ejsByteGoto.h \
         $(CONFIG)\obj\ejsLib.obj
-	"$(LD)" -dll -out:$(CONFIG)\bin\libejs.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsLib.obj libsqlite3.lib libmpr.lib libpcre.lib libhttp.lib $(LIBS) libpcre.lib libmpr.lib
+	"$(LD)" -dll -out:$(CONFIG)\bin\libejs.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsLib.obj libmpr.lib libpcre.lib libhttp.lib $(LIBS) libpcre.lib libmpr.lib
 
 $(CONFIG)\obj\ejs.obj: \
         src\deps\ejs\ejs.c \
@@ -277,7 +244,7 @@ $(CONFIG)\obj\ejs.obj: \
 $(CONFIG)\bin\ejs.exe:  \
         $(CONFIG)\bin\libejs.dll \
         $(CONFIG)\obj\ejs.obj
-	"$(LD)" -out:$(CONFIG)\bin\ejs.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejs.obj libejs.lib $(LIBS) libsqlite3.lib libmpr.lib libpcre.lib libhttp.lib
+	"$(LD)" -out:$(CONFIG)\bin\ejs.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejs.obj libejs.lib $(LIBS) libmpr.lib libpcre.lib libhttp.lib
 
 $(CONFIG)\obj\ejsc.obj: \
         src\deps\ejs\ejsc.c \
@@ -288,7 +255,7 @@ $(CONFIG)\obj\ejsc.obj: \
 $(CONFIG)\bin\ejsc.exe:  \
         $(CONFIG)\bin\libejs.dll \
         $(CONFIG)\obj\ejsc.obj
-	"$(LD)" -out:$(CONFIG)\bin\ejsc.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsc.obj libejs.lib $(LIBS) libsqlite3.lib libmpr.lib libpcre.lib libhttp.lib
+	"$(LD)" -out:$(CONFIG)\bin\ejsc.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsc.obj libejs.lib $(LIBS) libmpr.lib libpcre.lib libhttp.lib
 
 $(CONFIG)\bin\ejs.mod:  \
         $(CONFIG)\bin\ejsc.exe
@@ -329,7 +296,7 @@ $(CONFIG)\bin\bit.exe:  \
         $(CONFIG)\bin\bit.es \
         $(CONFIG)\inc\bitos.h \
         $(CONFIG)\obj\bit.obj
-	"$(LD)" -out:$(CONFIG)\bin\bit.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\bit.obj $(CONFIG)\obj\mprLib.obj $(CONFIG)\obj\pcre.obj $(CONFIG)\obj\httpLib.obj $(CONFIG)\obj\sqlite3.obj $(CONFIG)\obj\ejsLib.obj $(LIBS)
+	"$(LD)" -out:$(CONFIG)\bin\bit.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\bit.obj $(CONFIG)\obj\mprLib.obj $(CONFIG)\obj\pcre.obj $(CONFIG)\obj\httpLib.obj $(CONFIG)\obj\ejsLib.obj $(LIBS)
 
 version: 
 	cd bits

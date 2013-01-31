@@ -2245,15 +2245,10 @@ static void astModule(EcCompiler *cp, EcNode *np)
     ejs = cp->ejs;
     state = cp->state;
     
-#if ZZZ || 1
     if (state->disabled) {
-        mp = np->module.ref;
-        mp->initializer = 0;
-        mp->hasInitializer = 0;
         LEAVE(cp);
         return;
     }
-#endif
     if (cp->phase == EC_PHASE_DEFINE) {
         mp = createModule(cp, np);
     } else {
@@ -7736,9 +7731,7 @@ static void createInitializer(EcCompiler *cp, EjsModule *mp)
         We can safely just ignore this debug code.
      */
     if (!mp->hasInitializer || !mp->code) {
-if (mp->hasInitializer && !mp->code) {
-    printf("77777 ARNING!!!!\n");
-}
+        mp->hasInitializer = 0;
         LEAVE(cp);
         return;
     }
@@ -70001,7 +69994,7 @@ static MPR_INLINE void checkGetter(Ejs *ejs, EjsAny *value, EjsAny *thisObj, Ejs
 #define THIS            FRAME->function.boundThis
 #define FILL(mark)      while (mark < FRAME->pc) { *mark++ = EJS_OP_NOP; }
 
-#define DEBUG_IDE 1
+// #define DEBUG_IDE 1
 #if DEBUG_IDE
     static EjsOpCode traceCode(Ejs *ejs, EjsOpCode opcode);
     static int opcount[256];

@@ -22,8 +22,50 @@
 #ifndef BIT_DISCOVER
     #define BIT_DISCOVER "dsi,ejscript,est,man,man2html,pmaker,zip"
 #endif
+#ifndef BIT_EJS_DB
+    #define BIT_EJS_DB 0
+#endif
+#ifndef BIT_EJS_MAIL
+    #define BIT_EJS_MAIL 0
+#endif
+#ifndef BIT_EJS_MAPPER
+    #define BIT_EJS_MAPPER 0
+#endif
+#ifndef BIT_EJS_TAR
+    #define BIT_EJS_TAR 1
+#endif
+#ifndef BIT_EJS_TEMPLATE
+    #define BIT_EJS_TEMPLATE 0
+#endif
+#ifndef BIT_EJS_WEB
+    #define BIT_EJS_WEB 0
+#endif
 #ifndef BIT_EJS_ONE_MODULE
     #define BIT_EJS_ONE_MODULE 1
+#endif
+#ifndef BIT_EST_CAMELLIA
+    #define BIT_EST_CAMELLIA 0
+#endif
+#ifndef BIT_EST_DES
+    #define BIT_EST_DES 0
+#endif
+#ifndef BIT_EST_GEN_PRIME
+    #define BIT_EST_GEN_PRIME 0
+#endif
+#ifndef BIT_EST_PADLOCK
+    #define BIT_EST_PADLOCK 0
+#endif
+#ifndef BIT_EST_ROM_TABLES
+    #define BIT_EST_ROM_TABLES 0
+#endif
+#ifndef BIT_EST_SSL_CLIENT
+    #define BIT_EST_SSL_CLIENT 0
+#endif
+#ifndef BIT_EST_TEST_CERTS
+    #define BIT_EST_TEST_CERTS 0
+#endif
+#ifndef BIT_EST_XTEA
+    #define BIT_EST_XTEA 0
 #endif
 #ifndef BIT_HAS_DYN_LOAD
     #define BIT_HAS_DYN_LOAD 1
@@ -40,6 +82,12 @@
 #ifndef BIT_HAS_UNNAMED_UNIONS
     #define BIT_HAS_UNNAMED_UNIONS 1
 #endif
+#ifndef BIT_HTTP_PAM
+    #define BIT_HTTP_PAM 0
+#endif
+#ifndef BIT_MPR_LOGGING
+    #define BIT_MPR_LOGGING 1
+#endif
 #ifndef BIT_PACKS
     #define BIT_PACKS "bits/packs"
 #endif
@@ -50,19 +98,19 @@
     #define BIT_PRODUCT "bit"
 #endif
 #ifndef BIT_REQUIRED
-    #define BIT_REQUIRED "winsdk,compiler,lib,link,dumpbin,rc,pcre,http,sqlite,ejscript"
+    #define BIT_REQUIRED "winsdk,compiler,lib,link,dumpbin,rc,pcre,http,ejscript"
 #endif
 #ifndef BIT_STATIC
     #define BIT_STATIC 0
 #endif
 #ifndef BIT_SYNC
-    #define BIT_SYNC "bitos,est,mpr,pcre,http,ejs,sqlite"
+    #define BIT_SYNC "bitos,est,mpr,pcre,http,ejs"
 #endif
 #ifndef BIT_TITLE
     #define BIT_TITLE "Embedthis Bit"
 #endif
 #ifndef BIT_TUNE
-    #define BIT_TUNE "size"
+    #define BIT_TUNE "speed"
 #endif
 #ifndef BIT_VERSION
     #define BIT_VERSION "0.8.0"
@@ -152,9 +200,6 @@
 #endif
 
 /* Packs */
-#ifndef BIT_PACK__SQLITE
-    #define BIT_PACK__SQLITE 0
-#endif
 #ifndef BIT_PACK_CC
     #define BIT_PACK_CC 1
 #endif
@@ -207,7 +252,7 @@
     #define BIT_PACK_RC 1
 #endif
 #ifndef BIT_PACK_SQLITE
-    #define BIT_PACK_SQLITE 1
+    #define BIT_PACK_SQLITE 0
 #endif
 #ifndef BIT_PACK_WINSDK
     #define BIT_PACK_WINSDK 1
@@ -235,9 +280,6 @@
 #endif
 #ifndef BIT_PACK_RC_PATH
     #define BIT_PACK_RC_PATH "rc.exe"
-#endif
-#ifndef BIT_PACK_SQLITE_PATH
-    #define BIT_PACK_SQLITE_PATH "/Users/mob/git/bit/src/deps/sqlite"
 #endif
 #ifndef BIT_PACK_WINSDK_PATH
     #define BIT_PACK_WINSDK_PATH "$(SDK)"
