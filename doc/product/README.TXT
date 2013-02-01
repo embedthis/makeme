@@ -1,13 +1,16 @@
 Embedthis Bit(TM)
 
-Welcome to the Embedthis Bit distribution. Ejscript is a powerful server-side JavaScript framework for web
-applications. It includes an enhanced implementation of the JavaScript language, supports ECMAScript Edition 3, and adds enhancments for classes, modules and an extensive system library and powerful web framework.
+Welcome to the Embedthis Bit distribution. Bit stands for Build It and is a replacement for the autoconf/make build
+tools. Bit is a single tool that configures, builds and generated native build projects for applications.
+It expresses build rules in the JavaScript language.
 
-This document describes the installation procedure for the binary Ejscript package. This package contains pre-built language tools including an interpreter, compiler, vm, documentation generator and assembler listing program as well as the development libraries and headers needed to embed Ejscript in an application. 
+This document describes the installation procedure for the binary Bit package. This package contains pre-built language
+tools including an interpreter, compiler, vm, documentation generator and assembler listing program as well as the
+development libraries and headers needed to embed Bit in an application. 
 
 You can read the documentation for the latest release online at:
 
-    http://embedthis.com/products/ejs/doc/index.html
+    http://embedthis.com/products/bit/doc/index.html
 
 This software is copyrighted and distributed under license. Please read the LICENSE.md for details.
 
@@ -18,10 +21,10 @@ Table of Contents
 * Installation Package Formats
 * Development Environment Platform Support
 * Installating the Tar Self-Install Image
-* Removing Ejscript
+* Removing Bit
 * Apple MAC OS X  Release Details
 * Windows Release Details
-* Running Ejscript
+* Running Bit
 * Building the Source Code
 * License and Copyright Information
 
@@ -29,30 +32,30 @@ System Requirements
 
 Operating System Support
 
-    * Windows XP, Vista, Windows-7 (x86,x86_64)
-    * Mac OS X 10.4, 10.5 (ppc,x86,x86_64)
-    * Linux 2.4, 2.6 (x86,,x86_64,arm,ppc,sparc,xscale,mips)
+    * Windows XP, Vista, Windows-7 (x86,x64)
+    * Mac OS X 10.4, 10.5 (ppc,x86,x64)
+    * Linux 2.4, 2.6 (x86,x64,arm,ppc,sparc,xscale,mips)
     * VxWorks (x86,arm,ppc,sparc,xscale,mips)
-    * Solaris (sparc,x86,x86_64)
+    * Solaris (sparc,x86,x64)
 
-To install Ejscript, your system will need at least the following:
+To install Bit, your system will need at least the following:
 
     * 50 MB Disk
     * 1 GB RAM
 
-To deploy Ejscript in an embedded environment, you will need at least the following:
+To deploy Bit in an embedded environment, you will need at least the following:
 
     * 2 MB Disk / ROM space
     * 4 MB RAM
 
-To rebuild Ejscript from source code, you will need at least:
+To rebuild Bit from source code, you will need at least:
 
     * 80 MB disk space
 
 
 Installation Package Formats
 
-The Ejscript binary installation is published in two formats:
+The Bit binary installation is published in two formats:
 
     * Native Apple MAC OS X PKG format
     * Native Windows installer format
@@ -64,40 +67,13 @@ See below for operating system specific installation information.
 
 Development Environment Platform Support
 
-If you wish to embed Ejscript in your application or build Ejscript from source code, you will need to use a C compiler and associated development tools.  Several development environments are supported.  You may choose any of the following:
+If you wish to embed Bit in your application or build Bit from source code, you will need to use a C compiler and associated development tools.  Several development environments are supported.  You may choose any of the following:
 
     * Linux/Unix/Solaris GNU Tools
 
-    * Windows Visual Studio (Visual Studio 2008 (Express) or the Cygwin UNIX 
-      emulation tools. See www.cygwin.com.
+    * Windows Visual Studio 2010
 
     * WindRiver Tornado Development Tools
-
-
-Installating the Tar Self-Install Image
-
-This the procedure for the self-install Tar format image:
-
-   1. Uncompress and extract the image by typing
-
-      tar xvf ejs-VERSION-BUILD-DIST-OS-ARCH.FMT.tar.gz
-
-      where FMT is "tar".
-
-   2. Invoke the installation script with administrator privilege
-
-      sudo ./install
-
-
-Removing Ejscript
-
-This is the procedure to remove Ejscript on all systems except Windows.
-
-   1. Change directory to the installation directory for Ejscript. This is usually /usr/lib/ejs.
-
-   2. Run the uninstall script in the install directory for Ejscript by typing 
-
-      sudo ./uninstall
 
 
 Apple Mac OS X Release Details
@@ -124,39 +100,47 @@ To install the Windows Installer image:
    3. Double click on the setup.exe image to run it.
 
 
-Removing Ejscript on Windows
+Removing Bit on Mac OS X
 
-If you installed the Ejscript Windows Installer image, follow these steps to 
-remove Ejscript. If you installed the Tar self-install image, you will need 
-to remove Ejscript manually. 
+This is the procedure to remove Bit on all systems except Windows.
+
+   1. Change directory to the installation directory for Bit. This is usually /usr/lib/bit.
+
+   2. Run the uninstall script in the install directory for Bit by typing 
+
+      sudo ./uninstall
+
+
+Removing Bit on Windows
+
+If you installed the Bit Windows Installer image, follow these steps to 
+remove Bit. If you installed the Tar self-install image, you will need 
+to remove Bit manually. 
 
    1. Login with administrator privileges
 
    2. Run the Add / Remove Programs applet from the control panel.
 
-   3. Select the Embedthis Ejscript and choose remove.
+   3. Select the Embedthis Bit and choose remove.
 
 
-Running Ejscript
+Running Bit
 
-The Ejscript product installation includes a simple command line interpreter that can be invoked by typing:
+The Bit binary is invoked by by typing:
 
-    ejs
+    bit
 
-This command responds with the following prompt:
+Running Bit on Windows
 
-ejs>
-
-Ejscript commands can be entered and results will be echoed to the console.  See the user documentation for further details.
-
-Running Ejscript on Windows
-
-On windows, the installation creates a Programs shortcut for the "ejs" Ejscript command shell.  Clicking on it will run "ejs" in a command window.  To run "ejs" from a command window manually, you may need to add the Ejscript installation bin directory to your path. This is usually the C:/Program Files/Embedthis Ejscript/bin directory. You can do this by running the System applet from the Control Panel and selecting the Advanced tab and then the Environment Variables button at the bottom of the page. Add this directory to the setting for the PATH use variable.
+On windows, the installation creates a Programs shortcut for the "bit" binary.  Clicking on it will run "ejs" in
+a command window.  To run "ejs" from a command window manually, you may need to add the Bit installation bin directory to
+your path. This is usually the C:/Program Files/Embedthis Bit/bin directory. You can do this by running the System applet from the Control Panel and selecting the Advanced tab and then the Environment Variables button at the bottom of the page. Add this directory to the setting for the PATH use variable.
 
 
 Building from the Source Code
 
-If you wish to rebuild the Ejscript product from the distributed source code, please download the source code distribution from the Embedthis web site. Then read "Building from Source" in the Ejscript product documentation for an explanation of the necessary steps to successfully rebuild the product.
+If you wish to rebuild the Bit product from the distributed source code, please download the source code distribution from
+the Embedthis web site. Then read "Building from Source" in the Bit product documentation for an explanation of the necessary steps to successfully rebuild the product.
 
 
 License and Copyright Information
@@ -165,7 +149,7 @@ This software is supplied under license. Both a GNU and commercial license are a
 
 Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
 
-Embedthis is a trademark of Embedthis Software LLC. Embedthis, Appweb and Ejscript are trademarks of Embedthis Software. All other brand or product names are the trademarks or registered trademarks of their respective holders.
+Embedthis is a trademark of Embedthis Software LLC. Embedthis, Appweb and Embedthis Bit are trademarks of Embedthis Software. All other brand or product names are the trademarks or registered trademarks of their respective holders.
 
 
 Embedthis Software, LLC.

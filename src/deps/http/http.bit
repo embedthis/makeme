@@ -29,11 +29,5 @@ Bit.load({
             depends: [ 'libhttp', ],
             platforms: [ 'local' ],
         },
-
-        'http-ca.crt': {
-            type: 'file',
-            files: [ 'http-ca.crt' ],
-            path: '${BIN}/http-ca.crt',
-        },
 	},
 })

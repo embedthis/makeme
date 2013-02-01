@@ -24,7 +24,7 @@ public function packageBinaryFiles(formats = ['tar', 'native']) {
     let prefixes = bit.prefixes;
     let p = {}
     for (prefix in bit.prefixes) {
-        if (prefix == 'config' || prefix == 'log' || prefix == 'spool' || prefix == 'src' || prefix == 'web') {
+        if (prefix == 'config' || prefix == 'log' || prefix == 'spool' || prefix == 'src' || prefix == 'web' || prefix == 'inc') {
             continue
         }
         p[prefix] = Path(contents.portable.name + bit.prefixes[prefix].removeDrive().portable)
@@ -54,15 +54,9 @@ public function packageBinaryFiles(formats = ['tar', 'native']) {
     }
     install(bit.dir.bin + '/*', p.bin, {
         include: /bit|\.dll/,
-        exclude: /\.pdb|\.exp|\.lib|\.def|\.suo|\.old/,
+        exclude: /ejs\$|ejsc\$|http\\$|makerom|\.dylib|\.so|\.pdb|\.exp|\.lib|\.def|\.suo|\.old/,
         permissions: 0755, 
     })
-    if (bit.platform.os != 'windows') {
-        install(bit.dir.bin.join('*'), p.bin, {
-            permissions: 0755, 
-            exclude: /bits|file-save|www|simple|sample/,
-        })
-    }
     install(bit.dir.bin.join('bits'), p.bin)
     install(bit.dir.bin.join('ca.crt'), p.bin)
 
@@ -92,7 +86,7 @@ public function packageBinaryFiles(formats = ['tar', 'native']) {
             install(bit.dir.bin.join('removeFiles' + bit.globals.EXE), p.bin)
         }
         if (bit.platform.like == 'posix') {
-            install('doc/man/*.1', p.productver.join('doc/man/man1'), {compress: true})
+            install('doc/man/bit.1', p.productver.join('doc/man/man1/bit.1'), {compress: true})
         }
     }
     let files = contents.files('**', {exclude: /\/$/, relative: true})
