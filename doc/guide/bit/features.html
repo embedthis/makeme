@@ -2,10 +2,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis Ejscript 2.3.0 Documentation</title>
-    <meta name="keywords" content="Ejscript, JavaScript, ECMAScript, Server-Side JavaScript, Dynamic languages, 
+    <title>Embedthis Bit 2.3.0 Documentation</title>
+    <meta name="keywords" content="Bit, JavaScript, ECMAScript, Server-Side JavaScript, Dynamic languages, 
         Embedded, AJAX, language"/>
-	<meta name="description" content="Ejscript -- Embedded Server-Side JavaScript Language."/>
+	<meta name="description" content="Bit -- Embedded Server-Side JavaScript Language."/>
 	<meta name="robots" content="index,follow" />
 	<link href="../../doc.css" rel="stylesheet" type="text/css" />
 	<link href="../../print.css" rel="stylesheet" type="text/css" media="print"/>
@@ -21,147 +21,53 @@
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form">Loading</div>
-                <div class='version'>Embedthis Ejscript 2.0.1</div>
+                <div class='version'>Embedthis Bit 0.8.0</div>
             </div>
         </div>
         <div class="crumbs">
             <a href="../../index.html">Home</a>
 <!-- EndDsi -->
-             &gt; <b>Ejscript Features</b>
+             &gt; <b>Bit Features</b>
         </div>
     </div>
     <div class="content">
         <div class="contentRight">
             
-<!-- BeginDsi "dsi/ejsLanguageSeeAlso.html" -->
+<!-- BeginDsi "dsi/seeAlso.html" -->
 		        <h1>See Also</h1>
 		        <ul>
-		          <li><a href="../../guide/ejs/overview.html">Overview</a></li>
-		          <li><a href="../../guide/ejs/features.html">Language Features</a></li>
-		          <li><a href="../../guide/ejs/language/modes.html">Language Modes</a></li>
-		          <li><a href="../../guide/ejs/language/syntax.html">Language Syntax</a></li>
-		          <li><a href="../../guide/ejs/language/statements.html">Statements</a></li>
-		          <li><a href="../../guide/ejs/language/expressions.html">Expressions</a></li>
-		          <li><a href="../../guide/ejs/language/objects.html">Objects and Arrays</a></li>
-		          <li><a href="../../guide/ejs/language/functions.html">Functions and Methods</a></li>
-		          <li><a href="../../guide/ejs/language/core.html">Core Language Types</a></li>
-		          <li><a href="../../guide/ejs/language/types.html">Types and Declarations</a></li>
-		          <li><a href="../../guide/ejs/language/classes.html">Classes</a></li>
-		          <li><a href="../../guide/ejs/language/modules.html">Modules</a></li>
-		          <li><a href="../../guide/ejs/language/library.html">System Library</a></li>
-		          <li><a href="../../guide/ejs/language/events.html">Events and Timers</a></li>
-		          <li><a href="../../guide/ejs/language/globals.html">Globals</a></li>
-
-		          <li><a href="../../guide/ejs/users/compiler.html">Using the Compiler</a></li>
-		          <li><a href="../../guide/ejs/users/shell.html">Command Shell</a></li>
-		          <li><a href="../../guide/ejs/users/bit.html">Building with Bit</a></li>
 		        </ul>
 <!-- EndDsi -->
         </div>
         <div class="contentLeft">
-            <h1>Embedthis Ejscript&trade; Features</h1>
-            <p>The Ejscript product includes the following components:</p>
+            <h1>Embedthis Bit&trade; Features</h1>
+            <p>Bit is implemented primarily as a single Javascript program  of some 3K lines and is very hackable. It has the
+            following major features:</p>
             <ul>
-                <li>Ejscript Compiler</li>
-                <li>Ejscript Shell Interpreter</li>
-                <li>Ejscript Module Manager</li>
-                <li>Ejscript Virtual Machine</li>
-                <li>Ejscript System Library</li>
-                <li>Ejscript Web Framework Library</li>
-                <li>Documentation</li>
-                <li>Samples</li>
-                <li>Source code</li>
-            </ul>
-            <h2 class="section">Feature Overview</h2>
-            <h3>JavaScript Language</h3>
-            <ul>
-                <li>ECMA-262 JavaScript</li>
-                <li>ECMA-357 E4X XML</li>
-                <li>Modules and Namespaces</li>
-                <li>Classes and Interfaces</li>
-                <li>Optional type annotations</li>
-                <li>Proper block scope</li>
-                <li>Bound methods</li>
-            </ul>
-            <h3>Web Framework</h3>
-            <ul>
-                <li>Model-View-Controller Web Framework</li>
-                <li>High performance HTTP engine</li>
-                <li>Web page Templates</li>
-                <li>Integrated SQLite database and ORM</li>
-                <li>Ajax controls with integrated jQuery support</li>
-                <li>Application generator</li>
-                <li>Database migration support</li>
-                <li>Session and flash inter-request state management</li>
-            </ul>
-            <h3>Virtual Machine</h3>
-            <ul>
-                <li>High performance C VM</li>
-                <li>Generational garbage collector</li>
-                <li>Very compact, high level byte code designed for data intensive applications</li>
-                <li>Early binding code generation</li>
-                <li>Extensible native class interface for creating native types</li>
-            </ul>
-            <h3>Extensive System Library</h3>
-            <ul>
-                <li>Enhancements to the core classes: Array, Object, String</li>
-                <li>Events and Timers</li>
-                <li>Database (SQLite)</li>
-                <li>HTTP and SSL</li>
-                <li>HTTP server</li>
-                <li>Native JSON</li>
-                <li>Path, File System, File I/O</li>
-                <li>Sockets</li>
-                <li>Streams, BinaryStream, TextStream, StringStream</li>
-                <li>SQL database and ORM layer</li>
-                <li>Web Framework: Model-View-Controller</li>
-            </ul>
-            <h3>Embeddable and Configurable</h3>
-            <ul>
-                <li>Configure program to tailor builds from source code</li>
-                <li>Build configuration settings available to script programs</li>
-                <li>Conditional compilation for scripts</li>
-                <li>Support for ROM based programs and XIP</li>
-            </ul>
-            <h3>Development Tools</h3>
-            <ul>
-                <li>HTML documentation generation</li>
-                <li>Symbolic assembler listings</li>
-                <li>Command shell interpreter</li>
-                <li>Stand-alone optimizing compiler</li>
-                <li>Web framework application generator</li>
-            </ul>
-            <h3>Modular</h3>
-            <ul>
-                <li>Compiler generates module files with automatic module dependency handling</li>
-                <li>Ability to load script and binary modules at run-time</li>
-            </ul>
-            <h3>Extensible</h3>
-            <ul>
-                <li>Create new types and modules via scripting</li>
-                <li>Easy to extend via native classes</li>
-            </ul>
-            <h3>Source Code</h3>
-            <ul>
-                <li>Clean, modular commented source code</li>
-                <li>Documentation for source code</li>
-                <li>Cross-platform and portable</li>
-            </ul>
-            <h3>Platform Support</h3>
-            <ul>
-                <li>Linux (2.4, 2.6: Ubuntu, Fedora)</li>
-                <li>Windows (XP, Vista, 7)</li>
-                <li>MAC OS X (10.6+)</li>
-                <li>VxWorks (5.4, 6.3)</li>
-                <li>FreeBSD</li>
-                <li>Windows CE</li>
-            </ul>
-            <h3>Documentation</h3>
-            <ul>
-                <li>Script API documentation</li>
-                <li>C VM API documentation for creating native classes</li>
-                <li>Samples</li>
-                <li>Tutorials</li>
+                <li>Configuration and component discovery (replaces autoconf)</li>
+                <li>Compiler capability sleuthing</li>
+                <li>Generation of a configuration source header (bit.h)</li>
+                <li>Generation of Xcode, Visual Studio, Make, Nmake and shell script projects</li>
+                <li>Automatic C/C++ source code dependencies</li>
+                <li>Cross platform. Easily handles Windows, Linux and Mac builds</li>
+                <li>Easy cross-compilation</li>
+                <li>Building outside source tree for read-only file systems</li>
+                <li>Bit files are JavaScript source and are easily modified and extended</li>
+                <li>Multiple build profiles (debug, release, ...)</li>
+                <li>Very fast configuration and building times, even on windows</li>
+           </ul>
+           <a id="niceBits"></a>
+           <h2>Nice Bits</h2>
+           <p>While Bit has a strong feature set, there are some characteristics that make building with Bit especially
+           nice:</p>
+           <ul>
+               <li>Unified project view. No "make" style recursion required.</li>
+               <li>Bit configuration may be comprised by multiple bit files</li>
+               <li>Bit file targets and scripts are relative to their own directory</li>
+               <li>Targets can be named symbolically not just by the target path.</li>
+               <li>Bit provides a "why" option (bit --why) to display why a target was or was not rebuilt</li>
+               <li>Bit files and targets intelligently inherit of outer project properties</li>
+               <li>Bit scripts run using the working directory of the bit file</li>
             </ul>
             <p>&nbsp;</p>
         </div>
@@ -170,7 +76,7 @@
 	<div class="bottom">
 		<p class="footnote"> 
             <a href="../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2013. 
-            All rights reserved. Embedthis, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
+            All rights reserved. Embedthis, Bit and Appweb are trademarks of Embedthis Software LLC.</a>
 		</p>
 	</div>
     <script src="http://www.google.com/jsapi" type="text/javascript"></script>

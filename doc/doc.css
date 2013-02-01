@@ -4,7 +4,8 @@
 
 html {
 	min-width: 700px;
-	background-color: #202020;
+    background-color: #101A24;
+
 }
 
 body {
@@ -13,8 +14,9 @@ body {
 	padding: 0;
 	font-family: Verdana, Arial, Helvetica, sans-serif; 
 	font-size: small;
-	background-position: left top;
-	background-repeat: repeat-y;
+    _background-image: url(images/shadow.jpg);
+	_background-position: left top;
+	_background-repeat: repeat-y;
 }
 
 
@@ -32,7 +34,8 @@ div.top {
 }
 
 div.bottom {
-	background-repeat: no-repeat;
+	_background-repeat: no-repeat;
+    _background-image: url(images/bottomShadow.jpg);
 	text-align: center;
 }
 
@@ -93,7 +96,7 @@ div.search form #q:hover, div.search form #q:focus {
 div.version {
     margin-top: 14px;
     padding: 10px 10px 0 0;
-	color: #000000; 
+	color: #DDDDDD; 
 }
 
 /*
@@ -103,21 +106,24 @@ div.crumbs {
     position: relative;
     left: 10px;
     margin: 10px 0 0 20px;
-	color: #000000; 
-	font-size: 110%;
+	color: #888888; 
+	font-size: 100%;
     font-weight: normal;
 	text-decoration: none;
 }
 
 div.crumbs a:link, div.crumbs a:visited { 
-	color: #444444; 
 	text-decoration: none;
 }
 
 div.crumbs a:hover { 
 	text-decoration: underline; 
-	color: #444444; 
 }
+
+div.crumbs b {
+	color: #FFFFFF; 
+}
+
 
 /*
   	Body content
@@ -127,13 +133,16 @@ div.content {
 	min-height: 400px;
 	margin: -30px 0 0 40px;
 	padding: 0 10px 40px 40px;
-	color: #000000;
-	background-color: #FFFFFF;
+	color: #222222;
+	background-color: #fffCE8;
 	text-decoration: none;
+	line-height: 180%; 
 }
 
 div.content a {
 	color: #114444; 
+	color: #666666;
+	line-height: 160%; 
 	text-decoration: none; 
 }
 
@@ -144,13 +153,12 @@ div.content a:hover {
 
 div.content ul li {
 	font-size: 100%;
-	line-height: 140%; 
+	text-decoration: none; 
 	margin: 0;
 }
 
 div.content ol li {
 	font-size: 100%;
-	line-height: 140%; 
 	margin: 0;
 	padding: 10px 0 0 0;
 }
@@ -165,6 +173,7 @@ div.homeLeft {
 	padding-right: 10px;
     margin: 20px 0 0 20px;
 	font-size: 110%;
+	line-height: 150%; 
 }
 
 div.homeRight { 
@@ -175,8 +184,9 @@ div.homeRight {
 	text-decoration: none;
 	min-height: 300px;
 	min-width: 150px;
-    background-color: #FFFFFF;
+	background-color: #fffCE8;
 	font-size: 110%;
+	line-height: 150%; 
 }
 
 
@@ -189,7 +199,6 @@ div.contentLeft {
 	padding: 8px 10px 0 0;
 	text-decoration: none;
 	min-height: 470px;
-	background-color: #FFFFFF;
 }
 
 div.contentRight { 
@@ -199,7 +208,6 @@ div.contentRight {
 	padding: 0 10px 100px 20px;
 	text-decoration: none;
 	min-width: 150px;
-    background-color: #FFFFFF;
 	font-size: 100%;
 	line-height: 145%;
 	text-decoration: none;
