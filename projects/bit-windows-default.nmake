@@ -3,8 +3,8 @@
 #
 
 PRODUCT         = bit
-VERSION         = 0.8.1
-BUILD_NUMBER    = 1
+VERSION         = 0.8.0
+BUILD_NUMBER    = 0
 PROFILE   = default
 PA        = $(PROCESSOR_ARCHITECTURE)
 !IF "$(PA)" == "AMD64"
@@ -47,7 +47,6 @@ all compile: prep \
         $(CONFIG)\bin\libpcre.dll \
         $(CONFIG)\bin\libhttp.dll \
         $(CONFIG)\bin\http.exe \
-        $(CONFIG)\bin\http-ca.crt \
         $(CONFIG)\bin\libejs.dll \
         $(CONFIG)\bin\ejs.exe \
         $(CONFIG)\bin\ejsc.exe \
@@ -82,7 +81,6 @@ clean:
 	-if exist $(CONFIG)\bin\libpcre.dll del /Q $(CONFIG)\bin\libpcre.dll
 	-if exist $(CONFIG)\bin\libhttp.dll del /Q $(CONFIG)\bin\libhttp.dll
 	-if exist $(CONFIG)\bin\http.exe del /Q $(CONFIG)\bin\http.exe
-	-if exist $(CONFIG)\bin\http-ca.crt del /Q $(CONFIG)\bin\http-ca.crt
 	-if exist $(CONFIG)\bin\libejs.dll del /Q $(CONFIG)\bin\libejs.dll
 	-if exist $(CONFIG)\bin\ejs.exe del /Q $(CONFIG)\bin\ejs.exe
 	-if exist $(CONFIG)\bin\ejsc.exe del /Q $(CONFIG)\bin\ejsc.exe
@@ -197,10 +195,6 @@ $(CONFIG)\bin\http.exe:  \
         $(CONFIG)\obj\http.obj
 	"$(LD)" -out:$(CONFIG)\bin\http.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\http.obj libhttp.lib $(LIBS) libpcre.lib libmpr.lib
 
-$(CONFIG)\bin\http-ca.crt: src/deps/http/http-ca.crt
-	-if exist $(CONFIG)\bin\http-ca.crt del /Q $(CONFIG)\bin\http-ca.crt
-	copy /Y src\deps\http\http-ca.crt $(CONFIG)\bin\http-ca.crt
-
 $(CONFIG)\inc\ejs.h: 
 	-if exist $(CONFIG)\inc\ejs.h del /Q $(CONFIG)\inc\ejs.h
 	copy /Y src\deps\ejs\ejs.h $(CONFIG)\inc\ejs.h
@@ -299,7 +293,7 @@ $(CONFIG)\bin\bit.exe:  \
 
 version: 
 	cd bits
-	@echo 0.8.1-1
+	@echo 0.8.0-0
 	cd ..
 
 root-install:  \

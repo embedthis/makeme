@@ -3,8 +3,8 @@
 #
 
 PRODUCT         ?= bit
-VERSION         ?= 0.8.1
-BUILD_NUMBER    ?= 1
+VERSION         ?= 0.8.0
+BUILD_NUMBER    ?= 0
 PROFILE         ?= default
 ARCH            ?= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 OS              ?= macosx
@@ -14,12 +14,12 @@ CONFIG          ?= $(OS)-$(ARCH)-$(PROFILE)
 
 BIT_CFG_PREFIX  ?= /etc/bit
 BIT_PRD_PREFIX  ?= /usr/lib/bit
-BIT_VER_PREFIX  ?= $(BIT_PRD_PREFIX)/0.8.1
+BIT_VER_PREFIX  ?= $(BIT_PRD_PREFIX)/0.8.0
 BIT_BIN_PREFIX  ?= $(BIT_VER_PREFIX)/bin
 BIT_INC_PREFIX  ?= $(BIT_VER_PREFIX)/inc
 BIT_LOG_PREFIX  ?= /var/log/bit
 BIT_SPL_PREFIX  ?= /var/spool/bit
-BIT_SRC_PREFIX  ?= /usr/src/bit-0.8.1
+BIT_SRC_PREFIX  ?= /usr/src/bit-0.8.0
 BIT_WEB_PREFIX  ?= /var/www/bit-default
 BIT_UBIN_PREFIX ?= /usr/local/bin
 BIT_MAN_PREFIX  ?= /usr/local/share/man/man1
@@ -52,7 +52,6 @@ all compile: prep \
         $(CONFIG)/bin/libpcre.dylib \
         $(CONFIG)/bin/libhttp.dylib \
         $(CONFIG)/bin/http \
-        $(CONFIG)/bin/http-ca.crt \
         $(CONFIG)/bin/libejs.dylib \
         $(CONFIG)/bin/ejs \
         $(CONFIG)/bin/ejsc \
@@ -85,7 +84,6 @@ clean:
 	rm -rf $(CONFIG)/bin/libpcre.dylib
 	rm -rf $(CONFIG)/bin/libhttp.dylib
 	rm -rf $(CONFIG)/bin/http
-	rm -rf $(CONFIG)/bin/http-ca.crt
 	rm -rf $(CONFIG)/bin/libejs.dylib
 	rm -rf $(CONFIG)/bin/ejs
 	rm -rf $(CONFIG)/bin/ejsc
@@ -129,7 +127,7 @@ $(CONFIG)/obj/mprLib.o: \
 $(CONFIG)/bin/libmpr.dylib:  \
         $(CONFIG)/inc/mpr.h \
         $(CONFIG)/obj/mprLib.o
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libmpr.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.1 -current_version 0.8.1 $(LIBPATHS) -install_name @rpath/libmpr.dylib $(CONFIG)/obj/mprLib.o $(LIBS)
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libmpr.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libmpr.dylib $(CONFIG)/obj/mprLib.o $(LIBS)
 
 $(CONFIG)/inc/est.h: 
 	rm -fr $(CONFIG)/inc/est.h
@@ -145,7 +143,7 @@ $(CONFIG)/obj/mprSsl.o: \
 $(CONFIG)/bin/libmprssl.dylib:  \
         $(CONFIG)/bin/libmpr.dylib \
         $(CONFIG)/obj/mprSsl.o
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libmprssl.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.1 -current_version 0.8.1 $(LIBPATHS) -install_name @rpath/libmprssl.dylib $(CONFIG)/obj/mprSsl.o -lmpr $(LIBS)
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libmprssl.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libmprssl.dylib $(CONFIG)/obj/mprSsl.o -lmpr $(LIBS)
 
 $(CONFIG)/obj/makerom.o: \
         src/deps/mpr/makerom.c \
@@ -171,7 +169,7 @@ $(CONFIG)/obj/pcre.o: \
 $(CONFIG)/bin/libpcre.dylib:  \
         $(CONFIG)/inc/pcre.h \
         $(CONFIG)/obj/pcre.o
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libpcre.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.1 -current_version 0.8.1 $(LIBPATHS) -install_name @rpath/libpcre.dylib $(CONFIG)/obj/pcre.o $(LIBS)
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libpcre.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libpcre.dylib $(CONFIG)/obj/pcre.o $(LIBS)
 
 $(CONFIG)/inc/http.h: 
 	rm -fr $(CONFIG)/inc/http.h
@@ -189,7 +187,7 @@ $(CONFIG)/bin/libhttp.dylib:  \
         $(CONFIG)/bin/libpcre.dylib \
         $(CONFIG)/inc/http.h \
         $(CONFIG)/obj/httpLib.o
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libhttp.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.1 -current_version 0.8.1 $(LIBPATHS) -install_name @rpath/libhttp.dylib $(CONFIG)/obj/httpLib.o -lpcre -lmpr $(LIBS)
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libhttp.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libhttp.dylib $(CONFIG)/obj/httpLib.o -lpcre -lmpr $(LIBS)
 
 $(CONFIG)/obj/http.o: \
         src/deps/http/http.c \
@@ -201,10 +199,6 @@ $(CONFIG)/bin/http:  \
         $(CONFIG)/bin/libhttp.dylib \
         $(CONFIG)/obj/http.o
 	$(CC) -o $(CONFIG)/bin/http -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/http.o -lhttp $(LIBS) -lpcre -lmpr
-
-$(CONFIG)/bin/http-ca.crt: src/deps/http/http-ca.crt
-	rm -fr $(CONFIG)/bin/http-ca.crt
-	cp -r src/deps/http/http-ca.crt $(CONFIG)/bin/http-ca.crt
 
 $(CONFIG)/inc/ejs.h: 
 	rm -fr $(CONFIG)/inc/ejs.h
@@ -237,7 +231,7 @@ $(CONFIG)/bin/libejs.dylib:  \
         $(CONFIG)/inc/ejs.slots.h \
         $(CONFIG)/inc/ejsByteGoto.h \
         $(CONFIG)/obj/ejsLib.o
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libejs.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.1 -current_version 0.8.1 $(LIBPATHS) -install_name @rpath/libejs.dylib $(CONFIG)/obj/ejsLib.o -lmpr -lpcre -lhttp $(LIBS) -lpcre -lmpr
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libejs.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libejs.dylib $(CONFIG)/obj/ejsLib.o -lmpr -lpcre -lhttp $(LIBS) -lpcre -lmpr
 
 $(CONFIG)/obj/ejs.o: \
         src/deps/ejs/ejs.c \
@@ -290,7 +284,7 @@ $(CONFIG)/bin/bit:  \
 	$(CC) -o $(CONFIG)/bin/bit -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/bit.o $(CONFIG)/obj/mprLib.o $(CONFIG)/obj/pcre.o $(CONFIG)/obj/httpLib.o $(CONFIG)/obj/ejsLib.o $(LIBS)
 
 version: 
-	@cd bits; echo 0.8.1-1 ; cd ..
+	@cd bits; echo 0.8.0-0 ; cd ..
 
 root-install:  \
         compile

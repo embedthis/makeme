@@ -8,7 +8,7 @@
 
 /* Settings */
 #ifndef BIT_BUILD_NUMBER
-    #define BIT_BUILD_NUMBER "1"
+    #define BIT_BUILD_NUMBER "0"
 #endif
 #ifndef BIT_COMPANY
     #define BIT_COMPANY "Embedthis"
@@ -134,7 +134,7 @@
     #define BIT_TUNE "speed"
 #endif
 #ifndef BIT_VERSION
-    #define BIT_VERSION "0.8.1"
+    #define BIT_VERSION "0.8.0"
 #endif
 #ifndef BIT_WARN64TO32
     #define BIT_WARN64TO32 1
@@ -154,10 +154,10 @@
     #define BIT_CFG_PREFIX "/etc/bit"
 #endif
 #ifndef BIT_BIN_PREFIX
-    #define BIT_BIN_PREFIX "/usr/lib/bit/0.8.1/bin"
+    #define BIT_BIN_PREFIX "/usr/lib/bit/0.8.0/bin"
 #endif
 #ifndef BIT_INC_PREFIX
-    #define BIT_INC_PREFIX "/usr/lib/bit/0.8.1/inc"
+    #define BIT_INC_PREFIX "/usr/lib/bit/0.8.0/inc"
 #endif
 #ifndef BIT_LOG_PREFIX
     #define BIT_LOG_PREFIX "/var/log/bit"
@@ -169,10 +169,10 @@
     #define BIT_SPL_PREFIX "/var/spool/bit"
 #endif
 #ifndef BIT_SRC_PREFIX
-    #define BIT_SRC_PREFIX "/usr/src/bit-0.8.1"
+    #define BIT_SRC_PREFIX "/usr/src/bit-0.8.0"
 #endif
 #ifndef BIT_VER_PREFIX
-    #define BIT_VER_PREFIX "/usr/lib/bit/0.8.1"
+    #define BIT_VER_PREFIX "/usr/lib/bit/0.8.0"
 #endif
 #ifndef BIT_WEB_PREFIX
     #define BIT_WEB_PREFIX "/var/www/bit-default"
@@ -220,10 +220,10 @@
     #define BIT_MINOR_VERSION 8
 #endif
 #ifndef BIT_PATCH_VERSION
-    #define BIT_PATCH_VERSION 1
+    #define BIT_PATCH_VERSION 0
 #endif
 #ifndef BIT_VNUM
-    #define BIT_VNUM 01
+    #define BIT_VNUM 00
 #endif
 
 /* Packs */
@@ -285,7 +285,7 @@
     #define BIT_PACK_EJSCRIPT_PATH "/Users/mob/git/bit/src/deps/ejs"
 #endif
 #ifndef BIT_PACK_HTTP_PATH
-    #define BIT_PACK_HTTP_PATH "/Users/mob/git/bit/macosx-x64-default/bin/http"
+    #define BIT_PACK_HTTP_PATH "/Users/mob/git/bit/macosx-x64-debug/bin/http"
 #endif
 #ifndef BIT_PACK_LIB_PATH
     #define BIT_PACK_LIB_PATH "/usr/bin/ar"

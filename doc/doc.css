@@ -4,17 +4,15 @@
 
 html {
 	min-width: 700px;
-	background-color: #20344D;
+	background-color: #202020;
 }
 
 body {
 	max-width: 1000px;
 	margin: 0 auto;
 	padding: 0;
-	font-family: Trebuchet, Verdana, Arial, Helvetica, sans-serif; 
 	font-family: Verdana, Arial, Helvetica, sans-serif; 
 	font-size: small;
-	background-image: url(images/shadow.jpg);
 	background-position: left top;
 	background-repeat: repeat-y;
 }
@@ -30,10 +28,10 @@ div.top {
 	background-image: url("images/banner.jpg");
 	background-position: top right;
 	background-repeat: no-repeat;
+	color: #000000; 
 }
 
 div.bottom {
-	background-image: url(images/bottomShadow.jpg);
 	background-repeat: no-repeat;
 	text-align: center;
 }
@@ -56,7 +54,7 @@ div.topRight {
     height: 62px;
 	font-size: 90%;
 	text-align: right;
-	color: #000000; 
+	color: #FFFFFF; 
 }
 
 div.search {
@@ -93,8 +91,9 @@ div.search form #q:hover, div.search form #q:focus {
 }
 
 div.version {
+    margin-top: 14px;
     padding: 10px 10px 0 0;
-    color: #FFFFFF;
+	color: #000000; 
 }
 
 /*
@@ -104,18 +103,20 @@ div.crumbs {
     position: relative;
     left: 10px;
     margin: 10px 0 0 20px;
-	color: #FFFFFF; 
+	color: #000000; 
+	font-size: 110%;
+    font-weight: normal;
 	text-decoration: none;
 }
 
 div.crumbs a:link, div.crumbs a:visited { 
-	color: #EEEEFF; 
+	color: #444444; 
 	text-decoration: none;
 }
 
 div.crumbs a:hover { 
 	text-decoration: underline; 
-	color: #FFFFFF;
+	color: #444444; 
 }
 
 /*
@@ -132,7 +133,7 @@ div.content {
 }
 
 div.content a {
-	color: #284898; 
+	color: #114444; 
 	text-decoration: none; 
 }
 
@@ -163,7 +164,7 @@ div.homeLeft {
 	float: left;
 	padding-right: 10px;
     margin: 20px 0 0 20px;
-	font-size: 120%;
+	font-size: 110%;
 }
 
 div.homeRight { 
@@ -175,7 +176,7 @@ div.homeRight {
 	min-height: 300px;
 	min-width: 150px;
     background-color: #FFFFFF;
-	font-size: 120%;
+	font-size: 110%;
 }
 
 
@@ -216,7 +217,7 @@ div.contentRight h2 {
 	left: -11px;
 	margin: 20px 0 4px 0px;
 	padding: 2px 4px 3px 10px;
-	color: #284898; 
+	color: #282828; 
 	background-color: #f2f2f2;
 }
 
@@ -237,15 +238,15 @@ b {
 h1, h2 {
 	padding: 12px 0 4px 0;
 	margin: 0;
-	color: #284898; 
+	color: #282828; 
 	font-size: 130%;
 }
 
 h1.title {
 	padding: 20px 0 10px 0;
 	margin: 0;
-	color: #284898; 
-	font-size: 160%;
+	color: #282828; 
+	color: #282828; 
 	font-weight: bold;
 }
 
@@ -259,7 +260,7 @@ h2.section {
 h3 {
     padding: 10px 0 4px 0;
     margin: 0px;
-    color: #284898; 
+    color: #282828; 
     font-size: 100%;
     font-weight: bold;
 }
@@ -302,7 +303,7 @@ pre {
 	font-family: Consolas, Monaco, Courier, Courier New, Courier, monospace; 
 	padding: 10px 15px 10px 15px;
 	margin: 16px 0 20px 0;
-	background-color: #20344D;
+	background-color: #484848;
 	color: #FFFFFF;
 	-webkit-border-radius: 7px;
 	-webkit-box-shadow: 5px 5px 9px #888;
@@ -325,7 +326,7 @@ pre.paper {
 	padding: 10px 15px 10px 15px;
 	margin: 10px 0 10px 0;
 	background-color: #FFFFFF;
-	color: #102070; 
+	color: #282828; 
 	-moz-border-radius: 0px;
 	-moz-box-shadow: 0px 0px 0px #FFF;
 	-webkit-border-radius: 0px;
@@ -351,7 +352,7 @@ table {
 }
 
 thead {
-	background-color: #7090C0;
+	background-color: #686868;
 	color: #FFFFFF;
 	font-weight: bold;
 	font-size: 110%;
@@ -373,7 +374,7 @@ p.finePrint {
 }
 
 a:link { 
-	color: #284898; 
+	color: #282828; 
 	text-decoration: none; 
 }
 

@@ -3,8 +3,8 @@
 #
 
 PRODUCT         ?= bit
-VERSION         ?= 0.8.1
-BUILD_NUMBER    ?= 1
+VERSION         ?= 0.8.0
+BUILD_NUMBER    ?= 0
 PROFILE         ?= default
 ARCH            ?= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 OS              ?= solaris
@@ -14,12 +14,12 @@ CONFIG          ?= $(OS)-$(ARCH)-$(PROFILE)
 
 BIT_CFG_PREFIX  ?= /etc/bit
 BIT_PRD_PREFIX  ?= /usr/lib/bit
-BIT_VER_PREFIX  ?= $(BIT_PRD_PREFIX)/0.8.1
+BIT_VER_PREFIX  ?= $(BIT_PRD_PREFIX)/0.8.0
 BIT_BIN_PREFIX  ?= $(BIT_VER_PREFIX)/bin
 BIT_INC_PREFIX  ?= $(BIT_VER_PREFIX)/inc
 BIT_LOG_PREFIX  ?= /var/log/bit
 BIT_SPL_PREFIX  ?= /var/spool/bit
-BIT_SRC_PREFIX  ?= /usr/src/bit-0.8.1
+BIT_SRC_PREFIX  ?= /usr/src/bit-0.8.0
 BIT_WEB_PREFIX  ?= /var/www/bit-default
 BIT_UBIN_PREFIX ?= /usr/local/bin
 BIT_MAN_PREFIX  ?= /usr/local/share/man/man1
@@ -52,7 +52,6 @@ all compile: prep \
         $(CONFIG)/bin/libpcre.so \
         $(CONFIG)/bin/libhttp.so \
         $(CONFIG)/bin/http \
-        $(CONFIG)/bin/http-ca.crt \
         $(CONFIG)/bin/libejs.so \
         $(CONFIG)/bin/ejs \
         $(CONFIG)/bin/ejsc \
@@ -85,7 +84,6 @@ clean:
 	rm -rf $(CONFIG)/bin/libpcre.so
 	rm -rf $(CONFIG)/bin/libhttp.so
 	rm -rf $(CONFIG)/bin/http
-	rm -rf $(CONFIG)/bin/http-ca.crt
 	rm -rf $(CONFIG)/bin/libejs.so
 	rm -rf $(CONFIG)/bin/ejs
 	rm -rf $(CONFIG)/bin/ejsc
@@ -202,10 +200,6 @@ $(CONFIG)/bin/http:  \
         $(CONFIG)/obj/http.o
 	$(CC) -o $(CONFIG)/bin/http $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/http.o -lhttp $(LIBS) -lpcre -lmpr -lhttp -llxnet -lrt -lsocket -lpthread -lm -ldl -lpcre -lmpr $(LDFLAGS)
 
-$(CONFIG)/bin/http-ca.crt: src/deps/http/http-ca.crt
-	rm -fr $(CONFIG)/bin/http-ca.crt
-	cp -r src/deps/http/http-ca.crt $(CONFIG)/bin/http-ca.crt
-
 $(CONFIG)/inc/ejs.h: 
 	rm -fr $(CONFIG)/inc/ejs.h
 	cp -r src/deps/ejs/ejs.h $(CONFIG)/inc/ejs.h
@@ -290,7 +284,7 @@ $(CONFIG)/bin/bit:  \
 	$(CC) -o $(CONFIG)/bin/bit $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/bit.o $(CONFIG)/obj/mprLib.o $(CONFIG)/obj/pcre.o $(CONFIG)/obj/httpLib.o $(CONFIG)/obj/ejsLib.o $(LIBS) -llxnet -lrt -lsocket -lpthread -lm -ldl $(LDFLAGS)
 
 version: 
-	@cd bits; echo 0.8.1-1 ; cd ..
+	@cd bits; echo 0.8.0-0 ; cd ..
 
 root-install:  \
         compile
