@@ -296,7 +296,7 @@ version:
 	@echo 0.8.0-0
 	cd ..
 
-root-install:  \
+install:  \
         compile
 	xcopy /I /S /Y /Q $(CONFIG)\bin "$(BIT_BIN_PREFIX)"
 	del /Q "$(BIT_BIN_PREFIX)\*.pdb"
@@ -308,13 +308,6 @@ root-install:  \
 	del /Q "$(BIT_BIN_PREFIX)\ejs.*"
 	del /Q "$(BIT_BIN_PREFIX)\http.*"
 
-install:  \
-        compile
-	nmake -nologo -f ./projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-install
-
-root-uninstall: 
-	if exist "$(BIT_PRD_PREFIX)" rd /Q /S "$(BIT_PRD_PREFIX)"
-
 uninstall: 
-	nmake -nologo -f ./projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-uninstall
+	if exist "$(BIT_PRD_PREFIX)" rd /Q /S "$(BIT_PRD_PREFIX)"
 

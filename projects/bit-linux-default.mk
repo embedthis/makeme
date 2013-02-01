@@ -286,7 +286,7 @@ $(CONFIG)/bin/bit:  \
 version: 
 	@cd bits; echo 0.8.0-0 ; cd ..
 
-root-install:  \
+install:  \
         compile
 	rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit
 	install -d -m 755 $(BIT_BIN_PREFIX)
@@ -296,13 +296,6 @@ root-install:  \
 	ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest
 	for n in bit http; do 	rm -f $(BIT_UBIN_PREFIX)/$$n ; 	ln -s $(BIT_BIN_PREFIX)/$$n $(BIT_UBIN_PREFIX)/$$n ; 	done
 
-install:  \
-        compile
-	sudo $(MAKE) -C . -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-install
-
-root-uninstall: 
-	rm -fr $(BIT_PRD_PREFIX) $(BIT_MAN_PREFIX)/bit.1
-
 uninstall: 
-	sudo $(MAKE) -C . -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-uninstall
+	rm -fr $(BIT_PRD_PREFIX) $(BIT_MAN_PREFIX)/bit.1
 
