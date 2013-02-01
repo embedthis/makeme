@@ -350,7 +350,7 @@ static MprList *expandWild(Ejs *ejs, int argc, char **argv)
             arg = mprNormalizePath(argv[i]);
             dir = ejsCreatePathFromAsc(ejs, mprGetPathDir(arg));
             path = ejsCreatePathFromAsc(ejs, mprGetPathBase(arg));
-            if ((files = ejsGetPathFiles(ejs, dir, 1, (EjsObj**) &path)) == 0) {
+            if ((files = ejsGetPathFiles(ejs, dir, 1, (EjsObj**) (void*) &path)) == 0) {
                 ejsClearException(ejs);
                 mprAddItem(list, sclone(argv[i]));
             } else {
