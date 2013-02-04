@@ -23,6 +23,7 @@ public function getWebUser(): String {
     return '0'
 }
 
+
 public function getWebGroup(): String {
     let groupFile: Path = Path("/etc/group")
     if (groupFile.exists) {
@@ -185,6 +186,7 @@ function installCallback(src: Path, dest: Path, options = {}): Boolean {
     return true
 }
 
+
 /*
     Install and uninstall files.
     If options.task is 'install' or 'package', the files are installed. If the options.task is 'uninstall', the 
@@ -219,6 +221,7 @@ public function install(src, dest: Path, options = {}) {
     }
     cp(src, dest, blend({process: this.installCallback, warn: true}, options))
 }
+
 
 public function package(pkg: Path, formats) {
     bit.dir.pkg.makeDir()
@@ -256,6 +259,7 @@ public function package(pkg: Path, formats) {
     }
 }
 
+
 function packageSimple(pkg: Path, options, fmt) {
     if (bit.platform.os != 'linux' && bit.platform.os != 'macosx' && bit.platform.os != 'windows') {
         trace('Info', 'Skip packaging for ' + bit.platform.os)
@@ -279,6 +283,7 @@ function packageSimple(pkg: Path, options, fmt) {
     rel.join('md5-' + options.vname + '-' + fmt + '.tgz.txt').write(md5(zname.readString()))
 }
 
+
 function packageFlat(pkg: Path, options) {
     let s = bit.settings
     let flat: Path = bit.dir.flat
@@ -292,13 +297,16 @@ function packageFlat(pkg: Path, options) {
     packageSimple(flat, options, 'flat')
 }
 
+
 function packageCombo(pkg: Path, options) {
     packageSimple(pkg, options, 'combo')
 }
 
+
 function packageSrc(pkg: Path, options) {
     packageSimple(pkg, options, 'src')
 }
+
 
 function packageTar(pkg: Path, options) {
     let s = bit.settings
@@ -320,6 +328,7 @@ function packageTar(pkg: Path, options) {
     Path(generic).symlink(zname)
 }
 
+
 function packageInstall(pkg: Path, options) {
     if (Config.OS != 'windows' && App.uid != 0) {
         throw 'Must run as root. Use "sudo bit install"'
@@ -327,7 +336,6 @@ function packageInstall(pkg: Path, options) {
     let s = bit.settings
     let rel = bit.dir.rel
     let base = [s.product, s.version, s.buildNumber, bit.platform.dist, bit.platform.os, bit.platform.arch].join('-')
-    //  UNUSED let name = rel.join(base).joinExt('tar', true)
     let contents = pkg.join(options.vname, 'contents')
     let files = contents.files('**', {missing: undefined})
     let log = bit.prefixes.productver.join('files.log'), prior
@@ -344,7 +352,7 @@ function packageInstall(pkg: Path, options) {
         if (file.isDir) {
             target.makeDir(file.attributes)
         } else {
-            file.copy(target)
+            file.copy(target /*, file.attributes */)
         }
     }
     packageInstallConfigure()
@@ -353,6 +361,7 @@ function packageInstall(pkg: Path, options) {
         prior.remove()
     }
 }
+
 
 function packageInstallConfigure() {
     let ldconfigSwitch = (bit.platform.os == 'freebsd') ? '-m' : '-n'
@@ -366,6 +375,7 @@ function packageInstallConfigure() {
         Cmd.run('chcon /usr/bin/chcon -t texrel_shlib_t ' + bit.prefixes.bin.files('*.so').join(' '))
     }
 }
+
 
 function packageNative(pkg: Path, options) {
     let os = (bit.cross) ? bit.platform.dev : bit.platform.os
@@ -390,9 +400,11 @@ function packageNative(pkg: Path, options) {
     }
 }
 
+
 var staffDir = {
     'var/www': true,
 }
+
 
 function createMacContents(pkg: Path, options) {
     let s = bit.settings
