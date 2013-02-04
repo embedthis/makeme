@@ -294,7 +294,7 @@ $(CONFIG)/bin/bit: \
     $(CONFIG)/bin/bit.es \
     $(CONFIG)/inc/bitos.h \
     $(CONFIG)/obj/bit.o
-	$(CC) -o $(CONFIG)/bin/bit $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/bit.o $(CONFIG)/obj/mprLib.o $(CONFIG)/obj/pcre.o $(CONFIG)/obj/httpLib.o $(CONFIG)/obj/ejsLib.o $(LIBS) -lpthread -lm -lrt -ldl $(LDFLAGS)
+	$(CC) -o $(CONFIG)/bin/bit $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/bit.o -lejs -lhttp -lmpr $(LIBS) -lpcre -lejs -lhttp -lmpr -lpthread -lm -lrt -ldl -lpcre $(LDFLAGS)
 
 version: 
 	@cd bits; echo 0.8.0-0 ; cd ..
@@ -302,7 +302,7 @@ version:
 deploy: compile
 	mkdir -p $(BIT_BIN_PREFIX) $(BIT_VER_PREFIX)/man/man1
 	rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit $(BIT_VER_PREFIX)/man/man1/bit.1 $(BIT_MAN_PREFIX)/bit.1
-	cp -R -P ./$(CONFIG)/bin/bit* ./$(CONFIG)/bin/lib* ./$(CONFIG)/bin/ca.crt $(BIT_BIN_PREFIX)
+	cp -R -P ./$(CONFIG)/bin/bit* ./$(CONFIG)/bin/ejs.mod ./$(CONFIG)/bin/lib* ./$(CONFIG)/bin/ca.crt $(BIT_BIN_PREFIX)
 	cp doc/man/bit.1 $(BIT_VER_PREFIX)/man/man1
 	ln -s $(BIT_VER_PREFIX)/man/man1/bit.1 $(BIT_MAN_PREFIX)/bit.1
 	ln -s $(BIT_BIN_PREFIX)/bit $(BIT_UBIN_PREFIX)/bit
@@ -311,6 +311,6 @@ deploy: compile
 install: compile deploy
 	
 
-uninstall: compile
+uninstall: 
 	rm -rf $(BIT_UBIN_PREFIX)/bit $(BIT_MAN_PREFIX)/bit.1 '$(BIT_PRD_PREFIX)'
 

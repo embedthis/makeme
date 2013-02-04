@@ -115,7 +115,7 @@ Bit.load({
             path: '${BIN}/bit${EXE}',
             headers: [ 'src/*.h' ],
             sources: [ 'src/*.c' ],
-            static: true,
+            static: false,
             active: true,
             precious: true,
             depends: [ 'libmpr', 'libhttp', 'libejs', 'bits', 'bit.es' ],

@@ -30,9 +30,9 @@ Bit.load({
                         } else {
                             formats = '-gen make'
                         }
-                        let without = ' -without default '
+                        let without = ' -without default'
                         if (profile == 'static') {
-                            without += '-static '
+                            without += '-static'
                         }
                         trace('Generate', bit.settings.product + '-' + name.replace(/-.*/, '') + ' projects')
                         let platform = name + '-' + profile

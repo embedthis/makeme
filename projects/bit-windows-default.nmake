@@ -302,7 +302,7 @@ $(CONFIG)\bin\bit.exe: \
     $(CONFIG)\bin\bit.es \
     $(CONFIG)\inc\bitos.h \
     $(CONFIG)\obj\bit.obj
-	"$(LD)" -out:$(CONFIG)\bin\bit.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\bit.obj $(CONFIG)\obj\mprLib.obj $(CONFIG)\obj\pcre.obj $(CONFIG)\obj\httpLib.obj $(CONFIG)\obj\ejsLib.obj $(LIBS)
+	"$(LD)" -out:$(CONFIG)\bin\bit.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\bit.obj libejs.lib libhttp.lib libmpr.lib $(LIBS) libpcre.lib
 
 version: 
 	cd bits
@@ -313,6 +313,7 @@ deploy: compile
 	@if not exist "$(BIT_BIN_PREFIX)" md "$(BIT_BIN_PREFIX)"
 	xcopy /I /S /Y /Q $(CONFIG)\bin\bit.exe "$(BIT_BIN_PREFIX)"
 	xcopy /I /S /Y /Q $(CONFIG)\bin\bit.es "$(BIT_BIN_PREFIX)"
+	xcopy /I /S /Y /Q $(CONFIG)\bin\ejs.mod "$(BIT_BIN_PREFIX)"
 	xcopy /I /S /Y /Q $(CONFIG)\bin\lib*.dll "$(BIT_BIN_PREFIX)"
 	xcopy /I /S /Y /Q $(CONFIG)\bin\ca.crt "$(BIT_BIN_PREFIX)"
 	xcopy /I /S /Y /Q $(CONFIG)\bin\bits "$(BIT_BIN_PREFIX)\bits"
@@ -320,6 +321,6 @@ deploy: compile
 install: compile deploy
 
 
-uninstall: compile
+uninstall: 
 	if exist "$(BIT_PRD_PREFIX)" rd /Q /S "$(BIT_PRD_PREFIX)"
 
