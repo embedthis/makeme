@@ -47,7 +47,6 @@ Bit.load({
             enable: "bit.platform.like == 'posix' || bit.platform.like == 'windows'",
             home: '${TOP}',
             action: "uninstallBinary()"
-            depends: ['compile']
             'generate-make': "
                 rm -rf $(BIT_UBIN_PREFIX)/bit $(BIT_MAN_PREFIX)/bit.1 '$(BIT_PRD_PREFIX)'
             ",
