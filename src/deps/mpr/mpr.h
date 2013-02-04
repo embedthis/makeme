@@ -214,10 +214,10 @@ struct  MprXml;
 /*
     Event notification mechanism
  */
-#if LINUX || FREEBSD
-    #define MPR_EVENT_EPOLL     1
-#elif MACOSX || SOLARIS
+#if MACOSX || SOLARIS
     #define MPR_EVENT_KQUEUE    1
+#elif LINUX || BIT_BSD_LIKE
+    #define MPR_EVENT_EPOLL     1
 #elif VXWORKS || WINCE || CYGWIN
     #define MPR_EVENT_SELECT    1
 #elif WINDOWS

@@ -118,6 +118,7 @@
     #define MACOSX 1
     #define BIT_UNIX_LIKE 1
     #define BIT_WIN_LIKE 0
+    #define BIT_BSD_LIKE 1
     #define HAS_USHORT 1
     #define HAS_UINT 1
 
@@ -132,6 +133,14 @@
     #define FREEBSD 1
     #define BIT_UNIX_LIKE 1
     #define BIT_WIN_LIKE 0
+    #define BIT_BSD_LIKE 1
+
+#elif defined(__OpenBSD__)
+    #define BIT_OS "freebsd"
+    #define OPENBSD 1
+    #define BIT_UNIX_LIKE 1
+    #define BIT_WIN_LIKE 0
+    #define BIT_BSD_LIKE 1
 
 #elif defined(_WIN32)
     #define BIT_OS "windows"
@@ -162,12 +171,14 @@
     #define BSDI 1
     #define BIT_UNIX_LIKE 1
     #define BIT_WIN_LIKE 0
+    #define BIT_BSD_LIKE 1
 
 #elif defined(__NetBSD__)
     #define BIT_OS "netbsd"
     #define NETBSD 1
     #define BIT_UNIX_LIKE 1
     #define BIT_WIN_LIKE 0
+    #define BIT_BSD_LIKE 1
 
 #elif defined(__QNX__)
     #define BIT_OS "qnx"
