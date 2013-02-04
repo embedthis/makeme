@@ -206,7 +206,7 @@
 
 /* Profile */
 #ifndef BIT_CONFIG_CMD
-    #define BIT_CONFIG_CMD "bit -d -q -platform macosx-x64-default -without default -configure . -gen xcode"
+    #define BIT_CONFIG_CMD "bit -d -q -platform macosx-x64-default --without default -configure . -gen xcode"
 #endif
 #ifndef BIT_BIT_PRODUCT
     #define BIT_BIT_PRODUCT 1
@@ -291,7 +291,7 @@
     #define BIT_PACK_EST_PATH "/Users/mob/git/bit/src/deps/est"
 #endif
 #ifndef BIT_PACK_HTTP_PATH
-    #define BIT_PACK_HTTP_PATH "/Users/mob/git/bit/macosx-x64-debug/bin/http"
+    #define BIT_PACK_HTTP_PATH "/Users/mob/git/bit/macosx-x64-default/bin/http"
 #endif
 #ifndef BIT_PACK_LIB_PATH
     #define BIT_PACK_LIB_PATH "/usr/bin/ar"

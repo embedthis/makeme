@@ -18,42 +18,7 @@ Bit.load({
 
     targets: {
         projects: {
-            action: "
-                let bitcmd = Cmd.locate('bit')
-                for each (profile in ['default']) {
-                    for each (name in ['freebsd-x86', 'linux-x86', 'macosx-x64', 'vxworks-x86', 'windows-x86']) {
-                        let formats
-                        if (name == 'windows-x86') {
-                            formats = '-gen nmake'
-                        } else if (name == 'macosx-x64') {
-                            formats = '-gen make'
-                        } else {
-                            formats = '-gen make'
-                        }
-                        let without = ' -without default'
-                        if (profile == 'static') {
-                            without += '-static'
-                        }
-                        trace('Generate', bit.settings.product + '-' + name.replace(/-.*/, '') + ' projects')
-                        let platform = name + '-' + profile
-                        run(bitcmd + ' -d -q -platform ' + platform + without + ' -configure . ' + formats, bit.target.runopt)
-                        /* Xcode and VS use separate profiles */
-                        if (name == 'macosx-x64') {
-                            run(bitcmd + ' -d -q -platform ' + platform + without + ' -configure . -gen xcode', bit.target.runopt)
-                        } else if (name == 'windows-x86') {
-                            run(bitcmd + ' -d -q -platform ' + platform + without + ' -configure . -gen vs', bit.target.runopt)
-                        }
-                    }
-                }
-                trace('Restore', 'Restore prior configuration')
-                for each (profile in ['default', 'static']) {
-                    for each (name in ['freebsd-x86', 'linux-x86', 'macosx-x64', 'windows-x86', 'vxworks-x86']) {
-                        let platform = name + '-' + profile
-                        rm(bit.dir.top.join(platform + '.bit'))
-                        rmdir(bit.dir.top.join(platform))
-                    }
-                }
-            ",
+            action: "genProductProjects()",
         },
 
         /*

@@ -1318,7 +1318,8 @@ public class Bit {
         if (bit.packs.link) {
             genout.writeLine('LD              := ' + bit.packs.link.path)
         }
-        genout.writeLine('CONFIG          := $(OS)-$(ARCH)-$(PROFILE)\n')
+        genout.writeLine('CONFIG          := $(OS)-$(ARCH)-$(PROFILE)')
+        genout.writeLine('LBIN            := $(CONFIG)/bin\n')
 
         let prd = bit.prefixes.product
         let ver = bit.prefixes.productver
@@ -1413,6 +1414,7 @@ public class Bit {
         genout.writeLine('!ENDIF\n')
         genout.writeLine('OS              = ' + bit.platform.os)
         genout.writeLine('CONFIG          = $(OS)-$(ARCH)-$(PROFILE)')
+        genout.writeLine('LBIN            = $(CONFIG)\\bin')
         genout.writeLine('CC              = cl')
         genout.writeLine('LD              = link')
         genout.writeLine('RC              = rc')
@@ -1447,9 +1449,11 @@ public class Bit {
                     value = value.replace(prd.name, '$(BIT_PRD_PREFIX)')
                 }
                 value = value.replace(/^\w:\//, '')
+                value = value.replace(/\//g, '\\')
                 genout.writeLine('%-15s = %s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
             } else {
                 value = value.replace(/^\w:\//, '')
+                value = value.replace(/\//g, '\\')
                 genout.writeLine('%-15s = $(BIT_ROOT_PREFIX)%s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
             }
         }
@@ -2515,8 +2519,10 @@ public class Bit {
                 } else {
                     cmd = cmd.replace(/^/mg, '\t')
                 }
+                bit.globals.LBIN = '$(LBIN)'
                 cmd = expand(cmd, {fill: null}).expand(target.vars, {fill: '${}'})
                 cmd = repvar2(cmd, target.home)
+                bit.globals.LBIN = localBin
                 genWrite(cmd + '\n')
             } else {
                 genout.writeLine('#  Omit build script ' + target.name)
@@ -2541,8 +2547,10 @@ public class Bit {
                         cmd = cmd.replace(/^\s(.*)$/mg, '\t' + prefix + '; $1 ; ' + suffix)
                     }
                 }
+                bit.globals.LBIN = '$(LBIN)'
                 cmd = expand(cmd, {fill: null}).expand(target.vars, {fill: '${}'})
                 cmd = repvar2(cmd, target.home)
+                bit.globals.LBIN = localBin
             }
             genWrite(cmd + '\n')
 
@@ -2565,10 +2573,11 @@ public class Bit {
                     for (n in bit.globals) {
                         if (bit.globals[n] is Path) {
                             saveDir[n] = bit.globals[n]
-                            bit[n] = bit.globals[n].windows
+                            bit.globals[n] = bit.globals[n].windows
                         }
                     }
                 }
+                bit.globals.LBIN = '$(LBIN)'
                 try {
                     cmd = expand(cmd, {fill: null}).expand(target.vars, {fill: '${}'})
                 } catch (e) {
@@ -2582,6 +2591,7 @@ public class Bit {
                     }
                 }
                 cmd = repvar2(cmd, target.home)
+                bit.globals.LBIN = localBin
                 genWrite(cmd + '\n')
             } else {
                 genout.writeLine('#  Omit build script ' + target.path + '\n')
@@ -2879,7 +2889,11 @@ public class Bit {
     function runShell(target, shell, script) {
         let lines = script.match(/^.*$/mg).filter(function(l) l.length)
         let command = lines.join(';')
-        strace('Run', command)
+        if (command.startsWith(App.dir)) {
+            strace('Run', command.relative)
+        } else {
+            strace('Run', command)
+        }
         let shell = Cmd.locate(shell)
         let cmd = new Cmd
         setShellEnv(target, cmd)
@@ -3084,10 +3098,16 @@ public class Bit {
      */
     public function run(command, cmdOptions = {}): String {
         if (options.show || cmdOptions.show) {
+            let cmdline: String
             if (command is Array) {
-                trace('Run', command.join(' '))
+                cmdline = command.join(' ')
             } else {
-                trace('Run', command)
+                cmdline = command
+            }
+            if (cmdline.startsWith(App.dir)) {
+                trace('Run', cmdline.replace(App.dir, './'))
+            } else {
+                trace('Run', cmdline)
             }
         }
         let cmd = new Cmd

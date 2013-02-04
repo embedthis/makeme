@@ -11,6 +11,7 @@ OS              := macosx
 CC              := /usr/bin/clang
 LD              := /usr/bin/ld
 CONFIG          := $(OS)-$(ARCH)-$(PROFILE)
+LBIN            := $(CONFIG)/bin
 
 BIT_ROOT_PREFIX := /
 BIT_CFG_PREFIX  := $(BIT_ROOT_PREFIX)etc/bit
@@ -270,7 +271,7 @@ $(CONFIG)/bin/ejsc: \
 	$(CC) -o $(CONFIG)/bin/ejsc -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejsc.o -lejs $(LIBS) -lmpr -lpcre -lhttp
 
 $(CONFIG)/bin/ejs.mod: $(CONFIG)/bin/ejsc
-	cd src/deps/ejs; ../../../$(CONFIG)/bin/ejsc --out ../../../$(CONFIG)/bin/ejs.mod --optimize 9 --bind --require null ejs.es ; cd ../../..
+	cd src/deps/ejs; $(LBIN)/ejsc --out ../../../$(CONFIG)/bin/ejs.mod --optimize 9 --bind --require null ejs.es ; cd ../../..
 
 $(CONFIG)/bin/bit.es: src/bit.es
 	rm -fr $(CONFIG)/bin/bit.es

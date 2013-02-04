@@ -521,6 +521,7 @@ function packageFedora(pkg: Path, options) {
     App.putenv('HOME', home)
 }
 
+
 function packageUbuntu(pkg: Path, options) {
     if (!bit.packs.pmaker || !bit.packs.pmaker.path) {
         throw 'Configured without pmaker: dpkg'
@@ -546,6 +547,7 @@ function packageUbuntu(pkg: Path, options) {
     run(bit.packs.pmaker.path + ' --build ' + DEBIAN.dirname + ' ' + outfile, {noshow: true})
     bit.dir.rel.join('md5-' + base).joinExt('deb.txt', true).write(md5(outfile.readString()))
 }
+
 
 function packageWindows(pkg: Path, options) {
     if (!bit.packs.pmaker || !bit.packs.pmaker.path) {
@@ -587,6 +589,7 @@ function packageWindows(pkg: Path, options) {
     outfile.remove()
 }
 
+
 public function syncup(from: Path, to: Path) {
     let tartemp: Path
     if (from.name.endsWith('.tgz') || from.name.endsWith('.gz')) {
@@ -620,6 +623,7 @@ public function syncup(from: Path, to: Path) {
         tartemp.remove()
     }
 }
+
 
 public function apidoc(dox: Path, headers, title: String, tags) {
     let name = dox.basename.trimExt().name
@@ -657,6 +661,7 @@ public function apidoc(dox: Path, headers, title: String, tags) {
     }
 }
 
+
 public function apiwrap(patterns) {
     for each (dfile in Path('.').files(patterns)) {
         let name = dfile.name.replace('.html', '')
@@ -666,6 +671,7 @@ public function apiwrap(patterns) {
         dfile.joinExt('html').write(contents)
     }
 }
+
 
 public function checkInstalled() {
     let result = []
@@ -677,6 +683,7 @@ public function checkInstalled() {
     }
     return result.length > 0 ? result.unique() : null
 }
+
 
 public function checkUninstalled() {
     let result = []
@@ -691,6 +698,7 @@ public function checkUninstalled() {
     return result.length > 0 ? result.unique() : null
 }
 
+
 public function packageName() {
     let s = bit.settings
     let p = bit.platform
@@ -704,6 +712,8 @@ public function packageName() {
     return bit.dir.rel.join(name)
 
 }
+
+
 public function installPackage() {
     let s = bit.settings
     let package = packageName()
@@ -721,6 +731,7 @@ public function installPackage() {
     }
 }
 
+
 public function uninstallPackage() {
     if (Config.OS == 'macosx' && App.uid != 0) throw 'Must be root to install'
     if (Config.OS == 'macosx') {
@@ -737,6 +748,7 @@ public function uninstallPackage() {
     }
 }
 
+
 public function whatInstalled() {
     for each (prefix in bit.prefixes) {
         if (prefix.exists) {
@@ -748,6 +760,36 @@ public function whatInstalled() {
         }
     }
 }
+
+
+public function genProductProjects(packs = '--without default', profiles = ["default"], platforms = null) 
+{
+    platforms ||= ['freebsd-x86', 'linux-x86', 'macosx-x64', 'vxworks-x86', 'windows-x86']
+    let bitcmd = Cmd.locate('bit')
+    for each (profile in profiles) {
+        for each (name in platforms) {
+            let formats = (name == 'windows-x86') ? '-gen nmake' : '-gen make'
+            trace('Generate', bit.settings.product + '-' + name.replace(/-.*/, '') + ' projects')
+            let platform = name + '-' + profile
+            run(bitcmd + ' -d -q -platform ' + platform + ' ' + packs + ' -configure . ' + formats, bit.target.runopt)
+            /* Xcode and VS use separate profiles */
+            if (name == 'macosx-x64') {
+                run(bitcmd + ' -d -q -platform ' + platform + ' ' + packs + ' -configure . -gen xcode', bit.target.runopt)
+            } else if (name == 'windows-x86') {
+                run(bitcmd + ' -d -q -platform ' + platform + ' ' + packs + ' -configure . -gen vs', bit.target.runopt)
+            }
+        }
+    }
+    trace('Cleanup', 'Project working directories')
+    for each (profile in ['default', 'static']) {
+        for each (name in ['freebsd-x86', 'linux-x86', 'macosx-x64', 'windows-x86', 'vxworks-x86']) {
+            let platform = name + '-' + profile
+            rm(bit.dir.top.join(platform + '.bit'))
+            rmdir(bit.dir.top.join(platform))
+        }
+    }
+}
+
 
 /*
     @copy   default
