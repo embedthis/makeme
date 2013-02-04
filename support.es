@@ -11,18 +11,16 @@ require ejs.unix
     Copy binary files to package staging area
     This is run for local and cross platforms. The last platform does the packaging
  */
-public function packageBinaryFiles(formats = ['tar', 'native']) {
+public function packageDeploy(minimal = false) {
     let settings = bit.settings
     let bin = bit.dir.pkg.join('bin')
     safeRemove(bit.dir.pkg)
     let vname = settings.product + '-' + settings.version + '-' + settings.buildNumber
     let pkg = bin.join(vname)
-    pkg.makeDir()
-
     let contents = pkg.join('contents')
-
     let prefixes = bit.prefixes;
     let p = {}
+
     for (prefix in bit.prefixes) {
         if (prefix == 'config' || prefix == 'log' || prefix == 'spool' || prefix == 'src' || prefix == 'web' || prefix == 'inc') {
             continue
@@ -31,6 +29,9 @@ public function packageBinaryFiles(formats = ['tar', 'native']) {
         p[prefix].makeDir()
     }
     let strip = bit.platform.profile == 'debug'
+
+    trace('Deploy', bit.settings.title)
+    pkg.makeDir()
 
     if (!bit.cross) {
         /* These three files are replicated outside the data directory */
@@ -92,11 +93,8 @@ public function packageBinaryFiles(formats = ['tar', 'native']) {
     let files = contents.files('**', {exclude: /\/$/, relative: true})
     files = files.map(function(f) Path("/" + f))
     p.productver.join('files.log').append(files.join('\n') + '\n')
-
-    if (formats && bit.platform.last) {
-        package(bit.dir.pkg.join('bin'), formats)
-    }
 }
+
 
 public function packageSourceFiles() {
     if (bit.cross) {
@@ -124,11 +122,19 @@ public function packageSourceFiles() {
     package(src, 'src')
 }
 
+
+public function packageBinaryFiles(formats = ['tar', 'native'], minimal = false) {
+    packageDeploy(minimal)
+    if (bit.platform.last) {
+        package(bit.dir.pkg.join('bin'), formats)
+    }
+}
+
+
 public function installBinary() {
     if (Config.OS != 'windows' && App.uid != 0) {
         throw 'Must run as root. Use \"sudo bit install\"'
     }
-    packageBinaryFiles(null)
     /* Preserve bit */
     let path = App.exePath
     if (path.same(bit.prefixes.bin.join('bit'))) {
@@ -149,10 +155,12 @@ public function installBinary() {
     trace('Complete', bit.settings.title + ' installed')
 }
 
+
 public function uninstallBinary() {
     if (Config.OS != 'windows' && App.uid != 0) {
         throw 'Must run as root. Use \"sudo bit uninstall\"'
     }
+    trace('Uninstall', bit.settings.title)
     let fileslog = bit.prefixes.productver.join('files.log')
     if (fileslog.exists) {
         for each (let file: Path in fileslog.readLines()) {
@@ -162,6 +170,7 @@ public function uninstallBinary() {
     }
     fileslog.remove()
     for each (file in bit.prefixes.log.files('*.log*')) {
+        strace('Remove', file)
         file.remove()
     }
     for each (prefix in bit.prefixes) {
@@ -172,12 +181,13 @@ public function uninstallBinary() {
         }
         for each (dir in prefix.files('**', {include: /\/$/}).sort().reverse()) {
             strace('Remove', dir)
-            dir.remove()
+            dir.removeAll()
         }
         strace('Remove', prefix)
-        prefix.remove()
+        prefix.removeAll()
     }
     updateLatestLink()
+    trace('Complete', bit.settings.title + ' uninstalled')                                                 
 }
 
 /*

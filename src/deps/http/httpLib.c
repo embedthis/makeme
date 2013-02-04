@@ -8226,7 +8226,7 @@ PUBLIC HttpRoute *httpCreateRoute(HttpHost *host)
     route->extensions = mprCreateHash(HTTP_SMALL_HASH_SIZE, MPR_HASH_CASELESS);
     route->flags = HTTP_ROUTE_GZIP;
     route->handlers = mprCreateList(-1, MPR_LIST_STABLE);
-    route->handlersWithMatch = mprCreateList(-1, MPR_LIST_STABLE);
+    route->handlersByMatch = mprCreateList(-1, MPR_LIST_STABLE);
     route->host = host;
     route->http = MPR->httpService;
     route->indicies = mprCreateList(-1, 0);
@@ -8283,7 +8283,7 @@ PUBLIC HttpRoute *httpCreateInheritedRoute(HttpRoute *parent)
     route->extensions = parent->extensions;
     route->handler = parent->handler;
     route->handlers = parent->handlers;
-    route->handlersWithMatch = parent->handlersWithMatch;
+    route->handlersByMatch = parent->handlersByMatch;
     route->headers = parent->headers;
     route->http = MPR->httpService;
     route->host = parent->host;
@@ -8354,7 +8354,7 @@ static void manageRoute(HttpRoute *route, int flags)
         mprMark(route->defaultLanguage);
         mprMark(route->extensions);
         mprMark(route->handlers);
-        mprMark(route->handlersWithMatch);
+        mprMark(route->handlersByMatch);
         mprMark(route->connector);
         mprMark(route->data);
         mprMark(route->eroute);
@@ -8732,8 +8732,11 @@ static int testRoute(HttpConn *conn, HttpRoute *route)
     if ((rc = (*proc)(conn, route, 0)) != HTTP_ROUTE_OK) {
         return rc;
     }
-    if (tx->handler->match) {
-        rc = tx->handler->match(conn, route, HTTP_QUEUE_TX);
+    if (tx->handler->match && !(tx->flags & HTTP_TX_MATCHED)) {
+        if ((rc = tx->handler->match(conn, route, HTTP_QUEUE_TX)) != HTTP_ROUTE_OK) {
+            return rc;
+        }
+        tx->flags |= HTTP_TX_MATCHED;
     }
     return rc;
 }
@@ -8753,10 +8756,11 @@ static int selectHandler(HttpConn *conn, HttpRoute *route)
         return HTTP_ROUTE_OK;
     }
     /*
-        Handlers with match routines are examined first (in-order)
+        Handlers that match solely by their match routine are examined first (in-order)
      */
-    for (next = 0; (tx->handler = mprGetNextStableItem(route->handlersWithMatch, &next)) != 0; ) {
+    for (next = 0; (tx->handler = mprGetNextStableItem(route->handlersByMatch, &next)) != 0; ) {
         rc = tx->handler->match(conn, route, 0);
+        tx->flags |= HTTP_TX_MATCHED;
         if (rc == HTTP_ROUTE_OK || rc == HTTP_ROUTE_REROUTE) {
             return rc;
         }
@@ -8951,13 +8955,13 @@ PUBLIC int httpAddRouteHandler(HttpRoute *route, cchar *name, cchar *extensions)
             mprAddItem(route->handlers, handler);
         }
         if (handler->match) {
-            if (mprLookupItem(route->handlersWithMatch, handler) < 0) {
-                GRADUATE_LIST(route, handlersWithMatch);
-                mprAddItem(route->handlersWithMatch, handler);
+            if (mprLookupItem(route->handlersByMatch, handler) < 0) {
+                GRADUATE_LIST(route, handlersByMatch);
+                mprAddItem(route->handlersByMatch, handler);
             }
         } else {
             /*
-                Only match by extensions if no-match routine provided.
+                Match all extensions if no-match routine provided
              */
             mprAddKey(route->extensions, "", handler);
         }
@@ -9146,7 +9150,7 @@ PUBLIC void httpResetRoutePipeline(HttpRoute *route)
         route->caching = 0;
         route->extensions = 0;
         route->handlers = mprCreateList(-1, 0);
-        route->handlersWithMatch = mprCreateList(-1, 0);
+        route->handlersByMatch = mprCreateList(-1, 0);
         route->inputStages = mprCreateList(-1, 0);
         route->indicies = mprCreateList(-1, 0);
     }
@@ -9158,7 +9162,7 @@ PUBLIC void httpResetHandlers(HttpRoute *route)
 {
     assert(route);
     route->handlers = mprCreateList(-1, 0);
-    route->handlersWithMatch = mprCreateList(-1, 0);
+    route->handlersByMatch = mprCreateList(-1, 0);
 }
 
 
@@ -9244,9 +9248,9 @@ PUBLIC void httpSetRouteDir(HttpRoute *route, cchar *path)
     assert(path && *path);
     
     route->dir = httpMakePath(route, path);
-    httpSetRouteVar(route, "DOCUMENTS", route->dir);
-
+    httpSetRouteVar(route, "DOCUMENTS_DIR", route->dir);
     //  DEPRECATE
+    httpSetRouteVar(route, "DOCUMENTS", route->dir);
     httpSetRouteVar(route, "DOCUMENT_ROOT", route->dir);
 }
 
@@ -9257,6 +9261,9 @@ PUBLIC void httpSetRouteHome(HttpRoute *route, cchar *path)
     assert(path && *path);
     
     route->home = httpMakePath(route, path);
+
+    httpSetRouteVar(route, "HOME_DIR", route->home);
+    //  DEPRECATED
     httpSetRouteVar(route, "ROUTE_HOME", route->home);
 }
 
@@ -9955,6 +9962,18 @@ PUBLIC void httpSetRouteVar(HttpRoute *route, cchar *key, cchar *value)
 }
 
 
+PUBLIC cchar *httpGetRouteVar(HttpRoute *route, cchar *key)
+{
+    return mprLookupKey(route->vars, key);
+}
+
+
+PUBLIC cchar *httpExpandRouteVars(HttpRoute *route, cchar *str)
+{
+    return stemplate(str, route->vars);
+}
+
+
 /*
     Make a path name. This replaces $references, converts to an absolute path name, cleans the path and maps delimiters.
     Paths are resolved relative to the route home.
@@ -10636,6 +10655,9 @@ static void definePathVars(HttpRoute *route)
     mprAddKey(route->vars, "PRODUCT", sclone(BIT_PRODUCT));
     mprAddKey(route->vars, "OS", sclone(BIT_OS));
     mprAddKey(route->vars, "VERSION", sclone(BIT_VERSION));
+
+    mprAddKey(route->vars, "BIN_DIR", mprGetAppDir());
+    //  DEPRECATED
     mprAddKey(route->vars, "LIBDIR", mprGetAppDir());
     if (route->host) {
         defineHostVars(route);
@@ -10826,7 +10848,7 @@ static char *expandRequestTokens(HttpConn *conn, char *str)
 }
 
 
-PUBLIC char *httpExpandRouteVars(HttpConn *conn, cchar *str)
+PUBLIC char *httpExpandUri(HttpConn *conn, cchar *str)
 {
     return expandRequestTokens(conn, stemplate(str, conn->rx->route->vars));
 }
@@ -14594,7 +14616,7 @@ PUBLIC void httpRedirect(HttpConn *conn, int status, cchar *targetUri)
     tx->status = status;
 
     if (schr(targetUri, '$')) {
-        targetUri = httpExpandRouteVars(conn, targetUri);
+        targetUri = httpExpandUri(conn, targetUri);
     }
     mprLog(3, "redirect %d %s", status, targetUri);
     msg = httpLookupStatus(conn->http, status);

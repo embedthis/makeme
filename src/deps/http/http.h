@@ -3257,7 +3257,7 @@ typedef struct HttpRoute {
     char            *defaultLanguage;       /**< Default language */
     MprHash         *extensions;            /**< Hash of handlers by extensions */
     MprList         *handlers;              /**< List of handlers for this route */
-    MprList         *handlersWithMatch;     /**< List of handlers with match routines */
+    MprList         *handlersByMatch;       /**< List of handlers that match solely by their match routine */
     HttpStage       *connector;             /**< Network connector to use */
     MprHash         *data;                  /**< Hash of extra data configuration */
     MprHash         *vars;                  /**< Route variables. Used to expand Path ${token} refrerences */
@@ -3741,6 +3741,15 @@ PUBLIC void httpEnableTraceMethod(HttpRoute *route, bool on);
 PUBLIC void httpEnablePutMethod(HttpRoute *route, bool on);
 
 /**
+    Expand route variables in a string
+    @param route Route to modify
+    @param str String to expand
+    @ingroup HttpRoute
+    @stability Evolving
+ */
+PUBLIC cchar *httpExpandRouteVars(HttpRoute *route, cchar *str);
+
+/**
     Finalize a route
     @description A route must be finalized to add it to its owning hosts list of routes.
     @param route Route to modify
@@ -3781,6 +3790,15 @@ PUBLIC cchar *httpGetRouteDir(HttpRoute *route);
     @stability Evolving
  */
 PUBLIC cchar *httpGetRouteMethods(HttpRoute *route);
+
+/**
+    Get a path token variable
+    @param route Route to get
+    @param key Token key value
+    @ingroup HttpRoute
+    @stability Evolving
+ */
+PUBLIC cchar *httpGetRouteVar(HttpRoute *route, cchar *key);
 
 /**
     Graduate the limits from the parent route.
@@ -3877,9 +3895,9 @@ PUBLIC cchar *httpLookupRouteErrorDocument(HttpRoute *route, int status);
     @description This makes a filename by expanding the tokens "${token}" and then normalizing the path and converting
         to an absolute path name. The supported tokens are:
         <ul>  
-            <li>DOCUMENTS - for the default directory containing documents to serve</li>
-            <li>HOME - for the directory containing the web server configuration files</li>
-            <li>LIBDIR - for the shared library directory. E.g. /usr/lib/appweb/bin </li>
+            <li>DOCUMENTS_DIR - for the default directory containing documents to serve</li>
+            <li>HOME_DIR - for the directory containing the web server configuration files</li>
+            <li>BIN_DIR - for the shared library directory. E.g. /usr/lib/appweb/bin </li>
             <li>OS - for the operating system name. E.g. LINUX, MACOSX, VXWORKS, or WIN</li>
             <li>PRODUCT - for the product name</li>
             <li>VERSION - for the product version. E.g. 4.0.2</li>
@@ -4138,7 +4156,7 @@ PUBLIC void httpSetRouteSource(HttpRoute *route, cchar *source);
         Route targets can contain symbolic tokens that are expanded at run-time with their corresponding values. There are 
         three classes of tokens:
         <ul>  
-            <li>System and Route varibles - such as DOCUMENTS, HOME, LIBDIR, PRODUCT, OS, VERSION.</li>
+            <li>System and Route varibles - such as DOCUMENTS_DIR, HOME_DIR, BIN_DIR, PRODUCT, OS, VERSION.</li>
             <li>Route URI tokens - these are the braced tokens in the route pattern.</li>
             <li>Request fields - these are request state and property values.</li>
         </ul>
@@ -4180,7 +4198,7 @@ PUBLIC void httpSetRouteSource(HttpRoute *route, cchar *source);
             <li>serverPort - The server port number</li>
             <li>uri - The full request URI. May be modified by routes, handlers and filters</li>
         </ul>
-        Also see #httpMakePath for additional tokens (DOCUMENTS, HOME, LIBDIR, PRODUCT, OS, VERSION).
+        Also see #httpMakePath for additional tokens (DOCUMENTS_DIR, HOME_DIR, BIN_DIR, PRODUCT, OS, VERSION).
     @param route Route to modify
     @param name Target rule to add. Supported update rules include:
         "close", "redirect", "run" and "write". 
@@ -4328,7 +4346,7 @@ PUBLIC void httpLogRequest(HttpConn *conn);
 PUBLIC MprFile *httpOpenRouteLog(HttpRoute *route);
 PUBLIC int httpStartRoute(HttpRoute *route);
 PUBLIC void httpStopRoute(HttpRoute *route);
-PUBLIC char *httpExpandRouteVars(HttpConn *conn, cchar *str);
+PUBLIC char *httpExpandUri(HttpConn *conn, cchar *str);
 
 /*********************************** Session ***************************************/
 
@@ -4980,6 +4998,7 @@ PUBLIC void httpProcessWriteEvent(HttpConn *conn);
 #define HTTP_TX_SENDFILE            0x4     /**< Relay output via Send connector */
 #define HTTP_TX_USE_OWN_HEADERS     0x8     /**< Skip adding default headers */
 #define HTTP_TX_NO_LENGTH           0x10    /**< Don't emit a content length (used for TRACE) */
+#define HTTP_TX_MATCHED             0x20    /**< Handler match routine run */
 
 /** 
     Http Tx

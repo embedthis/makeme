@@ -9,6 +9,7 @@ require ejs.tar
 require ejs.unix
 require ejs.zlib
 
+//  MOB - not used
 public function getWebUser(): String {
     let passwdFile: Path = Path("/etc/passwd")
     if (passwdFile.exists) {
@@ -679,6 +680,9 @@ public function checkInstalled() {
 public function checkUninstalled() {
     let result = []
     for each (prefix in bit.prefixes) {
+        if (!prefix.name.contains(bit.settings.product)) {
+            continue
+        }
         if (prefix.exists) {
             result.push(prefix)
         }

@@ -15,17 +15,17 @@ Bit.load({
     },
 
     prefixes: {
-        config:     '/etc/${settings.product}',
-        product:    '/usr/lib/${settings.product}',
-        productver: '${prefixes.product}/${settings.version}',
-        bin:        '${prefixes.productver}/${platform.name}/bin',
-        inc:        '${prefixes.productver}/${platform.name}/inc',
-        log:        '/var/log/${settings.product}',
-        spool:      '/var/spool/${settings.product}',
+        config:     'deploy',
+        product:    'deploy',
+        productver: 'deploy',
+        bin:        'deploy',
+        inc:        'deploy/inc',
+        log:        'deploy',
+        spool:      'deploy',
         src:        '/usr/src/${settings.product}-${settings.version}',
-        web:        '/var/www/${settings.product}-default',
-        ubin:       '${prefixes.productver}/${platform.name}/bin',
-        man:        '/usr/local/share/man/man1',
+        web:        'deploy/web',
+        ubin:       'deploy',
+        man:        'deploy',
     },
 
     settings: {
@@ -74,7 +74,10 @@ Bit.load({
                     /* Don't use mips global pointer */
                     defaults.compiler.push('-G 0')
                 }
-                defaults.includes += bit.packs.vxworks.includes
+                if (bit.packs.vxworks && bit.packs.vxworks.includes) {
+                    defaults.includes ||= []
+                    defaults.includes += bit.packs.vxworks.includes
+                }
                 defaults.libpaths.push(bit.dir.lib)
             ",
         },

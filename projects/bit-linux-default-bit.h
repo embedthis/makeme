@@ -121,6 +121,9 @@
 #ifndef BIT_REQUIRED
     #define BIT_REQUIRED "compiler,lib,link,pcre,http,ejscript"
 #endif
+#ifndef BIT_SSL
+    #define BIT_SSL 1
+#endif
 #ifndef BIT_STATIC
     #define BIT_STATIC 0
 #endif
@@ -146,7 +149,7 @@
     #define BIT_WITHOUT_ALL "dsi,est,man,man2html"
 #endif
 #ifndef BIT_WITHOUT_DEFAULT
-    #define BIT_WITHOUT_DEFAULT "dsi,est,man,man2html"
+    #define BIT_WITHOUT_DEFAULT "dsi,man,man2html"
 #endif
 
 /* Prefixes */
@@ -240,7 +243,7 @@
     #define BIT_PACK_EJSCRIPT 1
 #endif
 #ifndef BIT_PACK_EST
-    #define BIT_PACK_EST 0
+    #define BIT_PACK_EST 1
 #endif
 #ifndef BIT_PACK_HTTP
     #define BIT_PACK_HTTP 1
@@ -283,6 +286,9 @@
 #endif
 #ifndef BIT_PACK_EJSCRIPT_PATH
     #define BIT_PACK_EJSCRIPT_PATH "/Users/mob/git/bit/src/deps/ejs"
+#endif
+#ifndef BIT_PACK_EST_PATH
+    #define BIT_PACK_EST_PATH "/Users/mob/git/bit/src/deps/est"
 #endif
 #ifndef BIT_PACK_HTTP_PATH
     #define BIT_PACK_HTTP_PATH "/Users/mob/git/bit/macosx-x64-debug/bin/http"

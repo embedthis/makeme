@@ -2,6 +2,11 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "prep", "bit-windows-default\prep.vcxproj", "{2DDCC749-D49B-42E6-8E4E-0CE105C6F507}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libest", "bit-windows-default\libest.vcxproj", "{F10861D4-48AC-4AD3-927A-4BF193C7E528}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
+	EndProjectSection
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ca-crt", "bit-windows-default\ca-crt.vcxproj", "{8DEF8604-D8C5-405A-9CDA-92BFBA32AAAC}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
@@ -18,6 +23,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmprssl", "bit-windows-de
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
 		{02CA7374-D1AA-425D-8F85-9AD8320980E7} = {02CA7374-D1AA-425D-8F85-9AD8320980E7}
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{F10861D4-48AC-4AD3-927A-4BF193C7E528} = {F10861D4-48AC-4AD3-927A-4BF193C7E528}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "makerom", "bit-windows-default\makerom.vcxproj", "{503708C8-907B-47BA-8FC1-B4CE86861D44}"
@@ -94,9 +102,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "removeFiles", "bit-windows-
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
 	EndProjectSection
-	ProjectSection(ProjectDependencies) = postProject
-		{02CA7374-D1AA-425D-8F85-9AD8320980E7} = {02CA7374-D1AA-425D-8F85-9AD8320980E7}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bit.es", "bit-windows-default\bit.es.vcxproj", "{8ED16BE7-0A94-43D3-AE4F-630EAA9FCD74}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -145,6 +150,14 @@ Global
 {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}.Release|Win32.Build.0 = Release|Win32
 {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}.Release|x64.ActiveCfg = Release|x64
 {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}.Release|x64.Build.0 = Release|x64
+{F10861D4-48AC-4AD3-927A-4BF193C7E528}.Debug|Win32.ActiveCfg = Debug|Win32
+{F10861D4-48AC-4AD3-927A-4BF193C7E528}.Debug|Win32.Build.0 = Debug|Win32
+{F10861D4-48AC-4AD3-927A-4BF193C7E528}.Debug|x64.ActiveCfg = Debug|x64
+{F10861D4-48AC-4AD3-927A-4BF193C7E528}.Debug|x64.Build.0 = Debug|x64
+{F10861D4-48AC-4AD3-927A-4BF193C7E528}.Release|Win32.ActiveCfg = Release|Win32
+{F10861D4-48AC-4AD3-927A-4BF193C7E528}.Release|Win32.Build.0 = Release|Win32
+{F10861D4-48AC-4AD3-927A-4BF193C7E528}.Release|x64.ActiveCfg = Release|x64
+{F10861D4-48AC-4AD3-927A-4BF193C7E528}.Release|x64.Build.0 = Release|x64
 {8DEF8604-D8C5-405A-9CDA-92BFBA32AAAC}.Debug|Win32.ActiveCfg = Debug|Win32
 {8DEF8604-D8C5-405A-9CDA-92BFBA32AAAC}.Debug|Win32.Build.0 = Debug|Win32
 {8DEF8604-D8C5-405A-9CDA-92BFBA32AAAC}.Debug|x64.ActiveCfg = Debug|x64

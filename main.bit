@@ -51,7 +51,7 @@ Bit.load({
         /*
             Packs to disable when using --without default (generating packages)
          */
-        'without-default': [ 'dsi', 'est', 'man', 'man2html' ],
+        'without-default': [ 'dsi', 'man', 'man2html' ],
 
         ejs: {
             /*

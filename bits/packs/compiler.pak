@@ -102,8 +102,12 @@ try {
                 throw 'Unsupported CPU architecture: ' + platform.arch
             }
         }
-        cc = probe(path, {fullpath: true, search: bit.packs.vxworks.search})
-        bit.env.WIND_CCNAME = path.basename
+        if (!bit.options.gen) {
+            cc = probe(path, {fullpath: true, search: bit.packs.vxworks.search})
+            bit.env.WIND_CCNAME = path.basename
+        } else {
+            cc = path
+        }
         Bit.load({packs: { compiler: { path: cc, name: path.basename }}})
     }
 

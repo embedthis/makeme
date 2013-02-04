@@ -9,45 +9,48 @@ Bit.load({
             type: 'exe',
             rule: 'gui'
             sources: [ 'windows/removeFiles.c' ],
-            depends: [ 'libmpr' ],
             platforms: [ 'local' ],
         },
 
-        install: {
+        deploy: {
             home: '${TOP}',
-			action: 'installBinary()',
-			depends: ['compile'],
+            action: 'packageDeploy()',
+            depends: ['compile'],
             'generate-make': "
-                rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit
-                install -d -m 755 $(BIT_BIN_PREFIX)
-                cp ${TOP}/doc/man/bit.1 $(BIT_MAN_PREFIX)
-                cp -R -P ${BIN}/* $(BIT_BIN_PREFIX)
-                rm -f $(BIT_BIN_PREFIX)/sqlite $(BIT_BIN_PREFIX)/makerom $(BIT_BIN_PREFIX)/ejsc $(BIT_BIN_PREFIX)/ejs $(BIT_BIN_PREFIX)/http
-                ln -s $(BIT_VERSION) $(BIT_PRD_PREFIX)/latest
-                for n in bit http; do \\
-                    rm -f $(BIT_UBIN_PREFIX)/$$n ; \\
-                    ln -s $(BIT_BIN_PREFIX)/$$n $(BIT_UBIN_PREFIX)/$$n ; \\
-                done
+                mkdir -p $(BIT_BIN_PREFIX) $(BIT_VER_PREFIX)/man/man1
+                rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit $(BIT_VER_PREFIX)/man/man1/bit.1 $(BIT_MAN_PREFIX)/bit.1
+                cp -R -P ${BIN}/bit* ${BIN}/lib* $(BIT_BIN_PREFIX)
+                cp doc/man/bit.1 $(BIT_VER_PREFIX)/man/man1
+                ln -s $(BIT_VER_PREFIX)/man/man1/bit.1 $(BIT_MAN_PREFIX)/bit.1
+                ln -s $(BIT_BIN_PREFIX)/bit $(BIT_UBIN_PREFIX)/bit
+                ln -s $(VERSION) $(BIT_PRD_PREFIX)/latest
             ",
             'generate-nmake': "
-                xcopy /I /S /Y /Q $(CONFIG)\\bin \"$(BIT_BIN_PREFIX)\"
-                del /Q \"$(BIT_BIN_PREFIX)\\*.pdb\"
-                del /Q \"$(BIT_BIN_PREFIX)\\*.exp\"
-                del /Q \"$(BIT_BIN_PREFIX)\\*.lib\"
-                del /Q \"$(BIT_BIN_PREFIX)\\sqlite.*\"
-                del /Q \"$(BIT_BIN_PREFIX)\\makerom.*\"
-                del /Q \"$(BIT_BIN_PREFIX)\\ejsc.*\"
-                del /Q \"$(BIT_BIN_PREFIX)\\ejs.*\"
-                del /Q \"$(BIT_BIN_PREFIX)\\http.*\"
+                xcopy /I /S /Y /Q $(CONFIG)\\bin\\bit.exe \"$(BIT_BIN_PREFIX)\"
+                xcopy /I /S /Y /Q $(CONFIG)\\bin\\bit.es \"$(BIT_BIN_PREFIX)\"
+                xcopy /I /S /Y /Q $(CONFIG)\\bin\\bits \"$(BIT_BIN_PREFIX)\"
+                xcopy /I /S /Y /Q $(CONFIG)\\bin\\lib*.dll \"$(BIT_BIN_PREFIX)\"
             ",
         },
 
-        uninstall: {
+        install: {
+            enable: "bit.platform.like == 'posix' || bit.platform.like == 'windows'",                      
             home: '${TOP}',
-			action: '',
-            'generate-make': "rm -fr $(BIT_PRD_PREFIX) $(BIT_MAN_PREFIX)/bit.1",
+            action: "installBinary()",
+            depends: ['compile', 'deploy'],
+            'generate': ' ',
+        },
+
+        uninstall: {
+            enable: "bit.platform.like == 'posix' || bit.platform.like == 'windows'",
+            home: '${TOP}',
+            action: "uninstallBinary()"
+            depends: ['compile']
+            'generate-make': "
+                rm -rf $(BIT_UBIN_PREFIX)/bit $(BIT_MAN_PREFIX)/bit.1 '$(BIT_PRD_PREFIX)'
+            ",
             'generate-nmake': "if exist \"$(BIT_PRD_PREFIX)\" rd /Q /S \"$(BIT_PRD_PREFIX)\"",
-		},
+        },
 
         package: {
             home: '${TOP}',

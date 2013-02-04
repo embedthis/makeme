@@ -3,29 +3,10 @@
 #
 #	This Makefile is for Unix/Linux and Cygwin. Use WinMake for windows.
 #
-#   You can use this Makefile and build via "make" with a pre-selected configuration. Alternatively,
-#	you can build using the "bit" tool for for a fully configurable build. If you wish to 
-#	cross-compile, you should use "bit".
-#
-#   Modify compiler and linker default definitions here:
-#
-#       export ARCH      = CPU architecture (x86, x64, ppc, ...)
-#       export OS        = Operating system (linux, macosx, windows, vxworks, ...)
-#       export CC        = Compiler to use 
-#       export LD        = Linker to use
-#       export DEBUG     = Set to debug or release for debug or optimized builds
-#       export CONFIG    = Output directory for built items. Defaults to OS-ARCH-PROFILE
-#       export CFLAGS    = Add compiler options. For example: -Wall
-#       export DFLAGS    = Add compiler defines. For example: -DCOLOR=blue
-#       export IFLAGS    = Add compiler include directories. For example: -I/extra/includes
-#       export LDFLAGS   = Add linker options
-#       export LIBPATHS  = Add linker library search directories. For example: -L/libraries
-#       export LIBS      = Add linker libraries. For example: -lpthreads
-#       export PROFILE   = Build profile, used in output products directory name
-#
-#	See projects/$(OS)-$(ARCH)-$(PROFILE)-bit.h for configuration default settings. Can override via
-#	environment variables. For example: make BIT_PACK_SQLITE=0. These are converted to DFLAGS and 
-#	will then override the bit.h default values.
+#	See projects/$(OS)-$(ARCH)-$(PROFILE)-bit.h for configuration default settings. Can override 
+#	via make environment variables. For example: make BIT_PACK_SQLITE=0. These are converted to 
+#	DFLAGS and will then override the bit.h default values. Use "make help" for a list of available 
+#	make variable options.
 #
 NAME    := bit
 OS      := $(shell uname | sed 's/CYGWIN.*/windows/;s/Darwin/macosx/' | tr '[A-Z]' '[a-z]')
@@ -50,9 +31,12 @@ BIN 	:= $(OS)-$(ARCH)-$(PROFILE)/bin
 .EXPORT_ALL_VARIABLES:
 
 all compile:
+	@if [ ! -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) ] ; then \
+		echo "The build configuration projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) is not supported" ; exit 255 ; \
+	fi
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@
 
-clean clobber install uninstall run:
+clean clobber deploy install uninstall run:
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@
 
 version:
@@ -64,8 +48,10 @@ regen:
 
 help:
 	@echo '' >&2
-	@echo 'With make, the default configuration can be modified by setting make' >&2
-	@echo 'variables. Set to 0 to disable and 1 to enable:' >&2
+	@echo 'usage: make [clean, compile, deploy, install, run, uninstall]' >&2
+	@echo '' >&2
+	@echo 'The default configuration can be modified by setting make variables' >&2
+	@echo 'Set to 0 to disable and 1 to enable:' >&2
 	@echo '' >&2
 	@echo '      PROFILE            # Select default or static for static linking' >&2
 	@echo '      BIT_MPR_LOGGING    # Enable application logging' >&2
@@ -76,11 +62,18 @@ help:
 	@echo '' >&2
 	@echo '      make BIT_PACK_CGI=0' >&2
 	@echo '' >&2
-	@echo 'Other make variables include:' >&2
-	@echo '' >&2
-	@echo '      ARCH, CC, CFLAGS, DFLAGS, IFLAGS, LD, LDFLAGS, LIBPATHS, LIBS, OS' >&2
-	@echo '' >&2
-	@echo 'Alternatively, for faster, easier and fully configurable building, install' >&2
-	@echo 'bit from http://embedthis.com/downloads/bit/download.ejs and re-run'>&2
-	@echo 'configure and then build with bit.' >&2
+	@echo 'Other make variables:' >&2
+	@echo '      ARCH               # CPU architecture (x86, x64, ppc, ...)' >&2
+	@echo '      OS                 # Operating system (linux, macosx, windows, vxworks, ...)' >&2
+	@echo '      CC                 # Compiler to use ' >&2
+	@echo '      LD                 # Linker to use' >&2
+	@echo '      DEBUG              # Set to debug or release for debug or optimized builds' >&2
+	@echo '      CONFIG             # Output directory for built items. Defaults to OS-ARCH-PROFILE' >&2
+	@echo '      CFLAGS             # Add compiler options. For example: -Wall' >&2
+	@echo '      DFLAGS             # Add compiler defines. For example: -DCOLOR=blue' >&2
+	@echo '      IFLAGS             # Add compiler include directories. For example: -I/extra/includes' >&2
+	@echo '      LDFLAGS            # Add linker options' >&2
+	@echo '      LIBPATHS           # Add linker library search directories. For example: -L/libraries' >&2
+	@echo '      LIBS               # Add linker libraries. For example: -lpthreads' >&2
+	@echo '      PROFILE            # Build profile, used in output products directory name' >&2
 	@echo '' >&2
