@@ -18,7 +18,6 @@ You can read the documentation for the latest release online at:\
 \
 This software is copyrighted and distributed under license. Please read the LICENSE.md for details.\
 \
-\
 Table of Contents\
 \
 * System Requirements\
@@ -35,26 +34,20 @@ System Requirements\
 \
 Operating System Support\
 \
-    * Windows XP, Vista, Windows-7 (x86,x86_64)\
-    * Mac OS X 10.4, 10.5 (ppc,x86,x86_64)\
-    * Linux 2.4, 2.6 (x86,,x86_64,arm,ppc,sparc,xscale,mips)\
+    * Windows XP, Vista, Windows-7 (x86,x64)\
+    * Mac OS X 10.4, 10.5 (ppc,x86,x64)\
+    * Linux 2.4, 2.6 (x86,x64,arm,ppc,sparc,xscale,mips)\
     * VxWorks (x86,arm,ppc,sparc,xscale,mips)\
-    * Solaris (sparc,x86,x86_64)\
+    * Solaris (sparc,x86,x64)\
 \
 To install Bit, your system will need at least the following:\
 \
     * 50 MB Disk\
     * 1 GB RAM\
 \
-To deploy Bit in an embedded environment, you will need at least the following:\
-\
-    * 2 MB Disk / ROM space\
-    * 4 MB RAM\
-\
 To rebuild Bit from source code, you will need at least:\
 \
     * 80 MB disk space\
-\
 \
 Installation Package Formats\
 \
@@ -67,31 +60,24 @@ For other platforms, you will need to download the source code distribution and 
 \
 See below for operating system specific installation information.\
 \
-\
 Development Environment Platform Support\
 \
 If you wish to embed Bit in your application or build Bit from source code, you will need to use a C compiler and associated development tools.  Several development environments are supported.  You may choose any of the following:\
 \
     * Linux/Unix/Solaris GNU Tools\
 \
-    * Windows Visual Studio (Visual Studio 2008 (Express) or the Cygwin UNIX \
-      emulation tools. See www.cygwin.com.\
-\
-    * WindRiver Tornado Development Tools\
+    * Windows Visual Studio 2010 (or express edition)\
 \
 \
 Apple Mac OS X Release Details\
 \
 To install the native MAC OS X DMG image:\
 \
-   1. Download the DMG image.\
+   1. Download the PKG image.\
 \
-   2. Double click on the DMG file image. This will mount a new drive called\
-      bit-VERSION. Double click on this drive to display its contents.\
- \
-   3. Double click on the "bit.mpkg" image.\
+   2. Double click on the PKG file image.\
 \
-   4. Answer the questions as prompted.\
+   3. Answer the questions as prompted.\
 \
 \
 Removing Bit\
@@ -105,7 +91,6 @@ This is the procedure to remove Bit on all systems except Windows.\
       sudo ./uninstall\
 \
 \
-\
 Windows Release Details\
 \
 To install the Windows Installer image:\
@@ -114,10 +99,9 @@ To install the Windows Installer image:\
       installation needs to install a Windows Service.\
 \
    2. Use WinZip or equivalent software to extract the installation image. This\
-      will extract the README.md and setup.exe from the zip archive.\
+      will extract the installable executable.\
 \
-   3. Double click on the setup.exe image to run it.\
-\
+   3. Double click on the exe image to run it.\
 \
 Removing Bit on Windows\
 \
@@ -138,16 +122,10 @@ The Bit product installation includes a simple command line interpreter that can
 \
     bit\
 \
-This command responds with the following prompt:\
-\
-bit>\
-\
-Bit commands can be entered and results will be echoed to the console.  See the user documentation for further details.\
 \
 Running Bit on Windows\
 \
-On windows, the installation creates a Programs shortcut for the "bit" Bit command shell.  Clicking on it will run "bit" in a command window.  To run "bit" from a command window manually, you may need to add the Bit installation bin directory to your path. This is usually the C:/Program Files/Embedthis Bit/bin directory. You can do this by running the System applet from the Control Panel and selecting the Advanced tab and then the Environment Variables button at the bottom of the page. Add this directory to the setting for the PATH use variable.\
-\
+When installed, bit will be added to your system PATH. You may need to log out and then log in again to reinitialize your system PATH. \
 \
 Building from the Source Code\
 \
@@ -160,7 +138,7 @@ This software is supplied under license. Both a GNU and commercial license are a
 \
 Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.\
 \
-Embedthis is a trademark of Embedthis Software LLC. Embedthis, Appweb and Bit are trademarks of Embedthis Software. All other brand or product names are the trademarks or registered trademarks of their respective holders.\
+Embedthis is a trademark of Embedthis Software LLC. Embedthis, and Embedthis Bit are trademarks of Embedthis Software. All other brand or product names are the trademarks or registered trademarks of their respective holders.\
 \
 \
 Embedthis Software, LLC.\
