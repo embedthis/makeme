@@ -63,6 +63,7 @@ function foldLines(path: Path, options) {
     out.close()
 }
 
+
 function installCallback(src: Path, dest: Path, options = {}): Boolean {
     options.task ||= 'install'
 

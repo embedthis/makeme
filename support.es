@@ -58,9 +58,9 @@ public function packageDeploy(minimal = false) {
         install('package/linkup', p.bin, {permissions: 0755})
     }
     install(bit.dir.bin + '/*', p.bin, {
-        include: /bit|\.dll/,
-        exclude: /ejs\$|ejsc\$|http\\$|makerom|\.dylib|\.so|\.pdb|\.exp|\.lib|\.def|\.suo|\.old/,
+        include: /bit|ca.crt|ejs.mod/,
         permissions: 0755, 
+        show: true,
     })
     install(bit.dir.bin.join('bits'), p.bin)
     install(bit.dir.bin.join('ca.crt'), p.bin)

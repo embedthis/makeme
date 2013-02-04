@@ -1159,7 +1159,11 @@ public class Bit {
                 return f
             }
         }
-        throw 'Can\'t find suitable ' + START + '.\nRun "configure" or "bit configure" first.'
+        if (Path(MAIN).exists) {
+            throw 'Can\'t find suitable ' + START + '.\nRun "bit configure" first.'
+        } else {
+            throw 'Can\'t find suitable ' + START + '.\nRun "bit --gen start" to create stub start.bit'
+        }
         return null
     }
 
@@ -3172,10 +3176,10 @@ public class Bit {
         } else {
             traceFile('Overwrite', to)
         }
-        if (!from.isDir) {
+        if (!to.dirname.isDir) {
             mkdir(to.dirname, 0755)
-            cp(from, to)
         }
+        cp(from, to)
     }
 
     public function trace(tag: String, ...args): Void {
