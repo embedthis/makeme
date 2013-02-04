@@ -26,7 +26,7 @@ Bit.load({
                 ln -s $(VERSION) $(BIT_PRD_PREFIX)/latest
             ",
             'generate-nmake': "
-                @if not exist "$(BIT_BIN_PREFIX)" md "$(BIT_BIN_PREFIX)"
+                @if not exist \"$(BIT_BIN_PREFIX)\" md \"$(BIT_BIN_PREFIX)\"
                 xcopy /I /S /Y /Q $(CONFIG)\\bin\\bit.exe \"$(BIT_BIN_PREFIX)\"
                 xcopy /I /S /Y /Q $(CONFIG)\\bin\\bit.es \"$(BIT_BIN_PREFIX)\"
                 xcopy /I /S /Y /Q $(CONFIG)\\bin\\lib*.dll \"$(BIT_BIN_PREFIX)\"
