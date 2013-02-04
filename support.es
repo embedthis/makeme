@@ -22,7 +22,11 @@ public function packageDeploy(minimal = false) {
     let p = {}
 
     for (prefix in bit.prefixes) {
-        if (prefix == 'config' || prefix == 'log' || prefix == 'spool' || prefix == 'src' || prefix == 'web' || prefix == 'inc') {
+        if (prefix == 'config' || prefix == 'log' || prefix == 'spool' || prefix == 'src' || 
+                prefix == 'web' || prefix == 'inc') {
+            continue
+        }
+        if (prefix == 'man' && bit.platform.like != 'posix') {
             continue
         }
         p[prefix] = Path(contents.portable.name + bit.prefixes[prefix].removeDrive().portable)

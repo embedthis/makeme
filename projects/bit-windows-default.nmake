@@ -310,10 +310,11 @@ version:
 	cd ..
 
 deploy: compile
+	@if not exist "$(BIT_BIN_PREFIX)" md "$(BIT_BIN_PREFIX)"
 	xcopy /I /S /Y /Q $(CONFIG)\bin\bit.exe "$(BIT_BIN_PREFIX)"
 	xcopy /I /S /Y /Q $(CONFIG)\bin\bit.es "$(BIT_BIN_PREFIX)"
-	xcopy /I /S /Y /Q $(CONFIG)\bin\bits "$(BIT_BIN_PREFIX)"
 	xcopy /I /S /Y /Q $(CONFIG)\bin\lib*.dll "$(BIT_BIN_PREFIX)"
+	xcopy /I /S /Y /Q $(CONFIG)\bin\bits "$(BIT_BIN_PREFIX)\bits"
 
 install: compile deploy
 
