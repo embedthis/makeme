@@ -1,7 +1,7 @@
 #
 #   Makefile - Embedthis Bit Makefile wrapper for per-platform makefiles
 #
-#	This Makefile is for Unix/Linux and Cygwin. Use WinMake for windows.
+#   This Makefile is for Unix/Linux and Cygwin. On windows, it can be invoked via make.bat.
 #
 #	See projects/$(OS)-$(ARCH)-$(PROFILE)-bit.h for configuration default settings. Can override 
 #	via make environment variables. For example: make BIT_PACK_SQLITE=0. These are converted to 

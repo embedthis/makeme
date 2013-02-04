@@ -1,11 +1,17 @@
 Embedthis Bit
 ===
 
+Embedthis Build It. A modern replacement for autoconf/make.
+
 Licensing
 ---
 See LICENSE.md for details.
 
-### To build first time :
+### To Read Documentation:
+
+  See http://embedthis.com/products/bit/doc/product/index.html
+
+### To build first time:
 
     make
     */bin/bit configure build
@@ -13,6 +19,10 @@ See LICENSE.md for details.
 ### To build thereafter: 
 
     bit
+
+### To install
+
+    bit install
 
 Resources
 ---
