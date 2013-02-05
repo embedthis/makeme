@@ -48,17 +48,14 @@ Bit.load({
             enable: 'bit.packs.ejscript.enable || bit.settings.ejscript',
             files: [ 'ejs.es' ],
             path: "${BIN}/ejs.mod",
+            home: "${TOP}",
             //  Add --debug for debug symbols
             build: "
                 trace('Compile', 'ejs.mod')
-                run('${LBIN}/ejsc --out ${BIN}/ejs.mod --optimize 9 --bind --require null ejs.es')
+                run('${LBIN}/ejsc --out ${BIN}/ejs.mod --optimize 9 --bind --require null src/deps/ejs/ejs.es')
             ",
-            'generate-nmake': '\
-                "${LBIN}\\ejsc" --out "${BIN}/ejs.mod" --optimize 9 --bind --require null "ejs.es"
-            ',
-            'generate-sh': '\
-                ${LBIN}/ejsc --out ${BIN}/ejs.mod --optimize 9 --bind --require null ejs.es 
-            ',
+            'generate-nmake': '"${LBIN}\\ejsc" --out "${BIN}/ejs.mod" --optimize 9 --bind --require null src/deps/ejs/ejs.es',
+            'generate-sh': '${LBIN}/ejsc --out ${BIN}/ejs.mod --optimize 9 --bind --require null src/deps/ejs/ejs.es',
             depends: [ 'ejsc' ],
 		},
 

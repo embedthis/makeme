@@ -42,7 +42,7 @@ clean clobber deploy install uninstall run:
 version:
 	@$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@
 
-bootstrap:
+boot:
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) compile
 	$(OS)-$(ARCH)-$(PROFILE)/bin/bit --release configure build
 

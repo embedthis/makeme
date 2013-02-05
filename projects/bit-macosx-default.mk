@@ -271,7 +271,7 @@ $(CONFIG)/bin/ejsc: \
 	$(CC) -o $(CONFIG)/bin/ejsc -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejsc.o -lejs $(LIBS) -lmpr -lpcre -lhttp
 
 $(CONFIG)/bin/ejs.mod: $(CONFIG)/bin/ejsc
-	cd src/deps/ejs; $(LBIN)/ejsc --out ../../../$(CONFIG)/bin/ejs.mod --optimize 9 --bind --require null ejs.es ; cd ../../..
+	$(LBIN)/ejsc --out ./$(CONFIG)/bin/ejs.mod --optimize 9 --bind --require null src/deps/ejs/ejs.es
 
 $(CONFIG)/bin/bit.es: src/bit.es
 	rm -fr $(CONFIG)/bin/bit.es

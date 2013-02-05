@@ -29,7 +29,7 @@ LDFLAGS         = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
 LIBPATHS        = -libpath:$(CONFIG)\bin
 LIBS            = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
 
-BIT_ROOT_PREFIX = C:/
+BIT_ROOT_PREFIX = C:\
 BIT_PRD_PREFIX  = $(BIT_ROOT_PREFIX)Program Files\Embedthis Bit
 BIT_VER_PREFIX  = $(BIT_ROOT_PREFIX)Program Files\Embedthis Bit
 BIT_CFG_PREFIX  = $(BIT_VER_PREFIX)
@@ -267,9 +267,7 @@ $(CONFIG)\bin\ejsc.exe: \
 	"$(LD)" -out:$(CONFIG)\bin\ejsc.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsc.obj libejs.lib $(LIBS) libmpr.lib libpcre.lib libhttp.lib
 
 $(CONFIG)\bin\ejs.mod: $(CONFIG)\bin\ejsc.exe
-	cd src\deps\ejs
-	"$(LBIN)\ejsc" --out "..\..\..\$(CONFIG)\bin\ejs.mod" --optimize 9 --bind --require null "ejs.es"
-	cd ..\..\..
+	"$(LBIN)\ejsc" --out ".\$(CONFIG)\bin\ejs.mod" --optimize 9 --bind --require null src/deps/ejs/ejs.es
 
 $(CONFIG)\obj\removeFiles.obj: \
     package\windows\removeFiles.c\
