@@ -5,7 +5,6 @@
 
 \f0\fs26 \cf0 \
 Bit is a modern replacement for the autoconf and make tools. \
-\
 \pard\pardeftab720\ri0\sa57
 
 \f1\fs22 \cf0 \
@@ -23,4 +22,4 @@ Bit is a modern replacement for the autoconf and make tools. \
 Bit can be run from:\
    \
     /usr/local/bin/bit\
-}]]></resource></locale></resources><flags/><extra-files/><item type="file">01contents.xml</item><mod>properties.systemDomain</mod><mod>properties.title</mod><mod>properties.customizeOption</mod><mod>properties.anywhereDomain</mod><mod>extraFiles</mod></pkmkdoc>
+}]]></resource></locale></resources><flags/><extra-files/><item type="file">01contents.xml</item><mod>extraFiles</mod><mod>properties.title</mod><mod>properties.customizeOption</mod><mod>properties.anywhereDomain</mod><mod>properties.systemDomain</mod></pkmkdoc>

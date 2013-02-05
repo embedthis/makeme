@@ -12,7 +12,7 @@ You can read the documentation for the latest release online at:
 
     http://embedthis.com/products/bit/doc/index.html
 
-This software is copyrighted and distributed under license. Please read the LICENSE.md for details.
+This software is copyrighted and distributed under license. Please read the LICENSE.TXT for details.
 
 
 Table of Contents
@@ -20,7 +20,6 @@ Table of Contents
 * System Requirements
 * Installation Package Formats
 * Development Environment Platform Support
-* Installating the Tar Self-Install Image
 * Removing Bit
 * Apple MAC OS X  Release Details
 * Windows Release Details
@@ -114,8 +113,7 @@ This is the procedure to remove Bit on all systems except Windows.
 Removing Bit on Windows
 
 If you installed the Bit Windows Installer image, follow these steps to 
-remove Bit. If you installed the Tar self-install image, you will need 
-to remove Bit manually. 
+remove Bit.
 
    1. Login with administrator privileges
 
@@ -132,9 +130,8 @@ The Bit binary is invoked by by typing:
 
 Running Bit on Windows
 
-On windows, the installation creates a Programs shortcut for the "bit" binary.  Clicking on it will run "ejs" in
-a command window.  To run "ejs" from a command window manually, you may need to add the Bit installation bin directory to
-your path. This is usually the C:/Program Files/Embedthis Bit/bin directory. You can do this by running the System applet from the Control Panel and selecting the Advanced tab and then the Environment Variables button at the bottom of the page. Add this directory to the setting for the PATH use variable.
+When installed, bit will be added to your system PATH. You may need to log out and then log in again to reinitialize your
+system PATH. 
 
 
 Building from the Source Code
@@ -145,7 +142,7 @@ the Embedthis web site. Then read "Building from Source" in the Bit product docu
 
 License and Copyright Information
 
-This software is supplied under license. Both a GNU and commercial license are available. Please read LICENSE.md for details. This documentation and the software described in this document may be used and copied only in accordance with the terms of the accompanying license agreement. Product and technical information in this document is subject to change without notice and does not represent a commitment on the part of Embedthis Software LLC.
+This software is supplied under license. Both a GNU and commercial license are available. Please read LICENSE.TXT for details. This documentation and the software described in this document may be used and copied only in accordance with the terms of the accompanying license agreement. Product and technical information in this document is subject to change without notice and does not represent a commitment on the part of Embedthis Software LLC.
 
 Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
 
