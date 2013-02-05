@@ -17,7 +17,8 @@ try {
             cc = probe(path, {fullpath: true})
             Bit.load({packs: { compiler: { path: cc }}})
         } catch {
-            Bit.load({packs: { compiler: { path: '' }}})
+            //  MOB - probably should only do this if bit.generating
+            Bit.load({packs: { compiler: { path: '$(WIND_BASE)/$(WIND_PLATFORM)/target.h '}}})
         }
 
     } else if (platform.like == 'windows') {

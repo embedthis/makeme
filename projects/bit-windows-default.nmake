@@ -116,7 +116,7 @@ $(CONFIG)\obj\estLib.obj: \
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\est.h \
     $(CONFIG)\inc\bitos.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\estLib.obj -Fd$(CONFIG)\obj\estLib.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc src\deps\est\estLib.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\estLib.obj -Fd$(CONFIG)\obj\estLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\est\estLib.c
 
 $(CONFIG)\bin\libest.dll: \
     $(CONFIG)\inc\est.h \
@@ -136,7 +136,7 @@ $(CONFIG)\obj\mprLib.obj: \
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\mpr.h \
     $(CONFIG)\inc\bitos.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\mprLib.obj -Fd$(CONFIG)\obj\mprLib.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc src\deps\mpr\mprLib.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\mprLib.obj -Fd$(CONFIG)\obj\mprLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\mpr\mprLib.c
 
 $(CONFIG)\bin\libmpr.dll: \
     $(CONFIG)\inc\mpr.h \
@@ -148,7 +148,7 @@ $(CONFIG)\obj\mprSsl.obj: \
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\mpr.h \
     $(CONFIG)\inc\est.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\mprSsl.obj -Fd$(CONFIG)\obj\mprSsl.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc src\deps\mpr\mprSsl.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\mprSsl.obj -Fd$(CONFIG)\obj\mprSsl.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\mpr\mprSsl.c
 
 $(CONFIG)\bin\libmprssl.dll: \
     $(CONFIG)\bin\libmpr.dll \
@@ -160,7 +160,7 @@ $(CONFIG)\obj\makerom.obj: \
     src\deps\mpr\makerom.c\
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\mpr.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\makerom.obj -Fd$(CONFIG)\obj\makerom.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc src\deps\mpr\makerom.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\makerom.obj -Fd$(CONFIG)\obj\makerom.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\mpr\makerom.c
 
 $(CONFIG)\bin\makerom.exe: \
     $(CONFIG)\bin\libmpr.dll \
@@ -175,7 +175,7 @@ $(CONFIG)\obj\pcre.obj: \
     src\deps\pcre\pcre.c\
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\pcre.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\pcre.obj -Fd$(CONFIG)\obj\pcre.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc src\deps\pcre\pcre.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\pcre.obj -Fd$(CONFIG)\obj\pcre.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\pcre\pcre.c
 
 $(CONFIG)\bin\libpcre.dll: \
     $(CONFIG)\inc\pcre.h \
@@ -191,7 +191,7 @@ $(CONFIG)\obj\httpLib.obj: \
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\http.h \
     $(CONFIG)\inc\mpr.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\httpLib.obj -Fd$(CONFIG)\obj\httpLib.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc src\deps\http\httpLib.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\httpLib.obj -Fd$(CONFIG)\obj\httpLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\http\httpLib.c
 
 $(CONFIG)\bin\libhttp.dll: \
     $(CONFIG)\bin\libmpr.dll \
@@ -204,7 +204,7 @@ $(CONFIG)\obj\http.obj: \
     src\deps\http\http.c\
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\http.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\http.obj -Fd$(CONFIG)\obj\http.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc src\deps\http\http.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\http.obj -Fd$(CONFIG)\obj\http.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\http\http.c
 
 $(CONFIG)\bin\http.exe: \
     $(CONFIG)\bin\libhttp.dll \
@@ -232,7 +232,7 @@ $(CONFIG)\obj\ejsLib.obj: \
     $(CONFIG)\inc\bitos.h \
     $(CONFIG)\inc\http.h \
     $(CONFIG)\inc\ejs.slots.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\ejsLib.obj -Fd$(CONFIG)\obj\ejsLib.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc src\deps\ejs\ejsLib.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\ejsLib.obj -Fd$(CONFIG)\obj\ejsLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\ejs\ejsLib.c
 
 $(CONFIG)\bin\libejs.dll: \
     $(CONFIG)\bin\libhttp.dll \
@@ -248,7 +248,7 @@ $(CONFIG)\obj\ejs.obj: \
     src\deps\ejs\ejs.c\
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\ejs.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\ejs.obj -Fd$(CONFIG)\obj\ejs.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc src\deps\ejs\ejs.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\ejs.obj -Fd$(CONFIG)\obj\ejs.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\ejs\ejs.c
 
 $(CONFIG)\bin\ejs.exe: \
     $(CONFIG)\bin\libejs.dll \
@@ -259,7 +259,7 @@ $(CONFIG)\obj\ejsc.obj: \
     src\deps\ejs\ejsc.c\
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\ejs.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\ejsc.obj -Fd$(CONFIG)\obj\ejsc.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc src\deps\ejs\ejsc.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\ejsc.obj -Fd$(CONFIG)\obj\ejsc.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\ejs\ejsc.c
 
 $(CONFIG)\bin\ejsc.exe: \
     $(CONFIG)\bin\libejs.dll \
@@ -272,7 +272,7 @@ $(CONFIG)\bin\ejs.mod: $(CONFIG)\bin\ejsc.exe
 $(CONFIG)\obj\removeFiles.obj: \
     package\windows\removeFiles.c\
     $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\removeFiles.obj -Fd$(CONFIG)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc package\windows\removeFiles.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\removeFiles.obj -Fd$(CONFIG)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) package\windows\removeFiles.c
 
 $(CONFIG)\bin\removeFiles.exe: \
     $(CONFIG)\obj\removeFiles.obj
@@ -291,7 +291,7 @@ $(CONFIG)\obj\bit.obj: \
     src\bit.c\
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\ejs.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\bit.obj -Fd$(CONFIG)\obj\bit.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc src\bit.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\bit.obj -Fd$(CONFIG)\obj\bit.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\bit.c
 
 $(CONFIG)\bin\bit.exe: \
     $(CONFIG)\bin\libmpr.dll \

@@ -120,7 +120,7 @@ $(CONFIG)/obj/estLib.o: \
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/est.h \
     $(CONFIG)/inc/bitos.h
-	$(CC) -c -o $(CONFIG)/obj/estLib.o -fPIC $(DFLAGS) -I$(CONFIG)/inc src/deps/est/estLib.c
+	$(CC) -c -o $(CONFIG)/obj/estLib.o -fPIC $(DFLAGS) $(IFLAGS) src/deps/est/estLib.c
 
 $(CONFIG)/bin/libest.so: \
     $(CONFIG)/inc/est.h \
@@ -140,7 +140,7 @@ $(CONFIG)/obj/mprLib.o: \
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/mpr.h \
     $(CONFIG)/inc/bitos.h
-	$(CC) -c -o $(CONFIG)/obj/mprLib.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/mpr/mprLib.c
+	$(CC) -c -o $(CONFIG)/obj/mprLib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/mpr/mprLib.c
 
 $(CONFIG)/bin/libmpr.so: \
     $(CONFIG)/inc/mpr.h \
@@ -152,7 +152,7 @@ $(CONFIG)/obj/mprSsl.o: \
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/mpr.h \
     $(CONFIG)/inc/est.h
-	$(CC) -c -o $(CONFIG)/obj/mprSsl.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/mpr/mprSsl.c
+	$(CC) -c -o $(CONFIG)/obj/mprSsl.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/mpr/mprSsl.c
 
 $(CONFIG)/bin/libmprssl.so: \
     $(CONFIG)/bin/libmpr.so \
@@ -164,7 +164,7 @@ $(CONFIG)/obj/makerom.o: \
     src/deps/mpr/makerom.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/mpr.h
-	$(CC) -c -o $(CONFIG)/obj/makerom.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/mpr/makerom.c
+	$(CC) -c -o $(CONFIG)/obj/makerom.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/mpr/makerom.c
 
 $(CONFIG)/bin/makerom: \
     $(CONFIG)/bin/libmpr.so \
@@ -179,7 +179,7 @@ $(CONFIG)/obj/pcre.o: \
     src/deps/pcre/pcre.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/pcre.h
-	$(CC) -c -o $(CONFIG)/obj/pcre.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/pcre/pcre.c
+	$(CC) -c -o $(CONFIG)/obj/pcre.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/pcre/pcre.c
 
 $(CONFIG)/bin/libpcre.so: \
     $(CONFIG)/inc/pcre.h \
@@ -195,7 +195,7 @@ $(CONFIG)/obj/httpLib.o: \
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/http.h \
     $(CONFIG)/inc/mpr.h
-	$(CC) -c -o $(CONFIG)/obj/httpLib.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/http/httpLib.c
+	$(CC) -c -o $(CONFIG)/obj/httpLib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/http/httpLib.c
 
 $(CONFIG)/bin/libhttp.so: \
     $(CONFIG)/bin/libmpr.so \
@@ -208,7 +208,7 @@ $(CONFIG)/obj/http.o: \
     src/deps/http/http.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/http.h
-	$(CC) -c -o $(CONFIG)/obj/http.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/http/http.c
+	$(CC) -c -o $(CONFIG)/obj/http.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/http/http.c
 
 $(CONFIG)/bin/http: \
     $(CONFIG)/bin/libhttp.so \
@@ -236,7 +236,7 @@ $(CONFIG)/obj/ejsLib.o: \
     $(CONFIG)/inc/bitos.h \
     $(CONFIG)/inc/http.h \
     $(CONFIG)/inc/ejs.slots.h
-	$(CC) -c -o $(CONFIG)/obj/ejsLib.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/ejs/ejsLib.c
+	$(CC) -c -o $(CONFIG)/obj/ejsLib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/ejs/ejsLib.c
 
 $(CONFIG)/bin/libejs.so: \
     $(CONFIG)/bin/libhttp.so \
@@ -252,7 +252,7 @@ $(CONFIG)/obj/ejs.o: \
     src/deps/ejs/ejs.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/ejs.h
-	$(CC) -c -o $(CONFIG)/obj/ejs.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/ejs/ejs.c
+	$(CC) -c -o $(CONFIG)/obj/ejs.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/ejs/ejs.c
 
 $(CONFIG)/bin/ejs: \
     $(CONFIG)/bin/libejs.so \
@@ -263,7 +263,7 @@ $(CONFIG)/obj/ejsc.o: \
     src/deps/ejs/ejsc.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/ejs.h
-	$(CC) -c -o $(CONFIG)/obj/ejsc.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/deps/ejs/ejsc.c
+	$(CC) -c -o $(CONFIG)/obj/ejsc.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/ejs/ejsc.c
 
 $(CONFIG)/bin/ejsc: \
     $(CONFIG)/bin/libejs.so \
@@ -285,7 +285,7 @@ $(CONFIG)/obj/bit.o: \
     src/bit.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/ejs.h
-	$(CC) -c -o $(CONFIG)/obj/bit.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/bit.c
+	$(CC) -c -o $(CONFIG)/obj/bit.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/bit.c
 
 $(CONFIG)/bin/bit: \
     $(CONFIG)/bin/libmpr.so \

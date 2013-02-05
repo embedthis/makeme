@@ -4,6 +4,7 @@
 
 pack('vxworks', 'VxWorks SDK')
 let path: Path? = bit.packs.vxworks.path
+
 if (!path) {
     /*
         Search for WorkBench/Tornado in common places
@@ -19,7 +20,14 @@ if (!path) {
     search += Path('/WindRiver').files('vxworks-*') +
         Path('/usr/src/WindRiver').files('vxworks-*') +
         Path(App.getenv('HOME') + '/WindRiver').files('vxworks-*')
-    path = probe('target/h/vxWorks.h', {search: search.sort().reverse()})
+    try {
+        path = probe('target/h/vxWorks.h', {search: search.sort().reverse()})
+    } catch (e) {
+        if (!bit.options.gen) {
+            throw e
+        }
+        path = Path('$(WIND_BASE)')
+    }
 }
 
 let cfg = {
@@ -27,9 +35,7 @@ let cfg = {
     path: path,
     includes: [ path.join('target/h'), path.join('target/h/wrn/coreip') ],
 }
-
 Bit.load({packs: { vxworks: cfg}})
-
 bit.env.WIND_BASE = path
 bit.env.WIND_HOME = path.dirname
 bit.env.WIND_PLATFORM = path.basename
@@ -50,32 +56,36 @@ if (Config.OS == 'windows') {
     bit.env.WIND_HOST_TYPE = 'solaris2'
 
 } else {
-    throw bit.platform.os + ' is not a supported O/S for VxWorks cross compilation'
+    if (!bit.options.gen) {
+        throw bit.platform.os + ' is not a supported O/S for VxWorks cross compilation'
+    }
 }
 
-let version: String = path.basename.toString().split('-')[1]
-let major: Number = version.split('.')[0] cast Number
+if (!bit.options.gen) {
+    let version: String = path.basename.toString().split('-')[1]
+    let major: Number = version.split('.')[0] cast Number
 
-let env = bit.env
-if (major >= 6) {
-    env.WIND_HOME = path.dirname
-    env.WIND_GNU_PATH = path.dirname.files('gnu/*-' + env.WIND_PLATFORM).sort().reverse()[0]
-    bit.packs.vxworks.search = [
-        env.WIND_GNU_PATH.join(env.WIND_HOST_TYPE, 'bin'),
-        env.WIND_GNU_PATH.join(env.WIND_HOST_TYPE, bit.platform.arch + '-wrs-vxworks/bin'),
-        env.WIND_BASE.join('host', env.WIND_HOST_TYPE, 'bin'),
-        env.WIND_BASE.join('/host/resource/hutils/tcl'),
-        env.WIND_HOME.files('workbench*/foundation/' + env.WIND_HOST_TYPE + '/bin').sort().reverse()[0],
-    ]
-} else {
-    env.WIND_HOME = path
-    env.WIND_GNU_PATH = ''
-    bit.packs.vxworks.search = [
-        env.WIND_BASE.join('host', env.WIND_HOST_TYPE, 'bin'),
-        env.WIND_BASE.join('/host/resource/hutils/tcl'),
-        env.WIND_HOME.files('workbench*/foundation/' + env.WIND_HOST_TYPE + '/bin').sort().reverse()[0],
-    ]
+    let env = bit.env
+    if (major >= 6) {
+        env.WIND_HOME = path.dirname
+        env.WIND_GNU_PATH = path.dirname.files('gnu/*-' + env.WIND_PLATFORM).sort().reverse()[0]
+        bit.packs.vxworks.search = [
+            env.WIND_GNU_PATH.join(env.WIND_HOST_TYPE, 'bin'),
+            env.WIND_GNU_PATH.join(env.WIND_HOST_TYPE, bit.platform.arch + '-wrs-vxworks/bin'),
+            env.WIND_BASE.join('host', env.WIND_HOST_TYPE, 'bin'),
+            env.WIND_BASE.join('/host/resource/hutils/tcl'),
+            env.WIND_HOME.files('workbench*/foundation/' + env.WIND_HOST_TYPE + '/bin').sort().reverse()[0],
+        ]
+    } else {
+        env.WIND_HOME = path
+        env.WIND_GNU_PATH = ''
+        bit.packs.vxworks.search = [
+            env.WIND_BASE.join('host', env.WIND_HOST_TYPE, 'bin'),
+            env.WIND_BASE.join('/host/resource/hutils/tcl'),
+            env.WIND_HOME.files('workbench*/foundation/' + env.WIND_HOST_TYPE + '/bin').sort().reverse()[0],
+        ]
+    }
+    bit.env.DIST = 'WindRiver'
+    bit.env.DIST_VER = version
+    // bit.env.DIST_MAJOR = major
 }
-bit.env.DIST = 'WindRiver'
-bit.env.DIST_VER = version
-// bit.env.DIST_MAJOR = major

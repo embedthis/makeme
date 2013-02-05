@@ -981,13 +981,13 @@ public class Bit {
 
     function rebase(home: Path, o: Object, field: String) {
         if (o[field] is Array) {
-            for (i in o[field]) {
-                if (!o[field][i].startsWith('${')) {
-                    o[field][i] = home.join(o[field][i])
+            for (let [key,value] in o[field]) {
+                if (!value.startsWith('${') && !value.startsWith('$(')) {
+                    o[field][key] = home.join(value)
                 }
             }
         } else if (o[field]) {
-            if (!o[field].startsWith('${')) {
+            if (!o[field].startsWith('${') && !o[field].startsWith('$(')) {
                 o[field] = home.join(o[field])
             }
         }
@@ -2002,6 +2002,10 @@ public class Bit {
     }
 
     function castDirTypes() {
+        /*
+            Use absolute patsh so they will apply anywhere in the source tree. Rules change directory and build
+            locally for each directory, so it is essential these be absolute.
+         */
         for (let [key,value] in bit.blend) {
             bit.blend[key] = Path(value).absolute.portable
         }
@@ -2032,10 +2036,18 @@ public class Bit {
                 pack.path = Path(pack.path)
             }
             for (let [key,value] in pack.includes) {
-                pack.includes[key] = Path(value).absolute
+                if (!value.startsWith('$')) {
+                    pack.includes[key] = Path(value).absolute
+                } else {
+                    pack.includes[key] = Path(value)
+                }
             }
             for (let [key,value] in pack.libpaths) {
-                pack.libpaths[key] = Path(value).absolute
+                if (!value.startsWith('$')) {
+                    pack.libpaths[key] = Path(value).absolute
+                } else {
+                    pack.includes[key] = Path(value)
+                }
             }
         }
     }
@@ -2827,7 +2839,13 @@ public class Bit {
         } else if (target.type == 'obj') {
             tv.CFLAGS = (target.compiler) ? target.compiler.join(' ') : ''
             tv.DEFINES = (target.defines) ? target.defines.join(' ') : ''
-            tv.INCLUDES = (target.includes) ? target.includes.map(function(p) '-I' + p.relativeTo(base)) : ''
+            if (bit.generating) {
+                /* Use abs paths to reppath can substitute as much as possible */
+                tv.INCLUDES = (target.includes) ? target.includes.map(function(p) '-I' + p) : ''
+            } else {
+                /* Use relative paths to shorten trace output */
+                tv.INCLUDES = (target.includes) ? target.includes.map(function(p) '-I' + p.relativeTo(base)) : ''
+            }
             tv.PDB = tv.OUT.replaceExt('pdb')
             if (bit.dir.home.join('.embedthis').exists && !generating) {
                 tv.CFLAGS += ' -DEMBEDTHIS=1'
