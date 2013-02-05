@@ -291,7 +291,7 @@
     #define BIT_PACK_EST_PATH "/Users/mob/git/bit/src/deps/est"
 #endif
 #ifndef BIT_PACK_HTTP_PATH
-    #define BIT_PACK_HTTP_PATH "/Users/mob/git/bit/macosx-x64-release/bin/http"
+    #define BIT_PACK_HTTP_PATH "/Users/mob/git/bit/macosx-x64-default/bin/http"
 #endif
 #ifndef BIT_PACK_LIB_PATH
     #define BIT_PACK_LIB_PATH "/usr/bin/ar"
