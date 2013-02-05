@@ -1428,7 +1428,7 @@ public class Bit {
 
         let prd = bit.prefixes.product
         let ver = bit.prefixes.productver
-        let root = bit.prefixes.product.windows.match(/^\w:\\/)
+        let root = bit.prefixes.product.windows.match(/^\w:\\/).toString() + "\\"
         genout.writeLine('%-15s = %s'.format(['BIT_ROOT_PREFIX', root]))
         for (let [name,value] in bit.prefixes) {
             if (name.startsWith('programFiles')) continue
