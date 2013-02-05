@@ -44,12 +44,9 @@ OS="${platform.os}"
 CPU="${platform.arch}"
 
 BIN_PREFIX="${prefixes.bin}"
-CFG_PREFIX="${prefixes.config}"
 INC_PREFIX="${prefixes.inc}"
 PRD_PREFIX="${prefixes.product}"
-SPL_PREFIX="${prefixes.spool}"
 VER_PREFIX="${prefixes.productver}"
-WEB_PREFIX="${prefixes.web}"
 
 removebin=Y
 
@@ -144,18 +141,6 @@ preClean() {
         cd "$PRD_PREFIX"
         removeIntermediateFiles *.dylib *.dll *.exp *.lib
     fi
-    if [ -x "$CFG_PREFIX" ] ; then
-        cd "$CFG_PREFIX"
-        removeIntermediateFiles access.log* error.log* '*.log.old' .dummy $PRODUCT.conf make.log $PRODUCT.conf.bak
-    fi
-    if [ -x "$WEB_PREFIX" ] ; then
-        cd "$WEB_PREFIX"
-        removeIntermediateFiles *.mod 
-    fi
-    if [ -x "$SPL_PREFIX" ] ; then
-        cd "$SPL_PREFIX"
-        removeIntermediateFiles *.mod *.c *.dll *.exp *.lib *.obj *.o *.dylib *.so
-    fi
     if [ -d "$INC_PREFIX" ] ; then
         cd "$INC_PREFIX"
         removeIntermediateFiles '*.o' '*.lo' '*.so' '*.a' make.rules .config.h.sav make.log .changes
@@ -172,9 +157,6 @@ postClean() {
     cleanDir "${INC_PREFIX}"
     cleanDir "${DOC_PREFIX}"
     cleanDir "${PRD_PREFIX}"
-    cleanDir "${CFG_PREFIX}"
-    cleanDir "${WEB_PREFIX}"
-    cleanDir "${SPL_PREFIX}"
 
     if [ $OS != WIN ] ; then
         if [ -x /usr/share/$PRODUCT ] ; then

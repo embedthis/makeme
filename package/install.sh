@@ -28,11 +28,9 @@ CPU="${platform.arch}"
 DIST="${platform.dist}"
 
 BIN_PREFIX="${prefixes.bin}"
-CFG_PREFIX="${prefixes.config}"
 INC_PREFIX="${prefixes.inc}"
 PRD_PREFIX="${prefixes.productver}"
 VER_PREFIX="${prefixes.productver}"
-WEB_PREFIX="${prefixes.web}"
 
 installbin=Y
 headless=${HEADLESS:-0}
