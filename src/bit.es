@@ -2902,11 +2902,7 @@ public class Bit {
     function runShell(target, shell, script) {
         let lines = script.match(/^.*$/mg).filter(function(l) l.length)
         let command = lines.join(';')
-        if (command.startsWith(App.dir)) {
-            strace('Run', command.relative)
-        } else {
-            strace('Run', command)
-        }
+        strace('Run', command)
         let shell = Cmd.locate(shell)
         let cmd = new Cmd
         setShellEnv(target, cmd)
@@ -3117,11 +3113,7 @@ public class Bit {
             } else {
                 cmdline = command
             }
-            if (cmdline.startsWith(App.dir)) {
-                trace('Run', cmdline.replace(App.dir, './'))
-            } else {
-                trace('Run', cmdline)
-            }
+            trace('Run', cmdline)
         }
         let cmd = new Cmd
         if (bit.env) {
