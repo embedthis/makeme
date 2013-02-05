@@ -2609,6 +2609,13 @@ public class Bit {
         }
     }
 
+    private function rep(s: String, pattern, replacement): String {
+        if (pattern) {
+            return s.replace(pattern, replacement)
+        }
+        return s
+    }
+
     /*
         Replace default defines, includes, libraries etc with token equivalents. This allows
         Makefiles and script to be use variables to control various flag settings.
@@ -2616,45 +2623,45 @@ public class Bit {
     function repcmd(command: String): String {
         if (generating == 'make' || generating == 'nmake') {
             /* Twice because ldflags are repeated and replace only changes the first occurrence */
-            command = command.replace(gen.linker, '$(LDFLAGS)')
-            command = command.replace(gen.linker, '$(LDFLAGS)')
-            command = command.replace(gen.libpaths, '$(LIBPATHS)')
-            command = command.replace(gen.compiler, '$(CFLAGS)')
-            command = command.replace(gen.defines, '$(DFLAGS)')
-            command = command.replace(gen.includes, '$(IFLAGS)')
-            command = command.replace(gen.libraries, '$(LIBS)')
-            command = command.replace(RegExp(gen.configuration, 'g'), '$$(CONFIG)')
-            command = command.replace(bit.packs.compiler.path, '$(CC)')
-            command = command.replace(bit.packs.link.path, '$(LD)')
+            command = rep(command, gen.linker, '$(LDFLAGS)')
+            command = rep(command, gen.linker, '$(LDFLAGS)')
+            command = rep(command, gen.libpaths, '$(LIBPATHS)')
+            command = rep(command, gen.compiler, '$(CFLAGS)')
+            command = rep(command, gen.defines, '$(DFLAGS)')
+            command = rep(command, gen.includes, '$(IFLAGS)')
+            command = rep(command, gen.libraries, '$(LIBS)')
+            command = rep(command, RegExp(gen.configuration, 'g'), '$$(CONFIG)')
+            command = rep(command, bit.packs.compiler.path, '$(CC)')
+            command = rep(command, bit.packs.link.path, '$(LD)')
             if (bit.packs.rc) {
-                command = command.replace(bit.packs.rc.path, '$(RC)')
+                command = rep(command, bit.packs.rc.path, '$(RC)')
             }
             for each (word in minimalCflags) {
-                command = command.replace(word, '')
+                command = rep(command, word, '')
             }
 
         } else if (generating == 'sh') {
-            command = command.replace(gen.linker, '${LDFLAGS}')
-            command = command.replace(gen.linker, '${LDFLAGS}')
-            command = command.replace(gen.libpaths, '${LIBPATHS}')
-            command = command.replace(gen.compiler, '${CFLAGS}')
-            command = command.replace(gen.defines, '${DFLAGS}')
-            command = command.replace(gen.includes, '${IFLAGS}')
-            command = command.replace(gen.libraries, '${LIBS}')
-            command = command.replace(RegExp(gen.configuration, 'g'), '$${CONFIG}')
-            command = command.replace(bit.packs.compiler.path, '${CC}')
-            command = command.replace(bit.packs.link.path, '${LD}')
+            command = rep(command, gen.linker, '${LDFLAGS}')
+            command = rep(command, gen.linker, '${LDFLAGS}')
+            command = rep(command, gen.libpaths, '${LIBPATHS}')
+            command = rep(command, gen.compiler, '${CFLAGS}')
+            command = rep(command, gen.defines, '${DFLAGS}')
+            command = rep(command, gen.includes, '${IFLAGS}')
+            command = rep(command, gen.libraries, '${LIBS}')
+            command = rep(command, RegExp(gen.configuration, 'g'), '$${CONFIG}')
+            command = rep(command, bit.packs.compiler.path, '${CC}')
+            command = rep(command, bit.packs.link.path, '${LD}')
             for each (word in minimalCflags) {
-                command = command.replace(word, '')
+                command = rep(command, word, '')
             }
         }
         if (generating == 'nmake') {
-            command = command.replace('_DllMainCRTStartup@12', '$(ENTRY)')
+            command = rep(command, '_DllMainCRTStartup@12', '$(ENTRY)')
         }
-        command = command.replace(RegExp(bit.dir.top + '/', 'g'), '')
-        command = command.replace(/  */g, ' ')
+        command = rep(command, RegExp(bit.dir.top + '/', 'g'), '')
+        command = rep(command, /  */g, ' ')
         if (generating == 'nmake') {
-            command = command.replace(/\//g, '\\')
+            command = rep(command, /\//g, '\\')
         }
         return command
     }

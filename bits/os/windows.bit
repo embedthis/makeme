@@ -24,7 +24,7 @@ Bit.load({
         config:             '${prefixes.product}',
         bin:                '${prefixes.product}/bin',
         inc:                '${prefixes.product}/inc',
-        log:                '${prefixes.product}/logs',
+        log:                '${prefixes.product}/log',
         spool:              '${prefixes.product}/tmp',
         src:                '${prefixes.product}/src',
         web:                '${prefixes.product}/web',
