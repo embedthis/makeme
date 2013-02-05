@@ -143,6 +143,12 @@ Bit.load({
             ",
             platforms: [ 'local' ],
         },
+
+        projects: {
+            action: "
+                genProductProjects('--without default', 'default', ['freebsd-x86', 'linux-x86', 'macosx-x64', 'windows-x86'])
+            ",
+        },
     },
 
 
