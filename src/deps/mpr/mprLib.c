@@ -19618,11 +19618,13 @@ static Socket listenSocket(MprSocket *sp, cchar *ip, int port, int initialFlags)
         rc = errno;
         if (rc == EADDRINUSE) {
             mprLog(3, "Cannot bind, address %s:%d already in use", ip, port);
+        } else {
+            mprLog(3, "Cannot bind, address %s:%d errno", ip, port, errno);
         }
         closesocket(sp->fd);
         sp->fd = -1;
         unlock(sp);
-        return MPR_ERR_CANT_OPEN;
+        return (rc == EADDRINUSE) ? MPR_ERR_ALREADY_EXISTS : MPR_ERR_CANT_OPEN;
     }
 
     /* NOTE: Datagrams have not been used in a long while. Maybe broken */

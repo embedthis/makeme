@@ -776,6 +776,12 @@ public function whatInstalled() {
 
 public function genProductProjects(packs = '--without default', profiles = ["default"], platforms = null) 
 {
+    if (platforms is String) {
+        platforms = [platforms]
+    }
+    if (profiles is String) {
+        profiles = [profiles]
+    }
     platforms ||= ['freebsd-x86', 'linux-x86', 'macosx-x64', 'vxworks-x86', 'windows-x86']
     let bitcmd = Cmd.locate('bit')
     for each (profile in profiles) {
