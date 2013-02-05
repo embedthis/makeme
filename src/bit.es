@@ -2241,10 +2241,12 @@ public class Bit {
 
         } else if (generating == 'make') {
             command = repcmd(command)
+            command = command.replace(/-arch *\S* /, '')
             genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
 
         } else if (generating == 'nmake') {
             command = repcmd(command)
+            command = command.replace(/-arch *\S* /, '')
             genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
 
         } else {
@@ -2363,15 +2365,18 @@ public class Bit {
             let command = expandRule(target, rule)
             if (generating == 'sh') {
                 command = repcmd(command)
+                command = command.replace(/-arch *\S* /, '')
                 genout.writeLine(command + '\n')
 
             } else if (generating == 'make') {
                 command = repcmd(command)
+                command = command.replace(/-arch *\S* /, '')
                 genout.writeLine(reppath(target.path) + ': \\\n    ' + 
                     file.relative + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
 
             } else if (generating == 'nmake') {
                 command = repcmd(command)
+                command = command.replace(/-arch *\S* /, '')
                 genout.writeLine(reppath(target.path) + ': \\\n    ' + 
                     file.relative.windows + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
 
