@@ -2801,7 +2801,11 @@ public class Bit {
             }
             global[n] = bit.globals[n] = dir
         }
-        bit.globals.LBIN = localBin
+        if (base) {
+            bit.globals.LBIN = localBin.relativeTo(base)
+        } else {
+            bit.globals.LBIN = localBin
+        }
     }
 
     public function setRuleVars(target, base: Path = App.dir) {
