@@ -28,6 +28,7 @@ Bit.load({
         },
 
         makerom: {
+            enable: 'bit.settings.rom || bit.generating',
             type: 'exe',
             depends: [ 'libmpr', ],
             sources: ['makerom.c'],

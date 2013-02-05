@@ -13432,6 +13432,7 @@ PUBLIC int mprStartLogging(cchar *logSpec, int showConfig)
     int         level;
 
     level = -1;
+    file = 0;
     if (logSpec == 0) {
         logSpec = "stderr:0";
     }
@@ -13466,8 +13467,9 @@ PUBLIC int mprStartLogging(cchar *logSpec, int showConfig)
         if (level >= 0) {
             mprSetLogLevel(level);
         }
-        mprSetLogFile(file);
-
+        if (file) {
+            mprSetLogFile(file);
+        }
         if (showConfig) {
             mprLogHeader();
         }
@@ -15532,11 +15534,53 @@ PUBLIC char *mprGetPathExt(cchar *path)
 }
 
 
+static void manageDirEntry(MprDirEntry *dp, int flags)
+{
+    if (flags & MPR_MANAGE_MARK) {
+        mprMark(dp->name);
+    }
+}
+
+
+#if BIT_ROM
+static MprList *getDirFiles(cchar *path)
+{
+    MprRomFileSystem    *rfs;
+    MprRomInode         *ri;
+    MprPath             fileInfo;
+    MprList             *list;
+    MprDirEntry         *dp;
+    ssize               len;
+
+    rfs = (MprRomFileSystem*) MPR->fileSystem;
+    list = mprCreateList(256, 0);
+    len = slen(path);
+
+    for (ri = rfs->romInodes; ri->path; ri++) {
+        if (!sstarts(ri->path, path) || !schr(&ri->path[len], '/')) {
+            continue;
+        }
+        fileInfo.isDir = (ri->size == 0);
+        fileInfo.isLink = 0;
+        if ((dp = mprAllocObj(MprDirEntry, manageDirEntry)) == 0) {
+            return list;
+        }
+        dp->name = sclone(ri->path);
+        dp->size = ri->size;
+        dp->isDir = (ri->data == 0);
+        dp->isLink = 0;
+        dp->lastModified = 0;
+        mprAddItem(list, &ri->path[len]);
+    }
+    return list;
+}
+
+#else /* !BIT_ROM */
 /*
     This returns a list of MprDirEntry objects
  */
 #if BIT_WIN_LIKE
-static MprList *getDirFiles(cchar *dir, int flags)
+static MprList *getDirFiles(cchar *dir)
 {
     HANDLE          h;
     MprDirEntry     *dp;
@@ -15550,30 +15594,29 @@ static MprList *getDirFiles(cchar *dir, int flags)
     WIN32_FIND_DATA findData;
 #endif
 
-    list = 0;
+    list = mprCreateList(-1, 0);
     dp = 0;
 
     if ((path = mprJoinPath(dir, "*.*")) == 0) {
-        return 0;
+        return list;
     }
     seps = mprGetPathSeparators(dir);
 
     h = FindFirstFile(wide(path), &findData);
     if (h == INVALID_HANDLE_VALUE) {
-        return 0;
+        return list;
     }
-    list = mprCreateList(-1, 0);
 
     do {
         if (findData.cFileName[0] == '.' && (findData.cFileName[1] == '\0' || findData.cFileName[1] == '.')) {
             continue;
         }
         if ((dp = mprAlloc(sizeof(MprDirEntry))) == 0) {
-            return 0;
+            return list;
         }
         dp->name = awtom(findData.cFileName, 0);
         if (dp->name == 0) {
-            return 0;
+            return list;
         }
         /* dp->lastModified = (uint) findData.ftLastWriteTime.dwLowDateTime; */
 
@@ -15602,19 +15645,9 @@ static MprList *getDirFiles(cchar *dir, int flags)
     FindClose(h);
     return list;
 }
-#endif /* WIN */
 
-
-static void manageDirEntry(MprDirEntry *dp, int flags)
-{
-    if (flags & MPR_MANAGE_MARK) {
-        mprMark(dp->name);
-    }
-}
-
-
-#if BIT_UNIX_LIKE || VXWORKS || CYGWIN
-static MprList *getDirFiles(cchar *path, int flags)
+#else /* !WIN */
+static MprList *getDirFiles(cchar *path)
 {
     DIR             *dir;
     MprPath         fileInfo;
@@ -15624,11 +15657,10 @@ static MprList *getDirFiles(cchar *path, int flags)
     char            *fileName;
     int             rc;
 
-    if ((dir = opendir((char*) path)) == 0) {
-        return 0;
-    }
     list = mprCreateList(256, 0);
-
+    if ((dir = opendir((char*) path)) == 0) {
+        return list;
+    }
     while ((dirent = readdir(dir)) != 0) {
         if (dirent->d_name[0] == '.' && (dirent->d_name[1] == '\0' || dirent->d_name[1] == '.')) {
             continue;
@@ -15639,11 +15671,11 @@ static MprList *getDirFiles(cchar *path, int flags)
         fileInfo.isDir = 0;
         rc = mprGetPathInfo(fileName, &fileInfo);
         if ((dp = mprAllocObj(MprDirEntry, manageDirEntry)) == 0) {
-            return 0;
+            return list;
         }
         dp->name = sclone(dirent->d_name);
         if (dp->name == 0) {
-            return 0;
+            return list;
         }
         if (rc == 0 || fileInfo.isLink) {
             dp->lastModified = fileInfo.mtime;
@@ -15661,8 +15693,8 @@ static MprList *getDirFiles(cchar *path, int flags)
     closedir(dir);
     return list;
 }
-#endif
-
+#endif /* !WIN */
+#endif /* !BIT_ROM */
 
 /*
     Find files in the directory "dir". If base is set, use that as the prefix for returned files.
@@ -15675,7 +15707,7 @@ static MprList *findFiles(MprList *list, cchar *dir, cchar *base, int flags)
     char            *name;
     int             next;
 
-    if ((files = getDirFiles(dir, flags)) == 0) {
+    if ((files = getDirFiles(dir)) == 0) {
         return 0;
     }
     for (next = 0; (dp = mprGetNextItem(files, &next)) != 0; ) {
@@ -18328,7 +18360,6 @@ static long seekFile(MprFile *file, int seekType, long distance)
     MprRomInode     *inode;
 
     assert(seekType == SEEK_SET || seekType == SEEK_CUR || seekType == SEEK_END);
-
     inode = file->inode;
 
     switch (seekType) {
@@ -18355,7 +18386,6 @@ static long seekFile(MprFile *file, int seekType, long distance)
 static bool accessPath(MprRomFileSystem *fileSystem, cchar *path, int omode)
 {
     MprPath     info;
-
     return getPathInfo(fileSystem, path, &info) == 0 ? 1 : 0;
 }
 
