@@ -1500,6 +1500,7 @@ public class Bit {
                 bit.packs.compiler.dir.windows.name.replace(/.*Program Files.*Microsoft/, '$$(PROGRAMFILES)\\Microsoft') :
                 '$(PROGRAMFILES)\\Microsoft Visual Studio 9.0'
             if (generating == 'make') {
+                /* Not used */
                 genout.writeLine('VS             := ' + '$(VSINSTALLDIR)')
                 genout.writeLine('VS             ?= ' + vs)
                 genout.writeLine('SDK            := ' + '$(WindowsSDKDir)')

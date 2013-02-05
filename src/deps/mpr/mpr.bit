@@ -27,8 +27,10 @@ Bit.load({
             scripts: { prebuild: "if (bit.settings.mpr) { bit.settings.mpr.manager ||= 'manager'}" },
         },
 
+        /*
+            Always build makerom because if cross-compiling, the dev system will be !BIT_ROM, but needs it for the target
+         */
         makerom: {
-            enable: 'bit.settings.rom || bit.generating',
             type: 'exe',
             depends: [ 'libmpr', ],
             sources: ['makerom.c'],

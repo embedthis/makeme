@@ -37,8 +37,14 @@ let cfg = {
 }
 Bit.load({packs: { vxworks: cfg}})
 bit.env.WIND_BASE = path
-bit.env.WIND_HOME = path.dirname
-bit.env.WIND_PLATFORM = path.basename
+
+if (bit.options.gen) {
+    bit.env.WIND_HOME = path + '/..'
+    bit.env.WIND_PLATFORM = '$(WIND_PLATFORM)'
+} else {
+    bit.env.WIND_HOME = path.dirname
+    bit.env.WIND_PLATFORM = path.basename
+}
 
 if (Config.OS == 'windows') {
     bit.env.WIND_HOST_TYPE = 'x86-win32'
