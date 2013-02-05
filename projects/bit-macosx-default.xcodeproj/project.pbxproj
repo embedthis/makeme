@@ -1018,7 +1018,7 @@ cp -r ca.crt ../../${CFG_DIR}/bin/ca.crt
 			shellPath = /bin/bash;
 			shellScript = "PATH=$PATH:/usr/local/bin
 cd ..
-/Users/mob/git/bit/macosx-x64-default/bin/ejsc --out macosx-x64-default/bin/ejs.mod --optimize 9 --bind --require null src/deps/ejs/ejs.es";
+macosx-x64-default/bin/ejsc --out macosx-x64-default/bin/ejs.mod --optimize 9 --bind --require null src/deps/ejs/ejs.es";
 		};
 		493D3589493D470700000010 /* ShellScript for bit.es */ = {
 			isa = PBXShellScriptBuildPhase;

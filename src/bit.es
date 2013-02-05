@@ -2553,8 +2553,7 @@ public class Bit {
             } else {
                 genWrite(target.name + ': ' + getTargetDeps(target, true))
             }
-            let cmd = target['generate-' + bit.platform.os] ||
-                target['generate-make'] || target['generate-sh'] || target.generate
+            let cmd = target['generate-' + bit.platform.os] || target['generate-make'] || target['generate-sh'] || target.generate
             if (cmd) {
                 cmd = cmd.trim().replace(/^\s*/mg, '\t')
                 cmd = cmd.replace(/\\\n\s*/mg, '')
