@@ -1187,6 +1187,7 @@ public class Bit {
             bit.dir[d] = bit.dir[d].replace(bit.original.platform.name, bit.platform.name)
         }
         bit.platform.last = true
+        bit.generating = true
         prepBuild()
         generateProjects()
     }
