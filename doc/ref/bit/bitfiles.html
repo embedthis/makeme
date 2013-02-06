@@ -1,0 +1,326 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis Bit 0.8.0 Documentation</title>
+    <meta name="keywords" content="Bit, Build It!, Javascript"/>
+	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
+	<meta name="robots" content="index,follow" />
+	<link href="../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../iehacks.css" rel="stylesheet" type="text/css" />
+    </![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo"  href="http://embedthis.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form">Loading</div>
+                <div class='version'>Embedthis Bit 0.8.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt;<a href="index.html">User Guide</a>&gt; <b>Bit</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            
+                <h1>Quick Nav </h1>
+                <ul>
+<li><a href="#overview">Overview</a></li>
+                </ul>
+<!-- BeginDsi "dsi/refSeeAlso.html" -->
+        <h1>See Also</h1>
+        <ul>
+            <li><a href="../../ref/bit/bitfiles.html">Processing Bit Files</a></li>
+            <li><a href="../../ref/bit/commandline.html">Bit Command Line</a></li>
+            <li><a href="../../ref/bit/events.html">Bit Events</a></li>
+            <li><a href="../../ref/bit/targets.html">Bit Targets</a></li>
+
+            <li><a href="../../guide/bit/users/http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Ejscript Language</a></li>
+            <li><a href="../../guide/bit/users/http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a></li>
+        </ul>
+<!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+        <a id="bitFiles"></a>
+        <h2 class="section">Processing Bit Files</h2>
+        <p>A bit file is a JavaScript file that invokes <em>Bit.load</em> to supply build instructions. The argument to
+        Bit.load is a bit object literal. Typically this is expressed as a JavaScript object literal, but it could be
+        constructed in other ways via JavaScript code. A typically project may load many bit files that are blended
+        together into a single, unified view of project. This view is held in a global object called <em>bit</em>. Note
+        this is lower case. Use the 'bit --dump' command line option to save the unified project view in a dump file
+        that can be viewed in any source editor.</p>
+        <h3>Blending Bit Files</h3>
+        <p>Before Bit loads a bit file, it loads some standard definitions for the current operating system. These are
+        loaded from the bit installation directory or from the <em>bits</em> directory if the bit configuration has been
+        imported (see the --import switch). Bit files may specify other bit files to load via the <em>blend</em>
+        collection. For example:
+        <pre>
+Bit.load({
+    blend: [
+        'another.bit',
+    ],
+})
+</pre>
+        <a id="loadOrder"></a>
+        <h3>Load Order</h3>
+        <p>Bit files are loaded depth-first. This means that bit files specified in the blend[] collection will be
+        loaded first before the contents of the bit file that referenced them.  Run bit with the --verbose switch to see
+        what bit files are loaded and in what order.</p>
+        <a id="propertyBlending"></a>
+        <h3>Property Blending and Inheritance</h3>
+        <p>When a user bit literal is loaded, it is blended with existing bit configuration from previously loaded bit
+        files by overwriting or augmenting prior definitions. Bit facilitates this by extending the standard JSON syntax 
+        with blend prefixes: <em>+</em>, <em>-</em> and <em>=</em>. For example:
+        <pre>
+Bit.load({
+    defaults: {
+        '+defines': [ '-DMY_FEATURE=1' ],
+        '-compiler': [ '-Wall' ],
+    },
+    settings: {
+        title: "My App",
+    },
+})
+</pre>
+        <p>The <em>+defines</em> property will add <em>-DMY_FEATURE=1</em> to the list of compiler definitions. the
+        <em>-compiler</em> property will subtract <em>-Wall</em> from the list of compiler switches. Using a <em>=</em>
+        prefix will overwrite an existing property definition. The default is to overwrite property definitions. </p>
+        <p>The property prefixes are used for simple property key/value pairs. Objects and arrays always have their properties
+        blended (added).</p> 
+        <a id="tokenExpansion"></a>
+        <h3>Property Token Expansion</h3>
+        <p>To make it easy to dynamically compute file paths, strings have tokens automatically expanded. Tokens take
+the form: "${TOKEN}". For example:
+<pre>
+myTarget: {
+    enable: "'${OS}' == 'linux',
+    type: 'exe',
+    sources: [ '*.c' ],
+},
+</pre>
+        <p>Tokens are expanded using values from the <em>bit</em> global object. For example: OS is expanded using the
+        value of the bit.globals.OS property. Token expansion uses three sets of values:</p>
+        <ul>
+            <li>Top level bit.* properties</li>
+            <li>bit.globals.* properties</li>
+            <li>Rule specific tokens when compiling or linking</li>
+        </ul>
+        <p>The following bit.globals.* are defined for use by tokens:</p>
+        <table title="globals">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
+            <tr><td>ARCH</td><td>CPU architecture: x86, x64, ppc, ...</td></tr>
+            <tr><td>CONFIG</td><td>Platform configuration: OS-ARCH-PROFILE</td></tr>
+            <tr><td>EXE</td><td>Executable extension: .exe</td></tr>
+            <tr><td>GCC_ARCH</td><td>CPU architecture mapped to a GCC architecture: x86_64, i686, ...</td></tr>
+            <tr><td>LIKE</td><td>Set to windows or posix if relevant</td></tr>
+            <tr><td>O</td><td>Compiled object file extension: .o, .obj</td></tr>
+            <tr><td>OS</td><td>Operating system: linux, windows, ...</td></tr>
+            <tr><td>PLATFORM</td><td>Platform string: OS-ARCH</td></tr>
+            <tr><td>SHOBJ</td><td>Shared object extension: .so, .dll</td></tr>
+            <tr><td>SHLIB</td><td>Shared object library extension: .so, .lib</td></tr>
+            <tr><td>BIN</td><td>Binary outputs directory: OS-ARCH-PROFILE/bin</td></tr>
+            <tr><td>CFG</td><td>Configuration outputs directory: OS-ARCH-PROFILE</td></tr>
+            <tr><td>BITS</td><td>Directory holding standard bit files</td></tr>
+            <tr><td>INC</td><td>Standard include directory</td></tr>
+            <tr><td>OBJ</td><td>Directory holding compiled files: OS-ARCH-PROFILE/obj</td></tr>
+            <tr><td>PACKS</td><td>Directory holding bit package extension files</td></tr>
+            <tr><td>SRC</td><td>Directory of the source tree to be built</td></tr>
+            <tr><td>TOP</td><td>Top directory where the project is being built</td></tr>
+            </tbody>
+        </table>
+        
+        <a id="propertyCollections"></a>
+        <h3>Top Level Property Collections</h3>
+        <p>Here is a non-exhaustive description of the important top-level Bit property collections:</p>
+        
+        <table title="top-level collections">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>defaults</td><td>Default properties to be inherited by all targets</td></tr>
+                <tr><td>dir</td><td>Directories</td></tr>
+                <tr><td>ext</td><td>File extensions</td></tr>
+                <tr><td>globals</td><td>Global values to use in property token expansion</td></tr>
+                <tr><td>internal</td><td>Default properties to be inherited by only the targets in the same bit file</td></tr>
+                <tr><td>options</td><td>Supplied command line options</td></tr>
+                <tr><td>platform</td><td>Description of the current platform. Has properties for operating system
+                        and CPU architecture.</td></tr>
+                <tr><td>prefixes</td><td>Installation directory prefixes</td></tr>
+                <tr><td>rules</td><td>Command rules for compiling, building libraries and executables</td></tr>
+                <tr><td>packs</td><td>Discovered extension packs</td></tr>
+                <tr><td>blend</td><td>Bit files to blend</td></tr>
+                <tr><td>customize</td><td>Optional bit file to load after fully loading all blended bit files</td></tr>
+                <tr><td>settings</td><td>Project top-level settings. This includes name, version, description etc.</td></tr>
+                <tr><td>usage</td><td>Additional usage message to emit for bit command line errors</td></tr>
+                <tr><td>modules</td><td>Ejscript modules to load</td></tr>
+                <tr><td>profiles</td><td>Build profiles. Standard profiles are: debug and release</td></tr>
+                <tr><td>targets</td><td>Targets to build. Each target is its own collection of properties</td></tr>
+            </tbody>
+        </table>
+        <h3>Platform Collection</h3>
+        <p>The platform collection defines properties for:
+        <table title="platform collection">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>os</td><td>Operating system: linux, windows, vxworks, ...</td></tr>
+                <tr><td>arch</td><td>CPU architecture: arm, ppc, x64, x86, ...</td></tr>
+                <tr><td>like</td><td>Set to 'windows' or 'posix' if true</td></tr>
+                <tr><td>profile</td><td>Build profile selected: 'debug', 'release', ...</td></tr>
+            </tbody>
+        </table>
+        <h3>Packs Collection</h3>
+        <p>The packs collection defines a collection for each extension pack that bit examined when configuring. Each
+        pack will have properties for: 
+        <table title="packs collection">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>enable</td><td>Set to true if the pack was found on the system</td></tr>
+                <tr><td>description</td><td>Descriptive name of the pack</td></tr>
+                <tr><td>path</td><td>If found, the path to the pack directory or binary</td></tr>
+                <tr><td>compiler</td><td>Compiler options when building targets that depend on this pack</td></tr>
+                <tr><td>defines</td><td>Compiler definitions when building targets that depend on this pack</td></tr>
+                <tr><td>includes</td><td>Compiler include directories to use when building targets that depend on this
+                        pack</td></tr>
+                <tr><td>libraries</td><td>Libraries to link with when building targets that depend on this pack</td></tr>
+                <tr><td>libpaths</td><td>Library search paths to use when building targets that depend on this pack</td></tr>
+                <tr><td>linker</td><td>Linker options to use when building targets that depend on this pack</td></tr>
+                <tr><td>imports</td><td>Files to import from this pack before building</td></tr>
+            </tbody>
+        </table>
+        <h3>Settings Collection</h3>
+        <p>The settings collection specifies the top level project/product names. It is required in the main.bit file.</p>
+        <table title="settings">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>company</td><td>Company name</td></tr>
+                <tr><td>product</td><td>Product or project name. Should be one word, lower case without spaces</td></tr>
+                <tr><td>title</td><td>Descriptive one sentence title for the product</td></tr>
+                <tr><td>version</td><td>Product version string. Should be of the form: MAJOR.MINOR.PATCH </td></tr>
+                <tr><td>buildNumber</td><td>Build number string</td></tr>
+                <tr><td>optional</td><td>List of optional packs to discover when configuring </td></tr>
+                <tr><td>required</td><td>List of required packs to discover when configuring </td></tr>
+                <tr><td>static</td><td>Build using static linking instead of building shared libraries</td></tr>
+                <tr><td>without-all</td><td>List of packs to disable when doing '--without all configure'</td></tr>
+            </tbody>
+        </table>
+        <h3>Targets Collection</h3>
+        <table title="targets">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>name</td><td>Target name. This name is used rather than the collection name</td></tr>
+                <tr><td>home</td><td>Home directory to use when resolving paths for this target</td></tr>
+                <tr><td>type</td><td>Type of target: exe, lib, action, obj, header, ...</td></tr>
+                <tr><td>enable</td><td>Set to true if the pack was found on the system</td></tr>
+                <tr><td>compiler</td><td>Compiler options</td></tr>
+                <tr><td>defines</td><td>Compiler definitions</td></tr>
+                <tr><td>includes</td><td>Compiler include directories</td></tr>
+                <tr><td>libraries</td><td>Libraries to link</td></tr>
+                <tr><td>libpaths</td><td>Library search paths</td></tr>
+                <tr><td>linker</td><td>Linker options</td></tr>
+                <tr><td>path</td><td>Path to the result of building the target. If set, this is used for dependency
+                        calculations. If updated, all targets that depend on this target will be rebuilt.</td></tr>
+                <tr><td>scripts</td><td>Scripts for the target. See <a href="#scripts">scripts</a> for details</td></tr>
+                <tr><td>sources</td><td>Array of source file patterns to compile for the target. Use normal * as a
+                        wild-card, ** as a wild-card that descends directories. Use the exclude property to exclude </td></tr>
+                <tr><td>headers</td><td>Linker options</td></tr>
+                <tr><td>include</td><td>Regular expression of file patterns to include from the sources list. 
+                    This is a filter that is applied to the sources list after expanding the sources wildcards</td></tr>
+                <tr><td>depends</td><td>Linker options</td></tr>
+                <tr><td>exclude</td><td>Regular expression of file patterns to exclude from the sources list
+                    This is a filter that is applied to the sources list after expanding the sources wildcards</td></tr>
+                <tr><td>rule</td><td>Build command template to use when invoking compiler and linker. Typically not
+                        explicitly set unless overriding for some reason. Set to: 'c-&gt;o', 'cpp-&gt;o', 'lib', 'exe', 'gui'.
+                        Rules are automatically selected for 'lib' and 'exe' targets. </td>
+                <tr><td>platforms</td><td>Platforms for which this target should be built. Set to OS-ARCH or 'local'</td></tr>
+            </tbody>
+        </table>
+        <a id="buildingSequence"></a>
+        <h3>Building Sequence</h3>
+        <p>Bit builds targets according to a defined life cycle.
+        <ul>
+            <li>A bit object is created and initialized with the standard and per-O/S definitions</li>
+            <li>The start.bit file is loaded</li>
+            <li>All bit files referenced in the start.bit blend[] collection are loaded. This continues recursively,
+                depth first.</li>
+            <li>The next bit files referenced in the start.bit platform[] collection is selected. Each of the steps below
+                are applied for each platform to build.</li>
+            <li>The platform bit file is loaded and all referenced bit files in blend[] are loaded depth-first. After
+                loading each script.</li>
+            <li>The <em>dir</em> and <em>bit.global</em> properties are initialized</li>
+            <li>Targets are enabled or disabled depending on their <em>enable</em> property expression</li>
+            <li>A list of top-level targets to build is created based on the bit commandline and target dependencies.
+            See below <a href="#selectingTargets">Selecting Targets</a> for more details.</li>
+            <li>Those targets to build are processed and their properties are blended with the defaults/internal
+                properties</li>
+            <li>The target dependencies are resolved and added to the target list</li>
+            <li>The target sources have wild-cards expanded. Targets are dynamically created for all objects to be
+            built. The C/C++ source files are parsed and header targets are built for non-system include directives that
+            have no leading spaces. i.e. #include "filename" starting in column 0.</li>
+            <li>The target is built. If the target is an executable, library, or object, it is built using the
+                transition rules specified in bit.rules. If the target has a <em>build</em> event script, it is run.</li>
+        </ul>
+        <a id="selectingTargets"></a>
+        <h3>Selecting Targets</h3>
+        <p>Bit follows a simple process when selecting the targets to build.</p>
+        <ol>
+            <li>The set of names specified on the bit command line is used as a starting target list. If the name 
+                does not match a target name, the list of targets is search to see if the name matches any targets with
+            a type of that name. All matching targets are added to the list. For example: this allows targets of type
+            <em>clean</em> to be run when <em>bit clean</em> is invoked.</li>
+            <li>Targets that are disabled (<em>enable</em> property evaluates to false) are removed from the list</li>
+            <li>Targets referenced in the <em>depends</em> property are added to the list (recursively)</li>
+            <li>Additional targets are created dynamically for source items to be compiled and include headers</li>
+        </ol>
+        <p>To reiterate, there are thus two paradigms when invoking bit:</p>
+        <ul> 
+            <li><em>bit target ...</em></li>
+            <li><em>bit action ...</em></li>
+        </ul> 
+        <p>When specifying a name that is a target, these must match the target name property. When specifying an action,
+            these must match a target type property.</p>
+        
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2013. 
+            All rights reserved. Embedthis Bit, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          'partner-pub-9935546676162772:ysvxxv4n9rx');
+
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis Bit 0.8.0 Documentation</title>
+    <meta name="keywords" content="Bit, Build It!, Javascript"/>
+	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
+	<meta name="robots" content="index,follow" />
+	<link href="../../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../../iehacks.css" rel="stylesheet" type="text/css" />
+    </![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo"  href="http://embedthis.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form">Loading</div>
+                <div class='version'>Embedthis Bit 0.8.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt;<a href="index.html">User Guide</a>&gt; <b>Scripts</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            
+                <h1>Quick Nav </h1>
+                <ul>
+<li><a href="#overview">Overview</a></li>
+                </ul>
+<!-- BeginDsi "dsi/guideSeeAlso.html" -->
+        <h1>See Also</h1>
+        <ul>
+            <li><a href="../../../guide/bit/users/quick.html">Quick Start with Bit</a></li>
+            <li><a href="../../../guide/bit/users/projects.html">Bit Projects</a></li>
+            <li><a href="../../../guide/bit/users/compiling.html">Compiling Sources</a></li>
+            <li><a href="../../../guide/bit/users/libraries.html">Building Libraries</a></li>
+            <li><a href="../../../guide/bit/users/executables.html">Building Executables</a></li>
+            <li><a href="../../../guide/bit/users/scripts.html">Running Scripts</a></li>
+            <li><a href="../../../guide/bit/users/copying.html">Copying Files</a></li>
+            <li><a href="../../../guide/bit/users/configuring.html">Configuring a Project</a></li>
+            <li><a href="../../../guide/bit/users/debugging.html">Debugging a Build</a></li>
+            <li><a href="../../../guide/bit/users/generating.html">Generating Projects</a></li>
+            <li><a href="../../../guide/bit/users/make.html">Using Makefiles</a></li>
+            <li><a href="../../../guide/bit/users/cross.html">Cross-Compiling</a></li>
+
+            <li><a href="../../../guide/bit/users/http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Ejscript Language</a></li>
+            <li><a href="../../../guide/bit/users/http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a></li>
+        </ul>
+<!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+        <a id="scripts"></a>
+        <h3>Scripts</h3>
+        <p>Target scripts may be specified three ways:</p>
+        <ul>
+            <li>Build target scripts</li>
+            <li>Action target scripts</li>
+            <li>Long-hand scripts</li>
+        </ul>
+        <h4>Build Target Scripts</h4>
+        <p>Build target scripts run when a default build (bit build) is run. These scripts use the
+        <em>build</em> property. For example:</p>
+<pre>
+targets: {
+    cleanJunk: {
+        build: "
+            trace('Clean', 'Cleaning junk')
+            rm('file.junk')
+        ",
+    }
+}
+</pre>
+        <p>When <em>bit</em> is invoked, the script for the <em>cleanJunk</em> target will be run. Note that in
+        Ejscript, quoted literals can span multiple lines. No backquoting at the end of the line is required.</p>
+        <h4>Action Scripts</h4>
+        <p>Action scripts do not run by default. Rather, they are run when they are explicitly invoked on the command
+        line or another target is invoked that references them as a dependency. 
+        These scripts use the <em>action</em> property. For example:</p>
+<pre>
+targets: {
+    'generate-doc': {
+        build: "
+            run('bash ./generate-documentation')
+        ",
+    }
+}
+</pre>
+        <p>When <em>bit generate-doc</em> is run, this generate-documentation script will be run. </p>
+        <h4>Long-hand Scripts</h4>
+        <p>A target can specify multiple scripts that are run at various stages of the building life cycle. These are
+        specified via the scripts collection of a target.</p>
+<pre>
+targets: {
+    libglow: {
+        type: 'lib',
+        sources: '*.c',
+        <b>scripts: {
+            prebuild: [
+                {
+                    home: '.',
+                    shell: 'bash',
+                    script: '
+                        ./build-prep
+                    ',
+                }
+            ],
+        },</b>
+    },
+}
+</pre>
+        <p>The scripts collection is an object hash with properties for life cycle events. When the specific event is
+        triggered, the script is run. For each event, there can be multiple scripts which are run in-order. Each script
+        has a home directory which becomes the current directory for the script, a shell interpreter to execute the
+        script and the script contents.</p>
+        <p>Note that the <em>build</em> and <em>action</em> scripts translate under-the-hood into the same long form.
+        The action script becomes a target with a type of <em>action</em> and an event of <em>build</em>. A build script
+        becomes a target with a type of <em>build</em> and an event of <em>build</em>.</p>
+        <a id="debugging"></a>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2013. 
+            All rights reserved. Embedthis Bit, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          'partner-pub-9935546676162772:ysvxxv4n9rx');
+
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+</body>
+</html>

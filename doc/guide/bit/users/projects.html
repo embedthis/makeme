@@ -1,0 +1,105 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis Bit 0.8.0 Documentation</title>
+    <meta name="keywords" content="Bit, Build It!, Javascript"/>
+	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
+	<meta name="robots" content="index,follow" />
+	<link href="../../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../../iehacks.css" rel="stylesheet" type="text/css" />
+    </![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo"  href="http://embedthis.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form">Loading</div>
+                <div class='version'>Embedthis Bit 0.8.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt;<a href="index.html">User Guide</a>&gt; <b>Bit Projects</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            
+                <h1>Quick Nav </h1>
+                <ul>
+<li><a href="#overview">Overview</a></li>
+                </ul>
+<!-- BeginDsi "dsi/guideSeeAlso.html" -->
+        <h1>See Also</h1>
+        <ul>
+            <li><a href="../../../guide/bit/users/quick.html">Quick Start with Bit</a></li>
+            <li><a href="../../../guide/bit/users/projects.html">Bit Projects</a></li>
+            <li><a href="../../../guide/bit/users/compiling.html">Compiling Sources</a></li>
+            <li><a href="../../../guide/bit/users/libraries.html">Building Libraries</a></li>
+            <li><a href="../../../guide/bit/users/executables.html">Building Executables</a></li>
+            <li><a href="../../../guide/bit/users/scripts.html">Running Scripts</a></li>
+            <li><a href="../../../guide/bit/users/copying.html">Copying Files</a></li>
+            <li><a href="../../../guide/bit/users/configuring.html">Configuring a Project</a></li>
+            <li><a href="../../../guide/bit/users/debugging.html">Debugging a Build</a></li>
+            <li><a href="../../../guide/bit/users/generating.html">Generating Projects</a></li>
+            <li><a href="../../../guide/bit/users/make.html">Using Makefiles</a></li>
+            <li><a href="../../../guide/bit/users/cross.html">Cross-Compiling</a></li>
+
+            <li><a href="../../../guide/bit/users/http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Ejscript Language</a></li>
+            <li><a href="../../../guide/bit/users/http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a></li>
+        </ul>
+<!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+        <a id="projects"></a>
+        <h2>Bit Projects</h2>
+        <p>When bit is invoked, it searches for a <em>start.bit</em> file in the current directory. If one if not found, it
+        searches up the parent directory chain for one. Bit then loads this start.bit file and commences processing
+        its build instructions. A start.bit file may in turn load other bit files.</p>
+        <a id="stylesOfUse"></a>
+        <h2>Styles of Use</h2>
+        <p>There are two styles of use for Bit:</p>
+        <ul>
+            <li>Standalone Use</li>
+            <li>Configured Use</li>
+        </ul>
+        <h3>Standalone Use</h3>
+        <p>A standalone start.bit file may be used to express simple build targets that do not requiring any prior
+        configuration step. The start.bit file contains targets that specify the recipes to build those targets.</p>
+        <h3>Configured Use</h3>
+        <p>Some products/projects require a configuration phase prior to building with Bit. Configuration involves discovering
+        the tools and components available on the current system and the available compiler tool chain support. For
+        configured products, Bit is first invoked with a <em>configure</em> target. Bit then reads a <em>main.bit</em> file which
+        describes the project, and generates a start.bit and platform bit file that describes the system.  Configured
+        use also supports cross-compilation and project file generation for use in IDEs.</p>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2013. 
+            All rights reserved. Embedthis Bit, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          'partner-pub-9935546676162772:ysvxxv4n9rx');
+
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+</body>
+</html>

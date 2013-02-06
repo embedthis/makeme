@@ -1,0 +1,110 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis Bit 0.8.0 Documentation</title>
+    <meta name="keywords" content="Bit, Build It!, Javascript"/>
+	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
+	<meta name="robots" content="index,follow" />
+	<link href="../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../iehacks.css" rel="stylesheet" type="text/css" />
+    </![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo"  href="http://embedthis.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form">Loading</div>
+                <div class='version'>Embedthis Bit 0.8.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt;<a href="index.html">User Guide</a>&gt; <b>Bit</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            
+                <h1>Quick Nav </h1>
+                <ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#example">Example</a></li>
+                </ul>
+<!-- BeginDsi "dsi/refSeeAlso.html" -->
+        <h1>See Also</h1>
+        <ul>
+            <li><a href="../../ref/bit/bitfiles.html">Processing Bit Files</a></li>
+            <li><a href="../../ref/bit/commandline.html">Bit Command Line</a></li>
+            <li><a href="../../ref/bit/events.html">Bit Events</a></li>
+            <li><a href="../../ref/bit/targets.html">Bit Targets</a></li>
+
+            <li><a href="../../guide/bit/users/http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Ejscript Language</a></li>
+            <li><a href="../../guide/bit/users/http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a></li>
+        </ul>
+<!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+        <a id="targets"></a>
+        <a id="dependencies"></a>
+        <h3>Target Dependencies</h3>
+        <p>Bit targets can depend on other targets that must be built first. Bit targets have a name which may be
+        depended upon by another target. For example:</p>
+<pre>
+targets {
+    first: {
+        build: "print('Build First')",
+    },
+    second: {
+        depends: ['first'],
+        build: "print('Build Second')",
+    }, 
+}
+</pre>
+        <p>Before Bit begins building, it parses the entire bit file configuration and determines which targets depend
+        on what. It then builds the targets in the required build order. It successfully detects and handles dependency
+        loops.</p>
+        <a id="defaultProperties"></a>
+        <h3>Target Default Properties</h3>
+        <p>Often targets need very similar configuration. Bit provides a <em>defaults</em> collection of properties that are inherited
+        by all targets. It also provides an <em>internal</em> collection of properties that are inherited by only the targets in the
+        same bit file. For example:</p>
+<pre>
+defaults: {
+    '+defines': [ '-DTUNE=SPEED ],
+    '+libraries': [ 'math' ],
+}
+</pre>
+        <p>This will use the <em>TUNE=SPEED</em> compiler definition when compiling all source files, and the
+        <em>math</em> library when
+        linking executables (and libraries on some systems).</p>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2013. 
+            All rights reserved. Embedthis Bit, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          'partner-pub-9935546676162772:ysvxxv4n9rx');
+
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+</body>
+</html>

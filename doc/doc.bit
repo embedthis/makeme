@@ -20,8 +20,8 @@ Bit.load({
                 path.write(path.readString().replace(/version\">.*</, 'version\">' + 
                     settings.title + ' ' + settings.version + '<'))
                 for each (path in Path('.').files('**.html', {exclude: /Bare.html|dsi/})) {
-                    vtrace('Patch', path)
-                    Cmd('dsi -v -I. ' + path)
+                    strace('Patch', path)
+                    Cmd.run('dsi -v -I. ' + path)
                 }
             ",
         },

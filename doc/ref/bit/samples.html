@@ -1,0 +1,169 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis Bit 0.8.0 Documentation</title>
+    <meta name="keywords" content="Bit, Build It!, Javascript"/>
+	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
+	<meta name="robots" content="index,follow" />
+	<link href="../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../iehacks.css" rel="stylesheet" type="text/css" />
+    </![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo"  href="http://embedthis.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form">Loading</div>
+                <div class='version'>Embedthis Bit 0.8.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt;<a href="index.html">User Guide</a>&gt; <b>Bit</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            
+                <h1>Quick Nav </h1>
+                <ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#example">Example</a></li>
+                </ul>
+<!-- BeginDsi "dsi/refSeeAlso.html" -->
+        <h1>See Also</h1>
+        <ul>
+            <li><a href="../../ref/bit/bitfiles.html">Processing Bit Files</a></li>
+            <li><a href="../../ref/bit/commandline.html">Bit Command Line</a></li>
+            <li><a href="../../ref/bit/events.html">Bit Events</a></li>
+            <li><a href="../../ref/bit/targets.html">Bit Targets</a></li>
+
+            <li><a href="../../guide/bit/users/http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Ejscript Language</a></li>
+            <li><a href="../../guide/bit/users/http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a></li>
+        </ul>
+<!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+        <a id="bitFiles"></a>
+        
+        <a id="samples"></a>
+        <h2>Bit Samples</h2>
+        <p>Here are some example bit files in the Appweb and Ejscript products:</p>
+        <ul>
+            <li><a
+                href="https://github.com/embedthis/appweb-4/blob/master/main.bit">Appweb main.bit &mdash; product level
+                bit file</a></li>
+            <li><a href="https://github.com/embedthis/appweb-4/blob/master/src/server/server.bit">Appweb
+                src/server/server.bit &mdash; bit file to build appweb binary</a></li>
+            <li><a href="https://github.com/embedthis/appweb-4/blob/master/src/libappweb.bit">Appweb
+                src/libappweb.bit &mdash; bit file to build appweb library</a></li>
+            <li><a href="https://github.com/embedthis/appweb-4/blob/master/src/modules/modules.bit">Appweb
+                src/modules/modules.bit &mdash; bit file to build appweb modules</a></li>
+            <li><a href="https://github.com/embedthis/appweb-4/blob/master/test/test.bit">Appweb
+                test/test.bit &mdash; bit file to unit test appweb</a></li>
+            <li><a href="https://github.com/embedthis/ejs-2/blob/master/src/core/core.bit">Ejscript
+                src/core/core.bit &mdash; bit file to build the ejscript module</a></li>
+            <li><a href="https://github.com/embedthis/ejs-2/blob/master/src/cmd/cmd.bit">Ejscript
+                src/cmd/cmd.bit &mdash; bit file to build the ejscript executables</a></li>
+        </ul>
+        <a id="example"></a>
+        <h2>Example</h2>
+        <p>Here is a sample main.bit file:</p>
+<pre>
+/*
+    main.bit -- Main Bit File
+ */
+Bit.load({
+    blend: [
+        /* Blend these bit files. Loaded before this file is processed */
+        'company.bit',
+    ],
+    customize: [
+        /* Optionally load this if present to overwrite any property */
+        'custom.bit',
+    ],
+    '+modules': [
+        /* Can put scripts or compiled mod file shere */
+        'bits/company.es',
+    ],
+    /*
+        Core settings
+     */
+    settings: {
+        product: 'rocket',
+        title: 'Acme Rocket',
+        company: 'Acme',
+        version: '1.0.0',
+        buildNumber: '0',
+        /* Require bit of 0.8.0 at least */
+        bit: '0.8.0'
+        /* Do dynamic linking by default */
+        static: false,
+    },
+    targets: {
+        librocket: {
+            /* Target to build a library */
+            type: 'lib',
+            sources: [
+                /* Use all C source in rocket */
+                'rocket/*.c'
+                /* Use all C source anywhere under space */
+                'space/**.c'
+            ],
+            /* Exclude any files with gemini or mercury in the name */
+            exclude: /mercury|gemini/,
+            /* Export these headers to the 'platform/inc' directory */
+            headers:     [ 'rocket/rocket.h' ],
+            /* Use these defines */
+            '+defines':  [ '-DION_DRIVE', ],
+            /* Search this directory for includes */
+            '+includes': [ 'rocket', ],
+            /* Add these compiler switches */
+            '+compiler': [ '-Wall', ],
+        },
+        saturn: {
+            /* Target to build an executable */
+            type: 'exe',
+            sources: [ 'saturn.c' ],
+            depends: [ 'librocket'],
+        },
+        'saturn-gui': {
+            /* Target to build an executable only on windows */
+            enable: bit.platform.os == 'windows',
+            sources: [ 'saturnGui.c' ],
+            depends: [ 'librocket'],
+        },
+    },
+})
+</pre>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2013. 
+            All rights reserved. Embedthis Bit, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          'partner-pub-9935546676162772:ysvxxv4n9rx');
+
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+</body>
+</html>

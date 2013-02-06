@@ -2,10 +2,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis Ejscript 2.3.0 Documentation</title>
-    <meta name="keywords" content="Ejscript, JavaScript, ECMAScript, Server-Side JavaScript, Dynamic languages, 
-        Embedded, AJAX, language"/>
-	<meta name="description" content="Ejscript -- Embedded Server-Side JavaScript Language."/>
+    <title>Embedthis Bit 0.8.0 Documentation</title>
+    <meta name="keywords" content="Bit, Build It!, Javascript"/>
+	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
 	<meta name="robots" content="index,follow" />
 	<link href="../../doc.css" rel="stylesheet" type="text/css" />
 	<link href="../../print.css" rel="stylesheet" type="text/css" media="print"/>
@@ -17,242 +16,136 @@
 
 <body>
     <div class="top">
-        <a class="logo"  href="http://ejscript.org/">&nbsp;</a>
+        <a class="logo"  href="http://embedthis.com/">&nbsp;</a>
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form">Loading</div>
-                <div class='version'>Embedthis Ejscript 2.0.1</div>
+                <div class='version'>Embedthis Bit 0.8.0</div>
             </div>
         </div>
         <div class="crumbs">
             <a href="../../index.html">Home</a>
 <!-- EndDsi -->
-             &gt; <b>Ejscript Overview</b>
+             &gt; <b>Bit Overview</b>
         </div>
     </div>
     <div class="content">
         <div class="contentRight">
             <h1>Quick Nav</h1>
             <ul>
-                <li><a href="#benefits">Benefits</a></li>
-                <li><a href="#features">Features</a></li>
-                <li><a href="#standards">Standards</a></li>
-                <li><a href="#design">Design</a></li>
-                <li><a href="#history">Ejscript History</a></li>
-                <li><a href="#licensing">Licensing</a></li>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#whyBit">Why Bit?</a></li>
+                <li><a href="#differences">Differences</a></li>
             </ul>
-<!-- BeginDsi "dsi/ejsLanguageSeeAlso.html" -->
-		        <h1>See Also</h1>
-		        <ul>
-		          <li><a href="../../guide/ejs/overview.html">Overview</a></li>
-		          <li><a href="../../guide/ejs/features.html">Language Features</a></li>
-		          <li><a href="../../guide/ejs/language/modes.html">Language Modes</a></li>
-		          <li><a href="../../guide/ejs/language/syntax.html">Language Syntax</a></li>
-		          <li><a href="../../guide/ejs/language/statements.html">Statements</a></li>
-		          <li><a href="../../guide/ejs/language/expressions.html">Expressions</a></li>
-		          <li><a href="../../guide/ejs/language/objects.html">Objects and Arrays</a></li>
-		          <li><a href="../../guide/ejs/language/functions.html">Functions and Methods</a></li>
-		          <li><a href="../../guide/ejs/language/core.html">Core Language Types</a></li>
-		          <li><a href="../../guide/ejs/language/types.html">Types and Declarations</a></li>
-		          <li><a href="../../guide/ejs/language/classes.html">Classes</a></li>
-		          <li><a href="../../guide/ejs/language/modules.html">Modules</a></li>
-		          <li><a href="../../guide/ejs/language/library.html">System Library</a></li>
-		          <li><a href="../../guide/ejs/language/events.html">Events and Timers</a></li>
-		          <li><a href="../../guide/ejs/language/globals.html">Globals</a></li>
+<!-- BeginDsi "dsi/seeAlso.html" -->
+        <h1>See Also</h1>
+        <ul>
+            <li><a href="../../guide/bit/users/quick.html">Quick Start with Bit</a></li>
+            <li><a href="../../guide/bit/users/projects.html">Bit Projects</a></li>
+            <li><a href="../../guide/bit/users/compiling.html">Compiling Sources</a></li>
+            <li><a href="../../guide/bit/users/libraries.html">Building Libraries</a></li>
+            <li><a href="../../guide/bit/users/executables.html">Building Executables</a></li>
+            <li><a href="../../guide/bit/users/scripts.html">Running Scripts</a></li>
+            <li><a href="../../guide/bit/users/copying.html">Copying Files</a></li>
+            <li><a href="../../guide/bit/users/configuring.html">Configuring a Project</a></li>
+            <li><a href="../../guide/bit/users/debugging.html">Debugging a Build</a></li>
+            <li><a href="../../guide/bit/users/generating.html">Generating Projects</a></li>
+            <li><a href="../../guide/bit/users/make.html">Using Makefiles</a></li>
+            <li><a href="../../guide/bit/users/cross.html">Cross-Compiling</a></li>
 
-		          <li><a href="../../guide/ejs/users/compiler.html">Using the Compiler</a></li>
-		          <li><a href="../../guide/ejs/users/shell.html">Command Shell</a></li>
-		          <li><a href="../../guide/ejs/users/bit.html">Building with Bit</a></li>
-		        </ul>
+            <li><a href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Ejscript Language</a></li>
+            <li><a href="http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a></li>
+        </ul>
 <!-- EndDsi -->
         </div>
         <div class="contentLeft">
-            <h1>EmbedThis Ejscript&trade; Overview</h1>
-            <p>Ejscript is a complete and integrated <b>server-side <a href=
-                    "http://en.wikipedia.org/wiki/JavaScript">JavaScript</a></b> framework for web applications. Unlike other
-            JavaScript frameworks, it is not a "bunch of parts" that you have to locate and integrate. Rather, it is a
-            cohesive set of components and features that have been designed to work together.</p>
-            <p>Ejscript doesn't force you to use async-programming, unless you want to. Ejscript gives you freedom to
-            choose the best and most natural design paradigm for your application. Ejscript uses an event-driven,
-            non-blocking design to it can effortlessly run async applications. Ejscript couples this with a scalable
-            multithreaded core so it can also run sync applications that need to block without callbacks.</p>
-            <p>The Ejscript language is a version of JavaScript enhanced with features from the Harmony JavaScript
-            proposals. It fully supports and complies with the standardized version of JavaScript known as <a href=
-            "http://www.ecma-international.org/publications/standards/Ecma-262.htm">ECMAScript Edition 3
-            (ECMA-262-3)</a>. It adds enhancements for classes, modules, an extensive system library and powerful web
-            framework.</p>
-            <p>The <b>Ejscript Web Framework</b> provides a complete environment for high-performance web applications.
-            It is a Model-View-Controller web framework with integrated SQLite database and Object Relational
-            Mapper (ORM). It has a library of data-binding Ajax view controls and includes jQuery for client side
-            integration.</p>
-            <p>Ejscript is <b>fast</b>, <b>compact</b> and is optimized for server-side web applications. A
-            direct-threaded VM and generational garbage collector provide fast runtime execution. A high-level system
-            library of native classes provides C speeds for library methods and an in-memory web server module ensures
-            rapid response for web requests.</p><a id="benefits"></a>
-            <h2 class="section">Benefits</h2>
-            <ul>
-                <li>
-                    <p><b>Rapid Development</b>. Ejscript offers the latest in JavaScript language and server-side
-                    JavaScript features to enable quick development of web applications.</p>
-                </li>
-                <li>
-                    <p><b>Minimal Resource Requirements</b>. Ejscript is fast and very <b>compact</b> (from 1MB). It
-                    demands minimal resources from your system so your system can focus devote vital system resources
-                    to running your application.</p>
-                </li>
-                <li>
-                    <p><b>Full ECMAScript Edition 3</b>. Ejscript is not a cut-down portion of JavaScript, rather,
-                    Ejscript provides a full, uncompromised, ECMAScript Edition 3 implementation. It extends upon this
-                    core with a set of enhancements designed for server-side web applications such as modules and
-                    classes.</p>
-                </li>
-                <li><b>Security and Reliability.</b> Ejscript is ideal for embedded applications where uptime and
-                secure execution is paramount. It includes a secure portable runtime to prevent common security
-                flaws.</li>
-            </ul><a id="features"></a>
-            <h2 class="section">Features</h2>
-            <p>Ejscript has the features and flexibility to meet the most demanding web and embedded application needs.
-            It can run stand-alone as a language interpreter, or it can be embedded into an existing application.</p>
-            <p>Ejscript has the following features:</p>
-            <ul>
-                <li>
-                    <p><b>Web Framework</b> The Ejscript web framework enables Ajax based web applications with few
-                    lines of code. It includes a flexible request routing, Model-View-Controller framework, ORM layer,
-                    code generator, database migrations, integrated caching, a web page templating engine and a suite of
-                    Ajax view controls.</p>
-                </li>
-                <li>
-                    <p><b>High Performance Virtual Machines</b>. Ejscript has a direct-threaded VM with generational
-                    garbage collector. It uses a virtual arena-based memory allocator which is specifically designed
-                    for applications responding to web requests.</p>
-                </li>
-                <li>
-                    <p><b>Compact Byte Code</b>. Ejscript has an extremely compact, high level byte code. Ideal for
-                    server-side web applications.</p>
-                </li>
-                <li>
-                    <p><b>Enhanced Core Language</b>. Ejscript enhances the ECMAScript core with powerful a set of
-                    features including: classes and modules for scalable programming, conditional compilation and an
-                    enhanced-language mode to detect common JavaScript language issues.</p>
-                </li>
-                <li>
-                    <p><b>Extensive System Class Library</b>. Ejscript goes well beyond the minimal class library
-                    available with browser-based JavaScript. Ejscript provides classes for Events, Timers, Files,
-                    Paths, Streams, Sockets and HTTP. There are also significant upgrades for the core system classes:
-                    Array, Object and String.</p>
-                </li>
-                <li>
-                    <p><b>Great Tools</b>. Ejscript includes a fast, optimizing compiler, symbolic assembler listing
-                    generator and documentation generation tool.</p>
-                </li>
-                <li>
-                    <p><b>Embeddable</b>. Ejscript is easily embedded into existing applications and systems. It is
-                    highly configurable and supports ROMing of programs and XIP.</p>
-                </li>
-                <li>
-                    <p><b>Portable</b>. Ejscript has clean, modular source code that is cross-platform and easy to port
-                    to new platforms or CPU architectures.</p>
-                </li>
-            </ul>
-            <p>See the Ejscript <a href="features.html">Feature List</a> for an extended list of
-            capabilities.</p>
-            
-            <a id="standards"></a>
-            <h2 class="section">Standards</h2>
-            <p>Ejscript fully supports and complies with the standardized version of JavaScript known as ECMAScript
-            Edition 3 (<a href="http://www.ecma-international.org/publications/standards/Ecma-262.htm">ECMA-262-3</a>).
-            Ejscript also implements the ECMAScript E4X for XML (<a href=
-            "http://www.ecma-international.org/publications/standards/Ecma-357.htm">ECMA-357</a>) specification.</p>
-            <p>The Ejscript development community is also participating in the various JavaScript standards efforts
-            including:</p>
-            <ul>
-                <li><a href="http://www.ecmascript.org/">ECMAScript Harmony</a> &mdash; The next generation JavaScript
-                language standards effort.</li>
-                <li><a href="https://www.commonjs.org/CommonJS">CommonJS</a> &mdash; An effort to create standardized
-                Server-Side JavaScript libraries.</li>
-            </ul>
-            <p>Ejscript enhances standard JavaScript with the addition of a comprehensive web framework and language
-            extensions such as modules and classes.</p>
-            
-            <a id="design"></a>
-            <h2 class="section">Ejscript Design</h2>
-            <p>The goal of Ejscript is to create a standards-based JavaScript environment that excels at hosting
-            <a href="http://en.wikipedia.org/wiki/Server-side_JavaScript">server-side JavaScript</a> web applications.
-            Web applications typically require compact and efficient memory utilization and modest CPU requirements.
-            For embedded applications, this is because of device constraints. For enterprise applications, the
-            necessity to scale requires that web frameworks are highly efficient in memory use.</p>
-            <p>However, most existing JavaScript implementations are designed for use inside a browser on the PC
-            desktop. They have large memory footprints, typically more than 4MB and often larger than 64MB &mdash; not
-            ideal for running server-side and hosting web applications or running in embedded applications.</p>
-            <p>By contrast, Ejscript, requires from 400K of code and has minimal memory requirements to execute (from
-            600K). To do this, Ejscript sheds browser baggage and prioritizes design trade-offs toward memory
-            efficiency.</p><a id="problem"></a>
-            <h3>Why Enhance JavaScript?</h3>
-            <p>JavaScript is now one of the most popular programming languages in the world. However, JavaScript was
-            written <a href="http://en.wikipedia.org/wiki/JavaScript#History_and_naming">many years ago</a> during the
-            height of the browser wars. It was written in a hurry and under corporate pressure. As a result, the
-            language has some glaring weaknesses that impact the security of programs and the programming experience of
-            users &mdash; especially when used for server-side JavaScript web applications.</p>
-            <p>Some of the more major issues are:</p>
-            <ul>
-                <li>JavaScript stores all top-level variables from all source files together in one global object.</li>
-                <li>JavaScript fails to provide a scalable module scheme to package and isolate program components and
-                ensure names don't conflict.</li>
-                <li>JavaScript does not provide real block scope</li>
-                <li>JavaScript allows multiple variable declarations of the same name so variable declarations can
-                silently collide.</li>
-                <li>Assignments to undeclared variables in JavaScript functions will often create unwanted global
-                variables.</li>
-            </ul>
-            <p>Ejscript corrects these issues with a set of extensions to the JavaScript language and environment that
-            make Ejscript ideal for server-side web applications.</p><a id="enhancements"></a>
-            <h3>Ejscript Language Enhancements</h3>
-            <p>Ejscript adds the following language enhancements:</p>
-            <ul>
-                <li>Block and file scope</li>
-                <li>Module and namespace directives</li>
-                <li>Let variable declarations</li>
-                <li>Variable visibility controls</li>
-                <li>Optional type annotations</li>
-                <li>Bound methods that capture the <em>this</em> object</li>
-                <li>Function rest arguments</li>
-                <li>Class, extends, super and interface directives</li>
-                <li>Extended language library: Http, File I/O, Sockets, Stream I/O, XML, Eventing</li>
-                <li>E4X XML support</li>
-                <li>Iterators and Generators</li>
-                <li>Automatic type conversion for function arguments</li>
-                <li>Extended try / catch syntax</li>
-                <li>Cast, is operators</li>
-                <li>Reflection</li>
-                <li>Use pragmas</li>
-                <li>Assertions</li>
-                <li>Conditional compilation</li>
-            </ul>
-            <p>You can choose to take advantage of the enhancements offered by Ejscript for a more secure, scalable and
-            pleasant programming experience or you can can use it in strict ECMAScript compliant mode and utilize only
-            standard features.</p><a id="history"></a>
-            <h2 class="section">Ejscript History</h2>
-            <p>Early versions of Ejscript have been used in the Embedthis Appweb embedded web server for years and is
-            now embedded in millions of devices. The new VM based version has also been used in a range of mobile
-            devices to empower widget-style applications.</p><a id="licensing"></a>
-            <h2 class="section">Licensing</h2>
-            <p>Ejscript software products are available with either an Open Source or <a href=
-            "#commercial">Commercial</a> license. Our products are created using an Open Source development model where
-            a community of developers contribute enhancements and fixes. Products are licensed under the GNU GPL open
-            source license and are provided with full source code.</p>
-            <p><a href="http://embedthis.com/">Embedthis Software</a> has generously provided infrastructure,
-            developers and funding to make this possible and is also providing commercial support and licenses for
-            Ejscript.</p><a id="commercial"></a>
-            <h3>Commercial Licenses</h3>
-            <p>Embedthis provides commercial licenses and support. See <a href=
-            "http://embedthis.com">http://embedthis.com</a> for details.</p>
+            <h1>Embedthis Bit&trade; Overview</h1>
+        <p>Bit means <em>Build It</em>, and it is a modern replacement for the venerable 
+        <a href="http://en.wikipedia.org/wiki/Make_(software)">make</a> and not so popular 
+        <a href="http://en.wikipedia.org/wiki/Autoconf">autoconf</a> utilities. Bit manages the building of
+        programs and products by simply and efficiently determining which pieces have been updated and thus which
+        components need to be rebuilt. It easily handles the direct compilation and generation of projects and Makefiles.</p>
+        <a id="overview"></a>
+        <h2>Overview</h2>
+        <p>Bit parses bit files that have a <em>.bit</em> extension. Bit files are contain a Javascript literal 
+            that describes what to build. Arbitrary Javascript is permitted in bit files, but 
+            typically little script code is needed.</p>
+        <p>Bit files specify targets to build. These can be source files, libraries, executables or other actions to run.
+        Bit has built-in rules to compile source code, build libraries, executables, copy files, build packages and generate
+        IDE projects. So you typically need to type very little to do the common tasks of building.</p>
+        <p>Bit files can intelligently inherit global settings for a project and can override or augment values
+        locally. Bit files run with a current directory set to that of the bit file itself, so it can 
+        easily reference local resources. Bit projects are fully relocatable and avoid absolute directory
+        references except for global toolchain programs and directories.</p>
+        <p>Bit provides a "configure" capability where it searches for required and optional tools for building. 
+        Bit also supports cross-platform and cross-compilation building.</p>
+        <a id="whyBit"></a>
+        <h2>Why Bit?</h2>
+        <p>Many projects rely on <a href="http://en.wikipedia.org/wiki/Autoconf">autoconf</a> autoconf 
+        to configure products and the make utility to build. But autoconf is a baroque maze of
+        scripts and make is provides too little support for easily building executable and libraries in a cross platform
+        manner. Further, neither of these tools work well for Windows and embedded platforms like VxWorks. 
+        Consequently, creating portable Makefiles and autoconf scripts that will work on a variety of platforms
+        and support cross compilation is an exercise in patience. Often the result is slow, fragile build
+        systems, especially on Windows.</p>
+        <p>Bit replaces both autoconf and make with a single utility: <em>bit</em>. Bit provides a higher level of
+        abstraction to easily specify the targets to build (libraries and executables). It can build directly on Linux,
+        Mac or Windows and cross compile for other platforms. It will generate native projects for Visual Studio,
+        XCode, Make, Nmake and shell scripts. Bit builds fast without the complexity of autoconf and
+        make.</p>
+        <p>Bit was initiated after evaluating Make, CMake and GYP for use by the Appweb and Ejscript projects 
+        in an embedded, cross compilation environment. While all three alternatives can be made to work, we (Embedthis)
+        were expending a large percentage of time on the build system and less on the actual product. </p>
+        
+        <h3>Bit Design Goals</h3> 
+        <p>When creating Bit, our design goals were:</p> <ul>
+            <li>Create a build tool to be used by Embedthis for its own products</li>
+            <li>Be portable across the major Unix platforms and Windows</li>
+            <li>Easily manage cross-compilation and cross-compilers for embedded targets</li>
+            <li>Generate native projects for IDE integration</li>
+            <li>Build quickly, reliably and flexibly on windows without relying on Cygwin</li>
+            <li>Support the entire build cycle: C dependencies, compilation, test and packaging</li>
+            <li>Support the modular discovery, configuration and integration of external third-party packages</li>
+            <li>Be hackable and extendable and eventually usable by all</li>
+        </ul>
+        <a id="differences"></a>
+        <h2>Differences vs Make</h2>
+        <p>Here is a quick list of differences between bit and the make utility. These are broad, sweeping, opinionated
+            comments with hopefully a grain of truth.</p>
+        <ul>
+            <li>Makefiles don't aggregate well. Make provides little support for combining makefiles. It offers bare
+            facilities for inheriting and overriding project parameters in an orderly fashion.  Large projects often use
+            recursive makefiles, but these have many well 
+            <a href="http://aegis.sourceforge.net/auug97.pdf">documented</a> issues.  Trying to combine Makefiles from
+            different products is typically not possible.
+            Bit creates a single, unified view of how to build an entire product. The product may be comprised of many bit
+            files, but these are combined in a well-defined manner. Lower-level bit files can inherit properties from upper
+            levels and easily locally override settings as required.</li>
+            <li>Bit is pre-programmed with default compiler and linker switches to achieve common tasks.
+                With make, you have to add the switches yourself.</li>
+            <li>Bit provides in-built understanding of how to build common targets like libraries and executables.
+                With make, you have to specifically express the link command lines.</li>
+            <li>Makefiles are often a mess. Bit files are terse and because bit provides high-level understand of
+            how to build libraries and executables, there is little boiler-plate build rules.</li>
+            <li>Make and autoconf try to run on every possible Unix, but don't run on Windows (except for cygwin which
+            is too unreliable for production use). Bit supports the major Unix flavors: Linux, BSD, MAC OS X. But it also
+            supports Windows with ease.
+            <li>Autoconf is incomprehensible. Just google "hate autoconf". It is a mess of legacy shell scripts that
+            try to address building on all possible systems, but fail at building well on the common platforms. 
+            Bit does not try to create the universal config.h header to mange obsecure C compilers. It focusses on the 
+            dominant platforms. Bit provides an open, extensible framework for searching for extension packages that makes
+            it easy to configure a build based on packages available on the target computer.</li>
+            <li>Bit is fast and is typically much faster than autoconf and make. Because it uses Ejscript internally, 
+            file copy and script commands can be executed without spawning a shell. This also means that you can have
+            a uniform scripting environment on Windows.</li>
+        </ul>
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->
 	<div class="bottom">
 		<p class="footnote"> 
             <a href="../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2013. 
-            All rights reserved. Embedthis, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
+            All rights reserved. Embedthis Bit, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
 		</p>
 	</div>
     <script src="http://www.google.com/jsapi" type="text/javascript"></script>
@@ -264,7 +157,7 @@
 
         customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
         var options = new google.search.DrawOptions();
-        options.enableSearchboxOnly("http://ejscript.org/search.html");
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
         customSearchControl.draw('cse-search-form', options);
       }, true);
     </script>

@@ -1,0 +1,143 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis Bit 0.8.0 Documentation</title>
+    <meta name="keywords" content="Bit, Build It!, Javascript"/>
+	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
+	<meta name="robots" content="index,follow" />
+	<link href="../../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../../iehacks.css" rel="stylesheet" type="text/css" />
+    </![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo"  href="http://embedthis.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form">Loading</div>
+                <div class='version'>Embedthis Bit 0.8.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt;<a href="index.html">User Guide</a>&gt; <b>Quick Start</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            
+                <h1>Quick Nav </h1>
+                <ul>
+<li><a href="#overview">Overview</a></li>
+                </ul>
+<!-- BeginDsi "dsi/guideSeeAlso.html" -->
+        <h1>See Also</h1>
+        <ul>
+            <li><a href="../../../guide/bit/users/quick.html">Quick Start with Bit</a></li>
+            <li><a href="../../../guide/bit/users/projects.html">Bit Projects</a></li>
+            <li><a href="../../../guide/bit/users/compiling.html">Compiling Sources</a></li>
+            <li><a href="../../../guide/bit/users/libraries.html">Building Libraries</a></li>
+            <li><a href="../../../guide/bit/users/executables.html">Building Executables</a></li>
+            <li><a href="../../../guide/bit/users/scripts.html">Running Scripts</a></li>
+            <li><a href="../../../guide/bit/users/copying.html">Copying Files</a></li>
+            <li><a href="../../../guide/bit/users/configuring.html">Configuring a Project</a></li>
+            <li><a href="../../../guide/bit/users/debugging.html">Debugging a Build</a></li>
+            <li><a href="../../../guide/bit/users/generating.html">Generating Projects</a></li>
+            <li><a href="../../../guide/bit/users/make.html">Using Makefiles</a></li>
+            <li><a href="../../../guide/bit/users/cross.html">Cross-Compiling</a></li>
+
+            <li><a href="../../../guide/bit/users/http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Ejscript Language</a></li>
+            <li><a href="../../../guide/bit/users/http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a></li>
+        </ul>
+<!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+        <h1>Quick Start with Bit</h1>
+        <p>Bit means <em>Build It</em>, and it is a modern replacement for the venerable 
+        <a href="http://en.wikipedia.org/wiki/Make_(software)">make</a> and not so popular 
+        <a href="http://en.wikipedia.org/wiki/Autoconf">autoconf</a> utilities. Bit manages the building of
+        programs and products by simply and efficiently determining which pieces have been updated and thus which
+        components need to be rebuilt. It easily handles the direct compilation and generation of projects.</p>
+        <a id="overview"></a>
+        <a id="simpleBitFile"></a>
+        <h2>Simple Bit File</h2>
+        <p>A bit file is a JavaScript file with a <em>.bit</em> extension that invokes Bit.load() to process a set of build
+        instructions. The build instructions are expressed as a JavaScript object literal that is supplied via
+        the Bit.load() call.</p>
+        <pre>
+Bit.load({
+    targets: {
+        /* Build the rocket executable */
+        rocket: {
+            type: 'exe',
+            sources: ['*.c'],
+        },
+    }, 
+})
+</pre>
+        <p>To build the rocket, enter:</p>
+        <pre>bit rocket</pre>
+        <a id="targetTypes"></a>
+        <h3>Target Types</h3>
+        <p>There are several standard target types for which Bit has in-built knowledge of how to build:</p>
+        <ul>
+            <li>Compiled Objects</li>
+            <li>Libraries (shared and static)</li>
+            <li>Executables Libraries</li>
+            <li>Copy Files</li>
+        </ul>
+        <a id="targets"></a>
+        <h2>Defining Targets</h2>
+        <p>Bit is typically invoked with zero or more targets on the command line to build. If invoked with zero
+        targets, Bit will build all the out-of-date targets. If a one or more targets are specified, only those targets
+        will be brought up to date.</p>
+        <p>To build all targets: </p>
+            <pre>bit</pre>
+        <p>To build several named targets:</p>
+        <pre>bit libengine librocket space-program</pre>
+        <p>Bit pre-defines several special targets:</p>
+        <ul>
+            <li>configure &mdash; To configure prior to building</li>
+            <li>build &mdash; To build all targets</li>
+            <li>compile &mdash; Same as 'build'</li>
+            <li>clean &mdash; To clean built targets and prepare for rebuilding</li>
+            <li>rebuild &mdash; Clean and build</li>
+        </ul>
+        <pre>
+        bit clean
+        MOB - more here.
+        Add targets
+        bit -gen
+        bit -gen
+        Should be a sample users can follow
+        </pre>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2013. 
+            All rights reserved. Embedthis Bit, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          'partner-pub-9935546676162772:ysvxxv4n9rx');
+
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+</body>
+</html>

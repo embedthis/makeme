@@ -5,7 +5,6 @@
 html {
 	min-width: 700px;
     background-color: #101A24;
-
 }
 
 body {
@@ -106,7 +105,7 @@ div.crumbs {
     position: relative;
     left: 10px;
     margin: 10px 0 0 20px;
-	color: #888888; 
+	color: #222222; 
 	font-size: 100%;
     font-weight: normal;
 	text-decoration: none;
@@ -134,8 +133,7 @@ div.content {
 	margin: -30px 0 0 40px;
 	padding: 0 10px 40px 40px;
 	color: #222222;
-	background-color: #fffCE8;
-	text-decoration: none;
+	background-color: #FEFEF8;
 	line-height: 180%; 
 }
 
@@ -143,7 +141,7 @@ div.content a {
 	color: #114444; 
 	color: #666666;
 	line-height: 160%; 
-	text-decoration: none; 
+	text-decoration: underline; 
 }
 
 div.content a:hover { 
@@ -178,7 +176,7 @@ div.homeLeft {
 
 div.homeRight { 
 	width: 43%;
-	float: right;
+	float: left;
     margin: 20px 0 0 20px;
 	padding: 0 10px 0 20px;
 	text-decoration: none;
@@ -189,6 +187,11 @@ div.homeRight {
 	line-height: 150%; 
 }
 
+footer {
+    clear: both;
+    height: 50px;
+}
+
 
 /*
     Content pages (everything else)
@@ -196,7 +199,7 @@ div.homeRight {
 div.contentLeft {
 	width: 75%;
 	margin: 0;
-	padding: 8px 10px 0 0;
+	padding: 10px 10px 0 0;
 	text-decoration: none;
 	min-height: 470px;
 }
@@ -204,7 +207,7 @@ div.contentLeft {
 div.contentRight { 
 	width: 20%;
 	float: right;
-	margin: 0 0 0 10px;
+	margin: 20px 0 0 10px;
 	padding: 0 10px 100px 20px;
 	text-decoration: none;
 	min-width: 150px;
@@ -260,7 +263,7 @@ h1.title {
 
 h2.section {
 	border-bottom: 2px solid #AAAAAA;
-    border-color: #DDDDFF;
+    border-color: #AAAAAA;
 	padding: 14px 0 2px 0;
     margin-bottom: 4px;
 }
@@ -383,12 +386,12 @@ p.finePrint {
 
 a:link { 
 	color: #282828; 
-	text-decoration: none; 
+	text-decoration: underline; 
 }
 
 a:visited { 
 	color: #000000;
-	text-decoration: none; 
+	text-decoration: underline; 
 }
 
 a:hover { 

@@ -1,0 +1,219 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis Bit 0.8.0 Documentation</title>
+    <meta name="keywords" content="Bit, Build It!, Javascript"/>
+	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
+	<meta name="robots" content="index,follow" />
+	<link href="../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../iehacks.css" rel="stylesheet" type="text/css" />
+    </![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo"  href="http://embedthis.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form">Loading</div>
+                <div class='version'>Embedthis Bit 0.8.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt;<a href="index.html">User Guide</a>&gt; <b>Bit</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            
+                <h1>Quick Nav </h1>
+                <ul>
+<li><a href="#overview">Overview</a></li>
+                </ul>
+<!-- BeginDsi "dsi/refSeeAlso.html" -->
+        <h1>See Also</h1>
+        <ul>
+            <li><a href="../../ref/bit/bitfiles.html">Processing Bit Files</a></li>
+            <li><a href="../../ref/bit/commandline.html">Bit Command Line</a></li>
+            <li><a href="../../ref/bit/events.html">Bit Events</a></li>
+            <li><a href="../../ref/bit/targets.html">Bit Targets</a></li>
+
+            <li><a href="../../guide/bit/users/http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Ejscript Language</a></li>
+            <li><a href="../../guide/bit/users/http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a></li>
+        </ul>
+<!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+        <a id="commandOptions"></a>
+        <h2>Command Options</h2>
+        <p>Bit command line options can be prefixed with either a single or double minus, i.e. <em>-switch</em> or
+        <em>--switch</em>.</p>
+        <table title="options">
+            <thead>
+                <tr><th>Option</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>--benchmark</td>
+                    <td>Measure the elapsed time to run bit.</td>
+                </tr>
+                <tr>
+                    <td>--configure path-to-source</td>
+                    <td><p>Configure the project to prepare for building. This configures Bit for building the project
+                        based on the instructions specified in a <em>'main.bit</em> located in the specified path source
+                        tree.  When run, bit will create a platform configuration bit file, a build output directory and
+                        bit.h header. The configuration directory is of the form: OS-ARCH-PROFILE where OS may be
+                        freebsd, linux, macosx, solaris, vxworks, windows and ARCH is arm, mips, ppc, x64 or x86.
+                        PROFILE is typically set to debug or release. For example: <em>macosx-x86_64-debug</em> The
+                        configuration bit file omits the PROFILE. For example: <em>linux-x86.bit</em>.</p>
+                        <p>Bit will use the settings.required and settings.optional properties in the main.bit for a
+                        list of packages to use. When configuring, bit will search for these packages and will
+                        create definitions in the configuration bit file for later use.</p>
+                    </td>
+                </tr>
+                    <tr><td>--continue</td>
+                        <td>Continue to build despite any build errors. Normal operation is to stop building if any
+                            build errors are encountered.</td>
+                </tr>
+                <tr>
+                    <td>--debug</td>
+                    <td>Same as --profile debug</td>
+                </tr>
+                <tr>
+                    <td>--diagnose</td>
+                    <td>Run bit with stack backtrace display on errors.</td>
+                </tr>
+                <tr>
+                    <td>--dump </td>
+                    <td>Dump the aggregate bit configuration into a single dump bit file.</td>
+                </tr>
+                <tr>
+                    <td>--file bitfile</td>
+                    <td>Use the alternate named bit file instead of start.bit or main.bit.</td>
+                </tr>
+                <tr>
+                    <td>--force</td>
+                    <td>Override warnings and proceed with the operation.</td>
+                </tr>
+                <tr>
+                    <td class="nowrap">--gen [make|nmake|sh|vs|xcode]</td>
+                    <td>Generate project files for the current platform. This will generate project files under
+                        the <em>projects</em> directory. The projects are based on the current configuration. If
+                        cross-generating projects, you will typically need to also use -configure.</td>
+                </tr>
+                <tr>
+                    <td>--keep </td>
+                    <td>Keep some intermediate build files. This is currently used by some documentation generation
+                        targets.</td> </tr>
+                <tr>
+                    <td>--log logName[:logLevel]</td>
+                    <td>Specify a file to log internal execution messages. Bit will log execution related trace to the
+                        log file. The log level specifies the desired verbosity of output. Level 0 is the least verbose
+                        and level 9 is the most. The <em>-v</em> switch is an alias for <em>--log stderr:2</em>.</td>
+                </tr>
+                <tr>
+                    <td>--nocross</td>
+                    <td>Don't cross-build, rather build natively for the development system. This is useful when
+                        configuring for a platform that can build and run natively on the development system. For
+                        example: Linux 64-bit systems can run 32-bit applications, so <br/>
+                        <em>bit --nocross --platform linux-x86 configure</em> <br/>
+                        can directly target the 32-bit platform without cross-building.</td>
+                </tr>
+                <tr>
+                    <td>--out path</td>
+                    <td>Save Bit trace output to a file instead of displaying to the console.</td>
+                </tr>
+                <tr>
+                    <td>--platform os-arch</td>
+                    <td><p>Add a platform to build for cross-compilation. Multiple platforms can be added. You may use
+                        <em>local</em> for the local platform. Options specified after the platform apply to the prior
+                        platform. For example:</p>
+                        <p>bit --platform linux-x86 --without all --platform linux-arm --with ejscript configure</p></td>
+                </tr>
+                <tr>
+                    <td class="nowrap">--profile [debug|release|...]</td>
+                    <td>Use the specified profile when building. This options is provided once when configuring and the
+                        result is saved in the plat- form.profile property in the configuration bit file. Custom
+                        profiles can be added to the main.bit or start.bit files.</td> 
+                </tr>
+                <tr>
+                    <td>--quiet</td>
+                    <td>Quiet operation. Suppresses output trace.</td>
+                </tr>
+                <tr>
+                    <td>--set key=value</td>
+                    <td>Set a settings property to a given value. For example: <em>bit -set version=1.0</em> will update the
+                        settings.version property. Use this when running <em>bit configure</em> to persist your 
+                        changes in the configuration bit file.</td>
+                </tr>
+                <tr>
+                    <td>--show </td>
+                    <td>Show the actual commands executed by bit.</td>
+                </tr>
+                <tr>
+                    <td>--static </td>
+                    <td>Build using static linking instead of creating shared libraries.</td>
+                </tr>
+                <tr>
+                    <td>--rebuild</td>
+                    <td>Rebuild the specified targets. Can also use <em>bit rebuild</em>.</td>
+                </tr>
+                <tr>
+                    <td>--release</td>
+                    <td>Select the release profile. Same as --profile release.</td>
+                </tr>
+                <tr>
+                    <td>--unset key=value</td>
+                    <td>Clear a settings property. Use this when running <em>bit configure</em> to persist your changes in
+                        the configuration bit file.</td> 
+                </tr>
+                <tr>
+                    <td>--version</td>
+                    <td>Print the ejs command version and exit.</td>
+                </tr>
+                <tr>
+                    <td>--verbose</td>
+                    <td>Run in verbose mode with more trace about Bit activities.</td>
+                </tr>
+                <tr>
+                    <td>--with PACK[=path]</td>
+                    <td>Build with the named pack located at the optional path. If the path is omitted, a search is
+                        performed for the pack at default locations. Packs must have a pack description file installed
+                        under <em>bits/packs</em> in the bit installation.</td>
+                </tr>
+                <tr>
+                    <td>--without PACK</td>
+                    <td>Build without the named pack.</td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2013. 
+            All rights reserved. Embedthis Bit, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          'partner-pub-9935546676162772:ysvxxv4n9rx');
+
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+</body>
+</html>
