@@ -42,13 +42,13 @@
                 <li><a href="linux.html">Installing on Linux</a></li>
                 <li><a href="mac.html">Installing on MAC</a></li>
                 <li><a href="windows.html">Installing on Windows</a></li>
-                <li><a href="../../guide/ejs/source/building.html">Building Ejscript</a></li>
-                <li><a href="../../guide/ejs/source/porting.html">Porting Ejscript</a></li>
+                <li><a href="../../guide/ejs/source/building.html">Building Bit</a></li>
+                <li><a href="../../guide/ejs/source/porting.html">Porting Bit</a></li>
             </ul>
         </div>
         <div class="contentLeft">
             <h1>Installing Supporting Packages</h1>
-            <p>Ejscript leverages other packages such as OpenSSL for additional functionality.
+            <p>Bit leverages other packages such as OpenSSL for additional functionality.
             Sometimes, you may have a requirement to rebuild one of these packages to add or remove features. This
             document describes the build process that Embedthis uses to build these packages. NOTE: we cannot support
             the building of these 3rd party packages. That is your responsibility and the responsibility of the various
@@ -75,7 +75,7 @@ git clone http://github.com/embedthis/packages
             "http://www.matrixssl.org">MatrixSSL</a> product which can be downloaded from <a href=
             "http://www.matrixssl.org">www.matrixssl.org</a>. Consult their instructions and build using the standard
             steps.</p>
-            <p>Configure Ejscript using the --with-matrixssl switch</p>
+            <p>Configure Bit using the --with-matrixssl switch</p>
             <pre>
 ./configure --with-matrixssl    
 </pre>
@@ -99,7 +99,7 @@ make
             <pre>
 make build-shared
 </pre>
-            <p>After you have built OpenSSL you must reference the OpenSSL installation directory in your Ejscript
+            <p>After you have built OpenSSL you must reference the OpenSSL installation directory in your Bit
             configuration. You can set this via the <b>configure</b> command. You may need to define the base directory
             which can optionally be provided as a switch to the --with-openssl switch.</p>
             <pre>
@@ -109,7 +109,7 @@ make build-shared
             linker flags and search paths to match your configuration.</p><a id="opensslwindows"></a>
             <h3>Building OpenSSL 0.9.7d on Windows for X886</h3>
             <p>The Windows OpenSSL build system uses Perl and nmake. The following commands will build the required
-            shared libraries (DLLs) for Ejscript to use OpenSSL.</p>
+            shared libraries (DLLs) for Bit to use OpenSSL.</p>
             <pre>
 perl Configure VC-WIN32
 cmd /c ms\\do_masm
@@ -124,7 +124,7 @@ mv out32dll/ssleay32.lib libssl.lib
 mv out32dll/*.dll .
 cp -r inc32/openssl include
 </pre>
-            <p>After you have built OpenSSL you must reference the OpenSSL installation directory in your Ejscript
+            <p>After you have built OpenSSL you must reference the OpenSSL installation directory in your Bit
             configuration. You can set this via the <b>configure</b> command. You may need to define the base directory
             which can optionally be provided as a switch to the --with-openssl switch.</p>
             <pre>
@@ -137,31 +137,31 @@ cp -r inc32/openssl include
             <p>To get the smallest executable possible, there are several alternatives to the standard libc library.
             One of the leading tiny libcs on Linux is uClibc. For general information go to: <a href=
             "http://www.uclibc.org">www.uclibc.org</a>.</p>
-            <p>To link with uClibc, you must first create a compiler tool chain that will link Ejscript with the uClibc
+            <p>To link with uClibc, you must first create a compiler tool chain that will link Bit with the uClibc
             library. This is not always an easy process. The easiest way appears to be to get one of the pre-built root
             file systems that contain the complete cross compiler and uClibc library. You then mount this file system,
-            make it your root file system and copy the Ejscript source into it and built it there.</p>
+            make it your root file system and copy the Bit source into it and built it there.</p>
             <p>When you run the <b>configure</b> command, you will need to supply the Cross compiler settings. These
             are passed to <b>configure</b> via environment variables. For example, the following script configures
-            Ejscript to build using the arm-linux cross compiler (supporting uclibc) that is installed under
+            Bit to build using the arm-linux cross compiler (supporting uclibc) that is installed under
             /usr/local.</p>
             <pre>
 DIR=/usr/local ; \<br />export CC=arm-linux-uclibc-gcc ; \<br />GCC_DIR=`$$CC -print-libgcc-file-name 2&gt;&amp;1 | sed -e 's/\/libgcc.a//'` ; \<br />AR=arm-linux-uclibc-ar \<br />LD=arm-linux-uclibc-ld \<br />RANLIB=arm-linux-uclibc-ranlib \<br />IFLAGS="-I$$DIR/arm-linux-uclibc/include -I$$GCC_DIR/include" \<br />LDFLAGS="-L$$GCC_DIR/lib -L$$DIR/arm-linux-uclibc/lib \<br />    -Wl,--dynamic-linker -Wl,$$DIR/i386-linux/lib/ld-uClibc.so.0" \<br />./configure
 </pre>
-            <p>See <a href="../../guide/ejs/source/building.html">Building Ejscript from Source</a> for full details on
+            <p>See <a href="../../guide/ejs/source/building.html">Building Bit from Source</a> for full details on
             all the available <b>configure</b> switches.</p><a id="uclinux"></a> <!--
             <h2 class="section">uClinux</h2>
             <p>TODO - these instructions are not accurate or current</p>
             <p>A patch for uClinux has been submitted and hopefully will soon be included in the default uClinux
             distributions from <a href="http://www.snapgear.org">SnapGear</a> and the <a href=
             "http://www.uclinux.org">uClinux project</a>. Until then, a <a href=
-            "http://embedthis.com/downloads/Ejscript/patches.html" target="site">patch</a> is available to update
-            uClinux with Ejscript support. We have used the SnapGear distribution and have followed the included
+            "http://embedthis.com/downloads/Bit/patches.html" target="site">patch</a> is available to update
+            uClinux with Bit support. We have used the SnapGear distribution and have followed the included
             instructions.</p>
-            <p>Once you have uClinux installed, you should extract the Ejscript source code into the user/Ejscript
+            <p>Once you have uClinux installed, you should extract the Bit source code into the user/Bit
             directory. The following commands are a suggestion:</p>
             <pre>
-cd UCLINUX_DIR/user<br />tar xvfz Ejscript-src-VERSION.tar.gz<br />mv Ejscript-VERSION Ejscript
+cd UCLINUX_DIR/user<br />tar xvfz Bit-src-VERSION.tar.gz<br />mv Bit-VERSION Bit
 </pre>
             <p>First you need to run the configuration utility. This can be either X based or curses based. To run the
             X utility:</p>
@@ -171,18 +171,18 @@ make xconfig
             <p>After selecting your embedded board vendor, go into the Kernel/Library/Defaults Selection and Toggle
             Customize Vendor/User Settings to be <span style="font-weight: bold;">"y"</span>. After you then click Main
             Menu, then Save and Exit, a new dialog will be displayed with the Application Configuration options. Select
-            Network Applications and you should see Ejscript configuration options toward the top of the screen. Select
-            <span style="font-weight: bold;">"y"</span> for the Ejscript option and select "y" for any other Ejscript
+            Network Applications and you should see Bit configuration options toward the top of the screen. Select
+            <span style="font-weight: bold;">"y"</span> for the Bit option and select "y" for any other Bit
             options you require. The Help button will explain each option.</p>
             <p>After configuring uClinux, you should type:</p>
             <pre>
 make depend<br />make
 </pre>
-            <p>TODO - not correct: After the initial build, Ejscript remembers all the cross-compiler settings and you
-            can recompile directly in the Ejscript directory. You can also customize your Ejscript configuration and
+            <p>TODO - not correct: After the initial build, Bit remembers all the cross-compiler settings and you
+            can recompile directly in the Bit directory. You can also customize your Bit configuration and
             then rebuild. For example: to enable the Embedded Gateway Interface:</p>
             <pre>
-cd user/Ejscript<br />./configure<br />cd ../..<br />make user_only
+cd user/Bit<br />./configure<br />cd ../..<br />make user_only
 </pre>
             -->
         </div>
@@ -191,7 +191,7 @@ cd user/Ejscript<br />./configure<br />cd ../..<br />make user_only
 	<div class="bottom">
 		<p class="footnote"> 
             <a href="../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2013. 
-            All rights reserved. Embedthis Bit, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
+            All rights reserved. Embedthis Bit, Bit and Appweb are trademarks of Embedthis Software LLC.</a>
 		</p>
 	</div>
     <script src="http://www.google.com/jsapi" type="text/javascript"></script>

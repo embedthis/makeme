@@ -166,30 +166,41 @@ div.content ol li {
     Home page
  */
 div.homeLeft {
-	width: 47%;
+	width: 31%;
 	float: left;
 	padding-right: 10px;
-    margin: 20px 0 0 20px;
-	font-size: 110%;
-	line-height: 150%; 
+    _margin: 20px 0 0 20px;
+	_font-size: 110%;
+	_line-height: 150%; 
+}
+
+
+div.homeMiddle {
+    width: 32%;
+    float: left;
+    min-height: 300px;
 }
 
 div.homeRight { 
-	width: 43%;
+	width: 31%;
 	float: left;
-    margin: 20px 0 0 20px;
+    _margin: 20px 0 0 20px;
+    margin: 0 0 0 10px;
 	padding: 0 10px 0 20px;
 	text-decoration: none;
 	min-height: 300px;
 	min-width: 150px;
-	background-color: #fffCE8;
-	font-size: 110%;
-	line-height: 150%; 
+	_font-size: 110%;
+	_line-height: 150%; 
+}
+
+div.contentHome a {
+    text-decoration: none;
 }
 
 footer {
     clear: both;
-    height: 50px;
+    height: 5px;
 }
 
 
@@ -398,6 +409,10 @@ a:hover {
 	color: #CC4477; 
 }
 
+a.logo {
+	text-decoration: none;
+}
+
 div.questions {
 	color: #31699C; 
 	text-decoration: none; 
@@ -530,7 +545,9 @@ tt, em {
     padding-bottom: 0;
     margin: 0;
     width: 60px;
-    height: 13px;
+    height: 16px;
+    vertical-align: text-bottom;
+    display: inline;
 }
 
 .nowrap {

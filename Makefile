@@ -53,27 +53,27 @@ help:
 	@echo 'The default configuration can be modified by setting make variables' >&2
 	@echo 'Set to 0 to disable and 1 to enable:' >&2
 	@echo '' >&2
-	@echo '      PROFILE            # Select default or static for static linking' >&2
-	@echo '      BIT_MPR_LOGGING    # Enable application logging' >&2
-	@echo '      BIT_MPR_TRACING    # Enable debug tracing' >&2
-	@echo '      BIT_PACK_EST       # Enable the EST SSL stack' >&2
+	@echo '  PROFILE            # Select default or static for static linking' >&2
+	@echo '  BIT_MPR_LOGGING    # Enable application logging' >&2
+	@echo '  BIT_MPR_TRACING    # Enable debug tracing' >&2
+	@echo '  BIT_PACK_EST       # Enable the EST SSL stack' >&2
 	@echo '' >&2
 	@echo 'For example, to disable CGI:' >&2
 	@echo '' >&2
-	@echo '      make BIT_PACK_CGI=0' >&2
+	@echo '  make BIT_PACK_CGI=0' >&2
 	@echo '' >&2
 	@echo 'Other make variables:' >&2
-	@echo '      ARCH               # CPU architecture (x86, x64, ppc, ...)' >&2
-	@echo '      OS                 # Operating system (linux, macosx, windows, vxworks, ...)' >&2
-	@echo '      CC                 # Compiler to use ' >&2
-	@echo '      LD                 # Linker to use' >&2
-	@echo '      DEBUG              # Set to debug or release for debug or optimized builds' >&2
-	@echo '      CONFIG             # Output directory for built items. Defaults to OS-ARCH-PROFILE' >&2
-	@echo '      CFLAGS             # Add compiler options. For example: -Wall' >&2
-	@echo '      DFLAGS             # Add compiler defines. For example: -DCOLOR=blue' >&2
-	@echo '      IFLAGS             # Add compiler include directories. For example: -I/extra/includes' >&2
-	@echo '      LDFLAGS            # Add linker options' >&2
-	@echo '      LIBPATHS           # Add linker library search directories. For example: -L/libraries' >&2
-	@echo '      LIBS               # Add linker libraries. For example: -lpthreads' >&2
-	@echo '      PROFILE            # Build profile, used in output products directory name' >&2
+	@echo '  ARCH               # CPU architecture (x86, x64, ppc, ...)' >&2
+	@echo '  OS                 # Operating system (linux, macosx, windows, vxworks, ...)' >&2
+	@echo '  CC                 # Compiler to use ' >&2
+	@echo '  LD                 # Linker to use' >&2
+	@echo '  DEBUG              # Set to debug or release for debug or optimized builds' >&2
+	@echo '  CONFIG             # Output directory for built items. Defaults to OS-ARCH-PROFILE' >&2
+	@echo '  CFLAGS             # Add compiler options. For example: -Wall' >&2
+	@echo '  DFLAGS             # Add compiler defines. For example: -DCOLOR=blue' >&2
+	@echo '  IFLAGS             # Add compiler include directories. For example: -I/extra/includes' >&2
+	@echo '  LDFLAGS            # Add linker options' >&2
+	@echo '  LIBPATHS           # Add linker library search directories. For example: -L/libraries' >&2
+	@echo '  LIBS               # Add linker libraries. For example: -lpthreads' >&2
+	@echo '  PROFILE            # Build profile, used in output products directory name' >&2
 	@echo '' >&2

@@ -247,7 +247,7 @@ public class Bit {
             print(version)
             App.exit(0)
         }
-        if (options.help) {
+        if (options.help || args.rest.contains('help')) {
             usage()
             App.exit(0)
         }

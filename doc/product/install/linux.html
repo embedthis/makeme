@@ -33,121 +33,111 @@
         <div class="contentRight">
             <h1>Quick Nav</h1>
             <ul>
-                <li><a href="#native">Installing the Native Images</a></li>
-                <li><a href="#removing">Removing Ejscript</a></li>
-                <li><a href="#running">Running Ejscript</a></li>
+                <li><a href="#pkg">Installing the PKG Image</a></li>
+                <li><a href="#removing">Removing Bit</a></li>
+                <li><a href="#running">Running Bit</a></li>
             </ul>
             <h1>See Also</h1>
             <ul>
                 <li><a href="../changeLog.html">Change Log</a></li>
                 <li><a href="../releaseNotes.html">Release Notes</a></li>
                 <li><a href="index.html">Installation Overview</a></li>
-                <li><a href="mac.html">Installing on MAC OS X</a></li>
+                <li><a href="linux.html">Installing on Linux</a></li>
                 <li><a href="windows.html">Installing on Windows</a></li>
                 <li><a href="packages.html">Supporting Packages</a></li>
             </ul>
         </div>
         <div class="contentLeft">
             <h1>Installing on Linux</h1>
-            <p>The Ejscript install distribution for Linux is published in several formats:</p>
-            <ul>
-                <li>Native RPM format for RPM systems such as Fedora</li>
-                <li>Native Debian format for Debian based systems such as Ubuntu</li>
-                <li>Tar format for custom/self installs</li>
-            </ul>
-            <p>It is recommended that you use one of the native formats if your system supports it as these will
-            register the software installation with the system's software manager. The self-install format consists of
-            Tar archives that you can manually extract for maximum control over the placement of the product files.</p>
-            <p>All formats contains a binary distribution, documentation and development headers and libraries in the
-            one package. During installation you will have the option of installing the full distribution or just
-            portions.</p><a id="native"></a>
-            <h2 class="section">Installing the RPM or Debian Images</h2>
+            <p>The Embedthis Bit distribution for Linux is the Bit source distribution,
+            available <a href="http://embedthis.com/downloads/bit/download.ejs">here</a>.</p>
+
+            <a id="pkg"></a>
+            <h2 class="section">Building and Installing Bit</h2>
             <ol>
-                <li>Uncompress and extract the image:
-                    <pre>
-tar xvfz ejs-VERSION-DIST-linux-CPU.FMT.tgz
-</pre>
-                    <p>Where VERSION is the current version (e.g. 1.2.3-1), and DIST is the name of the Linux
-                    distribution (e.g. fedora), and FMT is either <b>rpm</b> or <b>deb</b>.</p>
-                </li>
-                <li>Then start the installation with administrator privilege:
-                    <pre>
-sudo ./install
-</pre>
-                </li>
-            </ol><a id="self"></a>
-            <h2 class="section">Installing the Self-Install Image</h2>
-            <ol>
-                <li>Uncompress and extract the image:
-                    <pre>
-tar xvfz ejs-VERSION-DIST-linux-CPU.tgz
-</pre>
-                </li>
-                <li>Then start the installation with administrator privilege:
-                    <pre>
-sudo ./install
-</pre>
-                </li>
-            </ol><a id="removing"></a>
-            <h2 class="section">Removing Ejscript</h2>
-            <ol>
-                <li>Change directory to the installation directory for Ejscript. This is usually
-                <b>/usr/lib/ejs</b></li>
-                <li>Run the uninstall script in the install directory for Ejscript:
-                    <pre>
-sudo ./uninstall
-</pre>
-                </li>
-            </ol><a id="running"></a>
-            <h2 class="section">Running Ejscript</h2>
-            <p>These commands will be installed in /usr/bin. To do a "Hello World" test, try typing the following. The
-            "Hello World" is echoed back by ejs:</p>
+                <li>Download and extract the source code.</li>
+                <li>Change directory to the top level of the source code .</li>
+                <li>Do a bootstrap make via "make boot".</li>
+                <li>Install via "make install"".</li>
+            </ol>
+
             <pre>
-&gt; ejs
-ejs-0&gt; print("Hello World")
-<b>Hello World</b>
+tar xfz ~/Downloads/bit-0.8.0-0-src.tgz
+cd bit-0.8.0
+make boot
+sudo make install
 </pre>
-            <p>Use ^D to exit the ejs shell.</p>
-            <h3>Other Commands</h3>
-            <p>The installation will install five commands in /usr/bin</p>
-            <table title="commands">
-                <thead>
-                    <tr>
-                        <th scope="col">Name</th>
-                        <th scope="col">Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>ejs</td>
-                    <td>The Ejscript command shell. This command can parse and execute ejs scripts from files or typed
-                    interactively on the console. This command contains both the Ejscript compiler and virtual
-                    machine.</td>
-                </tr>
-                <tr>
-                    <td>ejsc</td>
-                    <td>The Ejscript compiler. This command can compile scripts into byte code form for later running
-                        via the <em>ejs</em> shell.</td>
-                </tr>
-                <tr>
-                    <td>ejsmod</td>
-                    <td>The Ejscript module manager. This command generates assembler source code listings, HTML
-                    documentation and symbolic slot offset header files.</td>
-                </tr>
-                <tr>
-                    <td>mvc</td>
-                    <td>The Ejscript Model-View-Controller application generator. This command creates and manages
-                        Ejscript Web applications.</td>
-                </tr>
-                </tbody>
-            </table>
+            <a id="removing"></a>
+            <h2 class="section">Removing Bit</h2>
+            <ol>
+                <li>Run a terminal and change directory to the installation directory for Bit. This is typically
+                "/usr/lib/bit/latest".</li>
+                <li>Run the uninstall script in the Bit install directory:
+                <pre>cd /usr/lib/bit/latest
+sudo ./uninstall</pre>
+                </li>
+            </ol>
+            
+            <a id="running"></a>
+            <h2 class="section">Running Bit</h2>
+            <p>You can invoke Bit simply as <em>bit</em>
+            <pre><b>$ bit</b>
+bit.es: ERROR: Can't find suitable start.bit.
+Run "bit --gen start" to create stub start.bit
+</pre>
+            <p>This indicates you are ready to start by creating your first <em>start.bit</em> file.
+            To learn more, read the <a href="../../guide/bit/users/quick.html ">Bit Quick Start</a>.</p>
+
+            <p>To display the various bit command options, type:
+            <pre><b>$ bit help</b>
+
+Usage: bit [options] [targets|actions] ...
+  Options:
+  --benchmark                              # Measure elapsed time
+  --configure path-to-source               # Configure for building
+  --continue                               # Continue on errors
+  --debug                                  # Same as --profile debug
+  --depth level                            # Set utest depth level
+  --diagnose                               # Emit diagnostic trace 
+  --dump                                   # Dump the full project bit file
+  --endian [big|little]                    # Define the CPU endianness
+  --file file.bit                          # Use the specified bit file
+  --force                                  # Override warnings
+  --gen [make|nmake|sh|vs|xcode|main|start]# Generate project file
+  --help                                   # Print help message
+  --import                                 # Import standard bit environment
+  --keep                                   # Keep intermediate files
+  --log logSpec                            # Save errors to a log file
+  --nocross                                # Build natively
+  --overwrite                              # Overwrite existing files
+  --out path                               # Save output to a file
+  --platform os-arch-profile               # Build for specified platform
+  --pre                                    # Pre-process a source file to stdout
+  --prefix dir=path                        # Define installation path prefixes
+  --profile [debug|release|...]            # Use the build profile
+  --quiet                                  # Quiet operation. Suppress trace 
+  --rebuild                                # Rebuild all specified targets
+  --reconfigure                            # Reconfigure with existing settings
+  --release                                # Same as --profile release
+  --rom                                    # Build for ROM without a file system
+  --set [feature=value]                    # Enable and a feature
+  --show                                   # Show commands executed
+  --static                                 # Make static libraries
+  --unicode                                # Set char size to wide (unicode)
+  --unset feature                          # Unset a feature
+  --version                                # Dispay the bit version
+  --verbose                                # Trace operations
+  --with PACK[=PATH]                       # Build with package at PATH
+  --without PACK                           # Build without a package
+</pre>
+
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->
 	<div class="bottom">
 		<p class="footnote"> 
             <a href="../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2013. 
-            All rights reserved. Embedthis Bit, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
+            All rights reserved. Embedthis Bit, Bit and Appweb are trademarks of Embedthis Software LLC.</a>
 		</p>
 	</div>
     <script src="http://www.google.com/jsapi" type="text/javascript"></script>

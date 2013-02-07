@@ -34,8 +34,8 @@
             <h1>Quick Nav</h1>
             <ul>
                 <li><a href="#pkg">Installing the PKG Image</a></li>
-                <li><a href="#removing">Removing Ejscript</a></li>
-                <li><a href="#running">Running Ejscript</a></li>
+                <li><a href="#removing">Removing Bit</a></li>
+                <li><a href="#running">Running Bit</a></li>
             </ul>
             <h1>See Also</h1>
             <ul>
@@ -49,8 +49,8 @@
         </div>
         <div class="contentLeft">
             <h1>Installing on MAC OS X</h1>
-            <p>The Embedthis Ejscript install distribution for Mac OS X is published as a an installable 
-            pkg file.</p>
+            <p>The Embedthis Bit install distribution for Mac OS X is published as an installable pkg file,
+            available <a href="http://embedthis.com/downloads/bit/download.ejs">here</a>.</p>
             <a id="pkg"></a>
             <h2 class="section">Installing the Image</h2>
             <ol>
@@ -58,71 +58,75 @@
             </ol>
             
             <a id="removing"></a>
-            <h2 class="section">Removing Ejscript</h2>
+            <h2 class="section">Removing Bit</h2>
             <ol>
-                <li>Run a terminal and change directory to the installation directory for Ejscript. This is typically
-                "/usr/lib/ejs/latest".</li>
-                <li>Run the uninstall script in the Ejscript install directory:
+                <li>Run a terminal and change directory to the installation directory for Bit. This is typically
+                "/usr/lib/bit/latest".</li>
+                <li>Run the uninstall script in the Bit install directory:
                 <pre>sudo ./uninstall</pre>
                 </li>
             </ol>
             
             <a id="running"></a>
-            <h2 class="section">Running Ejscript</h2>
-            <p>To do a "Hello World" test, try typing the following. The "Hello World" is echoed back by ejs:</p>
-            <pre>
-ejs
-ejs-0&gt; print("Hello World")
-<strong>
-Hello World</strong>d
-ejs-0&gt;
+            <h2 class="section">Running Bit</h2>
+            <p>You can invoke Bit simply as <em>bit</em>
+            <pre><b>$ bit</b>
+bit.es: ERROR: Can't find suitable start.bit.
+Run "bit --gen start" to create stub start.bit
 </pre>
-            <p>Use ^D to exit the ejs shell.</p>
-            <h3>Other Commands</h3>
-            <p>The installation will install five commands with links in /usr/local/bin.</p>
-            <table title="commands">
-                <thead>
-                    <tr>
-                        <th scope="col">Name</th>
-                        <th scope="col">Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>bit</td>
-                    <td>The bit build and configuration tool is used to configure and build products. It is a
-                        modern replacement for autoconf and make.</td>
-                </tr>
-                <tr>
-                    <td>ejs</td>
-                    <td>The Ejscript command shell. This command can parse and execute ejs scripts from files or typed
-                    interactively on the console. This command contains both the Ejscript compiler and virtual
-                    machine.</td>
-                </tr>
-                <tr>
-                    <td>ejsc</td>
-                    <td>The Ejscript compiler. This command can compile scripts into byte code form for later running
-						via the <em>ejs</em> command.</td>
-                </tr>
-                <tr>
-                    <td>ejsmod</td>
-                    <td>The Ejscript module manager. This command generates assembler source code listings, HTML
-                    documentation and symbolic slot offset header files.</td>
-                </tr>
-                <tr>
-                    <td>mvc</td>
-					<td>The Ejscript Model-View-Controller web framework generator and manager. This command assists to
-						create Ejscript Web applications that use the Ejscript Web Framework.</td>
-                </tr>
-                </tbody>
-            </table>
+            <p>This indicates you are ready to start by creating your first <em>start.bit</em> file.
+            To learn more, read the <a href="../../guide/bit/users/quick.html ">Bit Quick Start</a>.</p>
+
+            <p>To display the various bit command options, type:
+            <pre><b>$ bit help</b>
+
+Usage: bit [options] [targets|actions] ...
+  Options:
+  --benchmark                              # Measure elapsed time
+  --configure path-to-source               # Configure for building
+  --continue                               # Continue on errors
+  --debug                                  # Same as --profile debug
+  --depth level                            # Set utest depth level
+  --diagnose                               # Emit diagnostic trace 
+  --dump                                   # Dump the full project bit file
+  --endian [big|little]                    # Define the CPU endianness
+  --file file.bit                          # Use the specified bit file
+  --force                                  # Override warnings
+  --gen [make|nmake|sh|vs|xcode|main|start]# Generate project file
+  --help                                   # Print help message
+  --import                                 # Import standard bit environment
+  --keep                                   # Keep intermediate files
+  --log logSpec                            # Save errors to a log file
+  --nocross                                # Build natively
+  --overwrite                              # Overwrite existing files
+  --out path                               # Save output to a file
+  --platform os-arch-profile               # Build for specified platform
+  --pre                                    # Pre-process a source file to stdout
+  --prefix dir=path                        # Define installation path prefixes
+  --profile [debug|release|...]            # Use the build profile
+  --quiet                                  # Quiet operation. Suppress trace 
+  --rebuild                                # Rebuild all specified targets
+  --reconfigure                            # Reconfigure with existing settings
+  --release                                # Same as --profile release
+  --rom                                    # Build for ROM without a file system
+  --set [feature=value]                    # Enable and a feature
+  --show                                   # Show commands executed
+  --static                                 # Make static libraries
+  --unicode                                # Set char size to wide (unicode)
+  --unset feature                          # Unset a feature
+  --version                                # Dispay the bit version
+  --verbose                                # Trace operations
+  --with PACK[=PATH]                       # Build with package at PATH
+  --without PACK                           # Build without a package
+</pre>
+
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->
 	<div class="bottom">
 		<p class="footnote"> 
             <a href="../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2013. 
-            All rights reserved. Embedthis Bit, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
+            All rights reserved. Embedthis Bit, Bit and Appweb are trademarks of Embedthis Software LLC.</a>
 		</p>
 	</div>
     <script src="http://www.google.com/jsapi" type="text/javascript"></script>
