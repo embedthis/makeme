@@ -127,6 +127,46 @@ public function packageSourceFiles() {
 }
 
 
+public function packageComboFiles() {
+    if (bit.cross) {
+        return
+    }
+    let s = bit.settings
+    let src = bit.dir.pkg.join('src')
+    let pkg = src.join(s.product + '-' + s.version)
+    safeRemove(pkg)
+    pkg.makeDir()
+    install('projects/bit-' + bit.platform.os + '-default-bit.h', pkg.join('src/deps/bit/bit.h'))
+    install('package/start-flat.bit', pkg.join('src/deps/bit/start.bit'))
+    install('package/Makefile-flat', pkg.join('src/deps/bit/Makefile'))
+    install(['src/deps/mpr/mpr.h', 'src/deps/http/http.h', 'src/deps/pcre/pcre.h'], 
+        pkg.join('src/deps/bit/deps.h'), {
+        cat: true,
+        filter: /^#inc.*bit.*$|^#inc.*mpr.*$|^#inc.*http.*$|^#inc.*customize.*$|^#inc.*edi.*$|^#inc.*mdb.*$|^#inc.*esp.*$/mg,
+        title: bit.settings.title + ' Library Source',
+    })
+    install(['src/deps/**.c'], pkg.join('src/deps/bit/deps.c'), {
+        cat: true,
+        filter: /^#inc.*bit.*$|^#inc.*mpr.*$|^#inc.*http.*$|^#inc.*customize.*$|^#inc.*edi.*$|^#inc.*mdb.*$|^#inc.*esp.*$/mg,
+        exclude: /pcre|makerom|http\.c|sqlite|manager|ejs/,
+        header: '#include \"bit.h\"',
+        title: bit.settings.title + ' Library Source',
+    })
+    install(['src/**.c'], pkg.join('src/deps/bit/bitLib.c'), {
+        cat: true,
+        filter: /^#inc.*bit.*$|^#inc.*mpr.*$|^#inc.*http.*$|^#inc.*customize.*$|^#inc.*edi.*$|^#inc.*mdb.*$|^#inc.*esp.*$/mg,
+        exclude: /deps|server.bit.c|esp\.c|ejs|samples|romFiles|pcre|sqlite|appman|makerom|utils|test|http\.c|sqlite|manager/,
+        header: '#include \"bit.h\"',
+        title: bit.settings.title + ' Library Source',
+    })
+    install(['src/bit.c'], pkg.join('src/bit.c'))
+    install(['src/bit.es'], pkg.join('src/bit.es'))
+
+    install(['src/deps/pcre/pcre.c', 'src/deps/pcre/pcre.h'], pkg.join('src/deps/bit'))
+    package(bit.dir.pkg.join('src'), ['combo', 'flat'])
+}
+
+
 public function packageBinaryFiles(formats = ['tar', 'native'], minimal = false) {
     packageDeploy(minimal)
     if (bit.platform.last) {

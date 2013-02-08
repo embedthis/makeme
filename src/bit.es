@@ -986,7 +986,7 @@ public class Bit {
                     o[field][key] = home.join(value)
                 }
             }
-        } else if (o[field]) {
+        } else if (o[field] && o[field].startsWith) {
             if (!o[field].startsWith('${') && !o[field].startsWith('$(')) {
                 o[field] = home.join(o[field])
             }

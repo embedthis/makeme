@@ -1,0 +1,59 @@
+/*
+    start.bit -- Start Bit File to build the combo Bit release
+ */
+
+Bit.load({
+    targets: {
+        libbit: {
+            type: 'lib',
+            sources: [ 'bitLib.c', 'deps.c', 'pcre.c', 'sqlite3.c' ],
+            headers: [ '*.h' ],
+            depends: [ ],
+            '-compiler': [
+                /* SQLite needs these */
+                '-Wall',
+                '-Wshorten-64-to-32',
+            ],
+            '+compiler': [ '-w', ],
+            scripts: {
+                prebuild: "
+                    if (bit.settings.hasPam) {
+                        bit.target.libraries.push('pam')
+                    }
+                ",
+            },
+        },
+        bit: {
+            type: 'exe',
+            depends: [ 'libbit' ],
+            sources: [ 'bit.c' ],
+            headers: [ '*.h' ],
+        },
+    },
+    packs: {
+        cgi: {
+            enable: true,
+            path: ".",
+        },
+        dir: {
+            enable: true,
+            path: ".",
+        },
+        esp: {
+            enable: true,
+            path: ".",
+        },
+        php: {
+            enable: false,
+        },
+        sqlite: {
+            enable: true,
+        },
+        ssl: {
+            enable: false,
+        },
+        ejscript: {
+            enable: false,
+        },
+    },
+})

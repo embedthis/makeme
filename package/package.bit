@@ -57,7 +57,7 @@ Bit.load({
         package: {
             home: '${TOP}',
             enable: "'${OS}' == 'linux' || '${OS}' == 'macosx' || '${OS}' == 'windows'",
-            depends: ['packageBinary', 'packageSource'],
+            depends: ['packageBinary', 'packageSource', 'packageCombo'],
         },
 
         packageBinary: {
@@ -70,6 +70,12 @@ Bit.load({
             home: '${TOP}',
             depends: ['build'],
             action: "packageSourceFiles()",
+        },
+
+        packageCombo: {
+            home: '${TOP}',
+            depends: ['build'],
+            action: "packageComboFiles()",
         },
 
         testPackage: {

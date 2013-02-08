@@ -15,13 +15,11 @@
 *.exe
 *.out
 *.app
-*-*.bit
 releases
 start.bit
 projects/.flags
 *-*-*
 *.guid
-
 .prefixes
 *.tmp
 .DS_Store
