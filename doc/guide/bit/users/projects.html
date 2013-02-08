@@ -42,7 +42,6 @@
             <li><a href="../../../guide/bit/users/quick.html">Quick Start with Bit</a></li>
             <li><a href="../../../guide/bit/users/projects.html">Bit Projects</a></li>
             <li><a href="../../../guide/bit/users/compiling.html">Compiling Sources</a></li>
-            <li><a href="../../../guide/bit/users/libraries.html">Building Libraries</a></li>
             <li><a href="../../../guide/bit/users/executables.html">Building Executables</a></li>
             <li><a href="../../../guide/bit/users/scripts.html">Running Scripts</a></li>
             <li><a href="../../../guide/bit/users/copying.html">Copying Files</a></li>
@@ -64,7 +63,6 @@
             it searches up the parent directory chain for one. Bit then loads the nearest start.bit file and commences
             processing its build instructions. This means you can typically invoke bit from anywhere in a project source
             tree.  A start.bit file may be complete in itself, or it may in turn load other bit files.</p>
-
             <a id="usecases"></a>
             <h2>Use cases for Bit </h2>
             <p>There are two use cases of use for Bit:</p>
@@ -77,7 +75,6 @@
             configuration step. The start.bit file contains targets that specify the recipes to build those targets.
             The full capabilities of bit are available and you can compile sources, build libraries and executables or
             run scripts.</p>
-
             <h3>Configured Use</h3>
             <p>Some products/projects require a configuration phase prior to building with Bit. Bit configuration of a
             project discovers the available tools and components and customizes the project to best run on the local
@@ -87,11 +84,9 @@
             reads a <em>main.bit</em> file which describes the project, before it discovers the local tools and components.
             Finally, it generates a start.bit and platform bit file that describes the project build and system. Configured
             projects support cross-compilation and project file generation for use in IDEs.</p>
-
             <p>To learn more, read about <a href="compiling.html">Compiling Sources</a>.</p>
         </div>
     </div>
-
 <!-- BeginDsi "dsi/bottom.html" -->
 	<div class="bottom">
 		<p class="footnote"> 
