@@ -26,7 +26,7 @@
         <div class="crumbs">
             <a href="../../../index.html">Home</a>
 <!-- EndDsi -->
-             &gt;<a href="index.html">User Guide</a>&gt; <b>Generating Projects</b>
+             &gt;<a href="index.html">User Guide</a>&gt; <b>Creating Libraries</b>
         </div>
     </div>
     <div class="content">
@@ -58,15 +58,55 @@
 <!-- EndDsi -->
         </div>
         <div class="contentLeft">
-        <a id="projectGeneration"></a>
-        <h2>Generating IDE Projects and Makefiles</h2>
-        <p>Bit can generate generate complete project files for building using: make, nmake, Visual Studio, Xcode or
-        plain shell scripts. Bit uses the <em>--gen</em> command line switch to specify the projects to build. Bit is capable of
-        cross-generating projects for non-native platforms. For example: you can generate an Xcode project for Mac OS
-        X on a Windows system.</p>
-            <pre>bit --continue --platform macosx-x64 configure -gen xcode,make,sh</pre>
-        <p>This will generate Xcode, make and shell script projects for a Mac OS X 64-bit. The <em>--continue</em> switch indicates
-        that generation should continue even if the required compilers and build tools are not present on the development system.</p>
+        <h2>Creating Libraries</h2>
+        <p>Bit creates libraries by specifying the sources to compile in a library target. For example:
+<pre>
+targets {
+    libdemo: {
+        type: 'lib',
+        sources: '*.c',
+    },
+}
+</pre>
+        
+        <p>The <em>sources</em> property is set to the list of files to compile. See <a href="compiling">Compiling
+            Sources</a> for how to use the sources property.</p>
+        <p>Building this target will then compile the specified source files and build
+        the named library with the relevant compiled objects.</p>
+<pre>
+bit libdemo
+</pre>
+        <p>When building, Bit transparently creates targets for each of the compiled source files and for 
+        any include files referenced by the sources. If the source file or its include files are updated, the 
+        relevant source file or files will be recompiled and library rebuilt.</p>
+        <h2>Dependencies</h2>
+        <p>On some platforms, linking a library will require that all unresolved references in other libraries be
+        resolved before the link can successfully complete. Such library dependencies are specified via the
+        <em>depends</em> property. The depends property takes a list of other targets that must be built before
+        the current target can complete. Note: that these are the target names (target.name property) and not
+        the library name. To specify external libraries that are not built with bit, use the 
+        <em>libraries</em> property collection.</p>
+<pre>
+libappweb: {
+    type: 'lib',
+    sources: [ '*.c' ],
+    headers: [ '*.h' ],
+    depends: [ 'libhttp' ],
+},
+</pre>
+        <h2>Static Libraries</h2>
+        <p>By default, Bit will build a shared library for a library target. To build a static library, set the 
+                <i>static</i> property to true.</p>
+<pre>
+libname: {
+    type: 'lib',
+    sources: '*.c',
+    static: true,
+},
+</pre>
+        <p>To learn more, read about <a href="executables.html">Creating Executables</a>.</p>
+        </div>
+    </div>
 <!-- BeginDsi "dsi/bottom.html" -->
 	<div class="bottom">
 		<p class="footnote"> 

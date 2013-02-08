@@ -1554,12 +1554,15 @@ public class Bit {
 
     function import() {
         let bin = Path(Config.Bin)
-        for each (f in bin.files('bits/**', {relative: true})) {
-            copyFile(bin.join(f), f)
+        for each (dest in bin.files('bits/**', {relative: true})) {
+            let src = bin.join(dest)
+            if (src.isDir) {
+                mkdir(dest.dirname, 0755)
+            } else {
+                copyFile(src, dest)
+            }
         }
-        generateMain()
     }
-
 
     function prepBuild() {
         vtrace('Prepare', 'For building')

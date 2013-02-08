@@ -26,7 +26,7 @@
         <div class="crumbs">
             <a href="../../../index.html">Home</a>
 <!-- EndDsi -->
-             &gt;<a href="index.html">User Guide</a>&gt; <b>Compiling and Creating Libraries</b>
+             &gt;<a href="index.html">User Guide</a>&gt; <b>Compiling Sources</b>
         </div>
     </div>
     <div class="content">
@@ -37,30 +37,31 @@
 <li><a href="#overview">Overview</a></li>
                 </ul>
 <!-- BeginDsi "dsi/guideSeeAlso.html" -->
-        <h1>See Also</h1>
-        <ul>
-            <li><a href="../../../guide/bit/users/quick.html">Quick Start with Bit</a></li>
-            <li><a href="../../../guide/bit/users/projects.html">Bit Projects</a></li>
-            <li><a href="../../../guide/bit/users/compiling.html">Compiling Sources</a></li>
-            <li><a href="../../../guide/bit/users/executables.html">Building Executables</a></li>
-            <li><a href="../../../guide/bit/users/scripts.html">Running Scripts</a></li>
-            <li><a href="../../../guide/bit/users/copying.html">Copying Files</a></li>
-            <li><a href="../../../guide/bit/users/configuring.html">Configuring a Project</a></li>
-            <li><a href="../../../guide/bit/users/debugging.html">Debugging a Build</a></li>
-            <li><a href="../../../guide/bit/users/generating.html">Generating Projects</a></li>
-            <li><a href="../../../guide/bit/users/make.html">Using Makefiles</a></li>
-            <li><a href="../../../guide/bit/users/cross.html">Cross-Compiling</a></li>
+            <h1>See Also</h1>
+            <ul>
+                <li><a href="../../../guide/bit/users/quick.html">Quick Start with Bit</a></li>
+                <li><a href="../../../guide/bit/users/projects.html">Bit Projects</a></li>
+                <li><a href="../../../guide/bit/users/compiling.html">Compiling Sources</a></li>
+                <li><a href="../../../guide/bit/users/libraries.html">Creating Libraries</a></li>
+                <li><a href="../../../guide/bit/users/executables.html">Building Executables</a></li>
+                <li><a href="../../../guide/bit/users/scripts.html">Running Scripts</a></li>
+                <li><a href="../../../guide/bit/users/copying.html">Copying Files</a></li>
+                <li><a href="../../../guide/bit/users/configuring.html">Configuring a Project</a></li>
+                <li><a href="../../../guide/bit/users/debugging.html">Debugging a Build</a></li>
+                <li><a href="../../../guide/bit/users/generating.html">Generating Projects</a></li>
+                <li><a href="../../../guide/bit/users/make.html">Using Makefiles</a></li>
+                <li><a href="../../../guide/bit/users/cross.html">Cross-Compiling</a></li>
 
-            <li><a href="../../../guide/bit/users/http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Ejscript Language</a></li>
-            <li><a href="../../../guide/bit/users/http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a></li>
-        </ul>
+                <li><a href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Ejscript Language</a></li>
+                <li><a href="http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a></li>
+            </ul>
 <!-- EndDsi -->
         </div>
         <div class="contentLeft">
-        <h2>Compiling and Creating Libraries</h2>
-        <p>Bit compiles sources by defining library targets to for the compiled objects. These libraries may be used
-        to build executables, or just to hold the objects.
-        <p>To define a library, create a library target in the targets collection of a bit file.
+        <h2>Compiling Sources</h2>
+        <p>Bit compiles source files by building library or executable targets that specify the sources to be compiled. 
+        <p>For example, this target will compile the sources in the current directory and create a library containing
+        the compiled objects.</p>
 <pre>
 targets {
     libname: {
@@ -69,17 +70,25 @@ targets {
     },
 }
 </pre>
-        
-        <p>Set the target <em>type</em> property to 'lib' and select the source files to compile via the
-        <em>sources</em> property.
-        <p>Building this target will then automatically compile all the specified source files and then build
-        the named library containing the relevant compiled objects.</p>
-        <p>Bit automatically creates targets for each of the compiled source files and for any include files referenced
-        by the sources. If the source file is updated, the file will be recompiled and library rebuilt when bit is next
-        run. If any of the included headers are updated, the file and library will similarly be rebuilt.</p>
+        <p>Bit expands the sources property and creates objects targets at run-time for each of the corresponding sources.
+        <p>Bit also creates targets for any include files referenced by the sources.  If the source file is updated, it will
+        be recompiled and library rebuilt when Bit is next run. If any of the included headers are updated, the source file
+        and library will similarly be rebuilt.</p>
+        <p> These targets are related via their <em>depends</em> property. The 
+        target that specified the sources (in this example, the library) will depend on the sources. The various source
+        targets will depend on their include header targets. When building, Bit will recursively consider the dependant
+        targets and rebuild any that are out-of-date.</p>
+        <p>Any target can specify a list of sources. Typically, this will be libraries and executables, but any 
+        target can specify sources. For completeness, here is an executable target.</p>
+<pre>
+myProgram: {
+    type: 'exe',
+    sources: '*.c',
+},
+</pre>
         <h2>Selecting Source Files</h2>
-        <p>The <em>sources</em> property may be set to a regular expression, a string or an array of either. Further,
-        multiple sources properties can be aggregated by prefixing source array properties with <em>+</em>. For example: 
+        <p>The <em>sources</em> property may be set to a regular expression, a string or an array of either. 
+        For example: </p>
 <pre>
 sources: /view-.*\.c|image.*\.c/,
 </pre>
@@ -92,8 +101,15 @@ sources: ['*.c', '*.cpp'],
 sources: '**.c',
 </pre>
         <p>This will select C and C++ source files in the current directory or in any sub-directory below.</p>
+        <p>multiple sources properties can be aggregated by prefixing source array properties with <em>+</em>. 
+<pre>
+source: '*.c',
+'+sources': '*.xc',
+</pre>
+        <p>This is useful when the sources to build may be specified in more than one bit file. This can happen if
+        you want a lower-level bit file to inherit some mandatory sources to include from an upper-level bit file.</p>
         <h3>Excluding Items</h3>
-        <p>You can also exclude specific items from the sources list. Similar to the sources property, the 
+        <p>You can exclude specific items from the sources list. Similar to the sources property, the 
         <em>exclude</em> property can be set to a regular expression, a string or an array of either. Once
         the list of sources is built from the sources property, each qualifying source file is checked to see if
         it should be excluded. The exclusion match is performed on the entire source file name.</p>
@@ -103,49 +119,131 @@ sources: '**.c',
 </pre>
         <p>This will exclude C files in the test and demo directories. If using regular expressions, make sure you 
         include a leading '\/' and trailing '$' if you want to match a directory basename.</p>
-        <h2>Static Libraries</h2>
-        <p>By default, a shared library will be built. To build a static library, set the 
-                <i>static</i> property to true.</p>
-<pre>
+        <h2 class="section">Headers</h2>
+        <p>Bit, by convention, copies declared headers to the platform <em>OS-ARCH-PROFILE/inc</em> directory. This is
+        so that headers can be easily resolved when compiling by a single <em>-I</em> compiler flag. This is not required,
+        but certainly recommended. You can specify headers to export to the platform directory via 
+        the <em>headers</em> property. For example:
+        <pre>
 libname: {
     type: 'lib',
     sources: '*.c',
-    static: true,
+    headers: [ '*.h' ],
+}
+</pre>
+        <p>This will create targets at run-time for all headers in the current directory. These targets will copy the
+        headers (if modified) to the <em>inc</em> directory for the platform. The standard Bit compile rules will then
+        resolve the headers from the inc directory.</p>
+        <h2 class="section">Compiler Commands</h2>
+        <p>Bit crafts commands to compile sources using Bit compiler properties for include directories, compiler options,
+        compiler pre-processor definitions, link libraries, paths and options. These properties are inherited by
+        all targets who can use, augment or modify these defaults if required. Typically, the defaults are sufficient,
+        but they can be modified, augmented or delete on a per-target basis.</p>
+        <p>For example:
+<pre>
+mylib: {
+    '+includes': [
+        "/Users/mob/git/ejs/macosx-x64-debug/inc",
+    ],
+    '+compiler': [
+        "-fomit-frame-pointer",
+    ],
+    '+defines': [
+        "-DENABLE_TURBO_MODE",
+    ],
+    '+libraries': [
+        "edit",
+    ],
+    '+libpaths': [
+        "headers",
+    ],
+    '+linker': [
+        "-Wl,-rpath,/opt/lib",
+    ],
 },
 </pre>
-        <h2>Useful Options</h2>
-        <p>Bit has some useful options that help diagnose common build issues.</p>
-        <h3>Tracing executed commands</h3>
-        <p>To see the actual commands bit is executing to compile sources and link libraries, run bit with the
-        <em>--show</em> switch (this can be abbreviated to -s).
-<pre>$ bit <b>-s</b>
-   [Compile] src/deps/mpr/mprSsl.c
-       [Run] /usr/bin/clang -c -o macosx-x64-release/obj/mprSsl.o -arch x86_64 \
-             -Wall -Wno-deprecated-declarations -O3 -Wno-unused-result \
-             -Wshorten-64-to-32 -DEMBEDTHIS=1 -Imacosx-x64-release/inc \
-             src/deps/mpr/mprSsl.c
-      [Link] libmprssl
+        <table class="full">
+            <thead>
+                <tr><th>Property</th><th>Purpose</th>
+            </thead>
+            <tbody>
+                <tr><td>includes</td><td>Directories to search for headers</td>
+                <tr><td>compiler</td><td>Compiler options</td>
+                <tr><td>defines</td><td>Compiler pre-procecessor defines</td>
+                <tr><td>libraries</td><td>Libraries to link with when linking</td>
+                <tr><td>libpaths</td><td>Directories to search for libraries</td>
+                <tr><td>linker</td><td>Linker flags</td>
+            </tbody>
+        </table>
+        <p>Using a <em>+</em> prefix adds the values to the existing property set. Use <em>-</em> to remove and use
+        the undecorated property name to replace existing values. </p>
+        <p>Note that the default link phase rules use the compiler and not the linker to create executables. As such,
+        linker flags must be prefixed to pass through to the linker. Also note that many compiler and linker flags are
+        platform specific and thus not-portable. Fortunately, Bit portably defines most common compiler and linker
+        flags for you. If you need to portably modify these flags, you will need to use some scripting.</p>
+        <h3>Target Scripting</h3>
+        <p>Targets can run scripts at various stages in the build lifecyle. These scripts run in response to build events.
+        Defining a script to run in response to the <em>precompile</em> event will enable us to modify the
+        compiler properties before the target is build. For example:</p>
+        <pre>scripts: {
+    '+precompile': "
+        if (bit.platform.os == 'windows') {
+            bit.target.compiler.push('-GF -Wp64')
+        }
+    ",
+},
+        </pre>
+        <p>For detailed information on scripting, please see <a href="events">Bit Events</a> and
+        <a href="scripting">Bit Scripting</a>.</p>
+        <h2 class="section">Inheriting Target Properties</h2>
+        <p>Every target inherits default properties from the <em>defaults</em> and <em>internal</em> property collections.
+        Bit defines the initial compiler properties as required for the current platform operating system and CPU 
+        architecture. Similarly to overriding the compiler properties, you can override the default properties so that
+        all targets inherit your customizations. For example:
+<pre>
+defaults: {
+    '+defines': [ '-DENABLE_DIRECT_X' ],
+},
 </pre>
-        <h3>Why a build is or is not happening</h3>
-        <p>Sometimes, it is not obvious why a target, either source file or library is continually being rebuilt.
-        Othertimes, a target is not being built and it is difficult to understand why? Bit provides a <em>--why</em>
-        switch which will trace why each target was or was not built. For example:
-        <pre>$ bit <b>--why</b> libmpr
-    [Target] /Users/mob/git/bit/macosx-x64-release/inc/mpr.h is up to date
-    [Target] /Users/mob/git/bit/macosx-x64-release/inc/bit.h is up to date
-    [Target] /Users/mob/git/bit/macosx-x64-release/inc/bitos.h is up to date
-   [Rebuild] /Users/mob/git/bit/macosx-x64-release/obj/mprLib.o because input \
-             /Users/mob/git/bit/src/deps/mpr/mprLib.c has been modified.
-   [Compile] src/deps/mpr/mprLib.c
-   [Rebuild] /Users/mob/git/bit/macosx-x64-release/bin/libmpr.dylib because input \
-             /Users/mob/git/bit/macosx-x64-release/obj/mprLib.o has been modified.
-      [Link] libmpr
+        <h3>Private Inheritance</h3>
+        <p>Similarly to the defaults collection, you can specify properties that are inherited only by targets in
+        the same bit file. To do this, create an <em>internal</em> collection.
+        <pre>
+internal: {
+    libraries: [ 'pam', 'z' ],
+},
 </pre>
-        <h3>Exactly how is Bit interpreting a target</h3>
-        <p>You can dump the entire Bit understand of your build via the <em>--dump</em> switch. This will save to 
-        an OS-ARCH-PROFILE.dmp a complete internal snapshot of the Bit definition of your projects. This cannot be
-        run, but is great for seeing how bit is expanding your project definition.</p>
-        <pre>$ bit <b>--dump</b></pre>
+        <h2 class="section">Compiler Rules</h2>
+        <p>Bit defines compiler command templates to use for compiling, linking and other tasks. These templates are
+        defined in the the <em>rules</em> property collection. These templates are unique for each supported platform
+        as they depend on the local compiler.</p>
+        <p>You should rarely need to modify these templates, but like the rest of Bit, you can modify them if you need to. 
+        Rules use as their property name, the desired transition. This is of the form: <em>'FROM->TO'</em> For example,
+        to compile a <em>.c</em> file into a <em>.o</em>, the rule name would be <em>'.c->.o'</em>
+        For example:</p>
+<pre>
+rules: {
+    'c->o': '${packs.compiler.path} -c -o ${OUT} ${CFLAGS} ${DEFINES} ${INCLUDES} ${IN}',
+},
+</pre>
+        <p>The various <em>${token}</em> values are expanded by Bit using the compiler properties.
+        The ${OUT} token is set to the target destination path. The ${IN} token is set to the name of the file to 
+        compile.</p>
+        <h2 class="section">Examples</h2>
+        <p>Here is an actual example from the Ejscript project that builds the ejs library:</p>
+        <pre>
+libejs: {
+    type: 'lib',
+    headers: [ 'slots/*.h', '*.h' ],
+    sources: [
+        'compiler/*.c',
+        'core/src/*.c',
+        'vm/*.c'
+    ],
+    depends: [ 'libhttp' ],
+},
+</pre>
+        <p>To learn more, read about <a href="libraries.html">Creating Libraries</a>.</p>
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->

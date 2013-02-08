@@ -144,6 +144,10 @@ div.content a {
 	text-decoration: underline; 
 }
 
+div.contentRight a {
+	text-decoration: none; 
+}
+
 div.content a:hover { 
 	color: #CC4477; 
 	text-decoration: underline; 

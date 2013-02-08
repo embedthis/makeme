@@ -37,23 +37,24 @@
 <li><a href="#overview">Overview</a></li>
                 </ul>
 <!-- BeginDsi "dsi/guideSeeAlso.html" -->
-        <h1>See Also</h1>
-        <ul>
-            <li><a href="../../../guide/bit/users/quick.html">Quick Start with Bit</a></li>
-            <li><a href="../../../guide/bit/users/projects.html">Bit Projects</a></li>
-            <li><a href="../../../guide/bit/users/compiling.html">Compiling Sources</a></li>
-            <li><a href="../../../guide/bit/users/executables.html">Building Executables</a></li>
-            <li><a href="../../../guide/bit/users/scripts.html">Running Scripts</a></li>
-            <li><a href="../../../guide/bit/users/copying.html">Copying Files</a></li>
-            <li><a href="../../../guide/bit/users/configuring.html">Configuring a Project</a></li>
-            <li><a href="../../../guide/bit/users/debugging.html">Debugging a Build</a></li>
-            <li><a href="../../../guide/bit/users/generating.html">Generating Projects</a></li>
-            <li><a href="../../../guide/bit/users/make.html">Using Makefiles</a></li>
-            <li><a href="../../../guide/bit/users/cross.html">Cross-Compiling</a></li>
+            <h1>See Also</h1>
+            <ul>
+                <li><a href="../../../guide/bit/users/quick.html">Quick Start with Bit</a></li>
+                <li><a href="../../../guide/bit/users/projects.html">Bit Projects</a></li>
+                <li><a href="../../../guide/bit/users/compiling.html">Compiling Sources</a></li>
+                <li><a href="../../../guide/bit/users/libraries.html">Creating Libraries</a></li>
+                <li><a href="../../../guide/bit/users/executables.html">Building Executables</a></li>
+                <li><a href="../../../guide/bit/users/scripts.html">Running Scripts</a></li>
+                <li><a href="../../../guide/bit/users/copying.html">Copying Files</a></li>
+                <li><a href="../../../guide/bit/users/configuring.html">Configuring a Project</a></li>
+                <li><a href="../../../guide/bit/users/debugging.html">Debugging a Build</a></li>
+                <li><a href="../../../guide/bit/users/generating.html">Generating Projects</a></li>
+                <li><a href="../../../guide/bit/users/make.html">Using Makefiles</a></li>
+                <li><a href="../../../guide/bit/users/cross.html">Cross-Compiling</a></li>
 
-            <li><a href="../../../guide/bit/users/http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Ejscript Language</a></li>
-            <li><a href="../../../guide/bit/users/http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a></li>
-        </ul>
+                <li><a href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Ejscript Language</a></li>
+                <li><a href="http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a></li>
+            </ul>
 <!-- EndDsi -->
         </div>
         <div class="contentLeft">
@@ -72,6 +73,40 @@
 bit -s
 -why
 </pre>
+        <h2>Useful Options</h2>
+        <p>Bit has some useful options that help diagnose common build issues.</p>
+        <h3>Tracing executed commands</h3>
+        <p>To see the actual commands bit is executing to compile sources and link libraries, run bit with the
+        <em>--show</em> switch (this can be abbreviated to -s).
+<pre>$ bit <b>-s</b>
+   [Compile] src/deps/mpr/mprSsl.c
+       [Run] /usr/bin/clang -c -o macosx-x64-release/obj/mprSsl.o -arch x86_64 \
+             -Wall -Wno-deprecated-declarations -O3 -Wno-unused-result \
+             -Wshorten-64-to-32 -DEMBEDTHIS=1 -Imacosx-x64-release/inc \
+             src/deps/mpr/mprSsl.c
+      [Link] libmprssl
+</pre>
+        <h3>Why a build is or is not happening</h3>
+        <p>Sometimes, it is not obvious why a target, either source file or library is continually being rebuilt.
+        Othertimes, a target is not being built and it is difficult to understand why? Bit provides a <em>--why</em>
+        switch which will trace why each target was or was not built. For example:
+        <pre>$ bit <b>--why</b> libmpr
+    [Target] /Users/mob/git/bit/macosx-x64-release/inc/mpr.h is up to date
+    [Target] /Users/mob/git/bit/macosx-x64-release/inc/bit.h is up to date
+    [Target] /Users/mob/git/bit/macosx-x64-release/inc/bitos.h is up to date
+   [Rebuild] /Users/mob/git/bit/macosx-x64-release/obj/mprLib.o because input \
+             /Users/mob/git/bit/src/deps/mpr/mprLib.c has been modified.
+   [Compile] src/deps/mpr/mprLib.c
+   [Rebuild] /Users/mob/git/bit/macosx-x64-release/bin/libmpr.dylib because input \
+             /Users/mob/git/bit/macosx-x64-release/obj/mprLib.o has been modified.
+      [Link] libmpr
+</pre>
+        <h3>Exactly how is Bit interpreting a target</h3>
+        <p>You can dump the entire Bit understand of your build via the <em>--dump</em> switch. This will save to 
+        an OS-ARCH-PROFILE.dmp a complete internal snapshot of the Bit definition of your projects. This cannot be
+        run, but is great for seeing how bit is expanding your project definition.</p>
+        <pre>$ bit <b>--dump</b></pre>
+        </div>
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->
