@@ -13,9 +13,6 @@ body {
 	padding: 0;
 	font-family: Verdana, Arial, Helvetica, sans-serif; 
 	font-size: small;
-    _background-image: url(images/shadow.jpg);
-	_background-position: left top;
-	_background-repeat: repeat-y;
 }
 
 
@@ -173,9 +170,6 @@ div.homeLeft {
 	width: 31%;
 	float: left;
 	padding-right: 10px;
-    _margin: 20px 0 0 20px;
-	_font-size: 110%;
-	_line-height: 150%; 
 }
 
 
@@ -188,18 +182,16 @@ div.homeMiddle {
 div.homeRight { 
 	width: 31%;
 	float: left;
-    _margin: 20px 0 0 20px;
     margin: 0 0 0 10px;
 	padding: 0 10px 0 20px;
 	text-decoration: none;
 	min-height: 300px;
 	min-width: 150px;
-	_font-size: 110%;
-	_line-height: 150%; 
 }
 
 div.contentHome a {
     text-decoration: none;
+	color: #282828; 
 }
 
 footer {
