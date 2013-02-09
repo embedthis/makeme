@@ -26,7 +26,7 @@
         <div class="crumbs">
             <a href="../../../index.html">Home</a>
 <!-- EndDsi -->
-             &gt;<a href="index.html">User Guide</a>&gt; <b>Debugging Builds</b>
+             &gt;<a href="index.html">User Guide</a>&gt; <b>Debugging a Build</b>
         </div>
     </div>
     <div class="content">
@@ -36,19 +36,12 @@
                 <ul>
 <li><a href="#overview">Overview</a></li>
                 </ul>
-<!-- BeginDsi "dsi/guideSeeAlso.html" -->
+<!-- BeginDsi "dsi/userSeeAlso.html" -->
             <h1>See Also</h1>
             <ul>
-                <li><a href="../../../guide/bit/users/quick.html">Quick Start with Bit</a></li>
-                <li><a href="../../../guide/bit/users/projects.html">Bit Projects</a></li>
-                <li><a href="../../../guide/bit/users/compiling.html">Compiling Sources</a></li>
-                <li><a href="../../../guide/bit/users/libraries.html">Creating Libraries</a></li>
-                <li><a href="../../../guide/bit/users/executables.html">Building Executables</a></li>
-                <li><a href="../../../guide/bit/users/scripts.html">Running Scripts</a></li>
-                <li><a href="../../../guide/bit/users/copying.html">Copying Files</a></li>
+                <li><a href="../../../guide/bit/users/using.html">Using Bit</a></li>
                 <li><a href="../../../guide/bit/users/configuring.html">Configuring a Project</a></li>
                 <li><a href="../../../guide/bit/users/debugging.html">Debugging a Build</a></li>
-                <li><a href="../../../guide/bit/users/generating.html">Generating Projects</a></li>
                 <li><a href="../../../guide/bit/users/make.html">Using Makefiles</a></li>
                 <li><a href="../../../guide/bit/users/cross.html">Cross-Compiling</a></li>
 
@@ -59,33 +52,15 @@
         </div>
         <div class="contentLeft">
         <a id="debugging"></a>
-        <h2>Debugging</h2>
+        <h1>Debugging a Build</h1>
+        <p>Bit provides several switches that help you to see what Bit is doing and why. While bit will automatically
+        calcluate many of the complex dependencies in a project, you may find situations when a target is not being build
+        when you expected it to. Conversely a target may be continually being rebuilt. Why? 
+        
+        <h2>Why Targets are Building</h2>
         <p>With Make and other build tools, it is difficult to determine why a target is or is not being built. Bit
         provides a <em>--why</em> command line switch to diagnose problematic build sequences. This switch displays the
         reason why each target was or was not built.</p>
-        <p>In a complex project containing many Bit files, it can be helpful to see the entire bit configuration in one
-        file. Use the <em>--dump</em> switch to save a copy of the entire configuration. In the dump, 
-            build defaults are fully expanded to each target contains the expanded configuration that will be used to build
-            the target.</p> <p>By default, Bit builds relatively quietly and stops on the first build error. To see the
-            commands Bit is issuing, use the <em>--show</em> switch. To build totally quietly, use the <em>--quiet</em>
-            switch. To continue building despite build errors, use the <em>--continue</em> switch.</p>
-        <pre>
-bit -s
--why
-</pre>
-        <h2>Useful Options</h2>
-        <p>Bit has some useful options that help diagnose common build issues.</p>
-        <h3>Tracing executed commands</h3>
-        <p>To see the actual commands bit is executing to compile sources and link libraries, run bit with the
-        <em>--show</em> switch (this can be abbreviated to -s).
-<pre>$ bit <b>-s</b>
-   [Compile] src/deps/mpr/mprSsl.c
-       [Run] /usr/bin/clang -c -o macosx-x64-release/obj/mprSsl.o -arch x86_64 \
-             -Wall -Wno-deprecated-declarations -O3 -Wno-unused-result \
-             -Wshorten-64-to-32 -DEMBEDTHIS=1 -Imacosx-x64-release/inc \
-             src/deps/mpr/mprSsl.c
-      [Link] libmprssl
-</pre>
         <h3>Why a build is or is not happening</h3>
         <p>Sometimes, it is not obvious why a target, either source file or library is continually being rebuilt.
         Othertimes, a target is not being built and it is difficult to understand why? Bit provides a <em>--why</em>
@@ -101,13 +76,30 @@ bit -s
              /Users/mob/git/bit/macosx-x64-release/obj/mprLib.o has been modified.
       [Link] libmpr
 </pre>
-        <h3>Exactly how is Bit interpreting a target</h3>
-        <p>You can dump the entire Bit understand of your build via the <em>--dump</em> switch. This will save to 
-        an OS-ARCH-PROFILE.dmp a complete internal snapshot of the Bit definition of your projects. This cannot be
-        run, but is great for seeing how bit is expanding your project definition.</p>
+        <h2>Showing Executed Commands</h3>
+        <p>While bit takes the drudgery out of formulating compiler and linker commands, you sometimes need to see the exact
+        command that Bit is issuing to build the target. To see the actual commands bit is executing to compile sources and
+        link libraries, run bit with the <em>--show</em> switch (this can be abbreviated to -s).
+<pre>$ bit <b>-s</b>
+   [Compile] src/deps/mpr/mprSsl.c
+       [Run] /usr/bin/clang -c -o macosx-x64-release/obj/mprSsl.o -arch x86_64 \
+             -Wall -Wno-deprecated-declarations -O3 -Wno-unused-result \
+             -Wshorten-64-to-32 -DEMBEDTHIS=1 -Imacosx-x64-release/inc \
+             src/deps/mpr/mprSsl.c
+      [Link] libmprssl
+</pre>
+        <h2>Dumping the Project</h2>
+        <p>In a complex project containing many Bit files, it can be helpful to see the entire aggregated bit configuration in one
+        file. Use the <em>--dump</em> switch to save a copy of the entire configuration. In the dump, 
+        build defaults are fully expanded to each target contains the expanded configuration that will be used to build
+        the target. The dump will be saved to an OS-ARCH-PROFILE.dmp.</p>
         <pre>$ bit <b>--dump</b></pre>
+            
+        <h2>Other Useful Bits</h2>
+        <p>To build totally quietly, use the <em>--quiet</em>
+            switch. To continue building despite build errors, use the <em>--continue</em> switch.</p>
         </div>
-        </div>
+        <p>To learn more, read about <a href="make.html">Using Generated Makefiles</a>.</p>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->
 	<div class="bottom">

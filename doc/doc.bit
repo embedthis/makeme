@@ -10,7 +10,7 @@ Bit.load({
                 trace('Patch', 'Patch version string ${settings.version}')
                 let path = Path('product/version.html')
                 let settings = bit.settings
-                path.write(path.readString().replace(/<p>.*<.p>/, '<p>' + settings.version + '</p>'))
+                path.write(path.readString().replace(/<body>.*<.body>/, '<body>' + settings.version + '</body>'))
                 path = Path('dsi/head.html')
                 path.write(path.readString().replace(/<title>.*<.title>/, 
                     '<title>' + settings.title + ' ' + settings.version + ' Documentation</title>'))

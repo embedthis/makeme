@@ -36,19 +36,12 @@
                 <ul>
 <li><a href="#overview">Overview</a></li>
                 </ul>
-<!-- BeginDsi "dsi/guideSeeAlso.html" -->
+<!-- BeginDsi "dsi/userSeeAlso.html" -->
             <h1>See Also</h1>
             <ul>
-                <li><a href="../../../guide/bit/users/quick.html">Quick Start with Bit</a></li>
-                <li><a href="../../../guide/bit/users/projects.html">Bit Projects</a></li>
-                <li><a href="../../../guide/bit/users/compiling.html">Compiling Sources</a></li>
-                <li><a href="../../../guide/bit/users/libraries.html">Creating Libraries</a></li>
-                <li><a href="../../../guide/bit/users/executables.html">Building Executables</a></li>
-                <li><a href="../../../guide/bit/users/scripts.html">Running Scripts</a></li>
-                <li><a href="../../../guide/bit/users/copying.html">Copying Files</a></li>
+                <li><a href="../../../guide/bit/users/using.html">Using Bit</a></li>
                 <li><a href="../../../guide/bit/users/configuring.html">Configuring a Project</a></li>
                 <li><a href="../../../guide/bit/users/debugging.html">Debugging a Build</a></li>
-                <li><a href="../../../guide/bit/users/generating.html">Generating Projects</a></li>
                 <li><a href="../../../guide/bit/users/make.html">Using Makefiles</a></li>
                 <li><a href="../../../guide/bit/users/cross.html">Cross-Compiling</a></li>
 
@@ -60,17 +53,24 @@
         <div class="contentLeft">
         <a id="configuring"></a>
         <h2>Configuring</h2>
-        <p>To configure a product before building, run Bit using the <em>configure</em> target or alternatively use the
-        <em>--config</em> switch. When configuring, Bit will determine the capabilities of the current system and search
-        for extension packs. It will then create will create a platform configuration bit file that documents the
-        current system.  The build output directory is of the form: OS-ARCH-PROFILE.
-        It will also create a build output directory and a bit.h header. </p>
-        <p>When configuring, Bit will load the <em>main.bit</em> file to determine how to configure the build. It will
-        use the settings.required and settings.optional properties in the main.bit file for the list of required tools and
-        extension packages to locate. Bit will search for these packages and will create definitions in the platform bit
-        file for each package/tool.</p>
+        <p>If your projects has been <a href="projects.html">designed</a> for configuring it will have a <em>main.bit</em>
+        that describes your project, what it requires to build and how it can be extended. The main.bit file
+        specifies how Bit can configured your project.</p>
+        <p>When configuring, Bit will determine the capabilities of the current system and search
+        for appropriate extension packs installed on your system. 
+        Bit will use the settings.required and settings.discover properties in the main.bit file for the list of required tools and
+        extension packages to locate. Bit will search for these packages and will then create a configuration description that is 
+        used for subsequent builds.</p>
         
-        <p>For example, this is a typical <em>settings</em> configuration:</p>
+        <h3>Configuration Description</h3>
+        <p>The configuration description consists of a platform bit file and C source header that records the
+        current configuration. The platform bit file is named OS-ARCH-PROFILE.bit and will be loaded by start.bit for all
+        subsequent builds. Bit creates a platform output directory of the form: OS-ARCH-PROFILE. This directory holds
+        compiled objects, libraries and executables.  Under the platform directory, you will find <em>bin</em>, <em>inc</em>
+        and <em>obj</em> directories for binaries, headers and objects. The generated <em>inc/bit.h</em> can be included by
+        source files to access various configuration settings.</p>
+        
+        <p>For example, this is a typical main.bit description:</p>
 <pre>
 settings: {
     product: 'mpr',
@@ -79,12 +79,56 @@ settings: {
     version: '4.0.5',
     buildNumber: '4',
     '+required': [ 'utest' ],
-    '+optional':  [ 'doxygen', 'man', 'man2html', 'md5', 'openssl', 'ssl' ],
+    '+discover':  [ 'doxygen', 'man', 'man2html', 'md5', 'openssl', 'ssl' ],
 },
 </pre>
-        <p>The <em>required</em> property defines the packages that are required to be present on the system to build. The
-        plus symbol (+) before these properties indicates that these values should be added to pre-defined values. 
-        Bit will define the required tools of <em>compiler</em> and <em>linker</em> as part of its standard definitions.</p>
+        <p>The <em>required</em> property specifies the packages that are necessary for any build to succeed.
+        The <em>discover</em> property defines the optional packages that will be included if they are present on the local system.</p>
+        <p>The plus symbol (+) before these properties indicates that these values should be added to pre-defined values. 
+        Bit will define certain required tools such as the <em>compiler</em> and <em>linker</em> as part of its standard definitions.</p>
+        <p>Bit can be invoked to configure your project three ways:</p>
+        <ul>
+            <li>bit configure</li>
+            <li>bit -config</li>
+            <li>configure # If your project has supplied a configure script</li>
+        </ul>
+        <p>Note that bit switches can be prefixed with either a double <em>--</em> or a single <em>-</em>.</p>
+        <h2 class="section">Modifying the Build</h2>
+        <p>When running bit configure, you can modify the configuration by adding or removing packages and enabling or
+           disabling various features.</p> 
+        <h3>Packages</h3>
+        <p>If a discoverable package is installed in a non-standard location, you may need to inform Bit of its whereabouts.
+            Do this via: <pre>configure --with PACKAGE=/path/to/package</pre>
+        <p>Some packages that are neither required nor discoverable, may still supported by your project.
+           These packages but must be explicitly requested via the <em>-with</em> switch for them to be configured. 
+           For example, Appweb supports Ejscript but it is not enabled by default. To build with Ejscript, you request it like this:</p>
+        <pre>configure -with ejscript</pre>
+        <p>You can explicitly disable a package that has been discovered on your system, via the <em>-without</em> switch
+        <pre>configure -without ssl</pre>
+        <p>To see a list of supported packages, run <em>configure --help</em>.</p>
+        <pre>$ <b>configure --help</b>
+Usage: bit [options] [targets|actions] ...
+...
+Extension Packages (--with PACK, --without PACK):
+    doxygen             # Doxygen Documentation Generator
+    dsi                 # Developer Server Side Include Tool
+    est                 # Embedded Security Transport (SSL)
+    man                 # Manual Page Formatting Tool
+    man2html            # Manual Page to HTML Converter
+    matrixssl           # MatrixSSL (SSL)
+    mocana              # Mocana NanoSSL (SSL)
+    openssl             # OpenSSL (SSL)
+    pmaker              # Package Maker Tool
+    sqlite              # SQLite Database
+    zip                 # Zip Compression Tool
+</pre>
+        <h3>Features</h3>
+        <p>Most projects have configurable options that can be tailored via the configure <em>--set</em> switch. This takes
+the form <em>--set KEY=VALUE</em>. For example:
+        <pre>configure --set mpr.tracing=false</pre>
+        <p>To enable a feature, set it to true or 1. To disable, set to false or 0. The <em>configure --help</em> command
+        will list the features that can be selected.</p>
+        
         <h3>Out-of-source Tree Builds</h3>
         <p>Bit supports building from read-only source trees. To do this, use <em>bit -config path</em> when
         configuring. Run this from a writable directory and reference the read-only source tree via the
@@ -104,17 +148,7 @@ settings: {
         the command line when configuring.</p>
             <pre>bit --platform windows-x64 -configure .</pre>
         <p>This will create a windows-x64.bit configuration file and a start.es that references it. The platform
-        switch does not need to be restated after configuration.</p>
-        <pre>
-MOB 
-configure script vs bit configure
-- configure --dump
-- configure --reconfigure
-- configure --set
-- configure --with
-- configure --without
-</pre>
-        </div>
+        switch does not need to be restated after configuration and will be ignored.</p>
         <h3>Environment Variables</h3>
         <p>Bit has default command paths and command flags for the compiler, linker and other tools. These can be overridden
         by providing environment variables containing alternate flags to use. </p>
@@ -126,6 +160,14 @@ configure script vs bit configure
         saved in the generated platform build file and apply to all subsequent runs.
         For example:
             <pre>CC=/path/to/compiler CFLAGS=-w bit configure</pre>
+        <h2 class="section">Useful Configure Bits</h2>
+        <p>Here are a few other useful configure commands:</p>
+        <p>To run configure again with the previous configure command line:</p>
+        <pre>configure --reconfigure</pre>
+        <p>To dump the entire configuration into a single bit file. This is great for debugging.</p>
+        <pre>configure --dump</pre>
+        </div>
+        <p>To learn more, read about <a href="debugging.html">Debugging a Build</a>.</p>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->
 	<div class="bottom">

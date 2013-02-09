@@ -40,18 +40,19 @@
 <!-- BeginDsi "dsi/seeAlso.html" -->
         <h1>See Also</h1>
         <ul>
-            <li><a href="../../guide/bit/users/quick.html">Quick Start with Bit</a></li>
-            <li><a href="../../guide/bit/users/projects.html">Bit Projects</a></li>
-            <li><a href="../../guide/bit/users/compiling.html">Compiling Sources</a></li>
-            <li><a href="../../guide/bit/users/libraries.html">Building Libraries</a></li>
-            <li><a href="../../guide/bit/users/executables.html">Building Executables</a></li>
-            <li><a href="../../guide/bit/users/scripts.html">Running Scripts</a></li>
-            <li><a href="../../guide/bit/users/copying.html">Copying Files</a></li>
-            <li><a href="../../guide/bit/users/configuring.html">Configuring a Project</a></li>
-            <li><a href="../../guide/bit/users/debugging.html">Debugging a Build</a></li>
-            <li><a href="../../guide/bit/users/generating.html">Generating Projects</a></li>
-            <li><a href="../../guide/bit/users/make.html">Using Makefiles</a></li>
-            <li><a href="../../guide/bit/users/cross.html">Cross-Compiling</a></li>
+            <li><a href="../../guide/bit/users/using.html">Using Bit</a></li>
+            <li><a href="../../guide/bit/developers/quick.html">Quick Start with Bit</a></li>
+            <li><a href="../../guide/bit/developers/projects.html">Bit Projects</a></li>
+            <li><a href="../../guide/bit/developers/compiling.html">Compiling Sources</a></li>
+            <li><a href="../../guide/bit/developers/libraries.html">Building Libraries</a></li>
+            <li><a href="../../guide/bit/developers/executables.html">Building Executables</a></li>
+            <li><a href="../../guide/bit/developers/scripts.html">Running Scripts</a></li>
+            <li><a href="../../guide/bit/developers/copying.html">Copying Files</a></li>
+            <li><a href="../../guide/bit/developers/configuring.html">Configuring a Project</a></li>
+            <li><a href="../../guide/bit/developers/debugging.html">Debugging a Build</a></li>
+            <li><a href="../../guide/bit/developers/generating.html">Generating Projects</a></li>
+            <li><a href="../../guide/bit/developers/make.html">Using Makefiles</a></li>
+            <li><a href="../../guide/bit/developers/cross.html">Cross-Compiling</a></li>
 
             <li><a href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Ejscript Language</a></li>
             <li><a href="http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a></li>
@@ -64,7 +65,9 @@
         <a href="http://en.wikipedia.org/wiki/Make_(software)">make</a> and not so popular 
         <a href="http://en.wikipedia.org/wiki/Autoconf">autoconf</a> utilities. Bit manages the building of
         programs and products by simply and efficiently determining which pieces have been updated and thus which
-        components need to be rebuilt. It easily handles the direct compilation and generation of projects and Makefiles.</p>
+        components need to be rebuilt. It easily handles the direct compilation and generation of projects 
+        and Makefiles.</p>
+
         <a id="overview"></a>
         <h2>Overview</h2>
         <p>Bit parses bit files that have a <em>.bit</em> extension. Bit files are contain a Javascript literal 
@@ -93,9 +96,14 @@
         Mac or Windows and cross compile for other platforms. It will generate native projects for Visual Studio,
         XCode, Make, Nmake and shell scripts. Bit builds fast without the complexity of autoconf and
         make.</p>
-        <p>Bit was initiated after evaluating Make, CMake and GYP for use by the Appweb and Ejscript projects 
-        in an embedded, cross compilation environment. While all three alternatives can be made to work, we (Embedthis)
-        were expending a large percentage of time on the build system and less on the actual product. </p>
+        <p>Bit was initiated after evaluating Make, CMake and GYP for use by the 
+        <a href="http://embedthis.com/products/appweb/embedded-web-server.html">Appweb</a> and 
+        <a href="http://embedthis.com/products/ejs">Esjcript</a> projects 
+        in an embedded, cross compilation environment. While all three alternatives can be made to work, we 
+        (<a href="http://embedthis.com/">Embedthis</a>)
+        were expending too large a percentage of our time on the build system and less on the actual products. Out of this
+        frustration was born Bit. We do not expect Bit to be a universal replacement for Make or Autoconf for everyone, 
+        but for some users, it may be a good choice.</p>
         
         <h3>Bit Design Goals</h3> 
         <p>When creating Bit, our design goals were:</p> <ul>
