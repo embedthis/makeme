@@ -1043,7 +1043,7 @@ public class Bit {
             rebase(home, target, 'sources')
             rebase(home, target, 'files')
 
-            for each (let [key,value] in target.defines) {
+            for (let [key,value] in target.defines) {
                 target.defines[key] = value.trimStart('-D')
             }
 
@@ -1988,6 +1988,9 @@ public class Bit {
     function blendDefaults() {
         if (bit.defaults) {
             runTargetScript({scripts: bit.defaults.scripts}, 'preblend')
+        }
+        for (let [key,value] in bit.defaults.defines) {
+            bit.defaults.defines[key] = value.trimStart('-D')
         }
         for (let [tname, target] in bit.targets) {
             if (targetsToBlend[target.type]) {
