@@ -308,6 +308,7 @@ typedef struct Http {
     struct HttpStage *dirHandler;           /**< Directory listing handler */
     struct HttpStage *egiHandler;           /**< Embedded Gateway Interface (EGI) handler */
     struct HttpStage *ejsHandler;           /**< Ejscript Web Framework handler */
+    struct HttpStage *espHandler;           /**< ESP Web Framework handler */
     struct HttpStage *fileHandler;          /**< Static file handler */
     struct HttpStage *netConnector;         /**< Default network connector */
     struct HttpStage *passHandler;          /**< Pass through handler */
