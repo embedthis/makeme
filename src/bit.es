@@ -599,6 +599,9 @@ public class Bit {
                         if (define.match(/-D(.*)=(.*)/)) {
                             let [key,value] = define.match(/-D(.*)=(.*)/).slice(1)
                             def(f, key, value)
+                        } else if (define.match(/(.*)=(.*)/)) {
+                            let [key,value] = define.match(/(.*)=(.*)/).slice(1)
+                            def(f, key, value)
                         } else {
                             f.writeLine('#define ' + define.trimStart('-D'))
                         }
