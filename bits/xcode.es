@@ -747,9 +747,9 @@ function prepareSettings(base, o, debug: Boolean) {
     }
     let defines = o.defines.clone()
     if (debug) {
-        defines.push('-DBIT_DEBUG')
+        defines.push('BIT_DEBUG')
     } else {
-        defines.removeElements('-DDEBUG')
+        defines.removeElements('DEBUG')
     }
     if (defines.length > 0) {
         options.defines = '\t\t\t\tGCC_PREPROCESSOR_DEFINITIONS = (\n' + 

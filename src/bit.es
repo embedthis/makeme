@@ -1043,6 +1043,10 @@ public class Bit {
             rebase(home, target, 'sources')
             rebase(home, target, 'files')
 
+            for each (let [key,value] in target.defines) {
+                target.defines[key] = value.trimStart('-D')
+            }
+
             /* Convert strings scripts into an array of scripts structures */
             //  TODO - functionalize
             for (let [when,item] in target.scripts) {
@@ -1223,7 +1227,7 @@ public class Bit {
         gen = {
             configuration:  bit.platform.name
             compiler:       bit.defaults.compiler.join(' '),
-            defines:        bit.defaults.defines.join(' '),
+            defines :       bit.defaults.defines.map(function(e) '-D' + e).join(' '),
             includes:       bit.defaults.includes.map(function(e) '-I' + e).join(' '),
             linker:         bit.defaults.linker.join(' '),
             libpaths:       mapLibPaths(bit.defaults.libpaths)
@@ -2845,7 +2849,7 @@ public class Bit {
 
         } else if (target.type == 'obj') {
             tv.CFLAGS = (target.compiler) ? target.compiler.join(' ') : ''
-            tv.DEFINES = (target.defines) ? target.defines.join(' ') : ''
+            tv.DEFINES = target.defines.map(function(e) '-D' + e).join(' ')
             if (bit.generating) {
                 /* Use abs paths to reppath can substitute as much as possible */
                 tv.INCLUDES = (target.includes) ? target.includes.map(function(p) '-I' + p) : ''
@@ -2861,7 +2865,8 @@ public class Bit {
         } else if (target.type == 'resource') {
             tv.OUT = target.path.relative
             tv.CFLAGS = (target.compiler) ? target.compiler.join(' ') : ''
-            tv.DEFINES = (target.defines) ? target.defines.join(' ') : ''
+            target.defines ||= []
+            tv.DEFINES = target.defines.map(function(e) '-D' + e).join(' ')
             tv.INCLUDES = (target.includes) ? target.includes.map(function(path) '-I' + path.relative) : ''
         }
         target.vars = tv

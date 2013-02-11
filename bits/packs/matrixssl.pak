@@ -34,7 +34,7 @@ if (bit.platform.os == 'windows') {
     cfg = {
         dir: dir,
         path: path,
-        defines: [ '-DWIN32', '-DMATRIX_USE_FILE_SYSTEM' ],
+        defines: [ 'WIN32', 'MATRIX_USE_FILE_SYSTEM' ],
         includes: [ incdir, incdir.parent ],
         libraries: [ 'libmatrixssl.lib' ],
         libpaths: [ lib.parent ],
@@ -50,7 +50,7 @@ if (bit.platform.os == 'windows') {
     cfg = {
         dir: dir,
         path: path,
-        defines: [ '-DPOSIX', '-DMATRIX_USE_FILE_SYSTEM' ],
+        defines: [ 'POSIX', 'MATRIX_USE_FILE_SYSTEM' ],
         includes: [ incdir, incdir.parent ],
         libraries: [ 'matrixssl' ],
         libpaths: [ lib.parent ],
@@ -66,7 +66,7 @@ if (bit.platform.os == 'windows') {
     cfg = {
         dir: dir,
         path: path,
-        defines: [ '-DPOSIX', '-DMATRIX_USE_FILE_SYSTEM' ],
+        defines: [ 'POSIX', 'MATRIX_USE_FILE_SYSTEM' ],
         includes: [ incdir, incdir.parent ],
         libraries: [ 'matrixssl' ],
         libpaths: [ lib.parent ],

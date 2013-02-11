@@ -68,7 +68,7 @@ try {
                 vslib = vsbin.join('../lib').normalize
             }
             version = vsdir.name.match(/\d*\.\d/)[0]
-            defs = [ '-DBIT_VISUAL_STUDIO_VERSION="' + version + '"']
+            defs = [ 'BIT_VISUAL_STUDIO_VERSION="' + version + '"']
         }
         Bit.load({packs: { compiler: { path: cc, dir: vsdir, search: search, definitions: defs, version: version }}})
         bit.env.PATH += [

@@ -5,7 +5,7 @@
 Bit.load({
     defaults: {
         '+compiler': [ '-Wall' ],
-        '+defines':  [ '-D_REENTRANT' ],
+        '+defines':  [ '_REENTRANT' ],
         '+libraries':[],
         '+libpaths':[],
         '+linker':[],
@@ -22,7 +22,7 @@ Bit.load({
                 }
                 if (bit.platform.os != 'vxworks') {
                     defaults.compiler.push('-fPIC')
-                    defaults.defines.push('-DPIC')
+                    defaults.defines.push('PIC')
                     defaults.libraries += ['pthread', 'm']
                 }
                 if (bit.settings.hasLibRt) {
@@ -36,7 +36,7 @@ Bit.load({
                 }
                 defaults.libpaths.push(bit.dir.lib)
                 if (bit.settings.debug) {
-                    defaults.defines.push('-DBIT_DEBUG')
+                    defaults.defines.push('BIT_DEBUG')
                     defaults.compiler.push('-g')
                     defaults.linker.push('-g')
                 } else if (bit.settings.tune == 'size') {
@@ -53,7 +53,7 @@ Bit.load({
                 if (arch.startsWith('arm')) {
                     defaults.compiler.push('-mno-sched-prolog')
                 } else if (arch.startsWith('ppc')) {
-                    defaults.defines.push('-D_GNU_TOOL')
+                    defaults.defines.push('_GNU_TOOL')
                 }
             ",
         },

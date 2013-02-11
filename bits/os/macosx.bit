@@ -39,7 +39,7 @@ Bit.load({
                         if (bit.settings.debug) {
                             defaults.compiler += ['-g']
                             defaults.linker.push('-g')
-                            defaults.defines.push('-DBIT_DEBUG')
+                            defaults.defines.push('BIT_DEBUG')
                         } else if (bit.settings.tune == 'size') {
                             defaults.compiler += ['-Os']
                         } else {

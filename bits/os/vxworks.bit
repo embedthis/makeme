@@ -35,9 +35,9 @@ Bit.load({
 
     defaults: {
         '+defines': [
-            '-DVXWORKS',
-            '-DRW_MULTI_THREAD',
-            '-D_GNU_TOOL',
+            'VXWORKS',
+            'RW_MULTI_THREAD',
+            '_GNU_TOOL',
         ],
         '+compiler': [
             '-fno-builtin',
@@ -69,7 +69,7 @@ Bit.load({
                     }
                 }
                 cpu = bit.platform.cpu || cpu
-                defaults.defines.push('-DCPU=' + cpu.toUpper())
+                defaults.defines.push('CPU=' + cpu.toUpper())
                 if (arch.match(/mips/)) {
                     /* Don't use mips global pointer */
                     defaults.compiler.push('-G 0')

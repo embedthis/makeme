@@ -40,7 +40,7 @@ Bit.load({
     defaults: {
         '+compiler':  [ '-nologo', '-GR-', '-W3' ],
         //  TODO - remove _MT as -MDd and -MD define this
-        '+defines':   [ '-D_REENTRANT', '-D_MT' ],
+        '+defines':   [ '_REENTRANT', '_MT' ],
         '+entry':   {
             lib: '_DllMainCRTStartup@12',
             exe: 'mainCRTStartup',
@@ -61,7 +61,7 @@ Bit.load({
                 if (settings.preprocess) defaults.compiler += [ '-E' ]
                 defaults.libpaths.push(bit.dir.lib)
                 if (bit.settings.debug) {
-                    defaults.defines.push('-DBIT_DEBUG')
+                    defaults.defines.push('BIT_DEBUG')
                     defaults.compiler += [ '-Zi', '-Od', '-MDd' ]
                     defaults.linker += [ '-debug' ]
                 } else {

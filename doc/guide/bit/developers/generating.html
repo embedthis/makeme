@@ -1,0 +1,103 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis Bit 0.8.0 Documentation</title>
+    <meta name="keywords" content="Bit, Build It!, Javascript"/>
+	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
+	<meta name="robots" content="index,follow" />
+	<link href="../../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../../iehacks.css" rel="stylesheet" type="text/css" />
+    </![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo"  href="http://embedthis.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form">Loading</div>
+                <div class='version'>Embedthis Bit 0.8.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt;<a href="index.html">Developer Guide</a>&gt; <b>Generating Projects</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            
+                <h1>Quick Nav </h1>
+                <ul>
+<li><a href="#overview">Overview</a></li>
+                </ul>
+<!-- BeginDsi "dsi/devSeeAlso.html" -->
+            <h1>See Also</h1>
+            <ul>
+                <li><a href="../../../guide/bit/developers/quick.html">Quick Start with Bit</a></li>
+                <li><a href="../../../guide/bit/developers/projects.html">Bit Projects</a></li>
+                <li><a href="../../../guide/bit/developers/compiling.html">Compiling Sources</a></li>
+                <li><a href="../../../guide/bit/developers/libraries.html">Creating Libraries</a></li>
+                <li><a href="../../../guide/bit/developers/executables.html">Building Executables</a></li>
+                <li><a href="../../../guide/bit/developers/scripts.html">Running Scripts</a></li>
+                <li><a href="../../../guide/bit/developers/copying.html">Copying Files</a></li>
+                <li><a href="../../../guide/bit/developers/configuring.html">Configuring a Project</a></li>
+                <li><a href="../../../guide/bit/developers/generating.html">Generating Projects</a></li>
+
+                <li><a href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Ejscript Language</a></li>
+                <li><a href="http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a></li>
+            </ul>
+<!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+        <a id="projectGeneration"></a>
+        <h1>Generating IDE Projects and Makefiles</h1>
+        <p>Bit can generate generate complete project files for building using: make, nmake, Visual Studio, Xcode or
+        plain shell scripts. The generated Makefiles or projects are clean, regular and easy to understand or modify.</p>
+       
+        <h2>Mapping Bit Targets</h2>
+        <p>When Bit generates a Makefile or IDE project, it maps the Bit target onto the best equivalent. In Make, Bit
+        targets become Make targets.  The generated Makefiles are flat, meaning that no recursion is used. The entire project
+        is expressed as one Makefile &mdash; so it runs fast.</p>
+        
+        <p>In Visual Studio, Bit creates a Visual Studio and Xcode, sub-projects are created for each Bit executable,
+        library, script or file target.
+
+        <h2>Generating</h2>
+        <p>Bit uses the <em>--gen</em> command line switch to specify the projects to build. Bit is capable of
+        cross-generating projects for non-native platforms. For example: you can generate an Xcode project for Mac OS
+        X on a Windows system.</p>
+            <pre>bit --continue --platform macosx-x64 -configure . -gen xcode,make</pre>
+        <p>This will generate Xcode and make projects for Mac OS X. The <em>--continue</em> switch indicates
+        that generation should continue even if the required compilers and build tools are not present on the development system.</p>
+        <p>To learn more, read some actual <a href="samples.html">Bit Samples</a>.</p>
+
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2013. 
+            All rights reserved. Embedthis Bit, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          'partner-pub-9935546676162772:ysvxxv4n9rx');
+
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+</body>
+</html>
