@@ -1509,7 +1509,7 @@ public class Bit {
         let prefixes = mapPrefixes()
         for (let [name, value] in prefixes) {
             if (name.startsWith('programFiles')) continue
-            genout.writeLine('%-15s := %s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
+            genout.writeLine('%-15s = %s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
         }
         genout.writeLine('')
         let pop = bit.settings.product + '-' + bit.platform.os + '-' + bit.platform.profile
