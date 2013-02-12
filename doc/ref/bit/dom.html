@@ -174,7 +174,7 @@
             <tbody>
                 <tr><td>os</td><td>Operating system: linux, windows, vxworks, ...</td></tr>
                 <tr><td>arch</td><td>CPU architecture: arm, ppc, x64, x86, ...</td></tr>
-                <tr><td>like</td><td>Set to 'windows' or 'posix' if true</td></tr>
+                <tr><td>like</td><td>Set to 'windows' or 'posix' or empty</td></tr>
                 <tr><td>profile</td><td>Build profile selected: 'debug', 'release', ...</td></tr>
             </tbody>
         </table>
@@ -231,14 +231,27 @@
             <tbody>
                 <tr><td>name</td><td>Target name. This name is used rather than the collection name</td></tr>
                 <tr><td>home</td><td>Home directory to use when resolving paths for this target</td></tr>
-                <tr><td>type</td><td>Type of target: exe, lib, action, obj, header, ...</td></tr>
-                <tr><td>enable</td><td>Set to true if the pack was found on the system</td></tr>
-                <tr><td>compiler</td><td>Compiler options</td></tr>
-                <tr><td>defines</td><td>Compiler definitions</td></tr>
-                <tr><td>includes</td><td>Compiler include directories</td></tr>
-                <tr><td>libraries</td><td>Libraries to link</td></tr>
-                <tr><td>libpaths</td><td>Library search paths</td></tr>
-                <tr><td>linker</td><td>Linker options</td></tr>
+                <tr><td>type</td><td>Type of target: exe, lib, action, obj, header, build and custom values.
+                <ul>
+                    <li>exe &mdash; Executable type</li>
+                    <li>lib &mdash; Library type</li>
+                    <li>obj &mdash; Object type from compiled source. These are dynamically created from 
+                        the sources property.</li>
+                    <li>header &mdash; Headers are dynamically discovered and created from source files.</li>
+                    <li>action &mdash; Script type that is run when explicitly specified as a target on the 
+                        bit command line, or as a dependency for another target.</li>
+                    <li>build &mdash; Script type that is run for default builds.</li>
+                    <li>custom values &mdash; Targets may be set to any custom type. If bit is invoked with a
+                        type specified as a target, then all the targets of that type will be run.</li>
+                </ul>
+                </td></tr>
+                <tr><td>enable</td><td>Ejscript expression to evaluate to a boolean. Enable the target if true.</td></tr>
+                <tr><td>compiler</td><td>Array of compiler options</td></tr>
+                <tr><td>defines</td><td>Array of compiler pre-processor definitions</td></tr>
+                <tr><td>includes</td><td>Array of compiler include directories</td></tr>
+                <tr><td>libraries</td><td>Array of libraries to link</td></tr>
+                <tr><td>libpaths</td><td>Array of link library search paths</td></tr>
+                <tr><td>linker</td><td>Array of linker options</td></tr>
                 <tr><td>path</td><td>Path to the result of building the target. If set, this is used for dependency
                         calculations. If updated, all targets that depend on this target will be rebuilt.</td></tr>
                 <tr><td>platforms</td><td>List of platforms for which this target will be enabled.

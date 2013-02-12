@@ -53,29 +53,54 @@
         </div>
         <div class="contentLeft">
         <a id="targets"></a>
-        <a id="dependencies"></a>
-        <h3>Target Dependencies</h3>
-        <p>Bit targets can depend on other targets that must be built first. Bit targets have a name which may be
-        depended upon by another target. For example:</p>
+        <h1>Targets</h1>
+        <p>A Bit project may specify any number of targets to be built via the Bit DOM. A target represents 
+        a discrete item to build in the project. 
+        <p>A target is defined as a collection of properties under the targets property.</p>
 <pre>
 targets {
-    first: {
-        build: "print('Build First')",
+    rocket: {
+        type: 'exe'
+        sources: '*.c',
     },
-    second: {
-        depends: ['first'],
-        build: "print('Build Second')",
-    }, 
+},
+</pre>
+
+        <h2>Target Dependencies</h2>
+        <p>Bit targets can depend on other targets that must be built first. Dependencies are expressed as an 
+        ordered list of targets in the <em>depends</em> property. 
+        For example:</p>
+<pre>
+targets {
+    fuel: {
+        type: 'lib'
+        sources: 'fuel/*.c',
+    },
+    rocket: {
+        type: 'exe'
+        sources: '*.c',
+        <b>depends: ['libfuel']</b>,
+    },
 }
 </pre>
-        <p>Before Bit begins building, it parses the entire bit file configuration and determines which targets depend
-        on what. It then builds the targets in the required build order. It successfully detects and handles dependency
-        loops.</p>
+
+        <p>When bit is invoked, it may nominate specific targets to build,
+        or a default build may be requested (via no arguments), and then all enabled targets will be built.</p>
+<pre>
+$ bit libfuel  # builds only libfuel
+$ bit rocket   # builds libfuel then rocket
+$ bit          # builds all targets
+</pre>
+
+        <h2>Target Build Order</h2>
+        <p>Before building, Bit parses the entire Bit file configuration and creates a build tree based on
+        which targets depend on what. Bit then builds the targets by doing a depth-first traversal of the build tree.
+        It successfully detects and handles dependency loops.</p>
+
         <a id="defaultProperties"></a>
-        <h3>Target Default Properties</h3>
-        <p>Often targets need very similar configuration. Bit provides a <em>defaults</em> collection of properties that are inherited
-        by all targets. It also provides an <em>internal</em> collection of properties that are inherited by only the targets in the
-        same bit file. For example:</p>
+        <h2>Target Default Properties</h2>
+        <p>Often targets need very similar configuration. Bit provides a <em>defaults</em> collection of properties that are
+        inherited by all targets.  For example:</p>
 <pre>
 defaults: {
     '+defines': [ 'TUNE=SPEED ],
@@ -83,8 +108,27 @@ defaults: {
 }
 </pre>
         <p>This will use the <em>TUNE=SPEED</em> compiler definition when compiling all source files, and the
-        <em>math</em> library when
-        linking executables (and libraries on some systems).</p>
+        <em>math</em> library when linking executables (and libraries on some systems).</p>
+        <p>Bit also provides an <em>internal</em> collection of properties that are inherited by only
+        the targets in the same bit file. </p>
+<pre>
+internal: {
+    '+defines': [ 'TUNE=SIZE ],
+}
+</pre>
+
+        <h2>Enabling and Disabling Targets</h2>
+        <p>Targets can be selectively enabled or disabled based on the value of the <em>enable</em> property. 
+        The property may be set to an arbitrary Ejscript script expression that is evaluated to a Boolean value. If true,
+        the target is enabled for building. For example:
+<pre>
+appwebMonitor: {
+    <b>enable: bit.platform.like == 'windows',</b>
+    type: 'exe',
+    sources: [ 'windows/appwebMonitor.c' ],
+},
+</pre>
+        <p>This will enable this target only if building for windows.</p>
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->

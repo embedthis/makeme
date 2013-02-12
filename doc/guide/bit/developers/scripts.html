@@ -102,6 +102,9 @@
     },
 },
 </pre>
+        <p>Because the <em>type</em> property is set to build, this target and the scripts will be run for a 
+        default bit invocation (without any explicit targets specified).</p>
+        <pre>$ bit</pre>
 
         <p>The target <em>scripts</em> property is a collection that is indexed by an event named for when the script should
         run. The standard events are:
@@ -180,7 +183,7 @@ cleanup: {
     ',
 },
 </pre>
-        <p>Because the type is set to <em>action</em>, this script will be run when the named target (cleanup) is
+        <p>Because the type property is set to <em>action</em>, this script will be run when the named target (cleanup) is
         invoked.</p>
 
         <pre>bit cleanup</pre>
