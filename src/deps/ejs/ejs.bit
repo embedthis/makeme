@@ -46,7 +46,7 @@ Bit.load({
 
 		'ejs.mod': {
             enable: 'bit.packs.ejscript.enable || bit.settings.ejscript',
-            files: [ 'ejs.es' ],
+            files: [ 'src/deps/ejs/ejs.es' ],
             path: "${BIN}/ejs.mod",
             home: "${TOP}",
             //  Add --debug for debug symbols

@@ -571,7 +571,7 @@ ${OUTPUTS}
             cmd = cmd.replace(/^[ \t]*[\r\n]+/m, '')
             cmd = cmd.replace(/^[ \t]*/mg, '').trim()
         }
-        cmd = cmd.replace(RegExp(bit.dir.cfg.relativeTo(base), 'g'), '$${CFG_DIR}')
+        cmd = cmd.replace(RegExp(bit.dir.out.relativeTo(base), 'g'), '$${CFG_DIR}')
 
         if (target.files && target.files.length > 0) {
             inputs = target.files.map(function(f) f.relativeTo(base)).join(',\n')

@@ -34,7 +34,13 @@
             
                 <h1>Quick Nav </h1>
                 <ul>
-<li><a href="#overview">Overview</a></li>
+                    <li><a href="#dom">DOM root</a></li>
+                    <li><a href="#top">bit.*</a></li>
+                    <li><a href="#globals">bit.globals</a></li>
+                    <li><a href="#platform">bit.platform</a></li>
+                    <li><a href="#packs">bit.packs</a></li>
+                    <li><a href="#settings">bit.settings</a></li>
+                    <li><a href="#targets">bit.targets</a></li>
                 </ul>
 <!-- BeginDsi "dsi/refSeeAlso.html" -->
         <h1>See Also</h1>
@@ -51,7 +57,8 @@
 <!-- EndDsi -->
         </div>
         <div class="contentLeft">
-        <a id="bitFiles"></a>
+
+        <a name="dom"></a>
         <h1>Bit File DOM</h1>
         <p>The Bit DOM allows you to access and manipulate the entire Bit model for how to build a project. Every 
         target, rule and dependency are all stored and exposed via the Bit DOM.</p>
@@ -66,10 +73,10 @@
 [Dump] Save Bit DOM to: macosx-x64-debug.dmp
 </pre>
         
-        <a id="propertyCollections"></a>
+        <a name="top"></a>
         <h2>Top Level &mdash; bit.*</h2>
         <p>Here is a non-exhaustive description of the important top-level Bit property collections. 
-        <table title="top-level collections">
+        <table title="top-level collections" class="full">
             <thead>
                 <tr><th>Name</th><th>Description</th>
             </thead>
@@ -77,7 +84,20 @@
                 <tr><td>blend</td><td>Bit files to blend</td></tr>
                 <tr><td>customize</td><td>Optional bit file to load after fully loading all blended bit files</td></tr>
                 <tr><td>defaults</td><td>Default properties to be inherited by all targets</td></tr>
-                <tr><td>dir</td><td>Directories</td></tr>
+                <tr><td>dir</td><td>Standard directories. These must be absolute paths so that they can be used
+                    when the current directory is changed while processing.
+                    <ul>
+                        <li>src &mdash; Path to the top of the source to build</li>
+                        <li>bits &mdash; Path to the Bit bits directory</li>
+                        <li>home &mdash; User's home directory</li>
+                        <li>top &mdash; Path to the current directory from where bit is being initiated</li>
+                        <li>out &mdash; Platform output directory under the top directory</li>
+                        <li>bin &mdash; Platform output executables and libraries directory under the out directory</li>
+                        <li>inc &mdash; Platform includes directory/inc under the out directory</li>
+                        <li>obj &mdash; Platform objects directory under the out directory</li>
+                        <li>packs &mdash; Local directory for extra third-party extension packages</li>
+                    </ul>
+                </td></tr>
                 <tr><td>env</td><td>Environment variables to set when compiling and linking</td></tr>
                 <tr><td>ext</td><td>File extensions</td></tr>
                 <tr><td>globals</td><td>Global values to use in property token expansion</td></tr>
@@ -87,18 +107,38 @@
                 <tr><td>packs</td><td>Collection of third-party pack definitions after configuration</td></tr>
                 <tr><td>platform</td><td>Description of the current platform. Has properties for operating system
                         and CPU architecture.</td></tr>
-                <tr><td>platforms</td><td>List of platforms to build.</td></tr>
-                <tr><td>prefixes</td><td>Installation directory prefixes</td></tr>
+                <tr><td>platforms</td><td>List of platforms to build. Platforms are of the form: OS-ARCH-PROFILE. The 
+                    special platform "local" is added internally.</td></tr>
+                    <tr><td>prefixes</td><td>Installation directory prefixes and default values on Unix/Linux systems:
+                    <ul>
+                        <li>base &mdash; Base installation prefix (/usr/lib)</li>
+                        <li>config &mdash; Configuration prefix /etc/${settings.product}</li>
+                        <li>product &mdash; Base product directory /usr/lib/${settings.product}</li>
+                        <li>productver &mdash; Versioned product ${prefixes.product}/${settings.version}</li>
+                        <li>bin &mdash; Product binaries ${prefixes.productver}/bin</li>
+                        <li>inc &mdash; Product includes ${prefixes.productvers}/inc</li>
+                        <li>lib &mdash; Product libraries ${prefixes.productver}/lib</li>
+                        <li>log &mdash; Product log files /var/log/${settings.product}</li>
+                        <li>spool &mdash; Product spool files /var/spool/${settings.product}</li>
+                        <li>src &mdash; Product source /usr/src/${settings.product}-${settings.version}</li>
+                        <li>web &mdash; Product log files /var/www/${settings.product}-default</li>
+                        <li>man &mdash; Product log files /usr/local/share/man</li>
+                        <li>ubin &mdash; System local binaries /usr/local/bin</li>
+            
+            </td></tr>
                 <tr><td>profiles</td><td>Build profiles. Standard profiles are: debug and release</td></tr>
                 <tr><td>rules</td><td>Command rules for compiling, building libraries and executables</td></tr>
-                <tr><td>settings</td><td>Project top-level settings. This includes name, version, description etc.</td></tr>
+                <tr><td>settings</td><td>Project top-level settings. This includes name, version, description. 
+                        See <a href="#settings">settings</a> collection below for full details.</td></tr>
                 <tr><td>targets</td><td>Targets to build. Each target is its own collection of properties</td></tr>
                 <tr><td>usage</td><td>Additional usage message to emit for bit command line errors</td></tr>
             </tbody>
         </table>
+
+        <a name="global"></a>
         <h2>Globals &mdash; bit.globals.*</h2>
         <p>The following bit.globals.* are defined for use by tokens:</p>
-        <table title="globals">
+        <table title="globals" class="full">
             <thead>
                 <tr><th>Name</th><th>Description</th>
             </thead>
@@ -124,9 +164,10 @@
             </tbody>
         </table>
         
+        <a name="platform"></a>
         <h2>Platform Collection &mdash; bit.platform.*</h2>
         <p>The platform collection defines properties for:
-        <table title="platform collection">
+        <table title="platform collection" class="full">
             <thead>
                 <tr><th>Name</th><th>Description</th>
             </thead>
@@ -137,10 +178,12 @@
                 <tr><td>profile</td><td>Build profile selected: 'debug', 'release', ...</td></tr>
             </tbody>
         </table>
+
+        <a name="packs"></a>
         <h2>Packs Collection &mdash; bit.packs.*</h2>
         <p>The packs collection defines a collection for each extension pack that bit examined when configuring. Each
         pack will have properties for: 
-        <table title="packs collection">
+        <table title="packs collection" class="full">
             <thead>
                 <tr><th>Name</th><th>Description</th>
             </thead>
@@ -158,9 +201,11 @@
                 <tr><td>imports</td><td>Files to import from this pack before building</td></tr>
             </tbody>
         </table>
+
+        <a name="settings"></a>
         <h2>Settings Collection &mdash; bit.settings.*</h2>
         <p>The settings collection specifies the top level project/product names. It is required in the main.bit file.</p>
-        <table title="settings">
+        <table title="settings" class="full">
             <thead>
                 <tr><th>Name</th><th>Description</th>
             </thead>
@@ -176,8 +221,10 @@
                 <tr><td>without-all</td><td>List of packs to disable when doing '--without all configure'</td></tr>
             </tbody>
         </table>
+
+        <a name="targets"></a>
         <h2>Targets Collection &mdash; bit.targets.*</h2>
-        <table title="targets">
+        <table title="targets" class="full">
             <thead>
                 <tr><th>Name</th><th>Description</th>
             </thead>
@@ -194,6 +241,9 @@
                 <tr><td>linker</td><td>Linker options</td></tr>
                 <tr><td>path</td><td>Path to the result of building the target. If set, this is used for dependency
                         calculations. If updated, all targets that depend on this target will be rebuilt.</td></tr>
+                <tr><td>platforms</td><td>List of platforms for which this target will be enabled.
+                        Use the platform string "<em>local</em>" for the local platform.</td></tr>
+
                 <tr><td>scripts</td><td>Scripts for the target. See <a href="#scripts">scripts</a> for details</td></tr>
                 <tr><td>sources</td><td>Array of source file patterns to compile for the target. Use normal * as a
                         wild-card, ** as a wild-card that descends directories. Use the exclude property to exclude </td></tr>

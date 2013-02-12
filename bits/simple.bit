@@ -4,7 +4,7 @@
 
 Bit.load({
 	dir: {
-		cfg:   '.',
+		out:   '.',
 		bin:   '.',
 		inc:   '.',
 		lib:   '.',

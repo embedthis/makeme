@@ -322,7 +322,7 @@ function projConfig(base, target) {
     bit.UTOK = '$(UserRootDir)'
     bit.VTOK = '$(VCTargetsPath)'
     bit.NAME = target.name
-    bit.OUTDIR = wpath(bit.dir.cfg.relativeTo(base))
+    bit.OUTDIR = wpath(bit.dir.out.relativeTo(base))
 
     output('
   <PropertyGroup Label="Globals">
@@ -334,9 +334,9 @@ function projConfig(base, target) {
     output('
   <ItemGroup Label="ProjectConfigurations">')
     for each (vtype in ['Win32', 'x64']) {
-        for each (vcfg in ['Debug', 'Release']) {
+        for each (vout in ['Debug', 'Release']) {
             bit.VTYPE = vtype
-            bit.VCFG = vcfg
+            bit.VCFG = vout
 
             output('    <ProjectConfiguration Include="${VCFG}|${VTYPE}">
       <Configuration>${VCFG}</Configuration>
@@ -348,9 +348,9 @@ function projConfig(base, target) {
 ')
 
     for each (vtype in ['Win32', 'x64']) {
-        for each (vcfg in ['Debug', 'Release']) {
+        for each (vout in ['Debug', 'Release']) {
             bit.VTYPE = vtype
-            bit.VCFG = vcfg
+            bit.VCFG = vout
             output('  <PropertyGroup Condition="\'${CTOK}|${PTOK}\'==\'${VCFG}|${VTYPE}\'" Label="Configuration">
     <ConfigurationType>${PTYPE}</ConfigurationType>
     <CharacterSet>NotSet</CharacterSet>
@@ -387,9 +387,9 @@ function projConfig(base, target) {
   <PropertyGroup>
     <_ProjectFileVersion>${PROJECT_FILE_VERSION}</_ProjectFileVersion>')
     for each (vtype in ['Win32', 'x64']) {
-        for each (vcfg in ['Debug', 'Release']) {
+        for each (vout in ['Debug', 'Release']) {
             bit.VTYPE = vtype
-            bit.VCFG = vcfg
+            bit.VCFG = vout
             output('
     <OutDir Condition="\'${CTOK}|${PTOK}\'==\'${VCFG}|${VTYPE}\'">$(BinDir)\\</OutDir>
     <IntDir Condition="\'${CTOK}|${PTOK}\'==\'${VCFG}|${VTYPE}\'">$(ObjDir)\\${NAME}\\</IntDir>

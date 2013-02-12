@@ -94,10 +94,11 @@ Bit.load({
         will be brought up to date.</p>
         <p>To build several named targets:</p>
         <pre>bit libengine librocket space-program</pre>
-        <p>To build all targets: </p>
+        <p>To do a default build and build all targets: </p>
         <pre>bit</pre>
-        <p>This is the same as:
-        <pre>bit build</pre>
+        <p>A default build will build all file, executable, library, and script "build" targets (those with a target type of
+        <em>build</em>.</p>
+
         <p>The <em>compile</em> target is an alias for <em>build</em> for those wedded to <em>make</em> style 
         commands.</p>
         <a id="rebuild"></a>
@@ -108,6 +109,9 @@ Bit.load({
         <h2>Cleaning</h2>
         <p>To remove all built tagets and intermediaries, run:</p>
         <pre>bit clean</pre> 
+        <p>This will clean all executables, libraries, objects and will run all script targets with a type of "clean".</p>
+
+
         <a id="errors"></a>
         <h2>Seeing Errors</h3>
         <p>By default, bit is fairly terse. It does not spew endless command lines that scroll off the screen.

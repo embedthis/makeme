@@ -100,6 +100,7 @@ public class Bit {
             'with': { range: String, separator: Array },
             without: { range: String, separator: Array },
         },
+        unknown: unknownArg,
         usage: usage
     }
 
@@ -236,6 +237,56 @@ public class Bit {
         if (options.benchmark) {
             trace('Benchmark', 'Elapsed time %.2f' % ((start.elapsed / 1000)) + ' secs.')
         }
+    }
+
+    /*
+        Unknown args callback
+        
+        Support Autoconf style args:
+            --prefix, --bindir, --libdir, --sysconfdir, --includedir, --libexec
+            --with-pack
+            --without-pack
+            --enable-feature
+            --disable-feature
+     */ 
+    function unknownArg(argv, i) {
+        let map = {
+            prefix: 'base',
+            bindir: 'bin',
+            libdir: 'lib',
+            sysconfdir: 'config',
+            includedir: 'inc',
+            libexec: 'product',
+        }
+        let arg = argv[i]
+        for (let [from, to] in map) {
+            if (arg.startsWith('--' + from)) {
+                let value = arg.split('=')[1]
+                argv.splice(i, 1, '--prefix', to + '=' + value)
+                return --i
+            }
+            if (arg.startsWith('--enable-')) {
+                let feature = arg.trimStart('--enable-')
+                argv.splice(i, 1, '--set', feature + '=true')
+                return --i
+            }
+            if (arg.startsWith('--disable-')) {
+                let feature = arg.trimStart('--disable-')
+                argv.splice(i, 1, '--set', feature + '=false')
+                return --i
+            }
+            if (arg.startsWith('--with-')) {
+                let pack = arg.trimStart('--with-')
+                argv.splice(i, 1, '--with', pack)
+                return --i
+            }
+            if (arg.startsWith('--without-')) {
+                let pack = arg.trimStart('--without-')
+                argv.splice(i, 1, '--without', pack)
+                return --i
+            }
+        }
+        throw "Undefined option '" + ar + "'"
     }
 
     /*
@@ -996,6 +1047,9 @@ public class Bit {
         }
     }
 
+    function conditionals(o) {
+    }
+
     function fixup(o, ns) {
         let home = currentBitFile.dirname
         for (i in o.modules) {
@@ -1112,6 +1166,7 @@ public class Bit {
      */
     public function loadBitObject(o, ns = null) {
         let home = currentBitFile.dirname
+        conditionals(o)
         fixup(o, ns)
         /* 
             Blending is depth-first -- blend this bit object after loading bit files referenced in blend[]
@@ -3477,11 +3532,19 @@ public class Bit {
             bit.dir.programFiles32 = programFiles32()
             bit.dir.programFiles = Path(bit.dir.programFiles32.name.replace(' (x86)', ''))
         }
+
         if (options.configure && options.prefix) {
+            /*
+             */
             bit.prefixes ||= {}
             for each (p in options.prefix) {
                 let [prefix, path] = p.split('=')
-                bit.prefixes[prefix] = Path(path)
+                if (path) {
+                    bit.prefixes[prefix] = Path(path)
+                } else {
+                    /* Map --prefix=/opt to --prefix base=/opt */
+                    bit.prefixes.base = Path(prefix)
+                }
             }
         }
         for (let [key,value] in bit.ext.clone()) {

@@ -14,17 +14,19 @@ Bit.load({
     },
 
     prefixes: {
+        base:       '/usr/lib',
         config:     '/etc/${settings.product}',
-        product:    '/usr/lib/${settings.product}',
+        product:    '${settings.base}/${settings.product}',
         productver: '${prefixes.product}/${settings.version}',
         bin:        '${prefixes.productver}/bin',
         inc:        '${prefixes.productver}/inc',
+        lib:        '${prefixes.productver}/lib',
         log:        '/var/log/${settings.product}',
         spool:      '/var/spool/${settings.product}',
         src:        '/usr/src/${settings.product}-${settings.version}',
         web:        '/var/www/${settings.product}-default',
+        man:        '/usr/local/share/man',
         ubin:       '/usr/local/bin',
-        man:        '/usr/local/share/man/man1',
     },
 
     settings: {

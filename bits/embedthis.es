@@ -478,7 +478,7 @@ function packageFedora(pkg: Path, options) {
         throw 'Configured without pmaker: rpmbuild'
     }
     let home = App.getenv('HOME')
-    App.putenv('HOME', bit.dir.cfg)
+    App.putenv('HOME', bit.dir.out)
 
     let s = bit.settings
     let rel = bit.dir.rel
@@ -520,7 +520,7 @@ function packageFedora(pkg: Path, options) {
     }
     cp.close()
 
-    let macros = bit.dir.cfg.join('.rpmmacros')
+    let macros = bit.dir.out.join('.rpmmacros')
     macros.write('%_topdir ' + RPM + '
 
 %__os_install_post /usr/lib/rpm/brp-compress %{!?__debug_package:/usr/lib/rpm/brp-strip %{__strip}} /usr/lib/rpm/brp-strip-static-archive %{__strip} /usr/lib/rpm/brp-strip-comment-note %{__strip} %{__objdump} %{nil}')

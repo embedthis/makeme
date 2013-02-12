@@ -61,6 +61,11 @@
             <li>The start.bit file is loaded.</li>
             <li>All bit files referenced in the start.bit blend[] collection are loaded. This continues recursively,
                 depth first.</li>
+            <li>All relative paths in the target properties: includes, headers, resources, sources and files are
+            rebased relative to the bit file directory. If the path contains a variable ${token}, then it is not
+            rebased.</li>
+            <li>All scripts lacking a home directory property have one defined to the directory containing the 
+            bit file.</li>
             <li>For each platform specified in the start.bit platform[] collection, the following steps below
                 are executed.</li>
             <li>The platform bit file is loaded and all bit files referenced in blend[] are loaded depth-first.</li>
@@ -87,10 +92,16 @@
                 does not match a target name, the list of targets is search to see if the name matches any targets with
             a type of that name. All matching targets are added to the list. For example: this allows targets of type
             <em>clean</em> to be run when <em>bit clean</em> is invoked.</li>
+
+            <li>If no names are specified on the bit command line, a default build is performed. A list of 
+            candidate targets to build is populated with all executables, libraries, files and scripts with a type of
+            "build".</li>
+
             <li>Targets that are disabled (<em>enable</em> property evaluates to false) are removed from the list</li>
             <li>Targets referenced in the <em>depends</em> property are added to the list (recursively)</li>
             <li>Additional targets are created dynamically for source items to be compiled and include headers</li>
         </ol>
+
         <p>To reiterate, there are thus two paradigms when invoking bit:</p>
         <ul> 
             <li><em>bit target ...</em></li>

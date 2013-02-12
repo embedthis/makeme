@@ -15,10 +15,11 @@ Bit.load({
     },
 
     prefixes: {
-        config:     'deploy',
+        base:       'deploy',
         product:    'deploy',
         productver: 'deploy',
         bin:        'deploy',
+        lib:        'deploy',
         inc:        'deploy/inc',
         log:        'deploy',
         spool:      'deploy',
