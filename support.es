@@ -18,12 +18,11 @@ public function packageDeploy(minimal = false) {
     let vname = settings.product + '-' + settings.version + '-' + settings.buildNumber
     let pkg = bin.join(vname)
     let contents = pkg.join('contents')
-    let prefixes = bit.prefixes;
+    let prefixes = bit.prefixes
     let p = {}
 
     for (prefix in bit.prefixes) {
-        if (prefix == 'config' || prefix == 'log' || prefix == 'spool' || prefix == 'src' || 
-                prefix == 'web' || prefix == 'inc') {
+        if (prefix == 'config' || prefix == 'log' || prefix == 'spool' || prefix == 'src' || prefix == 'web' || prefix == 'inc') {
             continue
         }
         if (prefix == 'man' && bit.platform.like != 'posix') {

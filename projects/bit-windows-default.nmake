@@ -29,18 +29,20 @@ LDFLAGS         = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
 LIBPATHS        = -libpath:$(CONFIG)\bin
 LIBS            = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
 
-BIT_ROOT_PREFIX = C:\\
-BIT_PRD_PREFIX  = $(BIT_ROOT_PREFIX)Program Files\Embedthis Bit
-BIT_VER_PREFIX  = $(BIT_ROOT_PREFIX)Program Files\Embedthis Bit
-BIT_CFG_PREFIX  = $(BIT_VER_PREFIX)
-BIT_BIN_PREFIX  = $(BIT_VER_PREFIX)\bin
-BIT_INC_PREFIX  = $(BIT_VER_PREFIX)\inc
-BIT_LOG_PREFIX  = $(BIT_VER_PREFIX)\log
-BIT_SPL_PREFIX  = $(BIT_VER_PREFIX)\tmp
-BIT_SRC_PREFIX  = $(BIT_VER_PREFIX)\src
-BIT_WEB_PREFIX  = $(BIT_VER_PREFIX)\web
-BIT_UBIN_PREFIX = $(BIT_VER_PREFIX)\bin
-BIT_MAN_PREFIX  = $(BIT_VER_PREFIX)\man
+BIT_ROOT_PREFIX = C:/
+BIT_BASE_PREFIX := C:/Program Files
+BIT_PRD_PREFIX  := $(BIT_BASE_PREFIX)/Embedthis Bit
+BIT_VER_PREFIX  := $(BIT_PRD_PREFIX)
+BIT_CFG_PREFIX  := $(BIT_VER_PREFIX)
+BIT_BIN_PREFIX  := $(BIT_VER_PREFIX)/bin
+BIT_INC_PREFIX  := $(BIT_VER_PREFIX)/inc
+BIT_LIB_PREFIX  := $(BIT_VER_PREFIX)/lib
+BIT_LOG_PREFIX  := $(BIT_VER_PREFIX)/log
+BIT_SPL_PREFIX  := $(BIT_VER_PREFIX)/tmp
+BIT_SRC_PREFIX  := $(BIT_VER_PREFIX)/src
+BIT_WEB_PREFIX  := $(BIT_VER_PREFIX)/web
+BIT_UBIN_PREFIX := $(BIT_VER_PREFIX)/bin
+BIT_MAN_PREFIX  := $(BIT_VER_PREFIX)/man
 
 all compile: prep \
         $(CONFIG)\bin\libest.dll \

@@ -5223,6 +5223,7 @@ PUBLIC struct EjsString *ejsObjToJSON(Ejs *ejs, EjsObj *obj, int argc, EjsObj **
 #define EJS_BLEND_ADD           0x80        /**< Flag for ejsBlendObject for "+" property blend */
 #define EJS_BLEND_SUB           0x100       /**< Flag for ejsBlendObject for "-" property blend */
 #define EJS_BLEND_ASSIGN        0x200       /**< Flag for ejsBlendObject for "=" property blend */
+#define EJS_BLEND_COND_ASSIGN   0x400       /**< Flag for ejsBlendObject for "?" property blend */
 
 //  MOB - rename ejsBlend
 /**

@@ -999,8 +999,8 @@
 			shellPath = /bin/bash;
 			shellScript = "PATH=$PATH:/usr/local/bin
 cd ../src/deps/est
-rm -rf ../../${CFG_DIR}/bin/ca.crt
-cp -r ca.crt ../../${CFG_DIR}/bin/ca.crt
+rm -rf ../../${OUT_DIR}/bin/ca.crt
+cp -r ca.crt ../../${OUT_DIR}/bin/ca.crt
 ";
 		};
 		493D3589493D47070000000B /* ShellScript for ejs.mod */ = {
@@ -1009,7 +1009,7 @@ cp -r ca.crt ../../${CFG_DIR}/bin/ca.crt
 			files = (
 			);
 			inputPaths = (
-../ejs.es
+../src/deps/ejs/ejs.es
 			);
 			outputPaths = (
 ../macosx-x64-default/bin/ejs.mod
@@ -1126,29 +1126,29 @@ cp -r bits macosx-x64-default/bin";
 if ! diff ${INC_DIR}/bit.h bit-macosx-default-bit.h >/dev/null ; then
 cp bit-macosx-default-bit.h ${INC_DIR}/bit.h
 fi
-if [ ../src/deps/est/est.h -nt ${CFG_DIR}/inc/est.h ] ; then
-cp ../src/deps/est/est.h ${CFG_DIR}/inc/est.h
+if [ ../src/deps/est/est.h -nt ${OUT_DIR}/inc/est.h ] ; then
+cp ../src/deps/est/est.h ${OUT_DIR}/inc/est.h
 fi
-if [ ../src/deps/mpr/mpr.h -nt ${CFG_DIR}/inc/mpr.h ] ; then
-cp ../src/deps/mpr/mpr.h ${CFG_DIR}/inc/mpr.h
+if [ ../src/deps/mpr/mpr.h -nt ${OUT_DIR}/inc/mpr.h ] ; then
+cp ../src/deps/mpr/mpr.h ${OUT_DIR}/inc/mpr.h
 fi
-if [ ../src/deps/pcre/pcre.h -nt ${CFG_DIR}/inc/pcre.h ] ; then
-cp ../src/deps/pcre/pcre.h ${CFG_DIR}/inc/pcre.h
+if [ ../src/deps/pcre/pcre.h -nt ${OUT_DIR}/inc/pcre.h ] ; then
+cp ../src/deps/pcre/pcre.h ${OUT_DIR}/inc/pcre.h
 fi
-if [ ../src/deps/http/http.h -nt ${CFG_DIR}/inc/http.h ] ; then
-cp ../src/deps/http/http.h ${CFG_DIR}/inc/http.h
+if [ ../src/deps/http/http.h -nt ${OUT_DIR}/inc/http.h ] ; then
+cp ../src/deps/http/http.h ${OUT_DIR}/inc/http.h
 fi
-if [ ../src/deps/ejs/ejs.h -nt ${CFG_DIR}/inc/ejs.h ] ; then
-cp ../src/deps/ejs/ejs.h ${CFG_DIR}/inc/ejs.h
+if [ ../src/deps/ejs/ejs.h -nt ${OUT_DIR}/inc/ejs.h ] ; then
+cp ../src/deps/ejs/ejs.h ${OUT_DIR}/inc/ejs.h
 fi
-if [ ../src/deps/ejs/ejs.slots.h -nt ${CFG_DIR}/inc/ejs.slots.h ] ; then
-cp ../src/deps/ejs/ejs.slots.h ${CFG_DIR}/inc/ejs.slots.h
+if [ ../src/deps/ejs/ejs.slots.h -nt ${OUT_DIR}/inc/ejs.slots.h ] ; then
+cp ../src/deps/ejs/ejs.slots.h ${OUT_DIR}/inc/ejs.slots.h
 fi
-if [ ../src/deps/ejs/ejsByteGoto.h -nt ${CFG_DIR}/inc/ejsByteGoto.h ] ; then
-cp ../src/deps/ejs/ejsByteGoto.h ${CFG_DIR}/inc/ejsByteGoto.h
+if [ ../src/deps/ejs/ejsByteGoto.h -nt ${OUT_DIR}/inc/ejsByteGoto.h ] ; then
+cp ../src/deps/ejs/ejsByteGoto.h ${OUT_DIR}/inc/ejsByteGoto.h
 fi
-if [ ../src/bitos.h -nt ${CFG_DIR}/inc/bitos.h ] ; then
-cp ../src/bitos.h ${CFG_DIR}/inc/bitos.h
+if [ ../src/bitos.h -nt ${OUT_DIR}/inc/bitos.h ] ; then
+cp ../src/bitos.h ${OUT_DIR}/inc/bitos.h
 fi";
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -1540,7 +1540,7 @@ fi";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				SDKROOT = macosx;
 
-                CFG_DIR = "../macosx-x64-default";
+                OUT_DIR = "../macosx-x64-default";
                 BIN_DIR = "../macosx-x64-default/bin";
                 LIB_DIR = "../macosx-x64-default/bin";
                 INC_DIR = "../macosx-x64-default/inc";
@@ -1610,7 +1610,7 @@ fi";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				SDKROOT = macosx;
 
-                CFG_DIR = "../macosx-x64-default";
+                OUT_DIR = "../macosx-x64-default";
                 BIN_DIR = "../macosx-x64-default/bin";
                 LIB_DIR = "../macosx-x64-default/bin";
                 INC_DIR = "../macosx-x64-default/inc";
