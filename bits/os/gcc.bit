@@ -59,14 +59,14 @@ Bit.load({
         },
     },
     rules: {
-        'c->c':   '${packs.compiler.path} -E ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${IN}',
-        'c->o':   '${packs.compiler.path} -c -o ${OUT} ${MTUNE} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${IN}',
-        'cpp->o': '${packs.compiler.path} -c -o ${OUT} ${MTUNE} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${IN}',
-        'shlib':  '${packs.compiler.path} -shared -o ${OUT} ${LDFLAGS} ${LIBPATHS} ${IN} ${LIBS}',
-        'lib':    '${packs.lib.path} -cr ${OUT} ${IN}',
-        'exe':    '${packs.compiler.path} -o ${OUT} ${LDFLAGS} ${LIBPATHS} ${IN} ${LIBS} ${LIBS} ${LDFLAGS}',
-        'gui':    '${packs.compiler.path} -o ${OUT} ${LDFLAGS} ${LIBPATHS} ${IN} ${LIBS} ${LIBS} ${LDFLAGS}'
-        'res':    '${packs.rc.path} -o ${OUT} ${IN}',
+        'c->c':   '${packs.compiler.path} -E ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
+        'c->o':   '${packs.compiler.path} -c -o ${OUTPUT} ${MTUNE} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
+        'cpp->o': '${packs.compiler.path} -c -o ${OUTPUT} ${MTUNE} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
+        'shlib':  '${packs.compiler.path} -shared -o ${OUTPUT} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS}',
+        'lib':    '${packs.lib.path} -cr ${OUTPUT} ${INPUT}',
+        'exe':    '${packs.compiler.path} -o ${OUTPUT} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS} ${LIBS} ${LDFLAGS}',
+        'gui':    '${packs.compiler.path} -o ${OUTPUT} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS} ${LIBS} ${LDFLAGS}'
+        'res':    '${packs.rc.path} -o ${OUTPUT} ${INPUT}',
     },
     ccArch: {
         x86: 'i686',

@@ -29,7 +29,7 @@ public function vstudio(base: Path) {
     bit.TOOLS_VERSION = TOOLS_VERSION
     bit.PROJECT_FILE_VERSION = PROJECT_FILE_VERSION
     let saveDir = []
-    for each (n in ["BIN", "CFG", "FLAT", "INC", "LIB", "OBJ", "PACKS", "PKG", "REL", "SRC", "TOP"]) {
+    for each (n in ["BIN", "OUT", "FLAT", "INC", "LIB", "OBJ", "PACKS", "PKG", "REL", "SRC", "TOP"]) {
         saveDir[n] = bit.globals[n]
         bit.globals[n] = bit.globals[n].relativeTo(base)
     }
@@ -336,10 +336,10 @@ function projConfig(base, target) {
     for each (vtype in ['Win32', 'x64']) {
         for each (vout in ['Debug', 'Release']) {
             bit.VTYPE = vtype
-            bit.VCFG = vout
+            bit.VOUT = vout
 
-            output('    <ProjectConfiguration Include="${VCFG}|${VTYPE}">
-      <Configuration>${VCFG}</Configuration>
+            output('    <ProjectConfiguration Include="${VOUT}|${VTYPE}">
+      <Configuration>${VOUT}</Configuration>
       <Platform>${VTYPE}</Platform>
     </ProjectConfiguration>')
         }
@@ -350,8 +350,8 @@ function projConfig(base, target) {
     for each (vtype in ['Win32', 'x64']) {
         for each (vout in ['Debug', 'Release']) {
             bit.VTYPE = vtype
-            bit.VCFG = vout
-            output('  <PropertyGroup Condition="\'${CTOK}|${PTOK}\'==\'${VCFG}|${VTYPE}\'" Label="Configuration">
+            bit.VOUT = vout
+            output('  <PropertyGroup Condition="\'${CTOK}|${PTOK}\'==\'${VOUT}|${VTYPE}\'" Label="Configuration">
     <ConfigurationType>${PTYPE}</ConfigurationType>
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>')
@@ -389,11 +389,11 @@ function projConfig(base, target) {
     for each (vtype in ['Win32', 'x64']) {
         for each (vout in ['Debug', 'Release']) {
             bit.VTYPE = vtype
-            bit.VCFG = vout
+            bit.VOUT = vout
             output('
-    <OutDir Condition="\'${CTOK}|${PTOK}\'==\'${VCFG}|${VTYPE}\'">$(BinDir)\\</OutDir>
-    <IntDir Condition="\'${CTOK}|${PTOK}\'==\'${VCFG}|${VTYPE}\'">$(ObjDir)\\${NAME}\\</IntDir>
-    <CustomBuildBeforeTargets Condition="\'${CTOK}|${PTOK}\'==\'${VCFG}|${VTYPE}\'">PreBuildEvent</CustomBuildBeforeTargets>')
+    <OutDir Condition="\'${CTOK}|${PTOK}\'==\'${VOUT}|${VTYPE}\'">$(BinDir)\\</OutDir>
+    <IntDir Condition="\'${CTOK}|${PTOK}\'==\'${VOUT}|${VTYPE}\'">$(ObjDir)\\${NAME}\\</IntDir>
+    <CustomBuildBeforeTargets Condition="\'${CTOK}|${PTOK}\'==\'${VOUT}|${VTYPE}\'">PreBuildEvent</CustomBuildBeforeTargets>')
         }
     }
     output('  </PropertyGroup>')

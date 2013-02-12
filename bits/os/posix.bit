@@ -16,7 +16,7 @@ Bit.load({
     prefixes: {
         base:       '/usr/lib',
         config:     '/etc/${settings.product}',
-        product:    '${settings.base}/${settings.product}',
+        product:    '${prefixes.base}/${settings.product}',
         productver: '${prefixes.product}/${settings.version}',
         bin:        '${prefixes.productver}/bin',
         inc:        '${prefixes.productver}/inc',

@@ -1119,13 +1119,17 @@ public class Bit {
             target.scripts ||= {}
 
             /*
-                Expand short-form scripts
+                Expand short-form scripts into the long-form
+                Set the target type if not defined to 'action' or 'build'
              */
-            for each (n in ['action', 'preblend', 'postblend', 'preresolve', 'postresolve', 'postsource', 'predependencies', 'postdependencies', 'precompile', 'postcompile', 'prebuild', 'build', 'postbuild', 'shell']) {
+            for each (n in ['action', 'preblend', 'postblend', 'preresolve', 'postresolve', 'postsource', 'predependencies',
+                    'postdependencies', 'precompile', 'postcompile', 'prebuild', 'build', 'postbuild', 'shell']) {
                 if (target[n]) {
-                    target.type ||= (n == 'action' || n == 'shell') ? 'action' : 'build'
+                    target.type ||= (n == 'action') ? n : 'build'
+                    let script = target[n]
+                    if (n == 'action') n = 'build'
                     target.scripts[n] ||= []
-                    target.scripts[n]  += [{ home: home, interpreter: (n == 'shell') ? 'bash' : 'ejs', script: target[n] }]
+                    target.scripts[n]  += [{ home: home, interpreter: (n == 'shell') ? 'bash' : 'ejs', script: script}]
                     delete target[n]
                 }
             }
@@ -1348,6 +1352,49 @@ public class Bit {
         path.setAttributes({permissions: 0755})
     }
 
+    function mapPrefixes() {
+        prefixes = {}
+        let prd = bit.prefixes.product
+        let ver = bit.prefixes.productver
+        let base = bit.prefixes.base
+        for (let [name,value] in bit.prefixes) {
+            if (name.startsWith('programFiles')) continue
+            if (name == 'spool') {
+                name = 'spl'
+            } else if (name == 'product') {
+                name = 'prd'
+            } else if (name == 'productver') {
+                name = 'ver'
+            } else if (name == 'config') {
+                name = 'cfg'
+            }
+            value = expand(value)
+            if (name == 'base') {
+                if (bit.prefixes.programFiles && value.startsWith(bit.prefixes.programFiles.name)) {
+                    value = value.replace(base.name, bit.prefixes.programFiles)
+                } else {
+                    value = '$(BIT_ROOT_PREFIX)' + value.toString().trim('/')
+                }
+            } else if (name == 'prd') {
+                if (value.startsWith(base.name)) {
+                    value = value.replace(base.name, '$(BIT_BASE_PREFIX)')
+                }
+            } else if (name == 'ver') {
+                if (value.startsWith(prd.name)) {
+                    value = value.replace(prd.name, '$(BIT_PRD_PREFIX)')
+                }
+            } else if (value.startsWith(ver.name)) {
+                value = value.replace(ver.name, '$(BIT_VER_PREFIX)')
+            } else {
+                value = '$(BIT_ROOT_PREFIX)' + value.toString().trim('/')
+            }
+            value = value.replace(bit.settings.version, '$(VERSION)')
+            value = value.replace(bit.settings.product, '$(PRODUCT)')
+            prefixes[name] = Path(value.toString().trim('/'))
+        }
+        return prefixes
+    }
+
     function generateMake(base: Path) {
         trace('Generate', 'project file: ' + base.relative + '.mk')
         let path = base.joinExt('mk')
@@ -1368,27 +1415,10 @@ public class Bit {
         genout.writeLine('CONFIG          := $(OS)-$(ARCH)-$(PROFILE)')
         genout.writeLine('LBIN            := $(CONFIG)/bin\n')
 
-        let prd = bit.prefixes.product
-        let ver = bit.prefixes.productver
+        let prefixes = mapPrefixes()
         genout.writeLine('BIT_ROOT_PREFIX := /')
-        for (let [name,value] in bit.prefixes) {
-            if (name == 'spool') {
-                name = 'spl'
-            } else if (name == 'product') {
-                name = 'prd'
-            } else if (name == 'productver') {
-                name = 'ver'
-            } else if (name == 'config') {
-                name = 'cfg'
-            }
-            if (name != 'ver' && name != 'prd' && value.startsWith(ver.name)) {
-                value = value.replace(ver.name, '$(BIT_VER_PREFIX)')
-                value = Path(value.toString().trim('/'))
-                genout.writeLine('%-15s := %s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
-            } else {
-                value = Path(value.toString().trim('/'))
-                genout.writeLine('%-15s := $(BIT_ROOT_PREFIX)%s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
-            }
+        for (let [name, value] in prefixes) {
+            genout.writeLine('%-15s := %s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
         }
         genout.writeLine('')
         let cflags = gen.compiler
@@ -1473,36 +1503,13 @@ public class Bit {
         genout.writeLine('LIBPATHS        = ' + repvar(gen.libpaths).replace(/\//g, '\\'))
         genout.writeLine('LIBS            = ' + gen.libraries + '\n')
 
-        let prd = bit.prefixes.product
-        let ver = bit.prefixes.productver
-        let root = bit.prefixes.product.windows.match(/^\w:\\/).toString() + "\\"
+        let root = bit.prefixes.programFiles.match(/^\w:./).toString()
         genout.writeLine('%-15s = %s'.format(['BIT_ROOT_PREFIX', root]))
-        for (let [name,value] in bit.prefixes) {
+
+        let prefixes = mapPrefixes()
+        for (let [name, value] in prefixes) {
             if (name.startsWith('programFiles')) continue
-            if (name == 'spool') {
-                name = 'spl'
-            } else if (name == 'product') {
-                name = 'prd'
-            } else if (name == 'productver') {
-                name = 'ver'
-            } else if (name == 'config') {
-                name = 'cfg'
-            }
-            let root
-            if (name != 'ver' && name != 'prd') {
-                if (value.startsWith(ver)) {
-                    value = value.replace(ver.name, '$(BIT_VER_PREFIX)')
-                } else if (value.startsWith(prd)) {
-                    value = value.replace(prd.name, '$(BIT_PRD_PREFIX)')
-                }
-                value = value.replace(/^\w:\//, '')
-                value = value.replace(/\//g, '\\')
-                genout.writeLine('%-15s = %s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
-            } else {
-                value = value.replace(/^\w:\//, '')
-                value = value.replace(/\//g, '\\')
-                genout.writeLine('%-15s = $(BIT_ROOT_PREFIX)%s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
-            }
+            genout.writeLine('%-15s := %s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
         }
         genout.writeLine('')
         let pop = bit.settings.product + '-' + bit.platform.os + '-' + bit.platform.profile
@@ -2403,7 +2410,7 @@ public class Bit {
         if (!rule || generating) {
             return
         }
-        target.vars.IN = target.files.join(' ')
+        target.vars.INPUT = target.files.join(' ')
         let command = expandRule(target, rule)
         let data = run(command, {noshow: true})
         let result = []
@@ -2441,7 +2448,7 @@ public class Bit {
 
         let ext = target.path.extension
         for each (file in target.files) {
-            target.vars.IN = file.relative
+            target.vars.INPUT = file.relative
             let transition = file.extension + '->' + target.path.extension
             if (options.pre) {
                 transition = 'c->c'
@@ -2495,7 +2502,7 @@ public class Bit {
  */
         let ext = target.path.extension
         for each (file in target.files) {
-            target.vars.IN = file.relative
+            target.vars.INPUT = file.relative
             let transition = file.extension + '->' + target.path.extension
             let rule = target.rule || bit.rules[transition]
             if (!rule) {
@@ -2542,7 +2549,7 @@ public class Bit {
             if (file == target.path) {
                 continue
             }
-            target.vars.IN = file.relative
+            target.vars.INPUT = file.relative
             if (generating == 'sh') {
                 genout.writeLine('rm -rf ' + reppath(target.path.relative))
                 genout.writeLine('cp -r ' + reppath(file.relative) + ' ' + reppath(target.path.relative) + '\n')
@@ -2867,7 +2874,7 @@ public class Bit {
         Called in this file and in xcode.es during project generation
      */
     public function makeDirGlobals(base: Path? = null) {
-        for each (n in ['BIN', 'CFG', 'BITS', 'FLAT', 'INC', 'LIB', 'OBJ', 'PACKS', 'PKG', 'REL', 'SRC', 'TOP']) {
+        for each (n in ['BIN', 'OUT', 'BITS', 'FLAT', 'INC', 'LIB', 'OBJ', 'PACKS', 'PKG', 'REL', 'SRC', 'TOP']) {
             /* 
                 These globals are always in portable format so they can be used in build scripts. Windows back-slashes
                 require quoting! 
@@ -2893,7 +2900,7 @@ public class Bit {
             tv.HOME = Path(target.home).relativeTo(base)
         }
         if (target.path) {
-            tv.OUT = target.path.relativeTo(base)
+            tv.OUTPUT = target.path.relativeTo(base)
         }
         if (target.libpaths) {
             tv.LIBPATHS = mapLibPaths(target.libpaths, base)
@@ -2905,7 +2912,7 @@ public class Bit {
             if (!target.files) {
                 throw 'Target ' + target.name + ' has no input files or sources'
             }
-            tv.IN = target.files.map(function(p) p.relativeTo(base)).join(' ')
+            tv.INPUT = target.files.map(function(p) p.relativeTo(base)).join(' ')
             tv.LIBS = mapLibs(target.libraries, target.static)
             tv.LDFLAGS = (target.linker) ? target.linker.join(' ') : ''
 
@@ -2913,7 +2920,7 @@ public class Bit {
             if (!target.files) {
                 throw 'Target ' + target.name + ' has no input files or sources'
             }
-            tv.IN = target.files.map(function(p) p.relativeTo(base)).join(' ')
+            tv.INPUT = target.files.map(function(p) p.relativeTo(base)).join(' ')
             tv.LIBNAME = target.path.basename
             //  MOB unused
             tv.DEF = Path(target.path.relativeTo(base).toString().replace(/dll$/, 'def'))
@@ -2930,13 +2937,13 @@ public class Bit {
                 /* Use relative paths to shorten trace output */
                 tv.INCLUDES = (target.includes) ? target.includes.map(function(p) '-I' + p.relativeTo(base)) : ''
             }
-            tv.PDB = tv.OUT.replaceExt('pdb')
+            tv.PDB = tv.OUTPUT.replaceExt('pdb')
             if (bit.dir.home.join('.embedthis').exists && !generating) {
                 tv.CFLAGS += ' -DEMBEDTHIS=1'
             }
 
         } else if (target.type == 'resource') {
-            tv.OUT = target.path.relative
+            tv.OUTPUT = target.path.relative
             tv.CFLAGS = (target.compiler) ? target.compiler.join(' ') : ''
             target.defines ||= []
             tv.DEFINES = target.defines.map(function(e) '-D' + e).join(' ')

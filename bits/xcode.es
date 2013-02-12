@@ -571,7 +571,7 @@ ${OUTPUTS}
             cmd = cmd.replace(/^[ \t]*[\r\n]+/m, '')
             cmd = cmd.replace(/^[ \t]*/mg, '').trim()
         }
-        cmd = cmd.replace(RegExp(bit.dir.out.relativeTo(base), 'g'), '$${CFG_DIR}')
+        cmd = cmd.replace(RegExp(bit.dir.out.relativeTo(base), 'g'), '$${OUT_DIR}')
 
         if (target.files && target.files.length > 0) {
             inputs = target.files.map(function(f) f.relativeTo(base)).join(',\n')
@@ -805,7 +805,7 @@ function projectConfigSection(base) {
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				SDKROOT = macosx;
 
-                CFG_DIR = "${CFG}";
+                OUT_DIR = "${OUT}";
                 BIN_DIR = "${BIN}";
                 LIB_DIR = "${LIB}";
                 INC_DIR = "${INC}";
@@ -858,6 +858,7 @@ ${RELEASE_SETTINGS}
         ['GCC_WARN_UNUSED_VARIABLE', 'GCC_WARN_UNUSED_FUNCTION', 'GCC_WARN_UNUSED_LABEL'], 'unused-result')
     overridable += appendSetting(overridable, defaults.compiler, ['GCC_WARN_INHIBIT_ALL_WARNINGS'], '-w')
     makeDirGlobals(base)
+
     output(section.expand(ids, eo).expand({
         COMMON_SETTINGS: common_settings.expand(bit, eo).expand(bit.globals, eo).expand(ids, eo).expand({
             COMPILER: compiler,
