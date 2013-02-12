@@ -119,16 +119,46 @@ internal: {
 
         <h2>Enabling and Disabling Targets</h2>
         <p>Targets can be selectively enabled or disabled based on the value of the <em>enable</em> property. 
-        The property may be set to an arbitrary Ejscript script expression that is evaluated to a Boolean value. If true,
-        the target is enabled for building. For example:
+        The property may be set to a string containing an arbitrary script expression that is evaluated and if true
+        the target is enabled. For example:
 <pre>
 appwebMonitor: {
-    <b>enable: bit.platform.like == 'windows',</b>
+    <b>enable: "bit.platform.like == 'windows'",</b>
     type: 'exe',
     sources: [ 'windows/appwebMonitor.c' ],
 },
 </pre>
-        <p>This will enable this target only if building for windows.</p>
+        <p>This will enable this target only if building for windows. Note that if you forget to wrap the
+            enable expression as a string, it will be evaluated when the bit file is loaded, not when the target
+            is evaluated. In some cases, this will work if that portion of the DOM referenced in your expression
+            has been defined. Best to always wrap your enable expression in quotes.</p>
+
+        <h3>Enable Samples</h3>
+        <p>SSL has a special setting that can be tested for targets that require SSL before building</p>
+        <pre>
+transact: {
+    /* Enable if SSL is enabled */
+    <b>enable: "bit.settings.ssl",</b>
+    type: 'exe',
+    sources: [ '*.c' ],
+},
+</pre>
+        <p>This example tests if the CGI extension pack is enabled.</p>
+        <pre>
+cgiProgram: {
+    /* Enable if SSL is enabled */
+    <b>enable: "bit.packs.cgi.enable",</b>
+    type: 'exe',
+    sources: [ '*.c' ],
+},
+</pre>
+        <p>This target is only enabled if building for the local platform and not cross-building.</p>
+        <pre>
+'tests': {
+    <b>enable: "!bit.platform.cross",</b>
+    action: "run-tests()",
+},
+</pre>
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->

@@ -144,21 +144,21 @@
             </thead>
             <tbody>
             <tr><td>ARCH</td><td>CPU architecture: x86, x64, ppc, ...</td></tr>
+            <tr><td>BIN</td><td>Binary outputs directory: OS-ARCH-PROFILE/bin</td></tr>
+            <tr><td>BITS</td><td>Directory holding standard bit files</td></tr>
+            <tr><td>CFG</td><td>Configuration outputs directory: OS-ARCH-PROFILE</td></tr>
             <tr><td>CONFIG</td><td>Platform configuration: OS-ARCH-PROFILE</td></tr>
             <tr><td>EXE</td><td>Executable extension: .exe</td></tr>
             <tr><td>GCC_ARCH</td><td>CPU architecture mapped to a GCC architecture: x86_64, i686, ...</td></tr>
             <tr><td>LIKE</td><td>Set to windows or posix if relevant</td></tr>
-            <tr><td>O</td><td>Compiled object file extension: .o, .obj</td></tr>
-            <tr><td>OS</td><td>Operating system: linux, windows, ...</td></tr>
-            <tr><td>PLATFORM</td><td>Platform string: OS-ARCH</td></tr>
-            <tr><td>SHOBJ</td><td>Shared object extension: .so, .dll</td></tr>
-            <tr><td>SHLIB</td><td>Shared object library extension: .so, .lib</td></tr>
-            <tr><td>BIN</td><td>Binary outputs directory: OS-ARCH-PROFILE/bin</td></tr>
-            <tr><td>CFG</td><td>Configuration outputs directory: OS-ARCH-PROFILE</td></tr>
-            <tr><td>BITS</td><td>Directory holding standard bit files</td></tr>
             <tr><td>INC</td><td>Standard include directory</td></tr>
+            <tr><td>O</td><td>Compiled object file extension: .o, .obj</td></tr>
             <tr><td>OBJ</td><td>Directory holding compiled files: OS-ARCH-PROFILE/obj</td></tr>
+            <tr><td>OS</td><td>Operating system: linux, windows, ...</td></tr>
             <tr><td>PACKS</td><td>Directory holding bit package extension files</td></tr>
+            <tr><td>PLATFORM</td><td>Platform string: OS-ARCH</td></tr>
+            <tr><td>SHLIB</td><td>Shared object library extension: .so, .lib</td></tr>
+            <tr><td>SHOBJ</td><td>Shared object extension: .so, .dll</td></tr>
             <tr><td>SRC</td><td>Directory of the source tree to be built</td></tr>
             <tr><td>TOP</td><td>Top directory where the project is being built</td></tr>
             </tbody>
@@ -172,9 +172,9 @@
                 <tr><th>Name</th><th>Description</th>
             </thead>
             <tbody>
-                <tr><td>os</td><td>Operating system: linux, windows, vxworks, ...</td></tr>
                 <tr><td>arch</td><td>CPU architecture: arm, ppc, x64, x86, ...</td></tr>
                 <tr><td>like</td><td>Set to 'windows' or 'posix' or empty</td></tr>
+                <tr><td>os</td><td>Operating system: linux, windows, vxworks, ...</td></tr>
                 <tr><td>profile</td><td>Build profile selected: 'debug', 'release', ...</td></tr>
             </tbody>
         </table>
@@ -188,17 +188,17 @@
                 <tr><th>Name</th><th>Description</th>
             </thead>
             <tbody>
-                <tr><td>enable</td><td>Set to true if the pack was found on the system</td></tr>
-                <tr><td>description</td><td>Descriptive name of the pack</td></tr>
-                <tr><td>path</td><td>If found, the path to the pack directory or binary</td></tr>
                 <tr><td>compiler</td><td>Compiler options when building targets that depend on this pack</td></tr>
                 <tr><td>defines</td><td>Compiler definitions when building targets that depend on this pack</td></tr>
+                <tr><td>description</td><td>Descriptive name of the pack</td></tr>
+                <tr><td>enable</td><td>Set to true if the pack was found on the system</td></tr>
+                <tr><td>imports</td><td>Files to import from this pack before building</td></tr>
                 <tr><td>includes</td><td>Compiler include directories to use when building targets that depend on this
                         pack</td></tr>
                 <tr><td>libraries</td><td>Libraries to link with when building targets that depend on this pack</td></tr>
                 <tr><td>libpaths</td><td>Library search paths to use when building targets that depend on this pack</td></tr>
                 <tr><td>linker</td><td>Linker options to use when building targets that depend on this pack</td></tr>
-                <tr><td>imports</td><td>Files to import from this pack before building</td></tr>
+                <tr><td>path</td><td>If found, the path to the pack directory or binary</td></tr>
             </tbody>
         </table>
 
@@ -210,14 +210,14 @@
                 <tr><th>Name</th><th>Description</th>
             </thead>
             <tbody>
-                <tr><td>company</td><td>Company name</td></tr>
-                <tr><td>product</td><td>Product or project name. Should be one word, lower case without spaces</td></tr>
-                <tr><td>title</td><td>Descriptive one sentence title for the product</td></tr>
-                <tr><td>version</td><td>Product version string. Should be of the form: MAJOR.MINOR.PATCH </td></tr>
                 <tr><td>buildNumber</td><td>Build number string</td></tr>
-                <tr><td>optional</td><td>List of optional packs to discover when configuring </td></tr>
+                <tr><td>company</td><td>Company name</td></tr>
+                <tr><td>discover</td><td>List of optional packs to discover when configuring </td></tr>
+                <tr><td>product</td><td>Product or project name. Should be one word, lower case without spaces</td></tr>
                 <tr><td>required</td><td>List of required packs to discover when configuring </td></tr>
                 <tr><td>static</td><td>Build using static linking instead of building shared libraries</td></tr>
+                <tr><td>title</td><td>Descriptive one sentence title for the product</td></tr>
+                <tr><td>version</td><td>Product version string. Should be of the form: MAJOR.MINOR.PATCH </td></tr>
                 <tr><td>without-all</td><td>List of packs to disable when doing '--without all configure'</td></tr>
             </tbody>
         </table>
@@ -229,8 +229,35 @@
                 <tr><th>Name</th><th>Description</th>
             </thead>
             <tbody>
-                <tr><td>name</td><td>Target name. This name is used rather than the collection name</td></tr>
+                <tr><td>compiler</td><td>Array of compiler options</td></tr>
+                <tr><td>defines</td><td>Array of compiler pre-processor definitions</td></tr>
+                <tr><td>depends</td><td>Linker options</td></tr>
+                <tr><td>enable</td><td>Ejscript expression to evaluate to a boolean. Enable the target if true.</td></tr>
+                <tr><td>exclude</td><td>Regular expression of file patterns to exclude from the sources list
+                    This is a filter that is applied to the sources list after expanding the sources wildcards</td></tr>
+                <tr><td>headers</td><td>Linker options</td></tr>
                 <tr><td>home</td><td>Home directory to use when resolving paths for this target</td></tr>
+                <tr><td>include</td><td>Regular expression of file patterns to include from the sources list. 
+                    This is a filter that is applied to the sources list after expanding the sources wildcards</td></tr>
+                <tr><td>includes</td><td>Array of compiler include directories</td></tr>
+                <tr><td>libraries</td><td>Array of libraries to link</td></tr>
+                <tr><td>libpaths</td><td>Array of link library search paths</td></tr>
+                <tr><td>linker</td><td>Array of linker options</td></tr>
+                <tr><td>message</td><td>Message to display when building. Can be a string that is displayed with
+                    the 'Info' tag, or it can be an array where the first element is the message tag and the
+                    remaining elements are joined to form the message.</td></tr>
+                <tr><td>name</td><td>Target name. This name is used rather than the collection name</td></tr>
+                <tr><td>path</td><td>Path to the result of building the target. If set, this is used for dependency
+                        calculations. If updated, all targets that depend on this target will be rebuilt.</td></tr>
+                <tr><td>platforms</td><td>Platforms for which this target should be built. Set to OS-ARCH or <em>local</em>
+                        for the local platform.</td></tr>
+                <tr><td>rule</td><td>Build command template to use when invoking compiler and linker. Typically not
+                        explicitly set unless overriding for some reason. Set to: 'c-&gt;o', 'cpp-&gt;o', 'lib', 'exe', 'gui'.
+                        Rules are automatically selected for 'lib' and 'exe' targets. </td>
+
+                <tr><td>scripts</td><td>Scripts for the target. See <a href="#scripts">scripts</a> for details</td></tr>
+                <tr><td>sources</td><td>Array of source file patterns to compile for the target. Use normal * as a
+                        wild-card, ** as a wild-card that descends directories. Use the exclude property to exclude </td></tr>
                 <tr><td>type</td><td>Type of target: exe, lib, action, obj, header, build and custom values.
                 <ul>
                     <li>exe &mdash; Executable type</li>
@@ -245,31 +272,6 @@
                         type specified as a target, then all the targets of that type will be run.</li>
                 </ul>
                 </td></tr>
-                <tr><td>enable</td><td>Ejscript expression to evaluate to a boolean. Enable the target if true.</td></tr>
-                <tr><td>compiler</td><td>Array of compiler options</td></tr>
-                <tr><td>defines</td><td>Array of compiler pre-processor definitions</td></tr>
-                <tr><td>includes</td><td>Array of compiler include directories</td></tr>
-                <tr><td>libraries</td><td>Array of libraries to link</td></tr>
-                <tr><td>libpaths</td><td>Array of link library search paths</td></tr>
-                <tr><td>linker</td><td>Array of linker options</td></tr>
-                <tr><td>path</td><td>Path to the result of building the target. If set, this is used for dependency
-                        calculations. If updated, all targets that depend on this target will be rebuilt.</td></tr>
-                <tr><td>platforms</td><td>List of platforms for which this target will be enabled.
-                        Use the platform string "<em>local</em>" for the local platform.</td></tr>
-
-                <tr><td>scripts</td><td>Scripts for the target. See <a href="#scripts">scripts</a> for details</td></tr>
-                <tr><td>sources</td><td>Array of source file patterns to compile for the target. Use normal * as a
-                        wild-card, ** as a wild-card that descends directories. Use the exclude property to exclude </td></tr>
-                <tr><td>headers</td><td>Linker options</td></tr>
-                <tr><td>include</td><td>Regular expression of file patterns to include from the sources list. 
-                    This is a filter that is applied to the sources list after expanding the sources wildcards</td></tr>
-                <tr><td>depends</td><td>Linker options</td></tr>
-                <tr><td>exclude</td><td>Regular expression of file patterns to exclude from the sources list
-                    This is a filter that is applied to the sources list after expanding the sources wildcards</td></tr>
-                <tr><td>rule</td><td>Build command template to use when invoking compiler and linker. Typically not
-                        explicitly set unless overriding for some reason. Set to: 'c-&gt;o', 'cpp-&gt;o', 'lib', 'exe', 'gui'.
-                        Rules are automatically selected for 'lib' and 'exe' targets. </td>
-                <tr><td>platforms</td><td>Platforms for which this target should be built. Set to OS-ARCH or 'local'</td></tr>
             </tbody>
         </table>
         </div>

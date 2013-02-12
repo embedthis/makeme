@@ -1116,37 +1116,18 @@ public class Bit {
                     item.home ||= home
                 }
             }
-            if (target.build) {
-                /*
-                    Build scripts always run if doing a 'build'. Set the type to 'build'
-                 */
-                target.type ||= 'build'
-                target.scripts ||= {}
-                target.scripts['build'] ||= []
-                target.scripts['build'] += [{ home: home, interpreter: 'ejs', script: target.build }]
-                delete target.build
-            }
-            if (target.action != undefined) {
-                /*
-                    Actions do not run at 'build' time. They have a type of 'action' so they do not run by default
-                    unless requested as an action on the command line AND they don't have the same type as a target. 
-                 */
-                target.type ||= 'action'
-                target.scripts ||= {}
-                target.scripts['build'] ||= []
-                target.scripts['build'] += [{ home: home, interpreter: 'ejs', script: target.action, ns: ns }]
-                delete target.action
-            }
-            //  DEPRECATED
-            if (target.shell) {
-                target.interpreter = target.shell
-            }
-            if (target.interpreter) {
-                target.type ||= 'action'
-                target.scripts ||= {}
-                target.scripts['build'] ||= []
-                target.scripts['build'] += [{ home: home, interpreter: 'bash', script: target.interpreter }]
-                delete target.interpreter
+            target.scripts ||= {}
+
+            /*
+                Expand short-form scripts
+             */
+            for each (n in ['action', 'preblend', 'postblend', 'preresolve', 'postresolve', 'postsource', 'predependencies', 'postdependencies', 'precompile', 'postcompile', 'prebuild', 'build', 'postbuild', 'shell']) {
+                if (target[n]) {
+                    target.type ||= (n == 'action' || n == 'shell') ? 'action' : 'build'
+                    target.scripts[n] ||= []
+                    target.scripts[n]  += [{ home: home, interpreter: (n == 'shell') ? 'bash' : 'ejs', script: target[n] }]
+                    delete target[n]
+                }
             }
             /*
                 Blend internal for only the targets in this file
@@ -1673,6 +1654,7 @@ public class Bit {
                     let script = expand(target.enable)
                     try {
                         if (!eval(script)) {
+                            whySkip(target.name, 'is disabled')
                             vtrace('Skip', 'Target ' + tname + ' is disabled on this platform') 
                             target.enable = false
                         } else {
@@ -1687,6 +1669,8 @@ public class Bit {
                 target.name ||= tname
             } else if (target.enable == undefined) {
                 target.enable = true
+            } else {
+                whySkip(target.name, 'is disabled')
             }
             if (target.platforms) {
                 if (!target.platforms.contains(currentPlatform) &&
@@ -2231,30 +2215,45 @@ public class Bit {
         }
         runTargetScript(target, 'postdependencies')
         if (target.message) {
-            trace('Info', target.message)
+            if (target.message is Array) {
+                trace(... target.message)
+            } else {
+                trace('Info', target.message)
+            }
         }
         try {
-            runTargetScript(target, 'prebuild')
-            if (target.type == 'lib') {
-                if (target.static) {
-                    buildStaticLib(target)
-                } else {
-                    buildSharedLib(target)
+            if (!stale(target)) {
+                whySkip(target.path, 'is up to date')
+            } else {
+                if (options.diagnose) {
+                    App.log.debug(3, "Target => " + 
+                        serialize(target, {pretty: true, commas: true, indent: 4, quotes: false}))
                 }
-            } else if (target.type == 'exe') {
-                buildExe(target)
-            } else if (target.type == 'obj') {
-                buildObj(target)
-            } else if (target.type == 'file') {
-                buildFile(target)
-            } else if (target.type == 'header') {
-                buildFile(target)
-            } else if (target.type == 'resource') {
-                buildResource(target)
-            } else if (target.type == 'build' || (target.scripts && target.scripts['build'])) {
-                buildScript(target)
+                runTargetScript(target, 'prebuild')
+
+                if (target.type == 'build' || (target.scripts && target.scripts['build'])) {
+                    buildScript(target)
+                }
+                if (target.type == 'lib') {
+                    if (target.static) {
+                        buildStaticLib(target)
+                    } else {
+                        buildSharedLib(target)
+                    }
+                } else if (target.type == 'exe') {
+                    buildExe(target)
+                } else if (target.type == 'obj') {
+                    buildObj(target)
+                } else if (target.type == 'file') {
+                    buildFile(target)
+                } else if (target.type == 'header') {
+                    buildFile(target)
+                } else if (target.type == 'resource') {
+                    buildResource(target)
+                }
+
+                runTargetScript(target, 'postbuild')
             }
-            runTargetScript(target, 'postbuild')
         } catch (e) {
             throw new Error('Building target ' + target.name + '\n' + e)
         }
@@ -2266,6 +2265,7 @@ public class Bit {
         Build an executable program
      */
     function buildExe(target) {
+/* UNUSED
         if (!stale(target)) {
             whySkip(target.path, 'is up to date')
             return
@@ -2273,6 +2273,7 @@ public class Bit {
         if (options.diagnose) {
             App.log.debug(3, "Target => " + serialize(target, {pretty: true, commas: true, indent: 4, quotes: false}))
         }
+*/
         let transition = target.rule || 'exe'
         let rule = bit.rules[transition]
         if (!rule) {
@@ -2307,6 +2308,7 @@ public class Bit {
     }
 
     function buildSharedLib(target) {
+/* UNUSED
         if (!stale(target)) {
             whySkip(target.path, 'is up to date')
             return
@@ -2314,6 +2316,7 @@ public class Bit {
         if (options.diagnose) {
             App.log.debug(3, "Target => " + serialize(target, {pretty: true, commas: true, indent: 4, quotes: false}))
         }
+*/
         let transition = target.rule || 'shlib'
         let rule = bit.rules[transition]
         if (!rule) {
@@ -2350,6 +2353,7 @@ public class Bit {
     }
 
     function buildStaticLib(target) {
+/* UNUSED
         if (!stale(target)) {
             whySkip(target.path, 'is up to date')
             return
@@ -2357,6 +2361,7 @@ public class Bit {
         if (options.diagnose) {
             App.log.debug(3, "Target => " + serialize(target, {pretty: true, commas: true, indent: 4, quotes: false}))
         }
+*/
         let transition = target.rule || 'lib'
         let rule = bit.rules[transition]
         if (!rule) {
@@ -2424,12 +2429,14 @@ public class Bit {
         Build an object from source
      */
     function buildObj(target) {
+/* UNUSED
         if (!stale(target)) {
             return
         }
         if (options.diagnose) {
             App.log.debug(3, "Target => " + serialize(target, {pretty: true, commas: true, indent: 4, quotes: false}))
         }
+*/
         runTargetScript(target, 'precompile')
 
         let ext = target.path.extension
@@ -2478,12 +2485,14 @@ public class Bit {
     }
 
     function buildResource(target) {
+/* UNUSED
         if (!stale(target)) {
             return
         }
         if (options.diagnose) {
             App.log.debug(3, "Target => " + serialize(target, {pretty: true, commas: true, indent: 4, quotes: false}))
         }
+ */
         let ext = target.path.extension
         for each (file in target.files) {
             target.vars.IN = file.relative
@@ -2522,10 +2531,12 @@ public class Bit {
         Copy files[] to path
      */
     function buildFile(target) {
+/* UNUSED
         if (!stale(target)) {
             whySkip(target.path, 'is up to date')
             return
         }
+*/
         for each (let file: Path in target.files) {
             /* Auto-generated headers targets for includes have file == target.path */
             if (file == target.path) {
@@ -2567,6 +2578,7 @@ public class Bit {
     }
 
     function buildScript(target) {
+/* UNUSED
         if (!stale(target)) {
             whySkip(target.path, 'is up to date')
             return
@@ -2574,6 +2586,7 @@ public class Bit {
         if (options.diagnose) {
             App.log.debug(3, "Target => " + serialize(target, {pretty: true, commas: true, indent: 4, quotes: false}))
         }
+*/
         setRuleVars(target, target.home)
         let prefix, suffix
         if (generating == 'sh' || generating == 'make') {
@@ -2619,7 +2632,8 @@ public class Bit {
             } else {
                 genWrite(target.name + ': ' + getTargetDeps(target, true))
             }
-            let cmd = target['generate-' + bit.platform.os] || target['generate-make'] || target['generate-sh'] || target.generate
+            let cmd = target['generate-' + bit.platform.os] || target['generate-make'] || 
+                target['generate-sh'] || target.generate
             if (cmd) {
                 cmd = cmd.trim().replace(/^\s*/mg, '\t')
                 cmd = cmd.replace(/\\\n\s*/mg, '')

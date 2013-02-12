@@ -61,8 +61,10 @@
                 <tr><th>Name</th><th>Description</th>
             </thead>
             <tbody>
-                <tr><td>preblend</td><td>Fired before blending defaults into targets</td></tr>
-                <tr><td>postblend</td><td>Fired after blending defaults into targets</td></tr>
+                <tr><td>preblend</td><td>Fired before blending defaults into targets. 
+                        This is only fired for scripts in the <em>defaults</em> and <em>internal</em> collections.</td></tr>
+                <tr><td>postblend</td><td>Fired after blending defaults into targets.
+                        This is only fired for scripts in the <em>defaults</em> and <em>internal</em> collections.</td></tr>
                 <tr><td>preresolve</td><td>Fired before resolving dependencies for a target</td></tr>
                 <tr><td>postresolve</td><td>Fired after resolving dependencies for a target</td></tr>
                 <tr><td>presource</td><td>Fired before expanding source wildcards and creating object targets</td></tr>
@@ -72,59 +74,41 @@
                 <tr><td>precompile</td><td>Fired before compiling a source file used by a target</td></tr>
                 <tr><td>postcompile</td><td>Fired after compiling a source file used by a target</td></tr>
                 <tr><td>prebuild</td><td>Fired before building a target</td></tr>
+                <tr><td>build</td><td>Fired to build the target</td></tr>
                 <tr><td>postbuild</td><td>Fired after building a target</td></tr>
             </tbody>
         </table>
         <h2>Defining Scripts</h2>
-        <p>Scripts can be defined to run when the required event is triggered. Scripts are declared as part of the
-        <em>scripts</em> collection using a property name of the desired event. 
-<pre>
-{
-    defaults: {
-        scripts: {<b>
-            preblend: [{
-                script: "
-                    if (Config.OS == 'windows') {
-                        bit.defaults.linker.push('extralib')
-                    }
-                "
-            }], </b>
-        },
-    },
-},
-</pre>
+        <p>Scripts can be defined to run when the required event is triggered. 
             <p>This can also be abbreviated by just supplying a string as script value. 
             Be sure to use the <em>+</em> event aggregator to add to existing scripts for that event.</p>
 <pre>
-{
-    defaults: {
-        scripts: {
-            <b>'+preblend'</b>: "
-                if (Config.OS == 'windows') {
-                    bit.defaults.linker.push('extralib')
-                }
-            "
-        },
+rocket: {
+    type: 'exe',
+    sources: [ '*.c' ],
+    prebuild: "print('before building')",
+    postbuild: "print('after building')",
+},
+</pre>
+
+        <p>These scripts are actually translated into a lower-level form when the bit file is loaded. 
+        Scripts are translated into the <em>scripts</em> collection using a property name of the desired event. 
+<pre>
+rocket: {
+    scripts: {
+        prebuild: [{
+            script: "print('before building')",
+            home: '.',
+            interpreter: 'ejs',
+        }],
     },
 },
 </pre>
+
             <p>For more details on how to set the home directory for the script or to specify 
             a different script interpreter, see <a href="../../guide/bit/developers/scripts.html">Scripts</a>
             in the Bit User Guide.</p>
 
-        <p>To add a script to a target:</p>
-<pre>
-{
-    targets: {
-        hello: {
-            scripts: {
-                <b>'+prebuild': "rm('state.tmp')",</b>
-            },
-        },
-    }
-},
-</pre>
-        
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->
