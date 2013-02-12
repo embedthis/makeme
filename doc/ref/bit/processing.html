@@ -1,0 +1,124 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis Bit 0.8.0 Documentation</title>
+    <meta name="keywords" content="Bit, Build It!, Javascript"/>
+	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
+	<meta name="robots" content="index,follow" />
+	<link href="../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../iehacks.css" rel="stylesheet" type="text/css" />
+    </![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo"  href="http://embedthis.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form">Loading</div>
+                <div class='version'>Embedthis Bit 0.8.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt;<a href="index.html">User Guide</a>&gt; <b>Bit File Processing</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            
+                <h1>Quick Nav </h1>
+                <ul>
+                    <li><a href="#overview">Overview</a></li>
+                </ul>
+<!-- BeginDsi "dsi/refSeeAlso.html" -->
+        <h1>See Also</h1>
+        <ul>
+            <li><a href="../../ref/bit/syntax.html">Bit File Syntax</a></li>
+            <li><a href="../../ref/bit/dom.html">Bit File DOM</a></li>
+            <li><a href="../../ref/bit/commandline.html">Bit Command Line</a></li>
+            <li><a href="../../ref/bit/events.html">Bit Events</a></li>
+            <li><a href="../../ref/bit/targets.html">Bit Targets</a></li>
+
+            <li><a href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Ejscript Language</a></li>
+            <li><a href="http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a></li>
+        </ul>
+<!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+
+        <h1>Bit File Processing</h1>
+        <p>Bit builds targets according to a defined life cycle.</p>
+        <ol>
+            <li>The Bit DOM object (<em>bit</em>is created and initialized.</li>
+            <li>The <em>standard.bit</em> file is loaded to supply with the standard Bit definitions.</li>
+            <li>The <em>os/OS.bit</em> file is loaded to supply O/S specific rules and definitions</li>
+            <li>The start.bit file is loaded.</li>
+            <li>All bit files referenced in the start.bit blend[] collection are loaded. This continues recursively,
+                depth first.</li>
+            <li>For each platform specified in the start.bit platform[] collection, the following steps below
+                are executed.</li>
+            <li>The platform bit file is loaded and all bit files referenced in blend[] are loaded depth-first.</li>
+            <li>The directories collection <em>dir</em>, and <em>bit.global</em> properties are initialized.</li>
+            <li>Targets are enabled or disabled depending on their <em>enable</em> property expression.</li>
+            <li>A list of top-level targets to build is created based on the bit commandline and target dependencies.
+                See below <a href="#selectingTargets">Selecting Targets</a> for more details.</li>
+            <li>The targets to build are examined and their properties are blended with the defaults/internal
+                properties.</li>
+            <li>The target dependencies are resolved and added to the target list.</li>
+            <li>The target sources have wild-cards expanded. Targets are dynamically created for all objects to be
+            built. The C/C++ source files are parsed and header targets are built for non-system include directives that
+            have no leading spaces. i.e. #include "filename" starting in column 0.</li>
+            <li>The target is built. If the target is an executable, library, or object, it is built using the
+            transition rules specified in <em>bit.rules</em>. If the target has a <em>build</em> event script, 
+            it is run.</li>
+        </ol>
+
+        <a id="selectingTargets"></a>
+        <h2>Selecting Targets</h2>
+        <p>Bit follows a simple process when selecting the targets to build.</p>
+        <ol>
+            <li>The set of names specified on the bit command line is used as a starting target list. If the name 
+                does not match a target name, the list of targets is search to see if the name matches any targets with
+            a type of that name. All matching targets are added to the list. For example: this allows targets of type
+            <em>clean</em> to be run when <em>bit clean</em> is invoked.</li>
+            <li>Targets that are disabled (<em>enable</em> property evaluates to false) are removed from the list</li>
+            <li>Targets referenced in the <em>depends</em> property are added to the list (recursively)</li>
+            <li>Additional targets are created dynamically for source items to be compiled and include headers</li>
+        </ol>
+        <p>To reiterate, there are thus two paradigms when invoking bit:</p>
+        <ul> 
+            <li><em>bit target ...</em></li>
+            <li><em>bit action ...</em></li>
+        </ul> 
+        <p>When specifying a name that is a target, these must match the target name property. When specifying an action,
+            these must match a target type property.</p>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2013. 
+            All rights reserved. Embedthis Bit, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          'partner-pub-9935546676162772:ysvxxv4n9rx');
+
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+</body>
+</html>

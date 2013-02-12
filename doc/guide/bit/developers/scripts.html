@@ -26,7 +26,7 @@
         <div class="crumbs">
             <a href="../../../index.html">Home</a>
 <!-- EndDsi -->
-             &gt;<a href="index.html">Developer Guide</a>&gt; <b>Scripts</b>
+             &gt;<a href="index.html">Developer Guide</a>&gt; <b>Running Scripts</b>
         </div>
     </div>
     <div class="content">
@@ -48,6 +48,7 @@
                 <li><a href="../../../guide/bit/developers/copying.html">Copying Files</a></li>
                 <li><a href="../../../guide/bit/developers/configuring.html">Configuring a Project</a></li>
                 <li><a href="../../../guide/bit/developers/generating.html">Generating Projects</a></li>
+                <li><a href="../../../guide/bit/developers/samples.html">Bit Samples</a></li>
 
                 <li><a href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Ejscript Language</a></li>
                 <li><a href="http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a></li>
@@ -56,76 +57,218 @@
         </div>
         <div class="contentLeft">
         <a id="scripts"></a>
-        <h1>Scripts</h1>
-        <p>Bit includes a powerful Javascript engine based on the 
-        <a href="http://ejscript.org">Ejscript</a> language environment. This allows fast, and powerful 
-        scripting. Ejscript has an extensive <a
+        <h1>Running Scripts</h1>
+        <p>Bit targets can run scripts at various stages of the processing lifecycle. Scripts can be used to
+            create outputs, or modify the results of standard processing rules.</p>
+
+            <a name="engines"></a>
+        <h2>Script Engines</h2>
+        <p>Scripts can be written to execute in any installed script interpreter. This may be the Unix bash shell, Perl or
+        Ruby.  Bit also includes a powerful Javascript engine based on the 
+            <a href="http://ejscript.org">Ejscript</a> language environment. This allows portable, scalable scripting
+            without needing to create external process. Ejscripts can run portably on Windows and Unix like
+            systems. Ejscript also has an extensive <a
             href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Library</a> of routines that
-        are ideal for building projects.</p>
-        <p>Bit target scripts may be specified three ways:</p>
-        <ul>
-            <li>Shell scripts &mdash; bash for Unix systems</li>
-            <li>Build target scripts &mdash; Ejscript for portable scripts</li>
-            <li>Action target scripts &mdash; Ejscript for portable scripts</li>
-            <li>Long-hand scripts &mdash; Custom script interpreters</li>
-        </ul>
-        <h3>Quoting</h3>
-        <p>First a general note about quoting. Scripts can be expressed on one line or over multiple lines.
-        You can choose whether you use single quotes or double quotes around your script. Inside the script
-        you can then freely use the alternate quote character without needing to back-quote.  If you need 
-        to use the outside quote within the script, quote it with a backslash <em>\</em> character.</p>
-        <p>It is typically best to use single quotes around a shell script so that double quotes can be used inside.
-        For example:</p>
-<pre>
-shell: 'echo "Dont\'t panic"', 
-</pre>
-        <h2>Shell Scripts</h2>
-        <p>Shell scripts can be specified via the target shell property:
+            scale well when building projects without turning into a mess of shell script.</p>
+
+        <a name="low"></a>
+        <h2>Low-Level Scripts</h2>
+        <p>Let us first explain the low-level script form. Then we'll explain the more common convenience methods to
+        express scripts.</p>
+
+        <p>The Bit DOM defines a collection of scripts to run at various stages of the Bit processing 
+        life cycle.  When a specific event is triggered, the corresponding scripts are run. For each event, there can be
+        multiple scripts that are run in-order. Each script has a <em>home</em> directory that becomes the current directory
+        for the script and it has a specified <em>interpreter</em> to execute the script. If unspecified, the default
+        directory is the directory containing the bit file that specified the script. The default interpreter is ejs
+        (Ejscript).</p>
         <pre>
-cleanup: {
-    shell: '
-        date >now.txt 
-        echo hello
-        echo world
-    ',
+'build-complete': {
+    type: 'build',
+    path: 'complete.tmp',
+    scripts: {
+        <b>build</b>: [ 
+            {
+                home: '.',
+                interpreter: 'bash',
+                script: "git pull ",
+            },
+            {
+                home: '.',
+                interpreter: 'ejs',
+                script: " Path('complete.tmp').write('Completed at: ' + Date())",
+            },
+        ],
+    },
 },
 </pre>
-        <p>This script will be run when the named target is invoked.</p>
-        <pre>bit cleanup</pre>
-        <p>If you need a shell script to run when a default build is initiated, see the <a href="longhand">Long-hand
-            Scripts</a> section below.</p>
-        <h2>Action Scripts</h2>
-        <p>Action scripts use the Ejscript (Javascript) language for portable execution on any platform.
-        Bit has an internal Ejscript interpreter and so it can execute actions very quickly without 
-        needing to spawn another process.</p>
-        <p>Action scripts are defined using the <em>action</em> property. For example:</p>
+
+        <p>The target <em>scripts</em> property is a collection that is indexed by an event named for when the script should
+        run. The standard events are:
+        <table title="events">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>preblend</td><td>Fired before blending defaults for a target</td></tr>
+                <tr><td>postblend</td><td>Fired after blending defaults for a target</td></tr>
+                <tr><td>preresolve</td><td>Fired before resolving dependencies for a target</td></tr>
+                <tr><td>postresolve</td><td>Fired after resolving dependencies for a target</td></tr>
+                <tr><td>presource</td><td>Fired before expanding source wildcards and creating object targets</td></tr>
+                <tr><td>postsource</td><td>Fired after expanding source wildcards and creating object targets</td></tr>
+                <tr><td>predependencies</td><td>Fired before processing a target's dependencies</td></tr>
+                <tr><td>postdependencies</td><td>Fired after processing a target's dependencies</td></tr>
+                <tr><td>precompile</td><td>Fired before compiling a source file used by a target</td></tr>
+                <tr><td>postcompile</td><td>Fired after compiling a source file used by a target</td></tr>
+                <tr><td>prebuild</td><td>Fired before building a target</td></tr>
+                <tr><td>postbuild</td><td>Fired after building a target</td></tr>
+            </tbody>
+        </table>
+
+        <p>Here is another example of a shell script that runs just prior to building a library.
 <pre>
-targets: {
-    'generate-doc': {
-        build: "
-            Path('build-state').write('Started at ' + Date())
-        ",
+libglow: {
+    type: 'lib',
+    sources: '*.c',
+    scripts: {
+        prebuild: [ {
+            interpreter: 'bash',
+            script: './build-prep',
+        ],
     }
 }
 </pre>
-        Like shell script targets, actions do not run by for default builds. Rather, they are run when they are explicitly
-        invoked on the command line or another target is invoked that references them as a dependency. 
+        <a name="high"></a>
+        <h2>Higher-Level Scripts</h2>
+        <p>Bit target scripts can also be specified using higher-level, abbreviated forms. These are more
+        convenient and typically used in preference over the low-level forms described above.</p>
+
+        <p>There are three higher level forms:</p>
+        <ol>
+            <li>Shell scripts &mdash; that run when requested using bash for Unix and Cygwin systems</li>
+            <li>Action target scripts &mdash; that run when requested using Ejscript</li>
+            <li>Build target scripts &mdash; that run for default builds using Ejscript</li>
+        </ol>
+
+        <a name="shell"></a>
+        <h2>Shell Scripts</h2>
+        <p>Shell scripts can be easily specified via the target shell property:
+        <pre>
+cleanup: {
+    <b>shell: '
+        date >now.txt 
+        echo hello world
+    '</b>,
+},
+</pre>
+        <p>This translates into the following low-level form. The script runs in the directory containing
+            the bit file, using the <em>bash</em> shell script.</p>
+<pre>
+cleanup: {
+    scripts: {
+        type: 'action',
+        build: [
+            {
+                home: '.',
+                interpreter: 'bash',
+                script: "
+                    date >now.txt 
+                    echo hello world
+                "
+            },
+        ],
+    ',
+},
+</pre>
+        <p>Because the type is set to <em>action</em>, this script will be run when the named target (cleanup) is
+        invoked.</p>
+
+        <pre>bit cleanup</pre>
+
+        <p>If you need a shell script to run when a default build is initiated, use the low-level form and set
+        the target type to <em>build</em> See the <a href="#low">Low-level Scripts</a> section above for details.</p>
+
+        <a name="action"></a>
+        <h2>Action Scripts</h2>
+        <p>An action script runs when explicitly requested. It operates similarly to a shell script except that it uses the
+        Ejscript interpreter for portable scripting.</p>
+        
+        <p>Action scripts are defined using the <em>action</em> property. For example:</p>
+<pre>
+prep: {
+    action: "
+        require ejs.tar
+        let update = Http.fetch('http://example.com/update.tar)
+        let tmp = Path().temp()
+        tmp.write(update)
+        Tar(tmp).extract()
+    ",
+},
+</pre>
+        <p>Like shell script targets, actions do not run by for default builds. Rather, they are run when they are 
+        explicitly invoked on the command line or another target is invoked that references them as a dependency. </p>
+        <p>Note that in Ejscript, quoted literals can span multiple lines. No backquoting at the end of the line is
+        required. Also, semicolon end-of-line terminators are optional.</p> 
+
+        <p>An action script translates into a target with a type of <em>action</em> and an event of <em>build</em>. 
+<pre>
+cleanup: {
+    scripts: {
+        type: 'action',
+        build: [
+            {
+                home: '.',
+                interpreter: 'ejs',
+                script: "
+                    require ejs.tar
+                    let update = Http.fetch('http://example.com/update.tar)
+                    let tmp = Path().temp()
+                    tmp.write(update)
+                    Tar(tmp).extract()
+                "
+            },
+        ],
+    ',
+},
+</pre>
+        
+        <a name="build"></a>
         <h2>Build Scripts</h2>
         <p>Build scripts are a convenient way to express actions that should run for default builds. Build scripts
         use Ejscript and are defined via the <em>build</em> property. For example:</p>
+
+
 <pre>
-'building': {
+building: {
     build: "
         Http().post('http://example.com/buildbot', 'building')
     ",
 }
 </pre>
         <p>When <em>bit</em> is invoked, the script for the <em>building</em> target will be run. When the target runs
-        will be dictated by whether other targets depend upon it. Note that in Ejscript, quoted literals can span multiple 
-        lines. No backquoting at the end of the line is required. Also, Ejscript permits string literals to span multiple
-        lines.</p>
+        will be dictated by whether other targets depend upon it. </p>
+        <p>A build script translates into a target with a type of <em>build</em> and an event of <em>build</em>.</p>
+
+<pre>
+building: {
+    scripts: {
+        type: 'build',
+        build: [
+            {
+                home: '.',
+                interpreter: 'ejs',
+                script: "
+                    Http().post('http://example.com/buildbot', 'building')
+                "
+            },
+        ],
+    ',
+},
+</pre>
+
+        <a name="targetPaths"></a>
         <h3>Target Paths</h3>
-        <p>You can make a build script only run when it is out-of-date by adding a <em>path</em> property for 
+        <p>You can make a build script run only when it is out-of-date by adding a <em>path</em> property for 
         a physical file that will be created by the target. In this way, the target will only be run if the
         designated file does not exist or another target that depends on this target is more up-to-date than the
         file.</p>
@@ -137,74 +280,19 @@ targets: {
     ",
 }
 </pre>
-        <p>When <em>bit generate-doc</em> is run, this generate-documentation script will be run. </p>
-        <a name="longhand"></a>
-        <h2>Long-hand Scripts</h2>
-        <p>The <em>shell</em>, <em>action</em> and <em>build</em> scripts are actually abbreviated ways to express
-        a more generalized, and more powerful underlying target scripts capability. Each target can define scripts that run at various
-        stages of the build lifecycle. The shell, action, and build properties are built atop this facility.</p>
-        <p>The scripts collection is an object hash with properties for life cycle events. When the specific event is
-        triggered, the script is run. For each event, there can be multiple scripts which are run in-order. Each script
-        has a home directory which becomes the current directory for the script. It also specifies the interpreter 
-        to execute the script.
-        
-        <pre>
-'build-complete': {
-    path: 'complete.tmp',
-    type: 'action',
-    scripts: {
-        <b>build</b>: [ 
-            {
-                home: '.',
-                shell: 'ejs',
-                script: "
-                    Path('complete.tmp').write('Completed at: ' + Date())
-                ",
-            },
-        ],
-    },
-},
-</pre>
-        <p>Note that the <em>build</em> and <em>action</em> scripts translate under-the-hood into this long form.
-        An action script becomes a target with a type of <em>action</em> and an event of <em>build</em>. A build script
-        becomes a target with a type of <em>build</em> and an event of <em>build</em>.</p>
-        <p>The <em>shell</em> property specify the name of the interpreter to use and will typically be set to <em>ejs</em> for the
-        internal Ejscript interpreter or <em>bash</em> for an external Unix shell interpreter. The <em>home</em> property
-        specifies the home directory in which to run the script which defaults to the directory in which the bit file resides.</p>
-        <p>The target <em>scripts</em> property is a collection indexed by a by when the script should run. This will
-        be either:
-        <table class="full">
-        <thead>
-            <th>When</th><th>Description</th>
-        </thead>
-        <tbody>
-            <tr><td>preblend</td><td>Run before blending defaults and internal properties into the target</td></tr>
-            <tr><td>preresolve</td><td>Run before resolving the target's dependent libraries</td></tr>
-            <tr><td>postresolve</td><td>Run after resolving the target's dependent libraries</td></tr>
-            <tr><td>presource</td><td>Run before expanding the sources property wildcards</td></tr>
-            <tr><td>prebuild</td><td>Run just before building the target</td></tr>
-            <tr><td>postblend</td><td>Run after blending defaults into the target properties</td></tr>
-            <tr><td>build</td><td>Run when the target should be built </td></tr>
-            <tr><td>postconfig</td><td>Run after configuration but before generating the bit.h header</td></tr>
-            <tr><td>predependencies</td><td>Run before the dependencies for a target are built</td></tr>
-            <tr><td>precompile</td><td>Run before a source file is compiled</td></tr>
-        </tbody>
-        </table>
-        <p>Note that multiple scripts can be specified for each lifecycle phase.</p>
-        <p>Here is another example of a shell script that runs just prior to building a library.
+        <a name="quoting"></a>
+        <h2>Quoting</h2>
+        <p>First a general note about quoting. Scripts can be expressed on one line or over multiple lines.
+        You can choose whether you use single quotes or double quotes around your script. Inside the script
+        you can then freely use the alternate quote character without needing to back-quote.  If you need 
+        to use the outside quote within the script, quote it with a backslash <em>\</em> character.</p>
+        <p>It is typically best to use single quotes around a shell script so that double quotes can be used inside.
+        For example:</p>
 <pre>
-libglow: {
-    type: 'lib',
-    sources: '*.c',
-    scripts: {
-        prebuild: [ {
-            shell: 'bash',
-            script: './build-prep',
-        ],
-    }
-}
+shell: 'echo "Dont\'t panic"', 
 </pre>
-        <h2>Useful Scripting Bits</h2>
+        <a name="useful"></a>
+        <h2>Useful Ejscripting Bits</h2>
         <p>Here are some useful bits of Ejscript to use in your scripts:</p>
         <h3>List of Files</h3>
         <p>Get a list of all files in all subdirectories</h3>
@@ -230,8 +318,13 @@ print('Dirname', p.dirname)
 print('Extension', p.extension)
 print('Joining', p.dirname.join('other.c'))
 </pre>
-        <p>See the Ejscript <a href="http://ejscript.org/products/ejs/doc-2/api/ejscript/Path.html">Path</a> class for full 
-            details. Similarly, for URLs, see:
+
+        <h3>Fetch from the Web</h3>
+<pre>
+let data = Http.fetch('http://example.com/something.html')
+</pre>
+        <p>See the Ejscript <a href="http://ejscript.org/products/ejs/doc-2/api/ejscript/Path.html">Path</a> class for 
+        full details of manipulating paths. Similarly, for URLs, see:
             <a href="http://ejscript.org/products/ejs/doc-2/api/ejscript/Uri.html">URI</a> class, and for Http requests, 
             see the <a href="http://ejscript.org/products/ejs/doc-2/api/ejscript/Http.html">Http</a> class.</p>
         </div>

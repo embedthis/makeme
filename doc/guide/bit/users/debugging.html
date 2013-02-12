@@ -84,7 +84,7 @@
    [Compile] src/deps/mpr/mprSsl.c
        [Run] /usr/bin/clang -c -o macosx-x64-release/obj/mprSsl.o -arch x86_64 \
              -Wall -Wno-deprecated-declarations -O3 -Wno-unused-result \
-             -Wshorten-64-to-32 -DEMBEDTHIS=1 -Imacosx-x64-release/inc \
+             -Wshorten-64-to-32 -Imacosx-x64-release/inc \
              src/deps/mpr/mprSsl.c
       [Link] libmprssl
 </pre>

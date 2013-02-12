@@ -523,7 +523,7 @@ div.note {
 
 tt, em {
     font-weight: bold;
-    font-size: 110%;
+    font-size: 100%;
     color: #AA0000;
 	font-family: Consolas, Monaco, Courier, Monaco, Courier, Courier New, Courier, monospace; 
 }

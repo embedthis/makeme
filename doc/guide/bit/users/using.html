@@ -63,7 +63,6 @@
         <a href="http://en.wikipedia.org/wiki/Autoconf">autoconf</a> utilities. Bit manages the building of
         programs and products by simply and efficiently determining which pieces have been updated and thus which
         components need to be rebuilt. It easily handles the direct compilation and generation of projects.</p>
-
         <a id="simple"></a>
         <h2>Simple Bit File</h2>
         <p>A bit file is a Javascript file with a <em>.bit</em> extension that invokes Bit.load() to process a set of build
@@ -101,17 +100,14 @@ Bit.load({
         <pre>bit build</pre>
         <p>The <em>compile</em> target is an alias for <em>build</em> for those wedded to <em>make</em> style 
         commands.</p>
-
         <a id="rebuild"></a>
         <h2>Rebuild</h2>
         <p>To rebuild everything including  all built tagets and intermediaries, run:</p>
         <pre>bit rebuild</pre> 
-
         <a id="clean"></a>
         <h2>Cleaning</h2>
         <p>To remove all built tagets and intermediaries, run:</p>
         <pre>bit clean</pre> 
-
         <a id="errors"></a>
         <h2>Seeing Errors</h3>
         <p>By default, bit is fairly terse. It does not spew endless command lines that scroll off the screen.
@@ -147,7 +143,7 @@ Command: /usr/bin/clang -c -o macosx-x64-debug/obj/mpr.o -arch x86_64 -Wall
    [Compile] src/deps/mpr/mprSsl.c
        [Run] /usr/bin/clang -c -o macosx-x64-release/obj/mprSsl.o -arch x86_64 \
              -Wall -Wno-deprecated-declarations -O3 -Wno-unused-result \
-             -Wshorten-64-to-32 -DEMBEDTHIS=1 -Imacosx-x64-release/inc \
+             -Wshorten-64-to-32 -Imacosx-x64-release/inc \
              src/deps/mpr/mprSsl.c
       [Link] libmprssl
 </pre>

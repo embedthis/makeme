@@ -59,25 +59,19 @@
 <!-- EndDsi -->
         </div>
         <div class="contentLeft">
-
             <h1>Using Generated Makefiles</h1>
             <p>If a project uses Bit to generate projects, this document may be useful to understand how to use
             and tailor the Makefile to suit your needs.</p>
-
             <p>Bit will generate complete project files for building via: make, nmake, Visual Studio, Xcode or 
                 plain shell scripts. Developers can then include these projects to building their code on specific
                 platforms.</p>
-
             <h2>Platform Makefiles</h2>
-
             <p>Bit eschews trying to create Makefiles that will work on all the possible platforms, rather it generates
                 simple, fast, non-recursive Makefiles that run quickly and simply for the dominant platforms: Linux, Mac OSX,
                 Windows, and BSD. Developers can easily extend for other platforms if required.</p>
-
             <p>Developers typically deliver these per-platform Makefiles and IDE projects under the a <em>projects</em>
             directory and provide a top-level Makefile that detects your operating system and CPU architecture and
             then invokes the relevant per-platform Makefile for your system. For example:</p>
-
 <pre>$ <b>make</b>
 make -f projects/appweb-macosx-default.mk all
 </pre>
@@ -88,25 +82,20 @@ make -f projects/appweb-macosx-default.mk all
             <pre>$ <b>make</b>
 nmake -f projects\appweb-windows.nmake
 </pre>
-
             <a name="modifying"></a>
             <h2>Modifying the Makefile Defaults</h2>
             <p>Generated Makefiles to not require the use of a configure program.
             Rather, you supply configuration options directly to Make. These options override default values defined in 
             the platform makefile. For example:
-
             <pre>$ make <b>BIT_PACK_SQLITE=0</b> </pre>
-
             <p>By defining the make variables such as CC and CFLAGS, you can modify the compiler options. This is the
             technique used when cross-compiling.
-
             <a id="cross"></a>
             <h2 class="section">Cross Compiling with Make</h2>
             <p>Building a product for a platform different to that of the local system is called <em>cross compiling</em>.
             Sometimes this compiling is just for a different instruction set (say x64 instead of x86). Other
             times, it is for a completely different operating system and/or CPU architecture. In such cases, a
             cross-compiler is typically required to build for the target platform.</p>
-
             <p>Appweb supplies makefiles for Linux, Windows, FreeBSD, MAC OSX and VxWorks. To cross compile, you invoke 
             the relevant project makefile and pass the required CPU architecture as a make variable. For example, to 
             cross compile for VxWorks on ARM:
@@ -118,10 +107,8 @@ make -f projects/appweb-vxworks-default.mk ARCH=arm PROFILE=debug
             manner, make can be invoked multiple times, once for each target platform and the results will be captured
             in separate platform output directories. Some of the supported architectures for the ARCH field are:
             arm, mips, ppc, x64 and x86. The PROFILE is a descriptive name chosen by you for your configuration.</p>
-
             <p>If there is not a makefile for your  target operating system, you may be able to copy the closest makefile and
             edit to suit your target platform.</p>
-
             <a name="toolchain"></a>
             <h3>Specifying a Toolchain</h3>
             <p>You may need to specify where Make can locate your cross-compiler and other tools.
@@ -131,7 +118,6 @@ make -f projects/appweb-vxworks-default.mk ARCH=arm PROFILE=debug
 make CC=/opt/bin/ccarm.exe LD=/opt/bin/ccarm.exe ARCH=arm PROFILE=release
     -f projects/appweb-vxworks-default.mk 
 </pre>
-
         <p>To learn more, read about <a href="cross.html">Cross Compiling with Bit</a>.</p>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->

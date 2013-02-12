@@ -564,7 +564,7 @@ ${OUTPUTS}
             cmd += target['generate-xcode'] || target['generate-sh'] || target['generate']
             if (!cmd) {
                 if (target.scripts && target.scripts.build) {
-                    shell = '"/usr/bin/env ' + target.scripts.build[0].shell + '"'
+                    shell = '"/usr/bin/env ' + target.scripts.build[0].interpreter + '"'
                     cmd = target.scripts.build[0].script
                 }
             }

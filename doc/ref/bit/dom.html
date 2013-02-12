@@ -26,7 +26,7 @@
         <div class="crumbs">
             <a href="../../index.html">Home</a>
 <!-- EndDsi -->
-             &gt;<a href="index.html">User Guide</a>&gt; <b>Bit</b>
+             &gt;<a href="index.html">User Guide</a>&gt; <b>Bit File DOM</b>
         </div>
     </div>
     <div class="content">
@@ -39,7 +39,8 @@
 <!-- BeginDsi "dsi/refSeeAlso.html" -->
         <h1>See Also</h1>
         <ul>
-            <li><a href="../../ref/bit/bitfiles.html">Processing Bit Files</a></li>
+            <li><a href="../../ref/bit/syntax.html">Bit File Syntax</a></li>
+            <li><a href="../../ref/bit/dom.html">Bit File DOM</a></li>
             <li><a href="../../ref/bit/commandline.html">Bit Command Line</a></li>
             <li><a href="../../ref/bit/events.html">Bit Events</a></li>
             <li><a href="../../ref/bit/targets.html">Bit Targets</a></li>
@@ -51,69 +52,51 @@
         </div>
         <div class="contentLeft">
         <a id="bitFiles"></a>
-        <h2 class="section">Processing Bit Files</h2>
-        <p>A bit file is a JavaScript file that invokes <em>Bit.load</em> to supply build instructions. The argument to
-        Bit.load is a bit object literal. Typically this is expressed as a JavaScript object literal, but it could be
-        constructed in other ways via JavaScript code. A typically project may load many bit files that are blended
-        together into a single, unified view of project. This view is held in a global object called <em>bit</em>. Note
-        this is lower case. Use the 'bit --dump' command line option to save the unified project view in a dump file
-        that can be viewed in any source editor.</p>
-        <h3>Blending Bit Files</h3>
-        <p>Before Bit loads a bit file, it loads some standard definitions for the current operating system. These are
-        loaded from the bit installation directory or from the <em>bits</em> directory if the bit configuration has been
-        imported (see the --import switch). Bit files may specify other bit files to load via the <em>blend</em>
-        collection. For example:
-        <pre>
-Bit.load({
-    blend: [
-        'another.bit',
-    ],
-})
+        <h1>Bit File DOM</h1>
+        <p>The Bit DOM allows you to access and manipulate the entire Bit model for how to build a project. Every 
+        target, rule and dependency are all stored and exposed via the Bit DOM.</p>
+       
+        <p>The DOM is created by loading one or more Bit files that provide portions of the DOM. Some of these Bit
+        files are provided internally by Bit to define operating system specific semantics and one or more are provided
+        by the user. All are blended into a single DOM object.</p>
+        <h2>DOM Root</h2>
+        <p>The root of the Bit DOM is a singleton global object called <em>bit</em>. From it, all properties of the DOM
+        are accessible.  To see the entire DOM for your project, run: </p>
+<pre>$ <b>bit --dump</b>
+[Dump] Save Bit DOM to: macosx-x64-debug.dmp
 </pre>
-        <a id="loadOrder"></a>
-        <h3>Load Order</h3>
-        <p>Bit files are loaded depth-first. This means that bit files specified in the blend[] collection will be
-        loaded first before the contents of the bit file that referenced them.  Run bit with the --verbose switch to see
-        what bit files are loaded and in what order.</p>
-        <a id="propertyBlending"></a>
-        <h3>Property Blending and Inheritance</h3>
-        <p>When a user bit literal is loaded, it is blended with existing bit configuration from previously loaded bit
-        files by overwriting or augmenting prior definitions. Bit facilitates this by extending the standard JSON syntax 
-        with blend prefixes: <em>+</em>, <em>-</em> and <em>=</em>. For example:
-        <pre>
-Bit.load({
-    defaults: {
-        '+defines': [ '-DMY_FEATURE=1' ],
-        '-compiler': [ '-Wall' ],
-    },
-    settings: {
-        title: "My App",
-    },
-})
-</pre>
-        <p>The <em>+defines</em> property will add <em>-DMY_FEATURE=1</em> to the list of compiler definitions. the
-        <em>-compiler</em> property will subtract <em>-Wall</em> from the list of compiler switches. Using a <em>=</em>
-        prefix will overwrite an existing property definition. The default is to overwrite property definitions. </p>
-        <p>The property prefixes are used for simple property key/value pairs. Objects and arrays always have their properties
-        blended (added).</p> 
-        <a id="tokenExpansion"></a>
-        <h3>Property Token Expansion</h3>
-        <p>To make it easy to dynamically compute file paths, strings have tokens automatically expanded. Tokens take
-the form: "${TOKEN}". For example:
-<pre>
-myTarget: {
-    enable: "'${OS}' == 'linux',
-    type: 'exe',
-    sources: [ '*.c' ],
-},
-</pre>
-        <p>Tokens are expanded using values from the <em>bit</em> global object. For example: OS is expanded using the
-        value of the bit.globals.OS property. Token expansion uses three sets of values:</p>
-        <ul>
-            <li>Top level bit.* properties</li>
-            <li>bit.globals.* properties</li>
-            <li>Rule specific tokens when compiling or linking</li>
-        </ul>
+        
+        <a id="propertyCollections"></a>
+        <h2>Top Level &mdash; bit.*</h2>
+        <p>Here is a non-exhaustive description of the important top-level Bit property collections. 
+        <table title="top-level collections">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>blend</td><td>Bit files to blend</td></tr>
+                <tr><td>customize</td><td>Optional bit file to load after fully loading all blended bit files</td></tr>
+                <tr><td>defaults</td><td>Default properties to be inherited by all targets</td></tr>
+                <tr><td>dir</td><td>Directories</td></tr>
+                <tr><td>env</td><td>Environment variables to set when compiling and linking</td></tr>
+                <tr><td>ext</td><td>File extensions</td></tr>
+                <tr><td>globals</td><td>Global values to use in property token expansion</td></tr>
+                <tr><td>internal</td><td>Default properties to be inherited by only the targets in the same bit file</td></tr>
+                <tr><td>modules</td><td>List of scripts or compiled scripts to pre-load</td></tr>
+                <tr><td>options</td><td>Supplied command line options</td></tr>
+                <tr><td>packs</td><td>Collection of third-party pack definitions after configuration</td></tr>
+                <tr><td>platform</td><td>Description of the current platform. Has properties for operating system
+                        and CPU architecture.</td></tr>
+                <tr><td>platforms</td><td>List of platforms to build.</td></tr>
+                <tr><td>prefixes</td><td>Installation directory prefixes</td></tr>
+                <tr><td>profiles</td><td>Build profiles. Standard profiles are: debug and release</td></tr>
+                <tr><td>rules</td><td>Command rules for compiling, building libraries and executables</td></tr>
+                <tr><td>settings</td><td>Project top-level settings. This includes name, version, description etc.</td></tr>
+                <tr><td>targets</td><td>Targets to build. Each target is its own collection of properties</td></tr>
+                <tr><td>usage</td><td>Additional usage message to emit for bit command line errors</td></tr>
+            </tbody>
+        </table>
+        <h2>Globals &mdash; bit.globals.*</h2>
         <p>The following bit.globals.* are defined for use by tokens:</p>
         <table title="globals">
             <thead>
@@ -141,36 +124,7 @@ myTarget: {
             </tbody>
         </table>
         
-        <a id="propertyCollections"></a>
-        <h3>Top Level Property Collections</h3>
-        <p>Here is a non-exhaustive description of the important top-level Bit property collections:</p>
-        
-        <table title="top-level collections">
-            <thead>
-                <tr><th>Name</th><th>Description</th>
-            </thead>
-            <tbody>
-                <tr><td>defaults</td><td>Default properties to be inherited by all targets</td></tr>
-                <tr><td>dir</td><td>Directories</td></tr>
-                <tr><td>ext</td><td>File extensions</td></tr>
-                <tr><td>globals</td><td>Global values to use in property token expansion</td></tr>
-                <tr><td>internal</td><td>Default properties to be inherited by only the targets in the same bit file</td></tr>
-                <tr><td>options</td><td>Supplied command line options</td></tr>
-                <tr><td>platform</td><td>Description of the current platform. Has properties for operating system
-                        and CPU architecture.</td></tr>
-                <tr><td>prefixes</td><td>Installation directory prefixes</td></tr>
-                <tr><td>rules</td><td>Command rules for compiling, building libraries and executables</td></tr>
-                <tr><td>packs</td><td>Discovered extension packs</td></tr>
-                <tr><td>blend</td><td>Bit files to blend</td></tr>
-                <tr><td>customize</td><td>Optional bit file to load after fully loading all blended bit files</td></tr>
-                <tr><td>settings</td><td>Project top-level settings. This includes name, version, description etc.</td></tr>
-                <tr><td>usage</td><td>Additional usage message to emit for bit command line errors</td></tr>
-                <tr><td>modules</td><td>Ejscript modules to load</td></tr>
-                <tr><td>profiles</td><td>Build profiles. Standard profiles are: debug and release</td></tr>
-                <tr><td>targets</td><td>Targets to build. Each target is its own collection of properties</td></tr>
-            </tbody>
-        </table>
-        <h3>Platform Collection</h3>
+        <h2>Platform Collection &mdash; bit.platform.*</h2>
         <p>The platform collection defines properties for:
         <table title="platform collection">
             <thead>
@@ -183,7 +137,7 @@ myTarget: {
                 <tr><td>profile</td><td>Build profile selected: 'debug', 'release', ...</td></tr>
             </tbody>
         </table>
-        <h3>Packs Collection</h3>
+        <h2>Packs Collection &mdash; bit.packs.*</h2>
         <p>The packs collection defines a collection for each extension pack that bit examined when configuring. Each
         pack will have properties for: 
         <table title="packs collection">
@@ -204,7 +158,7 @@ myTarget: {
                 <tr><td>imports</td><td>Files to import from this pack before building</td></tr>
             </tbody>
         </table>
-        <h3>Settings Collection</h3>
+        <h2>Settings Collection &mdash; bit.settings.*</h2>
         <p>The settings collection specifies the top level project/product names. It is required in the main.bit file.</p>
         <table title="settings">
             <thead>
@@ -222,7 +176,7 @@ myTarget: {
                 <tr><td>without-all</td><td>List of packs to disable when doing '--without all configure'</td></tr>
             </tbody>
         </table>
-        <h3>Targets Collection</h3>
+        <h2>Targets Collection &mdash; bit.targets.*</h2>
         <table title="targets">
             <thead>
                 <tr><th>Name</th><th>Description</th>
@@ -255,51 +209,6 @@ myTarget: {
                 <tr><td>platforms</td><td>Platforms for which this target should be built. Set to OS-ARCH or 'local'</td></tr>
             </tbody>
         </table>
-        <a id="buildingSequence"></a>
-        <h3>Building Sequence</h3>
-        <p>Bit builds targets according to a defined life cycle.
-        <ul>
-            <li>A bit object is created and initialized with the standard and per-O/S definitions</li>
-            <li>The start.bit file is loaded</li>
-            <li>All bit files referenced in the start.bit blend[] collection are loaded. This continues recursively,
-                depth first.</li>
-            <li>The next bit files referenced in the start.bit platform[] collection is selected. Each of the steps below
-                are applied for each platform to build.</li>
-            <li>The platform bit file is loaded and all referenced bit files in blend[] are loaded depth-first. After
-                loading each script.</li>
-            <li>The <em>dir</em> and <em>bit.global</em> properties are initialized</li>
-            <li>Targets are enabled or disabled depending on their <em>enable</em> property expression</li>
-            <li>A list of top-level targets to build is created based on the bit commandline and target dependencies.
-            See below <a href="#selectingTargets">Selecting Targets</a> for more details.</li>
-            <li>Those targets to build are processed and their properties are blended with the defaults/internal
-                properties</li>
-            <li>The target dependencies are resolved and added to the target list</li>
-            <li>The target sources have wild-cards expanded. Targets are dynamically created for all objects to be
-            built. The C/C++ source files are parsed and header targets are built for non-system include directives that
-            have no leading spaces. i.e. #include "filename" starting in column 0.</li>
-            <li>The target is built. If the target is an executable, library, or object, it is built using the
-                transition rules specified in bit.rules. If the target has a <em>build</em> event script, it is run.</li>
-        </ul>
-        <a id="selectingTargets"></a>
-        <h3>Selecting Targets</h3>
-        <p>Bit follows a simple process when selecting the targets to build.</p>
-        <ol>
-            <li>The set of names specified on the bit command line is used as a starting target list. If the name 
-                does not match a target name, the list of targets is search to see if the name matches any targets with
-            a type of that name. All matching targets are added to the list. For example: this allows targets of type
-            <em>clean</em> to be run when <em>bit clean</em> is invoked.</li>
-            <li>Targets that are disabled (<em>enable</em> property evaluates to false) are removed from the list</li>
-            <li>Targets referenced in the <em>depends</em> property are added to the list (recursively)</li>
-            <li>Additional targets are created dynamically for source items to be compiled and include headers</li>
-        </ol>
-        <p>To reiterate, there are thus two paradigms when invoking bit:</p>
-        <ul> 
-            <li><em>bit target ...</em></li>
-            <li><em>bit action ...</em></li>
-        </ul> 
-        <p>When specifying a name that is a target, these must match the target name property. When specifying an action,
-            these must match a target type property.</p>
-        
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->

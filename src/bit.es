@@ -1005,13 +1005,12 @@ public class Bit {
             o['+modules'][i] = home.join(o['+modules'][i])
         }
         //  TODO Functionalize
-        //  TODO add support for shell
         if (o.defaults) {
             rebase(home, o.defaults, 'includes')
             rebase(home, o.defaults, '+includes')
             for (let [when,item] in o.defaults.scripts) {
                 if (item is String) {
-                    o.defaults.scripts[when] = [{ home: home, shell: 'ejs', script: item }]
+                    o.defaults.scripts[when] = [{ home: home, interpreter: 'ejs', script: item }]
                 } else {
                     item.home ||= home
                 }
@@ -1022,7 +1021,7 @@ public class Bit {
             rebase(home, o.internal, '+includes')
             for (let [when,item] in o.internal.scripts) {
                 if (item is String) {
-                    o.internal.scripts[when] = [{ home: home, shell: 'ejs', script: item }]
+                    o.internal.scripts[when] = [{ home: home, interpreter: 'ejs', script: item }]
                 } else {
                     item.home ||= home
                 }
@@ -1054,7 +1053,7 @@ public class Bit {
             //  TODO - functionalize
             for (let [when,item] in target.scripts) {
                 if (item is String) {
-                    item = { shell: 'ejs', script: item  }
+                    item = { interpreter: 'ejs', script: item  }
                     target.scripts[when] = [item]
                     item.home ||= home
                 } else if (item is Array) {
@@ -1070,7 +1069,7 @@ public class Bit {
                 target.type ||= 'build'
                 target.scripts ||= {}
                 target.scripts['build'] ||= []
-                target.scripts['build'] += [{ home: home, shell: 'ejs', script: target.build }]
+                target.scripts['build'] += [{ home: home, interpreter: 'ejs', script: target.build }]
                 delete target.build
             }
             if (target.action != undefined) {
@@ -1081,15 +1080,19 @@ public class Bit {
                 target.type ||= 'action'
                 target.scripts ||= {}
                 target.scripts['build'] ||= []
-                target.scripts['build'] += [{ home: home, shell: 'ejs', script: target.action, ns: ns }]
+                target.scripts['build'] += [{ home: home, interpreter: 'ejs', script: target.action, ns: ns }]
                 delete target.action
             }
+            //  DEPRECATED
             if (target.shell) {
+                target.interpreter = target.shell
+            }
+            if (target.interpreter) {
                 target.type ||= 'action'
                 target.scripts ||= {}
                 target.scripts['build'] ||= []
-                target.scripts['build'] += [{ home: home, shell: 'bash', script: target.shell }]
-                delete target.shell
+                target.scripts['build'] += [{ home: home, interpreter: 'bash', script: target.interpreter }]
+                delete target.interpreter
             }
             /*
                 Blend internal for only the targets in this file
@@ -1601,7 +1604,7 @@ public class Bit {
             delete o.blend
             let path = Path(currentPlatform + '.dmp')
             path.write(serialize(o, {pretty: true, commas: true, indent: 4, quotes: false}))
-            trace('Dump', 'Combined Bit files to: ' + path)
+            trace('Dump', 'Save Bit DOM to: ' + path)
         }
     }
 
@@ -1982,6 +1985,7 @@ public class Bit {
                     makeDepends(objTarget)
                 }
             }
+            runTargetScript(target, 'postsource')
         }
     }
 
@@ -2170,10 +2174,12 @@ public class Bit {
                 buildTarget(dep)
             }
         }
+        runTargetScript(target, 'postdependencies')
         if (target.message) {
             trace('Info', target.message)
         }
         try {
+            runTargetScript(target, 'prebuild')
             if (target.type == 'lib') {
                 if (target.static) {
                     buildStaticLib(target)
@@ -2193,6 +2199,7 @@ public class Bit {
             } else if (target.type == 'build' || (target.scripts && target.scripts['build'])) {
                 buildScript(target)
             }
+            runTargetScript(target, 'postbuild')
         } catch (e) {
             throw new Error('Building target ' + target.name + '\n' + e)
         }
@@ -2211,8 +2218,6 @@ public class Bit {
         if (options.diagnose) {
             App.log.debug(3, "Target => " + serialize(target, {pretty: true, commas: true, indent: 4, quotes: false}))
         }
-        runTargetScript(target, 'prebuild')
-
         let transition = target.rule || 'exe'
         let rule = bit.rules[transition]
         if (!rule) {
@@ -2254,7 +2259,6 @@ public class Bit {
         if (options.diagnose) {
             App.log.debug(3, "Target => " + serialize(target, {pretty: true, commas: true, indent: 4, quotes: false}))
         }
-        runTargetScript(target, 'prebuild')
         let transition = target.rule || 'shlib'
         let rule = bit.rules[transition]
         if (!rule) {
@@ -2298,7 +2302,6 @@ public class Bit {
         if (options.diagnose) {
             App.log.debug(3, "Target => " + serialize(target, {pretty: true, commas: true, indent: 4, quotes: false}))
         }
-        runTargetScript(target, 'prebuild')
         let transition = target.rule || 'lib'
         let rule = bit.rules[transition]
         if (!rule) {
@@ -2416,6 +2419,7 @@ public class Bit {
                 }
             }
         }
+        runTargetScript(target, 'postcompile')
     }
 
     function buildResource(target) {
@@ -2425,8 +2429,6 @@ public class Bit {
         if (options.diagnose) {
             App.log.debug(3, "Target => " + serialize(target, {pretty: true, commas: true, indent: 4, quotes: false}))
         }
-        runTargetScript(target, 'prebuild')
-
         let ext = target.path.extension
         for each (file in target.files) {
             target.vars.IN = file.relative
@@ -2469,8 +2471,6 @@ public class Bit {
             whySkip(target.path, 'is up to date')
             return
         }
-        runTargetScript(target, 'prebuild')
-
         for each (let file: Path in target.files) {
             /* Auto-generated headers targets for includes have file == target.path */
             if (file == target.path) {
@@ -2519,9 +2519,7 @@ public class Bit {
         if (options.diagnose) {
             App.log.debug(3, "Target => " + serialize(target, {pretty: true, commas: true, indent: 4, quotes: false}))
         }
-        runTargetScript(target, 'prebuild')
         setRuleVars(target, target.home)
-
         let prefix, suffix
         if (generating == 'sh' || generating == 'make') {
             prefix = 'cd ' + target.home.relative
@@ -2538,7 +2536,7 @@ public class Bit {
             prefix = suffix = ''
         }
         if (generating == 'sh') {
-            let cmd = target['generate-sh'] || target.shell
+            let cmd = target['generate-sh'] || target.interpreter
             if (cmd) {
                 cmd = cmd.trim()
                 cmd = cmd.replace(/\\\n/mg, '')
@@ -2893,7 +2891,6 @@ public class Bit {
 
     /*
         Run an event script in the directory of the bit file
-        When values used are: build, postblend, postresolve, presource, prebuild, action
      */
     public function runTargetScript(target, when) {
         if (!target.scripts) return
@@ -2904,8 +2901,8 @@ public class Bit {
             }
             global.TARGET = bit.target = target
             try {
-                if (item.shell != 'ejs') {
-                    runShell(target, item.shell, item.script)
+                if (item.interpreter != 'ejs') {
+                    runShell(target, item.interpreter, item.script)
                 } else {
                     let script = expand(item.script).expand(target.vars, {fill: ''})
                     script = 'require ejs.unix\n' + script
@@ -2935,14 +2932,14 @@ public class Bit {
     function setShellEnv(target, script) {
     }
 
-    function runShell(target, shell, script) {
+    function runShell(target, interpreter, script) {
         let lines = script.match(/^.*$/mg).filter(function(l) l.length)
         let command = lines.join(';')
         strace('Run', command)
-        let shell = Cmd.locate(shell)
+        let interpreter = Cmd.locate(interpreter)
         let cmd = new Cmd
         setShellEnv(target, cmd)
-        cmd.start([shell, "-c", command.toString().trimEnd('\n')], {noio: true})
+        cmd.start([interpreter, "-c", command.toString().trimEnd('\n')], {noio: true})
         if (cmd.status != 0 && !options['continue']) {
             throw 'Command failure: ' + command + '\nError: ' + cmd.error
         }

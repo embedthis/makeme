@@ -235,7 +235,7 @@ targets {
         same bit file. For example:</p>
 <pre>
 defaults: {
-    '+defines': [ '-DTUNE=SPEED ],
+    '+defines': [ 'TUNE=SPEED ],
     '+libraries': [ 'math' ],
 }
 </pre>
@@ -275,7 +275,7 @@ Bit.load({
         <pre>
 Bit.load({
     defaults: {
-        '+defines': [ '-DMY_FEATURE=1' ],
+        '+defines': [ 'MY_FEATURE=1' ],
         '-compiler': [ '-Wall' ],
     },
     settings: {
@@ -283,7 +283,7 @@ Bit.load({
     },
 })
 </pre>
-        <p>The <em>+defines</em> property will add <em>-DMY_FEATURE=1</em> to the list of compiler definitions. the
+        <p>The <em>+defines</em> property will add <em>MY_FEATURE=1</em> to the list of compiler definitions. the
         <em>-compiler</em> property will subtract <em>-Wall</em> from the list of compiler switches. Using a <em>=</em>
         prefix will overwrite an existing property definition. The default is to overwrite property definitions. </p>
         <p>The property prefixes are used for simple property key/value pairs. Objects and arrays always have their properties
@@ -856,7 +856,7 @@ Bit.load({
             /* Export these headers to the 'platform/inc' directory */
             headers:     [ 'rocket/rocket.h' ],
             /* Use these defines */
-            '+defines':  [ '-DION_DRIVE', ],
+            '+defines':  [ 'ION_DRIVE', ],
             /* Search this directory for includes */
             '+includes': [ 'rocket', ],
             /* Add these compiler switches */
