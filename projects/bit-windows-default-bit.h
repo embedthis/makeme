@@ -122,7 +122,7 @@
     #define BIT_TUNE "speed"
 #endif
 #ifndef BIT_VERSION
-    #define BIT_VERSION "0.8.0"
+    #define BIT_VERSION "0.8.1"
 #endif
 #ifndef BIT_WITHOUT_ALL
     #define BIT_WITHOUT_ALL "dsi,est,man,man2html"
@@ -148,7 +148,7 @@
     #define BIT_APP_PREFIX "/usr/local/lib/bit"
 #endif
 #ifndef BIT_VAPP_PREFIX
-    #define BIT_VAPP_PREFIX "/usr/local/lib/bit/0.8.0"
+    #define BIT_VAPP_PREFIX "/usr/local/lib/bit/0.8.1"
 #endif
 #ifndef BIT_BIN_PREFIX
     #define BIT_BIN_PREFIX "/usr/local/bin"
@@ -181,7 +181,7 @@
     #define BIT_CACHE_PREFIX "/var/cache/bit"
 #endif
 #ifndef BIT_SRC_PREFIX
-    #define BIT_SRC_PREFIX "/usr/local/src/bit-0.8.0"
+    #define BIT_SRC_PREFIX "/usr/local/src/bit-0.8.1"
 #endif
 
 /* Suffixes */
@@ -220,10 +220,10 @@
     #define BIT_MINOR_VERSION 8
 #endif
 #ifndef BIT_PATCH_VERSION
-    #define BIT_PATCH_VERSION 0
+    #define BIT_PATCH_VERSION 1
 #endif
 #ifndef BIT_VNUM
-    #define BIT_VNUM 00
+    #define BIT_VNUM 01
 #endif
 
 /* Packs */

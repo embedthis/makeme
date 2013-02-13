@@ -3,7 +3,7 @@
 #
 
 PRODUCT         = bit
-VERSION         = 0.8.0
+VERSION         = 0.8.1
 BUILD_NUMBER    = 0
 PROFILE         = default
 PA              = $(PROCESSOR_ARCHITECTURE)
@@ -310,7 +310,7 @@ $(CONFIG)\bin\bit.exe: \
 
 version: 
 	cd bits
-	@echo 0.8.0-0
+	@echo 0.8.1-0
 	cd ..
 
 deploy: compile

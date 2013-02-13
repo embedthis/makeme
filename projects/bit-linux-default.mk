@@ -3,7 +3,7 @@
 #
 
 PRODUCT         := bit
-VERSION         := 0.8.0
+VERSION         := 0.8.1
 BUILD_NUMBER    := 0
 PROFILE         := default
 ARCH            := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
@@ -303,7 +303,7 @@ $(CONFIG)/bin/bit: \
 	$(CC) -o $(CONFIG)/bin/bit $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/bit.o -lejs -lhttp -lmpr $(LIBS) -lpcre -lejs -lhttp -lmpr -lpthread -lm -lrt -ldl -lpcre $(LDFLAGS)
 
 version: 
-	@cd bits; echo 0.8.0-0 ; cd ..
+	@cd bits; echo 0.8.1-0 ; cd ..
 
 deploy: compile
 	mkdir -p $(BIT_VAPP_PREFIX)/bin $(BIT_VAPP_PREFIX)/man/man1

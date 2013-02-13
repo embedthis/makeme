@@ -3,7 +3,7 @@
 #
 
 PRODUCT         := bit
-VERSION         := 0.8.0
+VERSION         := 0.8.1
 BUILD_NUMBER    := 0
 PROFILE         := default
 ARCH            := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
@@ -130,7 +130,7 @@ $(CONFIG)/obj/estLib.o: \
 $(CONFIG)/bin/libest.dylib: \
     $(CONFIG)/inc/est.h \
     $(CONFIG)/obj/estLib.o
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libest.dylib $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libest.dylib $(CONFIG)/obj/estLib.o $(LIBS)
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libest.dylib $(LDFLAGS) -compatibility_version 0.8.1 -current_version 0.8.1 $(LIBPATHS) -install_name @rpath/libest.dylib $(CONFIG)/obj/estLib.o $(LIBS)
 
 $(CONFIG)/bin/ca.crt: src/deps/est/ca.crt
 	rm -fr $(CONFIG)/bin/ca.crt
@@ -150,7 +150,7 @@ $(CONFIG)/obj/mprLib.o: \
 $(CONFIG)/bin/libmpr.dylib: \
     $(CONFIG)/inc/mpr.h \
     $(CONFIG)/obj/mprLib.o
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libmpr.dylib $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libmpr.dylib $(CONFIG)/obj/mprLib.o $(LIBS)
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libmpr.dylib $(LDFLAGS) -compatibility_version 0.8.1 -current_version 0.8.1 $(LIBPATHS) -install_name @rpath/libmpr.dylib $(CONFIG)/obj/mprLib.o $(LIBS)
 
 $(CONFIG)/obj/mprSsl.o: \
     src/deps/mpr/mprSsl.c\
@@ -163,7 +163,7 @@ $(CONFIG)/bin/libmprssl.dylib: \
     $(CONFIG)/bin/libmpr.dylib \
     $(CONFIG)/bin/libest.dylib \
     $(CONFIG)/obj/mprSsl.o
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libmprssl.dylib $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libmprssl.dylib $(CONFIG)/obj/mprSsl.o -lest -lmpr $(LIBS)
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libmprssl.dylib $(LDFLAGS) -compatibility_version 0.8.1 -current_version 0.8.1 $(LIBPATHS) -install_name @rpath/libmprssl.dylib $(CONFIG)/obj/mprSsl.o -lest -lmpr $(LIBS)
 
 $(CONFIG)/obj/makerom.o: \
     src/deps/mpr/makerom.c\
@@ -189,7 +189,7 @@ $(CONFIG)/obj/pcre.o: \
 $(CONFIG)/bin/libpcre.dylib: \
     $(CONFIG)/inc/pcre.h \
     $(CONFIG)/obj/pcre.o
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libpcre.dylib $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libpcre.dylib $(CONFIG)/obj/pcre.o $(LIBS)
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libpcre.dylib $(LDFLAGS) -compatibility_version 0.8.1 -current_version 0.8.1 $(LIBPATHS) -install_name @rpath/libpcre.dylib $(CONFIG)/obj/pcre.o $(LIBS)
 
 $(CONFIG)/inc/http.h: 
 	rm -fr $(CONFIG)/inc/http.h
@@ -207,7 +207,7 @@ $(CONFIG)/bin/libhttp.dylib: \
     $(CONFIG)/bin/libpcre.dylib \
     $(CONFIG)/inc/http.h \
     $(CONFIG)/obj/httpLib.o
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libhttp.dylib $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libhttp.dylib $(CONFIG)/obj/httpLib.o -lpcre -lmpr $(LIBS)
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libhttp.dylib $(LDFLAGS) -compatibility_version 0.8.1 -current_version 0.8.1 $(LIBPATHS) -install_name @rpath/libhttp.dylib $(CONFIG)/obj/httpLib.o -lpcre -lmpr $(LIBS)
 
 $(CONFIG)/obj/http.o: \
     src/deps/http/http.c\
@@ -251,7 +251,7 @@ $(CONFIG)/bin/libejs.dylib: \
     $(CONFIG)/inc/ejs.slots.h \
     $(CONFIG)/inc/ejsByteGoto.h \
     $(CONFIG)/obj/ejsLib.o
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libejs.dylib $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libejs.dylib $(CONFIG)/obj/ejsLib.o -lmpr -lpcre -lhttp $(LIBS) -lpcre -lmpr
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libejs.dylib $(LDFLAGS) -compatibility_version 0.8.1 -current_version 0.8.1 $(LIBPATHS) -install_name @rpath/libejs.dylib $(CONFIG)/obj/ejsLib.o -lmpr -lpcre -lhttp $(LIBS) -lpcre -lmpr
 
 $(CONFIG)/obj/ejs.o: \
     src/deps/ejs/ejs.c\
@@ -303,7 +303,7 @@ $(CONFIG)/bin/bit: \
 	$(CC) -o $(CONFIG)/bin/bit -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/bit.o -lejs -lhttp -lmpr $(LIBS) -lpcre
 
 version: 
-	@cd bits; echo 0.8.0-0 ; cd ..
+	@cd bits; echo 0.8.1-0 ; cd ..
 
 deploy: compile
 	mkdir -p $(BIT_VAPP_PREFIX)/bin $(BIT_VAPP_PREFIX)/man/man1
