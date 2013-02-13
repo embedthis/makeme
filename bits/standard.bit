@@ -37,8 +37,14 @@ Bit.load({
             action: "
                 rmdir(['${TOP}/*-*-debug', '${TOP}/*-*-release'])
                 rm('${TOP}/*-*.bit')
+                rm('${TOP}/*.dmp')
                 rmdir('${TOP}/releases')
             "
+        },
+
+        /* Compatibility for those familiar with make */
+        all: {
+            depends: ['build'],
         },
 
         compile: {

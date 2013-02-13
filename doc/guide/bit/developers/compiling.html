@@ -34,7 +34,15 @@
             
                 <h1>Quick Nav </h1>
                 <ul>
-<li><a href="#overview">Overview</a></li>
+                    <li><a href="#compiling">Compiling</a></li>
+                    <li><a href="#selecting">Selecting Source Files</a></li>
+                    <li><a href="#headers">Source Headers</a></li>
+                    <li><a href="#resources">Compiling Resources</a></li>
+                    <li><a href="#options">Compiler Options</a></li>
+                    <li><a href="#inheriting">Inheriting Defaults</a></li>
+                    <li><a href="#compiling">Compiling</a></li>
+                    <li><a href="#compiling">Compiling</a></li>
+                    <li><a href="#compiling">Compiling</a></li>
                 </ul>
 <!-- BeginDsi "dsi/devSeeAlso.html" -->
             <h1>See Also</h1>
@@ -84,6 +92,7 @@ myProgram: {
     sources: '*.c',
 },
 </pre>
+        <a name="selecting"></a>
         <h2>Selecting Source Files</h2>
         <p>The <em>sources</em> property may be set to a regular expression, a string or an array of either. 
         For example: </p>
@@ -117,6 +126,8 @@ sources: '**.c',
 </pre>
         <p>This will exclude C files in the test and demo directories. If using regular expressions, make sure you 
         include a leading '\/' and trailing '$' if you want to match a directory basename.</p>
+
+        <a name="headers"></a>
         <h2 class="section">Headers</h2>
         <p>Bit, by convention, copies declared headers to the platform <em>OS-ARCH-PROFILE/inc</em> directory. This is
         so that headers can be easily resolved when compiling by a single <em>-I</em> compiler flag. This is not required,
@@ -132,6 +143,27 @@ libname: {
         <p>This will create targets at run-time for all headers in the current directory. These targets will copy the
         headers (if modified) to the <em>inc</em> directory for the platform. The standard Bit compile rules will then
         resolve the headers from the inc directory.</p>
+
+        <a name="resources"></a>
+        <h2 class="section">Resources</h2>
+        <p>Bit can compiled Windows resources by specifing them in a <em>resources</em> property list.
+        For example:
+        <pre>
+appwebMonitor: {
+    enable: "bit.platform.like == 'windows'",
+    type: 'exe',
+    rule: 'gui',
+    depends: [ 'libappweb' ],
+    sources: [ 'windows/*.c' ],
+    headers: [ 'windows/*.h' ],                                                                    
+    libraries: [ 'shell32.lib' ],
+    <b>resources: [ 'windows/appwebMonitor.rc' ]</b>,
+},
+</pre>
+        <p>This will use the Windows resource compiler <em>rc</em> to compile the resource and then link into the
+        executable.</p>
+
+        <a name="options"></a>
         <h2 class="section">Compiler Options</h2>
         <p>Bit crafts commands to compile sources using Bit compiler properties for include directories, compiler options,
         compiler pre-processor definitions, link libraries, paths and options. These properties are inherited by
@@ -193,10 +225,13 @@ mylib: {
         </pre>
         <p>For detailed information on scripting, please see <a href="events">Bit Events</a> and
         <a href="scripting">Bit Scripting</a>.</p>
-        <h2 class="section">Inheriting Target Properties</h2>
+
+        <a name="inheriting"></a>
+        <h2 class="section">Inheriting Defaults</h2>
         <p>Every target inherits default properties from the <em>defaults</em> and <em>internal</em> property collections.
-        Bit defines the initial compiler properties as required for the current platform operating system and CPU 
-        architecture. Similarly to overriding the compiler properties, you can override the default properties so that
+        The default collection is global across the project. The internal collection is local to the current bit file.</p>
+        <p>Bit defines the initial compiler properties as required for the current platform operating system and CPU 
+        architecture. However, you can override the default properties so that
         all targets inherit your customizations. For example:
 <pre>
 defaults: {
@@ -204,13 +239,33 @@ defaults: {
 },
 </pre>
         <h3>Private Inheritance</h3>
-        <p>Similarly to the defaults collection, you can specify properties that are inherited only by targets in
+        <p>Similar to the defaults collection, you can specify properties that are inherited only by targets in
         the same bit file. To do this, create an <em>internal</em> collection.
         <pre>
 internal: {
     libraries: [ 'pam', 'z' ],
 },
 </pre>
+        <h2>Explicit Inheritance</h2>
+        <p>Sometimes you have a some settings that must be inherited by a subset of targets that are not in the same
+        bit file. Bit allows a target to specify a collection of settings from which to inherit via the
+        <em>inherit</em> property. For example:
+<pre>
+<b>
+'shared-settings': {
+    '+defines': [ 'NUMBER=42' ],
+},
+</b>
+        <p>These shared settings can be in any bit file.</p>
+
+rocket {
+    <b>inherit: ['shared-settings']</b>,
+    type: 'exe'
+    sources: '*.c',
+},
+</pre>
+        <p>In this manner, specific targets can nominate the group of settings form which they wish to inherit.</p>
+
         <h2 class="section">Compiler Rules</h2>
         <p>Bit defines compiler command templates to use for compiling, linking and other tasks. These templates are
         defined in the the <em>rules</em> property collection. These templates are unique for each supported platform

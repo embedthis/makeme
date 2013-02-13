@@ -135,50 +135,93 @@
             </tr>
             </tbody>
         </table>
-        <h2>Building the MPR</h2>
-        <p>Here is a portion of an MPR bit file that two libraries and one executable. It uses the ${BIN} global token which
-        expands into the platform build directory. The ${EXE}  token will expand to ".exe" on windows. The <em>gui</em>
-        rule builds a Windows application instead of a console application on Windows.</p>
-        <pre>
-Bit.load({
-    targets: {
-        libmpr: {
-            type: 'lib',
-            sources: [ 'mprLib.c' ],
-            headers: [ '*.h' ],
-        },      
-        manager: {
-            enable: 'bit.settings.mpr && bit.settings.mpr.manager',
-            type: 'exe',
-            path: '${BIN}/${settings.mpr.manager}${EXE}'
-            rule: 'gui',
-            depends: [ 'libmpr' ],
-            sources: [ 'manager.c' ],
-        },
+
+        <h2>Quick Snippets</h2>
+        <p>Here are some quick snippets that you can use in your bit files.</p>
+
+        <h2>Building a Library.</h2>
+<pre>
+targets: {
+    libmpr: {
+        type: 'lib',
+        defines: [ 'FAST_MODE=1' ],
+        sources: [ '*.c' ],
+        headers: [ '*.h' ],
     },
-})
+},
 </pre>
-        <h2>Building Ejscript</h2>
-        <p>Here is a bit file from Ejscript that adds a library dependency at runtime.</p>
-        <pre>
-Bit.load({
-    targets: {
-        ejs: {
-            type: 'exe',
-            sources: [ 'ejs.c', ],
-            depends: [ 'libejs' ],
-            scripts: {
-                prebuild: "
-                    /* If the system has libedit, add it here */
-                    if (bit.settings.hasLibEdit) {
-                        bit.target.libraries.push('edit')
-                    }
-                ",
-            },
-        },
+        <p>This will compile the sources, export the header to the include directory and create the library.</p>
+
+        <h2>Building a Static Library.</h2>
+<pre>
+targets: {
+    libmpr: {
+        type: 'lib',
+        sources: [ '*.c' ],
+        headers: [ '*.h' ],
+        <b>static: true</b>,
     },
-})
+},
 </pre>
+
+        <h2>Building an Executable.</h2>
+        <p>Set the type to <em>exe</em> and nominate the dependent targets. Specify the required libraries.</p>
+<pre>
+targets: {
+    appweb: {
+        type: 'exe',
+        depends: [ 'libappweb', 'libhttp', 'libmpr' ],
+        libraries: [ 'm' ],
+        sources: [ 'appweb.c' ],
+    },
+},
+</pre>
+
+        <h2>Conditional Building</h2>
+        <p>This will build only on windows.</p>
+<pre>
+targets: {
+    manager: {
+        enable: "bit.platform.like == "windows'",
+        type: 'exe',
+        rule: 'gui',
+        depends: [ 'libmpr' ],
+        sources: [ 'manager.c' ],
+    },
+}
+</pre>
+
+        <h2>Inheriting Shared Settings</h2>
+        <p>To share settings between multiple targets, define a collection of properties and then <em>inherit</em>
+        from the desired targets.</p>
+<pre>
+{
+    'shared-settings': {
+        '+defines': [ 'NUMBER=42' ],
+    },
+    targets: {
+        rocket {
+            <b>inherit: ['shared-settings']</b>,
+            type: 'exe'
+            sources: '*.c',
+        },
+    }
+}
+</pre>
+
+        <h2>Cross-Platform Target Paths</h2>
+        <p>On windows, executables have a <em>.exe</em> extension, whereas on Unix, there is typically no such extension.
+        Bit defines the EXE global variable to .exe on Windows and to empty on other platforms.
+<pre>
+targets: {
+    rocket: {
+        type: 'exe',
+        path: '${BIN}/short-range-rocket${EXE}'
+    },
+},
+</pre>
+        <p>The path typically defaults to: <em>${BIN}/NAME${EXE}</em> where NAME is the target name. But sometimes you need
+        to override the output path. The <em>${EXE}</em> can be used to formulate the path portably across platforms.</p>
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->

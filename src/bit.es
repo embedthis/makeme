@@ -1121,8 +1121,9 @@ public class Bit {
             /*
                 Expand short-form scripts into the long-form
                 Set the target type if not defined to 'action' or 'build'
+                NOTE: preblend is only fired for internal and default collections. Not on targets.
              */
-            for each (n in ['action', 'preblend', 'postblend', 'preresolve', 'postresolve', 'postsource', 'predependencies',
+            for each (n in ['action', 'postblend', 'preresolve', 'postresolve', 'postsource', 'predependencies',
                     'postdependencies', 'precompile', 'postcompile', 'prebuild', 'build', 'postbuild', 'shell']) {
                 if (target[n]) {
                     target.type ||= (n == 'action') ? n : 'build'
@@ -1139,9 +1140,6 @@ public class Bit {
             if (o.internal) {
                 runTargetScript({scripts: o.internal.scripts}, 'preblend')
                 blend(target, o.internal, {combine: true})
-            }
-            if (target.inherit) {
-                blend(target, o[target.inherit], {combine: true})
             }
         }
     }
@@ -2040,8 +2038,10 @@ public class Bit {
      */
     function blendDefaults() {
         if (bit.defaults) {
+            /* NOTE: the preblend is not fired on a target, but rather for the defaults and internal collections only */
             runTargetScript({scripts: bit.defaults.scripts}, 'preblend')
         }
+        //  DEPRECATE
         for (let [key,value] in bit.defaults.defines) {
             bit.defaults.defines[key] = value.trimStart('-D')
         }
@@ -2049,6 +2049,14 @@ public class Bit {
             if (targetsToBlend[target.type]) {
                 let def = blend({}, bit.defaults, {combine: true})
                 target = bit.targets[tname] = blend(def, target, {combine: true})
+                if (target.inherit) {
+                    if (!(target.inherit is Array)) {
+                        target.inherit = [ target.inherit ]
+                    }
+                    for each (from in target.inherit) {
+                        blend(target, bit[from], {combine: true})
+                    }
+                }
                 runTargetScript(target, 'postblend')
                 if (target.scripts && target.scripts.preblend) {
                     delete target.scripts.preblend
