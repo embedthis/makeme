@@ -17,18 +17,25 @@ Bit.load({
     prefixes: {
         root:       'deploy'
         base:       '${prefixes.root}',
-        config:     '${prefixes.base}',
-        product:    '${prefixes.base}',
-        productver: '${prefixes.base}',
+        data:       '${prefixes.root}',
+        state:      '${prefixes.root}',
+
         bin:        '${prefixes.base}',
-        lib:        '${prefixes.base}',
         inc:        '${prefixes.base}/inc',
+        lib:        '${prefixes.base}',
+        man:        '${prefixes.base}',
+        sbin:       '${prefixes.base}',
+
+        etc:        '${prefixes.base}',
+        web:        '${prefixes.base}/web',
+
         log:        '${prefixes.base}',
         spool:      '${prefixes.base}',
+        cache:      '${prefixes.base}',
+
+        app:        '${prefixes.base}',
+        vapp:       '${prefixes.base}',
         src:        '/usr/src/${settings.product}-${settings.version}',
-        web:        '${prefixes.base}/web',
-        ubin:       '${prefixes.base}',
-        man:        '${prefixes.base}',
     },
 
     settings: {

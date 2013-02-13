@@ -1050,6 +1050,7 @@ cp -r src/bit.es macosx-x64-default/bin/bit.es
 ../bits/gendoc.es,
 ../bits/getbitvals,
 ../bits/os,
+../bits/os/a.tmp,
 ../bits/os/freebsd.bit,
 ../bits/os/gcc.bit,
 ../bits/os/linux.bit,

@@ -259,8 +259,8 @@ public class Bit {
             bindir: 'bin',
             libdir: 'lib',
             includedir: 'inc',
-            sysconfdir: 'config',
-            libexec: 'product',
+            sysconfdir: 'etc',
+            libexec: 'app',
             logfiledir: 'log',
             htdocsdir: 'web',
             manualdir: 'man',
@@ -1371,8 +1371,8 @@ public class Bit {
         prefixes = {}
         let root = bit.prefixes.root
         let base = bit.prefixes.base
-        let product = bit.prefixes.product
-        let productver = bit.prefixes.productver
+        let app = bit.prefixes.app
+        let vapp = bit.prefixes.vapp
         for (let [name,value] in bit.prefixes) {
             if (name.startsWith('programFiles')) continue
             value = expand(value).replace(/\/\//g, '/')
@@ -1384,16 +1384,16 @@ public class Bit {
                 } else {
                     value = '$(BIT_ROOT_PREFIX)' + value.toString().trim('/')
                 }
-            } else if (name == 'product') {
+            } else if (name == 'app') {
                 if (value.startsWith(base.name)) {
                     value = value.replace(base.name, '$(BIT_BASE_PREFIX)')
                 }
-            } else if (name == 'productver') {
-                if (value.startsWith(product.name)) {
-                    value = value.replace(product.name, '$(BIT_PRODUCT_PREFIX)')
+            } else if (name == 'vapp') {
+                if (value.startsWith(app.name)) {
+                    value = value.replace(app.name, '$(BIT_APP_PREFIX)')
                 }
-            } else if (value.startsWith(productver.name)) {
-                value = value.replace(productver.name, '$(BIT_PRODUCTVER_PREFIX)')
+            } else if (value.startsWith(vapp.name)) {
+                value = value.replace(vapp.name, '$(BIT_VAPP_PREFIX)')
             } else {
                 value = '$(BIT_ROOT_PREFIX)' + value.toString().trimStart('/')
             }
@@ -1461,7 +1461,7 @@ public class Bit {
         genout.writeLine('all compile: prep \\\n        ' + genAll())
         genout.writeLine('.PHONY: prep\n\nprep:')
         genout.writeLine('\t@if [ "$(CONFIG)" = "" ] ; then echo WARNING: CONFIG not set ; exit 255 ; fi')
-        genout.writeLine('\t@if [ "$(BIT_PRODUCT_PREFIX)" = "" ] ; then echo WARNING: BIT_PRODUCT_PREFIX not set ; exit 255 ; fi')
+        genout.writeLine('\t@if [ "$(BIT_APP_PREFIX)" = "" ] ; then echo WARNING: BIT_APP_PREFIX not set ; exit 255 ; fi')
         genout.writeLine('\t@[ ! -x $(CONFIG)/bin ] && ' + 'mkdir -p $(CONFIG)/bin; true')
         genout.writeLine('\t@[ ! -x $(CONFIG)/inc ] && ' + 'mkdir -p $(CONFIG)/inc; true')
         genout.writeLine('\t@[ ! -x $(CONFIG)/obj ] && ' + 'mkdir -p $(CONFIG)/obj; true')
@@ -1521,7 +1521,7 @@ public class Bit {
         genout.writeLine('all compile: prep \\\n        ' + genAll())
         genout.writeLine('.PHONY: prep\n\nprep:')
         genout.writeLine('!IF "$(VSINSTALLDIR)" == ""\n\techo "Visual Studio vars not set. Run vcvars.bat."\n\texit 255\n!ENDIF')
-        genout.writeLine('!IF "$(BIT_PRODUCT_PREFIX)" == ""\n\techo "BIT_PRODUCT_PREFIX not set."\n\texit 255\n!ENDIF')
+        genout.writeLine('!IF "$(BIT_APP_PREFIX)" == ""\n\techo "BIT_APP_PREFIX not set."\n\texit 255\n!ENDIF')
         genout.writeLine('\t@if not exist $(CONFIG)\\bin md $(CONFIG)\\bin')
         genout.writeLine('\t@if not exist $(CONFIG)\\inc md $(CONFIG)\\inc')
         genout.writeLine('\t@if not exist $(CONFIG)\\obj md $(CONFIG)\\obj')

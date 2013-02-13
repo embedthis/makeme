@@ -17,22 +17,22 @@ Bit.load({
             action: 'packageDeploy()',
             depends: ['compile'],
             'generate-make': "
-                mkdir -p $(BIT_BIN_PREFIX) $(BIT_VER_PREFIX)/man/man1
-                rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit $(BIT_VER_PREFIX)/man/man1/bit.1 $(BIT_MAN_PREFIX)/bit.1
-                cp -R -P ${BIN}/bit* ${BIN}/ejs.mod ${BIN}/lib* ${BIN}/ca.crt $(BIT_BIN_PREFIX)
-                cp doc/man/bit.1 $(BIT_VER_PREFIX)/man/man1
-                ln -s $(BIT_VER_PREFIX)/man/man1/bit.1 $(BIT_MAN_PREFIX)/bit.1
-                ln -s $(BIT_BIN_PREFIX)/bit $(BIT_UBIN_PREFIX)/bit
-                ln -s $(VERSION) $(BIT_PRD_PREFIX)/latest
+                mkdir -p $(BIT_VAPP_PREFIX)/bin $(BIT_VAPP_PREFIX)/man/man1
+                rm -f $(BIT_APP_PREFIX)/latest $(BIT_VAPP_PREFIX)/bin/bit $(BIT_VAPP_PREFIX)/man/man1/bit.1 $(BIT_MAN_PREFIX)/man1/bit.1
+                cp -R -P ${BIN}/bit* ${BIN}/ejs.mod ${BIN}/lib* ${BIN}/ca.crt $(BIT_VAPP_PREFIX)/bin
+                cp doc/man/bit.1 $(BIT_VAPP_PREFIX)/man/man1
+                ln -s $(BIT_VAPP_PREFIX)/man/man1/bit.1 $(BIT_MAN_PREFIX)/man1/bit.1
+                ln -s $(BIT_VAPP_PREFIX)//bin/bit $(BIT_VAPP_PREFIX)/bin/bit
+                ln -s $(VERSION) $(BIT_APP_PREFIX)/latest
             ",
             'generate-nmake': "
-                @if not exist \"$(BIT_BIN_PREFIX)\" md \"$(BIT_BIN_PREFIX)\"
-                xcopy /I /S /Y /Q $(CONFIG)\\bin\\bit.exe \"$(BIT_BIN_PREFIX)\"
-                xcopy /I /S /Y /Q $(CONFIG)\\bin\\bit.es \"$(BIT_BIN_PREFIX)\"
-                xcopy /I /S /Y /Q $(CONFIG)\\bin\\ejs.mod \"$(BIT_BIN_PREFIX)\"
-                xcopy /I /S /Y /Q $(CONFIG)\\bin\\lib*.dll \"$(BIT_BIN_PREFIX)\"
-                xcopy /I /S /Y /Q $(CONFIG)\\bin\\ca.crt \"$(BIT_BIN_PREFIX)\"
-                xcopy /I /S /Y /Q $(CONFIG)\\bin\\bits \"$(BIT_BIN_PREFIX)\\bits\"
+                @if not exist \"$(BIT_VAPP_PREFIX)\\bin\" md \"$(BIT_VAPP_PREFIX)\\bin\"
+                xcopy /I /S /Y /Q $(CONFIG)\\bin\\bit.exe \"$(BIT_VAPP_PREFIX)\\bin\"
+                xcopy /I /S /Y /Q $(CONFIG)\\bin\\bit.es \"$(BIT_VAPP_PREFIX)\\bin\"
+                xcopy /I /S /Y /Q $(CONFIG)\\bin\\ejs.mod \"$(BIT_VAPP_PREFIX)\\bin\"
+                xcopy /I /S /Y /Q $(CONFIG)\\bin\\lib*.dll \"$(BIT_VAPP_PREFIX)\\bin\"
+                xcopy /I /S /Y /Q $(CONFIG)\\bin\\ca.crt \"$(BIT_VAPP_PREFIX)\\bin\"
+                xcopy /I /S /Y /Q $(CONFIG)\\bin\\bits \"$(BIT_VAPP_PREFIX)\\bin\\bits\"
             ",
         },
 
@@ -49,9 +49,9 @@ Bit.load({
             home: '${TOP}',
             action: "uninstallBinary()"
             'generate-make': "
-                rm -rf $(BIT_UBIN_PREFIX)/bit $(BIT_MAN_PREFIX)/bit.1 '$(BIT_PRD_PREFIX)'
+                rm -rf $(BIT_VAPP_PREFIX)/bin/bit $(BIT_MAN_PREFIX)/man1/bit.1 '$(BIT_APP_PREFIX)'
             ",
-            'generate-nmake': "if exist \"$(BIT_PRD_PREFIX)\" rd /Q /S \"$(BIT_PRD_PREFIX)\"",
+            'generate-nmake': "if exist \"$(BIT_APP_PREFIX)\" rd /Q /S \"$(BIT_APP_PREFIX)\"",
         },
 
         package: {

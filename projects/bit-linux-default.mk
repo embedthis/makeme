@@ -17,8 +17,8 @@ BIT_ROOT_PREFIX       := /
 BIT_BASE_PREFIX       := $(BIT_ROOT_PREFIX)usr/local
 BIT_DATA_PREFIX       := $(BIT_ROOT_PREFIX)
 BIT_STATE_PREFIX      := $(BIT_ROOT_PREFIX)var
-BIT_PRODUCT_PREFIX    := $(BIT_BASE_PREFIX)/lib/$(PRODUCT)
-BIT_PRODUCTVER_PREFIX := $(BIT_PRD_PREFIX)/$(VERSION)
+BIT_APP_PREFIX        := $(BIT_BASE_PREFIX)/lib/$(PRODUCT)
+BIT_VAPP_PREFIX       := $(BIT_APP_PREFIX)/$(VERSION)
 BIT_BIN_PREFIX        := $(BIT_ROOT_PREFIX)usr/local/bin
 BIT_INC_PREFIX        := $(BIT_ROOT_PREFIX)usr/local/include
 BIT_LIB_PREFIX        := $(BIT_ROOT_PREFIX)usr/local/lib
@@ -72,7 +72,7 @@ all compile: prep \
 
 prep:
 	@if [ "$(CONFIG)" = "" ] ; then echo WARNING: CONFIG not set ; exit 255 ; fi
-	@if [ "$(BIT_PRD_PREFIX)" = "" ] ; then echo WARNING: BIT_PRD_PREFIX not set ; exit 255 ; fi
+	@if [ "$(BIT_APP_PREFIX)" = "" ] ; then echo WARNING: BIT_APP_PREFIX not set ; exit 255 ; fi
 	@[ ! -x $(CONFIG)/bin ] && mkdir -p $(CONFIG)/bin; true
 	@[ ! -x $(CONFIG)/inc ] && mkdir -p $(CONFIG)/inc; true
 	@[ ! -x $(CONFIG)/obj ] && mkdir -p $(CONFIG)/obj; true
@@ -306,17 +306,17 @@ version:
 	@cd bits; echo 0.8.0-0 ; cd ..
 
 deploy: compile
-	mkdir -p $(BIT_BIN_PREFIX) $(BIT_VER_PREFIX)/man/man1
-	rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit $(BIT_VER_PREFIX)/man/man1/bit.1 $(BIT_MAN_PREFIX)/bit.1
-	cp -R -P ./$(CONFIG)/bin/bit* ./$(CONFIG)/bin/ejs.mod ./$(CONFIG)/bin/lib* ./$(CONFIG)/bin/ca.crt $(BIT_BIN_PREFIX)
-	cp doc/man/bit.1 $(BIT_VER_PREFIX)/man/man1
-	ln -s $(BIT_VER_PREFIX)/man/man1/bit.1 $(BIT_MAN_PREFIX)/bit.1
-	ln -s $(BIT_BIN_PREFIX)/bit $(BIT_UBIN_PREFIX)/bit
-	ln -s $(VERSION) $(BIT_PRD_PREFIX)/latest
+	mkdir -p $(BIT_VAPP_PREFIX)/bin $(BIT_VAPP_PREFIX)/man/man1
+	rm -f $(BIT_APP_PREFIX)/latest $(BIT_VAPP_PREFIX)/bin/bit $(BIT_VAPP_PREFIX)/man/man1/bit.1 $(BIT_MAN_PREFIX)/man1/bit.1
+	cp -R -P ./$(CONFIG)/bin/bit* ./$(CONFIG)/bin/ejs.mod ./$(CONFIG)/bin/lib* ./$(CONFIG)/bin/ca.crt $(BIT_VAPP_PREFIX)/bin
+	cp doc/man/bit.1 $(BIT_VAPP_PREFIX)/man/man1
+	ln -s $(BIT_VAPP_PREFIX)/man/man1/bit.1 $(BIT_MAN_PREFIX)/man1/bit.1
+	ln -s $(BIT_VAPP_PREFIX)//bin/bit $(BIT_VAPP_PREFIX)/bin/bit
+	ln -s $(VERSION) $(BIT_APP_PREFIX)/latest
 
 install: compile deploy
 	
 
 uninstall: 
-	rm -rf $(BIT_UBIN_PREFIX)/bit $(BIT_MAN_PREFIX)/bit.1 '$(BIT_PRD_PREFIX)'
+	rm -rf $(BIT_VAPP_PREFIX)/bin/bit $(BIT_MAN_PREFIX)/man1/bit.1 '$(BIT_APP_PREFIX)'
 

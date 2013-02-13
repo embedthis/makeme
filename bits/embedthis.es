@@ -340,7 +340,7 @@ function packageInstall(pkg: Path, options) {
     let base = [s.product, s.version, s.buildNumber, bit.platform.dist, bit.platform.os, bit.platform.arch].join('-')
     let contents = pkg.join(options.vname, 'contents')
     let files = contents.files('**', {missing: undefined})
-    let log = bit.prefixes.productver.join('files.log'), prior
+    let log = bit.prefixes.vapp.join('files.log'), prior
     if (log.exists) {
         if (bit.cross) {
             prior = log.dirname.join('files.prior')
@@ -351,11 +351,13 @@ function packageInstall(pkg: Path, options) {
     }
     for each (file in files) {
         let target = Path('/' + file.relativeTo(contents))
+        let att = App.uid ? {} : file.attributes
         if (file.isDir) {
-            target.makeDir(file.attributes)
+            strace('Make', 'Directory: ' + target)
+            target.makeDir(att)
         } else {
             strace('Install', target)
-            file.copy(target /*, file.attributes */)
+            file.copy(target, att)
         }
     }
     packageInstallConfigure()
@@ -370,12 +372,11 @@ function packageInstallConfigure() {
     let ldconfigSwitch = (bit.platform.os == 'freebsd') ? '-m' : '-n'
     let ldconfig = Cmd.locate('ldconfig')
     if (ldconfig) {
-        // Cmd.run(ldconfig + ' /usr/lib/lib${PRODUCT}.so.?.?.?
         Cmd.run(ldconfig + ' ' + ldconfigSwitch + ' /usr/lib/' + bit.settings.product)
         Cmd.run(ldconfig + ' ' + ldconfigSwitch + ' /usr/lib/' + bit.settings.product + '/modules')
     }
     if (bit.platform.dist == 'fedora') {
-        Cmd.run('chcon /usr/bin/chcon -t texrel_shlib_t ' + bit.prefixes.bin.files('*.so').join(' '))
+        Cmd.run('chcon /usr/bin/chcon -t texrel_shlib_t ' + bit.prefixes.vapp.join('bin').files('*.so').join(' '))
     }
 }
 
@@ -578,10 +579,10 @@ function packageWindows(pkg: Path, options) {
     let contents = pkg.join(s.product + '-' + s.version + '-' + s.buildNumber, 'contents')
     let files = contents.files('**', {exclude: /\/$/, missing: undefined})
 
-    let productPrefix = bit.prefixes.product.removeDrive().portable
-    let top = Path(contents.name + productPrefix)
+    let appPrefix = bit.prefixes.app.removeDrive().portable
+    let top = Path(contents.name + appPrefix)
 
-    let destTop = Path(top.portable.name + bit.prefixes.product.removeDrive().portable).windows
+    let destTop = Path(top.portable.name + appPrefix).windows
     let cp: File = iss.open('atw')
     for each (file in files) {
         let src = file.relativeTo(pkg)
@@ -690,7 +691,7 @@ public function apiwrap(patterns) {
 
 public function checkInstalled() {
     let result = []
-    for each (key in ['product', 'productver', 'bin']) {
+    for each (key in ['app', 'vapp', 'bin']) {
         let prefix = bit.prefixes[key]
         if (!prefix.exists) {
             result.push(prefix)
@@ -750,12 +751,12 @@ public function installPackage() {
 public function uninstallPackage() {
     if (Config.OS == 'macosx' && App.uid != 0) throw 'Must be root to install'
     if (Config.OS == 'macosx') {
-        if (bit.prefixes.bin.join('uninstall').exists) {
-            trace('Uninstall', bit.prefixes.bin.join('uninstall'))
-            run([bit.prefixes.bin.join('uninstall')], {noshow: true})
+        if (bit.prefixes.vapp.join('bin/uninstall').exists) {
+            trace('Uninstall', bit.prefixes.vapp.join('bin/uninstall'))
+            run([bit.prefixes.vapp.join('bin/uninstall')], {noshow: true})
         }
     } else {
-        let uninstall = bit.prefixes.productver.files('unins*.exe')[0]
+        let uninstall = bit.prefixes.vapp.files('unins*.exe')[0]
         if (uninstall) {
             trace('Uninstall', uninstall)
             run([uninstall, '/verysilent'], {noshow: true})

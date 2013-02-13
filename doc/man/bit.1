@@ -394,7 +394,10 @@ Pre-process a source file to stdout.
 .TP
 \fB\--prefix dir=path\fR
 Set the installation directory prefix. Various products utilize different prefixes. Typical prefixes are:
-bin, config, inc, log, product, productver, spool, src, web.
+root, base, state, data, app, vapp, bin, etc, inc, log, spool, src, web.
+For those familiar with autoconf, the major autoconf prefixe switches are supported and mapped as follows:
+--prefix to root, --bindir to bin, --libdir to lib, --includedir to inc, --sysconfdir to etc, --libexec to app,
+--logfiledir to log, --htdocsdir to web, and --manualdir to man.
 
 .TP
 \fB\--prefixes debian|embedthis|opt\fR

@@ -14844,7 +14844,7 @@ PUBLIC void mprSetModuleSearchPath(char *searchPath)
     ms = MPR->moduleService;
     if (searchPath == 0) {
         ms->searchPath = sjoin(mprGetAppDir(), MPR_SEARCH_SEP, mprGetAppDir(), MPR_SEARCH_SEP, 
-            BIT_PRODUCTVER_PREFIX "/bin", NULL);
+            BIT_VAPP_PREFIX "/bin", NULL);
     } else {
         ms->searchPath = sclone(searchPath);
     }

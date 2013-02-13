@@ -30,8 +30,8 @@ Bit.load({
         data:       '${prefixes.root}',
         state:      '${prefixes.root}/var',
 
-        product:    '${prefixes.base}/lib/${settings.product}',
-        productver: '${prefixes.product}/${settings.version}',
+        app:        '${prefixes.base}/lib/${settings.product}',
+        vapp:       '${prefixes.app}/${settings.version}',
 
         bin:        '${prefixes.base}/bin',
         inc:        '${prefixes.base}/include',
@@ -40,7 +40,6 @@ Bit.load({
         sbin:       '${prefixes.base}/sbin',
 
         etc:        '${prefixes.data}/etc/${settings.product}',
-
         web:        '${prefixes.state}/www/${settings.product}-default',
         log:        '${prefixes.state}/log/${settings.product}',
         spool:      '${prefixes.state}/spool/${settings.product}',

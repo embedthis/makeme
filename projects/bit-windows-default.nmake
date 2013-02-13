@@ -33,8 +33,8 @@ BIT_ROOT_PREFIX       = /
 BIT_BASE_PREFIX       = $(BIT_ROOT_PREFIX)usr/local
 BIT_DATA_PREFIX       = $(BIT_ROOT_PREFIX)
 BIT_STATE_PREFIX      = $(BIT_ROOT_PREFIX)var
-BIT_PRODUCT_PREFIX    = $(BIT_BASE_PREFIX)/lib/$(PRODUCT)
-BIT_PRODUCTVER_PREFIX = $(BIT_PRD_PREFIX)/$(VERSION)
+BIT_APP_PREFIX        = $(BIT_BASE_PREFIX)/lib/$(PRODUCT)
+BIT_VAPP_PREFIX       = $(BIT_APP_PREFIX)/$(VERSION)
 BIT_BIN_PREFIX        = $(BIT_ROOT_PREFIX)usr/local/bin
 BIT_INC_PREFIX        = $(BIT_ROOT_PREFIX)usr/local/include
 BIT_LIB_PREFIX        = $(BIT_ROOT_PREFIX)usr/local/lib
@@ -72,8 +72,8 @@ prep:
 	echo "Visual Studio vars not set. Run vcvars.bat."
 	exit 255
 !ENDIF
-!IF "$(BIT_PRD_PREFIX)" == ""
-	echo "BIT_PRD_PREFIX not set."
+!IF "$(BIT_APP_PREFIX)" == ""
+	echo "BIT_APP_PREFIX not set."
 	exit 255
 !ENDIF
 	@if not exist $(CONFIG)\bin md $(CONFIG)\bin
@@ -314,17 +314,17 @@ version:
 	cd ..
 
 deploy: compile
-	@if not exist "$(BIT_BIN_PREFIX)" md "$(BIT_BIN_PREFIX)"
-	xcopy /I /S /Y /Q $(CONFIG)\bin\bit.exe "$(BIT_BIN_PREFIX)"
-	xcopy /I /S /Y /Q $(CONFIG)\bin\bit.es "$(BIT_BIN_PREFIX)"
-	xcopy /I /S /Y /Q $(CONFIG)\bin\ejs.mod "$(BIT_BIN_PREFIX)"
-	xcopy /I /S /Y /Q $(CONFIG)\bin\lib*.dll "$(BIT_BIN_PREFIX)"
-	xcopy /I /S /Y /Q $(CONFIG)\bin\ca.crt "$(BIT_BIN_PREFIX)"
-	xcopy /I /S /Y /Q $(CONFIG)\bin\bits "$(BIT_BIN_PREFIX)\bits"
+	@if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
+	xcopy /I /S /Y /Q $(CONFIG)\bin\bit.exe "$(BIT_VAPP_PREFIX)\bin"
+	xcopy /I /S /Y /Q $(CONFIG)\bin\bit.es "$(BIT_VAPP_PREFIX)\bin"
+	xcopy /I /S /Y /Q $(CONFIG)\bin\ejs.mod "$(BIT_VAPP_PREFIX)\bin"
+	xcopy /I /S /Y /Q $(CONFIG)\bin\lib*.dll "$(BIT_VAPP_PREFIX)\bin"
+	xcopy /I /S /Y /Q $(CONFIG)\bin\ca.crt "$(BIT_VAPP_PREFIX)\bin"
+	xcopy /I /S /Y /Q $(CONFIG)\bin\bits "$(BIT_VAPP_PREFIX)\bin\bits"
 
 install: compile deploy
 
 
 uninstall: 
-	if exist "$(BIT_PRD_PREFIX)" rd /Q /S "$(BIT_PRD_PREFIX)"
+	if exist "$(BIT_APP_PREFIX)" rd /Q /S "$(BIT_APP_PREFIX)"
 

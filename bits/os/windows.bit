@@ -18,21 +18,28 @@ Bit.load({
     'windows-prefixes': {
         /* programFiles32 may get (x86) at run-time if on a 64-bit system */
         root:               'C:/',
+
         programFiles:       '${prefixes.root}Program Files',
         programFiles32:     '${prefixes.root}Program Files',
         base:               '${prefixes.programFiles}',
-        product:            '${prefixes.base}/${settings.title}',
-        productver:         '${prefixes.product}',
-        config:             '${prefixes.product}',
-        bin:                '${prefixes.product}/bin',
-        inc:                '${prefixes.product}/inc',
-        lib:                '${prefixes.product}/lib',
-        log:                '${prefixes.product}/log',
-        spool:              '${prefixes.product}/tmp',
-        src:                '${prefixes.product}/src',
-        web:                '${prefixes.product}/web',
-        ubin:               '${prefixes.product}/bin',
-        man:                '${prefixes.product}/man',
+        app:                '${prefixes.base}/${settings.title}',
+        vapp:               '${prefixes.app}',
+        data:               '${prefixes.app}',
+        state:              '${prefixes.app}',
+
+        bin:                '${prefixes.app}/bin',
+        inc:                '${prefixes.app}/inc',
+        lib:                '${prefixes.app}/lib',
+        man:                '${prefixes.app}/man',
+
+        etc:                '${prefixes.app}',
+        web:                '${prefixes.data}/web',
+
+        log:                '${prefixes.state}/log',
+        spool:              '${prefixes.state}/tmp',
+        cache:              '${prefixes.state}/cache',
+
+        src:                '${prefixes.data}/src',
     },
 
     settings: {

@@ -144,11 +144,11 @@
 #ifndef BIT_STATE_PREFIX
     #define BIT_STATE_PREFIX "/var"
 #endif
-#ifndef BIT_PRODUCT_PREFIX
-    #define BIT_PRODUCT_PREFIX "/usr/local/lib/bit"
+#ifndef BIT_APP_PREFIX
+    #define BIT_APP_PREFIX "/usr/local/lib/bit"
 #endif
-#ifndef BIT_PRODUCTVER_PREFIX
-    #define BIT_PRODUCTVER_PREFIX "/usr/local/lib/bit/0.8.0"
+#ifndef BIT_VAPP_PREFIX
+    #define BIT_VAPP_PREFIX "/usr/local/lib/bit/0.8.0"
 #endif
 #ifndef BIT_BIN_PREFIX
     #define BIT_BIN_PREFIX "/usr/local/bin"

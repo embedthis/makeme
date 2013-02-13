@@ -24,7 +24,7 @@
 #include    "mpr.h"
 
 #ifndef SERVICE_PROGRAM
-    #define SERVICE_PROGRAM BIT_PRODUCT_PREFIX "/bin/" BIT_PRODUCT
+    #define SERVICE_PROGRAM BIT_APP_PREFIX "/bin/" BIT_PRODUCT
 #endif
 #ifndef SERVICE_NAME
     #define SERVICE_NAME BIT_PRODUCT

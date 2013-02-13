@@ -14,4 +14,28 @@ Bit.load({
             '-Wl,-rpath,$ORIGIN/../bin',
         ],
     },
+
+    'debian-prefixes': {
+        root:       '/',
+        base:       '${prefixes.root}/usr',
+        data:       '${prefixes.root}',
+        state:      '${prefixes.data}/var',
+
+        bin:        '${prefixes.base}/bin',
+        inc:        '${prefixes.base}/include',
+        lib:        '${prefixes.base}/lib',
+        man:        '${prefixes.base}/share/man',
+        sbin:       '${prefixes.base}/sbin',
+
+        etc:        '${prefixes.data}/etc/${settings.product}',
+        web:        '${prefixes.data}/www/${settings.product}-default',
+
+        log:        '${prefixes.state}/log/${settings.product}',
+        spool:      '${prefixes.state}/spool/${settings.product}',
+        cache:      '${prefixes.state}/cache/${settings.product}',
+
+        app:        '${prefixes.lib}/${settings.product}',
+        vapp:       '${prefixes.app}',
+        src:        '${prefixes.base}/src/${settings.product}-${settings.version}',
+    },
 })

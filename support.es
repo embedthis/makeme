@@ -28,7 +28,7 @@ public function packageDeploy(minimal = false) {
         p[pname] = Path(contents.portable.name + bit.prefixes[pname].removeDrive().portable)
         p[pname].makeDir()
     }
-    let pbin = p.productver.join('bin')
+    let pbin = p.vapp.join('bin')
     let strip = bit.platform.profile == 'debug'
 
     trace('Deploy', bit.settings.title)
@@ -43,13 +43,13 @@ public function packageDeploy(minimal = false) {
         }
         /* Move bit-license to the front */
         let files = Path('doc/licenses').files('*.txt').reject(function(p) p.contains('bit-license.txt'))
-        install(['doc/licenses/bit-license.txt'] + files, p.product.join('LICENSE.TXT'), {
+        install(['doc/licenses/bit-license.txt'] + files, p.app.join('LICENSE.TXT'), {
             cat: true,
             textfile: true,
             fold: true,
             title: bit.settings.title + ' Licenses',
         })
-        install('doc/product/README.TXT', p.product, {fold: true, expand: true})
+        install('doc/product/README.TXT', p.app, {fold: true, expand: true})
         install('package/uninstall.sh', pbin.join('uninstall'), {permissions: 0755, expand: true})
         install('package/linkup', pbin, {permissions: 0755})
     }
@@ -87,12 +87,12 @@ public function packageDeploy(minimal = false) {
             install(bit.dir.bin.join('removeFiles' + bit.globals.EXE), pbin)
         }
         if (bit.platform.like == 'posix') {
-            install('doc/man/bit.1', p.productver.join('doc/man/man1/bit.1'), {compress: true})
+            install('doc/man/bit.1', p.vapp.join('doc/man/man1/bit.1'), {compress: true})
         }
     }
     let files = contents.files('**', {exclude: /\/$/, relative: true})
     files = files.map(function(f) Path("/" + f))
-    p.productver.join('files.log').append(files.join('\n') + '\n')
+    p.vapp.join('files.log').append(files.join('\n') + '\n')
 
     /*
         Remove empty prefixes. Will fail if there are any files.
@@ -210,7 +210,7 @@ public function uninstallBinary() {
         throw 'Must run as root. Use \"sudo bit uninstall\"'
     }
     trace('Uninstall', bit.settings.title)
-    let fileslog = bit.prefixes.productver.join('files.log')
+    let fileslog = bit.prefixes.vapp.join('files.log')
     if (fileslog.exists) {
         for each (let file: Path in fileslog.readLines()) {
             strace('Remove', file)
@@ -245,28 +245,27 @@ public function uninstallBinary() {
 public function createLinks() {
     let log = []
     let bin = bit.prefixes.bin
-    if (bin.exists) {
-        let programs = ['bit' ]
-        let pbin = bit.prefixes.productver.join('bin')
-        let target: Path
-        for each (program in programs) {
-            let link = Path(bin.join(program))
-            link.symlink(pbin.join(program + bit.globals.EXE))
-            strace('Link', link)
-            log.push(link)
-        }
-        for each (page in bit.prefixes.productver.join('doc/man').files('**/*.1.gz')) {
-            let link = bit.prefixes.man.join('man1').join(page.basename)
-            link.symlink(page)
-            strace('Link', link)
-            log.push(link)
-        }
+    bin.makeDir()
+    let programs = ['bit' ]
+    let pbin = bit.prefixes.vapp.join('bin')
+    let target: Path
+    for each (program in programs) {
+        let link = Path(bin.join(program))
+        link.symlink(pbin.join(program + bit.globals.EXE))
+        strace('Link', link)
+        log.push(link)
+    }
+    for each (page in bit.prefixes.vapp.join('doc/man').files('**/*.1.gz')) {
+        let link = bit.prefixes.man.join('man1').join(page.basename)
+        link.symlink(page)
+        strace('Link', link)
+        log.push(link)
     }
 }
 
 function updateLatestLink() {
-    let latest = bit.prefixes.product.join('latest')
-    let version = bit.prefixes.product.files('*', {include: /\d+\.\d+\.\d+/}).sort().pop()
+    let latest = bit.prefixes.app.join('latest')
+    let version = bit.prefixes.app.files('*', {include: /\d+\.\d+\.\d+/}).sort().pop()
     if (version) {
         latest.symlink(version.basename)
     } else {
