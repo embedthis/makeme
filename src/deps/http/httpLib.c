@@ -8500,9 +8500,7 @@ PUBLIC int httpStartRoute(HttpRoute *route)
             if (route->logBackup > 0) {
                 httpBackupRouteLog(route);
             }
-            assert(!route->log);
-            route->log = mprOpenFile(route->logPath, O_CREAT | O_APPEND | O_WRONLY | O_TEXT, 0664);
-            if (route->log == 0) {
+            if ((route->log = mprOpenFile(route->logPath, O_CREAT | O_APPEND | O_WRONLY | O_TEXT, 0664)) == 0) {
                 mprError("Cannot open log file %s", route->logPath);
                 return MPR_ERR_CANT_OPEN;
             }

@@ -1851,7 +1851,7 @@ PUBLIC void httpSendOutgoingService(HttpQueue *q);
 #define HTTP_EVENT_READABLE         2       /**< The request has data available for reading */
 #define HTTP_EVENT_WRITABLE         3       /**< The request is now writable (post / put data) */
 #define HTTP_EVENT_ERROR            4       /**< The request has an error */
-#define HTTP_EVENT_DESTROY          5       /**< The request is being destroyed */
+#define HTTP_EVENT_DESTROY          5       /**< The connection is being closed and destroyed */
 
 /*
     Application level events 
@@ -2434,7 +2434,7 @@ PUBLIC void httpSetConnHost(HttpConn *conn, void *host);
     <li>HTTP_EVENT_READABLE &mdash; There is data available to read</li>
     <li>HTTP_EVENT_WRITABLE &mdash; The outgoing pipeline can absorb more data</li>
     <li>HTTP_EVENT_ERROR &mdash; The request has encountered an error</li>
-    <li>HTTP_EVENT_DESTROY &mdash; The request structure is about to be destoyed</li>
+    <li>HTTP_EVENT_DESTROY &mdash; The connection structure is about to be destoyed</li>
     <li>HTTP_EVENT_OPEN &mdash; The application layer is now open</li>
     <li>HTTP_EVENT_CLOSE &mdash; The application layer is now closed</li>
     </ul>

@@ -330,9 +330,11 @@ function packageTar(pkg: Path, options) {
 
 
 function packageInstall(pkg: Path, options) {
+    /* UNUSED
     if (Config.OS != 'windows' && App.uid != 0) {
         throw 'Must run as root. Use "sudo bit install"'
     }
+    */
     let s = bit.settings
     let rel = bit.dir.rel
     let base = [s.product, s.version, s.buildNumber, bit.platform.dist, bit.platform.os, bit.platform.arch].join('-')
@@ -352,6 +354,7 @@ function packageInstall(pkg: Path, options) {
         if (file.isDir) {
             target.makeDir(file.attributes)
         } else {
+            strace('Install', target)
             file.copy(target /*, file.attributes */)
         }
     }

@@ -107,26 +107,7 @@
         <pre>$ bit</pre>
 
         <p>The target <em>scripts</em> property is a collection that is indexed by an event named for when the script should
-        run. The standard events are:
-        <table title="events">
-            <thead>
-                <tr><th>Name</th><th>Description</th>
-            </thead>
-            <tbody>
-                <tr><td>preblend</td><td>Fired before blending defaults for a target</td></tr>
-                <tr><td>postblend</td><td>Fired after blending defaults for a target</td></tr>
-                <tr><td>preresolve</td><td>Fired before resolving dependencies for a target</td></tr>
-                <tr><td>postresolve</td><td>Fired after resolving dependencies for a target</td></tr>
-                <tr><td>presource</td><td>Fired before expanding source wildcards and creating object targets</td></tr>
-                <tr><td>postsource</td><td>Fired after expanding source wildcards and creating object targets</td></tr>
-                <tr><td>predependencies</td><td>Fired before processing a target's dependencies</td></tr>
-                <tr><td>postdependencies</td><td>Fired after processing a target's dependencies</td></tr>
-                <tr><td>precompile</td><td>Fired before compiling a source file used by a target</td></tr>
-                <tr><td>postcompile</td><td>Fired after compiling a source file used by a target</td></tr>
-                <tr><td>prebuild</td><td>Fired before building a target</td></tr>
-                <tr><td>postbuild</td><td>Fired after building a target</td></tr>
-            </tbody>
-        </table>
+        run. The standard events are described in <a href="../../../ref/bit/events.html#events">Bit Events</a>.
 
         <p>Here is another example of a shell script that runs just prior to building a library.
 <pre>

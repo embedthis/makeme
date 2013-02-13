@@ -15,10 +15,11 @@ Bit.load({
     /* 
         Prefixes are used when doing bit install 
      */
-    prefixes: {
+    'windows-prefixes': {
         /* programFiles32 may get (x86) at run-time if on a 64-bit system */
-        programFiles:       'C:/Program Files',
-        programFiles32:     'C:/Program Files',
+        root:               'C:/',
+        programFiles:       '${prefixes.root}Program Files',
+        programFiles32:     '${prefixes.root}Program Files',
         base:               '${prefixes.programFiles}',
         product:            '${prefixes.base}/${settings.title}',
         productver:         '${prefixes.product}',
@@ -55,28 +56,29 @@ Bit.load({
             '-nodefaultlib',
             '-incremental:no',
         ],
-        scripts: {
-            '+preblend': "
-                //  Runs to update defaults.* before blending defaults into targets
-                let defaults = bit.defaults
-                let settings = bit.settings
-                if (settings.preprocess) defaults.compiler += [ '-E' ]
-                defaults.libpaths.push(bit.dir.lib)
-                if (bit.settings.debug) {
-                    defaults.defines.push('BIT_DEBUG')
-                    defaults.compiler += [ '-Zi', '-Od', '-MDd' ]
-                    defaults.linker += [ '-debug' ]
-                } else {
-                    defaults.compiler += [ '-O2', '-MD' ]
-                }
-                if ('${ARCH}' == 'x64') {
-                    defaults.linker += ['-machine:x64']
-                    defaults.entry.lib = '_DllMainCRTStartup'
-                } else {
-                    defaults.linker += ['-machine:x86']
-                }
-            ",
-        },
+    },
+
+    scripts: {
+        preinherit: "
+            //  Runs to update defaults.* before blending defaults into targets
+            let defaults = bit.defaults
+            let settings = bit.settings
+            if (settings.preprocess) defaults.compiler += [ '-E' ]
+            defaults.libpaths.push(bit.dir.lib)
+            if (bit.settings.debug) {
+                defaults.defines.push('BIT_DEBUG')
+                defaults.compiler += [ '-Zi', '-Od', '-MDd' ]
+                defaults.linker += [ '-debug' ]
+            } else {
+                defaults.compiler += [ '-O2', '-MD' ]
+            }
+            if ('${ARCH}' == 'x64') {
+                defaults.linker += ['-machine:x64']
+                defaults.entry.lib = '_DllMainCRTStartup'
+            } else {
+                defaults.linker += ['-machine:x86']
+            }
+        ",
     },
 
     rules: {

@@ -15,19 +15,20 @@ Bit.load({
     },
 
     prefixes: {
-        base:       'deploy',
-        config:     'deploy',
-        product:    'deploy',
-        productver: 'deploy',
-        bin:        'deploy',
-        lib:        'deploy',
-        inc:        'deploy/inc',
-        log:        'deploy',
-        spool:      'deploy',
+        root:       'deploy'
+        base:       '${prefixes.root}',
+        config:     '${prefixes.base}',
+        product:    '${prefixes.base}',
+        productver: '${prefixes.base}',
+        bin:        '${prefixes.base}',
+        lib:        '${prefixes.base}',
+        inc:        '${prefixes.base}/inc',
+        log:        '${prefixes.base}',
+        spool:      '${prefixes.base}',
         src:        '/usr/src/${settings.product}-${settings.version}',
-        web:        'deploy/web',
-        ubin:       'deploy',
-        man:        'deploy',
+        web:        '${prefixes.base}/web',
+        ubin:       '${prefixes.base}',
+        man:        '${prefixes.base}',
     },
 
     settings: {
@@ -49,41 +50,43 @@ Bit.load({
         '+libraries': [ 'gcc' ],
         '+libpaths': [ ],
         '+linker': [ '-Wl,-r' ],
-        scripts: {
-            '+preblend': "
-                //  TODO - move to pack
-                let defaults = bit.defaults
-                let arch = bit.platform.arch
-                let cpu
-                if (arch == 'i386') {
-                    cpu = 'I80386'
-                } else if (arch == 'i486') {
-                    cpu = 'I80486'
-                } else if (arch.match(/^i.86$|^x86$/)) {
-                    cpu = 'PENTIUM'
-                } else {
-                    /* Set to compiles don't fail */
-                    cpu = arch.toUpper()
-                    if (arch == 'mips') {
-                        cpu = 'mips32'
-                    } else if (arch == 'arm') {
-                        cpu = 'ARM7TDMI'
-                    }
-                }
-                cpu = bit.platform.cpu || cpu
-                defaults.defines.push('CPU=' + cpu.toUpper())
-                if (arch.match(/mips/)) {
-                    /* Don't use mips global pointer */
-                    defaults.compiler.push('-G 0')
-                }
-                if (bit.packs.vxworks && bit.packs.vxworks.includes) {
-                    defaults.includes ||= []
-                    defaults.includes += bit.packs.vxworks.includes
-                }
-                defaults.libpaths.push(bit.dir.lib)
-            ",
-        },
     },
+
+    scripts: {
+        preinherit: "
+            //  TODO - move to pack
+            let defaults = bit.defaults
+            let arch = bit.platform.arch
+            let cpu
+            if (arch == 'i386') {
+                cpu = 'I80386'
+            } else if (arch == 'i486') {
+                cpu = 'I80486'
+            } else if (arch.match(/^i.86$|^x86$/)) {
+                cpu = 'PENTIUM'
+            } else {
+                /* Set to compiles don't fail */
+                cpu = arch.toUpper()
+                if (arch == 'mips') {
+                    cpu = 'mips32'
+                } else if (arch == 'arm') {
+                    cpu = 'ARM7TDMI'
+                }
+            }
+            cpu = bit.platform.cpu || cpu
+            defaults.defines.push('CPU=' + cpu.toUpper())
+            if (arch.match(/mips/)) {
+                /* Don't use mips global pointer */
+                defaults.compiler.push('-G 0')
+            }
+            if (bit.packs.vxworks && bit.packs.vxworks.includes) {
+                defaults.includes ||= []
+                defaults.includes += bit.packs.vxworks.includes
+            }
+            defaults.libpaths.push(bit.dir.lib)
+        ",
+    },
+
     rules: {
         'c->c':   '${packs.compiler.path} -E ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
         'c->o':   '${packs.compiler.path} -c -o ${OUTPUT} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',

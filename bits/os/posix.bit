@@ -13,23 +13,56 @@ Bit.load({
         shobj: 'so',
     },
 
-    prefixes: {
-        base:       '/usr/lib',
-        config:     '/etc/${settings.product}',
-        product:    '${prefixes.base}/${settings.product}',
-        productver: '${prefixes.product}/${settings.version}',
-        bin:        '${prefixes.productver}/bin',
-        inc:        '${prefixes.productver}/inc',
-        lib:        '${prefixes.productver}/lib',
-        log:        '/var/log/${settings.product}',
-        spool:      '/var/spool/${settings.product}',
-        src:        '/usr/src/${settings.product}-${settings.version}',
-        web:        '/var/www/${settings.product}-default',
-        man:        '/usr/local/share/man',
-        ubin:       '/usr/local/bin',
+    'opt-prefixes': {
+        root:     '/',
+        base:       '${prefixes.root}/opt/${settings.product}',
+        data:       '${prefixes.root}/share',
+        state:      '${prefixes.root}/var',
+
+        bin:        '${prefixes.base}/bin',
+        inc:        '${prefixes.base}/include',
+        lib:        '${prefixes.base}/lib',
+        man:        '${prefixes.base}/share/man',
+        sbin:       '${prefixes.base}/sbin',
+
+        etc:        '${prefixes.root}/etc/${settings.product}',
+        web:        '${prefixes.data}/share/www/${settings.product}-default',
+
+        log:        '${prefixes.state}/logs',
+        spool:      '${prefixes.state}/spool',
+        cache:      '${prefixes.state}/cache',
+
+        product:    '${prefixes.base}/lib/${settings.product}',
+        productver: '${prefixes.product}',
+        src:        '${prefixes.data}/src/${settings.product}-${settings.version}',
+    },
+
+    'debian-prefixes': {
+        root:       '/',
+        base:       '${prefixes.root}/usr',
+        data:       '${prefixes.root}',
+        state:      '${prefixes.data}/var',
+
+        bin:        '${prefixes.base}/bin',
+        inc:        '${prefixes.base}/include',
+        lib:        '${prefixes.base}/lib',
+        man:        '${prefixes.base}/share/man',
+        sbin:       '${prefixes.base}/sbin',
+
+        etc:        '${prefixes.data}/etc/${settings.product}',
+        web:        '${prefixes.data}/www/${settings.product}-default',
+
+        log:        '${prefixes.state}/log/${settings.product}',
+        spool:      '${prefixes.state}/spool/${settings.product}',
+        cache:      '${prefixes.state}/cache/${settings.product}',
+
+        product:    '${prefixes.lib}/${settings.product}',
+        productver: '${prefixes.product}',
+        src:        '${prefixes.base}/src/${settings.product}-${settings.version}',
     },
 
     settings: {
         '+required': [ 'compiler', 'lib', 'link' ],
+        prefixes: ['debian'],
     }
 })

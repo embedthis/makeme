@@ -109,21 +109,29 @@
                         and CPU architecture.</td></tr>
                 <tr><td>platforms</td><td>List of platforms to build. Platforms are of the form: OS-ARCH-PROFILE. The 
                     special platform "local" is added internally.</td></tr>
-                    <tr><td>prefixes</td><td>Installation directory prefixes and default values on Unix/Linux systems:
+                <tr><td>prefixes</td><td>Installation directory prefixes and default values on Unix/Linux systems:
                     <ul>
-                        <li>base &mdash; Base installation prefix (/usr/lib)</li>
-                        <li>config &mdash; Configuration prefix /etc/${settings.product}</li>
-                        <li>product &mdash; Base product directory /usr/lib/${settings.product}</li>
-                        <li>productver &mdash; Versioned product ${prefixes.product}/${settings.version}</li>
-                        <li>bin &mdash; Product binaries ${prefixes.productver}/bin</li>
-                        <li>inc &mdash; Product includes ${prefixes.productvers}/inc</li>
-                        <li>lib &mdash; Product libraries ${prefixes.productver}/lib</li>
-                        <li>log &mdash; Product log files /var/log/${settings.product}</li>
-                        <li>spool &mdash; Product spool files /var/spool/${settings.product}</li>
+                        <li>root &mdash; Root directory prefix: /</li>
+                        <li>base &mdash; Base installation prefix: /usr/local</li>
+                        <li>data &mdash; Installation prefix for modifiable data: /</li>
+                        <li>state &mdash; Base installation prefix: /var</li>
+
+                        <li>product &mdash; Base product directory: /usr/local/lib/${settings.product}</li>
+                        <li>productver &mdash; Versioned product: ${prefixes.product}/${settings.version}</li>
+
+                        <li>etc &mdash; Configuration prefix: ${prefixes.data}/etc/${settings.product}</li>
+                        <li>bin &mdash; Binary directory: ${prefixes.base}/bin</li>
+                        <li>inc &mdash; Include directory: ${prefixes.base}/include</li>
+                        <li>lib &mdash; Product libraries: ${prefixes.base}/lib</li>
+                        <li>man &mdash; Product log files: ${prefixes.base/share/man</li>
+                        <li>sbin &mdash; System binaries: ${prefixes.base}/sbin</li>
+
+                        <li>log &mdash; Product log files ${prefixes.state}/log/${settings.product}</li>
+                        <li>spool &mdash; Product spool files ${prefixes.state}/spool/${settings.product}</li>
+                        <li>cache &mdash; Product spool files ${prefixes.state}/cache/${settings.product}</li>
+                        <li>web &mdash; Product log files ${prefixes.state}/www/${settings.product}-default</li>
                         <li>src &mdash; Product source /usr/src/${settings.product}-${settings.version}</li>
-                        <li>web &mdash; Product log files /var/www/${settings.product}-default</li>
-                        <li>man &mdash; Product log files /usr/local/share/man</li>
-                        <li>ubin &mdash; System local binaries /usr/local/bin</li>
+                    </ul>
             
             </td></tr>
                 <tr><td>profiles</td><td>Build profiles. Standard profiles are: debug and release</td></tr>
@@ -213,6 +221,9 @@
                 <tr><td>buildNumber</td><td>Build number string</td></tr>
                 <tr><td>company</td><td>Company name</td></tr>
                 <tr><td>discover</td><td>List of optional packs to discover when configuring </td></tr>
+                <tr><td>prefixes</td><td>Name of collection containing installation prefixes. 
+                    Set to debian|embedthis|opt or to a user-provided collection. This causes the requested prefix collection
+                    to be copied to the prefixes collection.</td></tr>
                 <tr><td>product</td><td>Product or project name. Should be one word, lower case without spaces</td></tr>
                 <tr><td>required</td><td>List of required packs to discover when configuring </td></tr>
                 <tr><td>static</td><td>Build using static linking instead of building shared libraries</td></tr>

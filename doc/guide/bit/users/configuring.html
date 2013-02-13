@@ -129,7 +129,39 @@ the form <em>--set KEY=VALUE</em>. For example:
         <p>To enable a feature, set it to true or 1. To disable, set to false or 0. The <em>configure --help</em> command
         will list the features that can be selected.</p>
         
-        <h3>Out-of-source Tree Builds</h3>
+        <h3>Installation Prefixes</h3>
+        <p>Bit projects typically define a <em>prefixes</em> collection that define where the various pieces of the
+        application will be installed. To override where the project will be installed, use the <em>--prefix</em> configure
+        option. For example:
+        <pre>configure --prefix base=/opt</pre>
+        <p>This will cause the project to be installed under <em>/opt</em> instead of the usual location (/usr/local).</p>
+        
+        To display the current installation prefixes, type:
+        <pre>$ <b>bit --get prefixes</b>
+{
+  "root": "/",
+  "base": "/usr/local",
+  "data": "/",
+  "state": "/var",
+  "product": "/usr/local/lib/mpr",
+  "productver": "/usr/local/lib/mpr/4.3.0",
+  "bin": "/usr/local/bin",
+  "inc": "/usr/local/include",
+  "lib": "/usr/local/lib",
+  "man": "/usr/local/share/man",
+  "sbin": "/usr/local/sbin",
+  "etc": "/etc/mpr",
+  "web": "/var/www/mpr-default",
+  "log": "/var/log/mpr",
+  "spool": "/var/spool/mpr",
+  "cache": "/var/cache/mpr",
+  "src": "/usr/local/src/mpr-4.3.0"
+}
+</pre>
+        <p>Depending on the project and target system, the installation prefixes may vary.</p>
+        <p>For those familiar with autoconf, the major autoconf prefix switches are supported by bit.</p>
+
+        <h2>Out-of-source Tree Builds</h2>
         <p>Bit supports building from read-only source trees. To do this, use <em>bit -config path</em> when
         configuring. Run this from a writable directory and reference the read-only source tree via the
         <em>-config</em> switch. Bit will create the start.bit, platform bit file and platform output build directory in the
@@ -160,14 +192,28 @@ the form <em>--set KEY=VALUE</em>. For example:
         saved in the generated platform build file and apply to all subsequent runs.
         For example:
             <pre>CC=/path/to/compiler CFLAGS=-w bit configure</pre>
-        <h2 class="section">Useful Configure Bits</h2>
+        <h2>Useful Configure Bits</h2>
         <p>Here are a few other useful configure commands:</p>
         <p>To run configure again with the previous configure command line:</p>
         <pre>configure --reconfigure</pre>
         <p>To dump the entire configuration into a single bit file. This is great for debugging.</p>
         <pre>configure --dump</pre>
-        </div>
         <p>To learn more, read about <a href="debugging.html">Debugging a Build</a>.</p>
+
+        <h2>Customize.bit</h2>
+        <p>Instead of manually specifying settings to configure, you can create a customize.bit file that will be loaded
+        after the main.bit and all referenced bit files are fully loaded. The customize.bit file can thus override any prior
+        Bit setting. Projects should not ship this file and so
+        users need not fear their customize.bit file will be overwritten. For example:</p>
+        <pre>
+Bit.load({
+    settings: {
+        version: "1.2.4",
+    },
+})
+</pre>
+        </div>
+
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->
 	<div class="bottom">

@@ -97,11 +97,14 @@
 #ifndef BIT_PLATFORMS
     #define BIT_PLATFORMS "local"
 #endif
+#ifndef BIT_PREFIXES
+    #define BIT_PREFIXES "embedthis-prefixes"
+#endif
 #ifndef BIT_PRODUCT
     #define BIT_PRODUCT "bit"
 #endif
 #ifndef BIT_REQUIRED
-    #define BIT_REQUIRED "winsdk,compiler,lib,link,dumpbin,rc,pcre,http,ejscript"
+    #define BIT_REQUIRED "winsdk,compiler,lib,link,dumpbin,rc,pcre,ejscript"
 #endif
 #ifndef BIT_SSL
     #define BIT_SSL 1
@@ -129,38 +132,56 @@
 #endif
 
 /* Prefixes */
-#ifndef BIT_CFG_PREFIX
-    #define BIT_CFG_PREFIX "C:/Program Files/Embedthis Bit"
+#ifndef BIT_ROOT_PREFIX
+    #define BIT_ROOT_PREFIX "/"
+#endif
+#ifndef BIT_BASE_PREFIX
+    #define BIT_BASE_PREFIX "/usr/local"
+#endif
+#ifndef BIT_DATA_PREFIX
+    #define BIT_DATA_PREFIX "/"
+#endif
+#ifndef BIT_STATE_PREFIX
+    #define BIT_STATE_PREFIX "/var"
+#endif
+#ifndef BIT_PRODUCT_PREFIX
+    #define BIT_PRODUCT_PREFIX "/usr/local/lib/bit"
+#endif
+#ifndef BIT_PRODUCTVER_PREFIX
+    #define BIT_PRODUCTVER_PREFIX "/usr/local/lib/bit/0.8.0"
 #endif
 #ifndef BIT_BIN_PREFIX
-    #define BIT_BIN_PREFIX "C:/Program Files/Embedthis Bit/bin"
+    #define BIT_BIN_PREFIX "/usr/local/bin"
 #endif
 #ifndef BIT_INC_PREFIX
-    #define BIT_INC_PREFIX "C:/Program Files/Embedthis Bit/inc"
+    #define BIT_INC_PREFIX "/usr/local/include"
 #endif
-#ifndef BIT_LOG_PREFIX
-    #define BIT_LOG_PREFIX "C:/Program Files/Embedthis Bit/log"
-#endif
-#ifndef BIT_PRD_PREFIX
-    #define BIT_PRD_PREFIX "C:/Program Files/Embedthis Bit"
-#endif
-#ifndef BIT_SPL_PREFIX
-    #define BIT_SPL_PREFIX "C:/Program Files/Embedthis Bit/tmp"
-#endif
-#ifndef BIT_SRC_PREFIX
-    #define BIT_SRC_PREFIX "C:/Program Files/Embedthis Bit/src"
-#endif
-#ifndef BIT_VER_PREFIX
-    #define BIT_VER_PREFIX "C:/Program Files/Embedthis Bit"
-#endif
-#ifndef BIT_WEB_PREFIX
-    #define BIT_WEB_PREFIX "C:/Program Files/Embedthis Bit/web"
-#endif
-#ifndef BIT_UBIN_PREFIX
-    #define BIT_UBIN_PREFIX "C:/Program Files/Embedthis Bit/bin"
+#ifndef BIT_LIB_PREFIX
+    #define BIT_LIB_PREFIX "/usr/local/lib"
 #endif
 #ifndef BIT_MAN_PREFIX
-    #define BIT_MAN_PREFIX "C:/Program Files/Embedthis Bit/man"
+    #define BIT_MAN_PREFIX "/usr/local/share/man"
+#endif
+#ifndef BIT_SBIN_PREFIX
+    #define BIT_SBIN_PREFIX "/usr/local/sbin"
+#endif
+#ifndef BIT_ETC_PREFIX
+    #define BIT_ETC_PREFIX "/etc/bit"
+#endif
+#ifndef BIT_WEB_PREFIX
+    #define BIT_WEB_PREFIX "/var/www/bit-default"
+#endif
+#ifndef BIT_LOG_PREFIX
+    #define BIT_LOG_PREFIX "/var/log/bit"
+#endif
+#ifndef BIT_SPOOL_PREFIX
+    #define BIT_SPOOL_PREFIX "/var/spool/bit"
+#endif
+#ifndef BIT_CACHE_PREFIX
+    #define BIT_CACHE_PREFIX "/var/cache/bit"
+#endif
+#ifndef BIT_SRC_PREFIX
+    #define BIT_SRC_PREFIX "/usr/local/src/bit-0.8.0"
 #endif
 
 /* Suffixes */
@@ -224,9 +245,6 @@
 #ifndef BIT_PACK_EST
     #define BIT_PACK_EST 1
 #endif
-#ifndef BIT_PACK_HTTP
-    #define BIT_PACK_HTTP 1
-#endif
 #ifndef BIT_PACK_LIB
     #define BIT_PACK_LIB 1
 #endif
@@ -274,9 +292,6 @@
 #endif
 #ifndef BIT_PACK_EST_PATH
     #define BIT_PACK_EST_PATH "/Users/mob/git/bit/src/deps/est"
-#endif
-#ifndef BIT_PACK_HTTP_PATH
-    #define BIT_PACK_HTTP_PATH "/Users/mob/git/bit/macosx-x64-release/bin/http"
 #endif
 #ifndef BIT_PACK_LIB_PATH
     #define BIT_PACK_LIB_PATH "lib.exe"

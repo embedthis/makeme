@@ -33,7 +33,7 @@ Bit.load({
     },
 
     scripts: {
-        onload: "
+        postload: "
             bit.settings.version ||= '1.0.0'
             if (bit.platform.like == 'windows') {
                 settings = {

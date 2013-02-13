@@ -16,38 +16,42 @@ bit \- Build It! -- Utility to build and manage programs
 .RE
 .RS 4
 [\fI--gen [make|nmake|sh|vs|xcode|main|start]\fR]
+[\fI--get field\fR]
+[\fI--help\fR]
 [\fI--import\fR]
 [\fI--keep\fR]
 [\fI--log logSpec\fR]
-[\fI--nocross\fR]
 .RE
 .RS 4
+[\fI--nocross\fR]
+[\fI--overwrite\fR]
 [\fI--out path\fR]
 [\fI--platform os-arch\fR]
 [\fI--pre\fR]
 [\fI--prefix dir=path\fR]
-[\fI--profile [debug|release|...]\fR]
 .RE
 .RS 4
+[\fI--prefixes debian|embedthis|opt\fR]
+[\fI--profile [debug|release|...]\fR]
 [\fI--quiet\fR]
 [\fI--rebuild\fR]
+.RE
+.RS 4
 [\fI--reconfigure\fR]
 [\fI--release\fR]
 [\fI--rom\fR]
 [\fI--set [feature=value]\fR]
 [\fI--show\fR]
-.RE
-.RS 4
 [\fI--static\fR]
 [\fI--unicode\fR]
+.RE
+.RS 4
 [\fI--unset feature\fR]
 [\fI--version\fR]
 [\fI--verbose\fR]
 [\fI--with PACK[=PATH]\fR]
-.RE
-.RS 4
 [\fI--without PACK\fR]
-[targets|actions]
+[targets|actions] ...
 .SH DESCRIPTION
 The \fBbit\fR command is modern replacement for the venerable make and not so popular autoconf utilities.
 Bit manages the building of programs and products by effectively determining which pieces have been updated and 
@@ -55,29 +59,31 @@ thus which components need to be rebuilt. It easily handles direct compilation a
 .PP
 .SH WHY BIT?
 Many projects rely on autoconf to configure products and make to build. But autoconf is a baroque maze of scripts and
-make is provides too little support for easily building executable and libraries in a cross platform manner.
-Further, neither of these tools work well for Windows and embedded platforms like VxWorks.
+make is low-level, scales poorly and provides little support for easily building executable and libraries in a cross
+platform manner. Furthermor, neither of these tools work well for Windows or embedded platforms like VxWorks.
 Consequently, creating portable Makefiles and autoconf scripts that will work on a variety of platforms and support 
 cross-compilation is an exercise in patience. Often the result is slow, fragile build systems, especially on Windows.
 .PP 
 Bit replaces both autoconf and make with a single utility: 'bit'.
-Bit provides a higher level of abstraction to easily specify the targets to build (libraries and executables). 
-It can build directly on Linux, Mac or Windows and cross compile for other platforms. It will generate native projects
-for Visual Studio, XCode, Make, Nmake and shell scripts. Bit builds fast without the complexity of autoconf
+Bit provides a higher level of abstraction to easily specify the targets to build (libraries, executables, files and
+script output).  It can build directly on Linux, Mac or Windows and cross compile for other platforms. It will generate
+native projects for Visual Studio, XCode, Make, Nmake and shell scripts. Bit builds fast without the complexity of autoconf
 and make.
 .PP
 Bit was initiated after evaluating Make, CMake and GYP for use by Appweb and Ejscript in an embedded, cross-compilation
-environment. While all three can be made to work, we were expending a large percentage of time on the build system and
-less on the actual product. Our design goals were:
+environment. While all three can be made to work, at Embedthis, we were expending a large percentage of time on the build
+system and less on the actual product. Our design goals were:
 
-    . Easily manage cross-compilation and cross-compilers
-    . Support discovery, configuration and integration of external third-party packages
+    . Create a build too to be used by Embedthis for its own products
+    . Be portable across the major Unix platforms and Windows
+    . Easily manage cross-compilation and cross-compilers for embedded targets
     . Generate native projects for IDE integration
-    . Build quickly on windows without relying on Cygwin
+    . Build quickly, reliably and flexibly on Windows without requiring Cygwin
     . Support for the entire build cycle: C dependencies, compilation, test and packaging
+    . Support modular discovery, configuration and integration of external third-party packages
     . Be hackable and extendable
 .SH FEATURES
-Bit is implemented primarily as a single Ejscript of some 3K lines and is very hackable. 
+Bit is implemented primarily as a single Ejscript of some 4K lines and is very hackable. 
 It has the following major features:
 
     . Configuration and component discovery (replaces autoconf)
@@ -89,7 +95,7 @@ It has the following major features:
     . Cross platform. Easily handles Windows, Linux and Mac builds
     . Easy cross-compilation
     . Building outside source tree for read-only file systems
-    . Bit files are JavaScript source and are easily modified and extened
+    . Bit files are Javascript source and are easily modified and extended
     . Multiple build profiles (debug, release, ...)
     . Very fast configuration and building, even on windows
 .SH NICE BITS
@@ -102,12 +108,13 @@ While Bit has a strong feature set, there are some characteristics that make bui
     . Bit provides a "why" option (bit -why) to display why a target was or was not rebuilt
     . Bit files and targets intelligently inherit of outer project properties
     . Bit scripts run using the working directory of the bit file
+    . Detailed documentation
 
 .PP
 
 .SH OVERVIEW
-A bit file is a JavaScript file with a '.bit' extension that invokes Bit.load() to process a set of build instructions. 
-The build instructions are expressed as a JavaScript object literal that Bit.load() integrates into the master set of 
+A bit file is a Javascript file with a '.bit' extension that invokes Bit.load() to process a set of build instructions. 
+The build instructions are expressed as a Javascript object literal that Bit.load() integrates into the master set of 
 build instructions.
 .PP
 .RS 5
@@ -183,14 +190,14 @@ settings: {
     version: '4.0.5',
     buildNumber: '4',
     '+required': [ 'utest' ],
-    '+optional': [ 'doxygen', 'man', 'man2html', 'md5', 'matrixssl', 'openssl', 'ssl' ],
+    '+discover': [ 'doxygen', 'man', 'man2html', 'md5', 'matrixssl', 'openssl', 'ssl' ],
 .RE
 .RS 5
 },
 .RE
 .PP
 The 'required' property defines the extensions that are required to be present on the system to build. The 
-'optional' property defines those extensions that will be used if present, but are not required. The plus symbol before
+'discover' property defines those extensions that will be used if present, but are not required. The plus symbol before
 these properties indicates that these values should be added to pre-defined values. The buildNumber is a build
 patch number.
 
@@ -299,7 +306,7 @@ arm, mips, ppc, x64 or x86. PROFILE is typically set to debug or release. For ex
 configuration bit file omits the
 PROFILE. For example: 'linux-x86.bit'.
 
-Bit will use the settings.required and settings.optional properties in the main.bit for a list of packages to use. 
+Bit will use the settings.required and settings.discover properties in the main.bit for a list of packages to use. 
 When configuring, bit will search for these packages and will create definitions in the configuration bit file for
 later use.
 
@@ -344,6 +351,11 @@ directory.  The projects are based on the current configuration. If cross-genera
 also use -configure.
 
 .TP
+\fB\--get field \fR
+Get a field from the Bit DOM. This can be used to display any Bit file value. Unlike --set, this applies to any Bit DOM value
+and not just to settings. For example: bit --get settings.version.
+
+.TP
 \fB\--import\fR
 Import the standard bit configuration bits directory into the local source tree.
 
@@ -383,6 +395,12 @@ Pre-process a source file to stdout.
 \fB\--prefix dir=path\fR
 Set the installation directory prefix. Various products utilize different prefixes. Typical prefixes are:
 bin, config, inc, log, product, productver, spool, src, web.
+
+.TP
+\fB\--prefixes debian|embedthis|opt\fR
+Select an installation prefix package. Debian specifies the debian recommended installation locations. Embedthis
+products install by default with a prefix of /usr/local/lib/PRODUCT and symlink exectuables to /usr/local/bin.
+The opt prefix set installs with a prefix of "/opt".
 
 .TP
 \fB\--profile [debug|release|...]\fR

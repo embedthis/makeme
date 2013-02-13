@@ -19,7 +19,10 @@ Bit.load({
     ],
 
     customize: [
-        /* Optionally load this if present. Feel free to create and customize */
+        /* 
+            The optional custom.bit file is loaded after main.bit is fully processed. It can
+            thus override any setting. Feel free to create and customize. 
+         */
         'custom.bit',
     ],
 
@@ -29,6 +32,11 @@ Bit.load({
         company: 'Embedthis',
         version: '0.8.0',
         buildNumber: '0',
+
+        /*
+            Installation prefix set
+         */
+        prefixes: 'embedthis-prefixes',
 
         sync: [ 'bitos', 'est', 'mpr', 'pcre', 'http', 'ejs' ],
         packs: [ 'bits/packs' ],
@@ -41,7 +49,7 @@ Bit.load({
             Optional packs to automatically discover and configure
          */
         '+discover': [ 'dsi', 'ejscript', 'est', 'man', 'man2html', 'pmaker', 'zip' ],
-        '+required': [ 'pcre', 'http', 'ejscript' ],
+        '+required': [ 'pcre', 'ejscript' ],
 
         /*
             Packs to disable when using --without all

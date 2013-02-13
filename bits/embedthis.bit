@@ -1,11 +1,19 @@
 /*
-    embedthis.bit -- Embedthis Build Actions
+    embedthis.bit -- Embedthis Build Configuration
  */
 
 Bit.load({
     '+modules': [
         'embedthis.es',
     ],
+
+    scripts: {
+        postload: "
+            if (bit.platform.like == 'windows' && bit.settings.prefixes == 'embedthis-prefixes') {
+                bit.prefixes = bit['embedthis-prefixes']
+            }
+        ",
+    },
 
     internal: {
         runopt: {dir: bit.dir.src, show: true, toss: true}
@@ -14,6 +22,31 @@ Bit.load({
 
     settings: {
         depth: App.getenv('BUILD_DEPTH') || 1,
+    },
+
+    'embedthis-prefixes': {
+        root:       '/',
+        base:       '${prefixes.root}/usr/local',
+        data:       '${prefixes.root}',
+        state:      '${prefixes.root}/var',
+
+        product:    '${prefixes.base}/lib/${settings.product}',
+        productver: '${prefixes.product}/${settings.version}',
+
+        bin:        '${prefixes.base}/bin',
+        inc:        '${prefixes.base}/include',
+        lib:        '${prefixes.base}/lib',
+        man:        '${prefixes.base}/share/man',
+        sbin:       '${prefixes.base}/sbin',
+
+        etc:        '${prefixes.data}/etc/${settings.product}',
+
+        web:        '${prefixes.state}/www/${settings.product}-default',
+        log:        '${prefixes.state}/log/${settings.product}',
+        spool:      '${prefixes.state}/spool/${settings.product}',
+        cache:      '${prefixes.state}/cache/${settings.product}',
+
+        src:        '${prefixes.base}/src/${settings.product}-${settings.version}',
     },
 
     targets: {

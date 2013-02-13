@@ -31324,9 +31324,9 @@ PUBLIC void ejsDefineConfigProperties(Ejs *ejs)
     ejsDefineProperty(ejs, type, -1, N("public", "TAR"), 0, att, ejsCreateBoolean(ejs, BIT_EJS_TAR));
 #endif
 
-    if (mprSamePath(mprGetAppDir(), BIT_BIN_PREFIX)) {
-        ejsDefineProperty(ejs, type, -1, N("public", "Bin"), 0, att, ejsCreatePathFromAsc(ejs, BIT_BIN_PREFIX));
-        ejsDefineProperty(ejs, type, -1, N("public", "Inc"), 0, att, ejsCreatePathFromAsc(ejs, BIT_INC_PREFIX));
+    if (mprSamePath(mprGetAppDir(), BIT_PRODUCTVER_PREFIX "/bin")) {
+        ejsDefineProperty(ejs, type, -1, N("public", "Bin"), 0, att, ejsCreatePathFromAsc(ejs, BIT_PRODUCTVER_PREFIX "/bin"));
+        ejsDefineProperty(ejs, type, -1, N("public", "Inc"), 0, att, ejsCreatePathFromAsc(ejs, BIT_PRODUCTVER_PREFIX "/inc"));
     } else {
         ejsDefineProperty(ejs, type, -1, N("public", "Bin"), 0, att, ejsCreatePathFromAsc(ejs, mprGetAppDir()));
         ejsDefineProperty(ejs, type, -1, N("public", "Inc"), 0, att, 
@@ -77381,7 +77381,7 @@ EjsArray *ejsCreateSearchPath(Ejs *ejs, cchar *search)
     ejsSetProperty(ejs, ap, -1, ejsCreatePathFromAsc(ejs, mprGetAppDir()));
     ejsSetProperty(ejs, ap, -1, ejsCreatePathFromAsc(ejs, mprGetAppDir()));
 #if !VXWORKS
-    ejsSetProperty(ejs, ap, -1, ejsCreatePathFromAsc(ejs, BIT_BIN_PREFIX));
+    ejsSetProperty(ejs, ap, -1, ejsCreatePathFromAsc(ejs, BIT_PRODUCTVER_PREFIX "/bin"));
 #endif
     return (EjsArray*) ap;
 }

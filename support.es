@@ -12,29 +12,26 @@ require ejs.unix
     This is run for local and cross platforms. The last platform does the packaging
  */
 public function packageDeploy(minimal = false) {
-    let settings = bit.settings
-    let bin = bit.dir.pkg.join('bin')
     safeRemove(bit.dir.pkg)
+
+    let settings = bit.settings
+    let binrel = bit.dir.pkg.join('binrel')
     let vname = settings.product + '-' + settings.version + '-' + settings.buildNumber
-    let pkg = bin.join(vname)
+    let pkg = binrel.join(vname)
+    pkg.makeDir()
+
     let contents = pkg.join('contents')
     let prefixes = bit.prefixes
-    let p = {}
 
-    for (prefix in bit.prefixes) {
-        if (prefix == 'config' || prefix == 'log' || prefix == 'spool' || prefix == 'src' || prefix == 'web' || prefix == 'inc') {
-            continue
-        }
-        if (prefix == 'man' && bit.platform.like != 'posix') {
-            continue
-        }
-        p[prefix] = Path(contents.portable.name + bit.prefixes[prefix].removeDrive().portable)
-        p[prefix].makeDir()
+    let p = {}
+    for (pname in bit.prefixes) {
+        p[pname] = Path(contents.portable.name + bit.prefixes[pname].removeDrive().portable)
+        p[pname].makeDir()
     }
+    let pbin = p.productver.join('bin')
     let strip = bit.platform.profile == 'debug'
 
     trace('Deploy', bit.settings.title)
-    pkg.makeDir()
 
     if (!bit.cross) {
         /* These three files are replicated outside the data directory */
@@ -42,7 +39,7 @@ public function packageDeploy(minimal = false) {
         install('package/install.sh', pkg.join('install'), {permissions: 0755, expand: true})
         install('package/uninstall.sh', pkg.join('uninstall'), {permissions: 0755, expand: true})
         if (bit.platform.os == 'windows') {
-            install('package/windows/LICENSE.TXT', bin, {fold: true, expand: true})
+            install('package/windows/LICENSE.TXT', binrel, {fold: true, expand: true})
         }
         /* Move bit-license to the front */
         let files = Path('doc/licenses').files('*.txt').reject(function(p) p.contains('bit-license.txt'))
@@ -53,23 +50,23 @@ public function packageDeploy(minimal = false) {
             title: bit.settings.title + ' Licenses',
         })
         install('doc/product/README.TXT', p.product, {fold: true, expand: true})
-        install('package/uninstall.sh', p.bin.join('uninstall'), {permissions: 0755, expand: true})
-        install('package/linkup', p.bin, {permissions: 0755})
+        install('package/uninstall.sh', pbin.join('uninstall'), {permissions: 0755, expand: true})
+        install('package/linkup', pbin, {permissions: 0755})
     }
-    install(bit.dir.bin + '/*', p.bin, {
+    install(bit.dir.bin + '/*', pbin, {
         include: /bit|ca.crt|ejs.mod|\.dll|lib.*/,
         permissions: 0755, 
         show: true,
     })
-    install(bit.dir.bin.join('bits'), p.bin)
-    install(bit.dir.bin.join('ca.crt'), p.bin)
+    install(bit.dir.bin.join('bits'), pbin)
+    install(bit.dir.bin.join('ca.crt'), pbin)
 
     if (bit.targets.libmprssl.enable && bit.platform.os == 'linux') {
-        install(bit.dir.bin.join('*.' + bit.ext.shobj + '*'), p.bin, {strip: strip, permissions: 0755})
-        for each (f in p.bin.files('*.so.*')) {
+        install(bit.dir.bin.join('*.' + bit.ext.shobj + '*'), pbin, {strip: strip, permissions: 0755})
+        for each (f in pbin.files('*.so.*')) {
             let withver = f.basename
             let nover = withver.name.replace(/\.[0-9]*.*/, '.so')
-            let link = p.bin.join(nover)
+            let link = pbin.join(nover)
             f.remove()
             f.symlink(link.basename)
         }
@@ -79,15 +76,15 @@ public function packageDeploy(minimal = false) {
             let version = bit.packs.compiler.version.replace('.', '')
             if (bit.platform.arch == 'x64') {
                 install(bit.packs.compiler.dir.join('VC/redist/x64/Microsoft.VC' +
-                    version + '.CRT/msvcr' + version + '.dll'), p.bin)                                     
+                    version + '.CRT/msvcr' + version + '.dll'), pbin)                                     
             } else {
                 install(bit.packs.compiler.dir.join('VC/redist/x86/Microsoft.VC' + 
-                    version + '.CRT/msvcr' + version + '.dll'), p.bin)
+                    version + '.CRT/msvcr' + version + '.dll'), pbin)
             }
             /*
-                install(bit.packs.compiler.path.join('../../lib/msvcrt.lib'), p.bin)
+                install(bit.packs.compiler.path.join('../../lib/msvcrt.lib'), pbin)
              */
-            install(bit.dir.bin.join('removeFiles' + bit.globals.EXE), p.bin)
+            install(bit.dir.bin.join('removeFiles' + bit.globals.EXE), pbin)
         }
         if (bit.platform.like == 'posix') {
             install('doc/man/bit.1', p.productver.join('doc/man/man1/bit.1'), {compress: true})
@@ -96,6 +93,15 @@ public function packageDeploy(minimal = false) {
     let files = contents.files('**', {exclude: /\/$/, relative: true})
     files = files.map(function(f) Path("/" + f))
     p.productver.join('files.log').append(files.join('\n') + '\n')
+
+    /*
+        Remove empty prefixes. Will fail if there are any files.
+     */
+    for (i in 3) {
+        for (let [name, prefix] in p) {
+            prefix.remove()
+        }
+    }
 }
 
 
@@ -169,7 +175,7 @@ public function packageComboFiles() {
 public function packageBinaryFiles(formats = ['tar', 'native'], minimal = false) {
     packageDeploy(minimal)
     if (bit.platform.last) {
-        package(bit.dir.pkg.join('bin'), formats)
+        package(bit.dir.pkg.join('binrel'), formats)
     }
 }
 
@@ -185,15 +191,15 @@ public function installBinary() {
         active.remove()
         path.rename(active)
     }
-    package(bit.dir.pkg.join('bin'), 'install')
+    package(bit.dir.pkg.join('binrel'), 'install')
     if (Config.OS != 'windows') {
         createLinks()                                                                                          
         updateLatestLink()                                                                                          
     }
     if (!bit.options.keep) {
-        bit.dir.pkg.join('bin').removeAll()
+        bit.dir.pkg.join('binrel').removeAll()
     } else {
-        trace('Keep', bit.dir.pkg.join('bin'))
+        trace('Keep', bit.dir.pkg.join('binrel'))
     }
     trace('Complete', bit.settings.title + ' installed')
 }
@@ -238,19 +244,21 @@ public function uninstallBinary() {
  */
 public function createLinks() {
     let log = []
-    let localbin = Path('/usr/local/bin')
-    if (localbin.exists) {
+    let bin = bit.prefixes.bin
+    if (bin.exists) {
         let programs = ['bit' ]
-        let bin = bit.prefixes.bin
+        let pbin = bit.prefixes.productver.join('bin')
         let target: Path
         for each (program in programs) {
-            let link = Path(localbin.join(program))
-            link.symlink(bin.join(program + bit.globals.EXE))
+            let link = Path(bin.join(program))
+            link.symlink(pbin.join(program + bit.globals.EXE))
+            strace('Link', link)
             log.push(link)
         }
         for each (page in bit.prefixes.productver.join('doc/man').files('**/*.1.gz')) {
-            let link = Path('/usr/share/man/man1/' + page.basename)
+            let link = bit.prefixes.man.join('man1').join(page.basename)
             link.symlink(page)
+            strace('Link', link)
             log.push(link)
         }
     }

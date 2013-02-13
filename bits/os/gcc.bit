@@ -9,54 +9,53 @@ Bit.load({
         '+libraries':[],
         '+libpaths':[],
         '+linker':[],
-
-        scripts: {
-            '+preblend': "
-                let arch = bit.platform.arch
-                let defaults = bit.defaults
-                blend(defaults, {
-                    '+compiler': [], '+defines': [], '+libraries': [], '+libpaths': [], '+linker': []}, {combine: true}
-                )
-                if (bit.platform.os == 'linux') {
-                    defaults.linker.push('-rdynamic')
-                }
-                if (bit.platform.os != 'vxworks') {
-                    defaults.compiler.push('-fPIC')
-                    defaults.defines.push('PIC')
-                    defaults.libraries += ['pthread', 'm']
-                }
-                if (bit.settings.hasLibRt) {
-                    defaults.libraries += ['rt']
-                }
-                if (bit.settings.hasDynLoad) {
-                    defaults.libraries += ['dl']
-                }
-                if (bit.settings.preprocess) {
-                    defaults.compiler.push('-E')
-                }
-                defaults.libpaths.push(bit.dir.lib)
-                if (bit.settings.debug) {
-                    defaults.defines.push('BIT_DEBUG')
-                    defaults.compiler.push('-g')
-                    defaults.linker.push('-g')
-                } else if (bit.settings.tune == 'size') {
-                    defaults.compiler.push('-Os')
-                } else {
-                    defaults.compiler.push('-O2')
-                }
-                if (bit.settings.warnUnused) {
-                    defaults.compiler.push('-Wno-unused-result')
-                }
-                if (bit.settings.warn64to32) {
-                    defaults.compiler.push('-Wshorten-64-to-32')
-                }
-                if (arch.startsWith('arm')) {
-                    defaults.compiler.push('-mno-sched-prolog')
-                } else if (arch.startsWith('ppc')) {
-                    defaults.defines.push('_GNU_TOOL')
-                }
-            ",
-        },
+    },
+    scripts: {
+        preinherit: "
+            let arch = bit.platform.arch
+            let defaults = bit.defaults
+            blend(defaults, {
+                '+compiler': [], '+defines': [], '+libraries': [], '+libpaths': [], '+linker': []}, {combine: true}
+            )
+            if (bit.platform.os == 'linux') {
+                defaults.linker.push('-rdynamic')
+            }
+            if (bit.platform.os != 'vxworks') {
+                defaults.compiler.push('-fPIC')
+                defaults.defines.push('PIC')
+                defaults.libraries += ['pthread', 'm']
+            }
+            if (bit.settings.hasLibRt) {
+                defaults.libraries += ['rt']
+            }
+            if (bit.settings.hasDynLoad) {
+                defaults.libraries += ['dl']
+            }
+            if (bit.settings.preprocess) {
+                defaults.compiler.push('-E')
+            }
+            defaults.libpaths.push(bit.dir.lib)
+            if (bit.settings.debug) {
+                defaults.defines.push('BIT_DEBUG')
+                defaults.compiler.push('-g')
+                defaults.linker.push('-g')
+            } else if (bit.settings.tune == 'size') {
+                defaults.compiler.push('-Os')
+            } else {
+                defaults.compiler.push('-O2')
+            }
+            if (bit.settings.warnUnused) {
+                defaults.compiler.push('-Wno-unused-result')
+            }
+            if (bit.settings.warn64to32) {
+                defaults.compiler.push('-Wshorten-64-to-32')
+            }
+            if (arch.startsWith('arm')) {
+                defaults.compiler.push('-mno-sched-prolog')
+            } else if (arch.startsWith('ppc')) {
+                defaults.defines.push('_GNU_TOOL')
+            }
+        ",
     },
     rules: {
         'c->c':   '${packs.compiler.path} -E ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',

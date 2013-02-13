@@ -25,42 +25,45 @@ Bit.load({
             '-Wl,-rpath,@loader_path/',
         ],
         scripts: {
-            'preblend': "
-                let defaults = bit.defaults
-                let arch = bit.platform.arch
-                defaults.libpaths.push(bit.dir.bin)
-                if (bit.settings.hasDynLoad) {
-                    defaults.libraries.push('dl')
-                }
-                if (bit.settings.preprocess) {
-                    defaults.compiler.push('-E')
-                } else {
-                    if (!defaults['override-compiler']) {
-                        if (bit.settings.debug) {
-                            defaults.compiler += ['-g']
-                            defaults.linker.push('-g')
-                            defaults.defines.push('BIT_DEBUG')
-                        } else if (bit.settings.tune == 'size') {
-                            defaults.compiler += ['-Os']
-                        } else {
-                            defaults.compiler += ['-O3']
-                        }
-                        if (bit.settings.warnUnused) {
-                            defaults.compiler.push('-Wno-unused-result')
-                        }
-                        if (bit.settings.warn64to32) {
-                            defaults.compiler.push('-Wshorten-64-to-32')
-                        }
-                    }
-                }
-            ",
-            'prebuild': "
+            '+prebuild': "
                 if (bit.target.type == 'lib') {
                     bit.target.linker.push('-compatibility_version ' + bit.settings.version)
                     bit.target.linker.push('-current_version ' + bit.settings.version)
                 }
             ",
-        },
+        }
+    },
+
+    scripts: {
+        preinherit: "
+            let defaults = bit.defaults
+            let arch = bit.platform.arch
+            defaults.libpaths.push(bit.dir.bin)
+            if (bit.settings.hasDynLoad) {
+                defaults.libraries.push('dl')
+            }
+            if (bit.settings.preprocess) {
+                defaults.compiler.push('-E')
+            } else {
+                if (!defaults['override-compiler']) {
+                    if (bit.settings.debug) {
+                        defaults.compiler += ['-g']
+                        defaults.linker.push('-g')
+                        defaults.defines.push('BIT_DEBUG')
+                    } else if (bit.settings.tune == 'size') {
+                        defaults.compiler += ['-Os']
+                    } else {
+                        defaults.compiler += ['-O3']
+                    }
+                    if (bit.settings.warnUnused) {
+                        defaults.compiler.push('-Wno-unused-result')
+                    }
+                    if (bit.settings.warn64to32) {
+                        defaults.compiler.push('-Wshorten-64-to-32')
+                    }
+                }
+            }
+        ",
     },
 
     rules: {

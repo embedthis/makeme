@@ -6439,7 +6439,7 @@ PUBLIC int startProcess(MprCmd *cmd)
     }
     taskPriorityGet(taskIdSelf(), &pri);
 
-    cmd->pid = taskSpawn(entryPoint, pri, VX_FP_TASK | VX_PRIVATE_ENV, MPR_DEFAULT_STACK, (FUNCPTR) cmdTaskEntry, 
+    cmd->pid = taskSpawn(entryPoint, pri, VX_FP_TASK | VX_PRIVATE_ENV, BIT_MPR_THREAD_STACK, (FUNCPTR) cmdTaskEntry, 
         (int) cmd->program, (int) entryFn, (int) cmd, 0, 0, 0, 0, 0, 0, 0);
 
     if (cmd->pid < 0) {
@@ -14843,7 +14843,8 @@ PUBLIC void mprSetModuleSearchPath(char *searchPath)
 
     ms = MPR->moduleService;
     if (searchPath == 0) {
-        ms->searchPath = sjoin(mprGetAppDir(), MPR_SEARCH_SEP, mprGetAppDir(), MPR_SEARCH_SEP, BIT_BIN_PREFIX, NULL);
+        ms->searchPath = sjoin(mprGetAppDir(), MPR_SEARCH_SEP, mprGetAppDir(), MPR_SEARCH_SEP, 
+            BIT_PRODUCTVER_PREFIX "/bin", NULL);
     } else {
         ms->searchPath = sclone(searchPath);
     }
@@ -23246,7 +23247,7 @@ PUBLIC MprThreadService *mprCreateThreadService()
     }
     MPR->mainOsThread = mprGetCurrentOsThread();
     MPR->threadService = ts;
-    ts->stackSize = MPR_DEFAULT_STACK;
+    ts->stackSize = BIT_MPR_THREAD_STACK;
     /*
         Don't actually create the thread. Just create a thread object for this main thread.
      */
@@ -26032,11 +26033,14 @@ PUBLIC void mprStopOsService()
 }
 
 
+#if _WRS_VXWORKS_MAJOR < 6 || (_WRS_VXWORKS_MAJOR == 6 && _WRS_VXWORKS_MINOR < 9)
+
 PUBLIC int access(const char *path, int mode)
 {
     struct stat sbuf;
     return stat((char*) path, &sbuf);
 }
+#endif
 
 
 PUBLIC int mprGetRandomBytes(char *buf, int length, bool block)
@@ -26146,9 +26150,12 @@ PUBLIC uint mprGetpid(void) {
 }
 
 
+#if _WRS_VXWORKS_MAJOR < 6 || (_WRS_VXWORKS_MAJOR == 6 && _WRS_VXWORKS_MINOR < 9)
+
 PUBLIC int fsync(int fd) { 
     return 0; 
 }
+#endif
 
 
 PUBLIC int ftruncate(int fd, off_t offset) { 

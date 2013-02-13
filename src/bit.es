@@ -73,6 +73,7 @@ public class Bit {
             file: { range: String },
             force: {},
             gen: { range: String, separator: Array, commas: true },
+            get: { range: String },
             help: { },
             import: { },
             keep: { alias: 'k' },
@@ -84,6 +85,7 @@ public class Bit {
             platform: { range: String, separator: Array },
             pre: { },
             prefix: { range: String, separator: Array },
+            prefixes: { range: String },
             reconfigure: { },
             rebuild: { alias: 'r'},
             release: {},
@@ -118,6 +120,7 @@ public class Bit {
             '  --file file.bit                          # Use the specified bit file\n' +
             '  --force                                  # Override warnings\n' +
             '  --gen [make|nmake|sh|vs|xcode|main|start]# Generate project file\n' + 
+            '  --gen field                              # Get and display a bit field value\n' + 
             '  --help                                   # Print help message\n' + 
             '  --import                                 # Import standard bit environment\n' + 
             '  --keep                                   # Keep intermediate files\n' + 
@@ -128,6 +131,7 @@ public class Bit {
             '  --platform os-arch-profile               # Build for specified platform\n' +
             '  --pre                                    # Pre-process a source file to stdout\n' +
             '  --prefix dir=path                        # Define installation path prefixes\n' +
+            '  --prefixes [debian|opt|embedthis]        # Use a given prefix set\n' +
             '  --profile [debug|release|...]            # Use the build profile\n' +
             '  --quiet                                  # Quiet operation. Suppress trace \n' +
             '  --rebuild                                # Rebuild all specified targets\n' +
@@ -251,12 +255,15 @@ public class Bit {
      */ 
     function unknownArg(argv, i) {
         let map = {
-            prefix: 'base',
+            prefix: 'root',
             bindir: 'bin',
             libdir: 'lib',
-            sysconfdir: 'config',
             includedir: 'inc',
+            sysconfdir: 'config',
             libexec: 'product',
+            logfiledir: 'log',
+            htdocsdir: 'web',
+            manualdir: 'man',
         }
         let arg = argv[i]
         for (let [from, to] in map) {
@@ -286,7 +293,7 @@ public class Bit {
                 return --i
             }
         }
-        throw "Undefined option '" + ar + "'"
+        throw "Undefined option '" + arg + "'"
     }
 
     /*
@@ -474,6 +481,10 @@ public class Bit {
         }
     }
 
+    function getValue() {
+        eval('dump(bit.' + options.get + ')')
+    }
+
     function genStartBitFile(platform) {
         let nbit = { }
         nbit.platforms = platforms
@@ -586,17 +597,9 @@ public class Bit {
         writeSettings(f, "BIT", settings)
 
         f.writeLine('\n/* Prefixes */')
-        def(f, 'BIT_CFG_PREFIX', '"' + bit.prefixes.config + '"')
-        def(f, 'BIT_BIN_PREFIX', '"' + bit.prefixes.bin + '"')
-        def(f, 'BIT_INC_PREFIX', '"' + bit.prefixes.inc + '"')
-        def(f, 'BIT_LOG_PREFIX', '"' + bit.prefixes.log + '"')
-        def(f, 'BIT_PRD_PREFIX', '"' + bit.prefixes.product + '"')
-        def(f, 'BIT_SPL_PREFIX', '"' + bit.prefixes.spool + '"')
-        def(f, 'BIT_SRC_PREFIX', '"' + bit.prefixes.src + '"')
-        def(f, 'BIT_VER_PREFIX', '"' + bit.prefixes.productver + '"')
-        def(f, 'BIT_WEB_PREFIX', '"' + bit.prefixes.web + '"')
-        def(f, 'BIT_UBIN_PREFIX', '"' + bit.prefixes.ubin + '"')
-        def(f, 'BIT_MAN_PREFIX', '"' + bit.prefixes.man + '"')
+        for (let [name, prefix] in bit.prefixes) {
+            def(f, 'BIT_' + name.toUpper() + '_PREFIX', '"' + prefix+ '"')
+        }
 
         /* Suffixes */
         f.writeLine('\n/* Suffixes */')
@@ -1081,6 +1084,18 @@ public class Bit {
                 }
             }
         }
+        if (o.scripts) {
+            for (let [when,item] in o.scripts) {
+                if (item is String) {
+                    o.scripts[when] = [{ home: home, interpreter: 'ejs', script: item }]
+                } else {
+                    item.home ||= home
+                }
+            }
+            if (o.scripts.preblend) {
+                runScript(o.scripts.preblend)
+            }
+        }
         for (let [tname,target] in o.targets) {
             target.name ||= tname
             target.home ||= home
@@ -1121,7 +1136,7 @@ public class Bit {
             /*
                 Expand short-form scripts into the long-form
                 Set the target type if not defined to 'action' or 'build'
-                NOTE: preblend is only fired for internal and default collections. Not on targets.
+                NOTE: preblend and postload is only fired top level scripts. Not on targets.
              */
             for each (n in ['action', 'postblend', 'preresolve', 'postresolve', 'postsource', 'predependencies',
                     'postdependencies', 'precompile', 'postcompile', 'prebuild', 'build', 'postbuild', 'shell']) {
@@ -1138,7 +1153,6 @@ public class Bit {
                 Blend internal for only the targets in this file
              */
             if (o.internal) {
-                runTargetScript({scripts: o.internal.scripts}, 'preblend')
                 blend(target, o.internal, {combine: true})
             }
         }
@@ -1179,8 +1193,7 @@ public class Bit {
             }
         }
         /*
-            Delay combining targets until blendDefaults. This is because 'combine: true' erases the +/- property prefixes.
-            These must be preserved until blendDefaults.
+            Delay blending defaults into targets until blendDefaults. This is because 'combine: true' erases the +/- property prefixes.
          */
         if (o.targets) {
             bit.targets ||= {}
@@ -1189,8 +1202,12 @@ public class Bit {
         }
         bit = blend(bit, o, {combine: true})
 
+        if (o.scripts && o.scripts.postload) {
+            runScript(o.scripts.postload)
+        }
+        //  DEPRECATE and use postload intead
         if (o.scripts && o.scripts.onload && (!bit.quickLoad || o.scripts.mustRun)) {
-            runScript(o.scripts.onload, home)
+            runScript(o.scripts.onload)
         }
     }
 
@@ -1352,43 +1369,37 @@ public class Bit {
 
     function mapPrefixes() {
         prefixes = {}
-        let prd = bit.prefixes.product
-        let ver = bit.prefixes.productver
+        let root = bit.prefixes.root
         let base = bit.prefixes.base
+        let product = bit.prefixes.product
+        let productver = bit.prefixes.productver
         for (let [name,value] in bit.prefixes) {
             if (name.startsWith('programFiles')) continue
-            if (name == 'spool') {
-                name = 'spl'
-            } else if (name == 'product') {
-                name = 'prd'
-            } else if (name == 'productver') {
-                name = 'ver'
-            } else if (name == 'config') {
-                name = 'cfg'
-            }
-            value = expand(value)
-            if (name == 'base') {
-                if (bit.prefixes.programFiles && value.startsWith(bit.prefixes.programFiles.name)) {
-                    value = value.replace(base.name, bit.prefixes.programFiles)
+            value = expand(value).replace(/\/\//g, '/')
+            if (name == 'root') {
+                ;
+            } else if (name == 'base') {
+                if (value.startsWith(root.name)) {
+                    value = value.replace(root.name, '$(BIT_ROOT_PREFIX)')
                 } else {
                     value = '$(BIT_ROOT_PREFIX)' + value.toString().trim('/')
                 }
-            } else if (name == 'prd') {
+            } else if (name == 'product') {
                 if (value.startsWith(base.name)) {
                     value = value.replace(base.name, '$(BIT_BASE_PREFIX)')
                 }
-            } else if (name == 'ver') {
-                if (value.startsWith(prd.name)) {
-                    value = value.replace(prd.name, '$(BIT_PRD_PREFIX)')
+            } else if (name == 'productver') {
+                if (value.startsWith(product.name)) {
+                    value = value.replace(product.name, '$(BIT_PRODUCT_PREFIX)')
                 }
-            } else if (value.startsWith(ver.name)) {
-                value = value.replace(ver.name, '$(BIT_VER_PREFIX)')
+            } else if (value.startsWith(productver.name)) {
+                value = value.replace(productver.name, '$(BIT_PRODUCTVER_PREFIX)')
             } else {
-                value = '$(BIT_ROOT_PREFIX)' + value.toString().trim('/')
+                value = '$(BIT_ROOT_PREFIX)' + value.toString().trimStart('/')
             }
             value = value.replace(bit.settings.version, '$(VERSION)')
             value = value.replace(bit.settings.product, '$(PRODUCT)')
-            prefixes[name] = Path(value.toString().trim('/'))
+            prefixes[name] = Path(value.toString())
         }
         return prefixes
     }
@@ -1414,9 +1425,8 @@ public class Bit {
         genout.writeLine('LBIN            := $(CONFIG)/bin\n')
 
         let prefixes = mapPrefixes()
-        genout.writeLine('BIT_ROOT_PREFIX := /')
         for (let [name, value] in prefixes) {
-            genout.writeLine('%-15s := %s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
+            genout.writeLine('%-21s := %s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
         }
         genout.writeLine('')
         let cflags = gen.compiler
@@ -1451,7 +1461,7 @@ public class Bit {
         genout.writeLine('all compile: prep \\\n        ' + genAll())
         genout.writeLine('.PHONY: prep\n\nprep:')
         genout.writeLine('\t@if [ "$(CONFIG)" = "" ] ; then echo WARNING: CONFIG not set ; exit 255 ; fi')
-        genout.writeLine('\t@if [ "$(BIT_PRD_PREFIX)" = "" ] ; then echo WARNING: BIT_PRD_PREFIX not set ; exit 255 ; fi')
+        genout.writeLine('\t@if [ "$(BIT_PRODUCT_PREFIX)" = "" ] ; then echo WARNING: BIT_PRODUCT_PREFIX not set ; exit 255 ; fi')
         genout.writeLine('\t@[ ! -x $(CONFIG)/bin ] && ' + 'mkdir -p $(CONFIG)/bin; true')
         genout.writeLine('\t@[ ! -x $(CONFIG)/inc ] && ' + 'mkdir -p $(CONFIG)/inc; true')
         genout.writeLine('\t@[ ! -x $(CONFIG)/obj ] && ' + 'mkdir -p $(CONFIG)/obj; true')
@@ -1501,20 +1511,17 @@ public class Bit {
         genout.writeLine('LIBPATHS        = ' + repvar(gen.libpaths).replace(/\//g, '\\'))
         genout.writeLine('LIBS            = ' + gen.libraries + '\n')
 
-        let root = bit.prefixes.programFiles.match(/^\w:./).toString()
-        genout.writeLine('%-15s = %s'.format(['BIT_ROOT_PREFIX', root]))
-
         let prefixes = mapPrefixes()
         for (let [name, value] in prefixes) {
             if (name.startsWith('programFiles')) continue
-            genout.writeLine('%-15s = %s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
+            genout.writeLine('%-21s = %s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
         }
         genout.writeLine('')
         let pop = bit.settings.product + '-' + bit.platform.os + '-' + bit.platform.profile
         genout.writeLine('all compile: prep \\\n        ' + genAll())
         genout.writeLine('.PHONY: prep\n\nprep:')
         genout.writeLine('!IF "$(VSINSTALLDIR)" == ""\n\techo "Visual Studio vars not set. Run vcvars.bat."\n\texit 255\n!ENDIF')
-        genout.writeLine('!IF "$(BIT_PRD_PREFIX)" == ""\n\techo "BIT_PRD_PREFIX not set."\n\texit 255\n!ENDIF')
+        genout.writeLine('!IF "$(BIT_PRODUCT_PREFIX)" == ""\n\techo "BIT_PRODUCT_PREFIX not set."\n\texit 255\n!ENDIF')
         genout.writeLine('\t@if not exist $(CONFIG)\\bin md $(CONFIG)\\bin')
         genout.writeLine('\t@if not exist $(CONFIG)\\inc md $(CONFIG)\\inc')
         genout.writeLine('\t@if not exist $(CONFIG)\\obj md $(CONFIG)\\obj')
@@ -2037,10 +2044,7 @@ public class Bit {
         Blend bit.defaults into targets
      */
     function blendDefaults() {
-        if (bit.defaults) {
-            /* NOTE: the preblend is not fired on a target, but rather for the defaults and internal collections only */
-            runTargetScript({scripts: bit.defaults.scripts}, 'preblend')
-        }
+        runScript(bit.scripts.preinherit)
         //  DEPRECATE
         for (let [key,value] in bit.defaults.defines) {
             bit.defaults.defines[key] = value.trimStart('-D')
@@ -2058,9 +2062,6 @@ public class Bit {
                     }
                 }
                 runTargetScript(target, 'postblend')
-                if (target.scripts && target.scripts.preblend) {
-                    delete target.scripts.preblend
-                }
                 if (target.type == 'obj') { 
                     delete target.linker 
                     delete target.libpaths 
@@ -2097,6 +2098,8 @@ public class Bit {
             bit.prefixes[pname] = Path(prefix)
             if (bit.platform.os == 'windows' && Config.OS == 'windows') {
                 bit.prefixes[pname] = bit.prefixes[pname].absolute
+            } else {
+                bit.prefixes[pname] = bit.prefixes[pname].normalize
             }
         }
         for each (pack in bit.packs) {
@@ -2154,6 +2157,10 @@ public class Bit {
         Build all selected targets
      */
     function build() {
+        if (options.hasOwnProperty('get')) {
+            getValue()
+            return
+        }
         let allTargets = selectedTargets.clone()
         for each (name in selectedTargets) {
             /* Build named targets */
@@ -3000,16 +3007,18 @@ public class Bit {
         }
     }
 
-    public function runScript(script: String, home: Path) {
-        let pwd = App.dir
-        if (home && home != pwd) {
-            App.chdir(home)
-        }
-        try {
-            script = 'require ejs.unix\n' + expand(script)
-            eval(script)
-        } finally {
-            App.chdir(pwd)
+    public function runScript(scripts) {
+        for each (item in scripts) {
+            let pwd = App.dir
+            if (item.home && item.home != pwd) {
+                App.chdir(home)
+            }
+            try {
+                script = 'require ejs.unix\n' + expand(item.script)
+                eval(script)
+            } finally {
+                App.chdir(pwd)
+            }
         }
     }
 
@@ -3562,17 +3571,32 @@ public class Bit {
             bit.dir.programFiles = Path(bit.dir.programFiles32.name.replace(' (x86)', ''))
         }
 
-        if (options.configure && options.prefix) {
-            /*
-             */
-            bit.prefixes ||= {}
-            for each (p in options.prefix) {
-                let [prefix, path] = p.split('=')
-                if (path) {
-                    bit.prefixes[prefix] = Path(path)
-                } else {
-                    /* Map --prefix=/opt to --prefix base=/opt */
-                    bit.prefixes.base = Path(prefix)
+        if (options.prefixes) {
+            let pset = options.prefixes + '-prefixes'
+            if (!bit[pset]) {
+                throw "Cannot find prefix set for " + pset
+            }
+            bit.prefixes = {}
+            bit.settings.prefixes = pset
+            blend(bit.prefixes, bit[pset])
+        } else {
+            if (!bit.prefixes) {
+                bit.prefixes = {}
+                bit.settings.prefixes ||= 'debian-prefixes'
+                blend(bit.prefixes, bit[bit.settings.prefixes])
+            }
+        }
+        if (options.configure) {
+            if (options.prefix) {
+                bit.prefixes ||= {}
+                for each (p in options.prefix) {
+                    let [prefix, path] = p.split('=')
+                    if (path) {
+                        bit.prefixes[prefix] = Path(path)
+                    } else {
+                        /* Map --prefix=/opt to --prefix base=/opt */
+                        bit.prefixes.root = Path(prefix)
+                    }
                 }
             }
         }
