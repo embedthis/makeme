@@ -1094,6 +1094,7 @@ public class Bit {
             }
             if (o.scripts.preblend) {
                 runScript(o.scripts.preblend)
+                delete o.scripts.preblend
             }
         }
         for (let [tname,target] in o.targets) {
@@ -1203,11 +1204,8 @@ public class Bit {
         bit = blend(bit, o, {combine: true})
 
         if (o.scripts && o.scripts.postload) {
-            runScript(o.scripts.postload)
-        }
-        //  DEPRECATE and use postload intead
-        if (o.scripts && o.scripts.onload && (!bit.quickLoad || o.scripts.mustRun)) {
-            runScript(o.scripts.onload)
+            runScript(bit.scripts.postload)
+            delete bit.scripts.postload
         }
     }
 
@@ -2045,6 +2043,8 @@ public class Bit {
      */
     function blendDefaults() {
         runScript(bit.scripts.preinherit)
+        delete bit.scripts.preinherit
+
         //  DEPRECATE
         for (let [key,value] in bit.defaults.defines) {
             bit.defaults.defines[key] = value.trimStart('-D')

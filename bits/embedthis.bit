@@ -9,8 +9,8 @@ Bit.load({
 
     scripts: {
         postload: "
-            if (bit.platform.like == 'windows' && bit.settings.prefixes == 'embedthis-prefixes') {
-                bit.prefixes = bit['embedthis-prefixes']
+            if (bit.platform.like == 'windows') {
+                bit.prefixes = bit['windows-prefixes']
             }
         ",
     },
