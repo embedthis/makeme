@@ -598,7 +598,7 @@ public class Bit {
 
         f.writeLine('\n/* Prefixes */')
         for (let [name, prefix] in bit.prefixes) {
-            def(f, 'BIT_' + name.toUpper() + '_PREFIX', '"' + prefix+ '"')
+            def(f, 'BIT_' + name.toUpper() + '_PREFIX', '"' + prefix.portable + '"')
         }
 
         /* Suffixes */
