@@ -2732,7 +2732,7 @@ typedef struct HttpAuth {
 
 
 /**
-    Add an authorization type. The standard types are 'basic', 'digest' and 'post'.
+    Add an authorization type. The pre-supplied types are 'basic', 'digest' and 'post'.
     @description This creates an AuthType object with the defined name and callbacks.
     @param http Http service object.
     @param name Unique authorization type name
@@ -2746,7 +2746,7 @@ typedef struct HttpAuth {
 PUBLIC int httpAddAuthType(Http *http, cchar *name, HttpAskLogin askLogin, HttpParseAuth parse, HttpSetAuth setAuth);
 
 /**
-    Add an authorization store for password validation. The standard types are 'pam' and 'internal'
+    Add an authorization store for password validation. The pre-supplied types are 'pam' and 'internal'
     @description This creates an AuthType object with the defined name and callbacks.
     @param http Http service object.
     @param name Unique authorization type name

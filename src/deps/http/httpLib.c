@@ -120,7 +120,7 @@ static void manageAuth(HttpAuth *auth, int flags);
 static void manageRole(HttpRole *role, int flags);
 static void manageUser(HttpUser *user, int flags);
 static void formLogin(HttpConn *conn);
-static bool verifyUser(HttpConn *conn);
+static bool internalVerifyUser(HttpConn *conn);
 
 /*********************************** Code *************************************/
 
@@ -136,7 +136,7 @@ PUBLIC void httpInitAuth(Http *http)
      */
     httpAddAuthStore(http, "pam", httpPamVerifyUser);
 #endif
-    httpAddAuthStore(http, "internal", verifyUser);
+    httpAddAuthStore(http, "internal", internalVerifyUser);
 }
 
 
@@ -562,17 +562,17 @@ PUBLIC int httpSetAuthStore(HttpAuth *auth, cchar *store)
     if ((auth->store = mprLookupKey(http->authStores, store)) == 0) {
         return MPR_ERR_CANT_FIND;
     }
-#if BIT_HAS_PAM && BIT_HTTP_PAM
-    if (smatch(store, "pam") && auth->type && smatch(auth->type->name, "digest")) {
-        mprError("Cannot use PAM password stores with digest authentication");
-        return MPR_ERR_BAD_ARGS;
-    }
-#else
     if (smatch(store, "pam")) {
+#if BIT_HAS_PAM && BIT_HTTP_PAM
+        if (auth->type && smatch(auth->type->name, "digest")) {
+            mprError("Cannot use the PAM password store with digest authentication");
+            return MPR_ERR_BAD_ARGS;
+        }
+#else
         mprError("PAM is not supported in the current configuration");
         return MPR_ERR_BAD_ARGS;
-    }
 #endif
+    }
     auth->version = ((Http*) MPR->httpService)->nextAuth++;
     return 0;
 }
@@ -790,7 +790,7 @@ PUBLIC void httpComputeAllUserAbilities(HttpAuth *auth)
 /*
     Verify the user password based on the internal users set. This is used when not using PAM or custom verification.
  */
-static bool verifyUser(HttpConn *conn)
+static bool internalVerifyUser(HttpConn *conn)
 {
     HttpRx      *rx;
     HttpAuth    *auth;
@@ -803,7 +803,7 @@ static bool verifyUser(HttpConn *conn)
         conn->encoded = 1;
     }
     if (!conn->user && (conn->user = mprLookupKey(auth->users, conn->username)) == 0) {
-        mprLog(5, "verifyUser: Unknown user \"%s\" for route %s", conn->username, rx->route->name);
+        mprLog(5, "internalVerifyUser: Unknown user \"%s\" for route %s", conn->username, rx->route->name);
         return 0;
     }
     if (rx->passDigest) {
