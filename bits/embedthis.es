@@ -276,7 +276,9 @@ function setupGlobals(manifest, package, prefixes) {
     for (pname in prefixes) {
         if (package.prefixes.contains(pname)) {
             bit.globals[pname] = prefixes[pname]
-            makeDir(prefixes[pname])
+            if (!bit.generating || bit.target.name != 'uninstall') {
+                makeDir(prefixes[pname])
+            }
         }
     }
     bit.globals.media = prefixes.media
@@ -425,8 +427,6 @@ public function packageFlat() {
 
 function checkRoot() {
     if (Config.OS != 'windows' && App.uid != 0 && bit.prefixes.root.same('/') && !bit.generating) {
-print("BOOM", bit.generating)
-    throw new Error('boom')
         throw 'Must run as root. Use "sudo bit install"'
     }
 }
@@ -455,28 +455,31 @@ public function uninstallBinary() {
         let fileslog = bit.prefixes.vapp.join('files.log')
         if (fileslog.exists) {
             for each (let file: Path in fileslog.readLines()) {
-                strace('Remove', file)
-                file.remove()
+                remove(file)
             }
         }
         fileslog.remove()
         if (prefixes.log) {
             for each (file in prefixes.log.files('*.log*')) {
-                strace('Remove', file)
-                file.remove()
+                remove(file)
             }
         }
         let name = (bit.platform.os == 'windows') ? bit.settings.title : bit.settings.product
-        for each (prefix in bit.prefixes) {
-            if (!prefix.name.contains(name)) {
+        for (let [key, prefix] in bit.prefixes) {
+            /* Safety, make sure product name is in prefix */
+            if (!prefix.name.contains(name) || key == 'src') {
                 continue
             }
-            for each (dir in prefix.files('**', {include: /\/$/}).sort().reverse()) {
-                strace('Remove', dir)
-                dir.removeAll()
+            if (!package.prefixes.contains(key)) {
+                continue
+            }
+            if (!bit.generating) {
+                for each (dir in prefix.files('**', {include: /\/$/}).sort().reverse()) {
+                    removeDir(dir)
+                }
             }
             strace('Remove', prefix)
-            prefix.removeAll()
+            removeDir(prefix)
         }
         updateLatestLink()
         trace('Complete', bit.settings.title + ' uninstalled')
@@ -484,12 +487,15 @@ public function uninstallBinary() {
 }
 
 
+/* Only used for uninstalling */
 function updateLatestLink() {
     let latest = bit.prefixes.app.join('latest')
-    let version = bit.prefixes.app.files('*', {include: /\d+\.\d+\.\d+/}).sort().pop()
+    let version
+    if (!bit.generating) {
+        version = bit.prefixes.app.files('*', {include: /\d+\.\d+\.\d+/}).sort().pop()
+    }
     if (version) {
-        //  MOB Path(version.basename).link(latest)
-        latest.symlink(version.basename)
+        link(version.basename, latest)
     } else {
         latest.remove()
     }
@@ -1087,6 +1093,42 @@ function makeDir(path: Path, options = {}) {
             gen('if not exist "' + path + '" md "' + path + '"')
         } else {
             gen('install -d ' + getatt(options) + '"' + path + '"')
+        }
+    }
+}
+
+
+function remove(path: Path, options = {}) {
+    if (!bit.generating) {
+        strace('Remove', path)
+        if (!options.dry) {
+            if (!path.remove()) {
+                throw "Cannot remove " + path
+            }
+        }
+    } else {
+        if (bit.generating == 'nmake') {
+            gen('if exist "' + path + '" rd /Q "' + path + '"')
+        } else {
+            gen('rm -f "' + path + '"')
+        }
+    }
+}
+
+
+function removeDir(path: Path, options = {}) {
+    if (!bit.generating) {
+        strace('Remove', path)
+        if (!options.dry) {
+            if (!path.removeAll()) {
+                throw "Cannot remove " + path
+            }
+        }
+    } else {
+        if (bit.generating == 'nmake') {
+            gen('if exist "' + path + '" rd /Q /S "' + path + '"')
+        } else {
+            gen('rm -fr "' + path + '"')
         }
     }
 }

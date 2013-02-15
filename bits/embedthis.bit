@@ -256,14 +256,15 @@ Bit.load({
 
         install: {
             home: '${TOP}',
-            action: " ",
-            depends: [ 'build', 'stop', 'installBinary', 'start' ],
+            action: ' ',
             generate: ' ',
+            depends: [ 'build', 'stop', 'installBinary', 'start' ],
         },
 
         installBinary: {
             home: '${TOP}',
             action: "installBinary()",
+            depends: [ 'build', 'stop' ],
             'generate-action': true,
         },
 
@@ -304,8 +305,10 @@ Bit.load({
 
         uninstall: {
             home: '${TOP}',
-            action: "uninstallBinary()"
-            depends: ['build', 'stop']
+            action: "uninstallBinary()",
+            generate: ' ',
+            depends: [ 'build', 'stop' ],
+            'generate-action': true,
         },
 
         uninstallPackage: {

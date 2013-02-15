@@ -314,7 +314,12 @@ _uninstall:
 stop: 
 	
 
-installBinary: 
+installBinary: stop
+	install -d "/"
+	install -d "$(BIT_APP_PREFIX)"
+	install -d "$(BIT_VAPP_PREFIX)"
+	install -d "$(BIT_BIN_PREFIX)"
+	install -d "$(BIT_MAN_PREFIX)"
 	install -d "$(BIT_VAPP_PREFIX)/bin"
 	install  "$(CONFIG)/bin/bit" "$(BIT_VAPP_PREFIX)/bin/bit"
 	rm -f "$(BIT_BIN_PREFIX)/bit"
@@ -395,4 +400,9 @@ start:
 
 install: stop installBinary start
 	
+
+uninstall: stop
+	rm -fr "$(BIT_APP_PREFIX)"
+	rm -fr "$(BIT_VAPP_PREFIX)"
+
 
