@@ -82,12 +82,6 @@ public function install(src, dest: Path, options = {}) {
         } else {
             target = dest
         }
-/* UNUSED
-        if (bit.generating) {
-        } else if (!target.dirname.makeDir()) {
-            throw 'Cannot make directory "' + dest + '"'
-        }
-*/
         from = from.relative.portable
         if (options.exclude && from.match(options.exclude)) {
             continue
@@ -118,15 +112,17 @@ public function install(src, dest: Path, options = {}) {
             }
             continue
         }
+        makeDir(target.dirname, attributes)
+
         if (options.cat) {
             catenate(from, target, attributes)
         } else {
             if (from.isDir) {
-                makeDir(target, options)
+                makeDir(target, attributes)
             } else {
                 try {
                     copy(from, target, attributes)
-                } catch {
+                } catch (e) {
                     if (options.active) {
                         let active = target.replaceExt('old')
                         active.remove()
