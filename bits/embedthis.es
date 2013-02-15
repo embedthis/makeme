@@ -1094,7 +1094,7 @@ function makeDir(path: Path, options = {}) {
             options.made[path] = true
         }
         if (bit.generating == 'nmake') {
-            gen('if not exist "' + path + '" md "' + path + '"')
+            gen('if not exist "' + path.windows + '" md "' + path.windows + '"')
         } else {
             gen('install -d ' + getatt(options) + '"' + path + '"')
         }
@@ -1112,7 +1112,7 @@ function remove(path: Path, options = {}) {
         }
     } else {
         if (bit.generating == 'nmake') {
-            gen('if exist "' + path + '" rd /Q "' + path + '"')
+            gen('if exist "' + path + '" rd /Q "' + path.windows + '"')
         } else {
             gen('rm -f "' + path + '"')
         }
@@ -1130,7 +1130,7 @@ function removeDir(path: Path, options = {}) {
         }
     } else {
         if (bit.generating == 'nmake') {
-            gen('if exist "' + path + '" rd /Q /S "' + path + '"')
+            gen('if exist "' + path + '" rd /Q /S "' + path.windows + '"')
         } else {
             gen('rm -fr "' + path + '"')
         }
@@ -1145,7 +1145,7 @@ function copy(src: Path, dest: Path, options = {}) {
             src.copy(dest, options)
         }
     } else if (bit.generating == 'nmake') {
-        gen('copy "' + src + '" "' + dest + '"')
+        gen('xcopy /Y /Q "' + src.windows + '" "' + dest.windows + '"')
     } else {
         gen('install ' + getatt(options) + ' "' + src + '" "' + dest + '"')
     }
