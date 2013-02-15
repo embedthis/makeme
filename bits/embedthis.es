@@ -454,23 +454,19 @@ public function uninstallBinary() {
         trace('Uninstall', bit.settings.title)
         let fileslog = bit.prefixes.vapp.join('files.log')
 
-print("AA")
         if (!bit.generating && fileslog.exists) {
             for each (let file: Path in fileslog.readLines()) {
                 if (!file.isDir) {
-print("RRRRR", file)
                     remove(file)
                 }
             }
         }
-print("BBB")
         fileslog.remove()
         if (prefixes.log) {
             for each (file in prefixes.log.files('*.log*')) {
                 remove(file)
             }
         }
-print("CCC")
         let name = (bit.platform.os == 'windows') ? bit.settings.title : bit.settings.product
         for (let [key, prefix] in bit.prefixes) {
             /* Safety, make sure product name is in prefix */
@@ -485,7 +481,6 @@ print("CCC")
                     removeDir(dir)
                 }
             }
-            strace('PRemove', prefix)
             removeDir(prefix)
         }
         updateLatestLink()
@@ -501,13 +496,11 @@ function updateLatestLink() {
     if (!bit.generating) {
         version = bit.prefixes.app.files('*', {include: /\d+\.\d+\.\d+/}).sort().pop()
     }
-print("HERE", version)
     if (version) {
         link(version.basename, latest)
     } else {
         latest.remove()
     }
-print("THERE")
 }
 
 
