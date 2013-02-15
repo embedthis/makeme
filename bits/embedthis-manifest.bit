@@ -67,7 +67,7 @@ Bit.load({
             }, {
                 from: '${bit.packs.compiler.dir}/VC/redist/${bit.platform.arch}/Microsoft.VC${packs.compiler.crt}.CRT/msvcr${packs.compiler.crt}.dll',
                 to:          '${abin}',
-                enable:      "bit.platform.os == 'windows'",
+                enable:      "bit.platform.os == 'windows' && !bit.generating",
 
             }, {
                 from:        '${BIN}/removeFiles${EXE}',

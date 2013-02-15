@@ -199,7 +199,7 @@ public function deploy(manifest, prefixes, package): Array {
     if (!(sets is RegExp)) {
         sets = RegExp(sets.toString().replace(/[ ,]/g, '|'))
     }
-    let filelist = bit.generating ? null : []
+    let filelist = []
     let made = {}
     for each (item in manifest.files) {
         if (bit.options.verbose) {

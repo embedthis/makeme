@@ -274,9 +274,9 @@ $(CONFIG)\bin\ejs.mod: $(CONFIG)\bin\ejsc.exe
 	"$(LBIN)\ejsc" --out ".\$(CONFIG)\bin\ejs.mod" --optimize 9 --bind --require null src/deps/ejs/ejs.es
 
 $(CONFIG)\obj\removeFiles.obj: \
-    bits\windows\removeFiles.c\
+    package\windows\removeFiles.c\
     $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\removeFiles.obj -Fd$(CONFIG)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) bits\windows\removeFiles.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\removeFiles.obj -Fd$(CONFIG)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) package\windows\removeFiles.c
 
 $(CONFIG)\bin\removeFiles.exe: \
     $(CONFIG)\obj\removeFiles.obj
@@ -321,14 +321,12 @@ _uninstall:
 stop: 
 
 
-installBinary: 
+installBinary: stop
 	if not exist "C:" md "C:"
 	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
 	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
 	if not exist "$(BIT_VAPP_PREFIX)/bin" md "$(BIT_VAPP_PREFIX)/bin"
 	if not exist "$(BIT_VAPP_PREFIX)/man" md "$(BIT_VAPP_PREFIX)/man"
-	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
-	copy "${bit.packs.compiler.dir}/VC/redist/${bit.platform.arch}/Microsoft.VC0.CRT/msvcr0.dll" "$(BIT_VAPP_PREFIX)/bin"
 	if not exist "$(BIT_VAPP_PREFIX)/bin" md "$(BIT_VAPP_PREFIX)/bin"
 	copy "$(CONFIG)/bin/bit" "$(BIT_VAPP_PREFIX)/bin/bit"
 	copy "$(CONFIG)/bin/bit.es" "$(BIT_VAPP_PREFIX)/bin/bit.es"
@@ -396,5 +394,12 @@ start:
 
 
 install: stop installBinary start
+
+
+uninstall: stop
+	if exist "$(BIT_VAPP_PREFIX)" rd /Q /S "$(BIT_VAPP_PREFIX)"
+	if exist "$(BIT_VAPP_PREFIX)" rd /Q /S "$(BIT_VAPP_PREFIX)"
+	if exist "$(BIT_VAPP_PREFIX)/bin" rd /Q /S "$(BIT_VAPP_PREFIX)/bin"
+	if exist "$(BIT_VAPP_PREFIX)/man" rd /Q /S "$(BIT_VAPP_PREFIX)/man"
 
 

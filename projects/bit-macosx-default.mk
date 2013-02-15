@@ -315,11 +315,6 @@ stop:
 	
 
 installBinary: stop
-	install -d "/"
-	install -d "$(BIT_APP_PREFIX)"
-	install -d "$(BIT_VAPP_PREFIX)"
-	install -d "$(BIT_BIN_PREFIX)"
-	install -d "$(BIT_MAN_PREFIX)"
 	install -d "$(BIT_VAPP_PREFIX)/bin"
 	install  "$(CONFIG)/bin/bit" "$(BIT_VAPP_PREFIX)/bin/bit"
 	rm -f "$(BIT_BIN_PREFIX)/bit"

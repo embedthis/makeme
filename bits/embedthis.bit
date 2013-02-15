@@ -58,7 +58,7 @@ Bit.load({
             enable: bit.platform.like == 'windows',
             type: 'exe',
             rule: 'gui'
-            sources: [ 'windows/removeFiles.c' ],
+            sources: [ '../package/windows/removeFiles.c' ],
             platforms: [ 'local' ],
         },
 
