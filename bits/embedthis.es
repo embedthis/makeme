@@ -177,7 +177,9 @@ public function install(src, dest: Path, options = {}) {
         }
     */
         if (options.filelist) {
-            options.filelist.push(target)
+            if (!target.isDir) {
+                options.filelist.push(target)
+            }
         }
         if (options.linkin) {
             let linkin = Path(expand(options.linkin))
@@ -197,7 +199,7 @@ public function deploy(manifest, prefixes, package): Array {
     if (!(sets is RegExp)) {
         sets = RegExp(sets.toString().replace(/[ ,]/g, '|'))
     }
-    let filelist = []
+    let filelist = bit.generating ? null : []
     let made = {}
     for each (item in manifest.files) {
         if (bit.options.verbose) {
@@ -273,7 +275,9 @@ function setupGlobals(manifest, package, prefixes) {
         if (package.prefixes.contains(pname)) {
             bit.globals[pname] = prefixes[pname]
             if (!bit.generating || bit.target.name != 'uninstall') {
-                makeDir(prefixes[pname])
+                if (!prefixes[pname].exists) {
+                    makeDir(prefixes[pname])
+                }
             }
         }
     }
@@ -449,17 +453,24 @@ public function uninstallBinary() {
         checkRoot()
         trace('Uninstall', bit.settings.title)
         let fileslog = bit.prefixes.vapp.join('files.log')
-        if (fileslog.exists) {
+
+print("AA")
+        if (!bit.generating && fileslog.exists) {
             for each (let file: Path in fileslog.readLines()) {
-                remove(file)
+                if (!file.isDir) {
+print("RRRRR", file)
+                    remove(file)
+                }
             }
         }
+print("BBB")
         fileslog.remove()
         if (prefixes.log) {
             for each (file in prefixes.log.files('*.log*')) {
                 remove(file)
             }
         }
+print("CCC")
         let name = (bit.platform.os == 'windows') ? bit.settings.title : bit.settings.product
         for (let [key, prefix] in bit.prefixes) {
             /* Safety, make sure product name is in prefix */
@@ -474,7 +485,7 @@ public function uninstallBinary() {
                     removeDir(dir)
                 }
             }
-            strace('Remove', prefix)
+            strace('PRemove', prefix)
             removeDir(prefix)
         }
         updateLatestLink()
@@ -490,11 +501,13 @@ function updateLatestLink() {
     if (!bit.generating) {
         version = bit.prefixes.app.files('*', {include: /\d+\.\d+\.\d+/}).sort().pop()
     }
+print("HERE", version)
     if (version) {
         link(version.basename, latest)
     } else {
         latest.remove()
     }
+print("THERE")
 }
 
 
@@ -1072,10 +1085,12 @@ function link(src: Path, dest: Path, options = {}) {
 
 function makeDir(path: Path, options = {}) {
     if (!bit.generating) {
-        strace('Create', 'Directory: ' + path)
         if (!options.dry) {
-            if (!path.makeDir(options)) {
-                throw "Cannot make directory" + path
+            if (!path.isDir) {
+                strace('Create', 'Directory: ' + path)
+                if (!path.makeDir(options)) {
+                    throw "Cannot make directory" + path
+                }
             }
         }
     } else {

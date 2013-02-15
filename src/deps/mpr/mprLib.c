@@ -7807,7 +7807,7 @@ static int deletePath(MprDiskFileSystem *fs, cchar *path)
 {
     MprPath     info;
 
-    if (getPathInfo(fs, path, &info) == 0 && info.isDir) {
+    if (getPathInfo(fs, path, &info) == 0 && info.isDir && !info.isLink) {
         return rmdir((char*) path);
     }
 #if WINDOWS
