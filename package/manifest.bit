@@ -34,7 +34,7 @@ Bit.load({
 
         files: [ 
             /* Binary Set */
-            {       from:   '${BIN}/bit',
+            {       from:   '${BIN}/bit${EXE}',
                     to:     '${abin}/',
                     linkin: '${bin}',
                     set:    'binary, install',

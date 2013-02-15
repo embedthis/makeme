@@ -328,7 +328,7 @@ installBinary: stop
 	if not exist "$(BIT_VAPP_PREFIX)/bin" md "$(BIT_VAPP_PREFIX)/bin"
 	if not exist "$(BIT_VAPP_PREFIX)/man" md "$(BIT_VAPP_PREFIX)/man"
 	if not exist "$(BIT_VAPP_PREFIX)/bin" md "$(BIT_VAPP_PREFIX)/bin"
-	copy "$(CONFIG)/bin/bit" "$(BIT_VAPP_PREFIX)/bin/bit"
+	copy "$(CONFIG)/bin/bit.exe" "$(BIT_VAPP_PREFIX)/bin/bit.exe"
 	copy "$(CONFIG)/bin/bit.es" "$(BIT_VAPP_PREFIX)/bin/bit.es"
 	copy "$(CONFIG)/bin/ca.crt" "$(BIT_VAPP_PREFIX)/bin/ca.crt"
 	copy "$(CONFIG)/bin/ca.crt" "$(BIT_VAPP_PREFIX)/bin/ca.crt"
