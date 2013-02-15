@@ -276,7 +276,7 @@ function setupGlobals(manifest, package, prefixes) {
     for (pname in prefixes) {
         if (package.prefixes.contains(pname)) {
             bit.globals[pname] = prefixes[pname]
-            prefixes[pname].makeDir()
+            makeDir(prefixes[pname])
         }
     }
     bit.globals.media = prefixes.media
