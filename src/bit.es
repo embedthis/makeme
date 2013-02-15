@@ -24,6 +24,7 @@ public class Bit {
 
     private var appName: String = 'bit'
     private var args: Args
+    private var capture: Array?
     private var currentBitFile: Path?
     private var currentPack: String?
     private var currentPlatform: String?
@@ -46,7 +47,7 @@ public class Bit {
     private var gen: Object
     private var platform: Object
     private var genout: TextStream
-    private var generating: String?
+    //UNUSED private var generating: String?
 
     private var defaultTargets: Array
     private var originalTargets: Array
@@ -221,14 +222,15 @@ public class Bit {
             }
             if (options.gen) {
                 generate()
+            } else {
+                if (!options.file) {
+                    let file = findStart()
+                    App.chdir(file.dirname)
+                    home = App.dir
+                    options.file = file.basename
+                }
+                process(options.file)
             }
-            if (!options.file) {
-                let file = findStart()
-                App.chdir(file.dirname)
-                home = App.dir
-                options.file = file.basename
-            }
-            process(options.file)
         } catch (e) {
             let msg: String
             if (e is String) {
@@ -462,9 +464,7 @@ public class Bit {
             makeOutDirs()
             genBitHeader()
             importPackFiles()
-            // bit.cross = true
         }
-        // bit.cross = false
         if (!options.gen) {
             genStartBitFile(platforms[0])
         }
@@ -546,7 +546,7 @@ public class Bit {
             path.write(data)
         }
         if (options.show && options.verbose) {
-            trace('Configuration', bit.settings.title + ' for ' + path + 
+            trace('Configuration', bit.settings.title + 
                 '\nsettings = ' +
                 serialize(bit.settings, {pretty: true, indent: 4, commas: true, quotes: false}) +
                 '\npacks = ' +
@@ -645,7 +645,7 @@ public class Bit {
         }
         for (let [pname, pack] in packs) {
             if (pack.enable) {
-                if (!generating) {
+                if (!bit.generating) {
                     def(f, 'BIT_PACK_' + pname.toUpper() + '_PATH', '"' + pack.path + '"')
                 }
                 if (pack.definitions) {
@@ -1002,7 +1002,6 @@ public class Bit {
                 if (bit.platforms.length > 1 || bit.platform.cross) {
                     trace('Complete', bit.platform.name)
                 }
-                // bit.cross = true
             }
         } else {
             platforms = bit.platforms = [localPlatform]
@@ -1252,6 +1251,7 @@ public class Bit {
         bit.platform.last = true
         bit.generating = true
         prepBuild()
+        bit.generating = null
         generateProjects()
     }
 
@@ -1282,7 +1282,7 @@ public class Bit {
 
     function generateProjects() {
         selectedTargets = defaultTargets
-        if (generating) return
+        if (bit.generating) return
         gen = {
             configuration:  bit.platform.name
             compiler:       bit.defaults.compiler.join(' '),
@@ -1292,32 +1292,33 @@ public class Bit {
             libpaths:       mapLibPaths(bit.defaults.libpaths)
             libraries:      mapLibs(bit.defaults.libraries).join(' ')
         }
+        blend(gen, bit.prefixes)
         for each (item in options.gen) {
-            generating = item
+            bit.generating = item
             let base = bit.dir.proj.join(bit.settings.product + '-' + bit.platform.os + '-' + bit.platform.profile)
             let path = bit.original.dir.inc.join('bit.h')
             let hfile = bit.dir.src.join('projects', 
                     bit.settings.product + '-' + bit.platform.os + '-' + bit.platform.profile + '-bit.h')
             path.copy(hfile)
             trace('Generate', 'project header: ' + hfile.relative)
-            if (generating == 'sh') {
+            if (bit.generating == 'sh') {
                 generateShell(base)
-            } else if (generating == 'make') {
+            } else if (bit.generating == 'make') {
                 generateMake(base)
-            } else if (generating == 'nmake') {
+            } else if (bit.generating == 'nmake') {
                 generateNmake(base)
-            } else if (generating == 'vstudio' || generating == 'vs') {
+            } else if (bit.generating == 'vstudio' || bit.generating == 'vs') {
                 generateVstudio(base)
-            } else if (generating == 'xcode') {
+            } else if (bit.generating == 'xcode') {
                 generateXcode(base)
             } else {
-                throw 'Unknown generation format: ' + generating
+                throw 'Unknown generation format: ' + bit.generating
             }
             for each (target in bit.targets) {
                 target.built = false
             }
         }
-        generating = null
+        bit.generating = null
     }
 
     function generateShell(base: Path) {
@@ -1378,9 +1379,13 @@ public class Bit {
                 ;
             } else if (name == 'base') {
                 if (value.startsWith(root.name)) {
-                    value = value.replace(root.name, '$(BIT_ROOT_PREFIX)')
+                    if (root.name == '/') {
+                        value = value.replace(root.name, '$(BIT_ROOT_PREFIX)/')
+                    } else {
+                        value = value.replace(root.name, '$(BIT_ROOT_PREFIX)')
+                    }
                 } else {
-                    value = '$(BIT_ROOT_PREFIX)' + value.toString().trim('/')
+                    value = '$(BIT_ROOT_PREFIX)' + value
                 }
             } else if (name == 'app') {
                 if (value.startsWith(base.name)) {
@@ -1393,7 +1398,7 @@ public class Bit {
             } else if (value.startsWith(vapp.name)) {
                 value = value.replace(vapp.name, '$(BIT_VAPP_PREFIX)')
             } else {
-                value = '$(BIT_ROOT_PREFIX)' + value.toString().trimStart('/')
+                value = '$(BIT_ROOT_PREFIX)' + value
             }
             value = value.replace(bit.settings.version, '$(VERSION)')
             value = value.replace(bit.settings.product, '$(PRODUCT)')
@@ -1555,7 +1560,7 @@ public class Bit {
             var vs = (bit.packs.compiler && bit.packs.compiler.dir) ? 
                 bit.packs.compiler.dir.windows.name.replace(/.*Program Files.*Microsoft/, '$$(PROGRAMFILES)\\Microsoft') :
                 '$(PROGRAMFILES)\\Microsoft Visual Studio 9.0'
-            if (generating == 'make') {
+            if (bit.generating == 'make') {
                 /* Not used */
                 genout.writeLine('VS             := ' + '$(VSINSTALLDIR)')
                 genout.writeLine('VS             ?= ' + vs)
@@ -1580,14 +1585,14 @@ public class Bit {
                     value = value + ';$(' + key + ')'
                 } 
             }
-            if (generating == 'make') {
+            if (bit.generating == 'make') {
                 genout.writeLine('export %-7s := %s' % [key, value])
 
-            } else if (generating == 'nmake') {
+            } else if (bit.generating == 'nmake') {
                 value = value.replace(/\//g, '\\')
                 genout.writeLine('%-9s = %s' % [key, value])
 
-            } else if (generating == 'sh') {
+            } else if (bit.generating == 'sh') {
                 genout.writeLine('export ' + key + '="' + value + '"')
             }
             found = true
@@ -2179,7 +2184,7 @@ public class Bit {
                 }
             }
         }
-        if (generating) {
+        if (bit.generating) {
             for each (target in bit.targets) {
                 if (allTargets.contains(target.name)) {
                    continue
@@ -2273,7 +2278,6 @@ public class Bit {
                 } else if (target.type == 'resource') {
                     buildResource(target)
                 }
-
                 runTargetScript(target, 'postbuild')
             }
         } catch (e) {
@@ -2287,15 +2291,6 @@ public class Bit {
         Build an executable program
      */
     function buildExe(target) {
-/* UNUSED
-        if (!stale(target)) {
-            whySkip(target.path, 'is up to date')
-            return
-        }
-        if (options.diagnose) {
-            App.log.debug(3, "Target => " + serialize(target, {pretty: true, commas: true, indent: 4, quotes: false}))
-        }
-*/
         let transition = target.rule || 'exe'
         let rule = bit.rules[transition]
         if (!rule) {
@@ -2303,15 +2298,15 @@ public class Bit {
             return
         }
         let command = expandRule(target, rule)
-        if (generating == 'sh') {
+        if (bit.generating == 'sh') {
             command = repcmd(command)
             genout.writeLine(command + '\n')
 
-        } else if (generating == 'make') {
+        } else if (bit.generating == 'make') {
             command = repcmd(command)
             genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
 
-        } else if (generating == 'nmake') {
+        } else if (bit.generating == 'nmake') {
             command = repcmd(command)
             genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
 
@@ -2330,15 +2325,6 @@ public class Bit {
     }
 
     function buildSharedLib(target) {
-/* UNUSED
-        if (!stale(target)) {
-            whySkip(target.path, 'is up to date')
-            return
-        }
-        if (options.diagnose) {
-            App.log.debug(3, "Target => " + serialize(target, {pretty: true, commas: true, indent: 4, quotes: false}))
-        }
-*/
         let transition = target.rule || 'shlib'
         let rule = bit.rules[transition]
         if (!rule) {
@@ -2346,16 +2332,16 @@ public class Bit {
             return
         }
         let command = expandRule(target, rule)
-        if (generating == 'sh') {
+        if (bit.generating == 'sh') {
             command = repcmd(command)
             genout.writeLine(command + '\n')
 
-        } else if (generating == 'make') {
+        } else if (bit.generating == 'make') {
             command = repcmd(command)
             command = command.replace(/-arch *\S* /, '')
             genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
 
-        } else if (generating == 'nmake') {
+        } else if (bit.generating == 'nmake') {
             command = repcmd(command)
             command = command.replace(/-arch *\S* /, '')
             genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
@@ -2375,15 +2361,6 @@ public class Bit {
     }
 
     function buildStaticLib(target) {
-/* UNUSED
-        if (!stale(target)) {
-            whySkip(target.path, 'is up to date')
-            return
-        }
-        if (options.diagnose) {
-            App.log.debug(3, "Target => " + serialize(target, {pretty: true, commas: true, indent: 4, quotes: false}))
-        }
-*/
         let transition = target.rule || 'lib'
         let rule = bit.rules[transition]
         if (!rule) {
@@ -2391,15 +2368,15 @@ public class Bit {
             return
         }
         let command = expandRule(target, rule)
-        if (generating == 'sh') {
+        if (bit.generating == 'sh') {
             command = repcmd(command)
             genout.writeLine(command + '\n')
 
-        } else if (generating == 'make') {
+        } else if (bit.generating == 'make') {
             command = repcmd(command)
             genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
 
-        } else if (generating == 'nmake') {
+        } else if (bit.generating == 'nmake') {
             command = repcmd(command)
             genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
 
@@ -2422,7 +2399,7 @@ public class Bit {
      */
     function buildSym(target) {
         let rule = bit.rules['sym']
-        if (!rule || generating) {
+        if (!rule || bit.generating) {
             return
         }
         target.vars.INPUT = target.files.join(' ')
@@ -2451,14 +2428,6 @@ public class Bit {
         Build an object from source
      */
     function buildObj(target) {
-/* UNUSED
-        if (!stale(target)) {
-            return
-        }
-        if (options.diagnose) {
-            App.log.debug(3, "Target => " + serialize(target, {pretty: true, commas: true, indent: 4, quotes: false}))
-        }
-*/
         runTargetScript(target, 'precompile')
 
         let ext = target.path.extension
@@ -2477,18 +2446,18 @@ public class Bit {
                 }
             }
             let command = expandRule(target, rule)
-            if (generating == 'sh') {
+            if (bit.generating == 'sh') {
                 command = repcmd(command)
                 command = command.replace(/-arch *\S* /, '')
                 genout.writeLine(command + '\n')
 
-            } else if (generating == 'make') {
+            } else if (bit.generating == 'make') {
                 command = repcmd(command)
                 command = command.replace(/-arch *\S* /, '')
                 genout.writeLine(reppath(target.path) + ': \\\n    ' + 
                     file.relative + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
 
-            } else if (generating == 'nmake') {
+            } else if (bit.generating == 'nmake') {
                 command = repcmd(command)
                 command = command.replace(/-arch *\S* /, '')
                 genout.writeLine(reppath(target.path) + ': \\\n    ' + 
@@ -2507,14 +2476,6 @@ public class Bit {
     }
 
     function buildResource(target) {
-/* UNUSED
-        if (!stale(target)) {
-            return
-        }
-        if (options.diagnose) {
-            App.log.debug(3, "Target => " + serialize(target, {pretty: true, commas: true, indent: 4, quotes: false}))
-        }
- */
         let ext = target.path.extension
         for each (file in target.files) {
             target.vars.INPUT = file.relative
@@ -2528,16 +2489,16 @@ public class Bit {
                 }
             }
             let command = expandRule(target, rule)
-            if (generating == 'sh') {
+            if (bit.generating == 'sh') {
                 command = repcmd(command)
                 genout.writeLine(command + '\n')
 
-            } else if (generating == 'make') {
+            } else if (bit.generating == 'make') {
                 command = repcmd(command)
                 genout.writeLine(reppath(target.path) + ': \\\n        ' + 
                     file.relative + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
 
-            } else if (generating == 'nmake') {
+            } else if (bit.generating == 'nmake') {
                 command = repcmd(command)
                 genout.writeLine(reppath(target.path) + ': \\\n        ' + 
                     file.relative.windows + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
@@ -2553,28 +2514,22 @@ public class Bit {
         Copy files[] to path
      */
     function buildFile(target) {
-/* UNUSED
-        if (!stale(target)) {
-            whySkip(target.path, 'is up to date')
-            return
-        }
-*/
         for each (let file: Path in target.files) {
             /* Auto-generated headers targets for includes have file == target.path */
             if (file == target.path) {
                 continue
             }
             target.vars.INPUT = file.relative
-            if (generating == 'sh') {
+            if (bit.generating == 'sh') {
                 genout.writeLine('rm -rf ' + reppath(target.path.relative))
                 genout.writeLine('cp -r ' + reppath(file.relative) + ' ' + reppath(target.path.relative) + '\n')
 
-            } else if (generating == 'make') {
+            } else if (bit.generating == 'make') {
                 genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)))
                 genout.writeLine('\trm -fr ' + reppath(target.path.relative))
                 genout.writeLine('\tcp -r ' + reppath(file.relative) + ' ' + reppath(target.path.relative) + '\n')
 
-            } else if (generating == 'nmake') {
+            } else if (bit.generating == 'nmake') {
                 genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)))
                 genout.writeLine('\t-if exist ' + reppath(target.path) + ' del /Q ' + reppath(target.path))
                 if (file.isDir) {
@@ -2600,21 +2555,12 @@ public class Bit {
     }
 
     function buildScript(target) {
-/* UNUSED
-        if (!stale(target)) {
-            whySkip(target.path, 'is up to date')
-            return
-        }
-        if (options.diagnose) {
-            App.log.debug(3, "Target => " + serialize(target, {pretty: true, commas: true, indent: 4, quotes: false}))
-        }
-*/
         setRuleVars(target, target.home)
         let prefix, suffix
-        if (generating == 'sh' || generating == 'make') {
+        if (bit.generating == 'sh' || bit.generating == 'make') {
             prefix = 'cd ' + target.home.relative
             suffix = 'cd ' + bit.dir.top.relativeTo(target.home)
-        } else if (generating == 'nmake') {
+        } else if (bit.generating == 'nmake') {
             prefix = 'cd ' + target.home.relative.windows + '\n'
             suffix = '\ncd ' + bit.dir.src.relativeTo(target.home).windows
         } else {
@@ -2625,7 +2571,23 @@ public class Bit {
             /* Don't change directory out of source tree. Necessary for actions in standard.bit */
             prefix = suffix = ''
         }
-        if (generating == 'sh') {
+        if (target.scripts && (!bit.generating || target['generate-action'])) {
+            if (bit.generating) {
+                if (target.path) {
+                    genWrite(target.path.relative + ': ' + getTargetDeps(target, true))
+                } else {
+                    genWrite(target.name + ': ' + getTargetDeps(target, true))
+                }
+                capture = []
+            }
+            vtrace(target.type.toPascal(), target.name)
+            runTargetScript(target, 'build')
+            if (capture) {
+                genWrite('\t' + capture.join('\n\t') + '\n\n')
+                capture = null
+            }
+
+        } else if (bit.generating == 'sh') {
             let cmd = target['generate-sh'] || target.interpreter
             if (cmd) {
                 cmd = cmd.trim()
@@ -2648,7 +2610,7 @@ public class Bit {
                 genout.writeLine('#  Omit build script ' + target.name)
             }
 
-        } else if (generating == 'make') {
+        } else if (bit.generating == 'make') {
             if (target.path) {
                 genWrite(target.path.relative + ': ' + getTargetDeps(target, true))
             } else {
@@ -2671,10 +2633,10 @@ public class Bit {
                 cmd = expand(cmd, {fill: null}).expand(target.vars, {fill: '${}'})
                 cmd = repvar2(cmd, target.home)
                 bit.globals.LBIN = localBin
+                genWrite(cmd + '\n')
             }
-            genWrite(cmd + '\n')
 
-        } else if (generating == 'nmake') {
+        } else if (bit.generating == 'nmake') {
             if (target.path) {
                 genWrite(target.path.relative.windows + ': ' + getTargetDeps(target, true))
             } else {
@@ -2716,10 +2678,6 @@ public class Bit {
             } else {
                 genout.writeLine('#  Omit build script ' + target.path + '\n')
             }
-
-        } else if (target.scripts) {
-            vtrace(target.type.toPascal(), target.name)
-            runTargetScript(target, 'build')
         }
     }
 
@@ -2735,7 +2693,7 @@ public class Bit {
         Makefiles and script to be use variables to control various flag settings.
      */
     function repcmd(command: String): String {
-        if (generating == 'make' || generating == 'nmake') {
+        if (bit.generating == 'make' || bit.generating == 'nmake') {
             /* Twice because ldflags are repeated and replace only changes the first occurrence */
             command = rep(command, gen.linker, '$(LDFLAGS)')
             command = rep(command, gen.linker, '$(LDFLAGS)')
@@ -2754,7 +2712,7 @@ public class Bit {
                 command = rep(command, word, '')
             }
 
-        } else if (generating == 'sh') {
+        } else if (bit.generating == 'sh') {
             command = rep(command, gen.linker, '${LDFLAGS}')
             command = rep(command, gen.linker, '${LDFLAGS}')
             command = rep(command, gen.libpaths, '${LIBPATHS}')
@@ -2769,12 +2727,12 @@ public class Bit {
                 command = rep(command, word, '')
             }
         }
-        if (generating == 'nmake') {
+        if (bit.generating == 'nmake') {
             command = rep(command, '_DllMainCRTStartup@12', '$(ENTRY)')
         }
         command = rep(command, RegExp(bit.dir.top + '/', 'g'), '')
         command = rep(command, /  */g, ' ')
-        if (generating == 'nmake') {
+        if (bit.generating == 'nmake') {
             command = rep(command, /\//g, '\\')
         }
         return command
@@ -2786,38 +2744,52 @@ public class Bit {
      */
     function repvar(command: String): String {
         command = command.replace(RegExp(bit.dir.top + '/', 'g'), '')
-        if (generating == 'make') {
+        if (bit.generating == 'make') {
             command = command.replace(RegExp(gen.configuration, 'g'), '$$(CONFIG)')
-        } else if (generating == 'nmake') {
+        } else if (bit.generating == 'nmake') {
             command = command.replace(RegExp(gen.configuration, 'g'), '$$(CONFIG)')
-        } else if (generating == 'sh') {
+        } else if (bit.generating == 'sh') {
             command = command.replace(RegExp(gen.configuration, 'g'), '$${CONFIG}')
         }
+        command = command.replace(RegExp(gen.vapp, 'g'), '$$(BIT_VAPP_PREFIX)')
+        command = command.replace(RegExp(gen.app, 'g'), '$$(BIT_APP_PREFIX)')
+        command = command.replace(RegExp(gen.bin, 'g'), '$$(BIT_BIN_PREFIX)')
+        command = command.replace(RegExp(gen.inc, 'g'), '$$(BIT_INC_PREFIX)')
+        command = command.replace(RegExp(gen.lib, 'g'), '$$(BIT_LIB_PREFIX)')
+        command = command.replace(RegExp(gen.man, 'g'), '$$(BIT_MAN_PREFIX)')
+        command = command.replace(RegExp(gen.base, 'g'), '$$(BIT_BASE_PREFIX)')
         return command
     }
 
     function repvar2(command: String, home: Path): String {
         command = command.replace(RegExp(bit.dir.top, 'g'), bit.dir.top.relativeTo(home))
-        if (bit.platform.like == 'windows' && generating == 'nmake') {
+        if (bit.platform.like == 'windows' && bit.generating == 'nmake') {
             let re = RegExp(bit.dir.top.windows.name.replace(/\\/g, '\\\\'), 'g')
             command = command.replace(re, bit.dir.top.relativeTo(home).windows)
         }
-        if (generating == 'make') {
+        if (bit.generating == 'make') {
             command = command.replace(RegExp(gen.configuration, 'g'), '$$(CONFIG)')
-        } else if (generating == 'nmake') {
+        } else if (bit.generating == 'nmake') {
             command = command.replace(RegExp(gen.configuration + '\\\\bin/', 'g'), '$$(CONFIG)\\bin\\')
             command = command.replace(RegExp(gen.configuration, 'g'), '$$(CONFIG)')
-        } else if (generating == 'sh') {
+        } else if (bit.generating == 'sh') {
             command = command.replace(RegExp(gen.configuration, 'g'), '$${CONFIG}')
         }
+        command = command.replace(RegExp(gen.vapp, 'g'), '$$(BIT_VAPP_PREFIX)')
+        command = command.replace(RegExp(gen.app, 'g'), '$$(BIT_APP_PREFIX)')
+        command = command.replace(RegExp(gen.bin, 'g'), '$$(BIT_BIN_PREFIX)')
+        command = command.replace(RegExp(gen.inc, 'g'), '$$(BIT_INC_PREFIX)')
+        command = command.replace(RegExp(gen.lib, 'g'), '$$(BIT_LIB_PREFIX)')
+        command = command.replace(RegExp(gen.man, 'g'), '$$(BIT_MAN_PREFIX)')
+        command = command.replace(RegExp(gen.base, 'g'), '$$(BIT_BASE_PREFIX)')
         return command
     }
 
     function reppath(path: Path): String {
         path = path.relative
         if (bit.platform.like == 'windows') {
-            path = (generating == 'nmake') ? path.windows : path.portable
-        } else if (Config.OS == 'windows' && generating && generating != 'nmake')  {
+            path = (bit.generating == 'nmake') ? path.windows : path.portable
+        } else if (Config.OS == 'windows' && bit.generating && bit.generating != 'nmake')  {
             path = path.portable 
         }
         return repvar(path)
@@ -2953,7 +2925,7 @@ public class Bit {
                 tv.INCLUDES = (target.includes) ? target.includes.map(function(p) '-I' + p.relativeTo(base)) : ''
             }
             tv.PDB = tv.OUTPUT.replaceExt('pdb')
-            if (bit.dir.home.join('.embedthis').exists && !generating) {
+            if (bit.dir.home.join('.embedthis').exists && !bit.generating) {
                 tv.CFLAGS += ' -DEMBEDTHIS=1'
             }
 
@@ -2973,7 +2945,7 @@ public class Bit {
     function setPathEnvVar(bit) {
         let outbin = Path('.').join(bit.platform.name, 'bin').absolute
         let sep = App.SearchSeparator
-        if (generating) {
+        if (bit.generating) {
             outbin = outbin.relative
         }
         App.putenv('PATH', outbin + sep + App.getenv('PATH'))
@@ -3091,7 +3063,7 @@ public class Bit {
         if (target.built) {
             return false
         }
-        if (generating) {
+        if (bit.generating) {
             return !target.nogen
         }
         if (options.rebuild) {
@@ -3362,7 +3334,7 @@ public class Bit {
         }
     }
 
-    function whySkip(path, msg) {
+    public function whySkip(path, msg) {
         if (options.why) {
             trace('Target', path + ' ' + msg)
         }
@@ -3389,13 +3361,13 @@ public class Bit {
             for each (target in bit.targets) {
                 if (target.enable && target.path && targetsToClean[target.type]) {
                     if (!target.built && !target.precious && !target.nogen) {
-                        if (generating == 'make') {
+                        if (bit.generating == 'make') {
                             genWrite('\trm -rf ' + reppath(target.path))
 
-                        } else if (generating == 'nmake') {
+                        } else if (bit.generating == 'nmake') {
                             genout.writeLine('\t-if exist ' + reppath(target.path) + ' del /Q ' + reppath(target.path))
 
-                        } else if (generating == 'sh') {
+                        } else if (bit.generating == 'sh') {
                             genWrite('rm -rf ' + target.path.relative)
 
                         } else {
@@ -3423,6 +3395,10 @@ public class Bit {
 
     function genWrite(str) {
         genout.writeLine(repvar(str))
+    }
+
+    public function gen(str: String) {
+        capture.push(repvar(str))
     }
 
     function like(os) {
@@ -3772,6 +3748,12 @@ public function whyRebuild(path, tag, msg)
 
 public function expand(rule)
     b.expand(rule)
+
+public function gen(s)
+    b.gen(s)
+
+public function whySkip(path, msg)
+    b.whySkip(path, msg)
 
 public function compareVersion(list, a, b) {
     let parts_a = list[a].match(/.*(\d+)[\-\.](\d+)[\-\.](\d+)/)

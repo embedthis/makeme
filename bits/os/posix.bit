@@ -14,7 +14,7 @@ Bit.load({
     },
 
     'opt-prefixes': {
-        root:     '/',
+        root:       '/',
         base:       '${prefixes.root}/opt/${settings.product}',
         data:       '${prefixes.root}/share',
         state:      '${prefixes.root}/var',

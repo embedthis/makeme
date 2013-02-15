@@ -14,8 +14,9 @@ Bit.load({
         "${BITS}/embedthis.bit",
     ],
 
-    '+modules': [
-        'support.es',
+    //  MOB - delete
+    '_+modules': [
+        '_support.es',
     ],
 
     customize: [
@@ -154,7 +155,7 @@ Bit.load({
 
         projects: {
             action: "
-                genProductProjects('--without default', 'default', ['freebsd-x86', 'linux-x86', 'macosx-x64', 'windows-x86'])
+                genProjects('--without default', 'default', ['freebsd-x86', 'linux-x86', 'macosx-x64', 'windows-x86'])
             ",
         },
     },

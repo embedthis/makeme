@@ -202,10 +202,10 @@
     #define BIT_SPOOL_PREFIX "/var/spool/bit"
 #endif
 #ifndef BIT_CACHE_PREFIX
-    #define BIT_CACHE_PREFIX "/var/cache/bit"
+    #define BIT_CACHE_PREFIX "/var/spool/bit/cache"
 #endif
 #ifndef BIT_SRC_PREFIX
-    #define BIT_SRC_PREFIX "/usr/local/src/bit-0.8.1"
+    #define BIT_SRC_PREFIX "bit-0.8.1"
 #endif
 
 /* Suffixes */

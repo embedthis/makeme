@@ -7,7 +7,7 @@
 
 PKG_DIR="$1"
 INS_DIR="$2"
-BIN_DIR="${prefixes.bin}"
+BIN_DIR="${prefixes.vapp}/bin"
 
 ${BIN_DIR}/linkup Install
 

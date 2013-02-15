@@ -16332,6 +16332,9 @@ module ejs.unix {
                      file = file.toString().expand(options.expand, options)
                 }
                 let target
+                if (dest.name.endsWith('/')) {
+                    dest.makeDir()
+                }
                 if (options.tree) {
                     target = Path(dest + "/" + file).normalize
                 } else if (dest.isDir) {
@@ -16363,7 +16366,7 @@ module ejs.unix {
             if (dest.isDir && !options.subtree) {
                 dest = dest.join(path.basename)
             }
-            options = blend({tree: true, relative: true}, options)
+            options = blend({tree: true, relative: true}, options, {functions: true})
         }
         return inner(path, patterns, dest, options, 0)
     }

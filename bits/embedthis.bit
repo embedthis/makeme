@@ -1,8 +1,12 @@
 /*
-    embedthis.bit -- Embedthis Build Configuration
+    embedthis.bit -- Embedthis Bit Environment
  */
 
 Bit.load({
+    blend: [
+        'embedthis-manifest.bit',
+    ],
+
     '+modules': [
         'embedthis.es',
     ],
@@ -16,6 +20,7 @@ Bit.load({
     },
 
     internal: {
+        //  MOB - toss is illegal
         runopt: {dir: bit.dir.src, show: true, toss: true}
         platforms: [ 'local' ],
     },
@@ -43,14 +48,22 @@ Bit.load({
         web:        '${prefixes.state}/www/${settings.product}-default',
         log:        '${prefixes.state}/log/${settings.product}',
         spool:      '${prefixes.state}/spool/${settings.product}',
-        cache:      '${prefixes.state}/cache/${settings.product}',
+        cache:      '${prefixes.state}/spool/${settings.product}/cache',
 
-        src:        '${prefixes.base}/src/${settings.product}-${settings.version}',
+        src:        '${settings.product}-${settings.version}',
     },
 
     targets: {
+        removeFiles: {
+            enable: bit.platform.like == 'windows',
+            type: 'exe',
+            rule: 'gui'
+            sources: [ 'windows/removeFiles.c' ],
+            platforms: [ 'local' ],
+        },
+
         projects: {
-            action: "genProductProjects()",
+            action: "genEmbedthisProjects()",
         },
 
         /*
@@ -241,22 +254,107 @@ Bit.load({
             ",
         },
 
+        install: {
+            home: '${TOP}',
+            action: " ",
+            depends: [ 'build', 'stop', 'installBinary', 'start' ],
+            generate: ' ',
+        },
+
+        installBinary: {
+            home: '${TOP}',
+            action: "installBinary()",
+            'generate-action': true,
+        },
+
         installPackage: {
-            action: "
-                installPackage()
-            ",
+            home: '${TOP}',
+            action: "installPackage()",
+        },
+
+        package: {
+            home: '${TOP}',
+            enable: "'${OS}.match(/linux|macosx|windows/)",
+            depends: ['packageBinary', 'packageSource', 'packageCombo', 'packageFlat'],
+        },
+
+        packageBinary: {
+            home: '${TOP}',
+            depends: ['build'],
+            action: "packageBinary()",
+        },
+
+        packageSource: {
+            home: '${TOP}',
+            depends: ['build'],
+            action: "packageSource()",
+        },
+
+        packageCombo: {
+            home: '${TOP}',
+            depends: ['build'],
+            action: "packageCombo()",
+        },
+
+        packageFlat: {
+            home: '${TOP}',
+            depends: ['build'],
+            action: "packageFlat()",
+        },
+
+        uninstall: {
+            home: '${TOP}',
+            action: "uninstallBinary()"
+            depends: ['build', 'stop']
         },
 
         uninstallPackage: {
-            action: "
-                uninstallPackage()
-            ",
+            action: "uninstallPackage()",
         },
 
         whatInstalled: {
+            action: "whatInstalled()",
+        },
+
+        //  MOB - review
+        testPackage: {
+            type: 'test',
             action: "
-                whatInstalled()
+                let package = packageName()
+                if (!package || !package.exists || bit.settings.depth < 2) {
+                    trace('Test', 'testPackage -- SKIPPED (Runs at depth 2 on windows or macosx)')
+                } else {
+                    if (Config.OS == 'macosx' && App.uid != 0) {
+                        trace('Test', 'testPackage -- SKIPPED (Must run as root)')
+                    } else {
+                        trace('Test', 'testPackage')
+                        if (bit.prefixes.bin.join('uninstall').exists) {
+                            trace('Test', 'Cleanup prior to installation')
+                            uninstallPackage()
+                            checkUninstalled()
+                        }
+                        installPackage()
+                        if (missing = checkInstalled()) {
+                            trace('Test', 'Install is missing files: ' + missing)
+                        }
+                        let s = bit.settings
+                        trace('Test', 'bit -V')
+                        assert(Cmd.run([bit.prefixes.bin.join('bit'), '-V']).trim() == s.version + '-' + s.buildNumber)
+                        uninstallPackage()
+                        if (Config.OS == 'windows') App.sleep(1000)
+                        if (existing = checkUninstalled()) {
+                            trace('Warning', 'The uninstall for testPackage was not clean: ' + existing)
+                        } else {
+                            trace('Test', 'Uninstall is clean')
+                        }
+                    }
+                }
             ",
         },
+
+        /* Default stubs */
+        start: { action: ' ', generate: ' '},
+        stop: { action: ' ', generate: ' '},
+
     },
 })

@@ -6,43 +6,42 @@
 #
 
 TASK=$1
-PRODUCT=bit
-ROOT_DIR="${2%/}"
+PRODUCT=${settings.product}
 EXE=
-INC_DIR="${ROOT_DIR}/usr/include"
-MAN_DIR="${ROOT_DIR}/usr/share/man"
+INC_DIR="${prefixes.inc}"
+MAN_DIR="${prefixes.man}"
 PROGRAMS="bit"
 
-if [ -x "${ROOT_DIR}/usr/local/bin" ] ; then
-    BIN_DIR="${ROOT_DIR}/usr/local/bin"
+if [ -x "${prefixes.bin}" ] ; then
+    BIN_DIR="${prefixes.bin}"
 else 
-    BIN_DIR="${ROOT_DIR}/usr/bin"
+    BIN_DIR="/usr/bin"
 fi
 
-prefix="${ROOT_DIR}/usr/lib/${PRODUCT}"
+app="${prefixes.app}"
 version=
 
 if [ "$TASK" = "Remove" ] ; then
     for name in $PROGRAMS ; do
         rm -f "${BIN_DIR}/$name"
     done
-    rm -rf  "${INC_DIR}/${PRODUCT}"
+    rm -rf "${INC_DIR}/${PRODUCT}"
 else
-    for v in `ls $prefix 2>/dev/null | egrep -v '[a-zA-Z@!_\-]' | sort -n -r`
+    for v in `ls $app 2>/dev/null | egrep -v '[a-zA-Z@!_\-]' | sort -n -r`
     do
-        if [ -x "$prefix/$v/bin/bit" ] ; then
+        if [ -x "$app/$v/bin/bit" ] ; then
             version=$v
             break
         fi
     done
 
     if [ "$version" = "" ] ; then
-        latest=${prefix}
+        latest=${app}
     else
-        latest=${prefix}/$version
+        latest=${app}/$version
     fi  
-    rm -f "${prefix}/latest"
-    ln -s "${version}" "${prefix}/latest"
+    rm -f "${app}/latest"
+    ln -s "${version}" "${app}/latest"
 
     bin="${latest}/bin"
     inc="${latest}/inc"

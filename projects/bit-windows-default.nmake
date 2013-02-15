@@ -274,9 +274,9 @@ $(CONFIG)\bin\ejs.mod: $(CONFIG)\bin\ejsc.exe
 	"$(LBIN)\ejsc" --out ".\$(CONFIG)\bin\ejs.mod" --optimize 9 --bind --require null src/deps/ejs/ejs.es
 
 $(CONFIG)\obj\removeFiles.obj: \
-    package\windows\removeFiles.c\
+    bits\windows\removeFiles.c\
     $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\removeFiles.obj -Fd$(CONFIG)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) package\windows\removeFiles.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\removeFiles.obj -Fd$(CONFIG)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) bits\windows\removeFiles.c
 
 $(CONFIG)\bin\removeFiles.exe: \
     $(CONFIG)\obj\removeFiles.obj
@@ -312,18 +312,84 @@ version:
 	@echo 0.8.1-0
 	cd ..
 
-deploy: compile
-	@if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
-	xcopy /I /S /Y /Q $(CONFIG)\bin\bit.exe "$(BIT_VAPP_PREFIX)\bin"
-	xcopy /I /S /Y /Q $(CONFIG)\bin\bit.es "$(BIT_VAPP_PREFIX)\bin"
-	xcopy /I /S /Y /Q $(CONFIG)\bin\ejs.mod "$(BIT_VAPP_PREFIX)\bin"
-	xcopy /I /S /Y /Q $(CONFIG)\bin\lib*.dll "$(BIT_VAPP_PREFIX)\bin"
-	xcopy /I /S /Y /Q $(CONFIG)\bin\ca.crt "$(BIT_VAPP_PREFIX)\bin"
-	xcopy /I /S /Y /Q $(CONFIG)\bin\bits "$(BIT_VAPP_PREFIX)\bin\bits"
-
-install: compile deploy
+_install: 
 
 
-uninstall: 
+_uninstall: 
 	if exist "$(BIT_APP_PREFIX)" rd /Q /S "$(BIT_APP_PREFIX)"
+
+stop: 
+
+
+installBinary: 
+	if not exist "$(BIT_VAPP_PREFIX)/bin" md "$(BIT_VAPP_PREFIX)/bin"
+	copy "${bit.packs.compiler.dir}/VC/redist/${bit.platform.arch}/Microsoft.VC0.CRT/msvcr0.dll" "$(BIT_VAPP_PREFIX)/bin/msvcr0.dll"
+	copy "$(CONFIG)/bin/bit" "$(BIT_VAPP_PREFIX)/bin/bit"
+	copy "$(CONFIG)/bin/bit.es" "$(BIT_VAPP_PREFIX)/bin/bit.es"
+	copy "$(CONFIG)/bin/ca.crt" "$(BIT_VAPP_PREFIX)/bin/ca.crt"
+	copy "$(CONFIG)/bin/ca.crt" "$(BIT_VAPP_PREFIX)/bin/ca.crt"
+	copy "$(CONFIG)/bin/libejs.dll" "$(BIT_VAPP_PREFIX)/bin/libejs.dll"
+	copy "$(CONFIG)/bin/libest.dll" "$(BIT_VAPP_PREFIX)/bin/libest.dll"
+	copy "$(CONFIG)/bin/libhttp.dll" "$(BIT_VAPP_PREFIX)/bin/libhttp.dll"
+	copy "$(CONFIG)/bin/libmpr.dll" "$(BIT_VAPP_PREFIX)/bin/libmpr.dll"
+	copy "$(CONFIG)/bin/libmprssl.dll" "$(BIT_VAPP_PREFIX)/bin/libmprssl.dll"
+	copy "$(CONFIG)/bin/libpcre.dll" "$(BIT_VAPP_PREFIX)/bin/libpcre.dll"
+	if not exist "$(BIT_VAPP_PREFIX)/bin/bits" md "$(BIT_VAPP_PREFIX)/bin/bits"
+	copy "bits/embedthis-manifest.bit" "$(BIT_VAPP_PREFIX)/bin/bits/embedthis-manifest.bit"
+	copy "bits/embedthis.bit" "$(BIT_VAPP_PREFIX)/bin/bits/embedthis.bit"
+	copy "bits/embedthis.es" "$(BIT_VAPP_PREFIX)/bin/bits/embedthis.es"
+	copy "bits/gendoc.es" "$(BIT_VAPP_PREFIX)/bin/bits/gendoc.es"
+	copy "bits/getbitvals" "$(BIT_VAPP_PREFIX)/bin/bits/getbitvals"
+	if not exist "$(BIT_VAPP_PREFIX)/bin/bits/os" md "$(BIT_VAPP_PREFIX)/bin/bits/os"
+	copy "bits/os/freebsd.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/freebsd.bit"
+	copy "bits/os/gcc.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/gcc.bit"
+	copy "bits/os/linux.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/linux.bit"
+	copy "bits/os/macosx.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/macosx.bit"
+	copy "bits/os/posix.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/posix.bit"
+	copy "bits/os/solaris.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/solaris.bit"
+	copy "bits/os/vxworks.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/vxworks.bit"
+	copy "bits/os/windows.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/windows.bit"
+	if not exist "$(BIT_VAPP_PREFIX)/bin/bits/packs" md "$(BIT_VAPP_PREFIX)/bin/bits/packs"
+	copy "bits/packs/compiler.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/compiler.pak"
+	copy "bits/packs/doxygen.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/doxygen.pak"
+	copy "bits/packs/dsi.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/dsi.pak"
+	copy "bits/packs/dumpbin.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/dumpbin.pak"
+	copy "bits/packs/ejs.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/ejs.pak"
+	copy "bits/packs/ejscript.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/ejscript.pak"
+	copy "bits/packs/est.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/est.pak"
+	copy "bits/packs/http.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/http.pak"
+	copy "bits/packs/lib.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/lib.pak"
+	copy "bits/packs/link.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/link.pak"
+	copy "bits/packs/man.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/man.pak"
+	copy "bits/packs/man2html.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/man2html.pak"
+	copy "bits/packs/matrixssl.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/matrixssl.pak"
+	copy "bits/packs/md5.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/md5.pak"
+	copy "bits/packs/mocana.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/mocana.pak"
+	copy "bits/packs/openssl.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/openssl.pak"
+	copy "bits/packs/pcre.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/pcre.pak"
+	copy "bits/packs/pmaker.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/pmaker.pak"
+	copy "bits/packs/ranlib.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/ranlib.pak"
+	copy "bits/packs/rc.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/rc.pak"
+	copy "bits/packs/sqlite.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/sqlite.pak"
+	copy "bits/packs/ssl.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/ssl.pak"
+	copy "bits/packs/strip.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/strip.pak"
+	copy "bits/packs/tidy.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/tidy.pak"
+	copy "bits/packs/utest.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/utest.pak"
+	copy "bits/packs/vxworks.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/vxworks.pak"
+	copy "bits/packs/winsdk.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/winsdk.pak"
+	copy "bits/packs/zip.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/zip.pak"
+	copy "bits/packs/zlib.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/zlib.pak"
+	copy "bits/sample-main.bit" "$(BIT_VAPP_PREFIX)/bin/bits/sample-main.bit"
+	copy "bits/sample-start.bit" "$(BIT_VAPP_PREFIX)/bin/bits/sample-start.bit"
+	copy "bits/simple.bit" "$(BIT_VAPP_PREFIX)/bin/bits/simple.bit"
+	copy "bits/standard.bit" "$(BIT_VAPP_PREFIX)/bin/bits/standard.bit"
+	copy "bits/vstudio.es" "$(BIT_VAPP_PREFIX)/bin/bits/vstudio.es"
+	copy "bits/xcode.es" "$(BIT_VAPP_PREFIX)/bin/bits/xcode.es"
+
+
+start: 
+
+
+install: stop installBinary start
+
 

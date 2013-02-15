@@ -1045,7 +1045,7 @@ cp -r src/bit.es macosx-x64-default/bin/bit.es
 			files = (
 			);
 			inputPaths = (
-../bits/a.tmp,
+../bits/embedthis-manifest.bit,
 ../bits/embedthis.bit,
 ../bits/embedthis.es,
 ../bits/gendoc.es,

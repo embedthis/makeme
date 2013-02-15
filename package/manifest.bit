@@ -1,0 +1,86 @@
+/*
+    manifest.bit - Install and Package File Manifest for Bit
+ */
+
+Bit.load({
+    /*
+        Package manifest instructions
+
+        The sets used are: binary, service, test, doc, dev, package, source
+     */
+    manifest: {
+
+        packages:   {
+            install: {
+                inherit:    'embedthis-manifest',
+                prefixes:   [ 'root', 'app', 'vapp', 'bin', 'man'],
+                sets:       [ 'install' ],
+                platforms:  [ 'windows', 'posix' ]
+            },
+            binary: {
+                inherit:    'embedthis-manifest',
+                prefixes:   [ 'root', 'app', 'vapp', 'bin', 'man'],
+                formats:    [ 'native', 'tar' ],
+                sets:       [ 'binary', 'doc', 'package' ],
+                platforms:  [ 'windows', 'macosx' ]
+            },
+            source: {
+                inherit:    'embedthis-manifest',
+                prefixes:   [ 'root', 'src'],
+                formats:    [ 'tar' ],
+                sets:       [ 'source' ],
+            },
+        },
+
+        files: [ 
+            /* Binary Set */
+            {       from:   '${BIN}/bit',
+                    to:     '${abin}/',
+                    linkin: '${bin}',
+                    set:    'binary, install',
+
+            }, {    from: [
+                            '${BIN}/bit.es',
+                            '${BIN}/ca.crt',
+                            '${BIN}/ca.crt',
+                            '${BIN}/libejs${SHOBJ}',
+                            '${BIN}/libest${SHOBJ}',
+                            '${BIN}/libhttp${SHOBJ}',
+                            '${BIN}/libmpr${SHOBJ}',
+                            '${BIN}/libmprssl${SHOBJ}',
+                            '${BIN}/libpcre${SHOBJ}',
+                    ],
+                    to:     '${abin}/',
+                    set:    'binary, install',
+
+            }, {    from:   'bits',
+                    to:     '${abin}/',
+                    set:    'binary, install',
+
+            }, {    from:   'doc/man/bit.1',
+                    to:     '${adoc}/man/man1/',
+                    set:    'doc, install',
+                    linkin: '${man}/man1',
+                    enable: "bit.platform.like == 'posix'",
+
+            /* Source Set */
+            }, {
+                    from:   [ '*.md' ],
+                    to:     '${src}/',
+                    fold:   true,
+                    expand: true,
+                    set:    'source',
+            }, {
+                    from:   [ 'configure' ],
+                    to:     '${src}/',
+                    permissions: 0755,     
+                    set:    'source',
+
+            }, {
+                    from:   [ 'Makefile', 'main.bit', 'bits', 'src', 'doc', 'projects', 'package' ],
+                    to:     '${src}/',
+                    set:    'source',
+            },
+        ],
+    },
+})

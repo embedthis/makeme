@@ -57,7 +57,7 @@ try {
             vsbin = vsdir.join('VC/Bin'),
             vslib = vsdir.join('VC/lib')
             defs = []
-            version = 0
+            version = '0'
         } else {
             path ||= 'cl.exe'
             cc = probe(path, {fullpath: true, search: search})
@@ -70,7 +70,9 @@ try {
             version = vsdir.name.match(/\d*\.\d/)[0]
             defs = [ 'BIT_VISUAL_STUDIO_VERSION="' + version + '"']
         }
-        Bit.load({packs: { compiler: { path: cc, dir: vsdir, search: search, definitions: defs, version: version }}})
+        let crtver = version.replace('.', '')
+
+        Bit.load({packs: { compiler: { path: cc, dir: vsdir, search: search, definitions: defs, version: version, crt: crtver }}})
         bit.env.PATH += [
             vsbin,
             vsdir.join('Common7/IDE'),
