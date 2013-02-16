@@ -63,7 +63,7 @@ Bit.load({
         },
 
         projects: {
-            action: "genEmbedthisProjects()",
+            action: "genProjects()",
         },
 
         /*

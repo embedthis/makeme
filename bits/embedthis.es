@@ -112,13 +112,13 @@ public function install(src, dest: Path, options = {}) {
             }
             continue
         }
-        makeDir(target.dirname, attributes)
+        makeDir(target.dirname, options)
 
         if (options.cat) {
             catenate(from, target, attributes)
         } else {
             if (from.isDir) {
-                makeDir(target, attributes)
+                makeDir(target, options)
             } else {
                 try {
                     copy(from, target, attributes)
@@ -296,8 +296,8 @@ function setupManifest(kind, package, prefixes) {
     let manifest
     if (package.inherit) {
         let inherit = bit[package.inherit]
-        manifest = blend(inherit.clone(), bit.manifest, {combine: true})
-        manifest.files = inherit.files + bit.manifest.files
+        manifest = blend(inherit.clone(), bit.manifest.clone(), {combine: true})
+        manifest.files = (inherit.files + bit.manifest.files).clone(true)
         package.prefixes = (inherit.packages[kind].prefixes + package.prefixes).unique()
     } else {
         manifest = bit.manifest.clone()
@@ -355,7 +355,7 @@ function setupPackage(kind, doinstall = false) {
             bit.dir.rel.makeDir()
         }
     } else {
-        trace('Info', 'Skip creating ' + kind + ' package')
+        vtrace('Info', 'Skip creating ' + kind + ' package')
     }
     return [manifest, package, prefixes]
 }
