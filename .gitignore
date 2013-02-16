@@ -18,7 +18,9 @@
 releases
 start.bit
 projects/.flags
-*-*-*
+/*-*-debug*
+/*-*-default*
+*-*-mine*
 *.guid
 .prefixes
 *.tmp
