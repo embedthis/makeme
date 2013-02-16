@@ -100,7 +100,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <ClCompile Include="..\..\bits\windows\removeFiles.c" />
+    <ClCompile Include="..\..\package\windows\removeFiles.c" />
   </ItemGroup>
 
   <ItemDefinitionGroup>

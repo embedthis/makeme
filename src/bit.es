@@ -1193,7 +1193,8 @@ public class Bit {
             }
         }
         /*
-            Delay blending defaults into targets until blendDefaults. This is because 'combine: true' erases the +/- property prefixes.
+            Delay blending defaults into targets until blendDefaults. 
+            This is because 'combine: true' erases the +/- property prefixes.
          */
         if (o.targets) {
             bit.targets ||= {}
@@ -1381,6 +1382,8 @@ public class Bit {
                 if (value.startsWith(root.name)) {
                     if (root.name == '/') {
                         value = value.replace(root.name, '$(BIT_ROOT_PREFIX)/')
+                    } else if (bit.platform.like == 'windows') {
+                        value = value.replace(root.name, '$(BIT_ROOT_PREFIX)\\')
                     } else {
                         value = value.replace(root.name, '$(BIT_ROOT_PREFIX)')
                     }
@@ -1517,7 +1520,9 @@ public class Bit {
         let prefixes = mapPrefixes()
         for (let [name, value] in prefixes) {
             if (name.startsWith('programFiles')) continue
-            genout.writeLine('%-21s = %s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
+            /* MOB bug - value.windows will change C:/ to C: */
+            let value = value.map('\\')
+            genout.writeLine('%-21s = '.format(['BIT_' + name.toUpper() + '_PREFIX']) + value)
         }
         genout.writeLine('')
         let pop = bit.settings.product + '-' + bit.platform.os + '-' + bit.platform.profile
@@ -2101,8 +2106,10 @@ public class Bit {
         }
         for (let [pname, prefix] in bit.prefixes) {
             bit.prefixes[pname] = Path(prefix)
-            if (bit.platform.os == 'windows' && Config.OS == 'windows') {
-                bit.prefixes[pname] = bit.prefixes[pname].absolute
+            if (bit.platform.os == 'windows') {
+                if (Config.OS == 'windows') {
+                    bit.prefixes[pname] = bit.prefixes[pname].absolute
+                }
             } else {
                 bit.prefixes[pname] = bit.prefixes[pname].normalize
             }
@@ -2751,16 +2758,17 @@ public class Bit {
         } else if (bit.generating == 'sh') {
             command = command.replace(RegExp(gen.configuration, 'g'), '$${CONFIG}')
         }
-        command = command.replace(RegExp(gen.vapp, 'g'), '$$(BIT_VAPP_PREFIX)')
-        command = command.replace(RegExp(gen.app, 'g'), '$$(BIT_APP_PREFIX)')
-        command = command.replace(RegExp(gen.bin, 'g'), '$$(BIT_BIN_PREFIX)')
-        command = command.replace(RegExp(gen.inc, 'g'), '$$(BIT_INC_PREFIX)')
-        command = command.replace(RegExp(gen.lib, 'g'), '$$(BIT_LIB_PREFIX)')
-        command = command.replace(RegExp(gen.man, 'g'), '$$(BIT_MAN_PREFIX)')
-        command = command.replace(RegExp(gen.base, 'g'), '$$(BIT_BASE_PREFIX)')
+        for each (p in ['vapp', 'app', 'bin', 'inc', 'lib', 'man', 'base']) {
+            if (bit.platform.like == 'windows') {
+                let pat = gen[p].windows.replace(/\\/g, '\\\\')
+                command = command.replace(RegExp(pat, 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
+            }
+            command = command.replace(RegExp(gen[p], 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
+        }
         return command
     }
 
+    //  MOB - should merge repvar and repvar2
     function repvar2(command: String, home: Path): String {
         command = command.replace(RegExp(bit.dir.top, 'g'), bit.dir.top.relativeTo(home))
         if (bit.platform.like == 'windows' && bit.generating == 'nmake') {
@@ -2775,13 +2783,13 @@ public class Bit {
         } else if (bit.generating == 'sh') {
             command = command.replace(RegExp(gen.configuration, 'g'), '$${CONFIG}')
         }
-        command = command.replace(RegExp(gen.vapp, 'g'), '$$(BIT_VAPP_PREFIX)')
-        command = command.replace(RegExp(gen.app, 'g'), '$$(BIT_APP_PREFIX)')
-        command = command.replace(RegExp(gen.bin, 'g'), '$$(BIT_BIN_PREFIX)')
-        command = command.replace(RegExp(gen.inc, 'g'), '$$(BIT_INC_PREFIX)')
-        command = command.replace(RegExp(gen.lib, 'g'), '$$(BIT_LIB_PREFIX)')
-        command = command.replace(RegExp(gen.man, 'g'), '$$(BIT_MAN_PREFIX)')
-        command = command.replace(RegExp(gen.base, 'g'), '$$(BIT_BASE_PREFIX)')
+        for each (p in ['vapp', 'app', 'bin', 'inc', 'lib', 'man', 'base']) {
+            if (bit.platform.like == 'windows') {
+                let pat = gen[p].windows.replace(/\\/g, '\\\\')
+                command = command.replace(RegExp(pat, 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
+            }
+            command = command.replace(RegExp(gen[p], 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
+        }
         return command
     }
 

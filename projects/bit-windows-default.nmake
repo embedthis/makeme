@@ -29,22 +29,22 @@ LDFLAGS         = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
 LIBPATHS        = -libpath:$(CONFIG)\bin
 LIBS            = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
 
-BIT_ROOT_PREFIX       = C:
-BIT_BASE_PREFIX       = $(BIT_ROOT_PREFIX)/Program Files
-BIT_APP_PREFIX        = $(BIT_BASE_PREFIX)/Embedthis Bit
+BIT_ROOT_PREFIX       = C:\
+BIT_BASE_PREFIX       = $(BIT_ROOT_PREFIX)\Program Files
+BIT_APP_PREFIX        = $(BIT_BASE_PREFIX)\Embedthis Bit
 BIT_VAPP_PREFIX       = $(BIT_APP_PREFIX)
 BIT_DATA_PREFIX       = $(BIT_VAPP_PREFIX)
 BIT_STATE_PREFIX      = $(BIT_VAPP_PREFIX)
-BIT_BIN_PREFIX        = $(BIT_VAPP_PREFIX)/bin
-BIT_INC_PREFIX        = $(BIT_VAPP_PREFIX)/inc
-BIT_LIB_PREFIX        = $(BIT_VAPP_PREFIX)/lib
-BIT_MAN_PREFIX        = $(BIT_VAPP_PREFIX)/man
+BIT_BIN_PREFIX        = $(BIT_VAPP_PREFIX)\bin
+BIT_INC_PREFIX        = $(BIT_VAPP_PREFIX)\inc
+BIT_LIB_PREFIX        = $(BIT_VAPP_PREFIX)\lib
+BIT_MAN_PREFIX        = $(BIT_VAPP_PREFIX)\man
 BIT_ETC_PREFIX        = $(BIT_VAPP_PREFIX)
-BIT_WEB_PREFIX        = $(BIT_VAPP_PREFIX)/web
-BIT_LOG_PREFIX        = $(BIT_VAPP_PREFIX)/log
-BIT_SPOOL_PREFIX      = $(BIT_VAPP_PREFIX)/tmp
-BIT_CACHE_PREFIX      = $(BIT_VAPP_PREFIX)/cache
-BIT_SRC_PREFIX        = $(BIT_VAPP_PREFIX)/src
+BIT_WEB_PREFIX        = $(BIT_VAPP_PREFIX)\web
+BIT_LOG_PREFIX        = $(BIT_VAPP_PREFIX)\log
+BIT_SPOOL_PREFIX      = $(BIT_VAPP_PREFIX)\tmp
+BIT_CACHE_PREFIX      = $(BIT_VAPP_PREFIX)\cache
+BIT_SRC_PREFIX        = $(BIT_VAPP_PREFIX)\src
 
 all compile: prep \
         $(CONFIG)\bin\libest.dll \
@@ -323,71 +323,71 @@ stop:
 
 installBinary: stop
 	if not exist "C:" md "C:"
-	if not exist "C:\Program Files\Embedthis Bit" md "C:\Program Files\Embedthis Bit"
-	if not exist "C:\Program Files\Embedthis Bit" md "C:\Program Files\Embedthis Bit"
-	if not exist "C:\Program Files\Embedthis Bit\bin" md "C:\Program Files\Embedthis Bit\bin"
-	if not exist "C:\Program Files\Embedthis Bit\man" md "C:\Program Files\Embedthis Bit\man"
-	if not exist "C:\Program Files\Embedthis Bit\bin" md "C:\Program Files\Embedthis Bit\bin"
-	xcopy /Y /Q "\Users\mob\git\bit\$(CONFIG)\bin\bit.exe" "C:\Program Files\Embedthis Bit\bin\bit.exe"
-	xcopy /Y /Q "\Users\mob\git\bit\$(CONFIG)\bin\bit.es" "C:\Program Files\Embedthis Bit\bin\bit.es"
-	xcopy /Y /Q "\Users\mob\git\bit\$(CONFIG)\bin\ca.crt" "C:\Program Files\Embedthis Bit\bin\ca.crt"
-	xcopy /Y /Q "\Users\mob\git\bit\$(CONFIG)\bin\ca.crt" "C:\Program Files\Embedthis Bit\bin\ca.crt"
-	xcopy /Y /Q "\Users\mob\git\bit\$(CONFIG)\bin\libejs.dll" "C:\Program Files\Embedthis Bit\bin\libejs.dll"
-	xcopy /Y /Q "\Users\mob\git\bit\$(CONFIG)\bin\libest.dll" "C:\Program Files\Embedthis Bit\bin\libest.dll"
-	xcopy /Y /Q "\Users\mob\git\bit\$(CONFIG)\bin\libhttp.dll" "C:\Program Files\Embedthis Bit\bin\libhttp.dll"
-	xcopy /Y /Q "\Users\mob\git\bit\$(CONFIG)\bin\libmpr.dll" "C:\Program Files\Embedthis Bit\bin\libmpr.dll"
-	xcopy /Y /Q "\Users\mob\git\bit\$(CONFIG)\bin\libmprssl.dll" "C:\Program Files\Embedthis Bit\bin\libmprssl.dll"
-	xcopy /Y /Q "\Users\mob\git\bit\$(CONFIG)\bin\libpcre.dll" "C:\Program Files\Embedthis Bit\bin\libpcre.dll"
-	xcopy /Y /Q "bits\embedthis-manifest.bit" "C:\Program Files\Embedthis Bit\bin\embedthis-manifest.bit"
-	xcopy /Y /Q "bits\embedthis.bit" "C:\Program Files\Embedthis Bit\bin\embedthis.bit"
-	xcopy /Y /Q "bits\embedthis.es" "C:\Program Files\Embedthis Bit\bin\embedthis.es"
-	xcopy /Y /Q "bits\gendoc.es" "C:\Program Files\Embedthis Bit\bin\gendoc.es"
-	xcopy /Y /Q "bits\getbitvals" "C:\Program Files\Embedthis Bit\bin\getbitvals"
-	if not exist "C:\Program Files\Embedthis Bit\bin\os" md "C:\Program Files\Embedthis Bit\bin\os"
-	xcopy /Y /Q "bits\os\freebsd.bit" "C:\Program Files\Embedthis Bit\bin\os\freebsd.bit"
-	xcopy /Y /Q "bits\os\gcc.bit" "C:\Program Files\Embedthis Bit\bin\os\gcc.bit"
-	xcopy /Y /Q "bits\os\linux.bit" "C:\Program Files\Embedthis Bit\bin\os\linux.bit"
-	xcopy /Y /Q "bits\os\macosx.bit" "C:\Program Files\Embedthis Bit\bin\os\macosx.bit"
-	xcopy /Y /Q "bits\os\posix.bit" "C:\Program Files\Embedthis Bit\bin\os\posix.bit"
-	xcopy /Y /Q "bits\os\solaris.bit" "C:\Program Files\Embedthis Bit\bin\os\solaris.bit"
-	xcopy /Y /Q "bits\os\vxworks.bit" "C:\Program Files\Embedthis Bit\bin\os\vxworks.bit"
-	xcopy /Y /Q "bits\os\windows.bit" "C:\Program Files\Embedthis Bit\bin\os\windows.bit"
-	if not exist "C:\Program Files\Embedthis Bit\bin\packs" md "C:\Program Files\Embedthis Bit\bin\packs"
-	xcopy /Y /Q "bits\packs\compiler.pak" "C:\Program Files\Embedthis Bit\bin\packs\compiler.pak"
-	xcopy /Y /Q "bits\packs\doxygen.pak" "C:\Program Files\Embedthis Bit\bin\packs\doxygen.pak"
-	xcopy /Y /Q "bits\packs\dsi.pak" "C:\Program Files\Embedthis Bit\bin\packs\dsi.pak"
-	xcopy /Y /Q "bits\packs\dumpbin.pak" "C:\Program Files\Embedthis Bit\bin\packs\dumpbin.pak"
-	xcopy /Y /Q "bits\packs\ejs.pak" "C:\Program Files\Embedthis Bit\bin\packs\ejs.pak"
-	xcopy /Y /Q "bits\packs\ejscript.pak" "C:\Program Files\Embedthis Bit\bin\packs\ejscript.pak"
-	xcopy /Y /Q "bits\packs\est.pak" "C:\Program Files\Embedthis Bit\bin\packs\est.pak"
-	xcopy /Y /Q "bits\packs\http.pak" "C:\Program Files\Embedthis Bit\bin\packs\http.pak"
-	xcopy /Y /Q "bits\packs\lib.pak" "C:\Program Files\Embedthis Bit\bin\packs\lib.pak"
-	xcopy /Y /Q "bits\packs\link.pak" "C:\Program Files\Embedthis Bit\bin\packs\link.pak"
-	xcopy /Y /Q "bits\packs\man.pak" "C:\Program Files\Embedthis Bit\bin\packs\man.pak"
-	xcopy /Y /Q "bits\packs\man2html.pak" "C:\Program Files\Embedthis Bit\bin\packs\man2html.pak"
-	xcopy /Y /Q "bits\packs\matrixssl.pak" "C:\Program Files\Embedthis Bit\bin\packs\matrixssl.pak"
-	xcopy /Y /Q "bits\packs\md5.pak" "C:\Program Files\Embedthis Bit\bin\packs\md5.pak"
-	xcopy /Y /Q "bits\packs\mocana.pak" "C:\Program Files\Embedthis Bit\bin\packs\mocana.pak"
-	xcopy /Y /Q "bits\packs\openssl.pak" "C:\Program Files\Embedthis Bit\bin\packs\openssl.pak"
-	xcopy /Y /Q "bits\packs\pcre.pak" "C:\Program Files\Embedthis Bit\bin\packs\pcre.pak"
-	xcopy /Y /Q "bits\packs\pmaker.pak" "C:\Program Files\Embedthis Bit\bin\packs\pmaker.pak"
-	xcopy /Y /Q "bits\packs\ranlib.pak" "C:\Program Files\Embedthis Bit\bin\packs\ranlib.pak"
-	xcopy /Y /Q "bits\packs\rc.pak" "C:\Program Files\Embedthis Bit\bin\packs\rc.pak"
-	xcopy /Y /Q "bits\packs\sqlite.pak" "C:\Program Files\Embedthis Bit\bin\packs\sqlite.pak"
-	xcopy /Y /Q "bits\packs\ssl.pak" "C:\Program Files\Embedthis Bit\bin\packs\ssl.pak"
-	xcopy /Y /Q "bits\packs\strip.pak" "C:\Program Files\Embedthis Bit\bin\packs\strip.pak"
-	xcopy /Y /Q "bits\packs\tidy.pak" "C:\Program Files\Embedthis Bit\bin\packs\tidy.pak"
-	xcopy /Y /Q "bits\packs\utest.pak" "C:\Program Files\Embedthis Bit\bin\packs\utest.pak"
-	xcopy /Y /Q "bits\packs\vxworks.pak" "C:\Program Files\Embedthis Bit\bin\packs\vxworks.pak"
-	xcopy /Y /Q "bits\packs\winsdk.pak" "C:\Program Files\Embedthis Bit\bin\packs\winsdk.pak"
-	xcopy /Y /Q "bits\packs\zip.pak" "C:\Program Files\Embedthis Bit\bin\packs\zip.pak"
-	xcopy /Y /Q "bits\packs\zlib.pak" "C:\Program Files\Embedthis Bit\bin\packs\zlib.pak"
-	xcopy /Y /Q "bits\sample-main.bit" "C:\Program Files\Embedthis Bit\bin\sample-main.bit"
-	xcopy /Y /Q "bits\sample-start.bit" "C:\Program Files\Embedthis Bit\bin\sample-start.bit"
-	xcopy /Y /Q "bits\simple.bit" "C:\Program Files\Embedthis Bit\bin\simple.bit"
-	xcopy /Y /Q "bits\standard.bit" "C:\Program Files\Embedthis Bit\bin\standard.bit"
-	xcopy /Y /Q "bits\vstudio.es" "C:\Program Files\Embedthis Bit\bin\vstudio.es"
-	xcopy /Y /Q "bits\xcode.es" "C:\Program Files\Embedthis Bit\bin\xcode.es"
+	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
+	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
+	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
+	if not exist "$(BIT_VAPP_PREFIX)\man" md "$(BIT_VAPP_PREFIX)\man"
+	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
+	xcopy /Y /Q "$(CONFIG)\bin\bit.exe" "$(BIT_VAPP_PREFIX)\bin\bit.exe"
+	xcopy /Y /Q "$(CONFIG)\bin\bit.es" "$(BIT_VAPP_PREFIX)\bin\bit.es"
+	xcopy /Y /Q "$(CONFIG)\bin\ca.crt" "$(BIT_VAPP_PREFIX)\bin\ca.crt"
+	xcopy /Y /Q "$(CONFIG)\bin\ca.crt" "$(BIT_VAPP_PREFIX)\bin\ca.crt"
+	xcopy /Y /Q "$(CONFIG)\bin\libejs.dll" "$(BIT_VAPP_PREFIX)\bin\libejs.dll"
+	xcopy /Y /Q "$(CONFIG)\bin\libest.dll" "$(BIT_VAPP_PREFIX)\bin\libest.dll"
+	xcopy /Y /Q "$(CONFIG)\bin\libhttp.dll" "$(BIT_VAPP_PREFIX)\bin\libhttp.dll"
+	xcopy /Y /Q "$(CONFIG)\bin\libmpr.dll" "$(BIT_VAPP_PREFIX)\bin\libmpr.dll"
+	xcopy /Y /Q "$(CONFIG)\bin\libmprssl.dll" "$(BIT_VAPP_PREFIX)\bin\libmprssl.dll"
+	xcopy /Y /Q "$(CONFIG)\bin\libpcre.dll" "$(BIT_VAPP_PREFIX)\bin\libpcre.dll"
+	xcopy /Y /Q "bits\embedthis-manifest.bit" "$(BIT_VAPP_PREFIX)\bin\embedthis-manifest.bit"
+	xcopy /Y /Q "bits\embedthis.bit" "$(BIT_VAPP_PREFIX)\bin\embedthis.bit"
+	xcopy /Y /Q "bits\embedthis.es" "$(BIT_VAPP_PREFIX)\bin\embedthis.es"
+	xcopy /Y /Q "bits\gendoc.es" "$(BIT_VAPP_PREFIX)\bin\gendoc.es"
+	xcopy /Y /Q "bits\getbitvals" "$(BIT_VAPP_PREFIX)\bin\getbitvals"
+	if not exist "$(BIT_VAPP_PREFIX)\bin\os" md "$(BIT_VAPP_PREFIX)\bin\os"
+	xcopy /Y /Q "bits\os\freebsd.bit" "$(BIT_VAPP_PREFIX)\bin\os\freebsd.bit"
+	xcopy /Y /Q "bits\os\gcc.bit" "$(BIT_VAPP_PREFIX)\bin\os\gcc.bit"
+	xcopy /Y /Q "bits\os\linux.bit" "$(BIT_VAPP_PREFIX)\bin\os\linux.bit"
+	xcopy /Y /Q "bits\os\macosx.bit" "$(BIT_VAPP_PREFIX)\bin\os\macosx.bit"
+	xcopy /Y /Q "bits\os\posix.bit" "$(BIT_VAPP_PREFIX)\bin\os\posix.bit"
+	xcopy /Y /Q "bits\os\solaris.bit" "$(BIT_VAPP_PREFIX)\bin\os\solaris.bit"
+	xcopy /Y /Q "bits\os\vxworks.bit" "$(BIT_VAPP_PREFIX)\bin\os\vxworks.bit"
+	xcopy /Y /Q "bits\os\windows.bit" "$(BIT_VAPP_PREFIX)\bin\os\windows.bit"
+	if not exist "$(BIT_VAPP_PREFIX)\bin\packs" md "$(BIT_VAPP_PREFIX)\bin\packs"
+	xcopy /Y /Q "bits\packs\compiler.pak" "$(BIT_VAPP_PREFIX)\bin\packs\compiler.pak"
+	xcopy /Y /Q "bits\packs\doxygen.pak" "$(BIT_VAPP_PREFIX)\bin\packs\doxygen.pak"
+	xcopy /Y /Q "bits\packs\dsi.pak" "$(BIT_VAPP_PREFIX)\bin\packs\dsi.pak"
+	xcopy /Y /Q "bits\packs\dumpbin.pak" "$(BIT_VAPP_PREFIX)\bin\packs\dumpbin.pak"
+	xcopy /Y /Q "bits\packs\ejs.pak" "$(BIT_VAPP_PREFIX)\bin\packs\ejs.pak"
+	xcopy /Y /Q "bits\packs\ejscript.pak" "$(BIT_VAPP_PREFIX)\bin\packs\ejscript.pak"
+	xcopy /Y /Q "bits\packs\est.pak" "$(BIT_VAPP_PREFIX)\bin\packs\est.pak"
+	xcopy /Y /Q "bits\packs\http.pak" "$(BIT_VAPP_PREFIX)\bin\packs\http.pak"
+	xcopy /Y /Q "bits\packs\lib.pak" "$(BIT_VAPP_PREFIX)\bin\packs\lib.pak"
+	xcopy /Y /Q "bits\packs\link.pak" "$(BIT_VAPP_PREFIX)\bin\packs\link.pak"
+	xcopy /Y /Q "bits\packs\man.pak" "$(BIT_VAPP_PREFIX)\bin\packs\man.pak"
+	xcopy /Y /Q "bits\packs\man2html.pak" "$(BIT_VAPP_PREFIX)\bin\packs\man2html.pak"
+	xcopy /Y /Q "bits\packs\matrixssl.pak" "$(BIT_VAPP_PREFIX)\bin\packs\matrixssl.pak"
+	xcopy /Y /Q "bits\packs\md5.pak" "$(BIT_VAPP_PREFIX)\bin\packs\md5.pak"
+	xcopy /Y /Q "bits\packs\mocana.pak" "$(BIT_VAPP_PREFIX)\bin\packs\mocana.pak"
+	xcopy /Y /Q "bits\packs\openssl.pak" "$(BIT_VAPP_PREFIX)\bin\packs\openssl.pak"
+	xcopy /Y /Q "bits\packs\pcre.pak" "$(BIT_VAPP_PREFIX)\bin\packs\pcre.pak"
+	xcopy /Y /Q "bits\packs\pmaker.pak" "$(BIT_VAPP_PREFIX)\bin\packs\pmaker.pak"
+	xcopy /Y /Q "bits\packs\ranlib.pak" "$(BIT_VAPP_PREFIX)\bin\packs\ranlib.pak"
+	xcopy /Y /Q "bits\packs\rc.pak" "$(BIT_VAPP_PREFIX)\bin\packs\rc.pak"
+	xcopy /Y /Q "bits\packs\sqlite.pak" "$(BIT_VAPP_PREFIX)\bin\packs\sqlite.pak"
+	xcopy /Y /Q "bits\packs\ssl.pak" "$(BIT_VAPP_PREFIX)\bin\packs\ssl.pak"
+	xcopy /Y /Q "bits\packs\strip.pak" "$(BIT_VAPP_PREFIX)\bin\packs\strip.pak"
+	xcopy /Y /Q "bits\packs\tidy.pak" "$(BIT_VAPP_PREFIX)\bin\packs\tidy.pak"
+	xcopy /Y /Q "bits\packs\utest.pak" "$(BIT_VAPP_PREFIX)\bin\packs\utest.pak"
+	xcopy /Y /Q "bits\packs\vxworks.pak" "$(BIT_VAPP_PREFIX)\bin\packs\vxworks.pak"
+	xcopy /Y /Q "bits\packs\winsdk.pak" "$(BIT_VAPP_PREFIX)\bin\packs\winsdk.pak"
+	xcopy /Y /Q "bits\packs\zip.pak" "$(BIT_VAPP_PREFIX)\bin\packs\zip.pak"
+	xcopy /Y /Q "bits\packs\zlib.pak" "$(BIT_VAPP_PREFIX)\bin\packs\zlib.pak"
+	xcopy /Y /Q "bits\sample-main.bit" "$(BIT_VAPP_PREFIX)\bin\sample-main.bit"
+	xcopy /Y /Q "bits\sample-start.bit" "$(BIT_VAPP_PREFIX)\bin\sample-start.bit"
+	xcopy /Y /Q "bits\simple.bit" "$(BIT_VAPP_PREFIX)\bin\simple.bit"
+	xcopy /Y /Q "bits\standard.bit" "$(BIT_VAPP_PREFIX)\bin\standard.bit"
+	xcopy /Y /Q "bits\vstudio.es" "$(BIT_VAPP_PREFIX)\bin\vstudio.es"
+	xcopy /Y /Q "bits\xcode.es" "$(BIT_VAPP_PREFIX)\bin\xcode.es"
 
 
 start: 
@@ -397,9 +397,9 @@ install: stop installBinary start
 
 
 uninstall: stop
-	if exist "$(BIT_VAPP_PREFIX)" rd /Q /S "C:\Program Files\Embedthis Bit"
-	if exist "$(BIT_VAPP_PREFIX)" rd /Q /S "C:\Program Files\Embedthis Bit"
-	if exist "$(BIT_VAPP_PREFIX)/bin" rd /Q /S "C:\Program Files\Embedthis Bit\bin"
-	if exist "$(BIT_VAPP_PREFIX)/man" rd /Q /S "C:\Program Files\Embedthis Bit\man"
+	if exist "$(BIT_VAPP_PREFIX)" rd /Q /S "$(BIT_VAPP_PREFIX)"
+	if exist "$(BIT_VAPP_PREFIX)" rd /Q /S "$(BIT_VAPP_PREFIX)"
+	if exist "$(BIT_VAPP_PREFIX)\bin" rd /Q /S "$(BIT_VAPP_PREFIX)\bin"
+	if exist "$(BIT_VAPP_PREFIX)\man" rd /Q /S "$(BIT_VAPP_PREFIX)\man"
 
 
