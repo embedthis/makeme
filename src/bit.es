@@ -1521,7 +1521,11 @@ public class Bit {
         for (let [name, value] in prefixes) {
             if (name.startsWith('programFiles')) continue
             /* MOB bug - value.windows will change C:/ to C: */
-            let value = value.map('\\')
+            if (name == 'root') {
+                value = value.trimEnd('/')
+            } else {
+                value = value.map('\\')
+            }
             genout.writeLine('%-21s = '.format(['BIT_' + name.toUpper() + '_PREFIX']) + value)
         }
         genout.writeLine('')

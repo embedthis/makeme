@@ -29,7 +29,7 @@ LDFLAGS         = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
 LIBPATHS        = -libpath:$(CONFIG)\bin
 LIBS            = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
 
-BIT_ROOT_PREFIX       = C:\
+BIT_ROOT_PREFIX       = C:
 BIT_BASE_PREFIX       = $(BIT_ROOT_PREFIX)\Program Files
 BIT_APP_PREFIX        = $(BIT_BASE_PREFIX)\Embedthis Bit
 BIT_VAPP_PREFIX       = $(BIT_APP_PREFIX)
