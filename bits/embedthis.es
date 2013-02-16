@@ -1145,7 +1145,7 @@ function copy(src: Path, dest: Path, options = {}) {
             src.copy(dest, options)
         }
     } else if (bit.generating == 'nmake') {
-        gen('xcopy /Y /Q "' + src.relative.windows + '" "' + dest.windows + '"')
+        gen('copy /Y "' + src.relative.windows + '" "' + dest.windows + '"')
     } else {
         gen('install ' + getatt(options) + ' "' + src + '" "' + dest + '"')
     }
