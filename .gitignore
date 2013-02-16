@@ -18,8 +18,8 @@
 releases
 start.bit
 projects/.flags
-/*-*-debug*
-/*-*-default*
+/*-*-*/
+/*-*-*.bit
 *-*-mine*
 *.guid
 .prefixes

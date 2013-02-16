@@ -9,14 +9,9 @@ Bit.load({
         "src/deps/pcre/pcre.bit",
         "src/deps/http/http.bit",
         "src/deps/ejs/ejs.bit",
-        "package/package.bit",
+        "package/manifest.bit",
         "doc/doc.bit",
         "${BITS}/embedthis.bit",
-    ],
-
-    //  MOB - delete
-    '_+modules': [
-        '_support.es',
     ],
 
     customize: [
