@@ -42,7 +42,6 @@ Bit.load({
             },{ from: [
                     '${BIN}/bit.es',
                     '${BIN}/ca.crt',
-                    '${BIN}/ca.crt',
                     '${BIN}/libejs${SHOBJ}',
                     '${BIN}/libest${SHOBJ}',
                     '${BIN}/libhttp${SHOBJ}',

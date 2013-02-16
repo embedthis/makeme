@@ -34,28 +34,27 @@ let TempFilter = /\.old$|\.tmp$|xcuserdata|xcworkspace|project.guid|-mine/
     @option user Set file file user
  */
 public function install(src, dest: Path, options = {}) {
+    dest = Path(expand(dest))
     if (!(src is Array)) src = [src]
+    let path = Path('.')
+
     if (options.cat) {
         let files = []
         for each (pat in src) {
             files += Path('.').files(pat, {missing: undefined})
         }
         src = files.unique()
-    }
-    let path = Path('.')
-    if (Path(src).isDir) {
+
+    } else if (Path(src).isDir) {
         path = Path(src)
-        src = '**'
         if (dest.isDir && !options.subtree) {
             dest = dest.join(path.basename)
         }
+        src = ['**']
         options = blend({tree: true, relative: true}, options, {functions: true})
     }
-/* UNUSED
-    if (options.expand) {
-         dest = dest.toString().expand(options.expand, options)
-    }
-*/
+    src = src.map(function(f) Path(expand(f)))
+
     list = path.files(src, options)
     if (bit.options.verbose) {
         print("Install", src, dest)
@@ -68,9 +67,11 @@ public function install(src, dest: Path, options = {}) {
             throw 'cp: Cannot find files to copy for "' + src + '" to ' + dest
         }
     }
+    //MOB list = list.unique()
     let destIsDir = (dest.isDir || (!options.cat && list.length > 1) || dest.name.endsWith('/'))
     for each (let file: Path in list) {
         let from = path.join(file)
+        from = Path(expand(from))
         if (options.expand) {
              file = file.toString().expand(options.expand, options)
         }
@@ -251,16 +252,19 @@ public function deploy(manifest, prefixes, package): Array {
                     strace('Create', dir.relativeTo(bit.dir.top))
                 }
             }
+            if (item.precopy) {
+                runScript(item.precopy)
+            }
+    /*
             for each (from in item.from) {
                 item.filelist = filelist
                 item.made = made
                 from = Path(expand(from))
                 item.to = Path(expand(item.to))
-                if (item.precopy) {
-                    runScript(item.precopy)
-                }
                 install(from, item.to, item)
             }
+    */
+            install(item.from, item.to, item)
             if (item.postcopy) {
                 runScript(item.postcopy)
             }
@@ -604,7 +608,7 @@ function makeTarPackage(prefixes) {
     Zlib.compress(name, zname)
     name.remove()
     bit.dir.rel.join('md5-' + base).joinExt('tgz.txt', true).write(md5(zname.readString()))
-    let generic = bit.dir.rel.join(s.product + '-tar' + '.tgz')
+    let generic = bit.dir.rel.join(bit.settings.product + '-tar' + '.tgz')
     generic.remove()
     //MOB   zname.link(generic)
     Path(generic).symlink(zname)
