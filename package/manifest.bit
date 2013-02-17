@@ -42,6 +42,7 @@ Bit.load({
             },{ from: [
                     '${BIN}/bit.es',
                     '${BIN}/ca.crt',
+                    '${BIN}/ejs.mod',
                     '${BIN}/libejs${SHOBJ}',
                     '${BIN}/libest${SHOBJ}',
                     '${BIN}/libhttp${SHOBJ}',
@@ -74,7 +75,7 @@ Bit.load({
                 permissions: 0755,     
                 set:    'source',
 
-            },{ from:   [ 'Makefile', 'main.bit', 'bits', 'src', 'doc', 'projects', 'package' ],
+            },{ from:   [ 'Makefile', 'make.bat', 'main.bit', 'bits', 'src', 'doc', 'projects', 'package' ],
                 to:     '${src}/',
                 set:    'source',
             },

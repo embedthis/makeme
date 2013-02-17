@@ -861,6 +861,27 @@ typedef int64 Ticks;
 #define ARRAY_FLEX
 #endif
 
+/********************************** Tunables *********************************/
+/*
+    These can be defined in main.bit settings (pascal case) to override. E.g.
+
+    settings: {
+        maxPath: 4096
+    }
+ */
+#ifndef BIT_MAX_FNAME
+    #define BIT_MAX_FNAME      256          /**< Reasonable filename size */
+#endif
+#ifndef BIT_MAX_PATH
+    #define BIT_MAX_PATH       1024         /**< Reasonable filename size */
+#endif
+#ifndef BIT_MAX_BUFFER
+    #define BIT_MAX_BUFFER     4096         /**< Reasonable size for buffers */
+#endif
+#ifndef BIT_MAX_ARGC
+    #define BIT_MAX_ARGC       32           /**< Maximum number of command line args if using MAIN()*/
+#endif
+
 /*********************************** Fixups ***********************************/
 
 #if ECOS
@@ -1096,6 +1117,7 @@ typedef int64 Ticks;
     #define EINTR   4
     #define EAGAIN  11
     #define INADDR_NONE 0xFFFFFFFF
+    #define PATHSIZE BIT_MAX_PATH
     #define NBBY 8
     #define hostent _hostent
     #define NFDBITS (sizeof(fd_mask) * NBBY)

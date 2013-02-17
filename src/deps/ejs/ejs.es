@@ -2046,6 +2046,7 @@ module ejs {
             from the byte array will be copied, ie. the $data byte array will not have its readPosition adjusted. If the 
             byte array is resizable, the underlying data storage will grow to accomodate written data. If the data will not
             fit in the ByteArray, the call may return having only written a portion of the data.
+            When strings are written, they are not null terminated.
             @duplicate Stream.write
          */
         native function write(...data): Number
@@ -8783,8 +8784,8 @@ module ejs {
             name.contains(pattern)
 
         /**
-            Copy a file
-            @param target New file location
+            Copy a file to the destination
+            @param dest New file location
             @param options Object hash
             @options permissions Set to a numeric Posix permissions mask. Not implemented.
             @options user String representing the file user name
@@ -8794,7 +8795,7 @@ module ejs {
             @options uid Number representing the file user id
             @options gid Number representing the file group id
          */
-        native function copy(target: Object, options: Object? = null): Void
+        native function copy(destination: Object, options: Object? = null): Void
 
         /**
             When the file represented by the path was created. Set to null if the file does not exist.
@@ -8951,6 +8952,15 @@ module ejs {
         native function get length(): Number 
 
         /**
+            Create a target link to refer to the path
+            This will remove any pre-existing target link and then create a symbolic link at the target to refer to the
+            path.
+            @param hard Set to true to create a hard link. Otherwise the default is to create a symbolic link.
+            @param target Target the path will refer to.
+          */
+        native function link(target: Path, hard: Boolean = false): Void
+
+        /**
             The target pointed to if this path is a symbolic link. Not available on some platforms such as Windows and 
             VxWorks. If the path is not a symbolic link, it is set to null.
          */
@@ -8977,6 +8987,8 @@ module ejs {
             @param target Path to an existing file to link to.
             @param hard Set to true to create a hard link. Otherwise the default is to create a symbolic link.
             @returns this path
+            @hide
+            @deprecate 2.3.0
          */
         native function makeLink(target: Path, hard: Boolean = false): Void
 
@@ -9314,10 +9326,13 @@ module ejs {
         function startsWith(prefix: String): Boolean
             portable.name.startsWith(Path(prefix).portable)
 
+        //  MOB - symlink is backwards
         /**
-            Create the path as a symbolic link.
-            This will remove any pre-existing path and then create a symbolic link to refer to the target.
+            Create the path as a symbolic link to refer to the target
+            This will remove any pre-existing path and then create a symbolic link at path to refer to the target.
             @param target Target the path will refer to.
+            @hide
+            @deprecate 2.3.0
           */
         native function symlink(target: Path): Void
 
@@ -9786,8 +9801,8 @@ module ejs {
             of the string.
             @param str String to match.
             @param start Optional starting index for matching.
-            @return Array of results, empty array if no matches. The first element is the entire match. Subsequent
-                elements correspond to the matching sub-expressions.
+            @return Array of results. The first element is the entire match. Subsequent
+                elements correspond to the matching sub-expressions. Returns null if not match.
             @spec ejs Adds start argument.
          */
         native function exec(str: String, start: Number = 0): Array
@@ -15559,9 +15574,6 @@ module ejs.mail {
 module ejs.tar {
 
     const BlockSize = 512
-    const Regular: Number = 0
-    const HardLink: Number = 1
-    const SymLink: Number = 2
 
     /*
         Operations
@@ -15570,6 +15582,17 @@ module ejs.tar {
     const Info: Number = 2
     const List: Number = 3
     const Read: Number = 4
+
+    /*
+        Types
+     */
+    const Regular: Number = 0
+    const HardLink: Number = 1
+    const SymLink: Number = 2
+    const CharSpecial: Number = 3
+    const BlockSpecial: Number = 4
+    const Directory: Number = 5
+    const Fifo: Number = 6
 
     class Tar {
         private var path: Path
@@ -15627,18 +15650,20 @@ module ejs.tar {
                     let header = new TarHeader(options)
                     header.createHeader(file)
                     header.write(archive)
-                    let fp = File(file, 'r')
-                    let data = new ByteArray
-                    while (fp.read(data)) {
-                        archive.write(data)
+                    if (header.type == Regular) {
+                        let fp = File(file, 'r')
+                        let data = new ByteArray
+                        while (fp.read(data)) {
+                            archive.write(data)
+                        }
+                        data.flush()
+                        let remainder = 512 - (file.size % 512)
+                        if (remainder < 512) {
+                            data.writePosition = remainder
+                            archive.write(data)
+                        }
+                        fp.close()
                     }
-                    data.flush()
-                    let remainder = 512 - (file.size % 512)
-                    if (remainder < 512) {
-                        data.writePosition = remainder;
-                        archive.write(data)
-                    }
-                    fp.close()
                 }
             } finally {
                 App.chdir(home)
@@ -15662,17 +15687,23 @@ module ejs.tar {
                     if (files.contains(path) || files.length == 0) {
                         if (operation == Extract) {
                             Path(header.name).dirname.makeDir()
-                            let fp = new File(header.name, 'w')
-                            let len = header.size
-                            let buf = new ByteArray(32 * 1024)
-                            while (len > 0) {
-                                buf.flush()
-                                count = len.min(buf.size)
-                                bytes = archive.read(buf, 0, count)
-                                fp.write(buf)
-                                len -= count
+                            if (header.type == HardLink) {
+                                Path(header.linkName).link(header.name, true)
+                            } else if (header.type == SymLink) {
+                                Path(header.linkName).link(header.name)
+                            } else {
+                                let fp = new File(header.name, 'w')
+                                let len = header.size
+                                let buf = new ByteArray(32 * 1024)
+                                while (len > 0) {
+                                    buf.flush()
+                                    count = len.min(buf.size)
+                                    bytes = archive.read(buf, 0, count)
+                                    fp.write(buf)
+                                    len -= count
+                                }
+                                fp.close()
                             }
-                            fp.close()
                             try {
                                 if (App.uid == 0) {
                                     path.setAttributes(header.attributes)
@@ -15689,6 +15720,7 @@ module ejs.tar {
                                 modified: header.modified,
                                 user: header.user,
                                 group: header.group,
+                                type: header.type,
                             })
                             archive.position += header.size
 
@@ -15768,7 +15800,16 @@ module ejs.tar {
             group = options.group || attributes.group
             size = path.size
             modified = path.modified
-            link = 0
+            link = path.isLink
+            if (link) {
+                type = SymLink
+                linkName = path.linkTarget
+                mode = path.dirname.attributes.permissions
+                modified = path.dirname.modified
+                size = 0
+            } else {
+                type = Regular
+            }
             if (options.relativeTo) {
                 path = path.relativeTo(options.relativeTo)
             }
@@ -15844,7 +15885,11 @@ module ejs.tar {
             ba.write('%011o ' % [size])
             ba.write('%011o ' % [modified.time / 1000])
             ba.writePosition = 156
-            ba.write('%1d' % [Regular])
+            ba.write('%1d' % [type])
+            if (linkName) {
+                ba.write(linkName) ; ba.writePosition += linkName.length
+                ba.writeByte(0)
+            }
             ba.writePosition = 257
             ba.write('ustar')
             ba.writePosition = 263
@@ -16332,9 +16377,6 @@ module ejs.unix {
                      file = file.toString().expand(options.expand, options)
                 }
                 let target
-                if (dest.name.endsWith('/')) {
-                    dest.makeDir()
-                }
                 if (options.tree) {
                     target = Path(dest + "/" + file).normalize
                 } else if (dest.isDir) {
@@ -16366,7 +16408,7 @@ module ejs.unix {
             if (dest.isDir && !options.subtree) {
                 dest = dest.join(path.basename)
             }
-            options = blend({tree: true, relative: true}, options, {functions: true})
+            options = blend({tree: true, relative: true}, options)
         }
         return inner(path, patterns, dest, options, 0)
     }

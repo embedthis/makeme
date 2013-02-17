@@ -1,5 +1,5 @@
 /*
-    est.h -- Embedthis Security Transport Library Source
+    est.h -- Embedthis Security Transport Library Header
 
     This file is a catenation of all the source code. Amalgamating into a
     single file makes embedding simpler and the resulting application faster.

@@ -3764,6 +3764,9 @@ public function expand(rule)
 public function gen(s)
     b.gen(s)
 
+public function runScript(scripts)
+    b.runScript(scripts)
+
 public function whySkip(path, msg)
     b.whySkip(path, msg)
 

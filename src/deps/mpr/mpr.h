@@ -4904,10 +4904,10 @@ PUBLIC int mprMakeDir(cchar *path, int perms, int owner, int group, bool makeMis
 
 /**
     Make a link
-    @description Make a link to the specified target path. This will make symbolic or hard links depending on the value
-        of the hard parameter
-    @param path String containing the directory pathname to create.
-    @param target String containing the target file or directory to link to.
+    @description Make a link at the target to the specified path. This will make symbolic or hard links 
+        depending on the value of the hard parameter
+    @param path String containing the path to link to
+    @param target String containing the new link path to be created.
     @param hard If true, make a hard link, otherwise make a soft link.
     @return Returns zero if successful, otherwise a negative MPR error code is returned.
     @ingroup MprPath
