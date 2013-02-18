@@ -9059,7 +9059,9 @@ static ReservedWord keywords[] =
   { "switch",           G_RESERVED,         T_SWITCH,                   0, },
   { "this",             G_RESERVED,         T_THIS,                     0, },
   { "throw",            G_RESERVED,         T_THROW,                    0, },
+#if UNUSED
   { "to",               G_CONREV,           T_TO,                       0, },
+#endif
   { "true",             G_RESERVED,         T_TRUE,                     0, },
   { "try",              G_RESERVED,         T_TRY,                      0, },
   { "typeof",           G_RESERVED,         T_TYPEOF,                   0, },

@@ -16336,81 +16336,69 @@ module ejs.unix {
 
     /**
         Copy files
-        @param patterns Pattern to match files to copy. This can be a String, Path or array of String/Paths. 
+        The src argument can ba an array of Strings/Paths representing files/directories to copy. The may include
+        embedded wildcards. If a src element is a directory, then it all all files and subdirectories will be copied
+        preserving its directory structure under dest. 
+
+        @param src Source files/directories to copy. This can be a String, Path or array of String/Paths. 
             The wildcards "*", "**" and "?" are the only wild card patterns supported. The "**" pattern matches
-            every directory. The Posix "[]" and "{a,b}" style expressions are not supported.
-            If patterns is an existing directory, then the pattern is converted to 'dir/ * *' (without spaces) 
+            every directory and file. The Posix "[]" and "{a,b}" style expressions are not supported.
+            If src is an existing directory, then the pattern is converted to 'dir/ * *' (without spaces) 
             and the tree option is enabled.
         @param dest Destination file or directory. If multiple files are copied, dest is assumed to be a directory and 
-            will be created if required.
-        @param options File attributes
-        @options expand Set to hash of properties to use when expanding '${token}' tokens in src or dest filenames.
+            will be created if required.  If dest has a trailing "/", it is assumed to be a directory.
+        @param options Processing and file attributes
         @options owner String representing the file owner                                                     
         @options group String representing the file group                                                     
         @options permissions Number File Posix permissions mask
-        @options process Optional callback function to process the copied file. This function must do the actual copy 
-            and any required post-processing. Signature is function process(src: Path, dest: Path, options)
-        @options subtree If copying a directory, copy the subtree below the patterns.
-        @options tree If copying a directory, copy the subtree including the pattern path.
+        @options tree Copy the src subtree and preserve the directory structure under the destination.
         @return Number of files copied
     */
-    function cp(patterns, dest: Path, options = {}): Number {
-        //  MOB - refactor as it doesn't use recursion anyway
-        function inner(path: Path, patterns, dest: Path, options, level: Number): Number {
-            let count = 0
-            if (options.expand) {
-                 dest = dest.toString().expand(options.expand, options)
+    function cp(src, dest: Path, options = {}): Number {
+        if (!(src is Array)) src = [src]
+        let count = 0
+        for each (let pattern: Path in src) {
+            let base: Path = Path('.')
+            if (pattern.isDir) {
+                base = pattern
+                pattern = Path('**')
+                options = blend({tree: true, relative: true}, options)
             }
-            let list = path.files(patterns, options)
-            if (list.length > 1 || (patterns is Array && patterns.length > 1)) {
-                if (!options.cat) {
-                    if (!dest.exists) {
-                        dest.makeDir()
-                    } else if (!dest.isDir) {
-                        throw 'Destination "' + dest + '" is not a directory'
-                    }
-                }
+            list = base.files(pattern, options)
+
+            if (!list || list.length == 0) {
+                throw 'cp: Cannot find files to copy "' + pattern + '" to ' + dest
             }
+            destIsDir = (dest.isDir || list.length > 1 || dest.name.endsWith('/'))
+
             for each (let file: Path in list) {
-                let from = path.join(file)
-                if (options.expand) {
-                     file = file.toString().expand(options.expand, options)
-                }
-                let target
+                let to, from = base.join(file)
+/*
+    2 kinds of tree
+    auto: sets base
+    explicit: base == '.'
+
+    auto
+        /some/path/
+                base => /some/path
+ */
                 if (options.tree) {
-                    target = Path(dest + "/" + file).normalize
-                } else if (dest.isDir) {
-                    target = dest.join(file.basename)
+                    to = dest.join(base, file).normalize
+                } else if (destIsDir) {
+                    to = dest.join(file.basename)
                 } else {
-                    target = dest
+                    to = dest
                 }
-                target.dirname.makeDir()
-                if (options.process) {
-                    /* Ensure we get any bound "this" value */
-                    let fn = options.process
-                    fn(from, target, options)
-                } else if (from.isDir) {
-                    target.makeDir()
+                to.dirname.makeDir()
+                if (from.isDir) {
+                    to.makeDir()
                 } else {
-                    from.copy(target, options)
+                    from.copy(to, options)
                 }
                 count++
             }
-            if (count == 0 && level == 0 && options.warn) {
-                throw 'cp: Can\'t find files to copy "' + patterns + '" to ' + dest
-            }
-            return count
         }
-        let path = Path('.')
-        if (Path(patterns).isDir) {
-            path = Path(patterns)
-            patterns = '**'
-            if (dest.isDir && !options.subtree) {
-                dest = dest.join(path.basename)
-            }
-            options = blend({tree: true, relative: true}, options)
-        }
-        return inner(path, patterns, dest, options, 0)
+        return count
     }
 
     /**

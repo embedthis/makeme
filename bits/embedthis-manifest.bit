@@ -73,7 +73,7 @@ Bit.load({
                 from:        '${BIN}/removeFiles${EXE}',
                 to:          '${abin}/',
                 set:         'package',
-                enable:      "bit.platform.os == 'windows'",
+                enable:      "bit.platform.os == 'windows' && Path('package/windows/removeFiles.c').exists",
 
            },
         ],

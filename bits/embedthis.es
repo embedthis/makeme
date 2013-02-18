@@ -10,13 +10,17 @@ require ejs.zlib
 
 let TempFilter = /\.old$|\.tmp$|xcuserdata|xcworkspace|project.guid|-mine/
 
-//  MOB - update doc
+//  MOB - rename copy
 /**
-    Install and uninstall files.
-    @param src Source path. May contain glob style wild cards including '*', '?' and '**'. May also be an array
-        of source paths.
-    @param dest Destination path
-    @param options Process options
+    Install files.
+    @param src Source files/directories to copy. This can be a String, Path or array of String/Paths. 
+        The wildcards "*", "**" and "?" are the only wild card patterns supported. The "**" pattern matches
+        every directory and file. The Posix "[]" and "{a,b}" style expressions are not supported.
+        If src is an existing directory, then the pattern is converted to 'dir/ * *' (without spaces)
+        and the tree option is enabled.
+    @param dest Destination file or directory. If multiple files are copied, dest is assumed to be a directory and
+        will be created if required. If dest has a trailing "/", it is assumed to be a directory.
+    @param options Processing and file options
     @option active If destination is an active executable or shared library, rename the active file using a
         '.old' extension and retry the copy.
     @option compress Compress target file
@@ -33,70 +37,54 @@ let TempFilter = /\.old$|\.tmp$|xcuserdata|xcworkspace|project.guid|-mine/
     @options tree Copy the entire subtree identified by the patterns by prepending the entire pattern path.
     @option user Set file file user
  */
-public function install(patterns, dest: Path, options = {}) {
+public function install(src, dest: Path, options = {}) {
     dest = Path(expand(dest))
-    if (!(patterns is Array)) patterns = [patterns]
+    if (!(src is Array)) src = [src]
 
     if (options.cat) {
         let files = []
-        for each (pat in patterns) {
+        for each (pat in src) {
             pat = Path(expand(pat))
             files += Path('.').files(pat, {missing: undefined})
         }
-        patterns = files.unique()
+        src = files.unique()
     } 
-    for each (src in patterns) {
-        let path = Path('.')
-        if (Path(src).isDir) {
-            path = Path(src)
-            if (dest.isDir && !options.subtree) {
-                dest = dest.join(path.basename)
-            }
-            src = ['**']
-            options = blend({tree: true, relative: true}, options, {functions: true})
+    for each (let pattern: Path in src) {
+        let base: Path = Path('.')
+        if (pattern.isDir) {
+            base = pattern
+            pattern = Path('**')
+            options = blend({tree: true, relative: true}, options)
         } else {
-            src = Path(expand(src))
+            pattern = Path(expand(pattern))
         }
-        list = path.files(src, options)
+
+        list = base.files(pattern, options)
         if (bit.options.verbose) {
-            print("Install", src, dest)
+            print("Install", pattern, dest)
             dump('Files', list)
         }
         if (!list || list.length == 0) {
             if (bit.generating) {
-                list = src
-            } else if (!options.cat && patterns.length > 0) {
-                throw 'cp: Cannot find files to copy for "' + src + '" to ' + dest
+                list = pattern
+            } else if (!options.cat && src.length > 0) {
+                throw 'cp: Cannot find files to copy for "' + pattern + '" to ' + dest
             }
         }
         let destIsDir = (dest.isDir || (!options.cat && list.length > 1) || dest.name.endsWith('/'))
 
-//  MOB - get rid of "from"
         for each (let file: Path in list) {
-            let from = path.join(file)
+            let from = base.join(file)
             from = Path(expand(from, options))
-/*UNUSED
-            if (options.expand) {
-                 file = file.toString().expand(options.expand, options)
-            }
- */
-            let target
+            let to
             if (options.tree) {
-                target = Path(dest + "/" + file).normalize
+                to = dest.join(base, file).normalize
             } else if (destIsDir) {
-                target = dest.join(file.basename)
+                to = dest.join(file.basename)
             } else {
-                target = dest
+                to = dest
             }
             from = from.relative.portable
-/* UNUSED
-            if (options.exclude && from.match(options.exclude)) {
-                continue
-            }
-            if (options.include && !from.match(options.include)) {
-                continue
-            }
-*/
             if (!options.copytemp && from.match(TempFilter)) {
                 continue
             }
@@ -109,93 +97,93 @@ public function install(patterns, dest: Path, options = {}) {
                     dump("OPTIONS", options)
                     throw "Cannot use processing options when generating"
                 }
-                makeDir(target.parent, options)
+                makeDir(to.parent, options)
                 if (from.isDir) {
-                    makeDir(target, options)
+                    makeDir(to, options)
                 } else {
-                    copy(from, target, options)
+                    copy(from, to, options)
                 }
                 if (options.linkin) {
-                    link(target, Path(expand(options.linkin)).join(target.basename), options)
+                    link(to, Path(expand(options.linkin)).join(to.basename), options)
                 }
                 continue
             }
-            makeDir(target.dirname)
+            makeDir(to.dirname)
 
             if (options.cat) {
-                catenate(from, target, attributes)
+                catenate(from, to, attributes)
             } else {
                 if (from.isDir) {
-                    makeDir(target, options)
+                    makeDir(to, options)
                 } else {
                     try {
-                        copy(from, target, attributes)
+                        copy(from, to, attributes)
                     } catch (e) {
                         if (options.active) {
-                            let active = target.replaceExt('old')
+                            let active = to.replaceExt('old')
                             active.remove()
-                            target.rename(active)
+                            to.rename(active)
                         }
-                        copy(from, target, attributes)
+                        copy(from, to, attributes)
                     }
                 }
             }
             if (options.expand) {
-                strace('Expand', target)
+                strace('Expand', to)
                 let o = bit
                 if (options.expand != true) {
                     o = options.expand
                 }
-                target.write(target.readString().expand(o, {fill: '${}'}))
-                target.setAttributes(attributes)
+                to.write(to.readString().expand(o, {fill: '${}'}))
+                to.setAttributes(attributes)
             }
             if (options.fold) {
-                strace('Fold', target)
-                foldLines(target)
-                target.setAttributes(attributes)
+                strace('Fold', to)
+                foldLines(to)
+                to.setAttributes(attributes)
             }
             if (options.strip && bit.packs.strip && bit.platform.profile == 'release') {
-                strace('Strip', target)
-                Cmd.run(bit.packs.strip.path + ' ' + target)
+                strace('Strip', to)
+                Cmd.run(bit.packs.strip.path + ' ' + to)
             }
             if (options.compress) {
-                let zname = Path(target.name + '.gz')
+                let zname = Path(to.name + '.gz')
                 strace('Compress', zname)
                 zname.remove()
-                Zlib.compress(target.name, zname)
-                target.remove()
-                target = zname
+                Zlib.compress(to.name, zname)
+                to.remove()
+                to = zname
             }
         /* MOB UNUSED install only
-            if (App.uid == 0 && target.extension == 'so' && Config.OS == 'linux') {
+            if (App.uid == 0 && to.extension == 'so' && Config.OS == 'linux') {
                 let ldconfig = Cmd.locate('ldconfig')
                 if (ldconfig) {
-                    Cmd.run('ldconfig ' + target)
+                    Cmd.run('ldconfig ' + to)
                 }
             }
         */
-            //  if (target.extension == bit.ext.shobj)
+            //  if (to.extension == bit.ext.shobj)
             //  MOB - check this
             //  for each (f in abin.files('*.so.*')) {
-            //      let nover = target.basename.name.replace(/\.[0-9]*.*/, '.so')
-            //      target.remove()
-            //      target.symlink(target.dirname.join(nover).basename)
+            //      let nover = to.basename.name.replace(/\.[0-9]*.*/, '.so')
+            //      to.remove()
+            //      to.symlink(to.dirname.join(nover).basename)
             //      //MOB - not right
-            //      options.filelist.push(target)
+            //      options.filelist.push(to)
             //  }
             //
             if (options.filelist) {
-                if (!target.isDir) {
-                    options.filelist.push(target)
+                if (!to.isDir) {
+                    options.filelist.push(to)
                 }
             }
             if (options.linkin) {
                 let linkin = Path(expand(options.linkin))
                 linkin.makeDir(options)
-                let ltarget = linkin.join(from.basename)
-                link(target.relativeTo(ltarget.dirname), ltarget, options)
+                let lto = linkin.join(from.basename)
+                link(to.relativeTo(lto.dirname), lto, options)
                 if (options.filelist) {
-                    options.filelist.push(ltarget)
+                    options.filelist.push(lto)
                 }
             }
         }

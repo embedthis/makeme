@@ -1985,7 +1985,7 @@ public class Bit {
         for each (target in bit.targets) {
             runTargetScript(target, 'presource')
             if (target.files) {
-                target.files = buildFileList(target.files)
+                target.files = buildFileList(target.files, target.exclude)
             }
             if (target.headers) {
                 /*
@@ -2551,16 +2551,34 @@ public class Bit {
                 }
 
             } else {
-                trace('Copy', target.path.portable.relativeTo('.'))
-                if (target.active && bit.platform.like == 'windows') {
-                    let active = target.path.relative.replaceExt('old')
-                    trace('Preserve', 'Active target ' + target.path.relative + ' as ' + active)
-                    active.remove()
-                    target.path.rename(target.path.replaceExt('old'))
-                } else {
-                    safeRemove(target.path)
+                if (!target.path.isDir) {
+                    if (target.active && bit.platform.like == 'windows') {
+                        let active = target.path.relative.replaceExt('old')
+                        trace('Preserve', 'Active target ' + target.path.relative + ' as ' + active)
+                        active.remove()
+                        target.path.rename(target.path.replaceExt('old'))
+                    } else {
+                        safeRemove(target.path)
+                    }
                 }
-                cp(file, target.path, {warn: true})
+                if (target.tree) {
+                    let pwd = App.dir
+                    App.chdir(target.home)
+                    try {
+                        if (target.home && target.home != pwd) {
+                            App.chdir(target.home)
+                        }
+                        file = file.relativeTo(target.home)
+                        trace('Copy', target.path.portable.relativeTo('.').join(file))
+                        cp(file, target.path, {tree: target.tree, warn: true})
+                    } finally {
+                        App.chdir(pwd)
+                    }
+                } else {
+                    //  MOB - if used install, then generate would work too
+                    trace('Copy', target.path.portable.relativeTo('.'))
+                    cp(file, target.path, {warn: true})
+                }
             }
         }
     }
@@ -3090,9 +3108,17 @@ public class Bit {
             return true
         }
         for each (file in target.files) {
-            if (file.modified > path.modified) {
-                whyRebuild(path, 'Rebuild', 'input ' + file + ' has been modified.')
-                return true
+            if (target.tree) {
+                let p = path.join(file.relativeTo(target.home))
+                if (!file.isDir && file.modified > p.modified) {
+                    whyRebuild(path, 'Rebuild', 'input ' + file + ' has been modified.')
+                    return true
+                }
+            } else {
+                if (file.modified > path.modified) {
+                    whyRebuild(path, 'Rebuild', 'input ' + file + ' has been modified.')
+                    return true
+                }
             }
         }
         for each (let dname: Path in target.depends) {

@@ -127,11 +127,21 @@ Bit.load({
         },
 
         bits: {
-            path: '${BIN}/bits',
+            type: 'file',
+            path: '${BIN}/bits/',
+            files: [ 'bits/**' ],
+            tree: true,
+            precious: true,
+            exclude: /\.tmp$/,
+        }
+
+        _bits: {
+            enable: false,
+            path: '${BIN}/bits/',
             files: [ 'bits/**' ],
             precious: true,
             build: "
-                trace('Copy', 'Bit bits')
+                trace('MMMCopy', 'Bit bits')
                 rmdir(bit.dir.lib.join('bits'))
                 mkdir(bit.dir.lib.join('bits'))
                 cp('bits', bit.dir.lib)
