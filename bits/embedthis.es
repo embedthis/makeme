@@ -31,7 +31,7 @@ public function deploy(manifest, prefixes, package): Array {
         if (item.dir && !(item.dir is Array)) {
             item.dir = [item.dir]
         }
-        let name = serialize(item)
+        let name = item.name || serialize(item)
         let enable = true
         if (item.enable) {
             if (!(item.enable is Boolean)) {
@@ -46,7 +46,7 @@ public function deploy(manifest, prefixes, package): Array {
                 }
             }
         }
-        if (enable && App.uid != 0 && item.root && !bit.generating) {
+        if (enable && App.uid != 0 && item.root && bit.installing && !bit.generating) {
             trace('Skip', 'Must be root to copy ' + name)
             skip(name, 'Must be administrator')
             enable = false
@@ -123,9 +123,9 @@ function setupManifest(kind, package, prefixes) {
 /*
     Create prefixes for the kind of package
  */
-function setupPackagePrefixes(kind, package, doinstall) {
+function setupPackagePrefixes(kind, package) {
     let prefixes = {}
-    if (doinstall) {
+    if (bit.installing) {
         prefixes = bit.prefixes.clone()
         /* MOB just for safety */
         prefixes.staging = bit.prefixes.app
@@ -153,7 +153,7 @@ function setupPackagePrefixes(kind, package, doinstall) {
 }
 
 
-function setupPackage(kind, doinstall = false) {
+function setupPackage(kind) {
     let package = bit.manifest.packages[kind]
     if (package && package.platforms) {
         if (!(package.platforms.contains(bit.platform.os) || package.platforms.contains(bit.platform.like))) {
@@ -162,10 +162,10 @@ function setupPackage(kind, doinstall = false) {
     }
     let prefixes, manifest
     if (package) {
-        prefixes = setupPackagePrefixes(kind, package, doinstall)
+        prefixes = setupPackagePrefixes(kind, package)
         manifest = setupManifest(kind, package, prefixes)
         setupGlobals(manifest, package, prefixes)
-        if (!doinstall) {
+        if (!bit.installing) {
             bit.dir.rel.makeDir()
         }
     } else {
@@ -247,7 +247,8 @@ function checkRoot() {
 
 
 public function installBinary() {
-    let [manifest, package, prefixes] = setupPackage('install', true)
+    bit.installing = true
+    let [manifest, package, prefixes] = setupPackage('install')
     if (package) {
         checkRoot()
         trace('Install', bit.settings.title)
@@ -258,6 +259,7 @@ public function installBinary() {
         }
         trace('Complete', bit.settings.title + ' installed')
     }
+    delete bit.installing
 }
 
 
@@ -595,21 +597,21 @@ function packageUbuntu(prefixes) {
     if (!bit.packs.pmaker || !bit.packs.pmaker.path) {
         throw 'Configured without pmaker: dpkg'
     }
-    let s = bit.settings
     let cpu = bit.platform.arch
     if (cpu == 'x64') {
         cpu = 'amd64'
     }
     bit.platform.mappedCpu = cpu
-    let contents = pkg.join(bit.platform.vname, 'contents')
-    let DEBIAN = contents.join('DEBIAN')
+    let s = bit.settings
+    let base = [s.product, s.version, s.buildNumber, bit.platform.dist, bit.platform.os, bit.platform.arch].join('-')
+
+    let DEBIAN = prefixes.media.join('DEBIAN')
     let opak = Path('package/' + bit.platform.os)
 
     copy(opak.join('deb.bin/conffiles'), DEBIAN.join('conffiles'), {expand: true, permissions: 0644})
     copy(opak.join('deb.bin/control'), DEBIAN, {expand: true, permissions: 0755})
     copy(opak.join('deb.bin/p*'), DEBIAN, {expand: true, permissions: 0755})
 
-    let base = [s.product, s.version, s.buildNumber, bit.platform.dist, bit.platform.os, bit.platform.arch].join('-')
     let outfile = bit.dir.rel.join(base).joinExt('deb', true)
     trace('Package', outfile)
     run(bit.packs.pmaker.path + ' --build ' + DEBIAN.dirname + ' ' + outfile, {noshow: true})
