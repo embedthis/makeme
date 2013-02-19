@@ -647,8 +647,9 @@ public class Bit {
         }
         for (let [pname, pack] in packs) {
             if (pack.enable) {
-                if (!bit.generating) {
-                    def(f, 'BIT_PACK_' + pname.toUpper() + '_PATH', '"' + pack.path + '"')
+                /* Must test bit.options.gen and not bit.generating */
+                if (!bit.options.gen && pack.path) {
+                    def(f, 'BIT_PACK_' + pname.toUpper() + '_PATH', '"' + pack.path.relative + '"')
                 }
                 if (pack.definitions) {
                     for each (define in pack.definitions) {
@@ -4079,6 +4080,7 @@ public class Bit {
                 }
                 options.made[path] = true
             }
+            path = path.relative
             if (bit.generating == 'nmake') {
                 /* BUG FIX */
                 if (path.name.endsWith('/')) {
@@ -4107,6 +4109,7 @@ public class Bit {
                 }
             }
         } else {
+            path = path.relative
             if (bit.generating == 'nmake') {
                 genout.writeLine('\tif exist "' + path.windows + '" rd /Q "' + path.windows + '"')
             } else {
@@ -4127,6 +4130,7 @@ public class Bit {
                 }
             }
         } else {
+            path = path.relative
             if (bit.generating == 'nmake') {
                 if (options.empty) {
                     genout.writeLine('\tif exist "' + path.windows + '" rd /Q "' + path.windows + '"')
@@ -4150,14 +4154,18 @@ public class Bit {
             if (!options.dry) {
                 src.copy(dest, options)
             }
-        } else if (bit.generating == 'nmake') {
-            genout.writeLine('\tcopy /Y "' + src.relative.windows + '" "' + dest.windows + '"')
         } else {
-            let att = getatt(options)
-            if (att) {
-                genout.writeLine('\tinstall ' + getatt(options) + '"' + src + '" "' + dest + '"')
+            src = src.relative
+            dest = dest.relative
+            if (bit.generating == 'nmake') {
+                genout.writeLine('\tcopy /Y "' + src.windows + '" "' + dest.windows + '"')
             } else {
-                genout.writeLine('\tcp "' + src + '" "' + dest + '"')
+                let att = getatt(options)
+                if (att) {
+                    genout.writeLine('\tinstall ' + getatt(options) + '"' + src + '" "' + dest + '"')
+                } else {
+                    genout.writeLine('\tcp "' + src + '" "' + dest + '"')
+                }
             }
         }
     }

@@ -140,7 +140,7 @@
     #define BIT_TUNE "speed"
 #endif
 #ifndef BIT_VERSION
-    #define BIT_VERSION "0.8.1"
+    #define BIT_VERSION "0.8.2"
 #endif
 #ifndef BIT_WARN64TO32
     #define BIT_WARN64TO32 1
@@ -172,7 +172,7 @@
     #define BIT_APP_PREFIX "/usr/local/lib/bit"
 #endif
 #ifndef BIT_VAPP_PREFIX
-    #define BIT_VAPP_PREFIX "/usr/local/lib/bit/0.8.1"
+    #define BIT_VAPP_PREFIX "/usr/local/lib/bit/0.8.2"
 #endif
 #ifndef BIT_BIN_PREFIX
     #define BIT_BIN_PREFIX "/usr/local/bin"
@@ -205,7 +205,7 @@
     #define BIT_CACHE_PREFIX "/var/spool/bit/cache"
 #endif
 #ifndef BIT_SRC_PREFIX
-    #define BIT_SRC_PREFIX "bit-0.8.1"
+    #define BIT_SRC_PREFIX "bit-0.8.2"
 #endif
 
 /* Suffixes */
@@ -244,10 +244,10 @@
     #define BIT_MINOR_VERSION 8
 #endif
 #ifndef BIT_PATCH_VERSION
-    #define BIT_PATCH_VERSION 1
+    #define BIT_PATCH_VERSION 2
 #endif
 #ifndef BIT_VNUM
-    #define BIT_VNUM 01
+    #define BIT_VNUM 02
 #endif
 
 /* Packs */
@@ -298,28 +298,4 @@
 #endif
 #ifndef BIT_PACK_ZIP
     #define BIT_PACK_ZIP 1
-#endif
-#ifndef BIT_PACK_COMPILER_PATH
-    #define BIT_PACK_COMPILER_PATH "/usr/bin/clang"
-#endif
-#ifndef BIT_PACK_EJSCRIPT_PATH
-    #define BIT_PACK_EJSCRIPT_PATH "/Users/mob/git/bit/src/deps/ejs"
-#endif
-#ifndef BIT_PACK_EST_PATH
-    #define BIT_PACK_EST_PATH "/Users/mob/git/bit/src/deps/est"
-#endif
-#ifndef BIT_PACK_LIB_PATH
-    #define BIT_PACK_LIB_PATH "/usr/bin/ar"
-#endif
-#ifndef BIT_PACK_LINK_PATH
-    #define BIT_PACK_LINK_PATH "/usr/bin/ld"
-#endif
-#ifndef BIT_PACK_PCRE_PATH
-    #define BIT_PACK_PCRE_PATH "/Users/mob/git/bit/src/deps/pcre"
-#endif
-#ifndef BIT_PACK_PMAKER_PATH
-    #define BIT_PACK_PMAKER_PATH "/Applications/PackageMaker.app/Contents/MacOS/PackageMaker"
-#endif
-#ifndef BIT_PACK_ZIP_PATH
-    #define BIT_PACK_ZIP_PATH "/usr/bin/zip"
 #endif

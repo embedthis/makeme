@@ -3,7 +3,7 @@
 #
 
 PRODUCT         = bit
-VERSION         = 0.8.1
+VERSION         = 0.8.2
 BUILD_NUMBER    = 0
 PROFILE         = default
 PA              = $(PROCESSOR_ARCHITECTURE)
@@ -108,14 +108,14 @@ clean:
 	-if exist $(CONFIG)\obj\bit.obj del /Q $(CONFIG)\obj\bit.obj
 
 $(CONFIG)\inc\est.h: 
-	if not exist "\Users\mob\git\bit\windows-x86-default\inc" md "\Users\mob\git\bit\windows-x86-default\inc"
-	copy /Y "src\deps\est\est.h" "\Users\mob\git\bit\windows-x86-default\inc\est.h"
+	if not exist "windows-x86-default\inc" md "windows-x86-default\inc"
+	copy /Y "src\deps\est\est.h" "windows-x86-default\inc\est.h"
 
 $(CONFIG)\inc\bit.h: 
 
 $(CONFIG)\inc\bitos.h: 
-	if not exist "\Users\mob\git\bit\windows-x86-default\inc" md "\Users\mob\git\bit\windows-x86-default\inc"
-	copy /Y "src\bitos.h" "\Users\mob\git\bit\windows-x86-default\inc\bitos.h"
+	if not exist "windows-x86-default\inc" md "windows-x86-default\inc"
+	copy /Y "src\bitos.h" "windows-x86-default\inc\bitos.h"
 
 $(CONFIG)\obj\estLib.obj: \
     src\deps\est\estLib.c\
@@ -131,12 +131,12 @@ $(CONFIG)\bin\libest.dll: \
 
 $(CONFIG)\bin\ca.crt: \
     src\deps\est\ca.crt
-	if not exist "\Users\mob\git\bit\windows-x86-default\bin" md "\Users\mob\git\bit\windows-x86-default\bin"
-	copy /Y "src\deps\est\ca.crt" "\Users\mob\git\bit\windows-x86-default\bin\ca.crt"
+	if not exist "windows-x86-default\bin" md "windows-x86-default\bin"
+	copy /Y "src\deps\est\ca.crt" "windows-x86-default\bin\ca.crt"
 
 $(CONFIG)\inc\mpr.h: 
-	if not exist "\Users\mob\git\bit\windows-x86-default\inc" md "\Users\mob\git\bit\windows-x86-default\inc"
-	copy /Y "src\deps\mpr\mpr.h" "\Users\mob\git\bit\windows-x86-default\inc\mpr.h"
+	if not exist "windows-x86-default\inc" md "windows-x86-default\inc"
+	copy /Y "src\deps\mpr\mpr.h" "windows-x86-default\inc\mpr.h"
 
 $(CONFIG)\obj\mprLib.obj: \
     src\deps\mpr\mprLib.c\
@@ -175,8 +175,8 @@ $(CONFIG)\bin\makerom.exe: \
 	"$(LD)" -out:$(CONFIG)\bin\makerom.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\makerom.obj libmpr.lib $(LIBS)
 
 $(CONFIG)\inc\pcre.h: 
-	if not exist "\Users\mob\git\bit\windows-x86-default\inc" md "\Users\mob\git\bit\windows-x86-default\inc"
-	copy /Y "src\deps\pcre\pcre.h" "\Users\mob\git\bit\windows-x86-default\inc\pcre.h"
+	if not exist "windows-x86-default\inc" md "windows-x86-default\inc"
+	copy /Y "src\deps\pcre\pcre.h" "windows-x86-default\inc\pcre.h"
 
 $(CONFIG)\obj\pcre.obj: \
     src\deps\pcre\pcre.c\
@@ -190,8 +190,8 @@ $(CONFIG)\bin\libpcre.dll: \
 	"$(LD)" -dll -out:$(CONFIG)\bin\libpcre.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\pcre.obj $(LIBS)
 
 $(CONFIG)\inc\http.h: 
-	if not exist "\Users\mob\git\bit\windows-x86-default\inc" md "\Users\mob\git\bit\windows-x86-default\inc"
-	copy /Y "src\deps\http\http.h" "\Users\mob\git\bit\windows-x86-default\inc\http.h"
+	if not exist "windows-x86-default\inc" md "windows-x86-default\inc"
+	copy /Y "src\deps\http\http.h" "windows-x86-default\inc\http.h"
 
 $(CONFIG)\obj\httpLib.obj: \
     src\deps\http\httpLib.c\
@@ -219,16 +219,16 @@ $(CONFIG)\bin\http.exe: \
 	"$(LD)" -out:$(CONFIG)\bin\http.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\http.obj libhttp.lib $(LIBS) libpcre.lib libmpr.lib
 
 $(CONFIG)\inc\ejs.h: 
-	if not exist "\Users\mob\git\bit\windows-x86-default\inc" md "\Users\mob\git\bit\windows-x86-default\inc"
-	copy /Y "src\deps\ejs\ejs.h" "\Users\mob\git\bit\windows-x86-default\inc\ejs.h"
+	if not exist "windows-x86-default\inc" md "windows-x86-default\inc"
+	copy /Y "src\deps\ejs\ejs.h" "windows-x86-default\inc\ejs.h"
 
 $(CONFIG)\inc\ejs.slots.h: 
-	if not exist "\Users\mob\git\bit\windows-x86-default\inc" md "\Users\mob\git\bit\windows-x86-default\inc"
-	copy /Y "src\deps\ejs\ejs.slots.h" "\Users\mob\git\bit\windows-x86-default\inc\ejs.slots.h"
+	if not exist "windows-x86-default\inc" md "windows-x86-default\inc"
+	copy /Y "src\deps\ejs\ejs.slots.h" "windows-x86-default\inc\ejs.slots.h"
 
 $(CONFIG)\inc\ejsByteGoto.h: 
-	if not exist "\Users\mob\git\bit\windows-x86-default\inc" md "\Users\mob\git\bit\windows-x86-default\inc"
-	copy /Y "src\deps\ejs\ejsByteGoto.h" "\Users\mob\git\bit\windows-x86-default\inc\ejsByteGoto.h"
+	if not exist "windows-x86-default\inc" md "windows-x86-default\inc"
+	copy /Y "src\deps\ejs\ejsByteGoto.h" "windows-x86-default\inc\ejsByteGoto.h"
 
 $(CONFIG)\obj\ejsLib.obj: \
     src\deps\ejs\ejsLib.c\
@@ -287,8 +287,8 @@ $(CONFIG)\bin\removeFiles.exe: \
 
 $(CONFIG)\bin\bit.es: \
     src\bit.es
-	if not exist "\Users\mob\git\bit\windows-x86-default\bin" md "\Users\mob\git\bit\windows-x86-default\bin"
-	copy /Y "src\bit.es" "\Users\mob\git\bit\windows-x86-default\bin\bit.es"
+	if not exist "windows-x86-default\bin" md "windows-x86-default\bin"
+	copy /Y "src\bit.es" "windows-x86-default\bin\bit.es"
 
 $(CONFIG)\bin\bits: \
     bits\embedthis-manifest.bit \
@@ -340,93 +340,93 @@ $(CONFIG)\bin\bits: \
     bits\standard.bit \
     bits\vstudio.es \
     bits\xcode.es
-	if not exist "\Users\mob\git\bit\windows-x86-default\bin\bits" md "\Users\mob\git\bit\windows-x86-default\bin\bits"
-	copy /Y "bits\embedthis-manifest.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\embedthis-manifest.bit"
-	copy /Y "bits\embedthis.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\embedthis.bit"
-	copy /Y "bits\embedthis.es" "\Users\mob\git\bit\windows-x86-default\bin\bits\embedthis.es"
-	copy /Y "bits\gendoc.es" "\Users\mob\git\bit\windows-x86-default\bin\bits\gendoc.es"
-	copy /Y "bits\os\freebsd.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\freebsd.bit"
-	copy /Y "bits\os\gcc.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\gcc.bit"
-	copy /Y "bits\os\linux.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\linux.bit"
-	copy /Y "bits\os\macosx.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\macosx.bit"
-	copy /Y "bits\os\posix.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\posix.bit"
-	copy /Y "bits\os\solaris.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\solaris.bit"
-	copy /Y "bits\os\vxworks.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\vxworks.bit"
-	copy /Y "bits\os\windows.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\windows.bit"
-	if not exist "\Users\mob\git\bit\windows-x86-default\bin\bits\os" md "\Users\mob\git\bit\windows-x86-default\bin\bits\os"
-	copy /Y "bits\os\freebsd.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\os\freebsd.bit"
-	copy /Y "bits\os\gcc.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\os\gcc.bit"
-	copy /Y "bits\os\linux.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\os\linux.bit"
-	copy /Y "bits\os\macosx.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\os\macosx.bit"
-	copy /Y "bits\os\posix.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\os\posix.bit"
-	copy /Y "bits\os\solaris.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\os\solaris.bit"
-	copy /Y "bits\os\vxworks.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\os\vxworks.bit"
-	copy /Y "bits\os\windows.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\os\windows.bit"
-	copy /Y "bits\packs\compiler.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\compiler.pak"
-	copy /Y "bits\packs\doxygen.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\doxygen.pak"
-	copy /Y "bits\packs\dsi.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\dsi.pak"
-	copy /Y "bits\packs\dumpbin.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\dumpbin.pak"
-	copy /Y "bits\packs\ejs.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\ejs.pak"
-	copy /Y "bits\packs\ejscript.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\ejscript.pak"
-	copy /Y "bits\packs\est.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\est.pak"
-	copy /Y "bits\packs\http.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\http.pak"
-	copy /Y "bits\packs\lib.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\lib.pak"
-	copy /Y "bits\packs\link.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\link.pak"
-	copy /Y "bits\packs\man.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\man.pak"
-	copy /Y "bits\packs\man2html.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\man2html.pak"
-	copy /Y "bits\packs\matrixssl.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\matrixssl.pak"
-	copy /Y "bits\packs\md5.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\md5.pak"
-	copy /Y "bits\packs\mocana.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\mocana.pak"
-	copy /Y "bits\packs\openssl.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\openssl.pak"
-	copy /Y "bits\packs\pcre.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\pcre.pak"
-	copy /Y "bits\packs\pmaker.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\pmaker.pak"
-	copy /Y "bits\packs\ranlib.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\ranlib.pak"
-	copy /Y "bits\packs\rc.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\rc.pak"
-	copy /Y "bits\packs\sqlite.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\sqlite.pak"
-	copy /Y "bits\packs\ssl.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\ssl.pak"
-	copy /Y "bits\packs\strip.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\strip.pak"
-	copy /Y "bits\packs\tidy.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\tidy.pak"
-	copy /Y "bits\packs\utest.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\utest.pak"
-	copy /Y "bits\packs\vxworks.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\vxworks.pak"
-	copy /Y "bits\packs\winsdk.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\winsdk.pak"
-	copy /Y "bits\packs\zip.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\zip.pak"
-	copy /Y "bits\packs\zlib.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\zlib.pak"
-	if not exist "\Users\mob\git\bit\windows-x86-default\bin\bits\packs" md "\Users\mob\git\bit\windows-x86-default\bin\bits\packs"
-	copy /Y "bits\packs\compiler.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\compiler.pak"
-	copy /Y "bits\packs\doxygen.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\doxygen.pak"
-	copy /Y "bits\packs\dsi.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\dsi.pak"
-	copy /Y "bits\packs\dumpbin.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\dumpbin.pak"
-	copy /Y "bits\packs\ejs.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\ejs.pak"
-	copy /Y "bits\packs\ejscript.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\ejscript.pak"
-	copy /Y "bits\packs\est.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\est.pak"
-	copy /Y "bits\packs\http.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\http.pak"
-	copy /Y "bits\packs\lib.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\lib.pak"
-	copy /Y "bits\packs\link.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\link.pak"
-	copy /Y "bits\packs\man.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\man.pak"
-	copy /Y "bits\packs\man2html.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\man2html.pak"
-	copy /Y "bits\packs\matrixssl.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\matrixssl.pak"
-	copy /Y "bits\packs\md5.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\md5.pak"
-	copy /Y "bits\packs\mocana.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\mocana.pak"
-	copy /Y "bits\packs\openssl.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\openssl.pak"
-	copy /Y "bits\packs\pcre.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\pcre.pak"
-	copy /Y "bits\packs\pmaker.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\pmaker.pak"
-	copy /Y "bits\packs\ranlib.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\ranlib.pak"
-	copy /Y "bits\packs\rc.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\rc.pak"
-	copy /Y "bits\packs\sqlite.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\sqlite.pak"
-	copy /Y "bits\packs\ssl.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\ssl.pak"
-	copy /Y "bits\packs\strip.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\strip.pak"
-	copy /Y "bits\packs\tidy.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\tidy.pak"
-	copy /Y "bits\packs\utest.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\utest.pak"
-	copy /Y "bits\packs\vxworks.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\vxworks.pak"
-	copy /Y "bits\packs\winsdk.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\winsdk.pak"
-	copy /Y "bits\packs\zip.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\zip.pak"
-	copy /Y "bits\packs\zlib.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\zlib.pak"
-	copy /Y "bits\sample-main.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\sample-main.bit"
-	copy /Y "bits\sample-start.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\sample-start.bit"
-	copy /Y "bits\simple.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\simple.bit"
-	copy /Y "bits\standard.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\standard.bit"
-	copy /Y "bits\vstudio.es" "\Users\mob\git\bit\windows-x86-default\bin\bits\vstudio.es"
-	copy /Y "bits\xcode.es" "\Users\mob\git\bit\windows-x86-default\bin\bits\xcode.es"
+	if not exist "windows-x86-default\bin\bits" md "windows-x86-default\bin\bits"
+	copy /Y "bits\embedthis-manifest.bit" "windows-x86-default\bin\bits\embedthis-manifest.bit"
+	copy /Y "bits\embedthis.bit" "windows-x86-default\bin\bits\embedthis.bit"
+	copy /Y "bits\embedthis.es" "windows-x86-default\bin\bits\embedthis.es"
+	copy /Y "bits\gendoc.es" "windows-x86-default\bin\bits\gendoc.es"
+	if not exist "windows-x86-default\bin\bits\os" md "windows-x86-default\bin\bits\os"
+	copy /Y "bits\os\freebsd.bit" "windows-x86-default\bin\bits\os\freebsd.bit"
+	copy /Y "bits\os\gcc.bit" "windows-x86-default\bin\bits\os\gcc.bit"
+	copy /Y "bits\os\linux.bit" "windows-x86-default\bin\bits\os\linux.bit"
+	copy /Y "bits\os\macosx.bit" "windows-x86-default\bin\bits\os\macosx.bit"
+	copy /Y "bits\os\posix.bit" "windows-x86-default\bin\bits\os\posix.bit"
+	copy /Y "bits\os\solaris.bit" "windows-x86-default\bin\bits\os\solaris.bit"
+	copy /Y "bits\os\vxworks.bit" "windows-x86-default\bin\bits\os\vxworks.bit"
+	copy /Y "bits\os\windows.bit" "windows-x86-default\bin\bits\os\windows.bit"
+	copy /Y "bits\os\freebsd.bit" "windows-x86-default\bin\bits\os\freebsd.bit"
+	copy /Y "bits\os\gcc.bit" "windows-x86-default\bin\bits\os\gcc.bit"
+	copy /Y "bits\os\linux.bit" "windows-x86-default\bin\bits\os\linux.bit"
+	copy /Y "bits\os\macosx.bit" "windows-x86-default\bin\bits\os\macosx.bit"
+	copy /Y "bits\os\posix.bit" "windows-x86-default\bin\bits\os\posix.bit"
+	copy /Y "bits\os\solaris.bit" "windows-x86-default\bin\bits\os\solaris.bit"
+	copy /Y "bits\os\vxworks.bit" "windows-x86-default\bin\bits\os\vxworks.bit"
+	copy /Y "bits\os\windows.bit" "windows-x86-default\bin\bits\os\windows.bit"
+	if not exist "windows-x86-default\bin\bits\packs" md "windows-x86-default\bin\bits\packs"
+	copy /Y "bits\packs\compiler.pak" "windows-x86-default\bin\bits\packs\compiler.pak"
+	copy /Y "bits\packs\doxygen.pak" "windows-x86-default\bin\bits\packs\doxygen.pak"
+	copy /Y "bits\packs\dsi.pak" "windows-x86-default\bin\bits\packs\dsi.pak"
+	copy /Y "bits\packs\dumpbin.pak" "windows-x86-default\bin\bits\packs\dumpbin.pak"
+	copy /Y "bits\packs\ejs.pak" "windows-x86-default\bin\bits\packs\ejs.pak"
+	copy /Y "bits\packs\ejscript.pak" "windows-x86-default\bin\bits\packs\ejscript.pak"
+	copy /Y "bits\packs\est.pak" "windows-x86-default\bin\bits\packs\est.pak"
+	copy /Y "bits\packs\http.pak" "windows-x86-default\bin\bits\packs\http.pak"
+	copy /Y "bits\packs\lib.pak" "windows-x86-default\bin\bits\packs\lib.pak"
+	copy /Y "bits\packs\link.pak" "windows-x86-default\bin\bits\packs\link.pak"
+	copy /Y "bits\packs\man.pak" "windows-x86-default\bin\bits\packs\man.pak"
+	copy /Y "bits\packs\man2html.pak" "windows-x86-default\bin\bits\packs\man2html.pak"
+	copy /Y "bits\packs\matrixssl.pak" "windows-x86-default\bin\bits\packs\matrixssl.pak"
+	copy /Y "bits\packs\md5.pak" "windows-x86-default\bin\bits\packs\md5.pak"
+	copy /Y "bits\packs\mocana.pak" "windows-x86-default\bin\bits\packs\mocana.pak"
+	copy /Y "bits\packs\openssl.pak" "windows-x86-default\bin\bits\packs\openssl.pak"
+	copy /Y "bits\packs\pcre.pak" "windows-x86-default\bin\bits\packs\pcre.pak"
+	copy /Y "bits\packs\pmaker.pak" "windows-x86-default\bin\bits\packs\pmaker.pak"
+	copy /Y "bits\packs\ranlib.pak" "windows-x86-default\bin\bits\packs\ranlib.pak"
+	copy /Y "bits\packs\rc.pak" "windows-x86-default\bin\bits\packs\rc.pak"
+	copy /Y "bits\packs\sqlite.pak" "windows-x86-default\bin\bits\packs\sqlite.pak"
+	copy /Y "bits\packs\ssl.pak" "windows-x86-default\bin\bits\packs\ssl.pak"
+	copy /Y "bits\packs\strip.pak" "windows-x86-default\bin\bits\packs\strip.pak"
+	copy /Y "bits\packs\tidy.pak" "windows-x86-default\bin\bits\packs\tidy.pak"
+	copy /Y "bits\packs\utest.pak" "windows-x86-default\bin\bits\packs\utest.pak"
+	copy /Y "bits\packs\vxworks.pak" "windows-x86-default\bin\bits\packs\vxworks.pak"
+	copy /Y "bits\packs\winsdk.pak" "windows-x86-default\bin\bits\packs\winsdk.pak"
+	copy /Y "bits\packs\zip.pak" "windows-x86-default\bin\bits\packs\zip.pak"
+	copy /Y "bits\packs\zlib.pak" "windows-x86-default\bin\bits\packs\zlib.pak"
+	copy /Y "bits\packs\compiler.pak" "windows-x86-default\bin\bits\packs\compiler.pak"
+	copy /Y "bits\packs\doxygen.pak" "windows-x86-default\bin\bits\packs\doxygen.pak"
+	copy /Y "bits\packs\dsi.pak" "windows-x86-default\bin\bits\packs\dsi.pak"
+	copy /Y "bits\packs\dumpbin.pak" "windows-x86-default\bin\bits\packs\dumpbin.pak"
+	copy /Y "bits\packs\ejs.pak" "windows-x86-default\bin\bits\packs\ejs.pak"
+	copy /Y "bits\packs\ejscript.pak" "windows-x86-default\bin\bits\packs\ejscript.pak"
+	copy /Y "bits\packs\est.pak" "windows-x86-default\bin\bits\packs\est.pak"
+	copy /Y "bits\packs\http.pak" "windows-x86-default\bin\bits\packs\http.pak"
+	copy /Y "bits\packs\lib.pak" "windows-x86-default\bin\bits\packs\lib.pak"
+	copy /Y "bits\packs\link.pak" "windows-x86-default\bin\bits\packs\link.pak"
+	copy /Y "bits\packs\man.pak" "windows-x86-default\bin\bits\packs\man.pak"
+	copy /Y "bits\packs\man2html.pak" "windows-x86-default\bin\bits\packs\man2html.pak"
+	copy /Y "bits\packs\matrixssl.pak" "windows-x86-default\bin\bits\packs\matrixssl.pak"
+	copy /Y "bits\packs\md5.pak" "windows-x86-default\bin\bits\packs\md5.pak"
+	copy /Y "bits\packs\mocana.pak" "windows-x86-default\bin\bits\packs\mocana.pak"
+	copy /Y "bits\packs\openssl.pak" "windows-x86-default\bin\bits\packs\openssl.pak"
+	copy /Y "bits\packs\pcre.pak" "windows-x86-default\bin\bits\packs\pcre.pak"
+	copy /Y "bits\packs\pmaker.pak" "windows-x86-default\bin\bits\packs\pmaker.pak"
+	copy /Y "bits\packs\ranlib.pak" "windows-x86-default\bin\bits\packs\ranlib.pak"
+	copy /Y "bits\packs\rc.pak" "windows-x86-default\bin\bits\packs\rc.pak"
+	copy /Y "bits\packs\sqlite.pak" "windows-x86-default\bin\bits\packs\sqlite.pak"
+	copy /Y "bits\packs\ssl.pak" "windows-x86-default\bin\bits\packs\ssl.pak"
+	copy /Y "bits\packs\strip.pak" "windows-x86-default\bin\bits\packs\strip.pak"
+	copy /Y "bits\packs\tidy.pak" "windows-x86-default\bin\bits\packs\tidy.pak"
+	copy /Y "bits\packs\utest.pak" "windows-x86-default\bin\bits\packs\utest.pak"
+	copy /Y "bits\packs\vxworks.pak" "windows-x86-default\bin\bits\packs\vxworks.pak"
+	copy /Y "bits\packs\winsdk.pak" "windows-x86-default\bin\bits\packs\winsdk.pak"
+	copy /Y "bits\packs\zip.pak" "windows-x86-default\bin\bits\packs\zip.pak"
+	copy /Y "bits\packs\zlib.pak" "windows-x86-default\bin\bits\packs\zlib.pak"
+	copy /Y "bits\sample-main.bit" "windows-x86-default\bin\bits\sample-main.bit"
+	copy /Y "bits\sample-start.bit" "windows-x86-default\bin\bits\sample-start.bit"
+	copy /Y "bits\simple.bit" "windows-x86-default\bin\bits\simple.bit"
+	copy /Y "bits\standard.bit" "windows-x86-default\bin\bits\standard.bit"
+	copy /Y "bits\vstudio.es" "windows-x86-default\bin\bits\vstudio.es"
+	copy /Y "bits\xcode.es" "windows-x86-default\bin\bits\xcode.es"
 
 $(CONFIG)\obj\bit.obj: \
     src\bit.c\
@@ -446,14 +446,14 @@ $(CONFIG)\bin\bit.exe: \
 
 version: 
 	cd bits
-	@echo 0.8.1-0
+	@echo 0.8.2-0
 	cd ..
 
 stop: 
 
 
 installBinary: stop
-	if not exist "C:/" md "C:/"
+	if not exist "C:" md "C:"
 	if not exist "C:\Program Files\Embedthis Bit" md "C:\Program Files\Embedthis Bit"
 	if not exist "C:\Program Files\Embedthis Bit" md "C:\Program Files\Embedthis Bit"
 	if not exist "C:\Program Files\Embedthis Bit\bin" md "C:\Program Files\Embedthis Bit\bin"
