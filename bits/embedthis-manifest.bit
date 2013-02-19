@@ -15,6 +15,7 @@ Bit.load({
             {
                 from:       [ 'doc/product/README.TXT', 'package/install.sh', 'package/uninstall.sh' ],
                 to:         '${media}/',
+                expand:     true,
                 set:        'package',
 
            }, {

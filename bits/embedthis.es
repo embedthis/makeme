@@ -187,7 +187,7 @@ function makeFiles(where, root, files, prefixes) {
 public function packageBinary() {
     let [manifest, package, prefixes] = setupPackage('binary')
     if (package) {
-        trace('Package', bit.settings.title + ' Binary')
+        trace('Create', bit.settings.title + ' Binary')
         let files = deploy(manifest, prefixes, package)
         makeFiles(prefixes.vapp, prefixes.root, files, prefixes)
         /* Do Tar first as native package will add files */
@@ -200,7 +200,7 @@ public function packageBinary() {
 public function packageSource() {
     let [manifest, package, prefixes] = setupPackage('source')
     if (package) {
-        trace('Package', bit.settings.title + ' Source')
+        trace('Create', bit.settings.title + ' Source')
         deploy(manifest, prefixes, package)
         makeSimplePackage(package, prefixes, 'src')
     }
