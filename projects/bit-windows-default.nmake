@@ -108,10 +108,14 @@ clean:
 	-if exist $(CONFIG)\obj\bit.obj del /Q $(CONFIG)\obj\bit.obj
 
 $(CONFIG)\inc\est.h: 
+	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
+	copy /Y "src\deps\est\est.h" "$(CONFIG)\inc\est.h"
 
 $(CONFIG)\inc\bit.h: 
 
 $(CONFIG)\inc\bitos.h: 
+	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
+	copy /Y "src\bitos.h" "$(CONFIG)\inc\bitos.h"
 
 $(CONFIG)\obj\estLib.obj: \
     src\deps\est\estLib.c\
@@ -127,8 +131,12 @@ $(CONFIG)\bin\libest.dll: \
 
 $(CONFIG)\bin\ca.crt: \
     src\deps\est\ca.crt
+	if not exist "$(CONFIG)\bin" md "$(CONFIG)\bin"
+	copy /Y "src\deps\est\ca.crt" "$(CONFIG)\bin\ca.crt"
 
 $(CONFIG)\inc\mpr.h: 
+	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
+	copy /Y "src\deps\mpr\mpr.h" "$(CONFIG)\inc\mpr.h"
 
 $(CONFIG)\obj\mprLib.obj: \
     src\deps\mpr\mprLib.c\
@@ -167,6 +175,8 @@ $(CONFIG)\bin\makerom.exe: \
 	"$(LD)" -out:$(CONFIG)\bin\makerom.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\makerom.obj libmpr.lib $(LIBS)
 
 $(CONFIG)\inc\pcre.h: 
+	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
+	copy /Y "src\deps\pcre\pcre.h" "$(CONFIG)\inc\pcre.h"
 
 $(CONFIG)\obj\pcre.obj: \
     src\deps\pcre\pcre.c\
@@ -180,6 +190,8 @@ $(CONFIG)\bin\libpcre.dll: \
 	"$(LD)" -dll -out:$(CONFIG)\bin\libpcre.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\pcre.obj $(LIBS)
 
 $(CONFIG)\inc\http.h: 
+	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
+	copy /Y "src\deps\http\http.h" "$(CONFIG)\inc\http.h"
 
 $(CONFIG)\obj\httpLib.obj: \
     src\deps\http\httpLib.c\
@@ -207,10 +219,16 @@ $(CONFIG)\bin\http.exe: \
 	"$(LD)" -out:$(CONFIG)\bin\http.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\http.obj libhttp.lib $(LIBS) libpcre.lib libmpr.lib
 
 $(CONFIG)\inc\ejs.h: 
+	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
+	copy /Y "src\deps\ejs\ejs.h" "$(CONFIG)\inc\ejs.h"
 
 $(CONFIG)\inc\ejs.slots.h: 
+	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
+	copy /Y "src\deps\ejs\ejs.slots.h" "$(CONFIG)\inc\ejs.slots.h"
 
 $(CONFIG)\inc\ejsByteGoto.h: 
+	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
+	copy /Y "src\deps\ejs\ejsByteGoto.h" "$(CONFIG)\inc\ejsByteGoto.h"
 
 $(CONFIG)\obj\ejsLib.obj: \
     src\deps\ejs\ejsLib.c\
@@ -269,6 +287,8 @@ $(CONFIG)\bin\removeFiles.exe: \
 
 $(CONFIG)\bin\bit.es: \
     src\bit.es
+	if not exist "$(CONFIG)\bin" md "$(CONFIG)\bin"
+	copy /Y "src\bit.es" "$(CONFIG)\bin\bit.es"
 
 $(CONFIG)\bin\bits: \
     bits\embedthis-manifest.bit \
@@ -434,61 +454,61 @@ stop:
 
 installBinary: stop
 	if not exist "C:/" md "C:/"
-	if not exist "C:\Program Files\Embedthis Bit" md "C:\Program Files\Embedthis Bit"
-	if not exist "C:\Program Files\Embedthis Bit" md "C:\Program Files\Embedthis Bit"
-	if not exist "C:\Program Files\Embedthis Bit\bin" md "C:\Program Files\Embedthis Bit\bin"
-	if not exist "C:\Program Files\Embedthis Bit\man" md "C:\Program Files\Embedthis Bit\man"
-	if not exist "C:\Program Files\Embedthis Bit\bin" md "C:\Program Files\Embedthis Bit\bin"
-	if not exist "C:\Program Files\Embedthis Bit\bin\bits" md "C:\Program Files\Embedthis Bit\bin\bits"
-	copy /Y "bits\embedthis-manifest.bit" "C:\Program Files\Embedthis Bit\bin\bits\embedthis-manifest.bit"
-	copy /Y "bits\embedthis.bit" "C:\Program Files\Embedthis Bit\bin\bits\embedthis.bit"
-	copy /Y "bits\embedthis.es" "C:\Program Files\Embedthis Bit\bin\bits\embedthis.es"
-	copy /Y "bits\gendoc.es" "C:\Program Files\Embedthis Bit\bin\bits\gendoc.es"
-	if not exist "C:\Program Files\Embedthis Bit\bin\bits\os" md "C:\Program Files\Embedthis Bit\bin\bits\os"
-	copy /Y "bits\os\freebsd.bit" "C:\Program Files\Embedthis Bit\bin\bits\os\freebsd.bit"
-	copy /Y "bits\os\gcc.bit" "C:\Program Files\Embedthis Bit\bin\bits\os\gcc.bit"
-	copy /Y "bits\os\linux.bit" "C:\Program Files\Embedthis Bit\bin\bits\os\linux.bit"
-	copy /Y "bits\os\macosx.bit" "C:\Program Files\Embedthis Bit\bin\bits\os\macosx.bit"
-	copy /Y "bits\os\posix.bit" "C:\Program Files\Embedthis Bit\bin\bits\os\posix.bit"
-	copy /Y "bits\os\solaris.bit" "C:\Program Files\Embedthis Bit\bin\bits\os\solaris.bit"
-	copy /Y "bits\os\vxworks.bit" "C:\Program Files\Embedthis Bit\bin\bits\os\vxworks.bit"
-	copy /Y "bits\os\windows.bit" "C:\Program Files\Embedthis Bit\bin\bits\os\windows.bit"
-	if not exist "C:\Program Files\Embedthis Bit\bin\bits\packs" md "C:\Program Files\Embedthis Bit\bin\bits\packs"
-	copy /Y "bits\packs\compiler.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\compiler.pak"
-	copy /Y "bits\packs\doxygen.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\doxygen.pak"
-	copy /Y "bits\packs\dsi.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\dsi.pak"
-	copy /Y "bits\packs\dumpbin.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\dumpbin.pak"
-	copy /Y "bits\packs\ejs.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\ejs.pak"
-	copy /Y "bits\packs\ejscript.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\ejscript.pak"
-	copy /Y "bits\packs\est.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\est.pak"
-	copy /Y "bits\packs\http.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\http.pak"
-	copy /Y "bits\packs\lib.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\lib.pak"
-	copy /Y "bits\packs\link.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\link.pak"
-	copy /Y "bits\packs\man.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\man.pak"
-	copy /Y "bits\packs\man2html.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\man2html.pak"
-	copy /Y "bits\packs\matrixssl.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\matrixssl.pak"
-	copy /Y "bits\packs\md5.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\md5.pak"
-	copy /Y "bits\packs\mocana.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\mocana.pak"
-	copy /Y "bits\packs\openssl.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\openssl.pak"
-	copy /Y "bits\packs\pcre.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\pcre.pak"
-	copy /Y "bits\packs\pmaker.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\pmaker.pak"
-	copy /Y "bits\packs\ranlib.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\ranlib.pak"
-	copy /Y "bits\packs\rc.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\rc.pak"
-	copy /Y "bits\packs\sqlite.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\sqlite.pak"
-	copy /Y "bits\packs\ssl.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\ssl.pak"
-	copy /Y "bits\packs\strip.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\strip.pak"
-	copy /Y "bits\packs\tidy.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\tidy.pak"
-	copy /Y "bits\packs\utest.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\utest.pak"
-	copy /Y "bits\packs\vxworks.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\vxworks.pak"
-	copy /Y "bits\packs\winsdk.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\winsdk.pak"
-	copy /Y "bits\packs\zip.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\zip.pak"
-	copy /Y "bits\packs\zlib.pak" "C:\Program Files\Embedthis Bit\bin\bits\packs\zlib.pak"
-	copy /Y "bits\sample-main.bit" "C:\Program Files\Embedthis Bit\bin\bits\sample-main.bit"
-	copy /Y "bits\sample-start.bit" "C:\Program Files\Embedthis Bit\bin\bits\sample-start.bit"
-	copy /Y "bits\simple.bit" "C:\Program Files\Embedthis Bit\bin\bits\simple.bit"
-	copy /Y "bits\standard.bit" "C:\Program Files\Embedthis Bit\bin\bits\standard.bit"
-	copy /Y "bits\vstudio.es" "C:\Program Files\Embedthis Bit\bin\bits\vstudio.es"
-	copy /Y "bits\xcode.es" "C:\Program Files\Embedthis Bit\bin\bits\xcode.es"
+	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
+	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
+	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
+	if not exist "$(BIT_VAPP_PREFIX)\man" md "$(BIT_VAPP_PREFIX)\man"
+	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
+	if not exist "$(BIT_VAPP_PREFIX)\bin\bits" md "$(BIT_VAPP_PREFIX)\bin\bits"
+	copy /Y "bits\embedthis-manifest.bit" "$(BIT_VAPP_PREFIX)\bin\bits\embedthis-manifest.bit"
+	copy /Y "bits\embedthis.bit" "$(BIT_VAPP_PREFIX)\bin\bits\embedthis.bit"
+	copy /Y "bits\embedthis.es" "$(BIT_VAPP_PREFIX)\bin\bits\embedthis.es"
+	copy /Y "bits\gendoc.es" "$(BIT_VAPP_PREFIX)\bin\bits\gendoc.es"
+	if not exist "$(BIT_VAPP_PREFIX)\bin\bits\os" md "$(BIT_VAPP_PREFIX)\bin\bits\os"
+	copy /Y "bits\os\freebsd.bit" "$(BIT_VAPP_PREFIX)\bin\bits\os\freebsd.bit"
+	copy /Y "bits\os\gcc.bit" "$(BIT_VAPP_PREFIX)\bin\bits\os\gcc.bit"
+	copy /Y "bits\os\linux.bit" "$(BIT_VAPP_PREFIX)\bin\bits\os\linux.bit"
+	copy /Y "bits\os\macosx.bit" "$(BIT_VAPP_PREFIX)\bin\bits\os\macosx.bit"
+	copy /Y "bits\os\posix.bit" "$(BIT_VAPP_PREFIX)\bin\bits\os\posix.bit"
+	copy /Y "bits\os\solaris.bit" "$(BIT_VAPP_PREFIX)\bin\bits\os\solaris.bit"
+	copy /Y "bits\os\vxworks.bit" "$(BIT_VAPP_PREFIX)\bin\bits\os\vxworks.bit"
+	copy /Y "bits\os\windows.bit" "$(BIT_VAPP_PREFIX)\bin\bits\os\windows.bit"
+	if not exist "$(BIT_VAPP_PREFIX)\bin\bits\packs" md "$(BIT_VAPP_PREFIX)\bin\bits\packs"
+	copy /Y "bits\packs\compiler.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\compiler.pak"
+	copy /Y "bits\packs\doxygen.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\doxygen.pak"
+	copy /Y "bits\packs\dsi.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\dsi.pak"
+	copy /Y "bits\packs\dumpbin.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\dumpbin.pak"
+	copy /Y "bits\packs\ejs.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\ejs.pak"
+	copy /Y "bits\packs\ejscript.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\ejscript.pak"
+	copy /Y "bits\packs\est.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\est.pak"
+	copy /Y "bits\packs\http.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\http.pak"
+	copy /Y "bits\packs\lib.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\lib.pak"
+	copy /Y "bits\packs\link.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\link.pak"
+	copy /Y "bits\packs\man.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\man.pak"
+	copy /Y "bits\packs\man2html.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\man2html.pak"
+	copy /Y "bits\packs\matrixssl.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\matrixssl.pak"
+	copy /Y "bits\packs\md5.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\md5.pak"
+	copy /Y "bits\packs\mocana.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\mocana.pak"
+	copy /Y "bits\packs\openssl.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\openssl.pak"
+	copy /Y "bits\packs\pcre.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\pcre.pak"
+	copy /Y "bits\packs\pmaker.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\pmaker.pak"
+	copy /Y "bits\packs\ranlib.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\ranlib.pak"
+	copy /Y "bits\packs\rc.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\rc.pak"
+	copy /Y "bits\packs\sqlite.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\sqlite.pak"
+	copy /Y "bits\packs\ssl.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\ssl.pak"
+	copy /Y "bits\packs\strip.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\strip.pak"
+	copy /Y "bits\packs\tidy.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\tidy.pak"
+	copy /Y "bits\packs\utest.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\utest.pak"
+	copy /Y "bits\packs\vxworks.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\vxworks.pak"
+	copy /Y "bits\packs\winsdk.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\winsdk.pak"
+	copy /Y "bits\packs\zip.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\zip.pak"
+	copy /Y "bits\packs\zlib.pak" "$(BIT_VAPP_PREFIX)\bin\bits\packs\zlib.pak"
+	copy /Y "bits\sample-main.bit" "$(BIT_VAPP_PREFIX)\bin\bits\sample-main.bit"
+	copy /Y "bits\sample-start.bit" "$(BIT_VAPP_PREFIX)\bin\bits\sample-start.bit"
+	copy /Y "bits\simple.bit" "$(BIT_VAPP_PREFIX)\bin\bits\simple.bit"
+	copy /Y "bits\standard.bit" "$(BIT_VAPP_PREFIX)\bin\bits\standard.bit"
+	copy /Y "bits\vstudio.es" "$(BIT_VAPP_PREFIX)\bin\bits\vstudio.es"
+	copy /Y "bits\xcode.es" "$(BIT_VAPP_PREFIX)\bin\bits\xcode.es"
 
 
 start: 
@@ -498,9 +518,9 @@ install: stop installBinary start
 
 
 uninstall: stop
-	if exist "C:\Program Files\Embedthis Bit" rd /Q "C:\Program Files\Embedthis Bit"
-	if exist "C:\Program Files\Embedthis Bit" rd /Q "C:\Program Files\Embedthis Bit"
-	if exist "C:\Program Files\Embedthis Bit\bin" rd /Q "C:\Program Files\Embedthis Bit\bin"
-	if exist "C:\Program Files\Embedthis Bit\man" rd /Q "C:\Program Files\Embedthis Bit\man"
+	if exist "$(BIT_VAPP_PREFIX)" rd /Q "$(BIT_VAPP_PREFIX)"
+	if exist "$(BIT_VAPP_PREFIX)" rd /Q "$(BIT_VAPP_PREFIX)"
+	if exist "$(BIT_VAPP_PREFIX)\bin" rd /Q "$(BIT_VAPP_PREFIX)\bin"
+	if exist "$(BIT_VAPP_PREFIX)\man" rd /Q "$(BIT_VAPP_PREFIX)\man"
 
 

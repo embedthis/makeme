@@ -2690,9 +2690,9 @@ public class Bit {
             }
             if (target.subtree) {
                 /* File must be abs to allow for a subtree substitution */
-                copy(file, reppath(target.path), target)
+                copy(file, target.path, target)
             } else {
-                copy(reppath(file), reppath(target.path), target)
+                copy(file, target.path, target)
             }
         }
         genout.writeLine()
@@ -4052,6 +4052,10 @@ public class Bit {
         return (att) ? (att + ' ') : att
     }
 
+    //  MOB - unify all/most writes to go through here
+    function genrep(s) {
+        genout.writeLine(repvar(s))
+    }
 
     public function linkFile(src: Path, dest: Path, options = {}) {
         if (!bit.generating) {
@@ -4061,9 +4065,9 @@ public class Bit {
                 src.link(dest)
             }
         } else if (bit.generating != 'nmake') {
-            genout.writeLine('\trm -f "' + dest + '"')
-            genout.writeLine('\tmkdir -p "' + dest.parent + '"')
-            genout.writeLine('\tln -s "' + src + '" "' + dest + '"')
+            genrep('\trm -f "' + dest + '"')
+            genrep('\tmkdir -p "' + dest.parent + '"')
+            genrep('\tln -s "' + src + '" "' + dest + '"')
         }
     }
 
@@ -4092,16 +4096,16 @@ public class Bit {
             if (bit.generating == 'nmake') {
                 /* BUG FIX */
                 if (path.name.endsWith('/')) {
-                    genout.writeLine('\tif not exist "' + path.windows + '/" md "' + path.windows + '/"')
+                    genrep('\tif not exist "' + path.windows + '/" md "' + path.windows + '/"')
                 } else {
-                    genout.writeLine('\tif not exist "' + path.windows + '" md "' + path.windows + '"')
+                    genrep('\tif not exist "' + path.windows + '" md "' + path.windows + '"')
                 }
             } else {
                 let att = getatt(options)
                 if (att) {
-                    genout.writeLine('\tinstall -d ' + att + '"' + path + '"')
+                    genrep('\tinstall -d ' + att + '"' + path + '"')
                 } else {
-                    genout.writeLine('\tmkdir -p "' + path + '"')
+                    genrep('\tmkdir -p "' + path + '"')
                 }
             }
         }
@@ -4122,9 +4126,9 @@ public class Bit {
                 path = path.relative
             }
             if (bit.generating == 'nmake') {
-                genout.writeLine('\tif exist "' + path.windows + '" rd /Q "' + path.windows + '"')
+                genrep('\tif exist "' + path.windows + '" rd /Q "' + path.windows + '"')
             } else {
-                genout.writeLine('\trm -f "' + path + '"')
+                genrep('\trm -f "' + path + '"')
             }
         }
     }
@@ -4147,15 +4151,15 @@ public class Bit {
             }
             if (bit.generating == 'nmake') {
                 if (options.empty) {
-                    genout.writeLine('\tif exist "' + path.windows + '" rd /Q "' + path.windows + '"')
+                    genrep('\tif exist "' + path.windows + '" rd /Q "' + path.windows + '"')
                 } else {
-                    genout.writeLine('\tif exist "' + path.windows + '" rd /Q /S"' + path.windows + '"')
+                    genrep('\tif exist "' + path.windows + '" rd /Q /S"' + path.windows + '"')
                 }
             } else {
                 if (options.empty) {
-                    genout.writeLine('\trmdir -p "' + path + '"')
+                    genrep('\trmdir -p "' + path + '"')
                 } else {
-                    genout.writeLine('\trm -fr "' + path + '"')
+                    genrep('\trm -fr "' + path + '"')
                 }
             }
         }
@@ -4177,13 +4181,13 @@ public class Bit {
                 dest = dest.relative
             }
             if (bit.generating == 'nmake') {
-                genout.writeLine('\tcopy /Y "' + src.windows + '" "' + dest.windows + '"')
+                genrep('\tcopy /Y "' + src.windows + '" "' + dest.windows + '"')
             } else {
                 let att = getatt(options)
                 if (att) {
-                    genout.writeLine('\tinstall ' + getatt(options) + '"' + src + '" "' + dest + '"')
+                    genrep('\tinstall ' + getatt(options) + '"' + src + '" "' + dest + '"')
                 } else {
-                    genout.writeLine('\tcp "' + src + '" "' + dest + '"')
+                    genrep('\tcp "' + src + '" "' + dest + '"')
                 }
             }
         }
