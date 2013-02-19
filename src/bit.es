@@ -3924,7 +3924,7 @@ public class Bit {
                     } else {
                         copyFile(from, to, options)
                     }
-                    if (options.linkin) {
+                    if (options.linkin && bit.platform.like == 'posix') {
                         linkFile(to, Path(expand(options.linkin)).join(to.basename), options)
                     }
 
@@ -3979,7 +3979,7 @@ public class Bit {
                             options.filelist.push(to)
                         }
                     }
-                    if (options.linkin) {
+                    if (options.linkin && bit.platform.like == 'posix') {
                         let linkin = Path(expand(options.linkin))
                         linkin.makeDir(options)
                         let lto = linkin.join(from.basename)
