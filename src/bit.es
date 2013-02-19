@@ -2749,7 +2749,7 @@ public class Bit {
                 bit.globals.LBIN = localBin
                 genWrite(cmd + '\n')
             } else {
-                genout.writeLine('#  Omit build script ' + target.name)
+                genout.writeLine('#  Omit build script ' + target.name + '\n')
             }
 
         } else if (bit.generating == 'make') {
@@ -2818,7 +2818,7 @@ public class Bit {
                 bit.globals.LBIN = localBin
                 genWrite(cmd + '\n')
             } else {
-                genout.writeLine('#  Omit build script ' + target.path + '\n')
+                genout.writeLine('#  Omit build script ' + target.name + '\n')
             }
         }
     }
@@ -3855,7 +3855,7 @@ public class Bit {
         @option user Set file file user
      */
     public function copy(src, dest: Path, options = {}) {
-        dest = Path(expand(dest))
+        dest = Path(expand(dest)).normalize
         if (!(src is Array)) src = [src]
         let subtree = options.subtree
 
@@ -4080,7 +4080,10 @@ public class Bit {
                 }
                 options.made[path] = true
             }
-            path = path.relative
+            let pwd = App.dir
+            if (path.startsWith(pwd)) {
+                path = path.relative
+            }
             if (bit.generating == 'nmake') {
                 /* BUG FIX */
                 if (path.name.endsWith('/')) {
@@ -4109,7 +4112,10 @@ public class Bit {
                 }
             }
         } else {
-            path = path.relative
+            let pwd = App.dir
+            if (path.startsWith(pwd)) {
+                path = path.relative
+            }
             if (bit.generating == 'nmake') {
                 genout.writeLine('\tif exist "' + path.windows + '" rd /Q "' + path.windows + '"')
             } else {
@@ -4130,7 +4136,10 @@ public class Bit {
                 }
             }
         } else {
-            path = path.relative
+            let pwd = App.dir
+            if (path.startsWith(pwd)) {
+                path = path.relative
+            }
             if (bit.generating == 'nmake') {
                 if (options.empty) {
                     genout.writeLine('\tif exist "' + path.windows + '" rd /Q "' + path.windows + '"')
@@ -4155,8 +4164,13 @@ public class Bit {
                 src.copy(dest, options)
             }
         } else {
-            src = src.relative
-            dest = dest.relative
+            let pwd = App.dir
+            if (src.startsWith(pwd)) {
+                src = src.relative
+            }
+            if (dest.startsWith(pwd)) {
+                dest = dest.relative
+            }
             if (bit.generating == 'nmake') {
                 genout.writeLine('\tcopy /Y "' + src.windows + '" "' + dest.windows + '"')
             } else {

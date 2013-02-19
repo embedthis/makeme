@@ -46,7 +46,7 @@ public function deploy(manifest, prefixes, package): Array {
                 }
             }
         }
-        if (enable && item.root && App.uid != 0 && bit.target.name == 'install') {
+        if (enable && App.uid != 0 && item.root && !bit.generating) {
             trace('Skip', 'Must be root to copy ' + name)
             skip(name, 'Must be administrator')
             enable = false
@@ -247,6 +247,7 @@ function checkRoot() {
 
 
 public function installBinary() {
+print("IB")
     let [manifest, package, prefixes] = setupPackage('install', true)
     if (package) {
         checkRoot()
@@ -263,25 +264,27 @@ public function installBinary() {
 
 public function uninstallBinary() {
     let [manifest, package, prefixes] = setupPackage('binary', true)
+    let name = (bit.platform.os == 'windows') ? bit.settings.title : bit.settings.product
     if (package) {
         checkRoot()
         trace('Uninstall', bit.settings.title)
         let fileslog = bit.prefixes.vapp.join('files.log')
 
-        if (!bit.generating && fileslog.exists) {
-            for each (let file: Path in fileslog.readLines()) {
-                if (!file.isDir) {
+        if (!bit.generating) {
+            if (fileslog.exists) {
+                for each (let file: Path in fileslog.readLines()) {
+                    if (!file.isDir) {
+                        remove(file)
+                    }
+                }
+                fileslog.remove()
+            }
+            if (prefixes.log) {
+                for each (file in prefixes.log.files('*.log*')) {
                     remove(file)
                 }
             }
         }
-        fileslog.remove()
-        if (prefixes.log) {
-            for each (file in prefixes.log.files('*.log*')) {
-                remove(file)
-            }
-        }
-        let name = (bit.platform.os == 'windows') ? bit.settings.title : bit.settings.product
         for (let [key, prefix] in bit.prefixes) {
             /* 
                 Safety, make sure product name is in prefix 

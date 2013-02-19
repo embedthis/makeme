@@ -453,7 +453,7 @@ stop:
 
 
 installBinary: stop
-	if not exist "C:" md "C:"
+	if not exist "C:/" md "C:/"
 	if not exist "C:\Program Files\Embedthis Bit" md "C:\Program Files\Embedthis Bit"
 	if not exist "C:\Program Files\Embedthis Bit" md "C:\Program Files\Embedthis Bit"
 	if not exist "C:\Program Files\Embedthis Bit\bin" md "C:\Program Files\Embedthis Bit\bin"
