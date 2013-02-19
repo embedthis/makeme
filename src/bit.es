@@ -3855,7 +3855,7 @@ public class Bit {
         @option user Set file file user
      */
     public function copy(src, dest: Path, options = {}) {
-        dest = Path(expand(dest)).normalize
+        dest = Path(expand(dest))
         if (!(src is Array)) src = [src]
         let subtree = options.subtree
 
