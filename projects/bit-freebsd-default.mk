@@ -113,14 +113,14 @@ clobber: clean
 	rm -fr ./$(CONFIG)
 
 $(CONFIG)/inc/est.h: 
-	mkdir -p "freebsd-x86-default/inc"
-	cp "src/deps/est/est.h" "freebsd-x86-default/inc/est.h"
+	mkdir -p "$(CONFIG)/inc"
+	cp "src/deps/est/est.h" "$(CONFIG)/inc/est.h"
 
 $(CONFIG)/inc/bit.h: 
 
 $(CONFIG)/inc/bitos.h: 
-	mkdir -p "freebsd-x86-default/inc"
-	cp "src/bitos.h" "freebsd-x86-default/inc/bitos.h"
+	mkdir -p "$(CONFIG)/inc"
+	cp "src/bitos.h" "$(CONFIG)/inc/bitos.h"
 
 $(CONFIG)/obj/estLib.o: \
     src/deps/est/estLib.c\
@@ -136,12 +136,12 @@ $(CONFIG)/bin/libest.so: \
 
 $(CONFIG)/bin/ca.crt: \
     src/deps/est/ca.crt
-	mkdir -p "freebsd-x86-default/bin"
-	cp "src/deps/est/ca.crt" "freebsd-x86-default/bin/ca.crt"
+	mkdir -p "$(CONFIG)/bin"
+	cp "src/deps/est/ca.crt" "$(CONFIG)/bin/ca.crt"
 
 $(CONFIG)/inc/mpr.h: 
-	mkdir -p "freebsd-x86-default/inc"
-	cp "src/deps/mpr/mpr.h" "freebsd-x86-default/inc/mpr.h"
+	mkdir -p "$(CONFIG)/inc"
+	cp "src/deps/mpr/mpr.h" "$(CONFIG)/inc/mpr.h"
 
 $(CONFIG)/obj/mprLib.o: \
     src/deps/mpr/mprLib.c\
@@ -180,8 +180,8 @@ $(CONFIG)/bin/makerom: \
 	$(CC) -o $(CONFIG)/bin/makerom $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/makerom.o -lmpr $(LIBS) -lmpr -lpthread -lm -ldl $(LDFLAGS)
 
 $(CONFIG)/inc/pcre.h: 
-	mkdir -p "freebsd-x86-default/inc"
-	cp "src/deps/pcre/pcre.h" "freebsd-x86-default/inc/pcre.h"
+	mkdir -p "$(CONFIG)/inc"
+	cp "src/deps/pcre/pcre.h" "$(CONFIG)/inc/pcre.h"
 
 $(CONFIG)/obj/pcre.o: \
     src/deps/pcre/pcre.c\
@@ -195,8 +195,8 @@ $(CONFIG)/bin/libpcre.so: \
 	$(CC) -shared -o $(CONFIG)/bin/libpcre.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/pcre.o $(LIBS)
 
 $(CONFIG)/inc/http.h: 
-	mkdir -p "freebsd-x86-default/inc"
-	cp "src/deps/http/http.h" "freebsd-x86-default/inc/http.h"
+	mkdir -p "$(CONFIG)/inc"
+	cp "src/deps/http/http.h" "$(CONFIG)/inc/http.h"
 
 $(CONFIG)/obj/httpLib.o: \
     src/deps/http/httpLib.c\
@@ -224,16 +224,16 @@ $(CONFIG)/bin/http: \
 	$(CC) -o $(CONFIG)/bin/http $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/http.o -lhttp $(LIBS) -lpcre -lmpr -lhttp -lpthread -lm -ldl -lpcre -lmpr $(LDFLAGS)
 
 $(CONFIG)/inc/ejs.h: 
-	mkdir -p "freebsd-x86-default/inc"
-	cp "src/deps/ejs/ejs.h" "freebsd-x86-default/inc/ejs.h"
+	mkdir -p "$(CONFIG)/inc"
+	cp "src/deps/ejs/ejs.h" "$(CONFIG)/inc/ejs.h"
 
 $(CONFIG)/inc/ejs.slots.h: 
-	mkdir -p "freebsd-x86-default/inc"
-	cp "src/deps/ejs/ejs.slots.h" "freebsd-x86-default/inc/ejs.slots.h"
+	mkdir -p "$(CONFIG)/inc"
+	cp "src/deps/ejs/ejs.slots.h" "$(CONFIG)/inc/ejs.slots.h"
 
 $(CONFIG)/inc/ejsByteGoto.h: 
-	mkdir -p "freebsd-x86-default/inc"
-	cp "src/deps/ejs/ejsByteGoto.h" "freebsd-x86-default/inc/ejsByteGoto.h"
+	mkdir -p "$(CONFIG)/inc"
+	cp "src/deps/ejs/ejsByteGoto.h" "$(CONFIG)/inc/ejsByteGoto.h"
 
 $(CONFIG)/obj/ejsLib.o: \
     src/deps/ejs/ejsLib.c\
@@ -283,8 +283,8 @@ $(CONFIG)/bin/ejs.mod: $(CONFIG)/bin/ejsc
 
 $(CONFIG)/bin/bit.es: \
     src/bit.es
-	mkdir -p "freebsd-x86-default/bin"
-	cp "src/bit.es" "freebsd-x86-default/bin/bit.es"
+	mkdir -p "$(CONFIG)/bin"
+	cp "src/bit.es" "$(CONFIG)/bin/bit.es"
 
 $(CONFIG)/bin/bits: \
     bits/embedthis-manifest.bit \
@@ -336,93 +336,95 @@ $(CONFIG)/bin/bits: \
     bits/standard.bit \
     bits/vstudio.es \
     bits/xcode.es
-	mkdir -p "freebsd-x86-default/bin/bits"
-	cp "bits/embedthis-manifest.bit" "freebsd-x86-default/bin/bits/embedthis-manifest.bit"
-	cp "bits/embedthis.bit" "freebsd-x86-default/bin/bits/embedthis.bit"
-	cp "bits/embedthis.es" "freebsd-x86-default/bin/bits/embedthis.es"
-	cp "bits/gendoc.es" "freebsd-x86-default/bin/bits/gendoc.es"
-	mkdir -p "freebsd-x86-default/bin/bits/os"
-	cp "bits/os/freebsd.bit" "freebsd-x86-default/bin/bits/os/freebsd.bit"
-	cp "bits/os/gcc.bit" "freebsd-x86-default/bin/bits/os/gcc.bit"
-	cp "bits/os/linux.bit" "freebsd-x86-default/bin/bits/os/linux.bit"
-	cp "bits/os/macosx.bit" "freebsd-x86-default/bin/bits/os/macosx.bit"
-	cp "bits/os/posix.bit" "freebsd-x86-default/bin/bits/os/posix.bit"
-	cp "bits/os/solaris.bit" "freebsd-x86-default/bin/bits/os/solaris.bit"
-	cp "bits/os/vxworks.bit" "freebsd-x86-default/bin/bits/os/vxworks.bit"
-	cp "bits/os/windows.bit" "freebsd-x86-default/bin/bits/os/windows.bit"
-	cp "bits/os/freebsd.bit" "freebsd-x86-default/bin/bits/os/freebsd.bit"
-	cp "bits/os/gcc.bit" "freebsd-x86-default/bin/bits/os/gcc.bit"
-	cp "bits/os/linux.bit" "freebsd-x86-default/bin/bits/os/linux.bit"
-	cp "bits/os/macosx.bit" "freebsd-x86-default/bin/bits/os/macosx.bit"
-	cp "bits/os/posix.bit" "freebsd-x86-default/bin/bits/os/posix.bit"
-	cp "bits/os/solaris.bit" "freebsd-x86-default/bin/bits/os/solaris.bit"
-	cp "bits/os/vxworks.bit" "freebsd-x86-default/bin/bits/os/vxworks.bit"
-	cp "bits/os/windows.bit" "freebsd-x86-default/bin/bits/os/windows.bit"
-	mkdir -p "freebsd-x86-default/bin/bits/packs"
-	cp "bits/packs/compiler.pak" "freebsd-x86-default/bin/bits/packs/compiler.pak"
-	cp "bits/packs/doxygen.pak" "freebsd-x86-default/bin/bits/packs/doxygen.pak"
-	cp "bits/packs/dsi.pak" "freebsd-x86-default/bin/bits/packs/dsi.pak"
-	cp "bits/packs/dumpbin.pak" "freebsd-x86-default/bin/bits/packs/dumpbin.pak"
-	cp "bits/packs/ejs.pak" "freebsd-x86-default/bin/bits/packs/ejs.pak"
-	cp "bits/packs/ejscript.pak" "freebsd-x86-default/bin/bits/packs/ejscript.pak"
-	cp "bits/packs/est.pak" "freebsd-x86-default/bin/bits/packs/est.pak"
-	cp "bits/packs/http.pak" "freebsd-x86-default/bin/bits/packs/http.pak"
-	cp "bits/packs/lib.pak" "freebsd-x86-default/bin/bits/packs/lib.pak"
-	cp "bits/packs/link.pak" "freebsd-x86-default/bin/bits/packs/link.pak"
-	cp "bits/packs/man.pak" "freebsd-x86-default/bin/bits/packs/man.pak"
-	cp "bits/packs/man2html.pak" "freebsd-x86-default/bin/bits/packs/man2html.pak"
-	cp "bits/packs/matrixssl.pak" "freebsd-x86-default/bin/bits/packs/matrixssl.pak"
-	cp "bits/packs/md5.pak" "freebsd-x86-default/bin/bits/packs/md5.pak"
-	cp "bits/packs/mocana.pak" "freebsd-x86-default/bin/bits/packs/mocana.pak"
-	cp "bits/packs/openssl.pak" "freebsd-x86-default/bin/bits/packs/openssl.pak"
-	cp "bits/packs/pcre.pak" "freebsd-x86-default/bin/bits/packs/pcre.pak"
-	cp "bits/packs/pmaker.pak" "freebsd-x86-default/bin/bits/packs/pmaker.pak"
-	cp "bits/packs/ranlib.pak" "freebsd-x86-default/bin/bits/packs/ranlib.pak"
-	cp "bits/packs/rc.pak" "freebsd-x86-default/bin/bits/packs/rc.pak"
-	cp "bits/packs/sqlite.pak" "freebsd-x86-default/bin/bits/packs/sqlite.pak"
-	cp "bits/packs/ssl.pak" "freebsd-x86-default/bin/bits/packs/ssl.pak"
-	cp "bits/packs/strip.pak" "freebsd-x86-default/bin/bits/packs/strip.pak"
-	cp "bits/packs/tidy.pak" "freebsd-x86-default/bin/bits/packs/tidy.pak"
-	cp "bits/packs/utest.pak" "freebsd-x86-default/bin/bits/packs/utest.pak"
-	cp "bits/packs/vxworks.pak" "freebsd-x86-default/bin/bits/packs/vxworks.pak"
-	cp "bits/packs/winsdk.pak" "freebsd-x86-default/bin/bits/packs/winsdk.pak"
-	cp "bits/packs/zip.pak" "freebsd-x86-default/bin/bits/packs/zip.pak"
-	cp "bits/packs/zlib.pak" "freebsd-x86-default/bin/bits/packs/zlib.pak"
-	cp "bits/packs/compiler.pak" "freebsd-x86-default/bin/bits/packs/compiler.pak"
-	cp "bits/packs/doxygen.pak" "freebsd-x86-default/bin/bits/packs/doxygen.pak"
-	cp "bits/packs/dsi.pak" "freebsd-x86-default/bin/bits/packs/dsi.pak"
-	cp "bits/packs/dumpbin.pak" "freebsd-x86-default/bin/bits/packs/dumpbin.pak"
-	cp "bits/packs/ejs.pak" "freebsd-x86-default/bin/bits/packs/ejs.pak"
-	cp "bits/packs/ejscript.pak" "freebsd-x86-default/bin/bits/packs/ejscript.pak"
-	cp "bits/packs/est.pak" "freebsd-x86-default/bin/bits/packs/est.pak"
-	cp "bits/packs/http.pak" "freebsd-x86-default/bin/bits/packs/http.pak"
-	cp "bits/packs/lib.pak" "freebsd-x86-default/bin/bits/packs/lib.pak"
-	cp "bits/packs/link.pak" "freebsd-x86-default/bin/bits/packs/link.pak"
-	cp "bits/packs/man.pak" "freebsd-x86-default/bin/bits/packs/man.pak"
-	cp "bits/packs/man2html.pak" "freebsd-x86-default/bin/bits/packs/man2html.pak"
-	cp "bits/packs/matrixssl.pak" "freebsd-x86-default/bin/bits/packs/matrixssl.pak"
-	cp "bits/packs/md5.pak" "freebsd-x86-default/bin/bits/packs/md5.pak"
-	cp "bits/packs/mocana.pak" "freebsd-x86-default/bin/bits/packs/mocana.pak"
-	cp "bits/packs/openssl.pak" "freebsd-x86-default/bin/bits/packs/openssl.pak"
-	cp "bits/packs/pcre.pak" "freebsd-x86-default/bin/bits/packs/pcre.pak"
-	cp "bits/packs/pmaker.pak" "freebsd-x86-default/bin/bits/packs/pmaker.pak"
-	cp "bits/packs/ranlib.pak" "freebsd-x86-default/bin/bits/packs/ranlib.pak"
-	cp "bits/packs/rc.pak" "freebsd-x86-default/bin/bits/packs/rc.pak"
-	cp "bits/packs/sqlite.pak" "freebsd-x86-default/bin/bits/packs/sqlite.pak"
-	cp "bits/packs/ssl.pak" "freebsd-x86-default/bin/bits/packs/ssl.pak"
-	cp "bits/packs/strip.pak" "freebsd-x86-default/bin/bits/packs/strip.pak"
-	cp "bits/packs/tidy.pak" "freebsd-x86-default/bin/bits/packs/tidy.pak"
-	cp "bits/packs/utest.pak" "freebsd-x86-default/bin/bits/packs/utest.pak"
-	cp "bits/packs/vxworks.pak" "freebsd-x86-default/bin/bits/packs/vxworks.pak"
-	cp "bits/packs/winsdk.pak" "freebsd-x86-default/bin/bits/packs/winsdk.pak"
-	cp "bits/packs/zip.pak" "freebsd-x86-default/bin/bits/packs/zip.pak"
-	cp "bits/packs/zlib.pak" "freebsd-x86-default/bin/bits/packs/zlib.pak"
-	cp "bits/sample-main.bit" "freebsd-x86-default/bin/bits/sample-main.bit"
-	cp "bits/sample-start.bit" "freebsd-x86-default/bin/bits/sample-start.bit"
-	cp "bits/simple.bit" "freebsd-x86-default/bin/bits/simple.bit"
-	cp "bits/standard.bit" "freebsd-x86-default/bin/bits/standard.bit"
-	cp "bits/vstudio.es" "freebsd-x86-default/bin/bits/vstudio.es"
-	cp "bits/xcode.es" "freebsd-x86-default/bin/bits/xcode.es"
+	mkdir -p "$(CONFIG)/bin/bits/bits"
+	cp "bits/embedthis-manifest.bit" "$(CONFIG)/bin/bits/bits/embedthis-manifest.bit"
+	cp "bits/embedthis.bit" "$(CONFIG)/bin/bits/bits/embedthis.bit"
+	cp "bits/embedthis.es" "$(CONFIG)/bin/bits/bits/embedthis.es"
+	cp "bits/gendoc.es" "$(CONFIG)/bin/bits/bits/gendoc.es"
+	mkdir -p "$(CONFIG)/bin/bits/os"
+	cp "bits/os/freebsd.bit" "$(CONFIG)/bin/bits/os/freebsd.bit"
+	cp "bits/os/gcc.bit" "$(CONFIG)/bin/bits/os/gcc.bit"
+	cp "bits/os/linux.bit" "$(CONFIG)/bin/bits/os/linux.bit"
+	cp "bits/os/macosx.bit" "$(CONFIG)/bin/bits/os/macosx.bit"
+	cp "bits/os/posix.bit" "$(CONFIG)/bin/bits/os/posix.bit"
+	cp "bits/os/solaris.bit" "$(CONFIG)/bin/bits/os/solaris.bit"
+	cp "bits/os/vxworks.bit" "$(CONFIG)/bin/bits/os/vxworks.bit"
+	cp "bits/os/windows.bit" "$(CONFIG)/bin/bits/os/windows.bit"
+	mkdir -p "$(CONFIG)/bin/bits/bits/os"
+	cp "bits/os/freebsd.bit" "$(CONFIG)/bin/bits/bits/os/freebsd.bit"
+	cp "bits/os/gcc.bit" "$(CONFIG)/bin/bits/bits/os/gcc.bit"
+	cp "bits/os/linux.bit" "$(CONFIG)/bin/bits/bits/os/linux.bit"
+	cp "bits/os/macosx.bit" "$(CONFIG)/bin/bits/bits/os/macosx.bit"
+	cp "bits/os/posix.bit" "$(CONFIG)/bin/bits/bits/os/posix.bit"
+	cp "bits/os/solaris.bit" "$(CONFIG)/bin/bits/bits/os/solaris.bit"
+	cp "bits/os/vxworks.bit" "$(CONFIG)/bin/bits/bits/os/vxworks.bit"
+	cp "bits/os/windows.bit" "$(CONFIG)/bin/bits/bits/os/windows.bit"
+	mkdir -p "$(CONFIG)/bin/bits/packs"
+	cp "bits/packs/compiler.pak" "$(CONFIG)/bin/bits/packs/compiler.pak"
+	cp "bits/packs/doxygen.pak" "$(CONFIG)/bin/bits/packs/doxygen.pak"
+	cp "bits/packs/dsi.pak" "$(CONFIG)/bin/bits/packs/dsi.pak"
+	cp "bits/packs/dumpbin.pak" "$(CONFIG)/bin/bits/packs/dumpbin.pak"
+	cp "bits/packs/ejs.pak" "$(CONFIG)/bin/bits/packs/ejs.pak"
+	cp "bits/packs/ejscript.pak" "$(CONFIG)/bin/bits/packs/ejscript.pak"
+	cp "bits/packs/est.pak" "$(CONFIG)/bin/bits/packs/est.pak"
+	cp "bits/packs/http.pak" "$(CONFIG)/bin/bits/packs/http.pak"
+	cp "bits/packs/lib.pak" "$(CONFIG)/bin/bits/packs/lib.pak"
+	cp "bits/packs/link.pak" "$(CONFIG)/bin/bits/packs/link.pak"
+	cp "bits/packs/man.pak" "$(CONFIG)/bin/bits/packs/man.pak"
+	cp "bits/packs/man2html.pak" "$(CONFIG)/bin/bits/packs/man2html.pak"
+	cp "bits/packs/matrixssl.pak" "$(CONFIG)/bin/bits/packs/matrixssl.pak"
+	cp "bits/packs/md5.pak" "$(CONFIG)/bin/bits/packs/md5.pak"
+	cp "bits/packs/mocana.pak" "$(CONFIG)/bin/bits/packs/mocana.pak"
+	cp "bits/packs/openssl.pak" "$(CONFIG)/bin/bits/packs/openssl.pak"
+	cp "bits/packs/pcre.pak" "$(CONFIG)/bin/bits/packs/pcre.pak"
+	cp "bits/packs/pmaker.pak" "$(CONFIG)/bin/bits/packs/pmaker.pak"
+	cp "bits/packs/ranlib.pak" "$(CONFIG)/bin/bits/packs/ranlib.pak"
+	cp "bits/packs/rc.pak" "$(CONFIG)/bin/bits/packs/rc.pak"
+	cp "bits/packs/sqlite.pak" "$(CONFIG)/bin/bits/packs/sqlite.pak"
+	cp "bits/packs/ssl.pak" "$(CONFIG)/bin/bits/packs/ssl.pak"
+	cp "bits/packs/strip.pak" "$(CONFIG)/bin/bits/packs/strip.pak"
+	cp "bits/packs/tidy.pak" "$(CONFIG)/bin/bits/packs/tidy.pak"
+	cp "bits/packs/utest.pak" "$(CONFIG)/bin/bits/packs/utest.pak"
+	cp "bits/packs/vxworks.pak" "$(CONFIG)/bin/bits/packs/vxworks.pak"
+	cp "bits/packs/winsdk.pak" "$(CONFIG)/bin/bits/packs/winsdk.pak"
+	cp "bits/packs/zip.pak" "$(CONFIG)/bin/bits/packs/zip.pak"
+	cp "bits/packs/zlib.pak" "$(CONFIG)/bin/bits/packs/zlib.pak"
+	mkdir -p "$(CONFIG)/bin/bits/bits/packs"
+	cp "bits/packs/compiler.pak" "$(CONFIG)/bin/bits/bits/packs/compiler.pak"
+	cp "bits/packs/doxygen.pak" "$(CONFIG)/bin/bits/bits/packs/doxygen.pak"
+	cp "bits/packs/dsi.pak" "$(CONFIG)/bin/bits/bits/packs/dsi.pak"
+	cp "bits/packs/dumpbin.pak" "$(CONFIG)/bin/bits/bits/packs/dumpbin.pak"
+	cp "bits/packs/ejs.pak" "$(CONFIG)/bin/bits/bits/packs/ejs.pak"
+	cp "bits/packs/ejscript.pak" "$(CONFIG)/bin/bits/bits/packs/ejscript.pak"
+	cp "bits/packs/est.pak" "$(CONFIG)/bin/bits/bits/packs/est.pak"
+	cp "bits/packs/http.pak" "$(CONFIG)/bin/bits/bits/packs/http.pak"
+	cp "bits/packs/lib.pak" "$(CONFIG)/bin/bits/bits/packs/lib.pak"
+	cp "bits/packs/link.pak" "$(CONFIG)/bin/bits/bits/packs/link.pak"
+	cp "bits/packs/man.pak" "$(CONFIG)/bin/bits/bits/packs/man.pak"
+	cp "bits/packs/man2html.pak" "$(CONFIG)/bin/bits/bits/packs/man2html.pak"
+	cp "bits/packs/matrixssl.pak" "$(CONFIG)/bin/bits/bits/packs/matrixssl.pak"
+	cp "bits/packs/md5.pak" "$(CONFIG)/bin/bits/bits/packs/md5.pak"
+	cp "bits/packs/mocana.pak" "$(CONFIG)/bin/bits/bits/packs/mocana.pak"
+	cp "bits/packs/openssl.pak" "$(CONFIG)/bin/bits/bits/packs/openssl.pak"
+	cp "bits/packs/pcre.pak" "$(CONFIG)/bin/bits/bits/packs/pcre.pak"
+	cp "bits/packs/pmaker.pak" "$(CONFIG)/bin/bits/bits/packs/pmaker.pak"
+	cp "bits/packs/ranlib.pak" "$(CONFIG)/bin/bits/bits/packs/ranlib.pak"
+	cp "bits/packs/rc.pak" "$(CONFIG)/bin/bits/bits/packs/rc.pak"
+	cp "bits/packs/sqlite.pak" "$(CONFIG)/bin/bits/bits/packs/sqlite.pak"
+	cp "bits/packs/ssl.pak" "$(CONFIG)/bin/bits/bits/packs/ssl.pak"
+	cp "bits/packs/strip.pak" "$(CONFIG)/bin/bits/bits/packs/strip.pak"
+	cp "bits/packs/tidy.pak" "$(CONFIG)/bin/bits/bits/packs/tidy.pak"
+	cp "bits/packs/utest.pak" "$(CONFIG)/bin/bits/bits/packs/utest.pak"
+	cp "bits/packs/vxworks.pak" "$(CONFIG)/bin/bits/bits/packs/vxworks.pak"
+	cp "bits/packs/winsdk.pak" "$(CONFIG)/bin/bits/bits/packs/winsdk.pak"
+	cp "bits/packs/zip.pak" "$(CONFIG)/bin/bits/bits/packs/zip.pak"
+	cp "bits/packs/zlib.pak" "$(CONFIG)/bin/bits/bits/packs/zlib.pak"
+	cp "bits/sample-main.bit" "$(CONFIG)/bin/bits/bits/sample-main.bit"
+	cp "bits/sample-start.bit" "$(CONFIG)/bin/bits/bits/sample-start.bit"
+	cp "bits/simple.bit" "$(CONFIG)/bin/bits/bits/simple.bit"
+	cp "bits/standard.bit" "$(CONFIG)/bin/bits/bits/standard.bit"
+	cp "bits/vstudio.es" "$(CONFIG)/bin/bits/bits/vstudio.es"
+	cp "bits/xcode.es" "$(CONFIG)/bin/bits/bits/xcode.es"
 
 $(CONFIG)/obj/bit.o: \
     src/bit.c\

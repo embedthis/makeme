@@ -2688,7 +2688,7 @@ public class Bit {
             if (file == target.path) {
                 continue
             }
-            copy(file, target.path, target)
+            copy(reppath(file), reppath(target.path), target)
         }
         genout.writeLine()
         delete target.made
