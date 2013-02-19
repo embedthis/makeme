@@ -55,11 +55,12 @@ Bit.load({
 
     targets: {
         removeFiles: {
-            enable: bit.platform.like == 'windows',
+            home: '${TOP}',
             type: 'exe',
             rule: 'gui'
-            sources: [ '../package/windows/removeFiles.c' ],
+            sources: [ 'package/windows/removeFiles.c' ],
             platforms: [ 'local' ],
+            enable: "bit.platform.like == 'windows' && Path('package/windows/removeFiles.c').exists",
         },
 
         projects: {
