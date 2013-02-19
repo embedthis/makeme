@@ -10,187 +10,6 @@ require ejs.zlib
 
 let TempFilter = /\.old$|\.tmp$|xcuserdata|xcworkspace|project.guid|-mine/
 
-//  MOB - rename copy
-/**
-    Install files.
-    @param src Source files/directories to copy. This can be a String, Path or array of String/Paths. 
-        The wildcards "*", "**" and "?" are the only wild card patterns supported. The "**" pattern matches
-        every directory and file. The Posix "[]" and "{a,b}" style expressions are not supported.
-        If src is an existing directory, then the pattern is converted to 'dir/ * *' (without spaces)
-        and the tree option is enabled.
-    @param dest Destination file or directory. If multiple files are copied, dest is assumed to be a directory and
-        will be created if required. If dest has a trailing "/", it is assumed to be a directory.
-    @param options Processing and file options
-    @option active If destination is an active executable or shared library, rename the active file using a
-        '.old' extension and retry the copy.
-    @option compress Compress target file
-    @option copytemp Copy files that look like temp files
-    @option exclude Exclude files that match the pattern. The pattern should be in portable file format.
-    @option expand Expand tokens. Set to true or an Object hash containing properties to use when replacing 
-        tokens of the form ${token} in the src and dest filenames. If set to true, the 'bit' object is used.
-    @option fold Fold long lines on windows at column 80 and convert new line endings.
-    @option group Set file group
-    @option include Include files that match the pattern. The pattern should be in portable file format.
-    @option linkin Add a symbolic link to the destination in this directory
-    @option permissions Set file permissions
-    @option strip Strip object or executable
-    @options tree Copy the entire subtree identified by the patterns by prepending the entire pattern path.
-    @option user Set file file user
- */
-public function install(src, dest: Path, options = {}) {
-    dest = Path(expand(dest))
-    if (!(src is Array)) src = [src]
-
-    if (options.cat) {
-        let files = []
-        for each (pat in src) {
-            pat = Path(expand(pat))
-            files += Path('.').files(pat, {missing: undefined})
-        }
-        src = files.unique()
-    } 
-    for each (let pattern: Path in src) {
-        let base: Path = Path('.')
-        if (pattern.isDir) {
-            base = pattern
-            pattern = Path('**')
-            options = blend({tree: true, relative: true}, options)
-        } else {
-            pattern = Path(expand(pattern))
-        }
-
-        list = base.files(pattern, options)
-        if (bit.options.verbose) {
-            print("Install", pattern, dest)
-            dump('Files', list)
-        }
-        if (!list || list.length == 0) {
-            if (bit.generating) {
-                list = pattern
-            } else if (!options.cat && src.length > 0) {
-                throw 'cp: Cannot find files to copy for "' + pattern + '" to ' + dest
-            }
-        }
-        let destIsDir = (dest.isDir || (!options.cat && list.length > 1) || dest.name.endsWith('/'))
-
-        for each (let file: Path in list) {
-            let from = base.join(file)
-            from = Path(expand(from, options))
-            let to
-            if (options.tree) {
-                to = dest.join(base, file).normalize
-            } else if (destIsDir) {
-                to = dest.join(file.basename)
-            } else {
-                to = dest
-            }
-            from = from.relative.portable
-            if (!options.copytemp && from.match(TempFilter)) {
-                continue
-            }
-            attributes = options.clone()
-            if (!bit.generating) {
-                attributes.permissions ||= from.attributes.permissions
-            }
-            if (bit.generating) {
-                if (options.cat || options.expand || options.fold || options.compress) {
-                    dump("OPTIONS", options)
-                    throw "Cannot use processing options when generating"
-                }
-                makeDir(to.parent, options)
-                if (from.isDir) {
-                    makeDir(to, options)
-                } else {
-                    copy(from, to, options)
-                }
-                if (options.linkin) {
-                    link(to, Path(expand(options.linkin)).join(to.basename), options)
-                }
-                continue
-            }
-            makeDir(to.dirname)
-
-            if (options.cat) {
-                catenate(from, to, attributes)
-            } else {
-                if (from.isDir) {
-                    makeDir(to, options)
-                } else {
-                    try {
-                        copy(from, to, attributes)
-                    } catch (e) {
-                        if (options.active) {
-                            let active = to.replaceExt('old')
-                            active.remove()
-                            to.rename(active)
-                        }
-                        copy(from, to, attributes)
-                    }
-                }
-            }
-            if (options.expand) {
-                strace('Expand', to)
-                let o = bit
-                if (options.expand != true) {
-                    o = options.expand
-                }
-                to.write(to.readString().expand(o, {fill: '${}'}))
-                to.setAttributes(attributes)
-            }
-            if (options.fold) {
-                strace('Fold', to)
-                foldLines(to)
-                to.setAttributes(attributes)
-            }
-            if (options.strip && bit.packs.strip && bit.platform.profile == 'release') {
-                strace('Strip', to)
-                Cmd.run(bit.packs.strip.path + ' ' + to)
-            }
-            if (options.compress) {
-                let zname = Path(to.name + '.gz')
-                strace('Compress', zname)
-                zname.remove()
-                Zlib.compress(to.name, zname)
-                to.remove()
-                to = zname
-            }
-        /* MOB UNUSED install only
-            if (App.uid == 0 && to.extension == 'so' && Config.OS == 'linux') {
-                let ldconfig = Cmd.locate('ldconfig')
-                if (ldconfig) {
-                    Cmd.run('ldconfig ' + to)
-                }
-            }
-        */
-            //  if (to.extension == bit.ext.shobj)
-            //  MOB - check this
-            //  for each (f in abin.files('*.so.*')) {
-            //      let nover = to.basename.name.replace(/\.[0-9]*.*/, '.so')
-            //      to.remove()
-            //      to.symlink(to.dirname.join(nover).basename)
-            //      //MOB - not right
-            //      options.filelist.push(to)
-            //  }
-            //
-            if (options.filelist) {
-                if (!to.isDir) {
-                    options.filelist.push(to)
-                }
-            }
-            if (options.linkin) {
-                let linkin = Path(expand(options.linkin))
-                linkin.makeDir(options)
-                let lto = linkin.join(from.basename)
-                link(to.relativeTo(lto.dirname), lto, options)
-                if (options.filelist) {
-                    options.filelist.push(lto)
-                }
-            }
-        }
-    }
-}
-
-
 public function deploy(manifest, prefixes, package): Array {
     let sets = package.sets
     if (!(sets is RegExp)) {
@@ -203,6 +22,8 @@ public function deploy(manifest, prefixes, package): Array {
             //  MOB - remove
             dump("Consider", item)
         }
+        item.made = made
+        item.filelist = filelist
         let name = item.name
         if (item.from && !(item.from is Array)) {
             item.from = [item.from]
@@ -252,7 +73,7 @@ public function deploy(manifest, prefixes, package): Array {
                 }
             }
             if (item.from) {
-                install(item.from, item.to, item)
+                copy(item.from, item.to, item)
                 if (item.postcopy) {
                     eval('require ejs.unix\n' + expand(item.postcopy))
                 }
@@ -433,7 +254,7 @@ public function installBinary() {
         files = deploy(manifest, bit.prefixes, package) 
         makeFiles(prefixes.vapp, prefixes.root, files, bit.prefixes)
         if (!bit.cross && Config.OS != 'windows') {
-            link(bit.settings.version, bit.prefixes.app.join('latest'))
+            linkFile(bit.settings.version, bit.prefixes.app.join('latest'))
         }
         trace('Complete', bit.settings.title + ' installed')
     }
@@ -471,13 +292,12 @@ public function uninstallBinary() {
             if (!package.prefixes.contains(key)) {
                 continue
             }
-            /*  MOB - relying on removeDir being a safe remove and only removing the directory if empty */
             if (!bit.generating) {
                 for each (dir in prefix.files('**', {include: /\/$/}).sort().reverse()) {
-                    removeDir(dir)
+                    removeDir(dir, {empty: true})
                 }
             }
-            removeDir(prefix)
+            removeDir(prefix, {empty: true})
         }
         updateLatestLink()
         trace('Complete', bit.settings.title + ' uninstalled')
@@ -493,7 +313,7 @@ function updateLatestLink() {
         version = bit.prefixes.app.files('*', {include: /\d+\.\d+\.\d+/}).sort().pop()
     }
     if (version) {
-        link(version.basename, latest)
+        version.basename.link(latest)
     } else {
         latest.remove()
     }
@@ -514,8 +334,7 @@ function makeSimplePackage(package, prefixes, fmt) {
 
     let generic = bit.dir.rel.join(bit.settings.product + '-' + fmt + '.tgz')
     generic.remove()
-    //  MOB zname.link(generic)
-    Path(generic).symlink(zname)
+    zname.link(generic)
     bit.dir.rel.join('md5-' + bit.platform.vname + '-' + fmt + '.tgz.txt').write(md5(zname.readString()))
     trace('Package', generic)
 }
@@ -602,8 +421,7 @@ function makeTarPackage(prefixes) {
     bit.dir.rel.join('md5-' + base).joinExt('tgz.txt', true).write(md5(zname.readString()))
     let generic = bit.dir.rel.join(bit.settings.product + '-tar' + '.tgz')
     generic.remove()
-    //MOB   zname.link(generic)
-    Path(generic).symlink(zname)
+    zname.link(generic)
 }
 
 
@@ -684,13 +502,13 @@ function packageMacosx(prefixes) {
     let pm = s.product + '.pmdoc'
     let pmdoc = staging.join(pm)
     let opak = Path('package/' + bit.platform.os)
-    install(opak.join('background.png'), staging)
-    install(opak.join('license.rtf'), staging)
-    install(opak.join('readme.rtf'), staging)
-    install(opak.join(pm + '/*'), pmdoc, {expand: true, hidden: true})
+    copy(opak.join('background.png'), staging)
+    copy(opak.join('license.rtf'), staging)
+    copy(opak.join('readme.rtf'), staging)
+    copy(opak.join(pm + '/*'), pmdoc, {expand: true, hidden: true})
     let scripts = staging.join('scripts')
     scripts.makeDir()
-    install('package/' + bit.platform.os + '/scripts/*', scripts, {expand: true})
+    copy('package/' + bit.platform.os + '/scripts/*', scripts, {expand: true})
     createMacContents(prefixes)
 
     /* Remove extended attributes */
@@ -738,7 +556,7 @@ function packageFedora(prefixes) {
 
     let opak = Path('package/' + bit.platform.os)
     let spec = RPM.join('SPECS', base).joinExt('spec', true)
-    install(opak.join('rpm.spec'), spec, {expand: true, permissions: 0644})
+    copy(opak.join('rpm.spec'), spec, {expand: true, permissions: 0644})
 
     let files = contents.files('**')
     let fileList = RPM.join('BUILD/binFiles.txt')
@@ -785,9 +603,9 @@ function packageUbuntu(prefixes) {
     let DEBIAN = contents.join('DEBIAN')
     let opak = Path('package/' + bit.platform.os)
 
-    install(opak.join('deb.bin/conffiles'), DEBIAN.join('conffiles'), {expand: true, permissions: 0644})
-    install(opak.join('deb.bin/control'), DEBIAN, {expand: true, permissions: 0755})
-    install(opak.join('deb.bin/p*'), DEBIAN, {expand: true, permissions: 0755})
+    copy(opak.join('deb.bin/conffiles'), DEBIAN.join('conffiles'), {expand: true, permissions: 0644})
+    copy(opak.join('deb.bin/control'), DEBIAN, {expand: true, permissions: 0755})
+    copy(opak.join('deb.bin/p*'), DEBIAN, {expand: true, permissions: 0755})
 
     let base = [s.product, s.version, s.buildNumber, bit.platform.dist, bit.platform.os, bit.platform.arch].join('-')
     let outfile = bit.dir.rel.join(base).joinExt('deb', true)
@@ -804,9 +622,9 @@ function packageWindows(prefixes) {
     let s = bit.settings
     let opak = Path('package/' + bit.platform.os)
 
-    install(bit.dir.top.join('LICENSE.md'), pkg)
+    copy(bit.dir.top.join('LICENSE.md'), pkg)
     let iss = pkg.join('install.iss')
-    install(opak.join('install.iss'), iss, {expand: true})
+    copy(opak.join('install.iss'), iss, {expand: true})
     let contents = pkg.join(s.product + '-' + s.version + '-' + s.buildNumber, 'contents')
     let files = contents.files('**', {exclude: /\/$/, missing: undefined})
 
@@ -878,7 +696,7 @@ public function apidoc(dox: Path, headers, title: String, tags) {
     let output
     if (headers is Array) {
         output = api.join(name + '.h')
-        install(headers, output, { cat: true, })
+        copy(headers, output, { cat: true, })
         headers = output
     }
     rmdir([api.join('html'), api.join('xml')])
@@ -958,7 +776,7 @@ public function genProjects(packs = '--without default', profiles = ["default"],
     let bitcmd = Cmd.locate('bit')
 
     //  MOB
-    let targets = "--nobuild build install uninstall"
+    let targets = "build install uninstall"
     for each (profile in profiles) {
         for each (name in platforms) {
             let formats = (name == 'windows-x86') ? '-gen nmake' : '-gen make'
@@ -1010,187 +828,6 @@ public function getWebGroup(): String {
         }
     }
     return '0'
-}
-
-
-/*
-    Fold long lines at column 80. On windows, will also convert line terminatations to <CR><LF>.
- */
-function foldLines(path: Path) {
-    let lines = path.readLines()
-    let out = new TextStream(new File(path, 'wt'))
-    for (l = 0; l < lines.length; l++) {
-        let line = lines[l]
-        if (line.length > 80) {
-            for (i = 79; i >= 0; i--) {
-                if (line[i] == ' ') {
-                    lines[l] = line.slice(0, i)
-                    lines.insert(l + 1, line.slice(i + 1))
-                    break
-                }
-            }
-            if (i == 0) {
-                lines[l] = line.slice(0, 80)
-                lines.insert(l + 1, line.slice(80))
-            }
-        }
-        out.writeLine(lines[l])
-    }
-    out.close()
-}
-
-
-function getatt(attributes) {
-    let att = ''
-    if (attributes.group) {
-        att += '-g ' + attributes.group
-    }
-    if (attributes.user) {
-        att += '-u ' + attributes.user
-    }
-    if (attributes.permissions) {
-        att += '-m ' + attributes.permissions.toString().trimStart('0')
-    }
-    return (att) ? (att + ' ') : att
-}
-
-
-function link(src: Path, dest: Path, options = {}) {
-    if (!bit.generating) {
-        strace('Create', 'Link: ' + dest)
-        if (!options.dry) {
-            dest.remove()
-            //  MOB - must reverse
-            //  src.link(dest)
-            dest.symlink(src)
-        }
-    } else if (bit.generating != 'nmake') {
-        gen('rm -f "' + dest + '"')
-        gen('install -d "' + dest.parent + '"')
-        gen('ln -s "' + src + '" "' + dest + '"')
-    }
-}
-
-
-function makeDir(path: Path, options = {}) {
-    if (!bit.generating) {
-        if (!options.dry) {
-            if (!path.isDir) {
-                strace('Create', 'Directory: ' + path)
-                if (!path.makeDir(options)) {
-                    throw "Cannot make directory" + path
-                }
-            }
-        }
-    } else {
-        if (options.made) {
-            if (options.made[path]) {
-                return
-            }
-            options.made[path] = true
-        }
-        if (bit.generating == 'nmake') {
-            gen('if not exist "' + path.windows + '" md "' + path.windows + '"')
-        } else {
-            gen('install -d ' + getatt(options) + '"' + path + '"')
-        }
-    }
-}
-
-
-function remove(path: Path, options = {}) {
-    if (!bit.generating) {
-        strace('Remove', path)
-        if (!options.dry) {
-            if (!path.remove()) {
-                throw "Cannot remove " + path
-            }
-        }
-    } else {
-        if (bit.generating == 'nmake') {
-            gen('if exist "' + path.windows + '" rd /Q "' + path.windows + '"')
-        } else {
-            gen('rm -f "' + path + '"')
-        }
-    }
-}
-
-
-/*
-    Remove empty directories only
- */
-function removeDir(path: Path, options = {}) {
-    if (!bit.generating) {
-        strace('Remove', path)
-        if (!options.dry) {
-            //  MOB - was removeAll
-            if (!path.remove()) {
-                throw "Cannot remove " + path
-            }
-        }
-    } else {
-        if (bit.generating == 'nmake') {
-            //  MOB - was rd /Q /S
-            gen('if exist "' + path.windows + '" rd /Q "' + path.windows + '"')
-        } else {
-            //  MOB - was rm -fr
-            gen('rmdir -p "' + path + '"')
-        }
-    }
-}
-
-
-function copy(src: Path, dest: Path, options = {}) {
-    if (!bit.generating) {
-        strace('Copy', dest)
-        if (!options.dry) {
-            src.copy(dest, options)
-        }
-    } else if (bit.generating == 'nmake') {
-        gen('copy /Y "' + src.relative.windows + '" "' + dest.windows + '"')
-    } else {
-        gen('install ' + getatt(options) + ' "' + src + '" "' + dest + '"')
-    }
-}
-
-
-function catenate(from, target, options) {
-    strace('Combine', from.relative)
-    if (!target.exists) {
-        if (options.title) {
-            if (options.textfile) {
-                target.write('#\n' +
-                   '#   ' + target.basename + ' -- ' + options.title + '\n' + 
-                   '#\n')
-            } else {
-                target.write('/*\n' +
-                   '    ' + target.basename + ' -- ' + options.title + '\n\n' +
-                   '    This file is a catenation of all the source code. Amalgamating into a\n' +
-                   '    single file makes embedding simpler and the resulting application faster.\n\n' + 
-                   '    Prepared by: ' + System.hostname + '\n */\n\n')
-            }
-        }
-        if (options.header) {
-            target.append(options.header + '\n')
-        }
-    }
-    if (options.textfile) {
-        target.append('\n' +
-           '#\n' +
-           '#   Start of file \"' + from.relative + '\"\n' +
-           '#\n')
-    } else {
-        target.append('\n' +
-           '/************************************************************************/\n' +
-           '/*\n    Start of file \"' + from.relative + '\"\n */\n' +
-           '/************************************************************************/\n\n')
-    }
-    let data = from.readString()
-    if (options.filter) {
-        data = data.replace(options.filter, '')
-    }
-    target.append(data)
-    target.setAttributes(options)
 }
 
 

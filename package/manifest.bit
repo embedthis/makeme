@@ -14,14 +14,14 @@ Bit.load({
             install: {
                 inherit:    'embedthis-manifest',
                 prefixes:   [ 'root', 'app', 'vapp', 'bin', 'man'],
-                sets:       [ 'install' ],
+                sets:       [ 'core', 'doc' ],
                 platforms:  [ 'windows', 'posix' ]
             },
             binary: {
                 inherit:    'embedthis-manifest',
                 prefixes:   [ 'root', 'app', 'vapp', 'bin', 'man'],
                 formats:    [ 'native', 'tar' ],
-                sets:       [ 'binary', 'doc', 'package' ],
+                sets:       [ 'core', 'doc', 'package' ],
                 platforms:  [ 'windows', 'macosx' ]
             },
             source: {
@@ -37,7 +37,7 @@ Bit.load({
             {   from:   '${BIN}/bit${EXE}',
                 to:     '${abin}/',
                 linkin: '${bin}',
-                set:    'binary, install',
+                set:    'core',
 
             },{ from: [
                     '${BIN}/bit.es',
@@ -51,15 +51,16 @@ Bit.load({
                     '${BIN}/libpcre${SHOBJ}',
                 ],
                 to:     '${abin}/',
-                set:    'binary, install',
+                set:    'core',
 
-            },{ from:   'bits',
+            },{ from:   'bits/**',
                 to:     '${abin}/',
-                set:    'binary, install',
+                subtree:'bits',
+                set:    'core',
 
             },{ from:   'doc/man/bit.1',
                 to:     '${adoc}/man/man1/',
-                set:    'doc, install',
+                set:    'doc',
                 linkin: '${man}/man1',
                 enable: "bit.platform.like == 'posix'",
 

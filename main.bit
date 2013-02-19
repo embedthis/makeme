@@ -128,11 +128,11 @@ Bit.load({
 
         bits: {
             type: 'file',
-            path: '${BIN}/bits/',
+            path: '${BIN}/bits',
             files: [ 'bits/**' ],
-            tree: true,
+            exclude: /\/$/,
+            subtree: 'bits/',
             precious: true,
-            exclude: /\.tmp$/,
         }
 
         _bits: {

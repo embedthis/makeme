@@ -72,7 +72,7 @@ public class Bit {
             dump: { },
             endian: { range: ['little', 'big'] },
             file: { range: String },
-            force: {},
+            force: { alias: 'f' },
             gen: { range: String, separator: Array, commas: true },
             get: { range: String },
             help: { },
@@ -1099,6 +1099,9 @@ public class Bit {
         for (let [tname,target] in o.targets) {
             target.name ||= tname
             target.home ||= home
+            if (!target.home.startsWith('${')) {
+                target.home = Path(target.home).absolute
+            }
             home = target.home
             target.vars ||= {}
             if (target.path) {
@@ -1113,6 +1116,7 @@ public class Bit {
             rebase(home, target, 'resources')
             rebase(home, target, 'sources')
             rebase(home, target, 'files')
+            rebase(home, target, 'subtree')
 
             for (let [key,value] in target.defines) {
                 target.defines[key] = value.trimStart('-D')
@@ -1274,11 +1278,11 @@ public class Bit {
             cfg.write(data)
             cfg.setAttributes({permissions: 0755})
         }
-        copyFile(bits.join('sample-main.bit'), MAIN)
+        safeCopy(bits.join('sample-main.bit'), MAIN)
     }
 
     function generateStart() {
-        copyFile(Path(Config.Bin).join('bits/sample-start.bit'), 'start.bit')
+        safeCopy(Path(Config.Bin).join('bits/sample-start.bit'), 'start.bit')
     }
 
     function generateProjects() {
@@ -1303,15 +1307,15 @@ public class Bit {
             path.copy(hfile)
             trace('Generate', 'project header: ' + hfile.relative)
             if (bit.generating == 'sh') {
-                generateShell(base)
+                generateShellProject(base)
             } else if (bit.generating == 'make') {
-                generateMake(base)
+                generateMakeProject(base)
             } else if (bit.generating == 'nmake') {
-                generateNmake(base)
+                generateNmakeProject(base)
             } else if (bit.generating == 'vstudio' || bit.generating == 'vs') {
-                generateVstudio(base)
+                generateVstudioProject(base)
             } else if (bit.generating == 'xcode') {
-                generateXcode(base)
+                generateXcodeProject(base)
             } else {
                 throw 'Unknown generation format: ' + bit.generating
             }
@@ -1322,7 +1326,7 @@ public class Bit {
         bit.generating = null
     }
 
-    function generateShell(base: Path) {
+    function generateShellProject(base: Path) {
         trace('Generate', 'project file: ' + base.relative + '.sh')
         let path = base.joinExt('sh')
         genout = TextStream(File(path, 'w'))
@@ -1410,7 +1414,7 @@ public class Bit {
         return prefixes
     }
 
-    function generateMake(base: Path) {
+    function generateMakeProject(base: Path) {
         trace('Generate', 'project file: ' + base.relative + '.mk')
         let path = base.joinExt('mk')
         genout = TextStream(File(path, 'w'))
@@ -1484,7 +1488,7 @@ public class Bit {
         genout.close()
     }
 
-    function generateNmake(base: Path) {
+    function generateNmakeProject(base: Path) {
         trace('Generate', 'project file: ' + base.relative + '.nmake')
         let path = base.joinExt('nmake')
         genout = TextStream(File(path, 'w'))
@@ -1548,14 +1552,14 @@ public class Bit {
         genout.close()
     }
 
-    function generateVstudio(base: Path) {
+    function generateVstudioProject(base: Path) {
         trace('Generate', 'project file: ' + base.relative)
         mkdir(base)
         global.load(bit.dir.bits.join('vstudio.es'))
         vstudio(base)
     }
 
-    function generateXcode(base: Path) {
+    function generateXcodeProject(base: Path) {
         global.load(bit.dir.bits.join('xcode.es'))
         xcode(base)
     }
@@ -1629,7 +1633,7 @@ public class Bit {
             if (src.isDir) {
                 mkdir(dest.dirname, 0755)
             } else {
-                copyFile(src, dest)
+                safeCopy(src, dest)
             }
         }
     }
@@ -1861,23 +1865,41 @@ public class Bit {
 
     /*
         Build a file list and apply include/exclude filters
+        Include may be an array. Exclude will only ever be a RegExp|String
      */
-    function buildFileList(include, exclude = null) {
+    function buildFileList(target, include, exclude = null) {
+        if (!target.copytemp) {
+            if (exclude) {
+                exclude = TempFilter + '|' + exclude
+            } else {
+                exclude = TempFilter
+            }
+        }
         let files
         if (include is RegExp) {
-            files = Path(bit.dir.src).files('*', {include: include, missing: missing})
+            /* Fast path */
+            if (exclude is RegExp) {
+                files = Path(bit.dir.src).files('*', {include: include, exclude: exclude, missing: missing})
+            } else {
+                files = Path(bit.dir.src).files('*', {include: include, missing: missing})
+            }
         } else {
             if (!(include is Array)) {
                 include = [ include ]
             }
             files = []
-            for each (pattern in include) {
-                pattern = expand(pattern)
-                /* If missing, use pattern */
-                files += Path('.').files(pattern, {missing: ''})
+            for each (ipat in include) {
+                ipat = expand(ipat)
+                if (exclude is RegExp) {
+                    files += Path('.').files(ipat, {exclude: exclude, missing: ''})
+                } else {
+                    files += Path('.').files(ipat, {missing: ''})
+                }
             }
         }
+/* UNUSED
         if (exclude) {
+            //  MOB - handled above
             if (exclude is RegExp) {
                 files = files.reject(function (elt) elt.match(exclude)) 
             } else if (exclude is Array) {
@@ -1888,6 +1910,7 @@ public class Bit {
                 files = files.reject(function (elt) elt.match(exclude))
             }
         }
+ */
         return files
     }
 
@@ -1985,14 +2008,14 @@ public class Bit {
         for each (target in bit.targets) {
             runTargetScript(target, 'presource')
             if (target.files) {
-                target.files = buildFileList(target.files, target.exclude)
+                target.files = buildFileList(target, target.files, target.exclude)
             }
             if (target.headers) {
                 /*
                     Create a target for each header file
                  */
                 target.files ||= []
-                let files = buildFileList(target.headers, target.exclude)
+                let files = buildFileList(target, target.headers, target.exclude)
                 for each (file in files) {
                     let header = bit.dir.inc.join(file.basename)
                     /* Always overwrite dynamically created targets created via makeDepends */
@@ -2004,7 +2027,7 @@ public class Bit {
             }
             if (target.resources) {
                 target.files ||= []
-                let files = buildFileList(target.resources, target.exclude)
+                let files = buildFileList(target, target.resources, target.exclude)
                 for each (file in files) {
                     /*
                         Create a target for each resource file
@@ -2023,7 +2046,7 @@ public class Bit {
             }
             if (target.sources) {
                 target.files ||= []
-                let files = buildFileList(target.sources, target.exclude)
+                let files = buildFileList(target, target.sources, target.exclude)
                 for each (file in files) {
                     /*
                         Create a target for each source file
@@ -2151,6 +2174,9 @@ public class Bit {
             if (target.home) {
                 target.home = Path(target.home)
             }
+            if (target.subtree) {
+                target.subtree = Path(target.subtree)
+            }
             for (i in target.includes) {
                 target.includes[i] = Path(target.includes[i])
             }
@@ -2269,25 +2295,44 @@ public class Bit {
                 }
                 runTargetScript(target, 'prebuild')
 
-                if (target.type == 'build' || (target.scripts && target.scripts['build'])) {
-                    buildScript(target)
-                }
-                if (target.type == 'lib') {
-                    if (target.static) {
-                        buildStaticLib(target)
-                    } else {
-                        buildSharedLib(target)
+                if (bit.generating) {
+                    if (target.type == 'build' || (target.scripts && target.scripts['build'])) {
+                        generateScript(target)
                     }
-                } else if (target.type == 'exe') {
-                    buildExe(target)
-                } else if (target.type == 'obj') {
-                    buildObj(target)
-                } else if (target.type == 'file') {
-                    buildFile(target)
-                } else if (target.type == 'header') {
-                    buildFile(target)
-                } else if (target.type == 'resource') {
-                    buildResource(target)
+                    if (target.type == 'lib') {
+                        if (target.static) {
+                            generateStaticLib(target)
+                        } else {
+                            generateSharedLib(target)
+                        }
+                    } else if (target.type == 'exe') {
+                        generateExe(target)
+                    } else if (target.type == 'obj') {
+                        generateObj(target)
+                    } else if (target.type == 'file' || target.type == 'header') {
+                        generateFile(target)
+                    } else if (target.type == 'resource') {
+                        generateResource(target)
+                    }
+                } else {
+                    if (target.type == 'build' || (target.scripts && target.scripts['build'])) {
+                        buildScript(target)
+                    }
+                    if (target.type == 'lib') {
+                        if (target.static) {
+                            buildStaticLib(target)
+                        } else {
+                            buildSharedLib(target)
+                        }
+                    } else if (target.type == 'exe') {
+                        buildExe(target)
+                    } else if (target.type == 'obj') {
+                        buildObj(target)
+                    } else if (target.type == 'file' || target.type == 'header') {
+                        buildFile(target)
+                    } else if (target.type == 'resource') {
+                        buildResource(target)
+                    }
                 }
                 runTargetScript(target, 'postbuild')
             }
@@ -2309,30 +2354,16 @@ public class Bit {
             return
         }
         let command = expandRule(target, rule)
-        if (bit.generating == 'sh') {
-            command = repcmd(command)
-            genout.writeLine(command + '\n')
-
-        } else if (bit.generating == 'make') {
-            command = repcmd(command)
-            genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
-
-        } else if (bit.generating == 'nmake') {
-            command = repcmd(command)
-            genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
-
+        trace('Link', target.name)
+        if (target.active && bit.platform.like == 'windows') {
+            let old = target.path.relative.replaceExt('old')
+            trace('Preserve', 'Active target ' + target.path.relative + ' as ' + old)
+            old.remove()
+            target.path.rename(old)
         } else {
-            trace('Link', target.name)
-            if (target.active && bit.platform.like == 'windows') {
-                let old = target.path.relative.replaceExt('old')
-                trace('Preserve', 'Active target ' + target.path.relative + ' as ' + old)
-                old.remove()
-                target.path.rename(old)
-            } else {
-                safeRemove(target.path)
-            }
-            run(command, {excludeOutput: /Creating library /})
+            safeRemove(target.path)
         }
+        run(command, {excludeOutput: /Creating library /})
     }
 
     function buildSharedLib(target) {
@@ -2343,32 +2374,16 @@ public class Bit {
             return
         }
         let command = expandRule(target, rule)
-        if (bit.generating == 'sh') {
-            command = repcmd(command)
-            genout.writeLine(command + '\n')
-
-        } else if (bit.generating == 'make') {
-            command = repcmd(command)
-            command = command.replace(/-arch *\S* /, '')
-            genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
-
-        } else if (bit.generating == 'nmake') {
-            command = repcmd(command)
-            command = command.replace(/-arch *\S* /, '')
-            genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
-
+        trace('Link', target.name)
+        if (target.active && bit.platform.like == 'windows') {
+            let active = target.path.relative.replaceExt('old')
+            trace('Preserve', 'Active target ' + target.path.relative + ' as ' + active)
+            active.remove()
+            target.path.rename(target.path.replaceExt('old'))
         } else {
-            trace('Link', target.name)
-            if (target.active && bit.platform.like == 'windows') {
-                let active = target.path.relative.replaceExt('old')
-                trace('Preserve', 'Active target ' + target.path.relative + ' as ' + active)
-                active.remove()
-                target.path.rename(target.path.replaceExt('old'))
-            } else {
-                safeRemove(target.path)
-            }
-            run(command, {excludeOutput: /Creating library /})
+            safeRemove(target.path)
         }
+        run(command, {excludeOutput: /Creating library /})
     }
 
     function buildStaticLib(target) {
@@ -2379,30 +2394,16 @@ public class Bit {
             return
         }
         let command = expandRule(target, rule)
-        if (bit.generating == 'sh') {
-            command = repcmd(command)
-            genout.writeLine(command + '\n')
-
-        } else if (bit.generating == 'make') {
-            command = repcmd(command)
-            genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
-
-        } else if (bit.generating == 'nmake') {
-            command = repcmd(command)
-            genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
-
+        trace('Archive', target.name)
+        if (target.active && bit.platform.like == 'windows') {
+            let active = target.path.relative.replaceExt('old')
+            trace('Preserve', 'Active target ' + target.path.relative + ' as ' + active)
+            active.remove()
+            target.path.rename(target.path.replaceExt('old'))
         } else {
-            trace('Archive', target.name)
-            if (target.active && bit.platform.like == 'windows') {
-                let active = target.path.relative.replaceExt('old')
-                trace('Preserve', 'Active target ' + target.path.relative + ' as ' + active)
-                active.remove()
-                target.path.rename(target.path.replaceExt('old'))
-            } else {
-                safeRemove(target.path)
-            }
-            run(command, {excludeOutput: /has no symbols|Creating library /})
+            safeRemove(target.path)
         }
+        run(command, {excludeOutput: /has no symbols|Creating library /})
     }
 
     /*
@@ -2410,7 +2411,7 @@ public class Bit {
      */
     function buildSym(target) {
         let rule = bit.rules['sym']
-        if (!rule || bit.generating) {
+        if (!rule) {
             return
         }
         target.vars.INPUT = target.files.join(' ')
@@ -2457,6 +2458,168 @@ public class Bit {
                 }
             }
             let command = expandRule(target, rule)
+            trace('Compile', file.relativeTo('.'))
+            if (bit.platform.os == 'windows') {
+                run(command, {excludeOutput: /^[a-zA-Z0-9-]*.c\s*$/})
+            } else {
+                run(command)
+            }
+        }
+        runTargetScript(target, 'postcompile')
+    }
+
+    function buildResource(target) {
+        let ext = target.path.extension
+        for each (file in target.files) {
+            target.vars.INPUT = file.relative
+            let transition = file.extension + '->' + target.path.extension
+            let rule = target.rule || bit.rules[transition]
+            if (!rule) {
+                rule = bit.rules[target.path.extension]
+                if (!rule) {
+                    throw 'No rule to build target ' + target.path + ' for transition ' + transition
+                    return
+                }
+            }
+            let command = expandRule(target, rule)
+            trace('Compile', file.relativeTo('.'))
+            run(command)
+        }
+    }
+
+    /*
+        Copy files[] to path
+     */
+    function buildFile(target) {
+        if (target.path.exists && !target.path.isDir && !target.type == 'header') {
+            if (target.active && bit.platform.like == 'windows') {
+                let active = target.path.relative.replaceExt('old')
+                trace('Preserve', 'Active target ' + target.path.relative + ' as ' + active)
+                active.remove()
+                target.path.rename(target.path.replaceExt('old'))
+            } else {
+                safeRemove(target.path)
+            }
+        }
+        trace('Copy', target.path)
+        for each (let file: Path in target.files) {
+            if (file == target.path) {
+                /* Auto-generated headers targets for includes have file == target.path */
+                continue
+            }
+            copy(file, target.path, target)
+        }
+    }
+
+    function buildScript(target) {
+        setRuleVars(target, target.home)
+        if (target.scripts) {
+            vtrace(target.type.toPascal(), target.name)
+            runTargetScript(target, 'build')
+        }
+    }
+
+    /*
+        Build an executable program
+     */
+    function generateExe(target) {
+        let transition = target.rule || 'exe'
+        let rule = bit.rules[transition]
+        if (!rule) {
+            throw 'No rule to build target ' + target.path + ' for transition ' + transition
+            return
+        }
+        let command = expandRule(target, rule)
+        if (bit.generating == 'sh') {
+            command = repcmd(command)
+            genout.writeLine(command + '\n')
+
+        } else if (bit.generating == 'make') {
+            command = repcmd(command)
+            genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
+
+        } else if (bit.generating == 'nmake') {
+            command = repcmd(command)
+            genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
+
+        }
+    }
+
+    function generateSharedLib(target) {
+        let transition = target.rule || 'shlib'
+        let rule = bit.rules[transition]
+        if (!rule) {
+            throw 'No rule to build target ' + target.path + ' for transition ' + transition
+            return
+        }
+        let command = expandRule(target, rule)
+        if (bit.generating == 'sh') {
+            command = repcmd(command)
+            genout.writeLine(command + '\n')
+
+        } else if (bit.generating == 'make') {
+            command = repcmd(command)
+            command = command.replace(/-arch *\S* /, '')
+            genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
+
+        } else if (bit.generating == 'nmake') {
+            command = repcmd(command)
+            command = command.replace(/-arch *\S* /, '')
+            genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
+        }
+    }
+
+    function generateStaticLib(target) {
+        let transition = target.rule || 'lib'
+        let rule = bit.rules[transition]
+        if (!rule) {
+            throw 'No rule to build target ' + target.path + ' for transition ' + transition
+            return
+        }
+        let command = expandRule(target, rule)
+        if (bit.generating == 'sh') {
+            command = repcmd(command)
+            genout.writeLine(command + '\n')
+
+        } else if (bit.generating == 'make') {
+            command = repcmd(command)
+            genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
+
+        } else if (bit.generating == 'nmake') {
+            command = repcmd(command)
+            genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
+        }
+    }
+
+    /*
+        Build symbols file for windows libraries
+     */
+    function generateSym(target) {
+        throw "Not supported to generate sym targets yet"
+    }
+
+    /*
+        Build an object from source
+     */
+    function generateObj(target) {
+        runTargetScript(target, 'precompile')
+
+        let ext = target.path.extension
+        for each (file in target.files) {
+            target.vars.INPUT = file.relative
+            let transition = file.extension + '->' + target.path.extension
+            if (options.pre) {
+                transition = 'c->c'
+            }
+            let rule = target.rule || bit.rules[transition]
+            if (!rule) {
+                rule = bit.rules[target.path.extension]
+                if (!rule) {
+                    throw 'No rule to build target ' + target.path + ' for transition ' + transition
+                    return
+                }
+            }
+            let command = expandRule(target, rule)
             if (bit.generating == 'sh') {
                 command = repcmd(command)
                 command = command.replace(/-arch *\S* /, '')
@@ -2473,20 +2636,12 @@ public class Bit {
                 command = command.replace(/-arch *\S* /, '')
                 genout.writeLine(reppath(target.path) + ': \\\n    ' + 
                     file.relative.windows + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
-
-            } else {
-                trace('Compile', file.relativeTo('.'))
-                if (bit.platform.os == 'windows') {
-                    run(command, {excludeOutput: /^[a-zA-Z0-9-]*.c\s*$/})
-                } else {
-                    run(command)
-                }
             }
         }
         runTargetScript(target, 'postcompile')
     }
 
-    function buildResource(target) {
+    function generateResource(target) {
         let ext = target.path.extension
         for each (file in target.files) {
             target.vars.INPUT = file.relative
@@ -2513,10 +2668,6 @@ public class Bit {
                 command = repcmd(command)
                 genout.writeLine(reppath(target.path) + ': \\\n        ' + 
                     file.relative.windows + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
-
-            } else {
-                trace('Compile', file.relativeTo('.'))
-                run(command)
             }
         }
     }
@@ -2524,97 +2675,56 @@ public class Bit {
     /*
         Copy files[] to path
      */
-    function buildFile(target) {
+    function generateFile(target) {
+        target.made ||= {}
+        if (bit.generating == 'make' || bit.generating == 'nmake') {
+            genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)))
+        }
         for each (let file: Path in target.files) {
             /* Auto-generated headers targets for includes have file == target.path */
             if (file == target.path) {
                 continue
             }
-            target.vars.INPUT = file.relative
-            if (bit.generating == 'sh') {
-                genout.writeLine('rm -rf ' + reppath(target.path.relative))
-                genout.writeLine('cp -r ' + reppath(file.relative) + ' ' + reppath(target.path.relative) + '\n')
-
-            } else if (bit.generating == 'make') {
-                genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)))
-                genout.writeLine('\trm -fr ' + reppath(target.path.relative))
-                genout.writeLine('\tcp -r ' + reppath(file.relative) + ' ' + reppath(target.path.relative) + '\n')
-
-            } else if (bit.generating == 'nmake') {
-                genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)))
-                genout.writeLine('\t-if exist ' + reppath(target.path) + ' del /Q ' + reppath(target.path))
-                if (file.isDir) {
-                    genout.writeLine('\tif not exist ' + reppath(target.path) + ' md ' + reppath(target.path))
-                    genout.writeLine('\txcopy /S /Y ' + reppath(file) + ' ' + reppath(target.path) + '\n')
-                } else {
-                    genout.writeLine('\tcopy /Y ' + reppath(file) + ' ' + reppath(target.path) + '\n')
-                }
-
-            } else {
-                if (!target.path.isDir) {
-                    if (target.active && bit.platform.like == 'windows') {
-                        let active = target.path.relative.replaceExt('old')
-                        trace('Preserve', 'Active target ' + target.path.relative + ' as ' + active)
-                        active.remove()
-                        target.path.rename(target.path.replaceExt('old'))
-                    } else {
-                        safeRemove(target.path)
-                    }
-                }
-                if (target.tree) {
-                    let pwd = App.dir
-                    App.chdir(target.home)
-                    try {
-                        if (target.home && target.home != pwd) {
-                            App.chdir(target.home)
-                        }
-                        file = file.relativeTo(target.home)
-                        trace('Copy', target.path.portable.relativeTo('.').join(file))
-                        cp(file, target.path, {tree: target.tree, warn: true})
-                    } finally {
-                        App.chdir(pwd)
-                    }
-                } else {
-                    //  MOB - if used install, then generate would work too
-                    trace('Copy', target.path.portable.relativeTo('.'))
-                    cp(file, target.path, {warn: true})
-                }
-            }
+            copy(file, target.path, target)
         }
+        genout.writeLine()
+        delete target.made
     }
 
-    function buildScript(target) {
+    function generateScript(target) {
         setRuleVars(target, target.home)
         let prefix, suffix
-        if (bit.generating == 'sh' || bit.generating == 'make') {
-            prefix = 'cd ' + target.home.relative
-            suffix = 'cd ' + bit.dir.top.relativeTo(target.home)
-        } else if (bit.generating == 'nmake') {
-            prefix = 'cd ' + target.home.relative.windows + '\n'
-            suffix = '\ncd ' + bit.dir.src.relativeTo(target.home).windows
-        } else {
-            prefix = suffix = ''
-        }
-        let rhome = target.home.relative
-        if (rhome == '.' || rhome.startsWith('..')) {
-            /* Don't change directory out of source tree. Necessary for actions in standard.bit */
-            prefix = suffix = ''
-        }
-        if (target.scripts && (!bit.generating || target['generate-action'])) {
-            if (bit.generating) {
-                if (target.path) {
-                    genWrite(target.path.relative + ': ' + getTargetDeps(target, true))
-                } else {
-                    genWrite(target.name + ': ' + getTargetDeps(target, true))
-                }
-                capture = []
+        if (bit.generating) {
+            if (bit.generating == 'sh' || bit.generating == 'make') {
+                prefix = 'cd ' + target.home.relative
+                suffix = 'cd ' + bit.dir.top.relativeTo(target.home)
+            } else if (bit.generating == 'nmake') {
+                prefix = 'cd ' + target.home.relative.windows + '\n'
+                suffix = '\ncd ' + bit.dir.src.relativeTo(target.home).windows
+            } else {
+                prefix = suffix = ''
             }
+            let rhome = target.home.relative
+            if (rhome == '.' || rhome.startsWith('..')) {
+                /* Don't change directory out of source tree. Necessary for actions in standard.bit */
+                prefix = suffix = ''
+            }
+        }
+        if (target.scripts && target['generate-action']) {
+            if (target.path) {
+                genWrite(target.path.relative + ': ' + getTargetDeps(target, true))
+            } else {
+                genWrite(target.name + ': ' + getTargetDeps(target, true))
+            }
+            capture = []
             vtrace(target.type.toPascal(), target.name)
             runTargetScript(target, 'build')
-            if (capture) {
-                genWrite('\t' + capture.join('\n\t') + '\n\n')
-                capture = null
+            if (capture.length > 0) {
+                genWrite('\t' + capture.join('\n') + '\n')
+            } else {
+                genWrite('\n')
             }
+            capture = null
 
         } else if (bit.generating == 'sh') {
             let cmd = target['generate-sh'] || target.interpreter
@@ -2836,9 +2946,7 @@ public class Bit {
             }
         }
         let len = 0
-        if (!target.depends || target.depends.length == 0) {
-            return deps
-        } else {
+        if (target.depends && target.depends.length > 0) {
             for each (let dname in target.depends) {
                 let dep = bit.targets[dname]
                 if (dep && dep.enable) {
@@ -2851,15 +2959,18 @@ public class Bit {
                     }
                 }
             }
-            if (deps.length > 0) {
-                if (oneline && len < 80) {
-                    return deps.join(' ')
-                } else {
-                    return '\\\n    ' + deps.join(' \\\n    ')
-                }
-            }
-            return ''
         }
+        if (bit.platform.like == 'windows') {
+            deps = deps.map(function (f) f.relative.windows)
+        }
+        if (deps.length > 0) {
+            if (oneline && len < 80) {
+                return deps.join(' ')
+            } else {
+                return '\\\n    ' + deps.join(' \\\n    ')
+            }
+        }
+        return ''
     }
 
     /*
@@ -2990,7 +3101,7 @@ public class Bit {
         for each (item in target.scripts[when]) {
             let pwd = App.dir
             if (item.home && item.home != pwd) {
-                App.chdir(item.home)
+                App.chdir(expand(item.home))
             }
             global.TARGET = bit.target = target
             try {
@@ -3013,7 +3124,7 @@ public class Bit {
         for each (item in scripts) {
             let pwd = App.dir
             if (item.home && item.home != pwd) {
-                App.chdir(home)
+                App.chdir(expand(item.home))
             }
             try {
                 script = 'require ejs.unix\n' + expand(item.script)
@@ -3108,8 +3219,10 @@ public class Bit {
             return true
         }
         for each (file in target.files) {
-            if (target.tree) {
-                let p = path.join(file.relativeTo(target.home))
+            //  MOB - unused
+            //  MOB - expand
+            if (target.subtree) {
+                let p = path.join(file.trimStart(target.subtree + '/'))
                 if (!file.isDir && file.modified > p.modified) {
                     whyRebuild(path, 'Rebuild', 'input ' + file + ' has been modified.')
                     return true
@@ -3316,6 +3429,7 @@ public class Bit {
         }
     }
 
+/* UNUSED
     function makeDir(path: String): Void {
         if (isDir(path)) {
             return
@@ -3323,8 +3437,9 @@ public class Bit {
         trace('Create', 'Directory ' + path)
         mkdir(path, 0755)
     }
+*/
 
-    function copyFile(from: Path, to: Path) {
+    function safeCopy(from: Path, to: Path) {
         let p: Path = new Path(to)
         if (to.exists && !options.overwrite) {
             if (!from.isDir) {
@@ -3351,15 +3466,17 @@ public class Bit {
         }
     }
 
-    public function strace(tag, msg) {
+    //  MOB - should allow vargs
+    public function strace(tag, ...msg) {
         if (options.show) {
-            trace(tag, msg)
+            trace(tag, ...msg)
         }
     }
 
-    public function vtrace(tag, msg) {
+    //  MOB - should allow vargs
+    public function vtrace(tag, ...msg) {
         if (options.verbose) {
-            trace(tag, msg)
+            trace(tag, ...msg)
         }
     }
 
@@ -3372,18 +3489,21 @@ public class Bit {
         }
     }
 
+    //  MOB - should allow vargs
     public function whySkip(path, msg) {
         if (options.why) {
             trace('Target', path + ' ' + msg)
         }
     }
 
+    //  MOB - should allow vargs
     function whyMissing(msg) {
         if (options.why) {
             trace('Missing', msg)
         }
     }
 
+    //  MOB - should allow vargs
     function diagnose(msg) {
         if (options.diagnose) {
             trace('Debug', msg)
@@ -3435,7 +3555,7 @@ public class Bit {
         genout.writeLine(repvar(str))
     }
 
-    public function gen(str: String) {
+    public function genScript(str: String) {
         capture.push(repvar(str))
     }
 
@@ -3705,7 +3825,387 @@ public class Bit {
         }
         return (((major * VER_FACTOR) + minor) * VER_FACTOR) + patch
     }
-}
+
+    /**
+        Copy files
+        @param src Source files/directories to copy. This can be a String, Path or array of String/Paths. 
+            The wildcards "*", "**" and "?" are the only wild card patterns supported. The "**" pattern matches
+            every directory and file. The Posix "[]" and "{a,b}" style expressions are not supported.
+            If src is an existing directory, then the pattern is converted to 'dir/**' and the tree option is enabled.
+        @param dest Destination file or directory. If multiple files are copied, dest is assumed to be a directory and
+            will be created if required. If dest has a trailing "/", it is assumed to be a directory.
+        @param options Processing and file options
+        @option active If destination is an active executable or shared library, rename the active file using a
+            '.old' extension and retry the copy.
+        @option compress Compress target file
+        @option copytemp Copy files that look like temp files
+        @option exclude Exclude files that match the pattern. The pattern should be in portable file format.
+        @option expand Expand tokens. Set to true or an Object hash containing properties to use when replacing 
+            tokens of the form ${token} in the src and dest filenames. If set to true, the 'bit' object is used.
+        @option fold Fold long lines on windows at column 80 and convert new line endings.
+        @option group Set file group
+        @option include Include files that match the pattern. The pattern should be in portable file format.
+        @option linkin Add a symbolic link to the destination in this directory
+        @option permissions Set file permissions
+        @option strip Strip object or executable
+        @option subtree If tree is enabled, trim the subtree portion off destination filenames.
+        @option user Set file file user
+     */
+    public function copy(src, dest: Path, options = {}) {
+        dest = Path(expand(dest))
+        if (!(src is Array)) src = [src]
+
+        if (options.cat) {
+            let files = []
+            for each (pat in src) {
+                pat = Path(expand(pat))
+                files += Path('.').files(pat, {missing: undefined})
+            }
+            src = files.unique()
+        } 
+        for each (let pattern: Path in src) {
+            let dir: Path, destBase: Path
+            pattern = Path(expand(pattern))
+            if (pattern.isDir) {
+                //UNUSED dir = pattern.relative
+                pattern = Path(pattern.name + '/**')
+            }
+            /*
+                Build file list
+             */
+            list = Path('.').files(pattern, options)
+            if (bit.options.verbose) {
+                dump('Copy-Files', list)
+            }
+            if (!list || list.length == 0) {
+                if (bit.generating) {
+                    list = pattern
+                } else if (!options.cat && src.length > 0) {
+                    throw 'cp: Cannot find files to copy for "' + pattern + '" to ' + dest
+                }
+            }
+            let destIsDir = (dest.isDir || (!options.cat && list.length > 1) || dest.name.endsWith('/'))
+
+            for each (let from: Path in list) {
+                let to
+        /* 
+                if (dir) {
+                    to = dest.join(dir, from).normalize
+                } else 
+         */
+                if (options.subtree) {
+                    to = dest.join(from.trimStart(options.subtree.name + '/'))
+                } else if (destIsDir) {
+                    to = dest.join(from.basename)
+                } else {
+                    to = dest
+                }
+                from = from.relative.portable
+                if (!options.copytemp && from.match(TempFilter)) {
+                    vtrace('Skip', 'Copying temp file', from)
+                    continue
+                }
+                attributes = options.clone()
+                if (!bit.generating) {
+                    attributes.permissions ||= from.attributes.permissions
+                }
+                if (bit.generating) {
+                    if (options.cat || options.expand || options.fold || options.compress) {
+                        dump("OPTIONS", options)
+                        throw "Cannot use processing options when generating"
+                    }
+                    makeDir(to.dirname, options)
+                    if (from.isDir) {
+                        makeDir(to, options)
+                    } else {
+                        copyFile(from, to, options)
+                    }
+                    if (options.linkin) {
+                        linkFile(to, Path(expand(options.linkin)).join(to.basename), options)
+                    }
+
+                } else {
+                    makeDir(to.dirname)
+                    if (options.cat) {
+                        catenate(from, to, attributes)
+                    } else {
+                        if (from.isDir) {
+                            makeDir(to, options)
+                        } else {
+                            try {
+                                copyFile(from, to, attributes)
+                            } catch (e) {
+                                if (options.active) {
+                                    let active = to.replaceExt('old')
+                                    active.remove()
+                                    to.rename(active)
+                                }
+                                copyFile(from, to, attributes)
+                            }
+                        }
+                    }
+                    if (options.expand) {
+                        strace('Expand', to)
+                        let o = bit
+                        if (options.expand != true) {
+                            o = options.expand
+                        }
+                        to.write(to.readString().expand(o, {fill: '${}'}))
+                        to.setAttributes(attributes)
+                    }
+                    if (options.fold) {
+                        strace('Fold', to)
+                        foldLines(to)
+                        to.setAttributes(attributes)
+                    }
+                    if (options.strip && bit.packs.strip && bit.platform.profile == 'release') {
+                        strace('Strip', to)
+                        Cmd.run(bit.packs.strip.path + ' ' + to)
+                    }
+                    if (options.compress) {
+                        let zname = Path(to.name + '.gz')
+                        strace('Compress', zname)
+                        zname.remove()
+                        Zlib.compress(to.name, zname)
+                        to.remove()
+                        to = zname
+                    }
+                    if (options.filelist) {
+                        if (!to.isDir) {
+                            options.filelist.push(to)
+                        }
+                    }
+                    if (options.linkin) {
+                        let linkin = Path(expand(options.linkin))
+                        linkin.makeDir(options)
+                        let lto = linkin.join(from.basename)
+                        linkFile(to.relativeTo(lto.dirname), lto, options)
+                        if (options.filelist) {
+                            options.filelist.push(lto)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    /* MOB UNUSED install only
+        if (App.uid == 0 && to.extension == 'so' && Config.OS == 'linux') {
+            let ldconfig = Cmd.locate('ldconfig')
+            if (ldconfig) {
+                Cmd.run('ldconfig ' + to)
+            }
+        }
+    */
+        //  if (to.extension == bit.ext.shobj)
+        //  MOB - check this
+        //  for each (f in abin.files('*.so.*')) {
+        //      let nover = to.basename.name.replace(/\.[0-9]*.*/, '.so')
+        //      to.remove()
+        //      to.symlink(to.dirname.join(nover).basename)
+        //      //MOB - not right
+        //      options.filelist.push(to)
+        //  }
+        //
+
+    /*
+        Fold long lines at column 80. On windows, will also convert line terminatations to <CR><LF>.
+     */
+    function foldLines(path: Path) {
+        let lines = path.readLines()
+        let out = new TextStream(new File(path, 'wt'))
+        for (l = 0; l < lines.length; l++) {
+            let line = lines[l]
+            if (line.length > 80) {
+                for (i = 79; i >= 0; i--) {
+                    if (line[i] == ' ') {
+                        lines[l] = line.slice(0, i)
+                        lines.insert(l + 1, line.slice(i + 1))
+                        break
+                    }
+                }
+                if (i == 0) {
+                    lines[l] = line.slice(0, 80)
+                    lines.insert(l + 1, line.slice(80))
+                }
+            }
+            out.writeLine(lines[l])
+        }
+        out.close()
+    }
+
+
+    function getatt(attributes) {
+        let att = ''
+        if (attributes.group) {
+            att += '-g ' + attributes.group
+        }
+        if (attributes.user) {
+            att += '-u ' + attributes.user
+        }
+        if (attributes.permissions) {
+            att += '-m ' + attributes.permissions.toString().trimStart('0')
+        }
+        return (att) ? (att + ' ') : att
+    }
+
+
+    public function linkFile(src: Path, dest: Path, options = {}) {
+        if (!bit.generating) {
+            strace('Create', 'Link: ' + dest)
+            if (!options.dry) {
+                dest.remove()
+                src.link(dest)
+            }
+        } else if (bit.generating != 'nmake') {
+            genout.writeLine('\trm -f "' + dest + '"')
+            genout.writeLine('\tmkdir -p "' + dest.parent + '"')
+            genout.writeLine('\tln -s "' + src + '" "' + dest + '"')
+        }
+    }
+
+
+    public function makeDir(path: Path, options = {}) {
+        if (!bit.generating) {
+            if (!options.dry) {
+                if (!path.isDir) {
+                    strace('Create', 'Directory: ' + path)
+                    if (!path.makeDir(options)) {
+                        throw "Cannot make directory" + path
+                    }
+                }
+            }
+        } else {
+            if (options.made) {
+                if (options.made[path]) {
+                    return
+                }
+                options.made[path] = true
+            }
+            if (bit.generating == 'nmake') {
+                /* BUG FIX */
+                if (path.name.endsWith('/')) {
+                    genout.writeLine('\tif not exist "' + path.windows + '/" md "' + path.windows + '/"')
+                } else {
+                    genout.writeLine('\tif not exist "' + path.windows + '" md "' + path.windows + '"')
+                }
+            } else {
+                let att = getatt(options)
+                if (att) {
+                    genout.writeLine('\tinstall -d ' + att + '"' + path + '"')
+                } else {
+                    genout.writeLine('\tmkdir -p "' + path + '"')
+                }
+            }
+        }
+    }
+
+
+    public function removeFile(path: Path, options = {}) {
+        if (!bit.generating) {
+            strace('Remove', path)
+            if (!options.dry) {
+                if (!path.remove()) {
+                    throw "Cannot remove " + path
+                }
+            }
+        } else {
+            if (bit.generating == 'nmake') {
+                genout.writeLine('\tif exist "' + path.windows + '" rd /Q "' + path.windows + '"')
+            } else {
+                genout.writeLine('\trm -f "' + path + '"')
+            }
+        }
+    }
+
+
+    public function removeDir(path: Path, options = {}) {
+        if (!bit.generating) {
+            strace('Remove', path)
+            if (!options.dry) {
+                if (options.empty) {
+                    path.remove()
+                } else {
+                    path.removeAll()
+                }
+            }
+        } else {
+            if (bit.generating == 'nmake') {
+                if (options.empty) {
+                    genout.writeLine('\tif exist "' + path.windows + '" rd /Q "' + path.windows + '"')
+                } else {
+                    genout.writeLine('\tif exist "' + path.windows + '" rd /Q /S"' + path.windows + '"')
+                }
+            } else {
+                if (options.empty) {
+                    genout.writeLine('\trmdir -p "' + path + '"')
+                } else {
+                    genout.writeLine('\trm -fr "' + path + '"')
+                }
+            }
+        }
+    }
+
+
+    public function copyFile(src: Path, dest: Path, options = {}) {
+        if (!bit.generating) {
+            strace('Copy', 'cp ' + src + ' ' + dest)
+            if (!options.dry) {
+                src.copy(dest, options)
+            }
+        } else if (bit.generating == 'nmake') {
+            genout.writeLine('\tcopy /Y "' + src.relative.windows + '" "' + dest.windows + '"')
+        } else {
+            let att = getatt(options)
+            if (att) {
+                genout.writeLine('\tinstall ' + getatt(options) + '"' + src + '" "' + dest + '"')
+            } else {
+                genout.writeLine('\tcp "' + src + '" "' + dest + '"')
+            }
+        }
+    }
+
+
+    public function catenate(from, target, options) {
+        strace('Combine', from.relative)
+        if (!target.exists) {
+            if (options.title) {
+                if (options.textfile) {
+                    target.write('#\n' +
+                       '#   ' + target.basename + ' -- ' + options.title + '\n' + 
+                       '#\n')
+                } else {
+                    target.write('/*\n' +
+                       '    ' + target.basename + ' -- ' + options.title + '\n\n' +
+                       '    This file is a catenation of all the source code. Amalgamating into a\n' +
+                       '    single file makes embedding simpler and the resulting application faster.\n\n' + 
+                       '    Prepared by: ' + System.hostname + '\n */\n\n')
+                }
+            }
+            if (options.header) {
+                target.append(options.header + '\n')
+            }
+        }
+        if (options.textfile) {
+            target.append('\n' +
+               '#\n' +
+               '#   Start of file \"' + from.relative + '\"\n' +
+               '#\n')
+        } else {
+            target.append('\n' +
+               '/************************************************************************/\n' +
+               '/*\n    Start of file \"' + from.relative + '\"\n */\n' +
+               '/************************************************************************/\n\n')
+        }
+        let data = from.readString()
+        if (options.filter) {
+            data = data.replace(options.filter, '')
+        }
+        target.append(data)
+        target.setAttributes(options)
+    }
+
+
+} /* bit class */
 
 } /* bit module */
 
@@ -3748,17 +4248,17 @@ public function program(name: Path, description = null): Path {
 public function action(command: String, options = null)
     b.action(command, options)
 
-public function trace(tag, msg)
-    b.trace(tag, msg)
+public function trace(tag, ...msg)
+    b.trace(tag, ...msg)
 
-public function strace(tag, msg)
-    b.strace(tag, msg)
+public function strace(tag, ...msg)
+    b.strace(tag, ...msg)
     
-public function vtrace(tag, msg)
-    b.vtrace(tag, msg)
+public function vtrace(tag, ...msg)
+    b.vtrace(tag, ...msg)
 
-public function install(src, dest: Path, options = {})
-    b.install(src, dest, options)
+public function copy(src, dest: Path, options = {})
+    b.copy(src, dest, options)
 
 public function package(formats)
     b.package(formats)
@@ -3778,6 +4278,21 @@ public function setRuleVars(target, dir = App.dir)
 public function makeDirGlobals(base: Path? = null)
     b.makeDirGlobals(base)
 
+public function makeDir(path: Path, options = {})
+    b.makeDir(path, options)
+
+public function copyFile(src: Path, dest: Path, options = {})
+    b.copyFile(src, dest, options)
+
+public function linkFile(src: Path, dest: Path, options = {})
+    b.linkFile(src, dest, options)
+
+public function removeDir(path: Path, options = {})
+    b.removeDir(path, options)
+
+public function removeFile(path: Path, options = {})
+    b.removeFile(path, options)
+
 public function runTargetScript(target, when)
     b.runTargetScript(target, when)
 
@@ -3787,8 +4302,8 @@ public function whyRebuild(path, tag, msg)
 public function expand(rule)
     b.expand(rule)
 
-public function gen(s)
-    b.gen(s)
+public function genScript(s)
+    b.genScript(s)
 
 public function runScript(scripts)
     b.runScript(scripts)

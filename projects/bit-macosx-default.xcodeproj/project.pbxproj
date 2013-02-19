@@ -1049,9 +1049,7 @@ cp -r src/bit.es macosx-x64-default/bin/bit.es
 ../bits/embedthis.bit,
 ../bits/embedthis.es,
 ../bits/gendoc.es,
-../bits/getbitvals,
 ../bits/os,
-../bits/os/a.tmp,
 ../bits/os/freebsd.bit,
 ../bits/os/gcc.bit,
 ../bits/os/linux.bit,
@@ -1061,7 +1059,6 @@ cp -r src/bit.es macosx-x64-default/bin/bit.es
 ../bits/os/vxworks.bit,
 ../bits/os/windows.bit,
 ../bits/packs,
-../bits/packs/a.tmp,
 ../bits/packs/compiler.pak,
 ../bits/packs/doxygen.pak,
 ../bits/packs/dsi.pak,
@@ -1105,8 +1102,105 @@ cp -r src/bit.es macosx-x64-default/bin/bit.es
 			shellPath = /bin/bash;
 			shellScript = "PATH=$PATH:/usr/local/bin
 cd ..
-rm -fr macosx-x64-default/bin/bits
-cp -r bits macosx-x64-default/bin";
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/embedthis-manifest.bit macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/embedthis.bit macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/embedthis.es macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/gendoc.es macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/os macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/os/freebsd.bit macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/os/gcc.bit macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/os/linux.bit macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/os/macosx.bit macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/os/posix.bit macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/os/solaris.bit macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/os/vxworks.bit macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/os/windows.bit macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/compiler.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/doxygen.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/dsi.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/dumpbin.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/ejs.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/ejscript.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/est.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/http.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/lib.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/link.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/man.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/man2html.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/matrixssl.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/md5.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/mocana.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/openssl.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/pcre.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/pmaker.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/ranlib.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/rc.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/sqlite.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/ssl.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/strip.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/tidy.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/utest.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/vxworks.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/winsdk.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/zip.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/zlib.pak macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/sample-main.bit macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/sample-start.bit macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/simple.bit macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/standard.bit macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/vstudio.es macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/xcode.es macosx-x64-default/bin/bits
+";
 		};
 		493D3589493D470700000029 /* ShellScript for Prep */ = {
 			isa = PBXShellScriptBuildPhase;

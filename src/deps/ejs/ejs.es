@@ -16373,15 +16373,6 @@ module ejs.unix {
 
             for each (let file: Path in list) {
                 let to, from = base.join(file)
-/*
-    2 kinds of tree
-    auto: sets base
-    explicit: base == '.'
-
-    auto
-        /some/path/
-                base => /some/path
- */
                 if (options.tree) {
                     to = dest.join(base, file).normalize
                 } else if (destIsDir) {
