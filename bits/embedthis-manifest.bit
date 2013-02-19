@@ -64,13 +64,6 @@ Bit.load({
                 set:        'core',
                 enable:     "bit.platform.like == 'posix'",
 
-           }, {
-                from:       [ 'package/linkup' ],
-                to:         '${abin}/',
-                permissions: 0755,
-                expand:     true,
-                set:        'package',
-
             }, {
                 from:       '${packs.compiler.dir}/VC/redist/${platform.arch}/Microsoft.VC${packs.compiler.crt}.CRT/msvcr${packs.compiler.crt}.dll',
                 to:         '${abin}',
