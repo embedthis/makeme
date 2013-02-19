@@ -2504,7 +2504,7 @@ public class Bit {
                 safeRemove(target.path)
             }
         }
-        trace('Copy', target.path)
+        trace('Copy', target.path.portable)
         for each (let file: Path in target.files) {
             if (file == target.path) {
                 /* Auto-generated headers targets for includes have file == target.path */
@@ -4168,7 +4168,7 @@ public class Bit {
 
     public function copyFile(src: Path, dest: Path, options = {}) {
         if (!bit.generating) {
-            strace('Copy', 'cp ' + src + ' ' + dest)
+            strace('XXCopy', 'cp ' + src.portable + ' ' + dest.portable)
             if (!options.dry) {
                 src.copy(dest, options)
             }
