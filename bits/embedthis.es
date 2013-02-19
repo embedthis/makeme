@@ -247,7 +247,6 @@ function checkRoot() {
 
 
 public function installBinary() {
-print("IB")
     let [manifest, package, prefixes] = setupPackage('install', true)
     if (package) {
         checkRoot()
