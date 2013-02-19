@@ -1051,8 +1051,8 @@ public class Bit {
             }
         } else if (o[field] && o[field].startsWith) {
             if (!o[field].startsWith('${') && !o[field].startsWith('$(')) {
-                if (value.endsWith('/')) {
-                    o[field][key] = Path(home.join(o[field]) + '/')
+                if (o[field].endsWith('/')) {
+                    o[field] = Path(home.join(o[field]) + '/')
                 } else {
                     o[field] = home.join(o[field])
                 }

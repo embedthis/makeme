@@ -14,7 +14,7 @@
     Idempotent. "appweb start" returns 0 if already started.
 
     Typical use:
-        manager --program /usr/lib/bin/ejs --args "/usr/src/farm/farm-client" --home /usr/src/farm/client \
+        manager --program /usr/local/bin/ejs --args "/usr/src/farm/farm-client" --home /usr/src/farm/client \
             --pidfile /var/run/farm-client.pid run
 
     Copyright (c) All Rights Reserved. See copyright notice at the bottom of the file.
