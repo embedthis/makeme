@@ -74,9 +74,9 @@ public function deploy(manifest, prefixes, package): Array {
             }
             if (item.from) {
                 copy(item.from, item.to, item)
-                if (item.postcopy) {
-                    eval('require ejs.unix\n' + expand(item.postcopy))
-                }
+            }
+            if (item.postcopy) {
+                eval('require ejs.unix\n' + expand(item.postcopy))
             }
         }
     }
@@ -254,9 +254,11 @@ public function installBinary() {
         trace('Install', bit.settings.title)
         files = deploy(manifest, bit.prefixes, package) 
         makeFiles(prefixes.vapp, prefixes.root, files, bit.prefixes)
+/* UNUSED
         if (!bit.cross && Config.OS != 'windows') {
             linkFile(bit.settings.version, bit.prefixes.app.join('latest'))
         }
+ */
         trace('Complete', bit.settings.title + ' installed')
     }
     delete bit.installing

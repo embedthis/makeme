@@ -4168,7 +4168,7 @@ public class Bit {
 
     public function copyFile(src: Path, dest: Path, options = {}) {
         if (!bit.generating) {
-            strace('XXCopy', 'cp ' + src.portable + ' ' + dest.portable)
+            strace('Copy', 'cp ' + src.portable + ' ' + dest.portable)
             if (!options.dry) {
                 src.copy(dest, options)
             }

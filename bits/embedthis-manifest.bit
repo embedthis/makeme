@@ -12,7 +12,7 @@ Bit.load({
         },
 
         files: [
-            {
+           {
                 from:       [ 'doc/product/README.TXT', 'package/install.sh', 'package/uninstall.sh' ],
                 to:         '${media}/',
                 expand:     true,
@@ -24,7 +24,7 @@ Bit.load({
                 expand:     true,
                 fold:       true,
                 set:        'package',
-                enable:     'bit.platform.os' == 'windows',
+                enable:     "bit.platform.os == 'windows'",
 
            }, {
                 //   MOB - does this mean windows has 2 licenses?
@@ -35,7 +35,7 @@ Bit.load({
                 fold:       true,
                 set:        'package',
                 title:      '${settings.title} Licenses',
-                enable:     'bit.platform.os' == 'windows',
+                enable:     "bit.platform.os == 'windows'",
 
            }, {
                 from:       [ 'doc/product/README.TXT' ],
@@ -58,6 +58,12 @@ Bit.load({
                 permissions: 0755,
                 set:        'package',
 
+            }, {
+                postcopy:    "linkFile('${settings.version}', '${app}/latest')",
+                linkin:     '${app}',
+                set:        'core',
+                enable:     "bit.platform.like == 'posix'",
+
            }, {
                 from:       [ 'package/linkup' ],
                 to:         '${abin}/',
@@ -66,9 +72,10 @@ Bit.load({
                 set:        'package',
 
             }, {
-                from: '${packs.compiler.dir}/VC/redist/${platform.arch}/Microsoft.VC${packs.compiler.crt}.CRT/msvcr${packs.compiler.crt}.dll',
-                to:          '${abin}',
-                enable:      "bit.platform.os == 'windows' && !bit.generating",
+                from:       '${packs.compiler.dir}/VC/redist/${platform.arch}/Microsoft.VC${packs.compiler.crt}.CRT/msvcr${packs.compiler.crt}.dll',
+                to:         '${abin}',
+                set:        'package',
+                enable:     "bit.platform.os == 'windows' && !bit.generating",
 
             }, {
                 from:        '${BIN}/removeFiles${EXE}',
