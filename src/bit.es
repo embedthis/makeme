@@ -1042,12 +1042,20 @@ public class Bit {
         if (o[field] is Array) {
             for (let [key,value] in o[field]) {
                 if (!value.startsWith('${') && !value.startsWith('$(')) {
-                    o[field][key] = home.join(value)
+                    if (value.endsWith('/')) {
+                        o[field][key] = Path(home.join(value) + '/')
+                    } else {
+                        o[field][key] = home.join(value)
+                    }
                 }
             }
         } else if (o[field] && o[field].startsWith) {
             if (!o[field].startsWith('${') && !o[field].startsWith('$(')) {
-                o[field] = home.join(o[field])
+                if (value.endsWith('/')) {
+                    o[field][key] = Path(home.join(o[field]) + '/')
+                } else {
+                    o[field] = home.join(o[field])
+                }
             }
         }
     }
@@ -2504,7 +2512,7 @@ public class Bit {
                 safeRemove(target.path)
             }
         }
-        trace('Copy', target.path.portable)
+        trace('Copy', target.path.relative.portable)
         for each (let file: Path in target.files) {
             if (file == target.path) {
                 /* Auto-generated headers targets for includes have file == target.path */
@@ -3839,7 +3847,9 @@ public class Bit {
         @param src Source files/directories to copy. This can be a String, Path or array of String/Paths. 
             The wildcards "*", "**" and "?" are the only wild card patterns supported. The "**" pattern matches
             every directory and file. The Posix "[]" and "{a,b}" style expressions are not supported.
-            If src is an existing directory, then the pattern is converted to 'dir/**' and the tree option is enabled.
+            If a src item is an existing directory, then the pattern is converted to 'dir/**' and the 
+            tree option is enabled.
+            if a src item ends with "/", then the contents of that directory are copied without the directory itself.
         @param dest Destination file or directory. If multiple files are copied, dest is assumed to be a directory and
             will be created if required. If dest has a trailing "/", it is assumed to be a directory.
         @param options Processing and file options
@@ -3876,8 +3886,13 @@ public class Bit {
             let dir: Path, destBase: Path
             pattern = Path(expand(pattern))
             if (pattern.isDir) {
-                subtree = pattern.normalize.dirname
-                pattern = Path(pattern.name + '/**')
+                if (pattern.name.endsWith('/')) {
+                    subtree = pattern.normalize
+                } else {
+                    subtree = pattern.normalize.dirname
+                }
+                pattern = Path(pattern.normalize.name + '/**')
+                options = blend({exclude: /\/$/}, options, {overwrite: false})
             }
             /*
                 Build file list

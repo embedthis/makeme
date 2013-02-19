@@ -129,34 +129,9 @@ Bit.load({
         bits: {
             type: 'file',
             path: '${BIN}/bits',
-            files: [ 'bits/**' ],
-            exclude: /\/$/,
-            subtree: 'bits/',
+            files: [ 'bits/' ],
             precious: true,
         }
-
-        _bits: {
-            enable: false,
-            path: '${BIN}/bits/',
-            files: [ 'bits/**' ],
-            precious: true,
-            build: "
-                trace('MMMCopy', 'Bit bits')
-                rmdir(bit.dir.lib.join('bits'))
-                mkdir(bit.dir.lib.join('bits'))
-                cp('bits', bit.dir.lib)
-            "
-            'generate-nmake': '\
-                if exist "${BIN}\\bits" rd /Q /S "${BIN}\\bits"
-                if not exist "${BIN}\\bits" md "${BIN}\\bits"
-                xcopy /S /Y "bits" "${BIN}\\bits"
-            ',
-            'generate-sh': "\
-                rm -fr ${BIN}/bits
-                cp -r bits ${BIN}
-            ",
-            platforms: [ 'local' ],
-        },
 
         projects: {
             action: "

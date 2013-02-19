@@ -25,3 +25,4 @@ projects/.flags
 .prefixes
 *.tmp
 .DS_Store
+*.dmp
