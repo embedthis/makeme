@@ -82,6 +82,7 @@ prep:
 		echo cp projects/bit-freebsd-default-bit.h $(CONFIG)/inc/bit.h  ; \
 		cp projects/bit-freebsd-default-bit.h $(CONFIG)/inc/bit.h  ; \
 	fi; true
+
 clean:
 	rm -rf $(CONFIG)/bin/libest.so
 	rm -rf $(CONFIG)/bin/ca.crt
@@ -98,7 +99,6 @@ clean:
 	rm -rf $(CONFIG)/obj/estLib.o
 	rm -rf $(CONFIG)/obj/mprLib.o
 	rm -rf $(CONFIG)/obj/mprSsl.o
-	rm -rf $(CONFIG)/obj/manager.o
 	rm -rf $(CONFIG)/obj/makerom.o
 	rm -rf $(CONFIG)/obj/pcre.o
 	rm -rf $(CONFIG)/obj/httpLib.o
@@ -106,7 +106,6 @@ clean:
 	rm -rf $(CONFIG)/obj/ejsLib.o
 	rm -rf $(CONFIG)/obj/ejs.o
 	rm -rf $(CONFIG)/obj/ejsc.o
-	rm -rf $(CONFIG)/obj/removeFiles.o
 	rm -rf $(CONFIG)/obj/bit.o
 
 clobber: clean
@@ -441,7 +440,7 @@ $(CONFIG)/bin/bit: \
 	$(CC) -o $(CONFIG)/bin/bit $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/bit.o -lejs -lhttp -lmpr $(LIBS) -lpcre -lejs -lhttp -lmpr -lpthread -lm -ldl -lpcre $(LDFLAGS)
 
 version: 
-	@cd bits; echo 0.8.2-0 ; cd ..
+	@echo 0.8.2-0
 
 stop: 
 	
