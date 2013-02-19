@@ -342,7 +342,7 @@ Bit.load({
                             trace('Test', 'Install is missing files: ' + missing)
                         }
                         trace('Test', bit.settings.product + ' -V')
-                        assert(Cmd.run([bit.prefixes.bin.join('bit'), '-V']).trim() == 
+                        assert(Cmd.run([bit.prefixes.bin.join(bit.settings.product), '-V']).trim() == 
                             (bit.settings.version + '-' + bit.settings.buildNumber))
                         uninstallPackage()
                         if (Config.OS == 'windows') App.sleep(1000)
