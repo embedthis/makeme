@@ -1483,7 +1483,7 @@ public class Bit {
         genout.writeLine('\t@if ! diff $(CONFIG)/inc/bit.h projects/' + pop + '-bit.h >/dev/null ; then\\')
         genout.writeLine('\t\techo cp projects/' + pop + '-bit.h $(CONFIG)/inc/bit.h  ; \\')
         genout.writeLine('\t\tcp projects/' + pop + '-bit.h $(CONFIG)/inc/bit.h  ; \\')
-        genout.writeLine('\tfi; true')
+        genout.writeLine('\tfi; true\n')
         genout.writeLine('clean:')
         action('cleanTargets')
         genout.writeLine('\nclobber: clean\n\trm -fr ./$(CONFIG)\n')
@@ -1544,10 +1544,7 @@ public class Bit {
         genout.writeLine('\t@if not exist $(CONFIG)\\bin md $(CONFIG)\\bin')
         genout.writeLine('\t@if not exist $(CONFIG)\\inc md $(CONFIG)\\inc')
         genout.writeLine('\t@if not exist $(CONFIG)\\obj md $(CONFIG)\\obj')
-        genout.writeLine('\t@if not exist $(CONFIG)\\inc\\bit.h ' + 'copy projects\\' + pop + '-bit.h $(CONFIG)\\inc\\bit.h')
-        /* UNUSED
-        genout.writeLine('\t@echo $(DFLAGS) $(CFLAGS) >projects/.flags\n')
-        */
+        genout.writeLine('\t@if not exist $(CONFIG)\\inc\\bit.h ' + 'copy projects\\' + pop + '-bit.h $(CONFIG)\\inc\\bit.h\n')
         genout.writeLine('clean:')
         action('cleanTargets')
         genout.writeLine('')
@@ -2009,6 +2006,9 @@ public class Bit {
     function expandWildcards() {
         let index
         for each (target in bit.targets) {
+            if (!target.enable) {
+                continue
+            }
             runTargetScript(target, 'presource')
             if (target.files) {
                 target.files = buildFileList(target, target.files, target.exclude)
