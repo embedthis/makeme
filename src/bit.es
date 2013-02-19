@@ -22,7 +22,7 @@ public class Bit {
     /*
         Filter for files that look like temp files and should not be installed
      */
-    private const TempFilter = /\.makedep$|\.o$|\.pdb$|\.tmp$|\.save$|\.sav$|OLD|\/Archive\/|\/sav\/|\/save\/|oldFiles|\.libs\/|\.nc|\.orig|\.svn|\.git|^\.[a-zA-Z_]|\.swp$|\.new$|\.nc$|.DS_Store/
+    private const TempFilter = /\.old$|\.tmp$|xcuserdata|xcworkspace|project.guid|-mine|\/sav\/|\/save\//
 
     private var appName: String = 'bit'
     private var args: Args
@@ -3870,7 +3870,7 @@ public class Bit {
             let dir: Path, destBase: Path
             pattern = Path(expand(pattern))
             if (pattern.isDir) {
-                subtree = pattern.normalize
+                subtree = pattern.normalize.dirname
                 pattern = Path(pattern.name + '/**')
             }
             /*
