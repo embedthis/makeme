@@ -177,9 +177,11 @@ function setupPackage(kind) {
 
 function makeFiles(where, root, files, prefixes) {
     if (!bit.generating) {
+        let flog = where.join('files.log')
+        files += [flog]
         files = files.sort().unique().filter(function(f) f.startsWith(root))
         files = files.map(function(f) '/' + f.relativeTo(root))
-        where.join('files.log').write(files.join('\n') + '\n')
+        flog.write(files.join('\n') + '\n')
     }
 }
 

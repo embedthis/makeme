@@ -42156,7 +42156,7 @@ static EjsArray *globPath(Ejs *ejs, EjsArray *results, cchar *path, cchar *base,
         }
         filename = (flags & MPR_PATH_RELATIVE) ? mprJoinPath(base, dp->name) : mprJoinPath(path, dp->name);
         if (add && (include || exclude)) {
-            matchFile = dp->isDir ? sjoin(filename, "/", NULL) : filename;
+            matchFile = (dp->isDir && !dp->isLink) ? sjoin(filename, "/", NULL) : filename;
             if (include && pcre_exec(include->compiled, NULL, matchFile, (int) slen(matchFile), 0, 0, NULL, 0) < 0) {
                 add = 0;
             }
