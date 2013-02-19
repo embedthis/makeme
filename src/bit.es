@@ -2688,7 +2688,12 @@ public class Bit {
             if (file == target.path) {
                 continue
             }
-            copy(reppath(file), reppath(target.path), target)
+            if (target.subtree) {
+                /* File must be abs to allow for a subtree substitution */
+                copy(file, reppath(target.path), target)
+            } else {
+                copy(reppath(file), reppath(target.path), target)
+            }
         }
         genout.writeLine()
         delete target.made
