@@ -341,9 +341,9 @@ Bit.load({
                         if (missing = checkInstalled()) {
                             trace('Test', 'Install is missing files: ' + missing)
                         }
-                        let s = bit.settings
-                        trace('Test', 'bit -V')
-                        assert(Cmd.run([bit.prefixes.bin.join('bit'), '-V']).trim() == s.version + '-' + s.buildNumber)
+                        trace('Test', bit.settings.product + ' -V')
+                        assert(Cmd.run([bit.prefixes.bin.join('bit'), '-V']).trim() == 
+                            (bit.settings.version + '-' + bit.settings.buildNumber))
                         uninstallPackage()
                         if (Config.OS == 'windows') App.sleep(1000)
                         if (existing = checkUninstalled()) {
