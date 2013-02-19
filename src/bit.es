@@ -7,6 +7,8 @@
 module embedthis.bit {
 
 require ejs.unix
+require ejs.zlib
+
 
 public class Bit {
     public var initialized: Boolean
@@ -2961,7 +2963,7 @@ public class Bit {
             }
         }
         if (bit.platform.like == 'windows') {
-            deps = deps.map(function (f) f.relative.windows)
+            deps = deps.map(function (f) Path(f).relative.windows)
         }
         if (deps.length > 0) {
             if (oneline && len < 80) {
@@ -3854,6 +3856,7 @@ public class Bit {
     public function copy(src, dest: Path, options = {}) {
         dest = Path(expand(dest))
         if (!(src is Array)) src = [src]
+        let subtree = options.subtree
 
         if (options.cat) {
             let files = []
@@ -3867,7 +3870,7 @@ public class Bit {
             let dir: Path, destBase: Path
             pattern = Path(expand(pattern))
             if (pattern.isDir) {
-                //UNUSED dir = pattern.relative
+                subtree = pattern.normalize
                 pattern = Path(pattern.name + '/**')
             }
             /*
@@ -3888,13 +3891,8 @@ public class Bit {
 
             for each (let from: Path in list) {
                 let to
-        /* 
-                if (dir) {
-                    to = dest.join(dir, from).normalize
-                } else 
-         */
-                if (options.subtree) {
-                    to = dest.join(from.trimStart(options.subtree.name + '/'))
+                if (subtree) {
+                    to = dest.join(from.trimStart(subtree.name + '/'))
                 } else if (destIsDir) {
                     to = dest.join(from.basename)
                 } else {
