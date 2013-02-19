@@ -118,10 +118,15 @@ $(CONFIG)\inc\bitos.h:
 	copy /Y "src\bitos.h" "\Users\mob\git\bit\windows-x86-default\inc\bitos.h"
 
 $(CONFIG)\obj\estLib.obj: \
-    src\deps\est\estLib.c
+    src\deps\est\estLib.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\est.h \
+    $(CONFIG)\inc\bitos.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\estLib.obj -Fd$(CONFIG)\obj\estLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\est\estLib.c
 
-$(CONFIG)\bin\libest.dll: 
+$(CONFIG)\bin\libest.dll: \
+    $(CONFIG)\inc\est.h \
+    $(CONFIG)\obj\estLib.obj
 	"$(LD)" -dll -out:$(CONFIG)\bin\libest.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\estLib.obj $(LIBS)
 
 $(CONFIG)\bin\ca.crt: \
@@ -134,24 +139,39 @@ $(CONFIG)\inc\mpr.h:
 	copy /Y "src\deps\mpr\mpr.h" "\Users\mob\git\bit\windows-x86-default\inc\mpr.h"
 
 $(CONFIG)\obj\mprLib.obj: \
-    src\deps\mpr\mprLib.c
+    src\deps\mpr\mprLib.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\mpr.h \
+    $(CONFIG)\inc\bitos.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\mprLib.obj -Fd$(CONFIG)\obj\mprLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\mpr\mprLib.c
 
-$(CONFIG)\bin\libmpr.dll: 
+$(CONFIG)\bin\libmpr.dll: \
+    $(CONFIG)\inc\mpr.h \
+    $(CONFIG)\obj\mprLib.obj
 	"$(LD)" -dll -out:$(CONFIG)\bin\libmpr.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\mprLib.obj $(LIBS)
 
 $(CONFIG)\obj\mprSsl.obj: \
-    src\deps\mpr\mprSsl.c
+    src\deps\mpr\mprSsl.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\mpr.h \
+    $(CONFIG)\inc\est.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\mprSsl.obj -Fd$(CONFIG)\obj\mprSsl.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\mpr\mprSsl.c
 
-$(CONFIG)\bin\libmprssl.dll: 
+$(CONFIG)\bin\libmprssl.dll: \
+    $(CONFIG)\bin\libmpr.dll \
+    $(CONFIG)\bin\libest.dll \
+    $(CONFIG)\obj\mprSsl.obj
 	"$(LD)" -dll -out:$(CONFIG)\bin\libmprssl.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\mprSsl.obj libest.lib libmpr.lib $(LIBS)
 
 $(CONFIG)\obj\makerom.obj: \
-    src\deps\mpr\makerom.c
+    src\deps\mpr\makerom.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\mpr.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\makerom.obj -Fd$(CONFIG)\obj\makerom.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\mpr\makerom.c
 
-$(CONFIG)\bin\makerom.exe: 
+$(CONFIG)\bin\makerom.exe: \
+    $(CONFIG)\bin\libmpr.dll \
+    $(CONFIG)\obj\makerom.obj
 	"$(LD)" -out:$(CONFIG)\bin\makerom.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\makerom.obj libmpr.lib $(LIBS)
 
 $(CONFIG)\inc\pcre.h: 
@@ -159,10 +179,14 @@ $(CONFIG)\inc\pcre.h:
 	copy /Y "src\deps\pcre\pcre.h" "\Users\mob\git\bit\windows-x86-default\inc\pcre.h"
 
 $(CONFIG)\obj\pcre.obj: \
-    src\deps\pcre\pcre.c
+    src\deps\pcre\pcre.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\pcre.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\pcre.obj -Fd$(CONFIG)\obj\pcre.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\pcre\pcre.c
 
-$(CONFIG)\bin\libpcre.dll: 
+$(CONFIG)\bin\libpcre.dll: \
+    $(CONFIG)\inc\pcre.h \
+    $(CONFIG)\obj\pcre.obj
 	"$(LD)" -dll -out:$(CONFIG)\bin\libpcre.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\pcre.obj $(LIBS)
 
 $(CONFIG)\inc\http.h: 
@@ -170,17 +194,28 @@ $(CONFIG)\inc\http.h:
 	copy /Y "src\deps\http\http.h" "\Users\mob\git\bit\windows-x86-default\inc\http.h"
 
 $(CONFIG)\obj\httpLib.obj: \
-    src\deps\http\httpLib.c
+    src\deps\http\httpLib.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\http.h \
+    $(CONFIG)\inc\mpr.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\httpLib.obj -Fd$(CONFIG)\obj\httpLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\http\httpLib.c
 
-$(CONFIG)\bin\libhttp.dll: 
+$(CONFIG)\bin\libhttp.dll: \
+    $(CONFIG)\bin\libmpr.dll \
+    $(CONFIG)\bin\libpcre.dll \
+    $(CONFIG)\inc\http.h \
+    $(CONFIG)\obj\httpLib.obj
 	"$(LD)" -dll -out:$(CONFIG)\bin\libhttp.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\httpLib.obj libpcre.lib libmpr.lib $(LIBS)
 
 $(CONFIG)\obj\http.obj: \
-    src\deps\http\http.c
+    src\deps\http\http.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\http.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\http.obj -Fd$(CONFIG)\obj\http.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\http\http.c
 
-$(CONFIG)\bin\http.exe: 
+$(CONFIG)\bin\http.exe: \
+    $(CONFIG)\bin\libhttp.dll \
+    $(CONFIG)\obj\http.obj
 	"$(LD)" -out:$(CONFIG)\bin\http.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\http.obj libhttp.lib $(LIBS) libpcre.lib libmpr.lib
 
 $(CONFIG)\inc\ejs.h: 
@@ -196,34 +231,58 @@ $(CONFIG)\inc\ejsByteGoto.h:
 	copy /Y "src\deps\ejs\ejsByteGoto.h" "\Users\mob\git\bit\windows-x86-default\inc\ejsByteGoto.h"
 
 $(CONFIG)\obj\ejsLib.obj: \
-    src\deps\ejs\ejsLib.c
+    src\deps\ejs\ejsLib.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\ejs.h \
+    $(CONFIG)\inc\mpr.h \
+    $(CONFIG)\inc\pcre.h \
+    $(CONFIG)\inc\bitos.h \
+    $(CONFIG)\inc\http.h \
+    $(CONFIG)\inc\ejs.slots.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\ejsLib.obj -Fd$(CONFIG)\obj\ejsLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\ejs\ejsLib.c
 
-$(CONFIG)\bin\libejs.dll: 
+$(CONFIG)\bin\libejs.dll: \
+    $(CONFIG)\bin\libhttp.dll \
+    $(CONFIG)\bin\libpcre.dll \
+    $(CONFIG)\bin\libmpr.dll \
+    $(CONFIG)\inc\ejs.h \
+    $(CONFIG)\inc\ejs.slots.h \
+    $(CONFIG)\inc\ejsByteGoto.h \
+    $(CONFIG)\obj\ejsLib.obj
 	"$(LD)" -dll -out:$(CONFIG)\bin\libejs.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsLib.obj libmpr.lib libpcre.lib libhttp.lib $(LIBS) libpcre.lib libmpr.lib
 
 $(CONFIG)\obj\ejs.obj: \
-    src\deps\ejs\ejs.c
+    src\deps\ejs\ejs.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\ejs.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\ejs.obj -Fd$(CONFIG)\obj\ejs.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\ejs\ejs.c
 
-$(CONFIG)\bin\ejs.exe: 
+$(CONFIG)\bin\ejs.exe: \
+    $(CONFIG)\bin\libejs.dll \
+    $(CONFIG)\obj\ejs.obj
 	"$(LD)" -out:$(CONFIG)\bin\ejs.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejs.obj libejs.lib $(LIBS) libmpr.lib libpcre.lib libhttp.lib
 
 $(CONFIG)\obj\ejsc.obj: \
-    src\deps\ejs\ejsc.c
+    src\deps\ejs\ejsc.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\ejs.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\ejsc.obj -Fd$(CONFIG)\obj\ejsc.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\ejs\ejsc.c
 
-$(CONFIG)\bin\ejsc.exe: 
+$(CONFIG)\bin\ejsc.exe: \
+    $(CONFIG)\bin\libejs.dll \
+    $(CONFIG)\obj\ejsc.obj
 	"$(LD)" -out:$(CONFIG)\bin\ejsc.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsc.obj libejs.lib $(LIBS) libmpr.lib libpcre.lib libhttp.lib
 
-$(CONFIG)\bin\ejs.mod: 
+$(CONFIG)\bin\ejs.mod: $(CONFIG)\bin\ejsc.exe
 	"$(LBIN)\ejsc" --out ".\$(CONFIG)\bin\ejs.mod" --optimize 9 --bind --require null src/deps/ejs/ejs.es
 
 $(CONFIG)\obj\removeFiles.obj: \
-    package\windows\removeFiles.c
+    package\windows\removeFiles.c\
+    $(CONFIG)\inc\bit.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\removeFiles.obj -Fd$(CONFIG)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) package\windows\removeFiles.c
 
-$(CONFIG)\bin\removeFiles.exe: 
+$(CONFIG)\bin\removeFiles.exe: \
+    $(CONFIG)\obj\removeFiles.obj
 	"$(LD)" -out:$(CONFIG)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\removeFiles.obj $(LIBS)
 
 $(CONFIG)\bin\bit.es: \
@@ -286,6 +345,14 @@ $(CONFIG)\bin\bits: \
 	copy /Y "bits\embedthis.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\embedthis.bit"
 	copy /Y "bits\embedthis.es" "\Users\mob\git\bit\windows-x86-default\bin\bits\embedthis.es"
 	copy /Y "bits\gendoc.es" "\Users\mob\git\bit\windows-x86-default\bin\bits\gendoc.es"
+	copy /Y "bits\os\freebsd.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\freebsd.bit"
+	copy /Y "bits\os\gcc.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\gcc.bit"
+	copy /Y "bits\os\linux.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\linux.bit"
+	copy /Y "bits\os\macosx.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\macosx.bit"
+	copy /Y "bits\os\posix.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\posix.bit"
+	copy /Y "bits\os\solaris.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\solaris.bit"
+	copy /Y "bits\os\vxworks.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\vxworks.bit"
+	copy /Y "bits\os\windows.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\windows.bit"
 	if not exist "\Users\mob\git\bit\windows-x86-default\bin\bits\os" md "\Users\mob\git\bit\windows-x86-default\bin\bits\os"
 	copy /Y "bits\os\freebsd.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\os\freebsd.bit"
 	copy /Y "bits\os\gcc.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\os\gcc.bit"
@@ -295,44 +362,36 @@ $(CONFIG)\bin\bits: \
 	copy /Y "bits\os\solaris.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\os\solaris.bit"
 	copy /Y "bits\os\vxworks.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\os\vxworks.bit"
 	copy /Y "bits\os\windows.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\os\windows.bit"
-	copy /Y "bits\os\freebsd.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\os\freebsd.bit"
-	copy /Y "bits\os\gcc.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\os\gcc.bit"
-	copy /Y "bits\os\linux.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\os\linux.bit"
-	copy /Y "bits\os\macosx.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\os\macosx.bit"
-	copy /Y "bits\os\posix.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\os\posix.bit"
-	copy /Y "bits\os\solaris.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\os\solaris.bit"
-	copy /Y "bits\os\vxworks.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\os\vxworks.bit"
-	copy /Y "bits\os\windows.bit" "\Users\mob\git\bit\windows-x86-default\bin\bits\os\windows.bit"
+	copy /Y "bits\packs\compiler.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\compiler.pak"
+	copy /Y "bits\packs\doxygen.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\doxygen.pak"
+	copy /Y "bits\packs\dsi.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\dsi.pak"
+	copy /Y "bits\packs\dumpbin.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\dumpbin.pak"
+	copy /Y "bits\packs\ejs.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\ejs.pak"
+	copy /Y "bits\packs\ejscript.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\ejscript.pak"
+	copy /Y "bits\packs\est.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\est.pak"
+	copy /Y "bits\packs\http.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\http.pak"
+	copy /Y "bits\packs\lib.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\lib.pak"
+	copy /Y "bits\packs\link.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\link.pak"
+	copy /Y "bits\packs\man.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\man.pak"
+	copy /Y "bits\packs\man2html.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\man2html.pak"
+	copy /Y "bits\packs\matrixssl.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\matrixssl.pak"
+	copy /Y "bits\packs\md5.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\md5.pak"
+	copy /Y "bits\packs\mocana.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\mocana.pak"
+	copy /Y "bits\packs\openssl.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\openssl.pak"
+	copy /Y "bits\packs\pcre.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\pcre.pak"
+	copy /Y "bits\packs\pmaker.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\pmaker.pak"
+	copy /Y "bits\packs\ranlib.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\ranlib.pak"
+	copy /Y "bits\packs\rc.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\rc.pak"
+	copy /Y "bits\packs\sqlite.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\sqlite.pak"
+	copy /Y "bits\packs\ssl.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\ssl.pak"
+	copy /Y "bits\packs\strip.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\strip.pak"
+	copy /Y "bits\packs\tidy.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\tidy.pak"
+	copy /Y "bits\packs\utest.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\utest.pak"
+	copy /Y "bits\packs\vxworks.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\vxworks.pak"
+	copy /Y "bits\packs\winsdk.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\winsdk.pak"
+	copy /Y "bits\packs\zip.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\zip.pak"
+	copy /Y "bits\packs\zlib.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\zlib.pak"
 	if not exist "\Users\mob\git\bit\windows-x86-default\bin\bits\packs" md "\Users\mob\git\bit\windows-x86-default\bin\bits\packs"
-	copy /Y "bits\packs\compiler.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\compiler.pak"
-	copy /Y "bits\packs\doxygen.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\doxygen.pak"
-	copy /Y "bits\packs\dsi.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\dsi.pak"
-	copy /Y "bits\packs\dumpbin.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\dumpbin.pak"
-	copy /Y "bits\packs\ejs.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\ejs.pak"
-	copy /Y "bits\packs\ejscript.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\ejscript.pak"
-	copy /Y "bits\packs\est.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\est.pak"
-	copy /Y "bits\packs\http.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\http.pak"
-	copy /Y "bits\packs\lib.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\lib.pak"
-	copy /Y "bits\packs\link.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\link.pak"
-	copy /Y "bits\packs\man.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\man.pak"
-	copy /Y "bits\packs\man2html.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\man2html.pak"
-	copy /Y "bits\packs\matrixssl.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\matrixssl.pak"
-	copy /Y "bits\packs\md5.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\md5.pak"
-	copy /Y "bits\packs\mocana.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\mocana.pak"
-	copy /Y "bits\packs\openssl.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\openssl.pak"
-	copy /Y "bits\packs\pcre.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\pcre.pak"
-	copy /Y "bits\packs\pmaker.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\pmaker.pak"
-	copy /Y "bits\packs\ranlib.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\ranlib.pak"
-	copy /Y "bits\packs\rc.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\rc.pak"
-	copy /Y "bits\packs\sqlite.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\sqlite.pak"
-	copy /Y "bits\packs\ssl.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\ssl.pak"
-	copy /Y "bits\packs\strip.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\strip.pak"
-	copy /Y "bits\packs\tidy.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\tidy.pak"
-	copy /Y "bits\packs\utest.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\utest.pak"
-	copy /Y "bits\packs\vxworks.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\vxworks.pak"
-	copy /Y "bits\packs\winsdk.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\winsdk.pak"
-	copy /Y "bits\packs\zip.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\zip.pak"
-	copy /Y "bits\packs\zlib.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\zlib.pak"
 	copy /Y "bits\packs\compiler.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\compiler.pak"
 	copy /Y "bits\packs\doxygen.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\doxygen.pak"
 	copy /Y "bits\packs\dsi.pak" "\Users\mob\git\bit\windows-x86-default\bin\bits\packs\dsi.pak"
@@ -370,10 +429,19 @@ $(CONFIG)\bin\bits: \
 	copy /Y "bits\xcode.es" "\Users\mob\git\bit\windows-x86-default\bin\bits\xcode.es"
 
 $(CONFIG)\obj\bit.obj: \
-    src\bit.c
+    src\bit.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\ejs.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\bit.obj -Fd$(CONFIG)\obj\bit.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\bit.c
 
-$(CONFIG)\bin\bit.exe: 
+$(CONFIG)\bin\bit.exe: \
+    $(CONFIG)\bin\libmpr.dll \
+    $(CONFIG)\bin\libhttp.dll \
+    $(CONFIG)\bin\libejs.dll \
+    $(CONFIG)\bin\bits \
+    $(CONFIG)\bin\bit.es \
+    $(CONFIG)\inc\bitos.h \
+    $(CONFIG)\obj\bit.obj
 	"$(LD)" -out:$(CONFIG)\bin\bit.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\bit.obj libejs.lib libhttp.lib libmpr.lib $(LIBS) libpcre.lib
 
 version: 
@@ -384,7 +452,7 @@ version:
 stop: 
 
 
-installBinary: 
+installBinary: stop
 	if not exist "C:/" md "C:/"
 	if not exist "C:\Program Files\Embedthis Bit" md "C:\Program Files\Embedthis Bit"
 	if not exist "C:\Program Files\Embedthis Bit" md "C:\Program Files\Embedthis Bit"
@@ -446,10 +514,10 @@ installBinary:
 start: 
 
 
-install: 
+install: stop installBinary start
 
 
-uninstall: 
+uninstall: stop
 	if exist "C:\Program Files\Embedthis Bit" rd /Q "C:\Program Files\Embedthis Bit"
 	if exist "C:\Program Files\Embedthis Bit" rd /Q "C:\Program Files\Embedthis Bit"
 	if exist "C:\Program Files\Embedthis Bit\bin" rd /Q "C:\Program Files\Embedthis Bit\bin"
