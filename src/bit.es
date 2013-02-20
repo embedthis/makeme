@@ -3885,8 +3885,11 @@ public class Bit {
         for each (let pattern: Path in src) {
             let dir: Path, destBase: Path
             pattern = Path(expand(pattern))
+            //  MOB BUG workaround
+            let contents = pattern.name.endsWith('/')
+            pattern = pattern.trimEnd('/')
             if (pattern.isDir) {
-                if (pattern.name.endsWith('/')) {
+                if (contents) {
                     subtree = pattern.normalize
                 } else {
                     subtree = pattern.normalize.dirname
