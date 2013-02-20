@@ -112,9 +112,6 @@
 #ifndef BIT_PACKS
     #define BIT_PACKS "bits/packs"
 #endif
-#ifndef BIT_PLATFORMS
-    #define BIT_PLATFORMS "local"
-#endif
 #ifndef BIT_PREFIXES
     #define BIT_PREFIXES "embedthis-prefixes"
 #endif
