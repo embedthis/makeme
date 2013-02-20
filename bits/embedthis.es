@@ -640,21 +640,22 @@ function packageWindows(prefixes) {
         throw 'Configured without pmaker: Inno Setup'
     }
     let s = bit.settings
-    let opak = Path('package/' + bit.platform.os)
+    let wpak = Path('package/' + bit.platform.os)
+    let media = prefixes.media
 
-    copy(bit.dir.top.join('LICENSE.md'), pkg)
-    let iss = pkg.join('install.iss')
-    copy(opak.join('install.iss'), iss, {expand: true})
-    let contents = pkg.join(s.product + '-' + s.version + '-' + s.buildNumber, 'contents')
+    copy(bit.dir.top.join('LICENSE.md'), media)
+    let iss = media.join('install.iss')
+    copy(wpak.join('install.iss'), iss, {expand: true})
+    let contents = media.join('contents')
     let files = contents.files('**', {exclude: /\/$/, missing: undefined})
 
     let appPrefix = bit.prefixes.app.removeDrive().portable
     let top = Path(contents.name + appPrefix)
 
-    let destTop = Path(top.portable.name + appPrefix).windows
+    //UNUSED let destTop = Path(top.portable.name + appPrefix).windows
     let cp: File = iss.open('atw')
     for each (file in files) {
-        let src = file.relativeTo(pkg)
+        let src = file.relativeTo(media)
         let dest = file.relativeTo(top).windows
         cp.write('Source: "' + src + '"; DestDir: "{app}\\' + dest.dirname + '"; ' +
             'DestName: "' + dest.basename + '";\n')
@@ -663,7 +664,7 @@ function packageWindows(prefixes) {
     let base = [s.product, s.version, s.buildNumber, bit.platform.dist, bit.platform.os, bit.platform.arch].join('-')
     let outfile = bit.dir.rel.join(base).joinExt('exe', true)
     run([bit.packs.pmaker.path, iss], {noshow: true})
-    pkg.join('Output/setup.exe').copy(outfile)
+    media.join('Output/setup.exe').copy(outfile)
 
     /* Wrap in a zip archive */
     let zipfile = outfile.joinExt('zip', true)
