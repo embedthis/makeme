@@ -36,8 +36,6 @@ Bit.load({
 
         sync: [ 'bitos', 'est', 'mpr', 'pcre', 'http', 'ejs' ],
         packs: [ 'bits/packs' ],
-        /* Must build locally to build tools */
-        platforms: [ 'local' ],
         static: false,
         tune: 'size',
 
@@ -111,7 +109,6 @@ Bit.load({
             type: 'file',
             precious: true,
             files: [ 'src/bit.es' ],
-            platforms: [ 'local' ],
         },
 
         'bit': {
@@ -123,7 +120,6 @@ Bit.load({
             active: true,
             precious: true,
             depends: [ 'libmpr', 'libhttp', 'libejs', 'bits', 'bit.es' ],
-            platforms: [ 'local' ],
         },
 
         bits: {
