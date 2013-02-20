@@ -2913,7 +2913,7 @@ public class Bit {
         } else if (bit.generating == 'sh') {
             command = command.replace(RegExp(gen.configuration, 'g'), '$${CONFIG}')
         }
-        for each (p in ['vapp', 'app', 'bin', 'inc', 'lib', 'man', 'base', 'web', 'cache', 'spool', 'log']) {
+        for each (p in ['vapp', 'app', 'bin', 'inc', 'lib', 'man', 'base', 'web', 'cache', 'spool', 'log', 'etc']) {
             if (bit.platform.like == 'windows') {
                 let pat = gen[p].windows.replace(/\\/g, '\\\\')
                 command = command.replace(RegExp(pat, 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
@@ -2938,7 +2938,7 @@ public class Bit {
         } else if (bit.generating == 'sh') {
             command = command.replace(RegExp(gen.configuration, 'g'), '$${CONFIG}')
         }
-        for each (p in ['vapp', 'app', 'bin', 'inc', 'lib', 'man', 'base', 'web', 'cache', 'spool', 'log']) {
+        for each (p in ['vapp', 'app', 'bin', 'inc', 'lib', 'man', 'base', 'web', 'cache', 'spool', 'log', 'etc']) {
             if (bit.platform.like == 'windows') {
                 let pat = gen[p].windows.replace(/\\/g, '\\\\')
                 command = command.replace(RegExp(pat, 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
@@ -4074,15 +4074,15 @@ public class Bit {
     function getatt(attributes) {
         let att = ''
         if (attributes.group) {
-            att += '-g ' + attributes.group
+            att += '-g ' + attributes.group + ' '
         }
         if (attributes.user) {
-            att += '-u ' + attributes.user
+            att += '-u ' + attributes.user + ' '
         }
         if (attributes.permissions) {
-            att += '-m ' + attributes.permissions.toString().trimStart('0')
+            att += '-m ' + "%0o".format([attributes.permissions]) + ' '
         }
-        return (att) ? (att + ' ') : att
+        return att
     }
 
     //  MOB - unify all/most writes to go through here

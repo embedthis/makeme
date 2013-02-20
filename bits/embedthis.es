@@ -45,6 +45,8 @@ public function deploy(manifest, prefixes, package): Array {
                     enable = false
                 }
             }
+        } else if (item.enable === false) {
+            enable = false
         }
         if (enable && App.uid != 0 && item.root && bit.installing && !bit.generating) {
             trace('Skip', 'Must be root to copy ' + name)
@@ -80,7 +82,7 @@ public function deploy(manifest, prefixes, package): Array {
                 let data = expand(item.write)
                 if (bit.generating) {
                     data = data.replace(/\n/g, '\\n')
-                    genScript("echo '" + data + "' >" + prefixes.etc.join('install.conf'))
+                    genScript("echo '" + data + "' >" + item.to)
                 } else {
                     strace('Create', item.to)
                     item.to.write(data)
