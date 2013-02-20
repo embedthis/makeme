@@ -2520,6 +2520,13 @@ public class Bit {
             }
             copy(file, target.path, target)
         }
+        /* Work-around for windows when copying contents to a directory */
+        if (bit.platform.os == 'windows' && target.path.isDir && !bit.generating) {
+            let touch = Path(target.path).join('.touch')
+            touch.remove()
+            touch.write()
+            touch.remove()
+        }
     }
 
     function buildScript(target) {
@@ -3241,11 +3248,19 @@ public class Bit {
                 let p = path.join(file.trimStart(target.subtree + '/'))
                 if (!file.isDir && file.modified > p.modified) {
                     whyRebuild(path, 'Rebuild', 'input ' + file + ' has been modified.')
+                    if (options.why && options.verbose) {
+                        print(file, file.modified)
+                        print(path, path.modified)
+                    }
                     return true
                 }
             } else {
                 if (file.modified > path.modified) {
                     whyRebuild(path, 'Rebuild', 'input ' + file + ' has been modified.')
+                    if (options.why && options.verbose) {
+                        print(file, file.modified)
+                        print(path, path.modified)
+                    }
                     return true
                 }
             }
