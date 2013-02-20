@@ -70,7 +70,7 @@ public function deploy(manifest, prefixes, package): Array {
             if (item.dir) {
                 for each (let dir:Path in item.dir) {
                     dir = expand(dir)
-                    dir.makeDir()
+                    makeDir(dir)
                     strace('Create', dir.relativeTo(bit.dir.top))
                 }
             }
