@@ -75,6 +75,11 @@ public function deploy(manifest, prefixes, package): Array {
             if (item.from) {
                 copy(item.from, item.to, item)
             }
+            if (item.write) {
+                item.to = Path(expand(item.to))
+                strace('Create', item.to)
+                item.to.write(expand(item.write))
+            }
             if (item.postcopy) {
                 eval('require ejs.unix\n' + expand(item.postcopy))
             }
@@ -256,11 +261,6 @@ public function installBinary() {
         trace('Install', bit.settings.title)
         files = deploy(manifest, bit.prefixes, package) 
         makeFiles(prefixes.vapp, prefixes.root, files, bit.prefixes)
-/* UNUSED
-        if (!bit.cross && Config.OS != 'windows') {
-            linkFile(bit.settings.version, bit.prefixes.app.join('latest'))
-        }
- */
         trace('Complete', bit.settings.title + ' installed')
     }
     delete bit.installing
@@ -279,14 +279,14 @@ public function uninstallBinary() {
             if (fileslog.exists) {
                 for each (let file: Path in fileslog.readLines()) {
                     if (!file.isDir) {
-                        remove(file)
+                        removeFile(file)
                     }
                 }
                 fileslog.remove()
             }
             if (prefixes.log) {
                 for each (file in prefixes.log.files('*.log*')) {
-                    remove(file)
+                    removeFile(file)
                 }
             }
         }
@@ -308,6 +308,8 @@ public function uninstallBinary() {
             removeDir(prefix, {empty: true})
         }
         updateLatestLink()
+        removeDir(bit.prefixes.vapp, {empty: true})
+        removeDir(bit.prefixes.app, {empty: true})
         trace('Complete', bit.settings.title + ' uninstalled')
     }
 }
@@ -602,14 +604,16 @@ function packageUbuntu(prefixes) {
         throw 'Configured without pmaker: dpkg'
     }
     let cpu = bit.platform.arch
-    if (cpu == 'x64') {
+    if (cpu.match(/^i.86$|x86/)) {
+        cpu = 'i386'
+    } else if (cpu == 'x64') {
         cpu = 'amd64'
     }
     bit.platform.mappedCpu = cpu
     let s = bit.settings
     let base = [s.product, s.version, s.buildNumber, bit.platform.dist, bit.platform.os, bit.platform.arch].join('-')
 
-    let DEBIAN = prefixes.media.join('DEBIAN')
+    let DEBIAN = prefixes.root.join('DEBIAN')
     let opak = Path('package/' + bit.platform.os)
 
     copy(opak.join('deb.bin/conffiles'), DEBIAN.join('conffiles'), {expand: true, permissions: 0644})
