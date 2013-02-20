@@ -77,8 +77,14 @@ public function deploy(manifest, prefixes, package): Array {
             }
             if (item.write) {
                 item.to = Path(expand(item.to))
-                strace('Create', item.to)
-                item.to.write(expand(item.write))
+                let data = expand(item.write)
+                if (bit.generating) {
+                    data = data.replace(/\n/g, '\\n')
+                    genScript("echo '" + data + "' >" + prefixes.etc.join('install.conf'))
+                } else {
+                    strace('Create', item.to)
+                    item.to.write(data)
+                }
             }
             if (item.postcopy) {
                 eval('require ejs.unix\n' + expand(item.postcopy))

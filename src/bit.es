@@ -2520,6 +2520,13 @@ public class Bit {
             }
             copy(file, target.path, target)
         }
+        /* Work-around for windows when copying contents to a directory */
+        if (bit.platform.os == 'windows' && target.path.isDir && !bit.generating) {
+            let touch = Path(target.path).join('.touch')
+            touch.remove()
+            touch.write()
+            touch.remove()
+        }
     }
 
     function buildScript(target) {
@@ -2736,7 +2743,7 @@ public class Bit {
             vtrace(target.type.toPascal(), target.name)
             runTargetScript(target, 'build')
             if (capture.length > 0) {
-                genWrite('\t' + capture.join('\n') + '\n')
+                genWrite('\t' + capture.join('\n\t') + '\n')
             } else {
                 genWrite('\n')
             }
@@ -2906,7 +2913,7 @@ public class Bit {
         } else if (bit.generating == 'sh') {
             command = command.replace(RegExp(gen.configuration, 'g'), '$${CONFIG}')
         }
-        for each (p in ['vapp', 'app', 'bin', 'inc', 'lib', 'man', 'base']) {
+        for each (p in ['vapp', 'app', 'bin', 'inc', 'lib', 'man', 'base', 'web', 'cache', 'spool', 'log']) {
             if (bit.platform.like == 'windows') {
                 let pat = gen[p].windows.replace(/\\/g, '\\\\')
                 command = command.replace(RegExp(pat, 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
@@ -2931,7 +2938,7 @@ public class Bit {
         } else if (bit.generating == 'sh') {
             command = command.replace(RegExp(gen.configuration, 'g'), '$${CONFIG}')
         }
-        for each (p in ['vapp', 'app', 'bin', 'inc', 'lib', 'man', 'base']) {
+        for each (p in ['vapp', 'app', 'bin', 'inc', 'lib', 'man', 'base', 'web', 'cache', 'spool', 'log']) {
             if (bit.platform.like == 'windows') {
                 let pat = gen[p].windows.replace(/\\/g, '\\\\')
                 command = command.replace(RegExp(pat, 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
@@ -3241,11 +3248,19 @@ public class Bit {
                 let p = path.join(file.trimStart(target.subtree + '/'))
                 if (!file.isDir && file.modified > p.modified) {
                     whyRebuild(path, 'Rebuild', 'input ' + file + ' has been modified.')
+                    if (options.why && options.verbose) {
+                        print(file, file.modified)
+                        print(path, path.modified)
+                    }
                     return true
                 }
             } else {
                 if (file.modified > path.modified) {
                     whyRebuild(path, 'Rebuild', 'input ' + file + ' has been modified.')
+                    if (options.why && options.verbose) {
+                        print(file, file.modified)
+                        print(path, path.modified)
+                    }
                     return true
                 }
             }
@@ -3572,7 +3587,7 @@ public class Bit {
     }
 
     public function genScript(str: String) {
-        capture.push(repvar(str))
+        capture.push(str)
     }
 
     function like(os) {
