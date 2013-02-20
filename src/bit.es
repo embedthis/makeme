@@ -539,6 +539,7 @@ public class Bit {
         if (nbit.settings) {
             Object.sortProperties(nbit.settings);
         }
+        runScript(bit.scripts.postconfig)
         if (options.configure) {
             let path: Path = Path(bit.platform.name).joinExt('bit')
             trace('Generate', path)
