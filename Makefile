@@ -46,6 +46,11 @@ boot:
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) compile
 	$(OS)-$(ARCH)-$(PROFILE)/bin/bit --release configure build
 
+update:
+	git pull
+	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) compile
+	$(OS)-$(ARCH)-$(PROFILE)/bin/bit build
+
 help:
 	@echo '' >&2
 	@echo 'usage: make [clean, compile, deploy, install, run, uninstall]' >&2

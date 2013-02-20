@@ -15466,8 +15466,6 @@ PUBLIC cchar *mprGetPathBaseRef(cchar *path)
         if (cp[1] == '\0') {
             return path;
         }
-    } else if (cp[1] == '\0') {
-        return "";
     }
     return &cp[1];
 }
