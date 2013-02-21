@@ -9,7 +9,7 @@ Bit.load({
         "src/deps/pcre/pcre.bit",
         "src/deps/http/http.bit",
         "src/deps/ejs/ejs.bit",
-        "package/manifest.bit",
+        "package/package.bit",
         "doc/doc.bit",
         "${BITS}/embedthis.bit",
     ],

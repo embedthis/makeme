@@ -442,5 +442,8 @@ install: stop installBinary start
 	
 
 uninstall: stop
+	rm -fr "$(BIT_VAPP_PREFIX)"
+	rm -f "$(BIT_APP_PREFIX)/latest"
+	rmdir -p "$(BIT_APP_PREFIX)"
 
 

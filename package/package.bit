@@ -1,5 +1,5 @@
 /*
-    manifest.bit - Install and Package File Manifest for Bit
+    package.bit - Install and Package File Manifest for Bit
  */
 
 Bit.load({
@@ -9,7 +9,6 @@ Bit.load({
         The sets used are: binary, service, test, doc, dev, package, source
      */
     manifest: {
-
         packages:   {
             install: {
                 inherit:    'embedthis-manifest',
@@ -22,7 +21,7 @@ Bit.load({
                 prefixes:   [ 'root', 'app', 'vapp', 'bin', 'man'],
                 formats:    [ 'native', 'tar' ],
                 sets:       [ 'core', 'doc', 'package' ],
-                platforms:  [ 'windows', 'macosx' ]
+                platforms:  [ 'freebsd', 'linux', 'windows', 'macosx' ]
             },
             source: {
                 inherit:    'embedthis-manifest',

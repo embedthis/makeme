@@ -282,7 +282,9 @@ public function uninstallBinary() {
         trace('Uninstall', bit.settings.title)
         let fileslog = bit.prefixes.vapp.join('files.log')
 
-        if (!bit.generating) {
+        if (bit.generating) {
+            removeDir(bit.prefixes.vapp)
+        } else {
             if (fileslog.exists) {
                 for each (let file: Path in fileslog.readLines()) {
                     if (!file.isDir) {
@@ -301,13 +303,17 @@ public function uninstallBinary() {
             /* 
                 Safety, make sure product name is in prefix 
              */
-            if (!prefix.name.contains(name) || key == 'src') {
+            if (!prefix.name.contains(name) || key == 'src' || key == 'app' || !prefixes[key]) {
                 continue
             }
             if (!package.prefixes.contains(key)) {
                 continue
             }
-            if (!bit.generating) {
+            if (bit.generating) {
+                if (key == 'vapp') {
+                    continue
+                }
+            } else {
                 for each (dir in prefix.files('**', {include: /\/$/}).sort().reverse()) {
                     removeDir(dir, {empty: true})
                 }
@@ -315,7 +321,6 @@ public function uninstallBinary() {
             removeDir(prefix, {empty: true})
         }
         updateLatestLink()
-        removeDir(bit.prefixes.vapp, {empty: true})
         removeDir(bit.prefixes.app, {empty: true})
         trace('Complete', bit.settings.title + ' uninstalled')
     }
@@ -332,7 +337,7 @@ function updateLatestLink() {
     if (version) {
         version.basename.link(latest)
     } else {
-        latest.remove()
+        removeFile(latest)
     }
 }
 

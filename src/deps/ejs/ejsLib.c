@@ -35164,7 +35164,7 @@ PUBLIC int ejsBlendObject(Ejs *ejs, EjsObj *dest, EjsObj *src, int flags)
                 cflags |= EJS_BLEND_COND_ASSIGN;
                 trimmedName = N(qname.space->value, &qname.name->value[1]);
             } else {
-                cflags |= EJS_BLEND_ASSIGN;
+                /* cflags |= EJS_BLEND_ASSIGN; */
                 trimmedName = qname;
             }
             if ((dp = ejsGetPropertyByName(ejs, dest, trimmedName)) == 0) {
@@ -35207,12 +35207,22 @@ PUBLIC int ejsBlendObject(Ejs *ejs, EjsObj *dest, EjsObj *src, int flags)
                         ejsSetPropertyByName(ejs, dest, trimmedName, ejsClone(ejs, vp, deep));
                     }
                 } else {
-                    /* Assign */
+                    /* Default is a assign */
                     ejsSetPropertyByName(ejs, dest, trimmedName, ejsClone(ejs, vp, deep));
                 }
 
             } else if (ejsIsPot(ejs, dp)) {
-                ejsBlendObject(ejs, dp, vp, flags);
+                if (cflags & EJS_BLEND_ASSIGN) {
+                    ejsSetPropertyByName(ejs, dest, trimmedName, ejsClone(ejs, vp, deep));
+
+                } else if (cflags & EJS_BLEND_COND_ASSIGN) {
+                    if (ejsLookupProperty(ejs, dest, trimmedName) < 0) {
+                        ejsSetPropertyByName(ejs, dest, trimmedName, ejsClone(ejs, vp, deep));
+                    }
+                } else {
+                    /* Recurse and blend the elements */
+                    ejsBlendObject(ejs, dp, vp, flags);
+                }
 
             } else if (ejsIs(ejs, dp, String)) {
                 if (cflags & EJS_BLEND_ADD) {
@@ -35223,8 +35233,11 @@ PUBLIC int ejsBlendObject(Ejs *ejs, EjsObj *dest, EjsObj *src, int flags)
                     str = sreplace(sclone(((EjsString*) dp)->value), ejsToMulti(ejs, vp), "");
                     ejsSetPropertyByName(ejs, dest, trimmedName, ejsCreateString(ejs, str, -1));
                     
+                } else if (cflags & EJS_BLEND_COND_ASSIGN) {
+                    /* Do nothing */;
+
                 } else {
-                    /* Assign */
+                    /* Default is assign */
                     ejsSetPropertyByName(ejs, dest, trimmedName, ejsClone(ejs, vp, deep));
                 }
             } else {
@@ -35256,7 +35269,6 @@ PUBLIC int ejsBlendObject(Ejs *ejs, EjsObj *dest, EjsObj *src, int flags)
     }
     return 0;
 }
-
 
 /*     
     Parse the input and convert to a primitive type
