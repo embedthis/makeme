@@ -820,8 +820,7 @@ public function genProjects(packs = '--without default', profiles = ["default"],
 }
 
 
-//  MOB - not used
-public function getWebUser(): String {
+public function UNUSEDgetWebUser(): String {
     let passwdFile: Path = Path("/etc/passwd")
     if (passwdFile.exists) {
         let passwords = passwdFile.readString()
@@ -835,7 +834,7 @@ public function getWebUser(): String {
 }
 
 
-public function getWebGroup(): String {
+public function UNUSEDgetWebGroup(): String {
     let groupFile: Path = Path("/etc/group")
     if (groupFile.exists) {
         let groups = groupFile.readString()
