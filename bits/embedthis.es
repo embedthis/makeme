@@ -318,6 +318,7 @@ public function uninstallBinary() {
         updateLatestLink()
         removeDir(bit.prefixes.vapp, {empty: true})
         removeDir(bit.prefixes.app, {empty: true})
+        removeDir(bit.prefixes.inc.join(bit.settings.product))
         trace('Complete', bit.settings.title + ' uninstalled')
     }
 }

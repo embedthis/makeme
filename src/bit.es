@@ -2513,16 +2513,15 @@ public class Bit {
                 safeRemove(target.path)
             }
         }
-        trace('Copy', target.path.relative.portable)
         for each (let file: Path in target.files) {
             if (file == target.path) {
                 /* Auto-generated headers targets for includes have file == target.path */
                 continue
             }
+            trace('File', target.path.relative.portable)
             copy(file, target.path, target)
         }
-        /* Work-around for windows when copying contents to a directory */
-        if (bit.platform.os == 'windows' && target.path.isDir && !bit.generating) {
+        if (target.path.isDir && !bit.generating) {
             let touch = Path(target.path).join('.touch')
             touch.remove()
             touch.write()
@@ -4093,9 +4092,10 @@ public class Bit {
 
     public function linkFile(src: Path, dest: Path, options = {}) {
         if (!bit.generating) {
-            strace('Create', 'Link: ' + dest)
             if (!options.dry) {
+                strace('Remove', 'rm -f', dest)
                 dest.remove()
+                strace('Link', 'ln -s', src, dest)
                 src.link(dest)
             }
         } else if (bit.generating != 'nmake') {
@@ -4110,7 +4110,7 @@ public class Bit {
         if (!bit.generating) {
             if (!options.dry) {
                 if (!path.isDir) {
-                    strace('Create', 'Directory: ' + path)
+                    strace('Create', 'mkdir -p' + path)
                     if (!path.makeDir(options)) {
                         throw "Cannot make directory" + path
                     }
@@ -4148,7 +4148,7 @@ public class Bit {
 
     public function removeFile(path: Path, options = {}) {
         if (!bit.generating) {
-            strace('Remove', path)
+            strace('Remove', 'rm -f', path)
             if (!options.dry) {
                 if (!path.remove()) {
                     throw "Cannot remove " + path
@@ -4173,8 +4173,10 @@ public class Bit {
             strace('Remove', path)
             if (!options.dry) {
                 if (options.empty) {
+                    strace('Remove', 'rmdir', path)
                     path.remove()
                 } else {
+                    strace('Remove', 'rm -fr', path)
                     path.removeAll()
                 }
             }
