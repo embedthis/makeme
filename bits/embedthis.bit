@@ -327,7 +327,6 @@ Bit.load({
         uninstall: {
             home: '${TOP}',
             action: "uninstallBinary()",
-            generate: ' ',
             depends: [ 'build', 'stop' ],
             'generate-action': true,
         },

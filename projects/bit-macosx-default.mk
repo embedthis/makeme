@@ -446,6 +446,5 @@ uninstall: stop
 	rmdir -p "$(BIT_VAPP_PREFIX)"
 	rmdir -p "$(BIT_VAPP_PREFIX)"
 	rmdir -p "$(BIT_APP_PREFIX)"
-	rm -fr "$(BIT_INC_PREFIX)/bit"
 
 

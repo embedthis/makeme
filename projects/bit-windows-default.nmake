@@ -447,6 +447,5 @@ uninstall: stop
 	if exist "$(BIT_VAPP_PREFIX)\man" rd /Q "$(BIT_VAPP_PREFIX)\man"
 	if exist "$(BIT_VAPP_PREFIX)" rd /Q "$(BIT_VAPP_PREFIX)"
 	if exist "$(BIT_VAPP_PREFIX)" rd /Q "$(BIT_VAPP_PREFIX)"
-	if exist "$(BIT_VAPP_PREFIX)\inc\bit" rd /Q /S"$(BIT_VAPP_PREFIX)\inc\bit"
 
 

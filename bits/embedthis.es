@@ -297,9 +297,6 @@ public function uninstallBinary() {
                 }
             }
         }
-        removeDir(bit.prefixes.etc.join('install.conf'))
-        removeDir(bit.prefixes.inc.join(bit.settings.product))
-
         for (let [key, prefix] in bit.prefixes) {
             /* 
                 Safety, make sure product name is in prefix 
