@@ -291,12 +291,15 @@ public function uninstallBinary() {
                 }
                 fileslog.remove()
             }
-            if (prefixes.log) {
-                for each (file in prefixes.log.files('*.log*')) {
+            if (bit.prefixes.log) {
+                for each (file in bit.prefixes.log.files('*.log*')) {
                     removeFile(file)
                 }
             }
         }
+        removeDir(bit.prefixes.etc.join('install.conf'))
+        removeDir(bit.prefixes.inc.join(bit.settings.product))
+
         for (let [key, prefix] in bit.prefixes) {
             /* 
                 Safety, make sure product name is in prefix 
@@ -317,7 +320,6 @@ public function uninstallBinary() {
         updateLatestLink()
         removeDir(bit.prefixes.vapp, {empty: true})
         removeDir(bit.prefixes.app, {empty: true})
-        removeDir(bit.prefixes.inc.join(bit.settings.product))
         trace('Complete', bit.settings.title + ' uninstalled')
     }
 }

@@ -232,14 +232,34 @@ Bit.load({
             ",
         },
 
+        check: {
+            action: "
+                let missing = checkInstalled()
+                if (missing) {
+                    let existing = checkUninstalled()
+                    if (existing) {
+                        trace('Status', 'Product partially removed, existing: ' + existing.join(' '))
+                        for each (f in existing) {
+                            dump(f, f.files())
+                        }
+                    } else {
+                        trace('Status', 'Not installed')
+                    }
+                } else {
+                    trace('Status', 'Installed')
+                }
+            ",
+        },
+
         checkInstalled: {
             action: "
                 let missing = checkInstalled()
                 if (missing) {
                     trace('Missing', missing)
                     throw 'Missing directories: ' + missing.join(' ')
+                } else {
+                    trace('Installed', 'Products directories are created')
                 }
-                trace('Installed', 'Products directories are created')
             ",
         },
 
