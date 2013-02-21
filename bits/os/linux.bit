@@ -11,7 +11,6 @@ Bit.load({
         '+linker': [ 
             '-Wl,--enable-new-dtags', 
             '-Wl,-rpath,$ORIGIN/',
-            '-Wl,-rpath,$ORIGIN/../bin',
         ],
     },
 
