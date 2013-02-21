@@ -372,6 +372,16 @@ installBinary: stop
 	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
 	if not exist "$(BIT_VAPP_PREFIX)\man" md "$(BIT_VAPP_PREFIX)\man"
 	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
+	copy /Y "$(CONFIG)\bin\bit.exe" "$(BIT_VAPP_PREFIX)\bin\bit.exe"
+	copy /Y "$(CONFIG)\bin\bit.es" "$(BIT_VAPP_PREFIX)\bin\bit.es"
+	copy /Y "$(CONFIG)\bin\ca.crt" "$(BIT_VAPP_PREFIX)\bin\ca.crt"
+	copy /Y "$(CONFIG)\bin\ejs.mod" "$(BIT_VAPP_PREFIX)\bin\ejs.mod"
+	copy /Y "$(CONFIG)\bin\libejs.dll" "$(BIT_VAPP_PREFIX)\bin\libejs.dll"
+	copy /Y "$(CONFIG)\bin\libest.dll" "$(BIT_VAPP_PREFIX)\bin\libest.dll"
+	copy /Y "$(CONFIG)\bin\libhttp.dll" "$(BIT_VAPP_PREFIX)\bin\libhttp.dll"
+	copy /Y "$(CONFIG)\bin\libmpr.dll" "$(BIT_VAPP_PREFIX)\bin\libmpr.dll"
+	copy /Y "$(CONFIG)\bin\libmprssl.dll" "$(BIT_VAPP_PREFIX)\bin\libmprssl.dll"
+	copy /Y "$(CONFIG)\bin\libpcre.dll" "$(BIT_VAPP_PREFIX)\bin\libpcre.dll"
 	if not exist "$(BIT_VAPP_PREFIX)\bin\bits" md "$(BIT_VAPP_PREFIX)\bin\bits"
 	copy /Y "bits\embedthis-manifest.bit" "$(BIT_VAPP_PREFIX)\bin\bits\embedthis-manifest.bit"
 	copy /Y "bits\embedthis.bit" "$(BIT_VAPP_PREFIX)\bin\bits\embedthis.bit"
@@ -437,5 +447,6 @@ uninstall: stop
 	if exist "$(BIT_VAPP_PREFIX)\man" rd /Q "$(BIT_VAPP_PREFIX)\man"
 	if exist "$(BIT_VAPP_PREFIX)" rd /Q "$(BIT_VAPP_PREFIX)"
 	if exist "$(BIT_VAPP_PREFIX)" rd /Q "$(BIT_VAPP_PREFIX)"
+	if exist "$(BIT_VAPP_PREFIX)\inc\bit" rd /Q /S"$(BIT_VAPP_PREFIX)\inc\bit"
 
 

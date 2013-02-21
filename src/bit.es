@@ -3921,7 +3921,7 @@ public class Bit {
             }
             if (!list || list.length == 0) {
                 if (bit.generating) {
-                    list = pattern
+                    list = [pattern]
                 } else if (!options.cat && src.length > 0) {
                     throw 'cp: Cannot find files to copy for "' + pattern + '" to ' + dest
                 }
@@ -4100,7 +4100,7 @@ public class Bit {
             }
         } else if (bit.generating != 'nmake') {
             genrep('\trm -f "' + dest + '"')
-            genrep('\tmkdir -p "' + dest.parent + '"')
+            makeDir(dest.parent, options)
             genrep('\tln -s "' + src + '" "' + dest + '"')
         }
     }

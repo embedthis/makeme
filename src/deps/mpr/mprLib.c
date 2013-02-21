@@ -15287,6 +15287,7 @@ PUBLIC char *mprGetAppPath()
 
 #if MACOSX
 {
+    MprPath info;
     char    path[BIT_MAX_PATH], pbuf[BIT_MAX_PATH];
     uint    size;
     ssize   len;
@@ -15296,15 +15297,21 @@ PUBLIC char *mprGetAppPath()
         return mprGetAbsPath(".");
     }
     path[size] = '\0';
-    len = readlink(path, pbuf, sizeof(pbuf) - 1);
-    if (len < 0) {
-        return mprGetAbsPath(path);
+    if (mprGetPathInfo(path, &info) == 0 && info.isLink) {
+        len = readlink(path, pbuf, sizeof(pbuf) - 1);
+        if (len > 0) {
+            pbuf[len] = '\0';
+            MPR->appPath = mprJoinPath(mprGetPathDir(path), pbuf);
+        } else {
+            MPR->appPath = mprGetAbsPath(path);
+        }
+    } else {
+        MPR->appPath = mprGetAbsPath(path);
     }
-    pbuf[len] = '\0';
-    MPR->appPath = mprGetAbsPath(pbuf);
 }
 #elif BIT_BSD_LIKE 
 {
+    MprPath info;
     char    pbuf[BIT_MAX_PATH];
     int     len;
 
@@ -15317,6 +15324,7 @@ PUBLIC char *mprGetAppPath()
 }
 #elif BIT_UNIX_LIKE 
 {
+    MprPath info;
     char    pbuf[BIT_MAX_PATH], *path;
     int     len;
 #if SOLARIS
@@ -15324,12 +15332,18 @@ PUBLIC char *mprGetAppPath()
 #else
     path = sfmt("/proc/%i/exe", getpid()); 
 #endif
-    len = readlink(path, pbuf, sizeof(pbuf) - 1);
-    if (len < 0) {
-        return mprGetAbsPath(".");
+    if (mprGetPathInfo(path, &info) == 0 && info.isLink) {
+        len = readlink(path, pbuf, sizeof(pbuf) - 1);
+        if (len > 0) {
+            pbuf[len] = '\0';
+            MPR->appPath = mprGetAbsPath(pbuf);
+            MPR->appPath = mprJoinPath(mprGetPathDir(path), pbuf);
+        } else {
+            MPR->appPath = mprGetAbsPath(path);
+        }
+    } else {
+        MPR->appPath = mprGetAbsPath(path);
     }
-    pbuf[len] = '\0';
-    MPR->appPath = mprGetAbsPath(pbuf);
 }
 #elif BIT_WIN_LIKE
 {
