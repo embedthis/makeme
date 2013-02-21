@@ -36,13 +36,14 @@ installbin=Y
 headless=${HEADLESS:-0}
 
 PATH=$PATH:/sbin:/usr/sbin
+unset CDPATH
 export CYGWIN=nodosfilewarning
 
 ###############################################################################
 
 setup() {
     umask 022
-    if [ $OS != WIN -a `id -u` != "0" ] ; then
+    if [ $OS != windows -a `id -u` != "0" ] ; then
         echo "You must be root to install this product."
         exit 255
     fi
@@ -196,13 +197,8 @@ installFiles() {
                 dpkg -i $HOME/$NAME >/dev/null
             elif [ "$FMT" = "tar" ] ; then
                 target=/
-                [ $OS = WIN ] && target=`cygpath ${HOMEDRIVE}/`
-                [ "$headless" != 1 ] && echo cp -rp contents/* $target
-                cp -rp contents/* $target
-
-                cd contents >/dev/null
-                find . -type f >"$VER_PREFIX/files.log"
-                cd - >/dev/null
+                [ $OS = windows ] && target=`cygpath ${HOMEDRIVE}/`
+                (cd contents ; tar cf - . | (cd $target && tar xBf -))
             fi
         fi
     done
@@ -215,19 +211,18 @@ installFiles() {
         fi
     fi
 
-    if [ "$OS" = "FREEBSD" ] ; then
-        LDCONFIG_OPT=-m
-    else
-        LDCONFIG_OPT=-n
-    fi
-    if which ldconfig >/dev/null 2>&1 ; then
-        ldconfig /usr/lib/lib${PRODUCT}.so.?.?.?
-        ldconfig $LDCONFIG_OPT /usr/lib/${PRODUCT}
-        ldconfig $LDCONFIG_OPT /usr/lib/${PRODUCT}/modules
-    fi
-    "$BIN_PREFIX/linkup" Install /
+#   if [ "$OS" = "freebsd" ] ; then
+#       LDCONFIG_OPT=-m
+#   else
+#       LDCONFIG_OPT=-n
+#   fi
+#   if which ldconfig >/dev/null 2>&1 ; then
+#       ldconfig /usr/lib/lib${PRODUCT}.so.?.?.?
+#       ldconfig $LDCONFIG_OPT /usr/lib/${PRODUCT}
+#       ldconfig $LDCONFIG_OPT /usr/lib/${PRODUCT}/modules
+#   fi
 
-    if [ $OS = WIN ] ; then
+    if [ $OS = windows ] ; then
         [ "$headless" != 1 ] && echo -e "\nSetting file permissions ..."
         find "$PRD_PREFIX" -type d -exec chmod 755 {} \;
         find "$PRD_PREFIX" -type f -exec chmod g+r,o+r {} \;
