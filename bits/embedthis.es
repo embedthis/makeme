@@ -153,8 +153,7 @@ function setupPackagePrefixes(kind, package) {
                 if (pname == 'src') {
                     prefixes[pname] = prefixes.media.portable.normalize
                 } else {
-                    prefixes[pname] = Path(prefixes.media.join('contents').portable.name + 
-                            bit.prefixes[pname].removeDrive().portable).normalize
+                    prefixes[pname] = Path(prefixes.media.join('contents').portable.name + bit.prefixes[pname].removeDrive().portable).normalize
                 }
             }
         }
@@ -561,35 +560,33 @@ function packageFedora(prefixes) {
     bit.platform.mappedCpu = cpu
     let base = [s.product, s.version, s.buildNumber, bit.platform.dist, bit.platform.os, bit.platform.arch].join('-')
 
-    //  MOB change contents to root
-    let contents = staging.join(bit.platform.vname, 'contents')
     let RPM = prefixes.media.join('RPM')
     for each (d in ['SOURCES', 'SPECS', 'BUILD', 'RPMS', 'SRPMS']) {
         RPM.join(d).makeDir()
     }
     RPM.join('RPMS', bit.platform.arch).makeDir()
-
-//  MOB - should be put into prefixes
-    bit.dir.rpm = RPM
-    bit.dir.contents = contents
+    bit.prefixes.rpm = RPM
+    bit.prefixes.content = prefixes.root
 
     let opak = Path('package/' + bit.platform.os)
     let spec = RPM.join('SPECS', base).joinExt('spec', true)
     copy(opak.join('rpm.spec'), spec, {expand: true, permissions: 0644})
 
-    let files = contents.files('**')
+    let files = prefixes.root.files('**')
     let fileList = RPM.join('BUILD/binFiles.txt')
     let cp: File = fileList.open('atw')
     cp.write('%defattr(-,root,root)\n')
 
     let owndirs = RegExp(bit.settings.product)
-    for each (file in contents.files('**/', {relative: true, include: owndirs})) {
+    /* Exclude everything under latest */
+    for each (file in prefixes.root.files('**/', {relative: true, include: owndirs, exclude: /\/latest/})) {
         cp.write('%dir /' + file + '\n')
     }
-    for each (file in contents.files('**', {exclude: /\/$/})) {
-        cp.write('"/' + file.relativeTo(contents) + '"\n')
+    /* Exclude directories and everything under latest, but include latest itself */
+    for each (file in prefixes.root.files('**', {exclude: /\/$|\/latest\//})) {
+        cp.write('"/' + file.relativeTo(prefixes.root) + '"\n')
     }
-    for each (file in contents.files('**/.*', {hidden: true})) {
+    for each (file in prefixes.root.files('**/.*', {hidden: true})) {
         file.remove()
     }
     cp.close()
@@ -647,13 +644,11 @@ function packageWindows(prefixes) {
     copy(bit.dir.top.join('LICENSE.md'), media)
     let iss = media.join('install.iss')
     copy(wpak.join('install.iss'), iss, {expand: true})
-    let contents = media.join('contents')
-    let files = contents.files('**', {exclude: /\/$/, missing: undefined})
+
+    let files = prefixes.root.files('**', {exclude: /\/$/, missing: undefined})
 
     let appPrefix = bit.prefixes.app.removeDrive().portable
-    let top = Path(contents.name + appPrefix)
-
-    //UNUSED let destTop = Path(top.portable.name + appPrefix).windows
+    let top = Path(prefixes.root.name + appPrefix)
     let cp: File = iss.open('atw')
     for each (file in files) {
         let src = file.relativeTo(media)
@@ -753,8 +748,7 @@ public function apiwrap(patterns) {
     for each (dfile in Path('.').files(patterns)) {
         let name = dfile.name.replace('.html', '')
         let data = Path(name + 'Bare.html').readString()
-        let contents = Path(name + 'Header.tem').readString() + data + 
-            Path(name).dirname.join('apiFooter.tem').readString() + '\n'
+        let contents = Path(name + 'Header.tem').readString() + data + Path(name).dirname.join('apiFooter.tem').readString() + '\n'
         dfile.joinExt('html').write(contents)
     }
 }
