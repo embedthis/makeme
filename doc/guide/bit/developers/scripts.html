@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis Bit 0.8.0 Documentation</title>
+    <title>Embedthis Bit 0.8.2 Documentation</title>
     <meta name="keywords" content="Bit, Build It!, Javascript"/>
 	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
 	<meta name="robots" content="index,follow" />
@@ -44,7 +44,7 @@
                 <li><a href="../../../guide/bit/developers/compiling.html">Compiling Sources</a></li>
                 <li><a href="../../../guide/bit/developers/libraries.html">Creating Libraries</a></li>
                 <li><a href="../../../guide/bit/developers/executables.html">Building Executables</a></li>
-                <li><a href="../../../guide/bit/developers/scripts.html">Build Scripts</a></li>
+                <li><a href="../../../guide/bit/developers/scripts.html">Running Scripts</a></li>
                 <li><a href="../../../guide/bit/developers/copying.html">Copying Files</a></li>
                 <li><a href="../../../guide/bit/developers/configuring.html">Configuring a Project</a></li>
                 <li><a href="../../../guide/bit/developers/generating.html">Generating Projects</a></li>
@@ -60,7 +60,6 @@
         <h1>Build Scripts</h1>
         <p>Bit targets can run scripts at various stages of the processing lifecycle. Scripts can be used to
             create outputs, or modify the results of standard processing rules.</p>
-
             <a name="engines"></a>
         <h2>Script Engines</h2>
         <p>Scripts can be written to execute in any installed script interpreter. This may be the Unix bash shell, Perl or
@@ -70,12 +69,10 @@
             systems. Ejscript also has an extensive <a
             href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Library</a> of routines that
             scale well when building projects without turning into a mess of shell script.</p>
-
         <a name="low"></a>
         <h2>Low-Level Scripts</h2>
         <p>Let us first explain the low-level script form. Then we'll explain the more common convenience methods to
         express scripts.</p>
-
         <p>The Bit DOM defines a collection of scripts to run at various stages of the Bit processing 
         life cycle.  When a specific event is triggered, the corresponding scripts are run. For each event, there can be
         multiple scripts that are run in-order. Each script has a <em>home</em> directory that becomes the current directory
@@ -105,10 +102,8 @@
         <p>Because the <em>type</em> property is set to build, this target and the scripts will be run for a 
         default bit invocation (without any explicit targets specified).</p>
         <pre>$ bit</pre>
-
         <p>The target <em>scripts</em> property is a collection that is indexed by an event named for when the script should
         run. The standard events are described in <a href="../../../ref/bit/events.html#events">Bit Events</a>.
-
         <p>Here is another example of a shell script that runs just prior to building a library.
 <pre>
 libglow: {
@@ -126,14 +121,12 @@ libglow: {
         <h2>Higher-Level Scripts</h2>
         <p>Bit target scripts can also be specified using higher-level, abbreviated forms. These are more
         convenient and typically used in preference over the low-level forms described above.</p>
-
         <p>There are three higher level forms:</p>
         <ol>
             <li>Shell scripts &mdash; that run when requested using bash for Unix and Cygwin systems</li>
             <li>Action target scripts &mdash; that run when requested using Ejscript</li>
             <li>Build target scripts &mdash; that run for default builds using Ejscript</li>
         </ol>
-
         <a name="shell"></a>
         <h2>Shell Scripts</h2>
         <p>Shell scripts can be easily specified via the target shell property:
@@ -166,12 +159,9 @@ cleanup: {
 </pre>
         <p>Because the type property is set to <em>action</em>, this script will be run when the named target (cleanup) is
         invoked.</p>
-
         <pre>bit cleanup</pre>
-
         <p>If you need a shell script to run when a default build is initiated, use the low-level form and set
         the target type to <em>build</em> See the <a href="#low">Low-level Scripts</a> section above for details.</p>
-
         <a name="action"></a>
         <h2>Action Scripts</h2>
         <p>An action script runs when explicitly requested. It operates similarly to a shell script except that it uses the
@@ -193,7 +183,6 @@ prep: {
         explicitly invoked on the command line or another target is invoked that references them as a dependency. </p>
         <p>Note that in Ejscript, quoted literals can span multiple lines. No backquoting at the end of the line is
         required. Also, semicolon end-of-line terminators are optional.</p> 
-
         <p>An action script translates into a target with a type of <em>action</em> and an event of <em>build</em>. 
 <pre>
 cleanup: {
@@ -220,8 +209,6 @@ cleanup: {
         <h2>Build Scripts</h2>
         <p>Build scripts are a convenient way to express actions that should run for default builds. Build scripts
         use Ejscript and are defined via the <em>build</em> property. For example:</p>
-
-
 <pre>
 building: {
     build: "
@@ -232,7 +219,6 @@ building: {
         <p>When <em>bit</em> is invoked, the script for the <em>building</em> target will be run. When the target runs
         will be dictated by whether other targets depend upon it. </p>
         <p>A build script translates into a target with a type of <em>build</em> and an event of <em>build</em>.</p>
-
 <pre>
 building: {
     scripts: {
@@ -249,7 +235,6 @@ building: {
     ',
 },
 </pre>
-
         <a name="targetPaths"></a>
         <h3>Target Paths</h3>
         <p>You can make a build script run only when it is out-of-date by adding a <em>path</em> property for 
@@ -302,7 +287,6 @@ print('Dirname', p.dirname)
 print('Extension', p.extension)
 print('Joining', p.dirname.join('other.c'))
 </pre>
-
         <h3>Fetch from the Web</h3>
 <pre>
 let data = Http.fetch('http://example.com/something.html')

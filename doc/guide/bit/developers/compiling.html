@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis Bit 0.8.0 Documentation</title>
+    <title>Embedthis Bit 0.8.2 Documentation</title>
     <meta name="keywords" content="Bit, Build It!, Javascript"/>
 	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
 	<meta name="robots" content="index,follow" />
@@ -126,7 +126,6 @@ sources: '**.c',
 </pre>
         <p>This will exclude C files in the test and demo directories. If using regular expressions, make sure you 
         include a leading '\/' and trailing '$' if you want to match a directory basename.</p>
-
         <a name="headers"></a>
         <h2 class="section">Headers</h2>
         <p>Bit, by convention, copies declared headers to the platform <em>OS-ARCH-PROFILE/inc</em> directory. This is
@@ -143,7 +142,6 @@ libname: {
         <p>This will create targets at run-time for all headers in the current directory. These targets will copy the
         headers (if modified) to the <em>inc</em> directory for the platform. The standard Bit compile rules will then
         resolve the headers from the inc directory.</p>
-
         <a name="resources"></a>
         <h2 class="section">Resources</h2>
         <p>Bit can compiled Windows resources by specifing them in a <em>resources</em> property list.
@@ -162,7 +160,6 @@ appwebMonitor: {
 </pre>
         <p>This will use the Windows resource compiler <em>rc</em> to compile the resource and then link into the
         executable.</p>
-
         <a name="options"></a>
         <h2 class="section">Compiler Options</h2>
         <p>Bit crafts commands to compile sources using Bit compiler properties for include directories, compiler options,
@@ -225,7 +222,6 @@ mylib: {
         </pre>
         <p>For detailed information on scripting, please see <a href="events">Bit Events</a> and
         <a href="scripting">Bit Scripting</a>.</p>
-
         <a name="inheriting"></a>
         <h2 class="section">Inheriting Defaults</h2>
         <p>Every target inherits default properties from the <em>defaults</em> and <em>internal</em> property collections.
@@ -257,7 +253,6 @@ internal: {
 },
 </b>
         <p>These shared settings can be in any bit file.</p>
-
 rocket {
     <b>inherit: ['shared-settings']</b>,
     type: 'exe'
@@ -265,7 +260,6 @@ rocket {
 },
 </pre>
         <p>In this manner, specific targets can nominate the group of settings form which they wish to inherit.</p>
-
         <h2 class="section">Compiler Rules</h2>
         <p>Bit defines compiler command templates to use for compiling, linking and other tasks. These templates are
         defined in the the <em>rules</em> property collection. These templates are unique for each supported platform

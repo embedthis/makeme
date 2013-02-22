@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis Bit 0.8.0 Documentation</title>
+    <title>Embedthis Bit 0.8.2 Documentation</title>
     <meta name="keywords" content="Bit, Build It!, Javascript"/>
 	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
 	<meta name="robots" content="index,follow" />
@@ -96,38 +96,31 @@ Bit.load({
         <pre>bit libengine librocket space-program</pre>
         <p>To do an all-targets (default) build, type:: </p>
         <pre>bit</pre>
-
         <p>This is equivalent to:
         <pre>bit build</pre>
         <p>An all-targets build will make all file, executable, library, and script targets of type <em>build</em>.</p>
-
         <p>The <em>all</em> and <em>compile</em> targets are aliases for the <em>build</em> target 
             for those wedded to <em>make</em> style commands.</p>
-
         <a id="rebuild"></a>
         <h2>Rebuild</h2>
         <p>To rebuild everything including  all built tagets and intermediaries, run:</p>
         <pre>bit rebuild</pre> 
-
         <a id="clean"></a>
         <h2>Cleaning</h2>
         <p>To remove all built tagets and intermediaries, run:</p>
         <pre>bit clean</pre> 
         <p>This will clean all executables, libraries, objects and will run all script targets with a type of "clean".</p>
-
         <a id="clobber"></a>
         <h2>Clobber</h2>
         <p>To remove all generated files and directories, run:</p>
         <pre>bit clobber</pre> 
         <p>This will first do a <em>bit clean</em> and then will remove the platform output directories.</p>
-
         <a id="version"></a>
         <h2>Version</h2>
         <p>To show the product version number, run:</p>
         <pre>$ <b>bit version</b>
 1.2.0
 </pre> 
-
         <a id="errors"></a>
         <h2>Seeing Errors</h3>
         <p>By default, bit is fairly terse. It does not spew endless command lines that scroll off the screen.

@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis Bit 0.8.0 Documentation</title>
+    <title>Embedthis Bit 0.8.2 Documentation</title>
     <meta name="keywords" content="Bit, Build It!, Javascript"/>
 	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
 	<meta name="robots" content="index,follow" />
@@ -42,6 +42,7 @@
         <ul>
             <li><a href="../../ref/bit/syntax.html">Bit File Syntax</a></li>
             <li><a href="../../ref/bit/dom.html">Bit File DOM</a></li>
+            <li><a href="../../ref/bit/processing.html">Bit File Processing</a></li>
             <li><a href="../../ref/bit/commandline.html">Bit Command Line</a></li>
             <li><a href="../../ref/bit/events.html">Bit Events</a></li>
             <li><a href="../../ref/bit/targets.html">Bit Targets</a></li>
@@ -65,7 +66,6 @@ targets {
     },
 },
 </pre>
-
         <h2>Target Dependencies</h2>
         <p>Bit targets can depend on other targets that must be built first. Dependencies are expressed as an 
         ordered list of targets in the <em>depends</em> property. 
@@ -83,7 +83,6 @@ targets {
     },
 }
 </pre>
-
         <p>When bit is invoked, it may nominate specific targets to build,
         or a default build may be requested (via no arguments), and then all enabled targets will be built.</p>
 <pre>
@@ -91,12 +90,10 @@ $ bit libfuel  # builds only libfuel
 $ bit rocket   # builds libfuel then rocket
 $ bit          # builds all targets
 </pre>
-
         <h2>Target Build Order</h2>
         <p>Before building, Bit parses the entire Bit file configuration and creates a build tree based on
         which targets depend on what. Bit then builds the targets by doing a depth-first traversal of the build tree.
         It successfully detects and handles dependency loops.</p>
-
         <a id="defaultProperties"></a>
         <h2>Target Default Properties</h2>
         <p>Often targets need very similar configuration. Bit provides a <em>defaults</em> collection of properties that are
@@ -116,7 +113,6 @@ internal: {
     '+defines': [ 'TUNE=SIZE ],
 }
 </pre>
-
         <h2>Enabling and Disabling Targets</h2>
         <p>Targets can be selectively enabled or disabled based on the value of the <em>enable</em> property. 
         The property may be set to a string containing an arbitrary script expression that is evaluated and if true
@@ -132,7 +128,6 @@ appwebMonitor: {
             enable expression as a string, it will be evaluated when the bit file is loaded, not when the target
             is evaluated. In some cases, this will work if that portion of the DOM referenced in your expression
             has been defined. Best to always wrap your enable expression in quotes.</p>
-
         <h3>Enable Samples</h3>
         <p>SSL has a special setting that can be tested for targets that require SSL before building</p>
         <pre>

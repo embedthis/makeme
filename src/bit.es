@@ -1448,6 +1448,9 @@ public class Bit {
 
         let prefixes = mapPrefixes()
         for (let [name, value] in prefixes) {
+            if (name == 'root' && value == '/') {
+                value = ''
+            }
             genout.writeLine('%-21s := %s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
         }
         genout.writeLine('')

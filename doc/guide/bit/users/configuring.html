@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis Bit 0.8.0 Documentation</title>
+    <title>Embedthis Bit 0.8.2 Documentation</title>
     <meta name="keywords" content="Bit, Build It!, Javascript"/>
 	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
 	<meta name="robots" content="index,follow" />
@@ -160,7 +160,6 @@ the form <em>--set KEY=VALUE</em>. For example:
 </pre>
         <p>Depending on the project and target system, the installation prefixes may vary.</p>
         <p>For those familiar with autoconf, the major autoconf prefix switches are supported by bit.</p>
-
         <h2>Out-of-source Tree Builds</h2>
         <p>Bit supports building from read-only source trees. To do this, use <em>bit -config path</em> when
         configuring. Run this from a writable directory and reference the read-only source tree via the
@@ -199,7 +198,6 @@ the form <em>--set KEY=VALUE</em>. For example:
         <p>To dump the entire configuration into a single bit file. This is great for debugging.</p>
         <pre>configure --dump</pre>
         <p>To learn more, read about <a href="debugging.html">Debugging a Build</a>.</p>
-
         <h2>Customize.bit</h2>
         <p>Instead of manually specifying settings to configure, you can create a customize.bit file that will be loaded
         after the main.bit and all referenced bit files are fully loaded. The customize.bit file can thus override any prior
@@ -213,7 +211,6 @@ Bit.load({
 })
 </pre>
         </div>
-
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->
 	<div class="bottom">

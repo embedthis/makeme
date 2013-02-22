@@ -27,7 +27,7 @@ Bit.load({
         },
 
         api: {
-            depends: ['scriptApi', 'nativeApi'],
+            _depends: ['scriptApi', 'nativeApi'],
         },
 
         tidy: {

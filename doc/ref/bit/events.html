@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis Bit 0.8.0 Documentation</title>
+    <title>Embedthis Bit 0.8.2 Documentation</title>
     <meta name="keywords" content="Bit, Build It!, Javascript"/>
 	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
 	<meta name="robots" content="index,follow" />
@@ -42,6 +42,7 @@
         <ul>
             <li><a href="../../ref/bit/syntax.html">Bit File Syntax</a></li>
             <li><a href="../../ref/bit/dom.html">Bit File DOM</a></li>
+            <li><a href="../../ref/bit/processing.html">Bit File Processing</a></li>
             <li><a href="../../ref/bit/commandline.html">Bit Command Line</a></li>
             <li><a href="../../ref/bit/events.html">Bit Events</a></li>
             <li><a href="../../ref/bit/targets.html">Bit Targets</a></li>
@@ -65,13 +66,11 @@
                         This is fired for bit file scripts (not target scripts).</td></tr>
                 <tr><td>postload</td><td>Fired after loading and blending a bit file into the DOM.
                         This is fired for bit file scripts (not target scripts).</td></tr>
-
                 <tr><td>postblend</td><td>Fired after blending defaults into a target.</td></tr>
                 <tr><td>preresolve</td><td>Fired before resolving dependencies for a target</td></tr>
                 <tr><td>postresolve</td><td>Fired after resolving dependencies for a target</td></tr>
                 <tr><td>presource</td><td>Fired before expanding source wildcards and creating object targets</td></tr>
                 <tr><td>postsource</td><td>Fired after expanding source wildcards and creating object targets</td></tr>
-
                 <tr><td>preinherit</td><td>Fired after all bit files are loaded and before before targets inherit default
                         proeprties. 
                     This is fired for bit file scripts (not target scripts).</td></tr>
@@ -96,7 +95,6 @@ rocket: {
     postbuild: "print('after building')",
 },
 </pre>
-
         <p>These scripts are actually translated into a lower-level form when the bit file is loaded. 
         Scripts are translated into the <em>scripts</em> collection using a property name of the desired event. 
 <pre>
@@ -110,11 +108,9 @@ rocket: {
     },
 },
 </pre>
-
             <p>For more details on how to set the home directory for the script or to specify 
             a different script interpreter, see <a href="../../guide/bit/developers/scripts.html">Scripts</a>
             in the Bit User Guide.</p>
-
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->

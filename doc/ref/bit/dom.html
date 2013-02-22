@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis Bit 0.8.0 Documentation</title>
+    <title>Embedthis Bit 0.8.2 Documentation</title>
     <meta name="keywords" content="Bit, Build It!, Javascript"/>
 	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
 	<meta name="robots" content="index,follow" />
@@ -47,6 +47,7 @@
         <ul>
             <li><a href="../../ref/bit/syntax.html">Bit File Syntax</a></li>
             <li><a href="../../ref/bit/dom.html">Bit File DOM</a></li>
+            <li><a href="../../ref/bit/processing.html">Bit File Processing</a></li>
             <li><a href="../../ref/bit/commandline.html">Bit Command Line</a></li>
             <li><a href="../../ref/bit/events.html">Bit Events</a></li>
             <li><a href="../../ref/bit/targets.html">Bit Targets</a></li>
@@ -57,7 +58,6 @@
 <!-- EndDsi -->
         </div>
         <div class="contentLeft">
-
         <a name="dom"></a>
         <h1>Bit File DOM</h1>
         <p>The Bit DOM allows you to access and manipulate the entire Bit model for how to build a project. Every 
@@ -115,17 +115,14 @@
                         <li>base &mdash; Base installation prefix: /usr/local</li>
                         <li>data &mdash; Installation prefix for modifiable data: /</li>
                         <li>state &mdash; Base installation prefix: /var</li>
-
                         <li>app &mdash; Base application directory: /usr/local/lib/${settings.product}</li>
                         <li>vapp &mdash; Versioned application directory: ${prefixes.product}/${settings.version}</li>
-
                         <li>etc &mdash; Configuration prefix: ${prefixes.data}/etc/${settings.product}</li>
                         <li>bin &mdash; Binary directory: ${prefixes.base}/bin</li>
                         <li>inc &mdash; Include directory: ${prefixes.base}/include</li>
                         <li>lib &mdash; Product libraries: ${prefixes.base}/lib</li>
                         <li>man &mdash; Product log files: ${prefixes.base/share/man</li>
                         <li>sbin &mdash; System binaries: ${prefixes.base}/sbin</li>
-
                         <li>log &mdash; Product log files ${prefixes.state}/log/${settings.product}</li>
                         <li>spool &mdash; Product spool files ${prefixes.state}/spool/${settings.product}</li>
                         <li>cache &mdash; Product spool files ${prefixes.state}/cache/${settings.product}</li>
@@ -142,7 +139,6 @@
                 <tr><td>usage</td><td>Additional usage message to emit for bit command line errors</td></tr>
             </tbody>
         </table>
-
         <a name="global"></a>
         <h2>Globals &mdash; bit.globals.*</h2>
         <p>The following bit.globals.* are defined for use by tokens:</p>
@@ -186,7 +182,6 @@
                 <tr><td>profile</td><td>Build profile selected: 'debug', 'release', ...</td></tr>
             </tbody>
         </table>
-
         <a name="packs"></a>
         <h2>Packs Collection &mdash; bit.packs.*</h2>
         <p>The packs collection defines a collection for each extension pack that bit examined when configuring. Each
@@ -209,7 +204,6 @@
                 <tr><td>path</td><td>If found, the path to the pack directory or binary</td></tr>
             </tbody>
         </table>
-
         <a name="settings"></a>
         <h2>Settings Collection &mdash; bit.settings.*</h2>
         <p>The settings collection specifies the top level project/product names. It is required in the main.bit file.</p>
@@ -232,7 +226,6 @@
                 <tr><td>without-all</td><td>List of packs to disable when doing '--without all configure'</td></tr>
             </tbody>
         </table>
-
         <a name="targets"></a>
         <h2>Targets Collection &mdash; bit.targets.*</h2>
         <table title="targets" class="full">
@@ -265,7 +258,6 @@
                 <tr><td>rule</td><td>Build command template to use when invoking compiler and linker. Typically not
                         explicitly set unless overriding for some reason. Set to: 'c-&gt;o', 'cpp-&gt;o', 'lib', 'exe', 'gui'.
                         Rules are automatically selected for 'lib' and 'exe' targets. </td>
-
                 <tr><td>scripts</td><td>Scripts for the target. See <a href="#scripts">scripts</a> for details</td></tr>
                 <tr><td>sources</td><td>Array of source file patterns to compile for the target. Use normal * as a
                         wild-card, ** as a wild-card that descends directories. Use the exclude property to exclude </td></tr>

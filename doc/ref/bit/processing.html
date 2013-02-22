@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis Bit 0.8.0 Documentation</title>
+    <title>Embedthis Bit 0.8.2 Documentation</title>
     <meta name="keywords" content="Bit, Build It!, Javascript"/>
 	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
 	<meta name="robots" content="index,follow" />
@@ -41,6 +41,7 @@
         <ul>
             <li><a href="../../ref/bit/syntax.html">Bit File Syntax</a></li>
             <li><a href="../../ref/bit/dom.html">Bit File DOM</a></li>
+            <li><a href="../../ref/bit/processing.html">Bit File Processing</a></li>
             <li><a href="../../ref/bit/commandline.html">Bit Command Line</a></li>
             <li><a href="../../ref/bit/events.html">Bit Events</a></li>
             <li><a href="../../ref/bit/targets.html">Bit Targets</a></li>
@@ -51,7 +52,6 @@
 <!-- EndDsi -->
         </div>
         <div class="contentLeft">
-
         <h1>Bit File Processing</h1>
         <p>Bit builds targets according to a defined life cycle.</p>
         <ol>
@@ -83,7 +83,6 @@
             transition rules specified in <em>bit.rules</em>. If the target has a <em>build</em> event script, 
             it is run.</li>
         </ol>
-
         <a id="selectingTargets"></a>
         <h2>Selecting Targets</h2>
         <p>Bit follows a simple process when selecting the targets to build.</p>
@@ -92,16 +91,13 @@
                 does not match a target name, the list of targets is search to see if the name matches any targets with
             a type of that name. All matching targets are added to the list. For example: this allows targets of type
             <em>clean</em> to be run when <em>bit clean</em> is invoked.</li>
-
             <li>If no names are specified on the bit command line, a default build is performed. A list of 
             candidate targets to build is populated with all executables, libraries, files and scripts with a type of
             "build".</li>
-
             <li>Targets that are disabled (<em>enable</em> property evaluates to false) are removed from the list</li>
             <li>Targets referenced in the <em>depends</em> property are added to the list (recursively)</li>
             <li>Additional targets are created dynamically for source items to be compiled and include headers</li>
         </ol>
-
         <p>To reiterate, there are thus two paradigms when invoking bit:</p>
         <ul> 
             <li><em>bit target ...</em></li>
