@@ -35270,6 +35270,7 @@ PUBLIC int ejsBlendObject(Ejs *ejs, EjsObj *dest, EjsObj *src, int flags)
     return 0;
 }
 
+
 /*     
     Parse the input and convert to a primitive type
     static function parse(input: String, preferredType: Type = null): void
