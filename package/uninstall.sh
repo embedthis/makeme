@@ -28,7 +28,7 @@
 #
 ################################################################################
 #
-#	NOTE: We require a saved setup file exist in ${VER_PREFIX}/install.conf
+#	NOTE: We require a saved setup file exist in ${VAPP_PREFIX}/install.conf
 #	This is created by install.
 #
 
@@ -44,9 +44,11 @@ OS="${platform.os}"
 CPU="${platform.arch}"
 
 BIN_PREFIX="${prefixes.bin}"
-INC_PREFIX="${prefixes.inc}"
-PRD_PREFIX="${prefixes.product}"
-VER_PREFIX="${prefixes.productver}"
+APP_PREFIX="${prefixes.app}"
+VAPP_PREFIX="${prefixes.vapp}"
+
+ABIN="${VAPP_PREFIX}/bin"
+AINC="${VAPP_PREFIX}/in"
 
 removebin=Y
 
@@ -113,7 +115,7 @@ removeTarFiles() {
     local cdir=`pwd`
 
     pkg=$1
-    [ $pkg = bin ] && prefix="$VER_PREFIX"
+    [ $pkg = bin ] && prefix="$VAPP_PREFIX"
     if [ -f "$prefix/files.log" ] ; then
         if [ $OS = windows ] ; then
             cd ${prefix%%:*}:/
@@ -129,21 +131,9 @@ removeTarFiles() {
 preClean() {
 	local f
 	local cdir=`pwd`
-
-    cp "$BIN_PREFIX/linkup" /tmp/linkup$$
-
-	if [ $OS != windows ] ; then
-        rm -f /var/lock/subsys/$PRODUCT /var/lock/$PRODUCT
-        rm -fr /var/log/$PRODUCT
-        rm -rf /var/run/$PRODUCT
-    fi
-    if [ -x "$PRD_PREFIX" ] ; then
-        cd "$PRD_PREFIX"
+    if [ -x "$APP_PREFIX" ] ; then
+        cd "$APP_PREFIX"
         removeIntermediateFiles *.dylib *.dll *.exp *.lib
-    fi
-    if [ -d "$INC_PREFIX" ] ; then
-        cd "$INC_PREFIX"
-        removeIntermediateFiles '*.o' '*.lo' '*.so' '*.a' make.rules .config.h.sav make.log .changes
     fi
     cd "$cdir"
 }
@@ -151,32 +141,12 @@ preClean() {
 postClean() {
     local cdir=`pwd`
 
-    rm -f "${VER_PREFIX}/install.conf"
-
-    cleanDir "${BIN_PREFIX}"
-    cleanDir "${INC_PREFIX}"
-    cleanDir "${DOC_PREFIX}"
-    cleanDir "${PRD_PREFIX}"
-
-    if [ $OS != windows ] ; then
-        if [ -x /usr/share/$PRODUCT ] ; then
-            cleanDir /usr/share/$PRODUCT
-        fi
-        if [ -d /var/$PRODUCT ] ; then
-            cleanDir /var/$PRODUCT
-        fi
-        rmdir /usr/share/${PRODUCT} >/dev/null 2>&1
-        for p in MAN INC DOC PRD CFG LIB WEB SPL ; do
-            eval rmdir "\$${p}_PREFIX" >/dev/null 2>&1
-        done
-    fi
-    cleanDir "${VER_PREFIX}"
-    rm -f "${PRD_PREFIX}/latest"
-    cleanDir "${PRD_PREFIX}"
-    if [ -x /tmp/linkup$$ ] ; then
-        /tmp/linkup$$ Remove /
-        rm -f /tmp/linkup$$
-    fi
+    rm -f "${VAPP_PREFIX}/install.conf"
+    cleanDir "${ABIN}"
+    cleanDir "${APP_PREFIX}"
+    cleanDir "${VAPP_PREFIX}"
+    rm -f "${APP_PREFIX}/latest"
+    cleanDir "${APP_PREFIX}"
 }
 
 removeFileList() {
@@ -253,12 +223,10 @@ setup() {
 	#
 	#	Get defaults from the installation configuration file
 	#
-    if [ -f ${VER_PREFIX}/install.conf ] ; then
-		.  ${VER_PREFIX}/install.conf
+    if [ -f ${VAPP_PREFIX}/install.conf ] ; then
+		.  ${VAPP_PREFIX}/install.conf
 	fi
-	
-	binDir=${binDir:-$VER_PREFIX}
-
+	binDir=${binDir:-$VAPP_PREFIX}
 	echo -e "\n$NAME ${VERSION}-${NUMBER} Removal\n"
 }
 

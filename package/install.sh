@@ -28,9 +28,11 @@ CPU="${platform.arch}"
 DIST="${platform.dist}"
 
 BIN_PREFIX="${prefixes.bin}"
-INC_PREFIX="${prefixes.inc}"
-PRD_PREFIX="${prefixes.productver}"
-VER_PREFIX="${prefixes.productver}"
+APP_PREFIX="${prefixes.app}"
+VAPP_PREFIX="${prefixes.vapp}"
+
+ABIN="${VAPP_PREFIX}/bin"
+AINC="${VAPP_PREFIX}/in"
 
 installbin=Y
 headless=${HEADLESS:-0}
@@ -171,14 +173,14 @@ ask() {
 saveSetup() {
     local firstChar
 
-    mkdir -p "$VER_PREFIX"
-    echo -e "FMT=$FMT\nbinDir=$VER_PREFIX\ninstallbin=$installbin\n" >"${VER_PREFIX}/install.conf"
+    mkdir -p "$VAPP_PREFIX"
+    echo -e "FMT=$FMT\nbinDir=$VAPP_PREFIX\ninstallbin=$installbin\n" >"${VAPP_PREFIX}/install.conf"
 }
 
 installFiles() {
     local dir pkg doins NAME upper target
 
-    [ "$headless" != 1 ] && echo -e "\nExtracting files ...\n"
+    [ "$headless" != 1 ] && echo -e "\nExtracting files ..."
 
     for pkg in bin ; do
         doins=`eval echo \\$install${pkg}`
@@ -205,47 +207,25 @@ installFiles() {
 
     if [ -f /etc/redhat-release -a -x /usr/bin/chcon ] ; then 
         if sestatus | grep enabled >/dev/nulll ; then
-            for f in $BIN_PREFIX/*.so ; do
+            for f in $ABIN/*.so ; do
                 chcon /usr/bin/chcon -t texrel_shlib_t $f 2>&1 >/dev/null
             done
         fi
     fi
 
-#   if [ "$OS" = "freebsd" ] ; then
-#       LDCONFIG_OPT=-m
-#   else
-#       LDCONFIG_OPT=-n
-#   fi
-#   if which ldconfig >/dev/null 2>&1 ; then
-#       ldconfig /usr/lib/lib${PRODUCT}.so.?.?.?
-#       ldconfig $LDCONFIG_OPT /usr/lib/${PRODUCT}
-#       ldconfig $LDCONFIG_OPT /usr/lib/${PRODUCT}/modules
-#   fi
-
     if [ $OS = windows ] ; then
         [ "$headless" != 1 ] && echo -e "\nSetting file permissions ..."
-        find "$PRD_PREFIX" -type d -exec chmod 755 {} \;
-        find "$PRD_PREFIX" -type f -exec chmod g+r,o+r {} \;
-        chmod 755 "$BIN_PREFIX"/*.dll "$BIN_PREFIX"/*.exe
+        find "$APP_PREFIX" -type d -exec chmod 755 {} \;
+        find "$APP_PREFIX" -type f -exec chmod g+r,o+r {} \;
+        chmod 755 "$ABIN"/*.dll "$ABIN"/*.exe
     fi
-    [ "$headless" != 1 ] && echo
 }
 
 removeOld() {
-    if [ -x /usr/lib/bit/bin/uninstall ] ; then
-        HEADLESS=1 /usr/lib/bit/bin/uninstall </dev/null 2>&1 >/dev/null
-    else 
-        for v in `ls $prefix 2>/dev/null | egrep -v '[a-zA-Z@!_\-]' | sort -n -r`
-        do
-            if [ -x "$prefix/$v/bin/bit" ] ; then
-                version=$v
-                break
-            fi
-        done
-        if [ -x /usr/lib/bit/bin/$version/uninstall ] ; then
-            HEADLESS=1 /usr/lib/bit/bin/$version/uninstall </dev/null 2>&1 >/dev/null
-        fi
+    if [ -x "$ABIN/uninstall" ] ; then
+        HEADLESS=1 "$ABIN/uninstall" </dev/null 2>&1 >/dev/null
     fi
+    rm -f "${APP_PREFIX}/latest"
 }
 
 ###############################################################################

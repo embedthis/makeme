@@ -1,12 +1,8 @@
 Embedthis Bit(TM)
 
-Welcome to the Embedthis Bit distribution. Bit stands for Build It and is a replacement for the autoconf/make build
-tools. Bit is a single tool that configures, builds and generated native build projects for applications.
-It expresses build rules in the JavaScript language.
+Welcome to the Embedthis Bit distribution. Bit stands for Build It and is a replacement for the autoconf/make build tools. Bit is a single tool that configures, builds and generated native build projects for applications.  It expresses build rules in the JavaScript language.
 
-This document describes the installation procedure for the binary Bit package. This package contains pre-built language
-tools including an interpreter, compiler, vm, documentation generator and assembler listing program as well as the
-development libraries and headers needed to embed Bit in an application. 
+This document describes the installation procedure for the binary Bit package. This package contains pre-built language tools including an interpreter, compiler, vm, documentation generator and assembler listing program as well as the development libraries and headers needed to embed Bit in an application. 
 
 You can read the documentation for the latest release online at:
 
@@ -32,25 +28,17 @@ System Requirements
 Operating System Support
 
     * Windows XP, Vista, Windows-7 (x86,x64)
-    * Mac OS X 10.4, 10.5 (ppc,x86,x64)
+    * Mac OS X 10.6+ (x64)
     * Linux 2.4, 2.6 (x86,x64,arm,ppc,sparc,xscale,mips)
-    * VxWorks (x86,arm,ppc,sparc,xscale,mips)
-    * Solaris (sparc,x86,x64)
 
 To install Bit, your system will need at least the following:
 
-    * 50 MB Disk
-    * 1 GB RAM
-
-To deploy Bit in an embedded environment, you will need at least the following:
-
-    * 2 MB Disk / ROM space
-    * 4 MB RAM
+    * 5 MB Disk
+    * 512 MB RAM
 
 To rebuild Bit from source code, you will need at least:
 
-    * 80 MB disk space
-
+    * 100 MB disk space
 
 Installation Package Formats
 
@@ -136,9 +124,7 @@ system PATH.
 
 Building from the Source Code
 
-If you wish to rebuild the Bit product from the distributed source code, please download the source code distribution from
-the Embedthis web site. Then read "Building from Source" in the Bit product documentation for an explanation of the necessary steps to successfully rebuild the product.
-
+If you wish to rebuild the Bit product from the distributed source code, please download the source code distribution from the Embedthis web site. Then read "Building from Source" in the Bit product documentation for an explanation of the necessary steps to successfully rebuild the product.  
 
 License and Copyright Information
 
