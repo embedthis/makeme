@@ -170,13 +170,6 @@ ask() {
     echo $ans
 }
 
-saveSetup() {
-    local firstChar
-
-    mkdir -p "$VAPP_PREFIX"
-    echo -e "FMT=$FMT\nbinDir=$VAPP_PREFIX\ninstallbin=$installbin\n" >"${VAPP_PREFIX}/install.conf"
-}
-
 installFiles() {
     local dir pkg doins NAME upper target
 
@@ -236,7 +229,6 @@ removeOld() {
 setup $*
 askUser
 removeOld
-saveSetup
 installFiles $FMT
 
 [ "$headless" != 1 ] && echo
