@@ -1,8 +1,9 @@
 Embedthis Bit(TM)
 
-Welcome to the Embedthis Bit distribution. Bit stands for Build It and is a replacement for the autoconf/make build tools. Bit is a single tool that configures, builds and generated native build projects for applications.  It expresses build rules in the JavaScript language.
+Welcome to the Embedthis Bit distribution. Bit is a modern replacement for the autoconf and make make build tools.  Bit uses Javascript to simply describe projects with smart defaults. It then builds directly, or generates makefiles, and IDE projects.
 
-This document describes the installation procedure for the binary Bit package. This package contains pre-built language tools including an interpreter, compiler, vm, documentation generator and assembler listing program as well as the development libraries and headers needed to embed Bit in an application. 
+This document describes the installation procedure for the binary Bit package. This package contains bit tool and manual
+page. Documentation is available online at http://embedthis.com/products/bit/doc/. 
 
 You can read the documentation for the latest release online at:
 
