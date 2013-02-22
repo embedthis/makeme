@@ -6,40 +6,15 @@
 
 BIT_PRODUCT=${settings.product}
 BIT_NAME="${settings.title}"
-BIT_CFG_PREFIX="${prefixes.config}"
 
 ###############################################################################
 
 remove() {
-	local cdir=`pwd`
-
-    if [ -x $BIT_CFG_PREFIX ] ; then
-		cd $BIT_CFG_PREFIX
-		removeIntermediateFiles access.log error.log '*.log.old' .dummy make.log
-		cleanDir
-		cd $cdir 
-		rmdir $BIT_CFG_PREFIX 2>/dev/null || true
-	fi
-    if [ -x $BIT_LIB_PREFIX ] ; then
-        cd $BIT_LIB_PREFIX
-        removeIntermediateFiles access.log error.log '*.log.old' .dummy $BIT_PRODUCT.conf .*.log make.log
-        cleanDir
-        cd $cdir
-        rmdir $BIT_LIB_PREFIX 2>/dev/null || true
-    fi
+    :
 }
 
 purge() {
-	local cdir=`pwd`
-
-	remove
-    if [ -x $BIT_CFG_PREFIX ] ; then
-		cd $BIT_CFG_PREFIX
-		removeIntermediateFiles .dummy make.log
-		cleanDir
-		cd $cdir 
-		rmdir $BIT_CFG_PREFIX 2>/dev/null || true
-	fi
+    :
 }
 
 #

@@ -4,14 +4,14 @@ Section: devel
 Priority: optional
 Architecture: ${platform.mappedCpu}
 Depends: libc6
-Provides: ejs
-Replaces: ejs, ejs-dev, ejs-bin
-Conflicts: ejs, ejs-dev, ejs-bin
+Provides: bit
+Replaces: bit
+Conflicts: bit
 Installed-Size: 10
 Maintainer: Embedthis Development <dev@embedthis.com>
 Description: Embedthis Ejscript
- Ejscript is a powerful server-side JavaScript language and web framework suitable for dynamic web applications.
+ Bit is a modern replacement for the autoconf and make utilities. It uses Javascript to describe projects with smart defaults. 
+ It then builds directly, or generates makefiles, and IDE projects.
  .
- more information about Ejscript can be found at:
- <URL:http://ejscript.org>
+ more information about Embedthis Bit can be found at:
  <URL:http://embedthis.com>

@@ -5,8 +5,7 @@
 #
 
 BIT_PRODUCT=${settings.product}
-BIT_NAME="${settings.title}
-BIT_BIN_PREFIX="${prefixes.bin}"
+BIT_NAME="${settings.title}"
 
 ###############################################################################
 #
@@ -18,7 +17,6 @@ action=$1
 
 case $action in
 	configure)							# when new
-        "$BIT_BIN_PREFIX/linkup" Install /
         echo
 		echo "$BIT_NAME installation successful."
 		;;

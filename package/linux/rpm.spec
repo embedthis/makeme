@@ -1,7 +1,7 @@
 #
 #	RPM spec file for ${settings.title}
 #
-Summary: ${settings.title} -- Embeddable JavaScript
+Summary: ${settings.title} -- A modern replacement for the autoconf and make tools
 Name: ${settings.product}
 Version: ${settings.version}
 Release: ${settings.buildNumber}
@@ -14,7 +14,7 @@ BuildRoot: ${dir.rpm}/BUILDROOT/${settings.product}-${settings.version}-${settin
 AutoReqProv: no
 
 %description
-Embedthis Bit is modern alternative to autoconf and make
+Bit is a replacement for the autoconf/make build tools. Bit is a single tool that configures, builds and generated native build projects for applications. It expresses build rules in the JavaScript language.
 
 %prep
 
@@ -32,17 +32,15 @@ Embedthis Bit is modern alternative to autoconf and make
 if [ -x /usr/bin/chcon ] ; then 
 	sestatus | grep enabled >/dev/null 2>&1
 	if [ $? = 0 ] ; then
-		for f in ${prefixes.lib}/*.so ; do
+		for f in ${prefixes.vapp}/bin/*.so ; do
 			chcon /usr/bin/chcon -t texrel_shlib_t $f
 		done
 	fi
 fi
-${prefixes.bin}/linkup Install /
-ldconfig -n ${prefixes.lib}
+ldconfig -n ${prefixes.vapp}/bin
 
 %preun
-rm -f ${prefixes.product}/latest
-${prefixes.bin}/linkup Remove /
+rm -f ${prefixes.app}/latest
 
 %postun
 

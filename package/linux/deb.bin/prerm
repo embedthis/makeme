@@ -6,8 +6,6 @@
 
 BIT_PRODUCT=${settings.product}
 BIT_NAME="${settings.title}"
-BIT_BIN_PREFIX="${prefixes.bin}"
-BIT_CFG_PREFIX="${prefixes.config}"
 
 ###############################################################################
 #
@@ -17,10 +15,8 @@ cd /
 action=$1
 case $action in
 	remove)					# when new
-        "$BIT_BIN_PREFIX/linkup" Remove /
 		;;
 	upgrade)				# when old
-        "$BIT_BIN_PREFIX/linkup" Remove /
 		;;
 	failed-upgrade)			# when new
 		oldVersion=$2
