@@ -3906,13 +3906,13 @@ public class Bit {
             let dir: Path, destBase: Path
             pattern = Path(expand(pattern))
             //  MOB BUG workaround
-            let contents = pattern.name.endsWith('/')
+            let doContents = pattern.name.endsWith('/')
             pattern = pattern.trimEnd('/')
             if (pattern.isDir) {
-                if (contents) {
-                    subtree = pattern.normalize
+                if (doContents) {
+                    subtree = pattern.normalize.portable
                 } else {
-                    subtree = pattern.normalize.dirname
+                    subtree = pattern.normalize.dirname.portable
                 }
                 pattern = Path(pattern.normalize.name + '/**')
                 options = blend({exclude: /\/$/}, options, {overwrite: false})
@@ -3935,6 +3935,7 @@ public class Bit {
 
             for each (let from: Path in list) {
                 let to
+                let from = from.portable
                 if (subtree) {
                     to = dest.join(from.trimStart(subtree.name + '/'))
                 } else if (destIsDir) {
