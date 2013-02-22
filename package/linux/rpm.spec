@@ -10,7 +10,7 @@ Group: Development/Other
 URL: http://embedthis.com
 Distribution: Embedthis
 Vendor: Embedthis Software
-BuildRoot: ${dir.rpm}/BUILDROOT/${settings.product}-${settings.version}-${settings.buildNumber}.${platform.mappedCpu}
+BuildRoot: ${prefixes.rpm}/BUILDROOT/${settings.product}-${settings.version}-${settings.buildNumber}.${platform.mappedCpu}
 AutoReqProv: no
 
 %description
@@ -21,8 +21,8 @@ Bit is a replacement for the autoconf/make build tools. Bit is a single tool tha
 %build
 
 %install
-    mkdir -p ${dir.rpm}/BUILDROOT/${settings.product}-${settings.version}-${settings.buildNumber}.${platform.mappedCpu}
-    cp -r ${dir.contents}/* ${dir.rpm}/BUILDROOT/${settings.product}-${settings.version}-${settings.buildNumber}.${platform.mappedCpu}
+    mkdir -p ${prefixes.rpm}/BUILDROOT/${settings.product}-${settings.version}-${settings.buildNumber}.${platform.mappedCpu}
+    cp -r ${prefixes.content}/* ${prefixes.rpm}/BUILDROOT/${settings.product}-${settings.version}-${settings.buildNumber}.${platform.mappedCpu}
 
 %clean
 
