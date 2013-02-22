@@ -1,9 +1,6 @@
 Embedthis Bit License
 
-This software is distributed under commercial and open source licenses. You may use the GPLv2 License below License or
-you may acquire a commercial license from Embedthis Software. You agree to be fully bound by the terms of either
-license. The GPLv2 License does NOT generally permit incorporating this software into non-open source programs. If you
-are unable to comply with the GPLv2, you must acquire a commercial license to use this software.
+This software is distributed under commercial and open source licenses. You may use the GPLv2 License below License or you may acquire a commercial license from Embedthis Software. You agree to be fully bound by the terms of either license. The GPLv2 License does NOT generally permit incorporating this software into non-open source programs. If you are unable to comply with the GPLv2, you must acquire a commercial license to use this software.
 
 Commercial licenses for this software and support services are available from Embedthis Software at: http://embedthis.com/licensing/index.html
 
