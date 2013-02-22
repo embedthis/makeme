@@ -110,6 +110,7 @@ function findPosixCompiler(path: Path?) {
     Test compiler capabilities and determine a minimal set of compiler switches to store in bit.settings
  */
 function testCompilerCapabilities() {
+    let settings = getDefaultSettings(platform)
     let cc = bit.packs.compiler.path
 
     if (bit.options.gen && Config.OS != platform.os) {
@@ -140,8 +141,8 @@ function testCompilerCapabilities() {
             settings.hasUnnamedUnions = compile(cc, '', 
                 '#include <stdio.h>\nint main() { struct test { union { int x; int y; };}; return 0; }')
         }
-        Bit.load({ settings: settings })
     }
+    Bit.load({ settings: settings })
 }
 
 
@@ -249,7 +250,6 @@ pack('compiler', "C/C++ Compiler")
 let cc: Path?
 let platform = bit.platform
 let path: Path? = bit.packs.compiler.path
-let settings = getDefaultSettings(platform)
 
 if (platform.like == 'posix') {
     findPosixCompiler(path)
