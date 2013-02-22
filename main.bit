@@ -35,6 +35,7 @@ Bit.load({
         prefixes: 'embedthis-prefixes',
 
         sync: [ 'bitos', 'est', 'mpr', 'pcre', 'http', 'ejs' ],
+        platforms: [ 'local' ],
         packs: [ 'bits/packs' ],
         static: false,
         tune: 'size',
