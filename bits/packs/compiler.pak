@@ -1,121 +1,119 @@
 /*
     compiler.pak - Compile package for Bit
+
+    This is a fairly complex package due to the differences between compilers and operating systems.
  */
 
-pack('compiler', "C/C++ Compiler")
-
-let cc: Path?
-let platform = bit.platform
-let path: Path? = bit.packs.compiler.path
-let settings = getDefaultSettings(platform)
-
-try {
-    if (platform.like == 'posix') {
-        path ||= (platform.os == 'macosx') ? 'clang' : 'gcc'
-        try {
-            /* Try this, because when cross-generating we won't be able to find compiler */
-            cc = probe(path, {fullpath: true})
-            Bit.load({packs: { compiler: { path: cc }}})
-        } catch {
-            //  MOB - probably should only do this if bit.generating
-            Bit.load({packs: { compiler: { path: '$(WIND_BASE)/$(WIND_PLATFORM)/target.h '}}})
+function findWindowsCompiler(path: Path?) {
+    let search
+    let vsdir: Path
+    if (Config.OS == 'windows') {
+        /*
+            The VS bin+lib directories contain 32 bit compilers and libraries
+            The native VS 64 bit versions are under bin/amd64 and lib/x64
+            The cross compile for 64 bit on 32 bit systems is under bin/x86_64 and lib/x64
+            The cross compile for 32 bit on 64 bit systems can use the default 32 bit bin + lib
+            See: http://msdn.microsoft.com/en-us/library/x4d2c09s(v=vs.80).aspx
+            Also: http://blogs.msdn.com/b/david.wang/archive/2006/03/26/howto-detect-process-bitness.aspx
+         */
+        search = bit.dir.programFiles32.files('Microsoft Visual Studio*/VC/Bin').sort().reverse()
+        if (!search || search.length == 0) {
+            throw 'Cannot find Visual Studio installation'
         }
-
-    } else if (platform.like == 'windows') {
-        let search
-        let vsdir: Path
-        if (Config.OS == 'windows') {
-            /*
-                The VS bin+lib directories contain 32 bit compilers and libraries
-                The native VS 64 bit versions are under bin/amd64 and lib/x64
-                The cross compile for 64 bit on 32 bit systems is under bin/x86_64 and lib/x64
-                The cross compile for 32 bit on 64 bit systems can use the default 32 bit bin + lib
-
-                See: http://msdn.microsoft.com/en-us/library/x4d2c09s(v=vs.80).aspx
-                Also: http://blogs.msdn.com/b/david.wang/archive/2006/03/26/howto-detect-process-bitness.aspx
-             */
-            search = bit.dir.programFiles32.files('Microsoft Visual Studio*/VC/Bin').sort().reverse()
-            if (!search || search.length == 0) {
-                throw 'Can\'t find Visual Studio installation'
-            }
-            vsdir = Path(search[0]).parent.parent
-            if (platform.arch == 'x64') {
-                if (Config.CPU == 'x64') {
-                    /* Running on a 64 bit */
-                    search = search.map(function(e) Path(e).join('amd64'))
-                } else {
-                    /* Cross compile for 64 bits on 32 bits */
-                    search = search.map(function(e) Path(e).join('x86_amd64'))
-                }
-            }
-        }
-        let vv: Path = Path('$(VS)')
-        let vsbin, vslib, defs, version
-        if (Config.OS != 'windows') {
-            cc = 'cl.exe'
-            vsdir = vv
-            vsbin = vsdir.join('VC/Bin'),
-            vslib = vsdir.join('VC/lib')
-            defs = []
-            version = '0'
-        } else {
-            path ||= 'cl.exe'
-            cc = probe(path, {fullpath: true, search: search})
-            vsbin = cc.dirname
-            if (bit.platform.arch == 'x64') {
-                vslib = vsbin.join('../../lib/amd64').normalize
+        vsdir = Path(search[0]).parent.parent
+        if (platform.arch == 'x64') {
+            if (Config.CPU == 'x64') {
+                /* Running on a 64 bit */
+                search = search.map(function(e) Path(e).join('amd64'))
             } else {
-                vslib = vsbin.join('../lib').normalize
-            }
-            version = vsdir.name.match(/\d*\.\d/)[0]
-            defs = [ 'BIT_VISUAL_STUDIO_VERSION="' + version + '"']
-        }
-        let crtver = version.replace('.', '')
-
-        Bit.load({packs: { compiler: { path: cc, dir: vsdir, search: search, definitions: defs, version: version, crt: crtver }}})
-        bit.env.PATH += [
-            vsbin,
-            vsdir.join('Common7/IDE'),
-            vsdir.join('Common7/Tools'),
-            vsdir.join('SDK/v3.5/bin'),
-            vsdir.join('VC/VCPackages'),
-        ]
-        bit.env.INCLUDE += [
-            vsdir.join('VC/INCLUDE')
-        ]
-        bit.env.LIB += [ vslib ]
-
-    } else if (platform.os == 'vxworks') {
-        if (!path) {
-            if (platform.arch.match(/^i386$|^i486$$/)) {
-                path = 'cc386'
-            } else if (platform.arch.match(/^i[56]86$|^pentium$|^x86$/)) {
-                path = 'ccpentium'
-            } else if (platform.arch.match(/^ppc/)) {
-                path = 'ccppc'
-            } else if (platform.arch.match(/^xscale|^arm/)) {
-                path = 'ccarm'
-            } else if (platform.arch.match(/^68/)) {
-                path = 'cc68k'
-            } else if (platform.arch.match(/^sh/)) {
-                path = 'ccsh'
-            } else if (platform.arch.match(/^mips$/)) {
-                path = 'ccmips'
-            } else {
-                throw 'Unsupported CPU architecture: ' + platform.arch
+                /* Cross compile for 64 bits on 32 bits */
+                search = search.map(function(e) Path(e).join('x86_amd64'))
             }
         }
-        if (!bit.options.gen) {
-            cc = probe(path, {fullpath: true, search: bit.packs.vxworks.search})
-            bit.env.WIND_CCNAME = path.basename
-        } else {
-            cc = path
-        }
-        Bit.load({packs: { compiler: { path: cc, name: path.basename }}})
     }
+    let vv: Path = Path('$(VS)')
+    let vsbin, vslib, defs, version
+    if (Config.OS != 'windows') {
+        cc = 'cl.exe'
+        vsdir = vv
+        vsbin = vsdir.join('VC/Bin'),
+        vslib = vsdir.join('VC/lib')
+        defs = []
+        version = '0'
+    } else {
+        path ||= 'cl.exe'
+        cc = probe(path, {fullpath: true, search: search})
+        vsbin = cc.dirname
+        if (bit.platform.arch == 'x64') {
+            vslib = vsbin.join('../../lib/amd64').normalize
+        } else {
+            vslib = vsbin.join('../lib').normalize
+        }
+        version = vsdir.name.match(/\d*\.\d/)[0]
+        defs = [ 'BIT_VISUAL_STUDIO_VERSION="' + version + '"']
+    }
+    let crtver = version.replace('.', '')
+
+    Bit.load({packs: { compiler: { path: cc, dir: vsdir, search: search, definitions: defs, version: version, crt: crtver }}})
+    bit.env.PATH += [
+        vsbin,
+        vsdir.join('Common7/IDE'),
+        vsdir.join('Common7/Tools'),
+        vsdir.join('SDK/v3.5/bin'),
+        vsdir.join('VC/VCPackages'),
+    ]
+    bit.env.INCLUDE += [
+        vsdir.join('VC/INCLUDE')
+    ]
+    bit.env.LIB += [ vslib ]
+}
+
+
+function findVxCompiler(path: Path?) {
+    if (!path) {
+        if (platform.arch.match(/^i386$|^i486$$/)) {
+            path = 'cc386'
+        } else if (platform.arch.match(/^i[56]86$|^pentium$|^x86$/)) {
+            path = 'ccpentium'
+        } else if (platform.arch.match(/^ppc/)) {
+            path = 'ccppc'
+        } else if (platform.arch.match(/^xscale|^arm/)) {
+            path = 'ccarm'
+        } else if (platform.arch.match(/^68/)) {
+            path = 'cc68k'
+        } else if (platform.arch.match(/^sh/)) {
+            path = 'ccsh'
+        } else if (platform.arch.match(/^mips$/)) {
+            path = 'ccmips'
+        } else {
+            throw 'Unsupported CPU architecture: ' + platform.arch
+        }
+    }
+    if (!bit.options.gen) {
+        cc = probe(path, {fullpath: true, search: bit.packs.vxworks.search})
+        bit.env.WIND_CCNAME = path.basename
+    } else {
+        cc = path
+    }
+    Bit.load({packs: { compiler: { path: cc, name: path.basename }}})
+}
+
+
+function findPosixCompiler(path: Path?) {
+    path ||= (platform.os == 'macosx') ? 'clang' : 'gcc'
+    cc = probe(path, {fullpath: true})
+    Bit.load({packs: { compiler: { path: cc }}})
+}
+
+
+/*
+    Test compiler capabilities and determine a minimal set of compiler switches to store in bit.settings
+ */
+function testCompilerCapabilities() {
+    let cc = bit.packs.compiler.path
 
     if (bit.options.gen && Config.OS != platform.os) {
-        /* Can't sleuth when generating for a cross-platform */
+        /* Cannot sleuth when generating for a cross-platform */
 
     } else if (cc && (platform.like == 'posix' || (platform.os == 'vxworks' && Config.OS == 'linux'))) {
         settings.hasDoubleBraces = compile(cc, '', '#include <stdarg.h>\nva_list d = {{0}};')
@@ -142,20 +140,20 @@ try {
             settings.hasUnnamedUnions = compile(cc, '', 
                 '#include <stdio.h>\nint main() { struct test { union { int x; int y; };}; return 0; }')
         }
+        Bit.load({ settings: settings })
     }
-} catch (e) { print("bit compiler.pak error: ", e)}
+}
 
-Bit.load({ settings: settings })
 
 /*
-    Test compile to determine supported compiler switches
+    Test compile to determine supported compiler switches. This is only used on gcc.
  */
 function compile(cc: Path, command: String, contents: String = null): Boolean {
     let file
     if (contents) {
         //  TODO - refactor dir for temp file
         file = Path('/tmp/bit-' + App.pid + '.c')
-        if (bit.platform.os == 'VXWORKS') {
+        if (bit.platform.os == 'vxworks') {
             contents = '#define _VSB_CONFIG_FILE "vsbConfig.h\n' + contents
         }
         file.write(contents + '\n')
@@ -243,3 +241,23 @@ function getDefaultSettings(platform) {
     }
     return settings
 }
+
+/*
+    Compiler detection
+ */
+pack('compiler', "C/C++ Compiler")
+let cc: Path?
+let platform = bit.platform
+let path: Path? = bit.packs.compiler.path
+let settings = getDefaultSettings(platform)
+
+if (platform.like == 'posix') {
+    findPosixCompiler(path)
+} else if (platform.like == 'windows') {
+    findWindowsCompiler(path)
+} else if (platform.os == 'vxworks') {
+    findVxCompiler(path)
+}
+testCompilerCapabilities()
+
+

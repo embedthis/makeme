@@ -401,7 +401,7 @@ public class Bit {
         for (i = 1; i < App.args.length; i++) {
             let arg = App.args[i]
             if (arg == '--platform' || arg == '-platform') {
-                platform = App.args[++i]
+                platform = verifyPlatform(App.args[++i])
                 poptions = options.control[platform] = {}
             } else if (arg == '--with' || arg == '-with') {
                 poptions['with'] ||= []
@@ -808,7 +808,7 @@ public class Bit {
                 envSettings.defaults['override-' + option.trim('+')] = true
             }
         }
-        if (!options.configure) {
+        if (options.configure && bit.platform.cross) {
             blend(bit, envSettings, {combine: true})
         }
     }
@@ -965,7 +965,7 @@ public class Bit {
             if (options['continue'] && control.default) {
                 return control.default
             }
-            throw 'File ' + file + ' not found for package ' + currentPack + '.'
+            throw 'Cannot find ' + file + ' for package "' + currentPack + '" on ' + currentPlatform + '. '
         }
         App.log.debug(2, 'Probe for ' + file + ' found at ' + path)
         if (control.fullpath) {
@@ -1003,7 +1003,7 @@ public class Bit {
                 }
                 prepBuild()
                 build()
-                if (bit.platforms.length > 1 || bit.platform.cross) {
+                if (!options.configure && (bit.platforms.length > 1 || bit.platform.cross)) {
                     trace('Complete', bit.platform.name)
                 }
             }
@@ -1649,7 +1649,7 @@ public class Bit {
 
     function prepBuild() {
         vtrace('Prepare', 'For building')
-        if (bit.platforms.length > 1 || bit.platform.cross) {
+        if (!options.configure && (bit.platforms.length > 1 || bit.platform.cross)) {
             trace('Build', bit.platform.name)
             vtrace('Targets', bit.platform.name + ': ' + ((selectedTargets != '') ? selectedTargets: 'nothing to do'))
         }
@@ -3670,17 +3670,20 @@ public class Bit {
         dir.removeAll()
     }
 
+    function verifyPlatform(platform) {
+        let [os, arch, profile] = platform.split('-') 
+        if (!arch) {
+            arch = Config.CPU
+        }
+        if (!profile) {
+            profile = (options.release) ? 'release' : 'debug'
+        }
+        return os + '-' + arch + '-' + profile
+    }
+
     function verifyPlatforms() {
         for (i in platforms) {
-            let platform = platforms[i]
-            let [os, arch, profile] = platform.split('-') 
-            if (!arch) {
-                arch = Config.CPU
-            }
-            if (!profile) {
-                profile = (options.release) ? 'release' : 'debug'
-            }
-            platforms[i] = os + '-' + arch + '-' + profile
+            platforms[i] = verifyPlatform(platforms[i])
         }
     }
 
@@ -3821,7 +3824,8 @@ public class Bit {
         let old = bit
         bit = bareBit.clone(true)
         bit.platforms = old.platforms
-        bit.cross = old.cross || false
+        //  MOB - remove
+        //UNUSED bit.cross = old.cross || false
         return bit
     }
 

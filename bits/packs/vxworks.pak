@@ -55,7 +55,7 @@ if (Config.OS == 'windows') {
     } else if (path.join('host/x86-linux2').exists) {
         bit.env.WIND_HOST_TYPE = 'x86-linux2'
     } else {
-        throw 'Can\'t determine the WIND_HOST_TYPE'
+        throw 'Cannot determine the WIND_HOST_TYPE'
     }
 
 } else if (Config.OS == 'solaris') {
