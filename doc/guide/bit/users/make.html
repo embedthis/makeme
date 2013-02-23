@@ -60,9 +60,9 @@
         </div>
         <div class="contentLeft">
             <h1>Using Generated Makefiles</h1>
-            <p>If a project uses Bit to generate projects, this document may be useful to understand how to use
-            and tailor the Makefile to suit your needs.</p>
-            <p>Bit will generate complete project files for building via: make, nmake, Visual Studio, Xcode or 
+            <p>This document describes how to work with Bit generated Makefiles and how to tailor them to 
+            to suit your needs.</p>
+            <p>Bit can be used to generate complete Makefiles and projects for building via: make, nmake, Visual Studio, Xcode or 
                 plain shell scripts. Developers can then include these projects to building their code on specific
                 platforms.</p>
             <h2>Platform Makefiles</h2>
@@ -78,15 +78,16 @@ make -f projects/appweb-macosx-default.mk all
             <h3>Windows Nmake</h3>
             <p>Bit can generate a Makefile for Nmake which is the Windows variant of Make. This has a <em>.nmake</em>
             extension. 
-            <p>To build on Windows with nmake, you need to define the Visual Studio environment variables and then type:
+            <p>To build on Windows with nmake, you need to define the Visual Studio environment variables (via the
+            Visual Studio <em>vsvarsall.bat</em> and then type:
             <pre>$ <b>make</b>
 nmake -f projects\appweb-windows.nmake
 </pre>
             <a name="modifying"></a>
             <h2>Modifying the Makefile Defaults</h2>
             <p>Generated Makefiles to not require the use of a configure program.
-            Rather, you supply configuration options directly to Make. These options override default values defined in 
-            the platform makefile. For example:
+            Rather, you supply desired configuration options directly to Make. These options override default values defined in 
+            the platform makefile and/or the product <em>bit.h</em> configuration header. For example:
             <pre>$ make <b>BIT_PACK_SQLITE=0</b> </pre>
             <p>By defining the make variables such as CC and CFLAGS, you can modify the compiler options. This is the
             technique used when cross-compiling.
@@ -103,7 +104,7 @@ nmake -f projects\appweb-windows.nmake
 make -f projects/appweb-vxworks-default.mk ARCH=arm PROFILE=debug
 </pre>
             <p>When make runs, it places the output products (executables, libraries and objects) in a platform-specific 
-            output directory. This is named using the form: OS-ARCH-PROFILE. For example: vxworks-arm-debug. In this 
+            output directory. This directory is named using the form: OS-ARCH-PROFILE. For example: vxworks-arm-debug. In this 
             manner, make can be invoked multiple times, once for each target platform and the results will be captured
             in separate platform output directories. Some of the supported architectures for the ARCH field are:
             arm, mips, ppc, x64 and x86. The PROFILE is a descriptive name chosen by you for your configuration.</p>
@@ -115,10 +116,11 @@ make -f projects/appweb-vxworks-default.mk ARCH=arm PROFILE=debug
             You can supply these via the make variables: CC, CFLAGS, DFLAGS, IFLAGS, LD and LDFLAGS. 
             <p>For example:</p>
             <pre>
-make CC=/opt/bin/ccarm.exe LD=/opt/bin/ccarm.exe ARCH=arm PROFILE=release
+make CC=/opt/bin/ccarm.exe LD=/opt/bin/ccarm.exe ARCH=arm PROFILE=release \
     -f projects/appweb-vxworks-default.mk 
 </pre>
         <p>To learn more, read about <a href="cross.html">Cross Compiling with Bit</a>.</p>
+        </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->
 	<div class="bottom">

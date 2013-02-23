@@ -3464,16 +3464,6 @@ public class Bit {
         }
     }
 
-/* UNUSED
-    function makeDir(path: String): Void {
-        if (isDir(path)) {
-            return
-        }
-        trace('Create', 'Directory ' + path)
-        mkdir(path, 0755)
-    }
-*/
-
     function safeCopy(from: Path, to: Path) {
         let p: Path = new Path(to)
         if (to.exists && !options.overwrite) {
@@ -3799,6 +3789,7 @@ public class Bit {
         if (samePlatform(platform, localPlatform)) {
             bit.globals.LBIN = localBin = bit.dir.bin.portable
         }
+        runScript(bit.scripts.loaded)
     }
 
     function samePlatform(p1, p2): Boolean {
@@ -3893,6 +3884,7 @@ public class Bit {
         @option user Set file file user
      */
     public function copy(src, dest: Path, options = {}) {
+        let to
         dest = Path(expand(dest))
         if (!(src is Array)) src = [src]
         let subtree = options.subtree
@@ -3937,7 +3929,6 @@ public class Bit {
             let destIsDir = (dest.isDir || (!options.cat && list.length > 1) || dest.name.endsWith('/'))
 
             for each (let from: Path in list) {
-                let to
                 let from = from.portable
                 if (subtree) {
                     to = dest.join(from.trimStart(subtree.name + '/'))
@@ -3960,7 +3951,8 @@ public class Bit {
                         dump("OPTIONS", options)
                         throw "Cannot use processing options when generating"
                     }
-                    makeDir(to.dirname, options)
+                    /* Must not use options as it contains perms for the dest */
+                    makeDir(to.dirname)
                     if (from.isDir) {
                         makeDir(to, options)
                     } else {
@@ -4033,6 +4025,9 @@ public class Bit {
                 }
             }
         }
+        if (options.cat && options.footer && to) {
+            to.append(options.footer + '\n')
+        }
     }
     /* MOB UNUSED install only
         if (App.uid == 0 && to.extension == 'so' && Config.OS == 'linux') {
@@ -4080,24 +4075,11 @@ public class Bit {
     }
 
 
-    function getatt(attributes) {
-        let att = ''
-        if (attributes.group) {
-            att += '-g ' + attributes.group + ' '
-        }
-        if (attributes.user) {
-            att += '-u ' + attributes.user + ' '
-        }
-        if (attributes.permissions) {
-            att += '-m ' + "%0o".format([attributes.permissions]) + ' '
-        }
-        return att
-    }
-
     //  MOB - unify all/most writes to go through here
     function genrep(s) {
         genout.writeLine(repvar(s))
     }
+
 
     public function linkFile(src: Path, dest: Path, options = {}) {
         if (!bit.generating) {
@@ -4120,9 +4102,14 @@ public class Bit {
             if (!options.dry) {
                 if (!path.isDir) {
                     strace('Create', 'mkdir -p' + path)
-                    if (!path.makeDir(options)) {
+                    if (!path.makeDir()) {
                         throw "Cannot make directory" + path
                     }
+                }
+                if ((options.user || options.group || options.uid || options.gid) && App.uid == 0) {
+                    path.setAttributes(options)
+                } else if (options.permissions) {
+                    path.setAttributes(options)
                 }
             }
         } else {
@@ -4144,11 +4131,12 @@ public class Bit {
                     genrep('\tif not exist "' + path.windows + '" md "' + path.windows + '"')
                 }
             } else {
-                let att = getatt(options)
-                if (att) {
-                    genrep('\tinstall -d ' + att + '"' + path + '"')
-                } else {
-                    genrep('\tmkdir -p "' + path + '"')
+                genrep('\tmkdir -p "' + path + '"')
+                if (options.permissions) {
+                    genrep('\tchmod ' + "%0o".format([options.permissions]) + ' ' + path)
+                }
+                if (options.user || options.group) {
+                    genrep('\t[ `id -u` = 0 ] && chown ' + options.user + ':' + options.group + ' "' + path + '"')
                 }
             }
         }
@@ -4215,7 +4203,12 @@ public class Bit {
         if (!bit.generating) {
             strace('Copy', 'cp ' + src.portable + ' ' + dest.portable)
             if (!options.dry) {
-                src.copy(dest, options)
+                src.copy(dest)
+            }
+            if ((options.user || options.group || options.uid || options.gid) && App.uid == 0) {
+                dest.setAttributes(options)
+            } else if (options.permissions) {
+                dest.setAttributes(options)
             }
         } else {
             let pwd = App.dir
@@ -4228,11 +4221,14 @@ public class Bit {
             if (bit.generating == 'nmake') {
                 genrep('\tcopy /Y "' + src.windows + '" "' + dest.windows + '"')
             } else {
-                let att = getatt(options)
-                if (att) {
-                    genrep('\tinstall ' + getatt(options) + '"' + src + '" "' + dest + '"')
-                } else {
-                    genrep('\tcp "' + src + '" "' + dest + '"')
+                genrep('\tcp "' + src + '" "' + dest + '"')
+                if (options.uid || options.gid) {
+                    genrep('\t[ `id -u` = 0 ] && chown ' + options.uid + ':' + options.gid + ' "' + dest + '"')
+                } else if (options.user || options.group) {
+                    genrep('\t[ `id -u` = 0 ] && chown ' + options.user + ':' + options.group + ' "' + dest + '"')
+                }
+                if (options.permissions) {
+                    genrep('\tchmod ' + "%0o".format([options.permissions]) + ' ' + dest)
                 }
             }
         }

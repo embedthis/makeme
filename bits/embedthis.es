@@ -22,6 +22,11 @@ public function deploy(manifest, prefixes, package): Array {
             //  MOB - remove
             dump("Consider", item)
         }
+        for (let [key,value] in item) {
+            if (value is String && value.contains('${')) {
+                item[key] = expand(value)
+            }
+        }
         item.made = made
         item.filelist = filelist
         let name = item.name
@@ -70,7 +75,7 @@ public function deploy(manifest, prefixes, package): Array {
             if (item.dir) {
                 for each (let dir:Path in item.dir) {
                     dir = expand(dir)
-                    makeDir(dir)
+                    makeDir(dir, item)
                     strace('Create', dir.relativeTo(bit.dir.top))
                 }
             }
@@ -822,29 +827,25 @@ public function genProjects(packs = '--without default', profiles = ["default"],
 }
 
 
-public function UNUSEDgetWebUser(): String {
-    let passwdFile: Path = Path("/etc/passwd")
-    if (passwdFile.exists) {
-        let passwords = passwdFile.readString()
-        for each (u in ["www-data", "_www", "nobody", "Administrator"]) {
-            if (passwords.contains(u + ":")) {
-                return u
-            }
-        }
+public function getWebUser(): String {
+    if (bit.platform.os == 'macosx') {
+        return '_www'
+    } else if (bit.platform.os == 'windows') {
+        return 'Administrator'
+    } else if (bit.platform.os == 'linux' || bit.platform.os == 'freebsd') {
+        return 'nobody'
     }
     return '0'
 }
 
 
-public function UNUSEDgetWebGroup(): String {
-    let groupFile: Path = Path("/etc/group")
-    if (groupFile.exists) {
-        let groups = groupFile.readString()
-        for each (g in ["www-data", "_www", "nobody", "nogroup", "Administrator"]) {
-            if (groups.contains(g + ":")) {
-                return g
-            }
-        }
+public function getWebGroup(): String {
+    if (bit.platform.os == 'macosx') {
+        return '_www'
+    } else if (bit.platform.os == 'windows') {
+        return 'Administrator'
+    } else if (bit.platform.os == 'linux' || bit.platform.os == 'freebsd') {
+        return 'nogroup'
     }
     return '0'
 }
