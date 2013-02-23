@@ -2924,6 +2924,8 @@ public class Bit {
             }
             command = command.replace(RegExp(gen[p], 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
         }
+        //  Work-around for replacing root prefix
+        command = command.replace(/\/\//g, '$$(BIT_ROOT_PREFIX)/')
         return command
     }
 
@@ -2949,6 +2951,8 @@ public class Bit {
             }
             command = command.replace(RegExp(gen[p], 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
         }
+        //  Work-around for replacing root prefix
+        command = command.replace(/\/\//g, '$$(BIT_ROOT_PREFIX)/')
         return command
     }
 
@@ -3951,8 +3955,8 @@ public class Bit {
                         dump("OPTIONS", options)
                         throw "Cannot use processing options when generating"
                     }
-                    /* Must not use options as it contains perms for the dest */
-                    makeDir(to.dirname)
+                    /* Must not use full options as it contains perms for the dest */
+                    makeDir(to.dirname, {made: options.made})
                     if (from.isDir) {
                         makeDir(to, options)
                     } else {
