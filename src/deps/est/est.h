@@ -8,6 +8,9 @@
  */
 
 #include "bit.h"
+
+#if BIT_PACK_EST
+
 #include "bitos.h"
 
 
@@ -4301,3 +4304,4 @@ extern "C" {
 
     @end
  */
+#endif /* BIT_PACK_EST */

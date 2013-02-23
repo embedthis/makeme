@@ -9,6 +9,8 @@
 
 #include "est.h"
 
+#if BIT_PACK_EST
+
 /************************************************************************/
 /*
     Start of file "src/aes.c"
@@ -13511,3 +13513,4 @@ void xtea_crypt_ecb(xtea_context *ctx, int mode, uchar input[8], uchar output[8]
 
     @end
  */
+#endif /* BIT_PACK_EST */

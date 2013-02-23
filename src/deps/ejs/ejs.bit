@@ -10,7 +10,7 @@ Bit.load({
     targets: {
         libejs: {
             enable: 'bit.packs.ejscript.enable || bit.settings.ejscript',
-            type: 'lib',
+            type:   'lib',
             sources: [ 'ejsLib.c' ],
             headers: [ '*.h' ],
             depends: [ 'libhttp', 'libpcre', 'libmpr' ],
@@ -25,7 +25,7 @@ Bit.load({
 
         ejs: {
             enable: 'bit.packs.ejscript.enable || bit.settings.ejscript',
-            type: 'exe',
+            type:   'exe',
             sources: [ 'ejs.c' ],
             depends: [ 'libejs' ],
             scripts: {
@@ -39,7 +39,7 @@ Bit.load({
 
         ejsc: {
             enable: 'bit.packs.ejscript.enable || bit.settings.ejscript',
-            type: 'exe',
+            type:   'exe',
             sources: [ 'ejsc.c' ],
             depends: [ 'libejs' ],
         },

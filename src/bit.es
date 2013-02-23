@@ -1446,14 +1446,6 @@ public class Bit {
         genout.writeLine('CONFIG          := $(OS)-$(ARCH)-$(PROFILE)')
         genout.writeLine('LBIN            := $(CONFIG)/bin\n')
 
-        let prefixes = mapPrefixes()
-        for (let [name, value] in prefixes) {
-            if (name == 'root' && value == '/') {
-                value = ''
-            }
-            genout.writeLine('%-21s := %s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
-        }
-        genout.writeLine('')
         let cflags = gen.compiler
         for each (word in minimalCflags) {
             cflags = cflags.replace(word, '')
@@ -1481,9 +1473,33 @@ public class Bit {
         genout.writeLine('DFLAGS          += $(DFLAGS-$(DEBUG))')
         genout.writeLine('LDFLAGS         += $(LDFLAGS-$(DEBUG))\n')
 
+        //  MOB - copy to NMAKE
+        let requiredTargets = {}
+        for each (target in bit.targets) {
+            if (target.require && bit.packs[target.require] && bit.packs[target.require].enable) {
+                requiredTargets[target.require] = true
+            }
+        }
+        for (let [name, pack] in bit.packs) {
+            if (requiredTargets[name]) {
+                genout.writeLine('%-21s := %s'.format(['BIT_PACK_' + name.toUpper(), pack.enable ? 1 : 0]))
+            }
+        }
+        genout.writeLine('')
+
+        let prefixes = mapPrefixes()
+        for (let [name, value] in prefixes) {
+            if (name == 'root' && value == '/') {
+                value = ''
+            }
+            genout.writeLine('%-21s := %s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
+        }
+        genout.writeLine('')
+
         let pop = bit.settings.product + '-' + bit.platform.os + '-' + bit.platform.profile
         genout.writeLine('unexport CDPATH\n')
-        genout.writeLine('all compile: prep \\\n        ' + genAll())
+        genTargets()
+        genout.writeLine('all compile: prep $(TARGETS)\n')
         genout.writeLine('.PHONY: prep\n\nprep:')
         genout.writeLine('\t@if [ "$(CONFIG)" = "" ] ; then echo WARNING: CONFIG not set ; exit 255 ; fi')
         genout.writeLine('\t@if [ "$(BIT_APP_PREFIX)" = "" ] ; then echo WARNING: BIT_APP_PREFIX not set ; exit 255 ; fi')
@@ -1549,7 +1565,7 @@ public class Bit {
         }
         genout.writeLine('')
         let pop = bit.settings.product + '-' + bit.platform.os + '-' + bit.platform.profile
-        genout.writeLine('all compile: prep \\\n        ' + genAll())
+        genout.writeLine('all compile: prep $(TARGETS)\n')
         genout.writeLine('.PHONY: prep\n\nprep:')
         genout.writeLine('!IF "$(VSINSTALLDIR)" == ""\n\techo "Visual Studio vars not set. Run vcvars.bat."\n\texit 255\n!ENDIF')
         genout.writeLine('!IF "$(BIT_APP_PREFIX)" == ""\n\techo "BIT_APP_PREFIX not set."\n\texit 255\n!ENDIF')
@@ -1627,15 +1643,23 @@ public class Bit {
         }
     }
 
-    function genAll() {
+    function genTargets() {
         let all = []
         for each (tname in selectedTargets) {
             let target = bit.targets[tname]
             if (target.path && target.enable && !target.nogen) {
-                all.push(reppath(target.path))
+                if (target.require) {
+                    genout.writeLine('ifeq ($(BIT_PACK_' + target.require.toUpper() + '),1)')
+                    genout.writeLine('    TARGETS += ' + reppath(target.path))
+                } else {
+                    genout.writeLine('TARGETS     += ' + reppath(target.path))
+                }
+                if (target.require) {
+                    genout.writeLine('endif')
+                }
             }
         }
-        return all.join(' \\\n        ') + '\n'
+        genout.writeLine('')
     }
 
     function import() {
@@ -1689,6 +1713,12 @@ public class Bit {
      */
     function enableTargets() {
         for (let [tname, target] in bit.targets) {
+            if (target.require) {
+                if (!bit.packs[target.require] || !bit.packs[target.require].enable) {
+                    vtrace('Skip', 'Target ' + tname + ' is disabled because the pack ' + target.require + ' is not enabled')
+                    target.enable = false
+                }
+            }
             if (target.enable) {
                 if (!(target.enable is Boolean)) {
                     let script = expand(target.enable)
@@ -2242,6 +2272,7 @@ public class Bit {
                    continue
                 }
                 //  MOB - refactor at parse time into a single flag
+                //  MOB - Add generate-unix, generate.vs, generate.xcode, generate.action
                 if (target.generate || target['generate-sh'] || target['generate-make'] || target['generate-make'] ||
                         target['generate-' + bit.platform.os] || target['generate-action']) {
                     buildTarget(target)
@@ -2312,6 +2343,9 @@ public class Bit {
                 runTargetScript(target, 'prebuild')
 
                 if (bit.generating) {
+                    if (target.require) {
+                        genWriteLine('ifeq ($(BIT_PACK_' + target.require.toUpper() + '),1)')
+                    }
                     if (target.type == 'build' || (target.scripts && target.scripts['build'])) {
                         generateScript(target)
                     }
@@ -2330,6 +2364,10 @@ public class Bit {
                     } else if (target.type == 'resource') {
                         generateResource(target)
                     }
+                    if (target.require) {
+                        genWriteLine('endif')
+                    }
+                    genWriteLine('')
                 } else {
                     if (target.type == 'build' || (target.scripts && target.scripts['build'])) {
                         buildScript(target)
@@ -2554,16 +2592,19 @@ public class Bit {
         let command = expandRule(target, rule)
         if (bit.generating == 'sh') {
             command = repcmd(command)
-            genout.writeLine(command + '\n')
+            genout.writeLine(command)
 
         } else if (bit.generating == 'make') {
             command = repcmd(command)
-            genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
+            genout.write(reppath(target.path) + ':')
+            genTargetDeps(target)
+            genout.writeLine('\t' + command)
 
         } else if (bit.generating == 'nmake') {
             command = repcmd(command)
-            genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
-
+            genout.write(reppath(target.path) + ':')
+            genTargetDeps(target)
+            genout.writeLine('\t' + command)
         }
     }
 
@@ -2577,17 +2618,21 @@ public class Bit {
         let command = expandRule(target, rule)
         if (bit.generating == 'sh') {
             command = repcmd(command)
-            genout.writeLine(command + '\n')
+            genout.writeLine(command)
 
         } else if (bit.generating == 'make') {
             command = repcmd(command)
             command = command.replace(/-arch *\S* /, '')
-            genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
+            genout.write(reppath(target.path) + ':')
+            genTargetDeps(target)
+            genout.writeLine('\t' + command)
 
         } else if (bit.generating == 'nmake') {
             command = repcmd(command)
             command = command.replace(/-arch *\S* /, '')
-            genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
+            genout.write(reppath(target.path) + ':')
+            genTargetDeps(target)
+            genout.writeLine('\t' + command)
         }
     }
 
@@ -2601,15 +2646,19 @@ public class Bit {
         let command = expandRule(target, rule)
         if (bit.generating == 'sh') {
             command = repcmd(command)
-            genout.writeLine(command + '\n')
+            genout.writeLine(command)
 
         } else if (bit.generating == 'make') {
             command = repcmd(command)
-            genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
+            genout.write(reppath(target.path) + ':')
+            genTargetDeps(target)
+            genout.writeLine('\t' + command)
 
         } else if (bit.generating == 'nmake') {
             command = repcmd(command)
-            genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
+            genout.write(reppath(target.path) + ':')
+            genTargetDeps(target)
+            genout.writeLine('\t' + command)
         }
     }
 
@@ -2645,19 +2694,21 @@ public class Bit {
             if (bit.generating == 'sh') {
                 command = repcmd(command)
                 command = command.replace(/-arch *\S* /, '')
-                genout.writeLine(command + '\n')
+                genout.writeLine(command)
 
             } else if (bit.generating == 'make') {
                 command = repcmd(command)
                 command = command.replace(/-arch *\S* /, '')
-                genout.writeLine(reppath(target.path) + ': \\\n    ' + 
-                    file.relative + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
+                genout.write(reppath(target.path) + ': \\\n    ' + file.relative)
+                genTargetDeps(target)
+                genout.writeLine('\t' + command)
 
             } else if (bit.generating == 'nmake') {
                 command = repcmd(command)
                 command = command.replace(/-arch *\S* /, '')
-                genout.writeLine(reppath(target.path) + ': \\\n    ' + 
-                    file.relative.windows + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
+                genout.write(reppath(target.path) + ': \\\n    ' + file.relative.windows)
+                genTargetDeps(target)
+                genout.writeLine('\t' + command)
             }
         }
         runTargetScript(target, 'postcompile')
@@ -2679,17 +2730,19 @@ public class Bit {
             let command = expandRule(target, rule)
             if (bit.generating == 'sh') {
                 command = repcmd(command)
-                genout.writeLine(command + '\n')
+                genout.writeLine(command)
 
             } else if (bit.generating == 'make') {
                 command = repcmd(command)
-                genout.writeLine(reppath(target.path) + ': \\\n        ' + 
-                    file.relative + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
+                genout.write(reppath(target.path) + ': \\\n        ' + file.relative)
+                genTargetDeps(target)
+                genout.writeLine('\t' + command)
 
             } else if (bit.generating == 'nmake') {
                 command = repcmd(command)
-                genout.writeLine(reppath(target.path) + ': \\\n        ' + 
-                    file.relative.windows + repvar(getTargetDeps(target)) + '\n\t' + command + '\n')
+                genout.write(reppath(target.path) + ': \\\n        ' + file.relative.windows)
+                genTargetDeps(target)
+                genout.writeLine('\t' + command)
             }
         }
     }
@@ -2700,7 +2753,8 @@ public class Bit {
     function generateFile(target) {
         target.made ||= {}
         if (bit.generating == 'make' || bit.generating == 'nmake') {
-            genout.writeLine(reppath(target.path) + ': ' + repvar(getTargetDeps(target)))
+            genout.write(reppath(target.path) + ':')
+            genTargetDeps(target)
         }
         for each (let file: Path in target.files) {
             /* Auto-generated headers targets for includes have file == target.path */
@@ -2714,7 +2768,6 @@ public class Bit {
                 copy(file, target.path, target)
             }
         }
-        genout.writeLine()
         delete target.made
     }
 
@@ -2739,17 +2792,16 @@ public class Bit {
         }
         if (target.scripts && target['generate-action']) {
             if (target.path) {
-                genWrite(target.path.relative + ': ' + getTargetDeps(target, true))
+                genWrite(target.path.relative + ':')
             } else {
-                genWrite(target.name + ': ' + getTargetDeps(target, true))
+                genWrite(target.name + ':')
             }
+            genTargetDeps(target)
             capture = []
             vtrace(target.type.toPascal(), target.name)
             runTargetScript(target, 'build')
             if (capture.length > 0) {
-                genWrite('\t' + capture.join('\n\t') + '\n')
-            } else {
-                genWrite('\n')
+                genWriteLine('\t' + capture.join('\n\t'))
             }
             capture = null
 
@@ -2771,17 +2823,18 @@ public class Bit {
                 cmd = expand(cmd, {fill: null}).expand(target.vars, {fill: '${}'})
                 cmd = repvar2(cmd, target.home)
                 bit.globals.LBIN = localBin
-                genWrite(cmd + '\n')
+                genWriteLine(cmd)
             } else {
-                genout.writeLine('#  Omit build script ' + target.name + '\n')
+                genout.write('#  Omit build script ' + target.name)
             }
 
         } else if (bit.generating == 'make') {
             if (target.path) {
-                genWrite(target.path.relative + ': ' + getTargetDeps(target, true))
+                genWrite(target.path.relative + ':')
             } else {
-                genWrite(target.name + ': ' + getTargetDeps(target, true))
+                genWrite(target.name + ':')
             }
+            genTargetDeps(target)
             let cmd = target['generate-' + bit.platform.os] || target['generate-make'] || target['generate-sh'] || 
                 target.generate
             if (cmd) {
@@ -2799,15 +2852,16 @@ public class Bit {
                 cmd = expand(cmd, {fill: null}).expand(target.vars, {fill: '${}'})
                 cmd = repvar2(cmd, target.home)
                 bit.globals.LBIN = localBin
-                genWrite(cmd + '\n')
+                genWriteLine(cmd)
             }
 
         } else if (bit.generating == 'nmake') {
             if (target.path) {
-                genWrite(target.path.relative.windows + ': ' + getTargetDeps(target, true))
+                genWrite(target.path.relative.windows + ':')
             } else {
-                genWrite(target.name + ': ' + getTargetDeps(target, true))
+                genWrite(target.name + ':')
             }
+            genTargetDeps(target)
             let cmd = target['generate-' + bit.platform.os] || 
                 target['generate-nmake'] || target['generate-make'] || target['generate']
             if (cmd) {
@@ -2840,9 +2894,9 @@ public class Bit {
                 }
                 cmd = repvar2(cmd, target.home)
                 bit.globals.LBIN = localBin
-                genWrite(cmd + '\n')
+                genWriteLine(cmd)
             } else {
-                genout.writeLine('#  Omit build script ' + target.name + '\n')
+                genout.write('#  Omit build script ' + target.name)
             }
         }
     }
@@ -2969,39 +3023,39 @@ public class Bit {
     /*
         Get the dependencies of a target as a string
      */
-    function getTargetDeps(target, oneline = false): String {
+    function genTargetDeps(target) {
         let deps = []
         if (target.type == 'file' || target.type == 'script' || target.type == 'action') {
             for each (file in target.files) {
-                deps.push(file)
+                deps.push('    ' + reppath(file) + '\\')
             }
         }
-        let len = 0
         if (target.depends && target.depends.length > 0) {
             for each (let dname in target.depends) {
                 let dep = bit.targets[dname]
                 if (dep && dep.enable) {
-                    if (dep.path) {
-                        deps.push(reppath(dep.path))
-                        len += dep.path.name.length
+                    let d = (dep.path) ? reppath(dep.path) : dep.name
+                    if (dep.require) {
+                        deps.push('ifeq ($(BIT_PACK_' + dep.require.toUpper() + '),1)')
+                        deps.push('    ' + d + ' \\')
+                        deps.push('endif')
                     } else {
-                        deps.push(dep.name)
-                        len += dep.name.length
+                        deps.push('    ' + d + ' \\')
                     }
                 }
             }
         }
-        if (bit.platform.like == 'windows') {
-            deps = deps.map(function (f) Path(f).relative.windows)
-        }
         if (deps.length > 0) {
-            if (oneline && len < 80) {
-                return deps.join(' ')
-            } else {
-                return '\\\n    ' + deps.join(' \\\n    ')
+            for (i = deps.length - 1; i >= 0; i--) {
+                if (deps[i].startsWith(' ')) {
+                    deps[i] = deps[i].trimEnd('\\')
+                    break
+                }
             }
+            genout.writeLine(' \\\n' + deps.join('\n'))
+        } else {
+            genout.writeLine('')
         }
-        return ''
     }
 
     /*
@@ -3549,13 +3603,13 @@ public class Bit {
                 if (target.enable && target.path && targetsToClean[target.type]) {
                     if (!target.built && !target.precious && !target.nogen) {
                         if (bit.generating == 'make') {
-                            genWrite('\trm -rf ' + reppath(target.path))
+                            genWriteLine('\trm -rf ' + reppath(target.path))
 
                         } else if (bit.generating == 'nmake') {
                             genout.writeLine('\t-if exist ' + reppath(target.path) + ' del /Q ' + reppath(target.path))
 
                         } else if (bit.generating == 'sh') {
-                            genWrite('rm -rf ' + target.path.relative)
+                            genWriteLine('rm -rf ' + target.path.relative)
 
                         } else {
                             if (target.path.exists) {
@@ -3580,8 +3634,11 @@ public class Bit {
         }
     }
 
-    function genWrite(str) {
+    function genWriteLine(str) {
         genout.writeLine(repvar(str))
+    }
+    function genWrite(str) {
+        genout.write(repvar(str))
     }
 
     public function genScript(str: String) {

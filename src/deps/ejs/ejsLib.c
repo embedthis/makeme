@@ -10,6 +10,8 @@
 #define EJS_DEFINE_OPTABLE 1
 #include "ejs.h"
 
+#if BIT_PACK_EJSCRIPT
+
 /************************************************************************/
 /*
     Start of file "src/cmd/romFiles.c"
@@ -77814,3 +77816,4 @@ void ejsDisableExit(Ejs *ejs)
 
     @end
  */
+#endif /* BIT_PACK_EJSCRIPT */

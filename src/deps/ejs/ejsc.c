@@ -27,6 +27,8 @@
 
 
 
+#if BIT_PACK_EJSCRIPT
+
 /********************************** Forwards **********************************/
 
 typedef struct App {
@@ -384,6 +386,14 @@ static void require(cchar *name)
     }
 }
 
+
+#else
+int main(int argc, char **argv)
+{
+    return 0;
+}
+
+#endif /* BIT_PACK_EJSCRIPT */
 /*
     @copy   default
 

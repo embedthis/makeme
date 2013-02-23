@@ -270,10 +270,14 @@ public function installBinary() {
     let [manifest, package, prefixes] = setupPackage('install')
     if (package) {
         checkRoot()
-        trace('Install', bit.settings.title)
+        if (!bit.generating) {
+            trace('Install', bit.settings.title)
+        }
         files = deploy(manifest, bit.prefixes, package) 
         makeFiles(prefixes.vapp, prefixes.root, files, bit.prefixes)
-        trace('Complete', bit.settings.title + ' installed')
+        if (!bit.generating) {
+            trace('Complete', bit.settings.title + ' installed')
+        }
     }
     delete bit.installing
 }
@@ -284,7 +288,9 @@ public function uninstallBinary() {
     let name = (bit.platform.os == 'windows') ? bit.settings.title : bit.settings.product
     if (package) {
         checkRoot()
-        trace('Uninstall', bit.settings.title)
+        if (!bit.generating) {
+            trace('Uninstall', bit.settings.title)
+        }
         let fileslog = bit.prefixes.vapp.join('files.log')
 
         if (bit.generating) {
@@ -327,7 +333,9 @@ public function uninstallBinary() {
         }
         updateLatestLink()
         removeDir(bit.prefixes.app, {empty: true})
-        trace('Complete', bit.settings.title + ' uninstalled')
+        if (!bit.generating) {
+            trace('Complete', bit.settings.title + ' uninstalled')
+        }
     }
 }
 

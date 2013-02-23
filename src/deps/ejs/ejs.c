@@ -27,6 +27,7 @@
 
 
 
+#if BIT_PACK_EJSCRIPT
 #if BIT_HAS_LIB_EDIT
   #include  <histedit.h>
 #endif
@@ -589,6 +590,15 @@ static void require(cchar *name)
         mprAddItem(app->modules, sclone(name));
     }
 }
+
+#else
+
+int main(int argc, char **argv)
+{
+    return 0;
+}
+
+#endif /* BIT_PACK_EJSCRIPT */
 
 /*
     @copy   default
