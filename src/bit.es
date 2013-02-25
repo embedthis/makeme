@@ -2978,10 +2978,10 @@ public class Bit {
         }
         for each (p in ['vapp', 'app', 'bin', 'inc', 'lib', 'man', 'base', 'web', 'cache', 'spool', 'log', 'etc']) {
             if (bit.platform.like == 'windows') {
-                let pat = gen[p].windows.replace(/\\/g, '\\\\')
+                let pat = bit.prefixes[p].windows.replace(/\\/g, '\\\\')
                 command = command.replace(RegExp(pat, 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
             }
-            command = command.replace(RegExp(gen[p], 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
+            command = command.replace(RegExp(bit.prefixes[p], 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
         }
         //  Work-around for replacing root prefix
         command = command.replace(/\/\//g, '$$(BIT_ROOT_PREFIX)/')

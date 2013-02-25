@@ -75,7 +75,7 @@ public function deploy(manifest, prefixes, package): Array {
             if (item.precopy) {
                 eval('require ejs.unix\n' + expand(item.precopy))
             }
-            if (item.require) {
+            if (item.require && bit.generating) {
                 genWriteLine('ifeq ($(BIT_PACK_' + item.require.toUpper() + '),1)')
             }
             if (item.dir) {
@@ -99,7 +99,7 @@ public function deploy(manifest, prefixes, package): Array {
                     item.to.write(data)
                 }
             }
-            if (item.require) {
+            if (item.require && bit.generating) {
                 genWriteLine('endif')
             }
             if (item.postcopy) {
