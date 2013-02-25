@@ -4454,9 +4454,9 @@ public var b: Bit = new Bit
 b.main()
 
 public function pack(name: String, description: String) {
-    let packs = {}
+    let pack = {}
     packs[name] = {description: description}
-    Bit.load({packs: packs})
+    Bit.load({packs: pack})
 }
 
 public function probe(file: Path, options = {}): Path {
@@ -4468,15 +4468,15 @@ public function probe(file: Path, options = {}): Path {
  */
 public function program(name: Path, description = null): Path {
     let path = bit.packs[name.trimExt()].path || name
-    let packs = {}
+    let pack = {}
     let cfg = {description: description}
-    packs[name] = cfg
+    pack[name] = cfg
     try {
         cfg.path = probe(name, {fullpath: true})
     } catch (e) {
         throw e
     }
-    Bit.load({packs: packs})
+    Bit.load({packs: pack})
     return cfg.path
 }
 

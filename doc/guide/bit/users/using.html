@@ -65,9 +65,9 @@
         components need to be rebuilt. It easily handles the direct compilation and generation of projects.</p>
         <a id="simple"></a>
         <h2>Simple Bit File</h2>
-        <p>A bit file is a Javascript file with a <em>.bit</em> extension that invokes Bit.load() to process a set of build
-        instructions. The build instructions are expressed as a Javascript object literal that is supplied via
-        the Bit.load() call.</p>
+        <p>A bit file is a Javascript file with a <em>.bit</em> extension that invokes Bit.load to process a set of build
+        instructions. The build instructions are expressed as a Javascript object literal. The primary bit file is 
+        called <em>start.bit</em>. For example:</p>
         <pre>
 Bit.load({
     targets: {
@@ -87,6 +87,7 @@ Bit.load({
 </pre>
         <p>To build the rocket, enter:</p>
         <pre>bit rocket</pre>
+
         <a id="targets"></a>
         <h2>Building Targets</h2>
         <p>Bit is typically invoked with zero or more targets on the command line to build. If invoked with zero

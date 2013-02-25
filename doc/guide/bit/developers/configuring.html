@@ -57,21 +57,246 @@
         </div>
         <div class="contentLeft">
         <h2>Creating a Configurable Product</h2>
-        <pre>
-- Discovering packs
-- bit.required
-- bit.optional
-- local bits/packs
-- importing 
-- Creating packs
-    - program
-    - Bit.load()
-- bit.h and what it contains
-    - settingsGjG
-- configure script
-- configure usage
+        <p>Bit enables you to create highly configurable products by supporing a configure phase for users to
+        run before building the software. The configure phase allows the user to select desired extension packs 
+        and features to tailor the product for their local operating system and platform.</p>
 
+        <p>The configuration phase generates a platform bit file and a bit.h header that is typically included by
+        most if not all source files. These two files fully describe the build characteristics with selected
+        extensions and options. When Bit is run, it observes the build instructions in the platform bit file. When
+        source is compiled, it can access conditional build definitions in the bit.h header.</p>
+
+        <h2>Configure Script</h2>
+        <p>Developers typically provide a <em>configure</em> script to mimic the familiar autoconf configure
+        pattern. This script minimally invokes bit using the configure target:</p>
+<pre>
+# configure script
+bit configure "$@"
 </pre>
+        <h2>Defining Configurable Options</h2>
+        <p>Developers should specify the supported extension packs and configuration settings in the product's 
+        <em>main.bit</em> file.</p>
+
+        <h2>Packs</h2>
+        <p>A product may be extended by the discovery and addition of extension packs. These are modules that
+        contribute libraries, files or other components to the product to extend functionality. Examples are:
+        the OpenSSL SSL stack, the PHP web framework, the Ejscript web framework and many others. </p>
+   
+        <h3>Pack Description Files</h3>
+        <p>Each pack must supply a pack description file with a <em>.pak</em> extension. Many standard
+        packs are provided with the Bit product. These are stored under the <em>bits/packs</em> directory in the
+        installed Bit folder. A product may contribute their own packs that are typically stored under the 
+        <em>bits/packs</em> directory in the product source. Here is a partial list of the standard packs supplied with
+        Bit.</p>
+        <table>
+        <thead>
+        <tr><td>Pack</td><td>Description</td></tr>
+        </thead>
+        <tbody>
+            <tr><td>compiler.pak</td><td>Compiler detection</td></tr>
+            <tr><td>doxygen.pak</td><td>Doxygen documentation generator</td></tr>
+            <tr><td>ejs.pak</td><td>Ejscript shell tool</td></tr>
+            <tr><td>ejscript.pak</td><td>Ejscript Web Framework</td></tr>
+            <tr><td>est.pak</td><td>Embedded Security Transport (SSL)</td></tr>
+            <tr><td>http.pak</td><td>Http command tool</td></tr>
+            <tr><td>lib.pak</td><td>Library archive program (ar, lib)</td></tr>
+            <tr><td>link.pak</td><td>Linker program</td></tr>
+            <tr><td>man.pak</td><td>Man page tool</td></tr>
+            <tr><td>man2html.pak</td><td>Man page to HTML tool</td></tr>
+            <tr><td>matrixssl.pak</td><td>MatrixSSL (SSL)</td></tr>
+            <tr><td>md5.pak</td><td>MD5 checksum tool</td></tr>
+            <tr><td>mocana.pak</td><td>Mocana NanoSSL (SSL)</td></tr>
+            <tr><td>openssl.pak</td><td>OpenSSL (SSL)</td></tr>
+            <tr><td>pcre.pak</td><td>PCRE regular expression library</td></tr>
+            <tr><td>pmaker.pak</td><td>Package maker tool (PackageMaker, rpmbuild, InnoSetup)</td></tr>
+            <tr><td>ranlib.pak</td><td>Ranlib tool</td></tr>
+            <tr><td>rc.pak</td><td>Resource compiler tool on windows</td></tr>
+            <tr><td>sqlite.pak</td><td>SQLite library</td></tr>
+            <tr><td>ssl.pak</td><td>SSL Support</td></tr>
+            <tr><td>strip.pak</td><td>Strip tool</td></tr>
+            <tr><td>tidy.pak</td><td>HTML tidy program</td></tr>
+            <tr><td>utest.pak</td><td>Ejscript unit test framework</td></tr>
+            <tr><td>vxworks.pak</td><td>WindRiver VxWorks Development Environment</td></tr>
+            <tr><td>winsdk.pak</td><td>Windows SDK</td></tr>
+            <tr><td>zip.pak</td><td>Zip command tool</td></tr>
+            <tr><td>zlib.pak</td><td>Zlib library</td></tr>
+            </tbody>
+        </table>
+</pre>
+
+        <h3>Required, Discoverable and Optional Packs</h3>
+        <p>Packs are designated as either <em>required</em>, <em>discoverable</em> or <em>optional</em>. 
+        Required packs are essential for the operation of the product. Discoverable packs are optional packs for which
+        Bit will search the local system to see if the pack resources are present and can be utilized. Optional
+        packs will not be automatically discovered and must be explicitly requested by the user via: </p>
+
+        <pre>configure -with PACK</em></pre>
+
+        <p>Developers specify requied packs via the <em>required</em> settings property. Optional
+        packs are not explicitly specified, other than ensuring .pak file is available. For example:</p>
+        <pre>
+settings: {
+    <b>'+required': [ 'compiler', 'pcre']</b>,
+    <b>'+discover': [ 'cgi', 'dir', 'doxygen', 'dsi', 'esp', 'est', 'php', 'sqlite']</b>,
+},
+</pre>
+        <p>Note the use of the <em>+</em> prefix to append the packs to any preexisting definition.</p>
+
+        <h3>Running Configure</h3>
+        <p>With an appropriate main.bit file, users can run configure to select optional packs or deselect
+        discoverable packs. For example:</p>
+<pre>configure -with openssl -without est --without cgi</pre>
+
+        <h3>Importing Standard Packs</h3>
+        <p>For developers who wish to <i>freeze</i> the Bit support for their product and guarantee the version
+        of Bit they have designed for, the Bit configuration can be imported into the product source tree via:</p>
+        <pre>bit -import</pre>. 
+        <p>This will copy the entire Bit <em>bits</em> directory into the local source. This copied configuration
+        will be used by Bit in preference over the install Bit files.  The various Bit packs and operating system
+        configuration can be modified once imported.</p>
+
+        <h2>Modifying Settings</h2>
+        <p>The other half of the configuration process is defining settings that the software and selected packs
+        will use when building and running. These options are defined in the <em>settings</em> collection an may 
+        be modified via the <em>-set</em> option. For example:
+
+        <pre>configure -set mpr.logging=true</pre>
+
+        <p>The default settings are specified in the main.bit file. For example:
+<pre>
+settings: {
+    mode: 'fast',
+    mpr: {
+        logging: true,
+    },
+},
+</pre>
+        <p>Note that settings may be nested inside other collections to any depth. In such cases the feature is selected
+        using the normal dot notation.</p>
+        <p>When Bit configures, it will convert every value in the settings collection into a definition in the
+        bit.h header. Dots are converted to underscores. For example: mpr.logging is converted to "BIT_MPR_LOGGING".
+        True|False values are converted to 1 or 0 as appropriate.</p>
+
+        <h2>Configure Usage messages</h2>
+        <p>Developers can tailor the usage message emitted by Bit to describe the various configurable options.
+        Users can get configuration help by invoking configure with a <em>help</em> target. For example:
+<pre>
+$ <b>configure help</b>
+
+Usage: bit [options] [targets|actions] ...
+  Options:
+  --benchmark  # Measure elapsed time
+  ...
+</pre>
+        <p>Additional usage messages may be specified in main.bit in the <em>usage</em> property collection. For example:
+<pre>
+usage: {
+    'ejs.db':        'Enable database support, ejs.db (true|false)',                                   
+    'ejs.mail':      'Enable mail support, ejs.mail (true|false)',
+    'ejs.mapper':    'Enable database mapper support, ejs.mapper (true|false)',
+},
+</pre>
+
+        <h2>Creating Packs</h2>
+        <p>A Bit extension pack file is comprised of a Javascript file with a <em>.pak</em>. The script supplies pack
+        configuration by calling <em>pack()</em> to register the pack and then Bit.load to supply configuration details.</p>
+
+        <h3>pack()</h3>
+        <p>The pack() call specifies the name of the pack and a short, single-line description for the pack. This call
+            should be made first thing in the pack script. Thereafter, Bit will catch any exception thrown, and 
+            in that case, will disable support for the pack. Throwing exceptions errors is a normal pattern if the pack
+            cannot find all its required resources.</p> 
+
+        <pre>pack('php', 'PHP Web Framework')</pre>
+
+        <p>Once registering itself by calling pack(), the pack should determine if the local system can support the pack.
+        For simple tool packs, this means probing to locate the path to the tool. For SDKs, it may mean multiple
+        probes to determine include paths, library paths and various SDK tools.</p>
+
+        <p>When complete, the pack should define collection of properties that describe the local support for the
+        pack via calling <em>Bit.load</em>. For example:
+<pre>Bit.load({
+    packs: {
+        wget: {
+            path: /opt/bin/wget,
+        }
+    },
+})
+</pre>
+
+        <p>The property collection may contain properties of any name, but the following properties have special value:</p>
+        <ul>
+            <li>includes &mdash; true|false</li>
+            <li>path &mdash; Directory path to the extension. May be the path to the binary for tools.</li>
+            <li>defines &mdash; C definitions to use when compiling source that uses the pack</li>
+            <li>libraries &mdash; Libraries for users of the pack to link with</li>
+            <li>linker &mdash; Linker options for users of the pack to use when linking</li>
+            <li>libpaths &mdash; Linker library search paths to use when linking</li>
+            <li>imports &mdash; Libraries, files and resources to import into the local source tree</li>
+        </ul>
+
+        <p>When a target desires to link with the libraries from a pack, the pack should publish the libraries using
+        the <em>libraries</em> and <em>libpaths</em>. Targets can then <em>require</em> the pack by adding the name of
+        the pack to their <em>depends</em> property. For example, given the pack:</p>
+<pre>
+pack('php', 'PHP Web Framework')
+Bit.load({
+    path: "/php",
+    defines: [ 'ZEND_DEBUG'],
+    includes: [
+        "/php",
+        "/php/main",
+        "/php/Zend",
+        "/php/TSRM",
+    ],
+    libraries: [ "php5" ],
+    linker: [ "-L/php/libs" ],
+    imports: [ "/php/libs/libphp5.dylib" ],
+}, 
+</pre>
+        <p>A target desiring to use php can be specified: </p>
+<pre>
+app: {
+    type: 'exe',
+    sources: 'app.c',
+    depends: ['php'],
+},
+</pre>
+        <p>Bit will automatically import the libphp5 library into the local tree at configure time. Bit will 
+        then add the PHP definitions when compiling app.c and will then add the PHP library and linker options. </p>
+
+        <h2>Pack API</h2>
+        <p>Bit provides two convenience functions to assist creating packs.
+        <h3>The program() API</h3>
+        <p>If you wish to design a pack for a simple command line tool, use the <em>program</em> function to 
+            search and define the tool. This works if the tool is accessible using the current PATH definition.
+<pre>program('zip', 'Zip utility')</pre>
+            <p>The program function searches for Zip and defines the pack if zip can be found.</p>
+            <p>The program function is implemented as:</p>
+<pre>
+public function program(name, description = null) {
+    let path = bit.packs[name.trimExt()].path || name
+    let cfg = {description: description}
+    let pack = { name: cfg }
+    cfg.path = probe(name, {fullpath: true})
+    Bit.load({packs: pack})
+    return cfg.path
+}
+</pre>
+
+        <h3>The probe() API</h3>
+        <p>The probe function is useful to search for a program on the system. It searches for a named program
+        and takes options for the search path (search), the default to return if the program cannot be found (default), and
+        whether to return the full path or just the dirname portion (fullpath).</p>
+         
+<pre>probe('gzip', { 
+    search: ['/bin', '/usr/bin' ],
+    default: 'bin/gzip'
+</pre>
+
+        <h2>Samples</h2>
+        <p>The standard packs are a good source of samples for how to create packs. View in the repository at
+        <a href="https://github.com/embedthis/bit/tree/master/bits/packs">Bit Packs</a>.</p>
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->

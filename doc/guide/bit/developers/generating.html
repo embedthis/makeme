@@ -115,8 +115,14 @@ make BIT_PACK_SSL=0
         xcode, for: Make, Windows Nmake, Shell script, Visual Studio project and Xcode project.</p>
         <p>Bit is capable of cross-generating projects for non-native platforms. For example: you can generate an 
         Xcode project for Mac OS X on a Windows system, or generate Windows Visual Studio Projects on a Mac.</p>
-        - why configure
-        - why unique platform name
+        <p>When generating for a non-local platform, you must select the <em>-configure .</em> option. If generating
+        for the local platform, you do not need to reconfigure.</p>
+
+        <p>You should choose a unique profile name ("debug" in the example above).  The platform output products directory
+        will contain this name and if you are building via Bit, Makefile and/or IDE, it is important to keep the various
+        output products directories separate. This is because some IDEs will add incompatible compiler options that will not
+        interoperate with builds by Make or Bit.</p>
+
         <h2>Creating Generatable Targets</h2>
         <p>Bit can automatically create equivalent Makefile and IDE project commands for compiling objects, exporting
         headers, building libraries, executables and copy file targets. You do not need to specify any additional
@@ -154,11 +160,25 @@ stest: {
         <p>If the exact and compatible generate properties are not present, Bit checks if a platform specific property is
         present. For example: <em>generate-linux</em> can be used to provide a script for Linux Makefiles.</p>
         <p>If none of these options are present, Bit checks for a generic <em>generate</em> property.</p>
-    </pre>
-    <!--
-        <h2>Creating Install Targets</h2>
-        Deploy manifests
-    -->
+
+        <h2>Generating Conditional Makefiles</h2>
+        <p>Bit can generate conditional Makefiles where the list of targets to build may be modified at run-time depending
+        on Make environment variables. These variables override default values defined in the platform makefile and/or the
+        product <em>bit.h</em> configuration header.  For example:
+        <pre>$ <b>BIT_PACK_EST=0</b> make</pre>
+        <p>This will disable use of the EST (Embedded Security Transport SSL).</p>
+
+        <p>The <em>require</em> target property is used to specify what extension pack is required by a target. 
+<pre>
+rocket: {
+    type: 'exe'
+    sources: '*.c',
+    require: 'ssl',
+},
+</pre>
+        <p>Only if the SSL pack is enabled, will the generated Makefile build the rocket target.</p> 
+
+        <h2>Learn More</h2>
         <p>To learn more, read some actual <a href="samples.html">Bit Samples</a>.</p>
         </div>
     </div>

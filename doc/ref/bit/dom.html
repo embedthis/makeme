@@ -255,6 +255,10 @@
                         calculations. If updated, all targets that depend on this target will be rebuilt.</td></tr>
                 <tr><td>platforms</td><td>Platforms for which this target should be built. Set to OS-ARCH or <em>local</em>
                         for the local platform.</td></tr>
+                <tr><td>require</td><td>Name of a required pack to enable this target. Equivalent to setting the 
+                        enable property to 'bit.pack.NAME && bit.pack.NAME.enable'. Targets with the require property 
+                        will have conditional code in generated Makefiles so that the target is not built if the
+                        required pack is not supported in the build.</td></tr>
                 <tr><td>rule</td><td>Build command template to use when invoking compiler and linker. Typically not
                         explicitly set unless overriding for some reason. Set to: 'c-&gt;o', 'cpp-&gt;o', 'lib', 'exe', 'gui'.
                         Rules are automatically selected for 'lib' and 'exe' targets. </td>
