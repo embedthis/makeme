@@ -632,11 +632,6 @@ stop: $(DEPS_39)
 DEPS_40 = $(DEPS_40) stop
 
 installBinary: $(DEPS_40)
-	if not exist "C:/" md "C:/"
-	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
-	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
-	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
-	if not exist "$(BIT_VAPP_PREFIX)\man" md "$(BIT_VAPP_PREFIX)\man"
 	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
 	copy /Y "$(CONFIG)\bin\bit.exe" "$(BIT_VAPP_PREFIX)\bin\bit.exe"
 	copy /Y "$(CONFIG)\bin\bit.es" "$(BIT_VAPP_PREFIX)\bin\bit.es"

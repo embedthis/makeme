@@ -2838,7 +2838,7 @@ static char *events[] = {
     "undefined", "state-change", "readable", "writable", "error", "destroy", "app-open", "app-close",
 };
 static char *states[] = {
-    "undefined", "begin", "connected", "first", "parsed", "content", "ready", "running", "complete",
+    "undefined", "begin", "connected", "first", "parsed", "content", "ready", "running", "finalized", "complete",
 };
 #endif
 

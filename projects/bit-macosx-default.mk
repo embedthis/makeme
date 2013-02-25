@@ -618,6 +618,8 @@ stop: $(DEPS_37)
 DEPS_38 += stop
 
 installBinary: $(DEPS_38)
+	mkdir -p "$(BIT_APP_PREFIX)"
+	mkdir -p "$(BIT_VAPP_PREFIX)"
 	rm -f "$(BIT_APP_PREFIX)/latest"
 	mkdir -p "$(BIT_APP_PREFIX)"
 	ln -s "0.8.2" "$(BIT_APP_PREFIX)/latest"

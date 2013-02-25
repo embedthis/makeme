@@ -123,9 +123,12 @@ function setupGlobals(manifest, package, prefixes) {
     for (pname in prefixes) {
         if (package.prefixes.contains(pname)) {
             bit.globals[pname] = prefixes[pname]
-            if (!bit.generating || bit.target.name != 'uninstall') {
-                if (!prefixes[pname].exists) {
-                    makeDir(prefixes[pname])
+            if (bit.target.name != 'uninstall') {
+                if (bit.generating || !prefixes[pname].exists) {
+                    //  MOB - need more generic way to know which prefixes are system and which are owned by the app
+                    if (prefixes[pname].contains(bit.settings.product)) {
+                        makeDir(prefixes[pname])
+                    }
                 }
             }
         }
@@ -801,6 +804,7 @@ public function checkInstalled() {
 public function checkUninstalled() {
     let result = []
     for each (prefix in bit.prefixes) {
+        //  MOB - need more generic way to know which prefixes are system and which are owned by the app
         if (!prefix.name.contains(bit.settings.product)) {
             continue
         }
