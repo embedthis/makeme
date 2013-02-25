@@ -860,7 +860,7 @@ public function getWebGroup(): String {
     } else if (bit.platform.os == 'windows') {
         return 'Administrator'
     } else if (bit.platform.os == 'linux' || bit.platform.os == 'freebsd') {
-        return 'nogroup'
+        return 'nobody'
     }
     return '0'
 }
