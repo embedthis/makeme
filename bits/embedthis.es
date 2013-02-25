@@ -75,8 +75,12 @@ public function deploy(manifest, prefixes, package): Array {
             if (item.precopy) {
                 eval('require ejs.unix\n' + expand(item.precopy))
             }
-            if (item.require) {
-                genWriteLine('ifeq ($(BIT_PACK_' + item.require.toUpper() + '),1)')
+            if (item.require && bit.generating) {
+                if (bit.platform.os == 'windows') {
+                    genWriteLine('!IF "$(BIT_PACK_' + item.require.toUpper() + ')" == "1"')
+                } else {
+                    genWriteLine('ifeq ($(BIT_PACK_' + item.require.toUpper() + '),1)')
+                }
             }
             if (item.dir) {
                 for each (let dir:Path in item.dir) {
@@ -100,7 +104,11 @@ public function deploy(manifest, prefixes, package): Array {
                 }
             }
             if (item.require) {
-                genWriteLine('endif')
+                if (bit.platform.os == 'windows') {
+                    genWriteLine('!ENDIF')
+                } else {
+                    genWriteLine('endif')
+                }
             }
             if (item.postcopy) {
                 eval('require ejs.unix\n' + expand(item.postcopy))

@@ -1426,10 +1426,30 @@ public class Bit {
         return prefixes
     }
 
+    function generatePackDefs() {
+        let requiredTargets = {}
+        for each (target in bit.targets) {
+            if (target.require && bit.packs[target.require] && bit.packs[target.require].enable) {
+                requiredTargets[target.require] = true
+            }
+        }
+        for (let [name, pack] in bit.packs) {
+            if (requiredTargets[name]) {
+                if (bit.platform.os == 'windows' ) {
+                    genout.writeLine('%-21s = %s'.format(['BIT_PACK_' + name.toUpper(), pack.enable ? 1 : 0]))
+                } else {
+                    genout.writeLine('%-21s := %s'.format(['BIT_PACK_' + name.toUpper(), pack.enable ? 1 : 0]))
+                }
+            }
+        }
+        genout.writeLine('')
+    }
+
     function generateMakeProject(base: Path) {
         trace('Generate', 'project file: ' + base.relative + '.mk')
         let path = base.joinExt('mk')
         genout = TextStream(File(path, 'w'))
+        runScript(bit.scripts.pregen)
         genout.writeLine('#\n#   ' + path.basename + ' -- Makefile to build ' + 
             bit.settings.title + ' for ' + bit.platform.os + '\n#\n')
         genEnv()
@@ -1472,20 +1492,7 @@ public class Bit {
         genout.writeLine('CFLAGS          += $(CFLAGS-$(DEBUG))')
         genout.writeLine('DFLAGS          += $(DFLAGS-$(DEBUG))')
         genout.writeLine('LDFLAGS         += $(LDFLAGS-$(DEBUG))\n')
-
-        //  MOB - copy to NMAKE
-        let requiredTargets = {}
-        for each (target in bit.targets) {
-            if (target.require && bit.packs[target.require] && bit.packs[target.require].enable) {
-                requiredTargets[target.require] = true
-            }
-        }
-        for (let [name, pack] in bit.packs) {
-            if (requiredTargets[name]) {
-                genout.writeLine('%-21s := %s'.format(['BIT_PACK_' + name.toUpper(), pack.enable ? 1 : 0]))
-            }
-        }
-        genout.writeLine('')
+        generatePackDefs()
 
         let prefixes = mapPrefixes()
         for (let [name, value] in prefixes) {
@@ -1494,6 +1501,8 @@ public class Bit {
             }
             genout.writeLine('%-21s := %s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
         }
+        genout.writeLine('')
+        runScript(bit.scripts.gendefs)
         genout.writeLine('')
 
         let pop = bit.settings.product + '-' + bit.platform.os + '-' + bit.platform.profile
@@ -1525,6 +1534,7 @@ public class Bit {
         trace('Generate', 'project file: ' + base.relative + '.nmake')
         let path = base.joinExt('nmake')
         genout = TextStream(File(path, 'w'))
+        runScript(bit.scripts.pregen)
         genout.writeLine('#\n#   ' + path.basename + ' -- Makefile to build ' + bit.settings.title + 
             ' for ' + bit.platform.os + '\n#\n')
         genout.writeLine('PRODUCT         = ' + bit.settings.product)
@@ -1553,6 +1563,7 @@ public class Bit {
         genout.writeLine('LDFLAGS         = ' + repvar(gen.linker).replace(/-machine:x86/, '-machine:$$(ARCH)'))
         genout.writeLine('LIBPATHS        = ' + repvar(gen.libpaths).replace(/\//g, '\\'))
         genout.writeLine('LIBS            = ' + gen.libraries + '\n')
+        generatePackDefs()
 
         let prefixes = mapPrefixes()
         for (let [name, value] in prefixes) {
@@ -1566,6 +1577,10 @@ public class Bit {
             genout.writeLine('%-21s = '.format(['BIT_' + name.toUpper() + '_PREFIX']) + value)
         }
         genout.writeLine('')
+        runScript(bit.scripts.gendefs)
+        genout.writeLine('')
+
+        genTargets()
         let pop = bit.settings.product + '-' + bit.platform.os + '-' + bit.platform.profile
         genout.writeLine('!IFNDEF SHOW\n.SILENT:\n!ENDIF\n')
         genout.writeLine('all compile: prep $(TARGETS)\n')
@@ -1653,15 +1668,15 @@ public class Bit {
             if (target.path && target.enable && !target.nogen) {
                 if (target.require) {
                     if (bit.platform.os == 'windows') {
-                        genout.writeLine('!IF "$(BIT_PACK_' + target.require.toUpper() + ') == "1"')
-                        genout.writeLine('    TARGETS = ' + reppath(target.path) + ' $(TARGETS)')
+                        genout.writeLine('!IF "$(BIT_PACK_' + target.require.toUpper() + ')" == "1"')
+                        genout.writeLine('TARGETS = $(TARGETS) ' + reppath(target.path))
                     } else {
                         genout.writeLine('ifeq ($(BIT_PACK_' + target.require.toUpper() + '),1)')
-                        genout.writeLine('    TARGETS += ' + reppath(target.path))
+                        genout.writeLine('TARGETS += ' + reppath(target.path))
                     }
                 } else {
                     if (bit.platform.os == 'windows') {
-                        genout.writeLine('TARGETS     = ' + reppath(target.path) + ' $(TARGETS)')
+                        genout.writeLine('TARGETS     = $(TARGETS) ' + reppath(target.path))
                     } else {
                         genout.writeLine('TARGETS     += ' + reppath(target.path))
                     }
@@ -2360,7 +2375,11 @@ public class Bit {
 
                 if (bit.generating) {
                     if (target.require) {
-                        genWriteLine('ifeq ($(BIT_PACK_' + target.require.toUpper() + '),1)')
+                        if (bit.platform.os == 'windows') {
+                            genout.writeLine('!IF "$(BIT_PACK_' + target.require.toUpper() + ')" == "1"')
+                        } else {
+                            genWriteLine('ifeq ($(BIT_PACK_' + target.require.toUpper() + '),1)')
+                        }
                     }
                     if (target.type == 'build' || (target.scripts && target.scripts['build'])) {
                         generateScript(target)
@@ -2381,7 +2400,11 @@ public class Bit {
                         generateResource(target)
                     }
                     if (target.require) {
-                        genWriteLine('endif')
+                        if (bit.platform.os == 'windows') {
+                            genWriteLine('!ENDIF')
+                        } else {
+                            genWriteLine('endif')
+                        }
                     }
                     genWriteLine('')
                 } else {
@@ -2830,7 +2853,7 @@ public class Bit {
                 bit.globals.LBIN = localBin
                 genWriteLine(cmd)
             } else {
-                genout.write('#  Omit build script ' + target.name)
+                genout.write('#  Omit build script ' + target.name + '\n')
             }
 
         } else if (bit.generating == 'make') {
@@ -2901,7 +2924,7 @@ public class Bit {
                 bit.globals.LBIN = localBin
                 genWriteLine(cmd)
             } else {
-                genout.write('#  Omit build script ' + target.name)
+                genout.write('#  Omit build script ' + target.name + '\n')
             }
         }
     }
@@ -2981,10 +3004,10 @@ public class Bit {
                 let pat = gen[p].windows.replace(/\\/g, '\\\\')
                 command = command.replace(RegExp(pat, 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
             }
-            command = command.replace(RegExp(gen[p], 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
+            command = command.replace(RegExp(bit.prefixes[p], 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
         }
         //  Work-around for replacing root prefix
-        command = command.replace(/\/\//g, '$$(BIT_ROOT_PREFIX)/')
+        command = command.replace(/"\/\//g, '"$$(BIT_ROOT_PREFIX)/')
         return command
     }
 
@@ -3011,7 +3034,7 @@ public class Bit {
             command = command.replace(RegExp(gen[p], 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
         }
         //  Work-around for replacing root prefix
-        command = command.replace(/\/\//g, '$$(BIT_ROOT_PREFIX)/')
+        command = command.replace(/"\/\//g, '"$$(BIT_ROOT_PREFIX)/')
         return command
     }
 
@@ -3045,7 +3068,7 @@ public class Bit {
                 if (dep.require) {
                     if (bit.platform.os == 'windows') {
                         genout.writeLine('!IF "$(BIT_PACK_' + dep.require.toUpper() + ')" == "1"')
-                        genout.writeLine('    LIBS_' + nextID + ' = -l' + lib + ' $(LIBS_' + nextID + ')')
+                        genout.writeLine('LIBS_' + nextID + ' = $(LIBS_' + nextID + ') lib' + lib + '.lib')
                         genout.writeLine('!ENDIF')
                     } else {
                         genout.writeLine('ifeq ($(BIT_PACK_' + dep.require.toUpper() + '),1)')
@@ -3054,15 +3077,23 @@ public class Bit {
                     }
                 } else {
                     if (bit.platform.os == 'windows') {
-                        genout.writeLine('LIBS_' + nextID + ' = -l' + lib + ' $(LIBS_' + nextID + ')')
+                        genout.writeLine('LIBS_' + nextID + ' = $(LIBS_' + nextID + ') lib' + lib + '.lib')
                     } else {
                         genout.writeLine('LIBS_' + nextID + ' += -l' + lib)
                     }
                 }
                 found = true
-                command = command.replace(RegExp(' -l' + lib + ' ', 'g'), ' ')
+                if (bit.platform.os == 'windows') {
+                    command = command.replace(RegExp(' lib' + lib + '.lib ', 'g'), ' ')
+                } else {
+                    command = command.replace(RegExp(' -l' + lib + ' ', 'g'), ' ')
+                }
             } else {
-                command = command.replace(RegExp(' -l' + lib + ' ', 'g'), ' ')
+                if (bit.platform.os == 'windows') {
+                    command = command.replace(RegExp(' lib' + lib + '.lib ', 'g'), ' ')
+                } else {
+                    command = command.replace(RegExp(' -l' + lib + ' ', 'g'), ' ')
+                }
             }
         }
         if (found) {
@@ -3085,7 +3116,11 @@ public class Bit {
         let found
         if (target.type == 'file' || target.type == 'script' || target.type == 'action') {
             for each (file in target.files) {
-                genout.writeLine('DEPS_' + nextID + ' += ' + reppath(file))
+                if (bit.platform.os == 'windows') {
+                    genout.writeLine('DEPS_' + nextID + ' = $(DEPS_' + nextID + ') ' + reppath(file))
+                } else {
+                    genout.writeLine('DEPS_' + nextID + ' += ' + reppath(file))
+                }
                 found = true
             }
         }
@@ -3097,7 +3132,7 @@ public class Bit {
                     if (dep.require) {
                         if (bit.platform.os == 'windows') {
                             genout.writeLine('!IF "$(BIT_PACK_' + dep.require.toUpper() + ')" == "1"')
-                            genout.writeLine('    DEPS_' + nextID + ' = ' + d + ' $(DEPS_' + nextID + ')')
+                            genout.writeLine('DEPS_' + nextID + ' = $(DEPS_' + nextID + ') ' + d)
                             genout.writeLine('!ENDIF')
                         } else {
                             genout.writeLine('ifeq ($(BIT_PACK_' + dep.require.toUpper() + '),1)')
@@ -3106,7 +3141,7 @@ public class Bit {
                         }
                     } else {
                         if (bit.platform.os == 'windows') {
-                            genout.writeLine('DEPS_' + nextID + ' = ' + d + ' $(DEPS_' + nextID + ')')
+                            genout.writeLine('DEPS_' + nextID + ' = $(DEPS_' + nextID + ') ' + d)
                         } else {
                             genout.writeLine('DEPS_' + nextID + ' += ' + d)
                         }
@@ -3605,7 +3640,7 @@ public class Bit {
 
     public function gtrace(tag: String, ...args): Void {
         let msg = args.join(" ")
-        let msg = "\techo '%12s %s'" % (["[" + tag + "]"] + [msg]) + "\n"
+        let msg = "\t@echo '%12s %s'" % (["[" + tag + "]"] + [msg]) + "\n"
         genout.write(msg)
     }
 
@@ -4263,7 +4298,7 @@ public class Bit {
             } else {
                 genrep('\tmkdir -p "' + path + '"')
                 if (options.permissions) {
-                    genrep('\tchmod ' + "%0o".format([options.permissions]) + ' ' + path)
+                    genrep('\tchmod ' + "%0o".format([options.permissions]) + ' "' + path + '"')
                 }
                 if (options.user || options.group) {
                     genrep('\t[ `id -u` = 0 ] && chown ' + options.user + ':' + options.group + ' "' + path + '"')
@@ -4358,7 +4393,7 @@ public class Bit {
                     genrep('\t[ `id -u` = 0 ] && chown ' + options.user + ':' + options.group + ' "' + dest + '"')
                 }
                 if (options.permissions) {
-                    genrep('\tchmod ' + "%0o".format([options.permissions]) + ' ' + dest)
+                    genrep('\tchmod ' + "%0o".format([options.permissions]) + ' "' + dest + '"')
                 }
             }
         }
