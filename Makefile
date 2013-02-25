@@ -63,9 +63,9 @@ help:
 	@echo '  BIT_MPR_TRACING    # Enable debug tracing' >&2
 	@echo '  BIT_PACK_EST       # Enable the EST SSL stack' >&2
 	@echo '' >&2
-	@echo 'For example, to disable CGI:' >&2
+	@echo 'For example, to disable EST:' >&2
 	@echo '' >&2
-	@echo '  make BIT_PACK_CGI=0' >&2
+	@echo '  BIT_PACK_EST=0 make' >&2
 	@echo '' >&2
 	@echo 'Other make variables:' >&2
 	@echo '  ARCH               # CPU architecture (x86, x64, ppc, ...)' >&2
@@ -81,4 +81,6 @@ help:
 	@echo '  LIBPATHS           # Add linker library search directories. For example: -L/libraries' >&2
 	@echo '  LIBS               # Add linker libraries. For example: -lpthreads' >&2
 	@echo '  PROFILE            # Build profile, used in output products directory name' >&2
+	@echo '' >&2
+	@echo 'Use "SHOW=1 make" to show executed commands.' >&2
 	@echo '' >&2

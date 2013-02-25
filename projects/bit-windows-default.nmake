@@ -29,6 +29,7 @@ LDFLAGS         = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
 LIBPATHS        = -libpath:$(CONFIG)\bin
 LIBS            = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
 
+
 BIT_ROOT_PREFIX       = C:
 BIT_BASE_PREFIX       = $(BIT_ROOT_PREFIX)\Program Files
 BIT_APP_PREFIX        = $(BIT_BASE_PREFIX)\Embedthis Bit
@@ -46,23 +47,29 @@ BIT_SPOOL_PREFIX      = $(BIT_VAPP_PREFIX)\tmp
 BIT_CACHE_PREFIX      = $(BIT_VAPP_PREFIX)\cache
 BIT_SRC_PREFIX        = $(BIT_VAPP_PREFIX)\src
 
-all compile: prep \
-        $(CONFIG)\bin\libest.dll \
-        $(CONFIG)\bin\ca.crt \
-        $(CONFIG)\bin\libmpr.dll \
-        $(CONFIG)\bin\libmprssl.dll \
-        $(CONFIG)\bin\makerom.exe \
-        $(CONFIG)\bin\libpcre.dll \
-        $(CONFIG)\bin\libhttp.dll \
-        $(CONFIG)\bin\http.exe \
-        $(CONFIG)\bin\libejs.dll \
-        $(CONFIG)\bin\ejs.exe \
-        $(CONFIG)\bin\ejsc.exe \
-        $(CONFIG)\bin\ejs.mod \
-        $(CONFIG)\bin\removeFiles.exe \
-        $(CONFIG)\bin\bit.es \
-        $(CONFIG)\bin\bit.exe \
-        $(CONFIG)\bin\bits
+
+TARGETS     = $(TARGETS) $(CONFIG)\bin\libest.dll
+TARGETS     = $(TARGETS) $(CONFIG)\bin\ca.crt
+TARGETS     = $(TARGETS) $(CONFIG)\bin\libmpr.dll
+TARGETS     = $(TARGETS) $(CONFIG)\bin\libmprssl.dll
+TARGETS     = $(TARGETS) $(CONFIG)\bin\makerom.exe
+TARGETS     = $(TARGETS) $(CONFIG)\bin\libpcre.dll
+TARGETS     = $(TARGETS) $(CONFIG)\bin\libhttp.dll
+TARGETS     = $(TARGETS) $(CONFIG)\bin\http.exe
+TARGETS     = $(TARGETS) $(CONFIG)\bin\libejs.dll
+TARGETS     = $(TARGETS) $(CONFIG)\bin\ejs.exe
+TARGETS     = $(TARGETS) $(CONFIG)\bin\ejsc.exe
+TARGETS     = $(TARGETS) $(CONFIG)\bin\ejs.mod
+TARGETS     = $(TARGETS) $(CONFIG)\bin\removeFiles.exe
+TARGETS     = $(TARGETS) $(CONFIG)\bin\bit.es
+TARGETS     = $(TARGETS) $(CONFIG)\bin\bit.exe
+TARGETS     = $(TARGETS) $(CONFIG)\bin\bits
+
+!IFNDEF SHOW
+.SILENT:
+!ENDIF
+
+all compile: prep $(TARGETS)
 
 .PHONY: prep
 
@@ -107,191 +114,384 @@ clean:
 	-if exist $(CONFIG)\obj\removeFiles.obj del /Q $(CONFIG)\obj\removeFiles.obj
 	-if exist $(CONFIG)\obj\bit.obj del /Q $(CONFIG)\obj\bit.obj
 
-$(CONFIG)\inc\est.h: 
+#
+#   est.h
+#
+$(CONFIG)\inc\est.h: $(DEPS_1)
+	@echo '      [File] windows-x86-default/inc/est.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
 	copy /Y "src\deps\est\est.h" "$(CONFIG)\inc\est.h"
 
-$(CONFIG)\inc\bit.h: 
+#
+#   bit.h
+#
+$(CONFIG)\inc\bit.h: $(DEPS_2)
 
-$(CONFIG)\inc\bitos.h: 
+#
+#   bitos.h
+#
+$(CONFIG)\inc\bitos.h: $(DEPS_3)
+	@echo '      [File] windows-x86-default/inc/bitos.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
 	copy /Y "src\bitos.h" "$(CONFIG)\inc\bitos.h"
 
+#
+#   estLib.obj
+#
+DEPS_4 = $(DEPS_4) $(CONFIG)\inc\bit.h
+DEPS_4 = $(DEPS_4) $(CONFIG)\inc\est.h
+DEPS_4 = $(DEPS_4) $(CONFIG)\inc\bitos.h
+
 $(CONFIG)\obj\estLib.obj: \
-    src\deps\est\estLib.c\
-    $(CONFIG)\inc\bit.h \
-    $(CONFIG)\inc\est.h \
-    $(CONFIG)\inc\bitos.h
+    src\deps\est\estLib.c $(DEPS_4)
+	@echo '   [Compile] src/deps/est/estLib.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\estLib.obj -Fd$(CONFIG)\obj\estLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\est\estLib.c
 
-$(CONFIG)\bin\libest.dll: \
-    $(CONFIG)\inc\est.h \
-    $(CONFIG)\obj\estLib.obj
+#
+#   libest
+#
+DEPS_5 = $(DEPS_5) $(CONFIG)\inc\est.h
+DEPS_5 = $(DEPS_5) $(CONFIG)\obj\estLib.obj
+
+$(CONFIG)\bin\libest.dll: $(DEPS_5)
+	@echo '      [Link] libest'
 	"$(LD)" -dll -out:$(CONFIG)\bin\libest.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\estLib.obj $(LIBS)
 
-$(CONFIG)\bin\ca.crt: \
-    src\deps\est\ca.crt
+#
+#   ca-crt
+#
+DEPS_6 = $(DEPS_6) src\deps\est\ca.crt
+
+$(CONFIG)\bin\ca.crt: $(DEPS_6)
+	@echo '      [File] windows-x86-default/bin/ca.crt'
 	if not exist "$(CONFIG)\bin" md "$(CONFIG)\bin"
 	copy /Y "src\deps\est\ca.crt" "$(CONFIG)\bin\ca.crt"
 
-$(CONFIG)\inc\mpr.h: 
+#
+#   mpr.h
+#
+$(CONFIG)\inc\mpr.h: $(DEPS_7)
+	@echo '      [File] windows-x86-default/inc/mpr.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
 	copy /Y "src\deps\mpr\mpr.h" "$(CONFIG)\inc\mpr.h"
 
+#
+#   mprLib.obj
+#
+DEPS_8 = $(DEPS_8) $(CONFIG)\inc\bit.h
+DEPS_8 = $(DEPS_8) $(CONFIG)\inc\mpr.h
+DEPS_8 = $(DEPS_8) $(CONFIG)\inc\bitos.h
+
 $(CONFIG)\obj\mprLib.obj: \
-    src\deps\mpr\mprLib.c\
-    $(CONFIG)\inc\bit.h \
-    $(CONFIG)\inc\mpr.h \
-    $(CONFIG)\inc\bitos.h
+    src\deps\mpr\mprLib.c $(DEPS_8)
+	@echo '   [Compile] src/deps/mpr/mprLib.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\mprLib.obj -Fd$(CONFIG)\obj\mprLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\mpr\mprLib.c
 
-$(CONFIG)\bin\libmpr.dll: \
-    $(CONFIG)\inc\mpr.h \
-    $(CONFIG)\obj\mprLib.obj
+#
+#   libmpr
+#
+DEPS_9 = $(DEPS_9) $(CONFIG)\inc\mpr.h
+DEPS_9 = $(DEPS_9) $(CONFIG)\obj\mprLib.obj
+
+$(CONFIG)\bin\libmpr.dll: $(DEPS_9)
+	@echo '      [Link] libmpr'
 	"$(LD)" -dll -out:$(CONFIG)\bin\libmpr.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\mprLib.obj $(LIBS)
 
+#
+#   mprSsl.obj
+#
+DEPS_10 = $(DEPS_10) $(CONFIG)\inc\bit.h
+DEPS_10 = $(DEPS_10) $(CONFIG)\inc\mpr.h
+DEPS_10 = $(DEPS_10) $(CONFIG)\inc\est.h
+
 $(CONFIG)\obj\mprSsl.obj: \
-    src\deps\mpr\mprSsl.c\
-    $(CONFIG)\inc\bit.h \
-    $(CONFIG)\inc\mpr.h \
-    $(CONFIG)\inc\est.h
+    src\deps\mpr\mprSsl.c $(DEPS_10)
+	@echo '   [Compile] src/deps/mpr/mprSsl.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\mprSsl.obj -Fd$(CONFIG)\obj\mprSsl.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\mpr\mprSsl.c
 
-$(CONFIG)\bin\libmprssl.dll: \
-    $(CONFIG)\bin\libmpr.dll \
-    $(CONFIG)\bin\libest.dll \
-    $(CONFIG)\obj\mprSsl.obj
-	"$(LD)" -dll -out:$(CONFIG)\bin\libmprssl.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\mprSsl.obj libest.lib libmpr.lib $(LIBS)
+#
+#   libmprssl
+#
+DEPS_11 = $(DEPS_11) $(CONFIG)\bin\libmpr.dll
+DEPS_11 = $(DEPS_11) $(CONFIG)\bin\libest.dll
+DEPS_11 = $(DEPS_11) $(CONFIG)\obj\mprSsl.obj
+
+LIBS_11 = $(LIBS_11) libest.lib
+LIBS_11 = $(LIBS_11) libmpr.lib
+
+$(CONFIG)\bin\libmprssl.dll: $(DEPS_11)
+	@echo '      [Link] libmprssl'
+	"$(LD)" -dll -out:$(CONFIG)\bin\libmprssl.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\mprSsl.obj $(LIBS_11) $(LIBS_11) $(LIBS)
+
+#
+#   makerom.obj
+#
+DEPS_12 = $(DEPS_12) $(CONFIG)\inc\bit.h
+DEPS_12 = $(DEPS_12) $(CONFIG)\inc\mpr.h
 
 $(CONFIG)\obj\makerom.obj: \
-    src\deps\mpr\makerom.c\
-    $(CONFIG)\inc\bit.h \
-    $(CONFIG)\inc\mpr.h
+    src\deps\mpr\makerom.c $(DEPS_12)
+	@echo '   [Compile] src/deps/mpr/makerom.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\makerom.obj -Fd$(CONFIG)\obj\makerom.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\mpr\makerom.c
 
-$(CONFIG)\bin\makerom.exe: \
-    $(CONFIG)\bin\libmpr.dll \
-    $(CONFIG)\obj\makerom.obj
-	"$(LD)" -out:$(CONFIG)\bin\makerom.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\makerom.obj libmpr.lib $(LIBS)
+#
+#   makerom
+#
+DEPS_13 = $(DEPS_13) $(CONFIG)\bin\libmpr.dll
+DEPS_13 = $(DEPS_13) $(CONFIG)\obj\makerom.obj
 
-$(CONFIG)\inc\pcre.h: 
+LIBS_13 = $(LIBS_13) libmpr.lib
+
+$(CONFIG)\bin\makerom.exe: $(DEPS_13)
+	@echo '      [Link] makerom'
+	"$(LD)" -out:$(CONFIG)\bin\makerom.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\makerom.obj $(LIBS_13) $(LIBS_13) $(LIBS)
+
+#
+#   pcre.h
+#
+$(CONFIG)\inc\pcre.h: $(DEPS_14)
+	@echo '      [File] windows-x86-default/inc/pcre.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
 	copy /Y "src\deps\pcre\pcre.h" "$(CONFIG)\inc\pcre.h"
 
+#
+#   pcre.obj
+#
+DEPS_15 = $(DEPS_15) $(CONFIG)\inc\bit.h
+DEPS_15 = $(DEPS_15) $(CONFIG)\inc\pcre.h
+
 $(CONFIG)\obj\pcre.obj: \
-    src\deps\pcre\pcre.c\
-    $(CONFIG)\inc\bit.h \
-    $(CONFIG)\inc\pcre.h
+    src\deps\pcre\pcre.c $(DEPS_15)
+	@echo '   [Compile] src/deps/pcre/pcre.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\pcre.obj -Fd$(CONFIG)\obj\pcre.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\pcre\pcre.c
 
-$(CONFIG)\bin\libpcre.dll: \
-    $(CONFIG)\inc\pcre.h \
-    $(CONFIG)\obj\pcre.obj
+#
+#   libpcre
+#
+DEPS_16 = $(DEPS_16) $(CONFIG)\inc\pcre.h
+DEPS_16 = $(DEPS_16) $(CONFIG)\obj\pcre.obj
+
+$(CONFIG)\bin\libpcre.dll: $(DEPS_16)
+	@echo '      [Link] libpcre'
 	"$(LD)" -dll -out:$(CONFIG)\bin\libpcre.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\pcre.obj $(LIBS)
 
-$(CONFIG)\inc\http.h: 
+#
+#   http.h
+#
+$(CONFIG)\inc\http.h: $(DEPS_17)
+	@echo '      [File] windows-x86-default/inc/http.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
 	copy /Y "src\deps\http\http.h" "$(CONFIG)\inc\http.h"
 
+#
+#   httpLib.obj
+#
+DEPS_18 = $(DEPS_18) $(CONFIG)\inc\bit.h
+DEPS_18 = $(DEPS_18) $(CONFIG)\inc\http.h
+DEPS_18 = $(DEPS_18) $(CONFIG)\inc\mpr.h
+
 $(CONFIG)\obj\httpLib.obj: \
-    src\deps\http\httpLib.c\
-    $(CONFIG)\inc\bit.h \
-    $(CONFIG)\inc\http.h \
-    $(CONFIG)\inc\mpr.h
+    src\deps\http\httpLib.c $(DEPS_18)
+	@echo '   [Compile] src/deps/http/httpLib.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\httpLib.obj -Fd$(CONFIG)\obj\httpLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\http\httpLib.c
 
-$(CONFIG)\bin\libhttp.dll: \
-    $(CONFIG)\bin\libmpr.dll \
-    $(CONFIG)\bin\libpcre.dll \
-    $(CONFIG)\inc\http.h \
-    $(CONFIG)\obj\httpLib.obj
-	"$(LD)" -dll -out:$(CONFIG)\bin\libhttp.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\httpLib.obj libpcre.lib libmpr.lib $(LIBS)
+#
+#   libhttp
+#
+DEPS_19 = $(DEPS_19) $(CONFIG)\bin\libmpr.dll
+DEPS_19 = $(DEPS_19) $(CONFIG)\bin\libpcre.dll
+DEPS_19 = $(DEPS_19) $(CONFIG)\inc\http.h
+DEPS_19 = $(DEPS_19) $(CONFIG)\obj\httpLib.obj
+
+LIBS_19 = $(LIBS_19) libpcre.lib
+LIBS_19 = $(LIBS_19) libmpr.lib
+
+$(CONFIG)\bin\libhttp.dll: $(DEPS_19)
+	@echo '      [Link] libhttp'
+	"$(LD)" -dll -out:$(CONFIG)\bin\libhttp.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\httpLib.obj $(LIBS_19) $(LIBS_19) $(LIBS)
+
+#
+#   http.obj
+#
+DEPS_20 = $(DEPS_20) $(CONFIG)\inc\bit.h
+DEPS_20 = $(DEPS_20) $(CONFIG)\inc\http.h
 
 $(CONFIG)\obj\http.obj: \
-    src\deps\http\http.c\
-    $(CONFIG)\inc\bit.h \
-    $(CONFIG)\inc\http.h
+    src\deps\http\http.c $(DEPS_20)
+	@echo '   [Compile] src/deps/http/http.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\http.obj -Fd$(CONFIG)\obj\http.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\http\http.c
 
-$(CONFIG)\bin\http.exe: \
-    $(CONFIG)\bin\libhttp.dll \
-    $(CONFIG)\obj\http.obj
-	"$(LD)" -out:$(CONFIG)\bin\http.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\http.obj libhttp.lib $(LIBS) libpcre.lib libmpr.lib
+#
+#   http
+#
+DEPS_21 = $(DEPS_21) $(CONFIG)\bin\libhttp.dll
+DEPS_21 = $(DEPS_21) $(CONFIG)\obj\http.obj
 
-$(CONFIG)\inc\ejs.h: 
+LIBS_21 = $(LIBS_21) libhttp.lib
+LIBS_21 = $(LIBS_21) libpcre.lib
+LIBS_21 = $(LIBS_21) libmpr.lib
+
+$(CONFIG)\bin\http.exe: $(DEPS_21)
+	@echo '      [Link] http'
+	"$(LD)" -out:$(CONFIG)\bin\http.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\http.obj $(LIBS_21) $(LIBS_21) $(LIBS) libmpr.lib
+
+#
+#   ejs.h
+#
+$(CONFIG)\inc\ejs.h: $(DEPS_22)
+	@echo '      [File] windows-x86-default/inc/ejs.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
 	copy /Y "src\deps\ejs\ejs.h" "$(CONFIG)\inc\ejs.h"
 
-$(CONFIG)\inc\ejs.slots.h: 
+#
+#   ejs.slots.h
+#
+$(CONFIG)\inc\ejs.slots.h: $(DEPS_23)
+	@echo '      [File] windows-x86-default/inc/ejs.slots.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
 	copy /Y "src\deps\ejs\ejs.slots.h" "$(CONFIG)\inc\ejs.slots.h"
 
-$(CONFIG)\inc\ejsByteGoto.h: 
+#
+#   ejsByteGoto.h
+#
+$(CONFIG)\inc\ejsByteGoto.h: $(DEPS_24)
+	@echo '      [File] windows-x86-default/inc/ejsByteGoto.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
 	copy /Y "src\deps\ejs\ejsByteGoto.h" "$(CONFIG)\inc\ejsByteGoto.h"
 
+#
+#   ejsLib.obj
+#
+DEPS_25 = $(DEPS_25) $(CONFIG)\inc\bit.h
+DEPS_25 = $(DEPS_25) $(CONFIG)\inc\ejs.h
+DEPS_25 = $(DEPS_25) $(CONFIG)\inc\mpr.h
+DEPS_25 = $(DEPS_25) $(CONFIG)\inc\pcre.h
+DEPS_25 = $(DEPS_25) $(CONFIG)\inc\bitos.h
+DEPS_25 = $(DEPS_25) $(CONFIG)\inc\http.h
+DEPS_25 = $(DEPS_25) $(CONFIG)\inc\ejs.slots.h
+
 $(CONFIG)\obj\ejsLib.obj: \
-    src\deps\ejs\ejsLib.c\
-    $(CONFIG)\inc\bit.h \
-    $(CONFIG)\inc\ejs.h \
-    $(CONFIG)\inc\mpr.h \
-    $(CONFIG)\inc\pcre.h \
-    $(CONFIG)\inc\bitos.h \
-    $(CONFIG)\inc\http.h \
-    $(CONFIG)\inc\ejs.slots.h
+    src\deps\ejs\ejsLib.c $(DEPS_25)
+	@echo '   [Compile] src/deps/ejs/ejsLib.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\ejsLib.obj -Fd$(CONFIG)\obj\ejsLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\ejs\ejsLib.c
 
-$(CONFIG)\bin\libejs.dll: \
-    $(CONFIG)\bin\libhttp.dll \
-    $(CONFIG)\bin\libpcre.dll \
-    $(CONFIG)\bin\libmpr.dll \
-    $(CONFIG)\inc\ejs.h \
-    $(CONFIG)\inc\ejs.slots.h \
-    $(CONFIG)\inc\ejsByteGoto.h \
-    $(CONFIG)\obj\ejsLib.obj
-	"$(LD)" -dll -out:$(CONFIG)\bin\libejs.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsLib.obj libmpr.lib libpcre.lib libhttp.lib $(LIBS) libpcre.lib libmpr.lib
+#
+#   libejs
+#
+DEPS_26 = $(DEPS_26) $(CONFIG)\bin\libhttp.dll
+DEPS_26 = $(DEPS_26) $(CONFIG)\bin\libpcre.dll
+DEPS_26 = $(DEPS_26) $(CONFIG)\bin\libmpr.dll
+DEPS_26 = $(DEPS_26) $(CONFIG)\inc\ejs.h
+DEPS_26 = $(DEPS_26) $(CONFIG)\inc\ejs.slots.h
+DEPS_26 = $(DEPS_26) $(CONFIG)\inc\ejsByteGoto.h
+DEPS_26 = $(DEPS_26) $(CONFIG)\obj\ejsLib.obj
+
+LIBS_26 = $(LIBS_26) libmpr.lib
+LIBS_26 = $(LIBS_26) libpcre.lib
+LIBS_26 = $(LIBS_26) libhttp.lib
+LIBS_26 = $(LIBS_26) libpcre.lib
+LIBS_26 = $(LIBS_26) libmpr.lib
+
+$(CONFIG)\bin\libejs.dll: $(DEPS_26)
+	@echo '      [Link] libejs'
+	"$(LD)" -dll -out:$(CONFIG)\bin\libejs.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsLib.obj $(LIBS_26) $(LIBS_26) $(LIBS) libmpr.lib
+
+#
+#   ejs.obj
+#
+DEPS_27 = $(DEPS_27) $(CONFIG)\inc\bit.h
+DEPS_27 = $(DEPS_27) $(CONFIG)\inc\ejs.h
 
 $(CONFIG)\obj\ejs.obj: \
-    src\deps\ejs\ejs.c\
-    $(CONFIG)\inc\bit.h \
-    $(CONFIG)\inc\ejs.h
+    src\deps\ejs\ejs.c $(DEPS_27)
+	@echo '   [Compile] src/deps/ejs/ejs.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\ejs.obj -Fd$(CONFIG)\obj\ejs.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\ejs\ejs.c
 
-$(CONFIG)\bin\ejs.exe: \
-    $(CONFIG)\bin\libejs.dll \
-    $(CONFIG)\obj\ejs.obj
-	"$(LD)" -out:$(CONFIG)\bin\ejs.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejs.obj libejs.lib $(LIBS) libmpr.lib libpcre.lib libhttp.lib
+#
+#   ejs
+#
+DEPS_28 = $(DEPS_28) $(CONFIG)\bin\libejs.dll
+DEPS_28 = $(DEPS_28) $(CONFIG)\obj\ejs.obj
+
+LIBS_28 = $(LIBS_28) libejs.lib
+LIBS_28 = $(LIBS_28) libmpr.lib
+LIBS_28 = $(LIBS_28) libpcre.lib
+LIBS_28 = $(LIBS_28) libhttp.lib
+
+$(CONFIG)\bin\ejs.exe: $(DEPS_28)
+	@echo '      [Link] ejs'
+	"$(LD)" -out:$(CONFIG)\bin\ejs.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejs.obj $(LIBS_28) $(LIBS_28) $(LIBS) libhttp.lib
+
+#
+#   ejsc.obj
+#
+DEPS_29 = $(DEPS_29) $(CONFIG)\inc\bit.h
+DEPS_29 = $(DEPS_29) $(CONFIG)\inc\ejs.h
 
 $(CONFIG)\obj\ejsc.obj: \
-    src\deps\ejs\ejsc.c\
-    $(CONFIG)\inc\bit.h \
-    $(CONFIG)\inc\ejs.h
+    src\deps\ejs\ejsc.c $(DEPS_29)
+	@echo '   [Compile] src/deps/ejs/ejsc.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\ejsc.obj -Fd$(CONFIG)\obj\ejsc.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\ejs\ejsc.c
 
-$(CONFIG)\bin\ejsc.exe: \
-    $(CONFIG)\bin\libejs.dll \
-    $(CONFIG)\obj\ejsc.obj
-	"$(LD)" -out:$(CONFIG)\bin\ejsc.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsc.obj libejs.lib $(LIBS) libmpr.lib libpcre.lib libhttp.lib
+#
+#   ejsc
+#
+DEPS_30 = $(DEPS_30) $(CONFIG)\bin\libejs.dll
+DEPS_30 = $(DEPS_30) $(CONFIG)\obj\ejsc.obj
 
-$(CONFIG)\bin\ejs.mod: $(CONFIG)\bin\ejsc.exe
+LIBS_30 = $(LIBS_30) libejs.lib
+LIBS_30 = $(LIBS_30) libmpr.lib
+LIBS_30 = $(LIBS_30) libpcre.lib
+LIBS_30 = $(LIBS_30) libhttp.lib
+
+$(CONFIG)\bin\ejsc.exe: $(DEPS_30)
+	@echo '      [Link] ejsc'
+	"$(LD)" -out:$(CONFIG)\bin\ejsc.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsc.obj $(LIBS_30) $(LIBS_30) $(LIBS) libhttp.lib
+
+#
+#   ejs.mod
+#
+DEPS_31 = $(DEPS_31) $(CONFIG)\bin\ejsc.exe
+
+$(CONFIG)\bin\ejs.mod: $(DEPS_31)
 	"$(LBIN)\ejsc" --out ".\$(CONFIG)\bin\ejs.mod" --optimize 9 --bind --require null src/deps/ejs/ejs.es
 
+#
+#   removeFiles.obj
+#
+DEPS_32 = $(DEPS_32) $(CONFIG)\inc\bit.h
+
 $(CONFIG)\obj\removeFiles.obj: \
-    package\windows\removeFiles.c\
-    $(CONFIG)\inc\bit.h
+    package\windows\removeFiles.c $(DEPS_32)
+	@echo '   [Compile] package/windows/removeFiles.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\removeFiles.obj -Fd$(CONFIG)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) package\windows\removeFiles.c
 
-$(CONFIG)\bin\removeFiles.exe: \
-    $(CONFIG)\obj\removeFiles.obj
+#
+#   removeFiles
+#
+DEPS_33 = $(DEPS_33) $(CONFIG)\obj\removeFiles.obj
+
+$(CONFIG)\bin\removeFiles.exe: $(DEPS_33)
+	@echo '      [Link] removeFiles'
 	"$(LD)" -out:$(CONFIG)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\removeFiles.obj $(LIBS)
 
-$(CONFIG)\bin\bit.es: \
-    src\bit.es
+#
+#   bit.es
+#
+DEPS_34 = $(DEPS_34) src\bit.es
+
+$(CONFIG)\bin\bit.es: $(DEPS_34)
+	@echo '      [File] windows-x86-default/bin/bit.es'
 	if not exist "$(CONFIG)\bin" md "$(CONFIG)\bin"
 	copy /Y "src\bit.es" "$(CONFIG)\bin\bit.es"
 
-$(CONFIG)\bin\bits: \
-    bits
+#
+#   bits
+#
+DEPS_35 = $(DEPS_35) bits
+
+$(CONFIG)\bin\bits: $(DEPS_35)
+	@echo '      [File] windows-x86-default/bin/bits'
 	if not exist "$(CONFIG)\bin\bits" md "$(CONFIG)\bin\bits"
 	copy /Y "bits\embedthis-manifest.bit" "$(CONFIG)\bin\bits\embedthis-manifest.bit"
 	copy /Y "bits\embedthis.bit" "$(CONFIG)\bin\bits\embedthis.bit"
@@ -343,29 +543,55 @@ $(CONFIG)\bin\bits: \
 	copy /Y "bits\vstudio.es" "$(CONFIG)\bin\bits\vstudio.es"
 	copy /Y "bits\xcode.es" "$(CONFIG)\bin\bits\xcode.es"
 
+#
+#   bit.obj
+#
+DEPS_36 = $(DEPS_36) $(CONFIG)\inc\bit.h
+DEPS_36 = $(DEPS_36) $(CONFIG)\inc\ejs.h
+
 $(CONFIG)\obj\bit.obj: \
-    src\bit.c\
-    $(CONFIG)\inc\bit.h \
-    $(CONFIG)\inc\ejs.h
+    src\bit.c $(DEPS_36)
+	@echo '   [Compile] src/bit.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\bit.obj -Fd$(CONFIG)\obj\bit.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\bit.c
 
-$(CONFIG)\bin\bit.exe: \
-    $(CONFIG)\bin\libmpr.dll \
-    $(CONFIG)\bin\libhttp.dll \
-    $(CONFIG)\bin\libejs.dll \
-    $(CONFIG)\bin\bits \
-    $(CONFIG)\bin\bit.es \
-    $(CONFIG)\inc\bitos.h \
-    $(CONFIG)\obj\bit.obj
-	"$(LD)" -out:$(CONFIG)\bin\bit.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\bit.obj libejs.lib libhttp.lib libmpr.lib $(LIBS) libpcre.lib
+#
+#   bit
+#
+DEPS_37 = $(DEPS_37) $(CONFIG)\bin\libmpr.dll
+DEPS_37 = $(DEPS_37) $(CONFIG)\bin\libhttp.dll
+DEPS_37 = $(DEPS_37) $(CONFIG)\bin\libejs.dll
+DEPS_37 = $(DEPS_37) $(CONFIG)\bin\bits
+DEPS_37 = $(DEPS_37) $(CONFIG)\bin\bit.es
+DEPS_37 = $(DEPS_37) $(CONFIG)\inc\bitos.h
+DEPS_37 = $(DEPS_37) $(CONFIG)\obj\bit.obj
 
-version: 
+LIBS_37 = $(LIBS_37) libejs.lib
+LIBS_37 = $(LIBS_37) libhttp.lib
+LIBS_37 = $(LIBS_37) libmpr.lib
+LIBS_37 = $(LIBS_37) libpcre.lib
+
+$(CONFIG)\bin\bit.exe: $(DEPS_37)
+	@echo '      [Link] bit'
+	"$(LD)" -out:$(CONFIG)\bin\bit.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\bit.obj $(LIBS_37) $(LIBS_37) $(LIBS) libpcre.lib
+
+#
+#   version
+#
+version: $(DEPS_38)
 	@echo 0.8.2-0
 
-stop: 
+#
+#   stop
+#
+stop: $(DEPS_39)
 
 
-installBinary: stop
+#
+#   installBinary
+#
+DEPS_40 = $(DEPS_40) stop
+
+installBinary: $(DEPS_40)
 	if not exist "C:/" md "C:/"
 	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
 	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
@@ -433,18 +659,31 @@ installBinary: stop
 	copy /Y "bits\vstudio.es" "$(BIT_VAPP_PREFIX)\bin\bits\vstudio.es"
 	copy /Y "bits\xcode.es" "$(BIT_VAPP_PREFIX)\bin\bits\xcode.es"
 
+#
+#   start
+#
+start: $(DEPS_41)
 
-start: 
+
+#
+#   install
+#
+DEPS_42 = $(DEPS_42) stop
+DEPS_42 = $(DEPS_42) installBinary
+DEPS_42 = $(DEPS_42) start
+
+install: $(DEPS_42)
 
 
-install: stop installBinary start
+#
+#   uninstall
+#
+DEPS_43 = $(DEPS_43) stop
 
-
-uninstall: stop
+uninstall: $(DEPS_43)
 	if exist "$(BIT_VAPP_PREFIX)" rd /Q /S"$(BIT_VAPP_PREFIX)"
 	if exist "$(BIT_VAPP_PREFIX)\bin" rd /Q "$(BIT_VAPP_PREFIX)\bin"
 	if exist "$(BIT_VAPP_PREFIX)\man" rd /Q "$(BIT_VAPP_PREFIX)\man"
 	if exist "$(BIT_VAPP_PREFIX)\latest" rd /Q "$(BIT_VAPP_PREFIX)\latest"
 	if exist "$(BIT_VAPP_PREFIX)" rd /Q "$(BIT_VAPP_PREFIX)"
-
 

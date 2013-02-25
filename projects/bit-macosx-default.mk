@@ -13,24 +13,6 @@ LD              := /usr/bin/ld
 CONFIG          := $(OS)-$(ARCH)-$(PROFILE)
 LBIN            := $(CONFIG)/bin
 
-BIT_ROOT_PREFIX       := 
-BIT_BASE_PREFIX       := $(BIT_ROOT_PREFIX)/usr/local
-BIT_DATA_PREFIX       := $(BIT_ROOT_PREFIX)/
-BIT_STATE_PREFIX      := $(BIT_ROOT_PREFIX)/var
-BIT_APP_PREFIX        := $(BIT_BASE_PREFIX)/lib/$(PRODUCT)
-BIT_VAPP_PREFIX       := $(BIT_APP_PREFIX)/$(VERSION)
-BIT_BIN_PREFIX        := $(BIT_ROOT_PREFIX)/usr/local/bin
-BIT_INC_PREFIX        := $(BIT_ROOT_PREFIX)/usr/local/include
-BIT_LIB_PREFIX        := $(BIT_ROOT_PREFIX)/usr/local/lib
-BIT_MAN_PREFIX        := $(BIT_ROOT_PREFIX)/usr/local/share/man
-BIT_SBIN_PREFIX       := $(BIT_ROOT_PREFIX)/usr/local/sbin
-BIT_ETC_PREFIX        := $(BIT_ROOT_PREFIX)/etc/$(PRODUCT)
-BIT_WEB_PREFIX        := $(BIT_ROOT_PREFIX)/var/www/$(PRODUCT)-default
-BIT_LOG_PREFIX        := $(BIT_ROOT_PREFIX)/var/log/$(PRODUCT)
-BIT_SPOOL_PREFIX      := $(BIT_ROOT_PREFIX)/var/spool/$(PRODUCT)
-BIT_CACHE_PREFIX      := $(BIT_ROOT_PREFIX)/var/spool/$(PRODUCT)/cache
-BIT_SRC_PREFIX        := $(BIT_ROOT_PREFIX)$(PRODUCT)-$(VERSION)
-
 CFLAGS          += -w
 DFLAGS          +=  $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS)))
 IFLAGS          += -I$(CONFIG)/inc
@@ -49,28 +31,54 @@ CFLAGS          += $(CFLAGS-$(DEBUG))
 DFLAGS          += $(DFLAGS-$(DEBUG))
 LDFLAGS         += $(LDFLAGS-$(DEBUG))
 
+
+BIT_ROOT_PREFIX       := 
+BIT_BASE_PREFIX       := $(BIT_ROOT_PREFIX)/usr/local
+BIT_DATA_PREFIX       := $(BIT_ROOT_PREFIX)/
+BIT_STATE_PREFIX      := $(BIT_ROOT_PREFIX)/var
+BIT_APP_PREFIX        := $(BIT_BASE_PREFIX)/lib/$(PRODUCT)
+BIT_VAPP_PREFIX       := $(BIT_APP_PREFIX)/$(VERSION)
+BIT_BIN_PREFIX        := $(BIT_ROOT_PREFIX)/usr/local/bin
+BIT_INC_PREFIX        := $(BIT_ROOT_PREFIX)/usr/local/include
+BIT_LIB_PREFIX        := $(BIT_ROOT_PREFIX)/usr/local/lib
+BIT_MAN_PREFIX        := $(BIT_ROOT_PREFIX)/usr/local/share/man
+BIT_SBIN_PREFIX       := $(BIT_ROOT_PREFIX)/usr/local/sbin
+BIT_ETC_PREFIX        := $(BIT_ROOT_PREFIX)/etc/$(PRODUCT)
+BIT_WEB_PREFIX        := $(BIT_ROOT_PREFIX)/var/www/$(PRODUCT)-default
+BIT_LOG_PREFIX        := $(BIT_ROOT_PREFIX)/var/log/$(PRODUCT)
+BIT_SPOOL_PREFIX      := $(BIT_ROOT_PREFIX)/var/spool/$(PRODUCT)
+BIT_CACHE_PREFIX      := $(BIT_ROOT_PREFIX)/var/spool/$(PRODUCT)/cache
+BIT_SRC_PREFIX        := $(BIT_ROOT_PREFIX)$(PRODUCT)-$(VERSION)
+
+
+TARGETS     += $(CONFIG)/bin/libest.dylib
+TARGETS     += $(CONFIG)/bin/ca.crt
+TARGETS     += $(CONFIG)/bin/libmpr.dylib
+TARGETS     += $(CONFIG)/bin/libmprssl.dylib
+TARGETS     += $(CONFIG)/bin/makerom
+TARGETS     += $(CONFIG)/bin/libpcre.dylib
+TARGETS     += $(CONFIG)/bin/libhttp.dylib
+TARGETS     += $(CONFIG)/bin/http
+TARGETS     += $(CONFIG)/bin/libejs.dylib
+TARGETS     += $(CONFIG)/bin/ejs
+TARGETS     += $(CONFIG)/bin/ejsc
+TARGETS     += $(CONFIG)/bin/ejs.mod
+TARGETS     += $(CONFIG)/bin/bit.es
+TARGETS     += $(CONFIG)/bin/bit
+TARGETS     += $(CONFIG)/bin/bits
+
 unexport CDPATH
 
-all compile: prep \
-        $(CONFIG)/bin/libest.dylib \
-        $(CONFIG)/bin/ca.crt \
-        $(CONFIG)/bin/libmpr.dylib \
-        $(CONFIG)/bin/libmprssl.dylib \
-        $(CONFIG)/bin/makerom \
-        $(CONFIG)/bin/libpcre.dylib \
-        $(CONFIG)/bin/libhttp.dylib \
-        $(CONFIG)/bin/http \
-        $(CONFIG)/bin/libejs.dylib \
-        $(CONFIG)/bin/ejs \
-        $(CONFIG)/bin/ejsc \
-        $(CONFIG)/bin/ejs.mod \
-        $(CONFIG)/bin/bit.es \
-        $(CONFIG)/bin/bit \
-        $(CONFIG)/bin/bits
+ifndef SHOW
+.SILENT:
+endif
+
+all compile: prep $(TARGETS)
 
 .PHONY: prep
 
 prep:
+	@echo "      [Info] Use "make SHOW=1" to trace executed commands."
 	@if [ "$(CONFIG)" = "" ] ; then echo WARNING: CONFIG not set ; exit 255 ; fi
 	@if [ "$(BIT_APP_PREFIX)" = "" ] ; then echo WARNING: BIT_APP_PREFIX not set ; exit 255 ; fi
 	@[ ! -x $(CONFIG)/bin ] && mkdir -p $(CONFIG)/bin; true
@@ -111,182 +119,365 @@ clean:
 clobber: clean
 	rm -fr ./$(CONFIG)
 
-$(CONFIG)/inc/est.h: 
+#
+#   est.h
+#
+$(CONFIG)/inc/est.h: $(DEPS_1)
+	@echo '      [File] macosx-x64-default/inc/est.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/deps/est/est.h" "$(CONFIG)/inc/est.h"
 
-$(CONFIG)/inc/bit.h: 
+#
+#   bit.h
+#
+$(CONFIG)/inc/bit.h: $(DEPS_2)
 
-$(CONFIG)/inc/bitos.h: 
+#
+#   bitos.h
+#
+$(CONFIG)/inc/bitos.h: $(DEPS_3)
+	@echo '      [File] macosx-x64-default/inc/bitos.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/bitos.h" "$(CONFIG)/inc/bitos.h"
 
+#
+#   estLib.o
+#
+DEPS_4 += $(CONFIG)/inc/bit.h
+DEPS_4 += $(CONFIG)/inc/est.h
+DEPS_4 += $(CONFIG)/inc/bitos.h
+
 $(CONFIG)/obj/estLib.o: \
-    src/deps/est/estLib.c\
-    $(CONFIG)/inc/bit.h \
-    $(CONFIG)/inc/est.h \
-    $(CONFIG)/inc/bitos.h
+    src/deps/est/estLib.c $(DEPS_4)
+	@echo '   [Compile] src/deps/est/estLib.c'
 	$(CC) -c -o $(CONFIG)/obj/estLib.o $(DFLAGS) $(IFLAGS) src/deps/est/estLib.c
 
-$(CONFIG)/bin/libest.dylib: \
-    $(CONFIG)/inc/est.h \
-    $(CONFIG)/obj/estLib.o
+#
+#   libest
+#
+DEPS_5 += $(CONFIG)/inc/est.h
+DEPS_5 += $(CONFIG)/obj/estLib.o
+
+$(CONFIG)/bin/libest.dylib: $(DEPS_5)
+	@echo '      [Link] libest'
 	$(CC) -dynamiclib -o $(CONFIG)/bin/libest.dylib $(LDFLAGS) -compatibility_version 0.8.2 -current_version 0.8.2 $(LIBPATHS) -install_name @rpath/libest.dylib $(CONFIG)/obj/estLib.o $(LIBS)
 
-$(CONFIG)/bin/ca.crt: \
-    src/deps/est/ca.crt
+#
+#   ca-crt
+#
+DEPS_6 += src/deps/est/ca.crt
+
+$(CONFIG)/bin/ca.crt: $(DEPS_6)
+	@echo '      [File] macosx-x64-default/bin/ca.crt'
 	mkdir -p "$(CONFIG)/bin"
 	cp "src/deps/est/ca.crt" "$(CONFIG)/bin/ca.crt"
 
-$(CONFIG)/inc/mpr.h: 
+#
+#   mpr.h
+#
+$(CONFIG)/inc/mpr.h: $(DEPS_7)
+	@echo '      [File] macosx-x64-default/inc/mpr.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/deps/mpr/mpr.h" "$(CONFIG)/inc/mpr.h"
 
+#
+#   mprLib.o
+#
+DEPS_8 += $(CONFIG)/inc/bit.h
+DEPS_8 += $(CONFIG)/inc/mpr.h
+DEPS_8 += $(CONFIG)/inc/bitos.h
+
 $(CONFIG)/obj/mprLib.o: \
-    src/deps/mpr/mprLib.c\
-    $(CONFIG)/inc/bit.h \
-    $(CONFIG)/inc/mpr.h \
-    $(CONFIG)/inc/bitos.h
+    src/deps/mpr/mprLib.c $(DEPS_8)
+	@echo '   [Compile] src/deps/mpr/mprLib.c'
 	$(CC) -c -o $(CONFIG)/obj/mprLib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/mpr/mprLib.c
 
-$(CONFIG)/bin/libmpr.dylib: \
-    $(CONFIG)/inc/mpr.h \
-    $(CONFIG)/obj/mprLib.o
+#
+#   libmpr
+#
+DEPS_9 += $(CONFIG)/inc/mpr.h
+DEPS_9 += $(CONFIG)/obj/mprLib.o
+
+$(CONFIG)/bin/libmpr.dylib: $(DEPS_9)
+	@echo '      [Link] libmpr'
 	$(CC) -dynamiclib -o $(CONFIG)/bin/libmpr.dylib $(LDFLAGS) -compatibility_version 0.8.2 -current_version 0.8.2 $(LIBPATHS) -install_name @rpath/libmpr.dylib $(CONFIG)/obj/mprLib.o $(LIBS)
 
+#
+#   mprSsl.o
+#
+DEPS_10 += $(CONFIG)/inc/bit.h
+DEPS_10 += $(CONFIG)/inc/mpr.h
+DEPS_10 += $(CONFIG)/inc/est.h
+
 $(CONFIG)/obj/mprSsl.o: \
-    src/deps/mpr/mprSsl.c\
-    $(CONFIG)/inc/bit.h \
-    $(CONFIG)/inc/mpr.h \
-    $(CONFIG)/inc/est.h
+    src/deps/mpr/mprSsl.c $(DEPS_10)
+	@echo '   [Compile] src/deps/mpr/mprSsl.c'
 	$(CC) -c -o $(CONFIG)/obj/mprSsl.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/mpr/mprSsl.c
 
-$(CONFIG)/bin/libmprssl.dylib: \
-    $(CONFIG)/bin/libmpr.dylib \
-    $(CONFIG)/bin/libest.dylib \
-    $(CONFIG)/obj/mprSsl.o
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libmprssl.dylib $(LDFLAGS) -compatibility_version 0.8.2 -current_version 0.8.2 $(LIBPATHS) -install_name @rpath/libmprssl.dylib $(CONFIG)/obj/mprSsl.o -lest -lmpr $(LIBS)
+#
+#   libmprssl
+#
+DEPS_11 += $(CONFIG)/bin/libmpr.dylib
+DEPS_11 += $(CONFIG)/bin/libest.dylib
+DEPS_11 += $(CONFIG)/obj/mprSsl.o
+
+LIBS_11 += -lest
+LIBS_11 += -lmpr
+
+$(CONFIG)/bin/libmprssl.dylib: $(DEPS_11)
+	@echo '      [Link] libmprssl'
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libmprssl.dylib $(LDFLAGS) -compatibility_version 0.8.2 -current_version 0.8.2 $(LIBPATHS) -install_name @rpath/libmprssl.dylib $(CONFIG)/obj/mprSsl.o $(LIBS_11) $(LIBS_11) $(LIBS)
+
+#
+#   makerom.o
+#
+DEPS_12 += $(CONFIG)/inc/bit.h
+DEPS_12 += $(CONFIG)/inc/mpr.h
 
 $(CONFIG)/obj/makerom.o: \
-    src/deps/mpr/makerom.c\
-    $(CONFIG)/inc/bit.h \
-    $(CONFIG)/inc/mpr.h
+    src/deps/mpr/makerom.c $(DEPS_12)
+	@echo '   [Compile] src/deps/mpr/makerom.c'
 	$(CC) -c -o $(CONFIG)/obj/makerom.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/mpr/makerom.c
 
-$(CONFIG)/bin/makerom: \
-    $(CONFIG)/bin/libmpr.dylib \
-    $(CONFIG)/obj/makerom.o
-	$(CC) -o $(CONFIG)/bin/makerom -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/makerom.o -lmpr $(LIBS)
+#
+#   makerom
+#
+DEPS_13 += $(CONFIG)/bin/libmpr.dylib
+DEPS_13 += $(CONFIG)/obj/makerom.o
 
-$(CONFIG)/inc/pcre.h: 
+LIBS_13 += -lmpr
+
+$(CONFIG)/bin/makerom: $(DEPS_13)
+	@echo '      [Link] makerom'
+	$(CC) -o $(CONFIG)/bin/makerom -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/makerom.o $(LIBS_13) $(LIBS_13) $(LIBS)
+
+#
+#   pcre.h
+#
+$(CONFIG)/inc/pcre.h: $(DEPS_14)
+	@echo '      [File] macosx-x64-default/inc/pcre.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/deps/pcre/pcre.h" "$(CONFIG)/inc/pcre.h"
 
+#
+#   pcre.o
+#
+DEPS_15 += $(CONFIG)/inc/bit.h
+DEPS_15 += $(CONFIG)/inc/pcre.h
+
 $(CONFIG)/obj/pcre.o: \
-    src/deps/pcre/pcre.c\
-    $(CONFIG)/inc/bit.h \
-    $(CONFIG)/inc/pcre.h
+    src/deps/pcre/pcre.c $(DEPS_15)
+	@echo '   [Compile] src/deps/pcre/pcre.c'
 	$(CC) -c -o $(CONFIG)/obj/pcre.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/pcre/pcre.c
 
-$(CONFIG)/bin/libpcre.dylib: \
-    $(CONFIG)/inc/pcre.h \
-    $(CONFIG)/obj/pcre.o
+#
+#   libpcre
+#
+DEPS_16 += $(CONFIG)/inc/pcre.h
+DEPS_16 += $(CONFIG)/obj/pcre.o
+
+$(CONFIG)/bin/libpcre.dylib: $(DEPS_16)
+	@echo '      [Link] libpcre'
 	$(CC) -dynamiclib -o $(CONFIG)/bin/libpcre.dylib $(LDFLAGS) -compatibility_version 0.8.2 -current_version 0.8.2 $(LIBPATHS) -install_name @rpath/libpcre.dylib $(CONFIG)/obj/pcre.o $(LIBS)
 
-$(CONFIG)/inc/http.h: 
+#
+#   http.h
+#
+$(CONFIG)/inc/http.h: $(DEPS_17)
+	@echo '      [File] macosx-x64-default/inc/http.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/deps/http/http.h" "$(CONFIG)/inc/http.h"
 
+#
+#   httpLib.o
+#
+DEPS_18 += $(CONFIG)/inc/bit.h
+DEPS_18 += $(CONFIG)/inc/http.h
+DEPS_18 += $(CONFIG)/inc/mpr.h
+
 $(CONFIG)/obj/httpLib.o: \
-    src/deps/http/httpLib.c\
-    $(CONFIG)/inc/bit.h \
-    $(CONFIG)/inc/http.h \
-    $(CONFIG)/inc/mpr.h
+    src/deps/http/httpLib.c $(DEPS_18)
+	@echo '   [Compile] src/deps/http/httpLib.c'
 	$(CC) -c -o $(CONFIG)/obj/httpLib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/http/httpLib.c
 
-$(CONFIG)/bin/libhttp.dylib: \
-    $(CONFIG)/bin/libmpr.dylib \
-    $(CONFIG)/bin/libpcre.dylib \
-    $(CONFIG)/inc/http.h \
-    $(CONFIG)/obj/httpLib.o
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libhttp.dylib $(LDFLAGS) -compatibility_version 0.8.2 -current_version 0.8.2 $(LIBPATHS) -install_name @rpath/libhttp.dylib $(CONFIG)/obj/httpLib.o -lpcre -lmpr $(LIBS)
+#
+#   libhttp
+#
+DEPS_19 += $(CONFIG)/bin/libmpr.dylib
+DEPS_19 += $(CONFIG)/bin/libpcre.dylib
+DEPS_19 += $(CONFIG)/inc/http.h
+DEPS_19 += $(CONFIG)/obj/httpLib.o
+
+LIBS_19 += -lpcre
+LIBS_19 += -lmpr
+
+$(CONFIG)/bin/libhttp.dylib: $(DEPS_19)
+	@echo '      [Link] libhttp'
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libhttp.dylib $(LDFLAGS) -compatibility_version 0.8.2 -current_version 0.8.2 $(LIBPATHS) -install_name @rpath/libhttp.dylib $(CONFIG)/obj/httpLib.o $(LIBS_19) $(LIBS_19) $(LIBS)
+
+#
+#   http.o
+#
+DEPS_20 += $(CONFIG)/inc/bit.h
+DEPS_20 += $(CONFIG)/inc/http.h
 
 $(CONFIG)/obj/http.o: \
-    src/deps/http/http.c\
-    $(CONFIG)/inc/bit.h \
-    $(CONFIG)/inc/http.h
+    src/deps/http/http.c $(DEPS_20)
+	@echo '   [Compile] src/deps/http/http.c'
 	$(CC) -c -o $(CONFIG)/obj/http.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/http/http.c
 
-$(CONFIG)/bin/http: \
-    $(CONFIG)/bin/libhttp.dylib \
-    $(CONFIG)/obj/http.o
-	$(CC) -o $(CONFIG)/bin/http -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/http.o -lhttp $(LIBS) -lpcre -lmpr
+#
+#   http
+#
+DEPS_21 += $(CONFIG)/bin/libhttp.dylib
+DEPS_21 += $(CONFIG)/obj/http.o
 
-$(CONFIG)/inc/ejs.h: 
+LIBS_21 += -lhttp
+LIBS_21 += -lpcre
+LIBS_21 += -lmpr
+
+$(CONFIG)/bin/http: $(DEPS_21)
+	@echo '      [Link] http'
+	$(CC) -o $(CONFIG)/bin/http -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/http.o $(LIBS_21) $(LIBS_21) $(LIBS) -lmpr
+
+#
+#   ejs.h
+#
+$(CONFIG)/inc/ejs.h: $(DEPS_22)
+	@echo '      [File] macosx-x64-default/inc/ejs.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/deps/ejs/ejs.h" "$(CONFIG)/inc/ejs.h"
 
-$(CONFIG)/inc/ejs.slots.h: 
+#
+#   ejs.slots.h
+#
+$(CONFIG)/inc/ejs.slots.h: $(DEPS_23)
+	@echo '      [File] macosx-x64-default/inc/ejs.slots.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/deps/ejs/ejs.slots.h" "$(CONFIG)/inc/ejs.slots.h"
 
-$(CONFIG)/inc/ejsByteGoto.h: 
+#
+#   ejsByteGoto.h
+#
+$(CONFIG)/inc/ejsByteGoto.h: $(DEPS_24)
+	@echo '      [File] macosx-x64-default/inc/ejsByteGoto.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/deps/ejs/ejsByteGoto.h" "$(CONFIG)/inc/ejsByteGoto.h"
 
+#
+#   ejsLib.o
+#
+DEPS_25 += $(CONFIG)/inc/bit.h
+DEPS_25 += $(CONFIG)/inc/ejs.h
+DEPS_25 += $(CONFIG)/inc/mpr.h
+DEPS_25 += $(CONFIG)/inc/pcre.h
+DEPS_25 += $(CONFIG)/inc/bitos.h
+DEPS_25 += $(CONFIG)/inc/http.h
+DEPS_25 += $(CONFIG)/inc/ejs.slots.h
+
 $(CONFIG)/obj/ejsLib.o: \
-    src/deps/ejs/ejsLib.c\
-    $(CONFIG)/inc/bit.h \
-    $(CONFIG)/inc/ejs.h \
-    $(CONFIG)/inc/mpr.h \
-    $(CONFIG)/inc/pcre.h \
-    $(CONFIG)/inc/bitos.h \
-    $(CONFIG)/inc/http.h \
-    $(CONFIG)/inc/ejs.slots.h
+    src/deps/ejs/ejsLib.c $(DEPS_25)
+	@echo '   [Compile] src/deps/ejs/ejsLib.c'
 	$(CC) -c -o $(CONFIG)/obj/ejsLib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/ejs/ejsLib.c
 
-$(CONFIG)/bin/libejs.dylib: \
-    $(CONFIG)/bin/libhttp.dylib \
-    $(CONFIG)/bin/libpcre.dylib \
-    $(CONFIG)/bin/libmpr.dylib \
-    $(CONFIG)/inc/ejs.h \
-    $(CONFIG)/inc/ejs.slots.h \
-    $(CONFIG)/inc/ejsByteGoto.h \
-    $(CONFIG)/obj/ejsLib.o
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libejs.dylib $(LDFLAGS) -compatibility_version 0.8.2 -current_version 0.8.2 $(LIBPATHS) -install_name @rpath/libejs.dylib $(CONFIG)/obj/ejsLib.o -lmpr -lpcre -lhttp $(LIBS) -lpcre -lmpr
+#
+#   libejs
+#
+DEPS_26 += $(CONFIG)/bin/libhttp.dylib
+DEPS_26 += $(CONFIG)/bin/libpcre.dylib
+DEPS_26 += $(CONFIG)/bin/libmpr.dylib
+DEPS_26 += $(CONFIG)/inc/ejs.h
+DEPS_26 += $(CONFIG)/inc/ejs.slots.h
+DEPS_26 += $(CONFIG)/inc/ejsByteGoto.h
+DEPS_26 += $(CONFIG)/obj/ejsLib.o
+
+LIBS_26 += -lmpr
+LIBS_26 += -lpcre
+LIBS_26 += -lhttp
+LIBS_26 += -lpcre
+LIBS_26 += -lmpr
+
+$(CONFIG)/bin/libejs.dylib: $(DEPS_26)
+	@echo '      [Link] libejs'
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libejs.dylib $(LDFLAGS) -compatibility_version 0.8.2 -current_version 0.8.2 $(LIBPATHS) -install_name @rpath/libejs.dylib $(CONFIG)/obj/ejsLib.o $(LIBS_26) $(LIBS_26) $(LIBS) -lmpr
+
+#
+#   ejs.o
+#
+DEPS_27 += $(CONFIG)/inc/bit.h
+DEPS_27 += $(CONFIG)/inc/ejs.h
 
 $(CONFIG)/obj/ejs.o: \
-    src/deps/ejs/ejs.c\
-    $(CONFIG)/inc/bit.h \
-    $(CONFIG)/inc/ejs.h
+    src/deps/ejs/ejs.c $(DEPS_27)
+	@echo '   [Compile] src/deps/ejs/ejs.c'
 	$(CC) -c -o $(CONFIG)/obj/ejs.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/ejs/ejs.c
 
-$(CONFIG)/bin/ejs: \
-    $(CONFIG)/bin/libejs.dylib \
-    $(CONFIG)/obj/ejs.o
-	$(CC) -o $(CONFIG)/bin/ejs -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejs.o -lejs $(LIBS) -lmpr -lpcre -lhttp -ledit
+#
+#   ejs
+#
+DEPS_28 += $(CONFIG)/bin/libejs.dylib
+DEPS_28 += $(CONFIG)/obj/ejs.o
+
+LIBS_28 += -lejs
+LIBS_28 += -lmpr
+LIBS_28 += -lpcre
+LIBS_28 += -lhttp
+
+$(CONFIG)/bin/ejs: $(DEPS_28)
+	@echo '      [Link] ejs'
+	$(CC) -o $(CONFIG)/bin/ejs -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejs.o $(LIBS_28) $(LIBS_28) $(LIBS) -ledit
+
+#
+#   ejsc.o
+#
+DEPS_29 += $(CONFIG)/inc/bit.h
+DEPS_29 += $(CONFIG)/inc/ejs.h
 
 $(CONFIG)/obj/ejsc.o: \
-    src/deps/ejs/ejsc.c\
-    $(CONFIG)/inc/bit.h \
-    $(CONFIG)/inc/ejs.h
+    src/deps/ejs/ejsc.c $(DEPS_29)
+	@echo '   [Compile] src/deps/ejs/ejsc.c'
 	$(CC) -c -o $(CONFIG)/obj/ejsc.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/ejs/ejsc.c
 
-$(CONFIG)/bin/ejsc: \
-    $(CONFIG)/bin/libejs.dylib \
-    $(CONFIG)/obj/ejsc.o
-	$(CC) -o $(CONFIG)/bin/ejsc -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejsc.o -lejs $(LIBS) -lmpr -lpcre -lhttp
+#
+#   ejsc
+#
+DEPS_30 += $(CONFIG)/bin/libejs.dylib
+DEPS_30 += $(CONFIG)/obj/ejsc.o
 
-$(CONFIG)/bin/ejs.mod: $(CONFIG)/bin/ejsc
+LIBS_30 += -lejs
+LIBS_30 += -lmpr
+LIBS_30 += -lpcre
+LIBS_30 += -lhttp
+
+$(CONFIG)/bin/ejsc: $(DEPS_30)
+	@echo '      [Link] ejsc'
+	$(CC) -o $(CONFIG)/bin/ejsc -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejsc.o $(LIBS_30) $(LIBS_30) $(LIBS) -lhttp
+
+#
+#   ejs.mod
+#
+DEPS_31 += $(CONFIG)/bin/ejsc
+
+$(CONFIG)/bin/ejs.mod: $(DEPS_31)
 	$(LBIN)/ejsc --out ./$(CONFIG)/bin/ejs.mod --optimize 9 --bind --require null src/deps/ejs/ejs.es
 
-$(CONFIG)/bin/bit.es: \
-    src/bit.es
+#
+#   bit.es
+#
+DEPS_32 += src/bit.es
+
+$(CONFIG)/bin/bit.es: $(DEPS_32)
+	@echo '      [File] macosx-x64-default/bin/bit.es'
 	mkdir -p "$(CONFIG)/bin"
 	cp "src/bit.es" "$(CONFIG)/bin/bit.es"
 
-$(CONFIG)/bin/bits: \
-    bits/
+#
+#   bits
+#
+DEPS_33 += bits
+
+$(CONFIG)/bin/bits: $(DEPS_33)
+	@echo '      [File] macosx-x64-default/bin/bits'
 	mkdir -p "$(CONFIG)/bin/bits"
 	cp "bits/embedthis-manifest.bit" "$(CONFIG)/bin/bits/embedthis-manifest.bit"
 	cp "bits/embedthis.bit" "$(CONFIG)/bin/bits/embedthis.bit"
@@ -338,29 +529,55 @@ $(CONFIG)/bin/bits: \
 	cp "bits/vstudio.es" "$(CONFIG)/bin/bits/vstudio.es"
 	cp "bits/xcode.es" "$(CONFIG)/bin/bits/xcode.es"
 
+#
+#   bit.o
+#
+DEPS_34 += $(CONFIG)/inc/bit.h
+DEPS_34 += $(CONFIG)/inc/ejs.h
+
 $(CONFIG)/obj/bit.o: \
-    src/bit.c\
-    $(CONFIG)/inc/bit.h \
-    $(CONFIG)/inc/ejs.h
+    src/bit.c $(DEPS_34)
+	@echo '   [Compile] src/bit.c'
 	$(CC) -c -o $(CONFIG)/obj/bit.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/bit.c
 
-$(CONFIG)/bin/bit: \
-    $(CONFIG)/bin/libmpr.dylib \
-    $(CONFIG)/bin/libhttp.dylib \
-    $(CONFIG)/bin/libejs.dylib \
-    $(CONFIG)/bin/bits \
-    $(CONFIG)/bin/bit.es \
-    $(CONFIG)/inc/bitos.h \
-    $(CONFIG)/obj/bit.o
-	$(CC) -o $(CONFIG)/bin/bit -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/bit.o -lejs -lhttp -lmpr $(LIBS) -lpcre
+#
+#   bit
+#
+DEPS_35 += $(CONFIG)/bin/libmpr.dylib
+DEPS_35 += $(CONFIG)/bin/libhttp.dylib
+DEPS_35 += $(CONFIG)/bin/libejs.dylib
+DEPS_35 += $(CONFIG)/bin/bits
+DEPS_35 += $(CONFIG)/bin/bit.es
+DEPS_35 += $(CONFIG)/inc/bitos.h
+DEPS_35 += $(CONFIG)/obj/bit.o
 
-version: 
+LIBS_35 += -lejs
+LIBS_35 += -lhttp
+LIBS_35 += -lmpr
+LIBS_35 += -lpcre
+
+$(CONFIG)/bin/bit: $(DEPS_35)
+	@echo '      [Link] bit'
+	$(CC) -o $(CONFIG)/bin/bit -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/bit.o $(LIBS_35) $(LIBS_35) $(LIBS) -lpcre
+
+#
+#   version
+#
+version: $(DEPS_36)
 	@echo 0.8.2-0
 
-stop: 
+#
+#   stop
+#
+stop: $(DEPS_37)
 	
 
-installBinary: stop
+#
+#   installBinary
+#
+DEPS_38 += stop
+
+installBinary: $(DEPS_38)
 	rm -f "$(BIT_APP_PREFIX)/latest"
 	mkdir -p "$(BIT_APP_PREFIX)"
 	ln -s "0.8.2" "$(BIT_APP_PREFIX)/latest"
@@ -434,16 +651,29 @@ installBinary: stop
 	mkdir -p "$(BIT_MAN_PREFIX)/man1"
 	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/bit.1" "$(BIT_MAN_PREFIX)/man1/bit.1"
 
-
-start: 
+#
+#   start
+#
+start: $(DEPS_39)
 	
 
-install: stop installBinary start
+#
+#   install
+#
+DEPS_40 += stop
+DEPS_40 += installBinary
+DEPS_40 += start
+
+install: $(DEPS_40)
 	
 
-uninstall: stop
+#
+#   uninstall
+#
+DEPS_41 += stop
+
+uninstall: $(DEPS_41)
 	rm -fr "$(BIT_VAPP_PREFIX)"
 	rm -f "$(BIT_APP_PREFIX)/latest"
 	rmdir -p "$(BIT_APP_PREFIX)"
-
 

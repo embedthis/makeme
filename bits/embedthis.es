@@ -103,7 +103,7 @@ public function deploy(manifest, prefixes, package): Array {
                     item.to.write(data)
                 }
             }
-            if (item.require) {
+            if (item.require && bit.generating) {
                 if (bit.platform.os == 'windows') {
                     genWriteLine('!ENDIF')
                 } else {
@@ -868,7 +868,7 @@ public function getWebGroup(): String {
     } else if (bit.platform.os == 'windows') {
         return 'Administrator'
     } else if (bit.platform.os == 'linux' || bit.platform.os == 'freebsd') {
-        return 'nogroup'
+        return 'nobody'
     }
     return '0'
 }
