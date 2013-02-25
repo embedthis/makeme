@@ -9,7 +9,6 @@ Bit.load({
 
     targets: {
         libejs: {
-            enable: 'bit.packs.ejscript.enable || bit.settings.ejscript',
             type:   'lib',
             sources: [ 'ejsLib.c' ],
             headers: [ '*.h' ],
@@ -21,10 +20,11 @@ Bit.load({
                     }
                 ",
             },
+            require: 'ejscript',
+            enable: 'bit.packs.ejscript.enable || bit.settings.ejscript',
         },
 
         ejs: {
-            enable: 'bit.packs.ejscript.enable || bit.settings.ejscript',
             type:   'exe',
             sources: [ 'ejs.c' ],
             depends: [ 'libejs' ],
@@ -35,17 +35,19 @@ Bit.load({
                     }
                 ",
             },
+            require: 'ejscript',
+            enable: 'bit.packs.ejscript.enable || bit.settings.ejscript',
         },
 
         ejsc: {
-            enable: 'bit.packs.ejscript.enable || bit.settings.ejscript',
             type:   'exe',
             sources: [ 'ejsc.c' ],
             depends: [ 'libejs' ],
+            require: 'ejscript',
+            enable: 'bit.packs.ejscript.enable || bit.settings.ejscript',
         },
 
 		'ejs.mod': {
-            enable: 'bit.packs.ejscript.enable || bit.settings.ejscript',
             files: [ 'src/deps/ejs/ejs.es' ],
             path: "${BIN}/ejs.mod",
             home: "${TOP}",
@@ -57,6 +59,8 @@ Bit.load({
             'generate-nmake': '"${LBIN}\\ejsc" --out "${BIN}/ejs.mod" --optimize 9 --bind --require null src/deps/ejs/ejs.es',
             'generate-sh': '${LBIN}/ejsc --out ${BIN}/ejs.mod --optimize 9 --bind --require null src/deps/ejs/ejs.es',
             depends: [ 'ejsc' ],
+            require: 'ejscript',
+            enable: 'bit.packs.ejscript.enable || bit.settings.ejscript',
 		},
 
         'sync-ejs': {

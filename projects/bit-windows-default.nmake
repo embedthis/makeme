@@ -29,6 +29,8 @@ LDFLAGS         = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
 LIBPATHS        = -libpath:$(CONFIG)\bin
 LIBS            = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
 
+BIT_PACK_EST          = 1
+BIT_PACK_EJSCRIPT     = 1
 
 BIT_ROOT_PREFIX       = C:
 BIT_BASE_PREFIX       = $(BIT_ROOT_PREFIX)\Program Files
@@ -48,7 +50,9 @@ BIT_CACHE_PREFIX      = $(BIT_VAPP_PREFIX)\cache
 BIT_SRC_PREFIX        = $(BIT_VAPP_PREFIX)\src
 
 
-TARGETS     = $(TARGETS) $(CONFIG)\bin\libest.dll
+!IF "$(BIT_PACK_EST)" == "1"
+TARGETS = $(TARGETS) $(CONFIG)\bin\libest.dll
+!ENDIF
 TARGETS     = $(TARGETS) $(CONFIG)\bin\ca.crt
 TARGETS     = $(TARGETS) $(CONFIG)\bin\libmpr.dll
 TARGETS     = $(TARGETS) $(CONFIG)\bin\libmprssl.dll
@@ -56,10 +60,18 @@ TARGETS     = $(TARGETS) $(CONFIG)\bin\makerom.exe
 TARGETS     = $(TARGETS) $(CONFIG)\bin\libpcre.dll
 TARGETS     = $(TARGETS) $(CONFIG)\bin\libhttp.dll
 TARGETS     = $(TARGETS) $(CONFIG)\bin\http.exe
-TARGETS     = $(TARGETS) $(CONFIG)\bin\libejs.dll
-TARGETS     = $(TARGETS) $(CONFIG)\bin\ejs.exe
-TARGETS     = $(TARGETS) $(CONFIG)\bin\ejsc.exe
-TARGETS     = $(TARGETS) $(CONFIG)\bin\ejs.mod
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
+TARGETS = $(TARGETS) $(CONFIG)\bin\libejs.dll
+!ENDIF
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
+TARGETS = $(TARGETS) $(CONFIG)\bin\ejs.exe
+!ENDIF
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
+TARGETS = $(TARGETS) $(CONFIG)\bin\ejsc.exe
+!ENDIF
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
+TARGETS = $(TARGETS) $(CONFIG)\bin\ejs.mod
+!ENDIF
 TARGETS     = $(TARGETS) $(CONFIG)\bin\removeFiles.exe
 TARGETS     = $(TARGETS) $(CONFIG)\bin\bit.es
 TARGETS     = $(TARGETS) $(CONFIG)\bin\bit.exe
@@ -147,6 +159,7 @@ $(CONFIG)\obj\estLib.obj: \
 	@echo '   [Compile] src/deps/est/estLib.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\estLib.obj -Fd$(CONFIG)\obj\estLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\est\estLib.c
 
+!IF "$(BIT_PACK_EST)" == "1"
 #
 #   libest
 #
@@ -156,6 +169,7 @@ DEPS_5 = $(DEPS_5) $(CONFIG)\obj\estLib.obj
 $(CONFIG)\bin\libest.dll: $(DEPS_5)
 	@echo '      [Link] libest'
 	"$(LD)" -dll -out:$(CONFIG)\bin\libest.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\estLib.obj $(LIBS)
+!ENDIF
 
 #
 #   ca-crt
@@ -213,10 +227,14 @@ $(CONFIG)\obj\mprSsl.obj: \
 #   libmprssl
 #
 DEPS_11 = $(DEPS_11) $(CONFIG)\bin\libmpr.dll
+!IF "$(BIT_PACK_EST)" == "1"
 DEPS_11 = $(DEPS_11) $(CONFIG)\bin\libest.dll
+!ENDIF
 DEPS_11 = $(DEPS_11) $(CONFIG)\obj\mprSsl.obj
 
+!IF "$(BIT_PACK_EST)" == "1"
 LIBS_11 = $(LIBS_11) libest.lib
+!ENDIF
 LIBS_11 = $(LIBS_11) libmpr.lib
 
 $(CONFIG)\bin\libmprssl.dll: $(DEPS_11)
@@ -375,6 +393,7 @@ $(CONFIG)\obj\ejsLib.obj: \
 	@echo '   [Compile] src/deps/ejs/ejsLib.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\ejsLib.obj -Fd$(CONFIG)\obj\ejsLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\ejs\ejsLib.c
 
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
 #
 #   libejs
 #
@@ -395,6 +414,7 @@ LIBS_26 = $(LIBS_26) libmpr.lib
 $(CONFIG)\bin\libejs.dll: $(DEPS_26)
 	@echo '      [Link] libejs'
 	"$(LD)" -dll -out:$(CONFIG)\bin\libejs.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsLib.obj $(LIBS_26) $(LIBS_26) $(LIBS) libmpr.lib
+!ENDIF
 
 #
 #   ejs.obj
@@ -407,13 +427,18 @@ $(CONFIG)\obj\ejs.obj: \
 	@echo '   [Compile] src/deps/ejs/ejs.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\ejs.obj -Fd$(CONFIG)\obj\ejs.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\ejs\ejs.c
 
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
 #
 #   ejs
 #
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
 DEPS_28 = $(DEPS_28) $(CONFIG)\bin\libejs.dll
+!ENDIF
 DEPS_28 = $(DEPS_28) $(CONFIG)\obj\ejs.obj
 
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
 LIBS_28 = $(LIBS_28) libejs.lib
+!ENDIF
 LIBS_28 = $(LIBS_28) libmpr.lib
 LIBS_28 = $(LIBS_28) libpcre.lib
 LIBS_28 = $(LIBS_28) libhttp.lib
@@ -421,6 +446,7 @@ LIBS_28 = $(LIBS_28) libhttp.lib
 $(CONFIG)\bin\ejs.exe: $(DEPS_28)
 	@echo '      [Link] ejs'
 	"$(LD)" -out:$(CONFIG)\bin\ejs.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejs.obj $(LIBS_28) $(LIBS_28) $(LIBS) libhttp.lib
+!ENDIF
 
 #
 #   ejsc.obj
@@ -433,13 +459,18 @@ $(CONFIG)\obj\ejsc.obj: \
 	@echo '   [Compile] src/deps/ejs/ejsc.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\ejsc.obj -Fd$(CONFIG)\obj\ejsc.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\ejs\ejsc.c
 
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
 #
 #   ejsc
 #
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
 DEPS_30 = $(DEPS_30) $(CONFIG)\bin\libejs.dll
+!ENDIF
 DEPS_30 = $(DEPS_30) $(CONFIG)\obj\ejsc.obj
 
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
 LIBS_30 = $(LIBS_30) libejs.lib
+!ENDIF
 LIBS_30 = $(LIBS_30) libmpr.lib
 LIBS_30 = $(LIBS_30) libpcre.lib
 LIBS_30 = $(LIBS_30) libhttp.lib
@@ -447,14 +478,19 @@ LIBS_30 = $(LIBS_30) libhttp.lib
 $(CONFIG)\bin\ejsc.exe: $(DEPS_30)
 	@echo '      [Link] ejsc'
 	"$(LD)" -out:$(CONFIG)\bin\ejsc.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsc.obj $(LIBS_30) $(LIBS_30) $(LIBS) libhttp.lib
+!ENDIF
 
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
 #
 #   ejs.mod
 #
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
 DEPS_31 = $(DEPS_31) $(CONFIG)\bin\ejsc.exe
+!ENDIF
 
 $(CONFIG)\bin\ejs.mod: $(DEPS_31)
 	"$(LBIN)\ejsc" --out ".\$(CONFIG)\bin\ejs.mod" --optimize 9 --bind --require null src/deps/ejs/ejs.es
+!ENDIF
 
 #
 #   removeFiles.obj
@@ -559,13 +595,17 @@ $(CONFIG)\obj\bit.obj: \
 #
 DEPS_37 = $(DEPS_37) $(CONFIG)\bin\libmpr.dll
 DEPS_37 = $(DEPS_37) $(CONFIG)\bin\libhttp.dll
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
 DEPS_37 = $(DEPS_37) $(CONFIG)\bin\libejs.dll
+!ENDIF
 DEPS_37 = $(DEPS_37) $(CONFIG)\bin\bits
 DEPS_37 = $(DEPS_37) $(CONFIG)\bin\bit.es
 DEPS_37 = $(DEPS_37) $(CONFIG)\inc\bitos.h
 DEPS_37 = $(DEPS_37) $(CONFIG)\obj\bit.obj
 
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
 LIBS_37 = $(LIBS_37) libejs.lib
+!ENDIF
 LIBS_37 = $(LIBS_37) libhttp.lib
 LIBS_37 = $(LIBS_37) libmpr.lib
 LIBS_37 = $(LIBS_37) libpcre.lib
