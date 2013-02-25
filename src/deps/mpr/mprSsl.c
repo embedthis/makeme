@@ -2163,6 +2163,15 @@ static int verifyX509Certificate(int ok, X509_STORE_CTX *xContext)
         }
         break;
 
+    case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
+    case X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE:
+        if (ssl->verifyIssuer) {
+            /* Issuer can't be verified */
+            sp->errorMsg = sclone("Certificate not trusted");
+            ok = 0;
+        }
+        break;
+
     case X509_V_ERR_CERT_CHAIN_TOO_LONG:
     case X509_V_ERR_CERT_HAS_EXPIRED:
     case X509_V_ERR_CERT_NOT_YET_VALID:
@@ -2170,8 +2179,6 @@ static int verifyX509Certificate(int ok, X509_STORE_CTX *xContext)
     case X509_V_ERR_CERT_SIGNATURE_FAILURE:
     case X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD:
     case X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD:
-    case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
-    case X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE:
     case X509_V_ERR_INVALID_CA:
     default:
         sp->errorMsg = sfmt("Certificate verification error %d", error);

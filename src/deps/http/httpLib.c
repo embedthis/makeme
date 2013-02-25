@@ -15110,6 +15110,8 @@ static void openUpload(HttpQueue *q)
     }
     q->queueData = up;
     up->contentState = HTTP_UPLOAD_BOUNDARY;
+    rx->uploadDir = rx->route->uploadDir;
+    rx->autoDelete = rx->route->autoDelete;
 
     if (rx->uploadDir == 0) {
 #if BIT_WIN_LIKE
