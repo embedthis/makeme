@@ -868,6 +868,10 @@ public function getWebGroup(): String {
     } else if (bit.platform.os == 'windows') {
         return 'Administrator'
     } else if (bit.platform.os == 'linux' || bit.platform.os == 'freebsd') {
+        let groups = Path('/etc/group').readString()
+        if (groups.contains('nogroup:')) {
+            return 'nogroup'
+        }
         return 'nobody'
     }
     return '0'
