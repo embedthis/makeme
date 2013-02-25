@@ -1497,10 +1497,12 @@ public class Bit {
         genout.writeLine('')
 
         let pop = bit.settings.product + '-' + bit.platform.os + '-' + bit.platform.profile
-        genout.writeLine('unexport CDPATH\n')
         genTargets()
+        genout.writeLine('unexport CDPATH\n')
+        genout.writeLine('ifndef SHOW\n.SILENT:\nendif\n')
         genout.writeLine('all compile: prep $(TARGETS)\n')
         genout.writeLine('.PHONY: prep\n\nprep:')
+        genout.writeLine('\t@echo "      [Info] Use "make SHOW=1" to trace executed commands."')
         genout.writeLine('\t@if [ "$(CONFIG)" = "" ] ; then echo WARNING: CONFIG not set ; exit 255 ; fi')
         genout.writeLine('\t@if [ "$(BIT_APP_PREFIX)" = "" ] ; then echo WARNING: BIT_APP_PREFIX not set ; exit 255 ; fi')
         genout.writeLine('\t@[ ! -x $(CONFIG)/bin ] && ' + 'mkdir -p $(CONFIG)/bin; true')
@@ -1565,6 +1567,7 @@ public class Bit {
         }
         genout.writeLine('')
         let pop = bit.settings.product + '-' + bit.platform.os + '-' + bit.platform.profile
+        genout.writeLine('!IFNDEF SHOW\n.SILENT:\n!ENDIF\n')
         genout.writeLine('all compile: prep $(TARGETS)\n')
         genout.writeLine('.PHONY: prep\n\nprep:')
         genout.writeLine('!IF "$(VSINSTALLDIR)" == ""\n\techo "Visual Studio vars not set. Run vcvars.bat."\n\texit 255\n!ENDIF')
@@ -1649,13 +1652,26 @@ public class Bit {
             let target = bit.targets[tname]
             if (target.path && target.enable && !target.nogen) {
                 if (target.require) {
-                    genout.writeLine('ifeq ($(BIT_PACK_' + target.require.toUpper() + '),1)')
-                    genout.writeLine('    TARGETS += ' + reppath(target.path))
+                    if (bit.platform.os == 'windows') {
+                        genout.writeLine('!IF "$(BIT_PACK_' + target.require.toUpper() + ') == "1"')
+                        genout.writeLine('    TARGETS = ' + reppath(target.path) + ' $(TARGETS)')
+                    } else {
+                        genout.writeLine('ifeq ($(BIT_PACK_' + target.require.toUpper() + '),1)')
+                        genout.writeLine('    TARGETS += ' + reppath(target.path))
+                    }
                 } else {
-                    genout.writeLine('TARGETS     += ' + reppath(target.path))
+                    if (bit.platform.os == 'windows') {
+                        genout.writeLine('TARGETS     = ' + reppath(target.path) + ' $(TARGETS)')
+                    } else {
+                        genout.writeLine('TARGETS     += ' + reppath(target.path))
+                    }
                 }
                 if (target.require) {
-                    genout.writeLine('endif')
+                    if (bit.platform.os == 'windows') {
+                        genout.writeLine('!ENDIF')
+                    } else {
+                        genout.writeLine('endif')
+                    }
                 }
             }
         }
@@ -2594,16 +2610,11 @@ public class Bit {
             command = repcmd(command)
             genout.writeLine(command)
 
-        } else if (bit.generating == 'make') {
-            command = repcmd(command)
-            genout.write(reppath(target.path) + ':')
+        } else if (bit.generating == 'make' || bit.generating == 'nmake') {
             genTargetDeps(target)
-            genout.writeLine('\t' + command)
-
-        } else if (bit.generating == 'nmake') {
-            command = repcmd(command)
-            genout.write(reppath(target.path) + ':')
-            genTargetDeps(target)
+            command = genTargetLibs(target, repcmd(command))
+            genout.write(reppath(target.path) + ':' + getTargetDeps() + '\n')
+            gtrace('Link', target.name)
             genout.writeLine('\t' + command)
         }
     }
@@ -2620,18 +2631,12 @@ public class Bit {
             command = repcmd(command)
             genout.writeLine(command)
 
-        } else if (bit.generating == 'make') {
-            command = repcmd(command)
-            command = command.replace(/-arch *\S* /, '')
-            genout.write(reppath(target.path) + ':')
+        } else if (bit.generating == 'make' || bit.generating == 'nmake') {
             genTargetDeps(target)
-            genout.writeLine('\t' + command)
-
-        } else if (bit.generating == 'nmake') {
-            command = repcmd(command)
+            command = genTargetLibs(target, repcmd(command))
             command = command.replace(/-arch *\S* /, '')
-            genout.write(reppath(target.path) + ':')
-            genTargetDeps(target)
+            genout.write(reppath(target.path) + ':' + getTargetDeps() + '\n')
+            gtrace('Link', target.name)
             genout.writeLine('\t' + command)
         }
     }
@@ -2648,16 +2653,11 @@ public class Bit {
             command = repcmd(command)
             genout.writeLine(command)
 
-        } else if (bit.generating == 'make') {
+        } else if (bit.generating == 'make' || bit.generating == 'nmake') {
             command = repcmd(command)
-            genout.write(reppath(target.path) + ':')
             genTargetDeps(target)
-            genout.writeLine('\t' + command)
-
-        } else if (bit.generating == 'nmake') {
-            command = repcmd(command)
-            genout.write(reppath(target.path) + ':')
-            genTargetDeps(target)
+            genout.write(reppath(target.path) + ':' + getTargetDeps() + '\n')
+            gtrace('Link', target.name)
             genout.writeLine('\t' + command)
         }
     }
@@ -2699,15 +2699,17 @@ public class Bit {
             } else if (bit.generating == 'make') {
                 command = repcmd(command)
                 command = command.replace(/-arch *\S* /, '')
-                genout.write(reppath(target.path) + ': \\\n    ' + file.relative)
                 genTargetDeps(target)
+                genout.write(reppath(target.path) + ': \\\n    ' + file.relative + getTargetDeps() + '\n')
+                gtrace('Compile', file.relativeTo('.'))
                 genout.writeLine('\t' + command)
 
             } else if (bit.generating == 'nmake') {
                 command = repcmd(command)
                 command = command.replace(/-arch *\S* /, '')
-                genout.write(reppath(target.path) + ': \\\n    ' + file.relative.windows)
                 genTargetDeps(target)
+                genout.write(reppath(target.path) + ': \\\n    ' + file.relative.windows + getTargetDeps() + '\n')
+                gtrace('Compile', file.relativeTo('.'))
                 genout.writeLine('\t' + command)
             }
         }
@@ -2734,14 +2736,16 @@ public class Bit {
 
             } else if (bit.generating == 'make') {
                 command = repcmd(command)
-                genout.write(reppath(target.path) + ': \\\n        ' + file.relative)
                 genTargetDeps(target)
+                genout.write(reppath(target.path) + ': \\\n        ' + file.relative + getTargetDeps() + '\n')
+                gtrace('Compile', file.relativeTo('.'))
                 genout.writeLine('\t' + command)
 
             } else if (bit.generating == 'nmake') {
                 command = repcmd(command)
-                genout.write(reppath(target.path) + ': \\\n        ' + file.relative.windows)
                 genTargetDeps(target)
+                genout.write(reppath(target.path) + ': \\\n        ' + file.relative.windows + getTargetDeps() + '\n')
+                gtrace('Compile', file.relativeTo('.'))
                 genout.writeLine('\t' + command)
             }
         }
@@ -2753,14 +2757,15 @@ public class Bit {
     function generateFile(target) {
         target.made ||= {}
         if (bit.generating == 'make' || bit.generating == 'nmake') {
-            genout.write(reppath(target.path) + ':')
             genTargetDeps(target)
+            genout.write(reppath(target.path) + ':' + getTargetDeps() + '\n')
         }
         for each (let file: Path in target.files) {
             /* Auto-generated headers targets for includes have file == target.path */
             if (file == target.path) {
                 continue
             }
+            gtrace('File', target.path.relative.portable)
             if (target.subtree) {
                 /* File must be abs to allow for a subtree substitution */
                 copy(file, target.path, target)
@@ -2791,12 +2796,12 @@ public class Bit {
             }
         }
         if (target.scripts && target['generate-action']) {
-            if (target.path) {
-                genWrite(target.path.relative + ':')
-            } else {
-                genWrite(target.name + ':')
-            }
             genTargetDeps(target)
+            if (target.path) {
+                genWrite(target.path.relative + ':' + getTargetDeps() + '\n')
+            } else {
+                genWrite(target.name + ':' + getTargetDeps() + '\n')
+            }
             capture = []
             vtrace(target.type.toPascal(), target.name)
             runTargetScript(target, 'build')
@@ -2829,12 +2834,12 @@ public class Bit {
             }
 
         } else if (bit.generating == 'make') {
-            if (target.path) {
-                genWrite(target.path.relative + ':')
-            } else {
-                genWrite(target.name + ':')
-            }
             genTargetDeps(target)
+            if (target.path) {
+                genWrite(target.path.relative + ':' + getTargetDeps() + '\n')
+            } else {
+                genWrite(target.name + ':' + getTargetDeps() + '\n')
+            }
             let cmd = target['generate-' + bit.platform.os] || target['generate-make'] || target['generate-sh'] || 
                 target.generate
             if (cmd) {
@@ -2856,12 +2861,12 @@ public class Bit {
             }
 
         } else if (bit.generating == 'nmake') {
-            if (target.path) {
-                genWrite(target.path.relative.windows + ':')
-            } else {
-                genWrite(target.name + ':')
-            }
             genTargetDeps(target)
+            if (target.path) {
+                genWrite(target.path.relative.windows + ':' + getTargetDeps() + '\n')
+            } else {
+                genWrite(target.name + ':' + getTargetDeps() + '\n')
+            }
             let cmd = target['generate-' + bit.platform.os] || 
                 target['generate-nmake'] || target['generate-make'] || target['generate']
             if (cmd) {
@@ -3020,14 +3025,68 @@ public class Bit {
         return repvar(path)
     }
 
+    var nextID: Number = 0
+
+    function getTargetLibs(target)  {
+        return ' $(LIBS_' + nextID + ')'
+    }
+
+    function genTargetLibs(target, command): String {
+        let found
+        for each (lib in target.libraries) {
+            let dname = null
+            if (bit.targets['lib' + lib]) {
+                dname = 'lib' + lib
+            } else if (bit.targets[lib]) {
+                dname = lib
+            }
+            if (dname) {
+                let dep = bit.targets[dname]
+                if (dep.require) {
+                    if (bit.platform.os == 'windows') {
+                        genout.writeLine('!IF "$(BIT_PACK_' + dep.require.toUpper() + ')" == "1"')
+                        genout.writeLine('    LIBS_' + nextID + ' = -l' + lib + ' $(LIBS_' + nextID + ')')
+                        genout.writeLine('!ENDIF')
+                    } else {
+                        genout.writeLine('ifeq ($(BIT_PACK_' + dep.require.toUpper() + '),1)')
+                        genout.writeLine('    LIBS_' + nextID + ' += -l' + lib)
+                        genout.writeLine('endif')
+                    }
+                } else {
+                    if (bit.platform.os == 'windows') {
+                        genout.writeLine('LIBS_' + nextID + ' = -l' + lib + ' $(LIBS_' + nextID + ')')
+                    } else {
+                        genout.writeLine('LIBS_' + nextID + ' += -l' + lib)
+                    }
+                }
+                found = true
+                command = command.replace(RegExp(' -l' + lib + ' ', 'g'), ' ')
+            } else {
+                command = command.replace(RegExp(' -l' + lib + ' ', 'g'), ' ')
+            }
+        }
+        if (found) {
+            genout.writeLine('')
+            command = command.replace('$(LIBS)', '$(LIBS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS)')
+        }
+        return command
+    }
+
+    function getTargetDeps(target)  {
+        return ' $(DEPS_' + nextID + ')'
+    }
+
     /*
         Get the dependencies of a target as a string
      */
     function genTargetDeps(target) {
-        let deps = []
+        nextID++
+        genout.writeLine('#\n#   ' + Path(target.name).basename + '\n#')
+        let found
         if (target.type == 'file' || target.type == 'script' || target.type == 'action') {
             for each (file in target.files) {
-                deps.push('    ' + reppath(file) + '\\')
+                genout.writeLine('DEPS_' + nextID + ' += ' + reppath(file))
+                found = true
             }
         }
         if (target.depends && target.depends.length > 0) {
@@ -3036,24 +3095,27 @@ public class Bit {
                 if (dep && dep.enable) {
                     let d = (dep.path) ? reppath(dep.path) : dep.name
                     if (dep.require) {
-                        deps.push('ifeq ($(BIT_PACK_' + dep.require.toUpper() + '),1)')
-                        deps.push('    ' + d + ' \\')
-                        deps.push('endif')
+                        if (bit.platform.os == 'windows') {
+                            genout.writeLine('!IF "$(BIT_PACK_' + dep.require.toUpper() + ')" == "1"')
+                            genout.writeLine('    DEPS_' + nextID + ' = ' + d + ' $(DEPS_' + nextID + ')')
+                            genout.writeLine('!ENDIF')
+                        } else {
+                            genout.writeLine('ifeq ($(BIT_PACK_' + dep.require.toUpper() + '),1)')
+                            genout.writeLine('    DEPS_' + nextID + ' += ' + d)
+                            genout.writeLine('endif')
+                        }
                     } else {
-                        deps.push('    ' + d + ' \\')
+                        if (bit.platform.os == 'windows') {
+                            genout.writeLine('DEPS_' + nextID + ' = ' + d + ' $(DEPS_' + nextID + ')')
+                        } else {
+                            genout.writeLine('DEPS_' + nextID + ' += ' + d)
+                        }
                     }
+                    found = true
                 }
             }
         }
-        if (deps.length > 0) {
-            for (i = deps.length - 1; i >= 0; i--) {
-                if (deps[i].startsWith(' ')) {
-                    deps[i] = deps[i].trimEnd('\\')
-                    break
-                }
-            }
-            genout.writeLine(' \\\n' + deps.join('\n'))
-        } else {
+        if (found) {
             genout.writeLine('')
         }
     }
@@ -3541,6 +3603,12 @@ public class Bit {
         cp(from, to)
     }
 
+    public function gtrace(tag: String, ...args): Void {
+        let msg = args.join(" ")
+        let msg = "\techo '%12s %s'" % (["[" + tag + "]"] + [msg]) + "\n"
+        genout.write(msg)
+    }
+
     public function trace(tag: String, ...args): Void {
         if (!options.quiet) {
             let msg = args.join(" ")
@@ -3634,10 +3702,11 @@ public class Bit {
         }
     }
 
-    function genWriteLine(str) {
+    public function genWriteLine(str) {
         genout.writeLine(repvar(str))
     }
-    function genWrite(str) {
+
+    public function genWrite(str) {
         genout.write(repvar(str))
     }
 
@@ -4436,6 +4505,12 @@ public function expand(rule)
 public function genScript(s)
     b.genScript(s)
 
+public function genWriteLine(str)
+    b.genWriteLine(str)
+
+public function genWrite(str)
+    b.genWrite(str)
+
 public function runScript(scripts)
     b.runScript(scripts)
 
@@ -4471,31 +4546,15 @@ public function sortVersions(versions: Array)
 
 /*
     @copy   default
-  
+
     Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2013. All Rights Reserved.
-  
+
     This software is distributed under commercial and open source licenses.
-    You may use the GPL open source license described below or you may acquire
-    a commercial license from Embedthis Software. You agree to be fully bound
+    You may use the Embedthis Open Source license or you may acquire a 
+    commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details.
-  
-    This software is open source; you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by the
-    Free Software Foundation; either version 2 of the License, or (at your
-    option) any later version. See the GNU General Public License for more
-    details at: http://www.embedthis.com/downloads/gplLicense.html
-  
-    This program is distributed WITHOUT ANY WARRANTY; without even the
-    implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  
-    This GPL license does NOT permit incorporating this software into
-    proprietary programs. If you are unable to comply with the GPL, you must
-    acquire a commercial license to use this software. Commercial licenses
-    for this software and support services are available from Embedthis
-    Software at http://www.embedthis.com
-  
+    this software for full details and other copyrights.
+
     Local variables:
     tab-width: 4
     c-basic-offset: 4

@@ -38,7 +38,12 @@ public function deploy(manifest, prefixes, package): Array {
         }
         let name = item.name || serialize(item)
         let enable = true
-        if (item.enable) {
+
+        if (item.require && (!bit.packs[item.require] || !bit.packs[item.require].enable)) {
+            skip(name, 'Required pack is not enabled')
+            enable = false
+
+        } else if (item.enable) {
             if (!(item.enable is Boolean)) {
                 let script = expand(item.enable)
                 try {
@@ -58,19 +63,20 @@ public function deploy(manifest, prefixes, package): Array {
             skip(name, 'Must be administrator')
             enable = false
         }
-        if (enable) {
-            if (sets) {
-                if (item.set) {
-                    if (!sets.exec(item.set)) {
-                        enable = false
-                        skip(name, 'Not in the requested file set: ' + sets)
-                    }
+        if (enable && sets) {
+            if (item.set) {
+                if (!sets.exec(item.set)) {
+                    enable = false
+                    skip(name, 'Not in the requested file set: ' + sets)
                 }
             }
         }
         if (enable) {
             if (item.precopy) {
                 eval('require ejs.unix\n' + expand(item.precopy))
+            }
+            if (item.require) {
+                genWriteLine('ifeq ($(BIT_PACK_' + item.require.toUpper() + '),1)')
             }
             if (item.dir) {
                 for each (let dir:Path in item.dir) {
@@ -92,6 +98,9 @@ public function deploy(manifest, prefixes, package): Array {
                     strace('Create', item.to)
                     item.to.write(data)
                 }
+            }
+            if (item.require) {
+                genWriteLine('endif')
             }
             if (item.postcopy) {
                 eval('require ejs.unix\n' + expand(item.postcopy))
@@ -158,7 +167,8 @@ function setupPackagePrefixes(kind, package) {
                 if (pname == 'src') {
                     prefixes[pname] = prefixes.media.portable.normalize
                 } else {
-                    prefixes[pname] = Path(prefixes.media.join('contents').portable.name + bit.prefixes[pname].removeDrive().portable).normalize
+                    prefixes[pname] = Path(prefixes.media.join('contents').portable.name + 
+                        bit.prefixes[pname].removeDrive().portable).normalize
                 }
             }
         }
@@ -495,9 +505,6 @@ function createMacContents(prefixes) {
     let cp: File = staging.join(s.product + '.pmdoc', '01contents-contents.xml').open('w')
     cp.write('<pkg-contents spec="1.12">')
     cp.write('<f n="contents" o="root" g="wheel" p="16877" pt="' + prefixes.root + '" m="false" t="file">')
-/* 
-    options.staff = staffDir
-*/
     for each (dir in prefixes.root.files('*', {include: /\/$/, missing: undefined})) {
         inner(staging, cp, dir)
     }
