@@ -79,6 +79,5 @@ if (bit.platform.os == 'windows') {
         imports: [ lib ],
     }
 }
-let template = {packs: { mocana: cfg}}
+let template = {packs: { mocana: cfg, ssl: { name: 'mocana', enable: true}}
 Bit.load(template)
-bit.settings.ssl = true

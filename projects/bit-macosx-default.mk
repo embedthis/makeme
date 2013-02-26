@@ -33,6 +33,7 @@ LDFLAGS         += $(LDFLAGS-$(DEBUG))
 
 BIT_PACK_EST          := 1
 BIT_PACK_EJSCRIPT     := 1
+BIT_PACK_SSL          := 1
 
 BIT_ROOT_PREFIX       := 
 BIT_BASE_PREFIX       := $(BIT_ROOT_PREFIX)/usr/local
@@ -58,7 +59,9 @@ TARGETS += $(CONFIG)/bin/libest.dylib
 endif
 TARGETS     += $(CONFIG)/bin/ca.crt
 TARGETS     += $(CONFIG)/bin/libmpr.dylib
-TARGETS     += $(CONFIG)/bin/libmprssl.dylib
+ifeq ($(BIT_PACK_SSL),1)
+TARGETS += $(CONFIG)/bin/libmprssl.dylib
+endif
 TARGETS     += $(CONFIG)/bin/makerom
 TARGETS     += $(CONFIG)/bin/libpcre.dylib
 TARGETS     += $(CONFIG)/bin/libhttp.dylib
@@ -228,6 +231,7 @@ $(CONFIG)/obj/mprSsl.o: \
 	@echo '   [Compile] src/deps/mpr/mprSsl.c'
 	$(CC) -c -o $(CONFIG)/obj/mprSsl.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/mpr/mprSsl.c
 
+ifeq ($(BIT_PACK_SSL),1)
 #
 #   libmprssl
 #
@@ -245,6 +249,7 @@ LIBS_11 += -lmpr
 $(CONFIG)/bin/libmprssl.dylib: $(DEPS_11)
 	@echo '      [Link] libmprssl'
 	$(CC) -dynamiclib -o $(CONFIG)/bin/libmprssl.dylib $(LDFLAGS) -compatibility_version 0.8.2 -current_version 0.8.2 $(LIBPATHS) -install_name @rpath/libmprssl.dylib $(CONFIG)/obj/mprSsl.o $(LIBS_11) $(LIBS_11) $(LIBS)
+endif
 
 #
 #   makerom.o
@@ -550,7 +555,6 @@ $(CONFIG)/bin/bits: $(DEPS_33)
 	cp "bits/packs/ranlib.pak" "$(CONFIG)/bin/bits/packs/ranlib.pak"
 	cp "bits/packs/rc.pak" "$(CONFIG)/bin/bits/packs/rc.pak"
 	cp "bits/packs/sqlite.pak" "$(CONFIG)/bin/bits/packs/sqlite.pak"
-	cp "bits/packs/ssl.pak" "$(CONFIG)/bin/bits/packs/ssl.pak"
 	cp "bits/packs/strip.pak" "$(CONFIG)/bin/bits/packs/strip.pak"
 	cp "bits/packs/tidy.pak" "$(CONFIG)/bin/bits/packs/tidy.pak"
 	cp "bits/packs/utest.pak" "$(CONFIG)/bin/bits/packs/utest.pak"
@@ -673,7 +677,6 @@ installBinary: $(DEPS_38)
 	cp "bits/packs/ranlib.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/ranlib.pak"
 	cp "bits/packs/rc.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/rc.pak"
 	cp "bits/packs/sqlite.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/sqlite.pak"
-	cp "bits/packs/ssl.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/ssl.pak"
 	cp "bits/packs/strip.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/strip.pak"
 	cp "bits/packs/tidy.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/tidy.pak"
 	cp "bits/packs/utest.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/utest.pak"

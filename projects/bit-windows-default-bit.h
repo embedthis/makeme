@@ -106,9 +106,6 @@
 #ifndef BIT_REQUIRED
     #define BIT_REQUIRED "winsdk,compiler,lib,link,dumpbin,rc,pcre,ejscript"
 #endif
-#ifndef BIT_SSL
-    #define BIT_SSL 1
-#endif
 #ifndef BIT_STATIC
     #define BIT_STATIC 0
 #endif
@@ -280,6 +277,9 @@
 #endif
 #ifndef BIT_PACK_SQLITE
     #define BIT_PACK_SQLITE 0
+#endif
+#ifndef BIT_PACK_SSL
+    #define BIT_PACK_SSL 1
 #endif
 #ifndef BIT_PACK_WINSDK
     #define BIT_PACK_WINSDK 1

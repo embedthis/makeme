@@ -40,5 +40,4 @@ cfg = {
     includes: [ dir ],
     libraries: [ 'est' ]
 }
-Bit.load({packs: { est: cfg }})
-bit.settings.ssl = true
+Bit.load({packs: { est: cfg, ssl: { name: 'est', enable: true }}})

@@ -124,9 +124,6 @@
 #ifndef BIT_REQUIRED
     #define BIT_REQUIRED "compiler,lib,link,pcre,ejscript"
 #endif
-#ifndef BIT_SSL
-    #define BIT_SSL 1
-#endif
 #ifndef BIT_STATIC
     #define BIT_STATIC 0
 #endif
@@ -227,7 +224,7 @@
 
 /* Profile */
 #ifndef BIT_CONFIG_CMD
-    #define BIT_CONFIG_CMD "bit -d -q -platform macosx-x64-default -configure . --without default -gen xcode"
+    #define BIT_CONFIG_CMD "bit -d -q -platform macosx-x64-default -configure . --without default -gen make"
 #endif
 #ifndef BIT_BIT_PRODUCT
     #define BIT_BIT_PRODUCT 1
@@ -295,6 +292,9 @@
 #endif
 #ifndef BIT_PACK_SQLITE
     #define BIT_PACK_SQLITE 0
+#endif
+#ifndef BIT_PACK_SSL
+    #define BIT_PACK_SSL 1
 #endif
 #ifndef BIT_PACK_ZIP
     #define BIT_PACK_ZIP 1
