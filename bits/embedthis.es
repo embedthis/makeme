@@ -834,12 +834,12 @@ public function genProjects(packs = '--without default', profiles = ["default"],
             let formats = (name == 'windows-x86') ? '-gen nmake' : '-gen make'
             trace('Generate', bit.settings.product + '-' + name.replace(/-.*/, '') + ' projects')
             let platform = name + '-' + profile
-            run(bitcmd + ' -d -q -platform ' + platform + ' ' + packs + ' -configure . ' + formats, bit.target.runopt)
+            run(bitcmd + ' -d -q -platform ' + platform + ' -configure . ' + packs + ' ' + formats, bit.target.runopt)
             /* Xcode and VS use separate profiles */
             if (name == 'macosx-x64') {
-                run(bitcmd + ' -d -q -platform ' + platform + ' ' + packs + ' -configure . -gen xcode', bit.target.runopt)
+                run(bitcmd + ' -d -q -platform ' + platform + ' -configure . ' + packs + ' -gen xcode', bit.target.runopt)
             } else if (name == 'windows-x86') {
-                run(bitcmd + ' -d -q -platform ' + platform + ' ' + packs + ' -configure . -gen vs', bit.target.runopt)
+                run(bitcmd + ' -d -q -platform ' + platform + ' -configure . ' + packs + ' -gen vs', bit.target.runopt)
             }
         }
     }

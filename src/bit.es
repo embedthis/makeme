@@ -470,6 +470,7 @@ public class Bit {
             findPacks()
             genPlatformBitFile()
             makeOutDirs()
+            runScript(bit.scripts.pregenheader)
             genBitHeader()
             importPackFiles()
         }
@@ -520,7 +521,7 @@ public class Bit {
             env: bit.env,
         })
         for (let [key, value] in bit.settings) {
-            /* Copy over non-standard settings. These include compiler sleuthing settings.  */
+            /* Copy over non-standard settings. These include compiler sleuthing settings */
             nbit.settings[key] = value
         }
         blend(nbit.settings, bit.customSettings)
@@ -1440,7 +1441,7 @@ public class Bit {
     function generatePackDefs() {
         let requiredTargets = {}
         for each (target in bit.targets) {
-            if (target.require && bit.packs[target.require] && bit.packs[target.require].enable) {
+            if (target.require && bit.packs[target.require] /* && bit.packs[target.require].enable */) {
                 requiredTargets[target.require] = true
             }
         }
@@ -1520,7 +1521,7 @@ public class Bit {
         genTargets()
         genout.writeLine('unexport CDPATH\n')
         genout.writeLine('ifndef SHOW\n.SILENT:\nendif\n')
-        genout.writeLine('all compile: prep $(TARGETS)\n')
+        genout.writeLine('all build compile: prep $(TARGETS)\n')
         genout.writeLine('.PHONY: prep\n\nprep:')
         genout.writeLine('\t@echo "      [Info] Use "make SHOW=1" to trace executed commands."')
         genout.writeLine('\t@if [ "$(CONFIG)" = "" ] ; then echo WARNING: CONFIG not set ; exit 255 ; fi')
@@ -1594,7 +1595,7 @@ public class Bit {
         genTargets()
         let pop = bit.settings.product + '-' + bit.platform.os + '-' + bit.platform.profile
         genout.writeLine('!IFNDEF SHOW\n.SILENT:\n!ENDIF\n')
-        genout.writeLine('all compile: prep $(TARGETS)\n')
+        genout.writeLine('all build compile: prep $(TARGETS)\n')
         genout.writeLine('.PHONY: prep\n\nprep:')
         genout.writeLine('!IF "$(VSINSTALLDIR)" == ""\n\techo "Visual Studio vars not set. Run vcvars.bat."\n\texit 255\n!ENDIF')
         genout.writeLine('!IF "$(BIT_APP_PREFIX)" == ""\n\techo "BIT_APP_PREFIX not set."\n\texit 255\n!ENDIF')
@@ -4009,6 +4010,7 @@ public class Bit {
         if (samePlatform(platform, localPlatform)) {
             bit.globals.LBIN = localBin = bit.dir.bin.portable
         }
+        //  MOB - fix when an arry of scripts is supported
         runScript(bit.scripts.loaded)
     }
 
