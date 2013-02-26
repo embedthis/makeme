@@ -84,5 +84,5 @@ if (bit.platform.os == 'windows') {
     }
 }
 
-let template = {packs: { openssl: cfg, ssl: { name: 'openssl', enable: true}}
+let template = {packs: { openssl: cfg, ssl: { name: 'openssl', enable: true}}}
 Bit.load(template)

@@ -74,5 +74,5 @@ if (bit.platform.os == 'windows') {
     }
 }
 
-let template = {packs: { matrixssl: cfg, ssl: { name: 'matrixssl', enable: true}}
+let template = {packs: { matrixssl: cfg, ssl: { name: 'matrixssl', enable: true}}}
 Bit.load(template)
