@@ -4466,7 +4466,7 @@ public class Bit {
         The routine uses $copy() to implement the copying.
         This either copies files or if generating, emits code to copy files.
         @param src Source file 
-        @parm dest Destination 
+        @param dest Destination 
         @param options Options to pass to Bit.copy(). These include user, group, uid, gid and  permissions.
     */
     public function copyFile(src: Path, dest: Path, options = {}) {
@@ -4556,21 +4556,44 @@ public class Bit {
  */
 require embedthis.bit
 
+/**
+    Bit DOM object
+ */
 public var b: Bit = new Bit
+
 b.main()
 
+/**
+    Define a pack. This registers a pack with a unique name and description
+    This calls Bit.load to initialize a pack collection in the Bit DOM.
+    @param name Unique pack name
+    @param description Short, single-line pack description
+ */
 public function pack(name: String, description: String) {
     let pack = {}
     pack[name] = {description: description}
     Bit.load({packs: pack})
 }
 
+/**
+    Probe for a file and locate
+    Will throw an exception if the file is not found, unless {continue, default} specified in control options
+    @param file File to search for
+    @param options Control options
+    @option default Default path to use if the file cannot be found and bit is invoked with --continue
+    @option search Array of paths to search for the file
+    @option nopath Don't use the system PATH to locate the file
+    @option fullpath Return the full path to the located file
+ */
 public function probe(file: Path, options = {}): Path {
     return b.probe(file, options)
 }
 
-/*
-    Resolve a program. Name can be either a path or a basename with optional extension
+/**
+    Define a pack for a command line program.
+    This registers the pack and loads the Bit DOM with the pack configuration.
+    @param name Program name. Can be either a path or a basename with optional extension
+    @param description Short, single-line program description.
  */
 public function program(name: Path, description = null): Path {
     let path = bit.packs[name.trimExt()].path || name
@@ -4590,12 +4613,24 @@ public function program(name: Path, description = null): Path {
 public function action(command: String, options = null)
     b.action(command, options)
 
+/** 
+    Emit general trace
+    @param tag Informational tag emitted before the message
+    @param args Message args to display
+ */
 public function trace(tag, ...msg)
     b.trace(tag, ...msg)
 
+/** 
+    Emit "show" trace
+    This is trace that is displayed if bit --show is invoked.
+    @param tag Informational tag emitted before the message
+    @param args Message args to display
+*/
 public function strace(tag, ...msg)
     b.strace(tag, ...msg)
     
+/** @duplicate Bit.vtrace */
 public function vtrace(tag, ...msg)
     b.vtrace(tag, ...msg)
 

@@ -65,7 +65,6 @@
             <p>Bit can be used to generate complete Makefiles and projects for building via: make, nmake, Visual Studio, Xcode or 
                 plain shell scripts. Developers can then include these projects to building their code on specific
                 platforms.</p>
-
             <h2>Building with the Makefile</h2>
             <p>To build with make, simply type:
 <pre>$ <b>make</b>
@@ -90,12 +89,10 @@
 -Lmacosx-x64-default/bin -install_name @rpath/libmpr.dylib \
 macosx-x64-default/obj/mprLib.o -lpthread -lm -ldl
 </pre>
-
             <h2>Platform Makefiles</h2>
             <p>Bit eschews creating Makefiles that will work on all the possible platforms, rather it generates
                 simple, fast, non-recursive Makefiles that run quickly and simply for the dominant platforms: Linux, Mac OSX,
                 Windows, and BSD. Developers can then easily extend for other platforms if required.</p>
-
             <p>Developers typically deliver these per-platform Makefiles and IDE projects under the a <em>projects</em>
             directory and provide a top-level Makefile that detects your operating system and CPU architecture and
             then invokes the relevant per-platform Makefile for your system. For example:</p>
@@ -117,7 +114,6 @@ nmake -f projects\appweb-windows.nmake
             in the platform makefile and/or the product <em>bit.h</em> configuration header. For example:
             <pre>$ <b>BIT_PACK_EST=0 make</b></pre>
             <p>This will disable use of the EST (Embedded Security Transport SSL).</p>
-
             <p>By defining the make variables such as CC and CFLAGS, you can modify the compiler options. This is the
             technique used when cross-compiling.
             <a id="cross"></a>

@@ -36,6 +36,8 @@ Bit.load({
                 let edir = bit.dir.src.join('doc/api/bit')
                 rmdir([edir.join('*.html'), edir.join('*.css'), edir.join('images/*')])
                 run(bin.join('ejsmod') + ' --warn --html ' + edir + ' ' + docmod)
+                cp(bit.dir.src.join('doc/api/masters/*.html'), edir)
+                cp(bit.dir.src.join('doc/api/masters/*.jpg'), edir.join('images'))
                 docmod.remove()
             ",
         },
