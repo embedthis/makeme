@@ -3666,7 +3666,7 @@ public class Bit {
     public function gtrace(tag: String, ...args): Void {
         let msg = args.join(" ")
         let msg = "\t@echo '%12s %s'" % (["[" + tag + "]"] + [msg]) + "\n"
-        genout.write(msg)
+        genout.write(repvar(msg))
     }
 
     /** 

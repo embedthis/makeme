@@ -135,7 +135,7 @@ clobber: clean
 #   est.h
 #
 $(CONFIG)/inc/est.h: $(DEPS_1)
-	@echo '      [File] linux-x86-default/inc/est.h'
+	@echo '      [File] $(CONFIG)/inc/est.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/deps/est/est.h" "$(CONFIG)/inc/est.h"
 
@@ -148,7 +148,7 @@ $(CONFIG)/inc/bit.h: $(DEPS_2)
 #   bitos.h
 #
 $(CONFIG)/inc/bitos.h: $(DEPS_3)
-	@echo '      [File] linux-x86-default/inc/bitos.h'
+	@echo '      [File] $(CONFIG)/inc/bitos.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/bitos.h" "$(CONFIG)/inc/bitos.h"
 
@@ -182,7 +182,7 @@ endif
 DEPS_6 += src/deps/est/ca.crt
 
 $(CONFIG)/bin/ca.crt: $(DEPS_6)
-	@echo '      [File] linux-x86-default/bin/ca.crt'
+	@echo '      [File] $(CONFIG)/bin/ca.crt'
 	mkdir -p "$(CONFIG)/bin"
 	cp "src/deps/est/ca.crt" "$(CONFIG)/bin/ca.crt"
 
@@ -190,7 +190,7 @@ $(CONFIG)/bin/ca.crt: $(DEPS_6)
 #   mpr.h
 #
 $(CONFIG)/inc/mpr.h: $(DEPS_7)
-	@echo '      [File] linux-x86-default/inc/mpr.h'
+	@echo '      [File] $(CONFIG)/inc/mpr.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/deps/mpr/mpr.h" "$(CONFIG)/inc/mpr.h"
 
@@ -273,7 +273,7 @@ $(CONFIG)/bin/makerom: $(DEPS_13)
 #   pcre.h
 #
 $(CONFIG)/inc/pcre.h: $(DEPS_14)
-	@echo '      [File] linux-x86-default/inc/pcre.h'
+	@echo '      [File] $(CONFIG)/inc/pcre.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/deps/pcre/pcre.h" "$(CONFIG)/inc/pcre.h"
 
@@ -302,7 +302,7 @@ $(CONFIG)/bin/libpcre.so: $(DEPS_16)
 #   http.h
 #
 $(CONFIG)/inc/http.h: $(DEPS_17)
-	@echo '      [File] linux-x86-default/inc/http.h'
+	@echo '      [File] $(CONFIG)/inc/http.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/deps/http/http.h" "$(CONFIG)/inc/http.h"
 
@@ -362,7 +362,7 @@ $(CONFIG)/bin/http: $(DEPS_21)
 #   ejs.h
 #
 $(CONFIG)/inc/ejs.h: $(DEPS_22)
-	@echo '      [File] linux-x86-default/inc/ejs.h'
+	@echo '      [File] $(CONFIG)/inc/ejs.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/deps/ejs/ejs.h" "$(CONFIG)/inc/ejs.h"
 
@@ -370,7 +370,7 @@ $(CONFIG)/inc/ejs.h: $(DEPS_22)
 #   ejs.slots.h
 #
 $(CONFIG)/inc/ejs.slots.h: $(DEPS_23)
-	@echo '      [File] linux-x86-default/inc/ejs.slots.h'
+	@echo '      [File] $(CONFIG)/inc/ejs.slots.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/deps/ejs/ejs.slots.h" "$(CONFIG)/inc/ejs.slots.h"
 
@@ -378,7 +378,7 @@ $(CONFIG)/inc/ejs.slots.h: $(DEPS_23)
 #   ejsByteGoto.h
 #
 $(CONFIG)/inc/ejsByteGoto.h: $(DEPS_24)
-	@echo '      [File] linux-x86-default/inc/ejsByteGoto.h'
+	@echo '      [File] $(CONFIG)/inc/ejsByteGoto.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/deps/ejs/ejsByteGoto.h" "$(CONFIG)/inc/ejsByteGoto.h"
 
@@ -503,7 +503,7 @@ endif
 DEPS_32 += src/bit.es
 
 $(CONFIG)/bin/bit.es: $(DEPS_32)
-	@echo '      [File] linux-x86-default/bin/bit.es'
+	@echo '      [File] $(CONFIG)/bin/bit.es'
 	mkdir -p "$(CONFIG)/bin"
 	cp "src/bit.es" "$(CONFIG)/bin/bit.es"
 
@@ -513,7 +513,7 @@ $(CONFIG)/bin/bit.es: $(DEPS_32)
 DEPS_33 += bits
 
 $(CONFIG)/bin/bits: $(DEPS_33)
-	@echo '      [File] linux-x86-default/bin/bits'
+	@echo '      [File] $(CONFIG)/bin/bits'
 	mkdir -p "$(CONFIG)/bin/bits"
 	cp "bits/embedthis-manifest.bit" "$(CONFIG)/bin/bits/embedthis-manifest.bit"
 	cp "bits/embedthis.bit" "$(CONFIG)/bin/bits/embedthis.bit"
@@ -620,13 +620,13 @@ DEPS_38 += stop
 installBinary: $(DEPS_38)
 	mkdir -p "$(BIT_APP_PREFIX)"
 	mkdir -p "$(BIT_VAPP_PREFIX)"
-	rm -f "$(BIT_APP_PREFIX)/latest"
 	mkdir -p "$(BIT_APP_PREFIX)"
+	rm -f "$(BIT_APP_PREFIX)/latest"
 	ln -s "0.8.2" "$(BIT_APP_PREFIX)/latest"
 	mkdir -p "$(BIT_VAPP_PREFIX)/bin"
 	cp "$(CONFIG)/bin/bit" "$(BIT_VAPP_PREFIX)/bin/bit"
-	rm -f "$(BIT_BIN_PREFIX)/bit"
 	mkdir -p "$(BIT_BIN_PREFIX)"
+	rm -f "$(BIT_BIN_PREFIX)/bit"
 	ln -s "$(BIT_VAPP_PREFIX)/bin/bit" "$(BIT_BIN_PREFIX)/bit"
 	cp "$(CONFIG)/bin/bit.es" "$(BIT_VAPP_PREFIX)/bin/bit.es"
 	cp "$(CONFIG)/bin/ca.crt" "$(BIT_VAPP_PREFIX)/bin/ca.crt"
@@ -689,8 +689,8 @@ installBinary: $(DEPS_38)
 	cp "bits/xcode.es" "$(BIT_VAPP_PREFIX)/bin/bits/xcode.es"
 	mkdir -p "$(BIT_VAPP_PREFIX)/doc/man/man1"
 	cp "doc/man/bit.1" "$(BIT_VAPP_PREFIX)/doc/man/man1/bit.1"
-	rm -f "$(BIT_MAN_PREFIX)/man1/bit.1"
 	mkdir -p "$(BIT_MAN_PREFIX)/man1"
+	rm -f "$(BIT_MAN_PREFIX)/man1/bit.1"
 	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/bit.1" "$(BIT_MAN_PREFIX)/man1/bit.1"
 
 #
