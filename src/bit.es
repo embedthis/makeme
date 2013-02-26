@@ -4618,8 +4618,8 @@ public function action(command: String, options = null)
     @param tag Informational tag emitted before the message
     @param args Message args to display
  */
-public function trace(tag, ...msg)
-    b.trace(tag, ...msg)
+public function trace(tag: String, ...args): Void
+    b.trace(tag, ...args)
 
 /** 
     Emit "show" trace
@@ -4627,21 +4627,25 @@ public function trace(tag, ...msg)
     @param tag Informational tag emitted before the message
     @param args Message args to display
 */
-public function strace(tag, ...msg)
-    b.strace(tag, ...msg)
+public function strace(tag, ...args)
+    b.strace(tag, ...args)
     
 /** @duplicate Bit.vtrace */
-public function vtrace(tag, ...msg)
-    b.vtrace(tag, ...msg)
+public function vtrace(tag, ...args)
+    b.vtrace(tag, ...args)
 
+/** @duplicate Bit.copy */
 public function copy(src, dest: Path, options = {})
     b.copy(src, dest, options)
 
+/* UNUSED
 public function package(formats)
     b.package(formats)
+*/
 
-public function run(command, options = {})
-    b.run(command, options)
+/** @duplicate Bit.run */
+public function run(command, cmdOptions = {}): String
+    b.run(command, cmdOptions)
 
 /** @hide */
 public function safeRemove(dir: Path)
@@ -4655,32 +4659,41 @@ public function mapLibs(libs: Array, static = null)
 public function setRuleVars(target, dir = App.dir)
     b.setRuleVars(target, dir)
 
+/** @hide */
 public function makeDirGlobals(base: Path? = null)
     b.makeDirGlobals(base)
 
+/** @duplicate Bit.makeDir */
 public function makeDir(path: Path, options = {})
     b.makeDir(path, options)
 
+/** @duplicate Bit.copyFile */
 public function copyFile(src: Path, dest: Path, options = {})
     b.copyFile(src, dest, options)
 
+/** @duplicate Bit.linkFile */
 public function linkFile(src: Path, dest: Path, options = {})
     b.linkFile(src, dest, options)
 
+/** @duplicate Bit.removeDir */
 public function removeDir(path: Path, options = {})
     b.removeDir(path, options)
 
+/** @duplicate Bit.removeFile */
 public function removeFile(path: Path, options = {})
     b.removeFile(path, options)
 
+/** @hide */
 public function runTargetScript(target, when)
     b.runTargetScript(target, when)
 
+/** @duplicate Bit.whyRebuild */
 public function whyRebuild(path, tag, msg)
     b.whyRebuild(path, tag, msg)
 
-public function expand(rule)
-    b.expand(rule)
+/** @duplicate Bit.expand */
+public function expand(s: String, options = {fill: '${}'}) : String
+    b.expand(rule, options)
 
 /** @hide */
 public function genScript(s)

@@ -1,0 +1,300 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+   <title>Global Functions and Variables</title>
+
+   <link rel="stylesheet" type="text/css" href="doc.css" />
+</head>
+
+<body>
+<div class='body'>
+
+<div class="content">
+
+<a name='top'></a>
+<h1 class='className'>Global Functions and Variables</h1>
+<div class='classBlock'>
+<p class='classBrief'>Global object containing all global functions and variables.</p>
+
+</div>
+
+
+<hr />
+<a name='Properties'></a>
+<h2 class='classSection'>Properties</h2>
+   <p>(No own properties defined)</p><hr />
+<a name='ClassMethods'></a>
+<h2 class='classSection'>Global Class Methods</h2>
+<table class='apiIndex' summary='methods'>
+   <tr><th>Qualifiers</th><th width='95%'>Method</th></tr>
+   <p>(No own class methods defined)</p></table>
+
+<hr />
+<a name='InstanceMethods'></a>
+<h2 class='classSection'>Global Instance Methods</h2>
+<table class='apiIndex' summary='methods'>
+   <tr><th>Qualifiers</th><th width='95%'>Method</th></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#Bit'><b>Bit</b></a>()</tr>   <tr class='apiDef'><td class='apiType'> </td><td><a href='#b'><b>b</b></a>(dir: <a href='Object.html'>Object</a>): <a href='Void.html'>Void</a></tr>   <tr class='apiDef'><td class='apiType'> </td><td><a href='#copy'><b>copy</b></a>(src, dest: <a href='Path.html'>Path</a>, options)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Copy files.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#copyFile'><b>copyFile</b></a>(src: <a href='Path.html'>Path</a>, dest: <a href='Path.html'>Path</a>, options)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Copy a file.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#expand'><b>expand</b></a>(s: <a href='String.html'>String</a>, options): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Expand tokens in a string.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#linkFile'><b>linkFile</b></a>(src: <a href='Path.html'>Path</a>, dest: <a href='Path.html'>Path</a>, options)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Link a file.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#makeDir'><b>makeDir</b></a>(path: <a href='Path.html'>Path</a>, options)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Make a directory
+This creates a directory and all required parents.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#pack'><b>pack</b></a>(name: <a href='String.html'>String</a>, description: <a href='String.html'>String</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Define a pack.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#probe'><b>probe</b></a>(file: <a href='Path.html'>Path</a>, options = expression): <a href='Path.html'>Path</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Probe for a file and locate
+Will throw an exception if the file is not found, unless {continue, default} specified in control options.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#program'><b>program</b></a>(name: <a href='Path.html'>Path</a>, description = null): <a href='Path.html'>Path</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Define a pack for a command line program.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#removeDir'><b>removeDir</b></a>(path: <a href='Path.html'>Path</a>, options)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Remove a directory.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#removeFile'><b>removeFile</b></a>(path: <a href='Path.html'>Path</a>, options)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Remove a file.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#run'><b>run</b></a>(command, cmdOptions): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Run a command and trace output if cmdOptions.true or options.show.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#strace'><b>strace</b></a>(tag, args: <a href='Array.html'>Array</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit "show" trace
+This is trace that is displayed if bit --show is invoked.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#trace'><b>trace</b></a>(tag: <a href='String.html'>String</a>, args: <a href='Array.html'>Array</a>): <a href='Void.html'>Void</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit general trace.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#vtrace'><b>vtrace</b></a>(tag, args: <a href='Array.html'>Array</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit "verbose" trace
+This is trace that is displayed if bit --verbose is invoked.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#whyRebuild'><b>whyRebuild</b></a>(path, tag, msg)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit trace for bit --why on why a target is being rebuilt.</td></tr>
+</table>
+
+<hr />
+<h2>Method Detail</h2>
+<a name='copy'></a>
+<div class='api'>
+<div class='apiSig'>    copy(src, dest: <a href='Path.html'>Path</a>, options)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Copy files. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' summary ='parameters'>
+<tr class='param'><td class='param'>src </td><td>Source files/directories to copy. This can be a String, Path or array of String/Paths.  The wildcards "*"", "***"" and "?" are the only wild card patterns supported. The "***"" pattern matches every directory and file. The Posix "[]" and "{a,b}" style expressions are not supported. If a src item is an existing directory, then the pattern appends slash '***'' subtree option is enabled. if a src item ends with "/", then the contents of that directory are copied without the directory itself.</td></tr><tr class='param'><td class='param'>dest: <a href='Path.html'>Path</a> </td><td>Destination file or directory. If multiple files are copied, dest is assumed to be a directory and will be created if required. If dest has a trailing "/", it is assumed to be a directory.</td></tr><tr class='param'><td class='param'>options </td><td>Processing and file options.</td></tr></table></dd>
+</dl><dl><dt>Options</dt>
+<dd><table class='parameters' summary ='options'>
+<td class='param'>active</td><td>If destination is an active executable or shared library, rename the active file using a '.old' extension and retry the copy.</td></tr>
+<td class='param'>compress</td><td>Compress target file.</td></tr>
+<td class='param'>copytemp</td><td>Copy files that look like temp files.</td></tr>
+<td class='param'>exclude</td><td>Exclude files that match the pattern. The pattern should be in portable file format.</td></tr>
+<td class='param'>expand</td><td>Expand tokens. Set to true or an Object hash containing properties to use when replacing  tokens of the form <a href='#{token}'>{token}</a> in the src and dest filenames. If set to true, the 'bit' object is used.</td></tr>
+<td class='param'>fold</td><td>Fold long lines on windows at column 80 and convert new line endings.</td></tr>
+<td class='param'>group</td><td>Set file group.</td></tr>
+<td class='param'>include</td><td>Include files that match the pattern. The pattern should be in portable file format.</td></tr>
+<td class='param'>linkin</td><td>Add a symbolic link to the destination in this directory.</td></tr>
+<td class='param'>permissions</td><td>Set file permissions.</td></tr>
+<td class='param'>strip</td><td>Strip object or executable.</td></tr>
+<td class='param'>subtree</td><td>If tree is enabled, trim the subtree portion off destination filenames.</td></tr>
+<td class='param'>user</td><td>Set file file user.</td></tr>
+</table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='copyFile'></a>
+<div class='api'>
+<div class='apiSig'>    copyFile(src: <a href='Path.html'>Path</a>, dest: <a href='Path.html'>Path</a>, options)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Copy a file. Copy files to a destination.
+The routine uses <a href='#copy'>copy()</a> to implement the copying.
+This either copies files or if generating, emits code to copy files.</dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' summary ='parameters'>
+<tr class='param'><td class='param'>src: <a href='Path.html'>Path</a> </td><td>Source file.</td></tr><tr class='param'><td class='param'>dest: <a href='Path.html'>Path</a> </td><td>Destination.</td></tr><tr class='param'><td class='param'>options </td><td>Options to pass to Bit.copy(). These include user, group, uid, gid and  permissions.</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='expand'></a>
+<div class='api'>
+<div class='apiSig'>    expand(s: <a href='String.html'>String</a>, options): <a href='String.html'>String</a>
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Expand tokens in a string. Tokens are represented by '<a href='#{field}''>{field}'</a> where field may contain '.'. For example {user.name}    
+To preserve an <a href='#{token}'>{token}</a> unmodified, preceed the token with an extra ''. For example: {token}.
+ Calls <a href='String.html#expand'>String.expand</a> to expand variables from the bit and bit.globals objects.</dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' summary ='parameters'>
+<tr class='param'><td class='param'>s: <a href='String.html'>String</a> </td><td>Input string.</td></tr><tr class='param'><td class='param'>options </td><td>Control options object.</td></tr></table></dd>
+</dl><dl><dt>Options</dt>
+<dd><table class='parameters' summary ='options'>
+<td class='param'>fill</td><td>Set to a string to use for missing properties. Set to undefined or omit options to throw an exception for missing properties. Set fill to '<a href='#{}''>{}'</a> to preserve undefined tokens as-is. This permits multi-pass expansions.</td></tr>
+<td class='param'>join</td><td>Character to use to join array elements. Defaults to space.</td></tr>
+</table></dd>
+</dl><dl><dt>Returns</dt>
+<dd>Expanded string.</dd></dl>
+</div>
+</div>
+<hr />
+<a name='linkFile'></a>
+<div class='api'>
+<div class='apiSig'>    linkFile(src: <a href='Path.html'>Path</a>, dest: <a href='Path.html'>Path</a>, options)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Link a file. This creates a symbolic link on systems that support symlinks.
+The routine uses <a href='Path.html#link'>Path.link()</a> to implement the linking.
+This either links files or if generating, emits code to link files.</dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' summary ='parameters'>
+<tr class='param'><td class='param'>src: <a href='Path.html'>Path</a> </td><td>Source file.</td></tr><tr class='param'><td class='param'>dest: <a href='Path.html'>Path</a> </td><td>Destination.</td></tr><tr class='param'><td class='param'>options </td><td>See <a href='#copy'>copy()</a> for supported options.</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='makeDir'></a>
+<div class='api'>
+<div class='apiSig'>    makeDir(path: <a href='Path.html'>Path</a>, options)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Make a directory
+This creates a directory and all required parents. This either makes a directory or if generating, emits code to make directories.</dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' summary ='parameters'>
+<tr class='param'><td class='param'>path: <a href='Path.html'>Path</a> </td><td>Directory path to make.</td></tr><tr class='param'><td class='param'>options </td><td>See <a href='#copy'>copy()</a> for supported options.</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='pack'></a>
+<div class='api'>
+<div class='apiSig'>    pack(name: <a href='String.html'>String</a>, description: <a href='String.html'>String</a>)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Define a pack. This registers a pack with a unique name and description
+This calls Bit.load to initialize a pack collection in the Bit DOM.</dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' summary ='parameters'>
+<tr class='param'><td class='param'>name: <a href='String.html'>String</a> </td><td>Unique pack name.</td></tr><tr class='param'><td class='param'>description: <a href='String.html'>String</a> </td><td>Short, single-line pack description.</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='probe'></a>
+<div class='api'>
+<div class='apiSig'>    probe(file: <a href='Path.html'>Path</a>, options = expression): <a href='Path.html'>Path</a>
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Probe for a file and locate
+Will throw an exception if the file is not found, unless {continue, default} specified in control options. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' summary ='parameters'>
+<tr class='param'><td class='param'>file: <a href='Path.html'>Path</a> </td><td>File to search for.</td></tr><tr class='param'><td class='param'>options </td><td>Control options. [default: expression]</td></tr></table></dd>
+</dl><dl><dt>Options</dt>
+<dd><table class='parameters' summary ='options'>
+<td class='param'>default</td><td>Default path to use if the file cannot be found and bit is invoked with --continue.</td></tr>
+<td class='param'>search</td><td>Array of paths to search for the file.</td></tr>
+<td class='param'>nopath</td><td>Don't use the system PATH to locate the file.</td></tr>
+<td class='param'>fullpath</td><td>Return the full path to the located file.</td></tr>
+</table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='program'></a>
+<div class='api'>
+<div class='apiSig'>    program(name: <a href='Path.html'>Path</a>, description = null): <a href='Path.html'>Path</a>
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Define a pack for a command line program. This registers the pack and loads the Bit DOM with the pack configuration.</dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' summary ='parameters'>
+<tr class='param'><td class='param'>name: <a href='Path.html'>Path</a> </td><td>Program name. Can be either a path or a basename with optional extension.</td></tr><tr class='param'><td class='param'>description </td><td>Short, single-line program description. [default: null]</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='removeDir'></a>
+<div class='api'>
+<div class='apiSig'>    removeDir(path: <a href='Path.html'>Path</a>, options)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Remove a directory. This removes a directory and all its contents include subdirectories. Use the 'empty' option to only remove
+empty directories.
+This either removes directories or if generating, emits code to remove directories.</dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' summary ='parameters'>
+<tr class='param'><td class='param'>path: <a href='Path.html'>Path</a> </td><td>Directory to remove.</td></tr><tr class='param'><td class='param'>options </td><td>Control options.</td></tr></table></dd>
+</dl><dl><dt>Options</dt>
+<dd><table class='parameters' summary ='options'>
+<td class='param'>empty</td><td>Remove the directory only if empty.</td></tr>
+</table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='removeFile'></a>
+<div class='api'>
+<div class='apiSig'>    removeFile(path: <a href='Path.html'>Path</a>, options)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Remove a file. This either removes files or if generating, emits code to remove files.</dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' summary ='parameters'>
+<tr class='param'><td class='param'>path: <a href='Path.html'>Path</a> </td><td>File to remove.</td></tr><tr class='param'><td class='param'>options </td><td>Control options.</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='run'></a>
+<div class='api'>
+<div class='apiSig'>    run(command, cmdOptions): <a href='String.html'>String</a>
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Run a command and trace output if cmdOptions.true or options.show. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' summary ='parameters'>
+<tr class='param'><td class='param'>command </td><td>Command to run. May be an array of args or a string.</td></tr><tr class='param'><td class='param'>cmdOptions </td><td>Options to pass to <a href='#Cmd'>Cmd</a>.</td></tr></table></dd>
+</dl><dl><dt>Options</dt>
+<dd><table class='parameters' summary ='options'>
+<td class='param'>show</td><td>Show the command line before executing. Similar to bit --show, but operates on just this command.</td></tr>
+<td class='param'>noshow</td><td>Do not show the command line before executing. Useful to override bit --show for one command.</td></tr>
+<td class='param'>continueOnErrors</td><td>Continue processing even if this command is not successful.</td></tr>
+</table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='strace'></a>
+<div class='api'>
+<div class='apiSig'>    strace(tag, args: <a href='Array.html'>Array</a>)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Emit "show" trace
+This is trace that is displayed if bit --show is invoked. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' summary ='parameters'>
+<tr class='param'><td class='param'>tag </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>args: <a href='Array.html'>Array</a> </td><td>Message args to display.</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='trace'></a>
+<div class='api'>
+<div class='apiSig'>    trace(tag: <a href='String.html'>String</a>, args: <a href='Array.html'>Array</a>): <a href='Void.html'>Void</a>
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Emit general trace. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' summary ='parameters'>
+<tr class='param'><td class='param'>tag: <a href='String.html'>String</a> </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>args: <a href='Array.html'>Array</a> </td><td>Message args to display.</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='vtrace'></a>
+<div class='api'>
+<div class='apiSig'>    vtrace(tag, args: <a href='Array.html'>Array</a>)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Emit "verbose" trace
+This is trace that is displayed if bit --verbose is invoked. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' summary ='parameters'>
+<tr class='param'><td class='param'>tag </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>args: <a href='Array.html'>Array</a> </td><td>Message args to display.</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='whyRebuild'></a>
+<div class='api'>
+<div class='apiSig'>    whyRebuild(path, tag, msg)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Emit trace for bit --why on why a target is being rebuilt. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' summary ='parameters'>
+<tr class='param'><td class='param'>path </td><td>Target path being considered.</td></tr><tr class='param'><td class='param'>tag </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>msg </td><td>Message to display.</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<div class="terms">
+   <p class="terms">
+       <a href="http://embedthis.com/">       Embedthis Software LLC, 2003-2013. All rights reserved. Embedthis is a trademark of Embedthis Software LLC.</a>
+   </p>
+</div></div>
+</div>
+</body>
+</html>
