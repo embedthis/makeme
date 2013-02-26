@@ -162,7 +162,7 @@ stest: {
         <p>Bit can generate conditional Makefiles where the list of targets to build may be modified at run-time depending
         on Make environment variables. These variables override default values defined in the platform makefile and/or the
         product <em>bit.h</em> configuration header.  For example:
-        <pre>$ <b>BIT_PACK_EST=0</b> make</pre>
+        <pre>$ make <b>BIT_PACK_EST=0</b></pre>
         <p>This will disable use of the EST (Embedded Security Transport SSL).</p>
         <p>The <em>require</em> target property is used to specify what extension pack is required by a target. 
 <pre>

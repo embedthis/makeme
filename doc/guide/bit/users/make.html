@@ -76,7 +76,7 @@
 </pre>
             <p>Note the output is simplified to make build errors and compiler warnings more obvious. If you wish to
             see the full compiler, linker and other build commands, run:
-<pre>$ <b>SHOW=1 make</b>
+<pre>$ make <b>SHOW=1</b>
        [Run] make --no-print-directory -f projects/appweb-macosx-default.mk all
       [Info] Use make SHOW=1 to trace executed commands.
    [Compile] src/deps/mpr/mprLib.c
@@ -112,7 +112,7 @@ nmake -f projects\appweb-windows.nmake
             <p>Generated Makefiles to not require the use of a configure program.
             Rather, you supply desired configuration options directly to Make. These options override default values defined
             in the platform makefile and/or the product <em>bit.h</em> configuration header. For example:
-            <pre>$ <b>BIT_PACK_EST=0 make</b></pre>
+            <pre>$ make <b>BIT_PACK_EST=0 </b></pre>
             <p>This will disable use of the EST (Embedded Security Transport SSL).</p>
             <p>By defining the make variables such as CC and CFLAGS, you can modify the compiler options. This is the
             technique used when cross-compiling.
