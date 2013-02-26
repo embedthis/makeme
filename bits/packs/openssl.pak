@@ -80,7 +80,7 @@ if (bit.platform.os == 'windows') {
         includes: [ incdir ],
         libraries: [ 'ssl', 'crypto' ],
         libpaths: [ lib.parent ],
-        imports: lib.parent.files('libssl.*so*') + lib.parent.files('libcrypto.*so*'),
+        imports: lib.parent.files('libssl.*so*') + lib.parent.files('libcrypto.*so*')
     }
 }
 
