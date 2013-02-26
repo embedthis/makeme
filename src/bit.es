@@ -10,7 +10,13 @@ require ejs.unix
 require ejs.zlib
 
 
+/**
+    Bit Class.
+    This implements the Bit tool and provide access via the Bit DOM.
+    @stability Prototype
+  */
 public class Bit {
+    /** @hide */
     public var initialized: Boolean
     private static const MAIN: Path = Path('main.bit')
     private static const START: Path = Path('start.bit')
@@ -845,6 +851,7 @@ public class Bit {
         }
     }
 
+    /** @hide */
     public function findPack(pack) {
         let path = Path(bit.dir.bits).join('packs', pack + '.pak')
         if (!path.exists) {
@@ -926,9 +933,15 @@ public class Bit {
         castDirTypes()
     }
 
-    /*
+    /**
         Probe for a file and locate
         Will throw an exception if the file is not found, unless {continue, default} specified in control options
+        @param file File to search for
+        @param control Control options
+        @option default Default path to use if the file cannot be found and bit is invoked with --continue
+        @option search Array of paths to search for the file
+        @option nopath Don't use the system PATH to locate the file
+        @option fullpath Return the full path to the located file
      */
     public function probe(file: Path, control = {}): Path {
         let path: Path?
@@ -1016,7 +1029,7 @@ public class Bit {
         }
     }
 
-    public function loadModules() {
+    function loadModules() {
         App.log.debug(2, "Bit Modules: " + serialize(bit.modules, {pretty: true}))
         for each (let module in bit.modules) {
             App.log.debug(2, "Load bit module: " + module)
@@ -1028,7 +1041,7 @@ public class Bit {
         }
     }
 
-    public function loadBitFile(path) {
+    function loadBitFile(path) {
         let saveCurrent = currentBitFile
         try {
             currentBitFile = path.portable
@@ -1174,9 +1187,7 @@ public class Bit {
         }
     }
 
-    /*
-        Load a bit file object
-     */
+    /** @hide */
     public function loadBitObject(o, ns = null) {
         let home = currentBitFile.dirname
         conditionals(o)
@@ -1196,14 +1207,14 @@ public class Bit {
                 bit.globals.BITS = bit.dir.bits
                 bit.globals.SRC = bit.dir.src
                 if (path.startsWith('?')) {
-                    path = home.join(expand(path.slice(1), {fill: null}))
+                    path = home.join(expand(path.slice(1)))
                     if (path.exists) {
                         loadBitFile(path)
                     } else {
                         vtrace('SKIP', 'Skip blending optional ' + path.relative)
                     }
                 } else {
-                    path = home.join(expand(path, {fill: null}))
+                    path = home.join(expand(path))
                     loadBitFile(path)
                 }
             }
@@ -1873,15 +1884,15 @@ public class Bit {
                 }
             }
             if (target.path) {
-                target.path = Path(expand(target.path, {fill: '${}'}))
+                target.path = Path(expand(target.path))
             }
             if (target.home) {
-                target.home = Path(expand(target.home, {fill: '${}'}))
+                target.home = Path(expand(target.home))
             }
             for (let [when, item] in target.scripts) {
                 for each (script in item) {
                     if (script.home) {
-                        script.home = Path(expand(script.home, {fill: '${}'}))
+                        script.home = Path(expand(script.home))
                     }
                 }
             }
@@ -3155,8 +3166,9 @@ public class Bit {
         }
     }
 
-    /*
-        Set top level constant variables. This enables them to be used in token expansion
+    /**
+        Set top level constant variables. This enables them to be used in token expansion.
+        @hide.
      */
     public function makeConstGlobals() {
         let g = bit.globals
@@ -3180,8 +3192,9 @@ public class Bit {
         }
     }
 
-    /*
+    /**
         Called in this file and in xcode.es during project generation
+        @hide
      */
     public function makeDirGlobals(base: Path? = null) {
         for each (n in ['BIN', 'OUT', 'BITS', 'FLAT', 'INC', 'LIB', 'OBJ', 'PACKS', 'PKG', 'REL', 'SRC', 'TOP']) {
@@ -3204,7 +3217,7 @@ public class Bit {
         }
     }
 
-    public function setRuleVars(target, base: Path = App.dir) {
+    function setRuleVars(target, base: Path = App.dir) {
         let tv = target.vars || {}
         if (target.home) {
             tv.HOME = Path(target.home).relativeTo(base)
@@ -3275,8 +3288,9 @@ public class Bit {
         App.log.debug(2, "PATH=" + App.getenv('PATH'))
     }
 
-    /*
+    /**
         Run an event script in the directory of the bit file
+        @hide
      */
     public function runTargetScript(target, when) {
         if (!target.scripts) return
@@ -3302,7 +3316,7 @@ public class Bit {
         }
     }
 
-    public function runScript(scripts) {
+    function runScript(scripts) {
         for each (item in scripts) {
             let pwd = App.dir
             if (item.home && item.home != pwd) {
@@ -3341,8 +3355,9 @@ public class Bit {
         }
     }
 
-    /*
+    /**
         Map libraries into the appropriate O/S dependant format
+        @hide
      */
     public function mapLibs(libs: Array, static = null): Array {
         if (bit.platform.os == 'windows') {
@@ -3530,10 +3545,10 @@ public class Bit {
     function expandTokens(o) {
         for (let [key,value] in o) {
             if (value is String) {
-                o[key] = expand(value, {fill: '${}'})
+                o[key] = expand(value)
             } else if (value is Path) {
 
-                o[key] = Path(expand(value, {fill: '${}'}))
+                o[key] = Path(expand(value))
             } else if (Object.getOwnPropertyCount(value) > 0) {
                 o[key] = expandTokens(value)
             }
@@ -3541,8 +3556,13 @@ public class Bit {
         return o
     }
 
-    /*
+    /**
         Run a command and trace output if cmdOptions.true or options.show
+        @param command Command to run. May be an array of args or a string.
+        @param cmdOptions Options to pass to $Cmd.
+        @option show Show the command line before executing. Similar to bit --show, but operates on just this command.
+        @option noshow Do not show the command line before executing. Useful to override bit --show for one command.
+        @option continueOnErrors Continue processing even if this command is not successful.
      */
     public function run(command, cmdOptions = {}): String {
         if (options.show || cmdOptions.show) {
@@ -3638,12 +3658,22 @@ public class Bit {
         cp(from, to)
     }
 
+    /** 
+        Generate a trace line.
+        @param tag Informational tag emitted before the message
+        @param args Message args to display
+     */
     public function gtrace(tag: String, ...args): Void {
         let msg = args.join(" ")
         let msg = "\t@echo '%12s %s'" % (["[" + tag + "]"] + [msg]) + "\n"
         genout.write(msg)
     }
 
+    /** 
+        Emit general trace
+        @param tag Informational tag emitted before the message
+        @param args Message args to display
+     */
     public function trace(tag: String, ...args): Void {
         if (!options.quiet) {
             let msg = args.join(" ")
@@ -3652,53 +3682,69 @@ public class Bit {
         }
     }
 
-    //  MOB - should allow vargs
-    public function strace(tag, ...msg) {
+    /** 
+        Emit "show" trace
+        This is trace that is displayed if bit --show is invoked.
+        @param tag Informational tag emitted before the message
+        @param args Message args to display
+    */
+    public function strace(tag, ...args) {
         if (options.show) {
             trace(tag, ...msg)
         }
     }
 
-    //  MOB - should allow vargs
-    public function vtrace(tag, ...msg) {
+    /** 
+        Emit "verbose" trace
+        This is trace that is displayed if bit --verbose is invoked.
+        @param tag Informational tag emitted before the message
+        @param args Message args to display
+     */
+    public function vtrace(tag, ...args) {
         if (options.verbose) {
-            trace(tag, ...msg)
+            trace(tag, ...args)
         }
     }
 
     function traceFile(msg: String, path: String): Void
         trace(msg, '"' + path + '"')
 
+    /**
+        Emit trace for bit --why on why a target is being rebuilt
+        @param path Target path being considered
+        @param tag Informational tag emitted before the message
+        @param msg Message to display
+     */
     public function whyRebuild(path, tag, msg) {
         if (options.why) {
             trace(tag, path + ' because ' + msg)
         }
     }
 
-    //  MOB - should allow vargs
+    /**
+        Emit trace for bit --why on why a target is being skipped
+        @param path Target path being considered
+        @param msg Message to display
+     */
     public function whySkip(path, msg) {
         if (options.why) {
             trace('Target', path + ' ' + msg)
         }
     }
 
-    //  MOB - should allow vargs
-    function whyMissing(msg) {
+    function whyMissing(...msg) {
         if (options.why) {
-            trace('Missing', msg)
+            trace('Missing', ...msg)
         }
     }
 
-    //  MOB - should allow vargs
-    function diagnose(msg) {
+    function diagnose(...msg) {
         if (options.diagnose) {
-            trace('Debug', msg)
+            trace('Debug', ...msg)
         }
     }
 
-    /*
-        Run an action
-     */
+    /** @hide */
     public function action(cmd: String, actionOptions: Object = {}) {
         switch (cmd) {
         case 'cleanTargets':
@@ -3737,14 +3783,17 @@ public class Bit {
         }
     }
 
+    /** @hide */
     public function genWriteLine(str) {
         genout.writeLine(repvar(str))
     }
 
+    /** @hide */
     public function genWrite(str) {
         genout.write(repvar(str))
     }
 
+    /** @hide */
     public function genScript(str: String) {
         capture.push(str)
     }
@@ -3810,10 +3859,16 @@ public class Bit {
         return dist
     }
 
-    public static function load(o: Object, ns = null) {
-        b.loadBitObject(o, ns)
+    /**
+        Load an object into the Bit DOM
+        @param obj Object collection to load into the DOM
+        @param ns Reserved
+     */
+    public static function load(obj: Object, ns = null) {
+        b.loadBitObject(obj, ns)
     }
 
+    /** @hide */
     public function safeRemove(dir: Path) {
 /* UNUSED MOB
         if (dir.isAbsolute)  {
@@ -3883,7 +3938,7 @@ public class Bit {
                 can override anything.
              */
             for each (path in bit.customize) {
-                let path = home.join(expand(path, {fill: '.'}))
+                let path = home.join(expand(path))
                 if (path.exists) {
                     loadBitFile(path)
                 }
@@ -3988,15 +4043,27 @@ public class Bit {
         return bit
     }
 
-    public function expand(s: String, options = {fill: ''}) : String {
+    /**
+        Expand tokens in a string.
+        Tokens are represented by '${field}' where field may contain '.'. For example ${user.name}.    
+        To preserve an ${token} unmodified, preceed the token with an extra '$'. For example: $${token}.
+        Calls $String.expand to expand variables from the bit and bit.globals objects.
+        @param s Input string
+        @param options Control options object
+        @option fill Set to a string to use for missing properties. Set to undefined or omit options to
+        throw an exception for missing properties. Set fill to '${}' to preserve undefined tokens as-is.
+        This permits multi-pass expansions.
+        @option join Character to use to join array elements. Defaults to space.
+        @return Expanded string
+     */
+    public function expand(s: String, options = {fill: '${}'}) : String {
         /* 
             Do twice to allow tokens to use ${vars} 
          */
-        let eo = {fill: '${}'}
-        s = s.expand(bit, eo)
-        s = s.expand(bit.globals, eo)
-        s = s.expand(bit, eo)
-        return s.expand(bit.globals, eo)
+        s = s.expand(bit, options)
+        s = s.expand(bit.globals, options)
+        s = s.expand(bit, options)
+        return s.expand(bit.globals, options)
     }
 
     function expandRule(target, rule) {
@@ -4026,8 +4093,7 @@ public class Bit {
         @param src Source files/directories to copy. This can be a String, Path or array of String/Paths. 
             The wildcards "*", "**" and "?" are the only wild card patterns supported. The "**" pattern matches
             every directory and file. The Posix "[]" and "{a,b}" style expressions are not supported.
-            If a src item is an existing directory, then the pattern is converted to 'dir/**' and the 
-            tree option is enabled.
+            If a src item is an existing directory, then the pattern appends slash '**' subtree option is enabled.
             if a src item ends with "/", then the contents of that directory are copied without the directory itself.
         @param dest Destination file or directory. If multiple files are copied, dest is assumed to be a directory and
             will be created if required. If dest has a trailing "/", it is assumed to be a directory.
@@ -4246,7 +4312,17 @@ public class Bit {
     }
 
 
+    /**
+        Link a file.
+        This creates a symbolic link on systems that support symlinks.
+        The routine uses $Path.link() to implement the linking.
+        This either links files or if generating, emits code to link files.
+        @param src Source file 
+        @param dest Destination 
+        @param options See $copy() for supported options.
+    */
     public function linkFile(src: Path, dest: Path, options = {}) {
+        makeDir(dest.parent, options)
         if (!bit.generating) {
             if (!options.dry) {
                 strace('Remove', 'rm -f', dest)
@@ -4256,12 +4332,18 @@ public class Bit {
             }
         } else if (bit.generating != 'nmake') {
             genrep('\trm -f "' + dest + '"')
-            makeDir(dest.parent, options)
             genrep('\tln -s "' + src + '" "' + dest + '"')
         }
     }
 
 
+    /**
+        Make a directory
+        This creates a directory and all required parents.
+        This either makes a directory or if generating, emits code to make directories.
+        @param path Directory path to make
+        @param options See $copy() for supported options.
+    */
     public function makeDir(path: Path, options = {}) {
         if (!bit.generating) {
             if (!options.dry) {
@@ -4308,6 +4390,12 @@ public class Bit {
     }
 
 
+    /**
+        Remove a file.
+        This either removes files or if generating, emits code to remove files.
+        @param path File to remove
+        @param options Control options
+    */
     public function removeFile(path: Path, options = {}) {
         if (!bit.generating) {
             strace('Remove', 'rm -f', path)
@@ -4330,6 +4418,15 @@ public class Bit {
     }
 
 
+    /**
+        Remove a directory.
+        This removes a directory and all its contents include subdirectories. Use the 'empty' option to only remove
+        empty directories.
+        This either removes directories or if generating, emits code to remove directories.
+        @param path Directory to remove
+        @param options Control options
+        @option empty Remove the directory only if empty. 
+    */
     public function removeDir(path: Path, options = {}) {
         if (!bit.generating) {
             strace('Remove', path)
@@ -4363,7 +4460,15 @@ public class Bit {
         }
     }
 
-
+    /**
+        Copy a file.
+        Copy files to a destination.
+        The routine uses $copy() to implement the copying.
+        This either copies files or if generating, emits code to copy files.
+        @param src Source file 
+        @parm dest Destination 
+        @param options Options to pass to Bit.copy(). These include user, group, uid, gid and  permissions.
+    */
     public function copyFile(src: Path, dest: Path, options = {}) {
         if (!bit.generating) {
             strace('Copy', 'cp ' + src.portable + ' ' + dest.portable)
@@ -4400,6 +4505,7 @@ public class Bit {
     }
 
 
+    /** @hide */
     public function catenate(from, target, options) {
         strace('Combine', from.relative)
         if (!target.exists) {
@@ -4455,7 +4561,7 @@ b.main()
 
 public function pack(name: String, description: String) {
     let pack = {}
-    packs[name] = {description: description}
+    pack[name] = {description: description}
     Bit.load({packs: pack})
 }
 
@@ -4480,6 +4586,7 @@ public function program(name: Path, description = null): Path {
     return cfg.path
 }
 
+/** @hide */
 public function action(command: String, options = null)
     b.action(command, options)
 
@@ -4501,12 +4608,15 @@ public function package(formats)
 public function run(command, options = {})
     b.run(command, options)
 
+/** @hide */
 public function safeRemove(dir: Path)
     b.safeRemove(dir)
 
+/** @hide */
 public function mapLibs(libs: Array, static = null)
     b.mapLibs(libs, static)
 
+/** @hide */
 public function setRuleVars(target, dir = App.dir)
     b.setRuleVars(target, dir)
 
@@ -4537,21 +4647,23 @@ public function whyRebuild(path, tag, msg)
 public function expand(rule)
     b.expand(rule)
 
+/** @hide */
 public function genScript(s)
     b.genScript(s)
 
+/** @hide */
 public function genWriteLine(str)
     b.genWriteLine(str)
 
+/** @hide */
 public function genWrite(str)
     b.genWrite(str)
 
-public function runScript(scripts)
-    b.runScript(scripts)
-
+/** @hide */
 public function whySkip(path, msg)
     b.whySkip(path, msg)
 
+/** @hide */
 public function compareVersion(list, a, b) {
     let parts_a = list[a].match(/.*(\d+)[\-\.](\d+)[\-\.](\d+)/)
     let parts_b = list[b].match(/.*(\d+)[\-\.](\d+)[\-\.](\d+)/)
@@ -4576,6 +4688,7 @@ public function compareVersion(list, a, b) {
     return 0
 }
 
+/** @hide */
 public function sortVersions(versions: Array)
     versions.sort(compareVersion).reverse()
 

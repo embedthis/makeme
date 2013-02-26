@@ -168,7 +168,7 @@ module embedthis.doc {
             return result
         }
         if (!reserved[sym]) {
-            App.log.error("Can't find link symbol \"" + sym + "\"")
+            App.log.error("Cannot find link symbol \"" + sym + "\"")
         }
         return name
     }

@@ -27,7 +27,17 @@ Bit.load({
         },
 
         api: {
-            _depends: ['scriptApi', 'nativeApi'],
+            action: "
+                trace('Generate', 'Script library documentation')
+                let bin = Cmd.locate('ejsmod').dirname
+                let src = bit.dir.src.join('src')
+                let docmod = Path('').temp().replaceExt('mod')
+                run(bin.join('ejsc') + ' --doc --bind --out ' + docmod + ' ../src/bit.es')
+                let edir = bit.dir.src.join('doc/api/bit')
+                rmdir([edir.join('*.html'), edir.join('*.css'), edir.join('images/*')])
+                run(bin.join('ejsmod') + ' --warn --html ' + edir + ' ' + docmod)
+                docmod.remove()
+            ",
         },
 
         tidy: {
