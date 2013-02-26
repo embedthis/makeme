@@ -4499,7 +4499,7 @@ public class Bit {
             if ((options.user || options.group || options.uid || options.gid) && App.uid == 0) {
                 dest.setAttributes(options)
             } else if (options.permissions) {
-                dest.setAttributes(options)
+                dest.setAttributes({permissions: options.permissions})
             }
         } else {
             let pwd = App.dir
