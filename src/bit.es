@@ -1438,10 +1438,27 @@ public class Bit {
         return prefixes
     }
 
+    //  MOB - somehow merge with generatePackDefs
+    function generatePackDflags() {
+        let requiredTargets = {}
+        for each (target in bit.targets) {
+            if (target.require && bit.packs[target.require]) {
+                requiredTargets[target.require] = true
+            }
+        }
+        let dflags = ''
+        for (let [name, pack] in bit.packs) {
+            if (requiredTargets[name]) {
+                dflags += '-DBIT_PACK_' + name.toUpper() + '=$(BIT_PACK_' + name.toUpper() + ') '
+            }
+        }
+        return dflags
+    }
+
     function generatePackDefs() {
         let requiredTargets = {}
         for each (target in bit.targets) {
-            if (target.require && bit.packs[target.require] /* && bit.packs[target.require].enable */) {
+            if (target.require && bit.packs[target.require]) {
                 requiredTargets[target.require] = true
             }
         }
@@ -1569,7 +1586,7 @@ public class Bit {
         genout.writeLine('LD              = link')
         genout.writeLine('RC              = rc')
         genout.writeLine('CFLAGS          = ' + gen.compiler)
-        genout.writeLine('DFLAGS          = ' + gen.defines)
+        genout.writeLine('DFLAGS          = ' + gen.defines + ' ' + generatePackDflags())
         genout.writeLine('IFLAGS          = ' + 
             repvar(bit.defaults.includes.map(function(path) '-I' + reppath(path)).join(' ')))
         genout.writeLine('LDFLAGS         = ' + repvar(gen.linker).replace(/-machine:x86/, '-machine:$$(ARCH)'))
