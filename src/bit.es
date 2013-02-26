@@ -1207,14 +1207,14 @@ public class Bit {
                 bit.globals.BITS = bit.dir.bits
                 bit.globals.SRC = bit.dir.src
                 if (path.startsWith('?')) {
-                    path = home.join(expand(path.slice(1)))
+                    path = home.join(expand(path.slice(1), {fill: null}))
                     if (path.exists) {
                         loadBitFile(path)
                     } else {
                         vtrace('SKIP', 'Skip blending optional ' + path.relative)
                     }
                 } else {
-                    path = home.join(expand(path))
+                    path = home.join(expand(path, {fill: null}))
                     loadBitFile(path)
                 }
             }
@@ -3690,7 +3690,7 @@ public class Bit {
     */
     public function strace(tag, ...args) {
         if (options.show) {
-            trace(tag, ...msg)
+            trace(tag, ...args)
         }
     }
 
@@ -3938,7 +3938,7 @@ public class Bit {
                 can override anything.
              */
             for each (path in bit.customize) {
-                let path = home.join(expand(path))
+                let path = home.join(expand(path, {fill: '.'}))
                 if (path.exists) {
                     loadBitFile(path)
                 }
@@ -4059,10 +4059,12 @@ public class Bit {
     public function expand(s: String, options = {fill: '${}'}) : String {
         /* 
             Do twice to allow tokens to use ${vars} 
+            Last time use real options to handle unfulfilled tokens as requested.
          */
-        s = s.expand(bit, options)
-        s = s.expand(bit.globals, options)
-        s = s.expand(bit, options)
+        let eo = {fill: '${}'}
+        s = s.expand(bit, eo)
+        s = s.expand(bit.globals, eo)
+        s = s.expand(bit, eo)
         return s.expand(bit.globals, options)
     }
 
@@ -4693,7 +4695,7 @@ public function whyRebuild(path, tag, msg)
 
 /** @duplicate Bit.expand */
 public function expand(s: String, options = {fill: '${}'}) : String
-    b.expand(rule, options)
+    b.expand(s, options)
 
 /** @hide */
 public function genScript(s)
