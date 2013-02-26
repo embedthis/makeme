@@ -4377,7 +4377,7 @@ public class Bit {
                 if ((options.user || options.group || options.uid || options.gid) && App.uid == 0) {
                     path.setAttributes(options)
                 } else if (options.permissions) {
-                    path.setAttributes(options)
+                    path.setAttributes({permissions: options.permissions})
                 }
             }
         } else {
