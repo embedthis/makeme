@@ -1,5 +1,7 @@
 TropicSSL License
-Initial code base
+===
+
+The Embedthis EST SSL stack includes code from TropicSSL.
 
 Copyright (c) 2009, StackFoundry LLC
 Copyright (c) 2009, Paul Bakker

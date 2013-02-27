@@ -1,5 +1,7 @@
 Dtoa License
-Used in the Number class.
+===
+
+The Dtoa module is Used in the Ejscript Number class.
 
 The author of this software is David M. Gay. Copyright (c) 1991, 2000, 2001 by Lucent Technologies.
 

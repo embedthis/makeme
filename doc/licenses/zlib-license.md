@@ -1,5 +1,7 @@
 Zlib License
-Used by the ejs.zlib class
+===
+
+The Ejscript web framework uses Zlib.
 
 Copyright (C) 1995-2012 Jean-loup Gailly and Mark Adler
 

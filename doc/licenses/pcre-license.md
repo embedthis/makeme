@@ -1,5 +1,7 @@
 Perl Regular Expressions License
-Used by the RegExp class and Http Router
+===
+
+The Perl regular expression library is used in the the Http router and Ejscript language
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 

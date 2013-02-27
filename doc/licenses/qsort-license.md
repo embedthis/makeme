@@ -1,4 +1,6 @@
 Qsort Routine License
-Used in the MprList API.
+===
+
+The MprList qsort uses this algorithm.
 
 (c) Michael Ringgaard. BSD license.
