@@ -15510,7 +15510,7 @@ module ejs.db.sqlite {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.mail/Mail.es"
+    Start of file "src/jems/ejs.mail/mail.es"
  */
 /************************************************************************/
 
@@ -15524,7 +15524,7 @@ module ejs.mail {
         @param options Object hash with properties for: from, to, subject, date and Content-Type.
         @param msg String message to send
         @example:
-            mail({
+            sendmail({
             to: 'john@example.com',
             subject: 'Hello',
             from: 'judy@example.com',
@@ -15532,9 +15532,9 @@ module ejs.mail {
             date: new Date(),                                                                      
             }, 'Welcome to Example.com')
      */
-    public function mail(options: Object, msg: String): Void {
+    public function sendmail(options: Object, msg: String): Void {
         let hdr = serialize(options).replace(/"/g, '').trim('{').trim('}').replace(/,/g, '\n')
-        Cmd.run(['sendmail', '-t'], {}, hdr + '\n' + msg)
+        Cmd.run(['sendmail', '-t'], {}, hdr + '\n\n' + msg)
     }
 }
 

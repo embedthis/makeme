@@ -4475,7 +4475,7 @@ public class Bit {
                 }
             } else {
                 if (options.empty) {
-                    genrep('\trmdir -p "' + path + '"')
+                    genrep('\trmdir -p "' + path + '" 2>/dev/null ; true')
                 } else {
                     genrep('\trm -fr "' + path + '"')
                 }
