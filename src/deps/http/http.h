@@ -1244,9 +1244,9 @@ PUBLIC bool httpIsQueueEmpty(HttpQueue *q);
 PUBLIC bool httpIsQueueSuspended(HttpQueue *q);
 
 /**
-    Join the packets together
-    @description This call joins data packets (on the given queue) together - up to the designated maximum size.
-        The maximum size is also limited by the downstream queue maximum packet size.
+    Join packets together
+    @description This call joins data packets on the given queue into a single packet. The given size specifies the
+    maximum size of data to be joined. The maximum size may also limited by the downstream queue maximum packet size.
     @param q Queue to examine
     @param size The maximum-sized packet that will be created by joining queue packets is the minimum of the given size
         and the downstream queues maximum packet size.

@@ -550,7 +550,7 @@ static bool parseArgs(int argc, char **argv)
             app->method = "GET";
         }
     }
-#if BIT_SSL
+#if BIT_PACK_SSL
 {
     HttpUri *uri = httpCreateUri(app->target, 0);
     if (uri->secure || ssl) {

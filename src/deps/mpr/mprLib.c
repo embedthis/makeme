@@ -21039,7 +21039,7 @@ PUBLIC MprSsl *mprCloneSsl(MprSsl *src)
 
 PUBLIC int mprLoadSsl()
 {
-#if BIT_SSL
+#if BIT_PACK_SSL
     MprSocketService    *ss;
     MprModule           *mp;
     cchar               *path;

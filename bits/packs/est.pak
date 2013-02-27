@@ -41,3 +41,4 @@ cfg = {
     libraries: [ 'est' ]
 }
 Bit.load({packs: { est: cfg, ssl: { name: 'est', enable: true }}})
+dump(bit.packs.est)

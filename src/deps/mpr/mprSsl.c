@@ -3116,7 +3116,7 @@ static void DEBUG_PRINTNL(void *where, void *msg)
  */
 PUBLIC int mprSslInit(void *unused, MprModule *module)
 {
-#if BIT_SSL
+#if BIT_PACK_SSL
     assert(module);
 
     /*

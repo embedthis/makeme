@@ -20,12 +20,9 @@
 #ifndef BIT_ROM
     #define BIT_ROM 0                   /**< Build for execute from ROM */
 #endif
-#ifndef BIT_SSL
-    #if BIT_PACK_EST || BIT_PACK_OPENSSL || BIT_PACK_MATRIXSSL || BIT_PACK_MOCANA
-        #define BIT_SSL 1               /**< Build with SSL support */
-    #else
-        #define BIT_SSL 0               /**< Build without SSL support */
-    #endif
+
+#ifndef BIT_PACK_SSL
+    #define BIT_PACK_SSL 0              /**< Build without SSL support */
 #endif
 
 /********************************* CPU Families *******************************/
@@ -41,6 +38,7 @@
 #define BIT_CPU_PPC         6           /**< Power PC */
 #define BIT_CPU_SPARC       7           /**< Sparc */
 #define BIT_CPU_TIDSP       8           /**< TI DSP */
+#define BIT_CPU_SH          9           /**< SuperH */
 
 /*
     Byte orderings
@@ -96,6 +94,11 @@
     #define TIDSP 1
     #define BIT_CPU "tidsp"
     #define BIT_CPU_ARCH BIT_CPU_SPARC
+    #define CPU_ENDIAN BIT_LITTLE_ENDIAN
+
+#elif defined(__sh__)
+    #define BIT_CPU "sh"
+    #define BIT_CPU_ARCH BIT_CPU_SH
     #define CPU_ENDIAN BIT_LITTLE_ENDIAN
 
 #else

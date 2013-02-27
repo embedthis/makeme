@@ -1866,7 +1866,7 @@ static HttpConn *openConnection(HttpConn *conn, struct MprSsl *ssl)
     conn->secure = uri->secure;
     conn->keepAliveCount = (conn->limits->keepAliveMax) ? conn->limits->keepAliveMax : -1;
 
-#if BIT_SSL
+#if BIT_PACK_SSL
     /* Must be done even if using keep alive for repeat SSL requests */
     if (uri->secure) {
         char *peerName;
@@ -3827,7 +3827,7 @@ PUBLIC void httpSetEndpointNotifier(HttpEndpoint *endpoint, HttpNotifier notifie
 
 PUBLIC int httpSecureEndpoint(HttpEndpoint *endpoint, struct MprSsl *ssl)
 {
-#if BIT_SSL
+#if BIT_PACK_SSL
     endpoint->ssl = ssl;
     return 0;
 #else
@@ -6183,6 +6183,7 @@ PUBLIC void httpJoinPacketForService(HttpQueue *q, HttpPacket *packet, bool serv
 }
 
 
+//  MOB - this is really just a packet copy
 /*  
     Join two packets by pulling the content from the second into the first.
     WARNING: this will not update the queue count. Assumes the either both are on the queue or neither. 
@@ -6205,6 +6206,7 @@ PUBLIC int httpJoinPacket(HttpPacket *packet, HttpPacket *p)
 }
 
 
+#if OLD
 /*
     Join queue packets up to the maximum of the given size and the downstream queue packet size.
     WARNING: this will not update the queue count.
@@ -6233,6 +6235,64 @@ PUBLIC void httpJoinPackets(HttpQueue *q, ssize size)
             if (q->last == packet) {
                 q->last = first;
             }
+        }
+    }
+}
+#endif
+
+
+/*
+    Join queue packets up to the maximum of the given size
+    WARNING: this will not update the queue count.
+ */
+PUBLIC void httpJoinPackets(HttpQueue *q, ssize size)
+{
+    HttpPacket  *packet, *p;
+    ssize       count, len;
+
+    if (size < 0) {
+        size = MAXINT;
+    }
+    if (q->first && q->first->next) {
+        /*
+            Get total length of data and create one packet for all the data, up to the size max
+         */
+        count = 0;
+        for (p = q->first; p; p = p->next) {
+            count += httpGetPacketLength(p);
+        }
+        size = min(count, size);
+        if ((packet = httpCreateDataPacket(size)) == 0) {
+            return;
+        }
+        /*
+            Insert the new packet as the first data packet
+         */
+        if (q->first->flags & HTTP_PACKET_HEADER) {
+            /* Step over a header packet */
+            packet->next = q->first->next;
+            q->first->next = packet;
+        } else {
+            packet->next = q->first;
+            q->first = packet;
+        }
+        /*
+            Copy the data and free all other packets
+         */
+        for (p = packet->next; p; p = p->next) {
+            if (p->content == 0 || (len = httpGetPacketLength(p)) == 0) {
+                break;
+            }
+            if (size < len) {
+                break;
+            }
+            httpJoinPacket(packet, p);
+            /* Unlink the packet */
+            packet->next = p->next;
+            if (q->last == p) {
+                q->last = packet;
+            }
+            size -= len;
         }
     }
 }
@@ -12140,6 +12200,15 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
             break;
         }
     }
+    if (!conn->error) {
+        if (rx->form) {
+            if (rx->length >= conn->limits->receiveFormSize) {
+                httpError(conn, HTTP_CLOSE | HTTP_CODE_REQUEST_TOO_LARGE, 
+                    "Request form of %,Ld bytes is too big. Limit %,Ld", rx->length, conn->limits->receiveFormSize);
+            } else {
+            }
+        }
+    }
     if (!keepAlive) {
         conn->keepAliveCount = 0;
     }
@@ -12219,6 +12288,7 @@ static bool processContent(HttpConn *conn, HttpPacket *packet)
     HttpRx      *rx;
     HttpTx      *tx;
     HttpQueue   *q;
+    HttpPacket  *p2;
     MprBuf      *content;
     ssize       nbytes;
 
@@ -12275,11 +12345,17 @@ static bool processContent(HttpConn *conn, HttpPacket *packet)
                     "Request form of %,Ld bytes is too big. Limit %,Ld", rx->bytesRead, conn->limits->receiveFormSize);
             }
         }
-        /*
-            Send packet upstream toward the handler
-         */
         if (packet == rx->headerPacket && nbytes > 0) {
+            /*
+                Split the content from the header as we save the header packet separately.
+                If this is a form with a content length, preallocate the data packet with room for a null.
+             */
             packet = httpSplitPacket(packet, 0);
+            if (rx->form && !(rx->flags & HTTP_CHUNKED) && rx->length) {
+                p2 = httpCreateDataPacket(rx->length + 1);
+                httpJoinPacket(p2, packet);
+                packet = p2;
+            }
         }
         if (httpGetPacketLength(packet) > nbytes) {
             /*  Split excess data belonging to the next chunk or pipelined request */
