@@ -105,4 +105,4 @@ Other brands and their products are trademarks of their respective holders.
 
 Third Party Components
 
-See doc/licenses for other licenses. Contributors have provided portions of the software that are covered by the Embedthis Contributor license that grants Embedthis sufficient rights to execute this license Agreement.
+See LICENSE.md for other licenses. Contributors have provided portions of the software that are covered by the Embedthis Contributor license that grants Embedthis sufficient rights to execute this license Agreement.
