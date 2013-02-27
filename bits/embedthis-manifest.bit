@@ -27,14 +27,11 @@ Bit.load({
                 enable:     "bit.platform.os == 'windows'",
 
            }, {
-                //   MOB - does this mean windows has 2 licenses?
-                from:       [ 'doc/licenses/*.txt' ],
+                from:       [ 'package/windows/LICENSE.TXT' ],
                 to:         '${app}/LICENSE.TXT',
-                cat:        true,
                 textfile:   true,
                 fold:       true,
                 set:        'package',
-                title:      '${settings.title} Licenses',
                 enable:     "bit.platform.os == 'windows'",
 
            }, {
