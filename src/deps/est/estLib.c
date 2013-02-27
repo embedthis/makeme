@@ -4759,7 +4759,7 @@ void dhm_free(dhm_context * ctx)
 
 #if BIT_EST_HAVEGE
 
-/*  Undefine for windows */
+/* Undefine for windows */
 #undef IN
 
 /*

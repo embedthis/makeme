@@ -2,83 +2,83 @@
 #   bit-windows-default.nmake -- Makefile to build Embedthis Bit for windows
 #
 
-PRODUCT         = bit
-VERSION         = 0.8.2
-BUILD_NUMBER    = 0
-PROFILE         = default
-PA              = $(PROCESSOR_ARCHITECTURE)
+PRODUCT           = bit
+VERSION           = 0.8.2
+BUILD_NUMBER      = 0
+PROFILE           = default
+PA                = $(PROCESSOR_ARCHITECTURE)
 
 !IF "$(PA)" == "AMD64"
-ARCH            = x64
-ENTRY           = _DllMainCRTStartup
+ARCH              = x64
+ENTRY             = _DllMainCRTStartup
 !ELSE
-ARCH            = x86
-ENTRY           = _DllMainCRTStartup@12
+ARCH              = x86
+ENTRY             = _DllMainCRTStartup@12
 !ENDIF
 
-OS              = windows
-CONFIG          = $(OS)-$(ARCH)-$(PROFILE)
-LBIN            = $(CONFIG)\bin
-BIT_PACK_EST          = 1
-BIT_PACK_EJSCRIPT     = 1
-BIT_PACK_SSL          = 1
+OS                = windows
+CONFIG            = $(OS)-$(ARCH)-$(PROFILE)
+LBIN              = $(CONFIG)\bin
+BIT_PACK_EST      = 1
+BIT_PACK_EJSCRIPT = 1
+BIT_PACK_SSL      = 1
 
-CC              = cl
-LD              = link
-RC              = rc
-CFLAGS          = -nologo -GR- -W3 -Zi -Od -MDd
-DFLAGS          = -D_REENTRANT -D_MT -DBIT_DEBUG -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_EJSCRIPT=$(BIT_PACK_EJSCRIPT) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
-IFLAGS          = -I$(CONFIG)\inc
-LDFLAGS         = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
-LIBPATHS        = -libpath:$(CONFIG)\bin
-LIBS            = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
+CC                = cl
+LD                = link
+RC                = rc
+CFLAGS            = -nologo -GR- -W3 -Zi -Od -MDd
+DFLAGS            = -D_REENTRANT -D_MT -DBIT_DEBUG -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_EJSCRIPT=$(BIT_PACK_EJSCRIPT) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
+IFLAGS            = -I$(CONFIG)\inc
+LDFLAGS           = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
+LIBPATHS          = -libpath:$(CONFIG)\bin
+LIBS              = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
 
-BIT_ROOT_PREFIX       = C:
-BIT_BASE_PREFIX       = $(BIT_ROOT_PREFIX)\Program Files
-BIT_APP_PREFIX        = $(BIT_BASE_PREFIX)\Embedthis Bit
-BIT_VAPP_PREFIX       = $(BIT_APP_PREFIX)
-BIT_DATA_PREFIX       = $(BIT_VAPP_PREFIX)
-BIT_STATE_PREFIX      = $(BIT_VAPP_PREFIX)
-BIT_BIN_PREFIX        = $(BIT_VAPP_PREFIX)\bin
-BIT_INC_PREFIX        = $(BIT_VAPP_PREFIX)\inc
-BIT_LIB_PREFIX        = $(BIT_VAPP_PREFIX)\lib
-BIT_MAN_PREFIX        = $(BIT_VAPP_PREFIX)\man
-BIT_ETC_PREFIX        = $(BIT_VAPP_PREFIX)
-BIT_WEB_PREFIX        = $(BIT_VAPP_PREFIX)\web
-BIT_LOG_PREFIX        = $(BIT_VAPP_PREFIX)\log
-BIT_SPOOL_PREFIX      = $(BIT_VAPP_PREFIX)\tmp
-BIT_CACHE_PREFIX      = $(BIT_VAPP_PREFIX)\cache
-BIT_SRC_PREFIX        = $(BIT_VAPP_PREFIX)\src
+BIT_ROOT_PREFIX   = C:
+BIT_BASE_PREFIX   = $(BIT_ROOT_PREFIX)\Program Files
+BIT_APP_PREFIX    = $(BIT_BASE_PREFIX)\Embedthis Bit
+BIT_VAPP_PREFIX   = $(BIT_APP_PREFIX)
+BIT_DATA_PREFIX   = $(BIT_VAPP_PREFIX)
+BIT_STATE_PREFIX  = $(BIT_VAPP_PREFIX)
+BIT_BIN_PREFIX    = $(BIT_VAPP_PREFIX)\bin
+BIT_INC_PREFIX    = $(BIT_VAPP_PREFIX)\inc
+BIT_LIB_PREFIX    = $(BIT_VAPP_PREFIX)\lib
+BIT_MAN_PREFIX    = $(BIT_VAPP_PREFIX)\man
+BIT_ETC_PREFIX    = $(BIT_VAPP_PREFIX)
+BIT_WEB_PREFIX    = $(BIT_VAPP_PREFIX)\web
+BIT_LOG_PREFIX    = $(BIT_VAPP_PREFIX)\log
+BIT_SPOOL_PREFIX  = $(BIT_VAPP_PREFIX)\tmp
+BIT_CACHE_PREFIX  = $(BIT_VAPP_PREFIX)\cache
+BIT_SRC_PREFIX    = $(BIT_VAPP_PREFIX)\src
 
 
 !IF "$(BIT_PACK_EST)" == "1"
-TARGETS = $(TARGETS) $(CONFIG)\bin\libest.dll
+TARGETS           = $(TARGETS) $(CONFIG)\bin\libest.dll
 !ENDIF
-TARGETS     = $(TARGETS) $(CONFIG)\bin\ca.crt
-TARGETS     = $(TARGETS) $(CONFIG)\bin\libmpr.dll
+TARGETS           = $(TARGETS) $(CONFIG)\bin\ca.crt
+TARGETS           = $(TARGETS) $(CONFIG)\bin\libmpr.dll
 !IF "$(BIT_PACK_SSL)" == "1"
-TARGETS = $(TARGETS) $(CONFIG)\bin\libmprssl.dll
+TARGETS           = $(TARGETS) $(CONFIG)\bin\libmprssl.dll
 !ENDIF
-TARGETS     = $(TARGETS) $(CONFIG)\bin\makerom.exe
-TARGETS     = $(TARGETS) $(CONFIG)\bin\libpcre.dll
-TARGETS     = $(TARGETS) $(CONFIG)\bin\libhttp.dll
-TARGETS     = $(TARGETS) $(CONFIG)\bin\http.exe
+TARGETS           = $(TARGETS) $(CONFIG)\bin\makerom.exe
+TARGETS           = $(TARGETS) $(CONFIG)\bin\libpcre.dll
+TARGETS           = $(TARGETS) $(CONFIG)\bin\libhttp.dll
+TARGETS           = $(TARGETS) $(CONFIG)\bin\http.exe
 !IF "$(BIT_PACK_EJSCRIPT)" == "1"
-TARGETS = $(TARGETS) $(CONFIG)\bin\libejs.dll
-!ENDIF
-!IF "$(BIT_PACK_EJSCRIPT)" == "1"
-TARGETS = $(TARGETS) $(CONFIG)\bin\ejs.exe
+TARGETS           = $(TARGETS) $(CONFIG)\bin\libejs.dll
 !ENDIF
 !IF "$(BIT_PACK_EJSCRIPT)" == "1"
-TARGETS = $(TARGETS) $(CONFIG)\bin\ejsc.exe
+TARGETS           = $(TARGETS) $(CONFIG)\bin\ejs.exe
 !ENDIF
 !IF "$(BIT_PACK_EJSCRIPT)" == "1"
-TARGETS = $(TARGETS) $(CONFIG)\bin\ejs.mod
+TARGETS           = $(TARGETS) $(CONFIG)\bin\ejsc.exe
 !ENDIF
-TARGETS     = $(TARGETS) $(CONFIG)\bin\removeFiles.exe
-TARGETS     = $(TARGETS) $(CONFIG)\bin\bit.es
-TARGETS     = $(TARGETS) $(CONFIG)\bin\bit.exe
-TARGETS     = $(TARGETS) $(CONFIG)\bin\bits
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
+TARGETS           = $(TARGETS) $(CONFIG)\bin\ejs.mod
+!ENDIF
+TARGETS           = $(TARGETS) $(CONFIG)\bin\removeFiles.exe
+TARGETS           = $(TARGETS) $(CONFIG)\bin\bit.es
+TARGETS           = $(TARGETS) $(CONFIG)\bin\bit.exe
+TARGETS           = $(TARGETS) $(CONFIG)\bin\bits
 
 !IFNDEF SHOW
 .SILENT:
