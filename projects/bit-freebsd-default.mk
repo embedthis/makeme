@@ -13,8 +13,12 @@ LD              := /usr/bin/ld
 CONFIG          := $(OS)-$(ARCH)-$(PROFILE)
 LBIN            := $(CONFIG)/bin
 
+BIT_PACK_EST          := 1
+BIT_PACK_EJSCRIPT     := 1
+BIT_PACK_SSL          := 1
+
 CFLAGS          += -fPIC  -w
-DFLAGS          += -D_REENTRANT -DPIC  $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS)))
+DFLAGS          += -D_REENTRANT -DPIC  $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_EJSCRIPT=$(BIT_PACK_EJSCRIPT) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
 IFLAGS          += -I$(CONFIG)/inc
 LDFLAGS         += '-g'
 LIBPATHS        += -L$(CONFIG)/bin
@@ -30,10 +34,6 @@ LDFLAGS-release :=
 CFLAGS          += $(CFLAGS-$(DEBUG))
 DFLAGS          += $(DFLAGS-$(DEBUG))
 LDFLAGS         += $(LDFLAGS-$(DEBUG))
-
-BIT_PACK_EST          := 1
-BIT_PACK_EJSCRIPT     := 1
-BIT_PACK_SSL          := 1
 
 BIT_ROOT_PREFIX       := 
 BIT_BASE_PREFIX       := $(BIT_ROOT_PREFIX)/usr/local

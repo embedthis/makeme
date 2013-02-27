@@ -19,6 +19,10 @@ ENTRY           = _DllMainCRTStartup@12
 OS              = windows
 CONFIG          = $(OS)-$(ARCH)-$(PROFILE)
 LBIN            = $(CONFIG)\bin
+BIT_PACK_EST          = 1
+BIT_PACK_EJSCRIPT     = 1
+BIT_PACK_SSL          = 1
+
 CC              = cl
 LD              = link
 RC              = rc
@@ -28,10 +32,6 @@ IFLAGS          = -I$(CONFIG)\inc
 LDFLAGS         = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
 LIBPATHS        = -libpath:$(CONFIG)\bin
 LIBS            = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
-
-BIT_PACK_EST          = 1
-BIT_PACK_EJSCRIPT     = 1
-BIT_PACK_SSL          = 1
 
 BIT_ROOT_PREFIX       = C:
 BIT_BASE_PREFIX       = $(BIT_ROOT_PREFIX)\Program Files

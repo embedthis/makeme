@@ -4759,7 +4759,7 @@ void dhm_free(dhm_context * ctx)
 
 #if BIT_EST_HAVEGE
 
-/* Windows */
+/*  Undefine for windows */
 #undef IN
 
 /*
@@ -6005,9 +6005,13 @@ void md5_hmac(uchar *key, int keylen, uchar *input, int ilen, uchar output[16])
 #if BIT_EST_NET
 
 #if WINDOWS || WINCE
-    // #define read(fd,buf,len)        recv(fd,buf,len,0)
-    // #define write(fd,buf,len)       send(fd,buf,len,0)
-    // #define close(fd)               closesocket(fd)
+    //  MOB defined in bitos
+    #undef read
+    #undef write
+    #undef close
+    #define read(fd,buf,len)        recv(fd,buf,len,0)
+    #define write(fd,buf,len)       send(fd,buf,len,0)
+    #define close(fd)               closesocket(fd)
     static int wsa_init_done = 0;
 #endif
 
@@ -6213,7 +6217,8 @@ void net_usleep(ulong usec)
  */
 int net_recv(void *ctx, uchar *buf, int len)
 {
-    int ret = recv(*((int*)ctx), buf, len, 0);
+//  MOB - should use recv
+    int ret = read(*((int *)ctx), buf, len);
 
     if (len > 0 && ret == 0) {
         return EST_ERR_NET_CONN_RESET;
@@ -11622,6 +11627,7 @@ void ssl_free(ssl_context * ssl)
  */
 
 
+//  MOB - MSVC won't work with this.
 #if BIT_EST_TIMING
 
 #if WINDOWS
@@ -11634,13 +11640,16 @@ struct _hr_time {
 };
 #endif
 
-#if WINDOWS && BIT_64
+#if WINDOWS
+//  MOB  64 bit
 ulong hardclock(void)
 {
-    LARGE_INTEGER   now;
+    LARGE_INTEGER  now;
     QueryPerformanceCounter(&now);
-    return now.LowPart;
+    return (ulong) (((uint64) now.HighPart) << 32) + now.LowPart;
 }
+
+#elif (defined(_MSC_VER) && defined(_M_IX86)) || defined(__WATCOMC__)
 
 #elif WINDOWS
 ulong hardclock(void)

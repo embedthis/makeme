@@ -1465,9 +1465,9 @@ public class Bit {
         for (let [name, pack] in bit.packs) {
             if (requiredTargets[name]) {
                 if (bit.platform.os == 'windows' ) {
-                    genout.writeLine('%-21s = %s'.format(['BIT_PACK_' + name.toUpper(), pack.enable ? 1 : 0]))
+                    genout.writeLine('%-17s = %s'.format(['BIT_PACK_' + name.toUpper(), pack.enable ? 1 : 0]))
                 } else {
-                    genout.writeLine('%-21s := %s'.format(['BIT_PACK_' + name.toUpper(), pack.enable ? 1 : 0]))
+                    genout.writeLine('%-17s := %s'.format(['BIT_PACK_' + name.toUpper(), pack.enable ? 1 : 0]))
                 }
             }
         }
@@ -1482,18 +1482,18 @@ public class Bit {
         genout.writeLine('#\n#   ' + path.basename + ' -- Makefile to build ' + 
             bit.settings.title + ' for ' + bit.platform.os + '\n#\n')
         genEnv()
-        genout.writeLine('PRODUCT         := ' + bit.settings.product)
-        genout.writeLine('VERSION         := ' + bit.settings.version)
-        genout.writeLine('BUILD_NUMBER    := ' + bit.settings.buildNumber)
-        genout.writeLine('PROFILE         := ' + bit.platform.profile)
-        genout.writeLine('ARCH            := $(shell uname -m | sed \'s/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/\')')
-        genout.writeLine('OS              := ' + bit.platform.os)
-        genout.writeLine('CC              := ' + bit.packs.compiler.path)
+        genout.writeLine('PRODUCT           := ' + bit.settings.product)
+        genout.writeLine('VERSION           := ' + bit.settings.version)
+        genout.writeLine('BUILD_NUMBER      := ' + bit.settings.buildNumber)
+        genout.writeLine('PROFILE           := ' + bit.platform.profile)
+        genout.writeLine('ARCH              := $(shell uname -m | sed \'s/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/\')')
+        genout.writeLine('OS                := ' + bit.platform.os)
+        genout.writeLine('CC                := ' + bit.packs.compiler.path)
         if (bit.packs.link) {
-            genout.writeLine('LD              := ' + bit.packs.link.path)
+            genout.writeLine('LD                := ' + bit.packs.link.path)
         }
-        genout.writeLine('CONFIG          := $(OS)-$(ARCH)-$(PROFILE)')
-        genout.writeLine('LBIN            := $(CONFIG)/bin\n')
+        genout.writeLine('CONFIG            := $(OS)-$(ARCH)-$(PROFILE)')
+        genout.writeLine('LBIN              := $(CONFIG)/bin\n')
 
         generatePackDefs()
 
@@ -1502,34 +1502,34 @@ public class Bit {
             cflags = cflags.replace(word, '')
         }
         cflags += ' -w'
-        genout.writeLine('CFLAGS          += ' + cflags.trim())
-        genout.writeLine('DFLAGS          += ' + gen.defines.replace(/-DBIT_DEBUG/, '') + 
+        genout.writeLine('CFLAGS            += ' + cflags.trim())
+        genout.writeLine('DFLAGS            += ' + gen.defines.replace(/-DBIT_DEBUG/, '') + 
             ' $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) ' + generatePackDflags())
-        genout.writeLine('IFLAGS          += ' + 
+        genout.writeLine('IFLAGS            += ' + 
             repvar(bit.defaults.includes.map(function(path) '-I' + reppath(path.relative)).join(' ')))
         let linker = defaults.linker.map(function(s) "'" + s + "'").join(' ')
         let ldflags = repvar(linker).replace(/\$ORIGIN/g, '$$$$ORIGIN').replace(/ '-g'/, '')
-        genout.writeLine('LDFLAGS         += ' + ldflags)
-        genout.writeLine('LIBPATHS        += ' + repvar(gen.libpaths))
-        genout.writeLine('LIBS            += ' + gen.libraries + '\n')
+        genout.writeLine('LDFLAGS           += ' + ldflags)
+        genout.writeLine('LIBPATHS          += ' + repvar(gen.libpaths))
+        genout.writeLine('LIBS              += ' + gen.libraries + '\n')
 
-        genout.writeLine('DEBUG           := ' + (bit.settings.debug ? 'debug' : 'release'))
-        genout.writeLine('CFLAGS-debug    := -g')
-        genout.writeLine('DFLAGS-debug    := -DBIT_DEBUG')
-        genout.writeLine('LDFLAGS-debug   := -g')
-        genout.writeLine('DFLAGS-release  := ')
-        genout.writeLine('CFLAGS-release  := -O2')
-        genout.writeLine('LDFLAGS-release := ')
-        genout.writeLine('CFLAGS          += $(CFLAGS-$(DEBUG))')
-        genout.writeLine('DFLAGS          += $(DFLAGS-$(DEBUG))')
-        genout.writeLine('LDFLAGS         += $(LDFLAGS-$(DEBUG))\n')
+        genout.writeLine('DEBUG             := ' + (bit.settings.debug ? 'debug' : 'release'))
+        genout.writeLine('CFLAGS-debug      := -g')
+        genout.writeLine('DFLAGS-debug      := -DBIT_DEBUG')
+        genout.writeLine('LDFLAGS-debug     := -g')
+        genout.writeLine('DFLAGS-release    := ')
+        genout.writeLine('CFLAGS-release    := -O2')
+        genout.writeLine('LDFLAGS-release   := ')
+        genout.writeLine('CFLAGS            += $(CFLAGS-$(DEBUG))')
+        genout.writeLine('DFLAGS            += $(DFLAGS-$(DEBUG))')
+        genout.writeLine('LDFLAGS           += $(LDFLAGS-$(DEBUG))\n')
 
         let prefixes = mapPrefixes()
         for (let [name, value] in prefixes) {
             if (name == 'root' && value == '/') {
                 value = ''
             }
-            genout.writeLine('%-21s := %s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
+            genout.writeLine('%-17s := %s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
         }
         genout.writeLine('')
         runScript(bit.scripts.gendefs)
@@ -1567,34 +1567,34 @@ public class Bit {
         runScript(bit.scripts.pregen)
         genout.writeLine('#\n#   ' + path.basename + ' -- Makefile to build ' + bit.settings.title + 
             ' for ' + bit.platform.os + '\n#\n')
-        genout.writeLine('PRODUCT         = ' + bit.settings.product)
-        genout.writeLine('VERSION         = ' + bit.settings.version)
-        genout.writeLine('BUILD_NUMBER    = ' + bit.settings.buildNumber)
-        genout.writeLine('PROFILE         = ' + bit.platform.profile)
-        genout.writeLine('PA              = $(PROCESSOR_ARCHITECTURE)')
+        genout.writeLine('PRODUCT           = ' + bit.settings.product)
+        genout.writeLine('VERSION           = ' + bit.settings.version)
+        genout.writeLine('BUILD_NUMBER      = ' + bit.settings.buildNumber)
+        genout.writeLine('PROFILE           = ' + bit.platform.profile)
+        genout.writeLine('PA                = $(PROCESSOR_ARCHITECTURE)')
         genout.writeLine('')
         genout.writeLine('!IF "$(PA)" == "AMD64"')
-            genout.writeLine('ARCH            = x64')
-            genout.writeLine('ENTRY           = _DllMainCRTStartup')
+            genout.writeLine('ARCH              = x64')
+            genout.writeLine('ENTRY             = _DllMainCRTStartup')
         genout.writeLine('!ELSE')
-            genout.writeLine('ARCH            = x86')
-            genout.writeLine('ENTRY           = _DllMainCRTStartup@12')
+            genout.writeLine('ARCH              = x86')
+            genout.writeLine('ENTRY             = _DllMainCRTStartup@12')
         genout.writeLine('!ENDIF\n')
-        genout.writeLine('OS              = ' + bit.platform.os)
-        genout.writeLine('CONFIG          = $(OS)-$(ARCH)-$(PROFILE)')
-        genout.writeLine('LBIN            = $(CONFIG)\\bin')
+        genout.writeLine('OS                = ' + bit.platform.os)
+        genout.writeLine('CONFIG            = $(OS)-$(ARCH)-$(PROFILE)')
+        genout.writeLine('LBIN              = $(CONFIG)\\bin')
         generatePackDefs()
 
-        genout.writeLine('CC              = cl')
-        genout.writeLine('LD              = link')
-        genout.writeLine('RC              = rc')
-        genout.writeLine('CFLAGS          = ' + gen.compiler)
-        genout.writeLine('DFLAGS          = ' + gen.defines + ' ' + generatePackDflags())
-        genout.writeLine('IFLAGS          = ' + 
+        genout.writeLine('CC                = cl')
+        genout.writeLine('LD                = link')
+        genout.writeLine('RC                = rc')
+        genout.writeLine('CFLAGS            = ' + gen.compiler)
+        genout.writeLine('DFLAGS            = ' + gen.defines + ' ' + generatePackDflags())
+        genout.writeLine('IFLAGS            = ' + 
             repvar(bit.defaults.includes.map(function(path) '-I' + reppath(path)).join(' ')))
-        genout.writeLine('LDFLAGS         = ' + repvar(gen.linker).replace(/-machine:x86/, '-machine:$$(ARCH)'))
-        genout.writeLine('LIBPATHS        = ' + repvar(gen.libpaths).replace(/\//g, '\\'))
-        genout.writeLine('LIBS            = ' + gen.libraries + '\n')
+        genout.writeLine('LDFLAGS           = ' + repvar(gen.linker).replace(/-machine:x86/, '-machine:$$(ARCH)'))
+        genout.writeLine('LIBPATHS          = ' + repvar(gen.libpaths).replace(/\//g, '\\'))
+        genout.writeLine('LIBS              = ' + gen.libraries + '\n')
 
         let prefixes = mapPrefixes()
         for (let [name, value] in prefixes) {
@@ -1605,7 +1605,7 @@ public class Bit {
             } else {
                 value = value.map('\\')
             }
-            genout.writeLine('%-21s = '.format(['BIT_' + name.toUpper() + '_PREFIX']) + value)
+            genout.writeLine('%-17s = '.format(['BIT_' + name.toUpper() + '_PREFIX']) + value)
         }
         genout.writeLine('')
         runScript(bit.scripts.gendefs)
@@ -1700,16 +1700,16 @@ public class Bit {
                 if (target.require) {
                     if (bit.platform.os == 'windows') {
                         genout.writeLine('!IF "$(BIT_PACK_' + target.require.toUpper() + ')" == "1"')
-                        genout.writeLine('TARGETS = $(TARGETS) ' + reppath(target.path))
+                        genout.writeLine('TARGETS           = $(TARGETS) ' + reppath(target.path))
                     } else {
                         genout.writeLine('ifeq ($(BIT_PACK_' + target.require.toUpper() + '),1)')
-                        genout.writeLine('TARGETS += ' + reppath(target.path))
+                        genout.writeLine('TARGETS           += ' + reppath(target.path))
                     }
                 } else {
                     if (bit.platform.os == 'windows') {
-                        genout.writeLine('TARGETS     = $(TARGETS) ' + reppath(target.path))
+                        genout.writeLine('TARGETS           = $(TARGETS) ' + reppath(target.path))
                     } else {
-                        genout.writeLine('TARGETS     += ' + reppath(target.path))
+                        genout.writeLine('TARGETS           += ' + reppath(target.path))
                     }
                 }
                 if (target.require) {
