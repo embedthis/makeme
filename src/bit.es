@@ -1495,6 +1495,8 @@ public class Bit {
         genout.writeLine('CONFIG          := $(OS)-$(ARCH)-$(PROFILE)')
         genout.writeLine('LBIN            := $(CONFIG)/bin\n')
 
+        generatePackDefs()
+
         let cflags = gen.compiler
         for each (word in minimalCflags) {
             cflags = cflags.replace(word, '')
@@ -1502,7 +1504,7 @@ public class Bit {
         cflags += ' -w'
         genout.writeLine('CFLAGS          += ' + cflags.trim())
         genout.writeLine('DFLAGS          += ' + gen.defines.replace(/-DBIT_DEBUG/, '') + 
-            ' $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS)))')
+            ' $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) ' + generatePackDflags())
         genout.writeLine('IFLAGS          += ' + 
             repvar(bit.defaults.includes.map(function(path) '-I' + reppath(path.relative)).join(' ')))
         let linker = defaults.linker.map(function(s) "'" + s + "'").join(' ')
@@ -1521,7 +1523,6 @@ public class Bit {
         genout.writeLine('CFLAGS          += $(CFLAGS-$(DEBUG))')
         genout.writeLine('DFLAGS          += $(DFLAGS-$(DEBUG))')
         genout.writeLine('LDFLAGS         += $(LDFLAGS-$(DEBUG))\n')
-        generatePackDefs()
 
         let prefixes = mapPrefixes()
         for (let [name, value] in prefixes) {
@@ -1582,6 +1583,8 @@ public class Bit {
         genout.writeLine('OS              = ' + bit.platform.os)
         genout.writeLine('CONFIG          = $(OS)-$(ARCH)-$(PROFILE)')
         genout.writeLine('LBIN            = $(CONFIG)\\bin')
+        generatePackDefs()
+
         genout.writeLine('CC              = cl')
         genout.writeLine('LD              = link')
         genout.writeLine('RC              = rc')
@@ -1592,7 +1595,6 @@ public class Bit {
         genout.writeLine('LDFLAGS         = ' + repvar(gen.linker).replace(/-machine:x86/, '-machine:$$(ARCH)'))
         genout.writeLine('LIBPATHS        = ' + repvar(gen.libpaths).replace(/\//g, '\\'))
         genout.writeLine('LIBS            = ' + gen.libraries + '\n')
-        generatePackDefs()
 
         let prefixes = mapPrefixes()
         for (let [name, value] in prefixes) {
