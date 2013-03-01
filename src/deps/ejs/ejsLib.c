@@ -27465,6 +27465,56 @@ static EjsArray *insertArray(Ejs *ejs, EjsArray *ap, int argc, EjsObj **argv)
 
     function join(sep: String = undefined): String
  */
+#if OPTIMIZED || 1
+static EjsString *joinArray(Ejs *ejs, EjsArray *ap, int argc, EjsObj **argv)
+{
+    EjsString       *result, *sep, *sp;
+    MprBuf          *buf;
+    ssize           len;
+    int             i, nonString;
+
+    sep = (argc == 1) ? (EjsString*) argv[0] : NULL;
+    if (sep == ESV(empty) && ap->length == 1 && ejsIs(ejs, ap->data[0], String)) {
+        /* Optimized path for joining [string]. This happens frequently with fun(...args) */
+        return (EjsString*) ap->data[0];
+    }
+    result = ESV(empty);
+    /*
+        Get an estimate of the string length
+     */
+    len = 0;
+    nonString = 0;
+    for (i = 0; i < ap->length; i++) {
+        sp = (EjsString*) ap->data[i];
+        if (!ejsIs(ejs, sp, String)) {
+            nonString = 1;
+            continue;
+        }
+        len += sp->length;
+    }
+    len += (ap->length * sep->length);
+    if (nonString) {
+        len += BIT_MAX_BUFFER;
+    }
+    buf = mprCreateBuf(len + 1, -1);
+
+    for (i = 0; i < ap->length; i++) {
+        sp = (EjsString*) ap->data[i];
+        if (!ejsIsDefined(ejs, sp)) {
+            continue;
+        }
+        if (i > 0 && sep) {
+            mprPutBlockToBuf(buf, sep->value, sep->length);
+        }
+        sp = ejsToString(ejs, sp);
+        mprPutBlockToBuf(buf, sp->value, sp->length);
+    }
+    mprAddNullToBuf(buf);
+    return ejsCreateStringFromBytes(ejs, mprGetBufStart(buf), mprGetBufLength(buf));
+}
+#else
+
+/* UNUSED */
 static EjsString *joinArray(Ejs *ejs, EjsArray *ap, int argc, EjsObj **argv)
 {
     EjsString       *result, *sep;
@@ -27489,6 +27539,7 @@ static EjsString *joinArray(Ejs *ejs, EjsArray *ap, int argc, EjsObj **argv)
     }
     return result;
 }
+#endif
 
 
 /*
@@ -31127,10 +31178,10 @@ static EjsNumber *cmd_write(Ejs *ejs, EjsCmd *cmd, int argc, EjsObj **argv)
         if (ejsIs(ejs, vp, ByteArray)) {
             bp = (EjsByteArray*) vp;
             len = bp->writePosition - bp->readPosition;
-            wrote += mprWriteCmd(cmd->mc, MPR_CMD_STDIN, (char*) &bp->value[bp->readPosition], len);
+            wrote += mprWriteCmdBlock(cmd->mc, MPR_CMD_STDIN, (char*) &bp->value[bp->readPosition], len);
         } else {
             sp = (EjsString*) ejsToString(ejs, vp);
-            wrote += mprWriteCmd(cmd->mc, MPR_CMD_STDIN, sp->value, sp->length);
+            wrote += mprWriteCmdBlock(cmd->mc, MPR_CMD_STDIN, sp->value, sp->length);
         }
     }
     return ejsCreateNumber(ejs, (MprNumber) wrote);
@@ -35357,6 +35408,17 @@ static EjsObj *g_printLine(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 }
 
 
+static EjsString *g_base64(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
+{
+    EjsString   *bstring;
+    char        *str;
+
+    bstring = ejsToString(ejs, argv[0]);
+    str = ejsToMulti(ejs, bstring);
+    return ejsCreateStringFromAsc(ejs, mprEncode64Block(str, bstring->length));
+}
+
+
 PUBLIC void ejsFreezeGlobal(Ejs *ejs)
 {
     EjsTrait    *trait;
@@ -35428,6 +35490,7 @@ PUBLIC void ejsConfigureGlobalBlock(Ejs *ejs)
     ejsBindFunction(ejs, block, ES_parse, g_parse);
     ejsBindFunction(ejs, block, ES_parseInt, g_parseInt);
     ejsBindFunction(ejs, block, ES_print, g_printLine);
+    ejsBindFunction(ejs, block, ES_base64, g_base64);
 }
 
 

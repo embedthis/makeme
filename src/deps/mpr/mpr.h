@@ -7673,7 +7673,7 @@ typedef struct MprCmdFile {
     @see mprCloseCmdFd mprCreateCmd mprDestroyCmd mprDisableCmdEvents mprDisconnectCmd mprEnableCmdEvents 
         mprFinalizeCmd mprGetCmdBuf mprGetCmdExitStatus mprGetCmdFd mprIsCmdComplete mprIsCmdRunning mprPollCmd 
         mprReadCmd mprReapCmd mprRunCmd mprRunCmdV mprSetCmdCallback mprSetCmdDir mprSetCmdEnv mprSetCmdSearchPath 
-        mprStartCmd mprStopCmd mprWaitForCmd mprWriteCmd 
+        mprStartCmd mprStopCmd mprWaitForCmd mprWriteCmd mprWriteCmdBlock
     @defgroup MprCmd MprCmd
     @stability Stable
  */
@@ -8015,14 +8015,30 @@ PUBLIC int mprWaitForCmd(MprCmd *cmd, MprTicks timeout);
 
 /**
     Write data to an I/O channel
+    @description This is a non-blocking write and may return having written less than requested.
     @param cmd MprCmd object created via mprCreateCmd
     @param channel Channel number to read from. Should be either MPR_CMD_STDIN, MPR_CMD_STDOUT or MPR_CMD_STDERR.
     @param buf Buffer to read into
     @param bufsize Size of buffer
+    @return Count of bytes written
     @ingroup MprCmd
     @stability Evolving
  */
 PUBLIC ssize mprWriteCmd(MprCmd *cmd, int channel, char *buf, ssize bufsize);
+
+/**
+    Write data to an I/O channel
+    @description This is a blocking write.
+    @param cmd MprCmd object created via mprCreateCmd
+    @param channel Channel number to read from. Should be either MPR_CMD_STDIN, MPR_CMD_STDOUT or MPR_CMD_STDERR.
+    @param buf Buffer to read into
+    @param bufsize Size of buffer
+    @return Count of bytes written
+    @ingroup MprCmd
+    @stability Prototype
+    @internal
+ */
+PUBLIC ssize mprWriteCmdBlock(MprCmd *cmd, int channel, char *buf, ssize bufsize);
 
 /********************************** Cache *************************************/
 

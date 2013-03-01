@@ -5504,6 +5504,26 @@ PUBLIC ssize mprWriteCmd(MprCmd *cmd, int channel, char *buf, ssize bufsize)
 }
 
 
+/*
+    Do blocking I/O
+ */
+PUBLIC ssize mprWriteCmdBlock(MprCmd *cmd, int channel, char *buf, ssize bufsize)
+{
+#if BIT_UNIX_LIKE
+    MprCmdFile  *file;
+    ssize       wrote;
+
+    file = &cmd->files[channel];
+    fcntl(file->fd, F_SETFL, fcntl(file->fd, F_GETFL) & ~O_NONBLOCK);
+    wrote = mprWriteCmd(cmd, channel, buf, bufsize);
+    fcntl(file->fd, F_SETFL, fcntl(file->fd, F_GETFL) | O_NONBLOCK);
+    return wrote;
+#else
+    return mprWriteCmd(cmd, channel, buf, bufsize);
+#endif
+}
+
+
 PUBLIC bool mprAreCmdEventsEnabled(MprCmd *cmd, int channel)
 {
     MprWaitHandler  *wp;
@@ -24003,10 +24023,16 @@ PUBLIC int mprAvailableWorkers()
     int             activeWorkers, spareThreads, spareCores, result;
 
     mprGetWorkerStats(&wstats);
+    /*
+        SpareThreads    == Threads that can be created up to max threads
+        ActiveWorkers   == Worker threads actively servicing requests
+        SpareCores      == Cores available on the system
+        Result          == Idle workers + lesser of SpareCores|SpareThreads
+     */
     spareThreads = wstats.max - wstats.busy - wstats.idle;
     activeWorkers = wstats.busy - wstats.yielded;
     spareCores = MPR->heap->stats.numCpu - activeWorkers;
-    if (spareCores <= 0 || spareThreads <= 0) {
+    if (spareCores <= 0 /* UNUSED || spareThreads <= 0 */) {
         return 0;
     }
     result = wstats.idle + min(spareThreads, spareCores);
