@@ -7487,6 +7487,17 @@ PUBLIC char *mprUriEncode(cchar *uri, int map);
  */
 PUBLIC char *mprUriDecode(cchar *uri);
 
+/** 
+    Decode a URI string by de-scaping URI characters
+    @description Decode a string with www-encoded characters that have meaning for URIs.
+        This routines operates in-situ and modifies the buffer. 
+    @param uri URI to decode
+    @return A reference to the buf argument.
+    @ingroup Mpr
+    @stability Stable
+ */
+PUBLIC char *mprUriDecodeInSitu(char *uri);
+
 /********************************* Signals ************************************/
 
 #if MACOSX
@@ -8252,7 +8263,7 @@ typedef void (*MprTerminator)(int how, int status);
     mprSetDebugMode mprSetDomainName mprSetExitStrategy mprSetHostName mprSetHwnd mprSetIdleCallback mprSetInst
     mprSetIpAddr mprSetLogLevel mprSetServerName mprSetSocketMessage mprShouldAbortRequests mprShouldDenyNewRequests
     mprSignalExit mprSleep mprStart mprStartEventsThread mprStartOsService mprStopOsService mprTerminate mprUriDecode
-    mprUriEncode mprWaitTillIdle mprWriteRegistry 
+    mprUriDecodeBuf mprUriEncode mprWaitTillIdle mprWriteRegistry 
     @defgroup Mpr Mpr
     @stability Stable.
  */

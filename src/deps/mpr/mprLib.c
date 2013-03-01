@@ -601,7 +601,7 @@ static MprMem *allocMem(ssize required, int flags)
                     }
                     /* Tested empirically to trigger GC when we are searching too much for an allocation */
                     if (miss > 9) {
-                        triggerGC(0);
+                        triggerGC(MPR_GC_FORCE);
                     }
                     unlockHeap();
                     return mp;
@@ -615,7 +615,7 @@ static MprMem *allocMem(ssize required, int flags)
         }
     }
     unlockHeap();
-    triggerGC(0);
+    triggerGC(MPR_GC_FORCE);
     return growHeap(required, flags);
 }
 
@@ -659,7 +659,11 @@ static MprMem *growHeap(ssize required, int flags)
     mp = (MprMem*) region->start;
     hasManager = (flags & MPR_ALLOC_MANAGER) ? 1 : 0;
     spareLen = size - required - rsize;
-    if (spareLen < sizeof(MprFreeMem)) {
+
+    /*
+        If a block is big, don't allocate the spare. This improves the chances it will be unpinned
+     */
+    if (spareLen < sizeof(MprFreeMem) || required > BIT_MAX_REGION) {
         required = size - rsize; 
         spareLen = 0;
     }
@@ -751,14 +755,18 @@ static MprMem *freeBlock(MprMem *mp)
     next = GET_NEXT(mp);
 
     /*
-        Release entire regions back to the O/S. (Blocks equal to Empty regions have no prior and are last)
+        Release entire regions back to the O/S. (Blocks equal to empty regions have no prior and are last)
      */
-    if (GET_PRIOR(mp) == NULL && IS_LAST(mp) && heap->stats.bytesFree > (BIT_MAX_REGION * 4)) {
-        INC(unpins);
-        unlockHeap();
+    if (GET_PRIOR(mp) == NULL && IS_LAST(mp)) {
         region = GET_REGION(mp);
-        region->freeable = 1;
-        assert(next == NULL);
+        if (region->size > BIT_MAX_REGION || heap->stats.bytesFree > (BIT_MAX_REGION * 4)) {
+            unlockHeap();
+            region->freeable = 1;
+            assert(next == NULL);
+        } else {
+            linkBlock(mp);
+            unlockHeap();
+        }
     } else {
         linkBlock(mp);
         unlockHeap();
@@ -1231,11 +1239,12 @@ static void sweep()
         }
         /*
             The sweeper is the only one who removes regions. 
-            Currently all threads are suspended so no locks needed. FUTURE - When doing parallel collection, do this 
-            lock-free because user code traverses the region list.
+            Currently all threads are suspended so no locks needed. 
+            FUTURE - When doing parallel collection, do this lock-free because user code traverses the region list.
          */ 
         if (region->freeable) {
             lockHeap();
+            INC(unpins);
             if (prior) {
                 prior->next = nextRegion;
             } else {
@@ -9301,6 +9310,46 @@ PUBLIC char *mprUriDecode(cchar *inbuf)
 
 
 /*  
+    Decode a string using URL encoding. This decodes in situ.
+ */
+PUBLIC char *mprUriDecodeInSitu(char *inbuf)
+{
+    char    *ip, *op;
+    int     num, i, c;
+
+    assert(inbuf);
+
+    for (op = ip = inbuf; ip && *ip; ip++, op++) {
+        if (*ip == '+') {
+            *op = ' ';
+
+        } else if (*ip == '%' && isxdigit((uchar) ip[1]) && isxdigit((uchar) ip[2])) {
+            ip++;
+            num = 0;
+            for (i = 0; i < 2; i++, ip++) {
+                c = tolower((uchar) *ip);
+                if (c >= 'a' && c <= 'f') {
+                    num = (num * 16) + 10 + c - 'a';
+                } else if (c >= '0' && c <= '9') {
+                    num = (num * 16) + c - '0';
+                } else {
+                    /* Bad chars in URL */
+                    return 0;
+                }
+            }
+            *op = (char) num;
+            ip--;
+
+        } else {
+            *op = *ip;
+        }
+    }
+    *op = '\0';
+    return inbuf;
+}
+
+
+/*  
     Escape a shell command. Not really Http, but useful anyway for CGI
  */
 PUBLIC char *mprEscapeCmd(cchar *cmd, int escChar)
@@ -13661,7 +13710,7 @@ PUBLIC void mprStaticError(cchar *fmt, ...)
 
 PUBLIC void mprAssert(cchar *loc, cchar *msg)
 {
-#if BIT_ASSERT
+#if BIT_MPR_TRACING
     char    buf[BIT_MAX_LOGLINE];
 
     if (loc) {
@@ -22019,8 +22068,7 @@ PUBLIC char *stok(char *str, cchar *delim, char **last)
     ssize   i;
 
     assert(delim);
-    start = (str || *last == 0) ? str : *last;
-
+    start = (str || !last) ? str : *last;
     if (start == 0) {
         if (last) {
             *last = 0;

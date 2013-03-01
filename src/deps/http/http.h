@@ -2003,6 +2003,7 @@ typedef struct HttpConn {
     struct HttpHost *host;                  /**< Host object (if relevant) */
 
     HttpPacket      *input;                 /**< Header packet */
+    ssize           newData;                /**< Length of new data last read into the input packet */
     HttpQueue       *connectorq;            /**< Connector write queue */
     MprTicks        started;                /**< When the connection started (ticks) */
     MprTicks        lastActivity;           /**< Last activity on the connection */
@@ -2316,7 +2317,8 @@ PUBLIC void httpMatchHost(HttpConn *conn);
 PUBLIC void httpMemoryError(HttpConn *conn);
 
 /**
-    Inform notifiers of a connection event or state chagne
+    Inform notifiers of a connection event or state change.
+    @description This is an internal API and should not be called by handler or user code.
     @param conn HttpConn object created via #httpCreateConn
     @param event Event to issue
     @param arg Argument to event
@@ -4545,6 +4547,10 @@ PUBLIC void httpRemoveUploadFile(HttpConn *conn, cchar *id);
 #define HTTP_EXPECT_CONTINUE    0x2000      /**< Client expects an HTTP 100 Continue response */
 #define HTTP_AUTH_CHECKED       0x4000      /**< User authentication has been checked */
 
+#if UNUSED && KEEP
+#define HTTP_DIRECT_INPUT       0x8000      /**< Read data directly into a content packet */
+#endif
+
 /*  
     Incoming chunk encoding states
  */
@@ -4595,6 +4601,8 @@ typedef struct HttpRx {
     int             flags;                  /**< Rx modifiers */
     int             form;                   /**< Using mime-type application/x-www-form-urlencoded */
     int             needInputPipeline;      /**< Input pipeline required to process received data */
+    int             ownParams;              /**< Do own parameter handling */
+    int             streaming;              /**< Stream incoming content. Forms typically buffer and dont stream */
     int             traceLevel;             /**< General trace level for header level info */
     int             upload;                 /**< Request is using file upload */
 

@@ -3,7 +3,7 @@
 #
 
 PRODUCT           := bit
-VERSION           := 0.8.2
+VERSION           := 0.8.3
 BUILD_NUMBER      := 0
 PROFILE           := default
 ARCH              := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
@@ -740,7 +740,7 @@ $(CONFIG)/bin/bit: $(DEPS_35)
 #   version
 #
 version: $(DEPS_36)
-	@echo 0.8.2-0
+	@echo 0.8.3-0
 
 #
 #   stop
@@ -758,7 +758,7 @@ installBinary: $(DEPS_38)
 	mkdir -p "$(BIT_VAPP_PREFIX)"
 	mkdir -p "$(BIT_APP_PREFIX)"
 	rm -f "$(BIT_APP_PREFIX)/latest"
-	ln -s "0.8.2" "$(BIT_APP_PREFIX)/latest"
+	ln -s "0.8.3" "$(BIT_APP_PREFIX)/latest"
 	mkdir -p "$(BIT_VAPP_PREFIX)/bin"
 	cp "$(CONFIG)/bin/bit" "$(BIT_VAPP_PREFIX)/bin/bit"
 	mkdir -p "$(BIT_BIN_PREFIX)"
