@@ -27492,7 +27492,9 @@ static EjsString *joinArray(Ejs *ejs, EjsArray *ap, int argc, EjsObj **argv)
         }
         len += sp->length;
     }
-    len += (ap->length * sep->length);
+    if (sep) {
+        len += (ap->length * sep->length);
+    }
     if (nonString) {
         len += BIT_MAX_BUFFER;
     }

@@ -315,6 +315,11 @@ public function uninstallBinary() {
         let fileslog = bit.prefixes.vapp.join('files.log')
 
         if (bit.generating) {
+            for each (n in ['web', 'spool', 'cache', 'log']) {
+                if (package.prefixes.contains(n)) {
+                    removeDir(bit.prefixes[n])
+                }
+            }
             removeDir(bit.prefixes.vapp)
         } else {
             if (fileslog.exists) {
