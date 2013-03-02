@@ -4055,7 +4055,7 @@ static void errorv(HttpConn *conn, int flags, cchar *fmt, va_list args)
                  */
                 flags |= HTTP_ABORT;
             } else {
-                if (rx->route && (uri = httpLookupRouteErrorDocument(rx->route, tx->status))) {
+                if (rx->route && (uri = httpLookupRouteErrorDocument(rx->route, tx->status)) && !smatch(uri, rx->uri)) {
                     /*
                         If the response has started or it is an external redirect ... do a redirect
                      */
