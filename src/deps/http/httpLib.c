@@ -8843,8 +8843,8 @@ static int selectHandler(HttpConn *conn, HttpRoute *route)
      */
     for (next = 0; (tx->handler = mprGetNextStableItem(route->handlersByMatch, &next)) != 0; ) {
         rc = tx->handler->match(conn, route, 0);
-        tx->flags |= HTTP_TX_MATCHED;
         if (rc == HTTP_ROUTE_OK || rc == HTTP_ROUTE_REROUTE) {
+            tx->flags |= HTTP_TX_MATCHED;
             return rc;
         }
     }
