@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis Bit 0.8.2 Documentation</title>
+    <title>Embedthis Bit 0.8.3 Documentation</title>
     <meta name="keywords" content="Bit, Build It!, Javascript"/>
 	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
 	<meta name="robots" content="index,follow" />
@@ -70,13 +70,11 @@
             <p>The source code has been designed to run on Free BSD, Linux, Mac OSX, and Windows.
             It has been tested under Fedora Linux based on the Linux 2.6 Kernel, Microsoft Windows
             XP, Vista, 7 (32 and 64-bit), and MAC OSX 10.7. </p>
-
             <p>If you are wanting to run the software to an unsupported platform, 
             you are welcome to try your hand at adapting it to a new platform. The software is very portable. See
             the <a href="porting.html">Porting Guide</a> for more details. </p>
             <p>If you want to build using source from the source code repository, please read these <a href=
                 "#repository">additional instructions</a>.</p>
-
             <a id="overview"></a>
             <h2 class="section">Build Overview</h2>
             <p>To build Bit from source, you must first boostrap the build by using another build tool such as Make
@@ -85,12 +83,10 @@
                 <li>Building via make (or nmake on Windows)</li>
                 <li>Building via an IDE such as Visual Studio or Xcode</li>
             </ol>
-
             <a id="env"></a>
             <h2 class="section">Preparing the Environment</h2>
             <p>Before building, you may need to install required tools such as compilers, SDKs, and system
             libraries. </p>
-
             <h3>Windows</h3>
             <p>To build on Windows, you will need to install Microsoft Visual Studio 10.0 or later. Either the full 
             product or the express editions will work fine. You will also need to 
@@ -103,7 +99,6 @@
             variables.</p>
             <h3>Unix / Linux</h3>
             <p>To build on Linux, you may need to install the libpam and zlib libraries.</p>
-
             <a id="make"></a>
             <h2 class="section">Building with Make/Nmake</h2>
             <p>Bit provides a suite of pre-configured Makefiles under the projects directory for common platforms.
@@ -124,9 +119,7 @@
             the featuers and extensions to be used when building Bit. You can modify this file by hand or override
             values by setting CFLAGS when invoking make. For example, to disable use of EST SSL stack:
             <pre>make DBIT_PACK_EST=0 </pre>
-
             <p>Use <em>make help</em> to see a list of the available options.</p>
-
             <a id="ide"></a>
             <h2 class="section">Building with an IDE</h2>
             <p>Bit provides Visual Studio and Xcode projects. To build Bit with the Visual Studio project, 
@@ -376,7 +369,6 @@ configure --with openssl=/usr/src/openssl
                 </tr>
                 </tbody>
             </table>
-
             <p>When building, certain environment variables may be passed to the configure script and on to 
             <em>bit</em> to configure the compiler and linker paths and flags. </p>
             <table title="env">
@@ -537,7 +529,6 @@ sudo bit uninstall
             you can extract the required Bit files from this release archive and include them with your application.
             Alternatively, you can extract them from the staging directory
             under the <em>OS-ARCH[-CPU]-PROFILE/pkg/bin/bit-VERSION/contents</em> directory. </p>
-
             <a id="repository"></a>
             <h2 class="section">Building from the Source Code Repository</h2>
             <p>You can checkout a copy of the product source code via:</p>
