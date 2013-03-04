@@ -138,7 +138,7 @@ clobber: clean
 #   est.h
 #
 $(CONFIG)/inc/est.h: $(DEPS_1)
-	@echo '      [File] $(CONFIG)/inc/est.h'
+	@echo '      [Copy] $(CONFIG)/inc/est.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/deps/est/est.h" "$(CONFIG)/inc/est.h"
 
@@ -146,12 +146,13 @@ $(CONFIG)/inc/est.h: $(DEPS_1)
 #   bit.h
 #
 $(CONFIG)/inc/bit.h: $(DEPS_2)
+	@echo '      [Copy] $(CONFIG)/inc/bit.h'
 
 #
 #   bitos.h
 #
 $(CONFIG)/inc/bitos.h: $(DEPS_3)
-	@echo '      [File] $(CONFIG)/inc/bitos.h'
+	@echo '      [Copy] $(CONFIG)/inc/bitos.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/bitos.h" "$(CONFIG)/inc/bitos.h"
 
@@ -185,7 +186,7 @@ endif
 DEPS_6 += src/deps/est/ca.crt
 
 $(CONFIG)/bin/ca.crt: $(DEPS_6)
-	@echo '      [File] $(CONFIG)/bin/ca.crt'
+	@echo '      [Copy] $(CONFIG)/bin/ca.crt'
 	mkdir -p "$(CONFIG)/bin"
 	cp "src/deps/est/ca.crt" "$(CONFIG)/bin/ca.crt"
 
@@ -193,7 +194,7 @@ $(CONFIG)/bin/ca.crt: $(DEPS_6)
 #   mpr.h
 #
 $(CONFIG)/inc/mpr.h: $(DEPS_7)
-	@echo '      [File] $(CONFIG)/inc/mpr.h'
+	@echo '      [Copy] $(CONFIG)/inc/mpr.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/deps/mpr/mpr.h" "$(CONFIG)/inc/mpr.h"
 
@@ -278,7 +279,7 @@ $(CONFIG)/bin/makerom: $(DEPS_13)
 #   pcre.h
 #
 $(CONFIG)/inc/pcre.h: $(DEPS_14)
-	@echo '      [File] $(CONFIG)/inc/pcre.h'
+	@echo '      [Copy] $(CONFIG)/inc/pcre.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/deps/pcre/pcre.h" "$(CONFIG)/inc/pcre.h"
 
@@ -307,7 +308,7 @@ $(CONFIG)/bin/libpcre.dylib: $(DEPS_16)
 #   http.h
 #
 $(CONFIG)/inc/http.h: $(DEPS_17)
-	@echo '      [File] $(CONFIG)/inc/http.h'
+	@echo '      [Copy] $(CONFIG)/inc/http.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/deps/http/http.h" "$(CONFIG)/inc/http.h"
 
@@ -367,7 +368,7 @@ $(CONFIG)/bin/http: $(DEPS_21)
 #   ejs.h
 #
 $(CONFIG)/inc/ejs.h: $(DEPS_22)
-	@echo '      [File] $(CONFIG)/inc/ejs.h'
+	@echo '      [Copy] $(CONFIG)/inc/ejs.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/deps/ejs/ejs.h" "$(CONFIG)/inc/ejs.h"
 
@@ -375,7 +376,7 @@ $(CONFIG)/inc/ejs.h: $(DEPS_22)
 #   ejs.slots.h
 #
 $(CONFIG)/inc/ejs.slots.h: $(DEPS_23)
-	@echo '      [File] $(CONFIG)/inc/ejs.slots.h'
+	@echo '      [Copy] $(CONFIG)/inc/ejs.slots.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/deps/ejs/ejs.slots.h" "$(CONFIG)/inc/ejs.slots.h"
 
@@ -383,7 +384,7 @@ $(CONFIG)/inc/ejs.slots.h: $(DEPS_23)
 #   ejsByteGoto.h
 #
 $(CONFIG)/inc/ejsByteGoto.h: $(DEPS_24)
-	@echo '      [File] $(CONFIG)/inc/ejsByteGoto.h'
+	@echo '      [Copy] $(CONFIG)/inc/ejsByteGoto.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/deps/ejs/ejsByteGoto.h" "$(CONFIG)/inc/ejsByteGoto.h"
 
@@ -508,7 +509,7 @@ endif
 DEPS_32 += src/bit.es
 
 $(CONFIG)/bin/bit.es: $(DEPS_32)
-	@echo '      [File] $(CONFIG)/bin/bit.es'
+	@echo '      [Copy] $(CONFIG)/bin/bit.es'
 	mkdir -p "$(CONFIG)/bin"
 	cp "src/bit.es" "$(CONFIG)/bin/bit.es"
 
@@ -565,16 +566,12 @@ DEPS_33 += bits/vstudio.es
 DEPS_33 += bits/xcode.es
 
 $(CONFIG)/bin/bits: $(DEPS_33)
-	@echo '      [File] $(CONFIG)/bin/bits'
+	@echo '      [Copy] $(CONFIG)/bin/bits'
 	mkdir -p "$(CONFIG)/bin/bits"
 	cp "bits/embedthis-manifest.bit" "$(CONFIG)/bin/bits/embedthis-manifest.bit"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/embedthis.bit" "$(CONFIG)/bin/bits/embedthis.bit"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/embedthis.es" "$(CONFIG)/bin/bits/embedthis.es"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/gendoc.es" "$(CONFIG)/bin/bits/gendoc.es"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	mkdir -p "$(CONFIG)/bin/bits/os"
 	cp "bits/os/freebsd.bit" "$(CONFIG)/bin/bits/os/freebsd.bit"
 	cp "bits/os/gcc.bit" "$(CONFIG)/bin/bits/os/gcc.bit"
@@ -584,24 +581,15 @@ $(CONFIG)/bin/bits: $(DEPS_33)
 	cp "bits/os/unix.bit" "$(CONFIG)/bin/bits/os/unix.bit"
 	cp "bits/os/vxworks.bit" "$(CONFIG)/bin/bits/os/vxworks.bit"
 	cp "bits/os/windows.bit" "$(CONFIG)/bin/bits/os/windows.bit"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	mkdir -p "$(CONFIG)/bin/bits/os"
 	cp "bits/os/freebsd.bit" "$(CONFIG)/bin/bits/os/freebsd.bit"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/os/gcc.bit" "$(CONFIG)/bin/bits/os/gcc.bit"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/os/linux.bit" "$(CONFIG)/bin/bits/os/linux.bit"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/os/macosx.bit" "$(CONFIG)/bin/bits/os/macosx.bit"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/os/solaris.bit" "$(CONFIG)/bin/bits/os/solaris.bit"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/os/unix.bit" "$(CONFIG)/bin/bits/os/unix.bit"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/os/vxworks.bit" "$(CONFIG)/bin/bits/os/vxworks.bit"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/os/windows.bit" "$(CONFIG)/bin/bits/os/windows.bit"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	mkdir -p "$(CONFIG)/bin/bits/packs"
 	cp "bits/packs/compiler.pak" "$(CONFIG)/bin/bits/packs/compiler.pak"
 	cp "bits/packs/doxygen.pak" "$(CONFIG)/bin/bits/packs/doxygen.pak"
@@ -631,74 +619,40 @@ $(CONFIG)/bin/bits: $(DEPS_33)
 	cp "bits/packs/winsdk.pak" "$(CONFIG)/bin/bits/packs/winsdk.pak"
 	cp "bits/packs/zip.pak" "$(CONFIG)/bin/bits/packs/zip.pak"
 	cp "bits/packs/zlib.pak" "$(CONFIG)/bin/bits/packs/zlib.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	mkdir -p "$(CONFIG)/bin/bits/packs"
 	cp "bits/packs/compiler.pak" "$(CONFIG)/bin/bits/packs/compiler.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/doxygen.pak" "$(CONFIG)/bin/bits/packs/doxygen.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/dsi.pak" "$(CONFIG)/bin/bits/packs/dsi.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/dumpbin.pak" "$(CONFIG)/bin/bits/packs/dumpbin.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/ejs.pak" "$(CONFIG)/bin/bits/packs/ejs.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/ejscript.pak" "$(CONFIG)/bin/bits/packs/ejscript.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/est.pak" "$(CONFIG)/bin/bits/packs/est.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/http.pak" "$(CONFIG)/bin/bits/packs/http.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/lib.pak" "$(CONFIG)/bin/bits/packs/lib.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/link.pak" "$(CONFIG)/bin/bits/packs/link.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/man.pak" "$(CONFIG)/bin/bits/packs/man.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/man2html.pak" "$(CONFIG)/bin/bits/packs/man2html.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/matrixssl.pak" "$(CONFIG)/bin/bits/packs/matrixssl.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/md5.pak" "$(CONFIG)/bin/bits/packs/md5.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/mocana.pak" "$(CONFIG)/bin/bits/packs/mocana.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/openssl.pak" "$(CONFIG)/bin/bits/packs/openssl.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/pcre.pak" "$(CONFIG)/bin/bits/packs/pcre.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/pmaker.pak" "$(CONFIG)/bin/bits/packs/pmaker.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/ranlib.pak" "$(CONFIG)/bin/bits/packs/ranlib.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/rc.pak" "$(CONFIG)/bin/bits/packs/rc.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/sqlite.pak" "$(CONFIG)/bin/bits/packs/sqlite.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/strip.pak" "$(CONFIG)/bin/bits/packs/strip.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/tidy.pak" "$(CONFIG)/bin/bits/packs/tidy.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/utest.pak" "$(CONFIG)/bin/bits/packs/utest.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/vxworks.pak" "$(CONFIG)/bin/bits/packs/vxworks.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/winsdk.pak" "$(CONFIG)/bin/bits/packs/winsdk.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/zip.pak" "$(CONFIG)/bin/bits/packs/zip.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/packs/zlib.pak" "$(CONFIG)/bin/bits/packs/zlib.pak"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/sample-main.bit" "$(CONFIG)/bin/bits/sample-main.bit"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/sample-start.bit" "$(CONFIG)/bin/bits/sample-start.bit"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/simple.bit" "$(CONFIG)/bin/bits/simple.bit"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/standard.bit" "$(CONFIG)/bin/bits/standard.bit"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/vstudio.es" "$(CONFIG)/bin/bits/vstudio.es"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/xcode.es" "$(CONFIG)/bin/bits/xcode.es"
 
 #

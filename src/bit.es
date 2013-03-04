@@ -2847,12 +2847,12 @@ public class Bit {
             genTargetDeps(target)
             genout.write(reppath(target.path) + ':' + getTargetDeps() + '\n')
         }
+        gtrace('Copy', target.path.relative.portable)
         for each (let file: Path in target.files) {
             /* Auto-generated headers targets for includes have file == target.path */
             if (file == target.path) {
                 continue
             }
-            gtrace('File', target.path.relative.portable)
             if (target.subtree) {
                 /* File must be abs to allow for a subtree substitution */
                 copy(file, target.path, target)
