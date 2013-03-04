@@ -3,7 +3,7 @@
 #
 
 PRODUCT           = bit
-VERSION           = 0.8.3
+VERSION           = 0.8.4
 BUILD_NUMBER      = 0
 PROFILE           = default
 PA                = $(PROCESSOR_ARCHITECTURE)
@@ -538,8 +538,8 @@ DEPS_35 = $(DEPS_35) bits\os\freebsd.bit
 DEPS_35 = $(DEPS_35) bits\os\gcc.bit
 DEPS_35 = $(DEPS_35) bits\os\linux.bit
 DEPS_35 = $(DEPS_35) bits\os\macosx.bit
-DEPS_35 = $(DEPS_35) bits\os\posix.bit
 DEPS_35 = $(DEPS_35) bits\os\solaris.bit
+DEPS_35 = $(DEPS_35) bits\os\unix.bit
 DEPS_35 = $(DEPS_35) bits\os\vxworks.bit
 DEPS_35 = $(DEPS_35) bits\os\windows.bit
 DEPS_35 = $(DEPS_35) bits\packs
@@ -594,8 +594,8 @@ $(CONFIG)\bin\bits: $(DEPS_35)
 	copy /Y "bits\os\gcc.bit" "$(CONFIG)\bin\bits\os\gcc.bit"
 	copy /Y "bits\os\linux.bit" "$(CONFIG)\bin\bits\os\linux.bit"
 	copy /Y "bits\os\macosx.bit" "$(CONFIG)\bin\bits\os\macosx.bit"
-	copy /Y "bits\os\posix.bit" "$(CONFIG)\bin\bits\os\posix.bit"
 	copy /Y "bits\os\solaris.bit" "$(CONFIG)\bin\bits\os\solaris.bit"
+	copy /Y "bits\os\unix.bit" "$(CONFIG)\bin\bits\os\unix.bit"
 	copy /Y "bits\os\vxworks.bit" "$(CONFIG)\bin\bits\os\vxworks.bit"
 	copy /Y "bits\os\windows.bit" "$(CONFIG)\bin\bits\os\windows.bit"
 	@echo '      [File] $(CONFIG)/bin/bits'
@@ -608,9 +608,9 @@ $(CONFIG)\bin\bits: $(DEPS_35)
 	@echo '      [File] $(CONFIG)/bin/bits'
 	copy /Y "bits\os\macosx.bit" "$(CONFIG)\bin\bits\os\macosx.bit"
 	@echo '      [File] $(CONFIG)/bin/bits'
-	copy /Y "bits\os\posix.bit" "$(CONFIG)\bin\bits\os\posix.bit"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	copy /Y "bits\os\solaris.bit" "$(CONFIG)\bin\bits\os\solaris.bit"
+	@echo '      [File] $(CONFIG)/bin/bits'
+	copy /Y "bits\os\unix.bit" "$(CONFIG)\bin\bits\os\unix.bit"
 	@echo '      [File] $(CONFIG)/bin/bits'
 	copy /Y "bits\os\vxworks.bit" "$(CONFIG)\bin\bits\os\vxworks.bit"
 	@echo '      [File] $(CONFIG)/bin/bits'
@@ -754,7 +754,7 @@ $(CONFIG)\bin\bit.exe: $(DEPS_37)
 #   version
 #
 version: $(DEPS_38)
-	@echo 0.8.3-0
+	@echo 0.8.4-0
 
 #
 #   stop
@@ -789,8 +789,8 @@ installBinary: $(DEPS_40)
 	copy /Y "bits\os\gcc.bit" "$(BIT_VAPP_PREFIX)\bin\bits\os\gcc.bit"
 	copy /Y "bits\os\linux.bit" "$(BIT_VAPP_PREFIX)\bin\bits\os\linux.bit"
 	copy /Y "bits\os\macosx.bit" "$(BIT_VAPP_PREFIX)\bin\bits\os\macosx.bit"
-	copy /Y "bits\os\posix.bit" "$(BIT_VAPP_PREFIX)\bin\bits\os\posix.bit"
 	copy /Y "bits\os\solaris.bit" "$(BIT_VAPP_PREFIX)\bin\bits\os\solaris.bit"
+	copy /Y "bits\os\unix.bit" "$(BIT_VAPP_PREFIX)\bin\bits\os\unix.bit"
 	copy /Y "bits\os\vxworks.bit" "$(BIT_VAPP_PREFIX)\bin\bits\os\vxworks.bit"
 	copy /Y "bits\os\windows.bit" "$(BIT_VAPP_PREFIX)\bin\bits\os\windows.bit"
 	if not exist "$(BIT_VAPP_PREFIX)\bin\bits\packs" md "$(BIT_VAPP_PREFIX)\bin\bits\packs"

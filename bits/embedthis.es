@@ -127,6 +127,10 @@ function setupGlobals(manifest, package, prefixes) {
                 if (bit.generating || !prefixes[pname].exists) {
                     //  MOB - need more generic way to know which prefixes are system and which are owned by the app
                     if (prefixes[pname].contains(bit.settings.product)) {
+                        if (pname == 'cache') {
+                            /* Must remove old cache files */
+                            removeDir(prefixes[pname])
+                        }
                         makeDir(prefixes[pname])
                     }
                 }

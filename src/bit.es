@@ -61,7 +61,7 @@ public class Bit {
     private var originalTargets: Array
     private var selectedTargets: Array
 
-    private var posix = ['macosx', 'linux', 'unix', 'freebsd', 'solaris']
+    private var unix = ['macosx', 'linux', 'unix', 'freebsd', 'solaris']
     private var windows = ['windows', 'wince']
     private var start: Date
     private var targetsToBuildByDefault = { exe: true, file: true, lib: true, build: true }
@@ -1178,6 +1178,9 @@ public class Bit {
                     target.scripts[n]  += [{ home: home, interpreter: (n == 'shell') ? 'bash' : 'ejs', script: script}]
                     delete target[n]
                 }
+            }
+            if (target.run) {
+                target.type ||= 'run'
             }
             /*
                 Blend internal for only the targets in this file
@@ -2336,7 +2339,9 @@ public class Bit {
                 //  MOB - refactor at parse time into a single flag
                 //  MOB - Add generate-unix, generate.vs, generate.xcode, generate.action
                 if (target.generate || target['generate-sh'] || target['generate-make'] || target['generate-make'] ||
-                        target['generate-' + bit.platform.os] || target['generate-action']) {
+                        target['generate-' + bit.platform.os] || target['generate-action'] || 
+                        //  MOB - is this right
+                        target['run']) {
                     buildTarget(target)
                 }
             }
@@ -2429,6 +2434,8 @@ public class Bit {
                         generateFile(target)
                     } else if (target.type == 'resource') {
                         generateResource(target)
+                    } else if (target.type == 'run') {
+                        generateRun(target)
                     }
                     if (target.require) {
                         if (bit.platform.os == 'windows') {
@@ -2439,6 +2446,9 @@ public class Bit {
                     }
                     genWriteLine('')
                 } else {
+                    if (target.dir) {
+                        buildDir(target)
+                    }
                     if (target.type == 'build' || (target.scripts && target.scripts['build'])) {
                         buildScript(target)
                     }
@@ -2456,6 +2466,8 @@ public class Bit {
                         buildFile(target)
                     } else if (target.type == 'resource') {
                         buildResource(target)
+                    } else if (target.type == 'run') {
+                        buildRun(target)
                     }
                 }
                 runTargetScript(target, 'postbuild')
@@ -2467,9 +2479,10 @@ public class Bit {
         target.built = true
     }
 
-    /*
-        Build an executable program
-     */
+    function buildDir(target) {
+        makeDir(expand(target.dir), target)
+    }
+
     function buildExe(target) {
         let transition = target.rule || 'exe'
         let rule = bit.rules[transition]
@@ -2611,6 +2624,18 @@ public class Bit {
         }
     }
 
+    function buildRun(target) {
+        let command = target.run.clone()
+        if (command is Array) {
+            for (let [key,value] in command) {
+                command[key] = expand(value)
+            }
+        } else {
+            command = expand(command)
+        }
+        run(command)
+    }
+
     /*
         Copy files[] to path
      */
@@ -2625,12 +2650,12 @@ public class Bit {
                 safeRemove(target.path)
             }
         }
+        trace('Copy', target.path.relative.portable)
         for each (let file: Path in target.files) {
             if (file == target.path) {
                 /* Auto-generated headers targets for includes have file == target.path */
                 continue
             }
-            trace('File', target.path.relative.portable)
             copy(file, target.path, target)
         }
         if (target.path.isDir && !bit.generating) {
@@ -2649,9 +2674,17 @@ public class Bit {
         }
     }
 
-    /*
-        Build an executable program
-     */
+    function generateDir(target) {
+        if (bit.generating == 'sh') {
+            makeDir(target.dir)
+
+        } else if (bit.generating == 'make' || bit.generating == 'nmake') {
+            genTargetDeps(target)
+            genout.write(reppath(target.path) + ':' + getTargetDeps() + '\n')
+            makeDir(target.dir)
+        }
+    }
+
     function generateExe(target) {
         let transition = target.rule || 'exe'
         let rule = bit.rules[transition]
@@ -2828,6 +2861,26 @@ public class Bit {
             }
         }
         delete target.made
+    }
+
+    function generateRun(target) {
+        let command = target.run.clone()
+        if (command is Array) {
+            for (let [key,value] in command) {
+                command[key] = expand(value)
+            }
+        } else {
+            command = expand(command)
+        }
+        if (bit.generating == 'make' || bit.generating == 'nmake') {
+            genTargetDeps(target)
+            genout.write(reppath(target.name) + ':' + getTargetDeps() + '\n')
+        }
+        if (command is Array) {
+            genout.write('\t' + command.map(function(a) '"' + a + '"').join(' '))
+        } else {
+            genout.write('\t' + command)
+        }
     }
 
     function generateScript(target) {
@@ -3819,8 +3872,8 @@ public class Bit {
     }
 
     function like(os) {
-        if (posix.contains(os)) {
-            return "posix"
+        if (unix.contains(os)) {
+            return "unix"
         } else if (windows.contains(os)) {
             return "windows"
         }
@@ -4212,7 +4265,7 @@ public class Bit {
                     } else {
                         copyFile(from, to, options)
                     }
-                    if (options.linkin && bit.platform.like == 'posix') {
+                    if (options.linkin && bit.platform.like == 'unix') {
                         linkFile(to, Path(expand(options.linkin)).join(to.basename), options)
                     }
 
@@ -4225,6 +4278,7 @@ public class Bit {
                             makeDir(to, options)
                         } else {
                             try {
+                                //UNUSED trace('Copy', to.relative)
                                 copyFile(from, to, attributes)
                             } catch (e) {
                                 if (options.active) {
@@ -4267,7 +4321,7 @@ public class Bit {
                             options.filelist.push(to)
                         }
                     }
-                    if (options.linkin && bit.platform.like == 'posix') {
+                    if (options.linkin && bit.platform.like == 'unix') {
                         let linkin = Path(expand(options.linkin))
                         linkin.makeDir(options)
                         let lto = linkin.join(from.basename)

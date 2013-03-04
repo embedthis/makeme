@@ -3,7 +3,7 @@
 #
 
 PRODUCT           := bit
-VERSION           := 0.8.3
+VERSION           := 0.8.4
 BUILD_NUMBER      := 0
 PROFILE           := default
 ARCH              := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
@@ -524,8 +524,8 @@ DEPS_33 += bits/os/freebsd.bit
 DEPS_33 += bits/os/gcc.bit
 DEPS_33 += bits/os/linux.bit
 DEPS_33 += bits/os/macosx.bit
-DEPS_33 += bits/os/posix.bit
 DEPS_33 += bits/os/solaris.bit
+DEPS_33 += bits/os/unix.bit
 DEPS_33 += bits/os/vxworks.bit
 DEPS_33 += bits/os/windows.bit
 DEPS_33 += bits/packs
@@ -580,8 +580,8 @@ $(CONFIG)/bin/bits: $(DEPS_33)
 	cp "bits/os/gcc.bit" "$(CONFIG)/bin/bits/os/gcc.bit"
 	cp "bits/os/linux.bit" "$(CONFIG)/bin/bits/os/linux.bit"
 	cp "bits/os/macosx.bit" "$(CONFIG)/bin/bits/os/macosx.bit"
-	cp "bits/os/posix.bit" "$(CONFIG)/bin/bits/os/posix.bit"
 	cp "bits/os/solaris.bit" "$(CONFIG)/bin/bits/os/solaris.bit"
+	cp "bits/os/unix.bit" "$(CONFIG)/bin/bits/os/unix.bit"
 	cp "bits/os/vxworks.bit" "$(CONFIG)/bin/bits/os/vxworks.bit"
 	cp "bits/os/windows.bit" "$(CONFIG)/bin/bits/os/windows.bit"
 	@echo '      [File] $(CONFIG)/bin/bits'
@@ -594,9 +594,9 @@ $(CONFIG)/bin/bits: $(DEPS_33)
 	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/os/macosx.bit" "$(CONFIG)/bin/bits/os/macosx.bit"
 	@echo '      [File] $(CONFIG)/bin/bits'
-	cp "bits/os/posix.bit" "$(CONFIG)/bin/bits/os/posix.bit"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/os/solaris.bit" "$(CONFIG)/bin/bits/os/solaris.bit"
+	@echo '      [File] $(CONFIG)/bin/bits'
+	cp "bits/os/unix.bit" "$(CONFIG)/bin/bits/os/unix.bit"
 	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/os/vxworks.bit" "$(CONFIG)/bin/bits/os/vxworks.bit"
 	@echo '      [File] $(CONFIG)/bin/bits'
@@ -740,7 +740,7 @@ $(CONFIG)/bin/bit: $(DEPS_35)
 #   version
 #
 version: $(DEPS_36)
-	@echo 0.8.3-0
+	@echo 0.8.4-0
 
 #
 #   stop
@@ -758,7 +758,7 @@ installBinary: $(DEPS_38)
 	mkdir -p "$(BIT_VAPP_PREFIX)"
 	mkdir -p "$(BIT_APP_PREFIX)"
 	rm -f "$(BIT_APP_PREFIX)/latest"
-	ln -s "0.8.3" "$(BIT_APP_PREFIX)/latest"
+	ln -s "0.8.4" "$(BIT_APP_PREFIX)/latest"
 	mkdir -p "$(BIT_VAPP_PREFIX)/bin"
 	cp "$(CONFIG)/bin/bit" "$(BIT_VAPP_PREFIX)/bin/bit"
 	mkdir -p "$(BIT_BIN_PREFIX)"
@@ -783,8 +783,8 @@ installBinary: $(DEPS_38)
 	cp "bits/os/gcc.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/gcc.bit"
 	cp "bits/os/linux.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/linux.bit"
 	cp "bits/os/macosx.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/macosx.bit"
-	cp "bits/os/posix.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/posix.bit"
 	cp "bits/os/solaris.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/solaris.bit"
+	cp "bits/os/unix.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/unix.bit"
 	cp "bits/os/vxworks.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/vxworks.bit"
 	cp "bits/os/windows.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/windows.bit"
 	mkdir -p "$(BIT_VAPP_PREFIX)/bin/bits/packs"

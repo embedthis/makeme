@@ -14,7 +14,7 @@ Bit.load({
                 inherit:    'embedthis-manifest',
                 prefixes:   [ 'root', 'app', 'vapp', 'bin', 'man'],
                 sets:       [ 'core', 'doc' ],
-                platforms:  [ 'windows', 'posix' ]
+                platforms:  [ 'windows', 'unix' ]
             },
             binary: {
                 inherit:    'embedthis-manifest',
@@ -61,7 +61,7 @@ Bit.load({
                 to:     '${adoc}/man/man1/',
                 set:    'doc',
                 linkin: '${man}/man1',
-                enable: "bit.platform.like == 'posix'",
+                enable: "bit.platform.like == 'unix'",
 
             /* Source Set */
             },{ from:   [ '*.md' ],

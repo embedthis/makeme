@@ -1,5 +1,5 @@
 /*
-    posix.bit -- POSIX Settings
+    unix.bit -- Generic Unix Settings
  */
 
 Bit.load({

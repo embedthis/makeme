@@ -3,7 +3,7 @@
 #
 
 PRODUCT           := bit
-VERSION           := 0.8.3
+VERSION           := 0.8.4
 BUILD_NUMBER      := 0
 PROFILE           := default
 ARCH              := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
@@ -176,7 +176,7 @@ DEPS_5 += $(CONFIG)/obj/estLib.o
 
 $(CONFIG)/bin/libest.dylib: $(DEPS_5)
 	@echo '      [Link] libest'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libest.dylib $(LDFLAGS) -compatibility_version 0.8.3 -current_version 0.8.3 $(LIBPATHS) -install_name @rpath/libest.dylib $(CONFIG)/obj/estLib.o $(LIBS)
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libest.dylib $(LDFLAGS) -compatibility_version 0.8.4 -current_version 0.8.4 $(LIBPATHS) -install_name @rpath/libest.dylib $(CONFIG)/obj/estLib.o $(LIBS)
 endif
 
 #
@@ -217,7 +217,7 @@ DEPS_9 += $(CONFIG)/obj/mprLib.o
 
 $(CONFIG)/bin/libmpr.dylib: $(DEPS_9)
 	@echo '      [Link] libmpr'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libmpr.dylib $(LDFLAGS) -compatibility_version 0.8.3 -current_version 0.8.3 $(LIBPATHS) -install_name @rpath/libmpr.dylib $(CONFIG)/obj/mprLib.o $(LIBS)
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libmpr.dylib $(LDFLAGS) -compatibility_version 0.8.4 -current_version 0.8.4 $(LIBPATHS) -install_name @rpath/libmpr.dylib $(CONFIG)/obj/mprLib.o $(LIBS)
 
 #
 #   mprSsl.o
@@ -248,7 +248,7 @@ LIBS_11 += -lmpr
 
 $(CONFIG)/bin/libmprssl.dylib: $(DEPS_11)
 	@echo '      [Link] libmprssl'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libmprssl.dylib $(LDFLAGS) -compatibility_version 0.8.3 -current_version 0.8.3 $(LIBPATHS) -install_name @rpath/libmprssl.dylib $(CONFIG)/obj/mprSsl.o $(LIBS_11) $(LIBS_11) $(LIBS)
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libmprssl.dylib $(LDFLAGS) -compatibility_version 0.8.4 -current_version 0.8.4 $(LIBPATHS) -install_name @rpath/libmprssl.dylib $(CONFIG)/obj/mprSsl.o $(LIBS_11) $(LIBS_11) $(LIBS)
 endif
 
 #
@@ -301,7 +301,7 @@ DEPS_16 += $(CONFIG)/obj/pcre.o
 
 $(CONFIG)/bin/libpcre.dylib: $(DEPS_16)
 	@echo '      [Link] libpcre'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libpcre.dylib $(LDFLAGS) -compatibility_version 0.8.3 -current_version 0.8.3 $(LIBPATHS) -install_name @rpath/libpcre.dylib $(CONFIG)/obj/pcre.o $(LIBS)
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libpcre.dylib $(LDFLAGS) -compatibility_version 0.8.4 -current_version 0.8.4 $(LIBPATHS) -install_name @rpath/libpcre.dylib $(CONFIG)/obj/pcre.o $(LIBS)
 
 #
 #   http.h
@@ -336,7 +336,7 @@ LIBS_19 += -lmpr
 
 $(CONFIG)/bin/libhttp.dylib: $(DEPS_19)
 	@echo '      [Link] libhttp'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libhttp.dylib $(LDFLAGS) -compatibility_version 0.8.3 -current_version 0.8.3 $(LIBPATHS) -install_name @rpath/libhttp.dylib $(CONFIG)/obj/httpLib.o $(LIBS_19) $(LIBS_19) $(LIBS)
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libhttp.dylib $(LDFLAGS) -compatibility_version 0.8.4 -current_version 0.8.4 $(LIBPATHS) -install_name @rpath/libhttp.dylib $(CONFIG)/obj/httpLib.o $(LIBS_19) $(LIBS_19) $(LIBS)
 
 #
 #   http.o
@@ -423,7 +423,7 @@ LIBS_26 += -lmpr
 
 $(CONFIG)/bin/libejs.dylib: $(DEPS_26)
 	@echo '      [Link] libejs'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libejs.dylib $(LDFLAGS) -compatibility_version 0.8.3 -current_version 0.8.3 $(LIBPATHS) -install_name @rpath/libejs.dylib $(CONFIG)/obj/ejsLib.o $(LIBS_26) $(LIBS_26) $(LIBS) -lmpr
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libejs.dylib $(LDFLAGS) -compatibility_version 0.8.4 -current_version 0.8.4 $(LIBPATHS) -install_name @rpath/libejs.dylib $(CONFIG)/obj/ejsLib.o $(LIBS_26) $(LIBS_26) $(LIBS) -lmpr
 endif
 
 #
@@ -524,8 +524,8 @@ DEPS_33 += bits/os/freebsd.bit
 DEPS_33 += bits/os/gcc.bit
 DEPS_33 += bits/os/linux.bit
 DEPS_33 += bits/os/macosx.bit
-DEPS_33 += bits/os/posix.bit
 DEPS_33 += bits/os/solaris.bit
+DEPS_33 += bits/os/unix.bit
 DEPS_33 += bits/os/vxworks.bit
 DEPS_33 += bits/os/windows.bit
 DEPS_33 += bits/packs
@@ -580,8 +580,8 @@ $(CONFIG)/bin/bits: $(DEPS_33)
 	cp "bits/os/gcc.bit" "$(CONFIG)/bin/bits/os/gcc.bit"
 	cp "bits/os/linux.bit" "$(CONFIG)/bin/bits/os/linux.bit"
 	cp "bits/os/macosx.bit" "$(CONFIG)/bin/bits/os/macosx.bit"
-	cp "bits/os/posix.bit" "$(CONFIG)/bin/bits/os/posix.bit"
 	cp "bits/os/solaris.bit" "$(CONFIG)/bin/bits/os/solaris.bit"
+	cp "bits/os/unix.bit" "$(CONFIG)/bin/bits/os/unix.bit"
 	cp "bits/os/vxworks.bit" "$(CONFIG)/bin/bits/os/vxworks.bit"
 	cp "bits/os/windows.bit" "$(CONFIG)/bin/bits/os/windows.bit"
 	@echo '      [File] $(CONFIG)/bin/bits'
@@ -594,9 +594,9 @@ $(CONFIG)/bin/bits: $(DEPS_33)
 	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/os/macosx.bit" "$(CONFIG)/bin/bits/os/macosx.bit"
 	@echo '      [File] $(CONFIG)/bin/bits'
-	cp "bits/os/posix.bit" "$(CONFIG)/bin/bits/os/posix.bit"
-	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/os/solaris.bit" "$(CONFIG)/bin/bits/os/solaris.bit"
+	@echo '      [File] $(CONFIG)/bin/bits'
+	cp "bits/os/unix.bit" "$(CONFIG)/bin/bits/os/unix.bit"
 	@echo '      [File] $(CONFIG)/bin/bits'
 	cp "bits/os/vxworks.bit" "$(CONFIG)/bin/bits/os/vxworks.bit"
 	@echo '      [File] $(CONFIG)/bin/bits'
@@ -740,7 +740,7 @@ $(CONFIG)/bin/bit: $(DEPS_35)
 #   version
 #
 version: $(DEPS_36)
-	@echo 0.8.3-0
+	@echo 0.8.4-0
 
 #
 #   stop
@@ -758,7 +758,7 @@ installBinary: $(DEPS_38)
 	mkdir -p "$(BIT_VAPP_PREFIX)"
 	mkdir -p "$(BIT_APP_PREFIX)"
 	rm -f "$(BIT_APP_PREFIX)/latest"
-	ln -s "0.8.3" "$(BIT_APP_PREFIX)/latest"
+	ln -s "0.8.4" "$(BIT_APP_PREFIX)/latest"
 	mkdir -p "$(BIT_VAPP_PREFIX)/bin"
 	cp "$(CONFIG)/bin/bit" "$(BIT_VAPP_PREFIX)/bin/bit"
 	mkdir -p "$(BIT_BIN_PREFIX)"
@@ -783,8 +783,8 @@ installBinary: $(DEPS_38)
 	cp "bits/os/gcc.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/gcc.bit"
 	cp "bits/os/linux.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/linux.bit"
 	cp "bits/os/macosx.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/macosx.bit"
-	cp "bits/os/posix.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/posix.bit"
 	cp "bits/os/solaris.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/solaris.bit"
+	cp "bits/os/unix.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/unix.bit"
 	cp "bits/os/vxworks.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/vxworks.bit"
 	cp "bits/os/windows.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/windows.bit"
 	mkdir -p "$(BIT_VAPP_PREFIX)/bin/bits/packs"

@@ -116,9 +116,9 @@ copy /Y bits\os\linux.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\os\macosx.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\os\posix.bit $(BinDir)\bits
-if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\os\solaris.bit $(BinDir)\bits
+if exist $(BinDir)\bits del /Q $(BinDir)\bits
+copy /Y bits\os\unix.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\os\vxworks.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits

@@ -59,7 +59,7 @@ Bit.load({
                 postcopy:    "linkFile('${settings.version}', '${app}/latest')",
                 linkin:     '${app}',
                 set:        'core',
-                enable:     "bit.platform.like == 'posix'",
+                enable:     "bit.platform.like == 'unix'",
 
             }, {
                 from:       '${packs.compiler.dir}/VC/redist/${platform.arch}/Microsoft.VC${packs.compiler.crt}.CRT/msvcr${packs.compiler.crt}.dll',
