@@ -26,3 +26,4 @@ projects/.flags
 *.tmp
 .DS_Store
 *.dmp
+bit.sublime-*
