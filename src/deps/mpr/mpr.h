@@ -7044,6 +7044,24 @@ PUBLIC struct MprSsl *mprCreateSsl(int server);
 PUBLIC struct MprSsl *mprCloneSsl(MprSsl *src);
 
 /**
+    Lookup an SSL cipher by its IANA code and return the string name
+    @param cipher Cipher IANA code
+    @return String cipher name. For example: given 0x35, return "TLS_RSA_WITH_AES_256_CBC_SHA".
+    @stability Evolving
+    @ingroup MprSsl
+ */
+PUBLIC cchar *mprGetSslCipherName(int cipher);
+
+/**
+    Lookup an SSL cipher by its IANA name and return the cipher IANA code
+    @param cipher Cipher IANA name
+    @return String cipher code. For example: given "TLS_RSA_WITH_AES_256_CBC_SHA" return 0x35.
+    @stability Evolving
+    @ingroup MprSsl
+ */
+PUBLIC int mprGetSslCipherCode(cchar *cipher); 
+
+ /**
     Load the SSL module.
     @ingroup MprSsl
     @stability Evolving
@@ -7108,7 +7126,7 @@ PUBLIC void mprSetSslProtocols(struct MprSsl *ssl, int protocols);
 /**
     Set the SSL provider to use
     @param ssl SSL instance returned from #mprCreateSsl
-    @param provider SSL provider name (openssl | matrixssl)
+    @param provider SSL provider name (openssl | matrixssl | est | nanossl)
     @ingroup MprSsl
     @stability Evolving
  */
@@ -7147,12 +7165,19 @@ PUBLIC void mprVerifySslDepth(struct MprSsl *ssl, int depth);
 #if BIT_PACK_MATRIXSSL
     PUBLIC int mprCreateMatrixSslModule();
 #endif
-#if BIT_PACK_MOCANA
-    PUBLIC int mprCreateMocanaModule();
+#if BIT_PACK_NANOSSL
+    PUBLIC int mprCreateNanoSslModule();
 #endif
 #if BIT_PACK_OPENSSL
     PUBLIC int mprCreateOpenSslModule();
 #endif
+
+typedef struct MprCipher {
+    int     code;
+    cchar   *name;
+} MprCipher;
+
+PUBLIC_DATA MprCipher mprCiphers[];
 
 /******************************* Worker Threads *******************************/
 /**

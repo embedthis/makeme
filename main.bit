@@ -148,7 +148,7 @@ Bit.load({
         est: {},
         matrixssl: {},
         openssl: {},
-        mocana: {},
+        nanossl: {},
         sqlite: { enable: false },
     },
 })

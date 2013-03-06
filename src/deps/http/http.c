@@ -88,12 +88,12 @@ static bool     isPort(cchar *name);
 static cchar    *formatOutput(HttpConn *conn, cchar *buf, ssize *count);
 static void     manageApp(App *app, int flags);
 static void     manageThreadData(ThreadData *data, int flags);
-static bool     parseArgs(int argc, char **argv);
+static int      parseArgs(int argc, char **argv);
 static int      processThread(HttpConn *conn, MprEvent *event);
 static void     threadMain(void *data, MprThread *tp);
 static char     *resolveUrl(HttpConn *conn, cchar *url);
 static int      setContentLength(HttpConn *conn, MprList *files);
-static void     showUsage();
+static int      showUsage();
 static void     trace(HttpConn *conn, cchar *url, int fetchCount, cchar *method, int status, MprOff contentLen);
 static void     waitForUser();
 static ssize    writeBody(HttpConn *conn, MprList *files);
@@ -115,8 +115,7 @@ MAIN(httpMain, int argc, char **argv, char **envp)
     mprAddStandardSignals();
 
     initSettings();
-    if (!parseArgs(argc, argv)) {
-        showUsage();
+    if (parseArgs(argc, argv) < 0) {
         return MPR_ERR_BAD_ARGS;
     }
     mprSetMaxWorkers(app->workers);
@@ -206,7 +205,7 @@ static void initSettings()
 }
 
 
-static bool parseArgs(int argc, char **argv)
+static int parseArgs(int argc, char **argv)
 {
     char        *argp, *key, *value;
     int         i, setWorkers, nextArg, ssl;
@@ -221,7 +220,7 @@ static bool parseArgs(int argc, char **argv)
         }
         if (smatch(argp, "--auth")) {
             if (nextArg >= argc) {
-                return 0;
+                return showUsage();
             } else {
                 app->authType = slower(argv[++nextArg]);
             }
@@ -231,43 +230,43 @@ static bool parseArgs(int argc, char **argv)
 
         } else if (smatch(argp, "--ca")) {
             if (nextArg >= argc) {
-                return 0;
+                return showUsage();
             } else {
                 app->ca = sclone(argv[++nextArg]);
                 if (!mprPathExists(app->ca, R_OK)) {
                     mprError("Cannot find ca file %s", app->ca);
-                    return 0;
+                    return MPR_ERR_BAD_ARGS;
                 }
             }
             ssl = 1;
 
         } else if (smatch(argp, "--cert")) {
             if (nextArg >= argc) {
-                return 0;
+                return showUsage();
             } else {
                 app->cert = sclone(argv[++nextArg]);
                 if (!mprPathExists(app->cert, R_OK)) {
                     mprError("Cannot find cert file %s", app->cert);
-                    return 0;
+                    return MPR_ERR_BAD_ARGS;
                 }
             }
             ssl = 1;
 
         } else if (smatch(argp, "--chunk")) {
             if (nextArg >= argc) {
-                return 0;
+                return showUsage();
             } else {
                 value = argv[++nextArg];
                 app->chunkSize = atoi(value);
                 if (app->chunkSize < 0) {
                     mprError("Bad chunksize %d", app->chunkSize);
-                    return 0;
+                    return MPR_ERR_BAD_ARGS;
                 }
             }
 
         } else if (smatch(argp, "--ciphers")) {
             if (nextArg >= argc) {
-                return 0;
+                return showUsage();
             } else {
                 app->ciphers = sclone(argv[++nextArg]);
             }
@@ -278,14 +277,14 @@ static bool parseArgs(int argc, char **argv)
 
         } else if (smatch(argp, "--cookie")) {
             if (nextArg >= argc) {
-                return 0;
+                return showUsage();
             } else {
                 mprAddItem(app->headers, mprCreateKeyPair("Cookie", argv[++nextArg]));
             }
 
         } else if (smatch(argp, "--data")) {
             if (nextArg >= argc) {
-                return 0;
+                return showUsage();
             } else {
                 if (app->bodyData == 0) {
                     app->bodyData = mprCreateBuf(-1, -1);
@@ -303,7 +302,7 @@ static bool parseArgs(int argc, char **argv)
 
         } else if (smatch(argp, "--form") || smatch(argp, "-f")) {
             if (nextArg >= argc) {
-                return 0;
+                return showUsage();
             } else {
                 if (app->formData == 0) {
                     app->formData = mprCreateList(-1, 0);
@@ -313,12 +312,12 @@ static bool parseArgs(int argc, char **argv)
 
         } else if (smatch(argp, "--header")) {
             if (nextArg >= argc) {
-                return 0;
+                return showUsage();
             } else {
                 key = argv[++nextArg];
                 if ((value = strchr(key, ':')) == 0) {
                     mprError("Bad header format. Must be \"key: value\"");
-                    return 0;
+                    return MPR_ERR_BAD_ARGS;
                 }
                 *value++ = '\0';
                 while (isspace((uchar) *value)) {
@@ -329,7 +328,7 @@ static bool parseArgs(int argc, char **argv)
 
         } else if (smatch(argp, "--host")) {
             if (nextArg >= argc) {
-                return 0;
+                return showUsage();
             } else {
                 app->host = argv[++nextArg];
                 if (*app->host == ':') {
@@ -344,40 +343,40 @@ static bool parseArgs(int argc, char **argv)
 
         } else if (smatch(argp, "--iterations") || smatch(argp, "-i")) {
             if (nextArg >= argc) {
-                return 0;
+                return showUsage();
             } else {
                 app->iterations = atoi(argv[++nextArg]);
             }
 
         } else if (smatch(argp, "--key")) {
             if (nextArg >= argc) {
-                return 0;
+                return showUsage();
             } else {
                 app->key = sclone(argv[++nextArg]);
                 if (!mprPathExists(app->key, R_OK)) {
                     mprError("Cannot find key file %s", app->key);
-                    return 0;
+                    return MPR_ERR_BAD_ARGS;
                 }
             }
             ssl = 1;
 
         } else if (smatch(argp, "--log") || smatch(argp, "-l")) {
             if (nextArg >= argc) {
-                return 0;
+                return showUsage();
             } else {
                 mprStartLogging(argv[++nextArg], 0);
             }
 
         } else if (smatch(argp, "--method") || smatch(argp, "-m")) {
             if (nextArg >= argc) {
-                return 0;
+                return showUsage();
             } else {
                 app->method = argv[++nextArg];
             }
 
         } else if (smatch(argp, "--out") || smatch(argp, "-o")) {
             if (nextArg >= argc) {
-                return 0;
+                return showUsage();
             } else {
                 app->outFilename = sclone(argv[++nextArg]);
             }
@@ -391,7 +390,7 @@ static bool parseArgs(int argc, char **argv)
 
         } else if (smatch(argp, "--password") || smatch(argp, "-p")) {
             if (nextArg >= argc) {
-                return 0;
+                return showUsage();
             } else {
                 app->password = sclone(argv[++nextArg]);
             }
@@ -404,7 +403,7 @@ static bool parseArgs(int argc, char **argv)
 
         } else if (smatch(argp, "--protocol")) {
             if (nextArg >= argc) {
-                return 0;
+                return showUsage();
             } else {
                 app->protocol = supper(argv[++nextArg]);
             }
@@ -412,7 +411,7 @@ static bool parseArgs(int argc, char **argv)
         } else if (smatch(argp, "--provider")) {
             /* Undocumented SSL provider selection */
             if (nextArg >= argc) {
-                return 0;
+                return showUsage();
             } else {
                 app->provider = sclone(argv[++nextArg]);
             }
@@ -423,7 +422,7 @@ static bool parseArgs(int argc, char **argv)
 
         } else if (smatch(argp, "--range")) {
             if (nextArg >= argc) {
-                return 0;
+                return showUsage();
             } else {
                 //  TODO - should allow multiple ranges
                 if (app->ranges == 0) {
@@ -435,13 +434,13 @@ static bool parseArgs(int argc, char **argv)
             
         } else if (smatch(argp, "--retries") || smatch(argp, "-r")) {
             if (nextArg >= argc) {
-                return 0;
+                return showUsage();
             } else {
                 app->retries = atoi(argv[++nextArg]);
             }
 
         } else if (smatch(argp, "--self")) {
-            /* Undocumented. Users should just not set --verify */
+            /* Undocumented. Allow self-signed certs. Users should just not set --verify */
             app->verifyIssuer = 0;
             ssl = 1;
             
@@ -462,14 +461,14 @@ static bool parseArgs(int argc, char **argv)
 
         } else if (smatch(argp, "--threads") || smatch(argp, "-t")) {
             if (nextArg >= argc) {
-                return 0;
+                return showUsage();
             } else {
                 app->loadThreads = atoi(argv[++nextArg]);
             }
 
         } else if (smatch(argp, "--timeout")) {
             if (nextArg >= argc) {
-                return 0;
+                return showUsage();
             } else {
                 app->timeout = atoi(argv[++nextArg]) * MPR_TICKS_PER_SEC;
             }
@@ -479,7 +478,7 @@ static bool parseArgs(int argc, char **argv)
 
         } else if (smatch(argp, "--user") || smatch(argp, "--username")) {
             if (nextArg >= argc) {
-                return 0;
+                return showUsage();
             } else {
                 app->username = argv[++nextArg];
             }
@@ -501,7 +500,7 @@ static bool parseArgs(int argc, char **argv)
 
         } else if (smatch(argp, "--workerTheads") || smatch(argp, "-w")) {
             if (nextArg >= argc) {
-                return 0;
+                return showUsage();
             } else {
                 app->workers = atoi(argv[++nextArg]);
             }
@@ -518,12 +517,11 @@ static bool parseArgs(int argc, char **argv)
             break;
 
         } else {
-            return 0;
-            break;
+            return showUsage();
         }
     }
     if (argc == nextArg) {
-        return 0;
+        return showUsage();
     }
     app->nextArg = nextArg;
     argc = argc - nextArg;
@@ -586,11 +584,11 @@ static bool parseArgs(int argc, char **argv)
     /* Suppress comp warning */
     mprNop(&ssl);
 #endif
-    return 1;
+    return 0;
 }
 
 
-static void showUsage()
+static int showUsage()
 {
     mprEprintf("usage: %s [options] [files] url\n"
         "  Options:\n"
@@ -635,6 +633,7 @@ static void showUsage()
         "  --workers count       # Set maximum worker threads.\n"
         "  --zero                # Exit with zero status for any valid HTTP response.\n"
         , mprGetAppName());
+    return MPR_ERR_BAD_ARGS;
 }
 
 

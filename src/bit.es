@@ -72,6 +72,7 @@ public class Bit {
         options: {
             benchmark: { alias: 'b' },
             bit: { range: String },
+            chdir: { range: String },
             configure: { range: String },
             'continue': { alias: 'c' },
             debug: {},
@@ -119,6 +120,7 @@ public class Bit {
         print('\nUsage: bit [options] [targets|actions] ...\n' +
             '  Options:\n' + 
             '  --benchmark                              # Measure elapsed time\n' +
+            '  --chdir dir                              # Directory to build from\n' +
             '  --configure path-to-source               # Configure for building\n' +
             '  --continue                               # Continue on errors\n' +
             '  --debug                                  # Same as --profile debug\n' +
@@ -311,6 +313,9 @@ public class Bit {
      */
     function setup(args: Args) {
         options.control = {}
+        if (options.chdir) {
+            App.chdir(options.chdir)
+        }
         if (options.version) {
             print(version)
             App.exit(0)
@@ -1171,11 +1176,11 @@ public class Bit {
             for each (n in ['action', 'postblend', 'preresolve', 'postresolve', 'postsource', 'predependencies',
                     'postdependencies', 'precompile', 'postcompile', 'prebuild', 'build', 'postbuild', 'shell']) {
                 if (target[n]) {
-                    target.type ||= (n == 'action') ? n : 'build'
+                    target.type ||= (n == 'action' || n == 'shell') ? n : 'build'
                     let script = target[n]
-                    if (n == 'action') n = 'build'
-                    target.scripts[n] ||= []
-                    target.scripts[n]  += [{ home: home, interpreter: (n == 'shell') ? 'bash' : 'ejs', script: script}]
+                    let event = (n == 'action' || n == 'shell') ? 'build' : n
+                    target.scripts[event] ||= []
+                    target.scripts[event]  += [{ home: home, interpreter: (n == 'shell') ? 'bash' : 'ejs', script: script}]
                     delete target[n]
                 }
             }
