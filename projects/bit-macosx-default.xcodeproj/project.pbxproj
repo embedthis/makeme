@@ -1073,7 +1073,7 @@ cp -r src/bit.es macosx-x64-default/bin/bit.es
 ../bits/packs/man2html.pak,
 ../bits/packs/matrixssl.pak,
 ../bits/packs/md5.pak,
-../bits/packs/mocana.pak,
+../bits/packs/nanossl.pak,
 ../bits/packs/openssl.pak,
 ../bits/packs/pcre.pak,
 ../bits/packs/pmaker.pak,
@@ -1158,7 +1158,7 @@ cp -r bits/packs/matrixssl.pak macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
 cp -r bits/packs/md5.pak macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/mocana.pak macosx-x64-default/bin/bits
+cp -r bits/packs/nanossl.pak macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
 cp -r bits/packs/openssl.pak macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits

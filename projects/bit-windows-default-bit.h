@@ -263,6 +263,9 @@
 #ifndef BIT_PACK_MOCANA
     #define BIT_PACK_MOCANA 0
 #endif
+#ifndef BIT_PACK_NANOSSL
+    #define BIT_PACK_NANOSSL 0
+#endif
 #ifndef BIT_PACK_OPENSSL
     #define BIT_PACK_OPENSSL 0
 #endif

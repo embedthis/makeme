@@ -155,7 +155,7 @@ copy /Y bits\packs\matrixssl.pak $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\packs\md5.pak $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\mocana.pak $(BinDir)\bits
+copy /Y bits\packs\nanossl.pak $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\packs\openssl.pak $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits

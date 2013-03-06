@@ -544,7 +544,7 @@ DEPS_33 += bits/packs/man.pak
 DEPS_33 += bits/packs/man2html.pak
 DEPS_33 += bits/packs/matrixssl.pak
 DEPS_33 += bits/packs/md5.pak
-DEPS_33 += bits/packs/mocana.pak
+DEPS_33 += bits/packs/nanossl.pak
 DEPS_33 += bits/packs/openssl.pak
 DEPS_33 += bits/packs/pcre.pak
 DEPS_33 += bits/packs/pmaker.pak
@@ -605,7 +605,7 @@ $(CONFIG)/bin/bits: $(DEPS_33)
 	cp "bits/packs/man2html.pak" "$(CONFIG)/bin/bits/packs/man2html.pak"
 	cp "bits/packs/matrixssl.pak" "$(CONFIG)/bin/bits/packs/matrixssl.pak"
 	cp "bits/packs/md5.pak" "$(CONFIG)/bin/bits/packs/md5.pak"
-	cp "bits/packs/mocana.pak" "$(CONFIG)/bin/bits/packs/mocana.pak"
+	cp "bits/packs/nanossl.pak" "$(CONFIG)/bin/bits/packs/nanossl.pak"
 	cp "bits/packs/openssl.pak" "$(CONFIG)/bin/bits/packs/openssl.pak"
 	cp "bits/packs/pcre.pak" "$(CONFIG)/bin/bits/packs/pcre.pak"
 	cp "bits/packs/pmaker.pak" "$(CONFIG)/bin/bits/packs/pmaker.pak"
@@ -634,7 +634,7 @@ $(CONFIG)/bin/bits: $(DEPS_33)
 	cp "bits/packs/man2html.pak" "$(CONFIG)/bin/bits/packs/man2html.pak"
 	cp "bits/packs/matrixssl.pak" "$(CONFIG)/bin/bits/packs/matrixssl.pak"
 	cp "bits/packs/md5.pak" "$(CONFIG)/bin/bits/packs/md5.pak"
-	cp "bits/packs/mocana.pak" "$(CONFIG)/bin/bits/packs/mocana.pak"
+	cp "bits/packs/nanossl.pak" "$(CONFIG)/bin/bits/packs/nanossl.pak"
 	cp "bits/packs/openssl.pak" "$(CONFIG)/bin/bits/packs/openssl.pak"
 	cp "bits/packs/pcre.pak" "$(CONFIG)/bin/bits/packs/pcre.pak"
 	cp "bits/packs/pmaker.pak" "$(CONFIG)/bin/bits/packs/pmaker.pak"
@@ -756,7 +756,7 @@ installBinary: $(DEPS_38)
 	cp "bits/packs/man2html.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/man2html.pak"
 	cp "bits/packs/matrixssl.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/matrixssl.pak"
 	cp "bits/packs/md5.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/md5.pak"
-	cp "bits/packs/mocana.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/mocana.pak"
+	cp "bits/packs/nanossl.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/nanossl.pak"
 	cp "bits/packs/openssl.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/openssl.pak"
 	cp "bits/packs/pcre.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/pcre.pak"
 	cp "bits/packs/pmaker.pak" "$(BIT_VAPP_PREFIX)/bin/bits/packs/pmaker.pak"
