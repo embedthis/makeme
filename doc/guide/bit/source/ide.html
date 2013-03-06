@@ -26,42 +26,44 @@
         <div class="crumbs">
             <a href="../../../index.html">Home</a>
 <!-- EndDsi -->
-             &gt; <b>Developer Guide</b>
+             &gt;<a href="index.html">Source Code</a>&gt; <b>Building with an IDE</b>
         </div>
     </div>
     <div class="content">
         <div class="contentRight">
-        <h1>See Also</h1>
-        <ul>
-            <li><a href="../users/index.html">Bit Users Guide</li>
-            <li><a href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Ejscript Language</a></li>
-            <li><a href="http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a></li>
-        </ul>
+            <h1>Quick Nav</h1>
+            <ul>
+                <li><a href="make.html">Building with Make</a></li>
+                <li><a href="bit.html">Building with Bit</a></li>
+            </ul>
+<!-- BeginDsi "dsi/sourceSeeAlso.html" -->
+            <h1>See Also</h1>
+            <ul>
+                <li><a href="../../../guide/bit/source/index.html">Working with Source</a></li>
+                <li><a href="../../../guide/bit/source/building.html">Building from Source</a></li>
+                <li><a href="../../../product/changeLog.html">Change Log</a></li>
+                <li><a href="../../../product/releaseNotes.html">Release Notes</a></li>
+                <li><a href="../../../product/install/mac.html">Installing on Mac OS X</a></li>
+                <li><a href="../../../product/install/windows.html">Installing on Windows</a></li>
+            </ul>
+<!-- EndDsi -->
         </div>
         <div class="contentLeft">
-            <h1>Bit Developer Guide</h1>
-            <p>The Guide contains the following topics:</p>
-            <table class="full" title="topics">
-                <thead>
-                    <tr>
-                        <th class="nowrap">Topic</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td><a href="projects.html">Bit Projects</a></td><td>Overview of Bit project types.</td>
-                    <tr><td><a href="compiling.html">Compiling</a></td><td>Compiling sources into libraries.</td>
-                    <tr><td><a href="libraries.html">Creating Libraries</a></td><td>How to create shared and static
-                            libraries.</td>
-                    <tr><td><a href="executables.html">Creating Executables</a></td><td>How to build executables.</td>
-                    <tr><td><a href="scripts.html">Scripts</a></td><td>How to create build scripts.</td>
-                    <tr><td><a href="copying.html">Copying Files</a></td><td>How to copy files and directories.</td>
-                    <tr><td><a href="configuring.html">Configuring</a></td><td>How to create a configurable product.</td>
-                    <tr><td><a href="generating.html">Generating Makefiles</a></td><td>Generating Makefiles and
-                        IDE projects.</td>
-                    <tr><td><a href="samples.html">Sample Bit files</a></td><td>Bit file projects and snippets.</td>
-                </tbody>
-            </table>
+            <h2 class="section">Building with an IDE</h2>
+            <p>Bit provides Visual Studio and Xcode projects. These projects are provide easy access to debug
+            Bit using the native system debugger. The projects are somewhat limited in their configurability.</p>
+            
+            <h2>Building with Visual Studio on Windows</h2>
+            <p>To build Bit with the Visual Studio project, 
+            run Visual Studio 2010 or later (The Express editions are fine to use). Then open the
+            projects/bit-windows.sln solution project. Select Build Solution to build. Select Bit as the start up
+            project to debug.</p>
+            <h2>Building with Xcode on MAC OS X</h2>
+            <p>To build Bit with the Xcode on Mac OSX, run Xcode and open the
+            <em>projects/bit-macosx.xcodeproj</em> project. Then select Product-&gt;Build to build. 
+            To debug, you will need to create use Product-&gt;Edit Scheme to set the executable to run under the Info tab,
+            and define the working directory under the Options tab. Set the working directory to the "test" directory of the
+            source tree. </p>
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->

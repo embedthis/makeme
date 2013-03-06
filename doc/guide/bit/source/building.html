@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis Bit 0.8.3 Documentation</title>
+    <title>Embedthis Bit 0.8.4 Documentation</title>
     <meta name="keywords" content="Bit, Build It!, Javascript"/>
 	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
 	<meta name="robots" content="index,follow" />
@@ -34,13 +34,13 @@
             <h1>Quick Nav</h1>
             <ul>
                 <li><a href="#platforms">Supported Platforms</a></li>
-                <li><a href="#overview">Build Overview</a></li>
                 <li><a href="#env">Prepare the Environment</a></li>
-                <li><a href="#configuring">Configuring the Build</a></li>
-                <li><a href="#building">Building</a></li>
-                <li><a href="#installing">Installing</a></li>
-                <li><a href="#repository">Source Repository</a></li>
-                <li><a href="#keyFiles">Key File and Directories</a></li>
+                <li><a href="#overview">Build Overview</a></li>
+                <li><a href="#repository">Repository Building</a></li>
+                <li><a href="#directories">Key Directories</a></li>
+                <li><a href="make.html">Building with Make</a></li>
+                <li><a href="bit.html">Building with Bit</a></li>
+                <li><a href="ide.html">Building with an ID</a></li>
             </ul>
 <!-- BeginDsi "dsi/sourceSeeAlso.html" -->
             <h1>See Also</h1>
@@ -56,7 +56,7 @@
         </div>
         <div class="contentLeft">
             <h1>Building from Source Code</h1>
-            <p>This document describes the process to build Bit from source for a supported platform.
+            <p>This document describes the process to build the software from source for a supported platform.
             The source distribution contains all the necessary source files, headers and tools to
             reconfigure, build and verify the software. </p>
             
@@ -67,26 +67,21 @@
                 <li><b>Windows</b> &mdash; Microsoft Windows 7 with Visual Studio 2010 or later</li>
                 <li><b>Mac OSX</b> &mdash; Mac OSX 10.7 (Lion) or later</li>
             </ul>
-            <p>The source code has been designed to run on Free BSD, Linux, Mac OSX, and Windows.
-            It has been tested under Fedora Linux based on the Linux 2.6 Kernel, Microsoft Windows
-            XP, Vista, 7 (32 and 64-bit), and MAC OSX 10.7. </p>
+            <p>The source code has been designed to run on FreeBSD, Linux, Mac OSX, Solaris Windows, VxWorks and other
+            operating systems. It has been tested under Fedora and Ubuntu Linux based on the Linux 2.6 Kernel, Microsoft
+            Windows XP, Vista, 7 (32 and 64-bit), VxWorks 5.4, 6.3 and MAC OSX 10.7. Both single and multi-cpu systems are
+            supported.</p>
             <p>If you are wanting to run the software to an unsupported platform, 
-            you are welcome to try your hand at adapting it to a new platform. The software is very portable. See
+            you are welcome to try your hand at adapting it to a new platform. The software is quite portable. See
             the <a href="porting.html">Porting Guide</a> for more details. </p>
             <p>If you want to build using source from the source code repository, please read these <a href=
                 "#repository">additional instructions</a>.</p>
-            <a id="overview"></a>
-            <h2 class="section">Build Overview</h2>
-            <p>To build Bit from source, you must first boostrap the build by using another build tool such as Make
-            to build Bit. The software supports two methods of building from source:
-            <ol>
-                <li>Building via make (or nmake on Windows)</li>
-                <li>Building via an IDE such as Visual Studio or Xcode</li>
-            </ol>
             <a id="env"></a>
             <h2 class="section">Preparing the Environment</h2>
-            <p>Before building, you may need to install required tools such as compilers, SDKs, and system
-            libraries. </p>
+            <p>Before building, you may need to install required tools such as cross-compilers, SDKs, and system
+            libraries. If you wish to build the software with the support of third-party packages such as 
+            MatrixSSL or OpenSSL, you may need to download the source from the relevant vendor and build the
+            required libraries for the software to utilize.</p>
             <h3>Windows</h3>
             <p>To build on Windows, you will need to install Microsoft Visual Studio 10.0 or later. Either the full 
             product or the express editions will work fine. You will also need to 
@@ -99,439 +94,20 @@
             variables.</p>
             <h3>Unix / Linux</h3>
             <p>To build on Linux, you may need to install the libpam and zlib libraries.</p>
-            <a id="make"></a>
-            <h2 class="section">Building with Make/Nmake</h2>
-            <p>Bit provides a suite of pre-configured Makefiles under the projects directory for common platforms.
-            These are single, simple Makefiles that build a generic configuration of Bit. You may need to edit the
-            Makefile for your platform to adjust compiler or linker options. A top level Makefile is provided that sleuths
-            the correct project Makefile for your system. To build using make, type the following in the top directory of
-            the source code:</p>
-            <pre>make</pre>
-            <p>Alternatively, invoke the platform Makefile directly. For example:</p>
-            <pre>make -f projects/bit-macosx.mk</pre>
-            <h3>Windows Nmake</h3>
-            <p>To build on Windows with nmake, type:
-            <pre>WinMake</pre>
-            this is a simple script that sets up the Visual Studio environment and then invokes:
-            <pre>nmake -f projects\bit-windows.nmake</pre>
-            <h3>Modifying the Makefile defaults</h3>
-            <p>The source code includes a configuration header from projects/bit-OS-debug-bit.h. This header specifies
-            the featuers and extensions to be used when building Bit. You can modify this file by hand or override
-            values by setting CFLAGS when invoking make. For example, to disable use of EST SSL stack:
-            <pre>make DBIT_PACK_EST=0 </pre>
-            <p>Use <em>make help</em> to see a list of the available options.</p>
-            <a id="ide"></a>
-            <h2 class="section">Building with an IDE</h2>
-            <p>Bit provides Visual Studio and Xcode projects. To build Bit with the Visual Studio project, 
-            run Visual Studio 2010 or later (The Express editions are fine to use). Then open the
-            projects/bit-windows.sln Solution project. Select Build Solution to build. Select Bit as the start up
-            project to debug.</p>
-            <p>To build Bit with the Xcode on Mac OSX, run Xcode and open the
-            <em>projects/bit-macosx.xcodeproj</em> project.  Then select Product-&gt;Build to build. To debug, you will need to
-            create use Product-&gt;Edit Scheme to set the executable to run under the Info tab, and define the working
-            directory under the Options tab. Set the working directory to the "test" directory of the source tree. </p>
-            
-            <a id="bit"></a>
-            <h2 class="section">Building with Bit</h2>
-            <p>Once you have bootstrapped and built bit, you can use Bit to rebuild itself. Note: on windows, you
-            must use an installed version of Bit to rebuild Bit as the build will not be able to overwrite executables
-            and libraries that are currently being used by itself.</p>
-            
-            <a id="configuring"></a>
-            <h2 class="section">Configure Bit</h2>
-            <p>Bit may be customized for your local system by running <em>configure</em>. This is used to select
-            features, options, and integrate third-party packages. The <em>configure</em> script simply invokes <em>bit
-                configure</em> and passes all command line options to bit.</p>
-           
-            <p>During configuration, <em>bit</em> will create several output files that contain settings for each 
-            specified platform.</p>
+            <a id="overview"></a>
+            <h2 class="section">Build Overview</h2>
+            <p>The software supports two methods of building from source.
+            Building via make is the simplest and quickest way to build. Use make if you are looking to build
+            and move on. </p>
+
+            <p>Select the appropriate instructions:</p>
             <ul>
-                <li>A bit file that specifies the platforms to build named: start.bit</li>
-                <li>A bit file for each platform named: OS-ARCH[-CPU].bit</li>
-                <li>A source header with for the build configuration named: OS-ARCH[-CPU]-PROFILE/inc/bit.h</li>
-                <li>An output products directory for each platform named: OS-ARCH[-CPU]-PROFILE</li>
+                <li><a href="make.html">How to build with Make</a></li>
+                <li><a href="ide.html">How to build with IDE</a></li>
             </ul>
-            <p>where OS is the name of the operating system, ARCH is the name of the CPU architecture and PROFILE
-            is the build profile name, typically "debug" or "release". For example: linux-x86-debug.</p>
-            <p>The generated Bit files are readable Javascript files that contain the settings to control the build
-            when Bit is run. When compiling, all source code includes the relevant platform <em>bit.h</em> header to
-            configure how the source is built.</p>
-            <h3>Running Configure</h3>
-            <p>You may run the configure script with no options to accept the defaults &mdash; this is a good
-            starting point:</p> 
-            <pre>./configure</pre>
-            <p>You may also supply options to tailor the build:
-            <pre>
-./configure --release --without all
-</pre>
-            <p>The <em>--release</em> switch instructs bit to build an optimized production release. This will disable
-            debugging code and non-essential logging. The <em>--without all</em> switch will disable non-essential
-            features to create a minimal build.</p>
-            </p>
-            <a id="options"></a>
-            <h2 class="section">Configure Options</h2>
-            <p>The tables below describe the key configuration options.
-            <h3>Basic Configure Options</h3>
-            <table title="options">
-                <thead>
-                    <tr>
-                        <th>Option</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>--debug</td>
-                    <td>Build a debug build. This builds a development, non-optimized build with debug symbols.</td>
-                </tr>
-                <tr>
-                    <td>--help</td>
-                    <td>Display the bit program usage help.</td>
-                </tr>
-                <tr>
-                    <td class="nowrap">--set KEY=VALUE</td>
-                    <td>Set the value of a property in the bit settings collection. For example: "--set
-                        mpr.tracing=false".</td>
-                </tr>
-                <tr>
-                    <td>--quiet, -q</td>
-                    <td>Run quietly without progress trace.</td>
-                </tr>
-                <tr>
-                    <td>--release</td>
-                    <td>Build a release build. This builds an optimized, production-ready build of the software.</td>
-                </tr>
-                <tr>
-                    <td>--verbose, -v</td>
-                    <td>Run verbosely and emit more detailed progress trace.</td>
-                </tr>
-                </tbody>
-            </table>
-            <h3>Cross Building</h3>
-            <table title="types">
-                <thead>
-                    <tr>
-                        <th>Option</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td class="nowrap">--platform OS-ARCH[-CPU]</td>
-                    <td><p>Specify the target platform for which to build. For example "-platform linux-arm". 
-                        Supported operating systems are: freebsd, linux, macosx, solaris, vxworks and windows. 
-                        Supported architectures are: arm, mips, ppc, x64 or x86.
-                        If the -platform option is omitted, the local system is added as the target platform.  You may
-                        use the 'local' alias to indicate the local platform.  Multiple platforms may be specified. </p>
-                        <p>The optional CPU component specifies a CPU instance to tune for. The CPU setting is used
-                        in a -DCPU=VALUE compiler define. For example: "-platform linux-arm-arm7tdmi".</p>
-                        <p>NOTE: this is not a typical configure --host argument. i.e. The second component is a CPU
-                        and not a distribution name.</p>
-                    </td>
-                </tr>
-            </tbody>
-            </table>
-            <h3>Feature Options</h3>
-            <table title="options">
-                <thead>
-                    <tr>
-                        <th>Option</th>
-                        <th>Default</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td class="nowrap">--without all</td>
-                    <td></td>
-                    <td>Disable all non-essential possible packages.</td>
-                </tr>
-                <tr>
-                    <td class="nowrap">--set tune=MODE</td>
-                    <td>size</td>
-                    <td>Tune the build to optimize for "size", "speed". You can also select "balanced" for a balance
-                    between speed and size.</td>
-                </tr>
-                </tbody>
-            </table>
-            <h3>Optional Packages</h3>
-            <table title="packages">
-                <thead>
-                    <tr>
-                        <th>Option</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td class="nowrap">--with PACKAGE[=dir]</td>
-                    <td>Specify if a PACKAGE should be included in the build. The optional directory is the path to
-                        the source distribution of the package. If the directory is omitted, bit will search the
-                        local system for the package in well known places.</td>
-                </tr>
-                <tr>
-                    <td>--without PACKAGE</td>
-                    <td>Do not include the PACKAGE in the build.</td>
-                </tr>
-                </tbody>
-            </table>
-            <h3>Example Use</h3>
-            <pre>
-configure --with openssl=/usr/src/openssl
-</pre>
-            <h3>Packages</h3>
-            <p>The following table describes the packages that can extend the Bit configuration. 
-            The use of the Internal/External field states whether the package is shipped internally with the Bit source
-            code, or whether it is an external third party package.</p>
-            <table title="env">
-                <thead>
-                    <tr>
-                        <th>Package</th>
-                        <th>Integrated</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>est</td>
-                    <td>Internal</td>
-                    <td>Embedded Security Transport. SSL stack.</td>
-                </tr>
-                <tr>
-                    <td>matrixssl</td>
-                    <td>External</td>
-                    <td>MatrixSSL SSL stack. Requires a commerical license from PeerSec.</td>
-                </tr>
-                <tr>
-                    <td>mocana</td>
-                    <td>External</td>
-                    <td>Mocana NanoSSL stack. Requires a commerical license from Mocana.</td>
-                </tr>
-                <tr>
-                    <td>openssl</td>
-                    <td>External</td>
-                    <td>OpenSSL SSL stack. Requires OpenSSL libraries.</td>
-                </tr>
-                </tbody>
-            </table>
-            <p>The following table describes the tool packages that can be used when building, running and 
-            managing Bit. 
-            The use of the Internal/External field documents whether the package is shipped internally with the 
-            Bit source code, or whether it is an external third party package.</p>
-            <table title="env">
-                <thead>
-                    <tr>
-                        <th>Package</th>
-                        <th>Integrated</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>doxygen</td>
-                    <td>External</td>
-                    <td>C API documentation generator.</td>
-                </tr>
-                <tr>
-                    <td>dsi</td>
-                    <td>External</td>
-                    <td>Dev Side Includes. Simple static web page templates.</td>
-                </tr>
-                <tr>
-                    <td>http</td>
-                    <td>Internal</td>
-                    <td>Http test client program.</td>
-                </tr>
-                <tr>
-                    <td>man</td>
-                    <td>External</td>
-                    <td>Manual page reader and renderer.</td>
-                </tr>
-                <tr>
-                    <td>man2html</td>
-                    <td>External</td>
-                    <td>Program to convert man pages to HTML.</td>
-                </tr>
-                <tr>
-                    <td>pmaker</td>
-                    <td>External</td>
-                    <td>Native package maker. This resolves to InnoSetup on Windows and PackageMaker on MAC OSX.</td>
-                </tr>
-                <tr>
-                    <td>utest</td>
-                    <td>External</td>
-                    <td>Bit unit test framework. See http://ejscript.org.</td>
-                </tr>
-                <tr>
-                    <td>zip</td>
-                    <td>External</td>
-                    <td>Zip compression program. Used when creating installable packages.</td>
-                </tr>
-                </tbody>
-            </table>
-            <p>When building, certain environment variables may be passed to the configure script and on to 
-            <em>bit</em> to configure the compiler and linker paths and flags. </p>
-            <table title="env">
-                <thead>
-                    <tr>
-                        <th>Variable</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>AR</td>
-                    <td>Path to the archiver program to use to archive libraries for the target system.</td>
-                </tr>
-                <tr>
-                    <td>CC</td>
-                    <td>Path to the C/C++ compiler to use to compile for the target system.</td>
-                </tr>
-                <tr>
-                    <td>CFLAGS</td>
-                    <td>Compiler control flags</td>
-                </tr>
-                <tr>
-                    <td>DFLAGS</td>
-                    <td>Compiler preprocessor defines</td>
-                </tr>
-                <tr>
-                    <td>IFLAGS</td>
-                    <td>Include directory options</td>
-                </tr>
-                <tr>
-                    <td>LD</td>
-                    <td>Path to the linker program to link objects for the target system.</td>
-                </tr>
-                <tr>
-                    <td>LDFLAGS</td>
-                    <td>Linker flags. E.g. -Ldir to specify a non-standard directory for libraries.</td>
-                </tr>
-                </tbody>
-            </table>
-            <h3>Example Use</h3>
-            <pre>
-CC=/opt/bin/ccarm configure
-</pre>
-            <h3>Configure Examples</h3>
-            <p>Here are some useful configure command options.</p>
-            <p>To configure for building outside a source tree. This supports building from source from a 
-                read-only file system.</p>
-            <pre>configure --configure /path/to/source</pre>
-            <p>To configure for a debug build with debug symbols:</p>
-            <p>To configure without TLS/SSL:</p>
-            <pre>configure --without ssl</pre>
-            <p>To configure to build for 32-bit X86 (when on a 64-bit system):</p>
-            <pre>configure --platform linux-x86</pre>
-            
-            <p>To display all configure options:
-<pre>configure --help</pre>
-<pre class="paper">Usage: bit [options] [targets|actions] ...
-  Options:
-  --benchmark                              # Measure elapsed time
-  --configure path-to-source               # Configure for building
-  --continue                               # Continue on errors
-  --debug                                  # Same as --profile debug
-  --depth level                            # Set utest depth level
-  --diagnose                               # Emit diagnostic trace 
-  --dump                                   # Dump the full project bit file
-  --endian [big|little]                    # Define the CPU endianness
-  --file file.bit                          # Use the specified bit file
-  --force                                  # Override warnings
-  --gen [make|nmake|sh|vs|xcode|main|start]# Generate project file
-  --help                                   # Print help message
-  --import                                 # Import standard bit configuration
-  --keep                                   # Keep intermediate files
-  --log logSpec                            # Save errors to a log file
-  --nocross                                # Build natively
-  --overwrite                              # Overwrite existing files
-  --out path                               # Save output to a file
-  --platform os-arch[-cpu]                 # Build for specified platform
-  --pre                                    # Pre-process a source file to stdout
-  --prefix dir=path                        # Define installation path prefixes
-  --profile [debug|release|...]            # Use the build profile
-  --quiet                                  # Quiet operation. Suppress trace 
-  --rebuild                                # Rebuild all specified targets
-  --reconfigure                            # Reconfigure with existing settings
-  --release                                # Same as --profile release
-  --rom                                    # Build for ROM without a file system
-  --set [feature=value]                    # Enable and a feature
-  --show                                   # Show commands executed
-  --static                                 # Make static libraries
-  --unicode                                # Set char size to wide (unicode)
-  --unset feature                          # Unset a feature
-  --version                                # Dispay the bit version
-  --verbose                                # Trace operations
-  --with PACK[=PATH]                       # Build with package at PATH
-  --without PACK                           # Build without a package
-Feature Selection:
-    --set esp.mdb=value                    # Enable ESP MDB database support (true|false)
-    --set esp.sdb=value                    # Enable ESP SQLite database support (true|flase)
-    --set http.pam=value                   # Enable Unix Pluggable Auth Module (true|false)
-    --set mpr.logging=value                # Enable application logging (true|false)
-    --set mpr.tracing=value                # Enable debug tracing (true|false)
-Extension Packages (--with PACK, --without PACK):
-    dsi                                    # Developer Server Side Include Tool
-    est                                    # Embedded Security Transport (SSL)
-    man                                    # Manual Page Formatting Tool
-    man2html                               # Manual Page to HTML Converter
-    matrixssl                              # MatrixSSL (SSL)
-    mocana                                 # Mocana NanoSSL (SSL)
-    openssl                                # OpenSSL (SSL)
-    pmaker                                 # Package Maker Tool
-    sqlite                                 # SQLite Database
-    ssl                                    # undefined
-    zip                                    # Zip Compression Tool
-</pre>
-            <a id="packages"></a>
-            <h2 class="section">Configuring with External Packages</h2>
-            <p>The configuration process supports the resolution of external packages that extend and enhance Bit, 
-                such as MatrixSSL and OpenSSL. By default, Bit can locate these packages if the source
-                distributions are installed in standard locations. Otherwise, the packages can be identified by using
-                <em>configure --with PACKAGE=PATH</em> switch. This specifies the path to the package source directory.</p>
-            
-            <a id="building"></a>
-            <h2 class="section">Building Bit with Bit</h2>
-            <p>Once the build configuration is complete, you may proceed to build the source code by typing:</p>
-            <pre>
-bit
-</pre>
-            <p>This will build the software. Note that you should invoke an installed version of Bit when building Bit
-            itself.  
-            
-            <h3>Useful Bit options and targets</h3>
-            <p>Here are some useful bit examples:</p>
-            <pre>bit --show     # Show actual commands while building
-bit --why      # Show why each target is or is not being built 
-bit --dump     # Dump the combined bit configuration in one file
-bit rebuild    # Rebuild all targets
-bit clean      # Clean all built targets
-bit rebuild    # Rebuild all targets
-bit install    # Install the built software locally
-bit --help     # Show bit usage</pre>
-            
-            <a id="installing"></a>
-            <h2 class="section">Installing</h2>
-            <p>You can install the newly built software via:</p>
-            <pre>
-sudo bit install
-</pre>
-            <p>You can remove by:</p>
-            <pre>
-sudo bit uninstall
-</pre>
-            <h3>Create an Installable Release</h3>
-            <p>After building, bit can create installable packages of the software for Windows and Mac OSX, 
-                and source distributions suitable for any platform:</p>
-            <pre>bit package</pre>
-            <p>The release packages are placed under the <em>releases</em> directory. The <em>bit-tar.tgz</em> image is a
-            simple compressed tar archive of the binary release. If you are embedding Bit into another application,
-            you can extract the required Bit files from this release archive and include them with your application.
-            Alternatively, you can extract them from the staging directory
-            under the <em>OS-ARCH[-CPU]-PROFILE/pkg/bin/bit-VERSION/contents</em> directory. </p>
             <a id="repository"></a>
-            <h2 class="section">Building from the Source Code Repository</h2>
-            <p>You can checkout a copy of the product source code via:</p>
+            <h2 class="section">Building from the Repository</h2>
+            <p>You can checkout a copy of the product source code from the official source code repository via:</p>
             <pre>
  git clone <a href="http://github.com/embedthis/bit">http://github.com/embedthis/bit</a>
 </pre>
@@ -543,8 +119,8 @@ sudo bit uninstall
             </ul>
             <p>Once checked out, the normal instructions for building from source apply.</p>
             
-            <a id="keyFiles"></a>
-            <h2 class="section">Key Files and Directories</h2>
+            <a id="directories"></a>
+            <h2 class="section">Key Directories</h2>
             <p>Source trees contain the following key directories under the top directory.</p>
             <table title="dirs">
                 <thead>
@@ -566,9 +142,14 @@ sudo bit uninstall
                     <td>Bit extension packs.</td>
                 </tr>
                 <tr>
+                    <td class="nowrap">OS-ARCH-PROFILE</td>
                     <td></td>
-                    <td class="nowrap">OS-ARCH[-CPU]-PROFILE</td>
                     <td>Build output directory.</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>bin</td>
+                    <td>Output binaries.</td>
                 </tr>
                 <tr>
                     <td></td>
@@ -628,10 +209,11 @@ sudo bit uninstall
                 <tbody>
                 <tr>
                     <td>configure</td>
-                    <td>Build configuration script. This invokes Bit to configure Bit on the development system.</td>
+                    <td>Build configuration script to use when building with Bit. This invokes Bit to configure Bit on
+                        the development system.</td> 
                 </tr>
                 <tr>
-                    <td class="nowrap">OS-ARCH[-CPU].bit</td>
+                    <td class="nowrap">OS-ARCH-PROFILE.bit</td>
                     <td>Platform specific Bit file. There will be one platform bit file for each target platform.</td>
                 </tr>
                 <tr>
