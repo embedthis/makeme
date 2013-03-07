@@ -134,8 +134,6 @@ static void manageMatrixConfig(MatrixConfig *cfg, int flags)
 
 static void manageMatrixSocket(MatrixSocket *msp, int flags)
 {
-    MprSocketService    *ss;
-
     if (flags & MPR_MANAGE_MARK) {
         mprMark(msp->sock);
         mprMark(msp->peerName);
@@ -145,8 +143,6 @@ static void manageMatrixSocket(MatrixSocket *msp, int flags)
         if (msp->ctx) {
             matrixSslDeleteSession(msp->ctx);
         }
-        ss = MPR->socketService;
-        mprRemoveItem(ss->secureSockets, msp->sock);
     }
 }
 
@@ -177,6 +173,7 @@ static void closeMss(MprSocket *sp, bool gracefully)
         }
     }
     sp->service->standardProvider->closeSocket(sp, gracefully);
+    mprRemoveItem(sp->service->secureSockets, msp->sock);
     unlock(sp);
 }
 
@@ -2443,7 +2440,6 @@ static NanoConfig *defaultNanoConfig;
 
 static void     nanoClose(MprSocket *sp, bool gracefully);
 static void     nanoDisconnect(MprSocket *sp);
-static char     *getNanoState(MprSocket *sp);
 static Socket   nanoListen(MprSocket *sp, cchar *host, int port, int flags);
 static void     nanoLog(sbyte4 module, sbyte4 severity, sbyte *msg);
 static void     manageNanoConfig(NanoConfig *cfg, int flags);
@@ -2474,7 +2470,6 @@ PUBLIC int mprCreateNanoSslModule()
     nanoProvider->listenSocket = nanoListen;
     nanoProvider->readSocket = nanoRead;
     nanoProvider->writeSocket = nanoWrite;
-    nanoProvider->socketState = getNanoState;
     mprAddSocketProvider("nanossl", nanoProvider);
 
     if ((defaultNanoConfig = mprAllocObj(NanoConfig, manageNanoConfig)) == 0) {
@@ -2643,17 +2638,6 @@ static int nanoUpgrade(MprSocket *sp, MprSsl *ssl, cchar *peerName)
             }
             MOCANA_freeReadFile(&tmp.pCertificate);
         }
-
-#if __ENABLE_MOCANA_SSL_CLIENT__ && 0
-        if (peerName) {
-            /* 0 + 2-byte length prefix + UTF8-encoded string (not NULL terminated) */
-            char list[128];
-            memset(list, 0, sizeof(list));
-            list[2] = slen(peerName);
-            scopy(&list[3], sizeof(list) - 4, peerName);
-            SSL_setServerNameList(np->handle, list, slen(peerName) + 3);
-        }
-#endif
         if (SSL_initServerCert(&cfg->cert, FALSE, 0)) {
             mprError("SSL_initServerCert failed");
             unlock(ssl);
@@ -2715,45 +2699,6 @@ static void checkCert(MprSocket *sp)
 }
 
 
-#if FUTURE
-static sbyte4 findCertificateInStore(sbyte4 connectionInstance, certDistinguishedName *pLookupCertDN, certDescriptor* pReturnCert)
-{
-    certDistinguishedName   issuer;
-    sbyte4                  status;
-
-    status = CA_MGMT_extractCertDistinguishedName(pCertificate, certificateLength, 0, &issuer);
-
-    if (0 > status) {
-        return status;
-    }
-    /* for this example implementation, we only recognize one certificate authority */
-
-    pReturnCert->pCertificate = fedoraRootCert;                                                        
-    pReturnCert->certLength = sizeof(fedoraRootCert);                                                  
-    pReturnCert->cookie         = 0;                                                                       
-    return 0;                                                                                              
-} 
-
-static sbyte4 releaseStoreCertificate(sbyte4 connectionInstance, certDescriptor* pFreeCert)
-{                                                                                                          
-    /* just need to release the certificate, not the key blob */                                           
-    if (0 != pFreeCert->pCertificate) {
-        if (0 != pFreeCert->cookie) {
-            free(pFreeCert->pCertificate);
-        }
-        pFreeCert->pCertificate = 0;
-    }
-    return 0;
-}
-
-
-static sbyte4 verifyCertificateInStore(sbyte4 connectionInstance, ubyte *pCertificate, ubyte4 certificateLength, sbyte4 isSelfSigned)
-{
-    return 0;
-}
-#endif /* FUTURE */
-
-
 /*
     Initiate or continue SSL handshaking with the peer. This routine does not block.
     Return -1 on errors, 0 incomplete and awaiting I/O, 1 if successful
@@ -2769,11 +2714,6 @@ static int nanoHandshake(MprSocket *sp)
     if (setNanoCiphers(sp, sp->ssl->ciphers) < 0) {
         return 0;
     }
-#if NEXT
-    SSL_sslSettings()->funcPtrCertificateStoreVerify  = verifyCertificateInStore;
-    SSL_sslSettings()->funcPtrCertificateStoreLookup  = findCertificateInStore;
-    SSL_sslSettings()->funcPtrCertificateStoreRelease = releaseStoreCertificate;
-#endif
     SSL_getSessionFlags(np->handle, &flags);
     if (sp->ssl->verifyPeer) {
         flags |= SSL_FLAG_REQUIRE_MUTUAL_AUTH;
@@ -2786,15 +2726,6 @@ static int nanoHandshake(MprSocket *sp)
     while (!np->connected) {
         if ((rc = SSL_negotiateConnection(np->handle)) < 0) {
             break;
-#if FUTURE
-            if (!mprGetSocketBlockingMode(sp)) {
-                DISPLAY_ERROR(0, rc); 
-                mprLog(4, "NanoSSL: Cannot handshake: error %d", rc);
-                errno = EPROTO;
-                return 0;
-            }
-            continue;
-#endif
         }
         np->connected = 1;
         break;
@@ -2843,10 +2774,14 @@ static ssize nanoRead(MprSocket *sp, void *buf, ssize len)
         return rc;
     }
     while (1) {
+        nbytes = 0;
         rc = SSL_recv(np->handle, buf, (sbyte4) len, &nbytes, 0);
         mprLog(5, "NanoSSL: ssl_read %d", rc);
         if (rc < 0) {
-            return -1;
+            if (rc != ERR_TCP_READ_ERROR) {
+                sp->flags |= MPR_SOCKET_EOF;
+            }
+            nbytes = -1;
         }
         break;
     }
@@ -2878,7 +2813,6 @@ static ssize nanoWrite(MprSocket *sp, cvoid *buf, ssize len)
         rc = sent = SSL_send(np->handle, (sbyte*) buf, (int) len);
         mprLog(7, "NanoSSL: written %d, requested len %d", sent, len);
         if (rc <= 0) {
-            //  MOB - should this set EOF. What about other providers?
             mprLog(0, "NanoSSL: SSL_send failed sent %d", rc);
             return -1;
         }
@@ -2894,42 +2828,6 @@ static ssize nanoWrite(MprSocket *sp, cvoid *buf, ssize len)
 }
 
 
-static char *getNanoState(MprSocket *sp)
-{
-#if MOB
-    sslGetCipherInfo
-
-
-    NanoSocket       *moc;
-    ssl_context     *ctx;
-    MprBuf          *buf;
-    char            *own, *peer;
-    char            cbuf[5120];         //  MOB - must not be a static buffer
-
-    if ((moc = sp->sslSocket) == 0) {
-        return 0;
-    }
-    ctx = &est->ctx;
-    buf = mprCreateBuf(0, 0);
-    mprPutToBuf(buf, "PROVIDER=est,CIPHER=%s,", ssl_get_cipher(ctx));
-
-    own =  sp->acceptIp ? "SERVER_" : "CLIENT_";
-    peer = sp->acceptIp ? "CLIENT_" : "SERVER_";
-    if (ctx->peer_cert) {
-        x509parse_cert_info(peer, cbuf, sizeof(cbuf), ctx->peer_cert);
-        mprPutStringToBuf(buf, cbuf);
-    }
-    if (ctx->own_cert) {
-        x509parse_cert_info(own, cbuf, sizeof(cbuf), ctx->own_cert);
-        mprPutStringToBuf(buf, cbuf);
-    }
-    mprTrace(5, "EST state: %s", mprGetBufStart(buf));
-    return mprGetBufStart(buf);
-#endif
-    return "";
-}
-
-
 static int setNanoCiphers(MprSocket *sp, cchar *cipherSuite)
 {
     NanoSocket  *np;
@@ -2939,7 +2837,7 @@ static int setNanoCiphers(MprSocket *sp, cchar *cipherSuite)
 
 
     np = sp->sslSocket;
-    ciphers = malloc((MAX_CIPHERS + 1) * sizeof(ubyte2));
+    ciphers = mprAlloc((MAX_CIPHERS + 1) * sizeof(ubyte2));
 
     if (!cipherSuite || cipherSuite[0] == '\0') {
         return 0;
@@ -2964,17 +2862,17 @@ static int setNanoCiphers(MprSocket *sp, cchar *cipherSuite)
 
 static void DEBUG_PRINT(void *where, void *msg)
 {
-    mprRawLog(0, "%s", msg);
+    mprRawLog(4, "%s", msg);
 }
 
 static void DEBUG_PRINTNL(void *where, void *msg)
 {
-    mprLog(0, "%s", msg);
+    mprLog(4, "%s", msg);
 }
 
 static void nanoLog(sbyte4 module, sbyte4 severity, sbyte *msg)
 {
-    mprLog(0, "%s", (cchar*) msg);
+    mprLog(3, "%s", (cchar*) msg);
 }
 
 #endif /* BIT_PACK_NANOSSL */
