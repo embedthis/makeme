@@ -34,14 +34,13 @@
             
                 <h1>Quick Nav </h1>
                 <ul>
-<li><a href="#overview">Overview</a></li>
+                    <li><a href="#environment">Environment</a></li>
                 </ul>
 <!-- BeginDsi "dsi/userSeeAlso.html" -->
             <h1>See Also</h1>
             <ul>
                 <li><a href="../../../guide/bit/users/using.html">Using Bit</a></li>
                 <li><a href="../../../guide/bit/users/configuring.html">Configuring a Project</a></li>
-                <li><a href="../../../guide/bit/users/debugging.html">Debugging a Build</a></li>
                 <li><a href="../../../guide/bit/users/make.html">Using Makefiles</a></li>
                 <li><a href="../../../guide/bit/users/cross.html">Cross-Compiling</a></li>
 
@@ -67,6 +66,8 @@
             <pre>bit --platform windows-x64 -configure .</pre>
         <p>This will create a windows-x64.bit configuration file and a start.es that references it. The platform
         switch does not need to be restated after configuration.</p>
+
+        <a name="environment"></a>
         <h3>Environment Variables</h3>
         <p>Bit has default command paths and command flags for the compiler, linker and other tools. These can be overridden
         by providing environment variables containing alternate flags to use. </p>

@@ -34,14 +34,16 @@
             
                 <h1>Quick Nav </h1>
                 <ul>
-<li><a href="#overview">Overview</a></li>
+                    <li><a href="#why">Why?</a></li>
+                    <li><a href="#show">Show Commands</a></li>
+                    <li><a href="#dump">Dumping the Project</a></li>
+                    <li><a href="#useful">Useful Bits</a></li>
                 </ul>
 <!-- BeginDsi "dsi/userSeeAlso.html" -->
             <h1>See Also</h1>
             <ul>
                 <li><a href="../../../guide/bit/users/using.html">Using Bit</a></li>
                 <li><a href="../../../guide/bit/users/configuring.html">Configuring a Project</a></li>
-                <li><a href="../../../guide/bit/users/debugging.html">Debugging a Build</a></li>
                 <li><a href="../../../guide/bit/users/make.html">Using Makefiles</a></li>
                 <li><a href="../../../guide/bit/users/cross.html">Cross-Compiling</a></li>
 
@@ -51,19 +53,19 @@
 <!-- EndDsi -->
         </div>
         <div class="contentLeft">
-        <a id="debugging"></a>
         <h1>Debugging a Build</h1>
         <p>Bit provides several switches that help you to see what Bit is doing and why. While bit will automatically
-        calcluate many of the complex dependencies in a project, you may find situations when a target is not being build
+        calculate many of the complex dependencies in a project, you may find situations when a target is not being build
         when you expected it to. Conversely a target may be continually being rebuilt. Why? 
         
+        <a id="why"></a>
         <h2>Why Targets are Building</h2>
         <p>With Make and other build tools, it is difficult to determine why a target is or is not being built. Bit
         provides a <em>--why</em> command line switch to diagnose problematic build sequences. This switch displays the
         reason why each target was or was not built.</p>
         <h3>Why a build is or is not happening</h3>
         <p>Sometimes, it is not obvious why a target, either source file or library is continually being rebuilt.
-        Othertimes, a target is not being built and it is difficult to understand why? Bit provides a <em>--why</em>
+        Other times, a target is not being built and it is difficult to understand why? Bit provides a <em>--why</em>
         switch which will trace why each target was or was not built. For example:
         <pre>$ bit <b>--why</b> libmpr
     [Target] /Users/mob/git/bit/macosx-x64-release/inc/mpr.h is up to date
@@ -76,7 +78,8 @@
              /Users/mob/git/bit/macosx-x64-release/obj/mprLib.o has been modified.
       [Link] libmpr
 </pre>
-        <h2>Showing Executed Commands</h3>
+        <a id="show"></a>
+        <h2>Showing Executed Commands</h2>
         <p>While bit takes the drudgery out of formulating compiler and linker commands, you sometimes need to see the exact
         command that Bit is issuing to build the target. To see the actual commands bit is executing to compile sources and
         link libraries, run bit with the <em>--show</em> switch (this can be abbreviated to -s).
@@ -88,6 +91,7 @@
              src/deps/mpr/mprSsl.c
       [Link] libmprssl
 </pre>
+        <a id="dump"></a>
         <h2>Dumping the Project</h2>
         <p>In a complex project containing many Bit files, it can be helpful to see the entire aggregated bit configuration in one
         file. Use the <em>--dump</em> switch to save a copy of the entire configuration. In the dump, 
@@ -95,6 +99,7 @@
         the target. The dump will be saved to an OS-ARCH-PROFILE.dmp.</p>
         <pre>$ bit <b>--dump</b></pre>
             
+        <a id="useful"></a>
         <h2>Other Useful Bits</h2>
         <p>To build totally quietly, use the <em>--quiet</em>
             switch. To continue building despite build errors, use the <em>--continue</em> switch.</p>

@@ -34,12 +34,14 @@
             
                 <h1>Quick Nav </h1>
                 <ul>
-<li><a href="#overview">Overview</a></li>
+                    <li><a href="#creating">Creating</a></li>
+                    <li><a href="#dependencies">Dependencies</a></li>
+                    <li><a href="#static">Static</a></li>
                 </ul>
 <!-- BeginDsi "dsi/devSeeAlso.html" -->
             <h1>See Also</h1>
             <ul>
-                <li><a href="../../../guide/bit/developers/quick.html">Quick Start with Bit</a></li>
+                <li><a href="../../../guide/bit/developers/index.html">Dev Guide</a></li>
                 <li><a href="../../../guide/bit/developers/projects.html">Bit Projects</a></li>
                 <li><a href="../../../guide/bit/developers/compiling.html">Compiling Sources</a></li>
                 <li><a href="../../../guide/bit/developers/libraries.html">Creating Libraries</a></li>
@@ -55,6 +57,7 @@
             </ul>
 <!-- EndDsi -->
         </div>
+        <a name="creating"></a>
         <div class="contentLeft">
         <h2>Creating Libraries</h2>
         <p>Bit creates libraries by specifying the sources to compile in a library target. For example:
@@ -67,7 +70,7 @@ targets {
 }
 </pre>
         
-        <p>The <em>sources</em> property is set to the list of files to compile. See <a href="compiling">Compiling
+        <p>The <em>sources</em> property is set to the list of files to compile. See <a href="compiling.html">Compiling
             Sources</a> for how to use the sources property.</p>
         <p>Building this target will then compile the specified source files and build
         the named library with the relevant compiled objects.</p>
@@ -77,6 +80,7 @@ bit libdemo
         <p>When building, Bit transparently creates targets for each of the compiled source files and for 
         any include files referenced by the sources. If the source file or its include files are updated, the 
         relevant source file or files will be recompiled and library rebuilt.</p>
+        <a name="dependencies"></a>
         <h2>Dependencies</h2>
         <p>On some platforms, linking a library will require that all unresolved references in other libraries be
         resolved before the link can successfully complete. Such library dependencies are specified via the
@@ -92,6 +96,7 @@ libappweb: {
     depends: [ 'libhttp' ],
 },
 </pre>
+        <a name="static"></a>
         <h2>Static Libraries</h2>
         <p>By default, Bit will build a shared library for a library target. To build a static library, set the 
                 <i>static</i> property to true.</p>

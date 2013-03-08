@@ -34,12 +34,12 @@
             
                 <h1>Quick Nav </h1>
                 <ul>
-<li><a href="#overview">Overview</a></li>
+                    <li><a href="#files">Specifying Files</a></li>
                 </ul>
 <!-- BeginDsi "dsi/devSeeAlso.html" -->
             <h1>See Also</h1>
             <ul>
-                <li><a href="../../../guide/bit/developers/quick.html">Quick Start with Bit</a></li>
+                <li><a href="../../../guide/bit/developers/index.html">Dev Guide</a></li>
                 <li><a href="../../../guide/bit/developers/projects.html">Bit Projects</a></li>
                 <li><a href="../../../guide/bit/developers/compiling.html">Compiling Sources</a></li>
                 <li><a href="../../../guide/bit/developers/libraries.html">Creating Libraries</a></li>
@@ -71,6 +71,8 @@ setup: {
         <p>If the destination <em>path</em> property is a directory, the specified files will be copied into that directory.
             If the destination path has a trailing "/", it will be assumed to be a directory and will be created if it does
             not exist.</p>
+
+        <a name="files"></a>
         <p>The <em>files</em> property is an array of files or directories.  These files can include wild cards which are
         expanded using the Ejscript <a href="http://ejscript.org/products/ejs/doc-2/api/ejscript/Path.html#files">Path.files</a> 
         routine. The supported wild cards are:

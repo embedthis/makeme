@@ -85,7 +85,7 @@ dom.targets.sources = Path('/some/path').files('**.c')
 <b>Bit.load</b>(dom)
 </pre>
         <a name="comments"></a>
-        <h2>Comments and Backquotes</h2>
+        <h2>Comments and Lines</h2>
         <p>You can use either Javascript comments in most places including inside the DOM object. Both the
         <em>/* comment */</em> and the <em>// rest-of-line</em> forms are supported.</p>
         <p>If you have a long line that you wish to split for formatting purposes, you can use a back-quote <em>\\</em>
@@ -131,7 +131,7 @@ targets: {
     },
 },
 </pre>
-        <p>This adds the define WHO=WORLD to the existing inherited defintions for this target.</p>
+        <p>This adds the define WHO=WORLD to the existing inherited definitions for this target.</p>
         <p>The valid prefixes are:
         <ul>
             <li><em>+</em> &nbsp; to append values</li>
@@ -176,7 +176,7 @@ targets: {
         <a name="assigning"></a>
         <h2>Assigning Variables</h2>
         <p>Variables can be set simply by defining properties in the bit DOM. This can be done literally when loading
-        the DOM object or programatically in script code. For example:
+        the DOM object or programmatically in script code. For example:</p>
 <pre>
 {
     my: {
@@ -189,8 +189,7 @@ targets: {
     },
 }
 </pre>
-        <p>If variables are defined in the bit.globals collection, they can be accessed without any dot notation. For
-            example:</pre>
+        <p>If variables are defined in the bit.globals collection, they can be accessed without any dot notation. For example:</p>
 <pre>
 {
     globals: {

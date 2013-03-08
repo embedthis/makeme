@@ -34,14 +34,18 @@
             
                 <h1>Quick Nav </h1>
                 <ul>
-<li><a href="#overview">Overview</a></li>
+                    <li><a href="#platform-bitfile">Platform Bit File</a></li>
+                    <li><a href="#customizing">Customizing</a></li>
+                    <li><a href="#outside">Outside Builds</a></li>
+                    <li><a href="#cross">Cross Compiling</a></li>
+                    <li><a href="#useful">Useful Bits</a></li>
+                    <li><a href="#customize-bit">Customize.bit</a></li>
                 </ul>
 <!-- BeginDsi "dsi/userSeeAlso.html" -->
             <h1>See Also</h1>
             <ul>
                 <li><a href="../../../guide/bit/users/using.html">Using Bit</a></li>
                 <li><a href="../../../guide/bit/users/configuring.html">Configuring a Project</a></li>
-                <li><a href="../../../guide/bit/users/debugging.html">Debugging a Build</a></li>
                 <li><a href="../../../guide/bit/users/make.html">Using Makefiles</a></li>
                 <li><a href="../../../guide/bit/users/cross.html">Cross-Compiling</a></li>
 
@@ -53,7 +57,7 @@
         <div class="contentLeft">
         <a id="configuring"></a>
         <h2>Configuring</h2>
-        <p>If your projects has been <a href="projects.html">designed</a> for configuring it will have a <em>main.bit</em>
+        <p>If your projects has been designed for configuring it will have a <em>main.bit</em>
         that describes your project, what it requires to build and how it can be extended. The main.bit file
         specifies how Bit can configured your project.</p>
         <p>When configuring, Bit will determine the capabilities of the current system and search
@@ -62,7 +66,8 @@
         extension packages to locate. Bit will search for these packages and will then create a configuration description that is 
         used for subsequent builds.</p>
         
-        <h3>Configuration Description</h3>
+        <a name="platform-bitfile"></a>
+        <h3>Platform Bit File</h3>
         <p>The configuration description consists of a platform bit file and C source header that records the
         current configuration. The platform bit file is named OS-ARCH-PROFILE.bit and will be loaded by start.bit for all
         subsequent builds. Bit creates a platform output directory of the form: OS-ARCH-PROFILE. This directory holds
@@ -93,7 +98,9 @@ settings: {
             <li>configure # If your project has supplied a configure script</li>
         </ul>
         <p>Note that bit switches can be prefixed with either a double <em>--</em> or a single <em>-</em>.</p>
-        <h2 class="section">Modifying the Build</h2>
+
+        <a name="customizing"></a>
+        <h2 class="section">Customizing the Build</h2>
         <p>When running bit configure, you can modify the configuration by adding or removing packages and enabling or
            disabling various features.</p> 
         <h3>Packages</h3>
@@ -132,39 +139,42 @@ the form <em>--set KEY=VALUE</em>. For example:
         <h3>Installation Prefixes</h3>
         <p>Bit projects typically define a <em>prefixes</em> collection that define where the various pieces of the
         application will be installed. To override where the project will be installed, use the <em>--prefix</em> configure
-        option. For example:
+        option. For example:</p>
         <pre>configure --prefix base=/opt</pre>
         <p>This will cause the project to be installed under <em>/opt</em> instead of the usual location (/usr/local).</p>
         
-        To display the current installation prefixes, type:
+        <p>To display the current installation prefixes, type:</p>
         <pre>$ <b>bit --get prefixes</b>
 {
-  "root": "/",
-  "base": "/usr/local",
-  "data": "/",
-  "state": "/var",
-  "product": "/usr/local/lib/mpr",
-  "productver": "/usr/local/lib/mpr/4.3.0",
-  "bin": "/usr/local/bin",
-  "inc": "/usr/local/include",
-  "lib": "/usr/local/lib",
-  "man": "/usr/local/share/man",
-  "sbin": "/usr/local/sbin",
-  "etc": "/etc/mpr",
-  "web": "/var/www/mpr-default",
-  "log": "/var/log/mpr",
-  "spool": "/var/spool/mpr",
-  "cache": "/var/cache/mpr",
-  "src": "/usr/local/src/mpr-4.3.0"
+    root: "/",
+    base: "/usr/local",
+    data: "/",
+    state: "/var",
+    app: "/usr/local/lib/bit",
+    vapp: "/usr/local/lib/bit/0.8.4",
+    bin: "/usr/local/bin",
+    inc: "/usr/local/include",
+    lib: "/usr/local/lib",
+    man: "/usr/local/share/man",
+    sbin: "/usr/local/sbin",
+    etc: "/etc/bit",
+    web: "/var/www/bit-default",
+    log: "/var/log/bit",
+    spool: "/var/spool/bit",
+    cache: "/var/spool/bit/cache",
 }
 </pre>
         <p>Depending on the project and target system, the installation prefixes may vary.</p>
         <p>For those familiar with autoconf, the major autoconf prefix switches are supported by bit.</p>
-        <h2>Out-of-source Tree Builds</h2>
+
+        <a name="outside"></a>
+        <h2>Outside Source Tree Builds</h2>
         <p>Bit supports building from read-only source trees. To do this, use <em>bit -config path</em> when
         configuring. Run this from a writable directory and reference the read-only source tree via the
         <em>-config</em> switch. Bit will create the start.bit, platform bit file and platform output build directory in the
         writable (current) directory. Thereafter run <em>bit</em> from the writable directory for all operations.</p>
+
+        <a name="cross"></a>
         <h2>Configuring for Cross-Compiling</h2>
         <p>To build a product for platform different to that of the local system is called cross compiling.
         Sometimes this cross compiling is just for a different instruction set (say x64 instead of x86). Other times
@@ -191,6 +201,8 @@ the form <em>--set KEY=VALUE</em>. For example:
         saved in the generated platform build file and apply to all subsequent runs.
         For example:
             <pre>CC=/path/to/compiler CFLAGS=-w bit configure</pre>
+
+        <a name="useful"></a>
         <h2>Useful Configure Bits</h2>
         <p>Here are a few other useful configure commands:</p>
         <p>To run configure again with the previous configure command line:</p>
@@ -198,6 +210,8 @@ the form <em>--set KEY=VALUE</em>. For example:
         <p>To dump the entire configuration into a single bit file. This is great for debugging.</p>
         <pre>configure --dump</pre>
         <p>To learn more, read about <a href="debugging.html">Debugging a Build</a>.</p>
+
+        <a name="customize-bit"></a> 
         <h2>Customize.bit</h2>
         <p>Instead of manually specifying settings to configure, you can create a customize.bit file that will be loaded
         after the main.bit and all referenced bit files are fully loaded. The customize.bit file can thus override any prior

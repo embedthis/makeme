@@ -34,12 +34,21 @@
             
                 <h1>Quick Nav </h1>
                 <ul>
-<li><a href="#overview">Overview</a></li>
+                    <li><a href="#scripts">Build Scripts</a></li>
+                    <li><a href="#engines">Script Engines</a></li>
+                    <li><a href="#low">Low Level Scripts</a></li>
+                    <li><a href="#high">High Level Scripts</a></li>
+                    <li><a href="#shell">Shell Scripts</a></li>
+                    <li><a href="#action">Action Scripts</a></li>
+                    <li><a href="#build">Build Scripts</a></li>
+                    <li><a href="#targetPaths">Target Paths</a></li>
+                    <li><a href="#quoting">Quoting</a></li>
+                    <li><a href="#useful">Useful Bits</a></li>
                 </ul>
 <!-- BeginDsi "dsi/devSeeAlso.html" -->
             <h1>See Also</h1>
             <ul>
-                <li><a href="../../../guide/bit/developers/quick.html">Quick Start with Bit</a></li>
+                <li><a href="../../../guide/bit/developers/index.html">Dev Guide</a></li>
                 <li><a href="../../../guide/bit/developers/projects.html">Bit Projects</a></li>
                 <li><a href="../../../guide/bit/developers/compiling.html">Compiling Sources</a></li>
                 <li><a href="../../../guide/bit/developers/libraries.html">Creating Libraries</a></li>
@@ -60,7 +69,8 @@
         <h1>Build Scripts</h1>
         <p>Bit targets can run scripts at various stages of the processing lifecycle. Scripts can be used to
             create outputs, or modify the results of standard processing rules.</p>
-            <a name="engines"></a>
+
+        <a name="engines"></a>
         <h2>Script Engines</h2>
         <p>Scripts can be written to execute in any installed script interpreter. This may be the Unix bash shell, Perl or
         Ruby.  Bit also includes a powerful Javascript engine based on the 
@@ -69,9 +79,10 @@
             systems. Ejscript also has an extensive <a
             href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Library</a> of routines that
             scale well when building projects without turning into a mess of shell script.</p>
+
         <a name="low"></a>
-        <h2>Low-Level Scripts</h2>
-        <p>Let us first explain the low-level script form. Then we'll explain the more common convenience methods to
+        <h2>Low Level Scripts</h2>
+        <p>Let us first explain the low level script form. Then we'll explain the more common convenience methods to
         express scripts.</p>
         <p>The Bit DOM defines a collection of scripts to run at various stages of the Bit processing 
         life cycle.  When a specific event is triggered, the corresponding scripts are run. For each event, there can be
@@ -118,27 +129,28 @@ libglow: {
 }
 </pre>
         <a name="high"></a>
-        <h2>Higher-Level Scripts</h2>
-        <p>Bit target scripts can also be specified using higher-level, abbreviated forms. These are more
-        convenient and typically used in preference over the low-level forms described above.</p>
-        <p>There are three higher level forms:</p>
+        <h2>High Level Scripts</h2>
+        <p>Bit target scripts can also be specified using high level, abbreviated forms. These are more
+        convenient and typically used in preference over the low level forms described above.</p>
+        <p>There are three high level forms:</p>
         <ol>
             <li>Shell scripts &mdash; that run when requested using bash for Unix and Cygwin systems</li>
             <li>Action target scripts &mdash; that run when requested using Ejscript</li>
             <li>Build target scripts &mdash; that run for default builds using Ejscript</li>
         </ol>
+
         <a name="shell"></a>
         <h2>Shell Scripts</h2>
-        <p>Shell scripts can be easily specified via the target shell property:
+        <p>Shell scripts can be easily specified via the target shell property:</p>
         <pre>
 cleanup: {
     <b>shell: '
-        date >now.txt 
+        date &gt;now.txt 
         echo hello world
     '</b>,
 },
 </pre>
-        <p>This translates into the following low-level form. The script runs in the directory containing
+        <p>This translates into the following low level form. The script runs in the directory containing
             the bit file, using the <em>bash</em> shell script.</p>
 <pre>
 cleanup: {
@@ -149,7 +161,7 @@ cleanup: {
                 home: '.',
                 interpreter: 'bash',
                 script: "
-                    date >now.txt 
+                    date &gt;now.txt 
                     echo hello world
                 "
             },
@@ -160,8 +172,9 @@ cleanup: {
         <p>Because the type property is set to <em>action</em>, this script will be run when the named target (cleanup) is
         invoked.</p>
         <pre>bit cleanup</pre>
-        <p>If you need a shell script to run when a default build is initiated, use the low-level form and set
-        the target type to <em>build</em> See the <a href="#low">Low-level Scripts</a> section above for details.</p>
+        <p>If you need a shell script to run when a default build is initiated, use the low level form and set
+        the target type to <em>build</em> See the <a href="#low">Low level Scripts</a> section above for details.</p>
+
         <a name="action"></a>
         <h2>Action Scripts</h2>
         <p>An action script runs when explicitly requested. It operates similarly to a shell script except that it uses the
@@ -261,25 +274,25 @@ building: {
 shell: 'echo "Dont\'t panic"', 
 </pre>
         <a name="useful"></a>
-        <h2>Useful Ejscripting Bits</h2>
+        <h2>Useful Bits</h2>
         <p>Here are some useful bits of Ejscript to use in your scripts:</p>
         <h3>List of Files</h3>
-        <p>Get a list of all files in all subdirectories</h3>
+        <p>Get a list of all files in all subdirectories</p>
 <pre>let files = Path('some/dir').files('**')</pre>
         <h3>Run an external command</h3>
-        <p>Get a list of all files in all subdirectories</h3>
+        <p>Get a list of all files in all subdirectories</p>
 <pre>run('/usr/bin/program')</pre>
         <h3>Write a file</h3>
-        <p>Get a list of all files in all subdirectories</h3>
+        <p>Get a list of all files in all subdirectories</p>
 <pre>Path('filename').write('Hello World')</pre>
         <h3>Read a file</h3>
-        <p>Read a file into a variable as a string</h3>
+        <p>Read a file into a variable as a string</p>
 <pre>let data = Path('filename').readString</pre>
         <h3>Read a JSON file</h3>
-        <p>Read a JSON file as an object</h3>
+        <p>Read a JSON file as an object</p>
 <pre>let name = Path('filename').readJSON().name</pre>
         <h3>Work with Paths</h3>
-        <p>Here are some useful Path manipulation routines. Ejscript is great at this.</h3>
+        <p>Here are some useful Path manipulation routines. Ejscript is great at this.</p>
 <pre>
 let p = Path('/some/file.c')
 print('Basename', p.basename)

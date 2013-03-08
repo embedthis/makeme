@@ -34,8 +34,8 @@
             
                 <h1>Quick Nav </h1>
                 <ul>
-<li><a href="#overview">Overview</a></li>
-<li><a href="#example">Example</a></li>
+                    <li><a href="#events">Events</a></li>
+                    <li><a href="#scripts">Scripts</a></li>
                 </ul>
 <!-- BeginDsi "dsi/refSeeAlso.html" -->
         <h1>See Also</h1>
@@ -71,8 +71,7 @@
                 <tr><td>postresolve</td><td>Fired after resolving dependencies for a target</td></tr>
                 <tr><td>presource</td><td>Fired before expanding source wildcards and creating object targets</td></tr>
                 <tr><td>postsource</td><td>Fired after expanding source wildcards and creating object targets</td></tr>
-                <tr><td>preinherit</td><td>Fired after all bit files are loaded and before before targets inherit default
-                        proeprties. 
+                <tr><td>preinherit</td><td>Fired after all bit files are loaded and before before targets inherit default properties.
                     This is fired for bit file scripts (not target scripts).</td></tr>
                 <tr><td>predependencies</td><td>Fired before processing a target's dependencies</td></tr>
                 <tr><td>postdependencies</td><td>Fired after processing a target's dependencies</td></tr>
@@ -83,6 +82,7 @@
                 <tr><td>postbuild</td><td>Fired after building a target</td></tr>
             </tbody>
         </table>
+        <a name="scripts"></a>
         <h2>Defining Scripts</h2>
         <p>Scripts can be defined to run when the required event is triggered. 
             <p>This can also be abbreviated by just supplying a string as script value. 

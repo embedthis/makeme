@@ -34,12 +34,14 @@
             
                 <h1>Quick Nav </h1>
                 <ul>
-<li><a href="#overview">Overview</a></li>
+                    <li><a href="#cases">Use Cases</a></li>
+                    <li><a href="#standalone">Stand-alone</a></li>
+                    <li><a href="#configured">Configured</a></li>
                 </ul>
 <!-- BeginDsi "dsi/devSeeAlso.html" -->
             <h1>See Also</h1>
             <ul>
-                <li><a href="../../../guide/bit/developers/quick.html">Quick Start with Bit</a></li>
+                <li><a href="../../../guide/bit/developers/index.html">Dev Guide</a></li>
                 <li><a href="../../../guide/bit/developers/projects.html">Bit Projects</a></li>
                 <li><a href="../../../guide/bit/developers/compiling.html">Compiling Sources</a></li>
                 <li><a href="../../../guide/bit/developers/libraries.html">Creating Libraries</a></li>
@@ -62,18 +64,23 @@
             it searches up the parent directory chain for one. Bit then loads the nearest start.bit file and commences
             processing its build instructions. This means you can typically invoke bit from anywhere in a project source
             tree.  A start.bit file may be complete in itself, or it may in turn load other bit files.</p>
-            <a id="usecases"></a>
+            
+            <a id="cases"></a>
             <h2>Use cases for Bit </h2>
             <p>There are two use cases of use for Bit:</p>
             <ul>
                 <li>Stand-alone Use</li>
                 <li>Configured Use</li>
             </ul>
-            <h3>Standalone Use</h3>
-            <p>A standalone start.bit file may be used to express simple build targets that do not requiring any prior
+
+            <a name="standalone"></a>
+            <h3>Stand-Alone Use</h3>
+            <p>A stand-alone start.bit file may be used to express simple build targets that do not requiring any prior
             configuration step. The start.bit file contains targets that specify the recipes to build those targets.
             The full capabilities of bit are available and you can compile sources, build libraries and executables or
             run scripts.</p>
+
+            <a name="configured"></a>
             <h3>Configured Use</h3>
             <p>Some products/projects require a configuration phase prior to building with Bit. Bit configuration of a
             project discovers the available tools and components and customizes the project to best run on the local

@@ -34,12 +34,13 @@
             
                 <h1>Quick Nav </h1>
                 <ul>
-<li><a href="#overview">Overview</a></li>
+                    <li><a href="#cross">Cross Compiling</a></li>
+                    <li><a href="#env">Environment Variables</a></li>
                 </ul>
 <!-- BeginDsi "dsi/devSeeAlso.html" -->
             <h1>See Also</h1>
             <ul>
-                <li><a href="../../../guide/bit/developers/quick.html">Quick Start with Bit</a></li>
+                <li><a href="../../../guide/bit/developers/index.html">Dev Guide</a></li>
                 <li><a href="../../../guide/bit/developers/projects.html">Bit Projects</a></li>
                 <li><a href="../../../guide/bit/developers/compiling.html">Compiling Sources</a></li>
                 <li><a href="../../../guide/bit/developers/libraries.html">Creating Libraries</a></li>
@@ -56,7 +57,7 @@
 <!-- EndDsi -->
         </div>
         <div class="contentLeft">
-        <a id="crossCompiling"></a>
+        <a name="cross"></a>
         <h2>Cross-Compiling</h2>
         <p>To build a product for platform different to that of the local system is called cross compiling.
         Sometimes this cross compiling is just for a different instruction set (say x64 instead of x86). Other times
@@ -72,6 +73,8 @@
             <pre>bit --platform windows-x64 -configure .</pre>
         <p>This will create a windows-x64.bit configuration file and a start.es that references it. The platform
         switch does not need to be restated after configuration.</p>
+        
+        <a name="env"></a>
         <h3>Environment Variables</h3>
         <p>Bit has default command paths and command flags for the compiler, linker and other tools. These can be overridden
         by providing environment variables containing alternate flags to use. </p>

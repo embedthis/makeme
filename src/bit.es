@@ -496,7 +496,7 @@ public class Bit {
     }
 
     function getValue() {
-        eval('dump(bit.' + options.get + ')')
+        eval('print(serialize(bit.' + options.get + ', {pretty: true, quotes: false}))')
     }
 
     function genStartBitFile(platform) {

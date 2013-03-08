@@ -139,7 +139,8 @@
                 <tr><td>usage</td><td>Additional usage message to emit for bit command line errors</td></tr>
             </tbody>
         </table>
-        <a name="global"></a>
+
+        <a name="globals"></a>
         <h2>Globals &mdash; bit.globals.*</h2>
         <p>The following bit.globals.* are defined for use by tokens:</p>
         <table title="globals" class="full">
@@ -262,7 +263,7 @@
                 <tr><td>rule</td><td>Build command template to use when invoking compiler and linker. Typically not
                         explicitly set unless overriding for some reason. Set to: 'c-&gt;o', 'cpp-&gt;o', 'lib', 'exe', 'gui'.
                         Rules are automatically selected for 'lib' and 'exe' targets. </td>
-                <tr><td>scripts</td><td>Scripts for the target. See <a href="#scripts">scripts</a> for details</td></tr>
+                <tr><td>scripts</td><td>Scripts for the target. See <a href="#scripts">scripts</a> for details.</td></tr>
                 <tr><td>sources</td><td>Array of source file patterns to compile for the target. Use normal * as a
                         wild-card, ** as a wild-card that descends directories. Use the exclude property to exclude </td></tr>
                 <tr><td>type</td><td>Type of target: exe, lib, action, obj, header, build and custom values.
@@ -279,6 +280,31 @@
                         type specified as a target, then all the targets of that type will be run.</li>
                 </ul>
                 </td></tr>
+            </tbody>
+        </table>
+
+        <a name="scripts"></a>
+        <h2>Scripts Collection &mdash; bit.scripts.*</h2>
+        <table title="scripts" class="full">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>preblend</td><td>Array of scripts to run for the preblend event</td></tr>
+                <tr><td>postload</td><td>Array of scripts to run for the postload event</td></tr>
+                <tr><td>postblend</td><td>Array of scripts to run for the postblend event</td></tr>
+                <tr><td>preresolve</td><td>Array of scripts to run for the preresolve event</td></tr>
+                <tr><td>postresolve</td><td>Array of scripts to run for the postresolve event</td></tr>
+                <tr><td>presource</td><td>Array of scripts to run for the presource event</td></tr>
+                <tr><td>postsource</td><td>Array of scripts to run for the postsource event</td></tr>
+                <tr><td>preinherit</td><td>Array of scripts to run for the preinherit event</td></tr>
+                <tr><td>predependencies</td><td>Array of scripts to run for the predependencies event</td></tr>
+                <tr><td>postdependencies</td><td>Array of scripts to run for the postdependencies event</td></tr>
+                <tr><td>precompile</td><td>Array of scripts to run for the precompile event</td></tr>
+                <tr><td>postcompile</td><td>Array of scripts to run for the postcompile event</td></tr>
+                <tr><td>prebuild</td><td>Array of scripts to run for the prebuild event</td></tr>
+                <tr><td>build</td><td>Array of scripts to run for the build event</td></tr>
+                <tr><td>postbuild</td><td>Array of scripts to run for the postbuild event</td></tr>
             </tbody>
         </table>
         </div>

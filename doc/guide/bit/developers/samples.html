@@ -34,12 +34,19 @@
             
                 <h1>Quick Nav </h1>
                 <ul>
-<li><a href="#overview">Overview</a></li>
+                    <li><a href="#live">Live Bits</a></li>
+                    <li><a href="#snippets">Snippets</a></li>
+                    <li><a href="#library">Library</a></li>
+                    <li><a href="#static">Static Library</a></li>
+                    <li><a href="#executable">Executable</a></li>
+                    <li><a href="#conditional">Conditional Building</a></li>
+                    <li><a href="#inherit">Inherit Settings</a></li>
+                    <li><a href="#paths">Cross Platform Paths</a></li>
                 </ul>
 <!-- BeginDsi "dsi/devSeeAlso.html" -->
             <h1>See Also</h1>
             <ul>
-                <li><a href="../../../guide/bit/developers/quick.html">Quick Start with Bit</a></li>
+                <li><a href="../../../guide/bit/developers/index.html">Dev Guide</a></li>
                 <li><a href="../../../guide/bit/developers/projects.html">Bit Projects</a></li>
                 <li><a href="../../../guide/bit/developers/compiling.html">Compiling Sources</a></li>
                 <li><a href="../../../guide/bit/developers/libraries.html">Creating Libraries</a></li>
@@ -56,10 +63,12 @@
 <!-- EndDsi -->
         </div>
         <div class="contentLeft">
-        <a id="projectGeneration"></a>
+        <a id="samples"></a>
         <h1>Bit Samples</h1>
         <p>Here are some actual, working sample Bit files from various projects. We've added comments to 
         highlight various issues:</p>
+
+        <a name="live"></a>
         <h2>Live Bit Files</h2>
         <p>Here are some bit files from live projects using bit served directly 
             from <a href="http://github.com">GitHub</a>.</p>
@@ -71,72 +80,75 @@
             <tr>
                 <td>Embedthis Appweb</td>
                 <td>Project main.bit</td>
-                <td><a href="http://github.com/embedthis/appweb-4/blob/master/main.bit">main.bit</td>
+                <td><a href="http://github.com/embedthis/appweb-4/blob/master/main.bit">main.bit</a></td>
             </tr>
             <tr>
                 <td>Embedthis Appweb</td>
                 <td>Main library build</td>
-                <td><a href="http://github.com/embedthis/appweb-4/blob/master/src/libappweb.bit">libappweb.bit</td>
+                <td><a href="http://github.com/embedthis/appweb-4/blob/master/src/libappweb.bit">libappweb.bit</a></td>
             </tr>
             <tr>
                 <td>Embedthis Appweb</td>
                 <td>Appweb loadable modules</td>
-                <td><a href="http://github.com/embedthis/appweb-4/blob/master/src/modules/modules.bit">modules.bit</td>
+                <td><a href="http://github.com/embedthis/appweb-4/blob/master/src/modules/modules.bit">modules.bit</a></td>
             </tr>
             <tr>
                 <td>Embedthis Appweb</td>
                 <td>Appweb main server program</td>
-                <td><a href="http://github.com/embedthis/appweb-4/blob/master/src/server/server.bit">server.bit</td>
+                <td><a href="http://github.com/embedthis/appweb-4/blob/master/src/server/server.bit">server.bit</a></td>
             </tr>
             <tr>
                 <td>Embedthis Appweb</td>
                 <td>ESP module bit file</td>
-                <td><a href="http://github.com/embedthis/appweb-4/blob/master/src/esp/esp.bit">esp.bit</td>
+                <td><a href="http://github.com/embedthis/appweb-4/blob/master/src/esp/esp.bit">esp.bit</a></td>
             </tr>
             <tr>
                 <td>Embedthis Appweb</td>
                 <td>Packaging targets</td>
-                <td><a href="http://github.com/embedthis/appweb-4/blob/master/package/package.bit">package.bit</td>
+                <td><a href="http://github.com/embedthis/appweb-4/blob/master/package/package.bit">package.bit</a></td>
             </tr>
             <tr>
                 <td>Embedthis Appweb</td>
                 <td>Test targets</td>
-                <td><a href="http://github.com/embedthis/appweb-4/blob/master/test/test.bit">test.bit</td>
+                <td><a href="http://github.com/embedthis/appweb-4/blob/master/test/test.bit">test.bit</a></td>
             </tr>
             <tr>
                 <td>Embedthis Appweb</td>
                 <td>Stand-alone bit file for SSL script targets</td>
-                <td><a href="http://github.com/embedthis/appweb-4/blob/master/test/sslconf/start.bit">start.bit</td>
+                <td><a href="http://github.com/embedthis/appweb-4/blob/master/test/sslconf/start.bit">start.bit</a></td>
             </tr>
             <tr>
                 <td>Embedthis GoAhead</td>
                 <td>Project main.bit</td>
-                <td><a href="http://github.com/embedthis/goahead/blob/master/main.bit">main.bit</td>
+                <td><a href="http://github.com/embedthis/goahead/blob/master/main.bit">main.bit</a></td>
             </tr>
             <tr>
                 <td>Embedthis Ejscript</td>
                 <td>Project main.bit</td>
-                <td><a href="http://github.com/embedthis/ejs-2/blob/master/main.bit">main.bit</td>
+                <td><a href="http://github.com/embedthis/ejs-2/blob/master/main.bit">main.bit</a></td>
             </tr>
             <tr>
                 <td>Embedthis Ejscript</td>
                 <td>Main library</td>
-                <td><a href="http://github.com/embedthis/ejs-2/blob/master/src/libejs.bit">libejs.bit</td>
+                <td><a href="http://github.com/embedthis/ejs-2/blob/master/src/libejs.bit">libejs.bit</a></td>
             </tr>
             <tr>
                 <td>Embedthis Ejscript</td>
                 <td>Ejscript command programs</td>
-                <td><a href="http://github.com/embedthis/ejs-2/blob/master/src/cmd/cmd.bit">cmd.bit</td>
+                <td><a href="http://github.com/embedthis/ejs-2/blob/master/src/cmd/cmd.bit">cmd.bit</a></td>
             </tr>
             <tr>
                 <td>Embedthis Ejscript</td>
                 <td>Ejscript class library</td>
-                <td><a href="http://github.com/embedthis/ejs-2/blob/master/src/core/core.bit">core.bit</td>
+                <td><a href="http://github.com/embedthis/ejs-2/blob/master/src/core/core.bit">core.bit</a></td>
             </tr>
             </tbody>
         </table>
+        <a name="snippets"></a>
         <h2>Quick Snippets</h2>
         <p>Here are some quick snippets that you can use in your bit files.</p>
+
+        <a name="library"></a>
         <h2>Building a Library.</h2>
 <pre>
 targets: {
@@ -149,6 +161,7 @@ targets: {
 },
 </pre>
         <p>This will compile the sources, export the header to the include directory and create the library.</p>
+        <a name="static"></a>
         <h2>Building a Static Library.</h2>
 <pre>
 targets: {
@@ -160,6 +173,7 @@ targets: {
     },
 },
 </pre>
+        <a name="executable"></a>
         <h2>Building an Executable.</h2>
         <p>Set the type to <em>exe</em> and nominate the dependent targets. Specify the required libraries.</p>
 <pre>
@@ -172,6 +186,7 @@ targets: {
     },
 },
 </pre>
+        <a name="conditional"></a>
         <h2>Conditional Building</h2>
         <p>This will build only on windows.</p>
 <pre>
@@ -185,6 +200,7 @@ targets: {
     },
 }
 </pre>
+        <a name="inherit"></a>
         <h2>Inheriting Shared Settings</h2>
         <p>To share settings between multiple targets, define a collection of properties and then <em>inherit</em>
         from the desired targets.</p>
@@ -202,6 +218,7 @@ targets: {
     }
 }
 </pre>
+        <a name="paths"></a>
         <h2>Cross-Platform Target Paths</h2>
         <p>On windows, executables have a <em>.exe</em> extension, whereas on Unix, there is typically no such extension.
         Bit defines the EXE global variable to .exe on Windows and to empty on other platforms.

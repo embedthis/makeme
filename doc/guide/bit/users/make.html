@@ -34,22 +34,17 @@
             
                 <h1>Quick Nav </h1>
                 <ul>
-                    <li><a href="#makefiles">Platform Makefile</a></li>
+                    <li><a href="#platform">Platform Makefiles</a></li>
                     <li><a href="#nmake">Windows Nmake</a></li>
                     <li><a href="#modifying">Modifying Defaults</a></li>
-                    <li><a href="#installing">Installing</a></li>
-                    <li><a href="#cross">Cross Compiling</a></li>
-                    <li><a href="#toolchain">Specifying a Toolchain</a></li>
-                    <li><a href="#ejs">Supporting Ejscript</a></li>
-                    <li><a href="bit.html">Building with Bit</a></li>
-                    <li><a href="ide.html">Building with an IDE</a></li>
+                    <li><a href="#cross">Cross Building</a></li>
+
                 </ul>
 <!-- BeginDsi "dsi/userSeeAlso.html" -->
             <h1>See Also</h1>
             <ul>
                 <li><a href="../../../guide/bit/users/using.html">Using Bit</a></li>
                 <li><a href="../../../guide/bit/users/configuring.html">Configuring a Project</a></li>
-                <li><a href="../../../guide/bit/users/debugging.html">Debugging a Build</a></li>
                 <li><a href="../../../guide/bit/users/make.html">Using Makefiles</a></li>
                 <li><a href="../../../guide/bit/users/cross.html">Cross-Compiling</a></li>
 
@@ -89,6 +84,7 @@
 -Lmacosx-x64-default/bin -install_name @rpath/libmpr.dylib \
 macosx-x64-default/obj/mprLib.o -lpthread -lm -ldl
 </pre>
+            <a name="platform"></a>
             <h2>Platform Makefiles</h2>
             <p>Bit eschews creating Makefiles that will work on all the possible platforms, rather it generates
                 simple, fast, non-recursive Makefiles that run quickly and simply for the dominant platforms: Linux, Mac OSX,
@@ -99,6 +95,7 @@ macosx-x64-default/obj/mprLib.o -lpthread -lm -ldl
 <pre>$ <b>make</b>
 make -f projects/appweb-macosx-default.mk all
 </pre>
+            <a name="nmake"></a>
             <h3>Windows Nmake</h3>
             <p>Bit can generate a Makefile for Nmake which is the Windows variant of Make. This has a <em>.nmake</em>
             extension. 
@@ -135,8 +132,7 @@ make -f projects/appweb-vxworks-default.mk ARCH=arm PROFILE=debug
             arm, mips, ppc, x64 and x86. The PROFILE is a descriptive name chosen by you for your configuration.</p>
             <p>If there is not a makefile for your  target operating system, you may be able to copy the closest makefile and
             edit to suit your target platform.</p>
-            <a name="toolchain"></a>
-            <h3>Specifying a Toolchain</h3>
+            <h3>Specifying a Tool Chain</h3>
             <p>You may need to specify where Make can locate your cross-compiler and other tools.
             You can supply these via the make variables: CC, CFLAGS, DFLAGS, IFLAGS, LD and LDFLAGS. 
             <p>For example:</p>

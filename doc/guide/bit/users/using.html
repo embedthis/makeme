@@ -39,14 +39,13 @@
                     <li><a href="#rebuild">Re-Building</a></li>
                     <li><a href="#clean">Cleaning</a></li>
                     <li><a href="#errors">Seeing Errors</a></li>
-                    <li><a href="#trace">Tracing Commands</a></li>
+                    <li><a href="#tracing">Tracing Commands</a></li>
                 </ul>
 <!-- BeginDsi "dsi/userSeeAlso.html" -->
             <h1>See Also</h1>
             <ul>
                 <li><a href="../../../guide/bit/users/using.html">Using Bit</a></li>
                 <li><a href="../../../guide/bit/users/configuring.html">Configuring a Project</a></li>
-                <li><a href="../../../guide/bit/users/debugging.html">Debugging a Build</a></li>
                 <li><a href="../../../guide/bit/users/make.html">Using Makefiles</a></li>
                 <li><a href="../../../guide/bit/users/cross.html">Cross-Compiling</a></li>
 
@@ -87,7 +86,7 @@ Bit.load({
 </pre>
         <p>To build the rocket, enter:</p>
         <pre>bit rocket</pre>
-        <a id="targets"></a>
+        <a id="building"></a>
         <h2>Building Targets</h2>
         <p>Bit is typically invoked with zero or more targets on the command line to build. If invoked with zero
         targets, Bit will build all the out-of-date targets. If a one or more targets are specified, only those targets
@@ -103,11 +102,11 @@ Bit.load({
             for those wedded to <em>make</em> style commands.</p>
         <a id="rebuild"></a>
         <h2>Rebuild</h2>
-        <p>To rebuild everything including  all built tagets and intermediaries, run:</p>
+        <p>To rebuild everything including  all built targets and intermediaries, run:</p>
         <pre>bit rebuild</pre> 
         <a id="clean"></a>
         <h2>Cleaning</h2>
-        <p>To remove all built tagets and intermediaries, run:</p>
+        <p>To remove all built targets and intermediaries, run:</p>
         <pre>bit clean</pre> 
         <p>This will clean all executables, libraries, objects and will run all script targets with a type of "clean".</p>
         <a id="clobber"></a>
@@ -122,7 +121,7 @@ Bit.load({
 1.2.0
 </pre> 
         <a id="errors"></a>
-        <h2>Seeing Errors</h3>
+        <h2>Seeing Errors</h2>
         <p>By default, bit is fairly terse. It does not spew endless command lines that scroll off the screen.
         With traditional Make builds, it is too easy to miss critical compiler and linker warnings that are lost
         in pages of trace. In contrast, Bit displays the essential minimum. Only what it is doing to which target. 

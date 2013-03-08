@@ -40,14 +40,11 @@
                     <li><a href="#resources">Compiling Resources</a></li>
                     <li><a href="#options">Compiler Options</a></li>
                     <li><a href="#inheriting">Inheriting Defaults</a></li>
-                    <li><a href="#compiling">Compiling</a></li>
-                    <li><a href="#compiling">Compiling</a></li>
-                    <li><a href="#compiling">Compiling</a></li>
                 </ul>
 <!-- BeginDsi "dsi/devSeeAlso.html" -->
             <h1>See Also</h1>
             <ul>
-                <li><a href="../../../guide/bit/developers/quick.html">Quick Start with Bit</a></li>
+                <li><a href="../../../guide/bit/developers/index.html">Dev Guide</a></li>
                 <li><a href="../../../guide/bit/developers/projects.html">Bit Projects</a></li>
                 <li><a href="../../../guide/bit/developers/compiling.html">Compiling Sources</a></li>
                 <li><a href="../../../guide/bit/developers/libraries.html">Creating Libraries</a></li>
@@ -64,6 +61,7 @@
 <!-- EndDsi -->
         </div>
         <div class="contentLeft">
+        <a name="compiling"></a>
         <h2>Compiling Sources</h2>
         <p>Bit compiles source files by building library or executable targets that specify the sources to be compiled. 
         <p>For example, this target will compile the sources in the current directory and create a library containing
@@ -144,7 +142,7 @@ libname: {
         resolve the headers from the inc directory.</p>
         <a name="resources"></a>
         <h2 class="section">Resources</h2>
-        <p>Bit can compiled Windows resources by specifing them in a <em>resources</em> property list.
+        <p>Bit can be compiled Windows resources by specifying them in a <em>resources</em> property list.
         For example:
         <pre>
 appwebMonitor: {
@@ -189,14 +187,14 @@ mylib: {
     ],
 },
 </pre>
-        <table class="full">
+        <table title="properties" class="full">
             <thead>
                 <tr><th>Property</th><th>Purpose</th>
             </thead>
             <tbody>
                 <tr><td>includes</td><td>Directories to search for headers</td>
                 <tr><td>compiler</td><td>Compiler options</td>
-                <tr><td>defines</td><td>Compiler pre-procecessor defines</td>
+                <tr><td>defines</td><td>Compiler pre-processor defines</td>
                 <tr><td>libraries</td><td>Libraries to link with when linking</td>
                 <tr><td>libpaths</td><td>Directories to search for libraries</td>
                 <tr><td>linker</td><td>Linker flags</td>
@@ -209,7 +207,7 @@ mylib: {
         platform specific and thus not-portable. Fortunately, Bit portably defines most common compiler and linker
         flags for you. If you need to portably modify these flags, you will need to use some scripting.</p>
         <h3>Target Scripting</h3>
-        <p>Targets can run scripts at various stages in the build lifecyle. These scripts run in response to build events.
+        <p>Targets can run scripts at various stages in the build life cycle. These scripts run in response to build events.
         Defining a script to run in response to the <em>precompile</em> event will enable us to modify the
         compiler properties before the target is build. For example:</p>
         <pre>scripts: {
@@ -220,8 +218,9 @@ mylib: {
     ",
 },
         </pre>
-        <p>For detailed information on scripting, please see <a href="events">Bit Events</a> and
-        <a href="scripting">Bit Scripting</a>.</p>
+        <p>For detailed information on scripting, please see <a href="../../../ref/bit/events.html">Bit Events</a> and
+        <a href="scripts.html">Bit Scripting</a>.</p>
+
         <a name="inheriting"></a>
         <h2 class="section">Inheriting Defaults</h2>
         <p>Every target inherits default properties from the <em>defaults</em> and <em>internal</em> property collections.
@@ -252,7 +251,9 @@ internal: {
     '+defines': [ 'NUMBER=42' ],
 },
 </b>
+</pre>
         <p>These shared settings can be in any bit file.</p>
+<pre>
 rocket {
     <b>inherit: ['shared-settings']</b>,
     type: 'exe'
@@ -265,12 +266,12 @@ rocket {
         defined in the the <em>rules</em> property collection. These templates are unique for each supported platform
         as they depend on the local compiler.</p>
         <p>You should rarely need to modify these templates, but like the rest of Bit, you can modify them if you need to. 
-        Rules use as their property name, the desired transition. This is of the form: <em>'FROM->TO'</em> For example,
-        to compile a <em>.c</em> file into a <em>.o</em>, the rule name would be <em>'.c->.o'</em>
+        Rules use as their property name, the desired transition. This is of the form: <em>'FROM-&gt;TO'</em> For example,
+        to compile a <em>.c</em> file into a <em>.o</em>, the rule name would be <em>'.c-&gt;.o'</em>
         For example:</p>
 <pre>
 rules: {
-    'c->o': '${packs.compiler.path} -c -o ${OUT} ${CFLAGS} ${DEFINES} ${INCLUDES} ${IN}',
+    'c-&gt;o': '${packs.compiler.path} -c -o ${OUT} ${CFLAGS} ${DEFINES} ${INCLUDES} ${IN}',
 },
 </pre>
         <p>The various <em>${token}</em> values are expanded by Bit using the compiler properties.

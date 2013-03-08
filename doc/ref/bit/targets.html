@@ -34,8 +34,11 @@
             
                 <h1>Quick Nav </h1>
                 <ul>
-<li><a href="#overview">Overview</a></li>
-<li><a href="#example">Example</a></li>
+                    <li><a href="#targets">Targets</a></li>
+                    <li><a href="#dependencies">Dependencies</a></li>
+                    <li><a href="#order">Build Order</a></li>
+                    <li><a href="#defaults">Default Properties</a></li>
+                    <li><a href="#enable">Enabling Targets</a></li>
                 </ul>
 <!-- BeginDsi "dsi/refSeeAlso.html" -->
         <h1>See Also</h1>
@@ -66,6 +69,7 @@ targets {
     },
 },
 </pre>
+        <a name="dependencies"></a>
         <h2>Target Dependencies</h2>
         <p>Bit targets can depend on other targets that must be built first. Dependencies are expressed as an 
         ordered list of targets in the <em>depends</em> property. 
@@ -90,11 +94,12 @@ $ bit libfuel  # builds only libfuel
 $ bit rocket   # builds libfuel then rocket
 $ bit          # builds all targets
 </pre>
+        <a name="order"></a>
         <h2>Target Build Order</h2>
         <p>Before building, Bit parses the entire Bit file configuration and creates a build tree based on
-        which targets depend on what. Bit then builds the targets by doing a depth-first traversal of the build tree.
-        It successfully detects and handles dependency loops.</p>
-        <a id="defaultProperties"></a>
+        which targets depend on what. Bit then builds the targets by doing a depth-first traversal of the build tree. It successfully detects and handles dependency loops.</p>
+
+        <a id="defaults"></a>
         <h2>Target Default Properties</h2>
         <p>Often targets need very similar configuration. Bit provides a <em>defaults</em> collection of properties that are
         inherited by all targets.  For example:</p>
@@ -113,6 +118,7 @@ internal: {
     '+defines': [ 'TUNE=SIZE ],
 }
 </pre>
+        <a id="enable"></a>
         <h2>Enabling and Disabling Targets</h2>
         <p>Targets can be selectively enabled or disabled based on the value of the <em>enable</em> property. 
         The property may be set to a string containing an arbitrary script expression that is evaluated and if true

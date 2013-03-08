@@ -34,12 +34,17 @@
             
                 <h1>Quick Nav </h1>
                 <ul>
-<li><a href="#overview">Overview</a></li>
+                    <li><a href="#configure">Creating</a></li>
+                    <li><a href="#settings">Settings</a></li>
+                    <li><a href="#usage">Usage Message</a></li>
+                    <li><a href="#create">Creating Packs</a></li>
+                    <li><a href="#api">Pack API</a></li>
+                    <li><a href="#samples">Samples</a></li>
                 </ul>
 <!-- BeginDsi "dsi/devSeeAlso.html" -->
             <h1>See Also</h1>
             <ul>
-                <li><a href="../../../guide/bit/developers/quick.html">Quick Start with Bit</a></li>
+                <li><a href="../../../guide/bit/developers/index.html">Dev Guide</a></li>
                 <li><a href="../../../guide/bit/developers/projects.html">Bit Projects</a></li>
                 <li><a href="../../../guide/bit/developers/compiling.html">Compiling Sources</a></li>
                 <li><a href="../../../guide/bit/developers/libraries.html">Creating Libraries</a></li>
@@ -57,13 +62,15 @@
         </div>
         <div class="contentLeft">
         <h2>Creating a Configurable Product</h2>
-        <p>Bit enables you to create highly configurable products by supporing a configure phase for users to
+        <p>Bit enables you to create highly configurable products by supporting a configure phase for users to
         run before building the software. The configure phase allows the user to select desired extension packs 
         and features to tailor the product for their local operating system and platform.</p>
         <p>The configuration phase generates a platform bit file and a bit.h header that is typically included by
         most if not all source files. These two files fully describe the build characteristics with selected
         extensions and options. When Bit is run, it observes the build instructions in the platform bit file. When
         source is compiled, it can access conditional build definitions in the bit.h header.</p>
+
+        <a name="configure"></a>
         <h2>Configure Script</h2>
         <p>Developers typically provide a <em>configure</em> script to mimic the familiar autoconf configure
         pattern. This script minimally invokes bit using the configure target:</p>
@@ -71,9 +78,12 @@
 # configure script
 bit configure "$@"
 </pre>
+        <a name="options"></a>
         <h2>Defining Configurable Options</h2>
         <p>Developers should specify the supported extension packs and configuration settings in the product's 
         <em>main.bit</em> file.</p>
+
+        <a name="packs"></a>
         <h2>Packs</h2>
         <p>A product may be extended by the discovery and addition of extension packs. These are modules that
         contribute libraries, files or other components to the product to extend functionality. Examples are:
@@ -85,9 +95,9 @@ bit configure "$@"
         installed Bit folder. A product may contribute their own packs that are typically stored under the 
         <em>bits/packs</em> directory in the product source. Here is a partial list of the standard packs supplied with
         Bit.</p>
-        <table>
+        <table title="packs">
         <thead>
-        <tr><td>Pack</td><td>Description</td></tr>
+        <tr><th>Pack</th><th>Description</th></tr>
         </thead>
         <tbody>
             <tr><td>compiler.pak</td><td>Compiler detection</td></tr>
@@ -119,14 +129,14 @@ bit configure "$@"
             <tr><td>zlib.pak</td><td>Zlib library</td></tr>
             </tbody>
         </table>
-</pre>
+
         <h3>Required, Discoverable and Optional Packs</h3>
         <p>Packs are designated as either <em>required</em>, <em>discoverable</em> or <em>optional</em>. 
         Required packs are essential for the operation of the product. Discoverable packs are optional packs for which
         Bit will search the local system to see if the pack resources are present and can be utilized. Optional
         packs will not be automatically discovered and must be explicitly requested by the user via: </p>
-        <pre>configure -with PACK</em></pre>
-        <p>Developers specify requied packs via the <em>required</em> settings property. Optional
+        <pre>configure -with PACK</pre>
+        <p>Developers specify required packs via the <em>required</em> settings property. Optional
         packs are not explicitly specified, other than ensuring .pak file is available. For example:</p>
         <pre>
 settings: {
@@ -135,6 +145,8 @@ settings: {
 },
 </pre>
         <p>Note the use of the <em>+</em> prefix to append the packs to any preexisting definition.</p>
+
+        <a name="running"></a>
         <h3>Running Configure</h3>
         <p>With an appropriate main.bit file, users can run configure to select optional packs or deselect
         discoverable packs. For example:</p>
@@ -146,12 +158,14 @@ settings: {
         <p>This will copy the entire Bit <em>bits</em> directory into the local source. This copied configuration
         will be used by Bit in preference over the install Bit files.  The various Bit packs and operating system
         configuration can be modified once imported.</p>
-        <h2>Modifying Settings</h2>
+
+        <a name="settings"></a>
+        <h2>Settings</h2>
         <p>The other half of the configuration process is defining settings that the software and selected packs
         will use when building and running. These options are defined in the <em>settings</em> collection an may 
         be modified via the <em>-set</em> option. For example:
         <pre>configure -set mpr.logging=true</pre>
-        <p>The default settings are specified in the main.bit file. For example:
+        <p>The default settings are specified in the main.bit file. For example:</p>
 <pre>
 settings: {
     mode: 'fast',
@@ -165,7 +179,8 @@ settings: {
         <p>When Bit configures, it will convert every value in the settings collection into a definition in the
         bit.h header. Dots are converted to underscores. For example: mpr.logging is converted to "BIT_MPR_LOGGING".
         True|False values are converted to 1 or 0 as appropriate.</p>
-        <h2>Configure Usage messages</h2>
+        <a name="usage"></a>
+        <h2>Usage Message</h2>
         <p>Developers can tailor the usage message emitted by Bit to describe the various configurable options.
         Users can get configuration help by invoking configure with a <em>help</em> target. For example:
 <pre>
@@ -183,6 +198,8 @@ usage: {
     'ejs.mapper':    'Enable database mapper support, ejs.mapper (true|false)',
 },
 </pre>
+
+        <a name="create"></a>
         <h2>Creating Packs</h2>
         <p>A Bit extension pack file is comprised of a Javascript file with a <em>.pak</em>. The script supplies pack
         configuration by calling <em>pack()</em> to register the pack and then Bit.load to supply configuration details.</p>
@@ -244,6 +261,8 @@ app: {
 </pre>
         <p>Bit will automatically import the libphp5 library into the local tree at configure time. Bit will 
         then add the PHP definitions when compiling app.c and will then add the PHP library and linker options. </p>
+
+        <a name="api"></a>
         <h2>Pack API</h2>
         <p>Bit provides two convenience functions to assist creating packs.
         <h3>The program() API</h3>
@@ -271,6 +290,7 @@ public function program(name, description = null) {
     search: ['/bin', '/usr/bin' ],
     default: 'bin/gzip'
 </pre>
+        <a name="samples"></a>
         <h2>Samples</h2>
         <p>The standard packs are a good source of samples for how to create packs. View in the repository at
         <a href="https://github.com/embedthis/bit/tree/master/bits/packs">Bit Packs</a>.</p>
