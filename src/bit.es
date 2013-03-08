@@ -154,7 +154,7 @@ public class Bit {
             '  --static                                 # Make static libraries\n' +
             '  --unicode                                # Set char size to wide (unicode)\n' +
             '  --unset feature                          # Unset a feature\n' +
-            '  --version                                # Dispay the bit version\n' +
+            '  --version                                # Display the bit version\n' +
             '  --verbose                                # Trace operations\n' +
             '  --with PACK[=PATH]                       # Build with package at PATH\n' +
             '  --without PACK                           # Build without a package\n' +
