@@ -8786,7 +8786,7 @@ module ejs {
 
         /**
             Copy a file to the destination
-            @param dest New file location
+            @param destination New file location
             @param options Object hash
             @options permissions Set to a numeric Posix permissions mask. Not implemented.
             @options user String representing the file user name
