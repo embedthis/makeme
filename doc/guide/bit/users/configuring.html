@@ -101,6 +101,9 @@ settings: {
 
         <a name="customizing"></a>
         <h2 class="section">Customizing the Build</h2>
+        <p>Before customizing, it can be helpful to see the current configuration. The following command will display
+        the complete, current configuration:</p>
+        <pre>bit --configuration</pre>
         <p>When running bit configure, you can modify the configuration by adding or removing packages and enabling or
            disabling various features.</p> 
         <h3>Packages</h3>
@@ -180,9 +183,10 @@ the form <em>--set KEY=VALUE</em>. For example:
         Sometimes this cross compiling is just for a different instruction set (say x64 instead of x86). Other times
         it is for a completely different operating system and/or CPU architecture. In such cases a cross-compiler
         may be required to build for the target platform.</p>
-        <p>Bit supports cross compiling via the <em>bit --platform OS-ARCH configure</em> switch. This adds a platform to the
-        list of platforms to be made when building. Multiple platforms may be specified and the <em>local</em> platform alias
-        may be used for the local development platform.</p>
+        <p>Bit supports cross compiling via the <em>bit --platform OS-ARCH configure</em> switch. This adds a platform to
+        the list of platforms to be made when building. Multiple platforms may be specified and the <em>local</em>
+        platform alias may be used for the local development platform.</p>
+
         <p>Some products require local building to make tools that are required to build for any platform. These
         products add a "platforms: ['local']" property to their settings collection in the main.bit file. This
         automatically adds the local platform to the platforms list and is the same as adding <em>--platform local</em> on
@@ -191,8 +195,8 @@ the form <em>--set KEY=VALUE</em>. For example:
         <p>This will create a windows-x64.bit configuration file and a start.es that references it. The platform
         switch does not need to be restated after configuration and will be ignored.</p>
         <h3>Environment Variables</h3>
-        <p>Bit has default command paths and command flags for the compiler, linker and other tools. These can be overridden
-        by providing environment variables containing alternate flags to use. </p>
+        <p>Bit has default command paths and command flags for the compiler, linker and other tools. These can be
+        overridden by providing environment variables containing alternate flags to use. </p>
         <p>Use the variables AR, CC and LD to specify the path to the archiver, compiler and linker tools.
         Use CFLAGS to provide compiler flags, DFLAGS for
         pre-processor definitions, IFLAGS for compiler include paths and LDFLAGS for linker flags.</p>
@@ -205,8 +209,8 @@ the form <em>--set KEY=VALUE</em>. For example:
         <a name="useful"></a>
         <h2>Useful Configure Bits</h2>
         <p>Here are a few other useful configure commands:</p>
-        <p>To run configure again with the previous configure command line:</p>
-        <pre>configure --reconfigure</pre>
+        <p>See the current configuration settings:</p>
+        <pre>bit --configuration</pre>
         <p>To dump the entire configuration into a single bit file. This is great for debugging.</p>
         <pre>configure --dump</pre>
         <p>To learn more, read about <a href="debugging.html">Debugging a Build</a>.</p>

@@ -3,13 +3,16 @@
 bit \- Build It! -- Utility to build and manage programs
 .SH SYNOPSIS
 .B bit [\fI--benchmark\fR]
-[\fI--configure path-to-source\fR]
+[\fI--configuration\fR]
+[\fI--configure /path/to/source\fR]
+.RS 4
 [\fI--continue\fR]
 [\fI--debug\fR]
 [\fI--depth level\fR]
 [\fI--diagnose\fR]
-.RS 4
 [\fI--dump\fR]
+.RE
+.RS 4
 [\fI--endian [big|little]\fR]
 [\fI--file file.bit\fR]
 [\fI--force\fR]
@@ -18,13 +21,15 @@ bit \- Build It! -- Utility to build and manage programs
 [\fI--gen [make|nmake|sh|vs|xcode|main|start]\fR]
 [\fI--get field\fR]
 [\fI--help\fR]
+.RE
+.RS 4
 [\fI--import\fR]
 [\fI--keep\fR]
 [\fI--log logSpec\fR]
-.RE
-.RS 4
 [\fI--nocross\fR]
 [\fI--overwrite\fR]
+.RE
+.RS 4
 [\fI--out path\fR]
 [\fI--platform os-arch\fR]
 [\fI--pre\fR]
@@ -33,13 +38,15 @@ bit \- Build It! -- Utility to build and manage programs
 .RS 4
 [\fI--prefixes debian|embedthis|opt\fR]
 [\fI--profile [debug|release|...]\fR]
-[\fI--quiet\fR]
-[\fI--rebuild\fR]
 .RE
 .RS 4
+[\fI--quiet\fR]
+[\fI--rebuild\fR]
 [\fI--reconfigure\fR]
 [\fI--release\fR]
 [\fI--rom\fR]
+.RE
+.RS 4
 [\fI--set [feature=value]\fR]
 [\fI--show\fR]
 [\fI--static\fR]
@@ -50,6 +57,8 @@ bit \- Build It! -- Utility to build and manage programs
 [\fI--version\fR]
 [\fI--verbose\fR]
 [\fI--with PACK[=PATH]\fR]
+.RE
+.RS 4
 [\fI--without PACK\fR]
 [targets|actions] ...
 .SH DESCRIPTION
@@ -295,9 +304,13 @@ the '--continue' switch.
 .TP
 \fB\--benchmark\fR
 Measure the elapsed time to run bit.
-.TP
 
-\fB\--configure path-to-source\fR
+.TP
+\fB\--configuration\fR
+Display the current configuration. This displays the configuration for each package and the build settings.
+
+.TP
+\fB\--configure /path/to/source/tree\fR
 Configure the project to prepare for building. This configures Bit for building the project based on the instructions
 specified in a 'main.bit' located in the specified path source tree. When run, bit will create a platform configuration 
 bit file, a build output directory and bit.h header. The configuration

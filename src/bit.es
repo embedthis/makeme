@@ -74,6 +74,7 @@ public class Bit {
             bit: { range: String },
             chdir: { range: String },
             configure: { range: String },
+            configuration: { },
             'continue': { alias: 'c' },
             debug: {},
             depth: { range: Number},
@@ -121,7 +122,8 @@ public class Bit {
             '  Options:\n' + 
             '  --benchmark                              # Measure elapsed time\n' +
             '  --chdir dir                              # Directory to build from\n' +
-            '  --configure path-to-source               # Configure for building\n' +
+            '  --configure /path/to/source/tree         # Configure product\n' +
+            '  --configuration                          # Display current configuration\n' +
             '  --continue                               # Continue on errors\n' +
             '  --debug                                  # Same as --profile debug\n' +
             '  --depth level                            # Set utest depth level\n' +
@@ -131,7 +133,7 @@ public class Bit {
             '  --file file.bit                          # Use the specified bit file\n' +
             '  --force                                  # Override warnings\n' +
             '  --gen [make|nmake|sh|vs|xcode|main|start]# Generate project file\n' + 
-            '  --gen field                              # Get and display a bit field value\n' + 
+            '  --get field                              # Get and display a bit field value\n' + 
             '  --help                                   # Print help message\n' + 
             '  --import                                 # Import standard bit environment\n' + 
             '  --keep                                   # Keep intermediate files\n' + 
@@ -336,7 +338,11 @@ public class Bit {
             args.rest.push('configure')
             options.configure = Path(options.configure)
         }
-        if (args.rest.contains('reconfigure')) {
+        if (options.configuration) {
+            options.configuration = true
+        } else if (args.rest.contains('configuration')) {
+            options.configuration = true
+        } else if (args.rest.contains('reconfigure')) {
             options.reconfigure = true
         } else if (options.reconfigure) {
             args.rest.push('configure')
@@ -481,6 +487,7 @@ public class Bit {
         }
         if (!options.gen) {
             genStartBitFile(platforms[0])
+            trace('Info', 'Use "bit" to build. Use "configure --get settings" to see current settings"')
         }
     }
 
@@ -497,6 +504,14 @@ public class Bit {
 
     function getValue() {
         eval('print(serialize(bit.' + options.get + ', {pretty: true, quotes: false}))')
+    }
+
+    function showConfiguration() {
+        print("// Configuration for Platform: " + bit.platform.name)
+        print("\npacks:")
+        print(serialize(bit.packs, {pretty: true, quotes: false}))
+        print("\nsettings:")
+        print(serialize(bit.settings, {pretty: true, quotes: false}))
     }
 
     function genStartBitFile(platform) {
@@ -1019,6 +1034,10 @@ public class Bit {
                 if (ver && (ver != (bit.settings.version + '-' + bit.settings.buildNumber))) {
                     trace('Upgrade', 'Main.bit has been updated, reconfiguring ...')
                     reconfigure()
+                }
+                if (options.configuration) {
+                    showConfiguration()
+                    continue
                 }
                 prepBuild()
                 build()
