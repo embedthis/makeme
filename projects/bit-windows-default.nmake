@@ -3,7 +3,7 @@
 #
 
 PRODUCT           = bit
-VERSION           = 0.8.4
+VERSION           = 0.8.5
 BUILD_NUMBER      = 0
 PROFILE           = default
 PA                = $(PROCESSOR_ARCHITECTURE)
@@ -708,7 +708,7 @@ $(CONFIG)\bin\bit.exe: $(DEPS_37)
 #   version
 #
 version: $(DEPS_38)
-	@echo 0.8.4-0
+	@echo 0.8.5-0
 
 #
 #   stop

@@ -8828,6 +8828,14 @@ PUBLIC MprIdleCallback mprSetIdleCallback(MprIdleCallback idleCallback);
 PUBLIC void mprSetIpAddr(cchar *ip);
 
 /**
+    Set the O/S error code.
+    @description Set errno or equivalent.
+    @ingroup Mpr
+    @stability Stable.
+ */
+PUBLIC void mprSetOsError(int error);
+
+/**
     Set the application server name string
     @param s New application server name to use within the application.
     @ingroup Mpr

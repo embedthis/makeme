@@ -119,7 +119,7 @@
     #define BIT_TUNE "speed"
 #endif
 #ifndef BIT_VERSION
-    #define BIT_VERSION "0.8.4"
+    #define BIT_VERSION "0.8.5"
 #endif
 #ifndef BIT_WITHOUT_ALL
     #define BIT_WITHOUT_ALL "dsi,est,man,man2html"
@@ -220,10 +220,10 @@
     #define BIT_MINOR_VERSION 8
 #endif
 #ifndef BIT_PATCH_VERSION
-    #define BIT_PATCH_VERSION 4
+    #define BIT_PATCH_VERSION 5
 #endif
 #ifndef BIT_VNUM
-    #define BIT_VNUM 04
+    #define BIT_VNUM 05
 #endif
 
 /* Packs */

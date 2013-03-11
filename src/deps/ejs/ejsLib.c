@@ -15514,7 +15514,7 @@ static EcNode *parseObjectPattern(EcCompiler *cp)
         return LEAVE(cp, expected(cp, "{"));
     }
     np = parseFieldListPattern(cp);
-    if (getToken(cp) != T_LBRACE) {
+    if (getToken(cp) != T_RBRACE) {
         return LEAVE(cp, expected(cp, "}"));
     }
     return LEAVE(cp, np);
@@ -18426,7 +18426,9 @@ static EcNode *parseVariableBinding(EcCompiler *cp, EcNode *np, EcNode *attribut
     switch (peekToken(cp)) {
     case T_LBRACKET:
     case T_LBRACE:
-        initialize = parsePattern(cp);
+        if ((initialize = parsePattern(cp)) == 0) {
+            return LEAVE(cp, parseError(cp, "Bad destructuring variable declaration"));            
+        }
         for (next = 0; (elt = mprGetNextItem(initialize->children, &next)) != 0 && !cp->error; ) {
             assert(elt->kind == N_FIELD);
             if (elt->field.expr->kind != N_QNAME) {

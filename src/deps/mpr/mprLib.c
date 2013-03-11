@@ -1131,6 +1131,7 @@ static void mark()
         mprTrace(7, "DEBUG: GC synchronization timed out, some threads did not yield.");
         mprTrace(7, "This is most often caused by a thread doing a long running operation and not first calling mprYield.");
         mprTrace(7, "If debugging, run the process with -D to enable debug mode.");
+        resumeThreads();
         return;
     }
     nextGen();
@@ -13854,6 +13855,16 @@ PUBLIC int mprGetOsError()
 }
 
 
+PUBLIC void mprSetOsError(int error)
+{
+#if BIT_WIN_LIKE
+    SetLastError(error);
+#elif BIT_UNIX_LIKE || VXWORKS
+    errno = error;
+#endif
+}
+
+
 /*
     Return the mapped (portable, Posix) error code
  */
@@ -13865,7 +13876,6 @@ PUBLIC int mprGetError()
     int     err;
 
     err = mprGetOsError();
-
     switch (err) {
     case ERROR_SUCCESS:
         return 0;
@@ -19684,12 +19694,12 @@ static Socket listenSocket(MprSocket *sp, cchar *ip, int port, int initialFlags)
 
     if (mprGetSocketInfo(sip, port, &family, &protocol, &addr, &addrlen) < 0) {
         unlock(sp);
-        return MPR_ERR_CANT_FIND;
+        return SOCKET_ERROR;
     }
     sp->fd = (int) socket(family, datagram ? SOCK_DGRAM: SOCK_STREAM, protocol);
     if (sp->fd == SOCKET_ERROR) {
         unlock(sp);
-        return MPR_ERR_CANT_OPEN;
+        return SOCKET_ERROR;
     }
 
 #if !BIT_WIN_LIKE && !VXWORKS
@@ -19727,20 +19737,21 @@ static Socket listenSocket(MprSocket *sp, cchar *ip, int port, int initialFlags)
             closesocket(sp->fd);
             sp->fd = -1;
             unlock(sp);
-            return MPR_ERR_CANT_OPEN;
+            return SOCKET_ERROR;
         }
     }
     if ((rc = bind(sp->fd, addr, addrlen)) < 0) {
-        rc = errno;
-        if (rc == EADDRINUSE) {
+        if (errno == EADDRINUSE) {
             mprLog(3, "Cannot bind, address %s:%d already in use", ip, port);
         } else {
             mprLog(3, "Cannot bind, address %s:%d errno", ip, port, errno);
         }
+        rc = mprGetOsError();
         closesocket(sp->fd);
+        mprSetOsError(rc);
         sp->fd = -1;
         unlock(sp);
-        return (rc == EADDRINUSE) ? MPR_ERR_ALREADY_EXISTS : MPR_ERR_CANT_OPEN;
+        return SOCKET_ERROR;
     }
 
     /* NOTE: Datagrams have not been used in a long while. Maybe broken */
