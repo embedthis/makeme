@@ -13443,7 +13443,7 @@ module ejs.db {
             if (!global.module::[adapterClass]) {
                 load(module + ".mod", {reload: false})
                 if (!global.module::[adapterClass]) {
-                    throw "Can't find database connector \"" + module + "::" + adapter + "\""
+                    throw "Cannot find database connector \"" + module + "::" + adapter + "\""
                 }
             }
             this.adapter = new global.module::[adapterClass](options)
@@ -14459,7 +14459,7 @@ var before = Memory.resident
             if (!_db) {
                 _db = Database.defaultDatabase
                 if (!_db) {
-                    throw new Error("Can't get schema, database connection has not yet been established")
+                    throw new Error("Cannot get schema, database connection has not yet been established")
                 }
             }
             let sql: String = 'PRAGMA table_info("' + _tableName + '");'
@@ -16157,7 +16157,7 @@ module ejs.template  {
                             if (!layoutPage.exists) {
                                 layoutPage = Path(layouts).join(layoutPage)
                                 if (!layoutPage.exists) {
-                                    throw "Can't find layout page " + layoutPage
+                                    throw "Cannot find layout page " + layoutPage
                                 }
                             }
                         }
@@ -17044,7 +17044,7 @@ module ejs.web {
             cname ||= (request.params.controller + "Controller")
             _initRequest = request
             if (!global[cname]) {
-                throw "Can't locate controller: '" + cname + "'"
+                throw "Cannot locate controller: '" + cname + "'"
             }
             let c: Controller = new global[cname](request)
             _initRequest = null
@@ -17925,7 +17925,7 @@ module ejs.web {
             }
             return { 
                 status: Http.NotFound, 
-                body: errorBody("Not Found", "Can't locate " + escapeHtml(request.pathInfo))
+                body: errorBody("Not Found", "Cannot locate " + escapeHtml(request.pathInfo))
             }
         }
         return { 
@@ -20018,7 +20018,7 @@ module ejs.web {
                 let path = Path(file)
                 if (!path.exists) {
                     request.status = Http.NotFound
-                    throw "Can't find required component: \"" + path + "\""
+                    throw "Cannot find required component: \"" + path + "\""
                 }
                 code += path.readString()
             }
@@ -21744,7 +21744,7 @@ module ejs.web {
                     return
                 }
             }
-            throw "Can't find route \"" + name + "\" to remove"
+            throw "Cannot find route \"" + name + "\" to remove"
         }
 
         /**
@@ -22859,6 +22859,7 @@ module ejs.web {
             if (!global.TemplateParser) {
                 global.load("ejs.template.mod", {reload: false})
             }
+            options.dir = path.dirname
             let data = options.literal || TemplateParser().build(path.readString(), options)
             return Loader.wrap(path, data)
         }).app

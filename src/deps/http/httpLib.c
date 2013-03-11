@@ -2740,6 +2740,10 @@ PUBLIC void httpSetAsync(HttpConn *conn, int enable)
 PUBLIC void httpSetConnNotifier(HttpConn *conn, HttpNotifier notifier)
 {
     conn->notifier = notifier;
+    if (conn->readq->first) {
+        /* Test first rather than count because we want a readable event for the end packet */
+        HTTP_NOTIFY(conn, HTTP_EVENT_READABLE, 0);
+    }
 }
 
 
