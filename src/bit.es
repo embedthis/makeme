@@ -555,7 +555,7 @@ public class Bit {
         if (options.configure) {
             let path: Path = Path(bit.platform.name).joinExt('bit')
             trace('Generate', path)
-            let data = '/*\n    ' + path + ' -- Build ' + bit.settings.title + ' for ' + bit.platform + 
+            let data = '/*\n    ' + path + ' -- Build ' + bit.settings.title + ' for ' + bit.platform.name + 
                 '\n */\n\nBit.load(' + 
                 serialize(nbit, {pretty: true, indent: 4, commas: true, quotes: false}) + ')\n'
             path.write(data)
