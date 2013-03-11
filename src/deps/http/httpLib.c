@@ -12357,7 +12357,7 @@ static ssize filterPacket(HttpConn *conn, HttpPacket *packet, int *more)
             assert(rx->remainingContent == 0);
         }
     } else {
-        nbytes = min(rx->remainingContent, conn->newData);
+        nbytes = min((ssize) rx->remainingContent, conn->newData);
         if (!conn->upgraded && (rx->remainingContent - nbytes) <= 0) {
             rx->eof = 1;
         }
@@ -12387,7 +12387,7 @@ static ssize filterPacket(HttpConn *conn, HttpPacket *packet, int *more)
     }
     if (rx->eof) {
         if (rx->length > 0) {
-            conn->input = httpSplitPacket(packet, rx->length);
+            conn->input = httpSplitPacket(packet, (ssize) rx->length);
             *more = 1;
         }
 #if HTTP_DIRECT_INPUT

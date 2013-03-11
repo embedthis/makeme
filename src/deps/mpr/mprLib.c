@@ -25307,6 +25307,9 @@ PUBLIC char *mprFormatTm(cchar *format, struct tm *tp)
     if (*format == '\0') {
         format = "%a %b %d %H:%M:%S %Z %Y";
     }
+#if WINDOWS
+    _putenv("TZ=");
+#endif
     if (strftime(buf, sizeof(buf) - 1, format, tp) > 0) {
         buf[sizeof(buf) - 1] = '\0';
         return sclone(buf);
