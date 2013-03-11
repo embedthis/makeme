@@ -1131,7 +1131,7 @@ static void mark()
         mprTrace(7, "DEBUG: GC synchronization timed out, some threads did not yield.");
         mprTrace(7, "This is most often caused by a thread doing a long running operation and not first calling mprYield.");
         mprTrace(7, "If debugging, run the process with -D to enable debug mode.");
-        resumeThreads();
+        // resumeThreads();
         return;
     }
     nextGen();
