@@ -55,7 +55,6 @@ public class Bit {
     private var gen: Object
     private var platform: Object
     private var genout: TextStream
-    //UNUSED private var generating: String?
 
     private var defaultTargets: Array
     private var originalTargets: Array
@@ -3734,6 +3733,7 @@ public class Bit {
                 d.makeDir()
             }
         }
+        Path(bit.dir.out).join('test.setup').write('test.skip("Skip platform directory")\n')
     }
 
     function safeCopy(from: Path, to: Path) {
