@@ -382,7 +382,7 @@ typedef Ticks MprTicks;
     Trigger a breakpoint.
     @description Triggers a breakpoint and traps to the debugger. 
     @ingroup Mpr
-    @stability Internal
+    @stability Stable
  */
 PUBLIC void mprBreakpoint();
 
@@ -418,7 +418,7 @@ PUBLIC void assert(bool cond);
         mprAtomicListInsert mprCreateCond mprCreateLock mprCreateSpinLock mprGlobalLock mprGlobalUnlock mprInitLock 
         mprInitSpinLock mprLock mprResetCond mprSignalCond mprSignalMultiCond mprSpinLock mprSpinUnlock mprTryLock 
         mprTrySpinLock mprUnlock mprWaitForCond mprWaitForMultiCond 
-    @stability Stable.
+    @stability Internal.
     @defgroup MprSynch MprSynch
  */
 typedef struct MprSynch { int dummy; } MprSynch;
@@ -429,7 +429,7 @@ typedef struct MprSynch { int dummy; } MprSynch;
     waiting. Condition variables can be used when single threaded but mprServiceEvents should be called to pump events
     until another callback invokes mprWaitForCond.
     @ingroup MprSynch
-    @stability Stable.
+    @stability Internal.
  */
 typedef struct MprCond {
     #if BIT_UNIX_LIKE
@@ -514,7 +514,7 @@ PUBLIC int mprWaitForMultiCond(MprCond *cond, MprTicks timeout);
     Multithreading lock control structure
     @description MprMutex is used for multithread locking in multithreaded applications.
     @ingroup MprSynch
-    @stability Stable.
+    @stability Internal.
  */
 typedef struct MprMutex {
     #if BIT_WIN_LIKE
@@ -536,7 +536,7 @@ typedef struct MprMutex {
     Multithreading spin lock control structure
     @description MprSpin is used for multithread locking in multithreaded applications.
     @ingroup MprSynch
-    @stability Stable.
+    @stability Internal.
  */
 typedef struct MprSpin {
     #if USE_MPR_LOCK
@@ -873,7 +873,7 @@ PUBLIC void *mprAtomicExchange(void * volatile *target, cvoid *value);
     their manager routines to run and so on, until all active blocks have been marked. Non-marked blocks can then safely
     be reclaimed as garbage. A block may alternatively be permanently marked as active by calling #mprHold.
 
-    @stability Stable
+    @stability Internal
     @defgroup MprMem MprMem
     @see MprFreeMem MprHeap MprManager MprMemNotifier MprRegion mprAddRoot mprAlloc mprAllocMem mprAllocObj 
         mprAllocZeroed mprCreateMemService mprDestroyMemService mprEnableGC mprGetBlockSize mprGetMem 
@@ -1002,7 +1002,7 @@ typedef void (*MprManager)(void *ptr, int flags);
     Block structure when on a free list. This overlays MprMem and replaces sibling and children with forw/back
     The implies a minimum memory block size of 8 bytes in 32 bits and 16 bytes in 64 bits.
     @ingroup MemMem
-    @stability Stable.
+    @stability Internal.
  */
 typedef struct MprFreeMem {
     union {
@@ -1410,6 +1410,29 @@ PUBLIC void *mprVirtAlloc(ssize size, int mode);
  */
 PUBLIC void mprVirtFree(void *ptr, ssize size);
 
+/**
+    Allocate a "permanent" block of memory that is not subject GC.
+    @description This allocates a block of memory using the MPR allocator. It then calls mprHold on the block.
+    to prevent GC from freeing the block.
+    @param size Size of the memory block to allocate.
+    @return Returns a pointer to the allocated block. If memory is not available the memory exhaustion handler 
+        specified via mprCreate will be called to allow global recovery.
+    @remarks Do not mix calls to palloc and malloc.
+    @ingroup MprMem
+    @stability Prototype.
+ */
+PUBLIC void *palloc(ssize size);
+
+/**
+    Free a "permanent" block of memory allocated via "palloc".
+    @description This releases a block of memory allocated via "palloc" to be collected by the garbage collector.
+    @param ptr Pointer to the block
+    @remarks Do not mix calls to pfree and free.
+    @ingroup MprMem
+    @stability Prototype.
+ */
+PUBLIC void pfree(void *ptr);
+
 /*
     Macros. When building documentation (DOXYGEN), define pretend function defintions for the documentation.
  */
@@ -1518,7 +1541,7 @@ PUBLIC void mprAddRoot(void *ptr);
     @param flags Flags to control the collection. Set flags to MPR_GC_FORCE to force one sweep. Set to zero
     to perform a conditional sweep where the sweep is only performed if there is sufficient garbage to warrant a collection.
     @ingroup MprMem
-    @stability Evolving.
+    @stability Stable.
   */
 PUBLIC void mprRequestGC(int flags);
 
@@ -1613,7 +1636,7 @@ PUBLIC int  mprSyncThreads(MprTicks timeout);
         sclone scmp scontains scopy sends sfmt sfmtv shash shashlower sjoin sjoinv slen slower smatch sncaselesscmp snclone
         sncmp sncopy snumber spascal spbrk srchr srejoin srejoinv sreplace sspn sstarts ssub stemplate stoi stoiradix
         stok strim supper sncontains mprFprintf fmtv fmt
-    @stability Stable
+    @stability Internal
  */
 typedef struct MprString { void *dummy; } MprString;
 
@@ -2023,7 +2046,7 @@ PUBLIC char *srejoinv(char *buf, va_list args);
     @param replacement Replacement pattern. If replacement is null, the pattern is removed.
     @return A new allocated string
     @ingroup MprString
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *sreplace(cchar *str, cchar *pattern, cchar *replacement);
 
@@ -2316,7 +2339,7 @@ PUBLIC ssize mprFprintf(struct MprFile *file, cchar *fmt, ...);
     @param ... Variable arguments to format
     @return Returns the number of bytes written
     @ingroup MprString
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize mprPrintf(cchar *fmt, ...);
 
@@ -2380,7 +2403,7 @@ PUBLIC char *mprPrintfCore(char *buf, ssize maxsize, cchar *fmt, va_list args);
     @stability Stable
     @see mprDota mprIsInfinite mprIsNan mprIsZero 
     @defgroup MprFloat MprFloat
-    @stability Stable
+    @stability Internal
   */
 typedef struct MprFloat { int dummy; } MprFloat;
 
@@ -2442,7 +2465,7 @@ typedef int (*MprBufProc)(struct MprBuf* bp, void *arg);
         mprPutStringToWideBuf mprPutSubStringToBuf mprRefillBuf mprResetBufIfEmpty mprSetBufMax mprSetBufRefillProc 
         mprSetBufSize 
     @defgroup MprBuf MprBuf
-    @stability Stable.
+    @stability Internal.
  */
 typedef struct MprBuf {
     char            *data;              /**< Actual buffer for data */
@@ -2997,7 +3020,7 @@ PUBLIC char *mprFormatTm(cchar *fmt, struct tm *timep);
         It does not represent wall-clock time.
     @return Returns the system time in milliseconds.
     @ingroup MprTime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC MprTicks mprGetTicks();
 
@@ -3075,7 +3098,7 @@ PUBLIC uint64 mprGetHiResTicks();
     @param timeout Time in milliseconds
     @return Time in milliseconds until the timeout elapses  
     @ingroup MprTime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC MprTicks mprGetRemainingTicks(MprTicks mark, MprTicks timeout);
 
@@ -3088,7 +3111,7 @@ PUBLIC MprTicks mprGetRemainingTicks(MprTicks mark, MprTicks timeout);
     @param mark Starting time stamp 
     @returns the time elapsed since the mark was taken.
     @ingroup MprTime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC MprTicks mprGetElapsedTicks(MprTicks mark);
 
@@ -3167,7 +3190,7 @@ PUBLIC int mprGetTimeZoneOffset(MprTime when);
         mprPushItem mprRemoveItem mprRemoveItemAtPos mprRemoveRangeOfItems mprRemoveStringItem mprSetItem
         mprSetListLimits mprSortList 
     @defgroup MprList MprList
-    @stability Stable.
+    @stability Internal.
  */
 typedef struct MprList {
     int         flags;                  /**< Control flags */
@@ -3335,7 +3358,7 @@ PUBLIC void *mprGetNextItem(MprList *list, int *lastIndex);
     @param lastIndex Pointer to an integer that will hold the last index retrieved.
     @ingroup MprList
     @internal
-    @stability Prototype.
+    @stability Evolving.
  */
 PUBLIC void *mprGetNextStableItem(MprList *list, int *lastIndex);
 
@@ -3487,7 +3510,7 @@ PUBLIC int mprSetListLimits(MprList *list, int initialSize, int maxSize);
     @param ctx Context argument to provide to comparison function
     @return -1, 0, or 1, depending on if the elements are p1 < p2, p1 == p2 or p1 > p2
     @ingroup MprList
-    @stability Prototype
+    @stability Stable
  */
 typedef int (*MprSortProc)(cvoid *p1, cvoid *p2, void *ctx);
 
@@ -3500,7 +3523,7 @@ typedef int (*MprSortProc)(cvoid *p1, cvoid *p2, void *ctx);
     @param compare Comparison function
     @param ctx Context argument to provide to comparison function
     @ingroup MprList
-    @stability Prototype
+    @stability Stable
  */
 PUBLIC void mprSort(void *base, ssize num, ssize width, MprSortProc compare, void *ctx);
 
@@ -3512,7 +3535,7 @@ PUBLIC void mprSort(void *base, ssize num, ssize width, MprSortProc compare, voi
     @param ctx Context to provide to comparison function
     @return The sorted list
     @ingroup MprList
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC MprList *mprSortList(MprList *list, MprSortProc compare, void *ctx);
 
@@ -3570,7 +3593,7 @@ PUBLIC int mprPushItem(MprList *list, cvoid *item);
     @defgroup MprLog MprLog
     @see MprLogHandler mprAssert mprError mprGetLogFile mprGetLogHandler mprInfo mprLog mprRawLog mprTrace
         mprSetLogFile mprSetLogHandler mprSetLogLevel mprStaticError mprUsingDefaultLogHandler mprWarn 
-    @stability Stable
+    @stability Internal
  */
 typedef struct MprLog { int dummy; } MprLog;
 
@@ -3612,7 +3635,7 @@ PUBLIC void mprCreateLogService();
     @param path Base log filename
     @param count Count of archived logs to keep
     @ingroup MprLog
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprBackupLog(cchar *path, int count);
 
@@ -3864,7 +3887,7 @@ PUBLIC void mprWarn(cchar *fmt, ...);
         mprGetFirstKey mprGetHashLength mprGetKeyBits mprGetNextKey mprLookupKey mprLookupKeyEntry mprRemoveKey 
         mprSetKeyBits mprBlendHash
     @defgroup MprHash MprHash
-    @stability Stable.
+    @stability Internal.
  */
 typedef struct MprKey {
     struct MprKey   *next;              /**< Next symbol in hash chain */
@@ -3900,7 +3923,7 @@ typedef uint (*MprHashProc)(cvoid *name, ssize len);
 /**
     Hash table control structure
     @see MprHash
-    @stability Stable.
+    @stability Internal.
  */
 typedef struct MprHash {
     int             flags;              /**< Hash control flags */
@@ -4106,7 +4129,7 @@ typedef struct MprFile* (*MprOpenFileProc)(struct MprFileSystem *fs, cchar *path
     @see MprRomInode mprAddFileSystem mprCreateDiskFileSystem mprCreateFileSystem mprCreateRomFileSystem 
         mprLookupFileSystem mprSetPathNewline mprSetPathSeparators mprSetRomFileSystem 
     @defgroup MprFileSystem MprFileSystem
-    @stability Evolving
+    @stability Internal
  */
 typedef struct MprFileSystem {
     MprAccessFileProc   accessPath;     /**< Virtual access file routine */
@@ -4147,7 +4170,7 @@ PUBLIC MprFileSystem *mprCreateFileSystem(cchar *path);
 /**
     A RomInode is created for each file in the Rom file system.
     @ingroup FileSystem
-    @stability Stable
+    @stability Internal
  */
 typedef struct  MprRomInode {
     char            *path;              /**< File path */
@@ -4219,7 +4242,7 @@ PUBLIC MprFileSystem *mprLookupFileSystem(cchar *path);
     @param path Path representing a file in the file system.
     @param separators String containing the directory path separators. Defaults to "/". Windows uses "/\/".
     @ingroup MprFileSystem
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprSetPathSeparators(cchar *path, cchar *separators);
 
@@ -4228,7 +4251,7 @@ PUBLIC void mprSetPathSeparators(cchar *path, cchar *separators);
     @param path Path representing a file in the file system.
     @param newline String containing the newline character(s). "\\n". Windows uses "\\r\\n".
     @ingroup MprFileSystem
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprSetPathNewline(cchar *path, cchar *newline);
 
@@ -4243,7 +4266,7 @@ PUBLIC void mprSetPathNewline(cchar *path, cchar *newline);
         mprWriteFormat mprWriteString 
         mprGetFileFd
     @defgroup MprFile MprFile
-    @stability Stable
+    @stability Internal
  */
 typedef struct MprFile {
     char            *path;              /**< Filename */
@@ -4534,7 +4557,7 @@ PUBLIC ssize mprWriteFileString(MprFile *file, cchar *str);
 /**
     Path (filename) Information
     @description MprPath is the cross platform Path (filename) information structure.
-    @stability Stable.
+    @stability Internal.
     @see MprDirEntry MprFile MprPath mprCopyPath mprDeletePath mprGetAbsPath mprGetCurrentPath 
         mprGetFirstPathSeparator mprGetLastPathSeparator mprGetNativePath mprGetPathBase 
         mprGetPathDir mprGetPathExt mprGetPathFiles mprGetPathLink mprGetPathNewline mprGetPathParent 
@@ -4565,7 +4588,7 @@ typedef struct MprPath {
     Directory entry description
     @description The MprGetDirList will create a list of directory entries.
     @ingroup MprPath
-    @stability Stable
+    @stability Internal
  */
 typedef struct MprDirEntry {
     char            *name;              /**< Name of the file */
@@ -4750,7 +4773,7 @@ PUBLIC int mprGetPathInfo(cchar *path, MprPath *info);
     @param path Path name to examine
     @returns A path representing the target of the symbolic link.
     @ingroup MprPath
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC char *mprGetPathLink(cchar *path);
 
@@ -4911,7 +4934,7 @@ PUBLIC int mprMakeDir(cchar *path, int perms, int owner, int group, bool makeMis
     @param hard If true, make a hard link, otherwise make a soft link.
     @return Returns zero if successful, otherwise a negative MPR error code is returned.
     @ingroup MprPath
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC int mprMakeLink(cchar *path, cchar *target, bool hard);
 
@@ -5004,7 +5027,7 @@ PUBLIC char *mprResolvePath(cchar *base, cchar *path);
     @param path2 Second path to compare
     @returns True if the file exists and can be accessed
     @ingroup MprPath
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprSamePath(cchar *path1, cchar *path2);
 
@@ -5178,7 +5201,7 @@ typedef int (*MprModuleProc)(struct MprModule *mp);
         mprSetModuleTimeout mprStartModule mprStopModule mprUnloadModule mprUnloadNativeModule 
     @stability Stable.
     @defgroup MprModule MprModule
-    @stability Stable
+    @stability Internal
  */
 typedef struct MprModule {
     char            *name;              /**< Unique module name */
@@ -5260,7 +5283,7 @@ PUBLIC int mprLoadNativeModule(MprModule *mp);
     @param mp Module object created via #mprCreateModule.
     @returns Zero if successful, otherwise a negative MPR error code.
     @ingroup MprModule
-    @stability Evolving
+    @stability Stable
 */
 PUBLIC int mprUnloadNativeModule(MprModule *mp);
 #endif
@@ -5384,7 +5407,7 @@ typedef void (*MprEventProc)(void *data, struct MprEvent *event);
         mprQueueEvent mprRemoveEvent mprRescheduleEvent mprRestartContinuousEvent mprServiceEvents 
         mprSignalDispatcher mprStopContinuousEvent mprWaitForEvent mprCreateEventOutside
     @defgroup MprEvent MprEvent
-    @stability Stable
+    @stability Internal
  */
 typedef struct MprEvent {
     //  MOB - UNUSED remove
@@ -5422,7 +5445,7 @@ typedef struct MprEvent {
 /**
     Event Dispatcher
     @defgroup MprDispatcher MprDispatcher
-    @stability Stable
+    @stability Internal
  */
 typedef struct MprDispatcher {
     int             magic;
@@ -5511,7 +5534,7 @@ PUBLIC MprDispatcher *mprGetDispatcher();
     @param flags If set to MPR_SERVICE_ONE_THING, this call will service at most one event. Otherwise set to zero.
     @returns The number of events serviced. Returns MPR_ERR_BUSY is another thread is servicing events and timeout is zero.
     @ingroup MprDispatcher
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprServiceEvents(MprTicks delay, int flags);
 
@@ -5522,7 +5545,7 @@ PUBLIC int mprServiceEvents(MprTicks delay, int flags);
     @return Zero if successful and an event occurred before the timeout expired. Returns #MPR_ERR_TIMEOUT if no event
         is fired before the timeout expires.
     @ingroup MprDispatcher
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprWaitForEvent(MprDispatcher *dispatcher, MprTicks timeout);
 
@@ -5717,7 +5740,7 @@ typedef enum MprXmlToken {
     @param attName Current XML attribute
     @param value Current XML element value
     @ingroup MprXml
-    @stability Evolving
+    @stability Stable
   */
 typedef int (*MprXmlHandler)(struct MprXml *xp, int state, cchar *tagName, cchar* attName, cchar* value);
 
@@ -5727,7 +5750,7 @@ typedef int (*MprXmlHandler)(struct MprXml *xp, int state, cchar *tagName, cchar
     @param arg to input stream
     @param buf Buffer into which to read data
     @param size Size of buf
-    @stability Evolving
+    @stability Stable
  */
 typedef ssize (*MprXmlInputStream)(struct MprXml *xp, void *arg, char *buf, ssize size);
 
@@ -5736,7 +5759,7 @@ typedef ssize (*MprXmlInputStream)(struct MprXml *xp, void *arg, char *buf, ssiz
     @defgroup MprXml MprXml
     @see MprXml MprXmlHandler MprXmlInputStream mprXmlGetErrorMsg mprXmlGetLineNumber mprXmlGetParseArg mprXmlOpen 
         mprXmlParse mprXmlSetInputStraem mprXmlSetParseArg mprXmlSetParseHandler 
-    @stability Evolving
+    @stability Internal
  */
 typedef struct MprXml {
     MprXmlHandler       handler;            /**< Callback function */
@@ -5755,7 +5778,7 @@ typedef struct MprXml {
     @param xp XML parser instance returned from mprXmlOpen
     @return A descriptive null-terminated string
     @ingroup MprXml
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC cchar *mprXmlGetErrorMsg(MprXml *xp);
 
@@ -5765,7 +5788,7 @@ PUBLIC cchar *mprXmlGetErrorMsg(MprXml *xp);
     @param xp XML parser instance returned from mprXmlOpen
     @return The line number for the current token or error.
     @ingroup MprXml
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprXmlGetLineNumber(MprXml *xp);
 
@@ -5774,7 +5797,7 @@ PUBLIC int mprXmlGetLineNumber(MprXml *xp);
     @param xp XML parser instance returned from mprXmlOpen
     @return Argument defined to use for the callback
     @ingroup MprXml
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void *mprXmlGetParseArg(MprXml *xp);
 
@@ -5784,7 +5807,7 @@ PUBLIC void *mprXmlGetParseArg(MprXml *xp);
     @param maxSize Maximum size of XML in-memory token buffer. Set to -1 unlimited.
     @return An XML parser instance
     @ingroup MprXml
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC MprXml *mprXmlOpen(ssize initialSize, ssize maxSize);
 
@@ -5793,7 +5816,7 @@ PUBLIC MprXml *mprXmlOpen(ssize initialSize, ssize maxSize);
     @param xp XML parser instance returned from mprXmlOpen
     @return Zero if successful. Otherwise returns a negative MPR error code.
     @ingroup MprXml
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprXmlParse(MprXml *xp);
 
@@ -5804,7 +5827,7 @@ PUBLIC int mprXmlParse(MprXml *xp);
         ssize callbac(MprXml *xp, void *arg, char *buf, ssize size);
     @param arg Callback argument to pass to the 
     @ingroup MprXml
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprXmlSetInputStream(MprXml *xp, MprXmlInputStream fn, void *arg);
 
@@ -5813,7 +5836,7 @@ PUBLIC void mprXmlSetInputStream(MprXml *xp, MprXmlInputStream fn, void *arg);
     @param xp XML parser instance returned from mprXmlOpen
     @param parseArg Argument to use for the callback
     @ingroup MprXml
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprXmlSetParseArg(MprXml *xp, void *parseArg);
 
@@ -5822,7 +5845,7 @@ PUBLIC void mprXmlSetParseArg(MprXml *xp, void *parseArg);
     @param xp XML parser instance returned from mprXmlOpen
     @param h Arbitrary data to associate with the parser
     @ingroup MprXml
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprXmlSetParserHandler(MprXml *xp, MprXmlHandler h);
 
@@ -5851,7 +5874,7 @@ typedef void MprObj;
 /**
     JSON callbacks
     @ingroup MprJson
-    @stability Evolving
+    @stability Internal
  */
 typedef struct MprJsonCallback {
     /**
@@ -5882,7 +5905,7 @@ typedef struct MprJsonCallback {
     JSON parser
     @see MprObj MprCheckState MprSetValue MprMakeObj mprSerialize mprDeserialize mprJsonParseError
     @defgroup MprJson MprJson
-    @stability Evolving
+    @stability Internal
  */
 typedef struct MprJson {
     cchar           *path;          /* Optional JSON filename */
@@ -5900,7 +5923,7 @@ typedef struct MprJson {
     @param flags Serialization flags. Supported flags include MPR_JSON_PRETTY.
     @return Returns a serialized JSON character string.
     @ingroup MprJson
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC cchar *mprSerialize(MprObj *obj, int flags);
 
@@ -5926,7 +5949,7 @@ PUBLIC MprObj *mprDeserializeCustom(cchar *str, MprJsonCallback callback, void *
         hash table (MprHash). The hash table key entry will store the property type in the MprKey.type field. This will
         be set to MPR_JSON_STRING, MPR_JSON_OBJ or MPR_JSON_ARRAY.
     @ingroup MprJson
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC MprObj *mprDeserialize(cchar *str);
 
@@ -5979,7 +6002,7 @@ PUBLIC void mprStopThreadService();
         mprGetCurrentThreadName mprGetThreadName mprGetThreadPriority mprResetYield mprSetCurrentThreadPriority 
         mprSetThreadPriority mprStartThread mprYield 
     @defgroup MprThread MprThread
-    @stability Stable
+    @stability Internal
  */
 typedef struct MprThread {
     MprOsThread     osThread;           /**< O/S thread id */
@@ -6134,14 +6157,14 @@ PUBLIC int mprStartThread(MprThread *thread);
     @param flags Set to MPR_YIELD_BLOCK to wait until the garbage collection is complete. This is not normally required.
     Set to MPR_YIELD_STICKY to remain in the yielded state. This is useful when sleeping or blocking waiting for I/O.
     #mprResetYield must be called after setting a sticky yield.
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprYield(int flags);
 
 /**
     Reset a sticky yield
     @description This call resets a sticky yield established with #mprYield.
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprResetYield();
 
@@ -6259,7 +6282,7 @@ PUBLIC int  mprInitWindow();
     @param ws Wait service object
     @param timeout Timeout in milliseconds to wait for an event.
     @ingroup MprWaitHandler
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprWaitForIO(MprWaitService *ws, MprTicks timeout);
 
@@ -6270,7 +6293,7 @@ PUBLIC void mprWaitForIO(MprWaitService *ws, MprTicks timeout);
     @param timeout Timeout in milliseconds to wait for an event.
     @returns A count of events received.
     @ingroup MprWaitHandler
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprWaitForSingleIO(int fd, int mask, MprTicks timeout);
 
@@ -6287,7 +6310,7 @@ PUBLIC int mprWaitForSingleIO(int fd, int mask, MprTicks timeout);
     @see MprEvent MprWaitHandler mprCreateWaitHandler mprQueueIOEvent mprRecallWaitHandler mprRecallWaitHandlerByFd 
         mprRemoveWaitHandler mprWaitOn 
     @defgroup MprWaitHandler MprWaitHandler
-    @stability Stable
+    @stability Internal
  */
 typedef struct MprWaitHandler {
     int             desiredMask;        /**< Mask of desired events */
@@ -6366,7 +6389,7 @@ PUBLIC void mprRemoveWaitHandler(MprWaitHandler *wp);
     @param wp Wait handler created via #mprCreateWaitHandler
     @param desiredMask Mask of desired events (MPR_READABLE | MPR_WRITABLE)
     @ingroup MprWaitHandler
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprWaitOn(MprWaitHandler *wp, int desiredMask);
 
@@ -6405,7 +6428,7 @@ typedef int (*MprSocketProc)(void *data, int mask);
 /**
     Socket service provider interface.
     @ingroup MprSocket
-    @stability Stable
+    @stability Internal
  */
 typedef struct MprSocketProvider {
     char    *name;
@@ -6530,7 +6553,7 @@ PUBLIC void mprAddSocketProvider(cchar *name, MprSocketProvider *provider);
         mprWriteSocketString mprWriteSocketVector mprSocketHandshaking mprSocketHasBufferedRead mprSocketHasBufferedWrite
         mprUpgradeSocket 
     @defgroup MprSocket MprSocket
-    @stability Stable
+    @stability Internal
  */
 typedef struct MprSocket {
     MprSocketService *service;          /**< Socket service */
@@ -6730,7 +6753,7 @@ PUBLIC bool mprHasDualNetworkStack();
     Determine if the system support IPv6
     @return True if the address system supports IPv6 networking.
     @ingroup MprSocket
-    @stability Prototype
+    @stability Stable
     @internal
  */
 PUBLIC bool mprHasIPv6();
@@ -6749,7 +6772,7 @@ PUBLIC void mprHiddenSocketData(MprSocket *sp, ssize len, int dir);
     @param ip IP address
     @return True if the address is an IPv6 address, otherwise zero.
     @ingroup MprSocket
-    @stability Prototype
+    @stability Stable
     @internal
  */
 PUBLIC bool mprIsIPv6(cchar *ip);
@@ -6771,7 +6794,7 @@ PUBLIC bool mprIsSocketSecure(MprSocket *sp);
     @return True if the socket is using IPv6, otherwise zero.
     @internal
     @ingroup MprSocket
-    @stability Prototype
+    @stability Stable
  */
 PUBLIC bool mprIsSocketV6(MprSocket *sp);
 
@@ -6938,7 +6961,7 @@ PUBLIC bool mprSocketHasBufferedWrite(MprSocket *sp);
     @param peerName Required peer name in handshake with peer. Used by clients to verify the server hostname.
     @returns Zero if successful, otherwise a negative MPR error code.
     @ingroup MprSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprUpgradeSocket(MprSocket *sp, struct MprSsl *ssl, cchar *peerName);
 
@@ -6976,7 +6999,7 @@ PUBLIC ssize mprWriteSocketString(MprSocket *sp, cchar *str);
     @param count Count of entries in beforeVect
     @return A count of bytes actually written. Return a negative MPR error code on errors.
     @ingroup MprSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize mprWriteSocketVector(MprSocket *sp, MprIOVec *iovec, int count);
 
@@ -6987,7 +7010,7 @@ PUBLIC ssize mprWriteSocketVector(MprSocket *sp, MprIOVec *iovec, int count);
 /**
     SSL control structure
     @defgroup MprSsl MprSsl
-    @stability Evolving
+    @stability Internal
  */
 typedef struct MprSsl {
     char            *providerName;      /**< SSL provider to use - null if default */
@@ -7031,7 +7054,7 @@ PUBLIC void mprAddSslCiphers(struct MprSsl *ssl, cchar *ciphers);
     Create the SSL control structure
     @param server True if the SSL configuration will be used on the server side.
     @ingroup MprSsl
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC struct MprSsl *mprCreateSsl(int server);
 
@@ -7039,7 +7062,7 @@ PUBLIC struct MprSsl *mprCreateSsl(int server);
     Create the a new SSL control structure based on an existing structure
     @param src Structure to clone
     @ingroup MprSsl
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC struct MprSsl *mprCloneSsl(MprSsl *src);
 
@@ -7064,7 +7087,7 @@ PUBLIC int mprGetSslCipherCode(cchar *cipher);
  /**
     Load the SSL module.
     @ingroup MprSsl
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprLoadSsl();
 
@@ -7073,7 +7096,7 @@ PUBLIC int mprLoadSsl();
     @param ssl SSL instance returned from #mprCreateSsl
     @param keyFile Path to the SSL key file
     @ingroup MprSsl
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprSetSslKeyFile(struct MprSsl *ssl, cchar *keyFile);
 
@@ -7082,7 +7105,7 @@ PUBLIC void mprSetSslKeyFile(struct MprSsl *ssl, cchar *keyFile);
     @param ssl SSL instance returned from #mprCreateSsl
     @param certFile Path to the SSL certificate file
     @ingroup MprSsl
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprSetSslCertFile(struct MprSsl *ssl, cchar *certFile);
 
@@ -7091,7 +7114,7 @@ PUBLIC void mprSetSslCertFile(struct MprSsl *ssl, cchar *certFile);
     @param ssl SSL instance returned from #mprCreateSsl
     @param caFile Path to the SSL client certificate file
     @ingroup MprSsl
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprSetSslCaFile(struct MprSsl *ssl, cchar *caFile);
 
@@ -7101,7 +7124,8 @@ PUBLIC void mprSetSslCaFile(struct MprSsl *ssl, cchar *caFile);
     @param ssl SSL instance returned from #mprCreateSsl
     @param caPath Path to the SSL client certificate directory
     @ingroup MprSsl
-    @stability Evolving
+    @stability Deprecated
+    @internal
  */
 PUBLIC void mprSetSslCaPath(struct MprSsl *ssl, cchar *caPath);
 
@@ -7128,7 +7152,7 @@ PUBLIC void mprSetSslProtocols(struct MprSsl *ssl, int protocols);
     @param ssl SSL instance returned from #mprCreateSsl
     @param provider SSL provider name (openssl | matrixssl | est | nanossl)
     @ingroup MprSsl
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprSetSslProvider(MprSsl *ssl, cchar *provider);
 
@@ -7172,6 +7196,9 @@ PUBLIC void mprVerifySslDepth(struct MprSsl *ssl, int depth);
     PUBLIC int mprCreateOpenSslModule();
 #endif
 
+/**
+    @internal
+ */
 typedef struct MprCipher {
     int     code;
     cchar   *name;
@@ -7214,7 +7241,6 @@ PUBLIC void mprGetWorkerStats(MprWorkerStats *stats);
 /**
     Worker Thread Service
     @description The MPR provides a worker thread pool for rapid starting and assignment of threads to tasks.
-    @stability Evolving
     @ingroup MprWorker
     @stability Internal
  */
@@ -7246,7 +7272,7 @@ PUBLIC void mprSetWorkerStartCallback(MprWorkerProc start);
     Return the count of free threads in the worker thread pool.
     @returns An integer count of worker threads.
     @ingroup MprWorker
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprAvailableWorkers();
 
@@ -7301,7 +7327,7 @@ PUBLIC int mprGetMaxWorkers();
     @see MPrWorkerProc MprWorkerService MprWorkerStats mprActivateWorker mprDedicateWorker mprGetCurrentWorker 
         mprGetMaxWorkers mprGetWorkerServiceStats mprReleaseWorker mprSetMaxWorkers mprSetMinWorkers 
         mprSetWorkerStackSize mprStartWorker 
-    @stability Stable
+    @stability Internal
  */
 typedef struct MprWorker {
     MprWorkerProc   proc;                   /**< Procedure to run */
@@ -7536,7 +7562,7 @@ PUBLIC char *mprUriDecodeInSitu(char *uri);
 /**
     Signal callback procedure
     @ingroup MprSignal
-    @stability Evolving
+    @stability Stable
  */
 typedef void (*MprSignalProc)(void *arg, struct MprSignal *sp);
 
@@ -7555,7 +7581,7 @@ typedef struct MprSignalInfo {
     Signal control structure 
     @defgroup MprSignal MprSignal
     @see MprSignalProc MprSignalService MprSingalInfo mprAddSignalHandler mprAddStandardSignals 
-    @stability Evolving
+    @stability Internal
  */
 typedef struct MprSignal {
     struct MprSignal *next;                 /**< Chain of handlers on the same signo */
@@ -7598,7 +7624,7 @@ PUBLIC void mprServiceSignals();
     SIGPIPE and SIGXFSZ are ignored. A graceful shutdown is initiated for SIGTERM whereas SIGINT and SIGQUIT will 
     do an immediate exit.
     @ingroup MprSignal
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprAddStandardSignals();
 
@@ -7617,7 +7643,7 @@ PUBLIC void mprAddStandardSignals();
     @param dispatcher Event dispatcher on which to queue an event to run the handler.
     @param flags Set to either MPR_SIGNAL_BEFORE or MPR_SIGNAL_AFTER to run the handler before/after existing handlers.
     @ingroup MprSignal
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC MprSignal *mprAddSignalHandler(int signo, void *handler, void *arg, MprDispatcher *dispatcher, int flags);
 
@@ -7625,7 +7651,7 @@ PUBLIC MprSignal *mprAddSignalHandler(int signo, void *handler, void *arg, MprDi
 /**
     Callback function before doing a fork()
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 typedef void (*MprForkCallback)(void *arg);
 
@@ -7700,7 +7726,7 @@ typedef struct MprCmdFile {
         mprReadCmd mprReapCmd mprRunCmd mprRunCmdV mprSetCmdCallback mprSetCmdDir mprSetCmdEnv mprSetCmdSearchPath 
         mprStartCmd mprStopCmd mprWaitForCmd mprWriteCmd mprWriteCmdBlock
     @defgroup MprCmd MprCmd
-    @stability Stable
+    @stability Internal
  */
 typedef struct MprCmd {
     /*  Ordered for debugging */
@@ -7766,7 +7792,7 @@ PUBLIC bool mprAreCmdEventsEnabled(MprCmd *cmd, int channel);
     @param cmd MprCmd object created via mprCreateCmd
     @param channel Channel number to close. Should be either MPR_CMD_STDIN, MPR_CMD_STDOUT or MPR_CMD_STDERR.
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprCloseCmdFd(MprCmd *cmd, int channel);
 
@@ -7774,7 +7800,7 @@ PUBLIC void mprCloseCmdFd(MprCmd *cmd, int channel);
     Create a new Command object 
     @returns A newly allocated MprCmd object.
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC MprCmd *mprCreateCmd(MprDispatcher *dispatcher);
 
@@ -7782,7 +7808,7 @@ PUBLIC MprCmd *mprCreateCmd(MprDispatcher *dispatcher);
     Destroy the command
     @param cmd MprCmd object created via mprCreateCmd
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprDestroyCmd(MprCmd *cmd);
 
@@ -7791,7 +7817,7 @@ PUBLIC void mprDestroyCmd(MprCmd *cmd);
     @param cmd MprCmd object created via mprCreateCmd
     @param channel Channel number to close. Should be either MPR_CMD_STDIN, MPR_CMD_STDOUT or MPR_CMD_STDERR.
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprDisableCmdEvents(MprCmd *cmd, int channel);
 
@@ -7800,7 +7826,7 @@ PUBLIC void mprDisableCmdEvents(MprCmd *cmd, int channel);
     still preserving the MprCmd object.
     @param cmd MprCmd object created via mprCreateCmd
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprDisconnectCmd(MprCmd *cmd);
 
@@ -7809,7 +7835,7 @@ PUBLIC void mprDisconnectCmd(MprCmd *cmd);
     @param cmd MprCmd object created via mprCreateCmd
     @param channel Channel number to close. Should be either MPR_CMD_STDIN, MPR_CMD_STDOUT or MPR_CMD_STDERR.
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprEnableCmdEvents(MprCmd *cmd, int channel);
 
@@ -7819,7 +7845,7 @@ PUBLIC void mprEnableCmdEvents(MprCmd *cmd, int channel);
     @param on Set to true to enable events. Set to false to disable.
     @return true if I/O events are enabled for the given channel.
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprEnableCmdOutputEvents(MprCmd *cmd, bool on);
 
@@ -7827,7 +7853,7 @@ PUBLIC void mprEnableCmdOutputEvents(MprCmd *cmd, bool on);
     Finalize the writing of data to the command process
     @param cmd MprCmd object created via mprCreateCmd
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprFinalizeCmd(MprCmd *cmd);
 
@@ -7837,7 +7863,7 @@ PUBLIC void mprFinalizeCmd(MprCmd *cmd);
     @param channel Channel number to close. Should be either MPR_CMD_STDIN, MPR_CMD_STDOUT or MPR_CMD_STDERR.
     @return A reference to the MprBuf buffer structure
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC MprBuf *mprGetCmdBuf(MprCmd *cmd, int channel);
 
@@ -7847,7 +7873,7 @@ PUBLIC MprBuf *mprGetCmdBuf(MprCmd *cmd, int channel);
     @return status If the command has exited, a status between 0 and 255 is returned. Otherwise, a negative error
     code is returned.
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprGetCmdExitStatus(MprCmd *cmd);
 
@@ -7857,7 +7883,7 @@ PUBLIC int mprGetCmdExitStatus(MprCmd *cmd);
     @param channel Channel number to close. Should be either MPR_CMD_STDIN, MPR_CMD_STDOUT or MPR_CMD_STDERR.
     @return The file descriptor 
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprGetCmdFd(MprCmd *cmd, int channel);
 
@@ -7873,7 +7899,7 @@ PUBLIC int mprIsCmdComplete(MprCmd *cmd);
     @param cmd MprCmd object created via mprCreateCmd
     @return True if the command is still running
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC bool mprIsCmdRunning(MprCmd *cmd);
 
@@ -7882,7 +7908,7 @@ PUBLIC bool mprIsCmdRunning(MprCmd *cmd);
     @param cmd MprCmd object created via mprCreateCmd
     @param timeout Time in milliseconds to wait for the command to complete and exit.
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprPollWinCmd(MprCmd *cmd, MprTicks timeout);
 
@@ -7894,7 +7920,7 @@ PUBLIC void mprPollWinCmd(MprCmd *cmd, MprTicks timeout);
     @param bufsize Size of buffer
     @return Zero if successful. Otherwise a negative MPR error code.
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize mprReadCmd(MprCmd *cmd, int channel, char *buf, ssize bufsize);
 
@@ -7904,7 +7930,7 @@ PUBLIC ssize mprReadCmd(MprCmd *cmd, int channel, char *buf, ssize bufsize);
     @param timeout Time in milliseconds to wait for the command to complete and exit.
     @return Zero if successful. Otherwise a negative MPR error code.
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprReapCmd(MprCmd *cmd, MprTicks timeout);
 
@@ -7924,7 +7950,7 @@ PUBLIC int mprReapCmd(MprCmd *cmd, MprTicks timeout);
         MPR_CMD_EXACT_ENV       Use the exact environment supplied. Don't inherit and blend with existing environment.
     @return Zero if successful. Otherwise a negative MPR error code.
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprRunCmd(MprCmd *cmd, cchar *command, cchar **envp, char **out, char **err, MprTicks timeout, int flags);
 
@@ -7944,7 +7970,7 @@ PUBLIC int mprRunCmd(MprCmd *cmd, cchar *command, cchar **envp, char **out, char
         MPR_CMD_IN              Connect to stdin
     @return Zero if successful. Otherwise a negative MPR error code.
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprRunCmdV(MprCmd *cmd, int argc, cchar **argv, cchar **envp, char **out, char **err, 
     MprTicks timeout, int flags);
@@ -7957,7 +7983,7 @@ PUBLIC int mprRunCmdV(MprCmd *cmd, int argc, cchar **argv, cchar **envp, char **
         int callback(MprCmd *cmd, int channel, void *data) {}
     @param data User defined data to be passed to the callback.
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprSetCmdCallback(MprCmd *cmd, MprCmdProc callback, void *data);
 
@@ -7967,7 +7993,7 @@ PUBLIC void mprSetCmdCallback(MprCmd *cmd, MprCmdProc callback, void *data);
     @param cmd MprCmd object created via mprCreateCmd
     @param env Array of environment "KEY=VALUE" strings. Null terminated.
     @ingroup MprCmd
-    @stability Prototype
+    @stability Stable
     @internal
  */
 PUBLIC void mprSetCmdDefaultEnv(MprCmd *cmd, cchar **env);
@@ -7977,7 +8003,7 @@ PUBLIC void mprSetCmdDefaultEnv(MprCmd *cmd, cchar **env);
     @param cmd MprCmd object created via mprCreateCmd
     @param dir String directory path name.
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprSetCmdDir(MprCmd *cmd, cchar *dir);
 
@@ -7987,7 +8013,7 @@ PUBLIC void mprSetCmdDir(MprCmd *cmd, cchar *dir);
     @param env Array of environment strings. Each environment string should be of the form: "KEY=VALUE". The array
         must be null terminated.
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprSetCmdEnv(MprCmd *cmd, cchar **env);
 
@@ -7997,7 +8023,7 @@ PUBLIC void mprSetCmdEnv(MprCmd *cmd, cchar **env);
     @param cmd MprCmd object created via mprCreateCmd
     @param search Search string. This is in a format similar to the PATH environment variable.
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprSetCmdSearchPath(MprCmd *cmd, cchar *search);
 
@@ -8015,7 +8041,7 @@ PUBLIC void mprSetCmdSearchPath(MprCmd *cmd, cchar *search);
         MPR_CMD_IN              Connect to stdin
     @return Zero if successful. Otherwise a negative MPR error code.
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprStartCmd(MprCmd *cmd, int argc, cchar **argv, cchar **envp, int flags);
 
@@ -8024,7 +8050,7 @@ PUBLIC int mprStartCmd(MprCmd *cmd, int argc, cchar **argv, cchar **envp, int fl
     @param cmd MprCmd object created via mprCreateCmd
     @param signal Signal to send to the command to kill if required
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprStopCmd(MprCmd *cmd, int signal);
 
@@ -8034,7 +8060,7 @@ PUBLIC int mprStopCmd(MprCmd *cmd, int signal);
     @param timeout Time in milliseconds to wait for the command to complete and exit.
     @return Zero if successful. Otherwise a negative MPR error code.
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprWaitForCmd(MprCmd *cmd, MprTicks timeout);
 
@@ -8047,7 +8073,7 @@ PUBLIC int mprWaitForCmd(MprCmd *cmd, MprTicks timeout);
     @param bufsize Size of buffer
     @return Count of bytes written
     @ingroup MprCmd
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize mprWriteCmd(MprCmd *cmd, int channel, char *buf, ssize bufsize);
 
@@ -8060,7 +8086,7 @@ PUBLIC ssize mprWriteCmd(MprCmd *cmd, int channel, char *buf, ssize bufsize);
     @param bufsize Size of buffer
     @return Count of bytes written
     @ingroup MprCmd
-    @stability Prototype
+    @stability Stable
     @internal
  */
 PUBLIC ssize mprWriteCmdBlock(MprCmd *cmd, int channel, char *buf, ssize bufsize);
@@ -8080,7 +8106,7 @@ PUBLIC ssize mprWriteCmdBlock(MprCmd *cmd, int channel, char *buf, ssize bufsize
     @defgroup MprCache MprCache
     @see mprCreateCache mprDestroyCache mprExpireCache mprIncCache mprReadCache mprRemoveCache mprSetCacheLimits 
         mprWriteCache 
-    @stability Prototype
+    @stability Internal
  */
 typedef struct MprCache {
     MprHash         *store;             /**< Key/value store */
@@ -8100,7 +8126,7 @@ typedef struct MprCache {
         #MPR_CACHE_APPEND, #MPR_CACHE_PREPEND.
     @return A cache instance object. On error, return null.
     @ingroup MprCache
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC MprCache *mprCreateCache(int options);
 
@@ -8108,7 +8134,7 @@ PUBLIC MprCache *mprCreateCache(int options);
     Destroy a new cache object
     @param cache The cache instance object returned from #mprCreateCache.
     @ingroup MprCache
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void *mprDestroyCache(MprCache *cache);
 
@@ -8120,7 +8146,7 @@ PUBLIC void *mprDestroyCache(MprCache *cache);
     @return Zero if the expiry is successfully updated. Return MPR_ERR_CANT_FIND if the cache item is not present in the
         cache.
     @ingroup MprCache
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC int mprExpireCache(MprCache *cache, cchar *key, MprTicks expires);
 
@@ -8131,7 +8157,7 @@ PUBLIC int mprExpireCache(MprCache *cache, cchar *key, MprTicks expires);
     @param amount Numeric amount to increment the cache item. This may be a negative number to decrement the item.
     @return The new value for the cache item after incrementing.
     @ingroup MprCache
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC int64 mprIncCache(MprCache *cache, cchar *key, int64 amount);
 
@@ -8140,7 +8166,7 @@ PUBLIC int64 mprIncCache(MprCache *cache, cchar *key, int64 amount);
     @description Prune the cache and discard all cached items
     @param cache The cache instance object returned from #mprCreateCache.
     @ingroup MprCache
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void mprPruneCache(MprCache *cache);
 
@@ -8154,7 +8180,7 @@ PUBLIC void mprPruneCache(MprCache *cache);
         if not required. Cache items have a version number that is incremented every time the item is updated.
     @return The cache item value
     @ingroup MprCache
-    @stability Prototype
+    @stability Evolving
   */
 PUBLIC char *mprReadCache(MprCache *cache, cchar *key, MprTime *modified, int64 *version);
 
@@ -8164,7 +8190,7 @@ PUBLIC char *mprReadCache(MprCache *cache, cchar *key, MprTime *modified, int64 
     @param key Cache item key. If set to null, then remove all keys from the cache.
     @return True if the cache item was removed.
     @ingroup MprCache
-    @stability Prototype
+    @stability Evolving
   */
 PUBLIC bool mprRemoveCache(MprCache *cache, cchar *key);
 
@@ -8177,7 +8203,7 @@ PUBLIC bool mprRemoveCache(MprCache *cache, cchar *key);
     @param resolution Set the cache item pruner resolution. This defines how frequently the cache manager will check
         items for expiration.
     @ingroup MprCache
-    @stability Prototype
+    @stability Evolving
   */
 PUBLIC void mprSetCacheLimits(MprCache *cache, int64 keys, MprTicks lifespan, int64 memory, int resolution);
 
@@ -8203,7 +8229,7 @@ PUBLIC void mprSetCacheLimits(MprCache *cache, int64 keys, MprTicks lifespan, in
         MPR error code is returned. #MPR_ERR_BAD_STATE will be returned if an invalid version number is supplied.
         #MPR_ERR_ALREADY_EXISTS will be returned if #MPR_CACHE_ADD is specified and the cache item already exists.
     @ingroup MprCache
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC ssize mprWriteCache(MprCache *cache, cchar *key, cchar *value, MprTime modified, MprTicks lifespan, 
         int64 version, int options);
@@ -8214,7 +8240,7 @@ PUBLIC ssize mprWriteCache(MprCache *cache, cchar *key, cchar *value, MprTime mo
     @stability Stable
     @defgroup MprMime MprMime
     @see MprMime mprAddMime mprCreateMimeTypes mprGetMimeProgram mprLookupMime mprSetMimeProgram
-    @stability Stable
+    @stability Internal
  */
 typedef struct MprMime {
     char    *type;                          /**< Mime type string */
@@ -8306,7 +8332,7 @@ typedef void (*MprTerminator)(int how, int status);
     mprSignalExit mprSleep mprStart mprStartEventsThread mprStartOsService mprStopOsService mprTerminate mprUriDecode
     mprUriDecodeBuf mprUriEncode mprWaitTillIdle mprWriteRegistry 
     @defgroup Mpr Mpr
-    @stability Stable.
+    @stability Internal.
  */
 typedef struct Mpr {
     MprHeap         *heap;                  /**< Memory heap control */

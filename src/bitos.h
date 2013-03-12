@@ -1,5 +1,5 @@
 /**
-    @file bitos.h -- Embedthis O/S abstraction
+    bitos.h -- Embedthis O/S abstraction
  */
 
 #ifndef _h_BITOS

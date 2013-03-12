@@ -1343,7 +1343,34 @@ PUBLIC void mprMarkBlock(cvoid *ptr)
 }
 
 
-//  WARNING: these do not mark component members
+/*
+    Permanent allocation. i.e. Non-GC.
+ */
+void *palloc(ssize size)
+{
+    void    *ptr;
+
+    if ((ptr = mprAllocMem(size, 0)) != 0) {
+        mprHold(ptr);
+    }
+    return ptr;
+}
+
+
+/*
+    Normal free. Note: this must not be called with a block allocated via "malloc"
+    No harm in calling this on a block allocated with mprAlloc and not "palloc"
+ */
+void pfree(void *ptr)
+{
+    mprRelease(ptr);
+}
+
+
+
+/* 
+    WARNING: this does not mark component members
+ */
 PUBLIC void mprHold(void *ptr)
 {
     MprMem  *mp;
@@ -19492,7 +19519,7 @@ PUBLIC MprSocketService *mprCreateSocketService()
         ss->hasIPv6 = 1;
         closesocket(fd);
     } else {
-        mprInfo("System has only IPv4 support");
+        mprLog(2, "System has only IPv4 support");
     }
     return ss;
 }

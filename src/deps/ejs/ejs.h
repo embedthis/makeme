@@ -4295,7 +4295,7 @@ typedef void EjsAny;
         spaces to manage and minimize name conflicts. These names will soon be converted to unicode.
     @defgroup EjsName EjsName
     @see EjsName ejsMarkName
-    @stability Evolving
+    @stability Internal
  */       
 typedef struct EjsName {
     struct EjsString *name;                          /**< Property name */
@@ -4430,13 +4430,12 @@ PUBLIC EjsName ejsEmptyName(struct Ejs *ejs, cchar *name);
     Ejsript VM Structure
     @description The Ejs structure contains the state for a single interpreter. The #ejsCreateVM routine may be used
         to create multiple interpreters and returns a reference to be used in subsequent Ejscript API calls.
-    @stability Evolving.
     @defgroup Ejs Ejs
     @see ejsAddImmutable ejsAppendSearchPath ejsClearException ejsCloneVM ejsCreateService ejsCreateVM 
         ejsDestroyVM ejsEvalFile ejsEvalModule ejsEvalScript ejsExit ejsGetImmutable ejsGetImmutableByName 
         ejsGetVarByName ejsGethandle ejsLog ejsLookupScope ejsLookupVar ejsLookupVarWithNamespaces ejsReportError 
         ejsRun ejsRunProgram ejsSetDispatcher ejsSetSearchPath ejsThrowException 
-
+    @stability Internal.
  */
 typedef struct Ejs {
     char                *name;              /**< Unique interpreter name */
@@ -4552,6 +4551,7 @@ PUBLIC void ejsUnblockGC(Ejs *ejs, int blocked);
     Cached pooled of virtual machines.
     @defgroup EjsPool EjsPool
     @see ejsCreatePool ejsAllocPoolVM ejsFreePoolVM 
+    @stability Internal
   */
 typedef struct EjsPool {
     MprList     *list;                      /**< Free list */
@@ -4611,6 +4611,7 @@ PUBLIC void ejsFreePoolVM(EjsPool *pool, Ejs *ejs);
         ejsDeletePropertyByName ejsDeserialize ejsGetLength ejsGetProperty ejsGetPropertyByName ejsGetPropertyName 
         ejsGetPropertyTraits ejsInvokeOperator ejsInvokeOperatorDefault ejsLookupProperty ejsParse ejsSetProperty 
         ejsSetPropertyByName ejsSetPropertyName ejsSetPropertyTraits 
+    @stability Internal
  */
 typedef struct EjsObj {
     //  WARNING: changes to this structure require changes to mpr/src/mprPrintf.c
@@ -4912,6 +4913,7 @@ typedef struct EjsTrait {
 /**
     Property slot structure
     @ingroup EjsPot
+    @stability Internal
  */
 typedef struct EjsSlot {
     EjsName         qname;                  /**< Property name */
@@ -4926,6 +4928,7 @@ typedef struct EjsSlot {
 /**
     Property hash linkage
     @ingroup EjsPot
+    @stability Internal
  */
 typedef struct EjsHash {
     int             size;                   /**< Size of hash */
@@ -4936,6 +4939,7 @@ typedef struct EjsHash {
 /**
     Object properties
     @ingroup EjsPot
+    @stability Internal
  */
 typedef struct EjsProperties {
     EjsHash         *hash;                  /**< Hash buckets and head of link chains */
@@ -4956,7 +4960,6 @@ typedef struct EjsProperties {
         EjsPot stores properties in an array of slots. These slots store the property name and a reference to the 
         property value.  Dynamic objects own their own name hash. Sealed object instances of a type, will refer to the 
         hash of names owned by the type.
-    @stability Evolving.
     @defgroup EjsPot EjsPot
     @see EjsPot ejsAlloc ejsBlendObject ejsCast ejsCheckSlot ejsClone ejsCloneObject ejsClonePot ejsCoerceOperands 
         ejsCompactPot ejsCopySlots ejsCreateEmptyPot ejsCreateInstance ejsCreateObject ejsCreatePot 
@@ -4965,6 +4968,7 @@ typedef struct EjsProperties {
         ejsIndexProperties ejsInsertPotProperties ejsIsPot ejsLookupPotProperty ejsLookupProperty ejsManageObject 
         ejsManagePot ejsMatchName ejsObjToJSON ejsObjToString ejsParse ejsPropertyHasTrait ejsRemovePotProperty 
         ejsSetProperty ejsSetPropertyByName ejsSetPropertyName ejsSetPropertyTraits ejsZeroSlots 
+    @stability Internal.
  */
 typedef struct EjsPot {
     EjsObj  obj;                                /**< Base object */
@@ -5271,7 +5275,6 @@ PUBLIC bool ejsMatchName(Ejs *ejs, EjsName *a, EjsName *b);
     \n\n
     Strings are currently sequences of Unicode characters. Depending on the configuration, they may be 8, 16 or 32 bit
     code point values.
-    @stability Evolving
     @defgroup EjsString EjsString
     @see EjsString ejsAtoi ejsCompareAsc ejsCompareString ejsCompareSubstring ejsCompareWide ejsContainsAsc 
         ejsContainsChar ejsContainsString ejsCreateBareString ejsCreateString ejsCreateStringFromAsc 
@@ -5279,7 +5282,8 @@ PUBLIC bool ejsMatchName(Ejs *ejs, EjsName *a, EjsName *b);
         ejsDestroyIntern ejsInternAsc ejsInternMulti ejsInternString ejsInternWide ejsJoinString 
         ejsJoinStrings ejsSerialize ejsSerializeWithOptions ejsSprintf ejsStartsWithAsc ejsStrcat ejsStrdup 
         ejsSubstring ejsToJSON ejsToLiteralString ejsToMulti ejsToString ejsToUpper ejsTruncateString ejsVarToString 
-        ejstoLower 
+        ejsToLower 
+    @stability Internal.
  */
 typedef struct EjsString {
     //  WARNING: changes to EjsString require changes to mpr/src/mprPrintf.c
@@ -5666,11 +5670,11 @@ PUBLIC void ejsManageString(struct EjsString *sp, int flags);
         indexed location within a list. The Array class can store objects with numerical indicies and can also store 
         any named properties. The named properties are stored in the obj field, whereas the numeric indexed values are
         stored in the data field. Array extends EjsObj and has all the capabilities of EjsObj.
-    @stability Evolving
     @defgroup EjsArray EjsArray
     @see EjsArray ejsAddItem ejsClearArray ejsCloneArray ejsCreateArray ejsGetFirstItem ejsGetItem ejsGetLastItem 
         ejsGetNextItem ejsGetPrevItem ejsInsertItem ejsAppendArray ejsLookupItem ejsRemoveItem ejsRemoveItemAtPos 
         ejsRemoveLastItem 
+    @stability Internal
  */
 typedef struct EjsArray {
     EjsPot          pot;                /**< Property storage */
@@ -5867,9 +5871,9 @@ PUBLIC EjsArray *ejsSortArray(Ejs *ejs, EjsArray *ap, int argc, EjsObj **argv);
         and not exposed to the script programmer.
     Blocks (including types) may describe their properties via traits. The traits store the property 
     type and access attributes and are stored in EjsBlock which is a sub class of EjsObj. See ejsBlock.c for details.
-    @stability Evolving
     @defgroup EjsBlock EjsBlock
     @see EjsBlock ejsIsBlock ejsBindFunction
+    @stability Internal
  */
 typedef struct EjsBlock {
     EjsPot          pot;                            /**< Property storage */
@@ -5987,6 +5991,7 @@ PUBLIC int ejsSendEvent(Ejs *ejs, EjsObj *emitter, cchar *name, EjsAny *thisObj,
     Exception Handler Record
     @description Each exception handler has an exception handler record.
     @ingroup EjsFunction
+    @stability Internal
  */
 typedef struct EjsEx {
     // TODO - OPT. Should this be compressed via bit fields for flags Could use short for these offsets.
@@ -6005,6 +6010,7 @@ typedef struct EjsEx {
 /**
     Constant pool for module files
     @ingroup EjsFunction
+    @stability Internal
  */
 typedef struct EjsConstants {
     char          *pool;                    /**< Constant pool string data */
@@ -6020,6 +6026,7 @@ typedef struct EjsConstants {
 /**
     Symbolic debugging storage for source code in module files
     @ingroup EjsFunction
+    @stability Internal
  */
 typedef struct EjsLine {
     int         offset;                     /**< Optional PC offsets of each line in function */
@@ -6033,6 +6040,7 @@ typedef struct EjsLine {
 /**
     Debug record for module files
     @ingroup EjsFunction
+    @stability Internal
  */
 typedef struct EjsDebug {
     int         magic;
@@ -6054,6 +6062,7 @@ PUBLIC int ejsGetDebugInfo(Ejs *ejs, struct EjsFunction *fun, uchar *pc, char **
     @description This structure describes a sequence of byte code for a function. It also defines a set of
         execption handlers pertaining to this byte code.
     @ingroup EjsFunction
+    @stability Internal
  */
 typedef struct EjsCode {
     // TODO OPT. Could compress this.
@@ -6076,8 +6085,8 @@ typedef struct EjsCode {
     @param argc Number of arguments.
     @param argv Array of arguments.
     @returns Returns a result variable or NULL on errors and exceptions.
-    @stability Evolving.
     @ingroup EjsFunction
+    @stability Evolving.
  */
 typedef struct EjsObj *(*EjsProc)(Ejs *ejs, EjsAny *thisObj, int argc, struct EjsObj **argv);
 
@@ -6085,13 +6094,13 @@ typedef struct EjsObj *(*EjsProc)(Ejs *ejs, EjsAny *thisObj, int argc, struct Ej
     Function class
     @description The Function type is used to represent closures, function expressions and class methods. 
         It contains a reference to the code to execute, the execution scope and possibly a bound "this" reference.
-    @stability Evolving
     @defgroup EjsFunction EjsFunction
     @see EjsFunction ejsIsFunction ejsIsNativeFunction ejsIsInitializer ejsCreateFunction ejsCloneFunction
         ejsRunFunctionBySlot ejsRunFunction ejsRunInitializer
         EjsProc ejsIsFunction ejsBindFunction ejsCloneFunction ejsCreateFunction ejsInitFunction
         ejsCreateBareFunction ejsCreateActivation ejsRemoveConstructor ejsRunInitializer ejsRunFunction
         ejsRunFunctionBySlot ejsrunFunctionByName 
+    @stability Internal
  */
 typedef struct EjsFunction {
     /*
@@ -6399,6 +6408,7 @@ PUBLIC void ejsShowOpFrequency(Ejs *ejs);
     Frame record 
     @defgroup EjsFrame EjsFrame
     @see ejsIsFrame
+    @stability Internal
  */
 typedef struct EjsFrame {
     EjsFunction     function;               /**< Activation frame for function calls. Stores local variables */
@@ -6442,9 +6452,9 @@ PUBLIC EjsBlock *ejsPushBlock(Ejs *ejs, EjsBlock *block);
         EjsBoolean is a primitive native type and extends EjsObj. It is still logically an Object, but implements
         Object properties and methods itself. Only two instances of the boolean class are ever created created
         these are referenced as ejs->trueValue and ejs->falseValue.
-    @stability Evolving
     @defgroup EjsBoolean EjsBoolean
     @see EjsBoolean ejsCreateBoolean ejsGetBoolean ejsToBoolean
+    @stability Internal
  */
 typedef struct EjsBoolean {
     EjsObj  obj;                /**< Base object */
@@ -6511,10 +6521,10 @@ PUBLIC EjsBoolean *ejsToBoolean(Ejs *ejs, EjsAny *obj);
     \n\n
     In Stream mode ByteArrays can be configured to run in sync or async mode. Adding observers via the $addObserver
     method will put a stream into async mode. Events will then be issued for close, EOF, read and write events.
-    @stability Evolving
     @defgroup EjsByteArray EjsByteArray
     @see EjsByteArray ejsCopyToByteArray ejsCreateByteArray ejsGetByteArrayAvailableData ejsGetByteArrayRoom 
         ejsGrowByteArray ejsMakeRoomInByteArray ejsResetByteArray ejsSetByteArrayPositions ejsWriteToByteArray 
+    @stability Internal
  */
 typedef struct EjsByteArray {
     EjsObj          obj;                /**< Base object */
@@ -6744,6 +6754,7 @@ PUBLIC struct EjsNumber *ejsCacheWriteObj(Ejs *ejs, EjsObj *cache, struct EjsStr
 /** 
     Cmd class
     @defgroup EjsCmd EjsCmd
+    @stability Internal
  */
 typedef struct EjsCmd {
     EjsPot          pot;                /**< Property storage */
@@ -6769,9 +6780,9 @@ typedef struct EjsCmd {
     @description The Date class is a general purpose class for working with dates and times. 
         is a a primitive native type and extends EjsObj. It is still logically an Object, but implements Object 
         properties and methods itself. 
-    @stability Evolving
     @defgroup EjsDate EjsDate
     @see EjsDate ejsCreateDate ejsGetDate ejsIsDate  
+    @stability Internal
  */
 typedef struct EjsDate {
     EjsObj          obj;                /**< Object base */
@@ -7023,9 +7034,9 @@ PUBLIC EjsError *ejsThrowTypeError(Ejs *ejs, cchar *fmt, ...);
     @description The File class provides a foundation of I/O services to interact with physical files and directories.
     Each File object represents a single file or directory and provides methods for creating, opening, reading, writing 
     and deleting files, and for accessing and modifying information about the file.
-    @stability Evolving
     @defgroup EjsFile EjsFile 
     @see EjsFile ejsCreateFile ejsCreateFileFromFd
+    @stability Internal
  */
 typedef struct EjsFile {
     EjsObj          obj;                /**< Base object */
@@ -7070,9 +7081,9 @@ PUBLIC EjsFile *ejsCreateFileFromFd(Ejs *ejs, int fd, cchar *name, int mode);
 /**
     Path class
     @description The Path class provides file path name services.
-    @stability Evolving
     @defgroup EjsPath EjsPath 
     @see EjsFile ejsCreatePath ejsCreatePathFromAsc ejsToPath
+    @stability Internal
  */
 typedef struct EjsPath {
     EjsObj          obj;                /**< Base object */
@@ -7147,9 +7158,9 @@ PUBLIC EjsArray *ejsGetPathFiles(Ejs *ejs, EjsPath *path, int argc, EjsObj **arg
 /** 
     FileSystem class
     @description The FileSystem class provides file system services.
-    @stability Evolving
     @defgroup EjsFileSystem EjsFileSystem 
     @see EjsFile ejsCreateFile 
+    @stability Internal
  */
 typedef struct EjsFileSystem {
     EjsObj          obj;                /**< Base object */
@@ -7182,9 +7193,9 @@ PUBLIC void ejsDefineGlobalNamespaces(Ejs *ejs);
         Http objects represents a Hypertext Transfer Protocol version 1.1 client connection and are used 
         HTTP requests and capture responses. This class supports the HTTP/1.1 standard including methods for GET, POST, 
         PUT, DELETE, OPTIONS, and TRACE. It also supports Keep-Alive and SSL connections. 
-    @stability Evolving
     @defgroup EjsHttp EjsHttp
     @see EjsHttp ejsCreateHttp ejsGetHttpLimits ejsSetHttpLimits ejsSetupHttpTrace ejsLoadHttpService
+    @stability Internal
  */
 typedef struct EjsHttp {
     EjsObj          obj;                        /**< Base object */
@@ -7269,9 +7280,9 @@ PUBLIC int ejsSetupHttpTrace(Ejs *ejs, HttpTrace *trace, EjsObj *options);
 /** 
     WebSocket Class
     @description Client side WebSocket support
-    @stability Evolving
     @defgroup EjsWebSocket EjsWebSocket
     @see EjsWebSocket ejsCreateWebSocket 
+    @stability Internal
  */
 typedef struct EjsWebSocket {
     EjsPot          pot;                        /**< Base pot */
@@ -7300,9 +7311,9 @@ PUBLIC EjsWebSocket *ejsCreateWebSocket(Ejs *ejs);
 /** 
     Iterator Class
     @description Iterator is a helper class to implement iterators in other native classes
-    @stability Evolving
     @defgroup EjsIterator EjsIterator
     @see EjsIterator ejsCreateIterator
+    @stability Internal
  */
 typedef struct EjsIterator {
     EjsObj          obj;                /**< Base object */
@@ -7333,9 +7344,9 @@ PUBLIC EjsIterator *ejsCreateIterator(Ejs *ejs, EjsAny *target, int length, void
 /** 
     Namespace Class
     @description Namespaces are used to qualify names into discrete spaces.
-    @stability Evolving
     @defgroup EjsNamespace EjsNamespace
     @see EjsNamespace ejsCreateNamespace ejsCreateReservedNamespace ejsDefineReservedNamespace ejsFormatReservedNamespace 
+    @stability Internal
  */
 typedef struct EjsNamespace {
     EjsObj          obj;                /**< Base object */
@@ -7417,9 +7428,9 @@ PUBLIC EjsNull *ejsCreateNull(Ejs *ejs);
     @description The Number class provide the base class for all numeric values. 
         The primitive number storage data type may be set via the configure program to be either double, float, int
         or int64. 
-    @stability Evolving
     @defgroup EjsNumber EjsNumber
     @see EjsNumber ejsCreateNumber ejsGetDouble ejsGetInt ejsGetInt64 ejsGetNumber ejsIsInfinite ejsIsNan ejsToNumber 
+    @stability Internal
  */
 typedef struct EjsNumber {
     EjsObj      obj;                /**< Base object */
@@ -7508,9 +7519,9 @@ PUBLIC struct EjsNumber *ejsToNumber(Ejs *ejs, EjsAny *obj);
 /** 
     RegExp Class
     @description The regular expression class provides string pattern matching and substitution.
-    @stability Evolving
     @defgroup EjsRegExp EjsRegExp
     @see EjsRegExp ejsCreateRegExp ejsRegExpToString
+    @stability Internal
  */
 typedef struct EjsRegExp {
     EjsObj          obj;                /**< Base object */
@@ -7548,9 +7559,9 @@ PUBLIC EjsString *ejsRegExpToString(Ejs *ejs, EjsRegExp *rp);
 /**
     Socket Class
     @description
-    @stability Prototype
     @defgroup EjsSocket EjsSocket
     @see EjsSocket ejsCreateSocket
+    @stability Internal
  */
 typedef struct EjsSocket {
     EjsObj          obj;                /**< Base object */
@@ -7580,9 +7591,9 @@ PUBLIC EjsSocket *ejsCreateSocket(Ejs *ejs, MprSocket *sock, bool async);
     Timer Class
     @description Timers manage the scheduling and execution of Ejscript functions. Timers run repeatedly 
         until stopped by calling the stop method and are scheduled with a granularity of 1 millisecond. 
-    @stability Evolving
     @defgroup EjsTimer EjsTimer
     @see EjsTimer
+    @stability Internal
  */
 typedef struct EjsTimer {
     EjsObj          obj;                /**< Base object */
@@ -7600,9 +7611,9 @@ typedef struct EjsTimer {
 /** 
     Uri class
     @description The Uri class provides file path name services.
-    @stability Evolving
     @defgroup EjsUri EjsUri 
     @see EjsFile ejsCreateUri ejsCreateUriFromAsc ejsCreateUriFromParts ejsToUri
+    @stability Internal
  */
 typedef struct EjsUri {
     EjsObj      obj;            /**< Base object */
@@ -7660,9 +7671,9 @@ PUBLIC EjsUri *ejsToUri(Ejs *ejs, EjsAny *obj);
 /** 
     Worker Class
     @description The Worker class provides the ability to create new interpreters in dedicated threads
-    @stability Evolving
     @defgroup EjsWorker EjsWorker
     @see EjsObj ejsCreateWorker ejsRemoveWorkers
+    @stability Internal
  */
 typedef struct EjsWorker {
     EjsPot          pot;                /**< Property storage */
@@ -7752,6 +7763,7 @@ PUBLIC EjsVoid *ejsCreateUndefined(Ejs *ejs);
 /** 
     Xml tag state
     @ingroup EjsXML
+    @stability Internal
  */
 typedef struct EjsXmlTagState {
     struct EjsXML   *obj;                       /**< Current object */
@@ -7763,6 +7775,7 @@ typedef struct EjsXmlTagState {
 /*  
     Xml Parser state
     @ingroup EjsXML
+    @stability Internal
  */
 typedef struct EjsXmlState {
     //  MOB -- should not be fixed but should be growable
@@ -7782,10 +7795,10 @@ typedef struct EjsXmlState {
     XML and XMLList class
     @description The XML class and API is based on ECMA-357 -- ECMAScript for XML (E4X). The XML class is a 
     core class in the E4X specification; it provides the ability to load, parse and save XML documents.
-    @stability Evolving
     @defgroup EjsXML EjsXML
     @see EjsXML ejsAppendAttributeToXML ejsAppendToXML ejsConfigureXML ejsCreateXML ejsCreateXMLList ejsDeepCopyXML 
         ejsGetXMLDescendants ejsIsXML ejsLoadXMLAsc ejsLoadXMLString ejsSetXML ejsXMLToBuf 
+    @stability Internal
  */
 typedef struct EjsXML {
     EjsObj          obj;                /**< Base object */
@@ -7921,6 +7934,7 @@ PUBLIC MprXml *ejsCreateXmlParser(Ejs *ejs, EjsXML *xml, cchar *filename);
     @description The type helpers interface defines the set of primitive operations a type must support to
         interact with the virtual machine.
     @ingroup EjsType
+    @stability Internal
  */
 typedef struct EjsHelpers {
     /* Used by objects and values */
@@ -7970,12 +7984,12 @@ typedef int     (*EjsSetPropertyTraitsHelper)(Ejs *ejs, EjsAny *obj, int slotNum
         Types contain the static properties and methods for objects and store these in their object slots array. 
         They store the instance properties in the type->instance object. EjsType inherits from EjsBlock, EjsObj 
         and EjsObj. 
-    @stability Evolving
     @defgroup EjsType EjsType
     @see EjsType ejsBindAccess ejsBindConstructor ejsBindMethod ejsCast ejsConfigureType ejsCreateArchetype 
         ejsCreateCoreType ejsCreatePrototype ejsCreateType ejsDefineGlobalFunction ejsDefineInstanceProperty 
         ejsFinalizeCoreType ejsFinalizeScriptType ejsGetPrototype ejsGetType ejsGetTypeByName ejsGetTypeof ejsIs 
         ejsIsA ejsIsDefined ejsIsType ejsIsTypeSubType 
+    @stability Internal
  */
 typedef struct EjsType {
     EjsFunction     constructor;                    /**< Constructor function and type properties */
@@ -8448,6 +8462,7 @@ PUBLIC int ejsHostHttpServer(HttpConn *conn);
     The VM Stacks grow forward in memory. A push is done by incrementing first, then storing. ie. *++top = value
     A pop is done by extraction then decrement. ie. value = *top--
     @ingroup Ejs
+    @stability Internal
  */
 typedef struct EjsState {
     struct EjsFrame     *fp;                /**< Current Frame function pointer */
@@ -8466,6 +8481,7 @@ typedef struct EjsState {
     Lookup State.
     @description Location information returned when looking up properties.
     @ingroup Ejs
+    @stability Internal
  */
 typedef struct EjsLookup {
     int             slotNum;                /**< Final slot in obj containing the variable reference */
@@ -8487,6 +8503,7 @@ typedef struct EjsLookup {
 /**
     Interned string hash shared over all interpreters
     @ingroup Ejs
+    @stability Internal
  */
 typedef struct EjsIntern {
     struct EjsString    *buckets;               /**< Hash buckets and references to link chains of strings (unicode) */
@@ -8502,6 +8519,7 @@ typedef struct EjsIntern {
     @description The Ejscript service manages the overall language runtime. It 
         is the factory that creates interpreter instances via #ejsCreateVM.
     @ingroup EjsService
+    @stability Internal
  */
 typedef struct EjsService {
     EjsObj          *(*loadScriptLiteral)(Ejs *ejs, EjsString *script, cchar *cache);
@@ -8930,6 +8948,7 @@ PUBLIC void ejsUnlockVm(Ejs *ejs);
 
 /*
     Type fixup when loading a type
+    @stability Internal
  */
 typedef struct EjsTypeFixup
 {
@@ -8943,6 +8962,7 @@ typedef struct EjsTypeFixup
 
 /*
     State while loading modules
+    @stability Internal
  */
 typedef struct EjsLoadState {
     MprList         *typeFixups;            /**< Loaded types to fixup */
@@ -9016,6 +9036,7 @@ typedef void (*EjsLoaderCallback)(struct Ejs *ejs, int kind, ...);
 
 /*
     File format is little-endian. All headers are aligned on word boundaries.
+    @stability Internal
  */
 typedef struct EjsModuleHdr {
     int32       magic;                      /* Magic number for Ejscript modules */
@@ -9028,6 +9049,7 @@ typedef struct EjsModuleHdr {
     Module control structure
     @defgroup EjsModule EjsModule
     @see ejsLoadModule ejsLoadModules ejsSearchForModule ejsCreateSearchPath ejsSetSearchPath
+    @stability Internal
  */
 typedef struct EjsModule {
     EjsString       *name;                  /**< Name of this module - basename of the filename without .mod extension */
@@ -9103,6 +9125,7 @@ typedef struct EjsNativeModule {
     Documentation string information
     Element documentation string. The loader will create if required.
     @ingroup EjsModule
+    @stability Internal
  */
 typedef struct EjsDoc {
     EjsString   *docString;                         /* Original doc string */

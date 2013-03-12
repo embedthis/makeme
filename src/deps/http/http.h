@@ -272,13 +272,12 @@ PUBLIC void httpSetForkCallback(struct Http *http, MprForkCallback proc, void *a
 /** 
     Http service object
     @description The Http service is managed by a single service object.
-    @stability Evolving
     @defgroup Http Http
     @see Http HttpConn HttpEndpoint gettGetDateString httpConfigurenamedVirtualEndpoint httpCreate httpCreateSecret 
         httpDestroy httpGetContext httpGetDateString httpLookupEndpoint httpLookupStatus httpLooupHost 
         httpSetContext httpSetDefaultClientHost httpSetDefaultClientPort httpSetDefaultPort httpSetForkCallback 
         httpSetProxy httpSetSoftware 
-    @stability Stable
+    @stability Internal
  */
 typedef struct Http {
     MprList         *endpoints;             /**< Currently configured listening endpoints */
@@ -518,7 +517,6 @@ PUBLIC void httpDefineRouteBuiltins();
 /*********************************** HttpStats ********************************/
 /** 
     HttpStats
-    @stability Prototype
     @defgroup HttpStats HttpStats
     @stability Internal
  */
@@ -572,10 +570,9 @@ PUBLIC void httpGetStats(HttpStats *sp);
 /************************************* Limits *********************************/
 /** 
     Http limits
-    @stability Evolving
     @defgroup HttpLimits HttpLimits
     @see HttpLimits httpInitLimits httpCreateLimits httpEaseLimits
-    @stability Evolving
+    @stability Internal
  */
 typedef struct HttpLimits {
     ssize    bufferSize;                /**< Maximum buffering by any pipeline stage */
@@ -643,11 +640,11 @@ PUBLIC void httpEaseLimits(HttpLimits *limits);
     URI management
     @description The HTTP provides routines for formatting and parsing URIs. Routines are also provided
         to escape dangerous characters for URIs as well as HTML content and shell commands.
-    @stability Evolving
     @see HttpConn httpCloneUri httpCompleteUri httpCreateUri httpCreateUriFromParts httpFormatUri httpGetRelativeUri 
         httpJoinUri httpJoinUriPath httpLookupMimeType httpMakeUriLocal httpNormalizeUriPath httpResolveUri 
         httpUriToString 
     @defgroup HttpUri HttpUri
+    @stability Internal
  */
 typedef struct HttpUri {
     char        *scheme;                /**< URI scheme (http|https|...) */
@@ -837,7 +834,6 @@ PUBLIC char *httpUriToString(HttpUri *uri, int flags);
         Range:  0,  49  First 50 bytes
         Range: -1, -50  Last 50 bytes
         Range:  1,  -1  Skip first byte then select content to the end
-    @stability Evolving
     @defgroup HttpRange HttpRange
     @see HttpRange
     @stability Internal
@@ -885,7 +881,7 @@ typedef ssize (*HttpFillProc)(struct HttpQueue *q, struct HttpPacket *packet, Mp
         httpCreateDataPacket httpCreateEndPacket httpCreateEntityPacket httpCreateHeaderPacket httpCreatePacket 
         httpGetPacket httpGetPacketLength httpIsLastPacket httpJoinPacket 
         httpPutBackPacket httpPutForService httpPutPacket httpPutPacketToNext httpSplitPacket 
-    @stability Stable
+    @stability Internal
  */
 typedef struct HttpPacket {
     MprBuf          *prefix;                /**< Prefix message to be emitted before the content */
@@ -1108,7 +1104,7 @@ typedef void (*HttpQueueService)(struct HttpQueue *q);
         httpPutBackPacket httpPutForService httpPutPacket httpPutPacketToNext httpRemoveQueue httpResizePacket
         httpResumeQueue httpScheduleQueue httpServiceQueue httpSetQueueLimits httpSuspendQueue
         httpWillNextQueueAcceptPacket httpWillNextQueueAcceptSize httpWrite httpWriteBlock httpWriteBody httpWriteString 
-    @stability Stable
+    @stability Internal
  */
 typedef struct HttpQueue {
     /* Ordered for debugging */
@@ -1153,7 +1149,7 @@ typedef struct HttpQueue {
         httpEnableQueue is called.
     @param q Queue reference
     @ingroup HttpQueue
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void httpDisableQueue(HttpQueue *q);
 
@@ -1552,7 +1548,7 @@ typedef int (*HttpParse)(Http *http, cchar *key, char *value, void *state);
     @see HttpConn HttpQueue HttpStage httpCloneStage httpCreateConnector httpCreateFilter httpCreateHandler 
         httpCreateStage httpDefaultOutgoingServiceStage httpGetStageData httpHandleOptionsTrace httpLookupStage 
         httpLookupStageData httpSetStageData 
-    @stability Stable
+    @stability Internal
  */
 typedef struct HttpStage {
     char            *name;                  /**< Stage name */
@@ -1974,7 +1970,7 @@ PUBLIC void httpSetIOCallback(struct HttpConn *conn, HttpIOCallback fn);
         httpSetAsync httpSetChunkSize httpSetConnContext httpSetConnHost httpSetConnNotifier httpSetCredentials
         httpSetKeepAliveCount httpSetProtocol httpSetRetries httpSetSendConnector httpSetState httpSetTimeout
         httpSetTimestamp httpShouldTrace httpStartPipeline
-    @stability Stable
+    @stability Internal
  */
 typedef struct HttpConn {
     /*  Ordered for debugability */
@@ -2654,7 +2650,7 @@ typedef bool (*HttpVerifyUser)(HttpConn *conn);
 /**
     Authentication Protocol. Supported protocols  are: basic, digest, form.
     @ingroup HttpAuth
-    @stability Evolving
+    @stability Internal
  */
 typedef struct HttpAuthType {
     char            *name;          /**< Authentication protocol name: 'basic', 'digest', 'post' */
@@ -2667,7 +2663,7 @@ typedef struct HttpAuthType {
 /**
     Password backend store. Support stores are: pam, internal
     @ingroup HttpAuth
-    @stability Evolving
+    @stability Internal
  */
 typedef struct HttpAuthStore {
     char            *name;          /**< Authentication password store name: 'pam', 'internal' */
@@ -2676,10 +2672,9 @@ typedef struct HttpAuthStore {
 
 /** 
     User Authorization. A user has a name, password and a set of roles. These roles define a set of abilities.
-    @stability Evolving
     @see HttpAuth
     @ingroup HttpAuth
-    @stability Evolving
+    @stability Internal
  */
 typedef struct HttpUser {
     char            *name;                  /**< User name */
@@ -2690,10 +2685,9 @@ typedef struct HttpUser {
 
 /** 
     Authorization Roles. Roles are named sets of abilities.
-    @stability Evolving
     @see HttpAuth
     @ingroup HttpAuth
-    @stability Evolving
+    @stability Internal
  */
 typedef struct  HttpRole {
     char            *name;                  /**< Role name */
@@ -2712,7 +2706,7 @@ typedef struct  HttpRole {
         httpIsAuthenticated httpLogin httpRemoveRole httpRemoveUser httpSetAuthAllow httpSetAuthAnyValidUser
         httpSetAuthAutoLogin httpSetAuthDeny httpSetAuthOrder httpSetAuthPermittedUsers httpSetAuthForm httpSetAuthQop
         httpSetAuthRealm httpSetAuthRequiredAbilities httpSetAuthStore httpSetAuthType
-    @stability Evolving
+    @stability Internal
  */
 typedef struct HttpAuth {
     struct HttpAuth *parent;                /**< Parent auth */
@@ -3037,7 +3031,7 @@ PUBLIC HttpAuthType *httpLookupAuthType(cchar *type);
 /**
     Language definition record for routes
     @ingroup HttpRoute
-    @stability Evolving
+    @stability Internal
   */
 typedef struct HttpLang {
     char        *path;                      /**< Document directory for the language */
@@ -3057,10 +3051,9 @@ typedef struct HttpLang {
 
 /**
     Cache Control
-    @stability Evolving
     @defgroup HttpCache HttpCache
     @see HttpCache httpAddCache httpUpdateCache httpWriteCache
-    @stability Evolving
+    @stability Internal
 */
 typedef struct HttpCache {
     MprHash     *extensions;                /**< Extensions to cache */
@@ -3222,7 +3215,7 @@ PUBLIC void httpDefineAction(cchar *uri, HttpAction fun);
         httpSetRouteIndex httpSetRouteMethods httpSetRouteName httpSetRouteVar httpSetRoutePattern 
         httpSetRoutePrefix httpSetRouteScript httpSetRouteSource httpSetRouteTarget httpSetRouteWorkers httpTemplate 
         httpSetTrace httpSetTraceFilter httpTokenize httpTokenizev 
-    @stability Stable
+    @stability Internal
  */
 typedef struct HttpRoute {
     /* Ordered for debugging */
@@ -4362,7 +4355,7 @@ PUBLIC char *httpExpandUri(HttpConn *conn, cchar *str);
     @defgroup HttpSession HttpSession
     @see httpAllocSession httpCreateSession httpDestroySession httpGetSession httpGetSessionObj
         httpRemoveSessionVar httpGetSessionID httpSetSessionObj httpSetSessionVar
-    @stability Evolving
+    @stability Internal
  */
 typedef struct HttpSession {
     char            *id;                        /**< Session ID key */
@@ -4484,7 +4477,7 @@ PUBLIC int httpSetSessionObj(HttpConn *conn, cchar *key, MprHash *value);
     @stability Evolving
     @defgroup HttpUploadFile HttpUploadFile
     @see httpAddUploadFile httpRemoveAllUploadedFiles httpRemoveUploadFile
-    @stability Stable
+    @stability Internal
  */
 typedef struct HttpUploadFile {
     cchar           *filename;              /**< Local (temp) name of the file */
@@ -4569,7 +4562,7 @@ PUBLIC void httpRemoveUploadFile(HttpConn *conn, cchar *id);
         httpGetHeaderHash httpGetHeaders httpGetIntParam httpGetLanguage httpGetQueryString httpGetReadCount httpGetStatus 
         httpGetStatusMessage httpMatchParam httpRead httpReadString httpSetParam httpSetIntParam httpSetUri 
         httpTestParam httpTrimExtraPath 
-    @stability Stable
+    @stability Internal
  */
 typedef struct HttpRx {
     /* Ordered for debugging */
@@ -5022,7 +5015,7 @@ PUBLIC void httpProcessWriteEvent(HttpConn *conn);
     httpIsChunked httpIsComplete httpIsOutputFinalized httpNeedRetry httpOmitBody httpRedirect httpRemoveHeader
     httpSetContentLength httpSetContentType httpSetCookie httpSetEntityLength httpSetHeader httpSetHeaderString
     httpSetResponded httpSetStatus httpSocketBlocked httpWait httpWriteHeaders httpWriteUploadData 
-    @stability Evolving
+    @stability Internal
  */
 typedef struct HttpTx {
     /* Ordered for debugging */
@@ -5496,14 +5489,13 @@ PUBLIC ssize httpWriteUploadData(HttpConn *conn, MprList *formData, MprList *fil
 
 /** 
     Listening endpoints. Endpoints may have multiple virtual named hosts.
-    @stability Evolving
     @defgroup HttpEndpoint HttpEndpoint
     @see HttpEndpoint httpAcceptConn httpAddHostToEndpoint httpCreateConfiguredEndpoint httpCreateEndpoint 
         httpDestroyEndpoint httpGetEndpointContext httpHasNamedVirtualHosts httpIsEndpointAsync
         httpLookupHostOnEndpoint httpSecureEndpoint httpSecureEndpointByName httpSetEndpointAddress 
         httpSetEndpointAsync httpSetEndpointContext httpSetEndpointNotifier httpSetHasNamedVirtualHosts 
         httpStartEndpoint httpStopEndpoint httpValidateLimits 
-    @stability Stable
+    @stability Internal
  */
 typedef struct HttpEndpoint {
     Http            *http;                  /**< Http service object */
@@ -5745,7 +5737,7 @@ PUBLIC bool httpValidateLimits(HttpEndpoint *endpoint, int event, HttpConn *conn
     @defgroup HttpHost HttpHost
     @see HttpHost httpAddRoute httpCloneHost httpCreateHost httpResetRoutes httpSetHostHome httpSetHostIpAddr 
         httpSetHostName httpSetHostProtocol
-    @stability Stable
+    @stability Internal
 */
 typedef struct HttpHost {
     /*
@@ -5960,7 +5952,7 @@ PUBLIC void httpStopHost(HttpHost *host);
     @defgroup HttpWebSocket HttpWebSocket
     @see httpGetWebSocketCloseReason httpGetWebSocketMessageLength httpGetWebSocketProtocol httpGetWriteQueueCount
         httpIsLastPacket httpSend httpSendBlock httpSendClose httpSetWebSocketProtocols httpWebSocketOrderlyClosed
-    @stability Evolving
+    @stability Internal
  */
 typedef struct HttpWebSocket {
     int             state;                  /**< State */
