@@ -1245,7 +1245,8 @@ PUBLIC bool httpIsQueueSuspended(HttpQueue *q);
     maximum size of data to be joined. The maximum size may also limited by the downstream queue maximum packet size.
     @param q Queue to examine
     @param size The maximum-sized packet that will be created by joining queue packets is the minimum of the given size
-        and the downstream queues maximum packet size.
+        and the downstream queues maximum packet size. Note: this routine will not split packets and so the 
+        maximum is advisory only.
     @ingroup HttpQueue
     @stability Stable
  */

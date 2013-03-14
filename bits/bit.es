@@ -748,15 +748,15 @@ public class Bit {
                     }
                 }
             }
+            if (o.scripts.preblend) {
+                runScript(o.scripts, "preblend")
+                delete o.scripts.preblend
+            }
             let scripts = {}
             for (let [event,item] in o.scripts) {
                 scripts['+' + event] = item
             }
             o.scripts = scripts
-            if (o.scripts.preblend) {
-                runScript(o.scripts, "preblend")
-                delete o.scripts.preblend
-            }
         }
         for (let [tname,target] in o.targets) {
             target.name ||= tname
@@ -1050,7 +1050,9 @@ public class Bit {
             getDependentTargets(target, goal)
         }
         if (selectedTargets.length == 0) {
-            throw 'No targets for goal "' + goal + '"'
+            if (goal != 'all') {
+                throw 'No targets for goal "' + goal + '"'
+            }
         }
         return selectedTargets
     }

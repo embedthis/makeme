@@ -97,6 +97,10 @@
   <CustomBuildStep>
     <Command>cd ..\..
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
+copy /Y bits\bit.es $(BinDir)\bits
+if exist $(BinDir)\bits del /Q $(BinDir)\bits
+copy /Y bits\configure.es $(BinDir)\bits
+if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\embedthis-manifest.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\embedthis.bit $(BinDir)\bits
@@ -104,6 +108,8 @@ if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\embedthis.es $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\gendoc.es $(BinDir)\bits
+if exist $(BinDir)\bits del /Q $(BinDir)\bits
+copy /Y bits\generate.es $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
 if not exist $(BinDir)\bits md $(BinDir)\bits
 xcopy /S /Y bits\os $(BinDir)\bits

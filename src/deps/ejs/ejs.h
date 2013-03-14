@@ -4017,13 +4017,6 @@ extern "C" {
 #ifndef BIT_XML_MAX_NODE_DEPTH
     #define BIT_XML_MAX_NODE_DEPTH  64
 #endif
-#ifndef BIT_MAX_SQLITE_MEM
-    #define BIT_MAX_SQLITE_MEM      (2*1024*1024)   /**< Maximum buffering for Sqlite */
-#endif
-#ifndef BIT_MAX_SQLITE_DURATION
-    #define BIT_MAX_SQLITE_DURATION 30000           /**< Database busy timeout */
-#endif
-
 #ifndef BIT_MAX_EJS_STACK
 #if BIT_HAS_MMU
     #define BIT_MAX_EJS_STACK       (1024 * 1024)   /**< Stack size on virtual memory systems */

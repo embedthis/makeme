@@ -386,8 +386,8 @@ typedef Ticks MprTicks;
  */
 PUBLIC void mprBreakpoint();
 
-#if DOXYGEN
 #undef assert
+#if DOXYGEN
 /**
     Assert that a condition is true
     @param cond Boolean result of a conditional test
@@ -1432,6 +1432,19 @@ PUBLIC void *palloc(ssize size);
     @stability Prototype.
  */
 PUBLIC void pfree(void *ptr);
+
+/**
+    Reallocate a "permanent" block of memory allocated via "palloc".
+    @description This increases the size of a block of memory allocated via "palloc".
+    @param ptr Pointer to the block
+    @param size New block size
+    @return Returns a pointer to the allocated block. If memory is not available the memory exhaustion handler 
+        specified via mprCreate will be called to allow global recovery.
+    @remarks Do not mix calls to prealloc and malloc.
+    @ingroup MprMem
+    @stability Prototype.
+ */
+PUBLIC void *prealloc(void *ptr, ssize size);
 
 /*
     Macros. When building documentation (DOXYGEN), define pretend function defintions for the documentation.

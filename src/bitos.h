@@ -702,6 +702,7 @@ typedef int64 Ticks;
         #endif
     #endif
     #if VXWORKS
+        #undef isnan
         #define isnan(n)  ((n) != (n))
         #define isnanf(n) ((n) != (n))
         #define isinf(n)  ((n) == (1.0 / 0.0) || (n) == (-1.0 / 0.0))
@@ -772,6 +773,10 @@ typedef int64 Ticks;
     #define LTOP(i)     ((void*) ((int) i))
     #define PTOL(i)     ((int64) (int) i)
 #endif
+
+#undef PUBLIC
+#undef PUBLIC_DATA
+#undef PRIVATE
 
 #if BIT_WIN_LIKE
     /*
