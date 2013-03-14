@@ -97,9 +97,6 @@ public function deploy(manifest, prefixes, package): Array {
                 }
             }
             if (item.from) {
-dump('DDD', item)
-print("FROM", item.from)
-print("TO", item.to)
                 copy(item.from, item.to, item)
             }
             if (item.write) {
