@@ -87,13 +87,35 @@ targets {
     },
 }
 </pre>
-        <p>When bit is invoked, it may nominate specific targets to build,
-        or a default build may be requested (via no arguments), and then all enabled targets will be built.</p>
+        <p>When bit is invoked, it may nominate specific actions or targets to build on the command line. These
+        are called <em>goals</em>. If no goals are provided, a default build is run using the special goal called
+        <em>'all'</em>.</p>
 <pre>
 $ bit libfuel  # builds only libfuel
 $ bit rocket   # builds libfuel then rocket
 $ bit          # builds all targets
 </pre>
+        <h2>Goals</h2>
+        <p>When bit is invoked, the command line goals are used to select the targets to build. Each target has as
+        target.goals propery which is an array of goals for which the target should be built. For example:</p>
+<pre>
+rocket: {
+    type: 'exe'
+    sources: '*.c',
+    <b>goals: ['all', 'rocket'],</b>
+},
+</pre>
+        <p>With the goals specified above, the rocket target will be built if invoked as:
+        <pre>
+bit         # to build all targets
+bit rocket  # to build just the rocket
+</pre>
+        
+        <p>Target goals are automatically defined if not explicitly specified. In fact, most targets do not explicitly
+        define their goals. If unspecified, a default goals property will be defined for each target that minimally 
+        contains the name of the target. Executable, library and file targets will also have the special goal <em>'all'</em>
+        so that they are created for default builds.</p>
+
         <a name="order"></a>
         <h2>Target Build Order</h2>
         <p>Before building, Bit parses the entire Bit file configuration and creates a build tree based on

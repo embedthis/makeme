@@ -36,11 +36,11 @@
                 <ul>
                     <li><a href="#scripts">Build Scripts</a></li>
                     <li><a href="#engines">Script Engines</a></li>
-                    <li><a href="#low">Low Level Scripts</a></li>
-                    <li><a href="#high">High Level Scripts</a></li>
+                    <li><a href="#forms">Scripts Forms</a></li>
                     <li><a href="#shell">Shell Scripts</a></li>
                     <li><a href="#action">Action Scripts</a></li>
                     <li><a href="#build">Build Scripts</a></li>
+                    <li><a href="#low">Low Level Scripts</a></li>
                     <li><a href="#targetPaths">Target Paths</a></li>
                     <li><a href="#quoting">Quoting</a></li>
                     <li><a href="#useful">Useful Bits</a></li>
@@ -80,62 +80,12 @@
             href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Library</a> of routines that
             scale well when building projects without turning into a mess of shell script.</p>
 
-        <a name="low"></a>
-        <h2>Low Level Scripts</h2>
-        <p>Let us first explain the low level script form. Then we'll explain the more common convenience methods to
-        express scripts.</p>
-        <p>The Bit DOM defines a collection of scripts to run at various stages of the Bit processing 
-        life cycle.  When a specific event is triggered, the corresponding scripts are run. For each event, there can be
-        multiple scripts that are run in-order. Each script has a <em>home</em> directory that becomes the current directory
-        for the script and it has a specified <em>interpreter</em> to execute the script. If unspecified, the default
-        directory is the directory containing the bit file that specified the script. The default interpreter is ejs
-        (Ejscript).</p>
-        <pre>
-'build-complete': {
-    type: 'build',
-    path: 'complete.tmp',
-    scripts: {
-        <b>build</b>: [ 
-            {
-                home: '.',
-                interpreter: 'bash',
-                script: "git pull ",
-            },
-            {
-                home: '.',
-                interpreter: 'ejs',
-                script: " Path('complete.tmp').write('Completed at: ' + Date())",
-            },
-        ],
-    },
-},
-</pre>
-        <p>Because the <em>type</em> property is set to build, this target and the scripts will be run for a 
-        default bit invocation (without any explicit targets specified).</p>
-        <pre>$ bit</pre>
-        <p>The target <em>scripts</em> property is a collection that is indexed by an event named for when the script should
-        run. The standard events are described in <a href="../../../ref/bit/events.html#events">Bit Events</a>.
-        <p>Here is another example of a shell script that runs just prior to building a library.
-<pre>
-libglow: {
-    type: 'lib',
-    sources: '*.c',
-    scripts: {
-        prebuild: [ {
-            interpreter: 'bash',
-            script: './build-prep',
-        ],
-    }
-}
-</pre>
-        <a name="high"></a>
-        <h2>High Level Scripts</h2>
-        <p>Bit target scripts can also be specified using high level, abbreviated forms. These are more
-        convenient and typically used in preference over the low level forms described above.</p>
-        <p>There are three high level forms:</p>
+        <a name="forms"></a>
+        <h2>Script Forms</h2>
+        <p>Bit target scripts can also be specified using three forms:</p>
         <ol>
-            <li>Shell scripts &mdash; that run when requested using bash for Unix and Cygwin systems</li>
-            <li>Action target scripts &mdash; that run when requested using Ejscript</li>
+            <li>Shell scripts &mdash; that run using bash for Unix and Cygwin systems</li>
+            <li>Action target scripts &mdash; that use Ejscript</li>
             <li>Build target scripts &mdash; that run for default builds using Ejscript</li>
         </ol>
 
@@ -155,7 +105,7 @@ cleanup: {
 <pre>
 cleanup: {
     scripts: {
-        type: 'action',
+        type: 'script',
         build: [
             {
                 home: '.',
@@ -167,13 +117,16 @@ cleanup: {
             },
         ],
     ',
+    goals: [ 'cleanup' ],
 },
 </pre>
-        <p>Because the type property is set to <em>action</em>, this script will be run when the named target (cleanup) is
-        invoked.</p>
+        <p>Because the goals property is set to <em>cleanup</em>, this script will be run only when the 
+        when goal 'cleanup' is specified on the bit command line.</p>
         <pre>bit cleanup</pre>
+
         <p>If you need a shell script to run when a default build is initiated, use the low level form and set
-        the target type to <em>build</em> See the <a href="#low">Low level Scripts</a> section above for details.</p>
+        the goals property to <em>['cleanup', 'all']</em> See the <a href="#low">Low level Scripts</a> section above for
+        details.</p>
 
         <a name="action"></a>
         <h2>Action Scripts</h2>
@@ -193,14 +146,15 @@ prep: {
 },
 </pre>
         <p>Like shell script targets, actions do not run by for default builds. Rather, they are run when they are 
-        explicitly invoked on the command line or another target is invoked that references them as a dependency. </p>
+        explicitly invoked on the command line or another goal/target is invoked that references them as a dependency. </p>
+
         <p>Note that in Ejscript, quoted literals can span multiple lines. No backquoting at the end of the line is
         required. Also, semicolon end-of-line terminators are optional.</p> 
         <p>An action script translates into a target with a type of <em>action</em> and an event of <em>build</em>. 
 <pre>
-cleanup: {
+prep: {
     scripts: {
-        type: 'action',
+        type: 'script',
         build: [
             {
                 home: '.',
@@ -214,9 +168,23 @@ cleanup: {
                 "
             },
         ],
-    ',
+    },
+    goals: ['prep'],
 },
 </pre>
+        <p>An action script can also be a pure Javascript function. For example:</p>
+        <pre>
+prep: {
+    action: function() {
+        require ejs.tar
+        let update = Http.fetch('http://example.com/update.tar)
+        let tmp = Path().temp()
+        tmp.write(update)
+        Tar(tmp).extract()
+    },
+},
+</pre>
+        <p>It is sometimes easier to manage quotes if using a function instead of a string to specify the script.</p>
         
         <a name="build"></a>
         <h2>Build Scripts</h2>
@@ -229,13 +197,15 @@ building: {
     ",
 }
 </pre>
-        <p>When <em>bit</em> is invoked, the script for the <em>building</em> target will be run. When the target runs
-        will be dictated by whether other targets depend upon it. </p>
+        <p>When <em>bit</em> is invoked without specifying any goals on the command line, the script for the
+        <em>building</em> target will be run. The precise order of when the target runs will be dictated by its order
+        in the bit file and whether other targets depend upon it.</p>
+
         <p>A build script translates into a target with a type of <em>build</em> and an event of <em>build</em>.</p>
 <pre>
 building: {
     scripts: {
-        type: 'build',
+        type: 'script',
         build: [
             {
                 home: '.',
@@ -246,8 +216,70 @@ building: {
             },
         ],
     ',
+    goals: ['all', 'building'],
 },
 </pre>
+        <p>An build script can also be a pure Javascript function.</p>
+
+        <a name="low"></a>
+        <h2>Low Level Script Forms</h2>
+
+        <p>As you have seen, the <em>action</em>, <em>build</em> and <em>shell</em> script forms are translated into
+        a lower level form. You may use the lower level form directly, if you require more control.</p>
+
+        <p>The Bit DOM defines a collection of scripts to run at various stages of the Bit processing 
+        life cycle.  When a specific event is triggered, the corresponding scripts are run. For each event, there can be
+        multiple scripts that are run in-order. Each script has a <em>home</em> directory that becomes the current directory
+        for the script and it has a specified <em>interpreter</em> to execute the script. If unspecified, the default
+        directory is the directory containing the bit file that specified the script. The default interpreter is ejs
+        (Ejscript).</p>
+        <pre>
+'build-complete': {
+    type: 'script',
+    scripts: {
+        <b>build</b>: [ 
+            {
+                home: '.',
+                interpreter: 'bash',
+                script: "git pull ",
+            },
+            {
+                home: '.',
+                interpreter: 'ejs',
+                script: "print('Building started at ' + Date())",
+            },
+        ],
+    },
+    goals: [ 'all', 'build-complete' ]
+},
+</pre>
+        <p>Because the <em>goals</em> property includes <em>'all'</em>, this target and the scripts will be run for a 
+        default bit invocation (without any explicit targets specified on the command line).</p>
+
+        <p>The <em>target.scripts</em> property is a collection that is indexed by an event named for when the script should
+        run. The standard events are described in <a href="../../../ref/bit/events.html#events">Bit Events</a>.
+        <p>Here is another example of a shell script that runs just prior to building a library.
+<pre>
+libglow: {
+    type: 'lib',
+    sources: '*.c',
+    scripts: {
+        prebuild: [ {
+            interpreter: 'bash',
+            script: './build-prep',
+        ],
+    },
+    goals: ['libglow'],
+}
+</pre>
+
+        <h2>Global Scripts</h2>
+        <p>Most events apply to targets, but there are some events which are global. The Bit DOM defines a global
+        set of scripts in the bit.scripts property collection. These scripts follow the same property definition as
+        the target scripts. The <em>bit.scripts</em> property is a collection that is indexed by an event named for when the
+        script should run. The global events are described in <a href="../../../ref/bit/events.html#global">Bit
+        Global Events</a>.
+
         <a name="targetPaths"></a>
         <h3>Target Paths</h3>
         <p>You can make a build script run only when it is out-of-date by adding a <em>path</em> property for 

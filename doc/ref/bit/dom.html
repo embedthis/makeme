@@ -240,6 +240,9 @@
                 <tr><td>enable</td><td>Ejscript expression to evaluate to a boolean. Enable the target if true.</td></tr>
                 <tr><td>exclude</td><td>Regular expression of file patterns to exclude from the sources list
                     This is a filter that is applied to the sources list after expanding the sources wildcards</td></tr>
+                <tr><td>goals</td><td>Array of goal targets for which this target will be built. This will typically
+                    include the name of the target itself. Other possible goals are: 'all' for default builds, 
+                    'generate' for targets that should be included in project generation.</td></tr>
                 <tr><td>headers</td><td>Linker options</td></tr>
                 <tr><td>home</td><td>Home directory to use when resolving paths for this target</td></tr>
                 <tr><td>include</td><td>Regular expression of file patterns to include from the sources list. 

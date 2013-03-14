@@ -43,12 +43,13 @@ Bit.load({
         },
 
         /* Compatibility for those familiar with make */
-        all: {
-            depends: ['build'],
+        compile: {
+            depends: ['all'],
         },
 
-        compile: {
-            depends: ['build'],
+        /* Legacy */
+        build: {
+            depends: ['all'],
         },
 
         configure: {
@@ -76,8 +77,8 @@ Bit.load({
         },
 
         version: {
-            action: "print(bit.settings.version)",
-            generate: "@echo ${settings.version}-${settings.buildNumber}",
+            action: "print(bit.settings.version + '-' + bit.settings.buildNumber)",
+            generate: "@echo NN ${settings.version}-${settings.buildNumber}",
         },
     },
 })

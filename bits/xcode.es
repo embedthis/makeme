@@ -576,6 +576,7 @@ ${OUTPUTS}
         if (target.files && target.files.length > 0) {
             inputs = target.files.map(function(f) f.relativeTo(base)).join(',\n')
         }
+        target.vars ||= {}
         if (target.path) {
             outputs = target.path.relativeTo(base)
             target.vars.OUT = outputs

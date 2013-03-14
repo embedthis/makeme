@@ -154,10 +154,15 @@ settings: {
         <h3>Importing Standard Packs</h3>
         <p>For developers who wish to <i>freeze</i> the Bit support for their product and guarantee the version
         of Bit they have designed for, the Bit configuration can be imported into the product source tree via:</p>
-        <pre>bit -import</pre>. 
+        <pre>bit -import</pre>
+
         <p>This will copy the entire Bit <em>bits</em> directory into the local source. This copied configuration
         will be used by Bit in preference over the install Bit files.  The various Bit packs and operating system
         configuration can be modified once imported.</p>
+        <p>Under the <em>bits</em> directory will be the primary bit script <em>bit.es</em> and its compiled form
+        <em>bit.mod</em>. If you need to hack bit.es, remove the bit.mod file and bit will utilize your modifications.
+        When ready, you can compile bit.es to create a new bit.mod via:</p>
+        <pre>ejsc --optimize 9 --out bit.mod bit.es</pre>
 
         <a name="settings"></a>
         <h2>Settings</h2>

@@ -18,12 +18,19 @@ require ejs.zlib
 public class Bit {
     /** @hide */
     public var initialized: Boolean
-    private static const MAIN: Path = Path('main.bit')
-    private static const START: Path = Path('start.bit')
+    public var options: Object = { control: {}}
+    public static const MAIN: Path = Path('main.bit')
+    public var platforms: Array
+    public static const START: Path = Path('start.bit')
+    public var localPlatform: String
+    public var selectedTargets: Array
+    public var topTargets: Array
+    public var localBin: Path
+    public var currentPlatform: String?
+
     private static const supportedOS = ['freebsd', 'linux', 'macosx', 'solaris', 'vxworks', 'windows']
     private static const supportedArch = ['arm', 'i64', 'mips', 'sparc', 'x64', 'x86']
-    private static const minimalCflags = [ 
-        '-w', '-g', '-Wall', '-Wno-deprecated-declarations', '-Wno-unused-result', '-Wshorten-64-to-32', '-mtune=generic']
+    private const ALL = 'all'
 
     /*
         Filter for files that look like temp files and should not be installed
@@ -34,16 +41,9 @@ public class Bit {
     private var args: Args
     private var capture: Array?
     private var currentBitFile: Path?
-    private var currentPack: String?
-    private var currentPlatform: String?
-    private var envSettings: Object
     private var local: Object
-    private var localPlatform: String
-    private var localBin: Path
     private var missing = null
-    private var options: Object = { control: {}}
     private var out: Stream
-    private var platforms: Array
     private var rest: Array
 
     private var home: Path
@@ -52,20 +52,19 @@ public class Bit {
     }, packs: {}, targets: {}, env: {}, globals: {}, customSettings: {}}
 
     private var bit: Object = {}
-    private var gen: Object
     private var platform: Object
-    private var genout: TextStream
 
-    private var defaultTargets: Array
-    private var originalTargets: Array
-    private var selectedTargets: Array
+    private var goals: Array = []
 
     private var unix = ['macosx', 'linux', 'unix', 'freebsd', 'solaris']
     private var windows = ['windows', 'wince']
     private var start: Date
-    private var targetsToBuildByDefault = { exe: true, file: true, lib: true, build: true }
-    private var targetsToBlend = { exe: true, lib: true, obj: true, action: true, build: true, clean: true }
-    private var targetsToClean = { exe: true, file: true, lib: true, obj: true, build: true }
+    private var targetsToBuildByDefault = { exe: true, file: true, lib: true }
+    private var targetsToClean = { exe: true, file: true, lib: true, obj: true }
+    /*
+        Note: actions are converted to a type of build by default
+     */
+    private var targetsToBlend = { exe: true, lib: true, obj: true /* , action: true, build: true, clean: true */ }
 
     private var argTemplate = {
         options: {
@@ -117,7 +116,7 @@ public class Bit {
     }
 
     function usage(): Void {
-        print('\nUsage: bit [options] [targets|actions] ...\n' +
+        print('\nUsage: bit [options] [targets|goals] ...\n' +
             '  Options:\n' + 
             '  --benchmark                              # Measure elapsed time\n' +
             '  --chdir dir                              # Directory to build from\n' +
@@ -209,6 +208,12 @@ public class Bit {
         App.exit(1)
     }
 
+    function overlay(name) {
+        let src = options.configure || Path('.')
+        let bits = src.join('bits/standard.bit').exists ? src.join('bits') : Config.Bin.join('bits')
+        global.load(bits.join(name))
+    }
+
     function main() {
         let start = new Date
         global._b = this
@@ -226,12 +231,15 @@ public class Bit {
                 App.exit()
             } 
             if (options.reconfigure) {
+                overlay('configure.es')
                 reconfigure()
             }
             if (options.configure) {
+                overlay('configure.es')
                 configure()
             }
             if (options.gen) {
+                overlay('generate.es')
                 generate()
             } else {
                 if (!options.file) {
@@ -388,14 +396,6 @@ public class Bit {
             localPlatform = platforms[0]
             if (!Path(localPlatform + '.bit').exists) {
                 trace('Generate', 'Create platform bit file: ' + localPlatform + '.bit')
-                /* MOB UNUSED
-                if (!options.configure) {
-                    //  MOB - or should we use a default build
-                    App.args.push('-without')
-                    App.args.push('all')
-                    options.configure = Path('.')
-                }
-                */
             }
             /* Must continue if probe can't locate tools, but does know a default */
             options['continue'] = true
@@ -451,54 +451,12 @@ public class Bit {
             poptions.enable ||= []
             poptions.enable.push(Config.OS == 'windows' ? 'charLen=2' : 'charLen=4')
         }
-        originalTargets = selectedTargets = args.rest
+        goals = args.rest
+        if (goals[0] == 'version') {
+            print(bit.settings.version + '-' + bit.settings.buildNumber)
+            App.exit()
+        }
         bareBit.options = options
-    }
-
-    /*  
-        Configure and initialize for building. This generates platform specific bit files.
-     */
-    function configure() {
-        vtrace('Load', 'Preload main.bit to determine required platforms')
-        quickLoad(options.configure.join(MAIN))
-        let settings = bit.settings
-        if (settings.bit && makeVersion(Config.Version) < makeVersion(settings.bit)) {
-            throw 'This product requires a newer version of Bit. Please upgrade Bit to ' + settings.bit + '\n'
-        }
-        if (settings.platforms && !options.gen && !options.nocross) {
-            if (!(settings.platforms is Array)) {
-                settings.platforms = [settings.platforms]
-            }
-            settings.platforms = settings.platforms.transform(function(e) e == 'local' ? localPlatform : e)
-            platforms = (settings.platforms + platforms).unique()
-        }
-        verifyPlatforms()
-        for each (platform in platforms) {
-            currentPlatform = platform
-            trace('Configure', platform)
-            makeBit(platform, options.configure.join(MAIN))
-            findPacks()
-            genPlatformBitFile()
-            makeOutDirs()
-            runScript(bit.scripts.pregenheader)
-            genBitHeader()
-            importPackFiles()
-        }
-        if (!options.gen) {
-            genStartBitFile(platforms[0])
-            trace('Info', 'Use "bit" to build. Use "configure --get settings" to see current settings"')
-        }
-    }
-
-    function reconfigure() {
-        vtrace('Load', 'Preload main.bit to determine required configuration')
-        platforms = bit.platforms = [localPlatform]
-        makeBit(localPlatform, localPlatform + '.bit')
-        if (bit.settings.configure) {
-            run(bit.settings.configure)
-        } else {
-            App.log.error('No prior configuration to use')
-        }
     }
 
     function getValue() {
@@ -511,188 +469,6 @@ public class Bit {
         print(serialize(bit.packs, {pretty: true, quotes: false}))
         print("\nsettings:")
         print(serialize(bit.settings, {pretty: true, quotes: false}))
-    }
-
-    function genStartBitFile(platform) {
-        let nbit = { }
-        nbit.platforms = platforms
-        trace('Generate', START)
-        let data = '/*\n    start.bit -- Startup Bit File for ' + bit.settings.title + 
-            '\n */\n\nBit.load(' + 
-            serialize(nbit, {pretty: true, indent: 4, commas: true, quotes: false}) + ')\n'
-        START.write(data)
-    }
-
-    function genPlatformBitFile() {
-        let nbit = {}
-        blend(nbit, {
-            blend: [ 
-                '${SRC}/main.bit',
-            ],
-            platform: bit.platform,
-            dir: { 
-                src: bit.dir.src.absolute.portable,
-                top: bit.dir.top.portable,
-            },
-            settings: { configured: true },
-            prefixes: bit.prefixes,
-            packs: bit.packs,
-            env: bit.env,
-        })
-        for (let [key, value] in bit.settings) {
-            /* Copy over non-standard settings. These include compiler sleuthing settings */
-            nbit.settings[key] = value
-        }
-        blend(nbit.settings, bit.customSettings)
-        nbit.settings.configure = 'bit ' + App.args.slice(1).join(' ')
-
-        if (envSettings) {
-            blend(nbit, envSettings, {combine: true})
-        }
-        if (bit.dir.bits != Config.Bin.join('bits')) {
-            nbit.dir.bits = bit.dir.bits
-        }
-
-        /*
-            Ejscript in appweb uses this to mark tagets as being prebuilt. See packs/ejscript.bit
-         */
-        for (let [tname,target] in bit.targets) {
-            if (target.built) {
-                nbit.targets ||= {}
-                nbit.targets[tname] = { built: true}
-            }
-        }
-        if (nbit.settings) {
-            Object.sortProperties(nbit.settings);
-        }
-        runScript(bit.scripts.postconfig)
-        if (options.configure) {
-            let path: Path = Path(bit.platform.name).joinExt('bit')
-            trace('Generate', path)
-            let data = '/*\n    ' + path + ' -- Build ' + bit.settings.title + ' for ' + bit.platform.name + 
-                '\n */\n\nBit.load(' + 
-                serialize(nbit, {pretty: true, indent: 4, commas: true, quotes: false}) + ')\n'
-            path.write(data)
-        }
-        if (options.show && options.verbose) {
-            trace('Configuration', bit.settings.title + 
-                '\nsettings = ' +
-                serialize(bit.settings, {pretty: true, indent: 4, commas: true, quotes: false}) +
-                '\npacks = ' +
-                serialize(nbit.packs, {pretty: true, indent: 4, commas: true, quotes: false}))
-        }
-    }
-
-    function genBitHeader() {
-        let path = bit.dir.inc.join('bit.h')
-        let f = TextStream(File(path, 'w'))
-        f.writeLine('/*\n    bit.h -- Build It Configuration Header for ' + bit.platform.name + '\n\n' +
-                '    This header is generated by Bit during configuration. To change settings, re-run\n' +
-                '    configure or define variables in your Makefile to override these default values.\n */\n')
-        writeDefinitions(f)
-        f.close()
-        for (let [tname, target] in bit.targets) {
-            runTargetScript(target, 'postconfig')
-        }
-    }
-
-    function def(f: TextStream, key, value) {
-        f.writeLine('#ifndef ' + key)
-        f.writeLine('    #define ' + key + ' ' + value)
-        f.writeLine('#endif')
-    }
-
-    function writeSettings(f: TextStream, prefix: String, obj) {
-        Object.sortProperties(obj)
-        for (let [key,value] in obj) {
-            key = prefix + '_' + key.replace(/[A-Z]/g, '_$&').replace(/-/g, '_').toUpper()
-            if (value is Number) {
-                def(f, key, value)
-            } else if (value is Boolean) {
-                def(f, key, value cast Number)
-            } else if (Object.getOwnPropertyCount(value) > 0 && !(value is Array)) {
-                writeSettings(f, key, value)
-            } else {
-                def(f, key, '"' + value + '"')
-            }
-        }
-    }
-    function writeDefinitions(f: TextStream) {
-        let settings = bit.settings.clone()
-        if (options.endian) {
-            settings.endian = options.endian == 'little' ? 1 : 2
-        }
-        f.writeLine('\n/* Settings */')
-        writeSettings(f, "BIT", settings)
-
-        f.writeLine('\n/* Prefixes */')
-        for (let [name, prefix] in bit.prefixes) {
-            def(f, 'BIT_' + name.toUpper() + '_PREFIX', '"' + prefix.portable + '"')
-        }
-
-        /* Suffixes */
-        f.writeLine('\n/* Suffixes */')
-        def(f, 'BIT_EXE', '"' + bit.ext.dotexe + '"')
-        def(f, 'BIT_SHLIB', '"' + bit.ext.dotshlib + '"')
-        def(f, 'BIT_SHOBJ', '"' + bit.ext.dotshobj + '"')
-        def(f, 'BIT_LIB', '"' + bit.ext.dotlib + '"')
-        def(f, 'BIT_OBJ', '"' + bit.ext.doto + '"')
-
-        /* Build profile */
-        f.writeLine('\n/* Profile */')
-        let args = 'bit ' + App.args.slice(1).join(' ')
-        def(f, 'BIT_CONFIG_CMD', '"' + args + '"')
-        def(f, 'BIT_' + settings.product.toUpper() + '_PRODUCT', '1')
-        def(f, 'BIT_PROFILE', '"' + bit.platform.profile + '"')
-
-        /* Architecture settings */
-        f.writeLine('\n/* Miscellaneous */')
-        if (settings.charlen) {
-            def(f, 'BIT_CHAR_LEN', settings.charlen)
-            if (settings.charlen == 1) {
-                def(f, 'BIT_CHAR', 'char')
-            } else if (settings.charlen == 2) {
-                def(f, 'BIT_CHAR', 'short')
-            } else if (settings.charlen == 4) {
-                def(f, 'BIT_CHAR', 'int')
-            }
-        }
-        let ver = settings.version.split('.')
-        def(f, 'BIT_MAJOR_VERSION',  ver[0])
-        def(f, 'BIT_MINOR_VERSION', ver[1])
-        def(f, 'BIT_PATCH_VERSION', ver[2])
-        def(f, 'BIT_VNUM',  ((((ver[0] * 1000) + ver[1]) * 1000) + ver[2]))
-
-        f.writeLine('\n/* Packs */')
-        let packs = bit.packs.clone()
-        Object.sortProperties(packs)
-        for (let [pname, pack] in packs) {
-            if (pname == 'compiler') {
-                pname = 'cc'
-            }
-            def(f, 'BIT_PACK_' + pname.toUpper(), pack.enable ? '1' : '0')
-        }
-        for (let [pname, pack] in packs) {
-            if (pack.enable) {
-                /* Must test bit.options.gen and not bit.generating */
-                if (!bit.options.gen && pack.path) {
-                    def(f, 'BIT_PACK_' + pname.toUpper() + '_PATH', '"' + pack.path.relative + '"')
-                }
-                if (pack.definitions) {
-                    for each (define in pack.definitions) {
-                        if (define.match(/-D(.*)=(.*)/)) {
-                            let [key,value] = define.match(/-D(.*)=(.*)/).slice(1)
-                            def(f, key, value)
-                        } else if (define.match(/(.*)=(.*)/)) {
-                            let [key,value] = define.match(/(.*)=(.*)/).slice(1)
-                            def(f, key, value)
-                        } else {
-                            f.writeLine('#define ' + define.trimStart('-D'))
-                        }
-                    }
-                }
-            }
-        }
     }
 
     function setSetting(obj, key, value) {
@@ -800,68 +576,6 @@ public class Bit {
         }
     }
 
-    let envTools = {
-        AR: 'lib',
-        CC: 'compiler',
-        LD: 'linker',
-    }
-
-    let envFlags = {
-        CFLAGS:  'compiler',
-        DFLAGS:  'defines',
-        IFLAGS:  'includes',
-        LDFLAGS: 'linker',
-    }
-    /*
-        Examine environment for flags and apply
-     */
-    function applyEnv() {
-        envSettings = { packs: {}, defaults: {} }
-        for (let [key, tool] in envTools) {
-            let path = App.getenv(key)
-            if (path) {
-                envSettings.packs[tool] ||= {}
-                envSettings.packs[tool].path = path
-                envSettings.packs[tool].enable = true
-            }
-        }
-        for (let [flag, option] in envFlags) {
-            let value = App.getenv(flag)
-            if (value) {
-                let flag = ((options.configure) ? '+' : '') + option
-                envSettings.defaults[option] ||= []
-                envSettings.defaults[option] += value.replace(/^-I/, '').split(' ')
-                envSettings.defaults['override-' + option.trim('+')] = true
-            }
-        }
-        if (options.configure && bit.platform.cross) {
-            blend(bit, envSettings, {combine: true})
-        }
-    }
-
-    /*
-        Import pack files
-     */
-    function importPackFiles() {
-        for (let [pname, pack] in bit.packs) {
-            for each (file in pack.imports) {
-                vtrace('Import', file)
-                if (file.extension == 'h') {
-                    cp(file, bit.dir.inc)
-                } else {
-                    if (bit.platform.like == 'windows') {
-                        let target = bit.dir.lib.join(file.basename).relative
-                        let old = target.replaceExt('old')
-                        vtrace('Preserve', 'Active library ' + target + ' as ' + old)
-                        old.remove()
-                        target.rename(old)
-                    }
-                    cp(file, bit.dir.lib)
-                }
-            }
-        }
-    }
-
     /*
         Apply the selected build profile
      */
@@ -885,136 +599,9 @@ public class Bit {
         return path
     }
 
-    /*
-        Search for enabled packs in the system
-     */
-    function findPacks() {
-        let settings = bit.settings
-        if (!settings.required && !settings.discover) {
-            return
-        }
-        trace('Search', 'For tools and extension packages')
-        vtrace('Search', 'Packages: ' + [settings.required + settings.discover].join(' '))
-        //  MOB Temp
-        if (settings.optional) {
-            settings.discover += settings.optional
-        }
-        let packs = settings.required + settings.discover
-        let omitted = []
-        for each (pack in packs) {
-            if (bit.packs[pack] && bit.packs[pack].enable == false) {
-                if (settings.required.contains(pack)) { 
-                    throw 'Required pack ' + pack + ' is not enabled'
-                }
-                continue
-            }
-            let path = findPack(pack)
-            if (path.exists) {
-                try {
-                    bit.packs[pack] ||= {}
-                    bit.packs[pack].enable ||= true
-                    currentPack = pack
-                    loadBitFile(path)
-                } catch (e) {
-                    if (!(e is String)) {
-                        App.log.debug(0, e)
-                    }
-                    let kind = settings.required.contains(pack) ? 'Required' : 'Optional'
-                    whyMissing(kind + ' package "' + pack + '". ' + e)
-                    let p = bit.packs[pack] ||= {}
-                    p.enable = false
-                    p.diagnostic = "" + e
-                    if ((kind == 'Required' || bit.packs[pack].required) && !options['continue']) {
-                        throw e
-                    }
-                }
-            } else {
-                throw 'Cannot find pack description file: ' + pack + '.pak'
-            }
-            let p = bit.packs[pack]
-            if (p) {
-                let desc = p.description || pack
-                if (p && p.enable && p.path) {
-                    if (options.verbose) {
-                        trace('Found', desc + ' at:\n                 ' + p.path.portable)
-                    } else if (!p.quiet) {
-                        trace('Found', desc + ': ' + p.path.portable)
-                    }
-                } else {
-                    omitted.push(desc)
-                }
-            } else {
-                omitted.push(pack)
-            }
-        }
-        for each (item in omitted) {
-            trace('Omitted', 'Optional: ' + item)
-        }
-        castDirTypes()
-    }
-
-    /**
-        Probe for a file and locate
-        Will throw an exception if the file is not found, unless {continue, default} specified in control options
-        @param file File to search for
-        @param control Control options
-        @option default Default path to use if the file cannot be found and bit is invoked with --continue
-        @option search Array of paths to search for the file
-        @option nopath Don't use the system PATH to locate the file
-        @option fullpath Return the full path to the located file
-     */
-    public function probe(file: Path, control = {}): Path {
-        let path: Path?
-        let search = [], dir
-        if (file.exists) {
-            path = file
-        } else {
-            if (dir = bit.packs[currentPack].path) {
-                search.push(dir)
-            }
-            if (control.search) {
-                if (!(control.search is Array)) {
-                    control.search = [control.search]
-                }
-                search += control.search
-            }
-            App.log.debug(2, "Probe for " + file + ' in search path: ' + search)
-            for each (let s: Path in search) {
-                App.log.debug(2, "Probe for " + s.join(file) + ' exists: ' + s.join(file).exists)
-                if (s.join(file).exists) {
-                    path = s.join(file)
-                    break
-                }
-            }
-            if (!control.nopath) {
-                path ||= Cmd.locate(file)
-            }
-        }
-        if (!path) {
-            if (options.why) {
-                trace('Probe', 'File ' + file)
-                trace('Search', search.join(' '))
-            }
-            if (options['continue'] && control.default) {
-                return control.default
-            }
-            throw 'Cannot find ' + file + ' for package "' + currentPack + '" on ' + currentPlatform + '. '
-        }
-        App.log.debug(2, 'Probe for ' + file + ' found at ' + path)
-        if (control.fullpath) {
-            return path.portable
-        }
-        /*
-            Trim the pattern we have been searching for and return the base prefix only
-            Need to allow for both / and \ separators
-         */
-        let pat = RegExp('.' + file.toString().replace(/[\/\\]/g, '.') + '$')
-        return path.portable.name.replace(pat, '')
-    }
-
     function process(bitfile: Path) {
         if (!bitfile.exists) {
-            throw 'Can\'t find ' + bitfile
+            throw 'Cannot find ' + bitfile
         }
         let ver
         if (MAIN.exists) {
@@ -1039,7 +626,11 @@ public class Bit {
                     continue
                 }
                 prepBuild()
-                build()
+                if (options.hasOwnProperty('get')) {
+                    getValue()
+                } else {
+                    build()
+                }
                 if (!options.configure && (bit.platforms.length > 1 || bit.platform.cross)) {
                     trace('Complete', bit.platform.name)
                 }
@@ -1049,7 +640,11 @@ public class Bit {
             makeBit(localPlatform, bitfile)
             bit.platform.last = true
             prepBuild()
-            build()
+            if (options.hasOwnProperty('get')) {
+                getValue()
+            } else {
+                build()
+            }
         }
     }
 
@@ -1065,7 +660,7 @@ public class Bit {
         }
     }
 
-    function loadBitFile(path) {
+    public function loadBitFile(path) {
         let saveCurrent = currentBitFile
         try {
             currentBitFile = path.portable
@@ -1098,9 +693,6 @@ public class Bit {
         }
     }
 
-    function conditionals(o) {
-    }
-
     function fixup(o, ns) {
         let home = currentBitFile.dirname
         for (i in o.modules) {
@@ -1109,12 +701,11 @@ public class Bit {
         for (i in o['+modules']) {
             o['+modules'][i] = home.join(o['+modules'][i])
         }
-        //  TODO Functionalize
         if (o.defaults) {
             rebase(home, o.defaults, 'includes')
             rebase(home, o.defaults, '+includes')
             for (let [when,item] in o.defaults.scripts) {
-                if (item is String) {
+                if ((item is String) || (item is Function)) {
                     o.defaults.scripts[when] = [{ home: home, interpreter: 'ejs', script: item }]
                 } else {
                     item.home ||= home
@@ -1125,7 +716,7 @@ public class Bit {
             rebase(home, o.internal, 'includes')
             rebase(home, o.internal, '+includes')
             for (let [when,item] in o.internal.scripts) {
-                if (item is String) {
+                if ((item is String) || (item is Function)) {
                     o.internal.scripts[when] = [{ home: home, interpreter: 'ejs', script: item }]
                 } else {
                     item.home ||= home
@@ -1133,15 +724,36 @@ public class Bit {
             }
         }
         if (o.scripts) {
-            for (let [when,item] in o.scripts) {
-                if (item is String) {
-                    o.scripts[when] = [{ home: home, interpreter: 'ejs', script: item }]
-                } else {
-                    item.home ||= home
+            /*
+                Convert to array of objects for each event 
+                scripts: {
+                    prebuild: [
+                        { home: 'dir', interpreter: 'ejs', script: 'script' },
+                    ],
+                }
+             */
+            for (let [event,item] in o.scripts) {
+                if (item is String || item is Function) {
+                    o.scripts[event] = [{ home: home, interpreter: 'ejs', script: item }]
+                } else if (item is Array) {
+                    for (let [i,elt] in item) {
+                        if ((elt is String) || (elt is Function)) {
+                            item[i] = { home: home, interpreter: 'ejs', script: elt }
+                        } else if (elt is Function) {
+                            item[i] = { home: home, interpreter: 'fun', script: elt }
+                        } else {
+                            elt.home ||= home
+                        }
+                    }
                 }
             }
+            let scripts = {}
+            for (let [event,item] in o.scripts) {
+                scripts['+' + event] = item
+            }
+            o.scripts = scripts
             if (o.scripts.preblend) {
-                runScript(o.scripts.preblend)
+                runScript(o.scripts, "preblend")
                 delete o.scripts.preblend
             }
         }
@@ -1152,13 +764,11 @@ public class Bit {
                 target.home = Path(target.home).absolute
             }
             home = target.home
-            target.vars ||= {}
             if (target.path) {
                 if (!target.path.startsWith('${')) {
                     target.path = target.home.join(target.path)
                 }
             }
-            //  TODO - what about other +fields
             rebase(home, target, 'includes')
             rebase(home, target, '+includes')
             rebase(home, target, 'headers')
@@ -1170,9 +780,11 @@ public class Bit {
             for (let [key,value] in target.defines) {
                 target.defines[key] = value.trimStart('-D')
             }
+            if (target.run) {
+                target.type ||= 'run'
+            }
 
             /* Convert strings scripts into an array of scripts structures */
-            //  TODO - functionalize
             for (let [when,item] in target.scripts) {
                 if (item is String) {
                     item = { interpreter: 'ejs', script: item  }
@@ -1184,26 +796,53 @@ public class Bit {
                     item.home ||= home
                 }
             }
-            target.scripts ||= {}
 
             /*
-                Expand short-form scripts into the long-form
-                Set the target type if not defined to 'action' or 'build'
+                Expand short-form scripts into the long-form. Set the target type if not defined to 'script'.
                 NOTE: preblend and postload is only fired top level scripts. Not on targets.
              */
-            for each (n in ['action', 'postblend', 'preresolve', 'postresolve', 'postsource', 'predependencies',
-                    'postdependencies', 'precompile', 'postcompile', 'prebuild', 'build', 'postbuild', 'shell']) {
-                if (target[n]) {
-                    target.type ||= (n == 'action' || n == 'shell') ? n : 'build'
+            let build = target.build
+            for each (n in ['action', 'build', 'shell', 'postblend', 'preresolve', 'postresolve', 'postsource', 
+                    'precompile', 'postcompile', 'prebuild', 'postbuild']) {
+                if (target[n] != undefined) {
+                    target.type ||= 'script'
                     let script = target[n]
                     let event = (n == 'action' || n == 'shell') ? 'build' : n
+                    target.scripts ||= {}
                     target.scripts[event] ||= []
                     target.scripts[event]  += [{ home: home, interpreter: (n == 'shell') ? 'bash' : 'ejs', script: script}]
                     delete target[n]
                 }
             }
-            if (target.run) {
-                target.type ||= 'run'
+            if (!target.goals) {
+                if (targetsToBuildByDefault[target.type] || build) {
+                    target.goals = [ALL, 'generate']
+                } else if (target.run) {
+                    target.goals = ['generate']
+        /* UNUSED
+                } else if (target.action || target.shell || target.build) {
+                    target.goals = ['generate']
+         */
+                } else {
+                    target.goals = []
+                }
+            }
+            if (target.type && target.type != 'script' && target.type != 'run' && !target.goals.contains(target.type)) {
+                target.goals.push(target.type)
+            }
+            if (!target.goals.contains(target.name)) {
+                target.goals.push(target.name)
+            }
+            for (field in target) {
+                if (field.startsWith('generate')) {
+                    target.generateScript = true
+                }
+            }
+            if (target.generateScript && !target.goals.contains('generate')) {
+                target.goals.push('generate')
+            }
+            if (target.require && !(target.require is Array)) {
+                target.require = [target.require]
             }
             /*
                 Blend internal for only the targets in this file
@@ -1217,7 +856,6 @@ public class Bit {
     /** @hide */
     public function loadBitObject(o, ns = null) {
         let home = currentBitFile.dirname
-        conditionals(o)
         fixup(o, ns)
         /* 
             Blending is depth-first -- blend this bit object after loading bit files referenced in blend[]
@@ -1258,7 +896,7 @@ public class Bit {
         bit = blend(bit, o, {combine: true})
 
         if (o.scripts && o.scripts.postload) {
-            runScript(bit.scripts.postload)
+            runScript(bit.scripts, "postload")
             delete bit.scripts.postload
         }
     }
@@ -1277,477 +915,11 @@ public class Bit {
             }
         }
         if (Path(MAIN).exists) {
-            throw 'Can\'t find suitable ' + START + '.\nRun "bit configure" first.'
+            throw 'Cannot find suitable ' + START + '.\nRun "bit configure" first.'
         } else {
-            throw 'Can\'t find suitable ' + START + '.\nRun "bit --gen start" to create stub start.bit'
+            throw 'Cannot find suitable ' + START + '.\nRun "bit --gen start" to create stub start.bit'
         }
         return null
-    }
-
-    function generate() {
-        if (options.gen == 'start') {
-            generateStart()
-            return
-        }
-        if (options.gen == 'main') {
-            generateMain()
-            return
-        }
-        platforms = bit.platforms = [localPlatform]
-        makeBit(localPlatform, localPlatform + '.bit')
-        bit.original = {
-            dir: bit.dir.clone(),
-            platform: bit.platform.clone(),
-        }
-        for (d in bit.dir) {
-            if (d == 'bits') continue
-            bit.dir[d] = bit.dir[d].replace(bit.original.platform.name, bit.platform.name)
-        }
-        bit.platform.last = true
-        bit.generating = true
-        prepBuild()
-        bit.generating = null
-        generateProjects()
-    }
-
-    function generateMain() {
-        let bits = Config.Bin.join('bits')
-        let cfg = Path('configure')
-        if (cfg.exists && !options.overwrite) {
-            traceFile('Exists', 'configure')
-        } else {
-            let data = '#!/bin/bash\n#\n#   configure -- Configure for building\n#\n' +
-                'if ! type bit >/dev/null 2>&1 ; then\n' +
-                    '    echo -e "\\nInstall the \\"bit\\" tool for configuring." >&2\n' +
-                    '    echo -e "Download from: http://embedthis.com/downloads/bit/download.ejs." >&2\n' +
-                    '    echo -e "Or skip configuring and make a standard build using \\"make\\".\\n" >&2\n' +
-                    '    exit 255\n' +
-                'fi\n' + 
-                'bit configure "$@"'
-            traceFile(cfg.exists ? 'Overwrite' : 'Create', cfg)
-            cfg.write(data)
-            cfg.setAttributes({permissions: 0755})
-        }
-        safeCopy(bits.join('sample-main.bit'), MAIN)
-    }
-
-    function generateStart() {
-        safeCopy(Path(Config.Bin).join('bits/sample-start.bit'), 'start.bit')
-    }
-
-    function generateProjects() {
-        selectedTargets = defaultTargets
-        if (bit.generating) return
-        gen = {
-            configuration:  bit.platform.name
-            compiler:       bit.defaults.compiler.join(' '),
-            defines :       bit.defaults.defines.map(function(e) '-D' + e).join(' '),
-            includes:       bit.defaults.includes.map(function(e) '-I' + e).join(' '),
-            linker:         bit.defaults.linker.join(' '),
-            libpaths:       mapLibPaths(bit.defaults.libpaths)
-            libraries:      mapLibs(bit.defaults.libraries).join(' ')
-        }
-        blend(gen, bit.prefixes)
-        for each (item in options.gen) {
-            bit.generating = item
-            let base = bit.dir.proj.join(bit.settings.product + '-' + bit.platform.os + '-' + bit.platform.profile)
-            let path = bit.original.dir.inc.join('bit.h')
-            let hfile = bit.dir.src.join('projects', 
-                    bit.settings.product + '-' + bit.platform.os + '-' + bit.platform.profile + '-bit.h')
-            path.copy(hfile)
-            trace('Generate', 'project header: ' + hfile.relative)
-            if (bit.generating == 'sh') {
-                generateShellProject(base)
-            } else if (bit.generating == 'make') {
-                generateMakeProject(base)
-            } else if (bit.generating == 'nmake') {
-                generateNmakeProject(base)
-            } else if (bit.generating == 'vstudio' || bit.generating == 'vs') {
-                generateVstudioProject(base)
-            } else if (bit.generating == 'xcode') {
-                generateXcodeProject(base)
-            } else {
-                throw 'Unknown generation format: ' + bit.generating
-            }
-            for each (target in bit.targets) {
-                target.built = false
-            }
-        }
-        bit.generating = null
-    }
-
-    function generateShellProject(base: Path) {
-        trace('Generate', 'project file: ' + base.relative + '.sh')
-        let path = base.joinExt('sh')
-        genout = TextStream(File(path, 'w'))
-        genout.writeLine('#\n#   ' + path.basename + ' -- Build It Shell Script to build ' + bit.settings.title + '\n#\n')
-        genEnv()
-        genout.writeLine('PRODUCT="' + bit.settings.product + '"')
-        genout.writeLine('VERSION="' + bit.settings.version + '"')
-        genout.writeLine('BUILD_NUMBER="' + bit.settings.buildNumber + '"')
-        genout.writeLine('PROFILE="' + bit.platform.profile + '"')
-        genout.writeLine('ARCH="' + bit.platform.arch + '"')
-        genout.writeLine('ARCH="`uname -m | sed \'s/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/\'`"')
-        genout.writeLine('OS="' + bit.platform.os + '"')
-        genout.writeLine('CONFIG="${OS}-${ARCH}-${PROFILE}' + '"')
-        genout.writeLine('CC="' + bit.packs.compiler.path + '"')
-        if (bit.packs.link) {
-            genout.writeLine('LD="' + bit.packs.link.path + '"')
-        }
-        let cflags = gen.compiler
-        for each (word in minimalCflags) {
-            cflags = cflags.replace(word, '')
-        }
-        cflags += ' -w'
-        genout.writeLine('CFLAGS="' + cflags.trim() + '"')
-        genout.writeLine('DFLAGS="' + gen.defines + '"')
-        genout.writeLine('IFLAGS="' + 
-            repvar(bit.defaults.includes.map(function(path) '-I' + path.relative).join(' ')) + '"')
-        genout.writeLine('LDFLAGS="' + repvar(gen.linker).replace(/\$ORIGIN/g, '\\$$ORIGIN') + '"')
-        genout.writeLine('LIBPATHS="' + repvar(gen.libpaths) + '"')
-        genout.writeLine('LIBS="' + gen.libraries + '"\n')
-        genout.writeLine('[ ! -x ${CONFIG}/inc ] && ' + 'mkdir -p ${CONFIG}/inc\n')
-        genout.writeLine('[ ! -x ${CONFIG}/bin ] && ' + 'mkdir -p ${CONFIG}/bin\n')
-        genout.writeLine('[ ! -x ${CONFIG}/obj ] && ' + 'mkdir -p ${CONFIG}/obj\n')
-        genout.writeLine('[ ! -f ${CONFIG}/inc/bit.h ] && ' + 
-            'cp projects/' + bit.settings.product + '-${OS}-${PROFILE}-bit.h ${CONFIG}/inc/bit.h')
-        genout.writeLine('[ ! -f ${CONFIG}/inc/bitos.h ] && cp ${SRC}/src/bitos.h ${CONFIG}/inc/bitos.h')
-        genout.writeLine('if ! diff ${CONFIG}/inc/bit.h projects/' + bit.settings.product + 
-            '-${OS}-${PROFILE}-bit.h >/dev/null ; then')
-        genout.writeLine('\tcp projects/' + bit.settings.product + '-${OS}-${PROFILE}-bit.h ${CONFIG}/inc/bit.h')
-        genout.writeLine('fi\n')
-        build()
-        genout.close()
-        path.setAttributes({permissions: 0755})
-    }
-
-    function mapPrefixes() {
-        prefixes = {}
-        let root = bit.prefixes.root
-        let base = bit.prefixes.base
-        let app = bit.prefixes.app
-        let vapp = bit.prefixes.vapp
-        for (let [name,value] in bit.prefixes) {
-            if (name.startsWith('programFiles')) continue
-            value = expand(value).replace(/\/\//g, '/')
-            if (name == 'root') {
-                ;
-            } else if (name == 'base') {
-                if (value.startsWith(root.name)) {
-                    if (root.name == '/') {
-                        value = value.replace(root.name, '$(BIT_ROOT_PREFIX)/')
-                    } else if (bit.platform.like == 'windows') {
-                        value = value.replace(root.name, '$(BIT_ROOT_PREFIX)\\')
-                    } else {
-                        value = value.replace(root.name, '$(BIT_ROOT_PREFIX)')
-                    }
-                } else {
-                    value = '$(BIT_ROOT_PREFIX)' + value
-                }
-            } else if (name == 'app') {
-                if (value.startsWith(base.name)) {
-                    value = value.replace(base.name, '$(BIT_BASE_PREFIX)')
-                }
-            } else if (name == 'vapp') {
-                if (value.startsWith(app.name)) {
-                    value = value.replace(app.name, '$(BIT_APP_PREFIX)')
-                }
-            } else if (value.startsWith(vapp.name)) {
-                value = value.replace(vapp.name, '$(BIT_VAPP_PREFIX)')
-            } else {
-                value = '$(BIT_ROOT_PREFIX)' + value
-            }
-            value = value.replace(bit.settings.version, '$(VERSION)')
-            value = value.replace(bit.settings.product, '$(PRODUCT)')
-            prefixes[name] = Path(value.toString())
-        }
-        return prefixes
-    }
-
-    //  MOB - somehow merge with generatePackDefs
-    function generatePackDflags() {
-        let requiredTargets = {}
-        for each (target in bit.targets) {
-            if (target.require && bit.packs[target.require]) {
-                requiredTargets[target.require] = true
-            }
-        }
-        let dflags = ''
-        for (let [name, pack] in bit.packs) {
-            if (requiredTargets[name]) {
-                dflags += '-DBIT_PACK_' + name.toUpper() + '=$(BIT_PACK_' + name.toUpper() + ') '
-            }
-        }
-        return dflags
-    }
-
-    function generatePackDefs() {
-        let requiredTargets = {}
-        for each (target in bit.targets) {
-            if (target.require && bit.packs[target.require]) {
-                requiredTargets[target.require] = true
-            }
-        }
-        for (let [name, pack] in bit.packs) {
-            if (requiredTargets[name]) {
-                if (bit.platform.os == 'windows' ) {
-                    genout.writeLine('%-17s = %s'.format(['BIT_PACK_' + name.toUpper(), pack.enable ? 1 : 0]))
-                } else {
-                    genout.writeLine('%-17s := %s'.format(['BIT_PACK_' + name.toUpper(), pack.enable ? 1 : 0]))
-                }
-            }
-        }
-        genout.writeLine('')
-    }
-
-    function generateMakeProject(base: Path) {
-        trace('Generate', 'project file: ' + base.relative + '.mk')
-        let path = base.joinExt('mk')
-        genout = TextStream(File(path, 'w'))
-        runScript(bit.scripts.pregen)
-        genout.writeLine('#\n#   ' + path.basename + ' -- Makefile to build ' + 
-            bit.settings.title + ' for ' + bit.platform.os + '\n#\n')
-        genEnv()
-        genout.writeLine('PRODUCT           := ' + bit.settings.product)
-        genout.writeLine('VERSION           := ' + bit.settings.version)
-        genout.writeLine('BUILD_NUMBER      := ' + bit.settings.buildNumber)
-        genout.writeLine('PROFILE           := ' + bit.platform.profile)
-        genout.writeLine('ARCH              := $(shell uname -m | sed \'s/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/\')')
-        genout.writeLine('OS                := ' + bit.platform.os)
-        genout.writeLine('CC                := ' + bit.packs.compiler.path)
-        if (bit.packs.link) {
-            genout.writeLine('LD                := ' + bit.packs.link.path)
-        }
-        genout.writeLine('CONFIG            := $(OS)-$(ARCH)-$(PROFILE)')
-        genout.writeLine('LBIN              := $(CONFIG)/bin\n')
-
-        generatePackDefs()
-
-        let cflags = gen.compiler
-        for each (word in minimalCflags) {
-            cflags = cflags.replace(word, '')
-        }
-        cflags += ' -w'
-        genout.writeLine('CFLAGS            += ' + cflags.trim())
-        genout.writeLine('DFLAGS            += ' + gen.defines.replace(/-DBIT_DEBUG/, '') + 
-            ' $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) ' + generatePackDflags())
-        genout.writeLine('IFLAGS            += ' + 
-            repvar(bit.defaults.includes.map(function(path) '-I' + reppath(path.relative)).join(' ')))
-        let linker = defaults.linker.map(function(s) "'" + s + "'").join(' ')
-        let ldflags = repvar(linker).replace(/\$ORIGIN/g, '$$$$ORIGIN').replace(/ '-g'/, '')
-        genout.writeLine('LDFLAGS           += ' + ldflags)
-        genout.writeLine('LIBPATHS          += ' + repvar(gen.libpaths))
-        genout.writeLine('LIBS              += ' + gen.libraries + '\n')
-
-        genout.writeLine('DEBUG             := ' + (bit.settings.debug ? 'debug' : 'release'))
-        genout.writeLine('CFLAGS-debug      := -g')
-        genout.writeLine('DFLAGS-debug      := -DBIT_DEBUG')
-        genout.writeLine('LDFLAGS-debug     := -g')
-        genout.writeLine('DFLAGS-release    := ')
-        genout.writeLine('CFLAGS-release    := -O2')
-        genout.writeLine('LDFLAGS-release   := ')
-        genout.writeLine('CFLAGS            += $(CFLAGS-$(DEBUG))')
-        genout.writeLine('DFLAGS            += $(DFLAGS-$(DEBUG))')
-        genout.writeLine('LDFLAGS           += $(LDFLAGS-$(DEBUG))\n')
-
-        let prefixes = mapPrefixes()
-        for (let [name, value] in prefixes) {
-            if (name == 'root' && value == '/') {
-                value = ''
-            }
-            genout.writeLine('%-17s := %s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
-        }
-        genout.writeLine('')
-        runScript(bit.scripts.gendefs)
-        genout.writeLine('')
-
-        let pop = bit.settings.product + '-' + bit.platform.os + '-' + bit.platform.profile
-        genTargets()
-        genout.writeLine('unexport CDPATH\n')
-        genout.writeLine('ifndef SHOW\n.SILENT:\nendif\n')
-        genout.writeLine('all build compile: prep $(TARGETS)\n')
-        genout.writeLine('.PHONY: prep\n\nprep:')
-        genout.writeLine('\t@echo "      [Info] Use "make SHOW=1" to trace executed commands."')
-        genout.writeLine('\t@if [ "$(CONFIG)" = "" ] ; then echo WARNING: CONFIG not set ; exit 255 ; fi')
-        genout.writeLine('\t@if [ "$(BIT_APP_PREFIX)" = "" ] ; then echo WARNING: BIT_APP_PREFIX not set ; exit 255 ; fi')
-        genout.writeLine('\t@[ ! -x $(CONFIG)/bin ] && ' + 'mkdir -p $(CONFIG)/bin; true')
-        genout.writeLine('\t@[ ! -x $(CONFIG)/inc ] && ' + 'mkdir -p $(CONFIG)/inc; true')
-        genout.writeLine('\t@[ ! -x $(CONFIG)/obj ] && ' + 'mkdir -p $(CONFIG)/obj; true')
-        genout.writeLine('\t@[ ! -f $(CONFIG)/inc/bit.h ] && ' + 'cp projects/' + pop + '-bit.h $(CONFIG)/inc/bit.h ; true')
-        genout.writeLine('\t@[ ! -f $(CONFIG)/inc/bitos.h ] && cp src/bitos.h $(CONFIG)/inc/bitos.h ; true')
-        genout.writeLine('\t@if ! diff $(CONFIG)/inc/bit.h projects/' + pop + '-bit.h >/dev/null ; then\\')
-        genout.writeLine('\t\techo cp projects/' + pop + '-bit.h $(CONFIG)/inc/bit.h  ; \\')
-        genout.writeLine('\t\tcp projects/' + pop + '-bit.h $(CONFIG)/inc/bit.h  ; \\')
-        genout.writeLine('\tfi; true\n')
-        genout.writeLine('clean:')
-        action('cleanTargets')
-        genout.writeLine('\nclobber: clean\n\trm -fr ./$(CONFIG)\n')
-        build()
-        genout.close()
-    }
-
-    function generateNmakeProject(base: Path) {
-        trace('Generate', 'project file: ' + base.relative + '.nmake')
-        let path = base.joinExt('nmake')
-        genout = TextStream(File(path, 'w'))
-        runScript(bit.scripts.pregen)
-        genout.writeLine('#\n#   ' + path.basename + ' -- Makefile to build ' + bit.settings.title + 
-            ' for ' + bit.platform.os + '\n#\n')
-        genout.writeLine('PRODUCT           = ' + bit.settings.product)
-        genout.writeLine('VERSION           = ' + bit.settings.version)
-        genout.writeLine('BUILD_NUMBER      = ' + bit.settings.buildNumber)
-        genout.writeLine('PROFILE           = ' + bit.platform.profile)
-        genout.writeLine('PA                = $(PROCESSOR_ARCHITECTURE)')
-        genout.writeLine('')
-        genout.writeLine('!IF "$(PA)" == "AMD64"')
-            genout.writeLine('ARCH              = x64')
-            genout.writeLine('ENTRY             = _DllMainCRTStartup')
-        genout.writeLine('!ELSE')
-            genout.writeLine('ARCH              = x86')
-            genout.writeLine('ENTRY             = _DllMainCRTStartup@12')
-        genout.writeLine('!ENDIF\n')
-        genout.writeLine('OS                = ' + bit.platform.os)
-        genout.writeLine('CONFIG            = $(OS)-$(ARCH)-$(PROFILE)')
-        genout.writeLine('LBIN              = $(CONFIG)\\bin')
-        generatePackDefs()
-
-        genout.writeLine('CC                = cl')
-        genout.writeLine('LD                = link')
-        genout.writeLine('RC                = rc')
-        genout.writeLine('CFLAGS            = ' + gen.compiler)
-        genout.writeLine('DFLAGS            = ' + gen.defines + ' ' + generatePackDflags())
-        genout.writeLine('IFLAGS            = ' + 
-            repvar(bit.defaults.includes.map(function(path) '-I' + reppath(path)).join(' ')))
-        genout.writeLine('LDFLAGS           = ' + repvar(gen.linker).replace(/-machine:x86/, '-machine:$$(ARCH)'))
-        genout.writeLine('LIBPATHS          = ' + repvar(gen.libpaths).replace(/\//g, '\\'))
-        genout.writeLine('LIBS              = ' + gen.libraries + '\n')
-
-        let prefixes = mapPrefixes()
-        for (let [name, value] in prefixes) {
-            if (name.startsWith('programFiles')) continue
-            /* MOB bug - value.windows will change C:/ to C: */
-            if (name == 'root') {
-                value = value.trimEnd('/')
-            } else {
-                value = value.map('\\')
-            }
-            genout.writeLine('%-17s = '.format(['BIT_' + name.toUpper() + '_PREFIX']) + value)
-        }
-        genout.writeLine('')
-        runScript(bit.scripts.gendefs)
-        genout.writeLine('')
-
-        genTargets()
-        let pop = bit.settings.product + '-' + bit.platform.os + '-' + bit.platform.profile
-        genout.writeLine('!IFNDEF SHOW\n.SILENT:\n!ENDIF\n')
-        genout.writeLine('all build compile: prep $(TARGETS)\n')
-        genout.writeLine('.PHONY: prep\n\nprep:')
-        genout.writeLine('!IF "$(VSINSTALLDIR)" == ""\n\techo "Visual Studio vars not set. Run vcvars.bat."\n\texit 255\n!ENDIF')
-        genout.writeLine('!IF "$(BIT_APP_PREFIX)" == ""\n\techo "BIT_APP_PREFIX not set."\n\texit 255\n!ENDIF')
-        genout.writeLine('\t@if not exist $(CONFIG)\\bin md $(CONFIG)\\bin')
-        genout.writeLine('\t@if not exist $(CONFIG)\\inc md $(CONFIG)\\inc')
-        genout.writeLine('\t@if not exist $(CONFIG)\\obj md $(CONFIG)\\obj')
-        genout.writeLine('\t@if not exist $(CONFIG)\\inc\\bit.h ' + 'copy projects\\' + pop + '-bit.h $(CONFIG)\\inc\\bit.h\n')
-        genout.writeLine('clean:')
-        action('cleanTargets')
-        genout.writeLine('')
-        build()
-        genout.close()
-    }
-
-    function generateVstudioProject(base: Path) {
-        trace('Generate', 'project file: ' + base.relative)
-        mkdir(base)
-        global.load(bit.dir.bits.join('vstudio.es'))
-        vstudio(base)
-    }
-
-    function generateXcodeProject(base: Path) {
-        global.load(bit.dir.bits.join('xcode.es'))
-        xcode(base)
-    }
-
-    function genEnv() {
-        let found
-        if (bit.platform.os == 'windows') {
-            var winsdk = (bit.packs.winsdk && bit.packs.winsdk.path) ? 
-                bit.packs.winsdk.path.windows.name.replace(/.*Program Files.*Microsoft/, '$$(PROGRAMFILES)\\Microsoft') :
-                '$(PROGRAMFILES)\\Microsoft SDKs\\Windows\\v6.1'
-            var vs = (bit.packs.compiler && bit.packs.compiler.dir) ? 
-                bit.packs.compiler.dir.windows.name.replace(/.*Program Files.*Microsoft/, '$$(PROGRAMFILES)\\Microsoft') :
-                '$(PROGRAMFILES)\\Microsoft Visual Studio 9.0'
-            if (bit.generating == 'make') {
-                /* Not used */
-                genout.writeLine('VS             := ' + '$(VSINSTALLDIR)')
-                genout.writeLine('VS             ?= ' + vs)
-                genout.writeLine('SDK            := ' + '$(WindowsSDKDir)')
-                genout.writeLine('SDK            ?= ' + winsdk)
-                genout.writeLine('\nexport         SDK VS')
-            }
-        }
-        for (let [key,value] in bit.env) {
-            if (bit.platform.os == 'windows') {
-                value = value.map(function(item)
-                    item.replace(bit.packs.compiler.dir, '$(VS)').replace(bit.packs.winsdk.path, '$(SDK)')
-                )
-            }
-            if (value is Array) {
-                value = value.join(App.SearchSeparator)
-            }
-            if (bit.platform.os == 'windows') {
-                if (key == 'INCLUDE' || key == 'LIB') {
-                    value = '$(' + key + ');' + value
-                } else if (key == 'PATH') {
-                    value = value + ';$(' + key + ')'
-                } 
-            }
-            if (bit.generating == 'make') {
-                genout.writeLine('export %-7s := %s' % [key, value])
-
-            } else if (bit.generating == 'nmake') {
-                value = value.replace(/\//g, '\\')
-                genout.writeLine('%-9s = %s' % [key, value])
-
-            } else if (bit.generating == 'sh') {
-                genout.writeLine('export ' + key + '="' + value + '"')
-            }
-            found = true
-        }
-        if (found) {
-            genout.writeLine('')
-        }
-    }
-
-    function genTargets() {
-        let all = []
-        for each (tname in selectedTargets) {
-            let target = bit.targets[tname]
-            if (target.path && target.enable && !target.nogen) {
-                if (target.require) {
-                    if (bit.platform.os == 'windows') {
-                        genout.writeLine('!IF "$(BIT_PACK_' + target.require.toUpper() + ')" == "1"')
-                        genout.writeLine('TARGETS           = $(TARGETS) ' + reppath(target.path))
-                    } else {
-                        genout.writeLine('ifeq ($(BIT_PACK_' + target.require.toUpper() + '),1)')
-                        genout.writeLine('TARGETS           += ' + reppath(target.path))
-                    }
-                } else {
-                    if (bit.platform.os == 'windows') {
-                        genout.writeLine('TARGETS           = $(TARGETS) ' + reppath(target.path))
-                    } else {
-                        genout.writeLine('TARGETS           += ' + reppath(target.path))
-                    }
-                }
-                if (target.require) {
-                    if (bit.platform.os == 'windows') {
-                        genout.writeLine('!ENDIF')
-                    } else {
-                        genout.writeLine('endif')
-                    }
-                }
-            }
-        }
-        genout.writeLine('')
     }
 
     function import() {
@@ -1762,7 +934,7 @@ public class Bit {
         }
     }
 
-    function prepBuild() {
+    public function prepBuild() {
         vtrace('Prepare', 'For building')
         if (!options.configure && (bit.platforms.length > 1 || bit.platform.cross)) {
             trace('Build', bit.platform.name)
@@ -1781,9 +953,8 @@ public class Bit {
         blendDefaults()
         resolveDependencies()
         expandWildcards()
-        selectTargets()
         castTargetTypes()
-        setDefaultTargetPath()
+        setTargetPaths()
         inlineStatic()
         Object.sortProperties(bit)
 
@@ -1801,9 +972,9 @@ public class Bit {
      */
     function enableTargets() {
         for (let [tname, target] in bit.targets) {
-            if (target.require) {
-                if (!bit.packs[target.require] || !bit.packs[target.require].enable) {
-                    vtrace('Skip', 'Target ' + tname + ' is disabled because the pack ' + target.require + ' is not enabled')
+            for each (item in target.require) {
+                if (!bit.packs[item] || !bit.packs[item].enable) {
+                    whySkip(target.name, 'Disabled because the pack ' + item + ' is not enabled')
                     target.enable = false
                 }
             }
@@ -1812,8 +983,7 @@ public class Bit {
                     let script = expand(target.enable)
                     try {
                         if (!eval(script)) {
-                            whySkip(target.name, 'is disabled')
-                            vtrace('Skip', 'Target ' + tname + ' is disabled on this platform') 
+                            whySkip(target.name, 'is disabled on this platform')
                             target.enable = false
                         } else {
                             target.enable = true
@@ -1840,75 +1010,54 @@ public class Bit {
         }
     }
 
-    /*
-        Select the targets to build 
-     */
-    function selectTargets() {
-        originalTargets ||= []
-        selectedTargets = originalTargets
-        defaultTargets = []
-        for (let [tname,target] in bit.targets) {
-            if (targetsToBuildByDefault[target.type]) {
-                defaultTargets.push(tname)
+    function getDependentTargets(target, goal) {
+        if (target.selected || !target.enable) {
+            return
+        }
+        if (goal === true || target.goals.contains(goal)) {
+            target.selected = true
+            for each (dname in target.depends) {
+                if (dname == ALL) {
+                    for each (target in bit.targets) {
+                        getDependentTargets(target, dname)
+                    }
+                } else {
+                    let dep = bit.targets[dname]
+                    if (dep) {
+                        if (!dep.selected) {
+                            getDependentTargets(dep, true)
+                        }
+                    } else if (!Path(dname).exists && !bit.packs[dname]) {
+                        throw 'Unknown dependency "' + dname + '" in target "' + target.name + '"'
+                    }
+                }
             }
+            selectedTargets.push(target)
+            if (goal !== true) {
+                topTargets.push(target)
+            }
+        }
+    }
+
+    public function selectTargets(goal): Array {
+        selectedTargets = []
+        topTargets = []
+        for each (target in bit.targets) {
+            delete target.selected
+        }
+        for each (target in bit.targets) {
+            getDependentTargets(target, goal)
         }
         if (selectedTargets.length == 0) {
-            /* No targets specified, so do a default 'build' */
-            selectedTargets = defaultTargets
-
-        } else {
-            /* Targets specified. If 'build' is one of the targets|actions, expand it to explicit target names */
-            let index = selectedTargets.indexOf('build')
-            if (index < 0) {
-                index = selectedTargets.indexOf('rebuild')
-            }
-            if (index >= 0) {
-                let names = []
-                for (let [tname,target] in bit.targets) {
-                    if (targetsToBuildByDefault[target.type]) {
-                        names.push(tname)
-                    }
-                }
-                if (names.length > 0) {
-                    selectedTargets.splice(index, 1, ...names)
-                }
-            }
+            throw 'No targets for goal "' + goal + '"'
         }
-        for (let [index, name] in selectedTargets) {
-            /* Select target by target type */
-            let add = []
-            for each (t in bit.targets) {
-                if (t.type == name) {
-                    if (!selectedTargets.contains(t.name)) {
-                        add.push(t.name)
-                    }
-                    break
-                }
-            }
-            if (!bit.targets[name] && add.length == 0) {
-                for each (target in bit.targets) {
-                    if (target.name.endsWith(name) || Path(target.name).trimExt().endsWith(name)) {
-                        add.push(target.name)
-                    }
-                }
-                if (add.length == 0) {
-                    throw 'Unknown target ' + name
-                }
-            }
-            selectedTargets += add
-        }
-        if (selectedTargets[0] == 'version') {
-            print(bit.settings.version + '-' + bit.settings.buildNumber)
-            App.exit()
-        }
-        vtrace('Targets', selectedTargets)
+        return selectedTargets
     }
 
     /*
         Set target output paths. Uses the default locations for libraries, executables and files
-        MOB - rename. Doing more than this.
      */
-    function setDefaultTargetPath() {
+    function setTargetPaths() {
         for each (target in bit.targets) {
             if (!target.path) {
                 if (target.type == 'lib') {
@@ -1925,8 +1074,6 @@ public class Bit {
                     target.path = bit.dir.lib.join(target.name)
                 } else if (target.type == 'res') {
                     target.path = bit.dir.res.join(target.name).joinExt(bit.ext.res, true)
-                } else if (target.type == 'build') {
-                    target.path = target.name
                 }
             }
             if (target.path) {
@@ -1945,12 +1092,12 @@ public class Bit {
         }
     }
 
-    function getDepends(target): Array {
+    function getDepLibs(target): Array {
         let libs = []
         for each (dname in target.depends) {
             let dep = bit.targets[dname]
             if (dep && dep.type == 'lib' && dep.enable) {
-                libs += getDepends(dep)
+                libs += getDepLibs(dep)
                 libs.push(dname)
             }
         }
@@ -1961,13 +1108,13 @@ public class Bit {
         Implement static linking by inlining all libraries
      */
     function inlineStatic() {
-        for each (target in bit.targets) {
+        for each (target in selectedTargets) {
             if (target.static) {
                 let resolved = []
                 let includes = []
                 let defines = []
                 if (target.type == 'exe') {
-                    for each (dname in getDepends(target).unique()) {
+                    for each (dname in getDepLibs(target).unique()) {
                         let dep = bit.targets[dname]
                         if (dep && dep.type == 'lib' && dep.enable) {
                             /* Add the dependent files to the target executables */
@@ -2027,20 +1174,6 @@ public class Bit {
                 }
             }
         }
-/* UNUSED
-        if (exclude) {
-            //  MOB - handled above
-            if (exclude is RegExp) {
-                files = files.reject(function (elt) elt.match(exclude)) 
-            } else if (exclude is Array) {
-                for each (pattern in exclude) {
-                    files = files.reject(function (elt) { return elt.match(pattern); } ) 
-                }
-            } else {
-                files = files.reject(function (elt) elt.match(exclude))
-            }
-        }
- */
         return files
     }
 
@@ -2152,8 +1285,8 @@ public class Bit {
                 for each (file in files) {
                     let header = bit.dir.inc.join(file.basename)
                     /* Always overwrite dynamically created targets created via makeDepends */
-                    bit.targets[header] = { name: header, enable: true, path: header, type: 'header', files: [ file ],
-                        vars: {}, includes: target.includes }
+                    bit.targets[header] = { name: header, enable: true, path: header, type: 'header', 
+                        goals: [target.name], files: [ file ], includes: target.includes }
                     target.depends ||= []
                     target.depends.push(header)
                 }
@@ -2166,8 +1299,8 @@ public class Bit {
                         Create a target for each resource file
                      */
                     let res = bit.dir.obj.join(file.replaceExt(bit.ext.res).basename)
-                    let resTarget = { name : res, enable: true, path: res, type: 'resource', files: [ file ], 
-                        includes: target.includes, vars: {} }
+                    let resTarget = { name : res, enable: true, path: res, type: 'resource', 
+                        goals: [target.name], files: [ file ], includes: target.includes }
                     if (bit.targets[res]) {
                         resTarget = blend(bit.targets[resTarget.name], resTarget, {combined: true})
                     }
@@ -2185,11 +1318,11 @@ public class Bit {
                         Create a target for each source file
                      */
                     let obj = bit.dir.obj.join(file.replaceExt(bit.ext.o).basename)
-                    let precompile = (target.scripts && target.scripts.precompile) ?
-                        target.scripts.precompile : null
-                    let objTarget = { name : obj, enable: true, path: obj, type: 'obj', files: [ file ], 
+                    let precompile = (target.scripts && target.scripts.precompile) ?  target.scripts.precompile : null
+                    let objTarget = { name : obj, enable: true, path: obj, type: 'obj', 
+                        goals: [target.name], files: [ file ], 
                         compiler: target.compiler, defines: target.defines, includes: target.includes,
-                        scripts: { precompile: precompile }, vars: {}}
+                        scripts: { precompile: precompile }}
                     if (bit.targets[obj]) {
                         objTarget = blend(bit.targets[objTarget.name], objTarget, {combined: true})
                     }
@@ -2212,8 +1345,7 @@ public class Bit {
         Blend bit.defaults into targets
      */
     function blendDefaults() {
-        runScript(bit.scripts.preinherit)
-        delete bit.scripts.preinherit
+        runScript(bit.scripts, "preinherit")
 
         //  DEPRECATE
         for (let [key,value] in bit.defaults.defines) {
@@ -2244,7 +1376,7 @@ public class Bit {
         }
     }
 
-    function castDirTypes() {
+    public function castDirTypes() {
         /*
             Use absolute patsh so they will apply anywhere in the source tree. Rules change directory and build
             locally for each directory, so it is essential these be absolute.
@@ -2331,42 +1463,13 @@ public class Bit {
     /*
         Build all selected targets
      */
-    function build() {
-        if (options.hasOwnProperty('get')) {
-            getValue()
-            return
+    public function build() {
+        if (goals.length == 0) {
+            goals.push(ALL)
         }
-        let allTargets = selectedTargets.clone()
-        for each (name in selectedTargets) {
-            /* Build named targets */
-            let target = bit.targets[name]
-            if (target && target.enable) {
+        for each (goal in goals) {
+            for each (target in selectTargets(goal)) {
                 buildTarget(target)
-            }
-            if (name == 'generate') break
-
-            /* Build targets with the same type as the action */
-            for each (t in bit.targets) {
-                if (t.type == name) {
-                    if (t.enable) {
-                        buildTarget(t)
-                    }
-                }
-            }
-        }
-        if (bit.generating) {
-            for each (target in bit.targets) {
-                if (allTargets.contains(target.name)) {
-                   continue
-                }
-                //  MOB - refactor at parse time into a single flag
-                //  MOB - Add generate-unix, generate.vs, generate.xcode, generate.action
-                if (target.generate || target['generate-sh'] || target['generate-make'] || target['generate-make'] ||
-                        target['generate-' + bit.platform.os] || target['generate-action'] || 
-                        //  MOB - is this right
-                        target['run']) {
-                    buildTarget(target)
-                }
             }
         }
     }
@@ -2375,11 +1478,8 @@ public class Bit {
         Build a target and all required dependencies (first)
      */
     function buildTarget(target) {
-        if (target.built || !target.enable) {
-            return
-        }
         if (target.building) {
-            throw 'Possible recursive dependancy: target ' + target.name + ' is already building'
+            App.log.error('Possible recursive dependancy: target ' + target.name + ' is already building')
         }
         vtrace('Consider', target.name)
         target.building = true
@@ -2387,34 +1487,8 @@ public class Bit {
         target.libpaths ||= []
         target.includes ||= []
         target.libraries ||= []
+        target.vars ||= {}
 
-        runTargetScript(target, 'predependencies')
-        for each (dname in target.depends) {
-            let dep = bit.targets[dname]
-            if (!dep) {
-                if (dname == 'build') {
-                    for each (tname in defaultTargets) {
-                        buildTarget(bit.targets[tname])
-                    }
-                } else if (!Path(dname).exists) {
-                    if (!bit.packs[dname]) {
-                        print('Unknown dependency "' + dname + '" in target "' + target.name + '"')
-                        target.building = false
-                        return
-                    }
-                }
-            } else {
-                if (!dep.enable || dep.built) {
-                    continue
-                }
-                if (dep.building) {
-                    throw new Error('Possible recursive dependancy in target ' + target.name + 
-                        ', dependancy ' + dep.name + ' is already building.')
-                }
-                buildTarget(dep)
-            }
-        }
-        runTargetScript(target, 'postdependencies')
         if (target.message) {
             if (target.message is Array) {
                 trace(... target.message)
@@ -2433,46 +1507,13 @@ public class Bit {
                 runTargetScript(target, 'prebuild')
 
                 if (bit.generating) {
-                    if (target.require) {
-                        if (bit.platform.os == 'windows') {
-                            genout.writeLine('!IF "$(BIT_PACK_' + target.require.toUpper() + ')" == "1"')
-                        } else {
-                            genWriteLine('ifeq ($(BIT_PACK_' + target.require.toUpper() + '),1)')
-                        }
-                    }
-                    if (target.type == 'build' || (target.scripts && target.scripts['build'])) {
-                        generateScript(target)
-                    }
-                    if (target.type == 'lib') {
-                        if (target.static) {
-                            generateStaticLib(target)
-                        } else {
-                            generateSharedLib(target)
-                        }
-                    } else if (target.type == 'exe') {
-                        generateExe(target)
-                    } else if (target.type == 'obj') {
-                        generateObj(target)
-                    } else if (target.type == 'file' || target.type == 'header') {
-                        generateFile(target)
-                    } else if (target.type == 'resource') {
-                        generateResource(target)
-                    } else if (target.type == 'run') {
-                        generateRun(target)
-                    }
-                    if (target.require) {
-                        if (bit.platform.os == 'windows') {
-                            genWriteLine('!ENDIF')
-                        } else {
-                            genWriteLine('endif')
-                        }
-                    }
-                    genWriteLine('')
+                    generateTarget(target)
+
                 } else {
                     if (target.dir) {
                         buildDir(target)
                     }
-                    if (target.type == 'build' || (target.scripts && target.scripts['build'])) {
+                    if (target.scripts && target.scripts['build']) {
                         buildScript(target)
                     }
                     if (target.type == 'lib') {
@@ -2499,7 +1540,6 @@ public class Bit {
             throw new Error('Building target ' + target.name + '\n' + e)
         }
         target.building = false
-        target.built = true
     }
 
     function buildDir(target) {
@@ -2656,6 +1696,7 @@ public class Bit {
         } else {
             command = expand(command)
         }
+        trace('Run', command)
         run(command)
     }
 
@@ -2697,571 +1738,6 @@ public class Bit {
         }
     }
 
-    function generateDir(target) {
-        if (bit.generating == 'sh') {
-            makeDir(target.dir)
-
-        } else if (bit.generating == 'make' || bit.generating == 'nmake') {
-            genTargetDeps(target)
-            genout.write(reppath(target.path) + ':' + getTargetDeps() + '\n')
-            makeDir(target.dir)
-        }
-    }
-
-    function generateExe(target) {
-        let transition = target.rule || 'exe'
-        let rule = bit.rules[transition]
-        if (!rule) {
-            throw 'No rule to build target ' + target.path + ' for transition ' + transition
-            return
-        }
-        let command = expandRule(target, rule)
-        if (bit.generating == 'sh') {
-            command = repcmd(command)
-            genout.writeLine(command)
-
-        } else if (bit.generating == 'make' || bit.generating == 'nmake') {
-            genTargetDeps(target)
-            command = genTargetLibs(target, repcmd(command))
-            genout.write(reppath(target.path) + ':' + getTargetDeps() + '\n')
-            gtrace('Link', target.name)
-            genout.writeLine('\t' + command)
-        }
-    }
-
-    function generateSharedLib(target) {
-        let transition = target.rule || 'shlib'
-        let rule = bit.rules[transition]
-        if (!rule) {
-            throw 'No rule to build target ' + target.path + ' for transition ' + transition
-            return
-        }
-        let command = expandRule(target, rule)
-        if (bit.generating == 'sh') {
-            command = repcmd(command)
-            genout.writeLine(command)
-
-        } else if (bit.generating == 'make' || bit.generating == 'nmake') {
-            genTargetDeps(target)
-            command = genTargetLibs(target, repcmd(command))
-            command = command.replace(/-arch *\S* /, '')
-            genout.write(reppath(target.path) + ':' + getTargetDeps() + '\n')
-            gtrace('Link', target.name)
-            genout.writeLine('\t' + command)
-        }
-    }
-
-    function generateStaticLib(target) {
-        let transition = target.rule || 'lib'
-        let rule = bit.rules[transition]
-        if (!rule) {
-            throw 'No rule to build target ' + target.path + ' for transition ' + transition
-            return
-        }
-        let command = expandRule(target, rule)
-        if (bit.generating == 'sh') {
-            command = repcmd(command)
-            genout.writeLine(command)
-
-        } else if (bit.generating == 'make' || bit.generating == 'nmake') {
-            command = repcmd(command)
-            genTargetDeps(target)
-            genout.write(reppath(target.path) + ':' + getTargetDeps() + '\n')
-            gtrace('Link', target.name)
-            genout.writeLine('\t' + command)
-        }
-    }
-
-    /*
-        Build symbols file for windows libraries
-     */
-    function generateSym(target) {
-        throw "Not supported to generate sym targets yet"
-    }
-
-    /*
-        Build an object from source
-     */
-    function generateObj(target) {
-        runTargetScript(target, 'precompile')
-
-        let ext = target.path.extension
-        for each (file in target.files) {
-            target.vars.INPUT = file.relative
-            let transition = file.extension + '->' + target.path.extension
-            if (options.pre) {
-                transition = 'c->c'
-            }
-            let rule = target.rule || bit.rules[transition]
-            if (!rule) {
-                rule = bit.rules[target.path.extension]
-                if (!rule) {
-                    throw 'No rule to build target ' + target.path + ' for transition ' + transition
-                    return
-                }
-            }
-            let command = expandRule(target, rule)
-            if (bit.generating == 'sh') {
-                command = repcmd(command)
-                command = command.replace(/-arch *\S* /, '')
-                genout.writeLine(command)
-
-            } else if (bit.generating == 'make') {
-                command = repcmd(command)
-                command = command.replace(/-arch *\S* /, '')
-                genTargetDeps(target)
-                genout.write(reppath(target.path) + ': \\\n    ' + file.relative + getTargetDeps() + '\n')
-                gtrace('Compile', file.relativeTo('.'))
-                genout.writeLine('\t' + command)
-
-            } else if (bit.generating == 'nmake') {
-                command = repcmd(command)
-                command = command.replace(/-arch *\S* /, '')
-                genTargetDeps(target)
-                genout.write(reppath(target.path) + ': \\\n    ' + file.relative.windows + getTargetDeps() + '\n')
-                gtrace('Compile', file.relativeTo('.'))
-                genout.writeLine('\t' + command)
-            }
-        }
-        runTargetScript(target, 'postcompile')
-    }
-
-    function generateResource(target) {
-        let ext = target.path.extension
-        for each (file in target.files) {
-            target.vars.INPUT = file.relative
-            let transition = file.extension + '->' + target.path.extension
-            let rule = target.rule || bit.rules[transition]
-            if (!rule) {
-                rule = bit.rules[target.path.extension]
-                if (!rule) {
-                    throw 'No rule to build target ' + target.path + ' for transition ' + transition
-                    return
-                }
-            }
-            let command = expandRule(target, rule)
-            if (bit.generating == 'sh') {
-                command = repcmd(command)
-                genout.writeLine(command)
-
-            } else if (bit.generating == 'make') {
-                command = repcmd(command)
-                genTargetDeps(target)
-                genout.write(reppath(target.path) + ': \\\n        ' + file.relative + getTargetDeps() + '\n')
-                gtrace('Compile', file.relativeTo('.'))
-                genout.writeLine('\t' + command)
-
-            } else if (bit.generating == 'nmake') {
-                command = repcmd(command)
-                genTargetDeps(target)
-                genout.write(reppath(target.path) + ': \\\n        ' + file.relative.windows + getTargetDeps() + '\n')
-                gtrace('Compile', file.relativeTo('.'))
-                genout.writeLine('\t' + command)
-            }
-        }
-    }
-
-    /*
-        Copy files[] to path
-     */
-    function generateFile(target) {
-        target.made ||= {}
-        if (bit.generating == 'make' || bit.generating == 'nmake') {
-            genTargetDeps(target)
-            genout.write(reppath(target.path) + ':' + getTargetDeps() + '\n')
-        }
-        gtrace('Copy', target.path.relative.portable)
-        for each (let file: Path in target.files) {
-            /* Auto-generated headers targets for includes have file == target.path */
-            if (file == target.path) {
-                continue
-            }
-            if (target.subtree) {
-                /* File must be abs to allow for a subtree substitution */
-                copy(file, target.path, target)
-            } else {
-                copy(file, target.path, target)
-            }
-        }
-        delete target.made
-    }
-
-    function generateRun(target) {
-        let command = target.run.clone()
-        if (command is Array) {
-            for (let [key,value] in command) {
-                command[key] = expand(value)
-            }
-        } else {
-            command = expand(command)
-        }
-        if (bit.generating == 'make' || bit.generating == 'nmake') {
-            genTargetDeps(target)
-            genout.write(reppath(target.name) + ':' + getTargetDeps() + '\n')
-        }
-        if (command is Array) {
-            genout.write('\t' + command.map(function(a) '"' + a + '"').join(' '))
-        } else {
-            genout.write('\t' + command)
-        }
-    }
-
-    function generateScript(target) {
-        setRuleVars(target, target.home)
-        let prefix, suffix
-        if (bit.generating) {
-            if (bit.generating == 'sh' || bit.generating == 'make') {
-                prefix = 'cd ' + target.home.relative
-                suffix = 'cd ' + bit.dir.top.relativeTo(target.home)
-            } else if (bit.generating == 'nmake') {
-                prefix = 'cd ' + target.home.relative.windows + '\n'
-                suffix = '\ncd ' + bit.dir.src.relativeTo(target.home).windows
-            } else {
-                prefix = suffix = ''
-            }
-            let rhome = target.home.relative
-            if (rhome == '.' || rhome.startsWith('..')) {
-                /* Don't change directory out of source tree. Necessary for actions in standard.bit */
-                prefix = suffix = ''
-            }
-        }
-        if (target.scripts && target['generate-action']) {
-            genTargetDeps(target)
-            if (target.path) {
-                genWrite(target.path.relative + ':' + getTargetDeps() + '\n')
-            } else {
-                genWrite(target.name + ':' + getTargetDeps() + '\n')
-            }
-            capture = []
-            vtrace(target.type.toPascal(), target.name)
-            runTargetScript(target, 'build')
-            if (capture.length > 0) {
-                genWriteLine('\t' + capture.join('\n\t'))
-            }
-            capture = null
-
-        } else if (bit.generating == 'sh') {
-            let cmd = target['generate-sh'] || target.interpreter
-            if (cmd) {
-                cmd = cmd.trim()
-                cmd = cmd.replace(/\\\n/mg, '')
-                if (prefix || suffix) {
-                    if (cmd.startsWith('@')) {
-                        cmd = cmd.slice(1).replace(/^.*$/mg, '\t@' + prefix + '; $& ; ' + suffix)
-                    } else {
-                        cmd = cmd.replace(/^.*$/mg, '\t' + prefix + '; $& ; ' + suffix)
-                    }
-                } else {
-                    cmd = cmd.replace(/^/mg, '\t')
-                }
-                bit.globals.LBIN = '$(LBIN)'
-                cmd = expand(cmd, {fill: null}).expand(target.vars, {fill: '${}'})
-                cmd = repvar2(cmd, target.home)
-                bit.globals.LBIN = localBin
-                genWriteLine(cmd)
-            } else {
-                genout.write('#  Omit build script ' + target.name + '\n')
-            }
-
-        } else if (bit.generating == 'make') {
-            genTargetDeps(target)
-            if (target.path) {
-                genWrite(target.path.relative + ':' + getTargetDeps() + '\n')
-            } else {
-                genWrite(target.name + ':' + getTargetDeps() + '\n')
-            }
-            let cmd = target['generate-' + bit.platform.os] || target['generate-make'] || target['generate-sh'] || 
-                target.generate
-            if (cmd) {
-                cmd = cmd.trim().replace(/^\s*/mg, '\t')
-                cmd = cmd.replace(/\\\n\s*/mg, '')
-                cmd = cmd.replace(/^\t*(ifeq|ifneq|else|endif)/mg, '$1')
-                if (prefix || suffix) {
-                    if (cmd.startsWith('\t@')) {
-                        cmd = cmd.slice(2).replace(/^\s*(.*)$/mg, '\t@' + prefix + '; $1 ; ' + suffix)
-                    } else {
-                        cmd = cmd.replace(/^\s(.*)$/mg, '\t' + prefix + '; $1 ; ' + suffix)
-                    }
-                }
-                bit.globals.LBIN = '$(LBIN)'
-                cmd = expand(cmd, {fill: null}).expand(target.vars, {fill: '${}'})
-                cmd = repvar2(cmd, target.home)
-                bit.globals.LBIN = localBin
-                genWriteLine(cmd)
-            }
-
-        } else if (bit.generating == 'nmake') {
-            genTargetDeps(target)
-            if (target.path) {
-                genWrite(target.path.relative.windows + ':' + getTargetDeps() + '\n')
-            } else {
-                genWrite(target.name + ':' + getTargetDeps() + '\n')
-            }
-            let cmd = target['generate-' + bit.platform.os] || 
-                target['generate-nmake'] || target['generate-make'] || target['generate']
-            if (cmd) {
-                cmd = cmd.replace(/\\\n/mg, '')
-                cmd = cmd.trim().replace(/^cp /, 'copy ')
-                cmd = prefix + cmd + suffix
-                cmd = cmd.replace(/^[ \t]*/mg, '')
-                cmd = cmd.replace(/^([^!])/mg, '\t$&')
-                let saveDir = []
-                if (bit.platform.os == 'windows') {
-                    for (n in bit.globals) {
-                        if (bit.globals[n] is Path) {
-                            saveDir[n] = bit.globals[n]
-                            bit.globals[n] = bit.globals[n].windows
-                        }
-                    }
-                }
-                bit.globals.LBIN = '$(LBIN)'
-                try {
-                    cmd = expand(cmd, {fill: null}).expand(target.vars, {fill: '${}'})
-                } catch (e) {
-                    print('Target', target.name)
-                    print('Script:', cmd)
-                    throw e
-                }
-                if (bit.platform.os == 'windows') {
-                    for (n in saveDir) {
-                        bit.globals[n] = saveDir[n]
-                    }
-                }
-                cmd = repvar2(cmd, target.home)
-                bit.globals.LBIN = localBin
-                genWriteLine(cmd)
-            } else {
-                genout.write('#  Omit build script ' + target.name + '\n')
-            }
-        }
-    }
-
-    private function rep(s: String, pattern, replacement): String {
-        if (pattern) {
-            return s.replace(pattern, replacement)
-        }
-        return s
-    }
-
-    /*
-        Replace default defines, includes, libraries etc with token equivalents. This allows
-        Makefiles and script to be use variables to control various flag settings.
-     */
-    function repcmd(command: String): String {
-        if (bit.generating == 'make' || bit.generating == 'nmake') {
-            /* Twice because ldflags are repeated and replace only changes the first occurrence */
-            command = rep(command, gen.linker, '$(LDFLAGS)')
-            command = rep(command, gen.linker, '$(LDFLAGS)')
-            command = rep(command, gen.libpaths, '$(LIBPATHS)')
-            command = rep(command, gen.compiler, '$(CFLAGS)')
-            command = rep(command, gen.defines, '$(DFLAGS)')
-            command = rep(command, gen.includes, '$(IFLAGS)')
-            command = rep(command, gen.libraries, '$(LIBS)')
-            command = rep(command, RegExp(gen.configuration, 'g'), '$$(CONFIG)')
-            command = rep(command, bit.packs.compiler.path, '$(CC)')
-            command = rep(command, bit.packs.link.path, '$(LD)')
-            if (bit.packs.rc) {
-                command = rep(command, bit.packs.rc.path, '$(RC)')
-            }
-            for each (word in minimalCflags) {
-                command = rep(command, word, '')
-            }
-
-        } else if (bit.generating == 'sh') {
-            command = rep(command, gen.linker, '${LDFLAGS}')
-            command = rep(command, gen.linker, '${LDFLAGS}')
-            command = rep(command, gen.libpaths, '${LIBPATHS}')
-            command = rep(command, gen.compiler, '${CFLAGS}')
-            command = rep(command, gen.defines, '${DFLAGS}')
-            command = rep(command, gen.includes, '${IFLAGS}')
-            command = rep(command, gen.libraries, '${LIBS}')
-            command = rep(command, RegExp(gen.configuration, 'g'), '$${CONFIG}')
-            command = rep(command, bit.packs.compiler.path, '${CC}')
-            command = rep(command, bit.packs.link.path, '${LD}')
-            for each (word in minimalCflags) {
-                command = rep(command, word, '')
-            }
-        }
-        if (bit.generating == 'nmake') {
-            command = rep(command, '_DllMainCRTStartup@12', '$(ENTRY)')
-        }
-        command = rep(command, RegExp(bit.dir.top + '/', 'g'), '')
-        command = rep(command, /  */g, ' ')
-        if (bit.generating == 'nmake') {
-            command = rep(command, /\//g, '\\')
-        }
-        return command
-    }
-
-    /*
-        Replace with variables where possible.
-        Replaces the top directory and the CONFIGURATION
-     */
-    function repvar(command: String): String {
-        command = command.replace(RegExp(bit.dir.top + '/', 'g'), '')
-        if (bit.generating == 'make') {
-            command = command.replace(RegExp(gen.configuration, 'g'), '$$(CONFIG)')
-        } else if (bit.generating == 'nmake') {
-            command = command.replace(RegExp(gen.configuration, 'g'), '$$(CONFIG)')
-        } else if (bit.generating == 'sh') {
-            command = command.replace(RegExp(gen.configuration, 'g'), '$${CONFIG}')
-        }
-        for each (p in ['vapp', 'app', 'bin', 'inc', 'lib', 'man', 'base', 'web', 'cache', 'spool', 'log', 'etc']) {
-            if (bit.platform.like == 'windows') {
-                let pat = bit.prefixes[p].windows.replace(/\\/g, '\\\\')
-                command = command.replace(RegExp(pat, 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
-            }
-            command = command.replace(RegExp(bit.prefixes[p], 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
-        }
-        //  Work-around for replacing root prefix
-        command = command.replace(/"\/\//g, '"$$(BIT_ROOT_PREFIX)/')
-        return command
-    }
-
-    //  MOB - should merge repvar and repvar2
-    function repvar2(command: String, home: Path): String {
-        command = command.replace(RegExp(bit.dir.top, 'g'), bit.dir.top.relativeTo(home))
-        if (bit.platform.like == 'windows' && bit.generating == 'nmake') {
-            let re = RegExp(bit.dir.top.windows.name.replace(/\\/g, '\\\\'), 'g')
-            command = command.replace(re, bit.dir.top.relativeTo(home).windows)
-        }
-        if (bit.generating == 'make') {
-            command = command.replace(RegExp(gen.configuration, 'g'), '$$(CONFIG)')
-        } else if (bit.generating == 'nmake') {
-            command = command.replace(RegExp(gen.configuration + '\\\\bin/', 'g'), '$$(CONFIG)\\bin\\')
-            command = command.replace(RegExp(gen.configuration, 'g'), '$$(CONFIG)')
-        } else if (bit.generating == 'sh') {
-            command = command.replace(RegExp(gen.configuration, 'g'), '$${CONFIG}')
-        }
-        for each (p in ['vapp', 'app', 'bin', 'inc', 'lib', 'man', 'base', 'web', 'cache', 'spool', 'log', 'etc']) {
-            if (bit.platform.like == 'windows') {
-                let pat = gen[p].windows.replace(/\\/g, '\\\\')
-                command = command.replace(RegExp(pat, 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
-            }
-            command = command.replace(RegExp(gen[p], 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
-        }
-        //  Work-around for replacing root prefix
-        command = command.replace(/"\/\//g, '"$$(BIT_ROOT_PREFIX)/')
-        return command
-    }
-
-    function reppath(path: Path): String {
-        path = path.relative
-        if (bit.platform.like == 'windows') {
-            path = (bit.generating == 'nmake') ? path.windows : path.portable
-        } else if (Config.OS == 'windows' && bit.generating && bit.generating != 'nmake')  {
-            path = path.portable 
-        }
-        return repvar(path)
-    }
-
-    var nextID: Number = 0
-
-    function getTargetLibs(target)  {
-        return ' $(LIBS_' + nextID + ')'
-    }
-
-    function genTargetLibs(target, command): String {
-        let found
-        for each (lib in target.libraries) {
-            let dname = null
-            if (bit.targets['lib' + lib]) {
-                dname = 'lib' + lib
-            } else if (bit.targets[lib]) {
-                dname = lib
-            }
-            if (dname) {
-                let dep = bit.targets[dname]
-                if (dep.require) {
-                    if (bit.platform.os == 'windows') {
-                        genout.writeLine('!IF "$(BIT_PACK_' + dep.require.toUpper() + ')" == "1"')
-                        genout.writeLine('LIBS_' + nextID + ' = $(LIBS_' + nextID + ') lib' + lib + '.lib')
-                        genout.writeLine('!ENDIF')
-                    } else {
-                        genout.writeLine('ifeq ($(BIT_PACK_' + dep.require.toUpper() + '),1)')
-                        genout.writeLine('    LIBS_' + nextID + ' += -l' + lib)
-                        genout.writeLine('endif')
-                    }
-                } else {
-                    if (bit.platform.os == 'windows') {
-                        genout.writeLine('LIBS_' + nextID + ' = $(LIBS_' + nextID + ') lib' + lib + '.lib')
-                    } else {
-                        genout.writeLine('LIBS_' + nextID + ' += -l' + lib)
-                    }
-                }
-                found = true
-                if (bit.platform.os == 'windows') {
-                    command = command.replace(RegExp(' lib' + lib + '.lib ', 'g'), ' ')
-                } else {
-                    command = command.replace(RegExp(' -l' + lib + ' ', 'g'), ' ')
-                }
-            } else {
-                if (bit.platform.os == 'windows') {
-                    command = command.replace(RegExp(' lib' + lib + '.lib ', 'g'), ' ')
-                } else {
-                    command = command.replace(RegExp(' -l' + lib + ' ', 'g'), ' ')
-                }
-            }
-        }
-        if (found) {
-            genout.writeLine('')
-            command = command.replace('$(LIBS)', '$(LIBS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS)')
-        }
-        return command
-    }
-
-    function getTargetDeps(target)  {
-        return ' $(DEPS_' + nextID + ')'
-    }
-
-    /*
-        Get the dependencies of a target as a string
-     */
-    function genTargetDeps(target) {
-        nextID++
-        genout.writeLine('#\n#   ' + Path(target.name).basename + '\n#')
-        let found
-        if (target.type == 'file' || target.type == 'script' || target.type == 'action') {
-            for each (file in target.files) {
-                if (bit.platform.os == 'windows') {
-                    genout.writeLine('DEPS_' + nextID + ' = $(DEPS_' + nextID + ') ' + reppath(file))
-                } else {
-                    genout.writeLine('DEPS_' + nextID + ' += ' + reppath(file))
-                }
-                found = true
-            }
-        }
-        if (target.depends && target.depends.length > 0) {
-            for each (let dname in target.depends) {
-                let dep = bit.targets[dname]
-                if (dep && dep.enable) {
-                    let d = (dep.path) ? reppath(dep.path) : dep.name
-                    if (dep.require) {
-                        if (bit.platform.os == 'windows') {
-                            genout.writeLine('!IF "$(BIT_PACK_' + dep.require.toUpper() + ')" == "1"')
-                            genout.writeLine('DEPS_' + nextID + ' = $(DEPS_' + nextID + ') ' + d)
-                            genout.writeLine('!ENDIF')
-                        } else {
-                            genout.writeLine('ifeq ($(BIT_PACK_' + dep.require.toUpper() + '),1)')
-                            genout.writeLine('    DEPS_' + nextID + ' += ' + d)
-                            genout.writeLine('endif')
-                        }
-                    } else {
-                        if (bit.platform.os == 'windows') {
-                            genout.writeLine('DEPS_' + nextID + ' = $(DEPS_' + nextID + ') ' + d)
-                        } else {
-                            genout.writeLine('DEPS_' + nextID + ' += ' + d)
-                        }
-                    }
-                    found = true
-                }
-            }
-        }
-        if (found) {
-            genout.writeLine('')
-        }
-    }
-
     /**
         Set top level constant variables. This enables them to be used in token expansion.
         @hide.
@@ -3276,7 +1752,6 @@ public class Bit {
         if (bit.ccArch) {
             g.CC_ARCH = bit.ccArch[bit.platform.arch] || bit.platform.arch
         }
-        //MOB  RENAME from g.CONFIG
         g.CONFIG = bit.platform.name
         g.EXE = bit.ext.dotexe
         g.LIKE = bit.platform.like
@@ -3313,7 +1788,7 @@ public class Bit {
         }
     }
 
-    function setRuleVars(target, base: Path = App.dir) {
+    public function setRuleVars(target, base: Path = App.dir) {
         let tv = target.vars || {}
         if (target.home) {
             tv.HOME = Path(target.home).relativeTo(base)
@@ -3341,7 +1816,6 @@ public class Bit {
             }
             tv.INPUT = target.files.map(function(p) p.relativeTo(base)).join(' ')
             tv.LIBNAME = target.path.basename
-            //  MOB unused
             tv.DEF = Path(target.path.relativeTo(base).toString().replace(/dll$/, 'def'))
             tv.LIBS = mapLibs(target.libraries, target.static)
             tv.LDFLAGS = (target.linker) ? target.linker.join(' ') : ''
@@ -3371,10 +1845,7 @@ public class Bit {
         target.vars = tv
     }
 
-    /*
-        Set the PATH and LD_LIBRARY_PATH environment variables
-     */
-    function setPathEnvVar(bit) {
+    function applyEnv(bit) {
         let outbin = Path('.').join(bit.platform.name, 'bin').absolute
         let sep = App.SearchSeparator
         if (bit.generating) {
@@ -3397,12 +1868,16 @@ public class Bit {
             }
             global.TARGET = bit.target = target
             try {
-                if (item.interpreter != 'ejs') {
-                    runShell(target, item.interpreter, item.script)
+                if (item.interpreter == 'ejs') {
+                    if (item.script is Function) {
+                        item.script.call(this, target)
+                    } else {
+                        let script = expand(item.script).expand(target.vars, {fill: ''})
+                        script = 'require ejs.unix\n' + script
+                        eval(script)
+                    }
                 } else {
-                    let script = expand(item.script).expand(target.vars, {fill: ''})
-                    script = 'require ejs.unix\n' + script
-                    eval(script)
+                    runShell(target, item.interpreter, item.script)
                 }
             } finally {
                 App.chdir(pwd)
@@ -3412,22 +1887,23 @@ public class Bit {
         }
     }
 
-    function runScript(scripts) {
-        for each (item in scripts) {
+    public function runScript(scripts, event) {
+        for each (item in scripts[event]) {
             let pwd = App.dir
             if (item.home && item.home != pwd) {
                 App.chdir(expand(item.home))
             }
             try {
-                script = 'require ejs.unix\n' + expand(item.script)
-                eval(script)
+                if (item.script is Function) {
+                    item.script.call(this, event)
+                } else {
+                    script = 'require ejs.unix\n' + expand(item.script)
+                    eval(script)
+                }
             } finally {
                 App.chdir(pwd)
             }
         }
-    }
-
-    function setShellEnv(target, script) {
     }
 
     function runShell(target, interpreter, script) {
@@ -3436,14 +1912,13 @@ public class Bit {
         strace('Run', command)
         let interpreter = Cmd.locate(interpreter)
         let cmd = new Cmd
-        setShellEnv(target, cmd)
         cmd.start([interpreter, "-c", command.toString().trimEnd('\n')], {noio: true})
         if (cmd.status != 0 && !options['continue']) {
             throw 'Command failure: ' + command + '\nError: ' + cmd.error
         }
     }
 
-    function mapLibPaths(libpaths: Array, base: Path = App.dir): String {
+    public function mapLibPaths(libpaths: Array, base: Path = App.dir): String {
         if (bit.platform.os == 'windows') {
             return libpaths.map(function(p) '-libpath:' + p.relativeTo(base)).join(' ')
         } else {
@@ -3494,9 +1969,6 @@ public class Bit {
         Test if a target is stale vs the inputs AND dependencies
      */
     function stale(target) {
-        if (target.built) {
-            return false
-        }
         if (bit.generating) {
             return !target.nogen
         }
@@ -3512,8 +1984,6 @@ public class Bit {
             return true
         }
         for each (file in target.files) {
-            //  MOB - unused
-            //  MOB - expand
             if (target.subtree) {
                 let p = path.join(file.trimStart(target.subtree + '/'))
                 if (!file.isDir && file.modified > p.modified) {
@@ -3602,7 +2072,7 @@ public class Bit {
                     break
                 }
                 if (options.why) {
-                    trace('Warn', 'Can\'t resolve include: ' + path.relative + ' for ' + target.name)
+                    trace('Warn', 'Cannot resolve include: ' + path.relative + ' for ' + target.name)
                 }
                 path = null
             }
@@ -3617,7 +2087,7 @@ public class Bit {
         for each (header in depends) {
             if (!bit.targets[header]) {
                 bit.targets[header] = { name: header, enable: true, path: Path(header),
-                    type: 'header', files: [ header ], vars: {}, includes: target.includes }
+                    type: 'header', goals: [target.name], files: [ header ], includes: target.includes }
             }
             let h = bit.targets[header]
             if (h && !h.makedep) {
@@ -3727,7 +2197,7 @@ public class Bit {
     /*
         Make required output directories (carefully). Only make dirs inside the 'src' or 'top' directories.
      */
-    function makeOutDirs() {
+    public function makeOutDirs() {
         for each (d in bit.dir) {
             if (d.startsWith(bit.dir.top) || d.startsWith(bit.dir.src)) {
                 d.makeDir()
@@ -3756,18 +2226,7 @@ public class Bit {
     }
 
     /** 
-        Generate a trace line.
-        @param tag Informational tag emitted before the message
-        @param args Message args to display
-     */
-    public function gtrace(tag: String, ...args): Void {
-        let msg = args.join(" ")
-        let msg = "\t@echo '%12s %s'" % (["[" + tag + "]"] + [msg]) + "\n"
-        genout.write(repvar(msg))
-    }
-
-    /** 
-        Emit general trace
+        Emit trace
         @param tag Informational tag emitted before the message
         @param args Message args to display
      */
@@ -3847,7 +2306,7 @@ public class Bit {
         case 'cleanTargets':
             for each (target in bit.targets) {
                 if (target.enable && target.path && targetsToClean[target.type]) {
-                    if (!target.built && !target.precious && !target.nogen) {
+                    if (!target.precious && !target.nogen) {
                         if (bit.generating == 'make') {
                             genWriteLine('\trm -rf ' + reppath(target.path))
 
@@ -3878,21 +2337,6 @@ public class Bit {
             }
             break
         }
-    }
-
-    /** @hide */
-    public function genWriteLine(str) {
-        genout.writeLine(repvar(str))
-    }
-
-    /** @hide */
-    public function genWrite(str) {
-        genout.write(repvar(str))
-    }
-
-    /** @hide */
-    public function genScript(str: String) {
-        capture.push(str)
     }
 
     function like(os) {
@@ -3967,16 +2411,6 @@ public class Bit {
 
     /** @hide */
     public function safeRemove(dir: Path) {
-/* UNUSED MOB
-        if (dir.isAbsolute)  {
-            //  Comparison with top doesn't handle C: vs c:
-            if (bit.dir.top.same('/') || !dir.startsWith(bit.dir.top)) {
-                if (!options.force) {
-                    throw new Error('Unsafe attempt to remove ' + dir + ' expected parent ' + bit.dir.top)
-                }
-            }
-        }
-*/
         dir.removeAll()
     }
 
@@ -3991,16 +2425,16 @@ public class Bit {
         return os + '-' + arch + '-' + profile
     }
 
-    function verifyPlatforms() {
+    public function verifyPlatforms() {
         for (i in platforms) {
             platforms[i] = verifyPlatform(platforms[i])
         }
     }
 
     /*
-        Make a bit object. This may optionally load a bit file over the initialized object
+        Make a bit object. This will load the required bit files.
      */
-    function makeBit(platform: String, bitfile: Path) {
+    public function makeBit(platform: String, bitfile: Path) {
         let [os, arch, profile] = platform.split('-') 
         let [arch,cpu] = (arch || '').split(":")
         let kind = like(os)
@@ -4100,14 +2534,12 @@ public class Bit {
         applyProfile()
         bit.standardSettings = bit.settings.clone(true)
         applyCommandLineOptions(platform)
-        applyEnv()
-        setPathEnvVar(bit)
+        applyEnv(bit)
         castDirTypes()
         if (samePlatform(platform, localPlatform)) {
             bit.globals.LBIN = localBin = bit.dir.bin.portable
         }
-        //  MOB - fix when an arry of scripts is supported
-        runScript(bit.scripts.loaded)
+        runScript(bit.scripts, "loaded")
     }
 
     function samePlatform(p1, p2): Boolean {
@@ -4117,7 +2549,7 @@ public class Bit {
         return os1 == os2 && arch1 == arch2
     }
 
-    function quickLoad(bitfile: Path) {
+    public function quickLoad(bitfile: Path) {
         global.bit = bit = makeBareBit()
         bit.quickLoad = true
         loadBitFile(bitfile)
@@ -4136,8 +2568,6 @@ public class Bit {
         let old = bit
         bit = bareBit.clone(true)
         bit.platforms = old.platforms
-        //  MOB - remove
-        //UNUSED bit.cross = old.cross || false
         return bit
     }
 
@@ -4166,16 +2596,16 @@ public class Bit {
         return s.expand(bit.globals, options)
     }
 
-    function expandRule(target, rule) {
+    public function expandRule(target, rule) {
         setRuleVars(target)
         let result = expand(rule).expand(target.vars, {fill: ''})
-        target.vars = {}
+        // target.vars = {}
         return result
     }
 
     let VER_FACTOR = 1000                                                                            
 
-    function makeVersion(version: String): Number {
+    public function makeVersion(version: String): Number {
         let parts = version.trim().split(".")
         let patch = 0, minor = 0
         let major = parts[0] cast Number
@@ -4231,7 +2661,6 @@ public class Bit {
         for each (let pattern: Path in src) {
             let dir: Path, destBase: Path
             pattern = Path(expand(pattern))
-            //  MOB BUG workaround
             let doContents = pattern.name.endsWith('/')
             pattern = pattern.trimEnd('/')
             if (pattern.isDir) {
@@ -4262,7 +2691,7 @@ public class Bit {
             for each (let from: Path in list) {
                 let from = from.portable
                 if (subtree) {
-                    to = dest.join(from.trimStart(subtree.name + '/'))
+                    to = dest.join(from.trimStart(Path(subtree).name + '/'))
                 } else if (destIsDir) {
                     to = dest.join(from.basename)
                 } else {
@@ -4302,7 +2731,6 @@ public class Bit {
                             makeDir(to, options)
                         } else {
                             try {
-                                //UNUSED trace('Copy', to.relative)
                                 copyFile(from, to, attributes)
                             } catch (e) {
                                 if (options.active) {
@@ -4361,24 +2789,6 @@ public class Bit {
             to.append(options.footer + '\n')
         }
     }
-    /* MOB UNUSED install only
-        if (App.uid == 0 && to.extension == 'so' && Config.OS == 'linux') {
-            let ldconfig = Cmd.locate('ldconfig')
-            if (ldconfig) {
-                Cmd.run('ldconfig ' + to)
-            }
-        }
-    */
-        //  if (to.extension == bit.ext.shobj)
-        //  MOB - check this
-        //  for each (f in abin.files('*.so.*')) {
-        //      let nover = to.basename.name.replace(/\.[0-9]*.*/, '.so')
-        //      to.remove()
-        //      to.symlink(to.dirname.join(nover).basename)
-        //      //MOB - not right
-        //      options.filelist.push(to)
-        //  }
-        //
 
     /*
         Fold long lines at column 80. On windows, will also convert line terminatations to <CR><LF>.
@@ -4406,8 +2816,6 @@ public class Bit {
         out.close()
     }
 
-
-    //  MOB - unify all/most writes to go through here
     function genrep(s) {
         genout.writeLine(repvar(s))
     }
@@ -4518,7 +2926,6 @@ public class Bit {
         }
     }
 
-
     /**
         Remove a directory.
         This removes a directory and all its contents include subdirectories. Use the 'empty' option to only remove
@@ -4573,6 +2980,9 @@ public class Bit {
     public function copyFile(src: Path, dest: Path, options = {}) {
         if (!bit.generating) {
             strace('Copy', 'cp ' + src.portable + ' ' + dest.portable)
+            if (src.same(dest)) {
+                throw new Error('Cannot copy file. Source is the same as destination: ' + src)
+            }
             if (!options.dry) {
                 src.copy(dest)
             }
@@ -4588,6 +2998,9 @@ public class Bit {
             }
             if (dest.startsWith(pwd)) {
                 dest = dest.relative
+            }
+            if (src == dest) {
+                throw new Error('Cannot copy file. Source is the same as destination: ' + src)
             }
             if (bit.generating == 'nmake') {
                 genrep('\tcopy /Y "' + src.windows + '" "' + dest.windows + '"')
@@ -4650,7 +3063,6 @@ public class Bit {
 } /* bit class */
 
 } /* bit module */
-
 
 /*
     Global functions for bit files
@@ -4738,11 +3150,6 @@ public function vtrace(tag, ...args)
 /** @duplicate Bit.copy */
 public function copy(src, dest: Path, options = {})
     b.copy(src, dest, options)
-
-/* UNUSED
-public function package(formats)
-    b.package(formats)
-*/
 
 /** @duplicate Bit.run */
 public function run(command, cmdOptions = {}): String

@@ -54,27 +54,56 @@
         </div>
         <div class="contentLeft">
         <a id="events"></a>
-        <h2>Build Events</h2>
-        <p>During processing, Bit will fire events that may trigger scripts to run. Here is a list of events 
-        in order of firing:</p>
+        <h2>Bit Events</h2>
+        <p>During processing, Bit will fire events that may trigger scripts to run. There are two groups of events:</p>
+        <ul>
+            <li>Global Events</li>
+            <li>Target Events</li>
+        </ul>
+        <p>The global events are triggered for general Bit processing and do not apply to a specific target. Target
+        events apply to the current target being built. The current target is defined in the <em>bit.target</em> property or
+        the global TARGET property.</p>
+
+        <h3>Global Events</h3>
+        <table title="events">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>preblend</td><td>Fired before blending a bit file into the DOM.</td></tr>
+                <tr><td>postload</td><td>Fired after loading and blending a bit file into the DOM.</td></tr>
+                <tr><td>loaded</td><td>Fired after all the required bit files are loaded.</td></tr>
+                <tr><td>preinherit</td><td>Fired after all bit files are loaded and before before targets inherit default
+                    properties.</td></tr>
+                <tr><td>postconfig</td><td>Fired during configuration just prior to creating the platform bit file.</td></tr>
+                <tr><td>prebitheader</td><td>Fired during configuration after creating the platform bit file and just prior
+                    to creating the bit.h file.</td></tr>
+                <tr><td>pregen</td><td>Fired during project generation after creating the output project file but 
+                    before emitting any content to the project.</td></tr> 
+                <tr><td>gencustom</td><td>Fired during project generation after emitting top level definitions but before
+                    emitting the targets. This event is the opportunity to write custom variables and targets to the
+                    project.</td></tr> 
+            </tbody>
+        </table>
+
+        <h3>Target Events</h3>
+        <p>Here are the target events in order of firing</p>
         <table title="events">
             <thead>
                 <tr><th>Name</th><th>Description</th>
             </thead>
             <tbody>
                 <tr><td>preblend</td><td>Fired before blending a bit file into the DOM.
-                        This is fired for bit file scripts (not target scripts).</td></tr>
+                    This is fired for bit file scripts (not target scripts).</td></tr>
                 <tr><td>postload</td><td>Fired after loading and blending a bit file into the DOM.
-                        This is fired for bit file scripts (not target scripts).</td></tr>
+                    This is fired for bit file scripts (not target scripts).</td></tr>
                 <tr><td>postblend</td><td>Fired after blending defaults into a target.</td></tr>
                 <tr><td>preresolve</td><td>Fired before resolving dependencies for a target</td></tr>
                 <tr><td>postresolve</td><td>Fired after resolving dependencies for a target</td></tr>
                 <tr><td>presource</td><td>Fired before expanding source wildcards and creating object targets</td></tr>
                 <tr><td>postsource</td><td>Fired after expanding source wildcards and creating object targets</td></tr>
-                <tr><td>preinherit</td><td>Fired after all bit files are loaded and before before targets inherit default properties.
-                    This is fired for bit file scripts (not target scripts).</td></tr>
-                <tr><td>predependencies</td><td>Fired before processing a target's dependencies</td></tr>
-                <tr><td>postdependencies</td><td>Fired after processing a target's dependencies</td></tr>
+                <tr><td>preinherit</td><td>Fired after all bit files are loaded and before before targets inherit default
+                    properties.  This is fired for bit file scripts (not target scripts).</td></tr>
                 <tr><td>precompile</td><td>Fired before compiling a source file used by a target</td></tr>
                 <tr><td>postcompile</td><td>Fired after compiling a source file used by a target</td></tr>
                 <tr><td>prebuild</td><td>Fired before building a target</td></tr>
@@ -82,6 +111,7 @@
                 <tr><td>postbuild</td><td>Fired after building a target</td></tr>
             </tbody>
         </table>
+
         <a name="scripts"></a>
         <h2>Defining Scripts</h2>
         <p>Scripts can be defined to run when the required event is triggered. 
@@ -106,6 +136,7 @@ rocket: {
             interpreter: 'ejs',
         }],
     },
+    goals: ['rocket'],
 },
 </pre>
             <p>For more details on how to set the home directory for the script or to specify 

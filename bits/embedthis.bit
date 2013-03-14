@@ -158,10 +158,6 @@ Bit.load({
             ",
         }
 
-        version: {
-            action: "print(bit.settings.version + '-' + bit.settings.buildNumber)",
-        },
-
         /*
             Documentation targets 
          */
@@ -177,7 +173,7 @@ Bit.load({
             Generate the man pages in the source tree
          */
         man: {
-            depends: ['build'],
+            depends: ['all'],
             action: "
                 for each (file in ls(['${SRC}/doc/man/*.1', '${SRC}/doc/man/*.3'])) {
                     let name = file.basename
@@ -279,13 +275,13 @@ Bit.load({
             home: '${TOP}',
             action: ' ',
             generate: ' ',
-            depends: [ 'build', 'stop', 'installBinary', 'start' ],
+            depends: [ 'all', 'stop', 'installBinary', 'start' ],
         },
 
         installBinary: {
             home: '${TOP}',
             action: "installBinary()",
-            depends: [ 'build', 'stop' ],
+            depends: [ 'all', 'stop' ],
             'generate-action': true,
         },
 
@@ -302,32 +298,32 @@ Bit.load({
 
         packageBinary: {
             home: '${TOP}',
-            depends: ['build'],
+            depends: ['all'],
             action: "packageBinary()",
         },
 
         packageSource: {
             home: '${TOP}',
-            depends: ['build'],
+            depends: ['all'],
             action: "packageSource()",
         },
 
         packageCombo: {
             home: '${TOP}',
-            depends: ['build'],
+            depends: ['all'],
             action: "packageCombo()",
         },
 
         packageFlat: {
             home: '${TOP}',
-            depends: ['build'],
+            depends: ['all'],
             action: "packageFlat()",
         },
 
         uninstall: {
             home: '${TOP}',
             action: "uninstallBinary()",
-            depends: [ 'build', 'stop' ],
+            depends: [ 'all', 'stop' ],
             'generate-action': true,
             generate: ' ',
         },
@@ -377,8 +373,8 @@ Bit.load({
         },
 
         /* Default stubs */
-        start: { action: ' ', generate: ' '},
-        stop: { action: ' ', generate: ' '},
+        start: { action: '', 'generate-capture': true},
+        stop: { action: '', 'generate-capture': true},
 
         updateLicense: {
             action: "

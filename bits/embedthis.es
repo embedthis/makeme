@@ -19,7 +19,6 @@ public function deploy(manifest, prefixes, package): Array {
     let made = {}
     for each (item in manifest.files) {
         if (bit.options.verbose) {
-            //  MOB - remove
             dump("Consider", item)
         }
         for (let [key,value] in item) {
@@ -39,11 +38,17 @@ public function deploy(manifest, prefixes, package): Array {
         let name = item.name || serialize(item)
         let enable = true
 
-        if (item.require && (!bit.packs[item.require] || !bit.packs[item.require].enable)) {
-            skip(name, 'Required pack is not enabled')
-            enable = false
+        if (item.require) {
+            for each (r in item.require) {
+                if ((!bit.packs[r] || !bit.packs[r].enable)) {
+                    skip(name, 'Required pack ' + r + ' is not enabled')
+                    enable = false
+                    break
+                }
+            }
 
-        } else if (item.enable) {
+        } 
+        if (enable && item.enable) {
             if (!(item.enable is Boolean)) {
                 let script = expand(item.enable)
                 try {
@@ -76,10 +81,12 @@ public function deploy(manifest, prefixes, package): Array {
                 eval('require ejs.unix\n' + expand(item.precopy))
             }
             if (item.require && bit.generating) {
-                if (bit.platform.os == 'windows') {
-                    genWriteLine('!IF "$(BIT_PACK_' + item.require.toUpper() + ')" == "1"')
-                } else {
-                    genWriteLine('ifeq ($(BIT_PACK_' + item.require.toUpper() + '),1)')
+                for each (r in item.require) {
+                    if (bit.platform.os == 'windows') {
+                        genWriteLine('!IF "$(BIT_PACK_' + r.toUpper() + ')" == "1"')
+                    } else {
+                        genWriteLine('ifeq ($(BIT_PACK_' + r.toUpper() + '),1)')
+                    }
                 }
             }
             if (item.dir) {
@@ -90,6 +97,9 @@ public function deploy(manifest, prefixes, package): Array {
                 }
             }
             if (item.from) {
+dump('DDD', item)
+print("FROM", item.from)
+print("TO", item.to)
                 copy(item.from, item.to, item)
             }
             if (item.write) {
@@ -104,10 +114,12 @@ public function deploy(manifest, prefixes, package): Array {
                 }
             }
             if (item.require && bit.generating) {
-                if (bit.platform.os == 'windows') {
-                    genWriteLine('!ENDIF')
-                } else {
-                    genWriteLine('endif')
+                for each (r in item.require.length) {
+                    if (bit.platform.os == 'windows') {
+                        genWriteLine('!ENDIF')
+                    } else {
+                        genWriteLine('endif')
+                    }
                 }
             }
             if (item.postcopy) {
@@ -157,6 +169,11 @@ function setupManifest(kind, package, prefixes) {
         package.prefixes = (inherit.packages[kind].prefixes + package.prefixes).unique()
     } else {
         manifest = bit.manifest.clone()
+    }
+    for each (item in manifest.files) {
+        if (item.require && !(item.require is Array)) {
+            item.require = [item.require]
+        }
     }
     return manifest
 }

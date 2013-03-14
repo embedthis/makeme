@@ -106,10 +106,12 @@ Bit.load({
     },
 
     targets: {
-        'bit.es': {
-            type: 'file',
+        'bit.mod': {
+            path: '${BIN}/bits/bit.mod',
+            files: [ 'bits/bit.es' ],
             precious: true,
-            files: [ 'src/bit.es' ],
+            run: '${BIN}/ejsc --out ${BIN}/bits/bit.mod --optimize 9 bits/bit.es',
+            depends: [ 'ejsc', 'bits' ],
         },
 
         'bit': {
@@ -120,7 +122,7 @@ Bit.load({
             static: false,
             active: true,
             precious: true,
-            depends: [ 'libmpr', 'libhttp', 'libejs', 'bits', 'bit.es' ],
+            depends: [ 'libmpr', 'libhttp', 'libejs', 'bits', 'bit.mod' ],
         },
 
         bits: {

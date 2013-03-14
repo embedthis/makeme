@@ -39,7 +39,6 @@ Bit.load({
                 set:    'core',
 
             },{ from: [
-                    '${BIN}/bit.es',
                     '${BIN}/ca.crt',
                     '${BIN}/ejs.mod',
                     '${BIN}/libejs${SHOBJ}',
@@ -52,9 +51,9 @@ Bit.load({
                 to:     '${abin}/',
                 set:    'core',
 
-            },{ from:   'bits/**',
-                to:     '${abin}/',
-                subtree:'bits',
+            },{ from:   '${BIN}/bits/**',
+                to:     '${abin}/bits',
+                subtree:'${BIN}/bits',
                 set:    'core',
 
             },{ from:   'doc/man/bit.1',

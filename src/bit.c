@@ -1,5 +1,5 @@
 /**
-    bit.c - Run the bit.es script.
+    bit.c - Run the bit.es|bit.mod script.
 
     This program runs a script of the same name as this script.
 
@@ -13,11 +13,13 @@
 /*********************************** Locals ***********************************/
 
 typedef struct App {
-    Ejs         *ejs;
+    Ejs     *ejs;
+    cchar   *script;
 } App;
 
 static App *app;
 
+static cchar *findBitScript();
 static void manageApp(App *app, int flags);
 
 /************************************ Code ************************************/
@@ -27,7 +29,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
     Mpr         *mpr;
     Ejs         *ejs;
     EcCompiler  *ec;
-    char    *argp, *searchPath, *path, *homeDir;
+    char    *argp, *searchPath, *homeDir;
     int     nextArg, err, flags;
 
     /*  
@@ -96,18 +98,18 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
             /* Ignore */
         }
     }
-    path = mprJoinPath(mprGetAppDir(), mprGetPathBase(argv[0]));
-    path = mprReplacePathExt(path, ".es");
-    mprAddRoot(path);
-    argv[0] = path;
-    if ((ejs = ejsCreateVM(argc, (cchar **) &argv[0], 0)) == 0) {
+    app->script = findBitScript();
+    mprLog(2, "Using bit script %s", app->script);
+
+    argv[0] = (char*) app->script;
+    if ((ejs = ejsCreateVM(argc, (cchar**) &argv[0], 0)) == 0) {
         return MPR_ERR_MEMORY;
     }
     app->ejs = ejs;
     if (ejsLoadModules(ejs, searchPath, NULL) < 0) {
         return MPR_ERR_CANT_READ;
     }
-    mprTrace(2, "Load script \"%s\"", path);
+    mprTrace(2, "Load script \"%s\"", app->script);
     flags = EC_FLAGS_BIND | EC_FLAGS_DEBUG | EC_FLAGS_NO_OUT | EC_FLAGS_THROW;
     if ((ec = ecCreateCompiler(ejs, flags)) == 0) {
         return MPR_ERR_MEMORY;
@@ -115,7 +117,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
     mprAddRoot(ec);
     ecSetOptimizeLevel(ec, 9);
     ecSetWarnLevel(ec, 1);
-    if (ecCompile(ec, 1, (char**) &path) < 0) {
+    if (ecCompile(ec, 1, (char**) &app->script) < 0) {
         if (flags & EC_FLAGS_THROW) {
             ejsThrowSyntaxError(ejs, "%s", ec->errorMsg ? ec->errorMsg : "Cannot parse script");
             ejsReportError(ejs, "Error in script");
@@ -146,6 +148,17 @@ static void manageApp(App *app, int flags)
     }
 }
 
+
+static cchar *findBitScript()
+{
+    cchar    *path;
+
+    path = "bits/bit.mod"; if (mprPathExists(path, R_OK)) return path;
+    path = mprJoinPath(mprGetAppDir(), "bits/bit.mod"); if (mprPathExists(path, R_OK)) return path;
+    path = "bits/bit.es"; if (mprPathExists(path, R_OK)) return path;
+    path = mprJoinPath(mprGetAppDir(), "bits/bit.es"); if (mprPathExists(path, R_OK)) return path;
+    return 0;
+}
 
 /*
     @copy   default
