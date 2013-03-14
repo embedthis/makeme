@@ -13,11 +13,11 @@ Bit.load({
 
     targets: {
         clean: {
-            action: "action('cleanTargets')",
+            action: "builtin('cleanTargets')",
         },
 
         compile: {
-            depends: ['build'],
+            depends: ['all'],
         },
 
         rebuild: {

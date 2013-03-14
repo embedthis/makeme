@@ -79,14 +79,13 @@ module embedthis.bit {
 
     function generateTarget(target) {
         if (target.require) {
-            if (bit.platform.os == 'windows') {
-                genout.writeLine('!IF "$(BIT_PACK_' + target.require.toUpper() + ')" == "1"')
-            } else {
-                genWriteLine('ifeq ($(BIT_PACK_' + target.require.toUpper() + '),1)')
+            for each (r in target.require) {
+                if (bit.platform.os == 'windows') {
+                    genout.writeLine('!IF "$(BIT_PACK_' + r.toUpper() + ')" == "1"')
+                } else {
+                    genWriteLine('ifeq ($(BIT_PACK_' + r.toUpper() + '),1)')
+                }
             }
-        }
-        if (target.dir) {
-            generateDir(target)
         }
         if (target.generateScript) {
             generateScript(target)
@@ -107,12 +106,16 @@ module embedthis.bit {
             generateResource(target)
         } else if (target.type == 'run') {
             generateRun(target)
+        } else if (target.dir) {
+            generateDir(target, true)
         }
         if (target.require) {
-            if (bit.platform.os == 'windows') {
-                genWriteLine('!ENDIF')
-            } else {
-                genWriteLine('endif')
+            for (i in target.require.length) {
+                if (bit.platform.os == 'windows') {
+                    genWriteLine('!ENDIF')
+                } else {
+                    genWriteLine('endif')
+                }
             }
         }
         genWriteLine('')
@@ -235,8 +238,10 @@ module embedthis.bit {
     function generatePackDflags() {
         let requiredTargets = {}
         for each (target in bit.targets) {
-            if (target.require && bit.packs[target.require]) {
-                requiredTargets[target.require] = true
+            for each (r in target.require) {
+                if (bit.packs[r]) {
+                    requiredTargets[r] = true
+                }
             }
         }
         let dflags = ''
@@ -251,8 +256,10 @@ module embedthis.bit {
     function generatePackDefs() {
         let requiredTargets = {}
         for each (target in bit.targets) {
-            if (target.require && bit.packs[target.require]) {
-                requiredTargets[target.require] = true
+            for each (r in target.require) {
+                if (bit.packs[r]) {
+                    requiredTargets[r] = true
+                }
             }
         }
         for (let [name, pack] in bit.packs) {
@@ -347,7 +354,7 @@ module embedthis.bit {
         genout.writeLine('\t\tcp projects/' + pop + '-bit.h $(CONFIG)/inc/bit.h  ; \\')
         genout.writeLine('\tfi; true\n')
         genout.writeLine('clean:')
-        action('cleanTargets')
+        builtin('cleanTargets')
         genout.writeLine('\nclobber: clean\n\trm -fr ./$(CONFIG)\n')
         b.build()
         genout.close()
@@ -416,7 +423,7 @@ module embedthis.bit {
         genout.writeLine('\t@if not exist $(CONFIG)\\obj md $(CONFIG)\\obj')
         genout.writeLine('\t@if not exist $(CONFIG)\\inc\\bit.h ' + 'copy projects\\' + pop + '-bit.h $(CONFIG)\\inc\\bit.h\n')
         genout.writeLine('clean:')
-        action('cleanTargets')
+        builtin('cleanTargets')
         genout.writeLine('')
         b.build()
         genout.close()
@@ -490,12 +497,24 @@ module embedthis.bit {
         for each (target in b.topTargets) {
             if (target.path && target.enable && !target.nogen) {
                 if (target.require) {
+                    for each (r in target.require) {
+                        if (bit.platform.os == 'windows') {
+                            genout.writeLine('!IF "$(BIT_PACK_' + r.toUpper() + ')" == "1"')
+                        } else {
+                            genout.writeLine('ifeq ($(BIT_PACK_' + r.toUpper() + '),1)')
+                        }
+                    }
                     if (bit.platform.os == 'windows') {
-                        genout.writeLine('!IF "$(BIT_PACK_' + target.require.toUpper() + ')" == "1"')
                         genout.writeLine('TARGETS           = $(TARGETS) ' + reppath(target.path))
                     } else {
-                        genout.writeLine('ifeq ($(BIT_PACK_' + target.require.toUpper() + '),1)')
                         genout.writeLine('TARGETS           += ' + reppath(target.path))
+                    }
+                    for (i in target.require.length) {
+                        if (bit.platform.os == 'windows') {
+                            genout.writeLine('!ENDIF')
+                        } else {
+                            genout.writeLine('endif')
+                        }
                     }
                 } else {
                     if (bit.platform.os == 'windows') {
@@ -504,26 +523,23 @@ module embedthis.bit {
                         genout.writeLine('TARGETS           += ' + reppath(target.path))
                     }
                 }
-                if (target.require) {
-                    if (bit.platform.os == 'windows') {
-                        genout.writeLine('!ENDIF')
-                    } else {
-                        genout.writeLine('endif')
-                    }
-                }
             }
         }
         genout.writeLine('')
     }
 
-    function generateDir(target) {
-        if (bit.generating == 'sh') {
-            makeDir(target.dir)
+    function generateDir(target, solo = false) {
+        if (target.dir) {
+            if (bit.generating == 'sh') {
+                makeDir(target.dir)
 
-        } else if (bit.generating == 'make' || bit.generating == 'nmake') {
-            genTargetDeps(target)
-            genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
-            makeDir(target.dir)
+            } else if (bit.generating == 'make' || bit.generating == 'nmake') {
+                if (solo) {
+                    genTargetDeps(target)
+                    genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
+                }
+                makeDir(target.dir)
+            }
         }
     }
 
@@ -544,6 +560,7 @@ module embedthis.bit {
             command = genTargetLibs(target, repcmd(command))
             genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
             gtrace('Link', target.name)
+            generateDir(target)
             genout.writeLine('\t' + command)
         }
     }
@@ -566,6 +583,7 @@ module embedthis.bit {
             command = command.replace(/-arch *\S* /, '')
             genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
             gtrace('Link', target.name)
+            generateDir(target)
             genout.writeLine('\t' + command)
         }
     }
@@ -587,6 +605,7 @@ module embedthis.bit {
             genTargetDeps(target)
             genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
             gtrace('Link', target.name)
+            generateDir(target)
             genout.writeLine('\t' + command)
         }
     }
@@ -628,6 +647,7 @@ module embedthis.bit {
                 genTargetDeps(target)
                 genout.write(reppath(target.path) + ': \\\n    ' + file.relative + getDepsVar() + '\n')
                 gtrace('Compile', file.relativeTo('.'))
+                generateDir(target)
                 genout.writeLine('\t' + command)
 
             } else if (bit.generating == 'nmake') {
@@ -636,6 +656,7 @@ module embedthis.bit {
                 genTargetDeps(target)
                 genout.write(reppath(target.path) + ': \\\n    ' + file.relative.windows + getDepsVar() + '\n')
                 gtrace('Compile', file.relativeTo('.'))
+                generateDir(target)
                 genout.writeLine('\t' + command)
             }
         }
@@ -665,6 +686,7 @@ module embedthis.bit {
                 genTargetDeps(target)
                 genout.write(reppath(target.path) + ': \\\n        ' + file.relative + getDepsVar() + '\n')
                 gtrace('Compile', file.relativeTo('.'))
+                generateDir(target)
                 genout.writeLine('\t' + command)
 
             } else if (bit.generating == 'nmake') {
@@ -672,6 +694,7 @@ module embedthis.bit {
                 genTargetDeps(target)
                 genout.write(reppath(target.path) + ': \\\n        ' + file.relative.windows + getDepsVar() + '\n')
                 gtrace('Compile', file.relativeTo('.'))
+                generateDir(target)
                 genout.writeLine('\t' + command)
             }
         }
@@ -687,9 +710,7 @@ module embedthis.bit {
             genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
         }
         gtrace('Copy', target.path.relative.portable)
-        if (target.dir) {
-            makeDir(target.dir)
-        }
+        generateDir(target)
         for each (let file: Path in target.files) {
             /* Auto-generated headers targets for includes have file == target.path */
             if (file == target.path) {
@@ -718,18 +739,12 @@ module embedthis.bit {
             genTargetDeps(target)
             genout.write(reppath(target.name) + ':' + getDepsVar() + '\n')
         }
-        if (target.dir) {
-            makeDir(target.dir)
-        }
+        generateDir(target)
         if (command is Array) {
             genout.write('\t' + command.map(function(a) '"' + a + '"').join(' '))
         } else {
             genout.write('\t' + command)
         }
-    }
-
-    if (target.dir) {
-        makeDir(target.dir)
     }
 
     function generateScript(target) {
@@ -751,9 +766,6 @@ module embedthis.bit {
                 prefix = suffix = ''
             }
         }
-        if (target.dir) {
-            makeDir(target.dir)
-        }
         if (target['generate-capture']) {
             genTargetDeps(target)
             if (target.path) {
@@ -761,6 +773,7 @@ module embedthis.bit {
             } else {
                 genWrite(target.name + ':' + getDepsVar() + '\n')
             }
+            generateDir(target)
             capture = []
             vtrace(target.type.toPascal(), target.name)
             runTargetScript(target, 'make')
@@ -800,6 +813,7 @@ module embedthis.bit {
             } else {
                 genWrite(target.name + ':' + getDepsVar() + '\n')
             }
+            generateDir(target)
             let cmd = target['generate-make-' + bit.platform.os] || target['generate-make'] ||
                 target['generate-sh-' + bit.platform.os] || target['generate-sh'] || target.generate
             if (cmd) {
@@ -827,6 +841,7 @@ module embedthis.bit {
             } else {
                 genWrite(target.name + ':' + getDepsVar() + '\n')
             }
+            generateDir(target)
             let cmd = target['generate-namke-' + bit.platform.os] || target['generate-nmake'] || target['generate-make'] ||
                 target.generate
             if (cmd) {
@@ -1003,14 +1018,24 @@ module embedthis.bit {
             if (dname) {
                 let dep = bit.targets[dname]
                 if (dep.require) {
+                    for each (r in dep.require) {
+                        if (bit.platform.os == 'windows') {
+                            genout.writeLine('!IF "$(BIT_PACK_' + r.toUpper() + ')" == "1"')
+                        } else {
+                            genout.writeLine('ifeq ($(BIT_PACK_' + r.toUpper() + '),1)')
+                        }
+                    }
                     if (bit.platform.os == 'windows') {
-                        genout.writeLine('!IF "$(BIT_PACK_' + dep.require.toUpper() + ')" == "1"')
                         genout.writeLine('LIBS_' + nextID + ' = $(LIBS_' + nextID + ') lib' + lib + '.lib')
-                        genout.writeLine('!ENDIF')
                     } else {
-                        genout.writeLine('ifeq ($(BIT_PACK_' + dep.require.toUpper() + '),1)')
                         genout.writeLine('    LIBS_' + nextID + ' += -l' + lib)
-                        genout.writeLine('endif')
+                    }
+                    for each (i in dep.require.length) {
+                        if (bit.platform.os == 'windows') {
+                            genout.writeLine('!ENDIF')
+                        } else {
+                            genout.writeLine('endif')
+                        }
                     }
                 } else {
                     if (bit.platform.os == 'windows') {
@@ -1067,14 +1092,24 @@ module embedthis.bit {
                 if (dep && dep.enable) {
                     let d = (dep.path) ? reppath(dep.path) : dep.name
                     if (dep.require) {
+                        for each (r in dep.require) {
+                            if (bit.platform.os == 'windows') {
+                                genout.writeLine('!IF "$(BIT_PACK_' + r.toUpper() + ')" == "1"')
+                            } else {
+                                genout.writeLine('ifeq ($(BIT_PACK_' + r.toUpper() + '),1)')
+                            }
+                        }
                         if (bit.platform.os == 'windows') {
-                            genout.writeLine('!IF "$(BIT_PACK_' + dep.require.toUpper() + ')" == "1"')
                             genout.writeLine('DEPS_' + nextID + ' = $(DEPS_' + nextID + ') ' + d)
-                            genout.writeLine('!ENDIF')
                         } else {
-                            genout.writeLine('ifeq ($(BIT_PACK_' + dep.require.toUpper() + '),1)')
                             genout.writeLine('    DEPS_' + nextID + ' += ' + d)
-                            genout.writeLine('endif')
+                        }
+                        for (i in dep.require.length) {
+                            if (bit.platform.os == 'windows') {
+                                genout.writeLine('!ENDIF')
+                            } else {
+                                genout.writeLine('endif')
+                            }
                         }
                     } else {
                         if (bit.platform.os == 'windows') {

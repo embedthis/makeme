@@ -25,7 +25,7 @@ Bit.load({
     targets: {
         clean: {
             action: "
-                action('cleanTargets')
+                builtin('cleanTargets')
                 safeRemove('${REL}')
                 safeRemove('${PKG}')
                 safeRemove('${FLAT}')

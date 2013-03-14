@@ -159,6 +159,7 @@ function setupGlobals(manifest, package, prefixes) {
 
 function setupManifest(kind, package, prefixes) {
     let manifest
+
     if (package.inherit) {
         let inherit = bit[package.inherit]
         manifest = blend(inherit.clone(), bit.manifest.clone(), {combine: true})
@@ -210,6 +211,10 @@ function setupPackagePrefixes(kind, package) {
 
 
 function setupPackage(kind) {
+    if (bit.settings.manifest) {
+        trace('Load', bit.settings.manifest)
+        b.loadBitFile(bit.dir.top.join(bit.settings.manifest))
+    }
     let package = bit.manifest.packages[kind]
     if (package && package.platforms) {
         if (!(package.platforms.contains(bit.platform.os) || package.platforms.contains(bit.platform.like))) {

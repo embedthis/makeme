@@ -9,7 +9,6 @@ Bit.load({
         "src/deps/pcre/pcre.bit",
         "src/deps/http/http.bit",
         "src/deps/ejs/ejs.bit",
-        "package/package.bit",
         "doc/doc.bit",
         "${BITS}/embedthis.bit",
     ],
@@ -33,6 +32,7 @@ Bit.load({
             Installation prefix set
          */
         prefixes: 'embedthis-prefixes',
+        manifest: 'package/manifest.bit',
 
         sync: [ 'bitos', 'est', 'mpr', 'pcre', 'http', 'ejs' ],
         platforms: [ 'local' ],
@@ -112,6 +112,7 @@ Bit.load({
             precious: true,
             run: '${BIN}/ejsc --out ${BIN}/bits/bit.mod --optimize 9 bits/bit.es',
             depends: [ 'ejsc', 'bits' ],
+            enable: false,
         },
 
         'bit': {
@@ -139,7 +140,6 @@ Bit.load({
             ",
         },
     },
-
 
     usage: {
         // 'mpr.logging':  'Enable application logging (true|false)',

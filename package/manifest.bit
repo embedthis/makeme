@@ -1,5 +1,5 @@
 /*
-    package.bit - Install and Package File Manifest for Bit
+    manifest.bit - Package File Manifest for Bit
  */
 
 Bit.load({

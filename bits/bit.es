@@ -373,6 +373,7 @@ public class Bit {
         }
         if (args.rest.contains('rebuild')) {
             options.rebuild = true
+            args.rest.push('all')
         }
         if (args.rest.contains('import')) {
             options.import = true
@@ -2300,36 +2301,39 @@ public class Bit {
         }
     }
 
-    /** @hide */
-    public function action(cmd: String, actionOptions: Object = {}) {
+    /** 
+        Built-in commands
+        @hide 
+     */
+    public function builtin(cmd: String, actionOptions: Object = {}) {
         switch (cmd) {
         case 'cleanTargets':
             for each (target in bit.targets) {
-                if (target.enable && target.path && targetsToClean[target.type]) {
-                    if (!target.precious && !target.nogen) {
+                if (target.enable && !target.precious && !target.nogen && target.path && targetsToClean[target.type]) {
+                    /* UNUSED
                         if (bit.generating == 'make') {
                             genWriteLine('\trm -rf ' + reppath(target.path))
-
                         } else if (bit.generating == 'nmake') {
                             genout.writeLine('\t-if exist ' + reppath(target.path) + ' del /Q ' + reppath(target.path))
-
                         } else if (bit.generating == 'sh') {
                             genWriteLine('rm -rf ' + target.path.relative)
-
-                        } else {
-                            if (target.path.exists) {
-                                if (options.show) {
-                                    trace('Clean', target.path.relative)
-                                }
-                                safeRemove(target.path)
+                        }
+                    */
+                    if (bit.generating) {
+                        removeFile(reppath(target.path))
+                    } else {
+                        if (target.path.exists) {
+                            if (options.show) {
+                                trace('Clean', target.path.relative)
                             }
-                            if (Config.OS == 'windows') {
-                                let ext = target.path.extension
-                                if (ext == bit.ext.shobj || ext == bit.ext.exe) {
-                                    target.path.replaceExt('lib').remove()
-                                    target.path.replaceExt('pdb').remove()
-                                    target.path.replaceExt('exp').remove()
-                                }
+                            safeRemove(target.path)
+                        }
+                        if (Config.OS == 'windows') {
+                            let ext = target.path.extension
+                            if (ext == bit.ext.shobj || ext == bit.ext.exe) {
+                                target.path.replaceExt('lib').remove()
+                                target.path.replaceExt('pdb').remove()
+                                target.path.replaceExt('exp').remove()
                             }
                         }
                     }
@@ -2869,6 +2873,7 @@ public class Bit {
                 }
             }
         } else {
+            /* Generating */
             if (options.made) {
                 if (options.made[path]) {
                     return
@@ -3123,8 +3128,8 @@ public function program(name: Path, description = null): Path {
 }
 
 /** @hide */
-public function action(command: String, options = null)
-    b.action(command, options)
+public function builtin(command: String, options = null)
+    b.builtin(command, options)
 
 /** 
     Emit general trace
