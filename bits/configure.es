@@ -420,7 +420,7 @@ module embedthis.bit {
     function tracePacks() {
         let omitted = {}
         for (let [pname, pack] in bit.packs) {
-            if (pack.enable) {
+            if (pack.enable && !pack.silent) {
                 if (pack.path) {
                     if (b.options.verbose) {
                         trace('Found', pname + ': ' + pack.description + ' at:\n                 ' + pack.path.portable)
