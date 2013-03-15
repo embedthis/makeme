@@ -298,7 +298,7 @@ module embedthis.bit {
             pack.name ||= pname
             try {
                 pack.loaded = true
-                pack.file = path
+                pack.file = path.portable
                 currentPack = pname
                 b.loadBitFile(path)
                 if (pack.require) {
