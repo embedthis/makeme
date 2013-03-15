@@ -44,7 +44,7 @@ Bit.load({
 
     settings: {
         /* order matters */
-        '+required': [ 'winsdk', 'compiler', 'lib', 'link', 'dumpbin', 'rc' ],
+        '+required': [ 'winsdk', 'compiler', 'lib', 'link', 'rc' ],
     },
 
     defaults: {
