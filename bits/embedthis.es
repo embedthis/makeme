@@ -214,6 +214,7 @@ function setupPackage(kind) {
     if (bit.settings.manifest) {
         trace('Load', bit.settings.manifest)
         b.loadBitFile(bit.dir.top.join(bit.settings.manifest))
+        b.runScript(bit.scripts, "loaded")
     }
     let package = bit.manifest.packages[kind]
     if (package && package.platforms) {
