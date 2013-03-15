@@ -350,7 +350,6 @@ module embedthis.bit {
         genout.writeLine('\t@[ ! -f $(CONFIG)/inc/bit.h ] && ' + 'cp projects/' + pop + '-bit.h $(CONFIG)/inc/bit.h ; true')
         genout.writeLine('\t@[ ! -f $(CONFIG)/inc/bitos.h ] && cp src/bitos.h $(CONFIG)/inc/bitos.h ; true')
         genout.writeLine('\t@if ! diff $(CONFIG)/inc/bit.h projects/' + pop + '-bit.h >/dev/null ; then\\')
-        genout.writeLine('\t\techo cp projects/' + pop + '-bit.h $(CONFIG)/inc/bit.h  ; \\')
         genout.writeLine('\t\tcp projects/' + pop + '-bit.h $(CONFIG)/inc/bit.h  ; \\')
         genout.writeLine('\tfi; true\n')
         genout.writeLine('clean:')
