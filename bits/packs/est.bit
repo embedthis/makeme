@@ -1,0 +1,12 @@
+/*
+    est.bit - Embedded Security Transport (SSL) package for Bit
+ */
+
+Bit.pack({
+    est: {
+        description: 'Embedded Security Transport'
+        path: probe('src/deps/est/estLib.c'),
+        libraries: [ 'est' ],
+        conflict: [ 'matrixssl', 'openssl', 'nanossl' ],
+    },
+})

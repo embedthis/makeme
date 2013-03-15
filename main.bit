@@ -25,7 +25,7 @@ Bit.load({
         product: 'bit',
         title: 'Embedthis Bit',
         company: 'Embedthis',
-        version: '0.8.4',
+        version: '0.8.5',
         buildNumber: '0',
 
         /*
@@ -43,13 +43,13 @@ Bit.load({
         /*
             Optional packs to automatically discover and configure
          */
-        '+discover': [ 'dsi', 'ejscript', 'est', 'man', 'man2html', 'pmaker', 'zip' ],
+        '+discover': [ 'dsi', 'ejscript', 'man', 'man2html', 'pmaker', 'ssl', 'zip' ],
         '+required': [ 'compiler', 'pcre', 'ejscript' ],
 
         /*
-            Packs to disable when using --without all
+            Packs to disable when using --without all. Note: keep ssl.
          */
-        'without-all': [ 'dsi', 'est', 'man', 'man2html'],
+        'without-all': [ 'dsi', 'man', 'man2html' ],
 
         /*
             Packs to disable when using --without default (generating packages)
@@ -144,13 +144,5 @@ Bit.load({
     usage: {
         // 'mpr.logging':  'Enable application logging (true|false)',
         // 'mpr.tracing':  'Enable debug tracing (true|false)',                                               
-    },
-
-    packs: {
-        est: {},
-        matrixssl: {},
-        openssl: {},
-        nanossl: {},
-        sqlite: { enable: false },
     },
 })

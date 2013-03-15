@@ -1,0 +1,30 @@
+/*
+    sample-http.bit - Sample using http
+ */
+
+require ejs.tar
+require ejs.zlib
+
+Bit.pack({
+    name: {
+        description: 'Sample',
+        config: function (pack) {
+            if (pack.withpath && pack.withpath.startsWith('http:')) {
+                let http = new Http
+                trace('Download', 'Ejscript from: ' + path)
+                http.get("" + path)
+                buf = new ByteArray
+                let fp = File("SAVE", 'w')
+                while (http.read(buf) > 0) {
+                    fp.write(buf)
+                }
+                fp.close()
+                if (http.status != 200) {
+                    http.close()
+                    throw 'Cannot download from ' + pack.withpath)
+                }
+                http.close()
+            }
+        },
+    },
+})

@@ -956,34 +956,37 @@ cp -r ca.crt ../../${OUT_DIR}/bin/ca.crt
 ../bits/os/vxworks.bit,
 ../bits/os/windows.bit,
 ../bits/packs,
-../bits/packs/compiler.pak,
-../bits/packs/doxygen.pak,
-../bits/packs/dsi.pak,
-../bits/packs/dumpbin.pak,
-../bits/packs/ejs.pak,
-../bits/packs/ejscript.pak,
-../bits/packs/est.pak,
-../bits/packs/http.pak,
-../bits/packs/lib.pak,
-../bits/packs/link.pak,
-../bits/packs/man.pak,
-../bits/packs/man2html.pak,
-../bits/packs/matrixssl.pak,
-../bits/packs/md5.pak,
-../bits/packs/nanossl.pak,
-../bits/packs/openssl.pak,
-../bits/packs/pcre.pak,
-../bits/packs/pmaker.pak,
-../bits/packs/ranlib.pak,
-../bits/packs/rc.pak,
-../bits/packs/sqlite.pak,
-../bits/packs/strip.pak,
-../bits/packs/tidy.pak,
-../bits/packs/utest.pak,
-../bits/packs/vxworks.pak,
-../bits/packs/winsdk.pak,
-../bits/packs/zip.pak,
-../bits/packs/zlib.pak,
+../bits/packs/compiler.bit,
+../bits/packs/doxygen.bit,
+../bits/packs/dsi.bit,
+../bits/packs/dumpbin.bit,
+../bits/packs/ejs.bit,
+../bits/packs/ejscript.bit,
+../bits/packs/est.bit,
+../bits/packs/http.bit,
+../bits/packs/lib.bit,
+../bits/packs/link.bit,
+../bits/packs/man.bit,
+../bits/packs/man2html.bit,
+../bits/packs/master.bit,
+../bits/packs/matrixssl.bit,
+../bits/packs/md5.bit,
+../bits/packs/nanossl.bit,
+../bits/packs/openssl.bit,
+../bits/packs/pcre.bit,
+../bits/packs/pmaker.bit,
+../bits/packs/ranlib.bit,
+../bits/packs/rc.bit,
+../bits/packs/sample-http.bit,
+../bits/packs/sqlite.bit,
+../bits/packs/ssl.bit,
+../bits/packs/strip.bit,
+../bits/packs/tidy.bit,
+../bits/packs/utest.bit,
+../bits/packs/vxworks.bit,
+../bits/packs/winsdk.bit,
+../bits/packs/zip.bit,
+../bits/packs/zlib.bit,
 ../bits/sample-main.bit,
 ../bits/sample-start.bit,
 ../bits/simple.bit,
@@ -1033,61 +1036,67 @@ cp -r bits/os/windows.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
 cp -r bits/packs macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/compiler.pak macosx-x64-default/bin/bits
+cp -r bits/packs/compiler.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/doxygen.pak macosx-x64-default/bin/bits
+cp -r bits/packs/doxygen.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/dsi.pak macosx-x64-default/bin/bits
+cp -r bits/packs/dsi.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/dumpbin.pak macosx-x64-default/bin/bits
+cp -r bits/packs/dumpbin.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/ejs.pak macosx-x64-default/bin/bits
+cp -r bits/packs/ejs.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/ejscript.pak macosx-x64-default/bin/bits
+cp -r bits/packs/ejscript.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/est.pak macosx-x64-default/bin/bits
+cp -r bits/packs/est.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/http.pak macosx-x64-default/bin/bits
+cp -r bits/packs/http.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/lib.pak macosx-x64-default/bin/bits
+cp -r bits/packs/lib.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/link.pak macosx-x64-default/bin/bits
+cp -r bits/packs/link.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/man.pak macosx-x64-default/bin/bits
+cp -r bits/packs/man.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/man2html.pak macosx-x64-default/bin/bits
+cp -r bits/packs/man2html.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/matrixssl.pak macosx-x64-default/bin/bits
+cp -r bits/packs/master.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/md5.pak macosx-x64-default/bin/bits
+cp -r bits/packs/matrixssl.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/nanossl.pak macosx-x64-default/bin/bits
+cp -r bits/packs/md5.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/openssl.pak macosx-x64-default/bin/bits
+cp -r bits/packs/nanossl.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/pcre.pak macosx-x64-default/bin/bits
+cp -r bits/packs/openssl.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/pmaker.pak macosx-x64-default/bin/bits
+cp -r bits/packs/pcre.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/ranlib.pak macosx-x64-default/bin/bits
+cp -r bits/packs/pmaker.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/rc.pak macosx-x64-default/bin/bits
+cp -r bits/packs/ranlib.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/sqlite.pak macosx-x64-default/bin/bits
+cp -r bits/packs/rc.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/strip.pak macosx-x64-default/bin/bits
+cp -r bits/packs/sample-http.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/tidy.pak macosx-x64-default/bin/bits
+cp -r bits/packs/sqlite.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/utest.pak macosx-x64-default/bin/bits
+cp -r bits/packs/ssl.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/vxworks.pak macosx-x64-default/bin/bits
+cp -r bits/packs/strip.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/winsdk.pak macosx-x64-default/bin/bits
+cp -r bits/packs/tidy.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/zip.pak macosx-x64-default/bin/bits
+cp -r bits/packs/utest.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/zlib.pak macosx-x64-default/bin/bits
+cp -r bits/packs/vxworks.bit macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/winsdk.bit macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/zip.bit macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/zlib.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
 cp -r bits/sample-main.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
@@ -1494,7 +1503,7 @@ fi";
                 /* Common Settings */
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
-                CURRENT_PROJECT_VERSION = 0.8.4;
+                CURRENT_PROJECT_VERSION = 0.8.5;
                 DYLIB_COMPATIBILITY_VERSION = "$(CURRENT_PROJECT_VERSION)";
                 DYLIB_CURRENT_VERSION = "$(CURRENT_PROJECT_VERSION)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -1564,7 +1573,7 @@ fi";
                 /* Common Settings */
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
-                CURRENT_PROJECT_VERSION = 0.8.4;
+                CURRENT_PROJECT_VERSION = 0.8.5;
                 DYLIB_COMPATIBILITY_VERSION = "$(CURRENT_PROJECT_VERSION)";
                 DYLIB_CURRENT_VERSION = "$(CURRENT_PROJECT_VERSION)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;

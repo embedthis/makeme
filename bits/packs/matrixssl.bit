@@ -1,0 +1,39 @@
+/*
+    matrixssl.bit -- MatrixSSL package search
+ */
+
+Bit.pack({ 
+    matrixssl: {
+        description: 'MatrixSSL',
+        path: function (pack) {
+            let path: Path? = bit.packs.matrixssl.withpath
+            if (!path) {
+                if (bit.dir.packs.join('matrixssl/latest').exists && Config.OS != 'windows') {
+                    path = bit.dir.packs.join('matrixssl/latest')
+                } else {
+                    let versions = sortVersions(bit.dir.packs.join('matrixssl').files('matrixssl-3*'))
+                    if (!versions.length || versions.length == 0) {
+                        throw 'Cannot find matrixssl'
+                    }
+                    path = versions[0]
+                }
+            }
+            let search = [ (bit.platform.os == 'windows') ? path.join('Release') : path ]
+            let lib = probe('libmatrixssl.' + bit.ext.shobj, {fullpath: true, search: search}).absolute
+            pack.libpaths = [lib.parent]
+            if (bit.platform.os == 'windows') {
+                pack.defines = ['WIN32', 'MATRIX_USE_FILE_SYSTEM' ],
+                pack.libraries = [ 'matrixssl.lib' ],
+                pack.imports = [ lib, lib.replaceExt('lib') ]
+            } else {
+                pack.defines = ['POSIX', 'MATRIX_USE_FILE_SYSTEM' ],
+                pack.libraries = ['libmatrixssl']
+                pack.imports = [ lib ]
+            }
+            let search = [ path.join('matrixssl') ]
+            let incdir = probe('matrixsslApi.h', {search: search}).absolute
+            pack.includes = [ incdir, incdir.parent ]
+            return path
+        },
+    },
+})

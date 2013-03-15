@@ -1,0 +1,11 @@
+/*
+    zlib.bit - Bit package for Zlib
+ */
+
+Bit.pack({
+    zlib: { 
+        description: 'Zlib compression package',
+        path: bit.dir.src.join('src/deps/zlib'),
+    },
+})
+

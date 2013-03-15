@@ -1,0 +1,5 @@
+/*
+    man.bit - Man package for Bit
+ */
+
+Bit.program('man', 'Manual Page Formatting Tool')

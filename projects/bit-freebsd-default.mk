@@ -3,7 +3,7 @@
 #
 
 PRODUCT           := bit
-VERSION           := 0.8.4
+VERSION           := 0.8.5
 BUILD_NUMBER      := 0
 PROFILE           := default
 ARCH              := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
@@ -137,7 +137,7 @@ clobber: clean
 #   version
 #
 version: $(DEPS_1)
-	@cd bits; echo NN 0.8.4-0 ; cd ..
+	@cd bits; echo NN 0.8.5-0 ; cd ..
 
 #
 #   est.h
@@ -529,34 +529,37 @@ DEPS_33 += bits/os/unix.bit
 DEPS_33 += bits/os/vxworks.bit
 DEPS_33 += bits/os/windows.bit
 DEPS_33 += bits/packs
-DEPS_33 += bits/packs/compiler.pak
-DEPS_33 += bits/packs/doxygen.pak
-DEPS_33 += bits/packs/dsi.pak
-DEPS_33 += bits/packs/dumpbin.pak
-DEPS_33 += bits/packs/ejs.pak
-DEPS_33 += bits/packs/ejscript.pak
-DEPS_33 += bits/packs/est.pak
-DEPS_33 += bits/packs/http.pak
-DEPS_33 += bits/packs/lib.pak
-DEPS_33 += bits/packs/link.pak
-DEPS_33 += bits/packs/man.pak
-DEPS_33 += bits/packs/man2html.pak
-DEPS_33 += bits/packs/matrixssl.pak
-DEPS_33 += bits/packs/md5.pak
-DEPS_33 += bits/packs/nanossl.pak
-DEPS_33 += bits/packs/openssl.pak
-DEPS_33 += bits/packs/pcre.pak
-DEPS_33 += bits/packs/pmaker.pak
-DEPS_33 += bits/packs/ranlib.pak
-DEPS_33 += bits/packs/rc.pak
-DEPS_33 += bits/packs/sqlite.pak
-DEPS_33 += bits/packs/strip.pak
-DEPS_33 += bits/packs/tidy.pak
-DEPS_33 += bits/packs/utest.pak
-DEPS_33 += bits/packs/vxworks.pak
-DEPS_33 += bits/packs/winsdk.pak
-DEPS_33 += bits/packs/zip.pak
-DEPS_33 += bits/packs/zlib.pak
+DEPS_33 += bits/packs/compiler.bit
+DEPS_33 += bits/packs/doxygen.bit
+DEPS_33 += bits/packs/dsi.bit
+DEPS_33 += bits/packs/dumpbin.bit
+DEPS_33 += bits/packs/ejs.bit
+DEPS_33 += bits/packs/ejscript.bit
+DEPS_33 += bits/packs/est.bit
+DEPS_33 += bits/packs/http.bit
+DEPS_33 += bits/packs/lib.bit
+DEPS_33 += bits/packs/link.bit
+DEPS_33 += bits/packs/man.bit
+DEPS_33 += bits/packs/man2html.bit
+DEPS_33 += bits/packs/master.bit
+DEPS_33 += bits/packs/matrixssl.bit
+DEPS_33 += bits/packs/md5.bit
+DEPS_33 += bits/packs/nanossl.bit
+DEPS_33 += bits/packs/openssl.bit
+DEPS_33 += bits/packs/pcre.bit
+DEPS_33 += bits/packs/pmaker.bit
+DEPS_33 += bits/packs/ranlib.bit
+DEPS_33 += bits/packs/rc.bit
+DEPS_33 += bits/packs/sample-http.bit
+DEPS_33 += bits/packs/sqlite.bit
+DEPS_33 += bits/packs/ssl.bit
+DEPS_33 += bits/packs/strip.bit
+DEPS_33 += bits/packs/tidy.bit
+DEPS_33 += bits/packs/utest.bit
+DEPS_33 += bits/packs/vxworks.bit
+DEPS_33 += bits/packs/winsdk.bit
+DEPS_33 += bits/packs/zip.bit
+DEPS_33 += bits/packs/zlib.bit
 DEPS_33 += bits/sample-main.bit
 DEPS_33 += bits/sample-start.bit
 DEPS_33 += bits/simple.bit
@@ -593,63 +596,69 @@ $(CONFIG)/bin/bits: $(DEPS_33)
 	cp "bits/os/vxworks.bit" "$(CONFIG)/bin/bits/os/vxworks.bit"
 	cp "bits/os/windows.bit" "$(CONFIG)/bin/bits/os/windows.bit"
 	mkdir -p "$(CONFIG)/bin/bits/packs"
-	cp "bits/packs/compiler.pak" "$(CONFIG)/bin/bits/packs/compiler.pak"
-	cp "bits/packs/doxygen.pak" "$(CONFIG)/bin/bits/packs/doxygen.pak"
-	cp "bits/packs/dsi.pak" "$(CONFIG)/bin/bits/packs/dsi.pak"
-	cp "bits/packs/dumpbin.pak" "$(CONFIG)/bin/bits/packs/dumpbin.pak"
-	cp "bits/packs/ejs.pak" "$(CONFIG)/bin/bits/packs/ejs.pak"
-	cp "bits/packs/ejscript.pak" "$(CONFIG)/bin/bits/packs/ejscript.pak"
-	cp "bits/packs/est.pak" "$(CONFIG)/bin/bits/packs/est.pak"
-	cp "bits/packs/http.pak" "$(CONFIG)/bin/bits/packs/http.pak"
-	cp "bits/packs/lib.pak" "$(CONFIG)/bin/bits/packs/lib.pak"
-	cp "bits/packs/link.pak" "$(CONFIG)/bin/bits/packs/link.pak"
-	cp "bits/packs/man.pak" "$(CONFIG)/bin/bits/packs/man.pak"
-	cp "bits/packs/man2html.pak" "$(CONFIG)/bin/bits/packs/man2html.pak"
-	cp "bits/packs/matrixssl.pak" "$(CONFIG)/bin/bits/packs/matrixssl.pak"
-	cp "bits/packs/md5.pak" "$(CONFIG)/bin/bits/packs/md5.pak"
-	cp "bits/packs/nanossl.pak" "$(CONFIG)/bin/bits/packs/nanossl.pak"
-	cp "bits/packs/openssl.pak" "$(CONFIG)/bin/bits/packs/openssl.pak"
-	cp "bits/packs/pcre.pak" "$(CONFIG)/bin/bits/packs/pcre.pak"
-	cp "bits/packs/pmaker.pak" "$(CONFIG)/bin/bits/packs/pmaker.pak"
-	cp "bits/packs/ranlib.pak" "$(CONFIG)/bin/bits/packs/ranlib.pak"
-	cp "bits/packs/rc.pak" "$(CONFIG)/bin/bits/packs/rc.pak"
-	cp "bits/packs/sqlite.pak" "$(CONFIG)/bin/bits/packs/sqlite.pak"
-	cp "bits/packs/strip.pak" "$(CONFIG)/bin/bits/packs/strip.pak"
-	cp "bits/packs/tidy.pak" "$(CONFIG)/bin/bits/packs/tidy.pak"
-	cp "bits/packs/utest.pak" "$(CONFIG)/bin/bits/packs/utest.pak"
-	cp "bits/packs/vxworks.pak" "$(CONFIG)/bin/bits/packs/vxworks.pak"
-	cp "bits/packs/winsdk.pak" "$(CONFIG)/bin/bits/packs/winsdk.pak"
-	cp "bits/packs/zip.pak" "$(CONFIG)/bin/bits/packs/zip.pak"
-	cp "bits/packs/zlib.pak" "$(CONFIG)/bin/bits/packs/zlib.pak"
+	cp "bits/packs/compiler.bit" "$(CONFIG)/bin/bits/packs/compiler.bit"
+	cp "bits/packs/doxygen.bit" "$(CONFIG)/bin/bits/packs/doxygen.bit"
+	cp "bits/packs/dsi.bit" "$(CONFIG)/bin/bits/packs/dsi.bit"
+	cp "bits/packs/dumpbin.bit" "$(CONFIG)/bin/bits/packs/dumpbin.bit"
+	cp "bits/packs/ejs.bit" "$(CONFIG)/bin/bits/packs/ejs.bit"
+	cp "bits/packs/ejscript.bit" "$(CONFIG)/bin/bits/packs/ejscript.bit"
+	cp "bits/packs/est.bit" "$(CONFIG)/bin/bits/packs/est.bit"
+	cp "bits/packs/http.bit" "$(CONFIG)/bin/bits/packs/http.bit"
+	cp "bits/packs/lib.bit" "$(CONFIG)/bin/bits/packs/lib.bit"
+	cp "bits/packs/link.bit" "$(CONFIG)/bin/bits/packs/link.bit"
+	cp "bits/packs/man.bit" "$(CONFIG)/bin/bits/packs/man.bit"
+	cp "bits/packs/man2html.bit" "$(CONFIG)/bin/bits/packs/man2html.bit"
+	cp "bits/packs/master.bit" "$(CONFIG)/bin/bits/packs/master.bit"
+	cp "bits/packs/matrixssl.bit" "$(CONFIG)/bin/bits/packs/matrixssl.bit"
+	cp "bits/packs/md5.bit" "$(CONFIG)/bin/bits/packs/md5.bit"
+	cp "bits/packs/nanossl.bit" "$(CONFIG)/bin/bits/packs/nanossl.bit"
+	cp "bits/packs/openssl.bit" "$(CONFIG)/bin/bits/packs/openssl.bit"
+	cp "bits/packs/pcre.bit" "$(CONFIG)/bin/bits/packs/pcre.bit"
+	cp "bits/packs/pmaker.bit" "$(CONFIG)/bin/bits/packs/pmaker.bit"
+	cp "bits/packs/ranlib.bit" "$(CONFIG)/bin/bits/packs/ranlib.bit"
+	cp "bits/packs/rc.bit" "$(CONFIG)/bin/bits/packs/rc.bit"
+	cp "bits/packs/sample-http.bit" "$(CONFIG)/bin/bits/packs/sample-http.bit"
+	cp "bits/packs/sqlite.bit" "$(CONFIG)/bin/bits/packs/sqlite.bit"
+	cp "bits/packs/ssl.bit" "$(CONFIG)/bin/bits/packs/ssl.bit"
+	cp "bits/packs/strip.bit" "$(CONFIG)/bin/bits/packs/strip.bit"
+	cp "bits/packs/tidy.bit" "$(CONFIG)/bin/bits/packs/tidy.bit"
+	cp "bits/packs/utest.bit" "$(CONFIG)/bin/bits/packs/utest.bit"
+	cp "bits/packs/vxworks.bit" "$(CONFIG)/bin/bits/packs/vxworks.bit"
+	cp "bits/packs/winsdk.bit" "$(CONFIG)/bin/bits/packs/winsdk.bit"
+	cp "bits/packs/zip.bit" "$(CONFIG)/bin/bits/packs/zip.bit"
+	cp "bits/packs/zlib.bit" "$(CONFIG)/bin/bits/packs/zlib.bit"
 	mkdir -p "$(CONFIG)/bin/bits/packs"
-	cp "bits/packs/compiler.pak" "$(CONFIG)/bin/bits/packs/compiler.pak"
-	cp "bits/packs/doxygen.pak" "$(CONFIG)/bin/bits/packs/doxygen.pak"
-	cp "bits/packs/dsi.pak" "$(CONFIG)/bin/bits/packs/dsi.pak"
-	cp "bits/packs/dumpbin.pak" "$(CONFIG)/bin/bits/packs/dumpbin.pak"
-	cp "bits/packs/ejs.pak" "$(CONFIG)/bin/bits/packs/ejs.pak"
-	cp "bits/packs/ejscript.pak" "$(CONFIG)/bin/bits/packs/ejscript.pak"
-	cp "bits/packs/est.pak" "$(CONFIG)/bin/bits/packs/est.pak"
-	cp "bits/packs/http.pak" "$(CONFIG)/bin/bits/packs/http.pak"
-	cp "bits/packs/lib.pak" "$(CONFIG)/bin/bits/packs/lib.pak"
-	cp "bits/packs/link.pak" "$(CONFIG)/bin/bits/packs/link.pak"
-	cp "bits/packs/man.pak" "$(CONFIG)/bin/bits/packs/man.pak"
-	cp "bits/packs/man2html.pak" "$(CONFIG)/bin/bits/packs/man2html.pak"
-	cp "bits/packs/matrixssl.pak" "$(CONFIG)/bin/bits/packs/matrixssl.pak"
-	cp "bits/packs/md5.pak" "$(CONFIG)/bin/bits/packs/md5.pak"
-	cp "bits/packs/nanossl.pak" "$(CONFIG)/bin/bits/packs/nanossl.pak"
-	cp "bits/packs/openssl.pak" "$(CONFIG)/bin/bits/packs/openssl.pak"
-	cp "bits/packs/pcre.pak" "$(CONFIG)/bin/bits/packs/pcre.pak"
-	cp "bits/packs/pmaker.pak" "$(CONFIG)/bin/bits/packs/pmaker.pak"
-	cp "bits/packs/ranlib.pak" "$(CONFIG)/bin/bits/packs/ranlib.pak"
-	cp "bits/packs/rc.pak" "$(CONFIG)/bin/bits/packs/rc.pak"
-	cp "bits/packs/sqlite.pak" "$(CONFIG)/bin/bits/packs/sqlite.pak"
-	cp "bits/packs/strip.pak" "$(CONFIG)/bin/bits/packs/strip.pak"
-	cp "bits/packs/tidy.pak" "$(CONFIG)/bin/bits/packs/tidy.pak"
-	cp "bits/packs/utest.pak" "$(CONFIG)/bin/bits/packs/utest.pak"
-	cp "bits/packs/vxworks.pak" "$(CONFIG)/bin/bits/packs/vxworks.pak"
-	cp "bits/packs/winsdk.pak" "$(CONFIG)/bin/bits/packs/winsdk.pak"
-	cp "bits/packs/zip.pak" "$(CONFIG)/bin/bits/packs/zip.pak"
-	cp "bits/packs/zlib.pak" "$(CONFIG)/bin/bits/packs/zlib.pak"
+	cp "bits/packs/compiler.bit" "$(CONFIG)/bin/bits/packs/compiler.bit"
+	cp "bits/packs/doxygen.bit" "$(CONFIG)/bin/bits/packs/doxygen.bit"
+	cp "bits/packs/dsi.bit" "$(CONFIG)/bin/bits/packs/dsi.bit"
+	cp "bits/packs/dumpbin.bit" "$(CONFIG)/bin/bits/packs/dumpbin.bit"
+	cp "bits/packs/ejs.bit" "$(CONFIG)/bin/bits/packs/ejs.bit"
+	cp "bits/packs/ejscript.bit" "$(CONFIG)/bin/bits/packs/ejscript.bit"
+	cp "bits/packs/est.bit" "$(CONFIG)/bin/bits/packs/est.bit"
+	cp "bits/packs/http.bit" "$(CONFIG)/bin/bits/packs/http.bit"
+	cp "bits/packs/lib.bit" "$(CONFIG)/bin/bits/packs/lib.bit"
+	cp "bits/packs/link.bit" "$(CONFIG)/bin/bits/packs/link.bit"
+	cp "bits/packs/man.bit" "$(CONFIG)/bin/bits/packs/man.bit"
+	cp "bits/packs/man2html.bit" "$(CONFIG)/bin/bits/packs/man2html.bit"
+	cp "bits/packs/master.bit" "$(CONFIG)/bin/bits/packs/master.bit"
+	cp "bits/packs/matrixssl.bit" "$(CONFIG)/bin/bits/packs/matrixssl.bit"
+	cp "bits/packs/md5.bit" "$(CONFIG)/bin/bits/packs/md5.bit"
+	cp "bits/packs/nanossl.bit" "$(CONFIG)/bin/bits/packs/nanossl.bit"
+	cp "bits/packs/openssl.bit" "$(CONFIG)/bin/bits/packs/openssl.bit"
+	cp "bits/packs/pcre.bit" "$(CONFIG)/bin/bits/packs/pcre.bit"
+	cp "bits/packs/pmaker.bit" "$(CONFIG)/bin/bits/packs/pmaker.bit"
+	cp "bits/packs/ranlib.bit" "$(CONFIG)/bin/bits/packs/ranlib.bit"
+	cp "bits/packs/rc.bit" "$(CONFIG)/bin/bits/packs/rc.bit"
+	cp "bits/packs/sample-http.bit" "$(CONFIG)/bin/bits/packs/sample-http.bit"
+	cp "bits/packs/sqlite.bit" "$(CONFIG)/bin/bits/packs/sqlite.bit"
+	cp "bits/packs/ssl.bit" "$(CONFIG)/bin/bits/packs/ssl.bit"
+	cp "bits/packs/strip.bit" "$(CONFIG)/bin/bits/packs/strip.bit"
+	cp "bits/packs/tidy.bit" "$(CONFIG)/bin/bits/packs/tidy.bit"
+	cp "bits/packs/utest.bit" "$(CONFIG)/bin/bits/packs/utest.bit"
+	cp "bits/packs/vxworks.bit" "$(CONFIG)/bin/bits/packs/vxworks.bit"
+	cp "bits/packs/winsdk.bit" "$(CONFIG)/bin/bits/packs/winsdk.bit"
+	cp "bits/packs/zip.bit" "$(CONFIG)/bin/bits/packs/zip.bit"
+	cp "bits/packs/zlib.bit" "$(CONFIG)/bin/bits/packs/zlib.bit"
 	cp "bits/sample-main.bit" "$(CONFIG)/bin/bits/sample-main.bit"
 	cp "bits/sample-start.bit" "$(CONFIG)/bin/bits/sample-start.bit"
 	cp "bits/simple.bit" "$(CONFIG)/bin/bits/simple.bit"

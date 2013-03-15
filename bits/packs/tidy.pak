@@ -1,6 +1,0 @@
-/*
-    tidy.pak - Tidy package for Bit
- */
-
-program('tidy', 'Tidy HTML Tool')
-

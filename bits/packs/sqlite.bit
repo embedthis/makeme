@@ -1,0 +1,10 @@
+/*
+    sqlite.bit - Bit package for SQLite
+ */
+
+Bit.pack({
+    sqlite: {
+        description: 'SQLite Database',
+        path: bit.dir.src.join('src/deps/sqlite'),
+    },
+})

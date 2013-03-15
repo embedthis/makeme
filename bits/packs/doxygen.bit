@@ -1,0 +1,5 @@
+/*
+    doxygen.bit - Doxygen package for Bit
+ */
+
+Bit.program('doxygen', 'Doxygen Documentation Generator')

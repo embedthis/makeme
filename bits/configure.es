@@ -266,70 +266,216 @@ module embedthis.bit {
         }
     }
 
-    /*
-        Search for enabled packs in the system
-     */
     function findPacks() {
         let settings = bit.settings
         if (!settings.required && !settings.discover) {
             return
         }
         trace('Search', 'For tools and extension packages')
-        vtrace('Search', 'Packages: ' + [settings.required + settings.discover].join(' '))
-        //  MOB Temp
-        if (settings.optional) {
-            settings.discover += settings.optional
-        }
-        let packs = settings.required + settings.discover
-        let omitted = []
-        for each (pack in packs) {
-            if (bit.packs[pack] && bit.packs[pack].enable == false) {
-                if (settings.required.contains(pack)) { 
-                    throw 'Required pack ' + pack + ' is not enabled'
-                }
+        loadPacks(settings.required + settings.discover)
+        enablePacks()
+        configurePacks()
+        Object.sortProperties(bit.packs)
+        checkPacks()
+        tracePacks()
+        resetPacks()
+    }
+
+    /*
+        Load the packs, but don't run any events. Events must be fired in recursive dependency order
+     */
+    function loadPacks(packs) {
+        vtrace('Search', 'Packages: ' + packs.join(' '))
+        for each (pname in packs) {
+            if (bit.packs[pname] && bit.packs[pname].loaded) {
                 continue
             }
-            let path = b.findPack(pack)
-            if (path.exists) {
-                try {
-                    bit.packs[pack] ||= {}
-                    bit.packs[pack].enable ||= true
-                    currentPack = pack
-                    b.loadBitFile(path)
-                } catch (e) {
-                    if (!(e is String)) {
-                        App.log.debug(0, e)
-                    }
-                    let kind = settings.required.contains(pack) ? 'Required' : 'Optional'
-                    whyMissing(kind + ' package "' + pack + '". ' + e)
-                    let p = bit.packs[pack] ||= {}
-                    p.enable = false
-                    p.diagnostic = "" + e
-                    if ((kind == 'Required' || bit.packs[pack].required) && !b.options['continue']) {
-                        throw e
-                    }
-                }
-            } else {
-                throw 'Cannot find pack description file: ' + pack + '.pak'
+            let path = b.findPack(pname)
+            if (!path.exists) {
+                throw 'Cannot find pack description file: ' + pname + '.bit'
             }
-            let p = bit.packs[pack]
-            if (p) {
-                let desc = p.description || pack
-                if (p && p.enable && p.path) {
-                    if (b.options.verbose) {
-                        trace('Found', desc + ' at:\n                 ' + p.path.portable)
-                    } else if (!p.quiet) {
-                        trace('Found', desc + ': ' + p.path.portable)
-                    }
-                } else {
-                    omitted.push(desc)
+            let pack = bit.packs[pname] ||= {}
+            pack.name ||= pname
+            try {
+                pack.loaded = true
+                pack.file = path
+                currentPack = pname
+                b.loadBitFile(path)
+                if (pack.require) {
+                    loadPacks(pack.require)
                 }
-            } else {
-                omitted.push(pack)
+                if (pack.discover) {
+                    loadPacks(pack.discover)
+                }
+                if (pack.enable === undefined) {
+                    pack.enable = true
+                }
+            } catch (e) {
+                if (!(e is String)) {
+                    App.log.debug(0, e)
+                }
+                pack.enable = false
+                pack.diagnostic = "" + e
             }
         }
-        for each (item in omitted) {
-            trace('Omitted', 'Optional: ' + item)
+    }
+
+    function enablePacks() {
+        for (let [pname, pack] in bit.packs) {
+            if (pack.enabling) {
+                continue
+            }
+            enablePack(pack)
+        }
+    }
+
+    /*
+        Check for --without pack, and run enable scripts/functions
+        Enable scripts do not run in dependency order. This are meant for simple scripts without pack dependencies.
+     */
+    function enablePack(pack) {
+        pack.enabling = true
+        global.PACK = pack
+        if (pack.enable === false && pack.explicit) {
+            runPackScript(pack, "without")
+
+        } else if (pack.enable is Function) {
+            pack.enable = pack.enable.call(b, pack)
+
+        } else if (pack.enable) {                                                                           
+            if (!(pack.enable is Boolean)) {
+                let script = expand(pack.enable)
+                if (!eval(script)) {
+                    pack.enable = false
+                } else {
+                    pack.enable = true
+                }
+            }
+        }
+        delete global.PACK
+    }
+
+    /*
+        Configure packs in recursive dependency order
+     */
+    function configurePacks() {
+        for (let [pname, pack] in bit.packs) {
+            pack.name ||= pname
+            configurePack(pack)
+        }
+    }
+
+    /*
+        Configure a pack but first configure any required or discovered packs
+     */
+    function configurePack(pack) {
+        if (pack.configuring) {
+            return
+        }
+        pack.configuring = true
+        for each (pname in pack.require) {
+            configurePack(bit.packs[pname])
+        }
+        for each (pname in pack.discover) {
+            configurePack(bit.packs[pname])
+        }
+        for each (pname in pack.after) {
+            if (bit.packs[pname]) {
+                configurePack(bit.packs[pname])
+            } else {
+                bit.packs[pname] = { name: pname, enable: false }
+            }
+        }
+        currentPack = pack.name
+        b.currentBitFile = pack.file
+        global.PACK = pack
+        try {
+            if (bit.generating) {
+                if (pack.scripts.generate) {
+                    runPackScript(pack, "generate")
+                } else {
+                    pack.path = Path(pname)
+                }
+            } else {
+                if (pack.path is Function) {
+                    pack.path = pack.path.call(b, pack)
+                }
+                runPackScript(pack, "config")
+            }
+            if (pack.path) {
+                pack.path = Path(pack.path)
+            }
+
+        } catch (e) {
+            // print("CATCH", pack.name, e)
+            if (!(e is String)) {
+                App.log.debug(0, e)
+            }
+            pack.enable = false
+            pack.diagnostic = "" + e
+        }
+        delete global.PACK
+    }
+
+    function tracePacks() {
+        let omitted = {}
+        for (let [pname, pack] in bit.packs) {
+            if (pack.enable) {
+                if (pack.path) {
+                    if (b.options.verbose) {
+                        trace('Found', pname + ': ' + pack.description + ' at:\n                 ' + pack.path.portable)
+                    } else if (!pack.quiet) {
+                        trace('Found', pname + ': ' + pack.description + ': ' + pack.path.portable)
+                    }
+                } else {
+                    trace('Found', pname + ': ' + pack.description)
+                }
+            } else {
+                omitted[pname] = pack
+            }
+        }
+        if (b.options.why) {
+            for (let [pname, pack] in omitted) {
+                trace('Omitted', pname + ': ' + pack.description + ': ' + pack.diagnostic)
+            }
+        }
+    }
+
+    function checkPacks() {
+        for (let [pname, pack] in bit.packs) {
+            if (!pack.enable && bit.settings.required.contains(pname)) { 
+                if (!b.options['continue']) {
+                    throw 'Required pack ' + pname + ' is not enabled.'
+                }
+            }
+            for each (r in pack.require) {
+                let required = bit.packs[r]
+                if (!required.enable && !b.options['continue']) {
+                        throw 'Pack ' + r + ' required by ' + pack.name + ' is not enabled.'
+                    }
+            }
+            if (pack.enable) {
+                for each (o in pack.conflict) {
+                    let other = bit.packs[o]
+                    if (other && other.enable) {
+                        other.enable = false
+                        other.diagnostic ||= 'conflicts with ' + pack.name
+                    }
+                }
+            }
+        }
+        /*  KEEP UNUSED
+            for (let [pname, pack] in bit.packs) {
+                runPackScript(pack, "postconfig")
+            }
+         */
+    }
+
+    function resetPacks() {
+        for each (pack in bit.packs) {
+            delete pack.loaded 
+            delete pack.enabling 
+            delete pack.configuring 
         }
     }
 
@@ -344,12 +490,17 @@ module embedthis.bit {
         @option fullpath Return the full path to the located file
      */
     public function probe(file: Path, control = {}): Path {
+        if (bit.generating) {
+print("SHOULD NOT CALL probe when generating")
+throw new Error('boom')
+            return file
+        }
         let path: Path?
         let search = [], dir
         if (file.exists) {
             path = file
         } else {
-            if (dir = bit.packs[currentPack].path) {
+            if ((dir = bit.packs[currentPack].path) && !(dir is Function)) {
                 search.push(dir)
             }
             if (control.search) {
@@ -392,6 +543,31 @@ module embedthis.bit {
         return path.portable.name.replace(pat, '')
     }
 
+    /**
+        Define a pack for a command line program.
+        This registers the pack and loads the Bit DOM with the pack configuration.
+        @param name Program name. Can be either a path or a basename with optional extension
+        @param description Short, single-line program description.
+        @param options Extra options to pass to Bit.pack when defining the program package.
+        @hide
+        @deprecate
+     */
+    public function program(name: Path, description = null, options = {}): Path {
+        let pack = bit.packs[currentPack]
+        let path
+        try {
+            if (bit.generating) {
+                path = name
+            } else {
+                path = probe(pack.withpath || name, {fullpath: true})
+            }
+        } catch (e) {
+            throw e
+        }
+        Bit.pack(blend(options, {name: name, description: description, path: path}))
+        return path
+    }
+
     function captureEnv() {
         envSettings = { packs: {}, defaults: {} }
         for (let [key, tool] in envTools) {
@@ -414,12 +590,33 @@ module embedthis.bit {
         blend(bit, envSettings, {combine: true})
     }
 
-    public function whyMissing(...msg) {
-        if (b.options.why) {
-            trace('Missing', ...msg)
+    function runPackScript(pack, when) {
+        if (!pack.scripts) return
+        for each (item in pack.scripts[when]) {
+            let pwd = App.dir
+            if (item.home && item.home != pwd) {
+                App.chdir(expand(item.home))
+            }
+            global.PACK = pack
+            try {
+                if (item.interpreter == 'ejs') {
+                    if (item.script is Function) {
+                        item.script.call(b, pack)
+                    } else {
+                        let script = expand(item.script).expand(target.vars, {fill: ''})
+                        script = 'require ejs.unix\n' + script
+                        eval(script)
+                    }
+                } else {
+                    throw "Only ejscripts are support for packs"
+                    // runShell(target, item.interpreter, item.script)
+                }
+            } finally {
+                App.chdir(pwd)
+                global.PACK = null
+            }
         }
     }
-
 }
 
 /*

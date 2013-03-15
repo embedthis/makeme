@@ -1,5 +1,0 @@
-/*
-    ejs.pak - Ejs package for Bit
- */
-
-program('ejs', 'Ejscript Shell')

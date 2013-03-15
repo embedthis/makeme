@@ -27,3 +27,5 @@ projects/.flags
 .DS_Store
 *.dmp
 bit.sublime-*
+project.xcworkspace
+xcuserdata/

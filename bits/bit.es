@@ -27,6 +27,7 @@ public class Bit {
     public var topTargets: Array
     public var localBin: Path
     public var currentPlatform: String?
+    public var currentBitFile: Path?
 
     private static const supportedOS = ['freebsd', 'linux', 'macosx', 'solaris', 'vxworks', 'windows']
     private static const supportedArch = ['arm', 'i64', 'mips', 'sparc', 'x64', 'x86']
@@ -40,7 +41,6 @@ public class Bit {
     private var appName: String = 'bit'
     private var args: Args
     private var capture: Array?
-    private var currentBitFile: Path?
     private var local: Object
     private var missing = null
     private var out: Stream
@@ -533,7 +533,7 @@ public class Bit {
             let pack = bit.packs[field]
             if (value) {
                 pack.enable = true
-                pack.path = Path(value)
+                pack.withpath = Path(value)
             }
             pack.explicit = true
             pack.required = true
@@ -551,7 +551,7 @@ public class Bit {
         }
         for each (field in poptions['without']) {
             if (bit.settings.required.contains(field)) { 
-                throw 'Required pack ' + field + ' cannot be disabled'
+                throw 'Required pack ' + field + ' cannot be disabled.'
             }
             if (field != 'all' && field != 'default') {
                 let path = findPack(field)
@@ -567,12 +567,12 @@ public class Bit {
                     let pack = bit.packs[f]
                     pack.enable = false
                     pack.explicit = true
-                    pack.diagnostic = 'configured --without ' + f
+                    pack.diagnostic = 'configured --without ' + f + '.'
                 }
                 continue
             }
             pack.enable = false
-            pack.diagnostic = 'configured --without ' + field
+            pack.diagnostic = 'configured --without ' + field + '.'
             pack.explicit = true
         }
     }
@@ -588,10 +588,10 @@ public class Bit {
 
     /** @hide */
     public function findPack(pack) {
-        let path = Path(bit.dir.bits).join('packs', pack + '.pak')
+        let path = Path(bit.dir.bits).join('packs', pack + '.bit')
         if (!path.exists) {
             for each (d in bit.settings.packs) {
-                path = Path(bit.dir.src).join(d, pack + '.pak')
+                path = Path(bit.dir.src).join(d, pack + '.bit')
                 if (path.exists) {
                     break
                 }
@@ -694,36 +694,8 @@ public class Bit {
         }
     }
 
-    function fixup(o, ns) {
+    function fixScripts(o) {
         let home = currentBitFile.dirname
-        for (i in o.modules) {
-            o.modules[i] = home.join(o.modules[i])
-        }
-        for (i in o['+modules']) {
-            o['+modules'][i] = home.join(o['+modules'][i])
-        }
-        if (o.defaults) {
-            rebase(home, o.defaults, 'includes')
-            rebase(home, o.defaults, '+includes')
-            for (let [when,item] in o.defaults.scripts) {
-                if ((item is String) || (item is Function)) {
-                    o.defaults.scripts[when] = [{ home: home, interpreter: 'ejs', script: item }]
-                } else {
-                    item.home ||= home
-                }
-            }
-        }
-        if (o.internal) {
-            rebase(home, o.internal, 'includes')
-            rebase(home, o.internal, '+includes')
-            for (let [when,item] in o.internal.scripts) {
-                if ((item is String) || (item is Function)) {
-                    o.internal.scripts[when] = [{ home: home, interpreter: 'ejs', script: item }]
-                } else {
-                    item.home ||= home
-                }
-            }
-        }
         if (o.scripts) {
             /*
                 Convert to array of objects for each event 
@@ -757,6 +729,51 @@ public class Bit {
                 scripts['+' + event] = item
             }
             o.scripts = scripts
+        }
+    }
+
+    function fixup(o, ns) {
+        let home = currentBitFile.dirname
+        for (i in o.modules) {
+            o.modules[i] = home.join(o.modules[i])
+        }
+        for (i in o['+modules']) {
+            o['+modules'][i] = home.join(o['+modules'][i])
+        }
+        if (o.defaults) {
+            rebase(home, o.defaults, 'includes')
+            rebase(home, o.defaults, '+includes')
+            for (let [when,item] in o.defaults.scripts) {
+                if ((item is String) || (item is Function)) {
+                    o.defaults.scripts[when] = [{ home: home, interpreter: 'ejs', script: item }]
+                } else {
+                    item.home ||= home
+                }
+            }
+        }
+        if (o.internal) {
+            rebase(home, o.internal, 'includes')
+            rebase(home, o.internal, '+includes')
+            for (let [when,item] in o.internal.scripts) {
+                if ((item is String) || (item is Function)) {
+                    o.internal.scripts[when] = [{ home: home, interpreter: 'ejs', script: item }]
+                } else {
+                    item.home ||= home
+                }
+            }
+        }
+        if (o.scripts) {
+            fixScripts(o)
+        }
+        for each (pack in o.packs) {
+            for each (name in ['config', 'without', 'postconfig']) {
+                if (pack[name]) {
+                    pack.scripts ||= {}
+                    pack.scripts[name] = pack[name]
+                    delete pack[name]
+                }
+            }
+            fixScripts(pack)
         }
         for (let [tname,target] in o.targets) {
             target.name ||= tname
@@ -798,6 +815,7 @@ public class Bit {
                 }
             }
 
+            //  MOB - functionalize and cleanup
             /*
                 Expand short-form scripts into the long-form. Set the target type if not defined to 'script'.
                 NOTE: preblend and postload is only fired top level scripts. Not on targets.
@@ -820,10 +838,6 @@ public class Bit {
                     target.goals = [ALL, 'generate']
                 } else if (target.run) {
                     target.goals = ['generate']
-        /* UNUSED
-                } else if (target.action || target.shell || target.build) {
-                    target.goals = ['generate']
-         */
                 } else {
                     target.goals = []
                 }
@@ -891,11 +905,10 @@ public class Bit {
          */
         if (o.targets) {
             bit.targets ||= {}
-            bit.targets = blend(bit.targets, o.targets)
+            bit.targets = blend(bit.targets, o.targets, {functions: true})
             delete o.targets
         }
-        bit = blend(bit, o, {combine: true})
-
+        bit = blend(bit, o, {combine: true, functions: true})
         if (o.scripts && o.scripts.postload) {
             runScript(bit.scripts, "postload")
             delete bit.scripts.postload
@@ -973,10 +986,12 @@ public class Bit {
      */
     function enableTargets() {
         for (let [tname, target] in bit.targets) {
+            let reported = false
             for each (item in target.require) {
                 if (!bit.packs[item] || !bit.packs[item].enable) {
-                    whySkip(target.name, 'Disabled because the pack ' + item + ' is not enabled')
+                    whySkip(target.name, 'disabled because the pack ' + item + ' is not enabled')
                     target.enable = false
+                    reported = true
                 }
             }
             if (target.enable) {
@@ -984,7 +999,7 @@ public class Bit {
                     let script = expand(target.enable)
                     try {
                         if (!eval(script)) {
-                            whySkip(target.name, 'is disabled on this platform')
+                            whySkip(target.name, 'disabled on this platform')
                             target.enable = false
                         } else {
                             target.enable = true
@@ -998,8 +1013,8 @@ public class Bit {
                 target.name ||= tname
             } else if (target.enable == undefined) {
                 target.enable = true
-            } else {
-                whySkip(target.name, 'is disabled')
+            } else if (!reported) {
+                whySkip(target.name, 'disabled')
             }
             if (target.platforms) {
                 if (!target.platforms.contains(currentPlatform) &&
@@ -1259,7 +1274,9 @@ public class Bit {
 
     function resolveDependencies() {
         for each (target in bit.targets) {
-            resolve(target)
+            if (target.enable) {
+                resolve(target)
+            }
         }
         for each (target in bit.targets) {
             delete target.resolved
@@ -1891,6 +1908,9 @@ public class Bit {
     }
 
     public function runScript(scripts, event) {
+        if (!scripts) {
+            return
+        }
         for each (item in scripts[event]) {
             let pwd = App.dir
             if (item.home && item.home != pwd) {
@@ -2413,6 +2433,31 @@ public class Bit {
      */
     public static function load(obj: Object, ns = null) {
         b.loadBitObject(obj, ns)
+    }
+
+    //  MOB DOC
+    public static function pack(obj: Object) {
+        b.loadBitObject({packs: obj} )
+    }
+
+    /**
+        Define a pack for a command line program.
+        This registers the pack and loads the Bit DOM with the pack configuration.
+        @param name Program name. Can be either a path or a basename with optional extension
+        @param description Short, single-line program description.
+     */
+    public static function program(name: Path, description = null): Path {
+        let path = bit.packs[name.trimExt()].path || name
+        let pack = {}
+        let cfg = {description: description}
+        pack[name] = cfg
+        try {
+            cfg.path = probe(name, {fullpath: true})
+        } catch (e) {
+            throw e
+        }
+        Bit.load({packs: pack})
+        return cfg.path
     }
 
     /** @hide */
@@ -3083,19 +3128,20 @@ public var b: Bit = new Bit
 
 b.main()
 
-/**
+/* UNUSED
     Define a pack. This registers a pack with a unique name and description
     This calls Bit.load to initialize a pack collection in the Bit DOM.
     @param name Unique pack name
     @param description Short, single-line pack description
- */
 public function pack(name: String, description: String) {
     let pack = {}
     pack[name] = {description: description}
     Bit.load({packs: pack})
 }
+ */
 
-/**
+/*
+   UNUSED
     Probe for a file and locate
     Will throw an exception if the file is not found, unless {continue, default} specified in control options
     @param file File to search for
@@ -3104,17 +3150,18 @@ public function pack(name: String, description: String) {
     @option search Array of paths to search for the file
     @option nopath Don't use the system PATH to locate the file
     @option fullpath Return the full path to the located file
- */
 public function probe(file: Path, options = {}): Path {
     return b.probe(file, options)
 }
+ */
 
-/**
+/** MOVED
     Define a pack for a command line program.
     This registers the pack and loads the Bit DOM with the pack configuration.
     @param name Program name. Can be either a path or a basename with optional extension
     @param description Short, single-line program description.
- */
+    @hide
+    @deprecate
 public function program(name: Path, description = null): Path {
     let path = bit.packs[name.trimExt()].path || name
     let pack = {}
@@ -3128,6 +3175,7 @@ public function program(name: Path, description = null): Path {
     Bit.load({packs: pack})
     return cfg.path
 }
+*/
 
 /** @hide */
 public function builtin(command: String, options = null)

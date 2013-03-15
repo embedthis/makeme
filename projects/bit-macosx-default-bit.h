@@ -20,7 +20,7 @@
     #define BIT_DEPTH 1
 #endif
 #ifndef BIT_DISCOVER
-    #define BIT_DISCOVER "dsi,ejscript,est,man,man2html,pmaker,zip"
+    #define BIT_DISCOVER "dsi,ejscript,man,man2html,pmaker,ssl,zip"
 #endif
 #ifndef BIT_EJS_DB
     #define BIT_EJS_DB 0
@@ -140,7 +140,7 @@
     #define BIT_TUNE "speed"
 #endif
 #ifndef BIT_VERSION
-    #define BIT_VERSION "0.8.4"
+    #define BIT_VERSION "0.8.5"
 #endif
 #ifndef BIT_WARN64TO32
     #define BIT_WARN64TO32 1
@@ -149,7 +149,7 @@
     #define BIT_WARN_UNUSED 1
 #endif
 #ifndef BIT_WITHOUT_ALL
-    #define BIT_WITHOUT_ALL "dsi,est,man,man2html"
+    #define BIT_WITHOUT_ALL "dsi,man,man2html"
 #endif
 #ifndef BIT_WITHOUT_DEFAULT
     #define BIT_WITHOUT_DEFAULT "dsi,man,man2html"
@@ -172,7 +172,7 @@
     #define BIT_APP_PREFIX "/usr/local/lib/bit"
 #endif
 #ifndef BIT_VAPP_PREFIX
-    #define BIT_VAPP_PREFIX "/usr/local/lib/bit/0.8.4"
+    #define BIT_VAPP_PREFIX "/usr/local/lib/bit/0.8.5"
 #endif
 #ifndef BIT_BIN_PREFIX
     #define BIT_BIN_PREFIX "/usr/local/bin"
@@ -205,7 +205,7 @@
     #define BIT_CACHE_PREFIX "/var/spool/bit/cache"
 #endif
 #ifndef BIT_SRC_PREFIX
-    #define BIT_SRC_PREFIX "bit-0.8.4"
+    #define BIT_SRC_PREFIX "bit-0.8.5"
 #endif
 
 /* Suffixes */
@@ -244,10 +244,10 @@
     #define BIT_MINOR_VERSION 8
 #endif
 #ifndef BIT_PATCH_VERSION
-    #define BIT_PATCH_VERSION 4
+    #define BIT_PATCH_VERSION 5
 #endif
 #ifndef BIT_VNUM
-    #define BIT_VNUM 04
+    #define BIT_VNUM 05
 #endif
 
 /* Packs */
@@ -298,6 +298,12 @@
 #endif
 #ifndef BIT_PACK_SSL
     #define BIT_PACK_SSL 1
+#endif
+#ifndef BIT_PACK_VXWORKS
+    #define BIT_PACK_VXWORKS 0
+#endif
+#ifndef BIT_PACK_WINSDK
+    #define BIT_PACK_WINSDK 0
 #endif
 #ifndef BIT_PACK_ZIP
     #define BIT_PACK_ZIP 1

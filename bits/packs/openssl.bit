@@ -1,0 +1,52 @@
+/*
+    openssl.bit -- OpenSSL package
+ */
+
+Bit.pack({
+    openssl: {
+        description: 'OpenSSL',
+        path: function (pack) {
+            let cfg
+            let path: Path? = pack.withpath
+            if (!path) {
+                if (bit.dir.packs.join('openssl/latest').exists && Config.OS != 'windows') {
+                    path = bit.dir.packs.join('openssl/latest')
+                } else {
+                    let versions = sortVersions(bit.dir.packs.join('openssl').files('openssl-*'))
+                    path = versions[0]
+                }
+                if (!path) {
+                    if (bit.platform.os == 'windows') {
+                        throw 'Cannot find openssl source distribution'
+                    } else {
+                        path = '/usr'
+                    }
+                }
+            }
+            let search = [path]
+            if (bit.platform.arch == 'x64') {
+                search += ['/usr/lib64', '/lib64']
+            }
+            search += ['/usr/lib', '/lib' ]
+            search += Path('/usr/lib').files('*-linux-gnu') + Path('/lib').files('*-linux-gnu')
+
+            if (bit.platform.os == 'windows') {
+                let lib = probe('libeay32.dll', {fullpath: true, search: search, nopath: true}).absolute
+                pack.libraries = [ 'libeay32.lib', 'ssleay32.lib' ]
+                pack.libpaths = [ lib.parent ]
+                pack.imports = [ lib.parent.join('libeay32.dll'), lib.parent.join('libeay32.lib'),
+                                 lib.parent.join('ssleay32.dll'), lib.parent.join('ssleay32.lib') ]
+                pack.includes [ probe('openssl/ssl.h', {search: [ path.join('inc32')]}).absolute ]
+
+            } else {
+                let lib = probe('libcrypto.' + bit.ext.shobj, {fullpath: true, search: search, nopath: true}).absolute
+                pack.libraries = [ 'ssl', 'crypto' ]
+                pack.libpaths = [ lib.parent ]
+                pack.imports = lib.parent.files('libssl*.' + bit.ext.shobj) + lib.parent.files('libcrypto*.' + bit.ext.shobj)
+                pack.includes = [ probe('openssl/ssl.h', {search: [ path.join('include'), '/usr/include']}).absolute ]
+            }
+            return path
+        },
+    },
+})
+

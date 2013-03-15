@@ -1,6 +1,0 @@
-/*
-    ranlib.pak - Ranlib package for Bit
- */
-
-program('ranlib', 'Library Index Tool')
-

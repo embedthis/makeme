@@ -3,7 +3,7 @@
 #
 
 PRODUCT           = bit
-VERSION           = 0.8.4
+VERSION           = 0.8.5
 BUILD_NUMBER      = 0
 PROFILE           = default
 PA                = $(PROCESSOR_ARCHITECTURE)
@@ -134,7 +134,7 @@ clean:
 #
 version: $(DEPS_1)
 	cd bits
-	@echo NN 0.8.4-0
+	@echo NN 0.8.5-0
 	cd ..
 
 #
@@ -546,34 +546,37 @@ DEPS_35 = $(DEPS_35) bits\os\unix.bit
 DEPS_35 = $(DEPS_35) bits\os\vxworks.bit
 DEPS_35 = $(DEPS_35) bits\os\windows.bit
 DEPS_35 = $(DEPS_35) bits\packs
-DEPS_35 = $(DEPS_35) bits\packs\compiler.pak
-DEPS_35 = $(DEPS_35) bits\packs\doxygen.pak
-DEPS_35 = $(DEPS_35) bits\packs\dsi.pak
-DEPS_35 = $(DEPS_35) bits\packs\dumpbin.pak
-DEPS_35 = $(DEPS_35) bits\packs\ejs.pak
-DEPS_35 = $(DEPS_35) bits\packs\ejscript.pak
-DEPS_35 = $(DEPS_35) bits\packs\est.pak
-DEPS_35 = $(DEPS_35) bits\packs\http.pak
-DEPS_35 = $(DEPS_35) bits\packs\lib.pak
-DEPS_35 = $(DEPS_35) bits\packs\link.pak
-DEPS_35 = $(DEPS_35) bits\packs\man.pak
-DEPS_35 = $(DEPS_35) bits\packs\man2html.pak
-DEPS_35 = $(DEPS_35) bits\packs\matrixssl.pak
-DEPS_35 = $(DEPS_35) bits\packs\md5.pak
-DEPS_35 = $(DEPS_35) bits\packs\nanossl.pak
-DEPS_35 = $(DEPS_35) bits\packs\openssl.pak
-DEPS_35 = $(DEPS_35) bits\packs\pcre.pak
-DEPS_35 = $(DEPS_35) bits\packs\pmaker.pak
-DEPS_35 = $(DEPS_35) bits\packs\ranlib.pak
-DEPS_35 = $(DEPS_35) bits\packs\rc.pak
-DEPS_35 = $(DEPS_35) bits\packs\sqlite.pak
-DEPS_35 = $(DEPS_35) bits\packs\strip.pak
-DEPS_35 = $(DEPS_35) bits\packs\tidy.pak
-DEPS_35 = $(DEPS_35) bits\packs\utest.pak
-DEPS_35 = $(DEPS_35) bits\packs\vxworks.pak
-DEPS_35 = $(DEPS_35) bits\packs\winsdk.pak
-DEPS_35 = $(DEPS_35) bits\packs\zip.pak
-DEPS_35 = $(DEPS_35) bits\packs\zlib.pak
+DEPS_35 = $(DEPS_35) bits\packs\compiler.bit
+DEPS_35 = $(DEPS_35) bits\packs\doxygen.bit
+DEPS_35 = $(DEPS_35) bits\packs\dsi.bit
+DEPS_35 = $(DEPS_35) bits\packs\dumpbin.bit
+DEPS_35 = $(DEPS_35) bits\packs\ejs.bit
+DEPS_35 = $(DEPS_35) bits\packs\ejscript.bit
+DEPS_35 = $(DEPS_35) bits\packs\est.bit
+DEPS_35 = $(DEPS_35) bits\packs\http.bit
+DEPS_35 = $(DEPS_35) bits\packs\lib.bit
+DEPS_35 = $(DEPS_35) bits\packs\link.bit
+DEPS_35 = $(DEPS_35) bits\packs\man.bit
+DEPS_35 = $(DEPS_35) bits\packs\man2html.bit
+DEPS_35 = $(DEPS_35) bits\packs\master.bit
+DEPS_35 = $(DEPS_35) bits\packs\matrixssl.bit
+DEPS_35 = $(DEPS_35) bits\packs\md5.bit
+DEPS_35 = $(DEPS_35) bits\packs\nanossl.bit
+DEPS_35 = $(DEPS_35) bits\packs\openssl.bit
+DEPS_35 = $(DEPS_35) bits\packs\pcre.bit
+DEPS_35 = $(DEPS_35) bits\packs\pmaker.bit
+DEPS_35 = $(DEPS_35) bits\packs\ranlib.bit
+DEPS_35 = $(DEPS_35) bits\packs\rc.bit
+DEPS_35 = $(DEPS_35) bits\packs\sample-http.bit
+DEPS_35 = $(DEPS_35) bits\packs\sqlite.bit
+DEPS_35 = $(DEPS_35) bits\packs\ssl.bit
+DEPS_35 = $(DEPS_35) bits\packs\strip.bit
+DEPS_35 = $(DEPS_35) bits\packs\tidy.bit
+DEPS_35 = $(DEPS_35) bits\packs\utest.bit
+DEPS_35 = $(DEPS_35) bits\packs\vxworks.bit
+DEPS_35 = $(DEPS_35) bits\packs\winsdk.bit
+DEPS_35 = $(DEPS_35) bits\packs\zip.bit
+DEPS_35 = $(DEPS_35) bits\packs\zlib.bit
 DEPS_35 = $(DEPS_35) bits\sample-main.bit
 DEPS_35 = $(DEPS_35) bits\sample-start.bit
 DEPS_35 = $(DEPS_35) bits\simple.bit
@@ -610,63 +613,69 @@ $(CONFIG)\bin\bits: $(DEPS_35)
 	copy /Y "bits\os\vxworks.bit" "$(CONFIG)\bin\bits\os\vxworks.bit"
 	copy /Y "bits\os\windows.bit" "$(CONFIG)\bin\bits\os\windows.bit"
 	if not exist "$(CONFIG)\bin\bits\packs" md "$(CONFIG)\bin\bits\packs"
-	copy /Y "bits\packs\compiler.pak" "$(CONFIG)\bin\bits\packs\compiler.pak"
-	copy /Y "bits\packs\doxygen.pak" "$(CONFIG)\bin\bits\packs\doxygen.pak"
-	copy /Y "bits\packs\dsi.pak" "$(CONFIG)\bin\bits\packs\dsi.pak"
-	copy /Y "bits\packs\dumpbin.pak" "$(CONFIG)\bin\bits\packs\dumpbin.pak"
-	copy /Y "bits\packs\ejs.pak" "$(CONFIG)\bin\bits\packs\ejs.pak"
-	copy /Y "bits\packs\ejscript.pak" "$(CONFIG)\bin\bits\packs\ejscript.pak"
-	copy /Y "bits\packs\est.pak" "$(CONFIG)\bin\bits\packs\est.pak"
-	copy /Y "bits\packs\http.pak" "$(CONFIG)\bin\bits\packs\http.pak"
-	copy /Y "bits\packs\lib.pak" "$(CONFIG)\bin\bits\packs\lib.pak"
-	copy /Y "bits\packs\link.pak" "$(CONFIG)\bin\bits\packs\link.pak"
-	copy /Y "bits\packs\man.pak" "$(CONFIG)\bin\bits\packs\man.pak"
-	copy /Y "bits\packs\man2html.pak" "$(CONFIG)\bin\bits\packs\man2html.pak"
-	copy /Y "bits\packs\matrixssl.pak" "$(CONFIG)\bin\bits\packs\matrixssl.pak"
-	copy /Y "bits\packs\md5.pak" "$(CONFIG)\bin\bits\packs\md5.pak"
-	copy /Y "bits\packs\nanossl.pak" "$(CONFIG)\bin\bits\packs\nanossl.pak"
-	copy /Y "bits\packs\openssl.pak" "$(CONFIG)\bin\bits\packs\openssl.pak"
-	copy /Y "bits\packs\pcre.pak" "$(CONFIG)\bin\bits\packs\pcre.pak"
-	copy /Y "bits\packs\pmaker.pak" "$(CONFIG)\bin\bits\packs\pmaker.pak"
-	copy /Y "bits\packs\ranlib.pak" "$(CONFIG)\bin\bits\packs\ranlib.pak"
-	copy /Y "bits\packs\rc.pak" "$(CONFIG)\bin\bits\packs\rc.pak"
-	copy /Y "bits\packs\sqlite.pak" "$(CONFIG)\bin\bits\packs\sqlite.pak"
-	copy /Y "bits\packs\strip.pak" "$(CONFIG)\bin\bits\packs\strip.pak"
-	copy /Y "bits\packs\tidy.pak" "$(CONFIG)\bin\bits\packs\tidy.pak"
-	copy /Y "bits\packs\utest.pak" "$(CONFIG)\bin\bits\packs\utest.pak"
-	copy /Y "bits\packs\vxworks.pak" "$(CONFIG)\bin\bits\packs\vxworks.pak"
-	copy /Y "bits\packs\winsdk.pak" "$(CONFIG)\bin\bits\packs\winsdk.pak"
-	copy /Y "bits\packs\zip.pak" "$(CONFIG)\bin\bits\packs\zip.pak"
-	copy /Y "bits\packs\zlib.pak" "$(CONFIG)\bin\bits\packs\zlib.pak"
+	copy /Y "bits\packs\compiler.bit" "$(CONFIG)\bin\bits\packs\compiler.bit"
+	copy /Y "bits\packs\doxygen.bit" "$(CONFIG)\bin\bits\packs\doxygen.bit"
+	copy /Y "bits\packs\dsi.bit" "$(CONFIG)\bin\bits\packs\dsi.bit"
+	copy /Y "bits\packs\dumpbin.bit" "$(CONFIG)\bin\bits\packs\dumpbin.bit"
+	copy /Y "bits\packs\ejs.bit" "$(CONFIG)\bin\bits\packs\ejs.bit"
+	copy /Y "bits\packs\ejscript.bit" "$(CONFIG)\bin\bits\packs\ejscript.bit"
+	copy /Y "bits\packs\est.bit" "$(CONFIG)\bin\bits\packs\est.bit"
+	copy /Y "bits\packs\http.bit" "$(CONFIG)\bin\bits\packs\http.bit"
+	copy /Y "bits\packs\lib.bit" "$(CONFIG)\bin\bits\packs\lib.bit"
+	copy /Y "bits\packs\link.bit" "$(CONFIG)\bin\bits\packs\link.bit"
+	copy /Y "bits\packs\man.bit" "$(CONFIG)\bin\bits\packs\man.bit"
+	copy /Y "bits\packs\man2html.bit" "$(CONFIG)\bin\bits\packs\man2html.bit"
+	copy /Y "bits\packs\master.bit" "$(CONFIG)\bin\bits\packs\master.bit"
+	copy /Y "bits\packs\matrixssl.bit" "$(CONFIG)\bin\bits\packs\matrixssl.bit"
+	copy /Y "bits\packs\md5.bit" "$(CONFIG)\bin\bits\packs\md5.bit"
+	copy /Y "bits\packs\nanossl.bit" "$(CONFIG)\bin\bits\packs\nanossl.bit"
+	copy /Y "bits\packs\openssl.bit" "$(CONFIG)\bin\bits\packs\openssl.bit"
+	copy /Y "bits\packs\pcre.bit" "$(CONFIG)\bin\bits\packs\pcre.bit"
+	copy /Y "bits\packs\pmaker.bit" "$(CONFIG)\bin\bits\packs\pmaker.bit"
+	copy /Y "bits\packs\ranlib.bit" "$(CONFIG)\bin\bits\packs\ranlib.bit"
+	copy /Y "bits\packs\rc.bit" "$(CONFIG)\bin\bits\packs\rc.bit"
+	copy /Y "bits\packs\sample-http.bit" "$(CONFIG)\bin\bits\packs\sample-http.bit"
+	copy /Y "bits\packs\sqlite.bit" "$(CONFIG)\bin\bits\packs\sqlite.bit"
+	copy /Y "bits\packs\ssl.bit" "$(CONFIG)\bin\bits\packs\ssl.bit"
+	copy /Y "bits\packs\strip.bit" "$(CONFIG)\bin\bits\packs\strip.bit"
+	copy /Y "bits\packs\tidy.bit" "$(CONFIG)\bin\bits\packs\tidy.bit"
+	copy /Y "bits\packs\utest.bit" "$(CONFIG)\bin\bits\packs\utest.bit"
+	copy /Y "bits\packs\vxworks.bit" "$(CONFIG)\bin\bits\packs\vxworks.bit"
+	copy /Y "bits\packs\winsdk.bit" "$(CONFIG)\bin\bits\packs\winsdk.bit"
+	copy /Y "bits\packs\zip.bit" "$(CONFIG)\bin\bits\packs\zip.bit"
+	copy /Y "bits\packs\zlib.bit" "$(CONFIG)\bin\bits\packs\zlib.bit"
 	if not exist "$(CONFIG)\bin\bits\packs" md "$(CONFIG)\bin\bits\packs"
-	copy /Y "bits\packs\compiler.pak" "$(CONFIG)\bin\bits\packs\compiler.pak"
-	copy /Y "bits\packs\doxygen.pak" "$(CONFIG)\bin\bits\packs\doxygen.pak"
-	copy /Y "bits\packs\dsi.pak" "$(CONFIG)\bin\bits\packs\dsi.pak"
-	copy /Y "bits\packs\dumpbin.pak" "$(CONFIG)\bin\bits\packs\dumpbin.pak"
-	copy /Y "bits\packs\ejs.pak" "$(CONFIG)\bin\bits\packs\ejs.pak"
-	copy /Y "bits\packs\ejscript.pak" "$(CONFIG)\bin\bits\packs\ejscript.pak"
-	copy /Y "bits\packs\est.pak" "$(CONFIG)\bin\bits\packs\est.pak"
-	copy /Y "bits\packs\http.pak" "$(CONFIG)\bin\bits\packs\http.pak"
-	copy /Y "bits\packs\lib.pak" "$(CONFIG)\bin\bits\packs\lib.pak"
-	copy /Y "bits\packs\link.pak" "$(CONFIG)\bin\bits\packs\link.pak"
-	copy /Y "bits\packs\man.pak" "$(CONFIG)\bin\bits\packs\man.pak"
-	copy /Y "bits\packs\man2html.pak" "$(CONFIG)\bin\bits\packs\man2html.pak"
-	copy /Y "bits\packs\matrixssl.pak" "$(CONFIG)\bin\bits\packs\matrixssl.pak"
-	copy /Y "bits\packs\md5.pak" "$(CONFIG)\bin\bits\packs\md5.pak"
-	copy /Y "bits\packs\nanossl.pak" "$(CONFIG)\bin\bits\packs\nanossl.pak"
-	copy /Y "bits\packs\openssl.pak" "$(CONFIG)\bin\bits\packs\openssl.pak"
-	copy /Y "bits\packs\pcre.pak" "$(CONFIG)\bin\bits\packs\pcre.pak"
-	copy /Y "bits\packs\pmaker.pak" "$(CONFIG)\bin\bits\packs\pmaker.pak"
-	copy /Y "bits\packs\ranlib.pak" "$(CONFIG)\bin\bits\packs\ranlib.pak"
-	copy /Y "bits\packs\rc.pak" "$(CONFIG)\bin\bits\packs\rc.pak"
-	copy /Y "bits\packs\sqlite.pak" "$(CONFIG)\bin\bits\packs\sqlite.pak"
-	copy /Y "bits\packs\strip.pak" "$(CONFIG)\bin\bits\packs\strip.pak"
-	copy /Y "bits\packs\tidy.pak" "$(CONFIG)\bin\bits\packs\tidy.pak"
-	copy /Y "bits\packs\utest.pak" "$(CONFIG)\bin\bits\packs\utest.pak"
-	copy /Y "bits\packs\vxworks.pak" "$(CONFIG)\bin\bits\packs\vxworks.pak"
-	copy /Y "bits\packs\winsdk.pak" "$(CONFIG)\bin\bits\packs\winsdk.pak"
-	copy /Y "bits\packs\zip.pak" "$(CONFIG)\bin\bits\packs\zip.pak"
-	copy /Y "bits\packs\zlib.pak" "$(CONFIG)\bin\bits\packs\zlib.pak"
+	copy /Y "bits\packs\compiler.bit" "$(CONFIG)\bin\bits\packs\compiler.bit"
+	copy /Y "bits\packs\doxygen.bit" "$(CONFIG)\bin\bits\packs\doxygen.bit"
+	copy /Y "bits\packs\dsi.bit" "$(CONFIG)\bin\bits\packs\dsi.bit"
+	copy /Y "bits\packs\dumpbin.bit" "$(CONFIG)\bin\bits\packs\dumpbin.bit"
+	copy /Y "bits\packs\ejs.bit" "$(CONFIG)\bin\bits\packs\ejs.bit"
+	copy /Y "bits\packs\ejscript.bit" "$(CONFIG)\bin\bits\packs\ejscript.bit"
+	copy /Y "bits\packs\est.bit" "$(CONFIG)\bin\bits\packs\est.bit"
+	copy /Y "bits\packs\http.bit" "$(CONFIG)\bin\bits\packs\http.bit"
+	copy /Y "bits\packs\lib.bit" "$(CONFIG)\bin\bits\packs\lib.bit"
+	copy /Y "bits\packs\link.bit" "$(CONFIG)\bin\bits\packs\link.bit"
+	copy /Y "bits\packs\man.bit" "$(CONFIG)\bin\bits\packs\man.bit"
+	copy /Y "bits\packs\man2html.bit" "$(CONFIG)\bin\bits\packs\man2html.bit"
+	copy /Y "bits\packs\master.bit" "$(CONFIG)\bin\bits\packs\master.bit"
+	copy /Y "bits\packs\matrixssl.bit" "$(CONFIG)\bin\bits\packs\matrixssl.bit"
+	copy /Y "bits\packs\md5.bit" "$(CONFIG)\bin\bits\packs\md5.bit"
+	copy /Y "bits\packs\nanossl.bit" "$(CONFIG)\bin\bits\packs\nanossl.bit"
+	copy /Y "bits\packs\openssl.bit" "$(CONFIG)\bin\bits\packs\openssl.bit"
+	copy /Y "bits\packs\pcre.bit" "$(CONFIG)\bin\bits\packs\pcre.bit"
+	copy /Y "bits\packs\pmaker.bit" "$(CONFIG)\bin\bits\packs\pmaker.bit"
+	copy /Y "bits\packs\ranlib.bit" "$(CONFIG)\bin\bits\packs\ranlib.bit"
+	copy /Y "bits\packs\rc.bit" "$(CONFIG)\bin\bits\packs\rc.bit"
+	copy /Y "bits\packs\sample-http.bit" "$(CONFIG)\bin\bits\packs\sample-http.bit"
+	copy /Y "bits\packs\sqlite.bit" "$(CONFIG)\bin\bits\packs\sqlite.bit"
+	copy /Y "bits\packs\ssl.bit" "$(CONFIG)\bin\bits\packs\ssl.bit"
+	copy /Y "bits\packs\strip.bit" "$(CONFIG)\bin\bits\packs\strip.bit"
+	copy /Y "bits\packs\tidy.bit" "$(CONFIG)\bin\bits\packs\tidy.bit"
+	copy /Y "bits\packs\utest.bit" "$(CONFIG)\bin\bits\packs\utest.bit"
+	copy /Y "bits\packs\vxworks.bit" "$(CONFIG)\bin\bits\packs\vxworks.bit"
+	copy /Y "bits\packs\winsdk.bit" "$(CONFIG)\bin\bits\packs\winsdk.bit"
+	copy /Y "bits\packs\zip.bit" "$(CONFIG)\bin\bits\packs\zip.bit"
+	copy /Y "bits\packs\zlib.bit" "$(CONFIG)\bin\bits\packs\zlib.bit"
 	copy /Y "bits\sample-main.bit" "$(CONFIG)\bin\bits\sample-main.bit"
 	copy /Y "bits\sample-start.bit" "$(CONFIG)\bin\bits\sample-start.bit"
 	copy /Y "bits\simple.bit" "$(CONFIG)\bin\bits\simple.bit"

@@ -1,5 +1,0 @@
-/*
-    http.pak - Http package for Bit
- */
-
-program('http', 'Http Exerciser Program')

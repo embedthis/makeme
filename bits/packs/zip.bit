@@ -1,0 +1,6 @@
+/*
+    zip.bit - Zip package for Bit
+ */
+
+Bit.program('zip', 'Zip Compression Tool')
+

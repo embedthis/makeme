@@ -1,0 +1,5 @@
+/*
+    utest.bit - Utest for Bit
+ */
+
+Bit.program('utest', 'Unit Test Tool')

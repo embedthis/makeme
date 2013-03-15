@@ -1,0 +1,10 @@
+/*
+    pcre.bit - Bit package for PCRE
+ */
+
+Bit.pack({
+    pcre: {
+        description: 'Regular Expression Package',
+        path: bit.dir.src.join('src/deps/pcre'),
+    },
+})

@@ -1,0 +1,28 @@
+/*
+    master.bit - Http package for Bit
+ */
+
+Bit.pack({
+    http: {
+        name: 'DEFAULT TO PARAGRAPH',
+        description: 'Http Program',
+        path: probe('http'),
+        require: [ 'packs' ],
+        discover: []
+        after: [],
+        enable: true,
+        includes: [],
+        libraries: [],
+        libpaths: [],
+        scripts: {
+            without: '',                      // Inline use function()
+            config: '',
+        },
+
+        repository: {
+            type: 'git',
+            url: 'git://github.com/embedthis/http.git',
+        },
+        blend: ['src/deps/NAME/NAME.bit'],      // gets written to platform.bit in blend
+    },
+})

@@ -1,12 +1,40 @@
 /*
-    compiler.pak - Compile package for Bit
+    compiler.bit - Compile package for Bit
 
     This is a fairly complex package due to the differences between compilers and operating systems.
  */
 
-function findWindowsCompiler(path: Path?) {
+Bit.pack({
+    compiler: {
+        description: 'C/C++ Compiler',
+        after: [ 'vxworks', 'winsdk' ],
+        path: function (pack) {
+            if (bit.platform.like == 'windows') {
+                path = findWindowsCompiler(pack)
+
+            } else if (bit.platform.os == 'vxworks') {
+                path = findVxCompiler(pack)
+
+            } else {
+                path = findPosixCompiler(pack)
+            }
+            return path
+        },
+        config: function (pack) {
+            testCompilerCapabilities()
+        },
+    },
+})
+
+
+function findWindowsCompiler(pack) {
     let search
     let vsdir: Path
+    let path: Path? = bit.packs.compiler.withpath
+
+    /*
+        Test here because may come here when cross generating
+     */
     if (Config.OS == 'windows') {
         /*
             The VS bin+lib directories contain 32 bit compilers and libraries
@@ -21,7 +49,7 @@ function findWindowsCompiler(path: Path?) {
             throw 'Cannot find Visual Studio installation'
         }
         vsdir = Path(search[0]).parent.parent
-        if (platform.arch == 'x64') {
+        if (bit.platform.arch == 'x64') {
             if (Config.CPU == 'x64') {
                 /* Running on a 64 bit */
                 search = search.map(function(e) Path(e).join('amd64'))
@@ -31,30 +59,29 @@ function findWindowsCompiler(path: Path?) {
             }
         }
     }
-    let vv: Path = Path('$(VS)')
-    let vsbin, vslib, defs, version
+    let vsbin, vslib, version
     if (Config.OS != 'windows') {
-        cc = 'cl.exe'
-        vsdir = vv
+        path = 'cl.exe'
+        vsdir = Path('$(VS)')
         vsbin = vsdir.join('VC/Bin'),
         vslib = vsdir.join('VC/lib')
-        defs = []
         version = '0'
     } else {
-        path ||= 'cl.exe'
-        cc = probe(path, {fullpath: true, search: search})
-        vsbin = cc.dirname
+        path = probe(path || 'cl.exe', {fullpath: true, search: search})
+        vsbin = path.dirname
         if (bit.platform.arch == 'x64') {
             vslib = vsbin.join('../../lib/amd64').normalize
         } else {
             vslib = vsbin.join('../lib').normalize
         }
         version = vsdir.name.match(/\d*\.\d/)[0]
-        defs = [ 'BIT_VISUAL_STUDIO_VERSION="' + version + '"']
+        pack.definitions = [ 'BIT_VISUAL_STUDIO_VERSION="' + version + '"' ]
     }
-    let crtver = version.replace('.', '')
+    pack.version = version
+    pack.crt = version.replace('.', '')
+    pack.dir = vsdir
+    pack.search = search
 
-    Bit.load({packs: { compiler: { path: cc, dir: vsdir, search: search, definitions: defs, version: version, crt: crtver }}})
     bit.env.PATH += [
         vsbin,
         vsdir.join('Common7/IDE'),
@@ -66,10 +93,13 @@ function findWindowsCompiler(path: Path?) {
         vsdir.join('VC/INCLUDE')
     ]
     bit.env.LIB += [ vslib ]
+    return path
 }
 
 
-function findVxCompiler(path: Path?) {
+function findVxCompiler(pack) {
+    let path: Path? = bit.packs.compiler.withpath
+    let platform = bit.platform
     if (!path) {
         if (platform.arch.match(/^i386$|^i486$$/)) {
             path = 'cc386'
@@ -90,19 +120,17 @@ function findVxCompiler(path: Path?) {
         }
     }
     if (!bit.options.gen) {
-        cc = probe(path, {fullpath: true, search: bit.packs.vxworks.search})
         bit.env.WIND_CCNAME = path.basename
-    } else {
-        cc = path
+        path = probe(path, {fullpath: true, search: bit.packs.vxworks.search})
     }
-    Bit.load({packs: { compiler: { path: cc, name: path.basename }}})
+    //  UNUSED pack.name = path.basename
+    return path
 }
 
 
-function findPosixCompiler(path: Path?) {
-    path ||= (platform.os == 'macosx') ? 'clang' : 'gcc'
-    cc = probe(path, {fullpath: true})
-    Bit.load({packs: { compiler: { path: cc }}})
+function findPosixCompiler(pack) {
+    let path: Path? = bit.packs.compiler.withpath || ((bit.platform.os == 'macosx') ? 'clang' : 'gcc')
+    return probe(path, {fullpath: true})
 }
 
 
@@ -110,6 +138,7 @@ function findPosixCompiler(path: Path?) {
     Test compiler capabilities and determine a minimal set of compiler switches to store in bit.settings
  */
 function testCompilerCapabilities() {
+    let platform = bit.platform
     let settings = getDefaultSettings(platform)
     let cc = bit.packs.compiler.path
 
@@ -242,22 +271,3 @@ function getDefaultSettings(platform) {
     }
     return settings
 }
-
-/*
-    Compiler detection
- */
-pack('compiler', "C/C++ Compiler")
-let cc: Path?
-let platform = bit.platform
-let path: Path? = bit.packs.compiler.path
-
-if (platform.like == 'unix') {
-    findPosixCompiler(path)
-} else if (platform.like == 'windows') {
-    findWindowsCompiler(path)
-} else if (platform.os == 'vxworks') {
-    findVxCompiler(path)
-}
-testCompilerCapabilities()
-
-

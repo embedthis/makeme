@@ -1,9 +1,0 @@
-/*
-    lib.pak - Library package for Bit
- */
-
-pack('lib', 'Library Archive Tool')
-
-let name = (bit.platform.like == 'windows') ? 'lib.exe' : 'ar'
-let lib = probe(name, {fullpath: true, search: bit.packs.compiler.search, default: name})
-Bit.load({packs: { lib: { path: lib }}})

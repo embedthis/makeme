@@ -133,61 +133,67 @@ if exist $(BinDir)\bits del /Q $(BinDir)\bits
 if not exist $(BinDir)\bits md $(BinDir)\bits
 xcopy /S /Y bits\packs $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\compiler.pak $(BinDir)\bits
+copy /Y bits\packs\compiler.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\doxygen.pak $(BinDir)\bits
+copy /Y bits\packs\doxygen.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\dsi.pak $(BinDir)\bits
+copy /Y bits\packs\dsi.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\dumpbin.pak $(BinDir)\bits
+copy /Y bits\packs\dumpbin.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\ejs.pak $(BinDir)\bits
+copy /Y bits\packs\ejs.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\ejscript.pak $(BinDir)\bits
+copy /Y bits\packs\ejscript.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\est.pak $(BinDir)\bits
+copy /Y bits\packs\est.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\http.pak $(BinDir)\bits
+copy /Y bits\packs\http.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\lib.pak $(BinDir)\bits
+copy /Y bits\packs\lib.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\link.pak $(BinDir)\bits
+copy /Y bits\packs\link.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\man.pak $(BinDir)\bits
+copy /Y bits\packs\man.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\man2html.pak $(BinDir)\bits
+copy /Y bits\packs\man2html.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\matrixssl.pak $(BinDir)\bits
+copy /Y bits\packs\master.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\md5.pak $(BinDir)\bits
+copy /Y bits\packs\matrixssl.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\nanossl.pak $(BinDir)\bits
+copy /Y bits\packs\md5.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\openssl.pak $(BinDir)\bits
+copy /Y bits\packs\nanossl.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\pcre.pak $(BinDir)\bits
+copy /Y bits\packs\openssl.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\pmaker.pak $(BinDir)\bits
+copy /Y bits\packs\pcre.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\ranlib.pak $(BinDir)\bits
+copy /Y bits\packs\pmaker.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\rc.pak $(BinDir)\bits
+copy /Y bits\packs\ranlib.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\sqlite.pak $(BinDir)\bits
+copy /Y bits\packs\rc.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\strip.pak $(BinDir)\bits
+copy /Y bits\packs\sample-http.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\tidy.pak $(BinDir)\bits
+copy /Y bits\packs\sqlite.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\utest.pak $(BinDir)\bits
+copy /Y bits\packs\ssl.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\vxworks.pak $(BinDir)\bits
+copy /Y bits\packs\strip.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\winsdk.pak $(BinDir)\bits
+copy /Y bits\packs\tidy.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\zip.pak $(BinDir)\bits
+copy /Y bits\packs\utest.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\zlib.pak $(BinDir)\bits
+copy /Y bits\packs\vxworks.bit $(BinDir)\bits
+if exist $(BinDir)\bits del /Q $(BinDir)\bits
+copy /Y bits\packs\winsdk.bit $(BinDir)\bits
+if exist $(BinDir)\bits del /Q $(BinDir)\bits
+copy /Y bits\packs\zip.bit $(BinDir)\bits
+if exist $(BinDir)\bits del /Q $(BinDir)\bits
+copy /Y bits\packs\zlib.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\sample-main.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
