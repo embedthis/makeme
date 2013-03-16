@@ -800,7 +800,7 @@ public class Bit {
         }
     }
 
-    function fixTarget(o, target) {
+    function fixTarget(o, tname, target) {
         target.home = absPath(target.home)
         let home = target.home
         if (target.path) {
@@ -818,19 +818,6 @@ public class Bit {
         if (target.requires) {
             target.requires = makeArray(target.requires)
         }
-
-    /* 
-        plus(target, 'includes')
-        plus(target, 'headers')
-        plus(target, 'resources')
-        plus(target, 'sources')
-        plus(target, 'files')
-        plus(target, 'defines')
-        plus(target, 'compiler')
-        plus(target, 'linker')
-        plus(target, 'subtree')
-    */
-
         rebase(home, target, 'includes')
         rebase(home, target, 'headers')
         rebase(home, target, 'resources')
@@ -864,7 +851,9 @@ public class Bit {
             Blend internal for only the targets in this file. Delay blending defaults.
          */
         if (o.internal) {
-            blend(target, o.internal, {combine: true})
+            // blend(target, o.internal, {combine: true})
+            let base = blend({}, o.internal, {combine: true})
+            target = o.targets[tname] = bit.targets[tname] = blend(base, target, {combine: true})
         }
     }
 
@@ -907,7 +896,7 @@ public class Bit {
         for (let [tname,target] in o.targets) {
             target.name ||= tname
             target.home ||= home
-            fixTarget(o, target)
+            fixTarget(o, tname, target)
         }
     }
 

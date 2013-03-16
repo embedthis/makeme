@@ -293,6 +293,7 @@ Bit.load({
             home: '${TOP}',
             enable: "'${OS}.match(/linux|macosx|windows/)",
             depends: ['packageBinary', 'packageSource', 'packageCombo', 'packageFlat'],
+            '+platforms': [ 'abc' ],
         },
 
         packageBinary: {

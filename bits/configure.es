@@ -301,6 +301,7 @@ module embedthis.bit {
                 pack.loaded = true
                 pack.file = path.portable
                 currentPack = pname
+                vtrace('Search', 'For pack: ' + pname)
                 b.loadBitFile(path)
                 if (pack.requires) {
                     loadPacks(pack.requires)
