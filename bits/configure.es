@@ -65,6 +65,7 @@ module embedthis.bit {
 
     function reconfigure() {
         vtrace('Load', 'Preload main.bit to determine required configuration')
+        b.quickLoad(b.MAIN)
         b.platforms = bit.platforms = [b.localPlatform]
         b.makeBit(b.localPlatform, b.localPlatform + '.bit')
         if (bit.settings.configure) {

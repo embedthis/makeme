@@ -2080,6 +2080,7 @@ public class Bit {
             if (!bit.targets[dname]) {
                 let pack = bit.packs[dname]
                 if (pack) {
+                /* UNUSED - don't make stale if pack has no path
                     if (!pack.enable) {
                         continue
                     }
@@ -2088,6 +2089,7 @@ public class Bit {
                         whyRebuild(path, 'Rebuild', 'missing ' + file + ' for package ' + dname)
                         return true
                     }
+                    */
                 } else {
                     /* If dependency is not a target, then treat as a file */
                     if (!dname.modified) {
@@ -2116,6 +2118,24 @@ public class Bit {
      */
     function makeDepends(target): Array {
         let includes: Array = []
+        /*
+            FUTURE - persist dependencies
+
+            for each (path in target.files) {
+                if (path.modified <= bit.settings.lastBuild) {
+                    continue
+                }
+                let dep = bit.targets[path]
+                if (dep) {
+                    for each (h in dep.depends) {
+                    let str = path.readString()
+                    let more = str.match(/^#include.*"$/gm)
+                    if (more) {
+                        includes += more
+                    }
+                }
+            }
+         */
         for each (path in target.files) {
             if (path.exists) {
                 let str = path.readString()
