@@ -41,6 +41,9 @@
                     <li><a href="#packs">bit.packs</a></li>
                     <li><a href="#settings">bit.settings</a></li>
                     <li><a href="#targets">bit.targets</a></li>
+                    <li><a href="#scripts">bit.scripts</a></li>
+                    <li><a href="#tscripts">bit.target.*.scripts</a></li>
+                    <li><a href="#pscripts">bit.packs.*.scripts</a></li>
                 </ul>
 <!-- BeginDsi "dsi/refSeeAlso.html" -->
         <h1>See Also</h1>
@@ -192,17 +195,24 @@
                 <tr><th>Name</th><th>Description</th>
             </thead>
             <tbody>
+                <tr><td>after</td><td>Array of optional packs to process before this pack. These packs may or may not
+                    be present.</td></tr>
+                <tr><td>conflicts</td><td>Array of conflicting packs</td></tr>
                 <tr><td>compiler</td><td>Compiler options when building targets that depend on this pack</td></tr>
                 <tr><td>defines</td><td>Compiler definitions when building targets that depend on this pack</td></tr>
                 <tr><td>description</td><td>Descriptive name of the pack</td></tr>
+                <tr><td>discover</td><td>Array of packs to discover that may be optionally utilized by this pack</td></tr>
                 <tr><td>enable</td><td>Set to true if the pack was found on the system</td></tr>
-                <tr><td>imports</td><td>Files to import from this pack before building</td></tr>
+                <tr><td>file</td><td>File to the bit file that defined the pack</td></tr>
+                <tr><td>imports</td><td>Files to import from this pack into the platform bin directory before building</td></tr>
                 <tr><td>includes</td><td>Compiler include directories to use when building targets that depend on this
                         pack</td></tr>
                 <tr><td>libraries</td><td>Libraries to link with when building targets that depend on this pack</td></tr>
                 <tr><td>libpaths</td><td>Library search paths to use when building targets that depend on this pack</td></tr>
                 <tr><td>linker</td><td>Linker options to use when building targets that depend on this pack</td></tr>
                 <tr><td>path</td><td>If found, the path to the pack directory or binary</td></tr>
+                <tr><td>requires</td><td>Array of required packs</td></tr>
+                <tr><td>withpath</td><td>Path supplied via a configure --with PACK=PATH command line option</td></tr>
             </tbody>
         </table>
         <a name="settings"></a>
@@ -220,7 +230,7 @@
                     Set to debian|embedthis|opt or to a user-provided collection. This causes the requested prefix collection
                     to be copied to the prefixes collection.</td></tr>
                 <tr><td>product</td><td>Product or project name. Should be one word, lower case without spaces</td></tr>
-                <tr><td>required</td><td>List of required packs to discover when configuring </td></tr>
+                <tr><td>requires</td><td>List of required packs to discover when configuring </td></tr>
                 <tr><td>static</td><td>Build using static linking instead of building shared libraries</td></tr>
                 <tr><td>title</td><td>Descriptive one sentence title for the product</td></tr>
                 <tr><td>version</td><td>Product version string. Should be of the form: MAJOR.MINOR.PATCH </td></tr>
@@ -259,7 +269,7 @@
                         calculations. If updated, all targets that depend on this target will be rebuilt.</td></tr>
                 <tr><td>platforms</td><td>Platforms for which this target should be built. Set to OS-ARCH or <em>local</em>
                         for the local platform.</td></tr>
-                <tr><td>require</td><td>Name of a required pack to enable this target. Equivalent to setting the 
+                <tr><td>requires</td><td>Name of a required pack to enable this target. Equivalent to setting the 
                         enable property to 'bit.pack.NAME && bit.pack.NAME.enable'. Targets with the require property 
                         will have conditional code in generated Makefiles so that the target is not built if the
                         required pack is not supported in the build.</td></tr>
@@ -295,14 +305,27 @@
             <tbody>
                 <tr><td>preblend</td><td>Array of scripts to run for the preblend event</td></tr>
                 <tr><td>postload</td><td>Array of scripts to run for the postload event</td></tr>
+                <tr><td>loaded</td><td>Array of scripts to run for the loaded event</td></tr>
+                <tr><td>preinherit</td><td>Array of scripts to run for the preinherit event</td></tr>
+                <tr><td>postconfig</td><td>Array of scripts to run for the postconfig event</td></tr>
+                <tr><td>prebitheader</td><td>Array of scripts to run for the prebitheader event</td></tr>
+                <tr><td>pregen</td><td>Array of scripts to run for the pregen event</td></tr>
+                <tr><td>gencustom</td><td>Array of scripts to run for the gencustom event</td></tr>
+            </tbody>
+        </table>
+
+        <a name="tscripts"></a>
+        <h2>Target Scripts Collection &mdash; bit.targets.*scripts.*</h2>
+        <table title="tscripts" class="full">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
                 <tr><td>postblend</td><td>Array of scripts to run for the postblend event</td></tr>
                 <tr><td>preresolve</td><td>Array of scripts to run for the preresolve event</td></tr>
                 <tr><td>postresolve</td><td>Array of scripts to run for the postresolve event</td></tr>
                 <tr><td>presource</td><td>Array of scripts to run for the presource event</td></tr>
                 <tr><td>postsource</td><td>Array of scripts to run for the postsource event</td></tr>
-                <tr><td>preinherit</td><td>Array of scripts to run for the preinherit event</td></tr>
-                <tr><td>predependencies</td><td>Array of scripts to run for the predependencies event</td></tr>
-                <tr><td>postdependencies</td><td>Array of scripts to run for the postdependencies event</td></tr>
                 <tr><td>precompile</td><td>Array of scripts to run for the precompile event</td></tr>
                 <tr><td>postcompile</td><td>Array of scripts to run for the postcompile event</td></tr>
                 <tr><td>prebuild</td><td>Array of scripts to run for the prebuild event</td></tr>
@@ -310,6 +333,20 @@
                 <tr><td>postbuild</td><td>Array of scripts to run for the postbuild event</td></tr>
             </tbody>
         </table>
+
+        <a name="pscripts"></a>
+        <h2>Pack Scripts Collection &mdash; bit.packs.*scripts.*</h2>
+        <table title="pscripts" class="full">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>without</td><td>Array of scripts to run for the without event</td></tr>
+                <tr><td>config</td><td>Array of scripts to run for the config event</td></tr>
+                <tr><td>generate</td><td>Array of scripts to run for the generate event</td></tr>
+            </tbody>
+        </table>
+
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->

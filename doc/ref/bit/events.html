@@ -59,6 +59,7 @@
         <ul>
             <li>Global Events</li>
             <li>Target Events</li>
+            <li>Pack Events</li>
         </ul>
         <p>The global events are triggered for general Bit processing and do not apply to a specific target. Target
         events apply to the current target being built. The current target is defined in the <em>bit.target</em> property or
@@ -93,22 +94,29 @@
                 <tr><th>Name</th><th>Description</th>
             </thead>
             <tbody>
-                <tr><td>preblend</td><td>Fired before blending a bit file into the DOM.
-                    This is fired for bit file scripts (not target scripts).</td></tr>
-                <tr><td>postload</td><td>Fired after loading and blending a bit file into the DOM.
-                    This is fired for bit file scripts (not target scripts).</td></tr>
                 <tr><td>postblend</td><td>Fired after blending defaults into a target.</td></tr>
                 <tr><td>preresolve</td><td>Fired before resolving dependencies for a target</td></tr>
                 <tr><td>postresolve</td><td>Fired after resolving dependencies for a target</td></tr>
                 <tr><td>presource</td><td>Fired before expanding source wildcards and creating object targets</td></tr>
                 <tr><td>postsource</td><td>Fired after expanding source wildcards and creating object targets</td></tr>
-                <tr><td>preinherit</td><td>Fired after all bit files are loaded and before before targets inherit default
-                    properties.  This is fired for bit file scripts (not target scripts).</td></tr>
                 <tr><td>precompile</td><td>Fired before compiling a source file used by a target</td></tr>
                 <tr><td>postcompile</td><td>Fired after compiling a source file used by a target</td></tr>
                 <tr><td>prebuild</td><td>Fired before building a target</td></tr>
                 <tr><td>build</td><td>Fired to build the target</td></tr>
                 <tr><td>postbuild</td><td>Fired after building a target</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Pack Events</h3>
+        <p>Here are the pack events in order of firing.</p>
+        <table title="events">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>without</td><td>Fired when configuring and a pack is explicitly deselected via --without.</td></tr>
+                <tr><td>config</td><td>Fired when configuring a pack.</td></tr>
+                <tr><td>generate</td><td>Fired when generating during pack discovery.</td></tr>
             </tbody>
         </table>
 

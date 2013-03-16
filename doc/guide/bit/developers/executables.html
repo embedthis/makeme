@@ -82,6 +82,24 @@ libappweb: {
     libraries: [ 'pam' ],
 },
 </pre>
+
+
+
+        <h2>Pack Dependencies</h2>
+        <p>Products are sometimes configured with extension packages that provide libraries to augment the product. For
+        example: the PHP extension adds the libphp library. To link a target with an extension package, use the
+        <em>requires</em> property. For example:</p>
+<pre>
+libappweb: {
+    type: 'lib',
+    <b>requires: [ 'php', 'openssl' ]</b>,
+    sources: [ '*.c' ],
+    headers: [ '*.h' ],
+    depends: [ 'libhttp' ],
+</pre>
+            <p>This will add any pack defined libraries, library paths, include paths or compiler definitions to this target.</p>
+
+
             <p>To do a static link of the executable, set the <i>static</i> property to true.
             This will link the executable directly with all the required objects. Bit will expand the list of 
             dependant libraries and explicitly link with all their constituent objects.</p>
