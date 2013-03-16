@@ -125,13 +125,8 @@ function init(base, name) {
         if (type == 'lib' || type == 'exe') {
             target.xbinary = true
             bit.xbinaries.push(target)
-/*UNUSED
-            if (type == 'lib' && target.headers) {
-                target.xscript = true
-                bit.xscripts.push(target)
-            }
-*/
-        } else if (type == 'build' || type == 'file') {
+
+        } else if (type == 'build' || type == 'file' || (type == 'script' && target.goals.contains('all'))) {
             target.xscript = true
             bit.xscripts.push(target)
         }
@@ -139,7 +134,8 @@ function init(base, name) {
             target.xgroup = true
             bit.xgroups.push(target)
         }
-        if (type == 'lib' || type == 'exe' || type == 'build' || type == 'file') {
+        if (type == 'lib' || type == 'exe' || type == 'build' || type == 'file' || 
+                (type == 'script' && target.goals.contains('all'))) {
             target.xtarget = true
             bit.xtargets.push(target)
         }
