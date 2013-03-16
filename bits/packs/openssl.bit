@@ -43,7 +43,8 @@ Bit.pack({
                 let lib = probe('libcrypto.' + bit.ext.shobj, {fullpath: true, search: search, nopath: true}).absolute
                 pack.libraries = [ 'ssl', 'crypto' ]
                 pack.libpaths = [ lib.parent ]
-                pack.imports = lib.parent.files('libssl*.' + bit.ext.shobj) + lib.parent.files('libcrypto*.' + bit.ext.shobj)
+                pack.imports = lib.parent.files('libssl*.' + bit.ext.shobj + '*') + 
+                               lib.parent.files('libcrypto*.' + bit.ext.shobj + '*')
                 pack.includes = [ probe('openssl/ssl.h', {search: [ path.join('include'), '/usr/include']}).absolute ]
             }
             return path
