@@ -804,7 +804,8 @@ public class Bit {
         target.home = absPath(target.home)
         let home = target.home
         if (target.path) {
-            target.path = absPath(target.path)
+            // target.path = absPath(target.path)
+            rebase(home, target, 'path')
         }
 
         //  LEGACY
