@@ -2077,16 +2077,17 @@ public class Bit {
             if (!bit.targets[dname]) {
                 let pack = bit.packs[dname]
                 if (pack) {
-                /* UNUSED - don't make stale if pack has no path
                     if (!pack.enable) {
                         continue
                     }
                     file = pack.path
                     if (!file) {
+                        continue
+                    }
+                    if (!file.exists) {
                         whyRebuild(path, 'Rebuild', 'missing ' + file + ' for package ' + dname)
                         return true
                     }
-                    */
                 } else {
                     /* If dependency is not a target, then treat as a file */
                     if (!dname.modified) {
