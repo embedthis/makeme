@@ -47,9 +47,8 @@ public class Bit {
     private var rest: Array
 
     private var home: Path
-    private var bareBit: Object = { platforms: [], platform: {}, dir: {}, settings: {
-        required: [], discover: [],
-    }, packs: {}, targets: {}, env: {}, globals: {}, customSettings: {}}
+    private var bareBit: Object = { platforms: [], platform: {}, dir: {}, settings: { requires: [], discover: [], }, 
+        packs: {}, targets: {}, env: {}, globals: {}, customSettings: {}}
 
     private var bit: Object = {}
     private var platform: Object
@@ -64,7 +63,7 @@ public class Bit {
     /*
         Note: actions are converted to a type of build by default
      */
-    private var targetsToBlend = { exe: true, lib: true, obj: true /* , action: true, build: true, clean: true */ }
+    private var targetsToBlend = { exe: true, lib: true, obj: true }
 
     private var argTemplate = {
         options: {
@@ -194,7 +193,7 @@ public class Bit {
                                 }
                             }
                         }
-                        if (!bit.settings.required.contains(name)) {
+                        if (!bit.settings.requires.contains(name)) {
                             if (!header) {
                                 print('Extension Packages (--with PACK, --without PACK):')
                                 header = true
@@ -518,7 +517,7 @@ public class Bit {
                 value = true
             }
             Object.getOwnPropertyNames(bit.packs)
-            let packs = bit.settings.required + bit.settings.discover + Object.getOwnPropertyNames(bit.packs)
+            let packs = bit.settings.requires + bit.settings.discover + Object.getOwnPropertyNames(bit.packs)
             if (packs.contains(field)) {
                 App.log.error("Using \"--set " + field + "\", but " + field + " is an extension package. " + 
                         "Use --with or --without instead.")
@@ -526,7 +525,7 @@ public class Bit {
             }
             setSetting(bit.settings, field, value)
         }
-        let required = []
+        let requires = []
         for each (field in poptions['with']) {
             let [field,value] = field.split('=')
             bit.packs[field] ||= {}
@@ -537,20 +536,20 @@ public class Bit {
             }
             pack.explicit = true
             pack.required = true
-            if (!bit.settings.required.contains(field) && !bit.settings.discover.contains(field)) {
+            if (!bit.settings.requires.contains(field) && !bit.settings.discover.contains(field)) {
                 let path = findPack(field)
                 if (!path || !path.exists) {
                     throw 'Cannot find pack description file: ' + field + '.pak'
                 }
-                required.push(field)
+                requires.push(field)
             }
         }
-        if (required.length > 0) {
-            /* Insert explicit required first */
-            bit.settings.required = required + bit.settings.required
+        if (requires.length > 0) {
+            /* Insert explicit requires first */
+            bit.settings.requires = requires + bit.settings.requires
         }
         for each (field in poptions['without']) {
-            if (bit.settings.required.contains(field)) { 
+            if (bit.settings.requires.contains(field)) { 
                 throw 'Required pack ' + field + ' cannot be disabled.'
             }
             if (field != 'all' && field != 'default') {
@@ -672,7 +671,17 @@ public class Bit {
         }
     }
 
+    /*
+        Rebase paths to the specified home directory
+     */
     function rebase(home: Path, o: Object, field: String) {
+        if (!o) return
+        if (!o[field]) {
+            field = '+' + field 
+            if (!o[field]) {
+                return
+            }
+        }
         if (o[field] is Array) {
             for (let [key,value] in o[field]) {
                 if (!value.startsWith('${') && !value.startsWith('$(')) {
@@ -694,17 +703,26 @@ public class Bit {
         }
     }
 
-    function fixScripts(o) {
-        let home = currentBitFile.dirname
+    /*
+        Convert scripts collection into canonical long form
+     */
+    function fixScripts(o, topnames) {
+        if (!o) return 
+        /*
+            Move top names inside scripts
+         */
+        for each (name in topnames) {
+            if (o[name]) {
+                o.scripts ||= {}
+                o.scripts[name] = o[name]
+                delete o[name]
+            }
+        }
         if (o.scripts) {
             /*
-                Convert to array of objects for each event 
-                scripts: {
-                    prebuild: [
-                        { home: 'dir', interpreter: 'ejs', script: 'script' },
-                    ],
-                }
+                Convert to canonical long form
              */
+            let home = currentBitFile.dirname
             for (let [event,item] in o.scripts) {
                 if (item is String || item is Function) {
                     o.scripts[event] = [{ home: home, interpreter: 'ejs', script: item }]
@@ -720,151 +738,176 @@ public class Bit {
                     }
                 }
             }
-            if (o.scripts.preblend) {
-                runScript(o.scripts, "preblend")
-                delete o.scripts.preblend
+            /*
+                for (let [event,item] in o.scripts) {
+                    plus(o.scripts, event)
+                }
+             */
+        }
+    }
+
+    function plus(o, field) {
+        if (o && o[field]) {
+            o['+' + field] = o[field]
+            delete o[field]
+        }
+    }
+
+    function rename(o, from, to) {
+        if (o && o[from]) {
+            o[to] = o[from]
+            delete o[from]
+        }
+    }
+
+    function absPath(path: Path?) {
+        if (path && !path.startsWith('${')) {
+            return path.absolute
+        }
+        return path
+    }
+
+    function makeArray(a) {
+        if (a && !(a is Array)) {
+            return [a]
+        }
+        return a
+    }
+
+    function fixGoals(target, build) {
+        if (!target.goals) {
+            if (targetsToBuildByDefault[target.type] || build) {
+                target.goals = [ALL, 'generate']
+            } else if (target.run) {
+                target.goals = ['generate']
+            } else {
+                target.goals = []
             }
-            let scripts = {}
-            for (let [event,item] in o.scripts) {
-                scripts['+' + event] = item
+        }
+        if (target.type && target.type != 'script' && target.type != 'run' && !target.goals.contains(target.type)) {
+            target.goals.push(target.type)
+        }
+        if (!target.goals.contains(target.name)) {
+            target.goals.push(target.name)
+        }
+        for (field in target) {
+            if (field.startsWith('generate')) {
+                target.generateScript = true
             }
-            o.scripts = scripts
+        }
+        if (target.generateScript && !target.goals.contains('generate')) {
+            target.goals.push('generate')
+        }
+    }
+
+    function fixTarget(o, target) {
+        target.home = absPath(target.home)
+        let home = target.home
+        if (target.path) {
+            target.path = absPath(target.path)
+        }
+
+        //  LEGACY
+        if (target.require) {
+            trace('Warn', 'Target ' + target.name + ' in ' + currentBitFile + ' is using require instead of requires')
+            rename(target, 'require', 'requires')
+        }
+        for (let [key,value] in target.defines) {
+            target.defines[key] = value.trimStart('-D')
+        }
+        if (target.requires) {
+            target.requires = makeArray(target.requires)
+        }
+
+    /* 
+        plus(target, 'includes')
+        plus(target, 'headers')
+        plus(target, 'resources')
+        plus(target, 'sources')
+        plus(target, 'files')
+        plus(target, 'defines')
+        plus(target, 'compiler')
+        plus(target, 'linker')
+        plus(target, 'subtree')
+    */
+
+        rebase(home, target, 'includes')
+        rebase(home, target, 'headers')
+        rebase(home, target, 'resources')
+        rebase(home, target, 'sources')
+        rebase(home, target, 'files')
+        rebase(home, target, 'subtree')
+
+        if (target.run) {
+            target.type ||= 'run'
+        }
+        /*
+            Expand short-form scripts into the long-form. Set the target type if not defined to 'script'.
+         */
+        let build = target.build
+        for each (n in ['action', 'build', 'shell', 'postblend', 'preresolve', 'postresolve', 'postsource', 
+                'precompile', 'postcompile', 'prebuild', 'postbuild']) {
+            if (target[n] != undefined) {
+                target.type ||= 'script'
+                let script = target[n]
+                let event = (n == 'action' || n == 'shell') ? 'build' : n
+                target.scripts ||= {}
+                target.scripts[event] ||= []
+                target.scripts[event]  += [{ home: home, interpreter: (n == 'shell') ? 'bash' : 'ejs', script: script }]
+                delete target[n]
+            }
+        }
+        fixScripts(target)
+        fixGoals(target, build)
+
+        /*
+            Blend internal for only the targets in this file. Delay blending defaults.
+         */
+        if (o.internal) {
+            blend(target, o.internal, {combine: true})
         }
     }
 
     function fixup(o, ns) {
         let home = currentBitFile.dirname
-        for (i in o.modules) {
-            o.modules[i] = home.join(o.modules[i])
-        }
-        for (i in o['+modules']) {
-            o['+modules'][i] = home.join(o['+modules'][i])
-        }
-        if (o.defaults) {
-            rebase(home, o.defaults, 'includes')
-            rebase(home, o.defaults, '+includes')
-            for (let [when,item] in o.defaults.scripts) {
-                if ((item is String) || (item is Function)) {
-                    o.defaults.scripts[when] = [{ home: home, interpreter: 'ejs', script: item }]
-                } else {
-                    item.home ||= home
-                }
+    
+        //  LEGACY
+        for each (f in ['+defaults', '+internal']) {
+            if (o[f]) {
+                throw "Using " + f + " in " + currentBitFile + ". Do not use a plus prefix."
             }
         }
-        if (o.internal) {
-            rebase(home, o.internal, 'includes')
-            rebase(home, o.internal, '+includes')
-            for (let [when,item] in o.internal.scripts) {
-                if ((item is String) || (item is Function)) {
-                    o.internal.scripts[when] = [{ home: home, interpreter: 'ejs', script: item }]
-                } else {
-                    item.home ||= home
-                }
+        //  LEGACY
+        if (o.settings) {
+            if (o.settings.required) {
+                trace("Warn", "Using settings.required in " + currentBitFile + ". Use settings.requires instead.")
             }
+            //  LEGACY property renaming
+            rename(o.settings, 'required', 'requires')
         }
-        if (o.scripts) {
-            fixScripts(o)
-        }
+        /*
+            Arrays must have a +prefix to blend
+         */
+        plus(o, 'modules')
+        plus(o.settings, 'requires')
+        plus(o.defaults, 'includes')
+        plus(o.internal, 'includes')
+
+        rebase(home, o, 'modules')
+        rebase(home, o.defaults, 'includes')
+        rebase(home, o.internal, 'includes')
+
+        fixScripts(o)
+        fixScripts(o.defaults)
+        fixScripts(o.internal)
         for each (pack in o.packs) {
-            for each (name in ['config', 'without', 'postconfig']) {
-                if (pack[name]) {
-                    pack.scripts ||= {}
-                    pack.scripts[name] = pack[name]
-                    delete pack[name]
-                }
-            }
-            fixScripts(pack)
+            fixScripts(pack, ['config', 'without', 'postconfig'])
         }
+
         for (let [tname,target] in o.targets) {
             target.name ||= tname
             target.home ||= home
-            if (!target.home.startsWith('${')) {
-                target.home = Path(target.home).absolute
-            }
-            home = target.home
-            if (target.path) {
-                if (!target.path.startsWith('${')) {
-                    target.path = target.home.join(target.path)
-                }
-            }
-            rebase(home, target, 'includes')
-            rebase(home, target, '+includes')
-            rebase(home, target, 'headers')
-            rebase(home, target, 'resources')
-            rebase(home, target, 'sources')
-            rebase(home, target, 'files')
-            rebase(home, target, 'subtree')
-
-            for (let [key,value] in target.defines) {
-                target.defines[key] = value.trimStart('-D')
-            }
-            if (target.run) {
-                target.type ||= 'run'
-            }
-
-            /* Convert strings scripts into an array of scripts structures */
-            for (let [when,item] in target.scripts) {
-                if (item is String) {
-                    item = { interpreter: 'ejs', script: item  }
-                    target.scripts[when] = [item]
-                    item.home ||= home
-                } else if (item is Array) {
-                    item[0].home ||= home
-                } else {
-                    item.home ||= home
-                }
-            }
-
-            //  MOB - functionalize and cleanup
-            /*
-                Expand short-form scripts into the long-form. Set the target type if not defined to 'script'.
-                NOTE: preblend and postload is only fired top level scripts. Not on targets.
-             */
-            let build = target.build
-            for each (n in ['action', 'build', 'shell', 'postblend', 'preresolve', 'postresolve', 'postsource', 
-                    'precompile', 'postcompile', 'prebuild', 'postbuild']) {
-                if (target[n] != undefined) {
-                    target.type ||= 'script'
-                    let script = target[n]
-                    let event = (n == 'action' || n == 'shell') ? 'build' : n
-                    target.scripts ||= {}
-                    target.scripts[event] ||= []
-                    target.scripts[event]  += [{ home: home, interpreter: (n == 'shell') ? 'bash' : 'ejs', script: script}]
-                    delete target[n]
-                }
-            }
-            if (!target.goals) {
-                if (targetsToBuildByDefault[target.type] || build) {
-                    target.goals = [ALL, 'generate']
-                } else if (target.run) {
-                    target.goals = ['generate']
-                } else {
-                    target.goals = []
-                }
-            }
-            if (target.type && target.type != 'script' && target.type != 'run' && !target.goals.contains(target.type)) {
-                target.goals.push(target.type)
-            }
-            if (!target.goals.contains(target.name)) {
-                target.goals.push(target.name)
-            }
-            for (field in target) {
-                if (field.startsWith('generate')) {
-                    target.generateScript = true
-                }
-            }
-            if (target.generateScript && !target.goals.contains('generate')) {
-                target.goals.push('generate')
-            }
-            if (target.require && !(target.require is Array)) {
-                target.require = [target.require]
-            }
-            /*
-                Blend internal for only the targets in this file
-             */
-            if (o.internal) {
-                blend(target, o.internal, {combine: true})
-            }
+            fixTarget(o, target)
         }
     }
 
@@ -872,6 +915,11 @@ public class Bit {
     public function loadBitObject(o, ns = null) {
         let home = currentBitFile.dirname
         fixup(o, ns)
+
+        if (o.scripts && o.scripts.preblend) {
+            runScript(o.scripts, "preblend")
+            delete o.scripts.preblend
+        }
         /* 
             Blending is depth-first -- blend this bit object after loading bit files referenced in blend[]
             Special case for the local plaform bit file to provide early definition of platform and dir properties
@@ -987,7 +1035,7 @@ public class Bit {
     function enableTargets() {
         for (let [tname, target] in bit.targets) {
             let reported = false
-            for each (item in target.require) {
+            for each (item in target.requires) {
                 if (!bit.packs[item] || !bit.packs[item].enable) {
                     whySkip(target.name, 'disabled because the pack ' + item + ' is not enabled')
                     target.enable = false
@@ -1338,11 +1386,13 @@ public class Bit {
                         Create a target for each source file
                      */
                     let obj = bit.dir.obj.join(file.replaceExt(bit.ext.o).basename)
-                    let precompile = (target.scripts && target.scripts.precompile) ?  target.scripts.precompile : null
                     let objTarget = { name : obj, enable: true, path: obj, type: 'obj', 
                         goals: [target.name], files: [ file ], 
-                        compiler: target.compiler, defines: target.defines, includes: target.includes,
-                        scripts: { precompile: precompile }}
+                        compiler: target.compiler, defines: target.defines, includes: target.includes}
+                    let precompile = (target.scripts && target.scripts.precompile) ?  target.scripts.precompile : null
+                    if (precompile) {
+                        objTarget.scripts = {precompile: precompile}
+                    }
                     if (bit.targets[obj]) {
                         objTarget = blend(bit.targets[objTarget.name], objTarget, {combined: true})
                     }
@@ -1362,15 +1412,12 @@ public class Bit {
     }
 
     /*
-        Blend bit.defaults into targets
+        Blend bit.defaults into targets. The defaults are the base, then the target is blended over the defaults.
+        This delayed until all bit files are blended so that the target property +/- prefixes are not lost in prior blends.
+        Also allows events to modify defaults up to the last minute.
      */
     function blendDefaults() {
         runScript(bit.scripts, "preinherit")
-
-        //  DEPRECATE
-        for (let [key,value] in bit.defaults.defines) {
-            bit.defaults.defines[key] = value.trimStart('-D')
-        }
         for (let [tname, target] in bit.targets) {
             if (targetsToBlend[target.type]) {
                 let def = blend({}, bit.defaults, {combine: true})
@@ -1390,7 +1437,7 @@ public class Bit {
                     delete target.libraries 
                 }
             }
-            if (target.type == 'lib' && target.static == null) {
+            if (target.type == 'lib' && target.static == null && bit.settings.static) {
                 target.static = bit.settings.static
             }
         }
@@ -1769,8 +1816,8 @@ public class Bit {
         g.CPU = bit.platform.cpu || 'generic'
         g.ARCH = bit.platform.arch
         /* Apple gcc only */
-        if (bit.ccArch) {
-            g.CC_ARCH = bit.ccArch[bit.platform.arch] || bit.platform.arch
+        if (bit.platform['arch-map']) {
+            g.CC_ARCH = bit.platform['arch-map'][bit.platform.arch] || bit.platform.arch
         }
         g.CONFIG = bit.platform.name
         g.EXE = bit.ext.dotexe
@@ -2516,8 +2563,7 @@ public class Bit {
         if (bitfile) {
             loadBitFile(bitfile)
             /*
-                Customize bit files must be applied after the enclosing bit file is fully loaded so they
-                can override anything.
+                Customize bit files must be applied after the enclosing bit file is loaded so they can override anything.
              */
             for each (path in bit.customize) {
                 let path = home.join(expand(path, {fill: '.'}))

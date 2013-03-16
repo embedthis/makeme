@@ -17,24 +17,17 @@ Bit.load({
             '-Wall',
             '-Wno-deprecated-declarations',
         ],
-        '+defines':  [ ],
-        '+libraries':[ 'pthread', 'm' ],
-        '+libpaths': [ ],
-        'linker':    [
+        '+libraries': [ 'pthread', 'm' ],
+        '+linker': [
             '-Wl,-rpath,@executable_path/',
             '-Wl,-rpath,@loader_path/',
         ],
-        scripts: {
-            '+prebuild': "
-                if (bit.target.type == 'lib') {
-                    bit.target.linker.push('-compatibility_version ' + bit.settings.version)
-                    bit.target.linker.push('-current_version ' + bit.settings.version)
-                }
-            ",
-        }
     },
 
     scripts: {
+        /* 
+            This runs before blending defaults into targets
+         */
         preinherit: "
             let defaults = bit.defaults
             let arch = bit.platform.arch
@@ -70,13 +63,15 @@ Bit.load({
         'c->c':   '${packs.compiler.path} -E -arch ${CC_ARCH} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
         'c->o':   '${packs.compiler.path} -c -o ${OUTPUT} -arch ${CC_ARCH} ${MTUNE} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
         'cpp->o': '${packs.compiler.path} -c -o ${OUTPUT} -arch ${CC_ARCH} ${MTUNE} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
-        'shlib':  '${packs.compiler.path} -dynamiclib -o ${OUTPUT} -arch ${CC_ARCH} ${LDFLAGS} ${LIBPATHS} -install_name @rpath/${LIBNAME} ${INPUT} ${LIBS}',
+        'shlib':  '${packs.compiler.path} -dynamiclib -o ${OUTPUT} -arch ${CC_ARCH} ${LDFLAGS} ${LIBPATHS} -install_name @rpath/${LIBNAME} -compatibility_version ${settings.version} -current_version ${settings.version} ${INPUT} ${LIBS}',
         'lib':    '${packs.lib.path} -cr ${OUTPUT} ${INPUT}',
         'exe':    '${packs.compiler.path} -o ${OUTPUT} -arch ${CC_ARCH} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS}',
         'gui':    '${packs.compiler.path} -o ${OUTPUT} -arch ${CC_ARCH} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS}',
     },
-    ccArch: {
-        x86: 'i686',
-        x64: 'x86_64',
+    platform: {
+        'arch-map': {
+            x86: 'i686',
+            x64: 'x86_64',
+        },
     },
 })

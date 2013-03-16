@@ -268,11 +268,11 @@ module embedthis.bit {
 
     function findPacks() {
         let settings = bit.settings
-        if (!settings.required && !settings.discover) {
+        if (!settings.requires && !settings.discover) {
             return
         }
         trace('Search', 'For tools and extension packages')
-        loadPacks(settings.required + settings.discover)
+        loadPacks(settings.requires + settings.discover)
         enablePacks()
         configurePacks()
         Object.sortProperties(bit.packs)
@@ -301,8 +301,8 @@ module embedthis.bit {
                 pack.file = path.portable
                 currentPack = pname
                 b.loadBitFile(path)
-                if (pack.require) {
-                    loadPacks(pack.require)
+                if (pack.requires) {
+                    loadPacks(pack.requires)
                 }
                 if (pack.discover) {
                     loadPacks(pack.discover)
@@ -373,7 +373,7 @@ module embedthis.bit {
             return
         }
         pack.configuring = true
-        for each (pname in pack.require) {
+        for each (pname in pack.requires) {
             configurePack(bit.packs[pname])
         }
         for each (pname in pack.discover) {
@@ -443,19 +443,19 @@ module embedthis.bit {
 
     function checkPacks() {
         for (let [pname, pack] in bit.packs) {
-            if (!pack.enable && bit.settings.required.contains(pname)) { 
+            if (!pack.enable && (pack.required || bit.settings.requires.contains(pname))) { 
                 if (!b.options['continue']) {
                     throw 'Required pack ' + pname + ' is not enabled.'
                 }
             }
-            for each (r in pack.require) {
-                let required = bit.packs[r]
-                if (!required.enable && !b.options['continue']) {
+            for each (r in pack.requires) {
+                let requires = bit.packs[r]
+                if (!requires.enable && !b.options['continue']) {
                         throw 'Pack ' + r + ' required by ' + pack.name + ' is not enabled.'
                     }
             }
             if (pack.enable) {
-                for each (o in pack.conflict) {
+                for each (o in pack.conflicts) {
                     let other = bit.packs[o]
                     if (other && other.enable) {
                         other.enable = false

@@ -17,7 +17,12 @@ Bit.load({
 	},
 
     defaults: {
-        '+includes': [
+        compiler:   [],
+        defines:    [],
+        libraries:  [],
+        libpaths:   [],
+        linker:     [],
+        includes:   [
             '${dir.inc}',
         ],
     },

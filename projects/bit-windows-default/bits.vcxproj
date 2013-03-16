@@ -157,8 +157,6 @@ copy /Y bits\packs\man.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\packs\man2html.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\master.bit $(BinDir)\bits
-if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\packs\matrixssl.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\packs\md5.bit $(BinDir)\bits
@@ -174,8 +172,6 @@ if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\packs\ranlib.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\packs\rc.bit $(BinDir)\bits
-if exist $(BinDir)\bits del /Q $(BinDir)\bits
-copy /Y bits\packs\sample-http.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\packs\sqlite.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits

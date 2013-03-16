@@ -15,7 +15,7 @@ Bit.load({
             type: 'lib',
             depends: [ 'libmpr', 'libest', 'openssl', 'matrixssl', 'nanossl' ],
             sources: [ 'mprSsl.c' ],
-            require: 'ssl',
+            requires: 'ssl',
         },
 
         manager: {

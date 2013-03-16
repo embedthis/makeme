@@ -12,6 +12,6 @@ Bit.pack({
                 default: 'rc.exe'
             })
         },
-        require: [ 'winsdk' ],
+        requires: [ 'winsdk' ],
     },
 })

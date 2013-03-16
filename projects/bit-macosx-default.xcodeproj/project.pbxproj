@@ -968,7 +968,6 @@ cp -r ca.crt ../../${OUT_DIR}/bin/ca.crt
 ../bits/packs/link.bit,
 ../bits/packs/man.bit,
 ../bits/packs/man2html.bit,
-../bits/packs/master.bit,
 ../bits/packs/matrixssl.bit,
 ../bits/packs/md5.bit,
 ../bits/packs/nanossl.bit,
@@ -977,7 +976,6 @@ cp -r ca.crt ../../${OUT_DIR}/bin/ca.crt
 ../bits/packs/pmaker.bit,
 ../bits/packs/ranlib.bit,
 ../bits/packs/rc.bit,
-../bits/packs/sample-http.bit,
 ../bits/packs/sqlite.bit,
 ../bits/packs/ssl.bit,
 ../bits/packs/strip.bit,
@@ -1060,8 +1058,6 @@ cp -r bits/packs/man.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
 cp -r bits/packs/man2html.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/master.bit macosx-x64-default/bin/bits
-rm -rf macosx-x64-default/bin/bits
 cp -r bits/packs/matrixssl.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
 cp -r bits/packs/md5.bit macosx-x64-default/bin/bits
@@ -1077,8 +1073,6 @@ rm -rf macosx-x64-default/bin/bits
 cp -r bits/packs/ranlib.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
 cp -r bits/packs/rc.bit macosx-x64-default/bin/bits
-rm -rf macosx-x64-default/bin/bits
-cp -r bits/packs/sample-http.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
 cp -r bits/packs/sqlite.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits

@@ -44,7 +44,7 @@ Bit.load({
             Optional packs to automatically discover and configure
          */
         '+discover': [ 'dsi', 'ejscript', 'man', 'man2html', 'pmaker', 'ssl', 'zip' ],
-        '+required': [ 'compiler', 'pcre', 'ejscript' ],
+        '+requires': [ 'compiler', 'pcre', 'ejscript' ],
 
         /*
             Packs to disable when using --without all. Note: keep ssl.

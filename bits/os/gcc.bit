@@ -6,17 +6,14 @@ Bit.load({
     defaults: {
         '+compiler': [ '-Wall' ],
         '+defines':  [ '_REENTRANT' ],
-        '+libraries':[],
-        '+libpaths':[],
-        '+linker':[],
     },
     scripts: {
+        /*
+            Preinherit runs after all bit files are loaded and before blending defaults. Don't need pluses
+         */
         preinherit: "
             let arch = bit.platform.arch
             let defaults = bit.defaults
-            blend(defaults, {
-                '+compiler': [], '+defines': [], '+libraries': [], '+libpaths': [], '+linker': []}, {combine: true}
-            )
             if (bit.platform.os == 'linux') {
                 defaults.linker.push('-rdynamic')
             }
@@ -67,8 +64,10 @@ Bit.load({
         'gui':    '${packs.compiler.path} -o ${OUTPUT} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS} ${LIBS} ${LDFLAGS}'
         'res':    '${packs.rc.path} -o ${OUTPUT} ${INPUT}',
     },
-    ccArch: {
-        x86: 'i686',
-        x64: 'x86_64',
+    platform: {
+        'arch-map': {
+            x86: 'i686',
+            x64: 'x86_64',
+        },
     },
 })

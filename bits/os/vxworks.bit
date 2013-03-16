@@ -5,6 +5,7 @@ Bit.load({
     blend: [    
         'gcc.bit',
     ],
+
     ext: {
         exe:   'out',
         lib:   'a',
@@ -39,8 +40,7 @@ Bit.load({
     },
 
     settings: {
-        /* Order matters */
-        '+required': [ 'vxworks', 'compiler', 'lib', 'link' ],
+        '+requires': [ 'vxworks', 'compiler', 'lib', 'link' ],
     },
 
     defaults: {
@@ -55,7 +55,6 @@ Bit.load({
              '-fvolatile',
         ],
         '+libraries': [ 'gcc' ],
-        '+libpaths': [ ],
         '+linker': [ '-Wl,-r' ],
     },
 

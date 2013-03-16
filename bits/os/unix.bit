@@ -38,7 +38,7 @@ Bit.load({
     },
 
     settings: {
-        '+required': [ 'compiler', 'lib', 'link' ],
+        '+requires': [ 'compiler', 'lib', 'link' ],
         prefixes: ['debian'],
     }
 })

@@ -38,8 +38,8 @@ public function deploy(manifest, prefixes, package): Array {
         let name = item.name || serialize(item)
         let enable = true
 
-        if (item.require) {
-            for each (r in item.require) {
+        if (item.requires) {
+            for each (r in item.requires) {
                 if ((!bit.packs[r] || !bit.packs[r].enable)) {
                     skip(name, 'Required pack ' + r + ' is not enabled')
                     enable = false
@@ -80,8 +80,8 @@ public function deploy(manifest, prefixes, package): Array {
             if (item.precopy) {
                 eval('require ejs.unix\n' + expand(item.precopy))
             }
-            if (item.require && bit.generating) {
-                for each (r in item.require) {
+            if (item.requires && bit.generating) {
+                for each (r in item.requires) {
                     if (bit.platform.os == 'windows') {
                         genWriteLine('!IF "$(BIT_PACK_' + r.toUpper() + ')" == "1"')
                     } else {
@@ -110,8 +110,8 @@ public function deploy(manifest, prefixes, package): Array {
                     item.to.write(data)
                 }
             }
-            if (item.require && bit.generating) {
-                for each (r in item.require.length) {
+            if (item.requires && bit.generating) {
+                for each (r in item.requires.length) {
                     if (bit.platform.os == 'windows') {
                         genWriteLine('!ENDIF')
                     } else {
@@ -169,8 +169,8 @@ function setupManifest(kind, package, prefixes) {
         manifest = bit.manifest.clone()
     }
     for each (item in manifest.files) {
-        if (item.require && !(item.require is Array)) {
-            item.require = [item.require]
+        if (item.requires && !(item.requires is Array)) {
+            item.requires = [item.requires]
         }
     }
     return manifest
@@ -858,17 +858,19 @@ public function genProjects(packs = '--without default', profiles = ["default"],
 
     //  MOB
     let targets = "build install uninstall"
+    let runopt = {dir: bit.dir.src, show: true}
+
     for each (profile in profiles) {
         for each (name in platforms) {
             let formats = (name == 'windows-x86') ? '-gen nmake' : '-gen make'
             trace('Generate', bit.settings.product + '-' + name.replace(/-.*/, '') + ' projects')
             let platform = name + '-' + profile
-            run(bitcmd + ' -d -q -platform ' + platform + ' -configure . ' + packs + ' ' + formats, bit.target.runopt)
+            run(bitcmd + ' -d -q -platform ' + platform + ' -configure . ' + packs + ' ' + formats, runopt)
             /* Xcode and VS use separate profiles */
             if (name == 'macosx-x64') {
-                run(bitcmd + ' -d -q -platform ' + platform + ' -configure . ' + packs + ' -gen xcode', bit.target.runopt)
+                run(bitcmd + ' -d -q -platform ' + platform + ' -configure . ' + packs + ' -gen xcode', runopt)
             } else if (name == 'windows-x86') {
-                run(bitcmd + ' -d -q -platform ' + platform + ' -configure . ' + packs + ' -gen vs', bit.target.runopt)
+                run(bitcmd + ' -d -q -platform ' + platform + ' -configure . ' + packs + ' -gen vs', runopt)
             }
         }
     }

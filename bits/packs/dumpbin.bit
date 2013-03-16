@@ -2,4 +2,4 @@
     dumpbin.bit - Dumpbin package for Bit
  */
 
-Bit.program('dumpbin', 'Windows Symbols Tools', {require: 'compiler'})
+Bit.program('dumpbin', 'Windows Symbols Tools', {requires: 'compiler'})

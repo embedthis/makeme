@@ -20,8 +20,6 @@ Bit.load({
     },
 
     internal: {
-        //  MOB - toss is illegal
-        runopt: {dir: bit.dir.src, show: true, toss: true}
         platforms: [ 'local' ],
     },
 
@@ -73,14 +71,15 @@ Bit.load({
         'mine': {
             action: "
                 let bitcmd = Cmd.locate('bit')
+                let runopt = {dir: bit.dir.src, show: true}
                 /* Xcode and VS use separate profiles */
                 if (bit.platform.name == 'macosx-x64-debug') {
-                    run(bitcmd + ' -q -d -platform macosx-x64-mine -configure . -gen xcode', bit.target.runopt)
+                    run(bitcmd + ' -q -d -platform macosx-x64-mine -configure . -gen xcode', runopt)
                 } else if (bit.platform.name == 'windows-x86-debug') {
-                    run(bitcmd + ' -q -d -platform windows-x86-mine -configure . -gen vs', bit.target.runopt)
+                    run(bitcmd + ' -q -d -platform windows-x86-mine -configure . -gen vs', runopt)
                 }
                 trace('Restore', 'Restore prior configuration')
-                run(bitcmd + ' -q -configure . ', bit.target.runopt)
+                run(bitcmd + ' -q -configure . ', runopt)
             ",
         },
 
@@ -165,9 +164,9 @@ Bit.load({
             depends: ['patch', 'man', 'api', 'clean-doc', 'ssi'],
         },
 
-        '+patch': {},
-        '+api': {},
-        '+clean-doc': {},
+        patch: {},
+        api: {},
+        'clean-doc': {},
 
         /*
             Generate the man pages in the source tree

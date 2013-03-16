@@ -43,26 +43,23 @@ Bit.load({
     },
 
     settings: {
-        /* order matters */
-        '+required': [ 'winsdk', 'compiler', 'lib', 'link', 'rc' ],
+        '+requires': [ 'winsdk', 'compiler', 'lib', 'link', 'rc' ],
     },
 
     defaults: {
         '+compiler':  [ '-nologo', '-GR-', '-W3' ],
-        //  TODO - remove _MT as -MDd and -MD define this
         '+defines':   [ '_REENTRANT', '_MT' ],
-        '+entry':   {
-            lib: '_DllMainCRTStartup@12',
-            exe: 'mainCRTStartup',
-            gui: 'WinMainCRTStartup',
-        },
         '+libraries': [ 'ws2_32.lib', 'advapi32.lib', 'user32.lib', 'kernel32.lib', 'oldnames.lib', 'msvcrt.lib', 'shell32.lib' ],
-        '+libpaths':  [ ],
         '+linker':    [
             '-nologo',
             '-nodefaultlib',
             '-incremental:no',
         ],
+        '+entry': {
+            lib: '_DllMainCRTStartup@12',
+            exe: 'mainCRTStartup',
+            gui: 'WinMainCRTStartup',
+        },
     },
 
     scripts: {

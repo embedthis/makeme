@@ -124,8 +124,8 @@
 #ifndef BIT_PRODUCT
     #define BIT_PRODUCT "bit"
 #endif
-#ifndef BIT_REQUIRED
-    #define BIT_REQUIRED "compiler,lib,link,pcre,ejscript"
+#ifndef BIT_REQUIRES
+    #define BIT_REQUIRES "compiler,lib,link,pcre,ejscript"
 #endif
 #ifndef BIT_STATIC
     #define BIT_STATIC 0
