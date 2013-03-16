@@ -1104,11 +1104,14 @@ public class Bit {
         }
         if (selectedTargets.length == 0) {
             if (goal != 'all') {
+                trace('Info', 'No qualifying targets for goal "' + goal + '"')
+            /*
                 if (bit.targets[goal]) {
                     trace('Info', 'No qualifying targets for goal "' + goal + '"')
                 } else {
                     throw 'No targets for goal "' + goal + '"'
                 }
+             */
             }
         }
         return selectedTargets
