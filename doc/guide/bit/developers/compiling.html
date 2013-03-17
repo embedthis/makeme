@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis Bit 0.8.4 Documentation</title>
+    <title>Embedthis Bit 0.8.5 Documentation</title>
     <meta name="keywords" content="Bit, Build It!, Javascript"/>
 	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
 	<meta name="robots" content="index,follow" />
@@ -52,6 +52,7 @@
                 <li><a href="../../../guide/bit/developers/scripts.html">Running Scripts</a></li>
                 <li><a href="../../../guide/bit/developers/copying.html">Copying Files</a></li>
                 <li><a href="../../../guide/bit/developers/configuring.html">Configuring a Project</a></li>
+                <li><a href="../../../guide/bit/developers/packs.html">Creating Packs</a></li>
                 <li><a href="../../../guide/bit/developers/generating.html">Generating Projects</a></li>
                 <li><a href="../../../guide/bit/developers/samples.html">Bit Samples</a></li>
 
@@ -200,7 +201,6 @@ mylib: {
         </table>
         <p>Use a <em>+</em> prefix when defining array values. This adds the values to the existing property set. Use
         <em>-</em> to remove. Use an undecorated property name to replace existing values. </p>
-
         <p>Note that the default link phase rules use the compiler and not the linker to create executables. As such,
         linker flags must be prefixed to pass through to the linker. Also note that many compiler and linker flags are
         platform specific and thus not-portable. Fortunately, Bit portably defines most common compiler and linker
@@ -219,7 +219,6 @@ mylib: {
 </pre>
         <p>For detailed information on scripting, please see <a href="../../../ref/bit/events.html">Bit Events</a> and
         <a href="scripts.html">Bit Scripting</a>.</p>
-
         <a name="inheriting"></a>
         <h2 class="section">Inheriting Defaults</h2>
         <p>Every target inherits default properties from the <em>defaults</em> and <em>internal</em> property collections.
@@ -245,12 +244,9 @@ internal: {
         bit file. Bit allows a target to specify a collection of settings from which to inherit via the
         <em>inherit</em> property. For example:
 <pre>
-<b>
-'shared-settings': {
+<b>'shared-settings': {
     '+defines': [ 'NUMBER=42' ],
-},
-</b>
-</pre>
+},</b></pre>
         <p>These shared settings can be in any bit file.</p>
 <pre>
 rocket {

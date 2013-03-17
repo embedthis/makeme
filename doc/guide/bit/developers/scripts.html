@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis Bit 0.8.4 Documentation</title>
+    <title>Embedthis Bit 0.8.5 Documentation</title>
     <meta name="keywords" content="Bit, Build It!, Javascript"/>
 	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
 	<meta name="robots" content="index,follow" />
@@ -56,6 +56,7 @@
                 <li><a href="../../../guide/bit/developers/scripts.html">Running Scripts</a></li>
                 <li><a href="../../../guide/bit/developers/copying.html">Copying Files</a></li>
                 <li><a href="../../../guide/bit/developers/configuring.html">Configuring a Project</a></li>
+                <li><a href="../../../guide/bit/developers/packs.html">Creating Packs</a></li>
                 <li><a href="../../../guide/bit/developers/generating.html">Generating Projects</a></li>
                 <li><a href="../../../guide/bit/developers/samples.html">Bit Samples</a></li>
 
@@ -69,7 +70,6 @@
         <h1>Build Scripts</h1>
         <p>Bit targets can run scripts at various stages of the processing lifecycle. Scripts can be used to
             create outputs, or modify the results of standard processing rules.</p>
-
         <a name="engines"></a>
         <h2>Script Engines</h2>
         <p>Scripts can be written to execute in any installed script interpreter. This may be the Unix bash shell, Perl or
@@ -79,7 +79,6 @@
             systems. Ejscript also has an extensive <a
             href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Library</a> of routines that
             scale well when building projects without turning into a mess of shell script.</p>
-
         <a name="forms"></a>
         <h2>Script Forms</h2>
         <p>Bit target scripts can also be specified using three forms:</p>
@@ -88,7 +87,6 @@
             <li>Action target scripts &mdash; that use Ejscript</li>
             <li>Build target scripts &mdash; that run for default builds using Ejscript</li>
         </ol>
-
         <a name="shell"></a>
         <h2>Shell Scripts</h2>
         <p>Shell scripts can be easily specified via the target shell property:</p>
@@ -123,11 +121,9 @@ cleanup: {
         <p>Because the goals property is set to <em>cleanup</em>, this script will be run only when the 
         when goal 'cleanup' is specified on the bit command line.</p>
         <pre>bit cleanup</pre>
-
         <p>If you need a shell script to run when a default build is initiated, use the low level form and set
         the goals property to <em>['cleanup', 'all']</em> See the <a href="#low">Low level Scripts</a> section above for
         details.</p>
-
         <a name="action"></a>
         <h2>Action Scripts</h2>
         <p>An action script runs when explicitly requested. It operates similarly to a shell script except that it uses the
@@ -147,7 +143,6 @@ prep: {
 </pre>
         <p>Like shell script targets, actions do not run by for default builds. Rather, they are run when they are 
         explicitly invoked on the command line or another goal/target is invoked that references them as a dependency. </p>
-
         <p>Note that in Ejscript, quoted literals can span multiple lines. No backquoting at the end of the line is
         required. Also, semicolon end-of-line terminators are optional.</p> 
         <p>An action script translates into a target with a type of <em>action</em> and an event of <em>build</em>. 
@@ -200,7 +195,6 @@ building: {
         <p>When <em>bit</em> is invoked without specifying any goals on the command line, the script for the
         <em>building</em> target will be run. The precise order of when the target runs will be dictated by its order
         in the bit file and whether other targets depend upon it.</p>
-
         <p>A build script translates into a target with a type of <em>build</em> and an event of <em>build</em>.</p>
 <pre>
 building: {
@@ -220,13 +214,10 @@ building: {
 },
 </pre>
         <p>An build script can also be a pure Javascript function.</p>
-
         <a name="low"></a>
         <h2>Low Level Script Forms</h2>
-
         <p>As you have seen, the <em>action</em>, <em>build</em> and <em>shell</em> script forms are translated into
         a lower level form. You may use the lower level form directly, if you require more control.</p>
-
         <p>The Bit DOM defines a collection of scripts to run at various stages of the Bit processing 
         life cycle.  When a specific event is triggered, the corresponding scripts are run. For each event, there can be
         multiple scripts that are run in-order. Each script has a <em>home</em> directory that becomes the current directory
@@ -255,7 +246,6 @@ building: {
 </pre>
         <p>Because the <em>goals</em> property includes <em>'all'</em>, this target and the scripts will be run for a 
         default bit invocation (without any explicit targets specified on the command line).</p>
-
         <p>The <em>target.scripts</em> property is a collection that is indexed by an event named for when the script should
         run. The standard events are described in <a href="../../../ref/bit/events.html#events">Bit Events</a>.
         <p>Here is another example of a shell script that runs just prior to building a library.
@@ -272,20 +262,17 @@ libglow: {
     goals: ['libglow'],
 }
 </pre>
-
         <h2>Global Scripts</h2>
         <p>Most events apply to targets, but there are some events which are global. The Bit DOM defines a global
         set of scripts in the bit.scripts property collection. These scripts follow the same property definition as
         the target scripts. The <em>bit.scripts</em> property is a collection that is indexed by an event named for when the
         script should run. The global events are described in <a href="../../../ref/bit/events.html#global">Bit
         Global Events</a>.
-
         <h2>Pack Scripts</h2>
         <p>An extension pack can also respond to events.  Pack scripts follow the same property definition as
         the target scripts. The <em>bit.scripts</em> property is a collection that is indexed by an event named for when the
         script should run. The pack events are described in <a href="../../../ref/bit/events.html#pack">Bit
         Global Events</a>.
-
         <a name="targetPaths"></a>
         <h3>Target Paths</h3>
         <p>You can make a build script run only when it is out-of-date by adding a <em>path</em> property for 

@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis Bit 0.8.4 Documentation</title>
+    <title>Embedthis Bit 0.8.5 Documentation</title>
     <meta name="keywords" content="Bit, Build It!, Javascript"/>
 	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
 	<meta name="robots" content="index,follow" />
@@ -64,7 +64,6 @@
         <p>The global events are triggered for general Bit processing and do not apply to a specific target. Target
         events apply to the current target being built. The current target is defined in the <em>bit.target</em> property or
         the global TARGET property.</p>
-
         <h3>Global Events</h3>
         <table title="events">
             <thead>
@@ -86,7 +85,6 @@
                     project.</td></tr> 
             </tbody>
         </table>
-
         <h3>Target Events</h3>
         <p>Here are the target events in order of firing</p>
         <table title="events">
@@ -106,7 +104,6 @@
                 <tr><td>postbuild</td><td>Fired after building a target</td></tr>
             </tbody>
         </table>
-
         <h3>Pack Events</h3>
         <p>Here are the pack events in order of firing.</p>
         <table title="events">
@@ -119,7 +116,6 @@
                 <tr><td>generate</td><td>Fired when generating during pack discovery.</td></tr>
             </tbody>
         </table>
-
         <a name="scripts"></a>
         <h2>Defining Scripts</h2>
         <p>Scripts can be defined to run when the required event is triggered. 

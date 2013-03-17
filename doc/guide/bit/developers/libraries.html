@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis Bit 0.8.4 Documentation</title>
+    <title>Embedthis Bit 0.8.5 Documentation</title>
     <meta name="keywords" content="Bit, Build It!, Javascript"/>
 	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
 	<meta name="robots" content="index,follow" />
@@ -49,6 +49,7 @@
                 <li><a href="../../../guide/bit/developers/scripts.html">Running Scripts</a></li>
                 <li><a href="../../../guide/bit/developers/copying.html">Copying Files</a></li>
                 <li><a href="../../../guide/bit/developers/configuring.html">Configuring a Project</a></li>
+                <li><a href="../../../guide/bit/developers/packs.html">Creating Packs</a></li>
                 <li><a href="../../../guide/bit/developers/generating.html">Generating Projects</a></li>
                 <li><a href="../../../guide/bit/developers/samples.html">Bit Samples</a></li>
 
@@ -80,15 +81,14 @@ bit libdemo
         <p>When building, Bit transparently creates targets for each of the compiled source files and for 
         any include files referenced by the sources. If the source file or its include files are updated, the 
         relevant source file or files will be recompiled and library rebuilt.</p>
-
         <a name="dependencies"></a>
         <h2>Dependencies</h2>
         <p>On some platforms, linking a library will require that all unresolved references in other libraries be
         resolved before the link can successfully complete. Such library dependencies are specified via the
         <em>depends</em> property. The depends property takes a list of other targets that must be built before
         the current target can complete. Note: that these are the target names (target.name property) and not
-        the library name. To specify external libraries that are not built with bit, use the 
-        <em>libraries</em> property collection.</p>
+        the library name. To specify external libraries that are not built with bit, use the <em>libraries</em> 
+        property collection.</p>
 <pre>
 libappweb: {
     type: 'lib',
@@ -97,9 +97,11 @@ libappweb: {
     depends: [ 'libhttp' ],
 },
 </pre>
+        <p>Bit will automatically inherit exported libraries, library paths, linker options and compiler definitions from
+        the dependant library into the target.</p>
         <h2>Pack Dependencies</h2>
         <p>Products are sometimes configured with extension packages that provide libraries to augment the product. For
-        example: the PHP extension adds the libphp library. To link a target with an extension package, use the 
+        example: the PHP extension adds the libphp5 library. To link a target with an extension package, use the 
         <em>requires</em> property. For example:</p>
 <pre>
 libappweb: {
@@ -110,7 +112,19 @@ libappweb: {
     depends: [ 'libhttp' ],
 </pre>
         <p>This will add any pack defined libraries, library paths, include paths or compiler definitions to this target.</p>
-
+        <p>If the pack is not present or is disabled, the target will not be built.</p>
+        <h3>Optional Pack Dependencies</h3>
+        <p>Sometimes you may want to optionally use a pack, but always create the target. Instead of using target.requires,
+        the target.use property will nominate optional dependant packs. If any or all of the packs are missing, the target
+        will still be built.</p>
+<pre>
+libappweb: {
+    type: 'lib',
+    <b>use: [ 'ssl' ]</b>,
+    sources: [ '*.c' ],
+    headers: [ '*.h' ],
+    depends: [ 'libhttp' ],
+</pre>
         <a name="static"></a>
         <h2>Static Libraries</h2>
         <p>By default, Bit will build a shared library for a library target. To build a static library, set the 
@@ -122,6 +136,8 @@ libname: {
     static: true,
 },
 </pre>
+        <p>A complete static build is also possible via the <em>--static</em> configure option. </p>
+<pre>configure --static</pre>
         <p>To learn more, read about <a href="executables.html">Creating Executables</a>.</p>
         </div>
     </div>

@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis Bit 0.8.4 Documentation</title>
+    <title>Embedthis Bit 0.8.5 Documentation</title>
     <meta name="keywords" content="Bit, Build It!, Javascript"/>
 	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
 	<meta name="robots" content="index,follow" />
@@ -48,6 +48,7 @@
                 <li><a href="../../../guide/bit/developers/scripts.html">Running Scripts</a></li>
                 <li><a href="../../../guide/bit/developers/copying.html">Copying Files</a></li>
                 <li><a href="../../../guide/bit/developers/configuring.html">Configuring a Project</a></li>
+                <li><a href="../../../guide/bit/developers/packs.html">Creating Packs</a></li>
                 <li><a href="../../../guide/bit/developers/generating.html">Generating Projects</a></li>
                 <li><a href="../../../guide/bit/developers/samples.html">Bit Samples</a></li>
 
@@ -82,9 +83,6 @@ libappweb: {
     libraries: [ 'pam' ],
 },
 </pre>
-
-
-
         <h2>Pack Dependencies</h2>
         <p>Products are sometimes configured with extension packages that provide libraries to augment the product. For
         example: the PHP extension adds the libphp library. To link a target with an extension package, use the
@@ -98,8 +96,6 @@ libappweb: {
     depends: [ 'libhttp' ],
 </pre>
             <p>This will add any pack defined libraries, library paths, include paths or compiler definitions to this target.</p>
-
-
             <p>To do a static link of the executable, set the <i>static</i> property to true.
             This will link the executable directly with all the required objects. Bit will expand the list of 
             dependant libraries and explicitly link with all their constituent objects.</p>

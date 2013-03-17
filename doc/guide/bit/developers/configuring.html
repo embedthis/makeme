@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis Bit 0.8.4 Documentation</title>
+    <title>Embedthis Bit 0.8.5 Documentation</title>
     <meta name="keywords" content="Bit, Build It!, Javascript"/>
 	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
 	<meta name="robots" content="index,follow" />
@@ -38,7 +38,6 @@
                     <li><a href="#settings">Settings</a></li>
                     <li><a href="#usage">Usage Message</a></li>
                     <li><a href="#create">Creating Packs</a></li>
-                    <li><a href="#api">Pack API</a></li>
                     <li><a href="#samples">Samples</a></li>
                 </ul>
 <!-- BeginDsi "dsi/devSeeAlso.html" -->
@@ -52,6 +51,7 @@
                 <li><a href="../../../guide/bit/developers/scripts.html">Running Scripts</a></li>
                 <li><a href="../../../guide/bit/developers/copying.html">Copying Files</a></li>
                 <li><a href="../../../guide/bit/developers/configuring.html">Configuring a Project</a></li>
+                <li><a href="../../../guide/bit/developers/packs.html">Creating Packs</a></li>
                 <li><a href="../../../guide/bit/developers/generating.html">Generating Projects</a></li>
                 <li><a href="../../../guide/bit/developers/samples.html">Bit Samples</a></li>
 
@@ -69,7 +69,6 @@
         most if not all source files. These two files fully describe the build characteristics with selected
         extensions and options. When Bit is run, it observes the build instructions in the platform bit file. When
         source is compiled, it can access conditional build definitions in the bit.h header.</p>
-
         <a name="configure"></a>
         <h2>Configure Script</h2>
         <p>Developers typically provide a <em>configure</em> script to mimic the familiar autoconf configure
@@ -82,7 +81,6 @@ bit configure "$@"
         <h2>Defining Configurable Options</h2>
         <p>Developers should specify the supported extension packs and configuration settings in the product's 
         <em>main.bit</em> file.</p>
-
         <a name="packs"></a>
         <h2>Packs</h2>
         <p>A product may be extended by the discovery and addition of extension packs. These are modules that
@@ -128,46 +126,16 @@ bit configure "$@"
             <tr><td>zlib.bit</td><td>Zlib library</td></tr>
             </tbody>
         </table>
-
-        <h3>Required, Discoverable and Optional Packs</h3>
-        <p>Packs are designated as either <em>required</em>, <em>discoverable</em> or <em>optional</em>. 
-        Required packs are essential for the operation of the product. Discoverable packs are optional packs for which
-        Bit will search the local system to see if the pack resources are present and can be utilized. Optional
-        packs will not be automatically discovered and must be explicitly requested by the user via: </p>
+        <p>Packs can be selected or deselected by users via the configure <em>--with</em> and <em>--without</em>
+        switches.</p>
         <pre>
 configure -with PACK
 configure -with PACK=/path/to/pack</pre>
-
-        <p>Developers specify required packs via the <em>requires</em> settings property. Optional
-        packs are not explicitly specified, other than ensuring .bit file is available. For example:</p>
-        <pre>
-settings: {
-    <b>'+requires': [ 'compiler', 'pcre' ]</b>,
-    <b>'+discover': [ 'cgi', 'dir', 'doxygen', 'dsi', 'esp', 'est', 'php', 'sqlite']</b>,
-},
-</pre>
-        <p>Note the use of the <em>+</em> prefix to append the packs to any preexisting definition.</p>
-
         <a name="running"></a>
         <h3>Running Configure</h3>
         <p>With an appropriate main.bit file, users can run configure to select optional packs or deselect
         discoverable packs. For example:</p>
 <pre>configure -with openssl -without est --without cgi</pre>
-
-        <h3>Importing Standard Packs</h3>
-        <p>For developers who wish to <i>freeze</i> the Bit support for their product and guarantee the version
-        of Bit they have designed for, the Bit configuration can be imported into the product source tree via:</p>
-        <pre>bit -import</pre>
-
-        <p>This will copy the entire Bit <em>bits</em> directory into the local source. This copied configuration
-        will be used by Bit in preference over the install Bit files.  The various Bit packs and operating system
-        configuration can be modified once imported.</p>
-
-        <p>Under the <em>bits</em> directory will be the primary bit script <em>bit.es</em> and its compiled form
-        <em>bit.mod</em>. If you need to hack bit.es, remove the bit.mod file and bit will utilize your modifications.
-        When ready, you can compile bit.es to create a new bit.mod via:</p>
-        <pre>ejsc --optimize 9 --out bit.mod bit.es</pre>
-
         <a name="settings"></a>
         <h2>Settings</h2>
         <p>The other half of the configuration process is defining settings that the software and selected packs
@@ -206,123 +174,6 @@ usage: {
     'ejs.mail':      'Enable mail support, ejs.mail (true|false)',
     'ejs.mapper':    'Enable database mapper support, ejs.mapper (true|false)',
 },
-</pre>
-
-        <a name="create"></a>
-        <h2>Creating Packs</h2>
-        <p>A Bit extension pack file is comprised of a Javascript file with a <em>.bit</em> extension. The script supplies pack
-        configuration by calling <em>Bit.pack()</em> to register the pack and supply configuration details.</p>
-        <h3>Bit.pack()</h3>
-        <p>The Bit.pack() takes a pack description in the form of a DOM set of properties . The description specifies the
-        name of the pack and a short, single-line description for the pack. </p>
-<pre>
-Bit.pack({
-    mypack: {
-        description: 'My demo pack',
-        path: '/usr/local/myview,
-    },
-})
-</pre>
-        <p>The pack description will typically define a path which represents the directory to the pack or the path to a
-        program. The description may also provide libraries, library paths, compiler definitions, and include directories.</p>
-        A pack may define any of these standard properties, or it may define any custom property it chooses.</p>
-        <p>For example:</p>
-<pre>
-Bit.pack({
-    ejscript: {
-        description: 'Ejscript Language',
-        path: probe('src/deps/ejs/ejsLib.c'),
-        libraries: [ 'mpr', 'http', 'pcre' ],
-        defines: [ 'EJS_DEBUG' ],
-        after: [ 'sqlite', 'ssl' ],
-    },
-})
-</pre>
-        <h3>Pack Path</h3>
-        <p>The pack path may be a simple string or path, or it may be a function which returns the path for the package. If
-        path is set to a function, it will be invoked with the pack object as its argument. For example:</p>
-        <pre>
-Bit.pack({
-    lib: {
-        description: 'Library Archive Tool',
-        path: function (pack) {
-            return probe('ar', { fullpath: true, search: bit.packs.compiler.search })
-        },
-        requires: ['compiler'],
-    },
-})
-</pre>
-        <p>The probe() API may be used to search the system for a program or pack resource. See below for more details.</p>
-
-        <h3>Exceptions</h3>
-        <p>If an exception is thrown by any code in the pack bit file, the exception will be caught and the pack will be
-        disabled. This is a common pattern, to throw exceptions if the pack cannot be fully configured.</p>
-
-        <h2>Pack Properties</h2>
-        <p>The pack property collection may contain properties of any name, but the following properties have special value:</p>
-        <ul>
-            <li>includes &mdash; true|false</li>
-            <li>path &mdash; Directory path to the extension. May be the path to the binary for tools.</li>
-            <li>defines &mdash; C definitions to use when compiling source that uses the pack</li>
-            <li>libraries &mdash; Libraries for users of the pack to link with</li>
-            <li>linker &mdash; Linker options for users of the pack to use when linking</li>
-            <li>libpaths &mdash; Linker library search paths to use when linking</li>
-            <li>imports &mdash; Libraries, files and resources to import into the local source tree</li>
-            <li>requires &mdash; Array of other packs that are required (mandatory) for this pack to be enabled</li>
-            <li>discover &mdash; Array of other packs that may be discovered (optional) and utilized by this pack</li>
-            <li>after &mdash; Array of other packs that will be processed before this pack. These packs may or may not be 
-                present on the system.</li>
-        </ul>
-        <p>When a target desires to link with the libraries from a pack, the pack should publish the libraries using
-        the <em>libraries</em> and <em>libpaths</em>. Targets can then <em>require</em> the pack by adding the name of
-        the pack to their <em>depends</em> property. For example, given the pack:</p>
-<pre>
-Bit.pack({
-    php: {
-        description: 'PHP Web Framework'
-        path: "/php",
-        defines: [ 'ZEND_DEBUG'],
-        includes: [
-            "/php",
-            "/php/main",
-            "/php/Zend",
-            "/php/TSRM",
-        ],
-        libraries: [ "php5" ],
-        linker: [ "-L/php/libs" ],
-        imports: [ "/php/libs/libphp5.dylib" ],
-    }, 
-})
-</pre>
-        <p>A target desiring to use php can be specified: </p>
-<pre>
-app: {
-    type: 'exe',
-    sources: 'app.c',
-    requires: ['php'],
-},
-</pre>
-        <p>Bit will automatically import the libphp5 library into the local tree at configure time. Bit will 
-        add the PHP compiler definitions when compiling app.c and linking with the PHP library.</p>
-
-        <a name="api"></a>
-        <h2>Pack API</h2>
-        <p>Bit provides two convenience functions to assist creating packs.
-        <h3>The program() API</h3>
-        <p>If you wish to design a pack for a simple command line tool, use the <em>program</em> function to 
-            search and define the tool. This works if the tool is accessible using the current PATH definition.
-<pre>Bit.program('zip', 'Zip utility')</pre>
-            <p>The program function searches for Zip and defines the pack if zip can be found.</p>
-
-        <h3>The probe() API</h3>
-        <p>The probe function is useful to search for a program on the system. It searches for a named program
-        and takes options for the search path (search), the default to return if the program cannot be found (default), and
-        whether to return the full path or just the dirname portion (fullpath).</p>
-         
-<pre>probe('gzip', { 
-    search: ['/bin', '/usr/bin' ],
-    default: 'bin/gzip'
-})
 </pre>
         <a name="samples"></a>
         <h2>Samples</h2>

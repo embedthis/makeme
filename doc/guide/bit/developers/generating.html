@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis Bit 0.8.4 Documentation</title>
+    <title>Embedthis Bit 0.8.5 Documentation</title>
     <meta name="keywords" content="Bit, Build It!, Javascript"/>
 	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
 	<meta name="robots" content="index,follow" />
@@ -57,6 +57,7 @@
                 <li><a href="../../../guide/bit/developers/scripts.html">Running Scripts</a></li>
                 <li><a href="../../../guide/bit/developers/copying.html">Copying Files</a></li>
                 <li><a href="../../../guide/bit/developers/configuring.html">Configuring a Project</a></li>
+                <li><a href="../../../guide/bit/developers/packs.html">Creating Packs</a></li>
                 <li><a href="../../../guide/bit/developers/generating.html">Generating Projects</a></li>
                 <li><a href="../../../guide/bit/developers/samples.html">Bit Samples</a></li>
 
@@ -73,7 +74,6 @@
        
         <p>This document describes how to generate Makefiles and IDE projects using Bit. If you wish to
         learn how to use Bit generated Makefiles, read the <a href="../users/make.html">Using Generated Makefiles</a> guide.</p>
-
         <a name="targets"></a>
         <h2>Targets</h2>
         <p>When Bit generates a Makefile or IDE project, it translates the each Bit target onto a project or target in the 
@@ -105,12 +105,10 @@ make CC=/usr/bin/ccache/gcc
 make BIT_PACK_SSL=0
 </pre>
         <p>This will override the bit.h definition and will disable the use of SSL.</p>
-
         <a id="windows"></a>
         <h2>Windows Makefiles</h2>
         <p>The Windows Makefiles that Bit generates are similar to Unix Makefiles, except they are designed to work with
         Windows Nmake. The generated code will run natively without requiring a Unix emulator like cygwin. </p>
-
         <a id="vs"></a>
         <h2>Visual Studio Projects</h2>
         <p>For Visual Studio, Bit creates a Visual Studio sub-projects are created for each Bit executable,
@@ -119,12 +117,10 @@ make BIT_PACK_SSL=0
         <p>Bit generates a solution file which includes all the generated projects. Bit creates Visual Studio project
         property files for the product, debug and release builds and for X86 and X64 architectures. This enables changed
         property file settings to be easily inherited by all projects.</p>
-
         <a id="xcode"></a>
         <h2>Xcode Projects</h2>
         <p>For Xcode, Bit creates an Xcode project with targets for each Bit executable,
         library, script or file target. The Bit dependencies are mapped onto Xcode target dependencies.</p>
-
         <a id="shell"></a>
         <h2>Shell Projects</h2>
         <p>A shell project is just a simple straight line set of commands to build the product.</p>
@@ -143,7 +139,6 @@ make BIT_PACK_SSL=0
         will contain this name and if you are building via Bit, Makefile and/or IDE, it is important to keep the various
         output products directories separate. This is because some IDEs will add incompatible compiler options that will not
         interoperate with builds by Make or Bit.</p>
-
         <a id="generate-targets"></a>
         <h2>Generating Targets</h2>
         <p>Bit can automatically create equivalent Makefile and IDE project commands for compiling objects, exporting
@@ -183,7 +178,6 @@ stest: {
         <p>If the exact and compatible generate properties are not present, Bit checks if a platform specific property is
         present. For example: <em>generate-linux</em> can be used to provide a script for Linux Makefiles.</p>
         <p>If none of these options are present, Bit checks for a generic <em>generate</em> property.</p>
-
         <a id="conditional"></a>
         <h2>Generating Conditional Makefiles</h2>
         <p>Bit can generate conditional Makefiles where the list of targets to build may be modified at run-time depending

@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis Bit 0.8.4 Documentation</title>
+    <title>Embedthis Bit 0.8.5 Documentation</title>
     <meta name="keywords" content="Bit, Build It!, Javascript"/>
 	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
 	<meta name="robots" content="index,follow" />
@@ -115,12 +115,10 @@ bit rocket  # to build just the rocket
         define their goals. If unspecified, a default goals property will be defined for each target that minimally 
         contains the name of the target. Executable, library and file targets will also have the special goal <em>'all'</em>
         so that they are created for default builds.</p>
-
         <a name="order"></a>
         <h2>Target Build Order</h2>
         <p>Before building, Bit parses the entire Bit file configuration and creates a build tree based on
         which targets depend on what. Bit then builds the targets by doing a depth-first traversal of the build tree. It successfully detects and handles dependency loops.</p>
-
         <a id="defaults"></a>
         <h2>Target Default Properties</h2>
         <p>Often targets need very similar configuration. Bit provides a <em>defaults</em> collection of properties that are
