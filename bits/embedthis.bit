@@ -164,8 +164,8 @@ Bit.load({
             depends: ['patch', 'man', 'api', 'clean-doc', 'ssi'],
         },
 
-        patch: {},
-        api: {},
+        'patch': {},
+        'api': {},
         'clean-doc': {},
 
         /*

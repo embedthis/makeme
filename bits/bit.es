@@ -738,11 +738,6 @@ public class Bit {
                     }
                 }
             }
-            /*
-                for (let [event,item] in o.scripts) {
-                    plus(o.scripts, event)
-                }
-             */
         }
     }
 
@@ -819,6 +814,9 @@ public class Bit {
         if (target.requires) {
             target.requires = makeArray(target.requires)
         }
+        if (target.use) {
+            target.use = makeArray(target.use)
+        }
         rebase(home, target, 'includes')
         rebase(home, target, 'headers')
         rebase(home, target, 'resources')
@@ -854,7 +852,14 @@ public class Bit {
         if (o.internal) {
             // blend(target, o.internal, {combine: true})
             let base = blend({}, o.internal, {combine: true})
-            target = o.targets[tname] = bit.targets[tname] = blend(base, target, {combine: true})
+            target = blend(base, target, {combine: true})
+        /*  UNUSED
+            if (bit.targets[tname]) {
+                target = blend(bit.targets[tname], target, {combine: true})
+            }
+            o.targets[tname] = bit.targets[tname] = target
+         */
+            o.targets[tname] = target
         }
     }
 
@@ -893,7 +898,6 @@ public class Bit {
         for each (pack in o.packs) {
             fixScripts(pack, ['config', 'without', 'postconfig'])
         }
-
         for (let [tname,target] in o.targets) {
             target.name ||= tname
             target.home ||= home
@@ -1240,8 +1244,41 @@ public class Bit {
         return files
     }
 
+    function inheritDep(target, dep) {
+        for each (lib in dep.libraries) {
+            target.libraries ||= []
+            if (!target.libraries.contains(lib)) {
+                target.libraries.push(lib)
+            }
+        }
+        for each (option in dep.linker) {
+            target.linker ||= []
+            if (!target.linker.contains(option)) {
+                target.linker.push(option)
+            }
+        }
+        for each (option in dep.libpaths) {
+            target.libpaths ||= []
+            if (!target.libpaths.contains(option)) {
+                target.libpaths.push(option)
+            }
+        }
+        for each (option in dep.includes) {
+            target.includes ||= []
+            if (!target.includes.contains(option)) {
+                target.includes.push(option)
+            }
+        }
+        for each (option in dep.defines) {
+            target.defines ||= []
+            if (!target.defines.contains(option)) {
+                target.defines.push(option)
+            }
+        }
+    }
+
     /*
-        Resolve a target by inheriting dependent libraries
+        Resolve a target by inheriting dependent libraries from dependent targets and packs
      */
     function resolve(target) {
         if (target.resolved) {
@@ -1249,69 +1286,39 @@ public class Bit {
         }
         runTargetScript(target, 'preresolve')
         target.resolved = true
-        for each (dname in target.depends) {
-            let dep = bit.targets[dname]
+        for each (name in target.depends) {
+            let dep = bit.targets[name]
             if (dep) {
                 if (!dep.enable) continue
                 if (!dep.resolved) {
                     resolve(dep)
                 }
                 if (dep.type == 'lib') {
-                    target.libraries
                     target.libraries ||= []
                     /* Put dependent libraries first so system libraries are last (matters on linux) */
                     if (dep.static) {
-                        target.libraries = [Path(dname).joinExt(bit.ext.lib)] + target.libraries
+                        target.libraries = [Path(name).joinExt(bit.ext.lib)] + target.libraries
                     } else {
-                        if (dname.startsWith('lib')) {
-                            target.libraries = [dname.replace(/^lib/, '')] + target.libraries
+                        if (name.startsWith('lib')) {
+                            target.libraries = [name.replace(/^lib/, '')] + target.libraries
                         } else {
-                            target.libraries = [Path(dname).joinExt(bit.ext.shlib, true)] + target.libraries
+                            target.libraries = [Path(name).joinExt(bit.ext.shlib, true)] + target.libraries
                         }
                     }
-                    for each (lib in dep.libraries) {
-                        if (!target.libraries.contains(lib)) {
-                            target.libraries.push(lib)
-                        }
-                    }
-                    for each (option in dep.linker) {
-                        target.linker ||= []
-                        if (!target.linker.contains(option)) {
-                            target.linker.push(option)
-                        }
-                    }
-                    for each (option in dep.libpaths) {
-                        target.libpaths ||= []
-                        if (!target.libpaths.contains(option)) {
-                            target.libpaths.push(option)
-                        }
-                    }
+                    inheritDep(target, dep)
                 }
-            } else {
-                let pack = bit.packs[dname]
-                if (pack) {
-                    if (!pack.enable) continue
-                    if (pack.includes) {
-                        target.includes ||= []
-                        target.includes += pack.includes
-                    }
-                    if (pack.defines) {
-                        target.defines ||= []
-                        target.defines += pack.defines
-                    }
-                    if (pack.libraries) {
-                        target.libraries ||= []
-                        target.libraries += pack.libraries
-                    }
-                    if (pack.linker) {
-                        target.linker ||= []
-                        target.linker += pack.linker
-                    }
-                    if (pack.libpaths) {
-                        target.libpaths ||= []
-                        target.libpaths += pack.libpaths
-                    }
-                }
+            }
+        }
+        for each (name in target.requires) {
+            let pack = bit.packs[name]
+            if (pack && pack.enable !== false) {
+                inheritDep(target, pack)
+            }
+        }
+        for each (name in target.use) {
+            let pack = bit.packs[name]
+            if (pack && pack.enable !== false) {
+                inheritDep(target, pack)
             }
         }
         runTargetScript(target, 'postresolve')
@@ -1418,6 +1425,7 @@ public class Bit {
         for (let [tname, target] in bit.targets) {
             if (targetsToBlend[target.type]) {
                 let def = blend({}, bit.defaults, {combine: true})
+                /* NOTE: this does not blend into existing defaults of the same name. It overwrites */
                 target = bit.targets[tname] = blend(def, target, {combine: true})
                 if (target.inherit) {
                     if (!(target.inherit is Array)) {
