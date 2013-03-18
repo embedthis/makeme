@@ -27,7 +27,7 @@ Bit.pack({
                 pack.imports = [ lib, lib.replaceExt('lib') ]
             } else {
                 pack.defines = ['POSIX', 'MATRIX_USE_FILE_SYSTEM' ],
-                pack.libraries = ['libmatrixssl']
+                pack.libraries = ['matrixssl']
                 pack.imports = [ lib ]
             }
             let search = [ path.join('matrixssl') ]

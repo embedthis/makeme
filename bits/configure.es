@@ -135,7 +135,7 @@ module embedthis.bit {
             nbit.dir.bits = bit.dir.bits
         }
         if (nbit.settings) {
-            Object.sortProperties(nbit.settings);
+            Object.sortProperties(nbit.settings)
         }
         b.runScript(bit.scripts, "postconfig")
         if (b.options.configure) {
@@ -278,6 +278,7 @@ module embedthis.bit {
         configurePacks()
         Object.sortProperties(bit.packs)
         checkPacks()
+        inheritPacks()
         tracePacks()
         resetPacks()
     }
@@ -288,8 +289,11 @@ module embedthis.bit {
     function loadPacks(packs) {
         vtrace('Search', 'Packages: ' + packs.join(' '))
         for each (pname in packs) {
-            if (bit.packs[pname] && bit.packs[pname].loaded) {
-                continue
+            if (bit.packs[pname]) {
+                let pack = bit.packs[pname]
+                if (pack.loaded || pack.enable === false) {
+                    continue
+                }
             }
             let path = b.findPack(pname)
             if (!path.exists) {
@@ -297,12 +301,15 @@ module embedthis.bit {
             }
             let pack = bit.packs[pname] ||= {}
             pack.name ||= pname
+            pack.enable ||= undefined
             try {
                 pack.loaded = true
                 pack.file = path.portable
                 currentPack = pname
+
                 vtrace('Search', 'For pack: ' + pname)
                 b.loadBitFile(path)
+
                 if (pack.requires) {
                     loadPacks(pack.requires)
                 }
@@ -323,11 +330,14 @@ module embedthis.bit {
     }
 
     function enablePacks() {
-        for (let [pname, pack] in bit.packs) {
+        for each (pack in bit.packs) {
             if (pack.enabling) {
                 continue
             }
             enablePack(pack)
+        }
+        for each (r in bit.settings.requires) {
+            bit.packs[r].required = true
         }
     }
 
@@ -367,9 +377,6 @@ module embedthis.bit {
         }
     }
 
-    /*
-        Configure a pack but first configure any required or discovered packs
-     */
     function configurePack(pack) {
         if (pack.configuring) {
             return
@@ -380,6 +387,13 @@ module embedthis.bit {
         }
         for each (pname in pack.discover) {
             configurePack(bit.packs[pname])
+        }
+        for each (pname in pack.depends) {
+            if (bit.packs[pname]) {
+                configurePack(bit.packs[pname])
+            } else {
+                bit.packs[pname] = { name: pname, enable: false }
+            }
         }
         for each (pname in pack.after) {
             if (bit.packs[pname]) {
@@ -419,6 +433,62 @@ module embedthis.bit {
         delete global.PACK
     }
 
+    function inheritFromPack(pack, dep) {
+        for each (lib in dep.libraries) {
+            pack.libraries ||= []
+            if (!pack.libraries.contains(lib)) {
+                pack.libraries.push(lib)
+            }
+        }
+        for each (option in dep.linker) {
+            pack.linker ||= []
+            if (!pack.linker.contains(option)) {
+                pack.linker.push(option)
+            }
+        }
+        for each (option in dep.libpaths) {
+            pack.libpaths ||= []
+            if (!pack.libpaths.contains(option)) {
+                pack.libpaths.push(option)
+            }
+        }
+        for each (option in dep.includes) {
+            pack.includes ||= []
+            if (!pack.includes.contains(option)) {
+                pack.includes.push(option)
+            }
+        }
+        for each (option in dep.defines) {
+            pack.defines ||= []
+            if (!pack.defines.contains(option)) {
+                pack.defines.push(option)
+            }
+        }
+    }
+
+    function inheritPack(pack) {
+        if (pack.inheriting) {
+            return
+        }
+        pack.inheriting = true
+
+        for each (pname in pack.depends) {
+            inheritPack(bit.packs[pname])
+        }
+        for each (pname in pack.depends) {
+            let dep = bit.packs[pname]
+            if (dep && dep.enable) {
+                inheritFromPack(pack, dep)
+            }
+        }
+    }
+
+    function inheritPacks() {
+        for (let [pname, pack] in bit.packs) {
+            inheritPack(pack)
+        }
+    }
+
     function tracePacks() {
         let omitted = {}
         for (let [pname, pack] in bit.packs) {
@@ -443,34 +513,42 @@ module embedthis.bit {
         }
     }
 
-    function checkPacks() {
-        for (let [pname, pack] in bit.packs) {
-            if (!pack.enable && (pack.required || bit.settings.requires.contains(pname))) { 
-                if (!b.options['continue']) {
-                    throw 'Required pack ' + pname + ' is not enabled.'
-                }
-            }
-            for each (r in pack.requires) {
-                let requires = bit.packs[r]
-                if (!requires.enable && !b.options['continue']) {
-                        throw 'Pack ' + r + ' required by ' + pack.name + ' is not enabled.'
-                    }
-            }
-            if (pack.enable) {
-                for each (o in pack.conflicts) {
-                    let other = bit.packs[o]
-                    if (other && other.enable) {
-                        other.enable = false
-                        other.diagnostic ||= 'conflicts with ' + pack.name
-                    }
+    function checkPack(pack) {
+        if (pack.checking) {
+            return
+        }
+        pack.checking = true
+        /* Recursive descent checking */
+        for each (pname in pack.requires) {
+            let p = bit.packs[pname]
+            if (p) {
+                checkPack(p)
+                if (!p.enable) {
+                    pack.enable = false
+                    pack.diagnostic ||= 'required pack ' + p.name + ' is not enabled'
                 }
             }
         }
-        /*  KEEP UNUSED
-            for (let [pname, pack] in bit.packs) {
-                runPackScript(pack, "postconfig")
+        if (!pack.enable && pack.required) {
+            if (!b.options['continue']) {
+                throw 'Required pack ' + pack.name + ' is not enabled.'
             }
-         */
+        }
+        if (pack.enable) {
+            for each (o in pack.conflicts) {
+                let other = bit.packs[o]
+                if (other && other.enable) {
+                    other.enable = false
+                    other.diagnostic ||= 'conflicts with ' + pack.name
+                }
+            }
+        }
+    }
+
+    function checkPacks() {
+        for each (pack in bit.packs) {
+            checkPack(pack)
+        }
     }
 
     function resetPacks() {
@@ -478,6 +556,8 @@ module embedthis.bit {
             delete pack.loaded 
             delete pack.enabling 
             delete pack.configuring 
+            delete pack.inheriting 
+            delete pack.checking 
         }
     }
 

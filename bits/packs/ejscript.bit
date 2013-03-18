@@ -7,14 +7,6 @@ Bit.pack({
         description: 'Ejscript Language',
         path: probe('src/deps/ejs/ejsLib.c'),
         libraries: [ 'mpr', 'http', 'pcre' ],
-        config: function (pack) {
-            if (bit.packs.sqlite.enable) {                                                         
-                pack.libraries.push('sqlite3')                                                                          
-            }                                                                                                          
-            if (bit.packs.ssl.enable) {
-                pack.libraries.push('mprssl')                                                                           
-            }
-        },
-        after: [ 'sqlite', 'ssl' ],
+        depends: [ 'sqlite', 'ssl' ],
     },
 })

@@ -5,7 +5,8 @@
 Bit.pack({
     ssl: {
         description: 'Secure Socket Layer Interface',
-        discover: ['est', 'matrixssl', 'nanossl', 'openssl'],
+        discover: [ 'est', 'matrixssl', 'nanossl', 'openssl' ],
+        depends:  [ 'est', 'matrixssl', 'nanossl', 'openssl' ],
         scripts: {
             config: function (pack) {
                 let provider

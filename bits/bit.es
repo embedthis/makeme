@@ -60,9 +60,8 @@ public class Bit {
     private var start: Date
     private var targetsToBuildByDefault = { exe: true, file: true, lib: true }
     private var targetsToClean = { exe: true, file: true, lib: true, obj: true }
-    /*
-        Note: actions are converted to a type of build by default
-     */
+
+    //  MOB - unused
     private var targetsToBlend = { exe: true, lib: true, obj: true }
 
     private var argTemplate = {
@@ -564,12 +563,14 @@ public class Bit {
                 for each (f in bit.settings['without-' + field]) {
                     bit.packs[f] ||= {}
                     let pack = bit.packs[f]
+                    pack.name = field
                     pack.enable = false
                     pack.explicit = true
                     pack.diagnostic = 'configured --without ' + f + '.'
                 }
                 continue
             }
+            pack.name = field
             pack.enable = false
             pack.diagnostic = 'configured --without ' + field + '.'
             pack.explicit = true
@@ -814,7 +815,11 @@ public class Bit {
         if (target.requires) {
             target.requires = makeArray(target.requires)
         }
+        if (target.depends) {
+            target.depends = makeArray(target.depends)
+        }
         if (target.use) {
+            trace('Warn', 'Target ' + target.name + ' in ' + currentBitFile + ' is using "use" instead of "depends"')
             target.use = makeArray(target.use)
         }
         rebase(home, target, 'includes')
@@ -827,12 +832,15 @@ public class Bit {
         if (target.run) {
             target.type ||= 'run'
         }
+        if (target.test) {
+            target.type ||= 'test'
+        }
         /*
             Expand short-form scripts into the long-form. Set the target type if not defined to 'script'.
          */
         let build = target.build
         for each (n in ['action', 'build', 'shell', 'postblend', 'preresolve', 'postresolve', 'postsource', 
-                'precompile', 'postcompile', 'prebuild', 'postbuild']) {
+                'precompile', 'postcompile', 'prebuild', 'postbuild', 'test']) {
             if (target[n] != undefined) {
                 target.type ||= 'script'
                 let script = target[n]
@@ -848,19 +856,19 @@ public class Bit {
 
         /*
             Blend internal for only the targets in this file. Delay blending defaults.
-         */
         if (o.internal) {
             // blend(target, o.internal, {combine: true})
             let base = blend({}, o.internal, {combine: true})
             target = blend(base, target, {combine: true})
-        /*  UNUSED
-            if (bit.targets[tname]) {
-                target = blend(bit.targets[tname], target, {combine: true})
-            }
+
+            //if (bit.targets[tname]) {
+            //    target = blend(bit.targets[tname], target, {combine: true})
+            //}
             o.targets[tname] = bit.targets[tname] = target
-         */
             o.targets[tname] = target
         }
+         */
+        target.internal = o.internal
     }
 
     function fixup(o, ns) {
@@ -875,10 +883,8 @@ public class Bit {
         //  LEGACY
         if (o.settings) {
             if (o.settings.required) {
-                trace("Warn", "Using settings.required in " + currentBitFile + ". Use settings.requires instead.")
+                throw "Warn", "Using settings.required in " + currentBitFile + ". Use settings.depends instead."
             }
-            //  LEGACY property renaming
-            rename(o.settings, 'required', 'requires')
         }
         /*
             Arrays must have a +prefix to blend
@@ -947,6 +953,7 @@ public class Bit {
          */
         if (o.targets) {
             bit.targets ||= {}
+            //  MOB - note not combining 
             bit.targets = blend(bit.targets, o.targets, {functions: true})
             delete o.targets
         }
@@ -1018,6 +1025,16 @@ public class Bit {
             let o = bit.clone()
             delete o.blend
             let path = Path(currentPlatform + '.dmp')
+            Object.sortProperties(o)
+            if (o.packs) {
+                Object.sortProperties(o.packs)
+            }
+            if (o.targets) {
+                Object.sortProperties(o.targets)
+            }
+            if (o.settings) {
+                Object.sortProperties(o.settings)
+            }
             path.write(serialize(o, {pretty: true, commas: true, indent: 4, quotes: false}))
             trace('Dump', 'Save Bit DOM to: ' + path)
         }
@@ -1305,22 +1322,23 @@ public class Bit {
                             target.libraries = [Path(name).joinExt(bit.ext.shlib, true)] + target.libraries
                         }
                     }
-                    inheritDep(target, dep)
+                }
+                inheritDep(target, dep)
+
+            } else {
+                let pack = bit.packs[name]
+                if (pack && pack.enable !== false) {
+                    inheritDep(target, pack)
                 }
             }
         }
+        /* UNUSED
         for each (name in target.requires) {
             let pack = bit.packs[name]
             if (pack && pack.enable !== false) {
                 inheritDep(target, pack)
             }
-        }
-        for each (name in target.use) {
-            let pack = bit.packs[name]
-            if (pack && pack.enable !== false) {
-                inheritDep(target, pack)
-            }
-        }
+        } */
         runTargetScript(target, 'postresolve')
     }
 
@@ -1423,9 +1441,14 @@ public class Bit {
     function blendDefaults() {
         runScript(bit.scripts, "preinherit")
         for (let [tname, target] in bit.targets) {
-            if (targetsToBlend[target.type]) {
+            //  MOB - remove targetsToBlend
+            if (true || targetsToBlend[target.type]) {
                 let def = blend({}, bit.defaults, {combine: true})
-                /* NOTE: this does not blend into existing defaults of the same name. It overwrites */
+                if (target.internal) {
+                    def = blend(def, target.internal, {combine: true})
+                    delete target.internal
+                }
+                /* NOTE: this does not blend into existing targets of the same name. It overwrites */
                 target = bit.targets[tname] = blend(def, target, {combine: true})
                 if (target.inherit) {
                     if (!(target.inherit is Array)) {

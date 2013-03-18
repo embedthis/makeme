@@ -399,10 +399,11 @@ LIBS_27 = $(LIBS_27) libpcre.lib
 LIBS_27 = $(LIBS_27) libhttp.lib
 LIBS_27 = $(LIBS_27) libpcre.lib
 LIBS_27 = $(LIBS_27) libmpr.lib
+LIBS_27 = $(LIBS_27) libest.lib
 
 $(CONFIG)\bin\libejs.dll: $(DEPS_27)
 	@echo '      [Link] libejs'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libejs.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsLib.obj $(LIBS_27) $(LIBS_27) $(LIBS) libmpr.lib
+	"$(LD)" -dll -out:$(CONFIG)\bin\libejs.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsLib.obj $(LIBS_27) $(LIBS_27) $(LIBS) libest.lib
 
 #
 #   ejs.obj
@@ -425,10 +426,11 @@ LIBS_29 = $(LIBS_29) libejs.lib
 LIBS_29 = $(LIBS_29) libmpr.lib
 LIBS_29 = $(LIBS_29) libpcre.lib
 LIBS_29 = $(LIBS_29) libhttp.lib
+LIBS_29 = $(LIBS_29) libest.lib
 
 $(CONFIG)\bin\ejs.exe: $(DEPS_29)
 	@echo '      [Link] ejs'
-	"$(LD)" -out:$(CONFIG)\bin\ejs.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejs.obj $(LIBS_29) $(LIBS_29) $(LIBS) libhttp.lib
+	"$(LD)" -out:$(CONFIG)\bin\ejs.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejs.obj $(LIBS_29) $(LIBS_29) $(LIBS) libest.lib
 
 #
 #   ejsc.obj
@@ -451,10 +453,11 @@ LIBS_31 = $(LIBS_31) libejs.lib
 LIBS_31 = $(LIBS_31) libmpr.lib
 LIBS_31 = $(LIBS_31) libpcre.lib
 LIBS_31 = $(LIBS_31) libhttp.lib
+LIBS_31 = $(LIBS_31) libest.lib
 
 $(CONFIG)\bin\ejsc.exe: $(DEPS_31)
 	@echo '      [Link] ejsc'
-	"$(LD)" -out:$(CONFIG)\bin\ejsc.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsc.obj $(LIBS_31) $(LIBS_31) $(LIBS) libhttp.lib
+	"$(LD)" -out:$(CONFIG)\bin\ejsc.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsc.obj $(LIBS_31) $(LIBS_31) $(LIBS) libest.lib
 
 #
 #   ejs.mod
@@ -660,10 +663,11 @@ LIBS_37 = $(LIBS_37) libejs.lib
 LIBS_37 = $(LIBS_37) libhttp.lib
 LIBS_37 = $(LIBS_37) libmpr.lib
 LIBS_37 = $(LIBS_37) libpcre.lib
+LIBS_37 = $(LIBS_37) libest.lib
 
 $(CONFIG)\bin\bit.exe: $(DEPS_37)
 	@echo '      [Link] bit'
-	"$(LD)" -out:$(CONFIG)\bin\bit.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\bit.obj $(LIBS_37) $(LIBS_37) $(LIBS) libpcre.lib
+	"$(LD)" -out:$(CONFIG)\bin\bit.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\bit.obj $(LIBS_37) $(LIBS_37) $(LIBS) libest.lib
 
 #
 #   stop

@@ -14,7 +14,7 @@ Bit.load({
                 '-Wall',
                 '-Wshorten-64-to-32',
             ],
-            requires: 'est',
+            enable: 'bit.packs.est.enable',
         },
 
         'ca-crt': {

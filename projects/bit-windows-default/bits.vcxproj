@@ -91,7 +91,7 @@
   <ItemDefinitionGroup>
   <Link>
     <AdditionalDependencies>;%(AdditionalDependencies)</AdditionalDependencies>
-    <AdditionalLibraryDirectories>$(OutDir);;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    <AdditionalLibraryDirectories>$(OutDir);$(Cfg)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
   </Link>
 
   <CustomBuildStep>

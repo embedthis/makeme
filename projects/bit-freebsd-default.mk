@@ -401,10 +401,11 @@ LIBS_27 += -lpcre
 LIBS_27 += -lhttp
 LIBS_27 += -lpcre
 LIBS_27 += -lmpr
+LIBS_27 += -lest
 
 $(CONFIG)/bin/libejs.so: $(DEPS_27)
 	@echo '      [Link] libejs'
-	$(CC) -shared -o $(CONFIG)/bin/libejs.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejsLib.o $(LIBS_27) $(LIBS_27) $(LIBS) -lmpr
+	$(CC) -shared -o $(CONFIG)/bin/libejs.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejsLib.o $(LIBS_27) $(LIBS_27) $(LIBS) -lest
 
 #
 #   ejs.o
@@ -427,10 +428,11 @@ LIBS_29 += -lejs
 LIBS_29 += -lmpr
 LIBS_29 += -lpcre
 LIBS_29 += -lhttp
+LIBS_29 += -lest
 
 $(CONFIG)/bin/ejs: $(DEPS_29)
 	@echo '      [Link] ejs'
-	$(CC) -o $(CONFIG)/bin/ejs $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejs.o $(LIBS_29) $(LIBS_29) $(LIBS) -lhttp $(LDFLAGS)
+	$(CC) -o $(CONFIG)/bin/ejs $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejs.o $(LIBS_29) $(LIBS_29) $(LIBS) -lest $(LDFLAGS)
 
 #
 #   ejsc.o
@@ -453,10 +455,11 @@ LIBS_31 += -lejs
 LIBS_31 += -lmpr
 LIBS_31 += -lpcre
 LIBS_31 += -lhttp
+LIBS_31 += -lest
 
 $(CONFIG)/bin/ejsc: $(DEPS_31)
 	@echo '      [Link] ejsc'
-	$(CC) -o $(CONFIG)/bin/ejsc $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejsc.o $(LIBS_31) $(LIBS_31) $(LIBS) -lhttp $(LDFLAGS)
+	$(CC) -o $(CONFIG)/bin/ejsc $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejsc.o $(LIBS_31) $(LIBS_31) $(LIBS) -lest $(LDFLAGS)
 
 #
 #   ejs.mod
@@ -643,10 +646,11 @@ LIBS_35 += -lejs
 LIBS_35 += -lhttp
 LIBS_35 += -lmpr
 LIBS_35 += -lpcre
+LIBS_35 += -lest
 
 $(CONFIG)/bin/bit: $(DEPS_35)
 	@echo '      [Link] bit'
-	$(CC) -o $(CONFIG)/bin/bit $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/bit.o $(LIBS_35) $(LIBS_35) $(LIBS) -lpcre $(LDFLAGS)
+	$(CC) -o $(CONFIG)/bin/bit $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/bit.o $(LIBS_35) $(LIBS_35) $(LIBS) -lest $(LDFLAGS)
 
 #
 #   stop

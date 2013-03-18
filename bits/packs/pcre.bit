@@ -6,5 +6,6 @@ Bit.pack({
     pcre: {
         description: 'Regular Expression Package',
         path: bit.dir.src.join('src/deps/pcre'),
+        libraries: [ 'pcre' ],
     },
 })
