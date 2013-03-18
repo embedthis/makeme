@@ -49,6 +49,7 @@ Bit.pack({
             }
             return path
         },
+        conflicts: [ 'est', 'matrixssl', 'nanossl' ],
     },
 })
 

@@ -7,7 +7,6 @@
 Bit.pack({
     compiler: {
         description: 'C/C++ Compiler',
-        after: [ 'vxworks', 'winsdk' ],
         path: function (pack) {
             if (bit.platform.like == 'windows') {
                 path = findWindowsCompiler(pack)
@@ -23,6 +22,7 @@ Bit.pack({
         config: function (pack) {
             testCompilerCapabilities()
         },
+        after: [ 'vxworks', 'winsdk' ],
     },
 })
 

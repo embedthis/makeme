@@ -42,5 +42,6 @@ Bit.pack({
                 '__ENABLE_ALL_DEBUGGING__', '__ENABLE_MOCANA_DEBUG_CONSOLE__', '__MOCANA_DUMP_CONSOLE_TO_STDOUT__']
             return path
         },
+        conflicts: [ 'est', 'matrixssl', 'openssl' ],
     },
 })

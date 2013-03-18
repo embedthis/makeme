@@ -35,5 +35,6 @@ Bit.pack({
             pack.includes = [ incdir, incdir.parent ]
             return path
         },
+        conflicts: [ 'est', 'nanossl', 'openssl' ],
     },
 })
