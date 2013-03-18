@@ -224,9 +224,8 @@ mylib: {
         <p>Every target inherits default properties from the <em>defaults</em> and <em>internal</em> property collections.
         The default collection is global across the project. The internal collection is local to the current bit file.</p>
         <p>Bit defines the initial compiler properties as required for the current platform operating system and CPU 
-        architecture. However, you can override the default properties so that
-        all targets inherit your customizations. For example:
-<pre>
+        architecture. However, you can override the default properties so that all targets inherit your customizations. For
+        example: <pre>
 defaults: {
     '+defines': [ 'ENABLE_DIRECT_X' ],
 },

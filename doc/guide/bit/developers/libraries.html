@@ -81,50 +81,51 @@ bit libdemo
         <p>When building, Bit transparently creates targets for each of the compiled source files and for 
         any include files referenced by the sources. If the source file or its include files are updated, the 
         relevant source file or files will be recompiled and library rebuilt.</p>
+
         <a name="dependencies"></a>
         <h2>Dependencies</h2>
         <p>On some platforms, linking a library will require that all unresolved references in other libraries be
         resolved before the link can successfully complete. Such library dependencies are specified via the
         <em>depends</em> property. The depends property takes a list of other targets that must be built before
-        the current target can complete. Note: that these are the target names (target.name property) and not
-        the library name. To specify external libraries that are not built with bit, use the <em>libraries</em> 
-        property collection.</p>
+        the current target can complete. Furthermore, the compiler, defines includes, libraries, libpaths and linker 
+        properties from the other target are imported into the current target. For example, given::</p>
+<pre>
+libsqlite3: {
+    type: 'lib',
+    defines: [ 'FTS4' ],
+    includes : [ /usr/include/sqlite ],
+    sources: [ '*.c' ],
+},
+</pre>
+        <p>Then the following library target will depend on libsqlite3. It will automatically link with libsqlite3,
+        and when the source for libappweb is compiled, it will use the exported defines and includes from libsqlite3.</p>
 <pre>
 libappweb: {
     type: 'lib',
     sources: [ '*.c' ],
     headers: [ '*.h' ],
-    depends: [ 'libhttp' ],
+    depends: [ 'libsqlite3' ],
 },
 </pre>
-        <p>Bit will automatically inherit exported libraries, library paths, linker options and compiler definitions from
-        the dependant library into the target.</p>
+        <p>Note: the names in the depends property these are the target names (target.name property) and not
+        the library name. To specify external libraries that are not built with bit, use the <em>libraries</em> 
+        property collection.</p>
+
         <h2>Pack Dependencies</h2>
         <p>Products are sometimes configured with extension packages that provide libraries to augment the product. For
         example: the PHP extension adds the libphp5 library. To link a target with an extension package, use the 
         <em>requires</em> property. For example:</p>
 <pre>
-libappweb: {
+librocket: {
     type: 'lib',
-    <b>requires: [ 'php', 'openssl' ]</b>,
     sources: [ '*.c' ],
     headers: [ '*.h' ],
-    depends: [ 'libhttp' ],
+    <b>requires: [ 'fuel' ]</b>,
 </pre>
-        <p>This will add any pack defined libraries, library paths, include paths or compiler definitions to this target.</p>
-        <p>If the pack is not present or is disabled, the target will not be built.</p>
-        <h3>Optional Pack Dependencies</h3>
-        <p>Sometimes you may want to optionally use a pack, but always create the target. Instead of using target.requires,
-        the target.use property will nominate optional dependant packs. If any or all of the packs are missing, the target
-        will still be built.</p>
-<pre>
-libappweb: {
-    type: 'lib',
-    <b>use: [ 'ssl' ]</b>,
-    sources: [ '*.c' ],
-    headers: [ '*.h' ],
-    depends: [ 'libhttp' ],
-</pre>
+        <p>The requires property indicates that this target should only be built if the <em>fuel</em> pack is
+        enabled. Note this will not import any defined libraries, library paths, include paths or compiler definitions to
+        this target. To do that, you need to use the <em>depends</em> property</p>
+
         <a name="static"></a>
         <h2>Static Libraries</h2>
         <p>By default, Bit will build a shared library for a library target. To build a static library, set the 

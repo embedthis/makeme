@@ -120,25 +120,27 @@ packs: {
         <p>The pack property collection may contain properties of any name, but the following properties have special meaning:</p>
         <ul>
             <li>path &mdash; Path to primary pack resource or directory. May be the path to the binary for tools.</li>
-            <li>defines &mdash; Array of C preprocessor definitions for targets using this pack</li>
-            <li>includes &mdash; Array of include paths necessary for targets using this pack</li>
-            <li>libraries &mdash; Array of required libraries for targets using this pack</li>
-            <li>linker &mdash; Array of linker options for targets using this pack</li>
-            <li>libpaths &mdash; Array of linker library search paths for targets using this pack</li>
-            <li>imports &mdash; Libraries, files and resources to import into the local source tree</li>
-            <li>requires &mdash; Array of other packs that are required (mandatory) for this pack to be functional</li>
-            <li>discover &mdash; Array of other packs that may be discovered (optional) and utilized by this pack</li>
+            <li>defines &mdash; Array of C preprocessor definitions for targets using this pack.</li>
+            <li>depends &mdash; Array of packs from which to inherit compiler, defines, libraries, libpaths and linker
+            settings.</li>
+            <li>includes &mdash; Array of include paths necessary for targets using this pack.</li>
+            <li>libraries &mdash; Array of required libraries for targets using this pack.</li>
+            <li>linker &mdash; Array of linker options for targets using this pack.</li>
+            <li>libpaths &mdash; Array of linker library search paths for targets using this pack.</li>
+            <li>imports &mdash; Libraries, files and resources to import into the local source tree.</li>
+            <li>requires &mdash; Array of other packs that are required (mandatory) for this pack to be functional.</li>
+            <li>discover &mdash; Array of other packs that may be discovered (optional) and utilized by this pack.</li>
             <li>after &mdash; Array of other packs that will be processed before this pack. These packs may or may not be 
                 present on the system.</li>
         </ul>
         <h2>Referencing Packs in Targets</h2>
-        <p>If a target specifies a pack in its <em>requires</em> or <em>use</em> properties, and the pack is found and
+        <p>If a target specifies a pack in its <em>depends</em> property, and the pack is found and
         enabled, then the pack properties: defines, includes, libraries, linker and libpaths, will be inherited by the
-        target. 
-        If the target specifies the pack via its <em>requires</em> property and the pack is not enabled, then the
-        target will not be built. 
-        If the target specifies the pack via its <em>use</em> property and the pack is not enabled, then the
-        target will still be built but without inheriting the pack properties. For example, consider the pack definition:</p> 
+        target. </p>
+        <p>If the target specifies the pack via its <em>requires</em> property and the pack is not enabled, then the
+        target will (silently) be omitted from the build. If the pack is enabled, the target will be built.</p>
+
+        <p>For example, consider the pack definition:</p> 
 <pre>
 Bit.pack({
     php: {
@@ -162,28 +164,25 @@ Bit.pack({
 app: {
     type: 'exe',
     sources: 'app.c',
+    <b>depends: ['php']</b>,
     <b>requires: ['php']</b>,
 },
 </pre>
-        <p>Bit will automatically import the libphp5 library into the local tree at configure time. Bit will 
-        add the PHP compiler definitions when compiling app.c and linking with the PHP library.</p>
-        <p>If PHP support is optional, then replace <em>requires</em> with <em>use</em>.</p>
-<pre>
-app: {
-    type: 'exe',
-    sources: 'app.c',
-    <b>use: ['php']</b>,
-</pre>
+        <p>Bit will automatically import the libphp5 library into the local tree at configure time. Because of the
+        <em>depends</em> property, Bit will add the PHP compiler definitions when compiling app.c and linking with the PHP
+        library.</p> 
+        <p>If the PHP pack is disabled, the application will not be built.</p>
+
         <a name="api"></a>
         <h2>Pack API</h2>
         <p>A pack Bit file publishes the pack by creating properties in the Bit DOM. While this can be done directly, it is
         easier to use the Bit Pack API.</p>
         <h3><a href="../../../api/bit/bit.html#pack">Bit.pack()</a></h3>
-        <p>The <a href="<a href="../../../api/bit/bit.html#pack">Bit.pack() API is the primary API to define a pack. It takes
+        <p>The <a href="../../../api/bit/bit.html#pack">Bit.pack()</a> API is the primary API to define a pack. It takes
                 a pack description in the form of set of properties. The description specifies the name of the pack and a
                 short, single-line description for the pack. </p>
 <pre>
-Bit.pack({
+<b>Bit.pack({</b>
     mypack: {
         description: 'My demo pack',
         path: '/usr/local/myview,
@@ -199,14 +198,15 @@ Bit.pack({
     ejscript: {
         description: 'Ejscript Language',
         path: probe('src/deps/ejs/ejsLib.c'),
-        libraries: [ 'mpr', 'http', 'pcre' ],
-        defines: [ 'EJS_DEBUG' ],
-        after: [ 'sqlite', 'ssl' ],
+        <b>libraries: [ 'mpr', 'http', 'pcre' ],
+        defines: [ 'EJS_DEBUG' ],</b>
     },
 })
 </pre>
         <h3>Pack Path</h3>
-        <p>The pack path may be a simple string or path, or it may be a function that returns the path for the package. If
+        <p>The pack path should be the filename of the program if the pack represents a simple tool (like zip). Or it
+        should be the directory to the extension pack if the pack represents something more complex like an SDK. The
+        path may be a simple string or path, or it may be a function that returns the path for the package. If
         path is set to a function, it will be invoked with the pack object as its argument. For example:</p>
         <pre>
 Bit.pack({
@@ -227,10 +227,10 @@ Bit.pack({
     lib: {
         description: 'Library Archive Tool',
         <b>path: probe('ar', { fullpath: true })</b>
-        requires: ['compiler'],
     },
 })
 </pre>
+
         <h3>Exceptions</h3>
         <p>If an exception is thrown by any code in the pack bit file, the exception will be caught and the pack will be
         disabled. This is a common pattern, to throw exceptions if the pack cannot be fully configured and enabled.</p>
