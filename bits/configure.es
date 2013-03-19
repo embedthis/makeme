@@ -28,10 +28,11 @@ module embedthis.bit {
     /** @hide */
     var envSettings: Object
 
-    /*  
+    /**  
         Configure and initialize for building. This generates platform specific bit files.
+        @hide
      */
-    internal function configure() {
+    function configure() {
         vtrace('Load', 'Preload main.bit to determine required platforms')
         b.quickLoad(b.options.configure.join(b.MAIN))
         let settings = bit.settings
