@@ -6510,7 +6510,7 @@ PUBLIC int startProcess(MprCmd *cmd)
     }
     taskPriorityGet(taskIdSelf(), &pri);
 
-    cmd->pid = taskSpawn(entryPoint, pri, VX_FP_TASK | VX_PRIVATE_ENV, BIT_MPR_THREAD_STACK, (FUNCPTR) cmdTaskEntry, 
+    cmd->pid = taskSpawn(entryPoint, pri, VX_FP_TASK | VX_PRIVATE_ENV, BIT_STACK_SIZE, (FUNCPTR) cmdTaskEntry, 
         (int) cmd->program, (int) entryFn, (int) cmd, 0, 0, 0, 0, 0, 0, 0);
 
     if (cmd->pid < 0) {
@@ -23383,7 +23383,7 @@ PUBLIC MprThreadService *mprCreateThreadService()
     }
     MPR->mainOsThread = mprGetCurrentOsThread();
     MPR->threadService = ts;
-    ts->stackSize = BIT_MPR_THREAD_STACK;
+    ts->stackSize = BIT_STACK_SIZE;
     /*
         Don't actually create the thread. Just create a thread object for this main thread.
      */

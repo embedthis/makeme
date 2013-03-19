@@ -890,6 +890,22 @@ typedef int64 Ticks;
     #define BIT_MAX_ARGC       32           /**< Maximum number of command line args if using MAIN()*/
 #endif
 
+#ifndef BIT_STACK_SIZE
+#if BIT_HAS_MMU && !VXWORKS
+    /*
+        If the system supports virtual memory, then stack size should use system default. Only used pages will
+        actually consume memory
+    */
+    #define BIT_STACK_SIZE    0               /**< Default thread stack size (0 means use system default) */
+#else
+    /*
+        No MMU, so the stack size actually consumes memory. Set this as low as possible.
+        NOTE: php and ejs use stack heavily.
+    */
+    #define BIT_STACK_SIZE    (128 * 1024)    /**< Default thread stack size (0 means use system default) */
+#endif
+#endif
+
 /*********************************** Fixups ***********************************/
 
 #if ECOS

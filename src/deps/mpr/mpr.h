@@ -79,38 +79,6 @@ struct  MprXml;
         #define BIT_MPR_TRACING 0
     #endif
 #endif
-/*
-    Reduce size allocations to reduce memory usage
- */
-#ifndef BIT_MAX_FNAME
-    #define BIT_MAX_FNAME      256          /**< Reasonable filename size */
-#endif
-#ifndef BIT_MAX_PATH
-    #define BIT_MAX_PATH       1024         /**< Reasonable filename size */
-#endif
-#ifndef BIT_MAX_BUFFER
-    #define BIT_MAX_BUFFER     4096         /**< Reasonable size for buffers */
-#endif
-#ifndef BIT_MAX_ARGC
-    #define BIT_MAX_ARGC       32           /**< Maximum number of command line args if using MAIN()*/
-#endif
-
-
-#ifndef BIT_MPR_THREAD_STACK
-#if BIT_HAS_MMU
-    /* 
-        If the system supports virtual memory, then stack size should use system default. Only used pages will
-        actually consume memory 
-     */
-    #define BIT_MPR_THREAD_STACK    0               /**< Default thread stack size (0 means use system default) */
-#else
-    /* 
-        No MMU, so the stack size actually consumes memory. Set this as low as possible. 
-        NOTE: php and ejs use stack heavily.
-     */
-    #define BIT_MPR_THREAD_STACK    (128 * 1024)    /**< Default thread stack size (0 means use system default) */
-#endif
-#endif
 
 #if DEPRECATED || 1
     /* Remove in 4.4 */
