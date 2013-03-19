@@ -6,7 +6,7 @@ Bit.pack({
     nanossl: {
         description: 'Mocana NanoSSL',
         path: function (pack) {
-            let path: Path? = bit.packs.nanossl.withpath
+            let path: Path? = pack.withpath
             if (!path) {
                 if (bit.dir.packs.join('nanossl/latest').exists && Config.OS != 'windows') {
                     path = bit.dir.packs.join('nanossl/latest')

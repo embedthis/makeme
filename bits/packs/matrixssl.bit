@@ -6,7 +6,7 @@ Bit.pack({
     matrixssl: {
         description: 'MatrixSSL',
         path: function (pack) {
-            let path: Path? = bit.packs.matrixssl.withpath
+            let path: Path? = pack.withpath
             if (!path) {
                 if (bit.dir.packs.join('matrixssl/latest').exists && Config.OS != 'windows') {
                     path = bit.dir.packs.join('matrixssl/latest')

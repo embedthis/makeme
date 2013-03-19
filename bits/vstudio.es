@@ -255,7 +255,7 @@ function projBuild(projects: Array, base: Path, target) {
     }
     //  TODO - refactor
     if (target.type != 'exe' && target.type != 'lib' && target.type != 'vsprep') {
-        if (!(target.type == 'build' || target.type == 'file')) {
+        if (!(target.type == 'build' || target.type == 'file' || (type == 'script' && target.goals.contains('all')))) {
             return
         }
     }
