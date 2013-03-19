@@ -43,6 +43,7 @@
 <table class='apiIndex' summary='methods'>
    <tr><th>Qualifiers</th><th width='95%'>Method</th></tr>
    <tr class='apiDef'><td class='apiType'>static </td><td><a href='#load'><b>load</b></a>(obj: <a href='Object.html'>Object</a>, ns = null)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Load an object into the Bit DOM.</td></tr>
+   <tr class='apiDef'><td class='apiType'>static </td><td><a href='#pack'><b>pack</b></a>(obj: <a href='Object.html'>Object</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Load a bit pack into the Bit DOM.</td></tr>
 </table>
 
 <p class='inheritedLink'><a href='Object.html#InstanceMethods'><i>Inherited Methods</i></a></p>
@@ -55,18 +56,15 @@
    <tr class='apiDef'><td class='apiType'></td><td><a href='#copy'><b>copy</b></a>(src, dest: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Copy files.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#copyFile'><b>copyFile</b></a>(src: <a href='Path.html'>Path</a>, dest: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Copy a file.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#expand'><b>expand</b></a>(s: <a href='String.html'>String</a>, options = expression): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Expand tokens in a string.</td></tr>
-   <tr class='apiDef'><td class='apiType'></td><td><a href='#gtrace'><b>gtrace</b></a>(tag: <a href='String.html'>String</a>, args: <a href='Array.html'>Array</a>): <a href='Void.html'>Void</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Generate a trace line.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#linkFile'><b>linkFile</b></a>(src: <a href='Path.html'>Path</a>, dest: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Link a file.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#makeDir'><b>makeDir</b></a>(path: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Make a directory
 This creates a directory and all required parents.</td></tr>
-   <tr class='apiDef'><td class='apiType'></td><td><a href='#probe'><b>probe</b></a>(file: <a href='Path.html'>Path</a>, control = expression): <a href='Path.html'>Path</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Probe for a file and locate
-Will throw an exception if the file is not found, unless {continue, default} specified in control options.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#removeDir'><b>removeDir</b></a>(path: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Remove a directory.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#removeFile'><b>removeFile</b></a>(path: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Remove a file.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#run'><b>run</b></a>(command, cmdOptions = expression): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Run a command and trace output if cmdOptions.true or options.show.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#strace'><b>strace</b></a>(tag, args: <a href='Array.html'>Array</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit "show" trace
 This is trace that is displayed if bit --show is invoked.</td></tr>
-   <tr class='apiDef'><td class='apiType'></td><td><a href='#trace'><b>trace</b></a>(tag: <a href='String.html'>String</a>, args: <a href='Array.html'>Array</a>): <a href='Void.html'>Void</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit general trace.</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#trace'><b>trace</b></a>(tag: <a href='String.html'>String</a>, args: <a href='Array.html'>Array</a>): <a href='Void.html'>Void</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit trace.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#vtrace'><b>vtrace</b></a>(tag, args: <a href='Array.html'>Array</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit "verbose" trace
 This is trace that is displayed if bit --verbose is invoked.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#whyRebuild'><b>whyRebuild</b></a>(path, tag, msg)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit trace for bit --why on why a target is being rebuilt.</td></tr>
@@ -140,18 +138,6 @@ Calls <a href='String.html#expand'>String.expand</a> to expand variables from th
 </div>
 </div>
 <hr />
-<a name='gtrace'></a>
-<div class='api'>
-<div class='apiSig'>    gtrace(tag: <a href='String.html'>String</a>, args: <a href='Array.html'>Array</a>): <a href='Void.html'>Void</a>
-</div>
-<div class='apiDetail'>
-<dl><dt>Description</dt></dd><dd>Generate a trace line. </dd></dl>
-<dl><dt>Parameters</dt>
-<dd><table class='parameters' summary ='parameters'>
-<tr class='param'><td class='param'>tag: <a href='String.html'>String</a> </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>args: <a href='Array.html'>Array</a> </td><td>Message args to display.</td></tr></table></dd>
-</dl></div>
-</div>
-<hr />
 <a name='linkFile'></a>
 <div class='api'>
 <div class='apiSig'>    linkFile(src: <a href='Path.html'>Path</a>, dest: <a href='Path.html'>Path</a>, options = expression)
@@ -191,22 +177,30 @@ This creates a directory and all required parents. This either makes a directory
 </dl></div>
 </div>
 <hr />
-<a name='probe'></a>
+<a name='pack'></a>
 <div class='api'>
-<div class='apiSig'>    probe(file: <a href='Path.html'>Path</a>, control = expression): <a href='Path.html'>Path</a>
+<div class='apiSig'>static  pack(obj: <a href='Object.html'>Object</a>)
 </div>
 <div class='apiDetail'>
-<dl><dt>Description</dt></dd><dd>Probe for a file and locate
-Will throw an exception if the file is not found, unless {continue, default} specified in control options. </dd></dl>
+<dl><dt>Description</dt></dd><dd>Load a bit pack into the Bit DOM. </dd></dl>
 <dl><dt>Parameters</dt>
 <dd><table class='parameters' summary ='parameters'>
-<tr class='param'><td class='param'>file: <a href='Path.html'>Path</a> </td><td>File to search for.</td></tr><tr class='param'><td class='param'>control </td><td>Control options. [default: expression]</td></tr></table></dd>
+<tr class='param'><td class='param'>obj: <a href='Object.html'>Object</a> </td><td>Pack object collection. The collection should contain the following properties. Name, description, and enable are mandatory.</td></tr></table></dd>
 </dl><dl><dt>Options</dt>
 <dd><table class='parameters' summary ='options'>
-<td class='param'>default</td><td>Default path to use if the file cannot be found and bit is invoked with --continue.</td></tr>
-<td class='param'>search</td><td>Array of paths to search for the file.</td></tr>
-<td class='param'>nopath</td><td>Don't use the system PATH to locate the file.</td></tr>
-<td class='param'>fullpath</td><td>Return the full path to the located file.</td></tr>
+<td class='param'>after</td><td>Array of other packs that will be processed before this pack. These packs may or may not be present on the system.</td></tr>
+<td class='param'>description</td><td>Short, one-sentance description of the pack.</td></tr>
+<td class='param'>defines</td><td>Array of C pre-processor definitions for targets using this pack.</td></tr>
+<td class='param'>depends</td><td>Array of packs from which to inherit compiler, defines, libraries, libpaths and linker settings.</td></tr>
+<td class='param'>discover</td><td>Array of packs that may optionally be discovered and utilized by this pack.</td></tr>
+<td class='param'>imports</td><td>Libraries, files and resources to import into the local source tree.</td></tr>
+<td class='param'>includes</td><td>Array of C pre-processor include directories for targets using this pack.</td></tr>
+<td class='param'>libraries</td><td>Array of C required libraries for targets using this pack.</td></tr>
+<td class='param'>linker</td><td>Array of linker options for targets using this pack.</td></tr>
+<td class='param'>libpaths</td><td>Array of linker library search paths for targets using this pack.</td></tr>
+<td class='param'>name</td><td>Pack name. Should equal the pack collection property name.</td></tr>
+<td class='param'>path</td><td>Path to primary pack resource or directory. May be the path to the binary for tools.</td></tr>
+<td class='param'>requires</td><td>Array of C pre-processor definitions for targets using this pack.</td></tr>
 </table></dd>
 </dl></div>
 </div>
@@ -277,7 +271,7 @@ This is trace that is displayed if bit --show is invoked. </dd></dl>
 <div class='apiSig'>    trace(tag: <a href='String.html'>String</a>, args: <a href='Array.html'>Array</a>): <a href='Void.html'>Void</a>
 </div>
 <div class='apiDetail'>
-<dl><dt>Description</dt></dd><dd>Emit general trace. </dd></dl>
+<dl><dt>Description</dt></dd><dd>Emit trace. </dd></dl>
 <dl><dt>Parameters</dt>
 <dd><table class='parameters' summary ='parameters'>
 <tr class='param'><td class='param'>tag: <a href='String.html'>String</a> </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>args: <a href='Array.html'>Array</a> </td><td>Message args to display.</td></tr></table></dd>

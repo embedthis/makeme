@@ -2,4 +2,4 @@
     strip.bit - Strip package for Bit
  */
 
-Bit.program('strip', 'Strip Symbols Tool')
+program('strip', 'Strip Symbols Tool')

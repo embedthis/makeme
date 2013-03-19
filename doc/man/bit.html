@@ -5,18 +5,16 @@ BIT(1)                           User Commands                          BIT(1)
        bit - Build It! -- Utility to build and manage programs
 
 <B>SYNOPSIS</B>
-       <B>bit  [</B><I>--benchmark</I>]  [<I>--configure path-to-source</I>] [<I>--continue</I>] [<I>--debug</I>]
-       [<I>--depth level</I>] [<I>--diagnose</I>]
-           [<I>--dump</I>] [<I>--endian [big|little]</I>] [<I>--file file.bit</I>] [<I>--force</I>]
-           [<I>--gen [make|nmake|sh|vs|xcode|main|start]</I>] [<I>--get field</I>]  [<I>--help</I>]
-           [<I>--import</I>] [<I>--keep</I>] [<I>--log logSpec</I>]
-           [<I>--nocross</I>] [<I>--overwrite</I>] [<I>--out path</I>] [<I>--platform os-arch</I>] [<I>--pre</I>]
-           [<I>--prefix dir=path</I>]
-           [<I>--prefixes debian|embedthis|opt</I>]  [<I>--profile  [debug|release|...]</I>]
-           [<I>--quiet</I>] [<I>--rebuild</I>]
-           [<I>--reconfigure</I>]   [<I>--release</I>]   [<I>--rom</I>]   [<I>--set   [feature=value]</I>]
-           [<I>--show</I>] [<I>--static</I>] [<I>--unicode</I>]
-           [<I>--unset  feature</I>]  [<I>--version</I>]  [<I>--verbose</I>]  [<I>--with  PACK[=PATH]</I>]
+       <B>bit [</B><I>--benchmark</I>] [<I>--configuration</I>] [<I>--configure /path/to/source</I>]
+           [<I>--continue</I>] [<I>--debug</I>] [<I>--depth level</I>] [<I>--diagnose</I>] [<I>--dump</I>]
+           [<I>--endian [big|little]</I>] [<I>--file file.bit</I>] [<I>--force</I>]
+           [<I>--gen [make|nmake|sh|vs|xcode|main|start]</I>] [<I>--get field</I>] [<I>--help</I>]
+           [<I>--import</I>] [<I>--keep</I>] [<I>--log logSpec</I>] [<I>--nocross</I>] [<I>--overwrite</I>]
+           [<I>--out path</I>] [<I>--platform os-arch</I>] [<I>--pre</I>] [<I>--prefix dir=path</I>]
+           [<I>--prefixes debian|embedthis|opt</I>] [<I>--profile [debug|release|...]</I>]
+           [<I>--quiet</I>] [<I>--rebuild</I>] [<I>--reconfigure</I>] [<I>--release</I>] [<I>--rom</I>]
+           [<I>--set [feature=value]</I>] [<I>--show</I>] [<I>--static</I>] [<I>--unicode</I>]
+           [<I>--unset feature</I>] [<I>--version</I>] [<I>--verbose</I>] [<I>--with PACK[=PATH]</I>]
            [<I>--without PACK</I>] [targets|actions] ...
 
 <B>DESCRIPTION</B>
@@ -288,25 +286,29 @@ BIT(1)                           User Commands                          BIT(1)
        <B>--benchmark</B>
               Measure the elapsed time to run bit.
 
-       <B>--configure path-to-source</B>
-              Configure the project to prepare for building.  This  configures
+       <B>--configuration</B>
+              Display the current configuration. This displays the  configura-
+              tion for each package and the build settings.
+
+       <B>--configure /path/to/source/tree</B>
+              Configure  the  project to prepare for building. This configures
               Bit for building the project based on the instructions specified
-              in a 'main.bit' located in the specified path source tree.  When
-              run,  bit will create a platform configuration bit file, a build
-              output directory and bit.h header. The  configuration  directory
-              is  of the form: OS-ARCH-PROFILE where OS may be freebsd, linux,
-              macosx, solaris, vxworks, windows and ARCH is  arm,  mips,  ppc,
-              x64  or  x86.  PROFILE is typically set to debug or release. For
+              in  a 'main.bit' located in the specified path source tree. When
+              run, bit will create a platform configuration bit file, a  build
+              output  directory  and bit.h header. The configuration directory
+              is of the form: OS-ARCH-PROFILE where OS may be freebsd,  linux,
+              macosx,  solaris,  vxworks,  windows and ARCH is arm, mips, ppc,
+              x64 or x86. PROFILE is typically set to debug  or  release.  For
               example: 'macosx-x86_64-debug'. The configuration bit file omits
               the PROFILE. For example: 'linux-x86.bit'.
 
               Bit will use the settings.required and settings.discover proper-
-              ties in the main.bit for a list of packages to use.   When  con-
-              figuring,  bit  will  search  for these packages and will create
+              ties  in  the main.bit for a list of packages to use.  When con-
+              figuring, bit will search for these  packages  and  will  create
               definitions in the configuration bit file for later use.
 
        <B>--continue</B>
-              Continue to build despite any build errors. Normal operation  is
+              Continue  to build despite any build errors. Normal operation is
               to stop building if any build errors are encountered.
 
        <B>--debug</B>
@@ -318,94 +320,94 @@ BIT(1)                           User Commands                          BIT(1)
        <B>--diagnose</B>
               Run bit with stack backtrace display on errors.
 
-       <B>--dump </B>Dump  the  aggregate  bit  configuration  into a single dump bit
+       <B>--dump </B>Dump the aggregate bit configuration  into  a  single  dump  bit
               file.
 
        <B>--endian [big|little]</B>
-              Set the CPU endianness. This is normally detected  by  the  com-
+              Set  the  CPU  endianness. This is normally detected by the com-
               piler but may be overridden by this switch.
 
        <B>--file bitfile</B>
-              Use  the  alternate  named  bit  file  instead  of  start.bit or
+              Use the  alternate  named  bit  file  instead  of  start.bit  or
               main.bit.
 
        <B>--force</B>
               Override warnings and proceed with the operation.
 
        <B>--gen [make|nmake|sh|vs|xcode|main|start]</B>
-              Generate files. This option can  be  used  to  generate  initial
-              start.bit  or  main.bit files or IDE project and makefiles.  The
-              --gen start, option can be used to create a  stand-alone  sample
-              start.bit  file.  The --gen main, option can be used to create a
+              Generate  files.  This  option  can  be used to generate initial
+              start.bit or main.bit files or IDE project and  makefiles.   The
+              --gen  start,  option can be used to create a stand-alone sample
+              start.bit file. The --gen main, option can be used to  create  a
               sample main.bit file when starting a new product.  Project files
-              are  created  under  the 'projects' directory.  The projects are
-              based  on  the  current   configuration.   If   cross-generating
+              are created under the 'projects' directory.   The  projects  are
+              based   on   the   current  configuration.  If  cross-generating
               projects, you will typically need to also use -configure.
 
        <B>--get field</B>
-              Get  a  field  from the Bit DOM. This can be used to display any
-              Bit file value. Unlike --set, this applies to any Bit DOM  value
-              and  not  just to settings. For example: bit --get settings.ver-
+              Get a field from the Bit DOM. This can be used  to  display  any
+              Bit  file value. Unlike --set, this applies to any Bit DOM value
+              and not just to settings. For example: bit  --get  settings.ver-
               sion.
 
        <B>--import</B>
-              Import the standard bit configuration bits  directory  into  the
+              Import  the  standard  bit configuration bits directory into the
               local source tree.
 
-       <B>--keep </B>Keep  some  intermediate  build files. This is currently used by
+       <B>--keep </B>Keep some intermediate build files. This is  currently  used  by
               some documentation generation targets.
 
        <B>--log logName[:logLevel]</B>
-              Specify a file to log internal execution messages. Bit will  log
+              Specify  a file to log internal execution messages. Bit will log
               execution related trace to the log file. The log level specifies
-              the desired verbosity of output. Level 0 is  the  least  verbose
-              and  level 9 is the most. The '-v' switch is an alias for '--log
+              the  desired  verbosity  of output. Level 0 is the least verbose
+              and level 9 is the most. The '-v' switch is an alias for  '--log
               stderr:2'.
 
        <B>--nocross</B>
-              Don't cross-build, rather build  natively  for  the  development
-              system.  This is useful when configuring for a platform that can
-              build and run natively on the development system.  For  example:
-              Linux  64-bit  systems  can  run  32-bit  applications,  so 'bit
-              --nocross  --platform  linux-x86  configure'  may  be  able   to
-              directly  target  the  32-bit  platform  without cross-building.
-              Note: Products that require the building and execution of  local
+              Don't  cross-build,  rather  build  natively for the development
+              system. This is useful when configuring for a platform that  can
+              build  and  run natively on the development system. For example:
+              Linux 64-bit  systems  can  run  32-bit  applications,  so  'bit
+              --nocross   --platform  linux-x86  configure'  may  be  able  to
+              directly target  the  32-bit  platform  without  cross-building.
+              Note:  Products that require the building and execution of local
               tools MUST be able to run those tools on the development system.
 
        <B>--out path</B>
-              Save Bit trace output to a file instead  of  displaying  to  the
+              Save  Bit  trace  output  to a file instead of displaying to the
               console.
 
        <B>--platform os-arch</B>
-              Add  a  platform  to build for cross-compilation. Multiple plat-
-              forms can be added. You may use 'local' for the local  platform.
-              Options  specified  after  the platform apply to the prior plat-
+              Add a platform to build for  cross-compilation.  Multiple  plat-
+              forms  can be added. You may use 'local' for the local platform.
+              Options specified after the platform apply to  the  prior  plat-
               form. For example:
 
-                  bit --platform linux-x86 --without all --platform  linux-arm
+                  bit  --platform linux-x86 --without all --platform linux-arm
               --with ejscript configure
 
        <B>--pre  </B>Pre-process a source file to stdout.
 
        <B>--prefix dir=path</B>
-              Set  the installation directory prefix. Various products utilize
-              different prefixes. Typical prefixes  are:  root,  base,  state,
+              Set the installation directory prefix. Various products  utilize
+              different  prefixes.  Typical  prefixes  are: root, base, state,
               data, app, vapp, bin, etc, inc, log, spool, src, web.  For those
-              familiar with autoconf, the major autoconf prefixe switches  are
-              supported  and  mapped as follows: --prefix to root, --bindir to
-              bin, --libdir to lib, --includedir to inc, --sysconfdir to  etc,
-              --libexec  to  app, --logfiledir to log, --htdocsdir to web, and
+              familiar  with autoconf, the major autoconf prefixe switches are
+              supported and mapped as follows: --prefix to root,  --bindir  to
+              bin,  --libdir to lib, --includedir to inc, --sysconfdir to etc,
+              --libexec to app, --logfiledir to log, --htdocsdir to  web,  and
               --manualdir to man.
 
        <B>--prefixes debian|embedthis|opt</B>
-              Select an installation  prefix  package.  Debian  specifies  the
-              debian  recommended  installation  locations. Embedthis products
-              install by default with a prefix of  /usr/local/lib/PRODUCT  and
-              symlink  exectuables  to  /usr/local/bin.   The  opt  prefix set
+              Select  an  installation  prefix  package.  Debian specifies the
+              debian recommended installation  locations.  Embedthis  products
+              install  by  default with a prefix of /usr/local/lib/PRODUCT and
+              symlink exectuables  to  /usr/local/bin.   The  opt  prefix  set
               installs with a prefix of "/opt".
 
        <B>--profile [debug|release|...]</B>
-              Use the specified profile when building. This  options  is  pro-
+              Use  the  specified  profile when building. This options is pro-
               vided once when configuring and the result is saved in the plat-
               form.profile property in the configuration bit file. Custom pro-
               files can be added to the main.bit or start.bit files.
@@ -422,28 +424,28 @@ BIT(1)                           User Commands                          BIT(1)
        <B>--release</B>
               Select the release profile. Same as --profile release.
 
-       <B>--rom  </B>Configure  setting  to  build for systems without a file system.
-              This enables the ROM file system.  Use the  makerom  utility  to
-              process  required files into C source code for building with the
+       <B>--rom  </B>Configure setting to build for systems without  a  file  system.
+              This  enables  the  ROM file system.  Use the makerom utility to
+              process required files into C source code for building with  the
               application.
 
        <B>--set key=value</B>
               Set a settings property to a given value. For example: 'bit -set
-              version=1.0'  will  update  the  settings.version property.  Use
+              version=1.0' will update  the  settings.version  property.   Use
               this when running 'bit configure' to persist your changes in the
               configuration bit file.
 
        <B>--show </B>Show the actual commands executed by bit.
 
        <B>--static</B>
-              Configure  to  build  using  static  linking  instead  of shared
+              Configure to  build  using  static  linking  instead  of  shared
               libraries. Same as --set static=true.
 
        <B>--unicode</B>
               Set the character size to wide.
 
        <B>--unset key=value</B>
-              Clear a settings property.  Use this when running  'bit  config-
+              Clear  a  settings property.  Use this when running 'bit config-
               ure' to persist your changes in the configuration bit file.
 
        <B>--version</B>
@@ -453,9 +455,9 @@ BIT(1)                           User Commands                          BIT(1)
               Run in verbose mode with more trace about Bit activities.
 
        <B>--with PACK[=path]</B>
-              Build  with  the named pack located at the optional path. If the
-              path is ommitted, a search is performed for the pack at  default
-              locations.  Packs  must  have  a pack description file installed
+              Build with the named pack located at the optional path.  If  the
+              path  is ommitted, a search is performed for the pack at default
+              locations. Packs must have a  pack  description  file  installed
               under 'bits/packs' in the bit installation.
 
        <B>--without PACK</B>
@@ -465,7 +467,7 @@ BIT(1)                           User Commands                          BIT(1)
        Report bugs to dev@embedthis.com.
 
 <B>COPYRIGHT</B>
-       Copyright (C) 2004-2013 Embedthis Software.  Bit  and  Ejscript  are  a
+       Copyright  (C)  2004-2013  Embedthis  Software.  Bit and Ejscript are a
        trademarks of Embedthis Software.
 
 <B>SEE ALSO</B>

@@ -2,4 +2,4 @@
     dsi.bit - dsi package for Bit
  */
 
-Bit.program('dsi', 'Developer Side Include Tool')
+program('dsi', 'Developer Side Include Tool')

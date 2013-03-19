@@ -18,15 +18,35 @@ require ejs.zlib
 public class Bit {
     /** @hide */
     public var initialized: Boolean
+
+    /** @hide */
     public var options: Object = { control: {}}
+
+    /** @hide */
     public static const MAIN: Path = Path('main.bit')
+
+    /** @hide */
     public var platforms: Array
+
+    /** @hide */
     public static const START: Path = Path('start.bit')
+
+    /** @hide */
     public var localPlatform: String
+
+    /** @hide */
     public var selectedTargets: Array
+
+    /** @hide */
     public var topTargets: Array
+
+    /** @hide */
     public var localBin: Path
+
+    /** @hide */
     public var currentPlatform: String?
+
+    /** @hide */
     public var currentBitFile: Path?
 
     private static const supportedOS = ['freebsd', 'linux', 'macosx', 'solaris', 'vxworks', 'windows']
@@ -661,6 +681,9 @@ public class Bit {
         }
     }
 
+    /**
+        @hide
+     */
     public function loadBitFile(path) {
         let saveCurrent = currentBitFile
         try {
@@ -997,6 +1020,9 @@ public class Bit {
         }
     }
 
+    /**
+        @hide
+     */
     public function prepBuild() {
         vtrace('Prepare', 'For building')
         if (!options.configure && (bit.platforms.length > 1 || bit.platform.cross)) {
@@ -1114,6 +1140,9 @@ public class Bit {
         }
     }
 
+    /**
+        @hide
+     */
     public function selectTargets(goal): Array {
         selectedTargets = []
         topTargets = []
@@ -1471,6 +1500,9 @@ public class Bit {
         }
     }
 
+    /**
+        @hide
+     */
     public function castDirTypes() {
         /*
             Use absolute patsh so they will apply anywhere in the source tree. Rules change directory and build
@@ -1555,8 +1587,9 @@ public class Bit {
         }
     }
 
-    /*
+    /**
         Build all selected targets
+        @hide
      */
     public function build() {
         if (goals.length == 0) {
@@ -1883,6 +1916,9 @@ public class Bit {
         }
     }
 
+    /**
+        @hide
+     */
     public function setRuleVars(target, base: Path = App.dir) {
         let tv = target.vars || {}
         if (target.home) {
@@ -1982,6 +2018,9 @@ public class Bit {
         }
     }
 
+    /**
+        @hide
+     */
     public function runScript(scripts, event) {
         if (!scripts) {
             return
@@ -2016,6 +2055,9 @@ public class Bit {
         }
     }
 
+    /**
+        @hide
+     */
     public function mapLibPaths(libpaths: Array, base: Path = App.dir): String {
         if (bit.platform.os == 'windows') {
             return libpaths.map(function(p) '-libpath:' + p.relativeTo(base)).join(' ')
@@ -2313,8 +2355,9 @@ public class Bit {
         return cmd.response
     }
 
-    /*
+    /**
         Make required output directories (carefully). Only make dirs inside the 'src' or 'top' directories.
+        @hide
      */
     public function makeOutDirs() {
         for each (d in bit.dir) {
@@ -2531,29 +2574,37 @@ public class Bit {
         b.loadBitObject(obj, ns)
     }
 
-    //  MOB DOC
+    /**
+        Load a bit pack into the Bit DOM
+        @description The Bit.pack() API is the primary API to define a pack. It takes a pack description in the form of set
+        of properties. The description specifies the name of the pack and a short, single-line description for the pack.
+        The pack description will typically define a path which represents the directory to the pack or the path to a
+        program.  The pack path should be the filename of the program if the pack represents a simple tool (like zip). Or it
+        should be the directory to the extension pack if the pack represents something more complex like an SDK. The path
+        may be a simple string or path, or it may be a function that returns the path for the package. If path is set to a
+        function, it will be invoked with the pack object as its argument.  The description may also provide libraries,
+        library paths, compiler definitions, and include directories. A pack may define any of these standard properties, or
+        it may define any custom property it chooses.
+
+        @param obj Pack object collection. The collection should contain the following properties. Name, description,
+            and enable are mandatory.
+        @option after Array of other packs that will be processed before this pack. These packs may or may not be present on
+        the system.  
+        @option description Short, one-sentance description of the pack.
+        @option defines Array of C pre-processor definitions for targets using this pack.
+        @option depends Array of packs from which to inherit compiler, defines, libraries, libpaths and linker settings.
+        @option discover Array of packs that may optionally be discovered and utilized by this pack.
+        @option imports Libraries, files and resources to import into the local source tree.
+        @option includes Array of C pre-processor include directories for targets using this pack.
+        @option libraries Array of C required libraries for targets using this pack.
+        @option linker Array of linker options for targets using this pack.
+        @option libpaths Array of linker library search paths for targets using this pack.
+        @option name Pack name. Should equal the pack collection property name.
+        @option path Path to primary pack resource or directory. May be the path to the binary for tools.
+        @option requires Array of C pre-processor definitions for targets using this pack.
+     */
     public static function pack(obj: Object) {
         b.loadBitObject({packs: obj} )
-    }
-
-    /**
-        Define a pack for a command line program.
-        This registers the pack and loads the Bit DOM with the pack configuration.
-        @param name Program name. Can be either a path or a basename with optional extension
-        @param description Short, single-line program description.
-     */
-    public static function program(name: Path, description = null): Path {
-        let path = bit.packs[name.trimExt()].path || name
-        let pack = {}
-        let cfg = {description: description}
-        pack[name] = cfg
-        try {
-            cfg.path = probe(name, {fullpath: true})
-        } catch (e) {
-            throw e
-        }
-        Bit.load({packs: pack})
-        return cfg.path
     }
 
     /** @hide */
@@ -2572,14 +2623,18 @@ public class Bit {
         return os + '-' + arch + '-' + profile
     }
 
+    /**
+        @hide
+     */
     public function verifyPlatforms() {
         for (i in platforms) {
             platforms[i] = verifyPlatform(platforms[i])
         }
     }
 
-    /*
+    /**
         Make a bit object. This will load the required bit files.
+        @hide
      */
     public function makeBit(platform: String, bitfile: Path) {
         let [os, arch, profile] = platform.split('-') 
@@ -2695,6 +2750,9 @@ public class Bit {
         return os1 == os2 && arch1 == arch2
     }
 
+    /**
+        @hide
+     */
     public function quickLoad(bitfile: Path) {
         global.bit = bit = makeBareBit()
         bit.quickLoad = true
@@ -2742,6 +2800,9 @@ public class Bit {
         return s.expand(bit.globals, options)
     }
 
+    /**
+        @hide
+     */
     public function expandRule(target, rule) {
         setRuleVars(target)
         let result = expand(rule).expand(target.vars, {fill: ''})
@@ -2751,6 +2812,9 @@ public class Bit {
 
     let VER_FACTOR = 1000                                                                            
 
+    /**
+        @hide
+     */
     public function makeVersion(version: String): Number {
         let parts = version.trim().split(".")
         let patch = 0, minor = 0
@@ -3222,55 +3286,6 @@ require embedthis.bit
 public var b: Bit = new Bit
 
 b.main()
-
-/* UNUSED
-    Define a pack. This registers a pack with a unique name and description
-    This calls Bit.load to initialize a pack collection in the Bit DOM.
-    @param name Unique pack name
-    @param description Short, single-line pack description
-public function pack(name: String, description: String) {
-    let pack = {}
-    pack[name] = {description: description}
-    Bit.load({packs: pack})
-}
- */
-
-/*
-   UNUSED
-    Probe for a file and locate
-    Will throw an exception if the file is not found, unless {continue, default} specified in control options
-    @param file File to search for
-    @param options Control options
-    @option default Default path to use if the file cannot be found and bit is invoked with --continue
-    @option search Array of paths to search for the file
-    @option nopath Don't use the system PATH to locate the file
-    @option fullpath Return the full path to the located file
-public function probe(file: Path, options = {}): Path {
-    return b.probe(file, options)
-}
- */
-
-/** MOVED
-    Define a pack for a command line program.
-    This registers the pack and loads the Bit DOM with the pack configuration.
-    @param name Program name. Can be either a path or a basename with optional extension
-    @param description Short, single-line program description.
-    @hide
-    @deprecate
-public function program(name: Path, description = null): Path {
-    let path = bit.packs[name.trimExt()].path || name
-    let pack = {}
-    let cfg = {description: description}
-    pack[name] = cfg
-    try {
-        cfg.path = probe(name, {fullpath: true})
-    } catch (e) {
-        throw e
-    }
-    Bit.load({packs: pack})
-    return cfg.path
-}
-*/
 
 /** @hide */
 public function builtin(command: String, options = null)

@@ -40,10 +40,9 @@
    <tr class='apiDef'><td class='apiType'> </td><td><a href='#linkFile'><b>linkFile</b></a>(src: <a href='Path.html'>Path</a>, dest: <a href='Path.html'>Path</a>, options)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Link a file.</td></tr>
    <tr class='apiDef'><td class='apiType'> </td><td><a href='#makeDir'><b>makeDir</b></a>(path: <a href='Path.html'>Path</a>, options)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Make a directory
 This creates a directory and all required parents.</td></tr>
-   <tr class='apiDef'><td class='apiType'> </td><td><a href='#pack'><b>pack</b></a>(name: <a href='String.html'>String</a>, description: <a href='String.html'>String</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Define a pack.</td></tr>
-   <tr class='apiDef'><td class='apiType'> </td><td><a href='#probe'><b>probe</b></a>(file: <a href='Path.html'>Path</a>, options = expression): <a href='Path.html'>Path</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Probe for a file and locate
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#probe'><b>probe</b></a>(file: <a href='Path.html'>Path</a>, control = expression): <a href='Path.html'>Path</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Probe for a file and locate
 Will throw an exception if the file is not found, unless {continue, default} specified in control options.</td></tr>
-   <tr class='apiDef'><td class='apiType'> </td><td><a href='#program'><b>program</b></a>(name: <a href='Path.html'>Path</a>, description = null): <a href='Path.html'>Path</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Define a pack for a command line program.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#program'><b>program</b></a>(name: <a href='Path.html'>Path</a>, description = null, options = expression): <a href='Path.html'>Path</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Define a pack for a command line program.</td></tr>
    <tr class='apiDef'><td class='apiType'> </td><td><a href='#removeDir'><b>removeDir</b></a>(path: <a href='Path.html'>Path</a>, options)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Remove a directory.</td></tr>
    <tr class='apiDef'><td class='apiType'> </td><td><a href='#removeFile'><b>removeFile</b></a>(path: <a href='Path.html'>Path</a>, options)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Remove a file.</td></tr>
    <tr class='apiDef'><td class='apiType'> </td><td><a href='#run'><b>run</b></a>(command, cmdOptions): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Run a command and trace output if cmdOptions.true or options.show.</td></tr>
@@ -147,29 +146,16 @@ This creates a directory and all required parents. This either makes a directory
 </dl></div>
 </div>
 <hr />
-<a name='pack'></a>
-<div class='api'>
-<div class='apiSig'>    pack(name: <a href='String.html'>String</a>, description: <a href='String.html'>String</a>)
-</div>
-<div class='apiDetail'>
-<dl><dt>Description</dt></dd><dd>Define a pack. This registers a pack with a unique name and description
-This calls Bit.load to initialize a pack collection in the Bit DOM.</dd></dl>
-<dl><dt>Parameters</dt>
-<dd><table class='parameters' summary ='parameters'>
-<tr class='param'><td class='param'>name: <a href='String.html'>String</a> </td><td>Unique pack name.</td></tr><tr class='param'><td class='param'>description: <a href='String.html'>String</a> </td><td>Short, single-line pack description.</td></tr></table></dd>
-</dl></div>
-</div>
-<hr />
 <a name='probe'></a>
 <div class='api'>
-<div class='apiSig'>    probe(file: <a href='Path.html'>Path</a>, options = expression): <a href='Path.html'>Path</a>
+<div class='apiSig'>    probe(file: <a href='Path.html'>Path</a>, control = expression): <a href='Path.html'>Path</a>
 </div>
 <div class='apiDetail'>
 <dl><dt>Description</dt></dd><dd>Probe for a file and locate
 Will throw an exception if the file is not found, unless {continue, default} specified in control options. </dd></dl>
 <dl><dt>Parameters</dt>
 <dd><table class='parameters' summary ='parameters'>
-<tr class='param'><td class='param'>file: <a href='Path.html'>Path</a> </td><td>File to search for.</td></tr><tr class='param'><td class='param'>options </td><td>Control options. [default: expression]</td></tr></table></dd>
+<tr class='param'><td class='param'>file: <a href='Path.html'>Path</a> </td><td>File to search for.</td></tr><tr class='param'><td class='param'>control </td><td>Control options. [default: expression]</td></tr></table></dd>
 </dl><dl><dt>Options</dt>
 <dd><table class='parameters' summary ='options'>
 <td class='param'>default</td><td>Default path to use if the file cannot be found and bit is invoked with --continue.</td></tr>
@@ -182,13 +168,13 @@ Will throw an exception if the file is not found, unless {continue, default} spe
 <hr />
 <a name='program'></a>
 <div class='api'>
-<div class='apiSig'>    program(name: <a href='Path.html'>Path</a>, description = null): <a href='Path.html'>Path</a>
+<div class='apiSig'>    program(name: <a href='Path.html'>Path</a>, description = null, options = expression): <a href='Path.html'>Path</a>
 </div>
 <div class='apiDetail'>
 <dl><dt>Description</dt></dd><dd>Define a pack for a command line program. This registers the pack and loads the Bit DOM with the pack configuration.</dd></dl>
 <dl><dt>Parameters</dt>
 <dd><table class='parameters' summary ='parameters'>
-<tr class='param'><td class='param'>name: <a href='Path.html'>Path</a> </td><td>Program name. Can be either a path or a basename with optional extension.</td></tr><tr class='param'><td class='param'>description </td><td>Short, single-line program description. [default: null]</td></tr></table></dd>
+<tr class='param'><td class='param'>name: <a href='Path.html'>Path</a> </td><td>Program name. Can be either a path or a basename with optional extension.</td></tr><tr class='param'><td class='param'>description </td><td>Short, single-line program description. [default: null]</td></tr><tr class='param'><td class='param'>options </td><td>Extra options to pass to Bit.pack when defining the program package. [default: expression]</td></tr></table></dd>
 </dl></div>
 </div>
 <hr />

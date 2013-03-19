@@ -2,4 +2,4 @@
     http.bit - Http package for Bit
  */
 
-Bit.program('http', 'Http Exerciser Program')
+program('http', 'Http Exerciser Program')

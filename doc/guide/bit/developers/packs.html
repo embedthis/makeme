@@ -119,19 +119,23 @@ packs: {
         <h2>Pack Properties</h2>
         <p>The pack property collection may contain properties of any name, but the following properties have special meaning:</p>
         <ul>
-            <li>path &mdash; Path to primary pack resource or directory. May be the path to the binary for tools.</li>
+            <li>after &mdash; Array of other packs that will be processed before this pack. These packs may or may not be 
+                present on the system.</li>
+            <li>description &mdash; Short, one-sentance description of the pack.</li>
             <li>defines &mdash; Array of C preprocessor definitions for targets using this pack.</li>
             <li>depends &mdash; Array of packs from which to inherit compiler, defines, libraries, libpaths and linker
             settings.</li>
+            <li>discover &mdash; Array of other packs that may be discovered (optional) and utilized by this pack.</li>
+            <li>enable &mdash; Boolean true|false value to enable or disable the pack. May be initially set to a script or
+            function that is run to yield a boolean result.  
+            <li>imports &mdash; Libraries, files and resources to import into the local source tree.</li>
             <li>includes &mdash; Array of include paths necessary for targets using this pack.</li>
+            <li>libpaths &mdash; Array of linker library search paths for targets using this pack.</li>
             <li>libraries &mdash; Array of required libraries for targets using this pack.</li>
             <li>linker &mdash; Array of linker options for targets using this pack.</li>
-            <li>libpaths &mdash; Array of linker library search paths for targets using this pack.</li>
-            <li>imports &mdash; Libraries, files and resources to import into the local source tree.</li>
+            <li>name &mdash; Pack name. Should equal the pack collection property name..</li>
+            <li>path &mdash; Path to primary pack resource or directory. May be the path to the binary for tools.</li>
             <li>requires &mdash; Array of other packs that are required (mandatory) for this pack to be functional.</li>
-            <li>discover &mdash; Array of other packs that may be discovered (optional) and utilized by this pack.</li>
-            <li>after &mdash; Array of other packs that will be processed before this pack. These packs may or may not be 
-                present on the system.</li>
         </ul>
         <h2>Referencing Packs in Targets</h2>
         <p>If a target specifies a pack in its <em>depends</em> property, and the pack is found and
@@ -139,7 +143,6 @@ packs: {
         target. </p>
         <p>If the target specifies the pack via its <em>requires</em> property and the pack is not enabled, then the
         target will (silently) be omitted from the build. If the pack is enabled, the target will be built.</p>
-
         <p>For example, consider the pack definition:</p> 
 <pre>
 Bit.pack({
@@ -172,7 +175,6 @@ app: {
         <em>depends</em> property, Bit will add the PHP compiler definitions when compiling app.c and linking with the PHP
         library.</p> 
         <p>If the PHP pack is disabled, the application will not be built.</p>
-
         <a name="api"></a>
         <h2>Pack API</h2>
         <p>A pack Bit file publishes the pack by creating properties in the Bit DOM. While this can be done directly, it is
@@ -230,7 +232,6 @@ Bit.pack({
     },
 })
 </pre>
-
         <h3>Exceptions</h3>
         <p>If an exception is thrown by any code in the pack bit file, the exception will be caught and the pack will be
         disabled. This is a common pattern, to throw exceptions if the pack cannot be fully configured and enabled.</p>

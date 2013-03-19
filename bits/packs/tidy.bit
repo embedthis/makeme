@@ -2,4 +2,4 @@
     tidy.bit - Tidy package for Bit
  */
 
-Bit.program('tidy', 'Tidy HTML Tool')
+program('tidy', 'Tidy HTML Tool')

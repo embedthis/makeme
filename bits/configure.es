@@ -8,26 +8,30 @@ module embedthis.bit {
     require ejs.unix
     require ejs.zlib
 
+    /** @hide */
     public var currentPack: String?
 
+    /** @hide */
     var envTools = {
         AR: 'lib',
         CC: 'compiler',
         LD: 'linker',
     }
 
+    /** @hide */
     var envFlags = {
         CFLAGS:  'compiler',
         DFLAGS:  'defines',
         IFLAGS:  'includes',
         LDFLAGS: 'linker',
     }
+    /** @hide */
     var envSettings: Object
 
     /*  
         Configure and initialize for building. This generates platform specific bit files.
      */
-    function configure() {
+    internal function configure() {
         vtrace('Load', 'Preload main.bit to determine required platforms')
         b.quickLoad(b.options.configure.join(b.MAIN))
         let settings = bit.settings
@@ -63,7 +67,7 @@ module embedthis.bit {
         }
     }
 
-    function reconfigure() {
+    internal function reconfigure() {
         vtrace('Load', 'Preload main.bit to determine required configuration')
         b.quickLoad(b.MAIN)
         b.platforms = bit.platforms = [b.localPlatform]
@@ -75,7 +79,7 @@ module embedthis.bit {
         }
     }
 
-    function importPackFiles() {
+    internal function importPackFiles() {
         for (let [pname, pack] in bit.packs) {
             for each (file in pack.imports) {
                 vtrace('Import', file)
@@ -95,7 +99,7 @@ module embedthis.bit {
         }
     }
 
-    function createStartBitFile(platform) {
+    internal function createStartBitFile(platform) {
         let nbit = { }
         nbit.platforms = b.platforms
         trace('Generate', b.START)
@@ -105,7 +109,7 @@ module embedthis.bit {
         b.START.write(data)
     }
 
-    function createPlatformBitFile() {
+    internal function createPlatformBitFile() {
         let nbit = {}
         blend(nbit, {
             blend: [ 
@@ -155,7 +159,7 @@ module embedthis.bit {
         }
     }
 
-    function createBitHeader() {
+    internal function createBitHeader() {
         let path = bit.dir.inc.join('bit.h')
         let f = TextStream(File(path, 'w'))
         f.writeLine('/*\n    bit.h -- Build It Configuration Header for ' + bit.platform.name + '\n\n' +
@@ -168,13 +172,13 @@ module embedthis.bit {
         }
     }
 
-    function def(f: TextStream, key, value) {
+    internal function def(f: TextStream, key, value) {
         f.writeLine('#ifndef ' + key)
         f.writeLine('    #define ' + key + ' ' + value)
         f.writeLine('#endif')
     }
 
-    function writeSettings(f: TextStream, prefix: String, obj) {
+    internal function writeSettings(f: TextStream, prefix: String, obj) {
         Object.sortProperties(obj)
         for (let [key,value] in obj) {
             key = prefix + '_' + key.replace(/[A-Z]/g, '_$&').replace(/-/g, '_').toUpper()
@@ -189,7 +193,8 @@ module embedthis.bit {
             }
         }
     }
-    function writeDefinitions(f: TextStream) {
+
+    internal function writeDefinitions(f: TextStream) {
         let settings = bit.settings.clone()
         if (b.options.endian) {
             settings.endian = b.options.endian == 'little' ? 1 : 2
@@ -267,7 +272,7 @@ module embedthis.bit {
         }
     }
 
-    function findPacks() {
+    internal function findPacks() {
         let settings = bit.settings
         if (!settings.requires && !settings.discover) {
             return
@@ -286,7 +291,7 @@ module embedthis.bit {
     /*
         Load the packs, but don't run any events. Events must be fired in recursive dependency order
      */
-    function loadPacks(packs) {
+    internal function loadPacks(packs) {
         vtrace('Search', 'Packages: ' + packs.join(' '))
         for each (pname in packs) {
             if (bit.packs[pname]) {
@@ -329,7 +334,7 @@ module embedthis.bit {
         }
     }
 
-    function enablePacks() {
+    internal function enablePacks() {
         for each (pack in bit.packs) {
             if (pack.enabling) {
                 continue
@@ -345,7 +350,7 @@ module embedthis.bit {
         Check for --without pack, and run enable scripts/functions
         Enable scripts do not run in dependency order. This are meant for simple scripts without pack dependencies.
      */
-    function enablePack(pack) {
+    internal function enablePack(pack) {
         pack.enabling = true
         global.PACK = pack
         if (pack.enable === false && pack.explicit) {
@@ -370,14 +375,14 @@ module embedthis.bit {
     /*
         Configure packs in recursive dependency order
      */
-    function configurePacks() {
+    internal function configurePacks() {
         for (let [pname, pack] in bit.packs) {
             pack.name ||= pname
             configurePack(pack)
         }
     }
 
-    function configurePack(pack) {
+    internal function configurePack(pack) {
         if (pack.configuring) {
             return
         }
@@ -433,7 +438,7 @@ module embedthis.bit {
         delete global.PACK
     }
 
-    function inheritFromPack(pack, dep) {
+    internal function inheritFromPack(pack, dep) {
         for each (lib in dep.libraries) {
             pack.libraries ||= []
             if (!pack.libraries.contains(lib)) {
@@ -466,7 +471,7 @@ module embedthis.bit {
         }
     }
 
-    function inheritPack(pack) {
+    internal function inheritPack(pack) {
         if (pack.inheriting) {
             return
         }
@@ -483,13 +488,13 @@ module embedthis.bit {
         }
     }
 
-    function inheritPacks() {
+    internal function inheritPacks() {
         for (let [pname, pack] in bit.packs) {
             inheritPack(pack)
         }
     }
 
-    function tracePacks() {
+    internal function tracePacks() {
         let omitted = {}
         for (let [pname, pack] in bit.packs) {
             if (pack.enable && !pack.silent) {
@@ -513,7 +518,7 @@ module embedthis.bit {
         }
     }
 
-    function checkPack(pack) {
+    internal function checkPack(pack) {
         if (pack.checking) {
             return
         }
@@ -545,13 +550,13 @@ module embedthis.bit {
         }
     }
 
-    function checkPacks() {
+    internal function checkPacks() {
         for each (pack in bit.packs) {
             checkPack(pack)
         }
     }
 
-    function resetPacks() {
+    internal function resetPacks() {
         for each (pack in bit.packs) {
             delete pack.loaded 
             delete pack.enabling 
@@ -573,8 +578,6 @@ module embedthis.bit {
      */
     public function probe(file: Path, control = {}): Path {
         if (bit.generating) {
-print("SHOULD NOT CALL probe when generating")
-throw new Error('boom')
             return file
         }
         let path: Path?
@@ -631,8 +634,6 @@ throw new Error('boom')
         @param name Program name. Can be either a path or a basename with optional extension
         @param description Short, single-line program description.
         @param options Extra options to pass to Bit.pack when defining the program package.
-        @hide
-        @deprecate
      */
     public function program(name: Path, description = null, options = {}): Path {
         let pack = bit.packs[currentPack]
@@ -646,11 +647,18 @@ throw new Error('boom')
         } catch (e) {
             throw e
         }
-        Bit.pack(blend(options, {name: name, description: description, path: path}))
+        let cfg = {}
+        cfg[name] = {
+            name: name,
+            description: description,
+            path: path,
+        }
+        blend(cfg[name], options)
+        Bit.pack(cfg)
         return path
     }
 
-    function captureEnv() {
+    internal function captureEnv() {
         envSettings = { packs: {}, defaults: {} }
         for (let [key, tool] in envTools) {
             let path = App.getenv(key)
@@ -672,7 +680,7 @@ throw new Error('boom')
         blend(bit, envSettings, {combine: true})
     }
 
-    function runPackScript(pack, when) {
+    internal function runPackScript(pack, when) {
         if (!pack.scripts) return
         for each (item in pack.scripts[when]) {
             let pwd = App.dir

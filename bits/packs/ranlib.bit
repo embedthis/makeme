@@ -2,5 +2,4 @@
     ranlib.bit - Ranlib package for Bit
  */
 
-Bit.program('ranlib', 'Library Index Tool')
-
+program('ranlib', 'Library Index Tool')

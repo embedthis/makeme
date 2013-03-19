@@ -2,4 +2,4 @@
     man2html.bit - Strip package for Bit
  */
 
-Bit.program('man2html', 'Manual Page to HTML Converter')
+program('man2html', 'Manual Page to HTML Converter')
