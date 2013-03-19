@@ -12,22 +12,14 @@ Bit.load({
             type:   'lib',
             sources: [ 'ejsLib.c' ],
             headers: [ '*.h' ],
-            depends: [ 'libhttp', 'libpcre', 'libmpr' ],
-            scripts: {
-                postblend: "
-                    if (bit.packs.sqlite && bit.packs.sqlite.enable) {
-                        bit.target.depends.push('libsqlite3')
-                    }
-                ",
-            },
+            depends: [ 'libhttp', 'libpcre', 'libmpr', 'ejscript' ],
             requires: 'ejscript',
-            enable: 'bit.packs.ejscript.enable || bit.settings.ejscript',
+            enable: 'bit.packs.ejscript.enable',
         },
 
         ejs: {
             type:   'exe',
             sources: [ 'ejs.c' ],
-            depends: [ 'libejs' ],
             scripts: {
                 prebuild: "
                     if (bit.settings.hasLibEdit) {
@@ -35,16 +27,17 @@ Bit.load({
                     }
                 ",
             },
+            depends: [ 'libejs', 'ejscript' ],
             requires: 'ejscript',
-            enable: 'bit.packs.ejscript.enable || bit.settings.ejscript',
+            enable: 'bit.packs.ejscript.enable',
         },
 
         ejsc: {
             type:   'exe',
             sources: [ 'ejsc.c' ],
-            depends: [ 'libejs' ],
+            depends: [ 'libejs', 'ejscript' ],
             requires: 'ejscript',
-            enable: 'bit.packs.ejscript.enable || bit.settings.ejscript',
+            enable: 'bit.packs.ejscript.enable',
         },
 
 		'ejs.mod': {
@@ -60,7 +53,7 @@ Bit.load({
             'generate-sh': '${LBIN}/ejsc --out ${BIN}/ejs.mod --optimize 9 --bind --require null src/deps/ejs/ejs.es',
             depends: [ 'ejsc' ],
             requires: 'ejscript',
-            enable: 'bit.packs.ejscript.enable || bit.settings.ejscript',
+            enable: 'bit.packs.ejscript.enable',
 		},
 
         'sync-ejs': {
