@@ -6,7 +6,7 @@ Bit.pack({
     link: { 
         description: 'Link Editor Program',
         path: function(pack) {
-            let name = pack(pack.withpath || ((bit.platform.like == 'windows') ? 'link.exe' : 'ld'))
+            let name = pack.withpath || ((bit.platform.like == 'windows') ? 'link.exe' : 'ld')
             return probe(name, {fullpath: true, search: bit.packs.compiler.search, default: name})
         },
         config: function (pack) {
