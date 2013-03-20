@@ -60,7 +60,6 @@ public class Bit {
 
     private var appName: String = 'bit'
     private var args: Args
-    private var capture: Array?
     private var local: Object
     private var missing = null
     private var out: Stream

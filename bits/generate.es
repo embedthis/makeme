@@ -10,6 +10,7 @@ module embedthis.bit {
 
     var gen: Object
     var genout: TextStream
+    var capture: Array?
 
     var minimalCflags = [ 
         '-w', '-g', '-Wall', '-Wno-deprecated-declarations', '-Wno-unused-result', '-Wshorten-64-to-32', '-mtune=generic']
@@ -234,11 +235,10 @@ module embedthis.bit {
         return prefixes
     }
 
-    //  MOB - somehow merge with generatePackDefs
     function generatePackDflags() {
         let requiredTargets = {}
         for each (target in bit.targets) {
-            for each (r in target.require) {
+            for each (r in target.requires) {
                 if (bit.packs[r]) {
                     requiredTargets[r] = true
                 }
@@ -256,7 +256,7 @@ module embedthis.bit {
     function generatePackDefs() {
         let requiredTargets = {}
         for each (target in bit.targets) {
-            for each (r in target.require) {
+            for each (r in target.requires) {
                 if (bit.packs[r]) {
                     requiredTargets[r] = true
                 }
@@ -765,7 +765,9 @@ module embedthis.bit {
                 prefix = suffix = ''
             }
         }
+print("GS", target.name, target['generate-capture'])
         if (target['generate-capture']) {
+print("IN HERE")
             genTargetDeps(target)
             if (target.path) {
                 genWrite(target.path.relative + ':' + getDepsVar() + '\n')
@@ -775,7 +777,7 @@ module embedthis.bit {
             generateDir(target)
             capture = []
             vtrace(target.type.toPascal(), target.name)
-            runTargetScript(target, 'make')
+            runTargetScript(target, 'build')
             if (capture.length > 0) {
                 genWriteLine('\t' + capture.join('\n\t'))
             }

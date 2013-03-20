@@ -281,7 +281,7 @@ Bit.load({
             home: '${TOP}',
             action: "installBinary()",
             depends: [ 'all', 'stop' ],
-            'generate-action': true,
+            'generate-capture': true,
         },
 
         installPackage: {
@@ -323,7 +323,7 @@ Bit.load({
             home: '${TOP}',
             action: "uninstallBinary()",
             depends: [ 'all', 'stop' ],
-            'generate-action': true,
+            'generate-capture': true,
             generate: ' ',
         },
 
