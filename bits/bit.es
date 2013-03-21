@@ -2900,7 +2900,7 @@ public class Bit {
             for each (let from: Path in list) {
                 let from = from.portable
                 if (subtree) {
-                    to = dest.join(from.trimStart(Path(subtree).name + '/'))
+                    to = dest.join(from.trimStart(Path(subtree).portable.name + '/'))
                 } else if (destIsDir) {
                     to = dest.join(from.basename)
                 } else {

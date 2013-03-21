@@ -743,4 +743,33 @@ installBinary: $(DEPS_39)
 	copy /Y "$(CONFIG)\bin\libmpr.dll" "$(BIT_VAPP_PREFIX)\bin\libmpr.dll"
 	copy /Y "$(CONFIG)\bin\libmprssl.dll" "$(BIT_VAPP_PREFIX)\bin\libmprssl.dll"
 	copy /Y "$(CONFIG)\bin\libpcre.dll" "$(BIT_VAPP_PREFIX)\bin\libpcre.dll"
-	if not exist "$(CONFIG)\bin\bits" md "$(CONFIG)\bin\bits"
+	if not exist "$(BIT_VAPP_PREFIX)\bin\bits" md "$(BIT_VAPP_PREFIX)\bin\bits"
+	copy /Y "$(CONFIG)\bin\bits\**" "$(BIT_VAPP_PREFIX)\bin\bits\**"
+
+#
+#   start
+#
+start: $(DEPS_40)
+
+#
+#   install
+#
+DEPS_41 = $(DEPS_41) stop
+DEPS_41 = $(DEPS_41) installBinary
+DEPS_41 = $(DEPS_41) start
+
+install: $(DEPS_41)
+
+
+#
+#   uninstall
+#
+DEPS_42 = $(DEPS_42) stop
+
+uninstall: $(DEPS_42)
+	if exist "$(BIT_VAPP_PREFIX)" rd /Q /S"$(BIT_VAPP_PREFIX)"
+	if exist "$(BIT_VAPP_PREFIX)\bin" rd /Q "$(BIT_VAPP_PREFIX)\bin"
+	if exist "$(BIT_VAPP_PREFIX)\man" rd /Q "$(BIT_VAPP_PREFIX)\man"
+	if exist "$(BIT_VAPP_PREFIX)\latest" rd /Q "$(BIT_VAPP_PREFIX)\latest"
+	if exist "$(BIT_VAPP_PREFIX)" rd /Q "$(BIT_VAPP_PREFIX)"
+
