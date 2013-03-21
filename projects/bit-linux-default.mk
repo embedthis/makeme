@@ -13,9 +13,16 @@ LD                := /usr/bin/ld
 CONFIG            := $(OS)-$(ARCH)-$(PROFILE)
 LBIN              := $(CONFIG)/bin
 
+BIT_PACK_EST      := 1
+BIT_PACK_MATRIXSSL := 0
+BIT_PACK_OPENSSL  := 0
+BIT_PACK_NANOSSL  := 0
+BIT_PACK_EJSCRIPT := 1
+BIT_PACK_SQLITE   := 0
+BIT_PACK_SSL      := 1
 
 CFLAGS            += -fPIC   -w
-DFLAGS            += -D_REENTRANT -DPIC  $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) 
+DFLAGS            += -D_REENTRANT -DPIC  $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_MATRIXSSL=$(BIT_PACK_MATRIXSSL) -DBIT_PACK_OPENSSL=$(BIT_PACK_OPENSSL) -DBIT_PACK_NANOSSL=$(BIT_PACK_NANOSSL) -DBIT_PACK_EJSCRIPT=$(BIT_PACK_EJSCRIPT) -DBIT_PACK_SQLITE=$(BIT_PACK_SQLITE) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
 IFLAGS            += -I$(CONFIG)/inc
 LDFLAGS           += '-Wl,--enable-new-dtags' '-Wl,-rpath,$$ORIGIN/' '-rdynamic'
 LIBPATHS          += -L$(CONFIG)/bin
@@ -663,6 +670,31 @@ stop: $(DEPS_36)
 DEPS_37 += stop
 
 installBinary: $(DEPS_37)
+	mkdir -p "$(BIT_APP_PREFIX)"
+	mkdir -p "$(BIT_VAPP_PREFIX)"
+	mkdir -p "$(BIT_APP_PREFIX)"
+	rm -f "$(BIT_APP_PREFIX)/latest"
+	ln -s "0.8.5" "$(BIT_APP_PREFIX)/latest"
+	mkdir -p "$(BIT_VAPP_PREFIX)/bin"
+	cp "$(CONFIG)/bin/bit" "$(BIT_VAPP_PREFIX)/bin/bit"
+	mkdir -p "$(BIT_BIN_PREFIX)"
+	rm -f "$(BIT_BIN_PREFIX)/bit"
+	ln -s "$(BIT_VAPP_PREFIX)/bin/bit" "$(BIT_BIN_PREFIX)/bit"
+	cp "$(CONFIG)/bin/ca.crt" "$(BIT_VAPP_PREFIX)/bin/ca.crt"
+	cp "$(CONFIG)/bin/ejs.mod" "$(BIT_VAPP_PREFIX)/bin/ejs.mod"
+	cp "$(CONFIG)/bin/libejs.so" "$(BIT_VAPP_PREFIX)/bin/libejs.so"
+	cp "$(CONFIG)/bin/libest.so" "$(BIT_VAPP_PREFIX)/bin/libest.so"
+	cp "$(CONFIG)/bin/libhttp.so" "$(BIT_VAPP_PREFIX)/bin/libhttp.so"
+	cp "$(CONFIG)/bin/libmpr.so" "$(BIT_VAPP_PREFIX)/bin/libmpr.so"
+	cp "$(CONFIG)/bin/libmprssl.so" "$(BIT_VAPP_PREFIX)/bin/libmprssl.so"
+	cp "$(CONFIG)/bin/libpcre.so" "$(BIT_VAPP_PREFIX)/bin/libpcre.so"
+	mkdir -p "$(BIT_VAPP_PREFIX)/bin/bits"
+	cp "$(CONFIG)/bin/bits/**" "$(BIT_VAPP_PREFIX)/bin/bits/**"
+	mkdir -p "$(BIT_VAPP_PREFIX)/doc/man/man1"
+	cp "doc/man/bit.1" "$(BIT_VAPP_PREFIX)/doc/man/man1/bit.1"
+	mkdir -p "$(BIT_MAN_PREFIX)/man1"
+	rm -f "$(BIT_MAN_PREFIX)/man1/bit.1"
+	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/bit.1" "$(BIT_MAN_PREFIX)/man1/bit.1"
 
 #
 #   start
@@ -685,5 +717,7 @@ install: $(DEPS_39)
 DEPS_40 += stop
 
 uninstall: $(DEPS_40)
-	
+	rm -fr "$(BIT_VAPP_PREFIX)"
+	rm -f "$(BIT_APP_PREFIX)/latest"
+	rmdir -p "$(BIT_APP_PREFIX)" 2>/dev/null ; true
 

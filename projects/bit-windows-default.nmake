@@ -19,12 +19,14 @@ ENTRY             = _DllMainCRTStartup@12
 OS                = windows
 CONFIG            = $(OS)-$(ARCH)-$(PROFILE)
 LBIN              = $(CONFIG)\bin
+BIT_PACK_EJSCRIPT = 1
+BIT_PACK_SSL      = 1
 
 CC                = cl
 LD                = link
 RC                = rc
 CFLAGS            = -nologo -GR- -W3 -Zi -Od -MDd
-DFLAGS            = -D_REENTRANT -D_MT -DBIT_DEBUG 
+DFLAGS            = -D_REENTRANT -D_MT -DBIT_DEBUG -DBIT_PACK_EJSCRIPT=$(BIT_PACK_EJSCRIPT) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
 IFLAGS            = -I$(CONFIG)\inc
 LDFLAGS           = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
 LIBPATHS          = -libpath:$(CONFIG)\bin
@@ -680,28 +682,14 @@ stop: $(DEPS_38)
 DEPS_39 = $(DEPS_39) stop
 
 installBinary: $(DEPS_39)
-#  Omit build script installBinary
-
-#
-#   start
-#
-start: $(DEPS_40)
-
-#
-#   install
-#
-DEPS_41 = $(DEPS_41) stop
-DEPS_41 = $(DEPS_41) installBinary
-DEPS_41 = $(DEPS_41) start
-
-install: $(DEPS_41)
-
-
-#
-#   uninstall
-#
-DEPS_42 = $(DEPS_42) stop
-
-uninstall: $(DEPS_42)
-
-
+	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
+	copy /Y "$(CONFIG)\bin\bit.exe" "$(BIT_VAPP_PREFIX)\bin\bit.exe"
+	copy /Y "$(CONFIG)\bin\ca.crt" "$(BIT_VAPP_PREFIX)\bin\ca.crt"
+	copy /Y "$(CONFIG)\bin\ejs.mod" "$(BIT_VAPP_PREFIX)\bin\ejs.mod"
+	copy /Y "$(CONFIG)\bin\libejs.dll" "$(BIT_VAPP_PREFIX)\bin\libejs.dll"
+	copy /Y "$(CONFIG)\bin\libest.dll" "$(BIT_VAPP_PREFIX)\bin\libest.dll"
+	copy /Y "$(CONFIG)\bin\libhttp.dll" "$(BIT_VAPP_PREFIX)\bin\libhttp.dll"
+	copy /Y "$(CONFIG)\bin\libmpr.dll" "$(BIT_VAPP_PREFIX)\bin\libmpr.dll"
+	copy /Y "$(CONFIG)\bin\libmprssl.dll" "$(BIT_VAPP_PREFIX)\bin\libmprssl.dll"
+	copy /Y "$(CONFIG)\bin\libpcre.dll" "$(BIT_VAPP_PREFIX)\bin\libpcre.dll"
+	if not exist "$(CONFIG)\bin\bits" md "$(CONFIG)\bin\bits"

@@ -79,8 +79,8 @@ module embedthis.bit {
     }
 
     function generateTarget(target) {
-        if (target.require) {
-            for each (r in target.require) {
+        if (target.requires) {
+            for each (r in target.requires) {
                 if (bit.platform.os == 'windows') {
                     genout.writeLine('!IF "$(BIT_PACK_' + r.toUpper() + ')" == "1"')
                 } else {
@@ -110,8 +110,8 @@ module embedthis.bit {
         } else if (target.dir) {
             generateDir(target, true)
         }
-        if (target.require) {
-            for (i in target.require.length) {
+        if (target.requires) {
+            for (i in target.requires.length) {
                 if (bit.platform.os == 'windows') {
                     genWriteLine('!ENDIF')
                 } else {
@@ -235,43 +235,66 @@ module embedthis.bit {
         return prefixes
     }
 
-    function generatePackDflags() {
-        let requiredTargets = {}
-        for each (target in bit.targets) {
-            for each (r in target.requires) {
-                if (bit.packs[r]) {
-                    requiredTargets[r] = true
-                }
-            }
-        }
-        let dflags = ''
-        for (let [name, pack] in bit.packs) {
-            if (requiredTargets[name]) {
-                dflags += '-DBIT_PACK_' + name.toUpper() + '=$(BIT_PACK_' + name.toUpper() + ') '
-            }
-        }
-        return dflags
-    }
-
     function generatePackDefs() {
-        let requiredTargets = {}
+        let requiredPacks = {}
+        /*
+            Get packs required by targets
+         */
+        for each (pack in bit.packs) {
+            if (pack.required && pack.explicit) {
+                requiredPacks[pack.name] = true
+            }
+        }
         for each (target in bit.targets) {
             for each (r in target.requires) {
                 if (bit.packs[r]) {
-                    requiredTargets[r] = true
+                    requiredPacks[r] = true
                 }
             }
         }
+        for (let [pname, enabled] in bit.settings.projects) {
+            if (bit.packs[pname]) {
+                bit.packs[pname].enable = enabled
+            }
+            requiredPacks[pname] = true
+        }
+        /*
+            Follow pack.requires and pack.depends references
+         */
         for (let [name, pack] in bit.packs) {
-            if (requiredTargets[name]) {
+            if (requiredPacks[name]) {
+                for each (r in pack.requires) {
+                    if (bit.packs[r]) {
+                        requiredPacks[r] = true
+                    }
+                }
+            }
+        }
+        /*
+            Emit BIT_PACK_XXX definitions 
+         */
+        Object.sortProperties(bit.packs)
+        for (let [name, pack] in bit.packs) {
+            if (requiredPacks[name]) {
                 if (bit.platform.os == 'windows' ) {
-                    genout.writeLine('%-17s = %s'.format(['BIT_PACK_' + name.toUpper(), pack.enable ? 1 : 0]))
+                    genout.writeLine('%-18s = %s'.format(['BIT_PACK_' + name.toUpper(), pack.enable ? 1 : 0]))
                 } else {
-                    genout.writeLine('%-17s := %s'.format(['BIT_PACK_' + name.toUpper(), pack.enable ? 1 : 0]))
+                    genout.writeLine('%-18s := %s'.format(['BIT_PACK_' + name.toUpper(), pack.enable ? 1 : 0]))
                 }
             }
         }
         genout.writeLine('')
+
+        /*
+            Compute the dflags 
+         */
+        let dflags = ''
+        for (let [name, pack] in bit.packs) {
+            if (requiredPacks[name]) {
+                dflags += '-DBIT_PACK_' + name.toUpper() + '=$(BIT_PACK_' + name.toUpper() + ') '
+            }
+        }
+        return dflags
     }
 
     function generateMakeProject(base: Path) {
@@ -282,54 +305,54 @@ module embedthis.bit {
             bit.settings.title + ' for ' + bit.platform.os + '\n#\n')
         b.runScript(bit.scripts, 'pregen')
         genEnv()
-        genout.writeLine('PRODUCT           := ' + bit.settings.product)
-        genout.writeLine('VERSION           := ' + bit.settings.version)
-        genout.writeLine('BUILD_NUMBER      := ' + bit.settings.buildNumber)
-        genout.writeLine('PROFILE           := ' + bit.platform.profile)
-        genout.writeLine('ARCH              := $(shell uname -m | sed \'s/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/\')')
-        genout.writeLine('OS                := ' + bit.platform.os)
-        genout.writeLine('CC                := ' + bit.packs.compiler.path)
+        genout.writeLine('PRODUCT            := ' + bit.settings.product)
+        genout.writeLine('VERSION            := ' + bit.settings.version)
+        genout.writeLine('BUILD_NUMBER       := ' + bit.settings.buildNumber)
+        genout.writeLine('PROFILE            := ' + bit.platform.profile)
+        genout.writeLine('ARCH               := $(shell uname -m | sed \'s/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/\')')
+        genout.writeLine('OS                 := ' + bit.platform.os)
+        genout.writeLine('CC                 := ' + bit.packs.compiler.path)
         if (bit.packs.link) {
-            genout.writeLine('LD                := ' + bit.packs.link.path)
+            genout.writeLine('LD                 := ' + bit.packs.link.path)
         }
-        genout.writeLine('CONFIG            := $(OS)-$(ARCH)-$(PROFILE)')
-        genout.writeLine('LBIN              := $(CONFIG)/bin\n')
+        genout.writeLine('CONFIG             := $(OS)-$(ARCH)-$(PROFILE)')
+        genout.writeLine('LBIN               := $(CONFIG)/bin\n')
 
-        generatePackDefs()
+        let dflags = generatePackDefs()
 
         let cflags = gen.compiler
         for each (word in minimalCflags) {
             cflags = cflags.replace(word, '')
         }
         cflags += ' -w'
-        genout.writeLine('CFLAGS            += ' + cflags.trim())
-        genout.writeLine('DFLAGS            += ' + gen.defines.replace(/-DBIT_DEBUG/, '') + 
-            ' $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) ' + generatePackDflags())
-        genout.writeLine('IFLAGS            += ' + 
+        genout.writeLine('CFLAGS             += ' + cflags.trim())
+        genout.writeLine('DFLAGS             += ' + gen.defines.replace(/-DBIT_DEBUG/, '') + 
+            ' $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) ' + dflags)
+        genout.writeLine('IFLAGS             += ' + 
             repvar(bit.defaults.includes.map(function(path) '-I' + reppath(path.relative)).join(' ')))
         let linker = defaults.linker.map(function(s) "'" + s + "'").join(' ')
         let ldflags = repvar(linker).replace(/\$ORIGIN/g, '$$$$ORIGIN').replace(/ '-g'/, '')
-        genout.writeLine('LDFLAGS           += ' + ldflags)
-        genout.writeLine('LIBPATHS          += ' + repvar(gen.libpaths))
-        genout.writeLine('LIBS              += ' + gen.libraries + '\n')
+        genout.writeLine('LDFLAGS            += ' + ldflags)
+        genout.writeLine('LIBPATHS           += ' + repvar(gen.libpaths))
+        genout.writeLine('LIBS               += ' + gen.libraries + '\n')
 
-        genout.writeLine('DEBUG             := ' + (bit.settings.debug ? 'debug' : 'release'))
-        genout.writeLine('CFLAGS-debug      := -g')
-        genout.writeLine('DFLAGS-debug      := -DBIT_DEBUG')
-        genout.writeLine('LDFLAGS-debug     := -g')
-        genout.writeLine('DFLAGS-release    := ')
-        genout.writeLine('CFLAGS-release    := -O2')
-        genout.writeLine('LDFLAGS-release   := ')
-        genout.writeLine('CFLAGS            += $(CFLAGS-$(DEBUG))')
-        genout.writeLine('DFLAGS            += $(DFLAGS-$(DEBUG))')
-        genout.writeLine('LDFLAGS           += $(LDFLAGS-$(DEBUG))\n')
+        genout.writeLine('DEBUG              := ' + (bit.settings.debug ? 'debug' : 'release'))
+        genout.writeLine('CFLAGS-debug       := -g')
+        genout.writeLine('DFLAGS-debug       := -DBIT_DEBUG')
+        genout.writeLine('LDFLAGS-debug      := -g')
+        genout.writeLine('DFLAGS-release     := ')
+        genout.writeLine('CFLAGS-release     := -O2')
+        genout.writeLine('LDFLAGS-release    := ')
+        genout.writeLine('CFLAGS             += $(CFLAGS-$(DEBUG))')
+        genout.writeLine('DFLAGS             += $(DFLAGS-$(DEBUG))')
+        genout.writeLine('LDFLAGS            += $(LDFLAGS-$(DEBUG))\n')
 
         let prefixes = mapPrefixes()
         for (let [name, value] in prefixes) {
             if (name == 'root' && value == '/') {
                 value = ''
             }
-            genout.writeLine('%-17s := %s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
+            genout.writeLine('%-18s := %s'.format(['BIT_' + name.toUpper() + '_PREFIX', value]))
         }
         genout.writeLine('')
         b.runScript(bit.scripts, 'gencustom')
@@ -382,13 +405,13 @@ module embedthis.bit {
         genout.writeLine('OS                = ' + bit.platform.os)
         genout.writeLine('CONFIG            = $(OS)-$(ARCH)-$(PROFILE)')
         genout.writeLine('LBIN              = $(CONFIG)\\bin')
-        generatePackDefs()
 
+        let dflags = generatePackDefs()
         genout.writeLine('CC                = cl')
         genout.writeLine('LD                = link')
         genout.writeLine('RC                = rc')
         genout.writeLine('CFLAGS            = ' + gen.compiler)
-        genout.writeLine('DFLAGS            = ' + gen.defines + ' ' + generatePackDflags())
+        genout.writeLine('DFLAGS            = ' + gen.defines + ' ' + dflags)
         genout.writeLine('IFLAGS            = ' + 
             repvar(bit.defaults.includes.map(function(path) '-I' + reppath(path)).join(' ')))
         genout.writeLine('LDFLAGS           = ' + repvar(gen.linker).replace(/-machine:x86/, '-machine:$$(ARCH)'))
@@ -495,8 +518,8 @@ module embedthis.bit {
         let all = []
         for each (target in b.topTargets) {
             if (target.path && target.enable && !target.nogen) {
-                if (target.require) {
-                    for each (r in target.require) {
+                if (target.requires) {
+                    for each (r in target.requires) {
                         if (bit.platform.os == 'windows') {
                             genout.writeLine('!IF "$(BIT_PACK_' + r.toUpper() + ')" == "1"')
                         } else {
@@ -504,11 +527,11 @@ module embedthis.bit {
                         }
                     }
                     if (bit.platform.os == 'windows') {
-                        genout.writeLine('TARGETS           = $(TARGETS) ' + reppath(target.path))
+                        genout.writeLine('TARGETS            = $(TARGETS) ' + reppath(target.path))
                     } else {
-                        genout.writeLine('TARGETS           += ' + reppath(target.path))
+                        genout.writeLine('TARGETS            += ' + reppath(target.path))
                     }
-                    for (i in target.require.length) {
+                    for (i in target.requires.length) {
                         if (bit.platform.os == 'windows') {
                             genout.writeLine('!ENDIF')
                         } else {
@@ -517,9 +540,9 @@ module embedthis.bit {
                     }
                 } else {
                     if (bit.platform.os == 'windows') {
-                        genout.writeLine('TARGETS           = $(TARGETS) ' + reppath(target.path))
+                        genout.writeLine('TARGETS            = $(TARGETS) ' + reppath(target.path))
                     } else {
-                        genout.writeLine('TARGETS           += ' + reppath(target.path))
+                        genout.writeLine('TARGETS            += ' + reppath(target.path))
                     }
                 }
             }
@@ -765,9 +788,7 @@ module embedthis.bit {
                 prefix = suffix = ''
             }
         }
-print("GS", target.name, target['generate-capture'])
         if (target['generate-capture']) {
-print("IN HERE")
             genTargetDeps(target)
             if (target.path) {
                 genWrite(target.path.relative + ':' + getDepsVar() + '\n')
@@ -1009,6 +1030,9 @@ print("IN HERE")
 
     function genTargetLibs(target, command): String {
         let found
+
+        /* This makes matching easier */
+        command += ' '
         for each (lib in target.libraries) {
             let dname = null
             if (bit.targets['lib' + lib]) {
@@ -1018,8 +1042,8 @@ print("IN HERE")
             }
             if (dname) {
                 let dep = bit.targets[dname]
-                if (dep.require) {
-                    for each (r in dep.require) {
+                if (dep.requires) {
+                    for each (r in dep.requires) {
                         if (bit.platform.os == 'windows') {
                             genout.writeLine('!IF "$(BIT_PACK_' + r.toUpper() + ')" == "1"')
                         } else {
@@ -1031,7 +1055,7 @@ print("IN HERE")
                     } else {
                         genout.writeLine('    LIBS_' + nextID + ' += -l' + lib)
                     }
-                    for each (i in dep.require.length) {
+                    for each (i in dep.requires.length) {
                         if (bit.platform.os == 'windows') {
                             genout.writeLine('!ENDIF')
                         } else {
@@ -1092,8 +1116,8 @@ print("IN HERE")
                 let dep = bit.targets[dname]
                 if (dep && dep.enable) {
                     let d = (dep.path) ? reppath(dep.path) : dep.name
-                    if (dep.require) {
-                        for each (r in dep.require) {
+                    if (dep.requires) {
+                        for each (r in dep.requires) {
                             if (bit.platform.os == 'windows') {
                                 genout.writeLine('!IF "$(BIT_PACK_' + r.toUpper() + ')" == "1"')
                             } else {
@@ -1105,7 +1129,7 @@ print("IN HERE")
                         } else {
                             genout.writeLine('    DEPS_' + nextID + ' += ' + d)
                         }
-                        for (i in dep.require.length) {
+                        for (i in dep.requires.length) {
                             if (bit.platform.os == 'windows') {
                                 genout.writeLine('!ENDIF')
                             } else {

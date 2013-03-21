@@ -311,7 +311,6 @@ function checkRoot() {
 
 
 public function installBinary() {
-print("INSTALL BINARY")
     bit.installing = true
     let [manifest, package, prefixes] = setupPackage('install')
     if (package) {

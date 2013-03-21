@@ -58,7 +58,6 @@ module embedthis.bit {
             b.castDirTypes()
             createPlatformBitFile()
             b.makeOutDirs()
-            b.runScript(bit.scripts, "prebitheader")
             createBitHeader()
             importPackFiles()
         }
@@ -160,7 +159,26 @@ module embedthis.bit {
         }
     }
 
+    internal function setRequiredPacks() { 
+        if (bit.options.gen) {
+            for (let [pname, enabled] in bit.settings.projects) {
+                if (bit.packs[pname]) {
+                    bit.packs[pname].enable = enabled
+                }
+            }
+            for each (target in bit.targets) {
+                for each (r in target.requires) {
+                    if (bit.packs[r]) {
+                        bit.packs[r].enable = true
+                    }
+                }
+            }
+        }
+    }
+
     internal function createBitHeader() {
+        setRequiredPacks()
+        b.runScript(bit.scripts, "prebitheader")
         let path = bit.dir.inc.join('bit.h')
         let f = TextStream(File(path, 'w'))
         f.writeLine('/*\n    bit.h -- Build It Configuration Header for ' + bit.platform.name + '\n\n' +
