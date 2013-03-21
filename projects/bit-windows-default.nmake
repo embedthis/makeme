@@ -19,14 +19,15 @@ ENTRY             = _DllMainCRTStartup@12
 OS                = windows
 CONFIG            = $(OS)-$(ARCH)-$(PROFILE)
 LBIN              = $(CONFIG)\bin
-BIT_PACK_EJSCRIPT = 1
-BIT_PACK_SSL      = 1
+BIT_PACK_EJSCRIPT  = 1
+BIT_PACK_EST       = 1
+BIT_PACK_SSL       = 1
 
 CC                = cl
 LD                = link
 RC                = rc
 CFLAGS            = -nologo -GR- -W3 -Zi -Od -MDd
-DFLAGS            = -D_REENTRANT -D_MT -DBIT_DEBUG -DBIT_PACK_EJSCRIPT=$(BIT_PACK_EJSCRIPT) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
+DFLAGS            = -D_REENTRANT -D_MT -DBIT_DEBUG -DBIT_PACK_EJSCRIPT=$(BIT_PACK_EJSCRIPT) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
 IFLAGS            = -I$(CONFIG)\inc
 LDFLAGS           = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
 LIBPATHS          = -libpath:$(CONFIG)\bin
@@ -50,20 +51,32 @@ BIT_CACHE_PREFIX  = $(BIT_VAPP_PREFIX)\cache
 BIT_SRC_PREFIX    = $(BIT_VAPP_PREFIX)\src
 
 
-TARGETS           = $(TARGETS) $(CONFIG)\bin\libest.dll
-TARGETS           = $(TARGETS) $(CONFIG)\bin\ca.crt
-TARGETS           = $(TARGETS) $(CONFIG)\bin\libmpr.dll
-TARGETS           = $(TARGETS) $(CONFIG)\bin\libmprssl.dll
-TARGETS           = $(TARGETS) $(CONFIG)\bin\makerom.exe
-TARGETS           = $(TARGETS) $(CONFIG)\bin\libpcre.dll
-TARGETS           = $(TARGETS) $(CONFIG)\bin\libhttp.dll
-TARGETS           = $(TARGETS) $(CONFIG)\bin\http.exe
-TARGETS           = $(TARGETS) $(CONFIG)\bin\libejs.dll
-TARGETS           = $(TARGETS) $(CONFIG)\bin\ejs.exe
-TARGETS           = $(TARGETS) $(CONFIG)\bin\ejsc.exe
-TARGETS           = $(TARGETS) $(CONFIG)\bin\ejs.mod
-TARGETS           = $(TARGETS) $(CONFIG)\bin\removeFiles.exe
-TARGETS           = $(TARGETS) $(CONFIG)\bin\bit.exe
+!IF "$(BIT_PACK_EST)" == "1"
+TARGETS            = $(TARGETS) $(CONFIG)\bin\libest.dll
+!ENDIF
+TARGETS            = $(TARGETS) $(CONFIG)\bin\ca.crt
+TARGETS            = $(TARGETS) $(CONFIG)\bin\libmpr.dll
+!IF "$(BIT_PACK_SSL)" == "1"
+TARGETS            = $(TARGETS) $(CONFIG)\bin\libmprssl.dll
+!ENDIF
+TARGETS            = $(TARGETS) $(CONFIG)\bin\makerom.exe
+TARGETS            = $(TARGETS) $(CONFIG)\bin\libpcre.dll
+TARGETS            = $(TARGETS) $(CONFIG)\bin\libhttp.dll
+TARGETS            = $(TARGETS) $(CONFIG)\bin\http.exe
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
+TARGETS            = $(TARGETS) $(CONFIG)\bin\libejs.dll
+!ENDIF
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
+TARGETS            = $(TARGETS) $(CONFIG)\bin\ejs.exe
+!ENDIF
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
+TARGETS            = $(TARGETS) $(CONFIG)\bin\ejsc.exe
+!ENDIF
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
+TARGETS            = $(TARGETS) $(CONFIG)\bin\ejs.mod
+!ENDIF
+TARGETS            = $(TARGETS) $(CONFIG)\bin\removeFiles.exe
+TARGETS            = $(TARGETS) $(CONFIG)\bin\bit.exe
 
 !IFNDEF SHOW
 .SILENT:
@@ -157,6 +170,7 @@ $(CONFIG)\obj\estLib.obj: \
 	@echo '   [Compile] src/deps/est/estLib.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\estLib.obj -Fd$(CONFIG)\obj\estLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\est\estLib.c
 
+!IF "$(BIT_PACK_EST)" == "1"
 #
 #   libest
 #
@@ -165,7 +179,8 @@ DEPS_6 = $(DEPS_6) $(CONFIG)\obj\estLib.obj
 
 $(CONFIG)\bin\libest.dll: $(DEPS_6)
 	@echo '      [Link] libest'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libest.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\estLib.obj $(LIBS)
+	"$(LD)" -dll -out:$(CONFIG)\bin\libest.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\estLib.obj $(LIBS) 
+!ENDIF
 
 #
 #   ca-crt
@@ -205,7 +220,7 @@ DEPS_10 = $(DEPS_10) $(CONFIG)\obj\mprLib.obj
 
 $(CONFIG)\bin\libmpr.dll: $(DEPS_10)
 	@echo '      [Link] libmpr'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libmpr.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\mprLib.obj $(LIBS)
+	"$(LD)" -dll -out:$(CONFIG)\bin\libmpr.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\mprLib.obj $(LIBS) 
 
 #
 #   mprSsl.obj
@@ -219,19 +234,25 @@ $(CONFIG)\obj\mprSsl.obj: \
 	@echo '   [Compile] src/deps/mpr/mprSsl.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\mprSsl.obj -Fd$(CONFIG)\obj\mprSsl.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\mpr\mprSsl.c
 
+!IF "$(BIT_PACK_SSL)" == "1"
 #
 #   libmprssl
 #
 DEPS_12 = $(DEPS_12) $(CONFIG)\bin\libmpr.dll
+!IF "$(BIT_PACK_EST)" == "1"
 DEPS_12 = $(DEPS_12) $(CONFIG)\bin\libest.dll
+!ENDIF
 DEPS_12 = $(DEPS_12) $(CONFIG)\obj\mprSsl.obj
 
+!IF "$(BIT_PACK_EST)" == "1"
 LIBS_12 = $(LIBS_12) libest.lib
+!ENDIF
 LIBS_12 = $(LIBS_12) libmpr.lib
 
 $(CONFIG)\bin\libmprssl.dll: $(DEPS_12)
 	@echo '      [Link] libmprssl'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libmprssl.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\mprSsl.obj $(LIBS_12) $(LIBS_12) $(LIBS)
+	"$(LD)" -dll -out:$(CONFIG)\bin\libmprssl.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\mprSsl.obj $(LIBS_12) $(LIBS_12) $(LIBS) 
+!ENDIF
 
 #
 #   makerom.obj
@@ -254,7 +275,7 @@ LIBS_14 = $(LIBS_14) libmpr.lib
 
 $(CONFIG)\bin\makerom.exe: $(DEPS_14)
 	@echo '      [Link] makerom'
-	"$(LD)" -out:$(CONFIG)\bin\makerom.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\makerom.obj $(LIBS_14) $(LIBS_14) $(LIBS)
+	"$(LD)" -out:$(CONFIG)\bin\makerom.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\makerom.obj $(LIBS_14) $(LIBS_14) $(LIBS) 
 
 #
 #   pcre.h
@@ -283,7 +304,7 @@ DEPS_17 = $(DEPS_17) $(CONFIG)\obj\pcre.obj
 
 $(CONFIG)\bin\libpcre.dll: $(DEPS_17)
 	@echo '      [Link] libpcre'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libpcre.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\pcre.obj $(LIBS)
+	"$(LD)" -dll -out:$(CONFIG)\bin\libpcre.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\pcre.obj $(LIBS) 
 
 #
 #   http.h
@@ -318,7 +339,7 @@ LIBS_20 = $(LIBS_20) libmpr.lib
 
 $(CONFIG)\bin\libhttp.dll: $(DEPS_20)
 	@echo '      [Link] libhttp'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libhttp.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\httpLib.obj $(LIBS_20) $(LIBS_20) $(LIBS)
+	"$(LD)" -dll -out:$(CONFIG)\bin\libhttp.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\httpLib.obj $(LIBS_20) $(LIBS_20) $(LIBS) 
 
 #
 #   http.obj
@@ -343,7 +364,7 @@ LIBS_22 = $(LIBS_22) libmpr.lib
 
 $(CONFIG)\bin\http.exe: $(DEPS_22)
 	@echo '      [Link] http'
-	"$(LD)" -out:$(CONFIG)\bin\http.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\http.obj $(LIBS_22) $(LIBS_22) $(LIBS) libmpr.lib
+	"$(LD)" -out:$(CONFIG)\bin\http.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\http.obj $(LIBS_22) $(LIBS_22) $(LIBS) 
 
 #
 #   ejs.h
@@ -385,6 +406,7 @@ $(CONFIG)\obj\ejsLib.obj: \
 	@echo '   [Compile] src/deps/ejs/ejsLib.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\ejsLib.obj -Fd$(CONFIG)\obj\ejsLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\ejs\ejsLib.c
 
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
 #
 #   libejs
 #
@@ -401,11 +423,14 @@ LIBS_27 = $(LIBS_27) libpcre.lib
 LIBS_27 = $(LIBS_27) libhttp.lib
 LIBS_27 = $(LIBS_27) libpcre.lib
 LIBS_27 = $(LIBS_27) libmpr.lib
+!IF "$(BIT_PACK_EST)" == "1"
 LIBS_27 = $(LIBS_27) libest.lib
+!ENDIF
 
 $(CONFIG)\bin\libejs.dll: $(DEPS_27)
 	@echo '      [Link] libejs'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libejs.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsLib.obj $(LIBS_27) $(LIBS_27) $(LIBS) libest.lib
+	"$(LD)" -dll -out:$(CONFIG)\bin\libejs.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsLib.obj $(LIBS_27) $(LIBS_27) $(LIBS) 
+!ENDIF
 
 #
 #   ejs.obj
@@ -418,21 +443,29 @@ $(CONFIG)\obj\ejs.obj: \
 	@echo '   [Compile] src/deps/ejs/ejs.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\ejs.obj -Fd$(CONFIG)\obj\ejs.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\ejs\ejs.c
 
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
 #
 #   ejs
 #
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
 DEPS_29 = $(DEPS_29) $(CONFIG)\bin\libejs.dll
+!ENDIF
 DEPS_29 = $(DEPS_29) $(CONFIG)\obj\ejs.obj
 
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
 LIBS_29 = $(LIBS_29) libejs.lib
+!ENDIF
 LIBS_29 = $(LIBS_29) libmpr.lib
 LIBS_29 = $(LIBS_29) libpcre.lib
 LIBS_29 = $(LIBS_29) libhttp.lib
+!IF "$(BIT_PACK_EST)" == "1"
 LIBS_29 = $(LIBS_29) libest.lib
+!ENDIF
 
 $(CONFIG)\bin\ejs.exe: $(DEPS_29)
 	@echo '      [Link] ejs'
-	"$(LD)" -out:$(CONFIG)\bin\ejs.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejs.obj $(LIBS_29) $(LIBS_29) $(LIBS) libest.lib
+	"$(LD)" -out:$(CONFIG)\bin\ejs.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejs.obj $(LIBS_29) $(LIBS_29) $(LIBS) 
+!ENDIF
 
 #
 #   ejsc.obj
@@ -445,30 +478,42 @@ $(CONFIG)\obj\ejsc.obj: \
 	@echo '   [Compile] src/deps/ejs/ejsc.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\ejsc.obj -Fd$(CONFIG)\obj\ejsc.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\ejs\ejsc.c
 
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
 #
 #   ejsc
 #
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
 DEPS_31 = $(DEPS_31) $(CONFIG)\bin\libejs.dll
+!ENDIF
 DEPS_31 = $(DEPS_31) $(CONFIG)\obj\ejsc.obj
 
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
 LIBS_31 = $(LIBS_31) libejs.lib
+!ENDIF
 LIBS_31 = $(LIBS_31) libmpr.lib
 LIBS_31 = $(LIBS_31) libpcre.lib
 LIBS_31 = $(LIBS_31) libhttp.lib
+!IF "$(BIT_PACK_EST)" == "1"
 LIBS_31 = $(LIBS_31) libest.lib
+!ENDIF
 
 $(CONFIG)\bin\ejsc.exe: $(DEPS_31)
 	@echo '      [Link] ejsc'
-	"$(LD)" -out:$(CONFIG)\bin\ejsc.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsc.obj $(LIBS_31) $(LIBS_31) $(LIBS) libest.lib
+	"$(LD)" -out:$(CONFIG)\bin\ejsc.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsc.obj $(LIBS_31) $(LIBS_31) $(LIBS) 
+!ENDIF
 
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
 #
 #   ejs.mod
 #
 DEPS_32 = $(DEPS_32) src\deps\ejs\ejs.es
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
 DEPS_32 = $(DEPS_32) $(CONFIG)\bin\ejsc.exe
+!ENDIF
 
 $(CONFIG)\bin\ejs.mod: $(DEPS_32)
 	"$(LBIN)\ejsc" --out ".\$(CONFIG)\bin\ejs.mod" --optimize 9 --bind --require null src/deps/ejs/ejs.es
+!ENDIF
 
 #
 #   removeFiles.obj
@@ -487,7 +532,7 @@ DEPS_34 = $(DEPS_34) $(CONFIG)\obj\removeFiles.obj
 
 $(CONFIG)\bin\removeFiles.exe: $(DEPS_34)
 	@echo '      [Link] removeFiles'
-	"$(LD)" -out:$(CONFIG)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\removeFiles.obj $(LIBS)
+	"$(LD)" -out:$(CONFIG)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\removeFiles.obj $(LIBS) 
 
 #
 #   bits
@@ -656,20 +701,26 @@ $(CONFIG)\obj\bit.obj: \
 #
 DEPS_37 = $(DEPS_37) $(CONFIG)\bin\libmpr.dll
 DEPS_37 = $(DEPS_37) $(CONFIG)\bin\libhttp.dll
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
 DEPS_37 = $(DEPS_37) $(CONFIG)\bin\libejs.dll
+!ENDIF
 DEPS_37 = $(DEPS_37) $(CONFIG)\bin\bits
 DEPS_37 = $(DEPS_37) $(CONFIG)\inc\bitos.h
 DEPS_37 = $(DEPS_37) $(CONFIG)\obj\bit.obj
 
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
 LIBS_37 = $(LIBS_37) libejs.lib
+!ENDIF
 LIBS_37 = $(LIBS_37) libhttp.lib
 LIBS_37 = $(LIBS_37) libmpr.lib
 LIBS_37 = $(LIBS_37) libpcre.lib
+!IF "$(BIT_PACK_EST)" == "1"
 LIBS_37 = $(LIBS_37) libest.lib
+!ENDIF
 
 $(CONFIG)\bin\bit.exe: $(DEPS_37)
 	@echo '      [Link] bit'
-	"$(LD)" -out:$(CONFIG)\bin\bit.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\bit.obj $(LIBS_37) $(LIBS_37) $(LIBS) libest.lib
+	"$(LD)" -out:$(CONFIG)\bin\bit.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\bit.obj $(LIBS_37) $(LIBS_37) $(LIBS) 
 
 #
 #   stop
