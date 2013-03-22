@@ -293,7 +293,7 @@ module embedthis.bit {
                 if (bit.platform.os == 'windows' ) {
                     genout.writeLine('!IF "$(BIT_PACK_' + pname.toUpper() + ')" == "1"')
                     for each (r in pack.requires) {
-                        genout.writeLine('    BIT_PACK_' + r.toUpper() + ' = 1')
+                        genout.writeLine('BIT_PACK_' + r.toUpper() + ' = 1')
                     }
                     genout.writeLine('!ENDIF\n')
                 } else {
