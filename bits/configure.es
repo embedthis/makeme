@@ -76,7 +76,6 @@ module embedthis.bit {
             for (let [index,platform] in bit.platforms) {
                 let bitfile = Path(platform).joinExt('bit')
                 b.makeBit(platform, bitfile)
-                print("BSC", bit.settings.configure)
                 if (bit.settings.configure) {
                     run(bit.settings.configure)
                     return
