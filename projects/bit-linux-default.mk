@@ -118,7 +118,10 @@ prep:
 	@if ! diff $(CONFIG)/inc/bit.h projects/bit-linux-default-bit.h >/dev/null ; then\
 		cp projects/bit-linux-default-bit.h $(CONFIG)/inc/bit.h  ; \
 	fi; true
-
+	@if [ -f "$(CONFIG)/.makeflags" -a "$(MAKEFLAGS)" != " `cat $(CONFIG)/.makeflags`" ] ; then \
+		echo "   [Warning] Make flags have changed since the last build: "`cat $(CONFIG)/.makeflags`"" ; \
+	fi
+	@echo $(MAKEFLAGS) >$(CONFIG)/.makeflags
 clean:
 	rm -fr "$(CONFIG)/bin/libest.so"
 	rm -fr "$(CONFIG)/bin/ca.crt"
