@@ -70,14 +70,20 @@ module embedthis.bit {
 
     function reconfigure() {
         vtrace('Load', 'Preload main.bit to determine required configuration')
-        b.quickLoad(b.MAIN)
-        b.platforms = bit.platforms = [b.localPlatform]
-        b.makeBit(b.localPlatform, b.localPlatform + '.bit')
-        if (bit.settings.configure) {
-            run(bit.settings.configure)
-        } else {
-            App.log.error('No prior configuration to use')
+        b.quickLoad(Bit.START)
+        if (bit.platforms) {
+            platforms = bit.platforms
+            for (let [index,platform] in bit.platforms) {
+                let bitfile = Path(platform).joinExt('bit')
+                b.makeBit(platform, bitfile)
+                print("BSC", bit.settings.configure)
+                if (bit.settings.configure) {
+                    run(bit.settings.configure)
+                    return
+                }
+            }
         }
+        App.log.error('No prior configuration to use')
     }
 
     internal function importPackFiles() {

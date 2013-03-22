@@ -639,6 +639,7 @@ public class Bit {
                 }
                 if (ver && (ver != (bit.settings.version + '-' + bit.settings.buildNumber))) {
                     trace('Upgrade', 'Main.bit has been updated, reconfiguring ...')
+                    overlay('configure.es')
                     reconfigure()
                 }
                 if (options.configuration) {
