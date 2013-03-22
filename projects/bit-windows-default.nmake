@@ -2,72 +2,79 @@
 #   bit-windows-default.nmake -- Makefile to build Embedthis Bit for windows
 #
 
-PRODUCT           = bit
-VERSION           = 0.8.5
-BUILD_NUMBER      = 0
-PROFILE           = default
-PA                = $(PROCESSOR_ARCHITECTURE)
+PRODUCT            = bit
+VERSION            = 0.8.5
+BUILD_NUMBER       = 0
+PROFILE            = default
+PA                 = $(PROCESSOR_ARCHITECTURE)
 
 !IF "$(PA)" == "AMD64"
-ARCH              = x64
-ENTRY             = _DllMainCRTStartup
+ARCH               = x64
+ENTRY              = _DllMainCRTStartup
 !ELSE
-ARCH              = x86
-ENTRY             = _DllMainCRTStartup@12
+ARCH               = x86
+ENTRY              = _DllMainCRTStartup@12
 !ENDIF
 
-OS                = windows
-CONFIG            = $(OS)-$(ARCH)-$(PROFILE)
-LBIN              = $(CONFIG)\bin
+OS                 = windows
+CONFIG             = $(OS)-$(ARCH)-$(PROFILE)
+LBIN               = $(CONFIG)\bin
+
 BIT_PACK_EJSCRIPT  = 1
 BIT_PACK_EST       = 1
 BIT_PACK_SSL       = 1
 
-ifeq ($(BIT_PACK_EST),1)
-    BIT_PACK_SSL := 1
-endif
-ifeq ($(BIT_PACK_LIB),1)
-    BIT_PACK_COMPILER := 1
-endif
-ifeq ($(BIT_PACK_MATRIXSSL),1)
-    BIT_PACK_SSL := 1
-endif
-ifeq ($(BIT_PACK_NANOSSL),1)
-    BIT_PACK_SSL := 1
-endif
-ifeq ($(BIT_PACK_OPENSSL),1)
-    BIT_PACK_SSL := 1
-endif
-ifeq ($(BIT_PACK_RC),1)
-    BIT_PACK_WINSDK := 1
-endif
+!IF "$(BIT_PACK_EST)" == "1"
+    BIT_PACK_SSL = 1
+!ENDIF
 
-CC                = cl
-LD                = link
-RC                = rc
-CFLAGS            = -nologo -GR- -W3 -Zi -Od -MDd
-DFLAGS            = -D_REENTRANT -D_MT -DBIT_DEBUG -DBIT_PACK_EJSCRIPT=$(BIT_PACK_EJSCRIPT) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
-IFLAGS            = -I$(CONFIG)\inc
-LDFLAGS           = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
-LIBPATHS          = -libpath:$(CONFIG)\bin
-LIBS              = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
+!IF "$(BIT_PACK_LIB)" == "1"
+    BIT_PACK_COMPILER = 1
+!ENDIF
 
-BIT_ROOT_PREFIX   = C:
-BIT_BASE_PREFIX   = $(BIT_ROOT_PREFIX)\Program Files
-BIT_APP_PREFIX    = $(BIT_BASE_PREFIX)\Embedthis Bit
-BIT_VAPP_PREFIX   = $(BIT_APP_PREFIX)
-BIT_DATA_PREFIX   = $(BIT_VAPP_PREFIX)
-BIT_STATE_PREFIX  = $(BIT_VAPP_PREFIX)
-BIT_BIN_PREFIX    = $(BIT_VAPP_PREFIX)\bin
-BIT_INC_PREFIX    = $(BIT_VAPP_PREFIX)\inc
-BIT_LIB_PREFIX    = $(BIT_VAPP_PREFIX)\lib
-BIT_MAN_PREFIX    = $(BIT_VAPP_PREFIX)\man
-BIT_ETC_PREFIX    = $(BIT_VAPP_PREFIX)
-BIT_WEB_PREFIX    = $(BIT_VAPP_PREFIX)\web
-BIT_LOG_PREFIX    = $(BIT_VAPP_PREFIX)\log
-BIT_SPOOL_PREFIX  = $(BIT_VAPP_PREFIX)\tmp
-BIT_CACHE_PREFIX  = $(BIT_VAPP_PREFIX)\cache
-BIT_SRC_PREFIX    = $(BIT_VAPP_PREFIX)\src
+!IF "$(BIT_PACK_MATRIXSSL)" == "1"
+    BIT_PACK_SSL = 1
+!ENDIF
+
+!IF "$(BIT_PACK_NANOSSL)" == "1"
+    BIT_PACK_SSL = 1
+!ENDIF
+
+!IF "$(BIT_PACK_OPENSSL)" == "1"
+    BIT_PACK_SSL = 1
+!ENDIF
+
+!IF "$(BIT_PACK_RC)" == "1"
+    BIT_PACK_WINSDK = 1
+!ENDIF
+
+
+CC                 = cl
+LD                 = link
+RC                 = rc
+CFLAGS             = -nologo -GR- -W3 -Zi -Od -MDd
+DFLAGS             = -D_REENTRANT -D_MT -DBIT_DEBUG -DBIT_PACK_EJSCRIPT=$(BIT_PACK_EJSCRIPT) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
+IFLAGS             = -I$(CONFIG)\inc
+LDFLAGS            = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
+LIBPATHS           = -libpath:$(CONFIG)\bin
+LIBS               = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
+
+BIT_ROOT_PREFIX    = C:
+BIT_BASE_PREFIX    = $(BIT_ROOT_PREFIX)\Program Files
+BIT_APP_PREFIX     = $(BIT_BASE_PREFIX)\Embedthis Bit
+BIT_VAPP_PREFIX    = $(BIT_APP_PREFIX)
+BIT_DATA_PREFIX    = $(BIT_VAPP_PREFIX)
+BIT_STATE_PREFIX   = $(BIT_VAPP_PREFIX)
+BIT_BIN_PREFIX     = $(BIT_VAPP_PREFIX)\bin
+BIT_INC_PREFIX     = $(BIT_VAPP_PREFIX)\inc
+BIT_LIB_PREFIX     = $(BIT_VAPP_PREFIX)\lib
+BIT_MAN_PREFIX     = $(BIT_VAPP_PREFIX)\man
+BIT_ETC_PREFIX     = $(BIT_VAPP_PREFIX)
+BIT_WEB_PREFIX     = $(BIT_VAPP_PREFIX)\web
+BIT_LOG_PREFIX     = $(BIT_VAPP_PREFIX)\log
+BIT_SPOOL_PREFIX   = $(BIT_VAPP_PREFIX)\tmp
+BIT_CACHE_PREFIX   = $(BIT_VAPP_PREFIX)\cache
+BIT_SRC_PREFIX     = $(BIT_VAPP_PREFIX)\src
 
 
 !IF "$(BIT_PACK_EST)" == "1"
