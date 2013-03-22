@@ -397,8 +397,10 @@ module embedthis.bit {
         genout.writeLine('\t@if ! diff $(CONFIG)/inc/bit.h projects/' + pop + '-bit.h >/dev/null ; then\\')
         genout.writeLine('\t\tcp projects/' + pop + '-bit.h $(CONFIG)/inc/bit.h  ; \\')
         genout.writeLine('\tfi; true')
-        genout.writeLine('\t@if [ -f "$(CONFIG)/.makeflags" -a "$(MAKEFLAGS)" != " `cat $(CONFIG)/.makeflags`" ] ; then \\')
-        genout.writeLine('\t\techo "   [Warning] Make flags have changed since the last build: \"`cat $(CONFIG)/.makeflags`\"" ; \\')
+        genout.writeLine('\t@if [ -f "$(CONFIG)/.makeflags" ] ; then \\')
+        genout.writeLine('\t\tif [ "$(MAKEFLAGS)" != " ` cat $(CONFIG)/.makeflags`" ] ; then \\')
+        genout.writeLine('\t\t\techo "   [Warning] Make flags have changed since the last build: \"`cat $(CONFIG)/.makeflags`\"" ; \\')
+        genout.writeLine('\t\tfi ; \\')
         genout.writeLine('\tfi')
         genout.writeLine('\t@echo $(MAKEFLAGS) >$(CONFIG)/.makeflags')
 
