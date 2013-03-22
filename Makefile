@@ -35,6 +35,7 @@ all compile:
 		echo "The build configuration projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) is not supported" ; exit 255 ; \
 	fi
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@
+	@echo '      [Info] You can now install via "sudo make $(MAKEFLAGS) install"'
 
 clean clobber install installBinary uninstall run:
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@

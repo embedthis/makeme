@@ -372,8 +372,8 @@ Bit.load({
         },
 
         /* Default stubs */
-        start: { action: '', 'generate': true},
-        stop: { action: '', 'generate': true},
+        start: { action: '', generate: ''},
+        stop: { action: '',  generate: ''},
 
         updateLicense: {
             action: "

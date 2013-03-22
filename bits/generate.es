@@ -1048,14 +1048,31 @@ module embedthis.bit {
         /* This makes matching easier */
         command += ' '
         for each (lib in target.libraries) {
-            let dname = null
+            let name = null
+            let dep 
             if (bit.targets['lib' + lib]) {
-                dname = 'lib' + lib
+                name = 'lib' + lib
+                dep = bit.targets[name]
             } else if (bit.targets[lib]) {
-                dname = lib
+                name = lib
+                dep = bit.targets[name]
+            } else {
+                /*
+                    Check required packs that provide the library
+                 */
+                for each (r in target.requires) {
+                    if ((pack = bit.packs[r]) != null) {
+                        for each (l in pack.libraries) {
+                            if (lib == l) {
+                                name = lib
+                                dep = target
+                                break
+                            }
+                        }
+                    }
+                }
             }
-            if (dname) {
-                let dep = bit.targets[dname]
+            if (name) {
                 if (dep.requires) {
                     for each (r in dep.requires) {
                         if (bit.platform.os == 'windows') {
@@ -1093,6 +1110,7 @@ module embedthis.bit {
                 if (bit.platform.os == 'windows') {
                     command = command.replace(RegExp(' lib' + lib + '.lib ', 'g'), ' ')
                 } else {
+                    /* Leave as is */
                     // command = command.replace(RegExp(' -l' + lib + ' ', 'g'), ' ')
                 }
             }

@@ -40,10 +40,12 @@ public function deploy(manifest, prefixes, package): Array {
 
         if (item.requires) {
             for each (r in item.requires) {
-                if ((!bit.packs[r] || !bit.packs[r].enable)) {
-                    skip(name, 'Required pack ' + r + ' is not enabled')
-                    enable = false
-                    break
+                if (!bit.generating) {
+                    if ((!bit.packs[r] || !bit.packs[r].enable)) {
+                        skip(name, 'Required pack ' + r + ' is not enabled')
+                        enable = false
+                        break
+                    }
                 }
             }
 

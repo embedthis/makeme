@@ -151,9 +151,6 @@
 #ifndef BIT_WITHOUT_ALL
     #define BIT_WITHOUT_ALL "dsi,man,man2html"
 #endif
-#ifndef BIT_WITHOUT_DEFAULT
-    #define BIT_WITHOUT_DEFAULT "dsi,man,man2html"
-#endif
 
 /* Prefixes */
 #ifndef BIT_ROOT_PREFIX
@@ -227,7 +224,7 @@
 
 /* Profile */
 #ifndef BIT_CONFIG_CMD
-    #define BIT_CONFIG_CMD "bit -d -q -platform linux-x86-default -configure . --without default -gen make"
+    #define BIT_CONFIG_CMD "bit -d -q -platform linux-x86-default -configure . -gen make"
 #endif
 #ifndef BIT_BIT_PRODUCT
     #define BIT_BIT_PRODUCT 1
@@ -254,11 +251,8 @@
 #ifndef BIT_PACK_CC
     #define BIT_PACK_CC 1
 #endif
-#ifndef BIT_PACK_DEFAULT
-    #define BIT_PACK_DEFAULT 0
-#endif
 #ifndef BIT_PACK_DSI
-    #define BIT_PACK_DSI 0
+    #define BIT_PACK_DSI 1
 #endif
 #ifndef BIT_PACK_EJSCRIPT
     #define BIT_PACK_EJSCRIPT 1
@@ -273,10 +267,10 @@
     #define BIT_PACK_LINK 1
 #endif
 #ifndef BIT_PACK_MAN
-    #define BIT_PACK_MAN 0
+    #define BIT_PACK_MAN 1
 #endif
 #ifndef BIT_PACK_MAN2HTML
-    #define BIT_PACK_MAN2HTML 0
+    #define BIT_PACK_MAN2HTML 1
 #endif
 #ifndef BIT_PACK_MATRIXSSL
     #define BIT_PACK_MATRIXSSL 0
