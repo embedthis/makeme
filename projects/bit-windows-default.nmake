@@ -23,6 +23,25 @@ BIT_PACK_EJSCRIPT  = 1
 BIT_PACK_EST       = 1
 BIT_PACK_SSL       = 1
 
+ifeq ($(BIT_PACK_EST),1)
+    BIT_PACK_SSL := 1
+endif
+ifeq ($(BIT_PACK_LIB),1)
+    BIT_PACK_COMPILER := 1
+endif
+ifeq ($(BIT_PACK_MATRIXSSL),1)
+    BIT_PACK_SSL := 1
+endif
+ifeq ($(BIT_PACK_NANOSSL),1)
+    BIT_PACK_SSL := 1
+endif
+ifeq ($(BIT_PACK_OPENSSL),1)
+    BIT_PACK_SSL := 1
+endif
+ifeq ($(BIT_PACK_RC),1)
+    BIT_PACK_WINSDK := 1
+endif
+
 CC                = cl
 LD                = link
 RC                = rc
