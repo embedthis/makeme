@@ -845,7 +845,7 @@ public function checkUninstalled() {
 }
 
 
-public function genProjects(packs = '--without default', profiles = ["default"], platforms = null) 
+public function genProjects(packs = '', profiles = ["default"], platforms = null) 
 {
     if (platforms is String) {
         platforms = [platforms]

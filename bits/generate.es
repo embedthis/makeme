@@ -1093,7 +1093,7 @@ module embedthis.bit {
                 if (bit.platform.os == 'windows') {
                     command = command.replace(RegExp(' lib' + lib + '.lib ', 'g'), ' ')
                 } else {
-                    command = command.replace(RegExp(' -l' + lib + ' ', 'g'), ' ')
+                    // command = command.replace(RegExp(' -l' + lib + ' ', 'g'), ' ')
                 }
             }
         }

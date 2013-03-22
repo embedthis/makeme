@@ -2470,17 +2470,8 @@ public class Bit {
         case 'cleanTargets':
             for each (target in bit.targets) {
                 if (target.enable && !target.precious && !target.nogen && target.path && targetsToClean[target.type]) {
-                    /* UNUSED
-                        if (bit.generating == 'make') {
-                            genWriteLine('\trm -rf ' + reppath(target.path))
-                        } else if (bit.generating == 'nmake') {
-                            genout.writeLine('\t-if exist ' + reppath(target.path) + ' del /Q ' + reppath(target.path))
-                        } else if (bit.generating == 'sh') {
-                            genWriteLine('rm -rf ' + target.path.relative)
-                        }
-                    */
                     if (bit.generating) {
-                        removeFile(reppath(target.path))
+                        removeDir(reppath(target.path))
                     } else {
                         if (target.path.exists) {
                             if (options.show) {
@@ -3138,7 +3129,7 @@ public class Bit {
 
     /**
         Remove a directory.
-        This removes a directory and all its contents include subdirectories. Use the 'empty' option to only remove
+        This removes a file or directory and all its contents include subdirectories. Use the 'empty' option to only remove
         empty directories.
         This either removes directories or if generating, emits code to remove directories.
         @param path Directory to remove
