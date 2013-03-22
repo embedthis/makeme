@@ -43,5 +43,6 @@ Bit.pack({
             return path
         },
         conflicts: [ 'est', 'matrixssl', 'openssl' ],
+        requires: [ 'ssl' ],
     },
 })

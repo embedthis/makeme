@@ -55,6 +55,7 @@ module embedthis.bit {
             }
             b.makeBit(platform, b.options.configure.join(b.MAIN))
             findPacks()
+            setRequiredPacks()
             b.castDirTypes()
             createPlatformBitFile()
             b.makeOutDirs()
@@ -159,25 +160,25 @@ module embedthis.bit {
         }
     }
 
+    /*
+        Set packs required for generation from bit.settings.projects
+     */
     internal function setRequiredPacks() { 
         if (bit.options.gen) {
             for (let [pname, enabled] in bit.settings.projects) {
-                if (bit.packs[pname]) {
-                    bit.packs[pname].enable = enabled
-                }
+                bit.packs[pname] ||= {}
+                bit.packs[pname].enable = enabled
             }
             for each (target in bit.targets) {
-                for each (r in target.requires) {
-                    if (bit.packs[r]) {
-                        bit.packs[r].enable = true
-                    }
+                for each (pname in target.requires) {
+                    bit.packs[pname] ||= {}
+                    bit.packs[pname].enable = true
                 }
             }
         }
     }
 
     internal function createBitHeader() {
-        setRequiredPacks()
         b.runScript(bit.scripts, "prebitheader")
         let path = bit.dir.inc.join('bit.h')
         let f = TextStream(File(path, 'w'))
@@ -297,7 +298,11 @@ module embedthis.bit {
             return
         }
         trace('Search', 'For tools and extension packages')
-        loadPacks(settings.requires + settings.discover)
+        let packs = settings.requires + settings.discover
+        if (bit.options.gen && bit.settings.projects) {
+            packs += Object.getOwnPropertyNames(bit.settings.projects)
+        }
+        loadPacks(packs)
         enablePacks()
         configurePacks()
         Object.sortProperties(bit.packs)

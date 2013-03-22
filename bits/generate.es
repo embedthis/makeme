@@ -286,6 +286,20 @@ module embedthis.bit {
         genout.writeLine('')
 
         /*
+            Emit pack dependencies
+         */
+        for (let [pname, pack] in bit.packs) {
+            if (pack.requires) {
+                genout.writeLine('ifeq ($(BIT_PACK_' + pname.toUpper() + '),1)')
+                for each (r in pack.requires) {
+                    genout.writeLine('    BIT_PACK_' + r.toUpper() + ' := 1')
+                }
+                genout.writeLine('endif')
+            }
+        }
+        genout.writeLine('')
+
+        /*
             Compute the dflags 
          */
         let dflags = ''
