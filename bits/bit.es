@@ -93,6 +93,7 @@ public class Bit {
             'continue': { alias: 'c' },
             debug: {},
             depth: { range: Number},
+            deploy: { range: String },
             diagnose: { alias: 'd' },
             dump: { },
             endian: { range: ['little', 'big'] },
@@ -118,6 +119,7 @@ public class Bit {
             rom: { },
             quiet: { alias: 'q' },
             'set': { range: String, separator: Array },
+            sets: { range: String },
             show: { alias: 's'},
             static: { },
             unicode: {},
@@ -141,6 +143,7 @@ public class Bit {
             '  --configuration                          # Display current configuration\n' +
             '  --continue                               # Continue on errors\n' +
             '  --debug                                  # Same as --profile debug\n' +
+            '  --deploy directory                       # Install to deploy directory\n' +
             '  --depth level                            # Set utest depth level\n' +
             '  --diagnose                               # Emit diagnostic trace \n' +
             '  --dump                                   # Dump the full project bit file\n' +
@@ -167,6 +170,7 @@ public class Bit {
             '  --release                                # Same as --profile release\n' +
             '  --rom                                    # Build for ROM without a file system\n' +
             '  --set [feature=value]                    # Enable and a feature\n' +
+            '  --sets [set,set,..]                      # File set to install/deploy\n' +
             '  --show                                   # Show commands executed\n' +
             '  --static                                 # Make static libraries\n' +
             '  --unicode                                # Set char size to wide (unicode)\n' +
@@ -358,6 +362,7 @@ public class Bit {
             App.mprLog.redirect(options.log)
         }
         out = (options.out) ? File(options.out, 'w') : stdout
+        localPlatform =  Config.OS + '-' + Config.CPU + '-' + (options.release ? 'release' : 'debug')
 
         if (args.rest.contains('configure')) {
             options.configure = Path('.')
@@ -402,7 +407,6 @@ public class Bit {
             App.log.error('Can only set platform when configuring or generating')
             usage()
         }
-        localPlatform =  Config.OS + '-' + Config.CPU + '-' + (options.release ? 'release' : 'debug')
         platforms = options.platform || []
         if (platforms.length == 0) {
             platforms.insert(0, localPlatform)
@@ -428,6 +432,14 @@ public class Bit {
             os: os,
             arch: arch,
             like: like(os),
+        }
+        if (args.rest.contains('deploy')) {
+            options.deploy = Path(platforms[0]).join('deploy')
+        } 
+        if (options.deploy) {
+            options.prefix ||= []
+            options.prefix.push('root=' + options.deploy)
+            args.rest.push('installBinary')
         }
 
         /*
@@ -2689,6 +2701,7 @@ public class Bit {
             bit.dir.programFiles = Path(bit.dir.programFiles32.name.replace(' (x86)', ''))
         }
 
+        //  MOB - functionalize
         if (options.prefixes) {
             let pset = options.prefixes + '-prefixes'
             if (!bit[pset]) {
@@ -2704,16 +2717,22 @@ public class Bit {
                 blend(bit.prefixes, bit[bit.settings.prefixes])
             }
         }
-        if (options.configure) {
-            if (options.prefix) {
-                bit.prefixes ||= {}
-                for each (p in options.prefix) {
-                    let [prefix, path] = p.split('=')
-                    if (path) {
-                        bit.prefixes[prefix] = Path(path)
-                    } else {
-                        /* Map --prefix=/opt to --prefix base=/opt */
-                        bit.prefixes.root = Path(prefix)
+        if (options.prefix) {
+            bit.prefixes ||= {}
+            for each (p in options.prefix) {
+                let [prefix, path] = p.split('=')
+                let prior = bit.prefixes[prefix]
+                if (path) {
+                    bit.prefixes[prefix] = Path(path)
+                } else {
+                    /* Map --prefix=/opt to --prefix base=/opt */
+                    bit.prefixes.root = Path(prefix)
+                }
+                if (prefix == 'root') {
+                    for (let [key,value] in bit.prefixes) {
+                        if (value.startsWith(prior)) {
+                            bit.prefixes[key] = Path(value.replace(prior, path + '/')).normalize
+                        }
                     }
                 }
             }
@@ -2889,7 +2908,7 @@ public class Bit {
             /*
                 Build file list
              */
-            list = bit.dir.src.files(pattern, options)
+            list = bit.dir.src.files(pattern, blend({relative: true}, options))
             if (bit.options.verbose) {
                 dump('Copy-Files', list)
             }

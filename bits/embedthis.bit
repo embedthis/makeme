@@ -280,7 +280,7 @@ Bit.load({
         installBinary: {
             home: '${TOP}',
             action: "installBinary()",
-            depends: [ 'all', 'stop' ],
+            depends: [ 'all' ],
             'generate-capture': true,
         },
 

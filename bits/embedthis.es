@@ -11,7 +11,9 @@ require ejs.zlib
 let TempFilter = /\.old$|\.tmp$|xcuserdata|xcworkspace|project.guid|-mine/
 
 public function deploy(manifest, prefixes, package): Array {
-    let sets = package.sets
+    let sets = bit.options.sets || package.sets
+
+    trace('Deploy', 'Sets: ' + sets + ' to ' + bit.prefixes.root)
     if (!(sets is RegExp)) {
         sets = RegExp(sets.toString().replace(/[ ,]/g, '|'))
     }

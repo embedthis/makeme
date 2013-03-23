@@ -8,11 +8,12 @@ bit \- Build It! -- Utility to build and manage programs
 .RS 4
 [\fI--continue\fR]
 [\fI--debug\fR]
+[\fI--deploy directory\fR]
 [\fI--depth level\fR]
 [\fI--diagnose\fR]
-[\fI--dump\fR]
 .RE
 .RS 4
+[\fI--dump\fR]
 [\fI--endian [big|little]\fR]
 [\fI--file file.bit\fR]
 [\fI--force\fR]
@@ -48,17 +49,18 @@ bit \- Build It! -- Utility to build and manage programs
 .RE
 .RS 4
 [\fI--set [feature=value]\fR]
+[\fI--sets [set,set,...]\fR]
 [\fI--show\fR]
 [\fI--static\fR]
-[\fI--unicode\fR]
 .RE
 .RS 4
+[\fI--unicode\fR]
 [\fI--unset feature\fR]
 [\fI--version\fR]
 [\fI--verbose\fR]
-[\fI--with PACK[=PATH]\fR]
 .RE
 .RS 4
+[\fI--with PACK[=PATH]\fR]
 [\fI--without PACK\fR]
 [targets|actions] ...
 .SH DESCRIPTION
@@ -332,6 +334,11 @@ Continue to build despite any build errors. Normal operation is to stop building
 Same as --profile debug
 
 .TP
+\fB\--deploy directory\fR
+Install the product to the deployment directory. This is useful to stage the required files to install on a system.
+Use --sets to define the file sets to deploy.
+
+.TP
 \fB\--depth level\fR
 Set the unit test depth level.
 
@@ -449,6 +456,10 @@ Use the makerom utility to process required files into C source code for buildin
 \fB\--set key=value\fR
 Set a settings property to a given value. For example: 'bit -set version=1.0' will update the settings.version property.
 Use this when running 'bit configure' to persist your changes in the configuration bit file.
+
+.TP
+\fB\--sets [set,set,...]\fR
+Define the groups of files to install. Each product may define different groups. Typical groups are: core, web, doc, test, etc.
 
 .TP
 \fB\--show\fR
