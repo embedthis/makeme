@@ -343,7 +343,6 @@ module embedthis.bit {
 
                 vtrace('Load', 'Pack: ' + pname)
                 b.loadBitFile(path)
-
                 if (pack.requires) {
                     loadPacks(pack.requires)
                 }

@@ -239,7 +239,7 @@ public class Bit {
         options = args.options
         try {
             setup(args)
-            if (!options.file) {
+            if (!options.file && !options.configure) {
                 let file = findStart()
                 if (file) {
                     App.chdir(file.dirname)

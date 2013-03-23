@@ -5,7 +5,7 @@
 Bit.pack({
     est: {
         description: 'Embedded Security Transport'
-        path: probe('src/deps/est/estLib.c'),
+        path: probe(bit.dir.src.join('src/deps/est/estLib.c')),
         libraries: [ 'est' ],
         conflicts: [ 'matrixssl', 'openssl', 'nanossl' ],
         requires:  [ 'ssl' ],

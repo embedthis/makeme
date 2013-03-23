@@ -5,7 +5,7 @@
 Bit.pack({
     ejscript: {
         description: 'Ejscript Language',
-        path: probe('src/deps/ejs/ejsLib.c'),
+        path: probe(bit.dir.src.join('src/deps/ejs/ejsLib.c')),
         libraries: [ 'mpr', 'http', 'pcre' ],
         depends: [ 'sqlite', 'ssl' ],
     },
