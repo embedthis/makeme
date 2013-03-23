@@ -1000,10 +1000,12 @@ public class Bit {
                 return f
             }
         }
-        if (Path(MAIN).exists) {
-            throw 'Cannot find suitable ' + START + '.\nRun "bit configure" first.'
-        } else {
-            throw 'Cannot find suitable ' + START + '.\nRun "bit --gen start" to create stub start.bit'
+        if (!options.configure) {
+            if (Path(MAIN).exists) {
+                throw 'Cannot find suitable ' + START + '.\nRun "bit configure" first.'
+            } else {
+                throw 'Cannot find suitable ' + START + '.\nRun "bit --gen start" to create stub start.bit'
+            }
         }
         return null
     }
