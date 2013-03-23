@@ -239,6 +239,12 @@ public class Bit {
         options = args.options
         try {
             setup(args)
+            if (!options.file) {
+                let file = findStart()
+                App.chdir(file.dirname)
+                home = App.dir
+                options.file = file.basename
+            }
             if (options.import) {
                 import()
                 App.exit()
@@ -259,12 +265,6 @@ public class Bit {
                 overlay('generate.es')
                 generate()
             } else {
-                if (!options.file) {
-                    let file = findStart()
-                    App.chdir(file.dirname)
-                    home = App.dir
-                    options.file = file.basename
-                }
                 process(options.file)
             }
         } catch (e) {

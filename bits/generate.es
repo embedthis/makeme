@@ -182,7 +182,9 @@ module embedthis.bit {
         genout.writeLine('[ ! -x ${CONFIG}/obj ] && ' + 'mkdir -p ${CONFIG}/obj\n')
         genout.writeLine('[ ! -f ${CONFIG}/inc/bit.h ] && ' + 
             'cp projects/' + bit.settings.product + '-${OS}-${PROFILE}-bit.h ${CONFIG}/inc/bit.h')
+
         genout.writeLine('[ ! -f ${CONFIG}/inc/bitos.h ] && cp ${SRC}/src/bitos.h ${CONFIG}/inc/bitos.h')
+
         genout.writeLine('if ! diff ${CONFIG}/inc/bit.h projects/' + bit.settings.product + 
             '-${OS}-${PROFILE}-bit.h >/dev/null ; then')
         genout.writeLine('\tcp projects/' + bit.settings.product + '-${OS}-${PROFILE}-bit.h ${CONFIG}/inc/bit.h')
@@ -393,10 +395,12 @@ module embedthis.bit {
         genout.writeLine('\t@[ ! -x $(CONFIG)/inc ] && ' + 'mkdir -p $(CONFIG)/inc; true')
         genout.writeLine('\t@[ ! -x $(CONFIG)/obj ] && ' + 'mkdir -p $(CONFIG)/obj; true')
         genout.writeLine('\t@[ ! -f $(CONFIG)/inc/bit.h ] && ' + 'cp projects/' + pop + '-bit.h $(CONFIG)/inc/bit.h ; true')
+
         genout.writeLine('\t@[ ! -f $(CONFIG)/inc/bitos.h ] && cp src/bitos.h $(CONFIG)/inc/bitos.h ; true')
         genout.writeLine('\t@if ! diff $(CONFIG)/inc/bitos.h src/bitos.h >/dev/null ; then\\')
         genout.writeLine('\t\tcp src/bitos.h $(CONFIG)/inc/bitos.h  ; \\')
         genout.writeLine('\tfi; true')
+
         genout.writeLine('\t@if ! diff $(CONFIG)/inc/bit.h projects/' + pop + '-bit.h >/dev/null ; then\\')
         genout.writeLine('\t\tcp projects/' + pop + '-bit.h $(CONFIG)/inc/bit.h  ; \\')
         genout.writeLine('\tfi; true')

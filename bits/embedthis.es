@@ -856,23 +856,26 @@ public function genProjects(packs = '', profiles = ["default"], platforms = null
         profiles = [profiles]
     }
     platforms ||= ['freebsd-x86', 'linux-x86', 'macosx-x64', 'vxworks-x86', 'windows-x86']
-    let bitcmd = Cmd.locate('bit')
+    let bitcmd = Cmd.locate('bit').relative
 
     //  MOB
     let targets = "build install uninstall"
     let runopt = {dir: bit.dir.src, show: true}
+    if (packs) {
+        packs +=  ' '
+    }
 
     for each (profile in profiles) {
         for each (name in platforms) {
             let formats = (name == 'windows-x86') ? '-gen nmake' : '-gen make'
             trace('Generate', bit.settings.product + '-' + name.replace(/-.*/, '') + ' projects')
             let platform = name + '-' + profile
-            run(bitcmd + ' -d -q -platform ' + platform + ' -configure . ' + packs + ' ' + formats, runopt)
+            run(bitcmd + ' -d -q -platform ' + platform + ' -configure . ' + packs + formats, runopt)
             /* Xcode and VS use separate profiles */
             if (name == 'macosx-x64') {
-                run(bitcmd + ' -d -q -platform ' + platform + ' -configure . ' + packs + ' -gen xcode', runopt)
+                run(bitcmd + ' -d -q -platform ' + platform + ' -configure . ' + packs + '-gen xcode', runopt)
             } else if (name == 'windows-x86') {
-                run(bitcmd + ' -d -q -platform ' + platform + ' -configure . ' + packs + ' -gen vs', runopt)
+                run(bitcmd + ' -d -q -platform ' + platform + ' -configure . ' + packs + '-gen vs', runopt)
             }
         }
     }

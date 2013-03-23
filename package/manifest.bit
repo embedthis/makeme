@@ -51,9 +51,13 @@ Bit.load({
                 to:     '${abin}/',
                 set:    'core',
 
-            },{ from:   '${BIN}/bits/**',
+            },{ from:   'bits/**',
                 to:     '${abin}/bits',
-                subtree:'${BIN}/bits',
+                subtree:'bits',
+                set:    'core',
+
+            },{ from:   '${BIN}/bits/bit.mod',
+                to:     '${abin}/bits/',
                 set:    'core',
 
             },{ from:   'doc/man/bit.1',
