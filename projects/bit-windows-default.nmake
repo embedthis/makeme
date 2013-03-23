@@ -824,7 +824,6 @@ installBinary: $(DEPS_39)
 	copy /Y "bits\standard.bit" "$(BIT_VAPP_PREFIX)\bin\bits\standard.bit"
 	copy /Y "bits\vstudio.es" "$(BIT_VAPP_PREFIX)\bin\bits\vstudio.es"
 	copy /Y "bits\xcode.es" "$(BIT_VAPP_PREFIX)\bin\bits\xcode.es"
-	copy /Y "$(CONFIG)\bin\bits\bit.mod" "$(BIT_VAPP_PREFIX)\bin\bits\bit.mod"
 
 #
 #   start

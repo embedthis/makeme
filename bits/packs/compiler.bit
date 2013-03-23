@@ -33,7 +33,6 @@ Bit.pack({
             }
             let settings = getDefaultSettings(bit.platform)
             Bit.load({ settings: settings })
-            dump("PACK", pack)
         },
         after: [ 'vxworks', 'winsdk' ],
     },

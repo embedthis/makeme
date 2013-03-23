@@ -812,7 +812,6 @@ installBinary: $(DEPS_37)
 	cp "bits/standard.bit" "$(BIT_VAPP_PREFIX)/bin/bits/standard.bit"
 	cp "bits/vstudio.es" "$(BIT_VAPP_PREFIX)/bin/bits/vstudio.es"
 	cp "bits/xcode.es" "$(BIT_VAPP_PREFIX)/bin/bits/xcode.es"
-	cp "$(CONFIG)/bin/bits/bit.mod" "$(BIT_VAPP_PREFIX)/bin/bits/bit.mod"
 	mkdir -p "$(BIT_VAPP_PREFIX)/doc/man/man1"
 	cp "doc/man/bit.1" "$(BIT_VAPP_PREFIX)/doc/man/man1/bit.1"
 	mkdir -p "$(BIT_MAN_PREFIX)/man1"
