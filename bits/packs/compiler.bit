@@ -3,7 +3,6 @@
 
     This is a fairly complex package due to the differences between compilers and operating systems.
  */
-
 Bit.pack({
     compiler: {
         description: 'C/C++ Compiler',
@@ -21,6 +20,20 @@ Bit.pack({
         },
         config: function (pack) {
             testCompilerCapabilities()
+        },
+        generate: function (pack) {
+            if (bit.platform.like == 'windows') {
+                pack.path = 'cl'
+            } else if (bit.platform.os == 'macosx') {
+                pack.path = 'clang'
+            } else if (bit.platform.os == 'vxworks') {
+                pack.path = 'cc$(ARCH)'
+            } else {
+                pack.path = 'gcc'
+            }
+            let settings = getDefaultSettings(bit.platform)
+            Bit.load({ settings: settings })
+            dump("PACK", pack)
         },
         after: [ 'vxworks', 'winsdk' ],
     },
@@ -119,11 +132,8 @@ function findVxCompiler(pack) {
             throw 'Unsupported CPU architecture: ' + platform.arch
         }
     }
-    if (!bit.options.gen) {
-        bit.env.WIND_CCNAME = path.basename
-        path = probe(path, {fullpath: true, search: bit.packs.vxworks.search})
-    }
-    //  UNUSED pack.name = path.basename
+    bit.env.WIND_CCNAME = path.basename
+    path = probe(path, {fullpath: true, search: bit.packs.vxworks.search})
     return path
 }
 
@@ -142,7 +152,7 @@ function testCompilerCapabilities() {
     let settings = getDefaultSettings(platform)
     let cc = bit.packs.compiler.path
 
-    if (bit.options.gen && Config.OS != platform.os) {
+    if (Config.OS != platform.os) {
         /* Cannot sleuth when generating for a cross-platform */
 
     } else if (cc && (platform.like == 'unix' || (platform.os == 'vxworks' && Config.OS == 'linux'))) {
@@ -244,13 +254,13 @@ function getDefaultSettings(platform) {
             hasDynLoad: true,
             hasMmu: true,
             hasMtune: true,
-            hasPam: false,
+            hasPam: true,
             hasStackProtector: true,
             hasSync: true,
             hasSyncCas: true,
             hasUnnamedUnions: true,
-            warn64to32: false,
-            warnUnused: false,
+            warn64to32: true,
+            warnUnused: true,
         }
     } else {
         settings = {

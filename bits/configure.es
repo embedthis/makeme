@@ -364,11 +364,13 @@ module embedthis.bit {
     }
 
     internal function enablePacks() {
-        for each (pack in bit.packs) {
-            if (pack.enabling) {
-                continue
+        if (!bit.options.gen) {
+            for each (pack in bit.packs) {
+                if (pack.enabling) {
+                    continue
+                }
+                enablePack(pack)
             }
-            enablePack(pack)
         }
         for each (r in bit.settings.requires) {
             bit.packs[r].required = true
@@ -440,11 +442,9 @@ module embedthis.bit {
         b.currentBitFile = pack.file
         global.PACK = pack
         try {
-            if (bit.generating) {
-                if (pack.scripts.generate) {
+            if (bit.options.gen) {
+                if (pack.scripts && pack.scripts.generate) {
                     runPackScript(pack, "generate")
-                } else {
-                    pack.path = Path(pname)
                 }
             } else {
                 if (pack.path is Function) {
@@ -606,7 +606,7 @@ module embedthis.bit {
         @option fullpath Return the full path to the located file
      */
     public function probe(file: Path, control = {}): Path {
-        if (bit.generating) {
+        if (bit.options.gen) {
             return file
         }
         let path: Path?
@@ -668,7 +668,7 @@ module embedthis.bit {
         let pack = bit.packs[currentPack]
         let path
         try {
-            if (bit.generating) {
+            if (bit.options.gen) {
                 path = name
             } else {
                 path = probe(pack.withpath || name, {fullpath: true})

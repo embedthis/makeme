@@ -925,7 +925,7 @@ public class Bit {
         fixScripts(o.defaults)
         fixScripts(o.internal)
         for each (pack in o.packs) {
-            fixScripts(pack, ['config', 'without', 'postconfig'])
+            fixScripts(pack, ['config', 'without', 'postconfig', 'generate'])
         }
         for (let [tname,target] in o.targets) {
             target.name ||= tname

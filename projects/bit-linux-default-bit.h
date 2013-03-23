@@ -285,7 +285,7 @@
     #define BIT_PACK_PCRE 1
 #endif
 #ifndef BIT_PACK_PMAKER
-    #define BIT_PACK_PMAKER 0
+    #define BIT_PACK_PMAKER 1
 #endif
 #ifndef BIT_PACK_SQLITE
     #define BIT_PACK_SQLITE 0
