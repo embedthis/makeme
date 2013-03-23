@@ -864,21 +864,35 @@ public function genProjects(packs = '', profiles = ["default", "static"], platfo
     if (packs) {
         packs +=  ' '
     }
-    for each (profile in profiles) {
-        for each (name in platforms) {
-            let formats = (name == 'windows-x86') ? '-gen nmake' : '-gen make'
-            trace('Generate', bit.settings.product + '-' + name.replace(/-.*/, '') + ' projects')
-            let platform = name + '-' + profile
-            let options = (profile == 'static') ? ' -static' : ''
-            run(bitcmd + ' -d -q -platform ' + platform + options + ' -configure . ' + packs + formats, runopt)
-            /* Xcode and VS use separate profiles */
-            if (name == 'macosx-x64') {
-                run(bitcmd + ' -d -q -platform ' + platform + options + ' -configure . ' + packs + '-gen xcode', runopt)
-            } else if (name == 'windows-x86') {
-                run(bitcmd + ' -d -q -platform ' + platform + options + ' -configure . ' + packs + '-gen vs', runopt)
+    let home = App.dir
+    try {
+        App.chdir(bit.dir.top)
+        let src = bit.dir.src.relative
+        for each (profile in profiles) {
+            for each (name in platforms) {
+                let formats = (name == 'windows-x86') ? '-gen nmake' : '-gen make'
+                trace('Generate', bit.settings.product + '-' + name.replace(/-.*/, '') + ' projects')
+                let platform = name + '-' + profile
+                let options = (profile == 'static') ? ' -static' : ''
+                run(bitcmd + ' -d -q -platform ' + platform + options + ' -configure ' + src + 
+                    ' ' + packs + formats, runopt)
+                /* Xcode and VS use separate profiles */
+                if (name == 'macosx-x64') {
+                    run(bitcmd + ' -d -q -platform ' + platform + options + ' -configure ' + src + 
+                        ' ' + packs + '-gen xcode', runopt)
+                } else if (name == 'windows-x86') {
+                    run(bitcmd + ' -d -q -platform ' + platform + options + ' -configure ' + src + 
+                        ' ' + packs + '-gen vs', runopt)
+                }
+                rm(bit.dir.top.join(platform + '.bit'))
+                rmdir(bit.dir.top.join(platform))
             }
         }
     }
+    finally {
+        App.chdir(home)
+    }
+/*
     trace('Cleanup', 'Project working directories')
     for each (profile in ['default', 'static']) {
         for each (name in ['freebsd-x86', 'linux-x86', 'macosx-x64', 'windows-x86', 'vxworks-x86']) {
@@ -887,6 +901,7 @@ public function genProjects(packs = '', profiles = ["default", "static"], platfo
             rmdir(bit.dir.top.join(platform))
         }
     }
+*/
 }
 
 

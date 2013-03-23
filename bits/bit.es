@@ -1687,7 +1687,8 @@ public class Bit {
             return
         }
         let command = expandRule(target, rule)
-        trace('Link', target.name)
+        // trace('Link', target.name)
+        trace('Link', target.path.natural.relative)
         if (target.active && bit.platform.like == 'windows') {
             let old = target.path.relative.replaceExt('old')
             trace('Preserve', 'Active target ' + target.path.relative + ' as ' + old)
@@ -1707,7 +1708,8 @@ public class Bit {
             return
         }
         let command = expandRule(target, rule)
-        trace('Link', target.name)
+        // trace('Link', target.name)
+        trace('Link', target.path.natural.relative)
         if (target.active && bit.platform.like == 'windows') {
             let active = target.path.relative.replaceExt('old')
             trace('Preserve', 'Active target ' + target.path.relative + ' as ' + active)
@@ -1727,7 +1729,8 @@ public class Bit {
             return
         }
         let command = expandRule(target, rule)
-        trace('Archive', target.name)
+        // trace('Archive', target.name)
+        trace('Archive', target.path.natural.relative)
         if (target.active && bit.platform.like == 'windows') {
             let active = target.path.relative.replaceExt('old')
             trace('Preserve', 'Active target ' + target.path.relative + ' as ' + active)
@@ -1791,7 +1794,8 @@ public class Bit {
                 }
             }
             let command = expandRule(target, rule)
-            trace('Compile', file.relativeTo('.'))
+            // trace('Compile', file.relativeTo('.'))
+            trace('Compile', target.path.natural.relative)
             if (bit.platform.os == 'windows') {
                 run(command, {excludeOutput: /^[a-zA-Z0-9-]*.c\s*$/})
             } else {
@@ -1815,7 +1819,8 @@ public class Bit {
                 }
             }
             let command = expandRule(target, rule)
-            trace('Compile', file.relativeTo('.'))
+            // trace('Compile', file.relativeTo('.'))
+            trace('Compile', target.path.relative)
             run(command)
         }
     }
@@ -1847,7 +1852,8 @@ public class Bit {
                 safeRemove(target.path)
             }
         }
-        trace('Copy', target.path.relative.portable)
+        // trace('Copy', target.path.relative.portable)
+        trace('Copy', target.path.natural.relative)
         for each (let file: Path in target.files) {
             if (file == target.path) {
                 /* Auto-generated headers targets for includes have file == target.path */
@@ -2367,8 +2373,7 @@ public class Bit {
     public function makeOutDirs() {
         for (let [name, dir] in bit.dir) {
             if (dir.startsWith(bit.dir.top) || dir.startsWith(bit.dir.src)) {
-                if (name == 'bin' || name == 'inc' || name == 'obj' || name == 'rel' || name == 'out' || 
-                        name == 'pkg' || name == 'flat') {
+                if (name == 'bin' || name == 'inc' || name == 'obj') {
                     dir.makeDir()
                 }
             }
