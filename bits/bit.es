@@ -2365,9 +2365,12 @@ public class Bit {
         @hide
      */
     public function makeOutDirs() {
-        for each (d in bit.dir) {
-            if (d.startsWith(bit.dir.top) || d.startsWith(bit.dir.src)) {
-                d.makeDir()
+        for (let [name, dir] in bit.dir) {
+            if (dir.startsWith(bit.dir.top) || dir.startsWith(bit.dir.src)) {
+                if (name == 'bin' || name == 'inc' || name == 'obj' || name == 'rel' || name == 'out' || 
+                        name == 'pkg' || name == 'flat') {
+                    dir.makeDir()
+                }
             }
         }
         Path(bit.dir.out).join('test.setup').write('test.skip("Skip platform directory")\n')
