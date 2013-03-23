@@ -262,6 +262,7 @@ public class Bit {
             if (options.configure) {
                 overlay('configure.es')
                 configure()
+                options.file = START
             }
             if (options.gen) {
                 overlay('generate.es')
