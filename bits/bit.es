@@ -241,9 +241,11 @@ public class Bit {
             setup(args)
             if (!options.file) {
                 let file = findStart()
-                App.chdir(file.dirname)
-                home = App.dir
-                options.file = file.basename
+                if (file) {
+                    App.chdir(file.dirname)
+                    home = App.dir
+                    options.file = file.basename
+                }
             }
             if (options.import) {
                 import()
