@@ -215,7 +215,7 @@ function setupPackagePrefixes(kind, package) {
 function setupPackage(kind) {
     if (bit.settings.manifest) {
         trace('Load', bit.settings.manifest)
-        b.loadBitFile(bit.dir.top.join(bit.settings.manifest))
+        b.loadBitFile(bit.dir.src.join(bit.settings.manifest))
         b.runScript(bit.scripts, "loaded")
     }
     let package = bit.manifest.packages[kind]
@@ -707,7 +707,7 @@ function packageWindows(prefixes) {
     let wpak = Path('package/' + bit.platform.os)
     let media = prefixes.media
 
-    copy(bit.dir.top.join('LICENSE.md'), media)
+    copy(bit.dir.src.join('LICENSE.md'), media)
     let iss = media.join('install.iss')
     copy(wpak.join('install.iss'), iss, {expand: true})
 
@@ -892,7 +892,7 @@ public function genProjects(packs = '', profiles = ["default", "static"], platfo
     finally {
         App.chdir(home)
     }
-/*
+/*UNUSED
     trace('Cleanup', 'Project working directories')
     for each (profile in ['default', 'static']) {
         for each (name in ['freebsd-x86', 'linux-x86', 'macosx-x64', 'windows-x86', 'vxworks-x86']) {

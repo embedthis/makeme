@@ -2889,7 +2889,7 @@ public class Bit {
             /*
                 Build file list
              */
-            list = Path('.').files(pattern, options)
+            list = bit.dir.src.files(pattern, options)
             if (bit.options.verbose) {
                 dump('Copy-Files', list)
             }
