@@ -59,6 +59,7 @@ Bit.load({
             },{ from:   '${BIN}/bits/bit.mod',
                 to:     '${abin}/bits/',
                 set:    'core',
+                enable: false,
 
             },{ from:   'doc/man/bit.1',
                 to:     '${adoc}/man/man1/',
