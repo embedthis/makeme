@@ -442,6 +442,7 @@ module embedthis.bit {
         global.PACK = pack
         try {
             if (bit.options.gen) {
+                pack.path = Path(pack.name)
                 if (pack.scripts && pack.scripts.generate) {
                     runPackScript(pack, "generate")
                 }

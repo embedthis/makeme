@@ -13,7 +13,7 @@ let TempFilter = /\.old$|\.tmp$|xcuserdata|xcworkspace|project.guid|-mine/
 public function deploy(manifest, prefixes, package): Array {
     let sets = bit.options.sets || package.sets
 
-    trace('Deploy', 'Sets: ' + sets + ' to ' + bit.prefixes.root)
+    trace('Copy', 'File sets: ' + sets)
     if (!(sets is RegExp)) {
         sets = RegExp(sets.toString().replace(/[ ,]/g, '|'))
     }
@@ -320,7 +320,11 @@ public function installBinary() {
     if (package) {
         checkRoot()
         if (!bit.generating) {
-            trace('Install', bit.settings.title)
+            if (bit.options.deploy) {
+                trace('Deploy', bit.settings.title + ' to "' + bit.prefixes.root + '"')
+            } else {
+                trace('Install', bit.settings.title)
+            }
         }
         files = deploy(manifest, bit.prefixes, package) 
         makeFiles(prefixes.vapp, prefixes.root, files, bit.prefixes)
@@ -859,9 +863,6 @@ public function genProjects(packs = '', profiles = ["default", "static"], platfo
     }
     platforms ||= ['freebsd-x86', 'linux-x86', 'macosx-x64', 'vxworks-x86', 'windows-x86']
     let bitcmd = Cmd.locate('bit').relative
-
-    //  MOB
-    let targets = "build install uninstall"
     let runopt = {dir: bit.dir.src, show: true}
     if (packs) {
         packs +=  ' '
@@ -870,10 +871,10 @@ public function genProjects(packs = '', profiles = ["default", "static"], platfo
     try {
         App.chdir(bit.dir.top)
         let src = bit.dir.src.relative
-        for each (profile in profiles) {
-            for each (name in platforms) {
+        for each (name in platforms) {
+            trace('Generate', bit.settings.product + '-' + name.replace(/-.*/, '') + ' projects')
+            for each (profile in profiles) {
                 let formats = (name == 'windows-x86') ? '-gen nmake' : '-gen make'
-                trace('Generate', bit.settings.product + '-' + name.replace(/-.*/, '') + ' projects')
                 let platform = name + '-' + profile
                 let options = (profile == 'static') ? ' -static' : ''
                 run(bitcmd + ' -d -q -platform ' + platform + options + ' -configure ' + src + 
@@ -894,16 +895,6 @@ public function genProjects(packs = '', profiles = ["default", "static"], platfo
     finally {
         App.chdir(home)
     }
-/*UNUSED
-    trace('Cleanup', 'Project working directories')
-    for each (profile in ['default', 'static']) {
-        for each (name in ['freebsd-x86', 'linux-x86', 'macosx-x64', 'windows-x86', 'vxworks-x86']) {
-            let platform = name + '-' + profile
-            rm(bit.dir.top.join(platform + '.bit'))
-            rmdir(bit.dir.top.join(platform))
-        }
-    }
-*/
 }
 
 

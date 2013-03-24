@@ -35,16 +35,18 @@ Bit.pack({
             return path
         },
 
+        generate: function (pack) {
+            let path = pack.path = Path('$(WIND_BASE)')
+            bit.env.WIND_BASE = path
+            bit.env.WIND_HOME = path + '/..'
+            bit.env.WIND_PLATFORM = '$(WIND_PLATFORM)'
+            pack.includes = [ path.join('target/h'), path.join('target/h/wrn/coreip') ]
+        },
         config: function (pack) {
             let path = pack.path
             bit.env.WIND_BASE = path
-            if (bit.options.gen) {
-                bit.env.WIND_HOME = path + '/..'
-                bit.env.WIND_PLATFORM = '$(WIND_PLATFORM)'
-            } else {
-                bit.env.WIND_HOME = path.dirname
-                bit.env.WIND_PLATFORM = path.basename
-            }
+            bit.env.WIND_HOME = path.dirname
+            bit.env.WIND_PLATFORM = path.basename
 
             if (Config.OS == 'windows') {
                 bit.env.WIND_HOST_TYPE = 'x86-win32'

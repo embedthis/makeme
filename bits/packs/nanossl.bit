@@ -5,6 +5,18 @@
 Bit.pack({
     nanossl: {
         description: 'Mocana NanoSSL',
+        generate: function (pack) {
+            pack.libraries = [ 'ssls' ]
+            if (bit.platform.os == 'windows') {
+                mos = '__RTOS_WIN32__'
+            } else if (bit.platform.os == 'macosx') {
+                mos = '__RTOS_OSX__'
+            } else {
+                mos = '__RTOS_LINUX__'
+            }
+            pack.defines = [ mos,  '__ENABLE_MOCANA_SSL_SERVER__', '__ENABLE_MOCANA_PEM_CONVERSION__',
+                '__ENABLE_ALL_DEBUGGING__', '__ENABLE_MOCANA_DEBUG_CONSOLE__', '__MOCANA_DUMP_CONSOLE_TO_STDOUT__']
+        },
         path: function (pack) {
             let path: Path? = pack.withpath
             if (!path) {

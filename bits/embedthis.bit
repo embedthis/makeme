@@ -63,6 +63,7 @@ Bit.load({
 
         projects: {
             action: "genProjects()",
+            home: '${TOP}',
         },
 
         /*

@@ -27,7 +27,7 @@ Bit.pack({
             } else if (bit.platform.os == 'macosx') {
                 pack.path = 'clang'
             } else if (bit.platform.os == 'vxworks') {
-                pack.path = 'cc$(ARCH)'
+                pack.path = 'cc$(subst x86,pentium,$(ARCH))'
             } else {
                 pack.path = 'gcc'
             }

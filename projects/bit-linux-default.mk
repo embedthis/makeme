@@ -9,7 +9,7 @@ PROFILE            := default
 ARCH               := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 OS                 := linux
 CC                 := gcc
-LD                 := [function Function]
+LD                 := link
 CONFIG             := $(OS)-$(ARCH)-$(PROFILE)
 LBIN               := $(CONFIG)/bin
 
@@ -737,8 +737,6 @@ stop: $(DEPS_36)
 #
 #   installBinary
 #
-DEPS_37 += stop
-
 installBinary: $(DEPS_37)
 	mkdir -p "$(BIT_APP_PREFIX)"
 	mkdir -p "$(BIT_VAPP_PREFIX)"

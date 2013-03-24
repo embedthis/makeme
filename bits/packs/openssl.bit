@@ -5,6 +5,13 @@
 Bit.pack({
     openssl: {
         description: 'OpenSSL',
+        generate: function (pack) {
+            if (bit.platform.os == 'windows') {
+                pack.libraries = [ 'libeay32.lib', 'ssleay32.lib' ]
+            } else {
+                pack.libraries = [ 'ssl', 'crypto' ]
+            }
+        },
         path: function (pack) {
             let cfg
             let path: Path? = pack.withpath

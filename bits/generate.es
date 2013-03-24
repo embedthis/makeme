@@ -947,6 +947,16 @@ module embedthis.bit {
         return s
     }
 
+    function repCmd(s: String, pattern, replacement): String {
+        if (s.startsWith(pattern)) {
+            return s.replace(pattern, replacement)
+        }
+        if (s.startsWith('"' + pattern + '"')) {
+            return s.replace(pattern, replacement)
+        }
+        return s
+    }
+
     /*
         Replace default defines, includes, libraries etc with token equivalents. This allows
         Makefiles and script to be use variables to control various flag settings.
@@ -962,10 +972,11 @@ module embedthis.bit {
             command = rep(command, gen.includes, '$(IFLAGS)')
             command = rep(command, gen.libraries, '$(LIBS)')
             command = rep(command, RegExp(gen.configuration, 'g'), '$$(CONFIG)')
-            command = rep(command, bit.packs.compiler.path, '$(CC)')
-            command = rep(command, bit.packs.link.path, '$(LD)')
+
+            command = repCmd(command, bit.packs.compiler.path, '$(CC)')
+            command = repCmd(command, bit.packs.link.path, '$(LD)')
             if (bit.packs.rc) {
-                command = rep(command, bit.packs.rc.path, '$(RC)')
+                command = repCmd(command, bit.packs.rc.path, '$(RC)')
             }
             for each (word in minimalCflags) {
                 command = rep(command, word, '')
@@ -980,8 +991,8 @@ module embedthis.bit {
             command = rep(command, gen.includes, '${IFLAGS}')
             command = rep(command, gen.libraries, '${LIBS}')
             command = rep(command, RegExp(gen.configuration, 'g'), '$${CONFIG}')
-            command = rep(command, bit.packs.compiler.path, '${CC}')
-            command = rep(command, bit.packs.link.path, '${LD}')
+            command = repCmd(command, bit.packs.compiler.path, '${CC}')
+            command = repCmd(command, bit.packs.link.path, '${LD}')
             for each (word in minimalCflags) {
                 command = rep(command, word, '')
             }

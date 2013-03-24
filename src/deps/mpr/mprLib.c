@@ -15999,7 +15999,7 @@ PUBLIC char *mprGetPortablePath(cchar *path)
 PUBLIC char *mprGetRelPath(cchar *destArg, cchar *originArg)
 {
     MprFileSystem   *fs;
-    char            originBuf[BIT_MAX_FNAME], *cp, *result, *dest, *lastcp, *origin, *op, *lastop;
+    char            originBuf[BIT_MAX_FNAME], *dp, *result, *dest, *lastdp, *origin, *op, *lastop;
     int             originSegments, i, commonSegments, sep;
 
     fs = mprLookupFileSystem(destArg);
@@ -16012,7 +16012,7 @@ PUBLIC char *mprGetRelPath(cchar *destArg, cchar *originArg)
     if (!isAbsPath(fs, dest) && (originArg == 0 || *originArg == '\0')) {
         return dest;
     }
-    sep = (cp = firstSep(fs, dest)) ? *cp : defaultSep(fs);
+    sep = (dp = firstSep(fs, dest)) ? *dp : defaultSep(fs);
     
     if (originArg == 0 || *originArg == '\0') {
         /*
@@ -16032,8 +16032,8 @@ PUBLIC char *mprGetRelPath(cchar *destArg, cchar *originArg)
     /*
         Count segments in origin working directory. Ignore trailing separators.
      */
-    for (originSegments = 0, cp = origin; *cp; cp++) {
-        if (isSep(fs, *cp) && cp[1]) {
+    for (originSegments = 0, dp = origin; *dp; dp++) {
+        if (isSep(fs, *dp) && dp[1]) {
             originSegments++;
         }
     }
@@ -16042,46 +16042,51 @@ PUBLIC char *mprGetRelPath(cchar *destArg, cchar *originArg)
         Find portion of dest that matches the origin directory, if any. Start at -1 because matching root doesn't count.
      */
     commonSegments = -1;
-    for (lastop = op = origin, lastcp = cp = dest; *op && *cp; op++, cp++) {
+    for (lastop = op = origin, lastdp = dp = dest; *op && *dp; op++, dp++) {
         if (isSep(fs, *op)) {
             lastop = op + 1;
-            if (isSep(fs, *cp)) {
-                lastcp = cp + 1;
+            if (isSep(fs, *dp)) {
+                lastdp = dp + 1;
                 commonSegments++;
             }
         } else if (fs->caseSensitive) {
-            if (*op != *cp) {
+            if (*op != *dp) {
                 break;
             }
-        } else if (*op != *cp && tolower((uchar) *op) != tolower((uchar) *cp)) {
+        } else if (*op != *dp && tolower((uchar) *op) != tolower((uchar) *dp)) {
             break;
         }
     }
     assert(commonSegments >= 0);
 
-    if (*cp && *op) {
+    if ((*op && *dp) || (*op && *dp && !isSep(fs, *op) && !isSep(fs, *dp))) {
+        /*
+            Cases:
+            /seg/abc>   Path('/seg/xyz').relative       # differing trailing segment
+            /seg/abc>   Path('/seg/abcd)                # common last segment prefix, dest longer
+            /seg/abc>   Path('/seg/ab')                 # common last segment prefix, origin longer
+        */
         op = lastop;
-        cp = lastcp;
+        dp = lastdp;
     }
 
     /*
-        Add one more segment if the last segment matches. Handle trailing separators
+        Add one more segment if the last segment matches. Handle trailing separators.
      */
-    if ((isSep(fs, *op) || *op == '\0') && (isSep(fs, *cp) || *cp == '\0')) {
+    if ((isSep(fs, *op) || *op == '\0') && (isSep(fs, *dp) || *dp == '\0')) {
         commonSegments++;
     }
-    if (isSep(fs, *cp)) {
-        cp++;
+    if (isSep(fs, *dp)) {
+        dp++;
     }
-    
     op = result = mprAlloc(originSegments * 3 + slen(dest) + 2);
     for (i = commonSegments; i < originSegments; i++) {
         *op++ = '.';
         *op++ = '.';
         *op++ = defaultSep(fs);
     }
-    if (*cp) {
-        strcpy(op, cp);
+    if (*dp) {
+        strcpy(op, dp);
     } else if (op > result) {
         /*
             Cleanup trailing separators ("../" is the end of the new path)
