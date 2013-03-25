@@ -6643,7 +6643,6 @@ module ejs {
 
     //  TODO -- change pretty to format: "pretty" | "compact"
     //  TODO - change to includeBases (deprecated baseClasses)
-    //  TODO - have option to save regular expressions as pure regexp (not strings)
     /** 
         Encode an object as a string. This function returns a literal string for the object and all its properties. 
         If $maxDepth is sufficiently large (or zero for infinite depth), each property will be processed recursively 

@@ -44670,8 +44670,6 @@ PUBLIC EjsRegExp *ejsCreateRegExp(Ejs *ejs, cchar *pattern, cchar *flags)
     }
     rp->pattern = sclone(pattern);
     rp->options = parseFlags(rp, (wchar*) flags);
-    //  TODO - UNICODE is pattern meant to be
-    //  MOB - should compile on demand?
     rp->compiled = pcre_compile2(rp->pattern, rp->options, &errCode, &errMsg, &column, NULL);
     if (rp->compiled == NULL) {
         ejsThrowArgError(ejs, "Cannot compile regular expression '%s'. Error %s at column %d", rp->pattern, errMsg, column);
@@ -44727,8 +44725,6 @@ PUBLIC EjsRegExp *ejsParseRegExp(Ejs *ejs, EjsString *pattern)
     } else {
         rp->pattern = sclone(&pattern->value[1]);
     }
-    //  TODO - UNICODE is pattern meant to be
-    //  MOB - should do lazy compilation ?
     rp->compiled = pcre_compile2(rp->pattern, rp->options, &errCode, &errMsg, &column, NULL);
     if (rp->compiled == NULL) {
         ejsThrowArgError(ejs, "Cannot compile regular expression '%s'. Error %s at column %d", rp->pattern, errMsg, column);

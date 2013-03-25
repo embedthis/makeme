@@ -25,6 +25,9 @@
 #include    "bit.h"
 
 #if BIT_PACK_MATRIXSSL
+
+#define MATRIX_USE_FILE_SYSTEM
+
 /* 
     Work-around to allow the windows 7.* SDK to be used with VS 2013 
  */
@@ -39,8 +42,11 @@
 #if WIN32
  #include   <winsock2.h>
  #include   <windows.h>
+ #define    WIN32 1
+#else
+ #define    POSIX 1
 #endif
- #include    "matrixsslApi.h"
+ #include   "matrixsslApi.h"
 
 #define     HAS_INT16 1
 #define     HAS_UINT16 1
@@ -2385,6 +2391,29 @@ static DH *get_dh1024()
 /********************************** Includes **********************************/
 
 #include    "mpr.h"
+
+#if WINDOWS
+    #define __RTOS_WIN32__
+#elif MACOSX
+    #define __RTOS_OSX__
+#elif VXWORKS
+    #define __RTOS_VXWORKS__
+#else
+    #define __RTOS_LINUX__
+#endif
+
+#define __ENABLE_MOCANA_SSL_SERVER__
+#define __ENABLE_MOCANA_PEM_CONVERSION__
+#define __ENABLE_ALL_DEBUGGING__
+#define __ENABLE_MOCANA_DEBUG_CONSOLE__
+#define __MOCANA_DUMP_CONSOLE_TO_STDOUT__
+
+#if UNUSED
+    __ENABLE_MOCANA_SSL_ASYNC_SERVER_API__ 
+    __ENABLE_MOCANA_SSL_ASYNC_CLIENT_API__
+    __ENABLE_MOCANA_SSL_ASYNC_API_EXTENSIONS__
+    __ENABLE_MOCANA_SSL_CLIENT__
+#endif
 
 #if BIT_PACK_NANOSSL
  #include "common/moptions.h"

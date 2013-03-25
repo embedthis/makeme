@@ -311,7 +311,11 @@ module embedthis.bit {
 
         for each (pack in bit.packs) {
             if (pack.path) {
-                genout.writeLine('%-18s := %s'.format(['BIT_PACK_' + pack.name.toUpper() + '_PATH', pack.path]))
+                if (bit.platform.os == 'windows') {
+                    genout.writeLine('%-25s = %s'.format(['BIT_PACK_' + pack.name.toUpper() + '_PATH', pack.path]))
+                } else {
+                    genout.writeLine('%-25s := %s'.format(['BIT_PACK_' + pack.name.toUpper() + '_PATH', pack.path]))
+                }
             }
         }
         genout.writeLine('')
