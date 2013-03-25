@@ -33,6 +33,22 @@ ifeq ($(BIT_PACK_OPENSSL),1)
     BIT_PACK_SSL := 1
 endif
 
+BIT_PACK_COMPILER_PATH := clang
+BIT_PACK_DSI_PATH  := dsi
+BIT_PACK_EJSCRIPT_PATH := ejscript
+BIT_PACK_EST_PATH  := est
+BIT_PACK_LIB_PATH  := lib
+BIT_PACK_LINK_PATH := link
+BIT_PACK_MAN_PATH  := man
+BIT_PACK_MAN2HTML_PATH := man2html
+BIT_PACK_MATRIXSSL_PATH := /usr/src/matrixssl
+BIT_PACK_NANOSSL_PATH := /usr/src/nanossl
+BIT_PACK_OPENSSL_PATH := /usr/src/openssl
+BIT_PACK_PCRE_PATH := pcre
+BIT_PACK_PMAKER_PATH := pmaker
+BIT_PACK_SSL_PATH  := ssl
+BIT_PACK_ZIP_PATH  := zip
+
 CFLAGS             += -w
 DFLAGS             +=  $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) -DBIT_PACK_EJSCRIPT=$(BIT_PACK_EJSCRIPT) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
 IFLAGS             += -I$(CONFIG)/inc
@@ -160,7 +176,7 @@ clobber: clean
 #   version
 #
 version: $(DEPS_1)
-	@cd bits; echo NN 0.8.5-0 ; cd ..
+	@cd bits; echo 0.8.5-0 ; cd ..
 
 #
 #   est.h
@@ -168,7 +184,7 @@ version: $(DEPS_1)
 $(CONFIG)/inc/est.h: $(DEPS_2)
 	@echo '      [Copy] $(CONFIG)/inc/est.h'
 	mkdir -p "$(CONFIG)/inc"
-	cp "src/deps/est/est.h" "$(CONFIG)/inc/est.h"
+	cp src/deps/est/est.h $(CONFIG)/inc/est.h
 
 #
 #   bit.h
@@ -182,7 +198,7 @@ $(CONFIG)/inc/bit.h: $(DEPS_3)
 $(CONFIG)/inc/bitos.h: $(DEPS_4)
 	@echo '      [Copy] $(CONFIG)/inc/bitos.h'
 	mkdir -p "$(CONFIG)/inc"
-	cp "src/bitos.h" "$(CONFIG)/inc/bitos.h"
+	cp src/bitos.h $(CONFIG)/inc/bitos.h
 
 #
 #   estLib.o
@@ -216,7 +232,7 @@ DEPS_7 += src/deps/est/ca.crt
 $(CONFIG)/bin/ca.crt: $(DEPS_7)
 	@echo '      [Copy] $(CONFIG)/bin/ca.crt'
 	mkdir -p "$(CONFIG)/bin"
-	cp "src/deps/est/ca.crt" "$(CONFIG)/bin/ca.crt"
+	cp src/deps/est/ca.crt $(CONFIG)/bin/ca.crt
 
 #
 #   mpr.h
@@ -224,7 +240,7 @@ $(CONFIG)/bin/ca.crt: $(DEPS_7)
 $(CONFIG)/inc/mpr.h: $(DEPS_8)
 	@echo '      [Copy] $(CONFIG)/inc/mpr.h'
 	mkdir -p "$(CONFIG)/inc"
-	cp "src/deps/mpr/mpr.h" "$(CONFIG)/inc/mpr.h"
+	cp src/deps/mpr/mpr.h $(CONFIG)/inc/mpr.h
 
 #
 #   mprLib.o
@@ -309,7 +325,7 @@ $(CONFIG)/bin/makerom: $(DEPS_14)
 $(CONFIG)/inc/pcre.h: $(DEPS_15)
 	@echo '      [Copy] $(CONFIG)/inc/pcre.h'
 	mkdir -p "$(CONFIG)/inc"
-	cp "src/deps/pcre/pcre.h" "$(CONFIG)/inc/pcre.h"
+	cp src/deps/pcre/pcre.h $(CONFIG)/inc/pcre.h
 
 #
 #   pcre.o
@@ -338,7 +354,7 @@ $(CONFIG)/bin/libpcre.dylib: $(DEPS_17)
 $(CONFIG)/inc/http.h: $(DEPS_18)
 	@echo '      [Copy] $(CONFIG)/inc/http.h'
 	mkdir -p "$(CONFIG)/inc"
-	cp "src/deps/http/http.h" "$(CONFIG)/inc/http.h"
+	cp src/deps/http/http.h $(CONFIG)/inc/http.h
 
 #
 #   httpLib.o
@@ -398,7 +414,7 @@ $(CONFIG)/bin/http: $(DEPS_22)
 $(CONFIG)/inc/ejs.h: $(DEPS_23)
 	@echo '      [Copy] $(CONFIG)/inc/ejs.h'
 	mkdir -p "$(CONFIG)/inc"
-	cp "src/deps/ejs/ejs.h" "$(CONFIG)/inc/ejs.h"
+	cp src/deps/ejs/ejs.h $(CONFIG)/inc/ejs.h
 
 #
 #   ejs.slots.h
@@ -406,7 +422,7 @@ $(CONFIG)/inc/ejs.h: $(DEPS_23)
 $(CONFIG)/inc/ejs.slots.h: $(DEPS_24)
 	@echo '      [Copy] $(CONFIG)/inc/ejs.slots.h'
 	mkdir -p "$(CONFIG)/inc"
-	cp "src/deps/ejs/ejs.slots.h" "$(CONFIG)/inc/ejs.slots.h"
+	cp src/deps/ejs/ejs.slots.h $(CONFIG)/inc/ejs.slots.h
 
 #
 #   ejsByteGoto.h
@@ -414,7 +430,7 @@ $(CONFIG)/inc/ejs.slots.h: $(DEPS_24)
 $(CONFIG)/inc/ejsByteGoto.h: $(DEPS_25)
 	@echo '      [Copy] $(CONFIG)/inc/ejsByteGoto.h'
 	mkdir -p "$(CONFIG)/inc"
-	cp "src/deps/ejs/ejsByteGoto.h" "$(CONFIG)/inc/ejsByteGoto.h"
+	cp src/deps/ejs/ejsByteGoto.h $(CONFIG)/inc/ejsByteGoto.h
 
 #
 #   ejsLib.o
@@ -600,97 +616,97 @@ DEPS_33 += bits/xcode.es
 $(CONFIG)/bin/bits: $(DEPS_33)
 	@echo '      [Copy] $(CONFIG)/bin/bits'
 	mkdir -p "$(CONFIG)/bin/bits"
-	cp "bits/bit.es" "$(CONFIG)/bin/bits/bit.es"
-	cp "bits/configure.es" "$(CONFIG)/bin/bits/configure.es"
-	cp "bits/embedthis-manifest.bit" "$(CONFIG)/bin/bits/embedthis-manifest.bit"
-	cp "bits/embedthis.bit" "$(CONFIG)/bin/bits/embedthis.bit"
-	cp "bits/embedthis.es" "$(CONFIG)/bin/bits/embedthis.es"
-	cp "bits/gendoc.es" "$(CONFIG)/bin/bits/gendoc.es"
-	cp "bits/generate.es" "$(CONFIG)/bin/bits/generate.es"
+	cp bits/bit.es $(CONFIG)/bin/bits/bit.es
+	cp bits/configure.es $(CONFIG)/bin/bits/configure.es
+	cp bits/embedthis-manifest.bit $(CONFIG)/bin/bits/embedthis-manifest.bit
+	cp bits/embedthis.bit $(CONFIG)/bin/bits/embedthis.bit
+	cp bits/embedthis.es $(CONFIG)/bin/bits/embedthis.es
+	cp bits/gendoc.es $(CONFIG)/bin/bits/gendoc.es
+	cp bits/generate.es $(CONFIG)/bin/bits/generate.es
 	mkdir -p "$(CONFIG)/bin/bits/os"
-	cp "bits/os/freebsd.bit" "$(CONFIG)/bin/bits/os/freebsd.bit"
-	cp "bits/os/gcc.bit" "$(CONFIG)/bin/bits/os/gcc.bit"
-	cp "bits/os/linux.bit" "$(CONFIG)/bin/bits/os/linux.bit"
-	cp "bits/os/macosx.bit" "$(CONFIG)/bin/bits/os/macosx.bit"
-	cp "bits/os/solaris.bit" "$(CONFIG)/bin/bits/os/solaris.bit"
-	cp "bits/os/unix.bit" "$(CONFIG)/bin/bits/os/unix.bit"
-	cp "bits/os/vxworks.bit" "$(CONFIG)/bin/bits/os/vxworks.bit"
-	cp "bits/os/windows.bit" "$(CONFIG)/bin/bits/os/windows.bit"
+	cp bits/os/freebsd.bit $(CONFIG)/bin/bits/os/freebsd.bit
+	cp bits/os/gcc.bit $(CONFIG)/bin/bits/os/gcc.bit
+	cp bits/os/linux.bit $(CONFIG)/bin/bits/os/linux.bit
+	cp bits/os/macosx.bit $(CONFIG)/bin/bits/os/macosx.bit
+	cp bits/os/solaris.bit $(CONFIG)/bin/bits/os/solaris.bit
+	cp bits/os/unix.bit $(CONFIG)/bin/bits/os/unix.bit
+	cp bits/os/vxworks.bit $(CONFIG)/bin/bits/os/vxworks.bit
+	cp bits/os/windows.bit $(CONFIG)/bin/bits/os/windows.bit
 	mkdir -p "$(CONFIG)/bin/bits/os"
-	cp "bits/os/freebsd.bit" "$(CONFIG)/bin/bits/os/freebsd.bit"
-	cp "bits/os/gcc.bit" "$(CONFIG)/bin/bits/os/gcc.bit"
-	cp "bits/os/linux.bit" "$(CONFIG)/bin/bits/os/linux.bit"
-	cp "bits/os/macosx.bit" "$(CONFIG)/bin/bits/os/macosx.bit"
-	cp "bits/os/solaris.bit" "$(CONFIG)/bin/bits/os/solaris.bit"
-	cp "bits/os/unix.bit" "$(CONFIG)/bin/bits/os/unix.bit"
-	cp "bits/os/vxworks.bit" "$(CONFIG)/bin/bits/os/vxworks.bit"
-	cp "bits/os/windows.bit" "$(CONFIG)/bin/bits/os/windows.bit"
+	cp bits/os/freebsd.bit $(CONFIG)/bin/bits/os/freebsd.bit
+	cp bits/os/gcc.bit $(CONFIG)/bin/bits/os/gcc.bit
+	cp bits/os/linux.bit $(CONFIG)/bin/bits/os/linux.bit
+	cp bits/os/macosx.bit $(CONFIG)/bin/bits/os/macosx.bit
+	cp bits/os/solaris.bit $(CONFIG)/bin/bits/os/solaris.bit
+	cp bits/os/unix.bit $(CONFIG)/bin/bits/os/unix.bit
+	cp bits/os/vxworks.bit $(CONFIG)/bin/bits/os/vxworks.bit
+	cp bits/os/windows.bit $(CONFIG)/bin/bits/os/windows.bit
 	mkdir -p "$(CONFIG)/bin/bits/packs"
-	cp "bits/packs/compiler.bit" "$(CONFIG)/bin/bits/packs/compiler.bit"
-	cp "bits/packs/doxygen.bit" "$(CONFIG)/bin/bits/packs/doxygen.bit"
-	cp "bits/packs/dsi.bit" "$(CONFIG)/bin/bits/packs/dsi.bit"
-	cp "bits/packs/dumpbin.bit" "$(CONFIG)/bin/bits/packs/dumpbin.bit"
-	cp "bits/packs/ejs.bit" "$(CONFIG)/bin/bits/packs/ejs.bit"
-	cp "bits/packs/ejscript.bit" "$(CONFIG)/bin/bits/packs/ejscript.bit"
-	cp "bits/packs/est.bit" "$(CONFIG)/bin/bits/packs/est.bit"
-	cp "bits/packs/http.bit" "$(CONFIG)/bin/bits/packs/http.bit"
-	cp "bits/packs/lib.bit" "$(CONFIG)/bin/bits/packs/lib.bit"
-	cp "bits/packs/link.bit" "$(CONFIG)/bin/bits/packs/link.bit"
-	cp "bits/packs/man.bit" "$(CONFIG)/bin/bits/packs/man.bit"
-	cp "bits/packs/man2html.bit" "$(CONFIG)/bin/bits/packs/man2html.bit"
-	cp "bits/packs/matrixssl.bit" "$(CONFIG)/bin/bits/packs/matrixssl.bit"
-	cp "bits/packs/md5.bit" "$(CONFIG)/bin/bits/packs/md5.bit"
-	cp "bits/packs/nanossl.bit" "$(CONFIG)/bin/bits/packs/nanossl.bit"
-	cp "bits/packs/openssl.bit" "$(CONFIG)/bin/bits/packs/openssl.bit"
-	cp "bits/packs/pcre.bit" "$(CONFIG)/bin/bits/packs/pcre.bit"
-	cp "bits/packs/pmaker.bit" "$(CONFIG)/bin/bits/packs/pmaker.bit"
-	cp "bits/packs/ranlib.bit" "$(CONFIG)/bin/bits/packs/ranlib.bit"
-	cp "bits/packs/rc.bit" "$(CONFIG)/bin/bits/packs/rc.bit"
-	cp "bits/packs/sqlite.bit" "$(CONFIG)/bin/bits/packs/sqlite.bit"
-	cp "bits/packs/ssl.bit" "$(CONFIG)/bin/bits/packs/ssl.bit"
-	cp "bits/packs/strip.bit" "$(CONFIG)/bin/bits/packs/strip.bit"
-	cp "bits/packs/tidy.bit" "$(CONFIG)/bin/bits/packs/tidy.bit"
-	cp "bits/packs/utest.bit" "$(CONFIG)/bin/bits/packs/utest.bit"
-	cp "bits/packs/vxworks.bit" "$(CONFIG)/bin/bits/packs/vxworks.bit"
-	cp "bits/packs/winsdk.bit" "$(CONFIG)/bin/bits/packs/winsdk.bit"
-	cp "bits/packs/zip.bit" "$(CONFIG)/bin/bits/packs/zip.bit"
-	cp "bits/packs/zlib.bit" "$(CONFIG)/bin/bits/packs/zlib.bit"
+	cp bits/packs/compiler.bit $(CONFIG)/bin/bits/packs/compiler.bit
+	cp bits/packs/doxygen.bit $(CONFIG)/bin/bits/packs/doxygen.bit
+	cp bits/packs/dsi.bit $(CONFIG)/bin/bits/packs/dsi.bit
+	cp bits/packs/dumpbin.bit $(CONFIG)/bin/bits/packs/dumpbin.bit
+	cp bits/packs/ejs.bit $(CONFIG)/bin/bits/packs/ejs.bit
+	cp bits/packs/ejscript.bit $(CONFIG)/bin/bits/packs/ejscript.bit
+	cp bits/packs/est.bit $(CONFIG)/bin/bits/packs/est.bit
+	cp bits/packs/http.bit $(CONFIG)/bin/bits/packs/http.bit
+	cp bits/packs/lib.bit $(CONFIG)/bin/bits/packs/lib.bit
+	cp bits/packs/link.bit $(CONFIG)/bin/bits/packs/link.bit
+	cp bits/packs/man.bit $(CONFIG)/bin/bits/packs/man.bit
+	cp bits/packs/man2html.bit $(CONFIG)/bin/bits/packs/man2html.bit
+	cp bits/packs/matrixssl.bit $(CONFIG)/bin/bits/packs/matrixssl.bit
+	cp bits/packs/md5.bit $(CONFIG)/bin/bits/packs/md5.bit
+	cp bits/packs/nanossl.bit $(CONFIG)/bin/bits/packs/nanossl.bit
+	cp bits/packs/openssl.bit $(CONFIG)/bin/bits/packs/openssl.bit
+	cp bits/packs/pcre.bit $(CONFIG)/bin/bits/packs/pcre.bit
+	cp bits/packs/pmaker.bit $(CONFIG)/bin/bits/packs/pmaker.bit
+	cp bits/packs/ranlib.bit $(CONFIG)/bin/bits/packs/ranlib.bit
+	cp bits/packs/rc.bit $(CONFIG)/bin/bits/packs/rc.bit
+	cp bits/packs/sqlite.bit $(CONFIG)/bin/bits/packs/sqlite.bit
+	cp bits/packs/ssl.bit $(CONFIG)/bin/bits/packs/ssl.bit
+	cp bits/packs/strip.bit $(CONFIG)/bin/bits/packs/strip.bit
+	cp bits/packs/tidy.bit $(CONFIG)/bin/bits/packs/tidy.bit
+	cp bits/packs/utest.bit $(CONFIG)/bin/bits/packs/utest.bit
+	cp bits/packs/vxworks.bit $(CONFIG)/bin/bits/packs/vxworks.bit
+	cp bits/packs/winsdk.bit $(CONFIG)/bin/bits/packs/winsdk.bit
+	cp bits/packs/zip.bit $(CONFIG)/bin/bits/packs/zip.bit
+	cp bits/packs/zlib.bit $(CONFIG)/bin/bits/packs/zlib.bit
 	mkdir -p "$(CONFIG)/bin/bits/packs"
-	cp "bits/packs/compiler.bit" "$(CONFIG)/bin/bits/packs/compiler.bit"
-	cp "bits/packs/doxygen.bit" "$(CONFIG)/bin/bits/packs/doxygen.bit"
-	cp "bits/packs/dsi.bit" "$(CONFIG)/bin/bits/packs/dsi.bit"
-	cp "bits/packs/dumpbin.bit" "$(CONFIG)/bin/bits/packs/dumpbin.bit"
-	cp "bits/packs/ejs.bit" "$(CONFIG)/bin/bits/packs/ejs.bit"
-	cp "bits/packs/ejscript.bit" "$(CONFIG)/bin/bits/packs/ejscript.bit"
-	cp "bits/packs/est.bit" "$(CONFIG)/bin/bits/packs/est.bit"
-	cp "bits/packs/http.bit" "$(CONFIG)/bin/bits/packs/http.bit"
-	cp "bits/packs/lib.bit" "$(CONFIG)/bin/bits/packs/lib.bit"
-	cp "bits/packs/link.bit" "$(CONFIG)/bin/bits/packs/link.bit"
-	cp "bits/packs/man.bit" "$(CONFIG)/bin/bits/packs/man.bit"
-	cp "bits/packs/man2html.bit" "$(CONFIG)/bin/bits/packs/man2html.bit"
-	cp "bits/packs/matrixssl.bit" "$(CONFIG)/bin/bits/packs/matrixssl.bit"
-	cp "bits/packs/md5.bit" "$(CONFIG)/bin/bits/packs/md5.bit"
-	cp "bits/packs/nanossl.bit" "$(CONFIG)/bin/bits/packs/nanossl.bit"
-	cp "bits/packs/openssl.bit" "$(CONFIG)/bin/bits/packs/openssl.bit"
-	cp "bits/packs/pcre.bit" "$(CONFIG)/bin/bits/packs/pcre.bit"
-	cp "bits/packs/pmaker.bit" "$(CONFIG)/bin/bits/packs/pmaker.bit"
-	cp "bits/packs/ranlib.bit" "$(CONFIG)/bin/bits/packs/ranlib.bit"
-	cp "bits/packs/rc.bit" "$(CONFIG)/bin/bits/packs/rc.bit"
-	cp "bits/packs/sqlite.bit" "$(CONFIG)/bin/bits/packs/sqlite.bit"
-	cp "bits/packs/ssl.bit" "$(CONFIG)/bin/bits/packs/ssl.bit"
-	cp "bits/packs/strip.bit" "$(CONFIG)/bin/bits/packs/strip.bit"
-	cp "bits/packs/tidy.bit" "$(CONFIG)/bin/bits/packs/tidy.bit"
-	cp "bits/packs/utest.bit" "$(CONFIG)/bin/bits/packs/utest.bit"
-	cp "bits/packs/vxworks.bit" "$(CONFIG)/bin/bits/packs/vxworks.bit"
-	cp "bits/packs/winsdk.bit" "$(CONFIG)/bin/bits/packs/winsdk.bit"
-	cp "bits/packs/zip.bit" "$(CONFIG)/bin/bits/packs/zip.bit"
-	cp "bits/packs/zlib.bit" "$(CONFIG)/bin/bits/packs/zlib.bit"
-	cp "bits/sample-main.bit" "$(CONFIG)/bin/bits/sample-main.bit"
-	cp "bits/sample-start.bit" "$(CONFIG)/bin/bits/sample-start.bit"
-	cp "bits/simple.bit" "$(CONFIG)/bin/bits/simple.bit"
-	cp "bits/standard.bit" "$(CONFIG)/bin/bits/standard.bit"
-	cp "bits/vstudio.es" "$(CONFIG)/bin/bits/vstudio.es"
-	cp "bits/xcode.es" "$(CONFIG)/bin/bits/xcode.es"
+	cp bits/packs/compiler.bit $(CONFIG)/bin/bits/packs/compiler.bit
+	cp bits/packs/doxygen.bit $(CONFIG)/bin/bits/packs/doxygen.bit
+	cp bits/packs/dsi.bit $(CONFIG)/bin/bits/packs/dsi.bit
+	cp bits/packs/dumpbin.bit $(CONFIG)/bin/bits/packs/dumpbin.bit
+	cp bits/packs/ejs.bit $(CONFIG)/bin/bits/packs/ejs.bit
+	cp bits/packs/ejscript.bit $(CONFIG)/bin/bits/packs/ejscript.bit
+	cp bits/packs/est.bit $(CONFIG)/bin/bits/packs/est.bit
+	cp bits/packs/http.bit $(CONFIG)/bin/bits/packs/http.bit
+	cp bits/packs/lib.bit $(CONFIG)/bin/bits/packs/lib.bit
+	cp bits/packs/link.bit $(CONFIG)/bin/bits/packs/link.bit
+	cp bits/packs/man.bit $(CONFIG)/bin/bits/packs/man.bit
+	cp bits/packs/man2html.bit $(CONFIG)/bin/bits/packs/man2html.bit
+	cp bits/packs/matrixssl.bit $(CONFIG)/bin/bits/packs/matrixssl.bit
+	cp bits/packs/md5.bit $(CONFIG)/bin/bits/packs/md5.bit
+	cp bits/packs/nanossl.bit $(CONFIG)/bin/bits/packs/nanossl.bit
+	cp bits/packs/openssl.bit $(CONFIG)/bin/bits/packs/openssl.bit
+	cp bits/packs/pcre.bit $(CONFIG)/bin/bits/packs/pcre.bit
+	cp bits/packs/pmaker.bit $(CONFIG)/bin/bits/packs/pmaker.bit
+	cp bits/packs/ranlib.bit $(CONFIG)/bin/bits/packs/ranlib.bit
+	cp bits/packs/rc.bit $(CONFIG)/bin/bits/packs/rc.bit
+	cp bits/packs/sqlite.bit $(CONFIG)/bin/bits/packs/sqlite.bit
+	cp bits/packs/ssl.bit $(CONFIG)/bin/bits/packs/ssl.bit
+	cp bits/packs/strip.bit $(CONFIG)/bin/bits/packs/strip.bit
+	cp bits/packs/tidy.bit $(CONFIG)/bin/bits/packs/tidy.bit
+	cp bits/packs/utest.bit $(CONFIG)/bin/bits/packs/utest.bit
+	cp bits/packs/vxworks.bit $(CONFIG)/bin/bits/packs/vxworks.bit
+	cp bits/packs/winsdk.bit $(CONFIG)/bin/bits/packs/winsdk.bit
+	cp bits/packs/zip.bit $(CONFIG)/bin/bits/packs/zip.bit
+	cp bits/packs/zlib.bit $(CONFIG)/bin/bits/packs/zlib.bit
+	cp bits/sample-main.bit $(CONFIG)/bin/bits/sample-main.bit
+	cp bits/sample-start.bit $(CONFIG)/bin/bits/sample-start.bit
+	cp bits/simple.bit $(CONFIG)/bin/bits/simple.bit
+	cp bits/standard.bit $(CONFIG)/bin/bits/standard.bit
+	cp bits/vstudio.es $(CONFIG)/bin/bits/vstudio.es
+	cp bits/xcode.es $(CONFIG)/bin/bits/xcode.es
 
 #
 #   bit.o
@@ -744,74 +760,74 @@ installBinary: $(DEPS_37)
 	rm -f "$(BIT_APP_PREFIX)/latest"
 	ln -s "0.8.5" "$(BIT_APP_PREFIX)/latest"
 	mkdir -p "$(BIT_VAPP_PREFIX)/bin"
-	cp "$(CONFIG)/bin/bit" "$(BIT_VAPP_PREFIX)/bin/bit"
+	cp $(CONFIG)/bin/bit $(BIT_VAPP_PREFIX)/bin/bit
 	mkdir -p "$(BIT_BIN_PREFIX)"
 	rm -f "$(BIT_BIN_PREFIX)/bit"
 	ln -s "$(BIT_VAPP_PREFIX)/bin/bit" "$(BIT_BIN_PREFIX)/bit"
-	cp "$(CONFIG)/bin/ca.crt" "$(BIT_VAPP_PREFIX)/bin/ca.crt"
-	cp "$(CONFIG)/bin/ejs.mod" "$(BIT_VAPP_PREFIX)/bin/ejs.mod"
-	cp "$(CONFIG)/bin/libejs.dylib" "$(BIT_VAPP_PREFIX)/bin/libejs.dylib"
-	cp "$(CONFIG)/bin/libest.dylib" "$(BIT_VAPP_PREFIX)/bin/libest.dylib"
-	cp "$(CONFIG)/bin/libhttp.dylib" "$(BIT_VAPP_PREFIX)/bin/libhttp.dylib"
-	cp "$(CONFIG)/bin/libmpr.dylib" "$(BIT_VAPP_PREFIX)/bin/libmpr.dylib"
-	cp "$(CONFIG)/bin/libmprssl.dylib" "$(BIT_VAPP_PREFIX)/bin/libmprssl.dylib"
-	cp "$(CONFIG)/bin/libpcre.dylib" "$(BIT_VAPP_PREFIX)/bin/libpcre.dylib"
+	cp $(CONFIG)/bin/ca.crt $(BIT_VAPP_PREFIX)/bin/ca.crt
+	cp $(CONFIG)/bin/ejs.mod $(BIT_VAPP_PREFIX)/bin/ejs.mod
+	cp $(CONFIG)/bin/libejs.dylib $(BIT_VAPP_PREFIX)/bin/libejs.dylib
+	cp $(CONFIG)/bin/libest.dylib $(BIT_VAPP_PREFIX)/bin/libest.dylib
+	cp $(CONFIG)/bin/libhttp.dylib $(BIT_VAPP_PREFIX)/bin/libhttp.dylib
+	cp $(CONFIG)/bin/libmpr.dylib $(BIT_VAPP_PREFIX)/bin/libmpr.dylib
+	cp $(CONFIG)/bin/libmprssl.dylib $(BIT_VAPP_PREFIX)/bin/libmprssl.dylib
+	cp $(CONFIG)/bin/libpcre.dylib $(BIT_VAPP_PREFIX)/bin/libpcre.dylib
 	mkdir -p "$(BIT_VAPP_PREFIX)/bin/bits"
 	mkdir -p "$(BIT_VAPP_PREFIX)/bin/bits/bits"
-	cp "bits/bit.es" "$(BIT_VAPP_PREFIX)/bin/bits/bit.es"
-	cp "bits/configure.es" "$(BIT_VAPP_PREFIX)/bin/bits/configure.es"
-	cp "bits/embedthis-manifest.bit" "$(BIT_VAPP_PREFIX)/bin/bits/embedthis-manifest.bit"
-	cp "bits/embedthis.bit" "$(BIT_VAPP_PREFIX)/bin/bits/embedthis.bit"
-	cp "bits/embedthis.es" "$(BIT_VAPP_PREFIX)/bin/bits/embedthis.es"
-	cp "bits/gendoc.es" "$(BIT_VAPP_PREFIX)/bin/bits/gendoc.es"
-	cp "bits/generate.es" "$(BIT_VAPP_PREFIX)/bin/bits/generate.es"
+	cp bits/bit.es $(BIT_VAPP_PREFIX)/bin/bits/bit.es
+	cp bits/configure.es $(BIT_VAPP_PREFIX)/bin/bits/configure.es
+	cp bits/embedthis-manifest.bit $(BIT_VAPP_PREFIX)/bin/bits/embedthis-manifest.bit
+	cp bits/embedthis.bit $(BIT_VAPP_PREFIX)/bin/bits/embedthis.bit
+	cp bits/embedthis.es $(BIT_VAPP_PREFIX)/bin/bits/embedthis.es
+	cp bits/gendoc.es $(BIT_VAPP_PREFIX)/bin/bits/gendoc.es
+	cp bits/generate.es $(BIT_VAPP_PREFIX)/bin/bits/generate.es
 	mkdir -p "$(BIT_VAPP_PREFIX)/bin/bits/os"
-	cp "bits/os/freebsd.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/freebsd.bit"
-	cp "bits/os/gcc.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/gcc.bit"
-	cp "bits/os/linux.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/linux.bit"
-	cp "bits/os/macosx.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/macosx.bit"
-	cp "bits/os/solaris.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/solaris.bit"
-	cp "bits/os/unix.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/unix.bit"
-	cp "bits/os/vxworks.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/vxworks.bit"
-	cp "bits/os/windows.bit" "$(BIT_VAPP_PREFIX)/bin/bits/os/windows.bit"
+	cp bits/os/freebsd.bit $(BIT_VAPP_PREFIX)/bin/bits/os/freebsd.bit
+	cp bits/os/gcc.bit $(BIT_VAPP_PREFIX)/bin/bits/os/gcc.bit
+	cp bits/os/linux.bit $(BIT_VAPP_PREFIX)/bin/bits/os/linux.bit
+	cp bits/os/macosx.bit $(BIT_VAPP_PREFIX)/bin/bits/os/macosx.bit
+	cp bits/os/solaris.bit $(BIT_VAPP_PREFIX)/bin/bits/os/solaris.bit
+	cp bits/os/unix.bit $(BIT_VAPP_PREFIX)/bin/bits/os/unix.bit
+	cp bits/os/vxworks.bit $(BIT_VAPP_PREFIX)/bin/bits/os/vxworks.bit
+	cp bits/os/windows.bit $(BIT_VAPP_PREFIX)/bin/bits/os/windows.bit
 	mkdir -p "$(BIT_VAPP_PREFIX)/bin/bits/packs"
-	cp "bits/packs/compiler.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/compiler.bit"
-	cp "bits/packs/doxygen.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/doxygen.bit"
-	cp "bits/packs/dsi.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/dsi.bit"
-	cp "bits/packs/dumpbin.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/dumpbin.bit"
-	cp "bits/packs/ejs.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/ejs.bit"
-	cp "bits/packs/ejscript.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/ejscript.bit"
-	cp "bits/packs/est.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/est.bit"
-	cp "bits/packs/http.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/http.bit"
-	cp "bits/packs/lib.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/lib.bit"
-	cp "bits/packs/link.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/link.bit"
-	cp "bits/packs/man.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/man.bit"
-	cp "bits/packs/man2html.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/man2html.bit"
-	cp "bits/packs/matrixssl.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/matrixssl.bit"
-	cp "bits/packs/md5.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/md5.bit"
-	cp "bits/packs/nanossl.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/nanossl.bit"
-	cp "bits/packs/openssl.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/openssl.bit"
-	cp "bits/packs/pcre.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/pcre.bit"
-	cp "bits/packs/pmaker.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/pmaker.bit"
-	cp "bits/packs/ranlib.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/ranlib.bit"
-	cp "bits/packs/rc.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/rc.bit"
-	cp "bits/packs/sqlite.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/sqlite.bit"
-	cp "bits/packs/ssl.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/ssl.bit"
-	cp "bits/packs/strip.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/strip.bit"
-	cp "bits/packs/tidy.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/tidy.bit"
-	cp "bits/packs/utest.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/utest.bit"
-	cp "bits/packs/vxworks.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/vxworks.bit"
-	cp "bits/packs/winsdk.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/winsdk.bit"
-	cp "bits/packs/zip.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/zip.bit"
-	cp "bits/packs/zlib.bit" "$(BIT_VAPP_PREFIX)/bin/bits/packs/zlib.bit"
-	cp "bits/sample-main.bit" "$(BIT_VAPP_PREFIX)/bin/bits/sample-main.bit"
-	cp "bits/sample-start.bit" "$(BIT_VAPP_PREFIX)/bin/bits/sample-start.bit"
-	cp "bits/simple.bit" "$(BIT_VAPP_PREFIX)/bin/bits/simple.bit"
-	cp "bits/standard.bit" "$(BIT_VAPP_PREFIX)/bin/bits/standard.bit"
-	cp "bits/vstudio.es" "$(BIT_VAPP_PREFIX)/bin/bits/vstudio.es"
-	cp "bits/xcode.es" "$(BIT_VAPP_PREFIX)/bin/bits/xcode.es"
+	cp bits/packs/compiler.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/compiler.bit
+	cp bits/packs/doxygen.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/doxygen.bit
+	cp bits/packs/dsi.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/dsi.bit
+	cp bits/packs/dumpbin.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/dumpbin.bit
+	cp bits/packs/ejs.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/ejs.bit
+	cp bits/packs/ejscript.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/ejscript.bit
+	cp bits/packs/est.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/est.bit
+	cp bits/packs/http.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/http.bit
+	cp bits/packs/lib.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/lib.bit
+	cp bits/packs/link.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/link.bit
+	cp bits/packs/man.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/man.bit
+	cp bits/packs/man2html.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/man2html.bit
+	cp bits/packs/matrixssl.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/matrixssl.bit
+	cp bits/packs/md5.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/md5.bit
+	cp bits/packs/nanossl.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/nanossl.bit
+	cp bits/packs/openssl.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/openssl.bit
+	cp bits/packs/pcre.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/pcre.bit
+	cp bits/packs/pmaker.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/pmaker.bit
+	cp bits/packs/ranlib.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/ranlib.bit
+	cp bits/packs/rc.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/rc.bit
+	cp bits/packs/sqlite.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/sqlite.bit
+	cp bits/packs/ssl.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/ssl.bit
+	cp bits/packs/strip.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/strip.bit
+	cp bits/packs/tidy.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/tidy.bit
+	cp bits/packs/utest.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/utest.bit
+	cp bits/packs/vxworks.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/vxworks.bit
+	cp bits/packs/winsdk.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/winsdk.bit
+	cp bits/packs/zip.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/zip.bit
+	cp bits/packs/zlib.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/zlib.bit
+	cp bits/sample-main.bit $(BIT_VAPP_PREFIX)/bin/bits/sample-main.bit
+	cp bits/sample-start.bit $(BIT_VAPP_PREFIX)/bin/bits/sample-start.bit
+	cp bits/simple.bit $(BIT_VAPP_PREFIX)/bin/bits/simple.bit
+	cp bits/standard.bit $(BIT_VAPP_PREFIX)/bin/bits/standard.bit
+	cp bits/vstudio.es $(BIT_VAPP_PREFIX)/bin/bits/vstudio.es
+	cp bits/xcode.es $(BIT_VAPP_PREFIX)/bin/bits/xcode.es
 	mkdir -p "$(BIT_VAPP_PREFIX)/doc/man/man1"
-	cp "doc/man/bit.1" "$(BIT_VAPP_PREFIX)/doc/man/man1/bit.1"
+	cp doc/man/bit.1 $(BIT_VAPP_PREFIX)/doc/man/man1/bit.1
 	mkdir -p "$(BIT_MAN_PREFIX)/man1"
 	rm -f "$(BIT_MAN_PREFIX)/man1/bit.1"
 	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/bit.1" "$(BIT_MAN_PREFIX)/man1/bit.1"

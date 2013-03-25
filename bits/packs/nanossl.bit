@@ -6,7 +6,10 @@ Bit.pack({
     nanossl: {
         description: 'Mocana NanoSSL',
         generate: function (pack) {
+            pack.path = '/usr/src/nanossl'
             pack.libraries = [ 'ssls' ]
+            pack.libpaths = [ '$(BIT_PACK_NANOSSL_PATH)/bin' ]
+            pack.includes = [ '$(BIT_PACK_NANOSSL_PATH)/src' ]
             if (bit.platform.os == 'windows') {
                 mos = '__RTOS_WIN32__'
             } else if (bit.platform.os == 'macosx') {

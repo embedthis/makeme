@@ -309,6 +309,13 @@ module embedthis.bit {
         }
         genout.writeLine('')
 
+        for each (pack in bit.packs) {
+            if (pack.path) {
+                genout.writeLine('%-18s := %s'.format(['BIT_PACK_' + pack.name.toUpper() + '_PATH', pack.path]))
+            }
+        }
+        genout.writeLine('')
+
         /*
             Compute the dflags 
          */
@@ -328,7 +335,6 @@ module embedthis.bit {
         genout.writeLine('#\n#   ' + path.basename + ' -- Makefile to build ' + 
             bit.settings.title + ' for ' + bit.platform.os + '\n#\n')
         b.runScript(bit.scripts, 'pregen')
-        genEnv()
         genout.writeLine('PRODUCT            := ' + bit.settings.product)
         genout.writeLine('VERSION            := ' + bit.settings.version)
         genout.writeLine('BUILD_NUMBER       := ' + bit.settings.buildNumber)
@@ -343,6 +349,7 @@ module embedthis.bit {
         genout.writeLine('LBIN               := $(CONFIG)/bin\n')
 
         let dflags = generatePackDefs()
+        genEnv()
 
         let cflags = gen.compiler
         for each (word in minimalCflags) {

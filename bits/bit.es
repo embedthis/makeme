@@ -1569,7 +1569,7 @@ public class Bit {
                 if (!value.startsWith('$')) {
                     pack.libpaths[key] = Path(value).absolute
                 } else {
-                    pack.includes[key] = Path(value)
+                    pack.libpaths[key] = Path(value)
                 }
             }
         }
@@ -3237,9 +3237,23 @@ public class Bit {
                 throw new Error('Cannot copy file. Source is the same as destination: ' + src)
             }
             if (bit.generating == 'nmake') {
-                genrep('\tcopy /Y "' + src.windows + '" "' + dest.windows + '"')
+                src = src.windows
+                if (src.contains(' ')) {
+                    src = '"' + src + '"'
+                }
+                dest = dest.windows
+                if (dest.contains(' ')) {
+                    dest = '"' + dest + '"'
+                }
+                genrep('\tcopy /Y ' + src + ' ' + dest.windows)
             } else {
-                genrep('\tcp "' + src + '" "' + dest + '"')
+                if (src.contains(' ')) {
+                    src = '"' + src + '"'
+                }
+                if (dest.contains(' ')) {
+                    dest = '"' + dest + '"'
+                }
+                genrep('\tcp ' + src + ' ' + dest)
                 if (options.uid || options.gid) {
                     genrep('\t[ `id -u` = 0 ] && chown ' + options.uid + ':' + options.gid + ' "' + dest + '"')
                 } else if (options.user || options.group) {

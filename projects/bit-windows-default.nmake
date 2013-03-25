@@ -49,6 +49,24 @@ BIT_PACK_WINSDK = 1
 !ENDIF
 
 
+BIT_PACK_COMPILER_PATH := cl
+BIT_PACK_DSI_PATH  := dsi
+BIT_PACK_EJSCRIPT_PATH := ejscript
+BIT_PACK_EST_PATH  := est
+BIT_PACK_LIB_PATH  := lib
+BIT_PACK_LINK_PATH := link
+BIT_PACK_MAN_PATH  := man
+BIT_PACK_MAN2HTML_PATH := man2html
+BIT_PACK_MATRIXSSL_PATH := /usr/src/matrixssl
+BIT_PACK_NANOSSL_PATH := /usr/src/nanossl
+BIT_PACK_OPENSSL_PATH := /usr/src/openssl
+BIT_PACK_PCRE_PATH := pcre
+BIT_PACK_PMAKER_PATH := pmaker
+BIT_PACK_RC_PATH   := rc
+BIT_PACK_SSL_PATH  := ssl
+BIT_PACK_WINSDK_PATH := winsdk
+BIT_PACK_ZIP_PATH  := zip
+
 CC                 = cl
 LD                 = link
 RC                 = rc
@@ -159,7 +177,7 @@ clean:
 #
 version: $(DEPS_1)
 	cd bits
-	@echo NN 0.8.5-0
+	@echo 0.8.5-0
 	cd ..
 
 #
@@ -168,7 +186,7 @@ version: $(DEPS_1)
 $(CONFIG)\inc\est.h: $(DEPS_2)
 	@echo '      [Copy] $(CONFIG)/inc/est.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
-	copy /Y "src\deps\est\est.h" "$(CONFIG)\inc\est.h"
+	copy /Y src\deps\est\est.h $(CONFIG)\inc\est.h
 
 #
 #   bit.h
@@ -182,7 +200,7 @@ $(CONFIG)\inc\bit.h: $(DEPS_3)
 $(CONFIG)\inc\bitos.h: $(DEPS_4)
 	@echo '      [Copy] $(CONFIG)/inc/bitos.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
-	copy /Y "src\bitos.h" "$(CONFIG)\inc\bitos.h"
+	copy /Y src\bitos.h $(CONFIG)\inc\bitos.h
 
 #
 #   estLib.obj
@@ -216,7 +234,7 @@ DEPS_7 = $(DEPS_7) src\deps\est\ca.crt
 $(CONFIG)\bin\ca.crt: $(DEPS_7)
 	@echo '      [Copy] $(CONFIG)/bin/ca.crt'
 	if not exist "$(CONFIG)\bin" md "$(CONFIG)\bin"
-	copy /Y "src\deps\est\ca.crt" "$(CONFIG)\bin\ca.crt"
+	copy /Y src\deps\est\ca.crt $(CONFIG)\bin\ca.crt
 
 #
 #   mpr.h
@@ -224,7 +242,7 @@ $(CONFIG)\bin\ca.crt: $(DEPS_7)
 $(CONFIG)\inc\mpr.h: $(DEPS_8)
 	@echo '      [Copy] $(CONFIG)/inc/mpr.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
-	copy /Y "src\deps\mpr\mpr.h" "$(CONFIG)\inc\mpr.h"
+	copy /Y src\deps\mpr\mpr.h $(CONFIG)\inc\mpr.h
 
 #
 #   mprLib.obj
@@ -309,7 +327,7 @@ $(CONFIG)\bin\makerom.exe: $(DEPS_14)
 $(CONFIG)\inc\pcre.h: $(DEPS_15)
 	@echo '      [Copy] $(CONFIG)/inc/pcre.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
-	copy /Y "src\deps\pcre\pcre.h" "$(CONFIG)\inc\pcre.h"
+	copy /Y src\deps\pcre\pcre.h $(CONFIG)\inc\pcre.h
 
 #
 #   pcre.obj
@@ -338,7 +356,7 @@ $(CONFIG)\bin\libpcre.dll: $(DEPS_17)
 $(CONFIG)\inc\http.h: $(DEPS_18)
 	@echo '      [Copy] $(CONFIG)/inc/http.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
-	copy /Y "src\deps\http\http.h" "$(CONFIG)\inc\http.h"
+	copy /Y src\deps\http\http.h $(CONFIG)\inc\http.h
 
 #
 #   httpLib.obj
@@ -398,7 +416,7 @@ $(CONFIG)\bin\http.exe: $(DEPS_22)
 $(CONFIG)\inc\ejs.h: $(DEPS_23)
 	@echo '      [Copy] $(CONFIG)/inc/ejs.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
-	copy /Y "src\deps\ejs\ejs.h" "$(CONFIG)\inc\ejs.h"
+	copy /Y src\deps\ejs\ejs.h $(CONFIG)\inc\ejs.h
 
 #
 #   ejs.slots.h
@@ -406,7 +424,7 @@ $(CONFIG)\inc\ejs.h: $(DEPS_23)
 $(CONFIG)\inc\ejs.slots.h: $(DEPS_24)
 	@echo '      [Copy] $(CONFIG)/inc/ejs.slots.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
-	copy /Y "src\deps\ejs\ejs.slots.h" "$(CONFIG)\inc\ejs.slots.h"
+	copy /Y src\deps\ejs\ejs.slots.h $(CONFIG)\inc\ejs.slots.h
 
 #
 #   ejsByteGoto.h
@@ -414,7 +432,7 @@ $(CONFIG)\inc\ejs.slots.h: $(DEPS_24)
 $(CONFIG)\inc\ejsByteGoto.h: $(DEPS_25)
 	@echo '      [Copy] $(CONFIG)/inc/ejsByteGoto.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
-	copy /Y "src\deps\ejs\ejsByteGoto.h" "$(CONFIG)\inc\ejsByteGoto.h"
+	copy /Y src\deps\ejs\ejsByteGoto.h $(CONFIG)\inc\ejsByteGoto.h
 
 #
 #   ejsLib.obj
@@ -619,97 +637,97 @@ DEPS_35 = $(DEPS_35) bits\xcode.es
 $(CONFIG)\bin\bits: $(DEPS_35)
 	@echo '      [Copy] $(CONFIG)/bin/bits'
 	if not exist "$(CONFIG)\bin\bits" md "$(CONFIG)\bin\bits"
-	copy /Y "bits\bit.es" "$(CONFIG)\bin\bits\bit.es"
-	copy /Y "bits\configure.es" "$(CONFIG)\bin\bits\configure.es"
-	copy /Y "bits\embedthis-manifest.bit" "$(CONFIG)\bin\bits\embedthis-manifest.bit"
-	copy /Y "bits\embedthis.bit" "$(CONFIG)\bin\bits\embedthis.bit"
-	copy /Y "bits\embedthis.es" "$(CONFIG)\bin\bits\embedthis.es"
-	copy /Y "bits\gendoc.es" "$(CONFIG)\bin\bits\gendoc.es"
-	copy /Y "bits\generate.es" "$(CONFIG)\bin\bits\generate.es"
+	copy /Y bits\bit.es $(CONFIG)\bin\bits\bit.es
+	copy /Y bits\configure.es $(CONFIG)\bin\bits\configure.es
+	copy /Y bits\embedthis-manifest.bit $(CONFIG)\bin\bits\embedthis-manifest.bit
+	copy /Y bits\embedthis.bit $(CONFIG)\bin\bits\embedthis.bit
+	copy /Y bits\embedthis.es $(CONFIG)\bin\bits\embedthis.es
+	copy /Y bits\gendoc.es $(CONFIG)\bin\bits\gendoc.es
+	copy /Y bits\generate.es $(CONFIG)\bin\bits\generate.es
 	if not exist "$(CONFIG)\bin\bits\os" md "$(CONFIG)\bin\bits\os"
-	copy /Y "bits\os\freebsd.bit" "$(CONFIG)\bin\bits\os\freebsd.bit"
-	copy /Y "bits\os\gcc.bit" "$(CONFIG)\bin\bits\os\gcc.bit"
-	copy /Y "bits\os\linux.bit" "$(CONFIG)\bin\bits\os\linux.bit"
-	copy /Y "bits\os\macosx.bit" "$(CONFIG)\bin\bits\os\macosx.bit"
-	copy /Y "bits\os\solaris.bit" "$(CONFIG)\bin\bits\os\solaris.bit"
-	copy /Y "bits\os\unix.bit" "$(CONFIG)\bin\bits\os\unix.bit"
-	copy /Y "bits\os\vxworks.bit" "$(CONFIG)\bin\bits\os\vxworks.bit"
-	copy /Y "bits\os\windows.bit" "$(CONFIG)\bin\bits\os\windows.bit"
+	copy /Y bits\os\freebsd.bit $(CONFIG)\bin\bits\os\freebsd.bit
+	copy /Y bits\os\gcc.bit $(CONFIG)\bin\bits\os\gcc.bit
+	copy /Y bits\os\linux.bit $(CONFIG)\bin\bits\os\linux.bit
+	copy /Y bits\os\macosx.bit $(CONFIG)\bin\bits\os\macosx.bit
+	copy /Y bits\os\solaris.bit $(CONFIG)\bin\bits\os\solaris.bit
+	copy /Y bits\os\unix.bit $(CONFIG)\bin\bits\os\unix.bit
+	copy /Y bits\os\vxworks.bit $(CONFIG)\bin\bits\os\vxworks.bit
+	copy /Y bits\os\windows.bit $(CONFIG)\bin\bits\os\windows.bit
 	if not exist "$(CONFIG)\bin\bits\os" md "$(CONFIG)\bin\bits\os"
-	copy /Y "bits\os\freebsd.bit" "$(CONFIG)\bin\bits\os\freebsd.bit"
-	copy /Y "bits\os\gcc.bit" "$(CONFIG)\bin\bits\os\gcc.bit"
-	copy /Y "bits\os\linux.bit" "$(CONFIG)\bin\bits\os\linux.bit"
-	copy /Y "bits\os\macosx.bit" "$(CONFIG)\bin\bits\os\macosx.bit"
-	copy /Y "bits\os\solaris.bit" "$(CONFIG)\bin\bits\os\solaris.bit"
-	copy /Y "bits\os\unix.bit" "$(CONFIG)\bin\bits\os\unix.bit"
-	copy /Y "bits\os\vxworks.bit" "$(CONFIG)\bin\bits\os\vxworks.bit"
-	copy /Y "bits\os\windows.bit" "$(CONFIG)\bin\bits\os\windows.bit"
+	copy /Y bits\os\freebsd.bit $(CONFIG)\bin\bits\os\freebsd.bit
+	copy /Y bits\os\gcc.bit $(CONFIG)\bin\bits\os\gcc.bit
+	copy /Y bits\os\linux.bit $(CONFIG)\bin\bits\os\linux.bit
+	copy /Y bits\os\macosx.bit $(CONFIG)\bin\bits\os\macosx.bit
+	copy /Y bits\os\solaris.bit $(CONFIG)\bin\bits\os\solaris.bit
+	copy /Y bits\os\unix.bit $(CONFIG)\bin\bits\os\unix.bit
+	copy /Y bits\os\vxworks.bit $(CONFIG)\bin\bits\os\vxworks.bit
+	copy /Y bits\os\windows.bit $(CONFIG)\bin\bits\os\windows.bit
 	if not exist "$(CONFIG)\bin\bits\packs" md "$(CONFIG)\bin\bits\packs"
-	copy /Y "bits\packs\compiler.bit" "$(CONFIG)\bin\bits\packs\compiler.bit"
-	copy /Y "bits\packs\doxygen.bit" "$(CONFIG)\bin\bits\packs\doxygen.bit"
-	copy /Y "bits\packs\dsi.bit" "$(CONFIG)\bin\bits\packs\dsi.bit"
-	copy /Y "bits\packs\dumpbin.bit" "$(CONFIG)\bin\bits\packs\dumpbin.bit"
-	copy /Y "bits\packs\ejs.bit" "$(CONFIG)\bin\bits\packs\ejs.bit"
-	copy /Y "bits\packs\ejscript.bit" "$(CONFIG)\bin\bits\packs\ejscript.bit"
-	copy /Y "bits\packs\est.bit" "$(CONFIG)\bin\bits\packs\est.bit"
-	copy /Y "bits\packs\http.bit" "$(CONFIG)\bin\bits\packs\http.bit"
-	copy /Y "bits\packs\lib.bit" "$(CONFIG)\bin\bits\packs\lib.bit"
-	copy /Y "bits\packs\link.bit" "$(CONFIG)\bin\bits\packs\link.bit"
-	copy /Y "bits\packs\man.bit" "$(CONFIG)\bin\bits\packs\man.bit"
-	copy /Y "bits\packs\man2html.bit" "$(CONFIG)\bin\bits\packs\man2html.bit"
-	copy /Y "bits\packs\matrixssl.bit" "$(CONFIG)\bin\bits\packs\matrixssl.bit"
-	copy /Y "bits\packs\md5.bit" "$(CONFIG)\bin\bits\packs\md5.bit"
-	copy /Y "bits\packs\nanossl.bit" "$(CONFIG)\bin\bits\packs\nanossl.bit"
-	copy /Y "bits\packs\openssl.bit" "$(CONFIG)\bin\bits\packs\openssl.bit"
-	copy /Y "bits\packs\pcre.bit" "$(CONFIG)\bin\bits\packs\pcre.bit"
-	copy /Y "bits\packs\pmaker.bit" "$(CONFIG)\bin\bits\packs\pmaker.bit"
-	copy /Y "bits\packs\ranlib.bit" "$(CONFIG)\bin\bits\packs\ranlib.bit"
-	copy /Y "bits\packs\rc.bit" "$(CONFIG)\bin\bits\packs\rc.bit"
-	copy /Y "bits\packs\sqlite.bit" "$(CONFIG)\bin\bits\packs\sqlite.bit"
-	copy /Y "bits\packs\ssl.bit" "$(CONFIG)\bin\bits\packs\ssl.bit"
-	copy /Y "bits\packs\strip.bit" "$(CONFIG)\bin\bits\packs\strip.bit"
-	copy /Y "bits\packs\tidy.bit" "$(CONFIG)\bin\bits\packs\tidy.bit"
-	copy /Y "bits\packs\utest.bit" "$(CONFIG)\bin\bits\packs\utest.bit"
-	copy /Y "bits\packs\vxworks.bit" "$(CONFIG)\bin\bits\packs\vxworks.bit"
-	copy /Y "bits\packs\winsdk.bit" "$(CONFIG)\bin\bits\packs\winsdk.bit"
-	copy /Y "bits\packs\zip.bit" "$(CONFIG)\bin\bits\packs\zip.bit"
-	copy /Y "bits\packs\zlib.bit" "$(CONFIG)\bin\bits\packs\zlib.bit"
+	copy /Y bits\packs\compiler.bit $(CONFIG)\bin\bits\packs\compiler.bit
+	copy /Y bits\packs\doxygen.bit $(CONFIG)\bin\bits\packs\doxygen.bit
+	copy /Y bits\packs\dsi.bit $(CONFIG)\bin\bits\packs\dsi.bit
+	copy /Y bits\packs\dumpbin.bit $(CONFIG)\bin\bits\packs\dumpbin.bit
+	copy /Y bits\packs\ejs.bit $(CONFIG)\bin\bits\packs\ejs.bit
+	copy /Y bits\packs\ejscript.bit $(CONFIG)\bin\bits\packs\ejscript.bit
+	copy /Y bits\packs\est.bit $(CONFIG)\bin\bits\packs\est.bit
+	copy /Y bits\packs\http.bit $(CONFIG)\bin\bits\packs\http.bit
+	copy /Y bits\packs\lib.bit $(CONFIG)\bin\bits\packs\lib.bit
+	copy /Y bits\packs\link.bit $(CONFIG)\bin\bits\packs\link.bit
+	copy /Y bits\packs\man.bit $(CONFIG)\bin\bits\packs\man.bit
+	copy /Y bits\packs\man2html.bit $(CONFIG)\bin\bits\packs\man2html.bit
+	copy /Y bits\packs\matrixssl.bit $(CONFIG)\bin\bits\packs\matrixssl.bit
+	copy /Y bits\packs\md5.bit $(CONFIG)\bin\bits\packs\md5.bit
+	copy /Y bits\packs\nanossl.bit $(CONFIG)\bin\bits\packs\nanossl.bit
+	copy /Y bits\packs\openssl.bit $(CONFIG)\bin\bits\packs\openssl.bit
+	copy /Y bits\packs\pcre.bit $(CONFIG)\bin\bits\packs\pcre.bit
+	copy /Y bits\packs\pmaker.bit $(CONFIG)\bin\bits\packs\pmaker.bit
+	copy /Y bits\packs\ranlib.bit $(CONFIG)\bin\bits\packs\ranlib.bit
+	copy /Y bits\packs\rc.bit $(CONFIG)\bin\bits\packs\rc.bit
+	copy /Y bits\packs\sqlite.bit $(CONFIG)\bin\bits\packs\sqlite.bit
+	copy /Y bits\packs\ssl.bit $(CONFIG)\bin\bits\packs\ssl.bit
+	copy /Y bits\packs\strip.bit $(CONFIG)\bin\bits\packs\strip.bit
+	copy /Y bits\packs\tidy.bit $(CONFIG)\bin\bits\packs\tidy.bit
+	copy /Y bits\packs\utest.bit $(CONFIG)\bin\bits\packs\utest.bit
+	copy /Y bits\packs\vxworks.bit $(CONFIG)\bin\bits\packs\vxworks.bit
+	copy /Y bits\packs\winsdk.bit $(CONFIG)\bin\bits\packs\winsdk.bit
+	copy /Y bits\packs\zip.bit $(CONFIG)\bin\bits\packs\zip.bit
+	copy /Y bits\packs\zlib.bit $(CONFIG)\bin\bits\packs\zlib.bit
 	if not exist "$(CONFIG)\bin\bits\packs" md "$(CONFIG)\bin\bits\packs"
-	copy /Y "bits\packs\compiler.bit" "$(CONFIG)\bin\bits\packs\compiler.bit"
-	copy /Y "bits\packs\doxygen.bit" "$(CONFIG)\bin\bits\packs\doxygen.bit"
-	copy /Y "bits\packs\dsi.bit" "$(CONFIG)\bin\bits\packs\dsi.bit"
-	copy /Y "bits\packs\dumpbin.bit" "$(CONFIG)\bin\bits\packs\dumpbin.bit"
-	copy /Y "bits\packs\ejs.bit" "$(CONFIG)\bin\bits\packs\ejs.bit"
-	copy /Y "bits\packs\ejscript.bit" "$(CONFIG)\bin\bits\packs\ejscript.bit"
-	copy /Y "bits\packs\est.bit" "$(CONFIG)\bin\bits\packs\est.bit"
-	copy /Y "bits\packs\http.bit" "$(CONFIG)\bin\bits\packs\http.bit"
-	copy /Y "bits\packs\lib.bit" "$(CONFIG)\bin\bits\packs\lib.bit"
-	copy /Y "bits\packs\link.bit" "$(CONFIG)\bin\bits\packs\link.bit"
-	copy /Y "bits\packs\man.bit" "$(CONFIG)\bin\bits\packs\man.bit"
-	copy /Y "bits\packs\man2html.bit" "$(CONFIG)\bin\bits\packs\man2html.bit"
-	copy /Y "bits\packs\matrixssl.bit" "$(CONFIG)\bin\bits\packs\matrixssl.bit"
-	copy /Y "bits\packs\md5.bit" "$(CONFIG)\bin\bits\packs\md5.bit"
-	copy /Y "bits\packs\nanossl.bit" "$(CONFIG)\bin\bits\packs\nanossl.bit"
-	copy /Y "bits\packs\openssl.bit" "$(CONFIG)\bin\bits\packs\openssl.bit"
-	copy /Y "bits\packs\pcre.bit" "$(CONFIG)\bin\bits\packs\pcre.bit"
-	copy /Y "bits\packs\pmaker.bit" "$(CONFIG)\bin\bits\packs\pmaker.bit"
-	copy /Y "bits\packs\ranlib.bit" "$(CONFIG)\bin\bits\packs\ranlib.bit"
-	copy /Y "bits\packs\rc.bit" "$(CONFIG)\bin\bits\packs\rc.bit"
-	copy /Y "bits\packs\sqlite.bit" "$(CONFIG)\bin\bits\packs\sqlite.bit"
-	copy /Y "bits\packs\ssl.bit" "$(CONFIG)\bin\bits\packs\ssl.bit"
-	copy /Y "bits\packs\strip.bit" "$(CONFIG)\bin\bits\packs\strip.bit"
-	copy /Y "bits\packs\tidy.bit" "$(CONFIG)\bin\bits\packs\tidy.bit"
-	copy /Y "bits\packs\utest.bit" "$(CONFIG)\bin\bits\packs\utest.bit"
-	copy /Y "bits\packs\vxworks.bit" "$(CONFIG)\bin\bits\packs\vxworks.bit"
-	copy /Y "bits\packs\winsdk.bit" "$(CONFIG)\bin\bits\packs\winsdk.bit"
-	copy /Y "bits\packs\zip.bit" "$(CONFIG)\bin\bits\packs\zip.bit"
-	copy /Y "bits\packs\zlib.bit" "$(CONFIG)\bin\bits\packs\zlib.bit"
-	copy /Y "bits\sample-main.bit" "$(CONFIG)\bin\bits\sample-main.bit"
-	copy /Y "bits\sample-start.bit" "$(CONFIG)\bin\bits\sample-start.bit"
-	copy /Y "bits\simple.bit" "$(CONFIG)\bin\bits\simple.bit"
-	copy /Y "bits\standard.bit" "$(CONFIG)\bin\bits\standard.bit"
-	copy /Y "bits\vstudio.es" "$(CONFIG)\bin\bits\vstudio.es"
-	copy /Y "bits\xcode.es" "$(CONFIG)\bin\bits\xcode.es"
+	copy /Y bits\packs\compiler.bit $(CONFIG)\bin\bits\packs\compiler.bit
+	copy /Y bits\packs\doxygen.bit $(CONFIG)\bin\bits\packs\doxygen.bit
+	copy /Y bits\packs\dsi.bit $(CONFIG)\bin\bits\packs\dsi.bit
+	copy /Y bits\packs\dumpbin.bit $(CONFIG)\bin\bits\packs\dumpbin.bit
+	copy /Y bits\packs\ejs.bit $(CONFIG)\bin\bits\packs\ejs.bit
+	copy /Y bits\packs\ejscript.bit $(CONFIG)\bin\bits\packs\ejscript.bit
+	copy /Y bits\packs\est.bit $(CONFIG)\bin\bits\packs\est.bit
+	copy /Y bits\packs\http.bit $(CONFIG)\bin\bits\packs\http.bit
+	copy /Y bits\packs\lib.bit $(CONFIG)\bin\bits\packs\lib.bit
+	copy /Y bits\packs\link.bit $(CONFIG)\bin\bits\packs\link.bit
+	copy /Y bits\packs\man.bit $(CONFIG)\bin\bits\packs\man.bit
+	copy /Y bits\packs\man2html.bit $(CONFIG)\bin\bits\packs\man2html.bit
+	copy /Y bits\packs\matrixssl.bit $(CONFIG)\bin\bits\packs\matrixssl.bit
+	copy /Y bits\packs\md5.bit $(CONFIG)\bin\bits\packs\md5.bit
+	copy /Y bits\packs\nanossl.bit $(CONFIG)\bin\bits\packs\nanossl.bit
+	copy /Y bits\packs\openssl.bit $(CONFIG)\bin\bits\packs\openssl.bit
+	copy /Y bits\packs\pcre.bit $(CONFIG)\bin\bits\packs\pcre.bit
+	copy /Y bits\packs\pmaker.bit $(CONFIG)\bin\bits\packs\pmaker.bit
+	copy /Y bits\packs\ranlib.bit $(CONFIG)\bin\bits\packs\ranlib.bit
+	copy /Y bits\packs\rc.bit $(CONFIG)\bin\bits\packs\rc.bit
+	copy /Y bits\packs\sqlite.bit $(CONFIG)\bin\bits\packs\sqlite.bit
+	copy /Y bits\packs\ssl.bit $(CONFIG)\bin\bits\packs\ssl.bit
+	copy /Y bits\packs\strip.bit $(CONFIG)\bin\bits\packs\strip.bit
+	copy /Y bits\packs\tidy.bit $(CONFIG)\bin\bits\packs\tidy.bit
+	copy /Y bits\packs\utest.bit $(CONFIG)\bin\bits\packs\utest.bit
+	copy /Y bits\packs\vxworks.bit $(CONFIG)\bin\bits\packs\vxworks.bit
+	copy /Y bits\packs\winsdk.bit $(CONFIG)\bin\bits\packs\winsdk.bit
+	copy /Y bits\packs\zip.bit $(CONFIG)\bin\bits\packs\zip.bit
+	copy /Y bits\packs\zlib.bit $(CONFIG)\bin\bits\packs\zlib.bit
+	copy /Y bits\sample-main.bit $(CONFIG)\bin\bits\sample-main.bit
+	copy /Y bits\sample-start.bit $(CONFIG)\bin\bits\sample-start.bit
+	copy /Y bits\simple.bit $(CONFIG)\bin\bits\simple.bit
+	copy /Y bits\standard.bit $(CONFIG)\bin\bits\standard.bit
+	copy /Y bits\vstudio.es $(CONFIG)\bin\bits\vstudio.es
+	copy /Y bits\xcode.es $(CONFIG)\bin\bits\xcode.es
 
 #
 #   bit.obj
@@ -759,69 +777,69 @@ stop: $(DEPS_38)
 #
 installBinary: $(DEPS_39)
 	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
-	copy /Y "$(CONFIG)\bin\bit.exe" "$(BIT_VAPP_PREFIX)\bin\bit.exe"
-	copy /Y "$(CONFIG)\bin\ca.crt" "$(BIT_VAPP_PREFIX)\bin\ca.crt"
-	copy /Y "$(CONFIG)\bin\ejs.mod" "$(BIT_VAPP_PREFIX)\bin\ejs.mod"
-	copy /Y "$(CONFIG)\bin\libejs.dll" "$(BIT_VAPP_PREFIX)\bin\libejs.dll"
-	copy /Y "$(CONFIG)\bin\libest.dll" "$(BIT_VAPP_PREFIX)\bin\libest.dll"
-	copy /Y "$(CONFIG)\bin\libhttp.dll" "$(BIT_VAPP_PREFIX)\bin\libhttp.dll"
-	copy /Y "$(CONFIG)\bin\libmpr.dll" "$(BIT_VAPP_PREFIX)\bin\libmpr.dll"
-	copy /Y "$(CONFIG)\bin\libmprssl.dll" "$(BIT_VAPP_PREFIX)\bin\libmprssl.dll"
-	copy /Y "$(CONFIG)\bin\libpcre.dll" "$(BIT_VAPP_PREFIX)\bin\libpcre.dll"
+	copy /Y $(CONFIG)\bin\bit.exe "$(BIT_VAPP_PREFIX)\bin\bit.exe"
+	copy /Y $(CONFIG)\bin\ca.crt "$(BIT_VAPP_PREFIX)\bin\ca.crt"
+	copy /Y $(CONFIG)\bin\ejs.mod "$(BIT_VAPP_PREFIX)\bin\ejs.mod"
+	copy /Y $(CONFIG)\bin\libejs.dll "$(BIT_VAPP_PREFIX)\bin\libejs.dll"
+	copy /Y $(CONFIG)\bin\libest.dll "$(BIT_VAPP_PREFIX)\bin\libest.dll"
+	copy /Y $(CONFIG)\bin\libhttp.dll "$(BIT_VAPP_PREFIX)\bin\libhttp.dll"
+	copy /Y $(CONFIG)\bin\libmpr.dll "$(BIT_VAPP_PREFIX)\bin\libmpr.dll"
+	copy /Y $(CONFIG)\bin\libmprssl.dll "$(BIT_VAPP_PREFIX)\bin\libmprssl.dll"
+	copy /Y $(CONFIG)\bin\libpcre.dll "$(BIT_VAPP_PREFIX)\bin\libpcre.dll"
 	if not exist "$(BIT_VAPP_PREFIX)\bin\bits" md "$(BIT_VAPP_PREFIX)\bin\bits"
 	if not exist "$(BIT_VAPP_PREFIX)\bin\bits\bits" md "$(BIT_VAPP_PREFIX)\bin\bits\bits"
-	copy /Y "bits\bit.es" "$(BIT_VAPP_PREFIX)\bin\bits\bit.es"
-	copy /Y "bits\configure.es" "$(BIT_VAPP_PREFIX)\bin\bits\configure.es"
-	copy /Y "bits\embedthis-manifest.bit" "$(BIT_VAPP_PREFIX)\bin\bits\embedthis-manifest.bit"
-	copy /Y "bits\embedthis.bit" "$(BIT_VAPP_PREFIX)\bin\bits\embedthis.bit"
-	copy /Y "bits\embedthis.es" "$(BIT_VAPP_PREFIX)\bin\bits\embedthis.es"
-	copy /Y "bits\gendoc.es" "$(BIT_VAPP_PREFIX)\bin\bits\gendoc.es"
-	copy /Y "bits\generate.es" "$(BIT_VAPP_PREFIX)\bin\bits\generate.es"
+	copy /Y bits\bit.es "$(BIT_VAPP_PREFIX)\bin\bits\bit.es"
+	copy /Y bits\configure.es "$(BIT_VAPP_PREFIX)\bin\bits\configure.es"
+	copy /Y bits\embedthis-manifest.bit "$(BIT_VAPP_PREFIX)\bin\bits\embedthis-manifest.bit"
+	copy /Y bits\embedthis.bit "$(BIT_VAPP_PREFIX)\bin\bits\embedthis.bit"
+	copy /Y bits\embedthis.es "$(BIT_VAPP_PREFIX)\bin\bits\embedthis.es"
+	copy /Y bits\gendoc.es "$(BIT_VAPP_PREFIX)\bin\bits\gendoc.es"
+	copy /Y bits\generate.es "$(BIT_VAPP_PREFIX)\bin\bits\generate.es"
 	if not exist "$(BIT_VAPP_PREFIX)\bin\bits\os" md "$(BIT_VAPP_PREFIX)\bin\bits\os"
-	copy /Y "bits\os\freebsd.bit" "$(BIT_VAPP_PREFIX)\bin\bits\os\freebsd.bit"
-	copy /Y "bits\os\gcc.bit" "$(BIT_VAPP_PREFIX)\bin\bits\os\gcc.bit"
-	copy /Y "bits\os\linux.bit" "$(BIT_VAPP_PREFIX)\bin\bits\os\linux.bit"
-	copy /Y "bits\os\macosx.bit" "$(BIT_VAPP_PREFIX)\bin\bits\os\macosx.bit"
-	copy /Y "bits\os\solaris.bit" "$(BIT_VAPP_PREFIX)\bin\bits\os\solaris.bit"
-	copy /Y "bits\os\unix.bit" "$(BIT_VAPP_PREFIX)\bin\bits\os\unix.bit"
-	copy /Y "bits\os\vxworks.bit" "$(BIT_VAPP_PREFIX)\bin\bits\os\vxworks.bit"
-	copy /Y "bits\os\windows.bit" "$(BIT_VAPP_PREFIX)\bin\bits\os\windows.bit"
+	copy /Y bits\os\freebsd.bit "$(BIT_VAPP_PREFIX)\bin\bits\os\freebsd.bit"
+	copy /Y bits\os\gcc.bit "$(BIT_VAPP_PREFIX)\bin\bits\os\gcc.bit"
+	copy /Y bits\os\linux.bit "$(BIT_VAPP_PREFIX)\bin\bits\os\linux.bit"
+	copy /Y bits\os\macosx.bit "$(BIT_VAPP_PREFIX)\bin\bits\os\macosx.bit"
+	copy /Y bits\os\solaris.bit "$(BIT_VAPP_PREFIX)\bin\bits\os\solaris.bit"
+	copy /Y bits\os\unix.bit "$(BIT_VAPP_PREFIX)\bin\bits\os\unix.bit"
+	copy /Y bits\os\vxworks.bit "$(BIT_VAPP_PREFIX)\bin\bits\os\vxworks.bit"
+	copy /Y bits\os\windows.bit "$(BIT_VAPP_PREFIX)\bin\bits\os\windows.bit"
 	if not exist "$(BIT_VAPP_PREFIX)\bin\bits\packs" md "$(BIT_VAPP_PREFIX)\bin\bits\packs"
-	copy /Y "bits\packs\compiler.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\compiler.bit"
-	copy /Y "bits\packs\doxygen.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\doxygen.bit"
-	copy /Y "bits\packs\dsi.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\dsi.bit"
-	copy /Y "bits\packs\dumpbin.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\dumpbin.bit"
-	copy /Y "bits\packs\ejs.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\ejs.bit"
-	copy /Y "bits\packs\ejscript.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\ejscript.bit"
-	copy /Y "bits\packs\est.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\est.bit"
-	copy /Y "bits\packs\http.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\http.bit"
-	copy /Y "bits\packs\lib.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\lib.bit"
-	copy /Y "bits\packs\link.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\link.bit"
-	copy /Y "bits\packs\man.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\man.bit"
-	copy /Y "bits\packs\man2html.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\man2html.bit"
-	copy /Y "bits\packs\matrixssl.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\matrixssl.bit"
-	copy /Y "bits\packs\md5.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\md5.bit"
-	copy /Y "bits\packs\nanossl.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\nanossl.bit"
-	copy /Y "bits\packs\openssl.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\openssl.bit"
-	copy /Y "bits\packs\pcre.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\pcre.bit"
-	copy /Y "bits\packs\pmaker.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\pmaker.bit"
-	copy /Y "bits\packs\ranlib.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\ranlib.bit"
-	copy /Y "bits\packs\rc.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\rc.bit"
-	copy /Y "bits\packs\sqlite.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\sqlite.bit"
-	copy /Y "bits\packs\ssl.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\ssl.bit"
-	copy /Y "bits\packs\strip.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\strip.bit"
-	copy /Y "bits\packs\tidy.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\tidy.bit"
-	copy /Y "bits\packs\utest.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\utest.bit"
-	copy /Y "bits\packs\vxworks.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\vxworks.bit"
-	copy /Y "bits\packs\winsdk.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\winsdk.bit"
-	copy /Y "bits\packs\zip.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\zip.bit"
-	copy /Y "bits\packs\zlib.bit" "$(BIT_VAPP_PREFIX)\bin\bits\packs\zlib.bit"
-	copy /Y "bits\sample-main.bit" "$(BIT_VAPP_PREFIX)\bin\bits\sample-main.bit"
-	copy /Y "bits\sample-start.bit" "$(BIT_VAPP_PREFIX)\bin\bits\sample-start.bit"
-	copy /Y "bits\simple.bit" "$(BIT_VAPP_PREFIX)\bin\bits\simple.bit"
-	copy /Y "bits\standard.bit" "$(BIT_VAPP_PREFIX)\bin\bits\standard.bit"
-	copy /Y "bits\vstudio.es" "$(BIT_VAPP_PREFIX)\bin\bits\vstudio.es"
-	copy /Y "bits\xcode.es" "$(BIT_VAPP_PREFIX)\bin\bits\xcode.es"
+	copy /Y bits\packs\compiler.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\compiler.bit"
+	copy /Y bits\packs\doxygen.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\doxygen.bit"
+	copy /Y bits\packs\dsi.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\dsi.bit"
+	copy /Y bits\packs\dumpbin.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\dumpbin.bit"
+	copy /Y bits\packs\ejs.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\ejs.bit"
+	copy /Y bits\packs\ejscript.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\ejscript.bit"
+	copy /Y bits\packs\est.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\est.bit"
+	copy /Y bits\packs\http.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\http.bit"
+	copy /Y bits\packs\lib.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\lib.bit"
+	copy /Y bits\packs\link.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\link.bit"
+	copy /Y bits\packs\man.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\man.bit"
+	copy /Y bits\packs\man2html.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\man2html.bit"
+	copy /Y bits\packs\matrixssl.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\matrixssl.bit"
+	copy /Y bits\packs\md5.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\md5.bit"
+	copy /Y bits\packs\nanossl.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\nanossl.bit"
+	copy /Y bits\packs\openssl.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\openssl.bit"
+	copy /Y bits\packs\pcre.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\pcre.bit"
+	copy /Y bits\packs\pmaker.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\pmaker.bit"
+	copy /Y bits\packs\ranlib.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\ranlib.bit"
+	copy /Y bits\packs\rc.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\rc.bit"
+	copy /Y bits\packs\sqlite.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\sqlite.bit"
+	copy /Y bits\packs\ssl.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\ssl.bit"
+	copy /Y bits\packs\strip.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\strip.bit"
+	copy /Y bits\packs\tidy.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\tidy.bit"
+	copy /Y bits\packs\utest.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\utest.bit"
+	copy /Y bits\packs\vxworks.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\vxworks.bit"
+	copy /Y bits\packs\winsdk.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\winsdk.bit"
+	copy /Y bits\packs\zip.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\zip.bit"
+	copy /Y bits\packs\zlib.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\zlib.bit"
+	copy /Y bits\sample-main.bit "$(BIT_VAPP_PREFIX)\bin\bits\sample-main.bit"
+	copy /Y bits\sample-start.bit "$(BIT_VAPP_PREFIX)\bin\bits\sample-start.bit"
+	copy /Y bits\simple.bit "$(BIT_VAPP_PREFIX)\bin\bits\simple.bit"
+	copy /Y bits\standard.bit "$(BIT_VAPP_PREFIX)\bin\bits\standard.bit"
+	copy /Y bits\vstudio.es "$(BIT_VAPP_PREFIX)\bin\bits\vstudio.es"
+	copy /Y bits\xcode.es "$(BIT_VAPP_PREFIX)\bin\bits\xcode.es"
 
 #
 #   start

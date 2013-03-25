@@ -6,6 +6,9 @@ Bit.pack({
     openssl: {
         description: 'OpenSSL',
         generate: function (pack) {
+            pack.path = '/usr/src/openssl'
+            pack.includes = [ '$(BIT_PACK_OPENSSL_PATH)/include' ]
+            pack.libpaths = [ '$(BIT_PACK_OPENSSL_PATH)' ]
             if (bit.platform.os == 'windows') {
                 pack.libraries = [ 'libeay32.lib', 'ssleay32.lib' ]
             } else {

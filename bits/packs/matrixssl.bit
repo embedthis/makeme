@@ -6,11 +6,13 @@ Bit.pack({
     matrixssl: {
         description: 'MatrixSSL',
         generate: function (pack) {
+            pack.path = '/usr/src/matrixssl'
+            pack.defines = [ 'WIN32', 'MATRIX_USE_FILE_SYSTEM' ]
+            pack.libpaths = [ '$(BIT_PACK_MATRIXSSL_PATH)' ]
+            pack.includes = [ '$(BIT_PACK_MATRIXSSL_PATH)', '$(BIT_PACK_MATRIXSSL_PATH)/matrixssl' ]
             if (bit.platform.os == 'windows') {
-                pack.defines = [ 'WIN32', 'MATRIX_USE_FILE_SYSTEM' ]
                 pack.libraries = [ 'matrixssl.lib' ]
             } else {
-                pack.defines = [ 'POSIX', 'MATRIX_USE_FILE_SYSTEM' ]
                 pack.libraries = [ 'matrixssl' ]
             }
         },
