@@ -5593,6 +5593,7 @@ PUBLIC EjsString *ejsToJSON(Ejs *ejs, EjsAny *obj, EjsObj *options);
 #define EJS_JSON_SHOW_PRETTY        0x8     /**< ejsSerialize flag to render in human-readible multiline format */
 #define EJS_JSON_SHOW_SUBCLASSES    0x10    /**< ejsSerialize flag to include subclass properties */
 #define EJS_JSON_SHOW_NOQUOTES      0x20    /**< ejsSerialize flag to omit quotes if property has no spaces */
+#define EJS_JSON_SHOW_REGEXP        0x40    /**< ejsSerialize flag to emit native RegExp literals */
 
 /**
     Serialize a variable into JSON format
@@ -5604,6 +5605,7 @@ PUBLIC EjsString *ejsToJSON(Ejs *ejs, EjsAny *obj, EjsObj *options);
         <li> EJS_JSON_SHOW_HIDDEN - Include hidden properties </li>
         <li> EJS_JSON_SHOW_NOQUOTES - Omit quotes on properties if possible</li> 
         <li> EJS_JSON_SHOW_NAMESPACES - Include namespaces in property names </li>
+        <li> EJS_JSON_SHOW_REGEXP - Emit native regular expression literals</li>
         <li> EJS_JSON_SHOW_PRETTY - Use human-readable multiline presentation </li> 
         <li> EJS_JSON_SHOW_SUBCLASSES - Include subclass properties </li>
         </ul>
@@ -7533,11 +7535,21 @@ typedef struct EjsRegExp {
 /** 
     Create a new regular expression object
     @param ejs Ejs reference returned from #ejsCreateVM
+    @param pattern Regular expression pattern string. The regular expression string should not contain the leading or
+        trailing slash. Embedded slash characters should not be back-quoted.
+    @return a EjsRegExp object
+    @ingroup EjsRegExp
+ */
+PUBLIC EjsRegExp *ejsCreateRegExp(Ejs *ejs, cchar *pattern, cchar *flags);
+
+/** 
+    Parse a string and create a regular expression object
+    @param ejs Ejs reference returned from #ejsCreateVM
     @param pattern Regular expression pattern string
     @return a EjsRegExp object
     @ingroup EjsRegExp
  */
-PUBLIC EjsRegExp *ejsCreateRegExp(Ejs *ejs, EjsString *pattern);
+PUBLIC EjsRegExp *ejsParseRegExp(Ejs *ejs, EjsString *pattern);
 
 /** 
     Get a string representation of a regular expression

@@ -10,6 +10,8 @@ Bit.pack({
             pack.libraries = [ 'ssls' ]
             pack.libpaths = [ '$(BIT_PACK_NANOSSL_PATH)/bin' ]
             pack.includes = [ '$(BIT_PACK_NANOSSL_PATH)/src' ]
+
+            /* UNUSED
             if (bit.platform.os == 'windows') {
                 mos = '__RTOS_WIN32__'
             } else if (bit.platform.os == 'macosx') {
@@ -19,6 +21,7 @@ Bit.pack({
             }
             pack.defines = [ mos,  '__ENABLE_MOCANA_SSL_SERVER__', '__ENABLE_MOCANA_PEM_CONVERSION__',
                 '__ENABLE_ALL_DEBUGGING__', '__ENABLE_MOCANA_DEBUG_CONSOLE__', '__MOCANA_DUMP_CONSOLE_TO_STDOUT__']
+            */
         },
         path: function (pack) {
             let path: Path? = pack.withpath
@@ -42,6 +45,7 @@ Bit.pack({
             let incdir = probe('common/moptions.h', {search: [path.join('src')]}).absolute
             pack.includes = [ incdir ]
 
+            /* UNUSED
             if (bit.platform.os == 'windows') {
                 mos = '__RTOS_WIN32__'
             } else if (bit.platform.os == 'macosx') {
@@ -49,12 +53,11 @@ Bit.pack({
             } else {
                 mos = '__RTOS_LINUX__'
             }
-            /* 
-                '__ENABLE_MOCANA_SSL_ASYNC_SERVER_API__', '__ENABLE_MOCANA_SSL_ASYNC_CLIENT_API__',
-                '__ENABLE_MOCANA_SSL_ASYNC_API_EXTENSIONS__', '__ENABLE_MOCANA_SSL_CLIENT__', 
-             */
+            '__ENABLE_MOCANA_SSL_ASYNC_SERVER_API__', '__ENABLE_MOCANA_SSL_ASYNC_CLIENT_API__',
+            '__ENABLE_MOCANA_SSL_ASYNC_API_EXTENSIONS__', '__ENABLE_MOCANA_SSL_CLIENT__', 
             pack.defines = [ mos,  '__ENABLE_MOCANA_SSL_SERVER__', '__ENABLE_MOCANA_PEM_CONVERSION__',
                 '__ENABLE_ALL_DEBUGGING__', '__ENABLE_MOCANA_DEBUG_CONSOLE__', '__MOCANA_DUMP_CONSOLE_TO_STDOUT__']
+             */
             return path
         },
         conflicts: [ 'est', 'matrixssl', 'openssl' ],

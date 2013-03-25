@@ -9,6 +9,9 @@ Bit.pack({
             let name = pack.withpath || ((bit.platform.like == 'windows') ? 'lib.exe' : 'ar')
             return probe(name, { fullpath: true, search: bit.packs.compiler.search, default: name })
         },
+        generate: function (pack) {
+            pack.path = (bit.platform.like == 'windows') ? 'lib.exe' : 'ar'
+        }
         requires: ['compiler'],
     },
 })

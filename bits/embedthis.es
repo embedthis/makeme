@@ -67,11 +67,6 @@ public function deploy(manifest, prefixes, package): Array {
         } else if (item.enable === false) {
             enable = false
         }
-        if (enable && App.uid != 0 && item.root && bit.installing && !bit.generating) {
-            trace('Skip', 'Must be root to copy ' + name)
-            skip(name, 'Must be administrator')
-            enable = false
-        }
         if (enable && sets) {
             if (item.set) {
                 if (!sets.exec(item.set)) {
@@ -79,6 +74,11 @@ public function deploy(manifest, prefixes, package): Array {
                     skip(name, 'Not in the requested file set: ' + sets)
                 }
             }
+        }
+        if (enable && App.uid != 0 && item.root && bit.installing && !bit.generating) {
+            trace('Skip', 'Must be root to copy ' + name)
+            skip(name, 'Must be administrator')
+            enable = false
         }
         if (enable) {
             if (item.precopy) {

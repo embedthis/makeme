@@ -37,7 +37,7 @@ BIT_PACK_COMPILER_PATH := gcc
 BIT_PACK_DSI_PATH  := dsi
 BIT_PACK_EJSCRIPT_PATH := ejscript
 BIT_PACK_EST_PATH  := est
-BIT_PACK_LIB_PATH  := lib
+BIT_PACK_LIB_PATH  := ar
 BIT_PACK_LINK_PATH := link
 BIT_PACK_MAN_PATH  := man
 BIT_PACK_MAN2HTML_PATH := man2html
@@ -400,9 +400,9 @@ $(CONFIG)/obj/http.o: \
 DEPS_22 += $(CONFIG)/bin/libhttp.so
 DEPS_22 += $(CONFIG)/obj/http.o
 
-LIBS_22 += -lhttp
-LIBS_22 += -lpcre
 LIBS_22 += -lmpr
+LIBS_22 += -lpcre
+LIBS_22 += -lhttp
 
 $(CONFIG)/bin/http: $(DEPS_22)
 	@echo '      [Link] http'
@@ -460,14 +460,12 @@ DEPS_27 += $(CONFIG)/inc/ejs.slots.h
 DEPS_27 += $(CONFIG)/inc/ejsByteGoto.h
 DEPS_27 += $(CONFIG)/obj/ejsLib.o
 
-LIBS_27 += -lmpr
-LIBS_27 += -lpcre
-LIBS_27 += -lhttp
-LIBS_27 += -lpcre
-LIBS_27 += -lmpr
 ifeq ($(BIT_PACK_EST),1)
     LIBS_27 += -lest
 endif
+LIBS_27 += -lmpr
+LIBS_27 += -lpcre
+LIBS_27 += -lhttp
 
 $(CONFIG)/bin/libejs.so: $(DEPS_27)
 	@echo '      [Link] libejs'
@@ -494,14 +492,14 @@ ifeq ($(BIT_PACK_EJSCRIPT),1)
 endif
 DEPS_29 += $(CONFIG)/obj/ejs.o
 
-ifeq ($(BIT_PACK_EJSCRIPT),1)
-    LIBS_29 += -lejs
-endif
-LIBS_29 += -lmpr
-LIBS_29 += -lpcre
 LIBS_29 += -lhttp
+LIBS_29 += -lpcre
+LIBS_29 += -lmpr
 ifeq ($(BIT_PACK_EST),1)
     LIBS_29 += -lest
+endif
+ifeq ($(BIT_PACK_EJSCRIPT),1)
+    LIBS_29 += -lejs
 endif
 
 $(CONFIG)/bin/ejs: $(DEPS_29)
@@ -529,14 +527,14 @@ ifeq ($(BIT_PACK_EJSCRIPT),1)
 endif
 DEPS_31 += $(CONFIG)/obj/ejsc.o
 
-ifeq ($(BIT_PACK_EJSCRIPT),1)
-    LIBS_31 += -lejs
-endif
-LIBS_31 += -lmpr
-LIBS_31 += -lpcre
 LIBS_31 += -lhttp
+LIBS_31 += -lpcre
+LIBS_31 += -lmpr
 ifeq ($(BIT_PACK_EST),1)
     LIBS_31 += -lest
+endif
+ifeq ($(BIT_PACK_EJSCRIPT),1)
+    LIBS_31 += -lejs
 endif
 
 $(CONFIG)/bin/ejsc: $(DEPS_31)
@@ -731,15 +729,15 @@ DEPS_35 += $(CONFIG)/bin/bits
 DEPS_35 += $(CONFIG)/inc/bitos.h
 DEPS_35 += $(CONFIG)/obj/bit.o
 
-ifeq ($(BIT_PACK_EJSCRIPT),1)
-    LIBS_35 += -lejs
-endif
-LIBS_35 += -lhttp
-LIBS_35 += -lmpr
-LIBS_35 += -lpcre
 ifeq ($(BIT_PACK_EST),1)
     LIBS_35 += -lest
 endif
+ifeq ($(BIT_PACK_EJSCRIPT),1)
+    LIBS_35 += -lejs
+endif
+LIBS_35 += -lpcre
+LIBS_35 += -lhttp
+LIBS_35 += -lmpr
 
 $(CONFIG)/bin/bit: $(DEPS_35)
 	@echo '      [Link] bit'

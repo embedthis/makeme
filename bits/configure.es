@@ -87,19 +87,21 @@ module embedthis.bit {
 
     internal function importPackFiles() {
         for (let [pname, pack] in bit.packs) {
-            for each (file in pack.imports) {
-                vtrace('Import', file)
-                if (file.extension == 'h') {
-                    cp(file, bit.dir.inc)
-                } else {
-                    if (bit.platform.like == 'windows') {
-                        let target = bit.dir.lib.join(file.basename).relative
-                        let old = target.replaceExt('old')
-                        vtrace('Preserve', 'Active library ' + target + ' as ' + old)
-                        old.remove()
-                        target.rename(old)
+            if (pack.enable) {
+                for each (file in pack.imports) {
+                    vtrace('Import', file)
+                    if (file.extension == 'h') {
+                        cp(file, bit.dir.inc)
+                    } else {
+                        if (bit.platform.like == 'windows') {
+                            let target = bit.dir.lib.join(file.basename).relative
+                            let old = target.replaceExt('old')
+                            vtrace('Preserve', 'Active library ' + target + ' as ' + old)
+                            old.remove()
+                            target.rename(old)
+                        }
+                        cp(file, bit.dir.lib)
                     }
-                    cp(file, bit.dir.lib)
                 }
             }
         }

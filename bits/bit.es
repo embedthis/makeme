@@ -1061,7 +1061,7 @@ public class Bit {
         expandWildcards()
         castTargetTypes()
         setTargetPaths()
-        inlineStatic()
+        //UNUSED inlineStatic()
         Object.sortProperties(bit)
 
         if (options.dump) {
@@ -1234,11 +1234,13 @@ public class Bit {
         return libs
     }
 
-    /*
+    /* UNUSED -- KEEP for a while
+
         Implement static linking by inlining all libraries
-     */
+
     function inlineStatic() {
-        for each (target in selectedTargets) {
+        targets = selectedTargets || bit.targets
+        for each (target in targets) {
             if (target.static) {
                 let resolved = []
                 let includes = []
@@ -1247,8 +1249,12 @@ public class Bit {
                     for each (dname in getDepLibs(target).unique()) {
                         let dep = bit.targets[dname]
                         if (dep && dep.type == 'lib' && dep.enable) {
-                            /* Add the dependent files to the target executables */
-                            target.files += dep.files
+                            // Add the dependent files to the target executables 
+                            if (false && bit.generating && target.static) {
+                                target.staticFiles = dep.files
+                            } else {
+                                target.files += dep.files
+                            }
                             includes += dep.includes
                             defines += dep.defines
                             if (dep.static) {
@@ -1269,6 +1275,7 @@ public class Bit {
             }
         }
     }
+     */
 
     /*
         Build a file list and apply include/exclude filters
@@ -1277,7 +1284,9 @@ public class Bit {
     function buildFileList(target, include, exclude = null) {
         if (!target.copytemp) {
             if (exclude) {
-                exclude = TempFilter + '|' + exclude
+                /* Join exclude pattersn. Strip leading and trailing slashes and change \/ to / */
+                let ex = (TempFilter.toString().slice(1, -1) + '|' + exclude.toString().slice(1, -1)).replace(/\\\//g, '/')
+                exclude = RegExp(ex)
             } else {
                 exclude = TempFilter
             }
@@ -1311,7 +1320,7 @@ public class Bit {
         for each (lib in dep.libraries) {
             target.libraries ||= []
             if (!target.libraries.contains(lib)) {
-                target.libraries.push(lib)
+                target.libraries = [lib] + target.libraries
             }
         }
         for each (option in dep.linker) {
@@ -1352,39 +1361,45 @@ public class Bit {
         for each (name in target.depends) {
             let dep = bit.targets[name]
             if (dep) {
-                if (!dep.enable) continue
+                if (!dep.enable && !options.gen) {
+                    continue
+                }
                 if (!dep.resolved) {
                     resolve(dep)
                 }
                 if (dep.type == 'lib') {
                     target.libraries ||= []
                     /* Put dependent libraries first so system libraries are last (matters on linux) */
+                    let lpath
                     if (dep.static) {
-                        target.libraries = [Path(name).joinExt(bit.ext.lib)] + target.libraries
+                        if (name.startsWith('lib')) {
+                            lpath = name.replace(/^lib/, '')
+                        } else {
+                            lpath = Path(name).joinExt(bit.ext.lib)
+                        }
                     } else {
                         if (name.startsWith('lib')) {
-                            target.libraries = [name.replace(/^lib/, '')] + target.libraries
+                            lpath = name.replace(/^lib/, '')
                         } else {
-                            target.libraries = [Path(name).joinExt(bit.ext.shlib, true)] + target.libraries
+                            lpath = Path(name).joinExt(bit.ext.shlib, true)
                         }
+                    }
+                    if (!target.libraries.contains(lpath)) {
+                        target.libraries = [lpath] + target.libraries
                     }
                 }
                 inheritDep(target, dep)
 
             } else {
                 let pack = bit.packs[name]
-                if (pack && pack.enable !== false) {
-                    inheritDep(target, pack)
+                if (pack) {
+                    if (pack.enable !== false || 
+                       (options.gen && bit.settings.projects && bit.settings.projects[name] !== null)) {
+                        inheritDep(target, pack)
+                    }
                 }
             }
         }
-        /* UNUSED
-        for each (name in target.requires) {
-            let pack = bit.packs[name]
-            if (pack && pack.enable !== false) {
-                inheritDep(target, pack)
-            }
-        } */
         runTargetScript(target, 'postresolve')
     }
 
@@ -1487,6 +1502,9 @@ public class Bit {
     function blendDefaults() {
         runScript(bit.scripts, "preinherit")
         for (let [tname, target] in bit.targets) {
+            if (/* UNUSED target.type == 'lib' && */ target.static == null && bit.settings.static) {
+                target.static = bit.settings.static
+            }
             //  MOB - remove targetsToBlend
             if (true || targetsToBlend[target.type]) {
                 let def = blend({}, bit.defaults, {combine: true})
@@ -1510,9 +1528,6 @@ public class Bit {
                     delete target.libpaths 
                     delete target.libraries 
                 }
-            }
-            if (target.type == 'lib' && target.static == null && bit.settings.static) {
-                target.static = bit.settings.static
             }
         }
     }
@@ -1609,6 +1624,7 @@ public class Bit {
         @hide
      */
     public function build() {
+
         if (goals.length == 0) {
             goals.push(ALL)
         }

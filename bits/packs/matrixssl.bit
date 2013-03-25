@@ -7,11 +7,12 @@ Bit.pack({
         description: 'MatrixSSL',
         generate: function (pack) {
             pack.path = '/usr/src/matrixssl'
-            pack.defines = [ 'WIN32', 'MATRIX_USE_FILE_SYSTEM' ]
+            //UNUSED pack.defines = [ 'MATRIX_USE_FILE_SYSTEM' ]
             pack.libpaths = [ '$(BIT_PACK_MATRIXSSL_PATH)' ]
             pack.includes = [ '$(BIT_PACK_MATRIXSSL_PATH)', '$(BIT_PACK_MATRIXSSL_PATH)/matrixssl' ]
             if (bit.platform.os == 'windows') {
                 pack.libraries = [ 'matrixssl.lib' ]
+                //UNUSED pack.defines += [ 'WIN32' ]
             } else {
                 pack.libraries = [ 'matrixssl' ]
             }
@@ -33,11 +34,11 @@ Bit.pack({
             let lib = probe('libmatrixssl.' + bit.ext.shobj, {fullpath: true, search: search}).absolute
             pack.libpaths = [lib.parent]
             if (bit.platform.os == 'windows') {
-                pack.defines = [ 'WIN32', 'MATRIX_USE_FILE_SYSTEM' ],
+                //UNUSED pack.defines = [ 'WIN32', 'MATRIX_USE_FILE_SYSTEM' ],
                 pack.libraries = [ 'matrixssl.lib' ],
                 pack.imports = [ lib, lib.replaceExt('lib') ]
             } else {
-                pack.defines = [ 'POSIX', 'MATRIX_USE_FILE_SYSTEM' ],
+                //UNUSED pack.defines = [ 'POSIX', 'MATRIX_USE_FILE_SYSTEM' ],
                 pack.libraries = [ 'matrixssl' ]
                 pack.imports = [ lib ]
             }

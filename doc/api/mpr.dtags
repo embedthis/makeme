@@ -41,13 +41,6 @@
     </member>
     <member kind="define">
       <type>#define</type>
-      <name>BIT_MPR_THREAD_STACK</name>
-      <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>a79a376a6ad7664641ab6bfeb88dc8273</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
       <name>MPR_ALLOC_MANAGER</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a0fdfeef976b9c763e5e311d126752e59</anchor>

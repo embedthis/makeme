@@ -1085,37 +1085,44 @@ module embedthis.bit {
 
     function genTargetLibs(target, command): String {
         let found
-
         /* This makes matching easier */
         command += ' '
         for each (lib in target.libraries) {
             let name = null
-            let dep 
+            let dep, requires
             if (bit.targets['lib' + lib]) {
                 name = 'lib' + lib
                 dep = bit.targets[name]
+                requires = dep.requires
+
             } else if (bit.targets[lib]) {
                 name = lib
                 dep = bit.targets[name]
+                requires = dep.requires
+
+            } else if (bit.targets[Path(lib).trimExt()]) {
+                name = Path(lib).trimExt()
+                dep = bit.targets[name]
+                requires = dep.requires
+
             } else {
                 /*
                     Check required packs that provide the library
                  */
-                for each (r in target.requires) {
-                    if ((pack = bit.packs[r]) != null) {
-                        for each (l in pack.libraries) {
-                            if (lib == l) {
-                                name = lib
-                                dep = target
-                                break
-                            }
+                for each (pack in bit.packs) {
+                    if (pack.libraries && pack.libraries.contains(lib)) {
+                        name = lib
+                        dep = target
+                        requires = (target.requires) ? target.requires.clone() : []
+                        if (!requires.contains(pack.name)) {
+                            requires.push(pack.name)
                         }
                     }
                 }
             }
             if (name) {
-                if (dep.requires) {
-                    for each (r in dep.requires) {
+                if (requires) {
+                    for each (r in requires) {
                         if (bit.platform.os == 'windows') {
                             genout.writeLine('!IF "$(BIT_PACK_' + r.toUpper() + ')" == "1"')
                         } else {
@@ -1127,7 +1134,7 @@ module embedthis.bit {
                     } else {
                         genout.writeLine('    LIBS_' + nextID + ' += -l' + lib)
                     }
-                    for each (i in dep.requires.length) {
+                    for each (i in requires.length) {
                         if (bit.platform.os == 'windows') {
                             genout.writeLine('!ENDIF')
                         } else {
@@ -1153,6 +1160,17 @@ module embedthis.bit {
                 } else {
                     /* Leave as is */
                     // command = command.replace(RegExp(' -l' + lib + ' ', 'g'), ' ')
+                }
+            }
+        }
+        //MOB
+        if (false && target.static) {
+            command = command.replace('$(LIBS)', '$(DEPS_' + nextID + ') $(LIBS)')
+            for each (let dname in target.depends) {
+                let dep = bit.targets[dname]
+                if (dep) {
+                    let d = (dep.path) ? reppath(dep.path) : dep.name
+                    command = command.replace(d, '')
                 }
             }
         }

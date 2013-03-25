@@ -53,7 +53,7 @@ BIT_PACK_COMPILER_PATH := cl
 BIT_PACK_DSI_PATH  := dsi
 BIT_PACK_EJSCRIPT_PATH := ejscript
 BIT_PACK_EST_PATH  := est
-BIT_PACK_LIB_PATH  := lib
+BIT_PACK_LIB_PATH  := lib.exe
 BIT_PACK_LINK_PATH := link
 BIT_PACK_MAN_PATH  := man
 BIT_PACK_MAN2HTML_PATH := man2html
@@ -402,9 +402,9 @@ $(CONFIG)\obj\http.obj: \
 DEPS_22 = $(DEPS_22) $(CONFIG)\bin\libhttp.dll
 DEPS_22 = $(DEPS_22) $(CONFIG)\obj\http.obj
 
-LIBS_22 = $(LIBS_22) libhttp.lib
-LIBS_22 = $(LIBS_22) libpcre.lib
 LIBS_22 = $(LIBS_22) libmpr.lib
+LIBS_22 = $(LIBS_22) libpcre.lib
+LIBS_22 = $(LIBS_22) libhttp.lib
 
 $(CONFIG)\bin\http.exe: $(DEPS_22)
 	@echo '      [Link] http'
@@ -462,14 +462,12 @@ DEPS_27 = $(DEPS_27) $(CONFIG)\inc\ejs.slots.h
 DEPS_27 = $(DEPS_27) $(CONFIG)\inc\ejsByteGoto.h
 DEPS_27 = $(DEPS_27) $(CONFIG)\obj\ejsLib.obj
 
-LIBS_27 = $(LIBS_27) libmpr.lib
-LIBS_27 = $(LIBS_27) libpcre.lib
-LIBS_27 = $(LIBS_27) libhttp.lib
-LIBS_27 = $(LIBS_27) libpcre.lib
-LIBS_27 = $(LIBS_27) libmpr.lib
 !IF "$(BIT_PACK_EST)" == "1"
 LIBS_27 = $(LIBS_27) libest.lib
 !ENDIF
+LIBS_27 = $(LIBS_27) libmpr.lib
+LIBS_27 = $(LIBS_27) libpcre.lib
+LIBS_27 = $(LIBS_27) libhttp.lib
 
 $(CONFIG)\bin\libejs.dll: $(DEPS_27)
 	@echo '      [Link] libejs'
@@ -496,14 +494,14 @@ DEPS_29 = $(DEPS_29) $(CONFIG)\bin\libejs.dll
 !ENDIF
 DEPS_29 = $(DEPS_29) $(CONFIG)\obj\ejs.obj
 
-!IF "$(BIT_PACK_EJSCRIPT)" == "1"
-LIBS_29 = $(LIBS_29) libejs.lib
-!ENDIF
-LIBS_29 = $(LIBS_29) libmpr.lib
-LIBS_29 = $(LIBS_29) libpcre.lib
 LIBS_29 = $(LIBS_29) libhttp.lib
+LIBS_29 = $(LIBS_29) libpcre.lib
+LIBS_29 = $(LIBS_29) libmpr.lib
 !IF "$(BIT_PACK_EST)" == "1"
 LIBS_29 = $(LIBS_29) libest.lib
+!ENDIF
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
+LIBS_29 = $(LIBS_29) libejs.lib
 !ENDIF
 
 $(CONFIG)\bin\ejs.exe: $(DEPS_29)
@@ -531,14 +529,14 @@ DEPS_31 = $(DEPS_31) $(CONFIG)\bin\libejs.dll
 !ENDIF
 DEPS_31 = $(DEPS_31) $(CONFIG)\obj\ejsc.obj
 
-!IF "$(BIT_PACK_EJSCRIPT)" == "1"
-LIBS_31 = $(LIBS_31) libejs.lib
-!ENDIF
-LIBS_31 = $(LIBS_31) libmpr.lib
-LIBS_31 = $(LIBS_31) libpcre.lib
 LIBS_31 = $(LIBS_31) libhttp.lib
+LIBS_31 = $(LIBS_31) libpcre.lib
+LIBS_31 = $(LIBS_31) libmpr.lib
 !IF "$(BIT_PACK_EST)" == "1"
 LIBS_31 = $(LIBS_31) libest.lib
+!ENDIF
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
+LIBS_31 = $(LIBS_31) libejs.lib
 !ENDIF
 
 $(CONFIG)\bin\ejsc.exe: $(DEPS_31)
@@ -752,15 +750,15 @@ DEPS_37 = $(DEPS_37) $(CONFIG)\bin\bits
 DEPS_37 = $(DEPS_37) $(CONFIG)\inc\bitos.h
 DEPS_37 = $(DEPS_37) $(CONFIG)\obj\bit.obj
 
-!IF "$(BIT_PACK_EJSCRIPT)" == "1"
-LIBS_37 = $(LIBS_37) libejs.lib
-!ENDIF
-LIBS_37 = $(LIBS_37) libhttp.lib
-LIBS_37 = $(LIBS_37) libmpr.lib
-LIBS_37 = $(LIBS_37) libpcre.lib
 !IF "$(BIT_PACK_EST)" == "1"
 LIBS_37 = $(LIBS_37) libest.lib
 !ENDIF
+!IF "$(BIT_PACK_EJSCRIPT)" == "1"
+LIBS_37 = $(LIBS_37) libejs.lib
+!ENDIF
+LIBS_37 = $(LIBS_37) libpcre.lib
+LIBS_37 = $(LIBS_37) libhttp.lib
+LIBS_37 = $(LIBS_37) libmpr.lib
 
 $(CONFIG)\bin\bit.exe: $(DEPS_37)
 	@echo '      [Link] bit'

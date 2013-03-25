@@ -1577,10 +1577,13 @@ PUBLIC void mprRemoveRoot(void *ptr);
 #if DOXYGEN
     /**
         Mark a memory block as in-use
-        @description To prevent a memory block being freed by the garbage collector, it must be marked as in-use. This
-            routine will mark a memory block as being used. 
+        @description To prevent a memory block being freed by the garbage collector, it must be marked as "active". 
+        @param ptr Reference to managed memory block. This must be managed memory allocated by the MPR. Do not call
+            mprMark on memory allocated via malloc(), strdup() or other non-MPR allocation routines. 
+            It is safe pass a NULL pointer to mprMark and this will have no effect. This is a convenient pattern 
+            where manager functions can call mprMark() without testing if the element reference is null or not.
      */
-    PUBLIC void mprMark(void* ptr);
+    PUBLIC void mprMark(void *ptr);
     @ingroup MprMem
 #else
     #define mprMark(ptr) if (ptr) { mprMarkBlock(ptr); } else
