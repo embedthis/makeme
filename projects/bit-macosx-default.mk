@@ -33,21 +33,21 @@ ifeq ($(BIT_PACK_OPENSSL),1)
     BIT_PACK_SSL := 1
 endif
 
-BIT_PACK_COMPILER_PATH := clang
-BIT_PACK_DSI_PATH  := dsi
-BIT_PACK_EJSCRIPT_PATH := ejscript
-BIT_PACK_EST_PATH  := est
-BIT_PACK_LIB_PATH  := ar
-BIT_PACK_LINK_PATH := link
-BIT_PACK_MAN_PATH  := man
-BIT_PACK_MAN2HTML_PATH := man2html
-BIT_PACK_MATRIXSSL_PATH := /usr/src/matrixssl
-BIT_PACK_NANOSSL_PATH := /usr/src/nanossl
-BIT_PACK_OPENSSL_PATH := /usr/src/openssl
-BIT_PACK_PCRE_PATH := pcre
-BIT_PACK_PMAKER_PATH := pmaker
-BIT_PACK_SSL_PATH  := ssl
-BIT_PACK_ZIP_PATH  := zip
+BIT_PACK_COMPILER_PATH    := clang
+BIT_PACK_DSI_PATH         := dsi
+BIT_PACK_EJSCRIPT_PATH    := ejscript
+BIT_PACK_EST_PATH         := est
+BIT_PACK_LIB_PATH         := ar
+BIT_PACK_LINK_PATH        := link
+BIT_PACK_MAN_PATH         := man
+BIT_PACK_MAN2HTML_PATH    := man2html
+BIT_PACK_MATRIXSSL_PATH   := /usr/src/matrixssl
+BIT_PACK_NANOSSL_PATH     := /usr/src/nanossl
+BIT_PACK_OPENSSL_PATH     := /usr/src/openssl
+BIT_PACK_PCRE_PATH        := pcre
+BIT_PACK_PMAKER_PATH      := pmaker
+BIT_PACK_SSL_PATH         := ssl
+BIT_PACK_ZIP_PATH         := zip
 
 CFLAGS             += -w
 DFLAGS             +=  $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) -DBIT_PACK_EJSCRIPT=$(BIT_PACK_EJSCRIPT) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
