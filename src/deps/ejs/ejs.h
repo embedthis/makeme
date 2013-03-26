@@ -7537,6 +7537,8 @@ typedef struct EjsRegExp {
     @param ejs Ejs reference returned from #ejsCreateVM
     @param pattern Regular expression pattern string. The regular expression string should not contain the leading or
         trailing slash. Embedded slash characters should not be back-quoted.
+    @param flags Regular expression flags. Support flags include "g" for global match, "i" to ignore case, "m" match over
+        multiple lines, "y" for sticky match.
     @return a EjsRegExp object
     @ingroup EjsRegExp
  */
