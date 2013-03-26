@@ -3834,6 +3834,8 @@ static EjsNamespace *lookupNamespace(Ejs *ejs, EjsString *nspace)
 }
 
 
+//  MOB - common this with the slow-path version in the VM
+
 /*
     Look for a variable by name in the scope chain and return the location in "cp->lookup" and a positive slot 
     number if found.  If the name.space is non-null/non-empty, then only the given namespace will be used. 

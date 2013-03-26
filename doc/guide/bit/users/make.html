@@ -94,6 +94,13 @@ macosx-x64-default/obj/mprLib.o -lpthread -lm -ldl
 <pre>$ <b>make</b>
 make -f projects/appweb-macosx-default.mk all
 </pre>
+            <a name="selecting"></a>
+            <h3>Selecting a Platform Makefile</h3>
+            <p>Invoking the top-level Makefile will automatically invoke the appropriate platform makefile for the
+                current system architecture. Many products provide optional <em>static</em> build makefiles. These
+                are named: PRODUCT-OS-static.mk. If provided, you can select a static build via:</p>
+                <pre>$ make PROFILE=static</pre>
+                
             <a name="nmake"></a>
             <h3>Windows Nmake</h3>
             <p>Bit can generate a Makefile for Nmake which is the Windows variant of Make. This has a <em>.nmake</em>
@@ -109,9 +116,19 @@ nmake -f projects\appweb-windows.nmake
             Rather, you supply desired configuration options directly to Make. These options override default values defined
             in the platform makefile and/or the product <em>bit.h</em> configuration header. For example:
             <pre>$ make <b>BIT_PACK_EST=0 </b></pre>
-            <p>This will disable use of the EST (Embedded Security Transport SSL).</p>
-            <p>By defining the make variables such as CC and CFLAGS, you can modify the compiler options. This is the
-            technique used when cross-compiling.
+            <p>Extension packs are enabled by setting their corresponing BIT_PACK_NAME option to 1. Disable by setting
+                to zero. Some packs requires a path to locate libraries and headers. Use BIT_PACK_NAME_PATH to define
+                the path to the extension pack.</p>
+            <p>By defining make variables such as CC and CFLAGS, you can modify the compiler options. This is the
+                also the technique used when cross-compiling.</p>
+            <h3>Make Install</h3>
+            <p>If using make to install the product after compiling, you use <em>make install</em>. However,
+                it is essential when invoking <em>make install</em>, that you provide the same make flags and options
+                as you did when compiling. This is because the Makefile will conditionally install only the selected
+                components for those options.</p>
+            <p>For example, to build and install OpenSSL:</p>
+                <pre>$ make <b>BIT_PACK_OPENSSL=1 BIT_PACK_OPENSSL_PATH=/usr/src/openssl</b> compile
+$ sudo make <b>BIT_PACK_OPENSSL=1 BIT_PACK_OPENSSL_PATH=/usr/src/openssl</b> install</pre>
             <a id="cross"></a>
             <h2 class="section">Cross Compiling with Make</h2>
             <p>Building a product for a platform different to that of the local system is called <em>cross compiling</em>.
@@ -120,7 +137,7 @@ nmake -f projects\appweb-windows.nmake
             cross-compiler is typically required to build for the target platform.</p>
             <p>Appweb supplies makefiles for Linux, Windows, FreeBSD, MAC OSX and VxWorks. To cross compile, you invoke 
             the relevant project makefile and pass the required CPU architecture as a make variable. For example, to 
-            cross compile for VxWorks on ARM:
+            cross compile for VxWorks on ARM:</p>
             <pre>
 make -f projects/appweb-vxworks-default.mk ARCH=arm PROFILE=debug
 </pre>

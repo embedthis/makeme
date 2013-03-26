@@ -1039,7 +1039,8 @@ module embedthis.bit {
             command = command.replace(RegExp(bit.prefixes[p], 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
         }
         //  Work-around for replacing root prefix
-        command = command.replace(/"\/\//g, '"$$(BIT_ROOT_PREFIX)/')
+        // command = command.replace(/"\/\//g, '"$$(BIT_ROOT_PREFIX)/')
+        command = command.replace(/\/\//g, '$$(BIT_ROOT_PREFIX)/')
         return command
     }
 
@@ -1066,7 +1067,8 @@ module embedthis.bit {
             command = command.replace(RegExp(gen[p], 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
         }
         //  Work-around for replacing root prefix
-        command = command.replace(/"\/\//g, '"$$(BIT_ROOT_PREFIX)/')
+        // command = command.replace(/"\/\//g, '"$$(BIT_ROOT_PREFIX)/')
+        command = command.replace(/\/\//g, '$$(BIT_ROOT_PREFIX)/')
         return command
     }
 

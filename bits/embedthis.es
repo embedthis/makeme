@@ -105,6 +105,9 @@ public function deploy(manifest, prefixes, package): Array {
                 }
             }
             if (item.from) {
+if (item.to.contains('Launch')) {
+    dump("HERE", item)
+}
                 copy(item.from, item.to, item)
             }
             if (item.write) {

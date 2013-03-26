@@ -40,6 +40,10 @@ all compile:
 clean clobber install installBinary uninstall run:
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@
 
+deploy:
+	@echo '       [Deploy] $(MAKE) BIT_ROOT_PREFIX=$(OS)-$(ARCH)-$(PROFILE)/deploy -f projects/$(NAME)-$(OS)-$(PROFILE).  $(EXT) installBinary'
+	@$(MAKE) BIT_ROOT_PREFIX=$(OS)-$(ARCH)-$(PROFILE)/deploy -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) installBinary
+
 version:
 	@$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@
 
@@ -54,7 +58,7 @@ update:
 
 help:
 	@echo '' >&2
-	@echo 'usage: make [clean, compile, install, run, uninstall]' >&2
+	@echo 'usage: make [clean, compile, deploy, install, run, uninstall]' >&2
 	@echo '' >&2
 	@echo 'The default configuration can be modified by setting make variables' >&2
 	@echo 'Set to 0 to disable and 1 to enable:' >&2

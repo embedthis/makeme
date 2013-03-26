@@ -3146,7 +3146,7 @@ public class Bit {
                     genrep('\tchmod ' + "%0o".format([options.permissions]) + ' "' + path + '"')
                 }
                 if (options.user || options.group) {
-                    genrep('\t[ `id -u` = 0 ] && chown ' + options.user + ':' + options.group + ' "' + path + '"')
+                    genrep('\t[ `id -u` = 0 ] && chown ' + options.user + ':' + options.group + ' "' + path + '"; true')
                 }
             }
         }
@@ -3275,9 +3275,9 @@ public class Bit {
                 }
                 genrep('\tcp ' + src + ' ' + dest)
                 if (options.uid || options.gid) {
-                    genrep('\t[ `id -u` = 0 ] && chown ' + options.uid + ':' + options.gid + ' "' + dest + '"')
+                    genrep('\t[ `id -u` = 0 ] && chown ' + options.uid + ':' + options.gid + ' "' + dest + '"; true')
                 } else if (options.user || options.group) {
-                    genrep('\t[ `id -u` = 0 ] && chown ' + options.user + ':' + options.group + ' "' + dest + '"')
+                    genrep('\t[ `id -u` = 0 ] && chown ' + options.user + ':' + options.group + ' "' + dest + '"; true')
                 }
                 if (options.permissions) {
                     genrep('\tchmod ' + "%0o".format([options.permissions]) + ' "' + dest + '"')

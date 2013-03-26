@@ -120,8 +120,13 @@ Use "SHOW=1 make" to show executed commands.
             <pre>
 sudo make uninstall
 </pre>
-            <p>If you need to capture the build products only, you can install to a specific directory via:
-            <pre>make BIT_ROOT_PREFIX=/tmp/output installBinary</pre>
+
+            <a name="deploy"></a>
+            <h2>Deploying</h2>
+            <p>If you need to deploy to a different system or capture the build products, you can install to a specific
+            directory via: </p>
+            <pre>make deploy</pre>
+            <p>This will install to the <em>deploy</em> directory under the output platform directory.</p>
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->
