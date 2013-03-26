@@ -65,6 +65,10 @@ Bit.load({
             type: 'configuration',
         },
 
+        deploy: {
+            type: 'deploy',
+        },
+
         reconfigure: {
             type: 'reconfigure',
         },
