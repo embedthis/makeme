@@ -12,8 +12,11 @@ let TempFilter = /\.old$|\.tmp$|xcuserdata|xcworkspace|project.guid|-mine/
 
 public function deploy(manifest, prefixes, package): Array {
     let sets = bit.options.sets || package.sets
-
     trace('Copy', 'File sets: ' + sets)
+    let home = App.dir
+    if (manifest.home) {
+        App.chdir(manifest.home)
+    }
     if (!(sets is RegExp)) {
         sets = RegExp(sets.toString().replace(/[ ,]/g, '|'))
     }
@@ -22,6 +25,10 @@ public function deploy(manifest, prefixes, package): Array {
     for each (item in manifest.files) {
         if (bit.options.verbose) {
             dump("Consider", item)
+        }
+        let prior = App.dir
+        if (item.home) {
+            App.chdir(item.home)
         }
         for (let [key,value] in item) {
             if (value is String && value.contains('${')) {
@@ -40,17 +47,14 @@ public function deploy(manifest, prefixes, package): Array {
         let name = item.name || serialize(item)
         let enable = true
 
-        if (item.requires) {
-            for each (r in item.requires) {
-                if (!bit.generating) {
-                    if ((!bit.packs[r] || !bit.packs[r].enable)) {
-                        skip(name, 'Required pack ' + r + ' is not enabled')
-                        enable = false
-                        break
-                    }
+        for each (r in item.requires) {
+            if (!bit.generating) {
+                if ((!bit.packs[r] || !bit.packs[r].enable)) {
+                    skip(name, 'Required pack ' + r + ' is not enabled')
+                    enable = false
+                    break
                 }
             }
-
         } 
         if (enable && item.enable) {
             if (!(item.enable is Boolean)) {
@@ -126,8 +130,10 @@ public function deploy(manifest, prefixes, package): Array {
             if (item.postcopy) {
                 eval('require ejs.unix\n' + expand(item.postcopy))
             }
+            App.chdir(prior)
         }
     }
+    App.chdir(home)
     return filelist
 }
 
@@ -591,14 +597,14 @@ function packageMacosx(prefixes) {
     bit.PACKAGE_SIZE = size
     let pm = s.product + '.pmdoc'
     let pmdoc = staging.join(pm)
-    let opak = Path('package/' + bit.platform.os)
+    let opak = bit.dir.src.join('package/' + bit.platform.os)
     copy(opak.join('background.png'), staging)
     copy(opak.join('license.rtf'), staging)
     copy(opak.join('readme.rtf'), staging)
     copy(opak.join(pm + '/*'), pmdoc, {expand: true, hidden: true})
     let scripts = staging.join('scripts')
     scripts.makeDir()
-    copy('package/' + bit.platform.os + '/scripts/*', scripts, {expand: true})
+    copy(bit.dir.src.join('package/' + bit.platform.os + '/scripts/*'), scripts, {expand: true})
     createMacContents(prefixes)
 
     /* Remove extended attributes */
@@ -640,7 +646,7 @@ function packageFedora(prefixes) {
     bit.prefixes.rpm = RPM
     bit.prefixes.content = prefixes.root
 
-    let opak = Path('package/' + bit.platform.os)
+    let opak = bit.dir.src.join('package/' + bit.platform.os)
     let spec = RPM.join('SPECS', base).joinExt('spec', true)
     copy(opak.join('rpm.spec'), spec, {expand: true, permissions: 0644})
 
@@ -692,7 +698,7 @@ function packageUbuntu(prefixes) {
     let base = [s.product, s.version, s.buildNumber, bit.platform.dist, bit.platform.os, bit.platform.arch].join('-')
 
     let DEBIAN = prefixes.root.join('DEBIAN')
-    let opak = Path('package/' + bit.platform.os)
+    let opak = bit.dir.src.join('package/' + bit.platform.os)
 
     copy(opak.join('deb.bin/conffiles'), DEBIAN.join('conffiles'), {expand: true, permissions: 0644})
     copy(opak.join('deb.bin/control'), DEBIAN, {expand: true, permissions: 0755})
@@ -710,7 +716,7 @@ function packageWindows(prefixes) {
         throw 'Configured without pmaker: Inno Setup'
     }
     let s = bit.settings
-    let wpak = Path('package/' + bit.platform.os)
+    let wpak = bit.dir.src.join('package/' + bit.platform.os)
     let media = prefixes.media
 
     copy(bit.dir.src.join('LICENSE.md'), media)

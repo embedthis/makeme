@@ -43,7 +43,6 @@ module embedthis.bit {
 
     function generateProjects() {
         b.selectTargets('all')
-        //MOB UNUSED if (bit.generating) return
         gen = {
             configuration:  bit.platform.name
             compiler:       bit.defaults.compiler.join(' '),
