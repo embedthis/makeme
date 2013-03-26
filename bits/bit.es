@@ -1250,11 +1250,7 @@ public class Bit {
                         let dep = bit.targets[dname]
                         if (dep && dep.type == 'lib' && dep.enable) {
                             // Add the dependent files to the target executables 
-                            if (false && bit.generating && target.static) {
-                                target.staticFiles = dep.files
-                            } else {
-                                target.files += dep.files
-                            }
+                            target.files += dep.files
                             includes += dep.includes
                             defines += dep.defines
                             if (dep.static) {
@@ -1361,7 +1357,11 @@ public class Bit {
         for each (name in target.depends) {
             let dep = bit.targets[name]
             if (dep) {
-                if (!dep.enable && !options.gen) {
+                /*
+                    Make and nmake generation formats support conditional building and so all dependents are included
+                    even if disabled.
+                 */ 
+                if (!dep.enable && (options.gen != 'make' && options.gen != 'nmake')) {
                     continue
                 }
                 if (!dep.resolved) {
@@ -1393,8 +1393,12 @@ public class Bit {
             } else {
                 let pack = bit.packs[name]
                 if (pack) {
-                    if (pack.enable !== false || 
-                       (options.gen && bit.settings.projects && bit.settings.projects[name] !== null)) {
+                    /*
+                        Inherit from the pack if enabled or if doing a make|nmake conditional generation and the
+                        pack is defined in settings.
+                     */
+                    if (pack.enable !== false || ((options.gen == 'make' || options.gen == 'nmake') && 
+                            bit.settings.projects && bit.settings.projects[name] !== null)) {
                         inheritDep(target, pack)
                     }
                 }

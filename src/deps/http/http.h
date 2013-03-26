@@ -1130,7 +1130,8 @@ typedef struct HttpQueue {
     struct HttpQueue    *pair;                  /**< Queue for the same stage in the opposite direction */
     int                 servicing;              /**< Currently being serviced */
     int                 direction;              /**< Flow direction */
-    void                *queueData;             /**< Stage instance data */
+    void                *queueData;             /**< Stage instance data - must be a managed reference */
+    void                *staticData;            /**< Stage instance data - must be an unmanaged reference */
 
     /*  
         Connector instance data
@@ -2010,7 +2011,8 @@ typedef struct HttpConn {
     void            *ejs;                   /**< Embedding VM */
     void            *pool;                  /**< Pool of VMs */
     void            *mark;                  /**< Reference for GC marking */
-    void            *data;                  /**< Custom data for request */
+    void            *data;                  /**< Custom data for request - must be a managed reference*/
+    void            *staticData;            /**< Custom data for request - must be an - unmanaged reference*/
     void            *grid;                  /**< Current request database grid for MVC apps */
     void            *record;                /**< Current request database record for MVC apps */
     char            *boundary;              /**< File upload boundary */
