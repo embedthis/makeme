@@ -1398,7 +1398,7 @@ public class Bit {
                         pack is defined in settings.
                      */
                     if (pack.enable !== false || ((options.gen == 'make' || options.gen == 'nmake') && 
-                            bit.settings.projects && bit.settings.projects[name] !== null)) {
+                            bit.packDefaults && bit.packDefaults[name] !== null)) {
                         inheritDep(target, pack)
                     }
                 }

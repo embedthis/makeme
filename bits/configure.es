@@ -168,14 +168,14 @@ module embedthis.bit {
     }
 
     /*
-        Set packs required for generation from bit.settings.projects
+        Set packs required for generation from bit.packDefaults
      */
     internal function setRequiredPacks() { 
-        for (let [pname, enabled] in bit.settings.projects) {
+        for (let [pname, enabled] in bit.packDefaults) {
             bit.packs[pname] ||= {}
         }
         if (bit.options.gen == 'make' || bit.options.gen == 'nmake') {
-            for (let [pname, enabled] in bit.settings.projects) {
+            for (let [pname, enabled] in bit.packDefaults) {
                 bit.packs[pname].enable = enabled
             }
             for each (target in bit.targets) {
@@ -308,8 +308,8 @@ module embedthis.bit {
         }
         trace('Search', 'For tools and extension packages')
         let packs = settings.requires + settings.discover
-        if ((bit.options.gen == 'make' || bit.options.gen == 'nmake') && bit.settings.projects) {
-            packs += Object.getOwnPropertyNames(bit.settings.projects)
+        if ((bit.options.gen == 'make' || bit.options.gen == 'nmake') && bit.packDefaults) {
+            packs += Object.getOwnPropertyNames(bit.packDefaults)
         }
         loadPacks(packs)
         enablePacks()

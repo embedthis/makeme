@@ -254,7 +254,7 @@ module embedthis.bit {
                 }
             }
         }
-        for (let [pname, enabled] in bit.settings.projects) {
+        for (let [pname, enabled] in bit.packDefaults) {
             if (bit.packs[pname]) {
                 bit.packs[pname].enable = enabled
             }
