@@ -6,16 +6,17 @@ BIT(1)                           User Commands                          BIT(1)
 
 <B>SYNOPSIS</B>
        <B>bit [</B><I>--benchmark</I>] [<I>--configuration</I>] [<I>--configure /path/to/source</I>]
-           [<I>--continue</I>] [<I>--debug</I>] [<I>--depth level</I>] [<I>--diagnose</I>] [<I>--dump</I>]
-           [<I>--endian [big|little]</I>] [<I>--file file.bit</I>] [<I>--force</I>]
+           [<I>--continue</I>]   [<I>--debug</I>]   [<I>--deploy   directory</I>]  [<I>--depth  level</I>]
+           [<I>--diagnose</I>]
+           [<I>--dump</I>] [<I>--endian [big|little]</I>] [<I>--file file.bit</I>] [<I>--force</I>]
            [<I>--gen [make|nmake|sh|vs|xcode|main|start]</I>] [<I>--get field</I>] [<I>--help</I>]
            [<I>--import</I>] [<I>--keep</I>] [<I>--log logSpec</I>] [<I>--nocross</I>] [<I>--overwrite</I>]
            [<I>--out path</I>] [<I>--platform os-arch</I>] [<I>--pre</I>] [<I>--prefix dir=path</I>]
            [<I>--prefixes debian|embedthis|opt</I>] [<I>--profile [debug|release|...]</I>]
            [<I>--quiet</I>] [<I>--rebuild</I>] [<I>--reconfigure</I>] [<I>--release</I>] [<I>--rom</I>]
-           [<I>--set [feature=value]</I>] [<I>--show</I>] [<I>--static</I>] [<I>--unicode</I>]
-           [<I>--unset feature</I>] [<I>--version</I>] [<I>--verbose</I>] [<I>--with PACK[=PATH]</I>]
-           [<I>--without PACK</I>] [targets|actions] ...
+           [<I>--set [feature=value]</I>] [<I>--sets [set,set,...]</I>]  [<I>--show</I>] [<I>--static</I>]
+           [<I>--unicode</I>] [<I>--unset feature</I>] [<I>--version</I>] [<I>--verbose</I>]
+           [<I>--with PACK[=PATH]</I>] [<I>--without PACK</I>] [targets|actions] ...
 
 <B>DESCRIPTION</B>
        The <B>bit </B>command is modern replacement for the venerable make and not so
@@ -314,6 +315,11 @@ BIT(1)                           User Commands                          BIT(1)
        <B>--debug</B>
               Same as --profile debug
 
+       <B>--deploy directory</B>
+              Install the product to the deployment directory. This is  useful
+              to  stage the required files to install on a system.  Use --sets
+              to define the file sets to deploy.
+
        <B>--depth level</B>
               Set the unit test depth level.
 
@@ -434,6 +440,10 @@ BIT(1)                           User Commands                          BIT(1)
               version=1.0' will update  the  settings.version  property.   Use
               this when running 'bit configure' to persist your changes in the
               configuration bit file.
+
+       <B>--sets [set,set,...]</B>
+              Define the groups of files to install. Each product  may  define
+              different groups. Typical groups are: core, web, doc, test, etc.
 
        <B>--show </B>Show the actual commands executed by bit.
 

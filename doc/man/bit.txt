@@ -7,16 +7,17 @@ NAME
 
 SYNOPSIS
        bit [--benchmark] [--configuration] [--configure /path/to/source]
-           [--continue] [--debug] [--depth level] [--diagnose] [--dump]
-           [--endian [big|little]] [--file file.bit] [--force]
+           [--continue]   [--debug]   [--deploy   directory]  [--depth  level]
+           [--diagnose]
+           [--dump] [--endian [big|little]] [--file file.bit] [--force]
            [--gen [make|nmake|sh|vs|xcode|main|start]] [--get field] [--help]
            [--import] [--keep] [--log logSpec] [--nocross] [--overwrite]
            [--out path] [--platform os-arch] [--pre] [--prefix dir=path]
            [--prefixes debian|embedthis|opt] [--profile [debug|release|...]]
            [--quiet] [--rebuild] [--reconfigure] [--release] [--rom]
-           [--set [feature=value]] [--show] [--static] [--unicode]
-           [--unset feature] [--version] [--verbose] [--with PACK[=PATH]]
-           [--without PACK] [targets|actions] ...
+           [--set [feature=value]] [--sets [set,set,...]]  [--show] [--static]
+           [--unicode] [--unset feature] [--version] [--verbose]
+           [--with PACK[=PATH]] [--without PACK] [targets|actions] ...
 
 DESCRIPTION
        The bit command is modern replacement for the venerable make and not so
@@ -337,6 +338,12 @@ OPTIONS
               Same as --profile debug
 
 
+       --deploy directory
+              Install the product to the deployment directory. This is  useful
+              to  stage the required files to install on a system.  Use --sets
+              to define the file sets to deploy.
+
+
        --depth level
               Set the unit test depth level.
 
@@ -480,6 +487,11 @@ OPTIONS
               version=1.0' will update  the  settings.version  property.   Use
               this when running 'bit configure' to persist your changes in the
               configuration bit file.
+
+
+       --sets [set,set,...]
+              Define the groups of files to install. Each product  may  define
+              different groups. Typical groups are: core, web, doc, test, etc.
 
 
        --show Show the actual commands executed by bit.

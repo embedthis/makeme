@@ -244,7 +244,6 @@ Bit.pack({
     return probe(name)
 },  
 </pre>
-
         <h3>Exceptions</h3>
         <p>If an exception is thrown by any code in the pack bit file, the exception will be caught and the pack will be
         disabled. This is a common pattern, to throw exceptions if the pack cannot be fully configured and enabled.</p>
@@ -278,7 +277,6 @@ Bit.pack({
         <h2>Samples</h2>
         <p>The standard packs are a good source of samples for how to create packs. View in the repository at
         <a href="https://github.com/embedthis/bit/tree/master/bits/packs">Bit Packs</a>.</p>
-
         <h2>Generating Projects</h2>
         <p>When generating conditional Makefiles, a pack cannot know in advance what resources will be available on
             the system where the Makefile will be run. So the pack script cannot sleuth the system to determine the

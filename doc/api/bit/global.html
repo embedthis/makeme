@@ -43,6 +43,7 @@ This creates a directory and all required parents.</td></tr>
    <tr class='apiDef'><td class='apiType'> </td><td><a href='#probe'><b>probe</b></a>(file: <a href='Path.html'>Path</a>, control = expression): <a href='Path.html'>Path</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Probe for a file and locate
 Will throw an exception if the file is not found, unless {continue, default} specified in control options.</td></tr>
    <tr class='apiDef'><td class='apiType'> </td><td><a href='#program'><b>program</b></a>(name: <a href='Path.html'>Path</a>, description = null, options = expression): <a href='Path.html'>Path</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Define a pack for a command line program.</td></tr>
+   <tr class='apiDef'><td class='apiType'>embedthis.bit </td><td><a href='#reconfigure'><b>reconfigure</b></a>()</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
    <tr class='apiDef'><td class='apiType'> </td><td><a href='#removeDir'><b>removeDir</b></a>(path: <a href='Path.html'>Path</a>, options)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Remove a directory.</td></tr>
    <tr class='apiDef'><td class='apiType'> </td><td><a href='#removeFile'><b>removeFile</b></a>(path: <a href='Path.html'>Path</a>, options)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Remove a file.</td></tr>
    <tr class='apiDef'><td class='apiType'> </td><td><a href='#run'><b>run</b></a>(command, cmdOptions): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Run a command and trace output if cmdOptions.true or options.show.</td></tr>
@@ -183,7 +184,7 @@ Will throw an exception if the file is not found, unless {continue, default} spe
 <div class='apiSig'>    removeDir(path: <a href='Path.html'>Path</a>, options)
 </div>
 <div class='apiDetail'>
-<dl><dt>Description</dt></dd><dd>Remove a directory. This removes a directory and all its contents include subdirectories. Use the 'empty' option to only remove
+<dl><dt>Description</dt></dd><dd>Remove a directory. This removes a file or directory and all its contents include subdirectories. Use the 'empty' option to only remove
 empty directories.
 This either removes directories or if generating, emits code to remove directories.</dd></dl>
 <dl><dt>Parameters</dt>
