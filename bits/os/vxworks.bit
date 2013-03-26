@@ -89,7 +89,7 @@ Bit.load({
                 defaults.includes ||= []
                 defaults.includes += bit.packs.vxworks.includes
             }
-            defaults.libpaths.push(bit.dir.lib)
+            defaults.libpaths.push(bit.dir.bin)
         ",
     },
 

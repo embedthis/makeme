@@ -1091,9 +1091,15 @@ module embedthis.bit {
         let found
         /* This makes matching easier */
         command += ' '
+        /*
+            This code is a little hard to fathom.
+            Search the target libraries and find either a target or a pack.
+            If a dependant target is found for the library, then check for its requires
+            If a pack is found for the library, then use the target itself to emit conditional code for the pack
+         */
         for each (lib in target.libraries) {
-            let name = null
-            let dep, requires
+            let name, dep, requires, pack
+            name = pack = null
             if (bit.targets['lib' + lib]) {
                 name = 'lib' + lib
                 dep = bit.targets[name]
@@ -1113,18 +1119,33 @@ module embedthis.bit {
                 /*
                     Check required packs that provide the library
                  */
-                for each (pack in bit.packs) {
-                    if (pack.libraries && pack.libraries.contains(lib)) {
-                        name = lib
-                        dep = target
-                        requires = (target.requires) ? target.requires.clone() : []
-                        if (!requires.contains(pack.name)) {
-                            requires.push(pack.name)
+                for each (p in bit.packs) {
+                    if (p.libraries) {
+                        if (p.libraries.contains(lib)) {
+                            name = lib
+                            dep = target
+                        } else if (p.libraries.contains(Path(lib).trimExt())) {
+                            name = lib.trimExt()
+                            dep = target
+                        } else if (p.libraries.contains(Path(lib.replace(/^lib/, '')).trimExt())) {
+                            name = Path(lib.replace(/^lib/, '')).trimExt()
+                            dep = target
+                        }
+                        if (name) {
+                            requires = (target.requires) ? target.requires.clone() : []
+                            if (!requires.contains(p.name)) {
+                                requires.push(p.name)
+                            }
+                            pack = p;
+                            break
                         }
                     }
                 }
             }
             if (name) {
+                if (bit.platform.os == 'windows') {
+                    lib = lib.replace(/^lib/, '').replace(/\.lib$/, '')
+                }
                 if (requires) {
                     for each (r in requires) {
                         if (bit.platform.os == 'windows') {
@@ -1135,8 +1156,24 @@ module embedthis.bit {
                     }
                     if (bit.platform.os == 'windows') {
                         genout.writeLine('LIBS_' + nextID + ' = $(LIBS_' + nextID + ') lib' + lib + '.lib')
+                        if (pack) {
+                            for each (path in pack.libpaths) {
+                                if (path != bit.dir.bin) {
+                                    genout.writeLine('LIBPATHS_' + nextID + ' = $(LIBPATHS_' + nextID + ') -libpath:' + path)
+                                    command = command.replace('-libpath:' + path.windows, '')
+                                }
+                            }
+                        }
                     } else {
                         genout.writeLine('    LIBS_' + nextID + ' += -l' + lib)
+                        if (pack) {
+                            for each (path in pack.libpaths) {
+                                if (path != bit.dir.bin) {
+                                    genout.writeLine('    LIBPATHS_' + nextID + ' += -L' + path)
+                                    command = command.replace('-L' + path, '')
+                                }
+                            }
+                        }
                     }
                     for each (i in requires.length) {
                         if (bit.platform.os == 'windows') {
@@ -1155,6 +1192,8 @@ module embedthis.bit {
                 found = true
                 if (bit.platform.os == 'windows') {
                     command = command.replace(RegExp(' lib' + lib + '.lib ', 'g'), ' ')
+                    command = command.replace(RegExp(' ' + lib + '.lib ', 'g'), ' ')
+                    command = command.replace(RegExp(' ' + lib + ' ', 'g'), ' ')
                 } else {
                     command = command.replace(RegExp(' -l' + lib + ' ', 'g'), ' ')
                 }
@@ -1167,23 +1206,12 @@ module embedthis.bit {
                 }
             }
         }
-        //MOB
-        if (false && target.static) {
-            command = command.replace('$(LIBS)', '$(DEPS_' + nextID + ') $(LIBS)')
-            for each (let dname in target.depends) {
-                let dep = bit.targets[dname]
-                if (dep) {
-                    let d = (dep.path) ? reppath(dep.path) : dep.name
-                    command = command.replace(d, '')
-                }
-            }
-        }
         if (found) {
             genout.writeLine('')
             if (command.contains('$(LIBS)')) {
-                command = command.replace('$(LIBS)', '$(LIBS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS)')
+                command = command.replace('$(LIBS)', '$(LIBPATHS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS)')
             } else {
-                command += ' $(LIBS_' + nextID + ') $(LIBS_' + nextID + ')'
+                command += ' $(LIBPATHS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS_' + nextID + ')'
             }
         }
         return command

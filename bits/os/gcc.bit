@@ -31,7 +31,7 @@ Bit.load({
             if (bit.settings.preprocess) {
                 defaults.compiler.push('-E')
             }
-            defaults.libpaths.push(bit.dir.lib)
+            defaults.libpaths.push(bit.dir.bin)
             if (bit.settings.debug) {
                 defaults.defines.push('BIT_DEBUG')
                 defaults.compiler.push('-g')

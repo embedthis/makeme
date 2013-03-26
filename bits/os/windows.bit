@@ -68,7 +68,7 @@ Bit.load({
             let defaults = bit.defaults
             let settings = bit.settings
             if (settings.preprocess) defaults.compiler += [ '-E' ]
-            defaults.libpaths.push(bit.dir.lib)
+            defaults.libpaths.push(bit.dir.bin)
             if (bit.settings.debug) {
                 defaults.defines.push('BIT_DEBUG')
                 defaults.compiler += [ '-Zi', '-Od', '-MDd' ]
