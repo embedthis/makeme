@@ -295,7 +295,7 @@ LIBS_12 = $(LIBS_12) libmpr.lib
 
 $(CONFIG)\bin\libmprssl.dll: $(DEPS_12)
 	@echo '      [Link] libmprssl'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libmprssl.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\mprSsl.obj $(LIBS_12) $(LIBS_12) $(LIBS) 
+	"$(LD)" -dll -out:$(CONFIG)\bin\libmprssl.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\mprSsl.obj $(LIBPATHS_12) $(LIBS_12) $(LIBS_12) $(LIBS) 
 !ENDIF
 
 #
@@ -319,7 +319,7 @@ LIBS_14 = $(LIBS_14) libmpr.lib
 
 $(CONFIG)\bin\makerom.exe: $(DEPS_14)
 	@echo '      [Link] makerom'
-	"$(LD)" -out:$(CONFIG)\bin\makerom.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\makerom.obj $(LIBS_14) $(LIBS_14) $(LIBS) 
+	"$(LD)" -out:$(CONFIG)\bin\makerom.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\makerom.obj $(LIBPATHS_14) $(LIBS_14) $(LIBS_14) $(LIBS) 
 
 #
 #   pcre.h
@@ -383,7 +383,7 @@ LIBS_20 = $(LIBS_20) libmpr.lib
 
 $(CONFIG)\bin\libhttp.dll: $(DEPS_20)
 	@echo '      [Link] libhttp'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libhttp.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\httpLib.obj $(LIBS_20) $(LIBS_20) $(LIBS) 
+	"$(LD)" -dll -out:$(CONFIG)\bin\libhttp.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\httpLib.obj $(LIBPATHS_20) $(LIBS_20) $(LIBS_20) $(LIBS) 
 
 #
 #   http.obj
@@ -408,7 +408,7 @@ LIBS_22 = $(LIBS_22) libhttp.lib
 
 $(CONFIG)\bin\http.exe: $(DEPS_22)
 	@echo '      [Link] http'
-	"$(LD)" -out:$(CONFIG)\bin\http.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\http.obj $(LIBS_22) $(LIBS_22) $(LIBS) 
+	"$(LD)" -out:$(CONFIG)\bin\http.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\http.obj $(LIBPATHS_22) $(LIBS_22) $(LIBS_22) $(LIBS) 
 
 #
 #   ejs.h
@@ -471,7 +471,7 @@ LIBS_27 = $(LIBS_27) libhttp.lib
 
 $(CONFIG)\bin\libejs.dll: $(DEPS_27)
 	@echo '      [Link] libejs'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libejs.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsLib.obj $(LIBS_27) $(LIBS_27) $(LIBS) 
+	"$(LD)" -dll -out:$(CONFIG)\bin\libejs.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsLib.obj $(LIBPATHS_27) $(LIBS_27) $(LIBS_27) $(LIBS) 
 !ENDIF
 
 #
@@ -506,7 +506,7 @@ LIBS_29 = $(LIBS_29) libejs.lib
 
 $(CONFIG)\bin\ejs.exe: $(DEPS_29)
 	@echo '      [Link] ejs'
-	"$(LD)" -out:$(CONFIG)\bin\ejs.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejs.obj $(LIBS_29) $(LIBS_29) $(LIBS) 
+	"$(LD)" -out:$(CONFIG)\bin\ejs.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejs.obj $(LIBPATHS_29) $(LIBS_29) $(LIBS_29) $(LIBS) 
 !ENDIF
 
 #
@@ -541,7 +541,7 @@ LIBS_31 = $(LIBS_31) libejs.lib
 
 $(CONFIG)\bin\ejsc.exe: $(DEPS_31)
 	@echo '      [Link] ejsc'
-	"$(LD)" -out:$(CONFIG)\bin\ejsc.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsc.obj $(LIBS_31) $(LIBS_31) $(LIBS) 
+	"$(LD)" -out:$(CONFIG)\bin\ejsc.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsc.obj $(LIBPATHS_31) $(LIBS_31) $(LIBS_31) $(LIBS) 
 !ENDIF
 
 !IF "$(BIT_PACK_EJSCRIPT)" == "1"
@@ -762,7 +762,7 @@ LIBS_37 = $(LIBS_37) libmpr.lib
 
 $(CONFIG)\bin\bit.exe: $(DEPS_37)
 	@echo '      [Link] bit'
-	"$(LD)" -out:$(CONFIG)\bin\bit.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\bit.obj $(LIBS_37) $(LIBS_37) $(LIBS) 
+	"$(LD)" -out:$(CONFIG)\bin\bit.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\bit.obj $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) 
 
 #
 #   stop

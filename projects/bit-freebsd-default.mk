@@ -293,7 +293,7 @@ LIBS_12 += -lmpr
 
 $(CONFIG)/bin/libmprssl.so: $(DEPS_12)
 	@echo '      [Link] libmprssl'
-	$(CC) -shared -o $(CONFIG)/bin/libmprssl.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/mprSsl.o $(LIBS_12) $(LIBS_12) $(LIBS) 
+	$(CC) -shared -o $(CONFIG)/bin/libmprssl.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/mprSsl.o $(LIBPATHS_12) $(LIBS_12) $(LIBS_12) $(LIBS) 
 endif
 
 #
@@ -317,7 +317,7 @@ LIBS_14 += -lmpr
 
 $(CONFIG)/bin/makerom: $(DEPS_14)
 	@echo '      [Link] makerom'
-	$(CC) -o $(CONFIG)/bin/makerom $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/makerom.o $(LIBS_14) $(LIBS_14) $(LIBS) -lpthread -lm -ldl $(LDFLAGS) 
+	$(CC) -o $(CONFIG)/bin/makerom $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/makerom.o $(LIBPATHS_14) $(LIBS_14) $(LIBS_14) $(LIBS) -lpthread -lm -ldl $(LDFLAGS) 
 
 #
 #   pcre.h
@@ -381,7 +381,7 @@ LIBS_20 += -lmpr
 
 $(CONFIG)/bin/libhttp.so: $(DEPS_20)
 	@echo '      [Link] libhttp'
-	$(CC) -shared -o $(CONFIG)/bin/libhttp.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/httpLib.o $(LIBS_20) $(LIBS_20) $(LIBS) 
+	$(CC) -shared -o $(CONFIG)/bin/libhttp.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/httpLib.o $(LIBPATHS_20) $(LIBS_20) $(LIBS_20) $(LIBS) 
 
 #
 #   http.o
@@ -406,7 +406,7 @@ LIBS_22 += -lhttp
 
 $(CONFIG)/bin/http: $(DEPS_22)
 	@echo '      [Link] http'
-	$(CC) -o $(CONFIG)/bin/http $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/http.o $(LIBS_22) $(LIBS_22) $(LIBS) -lpthread -lm -ldl $(LDFLAGS) 
+	$(CC) -o $(CONFIG)/bin/http $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/http.o $(LIBPATHS_22) $(LIBS_22) $(LIBS_22) $(LIBS) -lpthread -lm -ldl $(LDFLAGS) 
 
 #
 #   ejs.h
@@ -469,7 +469,7 @@ LIBS_27 += -lhttp
 
 $(CONFIG)/bin/libejs.so: $(DEPS_27)
 	@echo '      [Link] libejs'
-	$(CC) -shared -o $(CONFIG)/bin/libejs.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejsLib.o $(LIBS_27) $(LIBS_27) $(LIBS) 
+	$(CC) -shared -o $(CONFIG)/bin/libejs.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejsLib.o $(LIBPATHS_27) $(LIBS_27) $(LIBS_27) $(LIBS) 
 endif
 
 #
@@ -504,7 +504,7 @@ endif
 
 $(CONFIG)/bin/ejs: $(DEPS_29)
 	@echo '      [Link] ejs'
-	$(CC) -o $(CONFIG)/bin/ejs $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejs.o $(LIBS_29) $(LIBS_29) $(LIBS) -lpthread -lm -ldl $(LDFLAGS) 
+	$(CC) -o $(CONFIG)/bin/ejs $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejs.o $(LIBPATHS_29) $(LIBS_29) $(LIBS_29) $(LIBS) -lpthread -lm -ldl $(LDFLAGS) 
 endif
 
 #
@@ -539,7 +539,7 @@ endif
 
 $(CONFIG)/bin/ejsc: $(DEPS_31)
 	@echo '      [Link] ejsc'
-	$(CC) -o $(CONFIG)/bin/ejsc $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejsc.o $(LIBS_31) $(LIBS_31) $(LIBS) -lpthread -lm -ldl $(LDFLAGS) 
+	$(CC) -o $(CONFIG)/bin/ejsc $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejsc.o $(LIBPATHS_31) $(LIBS_31) $(LIBS_31) $(LIBS) -lpthread -lm -ldl $(LDFLAGS) 
 endif
 
 ifeq ($(BIT_PACK_EJSCRIPT),1)
@@ -741,7 +741,7 @@ LIBS_35 += -lmpr
 
 $(CONFIG)/bin/bit: $(DEPS_35)
 	@echo '      [Link] bit'
-	$(CC) -o $(CONFIG)/bin/bit $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/bit.o $(LIBS_35) $(LIBS_35) $(LIBS) -lpthread -lm -ldl $(LDFLAGS) 
+	$(CC) -o $(CONFIG)/bin/bit $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/bit.o $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) -lpthread -lm -ldl $(LDFLAGS) 
 
 #
 #   stop

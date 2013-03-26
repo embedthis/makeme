@@ -293,7 +293,7 @@ LIBS_12 += -lmpr
 
 $(CONFIG)/bin/libmprssl.dylib: $(DEPS_12)
 	@echo '      [Link] libmprssl'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libmprssl.dylib $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libmprssl.dylib -compatibility_version 0.8.5 -current_version 0.8.5 $(CONFIG)/obj/mprSsl.o $(LIBS_12) $(LIBS_12) $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libmprssl.dylib $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libmprssl.dylib -compatibility_version 0.8.5 -current_version 0.8.5 $(CONFIG)/obj/mprSsl.o $(LIBPATHS_12) $(LIBS_12) $(LIBS_12) $(LIBS) 
 endif
 
 #
@@ -317,7 +317,7 @@ LIBS_14 += -lmpr
 
 $(CONFIG)/bin/makerom: $(DEPS_14)
 	@echo '      [Link] makerom'
-	$(CC) -o $(CONFIG)/bin/makerom -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/makerom.o $(LIBS_14) $(LIBS_14) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/makerom -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/makerom.o $(LIBPATHS_14) $(LIBS_14) $(LIBS_14) $(LIBS) 
 
 #
 #   pcre.h
@@ -381,7 +381,7 @@ LIBS_20 += -lmpr
 
 $(CONFIG)/bin/libhttp.dylib: $(DEPS_20)
 	@echo '      [Link] libhttp'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libhttp.dylib $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libhttp.dylib -compatibility_version 0.8.5 -current_version 0.8.5 $(CONFIG)/obj/httpLib.o $(LIBS_20) $(LIBS_20) $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libhttp.dylib $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libhttp.dylib -compatibility_version 0.8.5 -current_version 0.8.5 $(CONFIG)/obj/httpLib.o $(LIBPATHS_20) $(LIBS_20) $(LIBS_20) $(LIBS) 
 
 #
 #   http.o
@@ -406,7 +406,7 @@ LIBS_22 += -lhttp
 
 $(CONFIG)/bin/http: $(DEPS_22)
 	@echo '      [Link] http'
-	$(CC) -o $(CONFIG)/bin/http -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/http.o $(LIBS_22) $(LIBS_22) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/http -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/http.o $(LIBPATHS_22) $(LIBS_22) $(LIBS_22) $(LIBS) 
 
 #
 #   ejs.h
@@ -469,7 +469,7 @@ LIBS_27 += -lhttp
 
 $(CONFIG)/bin/libejs.dylib: $(DEPS_27)
 	@echo '      [Link] libejs'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libejs.dylib $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libejs.dylib -compatibility_version 0.8.5 -current_version 0.8.5 $(CONFIG)/obj/ejsLib.o $(LIBS_27) $(LIBS_27) $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libejs.dylib $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libejs.dylib -compatibility_version 0.8.5 -current_version 0.8.5 $(CONFIG)/obj/ejsLib.o $(LIBPATHS_27) $(LIBS_27) $(LIBS_27) $(LIBS) 
 endif
 
 #
@@ -504,7 +504,7 @@ endif
 
 $(CONFIG)/bin/ejs: $(DEPS_29)
 	@echo '      [Link] ejs'
-	$(CC) -o $(CONFIG)/bin/ejs -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejs.o $(LIBS_29) $(LIBS_29) $(LIBS) -ledit 
+	$(CC) -o $(CONFIG)/bin/ejs -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejs.o $(LIBPATHS_29) $(LIBS_29) $(LIBS_29) $(LIBS) -ledit 
 endif
 
 #
@@ -539,7 +539,7 @@ endif
 
 $(CONFIG)/bin/ejsc: $(DEPS_31)
 	@echo '      [Link] ejsc'
-	$(CC) -o $(CONFIG)/bin/ejsc -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejsc.o $(LIBS_31) $(LIBS_31) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/ejsc -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejsc.o $(LIBPATHS_31) $(LIBS_31) $(LIBS_31) $(LIBS) 
 endif
 
 ifeq ($(BIT_PACK_EJSCRIPT),1)
@@ -741,7 +741,7 @@ LIBS_35 += -lmpr
 
 $(CONFIG)/bin/bit: $(DEPS_35)
 	@echo '      [Link] bit'
-	$(CC) -o $(CONFIG)/bin/bit -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/bit.o $(LIBS_35) $(LIBS_35) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/bit -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/bit.o $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) 
 
 #
 #   stop
