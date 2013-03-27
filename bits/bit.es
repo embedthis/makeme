@@ -2124,9 +2124,17 @@ public class Bit {
             }
         } else if (bit.platform.os == 'vxworks') {
             libs = libs.clone()
+            /*  
+                Remove "*.out" libraries as they are resolved at load time only 
+             */
             for (i = 0; i < libs.length; i++) {
-                if (libs.contains(libs[i])) {
-                    libs.remove(i)
+                let name = libs[i]
+                let dep = bit.targets[name]
+                if (!dep) {
+                    dep = bit.targets['lib' + name]
+                }
+                if (dep && dep.type == 'lib' && !dep.static) {
+                    libs.remove(i, i)
                     i--
                 }
             }
@@ -2849,7 +2857,6 @@ public class Bit {
     public function expandRule(target, rule) {
         setRuleVars(target)
         let result = expand(rule).expand(target.vars, {fill: ''})
-        // target.vars = {}
         return result
     }
 
