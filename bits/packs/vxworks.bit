@@ -39,14 +39,14 @@ Bit.pack({
             let path = pack.path = Path('$(WIND_BASE)')
             bit.env.WIND_BASE = path
             bit.env.WIND_HOME = path + '/..'
-            bit.env.WIND_PLATFORM = '$(WIND_PLATFORM)'
+            //UNUSED bit.env.WIND_PLATFORM = '$(WIND_PLATFORM)'
             pack.includes = [ path.join('target/h'), path.join('target/h/wrn/coreip') ]
         },
         config: function (pack) {
             let path = pack.path
             bit.env.WIND_BASE = path
             bit.env.WIND_HOME = path.dirname
-            bit.env.WIND_PLATFORM = path.basename
+            //UNUSED bit.env.WIND_PLATFORM = path.basename
 
             if (Config.OS == 'windows') {
                 bit.env.WIND_HOST_TYPE = 'x86-win32'
@@ -74,7 +74,8 @@ Bit.pack({
                 let env = bit.env
                 if (major >= 6) {
                     env.WIND_HOME = path.dirname
-                    env.WIND_GNU_PATH = path.dirname.files('gnu/*-' + env.WIND_PLATFORM).sort().reverse()[0]
+                    let windPlatform = path.basename
+                    env.WIND_GNU_PATH = path.dirname.files('gnu/*-' + windPlatform).sort().reverse()[0]
                     bit.packs.vxworks.search = [
                         env.WIND_GNU_PATH.join(env.WIND_HOST_TYPE, 'bin'),
                         env.WIND_GNU_PATH.join(env.WIND_HOST_TYPE, bit.platform.arch + '-wrs-vxworks/bin'),
