@@ -1105,16 +1105,25 @@ module embedthis.bit {
                 name = 'lib' + lib
                 dep = bit.targets[name]
                 requires = dep.requires
+                if (bit.platform.os == 'vxworks') {
+                    continue
+                }
 
             } else if (bit.targets[lib]) {
                 name = lib
                 dep = bit.targets[name]
                 requires = dep.requires
+                if (bit.platform.os == 'vxworks') {
+                    continue
+                }
 
             } else if (bit.targets[Path(lib).trimExt()]) {
                 name = Path(lib).trimExt()
                 dep = bit.targets[name]
                 requires = dep.requires
+                if (bit.platform.os == 'vxworks') {
+                    continue
+                }
 
             } else {
                 /*

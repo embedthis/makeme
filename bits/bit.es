@@ -1719,7 +1719,6 @@ public class Bit {
             return
         }
         let command = expandRule(target, rule)
-        // trace('Link', target.name)
         trace('Link', target.path.natural.relative)
         if (target.active && bit.platform.like == 'windows') {
             let old = target.path.relative.replaceExt('old')
@@ -1740,7 +1739,6 @@ public class Bit {
             return
         }
         let command = expandRule(target, rule)
-        // trace('Link', target.name)
         trace('Link', target.path.natural.relative)
         if (target.active && bit.platform.like == 'windows') {
             let active = target.path.relative.replaceExt('old')
@@ -1761,7 +1759,6 @@ public class Bit {
             return
         }
         let command = expandRule(target, rule)
-        // trace('Archive', target.name)
         trace('Archive', target.path.natural.relative)
         if (target.active && bit.platform.like == 'windows') {
             let active = target.path.relative.replaceExt('old')
@@ -1826,7 +1823,6 @@ public class Bit {
                 }
             }
             let command = expandRule(target, rule)
-            // trace('Compile', file.relativeTo('.'))
             trace('Compile', target.path.natural.relative)
             if (bit.platform.os == 'windows') {
                 run(command, {excludeOutput: /^[a-zA-Z0-9-]*.c\s*$/})
@@ -1851,7 +1847,6 @@ public class Bit {
                 }
             }
             let command = expandRule(target, rule)
-            // trace('Compile', file.relativeTo('.'))
             trace('Compile', target.path.relative)
             run(command)
         }
@@ -1884,7 +1879,6 @@ public class Bit {
                 safeRemove(target.path)
             }
         }
-        // trace('Copy', target.path.relative.portable)
         trace('Copy', target.path.natural.relative)
         for each (let file: Path in target.files) {
             if (file == target.path) {
