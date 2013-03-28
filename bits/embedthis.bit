@@ -79,7 +79,6 @@ Bit.load({
                 } else if (bit.platform.name == 'windows-x86-debug') {
                     run(bitcmd + ' -q -d -platform windows-x86-mine -configure . -gen vs', runopt)
                 }
-                trace('Restore', 'Restore prior configuration')
                 run(bitcmd + ' -q -configure . ', runopt)
             ",
         },
