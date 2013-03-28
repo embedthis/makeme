@@ -1367,15 +1367,17 @@ public class Bit {
                             if (dname.startsWith('lib')) {
                                 lpath = dname.replace(/^lib/, '')
                             } else {
-                                //MOB why?
-                                lpath = Path(dname).joinExt(bit.ext.lib)
+                                // MOB why?
+                                // lpath = Path(dname).joinExt(bit.ext.lib)
+                                lpath = dname
                             }
                         } else {
                             if (dname.startsWith('lib')) {
                                 lpath = dname.replace(/^lib/, '')
                             } else {
-                                //MOB why?
-                                lpath = Path(dname).joinExt(bit.ext.shlib, true)
+                                // MOB why?
+                                // lpath = Path(dname).joinExt(bit.ext.shlib, true)
+                                lpath = dname
                             }
                         }
                         if (!target.libraries.contains(lpath)) {
