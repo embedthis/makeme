@@ -988,7 +988,6 @@ public class Bit {
          */
         if (o.targets) {
             bit.targets ||= {}
-            //  MOB - note not combining 
             bit.targets = blend(bit.targets, o.targets, {functions: true})
             delete o.targets
         }
@@ -1058,7 +1057,6 @@ public class Bit {
         expandWildcards()
         castTargetTypes()
         setTargetPaths()
-        //UNUSED inlineStatic()
         Object.sortProperties(bit)
 
         if (options.dump) {
@@ -1123,6 +1121,26 @@ public class Bit {
                 }
             }
         }
+    }
+
+    public function getDep(dname) {
+        if (dname.contains('pack:')) {
+            return bit.packs[dname.trimStart('pack:')]
+
+        } else if (dep = bit.targets[dname]) {
+            return dep
+
+        } else if (dep = bit.targets['lib' + dname]) {
+            return dep
+
+        } else if (dep = bit.targets[Path(dname).trimExt()]) {
+            /* Permits full library */
+            return dep
+
+        } else if (dep = bit.packs[dname]) {
+            return dep
+        }
+        return null
     }
 
     function getDependentTargets(target, goal) {
@@ -1219,6 +1237,7 @@ public class Bit {
         }
     }
 
+/* UNUSED
     function getDepLibs(target): Array {
         let libs = []
         for each (dname in target.depends) {
@@ -1230,45 +1249,7 @@ public class Bit {
         }
         return libs
     }
-
-    /* UNUSED -- KEEP for a while
-
-        Implement static linking by inlining all libraries
-
-    function inlineStatic() {
-        targets = selectedTargets || bit.targets
-        for each (target in targets) {
-            if (target.static) {
-                let resolved = []
-                let includes = []
-                let defines = []
-                if (target.type == 'exe') {
-                    for each (dname in getDepLibs(target).unique()) {
-                        let dep = bit.targets[dname]
-                        if (dep && dep.type == 'lib' && dep.enable) {
-                            // Add the dependent files to the target executables 
-                            target.files += dep.files
-                            includes += dep.includes
-                            defines += dep.defines
-                            if (dep.static) {
-                                resolved.push(Path(dname).joinExt(bit.ext.lib, true))
-                            } else if (dname.startsWith('lib')) {
-                                resolved.push(dname.replace(/^lib/g, ''))
-                            } else {
-                                resolved.push(Path(dname).joinExt(bit.ext.shlib, true))
-                            }
-                        }
-                    }
-                }
-                target.libraries -= resolved
-                target.includes += includes
-                target.defines += defines
-                target.includes = target.includes.unique()
-                target.defines = target.defines.unique()
-            }
-        }
-    }
-     */
+*/
 
     /*
         Build a file list and apply include/exclude filters
@@ -1351,53 +1332,57 @@ public class Bit {
         }
         runTargetScript(target, 'preresolve')
         target.resolved = true
-        for each (name in target.depends) {
-            let dep = bit.targets[name]
+        for each (dname in target.depends) {
+            let dep = getDep(dname)
             if (dep) {
-                /*
-                    Make and nmake generation formats support conditional building and so all dependents are included
-                    even if disabled.
-                 */ 
-                if (!dep.enable && (options.gen != 'make' && options.gen != 'nmake')) {
-                    continue
-                }
-                if (!dep.resolved) {
-                    resolve(dep)
-                }
-                if (dep.type == 'lib') {
-                    target.libraries ||= []
-                    /* Put dependent libraries first so system libraries are last (matters on linux) */
-                    let lpath
-                    if (dep.static) {
-                        if (name.startsWith('lib')) {
-                            lpath = name.replace(/^lib/, '')
-                        } else {
-                            lpath = Path(name).joinExt(bit.ext.lib)
-                        }
-                    } else {
-                        if (name.startsWith('lib')) {
-                            lpath = name.replace(/^lib/, '')
-                        } else {
-                            lpath = Path(name).joinExt(bit.ext.shlib, true)
-                        }
-                    }
-                    if (!target.libraries.contains(lpath)) {
-                        target.libraries = [lpath] + target.libraries
-                    }
-                }
-                inheritDep(target, dep)
-
-            } else {
-                let pack = bit.packs[name]
-                if (pack) {
+                if (dep.type == 'pack') {
                     /*
                         Inherit from the pack if enabled or if doing a make|nmake conditional generation and the
                         pack is defined in settings.
                      */
-                    if (pack.enable !== false || ((options.gen == 'make' || options.gen == 'nmake') && 
-                            bit.packDefaults && bit.packDefaults[name] !== null)) {
-                        inheritDep(target, pack)
+                    if (dep.enable !== false || ((options.gen == 'make' || options.gen == 'nmake') && 
+                            bit.packDefaults && bit.packDefaults[dname] !== null)) {
+                        inheritDep(target, dep)
                     }
+
+                } else {
+                    /*
+                        Make and nmake generation formats support conditional building and so all dependents are included
+                        even if disabled.
+                     */ 
+                    if (!dep.enable && (options.gen != 'make' && options.gen != 'nmake')) {
+                        continue
+                    }
+                    if (!dep.resolved) {
+                        resolve(dep)
+                    }
+                    if (dep.type == 'lib') {
+                        target.libraries ||= []
+                        /* 
+                            Put dependent libraries first so system libraries are last (matters on linux) 
+                            Convert to a canonical form without a leading 'lib'.
+                         */
+                        let lpath
+                        if (dep.static) {
+                            if (dname.startsWith('lib')) {
+                                lpath = dname.replace(/^lib/, '')
+                            } else {
+                                //MOB why?
+                                lpath = Path(dname).joinExt(bit.ext.lib)
+                            }
+                        } else {
+                            if (dname.startsWith('lib')) {
+                                lpath = dname.replace(/^lib/, '')
+                            } else {
+                                //MOB why?
+                                lpath = Path(dname).joinExt(bit.ext.shlib, true)
+                            }
+                        }
+                        if (!target.libraries.contains(lpath)) {
+                            target.libraries = [lpath] + target.libraries
+                        }
+                    }
+                    inheritDep(target, dep)
                 }
             }
         }
@@ -1503,7 +1488,7 @@ public class Bit {
     function blendDefaults() {
         runScript(bit.scripts, "preinherit")
         for (let [tname, target] in bit.targets) {
-            if (/* UNUSED target.type == 'lib' && */ target.static == null && bit.settings.static) {
+            if (target.static == null && bit.settings.static) {
                 target.static = bit.settings.static
             }
             let def = blend({}, bit.defaults, {combine: true})
@@ -2186,34 +2171,33 @@ public class Bit {
         }
         for each (let dname: Path in target.depends) {
             let file
-            if (!bit.targets[dname]) {
-                let pack = bit.packs[dname]
-                if (pack) {
-                    if (!pack.enable) {
-                        continue
-                    }
-                    file = pack.path
-                    if (!file) {
-                        continue
-                    }
-                    if (!file.exists) {
-                        whyRebuild(path, 'Rebuild', 'missing ' + file + ' for package ' + dname)
-                        return true
-                    }
-                } else {
-                    /* If dependency is not a target, then treat as a file */
-                    if (!dname.modified) {
-                        whyRebuild(path, 'Rebuild', 'missing dependency ' + dname)
-                        return true
-                    }
-                    if (dname.modified > path.modified) {
-                        whyRebuild(path, 'Rebuild', 'dependency ' + dname + ' has been modified.')
-                        return true
-                    }
-                    return false
+            let dep = getDep(dname)
+            if (!dep) {
+                /* Dependency not found as a target or pack, so treat as a file */
+                if (!dname.modified) {
+                    whyRebuild(path, 'Rebuild', 'missing dependency ' + dname)
+                    return true
+                }
+                if (dname.modified > path.modified) {
+                    whyRebuild(path, 'Rebuild', 'dependency ' + dname + ' has been modified.')
+                    return true
+                }
+                return false
+
+            } else if (dep.type == 'pack') {
+                if (!dep.enable) {
+                    continue
+                }
+                file = dep.path
+                if (!file) {
+                    continue
+                }
+                if (!file.exists) {
+                    whyRebuild(path, 'Rebuild', 'missing ' + file + ' for package ' + dname)
+                    return true
                 }
             } else {
-                file = bit.targets[dname].path
+                file = dep.path
             }
             if (file.modified > path.modified) {
                 whyRebuild(path, 'Rebuild', 'dependent ' + file + ' has been modified.')
@@ -2716,8 +2700,6 @@ public class Bit {
             bit.dir.programFiles32 = programFiles32()
             bit.dir.programFiles = Path(bit.dir.programFiles32.name.replace(' (x86)', ''))
         }
-
-        //  MOB - functionalize
         if (options.prefixes) {
             let pset = options.prefixes + '-prefixes'
             if (!bit[pset]) {

@@ -556,6 +556,8 @@ module embedthis.bit {
             return
         }
         pack.checking = true
+        pack.type ||= 'pack'
+
         /* Recursive descent checking */
         for each (pname in pack.requires) {
             let p = bit.packs[pname]

@@ -632,9 +632,6 @@ module embedthis.bit {
             throw 'No rule to build target ' + target.path + ' for transition ' + transition
             return
         }
-if (target.name == 'esp') {
-    dump(target)
-}
         let command = b.expandRule(target, rule)
         if (bit.generating == 'sh') {
             command = repcmd(command)
@@ -1054,8 +1051,6 @@ if (target.name == 'esp') {
             }
             command = command.replace(RegExp(bit.prefixes[p], 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
         }
-        //  Work-around for replacing root prefix
-        // command = command.replace(/"\/\//g, '"$$(BIT_ROOT_PREFIX)/')
         command = command.replace(/\/\//g, '$$(BIT_ROOT_PREFIX)/')
         return command
     }
@@ -1082,8 +1077,6 @@ if (target.name == 'esp') {
             }
             command = command.replace(RegExp(gen[p], 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
         }
-        //  Work-around for replacing root prefix
-        // command = command.replace(/"\/\//g, '"$$(BIT_ROOT_PREFIX)/')
         command = command.replace(/\/\//g, '$$(BIT_ROOT_PREFIX)/')
         return command
     }
@@ -1109,15 +1102,48 @@ if (target.name == 'esp') {
         /* This makes matching easier */
         command += ' '
         /*
-            This code is a little hard to fathom.
-            Search the target libraries and find either a target or a pack.
-            If a dependant target is found for the library, then check for its requires
-            If a pack is found for the library, then use the target itself to emit conditional code for the pack
+            Search the target libraries to find what packs they require.
          */
         for each (lib in target.libraries) {
             let name, dep, requires, pack
             name = pack = null
-//  MOB functionalize   getDep()
+
+            dep = b.getDep(lib)
+            if (dep && dep.type != 'pack') {
+                name = dep.name
+                requires = dep.requires
+                if (bit.platform.os == 'vxworks' && !target.static) {
+                    continue
+                }
+            } else {
+                /*
+                    Check packs that provide the library
+                 */
+                for each (p in bit.packs) {
+                    if (p.libraries) {
+                        if (p.libraries.contains(lib)) {
+                            name = lib
+                            dep = target
+                        } else if (p.libraries.contains(Path(lib).trimExt())) {
+                            name = lib.trimExt()
+                            dep = target
+                        } else if (p.libraries.contains(Path(lib.replace(/^lib/, '')).trimExt())) {
+                            name = Path(lib.replace(/^lib/, '')).trimExt()
+                            dep = target
+                        }
+                        if (name) {
+                            requires = (target.requires) ? target.requires.clone() : []
+                            if (!requires.contains(p.name)) {
+                                requires.push(p.name)
+                            }
+                            pack = p;
+                            break
+                        }
+                    }
+                }
+            }
+
+/* UNUSED
             if (bit.targets['lib' + lib]) {
                 name = 'lib' + lib
                 dep = bit.targets[name]
@@ -1143,9 +1169,6 @@ if (target.name == 'esp') {
                 }
 
             } else {
-                /*
-                    Check required packs that provide the library
-                 */
                 for each (p in bit.packs) {
                     if (p.libraries) {
                         if (p.libraries.contains(lib)) {
@@ -1169,6 +1192,7 @@ if (target.name == 'esp') {
                     }
                 }
             }
+*/
             if (name) {
                 if (bit.platform.os == 'windows') {
                     lib = lib.replace(/^lib/, '').replace(/\.lib$/, '')
