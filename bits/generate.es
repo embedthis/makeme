@@ -1143,56 +1143,6 @@ module embedthis.bit {
                 }
             }
 
-/* UNUSED
-            if (bit.targets['lib' + lib]) {
-                name = 'lib' + lib
-                dep = bit.targets[name]
-                requires = dep.requires
-                if (bit.platform.os == 'vxworks' && !target.static) {
-                    continue
-                }
-
-            } else if (bit.targets[lib]) {
-                name = lib
-                dep = bit.targets[name]
-                requires = dep.requires
-                if (bit.platform.os == 'vxworks') {
-                    continue
-                }
-
-            } else if (bit.targets[Path(lib).trimExt()]) {
-                name = Path(lib).trimExt()
-                dep = bit.targets[name]
-                requires = dep.requires
-                if (bit.platform.os == 'vxworks') {
-                    continue
-                }
-
-            } else {
-                for each (p in bit.packs) {
-                    if (p.libraries) {
-                        if (p.libraries.contains(lib)) {
-                            name = lib
-                            dep = target
-                        } else if (p.libraries.contains(Path(lib).trimExt())) {
-                            name = lib.trimExt()
-                            dep = target
-                        } else if (p.libraries.contains(Path(lib.replace(/^lib/, '')).trimExt())) {
-                            name = Path(lib.replace(/^lib/, '')).trimExt()
-                            dep = target
-                        }
-                        if (name) {
-                            requires = (target.requires) ? target.requires.clone() : []
-                            if (!requires.contains(p.name)) {
-                                requires.push(p.name)
-                            }
-                            pack = p;
-                            break
-                        }
-                    }
-                }
-            }
-*/
             if (name) {
                 if (bit.platform.os == 'windows') {
                     lib = lib.replace(/^lib/, '').replace(/\.lib$/, '')
