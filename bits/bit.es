@@ -80,9 +80,6 @@ public class Bit {
     private var targetsToBuildByDefault = { exe: true, file: true, lib: true }
     private var targetsToClean = { exe: true, file: true, lib: true, obj: true }
 
-    //  MOB - unused
-    private var targetsToBlend = { exe: true, lib: true, obj: true }
-
     private var argTemplate = {
         options: {
             benchmark: { alias: 'b' },
@@ -1509,29 +1506,26 @@ public class Bit {
             if (/* UNUSED target.type == 'lib' && */ target.static == null && bit.settings.static) {
                 target.static = bit.settings.static
             }
-            //  MOB - remove targetsToBlend
-            if (true || targetsToBlend[target.type]) {
-                let def = blend({}, bit.defaults, {combine: true})
-                if (target.internal) {
-                    def = blend(def, target.internal, {combine: true})
-                    delete target.internal
+            let def = blend({}, bit.defaults, {combine: true})
+            if (target.internal) {
+                def = blend(def, target.internal, {combine: true})
+                delete target.internal
+            }
+            /* NOTE: this does not blend into existing targets of the same name. It overwrites */
+            target = bit.targets[tname] = blend(def, target, {combine: true})
+            if (target.inherit) {
+                if (!(target.inherit is Array)) {
+                    target.inherit = [ target.inherit ]
                 }
-                /* NOTE: this does not blend into existing targets of the same name. It overwrites */
-                target = bit.targets[tname] = blend(def, target, {combine: true})
-                if (target.inherit) {
-                    if (!(target.inherit is Array)) {
-                        target.inherit = [ target.inherit ]
-                    }
-                    for each (from in target.inherit) {
-                        blend(target, bit[from], {combine: true})
-                    }
+                for each (from in target.inherit) {
+                    blend(target, bit[from], {combine: true})
                 }
-                runTargetScript(target, 'postblend')
-                if (target.type == 'obj') { 
-                    delete target.linker 
-                    delete target.libpaths 
-                    delete target.libraries 
-                }
+            }
+            runTargetScript(target, 'postblend')
+            if (target.type == 'obj') { 
+                delete target.linker 
+                delete target.libpaths 
+                delete target.libraries 
             }
         }
     }
