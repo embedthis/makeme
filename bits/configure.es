@@ -172,7 +172,7 @@ module embedthis.bit {
      */
     internal function setRequiredPacks() { 
         for (let [pname, enabled] in bit.packDefaults) {
-            bit.packs[pname] ||= {}
+            bit.packs[pname] ||= { type: 'pack' }
         }
         if (bit.options.gen == 'make' || bit.options.gen == 'nmake') {
             for (let [pname, enabled] in bit.packDefaults) {
