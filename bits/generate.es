@@ -554,7 +554,7 @@ module embedthis.bit {
                 } 
             }
             if (bit.generating == 'make') {
-                genout.writeLine('export %-7s := %s' % [key, value])
+                genout.writeLine('export %-18s := %s' % [key, value])
 
             } else if (bit.generating == 'nmake') {
                 value = value.replace(/\//g, '\\')
@@ -566,7 +566,7 @@ module embedthis.bit {
             found = true
         }
         if (bit.platform.os == 'vxworks') {
-            genout.writeLine('export PATH := $(WIND_GNU_PATH)/$(WIND_HOST_TYPE)/bin:$(PATH)')
+            genout.writeLine('%-25s := %s'.format(['export PATH', '$(WIND_GNU_PATH)/$(WIND_HOST_TYPE)/bin:$(PATH)']))
         }
         if (found) {
             genout.writeLine('')
