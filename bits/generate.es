@@ -632,6 +632,9 @@ module embedthis.bit {
             throw 'No rule to build target ' + target.path + ' for transition ' + transition
             return
         }
+if (target.name == 'esp') {
+    dump(target)
+}
         let command = b.expandRule(target, rule)
         if (bit.generating == 'sh') {
             command = repcmd(command)
@@ -1114,11 +1117,12 @@ module embedthis.bit {
         for each (lib in target.libraries) {
             let name, dep, requires, pack
             name = pack = null
+//  MOB functionalize   getDep()
             if (bit.targets['lib' + lib]) {
                 name = 'lib' + lib
                 dep = bit.targets[name]
                 requires = dep.requires
-                if (bit.platform.os == 'vxworks') {
+                if (bit.platform.os == 'vxworks' && !target.static) {
                     continue
                 }
 
