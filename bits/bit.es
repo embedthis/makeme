@@ -2117,9 +2117,9 @@ public class Bit {
              */
             for (i = 0; i < libs.length; i++) {
                 let name = libs[i]
-                let dep = bit.targets[name]
+                let dep = bit.targets['lib' + name]
                 if (!dep) {
-                    dep = bit.targets['lib' + name]
+                    dep = bit.targets[name]
                 }
                 if (dep && dep.type == 'lib' && !dep.static) {
                     libs.remove(i, i)
