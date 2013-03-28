@@ -344,6 +344,7 @@ module embedthis.bit {
         genout.writeLine('PROFILE            := ' + bit.platform.profile)
         if (bit.platform.os == 'vxworks') {
             genout.writeLine("ARCH               := $(shell echo $(WIND_HOST_TYPE) | sed 's/-.*//')")
+            genout.writeLine("CPU                := $(shell echo $(ARCH) | tr a-z A-Z)")
         } else {
             genout.writeLine('ARCH               := $(shell uname -m | sed \'s/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/\')')
         }

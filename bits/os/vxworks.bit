@@ -80,7 +80,11 @@ Bit.load({
                 }
             }
             cpu = bit.platform.cpu || cpu
-            defaults.defines.push('CPU=' + cpu.toUpper())
+            if (bit.options.gen) {
+                defaults.defines.push('CPU=$(CPU)')
+            } else {
+                defaults.defines.push('CPU=' + cpu.toUpper())
+            }
             if (arch.match(/mips/)) {
                 /* Don't use mips global pointer */
                 defaults.compiler.push('-G 0')
