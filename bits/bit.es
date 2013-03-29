@@ -2498,22 +2498,20 @@ public class Bit {
         case 'cleanTargets':
             for each (target in bit.targets) {
                 if (target.enable && !target.precious && !target.nogen && target.path && targetsToClean[target.type]) {
-                    if (bit.generating) {
-                        removeDir(reppath(target.path))
+                    let ext = target.path.extension
+                    if (options.show) {
+                        trace('Clean', target.path.relative)
+                    }
+                    if (target.type == 'exe' || target.type == 'lib') {
+                        removeFile(reppath(target.path))
                     } else {
-                        if (target.path.exists) {
-                            if (options.show) {
-                                trace('Clean', target.path.relative)
-                            }
-                            safeRemove(target.path)
-                        }
-                        if (Config.OS == 'windows') {
-                            let ext = target.path.extension
-                            if (ext == bit.ext.shobj || ext == bit.ext.exe) {
-                                target.path.replaceExt('lib').remove()
-                                target.path.replaceExt('pdb').remove()
-                                target.path.replaceExt('exp').remove()
-                            }
+                        removePath(reppath(target.path))
+                    }
+                    if (bit.platform.os == 'windows') {
+                        if (ext == bit.ext.shobj || ext == bit.ext.exe) {
+                            removeFile(target.path.replaceExt('lib'))
+                            removeFile(target.path.replaceExt('pdb'))
+                            removeFile(target.path.replaceExt('exp'))
                         }
                     }
                 }
@@ -3152,7 +3150,7 @@ public class Bit {
                 path = path.relative
             }
             if (bit.generating == 'nmake') {
-                genrep('\tif exist "' + path.windows + '" rd /Q "' + path.windows + '"')
+                genrep('\tif exist "' + path.windows + '" del /Q "' + path.windows + '"')
             } else {
                 genrep('\trm -f "' + path + '"')
             }
@@ -3189,7 +3187,7 @@ public class Bit {
                 if (options.empty) {
                     genrep('\tif exist "' + path.windows + '" rd /Q "' + path.windows + '"')
                 } else {
-                    genrep('\tif exist "' + path.windows + '" rd /Q /S"' + path.windows + '"')
+                    genrep('\tif exist "' + path.windows + '" rd /Q /S "' + path.windows + '"')
                 }
             } else {
                 if (options.empty) {
@@ -3197,6 +3195,32 @@ public class Bit {
                 } else {
                     genrep('\trm -fr "' + path + '"')
                 }
+            }
+        }
+    }
+
+    /**
+        Remove a file or directory.
+        This removes a file or directory and all its contents include subdirectories.
+        @param path File or directory to remove
+    */
+    public function removePath(path: Path) {
+        if (!bit.generating) {
+            strace('Remove', path)
+            if (!options.dry) {
+                strace('Remove', 'rm -fr', path)
+                path.removeAll()
+            }
+        } else {
+            let pwd = App.dir
+            if (path.startsWith(pwd)) {
+                path = path.relative
+            }
+            if (bit.generating == 'nmake') {
+                genrep('\tif exist "' + path.windows + '\\" rd /Q /S "' + path.windows + '"')
+                genrep('\tif exist "' + path.windows + '" del /Q "' + path.windows + '"')
+            } else {
+                genrep('\trm -fr "' + path + '"')
             }
         }
     }
@@ -3391,6 +3415,10 @@ public function removeDir(path: Path, options = {})
 /** @duplicate Bit.removeFile */
 public function removeFile(path: Path, options = {})
     b.removeFile(path, options)
+
+/** @duplicate Bit.removePath */
+public function removePath(path: Path, options = {})
+    b.removePath(path, options)
 
 /** @hide */
 public function runTargetScript(target, when)

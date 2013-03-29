@@ -21,7 +21,7 @@ ifeq ($(PROCESSOR_ARCHITEW6432),AMD64)
 else
     ARCH?=x86
 endif
-    MAKE:= projects/windows.bat $(ARCH)
+    MAKE:= MAKEFLAGS= projects/windows.bat $(ARCH)
     EXT := nmake
 else
 	ARCH:= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
