@@ -1241,7 +1241,7 @@ module embedthis.bit {
         }
         if (target.depends && target.depends.length > 0) {
             for each (let dname in target.depends) {
-                let dep = bit.targets[dname]
+                // let dep = bit.targets[dname]
                 if (dep && dep.enable) {
                     let d = (dep.path) ? reppath(dep.path) : dep.name
                     if (dep.requires) {
