@@ -48349,7 +48349,9 @@ static EjsPath *system_tmpdir(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
     MprFileSystem   *fs;
     fs = mprLookupFileSystem("/");
     dir = sclone(getenv("TEMP"));
+#if UNUSED
     mprMapSeparators(dir, defaultSep(fs));
+#endif
 }
 #elif VXWORKS
     dir = ".";
