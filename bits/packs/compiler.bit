@@ -188,21 +188,21 @@ function testCompilerCapabilities() {
     Test compile to determine supported compiler switches. This is only used on gcc.
  */
 function compile(cc: Path, command: String, contents: String = null): Boolean {
-    let file
-    if (contents) {
-        //  TODO - refactor dir for temp file
-        file = Path('/tmp/bit-' + App.pid + '.c')
-        if (bit.platform.os == 'vxworks') {
-            contents = '#define _VSB_CONFIG_FILE "vsbConfig.h\n' + contents
-        }
-        file.write(contents + '\n')
-        command += ' -c ' + file
-    }
-    command = '' + cc + ' -Werror -Wall ' + command
-    strace('Compile', command)
-    strace('Program', contents)
-    let cmd
+    let file, cmd
+    let home = App.dir
     try {
+        file = System.tmpdir.join('bit-' + App.pid + '.c')
+        App.chdir(file.dirname)
+        if (contents) {
+            if (bit.platform.os == 'vxworks') {
+                contents = '#define _VSB_CONFIG_FILE "vsbConfig.h\n' + contents
+            }
+            file.write(contents + '\n')
+            command += ' -c ' + file
+        }
+        command = '' + cc + ' -Werror -Wall ' + command
+        strace('Compile', command)
+        strace('Program', contents)
         cmd = new Cmd
         cmd.env = bit.env
         cmd.start(command)

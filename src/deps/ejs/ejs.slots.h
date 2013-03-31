@@ -2238,7 +2238,8 @@
 #define ES_System_Bufsize                                              1
 #define ES_System_hostname                                             2
 #define ES_System_ipaddr                                               3
-#define ES_System_NUM_CLASS_PROP                                       4
+#define ES_System_tmpdir                                               4
+#define ES_System_NUM_CLASS_PROP                                       5
 
 /*
    Prototype (instance) slots for "System" type 
@@ -2601,7 +2602,7 @@
 #define ES_XMLList_NUM_INSTANCE_PROP                                   20
 #define ES_XMLList_NUM_INHERITED_PROP                                  0
 
-#define _ES_CHECKSUM_ejs   1506925
+#define _ES_CHECKSUM_ejs   1507582
 
 #endif
 

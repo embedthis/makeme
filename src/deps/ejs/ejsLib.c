@@ -48334,6 +48334,32 @@ static EjsString *system_ipaddr(Ejs *ejs, EjsObj *unused, int argc, EjsObj **arg
 }
 
 
+#if ES_System_tmpdir
+/*
+    function get tmpdir(): Path
+ */
+static EjsPath *system_tmpdir(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
+{
+    cchar   *dir;
+
+#if WINCE
+    dir = "/Temp";
+#elif BIT_WIN_LIKE
+{
+    MprFileSystem   *fs;
+    fs = mprLookupFileSystem("/");
+    dir = sclone(getenv("TEMP"));
+    mprMapSeparators(dir, defaultSep(fs));
+}
+#elif VXWORKS
+    dir = ".";
+#else
+    dir = "/tmp";
+#endif
+    return ejsCreatePathFromAsc(ejs, dir);
+}
+#endif
+
 /************************************ Factory *********************************/
 
 PUBLIC void ejsConfigureSystemType(Ejs *ejs)
@@ -48345,6 +48371,9 @@ PUBLIC void ejsConfigureSystemType(Ejs *ejs)
     }
     ejsBindMethod(ejs, type, ES_System_hostname, system_hostname);
     ejsBindMethod(ejs, type, ES_System_ipaddr, system_ipaddr);
+#if ES_System_tmpdir
+    ejsBindMethod(ejs, type, ES_System_tmpdir, system_tmpdir);
+#endif
 }
 
 /*

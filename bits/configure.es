@@ -313,7 +313,6 @@ module embedthis.bit {
         configurePacks()
         Object.sortProperties(bit.packs)
         checkPacks()
-        // inheritPacks()
         tracePacks()
         resetPacks()
     }
@@ -468,6 +467,7 @@ module embedthis.bit {
         delete global.PACK
     }
 
+/* UNUSED
     internal function inheritFromPack(pack, dep) {
         for each (lib in dep.libraries) {
             pack.libraries ||= []
@@ -522,6 +522,7 @@ module embedthis.bit {
             inheritPack(pack)
         }
     }
+UNUSED */
 
     internal function tracePacks() {
         let omitted = {}
@@ -733,7 +734,6 @@ module embedthis.bit {
                     }
                 } else {
                     throw "Only ejscripts are support for packs"
-                    // runShell(target, item.interpreter, item.script)
                 }
             } finally {
                 App.chdir(pwd)
