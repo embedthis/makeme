@@ -112,15 +112,15 @@ libappweb: {
         <h2>Pack Dependencies</h2>
         <p>Products are sometimes configured with extension packages that provide libraries to augment the product. For
         example: the PHP extension adds the libphp5 library. To link a target with an extension package, use the 
-        <em>requires</em> property. For example:</p>
+        <em>packs</em> property. For example:</p>
 <pre>
 librocket: {
     type: 'lib',
     sources: [ '*.c' ],
     headers: [ '*.h' ],
-    <b>requires: [ 'fuel' ]</b>,
+    <b>packs: [ 'fuel' ]</b>,
 </pre>
-        <p>The requires property indicates that this target should only be built if the <em>fuel</em> pack is
+        <p>The packs property indicates that this target should only be built if the <em>fuel</em> pack is
         enabled. Note this will not import any defined libraries, library paths, include paths or compiler definitions to
         this target. To do that, you need to use the <em>depends</em> property</p>
         <a name="static"></a>

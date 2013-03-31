@@ -209,8 +209,8 @@
                 <tr><td>libraries</td><td>Libraries to link with when building targets that depend on this pack</td></tr>
                 <tr><td>libpaths</td><td>Library search paths to use when building targets that depend on this pack</td></tr>
                 <tr><td>linker</td><td>Linker options to use when building targets that depend on this pack</td></tr>
+                <tr><td>packs</td><td>Array of required packs</td></tr>
                 <tr><td>path</td><td>If found, the path to the pack directory or binary</td></tr>
-                <tr><td>requires</td><td>Array of required packs</td></tr>
                 <tr><td>withpath</td><td>Path supplied via a configure --with PACK=PATH command line option</td></tr>
             </tbody>
         </table>
@@ -264,14 +264,13 @@
                     the 'Info' tag, or it can be an array where the first element is the message tag and the
                     remaining elements are joined to form the message.</td></tr>
                 <tr><td>name</td><td>Target name. This name is used rather than the collection name</td></tr>
+                <tr><td>packs</td><td>Name of a pack required to enable this target.  Targets with the packs property 
+                        will have conditional code in generated Makefiles so that the target is not built if the
+                        required packs are not enabled in the build.</td></tr>
                 <tr><td>path</td><td>Path to the result of building the target. If set, this is used for dependency
                         calculations. If updated, all targets that depend on this target will be rebuilt.</td></tr>
                 <tr><td>platforms</td><td>Platforms for which this target should be built. Set to OS-ARCH or <em>local</em>
                         for the local platform.</td></tr>
-                <tr><td>requires</td><td>Name of a required pack to enable this target. Equivalent to setting the 
-                        enable property to 'bit.pack.NAME && bit.pack.NAME.enable'. Targets with the require property 
-                        will have conditional code in generated Makefiles so that the target is not built if the
-                        required pack is not supported in the build.</td></tr>
                 <tr><td>rule</td><td>Build command template to use when invoking compiler and linker. Typically not
                         explicitly set unless overriding for some reason. Set to: 'c-&gt;o', 'cpp-&gt;o', 'lib', 'exe', 'gui'.
                         Rules are automatically selected for 'lib' and 'exe' targets. </td>

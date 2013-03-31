@@ -185,12 +185,12 @@ stest: {
         product <em>bit.h</em> configuration header.  For example:
         <pre>$ make <b>BIT_PACK_EST=0</b></pre>
         <p>This will disable use of the EST (Embedded Security Transport SSL).</p>
-        <p>The <em>require</em> target property is used to specify what extension pack is required by a target. 
+        <p>The <em>packs</em> target property is used to specify what extension pack is required by a target. 
 <pre>
 rocket: {
     type: 'exe'
     sources: '*.c',
-    require: 'ssl',
+    packs: [ 'ssl' ],
 },
 </pre>
         <p>Only if the SSL pack is enabled, will the generated Makefile build the rocket target.

@@ -86,16 +86,16 @@ rocket: {
         <h2>Pack Dependencies</h2>
         <p>Products are sometimes configured with extension packages that provide libraries to augment the product. For
         example: the PHP extension adds the libphp library. To cause a target to be built only if the pack is available,
-        use the <em>requires</em> property. For example:</p>
+        use the <em>packs</em> property. For example:</p>
 <pre>
 rocket: {
     type: 'exe',
     sources: [ '*.c' ],
     headers: [ '*.h' ],
     depends: [ 'fuel', 'booster' ],
-    <b>requires: [ 'booster' ]</b>,
+    <b>packs: [ 'booster' ]</b>,
 </pre>
-        <p>Note that <em>requires</em> does not import add any pack defined libraries, library paths, include paths or
+        <p>Note that <em>packs</em> does not import add any pack defined libraries, library paths, include paths or
         compiler definitions to this target. To do that, use the <em>depends</em> property.</p> 
         
         <p>To do a static link of the executable, set the <i>static</i> property to true.  This will link the executable

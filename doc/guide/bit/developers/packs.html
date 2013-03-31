@@ -136,14 +136,14 @@ packs: {
             <li>libraries &mdash; Array of required libraries for targets using this pack.</li>
             <li>linker &mdash; Array of linker options for targets using this pack.</li>
             <li>name &mdash; Pack name. Should equal the pack collection property name..</li>
+            <li>packs &mdash; Array of other packs that are required (mandatory) for this pack to be functional.</li>
             <li>path &mdash; Path to primary pack resource or directory. May be the path to the binary for tools.</li>
-            <li>requires &mdash; Array of other packs that are required (mandatory) for this pack to be functional.</li>
         </ul>
         <h2>Referencing Packs in Targets</h2>
         <p>If a target specifies a pack in its <em>depends</em> property, and the pack is found and
         enabled, then the pack properties: defines, includes, libraries, linker and libpaths, will be inherited by the
         target. </p>
-        <p>If the target specifies the pack via its <em>requires</em> property and the pack is not enabled, then the
+        <p>If the target specifies the pack via its <em>packs</em> property and the pack is not enabled, then the
         target will (silently) be omitted from the build. If the pack is enabled, the target will be built.</p>
         <p>For example, consider the pack definition:</p> 
 <pre>
@@ -170,7 +170,7 @@ app: {
     type: 'exe',
     sources: 'app.c',
     <b>depends: ['php']</b>,
-    <b>requires: ['php']</b>,
+    <b>packs: ['php']</b>,
 },
 </pre>
         <p>Bit will automatically import the libphp5 library into the local tree at configure time. Because of the
@@ -219,7 +219,7 @@ Bit.pack({
         path: function (pack) {
             return probe('ar', { fullpath: true, search: bit.packs.compiler.search })
         },
-        requires: ['compiler'],
+        packs: ['compiler'],
     },
 })
 </pre>
