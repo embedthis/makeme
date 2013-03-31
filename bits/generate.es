@@ -108,6 +108,8 @@ module embedthis.bit {
             generateRun(target)
         } else if (target.dir) {
             generateDir(target, true)
+        } else if (target.type == 'pack') {
+            generatePack(target)
         }
         if (target.packs) {
             for (i in target.packs.length) {
@@ -625,6 +627,13 @@ module embedthis.bit {
         }
     }
 
+    function generatePack(target) {
+        if (bit.generating == 'make' || bit.generating == 'nmake') {
+            genTargetDeps(target)
+            genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
+        }
+    }
+
     function generateExe(target) {
         let transition = target.rule || 'exe'
         let rule = bit.rules[transition]
@@ -1123,14 +1132,14 @@ module embedthis.bit {
                     Check packs that provide the library
                  */
                 for each (p in bit.packs) {
-                    if (p.ownLibraries) {
-                        if (p.ownLibraries.contains(lib)) {
+                    if (p.libraries) {
+                        if (p.libraries.contains(lib)) {
                             name = lib
                             dep = target
-                        } else if (p.ownLibraries.contains(Path(lib).trimExt())) {
+                        } else if (p.libraries.contains(Path(lib).trimExt())) {
                             name = lib.trimExt()
                             dep = target
-                        } else if (p.ownLibraries.contains(Path(lib.replace(/^lib/, '')).trimExt())) {
+                        } else if (p.libraries.contains(Path(lib.replace(/^lib/, '')).trimExt())) {
                             name = Path(lib.replace(/^lib/, '')).trimExt()
                             dep = target
                         }
@@ -1252,9 +1261,7 @@ module embedthis.bit {
                 dep = b.getDep(dname)
                 if (dep && dep.enable) {
                     let d = (dep.path) ? reppath(dep.path) : dep.name
-                    if (dep.type == 'pack') {
-                        ;
-                    } else if (dep.packs) {
+                    if (dep.packs) {
                         let indent = ''
                         for each (r in dep.packs) {
                             if (!target.packs || !target.packs.contains(r)) {
