@@ -101,9 +101,7 @@ TARGETS            = $(TARGETS) $(CONFIG)\bin\libest.dll
 !ENDIF
 TARGETS            = $(TARGETS) $(CONFIG)\bin\ca.crt
 TARGETS            = $(TARGETS) $(CONFIG)\bin\libmpr.dll
-!IF "$(BIT_PACK_SSL)" == "1"
 TARGETS            = $(TARGETS) $(CONFIG)\bin\libmprssl.dll
-!ENDIF
 TARGETS            = $(TARGETS) $(CONFIG)\bin\makerom.exe
 !IF "$(BIT_PACK_PCRE)" == "1"
 TARGETS            = $(TARGETS) $(CONFIG)\bin\libpcre.dll
@@ -302,63 +300,81 @@ $(CONFIG)\bin\libmpr.dll: $(DEPS_10)
 	@echo '      [Link] $(CONFIG)/bin/libmpr.dll'
 	"$(LD)" -dll -out:$(CONFIG)\bin\libmpr.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\mprLib.obj $(LIBS) 
 
+!IF "$(BIT_PACK_SSL)" == "1"
+#
+#   est
+#
+!IF "$(BIT_PACK_EST)" == "1"
+DEPS_11 = $(DEPS_11) $(CONFIG)\bin\libest.dll
+!ENDIF
+
+est: $(DEPS_11)
+!ENDIF
+
+#
+#   ssl
+#
+!IF "$(BIT_PACK_SSL)" == "1"
+DEPS_12 = $(DEPS_12) est
+!ENDIF
+
+ssl: $(DEPS_12)
 
 #
 #   mprSsl.obj
 #
-DEPS_11 = $(DEPS_11) $(CONFIG)\inc\bit.h
-DEPS_11 = $(DEPS_11) $(CONFIG)\inc\mpr.h
-DEPS_11 = $(DEPS_11) $(CONFIG)\inc\est.h
+DEPS_13 = $(DEPS_13) $(CONFIG)\inc\bit.h
+DEPS_13 = $(DEPS_13) $(CONFIG)\inc\mpr.h
+DEPS_13 = $(DEPS_13) $(CONFIG)\inc\est.h
 
 $(CONFIG)\obj\mprSsl.obj: \
-    src\deps\mpr\mprSsl.c $(DEPS_11)
+    src\deps\mpr\mprSsl.c $(DEPS_13)
 	@echo '   [Compile] $(CONFIG)/obj/mprSsl.obj'
 	"$(CC)" -c -Fo$(CONFIG)\obj\mprSsl.obj -Fd$(CONFIG)\obj\mprSsl.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\mpr\mprSsl.c
 
-!IF "$(BIT_PACK_SSL)" == "1"
 #
 #   libmprssl
 #
-DEPS_12 = $(DEPS_12) $(CONFIG)\bin\libmpr.dll
-DEPS_12 = $(DEPS_12) $(CONFIG)\obj\mprSsl.obj
+DEPS_14 = $(DEPS_14) $(CONFIG)\bin\libmpr.dll
+DEPS_14 = $(DEPS_14) ssl
+DEPS_14 = $(DEPS_14) $(CONFIG)\obj\mprSsl.obj
 
 !IF "$(BIT_PACK_EST)" == "1"
-LIBS_12 = $(LIBS_12) libest.lib
+LIBS_14 = $(LIBS_14) libest.lib
 !ENDIF
-LIBS_12 = $(LIBS_12) libmpr.lib
+LIBS_14 = $(LIBS_14) libmpr.lib
 
-$(CONFIG)\bin\libmprssl.dll: $(DEPS_12)
+$(CONFIG)\bin\libmprssl.dll: $(DEPS_14)
 	@echo '      [Link] $(CONFIG)/bin/libmprssl.dll'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libmprssl.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\mprSsl.obj $(LIBPATHS_12) $(LIBS_12) $(LIBS_12) $(LIBS) 
-!ENDIF
+	"$(LD)" -dll -out:$(CONFIG)\bin\libmprssl.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\mprSsl.obj $(LIBPATHS_14) $(LIBS_14) $(LIBS_14) $(LIBS) 
 
 #
 #   makerom.obj
 #
-DEPS_13 = $(DEPS_13) $(CONFIG)\inc\bit.h
-DEPS_13 = $(DEPS_13) $(CONFIG)\inc\mpr.h
+DEPS_15 = $(DEPS_15) $(CONFIG)\inc\bit.h
+DEPS_15 = $(DEPS_15) $(CONFIG)\inc\mpr.h
 
 $(CONFIG)\obj\makerom.obj: \
-    src\deps\mpr\makerom.c $(DEPS_13)
+    src\deps\mpr\makerom.c $(DEPS_15)
 	@echo '   [Compile] $(CONFIG)/obj/makerom.obj'
 	"$(CC)" -c -Fo$(CONFIG)\obj\makerom.obj -Fd$(CONFIG)\obj\makerom.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\mpr\makerom.c
 
 #
 #   makerom
 #
-DEPS_14 = $(DEPS_14) $(CONFIG)\bin\libmpr.dll
-DEPS_14 = $(DEPS_14) $(CONFIG)\obj\makerom.obj
+DEPS_16 = $(DEPS_16) $(CONFIG)\bin\libmpr.dll
+DEPS_16 = $(DEPS_16) $(CONFIG)\obj\makerom.obj
 
-LIBS_14 = $(LIBS_14) libmpr.lib
+LIBS_16 = $(LIBS_16) libmpr.lib
 
-$(CONFIG)\bin\makerom.exe: $(DEPS_14)
+$(CONFIG)\bin\makerom.exe: $(DEPS_16)
 	@echo '      [Link] $(CONFIG)/bin/makerom.exe'
-	"$(LD)" -out:$(CONFIG)\bin\makerom.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\makerom.obj $(LIBPATHS_14) $(LIBS_14) $(LIBS_14) $(LIBS) 
+	"$(LD)" -out:$(CONFIG)\bin\makerom.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\makerom.obj $(LIBPATHS_16) $(LIBS_16) $(LIBS_16) $(LIBS) 
 
 #
 #   pcre.h
 #
-$(CONFIG)\inc\pcre.h: $(DEPS_15)
+$(CONFIG)\inc\pcre.h: $(DEPS_17)
 	@echo '      [Copy] $(CONFIG)/inc/pcre.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
 	copy /Y src\deps\pcre\pcre.h $(CONFIG)\inc\pcre.h
@@ -366,11 +382,11 @@ $(CONFIG)\inc\pcre.h: $(DEPS_15)
 #
 #   pcre.obj
 #
-DEPS_16 = $(DEPS_16) $(CONFIG)\inc\bit.h
-DEPS_16 = $(DEPS_16) $(CONFIG)\inc\pcre.h
+DEPS_18 = $(DEPS_18) $(CONFIG)\inc\bit.h
+DEPS_18 = $(DEPS_18) $(CONFIG)\inc\pcre.h
 
 $(CONFIG)\obj\pcre.obj: \
-    src\deps\pcre\pcre.c $(DEPS_16)
+    src\deps\pcre\pcre.c $(DEPS_18)
 	@echo '   [Compile] $(CONFIG)/obj/pcre.obj'
 	"$(CC)" -c -Fo$(CONFIG)\obj\pcre.obj -Fd$(CONFIG)\obj\pcre.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\pcre\pcre.c
 
@@ -378,10 +394,10 @@ $(CONFIG)\obj\pcre.obj: \
 #
 #   libpcre
 #
-DEPS_17 = $(DEPS_17) $(CONFIG)\inc\pcre.h
-DEPS_17 = $(DEPS_17) $(CONFIG)\obj\pcre.obj
+DEPS_19 = $(DEPS_19) $(CONFIG)\inc\pcre.h
+DEPS_19 = $(DEPS_19) $(CONFIG)\obj\pcre.obj
 
-$(CONFIG)\bin\libpcre.dll: $(DEPS_17)
+$(CONFIG)\bin\libpcre.dll: $(DEPS_19)
 	@echo '      [Link] $(CONFIG)/bin/libpcre.dll'
 	"$(LD)" -dll -out:$(CONFIG)\bin\libpcre.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\pcre.obj $(LIBS) 
 !ENDIF
@@ -389,7 +405,7 @@ $(CONFIG)\bin\libpcre.dll: $(DEPS_17)
 #
 #   http.h
 #
-$(CONFIG)\inc\http.h: $(DEPS_18)
+$(CONFIG)\inc\http.h: $(DEPS_20)
 	@echo '      [Copy] $(CONFIG)/inc/http.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
 	copy /Y src\deps\http\http.h $(CONFIG)\inc\http.h
@@ -397,66 +413,76 @@ $(CONFIG)\inc\http.h: $(DEPS_18)
 #
 #   httpLib.obj
 #
-DEPS_19 = $(DEPS_19) $(CONFIG)\inc\bit.h
-DEPS_19 = $(DEPS_19) $(CONFIG)\inc\http.h
-DEPS_19 = $(DEPS_19) $(CONFIG)\inc\mpr.h
+DEPS_21 = $(DEPS_21) $(CONFIG)\inc\bit.h
+DEPS_21 = $(DEPS_21) $(CONFIG)\inc\http.h
+DEPS_21 = $(DEPS_21) $(CONFIG)\inc\mpr.h
 
 $(CONFIG)\obj\httpLib.obj: \
-    src\deps\http\httpLib.c $(DEPS_19)
+    src\deps\http\httpLib.c $(DEPS_21)
 	@echo '   [Compile] $(CONFIG)/obj/httpLib.obj'
 	"$(CC)" -c -Fo$(CONFIG)\obj\httpLib.obj -Fd$(CONFIG)\obj\httpLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\http\httpLib.c
 
 #
 #   libhttp
 #
-DEPS_20 = $(DEPS_20) $(CONFIG)\bin\libmpr.dll
+DEPS_22 = $(DEPS_22) $(CONFIG)\bin\libmpr.dll
 !IF "$(BIT_PACK_PCRE)" == "1"
-DEPS_20 = $(DEPS_20) $(CONFIG)\bin\libpcre.dll
+DEPS_22 = $(DEPS_22) $(CONFIG)\bin\libpcre.dll
 !ENDIF
-DEPS_20 = $(DEPS_20) $(CONFIG)\inc\http.h
-DEPS_20 = $(DEPS_20) $(CONFIG)\obj\httpLib.obj
+DEPS_22 = $(DEPS_22) $(CONFIG)\inc\http.h
+DEPS_22 = $(DEPS_22) $(CONFIG)\obj\httpLib.obj
 
 !IF "$(BIT_PACK_PCRE)" == "1"
-LIBS_20 = $(LIBS_20) libpcre.lib
+LIBS_22 = $(LIBS_22) libpcre.lib
 !ENDIF
-LIBS_20 = $(LIBS_20) libmpr.lib
+LIBS_22 = $(LIBS_22) libmpr.lib
 
-$(CONFIG)\bin\libhttp.dll: $(DEPS_20)
+$(CONFIG)\bin\libhttp.dll: $(DEPS_22)
 	@echo '      [Link] $(CONFIG)/bin/libhttp.dll'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libhttp.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\httpLib.obj $(LIBPATHS_20) $(LIBS_20) $(LIBS_20) $(LIBS) 
+	"$(LD)" -dll -out:$(CONFIG)\bin\libhttp.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\httpLib.obj $(LIBPATHS_22) $(LIBS_22) $(LIBS_22) $(LIBS) 
 
 #
 #   http.obj
 #
-DEPS_21 = $(DEPS_21) $(CONFIG)\inc\bit.h
-DEPS_21 = $(DEPS_21) $(CONFIG)\inc\http.h
+DEPS_23 = $(DEPS_23) $(CONFIG)\inc\bit.h
+DEPS_23 = $(DEPS_23) $(CONFIG)\inc\http.h
 
 $(CONFIG)\obj\http.obj: \
-    src\deps\http\http.c $(DEPS_21)
+    src\deps\http\http.c $(DEPS_23)
 	@echo '   [Compile] $(CONFIG)/obj/http.obj'
 	"$(CC)" -c -Fo$(CONFIG)\obj\http.obj -Fd$(CONFIG)\obj\http.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\http\http.c
 
 #
 #   http
 #
-DEPS_22 = $(DEPS_22) $(CONFIG)\bin\libhttp.dll
-DEPS_22 = $(DEPS_22) $(CONFIG)\obj\http.obj
+DEPS_24 = $(DEPS_24) $(CONFIG)\bin\libhttp.dll
+DEPS_24 = $(DEPS_24) $(CONFIG)\obj\http.obj
 
-LIBS_22 = $(LIBS_22) libmpr.lib
+LIBS_24 = $(LIBS_24) libmpr.lib
 !IF "$(BIT_PACK_PCRE)" == "1"
-LIBS_22 = $(LIBS_22) libpcre.lib
+LIBS_24 = $(LIBS_24) libpcre.lib
 !ENDIF
-LIBS_22 = $(LIBS_22) libhttp.lib
+LIBS_24 = $(LIBS_24) libhttp.lib
 
-$(CONFIG)\bin\http.exe: $(DEPS_22)
+$(CONFIG)\bin\http.exe: $(DEPS_24)
 	@echo '      [Link] $(CONFIG)/bin/http.exe'
-	"$(LD)" -out:$(CONFIG)\bin\http.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\http.obj $(LIBPATHS_22) $(LIBS_22) $(LIBS_22) $(LIBS) 
+	"$(LD)" -out:$(CONFIG)\bin\http.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\http.obj $(LIBPATHS_24) $(LIBS_24) $(LIBS_24) $(LIBS) 
 
+#
+#   ejscript
+#
+DEPS_25 = $(DEPS_25) $(CONFIG)\bin\libmpr.dll
+DEPS_25 = $(DEPS_25) $(CONFIG)\bin\libhttp.dll
+!IF "$(BIT_PACK_PCRE)" == "1"
+DEPS_25 = $(DEPS_25) $(CONFIG)\bin\libpcre.dll
+!ENDIF
+
+ejscript: $(DEPS_25)
 
 #
 #   ejs.h
 #
-$(CONFIG)\inc\ejs.h: $(DEPS_23)
+$(CONFIG)\inc\ejs.h: $(DEPS_26)
 	@echo '      [Copy] $(CONFIG)/inc/ejs.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
 	copy /Y src\deps\ejs\ejs.h $(CONFIG)\inc\ejs.h
@@ -464,7 +490,7 @@ $(CONFIG)\inc\ejs.h: $(DEPS_23)
 #
 #   ejs.slots.h
 #
-$(CONFIG)\inc\ejs.slots.h: $(DEPS_24)
+$(CONFIG)\inc\ejs.slots.h: $(DEPS_27)
 	@echo '      [Copy] $(CONFIG)/inc/ejs.slots.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
 	copy /Y src\deps\ejs\ejs.slots.h $(CONFIG)\inc\ejs.slots.h
@@ -472,7 +498,7 @@ $(CONFIG)\inc\ejs.slots.h: $(DEPS_24)
 #
 #   ejsByteGoto.h
 #
-$(CONFIG)\inc\ejsByteGoto.h: $(DEPS_25)
+$(CONFIG)\inc\ejsByteGoto.h: $(DEPS_28)
 	@echo '      [Copy] $(CONFIG)/inc/ejsByteGoto.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
 	copy /Y src\deps\ejs\ejsByteGoto.h $(CONFIG)\inc\ejsByteGoto.h
@@ -480,16 +506,16 @@ $(CONFIG)\inc\ejsByteGoto.h: $(DEPS_25)
 #
 #   ejsLib.obj
 #
-DEPS_26 = $(DEPS_26) $(CONFIG)\inc\bit.h
-DEPS_26 = $(DEPS_26) $(CONFIG)\inc\ejs.h
-DEPS_26 = $(DEPS_26) $(CONFIG)\inc\mpr.h
-DEPS_26 = $(DEPS_26) $(CONFIG)\inc\pcre.h
-DEPS_26 = $(DEPS_26) $(CONFIG)\inc\bitos.h
-DEPS_26 = $(DEPS_26) $(CONFIG)\inc\http.h
-DEPS_26 = $(DEPS_26) $(CONFIG)\inc\ejs.slots.h
+DEPS_29 = $(DEPS_29) $(CONFIG)\inc\bit.h
+DEPS_29 = $(DEPS_29) $(CONFIG)\inc\ejs.h
+DEPS_29 = $(DEPS_29) $(CONFIG)\inc\mpr.h
+DEPS_29 = $(DEPS_29) $(CONFIG)\inc\pcre.h
+DEPS_29 = $(DEPS_29) $(CONFIG)\inc\bitos.h
+DEPS_29 = $(DEPS_29) $(CONFIG)\inc\http.h
+DEPS_29 = $(DEPS_29) $(CONFIG)\inc\ejs.slots.h
 
 $(CONFIG)\obj\ejsLib.obj: \
-    src\deps\ejs\ejsLib.c $(DEPS_26)
+    src\deps\ejs\ejsLib.c $(DEPS_29)
 	@echo '   [Compile] $(CONFIG)/obj/ejsLib.obj'
 	"$(CC)" -c -Fo$(CONFIG)\obj\ejsLib.obj -Fd$(CONFIG)\obj\ejsLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\ejs\ejsLib.c
 
@@ -497,35 +523,36 @@ $(CONFIG)\obj\ejsLib.obj: \
 #
 #   libejs
 #
-DEPS_27 = $(DEPS_27) $(CONFIG)\bin\libhttp.dll
+DEPS_30 = $(DEPS_30) $(CONFIG)\bin\libhttp.dll
 !IF "$(BIT_PACK_PCRE)" == "1"
-DEPS_27 = $(DEPS_27) $(CONFIG)\bin\libpcre.dll
+DEPS_30 = $(DEPS_30) $(CONFIG)\bin\libpcre.dll
 !ENDIF
-DEPS_27 = $(DEPS_27) $(CONFIG)\bin\libmpr.dll
-DEPS_27 = $(DEPS_27) $(CONFIG)\inc\ejs.h
-DEPS_27 = $(DEPS_27) $(CONFIG)\inc\ejs.slots.h
-DEPS_27 = $(DEPS_27) $(CONFIG)\inc\ejsByteGoto.h
-DEPS_27 = $(DEPS_27) $(CONFIG)\obj\ejsLib.obj
+DEPS_30 = $(DEPS_30) $(CONFIG)\bin\libmpr.dll
+DEPS_30 = $(DEPS_30) ejscript
+DEPS_30 = $(DEPS_30) $(CONFIG)\inc\ejs.h
+DEPS_30 = $(DEPS_30) $(CONFIG)\inc\ejs.slots.h
+DEPS_30 = $(DEPS_30) $(CONFIG)\inc\ejsByteGoto.h
+DEPS_30 = $(DEPS_30) $(CONFIG)\obj\ejsLib.obj
 
-LIBS_27 = $(LIBS_27) libmpr.lib
+LIBS_30 = $(LIBS_30) libmpr.lib
 !IF "$(BIT_PACK_PCRE)" == "1"
-LIBS_27 = $(LIBS_27) libpcre.lib
+LIBS_30 = $(LIBS_30) libpcre.lib
 !ENDIF
-LIBS_27 = $(LIBS_27) libhttp.lib
+LIBS_30 = $(LIBS_30) libhttp.lib
 
-$(CONFIG)\bin\libejs.dll: $(DEPS_27)
+$(CONFIG)\bin\libejs.dll: $(DEPS_30)
 	@echo '      [Link] $(CONFIG)/bin/libejs.dll'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libejs.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsLib.obj $(LIBPATHS_27) $(LIBS_27) $(LIBS_27) $(LIBS) 
+	"$(LD)" -dll -out:$(CONFIG)\bin\libejs.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsLib.obj $(LIBPATHS_30) $(LIBS_30) $(LIBS_30) $(LIBS) 
 !ENDIF
 
 #
 #   ejs.obj
 #
-DEPS_28 = $(DEPS_28) $(CONFIG)\inc\bit.h
-DEPS_28 = $(DEPS_28) $(CONFIG)\inc\ejs.h
+DEPS_31 = $(DEPS_31) $(CONFIG)\inc\bit.h
+DEPS_31 = $(DEPS_31) $(CONFIG)\inc\ejs.h
 
 $(CONFIG)\obj\ejs.obj: \
-    src\deps\ejs\ejs.c $(DEPS_28)
+    src\deps\ejs\ejs.c $(DEPS_31)
 	@echo '   [Compile] $(CONFIG)/obj/ejs.obj'
 	"$(CC)" -c -Fo$(CONFIG)\obj\ejs.obj -Fd$(CONFIG)\obj\ejs.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\ejs\ejs.c
 
@@ -533,29 +560,30 @@ $(CONFIG)\obj\ejs.obj: \
 #
 #   ejs
 #
-DEPS_29 = $(DEPS_29) $(CONFIG)\bin\libejs.dll
-DEPS_29 = $(DEPS_29) $(CONFIG)\obj\ejs.obj
+DEPS_32 = $(DEPS_32) $(CONFIG)\bin\libejs.dll
+DEPS_32 = $(DEPS_32) ejscript
+DEPS_32 = $(DEPS_32) $(CONFIG)\obj\ejs.obj
 
-LIBS_29 = $(LIBS_29) libhttp.lib
+LIBS_32 = $(LIBS_32) libhttp.lib
 !IF "$(BIT_PACK_PCRE)" == "1"
-LIBS_29 = $(LIBS_29) libpcre.lib
+LIBS_32 = $(LIBS_32) libpcre.lib
 !ENDIF
-LIBS_29 = $(LIBS_29) libmpr.lib
-LIBS_29 = $(LIBS_29) libejs.lib
+LIBS_32 = $(LIBS_32) libmpr.lib
+LIBS_32 = $(LIBS_32) libejs.lib
 
-$(CONFIG)\bin\ejs.exe: $(DEPS_29)
+$(CONFIG)\bin\ejs.exe: $(DEPS_32)
 	@echo '      [Link] $(CONFIG)/bin/ejs.exe'
-	"$(LD)" -out:$(CONFIG)\bin\ejs.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejs.obj $(LIBPATHS_29) $(LIBS_29) $(LIBS_29) $(LIBS) 
+	"$(LD)" -out:$(CONFIG)\bin\ejs.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejs.obj $(LIBPATHS_32) $(LIBS_32) $(LIBS_32) $(LIBS) 
 !ENDIF
 
 #
 #   ejsc.obj
 #
-DEPS_30 = $(DEPS_30) $(CONFIG)\inc\bit.h
-DEPS_30 = $(DEPS_30) $(CONFIG)\inc\ejs.h
+DEPS_33 = $(DEPS_33) $(CONFIG)\inc\bit.h
+DEPS_33 = $(DEPS_33) $(CONFIG)\inc\ejs.h
 
 $(CONFIG)\obj\ejsc.obj: \
-    src\deps\ejs\ejsc.c $(DEPS_30)
+    src\deps\ejs\ejsc.c $(DEPS_33)
 	@echo '   [Compile] $(CONFIG)/obj/ejsc.obj'
 	"$(CC)" -c -Fo$(CONFIG)\obj\ejsc.obj -Fd$(CONFIG)\obj\ejsc.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\ejs\ejsc.c
 
@@ -563,108 +591,109 @@ $(CONFIG)\obj\ejsc.obj: \
 #
 #   ejsc
 #
-DEPS_31 = $(DEPS_31) $(CONFIG)\bin\libejs.dll
-DEPS_31 = $(DEPS_31) $(CONFIG)\obj\ejsc.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\bin\libejs.dll
+DEPS_34 = $(DEPS_34) ejscript
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\ejsc.obj
 
-LIBS_31 = $(LIBS_31) libhttp.lib
+LIBS_34 = $(LIBS_34) libhttp.lib
 !IF "$(BIT_PACK_PCRE)" == "1"
-LIBS_31 = $(LIBS_31) libpcre.lib
+LIBS_34 = $(LIBS_34) libpcre.lib
 !ENDIF
-LIBS_31 = $(LIBS_31) libmpr.lib
-LIBS_31 = $(LIBS_31) libejs.lib
+LIBS_34 = $(LIBS_34) libmpr.lib
+LIBS_34 = $(LIBS_34) libejs.lib
 
-$(CONFIG)\bin\ejsc.exe: $(DEPS_31)
+$(CONFIG)\bin\ejsc.exe: $(DEPS_34)
 	@echo '      [Link] $(CONFIG)/bin/ejsc.exe'
-	"$(LD)" -out:$(CONFIG)\bin\ejsc.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsc.obj $(LIBPATHS_31) $(LIBS_31) $(LIBS_31) $(LIBS) 
+	"$(LD)" -out:$(CONFIG)\bin\ejsc.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\ejsc.obj $(LIBPATHS_34) $(LIBS_34) $(LIBS_34) $(LIBS) 
 !ENDIF
 
 !IF "$(BIT_PACK_EJSCRIPT)" == "1"
 #
 #   ejs.mod
 #
-DEPS_32 = $(DEPS_32) src\deps\ejs\ejs.es
-DEPS_32 = $(DEPS_32) $(CONFIG)\bin\ejsc.exe
+DEPS_35 = $(DEPS_35) src\deps\ejs\ejs.es
+DEPS_35 = $(DEPS_35) $(CONFIG)\bin\ejsc.exe
 
-$(CONFIG)\bin\ejs.mod: $(DEPS_32)
+$(CONFIG)\bin\ejs.mod: $(DEPS_35)
 	"$(LBIN)\ejsc" --out ".\$(CONFIG)\bin\ejs.mod" --optimize 9 --bind --require null src/deps/ejs/ejs.es
 !ENDIF
 
 #
 #   removeFiles.obj
 #
-DEPS_33 = $(DEPS_33) $(CONFIG)\inc\bit.h
+DEPS_36 = $(DEPS_36) $(CONFIG)\inc\bit.h
 
 $(CONFIG)\obj\removeFiles.obj: \
-    package\windows\removeFiles.c $(DEPS_33)
+    package\windows\removeFiles.c $(DEPS_36)
 	@echo '   [Compile] $(CONFIG)/obj/removeFiles.obj'
 	"$(CC)" -c -Fo$(CONFIG)\obj\removeFiles.obj -Fd$(CONFIG)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) package\windows\removeFiles.c
 
 #
 #   removeFiles
 #
-DEPS_34 = $(DEPS_34) $(CONFIG)\obj\removeFiles.obj
+DEPS_37 = $(DEPS_37) $(CONFIG)\obj\removeFiles.obj
 
-$(CONFIG)\bin\removeFiles.exe: $(DEPS_34)
+$(CONFIG)\bin\removeFiles.exe: $(DEPS_37)
 	@echo '      [Link] $(CONFIG)/bin/removeFiles.exe'
 	"$(LD)" -out:$(CONFIG)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\removeFiles.obj $(LIBS) 
 
 #
 #   bits
 #
-DEPS_35 = $(DEPS_35) bits\bit.es
-DEPS_35 = $(DEPS_35) bits\configure.es
-DEPS_35 = $(DEPS_35) bits\embedthis-manifest.bit
-DEPS_35 = $(DEPS_35) bits\embedthis.bit
-DEPS_35 = $(DEPS_35) bits\embedthis.es
-DEPS_35 = $(DEPS_35) bits\gendoc.es
-DEPS_35 = $(DEPS_35) bits\generate.es
-DEPS_35 = $(DEPS_35) bits\os
-DEPS_35 = $(DEPS_35) bits\os\freebsd.bit
-DEPS_35 = $(DEPS_35) bits\os\gcc.bit
-DEPS_35 = $(DEPS_35) bits\os\linux.bit
-DEPS_35 = $(DEPS_35) bits\os\macosx.bit
-DEPS_35 = $(DEPS_35) bits\os\solaris.bit
-DEPS_35 = $(DEPS_35) bits\os\unix.bit
-DEPS_35 = $(DEPS_35) bits\os\vxworks.bit
-DEPS_35 = $(DEPS_35) bits\os\windows.bit
-DEPS_35 = $(DEPS_35) bits\packs
-DEPS_35 = $(DEPS_35) bits\packs\compiler.bit
-DEPS_35 = $(DEPS_35) bits\packs\doxygen.bit
-DEPS_35 = $(DEPS_35) bits\packs\dsi.bit
-DEPS_35 = $(DEPS_35) bits\packs\dumpbin.bit
-DEPS_35 = $(DEPS_35) bits\packs\ejs.bit
-DEPS_35 = $(DEPS_35) bits\packs\ejscript.bit
-DEPS_35 = $(DEPS_35) bits\packs\est.bit
-DEPS_35 = $(DEPS_35) bits\packs\http.bit
-DEPS_35 = $(DEPS_35) bits\packs\lib.bit
-DEPS_35 = $(DEPS_35) bits\packs\link.bit
-DEPS_35 = $(DEPS_35) bits\packs\man.bit
-DEPS_35 = $(DEPS_35) bits\packs\man2html.bit
-DEPS_35 = $(DEPS_35) bits\packs\matrixssl.bit
-DEPS_35 = $(DEPS_35) bits\packs\md5.bit
-DEPS_35 = $(DEPS_35) bits\packs\nanossl.bit
-DEPS_35 = $(DEPS_35) bits\packs\openssl.bit
-DEPS_35 = $(DEPS_35) bits\packs\pcre.bit
-DEPS_35 = $(DEPS_35) bits\packs\pmaker.bit
-DEPS_35 = $(DEPS_35) bits\packs\ranlib.bit
-DEPS_35 = $(DEPS_35) bits\packs\rc.bit
-DEPS_35 = $(DEPS_35) bits\packs\sqlite.bit
-DEPS_35 = $(DEPS_35) bits\packs\ssl.bit
-DEPS_35 = $(DEPS_35) bits\packs\strip.bit
-DEPS_35 = $(DEPS_35) bits\packs\tidy.bit
-DEPS_35 = $(DEPS_35) bits\packs\utest.bit
-DEPS_35 = $(DEPS_35) bits\packs\vxworks.bit
-DEPS_35 = $(DEPS_35) bits\packs\winsdk.bit
-DEPS_35 = $(DEPS_35) bits\packs\zip.bit
-DEPS_35 = $(DEPS_35) bits\packs\zlib.bit
-DEPS_35 = $(DEPS_35) bits\sample-main.bit
-DEPS_35 = $(DEPS_35) bits\sample-start.bit
-DEPS_35 = $(DEPS_35) bits\simple.bit
-DEPS_35 = $(DEPS_35) bits\standard.bit
-DEPS_35 = $(DEPS_35) bits\vstudio.es
-DEPS_35 = $(DEPS_35) bits\xcode.es
+DEPS_38 = $(DEPS_38) bits\bit.es
+DEPS_38 = $(DEPS_38) bits\configure.es
+DEPS_38 = $(DEPS_38) bits\embedthis-manifest.bit
+DEPS_38 = $(DEPS_38) bits\embedthis.bit
+DEPS_38 = $(DEPS_38) bits\embedthis.es
+DEPS_38 = $(DEPS_38) bits\gendoc.es
+DEPS_38 = $(DEPS_38) bits\generate.es
+DEPS_38 = $(DEPS_38) bits\os
+DEPS_38 = $(DEPS_38) bits\os\freebsd.bit
+DEPS_38 = $(DEPS_38) bits\os\gcc.bit
+DEPS_38 = $(DEPS_38) bits\os\linux.bit
+DEPS_38 = $(DEPS_38) bits\os\macosx.bit
+DEPS_38 = $(DEPS_38) bits\os\solaris.bit
+DEPS_38 = $(DEPS_38) bits\os\unix.bit
+DEPS_38 = $(DEPS_38) bits\os\vxworks.bit
+DEPS_38 = $(DEPS_38) bits\os\windows.bit
+DEPS_38 = $(DEPS_38) bits\packs
+DEPS_38 = $(DEPS_38) bits\packs\compiler.bit
+DEPS_38 = $(DEPS_38) bits\packs\doxygen.bit
+DEPS_38 = $(DEPS_38) bits\packs\dsi.bit
+DEPS_38 = $(DEPS_38) bits\packs\dumpbin.bit
+DEPS_38 = $(DEPS_38) bits\packs\ejs.bit
+DEPS_38 = $(DEPS_38) bits\packs\ejscript.bit
+DEPS_38 = $(DEPS_38) bits\packs\est.bit
+DEPS_38 = $(DEPS_38) bits\packs\http.bit
+DEPS_38 = $(DEPS_38) bits\packs\lib.bit
+DEPS_38 = $(DEPS_38) bits\packs\link.bit
+DEPS_38 = $(DEPS_38) bits\packs\man.bit
+DEPS_38 = $(DEPS_38) bits\packs\man2html.bit
+DEPS_38 = $(DEPS_38) bits\packs\matrixssl.bit
+DEPS_38 = $(DEPS_38) bits\packs\md5.bit
+DEPS_38 = $(DEPS_38) bits\packs\nanossl.bit
+DEPS_38 = $(DEPS_38) bits\packs\openssl.bit
+DEPS_38 = $(DEPS_38) bits\packs\pcre.bit
+DEPS_38 = $(DEPS_38) bits\packs\pmaker.bit
+DEPS_38 = $(DEPS_38) bits\packs\ranlib.bit
+DEPS_38 = $(DEPS_38) bits\packs\rc.bit
+DEPS_38 = $(DEPS_38) bits\packs\sqlite.bit
+DEPS_38 = $(DEPS_38) bits\packs\ssl.bit
+DEPS_38 = $(DEPS_38) bits\packs\strip.bit
+DEPS_38 = $(DEPS_38) bits\packs\tidy.bit
+DEPS_38 = $(DEPS_38) bits\packs\utest.bit
+DEPS_38 = $(DEPS_38) bits\packs\vxworks.bit
+DEPS_38 = $(DEPS_38) bits\packs\winsdk.bit
+DEPS_38 = $(DEPS_38) bits\packs\zip.bit
+DEPS_38 = $(DEPS_38) bits\packs\zlib.bit
+DEPS_38 = $(DEPS_38) bits\sample-main.bit
+DEPS_38 = $(DEPS_38) bits\sample-start.bit
+DEPS_38 = $(DEPS_38) bits\simple.bit
+DEPS_38 = $(DEPS_38) bits\standard.bit
+DEPS_38 = $(DEPS_38) bits\vstudio.es
+DEPS_38 = $(DEPS_38) bits\xcode.es
 
-$(CONFIG)\bin\bits: $(DEPS_35)
+$(CONFIG)\bin\bits: $(DEPS_38)
 	@echo '      [Copy] $(CONFIG)/bin/bits'
 	if not exist "$(CONFIG)\bin\bits" md "$(CONFIG)\bin\bits"
 	copy /Y bits\bit.es $(CONFIG)\bin\bits\bit.es
@@ -762,49 +791,49 @@ $(CONFIG)\bin\bits: $(DEPS_35)
 #
 #   bit.obj
 #
-DEPS_36 = $(DEPS_36) $(CONFIG)\inc\bit.h
-DEPS_36 = $(DEPS_36) $(CONFIG)\inc\ejs.h
+DEPS_39 = $(DEPS_39) $(CONFIG)\inc\bit.h
+DEPS_39 = $(DEPS_39) $(CONFIG)\inc\ejs.h
 
 $(CONFIG)\obj\bit.obj: \
-    src\bit.c $(DEPS_36)
+    src\bit.c $(DEPS_39)
 	@echo '   [Compile] $(CONFIG)/obj/bit.obj'
 	"$(CC)" -c -Fo$(CONFIG)\obj\bit.obj -Fd$(CONFIG)\obj\bit.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\bit.c
 
 #
 #   bit
 #
-DEPS_37 = $(DEPS_37) $(CONFIG)\bin\libmpr.dll
-DEPS_37 = $(DEPS_37) $(CONFIG)\bin\libhttp.dll
+DEPS_40 = $(DEPS_40) $(CONFIG)\bin\libmpr.dll
+DEPS_40 = $(DEPS_40) $(CONFIG)\bin\libhttp.dll
 !IF "$(BIT_PACK_EJSCRIPT)" == "1"
-DEPS_37 = $(DEPS_37) $(CONFIG)\bin\libejs.dll
+DEPS_40 = $(DEPS_40) $(CONFIG)\bin\libejs.dll
 !ENDIF
-DEPS_37 = $(DEPS_37) $(CONFIG)\bin\bits
-DEPS_37 = $(DEPS_37) $(CONFIG)\inc\bitos.h
-DEPS_37 = $(DEPS_37) $(CONFIG)\obj\bit.obj
+DEPS_40 = $(DEPS_40) $(CONFIG)\bin\bits
+DEPS_40 = $(DEPS_40) $(CONFIG)\inc\bitos.h
+DEPS_40 = $(DEPS_40) $(CONFIG)\obj\bit.obj
 
 !IF "$(BIT_PACK_EJSCRIPT)" == "1"
-LIBS_37 = $(LIBS_37) libejs.lib
+LIBS_40 = $(LIBS_40) libejs.lib
 !ENDIF
 !IF "$(BIT_PACK_PCRE)" == "1"
-LIBS_37 = $(LIBS_37) libpcre.lib
+LIBS_40 = $(LIBS_40) libpcre.lib
 !ENDIF
-LIBS_37 = $(LIBS_37) libhttp.lib
-LIBS_37 = $(LIBS_37) libmpr.lib
+LIBS_40 = $(LIBS_40) libhttp.lib
+LIBS_40 = $(LIBS_40) libmpr.lib
 
-$(CONFIG)\bin\bit.exe: $(DEPS_37)
+$(CONFIG)\bin\bit.exe: $(DEPS_40)
 	@echo '      [Link] $(CONFIG)/bin/bit.exe'
-	"$(LD)" -out:$(CONFIG)\bin\bit.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\bit.obj $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) 
+	"$(LD)" -out:$(CONFIG)\bin\bit.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\bit.obj $(LIBPATHS_40) $(LIBS_40) $(LIBS_40) $(LIBS) 
 
 #
 #   stop
 #
-stop: $(DEPS_38)
+stop: $(DEPS_41)
 #  Omit build script stop
 
 #
 #   installBinary
 #
-installBinary: $(DEPS_39)
+installBinary: $(DEPS_42)
 	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
 	copy /Y $(CONFIG)\bin\bit.exe "$(BIT_VAPP_PREFIX)\bin\bit.exe"
 	copy /Y $(CONFIG)\bin\libejs.dll "$(BIT_VAPP_PREFIX)\bin\libejs.dll"
@@ -873,25 +902,25 @@ installBinary: $(DEPS_39)
 #
 #   start
 #
-start: $(DEPS_40)
+start: $(DEPS_43)
 #  Omit build script start
 
 #
 #   install
 #
-DEPS_41 = $(DEPS_41) stop
-DEPS_41 = $(DEPS_41) installBinary
-DEPS_41 = $(DEPS_41) start
+DEPS_44 = $(DEPS_44) stop
+DEPS_44 = $(DEPS_44) installBinary
+DEPS_44 = $(DEPS_44) start
 
-install: $(DEPS_41)
+install: $(DEPS_44)
 
 
 #
 #   uninstall
 #
-DEPS_42 = $(DEPS_42) stop
+DEPS_45 = $(DEPS_45) stop
 
-uninstall: $(DEPS_42)
+uninstall: $(DEPS_45)
 	if exist "$(BIT_VAPP_PREFIX)" rd /Q /S "$(BIT_VAPP_PREFIX)"
 	if exist "$(BIT_VAPP_PREFIX)\bin" rd /Q "$(BIT_VAPP_PREFIX)\bin"
 	if exist "$(BIT_VAPP_PREFIX)\man" rd /Q "$(BIT_VAPP_PREFIX)\man"
