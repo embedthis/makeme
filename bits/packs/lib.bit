@@ -12,6 +12,6 @@ Bit.pack({
         generate: function (pack) {
             pack.path = (bit.platform.like == 'windows') ? 'lib.exe' : 'ar'
         }
-        requires: ['compiler'],
+        packs: ['compiler'],
     },
 })

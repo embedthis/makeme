@@ -28,15 +28,14 @@ Bit.pack({
                     path = versions[0]
                 }
             }
+            //  MOB - split from here into config
             let search = [ (bit.platform.os == 'windows') ? path.join('Release') : path ]
             let lib = probe('libmatrixssl.' + bit.ext.shobj, {fullpath: true, search: search}).absolute
             pack.libpaths = [lib.parent]
             if (bit.platform.os == 'windows') {
-                //UNUSED pack.defines = [ 'WIN32', 'MATRIX_USE_FILE_SYSTEM' ],
                 pack.libraries = [ 'matrixssl.lib' ],
                 pack.imports = [ lib, lib.replaceExt('lib') ]
             } else {
-                //UNUSED pack.defines = [ 'POSIX', 'MATRIX_USE_FILE_SYSTEM' ],
                 pack.libraries = [ 'matrixssl' ]
                 pack.imports = [ lib ]
             }
@@ -46,6 +45,6 @@ Bit.pack({
             return path
         },
         conflicts: [ 'est', 'nanossl', 'openssl' ],
-        requires: [ 'ssl' ],
+        packs: [ 'ssl' ],
     },
 })

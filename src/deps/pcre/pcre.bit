@@ -25,6 +25,7 @@ Bit.load({
             type: 'lib',
             headers: [ '*.h' ],
             sources: [ 'pcre.c' ],
+            packs: [ 'pcre' ],
         },
 	},
 })

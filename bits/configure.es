@@ -171,15 +171,12 @@ module embedthis.bit {
         Set packs required for generation from bit.packDefaults
      */
     internal function setRequiredPacks() { 
-        for (let [pname, enabled] in bit.packDefaults) {
-            bit.packs[pname] ||= { type: 'pack' }
+        for (let [pname, enable] in bit.packDefaults) {
+            bit.packs[pname] ||= { type: 'pack'  }
         }
         if (bit.options.gen == 'make' || bit.options.gen == 'nmake') {
-            for (let [pname, enabled] in bit.packDefaults) {
-                bit.packs[pname].enable = enabled
-            }
             for each (target in bit.targets) {
-                for each (pname in target.requires) {
+                for each (pname in target.packs) {
                     bit.packs[pname] ||= {}
                     bit.packs[pname].enable = true
                 }
@@ -316,7 +313,7 @@ module embedthis.bit {
         configurePacks()
         Object.sortProperties(bit.packs)
         checkPacks()
-        inheritPacks()
+        // inheritPacks()
         tracePacks()
         resetPacks()
     }
@@ -347,8 +344,8 @@ module embedthis.bit {
 
                 vtrace('Load', 'Pack: ' + pname)
                 b.loadBitFile(path)
-                if (pack.requires) {
-                    loadPacks(pack.requires)
+                if (pack.packs) {
+                    loadPacks(pack.packs)
                 }
                 if (pack.discover) {
                     loadPacks(pack.discover)
@@ -421,7 +418,7 @@ module embedthis.bit {
             return
         }
         pack.configuring = true
-        for each (pname in pack.requires) {
+        for each (pname in pack.packs) {
             configurePack(bit.packs[pname])
         }
         for each (pname in pack.discover) {
@@ -430,15 +427,15 @@ module embedthis.bit {
         for each (pname in pack.depends) {
             if (bit.packs[pname]) {
                 configurePack(bit.packs[pname])
-            } else {
-                bit.packs[pname] = { name: pname, enable: false }
+            } else if (!bit.targets[pname]) {
+                bit.packs[pname] = { name: pname, enable: false, diagnostic: 'Pack not defined' }
             }
         }
         for each (pname in pack.after) {
             if (bit.packs[pname]) {
                 configurePack(bit.packs[pname])
-            } else {
-                bit.packs[pname] = { name: pname, enable: false }
+            } else if (!bit.targets[pname]) {
+                bit.packs[pname] = { name: pname, enable: false, diagnostic: 'Pack not defined' }
             }
         }
         currentPack = pack.name
@@ -509,7 +506,6 @@ module embedthis.bit {
             return
         }
         pack.inheriting = true
-
         for each (pname in pack.depends) {
             inheritPack(bit.packs[pname])
         }
@@ -559,7 +555,7 @@ module embedthis.bit {
         pack.type ||= 'pack'
 
         /* Recursive descent checking */
-        for each (pname in pack.requires) {
+        for each (pname in pack.packs) {
             let p = bit.packs[pname]
             if (p) {
                 checkPack(p)
@@ -582,6 +578,9 @@ module embedthis.bit {
                     other.diagnostic ||= 'conflicts with ' + pack.name
                 }
             }
+        }
+        if (pack.libraries) {
+            pack.ownLibraries = pack.libraries.clone()
         }
     }
 

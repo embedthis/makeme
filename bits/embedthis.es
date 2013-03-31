@@ -47,7 +47,7 @@ public function deploy(manifest, prefixes, package): Array {
         let name = item.name || serialize(item)
         let enable = true
 
-        for each (r in item.requires) {
+        for each (r in item.packs) {
             if (!bit.generating) {
                 if ((!bit.packs[r] || !bit.packs[r].enable)) {
                     skip(name, 'Required pack ' + r + ' is not enabled')
@@ -88,8 +88,8 @@ public function deploy(manifest, prefixes, package): Array {
             if (item.precopy) {
                 eval('require ejs.unix\n' + expand(item.precopy))
             }
-            if (item.requires && bit.generating) {
-                for each (r in item.requires) {
+            if (item.packs && bit.generating) {
+                for each (r in item.packs) {
                     if (bit.platform.os == 'windows') {
                         genWriteLine('!IF "$(BIT_PACK_' + r.toUpper() + ')" == "1"')
                     } else {
@@ -118,8 +118,8 @@ public function deploy(manifest, prefixes, package): Array {
                     item.to.write(data)
                 }
             }
-            if (item.requires && bit.generating) {
-                for each (r in item.requires.length) {
+            if (item.packs && bit.generating) {
+                for each (r in item.packs.length) {
                     if (bit.platform.os == 'windows') {
                         genWriteLine('!ENDIF')
                     } else {
@@ -179,8 +179,8 @@ function setupManifest(kind, package, prefixes) {
         manifest = bit.manifest.clone()
     }
     for each (item in manifest.files) {
-        if (item.requires && !(item.requires is Array)) {
-            item.requires = [item.requires]
+        if (item.packs && !(item.packs is Array)) {
+            item.packs = [item.packs]
         }
     }
     return manifest

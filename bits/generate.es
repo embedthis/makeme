@@ -78,8 +78,8 @@ module embedthis.bit {
     }
 
     function generateTarget(target) {
-        if (target.requires) {
-            for each (r in target.requires) {
+        if (target.packs) {
+            for each (r in target.packs) {
                 if (bit.platform.os == 'windows') {
                     genout.writeLine('!IF "$(BIT_PACK_' + r.toUpper() + ')" == "1"')
                 } else {
@@ -109,8 +109,8 @@ module embedthis.bit {
         } else if (target.dir) {
             generateDir(target, true)
         }
-        if (target.requires) {
-            for (i in target.requires.length) {
+        if (target.packs) {
+            for (i in target.packs.length) {
                 if (bit.platform.os == 'windows') {
                     genWriteLine('!ENDIF')
                 } else {
@@ -247,7 +247,7 @@ module embedthis.bit {
             }
         }
         for each (target in bit.targets) {
-            for each (r in target.requires) {
+            for each (r in target.packs) {
                 if (bit.packs[r]) {
                     requiredPacks[r] = true
                 }
@@ -260,11 +260,11 @@ module embedthis.bit {
             requiredPacks[pname] = true
         }
         /*
-            Follow pack.requires and pack.depends references
+            Follow pack.packs and pack.depends references
          */
         for (let [name, pack] in bit.packs) {
             if (requiredPacks[name]) {
-                for each (r in pack.requires) {
+                for each (r in pack.packs) {
                     if (bit.packs[r]) {
                         requiredPacks[r] = true
                     }
@@ -290,16 +290,16 @@ module embedthis.bit {
             Emit pack dependencies
          */
         for (let [pname, pack] in bit.packs) {
-            if (pack.requires) {
+            if (pack.packs) {
                 if (bit.platform.os == 'windows' ) {
                     genout.writeLine('!IF "$(BIT_PACK_' + pname.toUpper() + ')" == "1"')
-                    for each (r in pack.requires) {
+                    for each (r in pack.packs) {
                         genout.writeLine('BIT_PACK_' + r.toUpper() + ' = 1')
                     }
                     genout.writeLine('!ENDIF\n')
                 } else {
                     genout.writeLine('ifeq ($(BIT_PACK_' + pname.toUpper() + '),1)')
-                    for each (r in pack.requires) {
+                    for each (r in pack.packs) {
                         genout.writeLine('    BIT_PACK_' + r.toUpper() + ' := 1')
                     }
                     genout.writeLine('endif')
@@ -578,12 +578,12 @@ module embedthis.bit {
         let all = []
         for each (target in b.topTargets) {
             if (target.path && target.enable && !target.nogen) {
-                if (target.requires) {
-                    for each (r in target.requires) {
+                if (target.packs) {
+                    for each (pname in target.packs) {
                         if (bit.platform.os == 'windows') {
-                            genout.writeLine('!IF "$(BIT_PACK_' + r.toUpper() + ')" == "1"')
+                            genout.writeLine('!IF "$(BIT_PACK_' + pname.toUpper() + ')" == "1"')
                         } else {
-                            genout.writeLine('ifeq ($(BIT_PACK_' + r.toUpper() + '),1)')
+                            genout.writeLine('ifeq ($(BIT_PACK_' + pname.toUpper() + '),1)')
                         }
                     }
                     if (bit.platform.os == 'windows') {
@@ -591,7 +591,7 @@ module embedthis.bit {
                     } else {
                         genout.writeLine('TARGETS            += ' + reppath(target.path))
                     }
-                    for (i in target.requires.length) {
+                    for (i in target.packs.length) {
                         if (bit.platform.os == 'windows') {
                             genout.writeLine('!ENDIF')
                         } else {
@@ -641,7 +641,7 @@ module embedthis.bit {
             genTargetDeps(target)
             command = genTargetLibs(target, repcmd(command))
             genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
-            gtrace('Link', target.name)
+            gtrace('Link', target.path.natural.relative)
             generateDir(target)
             genout.writeLine('\t' + command)
         }
@@ -664,7 +664,7 @@ module embedthis.bit {
             command = genTargetLibs(target, repcmd(command))
             command = command.replace(/-arch *\S* /, '')
             genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
-            gtrace('Link', target.name)
+            gtrace('Link', target.path.natural.relative)
             generateDir(target)
             genout.writeLine('\t' + command)
         }
@@ -686,7 +686,7 @@ module embedthis.bit {
             command = repcmd(command)
             genTargetDeps(target)
             genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
-            gtrace('Link', target.name)
+            gtrace('Link', target.path.natural.relative)
             generateDir(target)
             genout.writeLine('\t' + command)
         }
@@ -728,7 +728,7 @@ module embedthis.bit {
                 command = command.replace(/-arch *\S* /, '')
                 genTargetDeps(target)
                 genout.write(reppath(target.path) + ': \\\n    ' + file.relative + getDepsVar() + '\n')
-                gtrace('Compile', file.relativeTo('.'))
+                gtrace('Compile', target.path.natural.relative)
                 generateDir(target)
                 genout.writeLine('\t' + command)
 
@@ -737,7 +737,7 @@ module embedthis.bit {
                 command = command.replace(/-arch *\S* /, '')
                 genTargetDeps(target)
                 genout.write(reppath(target.path) + ': \\\n    ' + file.relative.windows + getDepsVar() + '\n')
-                gtrace('Compile', file.relativeTo('.'))
+                gtrace('Compile', target.path.natural.relative)
                 generateDir(target)
                 genout.writeLine('\t' + command)
             }
@@ -767,7 +767,7 @@ module embedthis.bit {
                 command = repcmd(command)
                 genTargetDeps(target)
                 genout.write(reppath(target.path) + ': \\\n        ' + file.relative + getDepsVar() + '\n')
-                gtrace('Compile', file.relativeTo('.'))
+                gtrace('Compile', target.path.natural.relative)
                 generateDir(target)
                 genout.writeLine('\t' + command)
 
@@ -775,7 +775,7 @@ module embedthis.bit {
                 command = repcmd(command)
                 genTargetDeps(target)
                 genout.write(reppath(target.path) + ': \\\n        ' + file.relative.windows + getDepsVar() + '\n')
-                gtrace('Compile', file.relativeTo('.'))
+                gtrace('Compile', target.path.natural.relative)
                 generateDir(target)
                 genout.writeLine('\t' + command)
             }
@@ -1101,17 +1101,20 @@ module embedthis.bit {
         let found
         /* This makes matching easier */
         command += ' '
+
         /*
             Search the target libraries to find what packs they require.
          */
         for each (lib in target.libraries) {
-            let name, dep, requires, pack
+            let name, dep, packs, pack
             name = pack = null
-
+            if (bit.defaults.libraries.contains(lib)) {
+                continue
+            }
             dep = b.getDep(lib)
             if (dep && dep.type != 'pack') {
                 name = dep.name
-                requires = dep.requires
+                packs = dep.packs
                 if (bit.platform.os == 'vxworks' && !target.static) {
                     continue
                 }
@@ -1120,21 +1123,21 @@ module embedthis.bit {
                     Check packs that provide the library
                  */
                 for each (p in bit.packs) {
-                    if (p.libraries) {
-                        if (p.libraries.contains(lib)) {
+                    if (p.ownLibraries) {
+                        if (p.ownLibraries.contains(lib)) {
                             name = lib
                             dep = target
-                        } else if (p.libraries.contains(Path(lib).trimExt())) {
+                        } else if (p.ownLibraries.contains(Path(lib).trimExt())) {
                             name = lib.trimExt()
                             dep = target
-                        } else if (p.libraries.contains(Path(lib.replace(/^lib/, '')).trimExt())) {
+                        } else if (p.ownLibraries.contains(Path(lib.replace(/^lib/, '')).trimExt())) {
                             name = Path(lib.replace(/^lib/, '')).trimExt()
                             dep = target
                         }
                         if (name) {
-                            requires = (target.requires) ? target.requires.clone() : []
-                            if (!requires.contains(p.name)) {
-                                requires.push(p.name)
+                            packs = (target.packs) ? target.packs.clone() : []
+                            if (!packs.contains(p.name)) {
+                                packs.push(p.name)
                             }
                             pack = p;
                             break
@@ -1142,17 +1145,20 @@ module embedthis.bit {
                     }
                 }
             }
-
             if (name) {
                 if (bit.platform.os == 'windows') {
                     lib = lib.replace(/^lib/, '').replace(/\.lib$/, '')
                 }
-                if (requires) {
-                    for each (r in requires) {
-                        if (bit.platform.os == 'windows') {
-                            genout.writeLine('!IF "$(BIT_PACK_' + r.toUpper() + ')" == "1"')
-                        } else {
-                            genout.writeLine('ifeq ($(BIT_PACK_' + r.toUpper() + '),1)')
+                if (packs) {
+                    let indent = ''
+                    for each (r in packs) {
+                        if (!target.packs || !target.packs.contains(r)) {
+                            if (bit.platform.os == 'windows') {
+                                genout.writeLine('!IF "$(BIT_PACK_' + r.toUpper() + ')" == "1"')
+                            } else {
+                                genout.writeLine('ifeq ($(BIT_PACK_' + r.toUpper() + '),1)')
+                            }
+                            indent = '    '
                         }
                     }
                     if (bit.platform.os == 'windows') {
@@ -1166,21 +1172,23 @@ module embedthis.bit {
                             }
                         }
                     } else {
-                        genout.writeLine('    LIBS_' + nextID + ' += -l' + lib)
+                        genout.writeLine(indent + 'LIBS_' + nextID + ' += -l' + lib)
                         if (pack) {
                             for each (path in pack.libpaths) {
                                 if (path != bit.dir.bin) {
-                                    genout.writeLine('    LIBPATHS_' + nextID + ' += -L' + path)
+                                    genout.writeLine(indent + 'LIBPATHS_' + nextID + ' += -L' + path)
                                     command = command.replace('-L' + path, '')
                                 }
                             }
                         }
                     }
-                    for each (i in requires.length) {
-                        if (bit.platform.os == 'windows') {
-                            genout.writeLine('!ENDIF')
-                        } else {
-                            genout.writeLine('endif')
+                    for each (r in packs) {
+                        if (!target.packs || !target.packs.contains(r)) {
+                            if (bit.platform.os == 'windows') {
+                                genout.writeLine('!ENDIF')
+                            } else {
+                                genout.writeLine('endif')
+                            }
                         }
                     }
                 } else {
@@ -1244,24 +1252,32 @@ module embedthis.bit {
                 dep = b.getDep(dname)
                 if (dep && dep.enable) {
                     let d = (dep.path) ? reppath(dep.path) : dep.name
-                    if (dep.requires) {
-                        for each (r in dep.requires) {
-                            if (bit.platform.os == 'windows') {
-                                genout.writeLine('!IF "$(BIT_PACK_' + r.toUpper() + ')" == "1"')
-                            } else {
-                                genout.writeLine('ifeq ($(BIT_PACK_' + r.toUpper() + '),1)')
+                    if (dep.type == 'pack') {
+                        ;
+                    } else if (dep.packs) {
+                        let indent = ''
+                        for each (r in dep.packs) {
+                            if (!target.packs || !target.packs.contains(r)) {
+                                if (bit.platform.os == 'windows') {
+                                    genout.writeLine('!IF "$(BIT_PACK_' + r.toUpper() + ')" == "1"')
+                                } else {
+                                    genout.writeLine('ifeq ($(BIT_PACK_' + r.toUpper() + '),1)')
+                                }
+                                indent = '    '
                             }
                         }
                         if (bit.platform.os == 'windows') {
                             genout.writeLine('DEPS_' + nextID + ' = $(DEPS_' + nextID + ') ' + d)
                         } else {
-                            genout.writeLine('    DEPS_' + nextID + ' += ' + d)
+                            genout.writeLine(indent + 'DEPS_' + nextID + ' += ' + d)
                         }
-                        for (i in dep.requires.length) {
-                            if (bit.platform.os == 'windows') {
-                                genout.writeLine('!ENDIF')
-                            } else {
-                                genout.writeLine('endif')
+                        for each (r in dep.packs) {
+                            if (!target.packs || !target.packs.contains(r)) {
+                                if (bit.platform.os == 'windows') {
+                                    genout.writeLine('!ENDIF')
+                                } else {
+                                    genout.writeLine('endif')
+                                }
                             }
                         }
                     } else {

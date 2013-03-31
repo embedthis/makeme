@@ -79,14 +79,25 @@ function solBuild(projects, base: Path) {
             output('\tEndProjectSection')
         }
         for each (dname in target.depends) {
-            let dep = bit.targets[dname]
-            if (!dep || !dep.guid) {
-                continue
+            let dep = b.getDep(dname)
+            if (!dep) continue
+            if (dep.type == 'pack') {
+                for each (r in dep.libraries) {
+                    let d = bit.targets['lib' + r]
+                    if (d && d.guid) {
+                        output('\tProjectSection(ProjectDependencies) = postProject')
+                        output('\t\t{' + d.guid + '} = {' + d.guid + '}')
+                        output('\tEndProjectSection')
+
+                    }
+                }
+            } else {
+                if (!dep.guid) continue
+                dep.guid = dep.guid.toUpper()
+                output('\tProjectSection(ProjectDependencies) = postProject')
+                output('\t\t{' + dep.guid + '} = {' + dep.guid + '}')
+                output('\tEndProjectSection')
             }
-            dep.guid = dep.guid.toUpper()
-            output('\tProjectSection(ProjectDependencies) = postProject')
-            output('\t\t{' + dep.guid + '} = {' + dep.guid + '}')
-            output('\tEndProjectSection')
         }
         output('EndProject')
     }

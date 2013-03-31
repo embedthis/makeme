@@ -13,7 +13,7 @@ Bit.load({
             sources: [ 'ejsLib.c' ],
             headers: [ '*.h' ],
             depends: [ 'libhttp', 'libpcre', 'libmpr', 'ejscript' ],
-            requires: 'ejscript',
+            packs: [ 'ejscript' ],
             enable: 'bit.packs.ejscript.enable',
         },
 
@@ -28,7 +28,7 @@ Bit.load({
                 ",
             },
             depends: [ 'libejs', 'ejscript' ],
-            requires: 'ejscript',
+            packs: [ 'ejscript' ],
             enable: 'bit.packs.ejscript.enable',
         },
 
@@ -36,7 +36,7 @@ Bit.load({
             type:   'exe',
             sources: [ 'ejsc.c' ],
             depends: [ 'libejs', 'ejscript' ],
-            requires: 'ejscript',
+            packs: [ 'ejscript' ],
             enable: 'bit.packs.ejscript.enable',
         },
 
@@ -52,7 +52,7 @@ Bit.load({
             'generate-nmake': '"${LBIN}\\ejsc" --out "${BIN}/ejs.mod" --optimize 9 --bind --require null src/deps/ejs/ejs.es',
             'generate-sh': '${LBIN}/ejsc --out ${BIN}/ejs.mod --optimize 9 --bind --require null src/deps/ejs/ejs.es',
             depends: [ 'ejsc' ],
-            requires: 'ejscript',
+            packs: [ 'ejscript' ],
             enable: 'bit.packs.ejscript.enable',
 		},
 

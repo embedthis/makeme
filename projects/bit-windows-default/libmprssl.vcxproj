@@ -117,13 +117,6 @@
   </ProjectReference>
 </ItemGroup>
 
-<ItemGroup>
-  <ProjectReference Include="libest.vcxproj">
-  <Project>f10861d4-48ac-4ad3-927a-4bf193c7e528</Project>
-  <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-  </ProjectReference>
-</ItemGroup>
-
   <Import Project="$(VCTargetsPath)Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

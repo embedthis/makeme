@@ -15,6 +15,7 @@ LBIN               := $(CONFIG)/bin
 
 BIT_PACK_EJSCRIPT  := 1
 BIT_PACK_EST       := 1
+BIT_PACK_PCRE      := 1
 BIT_PACK_SSL       := 1
 
 ifeq ($(BIT_PACK_EST),1)
@@ -50,7 +51,7 @@ BIT_PACK_SSL_PATH         := ssl
 BIT_PACK_ZIP_PATH         := zip
 
 CFLAGS             += -fPIC   -w
-DFLAGS             += -D_REENTRANT -DPIC  $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) -DBIT_PACK_EJSCRIPT=$(BIT_PACK_EJSCRIPT) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
+DFLAGS             += -D_REENTRANT -DPIC  $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) -DBIT_PACK_EJSCRIPT=$(BIT_PACK_EJSCRIPT) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_PCRE=$(BIT_PACK_PCRE) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
 IFLAGS             += -I$(CONFIG)/inc
 LDFLAGS            += '-Wl,--enable-new-dtags' '-Wl,-rpath,$$ORIGIN/' '-rdynamic'
 LIBPATHS           += -L$(CONFIG)/bin
@@ -95,7 +96,9 @@ ifeq ($(BIT_PACK_SSL),1)
 TARGETS            += $(CONFIG)/bin/libmprssl.so
 endif
 TARGETS            += $(CONFIG)/bin/makerom
+ifeq ($(BIT_PACK_PCRE),1)
 TARGETS            += $(CONFIG)/bin/libpcre.so
+endif
 TARGETS            += $(CONFIG)/bin/libhttp.so
 TARGETS            += $(CONFIG)/bin/http
 ifeq ($(BIT_PACK_EJSCRIPT),1)
@@ -145,7 +148,7 @@ prep:
 	@echo $(MAKEFLAGS) >$(CONFIG)/.makeflags
 clean:
 	rm -f "$(CONFIG)/bin/libest.so"
-	rm -fr "$(CONFIG)/bin/ca.crt"
+	rm -f "$(CONFIG)/bin/ca.crt"
 	rm -f "$(CONFIG)/bin/libmpr.so"
 	rm -f "$(CONFIG)/bin/libmprssl.so"
 	rm -f "$(CONFIG)/bin/makerom"
@@ -155,17 +158,17 @@ clean:
 	rm -f "$(CONFIG)/bin/libejs.so"
 	rm -f "$(CONFIG)/bin/ejs"
 	rm -f "$(CONFIG)/bin/ejsc"
-	rm -fr "$(CONFIG)/obj/estLib.o"
-	rm -fr "$(CONFIG)/obj/mprLib.o"
-	rm -fr "$(CONFIG)/obj/mprSsl.o"
-	rm -fr "$(CONFIG)/obj/makerom.o"
-	rm -fr "$(CONFIG)/obj/pcre.o"
-	rm -fr "$(CONFIG)/obj/httpLib.o"
-	rm -fr "$(CONFIG)/obj/http.o"
-	rm -fr "$(CONFIG)/obj/ejsLib.o"
-	rm -fr "$(CONFIG)/obj/ejs.o"
-	rm -fr "$(CONFIG)/obj/ejsc.o"
-	rm -fr "$(CONFIG)/obj/bit.o"
+	rm -f "$(CONFIG)/obj/estLib.o"
+	rm -f "$(CONFIG)/obj/mprLib.o"
+	rm -f "$(CONFIG)/obj/mprSsl.o"
+	rm -f "$(CONFIG)/obj/makerom.o"
+	rm -f "$(CONFIG)/obj/pcre.o"
+	rm -f "$(CONFIG)/obj/httpLib.o"
+	rm -f "$(CONFIG)/obj/http.o"
+	rm -f "$(CONFIG)/obj/ejsLib.o"
+	rm -f "$(CONFIG)/obj/ejs.o"
+	rm -f "$(CONFIG)/obj/ejsc.o"
+	rm -f "$(CONFIG)/obj/bit.o"
 
 clobber: clean
 	rm -fr ./$(CONFIG)
@@ -209,7 +212,7 @@ DEPS_5 += $(CONFIG)/inc/bitos.h
 
 $(CONFIG)/obj/estLib.o: \
     src/deps/est/estLib.c $(DEPS_5)
-	@echo '   [Compile] src/deps/est/estLib.c'
+	@echo '   [Compile] $(CONFIG)/obj/estLib.o'
 	$(CC) -c -o $(CONFIG)/obj/estLib.o -fPIC $(DFLAGS) $(IFLAGS) src/deps/est/estLib.c
 
 ifeq ($(BIT_PACK_EST),1)
@@ -220,7 +223,7 @@ DEPS_6 += $(CONFIG)/inc/est.h
 DEPS_6 += $(CONFIG)/obj/estLib.o
 
 $(CONFIG)/bin/libest.so: $(DEPS_6)
-	@echo '      [Link] libest'
+	@echo '      [Link] $(CONFIG)/bin/libest.so'
 	$(CC) -shared -o $(CONFIG)/bin/libest.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/estLib.o $(LIBS) 
 endif
 
@@ -251,7 +254,7 @@ DEPS_9 += $(CONFIG)/inc/bitos.h
 
 $(CONFIG)/obj/mprLib.o: \
     src/deps/mpr/mprLib.c $(DEPS_9)
-	@echo '   [Compile] src/deps/mpr/mprLib.c'
+	@echo '   [Compile] $(CONFIG)/obj/mprLib.o'
 	$(CC) -c -o $(CONFIG)/obj/mprLib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/mpr/mprLib.c
 
 #
@@ -261,8 +264,9 @@ DEPS_10 += $(CONFIG)/inc/mpr.h
 DEPS_10 += $(CONFIG)/obj/mprLib.o
 
 $(CONFIG)/bin/libmpr.so: $(DEPS_10)
-	@echo '      [Link] libmpr'
+	@echo '      [Link] $(CONFIG)/bin/libmpr.so'
 	$(CC) -shared -o $(CONFIG)/bin/libmpr.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/mprLib.o $(LIBS) 
+
 
 #
 #   mprSsl.o
@@ -273,7 +277,7 @@ DEPS_11 += $(CONFIG)/inc/est.h
 
 $(CONFIG)/obj/mprSsl.o: \
     src/deps/mpr/mprSsl.c $(DEPS_11)
-	@echo '   [Compile] src/deps/mpr/mprSsl.c'
+	@echo '   [Compile] $(CONFIG)/obj/mprSsl.o'
 	$(CC) -c -o $(CONFIG)/obj/mprSsl.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/mpr/mprSsl.c
 
 ifeq ($(BIT_PACK_SSL),1)
@@ -281,9 +285,6 @@ ifeq ($(BIT_PACK_SSL),1)
 #   libmprssl
 #
 DEPS_12 += $(CONFIG)/bin/libmpr.so
-ifeq ($(BIT_PACK_EST),1)
-    DEPS_12 += $(CONFIG)/bin/libest.so
-endif
 DEPS_12 += $(CONFIG)/obj/mprSsl.o
 
 ifeq ($(BIT_PACK_EST),1)
@@ -292,7 +293,7 @@ endif
 LIBS_12 += -lmpr
 
 $(CONFIG)/bin/libmprssl.so: $(DEPS_12)
-	@echo '      [Link] libmprssl'
+	@echo '      [Link] $(CONFIG)/bin/libmprssl.so'
 	$(CC) -shared -o $(CONFIG)/bin/libmprssl.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/mprSsl.o $(LIBPATHS_12) $(LIBS_12) $(LIBS_12) $(LIBS) 
 endif
 
@@ -304,7 +305,7 @@ DEPS_13 += $(CONFIG)/inc/mpr.h
 
 $(CONFIG)/obj/makerom.o: \
     src/deps/mpr/makerom.c $(DEPS_13)
-	@echo '   [Compile] src/deps/mpr/makerom.c'
+	@echo '   [Compile] $(CONFIG)/obj/makerom.o'
 	$(CC) -c -o $(CONFIG)/obj/makerom.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/mpr/makerom.c
 
 #
@@ -316,7 +317,7 @@ DEPS_14 += $(CONFIG)/obj/makerom.o
 LIBS_14 += -lmpr
 
 $(CONFIG)/bin/makerom: $(DEPS_14)
-	@echo '      [Link] makerom'
+	@echo '      [Link] $(CONFIG)/bin/makerom'
 	$(CC) -o $(CONFIG)/bin/makerom $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/makerom.o $(LIBPATHS_14) $(LIBS_14) $(LIBS_14) $(LIBS) -lpthread -lm -lrt -ldl $(LDFLAGS) 
 
 #
@@ -335,9 +336,10 @@ DEPS_16 += $(CONFIG)/inc/pcre.h
 
 $(CONFIG)/obj/pcre.o: \
     src/deps/pcre/pcre.c $(DEPS_16)
-	@echo '   [Compile] src/deps/pcre/pcre.c'
+	@echo '   [Compile] $(CONFIG)/obj/pcre.o'
 	$(CC) -c -o $(CONFIG)/obj/pcre.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/pcre/pcre.c
 
+ifeq ($(BIT_PACK_PCRE),1)
 #
 #   libpcre
 #
@@ -345,8 +347,9 @@ DEPS_17 += $(CONFIG)/inc/pcre.h
 DEPS_17 += $(CONFIG)/obj/pcre.o
 
 $(CONFIG)/bin/libpcre.so: $(DEPS_17)
-	@echo '      [Link] libpcre'
+	@echo '      [Link] $(CONFIG)/bin/libpcre.so'
 	$(CC) -shared -o $(CONFIG)/bin/libpcre.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/pcre.o $(LIBS) 
+endif
 
 #
 #   http.h
@@ -365,22 +368,26 @@ DEPS_19 += $(CONFIG)/inc/mpr.h
 
 $(CONFIG)/obj/httpLib.o: \
     src/deps/http/httpLib.c $(DEPS_19)
-	@echo '   [Compile] src/deps/http/httpLib.c'
+	@echo '   [Compile] $(CONFIG)/obj/httpLib.o'
 	$(CC) -c -o $(CONFIG)/obj/httpLib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/http/httpLib.c
 
 #
 #   libhttp
 #
 DEPS_20 += $(CONFIG)/bin/libmpr.so
-DEPS_20 += $(CONFIG)/bin/libpcre.so
+ifeq ($(BIT_PACK_PCRE),1)
+    DEPS_20 += $(CONFIG)/bin/libpcre.so
+endif
 DEPS_20 += $(CONFIG)/inc/http.h
 DEPS_20 += $(CONFIG)/obj/httpLib.o
 
-LIBS_20 += -lpcre
+ifeq ($(BIT_PACK_PCRE),1)
+    LIBS_20 += -lpcre
+endif
 LIBS_20 += -lmpr
 
 $(CONFIG)/bin/libhttp.so: $(DEPS_20)
-	@echo '      [Link] libhttp'
+	@echo '      [Link] $(CONFIG)/bin/libhttp.so'
 	$(CC) -shared -o $(CONFIG)/bin/libhttp.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/httpLib.o $(LIBPATHS_20) $(LIBS_20) $(LIBS_20) $(LIBS) 
 
 #
@@ -391,7 +398,7 @@ DEPS_21 += $(CONFIG)/inc/http.h
 
 $(CONFIG)/obj/http.o: \
     src/deps/http/http.c $(DEPS_21)
-	@echo '   [Compile] src/deps/http/http.c'
+	@echo '   [Compile] $(CONFIG)/obj/http.o'
 	$(CC) -c -o $(CONFIG)/obj/http.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/http/http.c
 
 #
@@ -401,12 +408,15 @@ DEPS_22 += $(CONFIG)/bin/libhttp.so
 DEPS_22 += $(CONFIG)/obj/http.o
 
 LIBS_22 += -lmpr
-LIBS_22 += -lpcre
+ifeq ($(BIT_PACK_PCRE),1)
+    LIBS_22 += -lpcre
+endif
 LIBS_22 += -lhttp
 
 $(CONFIG)/bin/http: $(DEPS_22)
-	@echo '      [Link] http'
+	@echo '      [Link] $(CONFIG)/bin/http'
 	$(CC) -o $(CONFIG)/bin/http $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/http.o $(LIBPATHS_22) $(LIBS_22) $(LIBS_22) $(LIBS) -lpthread -lm -lrt -ldl $(LDFLAGS) 
+
 
 #
 #   ejs.h
@@ -445,7 +455,7 @@ DEPS_26 += $(CONFIG)/inc/ejs.slots.h
 
 $(CONFIG)/obj/ejsLib.o: \
     src/deps/ejs/ejsLib.c $(DEPS_26)
-	@echo '   [Compile] src/deps/ejs/ejsLib.c'
+	@echo '   [Compile] $(CONFIG)/obj/ejsLib.o'
 	$(CC) -c -o $(CONFIG)/obj/ejsLib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/ejs/ejsLib.c
 
 ifeq ($(BIT_PACK_EJSCRIPT),1)
@@ -453,22 +463,23 @@ ifeq ($(BIT_PACK_EJSCRIPT),1)
 #   libejs
 #
 DEPS_27 += $(CONFIG)/bin/libhttp.so
-DEPS_27 += $(CONFIG)/bin/libpcre.so
+ifeq ($(BIT_PACK_PCRE),1)
+    DEPS_27 += $(CONFIG)/bin/libpcre.so
+endif
 DEPS_27 += $(CONFIG)/bin/libmpr.so
 DEPS_27 += $(CONFIG)/inc/ejs.h
 DEPS_27 += $(CONFIG)/inc/ejs.slots.h
 DEPS_27 += $(CONFIG)/inc/ejsByteGoto.h
 DEPS_27 += $(CONFIG)/obj/ejsLib.o
 
-ifeq ($(BIT_PACK_EST),1)
-    LIBS_27 += -lest
-endif
 LIBS_27 += -lmpr
-LIBS_27 += -lpcre
+ifeq ($(BIT_PACK_PCRE),1)
+    LIBS_27 += -lpcre
+endif
 LIBS_27 += -lhttp
 
 $(CONFIG)/bin/libejs.so: $(DEPS_27)
-	@echo '      [Link] libejs'
+	@echo '      [Link] $(CONFIG)/bin/libejs.so'
 	$(CC) -shared -o $(CONFIG)/bin/libejs.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejsLib.o $(LIBPATHS_27) $(LIBS_27) $(LIBS_27) $(LIBS) 
 endif
 
@@ -480,30 +491,25 @@ DEPS_28 += $(CONFIG)/inc/ejs.h
 
 $(CONFIG)/obj/ejs.o: \
     src/deps/ejs/ejs.c $(DEPS_28)
-	@echo '   [Compile] src/deps/ejs/ejs.c'
+	@echo '   [Compile] $(CONFIG)/obj/ejs.o'
 	$(CC) -c -o $(CONFIG)/obj/ejs.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/ejs/ejs.c
 
 ifeq ($(BIT_PACK_EJSCRIPT),1)
 #
 #   ejs
 #
-ifeq ($(BIT_PACK_EJSCRIPT),1)
-    DEPS_29 += $(CONFIG)/bin/libejs.so
-endif
+DEPS_29 += $(CONFIG)/bin/libejs.so
 DEPS_29 += $(CONFIG)/obj/ejs.o
 
 LIBS_29 += -lhttp
-LIBS_29 += -lpcre
+ifeq ($(BIT_PACK_PCRE),1)
+    LIBS_29 += -lpcre
+endif
 LIBS_29 += -lmpr
-ifeq ($(BIT_PACK_EST),1)
-    LIBS_29 += -lest
-endif
-ifeq ($(BIT_PACK_EJSCRIPT),1)
-    LIBS_29 += -lejs
-endif
+LIBS_29 += -lejs
 
 $(CONFIG)/bin/ejs: $(DEPS_29)
-	@echo '      [Link] ejs'
+	@echo '      [Link] $(CONFIG)/bin/ejs'
 	$(CC) -o $(CONFIG)/bin/ejs $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejs.o $(LIBPATHS_29) $(LIBS_29) $(LIBS_29) $(LIBS) -lpthread -lm -lrt -ldl $(LDFLAGS) 
 endif
 
@@ -515,30 +521,25 @@ DEPS_30 += $(CONFIG)/inc/ejs.h
 
 $(CONFIG)/obj/ejsc.o: \
     src/deps/ejs/ejsc.c $(DEPS_30)
-	@echo '   [Compile] src/deps/ejs/ejsc.c'
+	@echo '   [Compile] $(CONFIG)/obj/ejsc.o'
 	$(CC) -c -o $(CONFIG)/obj/ejsc.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/ejs/ejsc.c
 
 ifeq ($(BIT_PACK_EJSCRIPT),1)
 #
 #   ejsc
 #
-ifeq ($(BIT_PACK_EJSCRIPT),1)
-    DEPS_31 += $(CONFIG)/bin/libejs.so
-endif
+DEPS_31 += $(CONFIG)/bin/libejs.so
 DEPS_31 += $(CONFIG)/obj/ejsc.o
 
 LIBS_31 += -lhttp
-LIBS_31 += -lpcre
+ifeq ($(BIT_PACK_PCRE),1)
+    LIBS_31 += -lpcre
+endif
 LIBS_31 += -lmpr
-ifeq ($(BIT_PACK_EST),1)
-    LIBS_31 += -lest
-endif
-ifeq ($(BIT_PACK_EJSCRIPT),1)
-    LIBS_31 += -lejs
-endif
+LIBS_31 += -lejs
 
 $(CONFIG)/bin/ejsc: $(DEPS_31)
-	@echo '      [Link] ejsc'
+	@echo '      [Link] $(CONFIG)/bin/ejsc'
 	$(CC) -o $(CONFIG)/bin/ejsc $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejsc.o $(LIBPATHS_31) $(LIBS_31) $(LIBS_31) $(LIBS) -lpthread -lm -lrt -ldl $(LDFLAGS) 
 endif
 
@@ -547,9 +548,7 @@ ifeq ($(BIT_PACK_EJSCRIPT),1)
 #   ejs.mod
 #
 DEPS_32 += src/deps/ejs/ejs.es
-ifeq ($(BIT_PACK_EJSCRIPT),1)
-    DEPS_32 += $(CONFIG)/bin/ejsc
-endif
+DEPS_32 += $(CONFIG)/bin/ejsc
 
 $(CONFIG)/bin/ejs.mod: $(DEPS_32)
 	$(LBIN)/ejsc --out ./$(CONFIG)/bin/ejs.mod --optimize 9 --bind --require null src/deps/ejs/ejs.es
@@ -714,7 +713,7 @@ DEPS_34 += $(CONFIG)/inc/ejs.h
 
 $(CONFIG)/obj/bit.o: \
     src/bit.c $(DEPS_34)
-	@echo '   [Compile] src/bit.c'
+	@echo '   [Compile] $(CONFIG)/obj/bit.o'
 	$(CC) -c -o $(CONFIG)/obj/bit.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/bit.c
 
 #
@@ -729,18 +728,17 @@ DEPS_35 += $(CONFIG)/bin/bits
 DEPS_35 += $(CONFIG)/inc/bitos.h
 DEPS_35 += $(CONFIG)/obj/bit.o
 
-ifeq ($(BIT_PACK_EST),1)
-    LIBS_35 += -lest
-endif
 ifeq ($(BIT_PACK_EJSCRIPT),1)
     LIBS_35 += -lejs
 endif
-LIBS_35 += -lpcre
+ifeq ($(BIT_PACK_PCRE),1)
+    LIBS_35 += -lpcre
+endif
 LIBS_35 += -lhttp
 LIBS_35 += -lmpr
 
 $(CONFIG)/bin/bit: $(DEPS_35)
-	@echo '      [Link] bit'
+	@echo '      [Link] $(CONFIG)/bin/bit'
 	$(CC) -o $(CONFIG)/bin/bit $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/bit.o $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) -lpthread -lm -lrt -ldl $(LDFLAGS) 
 
 #

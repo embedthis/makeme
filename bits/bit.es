@@ -840,15 +840,23 @@ public class Bit {
         }
 
         //  LEGACY
+        if (target.requires) {
+            trace('Warn', 'Target ' + target.name + ' in ' + currentBitFile + ' is using requires instead of packs')
+            rename(target, 'requires', 'packs')
+        }
+        //  LEGACY
         if (target.require) {
             trace('Warn', 'Target ' + target.name + ' in ' + currentBitFile + ' is using require instead of requires')
-            rename(target, 'require', 'requires')
+            rename(target, 'require', 'packs')
         }
         for (let [key,value] in target.defines) {
             target.defines[key] = value.trimStart('-D')
         }
-        if (target.requires) {
-            target.requires = makeArray(target.requires)
+        if (target.packs) {
+            target.packs = makeArray(target.packs)
+        }
+        if (target.provides) {
+            target.provides = makeArray(target.provides)
         }
         if (target.depends) {
             target.depends = makeArray(target.depends)
@@ -903,7 +911,9 @@ public class Bit {
             o.targets[tname] = target
         }
          */
-        target.internal = o.internal
+        if (o.internal) {
+            target.internal = o.internal
+        }
     }
 
     function fixup(o, ns) {
@@ -1053,6 +1063,7 @@ public class Bit {
         makeDirGlobals()
         enableTargets()
         blendDefaults()
+        createPackTargets()
         resolveDependencies()
         expandWildcards()
         castTargetTypes()
@@ -1079,37 +1090,41 @@ public class Bit {
     }
 
     /*
-        Determine which targets are enabled for building on this platform
+        Determine which targets are enabled for building
      */
     function enableTargets() {
         for (let [tname, target] in bit.targets) {
             let reported = false
-            for each (item in target.requires) {
+            target.name ||= tname
+
+            for each (item in target.packs) {
                 if (!bit.packs[item] || !bit.packs[item].enable) {
                     whySkip(target.name, 'disabled because the pack ' + item + ' is not enabled')
                     target.enable = false
                     reported = true
                 }
             }
-            if (target.enable) {
-                if (!(target.enable is Boolean)) {
-                    let script = expand(target.enable)
-                    try {
-                        if (!eval(script)) {
-                            whySkip(target.name, 'disabled on this platform')
-                            target.enable = false
-                        } else {
-                            target.enable = true
-                        }
-                    } catch (e) {
-                        vtrace('Enable', 'Cannot run enable script for ' + target.name)
-                        App.log.debug(3, e)
-                        target.enable = false
-                    }
-                }
-                target.name ||= tname
-            } else if (target.enable == undefined) {
+            if (target.enable == undefined) {
                 target.enable = true
+
+            } else if (target.enable is Function) {
+                target.enable = target.enable.call(this, target)
+
+            } else if (!(target.enable is Boolean)) {
+                let script = expand(target.enable)
+                try {
+                    if (!eval(script)) {
+                        whySkip(target.name, 'disabled on this platform')
+                        target.enable = false
+                    } else {
+                        target.enable = true
+                    }
+                } catch (e) {
+                    vtrace('Enable', 'Cannot run enable script for ' + target.name)
+                    App.log.debug(3, e)
+                    target.enable = false
+                }
+
             } else if (!reported) {
                 whySkip(target.name, 'disabled')
             }
@@ -1123,11 +1138,14 @@ public class Bit {
         }
     }
 
+    /*
+        Search for a target dependency. Search order:
+            NAME
+            libNAME     -- MOB - should we do this?
+            NAME.ext
+     */
     public function getDep(dname) {
-        if (dname.contains('pack:')) {
-            return bit.packs[dname.trimStart('pack:')]
-
-        } else if (dep = bit.targets[dname]) {
+        if (dep = bit.targets[dname]) {
             return dep
 
         } else if (dep = bit.targets['lib' + dname]) {
@@ -1135,9 +1153,6 @@ public class Bit {
 
         } else if (dep = bit.targets[Path(dname).trimExt()]) {
             /* Permits full library */
-            return dep
-
-        } else if (dep = bit.packs[dname]) {
             return dep
         }
         return null
@@ -1187,13 +1202,6 @@ public class Bit {
         if (selectedTargets.length == 0) {
             if (goal != 'all') {
                 trace('Info', 'No qualifying targets for goal "' + goal + '"')
-            /*
-                if (bit.targets[goal]) {
-                    trace('Info', 'No qualifying targets for goal "' + goal + '"')
-                } else {
-                    throw 'No targets for goal "' + goal + '"'
-                }
-             */
             }
         }
         return selectedTargets
@@ -1236,20 +1244,6 @@ public class Bit {
             }
         }
     }
-
-/* UNUSED
-    function getDepLibs(target): Array {
-        let libs = []
-        for each (dname in target.depends) {
-            let dep = bit.targets[dname]
-            if (dep && dep.type == 'lib' && dep.enable) {
-                libs += getDepLibs(dep)
-                libs.push(dname)
-            }
-        }
-        return libs
-    }
-*/
 
     /*
         Build a file list and apply include/exclude filters
@@ -1335,60 +1329,73 @@ public class Bit {
         for each (dname in target.depends) {
             let dep = getDep(dname)
             if (dep) {
-                if (dep.type == 'pack') {
-                    /*
-                        Inherit from the pack if enabled or if doing a make|nmake conditional generation and the
-                        pack is defined in settings.
+                /*
+                    Skip if disabled and not doing a conditional generation with a pack in packDefaults.
+                 */
+                if (dep.enable === false && 
+                   !(dep.type == 'pack' && (options.gen == 'make' || options.gen == 'nmake') && 
+                        bit.packDefaults && bit.packDefaults[dname] !== null)) {
+                    continue
+                }
+                if (!dep.resolved) {
+                    resolve(dep)
+                }
+                if (dep.type == 'lib') {
+                    /* 
+                        Put dependent libraries first so system libraries are last (matters on linux) 
+                        Convert to a canonical form without a leading 'lib'.
                      */
-                    if (dep.enable !== false || ((options.gen == 'make' || options.gen == 'nmake') && 
-                            bit.packDefaults && bit.packDefaults[dname] !== null)) {
-                        inheritDep(target, dep)
+                    target.libraries ||= []
+                    let lpath
+                    if (dep.static) {
+                        if (dname.startsWith('lib')) {
+                            lpath = dname.replace(/^lib/, '')
+                        } else {
+                            lpath = dname
+                        }
+                    } else {
+                        if (dname.startsWith('lib')) {
+                            lpath = dname.replace(/^lib/, '')
+                        } else {
+                            lpath = dname
+                        }
+                    }
+                    if (!target.libraries.contains(lpath)) {
+                        target.libraries = [lpath] + target.libraries
                     }
 
-                } else {
-                    /*
-                        Make and nmake generation formats support conditional building and so all dependents are included
-                        even if disabled.
-                     */ 
-                    if (!dep.enable && (options.gen != 'make' && options.gen != 'nmake')) {
-                        continue
-                    }
-                    if (!dep.resolved) {
-                        resolve(dep)
-                    }
-                    if (dep.type == 'lib') {
-                        target.libraries ||= []
-                        /* 
-                            Put dependent libraries first so system libraries are last (matters on linux) 
-                            Convert to a canonical form without a leading 'lib'.
-                         */
-                        let lpath
-                        if (dep.static) {
-                            if (dname.startsWith('lib')) {
-                                lpath = dname.replace(/^lib/, '')
-                            } else {
-                                // MOB why?
-                                // lpath = Path(dname).joinExt(bit.ext.lib)
-                                lpath = dname
-                            }
-                        } else {
-                            if (dname.startsWith('lib')) {
-                                lpath = dname.replace(/^lib/, '')
-                            } else {
-                                // MOB why?
-                                // lpath = Path(dname).joinExt(bit.ext.shlib, true)
-                                lpath = dname
-                            }
-                        }
-                        if (!target.libraries.contains(lpath)) {
-                            target.libraries = [lpath] + target.libraries
-                        }
-                    }
-                    inheritDep(target, dep)
-                }
+                } 
+                inheritDep(target, dep)
             }
         }
         runTargetScript(target, 'postresolve')
+    }
+
+    function createPackTarget(pname) {
+        if (!bit.targets[pname]) {
+            let pack = bit.packs[pname]
+            if (pack) {
+                bit.targets[pname] = pack
+                pack.goals ||= [ pname ]
+                for each (d in pack.depends) {
+                    let dep = getDep(d)
+                    if (!dep) {
+                        createPackTarget(d)
+                    }
+                }
+            }
+        }
+    }
+
+    function createPackTargets() {
+        for each (target in bit.targets) {
+            for each (dname in target.depends) {
+                let dep = getDep(dname)
+                if (!dep) {
+                    createPackTarget(dname)
+                }
+            }
+        }
     }
 
     function resolveDependencies() {
@@ -1654,7 +1661,6 @@ public class Bit {
 
                 if (bit.generating) {
                     generateTarget(target)
-
                 } else {
                     if (target.dir) {
                         buildDir(target)
@@ -2187,10 +2193,10 @@ public class Bit {
                 return false
 
             } else if (dep.type == 'pack') {
-                if (!dep.enable) {
+                if (!pack.enable) {
                     continue
                 }
-                file = dep.path
+                file = pack.path
                 if (!file) {
                     continue
                 }
@@ -2198,6 +2204,7 @@ public class Bit {
                     whyRebuild(path, 'Rebuild', 'missing ' + file + ' for package ' + dname)
                     return true
                 }
+
             } else {
                 file = dep.path
             }
@@ -2502,10 +2509,10 @@ public class Bit {
                     if (options.show) {
                         trace('Clean', target.path.relative)
                     }
-                    if (target.type == 'exe' || target.type == 'lib') {
+                    if (bit.generating) {
                         removeFile(reppath(target.path))
                     } else {
-                        removePath(reppath(target.path))
+                        removePath(target.path)
                     }
                     if (bit.platform.os == 'windows') {
                         if (ext == bit.ext.shobj || ext == bit.ext.exe) {

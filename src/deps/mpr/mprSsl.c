@@ -749,6 +749,8 @@ static ssize flushMss(MprSocket *sp)
 #undef TLS_RSA_WITH_AES_128_CBC_SHA
 #undef TLS_RSA_WITH_AES_256_CBC_SHA
 
+#else
+void matrixsslDummy() {}
 #endif /* BIT_PACK_MATRIXSSL */
 
 /*
@@ -1346,6 +1348,8 @@ static void estTrace(void *fp, int level, char *str)
     }
 }
 
+#else
+void estDummy() {}
 #endif /* BIT_PACK_EST */
 
 /*
@@ -2354,6 +2358,8 @@ static DH *get_dh1024()
     return dh;
 }
 
+#else
+void opensslDummy() {}
 #endif /* BIT_PACK_OPENSSL */
 
 /*
@@ -2904,6 +2910,8 @@ static void nanoLog(sbyte4 module, sbyte4 severity, sbyte *msg)
     mprLog(3, "%s", (cchar*) msg);
 }
 
+#else
+void nanosslDummy() {}
 #endif /* BIT_PACK_NANOSSL */
 
 /*

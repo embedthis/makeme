@@ -3647,6 +3647,8 @@ PUBLIC void mprSetWinMsgCallback(MprMsgCallback callback)
 }
 
 
+#else
+void asyncDummy() {}
 #endif /* MPR_EVENT_ASYNC */
 
 /*
@@ -9849,6 +9851,8 @@ PUBLIC void mprWakeNotifier()
     }
 }
 
+#else
+void epollDummy() {}
 #endif /* MPR_EVENT_EPOLL */
 
 /*
@@ -12237,6 +12241,8 @@ PUBLIC void mprWakeNotifier()
     }
 }
 
+#else
+void kqueueDummy() {}
 #endif /* MPR_EVENT_KQUEUE */
 
 /*
@@ -17178,6 +17184,8 @@ PUBLIC void mprWakeNotifier()
     }
 }
 
+#else
+void pollDummy() {}
 #endif /* MPR_EVENT_POLL */
 
 /*
@@ -18695,6 +18703,8 @@ PUBLIC MprRomFileSystem *mprCreateRomFileSystem(cchar *path)
     return rfs;
 }
 
+#else
+void romDummy() {}
 
 #endif /* BIT_ROM */
 
@@ -19033,6 +19043,9 @@ static void readPipe(MprWaitService *ws)
     (void) recvfrom(ws->breakSock, buf, (int) sizeof(buf), 0, (struct sockaddr*) &ws->breakAddress, (socklen_t*) &len);
 #endif
 }
+
+#else
+void selectDummy() {}
 
 #endif /* MPR_EVENT_SELECT */
 
@@ -26344,7 +26357,8 @@ double  __mpr_floating_point_resolution(double a, double b, int64 c, int64 d, ui
     return (a == b) ? a : b;
 }
 
-
+#else
+void vxworksDummy() {}
 #endif /* VXWORKS */
 
 /*
@@ -28146,6 +28160,8 @@ PUBLIC int mprWriteRegistry(cchar *key, cchar *name, cchar *value)
 }
 
 
+#else
+void winDummy() {}
 #endif /* (BIT_WIN_LIKE && !WINCE) || CYGWIN */
 
 /*
@@ -29049,6 +29065,8 @@ PUBLIC void mprWriteToOsLog(cchar *message, int flags, int level)
 {
 }
 
+#else
+void winceDummy() {}
 #endif /* WINCE */
 
 /*
