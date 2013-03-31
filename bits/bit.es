@@ -1378,7 +1378,7 @@ public class Bit {
                 bit.targets[pname] = pack
                 pack.goals ||= [ pname ]
                 for each (d in pack.depends) {
-                    let dep = getDep(d)
+                    let dep = bit.targets[d]
                     if (!dep) {
                         createPackTarget(d)
                     }
@@ -1390,7 +1390,7 @@ public class Bit {
     function createPackTargets() {
         for each (target in bit.targets) {
             for each (dname in target.depends) {
-                let dep = getDep(dname)
+                let dep = bit.targets[dname]
                 if (!dep) {
                     createPackTarget(dname)
                 }
