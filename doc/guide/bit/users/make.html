@@ -139,15 +139,21 @@ $ sudo make <b>BIT_PACK_OPENSSL=1 BIT_PACK_OPENSSL_PATH=/usr/src/openssl</b> ins
             the relevant project makefile and pass the required CPU architecture as a make variable. For example, to 
             cross compile for VxWorks on ARM:</p>
             <pre>
-make -f projects/appweb-vxworks-default.mk ARCH=arm PROFILE=debug
+make -f projects/appweb-vxworks-default.mk ARCH=x86 PROFILE=debug
 </pre>
             <p>When make runs, it places the output products (executables, libraries and objects) in a platform-specific 
-            output directory. This directory is named using the form: OS-ARCH-PROFILE. For example: vxworks-arm-debug. In this 
-            manner, make can be invoked multiple times, once for each target platform and the results will be captured
-            in separate platform output directories. Some of the supported architectures for the ARCH field are:
+            output directory. This directory is named using the form: OS-ARCH-PROFILE. For example: vxworks-x86-debug. 
+            In this manner, make can be invoked multiple times, once for each target platform and the results will be
+            captured in separate platform output directories. Some of the supported architectures for the ARCH field are:
             arm, mips, ppc, x64 and x86. The PROFILE is a descriptive name chosen by you for your configuration.</p>
-            <p>If there is not a makefile for your  target operating system, you may be able to copy the closest makefile and
-            edit to suit your target platform.</p>
+            <p>If there is not a makefile for your  target operating system, you may be able to copy the closest makefile 
+            and edit to suit your target platform.</p>
+
+            <h3>Specifying the CPU</h3>
+            <p>The make will use a generic CPU type within the specified architecture. To override the default choice and
+            specify a CPU type within an architecture, use the CPU variable. For example:/p>
+            <pre>make OS=vxworks ARCH=arm CPU=arm7tdmi</pre>
+
             <h3>Specifying a Tool Chain</h3>
             <p>You may need to specify where Make can locate your cross-compiler and other tools.
             You can supply these via the make variables: CC, CFLAGS, DFLAGS, IFLAGS, LD and LDFLAGS. 
@@ -155,6 +161,7 @@ make -f projects/appweb-vxworks-default.mk ARCH=arm PROFILE=debug
             <pre>CC=/opt/bin/ccarm.exe \
 LD=/opt/bin/ccarm.exe \
 ARCH=arm \
+CPU=arm7tdmi \
 PROFILE=release \
 make -f projects/appweb-vxworks-default.mk
 </pre>
