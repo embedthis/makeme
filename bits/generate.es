@@ -1132,14 +1132,20 @@ module embedthis.bit {
                     Check packs that provide the library
                  */
                 for each (p in bit.packs) {
-                    if (p.libraries) {
-                        if (p.libraries.contains(lib)) {
+                    /*
+                        Problem: if using 'libraries', libhttp: puts EJSCRIPT to protect pam
+                        Problem: if using 'ownLibraries', libmprssl: forgets -lest because pack:est depends on libest
+                            to get the library
+                        MOB: Solution: add libraries: ['est'] to pack/est.bit
+                     */
+                    if (p.ownLibraries) {
+                        if (p.ownLibraries.contains(lib)) {
                             name = lib
                             dep = target
-                        } else if (p.libraries.contains(Path(lib).trimExt())) {
+                        } else if (p.ownLibraries.contains(Path(lib).trimExt())) {
                             name = lib.trimExt()
                             dep = target
-                        } else if (p.libraries.contains(Path(lib.replace(/^lib/, '')).trimExt())) {
+                        } else if (p.ownLibraries.contains(Path(lib.replace(/^lib/, '')).trimExt())) {
                             name = Path(lib.replace(/^lib/, '')).trimExt()
                             dep = target
                         }

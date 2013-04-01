@@ -8,6 +8,7 @@ Bit.pack({
         path: probe(bit.dir.src.join('src/deps/est/estLib.c')),
         conflicts: [ 'matrixssl', 'openssl', 'nanossl' ],
         packs:  [ 'ssl' ],
+        libraries: [ 'est' ],
         depends:   [ 'libest' ],
     },
 })
