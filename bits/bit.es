@@ -1855,7 +1855,15 @@ public class Bit {
             command = expand(command)
         }
         trace('Run', command)
-        run(command)
+        let pwd = App.dir
+        if (target.home && target.home != pwd) {
+            App.chdir(expand(target.home))
+        }
+        try {
+            run(command)
+        } finally {
+            App.chdir(pwd)
+        }
     }
 
     /*

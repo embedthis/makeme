@@ -826,9 +826,34 @@ module embedthis.bit {
         } else {
             command = expand(command)
         }
+        let prefix, suffix
+
+        if (bit.generating == 'sh' || bit.generating == 'make') {
+            prefix = 'cd ' + target.home.relative
+            suffix = 'cd ' + bit.dir.top.relativeTo(target.home)
+        } else if (bit.generating == 'nmake') {
+            prefix = 'cd ' + target.home.relative.windows + '\n'
+            suffix = '\ncd ' + bit.dir.src.relativeTo(target.home).windows
+        } else {
+            prefix = suffix = ''
+        }
+        let rhome = target.home.relative
+        if (rhome == '.' || rhome.startsWith('..')) {
+            /* Don't change directory out of source tree. Necessary for actions in standard.bit */
+            prefix = suffix = ''
+        }
         if (bit.generating == 'make' || bit.generating == 'nmake') {
             genTargetDeps(target)
             genout.write(reppath(target.name) + ':' + getDepsVar() + '\n')
+        }
+        if (prefix || suffix) {
+            if (command.startsWith('@')) {
+                command = command.slice(1).replace(/^.*$/mg, '\t@' + prefix + '; $& ; ' + suffix)
+            } else {
+                command = command.replace(/^.*$/mg, '\t' + prefix + '; $& ; ' + suffix)
+            }
+        } else {
+            command = command.replace(/^/mg, '\t')
         }
         generateDir(target)
         if (command is Array) {
@@ -841,6 +866,7 @@ module embedthis.bit {
     function generateScript(target) {
         setRuleVars(target, target.home)
         let prefix, suffix
+        //  MOB - always true
         if (bit.generating) {
             if (bit.generating == 'sh' || bit.generating == 'make') {
                 prefix = 'cd ' + target.home.relative
