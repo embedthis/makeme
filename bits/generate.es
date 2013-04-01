@@ -832,8 +832,10 @@ module embedthis.bit {
         } else {
             command = expand(command)
         }
+        if (command is Array) {
+            command = command.map(function(a) '"' + a + '"').join(' ')
+        }
         let prefix, suffix
-
         if (bit.generating == 'sh' || bit.generating == 'make') {
             prefix = 'cd ' + target.home.relative
             suffix = 'cd ' + bit.dir.top.relativeTo(target.home)
@@ -852,21 +854,23 @@ module embedthis.bit {
             genTargetDeps(target)
             genout.write(reppath(target.name) + ':' + getDepsVar() + '\n')
         }
-        if (prefix || suffix) {
-            if (command.startsWith('@')) {
-                command = command.slice(1).replace(/^.*$/mg, '\t@' + prefix + '; $& ; ' + suffix)
+        if (bit.generating == 'make' || bit.generating == 'sh') {
+            if (prefix || suffix) {
+                if (command.startsWith('@')) {
+                    command = command.slice(1).replace(/^.*$/mg, '\t@' + prefix + '; $& ; ' + suffix)
+                } else {
+                    command = command.replace(/^.*$/mg, '\t' + prefix + '; $& ; ' + suffix)
+                }
             } else {
-                command = command.replace(/^.*$/mg, '\t' + prefix + '; $& ; ' + suffix)
+                command = command.replace(/^/mg, '\t')
             }
-        } else {
-            command = command.replace(/^/mg, '\t')
+        } else if (bit.generating == 'nmake') {
+            command = prefix + command + suffix
+            command = command.replace(/^[ \t]*/mg, '')
+            command = command.replace(/^([^!])/mg, '\t$&')
         }
         generateDir(target)
-        if (command is Array) {
-            genout.write('\t' + command.map(function(a) '"' + a + '"').join(' '))
-        } else {
-            genout.write('\t' + command)
-        }
+        genout.write(command)
     }
 
     function generateScript(target) {
