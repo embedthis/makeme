@@ -305,9 +305,7 @@ function proxies(base: Path) {
         if (!target.xtarget) {
             continue
         }
-        for each (item in target.depends) {
-            let dep = bit.targets[item]
-            if (!dep || !dep.xtarget) continue
+        for each (dep in getAllDeps(target)) {
             let pid = makeid('ID_TargetProxy:' + target.name + '-on-' + dep.name)
             let did = getmakeid('ID_NativeTarget:' + dep.name)
             output(section.expand(ids, eo).expand({PID: pid, DID: did, TNAME: target.name, DNAME: dep.name}))
@@ -464,6 +462,24 @@ function groups(base: Path) {
     output('/* End PBXGroup section */')
 }
 
+
+/*
+    Find all dependencies for a target. This chases through pseudo pack targets
+ */
+function getAllDeps(target, result = []) {
+    for each (dname in target.depends) {
+        let dep = bit.targets[dname]
+        if (dep && !result.contains(dep)) {
+            getAllDeps(dep, result)
+            if (dep.enable && dep.type != 'pack' && dep.xtarget) { 
+                result.push(dep)
+            }
+        }
+    }
+    return result
+}
+
+
 /*
     Emit native targets for each binary to build
  */
@@ -499,13 +515,7 @@ ${DEPS}
         let ref = getid('ID_TargetRef:' + path)
         let ptype = (target.type == 'exe') ? 'com.apple.product-type.tool' : 'com.apple.product-type.library.dynamic';
 
-        let deplist = []
-        for each (item in target.depends) {
-            let dep = bit.targets[item]
-            if (dep && dep.xtarget) {
-                deplist.push(dep)
-            }
-        }
+        deplist = getAllDeps(target)
         let deps = deplist.map(function(dep) '\t\t\t\t' + 
             getmakeid('ID_TargetDependency:' + target.name + '-on-' + dep.name) + 
             ' /* ' + dep.name + ' */,').join('\n') + '\t\t\t\t'
@@ -670,11 +680,7 @@ function targetDependencies(base: Path) {
         if (!target.xtarget) {
            continue
         }
-        for each (item in target.depends) {
-            let dep = bit.targets[item]
-            if (!dep || !dep.xtarget) {
-                continue
-            }
+        for each (dep in getAllDeps(target)) {
             let tdid = getmakeid('ID_TargetDependency:' + target.name + '-on-' + dep.name)
             let pid = getid('ID_TargetProxy:' + target.name + '-on-' + dep.name)
             let did = getid('ID_NativeTarget:' + dep.name)
