@@ -78,6 +78,8 @@ module embedthis.bit {
     }
 
     function generateTarget(target) {
+        if (target.type == 'pack') return
+
         if (target.packs) {
             for each (r in target.packs) {
                 if (bit.platform.os == 'windows') {
@@ -108,8 +110,10 @@ module embedthis.bit {
             generateRun(target)
         } else if (target.dir) {
             generateDir(target, true)
+/* UNUSED
         } else if (target.type == 'pack') {
             generatePack(target)
+ */
         }
         if (target.packs) {
             for (i in target.packs.length) {
@@ -627,12 +631,14 @@ module embedthis.bit {
         }
     }
 
+/* UNUSED
     function generatePack(target) {
         if (bit.generating == 'make' || bit.generating == 'nmake') {
             genTargetDeps(target)
             genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
         }
     }
+*/
 
     function generateExe(target) {
         let transition = target.rule || 'exe'
@@ -1267,6 +1273,21 @@ module embedthis.bit {
         return command
     }
 
+    function getAllDeps(target, result = []) {
+        for each (dname in target.depends) {
+            if (!result.contains(dname)) {
+                let dep = bit.targets[dname]
+                if (dep && dep.enable) {
+                    getAllDeps(dep, result)
+                }
+                if (!dep || (dep.type != 'pack')) {
+                    result.push(dname)
+                }
+            }
+        }
+        return result
+    }
+
     function getDepsVar(target)  {
         return ' $(DEPS_' + nextID + ')'
     }
@@ -1289,7 +1310,8 @@ module embedthis.bit {
             }
         }
         if (target.depends && target.depends.length > 0) {
-            for each (let dname in target.depends) {
+            let depends = getAllDeps(target)
+            for each (let dname in depends) {
                 dep = b.getDep(dname)
                 if (dep && dep.enable) {
                     let d = (dep.path) ? reppath(dep.path) : dep.name
