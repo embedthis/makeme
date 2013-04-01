@@ -169,7 +169,7 @@ function debugPropBuild(base: Path) {
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <Cfg>vsdebug</Cfg>
+    <Cfg>' + bit.platform.profile + '</Cfg>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>

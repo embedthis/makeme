@@ -1084,6 +1084,12 @@ public class Bit {
             if (o.settings) {
                 Object.sortProperties(o.settings)
             }
+            for each (target in o.targets) {
+                Object.sortProperties(target)
+            }
+            for each (pack in o.packs) {
+                Object.sortProperties(pack)
+            }
             path.write(serialize(o, {pretty: true, commas: true, indent: 4, quotes: false}))
             trace('Dump', 'Save Bit DOM to: ' + path)
         }
