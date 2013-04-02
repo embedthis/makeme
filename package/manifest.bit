@@ -40,6 +40,7 @@ Bit.load({
                 set:    'core',
 
             },{ from: [
+                    '${BIN}/ejs${EXE}',
                     '${BIN}/libejs${SHOBJ}',
                     '${BIN}/libest${SHOBJ}',
                     '${BIN}/libhttp${SHOBJ}',
