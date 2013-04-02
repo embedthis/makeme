@@ -1277,12 +1277,12 @@ module embedthis.bit {
         return command
     }
 
-    function getAllDeps(target, result = []) {
+    function getAllDeps(top, target, result = []) {
         for each (dname in target.depends) {
             if (!result.contains(dname)) {
                 let dep = bit.targets[dname]
-                if (dep && dep.enable) {
-                    getAllDeps(dep, result)
+                if (dep && (dep.enable || bit.packDefaults[dname] !== null)) {
+                    getAllDeps(top, dep, result)
                 }
                 if (!dep || (dep.type != 'pack')) {
                     result.push(dname)
@@ -1314,7 +1314,7 @@ module embedthis.bit {
             }
         }
         if (target.depends && target.depends.length > 0) {
-            let depends = getAllDeps(target)
+            let depends = getAllDeps(target, target)
             for each (let dname in depends) {
                 dep = b.getDep(dname)
                 if (dep && dep.enable) {
