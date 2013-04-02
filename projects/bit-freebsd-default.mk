@@ -866,6 +866,7 @@ installBinary: $(DEPS_37)
 	mkdir -p "$(BIT_BIN_PREFIX)"
 	rm -f "$(BIT_BIN_PREFIX)/bit"
 	ln -s "$(BIT_VAPP_PREFIX)/bin/bit" "$(BIT_BIN_PREFIX)/bit"
+	cp $(CONFIG)/bin/ejs $(BIT_VAPP_PREFIX)/bin/ejs
 	cp $(CONFIG)/bin/libejs.so $(BIT_VAPP_PREFIX)/bin/libejs.so
 	cp $(CONFIG)/bin/libest.so $(BIT_VAPP_PREFIX)/bin/libest.so
 	cp $(CONFIG)/bin/libhttp.so $(BIT_VAPP_PREFIX)/bin/libhttp.so

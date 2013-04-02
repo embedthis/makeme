@@ -913,6 +913,7 @@ stop: $(DEPS_38)
 installBinary: $(DEPS_39)
 	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
 	copy /Y $(CONFIG)\bin\bit.exe "$(BIT_VAPP_PREFIX)\bin\bit.exe"
+	copy /Y $(CONFIG)\bin\ejs.exe "$(BIT_VAPP_PREFIX)\bin\ejs.exe"
 	copy /Y $(CONFIG)\bin\libejs.dll "$(BIT_VAPP_PREFIX)\bin\libejs.dll"
 	copy /Y $(CONFIG)\bin\libest.dll "$(BIT_VAPP_PREFIX)\bin\libest.dll"
 	copy /Y $(CONFIG)\bin\libhttp.dll "$(BIT_VAPP_PREFIX)\bin\libhttp.dll"
