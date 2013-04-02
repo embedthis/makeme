@@ -1199,7 +1199,7 @@ static ssize readEst(MprSocket *sp, void *buf, ssize len)
         }
         break;
     }
-    mprHiddenSocketData(sp, est->ctx.out_left, MPR_READABLE);
+    mprHiddenSocketData(sp, ssl_get_bytes_avail(&est->ctx), MPR_READABLE);
     return rc;
 }
 

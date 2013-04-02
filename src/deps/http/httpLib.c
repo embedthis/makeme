@@ -2495,7 +2495,7 @@ static void readEvent(HttpConn *conn)
     conn->newData = 0;
 
     nbytes = mprReadSocket(conn->sock, mprGetBufEnd(packet->content), size);
-    mprTrace(7, "http: read event. Got %d", nbytes);
+    mprTrace(7, "http: readEvent read socket %d bytes", nbytes);
 
     if (nbytes > 0) {
         mprAdjustBufEnd(packet->content, nbytes);
@@ -2651,7 +2651,7 @@ PUBLIC void httpSetupWaitHandler(HttpConn *conn, int eventMask)
             mprAddSocketHandler(sp, eventMask, conn->dispatcher, conn->ioCallback, conn, 0);
         } else {
             sp->handler->dispatcher = conn->dispatcher;
-            mprWaitOn(sp->handler, eventMask);
+            mprEnableSocketEvents(sp, eventMask);
         }
     } else if (sp->handler) {
         mprWaitOn(sp->handler, eventMask);
