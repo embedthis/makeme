@@ -1281,7 +1281,7 @@ module embedthis.bit {
         for each (dname in target.depends) {
             if (!result.contains(dname)) {
                 let dep = bit.targets[dname]
-                if (dep && (dep.enable || bit.packDefaults[dname] !== null)) {
+                if (dep && (dep.enable || (bit.packDefaults && bit.packDefaults[dname] !== null))) {
                     getAllDeps(top, dep, result)
                 }
                 if (!dep || (dep.type != 'pack')) {
