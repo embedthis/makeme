@@ -144,6 +144,7 @@ prep:
 		fi ; \
 	fi
 	@echo $(MAKEFLAGS) >$(CONFIG)/.makeflags
+
 clean:
 	rm -f "$(CONFIG)/bin/libest.so"
 	rm -f "$(CONFIG)/bin/ca.crt"

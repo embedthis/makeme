@@ -435,7 +435,7 @@ module embedthis.bit {
         genout.writeLine('\t\t\techo "   [Warning] Make flags have changed since the last build: \"`cat $(CONFIG)/.makeflags`\"" ; \\')
         genout.writeLine('\t\tfi ; \\')
         genout.writeLine('\tfi')
-        genout.writeLine('\t@echo $(MAKEFLAGS) >$(CONFIG)/.makeflags')
+        genout.writeLine('\t@echo $(MAKEFLAGS) >$(CONFIG)/.makeflags\n')
 
         genout.writeLine('clean:')
         builtin('cleanTargets')

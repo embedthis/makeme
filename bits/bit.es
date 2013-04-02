@@ -1668,8 +1668,10 @@ public class Bit {
                 if (bit.generating) {
                     generateTarget(target)
                 } else {
+                    //  UNUSED
                     if (target.dir) {
-                        buildDir(target)
+throw new Error("target.dir not supported")
+                        // buildDir(target)
                     }
                     if (target.scripts && target.scripts['build']) {
                         buildScript(target)
@@ -1700,9 +1702,11 @@ public class Bit {
         target.building = false
     }
 
+    /*  UNUSED
     function buildDir(target) {
         makeDir(expand(target.dir), target)
     }
+    */
 
     function buildExe(target) {
         let transition = target.rule || 'exe'
@@ -2519,20 +2523,21 @@ public class Bit {
         case 'cleanTargets':
             for each (target in bit.targets) {
                 if (target.enable && !target.precious && !target.nogen && target.path && targetsToClean[target.type]) {
-                    let ext = target.path.extension
                     if (options.show) {
                         trace('Clean', target.path.relative)
                     }
-                    if (bit.generating) {
-                        removeFile(reppath(target.path))
+                    let path: Path = (bit.generating) ? reppath(target.path) : target.path
+                    if (target.path.toString().endsWith('/')) {
+                        removeDir(path)
                     } else {
-                        removePath(target.path)
+                        removeFile(path)
                     }
                     if (bit.platform.os == 'windows') {
+                        let ext = target.path.extension
                         if (ext == bit.ext.shobj || ext == bit.ext.exe) {
-                            removeFile(target.path.replaceExt('lib'))
-                            removeFile(target.path.replaceExt('pdb'))
-                            removeFile(target.path.replaceExt('exp'))
+                            removeFile(path.replaceExt('lib'))
+                            removeFile(path.replaceExt('pdb'))
+                            removeFile(path.replaceExt('exp'))
                         }
                     }
                 }
@@ -3222,7 +3227,7 @@ public class Bit {
 
     /**
         Remove a file or directory.
-        This removes a file or directory and all its contents include subdirectories.
+        This removes a file or directory and all its contents including subdirectories.
         @param path File or directory to remove
     */
     public function removePath(path: Path) {
