@@ -131,7 +131,6 @@ function findVxCompiler(pack) {
             throw 'Unsupported CPU architecture: ' + platform.arch
         }
     }
-    //UNUSED bit.env.WIND_CCNAME = path.basename
     path = probe(path, {fullpath: true, search: bit.packs.vxworks.search})
     return path
 }

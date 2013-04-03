@@ -568,7 +568,7 @@ UNUSED */
         }
         if (!pack.enable && pack.required) {
             if (!b.options['continue']) {
-                throw 'Required pack ' + pack.name + ' is not enabled.'
+                throw 'Required pack "' + pack.name + '" is not enabled: ' + pack.diagnostic
             }
         }
         if (pack.enable) {
@@ -580,11 +580,6 @@ UNUSED */
                 }
             }
         }
-/*UNUSED 
-        if (pack.libraries) {
-            pack.ownLibraries = pack.libraries.clone()
-        }
-*/
     }
 
     internal function checkPacks() {
@@ -651,7 +646,7 @@ UNUSED */
             if (b.options['continue'] && control.default) {
                 return control.default
             }
-            throw 'Cannot find ' + file + ' for package "' + currentPack + '" on ' + b.currentPlatform + '. '
+            throw 'Cannot find "' + file + '" for package "' + currentPack + '" on ' + b.currentPlatform + '. '
         }
         App.log.debug(2, 'Probe for ' + file + ' found at ' + path)
         if (control.fullpath) {
