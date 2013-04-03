@@ -580,9 +580,11 @@ UNUSED */
                 }
             }
         }
+/*UNUSED 
         if (pack.libraries) {
             pack.ownLibraries = pack.libraries.clone()
         }
+*/
     }
 
     internal function checkPacks() {

@@ -1062,8 +1062,8 @@ public class Bit {
         makeConstGlobals()
         makeDirGlobals()
         enableTargets()
-        blendDefaults()
         createPackTargets()
+        blendDefaults()
         resolveDependencies()
         expandWildcards()
         castTargetTypes()
@@ -1290,6 +1290,34 @@ public class Bit {
         return files
     }
 
+
+    function createPackTarget(pname) {
+        if (!bit.targets[pname]) {
+            let pack = bit.packs[pname]
+            if (pack) {
+                bit.targets[pname] = pack
+                pack.goals ||= [ pname ]
+                for each (d in pack.depends) {
+                    let dep = bit.targets[d]
+                    if (!dep) {
+                        createPackTarget(d)
+                    }
+                }
+            }
+        }
+    }
+
+    function createPackTargets() {
+        for each (target in bit.targets) {
+            for each (dname in target.depends) {
+                let dep = bit.targets[dname]
+                if (!dep) {
+                    createPackTarget(dname)
+                }
+            }
+        }
+    }
+
     function inheritDep(target, dep) {
         for each (lib in dep.libraries) {
             target.libraries ||= []
@@ -1376,34 +1404,6 @@ public class Bit {
         }
         runTargetScript(target, 'postresolve')
     }
-
-    function createPackTarget(pname) {
-        if (!bit.targets[pname]) {
-            let pack = bit.packs[pname]
-            if (pack) {
-                bit.targets[pname] = pack
-                pack.goals ||= [ pname ]
-                for each (d in pack.depends) {
-                    let dep = bit.targets[d]
-                    if (!dep) {
-                        createPackTarget(d)
-                    }
-                }
-            }
-        }
-    }
-
-    function createPackTargets() {
-        for each (target in bit.targets) {
-            for each (dname in target.depends) {
-                let dep = bit.targets[dname]
-                if (!dep) {
-                    createPackTarget(dname)
-                }
-            }
-        }
-    }
-
     function resolveDependencies() {
         for each (target in bit.targets) {
             if (target.enable) {
@@ -1503,6 +1503,13 @@ public class Bit {
     function blendDefaults() {
         runScript(bit.scripts, "preinherit")
         for (let [tname, target] in bit.targets) {
+            if (target.libraries) {
+                target.ownLibraries = target.libraries.clone()
+            }
+            if (target.type == 'lib') {
+                target.ownLibraries ||= []
+                target.ownLibraries += [target.name.replace(/^lib/, '')]
+            }
             if (target.static == null && bit.settings.static) {
                 target.static = bit.settings.static
             }

@@ -1136,6 +1136,37 @@ module embedthis.bit {
         return repvar(path)
     }
 
+    function findLib(target, libraries, lib) {
+        let name, dep
+        if (libraries) {
+            if (libraries.contains(lib)) {
+                name = lib
+                dep = target
+            } else if (libraries.contains(Path(lib).trimExt())) {
+                name = lib.trimExt()
+                dep = target
+            } else if (libraries.contains(Path(lib.replace(/^lib/, '')).trimExt())) {
+                name = Path(lib.replace(/^lib/, '')).trimExt()
+                dep = target
+            }
+        }
+        return [name, dep]
+    }
+
+    function getLib(lib) {
+        if (dep = bit.targets['lib' + lib]) {
+            return dep
+
+        } else if (dep = bit.targets[lib]) {
+            return dep
+
+        } else if (dep = bit.targets[Path(lib).trimExt()]) {
+            /* Permits full library */
+            return dep
+        }
+        return null
+    }
+
     var nextID: Number = 0
 
     function getTargetLibs(target)  {
@@ -1156,7 +1187,7 @@ module embedthis.bit {
             if (bit.defaults.libraries.contains(lib)) {
                 continue
             }
-            dep = b.getDep(lib)
+            dep = getLib(lib)
             if (dep && dep.type != 'pack') {
                 name = dep.name
                 packs = dep.packs
@@ -1168,31 +1199,21 @@ module embedthis.bit {
                     Check packs that provide the library
                  */
                 for each (p in bit.packs) {
-                    /*
+                    /*  UNUSED COMMENT
                         Problem: if using 'libraries', libhttp: puts EJSCRIPT to protect pam
                         Problem: if using 'ownLibraries', libmprssl: forgets -lest because pack:est depends on libest
                             to get the library
-                        MOB: Solution: add libraries: ['est'] to pack/est.bit
+                        Problem: Tried pack.est.libraries ['est']
+                        MOB: Solution Use ownLibraries and search for 'lib' + name first.
                      */
-                    if (p.ownLibraries) {
-                        if (p.ownLibraries.contains(lib)) {
-                            name = lib
-                            dep = target
-                        } else if (p.ownLibraries.contains(Path(lib).trimExt())) {
-                            name = lib.trimExt()
-                            dep = target
-                        } else if (p.ownLibraries.contains(Path(lib.replace(/^lib/, '')).trimExt())) {
-                            name = Path(lib.replace(/^lib/, '')).trimExt()
-                            dep = target
+                    [name, dep] = findLib(target, p.ownLibraries, lib)
+                    if (name) {
+                        packs = (target.packs) ? target.packs.clone() : []
+                        if (!packs.contains(p.name)) {
+                            packs.push(p.name)
                         }
-                        if (name) {
-                            packs = (target.packs) ? target.packs.clone() : []
-                            if (!packs.contains(p.name)) {
-                                packs.push(p.name)
-                            }
-                            pack = p;
-                            break
-                        }
+                        pack = p
+                        break
                     }
                 }
             }

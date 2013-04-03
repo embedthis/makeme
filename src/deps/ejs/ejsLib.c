@@ -46485,7 +46485,10 @@ static EjsString *replace(Ejs *ejs, EjsString *sp, int argc, EjsObj **argv)
     int         matches[BIT_MAX_REGEX_MATCHES * 3], enabled;
 
     result = 0;
-    if (ejsIsFunction(ejs, argv[1])) {
+    if (argc == 1) {
+        replacement = ESV(empty);
+        replacementFunction = 0;
+    } else if (ejsIsFunction(ejs, argv[1])) {
         replacementFunction = (EjsFunction*) argv[1];
         replacement = 0;
     } else {
