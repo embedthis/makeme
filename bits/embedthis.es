@@ -144,7 +144,6 @@ function setupGlobals(manifest, package, prefixes) {
             bit.globals[pname] = prefixes[pname]
             if (bit.target.name != 'uninstall') {
                 if (bit.generating || !prefixes[pname].exists) {
-                    //  MOB - need more generic way to know which prefixes are system and which are owned by the app
                     if (prefixes[pname].contains(bit.settings.product)) {
                         if (pname == 'cache') {
                             /* Must remove old cache files */
@@ -194,7 +193,6 @@ function setupPackagePrefixes(kind, package) {
     let prefixes = {}
     if (bit.installing) {
         prefixes = bit.prefixes.clone()
-        /* MOB just for safety */
         prefixes.staging = bit.prefixes.app
         prefixes.media = prefixes.app
     } else {
@@ -847,7 +845,6 @@ public function checkInstalled() {
 public function checkUninstalled() {
     let result = []
     for each (prefix in bit.prefixes) {
-        //  MOB - need more generic way to know which prefixes are system and which are owned by the app
         if (!prefix.name.contains(bit.settings.product)) {
             continue
         }
@@ -939,13 +936,12 @@ function skip(name, msg) {
 }
 
 
-//  MOB - WHO CALLS? should be called after installing?
 function fixlibs() {
+    throw new Error("UNUSED fixlibs not supported")
     let ldconfigSwitch = (bit.platform.os == 'freebsd') ? '-m' : '-n'
     let ldconfig = Cmd.locate('ldconfig')
     if (ldconfig) {
-        //  MOB hard coded /usr/lib
-        Cmd.run(ldconfig + ' ' + ldconfigSwitch + ' /usr/lib/' + bit.settings.product + '/modules')
+        Cmd.run(ldconfig + ' ' + ldconfigSwitch + ' /usr/local/lib/' + bit.settings.product + '/modules')
     }
     if (bit.platform.dist == 'fedora') {
         Cmd.run('chcon /usr/bin/chcon -t texrel_shlib_t ' + bit.prefixes.vapp.join('bin').files('*.so').join(' '))

@@ -335,7 +335,6 @@ Bit.load({
             action: "whatInstalled()",
         },
 
-        //  MOB - review
         testPackage: {
             type: 'test',
             action: "

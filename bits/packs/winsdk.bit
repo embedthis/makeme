@@ -57,20 +57,5 @@ Bit.pack({
                 }
             }
         },
-
-            /* UNUSED
-        generate: function(pack) {
-            pack.path = Path('$(SDK)')
-            pack.search = pack.path.join('Bin')
-
-            let winver = path.basename.replace('.0', '')
-            bit.env = {
-                PATH:       '$(SDK)',
-                PATH: [ path.join(bit.platform.arch) ]
-                INCLUDE: [ path.join('Include/um').portable, path.join('Include/shared') ]
-                LIB:[ path.join('Lib', 'win' + winver, 'um', bit.platform.arch).portable ]
-            }
-        },
-            */
     },
 })

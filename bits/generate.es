@@ -111,10 +111,6 @@ module embedthis.bit {
             generateRun(target)
         } else if (target.dir) {
             generateDir(target, true)
-/* UNUSED
-        } else if (target.type == 'pack') {
-            generatePack(target)
- */
         }
         if (target.packs) {
             for (i in target.packs.length) {
@@ -632,15 +628,6 @@ module embedthis.bit {
         }
     }
 
-/* UNUSED
-    function generatePack(target) {
-        if (bit.generating == 'make' || bit.generating == 'nmake') {
-            genTargetDeps(target)
-            genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
-        }
-    }
-*/
-
     function generateExe(target) {
         let transition = target.rule || 'exe'
         let rule = bit.rules[transition]
@@ -877,7 +864,8 @@ module embedthis.bit {
     function generateScript(target) {
         setRuleVars(target, target.home)
         let prefix, suffix
-        //  MOB - always true
+        //  UNUSED MOB - always true
+        assert(bit.generating)
         if (bit.generating) {
             if (bit.generating == 'sh' || bit.generating == 'make') {
                 prefix = 'cd ' + target.home.relative
@@ -1201,13 +1189,6 @@ module embedthis.bit {
                     Check packs that provide the library
                  */
                 for each (p in bit.packs) {
-                    /*  UNUSED COMMENT
-                        Problem: if using 'libraries', libhttp: puts EJSCRIPT to protect pam
-                        Problem: if using 'ownLibraries', libmprssl: forgets -lest because pack:est depends on libest
-                            to get the library
-                        Problem: Tried pack.est.libraries ['est']
-                        MOB: Solution Use ownLibraries and search for 'lib' + name first.
-                     */
                     [name, dep] = findLib(target, p.ownLibraries, lib)
                     if (name) {
                         packs = (target.packs) ? target.packs.clone() : []

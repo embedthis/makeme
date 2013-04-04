@@ -457,7 +457,6 @@ module embedthis.bit {
             }
 
         } catch (e) {
-            // print("CATCH", pack.name, e)
             if (!(e is String)) {
                 App.log.debug(0, e)
             }
@@ -466,63 +465,6 @@ module embedthis.bit {
         }
         delete global.PACK
     }
-
-/* UNUSED
-    internal function inheritFromPack(pack, dep) {
-        for each (lib in dep.libraries) {
-            pack.libraries ||= []
-            if (!pack.libraries.contains(lib)) {
-                pack.libraries.push(lib)
-            }
-        }
-        for each (option in dep.linker) {
-            pack.linker ||= []
-            if (!pack.linker.contains(option)) {
-                pack.linker.push(option)
-            }
-        }
-        for each (option in dep.libpaths) {
-            pack.libpaths ||= []
-            if (!pack.libpaths.contains(option)) {
-                pack.libpaths.push(option)
-            }
-        }
-        for each (option in dep.includes) {
-            pack.includes ||= []
-            if (!pack.includes.contains(option)) {
-                pack.includes.push(option)
-            }
-        }
-        for each (option in dep.defines) {
-            pack.defines ||= []
-            if (!pack.defines.contains(option)) {
-                pack.defines.push(option)
-            }
-        }
-    }
-
-    internal function inheritPack(pack) {
-        if (pack.inheriting) {
-            return
-        }
-        pack.inheriting = true
-        for each (pname in pack.depends) {
-            inheritPack(bit.packs[pname])
-        }
-        for each (pname in pack.depends) {
-            let dep = bit.packs[pname]
-            if (dep && dep.enable) {
-                inheritFromPack(pack, dep)
-            }
-        }
-    }
-
-    internal function inheritPacks() {
-        for (let [pname, pack] in bit.packs) {
-            inheritPack(pack)
-        }
-    }
-UNUSED */
 
     internal function tracePacks() {
         let omitted = {}

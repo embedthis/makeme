@@ -34,11 +34,6 @@ public function vstudio(base: Path) {
         bit.globals[n] = bit.globals[n].relativeTo(base)
     }
     let projects = []
-/* UNUSED
-    if (bit.dir.bin.files('*.def').length > 0) {
-        PREP += 'if not exist "$(BinDir)\\libmpr.def" xcopy /Y /S *.def "$(BinDir)"'
-    }
- */
     /* Create a temporary prep target as the first target */
     prepTarget = {
         type: 'vsprep',
@@ -450,29 +445,7 @@ function projResources(base, target) {
     }
 }
 
-//  TODO - rename. Does more than just link. Also does 'files' and 'scripts'
 function projLink(base, target) {
-/* UNUSED
-    if (target.type == 'lib') {
-        let def = base.join(target.path.basename.toString().replace(/dll$/, 'def'))
-        let newdef = Path(target.path.toString().replace(/dll$/, 'def'))
-        if (newdef.exists) {
-            cp(newdef, def)
-            trace('Copy', def)
-        }
-        if (def.exists) {
-            bit.DEF = wpath(def.relativeTo(base))
-            output('
-  <ItemDefinitionGroup>
-    <Link>
-      <ModuleDefinitionFile>${DEF}</ModuleDefinitionFile>
-    </Link>
-  </ItemDefinitionGroup>')
-        } else {
-            trace('Warn', 'Missing ' + def)
-        }
-    }
-*/
     bit.LIBS = target.libraries ? mapLibs(target.libraries - bit.packs.compiler.libraries).join(';') : ''
     bit.LIBPATHS = target.libpaths ? target.libpaths.map(function(p) wpath(p)).join(';') : ''
     output('

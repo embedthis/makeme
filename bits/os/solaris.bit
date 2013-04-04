@@ -7,12 +7,5 @@ Bit.load({
         'unix.bit',
         'gcc.bit',
     ],
-    __UNUSED__defaults: {
-        '+libraries': [
-            'lxnet', 
-            'rt', 
-            'socket',
-        ],
-    },
 })
 

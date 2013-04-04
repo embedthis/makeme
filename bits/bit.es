@@ -1147,7 +1147,7 @@ public class Bit {
     /*
         Search for a target dependency. Search order:
             NAME
-            libNAME     -- MOB - should we do this?
+            libNAME
             NAME.ext
      */
     public function getDep(dname) {
@@ -1697,10 +1697,8 @@ public class Bit {
                 if (bit.generating) {
                     generateTarget(target)
                 } else {
-                    //  UNUSED
                     if (target.dir) {
-throw new Error("target.dir not supported")
-                        // buildDir(target)
+                        buildDir(target)
                     }
                     if (target.scripts && target.scripts['build']) {
                         buildScript(target)
@@ -1731,11 +1729,9 @@ throw new Error("target.dir not supported")
         target.building = false
     }
 
-    /*  UNUSED
     function buildDir(target) {
         makeDir(expand(target.dir), target)
     }
-    */
 
     function buildExe(target) {
         let transition = target.rule || 'exe'

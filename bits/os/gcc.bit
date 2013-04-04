@@ -3,57 +3,6 @@
  */
 
 Bit.load({
-    __UNUSED__defaults: {
-        '+compiler': [ '-Wall' ],
-        '+defines':  [ '_REENTRANT' ],
-    },
-    scripts: {
-        /*
-            Preinherit runs after all bit files are loaded and before blending defaults. Don't need pluses
-         */
-        __UNUSED__preinherit: "
-            let arch = bit.platform.arch
-            let defaults = bit.defaults
-            if (bit.platform.os == 'linux') {
-                defaults.linker.push('-rdynamic')
-            }
-            if (bit.platform.os != 'vxworks') {
-                defaults.compiler.push('-fPIC')
-                defaults.defines.push('PIC')
-                defaults.libraries += ['pthread', 'm']
-            }
-            if (bit.settings.hasLibRt) {
-                defaults.libraries += ['rt']
-            }
-            if (bit.settings.hasDynLoad) {
-                defaults.libraries += ['dl']
-            }
-            if (bit.settings.preprocess) {
-                defaults.compiler.push('-E')
-            }
-            defaults.libpaths.push(bit.dir.bin)
-            if (bit.settings.debug) {
-                defaults.defines.push('BIT_DEBUG')
-                defaults.compiler.push('-g')
-                defaults.linker.push('-g')
-            } else if (bit.settings.tune == 'size') {
-                defaults.compiler.push('-Os')
-            } else {
-                defaults.compiler.push('-O2')
-            }
-            if (bit.settings.warnUnused) {
-                defaults.compiler.push('-Wno-unused-result')
-            }
-            if (bit.settings.warn64to32) {
-                defaults.compiler.push('-Wshorten-64-to-32')
-            }
-            if (arch.startsWith('arm')) {
-                defaults.compiler.push('-mno-sched-prolog')
-            } else if (arch.startsWith('ppc')) {
-                defaults.defines.push('_GNU_TOOL')
-            }
-        ",
-    },
     rules: {
         'c->c':   '${packs.compiler.path} -E ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
         'c->o':   '${packs.compiler.path} -c -o ${OUTPUT} ${MTUNE} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',

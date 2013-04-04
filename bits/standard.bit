@@ -16,17 +16,6 @@ Bit.load({
         rel:    '${dir.top}/releases',
 	},
 
-    __UNUSED_defaults: {
-        compiler:   [],
-        defines:    [],
-        libraries:  [],
-        libpaths:   [],
-        linker:     [],
-        includes:   [
-            '${dir.inc}',
-        ],
-    },
-
     targets: {
         clean: {
             action: "

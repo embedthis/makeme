@@ -43,60 +43,6 @@ Bit.load({
         '+requires': [ 'vxworks', 'compiler', 'lib', 'link' ],
     },
 
-    __UNUSED_defaults: {
-        '+defines': [
-            'VXWORKS',
-            'RW_MULTI_THREAD',
-            '_GNU_TOOL',
-        ],
-        '+compiler': [
-            '-fno-builtin',
-             '-fno-defer-pop',
-             '-fvolatile',
-        ],
-        '+libraries': [ 'gcc' ],
-        '+linker': [ '-Wl,-r' ],
-    },
-
-    scripts: {
-        __UNUSED__preinherit: "
-            //  TODO - move to pack
-            let defaults = bit.defaults
-            let arch = bit.platform.arch
-            let cpu
-            if (arch == 'i386') {
-                cpu = 'I80386'
-            } else if (arch == 'i486') {
-                cpu = 'I80486'
-            } else if (arch.match(/^i.86$|^x86$/)) {
-                cpu = 'PENTIUM'
-            } else {
-                /* Set to compiles don't fail */
-                cpu = arch.toUpper()
-                if (arch == 'mips') {
-                    cpu = 'mips32'
-                } else if (arch == 'arm') {
-                    cpu = 'ARM7TDMI'
-                }
-            }
-            cpu = bit.platform.cpu || cpu
-            if (bit.options.gen) {
-                defaults.defines.push('CPU=$(CPU)')
-            } else {
-                defaults.defines.push('CPU=' + cpu.toUpper())
-            }
-            if (arch.match(/mips/)) {
-                /* Don't use mips global pointer */
-                defaults.compiler.push('-G 0')
-            }
-            if (bit.packs.vxworks && bit.packs.vxworks.includes) {
-                defaults.includes ||= []
-                defaults.includes += bit.packs.vxworks.includes
-            }
-            defaults.libpaths.push(bit.dir.bin)
-        ",
-    },
-
     rules: {
         'c->c':   '${packs.compiler.path} -E ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
         'c->o':   '${packs.compiler.path} -c -o ${OUTPUT} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',

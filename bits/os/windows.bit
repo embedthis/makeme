@@ -46,45 +46,6 @@ Bit.load({
         '+requires': [ 'winsdk', 'compiler', 'lib', 'link', 'rc' ],
     },
 
-    __UNUSED_defaults: {
-        '+compiler':  [ '-nologo', '-GR-', '-W3' ],
-        '+defines':   [ '_REENTRANT', '_MT' ],
-        '+libraries': [ 'ws2_32.lib', 'advapi32.lib', 'user32.lib', 'kernel32.lib', 'oldnames.lib', 'msvcrt.lib', 'shell32.lib' ],
-        '+linker':    [
-            '-nologo',
-            '-nodefaultlib',
-            '-incremental:no',
-        ],
-        '+entry': {
-            lib: '_DllMainCRTStartup@12',
-            exe: 'mainCRTStartup',
-            gui: 'WinMainCRTStartup',
-        },
-    },
-
-    scripts: {
-        __UNUSED_preinherit: "
-            //  Runs to update defaults.* before blending defaults into targets
-            let defaults = bit.defaults
-            let settings = bit.settings
-            if (settings.preprocess) defaults.compiler += [ '-E' ]
-            defaults.libpaths.push(bit.dir.bin)
-            if (bit.settings.debug) {
-                defaults.defines.push('BIT_DEBUG')
-                defaults.compiler += [ '-Zi', '-Od', '-MDd' ]
-                defaults.linker += [ '-debug' ]
-            } else {
-                defaults.compiler += [ '-O2', '-MD' ]
-            }
-            if ('${ARCH}' == 'x64') {
-                defaults.linker += ['-machine:x64']
-                defaults.entry.lib = '_DllMainCRTStartup'
-            } else {
-                defaults.linker += ['-machine:x86']
-            }
-        ",
-    },
-
     rules: {
         'c->c':     '"${packs.compiler.path}" -E -Fd${PDB} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
         'c->obj':   '"${packs.compiler.path}" -c -Fo${OUTPUT} -Fd${PDB} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',

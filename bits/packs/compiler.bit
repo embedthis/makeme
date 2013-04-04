@@ -157,7 +157,7 @@ function testCompilerCapabilities() {
 
     } else if (cc && (platform.like == 'unix' || (platform.os == 'vxworks' && Config.OS == 'linux'))) {
         settings.hasDoubleBraces = compile(cc, '', '#include <stdarg.h>\nva_list d = {{0}};')
-//  MOB - mtune not used?
+        //  UNUSED MOB - mtune not used?
         settings.hasMtune = compile(cc, '-mtune=generic', 'int main() { return 0;}')
         settings.hasStackProtector = compile(cc, '-fno-stack-protector', 'int main() { return 0;}')
         settings.hasSync = compile(cc, '', '#include <stdio.h>\nint main() { __sync_synchronize(); return 0; }')
@@ -239,7 +239,8 @@ function setCompilerOptions(pack, settings) {
         pack.compiler.push('-Wall', '-Wno-deprecated-declarations')
         pack.linker.push('-Wl,-rpath,@executable_path/', '-Wl,-rpath,@loader_path/')
         pack.libraries.push('pthread', 'm')
-//  MOB - what is override-compiler? why not other platforms
+//  UNUSED MOB - what is override-compiler? why not other platforms
+        assert(!pack['override-compiler'])
         if (!pack['override-compiler']) {
             if (settings.debug) {
                 pack.compiler.push('-g')
