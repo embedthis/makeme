@@ -43,7 +43,7 @@ Bit.load({
         '+requires': [ 'vxworks', 'compiler', 'lib', 'link' ],
     },
 
-    defaults: {
+    __UNUSED_defaults: {
         '+defines': [
             'VXWORKS',
             'RW_MULTI_THREAD',
@@ -59,7 +59,7 @@ Bit.load({
     },
 
     scripts: {
-        preinherit: "
+        __UNUSED__preinherit: "
             //  TODO - move to pack
             let defaults = bit.defaults
             let arch = bit.platform.arch

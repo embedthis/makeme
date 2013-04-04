@@ -1349,6 +1349,13 @@ public class Bit {
                 target.defines.push(option)
             }
         }
+        for each (option in dep.compiler) {
+            target.compiler ||= []
+            if (!target.compiler.contains(option)) {
+                target.compiler.push(option)
+            }
+        }
+        return target
     }
 
     /*
@@ -1513,13 +1520,19 @@ public class Bit {
             if (target.static == null && bit.settings.static) {
                 target.static = bit.settings.static
             }
-            let def = blend({}, bit.defaults, {combine: true})
+            let base = inheritDep({}, bit.packs.compiler)
+            if (Object.getOwnPropertyCount(bit.defaults)) {
+                for (let key in bit.defaults) {
+                    plus(bit.defaults, key)
+                }
+                base = blend(base, bit.defaults, {combine: true})
+            }
             if (target.internal) {
-                def = blend(def, target.internal, {combine: true})
+                base = blend(base, target.internal, {combine: true})
                 delete target.internal
             }
             /* NOTE: this does not blend into existing targets of the same name. It overwrites */
-            target = bit.targets[tname] = blend(def, target, {combine: true})
+            target = bit.targets[tname] = blend(base, target, {combine: true})
             if (target.inherit) {
                 if (!(target.inherit is Array)) {
                     target.inherit = [ target.inherit ]

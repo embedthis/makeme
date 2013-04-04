@@ -46,7 +46,7 @@ Bit.load({
         '+requires': [ 'winsdk', 'compiler', 'lib', 'link', 'rc' ],
     },
 
-    defaults: {
+    __UNUSED_defaults: {
         '+compiler':  [ '-nologo', '-GR-', '-W3' ],
         '+defines':   [ '_REENTRANT', '_MT' ],
         '+libraries': [ 'ws2_32.lib', 'advapi32.lib', 'user32.lib', 'kernel32.lib', 'oldnames.lib', 'msvcrt.lib', 'shell32.lib' ],
@@ -63,7 +63,7 @@ Bit.load({
     },
 
     scripts: {
-        preinherit: "
+        __UNUSED_preinherit: "
             //  Runs to update defaults.* before blending defaults into targets
             let defaults = bit.defaults
             let settings = bit.settings

@@ -12,7 +12,7 @@ Bit.load({
         'shobj': 'dylib',
     },
 
-    defaults: {
+    __UNUSED__defaults: {
         '+compiler': [ 
             '-Wall',
             '-Wno-deprecated-declarations',
@@ -28,7 +28,7 @@ Bit.load({
         /* 
             This runs before blending defaults into targets
          */
-        preinherit: "
+        __UNUSED__preinherit: "
             let defaults = bit.defaults
             let arch = bit.platform.arch
             defaults.libpaths.push(bit.dir.bin)

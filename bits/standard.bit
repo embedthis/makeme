@@ -16,7 +16,7 @@ Bit.load({
         rel:    '${dir.top}/releases',
 	},
 
-    defaults: {
+    __UNUSED_defaults: {
         compiler:   [],
         defines:    [],
         libraries:  [],

@@ -3,7 +3,7 @@
  */
 
 Bit.load({
-    defaults: {
+    __UNUSED__defaults: {
         '+compiler': [ '-Wall' ],
         '+defines':  [ '_REENTRANT' ],
     },
@@ -11,7 +11,7 @@ Bit.load({
         /*
             Preinherit runs after all bit files are loaded and before blending defaults. Don't need pluses
          */
-        preinherit: "
+        __UNUSED__preinherit: "
             let arch = bit.platform.arch
             let defaults = bit.defaults
             if (bit.platform.os == 'linux') {
