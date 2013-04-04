@@ -6421,6 +6421,7 @@ typedef struct MprSocketProvider {
     void    (*closeSocket)(struct MprSocket *socket, bool gracefully);
     void    (*disconnectSocket)(struct MprSocket *socket);
     ssize   (*flushSocket)(struct MprSocket *socket);
+    //  MOB - unused
     Socket  (*listenSocket)(struct MprSocket *socket, cchar *host, int port, int flags);
     ssize   (*readSocket)(struct MprSocket *socket, void *buf, ssize len);
     ssize   (*writeSocket)(struct MprSocket *socket, cvoid *buf, ssize len);
@@ -6443,6 +6444,7 @@ typedef int (*MprSocketPrebind)(struct MprSocket *sock);
  */
 typedef struct MprSocketService {
     MprSocketProvider *standardProvider;        /**< Socket provider for non-SSL connections */
+    //  MOB - rename sslProvider
     char            *defaultProvider;           /**< Default secure provider for SSL connections */
     MprHash         *providers;                 /**< Secure socket providers */         
     MprSocketPrebind prebind;                   /**< Prebind callback */

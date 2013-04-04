@@ -184,6 +184,7 @@ static void closeMss(MprSocket *sp, bool gracefully)
 }
 
 
+// UNUSED
 static Socket listenMss(MprSocket *sp, cchar *host, int port, int flags)
 {
     return sp->service->standardProvider->listenSocket(sp, host, port, flags);
@@ -890,6 +891,7 @@ PUBLIC int mprCreateEstModule()
 static void manageEstProvider(MprSocketProvider *provider, int flags)
 {
     if (flags & MPR_MANAGE_MARK) {
+        mprMark(provider->name);
         mprMark(defaultEstConfig);
         mprMark(sessions);
 
@@ -943,6 +945,7 @@ static void closeEst(MprSocket *sp, bool gracefully)
 
 /*
     Initialize a new server-side connection
+    UNUSED
  */
 static Socket listenEst(MprSocket *sp, cchar *host, int port, int flags)
 {
@@ -1577,6 +1580,7 @@ static void manageOpenProvider(MprSocketProvider *provider, int flags)
             }
         }
         mprMark(defaultOpenConfig);
+        mprMark(provider->name);
 
     } else if (flags & MPR_MANAGE_FREE) {
         olocks = 0;
@@ -1760,6 +1764,7 @@ static void closeOss(MprSocket *sp, bool gracefully)
 }
 
 
+//  UNUSED
 static Socket listenOss(MprSocket *sp, cchar *host, int port, int flags)
 {
     assert(sp);
@@ -2529,6 +2534,7 @@ PUBLIC int mprCreateNanoSslModule()
 static void manageNanoProvider(MprSocketProvider *provider, int flags)
 {
     if (flags & MPR_MANAGE_MARK) {
+        mprMark(provider->name);
         mprMark(defaultNanoConfig);
 
     } else if (flags & MPR_MANAGE_FREE) {
@@ -2579,6 +2585,7 @@ static void nanoClose(MprSocket *sp, bool gracefully)
 
 /*
     Initialize a new server-side connection
+    UNUSED
  */
 static Socket nanoListen(MprSocket *sp, cchar *host, int port, int flags)
 {
