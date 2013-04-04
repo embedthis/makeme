@@ -283,6 +283,10 @@ function setCompilerOptions(pack, settings) {
         } else {
             pack.compiler.push('-O2', '-MD')
         }
+        pack.subsystem = {
+            exe: 'Console',
+            gui: 'Windows',
+        }
         pack.entry = {
             exe: 'mainCRTStartup',
             gui: 'WinMainCRTStartup',

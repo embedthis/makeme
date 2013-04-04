@@ -1355,9 +1355,6 @@ public class Bit {
                 target.compiler.push(option)
             }
         }
-        if (dep.entry) {
-            target.entry = dep.entry
-        }
         return target
     }
 
@@ -2000,8 +1997,15 @@ public class Bit {
         if (target.libpaths) {
             tv.LIBPATHS = mapLibPaths(target.libpaths, base)
         }
-        if (target.entry) {
-            tv.ENTRY = target.entry[target.rule || target.type]
+        if (bit.platform.os == 'windows') {
+            let entry = target.entry || bit.packs.compiler.entry
+            if (entry) {
+                tv.ENTRY = entry[target.rule || target.type]
+            }
+            let subsystem = target.subsystem || bit.packs.compiler.subsystem
+            if (subsystem) {
+                tv.SUBSYSTEM = subsystem[target.rule || target.type]
+            }
         }
         if (target.type == 'exe') {
             if (!target.files) {
