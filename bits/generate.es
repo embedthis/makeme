@@ -1020,9 +1020,11 @@ module embedthis.bit {
      */
     function repcmd(command: String): String {
         if (bit.generating == 'make' || bit.generating == 'nmake') {
-            command = rep(command, gen.linker, '$(LDFLAGS)')
-            command = rep(command, gen.libpaths, '$(LIBPATHS)')
             command = rep(command, gen.compiler, '$(CFLAGS)')
+            if (gen.linker != '') {
+                command = rep(command, gen.linker, '$(LDFLAGS)')
+            }
+            command = rep(command, gen.libpaths, '$(LIBPATHS)')
             command = rep(command, gen.defines, '$(DFLAGS)')
             command = rep(command, gen.includes, '$(IFLAGS)')
             /* Twice because libraries are repeated and replace only changes the first occurrence */
@@ -1040,9 +1042,11 @@ module embedthis.bit {
             }
 
         } else if (bit.generating == 'sh') {
-            command = rep(command, gen.linker, '${LDFLAGS}')
-            command = rep(command, gen.libpaths, '${LIBPATHS}')
             command = rep(command, gen.compiler, '${CFLAGS}')
+            if (gen.linker != '') {
+                command = rep(command, gen.linker, '${LDFLAGS}')
+            }
+            command = rep(command, gen.libpaths, '${LIBPATHS}')
             command = rep(command, gen.defines, '${DFLAGS}')
             command = rep(command, gen.includes, '${IFLAGS}')
             /* Twice because libraries are repeated and replace only changes the first occurrence */
