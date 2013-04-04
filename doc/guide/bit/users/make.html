@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis Bit 0.8.5 Documentation</title>
+    <title>Embedthis Bit 0.8.6 Documentation</title>
     <meta name="keywords" content="Bit, Build It!, Javascript"/>
 	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
 	<meta name="robots" content="index,follow" />
@@ -20,7 +20,7 @@
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form">Loading</div>
-                <div class='version'>Embedthis Bit 0.8.0</div>
+                <div class="version">Embedthis Bit 0.8.6</div>
             </div>
         </div>
         <div class="crumbs">
@@ -148,12 +148,10 @@ make -f projects/appweb-vxworks-default.mk ARCH=x86 PROFILE=debug
             arm, mips, ppc, x64 and x86. The PROFILE is a descriptive name chosen by you for your configuration.</p>
             <p>If there is not a makefile for your  target operating system, you may be able to copy the closest makefile 
             and edit to suit your target platform.</p>
-
             <h3>Specifying the CPU</h3>
             <p>The make will use a generic CPU type within the specified architecture. To override the default choice and
             specify a CPU type within an architecture, use the CPU variable. For example:/p>
             <pre>make OS=vxworks ARCH=arm CPU=arm7tdmi</pre>
-
             <h3>Specifying a Tool Chain</h3>
             <p>You may need to specify where Make can locate your cross-compiler and other tools.
             You can supply these via the make variables: CC, CFLAGS, DFLAGS, IFLAGS, LD and LDFLAGS. 

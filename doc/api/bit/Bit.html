@@ -56,11 +56,13 @@
    <tr class='apiDef'><td class='apiType'></td><td><a href='#copy'><b>copy</b></a>(src, dest: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Copy files.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#copyFile'><b>copyFile</b></a>(src: <a href='Path.html'>Path</a>, dest: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Copy a file.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#expand'><b>expand</b></a>(s: <a href='String.html'>String</a>, options = expression): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Expand tokens in a string.</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#getDep'><b>getDep</b></a>(dname)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#linkFile'><b>linkFile</b></a>(src: <a href='Path.html'>Path</a>, dest: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Link a file.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#makeDir'><b>makeDir</b></a>(path: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Make a directory
 This creates a directory and all required parents.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#removeDir'><b>removeDir</b></a>(path: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Remove a directory.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#removeFile'><b>removeFile</b></a>(path: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Remove a file.</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#removePath'><b>removePath</b></a>(path: <a href='Path.html'>Path</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Remove a file or directory.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#run'><b>run</b></a>(command, cmdOptions = expression): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Run a command and trace output if cmdOptions.true or options.show.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#strace'><b>strace</b></a>(tag, args: <a href='Array.html'>Array</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit "show" trace
 This is trace that is displayed if bit --show is invoked.</td></tr>
@@ -232,6 +234,18 @@ This either removes directories or if generating, emits code to remove directori
 <dl><dt>Parameters</dt>
 <dd><table class='parameters' summary ='parameters'>
 <tr class='param'><td class='param'>path: <a href='Path.html'>Path</a> </td><td>File to remove.</td></tr><tr class='param'><td class='param'>options </td><td>Control options. [default: expression]</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='removePath'></a>
+<div class='api'>
+<div class='apiSig'>    removePath(path: <a href='Path.html'>Path</a>)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Remove a file or directory. This removes a file or directory and all its contents including subdirectories.</dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' summary ='parameters'>
+<tr class='param'><td class='param'>path: <a href='Path.html'>Path</a> </td><td>File or directory to remove.</td></tr></table></dd>
 </dl></div>
 </div>
 <hr />
