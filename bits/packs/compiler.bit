@@ -287,7 +287,7 @@ function setCompilerOptions(pack, settings) {
             exe: 'mainCRTStartup',
             gui: 'WinMainCRTStartup',
         }
-        if ('${ARCH}' == 'x64') {
+        if (platform.arch == 'x64') {
             pack.linker.push('-machine:x64')
             pack.entry.lib = '_DllMainCRTStartup'
         } else {
