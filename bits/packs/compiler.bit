@@ -284,8 +284,8 @@ function setCompilerOptions(pack, settings) {
             pack.compiler.push('-O2', '-MD')
         }
         pack.subsystem = {
-            exe: 'Console',
-            gui: 'Windows',
+            exe: 'console',
+            gui: 'windows',
         }
         pack.entry = {
             exe: 'mainCRTStartup',
