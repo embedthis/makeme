@@ -1355,6 +1355,9 @@ public class Bit {
                 target.compiler.push(option)
             }
         }
+        if (dep.entry) {
+            target.entry = dep.entry
+        }
         return target
     }
 
