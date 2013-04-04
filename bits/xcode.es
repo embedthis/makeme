@@ -855,6 +855,7 @@ ${RELEASE_SETTINGS}
 
     let compiler = bit.packs.compiler.path.basename == 'gcc' ? 
           'com.apple.compilers.llvmgcc42' : 'com.apple.compilers.llvm.clang.1_0'
+    let defaults = bit.packs.compiler
     let overridable = appendSetting('', defaults.compiler, 
         ['GCC_WARN_64_TO_32_BIT_CONVERSION'], 'shorten-64-to-32')
     overridable += appendSetting(overridable, defaults.compiler, 
@@ -867,8 +868,8 @@ ${RELEASE_SETTINGS}
             COMPILER: compiler,
         }),
         OVERRIDABLE_SETTINGS: overridable,
-        DEBUG_SETTINGS: prepareSettings(base, bit.defaults, true),
-        RELEASE_SETTINGS: prepareSettings(base, bit.defaults, false),
+        DEBUG_SETTINGS: prepareSettings(base, defaults, true),
+        RELEASE_SETTINGS: prepareSettings(base, defaults, false),
         WARN_UNUSED: yesno(defaults.compiler, 'unused-result'),
     }))
 
@@ -905,12 +906,12 @@ ${RELEASE_SETTINGS}
         }
         let ts = {
             target: target,
-            compiler: target.compiler - bit.defaults.compiler,
-            defines: target.defines - bit.defaults.defines,
-            includes: target.includes - bit.defaults.includes,
-            libpaths: target.libpaths - bit.defaults.libpaths,
-            linker: target.linker - bit.defaults.linker,
-            libraries: target.libraries - bit.defaults.libraries,
+            compiler: target.compiler - defaults.compiler,
+            defines: target.defines - defaults.defines,
+            includes: target.includes - defaults.includes,
+            libpaths: target.libpaths - defaults.libpaths,
+            linker: target.linker - defaults.linker,
+            libraries: target.libraries - defaults.libraries,
         }
         let overridable = appendSetting('', ts.compiler, 
             ['GCC_WARN_64_TO_32_BIT_CONVERSION'], 'shorten-64-to-32')

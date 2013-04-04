@@ -60,8 +60,8 @@ Bit.load({
         'cpp->o': '${packs.compiler.path} -c -o ${OUTPUT} ${MTUNE} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
         'shlib':  '${packs.compiler.path} -shared -o ${OUTPUT} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS}',
         'lib':    '${packs.lib.path} -cr ${OUTPUT} ${INPUT}',
-        'exe':    '${packs.compiler.path} -o ${OUTPUT} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS} ${LIBS} ${LDFLAGS}',
-        'gui':    '${packs.compiler.path} -o ${OUTPUT} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS} ${LIBS} ${LDFLAGS}'
+        'exe':    '${packs.compiler.path} -o ${OUTPUT} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS} ${LIBS}',
+        'gui':    '${packs.compiler.path} -o ${OUTPUT} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS} ${LIBS}'
         'res':    '${packs.rc.path} -o ${OUTPUT} ${INPUT}',
     },
     platform: {

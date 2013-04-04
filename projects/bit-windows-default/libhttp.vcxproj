@@ -109,7 +109,7 @@
 
   <ItemDefinitionGroup>
   <Link>
-    <AdditionalDependencies>libpcre.lib;libmpr.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    <AdditionalDependencies>libmpr.lib;libpcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
     <AdditionalLibraryDirectories>$(OutDir);$(Cfg)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
   </Link>
 

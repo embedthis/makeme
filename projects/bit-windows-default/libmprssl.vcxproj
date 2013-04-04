@@ -105,7 +105,7 @@
 
   <ItemDefinitionGroup>
   <Link>
-    <AdditionalDependencies>libest.lib;libmpr.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    <AdditionalDependencies>libmpr.lib;libest.lib;%(AdditionalDependencies)</AdditionalDependencies>
     <AdditionalLibraryDirectories>$(OutDir);$(Cfg)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
   </Link>
   </ItemDefinitionGroup>

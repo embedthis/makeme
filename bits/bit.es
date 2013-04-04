@@ -1319,38 +1319,38 @@ public class Bit {
     }
 
     function inheritDep(target, dep) {
+        target.defines ||= []
+        target.compiler ||= []
+        target.includes ||= []
+        target.libraries ||= []
+        target.linker ||= []
+        target.libpaths ||= []
         for each (lib in dep.libraries) {
-            target.libraries ||= []
             if (!target.libraries.contains(lib)) {
-                target.libraries = [lib] + target.libraries
+                target.libraries = target.libraries + [lib]
             }
         }
         for each (option in dep.linker) {
-            target.linker ||= []
             if (!target.linker.contains(option)) {
                 target.linker.push(option)
             }
         }
         for each (option in dep.libpaths) {
-            target.libpaths ||= []
             if (!target.libpaths.contains(option)) {
                 target.libpaths.push(option)
             }
         }
         for each (option in dep.includes) {
-            target.includes ||= []
             if (!target.includes.contains(option)) {
                 target.includes.push(option)
             }
         }
         for each (option in dep.defines) {
-            target.defines ||= []
             if (!target.defines.contains(option)) {
                 target.defines.push(option)
             }
         }
         for each (option in dep.compiler) {
-            target.compiler ||= []
             if (!target.compiler.contains(option)) {
                 target.compiler.push(option)
             }
@@ -1402,7 +1402,7 @@ public class Bit {
                         }
                     }
                     if (!target.libraries.contains(lpath)) {
-                        target.libraries = [lpath] + target.libraries
+                        target.libraries = target.libraries + [lpath]
                     }
 
                 } 
@@ -1459,7 +1459,7 @@ public class Bit {
                      */
                     let res = bit.dir.obj.join(file.replaceExt(bit.ext.res).basename)
                     let resTarget = { name : res, enable: true, path: res, type: 'resource', 
-                        goals: [target.name], files: [ file ], includes: target.includes }
+                        goals: [target.name], files: [ file ], includes: target.includes, defines: target.defines }
                     if (bit.targets[res]) {
                         resTarget = blend(bit.targets[resTarget.name], resTarget, {combined: true})
                     }
@@ -1564,7 +1564,16 @@ public class Bit {
         for (let [key,value] in bit.dir) {
             bit.dir[key] = Path(value).absolute
         }
-        let defaults = bit.defaults
+        let defaults = bit.packs.compiler
+        if (defaults) {
+            for (let [key,value] in defaults.includes) {
+                defaults.includes[key] = Path(value).absolute
+            }
+            for (let [key,value] in defaults.libpaths) {
+                defaults.libpaths[key] = Path(value).absolute
+            }
+        }
+        defaults = bit.defaults
         if (defaults) {
             for (let [key,value] in defaults.includes) {
                 defaults.includes[key] = Path(value).absolute
@@ -2031,7 +2040,6 @@ throw new Error("target.dir not supported")
         } else if (target.type == 'resource') {
             tv.OUTPUT = target.path.relative
             tv.CFLAGS = (target.compiler) ? target.compiler.join(' ') : ''
-            target.defines ||= []
             tv.DEFINES = target.defines.map(function(e) '-D' + e).join(' ')
             tv.INCLUDES = (target.includes) ? target.includes.map(function(path) '-I' + path.relative) : ''
         }

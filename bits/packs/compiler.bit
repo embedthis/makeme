@@ -20,6 +20,7 @@ Bit.pack({
         },
         config: function (pack) {
             testCompilerCapabilities()
+            setCompilerOptions(pack, bit.settings)
         },
         generate: function (pack) {
             if (bit.platform.like == 'windows') {
@@ -31,8 +32,9 @@ Bit.pack({
             } else {
                 pack.path = 'gcc'
             }
-            let settings = getDefaultSettings(bit.platform)
+            let settings = getDefaultSettings()
             Bit.load({ settings: settings })
+            setCompilerOptions(pack, settings)
         },
         after: [ 'vxworks', 'winsdk' ],
     },
@@ -147,7 +149,7 @@ function findPosixCompiler(pack) {
  */
 function testCompilerCapabilities() {
     let platform = bit.platform
-    let settings = getDefaultSettings(platform)
+    let settings = getDefaultSettings()
     let cc = bit.packs.compiler.path
 
     if (Config.OS != platform.os) {
@@ -181,83 +183,76 @@ function testCompilerCapabilities() {
         }
     }
     Bit.load({ settings: settings })
-    setCompilerDefaults()
 }
 
-function setCompilerDefaults() {
+function setCompilerOptions(pack, settings) {
     let platform = bit.platform
     let arch = platform.arch
-    let settings = bit.settings
-    let cpack = bit.packs.compiler
 
-    cpack.compiler =  [ ]
-    cpack.defines =   [ ]
-    cpack.includes =  [ bit.dir.inc ]
-    cpack.linker =    [ ]
-    cpack.libpaths =  [ bit.dir.bin ]
-    cpack.libraries = [ ]
+    pack.compiler =  [ ]
+    pack.defines =   [ ]
+    pack.includes =  [ bit.dir.inc ]
+    pack.linker =    [ ]
+    pack.libpaths =  [ bit.dir.bin ]
+    pack.libraries = [ ]
 
     if (settings.warnUnused) {
-        cpack.compiler.push('-Wno-unused-result')
+        pack.compiler.push('-Wno-unused-result')
     }
     if (settings.warn64to32) {
-        cpack.compiler.push('-Wshorten-64-to-32')
+        pack.compiler.push('-Wshorten-64-to-32')
     }
     if (settings.hasLibRt) {
-        cpack.libraries.push('rt')
-    }
-    if (settings.hasLibEdit) {
-        cpack.libraries.push('edit')
+        pack.libraries.push('rt')
     }
     if (settings.hasDynLoad) {
-        cpack.libraries.push('dl')
+        pack.libraries.push('dl')
     }
-
+    if (settings.debug) {
+        pack.defines.push('BIT_DEBUG')
+    }
     if (platform.like == 'unix' && platform.os != 'macosx') {
         /* GCC not mac */
-        cpack.compiler.push('-Wall', '-fPIC')
-        cpack.defines.push('_REENTRANT', 'PIC')
-        cpack.libraries += ['pthread', 'm']
+        pack.compiler.push('-Wall', '-fPIC')
+        pack.defines.push('_REENTRANT', 'PIC')
+        pack.libraries.push('pthread', 'm')
 
         if (settings.debug) {
-            cpack.defines.push('BIT_DEBUG')
-            cpack.compiler.push('-g')
-            cpack.linker.push('-g')
+            pack.compiler.push('-g')
+            pack.linker.push('-g')
         } else if (settings.tune == 'size') {
-            cpack.compiler.push('-Os')
+            pack.compiler.push('-Os')
         } else {
-            cpack.compiler.push('-O2')
+            pack.compiler.push('-O2')
         }
         if (arch.startsWith('arm')) {
-            cpack.compiler.push('-mno-sched-prolog')
+            pack.compiler.push('-mno-sched-prolog')
         } else if (arch.startsWith('ppc')) {
-            cpack.defines.push('_GNU_TOOL')
+            pack.defines.push('_GNU_TOOL')
         }
     }
 
     if (platform.os == 'linux') {
-        cpack.linker.push('-rdynamic', '-Wl,--enable-new-dtags', '-Wl,-rpath,$ORIGIN/')
+        pack.linker.push('-rdynamic', '-Wl,--enable-new-dtags', '-Wl,-rpath,$ORIGIN/')
 
     } else if (platform.os == 'macosx') {
-        cpack.compiler.push('-Wall', '-Wno-deprecated-declarations')
-        cpack.linker.push('-Wl,-rpath,@executable_path/', '-Wl,-rpath,@loader_path/')
-        cpack.libraries.push('pthread', 'm')
-        cpack.libpaths.push(bit.dir.bin)
+        pack.compiler.push('-Wall', '-Wno-deprecated-declarations')
+        pack.linker.push('-Wl,-rpath,@executable_path/', '-Wl,-rpath,@loader_path/')
+        pack.libraries.push('pthread', 'm')
 //  MOB - what is override-compiler? why not other platforms
-        if (!cpack['override-compiler']) {
+        if (!pack['override-compiler']) {
             if (settings.debug) {
-                cpack.compiler += ['-g']
-                cpack.linker.push('-g')
-                cpack.defines.push('BIT_DEBUG')
+                pack.compiler.push('-g')
+                pack.linker.push('-g')
             } else if (settings.tune == 'size') {
-                cpack.compiler += ['-Os']
+                pack.compiler.push('-Os')
             } else {
-                cpack.compiler += ['-O3']
+                pack.compiler.push('-O3')
             }
         }
 
     } else if (platform.os == 'solaris') {
-        cpack.libraries.push('lxnet', 'rt', 'socket')
+        pack.libraries.push('lxnet', 'rt', 'socket')
 
     } else if (platform.os == 'vxworks') {
         let cpu = platform.cpu
@@ -277,40 +272,38 @@ function setCompilerDefaults() {
                 }
             }
         }
-        cpack.defines.push('VXWORKS', 'RW_MULTI_THREAD', '_GNU_TOOL', 'CPU=' + cpu.toUpper())
-        cpack.compiler.push('-fno-builtin', '-fno-defer-pop', '-fvolatile')
+        pack.defines.push('VXWORKS', 'RW_MULTI_THREAD', '_GNU_TOOL', 'CPU=' + cpu.toUpper())
+        pack.compiler.push('-fno-builtin', '-fno-defer-pop', '-fvolatile')
         if (arch.match(/mips/)) {
             /* Don't use mips global pointer */
-            cpack.compiler.push('-G 0')
+            pack.compiler.push('-G 0')
         }
-        cpack.includes += bit.packs.vxworks.includes
-        cpack.libraries.push('gcc')
-        cpack.linker.push('-Wl,-r')
+        pack.includes += bit.packs.vxworks.includes
+        pack.libraries.push('gcc')
+        pack.linker.push('-Wl,-r')
 
     } else if (platform.os == 'windows') {
-        cpack.compiler.push('-nologo', '-GR-', '-W3')
-        cpack.defines.push('_REENTRANT', '_MT')
-        cpack.libraries.push('ws2_32.lib', 'advapi32.lib', 'user32.lib', 'kernel32.lib', 'oldnames.lib', 'msvcrt.lib', 'shell32.lib')
-        cpack.linker.push('-nologo', '-nodefaultlib', '-incremental:no')
+        pack.compiler.push('-nologo', '-GR-', '-W3')
+        pack.defines.push('_REENTRANT', '_MT')
+        pack.libraries.push('ws2_32.lib', 'advapi32.lib', 'user32.lib', 'kernel32.lib', 'oldnames.lib', 'msvcrt.lib', 'shell32.lib')
+        pack.linker.push('-nologo', '-nodefaultlib', '-incremental:no')
         if (settings.debug) {
-            cpack.defines.push('BIT_DEBUG')
-            cpack.compiler += [ '-Zi', '-Od', '-MDd' ]
-            cpack.linker += [ '-debug' ]
+            pack.compiler.push('-Zi', '-Od', '-MDd')
+            pack.linker.push('-debug')
         } else {
-            cpack.compiler += [ '-O2', '-MD' ]
+            pack.compiler.push('-O2', '-MD')
         }
-        cpack.entry = {
+        pack.entry = {
             exe: 'mainCRTStartup',
             gui: 'WinMainCRTStartup',
         }
         if ('${ARCH}' == 'x64') {
-            cpack.linker += ['-machine:x64']
-            cpack.entry.lib = '_DllMainCRTStartup'
+            pack.linker.push('-machine:x64')
+            pack.entry.lib = '_DllMainCRTStartup'
         } else {
-            cpack.linker += ['-machine:x86']
-            cpack.entry.lib = '_DllMainCRTStartup@12'
+            pack.linker.push('-machine:x86')
+            pack.entry.lib = '_DllMainCRTStartup@12'
         }
-
     }
 }
 
@@ -350,7 +343,8 @@ function compile(cc: Path, command: String, contents: String = null): Boolean {
 }
 
 
-function getDefaultSettings(platform) {
+function getDefaultSettings() {
+    let platform = bit.platform
     let settings
     if (platform.like == 'windows') {
         settings = {
@@ -425,5 +419,6 @@ function getDefaultSettings(platform) {
             warnUnused: false,
         }
     }
+    settings.debug = true
     return settings
 }

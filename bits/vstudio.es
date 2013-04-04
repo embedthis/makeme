@@ -473,7 +473,7 @@ function projLink(base, target) {
         }
     }
 */
-    bit.LIBS = target.libraries ? mapLibs(target.libraries - bit.defaults.libraries).join(';') : ''
+    bit.LIBS = target.libraries ? mapLibs(target.libraries - bit.packs.compiler.libraries).join(';') : ''
     bit.LIBPATHS = target.libpaths ? target.libpaths.map(function(p) wpath(p)).join(';') : ''
     output('
   <ItemDefinitionGroup>

@@ -43,14 +43,15 @@ module embedthis.bit {
 
     function generateProjects() {
         b.selectTargets('all')
+        let cpack = bit.packs.compiler
         gen = {
             configuration:  bit.platform.name
-            compiler:       bit.defaults.compiler.join(' '),
-            defines :       bit.defaults.defines.map(function(e) '-D' + e).join(' '),
-            includes:       bit.defaults.includes.map(function(e) '-I' + e).join(' '),
-            linker:         bit.defaults.linker.join(' '),
-            libpaths:       b.mapLibPaths(bit.defaults.libpaths)
-            libraries:      b.mapLibs(bit.defaults.libraries).join(' ')
+            compiler:       cpack.compiler.join(' '),
+            defines :       cpack.defines.map(function(e) '-D' + e).join(' '),
+            includes:       cpack.includes.map(function(e) '-I' + e).join(' '),
+            linker:         cpack.linker.join(' '),
+            libpaths:       b.mapLibPaths(cpack.libpaths)
+            libraries:      b.mapLibs(cpack.libraries).join(' ')
         }
         blend(gen, bit.prefixes)
         for each (item in b.options.gen) {
@@ -178,7 +179,7 @@ module embedthis.bit {
         genout.writeLine('CFLAGS="' + cflags.trim() + '"')
         genout.writeLine('DFLAGS="' + gen.defines + '"')
         genout.writeLine('IFLAGS="' + 
-            repvar(bit.defaults.includes.map(function(path) '-I' + path.relative).join(' ')) + '"')
+            repvar(bit.packs.compiler.includes.map(function(path) '-I' + path.relative).join(' ')) + '"')
         genout.writeLine('LDFLAGS="' + repvar(gen.linker).replace(/\$ORIGIN/g, '\\$$ORIGIN') + '"')
         genout.writeLine('LIBPATHS="' + repvar(gen.libpaths) + '"')
         genout.writeLine('LIBS="' + gen.libraries + '"\n')
@@ -371,12 +372,12 @@ module embedthis.bit {
         }
         cflags += ' -w'
         genout.writeLine('CFLAGS             += ' + cflags.trim())
-        genout.writeLine('DFLAGS             += ' + gen.defines.replace(/-DBIT_DEBUG/, '') + 
+        genout.writeLine('DFLAGS             += ' + gen.defines.replace(/-DBIT_DEBUG */, '') + 
             ' $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) ' + dflags)
         genout.writeLine('IFLAGS             += ' + 
-            repvar(bit.defaults.includes.map(function(path) '-I' + reppath(path.relative)).join(' ')))
-        let linker = defaults.linker.map(function(s) "'" + s + "'").join(' ')
-        let ldflags = repvar(linker).replace(/\$ORIGIN/g, '$$$$ORIGIN').replace(/ '-g'/, '')
+            repvar(bit.packs.compiler.includes.map(function(path) '-I' + reppath(path.relative)).join(' ')))
+        let linker = bit.packs.compiler.linker.map(function(s) "'" + s + "'").join(' ')
+        let ldflags = repvar(linker).replace(/\$ORIGIN/g, '$$$$ORIGIN').replace(/'-g' /, '')
         genout.writeLine('LDFLAGS            += ' + ldflags)
         genout.writeLine('LIBPATHS           += ' + repvar(gen.libpaths))
         genout.writeLine('LIBS               += ' + gen.libraries + '\n')
@@ -476,7 +477,7 @@ module embedthis.bit {
         genout.writeLine('CFLAGS             = ' + gen.compiler)
         genout.writeLine('DFLAGS             = ' + gen.defines + ' ' + dflags)
         genout.writeLine('IFLAGS             = ' + 
-            repvar(bit.defaults.includes.map(function(path) '-I' + reppath(path)).join(' ')))
+            repvar(bit.packs.compiler.includes.map(function(path) '-I' + reppath(path)).join(' ')))
         genout.writeLine('LDFLAGS            = ' + repvar(gen.linker).replace(/-machine:x86/, '-machine:$$(ARCH)'))
         genout.writeLine('LIBPATHS           = ' + repvar(gen.libpaths).replace(/\//g, '\\'))
         genout.writeLine('LIBS               = ' + gen.libraries + '\n')
@@ -1031,13 +1032,13 @@ module embedthis.bit {
      */
     function repcmd(command: String): String {
         if (bit.generating == 'make' || bit.generating == 'nmake') {
-            /* Twice because ldflags are repeated and replace only changes the first occurrence */
-            command = rep(command, gen.linker, '$(LDFLAGS)')
             command = rep(command, gen.linker, '$(LDFLAGS)')
             command = rep(command, gen.libpaths, '$(LIBPATHS)')
             command = rep(command, gen.compiler, '$(CFLAGS)')
             command = rep(command, gen.defines, '$(DFLAGS)')
             command = rep(command, gen.includes, '$(IFLAGS)')
+            /* Twice because libraries are repeated and replace only changes the first occurrence */
+            command = rep(command, gen.libraries, '$(LIBS)')
             command = rep(command, gen.libraries, '$(LIBS)')
             command = rep(command, RegExp(gen.configuration, 'g'), '$$(CONFIG)')
 
@@ -1052,11 +1053,12 @@ module embedthis.bit {
 
         } else if (bit.generating == 'sh') {
             command = rep(command, gen.linker, '${LDFLAGS}')
-            command = rep(command, gen.linker, '${LDFLAGS}')
             command = rep(command, gen.libpaths, '${LIBPATHS}')
             command = rep(command, gen.compiler, '${CFLAGS}')
             command = rep(command, gen.defines, '${DFLAGS}')
             command = rep(command, gen.includes, '${IFLAGS}')
+            /* Twice because libraries are repeated and replace only changes the first occurrence */
+            command = rep(command, gen.libraries, '${LIBS}')
             command = rep(command, gen.libraries, '${LIBS}')
             command = rep(command, RegExp(gen.configuration, 'g'), '$${CONFIG}')
             command = repCmd(command, bit.packs.compiler.path, '${CC}')
@@ -1184,7 +1186,7 @@ module embedthis.bit {
         for each (lib in target.libraries) {
             let name, dep, packs, pack
             name = pack = null
-            if (bit.defaults.libraries.contains(lib)) {
+            if (bit.packs.compiler.libraries.contains(lib)) {
                 continue
             }
             dep = getLib(lib)
