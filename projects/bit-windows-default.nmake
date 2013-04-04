@@ -76,7 +76,7 @@ DFLAGS             = -DBIT_DEBUG -D_REENTRANT -D_MT -DBIT_PACK_EJSCRIPT=$(BIT_PA
 IFLAGS             = -I$(CONFIG)\inc
 LDFLAGS            = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
 LIBPATHS           = -libpath:$(CONFIG)\bin
-LIBS               = dl ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
+LIBS               = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
 
 BIT_ROOT_PREFIX    = C:
 BIT_BASE_PREFIX    = $(BIT_ROOT_PREFIX)\Program Files

@@ -205,18 +205,15 @@ function setCompilerOptions(pack, settings) {
     if (settings.hasLibRt) {
         pack.libraries.push('rt')
     }
-    if (settings.hasDynLoad) {
-        pack.libraries.push('dl')
-    }
     if (settings.debug) {
         pack.defines.push('BIT_DEBUG')
     }
-    if (platform.like == 'unix' && platform.os != 'macosx') {
-        /* GCC not mac */
-        pack.compiler.push('-Wall', '-fPIC')
-        pack.defines.push('_REENTRANT', 'PIC')
+    if (platform.like == 'unix') {
+        if (settings.hasDynLoad) {
+            pack.libraries.push('dl')
+        }
+        pack.compiler.push('-Wall')
         pack.libraries.push('pthread', 'm')
-
         if (settings.debug) {
             pack.compiler.push('-g')
             pack.linker.push('-g')
@@ -225,10 +222,15 @@ function setCompilerOptions(pack, settings) {
         } else {
             pack.compiler.push('-O2')
         }
-        if (arch.startsWith('arm')) {
-            pack.compiler.push('-mno-sched-prolog')
-        } else if (arch.startsWith('ppc')) {
-            pack.defines.push('_GNU_TOOL')
+        if (platform.os != 'macosx') {
+            /* GCC not mac */
+            pack.compiler.push('-fPIC')
+            pack.defines.push('_REENTRANT', 'PIC')
+            if (arch.startsWith('arm')) {
+                pack.compiler.push('-mno-sched-prolog')
+            } else if (arch.startsWith('ppc')) {
+                pack.defines.push('_GNU_TOOL')
+            }
         }
     }
 
@@ -236,21 +238,8 @@ function setCompilerOptions(pack, settings) {
         pack.linker.push('-rdynamic', '-Wl,--enable-new-dtags', '-Wl,-rpath,$ORIGIN/')
 
     } else if (platform.os == 'macosx') {
-        pack.compiler.push('-Wall', '-Wno-deprecated-declarations')
+        pack.compiler.push('-Wno-deprecated-declarations')
         pack.linker.push('-Wl,-rpath,@executable_path/', '-Wl,-rpath,@loader_path/')
-        pack.libraries.push('pthread', 'm')
-//  UNUSED MOB - what is override-compiler? why not other platforms
-        assert(!pack['override-compiler'])
-        if (!pack['override-compiler']) {
-            if (settings.debug) {
-                pack.compiler.push('-g')
-                pack.linker.push('-g')
-            } else if (settings.tune == 'size') {
-                pack.compiler.push('-Os')
-            } else {
-                pack.compiler.push('-O3')
-            }
-        }
 
     } else if (platform.os == 'solaris') {
         pack.libraries.push('lxnet', 'rt', 'socket')
