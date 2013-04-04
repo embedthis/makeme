@@ -3,7 +3,7 @@
 #
 
 PRODUCT            := bit
-VERSION            := 0.8.5
+VERSION            := 0.8.6
 BUILD_NUMBER       := 0
 PROFILE            := default
 ARCH               := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
@@ -53,7 +53,7 @@ BIT_PACK_ZIP_PATH         := zip
 CFLAGS             += -fPIC  -w
 DFLAGS             += -D_REENTRANT -DPIC $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) -DBIT_PACK_EJSCRIPT=$(BIT_PACK_EJSCRIPT) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_PCRE=$(BIT_PACK_PCRE) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
 IFLAGS             += -I$(CONFIG)/inc
-LDFLAGS            += '-g'
+LDFLAGS            += 
 LIBPATHS           += -L$(CONFIG)/bin
 LIBS               += -ldl -lpthread -lm
 
@@ -178,7 +178,7 @@ clobber: clean
 #   version
 #
 version: $(DEPS_1)
-	@cd bits; echo 0.8.5-0 ; cd ..
+	@cd bits; echo 0.8.6-0 ; cd ..
 
 #
 #   est.h
@@ -860,7 +860,7 @@ installBinary: $(DEPS_37)
 	mkdir -p "$(BIT_VAPP_PREFIX)"
 	mkdir -p "$(BIT_APP_PREFIX)"
 	rm -f "$(BIT_APP_PREFIX)/latest"
-	ln -s "0.8.5" "$(BIT_APP_PREFIX)/latest"
+	ln -s "0.8.6" "$(BIT_APP_PREFIX)/latest"
 	mkdir -p "$(BIT_VAPP_PREFIX)/bin"
 	cp $(CONFIG)/bin/bit $(BIT_VAPP_PREFIX)/bin/bit
 	mkdir -p "$(BIT_BIN_PREFIX)"

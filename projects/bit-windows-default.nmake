@@ -3,7 +3,7 @@
 #
 
 PRODUCT            = bit
-VERSION            = 0.8.5
+VERSION            = 0.8.6
 BUILD_NUMBER       = 0
 PROFILE            = default
 PA                 = $(PROCESSOR_ARCHITECTURE)
@@ -211,7 +211,7 @@ clean:
 #
 version: $(DEPS_1)
 	cd bits
-	@echo 0.8.5-0
+	@echo 0.8.6-0
 	cd ..
 
 #

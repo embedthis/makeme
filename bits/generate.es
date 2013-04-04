@@ -373,7 +373,7 @@ module embedthis.bit {
         genout.writeLine('IFLAGS             += ' + 
             repvar(bit.packs.compiler.includes.map(function(path) '-I' + reppath(path.relative)).join(' ')))
         let linker = bit.packs.compiler.linker.map(function(s) "'" + s + "'").join(' ')
-        let ldflags = repvar(linker).replace(/\$ORIGIN/g, '$$$$ORIGIN').replace(/'-g' /, '')
+        let ldflags = repvar(linker).replace(/\$ORIGIN/g, '$$$$ORIGIN').replace(/'-g' */, '')
         genout.writeLine('LDFLAGS            += ' + ldflags)
         genout.writeLine('LIBPATHS           += ' + repvar(gen.libpaths))
         genout.writeLine('LIBS               += ' + gen.libraries + '\n')
