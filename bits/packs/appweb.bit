@@ -11,11 +11,8 @@ Bit.pack({
             return probe('bin/libappweb.' + bit.ext.shobj, { search: search })
         },
         config: function (pack) {
-            let path = pack.path
-            let lib = probe('libappweb.' + bit.ext.shobj, {fullpath: true, search: path.join('bin')})
-            pack.libpaths = [ lib.dirname ]
-            pack.includes = [ probe('appweb.h', {search: path.join('inc')}) ]
-            // pack.imports = [ lib ]
+            pack.libpaths = [ probe('libappweb.' + bit.ext.shobj, {fullpath: true, search: pack.path.join('bin')}).dirname ]
+            pack.includes = [ probe('appweb.h', {search: pack.path.join('inc')}) ]
         },
         generate: function (pack) {
             pack.path = ''
