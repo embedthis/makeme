@@ -1211,7 +1211,7 @@ public class Bit {
         }
         if (selectedTargets.length == 0) {
             if (goal != 'all') {
-                trace('Info', 'No qualifying targets for goal "' + goal + '"')
+                trace('Info', 'No enabled targets for goal "' + goal + '"')
             }
         }
         return selectedTargets
@@ -2829,9 +2829,9 @@ public class Bit {
             bit.globals.LBIN = localBin = bit.dir.bin.portable
         }
         if (!bit.settings.configured && !options.configure) {
-            loadBitFile(bit.dir.bits.join('packs/compiler.bit'))
-            let pack = bit.packs.compiler
-            pack.scripts.generate[0].script.call(this, pack)
+            overlay('configure.es')
+            findPacks()
+            castDirTypes()
         }
         runScript(bit.scripts, "loaded")
     }
@@ -3401,7 +3401,6 @@ public class Bit {
         target.append(data)
         target.setAttributes(options)
     }
-
 
 } /* bit class */
 

@@ -28,6 +28,15 @@ module embedthis.bit {
     /** @hide */
     var envSettings: Object
 
+    function checkMain() {
+        let settings = bit.settings
+        for each (field in ['product', 'title', 'version', 'buildNumber', 'company']) {
+            if (!settings[field]) {
+                throw b.MAIN + ' is missing settings.' + field
+            }
+        }
+    }
+
     /**  
         Configure and initialize for building. This generates platform specific bit files.
         @hide
@@ -35,6 +44,7 @@ module embedthis.bit {
     function configure() {
         vtrace('Load', 'Preload main.bit to determine required platforms')
         b.quickLoad(b.options.configure.join(b.MAIN))
+        checkMain()
         let settings = bit.settings
         if (settings.bit && b.makeVersion(Config.Version) < b.makeVersion(settings.bit)) {
             throw 'This product requires a newer version of Bit. Please upgrade Bit to ' + settings.bit + '\n'
@@ -55,10 +65,12 @@ module embedthis.bit {
             setRequiredPacks()
             captureEnv()
             b.castDirTypes()
-            createPlatformBitFile()
-            b.makeOutDirs()
-            createBitHeader()
-            importPackFiles()
+            if (b.options.configure) {
+                createPlatformBitFile()
+                b.makeOutDirs()
+                createBitHeader()
+                importPackFiles()
+            }
         }
         if (!b.options.gen) {
             createStartBitFile(b.platforms[0])
@@ -296,12 +308,12 @@ module embedthis.bit {
         }
     }
 
-    internal function findPacks() {
+    function findPacks() {
         let settings = bit.settings
         if (!settings.requires && !settings.discover) {
             return
         }
-        trace('Search', 'For tools and extension packages')
+        vtrace('Search', 'For tools and extension packages')
         let packs = settings.requires + settings.discover
         if ((bit.options.gen == 'make' || bit.options.gen == 'nmake') && bit.packDefaults) {
             packs += Object.getOwnPropertyNames(bit.packDefaults)
@@ -466,6 +478,7 @@ module embedthis.bit {
 
     internal function tracePacks() {
         let omitted = {}
+        if (!b.options.configure && !b.options.verbose) return
         for (let [pname, pack] in bit.packs) {
             if (pack.enable && !pack.silent) {
                 if (pack.path) {

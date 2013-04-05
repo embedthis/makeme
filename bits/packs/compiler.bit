@@ -19,7 +19,12 @@ Bit.pack({
             return path
         },
         config: function (pack) {
-            testCompilerCapabilities()
+            if (!bit.options.configure) {
+                let settings = getDefaultSettings()
+                Bit.load({settings: settings})
+            } else {
+                testCompilerCapabilities()
+            }
             setCompilerOptions(pack, bit.settings)
         },
         generate: function (pack) {
