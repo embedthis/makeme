@@ -555,29 +555,7 @@ public class Bit {
             }
             setSetting(bit.settings, field, value)
         }
-        let requires = []
-        for each (field in poptions['with']) {
-            let [field,value] = field.split('=')
-            bit.packs[field] ||= {}
-            let pack = bit.packs[field]
-            if (value) {
-                pack.enable = true
-                pack.withpath = Path(value)
-            }
-            pack.explicit = true
-            pack.required = true
-            if (!bit.settings.requires.contains(field) && !bit.settings.discover.contains(field)) {
-                let path = findPack(field)
-                if (!path || !path.exists) {
-                    throw 'Cannot find pack description file: ' + field + '.pak'
-                }
-                requires.push(field)
-            }
-        }
-        if (requires.length > 0) {
-            /* Insert explicit requires first */
-            bit.settings.requires = requires + bit.settings.requires
-        }
+
         for each (field in poptions['without']) {
             if (bit.settings.requires.contains(field)) { 
                 throw 'Required pack ' + field + ' cannot be disabled.'
@@ -593,8 +571,8 @@ public class Bit {
             if ((field == 'all' || field == 'default') && bit.settings['without-' + field]) {
                 for each (f in bit.settings['without-' + field]) {
                     bit.packs[f] ||= {}
-                    let pack = bit.packs[f]
-                    pack.name = field
+                    pack = bit.packs[f]
+                    pack.name = f
                     pack.enable = false
                     pack.explicit = true
                     pack.diagnostic = 'configured --without ' + f + '.'
@@ -605,6 +583,32 @@ public class Bit {
             pack.enable = false
             pack.diagnostic = 'configured --without ' + field + '.'
             pack.explicit = true
+        }
+
+        let requires = []
+        for each (field in poptions['with']) {
+            let [field,value] = field.split('=')
+            bit.packs[field] ||= {}
+            let pack = bit.packs[field]
+            if (value) {
+                pack.enable = true
+                pack.withpath = Path(value)
+            } else {
+                delete pack.enable
+            }
+            pack.explicit = true
+            pack.required = true
+            if (!bit.settings.requires.contains(field) && !bit.settings.discover.contains(field)) {
+                let path = findPack(field)
+                if (!path || !path.exists) {
+                    throw 'Cannot find pack description file: ' + field + '.pak'
+                }
+                requires.push(field)
+            }
+        }
+        if (requires.length > 0) {
+            /* Insert explicit requires first */
+            bit.settings.requires = requires + bit.settings.requires
         }
     }
 
@@ -917,7 +921,7 @@ public class Bit {
     }
 
     function fixup(o, ns) {
-        let home = currentBitFile.dirname
+        let home = currentBitFile ? currentBitFile.dirname : App.dir
     
         //  LEGACY
         for each (f in ['+defaults', '+internal']) {
@@ -958,7 +962,7 @@ public class Bit {
 
     /** @hide */
     public function loadBitObject(o, ns = null) {
-        let home = currentBitFile.dirname
+        let home = currentBitFile ? currentBitFile.dirname : App.dir
         fixup(o, ns)
 
         if (o.scripts && o.scripts.preblend) {
@@ -1520,10 +1524,16 @@ public class Bit {
             if (target.static == null && bit.settings.static) {
                 target.static = bit.settings.static
             }
-            let base = inheritDep({}, bit.packs.compiler)
+            let base = {}
+            if (target.type == 'exe' || target.type == 'lib') {
+                base = inheritDep(base, bit.packs.compiler)
+            }
             if (Object.getOwnPropertyCount(bit.defaults)) {
-                for (let key in bit.defaults) {
-                    plus(bit.defaults, key)
+                for (let [key,value] in bit.defaults) {
+                    if (!key.startsWith('+')) {
+                        bit.defaults['+' + key] = bit.defaults[key]
+                        delete bit.defaults[key]
+                    }
                 }
                 base = blend(base, bit.defaults, {combine: true})
             }
@@ -1713,7 +1723,7 @@ public class Bit {
                         buildExe(target)
                     } else if (target.type == 'obj') {
                         buildObj(target)
-                    } else if (target.type == 'file' || target.type == 'header') {
+                    } else if (target.type == 'file' /* UNUSED || target.type == 'header' */) {
                         buildFile(target)
                     } else if (target.type == 'resource') {
                         buildResource(target)
@@ -1992,7 +2002,7 @@ public class Bit {
             tv.HOME = Path(target.home).relativeTo(base)
         }
         if (target.path) {
-            tv.OUTPUT = target.path.relativeTo(base)
+            tv.OUTPUT = target.path.compact(base)
         }
         if (target.libpaths) {
             tv.LIBPATHS = mapLibPaths(target.libpaths, base)
@@ -2011,7 +2021,7 @@ public class Bit {
             if (!target.files) {
                 throw 'Target ' + target.name + ' has no input files or sources'
             }
-            tv.INPUT = target.files.map(function(p) p.relativeTo(base)).join(' ')
+            tv.INPUT = target.files.map(function(p) p.compact(base)).join(' ')
             tv.LIBS = mapLibs(target.libraries, target.static)
             tv.LDFLAGS = (target.linker) ? target.linker.join(' ') : ''
 
@@ -2019,9 +2029,9 @@ public class Bit {
             if (!target.files) {
                 throw 'Target ' + target.name + ' has no input files or sources'
             }
-            tv.INPUT = target.files.map(function(p) p.relativeTo(base)).join(' ')
+            tv.INPUT = target.files.map(function(p) p.compact(base)).join(' ')
             tv.LIBNAME = target.path.basename
-            tv.DEF = Path(target.path.relativeTo(base).toString().replace(/dll$/, 'def'))
+            tv.DEF = Path(target.path.compact(base).toString().replace(/dll$/, 'def'))
             tv.LIBS = mapLibs(target.libraries, target.static)
             tv.LDFLAGS = (target.linker) ? target.linker.join(' ') : ''
 
@@ -2033,7 +2043,7 @@ public class Bit {
                 tv.INCLUDES = (target.includes) ? target.includes.map(function(p) '-I' + p) : ''
             } else {
                 /* Use relative paths to shorten trace output */
-                tv.INCLUDES = (target.includes) ? target.includes.map(function(p) '-I' + p.relativeTo(base)) : ''
+                tv.INCLUDES = (target.includes) ? target.includes.map(function(p) '-I' + p.compact(base)) : ''
             }
             tv.PDB = tv.OUTPUT.replaceExt('pdb')
             if (bit.dir.home.join('.embedthis').exists && !bit.generating) {
@@ -2133,9 +2143,9 @@ public class Bit {
      */
     public function mapLibPaths(libpaths: Array, base: Path = App.dir): String {
         if (bit.platform.os == 'windows') {
-            return libpaths.map(function(p) '-libpath:' + p.relativeTo(base)).join(' ')
+            return libpaths.map(function(p) '-libpath:' + p.compact(base)).join(' ')
         } else {
-            return libpaths.map(function(p) '-L' + p.relativeTo(base)).join(' ')
+            return libpaths.map(function(p) '-L' + p.compact(base)).join(' ')
         }
     }
 
@@ -2817,6 +2827,11 @@ public class Bit {
         castDirTypes()
         if (samePlatform(platform, localPlatform)) {
             bit.globals.LBIN = localBin = bit.dir.bin.portable
+        }
+        if (!bit.settings.configured && !options.configure) {
+            loadBitFile(bit.dir.bits.join('packs/compiler.bit'))
+            let pack = bit.packs.compiler
+            pack.scripts.generate[0].script.call(this, pack)
         }
         runScript(bit.scripts, "loaded")
     }

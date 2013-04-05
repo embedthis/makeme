@@ -50,12 +50,10 @@ module embedthis.bit {
         for each (platform in b.platforms) {
             b.currentPlatform = platform
             trace('Configure', platform)
-            if (bit.platform.cross) {
-                captureEnv()
-            }
             b.makeBit(platform, b.options.configure.join(b.MAIN))
             findPacks()
             setRequiredPacks()
+            captureEnv()
             b.castDirTypes()
             createPlatformBitFile()
             b.makeOutDirs()
@@ -172,7 +170,7 @@ module embedthis.bit {
      */
     internal function setRequiredPacks() { 
         for (let [pname, enable] in bit.packDefaults) {
-            bit.packs[pname] ||= { type: 'pack'  }
+            bit.packs[pname] ||= { type: 'pack' }
         }
         if (bit.options.gen == 'make' || bit.options.gen == 'nmake') {
             for each (target in bit.targets) {
@@ -632,8 +630,15 @@ module embedthis.bit {
         return path
     }
 
+    /*
+        Only used when cross compiling. 
+        Note: setting CFLAGS, DFLAGS etc overwrites internal bit settings for compiler, defines etc.
+     */
     internal function captureEnv() {
-        envSettings = { packs: {}, defaults: {} }
+        if (!bit.platform.cross) {
+            return
+        }
+        envSettings = { packs: { compiler: {} } }
         for (let [key, tool] in envTools) {
             let path = App.getenv(key)
             if (path) {
@@ -645,10 +650,8 @@ module embedthis.bit {
         for (let [flag, option] in envFlags) {
             let value = App.getenv(flag)
             if (value) {
-                let flag = ((options.configure) ? '+' : '') + option
-                envSettings.defaults[option] ||= []
-                envSettings.defaults[option] += value.replace(/^-I/, '').split(' ')
-                envSettings.defaults['override-' + option.trim('+')] = true
+                envSettings.packs.compiler[option] ||= []
+                envSettings.packs.compiler[option] += value
             }
         }
         blend(bit, envSettings, {combine: true})

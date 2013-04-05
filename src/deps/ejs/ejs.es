@@ -8756,7 +8756,8 @@ module ejs {
         /**
             Define file security permissions.
             @options user String representing the file user name If both user and uid are specified, user takes precedence. 
-            @options group String representing the file group name If both group and gid are specified, group takes precedence.
+            @options group String representing the file group name If both group and gid are specified, group takes
+                precedence.  
             @options uid Number representing the file user id
             @options gid Number representing the file group id
             @options permissions Number File Posix permissions mask
@@ -9442,6 +9443,18 @@ module ejs {
         function makeTemp(): Path
             temp()
 
+        /**
+            Return a compact representation of the path
+            This returns a relative path if the path is under the given home directory. Otherwise it returns an 
+            absolute path.
+            @param home Absolute path to a base home directory. Defaults to the current directory.
+            @return an equivalent Path
+            @hide
+         */
+        function compact(home: Path = App.dir): Path {
+            let p = absolute
+            return p.startsWith(home) ? p.relativeTo(home) : p
+        }
     }
 }
 

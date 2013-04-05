@@ -2049,7 +2049,8 @@
 #define ES_Path_windows                                                73
 #define ES_Path_write                                                  74
 #define ES_Path_makeTemp                                               75
-#define ES_Path_NUM_INSTANCE_PROP                                      76
+#define ES_Path_compact                                                76
+#define ES_Path_NUM_INSTANCE_PROP                                      77
 #define ES_Path_NUM_INHERITED_PROP                                     0
 
 
@@ -2602,7 +2603,7 @@
 #define ES_XMLList_NUM_INSTANCE_PROP                                   20
 #define ES_XMLList_NUM_INHERITED_PROP                                  0
 
-#define _ES_CHECKSUM_ejs   1507582
+#define _ES_CHECKSUM_ejs   1508865
 
 #endif
 
