@@ -1,0 +1,26 @@
+/*
+    appweb.bit -- Appweb Web Server package
+ */
+Bit.pack({ 
+    appweb: {
+        description: 'Appweb Web Server',
+        libraries: [ 'appweb', 'http', 'mpr', 'mprssl' ],
+        path: function (pack) {
+            let search = [ pack.withpath, '/usr/local/lib/appweb/latest' ] + 
+                sortVersions(bit.dir.packs.join('appweb').files('appweb-*'))
+            return probe('bin/libappweb.' + bit.ext.shobj, { search: search })
+        },
+        config: function (pack) {
+            let path = pack.path
+            let lib = probe('libappweb.' + bit.ext.shobj, {fullpath: true, search: path.join('bin')})
+            pack.libpaths = [ lib.dirname ]
+            pack.includes = [ probe('appweb.h', {search: path.join('inc')}) ]
+            // pack.imports = [ lib ]
+        },
+        generate: function (pack) {
+            pack.path = ''
+            pack.libpaths = [ '$(BIT_PACK_APPWEB_PATH)/bin' ]
+            pack.includes = [ '$(BIT_PACK_APPWEB_PATH)/inc' ]
+        },
+    },
+})

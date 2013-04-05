@@ -1,0 +1,10 @@
+/*
+    appweb-embed.bit - Appweb all-in-one embedded  package
+ */
+Bit.pack({
+    ejscript: {
+        description: 'Appweb Web Server',
+        path: probe(bit.dir.src.join('src/deps/appweb/appwebLib.c')),
+        depends: [ 'sqlite', 'libmpr', 'libhttp', 'libpcre', 'ejscript' ],
+    },
+})
