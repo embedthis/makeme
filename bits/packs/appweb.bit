@@ -11,8 +11,12 @@ Bit.pack({
             return probe('bin/libappweb.' + bit.ext.shobj, { search: search })
         },
         config: function (pack) {
-            pack.libpaths = [ probe('libappweb.' + bit.ext.shobj, {fullpath: true, search: pack.path.join('bin')}).dirname ]
+            let bin = probe('libappweb.' + bit.ext.shobj, {fullpath: true, search: pack.path.join('bin')}).dirname
+            pack.libpaths = [ bin ]
             pack.includes = [ probe('appweb.h', {search: pack.path.join('inc')}) ]
+            if (bit.platform.os != 'windows') {
+                pack.linker = [ '-Wl,-rpath,' + bin ]
+            }
         },
         generate: function (pack) {
             pack.path = ''

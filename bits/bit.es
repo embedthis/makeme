@@ -1723,7 +1723,7 @@ public class Bit {
                         buildExe(target)
                     } else if (target.type == 'obj') {
                         buildObj(target)
-                    } else if (target.type == 'file' /* UNUSED || target.type == 'header' */) {
+                    } else if (target.type == 'file' || target.type == 'header') {
                         buildFile(target)
                     } else if (target.type == 'resource') {
                         buildResource(target)
@@ -1919,7 +1919,9 @@ public class Bit {
                 safeRemove(target.path)
             }
         }
-        trace('Copy', target.path.natural.relative)
+        if (target.type != 'header') {
+            trace('Copy', target.path.natural.relative)
+        }
         for each (let file: Path in target.files) {
             if (file == target.path) {
                 /* Auto-generated headers targets for includes have file == target.path */
