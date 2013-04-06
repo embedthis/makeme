@@ -1899,7 +1899,7 @@ public class Bit {
             App.chdir(expand(target.home))
         }
         try {
-            run(command)
+            run(command, {noio: true})
         } finally {
             App.chdir(pwd)
         }
