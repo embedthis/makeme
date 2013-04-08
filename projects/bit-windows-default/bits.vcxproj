@@ -91,7 +91,7 @@
   <ItemDefinitionGroup>
   <Link>
     <AdditionalDependencies>;%(AdditionalDependencies)</AdditionalDependencies>
-    <AdditionalLibraryDirectories>$(OutDir);$(Cfg)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    <AdditionalLibraryDirectories>$(OutDir);;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
   </Link>
 
   <CustomBuildStep>
@@ -132,6 +132,10 @@ copy /Y bits\os\windows.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
 if not exist $(BinDir)\bits md $(BinDir)\bits
 xcopy /S /Y bits\packs $(BinDir)\bits
+if exist $(BinDir)\bits del /Q $(BinDir)\bits
+copy /Y bits\packs\appweb-embed.bit $(BinDir)\bits
+if exist $(BinDir)\bits del /Q $(BinDir)\bits
+copy /Y bits\packs\appweb.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\packs\compiler.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits

@@ -666,6 +666,8 @@ DEPS_33 += bits/os/unix.bit
 DEPS_33 += bits/os/vxworks.bit
 DEPS_33 += bits/os/windows.bit
 DEPS_33 += bits/packs
+DEPS_33 += bits/packs/appweb-embed.bit
+DEPS_33 += bits/packs/appweb.bit
 DEPS_33 += bits/packs/compiler.bit
 DEPS_33 += bits/packs/doxygen.bit
 DEPS_33 += bits/packs/dsi.bit
@@ -731,6 +733,8 @@ $(CONFIG)/bin/bits: $(DEPS_33)
 	cp bits/os/vxworks.bit $(CONFIG)/bin/bits/os/vxworks.bit
 	cp bits/os/windows.bit $(CONFIG)/bin/bits/os/windows.bit
 	mkdir -p "$(CONFIG)/bin/bits/packs"
+	cp bits/packs/appweb-embed.bit $(CONFIG)/bin/bits/packs/appweb-embed.bit
+	cp bits/packs/appweb.bit $(CONFIG)/bin/bits/packs/appweb.bit
 	cp bits/packs/compiler.bit $(CONFIG)/bin/bits/packs/compiler.bit
 	cp bits/packs/doxygen.bit $(CONFIG)/bin/bits/packs/doxygen.bit
 	cp bits/packs/dsi.bit $(CONFIG)/bin/bits/packs/dsi.bit
@@ -761,6 +765,8 @@ $(CONFIG)/bin/bits: $(DEPS_33)
 	cp bits/packs/zip.bit $(CONFIG)/bin/bits/packs/zip.bit
 	cp bits/packs/zlib.bit $(CONFIG)/bin/bits/packs/zlib.bit
 	mkdir -p "$(CONFIG)/bin/bits/packs"
+	cp bits/packs/appweb-embed.bit $(CONFIG)/bin/bits/packs/appweb-embed.bit
+	cp bits/packs/appweb.bit $(CONFIG)/bin/bits/packs/appweb.bit
 	cp bits/packs/compiler.bit $(CONFIG)/bin/bits/packs/compiler.bit
 	cp bits/packs/doxygen.bit $(CONFIG)/bin/bits/packs/doxygen.bit
 	cp bits/packs/dsi.bit $(CONFIG)/bin/bits/packs/dsi.bit
@@ -894,6 +900,8 @@ installBinary: $(DEPS_37)
 	cp bits/os/vxworks.bit $(BIT_VAPP_PREFIX)/bin/bits/os/vxworks.bit
 	cp bits/os/windows.bit $(BIT_VAPP_PREFIX)/bin/bits/os/windows.bit
 	mkdir -p "$(BIT_VAPP_PREFIX)/bin/bits/packs"
+	cp bits/packs/appweb-embed.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/appweb-embed.bit
+	cp bits/packs/appweb.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/appweb.bit
 	cp bits/packs/compiler.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/compiler.bit
 	cp bits/packs/doxygen.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/doxygen.bit
 	cp bits/packs/dsi.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/dsi.bit

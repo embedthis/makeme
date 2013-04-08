@@ -1119,6 +1119,8 @@ macosx-x64-default/bin/ejsc --out macosx-x64-default/bin/ejs.mod --optimize 9 --
 ../bits/os/vxworks.bit,
 ../bits/os/windows.bit,
 ../bits/packs,
+../bits/packs/appweb-embed.bit,
+../bits/packs/appweb.bit,
 ../bits/packs/compiler.bit,
 ../bits/packs/doxygen.bit,
 ../bits/packs/dsi.bit,
@@ -1196,6 +1198,10 @@ rm -rf macosx-x64-default/bin/bits
 cp -r bits/os/windows.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
 cp -r bits/packs macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/appweb-embed.bit macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/appweb.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
 cp -r bits/packs/compiler.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits

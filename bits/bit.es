@@ -66,7 +66,8 @@ public class Bit {
     private var rest: Array
 
     private var home: Path
-    private var bareBit: Object = { platforms: [], platform: {}, dir: {}, settings: { requires: [], discover: [], }, 
+    private var bareBit: Object = { platforms: [], platform: {}, dir: {}, 
+        settings: { version: '1.0.0', requires: [], discover: [], }, 
         packs: {}, targets: {}, env: {}, globals: {}, customSettings: {}}
 
     private var bit: Object = {}
@@ -594,7 +595,11 @@ public class Bit {
                 pack.enable = true
                 pack.withpath = Path(value)
             } else {
-                delete pack.enable
+                /*  MOB - Doing the following caused est to be disabled when reloading the bit file after configuring and 
+                    before generation
+                    bit -platform macosx-x64-default -configure . -with est -gen make
+                 */
+                //  delete pack.enable
             }
             pack.explicit = true
             pack.required = true
@@ -1408,13 +1413,13 @@ public class Bit {
                     if (!target.libraries.contains(lpath)) {
                         target.libraries = target.libraries + [lpath]
                     }
-
-                } 
+                }
                 inheritDep(target, dep)
             }
         }
         runTargetScript(target, 'postresolve')
     }
+
     function resolveDependencies() {
         for each (target in bit.targets) {
             if (target.enable) {

@@ -720,6 +720,8 @@ DEPS_35 = $(DEPS_35) bits\os\unix.bit
 DEPS_35 = $(DEPS_35) bits\os\vxworks.bit
 DEPS_35 = $(DEPS_35) bits\os\windows.bit
 DEPS_35 = $(DEPS_35) bits\packs
+DEPS_35 = $(DEPS_35) bits\packs\appweb-embed.bit
+DEPS_35 = $(DEPS_35) bits\packs\appweb.bit
 DEPS_35 = $(DEPS_35) bits\packs\compiler.bit
 DEPS_35 = $(DEPS_35) bits\packs\doxygen.bit
 DEPS_35 = $(DEPS_35) bits\packs\dsi.bit
@@ -785,6 +787,8 @@ $(CONFIG)\bin\bits: $(DEPS_35)
 	copy /Y bits\os\vxworks.bit $(CONFIG)\bin\bits\os\vxworks.bit
 	copy /Y bits\os\windows.bit $(CONFIG)\bin\bits\os\windows.bit
 	if not exist "$(CONFIG)\bin\bits\packs" md "$(CONFIG)\bin\bits\packs"
+	copy /Y bits\packs\appweb-embed.bit $(CONFIG)\bin\bits\packs\appweb-embed.bit
+	copy /Y bits\packs\appweb.bit $(CONFIG)\bin\bits\packs\appweb.bit
 	copy /Y bits\packs\compiler.bit $(CONFIG)\bin\bits\packs\compiler.bit
 	copy /Y bits\packs\doxygen.bit $(CONFIG)\bin\bits\packs\doxygen.bit
 	copy /Y bits\packs\dsi.bit $(CONFIG)\bin\bits\packs\dsi.bit
@@ -815,6 +819,8 @@ $(CONFIG)\bin\bits: $(DEPS_35)
 	copy /Y bits\packs\zip.bit $(CONFIG)\bin\bits\packs\zip.bit
 	copy /Y bits\packs\zlib.bit $(CONFIG)\bin\bits\packs\zlib.bit
 	if not exist "$(CONFIG)\bin\bits\packs" md "$(CONFIG)\bin\bits\packs"
+	copy /Y bits\packs\appweb-embed.bit $(CONFIG)\bin\bits\packs\appweb-embed.bit
+	copy /Y bits\packs\appweb.bit $(CONFIG)\bin\bits\packs\appweb.bit
 	copy /Y bits\packs\compiler.bit $(CONFIG)\bin\bits\packs\compiler.bit
 	copy /Y bits\packs\doxygen.bit $(CONFIG)\bin\bits\packs\doxygen.bit
 	copy /Y bits\packs\dsi.bit $(CONFIG)\bin\bits\packs\dsi.bit
@@ -941,6 +947,8 @@ installBinary: $(DEPS_39)
 	copy /Y bits\os\vxworks.bit "$(BIT_VAPP_PREFIX)\bin\bits\os\vxworks.bit"
 	copy /Y bits\os\windows.bit "$(BIT_VAPP_PREFIX)\bin\bits\os\windows.bit"
 	if not exist "$(BIT_VAPP_PREFIX)\bin\bits\packs" md "$(BIT_VAPP_PREFIX)\bin\bits\packs"
+	copy /Y bits\packs\appweb-embed.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\appweb-embed.bit"
+	copy /Y bits\packs\appweb.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\appweb.bit"
 	copy /Y bits\packs\compiler.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\compiler.bit"
 	copy /Y bits\packs\doxygen.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\doxygen.bit"
 	copy /Y bits\packs\dsi.bit "$(BIT_VAPP_PREFIX)\bin\bits\packs\dsi.bit"
