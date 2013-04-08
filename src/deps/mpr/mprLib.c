@@ -3575,15 +3575,15 @@ PUBLIC int mprInitWindow()
     MprWaitService  *ws;
     WNDCLASS        wc;
     HWND            hwnd;
-	wchar			*name, *title;
+    wchar           *name, *title;
     int             rc;
 
     ws = MPR->waitService;
     if (ws->hwnd) {
         return 0;
     }
-	name = (wchar*) wide(mprGetAppName());
-	title = (wchar*) wide(mprGetAppTitle());
+    name = (wchar*) wide(mprGetAppName());
+    title = (wchar*) wide(mprGetAppTitle());
     wc.style            = CS_HREDRAW | CS_VREDRAW;
     wc.hbrBackground    = (HBRUSH) (COLOR_WINDOW+1);
     wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
@@ -10148,7 +10148,7 @@ PUBLIC int mprGetEventCount(MprDispatcher *dispatcher)
     es = dispatcher->service;
 
     lock(es);
-	count = 0;
+    count = 0;
     for (event = dispatcher->eventQ->next; event != dispatcher->eventQ; event = event->next) {
         assert(event->magic == MPR_EVENT_MAGIC);
         count++;
@@ -27983,7 +27983,7 @@ PUBLIC void mprWriteToOsLog(cchar *message, int flags, int level)
     long        errorType;
     ulong       exists;
     char        buf[BIT_MAX_PATH], logName[BIT_MAX_PATH], *cp, *value;
-	wchar		*lines[9];
+    wchar       *lines[9];
     int         type;
     static int  once = 0;
 
