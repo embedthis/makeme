@@ -12854,7 +12854,7 @@ static EcNode *parseFieldList(EcCompiler *cp, EcNode *np)
         FieldKind FieldName : AssignmentExpression
         get Identifier FunctionSignature FunctionBody
         set Identifier FunctionSignature FunctionBody
-
+        Identifier FunctionSignature FunctionBody
     Input
 
     AST
@@ -12913,6 +12913,40 @@ static EcNode *parseLiteralField(EcCompiler *cp)
         fieldName = createNode(cp, N_QNAME, id->qname.name);
         np->field.fieldName = linkNode(np, fieldName);
 
+        funRef = createNode(cp, N_QNAME, fp->qname.name);
+        np->field.expr = linkNode(np, funRef);
+
+    } else if (cp->token->tokenId == T_ID && peekToken(cp) == T_LPAREN) {
+        /*
+            NAME() {}
+         */
+        fp = createNode(cp, N_FUNCTION, NULL);
+        putToken(cp);
+        if ((id = parseIdentifier(cp)) == 0) {
+            return LEAVE(cp, 0);
+        }
+        cp->state->currentFunctionNode = fp;
+        fp = parseFunctionSignature(cp, fp);
+        fp->function.body = linkNode(fp, parseFunctionBody(cp, fp));
+        if (fp->function.body == 0) {
+            return LEAVE(cp, 0);
+        }
+        np = createNode(cp, N_FIELD, NULL);
+        np->field.fieldKind = FIELD_KIND_FUNCTION;
+        np->field.index = -1;
+        np->attributes = fp->attributes;
+        /*
+            The function must get linked into the current var block. It must not get processed inline at
+            this point in the AST tree because it must not use the block scope. Create a name based on the
+            object literal seqno. This permits setters and getters to share the same name and thus when
+            ejsDefineProperty is called -- they will get cross-linked.
+         */
+        fp->qname.name = ejsSprintf(cp->ejs, "--fun_%d-%d--", fp->seqno, (int) mprGetTime());
+        fp->qname.space = cp->fileState->nspace;
+        assert(cp->state->topVarBlockNode);
+        appendNode(cp->state->topVarBlockNode, fp);
+        fieldName = createNode(cp, N_QNAME, id->qname.name);
+        np->field.fieldName = linkNode(np, fieldName);
         funRef = createNode(cp, N_QNAME, fp->qname.name);
         np->field.expr = linkNode(np, funRef);
 
