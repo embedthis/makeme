@@ -2274,7 +2274,7 @@ public class Bit {
             } else {
                 file = dep.path
             }
-            if (file.modified > path.modified) {
+            if (!file || file.modified > path.modified) {
                 whyRebuild(path, 'Rebuild', 'dependent ' + file + ' has been modified.')
                 return true
             }

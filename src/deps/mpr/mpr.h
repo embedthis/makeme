@@ -147,7 +147,7 @@ struct  MprXml;
     Default thread counts
  */
 #define MPR_DEFAULT_MIN_THREADS 0           /**< Default min threads */
-#define MPR_DEFAULT_MAX_THREADS 20          /**< Default max threads */
+#define MPR_DEFAULT_MAX_THREADS 5           /**< Default max threads */
 
 /*
     Debug control
@@ -494,9 +494,7 @@ typedef struct MprMutex {
     #else
         #warning "Unsupported OS in MprMutex definition in mpr.h"
     #endif
-#if BIT_DEBUG
         MprOsThread owner;
-#endif
 } MprMutex;
 
 
@@ -528,9 +526,7 @@ typedef struct MprSpin {
     #else
         #warning "Unsupported OS in MprSpin definition in mpr.h"
     #endif
-    #if BIT_DEBUG
         MprOsThread         owner;
-    #endif
 } MprSpin;
 
 
@@ -5396,9 +5392,7 @@ typedef void (*MprEventProc)(void *data, struct MprEvent *event);
 typedef struct MprEvent {
     //  MOB - UNUSED remove
     int magic;
-    //  MOB - make BIT_DEBUG
     cchar               *name;          /**< Static debug name of the event */
-
     MprEventProc        proc;           /**< Callback procedure */
     MprTicks            timestamp;      /**< When was the event created */
     MprTicks            due;            /**< When is the event due */

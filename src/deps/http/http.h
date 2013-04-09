@@ -45,7 +45,7 @@ struct HttpWebSocket;
     #define BIT_HTTP_SOFTWARE       "Embedthis-http"    /**< Default Http protocol name used in Http Server header */
 #endif
 #ifndef BIT_MAX_URI
-    #define BIT_MAX_URI             256                 /**< Reasonable filename size */
+    #define BIT_MAX_URI             1024                /**< Reasonable URI size */
 #endif
 #ifndef BIT_MAX_IOVEC
     #define BIT_MAX_IOVEC           16                  /**< Number of fragments in a single socket write */
@@ -63,16 +63,16 @@ struct HttpWebSocket;
     #define BIT_MAX_CHUNK           (8 * 1024)          /**< Maximum chunk size for transfer chunk encoding */
 #endif
 #ifndef BIT_MAX_CLIENTS
-    #define BIT_MAX_CLIENTS         10                  /**< Maximum concurrent client endpoints */
+    #define BIT_MAX_CLIENTS         32                  /**< Maximum concurrent client endpoints */
 #endif
 #ifndef BIT_MAX_HEADERS
-    #define BIT_MAX_HEADERS         4096                /**< Maximum size of the headers */
+    #define BIT_MAX_HEADERS         8192                /**< Maximum size of the headers */
 #endif
 #ifndef BIT_MAX_KEEP_ALIVE
     #define BIT_MAX_KEEP_ALIVE      200                 /**< Maximum requests per connection */
 #endif
 #ifndef BIT_MAX_NUM_HEADERS
-    #define BIT_MAX_NUM_HEADERS     20                  /**< Maximum number of header lines */
+    #define BIT_MAX_NUM_HEADERS     30                  /**< Maximum number of header lines */
 #endif
 #ifndef BIT_MAX_RECEIVE_BODY
     #define BIT_MAX_RECEIVE_BODY    (128 * 1024 * 1024) /**< Maximum incoming body size */
@@ -81,7 +81,7 @@ struct HttpWebSocket;
     #define BIT_MAX_RECEIVE_FORM    (1024 * 1024)       /**< Maximum incoming form size */
 #endif
 #ifndef BIT_MAX_REQUESTS
-    #define BIT_MAX_REQUESTS        20                  /**< Maximum concurrent requests */
+    #define BIT_MAX_REQUESTS        50                  /**< Maximum concurrent requests */
 #endif
 #ifndef BIT_MAX_REQUESTS_PER_CLIENT
     #define BIT_MAX_REQUESTS_PER_CLIENT 20              /**< Maximum concurrent requests */
@@ -337,6 +337,7 @@ typedef struct Http {
     uint64          totalRequests;          /**< Total requests served */
 
     int             activeVMs;              /**< Number of ejs VMs */
+    int             flags;                  /**< Open flags */
     int             underAttack;            /**< Under DOS attack */
     void            *context;               /**< Embedding context */
     MprTicks        currentTime;            /**< When currentDate was last calculated (ticks) */
@@ -365,6 +366,7 @@ typedef struct Http {
  */
 #define HTTP_CLIENT_SIDE    0x1             /**< Initialize the client-side support */
 #define HTTP_SERVER_SIDE    0x2             /**< Initialize the server-side support */
+#define HTTP_UTILITY        0x4             /**< Http engine for utilities (esp) */
 
 /**
     Create a Http service object
@@ -2049,9 +2051,7 @@ typedef struct HttpConn {
     HttpHeadersCallback headersCallback;    /**< Callback to fill headers */
     void            *headersCallbackArg;    /**< Arg to fillHeaders */
 
-#if BIT_DEBUG
     uint64          startMark;              /**< High resolution tick time of request */
-#endif
 } HttpConn;
 
 
