@@ -261,8 +261,10 @@
     #define UT(s) s
 #endif
 
-#define TSZ(b) (sizeof(b) / sizeof(wchar))
-#define T(s) s
+#if UNUSED
+    #define TSZ(b) (sizeof(b) / sizeof(wchar))
+    #define T(s) s
+#endif
 
 /********************************* O/S Includes *******************************/
 /*

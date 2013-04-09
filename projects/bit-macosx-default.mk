@@ -212,7 +212,7 @@ DEPS_5 += $(CONFIG)/inc/bitos.h
 $(CONFIG)/obj/estLib.o: \
     src/deps/est/estLib.c $(DEPS_5)
 	@echo '   [Compile] $(CONFIG)/obj/estLib.o'
-	$(CC) -c -o $(CONFIG)/obj/estLib.o $(DFLAGS) $(IFLAGS) src/deps/est/estLib.c
+	$(CC) -c -o $(CONFIG)/obj/estLib.o $(DFLAGS) "$(IFLAGS)" src/deps/est/estLib.c
 
 ifeq ($(BIT_PACK_EST),1)
 #
@@ -225,7 +225,7 @@ DEPS_6 += $(CONFIG)/obj/estLib.o
 
 $(CONFIG)/bin/libest.dylib: $(DEPS_6)
 	@echo '      [Link] $(CONFIG)/bin/libest.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libest.dylib $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libest.dylib -compatibility_version 0.8.6 -current_version 0.8.6 $(CONFIG)/obj/estLib.o $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libest.dylib $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libest.dylib -compatibility_version 0.8.6 -current_version 0.8.6 "$(CONFIG)/obj/estLib.o" $(LIBS) 
 endif
 
 #
@@ -256,7 +256,7 @@ DEPS_9 += $(CONFIG)/inc/bitos.h
 $(CONFIG)/obj/mprLib.o: \
     src/deps/mpr/mprLib.c $(DEPS_9)
 	@echo '   [Compile] $(CONFIG)/obj/mprLib.o'
-	$(CC) -c -o $(CONFIG)/obj/mprLib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/mpr/mprLib.c
+	$(CC) -c -o $(CONFIG)/obj/mprLib.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" src/deps/mpr/mprLib.c
 
 #
 #   libmpr
@@ -268,7 +268,7 @@ DEPS_10 += $(CONFIG)/obj/mprLib.o
 
 $(CONFIG)/bin/libmpr.dylib: $(DEPS_10)
 	@echo '      [Link] $(CONFIG)/bin/libmpr.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libmpr.dylib $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libmpr.dylib -compatibility_version 0.8.6 -current_version 0.8.6 $(CONFIG)/obj/mprLib.o $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libmpr.dylib $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libmpr.dylib -compatibility_version 0.8.6 -current_version 0.8.6 "$(CONFIG)/obj/mprLib.o" $(LIBS) 
 
 #
 #   mprSsl.o
@@ -280,7 +280,7 @@ DEPS_11 += $(CONFIG)/inc/est.h
 $(CONFIG)/obj/mprSsl.o: \
     src/deps/mpr/mprSsl.c $(DEPS_11)
 	@echo '   [Compile] $(CONFIG)/obj/mprSsl.o'
-	$(CC) -c -o $(CONFIG)/obj/mprSsl.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/mpr/mprSsl.c
+	$(CC) -c -o $(CONFIG)/obj/mprSsl.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" src/deps/mpr/mprSsl.c
 
 #
 #   libmprssl
@@ -304,7 +304,7 @@ endif
 
 $(CONFIG)/bin/libmprssl.dylib: $(DEPS_12)
 	@echo '      [Link] $(CONFIG)/bin/libmprssl.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libmprssl.dylib $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libmprssl.dylib -compatibility_version 0.8.6 -current_version 0.8.6 $(CONFIG)/obj/mprSsl.o $(LIBPATHS_12) $(LIBS_12) $(LIBS_12) $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libmprssl.dylib $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libmprssl.dylib -compatibility_version 0.8.6 -current_version 0.8.6 "$(CONFIG)/obj/mprSsl.o" $(LIBPATHS_12) $(LIBS_12) $(LIBS_12) $(LIBS) 
 
 #
 #   makerom.o
@@ -315,7 +315,7 @@ DEPS_13 += $(CONFIG)/inc/mpr.h
 $(CONFIG)/obj/makerom.o: \
     src/deps/mpr/makerom.c $(DEPS_13)
 	@echo '   [Compile] $(CONFIG)/obj/makerom.o'
-	$(CC) -c -o $(CONFIG)/obj/makerom.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/mpr/makerom.c
+	$(CC) -c -o $(CONFIG)/obj/makerom.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" src/deps/mpr/makerom.c
 
 #
 #   makerom
@@ -331,7 +331,7 @@ LIBS_14 += -lmpr
 
 $(CONFIG)/bin/makerom: $(DEPS_14)
 	@echo '      [Link] $(CONFIG)/bin/makerom'
-	$(CC) -o $(CONFIG)/bin/makerom -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/makerom.o $(LIBPATHS_14) $(LIBS_14) $(LIBS_14) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/makerom -arch x86_64 $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/makerom.o" $(LIBPATHS_14) $(LIBS_14) $(LIBS_14) $(LIBS) 
 
 #
 #   pcre.h
@@ -350,7 +350,7 @@ DEPS_16 += $(CONFIG)/inc/pcre.h
 $(CONFIG)/obj/pcre.o: \
     src/deps/pcre/pcre.c $(DEPS_16)
 	@echo '   [Compile] $(CONFIG)/obj/pcre.o'
-	$(CC) -c -o $(CONFIG)/obj/pcre.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/pcre/pcre.c
+	$(CC) -c -o $(CONFIG)/obj/pcre.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" src/deps/pcre/pcre.c
 
 ifeq ($(BIT_PACK_PCRE),1)
 #
@@ -362,7 +362,7 @@ DEPS_17 += $(CONFIG)/obj/pcre.o
 
 $(CONFIG)/bin/libpcre.dylib: $(DEPS_17)
 	@echo '      [Link] $(CONFIG)/bin/libpcre.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libpcre.dylib $(LDFLAGS) -compatibility_version 0.8.6 -current_version 0.8.6 $(LIBPATHS) -install_name @rpath/libpcre.dylib -compatibility_version 0.8.6 -current_version 0.8.6 $(CONFIG)/obj/pcre.o $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libpcre.dylib $(LDFLAGS) -compatibility_version 0.8.6 -current_version 0.8.6 $(LIBPATHS) -install_name @rpath/libpcre.dylib -compatibility_version 0.8.6 -current_version 0.8.6 "$(CONFIG)/obj/pcre.o" $(LIBS) 
 endif
 
 #
@@ -383,7 +383,7 @@ DEPS_19 += $(CONFIG)/inc/mpr.h
 $(CONFIG)/obj/httpLib.o: \
     src/deps/http/httpLib.c $(DEPS_19)
 	@echo '   [Compile] $(CONFIG)/obj/httpLib.o'
-	$(CC) -c -o $(CONFIG)/obj/httpLib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/http/httpLib.c
+	$(CC) -c -o $(CONFIG)/obj/httpLib.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" src/deps/http/httpLib.c
 
 #
 #   libhttp
@@ -408,7 +408,7 @@ endif
 
 $(CONFIG)/bin/libhttp.dylib: $(DEPS_20)
 	@echo '      [Link] $(CONFIG)/bin/libhttp.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libhttp.dylib $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libhttp.dylib -compatibility_version 0.8.6 -current_version 0.8.6 $(CONFIG)/obj/httpLib.o $(LIBPATHS_20) $(LIBS_20) $(LIBS_20) $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libhttp.dylib $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libhttp.dylib -compatibility_version 0.8.6 -current_version 0.8.6 "$(CONFIG)/obj/httpLib.o" $(LIBPATHS_20) $(LIBS_20) $(LIBS_20) $(LIBS) 
 
 #
 #   http.o
@@ -419,7 +419,7 @@ DEPS_21 += $(CONFIG)/inc/http.h
 $(CONFIG)/obj/http.o: \
     src/deps/http/http.c $(DEPS_21)
 	@echo '   [Compile] $(CONFIG)/obj/http.o'
-	$(CC) -c -o $(CONFIG)/obj/http.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/http/http.c
+	$(CC) -c -o $(CONFIG)/obj/http.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" src/deps/http/http.c
 
 #
 #   http
@@ -447,7 +447,7 @@ endif
 
 $(CONFIG)/bin/http: $(DEPS_22)
 	@echo '      [Link] $(CONFIG)/bin/http'
-	$(CC) -o $(CONFIG)/bin/http -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/http.o $(LIBPATHS_22) $(LIBS_22) $(LIBS_22) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/http -arch x86_64 $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/http.o" $(LIBPATHS_22) $(LIBS_22) $(LIBS_22) $(LIBS) 
 
 #
 #   ejs.h
@@ -487,7 +487,7 @@ DEPS_26 += $(CONFIG)/inc/ejs.slots.h
 $(CONFIG)/obj/ejsLib.o: \
     src/deps/ejs/ejsLib.c $(DEPS_26)
 	@echo '   [Compile] $(CONFIG)/obj/ejsLib.o'
-	$(CC) -c -o $(CONFIG)/obj/ejsLib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/ejs/ejsLib.c
+	$(CC) -c -o $(CONFIG)/obj/ejsLib.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" src/deps/ejs/ejsLib.c
 
 ifeq ($(BIT_PACK_EJSCRIPT),1)
 #
@@ -519,7 +519,7 @@ endif
 
 $(CONFIG)/bin/libejs.dylib: $(DEPS_27)
 	@echo '      [Link] $(CONFIG)/bin/libejs.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libejs.dylib $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libejs.dylib -compatibility_version 0.8.6 -current_version 0.8.6 $(CONFIG)/obj/ejsLib.o $(LIBPATHS_27) $(LIBS_27) $(LIBS_27) $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libejs.dylib $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libejs.dylib -compatibility_version 0.8.6 -current_version 0.8.6 "$(CONFIG)/obj/ejsLib.o" $(LIBPATHS_27) $(LIBS_27) $(LIBS_27) $(LIBS) 
 endif
 
 #
@@ -531,7 +531,7 @@ DEPS_28 += $(CONFIG)/inc/ejs.h
 $(CONFIG)/obj/ejs.o: \
     src/deps/ejs/ejs.c $(DEPS_28)
 	@echo '   [Compile] $(CONFIG)/obj/ejs.o'
-	$(CC) -c -o $(CONFIG)/obj/ejs.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/ejs/ejs.c
+	$(CC) -c -o $(CONFIG)/obj/ejs.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" src/deps/ejs/ejs.c
 
 ifeq ($(BIT_PACK_EJSCRIPT),1)
 #
@@ -566,7 +566,7 @@ endif
 
 $(CONFIG)/bin/ejs: $(DEPS_29)
 	@echo '      [Link] $(CONFIG)/bin/ejs'
-	$(CC) -o $(CONFIG)/bin/ejs -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejs.o $(LIBPATHS_29) $(LIBS_29) $(LIBS_29) $(LIBS) -ledit 
+	$(CC) -o $(CONFIG)/bin/ejs -arch x86_64 $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/ejs.o" $(LIBPATHS_29) $(LIBS_29) $(LIBS_29) $(LIBS) -ledit 
 endif
 
 #
@@ -578,7 +578,7 @@ DEPS_30 += $(CONFIG)/inc/ejs.h
 $(CONFIG)/obj/ejsc.o: \
     src/deps/ejs/ejsc.c $(DEPS_30)
 	@echo '   [Compile] $(CONFIG)/obj/ejsc.o'
-	$(CC) -c -o $(CONFIG)/obj/ejsc.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/ejs/ejsc.c
+	$(CC) -c -o $(CONFIG)/obj/ejsc.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" src/deps/ejs/ejsc.c
 
 ifeq ($(BIT_PACK_EJSCRIPT),1)
 #
@@ -613,7 +613,7 @@ endif
 
 $(CONFIG)/bin/ejsc: $(DEPS_31)
 	@echo '      [Link] $(CONFIG)/bin/ejsc'
-	$(CC) -o $(CONFIG)/bin/ejsc -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/ejsc.o $(LIBPATHS_31) $(LIBS_31) $(LIBS_31) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/ejsc -arch x86_64 $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/ejsc.o" $(LIBPATHS_31) $(LIBS_31) $(LIBS_31) $(LIBS) 
 endif
 
 ifeq ($(BIT_PACK_EJSCRIPT),1)
@@ -812,7 +812,7 @@ DEPS_34 += $(CONFIG)/inc/ejs.h
 $(CONFIG)/obj/bit.o: \
     src/bit.c $(DEPS_34)
 	@echo '   [Compile] $(CONFIG)/obj/bit.o'
-	$(CC) -c -o $(CONFIG)/obj/bit.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/bit.c
+	$(CC) -c -o $(CONFIG)/obj/bit.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" src/bit.c
 
 #
 #   bit
@@ -851,7 +851,7 @@ endif
 
 $(CONFIG)/bin/bit: $(DEPS_35)
 	@echo '      [Link] $(CONFIG)/bin/bit'
-	$(CC) -o $(CONFIG)/bin/bit -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/bit.o $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/bit -arch x86_64 $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/bit.o" $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) 
 
 #
 #   stop
