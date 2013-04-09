@@ -532,6 +532,12 @@ module embedthis.bit {
                     other.diagnostic ||= 'conflicts with ' + pack.name
                 }
             }
+            for (let [i, path] in pack.libpaths) {
+                pack.libpaths[i] = Path(path).natural
+            }
+            for (let [i, path] in pack.includes) {
+                pack.includes[i] = Path(path).natural
+            }
         }
     }
 

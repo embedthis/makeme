@@ -2028,18 +2028,18 @@ public class Bit {
             if (!target.files) {
                 throw 'Target ' + target.name + ' has no input files or sources'
             }
-            tv.INPUT = target.files.map(function(p) p.compact(base)).join(' ')
-            tv.LIBS = mapLibs(target.libraries, target.static)
+            tv.INPUT = target.files.map(function(p) '"' + p.compact(base) + '"').join(' ')
+            tv.LIBS = mapLibs(target, target.libraries, target.static)
             tv.LDFLAGS = (target.linker) ? target.linker.join(' ') : ''
 
         } else if (target.type == 'lib') {
             if (!target.files) {
                 throw 'Target ' + target.name + ' has no input files or sources'
             }
-            tv.INPUT = target.files.map(function(p) p.compact(base)).join(' ')
+            tv.INPUT = target.files.map(function(p) '"' + p.compact(base) + '"').join(' ')
             tv.LIBNAME = target.path.basename
             tv.DEF = Path(target.path.compact(base).toString().replace(/dll$/, 'def'))
-            tv.LIBS = mapLibs(target.libraries, target.static)
+            tv.LIBS = mapLibs(target, target.libraries, target.static)
             tv.LDFLAGS = (target.linker) ? target.linker.join(' ') : ''
 
         } else if (target.type == 'obj') {
@@ -2047,10 +2047,10 @@ public class Bit {
             tv.DEFINES = target.defines.map(function(e) '-D' + e).join(' ')
             if (bit.generating) {
                 /* Use abs paths to reppath can substitute as much as possible */
-                tv.INCLUDES = (target.includes) ? target.includes.map(function(p) '-I' + p) : ''
+                tv.INCLUDES = (target.includes) ? target.includes.map(function(p) '"-I' + p + '"') : ''
             } else {
                 /* Use relative paths to shorten trace output */
-                tv.INCLUDES = (target.includes) ? target.includes.map(function(p) '-I' + p.compact(base)) : ''
+                tv.INCLUDES = (target.includes) ? target.includes.map(function(p) '"-I' + p.compact(base) + '"') : ''
             }
             tv.PDB = tv.OUTPUT.replaceExt('pdb')
             if (bit.dir.home.join('.embedthis').exists && !bit.generating) {
@@ -2061,7 +2061,7 @@ public class Bit {
             tv.OUTPUT = target.path.relative
             tv.CFLAGS = (target.compiler) ? target.compiler.join(' ') : ''
             tv.DEFINES = target.defines.map(function(e) '-D' + e).join(' ')
-            tv.INCLUDES = (target.includes) ? target.includes.map(function(path) '-I' + path.relative) : ''
+            tv.INCLUDES = (target.includes) ? target.includes.map(function(path) '"-I' + path.relative + '"') : ''
         }
         target.vars = tv
     }
@@ -2150,7 +2150,7 @@ public class Bit {
      */
     public function mapLibPaths(libpaths: Array, base: Path = App.dir): String {
         if (bit.platform.os == 'windows') {
-            return libpaths.map(function(p) '-libpath:' + p.compact(base)).join(' ')
+            return libpaths.map(function(p) '"-libpath:' + p.compact(base) + '"').join(' ')
         } else {
             return libpaths.map(function(p) '-L' + p.compact(base)).join(' ')
         }
@@ -2160,13 +2160,21 @@ public class Bit {
         Map libraries into the appropriate O/S dependant format
         @hide
      */
-    public function mapLibs(libs: Array, static = null): Array {
+    public function mapLibs(target, libs: Array, static = null): Array {
         if (bit.platform.os == 'windows') {
             libs = libs.clone()
             for (let [i,name] in libs) {
                 let libname = Path('lib' + name).joinExt(bit.ext.shlib)
                 if (bit.targets['lib' + name] || bit.dir.lib.join(libname).exists) {
                     libs[i] = libname
+                } else {
+                    let libpaths = target ? target.libpaths : bit.packs.compiler.libpaths
+                    for each (dir in libpaths) {
+                        if (dir.join(libname).exists) {
+                            libs[i] = dir.join(libname)
+                            break
+                        }
+                    }
                 }
             }
         } else if (bit.platform.os == 'vxworks') {
@@ -2199,6 +2207,11 @@ public class Bit {
                 mapped.push('-l' + lib.trimExt().relative.toString().replace(/^lib/, ''))
             }
             libs = mapped
+        }
+        for (let [i, lib] in libs) {
+            if (lib.contains(' ')) {
+                libs[i] = '"' + lib + '"'
+            }
         }
         return libs
     }
@@ -3463,8 +3476,8 @@ public function safeRemove(dir: Path)
     b.safeRemove(dir)
 
 /** @hide */
-public function mapLibs(libs: Array, static = null)
-    b.mapLibs(libs, static)
+public function mapLibs(target, libs: Array, static = null)
+    b.mapLibs(target, libs, static)
 
 /** @hide */
 public function setRuleVars(target, dir = App.dir)

@@ -7,6 +7,7 @@ Bit.pack({
         libraries: [ 'appweb', 'http', 'mpr', 'mprssl' ],
         path: function (pack) {
             let search = [ pack.withpath, '/usr/local/lib/appweb/latest' ] + 
+                [ bit.dir.programFiles32.join('Embedthis Appweb') ] + 
                 sortVersions(bit.dir.packs.join('appweb').files('appweb-*'))
             return probe('bin/libappweb.' + bit.ext.shobj, { search: search })
         },

@@ -446,7 +446,7 @@ function projResources(base, target) {
 }
 
 function projLink(base, target) {
-    bit.LIBS = target.libraries ? mapLibs(target.libraries - bit.packs.compiler.libraries).join(';') : ''
+    bit.LIBS = target.libraries ? mapLibs(target, target.libraries - bit.packs.compiler.libraries).join(';') : ''
     bit.LIBPATHS = target.libpaths ? target.libpaths.map(function(p) wpath(p)).join(';') : ''
     output('
   <ItemDefinitionGroup>

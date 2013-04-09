@@ -51,7 +51,7 @@ module embedthis.bit {
             includes:       cpack.includes.map(function(e) '-I' + e).join(' '),
             linker:         cpack.linker.join(' '),
             libpaths:       b.mapLibPaths(cpack.libpaths)
-            libraries:      b.mapLibs(cpack.libraries).join(' ')
+            libraries:      b.mapLibs(null, cpack.libraries).join(' ')
         }
         blend(gen, bit.prefixes)
         for each (item in b.options.gen) {

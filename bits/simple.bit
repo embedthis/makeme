@@ -25,7 +25,7 @@ Bit.load({
         },
     },
 
-    packs: {
+    __UNUSED__packs: {
         compiler: {
             enable: true,
             path: "cc",
