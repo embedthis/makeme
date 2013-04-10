@@ -15356,7 +15356,7 @@ PUBLIC char *mprGetAbsPath(cchar *path)
 {
     wchar    buf[BIT_MAX_PATH];
     GetFullPathName(wide(path), sizeof(buf) - 1, buf, NULL);
-    buf[TSZ(buf) - 1] = '\0';
+    buf[sizeof(buf) - 1] = '\0';
     result = mprNormalizePath(multi(buf));
 }
 #elif VXWORKS
