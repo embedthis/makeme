@@ -2664,12 +2664,12 @@ typedef struct HttpAuthType {
 
 
 /**
-    Password backend store. Support stores are: pam, internal
+    Password backend store. Support stores are: system, file
     @ingroup HttpAuth
     @stability Internal
  */
 typedef struct HttpAuthStore {
-    char            *name;          /**< Authentication password store name: 'pam', 'internal' */
+    char            *name;          /**< Authentication password store name: 'system', 'file' */
     HttpVerifyUser  verifyUser;
 } HttpAuthStore;
 
@@ -2726,7 +2726,7 @@ typedef struct HttpAuth {
     char            *loggedIn;              /**< Target URI after logging in */
     char            *qop;                   /**< Quality of service */
     HttpAuthType    *type;                  /**< Authorization protocol type (basic|digest|form|custom)*/
-    HttpAuthStore   *store;                 /**< Authorization password backend (pam|file|ldap|custom)*/
+    HttpAuthStore   *store;                 /**< Authorization password backend (system|file|custom)*/
 } HttpAuth;
 
 
@@ -2745,7 +2745,7 @@ typedef struct HttpAuth {
 PUBLIC int httpAddAuthType(Http *http, cchar *name, HttpAskLogin askLogin, HttpParseAuth parse, HttpSetAuth setAuth);
 
 /**
-    Add an authorization store for password validation. The pre-supplied types are 'pam' and 'internal'
+    Add an authorization store for password validation. The pre-supplied types are 'system' and 'file'
     @description This creates an AuthType object with the defined name and callbacks.
     @param http Http service object.
     @param name Unique authorization type name
@@ -2992,7 +2992,7 @@ PUBLIC void httpSetAuthRequiredAbilities(HttpAuth *auth, cchar *abilities);
 /**
     Set the authentication password store to use
     @param auth Auth object allocated by #httpCreateAuth.
-    @param store Password store to use. Select from: 'pam', 'internal'
+    @param store Password store to use. Select from: 'system', 'file'
     @ingroup HttpAuth
     @stability Evolving
  */

@@ -953,7 +953,9 @@ static void readBody(HttpConn *conn, MprFile *outFile)
     while (!conn->error && conn->sock && (bytes = httpRead(conn, buf, sizeof(buf))) > 0) {
         if (!app->noout) {
             result = formatOutput(conn, buf, &bytes);
-            mprWriteFile(outFile, result, bytes);
+            if (result) {
+                mprWriteFile(outFile, result, bytes);
+            }
         }
 #if FUTURE
         //  This should be pushed into a range filter.
@@ -1209,17 +1211,18 @@ static char *resolveUrl(HttpConn *conn, cchar *url)
 
 static cchar *formatOutput(HttpConn *conn, cchar *buf, ssize *count)
 {
-    HttpRx      *rx;
     cchar       *result;
     int         i, c, isBinary;
     
-    rx = conn->rx;
     if (app->noout) {
         return 0;
     }
+#if UNUSED
+    HttpRx *rx = conn->rx;
     if (rx->status == 401 || (conn->followRedirects && (301 <= rx->status && rx->status <= 302))) {
         return 0;
     }
+#endif
     if (!app->printable) {
         return buf;
     }
