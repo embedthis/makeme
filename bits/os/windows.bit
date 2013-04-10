@@ -50,7 +50,7 @@ Bit.load({
         'c->c':     '"${packs.compiler.path}" -E -Fd${PDB} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
         'c->obj':   '"${packs.compiler.path}" -c -Fo${OUTPUT} -Fd${PDB} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
         'cpp->obj': '"${packs.compiler.path}" -c -Fo${OUTPUT} -Fd${PDB} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
-        'shlib':    '"${packs.link.path}" -dll -out:${OUTPUT} -entry:${ENTRY} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS}',
+        'shlib':    '"${packs.link.path}" -dll -mob -out:${OUTPUT} -entry:${ENTRY} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS}',
         'lib':      '"${packs.lib.path}" -nologo -out:${OUTPUT} ${INPUT}',
         'exe':      '"${packs.link.path}" -out:${OUTPUT} -entry:${ENTRY} -subsystem:${SUBSYSTEM} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS}',
         'gui':      '"${packs.link.path}" -out:${OUTPUT} -entry:${ENTRY} -subsystem:${SUBSYSTEM} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS}',

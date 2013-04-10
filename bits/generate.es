@@ -1226,7 +1226,7 @@ module embedthis.bit {
                             for each (path in pack.libpaths) {
                                 if (path != bit.dir.bin) {
                                     genout.writeLine('LIBPATHS_' + nextID + ' = $(LIBPATHS_' + nextID + ') -libpath:' + path)
-                                    command = command.replace('-libpath:' + path.windows, '')
+                                    command = command.replace('"-libpath:' + path.windows + '"', '')
                                 }
                             }
                         }

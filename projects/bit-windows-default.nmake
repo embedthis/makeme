@@ -259,7 +259,7 @@ DEPS_6 = $(DEPS_6) $(CONFIG)\obj\estLib.obj
 
 $(CONFIG)\bin\libest.dll: $(DEPS_6)
 	@echo '      [Link] $(CONFIG)/bin/libest.dll'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libest.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)\obj\estLib.obj" $(LIBS) 
+	"$(LD)" -dll -mob -out:$(CONFIG)\bin\libest.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)\obj\estLib.obj" $(LIBS) 
 !ENDIF
 
 #
@@ -302,7 +302,7 @@ DEPS_10 = $(DEPS_10) $(CONFIG)\obj\mprLib.obj
 
 $(CONFIG)\bin\libmpr.dll: $(DEPS_10)
 	@echo '      [Link] $(CONFIG)/bin/libmpr.dll'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libmpr.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)\obj\mprLib.obj" $(LIBS) 
+	"$(LD)" -dll -mob -out:$(CONFIG)\bin\libmpr.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)\obj\mprLib.obj" $(LIBS) 
 
 #
 #   mprSsl.obj
@@ -338,7 +338,7 @@ LIBS_12 = $(LIBS_12) libest.lib
 
 $(CONFIG)\bin\libmprssl.dll: $(DEPS_12)
 	@echo '      [Link] $(CONFIG)/bin/libmprssl.dll'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libmprssl.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)\obj\mprSsl.obj" $(LIBPATHS_12) $(LIBS_12) $(LIBS_12) $(LIBS) 
+	"$(LD)" -dll -mob -out:$(CONFIG)\bin\libmprssl.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)\obj\mprSsl.obj" $(LIBPATHS_12) $(LIBS_12) $(LIBS_12) $(LIBS) 
 
 #
 #   makerom.obj
@@ -396,7 +396,7 @@ DEPS_17 = $(DEPS_17) $(CONFIG)\obj\pcre.obj
 
 $(CONFIG)\bin\libpcre.dll: $(DEPS_17)
 	@echo '      [Link] $(CONFIG)/bin/libpcre.dll'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libpcre.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)\obj\pcre.obj" $(LIBS) 
+	"$(LD)" -dll -mob -out:$(CONFIG)\bin\libpcre.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)\obj\pcre.obj" $(LIBS) 
 !ENDIF
 
 #
@@ -442,7 +442,7 @@ LIBS_20 = $(LIBS_20) libpcre.lib
 
 $(CONFIG)\bin\libhttp.dll: $(DEPS_20)
 	@echo '      [Link] $(CONFIG)/bin/libhttp.dll'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libhttp.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)\obj\httpLib.obj" $(LIBPATHS_20) $(LIBS_20) $(LIBS_20) $(LIBS) 
+	"$(LD)" -dll -mob -out:$(CONFIG)\bin\libhttp.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)\obj\httpLib.obj" $(LIBPATHS_20) $(LIBS_20) $(LIBS_20) $(LIBS) 
 
 #
 #   http.obj
@@ -553,7 +553,7 @@ LIBS_27 = $(LIBS_27) libpcre.lib
 
 $(CONFIG)\bin\libejs.dll: $(DEPS_27)
 	@echo '      [Link] $(CONFIG)/bin/libejs.dll'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libejs.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)\obj\ejsLib.obj" $(LIBPATHS_27) $(LIBS_27) $(LIBS_27) $(LIBS) 
+	"$(LD)" -dll -mob -out:$(CONFIG)\bin\libejs.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)\obj\ejsLib.obj" $(LIBPATHS_27) $(LIBS_27) $(LIBS_27) $(LIBS) 
 !ENDIF
 
 #
