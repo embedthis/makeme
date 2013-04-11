@@ -390,7 +390,7 @@ function getDefaultSettings() {
             hasDoubleBraces: false,
             hasLibEdit: false,
             hasLibRt: false,
-            hasDynLoad: false,
+            hasDynLoad: true,
             hasMmu: true,
             hasMtune: false,
             hasPam: false,
