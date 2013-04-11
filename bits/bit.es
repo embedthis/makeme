@@ -67,7 +67,7 @@ public class Bit {
 
     private var home: Path
     private var bareBit: Object = { platforms: [], platform: {}, dir: {}, 
-        settings: { version: '1.0.0', requires: [], discover: [], }, 
+        settings: { version: '1.0.0', buildNumber: '0', requires: [], discover: [], }, 
         packs: {}, targets: {}, env: {}, globals: {}, customSettings: {}}
 
     private var bit: Object = {}
@@ -417,9 +417,11 @@ public class Bit {
                 usage()
             }
             localPlatform = platforms[0]
+    /* UNUSED
             if (!Path(localPlatform + '.bit').exists) {
                 trace('Generate', 'Create platform bit file: ' + localPlatform + '.bit')
             }
+     */
             /* Must continue if probe can't locate tools, but does know a default */
             options['continue'] = true
         }
@@ -2767,7 +2769,7 @@ public class Bit {
         loadBitFile(bit.dir.bits.join('standard.bit'))
         loadBitFile(bit.dir.bits.join('os/' + bit.platform.os + '.bit'))
         bit.globals.PLATFORM = currentPlatform = platform
-        if (bitfile) {
+        if (bitfile.exists) {
             loadBitFile(bitfile)
             /*
                 Customize bit files must be applied after the enclosing bit file is loaded so they can override anything.

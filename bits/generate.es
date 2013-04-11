@@ -24,7 +24,13 @@ module embedthis.bit {
             generateMain()
             return
         }
-        b.makeBit(b.localPlatform, b.localPlatform + '.bit')
+        if (Path(b.localPlatform + '.bit').exist) {
+            b.makeBit(b.localPlatform, b.localPlatform + '.bit')
+        } else {
+            b.makeBit(b.localPlatform, b.options.file)
+        }
+        bit.settings.product ||= App.dir.basename.replace(/-/g, '_')
+
         platforms = bit.platforms = [b.localPlatform]
         bit.original = {
             dir: bit.dir.clone(),
@@ -56,12 +62,16 @@ module embedthis.bit {
         blend(gen, bit.prefixes)
         for each (item in b.options.gen) {
             bit.generating = item
+            bit.settings.product ||= 'app'
             let base = bit.dir.proj.join(bit.settings.product + '-' + bit.platform.os + '-' + bit.platform.profile)
             let path = bit.original.dir.inc.join('bit.h')
             let hfile = bit.dir.src.join('projects', 
                     bit.settings.product + '-' + bit.platform.os + '-' + bit.platform.profile + '-bit.h')
-            path.copy(hfile)
-            trace('Generate', 'project header: ' + hfile.relative)
+            if (hfile.exists) {
+                trace('Generate', 'project header: ' + hfile.relative)
+                path.copy(hfile)
+            }
+            base.dirname.makeDir()
             if (bit.generating == 'sh') {
                 generateShellProject(base)
             } else if (bit.generating == 'make') {
@@ -182,13 +192,15 @@ module embedthis.bit {
         genout.writeLine('[ ! -x ${CONFIG}/inc ] && ' + 'mkdir -p ${CONFIG}/inc\n')
         genout.writeLine('[ ! -x ${CONFIG}/bin ] && ' + 'mkdir -p ${CONFIG}/bin\n')
         genout.writeLine('[ ! -x ${CONFIG}/obj ] && ' + 'mkdir -p ${CONFIG}/obj\n')
-        genout.writeLine('[ ! -f ${CONFIG}/inc/bit.h ] && ' + 
-            'cp projects/' + bit.settings.product + '-${OS}-${PROFILE}-bit.h ${CONFIG}/inc/bit.h')
-        if (bit.dir.src.join('src/bitos.h')) {
+        if (bit.dir.src.join('src/bitos.h').exists) {
             genout.writeLine('[ ! -f ${CONFIG}/inc/bitos.h ] && cp ${SRC}/src/bitos.h ${CONFIG}/inc/bitos.h')
         }
-        genout.writeLine('if ! diff ${CONFIG}/inc/bit.h projects/' + bit.settings.product + 
-            '-${OS}-${PROFILE}-bit.h >/dev/null ; then')
+        if (bit.dir.inc.join('bit.h').exists) {
+            genout.writeLine('[ ! -f ${CONFIG}/inc/bit.h ] && ' + 
+                'cp projects/' + bit.settings.product + '-${OS}-${PROFILE}-bit.h ${CONFIG}/inc/bit.h')
+            genout.writeLine('if ! diff ${CONFIG}/inc/bit.h projects/' + bit.settings.product + 
+                '-${OS}-${PROFILE}-bit.h >/dev/null ; then')
+        }
         genout.writeLine('\tcp projects/' + bit.settings.product + '-${OS}-${PROFILE}-bit.h ${CONFIG}/inc/bit.h')
         genout.writeLine('fi\n')
         b.build()
@@ -408,7 +420,9 @@ module embedthis.bit {
         genout.writeLine('.PHONY: prep\n\nprep:')
         genout.writeLine('\t@echo "      [Info] Use "make SHOW=1" to trace executed commands."')
         genout.writeLine('\t@if [ "$(CONFIG)" = "" ] ; then echo WARNING: CONFIG not set ; exit 255 ; fi')
-        genout.writeLine('\t@if [ "$(BIT_APP_PREFIX)" = "" ] ; then echo WARNING: BIT_APP_PREFIX not set ; exit 255 ; fi')
+        if (bit.prefixes.app) {
+            genout.writeLine('\t@if [ "$(BIT_APP_PREFIX)" = "" ] ; then echo WARNING: BIT_APP_PREFIX not set ; exit 255 ; fi')
+        }
         if (bit.platform.os == 'vxworks') {
             genout.writeLine('\t@if [ "$(WIND_BASE)" = "" ] ; then echo WARNING: WIND_BASE not set. Run wrenv.sh. ; exit 255 ; fi')
             genout.writeLine('\t@if [ "$(WIND_HOST_TYPE)" = "" ] ; then echo WARNING: WIND_HOST_TYPE not set. Run wrenv.sh. ; exit 255 ; fi')
@@ -417,16 +431,18 @@ module embedthis.bit {
         genout.writeLine('\t@[ ! -x $(CONFIG)/bin ] && ' + 'mkdir -p $(CONFIG)/bin; true')
         genout.writeLine('\t@[ ! -x $(CONFIG)/inc ] && ' + 'mkdir -p $(CONFIG)/inc; true')
         genout.writeLine('\t@[ ! -x $(CONFIG)/obj ] && ' + 'mkdir -p $(CONFIG)/obj; true')
-        genout.writeLine('\t@[ ! -f $(CONFIG)/inc/bit.h ] && ' + 'cp projects/' + pop + '-bit.h $(CONFIG)/inc/bit.h ; true')
-        if (bit.dir.src.join('src/bitos.h')) {
+        if (bit.dir.src.join('src/bitos.h').exists) {
             genout.writeLine('\t@[ ! -f $(CONFIG)/inc/bitos.h ] && cp src/bitos.h $(CONFIG)/inc/bitos.h ; true')
             genout.writeLine('\t@if ! diff $(CONFIG)/inc/bitos.h src/bitos.h >/dev/null ; then\\')
             genout.writeLine('\t\tcp src/bitos.h $(CONFIG)/inc/bitos.h  ; \\')
             genout.writeLine('\tfi; true')
         }
-        genout.writeLine('\t@if ! diff $(CONFIG)/inc/bit.h projects/' + pop + '-bit.h >/dev/null ; then\\')
-        genout.writeLine('\t\tcp projects/' + pop + '-bit.h $(CONFIG)/inc/bit.h  ; \\')
-        genout.writeLine('\tfi; true')
+        if (bit.dir.inc.join('bit.h').exists) {
+            genout.writeLine('\t@[ ! -f $(CONFIG)/inc/bit.h ] && ' + 'cp projects/' + pop + '-bit.h $(CONFIG)/inc/bit.h ; true')
+            genout.writeLine('\t@if ! diff $(CONFIG)/inc/bit.h projects/' + pop + '-bit.h >/dev/null ; then\\')
+            genout.writeLine('\t\tcp projects/' + pop + '-bit.h $(CONFIG)/inc/bit.h  ; \\')
+            genout.writeLine('\tfi; true')
+        }
         genout.writeLine('\t@if [ -f "$(CONFIG)/.makeflags" ] ; then \\')
         genout.writeLine('\t\tif [ "$(MAKEFLAGS)" != " ` cat $(CONFIG)/.makeflags`" ] ; then \\')
         genout.writeLine('\t\t\techo "   [Warning] Make flags have changed since the last build: \"`cat $(CONFIG)/.makeflags`\"" ; \\')
@@ -499,11 +515,15 @@ module embedthis.bit {
         genout.writeLine('all build compile: prep $(TARGETS)\n')
         genout.writeLine('.PHONY: prep\n\nprep:')
         genout.writeLine('!IF "$(VSINSTALLDIR)" == ""\n\techo "Visual Studio vars not set. Run vcvars.bat."\n\texit 255\n!ENDIF')
-        genout.writeLine('!IF "$(BIT_APP_PREFIX)" == ""\n\techo "BIT_APP_PREFIX not set."\n\texit 255\n!ENDIF')
+        if (bit.prefixes.app) {
+            genout.writeLine('!IF "$(BIT_APP_PREFIX)" == ""\n\techo "BIT_APP_PREFIX not set."\n\texit 255\n!ENDIF')
+        }
         genout.writeLine('\t@if not exist $(CONFIG)\\bin md $(CONFIG)\\bin')
         genout.writeLine('\t@if not exist $(CONFIG)\\inc md $(CONFIG)\\inc')
         genout.writeLine('\t@if not exist $(CONFIG)\\obj md $(CONFIG)\\obj')
-        genout.writeLine('\t@if not exist $(CONFIG)\\inc\\bit.h ' + 'copy projects\\' + pop + '-bit.h $(CONFIG)\\inc\\bit.h\n')
+        if (bit.dir.inc.join('bit.h').exists) {
+            genout.writeLine('\t@if not exist $(CONFIG)\\inc\\bit.h ' + 'copy projects\\' + pop + '-bit.h $(CONFIG)\\inc\\bit.h\n')
+        }
         genout.writeLine('clean:')
         builtin('cleanTargets')
         genout.writeLine('')
@@ -1084,11 +1104,13 @@ module embedthis.bit {
             command = command.replace(RegExp(gen.configuration, 'g'), '$${CONFIG}')
         }
         for each (p in ['vapp', 'app', 'bin', 'inc', 'lib', 'man', 'base', 'web', 'cache', 'spool', 'log', 'etc']) {
-            if (bit.platform.like == 'windows') {
-                let pat = bit.prefixes[p].windows.replace(/\\/g, '\\\\')
-                command = command.replace(RegExp(pat, 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
+            if (bit.prefixes[p]) {
+                if (bit.platform.like == 'windows') {
+                    let pat = bit.prefixes[p].windows.replace(/\\/g, '\\\\')
+                    command = command.replace(RegExp(pat, 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
+                }
+                command = command.replace(RegExp(bit.prefixes[p], 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
             }
-            command = command.replace(RegExp(bit.prefixes[p], 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
         }
         command = command.replace(/\/\//g, '$$(BIT_ROOT_PREFIX)/')
         return command
@@ -1110,11 +1132,13 @@ module embedthis.bit {
             command = command.replace(RegExp(gen.configuration, 'g'), '$${CONFIG}')
         }
         for each (p in ['vapp', 'app', 'bin', 'inc', 'lib', 'man', 'base', 'web', 'cache', 'spool', 'log', 'etc']) {
-            if (bit.platform.like == 'windows') {
-                let pat = gen[p].windows.replace(/\\/g, '\\\\')
-                command = command.replace(RegExp(pat, 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
+            if (gen[p]) {
+                if (bit.platform.like == 'windows') {
+                    let pat = gen[p].windows.replace(/\\/g, '\\\\')
+                    command = command.replace(RegExp(pat, 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
+                }
+                command = command.replace(RegExp(gen[p], 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
             }
-            command = command.replace(RegExp(gen[p], 'g'), '$$(BIT_' + p.toUpper() + '_PREFIX)')
         }
         command = command.replace(/\/\//g, '$$(BIT_ROOT_PREFIX)/')
         return command

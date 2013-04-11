@@ -22,7 +22,11 @@ Bit.pack({
             }
         },
         generate: function (pack) {
-            pack.path = ''
+            if (bit.platform.os == 'windows') {
+                pack.path = 'C:/Program Files/Embedthis Appweb'
+            } else {
+                pack.path = '/usr/local/lib/appweb/latest'
+            }
             pack.libpaths = [ '$(BIT_PACK_APPWEB_PATH)/bin' ]
             pack.includes = [ '$(BIT_PACK_APPWEB_PATH)/inc' ]
         },
