@@ -219,12 +219,10 @@ static int upgradeMss(MprSocket *sp, MprSsl *ssl, cchar *peerName)
         msp->cfg = cfg = ssl->config;
 
     } else {
-        if ((ssl->config = mprAllocObj(MatrixConfig, manageMatrixConfig)) == 0) {
+        if ((cfg = mprAllocObj(MatrixConfig, manageMatrixConfig)) == 0) {
             unlock(sp);
             return MPR_ERR_MEMORY;
         }
-        msp->cfg = cfg = ssl->config;
-
         if (matrixSslNewKeys(&cfg->keys) < 0) {
             mprError("MatrixSSL: Cannot create new MatrixSSL keys");
             unlock(sp);
@@ -239,6 +237,7 @@ static int upgradeMss(MprSocket *sp, MprSsl *ssl, cchar *peerName)
             unlock(sp);
             return MPR_ERR_CANT_READ;
         }
+        msp->cfg = ssl->config = cfg;
     }
     unlock(sp);
 
@@ -990,7 +989,6 @@ static int upgradeEst(MprSocket *sp, MprSsl *ssl, cchar *peerName)
             unlock(ssl);
             return MPR_ERR_MEMORY;
         }
-        est->cfg = ssl->config = cfg;
         if (ssl->certFile) {
             /*
                 Load a PEM format certificate file
@@ -1024,6 +1022,7 @@ static int upgradeEst(MprSocket *sp, MprSsl *ssl, cchar *peerName)
                 return MPR_ERR_CANT_READ;
             }
         }
+        est->cfg = ssl->config = cfg;
         cfg->dhKey = defaultEstConfig->dhKey;
         cfg->ciphers = ssl_create_ciphers(ssl->ciphers);
     }
@@ -2628,7 +2627,6 @@ static int nanoUpgrade(MprSocket *sp, MprSsl *ssl, cchar *peerName)
             unlock(ssl);
             return MPR_ERR_MEMORY;
         }
-        np->cfg = ssl->config = cfg;
         if (ssl->certFile) {
             certDescriptor tmp;
             if ((rc = MOCANA_readFile((sbyte*) ssl->certFile, &tmp.pCertificate, &tmp.certLength)) < 0) {
@@ -2685,6 +2683,7 @@ static int nanoUpgrade(MprSocket *sp, MprSsl *ssl, cchar *peerName)
             unlock(ssl);
             return MPR_ERR_CANT_INITIALIZE;
         }
+        np->cfg = ssl->config = cfg;
     }
     unlock(ssl);
 

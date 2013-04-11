@@ -2323,6 +2323,12 @@ PUBLIC ssize mprFprintf(struct MprFile *file, cchar *fmt, ...);
  */
 PUBLIC ssize mprPrintf(cchar *fmt, ...);
 
+/** 
+    Print to stdout and add a trailing newline
+    @hide 
+ */
+PUBLIC ssize print(cchar *fmt, ...);
+
 #if DEPRECATED
 /**
     Format a string into an allocated buffer.

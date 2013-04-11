@@ -541,6 +541,7 @@ static MprMem *allocMem(ssize required, int flags)
 
     /*
         OPT - could break this locked section up.
+        - Keep a per-thread small heap or
         - Can update bit maps conservatively and lockfree
         - Put locks around freeq unqueue
         - use unlinkBlock or linkBlock only. Do locks internally in these routines
@@ -3366,7 +3367,6 @@ PUBLIC void mprSetExitTimeout(MprTicks timeout)
 
 PUBLIC void mprNop(void *ptr) {
 }
-
 
 /*
     @copy   default
@@ -6496,6 +6496,12 @@ PUBLIC int startProcess(MprCmd *cmd)
         program = mprTrimPathExt(program);
         entryPoint = program;
     }
+#if BIT_CPU_ARCH == MPR_CPU_IX86 || BIT_CPU_ARCH == MPR_CPU_IX64 || BIT_CPU_ARCH == MPR_CPU_SH
+    /*
+        A leading underscore is required on some architectures
+     */
+    entryPoint = sjoin("_", entryPoint, NULL);
+#endif
     if (symFindByName(sysSymTbl, entryPoint, (char**) (void*) &entryFn, &symType) < 0) {
         if ((mp = mprCreateModule(cmd->program, cmd->program, NULL, NULL)) == 0) {
             mprError("start: can't create module");
@@ -16195,6 +16201,7 @@ PUBLIC bool mprIsPathAbs(cchar *path)
 }
 
 
+//  MOB - should be mprPathIsDir
 PUBLIC bool mprIsPathDir(cchar *path)
 {
     MprPath     info;
@@ -16203,6 +16210,7 @@ PUBLIC bool mprIsPathDir(cchar *path)
 }
 
 
+//  MOB - should be mprPathIsRel
 PUBLIC bool mprIsPathRel(cchar *path)
 {
     MprFileSystem   *fs;
@@ -18382,6 +18390,25 @@ static int growBuf(Format *fmt)
         fmt->growBy *= 2;
     }
     return 1;
+}
+
+
+PUBLIC ssize print(cchar *fmt, ...) 
+{
+    va_list     ap;
+    char        *buf;
+    ssize       len;
+
+    va_start(ap, fmt);
+    buf = sfmtv(fmt, ap);
+    va_end(ap);
+    if (buf != 0 && MPR->stdOutput) {
+        len = mprWriteFileString(MPR->stdOutput, buf);
+        len += mprWriteFileString(MPR->stdOutput, "\n");
+    } else {
+        len = -1;
+    }
+    return len;
 }
 
 
@@ -26226,7 +26253,7 @@ PUBLIC int mprLoadNativeModule(MprModule *mp)
     MprModuleEntry  fn;
     SYM_TYPE        symType;
     MprPath         info;
-    char            *at;
+    char            *at, *entry;
     void            *handle;
     int             fd;
 
@@ -26234,7 +26261,11 @@ PUBLIC int mprLoadNativeModule(MprModule *mp)
     fn = 0;
     handle = 0;
 
-    if (!mp->entry || symFindByName(sysSymTbl, mp->entry, (char**) (void*) &fn, &symType) == -1) {
+    entry = mp->entry;
+#if BIT_CPU_ARCH == MPR_CPU_IX86 || BIT_CPU_ARCH == MPR_CPU_IX64 || BIT_CPU_ARCH == MPR_CPU_SH
+    entry = sjoin("_", entry, NULL);
+#endif
+    if (!mp->entry || symFindByName(sysSymTbl, entry, (char**) (void*) &fn, &symType) == -1) {
         if ((at = mprSearchForModule(mp->path)) == 0) {
             mprError("Cannot find module \"%s\", cwd: \"%s\", search path \"%s\"", mp->path, mprGetCurrentPath(),
                 mprGetModuleSearchPath());
@@ -26265,8 +26296,8 @@ PUBLIC int mprLoadNativeModule(MprModule *mp)
         mprLog(2, "Activating module %s", mp->name);
     }
     if (mp->entry) {
-        if (symFindByName(sysSymTbl, mp->entry, (char**) (void*) &fn, &symType) == -1) {
-            mprError("Cannot find symbol %s when loading %s", mp->entry, mp->path);
+        if (symFindByName(sysSymTbl, entry, (char**) (void*) &fn, &symType) == -1) {
+            mprError("Cannot find symbol %s when loading %s", entry, mp->path);
             return MPR_ERR_CANT_READ;
         }
         if ((fn)(mp->moduleData, mp) < 0) {
