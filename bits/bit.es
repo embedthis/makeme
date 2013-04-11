@@ -437,6 +437,7 @@ public class Bit {
             options.deploy = Path(platforms[0]).join('deploy')
         } 
         if (options.deploy) {
+            options.deploy = Path(options.deploy).absolute
             options.prefix ||= []
             options.prefix.push('root=' + options.deploy)
             args.rest.push('installBinary')
@@ -2817,7 +2818,7 @@ public class Bit {
                 }
                 if (prefix == 'root') {
                     for (let [key,value] in bit.prefixes) {
-                        if (value.startsWith(prior)) {
+                        if (key != 'root' && value.startsWith(prior)) {
                             bit.prefixes[key] = Path(value.replace(prior, path + '/')).normalize
                         }
                     }
