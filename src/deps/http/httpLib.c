@@ -8400,7 +8400,9 @@ PUBLIC HttpRoute *httpCreateInheritedRoute(HttpRoute *parent)
     route->script = parent->script;
     route->scriptPath = parent->scriptPath;
     route->sourceName = parent->sourceName;
+#if UNUSED
     route->sourcePath = parent->sourcePath;
+#endif
     route->ssl = parent->ssl;
     route->target = parent->target;
     route->targetRule = parent->targetRule;
@@ -8467,7 +8469,9 @@ static void manageRoute(HttpRoute *route, int flags)
         mprMark(route->conditions);
         mprMark(route->updates);
         mprMark(route->sourceName);
+#if UNUSED
         mprMark(route->sourcePath);
+#endif
         mprMark(route->tokens);
         mprMark(route->ssl);
         mprMark(route->limits);
@@ -17317,6 +17321,7 @@ static int processFrame(HttpQueue *q, HttpPacket *packet)
             if (packet->last || tail) {
                 packet->flags |= HTTP_PACKET_SOLO;
                 ws->messageLength += httpGetPacketLength(packet);
+                mprAddNullToBuf(packet->content);
                 httpPutPacketToNext(q, packet);
                 ws->currentMessage = 0;
             } else {
@@ -17341,7 +17346,7 @@ static int processFrame(HttpQueue *q, HttpPacket *packet)
             }
         }
         mprTrace(5, "webSocketFilter: close status %d, reason \"%s\", closing %d", ws->closeStatus, 
-                ws->closeReason, ws->closing);
+            ws->closeReason, ws->closing);
         if (ws->closing) {
             httpDisconnect(conn);
         } else {

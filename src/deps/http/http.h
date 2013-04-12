@@ -102,7 +102,7 @@ struct HttpWebSocket;
     #define BIT_MAX_UPLOAD          (INT_MAX)
 #endif
 #ifndef BIT_MAX_WSS_FRAME
-    #define BIT_MAX_WSS_FRAME       (8 * 1024)          /**< Default max WebSockets message frame size */
+    #define BIT_MAX_WSS_FRAME       (4 * 1024)          /**< Default max WebSockets message frame size */
 #endif
 #ifndef BIT_MAX_WSS_PACKET
     #define BIT_MAX_WSS_PACKET      (8 * 1024)          /**< Default size to provide to application in one packet */
@@ -3296,7 +3296,9 @@ typedef struct HttpRoute {
 
     void            *patternCompiled;       /**< Compiled pattern regular expression (not alloced) */
     char            *sourceName;            /**< Source name for route target */
+#if UNUSED
     char            *sourcePath;            /**< Source path for route target */
+#endif
     MprList         *tokens;                /**< Tokens in pattern, {name} */
 
     struct MprSsl   *ssl;                   /**< SSL configuration */
