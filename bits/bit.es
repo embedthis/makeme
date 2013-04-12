@@ -1156,11 +1156,12 @@ public class Bit {
         }
     }
 
-    /*
+    /**
         Search for a target dependency. Search order:
             NAME
             libNAME
             NAME.ext
+        @hide
      */
     public function getDep(dname) {
         if (dep = bit.targets[dname]) {
@@ -3511,8 +3512,8 @@ public function removeFile(path: Path, options = {})
     b.removeFile(path, options)
 
 /** @duplicate Bit.removePath */
-public function removePath(path: Path, options = {})
-    b.removePath(path, options)
+public function removePath(path: Path)
+    b.removePath(path)
 
 /** @hide */
 public function runTargetScript(target, when)

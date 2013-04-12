@@ -28,6 +28,9 @@ module embedthis.bit {
     /** @hide */
     var envSettings: Object
 
+    /**
+        @hide
+     */
     function checkMain() {
         let settings = bit.settings
         for each (field in ['product', 'title', 'version', 'buildNumber', 'company']) {
@@ -78,6 +81,9 @@ module embedthis.bit {
         }
     }
 
+    /**
+        @hide
+     */
     function reconfigure() {
         vtrace('Load', 'Preload main.bit to determine required configuration')
         b.quickLoad(Bit.START)
@@ -308,6 +314,9 @@ module embedthis.bit {
         }
     }
 
+    /**
+        @hide
+     */
     function findPacks() {
         let settings = bit.settings
         if (!settings.requires && !settings.discover) {
