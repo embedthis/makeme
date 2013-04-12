@@ -25,7 +25,7 @@ Bit.load({
         product: 'bit',
         title: 'Embedthis Bit',
         company: 'Embedthis',
-        version: '0.8.8',
+        version: '0.8.7',
         buildNumber: '0',
 
         /*
