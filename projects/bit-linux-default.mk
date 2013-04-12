@@ -3,7 +3,7 @@
 #
 
 PRODUCT            := bit
-VERSION            := 0.8.6
+VERSION            := 0.8.7
 BUILD_NUMBER       := 0
 PROFILE            := default
 ARCH               := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
@@ -130,11 +130,11 @@ prep:
 	@[ ! -x $(CONFIG)/bin ] && mkdir -p $(CONFIG)/bin; true
 	@[ ! -x $(CONFIG)/inc ] && mkdir -p $(CONFIG)/inc; true
 	@[ ! -x $(CONFIG)/obj ] && mkdir -p $(CONFIG)/obj; true
-	@[ ! -f $(CONFIG)/inc/bit.h ] && cp projects/bit-linux-default-bit.h $(CONFIG)/inc/bit.h ; true
 	@[ ! -f $(CONFIG)/inc/bitos.h ] && cp src/bitos.h $(CONFIG)/inc/bitos.h ; true
 	@if ! diff $(CONFIG)/inc/bitos.h src/bitos.h >/dev/null ; then\
 		cp src/bitos.h $(CONFIG)/inc/bitos.h  ; \
 	fi; true
+	@[ ! -f $(CONFIG)/inc/bit.h ] && cp projects/bit-linux-default-bit.h $(CONFIG)/inc/bit.h ; true
 	@if ! diff $(CONFIG)/inc/bit.h projects/bit-linux-default-bit.h >/dev/null ; then\
 		cp projects/bit-linux-default-bit.h $(CONFIG)/inc/bit.h  ; \
 	fi; true
@@ -178,7 +178,7 @@ clobber: clean
 #   version
 #
 version: $(DEPS_1)
-	@cd bits; echo 0.8.6-0 ; cd ..
+	@cd bits; echo 0.8.7-0 ; cd ..
 
 #
 #   est.h
@@ -866,7 +866,7 @@ installBinary: $(DEPS_37)
 	mkdir -p "$(BIT_VAPP_PREFIX)"
 	mkdir -p "$(BIT_APP_PREFIX)"
 	rm -f "$(BIT_APP_PREFIX)/latest"
-	ln -s "0.8.6" "$(BIT_APP_PREFIX)/latest"
+	ln -s "0.8.7" "$(BIT_APP_PREFIX)/latest"
 	mkdir -p "$(BIT_VAPP_PREFIX)/bin"
 	cp $(CONFIG)/bin/bit $(BIT_VAPP_PREFIX)/bin/bit
 	mkdir -p "$(BIT_BIN_PREFIX)"
