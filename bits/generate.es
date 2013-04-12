@@ -24,7 +24,7 @@ module embedthis.bit {
             generateMain()
             return
         }
-        if (Path(b.localPlatform + '.bit').exist) {
+        if (Path(b.localPlatform + '.bit').exists) {
             b.makeBit(b.localPlatform, b.localPlatform + '.bit')
         } else {
             b.makeBit(b.localPlatform, b.options.file)

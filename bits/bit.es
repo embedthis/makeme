@@ -567,7 +567,7 @@ public class Bit {
             if (field != 'all' && field != 'default') {
                 let path = findPack(field)
                 if (!path || !path.exists) {
-                    throw 'Cannot find pack description file: ' + field + '.pak'
+                    throw 'Cannot find pack description file: ' + field + '.bit'
                 }
             }
             bit.packs[field] ||= {}
@@ -609,7 +609,7 @@ public class Bit {
             if (!bit.settings.requires.contains(field) && !bit.settings.discover.contains(field)) {
                 let path = findPack(field)
                 if (!path || !path.exists) {
-                    throw 'Cannot find pack description file: ' + field + '.pak'
+                    throw 'Cannot find pack description file: ' + field + '.bit'
                 }
                 requires.push(field)
             }
