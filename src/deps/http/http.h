@@ -4382,8 +4382,8 @@ PUBLIC HttpSession *httpAllocSession(HttpConn *conn, cchar *id, MprTicks lifespa
 
 /**
     Create a session object.
-    @description This call creates a session object if one does not already exist.
-        Session state stores persist across individual HTTP requests.
+    @description This call creates a session object. If one already exists, it is destroyed and a fresh session
+        is created. Use httpGetSession to retrieve an existing session object.
     @param conn Http connection object
     @return A session state object
     @ingroup HttpSession
@@ -4393,15 +4393,17 @@ PUBLIC HttpSession *httpCreateSession(HttpConn *conn);
 
 /**
     Destroy a session state object.
+    This destroys a session. It will emit an expired cookie to force the client to remove the old session cookie.
     @description
-    @param sp Session state object allocated with #httpAllocSession
+    @param conn Http connection object.
     @ingroup HttpSession
     @stability Internal
  */
-PUBLIC void httpDestroySession(HttpSession *sp);
+PUBLIC void httpDestroySession(HttpConn *conn);
 
 /**
     Get a session state object.
+    This will optionally create a session if one does not already exist. It will not re-create a session that exists.
     @description
     @param conn Http connection object
     @param create Set to "true" to create a session state object if one does not already exist for this client

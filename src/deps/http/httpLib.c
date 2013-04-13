@@ -13708,27 +13708,27 @@ static char *makeSessionID(HttpConn *conn);
 static void manageSession(HttpSession *sp, int flags);
 
 /************************************* Code ***********************************/
-
+/*
+    Allocate a http session state object. This manages an underlying session state store which
+    exists independently from this session object.
+ */
 PUBLIC HttpSession *httpAllocSession(HttpConn *conn, cchar *id, MprTicks lifespan)
 {
     HttpSession *sp;
+    Http        *http;
 
     assert(conn);
-#if UNUSED && FUTURE
-    Http        *http;
     http = conn->http;
 
-    //  OPT less contentions mutex
     lock(http);
+    http->activeSessions++;
     if (http->activeSessions >= conn->limits->sessionMax) {
         httpError(conn, HTTP_CODE_SERVICE_UNAVAILABLE,
             "Too many sessions %d/%d", http->activeSessions, conn->limits->sessionMax);
         unlock(http);
         return 0;
     }
-    http->activeSessions++;
     unlock(http);
-#endif
 
     if ((sp = mprAllocObj(HttpSession, manageSession)) == 0) {
         return 0;
@@ -13745,19 +13745,38 @@ PUBLIC HttpSession *httpAllocSession(HttpConn *conn, cchar *id, MprTicks lifespa
 }
 
 
-PUBLIC void httpDestroySession(HttpSession *sp)
+/*
+    This creates or re-creates a session. Always returns with a new session store.
+ */
+PUBLIC HttpSession *httpCreateSession(HttpConn *conn)
 {
-    Http    *http;
+    httpDestroySession(conn);
+    return httpGetSession(conn, 1);
+}
 
-    http = MPR->httpService;
 
-    assert(sp);
-    //  OPT less contentions mutex
+/*
+    Destroy the session
+ */
+PUBLIC void httpDestroySession(HttpConn *conn)
+{
+    Http        *http;
+    HttpSession *sp;
+
+    http = conn->http;
     lock(http);
-    http->activeSessions--;
-    assert(http->activeSessions >= 0);
+    if ((sp = httpGetSession(conn, 0)) != 0) {
+        httpSetCookie(conn, HTTP_SESSION_COOKIE, conn->rx->session->id, "/", NULL, -1, 0);
+#if UNUSED
+        /* Can't do this as we can only expire individual items in the cache as the cache is shared */
+        mprExpireCache(sp->cache, makeKey(sp, key), 0);
+#endif
+        http->activeSessions--;
+        assert(http->activeSessions >= 0);
+        sp->id = 0;
+        conn->rx->session = 0;
+    }
     unlock(http);
-    sp->id = 0;
 }
 
 
@@ -13770,12 +13789,9 @@ static void manageSession(HttpSession *sp, int flags)
 }
 
 
-PUBLIC HttpSession *httpCreateSession(HttpConn *conn)
-{
-    return httpGetSession(conn, 1);
-}
-
-
+/*
+    Get the session. Optionally create if "create" is true. Will not re-create.
+ */
 PUBLIC HttpSession *httpGetSession(HttpConn *conn, int create)
 {
     HttpRx      *rx;
@@ -13789,8 +13805,15 @@ PUBLIC HttpSession *httpGetSession(HttpConn *conn, int create)
     }
     id = httpGetSessionID(conn);
     if (id || create) {
+        /*
+            If forced create or we have a session-state cookie, then allocate a session object to manage the state.
+            NOTE: the session state for this ID may already exist if data has been written to the session.
+         */
         rx->session = httpAllocSession(conn, id, conn->limits->sessionTimeout);
         if (rx->session && !id) {
+            /*
+                Define the cookie in the browser if creating a new session
+             */
             httpSetCookie(conn, HTTP_SESSION_COOKIE, rx->session->id, "/", NULL, 0, 0);
         }
     }
@@ -13833,6 +13856,11 @@ PUBLIC int httpSetSessionObj(HttpConn *conn, cchar *key, MprHash *obj)
 }
 
 
+/*
+    Set a session variable. This will create the session store if it does not already exist
+    Note: If the headers have been emitted, the chance to set a cookie header has passed. So this value will go
+    into a session that will be lost. Solution is for apps to create the session first.
+ */
 PUBLIC int httpSetSessionVar(HttpConn *conn, cchar *key, cchar *value)
 {
     HttpSession  *sp;
@@ -13917,7 +13945,6 @@ static char *makeSessionID(HttpConn *conn)
     static int  nextSession = 0;
 
     assert(conn);
-
     /* Thread race here on nextSession++ not critical */
     fmt(idBuf, sizeof(idBuf), "%08x%08x%d", PTOI(conn->data) + PTOI(conn), (int) mprGetTime(), nextSession++);
     return mprGetMD5WithPrefix(idBuf, sizeof(idBuf), "::http.session::");
@@ -14506,13 +14533,14 @@ PUBLIC void httpAddHeaderString(HttpConn *conn, cchar *key, cchar *value)
 
 /* 
    Append a header. If already defined, the value is catenated to the pre-existing value after a ", " separator.
-   As per the HTTP/1.1 spec.
+   As per the HTTP/1.1 spec. Except for Set-Cookie which HTTP permits multiple headers but not of the same cookie. Ugh!
  */
 PUBLIC void httpAppendHeader(HttpConn *conn, cchar *key, cchar *fmt, ...)
 {
     va_list     vargs;
+    MprKey      *kp;
     char        *value;
-    cchar       *oldValue;
+    cchar       *cookie;
 
     assert(key && *key);
     assert(fmt && *fmt);
@@ -14521,15 +14549,28 @@ PUBLIC void httpAppendHeader(HttpConn *conn, cchar *key, cchar *fmt, ...)
     value = sfmtv(fmt, vargs);
     va_end(vargs);
 
-    oldValue = mprLookupKey(conn->tx->headers, key);
-    if (oldValue) {
-        /*
-            Set-Cookie has legacy behavior and some browsers require separate headers
-         */
+    /*
+        HTTP permits Set-Cookie to have multiple cookies. Other headers must comma separate multiple values.
+        For Set-Cookie, must allow duplicates but not of the same cookie.
+     */
+    kp = mprLookupKeyEntry(conn->tx->headers, key);
+    if (kp) {
         if (scaselessmatch(key, "Set-Cookie")) {
-            mprAddDuplicateKey(conn->tx->headers, key, value);
+            cookie = stok(sclone(value), "=", NULL);
+            while (kp) {
+                if (scaselessmatch(kp->key, "Set-Cookie")) {
+                    if (sstarts(kp->data, cookie)) {
+                        kp->data = value;
+                        break;
+                    }
+                }
+                kp = kp->next;
+            }
+            if (!kp) {
+                mprAddDuplicateKey(conn->tx->headers, key, value);
+            }
         } else {
-            addHdr(conn, key, sfmt("%s, %s", oldValue, value));
+            addHdr(conn, key, sfmt("%s, %s", kp->data, value));
         }
     } else {
         addHdr(conn, key, value);
@@ -14853,8 +14894,11 @@ PUBLIC void httpSetContentLength(HttpConn *conn, MprOff length)
 }
 
 
+/*
+    Set lifespan < 0 to delete the cookie in the clinet
+ */
 PUBLIC void httpSetCookie(HttpConn *conn, cchar *name, cchar *value, cchar *path, cchar *cookieDomain, 
-        MprTicks lifespan, int flags)
+    MprTicks lifespan, int flags)
 {
     HttpRx      *rx;
     char        *cp, *expiresAtt, *expires, *domainAtt, *domain, *secure, *httponly;
@@ -14881,7 +14925,7 @@ PUBLIC void httpSetCookie(HttpConn *conn, cchar *name, cchar *value, cchar *path
             domain = sjoin(".", domain, NULL);
         }
     }
-    if (lifespan > 0) {
+    if (lifespan) {
         expiresAtt = "; expires=";
         expires = mprFormatUniversalTime(MPR_HTTP_DATE, mprGetTime() + lifespan);
 

@@ -4573,6 +4573,9 @@ PUBLIC void *mprDestroyCache(MprCache *cache)
 }
 
 
+/*
+    Set expires to zero to remove
+ */
 PUBLIC int mprExpireCache(MprCache *cache, cchar *key, MprTicks expires)
 {
     CacheItem   *item;

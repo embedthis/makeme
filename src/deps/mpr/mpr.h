@@ -8096,7 +8096,7 @@ PUBLIC ssize mprWriteCmdBlock(MprCmd *cmd, int channel, char *buf, ssize bufsize
  */
 typedef struct MprCache {
     MprHash         *store;             /**< Key/value store */
-    MprMutex        *mutex;             /**< Cache lock*/
+    MprMutex        *mutex;             /**< Cache lock */
     MprEvent        *timer;             /**< Pruning timer */
     MprTicks        lifespan;           /**< Default lifespan (msec) */
     int             resolution;         /**< Frequence for pruner */

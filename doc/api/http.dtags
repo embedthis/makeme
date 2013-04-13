@@ -800,6 +800,13 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>httpAfterEvent</name>
+      <anchorfile>group___http_conn.html</anchorfile>
+      <anchor>ga5db87311f54d073407479bcee8f195b7</anchor>
+      <arglist>(HttpConn *conn)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>httpCallEvent</name>
       <anchorfile>group___http_conn.html</anchorfile>
       <anchor>ga79c3904ac79edd205ceb769cc7a9b14f</anchor>
@@ -986,13 +993,6 @@
       <anchorfile>group___http_conn.html</anchorfile>
       <anchor>ga7b3f62c070bd50c8fe347529d619be99</anchor>
       <arglist>(HttpConn *conn, int event, int arg)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>httpPostEvent</name>
-      <anchorfile>group___http_conn.html</anchorfile>
-      <anchor>ga53c72a19981c90039b3a4f8292b215e8</anchor>
-      <arglist>(HttpConn *conn)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -1645,6 +1645,13 @@
       <arglist>(cchar *name, HttpRouteProc *proc)</arglist>
     </member>
     <member kind="function">
+      <type>cchar *</type>
+      <name>httpExpandRouteVars</name>
+      <anchorfile>group___http_route.html</anchorfile>
+      <anchor>ga6e8c76164020f9dfdecf1c7338043264</anchor>
+      <arglist>(HttpRoute *route, cchar *str)</arglist>
+    </member>
+    <member kind="function">
       <type>void</type>
       <name>httpFinalizeRoute</name>
       <anchorfile>group___http_route.html</anchorfile>
@@ -1685,6 +1692,13 @@
       <anchorfile>group___http_route.html</anchorfile>
       <anchor>gad85523fe7fe6d5cd445f8568ccb68f22</anchor>
       <arglist>(HttpRoute *route)</arglist>
+    </member>
+    <member kind="function">
+      <type>cchar *</type>
+      <name>httpGetRouteVar</name>
+      <anchorfile>group___http_route.html</anchorfile>
+      <anchor>ga8471456108a6cd5322ba2fb4fbc6bbd1</anchor>
+      <arglist>(HttpRoute *route, cchar *key)</arglist>
     </member>
     <member kind="function">
       <type>HttpLimits *</type>
@@ -1961,8 +1975,8 @@
       <type>void</type>
       <name>httpDestroySession</name>
       <anchorfile>group___http_session.html</anchorfile>
-      <anchor>ga418e118dcd46e40292ecc4be25bdcf5f</anchor>
-      <arglist>(HttpSession *sp)</arglist>
+      <anchor>ga63006fbfd2772ecf03d0fd390fc31b7e</anchor>
+      <arglist>(HttpConn *conn)</arglist>
     </member>
     <member kind="function">
       <type>HttpSession *</type>
