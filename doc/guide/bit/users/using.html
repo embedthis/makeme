@@ -57,14 +57,14 @@
         <div class="contentLeft">
         <a id="overview"></a>
         <h1>Using Bit</h1>
-        <p>Bit means <em>Build It</em>, and it is a modern replacement for the venerable 
+        <p>Bit &mdash; <em>Build It</em>, is a modern replacement for the venerable 
         <a href="http://en.wikipedia.org/wiki/Make_(software)">make</a> and not so popular 
-        <a href="http://en.wikipedia.org/wiki/Autoconf">autoconf</a> utilities. Bit manages the building of
+        <a href="http://en.wikipedia.org/wiki/Autoconf">autoconf</a>. Bit manages the building of
         programs and products by simply and efficiently determining which pieces have been updated and thus which
-        components need to be rebuilt. It easily handles the direct compilation and generation of projects.</p>
+        components need to be rebuilt. It easily handles the direct compilation and generation of projects and Makefiles.</p>
         <a id="simple"></a>
         <h2>Simple Bit File</h2>
-        <p>A bit file is a Javascript file with a <em>.bit</em> extension that invokes Bit.load to process a set of build
+        <p>A bit file is written in Javascript though with a <em>.bit</em> extension that invokes Bit.load and instructs it to process a set of build
         instructions. The build instructions are expressed as a Javascript object literal. The primary bit file is 
         called <em>start.bit</em>. For example:</p>
         <pre>
@@ -88,8 +88,8 @@ Bit.load({
         <pre>bit rocket</pre>
         <a id="building"></a>
         <h2>Building Targets</h2>
-        <p>Bit is typically invoked with zero or more targets on the command line to build. If invoked with zero
-        targets, Bit will build all the out-of-date targets. If a one or more targets are specified, only those targets
+        <p>Bit is invoked with zero or more goals on the command line to build. If invoked with zero
+        goals, Bit will build all the out-of-date targets. If a one or more targets are specified, only those targets
         will be brought up to date.</p>
         <p>To build several named targets:</p>
         <pre>bit libengine librocket space-program</pre>
@@ -133,7 +133,7 @@ Bit.load({
       [Link] libest
    [Compile] src/deps/mpr/mprSsl.c
       [Link] libmprssl</pre>
-        <p>See an example of what a compiler warning looks like. Much easier to scan:</p>
+        <p>Here is an example of what a compiler warning looks like. Much easier to scan:</p>
         <pre>$ bit
    [Compile] src/module.c
    [Compile] src/mpr.c
@@ -149,7 +149,7 @@ Command: /usr/bin/clang -c -o macosx-x64-debug/obj/mpr.o -arch x86_64 -Wall
         
         <a name="tracing"></a>
         <h2>Tracing Commands</h2>
-        <p>Sometimes need to see the all the exact commands that Bit is issuing to build targets. 
+        <p>Sometimes you need to see the all the exact commands that Bit is issuing to build targets. 
         To see these, run bit with the <em>--show</em> switch (this can be abbreviated to -s).
 <pre>$ bit <b>-s</b>
    [Compile] src/deps/mpr/mprSsl.c
