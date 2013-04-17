@@ -9338,12 +9338,14 @@ PUBLIC int httpSetRouteHandler(HttpRoute *route, cchar *name)
 }
 
 
+//  MOB - rename SetRouteDocuments
+
 PUBLIC void httpSetRouteDir(HttpRoute *route, cchar *path)
 {
     assert(route);
     assert(path && *path);
     
-    route->dir = httpMakePath(route, path);
+    route->dir = httpMakePath(route, route->home, path);
     httpSetRouteVar(route, "DOCUMENTS_DIR", route->dir);
     //  DEPRECATE
     httpSetRouteVar(route, "DOCUMENTS", route->dir);
@@ -9356,7 +9358,7 @@ PUBLIC void httpSetRouteHome(HttpRoute *route, cchar *path)
     assert(route);
     assert(path && *path);
     
-    route->home = httpMakePath(route, path);
+    route->home = httpMakePath(route, ".", path);
 
     httpSetRouteVar(route, "HOME_DIR", route->home);
     //  DEPRECATED
@@ -10072,23 +10074,22 @@ PUBLIC cchar *httpExpandRouteVars(HttpRoute *route, cchar *str)
 
 /*
     Make a path name. This replaces $references, converts to an absolute path name, cleans the path and maps delimiters.
-    Paths are resolved relative to the route home.
+    Paths are resolved relative to the route home (configuration directory not documents).
  */
-PUBLIC char *httpMakePath(HttpRoute *route, cchar *file)
+PUBLIC char *httpMakePath(HttpRoute *route, cchar *dir, cchar *path)
 {
-    char    *path;
-
     assert(route);
-    assert(file);
+    assert(path);
 
-    if ((path = stemplate(file, route->vars)) == 0) {
+    if ((path = stemplate(path, route->vars)) == 0) {
         return 0;
     }
-    if (mprIsPathRel(path) && route->host) {
-        path = mprJoinPath(route->home, path);
+    if (mprIsPathRel(path)) {
+        path = mprJoinPath(dir ? dir : route->home, path);
     }
     return mprGetAbsPath(path);
 }
+
 
 /********************************* Language ***********************************/
 /*
@@ -11155,7 +11156,7 @@ PUBLIC bool httpTokenizev(HttpRoute *route, cchar *line, cchar *fmt, va_list arg
                 *va_arg(args, int*) = (int) stoi(tok);
                 break;
             case 'P':
-                *va_arg(args, char**) = httpMakePath(route, strim(tok, "\"", MPR_TRIM_BOTH));
+                *va_arg(args, char**) = httpMakePath(route, route->home, strim(tok, "\"", MPR_TRIM_BOTH));
                 break;
             case 'S':
                 *va_arg(args, char**) = strim(tok, "\"", MPR_TRIM_BOTH);

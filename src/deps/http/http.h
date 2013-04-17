@@ -3893,8 +3893,9 @@ PUBLIC cchar *httpLookupRouteErrorDocument(HttpRoute *route, int status);
 
 /**
     Make a filename path
-    @description This makes a filename by expanding the tokens "${token}" and then normalizing the path and converting
-        to an absolute path name. The supported tokens are:
+    @description This makes a filename by expanding the tokens "${token}" and then normalizing the path. Relative paths
+        are resolved relative to the optional dir parameter.
+        The supported tokens are:
         <ul>  
             <li>DOCUMENTS_DIR - for the default directory containing documents to serve</li>
             <li>HOME_DIR - for the directory containing the web server configuration files</li>
@@ -3905,12 +3906,13 @@ PUBLIC cchar *httpLookupRouteErrorDocument(HttpRoute *route, int status);
         </ul>  
         Additional tokens can be defined via #httpSetRouteVar.
     @param route Route to modify
+    @param dir Directory to use as a base directory for relative paths.
     @param path Path name to examine
-    @return An absolute file name.
+    @return A resolved absolute path name.
     @ingroup HttpRoute
     @stability Evolving
  */
-PUBLIC char *httpMakePath(HttpRoute *route, cchar *path);
+PUBLIC char *httpMakePath(HttpRoute *route, cchar *dir, cchar *path);
 
 /**
     Map the request URI and route target to a filename
@@ -4016,11 +4018,11 @@ PUBLIC void httpSetRouteDefaultLanguage(HttpRoute *route, cchar *language);
     @description Routes can define a default directory for documents to serve. This value may be used by
         target rules to calculate the response filename.
     @param route Route to modify
-    @param dir Directory path name for the route content
+    @param path Directory path name for the route content
     @ingroup HttpRoute
     @stability Evolving
  */
-PUBLIC void httpSetRouteDir(HttpRoute *route, cchar *dir);
+PUBLIC void httpSetRouteDir(HttpRoute *route, cchar *path);
 
 /**
     Update the route flags

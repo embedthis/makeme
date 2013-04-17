@@ -10973,6 +10973,16 @@ PUBLIC cchar *mprGetPathSeparators(cchar *path)
 }
 
 
+PUBLIC char mprGetPathSeparator(cchar *path)
+{
+    MprFileSystem   *fs;
+
+    assert(path);
+    fs = mprLookupFileSystem(path);
+    return fs->separators[0];
+}
+
+
 PUBLIC void mprSetPathSeparators(cchar *path, cchar *separators)
 {
     MprFileSystem   *fs;
@@ -15330,7 +15340,9 @@ PUBLIC char *mprGetAbsPath(cchar *path)
         path = ".";
     }
 #if BIT_ROM
-    return mprNormalizePath(path);
+    result =  mprNormalizePath(path);
+    mprMapSeparators(result, defaultSep(fs));
+    return result;
 #elif CYGWIN
     {
         ssize   len;
@@ -15358,7 +15370,9 @@ PUBLIC char *mprGetAbsPath(cchar *path)
     fs = mprLookupFileSystem(path);
     if (isFullPath(fs, path)) {
         /* Already absolute. On windows, must contain a drive specifier */
-        return mprNormalizePath(path);
+        result = mprNormalizePath(path);
+        mprMapSeparators(result, defaultSep(fs));
+        return result;
     }
 
 #if BIT_WIN_LIKE && !WINCE
@@ -16192,6 +16206,23 @@ PUBLIC char *mprGetWinPath(cchar *path)
     mprMapSeparators(result, '\\');
 #endif
     return result;
+}
+
+
+PUBLIC bool mprIsParentPathOf(cchar *dir, cchar *path)
+{
+    ssize   len;
+    char    *base;
+
+    len = slen(dir);
+    if (len <= slen(path)) {
+        base = sclone(path);
+        base[len] = '\0';
+        if (mprSamePath(dir, base)) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 

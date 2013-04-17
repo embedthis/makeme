@@ -1695,6 +1695,8 @@ PUBLIC char *itosbuf(char *buf, ssize size, int64 value, int radix);
  */
 PUBLIC int scaselesscmp(cchar *s1, cchar *s2);
 
+//  MOB need scaselessncmp
+
 /**
     Compare strings ignoring case. This is similar to scaselesscmp but it returns a boolean.
     @description Compare two strings ignoring case differences.
@@ -4794,6 +4796,17 @@ PUBLIC char *mprGetPathParent(cchar *path);
 PUBLIC cchar *mprGetPathSeparators(cchar *path);
 
 /**
+    Get the default path directory separator.
+    Return the default directory separator character used to separate directories on a given file system. 
+        Typically "/" or "\".
+    @param path Use this path to specify either the root of the file system or a file on the file system.
+    @returns Character path separator
+    @ingroup MprPath
+    @stability Stable
+ */
+PUBLIC char mprGetPathSeparator(cchar *path);
+
+/**
     Get a portable path 
     @description Get an equivalent absolute path that is somewhat portable. 
         This means it will use forward slashes ("/") as the directory separator. This call will not remove drive specifiers.
@@ -4837,6 +4850,15 @@ PUBLIC char *mprGetTempPath(cchar *tmpDir);
     @stability Stable
  */
 PUBLIC char *mprGetWinPath(cchar *path);
+
+/**
+    Determine if a directory is the same as or a parent of a path.
+    @param path Path name to examine
+    @returns True if directory is a parent of the path or is the same as the given path.
+    @ingroup MprPath
+    @stability Prototype
+ */ 
+PUBLIC bool mprIsParentPathOf(cchar *dir, cchar *path);
 
 /**
     Determine if a path is absolute
