@@ -1670,7 +1670,6 @@ public class Bit {
         @hide
      */
     public function build() {
-
         if (goals.length == 0) {
             goals.push(ALL)
         }
@@ -2240,7 +2239,7 @@ public class Bit {
         }
         for each (file in target.files) {
             if (target.subtree) {
-                let p = path.join(file.trimStart(target.subtree + '/'))
+                let p = path.join(file.trimStart(target.subtree + target.subtree.separator[0]))
                 if (!file.isDir && file.modified > p.modified) {
                     whyRebuild(path, 'Rebuild', 'input ' + file + ' has been modified.')
                     if (options.why && options.verbose) {
