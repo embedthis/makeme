@@ -2013,7 +2013,7 @@ public class Bit {
             tv.HOME = Path(target.home).relativeTo(base)
         }
         if (target.path) {
-            tv.OUTPUT = target.path.compact(base)
+            tv.OUTPUT = target.path.compact(base).portable
         }
         if (target.libpaths) {
             tv.LIBPATHS = mapLibPaths(target.libpaths, base)
@@ -2032,7 +2032,7 @@ public class Bit {
             if (!target.files) {
                 throw 'Target ' + target.name + ' has no input files or sources'
             }
-            tv.INPUT = target.files.map(function(p) '"' + p.compact(base) + '"').join(' ')
+            tv.INPUT = target.files.map(function(p) '"' + p.compact(base).portable + '"').join(' ')
             tv.LIBS = mapLibs(target, target.libraries, target.static)
             tv.LDFLAGS = (target.linker) ? target.linker.join(' ') : ''
 
@@ -2040,9 +2040,9 @@ public class Bit {
             if (!target.files) {
                 throw 'Target ' + target.name + ' has no input files or sources'
             }
-            tv.INPUT = target.files.map(function(p) '"' + p.compact(base) + '"').join(' ')
+            tv.INPUT = target.files.map(function(p) '"' + p.compact(base).portable + '"').join(' ')
             tv.LIBNAME = target.path.basename
-            tv.DEF = Path(target.path.compact(base).toString().replace(/dll$/, 'def'))
+            tv.DEF = Path(target.path.compact(base).portable.toString().replace(/dll$/, 'def'))
             tv.LIBS = mapLibs(target, target.libraries, target.static)
             tv.LDFLAGS = (target.linker) ? target.linker.join(' ') : ''
 
@@ -2054,7 +2054,7 @@ public class Bit {
                 tv.INCLUDES = (target.includes) ? target.includes.map(function(p) '"-I' + p + '"') : ''
             } else {
                 /* Use relative paths to shorten trace output */
-                tv.INCLUDES = (target.includes) ? target.includes.map(function(p) '"-I' + p.compact(base) + '"') : ''
+                tv.INCLUDES = (target.includes) ? target.includes.map(function(p) '"-I' + p.compact(base).portable + '"') : ''
             }
             tv.PDB = tv.OUTPUT.replaceExt('pdb')
             if (bit.dir.home.join('.embedthis').exists && !bit.generating) {
@@ -2154,9 +2154,9 @@ public class Bit {
      */
     public function mapLibPaths(libpaths: Array, base: Path = App.dir): String {
         if (bit.platform.os == 'windows') {
-            return libpaths.map(function(p) '"-libpath:' + p.compact(base) + '"').join(' ')
+            return libpaths.map(function(p) '"-libpath:' + p.compact(base).portable + '"').join(' ')
         } else {
-            return libpaths.map(function(p) '-L' + p.compact(base)).join(' ')
+            return libpaths.map(function(p) '-L' + p.compact(base).portable).join(' ')
         }
     }
 
