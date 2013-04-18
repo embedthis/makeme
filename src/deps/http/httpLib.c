@@ -8974,12 +8974,12 @@ PUBLIC int httpAddRouteHandler(HttpRoute *route, cchar *name, cchar *extensions)
     assert(route);
 
     http = route->http;
-    if (route->handler) {
-        mprError("Cannot add handlers to route \"%s\" once SetHandler used");
-    }
     if ((handler = httpLookupStage(http, name)) == 0) {
         mprError("Cannot find stage %s", name); 
         return MPR_ERR_CANT_FIND;
+    }
+    if (route->handler) {
+        mprError("Cannot add handler \"%s\" to route \"%s\" once SetHandler used.", handler->name, route->name);
     }
     if (extensions) {
         /*
@@ -9000,8 +9000,8 @@ PUBLIC int httpAddRouteHandler(HttpRoute *route, cchar *name, cchar *extensions)
                 }
                 prior = mprLookupKey(route->extensions, word);
                 if (prior && prior != handler) {
-                    mprError("Route \"%s\" has two or more handlers defined for extension \"%s\"."
-                            "Handlers: \"%s\", \"%s\"", route->name, word, handler->name, 
+                    mprError("Route \"%s\" has multiple handlers defined for extension \"%s\". "
+                            "Handlers: \"%s\", \"%s\".", route->name, word, handler->name, 
                             ((HttpStage*) mprLookupKey(route->extensions, word))->name);
                 } else {
                     mprAddKey(route->extensions, word, handler);
