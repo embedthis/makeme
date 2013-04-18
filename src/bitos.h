@@ -261,11 +261,6 @@
     #define UT(s) s
 #endif
 
-#if UNUSED
-    #define TSZ(b) (sizeof(b) / sizeof(wchar))
-    #define T(s) s
-#endif
-
 /********************************* O/S Includes *******************************/
 /*
     Out-of-order definitions and includes. Order really matters in this section.

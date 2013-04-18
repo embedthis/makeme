@@ -1584,6 +1584,15 @@ typedef struct HttpStage {
     int (*match)(struct HttpConn *conn, struct HttpRoute *route, int dir);
 
     /** 
+        Rewrite a request after matching.
+        @description This callback will be invoked for handlers after matching and selecting the handler.
+        @param conn HttpConn connection object
+        @ingroup HttpStage
+        @stability Evolving
+     */
+    int (*rewrite)(struct HttpConn *conn);
+
+    /** 
         Open the stage
         @description Open the stage for this request instance. A handler may service the request in the open routine
             and may call #httpError if required.
@@ -3256,7 +3265,6 @@ typedef struct HttpRoute {
     char            *defaultLanguage;       /**< Default language */
     MprHash         *extensions;            /**< Hash of handlers by extensions */
     MprList         *handlers;              /**< List of handlers for this route */
-    MprList         *handlersByMatch;       /**< List of handlers that match solely by their match routine */
     HttpStage       *connector;             /**< Network connector to use */
     MprHash         *data;                  /**< Hash of extra data configuration */
     MprHash         *vars;                  /**< Route variables. Used to expand Path ${token} refrerences */
@@ -3296,9 +3304,6 @@ typedef struct HttpRoute {
 
     void            *patternCompiled;       /**< Compiled pattern regular expression (not alloced) */
     char            *sourceName;            /**< Source name for route target */
-#if UNUSED
-    char            *sourcePath;            /**< Source path for route target */
-#endif
     MprList         *tokens;                /**< Tokens in pattern, {name} */
 
     struct MprSsl   *ssl;                   /**< SSL configuration */
@@ -4549,10 +4554,6 @@ PUBLIC void httpRemoveUploadFile(HttpConn *conn, cchar *id);
 #define HTTP_EXPECT_CONTINUE    0x2000      /**< Client expects an HTTP 100 Continue response */
 #define HTTP_AUTH_CHECKED       0x4000      /**< User authentication has been checked */
 
-#if UNUSED && KEEP
-#define HTTP_DIRECT_INPUT       0x8000      /**< Read data directly into a content packet */
-#endif
-
 /*  
     Incoming chunk encoding states
  */
@@ -5009,7 +5010,6 @@ PUBLIC void httpProcessWriteEvent(HttpConn *conn);
 #define HTTP_TX_SENDFILE            0x4     /**< Relay output via Send connector */
 #define HTTP_TX_USE_OWN_HEADERS     0x8     /**< Skip adding default headers */
 #define HTTP_TX_NO_LENGTH           0x10    /**< Don't emit a content length (used for TRACE) */
-#define HTTP_TX_MATCHED             0x20    /**< Handler match routine run */
 
 /** 
     Http Tx
