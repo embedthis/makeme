@@ -4091,7 +4091,10 @@ static void errorv(HttpConn *conn, int flags, cchar *fmt, va_list args)
                         tx->altBody = sfmt("Access Error: %d -- %s\r\n%s\r\n", status, statusMsg, conn->errorMsg);
                     } else {
                         tx->altBody = sfmt("<!DOCTYPE html>\r\n"
-                            "<html><head><title>%s</title></head>\r\n"
+                            "<head>\r\n"
+                            "    <title>%s</title>\r\n"
+                            "    <link rel=\"shortcut icon\" href=\"data:image/x-icon;,\" type=\"image/x-icon\">\r\n"
+                            "</head>\r\n"
                             "<body>\r\n<h2>Access Error: %d -- %s</h2>\r\n<pre>%s</pre>\r\n</body>\r\n</html>\r\n",
                             statusMsg, status, statusMsg, mprEscapeHtml(conn->errorMsg));
                     }
@@ -4343,6 +4346,7 @@ static void printRoute(HttpRoute *route, int next, bool full)
         mprRawLog(0, "    Prefix:       %s\n", route->prefix);
         mprRawLog(0, "    Target:       %s\n", target);
         mprRawLog(0, "    Directory:    %s\n", route->dir);
+        mprRawLog(0, "    Template:     %s\n", route->tplate);
         if (route->indicies) {
             mprRawLog(0, "    Indicies      ");
             for (ITERATE_ITEMS(route->indicies, index, nextIndex)) {
@@ -4449,8 +4453,8 @@ PUBLIC int httpAddRoute(HttpHost *host, HttpRoute *route)
         host->routes = mprCloneList(host->parent->routes);
     }
     if (mprLookupItem(host->routes, route) < 0) {
-        if ((lastRoute = mprGetLastItem(host->routes)) && lastRoute->pattern[0] == '\0') {
-            /* Insert before default route */
+        if (route->pattern[0] && (lastRoute = mprGetLastItem(host->routes)) && lastRoute->pattern[0] == '\0') {
+            /* Insert non-default route before last default route */
             thisRoute = mprInsertItemAtPos(host->routes, mprGetListLength(host->routes) - 1, route);
         } else {
             thisRoute = mprAddItem(host->routes, route);
@@ -8804,7 +8808,6 @@ static int selectHandler(HttpConn *conn, HttpRoute *route)
 
     tx = conn->tx;
     if (route->handler) {
-//MOB - SetHandler stops caching working
         tx->handler = route->handler;
         return HTTP_ROUTE_OK;
     }
@@ -8980,6 +8983,10 @@ PUBLIC int httpAddRouteHandler(HttpRoute *route, cchar *name, cchar *extensions)
     }
     if (route->handler) {
         mprError("Cannot add handler \"%s\" to route \"%s\" once SetHandler used.", handler->name, route->name);
+    }
+    if (!extensions && !handler->match) {
+        mprError("Adding handler \"%s\" without extensions to match", handler->name);
+        //  MOB - could add extensions to ""
     }
     if (extensions) {
         /*
@@ -9373,7 +9380,7 @@ PUBLIC void httpSetRouteName(HttpRoute *route, cchar *name)
 PUBLIC void httpSetRoutePattern(HttpRoute *route, cchar *pattern, int flags)
 {
     assert(route);
-    assert(pattern && *pattern);
+    assert(pattern);
     
     route->flags |= (flags & HTTP_ROUTE_NOT);
     route->pattern = sclone(pattern);
@@ -10512,7 +10519,11 @@ static void addRestful(HttpRoute *parent, cchar *action, cchar *methods, cchar *
         pattern = sfmt("^%s/%s%s", parent->prefix, resource, pattern);
     } else {
         name = sfmt("/%s/%s", nameResource, action);
-        pattern = sfmt("^/%s%s", resource, pattern);
+        if (*resource == '{') {
+            pattern = sfmt("^/%s%s", resource, pattern);
+        } else {
+            pattern = sfmt("^/{controller=%s}%s", resource, pattern);
+        }
     }
     if (*resource == '{') {
         target = sfmt("$%s-%s", resource, target);
@@ -10550,9 +10561,9 @@ PUBLIC void httpAddResource(HttpRoute *parent, cchar *resource)
     addRestful(parent, "init",      "GET",    "/init$",       "init",          resource);
     addRestful(parent, "create",    "POST",   "(/)*$",        "create",        resource);
     addRestful(parent, "edit",      "GET",    "/edit$",       "edit",          resource);
-    addRestful(parent, "show",      "GET",    "$",            "show",          resource);
-    addRestful(parent, "update",    "PUT",    "$",            "update",        resource);
-    addRestful(parent, "destroy",   "DELETE", "$",            "destroy",       resource);
+    addRestful(parent, "show",      "GET",    "(/)*$",        "show",          resource);
+    addRestful(parent, "update",    "PUT",    "(/)*$",        "update",        resource);
+    addRestful(parent, "destroy",   "DELETE", "(/)*$",        "destroy",       resource);
     addRestful(parent, "default",   "*",      "/{action}$",   "cmd-${action}", resource);
 }
 
@@ -13802,8 +13813,7 @@ PUBLIC cchar *httpGetSessionVar(HttpConn *conn, cchar *key, cchar *defaultValue)
 
 PUBLIC int httpSetSessionObj(HttpConn *conn, cchar *key, MprHash *obj)
 {
-    httpSetSessionVar(conn, key, mprSerialize(obj, 0));
-    return 0;
+    return httpSetSessionVar(conn, key, mprSerialize(obj, 0));
 }
 
 
@@ -13811,6 +13821,7 @@ PUBLIC int httpSetSessionObj(HttpConn *conn, cchar *key, MprHash *obj)
     Set a session variable. This will create the session store if it does not already exist
     Note: If the headers have been emitted, the chance to set a cookie header has passed. So this value will go
     into a session that will be lost. Solution is for apps to create the session first.
+    Value of null means remove the session.
  */
 PUBLIC int httpSetSessionVar(HttpConn *conn, cchar *key, cchar *value)
 {
@@ -13818,12 +13829,13 @@ PUBLIC int httpSetSessionVar(HttpConn *conn, cchar *key, cchar *value)
 
     assert(conn);
     assert(key && *key);
-    assert(value);
 
     if ((sp = httpGetSession(conn, 1)) == 0) {
         return 0;
     }
-    if (mprWriteCache(sp->cache, makeKey(sp, key), value, 0, sp->lifespan, 0, MPR_CACHE_SET) == 0) {
+    if (value == 0) {
+        httpRemoveSessionVar(conn, key);
+    } else if (mprWriteCache(sp->cache, makeKey(sp, key), value, 0, sp->lifespan, 0, MPR_CACHE_SET) == 0) {
         return MPR_ERR_CANT_WRITE;
     }
     return 0;
