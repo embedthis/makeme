@@ -362,6 +362,7 @@ module embedthis.bit {
             genout.writeLine("CPU                := $(subst X86,PENTIUM,$(shell echo $(ARCH) | tr a-z A-Z))")
         } else {
             genout.writeLine('ARCH               := $(shell uname -m | sed \'s/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/\')')
+            genout.writeLine('CC_ARCH            := $(shell echo $(ARCH) | sed \'s/x86/i686/;s/x64/x86_64/\')')
         }
         genout.writeLine('OS                 := ' + bit.platform.os)
         genout.writeLine('CC                 := ' + bit.packs.compiler.path)
@@ -658,11 +659,13 @@ module embedthis.bit {
         let command = b.expandRule(target, rule)
         if (bit.generating == 'sh') {
             command = repcmd(command)
+            command = command.replace(/-arch *\S* /, '-arch $$(CC_ARCH) ')
             genout.writeLine(command)
 
         } else if (bit.generating == 'make' || bit.generating == 'nmake') {
             genTargetDeps(target)
             command = genTargetLibs(target, repcmd(command))
+            command = command.replace(/-arch *\S* /, '-arch $$(CC_ARCH) ')
             genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
             gtrace('Link', target.path.natural.relative)
             generateDir(target)
@@ -685,7 +688,7 @@ module embedthis.bit {
         } else if (bit.generating == 'make' || bit.generating == 'nmake') {
             genTargetDeps(target)
             command = genTargetLibs(target, repcmd(command))
-            command = command.replace(/-arch *\S* /, '')
+            command = command.replace(/-arch *\S* /, '-arch $$(CC_ARCH) ')
             genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
             gtrace('Link', target.path.natural.relative)
             generateDir(target)
@@ -743,12 +746,12 @@ module embedthis.bit {
             let command = b.expandRule(target, rule)
             if (bit.generating == 'sh') {
                 command = repcmd(command)
-                command = command.replace(/-arch *\S* /, '')
+                command = command.replace(/-arch *\S* /, '-arch $$(CC_ARCH) ')
                 genout.writeLine(command)
 
             } else if (bit.generating == 'make') {
                 command = repcmd(command)
-                command = command.replace(/-arch *\S* /, '')
+                command = command.replace(/-arch *\S* /, '-arch $$(CC_ARCH) ')
                 genTargetDeps(target)
                 genout.write(reppath(target.path) + ': \\\n    ' + file.relative + getDepsVar() + '\n')
                 gtrace('Compile', target.path.natural.relative)
@@ -757,7 +760,7 @@ module embedthis.bit {
 
             } else if (bit.generating == 'nmake') {
                 command = repcmd(command)
-                command = command.replace(/-arch *\S* /, '')
+                command = command.replace(/-arch *\S* /, '-arch $$(CC_ARCH) ')
                 genTargetDeps(target)
                 genout.write(reppath(target.path) + ': \\\n    ' + file.relative.windows + getDepsVar() + '\n')
                 gtrace('Compile', target.path.natural.relative)
@@ -1051,7 +1054,6 @@ module embedthis.bit {
             command = rep(command, gen.libraries, '$(LIBS)')
             command = rep(command, gen.libraries, '$(LIBS)')
             command = rep(command, RegExp(gen.configuration, 'g'), '$$(CONFIG)')
-
             command = repCmd(command, bit.packs.compiler.path, '$(CC)')
             command = repCmd(command, bit.packs.link.path, '$(LD)')
             if (bit.packs.rc) {

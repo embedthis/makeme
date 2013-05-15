@@ -3858,12 +3858,12 @@ PUBLIC void mprWarn(cchar *fmt, ...);
 #endif
 
 #if DEPRECATED
-#define LOG mprTrace
-#define mprFatalError mprError
-#define mprUserError mprError
-#define mprMemoryError mprError
-#define mprPrintfError mprEprintf
-#define assure assert
+    #define LOG mprTrace
+    #define mprFatalError mprError
+    #define mprUserError mprError
+    #define mprMemoryError mprError
+    #define mprPrintfError mprEprintf
+    #define assure assert
 #endif
 
 /************************************ Hash ************************************/
@@ -5860,6 +5860,7 @@ PUBLIC void mprXmlSetParserHandler(MprXml *xp, MprXmlHandler h);
     Flags for mprSerialize
  */
 #define MPR_JSON_PRETTY     0x1         /**< Serialize output in a more human readable, multiline "pretty" format */
+#define MPR_JSON_QUOTES     0x2         /**< Serialize output quoting keys */
 
 /*
     Data types for obj property values (must fit into MprKey.type)
@@ -5940,16 +5941,17 @@ PUBLIC cchar *mprSerialize(MprObj *obj, int flags);
     @param str JSON string to deserialize.
     @param callback Callback functions. This is an instance of the #MprJsonCallback structure.
     @param data Opaque object to pass to the given callbacks
+    @param obj Object to serialize into.
     @return Returns a serialized JSON character string.
     @ingroup MprJson
     @stability Internal
     @internal
  */
-PUBLIC MprObj *mprDeserializeCustom(cchar *str, MprJsonCallback callback, void *data);
+PUBLIC MprObj *mprDeserializeCustom(cchar *str, MprJsonCallback callback, void *data, MprObj *obj);
 
 /**
     Deserialize a JSON string into an object tree.
-    @description Serializes a top level JSON object created via mprDeserialize into a characters string in JSON format.
+    @description Deserializes a JSON string created into an object.
     @param str JSON string to deserialize.
     @return Returns a tree of objects. Each object represents a level in the JSON input stream. Each object is a 
         hash table (MprHash). The hash table key entry will store the property type in the MprKey.type field. This will
@@ -5958,6 +5960,19 @@ PUBLIC MprObj *mprDeserializeCustom(cchar *str, MprJsonCallback callback, void *
     @stability Stable
  */
 PUBLIC MprObj *mprDeserialize(cchar *str);
+
+/**
+    Deserialize a JSON string into an existing object
+    @description Deserializes a JSON string created into an existing object.
+    @param str JSON string to deserialize.
+    @param obj Existing object to serialize into.
+    @return Returns a tree of objects. Each object represents a level in the JSON input stream. Each object is a 
+        hash table (MprHash). The hash table key entry will store the property type in the MprKey.type field. This will
+        be set to MPR_JSON_STRING, MPR_JSON_OBJ or MPR_JSON_ARRAY.
+    @ingroup MprJson
+    @stability Stable
+ */
+PUBLIC MprObj *mprDeserializeInto(cchar *str, MprObj *obj);
 
 /**
     Signal a parse error in the JSON input stream.
@@ -8415,7 +8430,8 @@ typedef struct Mpr {
     MprSpin         *spin;                  /**< Quick thread synchronization */
     MprCond         *cond;                  /**< Sync after starting events thread */
 
-    char            *emptyString;           /**< Empty string */
+    char            *emptyString;           /**< "" string */
+    char            *oneString;             /**< "1" string */
 #if BIT_WIN_LIKE
     HINSTANCE       appInstance;            /**< Application instance (windows) */
 #endif

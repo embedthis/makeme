@@ -2742,7 +2742,6 @@ typedef struct HttpAuth {
 /**
     Add an authorization type. The pre-supplied types are 'basic', 'digest' and 'post'.
     @description This creates an AuthType object with the defined name and callbacks.
-    @param http Http service object.
     @param name Unique authorization type name
     @param askLogin Callback to generate a client login response
     @param parse Callback to parse the HTTP authentication headers
@@ -2751,19 +2750,21 @@ typedef struct HttpAuth {
     @ingroup HttpAuth
     @stability Evolving
  */
-PUBLIC int httpAddAuthType(Http *http, cchar *name, HttpAskLogin askLogin, HttpParseAuth parse, HttpSetAuth setAuth);
+PUBLIC int httpAddAuthType(cchar *name, HttpAskLogin askLogin, HttpParseAuth parse, HttpSetAuth setAuth);
 
 /**
     Add an authorization store for password validation. The pre-supplied types are 'system' and 'file'
     @description This creates an AuthType object with the defined name and callbacks.
-    @param http Http service object.
     @param name Unique authorization type name
     @param verifyUser Callback to verify the username and password contained in the HttpConn object passed to the callback.
     @return Zero if successful, otherwise a negative MPR error code
     @ingroup HttpAuth
     @stability Evolving
  */
-PUBLIC int httpAddAuthStore(Http *http, cchar *name, HttpVerifyUser verifyUser);
+PUBLIC int httpAddAuthStore(cchar *name, HttpVerifyUser verifyUser);
+
+//MOB DOC
+PUBLIC int httpSetAuthStoreVerify(cchar *name, HttpVerifyUser verifyUser);
 
 /**
     Add a role
@@ -2793,11 +2794,13 @@ PUBLIC int httpAddUser(HttpAuth *auth, cchar *user, cchar *password, cchar *abil
 /**
     Test if a user has the required abilities
     @param conn HttpConn connection object created via #httpCreateConn object.
+    @param abilities Comma separated list of abilities to test for. If null, then use the required abilities defined
+        for the current request route.
     @return True if the user has all the required abilities
     @ingroup HttpAuth
     @stability Evolving
  */
-PUBLIC bool httpCanUser(HttpConn *conn);
+PUBLIC bool httpCanUser(HttpConn *conn, cchar *abilities);
 
 /**
     Compute all the user abilities for a route using the given auth
@@ -2873,6 +2876,8 @@ PUBLIC bool httpIsAuthenticated(HttpConn *conn);
     @stability Evolving
  */
 PUBLIC bool httpLogin(HttpConn *conn, cchar *username, cchar *password);
+//  MOB DOC
+PUBLIC void httpLogout(HttpConn *conn);
 
 /**
     Remove a role
@@ -3285,6 +3290,7 @@ typedef struct HttpRoute {
     ssize           logSize;                /**< Max log size */
     HttpLimits      *limits;                /**< Host resource limits */
     MprHash         *mimeTypes;             /**< Hash table of mime types (key is extension) */
+    MprHash         *streaming;             /**< Hash table of mime types to control input streaming */
 
     HttpTrace       trace[2];               /**< Default route request tracing */
     int             traceMask;              /**< Request/response trace mask */
@@ -3578,18 +3584,19 @@ PUBLIC void httpAddRouteParam(HttpRoute *route, cchar *field, cchar *value, int 
 PUBLIC int httpAddRouteUpdate(HttpRoute *route, cchar *name, cchar *details, int flags);
 
 /**
-    Add a route for static content under a "static" directory. This can be used for ESP applications. Use the EspDir
-        appweb configuration file directive to modify the "static" directory.
+    Add a route for static content. This can be used for ESP applications. Use the EspDir
+        appweb configuration file directive to modify the directory.
     @description This will add a route for static content. This will add the following route:
     <table>
         <tr><td>Name</td><td>Method</td><td>Pattern</td><td>Target</td></tr>
         <tr><td>static</td><td>GET</td><td>^/static(/(.)*$</td><td>$1</td></tr>
     </table>
     @param parent Parent route from which to inherit configuration.
+    @param name Name to use for the directory basename. Defaults to "static" if set to null.
     @ingroup HttpRoute
     @stability Evolving
  */
-PUBLIC void httpAddStaticRoute(HttpRoute *parent);
+PUBLIC void httpAddStaticRoute(HttpRoute *parent, cchar *name);
 
 /**
     Backup the route log if required
@@ -3787,6 +3794,17 @@ PUBLIC void *httpGetRouteData(HttpRoute *route, cchar *key);
     @stability Evolving
  */
 PUBLIC cchar *httpGetRouteDir(HttpRoute *route);
+
+/*
+    Determine if input body content should be streamed or buffered for requests with content of a given mime type 
+    @param route Route to modify
+    @param mimeType Mime type to configure
+    @return True if input should be streamed. False if it should be buffered.
+    @ingroup HttpRoute
+    @stability Prototype
+    @internal
+ */
+PUBLIC bool httpGetRouteStreaming(HttpRoute *route, cchar *mimeType);
 
 /**
     Get the route method list
@@ -4072,6 +4090,17 @@ PUBLIC void httpSetRouteHome(HttpRoute *route, cchar *home);
     @internal
  */
 PUBLIC void httpSetRouteHost(HttpRoute *route, struct HttpHost *host);
+
+/*
+    Control if input body content should be streamed or buffered for requests with content of a given mime type 
+    @param route Route to modify
+    @param mimeType Mime type to configure
+    @param enable Set to true to enable streaming for this mime type.
+    @ingroup HttpRoute
+    @stability Prototype
+    @internal
+ */
+PUBLIC void httpSetRouteStreaming(HttpRoute *route, cchar *mimeType, bool enable);
 
 /**
     Define the methods for the route
@@ -4647,7 +4676,7 @@ typedef struct HttpRx {
     MprHash         *params;                /**< Request params (Query and post data variables) */
     MprHash         *svars;                 /**< Server variables */
     HttpRange       *inputRange;            /**< Specified range for rx (post) data */
-    char            *passDigest;            /**< User password digest for authentication */
+    char            *passwordDigest;        /**< User password digest for authentication */
     char            *paramString;           /**< Cached param data as a string */
 
     /*  
@@ -4677,6 +4706,16 @@ typedef struct HttpRx {
     @internal
  */
 PUBLIC void httpAddParams(HttpConn *conn);
+
+/**
+    Add parameters from a JSON body.
+    @description This adds query data and posted body data to the request params
+    @param conn HttpConn connection object
+    @ingroup HttpRx
+    @stability Internal
+    @internal
+ */
+PUBLIC void httpAddParamsFromJsonBody(HttpConn *conn);
 
 /**
     Test if the content has not been modified
@@ -4886,7 +4925,8 @@ PUBLIC char *httpGetStatusMessage(HttpConn *conn);
 PUBLIC bool httpMatchParam(HttpConn *conn, cchar *var, cchar *expected);
 
 /** 
-    Read rx body data. This will read available body data. If in sync mode, this call may block. If in async
+    Read rx body data. 
+    @description This will read available body data. If in sync mode, this call may block. If in async
     mode, the call will not block and will return with whatever data is available.
     @param conn HttpConn connection object created via #httpCreateConn
     @param buffer Buffer to receive read data
@@ -4896,6 +4936,16 @@ PUBLIC bool httpMatchParam(HttpConn *conn, cchar *var, cchar *expected);
     @stability Stable
  */
 PUBLIC ssize httpRead(HttpConn *conn, char *buffer, ssize size);
+
+/**
+    Get the receive body input
+    @description This will return all the body input. The request must have received all input (rx->eof == 1) and
+    must not be streaming (rx->streaming). 
+    @param conn HttpConn connection object created via #httpCreateConn
+    @return A string containing the body input.
+    @stability Prototype
+ */
+PUBLIC cchar *httpGetBodyInput(HttpConn *conn);
 
 /** 
     Read response data as a string. This will read all rx body and return a string that the caller should free. 
@@ -5378,14 +5428,17 @@ PUBLIC void httpSetContentType(HttpConn *conn, cchar *mimeType);
     @param domain Domain in which the cookie applies. Must have 2-3 dots.
     @param lifespan Duration for the cookie to persist in msec
     @param flags Cookie options mask. The following options are supported:
-        @li HTTP_COOKIE_SECURE    - Set the 'Secure' attribute on the cookie.
-        @li HTTP_COOKIE_HTTP      - Set the 'HttpOnly' attribute on the cookie.
+        @li HTTP_COOKIE_SECURE   - Set the 'Secure' attribute on the cookie.
+        @li HTTP_COOKIE_HTTP     - Set the 'HttpOnly' attribute on the cookie.
         See RFC 6265 for details about the 'Secure' and 'HttpOnly' cookie attributes.
     @ingroup HttpTx
     @stability Evolving
  */
 PUBLIC void httpSetCookie(HttpConn *conn, cchar *name, cchar *value, cchar *path, cchar *domain, 
         MprTicks lifespan, int flags);
+
+//  MOB - DOC
+PUBLIC void httpRemoveCookie(HttpConn *conn, cchar *name);
 
 /**
     Define the length of the transmission content. When static content is used for the transmission body, defining
