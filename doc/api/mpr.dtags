@@ -776,6 +776,13 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>MPR_JSON_QUOTES</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>aace5d01cd369cd4131594f413b5487c7</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>MPR_JSON_STRING</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a4467d3d2849e564e096cd66e96e43d87</anchor>
@@ -2014,6 +2021,13 @@
       <arglist>(MprBuf *buf)</arglist>
     </member>
     <member kind="function">
+      <type>bool</type>
+      <name>mprCheckPassword</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>gaa7361e36abe129b975148d3f6faeff8c</anchor>
+      <arglist>(cchar *plainTextPassword, cchar *passwordHash)</arglist>
+    </member>
+    <member kind="function">
       <type>void</type>
       <name>mprClearList</name>
       <anchorfile>group___mpr_list.html</anchorfile>
@@ -2316,6 +2330,13 @@
     </member>
     <member kind="function">
       <type>char *</type>
+      <name>mprCryptPassword</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>ga39a7ff3da39a15a0de318740dc635a8c</anchor>
+      <arglist>(cchar *password, cchar *salt, int rounds)</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
       <name>mprDecode64</name>
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>ga7544a4578b5965495a2708ca7cc6cf44</anchor>
@@ -2367,8 +2388,15 @@
       <type>MprObj *</type>
       <name>mprDeserializeCustom</name>
       <anchorfile>group___mpr_json.html</anchorfile>
-      <anchor>gad922d1e5cdc4d4f1c33e5e14b069b98e</anchor>
-      <arglist>(cchar *str, MprJsonCallback callback, void *data)</arglist>
+      <anchor>gab18d65a89f46e249ffba274c549dfcec</anchor>
+      <arglist>(cchar *str, MprJsonCallback callback, void *data, MprObj *obj)</arglist>
+    </member>
+    <member kind="function">
+      <type>MprObj *</type>
+      <name>mprDeserializeInto</name>
+      <anchorfile>group___mpr_json.html</anchorfile>
+      <anchor>ga07d83131d9c62d9e09462a12fc6f5c3c</anchor>
+      <arglist>(cchar *str, MprObj *obj)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -3120,6 +3148,13 @@
       <arglist>(cchar *path)</arglist>
     </member>
     <member kind="function">
+      <type>char</type>
+      <name>mprGetPathSeparator</name>
+      <anchorfile>group___mpr_path.html</anchorfile>
+      <anchor>gac961e6e514b9a2485d6f957162c7a1e7</anchor>
+      <arglist>(cchar *path)</arglist>
+    </member>
+    <member kind="function">
       <type>cchar *</type>
       <name>mprGetPathSeparators</name>
       <anchorfile>group___mpr_path.html</anchorfile>
@@ -3492,6 +3527,13 @@
     </member>
     <member kind="function">
       <type>bool</type>
+      <name>mprIsParentPathOf</name>
+      <anchorfile>group___mpr_path.html</anchorfile>
+      <anchor>gab755afd1b09e2760b68bae05705f1473</anchor>
+      <arglist>(cchar *dir, cchar *path)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
       <name>mprIsPathAbs</name>
       <anchorfile>group___mpr_path.html</anchorfile>
       <anchor>ga2049719abeb04bb8cc89e89dbc8ad4aa</anchor>
@@ -3594,6 +3636,13 @@
       <anchorfile>group___mpr_socket.html</anchorfile>
       <anchor>ga03b1900a4646dcac3b07cb9269ec549a</anchor>
       <arglist>(MprSocket *sp, cchar *ip, int port, int flags)</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
+      <name>mprListToString</name>
+      <anchorfile>group___mpr_list.html</anchorfile>
+      <anchor>ga7bb0ab0a41439f7cf572e538afa83605</anchor>
+      <arglist>(MprList *list, cchar *join)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -3727,6 +3776,20 @@
       <anchorfile>group___mpr_path.html</anchorfile>
       <anchor>gab87f107b898264faed9e921d6a3669e3</anchor>
       <arglist>(cchar *path, cchar *target, bool hard)</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
+      <name>mprMakePassword</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>gae8874a355db8bc6fa6d6bfa4dc8bbee6</anchor>
+      <arglist>(cchar *password, int saltLength, int rounds)</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
+      <name>mprMakeSalt</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>ga9c3c6e92660315b831c6fbd490ad15d9</anchor>
+      <arglist>(ssize size)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -5290,6 +5353,13 @@
       <arglist>(void *ptr, ssize size)</arglist>
     </member>
     <member kind="function">
+      <type>ssize</type>
+      <name>print</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>ab14ccdd225685bf48a3659f7b3649474</anchor>
+      <arglist>(cchar *fmt,...)</arglist>
+    </member>
+    <member kind="function">
       <type>char *</type>
       <name>scamel</name>
       <anchorfile>group___mpr_string.html</anchorfile>
@@ -6841,6 +6911,13 @@
       <arglist>(MprList *list, int index, cvoid *item)</arglist>
     </member>
     <member kind="function">
+      <type>char *</type>
+      <name>mprListToString</name>
+      <anchorfile>group___mpr_list.html</anchorfile>
+      <anchor>ga7bb0ab0a41439f7cf572e538afa83605</anchor>
+      <arglist>(MprList *list, cchar *join)</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>mprLookupItem</name>
       <anchorfile>group___mpr_list.html</anchorfile>
@@ -7490,6 +7567,13 @@
       <arglist>(cchar *path)</arglist>
     </member>
     <member kind="function">
+      <type>char</type>
+      <name>mprGetPathSeparator</name>
+      <anchorfile>group___mpr_path.html</anchorfile>
+      <anchor>gac961e6e514b9a2485d6f957162c7a1e7</anchor>
+      <arglist>(cchar *path)</arglist>
+    </member>
+    <member kind="function">
       <type>cchar *</type>
       <name>mprGetPathSeparators</name>
       <anchorfile>group___mpr_path.html</anchorfile>
@@ -7523,6 +7607,13 @@
       <anchorfile>group___mpr_path.html</anchorfile>
       <anchor>ga9bd48520260bb07575ca7899da34c0a2</anchor>
       <arglist>(cchar *path)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>mprIsParentPathOf</name>
+      <anchorfile>group___mpr_path.html</anchorfile>
+      <anchor>gab755afd1b09e2760b68bae05705f1473</anchor>
+      <arglist>(cchar *dir, cchar *path)</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
@@ -7993,8 +8084,15 @@
       <type>MprObj *</type>
       <name>mprDeserializeCustom</name>
       <anchorfile>group___mpr_json.html</anchorfile>
-      <anchor>gad922d1e5cdc4d4f1c33e5e14b069b98e</anchor>
-      <arglist>(cchar *str, MprJsonCallback callback, void *data)</arglist>
+      <anchor>gab18d65a89f46e249ffba274c549dfcec</anchor>
+      <arglist>(cchar *str, MprJsonCallback callback, void *data, MprObj *obj)</arglist>
+    </member>
+    <member kind="function">
+      <type>MprObj *</type>
+      <name>mprDeserializeInto</name>
+      <anchorfile>group___mpr_json.html</anchorfile>
+      <anchor>ga07d83131d9c62d9e09462a12fc6f5c3c</anchor>
+      <arglist>(cchar *str, MprObj *obj)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -8965,6 +9063,13 @@
       <arglist>()</arglist>
     </member>
     <member kind="function">
+      <type>bool</type>
+      <name>mprCheckPassword</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>gaa7361e36abe129b975148d3f6faeff8c</anchor>
+      <arglist>(cchar *plainTextPassword, cchar *passwordHash)</arglist>
+    </member>
+    <member kind="function">
       <type>Mpr *</type>
       <name>mprCreate</name>
       <anchorfile>group___mpr.html</anchorfile>
@@ -8977,6 +9082,13 @@
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>ga85bb50d63a783a867786d7df20a1e2ec</anchor>
       <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
+      <name>mprCryptPassword</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>ga39a7ff3da39a15a0de318740dc635a8c</anchor>
+      <arglist>(cchar *password, cchar *salt, int rounds)</arglist>
     </member>
     <member kind="function">
       <type>char *</type>
@@ -9229,6 +9341,20 @@
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>ga02a389f1cd2f5a8ba4e5d2417ae87276</anchor>
       <arglist>(cchar *command, cchar ***argv, int flags)</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
+      <name>mprMakePassword</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>gae8874a355db8bc6fa6d6bfa4dc8bbee6</anchor>
+      <arglist>(cchar *password, int saltLength, int rounds)</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
+      <name>mprMakeSalt</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>ga9c3c6e92660315b831c6fbd490ad15d9</anchor>
+      <arglist>(ssize size)</arglist>
     </member>
     <member kind="function">
       <type>void</type>

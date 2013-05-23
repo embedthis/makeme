@@ -726,6 +726,13 @@
       <arglist>)(HttpQueue *q)</arglist>
     </member>
     <member kind="variable">
+      <type>int(*</type>
+      <name>rewrite</name>
+      <anchorfile>group___http_stage.html</anchorfile>
+      <anchor>ga3b95957f7ef8f0ba66518e17c831935b</anchor>
+      <arglist>)(struct HttpConn *conn)</arglist>
+    </member>
+    <member kind="variable">
       <type>void(*</type>
       <name>start</name>
       <anchorfile>group___http_stage.html</anchorfile>
@@ -1245,15 +1252,15 @@
       <type>int</type>
       <name>httpAddAuthStore</name>
       <anchorfile>group___http_auth.html</anchorfile>
-      <anchor>ga45bc2a7e2f94d716a02e9be574c70b85</anchor>
-      <arglist>(Http *http, cchar *name, HttpVerifyUser verifyUser)</arglist>
+      <anchor>ga3863f1d9e8e297c85355324c24f88c57</anchor>
+      <arglist>(cchar *name, HttpVerifyUser verifyUser)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
       <name>httpAddAuthType</name>
       <anchorfile>group___http_auth.html</anchorfile>
-      <anchor>ga8bedb88f456b5d781ec40766c075bf5d</anchor>
-      <arglist>(Http *http, cchar *name, HttpAskLogin askLogin, HttpParseAuth parse, HttpSetAuth setAuth)</arglist>
+      <anchor>gaa6f7776164fd762e0f107f8049ef2755</anchor>
+      <arglist>(cchar *name, HttpAskLogin askLogin, HttpParseAuth parse, HttpSetAuth setAuth)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -1273,8 +1280,8 @@
       <type>bool</type>
       <name>httpCanUser</name>
       <anchorfile>group___http_auth.html</anchorfile>
-      <anchor>gafff6e3bcbaf04802a09aab292bbe9760</anchor>
-      <arglist>(HttpConn *conn)</arglist>
+      <anchor>gae4d72060fdf970ed2721912cd062fd75</anchor>
+      <arglist>(HttpConn *conn, cchar *abilities)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -1557,8 +1564,8 @@
       <type>void</type>
       <name>httpAddStaticRoute</name>
       <anchorfile>group___http_route.html</anchorfile>
-      <anchor>ga4d72eb7b413175ed98b5726f4f0ad165</anchor>
-      <arglist>(HttpRoute *parent)</arglist>
+      <anchor>gaf718d7af90fc8912cf1bc1f4aa63dd2e</anchor>
+      <arglist>(HttpRoute *parent, cchar *name)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -1739,8 +1746,8 @@
       <type>char *</type>
       <name>httpMakePath</name>
       <anchorfile>group___http_route.html</anchorfile>
-      <anchor>ga9f8966bad2eac58725b4b5a0d2049b62</anchor>
-      <arglist>(HttpRoute *route, cchar *path)</arglist>
+      <anchor>ga3cd081a8998ecaf0d278bcec0fd609bb</anchor>
+      <arglist>(HttpRoute *route, cchar *dir, cchar *path)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -1809,8 +1816,8 @@
       <type>void</type>
       <name>httpSetRouteDir</name>
       <anchorfile>group___http_route.html</anchorfile>
-      <anchor>gae8804a5214733a203a6d6dc3c98aa91b</anchor>
-      <arglist>(HttpRoute *route, cchar *dir)</arglist>
+      <anchor>gaacfdafd7a67f579a838032580a1f99fa</anchor>
+      <arglist>(HttpRoute *route, cchar *path)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -2058,6 +2065,13 @@
     <name>HttpRx</name>
     <title>HttpRx</title>
     <filename>group___http_rx.html</filename>
+    <member kind="function">
+      <type>void</type>
+      <name>httpAddJsonParams</name>
+      <anchorfile>group___http_rx.html</anchorfile>
+      <anchor>ga0ec08ed16166db984df2786cf0bfc376</anchor>
+      <arglist>(HttpConn *conn)</arglist>
+    </member>
     <member kind="function">
       <type>void</type>
       <name>httpAddParams</name>

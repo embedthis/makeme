@@ -21854,7 +21854,7 @@ module ejs.web {
             let log = request.log
             log.debug(5, "Routing " + request.pathInfo)
 
-            //  MOB - this is now done by http for "-http-method"
+            //  MOB - this is now done by http for "-http-method" and X-HTTP-METHOD-OVERRIDE
             if (request.method == "POST") {
                 let method = request.params["-ejs-method-"] || request.header("X-HTTP-METHOD-OVERRIDE")
                 if (method && method.toUpperCase() != request.method) {

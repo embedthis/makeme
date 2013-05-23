@@ -1965,6 +1965,7 @@ PUBLIC ssize sncopy(char *dest, ssize destMax, cchar *src, ssize len);
  */
 PUBLIC bool snumber(cchar *s);
 
+//  MOB DEPRECATE and call title case. stitle()
 /**
     Create a Pascal case version of the string
     @description Copy a string into a newly allocated block and make the first character upper case
@@ -2327,7 +2328,7 @@ PUBLIC ssize mprPrintf(cchar *fmt, ...);
 
 /** 
     Print to stdout and add a trailing newline
-    @hide 
+    @internal 
  */
 PUBLIC ssize print(cchar *fmt, ...);
 
@@ -3388,6 +3389,15 @@ PUBLIC void mprInitList(MprList *list, int flags);
     @stability Stable.
  */
 PUBLIC int mprInsertItemAtPos(MprList *list, int index, cvoid *item);
+
+/**
+    Convert a list of strings to a single string
+    @param list List pointer returned from mprCreateList.
+    @param join String to use as the element join string.
+    @ingroup MprList
+    @stability Prototype.
+ */
+PUBLIC char *mprListToString(MprList *list, cchar *join);
 
 /**
     Find an item and return its index.
@@ -4853,6 +4863,7 @@ PUBLIC char *mprGetWinPath(cchar *path);
 
 /**
     Determine if a directory is the same as or a parent of a path.
+    @param dir Directory to examine if it is a parent of pat.
     @param path Path name to examine
     @returns True if directory is a parent of the path or is the same as the given path.
     @ingroup MprPath
@@ -7507,6 +7518,47 @@ PUBLIC char *mprGetSHAWithPrefix(cchar *buf, ssize len, cchar *prefix);
     @stability Evolving
  */
 PUBLIC char *mprGetSHABase64(cchar *str);
+
+/**
+    Encrypt a password using the Blowfish algorithm
+    @param password User's password to encrypt
+    @param salt Salt text to add to password. Helps to make each user's password unique.
+    @param rounds Number of times to encrypt. More times, makes the routine slower and passwords harder to crack.
+    @return The encrypted password.
+    @ingroup Mpr
+    @stability Prototype
+ */
+PUBLIC char *mprCryptPassword(cchar *password, cchar *salt, int rounds);
+
+/**
+    Make salt for adding to a password.
+    @param size Size in bytes of the salt text.
+    @return The random salt text.
+    @ingroup Mpr
+    @stability Prototype
+ */
+PUBLIC char *mprMakeSalt(ssize size);
+
+/**
+    Make a password hash for a plain-text password using the Blowfish algorithm.
+    @param password User's password to encrypt
+    @param saltLength Length of salt text to add to password. Helps to make each user's password unique.
+    @param rounds Number of times to encrypt. More times, makes the routine slower and passwords harder to crack.
+    @return The encrypted password.
+    @ingroup Mpr
+    @stability Prototype
+ */
+PUBLIC char *mprMakePassword(cchar *password, int saltLength, int rounds);
+
+/**
+    Check a plain-text password against the defined hashed password.
+    @param plainTextPassword User's plain-text-password to check
+    @param passwordHash Required password in hashed format previously computed by mprMakePassword.
+    @return True if the password is correct.
+    @ingroup Mpr
+    @stability Prototype
+ */
+PUBLIC bool mprCheckPassword(cchar *plainTextPassword, cchar *passwordHash);
 
 /********************************* Encoding ***********************************/
 /*  

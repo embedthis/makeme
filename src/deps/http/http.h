@@ -3217,6 +3217,8 @@ PUBLIC void httpDefineAction(cchar *uri, HttpAction fun);
 #define HTTP_ROUTE_STARTED              0x2000      /**< Route initialized */
 #define HTTP_ROUTE_PUT_DELETE_METHODS   0x4000      /**< Support PUT|DELETE on this route */
 #define HTTP_ROUTE_TRACE_METHOD         0x8000      /**< Enable the trace method for handlers supporting it */
+#define HTTP_ROUTE_ANGULAR              0x10000     /**< Angular style MVC app */
+#define HTTP_ROUTE_JSON                 0x20000     /**< Route expects params in JSON body */
 
 /**
     Route Control
@@ -3420,7 +3422,7 @@ PUBLIC void httpAddHomeRoute(HttpRoute *parent);
         The "mvc" selection will add the default routes and then add the route:
         <table>
             <tr><td>Name</td><td>Method</td><td>Pattern</td><td>Target</td></tr>
-            <tr><td>default</td><td>*</td><td>^/{controller}(~/{action}~)$</td><td>${controller}-${action}</td></tr>
+            <tr><td>default</td><td>*</td><td>^/{service}(~/{action}~)$</td><td>${service}-${action}</td></tr>
         </table>
         \n\n
     @ingroup HttpRoute
@@ -3848,10 +3850,10 @@ PUBLIC HttpLimits *httpGraduateLimits(HttpRoute *route, HttpLimits *limits);
         "~", that character will be replaced with the route prefix. This is a very convenient way to create application 
         top-level relative links.
         \n\n
-        If the target is a string that begins with "{AT}" it will be interpreted as a controller/action pair of the 
-        form "{AT}Controller/action". If the "controller/" portion is absent, the current controller is used. If 
+        If the target is a string that begins with "{AT}" it will be interpreted as a service/action pair of the 
+        form "{AT}Service/action". If the "service/" portion is absent, the current service is used. If 
         the action component is missing, the "list" action is used. A bare "{AT}" refers to the "list" action 
-        of the current controller.
+        of the current service.
         \n\n
         If the target starts with "{" it is interpreted as being a JSON style set of options that describe the link.
         If the target is a relative URI path, it is appended to the current request URI path.  
@@ -3859,7 +3861,7 @@ PUBLIC HttpLimits *httpGraduateLimits(HttpRoute *route, HttpLimits *limits);
         If the is a JSON style of options, it can specify the URI components: scheme, host, port, path, reference and
         query. If these component properties are supplied, these will be combined to create a URI.
         \n\n
-        If the target specifies either a controller/action or a JSON set of options, The URI will be created according 
+        If the target specifies either a service/action or a JSON set of options, The URI will be created according 
         to the route URI template. The template may be explicitly specified
         via a "route" target property. Otherwise, if an "action" property is specified, the route of the same
         name will be used. If these don't result in a usable route, the "default" route will be used. 
@@ -3872,10 +3874,10 @@ PUBLIC HttpLimits *httpGraduateLimits(HttpRoute *route, HttpLimits *limits);
             <li>path String URI path portion</li>
             <li>reference String URI path reference. Does not include "#"</li>
             <li>query String URI query parameters. Does not include "?"</li>
-            <li>controller String Controller name if using a Controller-based route. This can also be specified via
+            <li>service String Service name if using a Service-based route. This can also be specified via
                 the action option.</li>
-            <li>action String Action to invoke. This can be a URI string or a Controller action of the form
-                {AT}Controller/action.</li>
+            <li>action String Action to invoke. This can be a URI string or a Service action of the form
+                {AT}Service/action.</li>
             <li>route String Route name to use for the URI template</li>
         </ul>
     @param options Hash of option values for embedded tokens.
@@ -3888,13 +3890,13 @@ PUBLIC HttpLimits *httpGraduateLimits(HttpRoute *route, HttpLimits *limits);
     httpLink(conn, "../images/splash.png", 0);
     httpLink(conn, "~/static/images/splash.png", 0);
     httpLink(conn, "${app}/static/images/splash.png", 0);
-    httpLink(conn, "@controller/checkout", 0);
-    httpLink(conn, "@controller/")                //  Controller = Controller, action = index
-    httpLink(conn, "@init")                       //  Current controller, action = init
-    httpLink(conn, "@")                           //  Current controller, action = index
+    httpLink(conn, "@service/checkout", 0);
+    httpLink(conn, "@service/")               //  Service = Service, action = index
+    httpLink(conn, "@init")                   //  Current service, action = init
+    httpLink(conn, "@")                       //  Current service, action = index
     httpLink(conn, "{ action: '@post/create' }", 0);
     httpLink(conn, "{ action: 'checkout' }", 0);
-    httpLink(conn, "{ action: 'logout', controller: 'admin' }", 0);
+    httpLink(conn, "{ action: 'logout', service: 'admin' }", 0);
     httpLink(conn, "{ action: 'admin/logout'", 0);
     httpLink(conn, "{ product: 'candy', quantity: '10', template: '/cart/${product}/${quantity}' }", 0);
     httpLink(conn, "{ route: '~/STAR/edit', action: 'checkout', id: '99' }", 0);
@@ -4178,7 +4180,7 @@ PUBLIC void httpSetRouteScript(HttpRoute *route, cchar *script, cchar *scriptPat
 
 /**
     Set the source code module for the route
-    @description Some handlers can dynamically load web applications and controllers to serve requests.
+    @description Some handlers can dynamically load web applications and services to serve requests.
     @param route Route to modify
     @param source Source path or description 
     @ingroup HttpRoute
@@ -4578,7 +4580,7 @@ PUBLIC void httpRemoveUploadFile(HttpConn *conn, cchar *id);
 #define HTTP_IF_MODIFIED        0x100       /**< If-[un]modified-since supplied */
 #define HTTP_CHUNKED            0x200       /**< Content is chunk encoded */
 #define HTTP_ADDED_QUERY_PARAMS 0x400       /**< Query added to params */
-#define HTTP_ADDED_FORM_PARAMS  0x800       /**< Form body data added to params */
+#define HTTP_ADDED_BODY_PARAMS  0x800       /**< Body data added to params */
 #define HTTP_LIMITS_OPENED      0x1000      /**< Request limits opened */
 #define HTTP_EXPECT_CONTINUE    0x2000      /**< Client expects an HTTP 100 Continue response */
 #define HTTP_AUTH_CHECKED       0x4000      /**< User authentication has been checked */
@@ -4715,7 +4717,7 @@ PUBLIC void httpAddParams(HttpConn *conn);
     @stability Internal
     @internal
  */
-PUBLIC void httpAddParamsFromJsonBody(HttpConn *conn);
+PUBLIC void httpAddJsonParams(HttpConn *conn);
 
 /**
     Test if the content has not been modified

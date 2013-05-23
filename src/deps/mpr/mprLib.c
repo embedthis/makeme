@@ -7677,15 +7677,13 @@ static void shaPad(MprSha *sha)
 }
 
 /************************************ Blowfish *******************************/
-#if FUTURE
 
-//  MOB - move to mpr.h
+#define BF_ROUNDS 16
+
 typedef struct {
   uint P[16 + 2];
   uint S[4][256];
 } MprBlowfish;
-
-#define N 16
 
 static const uint ORIG_P[16 + 2] = {
         0x243F6A88L, 0x85A308D3L, 0x13198A2EL, 0x03707344L,
@@ -7695,6 +7693,9 @@ static const uint ORIG_P[16 + 2] = {
         0x9216D5D9L, 0x8979FB1BL
 };
 
+/*
+    Digits of PI
+ */
 static const uint ORIG_S[4][256] = {
     {   0xD1310BA6L, 0x98DFB5ACL, 0x2FFD72DBL, 0xD01ADFB7L,
         0xB8E1AFEDL, 0x6A267E96L, 0xBA7C9045L, 0xF12C7F99L,
@@ -7959,56 +7960,7 @@ static const uint ORIG_S[4][256] = {
 };
 
 
-PUBLIC char *mprGetBlowfish(cchar *s)
-{
-    return mprGetBlowWithPrefix(s, slen(s), NULL);
-}
-
-
-PUBLIC char *mprGetBlowfishWithPrefix(cchar *buf, ssize length, cchar *prefix)
-{
-    MprBlowfish bf;
-    uchar       hash[SHA_SIZE];
-    cchar       *hex = "0123456789abcdef";
-    char        *r, *str;
-    char        result[(SHA_SIZE * 2) + 1];
-    ssize       len;
-    int         i;
-
-    if (length < 0) {
-        length = slen(buf);
-    }
-    binit(&bf, key, keylen);
-    result = mprAlloc(length);
-
-    bp = buf;
-    for (i = 0; i < length; i += 4) {
-        bencrypt(&bf, *(uint*) bp, &r);
-        * (uint*) rp = r;
-        rp += 4;
-        bp += 4;
-    }
-    shaUpdate(&bf, (cuchar*) buf, length);
-    shaFinalize(hash, &bf);
-
-    for (i = 0, r = result; i < SHA_SIZE; i++) {
-        *r++ = hex[hash[i] >> 4];
-        *r++ = hex[hash[i] & 0xF];
-    }
-    *r = '\0';
-    len = (prefix) ? slen(prefix) : 0;
-    str = mprAlloc(sizeof(result) + len);
-    if (str) {
-        if (prefix) {
-            strcpy(str, prefix);
-        }
-        strcpy(str + len, result);
-    }
-    return str;
-}
-
-
-static uint BF(MprBlowfish *ctx, uint x) 
+static uint BF(MprBlowfish *bp, uint x) 
 {
    ushort a, b, c, d;
    uint  y;
@@ -8021,26 +7973,24 @@ static uint BF(MprBlowfish *ctx, uint x)
     x >>= 8;
     a = x & 0x00FF;
 
-    y = ctx->S[0][a] + ctx->S[1][b];
-    y = y ^ ctx->S[2][c];
-    y = y + ctx->S[3][d];
+    y = bp->S[0][a] + bp->S[1][b];
+    y = y ^ bp->S[2][c];
+    y = y + bp->S[3][d];
     return y;
 }
 
 
-PUBLIC void bencrypt(MprBlowfish *ctx, uint *xl, uint *xr) 
+static void bencrypt(MprBlowfish *bp, uint *xl, uint *xr) 
 {
-    uint    Xl;
-    uint    Xr;
-    uint    temp;
-    short   i;
+    uint    Xl, Xr, temp;
+    int     i;
 
     Xl = *xl;
     Xr = *xr;
 
-    for (i = 0; i < N; ++i) {
-        Xl = Xl ^ ctx->P[i];
-        Xr = BF(ctx, Xl) ^ Xr;
+    for (i = 0; i < BF_ROUNDS; ++i) {
+        Xl = Xl ^ bp->P[i];
+        Xr = BF(bp, Xl) ^ Xr;
         temp = Xl;
         Xl = Xr;
         Xr = temp;
@@ -8048,81 +7998,164 @@ PUBLIC void bencrypt(MprBlowfish *ctx, uint *xl, uint *xr)
     temp = Xl;
     Xl = Xr;
     Xr = temp;
-    Xr = Xr ^ ctx->P[N];
-    Xl = Xl ^ ctx->P[N + 1];
+    Xr = Xr ^ bp->P[BF_ROUNDS];
+    Xl = Xl ^ bp->P[BF_ROUNDS + 1];
     *xl = Xl;
     *xr = Xr;
 }
 
 
-PUBLIC void bdecrypt(MprBlowfish *ctx, uint *xl, uint *xr) 
+#if UNUSED && KEEP
+static void bdecrypt(MprBlowfish *bp, uint *xl, uint *xr) 
 {
-    uint  Xl;
-    uint  Xr;
-    uint  temp;
-    short i;
+    uint    Xl, Xr, temp;
+    int     i;
 
     Xl = *xl;
     Xr = *xr;
 
-    for (i = N + 1; i > 1; --i) {
-        Xl = Xl ^ ctx->P[i];
-        Xr = BF(ctx, Xl) ^ Xr;
-        /* Exchange Xl and Xr */
+    for (i = BF_ROUNDS + 1; i > 1; --i) {
+        Xl = Xl ^ bp->P[i];
+        Xr = BF(bp, Xl) ^ Xr;
         temp = Xl;
         Xl = Xr;
         Xr = temp;
     }
-
-    /* Exchange Xl and Xr */
     temp = Xl;
     Xl = Xr;
     Xr = temp;
-    Xr = Xr ^ ctx->P[1];
-    Xl = Xl ^ ctx->P[0];
+    Xr = Xr ^ bp->P[1];
+    Xl = Xl ^ bp->P[0];
     *xl = Xl;
     *xr = Xr;
 }
+#endif
 
 
-PUBLIC void binit(MprBlowfish *ctx, uchar *key, ssize keylen) 
+static void binit(MprBlowfish *bp, uchar *key, ssize keylen) 
 {
   uint  data, datal, datar;
   int   i, j, k;
 
     for (i = 0; i < 4; i++) {
         for (j = 0; j < 256; j++) {
-            ctx->S[i][j] = ORIG_S[i][j];
+            bp->S[i][j] = ORIG_S[i][j];
         }
     }
-    j = 0;
-    for (j = i = 0; i < N + 2; ++i) {
-        data = 0x00000000;
-        for (k = 0; k < 4; ++k) {
+    for (j = i = 0; i < BF_ROUNDS + 2; ++i) {
+        for (data = 0, k = 0; k < 4; ++k) {
             data = (data << 8) | key[j];
             j = j + 1;
-            if (j >= keylen)
+            if (j >= keylen) {
                 j = 0;
+            }
         }
-        ctx->P[i] = ORIG_P[i] ^ data;
+        bp->P[i] = ORIG_P[i] ^ data;
     }
-    datal = 0x00000000;
-    datar = 0x00000000;
+    datal = datar = 0;
 
-    for (i = 0; i < N + 2; i += 2) {
-        bencrhipt(ctx, &datal, &datar);
-        ctx->P[i] = datal;
-        ctx->P[i + 1] = datar;
+    for (i = 0; i < BF_ROUNDS + 2; i += 2) {
+        bencrypt(bp, &datal, &datar);
+        bp->P[i] = datal;
+        bp->P[i + 1] = datar;
     }
     for (i = 0; i < 4; ++i) {
         for (j = 0; j < 256; j += 2) {
-            bdecrypt(ctx, &datal, &datar);
-            ctx->S[i][j] = datal;
-            ctx->S[i][j + 1] = datar;
+            bencrypt(bp, &datal, &datar);
+            bp->S[i][j] = datal;
+            bp->S[i][j + 1] = datar;
         }
     }
 }
-#endif
+
+
+/*
+    Text: "OrpheanBeholderScryDoubt"
+ */
+static uint cipherText[6] = {
+    0x4f727068, 0x65616e42, 0x65686f6c,
+    0x64657253, 0x63727944, 0x6f756274
+};
+
+
+PUBLIC char *mprCryptPassword(cchar *password, cchar *salt, int rounds)
+{
+    MprBlowfish     bf;
+    char            *result, *key;
+    uint            *text;
+    ssize           len, limit;
+    int             i, j;
+
+    key = sfmt("%s:%s", salt, password);
+    binit(&bf, (uchar*) key, slen(key));
+    len = sizeof(cipherText);
+    text = mprMemdup(cipherText, len);
+
+    for (i = 0; i < rounds; i++) {
+        limit = len / sizeof(uint);
+        for (j = 0; j < limit; j++) {
+            bencrypt(&bf, &text[j], &text[j + 1]);
+        }
+    }
+    result = mprEncode64Block((cchar*) text, len);
+    memset(&bf, 0, sizeof(bf));
+    memset(text, 0, len);
+    return result;
+}
+
+PUBLIC char *mprMakeSalt(ssize size)
+{
+    char    *chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    char    *rp, *result, *random;
+    ssize   clen, i;
+
+    size = (size + sizeof(int) - 1) & ~(sizeof(int) - 1);
+    random = mprAlloc(size + 1);
+    result = mprAlloc(size + 1);
+    if (mprGetRandomBytes(random, size, 0) < 0) {
+        return 0;
+    }
+    clen = slen(chars);
+    for (i = 0, rp = result; i < size; i++) {
+        *rp++ = chars[(random[i] & 0x7F) % clen];
+    }
+    *rp = '\0';
+    return result;
+}
+
+
+/*
+    Format of hashed password is:
+
+    Algorithm: Rounds: Salt: Hash
+*/
+PUBLIC char *mprMakePassword(cchar *password, int saltLength, int rounds)
+{
+    cchar   *salt;
+
+    salt = mprMakeSalt(saltLength);
+    return sfmt("BF1:%05d:%s:%s", rounds, salt, mprCryptPassword(password, salt, rounds));
+}
+
+
+PUBLIC bool mprCheckPassword(cchar *plainTextPassword, cchar *passwordHash)
+{
+    cchar   *algorithm, *given, *rounds, *salt, *s1, *s2;
+    char    *tok, *hash;
+    ssize   match;
+
+    algorithm = stok(sclone(passwordHash), ":", &tok);
+    rounds = stok(NULL, ":", &tok);
+    salt = stok(NULL, ":", &tok);
+    hash = stok(NULL, ":", &tok);
+    given = mprCryptPassword(plainTextPassword, salt, atoi(rounds));
+
+    match = slen(given) ^ slen(hash);
+    for (s1 = given, s2 = hash; *s1 && *s2; s1++, s2++) {
+        match |= (*s1 & 0xFF) ^ (*s2 & 0xFF);
+    }
+    return !match;
+}
 
 /*
     @copy   default
@@ -13586,6 +13619,26 @@ recurse:
 }
 
 
+PUBLIC char *mprListToString(MprList *list, cchar *join)
+{
+    MprBuf  *buf;
+    cchar   *s;
+    int     next;
+
+    if (!join) {
+        join = ",";
+    }
+    buf = mprCreateBuf(0, 0);
+    for (ITERATE_ITEMS(list, s, next)) {
+        mprPutStringToBuf(buf, s);
+        mprPutStringToBuf(buf, join);
+    }
+    mprAdjustBufEnd(buf, -1);
+    mprAddNullToBuf(buf);
+    return mprGetBufStart(buf);
+}
+
+
 /*
     @copy   default
 
@@ -14615,6 +14668,7 @@ static char *standardMimeTypes[] = {
     "jpg",   "image/jpeg",
     "js",    "application/javascript",
     "json",  "application/json",
+    "less",  "text/css",
     "mp3",   "audio/mpeg",
     "mpg",   "video/mpeg",
     "mpeg",  "video/mpeg",
