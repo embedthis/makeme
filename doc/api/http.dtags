@@ -1333,6 +1333,13 @@
       <arglist>(HttpConn *conn, cchar *username, cchar *password)</arglist>
     </member>
     <member kind="function">
+      <type>void</type>
+      <name>httpLogout</name>
+      <anchorfile>group___http_auth.html</anchorfile>
+      <anchor>gad3645d7419bde032ac01eb1cb4e3c316</anchor>
+      <arglist>(HttpConn *conn)</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>httpRemoveRole</name>
       <anchorfile>group___http_auth.html</anchorfile>
@@ -1422,6 +1429,13 @@
       <anchorfile>group___http_auth.html</anchorfile>
       <anchor>ga9edb29a658e66f66df80100308a1aa73</anchor>
       <arglist>(HttpAuth *auth, cchar *store)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>httpSetAuthStoreVerify</name>
+      <anchorfile>group___http_auth.html</anchorfile>
+      <anchor>ga72e16500d79e9e353b6bdae89697ffad</anchor>
+      <arglist>(cchar *name, HttpVerifyUser verifyUser)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -2426,6 +2440,13 @@
       <anchorfile>group___http_tx.html</anchorfile>
       <anchor>ga616290c9e8fe95419d3a31f6fbb870b5</anchor>
       <arglist>(HttpConn *conn, int status, cchar *uri)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpRemoveCookie</name>
+      <anchorfile>group___http_tx.html</anchorfile>
+      <anchor>gaf0c311cf514c34ed2a163c3320442c41</anchor>
+      <arglist>(HttpConn *conn, cchar *name)</arglist>
     </member>
     <member kind="function">
       <type>int</type>

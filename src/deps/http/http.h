@@ -2763,7 +2763,14 @@ PUBLIC int httpAddAuthType(cchar *name, HttpAskLogin askLogin, HttpParseAuth par
  */
 PUBLIC int httpAddAuthStore(cchar *name, HttpVerifyUser verifyUser);
 
-//MOB DOC
+/**
+    Set the verify callback for a authentication store
+    @param name Name of the authentication store
+    @param verifyUser Verification callback
+    @return Zero if successful, otherwise a negative MPR error code
+    @ingroup HttpAuth
+    @stability Evolving
+  */
 PUBLIC int httpSetAuthStoreVerify(cchar *name, HttpVerifyUser verifyUser);
 
 /**
@@ -2876,7 +2883,13 @@ PUBLIC bool httpIsAuthenticated(HttpConn *conn);
     @stability Evolving
  */
 PUBLIC bool httpLogin(HttpConn *conn, cchar *username, cchar *password);
-//  MOB DOC
+
+/**
+    Logout the user.
+    @param conn HttpConn connection object 
+    @ingroup HttpAuth
+    @stability Prototype
+ */
 PUBLIC void httpLogout(HttpConn *conn);
 
 /**
@@ -5439,7 +5452,13 @@ PUBLIC void httpSetContentType(HttpConn *conn, cchar *mimeType);
 PUBLIC void httpSetCookie(HttpConn *conn, cchar *name, cchar *value, cchar *path, cchar *domain, 
         MprTicks lifespan, int flags);
 
-//  MOB - DOC
+/**
+    Remove a cookie from the client (browser)
+    @param conn HttpConn connection object created via #httpCreateConn
+    @param name Name of the cookie created with httpSetCookie
+    @ingroup HttpTx
+    @stability Prototype
+ */
 PUBLIC void httpRemoveCookie(HttpConn *conn, cchar *name);
 
 /**

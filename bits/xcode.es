@@ -554,9 +554,12 @@ ${OUTPUTS}
         let inputs = ''
         let outputs = ''
         let cmd = 'PATH=$PATH:/usr/local/bin\n'
+
+    /*  UNUSED
         if (bit.platform.profile == 'mine' && bit.settings.product == 'appweb') {
             cmd += 'rm -f ${BIN_DIR}/appweb\n'
         }
+     */
         if (!target.home.same(base)) {
             cmd += 'cd ' + target.home.relativeTo(base) + '\n'
             makeDirGlobals(target.home)
@@ -567,7 +570,11 @@ ${OUTPUTS}
                        'cp -r ' + file.relativeTo(target.home) + ' ' + target.path.relativeTo(target.home) + '\n'
             }
         } else {
-            cmd += target['generate-xcode'] || target['generate-sh'] || target['generate']
+            let gencmd = target['generate-xcode'] || target['generate-sh'] || target['generate']
+            if (!gencmd) {
+                continue
+            }
+            cmd += gencmd
             if (!cmd) {
                 if (target.scripts && target.scripts.build) {
                     shell = '"/usr/bin/env ' + target.scripts.build[0].interpreter + '"'
