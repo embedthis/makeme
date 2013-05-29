@@ -110,7 +110,6 @@ PUBLIC int mprCreateMatrixSslModule()
     provider->closeSocket = closeMss;
     provider->disconnectSocket = disconnectMss;
     provider->flushSocket = flushMss;
-    provider->listenSocket = listenMss;
     provider->readSocket = readMss;
     provider->socketState = getMssState;
     provider->writeSocket = writeMss;
@@ -181,13 +180,6 @@ static void closeMss(MprSocket *sp, bool gracefully)
     sp->service->standardProvider->closeSocket(sp, gracefully);
     mprRemoveItem(sp->service->secureSockets, msp->sock);
     unlock(sp);
-}
-
-
-// UNUSED
-static Socket listenMss(MprSocket *sp, cchar *host, int port, int flags)
-{
-    return sp->service->standardProvider->listenSocket(sp, host, port, flags);
 }
 
 
@@ -849,7 +841,6 @@ static void     disconnectEst(MprSocket *sp);
 static void     estTrace(void *fp, int level, char *str);
 static int      handshakeEst(MprSocket *sp);
 static char     *getEstState(MprSocket *sp);
-static Socket   listenEst(MprSocket *sp, cchar *host, int port, int flags);
 static void     manageEstConfig(EstConfig *cfg, int flags);
 static void     manageEstProvider(MprSocketProvider *provider, int flags);
 static void     manageEstSocket(EstSocket *ssp, int flags);
@@ -872,7 +863,6 @@ PUBLIC int mprCreateEstModule()
     estProvider->upgradeSocket = upgradeEst;
     estProvider->closeSocket = closeEst;
     estProvider->disconnectSocket = disconnectEst;
-    estProvider->listenSocket = listenEst;
     estProvider->readSocket = readEst;
     estProvider->writeSocket = writeEst;
     estProvider->socketState = getEstState;
@@ -939,18 +929,6 @@ static void closeEst(MprSocket *sp, bool gracefully)
         ssl_close_notify(&est->ctx);
     }
     sp->service->standardProvider->closeSocket(sp, gracefully);
-}
-
-
-/*
-    Initialize a new server-side connection
-    UNUSED
- */
-static Socket listenEst(MprSocket *sp, cchar *host, int port, int flags)
-{
-    assert(sp);
-    assert(port);
-    return sp->service->standardProvider->listenSocket(sp, host, port, flags);
 }
 
 
@@ -1028,8 +1006,8 @@ static int upgradeEst(MprSocket *sp, MprSsl *ssl, cchar *peerName)
     }
     unlock(ssl);
 
-    //  MOB - convert to proper entropy source API
-    //  MOB - can't put this in cfg yet as it is not thread safe
+    //  TODO - convert to proper entropy source API
+    //  TODO - can't put this in cfg yet as it is not thread safe
     ssl_free(&est->ctx);
     havege_init(&est->hs);
     ssl_init(&est->ctx);
@@ -1039,7 +1017,7 @@ static int upgradeEst(MprSocket *sp, MprSsl *ssl, cchar *peerName)
     ssl_set_dbg(&est->ctx, estTrace, NULL);
     ssl_set_bio(&est->ctx, net_recv, &sp->fd, net_send, &sp->fd);
 
-    //  MOB - better if the API took a handle (est)
+    //  TODO - better if the API took a handle (est)
     ssl_set_scb(&est->ctx, getSession, setSession);
     ssl_set_ciphers(&est->ctx, cfg->ciphers);
 
@@ -1098,7 +1076,7 @@ static int handshakeEst(MprSocket *sp)
         Analyze the handshake result
      */
     if (rc < 0) {
-        //  MOB - more codes here or have est set a textual message (better)
+        //  TODO - more codes here or have est set a textual message (better)
         if (rc == EST_ERR_SSL_PRIVATE_KEY_REQUIRED && !(sp->ssl->keyFile || sp->ssl->certFile)) {
             sp->errorMsg = sclone("Peer requires a certificate");
         } else {
@@ -1152,7 +1130,7 @@ static int handshakeEst(MprSocket *sp)
         }
 #if UNUSED
     } else {
-        /* MOB - being emitted when no cert supplied */
+        /* TODO - being emitted when no cert supplied */
         mprLog(3, "EST: Certificate verified");
 #endif
     }
@@ -1260,7 +1238,7 @@ static char *getEstState(MprSocket *sp)
     ssl_context     *ctx;
     MprBuf          *buf;
     char            *own, *peer;
-    char            cbuf[5120];         //  MOB - must not be a static buffer
+    char            cbuf[5120];         //  TODO - must not be a static buffer
 
     if ((est = sp->sslSocket) == 0) {
         return 0;
@@ -1486,7 +1464,6 @@ PUBLIC int mprCreateOpenSslModule()
     openProvider->closeSocket = closeOss;
     openProvider->disconnectSocket = disconnectOss;
     openProvider->flushSocket = flushOss;
-    openProvider->listenSocket = listenOss;
     openProvider->socketState = getOssState;
     openProvider->readSocket = readOss;
     openProvider->writeSocket = writeOss;
@@ -1760,15 +1737,6 @@ static void closeOss(MprSocket *sp, bool gracefully)
     SSL_free(osp->handle);
     osp->handle = 0;
     sp->service->standardProvider->closeSocket(sp, gracefully);
-}
-
-
-//  UNUSED
-static Socket listenOss(MprSocket *sp, cchar *host, int port, int flags)
-{
-    assert(sp);
-    assert(port);
-    return sp->service->standardProvider->listenSocket(sp, host, port, flags);
 }
 
 
@@ -2506,7 +2474,6 @@ PUBLIC int mprCreateNanoSslModule()
     nanoProvider->upgradeSocket = nanoUpgrade;
     nanoProvider->closeSocket = nanoClose;
     nanoProvider->disconnectSocket = nanoDisconnect;
-    nanoProvider->listenSocket = nanoListen;
     nanoProvider->readSocket = nanoRead;
     nanoProvider->writeSocket = nanoWrite;
     mprAddSocketProvider("nanossl", nanoProvider);
@@ -2579,18 +2546,6 @@ static void nanoClose(MprSocket *sp, bool gracefully)
         np->handle = 0;
     }
     sp->service->standardProvider->closeSocket(sp, gracefully);
-}
-
-
-/*
-    Initialize a new server-side connection
-    UNUSED
- */
-static Socket nanoListen(MprSocket *sp, cchar *host, int port, int flags)
-{
-    assert(sp);
-    assert(port);
-    return sp->service->standardProvider->listenSocket(sp, host, port, flags);
 }
 
 
@@ -3053,25 +3008,25 @@ PUBLIC int mprSslInit(void *unused, MprModule *module)
     if (mprCreateMatrixSslModule() < 0) {
         return MPR_ERR_CANT_OPEN;
     }
-    MPR->socketService->defaultProvider = sclone("matrixssl");
+    MPR->socketService->sslProvider = sclone("matrixssl");
 #endif
 #if BIT_PACK_NANOSSL
     if (mprCreateNanoSslModule() < 0) {
         return MPR_ERR_CANT_OPEN;
     }
-    MPR->socketService->defaultProvider = sclone("nanossl");
+    MPR->socketService->sslProvider = sclone("nanossl");
 #endif
 #if BIT_PACK_OPENSSL
     if (mprCreateOpenSslModule() < 0) {
         return MPR_ERR_CANT_OPEN;
     }
-    MPR->socketService->defaultProvider = sclone("openssl");
+    MPR->socketService->sslProvider = sclone("openssl");
 #endif
 #if BIT_PACK_EST
     if (mprCreateEstModule() < 0) {
         return MPR_ERR_CANT_OPEN;
     }
-    MPR->socketService->defaultProvider = sclone("est");
+    MPR->socketService->sslProvider = sclone("est");
 #endif
     return 0;
 #else

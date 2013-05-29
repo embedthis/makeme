@@ -38,6 +38,7 @@ struct HttpWebSocket;
 
 /********************************** Tunables **********************************/
 
+//  TODO - do all these need to have MAX some are just sizes and not maximums
 #ifndef BIT_HTTP_PORT
     #define BIT_HTTP_PORT           80
 #endif
@@ -49,9 +50,6 @@ struct HttpWebSocket;
 #endif
 #ifndef BIT_MAX_IOVEC
     #define BIT_MAX_IOVEC           16                  /**< Number of fragments in a single socket write */
-#endif
-#ifndef BIT_MAX_ROUTE_MATCHES
-    #define BIT_MAX_ROUTE_MATCHES   32                  /**< Maximum number of submatches in routes */
 #endif
 #ifndef BIT_MAX_CLIENTS_HASH
     #define BIT_MAX_CLIENTS_HASH    131                 /**< Hash table for client IP addresses */
@@ -89,11 +87,20 @@ struct HttpWebSocket;
 #ifndef BIT_MAX_REWRITE
     #define BIT_MAX_REWRITE         20                  /**< Maximum URI rewrites */
 #endif
+#ifndef BIT_MAX_ROUTE_MATCHES
+    #define BIT_MAX_ROUTE_MATCHES   32                  /**< Maximum number of submatches in routes */
+#endif
+#ifndef BIT_MAX_ROUTE_MAP_HASH
+    #define BIT_MAX_ROUTE_MAP_HASH  17                  /**< Size of the route mapping hash */
+#endif
 #ifndef BIT_MAX_SESSIONS
     #define BIT_MAX_SESSIONS        100                 /**< Maximum concurrent sessions */
 #endif
 #ifndef BIT_MAX_QBUFFER
     #define BIT_MAX_QBUFFER         (32 * 1024)         /**< Maximum buffer for any pipeline queue */
+#endif
+#ifndef BIT_MAX_SESSION_HASH
+    #define BIT_MAX_SESSION_HASH    31                  /**< Hash table for session data */
 #endif
 #ifndef BIT_MAX_TX_BODY
     #define BIT_MAX_TX_BODY         (INT_MAX)           /**< Maximum buffer for response data */
@@ -273,7 +280,7 @@ PUBLIC void httpSetForkCallback(struct Http *http, MprForkCallback proc, void *a
     Http service object
     @description The Http service is managed by a single service object.
     @defgroup Http Http
-    @see Http HttpConn HttpEndpoint gettGetDateString httpConfigurenamedVirtualEndpoint httpCreate httpCreateSecret 
+    @see Http HttpConn HttpEndpoint gettGetDateString httpConfigurenamedVirtualEndpoint httpCreate
         httpDestroy httpGetContext httpGetDateString httpLookupEndpoint httpLookupStatus httpLooupHost 
         httpSetContext httpSetDefaultClientHost httpSetDefaultClientPort httpSetDefaultPort httpSetForkCallback 
         httpSetProxy httpSetSoftware 
@@ -387,16 +394,6 @@ PUBLIC Http *httpCreate(int flags);
     @stability Stable
  */
 PUBLIC int httpConfigureNamedVirtualEndpoints(Http *http, cchar *ip, int port);
-
-/**  
-    Create the Http secret data for crypto
-    @description Create http secret data that is used to seed SSL-based communications.
-    @param http Http service object.
-    @return "Zero" if successful, otherwise a negative MPR error code
-    @ingroup Http
-    @stability Stable
- */
-PUBLIC int httpCreateSecret(Http *http);
 
 /**
     Destroy the Http service object
@@ -3230,8 +3227,12 @@ PUBLIC void httpDefineAction(cchar *uri, HttpAction fun);
 #define HTTP_ROUTE_STARTED              0x2000      /**< Route initialized */
 #define HTTP_ROUTE_PUT_DELETE_METHODS   0x4000      /**< Support PUT|DELETE on this route */
 #define HTTP_ROUTE_TRACE_METHOD         0x8000      /**< Enable the trace method for handlers supporting it */
+//  TODO - remove ANGULAR from route
 #define HTTP_ROUTE_ANGULAR              0x10000     /**< Angular style MVC app */
 #define HTTP_ROUTE_JSON                 0x20000     /**< Route expects params in JSON body */
+#if UNUSED
+#define HTTP_ROUTE_MINIFY               0x40000     /**< Support minified content on this route */
+#endif
 
 /**
     Route Control
@@ -3262,7 +3263,7 @@ typedef struct HttpRoute {
     char            *targetRule;            /**< Target rule */
     char            *target;                /**< Route target details */
 
-    //  MOB - rename documents
+    //  TODO - rename documents
     char            *dir;                   /**< Documents directory */
     char            *home;                  /**< Home directory for configuration files */
     MprList         *indicies;              /**< Directory index documents */
@@ -3286,6 +3287,8 @@ typedef struct HttpRoute {
     MprHash         *extensions;            /**< Hash of handlers by extensions */
     MprList         *handlers;              /**< List of handlers for this route */
     HttpStage       *connector;             /**< Network connector to use */
+    MprHash         *map;                   /**< Map of alternate extensions (gzip|minified) */
+    MprHash         *mappings;              /**< Runtime filename mappings */
     MprHash         *data;                  /**< Hash of extra data configuration */
     MprHash         *vars;                  /**< Route variables. Used to expand Path ${token} refrerences */
     MprHash         *languages;             /**< Languages supported */
@@ -3551,6 +3554,18 @@ PUBLIC void httpAddRouteIndex(HttpRoute *route, cchar *path);
     @stability Evolving
  */
 PUBLIC int httpAddRouteLanguageSuffix(HttpRoute *route, cchar *language, cchar *suffix, int flags);
+
+/**
+    Add a route mapping
+    @description Route mappings will map the request filename by changing the default extension to the mapped extension.
+    This is used primarily to select compressed content.
+    @param route Route to modify
+    @param extensions Comma separated list of extensions to map
+    @param mappings New file extension to use. This may include a "${1}" token to replace the previous extension.
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC void httpAddRouteMapping(HttpRoute *route, cchar *extensions, cchar *mappings);
 
 /**
     Add a route language directory
@@ -4009,7 +4024,7 @@ PUBLIC void httpSetRouteAutoDelete(HttpRoute *route, bool on);
     Contol content compression for the route
     @description This configures content compression for the route. Some handlers observe the content compression status
         and will attempt to use or compress content before transmitting to the client. The fileHandler is currently
-        the only handler that uses this capability.
+        the only handler that uses this capability. By default, routes will be created with compression enabled.
     @param route Route to modify
     @param flags Set to HTTP_ROUTE_GZIP to enable the fileHandler to serve eqivalent compressed content with a "gz"
         extension.
@@ -4127,6 +4142,18 @@ PUBLIC void httpSetRouteStreaming(HttpRoute *route, cchar *mimeType, bool enable
     @stability Evolving
  */
 PUBLIC void httpSetRouteMethods(HttpRoute *route, cchar *methods);
+
+#if UNUSED
+/**
+    Contol client javascript minification for the route
+    @description Routes will be created by default with minification enabled.
+    @param route Route to modify
+    @param on Set to true to use minified content if available.
+    @ingroup HttpRoute
+    @stability Evolving
+ */
+PUBLIC void httpSetRouteMinify(HttpRoute *route, bool on);
+#endif
 
 /**
     Set the route name
@@ -4403,8 +4430,8 @@ PUBLIC char *httpExpandUri(HttpConn *conn, cchar *str);
 /*********************************** Session ***************************************/
 
 #define HTTP_SESSION_COOKIE     "-http-session-"    /**< Session cookie name */
-#define HTTP_SESSION_USERNAME   "_:USERNAME:_"      /**< Username variable */
-#define HTTP_SESSION_AUTHVER    "_:VERSION:_"       /**< Auth version number */
+#define HTTP_SESSION_USERNAME   "__USERNAME__"      /**< Username variable */
+#define HTTP_SESSION_AUTHVER    "__VERSION__"       /**< Auth version number */
 
 /**
     Session state object
@@ -4415,9 +4442,12 @@ PUBLIC char *httpExpandUri(HttpConn *conn, cchar *str);
  */
 typedef struct HttpSession {
     char            *id;                        /**< Session ID key */
+#if UNUSED
     HttpConn        *conn;                      /**< Owning connection */
+#endif
     MprCache        *cache;                     /**< Cache store reference */
     MprTicks        lifespan;                   /**< Session inactivity timeout (msecs) */
+    MprHash         *data;                      /**< Session data */
 } HttpSession;
 
 /**
@@ -4465,6 +4495,16 @@ PUBLIC void httpDestroySession(HttpConn *conn);
 PUBLIC HttpSession *httpGetSession(HttpConn *conn, int create);
 
 /**
+    Get the session ID.
+    @description
+    @param conn Http connection object
+    @return The session ID string
+    @ingroup HttpSession
+    @stability Evolving
+ */
+PUBLIC char *httpGetSessionID(HttpConn *conn);
+
+/**
     Get an object from the session state store.
     @description Retrieve an object from the session state store by deserializing all properties.
     @param conn Http connection object
@@ -4508,16 +4548,6 @@ PUBLIC int httpRemoveSessionVar(HttpConn *conn, cchar *name);
 PUBLIC int httpSetSessionVar(HttpConn *conn, cchar *name, cchar *value);
 
 /**
-    Get the session ID.
-    @description
-    @param conn Http connection object
-    @return The session ID string
-    @ingroup HttpSession
-    @stability Evolving
- */
-PUBLIC char *httpGetSessionID(HttpConn *conn);
-
-/**
     Set an object into the session state store.
     @description Store an object in the session state store by serializing all properties.
     @param conn Http connection object
@@ -4527,6 +4557,17 @@ PUBLIC char *httpGetSessionID(HttpConn *conn);
     @stability Evolving
  */
 PUBLIC int httpSetSessionObj(HttpConn *conn, cchar *key, MprHash *value);
+
+/**
+    Write the session state to persistent data storage
+    @description This is called internally by the ESP handler at the completion of any processing.
+    @param conn Http connection object
+    @stability Prototype
+    @ingroup HttpSession
+    @internal
+ */
+PUBLIC int httpWriteSession(HttpConn *conn);
+
 
 /********************************** HttpUploadFile *********************************/
 /**
@@ -4580,7 +4621,7 @@ PUBLIC void httpRemoveUploadFile(HttpConn *conn, cchar *id);
 /********************************** HttpRx *********************************/
 /* 
     Rx flags
-    MOB - inconsistent with HTTP_TX_
+    TODO - inconsistent with HTTP_TX_
  */
 #define HTTP_DELETE             0x1         /**< DELETE method  */
 #define HTTP_GET                0x2         /**< GET method  */
@@ -4664,7 +4705,7 @@ typedef struct HttpRx {
 
     /* 
         Header values
-        MOB OPT - eliminate some of these
+        TODO OPT - eliminate some of these
      */
     char            *accept;                /**< Accept header */
     char            *acceptCharset;         /**< Accept-Charset header */
@@ -4696,7 +4737,7 @@ typedef struct HttpRx {
 
     /*  
         Upload details
-        MOB - move to an upload structure
+        TODO - move to an upload structure
      */
     MprHash         *files;                 /**< Uploaded files. Managed by the upload filter */
     char            *uploadDir;             /**< Upload directory */
@@ -6267,7 +6308,7 @@ PUBLIC MprHash *httpGetOptionHash(MprHash *options, cchar *field);
  */
 PUBLIC MprHash *httpGetOptions(cchar *options);
 
-//  MOB - inconsistent with httpGetOption
+//  TODO - Deprecate? inconsistent with httpGetOption
 /**
     Test a field value from an option string. 
     @param options Option string of the form: "field='value' field='value'..."

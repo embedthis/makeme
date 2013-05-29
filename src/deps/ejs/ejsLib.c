@@ -35335,7 +35335,6 @@ PUBLIC int ejsBlendObject(Ejs *ejs, EjsObj *dest, EjsObj *src, int flags)
             } else {
                 /* Assign */
                 ejsSetPropertyByName(ejs, dest, trimmedName, vp);
-                
             }
 
         } else {
@@ -36102,7 +36101,7 @@ static EjsString *http_provider(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
     if (hp->ssl && hp->ssl->provider) {
         name = hp->ssl->provider->name;
     } else {
-        name = MPR->socketService->defaultProvider;
+        name = MPR->socketService->sslProvider;
     }
     return ejsCreateStringFromAsc(ejs, name);
 }

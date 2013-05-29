@@ -1499,7 +1499,7 @@ PUBLIC void mprYield(int flags)
     if (flags & MPR_YIELD_STICKY) {
         tp->stickyYield = 1;
     }
-    //  MOB - remove heap->marker
+    //  TODO - remove heap->marker. Should not be required.
     while (tp->yielded && (heap->mustYield || (flags & MPR_YIELD_BLOCK)) && heap->marker) {
         if (heap->flags & MPR_MARK_THREAD) {
             mprSignalCond(ts->cond);
@@ -4522,8 +4522,8 @@ typedef struct CacheItem
 } CacheItem;
 
 #define CACHE_TIMER_PERIOD      (60 * MPR_TICKS_PER_SEC)
-#define CACHE_HASH_SIZE         257
 #define CACHE_LIFESPAN          (86400 * MPR_TICKS_PER_SEC)
+#define CACHE_HASH_SIZE         257
 
 /*********************************** Forwards *********************************/
 
@@ -4578,7 +4578,7 @@ PUBLIC void *mprDestroyCache(MprCache *cache)
 /*
     Set expires to zero to remove
  */
-PUBLIC int mprExpireCache(MprCache *cache, cchar *key, MprTicks expires)
+PUBLIC int mprExpireCacheItem(MprCache *cache, cchar *key, MprTicks expires)
 {
     CacheItem   *item;
 
@@ -4926,6 +4926,17 @@ static void manageCacheItem(CacheItem *item, int flags)
     if (flags & MPR_MANAGE_MARK) {
         mprMark(item->key);
         mprMark(item->data);
+    }
+}
+
+
+PUBLIC void mprGetCacheStats(MprCache *cache, int *numKeys, ssize *mem)
+{
+    if (numKeys) {
+        *numKeys = mprGetHashLength(cache->store);
+    }
+    if (mem) {
+        *mem = cache->usedMem;
     }
 }
 
@@ -7154,6 +7165,42 @@ PUBLIC int mprRandom()
 }
 
 
+PUBLIC char *mprGetRandomString(ssize size)
+{
+    MprTicks    now;
+    char        *hex = "0123456789abcdef";
+    char        *bytes, *ascii, *ap, *cp, *bp;
+    ssize       len;
+    int         i, pid;
+
+    len = size / 2;
+    bytes = mprAlloc(size / 2);
+    ascii = mprAlloc(size + 1);
+
+    if (mprGetRandomBytes(bytes, sizeof(bytes), 0) < 0) {
+        mprError("Failed to get random bytes");
+        now = mprGetTime();
+        pid = (int) getpid();
+        cp = (char*) &now;
+        bp = bytes;
+        for (i = 0; i < sizeof(now) && bp < &bytes[len]; i++) {
+            *bp++= *cp++;
+        }
+        cp = (char*) &now;
+        for (i = 0; i < sizeof(pid) && bp < &bytes[len]; i++) {
+            *bp++ = *cp++;
+        }
+    }
+    ap = ascii;
+    for (i = 0; i < len; i++) {
+        *ap++ = hex[((uchar) bytes[i]) >> 4];
+        *ap++ = hex[((uchar) bytes[i]) & 0xf];
+    }
+    *ap = '\0';
+    return ascii;
+}
+
+
 /*
     Decode a null terminated string and returns a null terminated string.
     Stops decoding at the end of string or '='
@@ -8093,7 +8140,7 @@ PUBLIC char *mprCryptPassword(cchar *password, cchar *salt, int rounds)
 
     for (i = 0; i < rounds; i++) {
         limit = len / sizeof(uint);
-        for (j = 0; j < limit; j++) {
+        for (j = 0; j < limit; j += 2) {
             bencrypt(&bf, &text[j], &text[j + 1]);
         }
     }
@@ -8102,6 +8149,7 @@ PUBLIC char *mprCryptPassword(cchar *password, cchar *salt, int rounds)
     memset(text, 0, len);
     return result;
 }
+
 
 PUBLIC char *mprMakeSalt(ssize size)
 {
@@ -8915,7 +8963,6 @@ static void mprDestroyDispatcher(MprDispatcher *dispatcher)
         assert(dispatcher->magic == MPR_DISPATCHER_MAGIC);
         q = dispatcher->eventQ;
         for (event = q->next; event != q; event = next) {
-            assert(event->magic == MPR_EVENT_MAGIC);
             next = event->next;
             if (event->dispatcher) {
                 mprRemoveEvent(event);
@@ -8948,18 +8995,16 @@ static void manageDispatcher(MprDispatcher *dispatcher, int flags)
         mprMark(dispatcher->service);
         mprMark(dispatcher->requiredWorker);
 
-        //  MOB - is this lock needed?  Surely all threads are stopped.
+        //  TODO - is this lock needed?  Surely all threads are stopped.
         lock(es);
         q = dispatcher->eventQ;
         for (event = q->next; event != q; event = next) {
             next = event->next;
-            assert(event->magic == MPR_EVENT_MAGIC);
             mprMark(event);
         }
         q = dispatcher->currentQ;
         for (event = q->next; event != q; event = next) {
             next = event->next;
-            assert(event->magic == MPR_EVENT_MAGIC);
             mprMark(event);
         }
         unlock(es);
@@ -8983,7 +9028,6 @@ PUBLIC void mprDisableDispatcher(MprDispatcher *dispatcher)
         assert(dispatcher->magic == MPR_DISPATCHER_MAGIC);
         q = dispatcher->eventQ;
         for (event = q->next; event != q; event = next) {
-            assert(event->magic == MPR_EVENT_MAGIC);
             next = event->next;
             if (event->dispatcher) {
                 mprRemoveEvent(event);
@@ -9297,7 +9341,6 @@ PUBLIC void mprScheduleDispatcher(MprDispatcher *dispatcher)
             return;
         }
         event = dispatcher->eventQ->next;
-        assert(event->magic == MPR_EVENT_MAGIC);
         mustWakeWaitService = mustWakeCond = 0;
         if (event->due > es->now) {
             assert(!(dispatcher->flags & MPR_DISPATCHER_DESTROYED));
@@ -9352,7 +9395,6 @@ static int dispatchEvents(MprDispatcher *dispatcher)
         and neither would a running flag. See mprRemoveEvent().
      */
     for (count = 0; (dispatcher->flags & MPR_DISPATCHER_ENABLED) && (event = mprGetNextEvent(dispatcher)) != 0; count++) {
-        assert(event->magic == MPR_EVENT_MAGIC);
         assert(!(event->flags & MPR_EVENT_RUNNING));
         unlock(es);
 
@@ -9480,7 +9522,6 @@ static MprDispatcher *getNextReadyDispatcher(MprEventService *es)
             assert(!(dp->flags & MPR_DISPATCHER_DESTROYED));
             next = dp->next;
             event = dp->eventQ->next;
-            assert(event->magic == MPR_EVENT_MAGIC);
             if (event->due <= es->now && dp->flags & MPR_DISPATCHER_ENABLED) {
                 queueDispatcher(es->readyQ, dp);
                 break;
@@ -9529,7 +9570,6 @@ static MprTicks getIdleTicks(MprEventService *es, MprTicks timeout)
             assert(!(dp->flags & MPR_DISPATCHER_DESTROYED));
             assert(dp->flags & MPR_DISPATCHER_ENABLED);
             event = dp->eventQ->next;
-            assert(event->magic == MPR_EVENT_MAGIC);
             if (event != dp->eventQ) {
                 delay = min(delay, (event->due - es->now));
                 if (delay <= 0) {
@@ -9935,7 +9975,7 @@ PUBLIC char *mprEscapeCmd(cchar *cmd, int escChar)
     op = result;
     while ((c = (uchar) *cmd++) != 0) {
 #if BIT_WIN_LIKE
-        //  MOB - should use fs->newline
+        //  TODO - should use fs->newline
         if ((c == '\r' || c == '\n') && *cmd != '\0') {
             c = ' ';
             continue;
@@ -10434,8 +10474,6 @@ PUBLIC MprEvent *mprCreateEvent(MprDispatcher *dispatcher, cchar *name, MprTicks
 
 static void manageEvent(MprEvent *event, int flags)
 {
-    assert(event->magic == MPR_EVENT_MAGIC);
-
     if (flags & MPR_MANAGE_MARK) {
         /*
             Events in dispatcher queues are marked by the dispatcher managers, not via event->next,prev
@@ -10452,7 +10490,6 @@ static void manageEvent(MprEvent *event, int flags)
         if (event->next) {
             assert(event->dispatcher == 0 || event->dispatcher->magic == MPR_DISPATCHER_MAGIC);
             mprRemoveEvent(event);
-            event->magic = 1;
         }
     }
 }
@@ -10477,7 +10514,6 @@ static void initEvent(MprDispatcher *dispatcher, MprEvent *event, cchar *name, M
     event->dispatcher = dispatcher;
     event->next = event->prev = 0;
     event->flags = flags;
-    event->magic = MPR_EVENT_MAGIC;
 }
 
 
@@ -10504,7 +10540,6 @@ PUBLIC void mprQueueEvent(MprDispatcher *dispatcher, MprEvent *event)
 #endif
     assert(!(dispatcher->flags & MPR_DISPATCHER_DESTROYED));
     assert(dispatcher->magic == MPR_DISPATCHER_MAGIC);
-    assert(event->magic == MPR_EVENT_MAGIC);
 
     es = dispatcher->service;
 
@@ -10558,7 +10593,6 @@ PUBLIC void mprRescheduleEvent(MprEvent *event, MprTicks period)
     MprEventService     *es;
     MprDispatcher       *dispatcher;
 
-    assert(event->magic == MPR_EVENT_MAGIC);
     dispatcher = event->dispatcher;
     assert(dispatcher->magic == MPR_DISPATCHER_MAGIC);
 
@@ -10621,7 +10655,6 @@ PUBLIC MprEvent *mprGetNextEvent(MprDispatcher *dispatcher)
         if (next->due <= es->now) {
             event = next;
             queueEvent(dispatcher->currentQ, event);
-            assert(event->magic == MPR_EVENT_MAGIC);
         }
     }
     unlock(es);
@@ -10642,7 +10675,6 @@ PUBLIC int mprGetEventCount(MprDispatcher *dispatcher)
     lock(es);
     count = 0;
     for (event = dispatcher->eventQ->next; event != dispatcher->eventQ; event = event->next) {
-        assert(event->magic == MPR_EVENT_MAGIC);
         count++;
     }
     unlock(es);
@@ -10656,7 +10688,6 @@ static void initEventQ(MprEvent *q)
 
     q->next = q;
     q->prev = q;
-    q->magic = MPR_EVENT_MAGIC;
 }
 
 
@@ -10668,7 +10699,6 @@ static void queueEvent(MprEvent *prior, MprEvent *event)
     assert(prior);
     assert(event);
     assert(prior->next);
-    assert(event->magic == MPR_EVENT_MAGIC);
     assert(event->dispatcher == 0 || event->dispatcher->magic == MPR_DISPATCHER_MAGIC);
 
     if (event->next) {
@@ -10687,7 +10717,6 @@ static void queueEvent(MprEvent *prior, MprEvent *event)
 PUBLIC void mprDequeueEvent(MprEvent *event)
 {
     assert(event);
-    assert(event->magic == MPR_EVENT_MAGIC);
     assert(event->dispatcher == 0 || event->dispatcher->magic == MPR_DISPATCHER_MAGIC);
 
     /* If a continuous event is removed, next may already be null */
@@ -11668,6 +11697,17 @@ PUBLIC MprKey *mprAddKey(MprHash *hash, cvoid *key, cvoid *ptr)
 }
 
 
+PUBLIC MprKey *mprAddKeyWithType(MprHash *hash, cvoid *key, cvoid *ptr, int type)
+{
+    MprKey  *kp;
+
+    if ((kp = mprAddKey(hash, key, ptr)) != 0) {
+        kp->type = type;
+    }
+    return kp;
+}
+
+
 PUBLIC MprKey *mprAddKeyFmt(MprHash *hash, cvoid *key, cchar *fmt, ...)
 {
     va_list     ap;
@@ -12436,6 +12476,54 @@ PUBLIC void mprJsonParseError(MprJson *jp, cchar *fmt, ...)
     msg = sfmtv(fmt, args);
     (jp->callback.parseError)(jp, msg);
     va_end(args);
+}
+
+
+/*
+    Currently only works for MprHash implementations
+ */
+PUBLIC cchar *mprQueryJsonString(MprHash *obj, cchar *key)
+{
+    MprKey  *kp;
+    char    *property, *tok;
+
+    for (property = stok(sclone(key), ".", &tok); property; property = stok(0, ".", &tok)) {
+        if ((kp = mprLookupKeyEntry(obj, property)) == 0) {
+            return 0;
+        }
+        if (tok == 0) {
+            return (kp->type == MPR_JSON_STRING) ? kp->data : NULL;
+        }
+        if (kp->type != MPR_JSON_OBJ) {
+            return 0;
+        }
+        obj = (MprHash*) kp->data;
+    }
+    return 0;
+}
+
+
+/*
+    Currently only works for MprHash implementations
+ */
+PUBLIC void *mprQueryJsonValue(MprHash *obj, cchar *key, int type)
+{
+    MprKey  *kp;
+    char    *property, *tok;
+
+    for (property = stok(sclone(key), ".", &tok); property; property = stok(0, ".", &tok)) {
+        if ((kp = mprLookupKeyEntry(obj, property)) == 0) {
+            return 0;
+        }
+        if (tok == 0) {
+            return (void*) ((kp->type == type) ? kp->data : NULL);
+        }
+        if (kp->type != MPR_JSON_OBJ) {
+            return 0;
+        }
+        obj = (MprHash*) kp->data;
+    }
+    return 0;
 }
 
 
@@ -16472,6 +16560,185 @@ PUBLIC MprList *mprGetPathFiles(cchar *dir, int flags)
 
 
 /*
+    Match a string against a pattern using glob style matching.
+    Pat may contain a fully path of patterns. Only the first portion up to a file separator is used. The remaining portion
+        is returned in nextPartPattern.
+    seps contains the file system separator characters
+
+    Wildcard Patterns:
+    "?"         Matches any single character
+    "*"         Matches zero or more characters of the file or directory
+    "**"/       Matches zero or more directories
+    "**"        Matches zero or more files or directories
+    trailing/   Trailing slash matches only directory
+ */
+static int globMatch(MprFileSystem *fs, cchar *s, cchar *pat, int isDir, int flags, int count, cchar **nextPartPattern)
+{
+    int     match;
+
+    *nextPartPattern = 0;
+    while (*s && *pat && *pat != fs->separators[0] && *pat != fs->separators[1]) {
+        match = (!fs->caseSensitive) ? (*pat == *s) : (tolower((uchar) *pat) == tolower((uchar) *s));
+        if (match || *pat == '?') {
+            ++pat; ++s;
+        } else if (*pat == '*') {
+            if (*++pat == '\0') {
+                /* Terminal star matches files and directories */
+                return 1;
+            }
+            if (*pat == '*') {
+                /* Double star - matches zero or more directories */
+                if (isDir) {
+                    *nextPartPattern = pat - 1;
+                    return 1;
+                }
+                if (pat[1] && (pat[1] == fs->separators[0] || pat[1] == fs->separators[1])) {
+                    /* Double star/ */
+                    if (pat[2] == '\0') {
+                        /* Trailing slash and not a directory */
+                        return 0;
+                    }
+                    pat += 2;
+                } else {
+                    /* Plain double star matches all (alias for ** / *) */
+                    if (pat[1] == '\0') {
+                        *nextPartPattern = pat - 1;
+                        return 1;
+                    }
+                }
+            } else {
+                /* Single star */
+                if (count > 2000) {
+                    mprError("Glob match is too recursive");
+                    return 0;
+                }
+                if (*pat == fs->separators[0] || *pat == fs->separators[1]) {
+                    s = "";
+                    break;
+                }
+                while (*s) {
+                    if (globMatch(fs, s++, pat, isDir, flags, count + 1, nextPartPattern)) {
+                        return 1;
+                    }
+                }
+                return 0;
+            }
+        } else {
+            return 0;
+        }
+    }
+    if (*pat == '*') {
+        ++pat;
+    }
+    if (*s) {
+        return 0;
+    }
+    if (*pat == '\0') {
+        return 1;
+    }
+    if (*pat && (*pat == fs->separators[0] || *pat == fs->separators[1])) {
+        if (*++pat == '\0') {
+            /* Terminal / matches only directories */
+            return isDir;
+        }
+        *nextPartPattern = pat;
+        return 1;
+    }
+    return 0;
+}
+
+
+static MprList *globPath(MprFileSystem *fs, MprList *results, cchar *path, cchar *base, cchar *pattern, cchar *exclude, int flags)
+{
+    MprDirEntry     *dp;
+    MprList         *list;
+    cchar           *filename, *nextPartPattern, *nextPath, *nextPartExclude;
+    int             next, add;
+
+    if ((list = mprGetPathFiles(path, flags | MPR_PATH_RELATIVE)) == 0) {
+        mprTrace(7, "Cannot read directory %s", path);
+        return results;
+    }
+    for (next = 0; (dp = mprGetNextItem(list, &next)) != 0; ) {
+        if (!globMatch(fs, dp->name, pattern, dp->isDir, flags, 0, &nextPartPattern)) {
+            continue;
+        }
+        add = 1;
+        if (nextPartPattern && strcmp(nextPartPattern, "**") != 0 && strcmp(nextPartPattern, "**/") != 0
+                   && strcmp(nextPartPattern, "**/*") != 0) {
+            /* Double star matches zero or more components */
+            add = 0;
+        }
+        filename = (flags & MPR_PATH_RELATIVE) ? mprJoinPath(base, dp->name) : mprJoinPath(path, dp->name);
+        if (add && exclude) {
+            if (globMatch(fs, dp->name, exclude, dp->isDir, flags, 0, &nextPartExclude)) {
+                continue;
+            }
+        }
+        if (!(flags & MPR_PATH_DEPTH_FIRST) && add) {
+            /* Exclude mid-pattern directories and terminal directories if only "files" */
+            mprAddItem(results, filename);
+        }
+        if (dp->isDir && nextPartPattern) {
+            nextPath = (flags & MPR_PATH_RELATIVE) ? mprJoinPath(path, dp->name) : filename;
+            globPath(fs, results, nextPath, filename, nextPartPattern, exclude, flags);
+        }
+        if ((flags & MPR_PATH_DEPTH_FIRST) && add) {
+            mprAddItem(results, filename);
+        }
+    }
+    return results;
+}
+
+
+/*
+    Get the files in a directory and subdirectories
+ */
+PUBLIC MprList *mprGlobPathFiles(cchar *path, cchar *patterns, int flags)
+{
+    MprFileSystem   *fs;
+    MprList         *result;
+    cchar           *base, *exclude;
+    char            *start, *special, *tok, *pattern;
+
+    fs = mprLookupFileSystem(path);
+    result = mprCreateList(0, 0);
+    exclude = NULL;
+    base = "";
+
+    for (pattern = stok(sclone(patterns), ",", &tok); pattern; pattern = stok(0, ",", &tok)) {
+        if (mprIsPathAbs(pattern)) {
+            start = pattern;
+            if ((special = strpbrk(start, "*?")) != 0) {
+                if (special > start) {
+                    for (pattern = special; pattern > start && !strchr(fs->separators, *pattern); pattern--) { }
+                    if (pattern > start) {
+                        *pattern++ = '\0';
+                        path = mprJoinPath(path, start);
+                        base = start;
+                    }
+                }
+            } else {
+                pattern = (char*) mprGetPathBaseRef(start);
+                if (pattern > start) {
+                    pattern[-1] = '\0';
+                    path = mprJoinPath(path, start);
+                    base = start;
+                }
+            }
+        }
+        if (*pattern == '!') {
+            exclude = &pattern[1];
+        }
+        if (!globPath(fs, result, path, base, pattern, exclude, flags)) {
+            return 0;
+        }
+    }
+    return result;
+}
+
+
+/*
     Return the first directory of a pathname
  */
 PUBLIC char *mprGetPathFirstDir(cchar *path)
@@ -16765,7 +17032,6 @@ PUBLIC bool mprIsPathAbs(cchar *path)
 }
 
 
-//  MOB - should be mprPathIsDir
 PUBLIC bool mprIsPathDir(cchar *path)
 {
     MprPath     info;
@@ -16774,7 +17040,6 @@ PUBLIC bool mprIsPathDir(cchar *path)
 }
 
 
-//  MOB - should be mprPathIsRel
 PUBLIC bool mprIsPathRel(cchar *path)
 {
     MprFileSystem   *fs;
@@ -17203,7 +17468,7 @@ PUBLIC int mprSamePath(cchar *path1, cchar *path2)
 
     /*
         Convert to absolute (normalized) paths to compare. 
-        MOB - resolve symlinks.
+        TODO - resolve symlinks.
      */
     if (!isFullPath(fs, path1)) {
         path1 = mprGetAbsPath(path1);
@@ -17244,7 +17509,7 @@ PUBLIC int mprSamePathCount(cchar *path1, cchar *path2, ssize len)
 
     /*
         Convert to absolute paths to compare. 
-        MOB - resolve symlinks.
+        TODO - resolve symlinks.
      */
     if (!isFullPath(fs, path1)) {
         path1 = mprGetAbsPath(path1);
@@ -20086,7 +20351,6 @@ static void disconnectSocket(MprSocket *sp);
 static ssize flushSocket(MprSocket *sp);
 static int getSocketIpAddr(struct sockaddr *addr, int addrlen, char *ip, int size, int *port);
 static int ipv6(cchar *ip);
-static Socket listenSocket(MprSocket *sp, cchar *ip, int port, int initialFlags);
 static void manageSocket(MprSocket *sp, int flags);
 static void manageSocketService(MprSocketService *ss, int flags);
 static void manageSsl(MprSsl *ssl, int flags);
@@ -20153,7 +20417,7 @@ static void manageSocketService(MprSocketService *ss, int flags)
     if (flags & MPR_MANAGE_MARK) {
         mprMark(ss->standardProvider);
         mprMark(ss->providers);
-        mprMark(ss->defaultProvider);
+        mprMark(ss->sslProvider);
         mprMark(ss->mutex);
         mprMark(ss->secureSockets);
     }
@@ -20179,7 +20443,6 @@ static MprSocketProvider *createStandardProvider(MprSocketService *ss)
     provider->closeSocket = closeSocket;
     provider->disconnectSocket = disconnectSocket;
     provider->flushSocket = flushSocket;
-    provider->listenSocket = listenSocket;
     provider->readSocket = readSocket;
     provider->writeSocket = writeSocket;
     provider->socketState = socketState;
@@ -20308,15 +20571,6 @@ PUBLIC bool mprHasIPv6()
  */
 PUBLIC Socket mprListenOnSocket(MprSocket *sp, cchar *ip, int port, int flags)
 {
-    if (sp->provider == 0) {
-        return MPR_ERR_NOT_INITIALIZED;
-    }
-    return sp->provider->listenSocket(sp, ip, port, flags);
-}
-
-
-static Socket listenSocket(MprSocket *sp, cchar *ip, int port, int initialFlags)
-{
     struct sockaddr     *addr;
     Socklen             addrlen;
     cchar               *sip;
@@ -20324,15 +20578,15 @@ static Socket listenSocket(MprSocket *sp, cchar *ip, int port, int initialFlags)
 
     lock(sp);
     if (ip == 0 || *ip == '\0') {
-        mprTrace(6, "listenSocket: %d, flags %x", port, initialFlags);
+        mprTrace(6, "mprListenOnSocket: %d, flags %x", port, flags);
     } else {
-        mprTrace(6, "listenSocket: %s:%d, flags %x", ip, port, initialFlags);
+        mprTrace(6, "mprListenOnSocket: %s:%d, flags %x", ip, port, flags);
     }
     resetSocket(sp);
 
     sp->ip = sclone(ip);
     sp->port = port;
-    sp->flags = (initialFlags & (MPR_SOCKET_BROADCAST | MPR_SOCKET_DATAGRAM | MPR_SOCKET_BLOCK |
+    sp->flags = (flags & (MPR_SOCKET_BROADCAST | MPR_SOCKET_DATAGRAM | MPR_SOCKET_BLOCK |
          MPR_SOCKET_NOREUSE | MPR_SOCKET_NODELAY | MPR_SOCKET_THREAD));
     datagram = sp->flags & MPR_SOCKET_DATAGRAM;
 
@@ -20486,7 +20740,7 @@ PUBLIC void mprHiddenSocketData(MprSocket *sp, ssize len, int dir)
 }
 
 
-//  MOB rename to mprWaitOnSocket
+//  TODO rename to mprWaitOnSocket
 
 PUBLIC void mprEnableSocketEvents(MprSocket *sp, int mask)
 {
@@ -21837,7 +22091,7 @@ PUBLIC int mprUpgradeSocket(MprSocket *sp, MprSsl *ssl, cchar *peerName)
         if (loadProviders() < 0) {
             return MPR_ERR_CANT_INITIALIZE;
         }
-        providerName = (ssl->providerName) ? ssl->providerName : ss->defaultProvider;
+        providerName = (ssl->providerName) ? ssl->providerName : ss->sslProvider;
         if ((ssl->provider = mprLookupKey(ss->providers, providerName)) == 0) {
             mprError("Cannot use SSL, missing SSL provider %s", providerName);
             return MPR_ERR_CANT_INITIALIZE;
@@ -22497,7 +22751,7 @@ PUBLIC bool snumber(cchar *s)
 } 
 
 
-PUBLIC char *spascal(cchar *str)
+PUBLIC char *stitle(cchar *str)
 {
     char    *ptr;
     ssize   size, len;
@@ -22513,6 +22767,12 @@ PUBLIC char *spascal(cchar *str)
     }
     ptr[0] = (char) toupper((uchar) ptr[0]);
     return ptr;
+}
+
+
+PUBLIC char *spascal(cchar *str)
+{
+    return stitle(str);
 }
 
 

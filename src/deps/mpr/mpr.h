@@ -999,7 +999,7 @@ typedef struct MprLocationStats {
     @stability Internal.
   */
 typedef struct MprMemStats {
-    //  MOB - not consistent naming
+    //  TODO - not consistent naming
     int             inMemException;         /**< Recursive protect */
     int             regions;                /**< Number of allocated regions */
     uint            errors;                 /**< Allocation errors */
@@ -1695,8 +1695,6 @@ PUBLIC char *itosbuf(char *buf, ssize size, int64 value, int radix);
  */
 PUBLIC int scaselesscmp(cchar *s1, cchar *s2);
 
-//  MOB need scaselessncmp
-
 /**
     Compare strings ignoring case. This is similar to scaselesscmp but it returns a boolean.
     @description Compare two strings ignoring case differences.
@@ -1965,16 +1963,19 @@ PUBLIC ssize sncopy(char *dest, ssize destMax, cchar *src, ssize len);
  */
 PUBLIC bool snumber(cchar *s);
 
-//  MOB DEPRECATE and call title case. stitle()
 /**
-    Create a Pascal case version of the string
+    Create a Title Case version of the string
     @description Copy a string into a newly allocated block and make the first character upper case
     @param str Pointer to the block to duplicate.
     @return Returns a newly allocated string.
     @ingroup MprString
     @stability Stable
  */
+PUBLIC char *stitle(cchar *str);
+
+#if DEPRECATED || 1
 PUBLIC char *spascal(cchar *str);
+#endif
 
 /**
     Locate the a character in a string.
@@ -3959,11 +3960,24 @@ PUBLIC MprKey *mprAddDuplicateKey(MprHash *table, cvoid *key, cvoid *ptr);
     @param table Symbol table returned via mprCreateSymbolTable.
     @param key String key of the symbole entry to delete.
     @param ptr Arbitrary pointer to associate with the key in the table.
-    @return Integer count of the number of entries.
+    @return Added MprKey reference.
     @ingroup MprHash
     @stability Stable.
  */
 PUBLIC MprKey *mprAddKey(MprHash *table, cvoid *key, cvoid *ptr);
+
+/**
+    Add a symbol value into the hash table and set the key type.
+    @description Associate an arbitrary value with a string symbol key and insert into the symbol table.
+    @param table Symbol table returned via mprCreateSymbolTable.
+    @param key String key of the symbole entry to delete.
+    @param ptr Arbitrary pointer to associate with the key in the table.
+    @param type Type of value. Set to MPR_JSON_STRING, MPR_JSON_OBJ.
+    @return Added MprKey reference.
+    @ingroup MprHash
+    @stability Prototype.
+ */
+PUBLIC MprKey *mprAddKeyWithType(MprHash *table, cvoid *key, cvoid *ptr, int type);
 
 /**
     Add a key with a formatting value into the hash table
@@ -4746,6 +4760,26 @@ PUBLIC char *mprGetPathExt(cchar *path);
 PUBLIC MprList *mprGetPathFiles(cchar *dir, int flags);
 
 /**
+    Create a list of files in a directory or subdirectories that match the given wildcard patterns. 
+        This call returns a list of filenames.
+    @description Get the list of files in a directory and return a list. The patterns list may contain
+    multiple patterns separated by a comma. The supported wildcard patterns are: "?" Matches any single character,
+    "*" matches zero or more characters of the file or directory, "**"/ matches zero or more directories,
+    "**" matches zero or more files or directories,and a trailing "/" matches directories only.
+    An exclusion pattern may be specified to apply to subsequent patterns by appending with "!".
+    @param path Directory to list.
+    @param patterns Wild card patterns to match.
+    @param flags The flags may be set to #MPR_PATH_DESCEND to traverse subdirectories. Set #MPR_PATH_NODIRS 
+        to exclude directories from the results. Set to MPR_PATH_HIDDEN to include hidden files that start with ".".
+        Set to MPR_PATH_DEPTH_FIRST to do a depth-first traversal, i.e. traverse subdirectories before considering 
+        adding the directory to the list.
+    @returns A list (MprList) of filenames.
+    @ingroup MprPath
+    @stability Stable
+ */
+PUBLIC MprList *mprGlobPathFiles(cchar *path, cchar *patterns, int flags);
+
+/**
     Get the first directory portion of a path
     @param path Path name to examine
     @returns A new string containing the directory name.
@@ -5429,8 +5463,6 @@ typedef void (*MprEventProc)(void *data, struct MprEvent *event);
     @stability Internal
  */
 typedef struct MprEvent {
-    //  MOB - UNUSED remove
-    int magic;
     cchar               *name;          /**< Static debug name of the event */
     MprEventProc        proc;           /**< Callback procedure */
     MprTicks            timestamp;      /**< When was the event created */
@@ -5996,6 +6028,28 @@ PUBLIC MprObj *mprDeserializeInto(cchar *str, MprObj *obj);
  */
 PUBLIC void mprJsonParseError(MprJson *jp, cchar *fmt, ...);
 
+/**
+    Lookup a parsed JSON object for a string key value
+    @description This routine is useful to querying leaf property values in a JSON object.
+    @param obj Parsed JSON object returned by mprDeserialize or mprDeserializeInto.
+    @param key Property name to search for. This may include ".". For example: "settings.mode".
+    @return A string property value or NULL if not found or not a string property type.
+    @ingroup MprJson
+    @stability Prototype
+ */
+PUBLIC cchar *mprQueryJsonString(MprHash *obj, cchar *key);
+
+/**
+    Lookup a parsed JSON object for a key value
+    @param obj Parsed JSON object returned by mprDeserialize or mprDeserializeInto.
+    @param key Property name to search for. This may include ".". For example: "settings.mode".
+    @param type Expected property type.
+    @return Returns the property value otherwise NULL if not found or not the correct type.
+    @ingroup MprJson
+    @stability Prototype
+ */
+PUBLIC void *mprQueryJsonValue(MprHash *obj, cchar *key, int type);
+
 /********************************* Threads ************************************/
 /**
     Thread service
@@ -6463,17 +6517,81 @@ typedef int (*MprSocketProc)(void *data, int mask);
     @stability Internal
  */
 typedef struct MprSocketProvider {
-    char    *name;
-    void    *data;
-    //  MOB - document these APIs
-    void    (*closeSocket)(struct MprSocket *socket, bool gracefully);
+    char    *name;                              /**< Socket provider name */
+    void    *data;                              /**< Socket provider private data */
+
+    /**
+        Close a socket
+        @description Close a socket. If the \a graceful option is true, the socket will first wait for written data to drain
+            before doing a graceful close.
+        @param socket Socket object returned from #mprCreateSocket
+        @param graceful Set to true to do a graceful close. Otherwise, an abortive close will be performed.
+        @stability Stable
+     */
+    void    (*closeSocket)(struct MprSocket *socket, bool graceful);
+
+    /**
+        Disconnect a socket by closing its underlying file descriptor. 
+        This is used to prevent further I/O wait events while still preserving the socket object.
+        @param socket Socket object
+        @stability Stable
+     */
     void    (*disconnectSocket)(struct MprSocket *socket);
+
+    /**
+        Flush a socket
+        @description Flush any buffered data in a socket. Standard sockets do not use buffering and this call 
+            will do nothing.  SSL sockets do buffer and calling mprFlushSocket will write pending written data.
+        @param socket Socket object returned from #mprCreateSocket
+        @return A count of bytes actually written. Return a negative MPR error code on errors.
+        @stability Stable
+     */
     ssize   (*flushSocket)(struct MprSocket *socket);
-    //  MOB - unused
-    Socket  (*listenSocket)(struct MprSocket *socket, cchar *host, int port, int flags);
-    ssize   (*readSocket)(struct MprSocket *socket, void *buf, ssize len);
-    ssize   (*writeSocket)(struct MprSocket *socket, cvoid *buf, ssize len);
+
+    /**
+        Read from a socket
+        @description Read data from a socket. The read will return with whatever bytes are available. If none and the socket
+            is in blocking mode, it will block untill there is some data available or the socket is disconnected.
+        @param socket Socket object returned from #mprCreateSocket
+        @param buf Pointer to a buffer to hold the read data. 
+        @param size Size of the buffer.
+        @return A count of bytes actually read. Return a negative MPR error code on errors.
+        @return Return -1 for EOF and errors. On success, return the number of bytes read. Use  mprIsSocketEof to 
+            distinguision between EOF and errors.
+        @stability Stable
+     */
+    ssize   (*readSocket)(struct MprSocket *socket, void *buf, ssize size);
+
+    /**
+        Write to a socket
+        @description Write a block of data to a socket. If the socket is in non-blocking mode (the default), the write
+            may return having written less than the required bytes. 
+        @param socket Socket object returned from #mprCreateSocket
+        @param buf Reference to a block to write to the socket
+        @param size Length of data to write. This may be less than the requested write length if the socket is in 
+            non-blocking mode. Will return a negative MPR error code on errors.
+        @return A count of bytes actually written. Return a negative MPR error code on errors.
+        @stability Stable
+     */
+    ssize   (*writeSocket)(struct MprSocket *socket, cvoid *buf, ssize size);
+
+    /**
+        Upgrade a socket to use SSL/TLS
+        @param sp Socket to upgrade
+        @param ssl SSL configuration to use. Set to NULL to use the default.
+        @param peerName Required peer name in handshake with peer. Used by clients to verify the server hostname.
+        @returns Zero if successful, otherwise a negative MPR error code.
+        @stability Stable
+     */
     int     (*upgradeSocket)(struct MprSocket *socket, struct MprSsl *ssl, cchar *peerName);
+
+    /**
+        Get the socket state
+        @description Get the socket state as a parseable string description
+        @param sp Socket object returned from #mprCreateSocket
+        @return The an allocated string
+        @stability Stable
+     */
     char    *(*socketState)(struct MprSocket *socket);
 } MprSocketProvider;
 
@@ -6492,8 +6610,7 @@ typedef int (*MprSocketPrebind)(struct MprSocket *sock);
  */
 typedef struct MprSocketService {
     MprSocketProvider *standardProvider;        /**< Socket provider for non-SSL connections */
-    //  MOB - rename sslProvider
-    char            *defaultProvider;           /**< Default secure provider for SSL connections */
+    char            *sslProvider;               /**< Default secure provider for SSL connections */
     MprHash         *providers;                 /**< Secure socket providers */         
     MprSocketPrebind prebind;                   /**< Prebind callback */
     MprList         *secureSockets;             /**< List of secured (matrixssl) sockets */
@@ -8223,7 +8340,18 @@ PUBLIC void *mprDestroyCache(MprCache *cache);
     @ingroup MprCache
     @stability Evolving
  */
-PUBLIC int mprExpireCache(MprCache *cache, cchar *key, MprTicks expires);
+PUBLIC int mprExpireCacheItem(MprCache *cache, cchar *key, MprTicks expires);
+
+/**
+    Get the Cache statistics
+    @param cache The cache instance object returned from #mprCreateCache.
+    @param numKeys Number of keys currently stored
+    @param mem Memory in use to store keys
+    @ingroup MprCache
+    @stability Prototype
+    @internal
+ */
+PUBLIC void mprGetCacheStats(MprCache *cache, int *numKeys, ssize *mem);
 
 /**
     Increment a numeric cache item
@@ -8685,6 +8813,14 @@ PUBLIC int mprGetLogLevel();
     @stability Stable.
   */
 PUBLIC int mprGetRandomBytes(char *buf, ssize size, bool block);
+
+/**
+    Get some random data in ascii
+    @param size Size of the random data string
+    @ingroup Mpr
+    @stability Prototype.
+  */
+PUBLIC char *mprGetRandomString(ssize size);
 
 /**
     Return the O/S error code.
