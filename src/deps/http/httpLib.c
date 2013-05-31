@@ -10115,9 +10115,11 @@ static cchar *expandRouteName(HttpConn *conn, cchar *routeName)
 }
 
 
+//  TODO - rename to UriTemplate
 /*
-    Expect a route->tplate with embedded tokens of the form: "/${service}/${action}/${other}"
+    Expect a tplate with embedded tokens of the form: "/${service}/${action}/${other}"
     The options is a hash of token values.
+    TODO - rename tplate to template
  */
 PUBLIC char *httpTemplate(HttpConn *conn, cchar *tplate, MprHash *options)
 {
@@ -10729,8 +10731,8 @@ PUBLIC void httpAddAngularResourceGroup(HttpRoute *parent, cchar *resource)
     addRestful(parent, "index",     "GET",    "(/)*$",                   "index",         resource, 0);
     addRestful(parent, "init",      "GET",    "/init$",                  "init",          resource, 0);
     addRestful(parent, "update",    "POST",   "(/{id=[0-9]+})*$",        "update",        resource, HTTP_ROUTE_JSON);
-    addRestful(parent, "custom",    "POST",   "/{action}/{id=[0-9]+}$",  "${action}",     resource, 0);
-    addRestful(parent, "default",   "*",      "/{action}$",              "cmd-${action}", resource, HTTP_ROUTE_JSON);
+    addRestful(parent, "action",    "POST",   "/{action}/{id=[0-9]+}$",  "${action}",     resource, 0);
+    addRestful(parent, "cmd",       "*",      "/{action}$",              "cmd-${action}", resource, HTTP_ROUTE_JSON);
 }
 
 
@@ -10773,7 +10775,7 @@ PUBLIC void httpAddHomeRoute(HttpRoute *parent)
 }
 
 
-PUBLIC void httpAddClientRoute(HttpRoute *parent, cchar *prefix)
+PUBLIC void httpAddClientRoute(HttpRoute *parent, cchar *name, cchar *prefix)
 {
     HttpRoute   *route;
     cchar       *path, *pattern;
@@ -10783,7 +10785,7 @@ PUBLIC void httpAddClientRoute(HttpRoute *parent, cchar *prefix)
     }
     pattern = sfmt("^%s/(.*)", prefix);
     path = stemplate("${CLIENT_DIR}/$1", parent->vars);
-    route = httpDefineRoute(parent, prefix, "GET", pattern, path, parent->sourceName);
+    route = httpDefineRoute(parent, name, "GET", pattern, path, parent->sourceName);
     httpAddRouteHandler(route, "fileHandler", "");
 }
 
@@ -10795,22 +10797,22 @@ PUBLIC void httpAddRouteSet(HttpRoute *parent, cchar *set)
 
     } else if (scaselessmatch(set, "angular")) {
         httpAddAngularResourceGroup(parent, "{service}");
-        httpAddClientRoute(parent, "");
+        httpAddClientRoute(parent, sfmt("%s-client", parent->name), "");
 
 #if DEPRECATE || 1
     } else if (scaselessmatch(set, "mvc")) {
         httpAddHomeRoute(parent);
-        httpAddClientRoute(parent, "/static");
+        httpAddClientRoute(parent, "/static", "/static");
 
     } else if (scaselessmatch(set, "restful")) {
         httpAddHomeRoute(parent);
-        httpAddClientRoute(parent, "/static");
+        httpAddClientRoute(parent, "/static", "/static");
         httpAddResourceGroup(parent, "{controller}");
 #endif
 #if UNUSED
     } else if (scaselessmatch(set, "mvc-fixed")) {
         httpAddHomeRoute(parent);
-        httpAddClientRoute(parent, "/static");
+        httpAddClientRoute(parent, "/static", "/static");
         httpDefineRoute(parent, "default", NULL, "^/{controller}(~/{action}~)", "${controller}-${action}", 
             "${controller}.c");
 #endif
@@ -12442,7 +12444,9 @@ static bool processParsed(HttpConn *conn)
     if (conn->endpoint) {
         httpAddParams(conn);
         httpRouteRequest(conn);  
-        rx->streaming = rx->streaming || httpGetRouteStreaming(rx->route, rx->mimeType);
+        rx->streaming = !rx->upload && (rx->streaming || httpGetRouteStreaming(rx->route, rx->mimeType));
+    } else {
+        rx->streaming = 1;
     }
     /*
         Send a 100 (Continue) response if the client has requested it. If the connection has an error, that takes
@@ -12460,7 +12464,7 @@ static bool processParsed(HttpConn *conn)
     httpSetState(conn, HTTP_STATE_CONTENT);
 
     //  TODO - remove special case for upload
-    if (rx->streaming && !rx->upload) {
+    if (rx->streaming) {
         if (rx->remainingContent == 0) {
             rx->eof = 1;
         }
@@ -12581,7 +12585,7 @@ static bool processContent(HttpConn *conn)
     if (rx->eof) {
         if (conn->endpoint) {
             httpAddParams(conn);
-            if (rx->form && !rx->streaming) {
+            if ((rx->form || rx->upload) && !rx->streaming) {
                 /* Re-route to enable routing on body parameters */
                 if (rx->scriptName && rx->scriptName) {
                     rx->pathInfo = sjoin(rx->scriptName, rx->pathInfo, NULL);
@@ -13933,8 +13937,6 @@ PUBLIC void httpDestroySession(HttpConn *conn)
         httpRemoveCookie(conn, HTTP_SESSION_COOKIE);
         mprExpireCacheItem(sp->cache, sp->id, 0);
         sp->id = 0;
-        http->activeSessions--;
-        assert(http->activeSessions >= 0);
         conn->rx->session = 0;
     }
     conn->rx->sessionProbed = 0;
