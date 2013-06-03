@@ -1778,6 +1778,9 @@ PUBLIC HttpStage *httpCreateStage(Http *http, cchar *name, int flags, MprModule 
 */
 PUBLIC struct HttpStage *httpLookupStage(Http *http, cchar *name);
 
+//  MOB DOC
+PUBLIC void httpDefaultIncoming(HttpQueue *q, HttpPacket *packet);
+
 /** 
     Default outgoing data handling
     @description This routine provides default handling of outgoing data for stages. It simply sends all packets
@@ -2579,6 +2582,9 @@ PUBLIC int httpShouldTrace(HttpConn *conn, int dir, int item, cchar *ext);
  */
 PUBLIC void httpStartPipeline(HttpConn *conn);
 
+//  MOB DOC
+PUBLIC void httpCreatePipeline(HttpConn *conn);
+
 /**
     Steal a connection from Appweb
     @description Steal a connection from Appweb and assume total responsibility for the connection.
@@ -3215,6 +3221,33 @@ typedef void (*HttpAction)(HttpConn *conn);
  */
 PUBLIC void httpDefineAction(cchar *uri, HttpAction fun);
 
+/********************************** HttpStream  ********************************/
+
+//  MOB DOC
+/**
+    Determine if input body content should be streamed or buffered for requests with content of a given mime type 
+    @param host Host to modify
+    @param mime Mime type to configure
+    @return True if input should be streamed. False if it should be buffered.
+    @ingroup HttpHost
+    @stability Prototype
+    @internal
+ */
+PUBLIC bool httpGetStreaming(struct HttpHost *host, cchar *mime, cchar *uri);
+
+//  MOB DOC
+/**
+    Control if input body content should be streamed or buffered for requests with content of a given mime type 
+    @param host Host to modify
+    @param mime Mime type to configure
+    @param stream Set to true to enable streaming for this mime type.
+    @param immediate Set to true to immediately run the handler after parsing headers.
+    @ingroup HttpHost
+    @stability Prototype
+    @internal
+ */
+PUBLIC void httpSetStreaming(struct HttpHost *host, cchar *mime, cchar *uri, bool streaming);
+
 /********************************** HttpRoute  *********************************/
 /*
     Misc route API flags
@@ -3227,11 +3260,11 @@ PUBLIC void httpDefineAction(cchar *uri, HttpAction fun);
 #define HTTP_ROUTE_STARTED              0x2000      /**< Route initialized */
 #define HTTP_ROUTE_PUT_DELETE_METHODS   0x4000      /**< Support PUT|DELETE on this route */
 #define HTTP_ROUTE_TRACE_METHOD         0x8000      /**< Enable the trace method for handlers supporting it */
-//  TODO - remove ANGULAR from route
-#define HTTP_ROUTE_ANGULAR              0x10000     /**< Angular style MVC app */
-#define HTTP_ROUTE_JSON                 0x20000     /**< Route expects params in JSON body */
-#if UNUSED
-#define HTTP_ROUTE_MINIFY               0x40000     /**< Support minified content on this route */
+#define HTTP_ROUTE_JSON                 0x10000     /**< Route expects params in JSON body */
+#define HTTP_ROUTE_JSON_RESOURCES       0x20000     /**< Create resource routes to use JSON params */
+
+#if (DEPRECATED || 1) && !DOXYGEN
+#define HTTP_ROUTE_LEGACY_MVC           0x40000     /**< Legacy MVC app. Using "static" instead of "client". Deprecated in 4.4 */
 #endif
 
 /**
@@ -3258,7 +3291,7 @@ typedef struct HttpRoute {
     char            *startSegment;          /**< Starting literal segment of pattern (includes prefix) */
     char            *startWith;             /**< Starting literal segment of pattern (includes prefix) */
     char            *optimizedPattern;      /**< Processed pattern (excludes prefix) */
-    char            *prefix;                /**< Application scriptName prefix */
+    char            *prefix;                /**< Application scriptName prefix. Set to NULL for "/" */
     char            *tplate;                /**< URI template for forming links based on this route (includes prefix) */
     char            *targetRule;            /**< Target rule */
     char            *target;                /**< Route target details */
@@ -3308,7 +3341,6 @@ typedef struct HttpRoute {
     ssize           logSize;                /**< Max log size */
     HttpLimits      *limits;                /**< Host resource limits */
     MprHash         *mimeTypes;             /**< Hash table of mime types (key is extension) */
-    MprHash         *streaming;             /**< Hash table of mime types to control input streaming */
 
     HttpTrace       trace[2];               /**< Default route request tracing */
     int             traceMask;              /**< Request/response trace mask */
@@ -3728,12 +3760,13 @@ PUBLIC HttpRoute *httpCreateRoute(struct HttpHost *host);
     @param target Route target string expression. This is used by handlers to determine the physical or virtual resource
         to serve.
     @param source Source file pattern containing the resource to activate or serve. 
+    @param flags Route flags.
     @return Created route.
     @ingroup HttpRoute
     @stability Evolving
  */
 PUBLIC HttpRoute *httpDefineRoute(HttpRoute *parent, cchar *name, cchar *methods, cchar *pattern, 
-    cchar *target, cchar *source);
+    cchar *target, cchar *source, int flags);
 
 /**
     Define a route condition rule
@@ -3824,17 +3857,6 @@ PUBLIC void *httpGetRouteData(HttpRoute *route, cchar *key);
     @stability Evolving
  */
 PUBLIC cchar *httpGetRouteDir(HttpRoute *route);
-
-/*
-    Determine if input body content should be streamed or buffered for requests with content of a given mime type 
-    @param route Route to modify
-    @param mimeType Mime type to configure
-    @return True if input should be streamed. False if it should be buffered.
-    @ingroup HttpRoute
-    @stability Prototype
-    @internal
- */
-PUBLIC bool httpGetRouteStreaming(HttpRoute *route, cchar *mimeType);
 
 /**
     Get the route method list
@@ -4121,17 +4143,6 @@ PUBLIC void httpSetRouteHome(HttpRoute *route, cchar *home);
  */
 PUBLIC void httpSetRouteHost(HttpRoute *route, struct HttpHost *host);
 
-/*
-    Control if input body content should be streamed or buffered for requests with content of a given mime type 
-    @param route Route to modify
-    @param mimeType Mime type to configure
-    @param enable Set to true to enable streaming for this mime type.
-    @ingroup HttpRoute
-    @stability Prototype
-    @internal
- */
-PUBLIC void httpSetRouteStreaming(HttpRoute *route, cchar *mimeType, bool enable);
-
 /**
     Define the methods for the route
     @description This defines the set of valid HTTP methods for requests to match this route
@@ -4142,18 +4153,6 @@ PUBLIC void httpSetRouteStreaming(HttpRoute *route, cchar *mimeType, bool enable
     @stability Evolving
  */
 PUBLIC void httpSetRouteMethods(HttpRoute *route, cchar *methods);
-
-#if UNUSED
-/**
-    Contol client javascript minification for the route
-    @description Routes will be created by default with minification enabled.
-    @param route Route to modify
-    @param on Set to true to use minified content if available.
-    @ingroup HttpRoute
-    @stability Evolving
- */
-PUBLIC void httpSetRouteMinify(HttpRoute *route, bool on);
-#endif
 
 /**
     Set the route name
@@ -4442,9 +4441,6 @@ PUBLIC char *httpExpandUri(HttpConn *conn, cchar *str);
  */
 typedef struct HttpSession {
     char            *id;                        /**< Session ID key */
-#if UNUSED
-    HttpConn        *conn;                      /**< Owning connection */
-#endif
     MprCache        *cache;                     /**< Cache store reference */
     MprTicks        lifespan;                   /**< Session inactivity timeout (msecs) */
     MprHash         *data;                      /**< Session data */
@@ -4652,7 +4648,7 @@ PUBLIC void httpRemoveUploadFile(HttpConn *conn, cchar *id);
     @description Most of the APIs in the rx group still take a HttpConn object as their first parameter. This is
         to make the API easier to remember - APIs take a connection object rather than a rx or tx object.
     @defgroup HttpRx HttpRx
-    @see HttpConn HttpRx HttpTx httpAddBodyVars httpAddParamsFromBuf httpAddParamsFromQueue httpContentNotModified 
+    @see HttpConn HttpRx HttpTx httpAddBodyVars httpAddParamsFromBuf httpContentNotModified 
         httpCreateCGIParams httpGetContentLength httpGetCookies httpGetParam httpGetParams httpGetHeader 
         httpGetHeaderHash httpGetHeaders httpGetIntParam httpGetLanguage httpGetQueryString httpGetReadCount httpGetStatus 
         httpGetStatusMessage httpMatchParam httpRead httpReadString httpSetParam httpSetIntParam httpSetUri 
@@ -4753,15 +4749,9 @@ typedef struct HttpRx {
     int             matchCount;
 } HttpRx;
 
-/**
-    Add query and form body data to params
-    @description This adds query data and posted body data to the request params
-    @param conn HttpConn connection object
-    @ingroup HttpRx
-    @stability Internal
-    @internal
- */
-PUBLIC void httpAddParams(HttpConn *conn);
+//  MOB
+PUBLIC void httpAddQueryParams(HttpConn *conn);
+PUBLIC void httpAddBodyParams(HttpConn *conn);
 
 /**
     Add parameters from a JSON body.
@@ -4996,7 +4986,7 @@ PUBLIC ssize httpRead(HttpConn *conn, char *buffer, ssize size);
 /**
     Get the receive body input
     @description This will return all the body input. The request must have received all input (rx->eof == 1) and
-    must not be streaming (rx->streaming). 
+        must not be streaming (rx->streaming). 
     @param conn HttpConn connection object created via #httpCreateConn
     @return A string containing the body input.
     @stability Prototype
@@ -5878,6 +5868,7 @@ typedef struct HttpHost {
     HttpRoute       *defaultRoute;          /**< Default route for the host */
     HttpEndpoint    *defaultEndpoint;       /**< Default endpoint for host */
     HttpEndpoint    *secureEndpoint;        /**< Secure endpoint for host */
+    MprHash         *streams;               /**< Hash of mime-types to stream record */
     char            *protocol;              /**< Defaults to "HTTP/1.1" */
     char            *root;                  /**< Home for this host */
     int             flags;                  /**< Host flags */

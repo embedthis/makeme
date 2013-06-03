@@ -1217,12 +1217,6 @@ static cchar *formatOutput(HttpConn *conn, cchar *buf, ssize *count)
     if (app->noout) {
         return 0;
     }
-#if UNUSED
-    HttpRx *rx = conn->rx;
-    if (rx->status == 401 || (conn->followRedirects && (301 <= rx->status && rx->status <= 302))) {
-        return 0;
-    }
-#endif
     if (!app->printable) {
         return buf;
     }
