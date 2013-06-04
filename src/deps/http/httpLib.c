@@ -2290,8 +2290,10 @@ static void manageConn(HttpConn *conn, int flags)
         mprMark(conn->pool);
         mprMark(conn->mark);
         mprMark(conn->data);
+#if (DEPRECATE || 1) && !DOXYGEN
         mprMark(conn->grid);
         mprMark(conn->record);
+#endif
         mprMark(conn->boundary);
         mprMark(conn->errorMsg);
         mprMark(conn->ip);
@@ -6849,10 +6851,8 @@ static void httpStartHandler(HttpConn *conn);
 
 PUBLIC void httpCreatePipeline(HttpConn *conn)
 {
-    HttpTx      *tx;
     HttpRx      *rx;
     
-    tx = conn->tx;
     rx = conn->rx;
     assert(conn->endpoint);
 
@@ -12608,10 +12608,12 @@ static bool processContent(HttpConn *conn)
     /* Packet may be null */
 
     if ((nbytes = filterPacket(conn, packet, &more)) > 0) {
-        if (rx->inputPipeline) {
-            httpPutPacketToNext(q, packet);
-        } else {
-            httpPutForService(q, packet, HTTP_DELAY_SERVICE);
+        if (!(conn->endpoint && tx->finalized)) {
+            if (rx->inputPipeline) {
+                httpPutPacketToNext(q, packet);
+            } else {
+                httpPutForService(q, packet, HTTP_DELAY_SERVICE);
+            }
         }
         if (packet == conn->input) {
             conn->input = 0;

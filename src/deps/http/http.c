@@ -1118,6 +1118,10 @@ static ssize writeBody(HttpConn *conn, MprList *files)
                     }
                     mprYield(0);
                 }
+                /*
+                    This is a blocking write
+                    TODO OPT - convert to a wait for io
+                 */
                 httpFlushQueue(conn->writeq, 1);
                 mprCloseFile(file);
                 app->inFile = 0;
