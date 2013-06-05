@@ -2052,8 +2052,8 @@ typedef struct HttpConn {
     int             authRequested;          /**< Authorization requested based on user credentials */
     char            *authType;              /**< Type of authentication: set to basic, digest, post or a custom name */
     void            *authData;              /**< Authorization state data */
-    char            *username;              /**< Supplied user name */
-    char            *password;              /**< Supplied password (may be encrypted depending on auth protocol) */
+    cchar           *username;              /**< Supplied user name */
+    cchar           *password;              /**< Password for client requests (only) */
     int             encoded;                /**< True if the password is MD5(username:realm:password) */
     struct HttpUser *user;                  /**< Authorized User record for access checking */
 
@@ -2457,6 +2457,15 @@ PUBLIC void httpSetConnHost(HttpConn *conn, void *host);
  */
 PUBLIC void httpSetConnNotifier(HttpConn *conn, HttpNotifier notifier);
 
+/**
+    Set the logged in user associated with the connection
+    @param conn HttpConn connection object created via #httpCreateConn
+    @param user User object
+    @ingroup HttpConn
+    @stability Prototype
+ */
+PUBLIC void httpSetConnUser(HttpConn *conn, struct HttpUser *user);
+
 /** 
     Set the Http credentials
     @description Define a user and password to use with Http authentication for sites that require it. This will
@@ -2638,12 +2647,14 @@ typedef void (*HttpAskLogin)(HttpConn *conn);
 
 /**
     AuthType callback to parse the HTTP 'Authorize' (client) and 'www-authenticate' (server) headers
+    @description This callback must extract the username and password. The username is set on HttpConn.username.
+    The password is returned by this call.
     @param conn HttpConn connection object 
-    @return Zero if successful, otherwise a negative MPR error code
+    @return The password if successful, otherwise NULL.
     @ingroup HttpAuth
     @stability Evolving
  */
-typedef int (*HttpParseAuth)(HttpConn *conn);
+typedef int (*HttpParseAuth)(HttpConn *conn, cchar **username, cchar **password);
 
 /**
     AuthType callback to set the necessary HTTP authorization headers for a client request
@@ -2652,16 +2663,18 @@ typedef int (*HttpParseAuth)(HttpConn *conn);
     @ingroup HttpAuth
     @stability Evolving
  */
-typedef bool (*HttpSetAuth)(HttpConn *conn);
+typedef bool (*HttpSetAuth)(HttpConn *conn, cchar *username, cchar *password);
 
 /**
     AuthStore callback Verify the user credentials
     @param conn HttpConn connection object 
+    @param username Users login name
+    @param password Actual user password
     @return True if the user credentials can validate
     @ingroup HttpAuth
     @stability Evolving
  */
-typedef bool (*HttpVerifyUser)(HttpConn *conn);
+typedef bool (*HttpVerifyUser)(HttpConn *conn, cchar *username, cchar *password);
 
 
 /**
@@ -2670,10 +2683,10 @@ typedef bool (*HttpVerifyUser)(HttpConn *conn);
     @stability Internal
  */
 typedef struct HttpAuthType {
-    char            *name;          /**< Authentication protocol name: 'basic', 'digest', 'post' */
-    HttpAskLogin    askLogin;       /**< Callback to generate a client login response */
-    HttpParseAuth   parseAuth;      /**< Callback to parse the HTTP authentication headers */
-    HttpSetAuth     setAuth;        /**< Callback to set the HTTP response authentication headers */
+    char                *name;          /**< Authentication protocol name: 'basic', 'digest', 'form' */
+    HttpAskLogin        askLogin;       /**< Callback to generate a client login response */
+    HttpParseAuth       parseAuth;      /**< Callback to parse request auth details */
+    HttpSetAuth         setAuth;        /**< Callback to set the HTTP response authentication headers */
 } HttpAuthType;
 
 
@@ -2695,7 +2708,7 @@ typedef struct HttpAuthStore {
  */
 typedef struct HttpUser {
     char            *name;                  /**< User name */
-    char            *password;              /**< User password */
+    char            *password;              /**< User password for "internal" auth store - (actually the password hash */
     char            *roles;                 /**< Original list of roles */
     MprHash         *abilities;             /**< User abilities */
 } HttpUser;
@@ -2717,7 +2730,7 @@ typedef struct  HttpRole {
     It stores the authorization configuration information required to determine if a client request should be permitted 
     access to a given resource.
     @defgroup HttpAuth HttpAuth
-    @see HttpAskLogin HttpAuth HttpAuthStore HttpAuthType HttpParseAuth HttpRole HttpSetAuth HttpVerifyUser HttpUser
+    @see HttpAskLogin HttpAuth HttpAuthStore HttpAuthType HttpGetCredentials HttpRole HttpSetAuth HttpVerifyUser HttpUser
         HttpVerifyUser httpAddAuthType httpAddAuthStore httpAddRole httpAddUser httpCanUser httpAuthenticate
         httpComputeAllUserAbilities httpComputeUserAbilities httpCreateRole httpCreateAuth httpCreateUser
         httpIsAuthenticated httpLogin httpRemoveRole httpRemoveUser httpSetAuthAllow httpSetAuthAnyValidUser
@@ -2729,13 +2742,14 @@ typedef struct HttpAuth {
     struct HttpAuth *parent;                /**< Parent auth */
     char            *realm;                 /**< Realm of access */
     int             flags;                  /**< Authorization flags */
-    int             version;                /**< Inherited from parent and incremented on changes */
     MprHash         *allow;                 /**< Clients to allow */
     MprHash         *deny;                  /**< Clients to deny */
-    MprHash         *users;                 /**< Hash of users */
+    MprHash         *userCache;             /**< Cache of authenticated users */
     MprHash         *roles;                 /**< Hash of roles */
-    MprHash         *requiredAbilities;     /**< Set of required abilities (all are required) */
-    MprHash         *permittedUsers;        /**< User name for access */
+    MprHash         *abilities;             /**< Set of required abilities (all are required) */
+#if DEPRECATE || 1
+    MprHash         *permittedUsers;        /**< Set of valid users */
+#endif
     char            *loginPage;             /**< Web page for user login for 'post' type */
     char            *loggedIn;              /**< Target URI after logging in */
     char            *qop;                   /**< Quality of service */
@@ -2797,11 +2811,11 @@ PUBLIC int httpAddRole(HttpAuth *auth, cchar *role, cchar *abilities);
     @param user User name to add
     @param password User password. The password should not be encrypted. The backend will encrypt as required.
     @param abilities Space separated list of abilities.
-    @return Zero if successful, otherwise a negative MPR error code
+    @return The User object allocated or NULL for an error.
     @ingroup HttpAuth
     @stability Evolving
  */
-PUBLIC int httpAddUser(HttpAuth *auth, cchar *user, cchar *password, cchar *abilities);
+PUBLIC HttpUser *httpAddUser(HttpAuth *auth, cchar *user, cchar *password, cchar *abilities);
 
 /**
     Test if a user has the required abilities
@@ -2852,6 +2866,7 @@ PUBLIC HttpAuth *httpCreateAuth();
  */
 PUBLIC HttpRole *httpCreateRole(HttpAuth *auth, cchar *name, cchar *abilities);
 
+#if UNUSED
 /**
     Create a new user
     @description The user is not added to the authentication database
@@ -2864,6 +2879,7 @@ PUBLIC HttpRole *httpCreateRole(HttpAuth *auth, cchar *name, cchar *abilities);
     @stability Evolving
  */
 PUBLIC HttpUser *httpCreateUser(HttpAuth *auth, cchar *name, cchar *password, cchar *abilities);
+#endif
 
 /**
     Test if the user is authenticated
@@ -3044,19 +3060,24 @@ PUBLIC int httpSetAuthType(HttpAuth *auth, cchar *proto, cchar *details);
     Internal
  */
 PUBLIC void httpBasicLogin(HttpConn *conn);
-PUBLIC int httpBasicParse(HttpConn *conn);
-PUBLIC bool httpBasicSetHeaders(HttpConn *conn);
+PUBLIC int httpBasicParse(HttpConn *conn, cchar **username, cchar **password);
+PUBLIC bool httpBasicSetHeaders(HttpConn *conn, cchar *username, cchar *password);
 PUBLIC void httpDigestLogin(HttpConn *conn);
-PUBLIC int httpDigestParse(HttpConn *conn);
-PUBLIC bool httpDigestSetHeaders(HttpConn *conn);
-PUBLIC bool httpPamVerifyUser(HttpConn *conn);
-PUBLIC bool httpInternalVerifyUser(HttpConn *conn);
-PUBLIC int httpAuthenticate(HttpConn *conn);
+PUBLIC int httpDigestParse(HttpConn *conn, cchar **username, cchar **password);
+PUBLIC bool httpDigestSetHeaders(HttpConn *conn, cchar *username, cchar *password);
+PUBLIC bool httpPamVerifyUser(HttpConn *conn, cchar *username, cchar *password);
+PUBLIC bool httpInternalVerifyUser(HttpConn *conn, cchar *username, cchar *password);
 PUBLIC void httpComputeAllUserAbilities(HttpAuth *auth);
 PUBLIC void httpComputeUserAbilities(HttpAuth *auth, HttpUser *user);
 PUBLIC void httpInitAuth(Http *http);
 PUBLIC HttpAuth *httpCreateInheritedAuth(HttpAuth *parent);
 PUBLIC HttpAuthType *httpLookupAuthType(cchar *type);
+PUBLIC bool httpGetCredentials(HttpConn *conn, cchar **username, cchar **password);
+
+//  MOB DOC
+PUBLIC bool httpLoggedIn(HttpConn *conn);
+PUBLIC void httpComputeUserAbilities(HttpAuth *auth, HttpUser *user);
+PUBLIC HttpUser *httpLookupUser(HttpAuth *auth, cchar *name);
 
 /********************************** HttpLang  ********************************/
 
@@ -4432,7 +4453,6 @@ PUBLIC char *httpExpandUri(HttpConn *conn, cchar *str);
 
 #define HTTP_SESSION_COOKIE     "-http-session-"    /**< Session cookie name */
 #define HTTP_SESSION_USERNAME   "__USERNAME__"      /**< Username variable */
-#define HTTP_SESSION_AUTHVER    "__VERSION__"       /**< Auth version number */
 
 /**
     Session state object
@@ -4635,7 +4655,9 @@ PUBLIC void httpRemoveUploadFile(HttpConn *conn, cchar *id);
 #define HTTP_ADDED_BODY_PARAMS  0x800       /**< Body data added to params */
 #define HTTP_LIMITS_OPENED      0x1000      /**< Request limits opened */
 #define HTTP_EXPECT_CONTINUE    0x2000      /**< Client expects an HTTP 100 Continue response */
+#if UNUSED
 #define HTTP_AUTH_CHECKED       0x4000      /**< User authentication has been checked */
+#endif
 
 /*  
     Incoming chunk encoding states

@@ -1385,6 +1385,7 @@ void *prealloc(void *ptr, ssize size)
 
 /* 
     WARNING: this does not mark component members
+    MOB - change to cvoid
  */
 PUBLIC void mprHold(void *ptr)
 {
@@ -1400,6 +1401,9 @@ PUBLIC void mprHold(void *ptr)
 }
 
 
+/*
+    MOB - change to cvoid
+ */
 PUBLIC void mprRelease(void *ptr)
 {
     MprMem  *mp;
@@ -2978,6 +2982,7 @@ PUBLIC int mprStartEventsThread()
     if ((tp = mprCreateThread("events", serviceEventsThread, NULL, 0)) == 0) {
         MPR->hasError = 1;
     } else {
+        MPR->threadService->eventsThread = tp;
         MPR->cond = mprCreateCond();
         mprStartThread(tp);
         mprWaitForCond(MPR->cond, MPR_TIMEOUT_START_TASK);
@@ -5683,9 +5688,11 @@ PUBLIC void mprPollWinCmd(MprCmd *cmd, MprTicks timeout)
  */
 PUBLIC int mprWaitForCmd(MprCmd *cmd, MprTicks timeout)
 {
-    MprTicks    expires, remaining, delay;
+    MprThreadService    *ts;
+    MprTicks            expires, remaining, delay;
 
     assert(cmd);
+    ts = MPR->threadService;
 
     if (timeout < 0) {
         timeout = MAXINT;
@@ -5712,7 +5719,12 @@ PUBLIC int mprWaitForCmd(MprCmd *cmd, MprTicks timeout)
 #else
         delay = (cmd->eofCount >= cmd->requiredEof) ? 10 : remaining;
 #endif
-        mprWaitForEvent(cmd->dispatcher, delay);
+        if (!ts->eventsThread && mprGetCurrentThread() == ts->mainThread) {
+            mprServiceEvents(10, MPR_SERVICE_ONE_THING);
+            mprWaitForEvent(cmd->dispatcher, 10);
+        } else {
+            mprWaitForEvent(cmd->dispatcher, delay);
+        }
         remaining = (expires - mprGetTicks());
     }
     mprRemoveRoot(cmd);
@@ -11795,6 +11807,8 @@ PUBLIC MprHash *mprCloneHash(MprHash *master)
 {
     MprKey      *kp;
     MprHash     *hash;
+
+    assert(master);
 
     if ((hash = mprCreateHash(master->size, master->flags)) == 0) {
         return 0;

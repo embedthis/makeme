@@ -6058,7 +6058,8 @@ PUBLIC void *mprQueryJsonValue(MprHash *obj, cchar *key, int type);
  */
 typedef struct MprThreadService {
     MprList          *threads;              /**< List of all threads */
-    struct MprThread *mainThread;           /**< Main application Mpr thread id */
+    struct MprThread *mainThread;           /**< Main application thread */
+    struct MprThread *eventsThread;         /**< Event service thread */
     MprCond          *cond;                 /**< Multi-thread sync */
     ssize            stackSize;             /**< Default thread stack size */
 } MprThreadService;
