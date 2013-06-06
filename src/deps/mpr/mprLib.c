@@ -7022,6 +7022,10 @@ PUBLIC void mprSignalMultiCond(MprCond *cp)
 
 
 /*********************************** Locals ***********************************/
+
+#define BLOWFISH_SALT_LENGTH   16
+#define BLOWFISH_ROUNDS        128
+
 /*
     MD5 Constants for transform routine.
  */
@@ -8193,6 +8197,12 @@ PUBLIC char *mprMakePassword(cchar *password, int saltLength, int rounds)
 {
     cchar   *salt;
 
+    if (saltLength <= 0) {
+        saltLength = BLOWFISH_SALT_LENGTH;
+    }
+    if (rounds <= 0) {
+        rounds = BLOWFISH_ROUNDS;
+    }
     salt = mprMakeSalt(saltLength);
     return sfmt("BF1:%05d:%s:%s", rounds, salt, mprCryptPassword(password, salt, rounds));
 }

@@ -10099,7 +10099,7 @@ PUBLIC char *httpLink(HttpConn *conn, cchar *target, MprHash *options)
         /*
             Prep the action. Forms are:
                 . @action               # Use the current service
-                . @service/          # Use "list" as the action
+                . @service/             # Use "index" as the action
                 . @service/action
          */
         if ((action = httpGetOption(options, "action", 0)) != 0) {
@@ -10116,8 +10116,15 @@ PUBLIC char *httpLink(HttpConn *conn, cchar *target, MprHash *options)
             } else {
                 service = httpGetParam(conn, "service", 0);
             }
+#if DEPRECATE || 1
+            if (service) {
+                httpSetOption(options, "controller", service);
+            } else {
+                service = httpGetParam(conn, "controller", 0);
+            }
+#endif
             if (action == 0 || *action == '\0') {
-                action = "list";
+                action = (route->flags & HTTP_ROUTE_LEGACY_MVC) ? "list" : "index";
             }
             if (action != originalAction) {
                 httpSetOption(options, "action", action);
@@ -10814,7 +10821,7 @@ PUBLIC void httpAddResourceGroup(HttpRoute *parent, cchar *resource)
     addRestful(parent, "remove",    "DELETE", "/{id=[0-9]+}$",           "remove",          resource, 0);
     addRestful(parent, "update",    "POST",   "/{id=[0-9]+}*$",          "update",          resource, flags);
     addRestful(parent, "action",    "POST",   "/{action}/{id=[0-9]+}$",  "${action}",       resource, 0);
-    addRestful(parent, "cmd",       "*",      "/{action}$",              "cmd-${action}",   resource, flags);
+    addRestful(parent, "default",   "*",      "/{action}$",              "cmd-${action}",   resource, flags);
 }
 
 
@@ -10829,7 +10836,7 @@ PUBLIC void httpAddResource(HttpRoute *parent, cchar *resource)
     addRestful(parent, "init",      "GET",    "/init$",       "init",       resource, 0);
     addRestful(parent, "update",    "POST",   "(/)*$",        "update",     resource, flags);
     addRestful(parent, "remove",    "DELETE", "(/)*$",        "remove",     resource, 0);
-    addRestful(parent, "action",    "*",      "/{action}$",   "${action}",  resource, flags);
+    addRestful(parent, "default",   "*",      "/{action}$",   "${action}",  resource, flags);
 }
 
 
@@ -10841,7 +10848,6 @@ PUBLIC void httpAddLegacyResourceGroup(HttpRoute *parent, cchar *resource)
 {
     int     flags;
 
-    //  MOB - can remove this if legacy switches to XSRF
     flags = parent->flags & HTTP_ROUTE_LEGACY_MVC;
     addRestful(parent, "list",      "GET",    "(/)*$",                   "list",          resource, flags);
     addRestful(parent, "init",      "GET",    "/init$",                  "init",          resource, flags);
@@ -10851,7 +10857,7 @@ PUBLIC void httpAddLegacyResourceGroup(HttpRoute *parent, cchar *resource)
     addRestful(parent, "update",    "PUT",    "/{id=[0-9]+}$",           "update",        resource, flags);
     addRestful(parent, "destroy",   "DELETE", "/{id=[0-9]+}$",           "destroy",       resource, flags);
     addRestful(parent, "action",    "POST",   "/{action}/{id=[0-9]+}$",  "${action}",     resource, flags);
-    addRestful(parent, "cmd",       "*",      "/{action}$",              "cmd-${action}", resource, flags);
+    addRestful(parent, "default",   "*",      "/{action}$",              "cmd-${action}", resource, flags);
 }
 
 
@@ -10859,7 +10865,6 @@ PUBLIC void httpAddLegacyResource(HttpRoute *parent, cchar *resource)
 {
     int     flags;
 
-    //  MOB - can remove this if legacy switches to XSRF
     flags = parent->flags & HTTP_ROUTE_LEGACY_MVC;
     addRestful(parent, "init",      "GET",    "/init$",       "init",          resource, flags);
     addRestful(parent, "create",    "POST",   "(/)*$",        "create",        resource, flags);
@@ -10867,7 +10872,7 @@ PUBLIC void httpAddLegacyResource(HttpRoute *parent, cchar *resource)
     addRestful(parent, "show",      "GET",    "(/)*$",        "show",          resource, flags);
     addRestful(parent, "update",    "PUT",    "(/)*$",        "update",        resource, flags);
     addRestful(parent, "destroy",   "DELETE", "(/)*$",        "destroy",       resource, flags);
-    addRestful(parent, "cmd",       "*",      "/{action}$",   "cmd-${action}", resource, flags);
+    addRestful(parent, "default",   "*",      "/{action}$",   "cmd-${action}", resource, flags);
 }
 #endif
 
@@ -13978,7 +13983,8 @@ static HttpSession *allocSession(HttpConn *conn, cchar *id, cchar *data)
     sp->cache = conn->http->sessionCache;
     if (data) {
         sp->data = mprDeserialize(data);
-    } else {
+    }
+    if (!sp->data) {
         sp->data = mprCreateHash(BIT_MAX_SESSION_HASH, 0);
     }
     return sp;
@@ -14100,11 +14106,18 @@ PUBLIC HttpSession *httpGetSession(HttpConn *conn, int create)
 
 PUBLIC MprHash *httpGetSessionObj(HttpConn *conn, cchar *key)
 {
-    cchar   *str;
+    HttpSession *sp;
+    MprKey      *kp;
 
-    if ((str = httpGetSessionVar(conn, key, 0)) != 0 && *str) {
-        assert(*str == '{');
-        return mprDeserialize(str);
+    assert(conn);
+    assert(key && *key);
+
+    if ((sp = httpGetSession(conn, 0)) != 0) {
+        if ((kp = mprLookupKeyEntry(sp->data, key)) != 0) {
+            if (kp->type == MPR_JSON_OBJ) {
+                return (MprHash*) kp->data;
+            }
+        }
     }
     return 0;
 }
@@ -14128,7 +14141,23 @@ PUBLIC cchar *httpGetSessionVar(HttpConn *conn, cchar *key, cchar *defaultValue)
 
 PUBLIC int httpSetSessionObj(HttpConn *conn, cchar *key, MprHash *obj)
 {
-    return httpSetSessionVar(conn, key, mprSerialize(obj, 0));
+    HttpSession *sp;
+    MprKey      *kp;
+
+    assert(conn);
+    assert(key && *key);
+
+    if ((sp = httpGetSession(conn, 1)) == 0) {
+        return MPR_ERR_CANT_FIND;
+    }
+    if (obj == 0) {
+        httpRemoveSessionVar(conn, key);
+    } else {
+        if ((kp = mprAddKey(sp->data, key, obj)) != 0) {
+            kp->type = MPR_JSON_OBJ;
+        }
+    }
+    return 0;
 }
 
 
@@ -14146,7 +14175,7 @@ PUBLIC int httpSetSessionVar(HttpConn *conn, cchar *key, cchar *value)
     assert(key && *key);
 
     if ((sp = httpGetSession(conn, 1)) == 0) {
-        return 0;
+        return MPR_ERR_CANT_FIND;
     }
     if (value == 0) {
         httpRemoveSessionVar(conn, key);

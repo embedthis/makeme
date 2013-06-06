@@ -1778,7 +1778,14 @@ PUBLIC HttpStage *httpCreateStage(Http *http, cchar *name, int flags, MprModule 
 */
 PUBLIC struct HttpStage *httpLookupStage(Http *http, cchar *name);
 
-//  MOB DOC
+/** 
+    Default incoming put callback. 
+    @description Adds packet to the service queue
+    @param q Current queue
+    @param packet Packet containg data
+    @ingroup HttpStage
+    @stability Prototype
+*/
 PUBLIC void httpDefaultIncoming(HttpQueue *q, HttpPacket *packet);
 
 /** 
@@ -2593,7 +2600,13 @@ PUBLIC int httpShouldTrace(HttpConn *conn, int dir, int item, cchar *ext);
  */
 PUBLIC void httpStartPipeline(HttpConn *conn);
 
-//  MOB DOC
+/**
+    Create the pipeline.
+    @description Create the processing pipeline.
+    @param conn HttpConn object created via #httpCreateConn
+    @ingroup HttpConn
+    @stability Internal
+ */
 PUBLIC void httpCreatePipeline(HttpConn *conn);
 
 /**
@@ -2866,21 +2879,6 @@ PUBLIC HttpAuth *httpCreateAuth();
  */
 PUBLIC HttpRole *httpCreateRole(HttpAuth *auth, cchar *name, cchar *abilities);
 
-#if UNUSED
-/**
-    Create a new user
-    @description The user is not added to the authentication database
-    @param auth Auth object allocated by #httpCreateAuth.
-    @param name User name 
-    @param password User password. The password should not be encrypted. The backend will encrypt as required.
-    @param abilities Space separated list of abilities.
-    @return Zero if successful, otherwise a negative MPR error code
-    @ingroup HttpAuth
-    @stability Evolving
- */
-PUBLIC HttpUser *httpCreateUser(HttpAuth *auth, cchar *name, cchar *password, cchar *abilities);
-#endif
-
 /**
     Test if the user is authenticated
     @param conn HttpConn connection object 
@@ -2906,12 +2904,34 @@ PUBLIC bool httpIsAuthenticated(HttpConn *conn);
 PUBLIC bool httpLogin(HttpConn *conn, cchar *username, cchar *password);
 
 /**
+    Test if the client for the current request is logged in
+    @description This tests if there is a login session for the client
+    @param conn HttpConn connection object 
+    @return True if the user is authenticated and logged in
+    @stability Prototype
+    @ingroup HttpAuth
+    @stability Prototype
+  */
+PUBLIC bool httpLoggedIn(HttpConn *conn);
+
+/**
     Logout the user.
     @param conn HttpConn connection object 
     @ingroup HttpAuth
     @stability Prototype
  */
 PUBLIC void httpLogout(HttpConn *conn);
+
+/**
+    Lookup a user by username
+    @param auth HttpAuth object. Stored in HttpConn.rx.route.auth
+    @param name Username
+    @return User object
+    @stability Prototype
+    @ingroup HttpAuth
+    @stability Prototype
+  */
+PUBLIC HttpUser *httpLookupUser(HttpAuth *auth, cchar *name);
 
 /**
     Remove a role
@@ -3073,11 +3093,7 @@ PUBLIC void httpInitAuth(Http *http);
 PUBLIC HttpAuth *httpCreateInheritedAuth(HttpAuth *parent);
 PUBLIC HttpAuthType *httpLookupAuthType(cchar *type);
 PUBLIC bool httpGetCredentials(HttpConn *conn, cchar **username, cchar **password);
-
-//  MOB DOC
-PUBLIC bool httpLoggedIn(HttpConn *conn);
 PUBLIC void httpComputeUserAbilities(HttpAuth *auth, HttpUser *user);
-PUBLIC HttpUser *httpLookupUser(HttpAuth *auth, cchar *name);
 
 /********************************** HttpLang  ********************************/
 
@@ -3245,8 +3261,6 @@ typedef void (*HttpAction)(HttpConn *conn);
 PUBLIC void httpDefineAction(cchar *uri, HttpAction fun);
 
 /********************************** HttpStream  ********************************/
-
-//  MOB DOC
 /**
     Determine if input body content should be streamed or buffered for requests with content of a given mime type 
     @param host Host to modify
@@ -3258,7 +3272,6 @@ PUBLIC void httpDefineAction(cchar *uri, HttpAction fun);
  */
 PUBLIC bool httpGetStreaming(struct HttpHost *host, cchar *mime, cchar *uri);
 
-//  MOB DOC
 /**
     Control if input body content should be streamed or buffered for requests with content of a given mime type 
     @param host Host to modify
@@ -4655,9 +4668,6 @@ PUBLIC void httpRemoveUploadFile(HttpConn *conn, cchar *id);
 #define HTTP_ADDED_BODY_PARAMS  0x800       /**< Body data added to params */
 #define HTTP_LIMITS_OPENED      0x1000      /**< Request limits opened */
 #define HTTP_EXPECT_CONTINUE    0x2000      /**< Client expects an HTTP 100 Continue response */
-#if UNUSED
-#define HTTP_AUTH_CHECKED       0x4000      /**< User authentication has been checked */
-#endif
 
 /*  
     Incoming chunk encoding states
@@ -4773,8 +4783,24 @@ typedef struct HttpRx {
     int             matchCount;
 } HttpRx;
 
-//  MOB
+/**
+    Add parameters from the request query string.
+    @description This adds query data to the request params
+    @param conn HttpConn connection object
+    @ingroup HttpRx
+    @stability Internal
+    @internal
+ */
 PUBLIC void httpAddQueryParams(HttpConn *conn);
+
+/**
+    Add parameters from the request body content.
+    @description This adds query data to the request params
+    @param conn HttpConn connection object
+    @ingroup HttpRx
+    @stability Internal
+    @internal
+ */
 PUBLIC void httpAddBodyParams(HttpConn *conn);
 
 /**
