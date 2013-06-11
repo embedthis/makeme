@@ -4104,6 +4104,26 @@ PUBLIC int mprRemoveKey(MprHash *table, cvoid *key);
  */
 PUBLIC MprHash *mprBlendHash(MprHash *target, MprHash *other);
 
+/**
+    Convert a hash of strings to a single string
+    @param list List pointer returned from mprCreateList.
+    @param join String to use as the element join string.
+    @return String consisting of the joined hash values
+    @ingroup MprHash
+    @stability Prototype.
+*/
+PUBLIC char *mprHashToString(MprHash *hash, cchar *join);
+
+/**
+    Convert hash keys to a single string
+    @param list List pointer returned from mprCreateList.
+    @param join String to use as the element join string.
+    @return String consisting of the joined hash keys
+    @ingroup MprHash
+    @stability Prototype.
+*/
+PUBLIC char *mprHashKeysToString(MprHash *hash, cchar *join);
+
 /*********************************** Files ************************************/
 /**
     Signed file offset data type. Supports large files greater than 4GB in size on all systems.

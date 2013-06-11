@@ -1670,7 +1670,7 @@ PUBLIC void mprVerifyMem()
                 }
                 for (i = 0; i < usize; i++) {
                     if (ptr[i] != 0xFE) {
-                        mprError("Free memory block %x has been modified at offset %d (MprBlk %x, seqno %d)\n"
+                        mprError("Free memory block %x has been modified at offset %d (MprBlk %x, seqno %d)"
                                        "Memory was last allocated by %s", GET_PTR(mp), i, mp, mp->seqno, mp->name);
                     }
                 }
@@ -1956,7 +1956,7 @@ PUBLIC void mprCheckBlock(MprMem *mp)
 
     size = GET_SIZE(mp);
     if (mp->magic != MPR_ALLOC_MAGIC || size <= 0) {
-        mprError("Memory corruption in memory block %x (MprBlk %x, seqno %d)\n"
+        mprError("Memory corruption in memory block %x (MprBlk %x, seqno %d)"
             "This most likely happend earlier in the program execution", GET_PTR(mp), mp, mp->seqno);
     }
 }
@@ -1976,7 +1976,7 @@ static void checkFreeMem(MprMem *mp)
         }
         for (i = 0; i < usize; i++) {
             if (ptr[i] != 0xFE) {
-                mprError("Free memory block %x has been modified at offset %d (MprBlk %x, seqno %d)\n"
+                mprError("Free memory block %x has been modified at offset %d (MprBlk %x, seqno %d)"
                     "Memory was last allocated by %s", GET_PTR(mp), i, mp, mp->seqno, mp->name);
                 break;
             }
@@ -5367,7 +5367,7 @@ PUBLIC int mprRunCmdV(MprCmd *cmd, int argc, cchar **argv, cchar **envp, char **
 }
 
 
-static void addCmdHandlers(MprCmd *cmd)
+static int addCmdHandlers(MprCmd *cmd)
 {
     int     stdinFd, stdoutFd, stderrFd;
   
@@ -5376,14 +5376,21 @@ static void addCmdHandlers(MprCmd *cmd)
     stderrFd = cmd->files[MPR_CMD_STDERR].fd; 
 
     if (stdinFd >= 0 && cmd->handlers[MPR_CMD_STDIN] == 0) {
-        cmd->handlers[MPR_CMD_STDIN] = mprCreateWaitHandler(stdinFd, MPR_WRITABLE, cmd->dispatcher, stdinCallback, cmd, 0);
+        if ((cmd->handlers[MPR_CMD_STDIN] = mprCreateWaitHandler(stdinFd, MPR_WRITABLE, cmd->dispatcher, stdinCallback, cmd, 0)) == 0) {
+            return MPR_ERR_CANT_OPEN;
+        }
     }
     if (stdoutFd >= 0 && cmd->handlers[MPR_CMD_STDOUT] == 0) {
-        cmd->handlers[MPR_CMD_STDOUT] = mprCreateWaitHandler(stdoutFd, MPR_READABLE, cmd->dispatcher, stdoutCallback, cmd,0);
+        if ((cmd->handlers[MPR_CMD_STDOUT] = mprCreateWaitHandler(stdoutFd, MPR_READABLE, cmd->dispatcher, stdoutCallback, cmd,0)) == 0) {
+            return MPR_ERR_CANT_OPEN;
+        }
     }
     if (stderrFd >= 0 && cmd->handlers[MPR_CMD_STDERR] == 0) {
-        cmd->handlers[MPR_CMD_STDERR] = mprCreateWaitHandler(stderrFd, MPR_READABLE, cmd->dispatcher, stderrCallback, cmd,0);
+        if ((cmd->handlers[MPR_CMD_STDERR] = mprCreateWaitHandler(stderrFd, MPR_READABLE, cmd->dispatcher, stderrCallback, cmd,0)) == 0) {
+            return MPR_ERR_CANT_OPEN;
+        }
     }
+    return 0;
 }
 
 
@@ -5451,7 +5458,10 @@ PUBLIC int mprStartCmd(MprCmd *cmd, int argc, cchar **argv, cchar **envp, int fl
     if (cmd->flags & MPR_CMD_ERR) {
         cmd->requiredEof++;
     }
-    addCmdHandlers(cmd);
+    if (addCmdHandlers(cmd) < 0) {
+        mprError("Cannot open command handlers - insufficient I/O handles");
+        return MPR_ERR_CANT_OPEN;
+    }
     rc = startProcess(cmd);
     cmd->pid2 = cmd->pid;
     sunlock(cmd);
@@ -10222,7 +10232,7 @@ PUBLIC int mprNotifyOn(MprWaitService *ws, MprWaitHandler *wp, int mask)
             rc = epoll_ctl(ws->epoll, EPOLL_CTL_DEL, fd, &ev);
 #if KEEP
             if (rc != 0) {
-                mprError("Epoll del error %d on fd %d\n", errno, fd);
+                mprError("Epoll del error %d on fd %d", errno, fd);
             }
 #endif
         }
@@ -10236,7 +10246,7 @@ PUBLIC int mprNotifyOn(MprWaitService *ws, MprWaitHandler *wp, int mask)
         if (ev.events) {
             rc = epoll_ctl(ws->epoll, EPOLL_CTL_ADD, fd, &ev);
             if (rc != 0) {
-                mprError("Epoll add error %d on fd %d\n", errno, fd);
+                mprError("Epoll add error %d on fd %d", errno, fd);
             }
         }
         if (mask && fd >= ws->handlerMax) {
@@ -12028,6 +12038,45 @@ PUBLIC MprHash *mprCreateHashFromWords(cchar *str)
         word = stok(NULL, " \t\n\r", &next);
     }
     return hash;
+}
+
+
+PUBLIC char *mprHashToString(MprHash *hash, cchar *join)
+{
+    MprBuf  *buf;
+    MprKey  *kp;
+    cchar   *item;
+
+    if (!join) {
+        join = ",";
+    }
+    buf = mprCreateBuf(0, 0);
+    for (ITERATE_KEY_DATA(hash, kp, item)) {
+        mprPutStringToBuf(buf, item);
+        mprPutStringToBuf(buf, join);
+    }
+    mprAdjustBufEnd(buf, -1);
+    mprAddNullToBuf(buf);
+    return mprGetBufStart(buf);
+}
+
+
+PUBLIC char *mprHashKeysToString(MprHash *hash, cchar *join)
+{
+    MprBuf  *buf;
+    MprKey  *kp;
+
+    if (!join) {
+        join = ",";
+    }
+    buf = mprCreateBuf(0, 0);
+    for (ITERATE_KEYS(hash, kp)) {
+        mprPutStringToBuf(buf, kp->key);
+        mprPutStringToBuf(buf, join);
+    }
+    mprAdjustBufEnd(buf, -1);
+    mprAddNullToBuf(buf);
+    return mprGetBufStart(buf);
 }
 
 
@@ -24508,7 +24557,7 @@ PUBLIC int mprStartThread(MprThread *tp)
     taskHandle = taskSpawn(tp->name, pri, VX_FP_TASK, tp->stackSize, (FUNCPTR) threadProcWrapper, (int) tp, 
         0, 0, 0, 0, 0, 0, 0, 0, 0);
     if (taskHandle < 0) {
-        mprError("Cannot create thread %s\n", tp->name);
+        mprError("Cannot create thread %s", tp->name);
         unlock(tp);
         return MPR_ERR_CANT_INITIALIZE;
     }
@@ -27360,8 +27409,8 @@ static MprWaitHandler *initWaitHandler(MprWaitHandler *wp, int fd, int mask, Mpr
     wp->service         = ws;
     wp->flags           = flags;
 
-    if (mprGetListLength(ws->handlers) == FD_SETSIZE) {
-        mprError("io: Too many io handlers: %d\n", FD_SETSIZE);
+    if (mprGetListLength(ws->handlers) >= FD_SETSIZE) {
+        mprError("io: Too many io handlers: %d", FD_SETSIZE);
         return 0;
     }
 #if BIT_UNIX_LIKE || VXWORKS
@@ -29099,7 +29148,7 @@ void winDummy() {}
 
 static char     *currentDir;            /* Current working directory */
 static MprList  *files;                 /* List of open files */
-PUBLIC int             errno;                  /* Last error */
+PUBLIC int      errno;                  /* Last error */
 static char     timzeone[2][32];        /* Standard and daylight savings zones */
 
 /*

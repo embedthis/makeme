@@ -20605,7 +20605,7 @@ module ejs.web {
             URI (begins with "/"). The URI will include any defined scriptName, but will not include scheme, host or 
             port components.
 
-            @params target The URI target. The target parameter can be a URI string or object hash of components. If the 
+            @param target The URI target. The target parameter can be a URI string or object hash of components. If the 
                 target is a string, it is may contain an absolute or relative URI. If the target has an absolute URI path, 
                 that path is used unmodified. If the target is a relative URI, it is appended to the current request URI 
                 path.  The target can also be an object hash of URI components: scheme, host, port, path, reference and

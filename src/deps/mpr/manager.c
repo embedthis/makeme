@@ -526,7 +526,7 @@ static bool process(cchar *operation, bool quiet)
 
     if (!quiet) {
         if (!rc && app->error && *app->error) {
-            mprError("Cannot run command: %s\nCommand output: %s\n", app->command, app->error);
+            mprError("Cannot run command: %s\nCommand output: %s", app->command, app->error);
         }
         /* Logging at level one will be visible if appman -v is used */
         if (app->error && *app->error) {
@@ -702,13 +702,13 @@ static int writePid(int pid)
     int     fd;
 
     if ((fd = open(app->pidPath, O_CREAT | O_RDWR | O_TRUNC, 0666)) < 0) {
-        mprError("Could not create pid file %s\n", app->pidPath);
+        mprError("Could not create pid file %s", app->pidPath);
         return MPR_ERR_CANT_CREATE;
     }
     pbuf = sfmt("%d\n", pid);
     len = slen(pbuf);
     if (write(fd, pbuf, len) != len) {
-        mprError("Write to file %s failed\n", app->pidPath);
+        mprError("Write to file %s failed", app->pidPath);
         return MPR_ERR_CANT_WRITE;
     }
     close(fd);
