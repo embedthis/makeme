@@ -7145,7 +7145,8 @@ PUBLIC int mprUpgradeSocket(MprSocket *sp, struct MprSsl *ssl, cchar *peerName);
     @param buf Reference to a block to write to the socket
     @param len Length of data to write. This may be less than the requested write length if the socket is in non-blocking
         mode. Will return a negative MPR error code on errors.
-    @return A count of bytes actually written. Return a negative MPR error code on errors.
+    @return A count of bytes actually written. Return a negative MPR error code on errors and if the socket cannot absorb any
+        more data. If the transport is saturated, will return a negative error and mprGetError() returns EAGAIN or EWOULDBLOCK 
     @ingroup MprSocket
     @stability Stable
  */
@@ -7169,7 +7170,8 @@ PUBLIC ssize mprWriteSocketString(MprSocket *sp, cchar *str);
     @param sp Socket object returned from #mprCreateSocket
     @param iovec Vector of data to write before the file contents
     @param count Count of entries in beforeVect
-    @return A count of bytes actually written. Return a negative MPR error code on errors.
+    @return A count of bytes actually written. Return a negative MPR error code on errors and if the socket cannot absorb any
+        more data. If the transport is saturated, will return a negative error and mprGetError() returns EAGAIN or EWOULDBLOCK 
     @ingroup MprSocket
     @stability Stable
  */

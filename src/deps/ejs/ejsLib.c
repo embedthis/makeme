@@ -37013,13 +37013,13 @@ static bool waitForState(EjsHttp *hp, int state, MprTicks timeout, int throw)
             }
         } else {
             if (rc == MPR_ERR_CANT_CONNECT) {
-                httpFormatError(conn, HTTP_CODE_COMMS_ERROR, "Connection error");
+                httpError(conn, HTTP_CODE_COMMS_ERROR, "Connection error");
             } else if (rc == MPR_ERR_TIMEOUT) {
                 if (timeout > 0) {
-                    httpFormatError(conn, HTTP_CODE_REQUEST_TIMEOUT, "Request timed out");
+                    httpError(conn, HTTP_CODE_REQUEST_TIMEOUT, "Request timed out");
                 }
             } else {
-                httpFormatError(conn, HTTP_CODE_NO_RESPONSE, "Client request error");
+                httpError(conn, HTTP_CODE_NO_RESPONSE, "Client request error");
             }
             /* Retry */
         }
@@ -51703,13 +51703,13 @@ static bool waitForHttpState(EjsWebSocket *ws, int state, MprTicks timeout, int 
             }
         } else {
             if (rc == MPR_ERR_CANT_CONNECT) {
-                httpFormatError(conn, HTTP_CODE_COMMS_ERROR, "Connection error");
+                httpError(conn, HTTP_CODE_COMMS_ERROR, "Connection error");
             } else if (rc == MPR_ERR_TIMEOUT) {
                 if (timeout > 0) {
-                    httpFormatError(conn, HTTP_CODE_REQUEST_TIMEOUT, "Request timed out");
+                    httpError(conn, HTTP_CODE_REQUEST_TIMEOUT, "Request timed out");
                 }
             } else {
-                httpFormatError(conn, HTTP_CODE_NO_RESPONSE, "Client request error");
+                httpError(conn, HTTP_CODE_NO_RESPONSE, "Client request error");
             }
             break;
         }

@@ -21232,6 +21232,7 @@ PUBLIC ssize mprWriteSocket(MprSocket *sp, cvoid *buf, ssize bufsize)
 
 /*  
     Standard write to a socket (Non SSL)
+    Return count of bytes written. mprGetError will return EAGAIN or EWOULDBLOCK if transport is saturated.
  */
 static ssize writeSocket(MprSocket *sp, cvoid *buf, ssize bufsize)
 {

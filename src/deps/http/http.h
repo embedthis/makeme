@@ -341,8 +341,8 @@ typedef struct Http {
     MprEvent        *timer;                 /**< Admin service timer */
     MprEvent        *timestamp;             /**< Timestamp timer */
     MprTime         booted;                 /**< Time the server started */
-    MprTicks        now;                    /**< When was the currentDate last computed */
-    MprMutex        *mutex;
+    MprTicks        now;                    /**< Current time in ticks */
+    MprMutex        *mutex;                 /**< Multithread sync */
 
     char            *software;              /**< Software name and version */
     void            *forkData;
@@ -2040,7 +2040,7 @@ typedef struct HttpConn {
     HttpPacket      *input;                 /**< Header packet */
     ssize           newData;                /**< Length of new data last read into the input packet */
     HttpQueue       *connectorq;            /**< Connector write queue */
-    MprTicks        started;                /**< When the connection started (ticks) */
+    MprTicks        started;                /**< When the request started (ticks) */
     MprTicks        lastActivity;           /**< Last activity on the connection */
     MprEvent        *timeoutEvent;          /**< Connection or request timeout event */
     MprEvent        *workerEvent;           /**< Event for running connection via a worker thread */
@@ -3313,11 +3313,13 @@ PUBLIC void httpSetStreaming(struct HttpHost *host, cchar *mime, cchar *uri, boo
 #define HTTP_ROUTE_RAW                  0x8         /**< Don't html encode the write data */
 #define HTTP_ROUTE_STARTED              0x10        /**< Route initialized */
 #define HTTP_ROUTE_JSON                 0x20        /**< Route expects params in JSON body */
-#define HTTP_ROUTE_XSRF                 0x80        /**< Generate XSRF tokens */
-#define HTTP_ROUTE_CORS                 0x100       /**< Cross-Origin resource sharing */
+#define HTTP_ROUTE_XSRF                 0x40        /**< Generate XSRF tokens */
+#define HTTP_ROUTE_CORS                 0x80        /**< Cross-Origin resource sharing */
+#define HTTP_ROUTE_STEALTH              0x100       /**< Stealth mode */
+#define HTTP_ROUTE_SHOW_ERRORS          0x200       /**< Show errors to the client */
 #if (DEPRECATED || 1) && !DOXYGEN
-#define HTTP_ROUTE_GZIP                 0x200       /**< Support gzipped content on this route */
-#define HTTP_ROUTE_LEGACY_MVC           0x400       /**< Legacy MVC app. Using "static" instead of "client". Deprecated in 4.4 */
+#define HTTP_ROUTE_GZIP                 0x800       /**< Support gzipped content on this route */
+#define HTTP_ROUTE_LEGACY_MVC           0x1000      /**< Legacy MVC app. Using "static" instead of "client". Deprecated in 4.4 */
 #endif
 
 /**
@@ -3630,6 +3632,19 @@ PUBLIC void httpAddRouteHeader(HttpRoute *route, cchar *header, cchar *value, in
 PUBLIC void httpAddRouteIndex(HttpRoute *route, cchar *path);
 
 /**
+    Add a route language directory
+    @description This configures the route pipeline by adding the given language content directory.
+        When creating filenames for matching requests, the language directory is prepended to the request filename.
+    @param route Route to modify
+    @param language Language symbolic name. For example: "en" for english.
+    @param path File system directory to contain content for matching requests.
+    @return Zero if successful, otherwise a negative MPR error code.
+    @ingroup HttpRoute
+    @stability Evolving
+ */
+PUBLIC int httpAddRouteLanguageDir(HttpRoute *route, cchar *language, cchar *path);
+
+/**
     Add a route language suffix
     @description This configures the route pipeline by adding the given language for request processing.
         The language definition includes a suffix which will be added to the request filename.
@@ -3658,17 +3673,15 @@ PUBLIC int httpAddRouteLanguageSuffix(HttpRoute *route, cchar *language, cchar *
 PUBLIC void httpAddRouteMapping(HttpRoute *route, cchar *extensions, cchar *mappings);
 
 /**
-    Add a route language directory
-    @description This configures the route pipeline by adding the given language content directory.
-        When creating filenames for matching requests, the language directory is prepended to the request filename.
+    Add HTTP methods for the route
+    @description This defines additional HTTP methods for requests to match this route
     @param route Route to modify
-    @param language Language symbolic name. For example: "en" for english.
-    @param path File system directory to contain content for matching requests.
-    @return Zero if successful, otherwise a negative MPR error code.
+    @param methods Set to a comma or space separated list of methods. Can also set to "All" or "*" for all possible 
+        methods.  Typical methods include: "DELETE, GET, OPTIONS, POST, PUT, TRACE".
     @ingroup HttpRoute
-    @stability Evolving
+    @stability Prototype
  */
-PUBLIC int httpAddRouteLanguageDir(HttpRoute *route, cchar *language, cchar *path);
+PUBLIC void httpAddRouteMethods(HttpRoute *route, cchar *methods);
 
 /**
     Add a route param check
@@ -4039,6 +4052,16 @@ PUBLIC char *httpMakePath(HttpRoute *route, cchar *dir, cchar *path);
 PUBLIC void httpMapFile(HttpConn *conn, HttpRoute *route);
 
 /**
+    Remove HTTP methods for the route
+    @description This removes supported HTTP methods from this route
+    @param route Route to modify
+    @param methods Set to a comma or space separated list of methods.
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC void httpRemoveRouteMethods(HttpRoute *route, cchar *methods);
+
+/**
     Reset the route pipeline
     @description This completely resets the pipeline and discards inherited pipeline configuration. This resets the
         error documents, expiry cache values, extensions, handlers, input and output stage configuration.
@@ -4114,6 +4137,9 @@ PUBLIC void httpSetRouteData(HttpRoute *route, cchar *key, void *data);
  */
 PUBLIC void httpSetRouteDefaultLanguage(HttpRoute *route, cchar *language);
 
+//  MOB  DOC
+PUBLIC void httpSetRouteDefense(HttpRoute *route, cchar *policy, cchar *action, cchar *args);
+
 /**
     Set the route directory
     @description Routes can define a default directory for documents to serve. This value may be used by
@@ -4180,26 +4206,8 @@ PUBLIC void httpSetRouteHost(HttpRoute *route, struct HttpHost *host);
  */
 PUBLIC void httpSetRouteMethods(HttpRoute *route, cchar *methods);
 
-/**
-    Add HTTP methods for the route
-    @description This defines additional HTTP methods for requests to match this route
-    @param route Route to modify
-    @param methods Set to a comma or space separated list of methods. Can also set to "All" or "*" for all possible 
-        methods.  Typical methods include: "DELETE, GET, OPTIONS, POST, PUT, TRACE".
-    @ingroup HttpRoute
-    @stability Prototype
- */
-PUBLIC void httpAddRouteMethods(HttpRoute *route, cchar *methods);
-
-/**
-    Remove HTTP methods for the route
-    @description This removes supported HTTP methods from this route
-    @param route Route to modify
-    @param methods Set to a comma or space separated list of methods.
-    @ingroup HttpRoute
-    @stability Prototype
- */
-PUBLIC void httpRemoveRouteMethods(HttpRoute *route, cchar *methods);
+//  MOB  DOC
+PUBLIC void httpSetRouteMonitor(HttpRoute *route, cchar *resource, cchar *expr, cchar *policies);
 
 /**
     Set the route name
@@ -4212,16 +4220,14 @@ PUBLIC void httpRemoveRouteMethods(HttpRoute *route, cchar *methods);
 PUBLIC void httpSetRouteName(HttpRoute *route, cchar *name);
 
 /**
-    Define a path token variable
-    @description The #httpMakePath routine and route conditions, updates, headers, fields and targets will expand 
-        tokenized expressions "${token}". Additional tokens can be defined via this API.
+    Set stealth mode for the route
+    @description Stealth mode tries to emit as little information as possible.
     @param route Route to modify
-    @param token Name of the token to define 
-    @param value Value of the token
+    @param on Set to True to enable stealth mode
     @ingroup HttpRoute
-    @stability Evolving
+    @stability Prototype
  */
-PUBLIC void httpSetRouteVar(HttpRoute *route, cchar *token, cchar *value);
+PUBLIC void httpSetRouteStealth(HttpRoute *route, bool on);
 
 /**
     Set the route pattern
@@ -4263,6 +4269,15 @@ PUBLIC void httpSetRoutePrefix(HttpRoute *route, cchar *prefix);
     @internal
  */
 PUBLIC void httpSetRouteScript(HttpRoute *route, cchar *script, cchar *scriptPath);
+
+/**
+    Define whether to show errors to the client
+    @param route Route to modify
+    @param on Set to true to show errors to the client. 
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC void httpSetRouteShowErrors(HttpRoute *route, bool on);
 
 /**
     Set the source code module for the route
@@ -4378,8 +4393,20 @@ PUBLIC void httpSetRouteTemplate(HttpRoute *route, cchar *tplate);
     @ingroup HttpRoute
     @stability Evolving
  */
-PUBLIC void httpSetRouteTraceFilter(HttpRoute *route, int dir, int levels[HTTP_TRACE_MAX_ITEM], 
-        ssize len, cchar *include, cchar *exclude);
+PUBLIC void httpSetRouteTraceFilter(HttpRoute *route, int dir, int levels[HTTP_TRACE_MAX_ITEM], ssize len, cchar *include, 
+        cchar *exclude);
+
+/**
+    Define a path token variable
+    @description The #httpMakePath routine and route conditions, updates, headers, fields and targets will expand 
+        tokenized expressions "${token}". Additional tokens can be defined via this API.
+    @param route Route to modify
+    @param token Name of the token to define 
+    @param value Value of the token
+    @ingroup HttpRoute
+    @stability Evolving
+ */
+PUBLIC void httpSetRouteVar(HttpRoute *route, cchar *token, cchar *value);
 
 /**
     Define the maximum number of workers for a route

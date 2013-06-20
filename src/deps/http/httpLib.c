@@ -2061,10 +2061,10 @@ PUBLIC bool httpNeedRetry(HttpConn *conn, char **url)
     }
     if (rx->status == HTTP_CODE_UNAUTHORIZED) {
         if (conn->username == 0 || conn->authType == 0) {
-            httpFormatError(conn, rx->status, "Authentication required");
+            httpError(conn, rx->status, "Authentication required");
 
         } else if (conn->authRequested) {
-            httpFormatError(conn, rx->status, "Authentication failed");
+            httpError(conn, rx->status, "Authentication failed");
         } else {
             assert(!conn->endpoint);
             if (conn->authType && (authType = httpLookupAuthType(conn->authType)) != 0) {
@@ -2077,7 +2077,7 @@ PUBLIC bool httpNeedRetry(HttpConn *conn, char **url)
             *url = rx->redirect;
             return 1;
         }
-        httpFormatError(conn, rx->status, "Missing location header");
+        httpError(conn, rx->status, "Missing location header");
         return -1;
     }
     return 0;
@@ -2148,7 +2148,7 @@ PUBLIC ssize httpWriteUploadData(HttpConn *conn, MprList *fileData, MprList *for
     if (fileData) {
         for (rc = next = 0; rc >= 0 && (path = mprGetNextItem(fileData, &next)) != 0; ) {
             if (!mprPathExists(path, R_OK)) {
-                httpFormatError(conn, 0, "Cannot open %s", path);
+                httpError(conn, HTTP_CODE_NOT_FOUND, "Cannot open %s", path);
                 return MPR_ERR_CANT_OPEN;
             }
             name = mprGetPathBase(path);
@@ -4114,6 +4114,54 @@ PUBLIC void httpError(HttpConn *conn, int flags, cchar *fmt, ...)
 }
 
 
+static void errorRedirect(HttpConn *conn, cchar *uri)
+{
+    HttpTx      *tx;
+
+    /*
+        If the response has started or it is an external redirect ... do a redirect
+     */
+    tx = conn->tx;
+    if (sstarts(uri, "http") || tx->flags & HTTP_TX_HEADERS_CREATED) {
+        httpRedirect(conn, HTTP_CODE_MOVED_PERMANENTLY, uri);
+    } else {
+        /*
+            No response started and it is an internal redirect, so we can rerun the request.
+            Set finalized to "cap" any output. processCompletion() in rx.c will rerun the request using the errorDocument.
+         */
+        tx->errorDocument = uri;
+        tx->finalized = tx->finalizedOutput = tx->finalizedConnector = 1;
+    }
+}
+
+
+static void makeAltBody(HttpConn *conn, int status)
+{
+    HttpRx      *rx;
+    HttpTx      *tx;
+    cchar       *statusMsg, *msg;
+
+    tx = conn->tx;
+    rx = conn->rx;
+
+    statusMsg = httpLookupStatus(conn->http, status);
+    msg = (rx->route && rx->route->flags & HTTP_ROUTE_SHOW_ERRORS) ? conn->errorMsg : "";
+
+    if (scmp(conn->rx->accept, "text/plain") == 0) {
+        tx->altBody = sfmt("Access Error: %d -- %s\r\n%s\r\n", status, statusMsg, conn->errorMsg);
+    } else {
+        tx->altBody = sfmt("<!DOCTYPE html>\r\n"
+            "<head>\r\n"
+            "    <title>%s</title>\r\n"
+            "    <link rel=\"shortcut icon\" href=\"data:image/x-icon;,\" type=\"image/x-icon\">\r\n"
+            "</head>\r\n"
+            "<body>\r\n<h2>Access Error: %d -- %s</h2>\r\n<pre>%s</pre>\r\n</body>\r\n</html>\r\n",
+            statusMsg, status, statusMsg, mprEscapeHtml(conn->errorMsg));
+    }
+    tx->length = slen(tx->altBody);
+}
+
+
 /*
     The current request has an error and cannot complete as normal. This call sets the Http response status and 
     overrides the normal output with an alternate error message. If the output has alread started (headers sent), then
@@ -4123,7 +4171,8 @@ static void errorv(HttpConn *conn, int flags, cchar *fmt, va_list args)
 {
     HttpRx      *rx;
     HttpTx      *tx;
-    cchar       *uri, *statusMsg;
+    HttpRoute   *route;
+    cchar       *uri;
     int         status;
 
     assert(fmt);
@@ -4150,7 +4199,11 @@ static void errorv(HttpConn *conn, int flags, cchar *fmt, va_list args)
         conn->error = 1;
         httpOmitBody(conn);
         conn->errorMsg = formatErrorv(conn, status, fmt, args);
+        mprLog(2, "Error: %s", conn->errorMsg);
         HTTP_NOTIFY(conn, HTTP_EVENT_ERROR, 0);
+
+        httpAddHeaderString(conn, "Cache-Control", "no-cache");
+
         if (conn->endpoint && tx && rx) {
             if (tx->flags & HTTP_TX_HEADERS_CREATED) {
                 /* 
@@ -4159,38 +4212,13 @@ static void errorv(HttpConn *conn, int flags, cchar *fmt, va_list args)
                  */
                 flags |= HTTP_ABORT;
             } else {
-                if (rx->route && (uri = httpLookupRouteErrorDocument(rx->route, tx->status)) && !smatch(uri, rx->uri)) {
-                    /*
-                        If the response has started or it is an external redirect ... do a redirect
-                     */
-                    if (sstarts(uri, "http") || tx->flags & HTTP_TX_HEADERS_CREATED) {
-                        httpRedirect(conn, HTTP_CODE_MOVED_PERMANENTLY, uri);
-                    } else {
-                        /*
-                            No response started and it is an internal redirect, so we can rerun the request.
-                            Set finalized to "cap" any output. processCompletion() in rx.c will rerun the request using
-                            the errorDocument.
-                         */
-                        tx->errorDocument = uri;
-                        tx->finalized = tx->finalizedOutput = tx->finalizedConnector = 1;
-                    }
+                if ((route = rx->route) == 0) {
+                    route = httpGetDefaultHost()->defaultRoute;
+                }
+                if ((uri = httpLookupRouteErrorDocument(route, tx->status)) && !smatch(uri, rx->uri)) {
+                    errorRedirect(conn, uri);
                 } else {
-                    httpAddHeaderString(conn, "Cache-Control", "no-cache");
-                    statusMsg = httpLookupStatus(conn->http, status);
-                    if (scmp(conn->rx->accept, "text/plain") == 0) {
-                        tx->altBody = sfmt("Access Error: %d -- %s\r\n%s\r\n", status, statusMsg, conn->errorMsg);
-                    } else {
-                        tx->altBody = sfmt("<!DOCTYPE html>\r\n"
-                            "<head>\r\n"
-                            "    <title>%s</title>\r\n"
-                            "    <link rel=\"shortcut icon\" href=\"data:image/x-icon;,\" type=\"image/x-icon\">\r\n"
-                            "</head>\r\n"
-                            "<body>\r\n<h2>Access Error: %d -- %s</h2>\r\n<pre>%s</pre>\r\n</body>\r\n</html>\r\n",
-                            statusMsg, status, statusMsg, mprEscapeHtml(conn->errorMsg));
-                    }
-                    tx->length = slen(tx->altBody);
-                    tx->flags |= HTTP_TX_NO_BODY;
-                    httpDiscardData(conn, HTTP_QUEUE_TX);
+                    makeAltBody(conn, status);
                 }
             }
         }
@@ -4220,19 +4248,23 @@ static char *formatErrorv(HttpConn *conn, int status, cchar *fmt, va_list args)
                 conn->rx->status = status;
             }
         }
+#if UNUSED
         if (conn->rx == 0 || conn->rx->uri == 0) {
             mprLog(2, "\"%s\", status %d: %s.", httpLookupStatus(conn->http, status), status, conn->errorMsg);
         } else {
             mprLog(2, "Error: %s", conn->errorMsg);
         }
+#endif
     }
     return conn->errorMsg;
 }
 
 
+#if UNUSED
 /*
     Just format conn->errorMsg and set status - nothing more
     NOTE: this is an internal API. Users should use httpError()
+    MOB - eliminate and get client ot use httpError?
  */
 PUBLIC void httpFormatError(HttpConn *conn, int status, cchar *fmt, ...)
 {
@@ -4241,7 +4273,9 @@ PUBLIC void httpFormatError(HttpConn *conn, int status, cchar *fmt, ...)
     va_start(args, fmt); 
     conn->errorMsg = formatErrorv(conn, status, fmt, args);
     va_end(args); 
+    mprLog(2, "Error: %s", conn->errorMsg);
 }
+#endif
 
 
 PUBLIC cchar *httpGetError(HttpConn *conn)
@@ -5873,7 +5907,7 @@ static void netOutgoingService(HttpQueue *q)
         assert(q->ioIndex > 0);
         written = mprWriteSocketVector(conn->sock, q->iovec, q->ioIndex);
         if (written < 0) {
-            errCode = mprGetError(q);
+            errCode = mprGetError();
             mprTrace(6, "netConnector: wrote %d, errno %d, qflags %x", (int) written, errCode, q->flags);
             if (errCode == EAGAIN || errCode == EWOULDBLOCK) {
                 /*  Socket full, wait for an I/O event */
@@ -8443,7 +8477,7 @@ PUBLIC HttpRoute *httpCreateRoute(HttpHost *host)
     route->dir = mprGetCurrentPath(".");
     route->home = route->dir;
     route->extensions = mprCreateHash(HTTP_SMALL_HASH_SIZE, MPR_HASH_CASELESS);
-    route->flags = 0;
+    route->flags = BIT_DEBUG ? HTTP_ROUTE_SHOW_ERRORS : 0;
     route->handlers = mprCreateList(-1, MPR_LIST_STABLE);
     route->host = host;
     route->http = MPR->httpService;
@@ -8639,8 +8673,7 @@ PUBLIC HttpRoute *httpCreateDefaultRoute(HttpHost *host)
 
 
 /*
-    Create and configure a basic route. This is mainly used for client side piplines.
-    Host may be null.
+    Create and configure a basic route. This is used for client side and Ejscript routes. Host may be null.
  */
 PUBLIC HttpRoute *httpCreateConfiguredRoute(HttpHost *host, int serverSide)
 {
@@ -9296,6 +9329,31 @@ PUBLIC void httpAddRouteLoad(HttpRoute *route, cchar *module, cchar *path)
 #endif
 
 
+PUBLIC void httpAddRouteMapping(HttpRoute *route, cchar *extensions, cchar *mappings)
+{
+    MprList     *mapList;
+    cchar       *ext, *map;
+    char        *etok, *mtok;
+
+    if (!route->mappings) {
+        route->mappings = mprCreateHash(BIT_MAX_ROUTE_MAP_HASH, 0);
+    }
+    if (!route->map) {
+        route->map = mprCreateHash(BIT_MAX_ROUTE_MAP_HASH, 0);
+    }
+    for (ext = stok(sclone(extensions), ", \t", &etok); ext; ext = stok(NULL, ", \t", &etok)) {
+        if (*ext == '.') {
+            ext++;
+        }
+        mapList = mprCreateList(0, 0);
+        for (map = stok(sclone(mappings), ", \t", &mtok); map; map = stok(NULL, ", \t", &mtok)) {
+            mprAddItem(mapList, sreplace(map, "${1}", ext));
+        }
+        mprAddKey(route->map, ext, mapList);
+    }
+}
+
+
 /*
     Param field valuePattern
  */
@@ -9474,31 +9532,6 @@ PUBLIC void httpSetRouteCompression(HttpRoute *route, int flags)
 #endif
 
 
-PUBLIC void httpAddRouteMapping(HttpRoute *route, cchar *extensions, cchar *mappings)
-{
-    MprList     *mapList;
-    cchar       *ext, *map;
-    char        *etok, *mtok;
-
-    if (!route->mappings) {
-        route->mappings = mprCreateHash(BIT_MAX_ROUTE_MAP_HASH, 0);
-    }
-    if (!route->map) {
-        route->map = mprCreateHash(BIT_MAX_ROUTE_MAP_HASH, 0);
-    }
-    for (ext = stok(sclone(extensions), ", \t", &etok); ext; ext = stok(NULL, ", \t", &etok)) {
-        if (*ext == '.') {
-            ext++;
-        }
-        mapList = mprCreateList(0, 0);
-        for (map = stok(sclone(mappings), ", \t", &mtok); map; map = stok(NULL, ", \t", &mtok)) {
-            mprAddItem(mapList, sreplace(map, "${1}", ext));
-        }
-        mprAddKey(route->map, ext, mapList);
-    }
-}
-
-
 PUBLIC int httpSetRouteConnector(HttpRoute *route, cchar *name)
 {
     HttpStage     *stage;
@@ -9527,6 +9560,16 @@ PUBLIC void httpSetRouteData(HttpRoute *route, cchar *key, void *data)
         GRADUATE_HASH(route, data);
     }
     mprAddKey(route->data, key, data);
+}
+
+
+//  MOB MOVE
+PUBLIC void httpSetRouteMonitor(HttpRoute *route, cchar *resource, cchar *expr, cchar *policies)
+{
+}
+
+PUBLIC void httpSetRouteDefense(HttpRoute *route, cchar *policy, cchar *action, cchar *args)
+{
 }
 
 
@@ -9697,6 +9740,15 @@ PUBLIC void httpSetRoutePrefix(HttpRoute *route, cchar *prefix)
 }
 
 
+PUBLIC void httpSetRouteShowErrors(HttpRoute *route, bool on)
+{
+    route->flags &= ~HTTP_ROUTE_SHOW_ERRORS;
+    if (on) {
+        route->flags |= HTTP_ROUTE_SHOW_ERRORS;
+    }
+}
+
+
 PUBLIC void httpSetRouteSource(HttpRoute *route, cchar *source)
 {
     assert(route);
@@ -9718,6 +9770,15 @@ PUBLIC void httpSetRouteScript(HttpRoute *route, cchar *script, cchar *scriptPat
     if (scriptPath) {
         assert(*scriptPath);
         route->scriptPath = sclone(scriptPath);
+    }
+}
+
+
+PUBLIC void httpSetRouteStealth(HttpRoute *route, bool on)
+{
+    route->flags &= ~HTTP_ROUTE_STEALTH;
+    if (on) {
+        route->flags |= HTTP_ROUTE_STEALTH;
     }
 }
 
@@ -12121,6 +12182,7 @@ static bool parseRequestLine(HttpConn *conn, HttpPacket *packet)
 #if BIT_DEBUG
     conn->startMark = mprGetHiResTicks();
 #endif
+    conn->started = conn->http->now;
     traceRequest(conn, packet);
 
     rx->originalMethod = rx->method = supper(getToken(conn, 0));
@@ -12315,6 +12377,7 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
 
             } else if (strcasecmp(key, "content-range") == 0) {
                 /*
+                    The Content-Range header is used in the response. The Range header is used in the request.
                     This headers specifies the range of any posted body data
                     Format is:  Content-Range: bytes n1-n2/length
                     Where n1 is first byte pos and n2 is last byte pos
@@ -12331,13 +12394,13 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
                     start = stoi(sp);
                     if ((sp = strchr(sp, '-')) != 0) {
                         end = stoi(++sp);
-                    }
-                    if ((sp = strchr(sp, '/')) != 0) {
-                        /*
-                            Note this is not the content length transmitted, but the original size of the input of which
-                            the client is transmitting only a portion.
-                         */
-                        size = stoi(++sp);
+                        if ((sp = strchr(sp, '/')) != 0) {
+                            /*
+                                Note this is not the content length transmitted, but the original size of the input of which
+                                the client is transmitting only a portion.
+                             */
+                            size = stoi(++sp);
+                        }
                     }
                 }
                 if (start < 0 || end < 0 || size < 0 || end <= start) {
@@ -12423,7 +12486,6 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
 
             } else if (strcasecmp(key, "if-range") == 0) {
                 char    *word, *tok;
-
                 if ((tok = strchr(value, ';')) != 0) {
                     *tok = '\0';
                 }
@@ -12475,6 +12537,9 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
 
         case 'r':
             if (strcasecmp(key, "range") == 0) {
+                /*
+                    The Content-Range header is used in the response. The Range header is used in the request.
+                 */
                 if (!parseRange(conn, value)) {
                     httpError(conn, HTTP_CLOSE | HTTP_CODE_RANGE_NOT_SATISFIABLE, "Bad range");
                 }
@@ -15302,8 +15367,7 @@ PUBLIC void httpSetContentLength(HttpConn *conn, MprOff length)
     Set lifespan < 0 to delete the cookie in the client
     Set lifespan == 0 to get a session cookie in the client.
  */
-PUBLIC void httpSetCookie(HttpConn *conn, cchar *name, cchar *value, cchar *path, cchar *cookieDomain, 
-    MprTicks lifespan, int flags)
+PUBLIC void httpSetCookie(HttpConn *conn, cchar *name, cchar *value, cchar *path, cchar *cookieDomain, MprTicks lifespan, int flags)
 {
     HttpRx      *rx;
     char        *cp, *expiresAtt, *expires, *domainAtt, *domain, *secure, *httponly;
@@ -15337,11 +15401,12 @@ PUBLIC void httpSetCookie(HttpConn *conn, cchar *name, cchar *value, cchar *path
     } else {
         expires = expiresAtt = "";
     }
+    secure = (conn->secure & (flags & HTTP_COOKIE_SECURE)) ? "; secure" : "";
+    httponly = (flags & HTTP_COOKIE_HTTP) ?  "; httponly" : "";
+
     /* 
        Allow multiple cookie headers. Even if the same name. Later definitions take precedence.
      */
-    secure = (flags & HTTP_COOKIE_SECURE) ? "; secure" : "";
-    httponly = (flags & HTTP_COOKIE_HTTP) ?  "; httponly" : "";
     httpAppendHeader(conn, "Set-Cookie", 
         sjoin(name, "=", value, "; path=", path, domainAtt, domain, expiresAtt, expires, secure, httponly, NULL));
     httpAppendHeader(conn, "Cache-Control", "no-cache=\"set-cookie\"");
@@ -15457,7 +15522,9 @@ static void setHeaders(HttpConn *conn, HttpPacket *packet)
         httpSetHeader(conn, "Accept-Ranges", "bytes");
     }
     if (conn->endpoint) {
-        httpAddHeaderString(conn, "Server", conn->http->software);
+        if (!(route->flags & HTTP_ROUTE_STEALTH)) {
+            httpAddHeaderString(conn, "Server", conn->http->software);
+        }
         if (--conn->keepAliveCount > 0) {
             httpAddHeaderString(conn, "Connection", "Keep-Alive");
             httpAddHeader(conn, "Keep-Alive", "timeout=%Ld, max=%d", conn->limits->inactivityTimeout / 1000,
