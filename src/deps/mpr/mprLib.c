@@ -20580,7 +20580,7 @@ PUBLIC MprSocket *mprCreateSocket()
         return 0;
     }
     sp->port = -1;
-    sp->fd = -1;
+    sp->fd = INVALID_SOCKET;
 
     sp->provider = ss->standardProvider;
     sp->service = ss;
@@ -20604,7 +20604,7 @@ static void manageSocket(MprSocket *sp, int flags)
         mprMark(sp->mutex);
 
     } else if (flags & MPR_MANAGE_FREE) {
-        if (sp->fd >= 0) {
+        if (sp->fd != INVALID_SOCKET) {
             sp->mutex = 0;
             mprCloseSocket(sp, 1);
         }
@@ -20617,13 +20617,13 @@ static void manageSocket(MprSocket *sp, int flags)
  */
 static void resetSocket(MprSocket *sp)
 {
-    if (sp->fd >= 0) {
+    if (sp->fd != INVALID_SOCKET) {
         mprCloseSocket(sp, 0);
     }
     if (sp->flags & MPR_SOCKET_CLOSED) {
         sp->flags = 0;
         sp->port = -1;
-        sp->fd = -1;
+        sp->fd = INVALID_SOCKET;
         sp->ip = 0;
     }
     assert(sp->provider);
@@ -20691,8 +20691,7 @@ PUBLIC Socket mprListenOnSocket(MprSocket *sp, cchar *ip, int port, int flags)
         unlock(sp);
         return SOCKET_ERROR;
     }
-    sp->fd = (int) socket(family, datagram ? SOCK_DGRAM: SOCK_STREAM, protocol);
-    if (sp->fd == SOCKET_ERROR) {
+    if ((sp->fd = (int) socket(family, datagram ? SOCK_DGRAM: SOCK_STREAM, protocol)) == SOCKET_ERROR) {
         unlock(sp);
         return SOCKET_ERROR;
     }
@@ -20730,7 +20729,7 @@ PUBLIC Socket mprListenOnSocket(MprSocket *sp, cchar *ip, int port, int flags)
     if (sp->service->prebind) {
         if ((sp->service->prebind)(sp) < 0) {
             closesocket(sp->fd);
-            sp->fd = -1;
+            sp->fd = INVALID_SOCKET;
             unlock(sp);
             return SOCKET_ERROR;
         }
@@ -20744,7 +20743,7 @@ PUBLIC Socket mprListenOnSocket(MprSocket *sp, cchar *ip, int port, int flags)
         rc = mprGetOsError();
         closesocket(sp->fd);
         mprSetOsError(rc);
-        sp->fd = -1;
+        sp->fd = INVALID_SOCKET;
         unlock(sp);
         return SOCKET_ERROR;
     }
@@ -20755,7 +20754,7 @@ PUBLIC Socket mprListenOnSocket(MprSocket *sp, cchar *ip, int port, int flags)
         if (listen(sp->fd, SOMAXCONN) < 0) {
             mprLog(3, "Listen error %d", mprGetOsError());
             closesocket(sp->fd);
-            sp->fd = -1;
+            sp->fd = INVALID_SOCKET;
             unlock(sp);
             return MPR_ERR_CANT_OPEN;
         }
@@ -20787,10 +20786,10 @@ PUBLIC MprWaitHandler *mprAddSocketHandler(MprSocket *sp, int mask, MprDispatche
     void *data, int flags)
 {
     assert(sp);
-    assert(sp->fd >= 0);
+    assert(sp->fd != INVALID_SOCKET);
     assert(proc);
 
-    if (sp->fd < 0) {
+    if (sp->fd == INVALID_SOCKET) {
         return 0;
     }
     if (sp->handler) {
@@ -20890,7 +20889,7 @@ static int connectSocket(MprSocket *sp, cchar *ip, int port, int initialFlags)
 
     if (mprGetSocketInfo(ip, port, &family, &protocol, &addr, &addrlen) < 0) {
         closesocket(sp->fd);
-        sp->fd = -1;
+        sp->fd = INVALID_SOCKET;
         unlock(sp);
         return MPR_ERR_CANT_ACCESS;
     }
@@ -20908,7 +20907,7 @@ static int connectSocket(MprSocket *sp, cchar *ip, int port, int initialFlags)
         int flag = 1;
         if (setsockopt(sp->fd, SOL_SOCKET, SO_BROADCAST, (char *) &flag, sizeof(flag)) < 0) {
             closesocket(sp->fd);
-            sp->fd = -1;
+            sp->fd = INVALID_SOCKET;
             unlock(sp);
             return MPR_ERR_CANT_INITIALIZE;
         }
@@ -20935,7 +20934,7 @@ static int connectSocket(MprSocket *sp, cchar *ip, int port, int initialFlags)
             } 
             if (errno != EISCONN) {
                 closesocket(sp->fd);
-                sp->fd = -1;
+                sp->fd = INVALID_SOCKET;
                 unlock(sp);
                 return MPR_ERR_CANT_COMPLETE;
             }
@@ -20978,7 +20977,7 @@ static void disconnectSocket(MprSocket *sp)
     if (!mprTryLock(sp->mutex)) {
         return;
     }
-    if (sp->fd >= 0 || !(sp->flags & MPR_SOCKET_EOF)) {
+    if (sp->fd == INVALID_SOCKET || !(sp->flags & MPR_SOCKET_EOF)) {
         /*
             Read a reasonable amount of outstanding data to minimize resets. Then do a shutdown to send a FIN and read 
             outstanding data.  All non-blocking.
@@ -21037,7 +21036,7 @@ static void closeSocket(MprSocket *sp, bool gracefully)
     }
     sp->flags |= MPR_SOCKET_CLOSED | MPR_SOCKET_EOF;
 
-    if (sp->fd >= 0) {
+    if (sp->fd != INVALID_SOCKET) {
         /*
             Read any outstanding read data to minimize resets. Then do a shutdown to send a FIN and read outstanding 
             data. All non-blocking.
@@ -21058,7 +21057,7 @@ static void closeSocket(MprSocket *sp, bool gracefully)
             }
         }
         closesocket(sp->fd);
-        sp->fd = -1;
+        sp->fd = INVALID_SOCKET;
     }
 
     if (sp->flags & MPR_SOCKET_SERVER) {

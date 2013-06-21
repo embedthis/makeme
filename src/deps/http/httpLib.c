@@ -5348,8 +5348,8 @@ PUBLIC void httpGetStats(HttpStats *sp)
 
     lock(http);
     for (ITERATE_KEY_DATA(http->addresses, kp, counters)) {
-        sp->activeRequests += counters[HTTP_COUNTER_ACTIVE_REQUESTS].value;
-        sp->activeClients += counters[HTTP_COUNTER_ACTIVE_CLIENTS].value;
+        sp->activeRequests += (int) counters[HTTP_COUNTER_ACTIVE_REQUESTS].value;
+        sp->activeClients += (int) counters[HTTP_COUNTER_ACTIVE_CLIENTS].value;
     }
     unlock(http);
     sp->totalRequests = http->totalRequests;

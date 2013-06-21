@@ -663,6 +663,7 @@ typedef int64 Offset;
     /** Argument for sockets */
     typedef int Socket;
     #define SOCKET_ERROR -1
+    #define INVALID_SOCKET -1
 #elif BIT_WIN_LIKE
     typedef SOCKET Socket;
 #elif TIDSP
@@ -671,6 +672,7 @@ typedef int64 Offset;
 #else
     typedef int Socket;
     #define SOCKET_ERROR -1
+    #define INVALID_SOCKET -1
 #endif
 
 typedef int64 Time;

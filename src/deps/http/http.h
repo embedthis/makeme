@@ -341,7 +341,7 @@ typedef struct HttpAddress {
 typedef struct HttpMonitor {
     int         counterIndex;                   /**< Counter item index to monitor */
     int         expr;                           /**< Expression. Set to '<' or '>' */
-    int64       limit;                          /**< Comparison limit value */
+    uint64      limit;                          /**< Comparison limit value */
     MprTicks    period;                         /**< Frequence of comparison */
     int64       prior;                          /**< Prior counter value when monitor last ran */
     MprList     *defenses;                      /**< List of defensive measures */
