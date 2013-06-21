@@ -4050,7 +4050,7 @@ static void makeAltBody(HttpConn *conn, int status)
     msg = (!rx->route || rx->route->flags & HTTP_ROUTE_SHOW_ERRORS) ? conn->errorMsg : "";
 
     if (scmp(conn->rx->accept, "text/plain") == 0) {
-        tx->altBody = sfmt("Access Error: %d -- %s\r\n%s\r\n", status, statusMsg, conn->errorMsg);
+        tx->altBody = sfmt("Access Error: %d -- %s\r\n%s\r\n", status, statusMsg, msg);
     } else {
         tx->altBody = sfmt("<!DOCTYPE html>\r\n"
             "<head>\r\n"
@@ -4058,7 +4058,7 @@ static void makeAltBody(HttpConn *conn, int status)
             "    <link rel=\"shortcut icon\" href=\"data:image/x-icon;,\" type=\"image/x-icon\">\r\n"
             "</head>\r\n"
             "<body>\r\n<h2>Access Error: %d -- %s</h2>\r\n<pre>%s</pre>\r\n</body>\r\n</html>\r\n",
-            statusMsg, status, statusMsg, mprEscapeHtml(conn->errorMsg));
+            statusMsg, status, statusMsg, mprEscapeHtml(msg));
     }
     tx->length = slen(tx->altBody);
 }
@@ -5907,16 +5907,15 @@ PUBLIC int httpAddMonitor(cchar *counterName, cchar *expr, uint64 limit, MprTick
     Register a monitor event
     This code is very carefully locked for maximum speed. There are some tolerated race conditions
  */
-PUBLIC int httpMonitorEvent(HttpConn *conn, int counterIndex, int64 adj)
+PUBLIC int64 httpMonitorEvent(HttpConn *conn, int counterIndex, int64 adj)
 {
     Http            *http;
-    HttpRx          *rx;
     HttpCounter     *counter;
     HttpAddress     *address;
+    int64           result;
     int             ncounters;
 
     assert(conn->endpoint);
-    rx = conn->rx;
     http = conn->http;
 
     lock(http->addresses);
@@ -5937,8 +5936,9 @@ PUBLIC int httpMonitorEvent(HttpConn *conn, int counterIndex, int64 adj)
     if (counter->value < 0) {
         counter->value = 0;
     }
+    result = counter->value;
     unlock(http->addresses);
-    return 0;
+    return result;
 }
 
 
@@ -6147,9 +6147,6 @@ PUBLIC int httpAddRemedy(cchar *name, HttpRemedyProc remedy)
 
 PUBLIC int httpAddRemedies()
 {
-    Http    *http;
-
-    http = MPR->httpService;
     httpAddRemedy("ban", banRemedy);
     httpAddRemedy("cmd", cmdRemedy);
     httpAddRemedy("delay", delayRemedy);
@@ -7228,18 +7225,15 @@ PUBLIC void httpHandleOptions(HttpConn *conn)
 
 static void handleTrace(HttpConn *conn)
 {
-    HttpRx      *rx;
     HttpTx      *tx;
     HttpQueue   *q;
     HttpPacket  *traceData, *headers;
-
-    tx = conn->tx;
-    rx = conn->rx;
 
     /*
         Create a dummy set of headers to use as the response body. Then reset so the connector will create 
         the headers in the normal fashion. Need to be careful not to have a content length in the headers in the body.
      */
+    tx = conn->tx;
     q = conn->writeq;
     headers = q->first;
     tx->flags |= HTTP_TX_NO_LENGTH;
@@ -8807,7 +8801,7 @@ static bool fixRangeLength(HttpConn *conn)
 
 #undef  GRADUATE_HASH
 #define GRADUATE_HASH(route, field) \
-    if (!route->field || route->parent && route->field == route->parent->field) { \
+    if (!route->field || (route->parent && route->field == route->parent->field)) { \
         route->field = mprCloneHash(route->parent->field); \
     }
 
@@ -12620,18 +12614,21 @@ static void parseMethod(HttpConn *conn)
 static bool parseRequestLine(HttpConn *conn, HttpPacket *packet)
 {
     HttpRx      *rx;
+    HttpLimits  *limits;
     char        *uri, *protocol;
     ssize       len;
 
     rx = conn->rx;
+    limits = conn->limits;
 #if BIT_DEBUG && MPR_HIGH_RES_TIMER
     conn->startMark = mprGetHiResTicks();
 #endif
     conn->started = conn->http->now;
 
     if (conn->endpoint) {
-        if (httpMonitorEvent(conn, HTTP_COUNTER_ACTIVE_REQUESTS, 1) < 0) {
+        if (httpMonitorEvent(conn, HTTP_COUNTER_ACTIVE_REQUESTS, 1) >= limits->requestsPerClientMax) {
             httpError(conn, HTTP_ABORT | HTTP_CODE_SERVICE_UNAVAILABLE, "Too many concurrent requests");
+            return 0;
         } else {
             httpMonitorEvent(conn, HTTP_COUNTER_REQUESTS, 1);
         }
@@ -12645,9 +12642,9 @@ static bool parseRequestLine(HttpConn *conn, HttpPacket *packet)
     if (*uri == '\0') {
         httpBadRequestError(conn, HTTP_ABORT | HTTP_CODE_BAD_REQUEST, "Bad HTTP request. Empty URI");
         return 0;
-    } else if (len >= conn->limits->uriSize) {
+    } else if (len >= limits->uriSize) {
         httpLimitError(conn, HTTP_ABORT | HTTP_CODE_REQUEST_URL_TOO_LARGE, 
-            "Bad request. URI too long. Length %d vs limit %d", len, conn->limits->uriSize);
+            "Bad request. URI too long. Length %d vs limit %d", len, limits->uriSize);
         return 0;
     }
     protocol = conn->protocol = supper(getToken(conn, "\r\n"));
@@ -13474,8 +13471,9 @@ static bool processFinalized(HttpConn *conn)
 
 static bool processCompletion(HttpConn *conn)
 {
-    if (conn->endpoint && conn->rx->uri) {
+    if (conn->endpoint && !(conn->rx->flags & HTTP_COMPLETED)) {
         httpMonitorEvent(conn, HTTP_COUNTER_ACTIVE_REQUESTS, -1);
+        conn->rx->flags |= HTTP_COMPLETED;
     }
     return 0;
 }

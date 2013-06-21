@@ -365,11 +365,11 @@ typedef struct HttpDefense {
     @param endpoint The endpoint on which the server was listening
     @param counter The counter to adjust.
     @param conn HttpConn connection object
-    @return Monitor event status code.
+    @return Monitor value after applying the adjustment.
     @ingroup HttpMonitor
     @stability Prototype
  */
-PUBLIC int httpMonitorEvent(struct HttpConn *conn, int counter, int64 adj);
+PUBLIC int64 httpMonitorEvent(struct HttpConn *conn, int counter, int64 adj);
 
 /**
     Add a monitor
@@ -4944,6 +4944,7 @@ PUBLIC void httpRemoveUploadFile(HttpConn *conn, cchar *id);
 #define HTTP_ADDED_QUERY_PARAMS 0x400       /**< Query added to params */
 #define HTTP_ADDED_BODY_PARAMS  0x800       /**< Body data added to params */
 #define HTTP_EXPECT_CONTINUE    0x1000      /**< Client expects an HTTP 100 Continue response */
+#define HTTP_COMPLETED          0x2000      /**< Request completed */
 
 /*  
     Incoming chunk encoding states
