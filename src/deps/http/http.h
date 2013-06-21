@@ -39,6 +39,7 @@ struct HttpWebSocket;
 /********************************** Tunables **********************************/
 
 //  TODO - do all these need to have MAX some are just sizes and not maximums
+//  TODO SORT
 
 #ifndef BIT_DEFAULT_METHODS
     #define BIT_DEFAULT_METHODS     "GET,POST"          /**< Default methods for routes */
@@ -48,6 +49,18 @@ struct HttpWebSocket;
 #endif
 #ifndef BIT_HTTP_SOFTWARE
     #define BIT_HTTP_SOFTWARE       "Embedthis-http"    /**< Default Http protocol name used in Http Server header */
+#endif
+#ifndef BIT_HTTP_BAN_PERIOD
+    #define BIT_HTTP_BAN_PERIOD     (5 * 60 * 1000)     /**< Default ban IP period */
+#endif
+#ifndef BIT_HTTP_DELAY_PERIOD
+    #define BIT_HTTP_DELAY_PERIOD   (5 * 60 * 1000)     /**< Default delay IP period */
+#endif
+#ifndef BIT_HTTP_REMEDY_TIMEOUT
+    #define BIT_HTTP_REMEDY_TIMEOUT (60 * 1000)         /**< Default remedy command timeout */
+#endif
+#ifndef BIT_HTTP_DELAY
+    #define BIT_HTTP_DELAY          (2000)              /**< 2 second delay per request - while delay enforced */
 #endif
 #ifndef BIT_MAX_URI
     #define BIT_MAX_URI             1024                /**< Reasonable URI size */
@@ -285,6 +298,132 @@ typedef void (*HttpTimeoutCallback)(struct HttpConn *conn);
  */
 PUBLIC void httpSetForkCallback(struct Http *http, MprForkCallback proc, void *arg);
 
+/********************************* HttpMonitor ************************************/
+/*
+    Monitored counters. These are per-client IP unless specified.
+ */
+#define HTTP_COUNTER_ACTIVE_CLIENTS     0       /**< Client IP addresses for server */
+#define HTTP_COUNTER_ACTIVE_CONNECTIONS 1       /**< Active connections per client */
+#define HTTP_COUNTER_ACTIVE_REQUESTS    2       /**< Active requests per client */
+#define HTTP_COUNTER_ACTIVE_PROCESSES   3       /**< Total processes for server */
+#define HTTP_COUNTER_BAD_REQUEST_ERRORS 4       /**< Bad request format errors */
+#define HTTP_COUNTER_LIMIT_ERRORS       5       /**< Limit violation errors */
+#define HTTP_COUNTER_MEMORY             6       /**< Total application memory for server */
+#define HTTP_COUNTER_NOT_FOUND_ERRORS   7       /**< URI not found errors */
+#define HTTP_COUNTER_NETWORK_IO         8       /**< Network I/O */
+#define HTTP_COUNTER_REQUESTS           9       /**< Request count */
+#define HTTP_COUNTER_SSL_ERRORS         10      /**< SSL upgrade errors */
+#define HTTP_COUNTER_TOTAL_ERRORS       11      /**< All errors */
+    
+/*
+    Per-counter monitoring structure
+    Note: this does not need GC marking
+ */
+typedef struct HttpCounter {
+    cchar       *name;                          /**< Counter name (static reference) */
+    int64       value;                          /**< Current counter value */
+    int64       limit;                          /**< Counter limit */
+} HttpCounter;
+
+/*
+    Per-IP address structure.
+    Note: this does not need GC marking
+ */
+typedef struct HttpAddress {
+    MprTicks    updated;                        /**< When the address counters were last updated */
+    MprTicks    banUntil;                       /**< Ban IP address until this time */
+    MprTicks    delayUntil;                     /**< Delay (go-slow) servicing requests until this time  */
+    int         delay;                          /**< Delay per request */
+    int         ncounters;                      /**< Number of counters in ncounters */
+    HttpCounter counters[1];
+} HttpAddress;
+
+typedef struct HttpMonitor {
+    int         counterIndex;                   /**< Counter item index to monitor */
+    int         expr;                           /**< Expression. Set to '<' or '>' */
+    int64       limit;                          /**< Comparison limit value */
+    MprTicks    period;                         /**< Frequence of comparison */
+    int64       prior;                          /**< Prior counter value when monitor last ran */
+    MprList     *defenses;                      /**< List of defensive measures */
+    struct Http *http;
+} HttpMonitor;
+
+typedef void (*HttpRemedyProc)(MprHash *args);
+
+typedef struct HttpDefense {
+    cchar           *name;                      /**< Defense name */
+    cchar           *remedy;                    /**< Remedy name to invoke */
+    MprHash         *args;                      /**< Remedy arguments */
+    int             suppressed;                 /**< Number of remedies suppressed */
+    int             suppressPeriod;
+} HttpDefense;
+
+/**
+    Trace an event and validate against defined limits and monitored resources
+    @description The Http library supports a suite of resource limits that restrict the impact of a request on
+        the system. This call validates a processing event for the current request against the server's endpoint limits.
+    @param endpoint The endpoint on which the server was listening
+    @param counter The counter to adjust.
+    @param conn HttpConn connection object
+    @return Monitor event status code.
+    @ingroup HttpMonitor
+    @stability Prototype
+ */
+PUBLIC int httpMonitorEvent(struct HttpConn *conn, int counter, int64 adj);
+
+/**
+    Add a monitor
+    @param counter Name of counter to monitor. Some of the standard counter names are:
+        ActiveClients, ActiveConnections, ActiveRequests, ActiveProcesses, BadRequestErrors, LimitErrors, Memory,
+        NotFoundErrors, NetworkIO, Requests, SSLErrors, TotalErrors
+    @param expr Expression operator. Select from "<" or ">".
+    @param limit Limit value to compare with the counter value.
+    @param period Time period over which to determine the counter value.
+    @param defenses List of defenses to invoke if the counter exceeds the limit value over the designated period.
+    @return Zero if successful, otherwise a negative MPR error code.
+    @ingroup HttpMonitor
+    @stability Prototype
+ */
+PUBLIC int httpAddMonitor(cchar *counter, cchar *expr, uint64 limit, MprTicks period, cchar *defenses);
+
+/**
+    Add a defense
+    @param name Name of defensive policy
+    @param action Remedy action to invoke. Standard remedies include: ban, cmd, delay, email, http and log.
+    @param args Arguments to pass to the remedy. These may include ${tokens}.
+    @return Zero if successful, otherwise a negative MPR error code.
+    @ingroup HttpMonitor
+    @stability Prototype
+ */
+PUBLIC int httpAddDefense(cchar *name, cchar *action, cchar *args);
+
+/**
+    Add a counter to be monitored
+    @param name Name of the counter 
+    @return The counter index in HttpAddress.counters[] to use
+    @ingroup HttpMonitor
+    @stability Prototype
+ */
+PUBLIC int httpAddCounter(cchar *name);
+
+/**
+    Add a remedy
+    @param name Name of the remedy 
+    @param remedy Remedy callback function
+    @return Zero if successful, otherwise a negative MPR error code.
+    @ingroup HttpMonitor
+    @stability Prototype
+ */
+PUBLIC int httpAddRemedy(cchar *name, HttpRemedyProc remedy);
+
+/*
+    Internal
+ */
+PUBLIC void httpAddCounters();
+PUBLIC int httpAddRemedies();
+PUBLIC MprTicks httpGetTicks(cchar *value);
+PUBLIC uint64 httpGetNumber(cchar *value);
+
 /************************************ Http **********************************/
 /** 
     Http service object
@@ -310,6 +449,12 @@ typedef struct Http {
 
     MprHash         *authTypes;             /**< Available authentication protocol types */
     MprHash         *authStores;            /**< Available password stores */
+
+    MprList         *counters;              /**< List of counters */
+    MprList         *monitors;              /**< List of monitors */
+    MprHash         *defenses;              /**< List of Defenses */
+    MprHash         *remedies;              /**< List of Defense Remedies */
+    MprHash         *addresses;             /**< Monitored per-IP-address counters */
 
     /*  
         Some standard pipeline stages
@@ -355,7 +500,6 @@ typedef struct Http {
 
     int             activeVMs;              /**< Number of ejs VMs */
     int             flags;                  /**< Open flags */
-    int             underAttack;            /**< Under DOS attack */
     void            *context;               /**< Embedding context */
     MprTicks        currentTime;            /**< When currentDate was last calculated (ticks) */
     char            *currentDate;           /**< Date string for HTTP response headers */
@@ -1910,16 +2054,6 @@ PUBLIC void httpSendOutgoingService(HttpQueue *q);
 #define HTTP_STATE_COMPLETE         9       /**< Request complete */
 
 /*
-    Limit validation events
- */
-#define HTTP_VALIDATE_OPEN_CONN     1       /**< Open a new connection */
-#define HTTP_VALIDATE_CLOSE_CONN    2       /**< Close a connection */
-#define HTTP_VALIDATE_OPEN_REQUEST  3       /**< Open a new request */
-#define HTTP_VALIDATE_CLOSE_REQUEST 4       /**< Close a request */
-#define HTTP_VALIDATE_OPEN_PROCESS  5       /**< Open a new CGI process */
-#define HTTP_VALIDATE_CLOSE_PROCESS 6       /**< Close a CGI process */
-
-/*
     Trace directions
  */
 #define HTTP_TRACE_RX               0       /**< Trace reception */
@@ -2025,12 +2159,13 @@ typedef struct HttpConn {
     HttpQueue       *writeq;                /**< Start of the write pipeline */
 
     MprSocket       *sock;                  /**< Underlying socket handle */
-    HttpLimits      *limits;                /**< Service limits */
+    HttpLimits      *limits;                /**< Service limits. Alias to HttpRoute.limits for this request */
     Http            *http;                  /**< Http service object  */
     MprDispatcher   *dispatcher;            /**< Event dispatcher */
     MprDispatcher   *newDispatcher;         /**< New dispatcher if using a worker thread */
     MprDispatcher   *oldDispatcher;         /**< Original dispatcher if using a worker thread */
     HttpNotifier    notifier;               /**< Connection Http state change notification callback */
+    HttpAddress     *address;               /**< Per-client IP address reference */
 
     struct HttpQueue *serviceq;             /**< List of queues that require service for request pipeline */
     struct HttpQueue *currentq;             /**< Current queue being serviced (just for GC) */
@@ -2060,6 +2195,7 @@ typedef struct HttpConn {
     char            *protocol;              /**< HTTP protocol */
     char            *protocols;             /**< Supported web socket protocols (clients) */
     int             async;                  /**< Connection is in async mode (non-blocking) */
+    int             delay;                  /**< Delay servicing request due to defense strategy */
     int             followRedirects;        /**< Follow redirects for client requests */
     int             keepAliveCount;         /**< Count of remaining Keep-Alive requests for this connection */
     int             http10;                 /**< Using legacy HTTP/1.0 */
@@ -2235,6 +2371,28 @@ PUBLIC void httpEnableUpload(HttpConn *conn);
     @stability Stable
  */
 PUBLIC void httpError(HttpConn *conn, int status, cchar *fmt, ...);
+
+/**
+    Emit an error message for limit violations
+    @param conn HttpConn connection object created via #httpCreateConn
+    @param status Http status code. The status code can be ored with the flags HTTP_ABORT to immediately abort the connection
+        or HTTP_CLOSE to close the connection at the completion of the request.
+    @param fmt Printf style formatted string
+    @ingroup HttpConn
+    @stability Prototype
+ */
+PUBLIC void httpLimitError(HttpConn *conn, int status, cchar *fmt, ...);
+
+/**
+    Emit an error message for a badly formatted request
+    @param conn HttpConn connection object created via #httpCreateConn
+    @param status Http status code. The status code can be ored with the flags HTTP_ABORT to immediately abort the connection
+        or HTTP_CLOSE to close the connection at the completion of the request.
+    @param fmt Printf style formatted string
+    @ingroup HttpConn
+    @stability Prototype
+ */
+PUBLIC void httpBadRequestError(HttpConn *conn, int status, cchar *fmt, ...);
 
 /**
     Http I/O event handler. Invoke when there is an I/O event on the connection. This is normally invoked automatically
@@ -3317,6 +3475,7 @@ PUBLIC void httpSetStreaming(struct HttpHost *host, cchar *mime, cchar *uri, boo
 #define HTTP_ROUTE_CORS                 0x80        /**< Cross-Origin resource sharing */
 #define HTTP_ROUTE_STEALTH              0x100       /**< Stealth mode */
 #define HTTP_ROUTE_SHOW_ERRORS          0x200       /**< Show errors to the client */
+#define HTTP_ROUTE_VISIBLE_COOKIE       0x400       /**< Create cookies visible to client Javascript (not httponly) */
 #if (DEPRECATED || 1) && !DOXYGEN
 #define HTTP_ROUTE_GZIP                 0x800       /**< Support gzipped content on this route */
 #define HTTP_ROUTE_LEGACY_MVC           0x1000      /**< Legacy MVC app. Using "static" instead of "client". Deprecated in 4.4 */
@@ -3414,13 +3573,14 @@ typedef struct HttpRoute {
 
     MprHash         *methods;               /**< Matching HTTP methods */
     MprList         *params;                /**< Matching param field data */
-    MprList         *headers;               /**< Matching header values */
+    MprList         *requestHeaders;        /**< Required request header values */
     MprList         *conditions;            /**< Route conditions */
     MprList         *updates;               /**< Route and request updates */
 
     void            *patternCompiled;       /**< Compiled pattern regular expression (not alloced) */
     char            *sourceName;            /**< Source name for route target */
     MprList         *tokens;                /**< Tokens in pattern, {name} */
+    MprList         *headers;               /**< Response header values */
 
     struct MprSsl   *ssl;                   /**< SSL configuration */
     MprMutex        *mutex;                 /**< Multithread sync */
@@ -3607,18 +3767,6 @@ PUBLIC int httpAddRouteFilter(HttpRoute *route, cchar *name, cchar *extensions, 
 PUBLIC int httpAddRouteHandler(HttpRoute *route, cchar *name, cchar *extensions);
 
 /**
-    Add a route header check
-    @description This configures the route to match a request only if the specified header field matches a specific value.
-    @param route Route to modify
-    @param header Header field to interrogate
-    @param value Header value that will match
-    @param flags Set to HTTP_ROUTE_NOT to negate the header test
-    @ingroup HttpRoute
-    @stability Evolving
- */
-PUBLIC void httpAddRouteHeader(HttpRoute *route, cchar *header, cchar *value, int flags);
-
-/**
     Set the route index document
     @description Set the name of the index document to serve. Index documents may be served when the request corresponds
         to a directory on the file system.
@@ -3694,6 +3842,41 @@ PUBLIC void httpAddRouteMethods(HttpRoute *route, cchar *methods);
     @stability Evolving
  */
 PUBLIC void httpAddRouteParam(HttpRoute *route, cchar *field, cchar *value, int flags);
+
+/**
+    Add a request header check
+    @description This configures the route to match a request only if the specified header field matches a specific value.
+    @param route Route to modify
+    @param header Header field to interrogate
+    @param value Header value that will match
+    @param flags Set to HTTP_ROUTE_NOT to negate the header test
+    @ingroup HttpRoute
+    @stability Evolving
+ */
+PUBLIC void httpAddRouteRequestHeaderCheck(HttpRoute *route, cchar *header, cchar *value, int flags);
+
+/*
+    Commands for httpAddRouteResponseHeader
+ */
+#define HTTP_ROUTE_ADD_HEADER       1
+#define HTTP_ROUTE_APPEND_HEADER    2
+#define HTTP_ROUTE_REMOVE_HEADER    3
+#define HTTP_ROUTE_SET_HEADER       4
+
+/**
+    Add a response header
+    @description This modifies the response header set
+    @param route Route to modify
+    @param cmd Set to HTTP_ROUTE_HEADER_ADD to add a header if it is not already present in the response header set.
+        Set to HTTP_ROUTE_HEADER_REMOVE to remove a header. Set to HTTP_ROUTE_HEADER_SET to define a header and overwrite any prior values.
+        Set to HTTP_ROUTE_HEADER_APPEND to append to an existing header value.
+    @param header Header field to interrogate
+    @param value Header value that will match
+    @param flags Set to HTTP_ROUTE_NOT to negate the header test
+    @ingroup HttpRoute
+    @stability Evolving
+ */
+PUBLIC void httpAddRouteResponseHeader(HttpRoute *route, int cmd, cchar *header, cchar *value);
 
 /**
     Add a route update rule
@@ -4115,6 +4298,17 @@ PUBLIC void httpSetRouteCompression(HttpRoute *route, int flags);
 PUBLIC int httpSetRouteConnector(HttpRoute *route, cchar *name);
 
 /**
+    Make session cookies that are visible to javascript.
+    @description If not visible, cookies will be created with httponly. This helps reduce the XSS risk as Javascripts cannot
+        read the session cookie.
+    @param route Route to modify
+    @param visible Set to true to create session cookies that are visible to Javascript.
+    @ingroup HttpRoute
+    @stability Prototype
+  */
+PUBLIC void httpSetRouteCookieVisibility(HttpRoute *route, bool visible);
+
+/**
     Set route data
     @description Routes can store extra configuration information indexed by key. This is used by handlers, filters,
         connectors and updates to store additional information on a per-route basis.
@@ -4126,6 +4320,8 @@ PUBLIC int httpSetRouteConnector(HttpRoute *route, cchar *name);
  */
 PUBLIC void httpSetRouteData(HttpRoute *route, cchar *key, void *data);
 
+
+
 /**
     Set the default language for the route
     @description This call defines the default language to serve if the client does not provide an Accept HTTP header
@@ -4136,9 +4332,6 @@ PUBLIC void httpSetRouteData(HttpRoute *route, cchar *key, void *data);
     @stability Evolving
  */
 PUBLIC void httpSetRouteDefaultLanguage(HttpRoute *route, cchar *language);
-
-//  MOB  DOC
-PUBLIC void httpSetRouteDefense(HttpRoute *route, cchar *policy, cchar *action, cchar *args);
 
 /**
     Set the route directory
@@ -4205,9 +4398,6 @@ PUBLIC void httpSetRouteHost(HttpRoute *route, struct HttpHost *host);
     @stability Evolving
  */
 PUBLIC void httpSetRouteMethods(HttpRoute *route, cchar *methods);
-
-//  MOB  DOC
-PUBLIC void httpSetRouteMonitor(HttpRoute *route, cchar *resource, cchar *expr, cchar *policies);
 
 /**
     Set the route name
@@ -4753,8 +4943,7 @@ PUBLIC void httpRemoveUploadFile(HttpConn *conn, cchar *id);
 #define HTTP_CHUNKED            0x200       /**< Content is chunk encoded */
 #define HTTP_ADDED_QUERY_PARAMS 0x400       /**< Query added to params */
 #define HTTP_ADDED_BODY_PARAMS  0x800       /**< Body data added to params */
-#define HTTP_LIMITS_OPENED      0x1000      /**< Request limits opened */
-#define HTTP_EXPECT_CONTINUE    0x2000      /**< Client expects an HTTP 100 Continue response */
+#define HTTP_EXPECT_CONTINUE    0x1000      /**< Client expects an HTTP 100 Continue response */
 
 /*  
     Incoming chunk encoding states
@@ -5598,8 +5787,8 @@ PUBLIC void httpSetContentType(HttpConn *conn, cchar *mimeType);
 /*
     Flags for httpSetCookie
  */
-#define HTTP_COOKIE_SECURE   0x1         /**< Flag for httpSetCookie for secure cookies (https only) */
-#define HTTP_COOKIE_HTTP     0x2         /**< Flag for httpSetCookie for http cookies (http only) */
+#define HTTP_COOKIE_SECURE   0x1         /**< Flag for Set-Cookie for SSL only */
+#define HTTP_COOKIE_HTTP     0x2         /**< Flag for Set-Cookie httponly. Not visible to Javascript */
 
 /** 
     Set a transmission cookie
@@ -5745,21 +5934,18 @@ PUBLIC ssize httpWriteUploadData(HttpConn *conn, MprList *formData, MprList *fil
         httpDestroyEndpoint httpGetEndpointContext httpHasNamedVirtualHosts httpIsEndpointAsync
         httpLookupHostOnEndpoint httpSecureEndpoint httpSecureEndpointByName httpSetEndpointAddress 
         httpSetEndpointAsync httpSetEndpointContext httpSetEndpointNotifier httpSetHasNamedVirtualHosts 
-        httpStartEndpoint httpStopEndpoint httpValidateLimits 
+        httpStartEndpoint httpStopEndpoint
     @stability Internal
  */
 typedef struct HttpEndpoint {
     Http            *http;                  /**< Http service object */
     MprList         *hosts;                 /**< List of host objects */
-    HttpLimits      *limits;                /**< Alias for first host, default route resource limits */
-    MprHash         *clientLoad;            /**< Table of active client IPs and connection counts */
     char            *ip;                    /**< Listen IP address. May be null if listening on all interfaces. */
     int             port;                   /**< Listen port */
     int             async;                  /**< Listening is in async mode (non-blocking) */
-    int             activeClients;          /**< Count of current active clients */
-    int             activeRequests;         /**< Count of current active requests */
     int             flags;                  /**< Endpoint control flags */
     void            *context;               /**< Embedding context */
+    HttpLimits      *limits;                /**< Alias for first host, default route resource limits */
     MprSocket       *sock;                  /**< Listening socket */
     MprDispatcher   *dispatcher;            /**< Event dispatcher */
     HttpNotifier    notifier;               /**< Default connection notifier callback */
@@ -5958,21 +6144,6 @@ PUBLIC int httpStartEndpoint(HttpEndpoint *endpoint);
     @stability Stable
  */
 PUBLIC void httpStopEndpoint(HttpEndpoint *endpoint);
-
-/**
-    Validate the request against defined resource limits
-    @description The Http library supports a suite of resource limits that restrict the impact of a request on
-        the system. This call validates a processing event for the current request against the server's endpoint
-        limits.
-    @param endpoint The endpoint on which the server was listening
-    @param event Processing event. The supported events are: HTTP_VALIDATE_OPEN_CONN, HTTP_VALIDATE_CLOSE_CONN,
-        HTTP_VALIDATE_OPEN_REQUEST and HTTP_VALIDATE_CLOSE_REQUEST.
-    @param conn HttpConn connection object
-    @return True if the request can be successfully validated against the endpoint limits.
-    @ingroup HttpEndpoint
-    @stability Stable
- */
-PUBLIC bool httpValidateLimits(HttpEndpoint *endpoint, int event, HttpConn *conn);
 
 /********************************** HttpHost ***************************************/
 /*

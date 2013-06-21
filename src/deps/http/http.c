@@ -279,7 +279,7 @@ static int parseArgs(int argc, char **argv)
             if (nextArg >= argc) {
                 return showUsage();
             } else {
-                mprAddItem(app->headers, mprCreateKeyPair("Cookie", argv[++nextArg]));
+                mprAddItem(app->headers, mprCreateKeyPair("Cookie", argv[++nextArg], 0));
             }
 
         } else if (smatch(argp, "--data")) {
@@ -323,7 +323,7 @@ static int parseArgs(int argc, char **argv)
                 while (isspace((uchar) *value)) {
                     value++;
                 }
-                mprAddItem(app->headers, mprCreateKeyPair(key, value));
+                mprAddItem(app->headers, mprCreateKeyPair(key, value, 0));
             }
 
         } else if (smatch(argp, "--host")) {
@@ -644,7 +644,7 @@ static void processing()
     int         j;
 
     if (app->chunkSize > 0) {
-        mprAddItem(app->headers, mprCreateKeyPair("X-Appweb-Chunk-Size", sfmt("%d", app->chunkSize)));
+        mprAddItem(app->headers, mprCreateKeyPair("X-Appweb-Chunk-Size", sfmt("%d", app->chunkSize), 0));
     }
     app->activeLoadThreads = app->loadThreads;
     app->threadData = mprCreateList(app->loadThreads, 0);

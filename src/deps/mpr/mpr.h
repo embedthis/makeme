@@ -1259,7 +1259,7 @@ PUBLIC void mprPrintMem(cchar *msg, int detail);
 /**
     Reallocate a block
     @description Reallocates a block increasing its size. If the specified size is less than the current block size,
-        the call will ignore the request and simply return the existing block. The memory is not zeroed.
+        the call will ignore the request and simply return the existing block. The memory is zeroed.
     @param ptr Memory to reallocate. If NULL, call malloc.
     @param size New size of the required memory block.
     @return Returns a pointer to the allocated block. If memory is not available the memory exhaustion handler 
@@ -2098,6 +2098,15 @@ PUBLIC int64 stoiradix(cchar *str, int radix, int *err);
     @stability Stable
  */
 PUBLIC char *stok(char *str, cchar *delim, char **last);
+
+/**
+   String to list. This parses the string into space separated arguments. Single and double quotes are supported.
+   @param src Source string to parse
+   @return List of arguments
+   @ingroup MprString
+   @stability Prototype
+ */
+PUBLIC struct MprList *stolist(cchar *src);
 
 /**
     Create a substring
@@ -3546,6 +3555,7 @@ PUBLIC MprList *mprSortList(MprList *list, MprSortProc compare, void *ctx);
 typedef struct MprKeyValue {
     void        *key;               /**< Key string */
     void        *value;             /**< Associated value for the key */
+    int         flags;              /**< General flags word */
 } MprKeyValue;
 
 /**
@@ -3553,11 +3563,12 @@ typedef struct MprKeyValue {
     @description Allocate and initialize a key value pair for use by the MprList or MprHash modules.
     @param key Key string
     @param value Key value string
+    @param flags Flags value
     @returns An initialized MprKeyValue
     @ingroup MprList
     @stability Stable
  */
-PUBLIC MprKeyValue *mprCreateKeyPair(cchar *key, cchar *value);
+PUBLIC MprKeyValue *mprCreateKeyPair(cchar *key, cchar *value, int flags);
 
 /**
     Pop an item
@@ -7875,7 +7886,7 @@ typedef void (*MprForkCallback)(void *arg);
     @stability Internal
  */
 typedef struct MprCmdService {
-    MprList         *cmds;              /* List of all commands */
+    MprList         *cmds;              /* List of all commands. This is a static list and elements are not retained for GC */
     MprMutex        *mutex;             /* Multithread sync */
 } MprCmdService;
 

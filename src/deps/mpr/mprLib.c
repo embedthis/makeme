@@ -391,7 +391,7 @@ PUBLIC void *mprReallocMem(void *ptr, ssize usize)
     assert(usize > 0);
 
     if (ptr == 0) {
-        return mprAllocMem(usize, 0);
+        return mprAllocZeroed(usize);
     }
     mp = GET_MEM(ptr);
     CHECK(mp);
@@ -3138,6 +3138,7 @@ PUBLIC int mprParseArgs(char *args, char **argv, int maxArgc)
 }
 
 
+//  TODO - rename stolist and move into string
 /*
     Make an argv array. All args are in a single memory block of which argv points to the start.
     Set MPR_ARGV_ARGS_ONLY if not passing in a program name. 
@@ -5028,7 +5029,7 @@ PUBLIC MprCmdService *mprCreateCmdService()
     if ((cs = (MprCmdService*) mprAllocObj(MprCmd, manageCmdService)) == 0) {
         return 0;
     }
-    cs->cmds = mprCreateList(0, MPR_LIST_STATIC_VALUES);
+    cs->cmds = mprCreateList(0, 0);
     cs->mutex = mprCreateLock();
     return cs;
 }
@@ -5118,6 +5119,9 @@ static void manageCmd(MprCmd *cmd, int flags)
     } else if (flags & MPR_MANAGE_FREE) {
         mprDestroyCmd(cmd);
         vxCmdManager(cmd);
+        /*
+            Note that "cmds" is a static list and so the cmd may still be in the cmds list.
+         */
         mprRemoveItem(MPR->cmdService->cmds, cmd);
     }
 }
@@ -5163,6 +5167,17 @@ PUBLIC void mprDestroyCmd(MprCmd *cmd)
         cmd->signal = 0;
     }
     sunlock(cmd);
+    mprRemoveItem(MPR->cmdService->cmds, cmd);
+}
+
+
+static void completeCommand(MprCmd *cmd)
+{
+    /*
+        After removing the command from the cmds list, it can be garbage collected if no other reference is retained
+     */
+    cmd->complete = 1;
+    mprRemoveItem(MPR->cmdService->cmds, cmd);
 }
 
 
@@ -5239,7 +5254,7 @@ PUBLIC void mprCloseCmdFd(MprCmd *cmd, int channel)
                 reapCmd(cmd, 0);
 #endif
                 if (cmd->pid == 0) {
-                    cmd->complete = 1;
+                    completeCommand(cmd);
                 }
             }
         }
@@ -5575,6 +5590,9 @@ PUBLIC ssize mprWriteCmd(MprCmd *cmd, int channel, char *buf, ssize bufsize)
         return -1;
     }
 #endif
+    if (bufsize <= 0) {
+        bufsize = slen(buf);
+    }
     return write(cmd->files[channel].fd, buf, (wsize) bufsize);
 }
 
@@ -5820,7 +5838,7 @@ static void reapCmd(MprCmd *cmd, MprSignal *sp)
 #endif
     if (cmd->pid == 0) {
         if (cmd->eofCount >= cmd->requiredEof) {
-            cmd->complete = 1;
+            completeCommand(cmd);
         }
         mprTrace(6, "Cmd reaped: status %d, pid %d, eof %d / %d", cmd->status, cmd->pid, cmd->eofCount, cmd->requiredEof);
         if (cmd->callback) {
@@ -13673,7 +13691,7 @@ static void manageKeyValue(MprKeyValue *pair, int flags)
 }
 
 
-PUBLIC MprKeyValue *mprCreateKeyPair(cchar *key, cchar *value)
+PUBLIC MprKeyValue *mprCreateKeyPair(cchar *key, cchar *value, int flags)
 {
     MprKeyValue     *pair;
     
@@ -13682,6 +13700,7 @@ PUBLIC MprKeyValue *mprCreateKeyPair(cchar *key, cchar *value)
     }
     pair->key = sclone(key);
     pair->value = sclone(value);
+    pair->flags = flags;
     return pair;
 }
 
@@ -23150,6 +23169,9 @@ PUBLIC char *strim(cchar *str, cchar *set, int where)
     if (str == 0 || set == 0) {
         return 0;
     }
+    if (where == 0) {
+        where = MPR_TRIM_START | MPR_TRIM_END;
+    }
     if (where & MPR_TRIM_START) {
         i = strspn(str, set);
     } else {
@@ -23234,6 +23256,44 @@ PUBLIC char *stemplate(cchar *str, MprHash *keys)
         result = MPR->emptyString;
     }
     return result;
+}
+
+
+/*
+    String to list. This parses the string into space separated arguments. Single and double quotes are supported.
+ */
+PUBLIC MprList *stolist(cchar *src)
+{
+    MprList     *list;
+    cchar       *start;
+    int         quote;
+
+    list = mprCreateList(0, 0);
+    while (src && *src != '\0') {
+        while (isspace((uchar) *src)) {
+            src++;
+        }
+        if (*src == '\0')  {
+            break;
+        }
+        for (quote = 0, start = src; *src; src++) {
+            if (*src == '\\') {
+                src++;
+            } else if (*src == '"' || *src == '\'') {
+                if (*src == quote) {
+                    quote = 0;
+                    src++;
+                    break;
+                } else if (quote == 0) {
+                    quote = *src;
+                }
+            } else if (isspace((uchar) *src) && !quote) {
+                break;
+            }
+        }
+        mprAddItem(list, snclone(start, src - start));
+    }
+    return list;
 }
 
 
