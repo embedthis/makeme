@@ -443,7 +443,7 @@ public function packageName() {
     if (Config.OS == 'macosx') {
         name = s.product + '-' + s.version + '-' + s.buildNumber + '-' + p.dist + '-' + p.os + '-' + p.arch + '.pkg'
     } else if (Config.OS == 'windows') {
-        name = s.product + '-' + s.version + '-' + s.buildNumber + '-' + p.dist + '-' + p.os + '-x86.exe.zip'
+        name = s.product + '-' + s.version + '-' + s.buildNumber + '-' + p.dist + '-' + p.os + '-' + p.arch + '.exe.zip'
     } else {
         return null
     }
