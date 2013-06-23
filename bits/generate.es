@@ -67,7 +67,7 @@ module embedthis.bit {
             let path = bit.original.dir.inc.join('bit.h')
             let hfile = bit.dir.src.join('projects', 
                     bit.settings.product + '-' + bit.platform.os + '-' + bit.platform.profile + '-bit.h')
-            if (hfile.exists) {
+            if (path.exists) {
                 trace('Generate', 'project header: ' + hfile.relative)
                 path.copy(hfile)
             }
