@@ -21,6 +21,7 @@ projects/.flags
 /*-*-*/
 /*-*-*.bit
 *-*-mine*
+*-mine*
 *.guid
 .prefixes
 *.tmp

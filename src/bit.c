@@ -145,6 +145,7 @@ static void manageApp(App *app, int flags)
 {
     if (flags & MPR_MANAGE_MARK) {
         mprMark(app->ejs);
+        mprMark(app->script);
     }
 }
 
@@ -153,10 +154,22 @@ static cchar *findBitScript()
 {
     cchar    *path;
 
-    path = "bits/bit.mod"; if (mprPathExists(path, R_OK)) return path;
-    path = mprJoinPath(mprGetAppDir(), "bits/bit.mod"); if (mprPathExists(path, R_OK)) return path;
-    path = "bits/bit.es"; if (mprPathExists(path, R_OK)) return path;
-    path = mprJoinPath(mprGetAppDir(), "bits/bit.es"); if (mprPathExists(path, R_OK)) return path;
+    path = "bits/bit.mod"; 
+    if (mprPathExists(path, R_OK)) {
+        return sclone(path);
+    }
+    path = mprJoinPath(mprGetAppDir(), "bits/bit.mod"); 
+    if (mprPathExists(path, R_OK)) {
+        return path;
+    }
+    path = "bits/bit.es"; 
+    if (mprPathExists(path, R_OK)) {
+        return sclone(path);
+    }
+    path = mprJoinPath(mprGetAppDir(), "bits/bit.es"); 
+    if (mprPathExists(path, R_OK)) {
+        return path;
+    }
     return 0;
 }
 
