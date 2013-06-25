@@ -272,7 +272,7 @@ static int parseArgs(int argc, char **argv)
             }
             ssl = 1;
 
-        } else if (smatch(argp, "--continue")) {
+        } else if (smatch(argp, "--continue") || smatch(argp, "-c")) {
             app->continueOnErrors++;
 
         } else if (smatch(argp, "--cookie")) {

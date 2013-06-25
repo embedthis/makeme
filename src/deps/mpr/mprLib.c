@@ -2723,18 +2723,25 @@ PUBLIC Mpr *mprCreate(int argc, char **argv, int flags)
             argv = mpr->argBuf;
             argv[0] = arg0;
         }
+        mpr->argv = (cchar**) argv;
+#else
+        mpr->argv = mprAllocZeroed(sizeof(void*) * (argc + 1));
+        memcpy(mpr->argv, argv, sizeof(void*) * argc);
 #endif
         mpr->argc = argc;
-        mpr->argv = (cchar**) argv;
         if (!mprIsPathAbs(mpr->argv[0])) {
             mpr->argv[0] = mprGetAppPath();
+        } else {
+            mpr->argv[0] = sclone(mprGetAppPath());
         }
-        mpr->name = mprTrimPathExt(mprGetPathBase(mpr->argv[0]));
     } else {
         mpr->name = sclone(BIT_PRODUCT);
-        mpr->argv = mprAllocZeroed(sizeof(void*));
+        mpr->argv = mprAllocZeroed(2 * sizeof(void*));
+        mpr->argv[0] = mpr->name;
         mpr->argc = 0;
     }
+    mpr->name = mprTrimPathExt(mprGetPathBase(mpr->argv[0]));
+
     mpr->signalService = mprCreateSignalService();
     mpr->threadService = mprCreateThreadService();
     mpr->moduleService = mprCreateModuleService();
@@ -2808,7 +2815,8 @@ static void manageMpr(Mpr *mpr, int flags)
         mprMark(mpr->cond);
         mprMark(mpr->emptyString);
         mprMark(mpr->oneString);
-        mprMark(mpr->argBuf);
+        mprMark(mpr->argv);
+        mprMark(mpr->argv[0]);
     }
 }
 
@@ -2939,6 +2947,7 @@ PUBLIC void mprRestart()
 {
 #if BIT_UNIX_LIKE
     int     i;
+
     for (i = 3; i < MPR_MAX_FILE; i++) {
         close(i);
     }
@@ -13734,6 +13743,7 @@ static void shortsort(char *lo, char *hi, ssize width, MprSortProc comp, void *c
         hi -= width;
     }
 }
+
 
 PUBLIC void mprSort(void *base, ssize num, ssize width, MprSortProc comp, void *ctx) 
 {
