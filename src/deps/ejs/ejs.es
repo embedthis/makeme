@@ -12923,9 +12923,10 @@ module ejs {
                 notify()
             })
             hp.on("readable", function (event, ...args) {
-                let count = hp.read(responseBuf, -1)
-                state = Receiving
-                notify()
+                while (hp.read(responseBuf, -1) > 0) {
+                    state = Receiving
+                    notify()
+                }
             })
             hp.connect(method, uri)
             state = Open
@@ -19140,13 +19141,14 @@ module ejs.web {
             Resource limits for the server and for initial resource limits for requests.
             @param limits. Limits is an object hash with the following properties:
             @option chunk Maximum size of a chunk when using chunked transfer encoding.
-            @option clients Maximum number of simultaneous clients.
+            @option clients Maximum number of unique client IP addresses.
+            @option connections Maximum number of simultaneous client endpoints.
             @option connReuse Maximum number of times to reuse a connection for requests (KeepAlive count).
             @option headers Maximum number of headers in a request.
             @option header Maximum size of headers.
             @option inactivityTimeout Maximum time in seconds to keep a connection open if idle. Set to zero for no timeout.
             @option receive Maximum size of incoming body data.
-            @option requests Maximum number of simultaneous requests.
+            @option requests Maximum number of simultaneous requests. This is actually a limit per client IP.
             @option requestTimeout Maximum time in seconds for a request to complete. Set to zero for no timeout.
             @option sessionTimeout Default time to preserve session state for new requests. Set to zero for no timeout.
             @option stageBuffer Maximum stage buffer size for each direction.

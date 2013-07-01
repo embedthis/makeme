@@ -711,6 +711,10 @@ static int processThread(HttpConn *conn, MprEvent *event)
         httpSetKeepAliveCount(conn, 0);
         httpSetProtocol(conn, "HTTP/1.0");
     }
+    if (app->iterations == 1) {
+        // httpSetKeepAliveCount(conn, 0);
+        conn->limits->keepAliveMax = 0;
+    }
     if (app->username) {
         if (app->password == 0 && !strchr(app->username, ':')) {
             app->password = getPassword();
@@ -1128,7 +1132,6 @@ static ssize writeBody(HttpConn *conn, MprList *files)
             }
         }
         if (app->bodyData) {
-            mprAddNullToBuf(app->bodyData);
             len = mprGetBufLength(app->bodyData);
             if (httpWriteBlock(conn->writeq, mprGetBufStart(app->bodyData), len, HTTP_BLOCK) != len) {
                 return MPR_ERR_CANT_WRITE;

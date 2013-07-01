@@ -5499,6 +5499,7 @@ typedef struct MprEvent {
     MprTicks            timestamp;      /**< When was the event created */
     MprTicks            due;            /**< When is the event due */
     void                *data;          /**< Event private data */
+    void                *sock;          /**< Optional socket data */
     int                 flags;          /**< Event flags */
     int                 mask;           /**< I/O mask of events */
     MprTicks            period;         /**< Reschedule period */
@@ -5559,10 +5560,19 @@ typedef struct MprEventService {
     MprOsThread     serviceThread;      /**< Thread running the dispatcher service */
     int             eventCount;         /**< Count of events */
     int             waiting;            /**< Waiting for I/O (sleeping) */
+    int             nap;                /**< Override short nap time */
     int             pendingCount;       /**< Count of pendingQ dispatchers */
     struct MprCond  *waitCond;          /**< Waiting sync */
     struct MprMutex *mutex;             /**< Multi-thread sync */
 } MprEventService;
+
+/**
+    Clear the event service waiting flag
+    @ingroup MprDispatcher
+    @stability Prototype
+    @internal
+ */
+PUBLIC void mprClearWaiting();
 
 /**
     Create a new event dispatcher
@@ -5628,6 +5638,14 @@ PUBLIC int mprServiceEvents(MprTicks delay, int flags);
     @stability Stable
  */
 PUBLIC int mprWaitForEvent(MprDispatcher *dispatcher, MprTicks timeout);
+
+/**
+    Wake the event service
+    @description Used to wake the event service if an event is queued for service.
+    @ingroup MprDispatcher
+    @stability Prototype
+ */
+PUBLIC void mprWakeEventService();
 
 /**
     Signal the dispatcher to wakeup and re-examine its queues
@@ -6329,8 +6347,6 @@ typedef struct MprWaitService {
     struct kevent   *interest;              /* Events of interest */
     int             interestMax;            /* Size of the interest array */
     int             interestCount;          /* Last used entry in the interest array */
-    struct kevent   *stableInterest;        /* Stable copy of interest during kevent() */
-    int             stableInterestCount;    /* Last used entry in the stableInterest array */
     struct kevent   *events;                /* Events triggered */
     int             eventsMax;              /* Max size of events/interest */
     struct MprWaitHandler **handlerMap;     /* Map of fds to handlers */
@@ -6420,6 +6436,7 @@ PUBLIC int mprWaitForSingleIO(int fd, int mask, MprTicks timeout);
  */
 #define MPR_WAIT_RECALL_HANDLER     0x1     /**< Wait handler flag to recall the handler asap */
 #define MPR_WAIT_NEW_DISPATCHER     0x2     /**< Wait handler flag to create a new dispatcher for each I/O event */
+#define MPR_WAIT_IMMEDIATE          0x4     /**< Wait handler flag to immediately service event on same thread */
 
 /**
     Wait Handler Service
@@ -7449,7 +7466,7 @@ typedef struct MprWorkerService {
  */
 PUBLIC MprWorkerService *mprCreateWorkerService();
 PUBLIC int mprStartWorkerService();
-PUBLIC void mprWakeWorkers();
+PUBLIC void mprStopWorkers();
 PUBLIC void mprSetWorkerStartCallback(MprWorkerProc start);
 
 /**

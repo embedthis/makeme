@@ -2857,7 +2857,7 @@ PUBLIC void mprDestroy(int how)
     MPR->exitStrategy &= MPR_EXIT_GRACEFUL;
     MPR->exitStrategy |= MPR_EXIT_IMMEDIATE;
 
-    mprWakeWorkers();
+    mprStopWorkers();
     mprStopCmdService();
     mprStopModuleService();
     mprStopEventService();
@@ -2927,7 +2927,7 @@ PUBLIC void mprTerminate(int how, int status)
     for (ITERATE_ITEMS(MPR->terminators, terminator, next)) {
         (terminator)(how, status);
     }
-    mprWakeWorkers();
+    mprStopWorkers();
     mprWakeGCService();
     mprWakeDispatchers();
     mprWakeNotifier();
@@ -3526,6 +3526,7 @@ PUBLIC void mprWaitForIO(MprWaitService *ws, MprTicks timeout)
         mprResetYield();
         mprTerminate(MPR_EXIT_DEFAULT, -1);
     } else {
+        mprClearWaiting();
         mprResetYield();
         TranslateMessage(&msg);
         DispatchMessage(&msg);
@@ -3734,7 +3735,7 @@ PUBLIC void mprAtomicBarrier()
 
 
 /*
-    Atomic Compare and swap a pointer with a full memory barrier
+    Atomic compare and swap a pointer with a full memory barrier
  */
 PUBLIC int mprAtomicCas(void * volatile *addr, void *expected, cvoid *value)
 {
@@ -9127,7 +9128,7 @@ PUBLIC void mprEnableDispatcher(MprDispatcher *dispatcher)
     }
     unlock(es);
     if (mustWake) {
-        mprWakeNotifier();
+        mprWakeEventService();
     }
 }
 
@@ -9187,15 +9188,19 @@ PUBLIC int mprServiceEvents(MprTicks timeout, int flags)
             }
         } 
         if (es->eventCount == eventCount) {
+            /*
+                No events serviced
+             */
             lock(es);
             delay = getIdleTicks(es, expires - es->now);
             if (delay > 0) {
-                es->waiting = 1;
-                es->willAwake = es->now + delay;
-                unlock(es);
                 if (mprIsStopping()) {
                     delay = 10;
                 }
+                es->willAwake = es->now + delay;
+                es->waiting = 1;
+                unlock(es);
+
                 mprWaitForIO(MPR->waitService, delay);
             } else {
                 unlock(es);
@@ -9211,8 +9216,22 @@ PUBLIC int mprServiceEvents(MprTicks timeout, int flags)
 }
 
 
+PUBLIC void mprClearWaiting()
+{
+    MPR->eventService->waiting = 0;
+}
+
+
+PUBLIC void mprWakeEventService()
+{
+    if (MPR->eventService->waiting) {
+        mprWakeNotifier();
+    }
+}
+
+
 /*
-    Wait for an event to occur and dispatch the event. This is the primary event dispatch routine.
+    Wait for an event to occur and dispatch the event. This is not called by mprServiceEvents.
     Return Return 0 if an event was signalled. Return MPR_ERR_TIMEOUT if no event was seen before the timeout.
     WARNING: this will enable GC while sleeping
  */
@@ -9422,7 +9441,7 @@ PUBLIC void mprScheduleDispatcher(MprDispatcher *dispatcher)
         mprSignalDispatcher(dispatcher);
     }
     if (mustWakeWaitService) {
-        mprWakeNotifier();
+        mprWakeEventService();
     }
 }
 
@@ -9441,7 +9460,7 @@ static int dispatchEvents(MprDispatcher *dispatcher)
 
     es = dispatcher->service;
     /*
-        OPT - mprGetNextEvent locks anyway, so should be able to get away without a lock here
+#### MOB OPT - mprGetNextEvent locks anyway, so should be able to get away without a lock here
      */
     mprTrace(7, "dispatchEvents for %s", dispatcher->name);
     lock(es);
@@ -9474,14 +9493,18 @@ static int dispatchEvents(MprDispatcher *dispatcher)
             mprQueueEvent(dispatcher, event);
         } else {
             /* Remove from currentQ - GC can then collect */
+//### MOB - need locking inside this routine
             mprDequeueEvent(event);
         }
     }
+    es->eventCount += count;
     unlock(es);
+#if UNUSED && MOB
     if (count && es->waiting) {
         es->eventCount += count;
-        mprWakeNotifier();
+        mprWakeEventService();
     }
+#endif
     return count;
 }
 
@@ -9548,7 +9571,16 @@ PUBLIC void mprClaimDispatcher(MprDispatcher *dispatcher)
 
 PUBLIC void mprWakePendingDispatchers()
 {
-    mprWakeNotifier();
+    MprEventService *es;
+    int             mustWake;
+
+    es = MPR->eventService;
+    lock(es);
+    mustWake = es->pendingQ->next != es->pendingQ;
+    unlock(es);
+    if (mustWake) {
+        mprWakeEventService();
+    }
 }
 
 
@@ -9623,10 +9655,10 @@ static MprTicks getIdleTicks(MprEventService *es, MprTicks timeout)
     } else if (mprIsStopping()) {
         delay = 10;
     } else {
-        delay = MPR_MAX_TIMEOUT;
         /*
             Examine all the dispatchers on the waitQ
          */
+        delay = es->nap ? es->nap : MPR_MAX_TIMEOUT;
         for (dp = waitQ->next; dp != waitQ; dp = dp->next) {
             assert(dp->magic == MPR_DISPATCHER_MAGIC);
             assert(!(dp->flags & MPR_DISPATCHER_DESTROYED));
@@ -9640,6 +9672,7 @@ static MprTicks getIdleTicks(MprEventService *es, MprTicks timeout)
             }
         }
         delay = min(delay, timeout);
+        es->nap = 0;
     }
     return delay;
 }
@@ -10368,6 +10401,8 @@ PUBLIC void mprWaitForIO(MprWaitService *ws, MprTicks timeout)
     }
     mprYield(MPR_YIELD_STICKY | MPR_YIELD_NO_BLOCK);
     rc = epoll_wait(ws->epoll, ws->events, ws->eventsMax, timeout);
+
+    mprClearWaiting();
     mprResetYield();
 
     if (rc < 0) {
@@ -10415,13 +10450,18 @@ static void serviceIO(MprWaitService *ws, int count)
         }
         wp->presentMask = mask & wp->desiredMask;
         if (wp->presentMask) {
-            struct epoll_event  ev;
-            memset(&ev, 0, sizeof(ev));
-            ev.data.fd = fd;
-            wp->desiredMask = 0;
-            ws->handlerMap[wp->fd] = 0;
-            epoll_ctl(ws->epoll, EPOLL_CTL_DEL, wp->fd, &ev);
-            mprQueueIOEvent(wp);
+            mprTrace(7, "ServiceIO for wp %p", wp);
+            if (wp->flags & MPR_WAIT_IMMEDIATE) {
+                (wp->proc)(wp->handlerData, NULL);
+            } else {
+                struct epoll_event  ev;
+                memset(&ev, 0, sizeof(ev));
+                ev.data.fd = fd;
+                wp->desiredMask = 0;
+                ws->handlerMap[wp->fd] = 0;
+                epoll_ctl(ws->epoll, EPOLL_CTL_DEL, wp->fd, &ev);
+                mprQueueIOEvent(wp);
+            }
         }
     }
     unlock(ws);
@@ -10547,6 +10587,7 @@ static void manageEvent(MprEvent *event, int flags)
         if (!(event->flags & MPR_EVENT_STATIC_DATA)) {
             mprMark(event->data);
         }
+        mprMark(event->sock);
 
     } else if (flags & MPR_MANAGE_FREE) {
         if (event->next) {
@@ -10597,9 +10638,6 @@ PUBLIC void mprQueueEvent(MprDispatcher *dispatcher, MprEvent *event)
     assert(dispatcher);
     assert(event);
     assert(event->timestamp);
-#if KEEP
-    assert(dispatcher->flags & MPR_DISPATCHER_ENABLED);
-#endif
     assert(!(dispatcher->flags & MPR_DISPATCHER_DESTROYED));
     assert(dispatcher->magic == MPR_DISPATCHER_MAGIC);
 
@@ -11691,13 +11729,14 @@ static void manageHashTable(MprHash *hash, int flags)
         lock(hash);
         for (i = 0; i < hash->size; i++) {
             for (sp = (MprKey*) hash->buckets[i]; sp; sp = sp->next) {
-                assert(mprIsValid(sp));
                 mprMark(sp);
                 if (!(hash->flags & MPR_HASH_STATIC_VALUES)) {
+#if BIT_DEBUG
                     if (sp->data && !mprIsValid(sp->data)) {
                         mprLog(0, "Data in key %s is not valid", sp->key);
                     }
                     assert(sp->data == 0 || mprIsValid(sp->data));
+#endif
                     mprMark(sp->data);
                 }
                 if (!(hash->flags & MPR_HASH_STATIC_KEYS)) {
@@ -12712,7 +12751,6 @@ PUBLIC void mprManageKqueue(MprWaitService *ws, int flags)
     if (flags & MPR_MANAGE_MARK) {
         mprMark(ws->events);
         mprMark(ws->interest);
-        mprMark(ws->stableInterest);
 
     } else if (flags & MPR_MANAGE_FREE) {
         if (ws->kq) {
@@ -12728,6 +12766,9 @@ PUBLIC void mprManageKqueue(MprWaitService *ws, int flags)
 }
 
 
+/*
+    Called locked
+ */
 static int growEvents(MprWaitService *ws)
 {
     ws->interestMax *= 2;
@@ -12779,6 +12820,7 @@ PUBLIC int mprNotifyOn(MprWaitService *ws, MprWaitHandler *wp, int mask)
             ws->handlerMax = fd + 32;
             if ((ws->handlerMap = mprRealloc(ws->handlerMap, sizeof(MprWaitHandler*) * ws->handlerMax)) == 0) {
                 assert(!MPR_ERR_MEMORY);
+                unlock(ws);
                 return MPR_ERR_MEMORY;
             }
         }
@@ -12844,10 +12886,15 @@ PUBLIC int mprWaitForSingleIO(int fd, int mask, MprTicks timeout)
 PUBLIC void mprWaitForIO(MprWaitService *ws, MprTicks timeout)
 {
     struct timespec ts;
-    int             rc;
+    struct kevent   *interest;
+    int             rc, count;
 
     assert(timeout > 0);
 
+    if (ws->needRecall) {
+        mprDoWaitRecall(ws);
+        return;
+    }
     if (timeout < 0) {
         timeout = MAXINT;
     }
@@ -12859,20 +12906,20 @@ PUBLIC void mprWaitForIO(MprWaitService *ws, MprTicks timeout)
     ts.tv_sec = ((int) (timeout / 1000));
     ts.tv_nsec = ((int) ((timeout % 1000) * 1000 * 1000));
 
-    if (ws->needRecall) {
-        mprDoWaitRecall(ws);
-        return;
-    }
     lock(ws);
-    ws->stableInterest = mprMemdup(ws->interest, sizeof(struct kevent) * ws->interestCount);
-    ws->stableInterestCount = ws->interestCount;
+    count = ws->interestCount;
+    interest = alloca(sizeof(struct kevent) * count);
+    memcpy(interest, ws->interest, sizeof(struct kevent) * count);
     /* Preserve the wakeup pipe fd */
     ws->interestCount = 1;
     unlock(ws);
 
     mprTrace(8, "kevent sleep for %d", timeout);
     mprYield(MPR_YIELD_STICKY | MPR_YIELD_NO_BLOCK);
-    rc = kevent(ws->kq, ws->stableInterest, ws->stableInterestCount, ws->events, ws->eventsMax, &ts);
+
+    rc = kevent(ws->kq, interest, count, ws->events, ws->eventsMax, &ts);
+
+    mprClearWaiting();
     mprResetYield();
     mprTrace(8, "kevent wakes rc %d", rc);
 
@@ -12934,9 +12981,15 @@ static void serviceIO(MprWaitService *ws, int count)
         mprTrace(7, "Got I/O event mask %x", wp->presentMask);
         if (wp->presentMask) {
             mprTrace(7, "ServiceIO for wp %p", wp);
-            /* Suppress further events while this event is being serviced. User must re-enable */
-            mprNotifyOn(ws, wp, 0);            
-            mprQueueIOEvent(wp);
+            if (wp->flags & MPR_WAIT_IMMEDIATE) {
+                (wp->proc)(wp->handlerData, NULL);
+            } else {
+                /* 
+                    Suppress further events while this event is being serviced. User must re-enable 
+                 */
+                mprNotifyOn(ws, wp, 0);            
+                mprQueueIOEvent(wp);
+            }
         }
     }
     unlock(ws);
@@ -13050,7 +13103,9 @@ static void manageList(MprList *lp, int flags)
         mprMark(lp->items);
         if (!(lp->flags & MPR_LIST_STATIC_VALUES)) {
             for (i = 0; i < lp->length; i++) {
+#if BIT_DEBUG
                 assert(lp->items[i] == 0 || mprIsValid(lp->items[i]));
+#endif
                 mprMark(lp->items[i]);
             }
         }
@@ -18056,6 +18111,8 @@ PUBLIC void mprWaitForIO(MprWaitService *ws, MprTicks timeout)
 
     mprYield(MPR_YIELD_STICKY | MPR_YIELD_NO_BLOCK);
     rc = poll(ws->pollFds, count, (int) timeout);
+
+    mprClearWaiting();
     mprResetYield();
 
     if (rc < 0) {
@@ -18100,8 +18157,13 @@ static void serviceIO(MprWaitService *ws, struct pollfd *fds, int count)
         wp->presentMask = mask & wp->desiredMask;
         fp->revents = 0;
         if (wp->presentMask) {
-            mprNotifyOn(ws, wp, 0);
-            mprQueueIOEvent(wp);
+            mprTrace(7, "ServiceIO for wp %p", wp);
+            if (wp->flags & MPR_WAIT_IMMEDIATE) {
+                (wp->proc)(wp->handlerData, NULL);
+            } else {
+                mprNotifyOn(ws, wp, 0);
+                mprQueueIOEvent(wp);
+            }
         }
     }
     unlock(ws);
@@ -19924,6 +19986,8 @@ PUBLIC void mprWaitForIO(MprWaitService *ws, MprTicks timeout)
 
     mprYield(MPR_YIELD_STICKY | MPR_YIELD_NO_BLOCK);
     rc = select(maxfd, &ws->stableReadMask, &ws->stableWriteMask, NULL, &tval);
+
+    mprClearWaiting();
     mprResetYield();
 
     if (rc > 0) {
@@ -19958,8 +20022,13 @@ static void serviceIO(MprWaitService *ws, int maxfd)
         }
         wp->presentMask = mask & wp->desiredMask;
         if (wp->presentMask) {
-            mprNotifyOn(ws, wp, 0);
-            mprQueueIOEvent(wp);
+            mprTrace(7, "ServiceIO for wp %p", wp);
+            if (wp->flags & MPR_WAIT_IMMEDIATE) {
+                (wp->proc)(wp->handlerData, NULL);
+            } else {
+                mprNotifyOn(ws, wp, 0);
+                mprQueueIOEvent(wp);
+            }
         }
     }
     unlock(ws);
@@ -21074,11 +21143,11 @@ static void closeSocket(MprSocket *sp, bool gracefully)
     }
 
     if (sp->flags & MPR_SOCKET_SERVER) {
-        mprLock(ss->mutex);
+        lock(ss);
         if (--ss->numAccept < 0) {
             ss->numAccept = 0;
         }
-        mprUnlock(ss->mutex);
+        unlock(ss);
     }
     unlock(sp);
 }
@@ -21124,14 +21193,14 @@ PUBLIC MprSocket *mprAcceptSocket(MprSocket *listen)
     /*  
         Limit the number of simultaneous clients
      */
-    mprLock(ss->mutex);
+    lock(ss);
     if (++ss->numAccept >= ss->maxAccept) {
-        mprUnlock(ss->mutex);
+        unlock(ss);
         mprLog(2, "Rejecting connection, too many client connections (%d)", ss->numAccept);
         mprCloseSocket(nsp, 0);
         return 0;
     }
-    mprUnlock(ss->mutex);
+    unlock(ss);
 
 #if !BIT_WIN_LIKE && !VXWORKS
     /* Prevent children inheriting this socket */
@@ -21750,7 +21819,7 @@ PUBLIC int mprGetSocketInfo(cchar *ip, int port, int *family, int *protocol, str
     assert(addr);
     ss = MPR->socketService;
 
-    mprLock(ss->mutex);
+    lock(ss);
     memset((char*) &hints, '\0', sizeof(hints));
 
     /*
@@ -21775,7 +21844,7 @@ PUBLIC int mprGetSocketInfo(cchar *ip, int port, int *family, int *protocol, str
      */
     res = 0;
     if (getaddrinfo(ip, portStr, &hints, &res) != 0) {
-        mprUnlock(ss->mutex);
+        unlock(ss);
         return MPR_ERR_CANT_OPEN;
     }
     /*
@@ -21803,7 +21872,7 @@ PUBLIC int mprGetSocketInfo(cchar *ip, int port, int *family, int *protocol, str
     *protocol = r->ai_protocol;
 
     freeaddrinfo(res);
-    mprUnlock(ss->mutex);
+    unlock(ss);
     return 0;
 }
 #else
@@ -21832,7 +21901,7 @@ PUBLIC int mprGetSocketInfo(cchar *ip, int port, int *family, int *protocol, str
     /*
         gethostbyname is not thread safe on some systems
      */
-    mprLock(ss->mutex);
+    lock(ss);
     if (sa->sin_addr.s_addr == INADDR_NONE) {
 #if VXWORKS
         /*
@@ -21840,7 +21909,7 @@ PUBLIC int mprGetSocketInfo(cchar *ip, int port, int *family, int *protocol, str
          */
         sa->sin_addr.s_addr = (ulong) hostGetByName((char*) ip);
         if (sa->sin_addr.s_addr < 0) {
-            mprUnlock(ss->mutex);
+            unlock(ss);
             assert(0);
             return 0;
         }
@@ -21850,7 +21919,7 @@ PUBLIC int mprGetSocketInfo(cchar *ip, int port, int *family, int *protocol, str
         if (hostent == 0) {
             hostent = gethostbyname2(ip, AF_INET6);
             if (hostent == 0) {
-                mprUnlock(ss->mutex);
+                unlock(ss);
                 return MPR_ERR_CANT_FIND;
             }
         }
@@ -21861,7 +21930,7 @@ PUBLIC int mprGetSocketInfo(cchar *ip, int port, int *family, int *protocol, str
     *addrlen = sizeof(struct sockaddr_in);
     *family = sa->sin_family;
     *protocol = 0;
-    mprUnlock(ss->mutex);
+    unlock(ss);
     return 0;
 }
 #endif
@@ -24933,17 +25002,13 @@ PUBLIC int mprStartWorkerService()
 {
     MprWorkerService    *ws;
 
-    /*
-        Create a timer to trim excess workers
-     */
     ws = MPR->workerService;
     mprSetMinWorkers(ws->minThreads);
-    ws->pruneTimer = mprCreateTimerEvent(NULL, "pruneWorkers", MPR_TIMEOUT_PRUNER, pruneWorkers, ws, MPR_EVENT_QUICK);
     return 0;
 }
 
 
-PUBLIC void mprWakeWorkers()
+PUBLIC void mprStopWorkers()
 {
     MprWorkerService    *ws;
     MprWorker           *worker;
@@ -24953,6 +25018,7 @@ PUBLIC void mprWakeWorkers()
     lock(ws);
     if (ws->pruneTimer) {
         mprRemoveEvent(ws->pruneTimer);
+        ws->pruneTimer = 0;
     }
     /*
         Wake up all idle workers. Busy workers take care of themselves. An idle thread will wakeup, exit and be 
@@ -25003,7 +25069,7 @@ PUBLIC void mprSetMaxWorkers(int n)
     lock(ws);
     ws->maxThreads = n; 
     if (ws->numThreads > ws->maxThreads) {
-        pruneWorkers(ws, 0);
+        pruneWorkers(ws, NULL);
     }
     if (ws->minThreads > ws->maxThreads) {
         ws->minThreads = ws->maxThreads;
@@ -25106,7 +25172,7 @@ PUBLIC int mprAvailableWorkers()
     spareThreads = wstats.max - wstats.busy - wstats.idle;
     activeWorkers = wstats.busy - wstats.yielded;
     spareCores = MPR->heap->stats.numCpu - activeWorkers;
-    if (spareCores <= 0 /* UNUSED || spareThreads <= 0 */) {
+    if (spareCores <= 0) {
         return 0;
     }
     result = wstats.idle + min(spareThreads, spareCores);
@@ -25155,6 +25221,9 @@ PUBLIC int mprStartWorker(MprWorkerProc proc, void *data)
         unlock(ws);
         return MPR_ERR_BUSY;
     }
+    if (!ws->pruneTimer && (ws->numThreads < ws->minThreads)) {
+        ws->pruneTimer = mprCreateTimerEvent(NULL, "pruneWorkers", MPR_TIMEOUT_PRUNER, pruneWorkers, ws, MPR_EVENT_QUICK);
+    }
     unlock(ws);
     return 0;
 }
@@ -25187,6 +25256,10 @@ static void pruneWorkers(MprWorkerService *ws, MprEvent *timer)
     if (pruned) {
         mprLog(4, "Pruned %d workers, pool has %d workers. Limits %d-%d.", 
             pruned, ws->numThreads - pruned, ws->minThreads, ws->maxThreads);
+    }
+    if (timer && (ws->numThreads < ws->minThreads)) {
+        mprRemoveEvent(ws->pruneTimer);
+        ws->pruneTimer = 0;
     }
     unlock(ws);
 }
@@ -25298,12 +25371,12 @@ static void changeState(MprWorker *worker, int state)
 {
     MprWorkerService    *ws;
     MprList             *lp;
-    int                 wake;
+    int                 wakeIdle, wakeDispatchers;
 
     if (state == worker->state) {
         return;
     }
-    wake = 0;
+    wakeIdle = wakeDispatchers = 0;
     lp = 0;
     ws = worker->workerService;
     lock(ws);
@@ -25315,7 +25388,7 @@ static void changeState(MprWorker *worker, int state)
 
     case MPR_WORKER_IDLE:
         lp = ws->idleThreads;
-        wake = 1;
+        wakeIdle = 1;
         break;
         
     case MPR_WORKER_PRUNED:
@@ -25336,12 +25409,12 @@ static void changeState(MprWorker *worker, int state)
 
     case MPR_WORKER_IDLE:
         lp = ws->idleThreads;
-        mprWakePendingDispatchers();
+        wakeDispatchers = 1;
         break;
 
     case MPR_WORKER_PRUNED:
         /* Don't put on a queue and the thread will exit */
-        mprWakePendingDispatchers();
+        wakeDispatchers = 1;
         break;
     }
     worker->state = state;
@@ -25354,7 +25427,10 @@ static void changeState(MprWorker *worker, int state)
         }
     }
     unlock(ws);
-    if (wake) {
+    if (wakeDispatchers) {
+        mprWakePendingDispatchers();
+    }
+    if (wakeIdle) {
         mprSignalCond(worker->idleCond); 
     }
 }
@@ -27439,6 +27515,8 @@ PUBLIC MprWaitService *mprCreateWaitService()
 
 static void manageWaitService(MprWaitService *ws, int flags)
 {
+    //  TODO - this lock should not be needed as all threads must be stopped
+    //  MOB - check all manage routines
     lock(ws);
     if (flags & MPR_MANAGE_MARK) {
         mprMark(ws->handlers);
@@ -27492,6 +27570,7 @@ static MprWaitHandler *initWaitHandler(MprWaitHandler *wp, int fd, int mask, Mpr
     }
 #endif
     if (mask) {
+        //  MOB - is lock needed. list has own lock
         lock(ws);
         if (mprAddItem(ws->handlers, wp) < 0) {
             unlock(ws);
@@ -27499,7 +27578,7 @@ static MprWaitHandler *initWaitHandler(MprWaitHandler *wp, int fd, int mask, Mpr
         }
         mprNotifyOn(ws, wp, mask);
         unlock(ws);
-        mprWakeNotifier();
+        mprWakeEventService();
     }
     return wp;
 }
@@ -27561,8 +27640,10 @@ PUBLIC void mprRemoveWaitHandler(MprWaitHandler *wp)
             wp->event = 0;
         }
     }
-    mprWakeNotifier();
     unlock(ws);
+#if UNUSED && MOB
+    mprWakeEventService();
+#endif
 }
 
 
@@ -27571,22 +27652,33 @@ PUBLIC void mprQueueIOEvent(MprWaitHandler *wp)
     MprDispatcher   *dispatcher;
     MprEvent        *event;
 
+#if UNUSED && MOB
+    //  MOB - why lock wp->service?
     lock(wp->service);
+#endif
     if (wp->flags & MPR_WAIT_NEW_DISPATCHER) {
         dispatcher = mprCreateDispatcher("IO", MPR_DISPATCHER_ENABLED | MPR_DISPATCHER_AUTO_CREATE);
+    } else if (wp->dispatcher) {
+        dispatcher = wp->dispatcher;
     } else {
-        dispatcher = (wp->dispatcher) ? wp->dispatcher: mprGetDispatcher();
+        dispatcher = mprGetDispatcher();
     }
-    event = wp->event = mprCreateEvent(dispatcher, "IOEvent", 0, ioEvent, wp->handlerData, MPR_EVENT_DONT_QUEUE);
+    event = mprCreateEvent(dispatcher, "IOEvent", 0, ioEvent, wp->handlerData, MPR_EVENT_DONT_QUEUE);
     event->mask = wp->presentMask;
     event->handler = wp;
+    wp->event = event;
     mprQueueEvent(dispatcher, event);
+#if UNUSED && MOB
     unlock(wp->service);
+#endif
 }
 
 
 static void ioEvent(void *data, MprEvent *event)
 {
+    assert(event);
+    assert(event->handler);
+
     event->handler->event = 0;
     event->handler->proc(data, event);
 }
@@ -27594,13 +27686,14 @@ static void ioEvent(void *data, MprEvent *event)
 
 PUBLIC void mprWaitOn(MprWaitHandler *wp, int mask)
 {
+    //  MOB - can this be moved inside the if?
     lock(wp->service);
     if (mask != wp->desiredMask) {
         if (wp->flags & MPR_WAIT_RECALL_HANDLER) {
             wp->service->needRecall = 1;
         }
         mprNotifyOn(wp->service, wp, mask);
-        mprWakeNotifier();
+        mprWakeEventService();
     }
     unlock(wp->service);
 }
@@ -27616,6 +27709,8 @@ PUBLIC void mprRecallWaitHandlerByFd(int fd)
     int             index;
 
     ws = MPR->waitService;
+
+    //  MOB - is this lock needed
     lock(ws);
     for (index = 0; (wp = (MprWaitHandler*) mprGetNextItem(ws->handlers, &index)) != 0; ) {
         if (wp->fd == fd) {

@@ -78,7 +78,10 @@ struct HttpWebSocket;
     #define BIT_MAX_CHUNK           (8 * 1024)          /**< Maximum chunk size for transfer chunk encoding */
 #endif
 #ifndef BIT_MAX_CLIENTS
-    #define BIT_MAX_CLIENTS         32                  /**< Maximum concurrent client endpoints */
+    #define BIT_MAX_CLIENTS         32                  /**< Maximum unique client IP addresses */
+#endif
+#ifndef BIT_MAX_CONNECTIONS
+    #define BIT_MAX_CONNECTIONS     32                  /**< Maximum concurrent client endpoints */
 #endif
 #ifndef BIT_MAX_HEADERS
     #define BIT_MAX_HEADERS         8192                /**< Maximum size of the headers */
@@ -89,17 +92,22 @@ struct HttpWebSocket;
 #ifndef BIT_MAX_NUM_HEADERS
     #define BIT_MAX_NUM_HEADERS     30                  /**< Maximum number of header lines */
 #endif
+#ifndef BIT_MAX_PROCESSES
+    #define BIT_MAX_PROCESSES       10                  /**< Maximum concurrent processes */
+#endif
 #ifndef BIT_MAX_RECEIVE_BODY
     #define BIT_MAX_RECEIVE_BODY    (128 * 1024 * 1024) /**< Maximum incoming body size */
 #endif
 #ifndef BIT_MAX_RECEIVE_FORM
     #define BIT_MAX_RECEIVE_FORM    (1024 * 1024)       /**< Maximum incoming form size */
 #endif
+#if UNUSED
 #ifndef BIT_MAX_REQUESTS
     #define BIT_MAX_REQUESTS        50                  /**< Maximum concurrent requests */
 #endif
+#endif
 #ifndef BIT_MAX_REQUESTS_PER_CLIENT
-    #define BIT_MAX_REQUESTS_PER_CLIENT 20              /**< Maximum concurrent requests */
+    #define BIT_MAX_REQUESTS_PER_CLIENT 20              /**< Maximum concurrent requests per client */
 #endif
 #ifndef BIT_MAX_REWRITE
     #define BIT_MAX_REWRITE         20                  /**< Maximum URI rewrites */
@@ -742,7 +750,8 @@ typedef struct HttpLimits {
     MprOff   transmissionBodySize;      /**< Maximum size of transmission body content */
     MprOff   uploadSize;                /**< Maximum size of an uploaded file */
 
-    int      clientMax;                 /**< Maximum number of simultaneous clients endpoints */
+    int      clientMax;                 /**< Maximum number of unique clients IP addresses */
+    int      connectionsMax;            /**< Maximum number of simultaneous client connections */
     int      headerMax;                 /**< Maximum number of header lines */
     int      keepAliveMax;              /**< Maximum number of Keep-Alive requests to perform per socket */
     int      requestMax;                /**< Maximum number of simultaneous concurrent requests */
@@ -2232,15 +2241,6 @@ typedef struct HttpConn {
 } HttpConn;
 
 
-/**
-    Call httpEvent with the given event mask
-    @param conn HttpConn object created via #httpCreateConn
-    @param mask Mask of events. MPR_READABLE | MPR_WRITABLE
-    @ingroup HttpConn
-    @stability Stable
- */
-PUBLIC void httpCallEvent(HttpConn *conn, int mask);
-
 /** 
     Close a connection
     @param conn HttpConn object created via #httpCreateConn
@@ -2828,7 +2828,6 @@ PUBLIC void httpUseWorker(HttpConn *conn, MprDispatcher *dispatcher, MprEvent *e
  */
 #define HTTP_ALLOW_DENY     0x1           /**< Run allow checks before deny checks */
 #define HTTP_DENY_ALLOW     0x2           /**< Run deny checks before allow checks */
-#define HTTP_AUTO_LOGIN     0x4           /**< Auto login for debug */
 
 /**
     AuthType callback to generate a response requesting the user login
@@ -2928,7 +2927,7 @@ typedef struct  HttpRole {
         HttpVerifyUser httpAddAuthType httpAddAuthStore httpAddRole httpAddUser httpCanUser httpAuthenticate
         httpComputeAllUserAbilities httpComputeUserAbilities httpCreateRole httpCreateAuth httpCreateUser
         httpIsAuthenticated httpLogin httpRemoveRole httpRemoveUser httpSetAuthAllow httpSetAuthAnyValidUser
-        httpSetAuthAutoLogin httpSetAuthDeny httpSetAuthOrder httpSetAuthPermittedUsers httpSetAuthForm httpSetAuthQop
+        httpSetAuthUsername httpSetAuthDeny httpSetAuthOrder httpSetAuthPermittedUsers httpSetAuthForm httpSetAuthQop
         httpSetAuthRealm httpSetAuthRequiredAbilities httpSetAuthStore httpSetAuthType
     @stability Internal
  */
@@ -2946,6 +2945,7 @@ typedef struct HttpAuth {
 #endif
     char            *loginPage;             /**< Web page for user login for 'post' type */
     char            *loggedIn;              /**< Target URI after logging in */
+    char            *username;              /**< Automatic login username */
     char            *qop;                   /**< Quality of service */
     HttpAuthType    *type;                  /**< Authorization protocol type (basic|digest|form|custom)*/
     HttpAuthStore   *store;                 /**< Authorization password backend (system|file|custom)*/
@@ -3155,16 +3155,6 @@ PUBLIC void httpSetAuthAllow(HttpAuth *auth, cchar *ip);
 PUBLIC void httpSetAuthAnyValidUser(HttpAuth *auth);
 
 /**
-    Enable auto login
-    @description If auto-login is enabled, access will be granted to all resources.
-    @param auth Auth object allocated by #httpCreateAuth.
-    @param on Set to true to enable auto login.
-    @ingroup HttpAuth
-    @stability Evolving
- */
-PUBLIC void httpSetAuthAutoLogin(HttpAuth *auth, bool on);
-
-/**
     Deny access by a client IP address
     @param auth Authorization object allocated by #httpCreateAuth.
     @param ip Client IP address to deny. This must be an IP address string.
@@ -3256,6 +3246,15 @@ PUBLIC int httpSetAuthStore(HttpAuth *auth, cchar *store);
     @stability Evolving
  */
 PUBLIC int httpSetAuthType(HttpAuth *auth, cchar *proto, cchar *details);
+
+/**
+    Set an automatic login username
+    @param auth Auth object allocated by #httpCreateAuth.
+    @param username Username to automatically login with
+    @ingroup HttpAuth
+    @stability Prototype
+ */
+PUBLIC void httpSetAuthUsername(HttpAuth *auth, cchar *username);
 
 /*
     Internal
@@ -3495,7 +3494,7 @@ PUBLIC void httpSetStreaming(struct HttpHost *host, cchar *mime, cchar *uri, boo
         httpDefineRouteCondition httpDefineRouteTarget httpDefineRouteUpdate httpFinalizeRoute httpGetRouteData 
         httpGetRouteDir httpLink httpLookupRouteErrorDocument httpMakePath httpResetRoutePipeline 
         httpSetRouteAuth httpSetRouteAutoDelete httpSetRouteCompression httpSetRouteConnector httpSetRouteData 
-        httpSetRouteDefaultLanguage httpSetRouteDir httpSetRouteFlags httpSetRouteHandler httpSetRouteHost 
+        httpSetRouteDefaultLanguage httpSetRouteDocuments httpSetRouteFlags httpSetRouteHandler httpSetRouteHost 
         httpSetRouteIndex httpSetRouteMethods httpSetRouteName httpSetRouteVar httpSetRoutePattern 
         httpSetRoutePrefix httpSetRouteScript httpSetRouteSource httpSetRouteTarget httpSetRouteWorkers httpTemplate 
         httpSetTrace httpSetTraceFilter httpTokenize httpTokenizev 
@@ -4346,7 +4345,11 @@ PUBLIC void httpSetRouteDefaultLanguage(HttpRoute *route, cchar *language);
     @ingroup HttpRoute
     @stability Evolving
  */
+PUBLIC void httpSetRouteDocuments(HttpRoute *route, cchar *path);
+
+#if DEPRECATED || 1
 PUBLIC void httpSetRouteDir(HttpRoute *route, cchar *path);
+#endif
 
 /**
     Update the route flags
@@ -4611,6 +4614,17 @@ PUBLIC void httpSetRouteVar(HttpRoute *route, cchar *token, cchar *value);
     @internal
  */
 PUBLIC void httpSetRouteWorkers(HttpRoute *route, int workers);
+
+/**
+    Control whether an XSRF token will be emitted during a user login sequence.
+    @description The XSRF token is emitted in the HTTP response headers and may be used to match with a 
+        session XSRF token to mitigate XSS security threats.
+    @param route Route to modify
+    @param enable Set to true to emit and XSRF header token
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC void httpSetRouteXsrf(HttpRoute *route, bool enable);
 
 /**
     Expand a template string using given options

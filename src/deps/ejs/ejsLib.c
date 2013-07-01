@@ -37101,9 +37101,10 @@ PUBLIC void ejsGetHttpLimits(Ejs *ejs, EjsObj *obj, HttpLimits *limits, bool ser
 
     if (server) {
         ejsSetPropertyByName(ejs, obj, EN("clients"), ejsCreateNumber(ejs, (MprNumber) limits->clientMax));
+        ejsSetPropertyByName(ejs, obj, EN("connections"), ejsCreateNumber(ejs, (MprNumber) limits->connectionsMax));
         ejsSetPropertyByName(ejs, obj, EN("header"), ejsCreateNumber(ejs, (MprNumber) limits->headerSize));
         ejsSetPropertyByName(ejs, obj, EN("headers"), ejsCreateNumber(ejs, (MprNumber) limits->headerMax));
-        ejsSetPropertyByName(ejs, obj, EN("requests"), ejsCreateNumber(ejs, (MprNumber) limits->requestMax));
+        ejsSetPropertyByName(ejs, obj, EN("requests"), ejsCreateNumber(ejs, (MprNumber) limits->requestsPerClientMax));
         ejsSetPropertyByName(ejs, obj, EN("stageBuffer"), ejsCreateNumber(ejs, (MprNumber) limits->bufferSize));
         ejsSetPropertyByName(ejs, obj, EN("uri"), ejsCreateNumber(ejs, (MprNumber) limits->uriSize));
     }
@@ -37147,7 +37148,8 @@ PUBLIC void ejsSetHttpLimits(Ejs *ejs, HttpLimits *limits, EjsObj *obj, bool ser
     if (server) {
         limits->bufferSize = (ssize) setLimit(ejs, obj, "stageBuffer", 1);
         limits->clientMax = (int) setLimit(ejs, obj, "clients", 1);
-        limits->requestMax = (int) setLimit(ejs, obj, "requests", 1);
+        limits->connectionsMax = (int) setLimit(ejs, obj, "connections", 1);
+        limits->requestsPerClientMax = (int) setLimit(ejs, obj, "requests", 1);
         limits->uriSize = (ssize) setLimit(ejs, obj, "uri", 1);
         limits->headerMax = (int) setLimit(ejs, obj, "headers", 1);
         limits->headerSize = (ssize) setLimit(ejs, obj, "header", 1);
@@ -65213,11 +65215,17 @@ static EjsString *hs_address(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **arg
  */
 static EjsRequest *hs_accept(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
 {
+    MprSocket   *sock;
     HttpConn    *conn;
     MprEvent    event;
 
+    if ((sock = mprAcceptSocket(sp->endpoint->sock)) == 0) {
+        /* Just ignore */
+        return 0;
+    }
     memset(&event, 0, sizeof(MprEvent));
     event.dispatcher = sp->endpoint->dispatcher;
+    event.sock = sock;
     if ((conn = httpAcceptConn(sp->endpoint, &event)) == 0) {
         /* Just ignore */
         mprError("Cannot accept connection");
@@ -65409,7 +65417,6 @@ static EjsVoid *hs_listen(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
         httpSetRouteTarget(route, "run", 0);
         httpFinalizeRoute(route);
         httpSetHostDefaultRoute(host, route);
-
         httpAddHostToEndpoint(endpoint, host);
 
         if (sp->limits) {
@@ -65434,7 +65441,7 @@ static EjsVoid *hs_listen(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
          */
         documents = ejsGetProperty(ejs, sp, ES_ejs_web_HttpServer_documents);
         if (ejsIs(ejs, documents, Path)) {
-            httpSetRouteDir(route, documents->value);
+            httpSetRouteDocuments(route, documents->value);
         }
 #if KEEP
         //  MOB -- what to do with home?
