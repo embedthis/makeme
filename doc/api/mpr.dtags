@@ -1350,6 +1350,13 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>MPR_WAIT_IMMEDIATE</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a12dd137a676e44d1ceed715b5343a950</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>MPR_WAIT_NEW_DISPATCHER</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a1c2ea8da2920f4756babba1ae142a952</anchor>
@@ -1797,6 +1804,13 @@
       <arglist>(MprHash *table, cvoid *key, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
+      <type>MprKey *</type>
+      <name>mprAddKeyWithType</name>
+      <anchorfile>group___mpr_hash.html</anchorfile>
+      <anchor>gaac7c9c4282e5fb0a5d91517bd7ba7a54</anchor>
+      <arglist>(MprHash *table, cvoid *key, cvoid *ptr, int type)</arglist>
+    </member>
+    <member kind="function">
       <type>MprMime *</type>
       <name>mprAddMime</name>
       <anchorfile>group___mpr_mime.html</anchorfile>
@@ -2035,11 +2049,25 @@
       <arglist>(MprList *list)</arglist>
     </member>
     <member kind="function">
+      <type>void</type>
+      <name>mprClearWaiting</name>
+      <anchorfile>group___mpr_dispatcher.html</anchorfile>
+      <anchor>ga0d223b33d4d1b0a61b4b332dddda25ce</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
       <type>MprBuf *</type>
       <name>mprCloneBuf</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a3855fd262d4f3003b3d4f53288a6ace7</anchor>
       <arglist>(MprBuf *orig)</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
+      <name>mprCloneBufMem</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a937fbbf3de092a3b1554668fbd02d50f</anchor>
+      <arglist>(MprBuf *bp)</arglist>
     </member>
     <member kind="function">
       <type>MprHash *</type>
@@ -2199,8 +2227,8 @@
       <type>MprKeyValue *</type>
       <name>mprCreateKeyPair</name>
       <anchorfile>group___mpr_list.html</anchorfile>
-      <anchor>ga64de8dd4049d256f9cbb931b640711ee</anchor>
-      <arglist>(cchar *key, cchar *value)</arglist>
+      <anchor>ga7a8ab9d82f21613fc6ae8854d15b6b51</anchor>
+      <arglist>(cchar *key, cchar *value, int flags)</arglist>
     </member>
     <member kind="function">
       <type>MprList *</type>
@@ -2561,9 +2589,9 @@
     </member>
     <member kind="function">
       <type>int</type>
-      <name>mprExpireCache</name>
+      <name>mprExpireCacheItem</name>
       <anchorfile>group___mpr_cache.html</anchorfile>
-      <anchor>gacf17b95267136971ad528b236930a32f</anchor>
+      <anchor>ga64c71c8b8c3abc909af87253b811da9e</anchor>
       <arglist>(MprCache *cache, cchar *key, MprTicks expires)</arglist>
     </member>
     <member kind="function">
@@ -2726,6 +2754,13 @@
       <anchorfile>group___mpr_buf.html</anchorfile>
       <anchor>gac982291efef3d49cce4bc2ecec6566e5</anchor>
       <arglist>(MprBuf *buf)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>mprGetCacheStats</name>
+      <anchorfile>group___mpr_cache.html</anchorfile>
+      <anchor>ga4eecd5e609a315224aed035c3351d836</anchor>
+      <arglist>(MprCache *cache, int *numKeys, ssize *mem)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -3184,6 +3219,13 @@
     </member>
     <member kind="function">
       <type>char *</type>
+      <name>mprGetRandomString</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>gaa23f45c302d098bb62f253f688261076</anchor>
+      <arglist>(ssize size)</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
       <name>mprGetRelPath</name>
       <anchorfile>group___mpr_path.html</anchorfile>
       <anchor>gadd1d84683017a93af83a32ca2be19531</anchor>
@@ -3372,6 +3414,13 @@
       <arglist>()</arglist>
     </member>
     <member kind="function">
+      <type>MprList *</type>
+      <name>mprGlobPathFiles</name>
+      <anchorfile>group___mpr_path.html</anchorfile>
+      <anchor>gae46db2785330dd67136c8ec866fd2b10</anchor>
+      <arglist>(cchar *path, cchar *patterns, int flags)</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>mprGrowBuf</name>
       <anchorfile>group___mpr_buf.html</anchorfile>
@@ -3384,6 +3433,20 @@
       <anchorfile>group___mpr_socket.html</anchorfile>
       <anchor>ga5225bb78e37d614aa23ea152458f3037</anchor>
       <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
+      <name>mprHashKeysToString</name>
+      <anchorfile>group___mpr_hash.html</anchorfile>
+      <anchor>ga08d9fc22c36fe3025202fdc8dc3ae287</anchor>
+      <arglist>(MprHash *hash, cchar *join)</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
+      <name>mprHashToString</name>
+      <anchorfile>group___mpr_hash.html</anchorfile>
+      <anchor>gaf00177c0e450c7c56a3a0397ada3cc04</anchor>
+      <arglist>(MprHash *hash, cchar *join)</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
@@ -4009,6 +4072,20 @@
       <arglist>(MprBuf *buf, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
+      <type>cchar *</type>
+      <name>mprQueryJsonString</name>
+      <anchorfile>group___mpr_json.html</anchorfile>
+      <anchor>ga320771d45ef2df4c9afe6ca1903aa069</anchor>
+      <arglist>(MprHash *obj, cchar *key)</arglist>
+    </member>
+    <member kind="function">
+      <type>void *</type>
+      <name>mprQueryJsonValue</name>
+      <anchorfile>group___mpr_json.html</anchorfile>
+      <anchor>ga0977b74d95ee97a805a1c248fa950cc3</anchor>
+      <arglist>(MprHash *obj, cchar *key, int type)</arglist>
+    </member>
+    <member kind="function">
       <type>void</type>
       <name>mprQueueIOEvent</name>
       <anchorfile>mpr_8h.html</anchorfile>
@@ -4469,6 +4546,13 @@
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>gaa335e1d324029029795409a9a857dbdf</anchor>
       <arglist>(cchar *key, cchar *value)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>mprSetEventServiceSleep</name>
+      <anchorfile>group___mpr_dispatcher.html</anchorfile>
+      <anchor>gaecca029381f63b1dbd33b5df3556cc3d</anchor>
+      <arglist>(MprTicks delay)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -5193,6 +5277,13 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>mprWakeEventService</name>
+      <anchorfile>group___mpr_dispatcher.html</anchorfile>
+      <anchor>ga9491a3def3c76d863101bb232ec2bbe3</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>mprWarn</name>
       <anchorfile>group___mpr_log.html</anchorfile>
       <anchor>ga522d10dbc7691186cf7c90c50c2dc929</anchor>
@@ -5522,13 +5613,6 @@
     </member>
     <member kind="function">
       <type>char *</type>
-      <name>spascal</name>
-      <anchorfile>group___mpr_string.html</anchorfile>
-      <anchor>ga835751c2314927f5a4865f663aed7de8</anchor>
-      <arglist>(cchar *str)</arglist>
-    </member>
-    <member kind="function">
-      <type>char *</type>
       <name>spbrk</name>
       <anchorfile>group___mpr_string.html</anchorfile>
       <anchor>gab67674c48f5c02c68c4d094305118515</anchor>
@@ -5584,6 +5668,13 @@
       <arglist>(cchar *str, struct MprHash *tokens)</arglist>
     </member>
     <member kind="function">
+      <type>char *</type>
+      <name>stitle</name>
+      <anchorfile>group___mpr_string.html</anchorfile>
+      <anchor>ga64153f99d90de165b4277bcfb2d717f7</anchor>
+      <arglist>(cchar *str)</arglist>
+    </member>
+    <member kind="function">
       <type>int64</type>
       <name>stoi</name>
       <anchorfile>group___mpr_string.html</anchorfile>
@@ -5603,6 +5694,13 @@
       <anchorfile>group___mpr_string.html</anchorfile>
       <anchor>gad8ce8e873964777734fcf16459fcd177</anchor>
       <arglist>(char *str, cchar *delim, char **last)</arglist>
+    </member>
+    <member kind="function">
+      <type>struct MprList *</type>
+      <name>stolist</name>
+      <anchorfile>group___mpr_string.html</anchorfile>
+      <anchor>ga294ff661fdace25b22e7e591a67925a7</anchor>
+      <arglist>(cchar *src)</arglist>
     </member>
     <member kind="function">
       <type>char *</type>
@@ -6303,13 +6401,6 @@
     </member>
     <member kind="function">
       <type>char *</type>
-      <name>spascal</name>
-      <anchorfile>group___mpr_string.html</anchorfile>
-      <anchor>ga835751c2314927f5a4865f663aed7de8</anchor>
-      <arglist>(cchar *str)</arglist>
-    </member>
-    <member kind="function">
-      <type>char *</type>
       <name>spbrk</name>
       <anchorfile>group___mpr_string.html</anchorfile>
       <anchor>gab67674c48f5c02c68c4d094305118515</anchor>
@@ -6365,6 +6456,13 @@
       <arglist>(cchar *str, struct MprHash *tokens)</arglist>
     </member>
     <member kind="function">
+      <type>char *</type>
+      <name>stitle</name>
+      <anchorfile>group___mpr_string.html</anchorfile>
+      <anchor>ga64153f99d90de165b4277bcfb2d717f7</anchor>
+      <arglist>(cchar *str)</arglist>
+    </member>
+    <member kind="function">
       <type>int64</type>
       <name>stoi</name>
       <anchorfile>group___mpr_string.html</anchorfile>
@@ -6384,6 +6482,13 @@
       <anchorfile>group___mpr_string.html</anchorfile>
       <anchor>gad8ce8e873964777734fcf16459fcd177</anchor>
       <arglist>(char *str, cchar *delim, char **last)</arglist>
+    </member>
+    <member kind="function">
+      <type>struct MprList *</type>
+      <name>stolist</name>
+      <anchorfile>group___mpr_string.html</anchorfile>
+      <anchor>ga294ff661fdace25b22e7e591a67925a7</anchor>
+      <arglist>(cchar *src)</arglist>
     </member>
     <member kind="function">
       <type>char *</type>
@@ -6830,8 +6935,8 @@
       <type>MprKeyValue *</type>
       <name>mprCreateKeyPair</name>
       <anchorfile>group___mpr_list.html</anchorfile>
-      <anchor>ga64de8dd4049d256f9cbb931b640711ee</anchor>
-      <arglist>(cchar *key, cchar *value)</arglist>
+      <anchor>ga7a8ab9d82f21613fc6ae8854d15b6b51</anchor>
+      <arglist>(cchar *key, cchar *value, int flags)</arglist>
     </member>
     <member kind="function">
       <type>MprList *</type>
@@ -7159,6 +7264,13 @@
       <arglist>(MprHash *table, cvoid *key, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
+      <type>MprKey *</type>
+      <name>mprAddKeyWithType</name>
+      <anchorfile>group___mpr_hash.html</anchorfile>
+      <anchor>gaac7c9c4282e5fb0a5d91517bd7ba7a54</anchor>
+      <arglist>(MprHash *table, cvoid *key, cvoid *ptr, int type)</arglist>
+    </member>
+    <member kind="function">
       <type>MprHash *</type>
       <name>mprBlendHash</name>
       <anchorfile>group___mpr_hash.html</anchorfile>
@@ -7206,6 +7318,20 @@
       <anchorfile>group___mpr_hash.html</anchorfile>
       <anchor>ga7be8b20f3f390f7c3c05d90dbbb294b5</anchor>
       <arglist>(MprHash *table, MprKey *last)</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
+      <name>mprHashKeysToString</name>
+      <anchorfile>group___mpr_hash.html</anchorfile>
+      <anchor>ga08d9fc22c36fe3025202fdc8dc3ae287</anchor>
+      <arglist>(MprHash *hash, cchar *join)</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
+      <name>mprHashToString</name>
+      <anchorfile>group___mpr_hash.html</anchorfile>
+      <anchor>gaf00177c0e450c7c56a3a0397ada3cc04</anchor>
+      <arglist>(MprHash *hash, cchar *join)</arglist>
     </member>
     <member kind="function">
       <type>void *</type>
@@ -7609,6 +7735,13 @@
       <arglist>(cchar *path)</arglist>
     </member>
     <member kind="function">
+      <type>MprList *</type>
+      <name>mprGlobPathFiles</name>
+      <anchorfile>group___mpr_path.html</anchorfile>
+      <anchor>gae46db2785330dd67136c8ec866fd2b10</anchor>
+      <arglist>(cchar *path, cchar *patterns, int flags)</arglist>
+    </member>
+    <member kind="function">
       <type>bool</type>
       <name>mprIsParentPathOf</name>
       <anchorfile>group___mpr_path.html</anchorfile>
@@ -7951,6 +8084,13 @@
     <title>MprDispatcher</title>
     <filename>group___mpr_dispatcher.html</filename>
     <member kind="function">
+      <type>void</type>
+      <name>mprClearWaiting</name>
+      <anchorfile>group___mpr_dispatcher.html</anchorfile>
+      <anchor>ga0d223b33d4d1b0a61b4b332dddda25ce</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
       <type>MprDispatcher *</type>
       <name>mprCreateDispatcher</name>
       <anchorfile>group___mpr_dispatcher.html</anchorfile>
@@ -7987,6 +8127,13 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>mprSetEventServiceSleep</name>
+      <anchorfile>group___mpr_dispatcher.html</anchorfile>
+      <anchor>gaecca029381f63b1dbd33b5df3556cc3d</anchor>
+      <arglist>(MprTicks delay)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>mprSignalDispatcher</name>
       <anchorfile>group___mpr_dispatcher.html</anchorfile>
       <anchor>gac81ecb3239317f36c36c7d849d738540</anchor>
@@ -7998,6 +8145,13 @@
       <anchorfile>group___mpr_dispatcher.html</anchorfile>
       <anchor>ga7a997d3acde6a33b9367d14f4bc91d87</anchor>
       <arglist>(MprDispatcher *dispatcher, MprTicks timeout)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>mprWakeEventService</name>
+      <anchorfile>group___mpr_dispatcher.html</anchorfile>
+      <anchor>ga9491a3def3c76d863101bb232ec2bbe3</anchor>
+      <arglist>()</arglist>
     </member>
   </compound>
   <compound kind="group">
@@ -8100,6 +8254,20 @@
       <anchorfile>group___mpr_json.html</anchorfile>
       <anchor>gaf3a154d27e542e86b53c68812911f41c</anchor>
       <arglist>(MprJson *jp, cchar *fmt,...)</arglist>
+    </member>
+    <member kind="function">
+      <type>cchar *</type>
+      <name>mprQueryJsonString</name>
+      <anchorfile>group___mpr_json.html</anchorfile>
+      <anchor>ga320771d45ef2df4c9afe6ca1903aa069</anchor>
+      <arglist>(MprHash *obj, cchar *key)</arglist>
+    </member>
+    <member kind="function">
+      <type>void *</type>
+      <name>mprQueryJsonValue</name>
+      <anchorfile>group___mpr_json.html</anchorfile>
+      <anchor>ga0977b74d95ee97a805a1c248fa950cc3</anchor>
+      <arglist>(MprHash *obj, cchar *key, int type)</arglist>
     </member>
     <member kind="function">
       <type>cchar *</type>
@@ -8949,10 +9117,17 @@
     </member>
     <member kind="function">
       <type>int</type>
-      <name>mprExpireCache</name>
+      <name>mprExpireCacheItem</name>
       <anchorfile>group___mpr_cache.html</anchorfile>
-      <anchor>gacf17b95267136971ad528b236930a32f</anchor>
+      <anchor>ga64c71c8b8c3abc909af87253b811da9e</anchor>
       <arglist>(MprCache *cache, cchar *key, MprTicks expires)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>mprGetCacheStats</name>
+      <anchorfile>group___mpr_cache.html</anchorfile>
+      <anchor>ga4eecd5e609a315224aed035c3351d836</anchor>
+      <arglist>(MprCache *cache, int *numKeys, ssize *mem)</arglist>
     </member>
     <member kind="function">
       <type>int64</type>
@@ -9271,6 +9446,13 @@
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>ga69984bba38604d0bbc89c6b57ee18bef</anchor>
       <arglist>(char *buf, ssize size, bool block)</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
+      <name>mprGetRandomString</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>gaa23f45c302d098bb62f253f688261076</anchor>
+      <arglist>(ssize size)</arglist>
     </member>
     <member kind="function">
       <type>cchar *</type>
@@ -10162,6 +10344,13 @@
     <name>MprKeyValue</name>
     <filename>struct_mpr_key_value.html</filename>
     <member kind="variable">
+      <type>int</type>
+      <name>flags</name>
+      <anchorfile>struct_mpr_key_value.html</anchorfile>
+      <anchor>af536a5035e0ad9dfba6f7c7a439af909</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
       <type>void *</type>
       <name>key</name>
       <anchorfile>struct_mpr_key_value.html</anchorfile>
@@ -10406,17 +10595,73 @@
   <compound kind="struct">
     <name>MprSocketProvider</name>
     <filename>struct_mpr_socket_provider.html</filename>
+    <member kind="variable">
+      <type>void(*</type>
+      <name>closeSocket</name>
+      <anchorfile>struct_mpr_socket_provider.html</anchorfile>
+      <anchor>ade7cd72e830f1cf2cea363b8f1f05b18</anchor>
+      <arglist>)(struct MprSocket *socket, bool graceful)</arglist>
+    </member>
+    <member kind="variable">
+      <type>void *</type>
+      <name>data</name>
+      <anchorfile>struct_mpr_socket_provider.html</anchorfile>
+      <anchor>af2fd85ec582ad7bc8b87f61196f1dbe4</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>void(*</type>
+      <name>disconnectSocket</name>
+      <anchorfile>struct_mpr_socket_provider.html</anchorfile>
+      <anchor>ac8aa15227276dfe7ee6ed9a22c79cb10</anchor>
+      <arglist>)(struct MprSocket *socket)</arglist>
+    </member>
+    <member kind="variable">
+      <type>ssize(*</type>
+      <name>flushSocket</name>
+      <anchorfile>struct_mpr_socket_provider.html</anchorfile>
+      <anchor>a4178e1abe46feb3368082ae1827c8a53</anchor>
+      <arglist>)(struct MprSocket *socket)</arglist>
+    </member>
+    <member kind="variable">
+      <type>char *</type>
+      <name>name</name>
+      <anchorfile>struct_mpr_socket_provider.html</anchorfile>
+      <anchor>affd40a8cb2f2f1203666f61622d24d4f</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>ssize(*</type>
+      <name>readSocket</name>
+      <anchorfile>struct_mpr_socket_provider.html</anchorfile>
+      <anchor>af00182da88c48554aeba99b037582242</anchor>
+      <arglist>)(struct MprSocket *socket, void *buf, ssize size)</arglist>
+    </member>
+    <member kind="variable">
+      <type>char *(*</type>
+      <name>socketState</name>
+      <anchorfile>struct_mpr_socket_provider.html</anchorfile>
+      <anchor>ad68b9a2d3494d9280056b6ebf4d4eee9</anchor>
+      <arglist>)(struct MprSocket *socket)</arglist>
+    </member>
+    <member kind="variable">
+      <type>int(*</type>
+      <name>upgradeSocket</name>
+      <anchorfile>struct_mpr_socket_provider.html</anchorfile>
+      <anchor>aeed11d834acb1d7544c54c8b0fb6efcc</anchor>
+      <arglist>)(struct MprSocket *socket, struct MprSsl *ssl, cchar *peerName)</arglist>
+    </member>
+    <member kind="variable">
+      <type>ssize(*</type>
+      <name>writeSocket</name>
+      <anchorfile>struct_mpr_socket_provider.html</anchorfile>
+      <anchor>a187c527394cb82dbc2d8f5f62a29be02</anchor>
+      <arglist>)(struct MprSocket *socket, cvoid *buf, ssize size)</arglist>
+    </member>
   </compound>
   <compound kind="struct">
     <name>MprSocketService</name>
     <filename>struct_mpr_socket_service.html</filename>
-    <member kind="variable">
-      <type>char *</type>
-      <name>defaultProvider</name>
-      <anchorfile>struct_mpr_socket_service.html</anchorfile>
-      <anchor>a6a9e16266207f917b8672ce2d7f4a898</anchor>
-      <arglist></arglist>
-    </member>
     <member kind="variable">
       <type>int</type>
       <name>hasIPv6</name>
@@ -10464,6 +10709,13 @@
       <name>secureSockets</name>
       <anchorfile>struct_mpr_socket_service.html</anchorfile>
       <anchor>aa78e3cc2a1534c6ad47ab1726707189f</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>char *</type>
+      <name>sslProvider</name>
+      <anchorfile>struct_mpr_socket_service.html</anchorfile>
+      <anchor>a136bbadc7bfecb06d6dba640aac08468</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable">
@@ -10695,6 +10947,13 @@
       <name>cond</name>
       <anchorfile>struct_mpr_thread_service.html</anchorfile>
       <anchor>a40e04672343056ed77d43dfc7d7914cc</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>struct MprThread *</type>
+      <name>eventsThread</name>
+      <anchorfile>struct_mpr_thread_service.html</anchorfile>
+      <anchor>af135d14af9fb08e6f1c50c899b8231f2</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable">

@@ -370,9 +370,10 @@ typedef struct HttpDefense {
     Trace an event and validate against defined limits and monitored resources
     @description The Http library supports a suite of resource limits that restrict the impact of a request on
         the system. This call validates a processing event for the current request against the server's endpoint limits.
-    @param endpoint The endpoint on which the server was listening
+    @param conn Connection object.
     @param counter The counter to adjust.
     @param conn HttpConn connection object
+    @param adj Value to adjust the counter by. May be positive or negative.
     @return Monitor value after applying the adjustment.
     @ingroup HttpMonitor
     @stability Prototype
@@ -424,7 +425,16 @@ PUBLIC int httpAddCounter(cchar *name);
  */
 PUBLIC int httpAddRemedy(cchar *name, HttpRemedyProc remedy);
 
-//  MOB
+/**
+    Ban a client IP from service
+    @param ip Client IP address to ban
+    @param period Period in milliseconds to ban the client
+    @param status If non-zero, then return a HTTP response to the client with this HTTP status.
+    @param msg If non-null, then return a HTTP response with this message. If both status and msg are zero and null respectively,
+        then do not send a response to the client, rather immediately close the connection.
+    @ingroup HttpMonitor
+    @stability Prototype
+ */
 PUBLIC int httpBanClient(cchar *ip, MprTicks period, int status, cchar *msg);
 
 /*
@@ -767,8 +777,8 @@ typedef struct HttpLimits {
 
     int      webSocketsMax;             /**< Maximum number of WebSockets */
     ssize    webSocketsMessageSize;     /**< Maximum total size of a WebSocket message including all frames */
-    ssize    webSocketsFrameSize;       /**< Maximum size of a WebSocket frame on the wire */
-    ssize    webSocketsPacketSize;      /**< Maximum size of a WebSocket packet exchanged with the user */
+    ssize    webSocketsFrameSize;       /**< Maximum size of sent WebSocket frames. Incoming frames have no limit except message size.  */
+    ssize    webSocketsPacketSize;      /**< Maximum size of a WebSocket packet exchanged with the user callback */
 } HttpLimits;
 
 /**
@@ -1163,6 +1173,20 @@ PUBLIC HttpPacket *httpGetPacket(struct HttpQueue *q);
 
 #if DOXYGEN
 /** 
+    Get the packet data contents.
+    @description Get the packet content reference. This is an MprBuf object.
+    @param packet Packet to examine.
+    @return MprBuf reference or zero if there are not contents.
+    @ingroup HttpPacket
+    @stability Prototype
+ */
+PUBLIC ssize httpGetPacketContents(HttpPacket *packet);
+#else
+    #define httpGetPacketContents(p) ((p && p->content) ? p->content : 0)
+#endif
+
+#if DOXYGEN
+/** 
     Get the length of the packet data contents.
     @description Get the content length of a packet. This does not include the prefix or virtual data length -- just
     the pure buffered data contents. 
@@ -1173,7 +1197,21 @@ PUBLIC HttpPacket *httpGetPacket(struct HttpQueue *q);
  */
 PUBLIC ssize httpGetPacketLength(HttpPacket *packet);
 #else
-#define httpGetPacketLength(p) ((p && p->content) ? mprGetBufLength(p->content) : 0)
+    #define httpGetPacketLength(p) ((p && p->content) ? mprGetBufLength(p->content) : 0)
+#endif
+
+#if DOXYGEN
+/** 
+    Get the start of the packet data contents.
+    @description Get the packet content reference.
+    @param packet Packet to examine.
+    @return A reference to the start of the packet contents.
+    @ingroup HttpPacket
+    @stability Prototype
+ */
+PUBLIC char *httpGetPacketStart(HttpPacket *packet);
+#else
+    #define httpGetPacketStart(p) ((p && p->content) ? mprGetBufStart(p->content) : 0)
 #endif
 
 /**
@@ -1204,6 +1242,7 @@ PUBLIC int httpJoinPacket(HttpPacket *packet, HttpPacket *other);
         stages can digest their contents. If a packet is too large for the queue maximum size, it should be split.
         When the packet is split, a new packet is created containing the data after the offset. Any suffix headers
         are moved to the new packet.
+        NOTE: when splitting packets, the HttpPacket.content reference may be modified. 
     @param packet Packet to split
     @param offset Route in the original packet at which to split
     @return New HttpPacket object containing the data after the offset. No need to free, unless you have a very long
@@ -1464,6 +1503,10 @@ PUBLIC void httpPutForService(struct HttpQueue *q, HttpPacket *packet, bool serv
     @description The packet is passed to the queue by invoking its put() callback. 
         Note the receiving queue may immediately process the packet or it may choose to defer processing by putting to
         its service queue.  @param q Queue reference
+
+    Note: the garbage collector may run while calling httpSendBlock to reclaim unused packets. It is essential that all
+        required memory be retained by a relevant manager calling mprMark as required.
+
     @param packet Packet to put
     @ingroup HttpQueue
     @stability Stable
@@ -1475,6 +1518,10 @@ PUBLIC void httpPutPacket(struct HttpQueue *q, HttpPacket *packet);
     @description Put a packet onto the next downstream queue by calling the downstream queue's put() method. 
         Note the receiving queue may immediately process the packet or it may choose to defer processing by putting to
         its service queue.  @param q Queue reference
+
+    Note: the garbage collector may run while calling httpSendBlock to reclaim unused packets. It is essential that all
+        required memory be retained by a relevant manager calling mprMark as required.
+
     @param q Queue reference. The packet will not be queued on this queue, but rather on the queue downstream.
     @param packet Packet to put
     @ingroup HttpQueue
@@ -1500,11 +1547,11 @@ PUBLIC void httpRemoveQueue(HttpQueue *q);
     @param q Queue reference
     @param packet Packet to put
     @param size If size is > 0, then also ensure the packet is not larger than this size.
-    @return "Zero" if successful, otherwise a negative Mpr error code
+    @return Zero if the packet is not resized. Otherwise return the tail packet that was put back onto the queue.
     @ingroup HttpQueue
     @stability Stable
  */
-PUBLIC int httpResizePacket(struct HttpQueue *q, HttpPacket *packet, ssize size);
+PUBLIC HttpPacket *httpResizePacket(struct HttpQueue *q, HttpPacket *packet, ssize size);
 
 /** 
     Resume a queue
@@ -2047,9 +2094,15 @@ PUBLIC void httpSendOutgoingService(HttpQueue *q);
 /*
     Application level events 
  */
-#define HTTP_EVENT_APP_OPEN         6       /**< The request is now open */
-#define HTTP_EVENT_APP_CLOSE        7       /**< The request is now closed */
-#define HTTP_EVENT_MAX              8
+
+#define HTTP_EVENT_APP_CLOSE        6       /**< The request is now closed */
+
+/*
+    Internal hidden events. Not exposed by the Http notifier.
+ */
+#define HTTP_EVENT_APP_OPEN         7       /* The request is now open */
+
+#define HTTP_EVENT_MAX              8       /**< Maximum event plus one */
 
 /*  
     Connection / Request states
@@ -2164,6 +2217,7 @@ typedef struct HttpConn {
     int             error;                  /**< A request error has occurred */
     int             connError;              /**< A connection error has occurred */
     int             pumping;                /**< Rre-entrancy prevention for httpPumpRequest() */
+    int             activeRequest;          /**< Actively servicing a request */
 
     struct HttpRx   *rx;                    /**< Rx object */
     struct HttpTx   *tx;                    /**< Tx object */
@@ -3443,8 +3497,10 @@ PUBLIC void httpDefineAction(cchar *uri, HttpAction fun);
 /********************************** HttpStream  ********************************/
 /**
     Determine if input body content should be streamed or buffered for requests with content of a given mime type 
+    @description The mime type and URI are used to match the request.
     @param host Host to modify
     @param mime Mime type to configure
+    @param uri URI prefix to match with.
     @return True if input should be streamed. False if it should be buffered.
     @ingroup HttpHost
     @stability Prototype
@@ -3456,8 +3512,8 @@ PUBLIC bool httpGetStreaming(struct HttpHost *host, cchar *mime, cchar *uri);
     Control if input body content should be streamed or buffered for requests with content of a given mime type 
     @param host Host to modify
     @param mime Mime type to configure
-    @param stream Set to true to enable streaming for this mime type.
-    @param immediate Set to true to immediately run the handler after parsing headers.
+    @param uri URI prefix to match.
+    @param streaming Set to true to enable streaming for this mime type.
     @ingroup HttpHost
     @stability Prototype
     @internal
@@ -3871,11 +3927,10 @@ PUBLIC void httpAddRouteRequestHeaderCheck(HttpRoute *route, cchar *header, ccha
     @description This modifies the response header set
     @param route Route to modify
     @param cmd Set to HTTP_ROUTE_HEADER_ADD to add a header if it is not already present in the response header set.
-        Set to HTTP_ROUTE_HEADER_REMOVE to remove a header. Set to HTTP_ROUTE_HEADER_SET to define a header and overwrite any prior values.
-        Set to HTTP_ROUTE_HEADER_APPEND to append to an existing header value.
+        Set to HTTP_ROUTE_HEADER_REMOVE to remove a header. Set to HTTP_ROUTE_HEADER_SET to define a header and overwrite any 
+        prior values. Set to HTTP_ROUTE_HEADER_APPEND to append to an existing header value.
     @param header Header field to interrogate
     @param value Header value that will match
-    @param flags Set to HTTP_ROUTE_NOT to negate the header test
     @ingroup HttpRoute
     @stability Evolving
  */
@@ -4606,6 +4661,15 @@ PUBLIC void httpSetRouteTraceFilter(HttpRoute *route, int dir, int levels[HTTP_T
 PUBLIC void httpSetRouteVar(HttpRoute *route, cchar *token, cchar *value);
 
 /**
+    Set the default upload directory for file uploads
+    @param route Route to modify
+    @param dir Directory path
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC void httpSetRouteUploadDir(HttpRoute *route, cchar *dir);
+
+/**
     Define the maximum number of workers for a route
     @param route Route to modify
     @param workers Maximum number of workers for this route
@@ -4962,7 +5026,6 @@ PUBLIC void httpRemoveUploadFile(HttpConn *conn, cchar *id);
 #define HTTP_ADDED_QUERY_PARAMS 0x400       /**< Query added to params */
 #define HTTP_ADDED_BODY_PARAMS  0x800       /**< Body data added to params */
 #define HTTP_EXPECT_CONTINUE    0x1000      /**< Client expects an HTTP 100 Continue response */
-#define HTTP_COMPLETED          0x2000      /**< Request completed */
 
 /*  
     Incoming chunk encoding states
@@ -6401,8 +6464,9 @@ PUBLIC void httpStopHost(HttpHost *host);
     then upgraded without impacting the original connection. This means it will work with existing networking infrastructure
     including firewalls and proxies.
     @defgroup HttpWebSocket HttpWebSocket
-    @see httpGetWebSocketCloseReason httpGetWebSocketMessageLength httpGetWebSocketProtocol httpGetWriteQueueCount
-        httpIsLastPacket httpSend httpSendBlock httpSendClose httpSetWebSocketProtocols httpWebSocketOrderlyClosed
+    @see httpGetWebSocketCloseReason httpGetWebSocketData httpGetWebSocketMessageLength httpGetWebSocketProtocol 
+        httpGetWebSocketState httpGetWriteQueueCount httpIsLastPacket httpSend httpSendBlock httpSendClose 
+        httpSetWebSocketPreserveFrames httpSetWebSocketData httpSetWebSocketProtocols httpWebSocketOrderlyClosed
     @stability Internal
  */
 typedef struct HttpWebSocket {
@@ -6413,28 +6477,33 @@ typedef struct HttpWebSocket {
     ssize           frameLength;            /**< Length of the current frame */
     ssize           messageLength;          /**< Length of the current message */
     char            *subProtocol;           /**< Application level sub-protocol */
-    HttpPacket      *currentFrame;          /**< Pending message frame */
-    HttpPacket      *currentMessage;        /**< Pending message frame */
+    HttpPacket      *currentFrame;          /**< Message frame being currently read */
+    HttpPacket      *currentMessage;        /**< Total message currently being read */
+    HttpPacket      *tailMessage;           /**< Subsequent message frames */
     MprEvent        *pingEvent;             /**< Ping timer event */
     char            *closeReason;           /**< Reason for closure */
     uchar           dataMask[4];            /**< Mask for data */
     int             maskOffset;             /**< Offset in dataMask */
+    int             preserveFrames;         /**< Do not join frames */
+    int             partialUTF;             /**< Last frame had a partial UTF codepoint */ 
+    void            *data;                  /**< Custom data for applications (marked) */
 } HttpWebSocket;
 
-#define WS_VERSION     13
-#define WS_MAGIC       "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+#define WS_MAGIC        "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+#define WS_MAX_CONTROL  125                 /**< Maximum bytes in control message */
+#define WS_VERSION      13                  /**< Current web socket specification version */
 
 /*
     httpSendBlock message types
  */
-#define WS_MSG_CONT     0x0       /**< Continuation of WebSocket message */
-#define WS_MSG_TEXT     0x1       /**< httpSendBlock type for text messages */
-#define WS_MSG_BINARY   0x2       /**< httpSendBlock type for binary messages */
-#define WS_MSG_CONTROL  0x8       /**< Start of control messages */
-#define WS_MSG_CLOSE    0x8       /**< httpSendBlock type for close message */
-#define WS_MSG_PING     0x9       /**< httpSendBlock type for ping messages */
-#define WS_MSG_PONG     0xA       /**< httpSendBlock type for pong messages */
-#define WS_MSG_MAX      0xB       /**< Max message type for httpSendBlock */
+#define WS_MSG_CONT     0x0                 /**< Continuation of WebSocket message */
+#define WS_MSG_TEXT     0x1                 /**< httpSendBlock type for text messages */
+#define WS_MSG_BINARY   0x2                 /**< httpSendBlock type for binary messages */
+#define WS_MSG_CONTROL  0x8                 /**< Start of control messages */
+#define WS_MSG_CLOSE    0x8                 /**< httpSendBlock type for close message */
+#define WS_MSG_PING     0x9                 /**< httpSendBlock type for ping messages */
+#define WS_MSG_PONG     0xA                 /**< httpSendBlock type for pong messages */
+#define WS_MSG_MAX      0xB                 /**< Max message type for httpSendBlock */
 
 /*
     Close message status codes
@@ -6448,7 +6517,7 @@ typedef struct HttpWebSocket {
 #define WS_STATUS_GOING_AWAY           1001     /**< Endpoint is going away. Server down or browser navigating away */
 #define WS_STATUS_PROTOCOL_ERROR       1002     /**< WebSockets protocol error */
 #define WS_STATUS_UNSUPPORTED_TYPE     1003     /**< Unsupported message data type */
-#define WS_STATUS_FRAME_TOO_LARGE      1004     /**< Message frame is too large */
+#define WS_STATUS_FRAME_TOO_LARGE      1004     /**< Reserved. Message frame is too large */
 #define WS_STATUS_NO_STATUS            1005     /**< No status was received from the peer in closing */
 #define WS_STATUS_COMMS_ERROR          1006     /**< TCP/IP communications error  */
 #define WS_STATUS_INVALID_UTF8         1007     /**< Text message has invalid UTF-8 */
@@ -6469,17 +6538,28 @@ typedef struct HttpWebSocket {
 
 /**
     Get the close reason supplied by the peer.
+    @description The peer may supply a UTF8 messages reason for the closure.
     @param conn HttpConn connection object created via #httpCreateConn
-    @return The reason string supplied by the peer when closing the web socket.
+    @return The UTF8 reason string supplied by the peer when closing the web socket.
     @ingroup HttpWebSocket
     @stability Evolving
  */
 PUBLIC char *httpGetWebSocketCloseReason(HttpConn *conn);
 
 /**
+    Get the web socket private data
+    @description Get the private data defined with #httpSetWebSocketData
+    @param conn HttpConn connection object created via #httpCreateConn
+    @return The private data reference
+    @ingroup HttpWebSocket
+    @stability Prototype
+ */
+PUBLIC void *httpGetWebSocketData(HttpConn *conn);
+
+/**
     Get the message length for the current message
     @description The message length will be updated as the message frames are received. The message length is 
-        only valid when the last frame has been received. See #httpIsLastPacket
+        only complete when the last frame has been received. See #httpIsLastPacket
     @param conn HttpConn connection object created via #httpCreateConn
     @return The size of the message.
     @ingroup HttpWebSocket
@@ -6506,6 +6586,8 @@ PUBLIC ssize httpGetWebSocketState(HttpConn *conn);
 
 /**
     Send a UTF-8 text message to the web socket peer
+    @description This call invokes httpSend with a type of WS_MSG_TEXT and flags of HTTP_BUFFER.
+        The message must be valid UTF8 as the peer will reject invalid UTF8 messages.
     @param conn HttpConn connection object created via #httpCreateConn
     @param fmt Printf style formatted string
     @param ... Arguments for the format
@@ -6515,39 +6597,90 @@ PUBLIC ssize httpGetWebSocketState(HttpConn *conn);
  */
 PUBLIC ssize httpSend(HttpConn *conn, cchar *fmt, ...);
 
-#define HTTP_MORE   0x1000         /**< Flag for #httpSendBlock to indicate there are more frames for this message */
+/** 
+    Flag for #httpSendBlock to indicate there are more frames for this message 
+ */
+#define HTTP_MORE   0x1000         
 
 /**
     Send a message of a given type to the web socket peer
-    @description This call operates in blocking mode by default unless the HTTP_NON_BLOCK flag is specified. When blocking,
-    the call will either accept and write all the data or it will fail, it will never return "short" with a partial write.
-    The call may block for up to the inactivity timeout specified in the conn->limits->inactivityTimeout value.
+    @description This is the lower-level message send routine. It permits control of message types and message framing .
+    
+    This routine can operate in a blocking, non-blocking or buffered mode. Blocking mode is specified via the 
+    HTTP_BLOCK flag.  When blocking, the call will wait until it has written all the data. The call will either accept and write 
+    all the data or it will fail, it will never return "short" with a partial write.
+    If in blocking mode, the call may block for up to the inactivity timeout specified in the conn->limits->inactivityTimeout value.
+
+    Non-blocking mode is specified via the HTTP_NON_BLOCK flag. In this mode, the call will consume that amount of data
+    that will fit within the outgoing web socket queues. Consequently, it may return "short" with a partial write.
+
+    Buffered mode is the default and may be explicitly specified via the HTTP_BUFFER flag. In buffered mode, the entire message 
+    will be accepted and will be buffered if required. 
+
+    This API may split the message into frames such that no frame is larger than the limit conn->limits->webSocketsFrameSize.
+    However, if the HTTP_MORE flag is specified to indicate there is more data to complete this entire message, the data provided 
+    to this call will not be split into frames and will not be aggregated with previous or subsequent messages. i.e. frame
+    boundaries will be presserved and sent as-is to the peer.
+
+    Note: the garbage collector may run while calling httpSendBlock to reclaim unused packets. It is essential that all
+        required memory be retained by a relevant manager calling mprMark on the message.
+
     @param conn HttpConn connection object created via #httpCreateConn
     @param type Web socket message type. Choose from WS_MSG_TEXT, WS_MSG_BINARY or WS_MSG_PING. 
         Use httpSendClose to send a close message. Do not send a WS_MSG_PONG message as it is generated internally
         by the Web Sockets module.
-    @param buf Data buffer to send
-    @param len Length of buf
-    @param flags Set to HTTP_BLOCK for blocking operation or HTTP_NON_BLOCK for non-blocking. Set to HTTP_BUFFER to
+    @param msg Message data buffer to send
+    @param len Length of msg
+    @param flags Include the flag HTTP_BLOCK for blocking operation or HTTP_NON_BLOCK for non-blocking. Set to HTTP_BUFFER to
         buffer the data if required and never block. Set to zero will default to HTTP_BUFFER.
+        Include the flag HTTP_MORE to indicate there is more data to come to complete this message. This will set 
+        frame continuation bit. Setting HTTP_MORE preserve the frame boundaries. i.e. it will ensure the data written is 
+        not split into frames or aggregated with other data.
     @return Number of data message bytes written. Should equal len if successful, otherwise returns a negative
         MPR error code.
     @ingroup HttpWebSocket
     @stability Evolving
  */
-PUBLIC ssize httpSendBlock(HttpConn *conn, int type, cchar *buf, ssize len, int flags);
+PUBLIC ssize httpSendBlock(HttpConn *conn, int type, cchar *msg, ssize len, int flags);
 
 /**
     Send a close message to the web socket peer
+    @description This call invokes httpSendBlock with a type of WS_MSG_CLOSE and flags of HTTP_BUFFER. 
+        The status and reason are encoded in the message. The reason is an optional UTF8 closure reason message.
     @param conn HttpConn connection object created via #httpCreateConn
     @param status Web socket status
-    @param reason Optional reason text message. The reason must be less than 124 bytes in length.
+    @param reason Optional UTF8 reason text message. The reason must be less than 124 bytes in length.
     @return Number of data message bytes written. Should equal len if successful, otherwise returns a negative
         MPR error code.
     @ingroup HttpWebSocket
     @stability Evolving
  */
-PUBLIC void httpSendClose(HttpConn *conn, int status, cchar *reason);
+PUBLIC ssize httpSendClose(HttpConn *conn, int status, cchar *reason);
+
+/**
+    Set the web socket private data
+    @description Set private data to be retained by the garbage collector
+    @param conn HttpConn connection object created via #httpCreateConn
+    @param data Managed data reference. 
+    @ingroup HttpWebSocket
+    @stability Prototype
+ */
+PUBLIC void httpSetWebSocketData(HttpConn *conn, void *data);
+
+/**
+    Preserve frames for incoming messages
+    @description This routine enables user control of message framing.
+        When preserving frames, sent message boundaries will be preserved and  will not be split into frames or 
+        aggregated with other message frames. Received messages will similarly have their frame boundaries preserved 
+        and will be stored one frame per HttpPacket.
+        Note: enabling this option may prevent full validation of UTF8 text messages if UTF8 codepoints span frame boundaries.
+    @param conn HttpConn connection object created via #httpCreateConn
+    @param on Set to true to preserve frames
+    @return True if the web socket was orderly closed.
+    @ingroup HttpWebSocket
+    @stability Evolving
+*/
+PUBLIC void httpSetWebSocketPreserveFrames(HttpConn *conn, bool on);
 
 /**
     Set a list of application-level protocols supported by the client

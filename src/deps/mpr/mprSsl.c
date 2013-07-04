@@ -1786,7 +1786,7 @@ static int upgradeOss(MprSocket *sp, MprSsl *ssl, cchar *peerName)
     /*
         Create a socket bio
      */
-    osp->bio = BIO_new_socket(sp->fd, BIO_NOCLOSE);
+    osp->bio = BIO_new_socket((int) sp->fd, BIO_NOCLOSE);
     SSL_set_bio(osp->handle, osp->bio, osp->bio);
     if (sp->flags & MPR_SOCKET_SERVER) {
         SSL_set_accept_state(osp->handle);

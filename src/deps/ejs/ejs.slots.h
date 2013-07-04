@@ -2419,9 +2419,10 @@
 #define ES_WebSocket_protocol                                          10
 #define ES_WebSocket_readyState                                        11
 #define ES_WebSocket_send                                              12
-#define ES_WebSocket_url                                               13
-#define ES_WebSocket_wait                                              14
-#define ES_WebSocket_NUM_INSTANCE_PROP                                 15
+#define ES_WebSocket_sendBlock                                         13
+#define ES_WebSocket_url                                               14
+#define ES_WebSocket_wait                                              15
+#define ES_WebSocket_NUM_INSTANCE_PROP                                 16
 #define ES_WebSocket_NUM_INHERITED_PROP                                0
 
 
@@ -2603,7 +2604,7 @@
 #define ES_XMLList_NUM_INSTANCE_PROP                                   20
 #define ES_XMLList_NUM_INHERITED_PROP                                  0
 
-#define _ES_CHECKSUM_ejs   1508311
+#define _ES_CHECKSUM_ejs   1510774
 
 #endif
 

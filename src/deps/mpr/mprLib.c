@@ -423,6 +423,7 @@ PUBLIC void *mprReallocMem(void *ptr, ssize usize)
 }
 
 
+//  MOB - API rename -- memclone
 PUBLIC void *mprMemdupMem(cvoid *ptr, ssize usize)
 {
     char    *newp;
@@ -3952,9 +3953,18 @@ PUBLIC MprBuf *mprCloneBuf(MprBuf *orig)
 }
 
 
-PUBLIC char *mprGet(MprBuf *bp)
+PUBLIC char *mprCloneBufMem(MprBuf *bp)
 {
-    return (char*) bp->start;
+    char    *result;
+    ssize   len;
+
+    len = mprGetBufLength(bp);
+    if ((result = mprAlloc(len + 1)) == 0) {
+        return 0;
+    }
+    memcpy(result, mprGetBufStart(bp), len);
+    result[len] = 0;
+    return result;
 }
 
 
@@ -9658,7 +9668,7 @@ static MprTicks getIdleTicks(MprEventService *es, MprTicks timeout)
         /*
             Examine all the dispatchers on the waitQ
          */
-        delay = es->nap ? es->nap : MPR_MAX_TIMEOUT;
+        delay = es->delay ? es->delay : MPR_MAX_TIMEOUT;
         for (dp = waitQ->next; dp != waitQ; dp = dp->next) {
             assert(dp->magic == MPR_DISPATCHER_MAGIC);
             assert(!(dp->flags & MPR_DISPATCHER_DESTROYED));
@@ -9672,9 +9682,15 @@ static MprTicks getIdleTicks(MprEventService *es, MprTicks timeout)
             }
         }
         delay = min(delay, timeout);
-        es->nap = 0;
+        es->delay = 0;
     }
     return delay;
+}
+
+
+PUBLIC void mprSetEventServiceSleep(MprTicks delay)
+{
+    MPR->eventService->delay = delay;
 }
 
 
@@ -27702,7 +27718,7 @@ PUBLIC void mprWaitOn(MprWaitHandler *wp, int mask)
 /*
     Set a handler to be recalled without further I/O
  */
-PUBLIC void mprRecallWaitHandlerByFd(int fd)
+PUBLIC void mprRecallWaitHandlerByFd(Socket fd)
 {
     MprWaitService  *ws;
     MprWaitHandler  *wp;
