@@ -6,12 +6,19 @@ Bit.pack({
         description: 'Appweb Web Server',
         libraries: [ 'appweb', 'http', 'mpr', 'mprssl' ],
         path: function (pack) {
-            let search = [ pack.withpath, '/usr/local/lib/appweb/latest' ]
-                sortVersions(bit.dir.packs.join('appweb').files('appweb-*'))
+            let search = [ pack.withpath ]
+            for (let d: Path = '.'; d.parent != d; d = d.parent) {
+                let path: Path = d.join(bit.platform.name)
+                if (path.join('bin/libappweb.' + bit.ext.shobj).exists) {
+                    search.push(path)
+                    break
+                }
+            }
+            search.push('/usr/local/lib/appweb/latest')
             if (bit.platform.os == 'windows') {
                 search.push(bit.dir.programFiles32.join('Embedthis Appweb'))
             }
-            return probe('bin/libappweb.' + bit.ext.shobj, { search: search })
+            return probe('bin/libappweb.' + bit.ext.shobj, { search: search });
         },
         config: function (pack) {
             let bin = probe('libappweb.' + bit.ext.shobj, {fullpath: true, search: pack.path.join('bin')}).dirname
