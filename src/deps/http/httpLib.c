@@ -6801,6 +6801,25 @@ PUBLIC HttpPacket *httpGetPacket(HttpQueue *q)
 }
 
 
+PUBLIC char *httpGetPacketStart(HttpPacket *packet)
+{
+    if (!packet && !packet->content) {
+        return 0;
+    }
+    return mprGetBufStart(packet->content);
+}
+
+
+PUBLIC char *httpGetPacketString(HttpPacket *packet)
+{
+    if (!packet && !packet->content) {
+        return 0;
+    }
+    mprAddNullToBuf(packet->content);
+    return mprGetBufStart(packet->content);
+}
+
+
 /*  
     Test if the packet is too too large to be accepted by the downstream queue.
  */
@@ -10108,7 +10127,7 @@ PUBLIC void httpSetRouteDocuments(HttpRoute *route, cchar *path)
 #if DEPRECATE || 1
 PUBLIC void httpSetRouteDir(HttpRoute *route, cchar *path)
 {
-    return httpSetRouteDocuments(route, path);
+    httpSetRouteDocuments(route, path);
 }
 #endif
 
@@ -10159,6 +10178,12 @@ PUBLIC void httpSetRouteHost(HttpRoute *route, HttpHost *host)
     
     route->host = host;
     defineHostVars(route);
+}
+
+
+PUBLIC void httpSetRouteIgnoreEncodingErrors(HttpRoute *route, bool on)
+{
+    route->ignoreEncodingErrors = on;
 }
 
 
@@ -10261,6 +10286,15 @@ PUBLIC void httpSetRoutePrefix(HttpRoute *route, cchar *prefix)
     }
     if (route->pattern) {
         finalizePattern(route);
+    }
+}
+
+
+PUBLIC void httpSetRoutePreserveFrames(HttpRoute *route, bool on)
+{
+    route->flags &= ~HTTP_ROUTE_PRESERVE_FRAMES;
+    if (on) {
+        route->flags |= HTTP_ROUTE_PRESERVE_FRAMES;
     }
 }
 
@@ -11679,7 +11713,7 @@ static void definePathVars(HttpRoute *route)
     mprAddKey(route->vars, "PRODUCT", sclone(BIT_PRODUCT));
     mprAddKey(route->vars, "OS", sclone(BIT_OS));
     mprAddKey(route->vars, "VERSION", sclone(BIT_VERSION));
-
+    mprAddKey(route->vars, "PLATFORM", sclone(BIT_PLATFORM));
     mprAddKey(route->vars, "BIN_DIR", mprGetAppDir());
     //  DEPRECATED
     mprAddKey(route->vars, "LIBDIR", mprGetAppDir());
@@ -18397,6 +18431,8 @@ static int matchWebSock(HttpConn *conn, HttpRoute *route, int dir)
         }
         rx->webSocket = ws;
         ws->state = WS_STATE_OPEN;
+        ws->preserveFrames = (rx->route->flags & HTTP_ROUTE_PRESERVE_FRAMES) ? 1 : 0;
+
         /* Just select the first protocol */
         if (route->webSocketsProtocol) {
             for (kind = stok(sclone(protocols), " \t,", &tok); kind; kind = stok(NULL, " \t,", &tok)) {
@@ -19041,7 +19077,6 @@ PUBLIC ssize httpSendClose(HttpConn *conn, int status, cchar *reason)
  */
 static void outgoingWebSockService(HttpQueue *q)
 {
-    HttpWebSocket   *ws;
     HttpConn        *conn;
     HttpPacket      *packet, *tail;
     char            *ep, *fp, *prefix, dataMask[4];
@@ -19049,7 +19084,6 @@ static void outgoingWebSockService(HttpQueue *q)
     int             i, mask;
 
     conn = q->conn;
-    ws = conn->rx->webSocket;
     mprTrace(5, "webSocketFilter: outgoing service");
 
     for (packet = httpGetPacket(q); packet; packet = httpGetPacket(q)) {

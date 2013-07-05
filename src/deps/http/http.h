@@ -1200,19 +1200,24 @@ PUBLIC ssize httpGetPacketLength(HttpPacket *packet);
     #define httpGetPacketLength(p) ((p && p->content) ? mprGetBufLength(p->content) : 0)
 #endif
 
-#if DOXYGEN
 /** 
     Get the start of the packet data contents.
-    @description Get the packet content reference.
     @param packet Packet to examine.
     @return A reference to the start of the packet contents.
     @ingroup HttpPacket
     @stability Prototype
  */
 PUBLIC char *httpGetPacketStart(HttpPacket *packet);
-#else
-    #define httpGetPacketStart(p) ((p && p->content) ? mprGetBufStart(p->content) : 0)
-#endif
+
+/** 
+    Get the packet data contents as a string.
+    @description Get the packet content reference. The packet contents will be null terminated.
+    @param packet Packet to examine.
+    @return A reference to the start of the packet contents.
+    @ingroup HttpPacket
+    @stability Prototype
+ */
+PUBLIC char *httpGetPacketString(HttpPacket *packet);
 
 /**
     Test if the packet is the last in a logical message.
@@ -3535,9 +3540,11 @@ PUBLIC void httpSetStreaming(struct HttpHost *host, cchar *mime, cchar *uri, boo
 #define HTTP_ROUTE_STEALTH              0x100       /**< Stealth mode */
 #define HTTP_ROUTE_SHOW_ERRORS          0x200       /**< Show errors to the client */
 #define HTTP_ROUTE_VISIBLE_COOKIE       0x400       /**< Create cookies visible to client Javascript (not httponly) */
+#define HTTP_ROUTE_PRESERVE_FRAMES      0x800       /**< Preserve WebSocket frame boundaries */
+
 #if (DEPRECATED || 1) && !DOXYGEN
-#define HTTP_ROUTE_GZIP                 0x800       /**< Support gzipped content on this route */
-#define HTTP_ROUTE_LEGACY_MVC           0x1000      /**< Legacy MVC app. Using "static" instead of "client". Deprecated in 4.4 */
+#define HTTP_ROUTE_GZIP                 0x1000      /**< Support gzipped content on this route */
+#define HTTP_ROUTE_LEGACY_MVC           0x2000      /**< Legacy MVC app. Using "static" instead of "client". Deprecated in 4.4 */
 #endif
 
 /**
@@ -4378,8 +4385,6 @@ PUBLIC void httpSetRouteCookieVisibility(HttpRoute *route, bool visible);
  */
 PUBLIC void httpSetRouteData(HttpRoute *route, cchar *key, void *data);
 
-
-
 /**
     Set the default language for the route
     @description This call defines the default language to serve if the client does not provide an Accept HTTP header
@@ -4451,6 +4456,15 @@ PUBLIC void httpSetRouteHome(HttpRoute *route, cchar *home);
 PUBLIC void httpSetRouteHost(HttpRoute *route, struct HttpHost *host);
 
 /**
+    Set the route to ignore UTF encoding errors for WebSocket connections
+    @param route Route to modify
+    @param on Set to true to ignore encoding errors
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC void httpSetRouteIgnoreEncodingErrors(HttpRoute *route, bool on);
+
+/**
     Define the methods for the route
     @description This defines the set of valid HTTP methods for requests to match this route
     @param route Route to modify
@@ -4470,16 +4484,6 @@ PUBLIC void httpSetRouteMethods(HttpRoute *route, cchar *methods);
     @stability Evolving
  */
 PUBLIC void httpSetRouteName(HttpRoute *route, cchar *name);
-
-/**
-    Set stealth mode for the route
-    @description Stealth mode tries to emit as little information as possible.
-    @param route Route to modify
-    @param on Set to True to enable stealth mode
-    @ingroup HttpRoute
-    @stability Prototype
- */
-PUBLIC void httpSetRouteStealth(HttpRoute *route, bool on);
 
 /**
     Set the route pattern
@@ -4508,6 +4512,16 @@ PUBLIC void httpSetRoutePattern(HttpRoute *route, cchar *pattern, int flags);
     @stability Evolving
  */
 PUBLIC void httpSetRoutePrefix(HttpRoute *route, cchar *prefix);
+
+/**
+    Set the route to preserve WebSocket frames boundaries
+    @description When enabled, the WebSocketFilter will not merge or fragment frames.
+    @param route Route to modify
+    @param on Set to true perserve frame boundaries
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC void httpSetRoutePreserveFrames(HttpRoute *route, bool on);
 
 /**
     Set the script to service the route.
@@ -4540,6 +4554,16 @@ PUBLIC void httpSetRouteShowErrors(HttpRoute *route, bool on);
     @stability Evolving
  */
 PUBLIC void httpSetRouteSource(HttpRoute *route, cchar *source);
+
+/**
+    Set stealth mode for the route
+    @description Stealth mode tries to emit as little information as possible.
+    @param route Route to modify
+    @param on Set to True to enable stealth mode
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC void httpSetRouteStealth(HttpRoute *route, bool on);
 
 /**
     Set a route target
