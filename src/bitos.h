@@ -261,6 +261,8 @@
     #define UT(s) s
 #endif
 
+#define BIT_PLATFORM BIT_OS "-" BIT_CPU "-" BIT_PROFILE
+
 /********************************* O/S Includes *******************************/
 /*
     Out-of-order definitions and includes. Order really matters in this section.

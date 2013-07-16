@@ -51494,7 +51494,7 @@ static EjsString *ws_sendBlock(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **ar
     content = argv[0];
     more = ejsGetPropertyByName(ejs, argv[1], EN("more")) == ESV(true);
     if ((vp = ejsGetPropertyByName(ejs, argv[1], EN("type"))) != 0) {
-        type = ejsGetNumber(ejs, vp);
+        type = (int) ejsGetNumber(ejs, vp);
         if (type != WS_MSG_CONT && type != WS_MSG_TEXT && type != WS_MSG_BINARY) {
             ejsThrowArgError(ejs, "Bad message type");
             return 0;
