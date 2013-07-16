@@ -116,6 +116,9 @@ public function deploy(manifest, prefixes, package): Array {
                 } else {
                     strace('Create', item.to)
                     item.to.write(data)
+                    if (filelist) {
+                        filelist.push(item.to)
+                    }
                 }
             }
             if (item.packs && bit.generating) {
