@@ -418,6 +418,6 @@ function getDefaultSettings() {
             warnUnused: false,
         }
     }
-    settings.debug = true
+    // settings.debug = true
     return settings
 }
