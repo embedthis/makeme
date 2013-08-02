@@ -34927,8 +34927,6 @@ static EjsObj *gc_run(Ejs *ejs, EjsObj *thisObj, int argc, EjsObj **argv)
 
 /*
     native static function get newQuota(): Number
-
-    MOB - rename workQuota
  */
 static EjsNumber *gc_newQuota(Ejs *ejs, EjsObj *thisObj, int argc, EjsObj **argv)
 {
@@ -52042,8 +52040,8 @@ static EjsWorker *workerConstructor(Ejs *ejs, EjsWorker *worker, int argc, EjsOb
 
     ejsBlockGC(ejs);
 
-    scriptFile = (argc >= 1) ? ((EjsPath*) argv[0])->value : 0;
-    options = (argc == 2) ? (EjsObj*) argv[1]: NULL;
+    scriptFile = (argc >= 1 && argv[0] != ESV(null)) ? ((EjsPath*) argv[0])->value : 0;
+    options = (argc == 2 && argv[1] != ESV(null)) ? (EjsObj*) argv[1]: NULL;
     name = 0;
     search = 0;
     if (options) {
