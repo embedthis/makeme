@@ -263,6 +263,7 @@ module embedthis.bit {
         def(f, 'BIT_CONFIG_CMD', '"' + args + '"')
         def(f, 'BIT_' + settings.product.toUpper() + '_PRODUCT', '1')
         def(f, 'BIT_PROFILE', '"' + bit.platform.profile + '"')
+        def(f, 'BIT_TUNE_' + (bit.settings.tune || "size").toUpper(), '1')
 
         /* Architecture settings */
         f.writeLine('\n/* Miscellaneous */')

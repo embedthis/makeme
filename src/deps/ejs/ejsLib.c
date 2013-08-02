@@ -8640,9 +8640,6 @@ static int compileInner(EcCompiler *cp, int argc, char **argv)
             ejsUnblockGC(ejs, paused);
         }
     }
-    assert(ejs->result == 0 || (MPR_GET_GEN(MPR_GET_MEM(ejs->result)) != MPR->heap->dead));
-
-
     /*
         Allocate the eval frame stack. This is used for property lookups. We have one dummy block at the top always.
      */
@@ -8673,7 +8670,6 @@ static int compileInner(EcCompiler *cp, int argc, char **argv)
         }
     }
     ejsPopBlock(ejs);
-    assert(ejs->result == 0 || (MPR_GET_GEN(MPR_GET_MEM(ejs->result)) != MPR->heap->dead));
 
     /*
         Add compiled modules to the interpreter
@@ -8688,7 +8684,6 @@ static int compileInner(EcCompiler *cp, int argc, char **argv)
     if (!paused) {
         mprYield(0);
     }
-    assert(ejs->result == 0 || (MPR_GET_GEN(MPR_GET_MEM(ejs->result)) != MPR->heap->dead));
     return (cp->errorCount > 0) ? EJS_ERR: 0;
 }
 
@@ -31270,6 +31265,7 @@ static void manageEjsCmd(EjsCmd *cmd, int flags)
         mprMark(cmd->options);
         mprMark(cmd->error);
         mprMark(cmd->argv);
+        mprMark(cmd->ejs);
 
     } else {
         if (cmd->mc) {
@@ -34931,10 +34927,12 @@ static EjsObj *gc_run(Ejs *ejs, EjsObj *thisObj, int argc, EjsObj **argv)
 
 /*
     native static function get newQuota(): Number
+
+    MOB - rename workQuota
  */
 static EjsNumber *gc_newQuota(Ejs *ejs, EjsObj *thisObj, int argc, EjsObj **argv)
 {
-    return ejsCreateNumber(ejs, mprGetMpr()->heap->newQuota);
+    return ejsCreateNumber(ejs, mprGetMpr()->heap->workQuota);
 }
 
 
@@ -34952,7 +34950,7 @@ static EjsObj *gc_set_newQuota(Ejs *ejs, EjsObj *thisObj, int argc, EjsObj **arg
         ejsThrowArgError(ejs, "Bad work quota. Must be > 1024");
         return 0;
     }
-    mprGetMpr()->heap->newQuota = quota;
+    mprGetMpr()->heap->workQuota = quota;
     return 0;
 }
 
@@ -39135,7 +39133,7 @@ static EjsNumber *getMaxMemory(Ejs *ejs, EjsObj *thisObj, int argc, EjsObj **arg
     MprMemStats    *mem;
 
     mem = mprGetMemStats(ejs);
-    return ejsCreateNumber(ejs, (MprNumber) mem->maxMemory);
+    return ejsCreateNumber(ejs, (MprNumber) mem->maxHeap);
 }
 
 
@@ -39144,12 +39142,12 @@ static EjsNumber *getMaxMemory(Ejs *ejs, EjsObj *thisObj, int argc, EjsObj **arg
  */
 static EjsObj *setMaxMemory(Ejs *ejs, EjsObj *thisObj, int argc, EjsObj **argv)
 {
-    int     maxMemory;
+    int     maxHeap;
 
     assert(argc == 1 && ejsIs(ejs, argv[0], Number));
 
-    maxMemory = ejsGetInt(ejs, argv[0]);
-    mprSetMemLimits(-1, maxMemory);
+    maxHeap = ejsGetInt(ejs, argv[0]);
+    mprSetMemLimits(-1, maxHeap, -1);
     return 0;
 }
 
@@ -39162,7 +39160,7 @@ static EjsNumber *getRedline(Ejs *ejs, EjsObj *thisObj, int argc, EjsObj **argv)
     MprMemStats    *mem;
 
     mem = mprGetMemStats(ejs);
-    return ejsCreateNumber(ejs, (MprNumber) mem->redLine);
+    return ejsCreateNumber(ejs, (MprNumber) mem->warnHeap);
 }
 
 
@@ -39180,7 +39178,7 @@ static EjsObj *setRedline(Ejs *ejs, EjsObj *thisObj, int argc, EjsObj **argv)
         //  TODO - 64 bit
         redline = MAXINT;
     }
-    mprSetMemLimits(redline, -1);
+    mprSetMemLimits(redline, -1, -1);
     return 0;
 }
 
@@ -47744,6 +47742,16 @@ PUBLIC EjsString *ejsTruncateString(Ejs *ejs, EjsString *sp, ssize len)
 
 
 /*********************************** Interning *********************************/
+
+ void revive(cvoid *sp)
+{
+    MprMem  *mp;
+
+    mp = (MprMem*) MPR_GET_MEM(sp);
+    mp->mark = MPR->heap->mark;
+}
+
+
 /*
     Intern a unicode string. Lookup a string and return an interned string (this may be an existing interned string)
  */
@@ -47758,13 +47766,12 @@ PUBLIC EjsString *ejsInternString(EjsString *str)
     step = 0;
 
     lock(ip);
-    //  MOB - accesses should be debug only
     ip->accesses++;
     index = whash(str->value, str->length) % ip->size;
     if ((head = &ip->buckets[index]) != NULL) {
         for (sp = head->next; sp != head; sp = sp->next, step++) {
             if (str == sp) {
-                mprRevive(sp);
+                revive(sp);
                 unlock(ip);
                 return sp;
             }
@@ -47777,10 +47784,9 @@ PUBLIC EjsString *ejsInternString(EjsString *str)
                     }
                 }
                 if (i == sp->length && i == str->length) {
-                    //  MOB - reuse should be debug only
                     ip->reuse++;
                     /* Revive incase almost stale or dead */
-                    mprRevive(sp);
+                    revive(sp);
                     unlock(ip);
                     return sp;
                 }
@@ -47828,10 +47834,9 @@ PUBLIC EjsString *ejsInternWide(Ejs *ejs, wchar *value, ssize len)
                     }
                 }
                 if (i == sp->length) {
-                    //  MOB - reuse should be debug only
                     ip->reuse++;
                     /* Revive incase almost stale or dead */
-                    mprRevive(sp);
+                    revive(sp);
                     unlock(ip);
                     return sp;
                 }
@@ -47868,7 +47873,6 @@ PUBLIC EjsString *ejsInternAsc(Ejs *ejs, cchar *value, ssize len)
     ip = ejs->service->intern;
 
     lock(ip);
-    //  MOB - accesses should be debug only
     ip->accesses++;
     assert(ip->size > 0);
     index = shash(value, len) % ip->size;
@@ -47882,10 +47886,9 @@ PUBLIC EjsString *ejsInternAsc(Ejs *ejs, cchar *value, ssize len)
                     }
                 }
                 if (i == sp->length) {
-                    //  MOB - reuse should be debug only
                     ip->reuse++;
                     /* Revive incase almost stale or dead */
-                    mprRevive(sp);
+                    revive(sp);
                     unlock(ip);
                     return sp;
                 }
@@ -47944,7 +47947,6 @@ PUBLIC EjsString *ejsInternMulti(Ejs *ejs, cchar *value, ssize len)
         value = src->value;
     }
     lock(ip);
-    //  MOB - accesses should be debug only
     ip->accesses++;
     index = whash(value, len) % ip->size;
     if ((head = &ip->buckets[index]) != NULL) {
@@ -47956,10 +47958,9 @@ PUBLIC EjsString *ejsInternMulti(Ejs *ejs, cchar *value, ssize len)
                 }
             }
             if (i == sp->length && value[i] == 0) {
-                //  MOB - reuse should be debug only
                 ip->reuse++;
                 /* Revive incase almost stale or dead */
-                mprRevive(sp);
+                revive(sp);
                 unlock(ip);
                 return sp;
             }
@@ -51999,7 +52000,9 @@ static EjsWorker *initWorker(Ejs *ejs, EjsWorker *worker, Ejs *baseVM, cchar *na
     self->inside = 1;
     self->pair = worker;
     self->name = sjoin("inside-", worker->name, NULL);
+#if MOB
     mprEnableDispatcher(wejs->dispatcher);
+#endif
     if (search) {
         ejsSetSearchPath(ejs, (EjsArray*) search);
     }
@@ -52282,8 +52285,6 @@ static int join(Ejs *ejs, EjsObj *workers, int timeout)
             break;
         }
         mprWaitForEvent(ejs->dispatcher, remaining);
-        assert(ejs->dispatcher->magic == MPR_DISPATCHER_MAGIC);
-
         remaining = (int) mprGetRemainingTicks(mark, timeout);
     } while (remaining > 0 && !ejs->exception);
 
@@ -52390,6 +52391,8 @@ static int doMessage(Message *msg, MprEvent *mprEvent)
     worker = msg->worker;
     worker->gotMessage = 1;
     ejs = worker->ejs;
+    assert(!ejs->exception);
+
     event = 0;
     ejsBlockGC(ejs);
 
@@ -52423,6 +52426,8 @@ static int doMessage(Message *msg, MprEvent *mprEvent)
             ejsSetProperty(ejs, event, ES_ErrorEvent_lineno, ejsGetPropertyByName(ejs, frame, EN("lineno")));
         }
     }
+    assert(!ejs->exception);
+
     if (callback == 0 || ejsIs(ejs, callback, Null)) {
         if (msg->callbackSlot == ES_Worker_onmessage) {
             mprTrace(6, "Discard message as no onmessage handler defined for worker");
@@ -52441,6 +52446,7 @@ static int doMessage(Message *msg, MprEvent *mprEvent)
         ejsThrowTypeError(ejs, "Worker callback %s is not a function", msg->callback);
 
     } else {
+        assert(!ejs->exception);
         argv[0] = event;
         ejsRunFunction(ejs, callback, worker, 1, argv);
     }
@@ -72756,6 +72762,9 @@ EjsAny *ejsRunFunction(Ejs *ejs, EjsFunction *fun, EjsAny *thisObj, int argc, vo
     assert(ejs);
     assert(fun);
     assert(ejsIsFunction(ejs, fun));
+    if (ejs->exception) {
+        mprTrace(0, "STOP");
+    }
     assert(ejs->exception == 0);
     MPR_VERIFY_MEM();
 
@@ -72914,6 +72923,7 @@ static int validateArgs(Ejs *ejs, EjsFunction *fun, int argc, void *args)
         }
         argc = argc - numRest + 1;
         pushOutside(ejs, rest);
+        assert((void*) rest == argv[argc-1]);
     }
 
     /*
@@ -73849,7 +73859,7 @@ static EjsOpCode traceCode(Ejs *ejs, EjsOpCode opcode)
 
     fp = state->fp;
     opcount[opcode]++;
-    assert(ejs->exception || (state->stack >= fp->stackReturn));
+    // assert(ejs->exception || (state->stack >= fp->stackReturn));
 
     if (1 || (ejs->initialized && doDebug)) {
         offset = (int) (fp->pc - fp->function.body.code->byteCode) - 1;
@@ -73863,7 +73873,7 @@ static EjsOpCode traceCode(Ejs *ejs, EjsOpCode opcode)
             ejsShowOpFrequency(ejs);
         }
 #endif
-        assert(ejs->exception || (state->stack >= fp->stackReturn));
+        // assert(ejs->exception || (state->stack >= fp->stackReturn));
     }
     ejsOpCount++;
     return opcode;
@@ -76992,7 +77002,7 @@ Ejs *ejsCreateVM(int argc, cchar **argv, int flags)
     ejs->argc = argc;
     ejs->argv = argv;
     ejs->name = sfmt("ejs-%d", sp->seqno++);
-    ejs->dispatcher = mprCreateDispatcher(ejs->name, MPR_DISPATCHER_ENABLED);
+    ejs->dispatcher = mprCreateDispatcher(ejs->name);
     ejs->mutex = mprCreateLock(ejs);
     ejs->dontExit = sp->dontExit;
     ejs->flags |= (flags & (EJS_FLAG_NO_INIT | EJS_FLAG_DOC | EJS_FLAG_HOSTED));
@@ -77108,7 +77118,7 @@ void ejsDestroyVM(Ejs *ejs)
         ejs->service = 0;
         ejs->result = 0;
         if (ejs->dispatcher) {
-            mprDisableDispatcher(ejs->dispatcher);
+            mprDestroyDispatcher(ejs->dispatcher);
         }
     }
     mprTrace(6, "ejs: destroy VM");
@@ -77654,8 +77664,6 @@ static int runProgram(Ejs *ejs, MprEvent *event)
 
 int ejsRunProgram(Ejs *ejs, cchar *className, cchar *methodName)
 {
-    assert(ejs->result == 0 || (MPR_GET_GEN(MPR_GET_MEM(ejs->result)) != MPR->heap->dead));
-
     if (className) {
         ejs->className = sclone(className);
     }

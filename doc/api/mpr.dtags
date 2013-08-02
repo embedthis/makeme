@@ -34,6 +34,13 @@
     <class kind="struct">MprWorkerStats</class>
     <member kind="define">
       <type>#define</type>
+      <name>BIT_MAX_EVENTS</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a7349c55cdfc3b7f43649a5d18afba3bb</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>BIT_MPR_LOGGING</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>acdd6dbd60b7b6fd7c8b1aa0c67aee862</anchor>
@@ -279,13 +286,6 @@
     </member>
     <member kind="define">
       <type>#define</type>
-      <name>MPR_DISPATCHER_AUTO_CREATE</name>
-      <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>a9d968aeadb004bcd3077c4895d38d271</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
       <name>MPR_DISPATCHER_DESTROYED</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a011e95e5bb1031a865f4dea64af4452c</anchor>
@@ -293,9 +293,9 @@
     </member>
     <member kind="define">
       <type>#define</type>
-      <name>MPR_DISPATCHER_ENABLED</name>
+      <name>MPR_DISPATCHER_IMMEDIATE</name>
       <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>aa9595de4d0be6dcd8b96160bcac19912</anchor>
+      <anchor>a92e502bdbb4fcca5242f0a6307b7e729</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -608,6 +608,13 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>MPR_EVENT_TIME_SLICE</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>ac9caa92980fc78d01d0899c46ad35331</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>MPR_EXIT_DEFAULT</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>aff10757e54446408f4f71cefb854eb49</anchor>
@@ -863,6 +870,13 @@
       <name>MPR_MARK_THREAD</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a749b9e5a8479ed9359cb02399c06d3d9</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MPR_MAX_FILE</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>aa0b8717f01a9a8cb31d3c5c2d950f612</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -2185,8 +2199,8 @@
       <type>MprDispatcher *</type>
       <name>mprCreateDispatcher</name>
       <anchorfile>group___mpr_dispatcher.html</anchorfile>
-      <anchor>ga94da5c23c5648b4b3c4f3b1fe5a4e7b1</anchor>
-      <arglist>(cchar *name, int flags)</arglist>
+      <anchor>gabd7c490a028acf93e9390be0a816b76f</anchor>
+      <arglist>(cchar *name)</arglist>
     </member>
     <member kind="function">
       <type>MprEvent *</type>
@@ -2449,6 +2463,13 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>mprDestroyDispatcher</name>
+      <anchorfile>group___mpr_dispatcher.html</anchorfile>
+      <anchor>gafd35a965e3ebadc852b8b02aace7a08e</anchor>
+      <arglist>(MprDispatcher *dispatcher)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>mprDestroyMemService</name>
       <anchorfile>group___mpr_mem.html</anchorfile>
       <anchor>ga99a90d38bdf5d5edad42f8f5edc937ea</anchor>
@@ -2460,13 +2481,6 @@
       <anchorfile>group___mpr_cmd.html</anchorfile>
       <anchor>ga66cccaaaa550e9d2cf381ff8854c2d7a</anchor>
       <arglist>(MprCmd *cmd, int channel)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>mprDisableDispatcher</name>
-      <anchorfile>group___mpr_dispatcher.html</anchorfile>
-      <anchor>ga5236d246266b55a3cfd9765de8501073</anchor>
-      <arglist>(MprDispatcher *dispatcher)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -2516,13 +2530,6 @@
       <anchorfile>group___mpr_event.html</anchorfile>
       <anchor>gac9e97afd0732f2d3612d911817357db5</anchor>
       <arglist>(MprEvent *event, int enable)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>mprEnableDispatcher</name>
-      <anchorfile>group___mpr_dispatcher.html</anchorfile>
-      <anchor>gab9239642f6f3418d97c779c410a9aa91</anchor>
-      <arglist>(MprDispatcher *dispatcher)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -4166,8 +4173,8 @@
       <type>void</type>
       <name>mprRecallWaitHandlerByFd</name>
       <anchorfile>group___mpr_wait_handler.html</anchorfile>
-      <anchor>ga6301332e3c370e7510738f9c348603e9</anchor>
-      <arglist>(int fd)</arglist>
+      <anchor>gab449e3836233feee7490af3364437d15</anchor>
+      <arglist>(Socket fd)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -4763,6 +4770,13 @@
       <anchorfile>group___mpr_socket.html</anchorfile>
       <anchor>gae2baa591f0466c9c64f0cf0147ada904</anchor>
       <arglist>(MprSocket *sp, bool on)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>mprSetSocketDispatcher</name>
+      <anchorfile>group___mpr_socket.html</anchorfile>
+      <anchor>gacff97154e7990fa91949ccdfbf34acbe</anchor>
+      <arglist>(MprSocket *sp, MprDispatcher *dispatcher)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -8094,21 +8108,14 @@
       <type>MprDispatcher *</type>
       <name>mprCreateDispatcher</name>
       <anchorfile>group___mpr_dispatcher.html</anchorfile>
-      <anchor>ga94da5c23c5648b4b3c4f3b1fe5a4e7b1</anchor>
-      <arglist>(cchar *name, int flags)</arglist>
+      <anchor>gabd7c490a028acf93e9390be0a816b76f</anchor>
+      <arglist>(cchar *name)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
-      <name>mprDisableDispatcher</name>
+      <name>mprDestroyDispatcher</name>
       <anchorfile>group___mpr_dispatcher.html</anchorfile>
-      <anchor>ga5236d246266b55a3cfd9765de8501073</anchor>
-      <arglist>(MprDispatcher *dispatcher)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>mprEnableDispatcher</name>
-      <anchorfile>group___mpr_dispatcher.html</anchorfile>
-      <anchor>gab9239642f6f3418d97c779c410a9aa91</anchor>
+      <anchor>gafd35a965e3ebadc852b8b02aace7a08e</anchor>
       <arglist>(MprDispatcher *dispatcher)</arglist>
     </member>
     <member kind="function">
@@ -8376,8 +8383,8 @@
       <type>void</type>
       <name>mprRecallWaitHandlerByFd</name>
       <anchorfile>group___mpr_wait_handler.html</anchorfile>
-      <anchor>ga6301332e3c370e7510738f9c348603e9</anchor>
-      <arglist>(int fd)</arglist>
+      <anchor>gab449e3836233feee7490af3364437d15</anchor>
+      <arglist>(Socket fd)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -8616,6 +8623,13 @@
       <anchorfile>group___mpr_socket.html</anchorfile>
       <anchor>gae2baa591f0466c9c64f0cf0147ada904</anchor>
       <arglist>(MprSocket *sp, bool on)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>mprSetSocketDispatcher</name>
+      <anchorfile>group___mpr_socket.html</anchorfile>
+      <anchor>gacff97154e7990fa91949ccdfbf34acbe</anchor>
+      <arglist>(MprSocket *sp, MprDispatcher *dispatcher)</arglist>
     </member>
     <member kind="function">
       <type>void</type>

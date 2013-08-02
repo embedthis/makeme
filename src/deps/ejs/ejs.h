@@ -4903,6 +4903,111 @@ typedef struct EjsTrait {
 } EjsTrait;
 
 
+/*
+    Ejs Value storage
+
+    Use a nun-boxing scheme where pointers and core types are stored in the unclaimed NaN space. IEEE doubles have a large space of 
+    unclaimed NaN values that can be used to store pointers and other values. IEEE defines:
+
+        Sign(1)  Exponent(11) Mantissa(52)
+        
+        +inf            0x7ff0 0000 0000 0000
+        -inf            0xfff0 0000 0000 0000
+        NaN             0xfff8 0000 0000 0000
+        Nan Space       0xfff1 type 0000 0000 (we use this one)
+        Other NaN Space 0x7ff0 0000 0000 0000
+
+    Doubles are encoded by adding a 2^48 bias so that all doubles have a MSB 16 bits in the range 0x0001 or 0xfffe. This means that the 
+    the ranges 0x0000 is available for pointers and 0xffff is available for integers. Further, since all pointers are aligned on 8 byte
+    boundaries, the bottom 3 bits are available for use as a tag to encode core types.
+
+    References:
+        http://wingolog.org/archives/2011/05/18/value-representation-in-javascript-implementations
+        http://evilpie.github.com/sayrer-fatval-backup/cache.aspx.htm
+        http://www.slideshare.net/greenwop/high-performance-javascript
+        webkit/Source/JavaScriptCore/runtime 
+ */
+
+#define NUMBER_BIAS     0x1000000000000L            /* Add 2^48 to all double values. Subtract to use. */
+
+#define GROUP_MASK      0xffff000000000000L         /* Mask for MSB 16 bits */
+#define GROUP_DOUBLE    0x0001 // to 0xfffe
+#define GROUP_CORE      0x0000000000000000L
+#define GROUP_INT       0xffff000000000000L
+
+/*
+    Core group tags
+    Null/Undefined are paried to have VALID_MASK set.
+    True/False are paired to have BOOL_MASK set.
+ */
+#define TAG_MASK        0x7
+#define TAG_POINTER     0x0
+#define VALID_MASK      0x1
+#define TAG_NULL        0x1
+#define TAG_UNDEFINED   0x5
+#define BOOL_MASK       0x2
+#define TAG_FALSE       0x2
+#define TAG_TRUE        0x6
+#define TAG_STRING      0x4
+
+#define POINTER_MASK    0xffff000000000007L         /* Single mask to test for pointers */
+#define POINTER_VALUE   0x0000fffffffffff8L
+#define INTEGER_VALUE   0x00000000ffffffffL
+
+#define viscore(v)      (((v)->word & GROUP_MASK) == GROUP_CORE)
+#define vispointer(v)   (((v)->word & POINTER_MASK) == 0)
+#define viint(v)        ((v)->word == GROUP_INT)
+#define visdouble(v)    (!(vispointer(v) || visint(v)))
+
+#define visbool(v)      (viscore(v) && (v)->word & VALID_MASK)
+#define visvalid(v)     (!(viscore(v) && (v)->word & VALID_MASK))
+#define vistrue(v)      (viscore(v) && ((v)->word & TAG_MASK) == TAG_TRUE))
+#define visfalse(v)     (vicore(v) && ((v)->word & TAG_MASK) == TAG_FALSE))
+#define visnull(v)      (viscore(v) && (v)->word & TAG_MASK) == TAG_NULL)
+#define visundefined(v) (viscore(v) && (v)->word & TAG_MASK) == TAG_UNDEFINED)
+#define visstring(v)    (viscore(v) && (v)->word & TAG_MASK) == TAG_STRING)
+
+#if BIT_64
+    #define vpointer(v) ((v)->pointer & POINTER_VALUE)
+    #define vinteger(v) ((v)->integer & INTEGER_VALUE)
+#else
+    #define vpointer(v) ((v)->pointer)
+    #define vinteger(v) ((v)->integer)
+#endif
+#define vdouble(v)      ((v)->number - NUMBER_BIAS)
+#define vbool(v)        (v->word & BOOL_MASK) >> 2)
+#define vstring(v)      (v->pointer & POINTER_VALUE)
+
+typedef union EjsValue {
+    uint64  word;
+    double  number;
+#if BIT_64
+    void    *pointer;
+    int     integer;
+#else
+    #if CPU_ENDIAN == BIT_LITTLE_ENDIAN
+        struct {
+            void    *pointer;
+            int32   filler1;
+        };
+        struct {
+            int32   integer;
+            int32   filler2;
+        };
+    #else
+        struct {
+            int32   filler1;
+            void    *pointer;
+        };
+        struct {
+            int32   filler2;
+            int32   integer;
+        };
+    #endif
+#endif
+} EjsValue;
+
+
 /**
     Property slot structure
     @ingroup EjsPot
@@ -4914,7 +5019,9 @@ typedef struct EjsSlot {
     int             hashChain;              /**< Next property in hash chain */
     union {
         EjsAny      *ref;                   /**< Property reference */
-        MprNumber   *value;                 /**< Immediate number value */
+#if UNUSED
+        EjsValue    value;
+#endif
     } value;
 } EjsSlot;
 

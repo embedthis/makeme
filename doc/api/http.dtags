@@ -366,6 +366,13 @@
       <arglist>(HttpPacket *packet)</arglist>
     </member>
     <member kind="function">
+      <type>char *</type>
+      <name>httpGetPacketString</name>
+      <anchorfile>group___http_packet.html</anchorfile>
+      <anchor>ga42115bf5826d8e6a39691919d3361358</anchor>
+      <arglist>(HttpPacket *packet)</arglist>
+    </member>
+    <member kind="function">
       <type>bool</type>
       <name>httpIsLastPacket</name>
       <anchorfile>group___http_packet.html</anchorfile>
@@ -1932,6 +1939,13 @@
       <arglist>(HttpRoute *route, cchar *home)</arglist>
     </member>
     <member kind="function">
+      <type>void</type>
+      <name>httpSetRouteIgnoreEncodingErrors</name>
+      <anchorfile>group___http_route.html</anchorfile>
+      <anchor>gae7046b0b9cbbc8ae8e66e465de2e3127</anchor>
+      <arglist>(HttpRoute *route, bool on)</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>httpSetRouteLog</name>
       <anchorfile>group___http_route.html</anchorfile>
@@ -1965,6 +1979,13 @@
       <anchorfile>group___http_route.html</anchorfile>
       <anchor>ga5ff2380ef7e8cabca57e85c67563c7d7</anchor>
       <arglist>(HttpRoute *route, cchar *prefix)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpSetRoutePreserveFrames</name>
+      <anchorfile>group___http_route.html</anchorfile>
+      <anchor>gaf82a29c108943ae9b528dcb6d081b765</anchor>
+      <arglist>(HttpRoute *route, bool on)</arglist>
     </member>
     <member kind="function">
       <type>void</type>

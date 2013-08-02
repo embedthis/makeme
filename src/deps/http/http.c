@@ -146,6 +146,7 @@ MAIN(httpMain, int argc, char **argv, char **envp)
     if (!app->success && app->verbose) {
         mprError("Request failed");
     }
+    mprDestroy(MPR_EXIT_DEFAULT);
     return (app->success) ? 0 : 255;
 }
 
@@ -196,7 +197,7 @@ static void initSettings()
 
     /* zero means no timeout */
     app->timeout = 0;
-    app->workers = 1;            
+    app->workers = 1;
     app->headers = mprCreateList(0, 0);
     app->mutex = mprCreateLock();
 #if WINDOWS
@@ -424,14 +425,13 @@ static int parseArgs(int argc, char **argv)
             if (nextArg >= argc) {
                 return showUsage();
             } else {
-                //  TODO - should allow multiple ranges
                 if (app->ranges == 0) {
                     app->ranges = sfmt("bytes=%s", argv[++nextArg]);
                 } else {
                     app->ranges = srejoin(app->ranges, ",", argv[++nextArg], NULL);
                 }
             }
-            
+
         } else if (smatch(argp, "--retries") || smatch(argp, "-r")) {
             if (nextArg >= argc) {
                 return showUsage();
@@ -443,7 +443,7 @@ static int parseArgs(int argc, char **argv)
             /* Undocumented. Allow self-signed certs. Users should just not set --verify */
             app->verifyIssuer = 0;
             ssl = 1;
-            
+
         } else if (smatch(argp, "--sequence")) {
             app->sequence++;
 
@@ -674,7 +674,7 @@ static void manageThreadData(ThreadData *data, int flags)
 }
 
 
-/*  
+/*
     Per-thread execution. Called for main thread and helper threads.
  */ 
 static void threadMain(void *data, MprThread *tp)
@@ -684,15 +684,17 @@ static void threadMain(void *data, MprThread *tp)
     MprEvent        e;
 
     td = tp->data;
-    td->dispatcher = mprCreateDispatcher(tp->name, 1);
+    td->dispatcher = mprCreateDispatcher(tp->name);
     td->conn = conn = httpCreateConn(app->http, NULL, td->dispatcher);
 
-    /*  
+    /*
         Relay to processThread via the dispatcher. This serializes all activity on the conn->dispatcher
      */
     e.mask = MPR_READABLE;
     e.data = tp;
     mprRelayEvent(conn->dispatcher, (MprEventProc) processThread, conn, &e);
+
+    mprDestroyDispatcher(td->dispatcher);
 }
 
 
@@ -812,7 +814,7 @@ static int sendRequest(HttpConn *conn, cchar *method, cchar *url, MprList *files
         mprError("Cannot process request for \"%s\"\n%s", url, httpGetError(conn));
         return MPR_ERR_CANT_OPEN;
     }
-    /*  
+    /*
         This program does not do full-duplex writes with reads. ie. if you have a request that sends and receives
         data in parallel -- http will do the writes first then read the response.
      */
@@ -963,7 +965,7 @@ static void readBody(HttpConn *conn, MprFile *outFile)
         }
 #if FUTURE
         //  This should be pushed into a range filter.
-        //  Buffer all output and then parsing can work  
+        //  Buffer all output and then parsing can work
         type = httpGetHeader(conn, "Content-Type");
         if (scontains(type, "multipart/byteranges")) {
             if ((boundary = scontains(type, "boundary=")) != 0) {
@@ -1124,7 +1126,6 @@ static ssize writeBody(HttpConn *conn, MprList *files)
                 }
                 /*
                     This is a blocking write
-                    TODO OPT - convert to a wait for io
                  */
                 httpFlushQueue(conn->writeq, 1);
                 mprCloseFile(file);
@@ -1220,7 +1221,7 @@ static cchar *formatOutput(HttpConn *conn, cchar *buf, ssize *count)
 {
     cchar       *result;
     int         i, c, isBinary;
-    
+
     if (app->noout) {
         return 0;
     }
