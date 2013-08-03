@@ -64765,8 +64765,6 @@ void ZLIB_INTERNAL zcfree (opaque, ptr)
     Map allocation and mutex routines to use ejscript version.
  */
 #define MAP_ALLOC   1
-
-//  MOB - 
 #define MAP_MUTEXES 0
 
 #define THREAD_STYLE SQLITE_CONFIG_MULTITHREAD
@@ -64936,7 +64934,6 @@ static EjsObj *sqliteSql(Ejs *ejs, EjsSqlite *db, int argc, EjsObj **argv)
                         /*
                             Append the table name for columns from foreign tables. Convert to camel case (tableColumn)
                             Prefix with "_". ie. "_TableColumn"
-                            MOB - remove singularization.
                          */
                         len = (int) strlen(tableName) + 1;
                         tableName = sjoin("_", tableName, colName, NULL);
@@ -64997,31 +64994,19 @@ static EjsObj *sqliteSql(Ejs *ejs, EjsSqlite *db, int argc, EjsObj **argv)
  */
 static void *allocBlock(int size)
 {
-    void    *ptr;
-
-    //  MOB - replace with palloc
-    if ((ptr = mprAlloc(size)) != 0) {
-        mprHold(ptr);
-    }
-    return ptr;
+    return palloc(size);
 }
 
 
 static void freeBlock(void *ptr)
 {
-    //  MOB - replace with pfree
-    mprRelease(ptr);
+    pfree(ptr);
 }
 
 
 static void *reallocBlock(void *ptr, int size)
 {
-    //  MOB - prealloc
-    mprRelease(ptr);
-    if ((ptr =  mprRealloc(ptr, size)) != 0) {
-        mprHold(ptr);
-    }
-    return ptr;
+    return prealloc(ptr, size);
 }
 
 
@@ -65072,7 +65057,6 @@ static int termMutex(void) {
 }
 
 
-//  MOB - incomplete must handle kind
 static sqlite3_mutex *allocMutex(int kind)
 {
     MprMutex    *lock;

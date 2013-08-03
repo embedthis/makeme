@@ -5622,6 +5622,7 @@ typedef struct MprEvent {
 #define MPR_DISPATCHER_IMMEDIATE    0x1 /**< Dispatcher should run using the service events thread */
 #define MPR_DISPATCHER_WAITING      0x2 /**< Dispatcher waiting for an event in mprWaitForEvent */
 #define MPR_DISPATCHER_DESTROYED    0x4 /**< Dispatcher has been destroyed */
+#define MPR_DISPATCHER_EVENT        0x8 /**< Dispatcher created in response to an event */
 
 /**
     Event Dispatcher

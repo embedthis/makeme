@@ -19341,7 +19341,7 @@ static void signalHandler(int signo, siginfo_t *info, void *arg)
     ip->triggered = 1;
     ssp->hasSignals = 1;
     saveErrno = errno;
-    mprWakeEventService();
+    mprWakeNotifier();
     errno = saveErrno;
 }
 
@@ -23059,7 +23059,6 @@ static MprTestGroup *createTestGroup(MprTestService *sp, MprTestDef *def, MprTes
         fmt(name, sizeof(name), "Test-%d", counter++);
         gp->dispatcher = mprCreateDispatcher(name);
     }
-
     gp->failures = mprCreateList(0, 0);
     if (gp->failures == 0) {
         return 0;
@@ -26753,6 +26752,7 @@ PUBLIC void mprQueueIOEvent(MprWaitHandler *wp)
 
     if (wp->flags & MPR_WAIT_NEW_DISPATCHER) {
         dispatcher = mprCreateDispatcher("IO");
+        dispatcher->flags |= MPR_DISPATCHER_EVENT;
     } else if (wp->dispatcher) {
         dispatcher = wp->dispatcher;
     } else {

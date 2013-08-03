@@ -2272,11 +2272,14 @@ typedef struct HttpConn {
     char            *ip;                    /**< Remote client IP address */
     char            *protocol;              /**< HTTP protocol */
     char            *protocols;             /**< Supported web socket protocols (clients) */
+
+    //  TODO - bit field
     int             async;                  /**< Connection is in async mode (non-blocking) */
     int             delay;                  /**< Delay servicing request due to defense strategy */
     int             followRedirects;        /**< Follow redirects for client requests */
     int             keepAliveCount;         /**< Count of remaining Keep-Alive requests for this connection */
     int             http10;                 /**< Using legacy HTTP/1.0 */
+    int             ownDispatcher;          /**< Own the dispatcher and should destroy when closing connection */
     int             port;                   /**< Remote port */
     int             retries;                /**< Client request retries */
     int             secure;                 /**< Using https */
