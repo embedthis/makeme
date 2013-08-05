@@ -11199,6 +11199,7 @@ PUBLIC MprKey *mprAddKey(MprHash *hash, cvoid *key, cvoid *ptr)
     } else {
         sp->key = (void*) key;
     }
+    sp->type = 0;
     sp->bucket = index;
     sp->next = hash->buckets[index];
     hash->buckets[index] = sp;
@@ -11244,9 +11245,10 @@ PUBLIC MprKey *mprAddDuplicateKey(MprHash *hash, cvoid *key, cvoid *ptr)
     assert(hash);
     assert(key);
 
-    if ((sp = mprAllocStruct(MprKey)) == 0) {
+    if ((sp = mprAllocStructNoZero(MprKey)) == 0) {
         return 0;
     }
+    sp->type = 0;
     sp->data = ptr;
     if (!(hash->flags & MPR_HASH_STATIC_KEYS)) {
         sp->key = dupKey(hash, key);

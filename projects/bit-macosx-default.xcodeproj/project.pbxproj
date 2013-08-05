@@ -1801,7 +1801,6 @@ fi";
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
-					"BIT_DEBUG",
 					"$(inherited)"
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -1870,10 +1869,7 @@ fi";
 					"../macosx-x64-default/inc",
 					"$(inherited)"
 				);
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"BIT_DEBUG",
-					"$(inherited)"
-				);
+
 				LIBRARY_SEARCH_PATHS = (
 					"../macosx-x64-default/bin",
 					"$(inherited)"

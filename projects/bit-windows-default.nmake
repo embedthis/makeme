@@ -71,10 +71,10 @@ BIT_PACK_ZIP_PATH         = zip
 CC                 = cl
 LD                 = link
 RC                 = rc
-CFLAGS             = -nologo -GR- -W3 -Zi -Od -MDd
-DFLAGS             = -DBIT_DEBUG -D_REENTRANT -D_MT -DBIT_PACK_EJSCRIPT=$(BIT_PACK_EJSCRIPT) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_PCRE=$(BIT_PACK_PCRE) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
+CFLAGS             = -nologo -GR- -W3 -O2 -MD
+DFLAGS             = -D_REENTRANT -D_MT -DBIT_PACK_EJSCRIPT=$(BIT_PACK_EJSCRIPT) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_PCRE=$(BIT_PACK_PCRE) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
 IFLAGS             = -I$(CONFIG)\inc
-LDFLAGS            = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
+LDFLAGS            = -nologo -nodefaultlib -incremental:no -machine:$(ARCH)
 LIBPATHS           = "-libpath:$(CONFIG)\bin"
 LIBS               = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
 
