@@ -119,15 +119,15 @@
 #if LINUX || BIT_BSD_LIKE
     #define findFirstBit(word) ffsl((long) word)
 #else
-    static inline int findFirstBit(size_t word);
+    static MPR_INLINE int findFirstBit(size_t word);
 #endif
 #if MACOSX
     #define findLastBit(x) flsl((long) x)
 #else
-    static inline int findLastBit(size_t word);
+    static MPR_INLINE int findLastBit(size_t word);
 #endif
 #if BIT_WIN_LIKE
-    static inline int findFirstBit(long word);
+    static MPR_INLINE int findFirstBit(long word);
 #endif
 
 /********************************** Data **************************************/
@@ -140,35 +140,35 @@ static int          padding[] = { 0, MPR_MANAGER_SIZE };
 
 /***************************** Forward Declarations ***************************/
 
-static inline bool acquire(MprFreeQueue *freeq);
+static MPR_INLINE bool acquire(MprFreeQueue *freeq);
 static void allocException(int cause, size_t size);
 static MprMem *allocMem(size_t size);
-static inline int cas(size_t *target, size_t expected, size_t value);
-static inline bool claim(MprMem *mp);
-static inline void clearbitmap(size_t *bitmap, int bindex);
+static MPR_INLINE int cas(size_t *target, size_t expected, size_t value);
+static MPR_INLINE bool claim(MprMem *mp);
+static MPR_INLINE void clearbitmap(size_t *bitmap, int bindex);
 static void dummyManager(void *ptr, int flags);
 static size_t fastMemSize();
 static void freeBlock(MprMem *mp);
 static void getSystemInfo();
 static MprMem *growHeap(size_t size);
-static inline size_t qtosize(int qindex);
-static inline bool linkBlock(MprMem *mp); 
-static inline void linkSpareBlock(char *ptr, ssize size);
-static inline void initBlock(MprMem *mp, size_t size, int first);
+static MPR_INLINE size_t qtosize(int qindex);
+static MPR_INLINE bool linkBlock(MprMem *mp); 
+static MPR_INLINE void linkSpareBlock(char *ptr, size_t size);
+static MPR_INLINE void initBlock(MprMem *mp, size_t size, int first);
 static int initQueues();
 static void invokeDestructors();
 static void markAndSweep();
 static void markRoots();
 static int pauseThreads();
 static void printMemReport();
-static inline void release(MprFreeQueue *freeq);
+static MPR_INLINE void release(MprFreeQueue *freeq);
 static void resumeThreads(int swept);
-static inline void setbitmap(size_t *bitmap, int bindex);
-static inline int sizetoq(size_t size);
+static MPR_INLINE void setbitmap(size_t *bitmap, int bindex);
+static MPR_INLINE int sizetoq(size_t size);
 static void sweep();
 static void gc(void *unused, MprThread *tp);
-static inline void triggerGC();
-static inline void unlinkBlock(MprMem *mp);
+static MPR_INLINE void triggerGC();
+static MPR_INLINE void unlinkBlock(MprMem *mp);
 static void *vmalloc(size_t size, int mode);
 static void vmfree(void *ptr, size_t size);
 
@@ -275,9 +275,9 @@ PUBLIC Mpr *mprCreateMemService(MprManager manager, int flags)
 }
 
 
-static inline void initBlock(MprMem *mp, size_t size, int first)
+static MPR_INLINE void initBlock(MprMem *mp, size_t size, int first)
 {
-    static MprMem empty = {};
+    static MprMem empty = {0};
 
     *mp = empty;
     /* Implicit:  mp->free = 0; */
@@ -626,7 +626,7 @@ static void freeBlock(MprMem *mp)
 /*
     Map a queue index to a block size. This size includes the MprMem header.
  */
-static inline size_t qtosize(int qindex)
+static MPR_INLINE size_t qtosize(int qindex)
 {
     size_t  size;
     int     high, low;
@@ -648,7 +648,7 @@ static inline size_t qtosize(int qindex)
     based on user sizes (sans header). This permits block searches to avoid scanning the next highest queue for 
     common block sizes: eg. 1K.
  */
-static inline int sizetoq(size_t size)
+static MPR_INLINE int sizetoq(size_t size)
 {
     size_t      asize;
     int         msb, shift, high, low, qindex;
@@ -675,7 +675,7 @@ static inline int sizetoq(size_t size)
     Add a block to a free q. Called by user threads from allocMem and by sweeper from freeBlock.
     WARNING: Must be called with the freelist not acquired. This is the opposite of unlinkBlock.
  */
-static inline bool linkBlock(MprMem *mp) 
+static MPR_INLINE bool linkBlock(MprMem *mp) 
 {
     MprFreeQueue    *freeq;
     MprFreeMem      *fp;
@@ -721,7 +721,7 @@ static inline bool linkBlock(MprMem *mp)
     Remove a block from a free q.
     WARNING: Must be called with the freelist acquired.
  */
-static inline void unlinkBlock(MprMem *mp) 
+static MPR_INLINE void unlinkBlock(MprMem *mp) 
 {
     MprFreeQueue    *freeq;
     MprFreeMem      *fp;
@@ -743,7 +743,7 @@ static inline void unlinkBlock(MprMem *mp)
 /*
     This must be robust. i.e. the block spare memory must end up on the freeq
  */
-static inline void linkSpareBlock(char *ptr, ssize size)
+static MPR_INLINE void linkSpareBlock(char *ptr, size_t size)
 { 
     MprMem  *mp;
     size_t  len;
@@ -886,7 +886,7 @@ PUBLIC void mprWakeGCService()
 }
 
 
-static inline void triggerGC()
+static MPR_INLINE void triggerGC()
 {
     if (!heap->gcRequested) {
         if ((heap->flags & MPR_SWEEP_THREAD) && heap->gcCond) {
@@ -1017,7 +1017,7 @@ static void invokeDestructors()
 /*
     Claim a block from its freeq for the sweeper. This removes the block from the freeq and clears the "free" bit.
  */
-static inline bool claim(MprMem *mp)
+static MPR_INLINE bool claim(MprMem *mp)
 {
     MprFreeQueue    *freeq;
     int             qindex;
@@ -2026,7 +2026,7 @@ static size_t fastMemSize()
 
 
 #ifndef findFirstBit
-static inline int findFirstBit(size_t word)
+static MPR_INLINE int findFirstBit(size_t word)
 {
     int     b;
     for (b = 0; word; word >>= 1, b++) {
@@ -2041,7 +2041,7 @@ static inline int findFirstBit(size_t word)
 
 
 #ifndef findLastBit
-static inline int findLastBit(size_t word)
+static MPR_INLINE int findLastBit(size_t word)
 {
     int     b;
 
@@ -2054,7 +2054,7 @@ static inline int findLastBit(size_t word)
 /*
     Acquire the freeq. Note: this is only ever used by non-blocking algorithms.
  */
-static inline bool acquire(MprFreeQueue *freeq)
+static MPR_INLINE bool acquire(MprFreeQueue *freeq)
 {
 #if MACOSX
     return OSSpinLockTry(&freeq->lock.cs);
@@ -2072,7 +2072,7 @@ static inline bool acquire(MprFreeQueue *freeq)
 }
 
 
-static inline void release(MprFreeQueue *freeq)
+static MPR_INLINE void release(MprFreeQueue *freeq)
 {
 #if MACOSX
     OSSpinLockUnlock(&freeq->lock.cs);
@@ -2088,13 +2088,13 @@ static inline void release(MprFreeQueue *freeq)
 }
 
 
-static inline int cas(size_t *target, size_t expected, size_t value)
+static MPR_INLINE int cas(size_t *target, size_t expected, size_t value)
 {
     return mprAtomicCas((void**) target, (void*) expected, (cvoid*) value);
 }
 
 
-static inline void clearbitmap(size_t *bitmap, int bindex) 
+static MPR_INLINE void clearbitmap(size_t *bitmap, int bindex) 
 {
     size_t  bit, prior;
 
@@ -2108,7 +2108,7 @@ static inline void clearbitmap(size_t *bitmap, int bindex)
 }
 
 
-static inline void setbitmap(size_t *bitmap, int bindex) 
+static MPR_INLINE void setbitmap(size_t *bitmap, int bindex) 
 {
     size_t  bit, prior;
 

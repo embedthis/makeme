@@ -988,6 +988,7 @@ typedef int64 Ticks;
     #define getpid mprGetpid
     #if _DIAB_TOOL
         #define inline __inline__
+        #define MPR_INLINE __inline__
     #endif
     #ifndef closesocket
         #define closesocket(x)  close(x)

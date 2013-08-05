@@ -339,10 +339,12 @@ struct  MprXml;
     typedef int         MprOsThread;
 #endif
 
-#if BIT_WIN_LIKE
-    #define MPR_INLINE __inline
-#else
-    #define MPR_INLINE inline
+#ifndef MPR_INLINE
+    #if BIT_WIN_LIKE
+        #define MPR_INLINE __inline
+    #else
+        #define MPR_INLINE inline
+    #endif
 #endif
 
 /**
@@ -1657,8 +1659,8 @@ PUBLIC void mprRemoveRoot(cvoid *ptr);
 #endif
     #define mprMark(ptr) \
         if (ptr) { \
-            HINC(markVisited); \
             MprMem *_mp = MPR_GET_MEM((ptr)); \
+            HINC(markVisited); \
             if (_mp->mark != MPR->heap->mark) { \
                 _mp->mark = MPR->heap->mark; \
                 if (_mp->hasManager) { \
