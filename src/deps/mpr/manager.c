@@ -253,23 +253,23 @@ PUBLIC int main(int argc, char *argv[])
     status = 0;
     if (getuid() != 0) {
         mprError("Must run with administrator privilege. Use sudo.");
-        status = 1;                                                                    
+        status = 1;
 
     } else if (mprStart() < 0) {
-        mprError("Cannot start MPR for %s", mprGetAppName());                                           
-        status = 2;                                                                    
+        mprError("Cannot start MPR for %s", mprGetAppName());
+        status = 2;
 
     } else {
         mprStartEventsThread();
         for (; nextArg < argc; nextArg++) {
             if (!process(argv[nextArg], 0) && !app->continueOnErrors) {
-                status = 3;                                                                    
+                status = 3;
                 break;
             }
         }
     }
-    mprDestroy(MPR_EXIT_DEFAULT);                                                                      
-    return status;                                                                    
+    mprDestroy(MPR_EXIT_DEFAULT);
+    return status;
 }
 
 
@@ -459,7 +459,7 @@ static bool process(cchar *operation, bool quiet)
             rc = run("/bin/launchctl unload -w /Library/LaunchDaemons/com.%s.%s.plist", slower(BIT_COMPANY), name);
 
         } else if (update) {
-            /*  
+            /*
                 Not supported on older versions
                 rc = run("/usr/sbin/update-rc.d %s disable", name);
              */
@@ -992,7 +992,7 @@ int APIENTRY WinMain(HINSTANCE inst, HINSTANCE junk, char *args, int junk2)
         }
     }
     if (mprStart() < 0) {
-        mprError("Cannot start MPR for %s", mprGetAppName());                                           
+        mprError("Cannot start MPR for %s", mprGetAppName());
     } else {
         mprStartEventsThread();
         if (nextArg >= argc) {
@@ -1575,7 +1575,7 @@ static LRESULT msgProc(HWND hwnd, uint msg, uint wp, long lp)
     case WM_QUIT:
         gracefulShutdown(0);
         break;
-    
+
     default:
         return DefWindowProc(hwnd, msg, wp, lp);
     }

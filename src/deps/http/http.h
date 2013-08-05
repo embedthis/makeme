@@ -101,11 +101,6 @@ struct HttpWebSocket;
 #ifndef BIT_MAX_RECEIVE_FORM
     #define BIT_MAX_RECEIVE_FORM    (1024 * 1024)       /**< Maximum incoming form size */
 #endif
-#if UNUSED
-#ifndef BIT_MAX_REQUESTS
-    #define BIT_MAX_REQUESTS        50                  /**< Maximum concurrent requests */
-#endif
-#endif
 #ifndef BIT_MAX_REQUESTS_PER_CLIENT
     #define BIT_MAX_REQUESTS_PER_CLIENT 20              /**< Maximum concurrent requests per client */
 #endif
@@ -322,7 +317,7 @@ PUBLIC void httpSetForkCallback(struct Http *http, MprForkCallback proc, void *a
 #define HTTP_COUNTER_NOT_FOUND_ERRORS   9       /**< URI not found errors */
 #define HTTP_COUNTER_REQUESTS           10      /**< Request count */
 #define HTTP_COUNTER_SSL_ERRORS         11      /**< SSL upgrade errors */
-    
+
 /*
     Per-counter monitoring structure
     Note: this does not need GC marking
@@ -339,6 +334,9 @@ typedef struct HttpMonitor {
     MprTicks    period;                         /**< Frequence of comparison */
     int64       prior;                          /**< Prior counter value when monitor last ran */
     MprList     *defenses;                      /**< List of defensive measures */
+#if XXX
+    MprEvent    *timer;                         /**< Monitor timer */
+#endif
     struct Http *http;
 } HttpMonitor;
 
@@ -437,6 +435,13 @@ PUBLIC int httpAddRemedy(cchar *name, HttpRemedyProc remedy);
  */
 PUBLIC int httpBanClient(cchar *ip, MprTicks period, int status, cchar *msg);
 
+/**
+    Print the monitor counters to the error log
+    @ingroup HttpMonitor
+    @stability Prototype
+  */
+PUBLIC void httpDumpCounters();
+
 /*
     Internal
  */
@@ -470,6 +475,7 @@ typedef struct Http {
 
     MprHash         *authTypes;             /**< Available authentication protocol types */
     MprHash         *authStores;            /**< Available password stores */
+    MprHash         *dateCache;             /**< Cache of date modified times */
 
     MprList         *counters;              /**< List of counters */
     MprList         *monitors;              /**< List of monitors */
@@ -696,8 +702,8 @@ PUBLIC void httpDefineRouteBuiltins();
  */
 typedef struct HttpStats {
     uint64  mem;                        /**< Current application memory */
-    uint64  memRedline;                 /**< Memory redline limit */
-    uint64  memMax;                     /**< Memory maximum permitted */
+    uint64  memRedline;                 /**< Memory heap warnHeap limit */
+    uint64  memMax;                     /**< Memory heap maximum permitted */
 
     uint64  heap;                       /**< Current application heap memory */
     uint64  heapUsed;                   /**< Current heap memory in use */
@@ -1776,7 +1782,7 @@ typedef struct HttpStage {
     void            *stageData;             /**< Private stage data */
     MprModule       *module;                /**< Backing module */
     MprHash         *extensions;            /**< Matching extensions for this filter */
-     
+
     /*  These callbacks apply to all stages */
 
     /** 
@@ -2250,7 +2256,7 @@ typedef struct HttpConn {
     MprTicks        lastActivity;           /**< Last activity on the connection */
     MprEvent        *timeoutEvent;          /**< Connection or request timeout event */
     MprEvent        *workerEvent;           /**< Event for running connection via a worker thread */
-    
+
     void            *context;               /**< Embedding context (EjsRequest) */
     void            *ejs;                   /**< Embedding VM */
     void            *pool;                  /**< Pool of VMs */
@@ -2266,11 +2272,14 @@ typedef struct HttpConn {
     char            *ip;                    /**< Remote client IP address */
     char            *protocol;              /**< HTTP protocol */
     char            *protocols;             /**< Supported web socket protocols (clients) */
+
+    //  TODO - bit field
     int             async;                  /**< Connection is in async mode (non-blocking) */
     int             delay;                  /**< Delay servicing request due to defense strategy */
     int             followRedirects;        /**< Follow redirects for client requests */
     int             keepAliveCount;         /**< Count of remaining Keep-Alive requests for this connection */
     int             http10;                 /**< Using legacy HTTP/1.0 */
+    int             ownDispatcher;          /**< Own the dispatcher and should destroy when closing connection */
     int             port;                   /**< Remote port */
     int             retries;                /**< Client request retries */
     int             secure;                 /**< Using https */
@@ -6624,12 +6633,12 @@ PUBLIC ssize httpSend(HttpConn *conn, cchar *fmt, ...);
 /** 
     Flag for #httpSendBlock to indicate there are more frames for this message 
  */
-#define HTTP_MORE   0x1000         
+#define HTTP_MORE   0x1000
 
 /**
     Send a message of a given type to the web socket peer
     @description This is the lower-level message send routine. It permits control of message types and message framing .
-    
+
     This routine can operate in a blocking, non-blocking or buffered mode. Blocking mode is specified via the 
     HTTP_BLOCK flag.  When blocking, the call will wait until it has written all the data. The call will either accept and write 
     all the data or it will fail, it will never return "short" with a partial write.

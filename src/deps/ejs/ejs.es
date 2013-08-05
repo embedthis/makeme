@@ -4954,6 +4954,8 @@ module ejs {
         /**
             Verify memory. In debug builds, this call verifies all memory blocks by checking a per-block signature.
             This is very slow, so call sparingly. In release builds, this call does nothing.
+            UNUSED - remove
+            @hide
          */
         native static function verify(): Void
 
@@ -10554,6 +10556,7 @@ module ejs {
          */
         native function substring(startIndex: Number, end: Number = -1): String
 
+        //  TODO - Ecma6 - calls this repeat()
         /**
             Replication. Replicate the string N times.
             @param times The number of times to copy the string

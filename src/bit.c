@@ -98,7 +98,10 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
             /* Ignore */
         }
     }
-    app->script = findBitScript();
+    if ((app->script = findBitScript()) == 0) {
+        mprError("Cannot find bit.es or bit.mod");
+        return MPR_ERR_CANT_FIND;
+    }
     mprLog(2, "Using bit script %s", app->script);
 
     argv[0] = (char*) app->script;
