@@ -2314,7 +2314,7 @@ PUBLIC void httpDestroyConn(HttpConn *conn)
             conn->rx = 0;
         }
         httpCloseConn(conn);
-        if (conn->dispatcher && conn->dispatcher->flags & MPR_DISPATCHER_EVENT) {
+        if (conn->dispatcher && conn->dispatcher->flags & MPR_DISPATCHER_AUTO) {
             mprDestroyDispatcher(conn->dispatcher);
             conn->dispatcher = 0;
         }
@@ -3737,7 +3737,7 @@ static void acceptConn(HttpEndpoint *endpoint)
     }
     wp = endpoint->sock->handler;
     if (wp->flags & MPR_WAIT_NEW_DISPATCHER) {
-        dispatcher = mprCreateDispatcher("IO");
+        dispatcher = mprCreateDispatcher("IO", MPR_DISPATCHER_AUTO);
     } else if (wp->dispatcher) {
         dispatcher = wp->dispatcher;
     } else {
@@ -5372,7 +5372,6 @@ PUBLIC void httpGetStats(HttpStats *sp)
     ap = mprGetMemStats();
 
     sp->cpus = ap->numCpu;
-    sp->regions = ap->regions;
     sp->pendingRequests = MPR->eventService->pendingCount;
 
     sp->mem = ap->rss;
@@ -5430,7 +5429,6 @@ PUBLIC char *httpStatsReport(int flags)
     mprPutToBuf(buf, "Heap-free   %8.1f MB, %5.1f%% free\n", s.heapFree / mb, s.heapFree / (double) s.heap * 100.0);
 
     mprPutCharToBuf(buf, '\n');
-    mprPutToBuf(buf, "Regions     %8d\n", s.regions);
     mprPutToBuf(buf, "CPUs        %8d\n", s.cpus);
     mprPutCharToBuf(buf, '\n');
 

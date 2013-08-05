@@ -93,8 +93,12 @@ Bit.load({
             /*                                                                                             
                 Enable debug trace and asserts to the log file.                                            
                 This is enabled by default for debug builds.                                               
-                tracing: true,                                                                             
              */                                                                                            
+            // tracing: true,                                                                             
+
+            alloc: {
+                parallel: false
+            },
         },
 
         tune: 'speed',

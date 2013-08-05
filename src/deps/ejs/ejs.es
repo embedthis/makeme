@@ -4954,6 +4954,8 @@ module ejs {
         /**
             Verify memory. In debug builds, this call verifies all memory blocks by checking a per-block signature.
             This is very slow, so call sparingly. In release builds, this call does nothing.
+            UNUSED - remove
+            @hide
          */
         native static function verify(): Void
 

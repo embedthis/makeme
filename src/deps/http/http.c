@@ -684,7 +684,7 @@ static void threadMain(void *data, MprThread *tp)
     MprEvent        e;
 
     td = tp->data;
-    td->dispatcher = mprCreateDispatcher(tp->name);
+    td->dispatcher = mprCreateDispatcher(tp->name, 0);
     td->conn = conn = httpCreateConn(app->http, NULL, td->dispatcher);
 
     /*
@@ -820,7 +820,7 @@ static int sendRequest(HttpConn *conn, cchar *method, cchar *url, MprList *files
      */
     if (app->bodyData || app->formData || files) {
         if (writeBody(conn, files) < 0) {
-            mprError("Cannot write body data to \"%s\". %s.", url, httpGetError(conn));
+            mprError("Cannot write body data to \"%s\". %s", url, httpGetError(conn));
             return MPR_ERR_CANT_WRITE;
         }
     }
