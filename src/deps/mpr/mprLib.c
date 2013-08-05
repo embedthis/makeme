@@ -118,16 +118,15 @@
 
 #if LINUX || BIT_BSD_LIKE
     #define findFirstBit(word) ffsl((long) word)
-#else
-    static MPR_INLINE int findFirstBit(size_t word);
 #endif
 #if MACOSX
     #define findLastBit(x) flsl((long) x)
-#else
-    static MPR_INLINE int findLastBit(size_t word);
 #endif
-#if BIT_WIN_LIKE
-    static MPR_INLINE int findFirstBit(long word);
+#ifndef findFirstBit
+    static MPR_INLINE int findFirstBit(size_t word);
+#endif
+#ifndef findLastBit
+    static MPR_INLINE int findLastBit(size_t word);
 #endif
 
 /********************************** Data **************************************/
