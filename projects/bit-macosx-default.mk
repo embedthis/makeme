@@ -257,7 +257,7 @@ DEPS_9 += $(CONFIG)/inc/bitos.h
 $(CONFIG)/obj/mprLib.o: \
     src/deps/mpr/mprLib.c $(DEPS_9)
 	@echo '   [Compile] $(CONFIG)/obj/mprLib.o'
-	$(CC) -c -o $(CONFIG)/obj/mprLib.o -arch $(CC_ARCH) $(CFLAGS) "$(IFLAGS)" src/deps/mpr/mprLib.c
+	$(CC) -c -o $(CONFIG)/obj/mprLib.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) "$(IFLAGS)" src/deps/mpr/mprLib.c
 
 #
 #   libmpr
@@ -281,7 +281,7 @@ DEPS_11 += $(CONFIG)/inc/est.h
 $(CONFIG)/obj/mprSsl.o: \
     src/deps/mpr/mprSsl.c $(DEPS_11)
 	@echo '   [Compile] $(CONFIG)/obj/mprSsl.o'
-	$(CC) -c -o $(CONFIG)/obj/mprSsl.o -arch $(CC_ARCH) $(CFLAGS) "$(IFLAGS)" src/deps/mpr/mprSsl.c
+	$(CC) -c -o $(CONFIG)/obj/mprSsl.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) "$(IFLAGS)" src/deps/mpr/mprSsl.c
 
 #
 #   libmprssl
@@ -316,7 +316,7 @@ DEPS_13 += $(CONFIG)/inc/mpr.h
 $(CONFIG)/obj/makerom.o: \
     src/deps/mpr/makerom.c $(DEPS_13)
 	@echo '   [Compile] $(CONFIG)/obj/makerom.o'
-	$(CC) -c -o $(CONFIG)/obj/makerom.o -arch $(CC_ARCH) $(CFLAGS) "$(IFLAGS)" src/deps/mpr/makerom.c
+	$(CC) -c -o $(CONFIG)/obj/makerom.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) "$(IFLAGS)" src/deps/mpr/makerom.c
 
 #
 #   makerom
@@ -351,7 +351,7 @@ DEPS_16 += $(CONFIG)/inc/pcre.h
 $(CONFIG)/obj/pcre.o: \
     src/deps/pcre/pcre.c $(DEPS_16)
 	@echo '   [Compile] $(CONFIG)/obj/pcre.o'
-	$(CC) -c -o $(CONFIG)/obj/pcre.o -arch $(CC_ARCH) $(CFLAGS) "$(IFLAGS)" src/deps/pcre/pcre.c
+	$(CC) -c -o $(CONFIG)/obj/pcre.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) "$(IFLAGS)" src/deps/pcre/pcre.c
 
 ifeq ($(BIT_PACK_PCRE),1)
 #
@@ -384,7 +384,7 @@ DEPS_19 += $(CONFIG)/inc/mpr.h
 $(CONFIG)/obj/httpLib.o: \
     src/deps/http/httpLib.c $(DEPS_19)
 	@echo '   [Compile] $(CONFIG)/obj/httpLib.o'
-	$(CC) -c -o $(CONFIG)/obj/httpLib.o -arch $(CC_ARCH) $(CFLAGS) "$(IFLAGS)" src/deps/http/httpLib.c
+	$(CC) -c -o $(CONFIG)/obj/httpLib.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) "$(IFLAGS)" src/deps/http/httpLib.c
 
 #
 #   libhttp
@@ -420,7 +420,7 @@ DEPS_21 += $(CONFIG)/inc/http.h
 $(CONFIG)/obj/http.o: \
     src/deps/http/http.c $(DEPS_21)
 	@echo '   [Compile] $(CONFIG)/obj/http.o'
-	$(CC) -c -o $(CONFIG)/obj/http.o -arch $(CC_ARCH) $(CFLAGS) "$(IFLAGS)" src/deps/http/http.c
+	$(CC) -c -o $(CONFIG)/obj/http.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) "$(IFLAGS)" src/deps/http/http.c
 
 #
 #   http
@@ -488,7 +488,7 @@ DEPS_26 += $(CONFIG)/inc/ejs.slots.h
 $(CONFIG)/obj/ejsLib.o: \
     src/deps/ejs/ejsLib.c $(DEPS_26)
 	@echo '   [Compile] $(CONFIG)/obj/ejsLib.o'
-	$(CC) -c -o $(CONFIG)/obj/ejsLib.o -arch $(CC_ARCH) $(CFLAGS) "$(IFLAGS)" src/deps/ejs/ejsLib.c
+	$(CC) -c -o $(CONFIG)/obj/ejsLib.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) "$(IFLAGS)" src/deps/ejs/ejsLib.c
 
 ifeq ($(BIT_PACK_EJSCRIPT),1)
 #
@@ -532,7 +532,7 @@ DEPS_28 += $(CONFIG)/inc/ejs.h
 $(CONFIG)/obj/ejs.o: \
     src/deps/ejs/ejs.c $(DEPS_28)
 	@echo '   [Compile] $(CONFIG)/obj/ejs.o'
-	$(CC) -c -o $(CONFIG)/obj/ejs.o -arch $(CC_ARCH) $(CFLAGS) "$(IFLAGS)" src/deps/ejs/ejs.c
+	$(CC) -c -o $(CONFIG)/obj/ejs.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) "$(IFLAGS)" src/deps/ejs/ejs.c
 
 ifeq ($(BIT_PACK_EJSCRIPT),1)
 #
@@ -579,7 +579,7 @@ DEPS_30 += $(CONFIG)/inc/ejs.h
 $(CONFIG)/obj/ejsc.o: \
     src/deps/ejs/ejsc.c $(DEPS_30)
 	@echo '   [Compile] $(CONFIG)/obj/ejsc.o'
-	$(CC) -c -o $(CONFIG)/obj/ejsc.o -arch $(CC_ARCH) $(CFLAGS) "$(IFLAGS)" src/deps/ejs/ejsc.c
+	$(CC) -c -o $(CONFIG)/obj/ejsc.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) "$(IFLAGS)" src/deps/ejs/ejsc.c
 
 ifeq ($(BIT_PACK_EJSCRIPT),1)
 #
@@ -813,7 +813,7 @@ DEPS_34 += $(CONFIG)/inc/ejs.h
 $(CONFIG)/obj/bit.o: \
     src/bit.c $(DEPS_34)
 	@echo '   [Compile] $(CONFIG)/obj/bit.o'
-	$(CC) -c -o $(CONFIG)/obj/bit.o -arch $(CC_ARCH) $(CFLAGS) "$(IFLAGS)" src/bit.c
+	$(CC) -c -o $(CONFIG)/obj/bit.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) "$(IFLAGS)" src/bit.c
 
 #
 #   bit
