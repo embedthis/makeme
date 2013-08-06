@@ -129,6 +129,9 @@
     static MPR_INLINE int findLastBit(size_t word);
 #endif
 
+#define YIELDED_THREADS     0x1         /* Resume threads that are yielded (only) */
+#define WAITING_THREADS     0x2         /* Resume threads that are waiting for GC sweep to complete */
+
 /********************************** Data **************************************/
 
 #undef              MPR
@@ -161,7 +164,7 @@ static void markRoots();
 static int pauseThreads();
 static void printMemReport();
 static MPR_INLINE void release(MprFreeQueue *freeq);
-static void resumeThreads(int swept);
+static void resumeThreads(int flags);
 static MPR_INLINE void setbitmap(size_t *bitmap, int bindex);
 static MPR_INLINE int sizetoq(size_t size);
 static void sweep();
@@ -936,7 +939,7 @@ static void gc(void *unused, MprThread *tp)
     }
     invokeDestructors();
     heap->gc = 0;
-    resumeThreads(1);
+    resumeThreads(YIELDED_THREADS | WAITING_THREADS);
 }
 
 
@@ -958,7 +961,7 @@ static void markAndSweep()
             mprTrace(7, "If debugging, run the process with -D to enable debug mode.");
         }
         heap->gcRequested = 0;
-        resumeThreads(1);
+        resumeThreads(YIELDED_THREADS | WAITING_THREADS);
         return;
     }
     INC(collections);
@@ -979,14 +982,19 @@ static void markAndSweep()
     heap->marking = 0;
 
 #if BIT_MPR_ALLOC_PARALLEL
-    resumeThreads(0);
+    resumeThreads(YIELDED_THREADS);
 #endif
     /*
         Sweep unused memory with user threads resumed
      */
     MPR_MEASURE(BIT_MPR_ALLOC_LEVEL, "GC", "sweep", sweep());
     heap->sweeping = 0;
-    resumeThreads(1);
+
+#if BIT_MPR_ALLOC_PARALLEL
+    resumeThreads(YIELDED_THREADS | WAITING_THREADS);
+#else
+    resumeThreads(WAITING_THREADS);
+#endif
 }
 
 
@@ -1406,32 +1414,23 @@ static int pauseThreads()
 }
 
 
-/*
-    Resume user threads. If PARALLEL:
-        if not-swept only wake theose threads not waiting for GC.
-        if swept, only wake those threads waiting for GC.
- */
-static void resumeThreads(int swept)
+static void resumeThreads(int flags)
 {
     MprThreadService    *ts;
     MprThread           *tp;
     int                 i;
 
-    heap->mustYield = 0;
     ts = MPR->threadService;
-
     lock(ts->threads);
+    heap->mustYield = 0;
     for (i = 0; i < ts->threads->length; i++) {
         tp = (MprThread*) mprGetItem(ts->threads, i);
         if (tp && tp->yielded) {
-            if (BIT_MPR_ALLOC_PARALLEL) {
-                if (swept) {
-                    if (!tp->waitForGC) {
-                        continue;
-                    }
-                } else if (tp->waitForGC) {
-                    continue;
-                }
+            if (flags == WAITING_THREADS && !tp->waitForGC) {
+                continue;
+            }
+            if (flags == YIELDED_THREADS && tp->waitForGC) {
+                continue;
             }
             if (!tp->stickyYield) {
                 tp->yielded = 0;
