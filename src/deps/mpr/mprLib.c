@@ -3247,7 +3247,9 @@ PUBLIC void mprServiceWinIO(MprWaitService *ws, int sockFd, int winMask)
     }
     wp->presentMask &= wp->desiredMask;
     if (wp->presentMask) {
-        if (wp->presentMask) {
+        if (wp->flags & MPR_WAIT_IMMEDIATE) {
+            (wp->proc)(wp->handlerData, NULL);
+        } else {
             mprNotifyOn(ws, wp, 0);
             mprQueueIOEvent(wp);
         }
