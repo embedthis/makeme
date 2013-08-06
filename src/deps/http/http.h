@@ -334,9 +334,7 @@ typedef struct HttpMonitor {
     MprTicks    period;                         /**< Frequence of comparison */
     int64       prior;                          /**< Prior counter value when monitor last ran */
     MprList     *defenses;                      /**< List of defensive measures */
-#if XXX
     MprEvent    *timer;                         /**< Monitor timer */
-#endif
     struct Http *http;
 } HttpMonitor;
 

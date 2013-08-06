@@ -97,7 +97,7 @@ Bit.load({
             // tracing: true,                                                                             
 
             alloc: {
-                parallel: false
+                parallel: true
             },
         },
 

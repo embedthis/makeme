@@ -644,7 +644,7 @@ static void processing()
     int         j;
 
     if (app->chunkSize > 0) {
-        mprAddItem(app->headers, mprCreateKeyPair("X-Appweb-Chunk-Size", sfmt("%d", app->chunkSize), 0));
+        mprAddItem(app->headers, mprCreateKeyPair("X-Chunk-Size", sfmt("%d", app->chunkSize), 0));
     }
     app->activeLoadThreads = app->loadThreads;
     app->threadData = mprCreateList(app->loadThreads, 0);
@@ -798,9 +798,6 @@ static int prepRequest(HttpConn *conn, MprList *files, int retry)
     if (app->formData) {
         httpSetHeader(conn, "Content-Type", "application/x-www-form-urlencoded");
     }
-    if (app->chunkSize > 0) {
-        httpSetChunkSize(conn, app->chunkSize);
-    }
     if (setContentLength(conn, files) < 0) {
         return MPR_ERR_CANT_OPEN;
     }
@@ -819,6 +816,9 @@ static int sendRequest(HttpConn *conn, cchar *method, cchar *url, MprList *files
         data in parallel -- http will do the writes first then read the response.
      */
     if (app->bodyData || app->formData || files) {
+        if (app->chunkSize > 0) {
+            httpSetChunkSize(conn, app->chunkSize);
+        }
         if (writeBody(conn, files) < 0) {
             mprError("Cannot write body data to \"%s\". %s", url, httpGetError(conn));
             return MPR_ERR_CANT_WRITE;
@@ -1010,8 +1010,8 @@ static int doRequest(HttpConn *conn, cchar *url, MprList *files)
     mprAddRoot(outFile);
     while (!conn->tx->finalized && conn->state < HTTP_STATE_COMPLETE && remaining > 0) {
         remaining = mprGetRemainingTicks(mark, limits->requestTimeout);
-        httpWait(conn, 0, remaining);
         readBody(conn, outFile);
+        httpWait(conn, 0, remaining);
     }
     if (conn->state < HTTP_STATE_COMPLETE && !conn->error) {
         httpError(conn, HTTP_ABORT | HTTP_CODE_REQUEST_TIMEOUT,
