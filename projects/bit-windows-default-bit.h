@@ -92,7 +92,7 @@
     #define BIT_MANIFEST "package/manifest.bit"
 #endif
 #ifndef BIT_MPR_ALLOC_PARALLEL
-    #define BIT_MPR_ALLOC_PARALLEL 0
+    #define BIT_MPR_ALLOC_PARALLEL 1
 #endif
 #ifndef BIT_MPR_LOGGING
     #define BIT_MPR_LOGGING 1
