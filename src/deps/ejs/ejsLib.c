@@ -68764,7 +68764,7 @@ EjsError *ejsThrowMemoryError(Ejs *ejs)
         Don't do double exceptions for memory errors
      */
     if (ejs->exception == 0) {
-        va_list dummy = NULL_INIT;
+        static va_list dummy;
         return ejsCreateException(ejs, ES_MemoryError, "Memory Error", dummy);
     }
     return (EjsError*) ejs->exception;
