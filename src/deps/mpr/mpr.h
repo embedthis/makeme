@@ -814,9 +814,6 @@ PUBLIC void *mprAtomicExchange(void * volatile *target, cvoid *value);
         #define BIT_MPR_ALLOC_CACHE BIT_MPR_ALLOC_REGION_SIZE
     #endif
 #endif
-#ifndef BIT_MPR_ALLOC_INLINE
-    #define BIT_MPR_ALLOC_INLINE    1                   /* Use inline mprMark() */
-#endif
 #ifndef BIT_MPR_ALLOC_LEVEL
     #define BIT_MPR_ALLOC_LEVEL     7                   /* Emit mark/sweek elapsed time at this level */
 #endif
@@ -829,7 +826,7 @@ PUBLIC void *mprAtomicExchange(void * volatile *target, cvoid *value);
     #define BIT_MPR_ALLOC_VIRTUAL   0                   /* Use malloc() for region allocations */
 #endif
 #ifndef BIT_MPR_ALLOC_QUOTA
-    #define BIT_MPR_ALLOC_QUOTA     4096                /* Number of allocations before a GC is worthwhile */
+    #define BIT_MPR_ALLOC_QUOTA     8192                /* Number of allocations before a GC is worthwhile */
 #endif
 #ifndef BIT_MPR_ALLOC_REGION_SIZE
     #define BIT_MPR_ALLOC_REGION_SIZE (256 * 1024)      /* Memory region allocation chunk size */
