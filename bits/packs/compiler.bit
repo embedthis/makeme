@@ -161,7 +161,7 @@ function testCompilerCapabilities() {
         /* Cannot sleuth when generating for a cross-platform */
 
     } else if (cc && (platform.like == 'unix' || (platform.os == 'vxworks' && Config.OS == 'linux'))) {
-        settings.hasDoubleBraces = compile(cc, '', '#include <stdarg.h>\nva_list d = {{0}};')
+        settings.hasDoubleBraces = compile(cc, '', 'typedef struct {int x, y;} Point;\nPoint p = {{0}};')
         //  UNUSED MOB - mtune not used?
         settings.hasMtune = compile(cc, '-mtune=generic', 'int main() { return 0;}')
         settings.hasStackProtector = compile(cc, '-fno-stack-protector', 'int main() { return 0;}')

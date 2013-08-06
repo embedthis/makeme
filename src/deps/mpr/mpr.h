@@ -339,10 +339,12 @@ struct  MprXml;
     typedef int         MprOsThread;
 #endif
 
-#if BIT_WIN_LIKE
-    #define MPR_INLINE __inline
-#else
-    #define MPR_INLINE inline
+#ifndef MPR_INLINE
+    #if BIT_WIN_LIKE
+        #define MPR_INLINE __inline
+    #else
+        #define MPR_INLINE inline
+    #endif
 #endif
 
 /**
@@ -999,6 +1001,7 @@ typedef struct MprFreeQueue {
  */
 #define MPR_GET_PTR(bp)             ((void*) (((char*) (bp)) + sizeof(MprMem)))
 #define MPR_GET_MEM(ptr)            ((MprMem*) (((char*) (ptr)) - sizeof(MprMem)))
+#define MPR_GET_USIZE(mp)           ((size_t) (mp->size - sizeof(MprMem) - (mp->hasManager * sizeof(void*))))
 
 /*
     Manager callback is stored in the padding region at the end of the user memory in the block.
@@ -1483,6 +1486,9 @@ PUBLIC void pfree(void *ptr);
  */
 PUBLIC void *prealloc(void *ptr, size_t size);
 
+//  MOB
+PUBLIC size_t psize(void *ptr);
+
 /*
     Macros. When building documentation (DOXYGEN), define pretend function defintions for the documentation.
  */
@@ -1657,8 +1663,8 @@ PUBLIC void mprRemoveRoot(cvoid *ptr);
 #endif
     #define mprMark(ptr) \
         if (ptr) { \
-            HINC(markVisited); \
             MprMem *_mp = MPR_GET_MEM((ptr)); \
+            HINC(markVisited); \
             if (_mp->mark != MPR->heap->mark) { \
                 _mp->mark = MPR->heap->mark; \
                 if (_mp->hasManager) { \

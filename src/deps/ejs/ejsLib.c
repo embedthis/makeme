@@ -8701,7 +8701,6 @@ PUBLIC int ejsInitCompiler(EjsService *service)
  */
 static EjsObj *loadScriptFile(Ejs *ejs, cchar *path, cchar *cache)
 {
-    MPR_VERIFY_MEM();
     if (ejsLoadScriptFile(ejs, path, cache, EC_FLAGS_NO_OUT | EC_FLAGS_DEBUG | EC_FLAGS_THROW) < 0) {
         return 0;
     }
@@ -8784,8 +8783,6 @@ PUBLIC int ejsLoadScriptLiteral(Ejs *ejs, EjsString *script, cchar *cache, int f
     }
     ecCloseStream(cp);
     mprRemoveRoot(cp);
-    MPR_VERIFY_MEM();
-    
     if (ejsRun(ejs) < 0) {
         return EJS_ERR;
     }
@@ -64992,7 +64989,7 @@ static EjsObj *sqliteSql(Ejs *ejs, EjsSqlite *db, int argc, EjsObj **argv)
 /*********************************** Alloc ********************************/
 #if MAP_ALLOC
 /*
-    Map memory allocations to use MPR
+    Map memory allocations to use MPR permanent allocations
  */
 static void *allocBlock(int size)
 {
@@ -65014,7 +65011,7 @@ static void *reallocBlock(void *ptr, int size)
 
 static int blockSize(void *ptr)
 {
-    return (int) mprGetBlockSize(ptr);
+    return (int) psize(ptr);
 }
 
 
@@ -65160,20 +65157,6 @@ static int configureSqliteTypes(Ejs *ejs)
     ejsBindConstructor(ejs, type, sqliteConstructor);
     ejsBindMethod(ejs, prototype, ES_ejs_db_sqlite_Sqlite_close, sqliteClose);
     ejsBindMethod(ejs, prototype, ES_ejs_db_sqlite_Sqlite_sql, sqliteSql);
-
-#if UNUSED
-#if MAP_ALLOC
-    sqlite3_config(SQLITE_CONFIG_MALLOC, &mem);
-#endif
-#if MAP_MUTEXES
-    sqlite3_config(SQLITE_CONFIG_MUTEX, &mut);
-#endif
-    sqlite3_config(THREAD_STYLE);
-    if (sqlite3_initialize() != SQLITE_OK) {
-        mprError("Cannot initialize SQLite");
-        return MPR_ERR_CANT_INITIALIZE;
-    }
-#endif
     return 0;
 }
 
@@ -70290,8 +70273,6 @@ static void VM(Ejs *ejs, EjsFunction *fun, EjsAny *otherThis, int argc, int stac
     assert(!ejs->exception);
     assert(ejs->state->fp == 0 || ejs->state->fp->attentionPc == 0);
 
-    MPR_VERIFY_MEM();
-
     vp = 0;
     slotNum = -1;
     global = ejs->global;
@@ -71477,9 +71458,7 @@ static void VM(Ejs *ejs, EjsFunction *fun, EjsAny *otherThis, int argc, int stac
                 AddNamespaceRef
          */
         CASE (EJS_OP_ADD_NAMESPACE_REF):
-            MPR_VERIFY_MEM();
             ejsAddNamespaceToBlock(ejs, state->bp, (EjsNamespace*) pop(ejs));
-            MPR_VERIFY_MEM();
             BREAK;
 
         /*
@@ -71529,7 +71508,6 @@ static void VM(Ejs *ejs, EjsFunction *fun, EjsAny *otherThis, int argc, int stac
                 DefineClass <type>
          */
         CASE (EJS_OP_DEFINE_CLASS):
-            MPR_VERIFY_MEM();
             type = GET_TYPE();
             if (type == 0 || !ejsIsType(ejs, type)) {
                 ejsThrowReferenceError(ejs, "Reference is not a class");
@@ -71537,14 +71515,11 @@ static void VM(Ejs *ejs, EjsFunction *fun, EjsAny *otherThis, int argc, int stac
                 type->constructor.block.scope = state->bp;
                 if (type && type->hasInitializer) {
                     fun = ejsGetProperty(ejs, type, 0);
-                    MPR_VERIFY_MEM();
                     callFunction(ejs, fun, type, 0, 0);
-                    MPR_VERIFY_MEM();
                     if (type->implements && !ejs->exception) {
                         callInterfaceInitializers(ejs, type);
                     }
                     state->bp = &FRAME->function.block;
-                    MPR_VERIFY_MEM();
                 }
             }
             ejs->result = type;
@@ -72324,7 +72299,6 @@ static void VM(Ejs *ejs, EjsFunction *fun, EjsAny *otherThis, int argc, int stac
                     ejsDefineProperty(ejs, vp, -1, qname, NULL, attributes, v1);
                 }
             } 
-            MPR_VERIFY_MEM();
             state->stack -= (argc * 3);
             push(vp);
             state->t1 = 0;
@@ -72746,7 +72720,6 @@ EjsAny *ejsRunFunction(Ejs *ejs, EjsFunction *fun, EjsAny *thisObj, int argc, vo
         mprTrace(0, "STOP");
     }
     assert(ejs->exception == 0);
-    MPR_VERIFY_MEM();
 
     if (ejs->exception) {
         return 0;
@@ -73834,9 +73807,7 @@ static EjsOpCode traceCode(Ejs *ejs, EjsOpCode opcode)
     static int      showFrequency = 1;
 #endif
 
-    MPR_VERIFY_MEM();
     state = ejs->state;
-
     fp = state->fp;
     opcount[opcode]++;
     // assert(ejs->exception || (state->stack >= fp->stackReturn));

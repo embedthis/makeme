@@ -6145,6 +6145,7 @@ static void cmdRemedy(MprHash *args)
         return;
     }
     command = sclone(mprLookupKey(args, "CMD"));
+    data = 0;
     if (scontains(command, "|")) {
         data = stok(command, "|", &command);
         data = stemplate(data, args);
@@ -9308,6 +9309,7 @@ PUBLIC void httpRouteRequest(HttpConn *conn)
     rx = conn->rx;
     tx = conn->tx;
     route = 0;
+    rewrites = 0;
 
     if (conn->error) {
         tx->handler = conn->http->passHandler;
@@ -13555,10 +13557,10 @@ static void measure(HttpConn *conn)
         elapsed = mprGetTicks() - conn->started;
 #if MPR_HIGH_RES_TIMER
         if (elapsed < 1000) {
-            mprTrace(level, "TIME: Request %s took %,Ld msec %,Ld ticks", uri, elapsed, mprGetHiResTicks() - conn->startMark);
+            mprLog(level, "TIME: Request %s took %,Ld msec %,Ld ticks", uri, elapsed, mprGetHiResTicks() - conn->startMark);
         } else
 #endif
-            mprTrace(level, "TIME: Request %s took %,Ld msec", uri, elapsed);
+            mprLog(level, "TIME: Request %s took %,Ld msec", uri, elapsed);
     }
 }
 

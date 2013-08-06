@@ -397,7 +397,6 @@ static int interpretFiles(EcCompiler *cp, MprList *files, int argc, char **argv,
 
     assert(files);
 
-    MPR_VERIFY_MEM();
     ejs = cp->ejs;
     if (ecCompile(cp, files->length, (char**) files->items) < 0) {
         mprRawLog(0, "%s\n", cp->errorMsg);
