@@ -2752,6 +2752,7 @@ public class Bit {
             bit.dir.src.join('bits') : Config.Bin.join('bits').portable
         bit.dir.top = '.'
         bit.dir.home = Path(App.getenv('HOME')).portable
+        bit.options ||= {}
         let cross = ((os + '-' + arch) != (Config.OS + '-' + Config.CPU))
 
         bit.platform = { 
