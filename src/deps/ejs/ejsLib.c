@@ -51239,12 +51239,14 @@ PUBLIC void ejsConfigureVoidType(Ejs *ejs)
 
 /**
     ejsWebSocket.c - WebSocket class
+
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 /********************************** Includes **********************************/
 
 
 
+#if BIT_HTTP_WEB_SOCKETS
 /*********************************** Forwards *********************************/
 
 static void onWebSocketEvent(EjsWebSocket *ws, int event, EjsAny *data, HttpPacket *packet);
@@ -51891,6 +51893,7 @@ PUBLIC void ejsConfigureWebSocketType(Ejs *ejs)
     ejsBindMethod(ejs, prototype, ES_WebSocket_url, ws_url);
     ejsBindMethod(ejs, prototype, ES_WebSocket_wait, ws_wait);
 }
+#endif /* BIT_HTTP_WEB_SOCKETS */
 
 /*
     @copy   default
@@ -77473,7 +77476,9 @@ static int configureEjs(Ejs *ejs)
         ejsConfigureWorkerType(ejs);
         ejsConfigureXMLType(ejs);
         ejsConfigureXMLListType(ejs);
+#if BIT_HTTP_WEB_SOCKETS
         ejsConfigureWebSocketType(ejs);
+#endif
         ejs->service->immutableInitialized = 1;
     }
     /*

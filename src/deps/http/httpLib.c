@@ -1982,10 +1982,12 @@ static HttpConn *openConnection(HttpConn *conn, struct MprSsl *ssl)
         }
     }
 #endif
+#if BIT_HTTP_WEB_SOCKETS
     if (uri->webSockets && httpUpgradeWebSocket(conn) < 0) {
         conn->errorMsg = sp->errorMsg;
         return 0;
     }
+#endif
     if ((level = httpShouldTrace(conn, HTTP_TRACE_RX, HTTP_TRACE_CONN, NULL)) >= 0) {
         mprLog(level, "### Outgoing connection from %s:%d to %s:%d", 
             conn->ip, conn->port, conn->sock->ip, conn->sock->port);
@@ -4801,7 +4803,9 @@ PUBLIC Http *httpCreate(int flags)
     httpOpenSendConnector(http);
     httpOpenRangeFilter(http);
     httpOpenChunkFilter(http);
+#if BIT_HTTP_WEB_SOCKETS
     httpOpenWebSockFilter(http);
+#endif
 
     mprSetIdleCallback(isIdle);
     mprAddTerminator(terminateHttp);
@@ -13307,11 +13311,13 @@ static bool processParsed(HttpConn *conn)
                 httpStartPipeline(conn);
             }
         }
+#if BIT_HTTP_WEB_SOCKETS
     } else {
         if (conn->upgraded && !httpVerifyWebSocketsHandshake(conn)) {
             httpSetState(conn, HTTP_STATE_FINALIZED);
             return 1;
         }
+#endif
     }
     httpSetState(conn, HTTP_STATE_CONTENT);
     if (rx->remainingContent == 0) {
@@ -18255,7 +18261,7 @@ PUBLIC void httpRemoveAllUploadedFiles(HttpConn *conn)
 /************************************************************************/
 
 /*
-    webSock.c - WebSockets filter support
+    webSockFilter.c - WebSockets filter support
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
@@ -18264,6 +18270,7 @@ PUBLIC void httpRemoveAllUploadedFiles(HttpConn *conn)
 
 
 
+#if BIT_HTTP_WEB_SOCKETS
 /********************************** Locals ************************************/
 /*
     Message frame states
@@ -19423,6 +19430,7 @@ PUBLIC bool httpVerifyWebSocketsHandshake(HttpConn *conn)
     return 1;
 }
 
+#endif /* BIT_HTTP_WEB_SOCKETS */
 /*
     @copy   default
 

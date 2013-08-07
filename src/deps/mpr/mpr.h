@@ -874,7 +874,7 @@ PUBLIC void *mprAtomicExchange(void * volatile *target, cvoid *value);
     memory depletion can be proactively detected and handled before memory allocations actually fail.
     \n\n
     A memory block that is being used must be marked as active to prevent the garbage collector from reclaiming it. 
-    To mark a block as active, #mprMarkBlock must be called during each garbage collection cycle. When allocating 
+    To mark a block as active, #mprMark must be called during each garbage collection cycle. When allocating 
     non-temporal memory blocks, a manager callback can be specified via #mprAllocObj. This manager routine will be 
     called by the collector so that dependent memory blocks can be marked as active.
     \n\n

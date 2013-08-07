@@ -12074,7 +12074,8 @@ module ejs {
          */
         native function send(...content): Void
 
-        /*
+        /**
+            Send a block of data with options to control message framing.
             @param options
             @options more Set to false for the last frame in a message. If omitted, assumed to be true.
             @options type Message type. Masked to the valid WebSockets message types.
