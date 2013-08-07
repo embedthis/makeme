@@ -901,12 +901,11 @@ typedef struct MprMem {
                                              is defined and then it will be 64 bits. */
     uchar       qindex;                 /**< Freeq index. Always less than 512 queues. */
     uchar       eternal;                /**< Immune from GC. Implemented as a byte to be atomic */
-    uint        free: 1;                /**< Block not in use */
-    uint        first: 1;               /**< Block is first block in region */
-    uint        hasManager: 1;          /**< Has manager function. Set at block init. */
-    uint        mark: 1;                /**< GC mark indicator. Toggled for each GC pass by mark() when thread yielded. */
-    uint        fullRegion: 1;          /**< Block is an entire region - never on free queues . */
-    uint        reserved: 11;
+    uchar       free: 1;                /**< Block not in use */
+    uchar       first: 1;               /**< Block is first block in region */
+    uchar       hasManager: 1;          /**< Has manager function. Set at block init. */
+    uchar       mark: 1;                /**< GC mark indicator. Toggled for each GC pass by mark() when thread yielded. */
+    uchar       fullRegion: 1;          /**< Block is an entire region - never on free queues . */
 
 #if BIT_MPR_ALLOC_DEBUG
     /* This increases the size of MprMem from 8 bytes to 16 bytes on 32-bit systems and 24 bytes on 64 bit systems */
