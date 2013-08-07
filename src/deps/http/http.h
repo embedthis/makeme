@@ -318,6 +318,8 @@ PUBLIC void httpSetForkCallback(struct Http *http, MprForkCallback proc, void *a
 #define HTTP_COUNTER_REQUESTS           10      /**< Request count */
 #define HTTP_COUNTER_SSL_ERRORS         11      /**< SSL upgrade errors */
 
+#define HTTP_MONITOR_MIN_PERIOD         (5 * 1000)
+
 /*
     Per-counter monitoring structure
     Note: this does not need GC marking
@@ -516,6 +518,10 @@ typedef struct Http {
 
     char            *software;              /**< Software name and version */
     void            *forkData;
+
+    int             monitorsStarted;        /**< Monitors are running */
+    MprTicks        monitorMaxPeriod;       /**< Maximum monitor period */
+    MprTicks        monitorMinPeriod;       /**< Minimum monitor period */
 
     int             nextAuth;               /**< Auth object version vector */
     int             activeProcesses;        /**< Count of active external processes */

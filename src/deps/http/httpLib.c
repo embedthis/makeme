@@ -4791,6 +4791,8 @@ PUBLIC Http *httpCreate(int flags)
     http->authStores = mprCreateHash(-1, MPR_HASH_CASELESS | MPR_HASH_UNIQUE);
     http->booted = mprGetTime();
     http->flags = flags;
+    http->monitorMaxPeriod = 0;
+    http->monitorMinPeriod = MAXINT;
     http->secret = mprGetRandomString(HTTP_MAX_SECRET);
 
     updateCurrentDate(http);
@@ -5757,6 +5759,10 @@ PUBLIC void httpLogRequest(HttpConn *conn)
 
 
 
+/********************************** Forwards **********************************/
+
+static void stopMonitors();
+
 /************************************ Code ************************************/
 
 PUBLIC int httpAddCounter(cchar *name)
@@ -5857,9 +5863,11 @@ static void checkMonitor(HttpMonitor *monitor, MprEvent *event)
     HttpAddress     *address;
     HttpCounter     counter;
     MprKey          *kp;
-    int             removed, period;
+    int             removed;
 
     http = monitor->http;
+    http->now = mprGetTicks();
+
     if (monitor->counterIndex == HTTP_COUNTER_MEMORY) {
         monitor->prior = 0;
         memset(&counter, 0, sizeof(HttpCounter));
@@ -5879,6 +5887,9 @@ static void checkMonitor(HttpMonitor *monitor, MprEvent *event)
         checkCounter(monitor, &counter, NULL);
 
     } else {
+        /*
+            Check the monitor for each active client address
+         */
         lock(http->addresses);
         do {
             removed = 0;
@@ -5890,31 +5901,20 @@ static void checkMonitor(HttpMonitor *monitor, MprEvent *event)
                 /*
                     Expire old records
                  */
-                //  MOB - need a define for this
-                //  MOB - this should be the max of all monitor periods
-                period = max((int) monitor->period, 60 * 1000);
-                if ((address->updated + period) < http->now) {
+                if ((address->updated + http->monitorMaxPeriod) < http->now) {
                     mprRemoveKey(http->addresses, kp->key);
                     removed = 1;
                     break;
                 }
             }
         } while (removed);
-#if XX
-        if (mprGetHashLength(http->addresses) == 0) {
-            mprRemoveEvent(monitor->timer);
-            monitor->timer = 0;
-        }
-#endif
         unlock(http->addresses);
+
+        if (mprGetHashLength(http->addresses) == 0) {
+            stopMonitors();
+        }
         return;
     }
-#if XX
-    if (counter.value == 0) {
-        mprRemoveEvent(monitor->timer);
-        monitor->timer = 0;
-    }
-#endif
 }
 
 
@@ -5922,9 +5922,7 @@ static int manageMonitor(HttpMonitor *monitor, int flags)
 {
     if (flags & MPR_MANAGE_MARK) {
         mprMark(monitor->defenses);
-#if XX
         mprMark(monitor->timer);
-#endif
     }
     return 0;
 }
@@ -5940,6 +5938,9 @@ PUBLIC int httpAddMonitor(cchar *counterName, cchar *expr, uint64 limit, MprTick
     char            *tok;
     int             counterIndex;
 
+    if (period < HTTP_MONITOR_MIN_PERIOD) {
+        return MPR_ERR_BAD_ARGS;
+    }
     http = MPR->httpService;
     if ((counterIndex = mprLookupStringItem(http->counters, counterName)) < 0) {
         mprError("Cannot find counter %s", counterName);
@@ -5965,10 +5966,9 @@ PUBLIC int httpAddMonitor(cchar *counterName, cchar *expr, uint64 limit, MprTick
     monitor->period = period;
     monitor->defenses = defenseList;
     monitor->http = http;
+    http->monitorMinPeriod = min(http->monitorMinPeriod, period);
+    http->monitorMaxPeriod = max(http->monitorMaxPeriod, period);
     mprAddItem(http->monitors, monitor);
-    if (!mprGetDebugMode()) {
-        /* monitor->timer = */ mprCreateTimerEvent(NULL, "monitor", period, checkMonitor, monitor, 0);
-    }
     return 0;
 }
 
@@ -5978,6 +5978,52 @@ static void manageAddress(HttpAddress *address, int flags)
     if (flags & MPR_MANAGE_MARK) {
         mprMark(address->banMsg);
     }
+}
+
+
+static void startMonitors() 
+{
+    HttpMonitor     *monitor;
+    Http            *http;
+    int             next;
+
+    if (mprGetDebugMode()) {
+        return;
+    }
+    http = MPR->httpService;
+    lock(http);
+    if (!http->monitorsStarted) {
+        for (ITERATE_ITEMS(http->monitors, monitor, next)) {
+            if (!monitor->timer) {
+                monitor->timer = mprCreateTimerEvent(NULL, "monitor", monitor->period, checkMonitor, monitor, 0);
+            }
+        }
+        http->monitorsStarted = 1;
+    }
+    unlock(http);
+    mprTrace(4, "Start monitors: min %d, max %d",  http->monitorMinPeriod, http->monitorMaxPeriod);
+}
+
+
+static void stopMonitors() 
+{
+    HttpMonitor     *monitor;
+    Http            *http;
+    int             next;
+
+    mprTrace(4, "Stop monitors");
+    http = MPR->httpService;
+    lock(http);
+    if (http->monitorsStarted) {
+        for (ITERATE_ITEMS(http->monitors, monitor, next)) {
+            if (monitor->timer) {
+                mprStopContinuousEvent(monitor->timer);
+                monitor->timer = 0;
+            }
+        }
+        http->monitorsStarted = 0;
+    }
+    unlock(http);
 }
 
 
@@ -6015,6 +6061,9 @@ PUBLIC int64 httpMonitorEvent(HttpConn *conn, int counterIndex, int64 adj)
             mprAddKey(http->addresses, conn->ip, address);
         }
         conn->address = address;
+        if (!http->monitorsStarted) {
+            startMonitors();
+        }
         unlock(http->addresses);
     }
     counter = &address->counters[counterIndex];
@@ -9236,7 +9285,9 @@ PUBLIC HttpRoute *httpCreateConfiguredRoute(HttpHost *host, int serverSide)
     http = route->http;
     httpAddRouteFilter(route, http->rangeFilter->name, NULL, HTTP_STAGE_TX);
     httpAddRouteFilter(route, http->chunkFilter->name, NULL, HTTP_STAGE_RX | HTTP_STAGE_TX);
+#if BIT_HTTP_WEB_SOCKETS
     httpAddRouteFilter(route, http->webSocketFilter->name, NULL, HTTP_STAGE_RX | HTTP_STAGE_TX);
+#endif
     if (serverSide) {
         httpAddRouteFilter(route, http->uploadFilter->name, NULL, HTTP_STAGE_RX);
     }
