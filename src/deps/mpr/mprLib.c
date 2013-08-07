@@ -2832,7 +2832,6 @@ PUBLIC int mprParseArgs(char *args, char **argv, int maxArgc)
 }
 
 
-//  TODO - rename stolist and move into string
 /*
     Make an argv array. All args are in a single memory block of which argv points to the start.
     Set MPR_ARGV_ARGS_ONLY if not passing in a program name. 
@@ -3420,8 +3419,9 @@ PUBLIC void mprAtomicBarrier()
     #elif __GNUC__ && (BIT_CPU_ARCH == BIT_CPU_PPC)
         asm volatile ("sync" : : : "memory");
     #else
-        //  TODO - can do better
-        getpid();
+        if (mprTrySpinLock(atomicSpin)) {
+            mprSpinUnlock(atomicSpin);
+        }
     #endif
 #if FUTURE && KEEP
     asm volatile ("lock; add %eax,0");
@@ -23780,8 +23780,6 @@ PUBLIC int mprStartThread(MprThread *tp)
 
 PUBLIC MprOsThread mprGetCurrentOsThread()
 {
-    //  MOB - LINUX gettid
-    //  MOB - MACOSX thread_selfid (64 bits)
 #if BIT_UNIX_LIKE
     return (MprOsThread) pthread_self();
 #elif BIT_WIN_LIKE
@@ -26705,13 +26703,11 @@ PUBLIC void mprQueueIOEvent(MprWaitHandler *wp)
 }
 
 
-//  MOB - why use this rather than calling directly?
 static void ioEvent(void *data, MprEvent *event)
 {
     assert(event);
     assert(event->handler);
 
-    //  MOB - why do we zero here?
     event->handler->event = 0;
     event->handler->proc(data, event);
 }

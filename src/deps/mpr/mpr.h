@@ -1483,7 +1483,13 @@ PUBLIC void pfree(void *ptr);
  */
 PUBLIC void *prealloc(void *ptr, size_t size);
 
-//  MOB
+/**
+    Return the size of the block. This may be larger than what was originally requested.
+    @param ptr Pointer to the block
+    @return Size of the allocated block.
+    @ingroup MprMem
+    @stability Prototype
+ */
 PUBLIC size_t psize(void *ptr);
 
 /*
