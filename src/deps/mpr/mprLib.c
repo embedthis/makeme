@@ -19626,7 +19626,7 @@ PUBLIC MprSocketService *mprCreateSocketService()
         ss->hasIPv6 = 1;
         closesocket(fd);
     } else {
-        mprLog(2, "System has only IPv4 support");
+        mprLog(1, "This system does not have IPv6 support");
     }
     return ss;
 }

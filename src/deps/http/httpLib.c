@@ -2435,11 +2435,7 @@ PUBLIC void httpConnTimeout(HttpConn *conn)
             }
         }
     }
-    if (conn->endpoint) {
-        httpDestroyConn(conn);
-    } else {
-        httpDisconnect(conn);
-    }
+    httpDisconnect(conn);
 }
 
 
