@@ -4531,9 +4531,6 @@ PUBLIC ssize mprWriteCache(MprCache *cache, cchar *key, cchar *value, MprTime mo
 
     if (cache->timer == 0) {
         mprTrace(5, "Start Cache pruner with resolution %d", cache->resolution);
-        /* 
-            Use the MPR dispatcher incase this VM is destroyed 
-         */
         cache->timer = mprCreateTimerEvent(MPR->dispatcher, "localCacheTimer", cache->resolution, pruneCache, cache, 
             MPR_EVENT_STATIC_DATA); 
     }
@@ -5193,7 +5190,7 @@ PUBLIC int mprStartCmd(MprCmd *cmd, int argc, cchar **argv, cchar **envp, int fl
         cmd->requiredEof++;
     }
     if (addCmdHandlers(cmd) < 0) {
-        mprError("Cannot open command handlers - insufficient I/O handles");
+        mprTrace(4, "Cannot open command handlers - insufficient I/O handles");
         return MPR_ERR_CANT_OPEN;
     }
     rc = startProcess(cmd);
@@ -9011,7 +9008,9 @@ PUBLIC void mprScheduleDispatcher(MprDispatcher *dispatcher)
     int                 mustWakeWaitService, mustWakeCond;
 
     assert(dispatcher);
-    assert(!(dispatcher->flags & MPR_DISPATCHER_DESTROYED));
+    if (dispatcher->flags & MPR_DISPATCHER_DESTROYED) {
+        return;
+    }
     es = dispatcher->service;
     lock(es);
     if (isRunning(dispatcher)) {
@@ -26605,7 +26604,7 @@ static MprWaitHandler *initWaitHandler(MprWaitHandler *wp, int fd, int mask, Mpr
     wp->flags           = flags;
 
     if (mprGetListLength(ws->handlers) >= FD_SETSIZE) {
-        mprError("io: Too many io handlers: %d", FD_SETSIZE);
+        mprTrace(6, "io: Too many io handlers: %d", FD_SETSIZE);
         return 0;
     }
 #if BIT_UNIX_LIKE || VXWORKS
