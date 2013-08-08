@@ -991,9 +991,9 @@ static void markAndSweep()
     heap->sweeping = 0;
 
 #if BIT_MPR_ALLOC_PARALLEL
-    resumeThreads(YIELDED_THREADS | WAITING_THREADS);
-#else
     resumeThreads(WAITING_THREADS);
+#else
+    resumeThreads(YIELDED_THREADS | WAITING_THREADS);
 #endif
 }
 
@@ -1013,7 +1013,10 @@ static void invokeDestructors()
                 mgr = GET_MANAGER(mp);
                 if (mgr) {
                     (mgr)(GET_PTR(mp), MPR_MANAGE_FREE);
-                    mp->hasManager = 0;
+                    /* Retest incase the manager routine revied the object */
+                    if (mp->mark != heap->mark) {
+                        mp->hasManager = 0;
+                    }
                 }
             }
         }

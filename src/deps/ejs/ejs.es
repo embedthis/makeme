@@ -2775,6 +2775,8 @@ module ejs {
                 standard error output. 
          */
         static function run(command: Object, options: Object = {}, data: Object = null): String {
+            //  TODO - the above default arg should handle this
+            options ||= {}
             let cmd = new Cmd
             cmd.start(command, blend({detach: true}, options))
             if (data) {

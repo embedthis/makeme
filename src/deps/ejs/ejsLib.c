@@ -47738,7 +47738,7 @@ PUBLIC EjsString *ejsTruncateString(Ejs *ejs, EjsString *sp, ssize len)
 
 /*********************************** Interning *********************************/
 
- void revive(cvoid *sp)
+static void revive(EjsString *sp)
 {
     MprMem  *mp;
 
@@ -47771,6 +47771,7 @@ PUBLIC EjsString *ejsInternString(EjsString *str)
                 return sp;
             }
             if (sp->length == str->length) {
+                //  TODO but they are the same?
                 len = min(sp->length, str->length);
                 //  OPT
                 for (i = 0; i < len; i++) {
@@ -47780,7 +47781,6 @@ PUBLIC EjsString *ejsInternString(EjsString *str)
                 }
                 if (i == sp->length && i == str->length) {
                     ip->reuse++;
-                    /* Revive incase almost stale or dead */
                     revive(sp);
                     unlock(ip);
                     return sp;
@@ -47821,6 +47821,7 @@ PUBLIC EjsString *ejsInternWide(Ejs *ejs, wchar *value, ssize len)
     index = whash(value, len) % ip->size;
     if ((head = &ip->buckets[index]) != NULL) {
         for (sp = head->next; sp != head; sp = sp->next, step++) {
+            //  TODO - why not compare sp->value with value?
             if (sp->length == len) {
                 end = min(sp->length, len);
                 for (i = 0; i < end && value[i]; i++) {
@@ -47830,7 +47831,6 @@ PUBLIC EjsString *ejsInternWide(Ejs *ejs, wchar *value, ssize len)
                 }
                 if (i == sp->length) {
                     ip->reuse++;
-                    /* Revive incase almost stale or dead */
                     revive(sp);
                     unlock(ip);
                     return sp;
@@ -47882,7 +47882,6 @@ PUBLIC EjsString *ejsInternAsc(Ejs *ejs, cchar *value, ssize len)
                 }
                 if (i == sp->length) {
                     ip->reuse++;
-                    /* Revive incase almost stale or dead */
                     revive(sp);
                     unlock(ip);
                     return sp;
@@ -47954,7 +47953,6 @@ PUBLIC EjsString *ejsInternMulti(Ejs *ejs, cchar *value, ssize len)
             }
             if (i == sp->length && value[i] == 0) {
                 ip->reuse++;
-                /* Revive incase almost stale or dead */
                 revive(sp);
                 unlock(ip);
                 return sp;
@@ -48140,15 +48138,24 @@ PUBLIC EjsString *ejsCreateNonInternedString(Ejs *ejs, wchar *value, ssize len)
 PUBLIC void ejsManageString(EjsString *sp, int flags)
 {
     EjsIntern   *ip;
+    MprMem      *mp;
 
     if (flags & MPR_MANAGE_MARK) {
         mprMark(TYPE(sp));
 
     } else if (flags & MPR_MANAGE_FREE) {
         ip = ((EjsService*) MPR->ejsService)->intern;
+        mp = MPR_GET_MEM(sp);
+        /*
+            Other threads race with this if doing parallel GC (the default). The revive() routine may have 
+            marked the string, so test here if it has been revived and only free if not.
+            OPT - better to be lock free and try lock. If failed, GC will get next time
+         */
         lock(ip);
-        ip->count--;
-        unlinkString(sp);
+        if (mp->mark != MPR->heap->mark) {
+            ip->count--;
+            unlinkString(sp);
+        }
         unlock(ip);
     }
 }
