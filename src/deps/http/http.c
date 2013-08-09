@@ -126,7 +126,10 @@ MAIN(httpMain, int argc, char **argv, char **envp)
     start = mprGetTime();
     app->http = httpCreate(HTTP_CLIENT_SIDE);
     httpEaseLimits(app->http->clientLimits);
-
+#if BIT_STATIC && BIT_PACK_SSL
+    extern MprModuleEntry mprSslInit;
+    mprNop(mprSslInit);
+#endif
     processing();
     mprServiceEvents(-1, 0);
 

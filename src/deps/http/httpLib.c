@@ -5374,8 +5374,6 @@ PUBLIC void httpGetStats(HttpStats *sp)
     ap = mprGetMemStats();
 
     sp->cpus = ap->numCpu;
-    sp->pendingRequests = MPR->eventService->pendingCount;
-
     sp->mem = ap->rss;
     sp->memRedline = ap->warnHeap;
     sp->memMax = ap->maxHeap;
@@ -5445,7 +5443,6 @@ PUBLIC char *httpStatsReport(int flags)
     mprPutToBuf(buf, "Requests    %8d active\n", s.activeRequests);
     mprPutToBuf(buf, "Sessions    %8d active\n", s.activeSessions);
     mprPutToBuf(buf, "VMs         %8d active\n", s.activeVMs);
-    mprPutToBuf(buf, "Pending     %8d requests\n", s.pendingRequests);
     mprPutCharToBuf(buf, '\n');
 
     mprPutToBuf(buf, "Workers     %8d busy - %d yielded, %d idle, %d max\n", 

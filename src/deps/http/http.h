@@ -728,7 +728,6 @@ typedef struct HttpStats {
     uint64  totalRequests;              /**< Total requests served */
     uint64  totalConnections;           /**< Total connections accepted */
 
-    int     pendingRequests;            /**< Pending requests waiting to be served */
     int     regions;                    /**< Current memory region count */
     int     cpus;
 } HttpStats;

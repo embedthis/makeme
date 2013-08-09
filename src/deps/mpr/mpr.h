@@ -256,15 +256,16 @@ struct  MprXml;
     and type flags. The MPR_LOG_MASK is used to extract the trace level from a flags word. We expect most apps
     to run with level 2 trace enabled.
  */
-#define MPR_ERROR           1           /**< Hard error trace level */
-#define MPR_WARN            2           /**< Soft warning trace level */
-#define MPR_CONFIG          2           /**< Configuration settings trace level. */
+#define MPR_ERROR           0           /**< Hard error trace level */
+#define MPR_WARN            1           /**< Soft warning trace level */
+#define MPR_INFO            2           /**< Configuration settings trace level. */
+#define MPR_DIAG            3           /**< Diagnostic trace level. */
 #define MPR_VERBOSE         9           /**< Highest level of trace */
 #define MPR_LEVEL_MASK      0xf         /**< Level mask */
 
 //  Removed in 4.3
-#if DEPRECATED
-#define MPR_INFO            3           /**< Informational trace only */
+#if DEPRECATED || 1
+#define MPR_CONFIG          MPR_INFO
 #define MPR_DEBUG           4           /**< Debug information trace level */
 #endif
 
@@ -5648,7 +5649,6 @@ typedef struct MprEventService {
     MprTicks        delay;              /**< Maximum sleep time before awaking */
     int             eventCount;         /**< Count of events */
     int             waiting;            /**< Waiting for I/O (sleeping) */
-    int             pendingCount;       /**< Count of pendingQ dispatchers */
     struct MprCond  *waitCond;          /**< Waiting sync */
     struct MprMutex *mutex;             /**< Multi-thread sync */
 } MprEventService;

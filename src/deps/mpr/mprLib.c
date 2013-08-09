@@ -2690,7 +2690,7 @@ PUBLIC int mprStartEventsThread()
 
 static void serviceEventsThread(void *data, MprThread *tp)
 {
-    mprLog(MPR_CONFIG, "Service thread started");
+    mprLog(MPR_INFO, "Service thread started");
     if (!(MPR->flags & MPR_NO_WINDOW)) {
         mprInitWindow();
     }
@@ -8827,7 +8827,6 @@ PUBLIC int mprServiceEvents(MprTicks timeout, int flags)
 
             } else if (mprStartWorker((MprWorkerProc) dispatchEventsWorker, dp) < 0) {
                 queueDispatcher(es->pendingQ, dp);
-                es->pendingCount++;
                 continue;
             }
             if (justOne) {
@@ -9145,8 +9144,6 @@ static MprDispatcher *getNextReadyDispatcher(MprEventService *es)
     lock(es);
     if (pendingQ->next != pendingQ && mprAvailableWorkers() > 0) {
         dispatcher = pendingQ->next;
-        dispatcher->service->pendingCount--;
-        assert(dispatcher->service->pendingCount >= 0);
 
     } else if (readyQ->next == readyQ) {
         /*
@@ -13792,16 +13789,16 @@ PUBLIC int mprStartLogging(cchar *logSpec, int showConfig)
 
 PUBLIC void mprLogHeader()
 {
-    mprLog(MPR_CONFIG, "Configuration for %s", mprGetAppTitle());
-    mprLog(MPR_CONFIG, "---------------------------------------------");
-    mprLog(MPR_CONFIG, "Version:            %s-%s", BIT_VERSION, BIT_BUILD_NUMBER);
-    mprLog(MPR_CONFIG, "BuildType:          %s", BIT_DEBUG ? "Debug" : "Release");
-    mprLog(MPR_CONFIG, "CPU:                %s", BIT_CPU);
-    mprLog(MPR_CONFIG, "OS:                 %s", BIT_OS);
-    mprLog(MPR_CONFIG, "Host:               %s", mprGetHostName());
-    mprLog(MPR_CONFIG, "Directory:          %s", mprGetCurrentPath());
-    mprLog(MPR_CONFIG, "Configure:          %s", BIT_CONFIG_CMD);
-    mprLog(MPR_CONFIG, "---------------------------------------------");
+    mprLog(MPR_INFO, "Configuration for %s", mprGetAppTitle());
+    mprLog(MPR_INFO, "---------------------------------------------");
+    mprLog(MPR_INFO, "Version:            %s-%s", BIT_VERSION, BIT_BUILD_NUMBER);
+    mprLog(MPR_INFO, "BuildType:          %s", BIT_DEBUG ? "Debug" : "Release");
+    mprLog(MPR_INFO, "CPU:                %s", BIT_CPU);
+    mprLog(MPR_INFO, "OS:                 %s", BIT_OS);
+    mprLog(MPR_INFO, "Host:               %s", mprGetHostName());
+    mprLog(MPR_INFO, "Directory:          %s", mprGetCurrentPath());
+    mprLog(MPR_INFO, "Configure:          %s", BIT_CONFIG_CMD);
+    mprLog(MPR_INFO, "---------------------------------------------");
 }
 
 
