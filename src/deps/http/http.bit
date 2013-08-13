@@ -26,8 +26,13 @@ Bit.load({
         http: {
             type: 'exe',
             sources: [ 'http.c' ],
-            depends: [ 'libhttp', ],
+            depends: [ 'libhttp' ],
             platforms: [ 'local' ],
+            postblend: function (target) {
+                if (target.static) {
+                    target.depends += ['libmprssl']
+                }
+            },
         },
 	},
 })

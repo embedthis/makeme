@@ -245,16 +245,16 @@
     </member>
     <member kind="define">
       <type>#define</type>
-      <name>MPR_CONFIG</name>
+      <name>MPR_CRITICAL_PRIORITY</name>
       <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>a73c51f3a7939f023326f2ae4f70ea709</anchor>
+      <anchor>ae06415ae3af35c8ac27f34b10d3001e3</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
       <type>#define</type>
-      <name>MPR_CRITICAL_PRIORITY</name>
+      <name>MPR_DEBUG</name>
       <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>ae06415ae3af35c8ac27f34b10d3001e3</anchor>
+      <anchor>a990bc0ed43b1479ca1ea9e9c81fbb13a</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -283,6 +283,13 @@
       <name>MPR_DEFAULT_MIN_THREADS</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a73941169dddea56ea21e373e25d6f630</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MPR_DIAG</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a80911c8ba9d00b613c161b7aafc5d646</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -752,6 +759,13 @@
       <name>MPR_HTTP_DATE</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a4de2c3f94ca0f0e9806af2ed5b645829</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MPR_INFO</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a94d79684fe7d99bd0572d9d01e5fb27f</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -5438,6 +5452,13 @@
       <arglist>(cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
+      <type>size_t</type>
+      <name>psize</name>
+      <anchorfile>group___mpr_mem.html</anchorfile>
+      <anchor>gaf167765e018de0c039c97817f31dc6a3</anchor>
+      <arglist>(void *ptr)</arglist>
+    </member>
+    <member kind="function">
       <type>char *</type>
       <name>scamel</name>
       <anchorfile>group___mpr_string.html</anchorfile>
@@ -6139,6 +6160,13 @@
       <anchorfile>group___mpr_mem.html</anchorfile>
       <anchor>gac8895ba7faffa1f86db114a6d5bb0909</anchor>
       <arglist>(void *ptr, size_t size)</arglist>
+    </member>
+    <member kind="function">
+      <type>size_t</type>
+      <name>psize</name>
+      <anchorfile>group___mpr_mem.html</anchorfile>
+      <anchor>gaf167765e018de0c039c97817f31dc6a3</anchor>
+      <arglist>(void *ptr)</arglist>
     </member>
   </compound>
   <compound kind="group">

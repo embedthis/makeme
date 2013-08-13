@@ -3031,6 +3031,7 @@ static char *states[] = {
 };
 #endif
 
+
 PUBLIC void httpNotify(HttpConn *conn, int event, int arg)
 {
     if (conn->notifier) {
@@ -4402,7 +4403,8 @@ static void printRoute(HttpRoute *route, int next, bool full)
         mprRawLog(0, "    Methods:      %s\n", methods);
         mprRawLog(0, "    Prefix:       %s\n", route->prefix);
         mprRawLog(0, "    Target:       %s\n", target);
-        mprRawLog(0, "    Directory:    %s\n", route->dir);
+        mprRawLog(0, "    Home:         %s\n", route->home);
+        mprRawLog(0, "    Documents:    %s\n", route->documents);
         mprRawLog(0, "    Source:       %s\n", route->sourceName);
         mprRawLog(0, "    Template:     %s\n", route->tplate);
         if (route->indicies) {
@@ -6095,6 +6097,9 @@ static HttpDefense *createDefense(cchar *name, cchar *remedy, MprHash *args)
 }
 
 
+/*
+    Remedy can be set via REMEDY= in the remedyArgs
+ */
 PUBLIC int httpAddDefense(cchar *name, cchar *remedy, cchar *remedyArgs)
 {
     Http        *http;
@@ -6103,12 +6108,17 @@ PUBLIC int httpAddDefense(cchar *name, cchar *remedy, cchar *remedyArgs)
     char        *arg, *key, *value;
     int         next;
 
+    assert(name && *name);
+
     http = MPR->httpService;
     args = mprCreateHash(0, 0);
     list = stolist(remedyArgs);
     for (ITERATE_ITEMS(list, arg, next)) {
         key = stok(arg, "=", &value);
         mprAddKey(args, key, strim(value, "\"'", 0));
+    }
+    if (!remedy) {
+        remedy = mprLookupKey(args, "REMEDY");
     }
     mprAddKey(http->defenses, name, createDefense(name, remedy, args));
     return 0;
@@ -6509,8 +6519,6 @@ static void netOutgoingService(HttpQueue *q)
     if (q->first && q->first->flags & HTTP_PACKET_END) {
         mprTrace(6, "netConnector: end of stream. Finalize connector");
         httpFinalizeConnector(conn);
-    } else {
-        HTTP_NOTIFY(conn, HTTP_EVENT_WRITABLE, 0);
     }
 }
 
@@ -7821,16 +7829,8 @@ PUBLIC void httpStartPipeline(HttpConn *conn)
             q->stage->start(q);
         }
     }
-    /* 
-        Start the handler
-     */
     httpStartHandler(conn);
-    if (!tx->finalized && !tx->finalizedConnector && rx->remainingContent > 0) {
-        /* 
-            If no remaining content, wait till the processing stage to avoid duplicate writable events 
-         */
-        HTTP_NOTIFY(conn, HTTP_EVENT_WRITABLE, 0);
-    }
+
     if (tx->pendingFinalize) {
         tx->finalizedOutput = 0;
         httpFinalizeOutput(conn);
@@ -7862,28 +7862,6 @@ static void httpStartHandler(HttpConn *conn)
         q->flags |= HTTP_QUEUE_STARTED;
         q->stage->start(q);
     }
-}
-
-
-/*
-    Get more output by invoking the stage 'writable' callback. Called by processRunning.
- */
-PUBLIC bool httpGetMoreOutput(HttpConn *conn)
-{
-    HttpQueue   *q;
-
-    q = conn->writeq;
-    if (!q->stage || !q->stage->writable) {
-       return 0;
-    }
-    if (!conn->tx->finalizedOutput) {
-        q->stage->writable(q);
-        if (q->count > 0) {
-            httpScheduleQueue(q);
-            httpServiceQueues(conn);
-        }
-    }
-    return 1;
 }
 
 
@@ -8186,9 +8164,6 @@ PUBLIC bool httpFlushQueue(HttpQueue *q, bool blocking)
         httpServiceQueues(conn);
         if (conn->sock == 0) {
             break;
-        }
-        if (blocking) {
-            httpGetMoreOutput(conn);
         }
     } while (blocking && q->count > 0 && !conn->tx->finalizedConnector);
     return (q->count < q->max) ? 1 : 0;
@@ -9066,8 +9041,7 @@ PUBLIC HttpRoute *httpCreateRoute(HttpHost *host)
     }
     route->auth = httpCreateAuth();
     route->defaultLanguage = sclone("en");
-    route->dir = mprGetCurrentPath(".");
-    route->home = route->dir;
+    route->home = route->documents = mprGetCurrentPath(".");
     route->extensions = mprCreateHash(HTTP_SMALL_HASH_SIZE, MPR_HASH_CASELESS);
     route->flags = BIT_DEBUG ? HTTP_ROUTE_SHOW_ERRORS : 0;
     route->handlers = mprCreateList(-1, MPR_LIST_STABLE);
@@ -9122,7 +9096,7 @@ PUBLIC HttpRoute *httpCreateInheritedRoute(HttpRoute *parent)
     route->conditions = parent->conditions;
     route->connector = parent->connector;
     route->defaultLanguage = parent->defaultLanguage;
-    route->dir = parent->dir;
+    route->documents = parent->documents;
     route->home = parent->home;
     route->data = parent->data;
     route->eroute = parent->eroute;
@@ -9195,7 +9169,7 @@ static void manageRoute(HttpRoute *route, int flags)
         mprMark(route->tplate);
         mprMark(route->targetRule);
         mprMark(route->target);
-        mprMark(route->dir);
+        mprMark(route->documents);
         mprMark(route->home);
         mprMark(route->indicies);
         mprMark(route->handler);
@@ -9672,7 +9646,7 @@ PUBLIC void httpMapFile(HttpConn *conn, HttpRoute *route)
     if (lang && lang->path) {
         tx->filename = mprJoinPath(lang->path, tx->filename);
     }
-    tx->filename = mprJoinPath(route->dir, tx->filename);
+    tx->filename = mprJoinPath(route->documents, tx->filename);
 #if BIT_ROM
     tx->filename = mprGetRelPath(tx->filename, NULL);
 #endif
@@ -10085,10 +10059,17 @@ PUBLIC void *httpGetRouteData(HttpRoute *route, cchar *key)
 }
 
 
-PUBLIC cchar *httpGetRouteDir(HttpRoute *route)
+PUBLIC cchar *httpGetRouteDocuments(HttpRoute *route)
 {
     assert(route);
-    return route->dir;
+    return route->documents;
+}
+
+
+PUBLIC cchar *httpGetRouteHome(HttpRoute *route)
+{
+    assert(route);
+    return route->home;
 }
 
 
@@ -10192,12 +10173,12 @@ PUBLIC void httpSetRouteDocuments(HttpRoute *route, cchar *path)
     assert(route);
     assert(path && *path);
 
-    route->dir = httpMakePath(route, route->home, path);
-    httpSetRouteVar(route, "DOCUMENTS_DIR", route->dir);
+    route->documents = httpMakePath(route, route->home, path);
+    httpSetRouteVar(route, "DOCUMENTS", route->documents);
 #if DEPRECATE || 1
     //  DEPRECATE
-    httpSetRouteVar(route, "DOCUMENTS", route->dir);
-    httpSetRouteVar(route, "DOCUMENT_ROOT", route->dir);
+    httpSetRouteVar(route, "DOCUMENTS_DIR", route->documents);
+    httpSetRouteVar(route, "DOCUMENT_ROOT", route->documents);
 #endif
 }
 
@@ -10239,9 +10220,9 @@ PUBLIC void httpSetRouteHome(HttpRoute *route, cchar *path)
     assert(path && *path);
 
     route->home = httpMakePath(route, ".", path);
-
-    httpSetRouteVar(route, "HOME_DIR", route->home);
+    httpSetRouteVar(route, "HOME", route->home);
     //  DEPRECATED
+    httpSetRouteVar(route, "HOME_DIR", route->home);
     httpSetRouteVar(route, "ROUTE_HOME", route->home);
 }
 
@@ -11247,7 +11228,7 @@ static int directoryCondition(HttpConn *conn, HttpRoute *route, HttpRouteOp *op)
      */
     tx = conn->tx;
     httpMapFile(conn, route);
-    path = mprJoinPath(route->dir, expandTokens(conn, op->details));
+    path = mprJoinPath(route->documents, expandTokens(conn, op->details));
     tx->ext = tx->filename = 0;
     mprGetPathInfo(path, &info);
     if (info.isDir) {
@@ -11274,7 +11255,7 @@ static int existsCondition(HttpConn *conn, HttpRoute *route, HttpRouteOp *op)
      */
     tx = conn->tx;
     httpMapFile(conn, route);
-    path = mprJoinPath(route->dir, expandTokens(conn, op->details));
+    path = mprJoinPath(route->documents, expandTokens(conn, op->details));
     tx->ext = tx->filename = 0;
     if (mprPathExists(path, R_OK)) {
         return HTTP_ROUTE_OK;
@@ -11804,14 +11785,16 @@ static void definePathVars(HttpRoute *route)
 static void defineHostVars(HttpRoute *route) 
 {
     assert(route);
-    mprAddKey(route->vars, "DOCUMENTS", route->dir);
-    mprAddKey(route->vars, "ROUTE_HOME", route->home);
+    mprAddKey(route->vars, "DOCUMENTS", route->documents);
+    mprAddKey(route->vars, "HOME", route->home);
     mprAddKey(route->vars, "SERVER_NAME", route->host->name);
     mprAddKey(route->vars, "SERVER_PORT", itos(route->host->port));
 
-    //  DEPRECATE
-    mprAddKey(route->vars, "DOCUMENT_ROOT", route->dir);
+#if DEPRECATE || 1
+    mprAddKey(route->vars, "ROUTE_HOME", route->home);
+    mprAddKey(route->vars, "DOCUMENT_ROOT", route->documents);
     mprAddKey(route->vars, "SERVER_ROOT", route->home);
+#endif
 }
 
 
@@ -12481,6 +12464,8 @@ PUBLIC MprTicks httpGetTicks(cchar *value)
 static void addMatchEtag(HttpConn *conn, char *etag);
 static void delayAwake(HttpConn *conn, MprEvent *event);
 static char *getToken(HttpConn *conn, cchar *delim);
+
+static bool getOutput(HttpConn *conn);
 static void manageRange(HttpRange *range, int flags);
 static void manageRx(HttpRx *rx, int flags);
 static bool parseHeaders(HttpConn *conn, HttpPacket *packet);
@@ -12736,7 +12721,6 @@ static void delayAwake(HttpConn *conn, MprEvent *event)
     conn->delay = 0;
     httpPumpRequest(conn, NULL);
     httpEnableConnEvents(conn);
-    // httpSocketBlocked(conn);
 }
 
 
@@ -13342,6 +13326,7 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
 static bool processParsed(HttpConn *conn)
 {
     HttpRx      *rx;
+    HttpQueue   *q;
 
     rx = conn->rx;
 
@@ -13371,6 +13356,8 @@ static bool processParsed(HttpConn *conn)
         rx->eof = 1;
     }
     if (rx->eof && conn->tx->started) {
+        q = conn->tx->queue[HTTP_QUEUE_RX];
+        httpPutPacketToNext(q, httpCreateEndPacket());
         httpSetState(conn, HTTP_STATE_READY);
     }
     return 1;
@@ -13510,8 +13497,12 @@ static bool processContent(HttpConn *conn)
         return conn->workerEvent ? 0 : 1;
     }
     if (tx->started) {
-        httpServiceQueues(conn);
+        /*
+            Some requests (websockets) remain in the content state while still generating output
+         */
+        moreData += getOutput(conn);
     }
+    httpServiceQueues(conn);
     return (conn->connError || moreData);
 }
 
@@ -13557,13 +13548,12 @@ static bool processRunning(HttpConn *conn)
                 assert(conn->state < HTTP_STATE_FINALIZED);
             }
 
-        } else if (!httpGetMoreOutput(conn)) {
-            /* Request not complete yet. No process callback defined */
+        } else if (!getOutput(conn)) {
             canProceed = 0;
             assert(conn->state < HTTP_STATE_FINALIZED);
 
         } else if (conn->state >= HTTP_STATE_FINALIZED) {
-            /* This happens when httpGetMoreOutput calls writable on windows which then completes the request */
+            /* This happens when getOutput calls writable on windows which then completes the request */
             canProceed = 1;
 
         } else if (q->count < q->low) {
@@ -13601,6 +13591,36 @@ static bool processRunning(HttpConn *conn)
         }
     }
     return canProceed;
+}
+
+
+/*
+    Get more output by invoking the handler's writable callback. Called by processRunning.
+    Also issues an HTTP_EVENT_WRITABLE for application level notification.
+ */
+static bool getOutput(HttpConn *conn)
+{
+    HttpQueue   *q;
+    HttpTx      *tx;
+    ssize       count;
+
+    tx = conn->tx;
+    if (tx->started && !tx->writeBlocked) {
+        q = conn->writeq;
+        count = q->count;
+        if (!tx->finalizedOutput) {
+            HTTP_NOTIFY(conn, HTTP_EVENT_WRITABLE, 0);
+            if (tx->handler->writable) {
+                tx->handler->writable(q);
+            }
+        }
+        if (count != q->count) {
+            httpScheduleQueue(q);
+            httpServiceQueues(conn);
+            return 1;
+        }
+    }
+    return 0;
 }
 
 
@@ -14538,8 +14558,6 @@ PUBLIC void httpSendOutgoingService(HttpQueue *q)
     if (q->first && q->first->flags & HTTP_PACKET_END) {
         mprTrace(6, "sendConnector: end of stream. Finalize connector");
         httpFinalizeConnector(conn);
-    } else {
-        HTTP_NOTIFY(conn, HTTP_EVENT_WRITABLE, 0);
     }
 }
 
@@ -17916,14 +17934,14 @@ PUBLIC void httpCreateCGIParams(HttpConn *conn)
     mprAddKey(svars, "AUTH_ACL", MPR->emptyString);
     mprAddKey(svars, "CONTENT_LENGTH", rx->contentLength);
     mprAddKey(svars, "CONTENT_TYPE", rx->mimeType);
-    mprAddKey(svars, "DOCUMENTS", rx->route->dir);
+    mprAddKey(svars, "DOCUMENTS", rx->route->documents);
     mprAddKey(svars, "GATEWAY_INTERFACE", sclone("CGI/1.1"));
     mprAddKey(svars, "QUERY_STRING", rx->parsedUri->query);
     mprAddKey(svars, "REMOTE_ADDR", conn->ip);
     mprAddKeyFmt(svars, "REMOTE_PORT", "%d", conn->port);
 
     //  DEPRECATE
-    mprAddKey(svars, "DOCUMENT_ROOT", rx->route->dir);
+    mprAddKey(svars, "DOCUMENT_ROOT", rx->route->documents);
     //  DEPRECATE
     mprAddKey(svars, "SERVER_ROOT", rx->route->home);
 
@@ -17953,7 +17971,7 @@ PUBLIC void httpCreateCGIParams(HttpConn *conn)
             Only set PATH_TRANSLATED if extraPath is set (CGI spec) 
          */
         assert(rx->extraPath[0] == '/');
-        mprAddKey(svars, "PATH_TRANSLATED", mprNormalizePath(sfmt("%s%s", rx->route->dir, rx->extraPath)));
+        mprAddKey(svars, "PATH_TRANSLATED", mprNormalizePath(sfmt("%s%s", rx->route->documents, rx->extraPath)));
     }
 
     if (rx->files) {
@@ -19097,7 +19115,6 @@ PUBLIC ssize httpSendBlock(HttpConn *conn, int type, cchar *buf, ssize len, int 
             }
         }
     } while (len > 0);
-
     httpServiceQueues(conn);
     return totalWritten;
 }
@@ -19151,11 +19168,13 @@ static void outgoingWebSockService(HttpQueue *q)
 {
     HttpConn        *conn;
     HttpPacket      *packet, *tail;
+    HttpWebSocket   *ws;
     char            *ep, *fp, *prefix, dataMask[4];
     ssize           len;
     int             i, mask;
 
     conn = q->conn;
+    ws = conn->rx->webSocket;
     mprTrace(5, "webSocketFilter: outgoing service");
 
     for (packet = httpGetPacket(q); packet; packet = httpGetPacket(q)) {
@@ -19209,8 +19228,8 @@ static void outgoingWebSockService(HttpQueue *q)
             }
             *prefix = '\0';
             mprAdjustBufEnd(packet->prefix, prefix - packet->prefix->start);
-            mprLog(3, "webSocketFilter: send \"%s\" (%d) frame, last %d, length %d",
-                codetxt[packet->type], packet->type, packet->last, httpGetPacketLength(packet));
+            mprLog(3, "webSocketFilter: %d: send \"%s\" (%d) frame, last %d, length %d",
+                ws->txSeq++, codetxt[packet->type], packet->type, packet->last, httpGetPacketLength(packet));
         }
         httpPutPacketToNext(q, packet);
         mprYield(0);

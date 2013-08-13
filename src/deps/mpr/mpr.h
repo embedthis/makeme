@@ -340,14 +340,6 @@ struct  MprXml;
     typedef int         MprOsThread;
 #endif
 
-#ifndef MPR_INLINE
-    #if BIT_WIN_LIKE
-        #define MPR_INLINE __inline
-    #else
-        #define MPR_INLINE inline
-    #endif
-#endif
-
 /**
     Elapsed time data type. Stores time in milliseconds from some arbitrary start epoch.
  */
@@ -892,7 +884,7 @@ PUBLIC void *mprAtomicExchange(void * volatile *target, cvoid *value);
     @defgroup MprMem MprMem
     @see MprFreeMem MprHeap MprManager MprMemNotifier MprRegion mprAddRoot mprAlloc mprAllocMem mprAllocObj 
         mprAllocZeroed mprCreateMemService mprDestroyMemService mprEnableGC mprGetBlockSize mprGetMem 
-        mprGetMemStats mprGetMpr mprGetPageSize mprHasMemError mprHold mprIsDead mprIsParent mprIsValid mprMark 
+        mprGetMemStats mprGetMpr mprGetPageSize mprHasMemError mprHold mprIsParent mprIsValid mprMark 
         mprMemcmp mprMemcpy mprMemdup mprPrintMem mprRealloc mprRelease mprRemoveRoot mprRequestGC mprResetMemError 
         mprRevive mprSetAllocLimits mprSetManager mprSetMemError mprSetMemLimits mprSetMemNotifier mprSetMemPolicy 
         mprSetName mprVerifyMem mprVirtAlloc mprVirtFree 
@@ -936,9 +928,7 @@ typedef struct MprFreeMem {
     Free queue head structure. These must share the same layout as MprFreeMem for the prev/next pointers.
  */
 typedef struct MprFreeQueue {
-    union {
-        MprMem          blk;            /**< Unused in queue head */
-    } info;
+    MprMem              blk;            /**< Unused in queue head */
     struct MprFreeMem   *prev;          /**< Previous free block */
     struct MprFreeMem   *next;          /**< Next free block */
     MprSpin             lock;           /**< Queue lock-free lock */
@@ -1272,16 +1262,6 @@ PUBLIC size_t mprGetBlockSize(cvoid *ptr);
     @stability Stable.
  */
 PUBLIC bool mprHasMemError();
-
-/*
-    Test if a memory block is unreferenced by the last garbage collection sweep.
-    @param ptr Reference to an allocated memory block.
-    @return TRUE if the given memory block is unreferenced and ready for collection.
-    @internal
-    @ingroup MprMem
-    @stability Internal.
- */
-PUBLIC int mprIsDead(cvoid* ptr);
 
 /**
     Test is a pointer is a valid memory context. This is used to test if a block has been dynamically allocated.
@@ -5024,7 +5004,7 @@ PUBLIC char *mprGetWinPath(cchar *path);
 
 /**
     Determine if a directory is the same as or a parent of a path.
-    @param dir Directory to examine if it is a parent of pat.
+    @param dir Directory to examine if it is a parent of path.
     @param path Path name to examine
     @returns True if directory is a parent of the path or is the same as the given path.
     @ingroup MprPath
@@ -5870,6 +5850,7 @@ PUBLIC MprDispatcher *mprGetNonBlockDispatcher();
 PUBLIC void mprInitEventQ(MprEvent *q);
 PUBLIC void mprQueueTimerEvent(MprDispatcher *dispatcher, MprEvent *event);
 PUBLIC void mprReleaseWorkerFromDispatcher(MprDispatcher *dispatcher, struct MprWorker *worker);
+PUBLIC int  mprRunDispatcher(MprDispatcher *dispatcher);
 PUBLIC void mprScheduleDispatcher(MprDispatcher *dispatcher);
 PUBLIC void mprSetDispatcherImmediate(MprDispatcher *dispatcher);
 PUBLIC void mprStopEventService();
@@ -8266,7 +8247,7 @@ PUBLIC int mprReapCmd(MprCmd *cmd, MprTicks timeout);
         MPR_CMD_SHOW            Show the commands window on Windows
         MPR_CMD_IN              Connect to stdin
         MPR_CMD_EXACT_ENV       Use the exact environment supplied. Don't inherit and blend with existing environment.
-    @return Zero if successful. Otherwise a negative MPR error code.
+    @return Command exit status, or negative MPR error code.
     @ingroup MprCmd
     @stability Stable
  */

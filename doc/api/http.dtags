@@ -1772,9 +1772,16 @@
     </member>
     <member kind="function">
       <type>cchar *</type>
-      <name>httpGetRouteDir</name>
+      <name>httpGetRouteDocuments</name>
       <anchorfile>group___http_route.html</anchorfile>
-      <anchor>ga6cfb8dbdf1cc80d7e25fafa20aece99d</anchor>
+      <anchor>ga8c892fefded34fd6bbb49decbfa8b06b</anchor>
+      <arglist>(HttpRoute *route)</arglist>
+    </member>
+    <member kind="function">
+      <type>cchar *</type>
+      <name>httpGetRouteHome</name>
+      <anchorfile>group___http_route.html</anchorfile>
+      <anchor>gaaee9d9d9560a3704492c16e12d0dbd21</anchor>
       <arglist>(HttpRoute *route)</arglist>
     </member>
     <member kind="function">

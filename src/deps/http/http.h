@@ -395,13 +395,14 @@ PUBLIC int httpAddMonitor(cchar *counter, cchar *expr, uint64 limit, MprTicks pe
 /**
     Add a defense
     @param name Name of defensive policy
-    @param action Remedy action to invoke. Standard remedies include: ban, cmd, delay, email, http and log.
+    @param remedy Remedy action to invoke. Standard remedies include: ban, cmd, delay, email, http and log.
+        This can be null and the remedy can be specified via REMEDY=remedy in the args.
     @param args Arguments to pass to the remedy. These may include ${tokens}.
     @return Zero if successful, otherwise a negative MPR error code.
     @ingroup HttpMonitor
     @stability Prototype
  */
-PUBLIC int httpAddDefense(cchar *name, cchar *action, cchar *args);
+PUBLIC int httpAddDefense(cchar *name, cchar *remedy, cchar *args);
 
 /**
     Add a counter to be monitored
@@ -838,7 +839,7 @@ typedef struct HttpUri {
     char        *query;                 /**< Query string */
     int         port;                   /**< Port number */
     int         secure;                 /**< Using https */
-    int         webSockets;             /**< Using web sockets */
+    int         webSockets;             /**< Using WebSockets */
     char        *uri;                   /**< Original URI (not decoded) */
 } HttpUri;
 
@@ -2216,7 +2217,7 @@ PUBLIC void httpSetIOCallback(struct HttpConn *conn, HttpIOCallback fn);
         HttpRx HttpStage HttpTx HtttpListenCallback httpCallEvent httpCloseConn httpFinalizeConnector httpConnTimeout
         httpCreateConn httpCreateRxPipeline httpCreateTxPipeline httpDestroyConn httpDestroyPipeline httpDiscardData
         httpDisconnect httpEnableUpload httpError httpEvent httpGetAsync httpGetChunkSize httpGetConnContext httpGetConnHost
-        httpGetError httpGetExt httpGetKeepAliveCount httpGetMoreOutput httpGetWriteQueueCount httpMatchHost httpMemoryError
+        httpGetError httpGetExt httpGetKeepAliveCount httpGetWriteQueueCount httpMatchHost httpMemoryError
         httpAfterEvent httpPrepClientConn httpResetCredentials httpRouteRequest httpRunHandlerReady httpServiceQueues
         httpSetAsync httpSetChunkSize httpSetConnContext httpSetConnHost httpSetConnNotifier httpSetCredentials
         httpSetKeepAliveCount httpSetProtocol httpSetRetries httpSetSendConnector httpSetState httpSetTimeout
@@ -2263,8 +2264,8 @@ typedef struct HttpConn {
     void            *ejs;                   /**< Embedding VM */
     void            *pool;                  /**< Pool of VMs */
     void            *mark;                  /**< Reference for GC marking */
-    void            *data;                  /**< Custom data for request - must be a managed reference*/
-    void            *staticData;            /**< Custom data for request - must be an - unmanaged reference*/
+    void            *data;                  /**< Custom data for request - must be a managed reference */
+    void            *staticData;            /**< Custom data for request - must be an unmanaged reference */
 #if (DEPRECATE || 1) && !DOXYGEN
     void            *grid;                  /**< Current request database grid for MVC apps */
     void            *record;                /**< Current request database record for MVC apps */
@@ -2273,7 +2274,7 @@ typedef struct HttpConn {
     char            *errorMsg;              /**< Error message for the last request (if any) */
     char            *ip;                    /**< Remote client IP address */
     char            *protocol;              /**< HTTP protocol */
-    char            *protocols;             /**< Supported web socket protocols (clients) */
+    char            *protocols;             /**< Supported WebSocket protocols (clients) */
 
     //  TODO - bit field
     int             async;                  /**< Connection is in async mode (non-blocking) */
@@ -2470,11 +2471,11 @@ PUBLIC void httpBadRequestError(HttpConn *conn, int status, cchar *fmt, ...);
 
 /**
     Http I/O event handler. Invoke when there is an I/O event on the connection. This is normally invoked automatically
-    when I/O events are received.
+    when I/O events are received, but can be called manually after external events.
     @param conn HttpConn object created via #httpCreateConn
     @param event Event structure
     @ingroup HttpConn
-    @stability Internal
+    @stability Evolving
  */
 PUBLIC void httpEvent(struct HttpConn *conn, MprEvent *event);
 
@@ -2546,16 +2547,6 @@ PUBLIC char *httpGetExt(HttpConn *conn);
     @stability Stable
  */
 PUBLIC int httpGetKeepAliveCount(HttpConn *conn);
-
-/**
-    Get more output data by invoking the writable callback.
-    @description This optional handler callback is invoked when the service queue has room for more data.
-    @param conn HttpConn object created via #httpCreateConn
-    @return True if the handler writable callback exists and can be invoked.
-    @ingroup HttpConn
-    @stability Evolving
- */
-PUBLIC bool httpGetMoreOutput(HttpConn *conn);
 
 /** 
     Get the count of bytes buffered on the write queue.
@@ -2702,7 +2693,8 @@ PUBLIC void httpSetConnHost(HttpConn *conn, void *host);
         notifier will be invoked for each and every state. This is true even if the request has no content, the
         HTTP_STATE_CONTENT will still be visited.</li>
     <li>HTTP_EVENT_READABLE &mdash; There is data available to read</li>
-    <li>HTTP_EVENT_WRITABLE &mdash; The outgoing pipeline can absorb more data</li>
+    <li>HTTP_EVENT_WRITABLE &mdash; The outgoing pipeline can absorb more data. The WRITABLE event is issued when the 
+        outgoing pipeline is empties and can absorb more data.</li>
     <li>HTTP_EVENT_ERROR &mdash; The request has encountered an error</li>
     <li>HTTP_EVENT_DESTROY &mdash; The connection structure is about to be destoyed</li>
     <li>HTTP_EVENT_OPEN &mdash; The application layer is now open</li>
@@ -3587,8 +3579,7 @@ typedef struct HttpRoute {
     char            *targetRule;            /**< Target rule */
     char            *target;                /**< Route target details */
 
-    //  TODO - rename documents
-    char            *dir;                   /**< Documents directory */
+    char            *documents;             /**< Documents directory */
     char            *home;                  /**< Home directory for configuration files */
     MprList         *indicies;              /**< Directory index documents */
     HttpStage       *handler;               /**< Fixed handler */
@@ -4159,7 +4150,7 @@ PUBLIC void httpFinalizeRoute(HttpRoute *route);
 PUBLIC void *httpGetRouteData(HttpRoute *route, cchar *key);
 
 /**
-    Get the route directory
+    Get the route documents directory
     @description Routes can define a default directory for documents to serve. This value may be used by
         target rules to calculate the response filename.
     @param route Route to modify
@@ -4167,7 +4158,17 @@ PUBLIC void *httpGetRouteData(HttpRoute *route, cchar *key);
     @ingroup HttpRoute
     @stability Evolving
  */
-PUBLIC cchar *httpGetRouteDir(HttpRoute *route);
+PUBLIC cchar *httpGetRouteDocuments(HttpRoute *route);
+
+/**
+    Get the route home directory
+    @description Routes can define a home directory for configuration files. 
+    @param route Route to modify
+    @return The route home directory pathname.
+    @ingroup HttpRoute
+    @stability Evolving
+ */
+PUBLIC cchar *httpGetRouteHome(HttpRoute *route);
 
 /**
     Get the route method list
@@ -6521,12 +6522,13 @@ typedef struct HttpWebSocket {
     int             maskOffset;             /**< Offset in dataMask */
     int             preserveFrames;         /**< Do not join frames */
     int             partialUTF;             /**< Last frame had a partial UTF codepoint */ 
+    int             txSeq;                  /**< Outgoing packet number */
     void            *data;                  /**< Custom data for applications (marked) */
 } HttpWebSocket;
 
 #define WS_MAGIC        "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 #define WS_MAX_CONTROL  125                 /**< Maximum bytes in control message */
-#define WS_VERSION      13                  /**< Current web socket specification version */
+#define WS_VERSION      13                  /**< Current WebSocket specification version */
 
 /*
     httpSendBlock message types
@@ -6575,14 +6577,14 @@ typedef struct HttpWebSocket {
     Get the close reason supplied by the peer.
     @description The peer may supply a UTF8 messages reason for the closure.
     @param conn HttpConn connection object created via #httpCreateConn
-    @return The UTF8 reason string supplied by the peer when closing the web socket.
+    @return The UTF8 reason string supplied by the peer when closing the WebSocket.
     @ingroup HttpWebSocket
     @stability Evolving
  */
 PUBLIC char *httpGetWebSocketCloseReason(HttpConn *conn);
 
 /**
-    Get the web socket private data
+    Get the WebSocket private data
     @description Get the private data defined with #httpSetWebSocketData
     @param conn HttpConn connection object created via #httpCreateConn
     @return The private data reference
@@ -6603,9 +6605,9 @@ PUBLIC void *httpGetWebSocketData(HttpConn *conn);
 PUBLIC ssize httpGetWebSocketMessageLength(HttpConn *conn);
 
 /**
-    Get the selected web socket protocol selected by the server
+    Get the selected WebSocket protocol selected by the server
     @param conn HttpConn connection object created via #httpCreateConn
-    @return The web socket protocol string
+    @return The WebSocket protocol string
     @ingroup HttpWebSocket
     @stability Evolving
  */
@@ -6613,14 +6615,14 @@ PUBLIC char *httpGetWebSocketProtocol(HttpConn *conn);
 
 /**
     Get the WebSocket state
-    @return The web socket state. Will be WS_STATE_CONNECTING, WS_STATE_OPEN, WS_STATE_CLOSING or WS_STATE_CLOSED.
+    @return The WebSocket state. Will be WS_STATE_CONNECTING, WS_STATE_OPEN, WS_STATE_CLOSING or WS_STATE_CLOSED.
     @ingroup HttpWebSocket
     @stability Evolving
  */
 PUBLIC ssize httpGetWebSocketState(HttpConn *conn);
 
 /**
-    Send a UTF-8 text message to the web socket peer
+    Send a UTF-8 text message to the WebSocket peer
     @description This call invokes httpSend with a type of WS_MSG_TEXT and flags of HTTP_BUFFER.
         The message must be valid UTF8 as the peer will reject invalid UTF8 messages.
     @param conn HttpConn connection object created via #httpCreateConn
@@ -6638,16 +6640,18 @@ PUBLIC ssize httpSend(HttpConn *conn, cchar *fmt, ...);
 #define HTTP_MORE   0x1000
 
 /**
-    Send a message of a given type to the web socket peer
-    @description This is the lower-level message send routine. It permits control of message types and message framing .
+    Send a message of a given type to the WebSocket peer
+    @description This is the lower-level message send routine. It permits control of message types and message framing.
 
-    This routine can operate in a blocking, non-blocking or buffered mode. Blocking mode is specified via the 
-    HTTP_BLOCK flag.  When blocking, the call will wait until it has written all the data. The call will either accept and write 
-    all the data or it will fail, it will never return "short" with a partial write.
-    If in blocking mode, the call may block for up to the inactivity timeout specified in the conn->limits->inactivityTimeout value.
+    This routine can operate in a blocking, non-blocking or buffered mode. Blocking mode is specified via the HTTP_BLOCK flag.  
+    When blocking, the call will wait until it has written all the data. The call will either accept and write all the data 
+    or it will fail, it will never return "short" with a partial write. If in blocking mode, the call may block for up to the 
+    inactivity timeout specified in the conn->limits->inactivityTimeout value.
 
     Non-blocking mode is specified via the HTTP_NON_BLOCK flag. In this mode, the call will consume that amount of data
-    that will fit within the outgoing web socket queues. Consequently, it may return "short" with a partial write.
+    that will fit within the outgoing WebSocket queues. Consequently, it may return "short" with a partial write. If this occurs
+    the next call to httpSendBlock should set the message type to WS_MSG_CONT to indicate a continued message. This is required
+    by the WebSockets specification.
 
     Buffered mode is the default and may be explicitly specified via the HTTP_BUFFER flag. In buffered mode, the entire message 
     will be accepted and will be buffered if required. 
@@ -6679,7 +6683,7 @@ PUBLIC ssize httpSend(HttpConn *conn, cchar *fmt, ...);
 PUBLIC ssize httpSendBlock(HttpConn *conn, int type, cchar *msg, ssize len, int flags);
 
 /**
-    Send a close message to the web socket peer
+    Send a close message to the WebSocket peer
     @description This call invokes httpSendBlock with a type of WS_MSG_CLOSE and flags of HTTP_BUFFER. 
         The status and reason are encoded in the message. The reason is an optional UTF8 closure reason message.
     @param conn HttpConn connection object created via #httpCreateConn
@@ -6693,7 +6697,7 @@ PUBLIC ssize httpSendBlock(HttpConn *conn, int type, cchar *msg, ssize len, int 
 PUBLIC ssize httpSendClose(HttpConn *conn, int status, cchar *reason);
 
 /**
-    Set the web socket private data
+    Set the WebSocket private data
     @description Set private data to be retained by the garbage collector
     @param conn HttpConn connection object created via #httpCreateConn
     @param data Managed data reference. 
@@ -6711,7 +6715,7 @@ PUBLIC void httpSetWebSocketData(HttpConn *conn, void *data);
         Note: enabling this option may prevent full validation of UTF8 text messages if UTF8 codepoints span frame boundaries.
     @param conn HttpConn connection object created via #httpCreateConn
     @param on Set to true to preserve frames
-    @return True if the web socket was orderly closed.
+    @return True if the WebSocket was orderly closed.
     @ingroup HttpWebSocket
     @stability Evolving
 */
@@ -6740,9 +6744,9 @@ PUBLIC void httpSetWebSocketProtocols(HttpConn *conn, cchar *protocols);
 PUBLIC int httpUpgradeWebSocket(HttpConn *conn);
 
 /**
-    Test if web socket connection was orderly closed by sending an acknowledged close message
+    Test if WebSocket connection was orderly closed by sending an acknowledged close message
     @param conn HttpConn connection object created via #httpCreateConn
-    @return True if the web socket was orderly closed.
+    @return True if the WebSocket was orderly closed.
     @ingroup HttpWebSocket
     @stability Evolving
  */

@@ -29019,10 +29019,10 @@ static int  flushByteArray(Ejs *ejs, EjsByteArray *ap);
 static ssize  getInput(Ejs *ejs, EjsByteArray *ap, ssize required);
 static int  lookupByteArrayProperty(Ejs *ejs, EjsByteArray *ap, EjsName qname);
 
-static MPR_INLINE int swap16(EjsByteArray *ap, int a);
-static MPR_INLINE int swap32(EjsByteArray *ap, int a);
-static MPR_INLINE int64 swap64(EjsByteArray *ap, int64 a);
-static MPR_INLINE double swapDouble(EjsByteArray *ap, double a);
+static BIT_INLINE int swap16(EjsByteArray *ap, int a);
+static BIT_INLINE int swap32(EjsByteArray *ap, int a);
+static BIT_INLINE int64 swap64(EjsByteArray *ap, int64 a);
+static BIT_INLINE double swapDouble(EjsByteArray *ap, double a);
 static int putByte(EjsByteArray *ap, int value);
 static int putInteger(EjsByteArray *ap, int value);
 static int putLong(EjsByteArray *ap, int64 value);
@@ -30180,7 +30180,7 @@ PUBLIC bool ejsMakeRoomInByteArray(Ejs *ejs, EjsByteArray *ap, ssize require)
 }
 
 
-static MPR_INLINE int swap16(EjsByteArray *ap, int a)
+static BIT_INLINE int swap16(EjsByteArray *ap, int a)
 {
     if (!ap->swap) {
         return a;
@@ -30189,7 +30189,7 @@ static MPR_INLINE int swap16(EjsByteArray *ap, int a)
 }
 
 
-static MPR_INLINE int swap32(EjsByteArray *ap, int a)
+static BIT_INLINE int swap32(EjsByteArray *ap, int a)
 {
     if (!ap->swap) {
         return a;
@@ -30198,7 +30198,7 @@ static MPR_INLINE int swap32(EjsByteArray *ap, int a)
 }
 
 
-static MPR_INLINE int64 swap64(EjsByteArray *ap, int64 a)
+static BIT_INLINE int64 swap64(EjsByteArray *ap, int64 a)
 {
     int64   low, high;
 
@@ -30212,7 +30212,7 @@ static MPR_INLINE int64 swap64(EjsByteArray *ap, int64 a)
 }
 
 
-static MPR_INLINE double swapDouble(EjsByteArray *ap, double a)
+static BIT_INLINE double swapDouble(EjsByteArray *ap, double a)
 {
     int64   low, high;
 
@@ -35597,9 +35597,6 @@ static EjsHttp *httpConstructor(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
     hp->method = sclone("GET");
     hp->requestContent = mprCreateBuf(BIT_MAX_BUFFER, -1);
     hp->responseContent = mprCreateBuf(BIT_MAX_BUFFER, -1);
-#if UNUSED
-    hp->caFile = mprJoinPath(mprGetAppDir(), "http-ca.crt");
-#endif
     return hp;
 }
 
@@ -36065,11 +36062,10 @@ static EjsHttp *http_on(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
     if (conn->readq && conn->readq->count > 0) {
         ejsSendEvent(ejs, hp->emitter, "readable", NULL, hp);
     }
-    //  MOB - don't need to test finalizedConnector
-    if (!conn->tx->finalizedConnector && 
-            !conn->error && HTTP_STATE_CONNECTED <= conn->state && conn->state < HTTP_STATE_FINALIZED &&
-            conn->writeq->ioCount == 0) {
-        ejsSendEvent(ejs, hp->emitter, "writable", NULL, hp);
+    //  TODO - don't need to test finalizedConnector
+    if (!conn->tx->finalizedConnector && !conn->error && HTTP_STATE_CONNECTED <= conn->state && 
+            conn->state < HTTP_STATE_FINALIZED && conn->writeq->ioCount == 0) {
+        httpNotify(conn, HTTP_EVENT_WRITABLE, 0);
     }
     return hp;
 }
@@ -36646,12 +36642,6 @@ static EjsHttp *startHttpRequest(Ejs *ejs, EjsHttp *hp, char *method, int argc, 
         }
         mprSetSslKeyFile(hp->ssl, hp->keyFile);
     }
-#if UNUSED
-    if (!hp->caFile) {
-        //MOB - Some define for this.
-        hp->caFile = mprJoinPath(mprGetAppDir(), "http-ca.crt");
-    }
-#endif
     if (hp->caFile) {
         if (!hp->ssl) {
             hp->ssl = mprCreateSsl(0);
@@ -36675,7 +36665,7 @@ static EjsHttp *startHttpRequest(Ejs *ejs, EjsHttp *hp, char *method, int argc, 
         }
         httpFinalize(conn);
     }
-    ejsSendEvent(ejs, hp->emitter, "writable", NULL, hp);
+    httpNotify(conn, HTTP_EVENT_WRITABLE, 0);
     if (conn->async) {
         httpEnableConnEvents(hp->conn);
     }
@@ -36687,9 +36677,12 @@ static void httpEventChange(HttpConn *conn, int event, int arg)
 {
     Ejs         *ejs;
     EjsHttp     *hp;
+    HttpTx      *tx;
+    ssize       lastWritten;
 
     hp = httpGetConnContext(conn);
     ejs = hp->ejs;
+    tx = conn->tx;
 
     switch (event) {
     case HTTP_EVENT_STATE:
@@ -36719,7 +36712,10 @@ static void httpEventChange(HttpConn *conn, int event, int arg)
 
     case HTTP_EVENT_WRITABLE:
         if (hp && hp->emitter) {
-            ejsSendEvent(ejs, hp->emitter, "writable", NULL, hp);
+            do {
+                lastWritten = tx->bytesWritten;
+                ejsSendEvent(ejs, hp->emitter, "writable", NULL, hp);
+            } while (tx->bytesWritten > lastWritten && !tx->writeBlocked);
         }
         break;
     }
@@ -70112,7 +70108,7 @@ void ejsMarkName(EjsName *qname)
 
 static void callFunction(Ejs *ejs, EjsFunction *fun, EjsAny *thisObj, int argc, int stackAdjust);
 
-static MPR_INLINE void getPropertyFromSlot(Ejs *ejs, EjsAny *thisObj, EjsAny *obj, int slotNum) 
+static BIT_INLINE void getPropertyFromSlot(Ejs *ejs, EjsAny *thisObj, EjsAny *obj, int slotNum) 
 {
     EjsFunction     *fun, *value;
 
@@ -70141,7 +70137,7 @@ static MPR_INLINE void getPropertyFromSlot(Ejs *ejs, EjsAny *thisObj, EjsAny *ob
 
 #define GET_SLOT(thisObj, obj, slotNum) getPropertyFromSlot(ejs, thisObj, obj, slotNum)
 
-static MPR_INLINE void checkGetter(Ejs *ejs, EjsAny *value, EjsAny *thisObj, EjsAny *obj, int slotNum) 
+static BIT_INLINE void checkGetter(Ejs *ejs, EjsAny *value, EjsAny *thisObj, EjsAny *obj, int slotNum) 
 {
     EjsFunction     *fun;
 

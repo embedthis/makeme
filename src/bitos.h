@@ -921,6 +921,14 @@ typedef int64 Ticks;
 
 /*********************************** Fixups ***********************************/
 
+#ifndef BIT_INLINE
+    #if BIT_WIN_LIKE
+        #define BIT_INLINE __inline
+    #else
+        #define BIT_INLINE inline
+    #endif
+#endif
+
 #if ECOS
     #define     LIBKERN_INLINE          /* to avoid kernel inline functions */
 #endif /* ECOS */
