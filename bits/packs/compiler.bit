@@ -174,7 +174,7 @@ function testCompilerCapabilities() {
             settings.hasLibRt = compile(cc, '',
                 '#define _GNU_SOURCE\n#include <time.h>\nint main() { struct timespec tv; clock_gettime(CLOCK_REALTIME, &tv); return 0; }')
             settings.hasAtomic = compile(cc, '',
-                'int main() { int a, b; a = 0 ; b = 1; __atomic_add_fetch(&a, b, __ATOMIC_RELAXED); }')
+                'int main() { int a, b; a = 0 ; b = 1; __atomic_add_fetch(&a, b, __ATOMIC_RELAXED); return 0; }')
             settings.hasDynLoad = compile(cc, '',
                 '#include <stdio.h>\n#include <dlfcn.h>\nint main() { dlopen(\"test.so\", 0); return 0; }')
             settings.hasLibEdit = compile(cc, '',
