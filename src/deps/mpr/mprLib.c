@@ -1148,7 +1148,7 @@ static void sweep()
                     }
                 }
             }
-            ATOMIC_ADD(bytesAllocated, -region->size);
+            ATOMIC_ADD(bytesAllocated, - (int64) region->size);
             mprTrace(9, "DEBUG: Unpin %p to %p size %d, used %d", region, ((char*) region) + region->size, 
                 region->size, fastMemSize());
             mprVirtFree(region, region->size);

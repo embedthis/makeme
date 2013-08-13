@@ -6335,18 +6335,15 @@ static void emailRemedy(MprHash *args)
 
 static void httpRemedy(MprHash *args)
 {
-    Http        *http;
-    cchar       *uri, *msg, *method;
-    char        *response, *err;
-    int         status;
+    cchar   *uri, *msg, *method;
+    char    *response, *err;
+    int     status;
 
-    http = MPR->httpService;
     uri = mprLookupKey(args, "URI");
     if ((method = mprLookupKey(args, "METHOD")) == 0) {
         method = "POST";
     }
     msg = smatch(method, "POST") ? mprLookupKey(args, "MESSAGE") : 0;
-
     status = httpRequest(method, uri, msg, &response, &err);
     if (status < 0) {
         mprError("%s", err);
