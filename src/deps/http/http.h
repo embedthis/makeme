@@ -2115,7 +2115,6 @@ PUBLIC void httpSendOutgoingService(HttpQueue *q);
     Internal hidden events. Not exposed by the Http notifier.
  */
 #define HTTP_EVENT_APP_OPEN         7       /* The request is now open */
-
 #define HTTP_EVENT_MAX              8       /**< Maximum event plus one */
 
 /*  
@@ -5091,7 +5090,8 @@ typedef struct HttpRx {
     char            *scriptName;            /**< ScriptName portion of the uri (Decoded). May be empty or start with "/" */
     char            *extraPath;             /**< Extra path information (CGI|PHP) */
     int             eof;                    /**< All read data has been received (eof) */
-    MprOff          bytesRead;              /**< Length of content read by user */
+    MprOff          bytesUploaded;          /**< Length of uploaded content by user */
+    MprOff          bytesRead;              /**< Length of content read by user (includes bytesUloaded) */
     MprOff          length;                 /**< Content length header value (ENV: CONTENT_LENGTH) */
     MprOff          remainingContent;       /**< Remaining content data to read (in next chunk if chunked) */
 
@@ -5881,6 +5881,19 @@ PUBLIC void httpRedirect(HttpConn *conn, int status, cchar *uri);
     @stability Stable
  */
 PUBLIC int httpRemoveHeader(HttpConn *conn, cchar *key);
+
+/**
+    Issue a http request
+    @param method HTTP method to use
+    @param uri URI to request
+    @param data Optional data to send with request. Set to null for GET requests.
+    @param response Output parameter to receive the HTTP request response.
+    @param err Output parameter to receive any error messages.
+    @return HTTP status or a negative MPR error code
+    @ingroup HttpTx
+    @stability Prototype
+ */
+PUBLIC int httpRequest(cchar *method, cchar *uri, cchar *data, char **response, char **err);
 
 /** 
     Define a content length header in the transmission. This will define a "Content-Length: NNN" request header and

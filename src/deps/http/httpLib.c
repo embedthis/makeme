@@ -2191,6 +2191,58 @@ PUBLIC ssize httpWriteUploadData(HttpConn *conn, MprList *fileData, MprList *for
     return rc;
 }
 
+/*  
+    Issue a http request.
+    Assumes the Mpr and Http services are created and initialized.
+ */
+PUBLIC int httpRequest(cchar *method, cchar *uri, cchar *data, char **response, char **err)
+{
+    Http        *http;
+    HttpConn    *conn;
+    ssize       len;
+    char        *dummy;
+
+    http = MPR->httpService;
+
+    dummy = "";
+    if (response) {
+        *response = "";
+    } else {
+        response = &dummy;
+    }
+    if (err) {
+        *err = "";
+    } else {
+        err = &dummy;
+    }
+    conn = httpCreateConn(http, NULL, NULL);
+    mprAddRoot(conn);
+
+    /* 
+       Open a connection to issue the GET. Then finalize the request output - this forces the request out.
+     */
+    if (httpConnect(conn, method, uri, NULL) < 0) {
+        *err = sfmt("Cannot connect to %s", uri);
+        mprRemoveRoot(conn);
+        return MPR_ERR_CANT_CONNECT;
+    }
+    if (data) {
+        len = slen(data);
+        if (httpWriteBlock(conn->writeq, data, len, HTTP_BLOCK) != len) {
+            *err = sclone("Cannot write request body data");
+        }
+    }
+    httpFinalizeOutput(conn);
+    if (httpWait(conn, HTTP_STATE_PARSED, 10000) < 0) {
+        *err = sclone("No response");
+        mprRemoveRoot(conn);
+        return MPR_ERR_BAD_STATE;
+    }
+    *response = httpReadString(conn);
+    mprRemoveRoot(conn);
+    return httpGetStatus(conn);
+}
+
 
 /*
     @copy   default
@@ -13374,7 +13426,7 @@ static ssize filterPacket(HttpConn *conn, HttpPacket *packet, int *more)
 {
     HttpRx      *rx;
     HttpTx      *tx;
-    ssize       nbytes;
+    ssize       nbytes, size;
 
     rx = conn->rx;
     tx = conn->tx;
@@ -13407,13 +13459,14 @@ static ssize filterPacket(HttpConn *conn, HttpPacket *packet, int *more)
     /*
         Enforce sandbox limits
      */
-    if (rx->bytesRead >= conn->limits->receiveBodySize) {
+    size = rx->bytesRead - rx->bytesUploaded;
+    if (size >= conn->limits->receiveBodySize) {
         httpLimitError(conn, HTTP_CLOSE | HTTP_CODE_REQUEST_TOO_LARGE, 
-            "Request body of %,Ld bytes is too big. Limit %,Ld", rx->bytesRead, conn->limits->receiveBodySize);
+            "Request body of %,Ld bytes (sofar) is too big. Limit %,Ld", size, conn->limits->receiveBodySize);
 
-    } else if (rx->form && rx->bytesRead >= conn->limits->receiveFormSize) {
+    } else if (rx->form && size >= conn->limits->receiveFormSize) {
         httpLimitError(conn, HTTP_CLOSE | HTTP_CODE_REQUEST_TOO_LARGE, 
-            "Request form of %,Ld bytes is too big. Limit %,Ld", rx->bytesRead, conn->limits->receiveFormSize);
+            "Request form of %,Ld bytes (sofar) is too big. Limit %,Ld", size, conn->limits->receiveFormSize);
     }
     if (httpShouldTrace(conn, HTTP_TRACE_RX, HTTP_TRACE_BODY, tx->ext) >= 0) {
         httpTraceContent(conn, HTTP_TRACE_RX, HTTP_TRACE_BODY, packet, nbytes, rx->bytesRead);
@@ -16923,7 +16976,10 @@ static int writeToFile(HttpQueue *q, char *data, ssize len)
     file = up->currentFile;
 
     if ((file->size + len) > limits->uploadSize) {
-        httpLimitError(conn, HTTP_CODE_REQUEST_TOO_LARGE, "Uploaded file exceeds maximum %,Ld", limits->uploadSize);
+        /*
+            Abort the connection as we don't want the load of receiving the entire body
+         */
+        httpLimitError(conn, HTTP_ABORT | HTTP_CODE_REQUEST_TOO_LARGE, "Uploaded file exceeds maximum %,Ld", limits->uploadSize);
         return MPR_ERR_CANT_WRITE;
     }
     if (len > 0) {
@@ -16937,6 +16993,7 @@ static int writeToFile(HttpQueue *q, char *data, ssize len)
             return MPR_ERR_CANT_WRITE;
         }
         file->size += len;
+        conn->rx->bytesUploaded += len;
         mprTrace(7, "uploadFilter: Wrote %d bytes to %s", len, up->tmpPath);
     }
     return 0;
