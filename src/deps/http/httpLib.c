@@ -1943,7 +1943,7 @@ static HttpConn *openConnection(HttpConn *conn, struct MprSsl *ssl)
         port = (uri->secure) ? 443 : 80;
     }
     if (conn && conn->sock) {
-        if (--conn->keepAliveCount < 0 || port != conn->port || strcmp(ip, conn->ip) != 0 || 
+        if (conn->keepAliveCount-- <= 0 || port != conn->port || strcmp(ip, conn->ip) != 0 || 
                 uri->secure != (conn->sock->ssl != 0) || conn->sock->ssl != ssl) {
             httpCloseConn(conn);
         } else {
@@ -1965,7 +1965,7 @@ static HttpConn *openConnection(HttpConn *conn, struct MprSsl *ssl)
     conn->ip = sclone(ip);
     conn->port = port;
     conn->secure = uri->secure;
-    conn->keepAliveCount = (conn->limits->keepAliveMax) ? conn->limits->keepAliveMax : -1;
+    conn->keepAliveCount = (conn->limits->keepAliveMax) ? conn->limits->keepAliveMax : 0;
 
 #if BIT_PACK_SSL
     /* Must be done even if using keep alive for repeat SSL requests */
@@ -2516,7 +2516,7 @@ static bool prepForNext(HttpConn *conn)
     assert(conn->endpoint);
     assert(conn->state == HTTP_STATE_COMPLETE);
 
-    if (conn->keepAliveCount < 0) {
+    if (conn->keepAliveCount <= 0) {
         return 0;
     }
     if (conn->tx) {
@@ -2557,7 +2557,7 @@ PUBLIC void httpConsumeLastRequest(HttpConn *conn)
         }
     }
     if (HTTP_STATE_CONNECTED <= conn->state && conn->state < HTTP_STATE_COMPLETE) {
-        conn->keepAliveCount = -1;
+        conn->keepAliveCount = 0;
     }
 }
  
@@ -2568,7 +2568,7 @@ PUBLIC void httpPrepClientConn(HttpConn *conn, bool keepHeaders)
 
     assert(conn);
     conn->connError = 0;
-    if (conn->keepAliveCount >= 0 && conn->sock) {
+    if (conn->keepAliveCount > 0 && conn->sock) {
         /* Eat remaining input incase last request did not consume all data */
         httpConsumeLastRequest(conn);
     } else {
@@ -2714,7 +2714,7 @@ static void readEvent(HttpConn *conn)
 
     } else if (nbytes < 0 && mprIsSocketEof(conn->sock)) {
         conn->errorMsg = conn->sock->errorMsg;
-        conn->keepAliveCount = -1;
+        conn->keepAliveCount = 0;
         if (conn->state < HTTP_STATE_PARSED || conn->state == HTTP_STATE_COMPLETE) {
             return;
         }
@@ -2793,7 +2793,7 @@ PUBLIC MprSocket *httpStealConn(HttpConn *conn)
 PUBLIC void httpAfterEvent(HttpConn *conn)
 {
     if (conn->endpoint) {
-        if (conn->keepAliveCount < 0 && (conn->state < HTTP_STATE_PARSED || conn->state == HTTP_STATE_COMPLETE)) {
+        if (conn->keepAliveCount <= 0 && (conn->state < HTTP_STATE_PARSED || conn->state == HTTP_STATE_COMPLETE)) {
             httpDestroyConn(conn);
             return;
         } else if (conn->state == HTTP_STATE_COMPLETE) {
@@ -4065,7 +4065,7 @@ PUBLIC void httpDisconnect(HttpConn *conn)
     }
     conn->connError = 1;
     conn->error = 1;
-    conn->keepAliveCount = -1;
+    conn->keepAliveCount = 0;
     if (conn->rx) {
         conn->rx->eof = 1;
     }
@@ -4188,7 +4188,7 @@ static void errorv(HttpConn *conn, int flags, cchar *fmt, va_list args)
         status = HTTP_CODE_INTERNAL_SERVER_ERROR;
     }
     if (flags & (HTTP_ABORT | HTTP_CLOSE)) {
-        conn->keepAliveCount = -1;
+        conn->keepAliveCount = 0;
     }
     if (flags & HTTP_ABORT) {
         conn->connError = 1;
@@ -6336,38 +6336,24 @@ static void emailRemedy(MprHash *args)
 static void httpRemedy(MprHash *args)
 {
     Http        *http;
-    HttpConn    *conn;
     cchar       *uri, *msg, *method;
+    char        *response, *err;
     int         status;
 
     http = MPR->httpService;
-    if ((conn = httpCreateConn(http, NULL, NULL)) < 0) {
-        mprError("Cannot create http connection");
-        return;
-    }
     uri = mprLookupKey(args, "URI");
     if ((method = mprLookupKey(args, "METHOD")) == 0) {
         method = "POST";
     }
-    if (httpConnect(conn, method, uri, NULL) < 0) {
-        mprError("Cannot connect to URI: %s", uri);
+    msg = smatch(method, "POST") ? mprLookupKey(args, "MESSAGE") : 0;
+
+    status = httpRequest(method, uri, msg, &response, &err);
+    if (status < 0) {
+        mprError("%s", err);
         return;
     }
-    if (smatch(method, "POST")) {
-        msg = mprLookupKey(args, "MESSAGE");
-        if (httpWriteBlock(conn->writeq, msg, slen(msg), HTTP_BLOCK) < 0) {
-            mprError("Cannot write to %s", uri);
-            return;
-        }
-    }
-    httpFinalizeOutput(conn);
-    if (httpWait(conn, HTTP_STATE_PARSED, conn->limits->requestTimeout) < 0) {
-        mprError("Cannot wait for URI %s to respond", uri);
-        return;
-    }
-    if ((status = httpGetStatus(conn)) != HTTP_CODE_OK) {
-        mprError("Remedy URI %s responded with status %d", status);
-        return;
+    if (status != HTTP_CODE_OK) {
+        mprError("Remedy URI %s responded with status %d\n%s", status, response);
     }
 }
 
@@ -13024,14 +13010,14 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
     MprBuf      *content;
     char        *cp, *key, *value, *tok, *hvalue;
     cchar       *oldValue;
-    int         count, keepAlive;
+    int         count, keepAliveHeader;
 
     rx = conn->rx;
     tx = conn->tx;
     rx->headerPacket = packet;
     content = packet->content;
     limits = conn->limits;
-    keepAlive = (conn->http10) ? 0 : 1;
+    keepAliveHeader = 0;
 
     for (count = 0; content->start[0] != '\r' && !conn->error; count++) {
         if (count >= limits->headerMax) {
@@ -13083,10 +13069,11 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
             if (strcasecmp(key, "connection") == 0) {
                 rx->connection = sclone(value);
                 if (scaselesscmp(value, "KEEP-ALIVE") == 0) {
-                    keepAlive = 1;
+                    keepAliveHeader = 1;
+
                 } else if (scaselesscmp(value, "CLOSE") == 0) {
-                    /*  Not really required, but set to 0 to be sure */
                     conn->keepAliveCount = 0;
+                    conn->mustClose = 1;
                 }
 
             } else if (strcasecmp(key, "content-length") == 0) {
@@ -13240,14 +13227,16 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
         case 'k':
             /* Keep-Alive: timeout=N, max=1 */
             if (strcasecmp(key, "keep-alive") == 0) {
-                keepAlive = 1;
                 if ((tok = scontains(value, "max=")) != 0) {
                     conn->keepAliveCount = atoi(&tok[4]);
+                    if (conn->keepAliveCount < 0 || conn->keepAliveCount > BIT_MAX_KEEP_ALIVE) {
+                        conn->keepAliveCount = 0;
+                    }
                     /*
-                        IMPORTANT: Deliberately close the connection one request early. This ensures a client-led 
-                        termination and helps relieve server-side TIME_WAIT conditions.
+                        IMPORTANT: Deliberately close client connections one request early. This encourages a client-led 
+                        termination and may help relieve excessive server-side TIME_WAIT conditions.
                      */
-                    if (conn->keepAliveCount == 1) {
+                    if (!conn->endpoint && conn->keepAliveCount == 1) {
                         conn->keepAliveCount = 0;
                     }
                 }
@@ -13344,17 +13333,25 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
             break;
         }
     }
-    if (conn->error) {
-        /* Cannot continue with keep-alive as the headers have not been correctly parsed */
-        conn->keepAliveCount = -1;
-        conn->connError = 1;
-    }
     if (rx->form && rx->length >= conn->limits->receiveFormSize) {
         httpLimitError(conn, HTTP_CLOSE | HTTP_CODE_REQUEST_TOO_LARGE, 
             "Request form of %,Ld bytes is too big. Limit %,Ld", rx->length, conn->limits->receiveFormSize);
     }
-    if (!keepAlive) {
+    if (conn->error) {
+        /* Cannot continue with keep-alive as the headers have not been correctly parsed */
         conn->keepAliveCount = 0;
+        conn->connError = 1;
+    }
+    if (conn->http10 && !keepAliveHeader) {
+        conn->keepAliveCount = 0;
+    }
+    if (!conn->endpoint && conn->mustClose && rx->length < 0) {
+        /*
+            Google does responses with a body and without a Content-Lenght like this:
+                Connection: close
+                Location: URI
+         */
+        rx->remainingContent = rx->redirect ? 0 : MAXINT;
     }
     if (!(rx->flags & HTTP_CHUNKED)) {
         /*
@@ -13472,7 +13469,7 @@ static ssize filterPacket(HttpConn *conn, HttpPacket *packet, int *more)
         httpTraceContent(conn, HTTP_TRACE_RX, HTTP_TRACE_BODY, packet, nbytes, rx->bytesRead);
     }
     if (rx->eof) {
-        if (rx->remainingContent > 0 && !conn->http10) {
+        if (rx->remainingContent > 0 && !conn->mustClose) {
             /* Closing is the only way for HTTP/1.0 to signify the end of data */
             httpError(conn, HTTP_ABORT | HTTP_CODE_COMMS_ERROR, "Connection lost");
             return 0;
@@ -13816,7 +13813,7 @@ PUBLIC void httpCloseRx(HttpConn *conn)
 {
     if (conn->rx && !conn->rx->remainingContent) {
         /* May not have consumed all read data, so can't be assured the next request will be okay */
-        conn->keepAliveCount = -1;
+        conn->keepAliveCount = 0;
     }
     if (conn->state < HTTP_STATE_FINALIZED) {
         httpPumpRequest(conn, NULL);
@@ -16327,10 +16324,15 @@ static void setHeaders(HttpConn *conn, HttpPacket *packet)
         if (!(route->flags & HTTP_ROUTE_STEALTH)) {
             httpAddHeaderString(conn, "Server", conn->http->software);
         }
+        /*
+            If keepAliveCount == 1
+         */
         if (--conn->keepAliveCount > 0) {
+            assert(conn->keepAliveCount >= 1);
             httpAddHeaderString(conn, "Connection", "Keep-Alive");
             httpAddHeader(conn, "Keep-Alive", "timeout=%Ld, max=%d", conn->limits->inactivityTimeout / 1000, conn->keepAliveCount);
         } else {
+            /* Tell the peer to close the connection */
             httpAddHeaderString(conn, "Connection", "close");
         }
         if (route->flags & HTTP_ROUTE_CORS) {
@@ -16412,7 +16414,7 @@ PUBLIC void httpWriteHeaders(HttpQueue *q, HttpPacket *packet)
         (conn->headersCallback)(conn->headersCallbackArg);
     }
     if (tx->flags & HTTP_TX_USE_OWN_HEADERS && !conn->error) {
-        conn->keepAliveCount = -1;
+        conn->keepAliveCount = 0;
         return;
     }
     setHeaders(conn, packet);
@@ -18610,7 +18612,7 @@ static int matchWebSock(HttpConn *conn, HttpRoute *route, int dir)
             ws->pingEvent = mprCreateEvent(conn->dispatcher, "webSocket", route->webSocketsPingPeriod, 
                 webSockPing, conn, MPR_EVENT_CONTINUOUS);
         }
-        conn->keepAliveCount = -1;
+        conn->keepAliveCount = 0;
         conn->upgraded = 1;
         rx->eof = 0;
         rx->remainingContent = MAXINT;
@@ -19038,7 +19040,7 @@ static int processFrame(HttpQueue *q, HttpPacket *packet)
             httpSendClose(conn, WS_STATUS_OK, "OK");
             rx->eof = 1;
             rx->remainingContent = 0;
-            conn->keepAliveCount = -1;
+            conn->keepAliveCount = 0;
         }
         ws->state = WS_STATE_CLOSED;
         break;
@@ -19506,7 +19508,7 @@ PUBLIC int httpUpgradeWebSocket(HttpConn *conn)
     httpSetHeader(conn, "X-Request-Timeout", "%Ld", conn->limits->requestTimeout / MPR_TICKS_PER_SEC);
     httpSetHeader(conn, "X-Inactivity-Timeout", "%Ld", conn->limits->requestTimeout / MPR_TICKS_PER_SEC);
     conn->upgraded = 1;
-    conn->keepAliveCount = -1;
+    conn->keepAliveCount = 0;
     conn->rx->remainingContent = MAXINT;
     return 0;
 }

@@ -2280,6 +2280,7 @@ typedef struct HttpConn {
     int             delay;                  /**< Delay servicing request due to defense strategy */
     int             followRedirects;        /**< Follow redirects for client requests */
     int             keepAliveCount;         /**< Count of remaining Keep-Alive requests for this connection */
+    int             mustClose;              /**< Peer explicitly requested the connection be closed via "Connection: close" */
     int             http10;                 /**< Using legacy HTTP/1.0 */
     int             ownDispatcher;          /**< Own the dispatcher and should destroy when closing connection */
     int             port;                   /**< Remote port */

@@ -5005,7 +5005,9 @@ PUBLIC int mprRunCmd(MprCmd *cmd, cchar *command, cchar **envp, char **out, char
     cchar   **argv;
     int     argc;
 
-    assert(cmd);
+    if (cmd == 0) {
+        cmd = mprCreateCmd(0);
+    }
     if ((argc = mprMakeArgv(command, &argv, 0)) < 0 || argv == 0) {
         return 0;
     }
