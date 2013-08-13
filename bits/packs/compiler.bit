@@ -173,6 +173,8 @@ function testCompilerCapabilities() {
         if (platform.os != 'vxworks') {
             settings.hasLibRt = compile(cc, '',
                 '#define _GNU_SOURCE\n#include <time.h>\nint main() { struct timespec tv; clock_gettime(CLOCK_REALTIME, &tv); return 0; }')
+            settings.hasAtomic = compile(cc, '',
+                'int main() { int a, b; a = 0 ; b = 1; __atomic_add_fetch(&a, b, __ATOMIC_RELAXED); }')
             settings.hasDynLoad = compile(cc, '',
                 '#include <stdio.h>\n#include <dlfcn.h>\nint main() { dlopen(\"test.so\", 0); return 0; }')
             settings.hasLibEdit = compile(cc, '',
@@ -347,6 +349,7 @@ function getDefaultSettings() {
     let settings
     if (platform.like == 'windows') {
         settings = {
+            hasAtomic: false,
             hasDynLoad: true,
             hasLibEdit: false,
             hasLibRt: false,
@@ -355,6 +358,7 @@ function getDefaultSettings() {
         }
     } else if (platform.os == 'linux') {
         settings = {
+            hasAtomic: false,
             hasDoubleBraces: false,
             hasDynLoad: true,
             hasLibEdit: false,
@@ -371,6 +375,7 @@ function getDefaultSettings() {
         }
     } else if (platform.os == 'macosx') {
         settings = {
+            hasAtomic: true,
             hasDoubleBraces: true,
             hasLibEdit: true,
             hasLibRt: false,
@@ -387,6 +392,7 @@ function getDefaultSettings() {
         }
     } else if (platform.os == 'vxworks') {
         settings = {
+            hasAtomic: true,
             hasDoubleBraces: false,
             hasLibEdit: false,
             hasLibRt: false,
@@ -403,6 +409,7 @@ function getDefaultSettings() {
         }
     } else {
         settings = {
+            hasAtomic: true,
             hasDoubleBraces: true,
             hasLibEdit: false,
             hasLibRt: false,
@@ -418,6 +425,5 @@ function getDefaultSettings() {
             warnUnused: false,
         }
     }
-    // settings.debug = true
     return settings
 }
