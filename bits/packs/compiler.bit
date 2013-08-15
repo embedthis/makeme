@@ -357,6 +357,10 @@ function getDefaultSettings() {
             hasLibEdit: false,
             hasLibRt: false,
             hasMmu: true,
+            hasStackProtector: false,
+            hasSync: false,
+            hasSync64: false,
+            hasSyncCas: false,
             hasUnnamedUnions: true,
         }
     } else if (platform.os == 'linux') {
