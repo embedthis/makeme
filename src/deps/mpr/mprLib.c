@@ -3542,11 +3542,11 @@ PUBLIC void mprAtomicAdd64(volatile int64 *ptr, int64 value)
     #elif BIT_WIN_LIKE && BIT_64
         InterlockedExchangeAdd64(ptr, value);
     
-    #elif BIT_HAS_ATOMIC && (BIT_64 || BIT_CPU_ARCH == BIT_CPU_X86 || BIT_CPU_ARCH == BIT_CPU_X64)
+    #elif BIT_HAS_ATOMIC64 && (BIT_64 || BIT_CPU_ARCH == BIT_CPU_X86 || BIT_CPU_ARCH == BIT_CPU_X64)
         //  OPT - could use __ATOMIC_RELAXED
         __atomic_add_fetch(ptr, value, __ATOMIC_SEQ_CST);
 
-    #elif BIT_HAS_SYNC_CAS && (BIT_64 || BIT_CPU_ARCH == BIT_CPU_X86 || BIT_CPU_ARCH == BIT_CPU_X64)
+    #elif BIT_HAS_SYNC64 && (BIT_64 || BIT_CPU_ARCH == BIT_CPU_X86 || BIT_CPU_ARCH == BIT_CPU_X64)
         __sync_add_and_fetch(ptr, value);
 
     #elif __GNUC__ && (BIT_CPU_ARCH == BIT_CPU_X86)
@@ -18146,11 +18146,13 @@ PUBLIC char *mprPrintfCore(char *buf, ssize maxsize, cchar *spec, va_list args)
 
             case 'X':
                 fmt.flags |= SPRINTF_UPPER_CASE;
+#if UNUSED
 #if BIT_64
                 fmt.flags &= ~(SPRINTF_SHORT|SPRINTF_LONG);
                 fmt.flags |= SPRINTF_INT64;
 #else
                 fmt.flags &= ~(SPRINTF_INT64);
+#endif
 #endif
                 /*  Fall through  */
             case 'o':
@@ -24773,6 +24775,10 @@ static int localTime(struct tm *timep, MprTime time);
 static MprTime makeTime(struct tm *tp);
 static void validateTime(struct tm *tm, struct tm *defaults);
 
+#if !MACOSX && !CLOCK_MONOTONIC_RAW && !CLOCK_MONOTONIC && !(BIT_WIN_LIKE && _WIN32_WINNT >= 0x0600)
+static MprSpin ticksSpin;
+#endif
+
 /************************************ Code ************************************/
 /*
     Initialize the time service
@@ -24936,18 +24942,26 @@ PUBLIC MprTicks mprGetTicks()
     static MprTime lastTicks;
     static MprTime adjustTicks = 0;
     MprTime     result, diff;
+
     if (lastTicks == 0) {
+        /* This will happen at init time when single threaded */
         lastTicks = mprGetTime();
+        mprInitSpinLock(&ticksSpin);
     }
+    mprSpinLock(&ticksSpin);
     result = mprGetTime() + adjustTicks;
-    /*
-        Handle time reversals. Don't handle jumps forward. Sorry.
-     */
     if ((diff = (result - lastTicks)) < 0) {
-        adjustTicks += diff;
-        result -= diff;
+        /*
+            Handle time reversals. Don't handle jumps forward. Sorry.
+         */
+        result = mprGetTime() + adjustTicks;
+        if ((diff = (result - lastTicks)) < 0) {
+            adjustTicks += diff;
+            result -= diff;
+        }
     }
     lastTicks = result;
+    mprSpinUnlock(&ticksSpin);
     return result;
 #endif
 }

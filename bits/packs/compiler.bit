@@ -403,8 +403,8 @@ function getDefaultSettings() {
         }
     } else if (platform.os == 'vxworks') {
         settings = {
-            hasAtomic: true,
-            hasAtomic64: true,
+            hasAtomic: false,
+            hasAtomic64: false,
             hasDoubleBraces: false,
             hasLibEdit: false,
             hasLibRt: false,

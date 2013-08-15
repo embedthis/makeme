@@ -73,6 +73,9 @@
 #ifndef BIT_HAS_ATOMIC
     #define BIT_HAS_ATOMIC 1
 #endif
+#ifndef BIT_HAS_ATOMIC64
+    #define BIT_HAS_ATOMIC64 1
+#endif
 #ifndef BIT_HAS_DOUBLE_BRACES
     #define BIT_HAS_DOUBLE_BRACES 1
 #endif
@@ -99,6 +102,9 @@
 #endif
 #ifndef BIT_HAS_SYNC
     #define BIT_HAS_SYNC 1
+#endif
+#ifndef BIT_HAS_SYNC64
+    #define BIT_HAS_SYNC64 1
 #endif
 #ifndef BIT_HAS_SYNC_CAS
     #define BIT_HAS_SYNC_CAS 1
