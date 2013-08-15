@@ -3,11 +3,9 @@ LICENSE.md - Embedthis Bit Licenses
 
 This file documents the Embedthis Software Licenses. It includes the Embedthis Bit Open Source License and licenses for third-party components within Bit.
 
-This software is distributed under commercial and open source licenses. You may use the GPLv2 Open Source License below or you may acquire a commercial license from Embedthis Software. You agree to be fully bound by the terms of either license. The GPLv2 License does NOT generally permit incorporating this software into non-open source programs. If you are unable to comply with the GPLv2, you must acquire a commercial license to use this software.
+This software is distributed under commercial and open source licenses. You may use the GPLv2 Open Source License below or you may acquire a commercial license from Embedthis Software. You agree to be fully bound by the terms of either license. The GPLv2 License does NOT generally permit incorporating this software into non-open source programs. If you are unable to comply with the GPLv2, you must acquire a commercial license to use this software. Commercial licenses for this software and support services are available from Embedthis Software at: http://embedthis.com/licensing/index.html.
 
-Commercial licenses for this software and support services are available from Embedthis Software at: http://embedthis.com/licensing/index.html
-
-See third-party licenses after the open source license.
+This software uses some third-party components and the licenses for these are included below. These licenses are not "tainting" and can be used in commercial software products. There is no third-party software included that uses the GPL or similar licenses.  The obligations of some of these third-party components require that you include a copy of their license with your binary, software and documentation distributions of your product. Including this file with your product will satify these obligations.  
 
 Embedthis Bit Open Source License
 ---
