@@ -157,10 +157,7 @@ function testCompilerCapabilities() {
     let settings = getDefaultSettings()
     let cc = bit.packs.compiler.path
 
-    if (Config.OS != platform.os) {
-        /* Cannot sleuth when generating for a cross-platform */
-
-    } else if (cc && (platform.like == 'unix' || (platform.os == 'vxworks' && Config.OS == 'linux'))) {
+    if (!bit.options.gen && cc && (platform.like == 'unix' || (platform.os == 'vxworks' && Config.OS == 'linux'))) {
         settings.hasAtomic = compile(cc, '',
             'int main() { int a, b; a = 0 ; b = 1; __atomic_add_fetch(&a, b, __ATOMIC_RELAXED); return 0; }')
         settings.hasAtomic64 = compile(cc, '',
