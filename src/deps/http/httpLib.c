@@ -13420,7 +13420,8 @@ static ssize filterPacket(HttpConn *conn, HttpPacket *packet, int *more)
 {
     HttpRx      *rx;
     HttpTx      *tx;
-    ssize       nbytes, size;
+    MprOff      size;
+    ssize       nbytes;
 
     rx = conn->rx;
     tx = conn->tx;

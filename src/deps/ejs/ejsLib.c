@@ -45083,7 +45083,7 @@ static EjsObj *sock_listen(Ejs *ejs, EjsSocket *sp, int argc, EjsObj **argv)
         ejsThrowStateError(ejs, "Socket is closed");
         return 0;
     }
-    if (mprListenOnSocket(sp->sock, sp->address, sp->port, 0) < 0) {
+    if (mprListenOnSocket(sp->sock, sp->address, sp->port, 0) == SOCKET_ERROR) {
         ejsThrowArgError(ejs, "Cannot open listening socket");
         return 0;
     }

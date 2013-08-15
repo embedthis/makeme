@@ -70,6 +70,9 @@
 #ifndef BIT_EST_XTEA
     #define BIT_EST_XTEA 0
 #endif
+#ifndef BIT_HAS_ATOMIC
+    #define BIT_HAS_ATOMIC 1
+#endif
 #ifndef BIT_HAS_DOUBLE_BRACES
     #define BIT_HAS_DOUBLE_BRACES 1
 #endif

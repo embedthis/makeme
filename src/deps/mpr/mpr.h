@@ -756,6 +756,7 @@ PUBLIC void mprAtomicAdd(volatile int *target, int value);
  */
 PUBLIC void mprAtomicAdd64(volatile int64 *target, int64 value);
 
+#if UNUSED
 /**
     Exchange the target and a value
     @param target Address of the target word to exchange
@@ -764,6 +765,7 @@ PUBLIC void mprAtomicAdd64(volatile int64 *target, int64 value);
     @stability Evolving.
  */
 PUBLIC void *mprAtomicExchange(void * volatile *target, cvoid *value);
+#endif
 
 /********************************* Memory Allocator ***************************/
 /*
