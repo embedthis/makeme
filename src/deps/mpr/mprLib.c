@@ -81,7 +81,6 @@
     #define BREAKPOINT(mp)          breakpoint(mp)
     #define CHECK(mp)               if (mp) { mprCheckBlock((MprMem*) mp); } else
     #define CHECK_PTR(ptr)          CHECK(GET_MEM(ptr))
-    #define CHECK_YIELDED()         checkYielded()
     #define SCRIBBLE(mp)            if (heap->scribble && mp != GET_MEM(MPR)) { \
                                         memset((char*) mp + MPR_ALLOC_MIN_BLOCK, 0xFE, mp->size - MPR_ALLOC_MIN_BLOCK); \
                                     } else
@@ -97,7 +96,6 @@
     #define BREAKPOINT(mp)
     #define CHECK(mp)
     #define CHECK_PTR(mp)
-    #define CHECK_YIELDED()
     #define SCRIBBLE(mp)
     #define SCRIBBLE_RANGE(ptr, size)
     #define SET_NAME(mp, value)
@@ -179,7 +177,6 @@ static void vmfree(void *ptr, size_t size);
 #endif
 #if BIT_MPR_ALLOC_DEBUG
     static void breakpoint(MprMem *mp);
-    static void checkYielded();
     static int validBlk(MprMem *mp);
     static void freeLocation(MprMem *mp);
 #else
@@ -857,8 +854,8 @@ static void vmfree(void *ptr, size_t size)
 
 PUBLIC void mprStartGCService()
 {
-    if (heap->enabled) {
-        if (heap->flags & MPR_SWEEP_THREAD) {
+    if (heap->flags & MPR_SWEEP_THREAD) {
+        if (heap->enabled) {
             mprTrace(7, "DEBUG: startMemWorkers: start marker");
             if ((heap->gc = mprCreateThread("sweeper", gc, NULL, 0)) == 0) {
                 mprError("Cannot create marker thread");
@@ -891,7 +888,7 @@ PUBLIC void mprWakeGCService()
 static BIT_INLINE void triggerGC()
 {
     if (!heap->gcRequested) {
-        if ((heap->flags & MPR_SWEEP_THREAD) && heap->gcCond) {
+        if ((heap->flags & MPR_SWEEP_THREAD) && heap->enabled && heap->gcCond) {
             heap->gcRequested = 1;
             mprSignalCond(heap->gcCond);
         }
@@ -916,6 +913,192 @@ PUBLIC void mprRequestGC(int flags)
     if (!(flags & MPR_GC_NO_BLOCK)) {
         mprYield((flags & MPR_GC_COMPLETE) ? MPR_YIELD_COMPLETE : 0);
     }
+}
+
+/*
+    Called by user code to signify the thread is ready for GC and all object references are saved.  Flags:
+
+        MPR_YIELD_DEFAULT   Yield and only if GC is required, block for GC. Otherwise return without blocking.
+        MPR_YIELD_BLOCK     Yield and wait until the next GC starts and resumes user threads, regardless of whether GC is required.
+        MPR_YIELD_COMPLETE  Yield and wait until the GC entirely complete including sweeper.
+        MPR_YIELD_STICKY    Yield and remain yielded until reset. Does not block by default.
+ */
+PUBLIC void mprYield(int flags)
+{
+    MprThreadService    *ts;
+    MprThread           *tp;
+
+    ts = MPR->threadService;
+    if (flags & MPR_YIELD_COMPLETE) {
+        flags |= MPR_YIELD_BLOCK;
+    }
+    if ((tp = mprGetCurrentThread()) == 0) {
+        mprError("Yield called from an unknown thread");
+        return;
+    }
+    assert(!tp->waiting);
+    assert(!tp->yielded);
+    assert(!tp->stickyYield);
+
+    if (flags & MPR_YIELD_STICKY) {
+        tp->stickyYield = 1;
+        tp->yielded = 1;
+    }
+    /*
+        Double test to be lock free for the common case
+     */
+    if ((heap->mustYield || (flags & MPR_YIELD_BLOCK))) {
+        tp->waitForGC = (flags & MPR_YIELD_COMPLETE) ? 1 : 0;
+
+        lock(ts->threads);
+        while ((heap->mustYield || (flags & MPR_YIELD_BLOCK))) {
+            tp->yielded = 1;
+            tp->waiting = 1;
+            unlock(ts->threads);
+
+            mprSignalCond(ts->pauseThreads);
+            
+            if (tp->stickyYield) {
+                tp->waiting = 0;
+                return;
+            }
+            mprWaitForCond(tp->cond, -1);
+
+            lock(ts->threads);
+            tp->waiting = 0;
+            if (tp->yielded && !tp->stickyYield) {
+                /*
+                    WARNING: this wait above may return without tp->yielded having been cleared. 
+                    This can happen because the cond may have already been triggered by a 
+                    previous sticky yield. i.e. it did not wait.
+                 */
+                tp->yielded = 0;
+            } else if (!tp->waitForGC) {
+                flags &= ~MPR_YIELD_BLOCK;
+            }
+        }
+        unlock(ts->threads);
+    }
+    if (!tp->stickyYield) {
+        assert(!tp->yielded);
+        assert(!heap->marking);
+    }
+}
+
+
+PUBLIC void mprResetYield()
+{
+    MprThreadService    *ts;
+    MprThread           *tp;
+
+    ts = MPR->threadService;
+    if ((tp = mprGetCurrentThread()) == 0) {
+        mprError("Yield called from an unknown thread");
+        return;
+    }
+    assert(tp->stickyYield);
+    if (tp->stickyYield) {
+        /*
+            Marking could have started again while sticky yielded. So must yield here regardless.
+         */
+        lock(ts->threads);
+        tp->stickyYield = 0;
+        if (tp->yielded && heap->mustYield) {
+            tp->yielded = 0;
+            unlock(ts->threads);
+            mprYield(0);
+            assert(!tp->yielded);
+        } else {
+            tp->yielded = 0;
+            unlock(ts->threads);
+        }
+    }
+    assert(!tp->yielded);
+}
+
+
+/*
+    Pause until all threads have yielded. Called by the GC marker only.
+    NOTE: this functions differently if parallel. If so, then it will abort waiting. If !parallel, it waits for all
+    threads to yield.
+ */
+static int pauseThreads()
+{
+    MprThreadService    *ts;
+    MprThread           *tp;
+    MprTicks            start;
+    int                 i, allYielded, timeout;
+
+    ts = MPR->threadService;
+    timeout = MPR_TIMEOUT_GC_SYNC;
+
+    mprTrace(7, "pauseThreads: wait for threads to yield, timeout %d", timeout);
+    start = mprGetTicks();
+    if (mprGetDebugMode()) {
+        timeout = timeout * 500;
+    }
+    do {
+        lock(ts->threads);
+        if (!heap->pauseGC) {
+            allYielded = 1;
+            for (i = 0; i < ts->threads->length; i++) {
+                tp = (MprThread*) mprGetItem(ts->threads, i);
+                if (!tp->yielded) {
+                    allYielded = 0;
+                    if (mprGetElapsedTicks(start) > 1000) {
+                        mprTrace(7, "Thread %s is not yielding", tp->name);
+                    }
+                    break;
+                }
+            }
+            if (allYielded) {
+                heap->marking = 1;
+                unlock(ts->threads);
+                break;
+            }
+        } else {
+            allYielded = 0;
+        }
+        unlock(ts->threads);
+        mprTrace(7, "pauseThreads: waiting for threads to yield");
+        mprWaitForCond(ts->pauseThreads, 20);
+
+    } while (!allYielded && mprGetElapsedTicks(start) < timeout);
+
+    mprTrace(7, "TIME: pauseThreads elapsed %,Ld msec %", mprGetElapsedTicks(start));
+    return (allYielded) ? 1 : 0;
+}
+
+
+static void resumeThreads(int flags)
+{
+    MprThreadService    *ts;
+    MprThread           *tp;
+    int                 i;
+
+    ts = MPR->threadService;
+    lock(ts->threads);
+    heap->mustYield = 0;
+    for (i = 0; i < ts->threads->length; i++) {
+        tp = (MprThread*) mprGetItem(ts->threads, i);
+        if (tp && tp->yielded) {
+            if (flags == WAITING_THREADS && !tp->waitForGC) {
+                continue;
+            }
+            if (flags == YIELDED_THREADS && tp->waitForGC) {
+                continue;
+            }
+            if (!tp->stickyYield) {
+                tp->yielded = 0;
+            }
+            tp->waitForGC = 0;
+            if (tp->waiting) {
+                assert(tp->stickyYield || !tp->yielded);
+                mprSignalCond(tp->cond);
+            }
+        }
+    }
+    unlock(ts->threads);
 }
 
 
@@ -995,6 +1178,24 @@ static void markAndSweep()
 #else
     resumeThreads(YIELDED_THREADS | WAITING_THREADS);
 #endif
+}
+
+
+static void markRoots()
+{
+    void    *root;
+    int     next;
+
+#if BIT_MPR_ALLOC_STATS
+    heap->stats.markVisited = 0;
+    heap->stats.marked = 0;
+#endif
+    mprMark(heap->roots);
+    mprMark(heap->gcCond);
+
+    for (ITERATE_ITEMS(heap->roots, root, next)) {
+        mprMark(root);
+    }
 }
 
 
@@ -1173,24 +1374,6 @@ static void sweep()
 }
 
 
-static void markRoots()
-{
-    void    *root;
-    int     next;
-
-#if BIT_MPR_ALLOC_STATS
-    heap->stats.markVisited = 0;
-    heap->stats.marked = 0;
-#endif
-    mprMark(heap->roots);
-    mprMark(heap->gcCond);
-
-    for (ITERATE_ITEMS(heap->roots, root, next)) {
-        mprMark(root);
-    }
-}
-
-
 /*
     Permanent allocation. Immune to garbage collector.
  */
@@ -1283,167 +1466,7 @@ PUBLIC int mprCreateEventOutside(MprDispatcher *dispatcher, void *proc, void *da
 }
 
 
-/*
-    Called by user code to signify the thread is ready for GC and all object references are saved.  Flags:
 
-        MPR_YIELD_DEFAULT   Yield and only if GC is required, block for GC. Otherwise return without blocking.
-        MPR_YIELD_BLOCK     Yield and wait until the next GC starts and resumes user threads, regardless of whether GC is required.
-        MPR_YIELD_COMPLETE  Yield and wait until the GC entirely complete including sweeper.
-        MPR_YIELD_STICKY    Yield and remain yielded until reset. Does not block by default.
- */
-PUBLIC void mprYield(int flags)
-{
-    MprThreadService    *ts;
-    MprThread           *tp;
-
-    ts = MPR->threadService;
-    if ((tp = mprGetCurrentThread()) == 0) {
-        mprError("Yield called from an unknown thread");
-        /* Called from a non-mpr thread */
-        return;
-    }
-    tp->yielded = 1;
-    if (flags & MPR_YIELD_STICKY) {
-        tp->stickyYield = 1;
-    }
-    tp->waitForGC = (flags & MPR_YIELD_COMPLETE) ? 1 : 0;
-
-    if (flags & MPR_YIELD_COMPLETE) {
-        flags |= MPR_YIELD_BLOCK;
-    }
-    while (tp->yielded && (heap->mustYield || (flags & MPR_YIELD_BLOCK))) {
-        if (heap->flags & MPR_SWEEP_THREAD) {
-            mprSignalCond(ts->cond);
-        }
-        if (tp->stickyYield) {
-            return;
-        }
-        mprWaitForCond(tp->cond, -1);
-        if (!tp->waitForGC) {
-            flags &= ~MPR_YIELD_BLOCK;
-        }
-    }
-    if (!tp->stickyYield) {
-        tp->yielded = 0;
-        assert(!heap->marking);
-    }
-}
-
-
-PUBLIC void mprResetYield()
-{
-    MprThreadService    *ts;
-    MprThread           *tp;
-
-    ts = MPR->threadService;
-    if ((tp = mprGetCurrentThread()) != 0) {
-        tp->stickyYield = 0;
-    }
-    /*
-        May have been sticky yielded and so marking could have started again. If so, must yield here regardless.
-        If GC being requested, then do a blocking pause here.
-     */
-    lock(ts->threads);
-    if (heap->mustYield && (heap->marking || (heap->sweeping && !BIT_MPR_ALLOC_PARALLEL))) {
-        unlock(ts->threads);
-        mprYield(0);
-    } else {
-        if (tp) {
-            tp->yielded = 0;
-        }
-        unlock(ts->threads);
-    }
-}
-
-
-/*
-    Pause until all threads have yielded. Called by the GC marker only.
-    NOTE: this functions differently if parallel. If so, then it will abort waiting. If !parallel, it waits for all
-    threads to yield.
- */
-static int pauseThreads()
-{
-    MprThreadService    *ts;
-    MprThread           *tp;
-    MprTicks            start;
-    int                 i, allYielded, timeout;
-
-#if BIT_MPR_TRACING
-    uint64  hticks = mprGetHiResTicks();
-#endif
-    ts = MPR->threadService;
-    timeout = MPR_TIMEOUT_GC_SYNC;
-
-    mprTrace(7, "pauseThreads: wait for threads to yield, timeout %d", timeout);
-    start = mprGetTicks();
-    if (mprGetDebugMode()) {
-        timeout = timeout * 500;
-    }
-    do {
-        lock(ts->threads);
-        if (!heap->pauseGC) {
-            allYielded = 1;
-            for (i = 0; i < ts->threads->length; i++) {
-                tp = (MprThread*) mprGetItem(ts->threads, i);
-                if (!tp->yielded) {
-                    allYielded = 0;
-                    if (mprGetElapsedTicks(start) > 1000) {
-                        mprTrace(7, "Thread %s is not yielding", tp->name);
-                    }
-                    break;
-                }
-            }
-            if (allYielded) {
-                heap->marking = 1;
-                unlock(ts->threads);
-                break;
-            }
-        } else {
-            allYielded = 0;
-        }
-        unlock(ts->threads);
-        mprTrace(7, "pauseThreads: waiting for threads to yield");
-        mprWaitForCond(ts->cond, 20);
-
-    } while (!allYielded && mprGetElapsedTicks(start) < timeout);
-
-#if BIT_MPR_TRACING
-    mprTrace(7, "TIME: pauseThreads elapsed %,Ld msec, %,Ld hticks", mprGetElapsedTicks(start), mprGetHiResTicks() - hticks);
-#endif
-    if (allYielded) {
-        CHECK_YIELDED();
-    }
-    return (allYielded) ? 1 : 0;
-}
-
-
-static void resumeThreads(int flags)
-{
-    MprThreadService    *ts;
-    MprThread           *tp;
-    int                 i;
-
-    ts = MPR->threadService;
-    lock(ts->threads);
-    heap->mustYield = 0;
-    for (i = 0; i < ts->threads->length; i++) {
-        tp = (MprThread*) mprGetItem(ts->threads, i);
-        if (tp && tp->yielded) {
-            if (flags == WAITING_THREADS && !tp->waitForGC) {
-                continue;
-            }
-            if (flags == YIELDED_THREADS && tp->waitForGC) {
-                continue;
-            }
-            if (!tp->stickyYield) {
-                tp->yielded = 0;
-            }
-            tp->waitForGC = 0;
-            mprSignalCond(tp->cond);
-        }
-    }
-    unlock(ts->threads);
-}
 
 
 PUBLIC bool mprEnableGC(bool on)
@@ -2261,24 +2284,6 @@ PUBLIC void *mprSetManager(void *ptr, MprManager manager)
 }
 
 
-#if BIT_MPR_ALLOC_DEBUG
-static void checkYielded()
-{
-    MprThreadService    *ts;
-    MprThread           *tp;
-    int                 i;
-
-    ts = MPR->threadService;
-    lock(ts->threads);
-    for (i = 0; i < ts->threads->length; i++) {
-        tp = (MprThread*) mprGetItem(ts->threads, i);
-        assert(tp->yielded);
-    }
-    unlock(ts->threads);
-}
-#endif
-
-
 #if BIT_MPR_ALLOC_STACK
 static void monitorStack()
 {
@@ -2532,7 +2537,6 @@ PUBLIC void mprDestroy(int how)
         }
         exit(0);
     }
-    mprYield(MPR_YIELD_STICKY);
     if (MPR->state < MPR_STOPPING) {
         mprTerminate(how, -1);
     }
@@ -6561,7 +6565,6 @@ PUBLIC int mprWaitForCond(MprCond *cp, MprTicks timeout)
     struct timeval      current;
     int                 usec;
 #endif
-
     /*
         Avoid doing a mprGetTicks() if timeout is < 0
      */
@@ -6621,15 +6624,17 @@ PUBLIC int mprWaitForCond(MprCond *cp, MprTicks timeout)
 
 #elif BIT_UNIX_LIKE
         /*
-            NOTE: pthread_cond_timedwait can return 0 (MAC OS X and Linux). The pthread_cond_wait routines will 
-            atomically unlock the mutex before sleeping and will relock on awakening.
+            The pthread_cond_wait routines will atomically unlock the mutex before sleeping and will relock on awakening.
+            WARNING: pthreads may do spurious wakeups without being triggered
          */
         if (!cp->triggered) {
-            if (now) {
-                rc = pthread_cond_timedwait(&cp->cv, &cp->mutex->cs,  &waitTill);
-            } else {
-                rc = pthread_cond_wait(&cp->cv, &cp->mutex->cs);
-            }
+            do {
+                if (now) {
+                    rc = pthread_cond_timedwait(&cp->cv, &cp->mutex->cs,  &waitTill);
+                } else {
+                    rc = pthread_cond_wait(&cp->cv, &cp->mutex->cs);
+                }
+            } while ((rc == 0 || rc == EAGAIN) && !cp->triggered);
             if (rc == ETIMEDOUT) {
                 rc = MPR_ERR_TIMEOUT;
             } else if (rc == EAGAIN) {
@@ -14045,9 +14050,9 @@ PUBLIC void mprAssert(cchar *loc, cchar *msg)
     }
     mprTrace(0, "%s", buf);
     mprBreakpoint();
-#if WATSON_PAUSE
-    printf("Stop for WATSON\n");
-    mprNap(60 * 1000);
+#if BIT_DEBUG_WATSON
+    fprintf(stderr, "Pause for debugger to attach\n");
+    mprSleep(24 * 3600 * 1000);
 #endif
 #endif
 }
@@ -22536,6 +22541,7 @@ PUBLIC MprList *stolist(cchar *src)
 
 
 
+#if BIT_MPR_TEST
 /***************************** Forward Declarations ***************************/
 
 static void     adjustFailedCount(int adj);
@@ -23526,6 +23532,7 @@ static int setLogging(char *logSpec)
     return 0;
 }
 
+#endif /* BIT_MPR_TEST */
 
 /*
     @copy   default
@@ -23587,7 +23594,7 @@ PUBLIC MprThreadService *mprCreateThreadService()
     if ((ts = mprAllocObj(MprThreadService, manageThreadService)) == 0) {
         return 0;
     }
-    if ((ts->cond = mprCreateCond()) == 0) {
+    if ((ts->pauseThreads = mprCreateCond()) == 0) {
         return 0;
     }
     if ((ts->threads = mprCreateList(-1, 0)) == 0) {
@@ -23618,7 +23625,7 @@ static void manageThreadService(MprThreadService *ts, int flags)
     if (flags & MPR_MANAGE_MARK) {
         mprMark(ts->threads);
         mprMark(ts->mainThread);
-        mprMark(ts->cond);
+        mprMark(ts->pauseThreads);
 
     } else if (flags & MPR_MANAGE_FREE) {
         mprStopThreadService();
@@ -28187,7 +28194,7 @@ PUBLIC void mprWriteToOsLog(cchar *message, int flags, int level)
     void        *event;
     long        errorType;
     ulong       exists;
-    char        buf[BIT_MAX_PATH], logName[BIT_MAX_PATH], *cp, *value;
+    char        buf[BIT_MAX_BUFFER], logName[BIT_MAX_BUFFER], *cp, *value;
     wchar       *lines[9];
     int         type;
     static int  once = 0;

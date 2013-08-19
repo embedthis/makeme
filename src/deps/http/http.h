@@ -1681,7 +1681,6 @@ PUBLIC bool httpWillNextQueueAcceptSize(HttpQueue *q, ssize size);
  */
 PUBLIC ssize httpWrite(HttpQueue *q, cchar *fmt, ...);
 
-
 #define HTTP_BUFFER     0x1    /**< Flag for httpSendBlock and httpWriteBlock to always absorb the data without blocking */
 #define HTTP_BLOCK      0x2    /**< Flag for httpSendBlock and httpWriteBlock to indicate blocking operation */
 #define HTTP_NON_BLOCK  0x4    /**< Flag for httpSendBlock and httpWriteBlock to indicate non-blocking operation */
@@ -2891,6 +2890,9 @@ PUBLIC void httpUseWorker(HttpConn *conn, MprDispatcher *dispatcher, MprEvent *e
 #define HTTP_ALLOW_DENY     0x1           /**< Run allow checks before deny checks */
 #define HTTP_DENY_ALLOW     0x2           /**< Run deny checks before allow checks */
 
+#define HTTP_BLOW_ROUNDS    16
+#define HTTP_BLOW_SALT      16
+
 /**
     AuthType callback to generate a response requesting the user login
     This should call httpError if such a response cannot be generated.
@@ -2995,6 +2997,7 @@ typedef struct  HttpRole {
  */
 typedef struct HttpAuth {
     struct HttpAuth *parent;                /**< Parent auth */
+    char            *cipher;                /**< Encryption cipher */
     char            *realm;                 /**< Realm of access */
     int             flags;                  /**< Authorization flags */
     MprHash         *allow;                 /**< Clients to allow */
@@ -3215,6 +3218,15 @@ PUBLIC void httpSetAuthAllow(HttpAuth *auth, cchar *ip);
     @stability Evolving
  */
 PUBLIC void httpSetAuthAnyValidUser(HttpAuth *auth);
+
+/**
+    Set the cipher to use when encrypting passwords
+    @param auth Authorization object allocated by #httpCreateAuth.
+    @param cipher. Set to "md5" or "blowfish"
+    @ingroup HttpAuth
+    @stability Prototype
+ */
+PUBLIC void httpSetAuthCipher(HttpAuth *auth, cchar *cipher);
 
 /**
     Deny access by a client IP address
@@ -6536,6 +6548,7 @@ typedef struct HttpWebSocket {
     int             maskOffset;             /**< Offset in dataMask */
     int             preserveFrames;         /**< Do not join frames */
     int             partialUTF;             /**< Last frame had a partial UTF codepoint */ 
+    int             rxSeq;                  /**< Incoming packet number */
     int             txSeq;                  /**< Outgoing packet number */
     void            *data;                  /**< Custom data for applications (marked) */
 } HttpWebSocket;

@@ -2401,7 +2401,16 @@
 #define ES_WebSocket_OPEN                                              2
 #define ES_WebSocket_CLOSING                                           3
 #define ES_WebSocket_CLOSED                                            4
-#define ES_WebSocket_NUM_CLASS_PROP                                    5
+#define ES_WebSocket_MSG_CONT                                          5
+#define ES_WebSocket_MSG_TEXT                                          6
+#define ES_WebSocket_MSG_BINARY                                        7
+#define ES_WebSocket_MSG_CLOSE                                         8
+#define ES_WebSocket_MSG_PING                                          9
+#define ES_WebSocket_MSG_PONG                                          10
+#define ES_WebSocket_BUFFER                                            11
+#define ES_WebSocket_BLOCK                                             12
+#define ES_WebSocket_NON_BLOCK                                         13
+#define ES_WebSocket_NUM_CLASS_PROP                                    14
 
 /*
    Prototype (instance) slots for "WebSocket" type 
@@ -2604,7 +2613,7 @@
 #define ES_XMLList_NUM_INSTANCE_PROP                                   20
 #define ES_XMLList_NUM_INHERITED_PROP                                  0
 
-#define _ES_CHECKSUM_ejs   1510774
+#define _ES_CHECKSUM_ejs   1516307
 
 #endif
 

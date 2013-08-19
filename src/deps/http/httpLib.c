@@ -117,7 +117,7 @@ PUBLIC int httpOpenActionHandler(Http *http)
 
 #undef  GRADUATE_HASH
 #define GRADUATE_HASH(auth, field) \
-    if (1) { \
+    if (!auth->field) { \
         if (auth->parent && auth->field && auth->field == auth->parent->field) { \
             auth->field = mprCloneHash(auth->parent->field); \
         } else { \
@@ -381,6 +381,7 @@ static void manageAuth(HttpAuth *auth, int flags)
         mprMark(auth->permittedUsers);
 #endif
         mprMark(auth->qop);
+        mprMark(auth->cipher);
         mprMark(auth->realm);
         mprMark(auth->abilities);
         mprMark(auth->store);
@@ -475,6 +476,11 @@ PUBLIC void httpSetAuthAnyValidUser(HttpAuth *auth)
 }
 #endif
 
+
+PUBLIC void httpSetAuthCipher(HttpAuth *auth, cchar *cipher)
+{
+    auth->cipher = sclone(cipher);
+}
 
 /*
     Can supply a roles or abilities in the "abilities" parameter 
@@ -880,15 +886,24 @@ static bool fileVerifyUser(HttpConn *conn, cchar *username, cchar *password)
         return 0;
     }
     if (password) {
-        if (!conn->encoded) {
-            password = mprGetMD5(sfmt("%s:%s:%s", username, auth->realm, password));
-            conn->encoded = 1;
-        }
-        if (rx->passwordDigest) {
-            /* Digest authentication computes a digest using the password as one ingredient */
-            success = smatch(password, rx->passwordDigest);
+        success = 0;
+        if (!auth->cipher || smatch(auth->cipher, "md5")) {
+            if (!conn->encoded) {
+                password = mprGetMD5(sfmt("%s:%s:%s", username, auth->realm, password));
+                conn->encoded = 1;
+            }
+            if (rx->passwordDigest) {
+                /* Digest authentication computes a digest using the password as one ingredient */
+                success = smatch(password, rx->passwordDigest);
+            } else {
+                success = smatch(password, conn->user->password);
+            }
+
+        } else if (smatch(auth->cipher, "blowfish")) {
+            success = mprCheckPassword(sfmt("%s:%s:%s", username, auth->realm, password), conn->user->password);
+
         } else {
-            success = smatch(password, conn->user->password);
+            mprError("Unknown authentication cipher \"%s\"", auth->cipher);
         }
         if (success) {
             mprLog(5, "User \"%s\" authenticated for route %s", username, rx->route->name);
@@ -6984,7 +6999,6 @@ PUBLIC void httpJoinPacketForService(HttpQueue *q, HttpPacket *packet, bool serv
         }
         q->count += httpGetPacketLength(packet);
     }
-    VERIFY_QUEUE(q);
     if (serviceQ && !(q->flags & HTTP_QUEUE_SUSPENDED))  {
         httpScheduleQueue(q);
     }
@@ -8295,7 +8309,6 @@ PUBLIC ssize httpRead(HttpConn *conn, char *buf, ssize size)
     q = conn->readq;
     assert(q->count >= 0);
     assert(size >= 0);
-    VERIFY_QUEUE(q);
 
     while (q->count <= 0 && !conn->async && !conn->error && conn->sock && (conn->state <= HTTP_STATE_CONTENT)) {
         httpServiceQueues(conn);
@@ -15178,9 +15191,6 @@ PUBLIC int httpRenderSecurityToken(HttpConn *conn)
     cchar   *securityToken;
 
     securityToken = httpGetSecurityToken(conn);
-    /*
-        This cookie must be visible to Angular - so don't use HTTP_COOKIE_HTTP for "httponly".
-     */
     httpSetCookie(conn, BIT_XSRF_COOKIE, securityToken, "/", NULL,  0, 0);
     httpSetHeader(conn, BIT_XSRF_HEADER, securityToken);
     return 0;
@@ -18701,7 +18711,6 @@ static void incomingWebSockData(HttpQueue *q, HttpPacket *packet)
     ws = conn->rx->webSocket;
     assert(ws);
     limits = conn->limits;
-    VERIFY_QUEUE(q);
 
     if (packet->flags & HTTP_PACKET_DATA) {
         /*
@@ -18926,8 +18935,8 @@ static int processFrame(HttpQueue *q, HttpPacket *packet)
 
     if (3 <= MPR->logLevel) {
         mprAddNullToBuf(content);
-        mprLog(3, "webSocketFilter: receive \"%s\" (%d) frame, last %d, length %d", 
-            codetxt[packet->type], packet->type, packet->last, mprGetBufLength(content));
+        mprLog(2, "WebSocket: %d: receive \"%s\" (%d) frame, last %d, length %d",
+             ws->rxSeq++, codetxt[packet->type], packet->type, packet->last, mprGetBufLength(content));
     }
     switch (packet->type) {
     case WS_MSG_CONT:
@@ -18984,6 +18993,9 @@ static int processFrame(HttpQueue *q, HttpPacket *packet)
             if (packet->last || ws->tailMessage || ws->preserveFrames) {
                 packet->flags |= HTTP_PACKET_SOLO;
                 ws->messageLength += httpGetPacketLength(packet);
+                if (packet->type == WS_MSG_TEXT) {
+                    mprAddNullToBuf(packet->content);
+                }
                 /*
                     WARNING: this can run GC due to ejs script from httpNotify. So must retain tailMessage.
                  */
@@ -19285,7 +19297,7 @@ static void outgoingWebSockService(HttpQueue *q)
             }
             *prefix = '\0';
             mprAdjustBufEnd(packet->prefix, prefix - packet->prefix->start);
-            mprLog(3, "webSocketFilter: %d: send \"%s\" (%d) frame, last %d, length %d",
+            mprLog(2, "WebSocket: %d: send \"%s\" (%d) frame, last %d, length %d",
                 ws->txSeq++, codetxt[packet->type], packet->type, packet->last, httpGetPacketLength(packet));
         }
         httpPutPacketToNext(q, packet);

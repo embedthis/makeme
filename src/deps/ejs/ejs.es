@@ -11953,15 +11953,15 @@ module ejs {
         and is then upgraded without impacting the original connection. This means it will work with existing networking
         infrastructure including firewalls and proxies.
         @spec ejs
-        @stability prototype
-        @see Http ByteArray
+        @stability evolving
+        @see ByteArray Http
      */
     class WebSocket implements Stream {
 
         use default namespace public
 
         /** The $readyState value while waiting for the WebSockets open handshake to complete with the peer */
-        static const CONNECTING = 0              
+        static const CONNECTING = 0
 
         /** The $readyState value once the WebSockets open handshake is complete and ready for communications */
         static const OPEN = 1
@@ -11971,6 +11971,25 @@ module ejs {
 
         /** The $readyState value when the WebSockets connection is closed */
         static const CLOSED = 3
+
+        /**< Continuation of WebSocket message */
+        static const MSG_CONT = 0x0
+
+        /**< WebSocket text message*/
+        static const MSG_TEXT = 0x1
+
+        /**< WebSocket binary message */
+        static const MSG_BINARY = 0x2
+
+        /**< WebSocket close message */
+        static const MSG_CLOSE = 0x8
+
+        /**< WebSocket ping message */
+        static const MSG_PING = 0x9
+
+        /**< WebSocket pong message */
+        static const MSG_PONG = 0xA
+
 
         /**
             Create a new WebSocket and connect to the server using the supplied URI.
@@ -12076,10 +12095,20 @@ module ejs {
          */
         native function send(...content): Void
 
+        /**< sendBlock mode to buffer the content */
+        static const BUFFER = 0x1
+
+        /**< sendBlock mode to block waiting for the content to be sent */
+        static const BLOCK = 0x2
+
+        /**< sendBlock mode to not block and absorb only what can fit into the queue */
+        static const NON_BLOCK = 0x4
+
         /**
             Send a block of data with options to control message framing.
+            @param content The content may be a ByteArray or any other type which is then converted to a string.
             @param options
-            @options more Set to false for the last frame in a message. If omitted, assumed to be true.
+            @options last Set to true for the last frame in a message. If omitted, assumed to be true.
             @options type Message type. Masked to the valid WebSockets message types.
          */
         native function sendBlock(content, options): Void

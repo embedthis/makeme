@@ -51485,7 +51485,7 @@ static EjsString *ws_sendBlock(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **ar
     EjsAny          *content, *vp;
     ssize           nbytes;
     cchar           *str;
-    int             more, type, flags;
+    int             last, mode, type, flags;
 
     assert(argc == 2);
 
@@ -51493,7 +51493,16 @@ static EjsString *ws_sendBlock(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **ar
         return 0;
     }
     content = argv[0];
-    more = ejsGetPropertyByName(ejs, argv[1], EN("more")) == ESV(true);
+    last = ejsGetPropertyByName(ejs, argv[1], EN("last")) != ESV(false);
+    if ((vp = ejsGetPropertyByName(ejs, argv[1], EN("mode"))) != 0) {
+        mode = (int) ejsGetNumber(ejs, vp);
+        if (mode != HTTP_BUFFER && mode != HTTP_BLOCK && mode != HTTP_NON_BLOCK) {
+            ejsThrowArgError(ejs, "Bad message mode");
+            return 0;
+        }
+    } else {
+        mode = HTTP_BUFFER;
+    }
     if ((vp = ejsGetPropertyByName(ejs, argv[1], EN("type"))) != 0) {
         type = (int) ejsGetNumber(ejs, vp);
         if (type != WS_MSG_CONT && type != WS_MSG_TEXT && type != WS_MSG_BINARY) {
@@ -51503,8 +51512,8 @@ static EjsString *ws_sendBlock(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **ar
     } else {
         type = WS_MSG_TEXT;
     }
-    flags = HTTP_BLOCK;
-    if (more) {
+    flags = mode;
+    if (!last) {
         flags |= HTTP_MORE;
     }
     if (ejsIs(ejs, content, ByteArray)) {

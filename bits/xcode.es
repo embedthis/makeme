@@ -771,7 +771,11 @@ function prepareSettings(base, o, debug: Boolean) {
     if (options.libpaths) result += options.libpaths
     if (options.linker) result += options.linker
     if (staticTarget) {
-        result += '\n\t\t\t\tMACH_O_TYPE = staticlib;\n'
+        if (o.target.type == 'lib') {
+            result += '\n\t\t\t\tMACH_O_TYPE = staticlib;\n'
+        } else {
+            result += '\n\t\t\t\tMACH_O_TYPE = mh_execute;\n'
+        }
     }
     return result.trimStart('\n')
 }
