@@ -5048,13 +5048,9 @@ PUBLIC void httpInitLimits(HttpLimits *limits, bool serverSide)
     limits->headerMax = BIT_MAX_NUM_HEADERS;
     limits->headerSize = BIT_MAX_HEADERS;
     limits->keepAliveMax = BIT_MAX_KEEP_ALIVE;
-    limits->receiveFormSize = BIT_MAX_RECEIVE_FORM;
-    limits->receiveBodySize = BIT_MAX_RECEIVE_BODY;
     limits->processMax = BIT_MAX_PROCESSES;
     limits->requestsPerClientMax = BIT_MAX_REQUESTS_PER_CLIENT;
     limits->sessionMax = BIT_MAX_SESSIONS;
-    limits->transmissionBodySize = BIT_MAX_TX_BODY;
-    limits->uploadSize = BIT_MAX_UPLOAD;
     limits->uriSize = BIT_MAX_URI;
 
     limits->inactivityTimeout = BIT_MAX_INACTIVITY_DURATION;
@@ -5067,6 +5063,18 @@ PUBLIC void httpInitLimits(HttpLimits *limits, bool serverSide)
     limits->webSocketsFrameSize = BIT_MAX_WSS_FRAME;
     limits->webSocketsPacketSize = BIT_MAX_WSS_PACKET;
     limits->webSocketsPing = BIT_MAX_PING_DURATION;
+
+    if (serverSide) {
+        limits->receiveFormSize = BIT_MAX_RECEIVE_FORM;
+        limits->receiveBodySize = BIT_MAX_RECEIVE_BODY;
+        limits->transmissionBodySize = BIT_MAX_TX_BODY;
+        limits->uploadSize = BIT_MAX_UPLOAD;
+    } else {
+        limits->receiveFormSize = MAXOFF;
+        limits->receiveBodySize = MAXOFF;
+        limits->transmissionBodySize = MAXOFF;
+        limits->uploadSize = MAXOFF;
+    }
 
 #if FUTURE
     mprSetMaxSocketClients(endpoint, atoi(value));
@@ -9103,10 +9111,10 @@ PUBLIC HttpRoute *httpCreateRoute(HttpHost *host)
     httpAddRouteFilter(route, http->rangeFilter->name, NULL, HTTP_STAGE_TX);
     httpAddRouteFilter(route, http->chunkFilter->name, NULL, HTTP_STAGE_RX | HTTP_STAGE_TX);
 
-    httpAddRouteResponseHeader(route, HTTP_ROUTE_SET_HEADER, "Content-Security-Policy", "default-src 'self'");
-    httpAddRouteResponseHeader(route, HTTP_ROUTE_SET_HEADER, "X-XSS-Protection", "1; mode=block");
-    httpAddRouteResponseHeader(route, HTTP_ROUTE_SET_HEADER, "X-Frame-Options", "SAMEORIGIN");
-    httpAddRouteResponseHeader(route, HTTP_ROUTE_SET_HEADER, "X-Content-Type-Options", "nosniff");
+    httpAddRouteResponseHeader(route, HTTP_ROUTE_ADD_HEADER, "Content-Security-Policy", "default-src 'self'");
+    httpAddRouteResponseHeader(route, HTTP_ROUTE_ADD_HEADER, "X-XSS-Protection", "1; mode=block");
+    httpAddRouteResponseHeader(route, HTTP_ROUTE_ADD_HEADER, "X-Frame-Options", "SAMEORIGIN");
+    httpAddRouteResponseHeader(route, HTTP_ROUTE_ADD_HEADER, "X-Content-Type-Options", "nosniff");
 
     if (MPR->httpService) {
         route->limits = mprMemdup(http->serverLimits ? http->serverLimits : http->clientLimits, sizeof(HttpLimits));
@@ -10015,10 +10023,21 @@ PUBLIC void httpAddRouteRequestHeaderCheck(HttpRoute *route, cchar *header, ccha
  */
 PUBLIC void httpAddRouteResponseHeader(HttpRoute *route, int cmd, cchar *header, cchar *value)
 {
+    MprKeyValue     *pair;
+    int             next;
+
     assert(route);
     assert(header && *header);
 
     GRADUATE_LIST(route, headers);
+    if (cmd == HTTP_ROUTE_REMOVE_HEADER) {
+        for (ITERATE_ITEMS(route->headers, pair, next)) {
+            if (smatch(pair->key, header)) {
+                mprRemoveItem(route->headers, pair);
+                next--;
+            }
+        }
+    }
     mprAddItem(route->headers, mprCreateKeyPair(header, value, cmd));
 }
 
@@ -13475,11 +13494,11 @@ static ssize filterPacket(HttpConn *conn, HttpPacket *packet, int *more)
     size = rx->bytesRead - rx->bytesUploaded;
     if (size >= conn->limits->receiveBodySize) {
         httpLimitError(conn, HTTP_CLOSE | HTTP_CODE_REQUEST_TOO_LARGE, 
-            "Request body of %,Ld bytes (sofar) is too big. Limit %,Ld", size, conn->limits->receiveBodySize);
+            "Receive body of %,Ld bytes (sofar) is too big. Limit %,Ld", size, conn->limits->receiveBodySize);
 
     } else if (rx->form && size >= conn->limits->receiveFormSize) {
         httpLimitError(conn, HTTP_CLOSE | HTTP_CODE_REQUEST_TOO_LARGE, 
-            "Request form of %,Ld bytes (sofar) is too big. Limit %,Ld", size, conn->limits->receiveFormSize);
+            "Receive form of %,Ld bytes (sofar) is too big. Limit %,Ld", size, conn->limits->receiveFormSize);
     }
     if (httpShouldTrace(conn, HTTP_TRACE_RX, HTTP_TRACE_BODY, tx->ext) >= 0) {
         httpTraceContent(conn, HTTP_TRACE_RX, HTTP_TRACE_BODY, packet, nbytes, rx->bytesRead);

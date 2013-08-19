@@ -787,7 +787,8 @@ typedef struct HttpLimits {
 
     int      webSocketsMax;             /**< Maximum number of WebSockets */
     ssize    webSocketsMessageSize;     /**< Maximum total size of a WebSocket message including all frames */
-    ssize    webSocketsFrameSize;       /**< Maximum size of sent WebSocket frames. Incoming frames have no limit except message size.  */
+    ssize    webSocketsFrameSize;       /**< Maximum size of sent WebSocket frames. Incoming frames have no limit 
+                                             except message size.  */
     ssize    webSocketsPacketSize;      /**< Maximum size of a WebSocket packet exchanged with the user callback */
 } HttpLimits;
 
@@ -813,7 +814,7 @@ PUBLIC HttpLimits *httpCreateLimits(int serverSide);
 /**
     Ease the limits
     @description This increases the receive body size, transmission body size and upload size to the maximum 
-        sizes supported by the system.
+        sizes supported by the system. Client side limits are eased by default.
     @param limits Limits object. This can be either HttpHost.limits HttpConn.limits or HttpEndpoint.limits
     @ingroup HttpLimits
     @stability Evolving
