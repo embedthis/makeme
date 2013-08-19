@@ -381,7 +381,6 @@ static void manageAuth(HttpAuth *auth, int flags)
         mprMark(auth->permittedUsers);
 #endif
         mprMark(auth->qop);
-        mprMark(auth->cipher);
         mprMark(auth->realm);
         mprMark(auth->abilities);
         mprMark(auth->store);
@@ -476,11 +475,6 @@ PUBLIC void httpSetAuthAnyValidUser(HttpAuth *auth)
 }
 #endif
 
-
-PUBLIC void httpSetAuthCipher(HttpAuth *auth, cchar *cipher)
-{
-    auth->cipher = sclone(cipher);
-}
 
 /*
     Can supply a roles or abilities in the "abilities" parameter 
@@ -878,6 +872,7 @@ static bool fileVerifyUser(HttpConn *conn, cchar *username, cchar *password)
     HttpRx      *rx;
     HttpAuth    *auth;
     bool        success;
+    char        *requiredPassword;
 
     rx = conn->rx;
     auth = rx->route->auth;
@@ -886,24 +881,18 @@ static bool fileVerifyUser(HttpConn *conn, cchar *username, cchar *password)
         return 0;
     }
     if (password) {
-        success = 0;
-        if (!auth->cipher || smatch(auth->cipher, "md5")) {
+        requiredPassword = (rx->passwordDigest) ? rx->passwordDigest : conn->user->password;
+        if (sncmp(requiredPassword, "BF", 2) == 0 && slen(requiredPassword) > 4 && isdigit(requiredPassword[2]) && 
+                requiredPassword[3] == ':') {
+            /* Blowifsh */
+            success = mprCheckPassword(sfmt("%s:%s:%s", username, auth->realm, password), conn->user->password);
+
+        } else {
             if (!conn->encoded) {
                 password = mprGetMD5(sfmt("%s:%s:%s", username, auth->realm, password));
                 conn->encoded = 1;
             }
-            if (rx->passwordDigest) {
-                /* Digest authentication computes a digest using the password as one ingredient */
-                success = smatch(password, rx->passwordDigest);
-            } else {
-                success = smatch(password, conn->user->password);
-            }
-
-        } else if (smatch(auth->cipher, "blowfish")) {
-            success = mprCheckPassword(sfmt("%s:%s:%s", username, auth->realm, password), conn->user->password);
-
-        } else {
-            mprError("Unknown authentication cipher \"%s\"", auth->cipher);
+            success = smatch(password, requiredPassword);
         }
         if (success) {
             mprLog(5, "User \"%s\" authenticated for route %s", username, rx->route->name);
@@ -5074,7 +5063,7 @@ PUBLIC void httpInitLimits(HttpLimits *limits, bool serverSide)
     limits->sessionTimeout = BIT_MAX_SESSION_DURATION;
 
     limits->webSocketsMax = BIT_MAX_WSS_SOCKETS;
-    limits->webSocketsMessageSize = HTTP_MAX_WSS_MESSAGE;
+    limits->webSocketsMessageSize = BIT_MAX_WSS_MESSAGE;
     limits->webSocketsFrameSize = BIT_MAX_WSS_FRAME;
     limits->webSocketsPacketSize = BIT_MAX_WSS_PACKET;
     limits->webSocketsPing = BIT_MAX_PING_DURATION;
@@ -9091,7 +9080,10 @@ PUBLIC HttpRoute *httpCreateRoute(HttpHost *host)
     route->defaultLanguage = sclone("en");
     route->home = route->documents = mprGetCurrentPath(".");
     route->extensions = mprCreateHash(HTTP_SMALL_HASH_SIZE, MPR_HASH_CASELESS);
-    route->flags = BIT_DEBUG ? HTTP_ROUTE_SHOW_ERRORS : 0;
+    route->flags = HTTP_ROUTE_STEALTH;
+    if (BIT_DEBUG) {
+        route->flags |= HTTP_ROUTE_SHOW_ERRORS;
+    }
     route->handlers = mprCreateList(-1, MPR_LIST_STABLE);
     route->host = host;
     route->http = MPR->httpService;
@@ -9106,7 +9098,15 @@ PUBLIC HttpRoute *httpCreateRoute(HttpHost *host)
     route->targetRule = sclone("run");
     route->autoDelete = 1;
     route->workers = -1;
+
     httpAddRouteMethods(route, NULL);
+    httpAddRouteFilter(route, http->rangeFilter->name, NULL, HTTP_STAGE_TX);
+    httpAddRouteFilter(route, http->chunkFilter->name, NULL, HTTP_STAGE_RX | HTTP_STAGE_TX);
+
+    httpAddRouteResponseHeader(route, HTTP_ROUTE_SET_HEADER, "Content-Security-Policy", "default-src 'self'");
+    httpAddRouteResponseHeader(route, HTTP_ROUTE_SET_HEADER, "X-XSS-Protection", "1; mode=block");
+    httpAddRouteResponseHeader(route, HTTP_ROUTE_SET_HEADER, "X-Frame-Options", "SAMEORIGIN");
+    httpAddRouteResponseHeader(route, HTTP_ROUTE_SET_HEADER, "X-Content-Type-Options", "nosniff");
 
     if (MPR->httpService) {
         route->limits = mprMemdup(http->serverLimits ? http->serverLimits : http->clientLimits, sizeof(HttpLimits));
@@ -9301,8 +9301,10 @@ PUBLIC HttpRoute *httpCreateConfiguredRoute(HttpHost *host, int serverSide)
      */
     route = httpCreateRoute(host);
     http = route->http;
+#if UNUSED
     httpAddRouteFilter(route, http->rangeFilter->name, NULL, HTTP_STAGE_TX);
     httpAddRouteFilter(route, http->chunkFilter->name, NULL, HTTP_STAGE_RX | HTTP_STAGE_TX);
+#endif
 #if BIT_HTTP_WEB_SOCKETS
     httpAddRouteFilter(route, http->webSocketFilter->name, NULL, HTTP_STAGE_RX | HTTP_STAGE_TX);
 #endif
@@ -9803,10 +9805,16 @@ PUBLIC int httpAddRouteFilter(HttpRoute *route, cchar *name, cchar *extensions, 
     HttpStage   *stage;
     HttpStage   *filter;
     char        *extlist, *word, *tok;
-    int         pos;
+    int         pos, next;
 
     assert(route);
 
+    for (ITERATE_ITEMS(route->outputStages, stage, next)) {
+        if (smatch(stage->name, name)) {
+            mprError("Stage \"%s\" is already configured for the route \"%s\". Ignoring.", name, route->name); 
+            return 0;
+        }
+    }
     stage = httpLookupStage(route->http, name);
     if (stage == 0) {
         mprError("Cannot find filter %s", name); 
@@ -10003,13 +10011,12 @@ PUBLIC void httpAddRouteRequestHeaderCheck(HttpRoute *route, cchar *header, ccha
 
 
 /*
-    ResponseHeader [add|append|remove|set] header value
+    Header [add|append|remove|set] header [value]
  */
 PUBLIC void httpAddRouteResponseHeader(HttpRoute *route, int cmd, cchar *header, cchar *value)
 {
     assert(route);
     assert(header && *header);
-    assert(value && *value);
 
     GRADUATE_LIST(route, headers);
     mprAddItem(route->headers, mprCreateKeyPair(header, value, cmd));
@@ -10192,11 +10199,11 @@ PUBLIC int httpSetRouteConnector(HttpRoute *route, cchar *name)
 }
 
 
-PUBLIC void httpSetRouteCookieVisibility(HttpRoute *route, bool visible)
+PUBLIC void httpSetRouteSessionVisibility(HttpRoute *route, bool visible)
 {
-    route->flags &= ~HTTP_ROUTE_VISIBLE_COOKIE;
+    route->flags &= ~HTTP_ROUTE_VISIBLE_SESSION;
     if (visible) {
-        route->flags |= HTTP_ROUTE_VISIBLE_COOKIE;
+        route->flags |= HTTP_ROUTE_VISIBLE_SESSION;
     }
 }
 
@@ -14981,7 +14988,7 @@ PUBLIC HttpSession *httpGetSession(HttpConn *conn, int create)
                 NOTE: the session state for this ID may already exist if data has been written to the session.
              */
             if ((rx->session = createSession(conn)) != 0) {
-                flags = (rx->route->flags & HTTP_ROUTE_VISIBLE_COOKIE) ? 0 : HTTP_COOKIE_HTTP;
+                flags = (rx->route->flags & HTTP_ROUTE_VISIBLE_SESSION) ? 0 : HTTP_COOKIE_HTTP;
                 httpSetCookie(conn, HTTP_SESSION_COOKIE, rx->session->id, "/", NULL, rx->session->lifespan, flags);
             }
         }
@@ -16345,7 +16352,7 @@ static void setHeaders(HttpConn *conn, HttpPacket *packet)
             setCorsHeaders(conn);
         }
         /* 
-            Apply response headers
+            Apply route headers
          */
         for (ITERATE_ITEMS(route->headers, item, next)) {
             if (item->flags == HTTP_ROUTE_ADD_HEADER) {

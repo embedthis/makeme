@@ -63,7 +63,7 @@ struct HttpWebSocket;
     #define BIT_HTTP_DELAY          (2000)              /**< 2 second delay per request - while delay enforced */
 #endif
 #ifndef BIT_MAX_URI
-    #define BIT_MAX_URI             1024                /**< Reasonable URI size */
+    #define BIT_MAX_URI             512                 /**< Reasonable URI size */
 #endif
 #ifndef BIT_MAX_IOVEC
     #define BIT_MAX_IOVEC           16                  /**< Number of fragments in a single socket write */
@@ -81,25 +81,25 @@ struct HttpWebSocket;
     #define BIT_MAX_CLIENTS         32                  /**< Maximum unique client IP addresses */
 #endif
 #ifndef BIT_MAX_CONNECTIONS
-    #define BIT_MAX_CONNECTIONS     32                  /**< Maximum concurrent client endpoints */
+    #define BIT_MAX_CONNECTIONS     50                  /**< Maximum concurrent client endpoints */
 #endif
 #ifndef BIT_MAX_HEADERS
-    #define BIT_MAX_HEADERS         8192                /**< Maximum size of the headers */
+    #define BIT_MAX_HEADERS         8192                /**< Maximum size of the headers (8K) */
 #endif
 #ifndef BIT_MAX_KEEP_ALIVE
     #define BIT_MAX_KEEP_ALIVE      200                 /**< Maximum requests per connection */
 #endif
 #ifndef BIT_MAX_NUM_HEADERS
-    #define BIT_MAX_NUM_HEADERS     30                  /**< Maximum number of header lines */
+    #define BIT_MAX_NUM_HEADERS     64                  /**< Maximum number of header lines */
 #endif
 #ifndef BIT_MAX_PROCESSES
     #define BIT_MAX_PROCESSES       10                  /**< Maximum concurrent processes */
 #endif
 #ifndef BIT_MAX_RECEIVE_BODY
-    #define BIT_MAX_RECEIVE_BODY    (128 * 1024 * 1024) /**< Maximum incoming body size */
+    #define BIT_MAX_RECEIVE_BODY    (256 * 1024)        /**< Maximum incoming body size (256K) */
 #endif
 #ifndef BIT_MAX_RECEIVE_FORM
-    #define BIT_MAX_RECEIVE_FORM    (1024 * 1024)       /**< Maximum incoming form size */
+    #define BIT_MAX_RECEIVE_FORM    (256 * 1024)        /**< Maximum incoming form size (256K) */
 #endif
 #ifndef BIT_MAX_REQUESTS_PER_CLIENT
     #define BIT_MAX_REQUESTS_PER_CLIENT 20              /**< Maximum concurrent requests per client */
@@ -126,7 +126,7 @@ struct HttpWebSocket;
     #define BIT_MAX_TX_BODY         (INT_MAX)           /**< Maximum buffer for response data */
 #endif
 #ifndef BIT_MAX_UPLOAD
-    #define BIT_MAX_UPLOAD          (INT_MAX)
+    #define BIT_MAX_UPLOAD          (INT_MAX)           /**< Maximum file upload size */
 #endif
 #ifndef BIT_MAX_WSS_FRAME
     #define BIT_MAX_WSS_FRAME       (4 * 1024)          /**< Default max WebSockets message frame size */
@@ -135,23 +135,25 @@ struct HttpWebSocket;
     #define BIT_MAX_WSS_PACKET      (8 * 1024)          /**< Default size to provide to application in one packet */
 #endif
 #ifndef BIT_MAX_WSS_SOCKETS
-    #define BIT_MAX_WSS_SOCKETS     200                 /**< Default max WebSockets */
+    #define BIT_MAX_WSS_SOCKETS     25                  /**< Default max WebSockets */
 #endif
-
+#ifndef BIT_MAX_WSS_MESSAGE
+    #define BIT_MAX_WSS_MESSAGE     (2147483647)        /**< Default max WebSockets message size (2GB) */
+#endif
 #ifndef BIT_MAX_CACHE_DURATION
     #define BIT_MAX_CACHE_DURATION  (86400 * 1000)      /**< Default cache lifespan to 1 day */
 #endif
 #ifndef BIT_MAX_INACTIVITY_DURATION
-    #define BIT_MAX_INACTIVITY_DURATION (60  * 1000)    /**< Default keep connection alive between requests timeout */
+    #define BIT_MAX_INACTIVITY_DURATION (30  * 1000)    /**< Default keep connection alive between requests timeout (30 sec) */
 #endif
 #ifndef BIT_MAX_PARSE_DURATION
-    #define BIT_MAX_PARSE_DURATION  (30  * 1000)        /**< Default request parse header timeout */
+    #define BIT_MAX_PARSE_DURATION  (5  * 1000)         /**< Default request parse header timeout (5 sec) */
 #endif
 #ifndef BIT_MAX_REQUEST_DURATION
-    #define BIT_MAX_REQUEST_DURATION MAXINT             /**< Default request timeout (unlimited) */
+    #define BIT_MAX_REQUEST_DURATION (5 * 60 * 1000)    /**< Default request timeout (5 minutes) */
 #endif
 #ifndef BIT_MAX_SESSION_DURATION
-    #define BIT_MAX_SESSION_DURATION (3600 * 1000)      /**< Default session timeout (one hour) */
+    #define BIT_MAX_SESSION_DURATION (5 * 60 * 1000)    /**< Default session inactivity timeout (5 mins) */
 #endif
 #ifndef BIT_MAX_PING_DURATION
     #define BIT_MAX_PING_DURATION   (30 * 1000)         /**< WSS ping defeat Keep-Alive timeouts (30 sec) */
@@ -170,7 +172,6 @@ struct HttpWebSocket;
 #define HTTP_RETRIES                3                   /**< Default number of retries for client requests */
 #define HTTP_DATE_FORMAT            "%a, %d %b %Y %T GMT"
 #define HTTP_MAX_SECRET             16                  /**< Size of secret data for auth */
-#define HTTP_MAX_WSS_MESSAGE        (2147483647)        /**< Default max WebSockets message size (2GB) */
 #define HTTP_SMALL_HASH_SIZE        31                  /* Small hash (less than the alphabet) */
 #define HTTP_TIMER_PERIOD           1000                /**< HttpTimer checks ever 1 second */
 
@@ -3219,6 +3220,7 @@ PUBLIC void httpSetAuthAllow(HttpAuth *auth, cchar *ip);
  */
 PUBLIC void httpSetAuthAnyValidUser(HttpAuth *auth);
 
+#if UNUSED
 /**
     Set the cipher to use when encrypting passwords
     @param auth Authorization object allocated by #httpCreateAuth.
@@ -3227,6 +3229,7 @@ PUBLIC void httpSetAuthAnyValidUser(HttpAuth *auth);
     @stability Prototype
  */
 PUBLIC void httpSetAuthCipher(HttpAuth *auth, cchar *cipher);
+#endif
 
 /**
     Deny access by a client IP address
@@ -3554,7 +3557,7 @@ PUBLIC void httpSetStreaming(struct HttpHost *host, cchar *mime, cchar *uri, boo
 #define HTTP_ROUTE_CORS                 0x80        /**< Cross-Origin resource sharing */
 #define HTTP_ROUTE_STEALTH              0x100       /**< Stealth mode */
 #define HTTP_ROUTE_SHOW_ERRORS          0x200       /**< Show errors to the client */
-#define HTTP_ROUTE_VISIBLE_COOKIE       0x400       /**< Create cookies visible to client Javascript (not httponly) */
+#define HTTP_ROUTE_VISIBLE_SESSION      0x400       /**< Create a session cookie visible to client Javascript (not httponly) */
 #define HTTP_ROUTE_PRESERVE_FRAMES      0x800       /**< Preserve WebSocket frame boundaries */
 
 #if (DEPRECATED || 1) && !DOXYGEN
@@ -4395,7 +4398,7 @@ PUBLIC int httpSetRouteConnector(HttpRoute *route, cchar *name);
     @ingroup HttpRoute
     @stability Prototype
   */
-PUBLIC void httpSetRouteCookieVisibility(HttpRoute *route, bool visible);
+PUBLIC void httpSetRouteSessionVisibility(HttpRoute *route, bool visible);
 
 /**
     Set route data
