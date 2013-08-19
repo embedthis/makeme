@@ -988,13 +988,6 @@
       <arglist>(HttpConn *conn)</arglist>
     </member>
     <member kind="function">
-      <type>bool</type>
-      <name>httpGetMoreOutput</name>
-      <anchorfile>group___http_conn.html</anchorfile>
-      <anchor>ga50c5f8d87dd5ada21612f28d2d6fd782</anchor>
-      <arglist>(HttpConn *conn)</arglist>
-    </member>
-    <member kind="function">
       <type>ssize</type>
       <name>httpGetWriteQueueCount</name>
       <anchorfile>group___http_conn.html</anchorfile>
@@ -1408,6 +1401,13 @@
       <anchorfile>group___http_auth.html</anchorfile>
       <anchor>ga1e3860c07cf1b53066349912ba604c11</anchor>
       <arglist>(HttpAuth *auth)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpSetAuthCipher</name>
+      <anchorfile>group___http_auth.html</anchorfile>
+      <anchor>gaafbffabe4dc9779f2a764e9ca89bd364</anchor>
+      <arglist>(HttpAuth *auth, cchar *cipher)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -2629,6 +2629,13 @@
       <anchorfile>group___http_tx.html</anchorfile>
       <anchor>ga38e1fcae578fdda33c7cf2f697ef732a</anchor>
       <arglist>(HttpConn *conn, cchar *key)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>httpRequest</name>
+      <anchorfile>group___http_tx.html</anchorfile>
+      <anchor>gadb0565710ff24c28db3fd9af10961aec</anchor>
+      <arglist>(cchar *method, cchar *uri, cchar *data, char **response, char **err)</arglist>
     </member>
     <member kind="function">
       <type>void</type>

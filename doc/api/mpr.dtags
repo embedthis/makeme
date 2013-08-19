@@ -1239,13 +1239,6 @@
     </member>
     <member kind="define">
       <type>#define</type>
-      <name>MPR_SWEEP_THREAD</name>
-      <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>a5db78d513b1b42af78c7e431ff606173</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
       <name>MPR_TICKS_PER_SEC</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a3d29febaeaca5d39a1ad539c1a3b6225</anchor>
@@ -1999,13 +1992,6 @@
       <anchorfile>group___mpr_synch.html</anchorfile>
       <anchor>gadfb5ebec7f3b7ce4922916dcc49a5749</anchor>
       <arglist>(void *volatile *target, void *expected, cvoid *value)</arglist>
-    </member>
-    <member kind="function">
-      <type>void *</type>
-      <name>mprAtomicExchange</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
-      <anchor>gaf31f12f66dadcc39b4b5d393737afdc7</anchor>
-      <arglist>(void *volatile *target, cvoid *value)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -5759,13 +5745,6 @@
       <anchorfile>group___mpr_synch.html</anchorfile>
       <anchor>gadfb5ebec7f3b7ce4922916dcc49a5749</anchor>
       <arglist>(void *volatile *target, void *expected, cvoid *value)</arglist>
-    </member>
-    <member kind="function">
-      <type>void *</type>
-      <name>mprAtomicExchange</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
-      <anchor>gaf31f12f66dadcc39b4b5d393737afdc7</anchor>
-      <arglist>(void *volatile *target, cvoid *value)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -9955,6 +9934,13 @@
     <name>MprFreeQueue</name>
     <filename>struct_mpr_free_queue.html</filename>
     <member kind="variable">
+      <type>MprMem</type>
+      <name>blk</name>
+      <anchorfile>struct_mpr_free_queue.html</anchorfile>
+      <anchor>af766beb5b1066e8b552eec613432fe95</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
       <type>uint</type>
       <name>count</name>
       <anchorfile>struct_mpr_free_queue.html</anchorfile>
@@ -9987,13 +9973,6 @@
       <name>prev</name>
       <anchorfile>struct_mpr_free_queue.html</anchorfile>
       <anchor>a7a6028509dba78a4698a1f8c5aadde2b</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>MprMem</type>
-      <name>blk</name>
-      <anchorfile>struct_mpr_free_queue.html</anchorfile>
-      <anchor>af766beb5b1066e8b552eec613432fe95</anchor>
       <arglist></arglist>
     </member>
   </compound>
@@ -10924,13 +10903,6 @@
     <name>MprThreadService</name>
     <filename>struct_mpr_thread_service.html</filename>
     <member kind="variable">
-      <type>MprCond *</type>
-      <name>cond</name>
-      <anchorfile>struct_mpr_thread_service.html</anchorfile>
-      <anchor>a40e04672343056ed77d43dfc7d7914cc</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
       <type>struct MprThread *</type>
       <name>eventsThread</name>
       <anchorfile>struct_mpr_thread_service.html</anchorfile>
@@ -10942,6 +10914,13 @@
       <name>mainThread</name>
       <anchorfile>struct_mpr_thread_service.html</anchorfile>
       <anchor>afa377fab1e440a5e2c24214d5c6f8dde</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>MprCond *</type>
+      <name>pauseThreads</name>
+      <anchorfile>struct_mpr_thread_service.html</anchorfile>
+      <anchor>a45a19357a76471e1f61e9d4846a0c92d</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable">

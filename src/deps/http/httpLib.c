@@ -6165,7 +6165,7 @@ static HttpDefense *createDefense(cchar *name, cchar *remedy, MprHash *args)
 
 
 /*
-    Remedy can be set via REMEDY= in the remedyArgs
+    Remedy can also be set via REMEDY= in the remedyArgs
  */
 PUBLIC int httpAddDefense(cchar *name, cchar *remedy, cchar *remedyArgs)
 {
@@ -10767,9 +10767,7 @@ static char *finalizeTemplate(HttpRoute *route)
             mprPutCharToBuf(buf, *sp);
             break;
         case '$':
-            if (sp[1] == '\0') {
-                sp++;
-            } else {
+            if (sp[1]) {
                 mprPutCharToBuf(buf, *sp);
             }
             break;
@@ -12912,7 +12910,7 @@ static bool parseRequestLine(HttpConn *conn, HttpPacket *packet)
     if (conn->endpoint && !conn->activeRequest) {
         conn->activeRequest = 1;
         if (httpMonitorEvent(conn, HTTP_COUNTER_ACTIVE_REQUESTS, 1) >= limits->requestsPerClientMax) {
-            httpError(conn, HTTP_ABORT | HTTP_CODE_SERVICE_UNAVAILABLE, "Too many concurrent requests");
+            httpError(conn, HTTP_ABORT | HTTP_CODE_SERVICE_UNAVAILABLE, "Too many concurrent requests for client: %s", conn->ip);
             return 0;
         }
         httpMonitorEvent(conn, HTTP_COUNTER_REQUESTS, 1);

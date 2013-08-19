@@ -8748,10 +8748,8 @@ PUBLIC void mprNop(void *ptr);
 #endif
 
 #define MPR_DISABLE_GC          0x1         /**< Disable GC */
-#define MPR_SWEEP_THREAD        0x2         /**< Start a dedicated sweeper thread for garbage collection */
-#define MPR_USER_EVENTS_THREAD  0x4         /**< User will explicitly manage own mprServiceEvents calls */
-#define MPR_NO_WINDOW           0x8         /**< Don't create a windows Window */
-#define MPR_THREAD_PATTERN      (MPR_SWEEP_THREAD)
+#define MPR_USER_EVENTS_THREAD  0x2         /**< User will explicitly manage own mprServiceEvents calls */
+#define MPR_NO_WINDOW           0x4         /**< Don't create a windows Window */
 
 /**
     Add a terminator callback

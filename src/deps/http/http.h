@@ -3222,7 +3222,7 @@ PUBLIC void httpSetAuthAnyValidUser(HttpAuth *auth);
 /**
     Set the cipher to use when encrypting passwords
     @param auth Authorization object allocated by #httpCreateAuth.
-    @param cipher. Set to "md5" or "blowfish"
+    @param cipher Set to "md5" or "blowfish"
     @ingroup HttpAuth
     @stability Prototype
  */

@@ -230,7 +230,7 @@ PUBLIC Mpr *mprCreateMemService(MprManager manager, int flags)
     mprSetName(MPR, "Mpr");
     MPR->heap = heap;
 
-    heap->flags = flags | MPR_THREAD_PATTERN;
+    heap->flags = flags;
     heap->nextSeqno = 1;
     heap->regionSize = BIT_MPR_ALLOC_REGION_SIZE;
     heap->stats.maxHeap = (size_t) -1;
@@ -854,15 +854,13 @@ static void vmfree(void *ptr, size_t size)
 
 PUBLIC void mprStartGCService()
 {
-    if (heap->flags & MPR_SWEEP_THREAD) {
-        if (heap->enabled) {
-            mprTrace(7, "DEBUG: startMemWorkers: start marker");
-            if ((heap->gc = mprCreateThread("sweeper", gc, NULL, 0)) == 0) {
-                mprError("Cannot create marker thread");
-                MPR->hasError = 1;
-            } else {
-                mprStartThread(heap->gc);
-            }
+    if (heap->enabled) {
+        mprTrace(7, "DEBUG: startMemWorkers: start marker");
+        if ((heap->gc = mprCreateThread("sweeper", gc, NULL, 0)) == 0) {
+            mprError("Cannot create marker thread");
+            MPR->hasError = 1;
+        } else {
+            mprStartThread(heap->gc);
         }
     }
 }
@@ -887,11 +885,9 @@ PUBLIC void mprWakeGCService()
 
 static BIT_INLINE void triggerGC()
 {
-    if (!heap->gcRequested) {
-        if ((heap->flags & MPR_SWEEP_THREAD) && heap->enabled && heap->gcCond) {
-            heap->gcRequested = 1;
-            mprSignalCond(heap->gcCond);
-        }
+    if (!heap->gcRequested && heap->enabled && heap->gcCond) {
+        heap->gcRequested = 1;
+        mprSignalCond(heap->gcCond);
     }
 }
 
@@ -1207,6 +1203,7 @@ static void invokeDestructors()
 
     for (region = heap->regions; region; region = region->next) {
         for (mp = region->start; mp < region->end; mp = GET_NEXT(mp)) {
+            assert(mp->size > 0);
             /*
                 OPT - could optimize by requiring a separate flag for managers that implement destructors.
              */
@@ -1291,6 +1288,7 @@ static void sweep()
         joinBlocks = heap->stats.bytesFree >= heap->stats.cacheHeap;
 
         for (mp = region->start; mp < region->end; mp = next) {
+            assert(mp->size > 0);
             next = GET_NEXT(mp);
             assert(next != mp);
             CHECK(mp);
@@ -1575,6 +1573,7 @@ static void printGCStats()
         empty = 1;
 
         for (mp = region->start; mp < region->end; mp = GET_NEXT(mp)) {
+            assert(mp->size > 0);
             if (mp->free) {
                 freeBytes += mp->size;
                 freeCount++;
