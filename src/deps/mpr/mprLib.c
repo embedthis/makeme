@@ -15254,7 +15254,7 @@ PUBLIC cchar *mprGetModuleSearchPath()
  */
 PUBLIC int mprLoadModule(MprModule *mp)
 {
-#if BIT_HAS_DYN_LOAD
+#if BIT_HAS_DYN_LOAD && !BIT_STATIC
     assert(mp);
 
     if (mprLoadNativeModule(mp) < 0) {
@@ -15275,7 +15275,7 @@ PUBLIC int mprUnloadModule(MprModule *mp)
     if (mprStopModule(mp) < 0) {
         return MPR_ERR_NOT_READY;
     }
-#if BIT_HAS_DYN_LOAD
+#if BIT_HAS_DYN_LOAD && !BIT_STATIC
     if (mp->handle) {
         if (mprUnloadNativeModule(mp) != 0) {
             mprError("Cannot unload module %s", mp->name);
@@ -17414,7 +17414,7 @@ PUBLIC int mprGetRandomBytes(char *buf, ssize length, bool block)
 }
 
 
-#if BIT_HAS_DYN_LOAD
+#if BIT_HAS_DYN_LOAD && !BIT_STATIC
 PUBLIC int mprLoadNativeModule(MprModule *mp)
 {
     MprModuleEntry  fn;
@@ -26431,6 +26431,7 @@ PUBLIC int mprGetRandomBytes(char *buf, int length, bool block)
 }
 
 
+#if !BIT_STATIC
 PUBLIC int mprLoadNativeModule(MprModule *mp)
 {
     MprModuleEntry  fn;
@@ -26497,6 +26498,7 @@ PUBLIC int mprUnloadNativeModule(MprModule *mp)
     unldByModuleId((MODULE_ID) mp->handle, 0);
     return 0;
 }
+#endif /* !BIT_STATIC */
 
 
 PUBLIC void mprNap(MprTicks milliseconds)
@@ -28092,6 +28094,7 @@ PUBLIC int mprGetRandomBytes(char *buf, ssize length, bool block)
 }
 
 
+#if !BIT_STATIC
 PUBLIC int mprLoadNativeModule(MprModule *mp)
 {
     MprModuleEntry  fn;
@@ -28149,6 +28152,7 @@ PUBLIC int mprUnloadNativeModule(MprModule *mp)
     }
     return 0;
 }
+#endif /* !BIT_STATIC */
 
 
 PUBLIC void mprSetInst(HINSTANCE inst)

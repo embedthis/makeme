@@ -5434,7 +5434,7 @@ PUBLIC cchar *mprGetModuleSearchPath();
  */
 PUBLIC int mprLoadModule(MprModule *mp);
 
-#if BIT_HAS_DYN_LOAD || DOXYGEN
+#if (BIT_HAS_DYN_LOAD && !BIT_STATIC) || DOXYGEN
 /**
     Load a native module
     @param mp Module object created via #mprCreateModule.
