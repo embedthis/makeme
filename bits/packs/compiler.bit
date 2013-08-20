@@ -215,7 +215,7 @@ function setCompilerOptions(pack, settings) {
         pack.defines.push('BIT_DEBUG')
     }
     if (platform.like == 'unix') {
-        if (settings.hasDynLoad) {
+        if (settings.hasDynLoad && !settings.static) {
             pack.libraries.push('dl')
         }
         pack.compiler.push('-Wall')
@@ -230,8 +230,10 @@ function setCompilerOptions(pack, settings) {
         }
         if (platform.os != 'macosx') {
             /* GCC not mac */
-            pack.compiler.push('-fPIC')
-            pack.defines.push('_REENTRANT', 'PIC')
+            if (!settings.static) {
+                pack.compiler.push('-fPIC')
+                pack.defines.push('_REENTRANT', 'PIC')
+            }
             if (arch.startsWith('arm')) {
                 pack.compiler.push('-mno-sched-prolog')
             } else if (arch.startsWith('ppc')) {
@@ -241,7 +243,9 @@ function setCompilerOptions(pack, settings) {
     }
 
     if (platform.os == 'linux') {
-        pack.linker.push('-rdynamic', '-Wl,--enable-new-dtags', '-Wl,-rpath,$ORIGIN/')
+        if (!settings.static) {
+            pack.linker.push('-rdynamic', '-Wl,--enable-new-dtags', '-Wl,-rpath,$ORIGIN/')
+        }
 
     } else if (platform.os == 'macosx') {
         pack.compiler.push('-Wno-deprecated-declarations')
