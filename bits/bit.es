@@ -588,14 +588,12 @@ public class Bit {
             pack.diagnostic = 'configured --without ' + field + '.'
             pack.explicit = true
         }
-
         let requires = []
         for each (field in poptions['with']) {
             let [field,value] = field.split('=')
             bit.packs[field] ||= {}
             let pack = bit.packs[field]
             if (value) {
-                pack.enable = true
                 pack.withpath = Path(value)
             } else {
                 /*  MOB - Doing the following caused est to be disabled when reloading the bit file after configuring and 
@@ -604,8 +602,10 @@ public class Bit {
                  */
                 //  delete pack.enable
             }
+            pack.enable = true
             pack.explicit = true
             pack.required = true
+            delete pack.diagnostic
             if (!bit.settings.requires.contains(field) && !bit.settings.discover.contains(field)) {
                 let path = findPack(field)
                 if (!path || !path.exists) {
