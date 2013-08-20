@@ -721,9 +721,9 @@
     </member>
     <member kind="define">
       <type>#define</type>
-      <name>MPR_HASH_OWN</name>
+      <name>MPR_HASH_STABLE</name>
       <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>a034f0a8eb0b8e66aa222bdae0fddec8d</anchor>
+      <anchor>aca215f7078aefef2f0f9e59db6d39c98</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -1726,6 +1726,20 @@
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>ae95233022e6cc90ea564a396cf978e0a</anchor>
       <arglist>)(struct MprXml *xp, void *arg, char *buf, ssize size)</arglist>
+    </member>
+    <member kind="typedef">
+      <type>long</type>
+      <name>size_t</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a1600235df88b3821764244933b5024f5</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>int</type>
+      <name>Socket</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>af9381320a2640ea84038579d8f143c01</anchor>
+      <arglist></arglist>
     </member>
     <member kind="function">
       <type>void</type>

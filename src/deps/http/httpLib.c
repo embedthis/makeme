@@ -121,7 +121,7 @@ PUBLIC int httpOpenActionHandler(Http *http)
         if (auth->parent && auth->field && auth->field == auth->parent->field) { \
             auth->field = mprCloneHash(auth->parent->field); \
         } else { \
-            auth->field = mprCreateHash(0, 0); \
+            auth->field = mprCreateHash(0, MPR_HASH_STABLE); \
         } \
     }
 
@@ -1476,10 +1476,10 @@ PUBLIC void httpAddCache(HttpRoute *route, cchar *methods, cchar *uris, cchar *e
         }
         httpAddRouteHandler(route, "cacheHandler", NULL);
         httpAddRouteFilter(route, "cacheFilter", "", HTTP_STAGE_TX);
-        route->caching = mprCreateList(0, 0);
+        route->caching = mprCreateList(0, MPR_LIST_STABLE);
 
     } else if (flags & HTTP_CACHE_RESET) {
-        route->caching = mprCreateList(0, 0);
+        route->caching = mprCreateList(0, MPR_LIST_STABLE);
 
     } else if (route->parent && route->caching == route->parent->caching) {
         route->caching = mprCloneList(route->parent->caching);
@@ -1488,7 +1488,7 @@ PUBLIC void httpAddCache(HttpRoute *route, cchar *methods, cchar *uris, cchar *e
         return;
     }
     if (extensions) {
-        cache->extensions = mprCreateHash(0, 0);
+        cache->extensions = mprCreateHash(0, MPR_HASH_STABLE);
         for (item = stok(sclone(extensions), " \t,", &tok); item; item = stok(0, " \t,", &tok)) {
             if (smatch(item, "*")) {
                 extensions = 0;
@@ -1497,7 +1497,7 @@ PUBLIC void httpAddCache(HttpRoute *route, cchar *methods, cchar *uris, cchar *e
             }
         }
     } else if (types) {
-        cache->types = mprCreateHash(0, 0);
+        cache->types = mprCreateHash(0, MPR_HASH_STABLE);
         for (item = stok(sclone(types), " \t,", &tok); item; item = stok(0, " \t,", &tok)) {
             if (smatch(item, "*")) {
                 extensions = 0;
@@ -1507,7 +1507,7 @@ PUBLIC void httpAddCache(HttpRoute *route, cchar *methods, cchar *uris, cchar *e
         }
     }
     if (methods) {
-        cache->methods = mprCreateHash(0, MPR_HASH_CASELESS);
+        cache->methods = mprCreateHash(0, MPR_HASH_CASELESS | MPR_HASH_STABLE);
         for (item = stok(sclone(methods), " \t,", &tok); item; item = stok(0, " \t,", &tok)) {
             if (smatch(item, "*")) {
                 methods = 0;
@@ -1517,7 +1517,7 @@ PUBLIC void httpAddCache(HttpRoute *route, cchar *methods, cchar *uris, cchar *e
         }
     }
     if (uris) {
-        cache->uris = mprCreateHash(0, 0);
+        cache->uris = mprCreateHash(0, MPR_HASH_STABLE);
         for (item = stok(sclone(uris), " \t,", &tok); item; item = stok(0, " \t,", &tok)) {
             if (flags & HTTP_CACHE_ONLY && route->prefix && !scontains(item, sfmt("prefix=%s", route->prefix))) {
                 /*
@@ -3599,7 +3599,7 @@ PUBLIC HttpEndpoint *httpCreateEndpoint(cchar *ip, int port, MprDispatcher *disp
     endpoint->port = port;
     endpoint->ip = sclone(ip);
     endpoint->dispatcher = dispatcher;
-    endpoint->hosts = mprCreateList(-1, 0);
+    endpoint->hosts = mprCreateList(-1, MPR_LIST_STABLE);
     endpoint->mutex = mprCreateLock();
     httpAddEndpoint(http, endpoint);
     return endpoint;
@@ -4342,10 +4342,10 @@ PUBLIC HttpHost *httpCreateHost()
     mprSetCacheLimits(host->responseCache, 0, BIT_MAX_CACHE_DURATION, 0, 0);
 
     host->mutex = mprCreateLock();
-    host->routes = mprCreateList(-1, 0);
+    host->routes = mprCreateList(-1, MPR_LIST_STABLE);
     host->flags = HTTP_HOST_NO_TRACE;
     host->protocol = sclone("HTTP/1.1");
-    host->streams = mprCreateHash(HTTP_SMALL_HASH_SIZE, 0);
+    host->streams = mprCreateHash(HTTP_SMALL_HASH_SIZE, MPR_HASH_STABLE);
     httpSetStreaming(host, "application/x-www-form-urlencoded", NULL, 0);
     httpSetStreaming(host, "application/json", NULL, 0);
     httpAddHost(http, host);
@@ -4639,7 +4639,7 @@ PUBLIC HttpRoute *httpLookupRouteByPattern(HttpHost *host, cchar *pattern)
 
 PUBLIC void httpResetRoutes(HttpHost *host)
 {
-    host->routes = mprCreateList(-1, 0);
+    host->routes = mprCreateList(-1, MPR_LIST_STABLE);
 }
 
 
@@ -4838,11 +4838,11 @@ PUBLIC Http *httpCreate(int flags)
     http->software = sclone(BIT_HTTP_SOFTWARE);
     http->protocol = sclone("HTTP/1.1");
     http->mutex = mprCreateLock();
-    http->stages = mprCreateHash(-1, 0);
-    http->hosts = mprCreateList(-1, MPR_LIST_STATIC_VALUES);
+    http->stages = mprCreateHash(-1, MPR_HASH_STABLE);
+    http->hosts = mprCreateList(-1, MPR_LIST_STATIC_VALUES | MPR_LIST_STABLE);
     http->connections = mprCreateList(-1, MPR_LIST_STATIC_VALUES);
-    http->authTypes = mprCreateHash(-1, MPR_HASH_CASELESS | MPR_HASH_UNIQUE);
-    http->authStores = mprCreateHash(-1, MPR_HASH_CASELESS | MPR_HASH_UNIQUE);
+    http->authTypes = mprCreateHash(-1, MPR_HASH_CASELESS | MPR_HASH_UNIQUE | MPR_HASH_STABLE);
+    http->authStores = mprCreateHash(-1, MPR_HASH_CASELESS | MPR_HASH_UNIQUE | MPR_HASH_STABLE);
     http->booted = mprGetTime();
     http->flags = flags;
     http->monitorMaxPeriod = 0;
@@ -4850,7 +4850,7 @@ PUBLIC Http *httpCreate(int flags)
     http->secret = mprGetRandomString(HTTP_MAX_SECRET);
 
     updateCurrentDate(http);
-    http->statusCodes = mprCreateHash(41, MPR_HASH_STATIC_VALUES | MPR_HASH_STATIC_KEYS);
+    http->statusCodes = mprCreateHash(41, MPR_HASH_STATIC_VALUES | MPR_HASH_STATIC_KEYS | MPR_HASH_STABLE);
     for (code = HttpStatusCodes; code->code; code++) {
         mprAddKey(http->statusCodes, code->codeString, code);
     }
@@ -4867,16 +4867,16 @@ PUBLIC Http *httpCreate(int flags)
     mprAddTerminator(terminateHttp);
 
     if (flags & HTTP_SERVER_SIDE) {
-        http->endpoints = mprCreateList(-1, MPR_LIST_STATIC_VALUES);
-        http->routeTargets = mprCreateHash(-1, MPR_HASH_STATIC_VALUES);
-        http->routeConditions = mprCreateHash(-1, MPR_HASH_STATIC_VALUES);
-        http->routeUpdates = mprCreateHash(-1, MPR_HASH_STATIC_VALUES);
-        http->sessionCache = mprCreateCache(MPR_CACHE_SHARED);
-        http->counters = mprCreateList(-1, 0);
-        http->monitors = mprCreateList(-1, 0);
-        http->addresses = mprCreateHash(-1, 0);
-        http->defenses = mprCreateHash(-1, 0);
-        http->remedies = mprCreateHash(-1, MPR_HASH_CASELESS | MPR_HASH_STATIC_VALUES);
+        http->endpoints = mprCreateList(-1, MPR_LIST_STATIC_VALUES | MPR_LIST_STABLE);
+        http->counters = mprCreateList(-1, MPR_LIST_STABLE);
+        http->monitors = mprCreateList(-1, MPR_LIST_STABLE);
+        http->routeTargets = mprCreateHash(-1, MPR_HASH_STATIC_VALUES | MPR_HASH_STABLE);
+        http->routeConditions = mprCreateHash(-1, MPR_HASH_STATIC_VALUES | MPR_HASH_STABLE);
+        http->routeUpdates = mprCreateHash(-1, MPR_HASH_STATIC_VALUES | MPR_HASH_STABLE);
+        http->sessionCache = mprCreateCache(MPR_CACHE_SHARED | MPR_HASH_STABLE);
+        http->addresses = mprCreateHash(-1, MPR_HASH_STABLE);
+        http->defenses = mprCreateHash(-1, MPR_HASH_STABLE);
+        http->remedies = mprCreateHash(-1, MPR_HASH_CASELESS | MPR_HASH_STATIC_VALUES | MPR_HASH_STABLE);
         httpOpenUploadFilter(http);
         httpOpenCacheHandler(http);
         httpOpenPassHandler(http);
@@ -5522,6 +5522,31 @@ PUBLIC char *httpStatsReport(int flags)
 }
 
 
+PUBLIC bool httpConfigure(HttpConfigureProc proc, void *data, MprTicks timeout)
+{
+    Http        *http;
+    MprTicks    mark;
+
+    http = MPR->httpService;
+    mark = mprGetTicks();
+    if (timeout <= 0) {
+        timeout = MAXINT;
+    }
+    do {
+        lock(http->connections);
+        /* Own request will count as 1 */
+        if (mprGetListLength(http->connections) == 0) {
+            (proc)(data);
+            unlock(http->connections);
+            return 1;
+        }
+        unlock(http->connections);
+        mprSleep(10);
+        /* Defaults to 10 secs */
+    } while (mprGetRemainingTicks(mark, timeout) > 0);
+    return 0;
+}
+
 
 /*
     @copy   default
@@ -6010,7 +6035,7 @@ PUBLIC int httpAddMonitor(cchar *counterName, cchar *expr, uint64 limit, MprTick
     if ((monitor = mprAllocObj(HttpMonitor, manageMonitor)) == 0) {
         return MPR_ERR_MEMORY;
     }
-    if ((defenseList = mprCreateList(0, -1)) == 0) {
+    if ((defenseList = mprCreateList(-1, MPR_LIST_STABLE)) == 0) {
         return MPR_ERR_MEMORY;
     }
     tok = sclone(defenses);
@@ -6175,7 +6200,7 @@ PUBLIC int httpAddDefense(cchar *name, cchar *remedy, cchar *remedyArgs)
     assert(name && *name);
 
     http = MPR->httpService;
-    args = mprCreateHash(0, 0);
+    args = mprCreateHash(0, MPR_HASH_STABLE);
     list = stolist(remedyArgs);
     for (ITERATE_ITEMS(list, arg, next)) {
         key = stok(arg, "=", &value);
@@ -7638,7 +7663,7 @@ PUBLIC void httpCreateTxPipeline(HttpConn *conn, HttpRoute *route)
     rx = conn->rx;
     tx = conn->tx;
 
-    tx->outputPipeline = mprCreateList(-1, 0);
+    tx->outputPipeline = mprCreateList(-1, MPR_LIST_STABLE);
     if (conn->endpoint) {
         if (tx->handler == 0 || tx->finalized) {
             tx->handler = http->passHandler;
@@ -7714,7 +7739,7 @@ PUBLIC void httpCreateRxPipeline(HttpConn *conn, HttpRoute *route)
 
     rx = conn->rx;
     tx = conn->tx;
-    rx->inputPipeline = mprCreateList(-1, 0);
+    rx->inputPipeline = mprCreateList(-1, MPR_LIST_STABLE);
     if (route) {
         for (next = 0; (filter = mprGetNextItem(route->inputStages, &next)) != 0; ) {
             if (matchFilter(conn, filter, route, HTTP_STAGE_RX) == HTTP_ROUTE_OK) {
@@ -9087,25 +9112,28 @@ PUBLIC HttpRoute *httpCreateRoute(HttpHost *host)
     route->auth = httpCreateAuth();
     route->defaultLanguage = sclone("en");
     route->home = route->documents = mprGetCurrentPath(".");
-    route->extensions = mprCreateHash(HTTP_SMALL_HASH_SIZE, MPR_HASH_CASELESS);
     route->flags = HTTP_ROUTE_STEALTH;
     if (BIT_DEBUG) {
         route->flags |= HTTP_ROUTE_SHOW_ERRORS;
     }
-    route->handlers = mprCreateList(-1, MPR_LIST_STABLE);
     route->host = host;
     route->http = MPR->httpService;
-    route->errorDocuments = mprCreateHash(HTTP_SMALL_HASH_SIZE, 0);
-    route->indicies = mprCreateList(-1, 0);
-    route->inputStages = mprCreateList(-1, 0);
     route->lifespan = BIT_MAX_CACHE_DURATION;
-    route->methods = mprCreateHash(HTTP_SMALL_HASH_SIZE, MPR_HASH_STATIC_VALUES);
-    route->outputStages = mprCreateList(-1, 0);
-    route->vars = mprCreateHash(HTTP_SMALL_HASH_SIZE, MPR_HASH_CASELESS);
     route->pattern = MPR->emptyString;
     route->targetRule = sclone("run");
     route->autoDelete = 1;
     route->workers = -1;
+
+    route->headers = mprCreateList(-1, MPR_LIST_STABLE);
+    route->handlers = mprCreateList(-1, MPR_LIST_STABLE);
+    route->indicies = mprCreateList(-1, MPR_LIST_STABLE);
+    route->inputStages = mprCreateList(-1, MPR_LIST_STABLE);
+    route->outputStages = mprCreateList(-1, MPR_LIST_STABLE);
+
+    route->extensions = mprCreateHash(HTTP_SMALL_HASH_SIZE, MPR_HASH_CASELESS | MPR_HASH_STABLE);
+    route->errorDocuments = mprCreateHash(HTTP_SMALL_HASH_SIZE, MPR_HASH_STABLE);
+    route->methods = mprCreateHash(HTTP_SMALL_HASH_SIZE, MPR_HASH_STATIC_VALUES | MPR_HASH_STABLE);
+    route->vars = mprCreateHash(HTTP_SMALL_HASH_SIZE, MPR_HASH_CASELESS | MPR_HASH_STABLE);
 
     httpAddRouteMethods(route, NULL);
     httpAddRouteFilter(route, http->rangeFilter->name, NULL, HTTP_STAGE_TX);
@@ -9309,10 +9337,6 @@ PUBLIC HttpRoute *httpCreateConfiguredRoute(HttpHost *host, int serverSide)
      */
     route = httpCreateRoute(host);
     http = route->http;
-#if UNUSED
-    httpAddRouteFilter(route, http->rangeFilter->name, NULL, HTTP_STAGE_TX);
-    httpAddRouteFilter(route, http->chunkFilter->name, NULL, HTTP_STAGE_RX | HTTP_STAGE_TX);
-#endif
 #if BIT_HTTP_WEB_SOCKETS
     httpAddRouteFilter(route, http->webSocketFilter->name, NULL, HTTP_STAGE_RX | HTTP_STAGE_TX);
 #endif
@@ -9834,7 +9858,7 @@ PUBLIC int httpAddRouteFilter(HttpRoute *route, cchar *name, cchar *extensions, 
     filter = httpCloneStage(route->http, stage);
 
     if (extensions && *extensions) {
-        filter->extensions = mprCreateHash(0, MPR_HASH_CASELESS);
+        filter->extensions = mprCreateHash(0, MPR_HASH_CASELESS | MPR_HASH_STABLE);
         extlist = sclone(extensions);
         word = stok(extlist, " \t\r\n", &tok);
         while (word) {
@@ -9950,16 +9974,16 @@ PUBLIC void httpAddRouteMapping(HttpRoute *route, cchar *extensions, cchar *mapp
     char        *etok, *mtok;
 
     if (!route->mappings) {
-        route->mappings = mprCreateHash(BIT_MAX_ROUTE_MAP_HASH, 0);
+        route->mappings = mprCreateHash(BIT_MAX_ROUTE_MAP_HASH, MPR_HASH_STABLE);
     }
     if (!route->map) {
-        route->map = mprCreateHash(BIT_MAX_ROUTE_MAP_HASH, 0);
+        route->map = mprCreateHash(BIT_MAX_ROUTE_MAP_HASH, MPR_HASH_STABLE);
     }
     for (ext = stok(sclone(extensions), ", \t", &etok); ext; ext = stok(NULL, ", \t", &etok)) {
         if (*ext == '.') {
             ext++;
         }
-        mapList = mprCreateList(0, 0);
+        mapList = mprCreateList(0, MPR_LIST_STABLE);
         for (map = stok(sclone(mappings), ", \t", &mtok); map; map = stok(NULL, ", \t", &mtok)) {
             mprAddItem(mapList, sreplace(map, "${1}", ext));
         }
@@ -10031,6 +10055,9 @@ PUBLIC void httpAddRouteResponseHeader(HttpRoute *route, int cmd, cchar *header,
 
     GRADUATE_LIST(route, headers);
     if (cmd == HTTP_ROUTE_REMOVE_HEADER) {
+        /*
+            Remove existing route headers, but keep the remove record so that user headers will be removed too
+         */
         for (ITERATE_ITEMS(route->headers, pair, next)) {
             if (smatch(pair->key, header)) {
                 mprRemoveItem(route->headers, pair);
@@ -10086,10 +10113,10 @@ PUBLIC void httpClearRouteStages(HttpRoute *route, int direction)
     assert(route);
 
     if (direction & HTTP_STAGE_RX) {
-        route->inputStages = mprCreateList(-1, 0);
+        route->inputStages = mprCreateList(-1, MPR_LIST_STABLE);
     }
     if (direction & HTTP_STAGE_TX) {
-        route->outputStages = mprCreateList(-1, 0);
+        route->outputStages = mprCreateList(-1, MPR_LIST_STABLE);
     }
 }
 
@@ -10159,22 +10186,59 @@ PUBLIC void httpResetRoutePipeline(HttpRoute *route)
 {
     assert(route);
 
-    if (route->parent == 0) {
-        route->errorDocuments = mprCreateHash(HTTP_SMALL_HASH_SIZE, 0);
+    if (!route->parent || route->caching != route->parent->caching) {
         route->caching = 0;
-        route->extensions = 0;
-        route->handlers = mprCreateList(-1, 0);
-        route->inputStages = mprCreateList(-1, 0);
-        route->indicies = mprCreateList(-1, 0);
     }
-    route->outputStages = mprCreateList(-1, 0);
+    if (!route->parent || route->errorDocuments != route->parent->errorDocuments) {
+        route->errorDocuments = mprCreateHash(HTTP_SMALL_HASH_SIZE, MPR_HASH_STABLE);
+    }
+    if (!route->parent || route->extensions != route->parent->extensions) {
+        route->extensions = mprCreateHash(HTTP_SMALL_HASH_SIZE, MPR_HASH_CASELESS | MPR_HASH_STABLE);
+    }
+    if (!route->parent || route->handlers != route->parent->handlers) {
+        route->handlers = mprCreateList(-1, MPR_LIST_STABLE);
+    }
+    if (!route->parent || route->inputStages != route->parent->inputStages) {
+        route->inputStages = mprCreateList(-1, MPR_LIST_STABLE);
+    }
+    if (!route->parent || route->indicies != route->parent->indicies) {
+        route->indicies = mprCreateList(-1, MPR_LIST_STABLE);
+    }
+    if (!route->parent || route->outputStages != route->parent->outputStages) {
+        route->outputStages = mprCreateList(-1, MPR_LIST_STABLE);
+    }
+    if (!route->parent || route->methods != route->parent->methods) {
+        route->methods = mprCreateHash(HTTP_SMALL_HASH_SIZE, MPR_HASH_STATIC_VALUES | MPR_HASH_STABLE);
+        httpAddRouteMethods(route, NULL);
+    }
+    if (!route->parent || route->requestHeaders != route->parent->requestHeaders) {
+        route->requestHeaders = 0;
+    }
+    if (!route->parent || route->params != route->parent->params) {
+        route->params = 0;
+    }
+    if (!route->parent || route->updates != route->parent->updates) {
+        route->updates = 0;
+    }
+    if (!route->parent || route->conditions != route->parent->conditions) {
+        route->conditions = 0;
+    }
+    if (!route->parent || route->map != route->parent->map) {
+        route->map = 0;
+    }
+    if (!route->parent || route->mappings != route->parent->mappings) {
+        route->mappings = 0;
+    }
+    if (!route->parent || route->languages != route->parent->languages) {
+        route->languages = 0;
+    }
 }
 
 
 PUBLIC void httpResetHandlers(HttpRoute *route)
 {
     assert(route);
-    route->handlers = mprCreateList(-1, 0);
+    route->handlers = mprCreateList(-1, MPR_LIST_STABLE);
 }
 
 
@@ -10372,7 +10436,7 @@ PUBLIC void httpRemoveRouteMethods(HttpRoute *route, cchar *methods)
 
 PUBLIC void httpSetRouteMethods(HttpRoute *route, cchar *methods)
 {
-    route->methods = mprCreateHash(HTTP_SMALL_HASH_SIZE, MPR_HASH_STATIC_VALUES);
+    route->methods = mprCreateHash(HTTP_SMALL_HASH_SIZE, MPR_HASH_STATIC_VALUES | MPR_HASH_STABLE);
     httpAddRouteMethods(route, methods);
 }
 
@@ -10590,7 +10654,7 @@ static void finalizePattern(HttpRoute *route)
     int         column;
 
     assert(route);
-    route->tokens = mprCreateList(-1, 0);
+    route->tokens = mprCreateList(-1, MPR_LIST_STABLE);
     pattern = mprCreateBuf(-1, -1);
     startPattern = route->pattern[0] == '^' ? &route->pattern[1] : route->pattern;
 
@@ -11114,7 +11178,7 @@ PUBLIC int httpAddRouteLanguageSuffix(HttpRoute *route, cchar *language, cchar *
     assert(suffix && *suffix);
 
     if (route->languages == 0) {
-        route->languages = mprCreateHash(-1, 0);
+        route->languages = mprCreateHash(-1, MPR_HASH_STABLE);
     } else {
         GRADUATE_HASH(route, languages);
     }
@@ -11137,7 +11201,7 @@ PUBLIC int httpAddRouteLanguageDir(HttpRoute *route, cchar *language, cchar *pat
     assert(path && *path);
 
     if (route->languages == 0) {
-        route->languages = mprCreateHash(-1, 0);
+        route->languages = mprCreateHash(-1, MPR_HASH_STABLE);
     } else {
         GRADUATE_HASH(route, languages);
     }
@@ -12338,7 +12402,7 @@ static char *trimQuotes(char *str)
 PUBLIC MprHash *httpGetOptions(cchar *options)
 {
     if (options == 0) {
-        return mprCreateHash(-1, 0);
+        return mprCreateHash(-1, MPR_HASH_STABLE);
     }
     if (*options == '@') {
         /* Allow embedded URIs as options */
@@ -12571,7 +12635,7 @@ PUBLIC HttpRx *httpCreateRx(HttpConn *conn)
     rx->pathInfo = sclone("/");
     rx->scriptName = mprEmptyString();
     rx->needInputPipeline = !conn->endpoint;
-    rx->headers = mprCreateHash(HTTP_SMALL_HASH_SIZE, MPR_HASH_CASELESS);
+    rx->headers = mprCreateHash(HTTP_SMALL_HASH_SIZE, MPR_HASH_CASELESS | MPR_HASH_STABLE);
     rx->chunkState = HTTP_CHUNK_UNCHUNKED;
     rx->traceLevel = -1;
     return rx;
@@ -14140,7 +14204,7 @@ static void addMatchEtag(HttpConn *conn, char *etag)
 
     rx = conn->rx;
     if (rx->etags == 0) {
-        rx->etags = mprCreateList(-1, 0);
+        rx->etags = mprCreateList(-1, MPR_LIST_STABLE);
     }
     mprAddItem(rx->etags, sclone(etag));
 }
@@ -14400,7 +14464,7 @@ PUBLIC HttpLang *httpGetLanguage(HttpConn *conn, MprHash *spoken, cchar *default
     if (spoken == 0) {
         return 0;
     }
-    list = mprCreateList(-1, 0);
+    list = mprCreateList(-1, MPR_LIST_STABLE);
     if ((accept = httpGetHeader(conn, "Accept-Language")) != 0) {
         for (tok = stok(sclone(accept), ",", &nextTok); tok; tok = stok(nextTok, ",", &nextTok)) {
             language = stok(tok, ";", &quality);
@@ -15476,7 +15540,7 @@ PUBLIC void httpSetRouteTraceFilter(HttpRoute *route, int dir, int levels[HTTP_T
         trace->levels[i] = levels[i];
     }
     if (include && strcmp(include, "*") != 0) {
-        trace->include = mprCreateHash(0, 0);
+        trace->include = mprCreateHash(0, MPR_HASH_STABLE);
         line = sclone(include);
         word = stok(line, ", \t\r\n", &tok);
         while (word) {
@@ -15488,7 +15552,7 @@ PUBLIC void httpSetRouteTraceFilter(HttpRoute *route, int dir, int levels[HTTP_T
         }
     }
     if (exclude) {
-        trace->exclude = mprCreateHash(0, 0);
+        trace->exclude = mprCreateHash(0, MPR_HASH_STABLE);
         line = sclone(exclude);
         word = stok(line, ", \t\r\n", &tok);
         while (word) {
@@ -15710,7 +15774,7 @@ PUBLIC HttpTx *httpCreateTx(HttpConn *conn, MprHash *headers)
     if (headers) {
         tx->headers = headers;
     } else {
-        tx->headers = mprCreateHash(HTTP_SMALL_HASH_SIZE, MPR_HASH_CASELESS);
+        tx->headers = mprCreateHash(HTTP_SMALL_HASH_SIZE, MPR_HASH_CASELESS | MPR_HASH_STABLE);
         if (!conn->endpoint) {
             httpAddHeaderString(conn, "User-Agent", sclone(BIT_HTTP_SOFTWARE));
         }
@@ -18013,7 +18077,7 @@ PUBLIC void httpCreateCGIParams(HttpConn *conn)
         /* Do only once */
         return;
     }
-    svars = rx->svars = mprCreateHash(HTTP_VAR_HASH_SIZE, 0);
+    svars = rx->svars = mprCreateHash(HTTP_VAR_HASH_SIZE, MPR_HASH_STABLE);
     tx = conn->tx;
     host = conn->host;
     sock = conn->sock;
@@ -18231,7 +18295,7 @@ PUBLIC void httpAddJsonParams(HttpConn *conn)
 PUBLIC MprHash *httpGetParams(HttpConn *conn)
 { 
     if (conn->rx->params == 0) {
-        conn->rx->params = mprCreateHash(HTTP_VAR_HASH_SIZE, 0);
+        conn->rx->params = mprCreateHash(HTTP_VAR_HASH_SIZE, MPR_HASH_STABLE);
     }
     return conn->rx->params;
 }
@@ -18294,7 +18358,7 @@ PUBLIC char *httpGetParamsString(HttpConn *conn)
 
     if (rx->paramString == 0) {
         if ((params = conn->rx->params) != 0) {
-            if ((list = mprCreateList(mprGetHashLength(params), 0)) != 0) {
+            if ((list = mprCreateList(mprGetHashLength(params), MPR_LIST_STABLE)) != 0) {
                 len = 0;
                 for (kp = 0; (kp = mprGetNextKey(params, kp)) != NULL; ) {
                     mprAddItem(list, kp);
@@ -18352,7 +18416,7 @@ PUBLIC void httpAddUploadFile(HttpConn *conn, cchar *id, HttpUploadFile *upfile)
 
     rx = conn->rx;
     if (rx->files == 0) {
-        rx->files = mprCreateHash(-1, 0);
+        rx->files = mprCreateHash(-1, MPR_HASH_STABLE);
     }
     mprAddKey(rx->files, id, upfile);
 }

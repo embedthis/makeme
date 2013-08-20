@@ -321,14 +321,20 @@ PUBLIC void httpSetForkCallback(struct Http *http, MprForkCallback proc, void *a
 
 #define HTTP_MONITOR_MIN_PERIOD         (5 * 1000)
 
-/*
-    Per-counter monitoring structure
-    Note: this does not need GC marking
+/**
+    Monitoring counter
+    @ingroup HttpMonitor
+    @stability Internal
  */
 typedef struct HttpCounter {
     uint64      value;                          /**< Current counter value */
 } HttpCounter;
 
+/**
+    Monitor control structure
+    @defgroup HttpMonitor HttpMonitor
+    @stability Internal
+ */
 typedef struct HttpMonitor {
     cchar       *counterName;                   /**< Name of counter to monitor */
     int         counterIndex;                   /**< Counter item index to monitor */
@@ -340,8 +346,10 @@ typedef struct HttpMonitor {
     struct Http *http;
 } HttpMonitor;
 
-/*
+/**
     Per-IP address structure.
+    @ingroup HttpMonitor HttpMonitor
+    @stability Internal
  */
 typedef struct HttpAddress {
     MprTicks    updated;                        /**< When the address counters were last updated */
@@ -354,8 +362,19 @@ typedef struct HttpAddress {
     HttpCounter counters[1];                    /**< Counters allocated here */
 } HttpAddress;
 
+/**
+    Defense remedy callback
+    @param args Hash of configuration args for the callback
+    @ingroup HttpMonitor
+    @stability Prototype
+  */
 typedef void (*HttpRemedyProc)(MprHash *args);
 
+/**
+    Monitor defense configuration
+    @ingroup HttpMonitor
+    @stability Prototype
+ */
 typedef struct HttpDefense {
     cchar           *name;                      /**< Defense name */
     cchar           *remedy;                    /**< Remedy name to invoke */
@@ -454,12 +473,13 @@ PUBLIC uint64 httpGetNumber(cchar *value);
 /************************************ Http **********************************/
 /** 
     Http service object
-    @description The Http service is managed by a single service object.
+    @description Configuration is not thread safe and must occur at initialization time when the application is single threaded. 
+    If the configuration is modified when the application is multithreaded, all requests must be first be quiesced.
     @defgroup Http Http
     @see Http HttpConn HttpEndpoint gettGetDateString httpConfigurenamedVirtualEndpoint httpCreate
         httpDestroy httpGetContext httpGetDateString httpLookupEndpoint httpLookupStatus httpLooupHost 
         httpSetContext httpSetDefaultClientHost httpSetDefaultClientPort httpSetDefaultPort httpSetForkCallback 
-        httpSetProxy httpSetSoftware 
+        httpSetProxy httpSetSoftware httpConfigure
     @stability Internal
  */
 typedef struct Http {
@@ -553,7 +573,6 @@ typedef struct Http {
     HttpRedirectCallback redirectCallback;  /**< Redirect callback */
 } Http;
 
-
 /*
     Flags for httpCreate
  */
@@ -607,6 +626,28 @@ PUBLIC void *httpGetContext(Http *http);
     @stability Stable
  */
 PUBLIC char *httpGetDateString(MprPath *sbuf);
+
+/**
+    Callback procedure for HttpConfigure
+    @param arg User definable data. May be managed or unmanaged.
+    @ingroup Http
+    @stability Prototype
+ */
+typedef void (*HttpConfigureProc)(void *arg);
+
+/**
+    Alter the configuration by first quiescing all Http activity. This waits until there are no open connections and then
+    invokes the configuration callback while blocking further connections. When the callback completes, connections are 
+    resumed with the new configuration.
+    This callback is required because configuration of the Http engine must be done when single-threaded.
+    @param proc Function of the type HttpConfigureProc.
+    @param arg Reference argument to pass to the callback proc. Can be a managed or an unmanaged reference.
+    @param timeout Timeout in milliseconds to wait. Set to -1 to use the default inactivity timeout. Set to zero
+        to wait for ever.
+    @ingroup Http
+    @stability Prototype
+  */
+PUBLIC bool httpConfigure(HttpConfigureProc proc, void *arg, MprTicks timeout);
 
 /**
     Set the http context object
@@ -1189,7 +1230,7 @@ PUBLIC HttpPacket *httpGetPacket(struct HttpQueue *q);
     @param packet Packet to examine.
     @return MprBuf reference or zero if there are not contents.
     @ingroup HttpPacket
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC ssize httpGetPacketContents(HttpPacket *packet);
 #else
@@ -1216,7 +1257,7 @@ PUBLIC ssize httpGetPacketLength(HttpPacket *packet);
     @param packet Packet to examine.
     @return A reference to the start of the packet contents.
     @ingroup HttpPacket
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC char *httpGetPacketStart(HttpPacket *packet);
 
@@ -1773,6 +1814,8 @@ typedef int (*HttpParse)(Http *http, cchar *key, char *value, void *state);
         \n\n
         Stages provide callback methods for parsing configuration, matching requests, open/close, run and the
         acceptance and service of incoming and outgoing data.
+    Configuration is not thread safe and must occur at initialization time when the application is single threaded. 
+    If the configuration is modified when the application is multithreaded, all requests must be first be quiesced.
     @defgroup HttpStage HttpStage 
     @see HttpConn HttpQueue HttpStage httpCloneStage httpCreateConnector httpCreateFilter httpCreateHandler 
         httpCreateStage httpDefaultOutgoingServiceStage httpGetStageData httpHandleOptionsTrace httpLookupStage 
@@ -2713,7 +2756,7 @@ PUBLIC void httpSetConnNotifier(HttpConn *conn, HttpNotifier notifier);
     @param conn HttpConn connection object created via #httpCreateConn
     @param user User object
     @ingroup HttpConn
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void httpSetConnUser(HttpConn *conn, struct HttpUser *user);
 
@@ -3156,7 +3199,6 @@ PUBLIC bool httpLogin(HttpConn *conn, cchar *username, cchar *password);
     @description This tests if there is a login session for the client
     @param conn HttpConn connection object 
     @return True if the user is authenticated and logged in
-    @stability Prototype
     @ingroup HttpAuth
     @stability Prototype
   */
@@ -3175,7 +3217,6 @@ PUBLIC void httpLogout(HttpConn *conn);
     @param auth HttpAuth object. Stored in HttpConn.rx.route.auth
     @param name Username
     @return User object
-    @stability Prototype
     @ingroup HttpAuth
     @stability Prototype
   */
@@ -3220,17 +3261,6 @@ PUBLIC void httpSetAuthAllow(HttpAuth *auth, cchar *ip);
     @stability Evolving
  */
 PUBLIC void httpSetAuthAnyValidUser(HttpAuth *auth);
-
-#if UNUSED
-/**
-    Set the cipher to use when encrypting passwords
-    @param auth Authorization object allocated by #httpCreateAuth.
-    @param cipher Set to "md5" or "blowfish"
-    @ingroup HttpAuth
-    @stability Prototype
- */
-PUBLIC void httpSetAuthCipher(HttpAuth *auth, cchar *cipher);
-#endif
 
 /**
     Deny access by a client IP address
@@ -3330,7 +3360,7 @@ PUBLIC int httpSetAuthType(HttpAuth *auth, cchar *proto, cchar *details);
     @param auth Auth object allocated by #httpCreateAuth.
     @param username Username to automatically login with
     @ingroup HttpAuth
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void httpSetAuthUsername(HttpAuth *auth, cchar *username);
 
@@ -3381,6 +3411,8 @@ typedef struct HttpLang {
 
 /**
     Cache Control
+    @description Configuration is not thread safe and must occur at initialization time when the application is single threaded. 
+    If the configuration is modified when the application is multithreaded, all requests must be first be quiesced.
     @defgroup HttpCache HttpCache
     @see HttpCache httpAddCache httpUpdateCache httpWriteCache
     @stability Internal
@@ -3568,6 +3600,8 @@ PUBLIC void httpSetStreaming(struct HttpHost *host, cchar *mime, cchar *uri, boo
 
 /**
     Route Control
+    @description Configuration is not thread safe and must occur at initialization time when the application is single threaded. 
+    If the configuration is modified when the application is multithreaded, all requests must be first be quiesced.
     @defgroup HttpRoute HttpRoute
     @see HttpRoute httpAddRouteCondition httpAddRouteErrorDocument
         httpAddRouteFilter httpAddRouteHandler httpAddRouteHeader httpAddRouteLanguageDir httpAddRouteLanguageSuffix 
@@ -4488,7 +4522,7 @@ PUBLIC void httpSetRouteHost(HttpRoute *route, struct HttpHost *host);
     @param route Route to modify
     @param on Set to true to ignore encoding errors
     @ingroup HttpRoute
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void httpSetRouteIgnoreEncodingErrors(HttpRoute *route, bool on);
 
@@ -4717,7 +4751,7 @@ PUBLIC void httpSetRouteVar(HttpRoute *route, cchar *token, cchar *value);
     @param route Route to modify
     @param dir Directory path
     @ingroup HttpRoute
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void httpSetRouteUploadDir(HttpRoute *route, cchar *dir);
 

@@ -34,6 +34,14 @@
 
 /*********************************** Defines **********************************/
 
+#if DOXYGEN
+    /** Argument for sockets */
+    typedef int Socket;
+
+    /** Unsigned integral type. Equivalent in size to void* */
+    typedef long size_t;
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -708,7 +716,7 @@ PUBLIC void mprGlobalUnlock();
 /**
     Open and initialize the atomic subystem
     @ingroup MprSynch
-    @stability Prototype.
+    @stability Evolving.
  */
 PUBLIC void mprAtomicOpen();
 
@@ -758,17 +766,6 @@ PUBLIC void mprAtomicAdd(volatile int *target, int value);
     @stability Evolving.
  */
 PUBLIC void mprAtomicAdd64(volatile int64 *target, int64 value);
-
-#if UNUSED
-/**
-    Exchange the target and a value
-    @param target Address of the target word to exchange
-    @param value Value to store to the target
-    @ingroup MprSynch
-    @stability Evolving.
- */
-PUBLIC void *mprAtomicExchange(void * volatile *target, cvoid *value);
-#endif
 
 /********************************* Memory Allocator ***************************/
 /*
@@ -1075,12 +1072,12 @@ typedef void (*MprManager)(void *ptr, int flags);
     The location stats table tracks the source code location responsible for each allocation
     Very costly. Don't use except for debug.
  */
-#define MPR_TRACK_HASH        2053          /* Size of location name hash */
-#define MPR_TRACK_NAMES       8             /* Length of collision chain */
+#define MPR_TRACK_HASH        2053              /* Size of location name hash */
+#define MPR_TRACK_NAMES       8                 /* Length of collision chain */
 
 typedef struct MprLocationStats {
-    size_t          count;                  /* Total allocations for this manager */
-    cchar           *names[MPR_TRACK_NAMES];/* Manager names */
+    size_t          count;                      /* Total allocations for this manager */
+    cchar           *names[MPR_TRACK_NAMES];    /* Manager names */
 } MprLocationStats;
 #endif
 
@@ -1730,7 +1727,7 @@ PUBLIC char *itos(int64 value);
     @param radix The base radix to use when encoding the number
     @return An allocated string with the converted number.
     @ingroup MprString
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *itosradix(int64 value, int radix);
 
@@ -1744,7 +1741,7 @@ PUBLIC char *itosradix(int64 value, int radix);
     @param radix The base radix to use when encoding the number
     @return Returns a reference to the string.
     @ingroup MprString
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *itosbuf(char *buf, ssize size, int64 value, int radix);
 
@@ -1756,7 +1753,7 @@ PUBLIC char *itosbuf(char *buf, ssize size, int64 value, int radix);
     @return Returns zero if the strings are equivalent, < 0 if s1 sorts lower than s2 in the collating sequence 
         or > 0 if it sorts higher.
     @ingroup MprString
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int scaselesscmp(cchar *s1, cchar *s2);
 
@@ -1767,7 +1764,7 @@ PUBLIC int scaselesscmp(cchar *s1, cchar *s2);
     @param s2 Second string to compare. 
     @return Returns true if the strings are equivalent, otherwise false.
     @ingroup MprString
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC bool scaselessmatch(cchar *s1, cchar *s2);
 
@@ -2610,10 +2607,10 @@ PUBLIC MprBuf *mprCreateBuf(ssize initialSize, ssize maxSize);
 PUBLIC MprBuf *mprCloneBuf(MprBuf *orig);
 
 /**
-    Clone a buffer and return a memory block
+    Clone a buffer contents
     @param bp Buffer to copy
     @return Returns a newly allocated memory block containing the buffer contents.
-    @stability Prototype.
+    @stability Evolving.
  */
 PUBLIC char *mprCloneBufMem(MprBuf *bp);
 
@@ -3252,7 +3249,7 @@ PUBLIC int mprGetTimeZoneOffset(MprTime when);
  */
 #define MPR_OBJ_LIST            0x1     /**< Object is a hash */
 #define MPR_LIST_STATIC_VALUES  0x20    /**< Flag for #mprCreateList when values are permanent */
-#define MPR_LIST_STABLE         0x40    /**< For own use. Not thread safe */
+#define MPR_LIST_STABLE         0x40    /**< Contents are stable or only accessed by one thread. Does not need thread locking */
 #if DEPRECATED || 1
 #define MPR_LIST_OWN MPR_LIST_STABLE
 #endif
@@ -3432,6 +3429,7 @@ PUBLIC void *mprGetNextItem(MprList *list, int *lastIndex);
 
 /**
     Get the next item in a stable list.
+    This is an optimized version of mprGetNextItem.
     @description Returns the value of the next item in the list. Before calling
         this routine, mprGetFirstItem must be called to initialize the traversal of the list.
     @param list List pointer returned from mprCreateList.
@@ -3482,11 +3480,11 @@ PUBLIC void mprInitList(MprList *list, int flags);
 PUBLIC int mprInsertItemAtPos(MprList *list, int index, cvoid *item);
 
 /**
-    Convert a list of strings to a single string
+    Convert a list of strings to a single string. This uses the specified join string between the elements.
     @param list List pointer returned from mprCreateList.
-    @param join String to use as the element join string.
+    @param join String to use as the element join string. May be null.
     @ingroup MprList
-    @stability Prototype.
+    @stability Evolving.
  */
 PUBLIC char *mprListToString(MprList *list, cchar *join);
 
@@ -3710,7 +3708,7 @@ typedef void (*MprLogHandler)(int flags, int level, cchar *msg);
         parameter.
     @param msg Simple string message to output
     @ingroup MprLog
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprAssert(cchar *loc, cchar *msg);
 
@@ -3763,7 +3761,7 @@ PUBLIC void mprFatal(cchar *fmt, ...);
     @description Returns the MprFile object used for logging
     @returns An MprFile object for logging
     @ingroup MprLog
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC struct MprFile *mprGetLogFile();
 
@@ -3772,7 +3770,7 @@ PUBLIC struct MprFile *mprGetLogFile();
     @description Get the log handler defined via #mprSetLogHandler
     @returns A function of the signature #MprLogHandler
     @ingroup MprLog
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC MprLogHandler mprGetLogHandler();
 
@@ -4008,8 +4006,12 @@ typedef uint (*MprHashProc)(cvoid *name, ssize len);
 #define MPR_HASH_STATIC_VALUES  0x80    /**< Values are permanent - don't mark */
 #define MPR_HASH_LIST           0x100   /**< Hash keys are numeric indicies */
 #define MPR_HASH_UNIQUE         0x200   /**< Add to existing will fail */
-#define MPR_HASH_OWN            0x400   /**< For own use. Not thread safe */
+#define MPR_HASH_STABLE         0x400   /**< Contents are stable or only accessed by one thread. Does not need thread locking */
 #define MPR_HASH_STATIC_ALL     (MPR_HASH_STATIC_KEYS | MPR_HASH_STATIC_VALUES)
+
+#if DEPRECATED || 1
+#define MPR_HASH_OWN MPR_HASH_STABLE
+#endif
 
 /**
     Hash table control structure
@@ -4067,7 +4069,7 @@ PUBLIC MprKey *mprAddKey(MprHash *table, cvoid *key, cvoid *ptr);
     @param type Type of value. Set to MPR_JSON_STRING, MPR_JSON_OBJ.
     @return Added MprKey reference.
     @ingroup MprHash
-    @stability Prototype.
+    @stability Evolving.
  */
 PUBLIC MprKey *mprAddKeyWithType(MprHash *table, cvoid *key, cvoid *ptr, int type);
 
@@ -4101,7 +4103,7 @@ PUBLIC MprHash *mprCloneHash(MprHash *table);
     @param flags Table control flags. Use MPR_HASH_CASELESS for case insensitive comparisions, MPR_HASH_UNICODE
         if the hash keys are unicode strings, MPR_HASH_STATIC_KEYS if the keys are permanent and should not be
         managed for Garbage collection, and MPR_HASH_STATIC_VALUES if the values are permanent.
-        MPR_HASH_OWN to create an optimized list for private use that is not thread-safe.
+        MPR_HASH_STABLE to create an optimized list when the contents are stable or only accessed by one thread.
     @return Returns a pointer to the allocated symbol table.
     @ingroup MprHash
     @stability Stable.
@@ -4202,7 +4204,7 @@ PUBLIC MprHash *mprBlendHash(MprHash *target, MprHash *other);
     @param join String to use as the element join string.
     @return String consisting of the joined hash values
     @ingroup MprHash
-    @stability Prototype.
+    @stability Evolving.
 */
 PUBLIC char *mprHashToString(MprHash *hash, cchar *join);
 
@@ -4212,7 +4214,7 @@ PUBLIC char *mprHashToString(MprHash *hash, cchar *join);
     @param join String to use as the element join string.
     @return String consisting of the joined hash keys
     @ingroup MprHash
-    @stability Prototype.
+    @stability Evolving.
 */
 PUBLIC char *mprHashKeysToString(MprHash *hash, cchar *join);
 
@@ -5013,7 +5015,7 @@ PUBLIC char *mprGetWinPath(cchar *path);
     @param path Path name to examine
     @returns True if directory is a parent of the path or is the same as the given path.
     @ingroup MprPath
-    @stability Prototype
+    @stability Evolving
  */ 
 PUBLIC bool mprIsParentPathOf(cchar *dir, cchar *path);
 
@@ -5714,7 +5716,7 @@ PUBLIC int mprWaitForEvent(MprDispatcher *dispatcher, MprTicks timeout);
     Wake the event service
     @description Used to wake the event service if an event is queued for service.
     @ingroup MprDispatcher
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void mprWakeEventService();
 
@@ -6233,7 +6235,7 @@ typedef struct MprThread {
     int             stickyYield;        /**< Yielded does not auto-clear after GC */
     int             yielded;            /**< Thread has yielded to GC */
     int             waitForGC;          /**< Yield untill sweeper is complete */
-    int             waiting;            /**< Waiting for MOB */
+    int             waiting;            /**< Waiting in mprYield */
 } MprThread;
 
 
@@ -6248,7 +6250,7 @@ typedef struct MprThreadLocal {
 #elif BIT_WIN_LIKE
     DWORD           key;
 #else
-    MprHash         *store;
+    MprHash         *store;             /**< Thread local data store */
 #endif
 } MprThreadLocal;
 
@@ -7161,7 +7163,7 @@ PUBLIC int mprSetSocketBlockingMode(MprSocket *sp, bool on);
     @param sp Socket object returned from #mprCreateSocket
     @param dispatcher Dispatcher object reference
     @ingroup MprSocket
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void mprSetSocketDispatcher(MprSocket *sp, MprDispatcher *dispatcher);
 
@@ -8928,7 +8930,7 @@ PUBLIC int mprGetRandomBytes(char *buf, ssize size, bool block);
     Get some random data in ascii
     @param size Size of the random data string
     @ingroup Mpr
-    @stability Prototype.
+    @stability Evolving.
   */
 PUBLIC char *mprGetRandomString(ssize size);
 

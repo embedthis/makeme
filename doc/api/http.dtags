@@ -1,15 +1,93 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
 <tagfile>
   <compound kind="group">
+    <name>HttpMonitor</name>
+    <title>HttpMonitor</title>
+    <filename>group___http_monitor.html</filename>
+    <class kind="struct">HttpAddress</class>
+    <class kind="struct">HttpCounter</class>
+    <class kind="struct">HttpDefense</class>
+    <member kind="typedef">
+      <type>void(*</type>
+      <name>HttpRemedyProc</name>
+      <anchorfile>group___http_monitor.html</anchorfile>
+      <anchor>ga9312833ecf737ffd7ea8d3acb393f90b</anchor>
+      <arglist>)(MprHash *args)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>httpAddCounter</name>
+      <anchorfile>group___http_monitor.html</anchorfile>
+      <anchor>ga7a392f9544359c5dfaf69fd07f2737bd</anchor>
+      <arglist>(cchar *name)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>httpAddDefense</name>
+      <anchorfile>group___http_monitor.html</anchorfile>
+      <anchor>gab63bf01d19bbbeda83109cbb8a240b8d</anchor>
+      <arglist>(cchar *name, cchar *remedy, cchar *args)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>httpAddMonitor</name>
+      <anchorfile>group___http_monitor.html</anchorfile>
+      <anchor>ga931db10ade516aff29d2fd827b4450bb</anchor>
+      <arglist>(cchar *counter, cchar *expr, uint64 limit, MprTicks period, cchar *defenses)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>httpAddRemedy</name>
+      <anchorfile>group___http_monitor.html</anchorfile>
+      <anchor>ga511486e477c76397a37a3f0eeda236d2</anchor>
+      <arglist>(cchar *name, HttpRemedyProc remedy)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>httpBanClient</name>
+      <anchorfile>group___http_monitor.html</anchorfile>
+      <anchor>ga2ee0c71f12bc26374dc8172700918499</anchor>
+      <arglist>(cchar *ip, MprTicks period, int status, cchar *msg)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpDumpCounters</name>
+      <anchorfile>group___http_monitor.html</anchorfile>
+      <anchor>ga311c47ac8f597b1233961cce7b9769e3</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>int64</type>
+      <name>httpMonitorEvent</name>
+      <anchorfile>group___http_monitor.html</anchorfile>
+      <anchor>ga0bc7096f9bd5aaf3a207194adff4c2b6</anchor>
+      <arglist>(struct HttpConn *conn, int counter, int64 adj)</arglist>
+    </member>
+  </compound>
+  <compound kind="group">
     <name>Http</name>
     <title>Http</title>
     <filename>group___http.html</filename>
+    <member kind="typedef">
+      <type>void(*</type>
+      <name>HttpConfigureProc</name>
+      <anchorfile>group___http.html</anchorfile>
+      <anchor>gad4efaa72863337d6ab03a6e42b6190da</anchor>
+      <arglist>)(void *arg)</arglist>
+    </member>
     <member kind="function">
       <type>void</type>
       <name>httpAddOption</name>
       <anchorfile>group___http.html</anchorfile>
       <anchor>ga0b81bb7e1e229c931533804c3bab6ed3</anchor>
       <arglist>(MprHash *options, cchar *field, cchar *value)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>httpConfigure</name>
+      <anchorfile>group___http.html</anchorfile>
+      <anchor>gad2de58bfa89501db8cc1d6b850ff7729</anchor>
+      <arglist>(HttpConfigureProc proc, void *arg, MprTicks timeout)</arglist>
     </member>
     <member kind="function">
       <type>Http *</type>
@@ -1404,13 +1482,6 @@
     </member>
     <member kind="function">
       <type>void</type>
-      <name>httpSetAuthCipher</name>
-      <anchorfile>group___http_auth.html</anchorfile>
-      <anchor>gaafbffabe4dc9779f2a764e9ca89bd364</anchor>
-      <arglist>(HttpAuth *auth, cchar *cipher)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
       <name>httpSetAuthDeny</name>
       <anchorfile>group___http_auth.html</anchorfile>
       <anchor>ga46484036ce6079882051e393d7f2e655</anchor>
@@ -1898,13 +1969,6 @@
     </member>
     <member kind="function">
       <type>void</type>
-      <name>httpSetRouteCookieVisibility</name>
-      <anchorfile>group___http_route.html</anchorfile>
-      <anchor>ga066a0684979691032ec4b1efb844cc4e</anchor>
-      <arglist>(HttpRoute *route, bool visible)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
       <name>httpSetRouteData</name>
       <anchorfile>group___http_route.html</anchorfile>
       <anchor>gaf63bed103e906efe134668c20e5338ef</anchor>
@@ -2000,6 +2064,13 @@
       <anchorfile>group___http_route.html</anchorfile>
       <anchor>gae797cd54af2ee6cafccb89b1590feeb7</anchor>
       <arglist>(HttpRoute *route, cchar *script, cchar *scriptPath)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpSetRouteSessionVisibility</name>
+      <anchorfile>group___http_route.html</anchorfile>
+      <anchor>gaeca3e06924e7ffadd182db344bcdb2fb</anchor>
+      <arglist>(HttpRoute *route, bool visible)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -3060,6 +3131,66 @@
     </member>
   </compound>
   <compound kind="struct">
+    <name>HttpAddress</name>
+    <filename>struct_http_address.html</filename>
+    <member kind="variable">
+      <type>cchar *</type>
+      <name>banMsg</name>
+      <anchorfile>struct_http_address.html</anchorfile>
+      <anchor>af07a5ec81c3e2311b882ea005056472d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>int</type>
+      <name>banStatus</name>
+      <anchorfile>struct_http_address.html</anchorfile>
+      <anchor>a7561542ad7b8c66579e5414609d6b9d5</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>MprTicks</type>
+      <name>banUntil</name>
+      <anchorfile>struct_http_address.html</anchorfile>
+      <anchor>a1b015a0b441ae21be0425f51619a648c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>HttpCounter</type>
+      <name>counters</name>
+      <anchorfile>struct_http_address.html</anchorfile>
+      <anchor>a239e2720beed045d19adcaf814aed095</anchor>
+      <arglist>[1]</arglist>
+    </member>
+    <member kind="variable">
+      <type>int</type>
+      <name>delay</name>
+      <anchorfile>struct_http_address.html</anchorfile>
+      <anchor>a177412df818fccb0db55425c0cfe0cbb</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>MprTicks</type>
+      <name>delayUntil</name>
+      <anchorfile>struct_http_address.html</anchorfile>
+      <anchor>a031105262a80b6a93664219b4e89ba81</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>int</type>
+      <name>ncounters</name>
+      <anchorfile>struct_http_address.html</anchorfile>
+      <anchor>a6df21e7eeba171cc0fcef349352cebf8</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>MprTicks</type>
+      <name>updated</name>
+      <anchorfile>struct_http_address.html</anchorfile>
+      <anchor>a1f1d7229cefcc69bafee7f3513a3f87e</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="struct">
     <name>HttpAuthStore</name>
     <filename>struct_http_auth_store.html</filename>
     <member kind="variable">
@@ -3099,6 +3230,49 @@
       <name>setAuth</name>
       <anchorfile>struct_http_auth_type.html</anchorfile>
       <anchor>aed6d0a3084b1decb7d27b85ef962c910</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="struct">
+    <name>HttpCounter</name>
+    <filename>struct_http_counter.html</filename>
+    <member kind="variable">
+      <type>uint64</type>
+      <name>value</name>
+      <anchorfile>struct_http_counter.html</anchorfile>
+      <anchor>a61e06e37f2e0f7d3413d2be1f6b63d5f</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="struct">
+    <name>HttpDefense</name>
+    <filename>struct_http_defense.html</filename>
+    <member kind="variable">
+      <type>MprHash *</type>
+      <name>args</name>
+      <anchorfile>struct_http_defense.html</anchorfile>
+      <anchor>aba7a5901af58c2be5cdaeabdae88389c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>cchar *</type>
+      <name>name</name>
+      <anchorfile>struct_http_defense.html</anchorfile>
+      <anchor>a8ff00fab8d63e5100e0d4cb26711ba7c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>cchar *</type>
+      <name>remedy</name>
+      <anchorfile>struct_http_defense.html</anchorfile>
+      <anchor>a814c6292976e2d6911d25a0746693ffb</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>int</type>
+      <name>suppressed</name>
+      <anchorfile>struct_http_defense.html</anchorfile>
+      <anchor>a18af712cd1496522d3ae59be6cdb728b</anchor>
       <arglist></arglist>
     </member>
   </compound>

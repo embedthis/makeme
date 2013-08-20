@@ -310,7 +310,7 @@ static int parseArgs(int argc, char **argv)
                 return showUsage();
             } else {
                 if (app->formData == 0) {
-                    app->formData = mprCreateList(-1, 0);
+                    app->formData = mprCreateList(-1, MPR_LIST_STABLE);
                 }
                 addFormVars(argv[++nextArg]);
             }
@@ -535,7 +535,7 @@ static int parseArgs(int argc, char **argv)
         /*
             Files present on command line
          */
-        app->files = mprCreateList(argc, MPR_LIST_STATIC_VALUES);
+        app->files = mprCreateList(argc, MPR_LIST_STATIC_VALUES | MPR_LIST_STABLE);
         for (i = 0; i < argc; i++) {
             mprAddItem(app->files, argv[i]);
         }
@@ -745,7 +745,7 @@ static int processThread(HttpConn *conn, MprEvent *event)
                 } else {
                     url = app->target;
                 }
-                app->requestFiles = mprCreateList(-1, MPR_LIST_STATIC_VALUES);
+                app->requestFiles = mprCreateList(-1, MPR_LIST_STATIC_VALUES | MPR_LIST_STABLE);
                 mprAddItem(app->requestFiles, path);
                 td->url = url = resolveUrl(conn, url);
                 if (app->verbose) {

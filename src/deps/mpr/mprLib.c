@@ -5814,7 +5814,7 @@ static int blendEnv(MprCmd *cmd, cchar **env, int flags)
 
     cmd->env = 0;
 
-    if ((cmd->env = mprCreateList(128, MPR_LIST_STATIC_VALUES)) == 0) {
+    if ((cmd->env = mprCreateList(128, MPR_LIST_STATIC_VALUES | MPR_LIST_STABLE)) == 0) {
         return MPR_ERR_MEMORY;
     }
 #if !VXWORKS
@@ -11184,7 +11184,7 @@ PUBLIC MprHash *mprCreateHash(int hashSize, int flags)
     hash->flags = flags | MPR_OBJ_HASH;
     hash->size = hashSize;
     hash->length = 0;
-    if (!(flags & MPR_HASH_OWN)) {
+    if (!(flags & MPR_HASH_STABLE)) {
         hash->mutex = mprCreateLock();
     } else {
         hash->mutex = 0;
@@ -11939,11 +11939,14 @@ static int setValue(MprJson *jp, MprObj *obj, int index, cchar *key, cchar *valu
 }
 
 
+/*
+    Returns a stable list
+ */
 static MprObj *makeObj(MprJson *jp, bool list)
 {
     MprHash     *hash;
 
-    if ((hash = mprCreateHash(0, 0)) == 0) {
+    if ((hash = mprCreateHash(0, MPR_HASH_STABLE)) == 0) {
         return 0;
     }
     if (list) {
@@ -18150,14 +18153,6 @@ PUBLIC char *mprPrintfCore(char *buf, ssize maxsize, cchar *spec, va_list args)
 
             case 'X':
                 fmt.flags |= SPRINTF_UPPER_CASE;
-#if UNUSED
-#if BIT_64
-                fmt.flags &= ~(SPRINTF_SHORT|SPRINTF_LONG);
-                fmt.flags |= SPRINTF_INT64;
-#else
-                fmt.flags &= ~(SPRINTF_INT64);
-#endif
-#endif
                 /*  Fall through  */
             case 'o':
             case 'x':
@@ -22468,6 +22463,7 @@ PUBLIC char *stemplate(cchar *str, MprHash *keys)
 
 /*
     String to list. This parses the string into space separated arguments. Single and double quotes are supported.
+    This returns a stable list.
  */
 PUBLIC MprList *stolist(cchar *src)
 {
@@ -22475,7 +22471,7 @@ PUBLIC MprList *stolist(cchar *src)
     cchar       *start;
     int         quote;
 
-    list = mprCreateList(0, 0);
+    list = mprCreateList(0, MPR_LIST_STABLE);
     while (src && *src != '\0') {
         while (isspace((uchar) *src)) {
             src++;
@@ -24795,7 +24791,7 @@ PUBLIC int mprCreateTimeService()
     TimeToken           *tt;
 
     mpr = MPR;
-    mpr->timeTokens = mprCreateHash(59, MPR_HASH_STATIC_KEYS | MPR_HASH_STATIC_VALUES);
+    mpr->timeTokens = mprCreateHash(59, MPR_HASH_STATIC_KEYS | MPR_HASH_STATIC_VALUES | MPR_HASH_STABLE);
     for (tt = days; tt->name; tt++) {
         mprAddKey(mpr->timeTokens, tt->name, (void*) tt);
     }
