@@ -10178,6 +10178,7 @@ module ejs {
          */
         function read(buffer: ByteArray, offset: Number = 0, count: Number = -1): Number? 
 
+        //  TODO - should this throw or return status code?
         /** 
             Write data to the stream.
             If the stream can accept all the write data, the call returns immediately with the number of bytes written. 
@@ -12092,8 +12093,12 @@ module ejs {
                 If the content is a ByteArray, the message will be sent as a WebSocket Binary message.
                 Otherwise, the message is converted to a String and sent as a WebSockets UTF-8 Text message.
                If multiple arguments are provided, each is sent as a separate message. 
+               The message is buffered and so this call will never fail. Sending very large messages can consume
+               a lot of memory. Use $sendBlock to efficiently send large messages.
+                @return Count of bytes written. Returns null if the WebSocket is closed.
+               @throws 
          */
-        native function send(...content): Void
+        native function send(...content): Number
 
         /**< sendBlock mode to buffer the content */
         static const BUFFER = 0x1
@@ -12105,13 +12110,22 @@ module ejs {
         static const NON_BLOCK = 0x4
 
         /**
-            Send a block of data with options to control message framing.
+            Send a block of data with options to control message framing and buffering. 
+            This API is useful for sending multipart or large messages, or wherever you need to control the framing of 
+            WebSockets messages. 
             @param content The content may be a ByteArray or any other type which is then converted to a string.
             @param options
-            @options last Set to true for the last frame in a message. If omitted, assumed to be true.
-            @options type Message type. Masked to the valid WebSockets message types.
+            @options last Set to false to indicate there is more data to complete this message. Set to true for the last portion
+            of the message. Defaults to true if unspecified.
+            @options type Message type. Masked to the valid WebSockets message types. Defaults to Text.
+            @options mode API transmission mode. Set to BUFFER to buffer the entire contents before transmitting. Set to BLOCK
+            to have the API wait until all the content is accepted. Set to NON_BLOCK for the API to accept whatever data can fit
+            into the HTTP pipeline and return without waiting. In this mode, the call may return having written less than the 
+            requested amount of data. It is the callers responsibility to handle this occurrence.
+            @return Count of bytes written. Returns null if the WebSocket is closed.
+           @throws ArgError for bad options
          */
-        native function sendBlock(content, options): Void
+        native function sendBlock(content, options): Number
 
         /**
             The URI provided to the constructor

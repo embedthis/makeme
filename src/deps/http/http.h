@@ -6578,12 +6578,14 @@ typedef struct HttpWebSocket {
     ssize           messageLength;          /**< Length of the current message */
     char            *subProtocol;           /**< Application level sub-protocol */
     HttpPacket      *currentFrame;          /**< Message frame being currently read */
-    HttpPacket      *currentMessage;        /**< Total message currently being read */
+    HttpPacket      *currentMessage;        /**< Current incoming messsage so far */
     HttpPacket      *tailMessage;           /**< Subsequent message frames */
     MprEvent        *pingEvent;             /**< Ping timer event */
     char            *closeReason;           /**< Reason for closure */
     uchar           dataMask[4];            /**< Mask for data */
+    int             currentMessageType;     /**< Current incoming messsage type */
     int             maskOffset;             /**< Offset in dataMask */
+    int             more;                   /**< More data to send in a message */
     int             preserveFrames;         /**< Do not join frames */
     int             partialUTF;             /**< Last frame had a partial UTF codepoint */ 
     int             rxSeq;                  /**< Incoming packet number */
@@ -6732,7 +6734,8 @@ PUBLIC ssize httpSend(HttpConn *conn, cchar *fmt, ...);
     @param conn HttpConn connection object created via #httpCreateConn
     @param type Web socket message type. Choose from WS_MSG_TEXT, WS_MSG_BINARY or WS_MSG_PING. 
         Use httpSendClose to send a close message. Do not send a WS_MSG_PONG message as it is generated internally
-        by the Web Sockets module.
+        by the Web Sockets module. If using HTTP_NON_BLOCK and the call returns having written only a portion of the data,
+        you must set the type to WS_MSG_CONT for the 
     @param msg Message data buffer to send
     @param len Length of msg
     @param flags Include the flag HTTP_BLOCK for blocking operation or HTTP_NON_BLOCK for non-blocking. Set to HTTP_BUFFER to

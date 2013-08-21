@@ -4002,7 +4002,7 @@ PUBLIC ssize mprPutBlockToBuf(MprBuf *bp, cchar *str, ssize size)
         size -= thisLen;
         bytes += thisLen;
     }
-    if (bp->end < bp->endbuf) {
+    if (bp && bp->end < bp->endbuf) {
         *((char*) bp->end) = (char) '\0';
     }
     return bytes;

@@ -10232,6 +10232,13 @@ PUBLIC void httpResetRoutePipeline(HttpRoute *route)
     if (!route->parent || route->languages != route->parent->languages) {
         route->languages = 0;
     }
+    if (!route->parent || route->headers != route->parent->headers) {
+        route->headers = 0;
+        httpAddRouteResponseHeader(route, HTTP_ROUTE_ADD_HEADER, "Content-Security-Policy", "default-src 'self'");
+        httpAddRouteResponseHeader(route, HTTP_ROUTE_ADD_HEADER, "X-XSS-Protection", "1; mode=block");
+        httpAddRouteResponseHeader(route, HTTP_ROUTE_ADD_HEADER, "X-Frame-Options", "SAMEORIGIN");
+        httpAddRouteResponseHeader(route, HTTP_ROUTE_ADD_HEADER, "X-Content-Type-Options", "nosniff");
+    }
 }
 
 
@@ -18844,26 +18851,31 @@ static void incomingWebSockData(HttpQueue *q, HttpPacket *packet)
             fp = content->start;
             if (GET_RSV(*fp) != 0) {
                 error = WS_STATUS_PROTOCOL_ERROR;
+                mprLog(2, "WebSockets protocol error: bad reserved field");
                 break;
             }
             packet->last = GET_FIN(*fp);
             opcode = GET_CODE(*fp);
             if (opcode == WS_MSG_CONT) {
-                if (!ws->currentMessage) {
+                if (!ws->currentMessageType) {
+                    mprLog(2, "WebSockets protocol error: continuation frame but not prior message");
                     error = WS_STATUS_PROTOCOL_ERROR;
                     break;
                 }
-            } else if (opcode < WS_MSG_CONTROL && ws->currentMessage) {
+            } else if (opcode < WS_MSG_CONTROL && ws->currentMessageType) {
+                mprLog(2, "WebSockets protocol error: data frame received but expected a continuation frame");
                 error = WS_STATUS_PROTOCOL_ERROR;
                 break;
             }
             if (opcode > WS_MSG_PONG) {
+                mprLog(2, "WebSockets protocol error: bad frame opcode");
                 error = WS_STATUS_PROTOCOL_ERROR;
                 break;
             }
             packet->type = opcode;
             if (opcode >= WS_MSG_CONTROL && !packet->last) {
                 /* Control frame, must not be fragmented */
+                mprLog(2, "WebSockets protocol error: fragmented control frame");
                 error = WS_STATUS_PROTOCOL_ERROR;
                 break;
             }
@@ -18890,6 +18902,7 @@ static void incomingWebSockData(HttpQueue *q, HttpPacket *packet)
             }
             if (packet->type >= WS_MSG_CONTROL && len > WS_MAX_CONTROL) {
                 /* Too big */
+                mprLog(2, "WebSockets protocol error: control frame too big");
                 error = WS_STATUS_PROTOCOL_ERROR;
                 break;
             }
@@ -18979,6 +18992,7 @@ static void incomingWebSockData(HttpQueue *q, HttpPacket *packet)
             break;
 
         default:
+            mprLog(2, "WebSockets protocol error: unknown frame state");
             error = WS_STATUS_PROTOCOL_ERROR;
             break;
         }
@@ -19026,21 +19040,10 @@ static int processFrame(HttpQueue *q, HttpPacket *packet)
         mprLog(2, "WebSocket: %d: receive \"%s\" (%d) frame, last %d, length %d",
              ws->rxSeq++, codetxt[packet->type], packet->type, packet->last, mprGetBufLength(content));
     }
+    validated = 0;
+
     switch (packet->type) {
-    case WS_MSG_CONT:
-        if (ws->currentMessage) {
-            packet->type = ws->currentMessage->type;
-        } else {
-            mprError("webSocketFilter: Bad continuation packet");
-            return WS_STATUS_PROTOCOL_ERROR;
-        }
-        /* Fall through */
-    case WS_MSG_BINARY:
     case WS_MSG_TEXT:
-        if (ws->closing) {
-            break;
-        }
-        validated = 0;
         if (packet->type == WS_MSG_TEXT) {
             mprLog(4, "webSocketFilter: Receive text \"%s\"", content->start);
             /*
@@ -19053,12 +19056,26 @@ static int processFrame(HttpQueue *q, HttpPacket *packet)
                 validated++;
             }
         }
-        if (ws->currentMessage) {
-            if (packet->type != ws->currentMessage->type) {
-                mprError("webSocketFilter: Bad message type in multipart message");
+        /* Fall through */
+
+    case WS_MSG_BINARY:
+        ws->messageLength = 0;
+        ws->currentMessageType = packet->type;
+        /* Fall through */
+
+    case WS_MSG_CONT:
+        if (ws->closing) {
+            break;
+        }
+        if (packet->type == WS_MSG_CONT) {
+            if (ws->currentMessageType) {
+                packet->type = ws->currentMessageType;
+            } else {
+                mprError("webSocketFilter: Bad continuation packet");
                 return WS_STATUS_PROTOCOL_ERROR;
             }
-            assert(!ws->preserveFrames);
+        }
+        if (ws->currentMessage && !ws->preserveFrames) {
             httpJoinPacket(ws->currentMessage, packet);
             ws->currentMessage->last = packet->last;
             packet = ws->currentMessage;
@@ -19092,6 +19109,9 @@ static int processFrame(HttpQueue *q, HttpPacket *packet)
             } else {
                 ws->currentMessage = packet;
                 break;
+            }
+            if (packet->last) {
+                ws->currentMessageType = 0;
             }
             mprYield(0);
         } 
@@ -19188,7 +19208,7 @@ PUBLIC ssize httpSendBlock(HttpConn *conn, int type, cchar *buf, ssize len, int 
     HttpWebSocket   *ws;
     HttpPacket      *packet;
     HttpQueue       *q;
-    ssize           thisWrite, totalWritten;
+    ssize           room, thisWrite, totalWritten;
 
     assert(conn);
     assert(buf);
@@ -19220,9 +19240,11 @@ PUBLIC ssize httpSendBlock(HttpConn *conn, int type, cchar *buf, ssize len, int 
         mprError("webSocketFilter: Outgoing message is too large %d/%d", len, conn->limits->webSocketsMessageSize);
         return MPR_ERR_WONT_FIT;
     }
-
     totalWritten = 0;
     do {
+        if ((room = q->max - q->count) == 0) {
+            break;
+        }
         /*
             Break into frames if the user is not preserving frames and has not explicitly specified "more". 
             The outgoingWebSockService will encode each packet as a frame.
@@ -19234,7 +19256,7 @@ PUBLIC ssize httpSendBlock(HttpConn *conn, int type, cchar *buf, ssize len, int 
         }
         thisWrite = min(thisWrite, q->packetSize);
         if (flags & (HTTP_BLOCK | HTTP_NON_BLOCK)) {
-            thisWrite = min(thisWrite, q->max - q->count);
+            thisWrite = min(thisWrite, room);
         }
         if ((packet = httpCreateDataPacket(thisWrite)) == 0) {
             return MPR_ERR_MEMORY;
@@ -19242,6 +19264,9 @@ PUBLIC ssize httpSendBlock(HttpConn *conn, int type, cchar *buf, ssize len, int 
         /*
             Spec requires type to be set only on the first frame
          */
+        if (ws->more) {
+            type = 0;
+        }
         packet->type = type;
         type = 0;
         if (ws->preserveFrames || (flags & HTTP_MORE)) {
@@ -19251,11 +19276,12 @@ PUBLIC ssize httpSendBlock(HttpConn *conn, int type, cchar *buf, ssize len, int 
             if (mprPutBlockToBuf(packet->content, buf, thisWrite) != thisWrite) {
                 return MPR_ERR_MEMORY;
             }
-            len -= thisWrite;
-            buf += thisWrite;
-            totalWritten += thisWrite;
         }
+        len -= thisWrite;
+        buf += thisWrite;
+        totalWritten += thisWrite;
         packet->last = (len > 0) ? 0 : !(flags & HTTP_MORE);
+        ws->more = !packet->last;
         httpPutForService(q, packet, HTTP_SCHEDULE_QUEUE);
 
         if (q->count >= q->max) {
@@ -19266,13 +19292,21 @@ PUBLIC ssize httpSendBlock(HttpConn *conn, int type, cchar *buf, ssize len, int 
                 } else if (flags & HTTP_BLOCK) {
                     while (q->count >= q->max) {
                         assert(conn->limits->inactivityTimeout > 10);
+                        httpServiceQueues(conn);
+                        if (conn->tx->writeBlocked) {
+                            httpEnableConnEvents(q->conn);
+                        }
                         mprWaitForEvent(conn->dispatcher, conn->limits->inactivityTimeout);
                     }
                 }
             }
         }
     } while (len > 0);
+
     httpServiceQueues(conn);
+    if (conn->tx->writeBlocked) {
+        httpEnableConnEvents(q->conn);
+    }
     return totalWritten;
 }
 
@@ -19387,6 +19421,9 @@ static void outgoingWebSockService(HttpQueue *q)
             mprAdjustBufEnd(packet->prefix, prefix - packet->prefix->start);
             mprLog(2, "WebSocket: %d: send \"%s\" (%d) frame, last %d, length %d",
                 ws->txSeq++, codetxt[packet->type], packet->type, packet->last, httpGetPacketLength(packet));
+            if (packet->type == WS_MSG_TEXT && packet->content) {
+                mprLog(4, "webSocketFilter: Send text \"%s\"", packet->content->start);
+            }
         }
         httpPutPacketToNext(q, packet);
         mprYield(0);
@@ -19521,7 +19558,7 @@ static int validUTF8(cchar *str, ssize len)
          */
         state = utfTable[256 + (state * 16) + type];
         if (state == UTF8_REJECT) {
-            mprTrace(0, "Invalid UTF8 at offset %d", cp - (uchar*) str);
+            mprLog(0, "Invalid UTF8 at offset %d", cp - (uchar*) str);
             break;
         }
     }

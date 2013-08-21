@@ -51444,9 +51444,9 @@ static EjsNumber *ws_readyState(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **a
 
 
 /*  
-    function send(...content): Void
+    function send(...content): Number
  */
-static EjsString *ws_send(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **argv)
+static EjsNumber *ws_send(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **argv)
 {
     EjsArray        *args;
     EjsByteArray    *ba;
@@ -51456,7 +51456,7 @@ static EjsString *ws_send(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **argv)
 
     args = (EjsArray*) argv[0];
     if (ws->conn->state < HTTP_STATE_PARSED && !waitForHttpState(ws, HTTP_STATE_PARSED, -1, 1)) {
-        return 0;
+        return ESV(null);
     }
     for (i = 0; i < args->length; i++) {
         if ((arg = ejsGetProperty(ejs, args, i)) != 0) {
@@ -51468,18 +51468,18 @@ static EjsString *ws_send(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **argv)
                 nbytes = httpSend(ws->conn, ejsToMulti(ejs, arg));
             }
             if (nbytes < 0) {
-                return 0;
+                return ESV(null);
             }
         }
     }
-    return 0;
+    return ejsCreateNumber(ejs, nbytes);
 }
 
 
 /*  
-    function sendBlock(content, options): Void
+    function sendBlock(content, options): Number
  */
-static EjsString *ws_sendBlock(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **argv)
+static EjsNumber *ws_sendBlock(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **argv)
 {
     EjsByteArray    *ba;
     EjsAny          *content, *vp;
@@ -51490,7 +51490,7 @@ static EjsString *ws_sendBlock(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **ar
     assert(argc == 2);
 
     if (ws->conn->state < HTTP_STATE_PARSED && !waitForHttpState(ws, HTTP_STATE_PARSED, -1, 1)) {
-        return 0;
+        return ESV(null);
     }
     content = argv[0];
     last = ejsGetPropertyByName(ejs, argv[1], EN("last")) != ESV(false);
@@ -51525,9 +51525,10 @@ static EjsString *ws_sendBlock(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **ar
         nbytes = httpSendBlock(ws->conn, type, str, slen(str), flags);
     }
     if (nbytes < 0) {
+        ejsThrowIOError(ejs, "Cannot send block");
         return 0;
     }
-    return 0;
+    return ejsCreateNumber(ejs, nbytes);
 }
 
 

@@ -755,11 +755,11 @@ public function syncup(from: Path, to: Path) {
     let tartemp: Path
     if (from.name.endsWith('.tgz') || from.name.endsWith('.gz')) {
         if (!from.exists) {
-            throw 'Can\'t find package: ' + from
+            throw 'Cannot find package: ' + from
         }
-        Zlib.uncompress(from, from.replaceExt('tartemp'))
-        from = from.replaceExt('tartemp')
-        tartemp = from
+        tartemp = Path().temp()
+        Zlib.uncompress(from, tartemp)
+        from = tartemp
     }
     let tar = new Tar(from)
     for each (item in tar.list()) {

@@ -6841,7 +6841,7 @@ typedef struct MprIOVec {
 /**
     Accept an incoming connection
     @param listen Listening server socket
-    @returns A new socket connection
+    @returns A new socket connection. Windows can return NULL with error set to EAGAIN.
     @ingroup MprSocket
     @stability Stable
  */
