@@ -11241,6 +11241,7 @@ static void manageHashTable(MprHash *hash, int flags)
 }
 
 
+//  MOB - rename mprSetKey
 /*
     Insert an entry into the hash hash. If the entry already exists, update its value. 
     Order of insertion is not preserved.
@@ -11289,6 +11290,8 @@ PUBLIC MprKey *mprAddKey(MprHash *hash, cvoid *key, cvoid *ptr)
     return sp;
 }
 
+
+//  MOB - rename mprSetKeyWithType
 
 PUBLIC MprKey *mprAddKeyWithType(MprHash *hash, cvoid *key, cvoid *ptr, int type)
 {
@@ -11347,6 +11350,7 @@ PUBLIC MprKey *mprAddDuplicateKey(MprHash *hash, cvoid *key, cvoid *ptr)
 }
 
 
+//  MOB - better if it returned the old value
 PUBLIC int mprRemoveKey(MprHash *hash, cvoid *key)
 {
     MprKey      *sp, *prevSp;
@@ -11681,7 +11685,7 @@ PUBLIC char *mprHashKeysToString(MprHash *hash, cchar *join)
 
 static MprObj *deserialize(MprJson *jp, MprObj *obj);
 static char advanceToken(MprJson *jp);
-static cchar *findEndKeyword(MprJson *jp, cchar *str);
+static cchar *findWordEnd(MprJson *jp, cchar *str);
 static cchar *findQuote(cchar *tok, int quote);
 static MprObj *makeObj(MprJson *jp, bool list);
 static cchar *parseComment(MprJson *jp);
@@ -11722,7 +11726,6 @@ PUBLIC MprObj *mprDeserializeInto(cchar *str, MprObj *obj)
     MprJsonCallback cb;
 
     if (!str || !(*str == '[' || *str == '{')) {
-        assert(str && (*str == '[' || *str == '{'));
         return 0;
     }
     cb.checkState = 0;
@@ -11737,14 +11740,14 @@ static MprObj *deserialize(MprJson *jp, MprObj *obj)
 {
     cvoid   *value;
     cchar   *name;
-    int     token, rc, index, valueType;
+    int     openToken, token, rc, index, valueType;
 
-    if ((token = advanceToken(jp)) == '[') {
+    if ((openToken = advanceToken(jp)) == '[') {
         if (!obj) {
             obj = jp->callback.makeObj(jp, 1);
         }
         index = 0;
-    } else if (token == '{') {
+    } else if (openToken == '{') {
         if (!obj) {
             obj = jp->callback.makeObj(jp, 0);
         }
@@ -11878,7 +11881,11 @@ static cchar *parseUnquotedName(MprJson *jp)
 {
     cchar    *etok, *name;
 
-    etok = findEndKeyword(jp, jp->tok);
+    etok = findWordEnd(jp, jp->tok);
+    if (etok == jp->tok) {
+        mprJsonParseError(jp, "Empty name");
+        return 0;
+    }
     name = snclone(jp->tok, etok - jp->tok);
     jp->tok = etok;
     return name;
@@ -11914,7 +11921,11 @@ static cchar *parseValue(MprJson *jp)
         jp->tok = etok + 1;
 
     } else {
-        etok = findEndKeyword(jp, jp->tok);
+        etok = findWordEnd(jp, jp->tok);
+        if (etok == jp->tok) {
+            mprJsonParseError(jp, "Empty value");
+            return 0;
+    }
         value = snclone(jp->tok, etok - jp->tok);
         jp->tok = etok;
     }
@@ -11940,7 +11951,7 @@ static int setValue(MprJson *jp, MprObj *obj, int index, cchar *key, cchar *valu
 
 
 /*
-    Returns a stable list
+    Returns a stable hash or list
  */
 static MprObj *makeObj(MprJson *jp, bool list)
 {
@@ -11956,12 +11967,18 @@ static MprObj *makeObj(MprJson *jp, bool list)
 }
 
 
-static void quoteValue(MprBuf *buf, cchar *str)
+static void formatValue(MprBuf *buf, cchar *value, int flags)
 {
     cchar   *cp;
 
+    if (!(flags & MPR_JSON_STRINGS)) {
+        if (sfnumber(value) || smatch(value, "null") || smatch(value, "true") || smatch(value, "false")) {
+            mprPutStringToBuf(buf, value);
+            return;
+        }
+    }
     mprPutCharToBuf(buf, '"');
-    for (cp = str; *cp; cp++) {
+    for (cp = value; *cp; cp++) {
         if (*cp == '\'') {
             mprPutCharToBuf(buf, '\\');
         }
@@ -11971,69 +11988,85 @@ static void quoteValue(MprBuf *buf, cchar *str)
 }
 
 
+static void spaces(MprBuf *buf, int count)
+{
+    int     i;
+
+    for (i = 0; i < count; i++) {
+        mprPutStringToBuf(buf, "    ");
+    }
+}
+
+
 /*
     Supports hashes where properties are strings or hashes of strings. N-level nest is supported.
  */
-static cchar *objToString(MprBuf *buf, MprObj *obj, int type, int flags)
+static cchar *objToString(MprBuf *buf, MprObj *obj, int type, int indent, int flags)
 {
     MprKey  *kp;
     char    numbuf[32];
-    int     i, len, quotes, pretty;
+    int     index, len, quotes, pretty;
 
     pretty = flags & MPR_JSON_PRETTY;
     quotes = flags & MPR_JSON_QUOTES;
 
     if (type == MPR_JSON_ARRAY) {
         mprPutCharToBuf(buf, '[');
+        indent++;
         if (pretty) mprPutCharToBuf(buf, '\n');
         len = mprGetHashLength(obj);
-        for (i = 0; i < len; i++) {
-            itosbuf(numbuf, sizeof(numbuf), i, 10);
-            if (pretty) mprPutStringToBuf(buf, "    ");
+        for (index = 0; index < len; index++) {
+            itosbuf(numbuf, sizeof(numbuf), index, 10);
+            if (pretty) spaces(buf, indent);
             if ((kp = mprLookupKeyEntry(obj, numbuf)) == 0) {
                 assert(kp);
                 continue;
             }
             if (kp->type == MPR_JSON_ARRAY || kp->type == MPR_JSON_OBJ) {
-                objToString(buf, (MprObj*) kp->data, kp->type, flags);
+                objToString(buf, (MprObj*) kp->data, kp->type, indent, flags);
             } else {
-                quoteValue(buf, kp->data);
+                formatValue(buf, kp->data, flags);
             }
-            if ((i+1) < len) {
+            if ((index+1) < len) {
                 mprPutCharToBuf(buf, ',');
             }
             if (pretty) mprPutCharToBuf(buf, '\n');
         }
+        if (pretty) spaces(buf, --indent);
         mprPutCharToBuf(buf, ']');
 
     } else if (type == MPR_JSON_OBJ) {
         mprPutCharToBuf(buf, '{');
+        indent++;
         if (pretty) mprPutCharToBuf(buf, '\n');
         for (kp = mprGetFirstKey(obj); kp; ) {
-            if (kp->key == 0 || kp->data == 0) continue;
-            if (pretty) mprPutStringToBuf(buf, "    ");
-            if (quotes) mprPutCharToBuf(buf, '"');
-            mprPutStringToBuf(buf, kp->key);
-            if (quotes) mprPutCharToBuf(buf, '"');
-            if (pretty) {
-                mprPutStringToBuf(buf, ": ");
+            if (kp->key && kp->data) {
+                if (pretty) spaces(buf, indent);
+                if (quotes) mprPutCharToBuf(buf, '"');
+                mprPutStringToBuf(buf, kp->key);
+                if (quotes) mprPutCharToBuf(buf, '"');
+                if (pretty) {
+                    mprPutStringToBuf(buf, ": ");
+                } else {
+                    mprPutCharToBuf(buf, ':');
+                }
+                if (kp->type == MPR_JSON_ARRAY || kp->type == MPR_JSON_OBJ) {
+                    objToString(buf, (MprObj*) kp->data, kp->type, indent, flags);
+                } else {
+                    formatValue(buf, kp->data, flags);
+                }
+                kp = mprGetNextKey(obj, kp);
+                if (kp) {
+                    mprPutCharToBuf(buf, ',');
+                }
+                if (pretty) mprPutCharToBuf(buf, '\n');
             } else {
-                mprPutCharToBuf(buf, ':');
+                kp = mprGetNextKey(obj, kp);
             }
-            if (kp->type == MPR_JSON_ARRAY || kp->type == MPR_JSON_OBJ) {
-                objToString(buf, (MprObj*) kp->data, kp->type, flags);
-            } else {
-                quoteValue(buf, kp->data);
-            }
-            kp = mprGetNextKey(obj, kp);
-            if (kp) {
-                mprPutCharToBuf(buf, ',');
-            }
-            if (pretty) mprPutCharToBuf(buf, '\n');
         }
+        if (pretty) spaces(buf, --indent);
         mprPutCharToBuf(buf, '}');
     }
-    if (pretty) mprPutCharToBuf(buf, '\n');
     return sclone(mprGetBufStart(buf));
 }
 
@@ -12041,14 +12074,19 @@ static cchar *objToString(MprBuf *buf, MprObj *obj, int type, int flags)
 /*
     Serialize into JSON format.
  */
-PUBLIC cchar *mprSerialize(MprObj *obj, int flags)
+PUBLIC char *mprSerialize(MprHash *obj, int flags)
 {
     MprBuf  *buf;
+    int     type;
 
     if ((buf = mprCreateBuf(0, 0)) == 0) {
         return 0;
     }
-    objToString(buf, obj, MPR_JSON_OBJ, flags);
+    type = (obj && obj->flags & MPR_HASH_LIST) ? MPR_JSON_ARRAY : MPR_JSON_OBJ;
+    objToString(buf, obj, type, 0, flags);
+    if (flags & MPR_JSON_PRETTY) {
+        mprPutCharToBuf(buf, '\n');
+    }
     return mprGetBuf(buf);
 }
 
@@ -12079,7 +12117,7 @@ static cchar *findQuote(cchar *tok, int quote)
 }
 
 
-static cchar *findEndKeyword(MprJson *jp, cchar *str)
+static cchar *findWordEnd(MprJson *jp, cchar *str)
 {
     cchar   *cp, *etok;
 
@@ -12098,9 +12136,9 @@ static cchar *findEndKeyword(MprJson *jp, cchar *str)
 static void jsonParseError(MprJson *jp, cchar *msg)
 {
     if (jp->path) {
-        mprTrace(4, "%s\nIn file '%s' at line %d", msg, jp->path, jp->lineNumber);
+        mprTrace(4, "JSON Parse Error: %s\nIn file '%s' at line %d", msg, jp->path, jp->lineNumber);
     } else {
-        mprTrace(4, "%s\nAt line %d", msg, jp->lineNumber);
+        mprTrace(4, "JSON Parse Error: %s\nAt line %d", msg, jp->lineNumber);
     }
 }
 
@@ -12118,52 +12156,480 @@ PUBLIC void mprJsonParseError(MprJson *jp, cchar *fmt, ...)
 
 
 /*
-    Currently only works for MprHash implementations
+ **************** JSON object query API -- only works for MprHash implementations *****************
  */
-PUBLIC cchar *mprQueryJsonString(MprHash *obj, cchar *key)
+
+/*
+    JSON expression operators
+ */
+#define JSON_OP_EQ          1
+#define JSON_OP_NE          2
+#define JSON_OP_LT          3
+#define JSON_OP_LE          4
+#define JSON_OP_GT          5
+#define JSON_OP_GE          6
+#define JSON_OP_MATCH       7
+#define JSON_OP_NMATCH      8
+
+#define JSON_PROP_ELIPSIS   0x1         /* Current property was after elipsis:  ...name */
+#define JSON_PROP_ARRAY     0x2         /* Current property is array:  name[] */
+
+/*
+    Split a mulitpart property string and extract the deliminator, next property and remaining portion.
+    Format expected is: [delimitor] property [delimitor2] rest
+    Delimitor characters are: . . [ ]
+    Returns the next property. 
+ */
+PUBLIC char *getNextTerm(char *str, char **rest, int *flags)
+{
+    char    *start, *end, *seps;
+    ssize   i;
+
+    if (flags) {
+        *flags = 0;
+    }
+    seps = ".[]";
+    start = (str || !rest) ? str : *rest;
+    if (start == 0) {
+        if (rest) {
+            *rest = 0;
+        }
+        return 0;
+    }
+    while (isspace((int) *start)) start++;
+    if (flags && sstarts(start, "..")) {
+        *flags |= JSON_PROP_ELIPSIS;
+    }
+    if ((i = strspn(start, seps)) > 0) {
+        start += i;
+    }
+    if (*start == '\0') {
+        if (rest) {
+            *rest = 0;
+        }
+        return 0;
+    }
+    if ((end = strpbrk(start, seps)) != 0) {
+        if (*end == '[') {
+            *flags |= JSON_PROP_ARRAY;
+        }
+        *end++ = '\0';
+        if (!sstarts(end, "..")) {
+            i = strspn(end, seps);
+            end += i;
+            if (*end == '\0') {
+                end = 0;
+            }
+        }
+    }
+    *rest = end;
+    return start;
+}
+
+
+#define JSON_EXPR_CHARS "<>=!~"
+
+static char *splitExpression(char *property, int *operator, char **value)
+{
+    char    *seps, *op, *end, *vp;
+    ssize   i;
+
+    seps = JSON_EXPR_CHARS " \t";
+    if ((op = spbrk(property, seps)) == 0) {
+        return 0;
+    }
+    end = op;
+    while (isspace((int) *op)) op++;
+    if (end < op) {
+        *end = '\0';
+    }
+    switch (op[0]) {
+    case '<':
+        *operator = (op[1] == '=') ? JSON_OP_LE: JSON_OP_LT;
+        break;
+    case '>':
+        *operator = (op[1] == '=') ? JSON_OP_GE: JSON_OP_GT;
+        break;
+    case '=':
+        *operator = JSON_OP_EQ;
+        break;
+    case '!':
+        if (op[1] == '~') {
+            *operator = JSON_OP_NMATCH;
+        } else if (op[1] == '=') {
+            *operator = JSON_OP_NE;
+        } else {
+            *operator = 0;
+            return 0;
+        }
+        break;
+    case '~':
+        *operator = JSON_OP_MATCH;
+        break;
+    default:
+        *operator = 0;
+        return 0;
+    }
+    if ((vp = spbrk(op, "<>=! \t")) != 0) {
+        *vp++ = '\0';
+        i = sspn(vp, seps);
+        vp += i;
+        if (*vp == '\'' || *vp == '"') {
+            if ((end = (char*) findQuote(&vp[1], vp[0])) != 0) {
+                *end = '\0';
+                vp++;
+            }
+        }
+        *value = vp;
+    }
+    return property;
+}
+
+
+static bool matchExpression(MprKey *kp, int operator, char *value)
+{
+    if (kp->type != MPR_JSON_STRING) {
+        return 0;
+    }
+    value = stok(value, "'\"", NULL);
+    switch (operator) {
+    case JSON_OP_EQ:
+        return smatch(kp->data, value);
+    case JSON_OP_NE:
+        return !smatch(kp->data, value);
+    case JSON_OP_LT:
+        return scmp(kp->data, value) < 0;
+    case JSON_OP_LE:
+        return scmp(kp->data, value) <= 0;
+    case JSON_OP_GT:
+        return scmp(kp->data, value) > 0;
+    case JSON_OP_GE:
+        return scmp(kp->data, value) >= 0;
+    case JSON_OP_MATCH:
+        return scontains(kp->data, value);
+    case JSON_OP_NMATCH:
+        return !scontains(kp->data, value);
+    default:
+        return 0;
+    }
+}
+
+
+static void appendKey(MprHash *list, MprKey *kp)
+{
+    char    index[16];
+
+    itosbuf(index, sizeof(index), list->length, 10);
+    mprAddKeyWithType(list, index, kp->data, kp->type);
+}
+
+
+static void appendItem(MprHash *list, void *value, int type)
+{
+    char    index[16];
+
+    itosbuf(index, sizeof(index), list->length, 10);
+    mprAddKeyWithType(list, index, value, type);
+}
+
+
+static void appendItems(MprHash *list, MprHash *items)
 {
     MprKey  *kp;
-    char    *property, *tok;
+    char    index[16];
 
-    for (property = stok(sclone(key), ".", &tok); property; property = stok(0, ".", &tok)) {
-        if ((kp = mprLookupKeyEntry(obj, property)) == 0) {
-            return 0;
-        }
-        if (tok == 0) {
-            return (kp->type == MPR_JSON_STRING) ? kp->data : NULL;
-        }
-        if (kp->type != MPR_JSON_OBJ) {
-            return 0;
-        }
-        obj = (MprHash*) kp->data;
+    for (ITERATE_KEYS(items, kp)) {
+        itosbuf(index, sizeof(index), list->length, 10);
+        mprAddKeyWithType(list, index, kp->data, kp->type);
     }
-    return 0;
 }
 
 
 /*
-    Currently only works for MprHash implementations
+    Query a JSON object for a property key path and execute the given command.
+    The object may be a string, array or object. 
+    The path is a multipart property. Examples are:
+        user.name
+        user['name']
+        users[2]
+        users[2:4]
+        users[-4:-1]
+        users[name == 'john']
+        users[age >= 50]
+        users[phone ~ ^206]      // Starts with 206
+        colors[@ != 'red']
+        people..[name == 'john']
+    The commands are: CREATE, LOOKUP, REMOVE
+    Returns a list of elements. Create returns the list of created elements. Remove returns the list of removed elements.
  */
-PUBLIC void *mprQueryJsonValue(MprHash *obj, cchar *key, int type)
+static MprHash *jsonQuery(MprHash *obj, int type, cchar *keyPath, cvoid *value, int valueType)
 {
-    MprKey  *kp;
-    char    *property, *tok;
+    MprHash     *result;
+    MprKey      *kp, *thisKey, *np;
+    char        *property, *rest, *v, numbuf[16], *s, *e, *subkey, *key;
+    ssize       i, start, end;
+    int         flags, operator, t;
 
-    for (property = stok(sclone(key), ".", &tok); property; property = stok(0, ".", &tok)) {
-        if ((kp = mprLookupKeyEntry(obj, property)) == 0) {
-            return 0;
-        }
-        if (tok == 0) {
-            return (void*) ((kp->type == type) ? kp->data : NULL);
-        }
-        if (kp->type != MPR_JSON_OBJ) {
-            return 0;
+    if (obj == 0) {
+        return 0;
+    }
+    result = mprCreateHash(0, 0);
+    result->flags |= MPR_HASH_LIST;
+    
+    if (!(type == MPR_JSON_OBJ || type == MPR_JSON_ARRAY)) {
+        appendItem(result, obj, type);
+        return result;
+    }
+    if (keyPath == 0 || *keyPath == '\0') {
+        appendItems(result, obj);
+        return result;
+    }
+    key = sclone(keyPath);
+    for (property = getNextTerm(key, &rest, &flags); property; property = getNextTerm(0, &rest, &flags)) {
+        if (flags & JSON_PROP_ELIPSIS) {
+            for (ITERATE_KEYS(obj, kp)) {
+                if (smatch(kp->key, property)) {
+                    appendItems(result, jsonQuery((MprHash*) kp->data, kp->type, rest, value, valueType));
+                } else {
+                    if (kp->type != MPR_JSON_OBJ && kp->type != MPR_JSON_ARRAY) {
+                        continue;
+                    }
+                    if (rest) {
+                        subkey = sjoin("...", property, ".", rest, NULL);
+                    } else {
+                        subkey = sjoin("...", property, NULL);
+                    }
+                    appendItems(result, jsonQuery((MprHash*) kp->data, kp->type, subkey, value, valueType));
+                }
+            }
+            return result;
+
+        } else if (*property == '*' && thisKey->type == MPR_JSON_ARRAY) {
+            if (!value) {
+                break;
+            }
+            itosbuf(numbuf, sizeof(numbuf), obj->length, 10);
+            if (rest) {
+                kp = mprAddKeyWithType(obj, numbuf, mprCreateHash(0, 0), MPR_JSON_OBJ);
+            } else {
+                kp = mprAddKeyWithType(obj, numbuf, value, valueType);
+                appendKey(result, kp);
+                break;
+            }
+
+        } else if (*property == '@' && thisKey->type == MPR_JSON_ARRAY) {
+            if (splitExpression(property, &operator, &v) == 0) {
+                break;
+            }
+            for (ITERATE_KEYS(obj, kp)) {
+                if (matchExpression(kp, operator, v)) {
+                    appendItems(result, jsonQuery((MprHash*) kp->data, kp->type, rest, value, valueType));
+                }
+            }
+            return result;
+
+        } else if (strchr(property, ':') && thisKey->type == MPR_JSON_ARRAY) {
+            s = stok(property, ": \t", &e);
+            start = stoi(s);
+            end = stoi(e);
+            if (start < 0) {
+                start = obj->length + start;
+            }
+            if (end < 0) {
+                end = obj->length + end;
+            }
+            for (i = start; i <= end; i++) {
+                itosbuf(numbuf, sizeof(numbuf), i, 10);
+                if ((kp = mprLookupKeyEntry(obj, numbuf)) != 0) {
+                    appendItems(result, jsonQuery((MprHash*) kp->data, kp->type, rest, value, valueType));
+                }
+            }
+            return result;
+
+        } else if (spbrk(property, JSON_EXPR_CHARS)) {
+            if ((property = splitExpression(property, &operator, &v)) == 0) {
+                break;
+            }
+            if (thisKey->type == MPR_JSON_ARRAY) {
+                for (ITERATE_KEYS(obj, kp)) {
+                    if (kp->type == MPR_JSON_OBJ) {
+                        if ((np = mprLookupKeyEntry((MprHash*) kp->data, property)) != 0) {
+                            if (matchExpression(np, operator, v)) {
+                                appendItems(result, jsonQuery((MprHash*) kp->data, kp->type, rest, value, valueType));
+                            }
+                        }
+                    }
+                }
+            } else if (thisKey->type == MPR_JSON_OBJ) {
+                if ((kp = mprLookupKeyEntry(obj, property)) != 0) {
+                    if (matchExpression(kp, operator, v)) {
+                        appendItems(result, jsonQuery((MprHash*) kp->data, kp->type, rest, value, valueType));
+                    }
+                }
+            }
+            return result;
+
+        } else if ((kp = mprLookupKeyEntry(obj, property)) != 0) {
+            if (rest == 0) {
+                if (value) {
+                    /* Create and already exists */
+                    kp->data = value;
+                    kp->type = valueType;
+                    appendKey(result, kp);
+
+                } else if (!value && valueType < 0) {
+                    /* Remove */
+                    appendKey(result, kp);
+                    mprRemoveKey(obj, property);
+
+                } else {
+                    appendKey(result, kp);
+                }
+                break;
+            }
+            if (kp->type != MPR_JSON_OBJ && kp->type != MPR_JSON_ARRAY) {
+                return 0;
+            }
+
+        } else {
+            /* Create and property not found */
+            if (value) {
+                if (rest == 0) {
+                    kp = mprAddKeyWithType(obj, property, value, valueType);
+                    appendKey(result, kp);
+                    break;
+                } else {
+                    t = (flags & JSON_PROP_ARRAY) ? MPR_JSON_ARRAY : MPR_JSON_OBJ;
+                    kp = mprAddKeyWithType(obj, property, mprCreateHash(0, 0), t);
+                }
+            } else {
+                break;
+            }
         }
         obj = (MprHash*) kp->data;
+        thisKey = kp;
+    }
+    return result;
+}
+
+
+PUBLIC MprHash *mprJsonQuery(MprHash *obj, cchar *key)
+{
+    return jsonQuery(obj, MPR_JSON_OBJ, key, NULL, 0);
+}
+
+
+PUBLIC void *mprJsonGetValue(MprHash *obj, cchar *key, int *valueType)
+{
+    MprHash     *result;
+    MprKey      *kp;
+
+    if ((result = jsonQuery(obj, MPR_JSON_OBJ, key, NULL, 0)) != 0 && result->length > 0) {
+        kp = mprGetFirstKey(result);
+        if (valueType) {
+            *valueType = kp->type;
+        }
+        return (void*) kp->data;
+    }
+    if (valueType) {
+        valueType = MPR_JSON_UNKNOWN;
     }
     return 0;
 }
 
+
+PUBLIC cchar *mprJsonGet(MprHash *obj, cchar *key)
+{
+    cvoid       *value;
+    int         type;
+
+    if ((value = mprJsonGetValue(obj, key, &type)) != 0) {
+        if (type == MPR_JSON_STRING) {
+            return value;
+        }
+    }
+    return 0;
+}
+
+
+PUBLIC int mprJsonSetValue(MprHash *obj, cchar *key, cvoid *value, int valueType)
+{
+    MprHash     *result;
+
+    result = jsonQuery(obj, MPR_JSON_OBJ, key, value, valueType);
+    return (result && result->length > 0) ? 0 : MPR_ERR_CANT_WRITE;
+}
+
+
+PUBLIC int mprJsonSet(MprHash *obj, cchar *key, cchar *value)
+{
+    return mprJsonSetValue(obj, key, sclone(value), MPR_JSON_STRING);
+}
+
+
+
+PUBLIC MprHash *mprJsonRemove(MprHash *obj, cchar *key)
+{
+    return jsonQuery(obj, MPR_JSON_OBJ, key, NULL, -1);
+}
+
+
+MprHash *mprJsonLoad(cchar *path) 
+{
+    char    *str;
+
+    if ((str = mprReadPathContents(path, NULL)) != 0) {
+        return mprDeserialize(str);
+    }
+    return 0;
+}
+
+
+PUBLIC int mprJsonSave(MprHash *obj, cchar *path)
+{
+    if (mprWritePathContents(path, mprSerialize(obj, MPR_JSON_PRETTY | MPR_JSON_QUOTES), -1, 0664) < 0) {
+        return MPR_ERR_CANT_WRITE;
+    }
+    return 0;
+}
+
+PUBLIC int mprJsonBlend(MprHash *obj, MprHash *other)
+{
+    MprKey      *dp, *sp, *ip;
+    char        numbuf[16];
+
+    if (other == 0 || other->length == 0) {
+        return 0;
+    }
+    if (obj == 0) {
+        obj = mprCreateHash(0, 0);
+    }
+    for (ITERATE_KEYS(other, sp)) {
+        if (sp->type == MPR_JSON_OBJ || sp->type == MPR_JSON_ARRAY) {
+            if ((dp = mprLookupKeyEntry(obj, sp->key)) == 0) {
+                dp = mprAddKeyWithType(obj, sp->key, makeObj(0, sp->type == MPR_JSON_ARRAY), sp->type);
+            }
+            mprJsonBlend((MprHash*) dp->data, (MprHash*) sp->data);
+
+        } else {
+            assert(sp->type == MPR_JSON_STRING);
+            if (obj->flags & MPR_HASH_LIST) {
+                for (ITERATE_KEYS(obj, ip)) {
+                    if (smatch(ip->data, sp->data)) {
+                        break;
+                    }
+                }
+                if (ip == 0) {
+                    itosbuf(numbuf, sizeof(numbuf), obj->length, 10);
+                    mprAddKeyWithType(obj, numbuf, sclone(sp->data), sp->type);
+                }
+            } else {
+                mprAddKeyWithType(obj, sp->key, sclone(sp->data), sp->type);
+            }
+        }
+    }
+    return 0;
+}
 
 /*
     @copy   default
@@ -13951,6 +14417,19 @@ PUBLIC void mprError(cchar *fmt, ...)
 }
 
 
+PUBLIC void mprFatal(cchar *fmt, ...)
+{
+    va_list     args;
+    char        buf[BIT_MAX_LOGLINE];
+
+    va_start(args, fmt);
+    fmtv(buf, sizeof(buf), fmt, args);
+    va_end(args);
+    logOutput(MPR_ERROR_MSG | MPR_ERROR, 0, buf);
+    exit(2);
+}
+
+
 PUBLIC void mprInfo(cchar *fmt, ...)
 {
     va_list     args;
@@ -14001,19 +14480,6 @@ PUBLIC void mprUserError(cchar *fmt, ...)
     fmtv(buf, sizeof(buf), fmt, args);
     va_end(args);
     logOutput(MPR_USER_MSG | MPR_ERROR_MSG, 0, buf);
-}
-
-
-PUBLIC void mprFatalError(cchar *fmt, ...)
-{
-    va_list     args;
-    char        buf[BIT_MAX_LOGLINE];
-
-    va_start(args, fmt);
-    fmtv(buf, sizeof(buf), fmt, args);
-    va_end(args);
-    logOutput(MPR_USER_MSG | MPR_FATAL_MSG, 0, buf);
-    exit(2);
 }
 
 
@@ -22042,6 +22508,12 @@ PUBLIC ssize sncopy(char *dest, ssize destMax, cchar *src, ssize count)
 PUBLIC bool snumber(cchar *s)
 {
     return s && *s && strspn(s, "1234567890") == strlen(s);
+} 
+
+
+PUBLIC bool sfnumber(cchar *s)
+{
+    return s && *s && strspn(s, "1234567890.") == strlen(s);
 } 
 
 
