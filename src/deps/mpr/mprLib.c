@@ -12430,8 +12430,8 @@ static MprHash *jsonQuery(MprHash *obj, int type, cchar *keyPath, cvoid *value, 
 
         } else if (strchr(property, ':') && type == MPR_JSON_ARRAY) {
             s = stok(property, ": \t", &e);
-            start = stoi(s);
-            end = stoi(e);
+            start = (ssize) stoi(s);
+            end = (ssize) stoi(e);
             if (start < 0) {
                 start = obj->length + start;
             }
