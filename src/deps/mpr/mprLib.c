@@ -12365,7 +12365,7 @@ static void appendItems(MprHash *list, MprHash *items)
 static MprHash *jsonQuery(MprHash *obj, int type, cchar *keyPath, cvoid *value, int valueType)
 {
     MprHash     *result;
-    MprKey      *kp, *thisKey, *np;
+    MprKey      *kp, *np;
     char        *property, *rest, *v, numbuf[16], *s, *e, *subkey, *key;
     ssize       i, start, end;
     int         flags, operator, t;
@@ -12404,7 +12404,7 @@ static MprHash *jsonQuery(MprHash *obj, int type, cchar *keyPath, cvoid *value, 
             }
             return result;
 
-        } else if (*property == '*' && thisKey->type == MPR_JSON_ARRAY) {
+        } else if (*property == '*' && type == MPR_JSON_ARRAY) {
             if (!value) {
                 break;
             }
@@ -12417,7 +12417,7 @@ static MprHash *jsonQuery(MprHash *obj, int type, cchar *keyPath, cvoid *value, 
                 break;
             }
 
-        } else if (*property == '@' && thisKey->type == MPR_JSON_ARRAY) {
+        } else if (*property == '@' && type == MPR_JSON_ARRAY) {
             if (splitExpression(property, &operator, &v) == 0) {
                 break;
             }
@@ -12428,7 +12428,7 @@ static MprHash *jsonQuery(MprHash *obj, int type, cchar *keyPath, cvoid *value, 
             }
             return result;
 
-        } else if (strchr(property, ':') && thisKey->type == MPR_JSON_ARRAY) {
+        } else if (strchr(property, ':') && type == MPR_JSON_ARRAY) {
             s = stok(property, ": \t", &e);
             start = stoi(s);
             end = stoi(e);
@@ -12450,7 +12450,7 @@ static MprHash *jsonQuery(MprHash *obj, int type, cchar *keyPath, cvoid *value, 
             if ((property = splitExpression(property, &operator, &v)) == 0) {
                 break;
             }
-            if (thisKey->type == MPR_JSON_ARRAY) {
+            if (type == MPR_JSON_ARRAY) {
                 for (ITERATE_KEYS(obj, kp)) {
                     if (kp->type == MPR_JSON_OBJ) {
                         if ((np = mprLookupKeyEntry((MprHash*) kp->data, property)) != 0) {
@@ -12460,7 +12460,7 @@ static MprHash *jsonQuery(MprHash *obj, int type, cchar *keyPath, cvoid *value, 
                         }
                     }
                 }
-            } else if (thisKey->type == MPR_JSON_OBJ) {
+            } else if (type == MPR_JSON_OBJ) {
                 if ((kp = mprLookupKeyEntry(obj, property)) != 0) {
                     if (matchExpression(kp, operator, v)) {
                         appendItems(result, jsonQuery((MprHash*) kp->data, kp->type, rest, value, valueType));
@@ -12507,7 +12507,7 @@ static MprHash *jsonQuery(MprHash *obj, int type, cchar *keyPath, cvoid *value, 
             }
         }
         obj = (MprHash*) kp->data;
-        thisKey = kp;
+        type = kp->type;
     }
     return result;
 }

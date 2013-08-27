@@ -11688,37 +11688,6 @@ PUBLIC void httpAddResource(HttpRoute *parent, cchar *resource)
 }
 
 
-#if DEPRECATED || 1
-/*
-    Deprecated in 4.4.0
- */
-PUBLIC void httpAddLegacyResourceGroup(HttpRoute *parent, cchar *resource)
-{
-    addRestful(parent, "create",    "POST",    "(/)*$",                   "create",        resource);
-    addRestful(parent, "destroy",   "DELETE",  "/{id=[0-9]+}$",           "destroy",       resource);
-    addRestful(parent, "edit",      "GET",     "/{id=[0-9]+}/edit$",      "edit",          resource);
-    addRestful(parent, "init",      "GET",     "/init$",                  "init",          resource);
-    addRestful(parent, "list",      "GET",     "(/)*$",                   "list",          resource);
-    addRestful(parent, "show",      "GET",     "/{id=[0-9]+}$",           "show",          resource);
-    addRestful(parent, "update",    "PUT",     "/{id=[0-9]+}$",           "update",        resource);
-    addRestful(parent, "action",    "POST",    "/{action}/{id=[0-9]+}$",  "${action}",     resource);
-    addRestful(parent, "default",   "GET,POST","/{action}$",              "cmd-${action}", resource);
-}
-
-
-PUBLIC void httpAddLegacyResource(HttpRoute *parent, cchar *resource)
-{
-    addRestful(parent, "init",      "GET",     "/init$",       "init",          resource);
-    addRestful(parent, "create",    "POST",    "(/)*$",        "create",        resource);
-    addRestful(parent, "edit",      "GET",     "/edit$",       "edit",          resource);
-    addRestful(parent, "show",      "GET",     "(/)*$",        "show",          resource);
-    addRestful(parent, "update",    "PUT",     "(/)*$",        "update",        resource);
-    addRestful(parent, "destroy",   "DELETE",  "(/)*$",        "destroy",       resource);
-    addRestful(parent, "default",   "GET,POST","/{action}$",   "cmd-${action}", resource);
-}
-#endif
-
-
 PUBLIC void httpAddHomeRoute(HttpRoute *parent)
 {
     cchar   *source, *name, *path, *pattern, *prefix;
