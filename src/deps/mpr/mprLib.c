@@ -12306,9 +12306,9 @@ static bool matchExpression(MprKey *kp, int operator, char *value)
     case JSON_OP_GE:
         return scmp(kp->data, value) >= 0;
     case JSON_OP_MATCH:
-        return scontains(kp->data, value);
+        return scontains(kp->data, value) != 0;
     case JSON_OP_NMATCH:
-        return !scontains(kp->data, value);
+        return scontains(kp->data, value) == 0;
     default:
         return 0;
     }

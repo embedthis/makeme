@@ -6219,7 +6219,7 @@ PUBLIC MprHash *mprJsonQuery(MprHash *obj, cchar *key);
     @ingroup MprJson
     @stability Prototype
  */
-MprHash *mprJsonLoad(cchar *path);
+PUBLIC MprHash *mprJsonLoad(cchar *path);
 
 /**
     Remove a property from a parsed JSON object
