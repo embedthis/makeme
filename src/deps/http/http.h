@@ -41,8 +41,8 @@ struct HttpWebSocket;
 //  TODO - do all these need to have MAX some are just sizes and not maximums
 //  TODO SORT
 
-#ifndef BIT_DEFAULT_METHODS
-    #define BIT_DEFAULT_METHODS     "GET,POST"          /**< Default methods for routes */
+#ifndef BIT_HTTP_DEFAULT_METHODS
+    #define BIT_HTTP_DEFAULT_METHODS "GET,POST"         /**< Default methods for routes */
 #endif
 #ifndef BIT_HTTP_PORT
     #define BIT_HTTP_PORT           80
@@ -3749,11 +3749,12 @@ typedef int (HttpRouteProc)(HttpConn *conn, HttpRoute *route, HttpRouteOp *item)
     </tr>
     </table>
     @param parent Parent route from which to inherit configuration.
+    @param prefix URI prefix to append to the application prefix when constructing route URIs.
     @param resource Resource name. This should be a lower case, single word, alphabetic resource name.
     @ingroup HttpRoute
     @stability Evolving
  */
-PUBLIC void httpAddResource(HttpRoute *parent, cchar *resource);
+PUBLIC void httpAddResource(HttpRoute *parent, cchar *prefix, cchar *resource);
 
 /**
     Add routes for a group of resources
@@ -3772,11 +3773,12 @@ PUBLIC void httpAddResource(HttpRoute *parent, cchar *resource);
     </tr>
     </table>
     @param parent Parent route from which to inherit configuration.
+    @param prefix URI prefix to append to the application prefix when constructing route URIs.
     @param resource Resource name. This should be a lower case, single word, alphabetic resource name.
     @ingroup HttpRoute
     @stability Evolving
  */
-PUBLIC void httpAddResourceGroup(HttpRoute *parent, cchar *resource);
+PUBLIC void httpAddResourceGroup(HttpRoute *parent, cchar *prefix, cchar *resource);
 
 /**
     Add a route for the home page.
@@ -3793,31 +3795,33 @@ PUBLIC void httpAddHomeRoute(HttpRoute *parent);
 
 /**
     Add a route set package
-    @description This will add a set of routes suitable for some application paradigms.
+    @description This will add a set of routes. It will add a home route and optional routes depending on the route set.
     <table>
         <tr><td>Name</td><td>Method</td><td>Pattern</td><td>Target</td></tr>
         <tr><td>home</td><td>GET,POST,PUT</td><td>^/$</td><td>index.esp</td></tr>
-        <tr><td>static</td><td>GET</td><td>^/static(/(.)*$</td><td>$1</td></tr>
     </table>
     @param parent Parent route from which to inherit configuration.
-    @param set Route set to select. Use "simple", "mvc", "restful" or "none". 
+    @param prefix URI prefix to append to the application prefix when constructing route URIs.
+    @param set Route set to select. Use "simple", or "restful". 
         \n\n
         The "simple" pack will invoke 
-        #httpAddHomeRoute and #httpAddStaticRoute to add "home", and "static" routes. 
+        #httpAddHomeRoute and #httpAddStaticRoute to add the "home" routes. 
         \n\n
-        The "mvc" selection will add the default routes and then add the route:
-        <table>
-            <tr><td>Name</td><td>Method</td><td>Pattern</td><td>Target</td></tr>
-            <tr><td>default</td><td>*</td><td>^/{service}(~/{action}~)$</td><td>${service}-${action}</td></tr>
-        </table>
-        \n\n
+        The "restful" selection will add a set of RESTful routes for generic controllers.
     @ingroup HttpRoute
     @stability Evolving
  */
-PUBLIC void httpAddRouteSet(HttpRoute *parent, cchar *set);
+PUBLIC void httpAddRouteSet(HttpRoute *parent, cchar *prefix, cchar *set);
 
-//  MOB DOC
-PUBLIC void httpAddClientRoute(HttpRoute *parent, cchar *name, cchar *prefix);
+/**
+    Add a route for the client directory
+    @param parent Parent route from which to inherit configuration.
+    @param prefix URI prefix to append to the application prefix when constructing route URIs.
+    @param name Name of the client directory
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC void httpAddClientRoute(HttpRoute *parent, cchar *prefix, cchar *name);
 
 /**
     Add a route condition
@@ -4138,8 +4142,7 @@ PUBLIC HttpRoute *httpCreateRoute(struct HttpHost *host);
     @ingroup HttpRoute
     @stability Evolving
  */
-PUBLIC HttpRoute *httpDefineRoute(HttpRoute *parent, cchar *name, cchar *methods, cchar *pattern, 
-    cchar *target, cchar *source);
+PUBLIC HttpRoute *httpDefineRoute(HttpRoute *parent, cchar *name, cchar *methods, cchar *pattern, cchar *target, cchar *source);
 
 /**
     Define a route condition rule
@@ -4339,7 +4342,7 @@ PUBLIC cchar *httpLookupRouteErrorDocument(HttpRoute *route, int status);
         <ul>  
             <li>DOCUMENTS_DIR - for the default directory containing documents to serve</li>
             <li>HOME_DIR - for the directory containing the web server configuration files</li>
-            <li>BIN_DIR - for the shared library directory. E.g. /usr/lib/appweb/bin </li>
+            <li>BIN_DIR - for the shared library directory. E.g. /usr/local/lib/appweb/bin </li>
             <li>OS - for the operating system name. E.g. LINUX, MACOSX, VXWORKS, or WIN</li>
             <li>PRODUCT - for the product name</li>
             <li>VERSION - for the product version. E.g. 4.0.2</li>

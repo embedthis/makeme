@@ -14871,6 +14871,7 @@ static char *standardMimeTypes[] = {
     "tiff",  "image/tiff",
     "txt",   "text/plain",
     "wav",   "audio/x-wav",
+    "woff",  "application/font-woff",
     "xls",   "application/vnd.ms-excel",
     "zip",   "application/zip",
     0,       0,
@@ -16739,6 +16740,12 @@ static int globMatch(MprFileSystem *fs, cchar *s, cchar *pat, int isDir, int fla
 }
 
 
+/*
+    path    - Directory to search
+    pattern - Search pattern with optional wildcards
+    base    - Return filenames relative to this directory base. May be "".
+    exclude - Exclusion pattern for filename basenames.
+ */
 static MprList *globPath(MprFileSystem *fs, MprList *results, cchar *path, cchar *base, cchar *pattern, cchar *exclude, int flags)
 {
     MprDirEntry     *dp;
@@ -16805,8 +16812,17 @@ PUBLIC MprList *mprGlobPathFiles(cchar *path, cchar *patterns, int flags)
                     for (pattern = special; pattern > start && !strchr(fs->separators, *pattern); pattern--) { }
                     if (pattern > start) {
                         *pattern++ = '\0';
+#if UNUSED
                         path = mprJoinPath(path, start);
                         base = start;
+#else
+                        if (flags & MPR_PATH_RELATIVE) {
+                            base = mprGetRelPath(start, path);
+                        } else {
+                            base = start;
+                        }
+                        path = start;
+#endif
                     }
                 }
             } else {
@@ -17102,6 +17118,8 @@ PUBLIC bool mprIsParentPathOf(cchar *dir, cchar *path)
     ssize   len;
     char    *base;
 
+    dir = mprGetAbsPath(dir);
+    path = mprGetAbsPath(path);
     len = slen(dir);
     if (len <= slen(path)) {
         base = sclone(path);
@@ -17492,7 +17510,18 @@ PUBLIC int mprRenamePath(cchar *from, cchar *to)
 
 PUBLIC char *mprReplacePathExt(cchar *path, cchar *ext)
 {
-    return mprJoinPathExt(mprTrimPathExt(path), ext);
+    if (ext == NULL || *ext == '\0') {
+        return sclone(path);
+    }
+    path = mprTrimPathExt(path);
+    /*
+        Don't use mprJoinPathExt incase path has an embedded "."
+     */
+    if (ext[0] == '.') {
+        return sjoin(path, ext, NULL);
+    } else {
+        return sjoin(path, ".", ext, NULL);
+    }
 }
 
 

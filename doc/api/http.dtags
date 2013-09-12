@@ -1591,6 +1591,13 @@
     <class kind="struct">HttpLang</class>
     <member kind="function">
       <type>void</type>
+      <name>httpAddClientRoute</name>
+      <anchorfile>group___http_route.html</anchorfile>
+      <anchor>gad03894d47dea385d9db736be22c375ea</anchor>
+      <arglist>(HttpRoute *parent, cchar *prefix, cchar *name)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>httpAddHomeRoute</name>
       <anchorfile>group___http_route.html</anchorfile>
       <anchor>gad9250fc3d08526ea7dc3b7ab9d6970e2</anchor>
@@ -1600,15 +1607,15 @@
       <type>void</type>
       <name>httpAddResource</name>
       <anchorfile>group___http_route.html</anchorfile>
-      <anchor>ga07a96592710d8f7edc06546ab105856f</anchor>
-      <arglist>(HttpRoute *parent, cchar *resource)</arglist>
+      <anchor>gafd702c81845c812ba19691a3a693d408</anchor>
+      <arglist>(HttpRoute *parent, cchar *prefix, cchar *resource)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>httpAddResourceGroup</name>
       <anchorfile>group___http_route.html</anchorfile>
-      <anchor>gad3d741f6f52178a9507db8ca240bba58</anchor>
-      <arglist>(HttpRoute *parent, cchar *resource)</arglist>
+      <anchor>gae171b971f6d926e3b5110f7e3335d492</anchor>
+      <arglist>(HttpRoute *parent, cchar *prefix, cchar *resource)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -1698,8 +1705,8 @@
       <type>void</type>
       <name>httpAddRouteSet</name>
       <anchorfile>group___http_route.html</anchorfile>
-      <anchor>gae5a3fe25fd0e8ed6038fc076f40aa2e6</anchor>
-      <arglist>(HttpRoute *parent, cchar *set)</arglist>
+      <anchor>gae64c128d03474b39371fbea71588ad65</anchor>
+      <arglist>(HttpRoute *parent, cchar *prefix, cchar *set)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
