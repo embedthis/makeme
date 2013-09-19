@@ -2424,10 +2424,10 @@
       <arglist>(HttpConn *conn, cchar *var, cchar *defaultValue)</arglist>
     </member>
     <member kind="function">
-      <type>MprHash *</type>
+      <type>MprJson *</type>
       <name>httpGetParams</name>
       <anchorfile>group___http_rx.html</anchorfile>
-      <anchor>ga4bfb3ffc672bef6813ac5a555fbb0ba4</anchor>
+      <anchor>ga7ddb6a78b5c09c40cb6f0214faac4e82</anchor>
       <arglist>(HttpConn *conn)</arglist>
     </member>
     <member kind="function">

@@ -39,6 +39,7 @@ struct HttpWebSocket;
 /********************************** Tunables **********************************/
 
 //  TODO - do all these need to have MAX some are just sizes and not maximums
+//  MOB - should have http prefixes so they can be overridden by settings.http.XXX
 //  TODO SORT
 
 #ifndef BIT_HTTP_DEFAULT_METHODS
@@ -2312,7 +2313,6 @@ typedef struct HttpConn {
 
 #if (DEPRECATE || 1) && !DOXYGEN
     void            *grid;                  /**< Current request database grid for MVC apps */
-    //  MOB - still used non-legacy
     void            *record;                /**< Current request database record for MVC apps */
 #endif
     char            *boundary;              /**< File upload boundary */
@@ -3057,7 +3057,7 @@ typedef struct HttpAuth {
 #endif
     char            *loginPage;             /**< Web page for user login for 'post' type */
     char            *loggedIn;              /**< Target URI after logging in */
-    char            *username;              /**< Automatic login username */
+    char            *username;              /**< Automatic login username. Password not required if defined */
     char            *qop;                   /**< Quality of service */
     HttpAuthType    *type;                  /**< Authorization protocol type (basic|digest|form|custom)*/
     HttpAuthStore   *store;                 /**< Authorization password backend (system|file|custom)*/
@@ -3359,6 +3359,7 @@ PUBLIC int httpSetAuthType(HttpAuth *auth, cchar *proto, cchar *details);
 
 /**
     Set an automatic login username
+    @description If defined, no password is required and the user will be automatically logged in as this username.
     @param auth Auth object allocated by #httpCreateAuth.
     @param username Username to automatically login with
     @ingroup HttpAuth
@@ -5210,7 +5211,7 @@ typedef struct HttpRx {
     char            *userAgent;             /**< User-Agent header */
 
     HttpLang        *lang;                  /**< Selected language */
-    MprHash         *params;                /**< Request params (Query and post data variables) */
+    MprJson         *params;                /**< Request params (Query and post data variables) */
     MprHash         *svars;                 /**< Server variables */
     HttpRange       *inputRange;            /**< Specified range for rx (post) data */
     char            *passwordDigest;        /**< User password digest for authentication */
@@ -5327,11 +5328,11 @@ PUBLIC cchar *httpGetParam(HttpConn *conn, cchar *var, cchar *defaultValue);
         Query data and www-url encoded form data is entered into the table after decoding.
         Use #mprLookupKey to retrieve data from the table.
     @param conn HttpConn connection object
-    @return #MprHash instance containing the form vars
+    @return MprJson JSON object instance containing the form vars
     @ingroup HttpRx
     @stability Stable
  */
-PUBLIC MprHash *httpGetParams(HttpConn *conn);
+PUBLIC MprJson *httpGetParams(HttpConn *conn);
 
 /**
     Get the request params table as a string

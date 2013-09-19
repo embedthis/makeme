@@ -64993,9 +64993,7 @@ static EjsObj *sqliteSql(Ejs *ejs, EjsSqlite *db, int argc, EjsObj **argv)
     }
     if (rc != SQLITE_OK) {
         if (rc == sqlite3_errcode(sdb)) {
-            return sqliteSql(ejs, db,  argc, argv);
-
-            // ejsThrowIOError(ejs, "SQL error: %s", sqlite3_errmsg(sdb));
+            ejsThrowIOError(ejs, "SQL error: %s", sqlite3_errmsg(sdb));
         } else {
             ejsThrowIOError(ejs, "Unspecified SQL error");
         }
@@ -66225,10 +66223,6 @@ void ejsConfigureHttpServerType(Ejs *ejs)
 
 
 
-/********************************** Forwards **********************************/
-
-static void defineParam(Ejs *ejs, EjsObj *params, cchar *key, cchar *value);
-
 /************************************* Code ***********************************/
  
 static int connOk(Ejs *ejs, EjsRequest *req, int throwException)
@@ -66240,49 +66234,6 @@ static int connOk(Ejs *ejs, EjsRequest *req, int throwException)
         return 0;
     }
     return 1;
-}
-
-
-static void defineParam(Ejs *ejs, EjsObj *params, cchar *key, cchar *svalue)
-{
-    EjsName     qname;
-    EjsAny      *value;
-    EjsObj      *vp;
-    char        *subkey, *nextkey;
-    int         slotNum;
-
-    assert(params);
-
-    value = ejsCreateStringFromAsc(ejs, svalue);
-
-    /*  
-        name.name.name
-     */
-    if (strchr(key, '.') == 0) {
-        qname = ejsName(ejs, "", key);
-        ejsSetPropertyByName(ejs, params, qname, value);
-
-    } else {
-        subkey = stok(sclone(key), ".", &nextkey);
-        while (nextkey) {
-            qname = ejsName(ejs, "", subkey);
-            vp = ejsGetPropertyByName(ejs, params, qname);
-            if (vp == 0) {
-                if (snumber(nextkey)) {
-                    vp = (EjsObj*) ejsCreateArray(ejs, 0);
-                } else {
-                    vp = ejsCreateEmptyPot(ejs);
-                }
-                slotNum = ejsSetPropertyByName(ejs, params, qname, vp);
-                vp = ejsGetProperty(ejs, params, slotNum);
-            }
-            params = vp;
-            subkey = stok(NULL, ".", &nextkey);
-        }
-        assert(params);
-        qname = ejsName(ejs, "", subkey);
-        ejsSetPropertyByName(ejs, params, qname, value);
-    }
 }
 
 
@@ -66339,19 +66290,86 @@ static EjsString *createFormData(Ejs *ejs, EjsRequest *req)
 #endif
 
 
+#if UNUSED
+/*
+    Define a parameter. Key may contain "."
+ */
+static void defineParam(Ejs *ejs, EjsObj *params, cchar *key, cchar *svalue)
+{
+    EjsName     qname;
+    EjsAny      *value;
+    EjsObj      *vp;
+    char        *subkey, *nextkey;
+    int         slotNum;
+
+    assert(params);
+    value = ejsCreateStringFromAsc(ejs, svalue);
+
+    /*  
+        name.name.name
+     */
+    if (strchr(key, '.') == 0) {
+        qname = ejsName(ejs, "", key);
+        ejsSetPropertyByName(ejs, params, qname, value);
+
+    } else {
+        subkey = stok(sclone(key), ".", &nextkey);
+        while (nextkey) {
+            qname = ejsName(ejs, "", subkey);
+            vp = ejsGetPropertyByName(ejs, params, qname);
+            if (vp == 0) {
+                if (snumber(nextkey)) {
+                    vp = (EjsObj*) ejsCreateArray(ejs, 0);
+                } else {
+                    vp = ejsCreateEmptyPot(ejs);
+                }
+                slotNum = ejsSetPropertyByName(ejs, params, qname, vp);
+                vp = ejsGetProperty(ejs, params, slotNum);
+            }
+            params = vp;
+            subkey = stok(NULL, ".", &nextkey);
+        }
+        assert(params);
+        qname = ejsName(ejs, "", subkey);
+        ejsSetPropertyByName(ejs, params, qname, value);
+    }
+}
+#endif
+
+
+static void jsonToPot(Ejs *ejs, MprJson *json, EjsObj *obj)
+{
+    MprJson     *child;
+    EjsName     qname;
+    EjsObj      *container;
+    int         i;
+
+    for (ITERATE_JSON(json, child, i)) {
+        qname = ejsName(ejs, "", child->name);
+        if (child->type == MPR_JSON_VALUE) {
+            ejsSetPropertyByName(ejs, obj, qname, ejsCreateStringFromAsc(ejs, child->value));
+        } else if (child->type == MPR_JSON_ARRAY) {
+            container = (EjsObj*) ejsCreateArray(ejs, 0);
+            ejsSetPropertyByName(ejs, obj, qname, container);
+            jsonToPot(ejs, child, container);
+        } else {
+            container = ejsCreateEmptyPot(ejs);
+            ejsSetPropertyByName(ejs, obj, qname, container);
+            jsonToPot(ejs, child, container);
+        }
+    }
+}
+
+
 static EjsObj *createParams(Ejs *ejs, EjsRequest *req)
 {
     EjsObj      *params;
-    MprHash     *hparams;
-    MprKey      *kp;
+    MprJson     *hparams;
 
     if ((params = req->params) == 0) {
         params = (EjsObj*) ejsCreateEmptyPot(ejs);
         if (req->conn && (hparams = req->conn->rx->params) != 0) {
-            kp = 0;
-            while ((kp = mprGetNextKey(hparams, kp)) != NULL) {
-                defineParam(ejs, params, kp->key, kp->data);
-            }
+            jsonToPot(ejs, hparams, params);
         }
     }
     return req->params = params;
@@ -74411,9 +74429,6 @@ static int loadClassSection(Ejs *ejs, EjsModule *mp)
     /*
         See if the type has been registered in the set of immutable types. If so, can use without creating.
      */
-    if (smatch(qname.name->value, "Sqlite")) {
-        mprBreakpoint();
-    }
     type = ejsGetPropertyByName(ejs, ejs->service->immutable, qname);
     if (type == 0) {
         if (attributes & EJS_TYPE_FIXUP) {

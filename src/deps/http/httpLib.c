@@ -239,9 +239,10 @@ PUBLIC bool httpLogin(HttpConn *conn, cchar *username, cchar *password)
         mprError("No AuthStore verification routine defined");
         return 0;
     }
-    if (auth->username) {
+    if (auth->username && *auth->username) {
         /* If using auto-login, replace the username */
         username = auth->username;
+        password = 0;
     }
     if (!(auth->store->verifyUser)(conn, username, password)) {
         return 0;
@@ -670,6 +671,9 @@ PUBLIC int httpSetAuthType(HttpAuth *auth, cchar *type, cchar *details)
 }
 
 
+/*
+    This implements auto-loging without requiring a password
+ */
 PUBLIC void httpSetAuthUsername(HttpAuth *auth, cchar *username)
 {
     auth->username = sclone(username);
@@ -11080,11 +11084,13 @@ static cchar *expandRouteName(HttpConn *conn, cchar *routeName)
 PUBLIC char *httpTemplate(HttpConn *conn, cchar *template, MprHash *options)
 {
     MprBuf      *buf;
+    HttpRx      *rx;
     HttpRoute   *route;
     cchar       *cp, *ep, *value;
     char        key[BIT_MAX_BUFFER];
 
-    route = conn->rx->route;
+    rx = conn->rx;
+    route = rx->route;
     if (template == 0 || *template == '\0') {
         return MPR->emptyString;
     }
@@ -11103,7 +11109,8 @@ PUBLIC char *httpTemplate(HttpConn *conn, cchar *template, MprHash *options)
                 sncopy(key, sizeof(key), cp, ep - cp);
                 if (options && (value = httpGetOption(options, key, 0)) != 0) {
                     mprPutStringToBuf(buf, value);
-                } else if ((value = mprLookupKey(conn->rx->params, key)) != 0) {
+
+                } else if ((value = mprLookupJsonValue(rx->params, key)) != 0) {
                     mprPutStringToBuf(buf, value);
                 }
                 if (value == 0) {
@@ -12379,9 +12386,11 @@ PUBLIC MprHash *httpGetOptionHash(MprHash *options, cchar *field)
     if ((kp = mprLookupKeyEntry(options, field)) == 0) {
         return 0;
     }
+#if UNUSED
     if (kp->type != MPR_JSON_ARRAY && kp->type != MPR_JSON_OBJ) {
         return 0;
     }
+#endif
     return (MprHash*) kp->data;
 }
 
@@ -12402,7 +12411,9 @@ PUBLIC void httpInsertOption(MprHash *options, cchar *field, cchar *value)
     } else {
         kp = mprAddKey(options, field, value);
     }
+#if UNUSED
     kp->type = MPR_JSON_STRING;
+#endif
 }
 
 
@@ -12419,7 +12430,9 @@ PUBLIC void httpAddOption(MprHash *options, cchar *field, cchar *value)
     } else {
         kp = mprAddKey(options, field, value);
     }
+#if UNUSED
     kp->type = MPR_JSON_STRING;
+#endif
 }
 
 
@@ -12451,7 +12464,9 @@ PUBLIC void httpSetOption(MprHash *options, cchar *field, cchar *value)
         return;
     }
     if ((kp = mprAddKey(options, field, value)) != 0) {
+#if UNUSED
         kp->type = MPR_JSON_STRING;
+#endif
     }
 }
 
@@ -18005,7 +18020,8 @@ PUBLIC void httpCreateCGIParams(HttpConn *conn)
     HttpHost        *host;
     HttpUploadFile  *up;
     MprSocket       *sock;
-    MprHash         *vars, *svars;
+    MprHash         *svars;
+    MprJson         *params;
     MprKey          *kp;
     int             index;
 
@@ -18065,17 +18081,17 @@ PUBLIC void httpCreateCGIParams(HttpConn *conn)
         assert(rx->extraPath[0] == '/');
         mprAddKey(svars, "PATH_TRANSLATED", mprNormalizePath(sfmt("%s%s", rx->route->documents, rx->extraPath)));
     }
-
     if (rx->files) {
-        vars = httpGetParams(conn);
-        assert(vars);
-        for (index = 0, kp = 0; (kp = mprGetNextKey(conn->rx->files, kp)) != 0; index++) {
+        params = httpGetParams(conn);
+        assert(params);
+        for (index = 0, kp = 0; (kp = mprGetNextKey(rx->files, kp)) != 0; index++) {
             up = (HttpUploadFile*) kp->data;
-            mprAddKey(vars, sfmt("FILE_%d_FILENAME", index), up->filename);
-            mprAddKey(vars, sfmt("FILE_%d_CLIENT_FILENAME", index), up->clientFilename);
-            mprAddKey(vars, sfmt("FILE_%d_CONTENT_TYPE", index), up->contentType);
-            mprAddKey(vars, sfmt("FILE_%d_NAME", index), kp->key);
-            mprAddKeyFmt(vars, sfmt("FILE_%d_SIZE", index), "%d", up->size);
+            //  MOB - should these be N-Level in json?
+            mprSetJsonValue(params, sfmt("FILE_%d_FILENAME", index), up->filename, MPR_JSON_SIMPLE);
+            mprSetJsonValue(params, sfmt("FILE_%d_CLIENT_FILENAME", index), up->clientFilename, MPR_JSON_SIMPLE);
+            mprSetJsonValue(params, sfmt("FILE_%d_CONTENT_TYPE", index), up->contentType, MPR_JSON_SIMPLE);
+            mprSetJsonValue(params, sfmt("FILE_%d_NAME", index), kp->key, MPR_JSON_SIMPLE);
+            mprSetJsonValue(params, sfmt("FILE_%d_SIZE", index), sfmt("%d", up->size), MPR_JSON_SIMPLE);
         }
     }
     if (conn->http->envCallback) {
@@ -18085,18 +18101,17 @@ PUBLIC void httpCreateCGIParams(HttpConn *conn)
 
 
 /*
-    Add variables to the vars environment store. This comes from the query string and urlencoded post data.
+    Add variables to the params. This comes from the query string and urlencoded post data.
     Make variables for each keyword in a query string. The buffer must be url encoded (ie. key=value&key2=value2..., 
     spaces converted to '+' and all else should be %HEX encoded).
  */
 static void addParamsFromBuf(HttpConn *conn, cchar *buf, ssize len)
 {
-    MprHash     *vars;
-    cchar       *oldValue;
+    MprJson     *params, *prior;
     char        *newValue, *decoded, *keyword, *value, *tok;
 
     assert(conn);
-    vars = httpGetParams(conn);
+    params = httpGetParams(conn);
     decoded = mprAlloc(len + 1);
     decoded[len] = '\0';
     memcpy(decoded, buf, len);
@@ -18110,20 +18125,18 @@ static void addParamsFromBuf(HttpConn *conn, cchar *buf, ssize len)
             value = MPR->emptyString;
         }
         keyword = mprUriDecode(keyword);
-
         if (*keyword) {
             /*
                 Append to existing keywords
              */
-            oldValue = mprLookupKey(vars, keyword);
-            if (oldValue != 0 && *oldValue) {
+            prior = mprLookupJson(params, keyword);
+            if (prior && prior->type == MPR_JSON_VALUE) {
                 if (*value) {
-                    newValue = sjoin(oldValue, " ", value, NULL);
-                    mprAddKey(vars, keyword, newValue);
+                    newValue = sjoin(prior->value, " ", value, NULL);
+                    mprSetJsonValue(params, keyword, newValue, MPR_JSON_SIMPLE);
                 }
             } else {
-                /* No need to clone value as mprUriDecode already does this */
-                mprAddKey(vars, keyword, value);
+                mprSetJsonValue(params, keyword, value, MPR_JSON_SIMPLE);
             }
         }
         keyword = stok(0, "&", &tok);
@@ -18138,7 +18151,7 @@ static void addParamsFromBuf(HttpConn *conn, cchar *buf, ssize len)
 static void addParamsFromBufInsitu(HttpConn *conn, char *buf, ssize len)
 {
     MprHash     *vars;
-    cchar       *oldValue;
+    cchar       *prior;
     char        *newValue, *keyword, *value, *tok;
 
     assert(conn);
@@ -18158,10 +18171,10 @@ static void addParamsFromBufInsitu(HttpConn *conn, char *buf, ssize len)
             /*
                 Append to existing keywords
              */
-            oldValue = mprLookupKey(vars, keyword);
-            if (oldValue != 0 && *oldValue) {
+            prior = mprLookupKey(vars, keyword);
+            if (prior != 0 && *prior) {
                 if (*value) {
-                    newValue = sjoin(oldValue, " ", value, NULL);
+                    newValue = sjoin(prior, " ", value, NULL);
                     mprAddKey(vars, keyword, newValue);
                 }
             } else {
@@ -18207,7 +18220,7 @@ PUBLIC void httpAddBodyParams(HttpConn *conn)
                 addParamsFromBuf(conn, mprGetBufStart(content), mprGetBufLength(content));
 
             } else if (sstarts(rx->mimeType, "application/json")) {
-                mprDeserializeInto(httpGetBodyInput(conn), httpGetParams(conn));
+                mprParseJsonInto(httpGetBodyInput(conn), httpGetParams(conn));
             }
         }
         rx->flags |= HTTP_ADDED_BODY_PARAMS;
@@ -18222,18 +18235,17 @@ PUBLIC void httpAddJsonParams(HttpConn *conn)
     rx = conn->rx;
     if (rx->eof && sstarts(rx->mimeType, "application/json")) {
         if (!(rx->flags & HTTP_ADDED_BODY_PARAMS)) {
-            mprDeserializeInto(httpGetBodyInput(conn), httpGetParams(conn));
+            mprParseJsonInto(httpGetBodyInput(conn), httpGetParams(conn));
             rx->flags |= HTTP_ADDED_BODY_PARAMS;
         }
     }
 }
 
 
-PUBLIC MprHash *httpGetParams(HttpConn *conn)
+PUBLIC MprJson *httpGetParams(HttpConn *conn)
 { 
     if (conn->rx->params == 0) {
-        //  MOB - should use mprJSON  primitive not mprCreateHash
-        conn->rx->params = mprCreateHash(HTTP_VAR_HASH_SIZE, MPR_HASH_STABLE);
+        conn->rx->params = mprCreateJson(MPR_JSON_OBJ);
     }
     return conn->rx->params;
 }
@@ -18241,39 +18253,34 @@ PUBLIC MprHash *httpGetParams(HttpConn *conn)
 
 PUBLIC int httpTestParam(HttpConn *conn, cchar *var)
 {
-    MprHash    *vars;
-
-    vars = httpGetParams(conn);
-    return vars && mprLookupKey(vars, var) != 0;
+    return mprLookupJson(httpGetParams(conn), var) != 0;
 }
 
 
 PUBLIC cchar *httpGetParam(HttpConn *conn, cchar *var, cchar *defaultValue)
 {
-    MprHash     *vars;
     cchar       *value;
 
-    vars = httpGetParams(conn);
-    value = mprLookupKey(vars, var);
+    value = mprLookupJsonValue(httpGetParams(conn), var);
     return (value) ? value : defaultValue;
 }
 
 
 PUBLIC int httpGetIntParam(HttpConn *conn, cchar *var, int defaultValue)
 {
-    MprHash     *vars;
     cchar       *value;
 
-    vars = httpGetParams(conn);
-    value = mprLookupKey(vars, var);
+    value = mprLookupJsonValue(httpGetParams(conn), var);
     return (value) ? (int) stoi(value) : defaultValue;
 }
 
 
+#if UNUSED
 static int sortParam(MprKey **h1, MprKey **h2)
 {
     return scmp((*h1)->key, (*h2)->key);
 }
+#endif
 
 
 /*
@@ -18283,18 +18290,22 @@ static int sortParam(MprKey **h1, MprKey **h2)
 PUBLIC char *httpGetParamsString(HttpConn *conn)
 {
     HttpRx      *rx;
-    MprHash     *params;
-    MprKey      *kp;
+
+#if UNUSED
     MprList     *list;
+    int         next;
+    MprKey      *kp;
+    MprJson     *params;
     char        *buf, *cp;
     ssize       len;
-    int         next;
+#endif
 
     assert(conn);
 
     rx = conn->rx;
 
     if (rx->paramString == 0) {
+#if UNUSED
         if ((params = conn->rx->params) != 0) {
             if ((list = mprCreateList(mprGetHashLength(params), MPR_LIST_STABLE)) != 0) {
                 len = 0;
@@ -18316,6 +18327,9 @@ PUBLIC char *httpGetParamsString(HttpConn *conn)
                 }
             }
         }
+#else
+        rx->paramString = mprJsonToString(rx->params, 0);
+#endif
     }
     return rx->paramString;
 }
@@ -18323,28 +18337,19 @@ PUBLIC char *httpGetParamsString(HttpConn *conn)
 
 PUBLIC void httpSetParam(HttpConn *conn, cchar *var, cchar *value) 
 {
-    MprHash     *vars;
-
-    vars = httpGetParams(conn);
-    mprAddKey(vars, var, sclone(value));
+    mprSetJsonValue(httpGetParams(conn), var, value, MPR_JSON_SIMPLE);
 }
 
 
 PUBLIC void httpSetIntParam(HttpConn *conn, cchar *var, int value) 
 {
-    MprHash     *vars;
-
-    vars = httpGetParams(conn);
-    mprAddKey(vars, var, sfmt("%d", value));
+    mprSetJsonValue(httpGetParams(conn), var, sfmt("%d", value), MPR_JSON_SIMPLE);
 }
 
 
 PUBLIC bool httpMatchParam(HttpConn *conn, cchar *var, cchar *value)
 {
-    if (strcmp(value, httpGetParam(conn, var, " __UNDEF__ ")) == 0) {
-        return 1;
-    }
-    return 0;
+    return smatch(value, httpGetParam(conn, var, " __UNDEF__ "));
 }
 
 
