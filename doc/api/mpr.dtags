@@ -799,6 +799,27 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>MPR_JSON_FALSE</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a7d1e23b3a30abea486e42b6e187fe4b5</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MPR_JSON_NULL</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a2500e6a5ecd958cdad437318df55b323</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MPR_JSON_NUMBER</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a75ee51d1189304b252d94f371ca0933a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>MPR_JSON_OBJ</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>ae525a33d8689c5f902c07f1d84306b00</anchor>
@@ -816,6 +837,13 @@
       <name>MPR_JSON_QUOTES</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>aace5d01cd369cd4131594f413b5487c7</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MPR_JSON_REGEXP</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>ac7760f7003949181881385400bc4aff0</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -841,6 +869,13 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>MPR_JSON_STRING</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a4467d3d2849e564e096cd66e96e43d87</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>MPR_JSON_STRINGS</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a10a439d186a71df88aa4129a10c5417f</anchor>
@@ -851,6 +886,20 @@
       <name>MPR_JSON_TOP</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a4643f6cd5504952b7f5db28a1abd4cbc</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MPR_JSON_TRUE</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a68d0ce9b3c807a6c6ec1d57b40b98f7a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MPR_JSON_UNDEFINED</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a8c09a4f46800daaee483367b1907c25d</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -1103,6 +1152,13 @@
       <name>MPR_REQUEST_PRIORITY</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a6072e168871ce4b65725049d214965a1</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MPR_RFC3399_DATE</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>aa5fcbb86c0a6c78f2e4c0e1b9bf13e3e</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -4546,8 +4602,8 @@
       <type>int</type>
       <name>mprSaveJson</name>
       <anchorfile>group___mpr_json.html</anchorfile>
-      <anchor>gac7cb10538688012c5c418e83f737a670</anchor>
-      <arglist>(MprJson *obj, cchar *path)</arglist>
+      <anchor>ga5008430f9a6c74ab8c94f9b081670fbc</anchor>
+      <arglist>(MprJson *obj, cchar *path, int flags)</arglist>
     </member>
     <member kind="function">
       <type>char *</type>
@@ -8546,8 +8602,8 @@
       <type>int</type>
       <name>mprSaveJson</name>
       <anchorfile>group___mpr_json.html</anchorfile>
-      <anchor>gac7cb10538688012c5c418e83f737a670</anchor>
-      <arglist>(MprJson *obj, cchar *path)</arglist>
+      <anchor>ga5008430f9a6c74ab8c94f9b081670fbc</anchor>
+      <arglist>(MprJson *obj, cchar *path, int flags)</arglist>
     </member>
     <member kind="function">
       <type>char *</type>

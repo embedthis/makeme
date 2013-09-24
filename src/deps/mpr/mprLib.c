@@ -11730,6 +11730,7 @@ static void jsonErrorCallback(MprJsonParser *parser, cchar *msg);
 static int peektok(MprJsonParser *parser);
 static void puttok(MprJsonParser *parser);
 static void removeChild(MprJson *obj, MprJson *child);
+static void setValue(MprJson *obj, cchar *value);
 static int setValueCallback(MprJsonParser *parser, MprJson *obj, cchar *name, MprJson *child);
 static void spaces(MprBuf *buf, int count);
 
@@ -11754,8 +11755,7 @@ static MprJson *createJsonValue(cchar *value)
     if ((obj = mprAllocObj(MprJson, manageJson)) == 0) {
         return 0;
     }
-    obj->value = sclone(value);
-    obj->type = MPR_JSON_VALUE;
+    setValue(obj, value);
     return obj;
 }
 
@@ -11944,7 +11944,7 @@ static MprJson *jsonParse(MprJsonParser *parser, MprJson *obj)
                         return obj;
                     }
                 }
-                if (obj->type == MPR_JSON_OBJ) {
+                if (obj->type & MPR_JSON_OBJ) {
                     parser->state = MPR_JSON_STATE_NAME;
                 }
             } else if (tokid == JTOK_RBRACE || parser->tokid == JTOK_RBRACKET || tokid == JTOK_EOF) {
@@ -12151,7 +12151,7 @@ static char *objToString(MprBuf *buf, MprJson *obj, int indent, int flags)
     pretty = flags & MPR_JSON_PRETTY;
     quotes = flags & MPR_JSON_QUOTES;
 
-    if (obj->type == MPR_JSON_ARRAY) {
+    if (obj->type & MPR_JSON_ARRAY) {
         mprPutCharToBuf(buf, '[');
         indent++;
         if (pretty) mprPutCharToBuf(buf, '\n');
@@ -12167,7 +12167,7 @@ static char *objToString(MprBuf *buf, MprJson *obj, int indent, int flags)
         if (pretty) spaces(buf, --indent);
         mprPutCharToBuf(buf, ']');
 
-    } else if (obj->type == MPR_JSON_OBJ) {
+    } else if (obj->type & MPR_JSON_OBJ) {
         mprPutCharToBuf(buf, '{');
         indent++;
         if (pretty) mprPutCharToBuf(buf, '\n');
@@ -12209,15 +12209,42 @@ PUBLIC char *mprJsonToString(MprJson *obj, int flags)
 }
 
 
+static void setValue(MprJson *obj, cchar *value)
+{
+    obj->type = MPR_JSON_VALUE;
+    if (scaselessmatch(value, "false")) {
+        obj->type |= MPR_JSON_FALSE;
+    } else if (scaselessmatch(value, "null")) {
+        obj->type |= MPR_JSON_NULL;
+        value = 0;
+    } else if (scaselessmatch(value, "true")) {
+        obj->type |= MPR_JSON_TRUE;
+    } else if (scaselessmatch(value, "undefined")) {
+        obj->type |= MPR_JSON_UNDEFINED;
+    } else if (sfnumber(value)) {
+        obj->type |= MPR_JSON_NUMBER;
+    } else if (*value == '/' && value[slen(value) - 1] == '/') {
+        obj->type |= MPR_JSON_REGEXP;
+    } else {
+        obj->type |= MPR_JSON_STRING;
+    }
+    obj->value = value ? sclone(value) : 0;
+}
+
+
 static void formatValue(MprBuf *buf, MprJson *obj, int flags)
 {
     cchar   *cp;
 
-    if (!(flags & MPR_JSON_STRINGS)) {
-        if (sfnumber(obj->value) || smatch(obj->value, "null") || smatch(obj->value, "true") || smatch(obj->value, "false")) {
+    if (!(obj->type & MPR_JSON_STRING) && !(flags & MPR_JSON_STRINGS)) {
+        if (obj->value == 0) {
+            mprPutStringToBuf(buf, "null");
+        } else if (obj->type & MPR_JSON_REGEXP) {
+            mprPutToBuf(buf, "\"/%s/\"", obj->value);
+        } else {
             mprPutStringToBuf(buf, obj->value);
-            return;
         }
+        return;
     }
     mprPutCharToBuf(buf, '"');
     for (cp = obj->value; *cp; cp++) {
@@ -12285,8 +12312,8 @@ PUBLIC int mprBlendJson(MprJson *obj, MprJson *other, int flags)
         obj = mprCreateJson(MPR_JSON_OBJ);
     }
     for (ITERATE_JSON(other, sp, si)) {
-        if (sp->type == MPR_JSON_VALUE) {
-            if (obj->type == MPR_JSON_ARRAY) {
+        if (sp->type & MPR_JSON_VALUE) {
+            if (obj->type & MPR_JSON_ARRAY) {
                 for (ITERATE_JSON(obj, dp, di)) {
                     if (smatch(dp->value, sp->value)) {
                         /* Already present in array */
@@ -12325,13 +12352,13 @@ PUBLIC MprJson *mprLookupJson(MprJson *obj, cchar *name)
     if (!obj || !name) {
         return 0;
     }
-    if (obj->type == MPR_JSON_OBJ) {
+    if (obj->type & MPR_JSON_OBJ) {
         for (ITERATE_JSON(obj, child, i)) {
             if (smatch(child->name, name)) {
                 return child;
             }
         }
-    } else if (obj->type == MPR_JSON_ARRAY) {
+    } else if (obj->type & MPR_JSON_ARRAY) {
         index = (int) stoi(name);
         for (ITERATE_JSON(obj, child, i)) {
             if (i == index) {
@@ -12347,7 +12374,7 @@ PUBLIC cchar *mprLookupJsonValue(MprJson *obj, cchar *name)
 {
     MprJson     *item;
 
-    if ((item = mprLookupJson(obj, name)) != 0 && item->type == MPR_JSON_VALUE) {
+    if ((item = mprLookupJson(obj, name)) != 0 && item->type & MPR_JSON_VALUE) {
         return item->value;
     }
     return 0;
@@ -12488,7 +12515,7 @@ static char *splitExpression(char *property, int *operator, char **value)
  */
 static bool matchExpression(MprJson *obj, int operator, char *value)
 {
-    if (obj->type != MPR_JSON_VALUE) {
+    if (!(obj->type & MPR_JSON_VALUE)) {
         return 0;
     }
     value = stok(value, "'\"", NULL);
@@ -12560,7 +12587,10 @@ static MprJson *jsonQuery(MprJson *obj, cchar *keyPath, MprJson *value, int flag
     int         termType, operator, index;
 
     result = mprCreateJson(MPR_JSON_ARRAY);
-    if (keyPath == 0 || *keyPath == '\0' || !obj || obj->type == MPR_JSON_VALUE) {
+    if (!obj) {
+        return result;
+    }
+    if (keyPath == 0 || *keyPath == '\0' || obj->type & MPR_JSON_VALUE) {
         appendItem(result, obj, flags);
         return result;
     }
@@ -12576,7 +12606,7 @@ static MprJson *jsonQuery(MprJson *obj, cchar *keyPath, MprJson *value, int flag
                     if (smatch(child->name, property)) {
                         appendItems(result, jsonQuery(child, rest, value, flags), flags);
                     } else {
-                        if (child->type != MPR_JSON_OBJ && child->type != MPR_JSON_ARRAY) {
+                        if (child->type & MPR_JSON_VALUE) {
                             continue;
                         }
                         if (rest) {
@@ -12589,7 +12619,7 @@ static MprJson *jsonQuery(MprJson *obj, cchar *keyPath, MprJson *value, int flag
                 }
                 return result;
 
-            } else if (*property == '*' && obj->type == MPR_JSON_ARRAY) {
+            } else if (*property == '*' && obj->type & MPR_JSON_ARRAY) {
                 /*
                     Append value
                  */
@@ -12606,7 +12636,7 @@ static MprJson *jsonQuery(MprJson *obj, cchar *keyPath, MprJson *value, int flag
                     return result;
                 }
 
-            } else if (*property == '@' && obj->type == MPR_JSON_ARRAY) {
+            } else if (*property == '@' && obj->type & MPR_JSON_ARRAY) {
                 /*
                     Search array values
                  */
@@ -12621,7 +12651,7 @@ static MprJson *jsonQuery(MprJson *obj, cchar *keyPath, MprJson *value, int flag
                 }
                 return result;
 
-            } else if (strchr(property, ':') && obj->type == MPR_JSON_ARRAY) {
+            } else if (strchr(property, ':') && obj->type & MPR_JSON_ARRAY) {
                 /*
                     Select range of array elements
                  */
@@ -12649,9 +12679,9 @@ static MprJson *jsonQuery(MprJson *obj, cchar *keyPath, MprJson *value, int flag
                     /* Expression does not parse and so does not match */
                     break;
                 }
-                if (obj->type == MPR_JSON_ARRAY) {
+                if (obj->type & MPR_JSON_ARRAY) {
                     for (ITERATE_JSON(obj, child, index)) {
-                        if (child->type == MPR_JSON_OBJ) {
+                        if (child->type & MPR_JSON_OBJ) {
                             for (np = child->children; np && np->next != child->children; np = np->next) {
                                 if (matchExpression(np, operator, v)) {
                                     appendItems(result, jsonQuery(child, rest, value, flags), flags);
@@ -12659,7 +12689,7 @@ static MprJson *jsonQuery(MprJson *obj, cchar *keyPath, MprJson *value, int flag
                             }
                         }
                     }
-                } else if (obj->type == MPR_JSON_OBJ) {
+                } else if (obj->type & MPR_JSON_OBJ) {
                     for (ITERATE_JSON(obj, child, index)) {
                         if (smatch(child->name, property)) {
                             if (matchExpression(child, operator, v)) {
@@ -12686,7 +12716,7 @@ static MprJson *jsonQuery(MprJson *obj, cchar *keyPath, MprJson *value, int flag
                 appendItem(result, child, flags);
                 return result;
             } 
-            if (child->type == MPR_JSON_VALUE) {
+            if (child->type & MPR_JSON_VALUE) {
                 break;
             }
             
@@ -12741,7 +12771,7 @@ PUBLIC cchar *mprGetJsonValue(MprJson *obj, cchar *key, int flags)
         return mprLookupJsonValue(obj, key);
     }
     if ((result = mprGetJson(obj, key, flags)) != 0) {
-        if (result->type == MPR_JSON_VALUE) {
+        if (result->type & MPR_JSON_VALUE) {
             return result->value;
         }
     }
@@ -12787,9 +12817,12 @@ MprJson *mprLoadJson(cchar *path)
 }
 
 
-PUBLIC int mprSaveJson(MprJson *obj, cchar *path)
+PUBLIC int mprSaveJson(MprJson *obj, cchar *path, int flags)
 {
-    if (mprWritePathContents(path, mprJsonToString(obj, MPR_JSON_PRETTY | MPR_JSON_QUOTES), -1, 0664) < 0) {
+    if (flags == 0) {
+        flags = MPR_JSON_PRETTY | MPR_JSON_QUOTES;
+    }
+    if (mprWritePathContents(path, mprJsonToString(obj, flags), -1, 0664) < 0) {
         return MPR_ERR_CANT_WRITE;
     }
     return 0;
@@ -12903,7 +12936,7 @@ PUBLIC MprHash *mprDeserializeInto(cchar *str, MprHash *hash)
 
     obj = mprParseJson(str);
     for (ITERATE_JSON(obj, child, index)) {
-        if (child->type == MPR_JSON_VALUE) {
+        if (child->type & MPR_JSON_VALUE) {
             mprAddKey(hash, child->name, child->value);
         }
     }
@@ -12951,7 +12984,7 @@ PUBLIC MprHash *mprJsonToHash(MprJson *json)
 
     hash = mprCreateHash(0, 0);
     for (ITERATE_JSON(json, obj, index)) {
-        if (obj->type == MPR_JSON_VALUE) {
+        if (obj->type & MPR_JSON_VALUE) {
             mprAddKey(hash, obj->name, obj->value);
         }
     }
@@ -22863,13 +22896,31 @@ PUBLIC ssize sncopy(char *dest, ssize destMax, cchar *src, ssize count)
 
 PUBLIC bool snumber(cchar *s)
 {
+    if (!s) {
+        return 0;
+    }
+    if (*s == '-' || *s == '+') {
+        s++;
+    }
     return s && *s && strspn(s, "1234567890") == strlen(s);
 } 
 
 
+/*
+    Hex
+ */
+PUBLIC bool shnumber(cchar *s)
+{
+    return s && *s && strspn(s, "1234567890abcdefABCDEFxX") == strlen(s);
+} 
+
+
+/*
+    Floating point
+ */
 PUBLIC bool sfnumber(cchar *s)
 {
-    return s && *s && strspn(s, "1234567890.") == strlen(s);
+    return s && *s && strspn(s, "1234567890.+-eE") == strlen(s);
 } 
 
 
@@ -26218,9 +26269,10 @@ static void decodeTime(struct tm *tp, MprTime when, bool local)
              week of the previous year, and the next week is week 1.
 
     Useful formats:
-        RFC822: "%a, %d %b %Y %H:%M:%S %Z           "Fri, 07 Jan 2003 12:12:21 PDT"
-                "%T %F                              "12:12:21 2007-01-03"
-                "%v                                 "07-Jul-2003"
+        RFC822:  "%a, %d %b %Y %H:%M:%S %Z           "Fri, 07 Jan 2003 12:12:21 PDT"
+                 "%T %F                              "12:12:21 2007-01-03"
+                 "%v                                 "07-Jul-2003"
+        RFC3399: "%FT%TZ"                            "1985-04-12T23:20:50.52Z"
  */
 
 #if HAS_STRFTIME

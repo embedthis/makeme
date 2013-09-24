@@ -1682,8 +1682,8 @@ PUBLIC int  mprSyncThreads(MprTicks timeout);
     @defgroup MprString MprString
     @see MprString itos itosradix itosbuf mprEprintf mprPrintf scamel scaselesscmp scaselessmatch schr 
         sclone scmp scontains scopy sends sfmt sfmtv shash shashlower sjoin sjoinv slen slower smatch sncaselesscmp snclone
-        sncmp sncopy snumber spascal spbrk srchr srejoin srejoinv sreplace sspn sstarts ssub stemplate stoi stoiradix
-        stok strim supper sncontains mprFprintf fmtv fmt
+        sncmp sncopy snumber sfnumber shnumber spascal spbrk srchr srejoin srejoinv sreplace sspn sstarts ssub stemplate 
+        stemplateJson stoi stoiradix stok strim supper sncontains mprFprintf fmtv fmt
     @stability Internal
  */
 typedef struct MprString { void *dummy; } MprString;
@@ -2025,7 +2025,8 @@ PUBLIC ssize sncopy(char *dest, ssize destMax, cchar *src, ssize len);
 
 /*
     Test if a string is a radix 10 number.
-    @return true if all characters are digits
+    @description The supported format is: [(+|-)][DIGITS]
+    @return true if all characters are digits or '+' or '-'
     @ingroup MprString
     @stability Stable
  */
@@ -2033,11 +2034,21 @@ PUBLIC bool snumber(cchar *s);
 
 /*
     Test if a string is a floating point number
-    @return true if all characters are digits or '.'
+    @description The supported format is: [+|-][DIGITS][.][DIGITS][(e|E)[+|-]DIGITS]
+    @return true if all characters are digits or '.', 'e', 'E', '+' or '-'
     @ingroup MprString
     @stability Stable
  */
 PUBLIC bool sfnumber(cchar *s);
+
+/*
+    Test if a string is a hexadecimal number
+    @description The supported format is: [(+|-)][0][(x|X)][HEX_DIGITS]
+    @return true if all characters are digits or 'x' or 'X'
+    @ingroup MprString
+    @stability Prototype
+ */
+PUBLIC bool shnumber(cchar *s);
 
 /**
     Create a Title Case version of the string
@@ -3019,6 +3030,7 @@ PUBLIC ssize mprPutFmtToWideBuf(MprBuf *buf, cchar *fmt, ...);
     Format a date according to RFC822: (Fri, 07 Jan 2003 12:12:21 PDT)
  */
 #define MPR_RFC_DATE        "%a, %d %b %Y %T %Z"
+#define MPR_RFC822_DATE     "%a, %d %b %Y %T %Z"
 
 /**
     Default date format used in mprFormatLocalTime/mprFormatUniversalTime when no format supplied
@@ -3029,6 +3041,11 @@ PUBLIC ssize mprPutFmtToWideBuf(MprBuf *buf, cchar *fmt, ...);
     Date format for use in HTTP (headers)
  */
 #define MPR_HTTP_DATE       "%a, %d %b %Y %T GMT"
+
+/**
+    Date format for RFC 3399 for use in HTML 5 
+ */
+#define MPR_RFC3399_DATE    "%FT%TZ"
 
 /********************************** Defines ***********************************/
 /**
@@ -3251,7 +3268,7 @@ PUBLIC MprTime mprMakeUniversalTime(struct tm *tm);
 /**
     Constants for mprParseTime
  */
-#define MPR_LOCAL_TIMEZONE     MAXINT       /**< Use local timezone */
+#define MPR_LOCAL_TIMEZONE      MAXINT      /**< Use local timezone */
 #define MPR_UTC_TIMEZONE        0           /**< Use UTC timezone */
 
 /*
@@ -6073,11 +6090,18 @@ PUBLIC void mprXmlSetParserHandler(MprXml *xp, MprXmlHandler h);
 #define MPR_JSON_DUPLICATE      0x8         /**< Permit duplicate properties of the same name */
 
 /*
-    Data types for obj property values (must fit into MprKey.type)
+    Data types for obj property values
  */
-#define MPR_JSON_OBJ            1           /**< The property is an object */
-#define MPR_JSON_ARRAY          2           /**< The property is an array */
-#define MPR_JSON_VALUE          3           /**< The property is a value */
+#define MPR_JSON_OBJ            0x1         /**< The property is an object */
+#define MPR_JSON_ARRAY          0x2         /**< The property is an array */
+#define MPR_JSON_VALUE          0x4         /**< The property is a value (false|true|null|undefined|regexp|number|string)  */
+#define MPR_JSON_FALSE          0x8         /**< The property is false. MPR_JSON_VALUE also set. */
+#define MPR_JSON_NULL           0x10        /**< The property is null. MPR_JSON_VALUE also set. */
+#define MPR_JSON_NUMBER         0x20        /**< The property is a number. MPR_JSON_VALUE also set. */
+#define MPR_JSON_REGEXP         0x40        /**< The property is a regular expression. MPR_JSON_VALUE also set.  */
+#define MPR_JSON_STRING         0x80        /**< The property is a string. MPR_JSON_VALUE also set. */
+#define MPR_JSON_TRUE           0x100       /**< The property is true. MPR_JSON_VALUE also set. */
+#define MPR_JSON_UNDEFINED      0x200       /**< The property is undefined. MPR_JSON_VALUE also set. */
 
 #define MPR_JSON_STATE_EOF      1           /* End of input */
 #define MPR_JSON_STATE_ERR      2           /* Some parse error */
@@ -6392,11 +6416,12 @@ PUBLIC MprJson *mprRemoveJson(MprJson *obj, cchar *key);
     Save a JSON object to a filename
     @param obj Parsed JSON object returned by mprParseJson
     @param path Filename path to contain the saved JSON string
+    @param flags Same flags as for #mprJsonToString: MPR_JSON_PRETTY, MPR_JSON_QUOTES, MPR_JSON_STRINGS.
     @return Zero if successful, otherwise a negative MPR error code.
     @ingroup MprJson
     @stability Prototype
  */
-PUBLIC int mprSaveJson(MprJson *obj, cchar *path);
+PUBLIC int mprSaveJson(MprJson *obj, cchar *path, int flags);
 
 /**
     Serialize a hash of properties as a JSON string

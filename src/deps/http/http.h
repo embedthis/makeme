@@ -1044,6 +1044,80 @@ PUBLIC HttpUri *httpMakeUriLocal(HttpUri *uri);
   */
 PUBLIC HttpUri *httpResolveUri(HttpUri *base, int argc, HttpUri **others, bool local);
 
+
+/** 
+    Create a URI link. 
+    @description Create a URI link by expansions tokens based on the current request and route state.
+    The target parameter may contain partial or complete URI information. The missing parts 
+    are supplied using the current request and route tables. The resulting URI is a normalized, server-local 
+    URI (that begins with "/"). The URI will include any defined route prefix, but will not include scheme, host or 
+    port components.
+    @param [in] conn HttpConn connection object 
+    @param target The URI target. The target parameter can be a URI string or JSON style set of options. 
+        The target will have any embedded "{tokens}" expanded by using token values from the request parameters.
+        If the target has an absolute URI path, that path is used directly after tokenization. If the target begins with
+        "~", that character will be replaced with the route prefix. This is a very convenient way to create application 
+        top-level relative links.
+        \n\n
+        If the target is a string that begins with "{AT}" it will be interpreted as a service/action pair of the 
+        form "{AT}Service/action". If the "service/" portion is absent, the current service is used. If 
+        the action component is missing, the "list" action is used. A bare "{AT}" refers to the "list" action 
+        of the current service.
+        \n\n
+        If the target starts with "{" it is interpreted as being a JSON style set of options that describe the link.
+        If the target is a relative URI path, it is appended to the current request URI path.  
+        \n\n
+        If the is a JSON style of options, it can specify the URI components: scheme, host, port, path, reference and
+        query. If these component properties are supplied, these will be combined to create a URI.
+        \n\n
+        If the target specifies either a service/action or a JSON set of options, The URI will be created according 
+        to the route URI template. The template may be explicitly specified
+        via a "route" target property. Otherwise, if an "action" property is specified, the route of the same
+        name will be used. If these don't result in a usable route, the "default" route will be used. 
+        \n\n
+        These are the properties supported in a JSON style "{ ... }" target:
+        <ul>
+            <li>scheme String URI scheme portion</li>
+            <li>host String URI host portion</li>
+            <li>port Number URI port number</li>
+            <li>path String URI path portion</li>
+            <li>reference String URI path reference. Does not include "#"</li>
+            <li>query String URI query parameters. Does not include "?"</li>
+            <li>service String Service name if using a Service-based route. This can also be specified via
+                the action option.</li>
+            <li>action String Action to invoke. This can be a URI string or a Service action of the form
+                {AT}Service/action.</li>
+            <li>route String Route name to use for the URI template</li>
+        </ul>
+    @param options Hash of option values for embedded tokens.
+    @return A normalized, server-local Uri string.
+    @ingroup HttpUri
+    @stability Evolving
+    @remarks Examples:<pre>
+    httpUri(conn, "http://example.com/index.html", 0);
+    httpUri(conn, "/path/to/index.html", 0);
+    httpUri(conn, "../images/splash.png", 0);
+    httpUri(conn, "~/static/images/splash.png", 0);
+    httpUri(conn, "${app}/static/images/splash.png", 0);
+    httpUri(conn, "@service/checkout", 0);
+    httpUri(conn, "@service/")               //  Service = Service, action = index
+    httpUri(conn, "@init")                   //  Current service, action = init
+    httpUri(conn, "@")                       //  Current service, action = index
+    httpUri(conn, "{ action: '@post/create' }", 0);
+    httpUri(conn, "{ action: 'checkout' }", 0);
+    httpUri(conn, "{ action: 'logout', service: 'admin' }", 0);
+    httpUri(conn, "{ action: 'admin/logout'", 0);
+    httpUri(conn, "{ product: 'candy', quantity: '10', template: '/cart/${product}/${quantity}' }", 0);
+    httpUri(conn, "{ route: '~/STAR/edit', action: 'checkout', id: '99' }", 0);
+    httpUri(conn, "{ template: '~/static/images/${theme}/background.jpg', theme: 'blue' }", 0);
+</pre>
+ */
+PUBLIC char *httpUri(struct HttpConn *conn, cchar *target, MprHash *options);
+
+#if DEPRECATE || 1
+PUBLIC char *httpLink(struct HttpConn *conn, cchar *target, MprHash *options);
+#endif
+
 /** 
     Convert a Uri to a string.
     @description Convert the given Uri to a string, optionally completing missing parts such as the host, port and path.
@@ -3609,12 +3683,12 @@ PUBLIC void httpSetStreaming(struct HttpHost *host, cchar *mime, cchar *uri, boo
         httpAddRouteLoad httpAddRouteQuery httpAddRouteUpdate httpClearRouteStages httpCreateAliasRoute 
         httpCreateDefaultRoute httpCreateInheritedRoute httpCreateRoute httpDefineRoute
         httpDefineRouteCondition httpDefineRouteTarget httpDefineRouteUpdate httpFinalizeRoute httpGetRouteData 
-        httpGetRouteDir httpLink httpLookupRouteErrorDocument httpMakePath httpResetRoutePipeline 
+        httpGetRouteDir httpLookupRouteErrorDocument httpMakePath httpResetRoutePipeline 
         httpSetRouteAuth httpSetRouteAutoDelete httpSetRouteCompression httpSetRouteConnector httpSetRouteData 
         httpSetRouteDefaultLanguage httpSetRouteDocuments httpSetRouteFlags httpSetRouteHandler httpSetRouteHost 
         httpSetRouteIndex httpSetRouteMethods httpSetRouteName httpSetRouteVar httpSetRoutePattern 
         httpSetRoutePrefix httpSetRouteScript httpSetRouteSource httpSetRouteTarget httpSetRouteWorkers httpTemplate 
-        httpSetTrace httpSetTraceFilter httpTokenize httpTokenizev 
+        httpSetTrace httpSetTraceFilter httpTokenize httpTokenizev httpUri
     @stability Internal
  */
 typedef struct HttpRoute {
@@ -4254,76 +4328,6 @@ PUBLIC cchar *httpGetRouteVar(HttpRoute *route, cchar *key);
     @stability Evolving
  */
 PUBLIC HttpLimits *httpGraduateLimits(HttpRoute *route, HttpLimits *limits);
-
-/** 
-    Create a URI link. 
-    @description Create a URI link by expansions tokens based on the current request and route state.
-    The target parameter may contain partial or complete URI information. The missing parts 
-    are supplied using the current request and route tables. The resulting URI is a normalized, server-local 
-    URI (that begins with "/"). The URI will include any defined route prefix, but will not include scheme, host or 
-    port components.
-    @param [in] conn HttpConn connection object 
-    @param target The URI target. The target parameter can be a URI string or JSON style set of options. 
-        The target will have any embedded "{tokens}" expanded by using token values from the request parameters.
-        If the target has an absolute URI path, that path is used directly after tokenization. If the target begins with
-        "~", that character will be replaced with the route prefix. This is a very convenient way to create application 
-        top-level relative links.
-        \n\n
-        If the target is a string that begins with "{AT}" it will be interpreted as a service/action pair of the 
-        form "{AT}Service/action". If the "service/" portion is absent, the current service is used. If 
-        the action component is missing, the "list" action is used. A bare "{AT}" refers to the "list" action 
-        of the current service.
-        \n\n
-        If the target starts with "{" it is interpreted as being a JSON style set of options that describe the link.
-        If the target is a relative URI path, it is appended to the current request URI path.  
-        \n\n
-        If the is a JSON style of options, it can specify the URI components: scheme, host, port, path, reference and
-        query. If these component properties are supplied, these will be combined to create a URI.
-        \n\n
-        If the target specifies either a service/action or a JSON set of options, The URI will be created according 
-        to the route URI template. The template may be explicitly specified
-        via a "route" target property. Otherwise, if an "action" property is specified, the route of the same
-        name will be used. If these don't result in a usable route, the "default" route will be used. 
-        \n\n
-        These are the properties supported in a JSON style "{ ... }" target:
-        <ul>
-            <li>scheme String URI scheme portion</li>
-            <li>host String URI host portion</li>
-            <li>port Number URI port number</li>
-            <li>path String URI path portion</li>
-            <li>reference String URI path reference. Does not include "#"</li>
-            <li>query String URI query parameters. Does not include "?"</li>
-            <li>service String Service name if using a Service-based route. This can also be specified via
-                the action option.</li>
-            <li>action String Action to invoke. This can be a URI string or a Service action of the form
-                {AT}Service/action.</li>
-            <li>route String Route name to use for the URI template</li>
-        </ul>
-    @param options Hash of option values for embedded tokens.
-    @return A normalized, server-local Uri string.
-    @ingroup HttpRoute
-    @stability Evolving
-    @remarks Examples:<pre>
-    httpLink(conn, "http://example.com/index.html", 0);
-    httpLink(conn, "/path/to/index.html", 0);
-    httpLink(conn, "../images/splash.png", 0);
-    httpLink(conn, "~/static/images/splash.png", 0);
-    httpLink(conn, "${app}/static/images/splash.png", 0);
-    httpLink(conn, "@service/checkout", 0);
-    httpLink(conn, "@service/")               //  Service = Service, action = index
-    httpLink(conn, "@init")                   //  Current service, action = init
-    httpLink(conn, "@")                       //  Current service, action = index
-    httpLink(conn, "{ action: '@post/create' }", 0);
-    httpLink(conn, "{ action: 'checkout' }", 0);
-    httpLink(conn, "{ action: 'logout', service: 'admin' }", 0);
-    httpLink(conn, "{ action: 'admin/logout'", 0);
-    httpLink(conn, "{ product: 'candy', quantity: '10', template: '/cart/${product}/${quantity}' }", 0);
-    httpLink(conn, "{ route: '~/STAR/edit', action: 'checkout', id: '99' }", 0);
-    httpLink(conn, "{ template: '~/static/images/${theme}/background.jpg', theme: 'blue' }", 0);
-</pre>
-*/
-PUBLIC char *httpLink(HttpConn *conn, cchar *target, MprHash *options);
-
 /**
     Lookup an error document by HTTP status code
     @description This looks up error documents configured via #httpAddRouteErrorDocument
@@ -4546,7 +4550,7 @@ PUBLIC void httpSetRouteMethods(HttpRoute *route, cchar *methods);
 
 /**
     Set the route name
-    @description Symbolic route names are used by httpLink and when displaying route tables.
+    @description Symbolic route names are used by httpUri and when displaying route tables.
     @param route Route to modify
     @param name Unique symbolic name for the route. If a name is not defined, the route pattern will be used as the name. 
     @ingroup HttpRoute
@@ -4716,7 +4720,7 @@ PUBLIC int httpSetRouteTarget(HttpRoute *route, cchar *name, cchar *details);
 
 /**
     Set the route template
-    @description Set the route URI template uses when constructing URIs via httpLink.
+    @description Set the route URI template uses when constructing URIs via httpUri.
     @param route Route to modify
     @param tplate URI template to use. Templates may contain embedded tokens "{token}" where the token names correspond
         to the token names in the route pattern. 
@@ -4945,7 +4949,7 @@ PUBLIC HttpSession *httpGetSession(HttpConn *conn, int create);
     @ingroup HttpSession
     @stability Evolving
  */
-PUBLIC char *httpGetSessionID(HttpConn *conn);
+PUBLIC cchar *httpGetSessionID(HttpConn *conn);
 
 /**
     Get an object from the session state store.
@@ -5300,10 +5304,22 @@ PUBLIC void httpCreateCGIParams(HttpConn *conn);
 PUBLIC MprOff httpGetContentLength(HttpConn *conn);
 
 /** 
+    Get a request cookie
+    @description Get a request cookie by name
+    @param conn HttpConn connection object created via #httpCreateConn
+    @param name Name of cookie retrieve
+    @return Return the cookie value. Return null if the cookie is not defined.
+    @ingroup HttpRx
+    @stability Stable
+ */
+PUBLIC cchar *httpGetCookie(HttpConn *conn, cchar *name);
+
+/** 
     Get the request cookies
     @description Get the cookies defined in the current requeset
     @param conn HttpConn connection object created via #httpCreateConn
-    @return Return a string containing the cookies sent in the Http header of the last request
+    @return Return a string containing the cookies sent in the Http header of the last request.
+        Return null if there are not cookies defined.
     @ingroup HttpRx
     @stability Stable
  */

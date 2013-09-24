@@ -51475,7 +51475,7 @@ static EjsNumber *ws_send(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **argv)
             }
         }
     }
-    return ejsCreateNumber(ejs, nbytes);
+    return ejsCreateNumber(ejs, (MprNumber) nbytes);
 }
 
 
@@ -51531,7 +51531,7 @@ static EjsNumber *ws_sendBlock(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **ar
         ejsThrowIOError(ejs, "Cannot send block");
         return 0;
     }
-    return ejsCreateNumber(ejs, nbytes);
+    return ejsCreateNumber(ejs, (MprNumber) nbytes);
 }
 
 
@@ -66346,9 +66346,9 @@ static void jsonToPot(Ejs *ejs, MprJson *json, EjsObj *obj)
 
     for (ITERATE_JSON(json, child, i)) {
         qname = ejsName(ejs, "", child->name);
-        if (child->type == MPR_JSON_VALUE) {
+        if (child->type & MPR_JSON_VALUE) {
             ejsSetPropertyByName(ejs, obj, qname, ejsCreateStringFromAsc(ejs, child->value));
-        } else if (child->type == MPR_JSON_ARRAY) {
+        } else if (child->type & MPR_JSON_ARRAY) {
             container = (EjsObj*) ejsCreateArray(ejs, 0);
             ejsSetPropertyByName(ejs, obj, qname, container);
             jsonToPot(ejs, child, container);

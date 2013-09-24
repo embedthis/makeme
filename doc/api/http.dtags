@@ -344,6 +344,13 @@
     </member>
     <member kind="function">
       <type>char *</type>
+      <name>httpUri</name>
+      <anchorfile>group___http_uri.html</anchorfile>
+      <anchor>ga00c4724cd6626b94ada3034eabefa60e</anchor>
+      <arglist>(struct HttpConn *conn, cchar *target, MprHash *options)</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
       <name>httpUriToString</name>
       <anchorfile>group___http_uri.html</anchorfile>
       <anchor>ga9ea785faccf155c6bd3b2650d5245d11</anchor>
@@ -1884,13 +1891,6 @@
       <arglist>(HttpRoute *route, HttpLimits *limits)</arglist>
     </member>
     <member kind="function">
-      <type>char *</type>
-      <name>httpLink</name>
-      <anchorfile>group___http_route.html</anchorfile>
-      <anchor>ga5b051e0b1cf729188162294091feca6d</anchor>
-      <arglist>(HttpConn *conn, cchar *target, MprHash *options)</arglist>
-    </member>
-    <member kind="function">
       <type>void</type>
       <name>httpLogRoutes</name>
       <anchorfile>group___http_route.html</anchorfile>
@@ -2239,10 +2239,10 @@
       <arglist>(HttpConn *conn, int create)</arglist>
     </member>
     <member kind="function">
-      <type>char *</type>
+      <type>cchar *</type>
       <name>httpGetSessionID</name>
       <anchorfile>group___http_session.html</anchorfile>
-      <anchor>ga2244ff502745aa576f670dd91ff13a3a</anchor>
+      <anchor>gaed1811d6bdb253487a141df6101e6f81</anchor>
       <arglist>(HttpConn *conn)</arglist>
     </member>
     <member kind="function">
@@ -2366,6 +2366,13 @@
       <anchorfile>group___http_rx.html</anchorfile>
       <anchor>gadafdace3fe2bdbbd5e62b6942af088c5</anchor>
       <arglist>(HttpConn *conn)</arglist>
+    </member>
+    <member kind="function">
+      <type>cchar *</type>
+      <name>httpGetCookie</name>
+      <anchorfile>group___http_rx.html</anchorfile>
+      <anchor>gac9f9c1436bea3a7a34cba4bde31942bb</anchor>
+      <arglist>(HttpConn *conn, cchar *name)</arglist>
     </member>
     <member kind="function">
       <type>cchar *</type>
