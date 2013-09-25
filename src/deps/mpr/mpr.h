@@ -8116,6 +8116,7 @@ PUBLIC bool mprCheckPassword(cchar *plainTextPassword, cchar *passwordHash);
 #define MPR_ENCODE_URI_COMPONENT    0x8             /* Encode for ejs Uri.encodeComponent */
 #define MPR_ENCODE_JS_URI           0x10            /* Encode according to ECMA encodeUri() */
 #define MPR_ENCODE_JS_URI_COMPONENT 0x20            /* Encode according to ECMA encodeUriComponent */
+#define MPR_ENCODE_SQL              0x40            /* Encode for a SQL command */
 
 /** 
     Encode a string escaping typical command (shell) characters
@@ -8137,6 +8138,16 @@ PUBLIC char *mprEscapeCmd(cchar *cmd, int escChar);
     @stability Stable
  */
 PUBLIC char *mprEscapeHtml(cchar *html);
+
+/**
+    Encode a string by escaping SQL special characters
+    @description Encode a string escaping all dangerous characters that have meaning in SQL commands
+    @param cmd SQL command to encode
+    @return An allocated string containing the escaped SQL command.
+    @ingroup Mpr
+    @stability Stable
+ */
+PUBLIC char *mprEscapeSQL(cchar *cmd);
 
 /** 
     Encode a string by escaping URI characters

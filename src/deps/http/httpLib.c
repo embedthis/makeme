@@ -14874,9 +14874,6 @@ PUBLIC HttpSession *httpCreateSession(HttpConn *conn)
 }
 
 
-/*
-    Destroy the session
- */
 PUBLIC void httpDestroySession(HttpConn *conn)
 {
     Http        *http;
@@ -14906,7 +14903,7 @@ static void manageSession(HttpSession *sp, int flags)
 
 
 /*
-    Get the session. Optionally create if "create" is true. Will not re-create.
+    Optionally create if "create" is true. Will not re-create.
  */
 PUBLIC HttpSession *httpGetSession(HttpConn *conn, int create)
 {
