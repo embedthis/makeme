@@ -1580,7 +1580,7 @@ PUBLIC void mprAddRoot(cvoid *ptr);
     Flags for mprRequestGC
  */
 #define MPR_CG_DEFAULT      0x0     /**< mprRequestGC flag to run GC if necessary. Will yield and block for GC. */
-#define MPR_GC_COMPLETE     0x1     /**< mprRequestGC flag to wait until the GC entirely complete including sweeper */
+#define MPR_GC_COMPLETE     0x1     /**< mprRequestGC flag to wait until the GC entirely complete including sweeper. Implies FORCE. */
 #define MPR_GC_NO_BLOCK     0x2     /**< mprRequestGC flag and to not wait for the GC complete */
 #define MPR_GC_FORCE        0x4     /**< mprRequestGC flag to force a GC whether it is required or not */
 

@@ -307,7 +307,7 @@ PUBLIC void httpSetForkCallback(struct Http *http, MprForkCallback proc, void *a
 /*
     Monitored counters. These are per-client IP unless specified.
  */
-#define HTTP_COUNTER_ACTIVE_CLIENTS     0       /**< Client IP addresses for server */
+#define HTTP_COUNTER_ACTIVE_CLIENTS     0       /**< Active unique client IP addresses */
 #define HTTP_COUNTER_ACTIVE_CONNECTIONS 1       /**< Active connections per client */
 #define HTTP_COUNTER_ACTIVE_REQUESTS    2       /**< Active requests per client */
 #define HTTP_COUNTER_ACTIVE_PROCESSES   3       /**< Total processes for server */

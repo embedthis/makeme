@@ -903,11 +903,14 @@ PUBLIC void mprRequestGC(int flags)
 {
     mprTrace(7, "DEBUG: mprRequestGC");
 
+    if (flags & MPR_GC_COMPLETE) {
+        flags |= MPR_GC_FORCE;
+    }
     if ((flags & MPR_GC_FORCE) || (heap->workDone > heap->workQuota)) {
         triggerGC();
     }
     if (!(flags & MPR_GC_NO_BLOCK)) {
-        mprYield((flags & MPR_GC_COMPLETE) ? MPR_YIELD_COMPLETE : 0);
+        mprYield((flags & MPR_GC_COMPLETE) ? (MPR_YIELD_COMPLETE | MPR_YIELD_BLOCK) : 0);
     }
 }
 
