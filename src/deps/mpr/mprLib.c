@@ -8348,6 +8348,7 @@ static int getPathInfo(MprDiskFileSystem *fs, cchar *path, MprPath *info)
     info->valid = 0;
     info->isReg = 0;
     info->isDir = 0;
+    info->size = 0;
 
     if (_stat64(path, &s) < 0) {
         return -1;
@@ -8379,6 +8380,7 @@ static int getPathInfo(MprDiskFileSystem *fs, cchar *path, MprPath *info)
     info->valid = 0;
     info->isReg = 0;
     info->isDir = 0;
+    info->size = 0;
     if (sends(path, "/")) {
         /* Windows stat fails with a trailing "/" */
         path = strim(path, "/", MPR_TRIM_END);
@@ -8458,6 +8460,7 @@ static int getPathInfo(MprDiskFileSystem *fs, cchar *path, MprPath *info)
     info->valid = 0;
     info->isReg = 0;
     info->isDir = 0;
+    info->size = 0;
     info->checked = 1;
     if (stat((char*) path, &s) < 0) {
         return MPR_ERR_CANT_ACCESS;
@@ -8478,6 +8481,7 @@ static int getPathInfo(MprDiskFileSystem *fs, cchar *path, MprPath *info)
     info->valid = 0;
     info->isReg = 0;
     info->isDir = 0;
+    info->size = 0;
     info->checked = 1;
     if (lstat((char*) path, &s) < 0) {
         return MPR_ERR_CANT_ACCESS;
@@ -15236,6 +15240,8 @@ static char *standardMimeTypes[] = {
     "dll",   "application/octet-stream",
     "dmg",   "application/octet-stream",
     "doc",   "application/msword",
+    "ejs",   "text/html",
+    "esp",   "text/html",
     "eps",   "application/postscript",
     "es",    "application/x-javascript",
     "exe",   "application/octet-stream",
@@ -21662,7 +21668,7 @@ PUBLIC bool mprSocketHandshaking(MprSocket *sp)
  */
 PUBLIC bool mprIsSocketEof(MprSocket *sp)
 {
-    return ((sp->flags & MPR_SOCKET_EOF) != 0);
+    return (!sp || ((sp->flags & MPR_SOCKET_EOF) != 0));
 }
 
 
