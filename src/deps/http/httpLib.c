@@ -4171,6 +4171,7 @@ static void makeAltBody(HttpConn *conn, int status)
     if (rx && scmp(rx->accept, "text/plain") == 0) {
         tx->altBody = sfmt("Access Error: %d -- %s\r\n%s\r\n", status, statusMsg, msg);
     } else {
+        httpSetContentType(conn, "text/html");
         tx->altBody = sfmt("<!DOCTYPE html>\r\n"
             "<head>\r\n"
             "    <title>%s</title>\r\n"
