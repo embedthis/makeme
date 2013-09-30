@@ -2716,6 +2716,13 @@
       <arglist>(cchar *html)</arglist>
     </member>
     <member kind="function">
+      <type>char *</type>
+      <name>mprEscapeSQL</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>gad2ecda4dce81e3e0628cd3a1519f7444</anchor>
+      <arglist>(cchar *cmd)</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>mprExpireCacheItem</name>
       <anchorfile>group___mpr_cache.html</anchorfile>
@@ -9684,6 +9691,13 @@
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>ga5cbd659568028d3360b836183c89d4f8</anchor>
       <arglist>(cchar *html)</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
+      <name>mprEscapeSQL</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>gad2ecda4dce81e3e0628cd3a1519f7444</anchor>
+      <arglist>(cchar *cmd)</arglist>
     </member>
     <member kind="function">
       <type>char *</type>
