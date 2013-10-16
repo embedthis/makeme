@@ -1398,6 +1398,7 @@ typedef struct OpenSocket {
     OpenConfig      *cfg;
     char            *peerName;
     SSL             *handle;
+    //  TODO - is the bio used?
     BIO             *bio;
 } OpenSocket;
 
@@ -1662,6 +1663,19 @@ static OpenConfig *createOpenSslConfig(MprSocket *sp)
     SSL_CTX_set_options(context, SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION);
 #endif
     SSL_CTX_set_mode(context, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_AUTO_RETRY);
+#ifdef SSL_OP_MSIE_SSLV2_RSA_PADDING
+    SSL_CTX_set_options(context, SSL_OP_MSIE_SSLV2_RSA_PADDING);
+#endif
+#ifdef SSL_OP_NO_COMPRESSION                                                                                         
+    SSL_CTX_set_options(context, SSL_OP_NO_COMPRESSION);                                                            
+#endif
+#ifdef SSL_MODE_RELEASE_BUFFERS                                                                                      
+    SSL_CTX_set_mode(context, SSL_MODE_RELEASE_BUFFERS);                                                            
+#endif
+#if 0
+    SSL_CTX_set_read_ahead(context, 1);                                                                             
+    SSL_CTX_set_info_callback(context, info_callback); 
+#endif
 
     /*
         Select the required protocols
@@ -1810,6 +1824,14 @@ static int upgradeOss(MprSocket *sp, MprSsl *ssl, cchar *peerName)
         }
         mprSetSocketBlockingMode(sp, 0);
     }
+#ifndef BIT_MPR_SSL_RENEGOTIATE
+    /*
+        Disable renegotiation after the initial handshake for CVE-2009-3555 
+     */
+    if (osp->handle->s3) {
+        osp->handle->s3->flags |= SSL3_FLAGS_NO_RENEGOTIATE_CIPHERS;
+    }
+#endif
     return 0;
 }
 
@@ -2057,7 +2079,6 @@ static ssize writeOss(MprSocket *sp, cvoid *buf, ssize len)
     }
     return totalWritten;
 }
-
 
 /*
     Called to verify X509 client certificates

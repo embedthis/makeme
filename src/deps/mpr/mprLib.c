@@ -5070,7 +5070,7 @@ PUBLIC int mprIsCmdComplete(MprCmd *cmd)
 /*
     Run a simple blocking command. See arg usage below in mprRunCmdV.
  */
-PUBLIC int mprRunCmd(MprCmd *cmd, cchar *command, cchar **envp, char **out, char **err, MprTicks timeout, int flags)
+PUBLIC int mprRunCmd(MprCmd *cmd, cchar *command, cchar **envp, cchar *in, char **out, char **err, MprTicks timeout, int flags)
 {
     cchar   **argv;
     int     argc;
@@ -5082,24 +5082,7 @@ PUBLIC int mprRunCmd(MprCmd *cmd, cchar *command, cchar **envp, char **out, char
         return 0;
     }
     cmd->makeArgv = argv;
-    return mprRunCmdV(cmd, argc, argv, envp, out, err, timeout, flags);
-}
-
-
-/*
-    Env is an array of "KEY=VALUE" strings. Null terminated
-    The user must preserve the environment. This module does not clone the environment and uses the supplied reference.
- */
-PUBLIC void mprSetCmdDefaultEnv(MprCmd *cmd, cchar **env)
-{
-    /* WARNING: defaultEnv is not cloned, but is marked */
-    cmd->defaultEnv = env;
-}
-
-
-PUBLIC void mprSetCmdSearchPath(MprCmd *cmd, cchar *search)
-{
-    cmd->searchPath = sclone(search);
+    return mprRunCmdV(cmd, argc, argv, envp, in, out, err, timeout, flags);
 }
 
 
@@ -5111,11 +5094,15 @@ PUBLIC void mprSetCmdSearchPath(MprCmd *cmd, cchar *search)
         MPR_CMD_SHOW            Show the commands window on Windows
         MPR_CMD_IN              Connect to stdin
  */
-PUBLIC int mprRunCmdV(MprCmd *cmd, int argc, cchar **argv, cchar **envp, char **out, char **err, MprTicks timeout, int flags)
+PUBLIC int mprRunCmdV(MprCmd *cmd, int argc, cchar **argv, cchar **envp, cchar *in, char **out, char **err, MprTicks timeout, int flags)
 {
+    ssize   len;
     int     rc, status;
 
     assert(cmd);
+    if (in) {
+        flags |= MPR_CMD_IN;
+    }
     if (err) {
         *err = 0;
         flags |= MPR_CMD_ERR;
@@ -5137,9 +5124,13 @@ PUBLIC int mprRunCmdV(MprCmd *cmd, int argc, cchar **argv, cchar **envp, char **
     mprSetCmdCallback(cmd, defaultCmdCallback, NULL);
     rc = mprStartCmd(cmd, argc, argv, envp, flags);
 
-    /*
-        Close the pipe connected to the client's stdin
-     */
+    if (in) {
+        len = slen(in);
+        if (mprWriteCmdBlock(cmd, MPR_CMD_STDIN, in, len) != len) {
+            *err = sfmt("Cannot write to command %s", cmd->program);
+            return MPR_ERR_CANT_WRITE;
+        }
+    }
     if (cmd->files[MPR_CMD_STDIN].fd >= 0) {
         mprFinalizeCmd(cmd);
     }
@@ -5198,6 +5189,23 @@ static int addCmdHandlers(MprCmd *cmd)
         }
     }
     return 0;
+}
+
+
+/*
+    Env is an array of "KEY=VALUE" strings. Null terminated
+    The user must preserve the environment. This module does not clone the environment and uses the supplied reference.
+ */
+PUBLIC void mprSetCmdDefaultEnv(MprCmd *cmd, cchar **env)
+{
+    /* WARNING: defaultEnv is not cloned, but is marked */
+    cmd->defaultEnv = env;
+}
+
+
+PUBLIC void mprSetCmdSearchPath(MprCmd *cmd, cchar *search)
+{
+    cmd->searchPath = sclone(search);
 }
 
 
@@ -5372,7 +5380,7 @@ PUBLIC ssize mprReadCmd(MprCmd *cmd, int channel, char *buf, ssize bufsize)
 /*
     Do non-blocking I/O - except on windows - will block
  */
-PUBLIC ssize mprWriteCmd(MprCmd *cmd, int channel, char *buf, ssize bufsize)
+PUBLIC ssize mprWriteCmd(MprCmd *cmd, int channel, cchar *buf, ssize bufsize)
 {
 #if BIT_WIN_LIKE
     /*
@@ -5392,7 +5400,7 @@ PUBLIC ssize mprWriteCmd(MprCmd *cmd, int channel, char *buf, ssize bufsize)
 /*
     Do blocking I/O
  */
-PUBLIC ssize mprWriteCmdBlock(MprCmd *cmd, int channel, char *buf, ssize bufsize)
+PUBLIC ssize mprWriteCmdBlock(MprCmd *cmd, int channel, cchar *buf, ssize bufsize)
 {
 #if BIT_UNIX_LIKE
     MprCmdFile  *file;
@@ -11665,7 +11673,7 @@ PUBLIC MprHash *mprCreateHashFromWords(cchar *str)
     word = stok(sclone(str), ", \t\n\r", &next);
     while (word) {
         mprAddKey(hash, word, word);
-        word = stok(NULL, " \t\n\r", &next);
+        word = stok(NULL, ", \t\n\r", &next);
     }
     return hash;
 }
@@ -13531,6 +13539,21 @@ PUBLIC MprList *mprCloneList(MprList *src)
         return 0;
     }
     return lp;
+}
+
+
+PUBLIC MprList *mprCreateListFromWords(cchar *str)
+{
+    MprList     *list;
+    char        *word, *next;
+
+    list = mprCreateList(0, 0);
+    word = stok(sclone(str), ", \t\n\r", &next);
+    while (word) {
+        mprAddItem(list, word);
+        word = stok(NULL, ", \t\n\r", &next);
+    }
+    return list;
 }
 
 

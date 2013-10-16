@@ -532,11 +532,7 @@ static void loginServiceProc(HttpConn *conn)
             if (auth->loggedIn) {
                 httpRedirect(conn, HTTP_CODE_MOVED_TEMPORARILY, auth->loggedIn);
             } else {
-#if UNUSED
-                httpRedirect(conn, HTTP_CODE_MOVED_TEMPORARILY, httpUri(conn, "~", 0));
-#else
                 httpRedirect(conn, HTTP_CODE_MOVED_TEMPORARILY, "~");
-#endif
             }
         }
     } else {
@@ -11395,7 +11391,7 @@ static int cmdUpdate(HttpConn *conn, HttpRoute *route, HttpRouteOp *op)
 
     command = expandTokens(conn, op->details);
     cmd = mprCreateCmd(conn->dispatcher);
-    if ((status = mprRunCmd(cmd, command, NULL, &out, &err, -1, 0)) != 0) {
+    if ((status = mprRunCmd(cmd, command, NULL, NULL, &out, &err, -1, 0)) != 0) {
         /* Don't call httpError, just set errorMsg which can be retrieved via: ${request:error} */
         conn->errorMsg = sfmt("Command failed: %s\nStatus: %d\n%s\n%s", command, status, out, err);
         mprError("%s", conn->errorMsg);
@@ -11571,27 +11567,38 @@ static HttpRoute *addRestful(HttpRoute *parent, cchar *prefix, cchar *action, cc
 
 PUBLIC void httpAddResourceGroup(HttpRoute *parent, cchar *prefix, cchar *resource)
 {
-    addRestful(parent, prefix, "create",    "POST",    "(/)*$",                   "create",          resource);
-    addRestful(parent, prefix, "edit",      "GET",     "/{id=[0-9]+}/edit$",      "edit",            resource);
-    addRestful(parent, prefix, "get",       "GET",     "/{id=[0-9]+}$",           "get",             resource);
-    addRestful(parent, prefix, "init",      "GET",     "/init$",                  "init",            resource);
-    addRestful(parent, prefix, "list",      "GET",     "/list$",                  "list",            resource);
-    addRestful(parent, prefix, "remove",    "DELETE",  "/{id=[0-9]+}$",           "remove",          resource);
-    addRestful(parent, prefix, "update",    "POST",    "/{id=[0-9]+}$",           "update",          resource);
-    addRestful(parent, prefix, "action",    "GET,POST","/{id=[0-9]+}/{action}$",  "${action}",       resource);
-    addRestful(parent, prefix, "default",   "GET,POST","/{action}$",              "cmd-${action}",   resource);
+    addRestful(parent, prefix, "create",    "POST",    "(/)*$",                     "create",          resource);
+    addRestful(parent, prefix, "edit",      "GET",     "/{id=[0-9]+}/edit$",        "edit",            resource);
+    addRestful(parent, prefix, "get",       "GET",     "/{id=[0-9]+}$",             "get",             resource);
+    addRestful(parent, prefix, "init",      "GET",     "/init$",                    "init",            resource);
+    addRestful(parent, prefix, "list",      "GET",     "/list$",                    "list",            resource);
+    addRestful(parent, prefix, "remove",    "DELETE",  "/{id=[0-9]+}$",             "remove",          resource);
+    addRestful(parent, prefix, "update",    "POST",    "/{id=[0-9]+}$",             "update",          resource);
+    addRestful(parent, prefix, "action",    "GET,POST","/{id=[0-9]+}/{action}(/)*$","${action}",       resource);
+    addRestful(parent, prefix, "default",   "GET,POST","/{action}(/)*$",            "cmd-${action}",   resource);
 }
 
 
 PUBLIC void httpAddResource(HttpRoute *parent, cchar *prefix, cchar *resource)
 {
-    addRestful(parent, prefix, "create",    "POST",    "(/)*$",        "create",     resource);
-    addRestful(parent, prefix, "edit",      "GET",     "/edit$",       "edit",       resource);
+    addRestful(parent, prefix, "create",    "POST",    "(/)*$",          "create",     resource);
+    addRestful(parent, prefix, "edit",      "GET",     "/edit$",         "edit",       resource);
+    addRestful(parent, prefix, "get",       "GET",     "(/)*$",          "get",        resource);
+    addRestful(parent, prefix, "init",      "GET",     "/init$",         "init",       resource);
+    addRestful(parent, prefix, "update",    "POST",    "(/)*$",          "update",     resource);
+    addRestful(parent, prefix, "remove",    "DELETE",  "(/)*$",          "remove",     resource);
+    addRestful(parent, prefix, "default",   "GET,POST","/{action}(/)*$", "${action}",  resource);
+}
+
+
+/*
+    Add routes for a permanent resource. Cannot create or remove.
+ */
+PUBLIC void httpAddPermResource(HttpRoute *parent, cchar *prefix, cchar *resource)
+{
     addRestful(parent, prefix, "get",       "GET",     "(/)*$",        "get",        resource);
-    addRestful(parent, prefix, "init",      "GET",     "/init$",       "init",       resource);
     addRestful(parent, prefix, "update",    "POST",    "(/)*$",        "update",     resource);
-    addRestful(parent, prefix, "remove",    "DELETE",  "(/)*$",        "remove",     resource);
-    addRestful(parent, prefix, "default",   "GET,POST","/{action}$",   "${action}",  resource);
+    addRestful(parent, prefix, "default",   "GET,POST","/{action}(/)*$",   "${action}",  resource);
 }
 
 
@@ -17636,6 +17643,7 @@ PUBLIC HttpUri *httpGetRelativeUri(HttpUri *base, HttpUri *target, int clone)
 }
 
 
+//  MOB - rethink API, makes chaining hard if result must be supplied
 /*
     result = base.join(other)
  */

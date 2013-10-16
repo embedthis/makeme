@@ -15598,6 +15598,7 @@ module ejs.db.sqlite {
  */
 
 module ejs.mail {
+    //  MOB - include @options here
     /** 
         Send mail using sendmail
         @param options Object hash with properties for: from, to, subject, date and Content-Type.
@@ -15637,6 +15638,7 @@ module ejs.mail {
             msg.push(boundary)
             let mime = Uri(file).mimeType || 'application/octet-stream'
             msg.push('Content-Transfer-Encoding: base64')
+            //  MOB - adding '' does nothing. Should the basename be in quotes
             msg.push('Content-Disposition: inline; filename=' + file.basename + '')
             msg.push('Content-Type: ' + mime + '; name="' + file.basename + '"')
             msg.push('')

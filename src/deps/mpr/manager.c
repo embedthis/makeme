@@ -343,7 +343,7 @@ static bool run(cchar *fmt, ...)
     app->command = sfmtv(fmt, args);
     mprLog(1, "Run: %s", app->command);
     cmd = mprCreateCmd(NULL);
-    rc = mprRunCmd(cmd, app->command, NULL, &out, &err, MANAGE_TIMEOUT, 0);
+    rc = mprRunCmd(cmd, app->command, NULL, NULL, &out, &err, MANAGE_TIMEOUT, 0);
     app->error = sclone(err);
     app->output = sclone(out);
     mprDestroyCmd(cmd);

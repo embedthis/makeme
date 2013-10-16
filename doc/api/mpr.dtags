@@ -2387,6 +2387,13 @@
       <arglist>(int size, int flags)</arglist>
     </member>
     <member kind="function">
+      <type>MprList *</type>
+      <name>mprCreateListFromWords</name>
+      <anchorfile>group___mpr_list.html</anchorfile>
+      <anchor>gaf52fc46b064aae9b4a07377c36b062a6</anchor>
+      <arglist>(cchar *str)</arglist>
+    </member>
+    <member kind="function">
       <type>MprMutex *</type>
       <name>mprCreateLock</name>
       <anchorfile>group___mpr_synch.html</anchorfile>
@@ -4574,15 +4581,15 @@
       <type>int</type>
       <name>mprRunCmd</name>
       <anchorfile>group___mpr_cmd.html</anchorfile>
-      <anchor>gad616fcfa04dd3e7c13552e97e3c1f1dc</anchor>
-      <arglist>(MprCmd *cmd, cchar *command, cchar **envp, char **out, char **err, MprTicks timeout, int flags)</arglist>
+      <anchor>gaea3178396a249792e696eb04ee9df3ba</anchor>
+      <arglist>(MprCmd *cmd, cchar *command, cchar **envp, cchar *in, char **out, char **err, MprTicks timeout, int flags)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
       <name>mprRunCmdV</name>
       <anchorfile>group___mpr_cmd.html</anchorfile>
-      <anchor>ga9b05cb68ed79b6203bb0b7e48e94b428</anchor>
-      <arglist>(MprCmd *cmd, int argc, cchar **argv, cchar **envp, char **out, char **err, MprTicks timeout, int flags)</arglist>
+      <anchor>ga40c6d3c5980dd3db76189fa6ee38874a</anchor>
+      <arglist>(MprCmd *cmd, int argc, cchar **argv, cchar **envp, cchar *in, char **out, char **err, MprTicks timeout, int flags)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -5540,15 +5547,15 @@
       <type>ssize</type>
       <name>mprWriteCmd</name>
       <anchorfile>group___mpr_cmd.html</anchorfile>
-      <anchor>gaf85bfeb3331df3d613c76158c9892fdd</anchor>
-      <arglist>(MprCmd *cmd, int channel, char *buf, ssize bufsize)</arglist>
+      <anchor>gaa3c9a3297a496bc567acf3c09e71596e</anchor>
+      <arglist>(MprCmd *cmd, int channel, cchar *buf, ssize bufsize)</arglist>
     </member>
     <member kind="function">
       <type>ssize</type>
       <name>mprWriteCmdBlock</name>
       <anchorfile>group___mpr_cmd.html</anchorfile>
-      <anchor>gaf2f00d6884e449a3e66757463c71891d</anchor>
-      <arglist>(MprCmd *cmd, int channel, char *buf, ssize bufsize)</arglist>
+      <anchor>gac355af7d14d5b35fbcbf21e067b0104e</anchor>
+      <arglist>(MprCmd *cmd, int channel, cchar *buf, ssize bufsize)</arglist>
     </member>
     <member kind="function">
       <type>ssize</type>
@@ -7188,6 +7195,13 @@
       <anchorfile>group___mpr_list.html</anchorfile>
       <anchor>gacc8d55930e99375f2220ffabfb2fec65</anchor>
       <arglist>(int size, int flags)</arglist>
+    </member>
+    <member kind="function">
+      <type>MprList *</type>
+      <name>mprCreateListFromWords</name>
+      <anchorfile>group___mpr_list.html</anchorfile>
+      <anchor>gaf52fc46b064aae9b4a07377c36b062a6</anchor>
+      <arglist>(cchar *str)</arglist>
     </member>
     <member kind="function">
       <type>void *</type>
@@ -9394,15 +9408,15 @@
       <type>int</type>
       <name>mprRunCmd</name>
       <anchorfile>group___mpr_cmd.html</anchorfile>
-      <anchor>gad616fcfa04dd3e7c13552e97e3c1f1dc</anchor>
-      <arglist>(MprCmd *cmd, cchar *command, cchar **envp, char **out, char **err, MprTicks timeout, int flags)</arglist>
+      <anchor>gaea3178396a249792e696eb04ee9df3ba</anchor>
+      <arglist>(MprCmd *cmd, cchar *command, cchar **envp, cchar *in, char **out, char **err, MprTicks timeout, int flags)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
       <name>mprRunCmdV</name>
       <anchorfile>group___mpr_cmd.html</anchorfile>
-      <anchor>ga9b05cb68ed79b6203bb0b7e48e94b428</anchor>
-      <arglist>(MprCmd *cmd, int argc, cchar **argv, cchar **envp, char **out, char **err, MprTicks timeout, int flags)</arglist>
+      <anchor>ga40c6d3c5980dd3db76189fa6ee38874a</anchor>
+      <arglist>(MprCmd *cmd, int argc, cchar **argv, cchar **envp, cchar *in, char **out, char **err, MprTicks timeout, int flags)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -9464,15 +9478,15 @@
       <type>ssize</type>
       <name>mprWriteCmd</name>
       <anchorfile>group___mpr_cmd.html</anchorfile>
-      <anchor>gaf85bfeb3331df3d613c76158c9892fdd</anchor>
-      <arglist>(MprCmd *cmd, int channel, char *buf, ssize bufsize)</arglist>
+      <anchor>gaa3c9a3297a496bc567acf3c09e71596e</anchor>
+      <arglist>(MprCmd *cmd, int channel, cchar *buf, ssize bufsize)</arglist>
     </member>
     <member kind="function">
       <type>ssize</type>
       <name>mprWriteCmdBlock</name>
       <anchorfile>group___mpr_cmd.html</anchorfile>
-      <anchor>gaf2f00d6884e449a3e66757463c71891d</anchor>
-      <arglist>(MprCmd *cmd, int channel, char *buf, ssize bufsize)</arglist>
+      <anchor>gac355af7d14d5b35fbcbf21e067b0104e</anchor>
+      <arglist>(MprCmd *cmd, int channel, cchar *buf, ssize bufsize)</arglist>
     </member>
   </compound>
   <compound kind="group">

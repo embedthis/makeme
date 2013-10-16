@@ -3415,6 +3415,16 @@ PUBLIC int mprCopyListContents(MprList *dest, MprList *src);
 PUBLIC MprList *mprCreateList(int size, int flags);
 
 /**
+    Create a list of words
+    @description Create a list of words from the given string. The word separators are white space and comma.
+    @param str String containing white space or comma separated words
+    @return Returns a list of words
+    @ingroup MprList
+    @stability Prototype.
+ */
+PUBLIC MprList *mprCreateListFromWords(cchar *str);
+
+/**
     Get the first item in the list.
     @description Returns the value of the first item in the list. After calling this routine, the remaining 
         list items can be walked using mprGetNextItem.
@@ -4156,6 +4166,7 @@ PUBLIC MprHash *mprCreateHash(int hashSize, int flags);
 /**
     Create a hash of words
     @description Create a hash table of words from the given string. The hash key entry is the same as the key.
+        The word separators are white space and comma.
     @param str String containing white space or comma separated words
     @return Returns a hash of words
     @ingroup MprHash
@@ -8572,6 +8583,7 @@ PUBLIC int mprReapCmd(MprCmd *cmd, MprTicks timeout);
     @param command Command line to run
     @param envp Array of environment strings. Each environment string should be of the form: "KEY=VALUE". The array
         must be null terminated.
+    @param in Command input. Data to write to the command which will be received on the comamnds stdin.
     @param out Reference to a string to receive the stdout from the command.
     @param err Reference to a string to receive the stderr from the command.
     @param timeout Time in milliseconds to wait for the command to complete and exit.
@@ -8584,7 +8596,7 @@ PUBLIC int mprReapCmd(MprCmd *cmd, MprTicks timeout);
     @ingroup MprCmd
     @stability Stable
  */
-PUBLIC int mprRunCmd(MprCmd *cmd, cchar *command, cchar **envp, char **out, char **err, MprTicks timeout, int flags);
+PUBLIC int mprRunCmd(MprCmd *cmd, cchar *command, cchar **envp, cchar *in, char **out, char **err, MprTicks timeout, int flags);
 
 /**
     Run a command using an argv[] array of arguments. This invokes mprStartCmd() and waits for its completion.
@@ -8593,6 +8605,7 @@ PUBLIC int mprRunCmd(MprCmd *cmd, cchar *command, cchar **envp, char **out, char
     @param argv Command arguments array
     @param envp Array of environment strings. Each environment string should be of the form: "KEY=VALUE". The array
         must be null terminated.
+    @param in Command input. Data to write to the command which will be received on the comamnds stdin.
     @param out Reference to a string to receive the stdout from the command.
     @param err Reference to a string to receive the stderr from the command.
     @param timeout Time in milliseconds to wait for the command to complete and exit.
@@ -8604,7 +8617,7 @@ PUBLIC int mprRunCmd(MprCmd *cmd, cchar *command, cchar **envp, char **out, char
     @ingroup MprCmd
     @stability Stable
  */
-PUBLIC int mprRunCmdV(MprCmd *cmd, int argc, cchar **argv, cchar **envp, char **out, char **err, 
+PUBLIC int mprRunCmdV(MprCmd *cmd, int argc, cchar **argv, cchar **envp, cchar *in, char **out, char **err, 
     MprTicks timeout, int flags);
 
 /**
@@ -8707,7 +8720,7 @@ PUBLIC int mprWaitForCmd(MprCmd *cmd, MprTicks timeout);
     @ingroup MprCmd
     @stability Stable
  */
-PUBLIC ssize mprWriteCmd(MprCmd *cmd, int channel, char *buf, ssize bufsize);
+PUBLIC ssize mprWriteCmd(MprCmd *cmd, int channel, cchar *buf, ssize bufsize);
 
 /**
     Write data to an I/O channel
@@ -8721,7 +8734,7 @@ PUBLIC ssize mprWriteCmd(MprCmd *cmd, int channel, char *buf, ssize bufsize);
     @stability Stable
     @internal
  */
-PUBLIC ssize mprWriteCmdBlock(MprCmd *cmd, int channel, char *buf, ssize bufsize);
+PUBLIC ssize mprWriteCmdBlock(MprCmd *cmd, int channel, cchar *buf, ssize bufsize);
 
 /********************************** Cache *************************************/
 
@@ -8920,6 +8933,7 @@ PUBLIC MprHash *mprCreateMimeTypes(cchar *path);
  */
 PUBLIC cchar *mprGetMimeProgram(MprHash *table, cchar *mimeType);
 
+//  MOB - rename mprGetMime
 /** 
     Get the mime type for an extension.
     This call will return the mime type from a limited internal set of mime types for the given path or extension.
@@ -8966,7 +8980,7 @@ typedef void (*MprTerminator)(int how, int status);
     @description The Mpr structure stores critical application state information.
     @see mprAddTerminator mprBreakpoint mprCreate mprCreateOsService mprDecode64 mprDestroy mprEmptyString mprEncode64
     mprEscapeCmd mprEscapseHtml mprGetApp mprGetAppDir mprGetAppName mprGetAppPath mprGetAppTitle mprGetAppVersion
-    mprGetCmdlineLogging mprGetDebugMode mprGetDomainName mprGetEndian mprGetError mprGetErrorMsg mprGetHostName
+    mprGetCmdlineLogging mprGetDebugMode mprGetDomainName mprGetEndian mprGetError mprGetHostName
     mprGetHwnd mprGetInst mprGetIpAddr mprGetKeyValue mprGetLogLevel mprGetMD5 mprGetMD5WithPrefix mprGetOsError
     mprGetRandomBytes mprGetServerName mprIsExiting mprIsFinished mprIsIdle mprIsStopping mprIsStoppingCore mprMakeArgv
     mprRandom mprReadRegistry mprRemoveKeyValue mprRestart mprServicesAreIdle mprSetAppName mprSetCmdlineLogging

@@ -1612,6 +1612,13 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>httpAddPermResource</name>
+      <anchorfile>group___http_route.html</anchorfile>
+      <anchor>ga78488ebd0c7faa23bc775a0a239d9210</anchor>
+      <arglist>(HttpRoute *parent, cchar *prefix, cchar *resource)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>httpAddResource</name>
       <anchorfile>group___http_route.html</anchorfile>
       <anchor>gafd702c81845c812ba19691a3a693d408</anchor>
