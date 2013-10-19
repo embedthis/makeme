@@ -6373,12 +6373,13 @@ PUBLIC MprJson *mprParseJson(cchar *str);
     @param callback Callback functions. This is an instance of the #MprJsonCallback structure.
     @param data Opaque object to pass to the given callbacks. This is an unmanaged reference.
     @param obj Optional object to serialize into.
+    @param errorMsg Error message if the string fails to parse.
     @return Returns JSON object tree.
     @ingroup MprJson
     @stability Internal
     @internal
  */
-PUBLIC MprJson *mprParseJsonEx(cchar *str, MprJsonCallback *callback, void *data, MprJson *obj);
+PUBLIC MprJson *mprParseJsonEx(cchar *str, MprJsonCallback *callback, void *data, MprJson *obj, cchar **errorMsg);
 
 /**
     Parse a JSON string into an existing object

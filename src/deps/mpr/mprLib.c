@@ -11841,7 +11841,7 @@ static void manageJsonParser(MprJsonParser *parser, int flags)
 /*
     Extended parse. The str and data args are unmanged.
  */
-PUBLIC MprJson *mprParseJsonEx(cchar *str, MprJsonCallback *callback, void *data, MprJson *obj)
+PUBLIC MprJson *mprParseJsonEx(cchar *str, MprJsonCallback *callback, void *data, MprJson *obj, cchar **errorMsg)
 {
     MprJsonParser   *parser;
     MprJson         *result, *child, *next;
@@ -11872,6 +11872,9 @@ PUBLIC MprJson *mprParseJsonEx(cchar *str, MprJsonCallback *callback, void *data
     parser->buf = mprCreateBuf(128, 0); 
 
     if ((result = jsonParse(parser, 0)) == 0) {
+        if (errorMsg) {
+            *errorMsg = parser->errorMsg;
+        }
         return 0;
     }
     if (obj) {
@@ -11888,13 +11891,13 @@ PUBLIC MprJson *mprParseJsonEx(cchar *str, MprJsonCallback *callback, void *data
 
 PUBLIC MprJson *mprParseJsonInto(cchar *str, MprJson *obj)
 {
-    return mprParseJsonEx(str, 0, 0, obj);
+    return mprParseJsonEx(str, 0, 0, obj, 0);
 }
 
 
 PUBLIC MprJson *mprParseJson(cchar *str)
 {
-    return mprParseJsonEx(str, 0, 0, 0);
+    return mprParseJsonEx(str, 0, 0, 0, 0);
 }
 
 
