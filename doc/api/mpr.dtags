@@ -4140,8 +4140,8 @@
       <type>MprJson *</type>
       <name>mprParseJsonEx</name>
       <anchorfile>group___mpr_json.html</anchorfile>
-      <anchor>ga11122a14a7342c74f3928609bf656389</anchor>
-      <arglist>(cchar *str, MprJsonCallback *callback, void *data, MprJson *obj)</arglist>
+      <anchor>gaad2c682838cc45d3a164ed3f00d567ed</anchor>
+      <arglist>(cchar *str, MprJsonCallback *callback, void *data, MprJson *obj, cchar **errorMsg)</arglist>
     </member>
     <member kind="function">
       <type>MprJson *</type>
@@ -8595,8 +8595,8 @@
       <type>MprJson *</type>
       <name>mprParseJsonEx</name>
       <anchorfile>group___mpr_json.html</anchorfile>
-      <anchor>ga11122a14a7342c74f3928609bf656389</anchor>
-      <arglist>(cchar *str, MprJsonCallback *callback, void *data, MprJson *obj)</arglist>
+      <anchor>gaad2c682838cc45d3a164ed3f00d567ed</anchor>
+      <arglist>(cchar *str, MprJsonCallback *callback, void *data, MprJson *obj, cchar **errorMsg)</arglist>
     </member>
     <member kind="function">
       <type>MprJson *</type>

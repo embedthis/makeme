@@ -1824,9 +1824,11 @@ static int upgradeOss(MprSocket *sp, MprSsl *ssl, cchar *peerName)
         }
         mprSetSocketBlockingMode(sp, 0);
     }
-#ifndef BIT_MPR_SSL_RENEGOTIATE
+#if defined(BIT_MPR_SSL_RENEGOTIATE) && !BIT_MPR_SSL_RENEGOTIATE
     /*
-        Disable renegotiation after the initial handshake for CVE-2009-3555 
+        Disable renegotiation after the initial handshake if renegotiate is explicitly set to false (CVE-2009-3555).
+        Note: this really is a bogus CVE as disabling renegotiation is not required nor does it enhance security if
+        used with up-to-date (patched) SSL stacks 
      */
     if (osp->handle->s3) {
         osp->handle->s3->flags |= SSL3_FLAGS_NO_RENEGOTIATE_CIPHERS;
@@ -2113,7 +2115,7 @@ static int verifyX509Certificate(int ok, X509_STORE_CTX *xContext)
         sp->errorMsg = sclone("Cannot get issuer name");
         ok = 0;
     }
-    if (X509_NAME_get_text_by_NID(X509_get_subject_name(cert), NID_commonName, peer, sizeof(peer) - 1) < 0) {
+    if (X509_NAME_get_text_by_NID(X509_get_subject_name(cert), NID_commonName, peer, sizeof(peer) - 1) == 0) {
         sp->errorMsg = sclone("Cannot get peer name");
         ok = 0;
     }

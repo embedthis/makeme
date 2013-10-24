@@ -413,7 +413,9 @@
 #if LINUX
     #include    <sys/epoll.h>
     #include    <sys/prctl.h>
-    #include    <sys/eventfd.h>
+    #if defined(EFD_NONBLOCK)
+        #include    <sys/eventfd.h>
+    #endif
     #if !__UCLIBC__
         #include    <sys/sendfile.h>
     #endif
