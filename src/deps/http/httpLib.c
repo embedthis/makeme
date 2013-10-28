@@ -7235,7 +7235,6 @@ PUBLIC HttpPacket *httpResizePacket(HttpQueue *q, HttpPacket *packet, ssize size
          */
         len = packet->content ? httpGetPacketLength(packet) : 0;
         size = min(size, len);
-        size = min(size, q->nextQ->max);
         size = min(size, q->nextQ->packetSize);
         if (size == 0 || size == len) {
             return 0;
@@ -8545,9 +8544,7 @@ PUBLIC bool httpWillNextQueueAcceptPacket(HttpQueue *q, HttpPacket *packet)
     if (size <= nextQ->packetSize && (size + nextQ->count) <= nextQ->max) {
         return 1;
     }
-    if (httpResizePacket(q, packet, 0) == 0) {
-        return 0;
-    }
+    httpResizePacket(q, packet, 0);
     size = httpGetPacketLength(packet);
     assert(size <= nextQ->packetSize);
     /* 
@@ -8579,9 +8576,7 @@ PUBLIC bool httpWillQueueAcceptPacket(HttpQueue *q, HttpPacket *packet, bool spl
         return 1;
     }
     if (split) {
-        if (httpResizePacket(q, packet, 0) == 0) {
-            return 0;
-        }
+        httpResizePacket(q, packet, 0);
         size = httpGetPacketLength(packet);
         assert(size <= q->packetSize);
         if ((size + q->count) <= q->max) {
@@ -13539,7 +13534,10 @@ static bool processRunning(HttpConn *conn)
                 /* Request complete and output complete */
                 httpSetState(conn, HTTP_STATE_FINALIZED);
             } else {
-                /* Still got output to do. Wait for Tx I/O event. Do suspend incase handler not using auto-flow routines */
+                /* 
+                    Still got output to do. Wait for Tx I/O event. 
+                    Do suspend incase handler not using auto-flow routines (which it should) 
+                 */
                 tx->writeBlocked = 1;
                 httpSuspendQueue(q);
                 httpEnableConnEvents(q->conn);
