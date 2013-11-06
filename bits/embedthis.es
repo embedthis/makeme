@@ -142,17 +142,27 @@ public function deploy(manifest, prefixes, package): Array {
 
 
 function setupGlobals(manifest, package, prefixes) {
-    for (pname in prefixes) {
-        if (package.prefixes.contains(pname)) {
-            bit.globals[pname] = prefixes[pname]
-            if (bit.target.name != 'uninstall') {
-                if (bit.generating || !prefixes[pname].exists) {
-                    if (prefixes[pname].contains(bit.settings.product)) {
-                        if (pname == 'cache') {
-                            /* Must remove old cache files */
-                            removeDir(prefixes[pname])
+    if (!bit.generating) {
+        for (pname in prefixes) {
+            if (package.prefixes.contains(pname)) {
+                bit.globals[pname] = prefixes[pname]
+                if (bit.target.name != 'uninstall') {
+                    let prefix = Path(prefixes[pname])
+                    if (prefix.exists) {
+                        if (prefix.toString().contains(bit.settings.product)) {
+                            safeRemove(prefix)
                         }
-                        makeDir(prefixes[pname])
+                    }
+                    //  MOB remove generating here 
+                    if (bit.generating || !prefixes[pname].exists) {
+                        if (prefixes[pname].contains(bit.settings.product)) {
+                            if (pname == 'cache') {
+                                /* Must remove old cache files */
+                                removeDir(prefixes[pname])
+                            }
+                            print("MAKE", prefixes[pname])
+                            makeDir(prefixes[pname])
+                        }
                     }
                 }
             }
@@ -249,7 +259,7 @@ function setupPackage(kind) {
 
 
 function makeFiles(where, root, files, prefixes) {
-    if (!bit.generating) {
+    if (!bit.generating && !bit.options.deploy) {
         let flog = where.join('files.log')
         files += [flog]
         files = files.sort().unique().filter(function(f) f.startsWith(root))

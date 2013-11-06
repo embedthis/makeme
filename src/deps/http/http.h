@@ -4991,6 +4991,15 @@ PUBLIC MprHash *httpGetSessionObj(HttpConn *conn, cchar *key);
 PUBLIC cchar *httpGetSessionVar(HttpConn *conn, cchar *name, cchar *defaultValue);
 
 /**
+    Lookup a session ID
+    @param id Session ID to lookup.
+    @return True if the ID is associated with a session
+    @ingroup HttpSession
+    @stability Prototype
+ */
+PUBLIC bool httpLookupSessionID(cchar *id);
+
+/**
     Remove a session state variable
     @param conn Http connection object
     @param name Variable name to remove

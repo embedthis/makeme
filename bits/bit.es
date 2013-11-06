@@ -2713,8 +2713,49 @@ public class Bit {
         b.loadBitObject({packs: obj} )
     }
 
+    private var sysdirs = {
+        '/Applications': true,
+        '/Library': true,
+        '/Network': true,
+        '/System': true,
+        '/Users': true,
+        '/dev': true,
+        '/etc': true,
+        '/home': true,
+        '/opt': true,
+        '/sbin': true,
+        '/tmp': true,
+        '/usr': true,
+        '/usr/bin': true,
+        '/usr/include': true,
+        '/usr/lib': true,
+        '/usr/sbin': true,
+        '/usr/local': true,
+        '/usr/local/bin': true,
+        '/usr/local/etc': true,
+        '/usr/local/include': true,
+        '/usr/local/lib': true,
+        '/usr/local/man': true,
+        '/usr/local/opt': true,
+        '/usr/local/share': true,
+        '/usr/local/src': true,
+        '/usr/local/x': true,
+        '/var': true,
+        '/var/cache': true,
+        '/var/lib': true,
+        '/var/log': true,
+        '/var/run': true,
+        '/var/spool': true,
+        '/var/tmp': true,
+        '/': true,
+    }
+
     /** @hide */
     public function safeRemove(dir: Path) {
+        if (sysdirs[dir]) {
+            print("WARNING: prevent removal of", dir)
+            return
+        }
         dir.removeAll()
     }
 

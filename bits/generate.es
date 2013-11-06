@@ -383,8 +383,8 @@ module embedthis.bit {
         genout.writeLine('CFLAGS             += ' + cflags.trim())
         genout.writeLine('DFLAGS             += ' + gen.defines.replace(/-DBIT_DEBUG */, '') + 
             ' $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) ' + dflags)
-        genout.writeLine('IFLAGS             += ' + 
-            repvar(bit.packs.compiler.includes.map(function(path) '-I' + reppath(path.relative)).join(' ')))
+        genout.writeLine('IFLAGS             += "' + 
+            repvar(bit.packs.compiler.includes.map(function(path) '-I' + reppath(path.relative)).join(' ')) + '"')
         let linker = bit.packs.compiler.linker.map(function(s) "'" + s + "'").join(' ')
         let ldflags = repvar(linker).replace(/\$ORIGIN/g, '$$$$ORIGIN').replace(/'-g' */, '')
         genout.writeLine('LDFLAGS            += ' + ldflags)
@@ -1054,6 +1054,7 @@ module embedthis.bit {
             }
             command = rep(command, gen.libpaths, '$(LIBPATHS)')
             command = rep(command, gen.includes, '$(IFLAGS)')
+            command = rep(command, '"$(IFLAGS)"', '$(IFLAGS)')
             /* Twice because libraries are repeated and replace only changes the first occurrence */
             command = rep(command, gen.libraries, '$(LIBS)')
             command = rep(command, gen.libraries, '$(LIBS)')

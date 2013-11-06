@@ -4,7 +4,7 @@
     This file is a catenation of all the source code. Amalgamating into a
     single file makes embedding simpler and the resulting application faster.
 
-    Prepared by: magnetar.local
+    Prepared by: orion
  */
 
 #include "bit.h"
@@ -28,7 +28,7 @@
     This file is a catenation of all the source code. Amalgamating into a
     single file makes embedding simpler and the resulting application faster.
 
-    Prepared by: magnetar.local
+    Prepared by: orion
  */
 
 #define local static
@@ -4063,7 +4063,7 @@ extern "C" {
 #define EC_MAX_INCLUDE              32              /**< Max number of nested includes */
 #define EC_LINE_INCR                1024            /**< Growth increment for input lines */
 #define EC_TOKEN_INCR               64              /**< Growth increment for tokens */
-#define EC_MAX_LOOK_AHEAD           8
+#define EC_MAX_LOOK_AHEAD           12
 #define EC_BUFSIZE                  4096            /**< General buffer size */
 #define EC_MAX_ERRORS               25              /**< Max compilation errors before giving up */
 #define EC_CODE_BUFSIZE             4096            /**< Initial size of code gen buffer */

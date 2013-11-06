@@ -4,7 +4,7 @@
     This file is a catenation of all the source code. Amalgamating into a
     single file makes embedding simpler and the resulting application faster.
 
-    Prepared by: magnetar.local
+    Prepared by: orion
  */
 
 #include "http.h"
@@ -270,7 +270,7 @@ PUBLIC bool httpLogin(HttpConn *conn, cchar *username, cchar *password)
 PUBLIC void httpLogout(HttpConn *conn) 
 {
     conn->rx->authenticated = 0;
-    httpRemoveSessionVar(conn, HTTP_SESSION_USERNAME);
+    httpDestroySession(conn);
 }
 
 
@@ -1324,15 +1324,11 @@ static void cacheAtClient(HttpConn *conn)
             }
         } else {
             httpAddHeader(conn, "Cache-Control", "public, max-age=%d", cache->clientLifespan / MPR_TICKS_PER_SEC);
+            /* 
+                Old HTTP/1.0 clients don't understand Cache-Control 
+             */
+            httpAddHeader(conn, "Expires", "%s", mprFormatUniversalTime(MPR_HTTP_DATE, mprGetTime() + cache->clientLifespan));
         }
-#if KEEP
-        {
-            /* Old HTTP/1.0 clients don't understand Cache-Control */
-            struct tm   tm;
-            mprDecodeUniversalTime(&tm, conn->http->now + (expires * MPR_TICKS_PER_SEC));
-            httpAddHeader(conn, "Expires", "%s", mprFormatTime(MPR_HTTP_DATE, &tm));
-        }
-#endif
     }
 }
 
@@ -9509,7 +9505,7 @@ PUBLIC void httpRouteRequest(HttpConn *conn)
         tx->handler = conn->http->passHandler;
     }
     if (rx->traceLevel >= 0) {
-        mprLog(rx->traceLevel, "Select handler: \"%s\" for \"%s\"", tx->handler->name, rx->uri);
+        mprLog(rx->traceLevel, "Select handler: \"%s\" for uri \"%s\"", tx->handler->name, rx->uri);
     }
 }
 
@@ -9769,7 +9765,7 @@ PUBLIC void httpMapFile(HttpConn *conn, HttpRoute *route)
     if (route->map) {
         if (route->mappings && (mapped = mprLookupKey(route->mappings, tx->filename)) != 0) {
             tx->filename = mapped;
-            mprLog(4, "Mapping content to %s", tx->filename);
+            mprLog(3, "Mapping content to %s", tx->filename);
         } else if ((extensions = mprLookupKey(route->map, tx->ext)) != 0) {
             acceptGzip = scontains(rx->acceptEncoding, "gzip") != 0;
             for (ITERATE_ITEMS(extensions, ext, next)) {
@@ -9780,7 +9776,7 @@ PUBLIC void httpMapFile(HttpConn *conn, HttpRoute *route)
                 path = mprReplacePathExt(tx->filename, ext);
                 if (mprGetPathInfo(path, info) == 0) {
                     tx->filename = path;
-                    mprLog(4, "Mapping content to %s", tx->filename);
+                    mprLog(3, "Mapping content to %s", tx->filename);
                     mprAddKey(route->mappings, tx->filename, path);
                     if (zipped) {
                         httpSetHeader(conn, "Content-Encoding", "gzip");
@@ -9809,6 +9805,7 @@ PUBLIC void httpMapFile(HttpConn *conn, HttpRoute *route)
     }
 #endif
     if (info->valid) {
+        //  OPT - inodes mean this is harder to cache when served from multiple servers.
         tx->etag = sfmt("\"%Lx-%Lx-%Lx\"", (int64) info->inode, (int64) info->size, (int64) info->mtime);
     }
     mprTrace(7, "mapFile uri \"%s\", filename: \"%s\", extension: \"%s\"", rx->uri, tx->filename, tx->ext);
@@ -10267,7 +10264,9 @@ PUBLIC void httpResetRoutePipeline(HttpRoute *route)
     }
     if (!route->parent || route->headers != route->parent->headers) {
         route->headers = 0;
+#if FUTURE
         httpAddRouteResponseHeader(route, HTTP_ROUTE_ADD_HEADER, "Content-Security-Policy", "default-src 'self'");
+#endif
         httpAddRouteResponseHeader(route, HTTP_ROUTE_ADD_HEADER, "X-XSS-Protection", "1; mode=block");
         httpAddRouteResponseHeader(route, HTTP_ROUTE_ADD_HEADER, "X-Frame-Options", "SAMEORIGIN");
         httpAddRouteResponseHeader(route, HTTP_ROUTE_ADD_HEADER, "X-Content-Type-Options", "nosniff");
@@ -14883,6 +14882,15 @@ static HttpSession *createSession(HttpConn *conn)
 }
 
 
+PUBLIC bool httpLookupSessionID(cchar *id)
+{
+    Http    *http;
+
+    http = MPR->httpService;
+    return mprReadCache(http->sessionCache, id, 0, 0) != 0;
+}
+
+
 static HttpSession *lookupSession(HttpConn *conn)
 {
     cchar   *data, *id;
@@ -15082,6 +15090,8 @@ PUBLIC cchar *httpGetSessionID(HttpConn *conn)
     assert(rx);
 
     if (rx->session) {
+        assert(rx->session->id);
+        assert(*rx->session->id);
         return rx->session->id;
     }
     if (rx->sessionProbed) {
@@ -16161,7 +16171,9 @@ PUBLIC void httpSetCookie(HttpConn *conn, cchar *name, cchar *value, cchar *path
      */
     httpAppendHeader(conn, "Set-Cookie", 
         sjoin(name, "=", value, "; path=", path, domainAtt, domain, expiresAtt, expires, secure, httponly, NULL));
-    httpAppendHeader(conn, "Cache-Control", "no-cache=\"set-cookie\"");
+    if ((cp = mprLookupKey(conn->tx->headers, "Cache-Control")) == 0 || !scontains(cp, "no-cache")) {
+        httpAppendHeader(conn, "Cache-Control", "no-cache=\"set-cookie\"");
+    }
 }
 
 

@@ -4,7 +4,7 @@
     This file is a catenation of all the source code. Amalgamating into a
     single file makes embedding simpler and the resulting application faster.
 
-    Prepared by: magnetar.local
+    Prepared by: orion
  */
 
 #include "mpr.h"
@@ -4444,7 +4444,7 @@ PUBLIC char *mprReadCache(MprCache *cache, cchar *key, MprTime *modified, int64 
     char        *result;
 
     assert(cache);
-    assert(key && *key);
+    assert(key);
 
     if (cache->shared) {
         cache = cache->shared;
@@ -12262,6 +12262,9 @@ PUBLIC char *mprJsonToString(MprJson *obj, int flags)
 
 static void setValue(MprJson *obj, cchar *value)
 {
+    if (value == 0) {
+        value = "";
+    }
     obj->type = MPR_JSON_VALUE;
     if (scaselessmatch(value, "false")) {
         obj->type |= MPR_JSON_FALSE;
