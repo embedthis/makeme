@@ -863,14 +863,14 @@ stop: $(DEPS_36)
 #   installBinary
 #
 installBinary: $(DEPS_37)
-	mkdir -p "${app}"
-	rm -f "${app}/latest"
-	ln -s "0.9.0" "${app}/latest"
+	mkdir -p "$(BIT_APP_PREFIX)"
+	rm -f "$(BIT_APP_PREFIX)/latest"
+	ln -s "0.9.0" "$(BIT_APP_PREFIX)/latest"
 	mkdir -p "$(BIT_VAPP_PREFIX)/bin"
 	cp $(CONFIG)/bin/bit $(BIT_VAPP_PREFIX)/bin/bit
-	mkdir -p "${bin}"
-	rm -f "${bin}/bit"
-	ln -s "$(BIT_VAPP_PREFIX)/bin/bit" "${bin}/bit"
+	mkdir -p "$(BIT_BIN_PREFIX)"
+	rm -f "$(BIT_BIN_PREFIX)/bit"
+	ln -s "$(BIT_VAPP_PREFIX)/bin/bit" "$(BIT_BIN_PREFIX)/bit"
 	cp $(CONFIG)/bin/ejs $(BIT_VAPP_PREFIX)/bin/ejs
 	cp $(CONFIG)/bin/libejs.dylib $(BIT_VAPP_PREFIX)/bin/libejs.dylib
 	cp $(CONFIG)/bin/libest.dylib $(BIT_VAPP_PREFIX)/bin/libest.dylib
@@ -938,9 +938,9 @@ installBinary: $(DEPS_37)
 	cp bits/xcode.es $(BIT_VAPP_PREFIX)/bin/bits/xcode.es
 	mkdir -p "$(BIT_VAPP_PREFIX)/doc/man/man1"
 	cp doc/man/bit.1 $(BIT_VAPP_PREFIX)/doc/man/man1/bit.1
-	mkdir -p "${man}/man1"
-	rm -f "${man}/man1/bit.1"
-	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/bit.1" "${man}/man1/bit.1"
+	mkdir -p "$(BIT_MAN_PREFIX)/man1"
+	rm -f "$(BIT_MAN_PREFIX)/man1/bit.1"
+	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/bit.1" "$(BIT_MAN_PREFIX)/man1/bit.1"
 
 #
 #   start

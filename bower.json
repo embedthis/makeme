@@ -1,0 +1,26 @@
+{
+  "name": "bit",
+  "version": "0.9.0",
+  "homepage": "https://github.com/embedthis/bit",
+  "authors": [
+    "Embedthis Software <dev@embedthis.com>"
+  ],
+  "description": "Embedthis Bit - Build It Tool",
+  "main": "main.bit",
+  "keywords": [
+    "bit",
+    "build",
+    "make"
+  ],
+  "license": "GPL",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+    "*-debug"
+    "*-release"
+    "releases"
+  ]
+}
