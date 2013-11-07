@@ -142,10 +142,10 @@ public function deploy(manifest, prefixes, package): Array {
 
 
 function setupGlobals(manifest, package, prefixes) {
-    if (!bit.generating) {
-        for (pname in prefixes) {
-            if (package.prefixes.contains(pname)) {
-                bit.globals[pname] = prefixes[pname]
+    for (pname in prefixes) {
+        if (package.prefixes.contains(pname)) {
+            bit.globals[pname] = prefixes[pname]
+            if (!bit.generating) {
                 if (bit.target.name != 'uninstall') {
                     let prefix = Path(prefixes[pname])
                     if (prefix.exists) {
@@ -160,7 +160,6 @@ function setupGlobals(manifest, package, prefixes) {
                                 /* Must remove old cache files */
                                 removeDir(prefixes[pname])
                             }
-                            print("MAKE", prefixes[pname])
                             makeDir(prefixes[pname])
                         }
                     }
