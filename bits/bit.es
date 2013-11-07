@@ -194,6 +194,7 @@ public class Bit {
                 if (bit.usage) {
                     print('Feature Selection:')
                     for (let [item,msg] in bit.usage) {
+                        msg ||= ''
                         print('    --set %-32s # %s' % [item + '=value', msg])
                     }
                     print('')
@@ -218,6 +219,7 @@ public class Bit {
                                 print('Extension Packages (--with PACK, --without PACK):')
                                 header = true
                             }
+                            desc ||= ''
                             print('    %-38s # %s'.format([name, desc]))
                         }
                     }
