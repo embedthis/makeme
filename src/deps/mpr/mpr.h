@@ -203,10 +203,12 @@ struct  MprXml;
  */
 #if MACOSX || SOLARIS
     #define MPR_EVENT_KQUEUE    1
-#elif LINUX || BIT_BSD_LIKE
-    #define MPR_EVENT_EPOLL     1
 #elif WINDOWS
     #define MPR_EVENT_ASYNC     1
+#elif VXWORKS
+    #define MPR_EVENT_SELECT    1
+#elif (LINUX || BIT_BSD_LIKE) && (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0))
+    #define MPR_EVENT_EPOLL     1
 #else
     #define MPR_EVENT_SELECT    1
 #endif
@@ -215,7 +217,7 @@ struct  MprXml;
     Maximum number of notifier events
  */
 #ifndef BIT_MAX_EVENTS
-#define BIT_MAX_EVENTS          32
+    #define BIT_MAX_EVENTS      32
 #endif
 
 /*
@@ -527,7 +529,7 @@ typedef struct MprSpin {
     #elif BIT_WIN_LIKE
         CRITICAL_SECTION        cs;            /**< Internal mutex critical section */
     #elif VXWORKS
-        #if FUTURE && SPIN_LOCK_TASK_INIT
+        #if KEEP && SPIN_LOCK_TASK_INIT
             spinlockTask_t      cs;
         #else
             SEM_ID              cs;
@@ -5121,7 +5123,7 @@ PUBLIC bool mprIsPathSeparator(cchar *path, cchar c);
  */
 PUBLIC char *mprJoinPath(cchar *base, cchar *path);
 
-//  MOB - need mprJoinPaths(base, ....);
+//  FUTURE - need mprJoinPaths(base, ....);
 
 /**
     Join an extension to a path
@@ -8777,6 +8779,13 @@ typedef struct MprCache {
 PUBLIC MprCache *mprCreateCache(int options);
 
 /**
+    Initialize the cache service on startup. Should only be called by the MPR init on startup.
+    @return Zero if successful.
+    @stability Internal
+ */
+PUBLIC int mprCreateCacheService();
+
+/**
     Destroy a new cache object
     @param cache The cache instance object returned from #mprCreateCache.
     @ingroup MprCache
@@ -8934,7 +8943,7 @@ PUBLIC MprHash *mprCreateMimeTypes(cchar *path);
  */
 PUBLIC cchar *mprGetMimeProgram(MprHash *table, cchar *mimeType);
 
-//  MOB - rename mprGetMime
+//  FUTURE - rename mprGetMime
 /** 
     Get the mime type for an extension.
     This call will return the mime type from a limited internal set of mime types for the given path or extension.

@@ -2310,6 +2310,13 @@
       <arglist>(int options)</arglist>
     </member>
     <member kind="function">
+      <type>int</type>
+      <name>mprCreateCacheService</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a8ffe8a922b74922717ccb279202b8418</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
       <type>MprCmd *</type>
       <name>mprCreateCmd</name>
       <anchorfile>group___mpr_cmd.html</anchorfile>

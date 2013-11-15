@@ -1605,13 +1605,6 @@
     </member>
     <member kind="function">
       <type>void</type>
-      <name>httpAddHomeRoute</name>
-      <anchorfile>group___http_route.html</anchorfile>
-      <anchor>gad9250fc3d08526ea7dc3b7ab9d6970e2</anchor>
-      <arglist>(HttpRoute *parent)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
       <name>httpAddPermResource</name>
       <anchorfile>group___http_route.html</anchorfile>
       <anchor>ga78488ebd0c7faa23bc775a0a239d9210</anchor>
@@ -1630,6 +1623,13 @@
       <anchorfile>group___http_route.html</anchorfile>
       <anchor>gae171b971f6d926e3b5110f7e3335d492</anchor>
       <arglist>(HttpRoute *parent, cchar *prefix, cchar *resource)</arglist>
+    </member>
+    <member kind="function">
+      <type>HttpRoute *</type>
+      <name>httpAddRestfulRoute</name>
+      <anchorfile>group___http_route.html</anchorfile>
+      <anchor>gafe448a0c26cf5e750ae8fbc98c431091</anchor>
+      <arglist>(HttpRoute *parent, cchar *prefix, cchar *action, cchar *methods, cchar *pattern, cchar *target, cchar *resource)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -1714,13 +1714,6 @@
       <anchorfile>group___http_route.html</anchorfile>
       <anchor>ga9f06c7bd8f42fe45cb956a84b9b81ae9</anchor>
       <arglist>(HttpRoute *route, int cmd, cchar *header, cchar *value)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>httpAddRouteSet</name>
-      <anchorfile>group___http_route.html</anchorfile>
-      <anchor>gae64c128d03474b39371fbea71588ad65</anchor>
-      <arglist>(HttpRoute *parent, cchar *prefix, cchar *set)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -1936,8 +1929,15 @@
       <type>void</type>
       <name>httpMapFile</name>
       <anchorfile>group___http_route.html</anchorfile>
-      <anchor>gac98fc3caa237cb475847573203bd3187</anchor>
-      <arglist>(HttpConn *conn, HttpRoute *route)</arglist>
+      <anchor>ga1f3d590785e56f3aff1bb5fca3df23c9</anchor>
+      <arglist>(HttpConn *conn, cchar *filename)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpMapRequest</name>
+      <anchorfile>group___http_route.html</anchorfile>
+      <anchor>gaaa74b0726593434020169a7ac20fae15</anchor>
+      <arglist>(HttpConn *conn)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -2078,6 +2078,13 @@
       <anchorfile>group___http_route.html</anchorfile>
       <anchor>gae797cd54af2ee6cafccb89b1590feeb7</anchor>
       <arglist>(HttpRoute *route, cchar *script, cchar *scriptPath)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpSetRouteServerPrefix</name>
+      <anchorfile>group___http_route.html</anchorfile>
+      <anchor>ga614be974f6b3149723767cb1f2f5931b</anchor>
+      <arglist>(HttpRoute *route, cchar *prefix)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -2265,6 +2272,13 @@
       <anchorfile>group___http_session.html</anchorfile>
       <anchor>ga5ca28737a741dcf69eb0090640c09930</anchor>
       <arglist>(HttpConn *conn, cchar *name, cchar *defaultValue)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>httpLookupSessionID</name>
+      <anchorfile>group___http_session.html</anchorfile>
+      <anchor>ga3d9bb2d538d644989b6c00459aad2c58</anchor>
+      <arglist>(cchar *id)</arglist>
     </member>
     <member kind="function">
       <type>int</type>

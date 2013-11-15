@@ -967,7 +967,7 @@ static void readBody(HttpConn *conn, MprFile *outFile)
                 mprWriteFile(outFile, result, bytes);
             }
         }
-#if FUTURE
+#if KEEP
         //  This should be pushed into a range filter.
         //  Buffer all output and then parsing can work
         type = httpGetHeader(conn, "Content-Type");

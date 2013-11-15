@@ -8789,6 +8789,7 @@ module ejs {
         function contains(pattern: String): Boolean
             name.contains(pattern)
 
+        //  TODO - should allow destination to be a directory.
         /**
             Copy a file to the destination
             @param destination New file location

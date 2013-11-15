@@ -117,7 +117,7 @@ PUBLIC int main(int argc, char *argv[])
         } else if (strcmp(argp, "--daemon") == 0) {
             app->runAsDaemon++;
 
-#if FUTURE
+#if KEEP
         } else if (strcmp(argp, "--heartBeat") == 0) {
             /*
                 Set the frequency to check on the program.
@@ -229,7 +229,7 @@ PUBLIC int main(int argc, char *argv[])
             "    --program path       # Service program to start\n"
             "    --signal signo       # Signal number to terminate service\n"
             "    --verbose            # Show command feedback\n"
-#if FUTURE
+#if KEEP
             "    --heartBeat interval # Heart beat interval period (secs) \n"
 #endif
             "  Commands:\n"
