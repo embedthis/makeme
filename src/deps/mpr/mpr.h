@@ -94,11 +94,11 @@ struct  MprXml;
 #endif
 
 #ifndef BIT_MPR_MAX_PASSWORD
-    #define BIT_MPR_MAX_PASSWORD    256   /**< Max password length */
+    #define BIT_MPR_MAX_PASSWORD 256    /**< Max password length */
 #endif
 
 #if DEPRECATED || 1
-    /* Remove in 4.4 */
+    /* Remove in 4.5 */
     #define MPR_MAX_STRING      BIT_MAX_BUFFER
     #define MPR_MAX_PATH        BIT_MAX_PATH
     #define MPR_MAX_FNAME       BIT_MAX_FNAME
@@ -282,8 +282,10 @@ struct  MprXml;
 #define MPR_VERBOSE         9           /**< Highest level of trace */
 #define MPR_LEVEL_MASK      0xf         /**< Level mask */
 
-//  Removed in 4.3
 #if DEPRECATED || 1
+/*  
+    Removed in 4.3
+ */
 #define MPR_CONFIG          MPR_INFO
 #define MPR_DEBUG           4           /**< Debug information trace level */
 #endif
@@ -299,8 +301,10 @@ struct  MprXml;
 #define MPR_TRACE_MSG       0x200       /**< Originated from mprTrace */
 #define MPR_WARN_MSG        0x400       /**< Originated from mprWarn */
 
-//  Removed in 4.3
 #if DEPRECATED || 1
+/*  
+    Removed in 4.3
+ */
 #define MPR_FATAL_MSG       0x800       /**< Fatal error, log and exit */
 #endif
 
@@ -384,15 +388,19 @@ PUBLIC void mprBreakpoint();
 PUBLIC void assert(bool cond);
 #elif BIT_MPR_TRACING
     #undef assert
-    //  Removed in 4.3
     #if DEPRECATED || 1
+        /*  
+            Removed in 4.3
+         */
         #define mprAssure(C)    if (C) ; else mprAssert(MPR_LOC, #C)
     #endif
     #define assert(C)       if (C) ; else mprAssert(MPR_LOC, #C)
 #else
     #undef assert
-    //  Removed in 4.3
     #if DEPRECATED || 1
+        /* 
+            Removed in 4.3
+         */
         #define mprAssure(C)    if (C) ; else
     #endif
     #define assert(C)       if (1) ; else
@@ -409,6 +417,10 @@ PUBLIC void assert(bool cond);
     @defgroup MprSynch MprSynch
  */
 typedef struct MprSynch { int dummy; } MprSynch;
+
+#ifndef BIT_MPR_SPIN_COUNT
+    #define BIT_MPR_SPIN_COUNT 5000 /* Windows lock spin count */
+#endif
 
 /**
     Condition variable for single and multi-thread synchronization. Condition variables can be used to coordinate 
@@ -506,8 +518,9 @@ PUBLIC int mprWaitForMultiCond(MprCond *cond, MprTicks timeout);
 typedef struct MprMutex {
     #if BIT_WIN_LIKE
         CRITICAL_SECTION cs;            /**< Internal mutex critical section */
+        bool             freed;
     #elif VXWORKS
-        SEM_ID      cs;
+        SEM_ID           cs;
     #elif BIT_UNIX_LIKE
         pthread_mutex_t  cs;
     #else
@@ -528,6 +541,7 @@ typedef struct MprSpin {
         MprMutex                cs;
     #elif BIT_WIN_LIKE
         CRITICAL_SECTION        cs;            /**< Internal mutex critical section */
+        bool                    freed;
     #elif VXWORKS
         #if KEEP && SPIN_LOCK_TASK_INIT
             spinlockTask_t      cs;
@@ -643,7 +657,7 @@ PUBLIC void mprManageSpinLock(MprSpin *lock, int flags);
         #define mprSpinLock(lock)   if (lock) pthread_mutex_lock(&((lock)->cs))
         #define mprSpinUnlock(lock) if (lock) pthread_mutex_unlock(&((lock)->cs))
     #elif BIT_WIN_LIKE
-        #define mprSpinLock(lock)   if (lock && (((MprSpin*)(lock))->cs.SpinCount)) EnterCriticalSection(&((lock)->cs))
+        #define mprSpinLock(lock)   if (lock && (!((MprSpin*)(lock))->freed)) EnterCriticalSection(&((lock)->cs))
         #define mprSpinUnlock(lock) if (lock) LeaveCriticalSection(&((lock)->cs))
     #elif VXWORKS
         #define mprSpinLock(lock)   if (lock) semTake((lock)->cs, WAIT_FOREVER)
@@ -657,7 +671,7 @@ PUBLIC void mprManageSpinLock(MprSpin *lock, int flags);
         #define mprLock(lock)       if (lock) pthread_mutex_lock(&((lock)->cs))
         #define mprUnlock(lock)     if (lock) pthread_mutex_unlock(&((lock)->cs))
     #elif BIT_WIN_LIKE
-        #define mprLock(lock)       if (lock && (((MprSpin*)(lock))->cs.SpinCount)) EnterCriticalSection(&((lock)->cs))
+        #define mprLock(lock)       if (lock && !(((MprSpin*)(lock))->freed)) EnterCriticalSection(&((lock)->cs))
         #define mprUnlock(lock)     if (lock) LeaveCriticalSection(&((lock)->cs))
     #elif VXWORKS
         #define mprLock(lock)       if (lock) semTake((lock)->cs, WAIT_FOREVER)
@@ -2167,6 +2181,16 @@ PUBLIC char *stemplate(cchar *str, struct MprHash *tokens);
 PUBLIC char *stemplateJson(cchar *str, struct MprJson *tokens);
 
 /**
+    Convert a string to a double.
+    @description This call converts the supplied string to a double.
+    @param str Pointer to the string to parse.
+    @return Returns the double equivalent value of the string. 
+    @ingroup MprString
+    @stability Prototype
+ */
+PUBLIC double stof(cchar *str);
+
+/**
     Convert a string to an integer.
     @description This call converts the supplied string to an integer using base 10.
     @param str Pointer to the string to parse.
@@ -2471,7 +2495,9 @@ PUBLIC char *mprAsprintf(cchar *fmt, ...);
  */
 PUBLIC char *mprAsprintfv(cchar *fmt, va_list arg);
 #else
-    //  Removed in 4.3
+    /*
+        Removed in 4.3
+     */
     #define mprAsprintf sfmt
     #define mprAsprintfv sfmtv
 #endif
@@ -2852,8 +2878,10 @@ PUBLIC int mprPutCharToBuf(MprBuf *buf, int c);
  */
 PUBLIC ssize mprPutToBuf(MprBuf *buf, cchar *fmt, ...);
 
-//  Renamed in 4.3
 #if DEPRECATED
+    /*
+        Renamed in 4.3
+     */
     #define mprPutFmtToBuf mprPutToBuf
 #endif
 

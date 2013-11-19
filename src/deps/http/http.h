@@ -155,11 +155,17 @@ struct HttpWebSocket;
 #ifndef BIT_MAX_PING_DURATION
     #define BIT_MAX_PING_DURATION   (30 * 1000)         /**< WSS ping defeat Keep-Alive timeouts (30 sec) */
 #endif
+#ifndef BIT_SERVER_PREFIX_CHAR
+    #define BIT_SERVER_PREFIX_CHAR '|'                  /**< URI prefix character for server prefix */
+#endif
 #ifndef BIT_XSRF_COOKIE
     #define BIT_XSRF_COOKIE        "XSRF-TOKEN"         /**< CSRF token cookie name */
 #endif
 #ifndef BIT_XSRF_HEADER
     #define BIT_XSRF_HEADER        "X-XSRF-TOKEN"       /**< CSRF token name in Http headers */
+#endif
+#ifndef BIT_XSRF_PARAM
+    #define BIT_XSRF_PARAM         "-xsrf-"             /**< CSRF parameter in form fields */
 #endif
 
 #ifndef BIT_HTTP_LOG
@@ -1040,7 +1046,6 @@ PUBLIC HttpUri *httpMakeUriLocal(HttpUri *uri);
   */
 PUBLIC HttpUri *httpResolveUri(HttpUri *base, int argc, HttpUri **others, bool local);
 
-
 /** 
     Create a URI. 
     @description Create a URI link based on a given target an expanding embedded tokens based on the current request and 
@@ -1090,25 +1095,37 @@ PUBLIC HttpUri *httpResolveUri(HttpUri *base, int argc, HttpUri **others, bool l
     @ingroup HttpUri
     @stability Evolving
     @remarks Examples:<pre>
-    httpUri(conn, "http://example.com/index.html", 0);
-    httpUri(conn, "/path/to/index.html", 0);
-    httpUri(conn, "../images/splash.png", 0);
-    httpUri(conn, "~/static/images/splash.png", 0);
-    httpUri(conn, "${app}/static/images/splash.png", 0);
-    httpUri(conn, "@service/checkout", 0);
+    httpUri(conn, "http://example.com/index.html");
+    httpUri(conn, "/path/to/index.html");
+    httpUri(conn, "../images/splash.png");
+    httpUri(conn, "~/static/images/splash.png");
+    httpUri(conn, "${app}/static/images/splash.png");
+    httpUri(conn, "@service/checkout");
     httpUri(conn, "@service/")               //  Service = Service, action = index
     httpUri(conn, "@init")                   //  Current service, action = init
     httpUri(conn, "@")                       //  Current service, action = index
-    httpUri(conn, "{ action: '@post/create' }", 0);
-    httpUri(conn, "{ action: 'checkout' }", 0);
-    httpUri(conn, "{ action: 'logout', service: 'admin' }", 0);
-    httpUri(conn, "{ action: 'admin/logout'", 0);
-    httpUri(conn, "{ product: 'candy', quantity: '10', template: '/cart/${product}/${quantity}' }", 0);
-    httpUri(conn, "{ route: '~/STAR/edit', action: 'checkout', id: '99' }", 0);
-    httpUri(conn, "{ template: '~/static/images/${theme}/background.jpg', theme: 'blue' }", 0);
+    httpUri(conn, "{ action: '@post/create' }");
+    httpUri(conn, "{ action: 'checkout' }");
+    httpUri(conn, "{ action: 'logout', service: 'admin' }");
+    httpUri(conn, "{ action: 'admin/logout'");
+    httpUri(conn, "{ product: 'candy', quantity: '10', template: '/cart/${product}/${quantity}' }");
+    httpUri(conn, "{ route: '~/STAR/edit', action: 'checkout', id: '99' }");
+    httpUri(conn, "{ template: '~/static/images/${theme}/background.jpg', theme: 'blue' }");
 </pre>
  */
-PUBLIC char *httpUri(struct HttpConn *conn, cchar *target, MprHash *options);
+PUBLIC char *httpUri(struct HttpConn *conn, cchar *target);
+
+/** 
+    Create a URI. 
+    @description Extended httpUri with custom options
+    @param [in] conn HttpConn connection object 
+    @param target The URI target. See #httpUri for details.
+    @param options Hash of option values for embedded tokens. This hash is blended with the route variables.
+    @return A normalized, server-local Uri string.
+    @ingroup HttpUri
+    @stability Prototype
+ */
+PUBLIC char *httpUriEx(struct HttpConn *conn, cchar *target, MprHash *options);
 
 #if DEPRECATE || 1
 PUBLIC char *httpLink(struct HttpConn *conn, cchar *target, MprHash *options);
@@ -1124,6 +1141,17 @@ PUBLIC char *httpLink(struct HttpConn *conn, cchar *target, MprHash *options);
     @stability Stable
  */
 PUBLIC char *httpUriToString(HttpUri *uri, int flags);
+
+/**
+    Validate a URI path as expected in a HTTP request line
+    @description This expects a URI beginning with "/" and containing only valid URI characters.
+    The URI is decoded, and normalized removing "../" and "." segments.
+    The URI must begin with a "/" both before and after decoding and normalization. 
+    @param uri URI to validate.
+    @return A validated, normalized URI path
+    @stability Prototype
+ */
+PUBLIC char *httpValidateUriPath(cchar *uri);
 
 /**
     Test if a URI is using only valid characters
@@ -3204,6 +3232,17 @@ PUBLIC int httpAddRole(HttpAuth *auth, cchar *role, cchar *abilities);
 PUBLIC HttpUser *httpAddUser(HttpAuth *auth, cchar *user, cchar *password, cchar *abilities);
 
 /**
+    Authenticate a user
+    This routine authenticates a user by testing the user supplied session cookie against the server session store.
+    The result is saved in HttpRx.authenticated and supplied as a return result. Thereafter, #httpIsLoggedIn may be called
+    to test HttpRx.authenticated.
+    The httpAuthenticate call is not automatically performed by the request pipeline. Web Frameworks should call this if required.
+    @param conn HttpConn connection object created via #httpCreateConn object.
+    @return True if the user is authenticated. 
+ */
+PUBLIC bool httpAuthenticate(HttpConn *conn);
+
+/**
     Test if a user has the required abilities
     @param conn HttpConn connection object created via #httpCreateConn object.
     @param abilities Comma separated list of abilities to test for. If null, then use the required abilities defined
@@ -5095,14 +5134,20 @@ PUBLIC cchar *httpCreateSecurityToken(HttpConn *conn);
 PUBLIC cchar *httpGetSecurityToken(HttpConn *conn);
 
 /**
-    Render a security token.
-    @description This call will render a security token in the response as a cookie to be stored in the client. 
-    Client Javascript must then send this token as a request header in subsquent POST requests.
+    Set the security token in the response.
+    @description To minimize form replay attacks, a security token may be required for POST requests on a route.
+    This call will set a security token in the response as a response header and as a response cookie.  
+    Client-side Javascript must then send this token as a request header in subsquent POST requests.
+    To configure a route to require security tokens, call #httpSetRouteXsrf.
     @param conn Http connection object
     @ingroup HttpSession
     @stability Prototype
 */
-PUBLIC int httpRenderSecurityToken(HttpConn *conn);
+PUBLIC int httpSetSecurityToken(HttpConn *conn);
+
+#if DEPRECATED || 1
+#define httpRenderSecurityToken httpSetSecurityToken
+#endif
 
 /********************************** HttpUploadFile *********************************/
 /**
