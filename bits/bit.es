@@ -633,7 +633,12 @@ public class Bit {
 
     /** @hide */
     public function findPack(pack) {
-        for each (d in (bit.settings.packs + [bit.dir.bits.join('packs')])) {
+        let packDirs = []
+        if (bit.settings.packs) {
+           packDirs += bit.settings.packs
+        }
+        packDirs.push(bit.dir.bits.join('packs'))
+        for each (d in packDirs) {
             path = Path(bit.dir.src).join(d, pack + '.bit')
             if (path.exists) {
                 vtrace('Found', 'Pack ' + pack + ' at ' + path)
