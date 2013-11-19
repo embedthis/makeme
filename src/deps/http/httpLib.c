@@ -168,7 +168,7 @@ PUBLIC bool httpAuthenticate(HttpConn *conn)
 
     if (!rx->authenticated) {
         if ((username = httpGetSessionVar(conn, HTTP_SESSION_USERNAME, 0)) == 0) {
-            if (auth->username) {
+            if (auth->username && *auth->username) {
                 httpLogin(conn, auth->username, NULL);
                 username = httpGetSessionVar(conn, HTTP_SESSION_USERNAME, 0);
             }
@@ -258,12 +258,6 @@ PUBLIC bool httpLogin(HttpConn *conn, cchar *username, cchar *password)
     }
     if ((session = httpCreateSession(conn)) == 0) {
         return 0;
-    }
-    if (rx->route->flags & HTTP_ROUTE_XSRF) {
-        if ((httpCreateSecurityToken(conn)) == 0) {
-            return 0;
-        }
-        httpSetSecurityToken(conn);
     }
     httpSetSessionVar(conn, HTTP_SESSION_USERNAME, username);
     rx->authenticated = 1;
@@ -4460,7 +4454,7 @@ static void printRoute(HttpRoute *route, int next, bool full)
     cchar       *methods, *pattern, *target, *index;
     int         nextIndex;
 
-    if (smatch(route->name, "unused") || (route->flags & HTTP_ROUTE_DISABLED)) {
+    if (route->flags & HTTP_ROUTE_HIDDEN) {
         return;
     }
     methods = httpGetRouteMethods(route);
@@ -9694,7 +9688,9 @@ static int checkRoute(HttpConn *conn, HttpRoute *route)
     if ((rc = (*proc)(conn, route, 0)) != HTTP_ROUTE_OK) {
         return rc;
     }
-    if (tx->handler->rewrite) {
+    if (tx->finalized) {
+        tx->handler = conn->http->passHandler;
+    } else if (tx->handler->rewrite) {
         rc = tx->handler->rewrite(conn);
     }
     return rc;
@@ -9748,6 +9744,7 @@ PUBLIC void httpSetHandler(HttpConn *conn, HttpStage *handler)
 
 /*
     Map the target to physical storage. Sets tx->filename and tx->ext.
+    This will validate on windows (or BIT_EXTRA_SECURITY) if the resultant filename is within the route documents.
  */
 PUBLIC void httpMapRequest(HttpConn *conn)
 {
@@ -9777,7 +9774,9 @@ PUBLIC void httpMapRequest(HttpConn *conn)
 #endif
 #if BIT_WIN_LIKE || BIT_EXTRA_SECURITY
     if (!mprIsParentPathOf(route->documents, filename)) {
-        httpError(conn, HTTP_ABORT | HTTP_CODE_BAD_REQUEST, "Bad URL");
+        info->checked = 1;
+        info->valid = 0;
+        httpError(conn, HTTP_CODE_BAD_REQUEST, "Bad URL");
         return;
     }
 #endif
@@ -9828,6 +9827,9 @@ PUBLIC void httpMapRequest(HttpConn *conn)
 }
 
 
+/*
+    Map file may be called by handlers. The filename may be outside the route documents. So caller must take care.
+ */
 PUBLIC void httpMapFile(HttpConn *conn, cchar *filename)
 {
     HttpTx      *tx;
@@ -11064,7 +11066,7 @@ PUBLIC char *httpTemplate(HttpConn *conn, cchar *template, MprHash *options)
                 if (options && (value = httpGetOption(options, key, 0)) != 0) {
                     mprPutStringToBuf(buf, value);
 
-                } else if ((value = mprLookupJsonValue(rx->params, key)) != 0) {
+                } else if ((value = mprLookupJson(rx->params, key)) != 0) {
                     mprPutStringToBuf(buf, value);
                 }
                 if (value == 0) {
@@ -12376,6 +12378,15 @@ PUBLIC void httpSetOption(MprHash *options, cchar *field, cchar *value)
         return;
     }
     mprAddKey(options, field, value);
+}
+
+
+PUBLIC void httpHideRoute(HttpRoute *route, bool on)
+{
+    route->flags &= ~HTTP_ROUTE_HIDDEN;
+    if (on) {
+        route->flags |= HTTP_ROUTE_HIDDEN;
+    }
 }
 
 
@@ -14849,7 +14860,7 @@ static void manageSession(HttpSession *sp, int flags);
     Allocate a http session state object. This keeps a local hash for session state items.
     This is written via httpWriteSession to the backend session state store.
  */
-static HttpSession *allocSession(HttpConn *conn, cchar *id, cchar *data)
+static HttpSession *allocSessionObj(HttpConn *conn, cchar *id, cchar *data)
 {
     HttpSession *sp;
 
@@ -14874,38 +14885,6 @@ static HttpSession *allocSession(HttpConn *conn, cchar *id, cchar *data)
 }
 
 
-/*
-    Create a new session. This generates a new session ID.
- */
-static HttpSession *createSession(HttpConn *conn)
-{
-    Http            *http;
-    char            *id;
-    static int      nextSession = 0;
-
-    assert(conn);
-    http = conn->http;
-    assert(http);
-
-    /* 
-        Thread race here on nextSession++ not critical 
-     */
-    id = sfmt("%08x%08x%d", PTOI(conn->data) + PTOI(conn), (int) mprGetTicks(), nextSession++);
-    id = mprGetMD5WithPrefix(id, slen(id), "::http.session::");
-
-    lock(http);
-    mprGetCacheStats(http->sessionCache, &http->activeSessions, NULL);
-    if (http->activeSessions >= conn->limits->sessionMax) {
-        unlock(http);
-        httpLimitError(conn, HTTP_CODE_SERVICE_UNAVAILABLE, "Too many sessions %d/%d", http->activeSessions, conn->limits->sessionMax);
-        return 0;
-    }
-    unlock(http);
-
-    return allocSession(conn, id, NULL);
-}
-
-
 PUBLIC bool httpLookupSessionID(cchar *id)
 {
     Http    *http;
@@ -14913,23 +14892,6 @@ PUBLIC bool httpLookupSessionID(cchar *id)
     http = MPR->httpService;
     assert(http);
     return mprReadCache(http->sessionCache, id, 0, 0) != 0;
-}
-
-
-static HttpSession *lookupSession(HttpConn *conn)
-{
-    cchar   *data, *id;
-
-    assert(conn);
-    assert(conn->http);
-
-    if ((id = httpGetSessionID(conn)) == 0) {
-        return 0;
-    }
-    if ((data = mprReadCache(conn->http->sessionCache, id, 0, 0)) == 0) {
-        return 0;
-    }
-    return allocSession(conn, id, data);
 }
 
 
@@ -14978,22 +14940,51 @@ static void manageSession(HttpSession *sp, int flags)
  */
 PUBLIC HttpSession *httpGetSession(HttpConn *conn, int create)
 {
+    Http        *http;
     HttpRx      *rx;
+    cchar       *data, *id;
+    static int  nextSession = 0;
     int         flags;
 
     assert(conn);
     rx = conn->rx;
+    http = conn->http;
     assert(rx);
 
     if (!rx->session) {
-        if ((rx->session = lookupSession(conn)) == 0 && create) {
-            /*
-                If forced create or we have a session-state cookie, then allocate a session object to manage the state.
-                NOTE: the session state for this ID may already exist if data has been written to the session.
+        if ((id = httpGetSessionID(conn)) != 0) {
+            if ((data = mprReadCache(conn->http->sessionCache, id, 0, 0)) != 0) {
+                rx->session = allocSessionObj(conn, id, data);
+            }
+        }
+        if (!rx->session && create) {
+            /* 
+                Thread race here on nextSession++ not critical 
              */
-            if ((rx->session = createSession(conn)) != 0) {
+            id = sfmt("%08x%08x%d", PTOI(conn->data) + PTOI(conn), (int) mprGetTicks(), nextSession++);
+            id = mprGetMD5WithPrefix(id, slen(id), "::http.session::");
+
+            lock(http);
+            mprGetCacheStats(http->sessionCache, &http->activeSessions, NULL);
+            if (http->activeSessions >= conn->limits->sessionMax) {
+                unlock(http);
+                httpLimitError(conn, HTTP_CODE_SERVICE_UNAVAILABLE, 
+                    "Too many sessions %d/%d", http->activeSessions, conn->limits->sessionMax);
+                return 0;
+            }
+            unlock(http);
+            if ((rx->session = allocSessionObj(conn, id, NULL)) != 0) {
                 flags = (rx->route->flags & HTTP_ROUTE_VISIBLE_SESSION) ? 0 : HTTP_COOKIE_HTTP;
                 httpSetCookie(conn, HTTP_SESSION_COOKIE, rx->session->id, "/", NULL, rx->session->lifespan, flags);
+            }
+            /*
+                Ensure XSRF token is preserved in the new session
+             */
+            if (rx->route->flags & HTTP_ROUTE_XSRF) {
+                if ((httpCreateSecurityToken(conn)) == 0) {
+                    return 0;
+                }
+                httpSetSecurityToken(conn);
             }
         }
     }
@@ -17818,6 +17809,9 @@ PUBLIC char *httpNormalizeUriPath(cchar *pathArg)
                 if ((i+1) == nseg) {
                     nseg--;
                 }
+            } else {
+                /* ..more-chars */
+                segments[j] = segments[i];
             }
         } else {
             segments[j] = segments[i];
@@ -18285,7 +18279,7 @@ static void addParamsFromBuf(HttpConn *conn, cchar *buf, ssize len)
             /*
                 Append to existing keywords
              */
-            prior = mprLookupJson(params, keyword);
+            prior = mprLookupJsonObj(params, keyword);
             if (prior && prior->type == MPR_JSON_VALUE) {
                 if (*value) {
                     newValue = sjoin(prior->value, " ", value, NULL);
@@ -18364,7 +18358,7 @@ PUBLIC MprJson *httpGetParams(HttpConn *conn)
 
 PUBLIC int httpTestParam(HttpConn *conn, cchar *var)
 {
-    return mprLookupJson(httpGetParams(conn), var) != 0;
+    return mprLookupJsonObj(httpGetParams(conn), var) != 0;
 }
 
 
@@ -18372,7 +18366,7 @@ PUBLIC cchar *httpGetParam(HttpConn *conn, cchar *var, cchar *defaultValue)
 {
     cchar       *value;
 
-    value = mprLookupJsonValue(httpGetParams(conn), var);
+    value = mprLookupJson(httpGetParams(conn), var);
     return (value) ? value : defaultValue;
 }
 
@@ -18381,7 +18375,7 @@ PUBLIC int httpGetIntParam(HttpConn *conn, cchar *var, int defaultValue)
 {
     cchar       *value;
 
-    value = mprLookupJsonValue(httpGetParams(conn), var);
+    value = mprLookupJson(httpGetParams(conn), var);
     return (value) ? (int) stoi(value) : defaultValue;
 }
 

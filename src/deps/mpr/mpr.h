@@ -6161,7 +6161,7 @@ PUBLIC void mprXmlSetParserHandler(MprXml *xp, MprXmlHandler h);
     JSON Object
     @defgroup MprJson MprJson
     @stability Prototype
-    @see mprBlendJson mprGetJson mprGetJsonValue mprGetJsonLength mprLoadJson mprParseJson mprSetJsonError 
+    @see mprBlendJson mprGetJson mprGetJson mprGetJsonLength mprLoadJson mprParseJson mprSetJsonError 
         mprParseJsonEx mprParseJsonInto mprQueryJson mprRemoveJson mprSetJson mprSetJsonValue mprJsonToString mprTraceJson
  */
 typedef struct MprJson {
@@ -6291,7 +6291,7 @@ PUBLIC MprHash *mprDeserializeInto(cchar *str, MprHash *hash);
     @ingroup MprJson
     @stability Prototype
  */
-PUBLIC MprJson *mprGetJson(MprJson *obj, cchar *key, int flags);
+PUBLIC MprJson *mprGetJsonObj(MprJson *obj, cchar *key, int flags);
 
 /**
     Lookup a JSON object tree for a string key value
@@ -6305,7 +6305,7 @@ PUBLIC MprJson *mprGetJson(MprJson *obj, cchar *key, int flags);
     @ingroup MprJson
     @stability Prototype
  */
-PUBLIC cchar *mprGetJsonValue(MprJson *obj, cchar *key, int flags);
+PUBLIC cchar *mprGetJson(MprJson *obj, cchar *key, int flags);
 
 /**
     Get the number of child properties in a JSON object
@@ -6367,20 +6367,21 @@ PUBLIC MprJson *mprLoadJson(cchar *path);
     @ingroup MprJson
     @stability prototype
  */
-PUBLIC MprJson *mprLookupJson(MprJson *obj, cchar *name);
+PUBLIC MprJson *mprLookupJsonObj(MprJson *obj, cchar *name);
 
 
 /**
     Lookup a JSON object
     @description This is a low-level simple JSON property lookup routine. It does a one-level property lookup. 
-    Use mprQueryJson or mprGetJson to lookup properties that are not direct properties at the top level of the given object
+    Use mprQueryJson or mprGetJson to lookup properties that are not direct properties at the top level of the given object 
+    i.e. those that contain ".".
     @param obj Parsed JSON object returned by mprParseJson
     @param name Name of the property to lookup. 
     @return The property value as a string. Returns NULL if a matching property is not found.
     @ingroup MprJson
     @stability prototype
  */
-PUBLIC cchar *mprLookupJsonValue(MprJson *obj, cchar *name);
+PUBLIC cchar *mprLookupJson(MprJson *obj, cchar *name);
 
 /**
     Parse a JSON string into an object tree.

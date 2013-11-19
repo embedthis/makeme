@@ -12399,7 +12399,7 @@ PUBLIC int mprBlendJson(MprJson *obj, MprJson *other, int flags)
             }
 
         } else {
-            if ((dp = mprLookupJson(obj, sp->name)) == 0) {
+            if ((dp = mprLookupJsonObj(obj, sp->name)) == 0) {
                 dp = mprCreateJson(sp->type);
                 setProperty(obj, sp->name, dp, 0);
             }
@@ -12413,7 +12413,7 @@ PUBLIC int mprBlendJson(MprJson *obj, MprJson *other, int flags)
 /*
     Simple one-level lookup. Returns the actual JSON object and not a clone.
  */
-PUBLIC MprJson *mprLookupJson(MprJson *obj, cchar *name)
+PUBLIC MprJson *mprLookupJsonObj(MprJson *obj, cchar *name)
 {
     MprJson      *child;
     int         i, index;
@@ -12439,11 +12439,11 @@ PUBLIC MprJson *mprLookupJson(MprJson *obj, cchar *name)
 }
 
 
-PUBLIC cchar *mprLookupJsonValue(MprJson *obj, cchar *name)
+PUBLIC cchar *mprLookupJson(MprJson *obj, cchar *name)
 {
     MprJson     *item;
 
-    if ((item = mprLookupJson(obj, name)) != 0 && item->type & MPR_JSON_VALUE) {
+    if ((item = mprLookupJsonObj(obj, name)) != 0 && item->type & MPR_JSON_VALUE) {
         return item->value;
     }
     return 0;
@@ -12775,7 +12775,7 @@ static MprJson *jsonQuery(MprJson *obj, cchar *keyPath, MprJson *value, int flag
         /*
             Simple lookup for property
          */
-        if ((child = mprLookupJson(obj, property)) != 0) {
+        if ((child = mprLookupJsonObj(obj, property)) != 0) {
             /* Found */
             if (rest == 0) {
                 if (flags & MPR_JSON_REMOVE) {
@@ -12823,12 +12823,12 @@ PUBLIC MprJson *mprQueryJson(MprJson *obj, cchar *key, int flags)
 }
 
 
-PUBLIC MprJson *mprGetJson(MprJson *obj, cchar *key, int flags)
+PUBLIC MprJson *mprGetJsonObj(MprJson *obj, cchar *key, int flags)
 {
     MprJson      *result;
 
     if (flags & MPR_JSON_TOP) {
-        return mprLookupJson(obj, key);
+        return mprLookupJsonObj(obj, key);
     }
     if ((result = jsonQuery(obj, key, 0, flags)) != 0) {
         return (result->children) ? result->children : 0;
@@ -12837,14 +12837,14 @@ PUBLIC MprJson *mprGetJson(MprJson *obj, cchar *key, int flags)
 }
 
 
-PUBLIC cchar *mprGetJsonValue(MprJson *obj, cchar *key, int flags)
+PUBLIC cchar *mprGetJson(MprJson *obj, cchar *key, int flags)
 {
     MprJson      *result;
 
     if (flags & MPR_JSON_TOP) {
-        return mprLookupJsonValue(obj, key);
+        return mprLookupJson(obj, key);
     }
-    if ((result = mprGetJson(obj, key, flags)) != 0) {
+    if ((result = mprGetJsonObj(obj, key, flags)) != 0) {
         if (result->type & MPR_JSON_VALUE) {
             return result->value;
         }
@@ -12919,7 +12919,7 @@ static int setProperty(MprJson *obj, cchar *name, MprJson *child, int flags)
     if (!obj || !child) {
         return MPR_ERR_BAD_STATE;
     }
-    if (!(flags & MPR_JSON_DUPLICATE) && (existing = mprLookupJson(obj, name)) != 0) {
+    if (!(flags & MPR_JSON_DUPLICATE) && (existing = mprLookupJsonObj(obj, name)) != 0) {
         existing->value = child->value;
         existing->children = child->children;
         existing->type = child->type;
@@ -23406,7 +23406,7 @@ static char *stemplateInner(cchar *str, void *keys, int json)
                     tok = snclone(src, cp - src);
                 }
                 if (json) {
-                    value = mprLookupJsonValue(keys, tok);
+                    value = mprLookupJson(keys, tok);
                 } else {
                     value = mprLookupKey(keys, tok);
                 }

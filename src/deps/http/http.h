@@ -3713,7 +3713,7 @@ PUBLIC void httpSetStreaming(struct HttpHost *host, cchar *mime, cchar *uri, boo
 #define HTTP_ROUTE_SHOW_ERRORS          0x100       /**< Show errors to the client */
 #define HTTP_ROUTE_VISIBLE_SESSION      0x200       /**< Create a session cookie visible to client Javascript (not httponly) */
 #define HTTP_ROUTE_PRESERVE_FRAMES      0x400       /**< Preserve WebSocket frame boundaries */
-#define HTTP_ROUTE_DISABLED             0x800       /**< Don't use this route in route tables. */
+#define HTTP_ROUTE_HIDDEN               0x800       /**< Hide this route in route tables. */
 
 #if (DEPRECATED || 1) && !DOXYGEN
 #define HTTP_ROUTE_GZIP                 0x1000      /**< Support gzipped content on this route */
@@ -4384,6 +4384,17 @@ PUBLIC cchar *httpGetRouteVar(HttpRoute *route, cchar *key);
     @stability Evolving
  */
 PUBLIC HttpLimits *httpGraduateLimits(HttpRoute *route, HttpLimits *limits);
+
+/**
+    Hide the route from route tables. 
+    The route is still active, just not displayed in route tables. This is used to hide 
+    parent routes that are used just for inheritance for child routes.
+    @param route Route to hide
+    @param on Set to true to hide the route
+    @stability Prototype
+ */
+PUBLIC void httpHideRoute(HttpRoute *route, bool on);
+
 /**
     Lookup an error document by HTTP status code
     @description This looks up error documents configured via #httpAddRouteErrorDocument
