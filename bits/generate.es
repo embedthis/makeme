@@ -13,7 +13,7 @@ module embedthis.bit {
     var capture: Array?
 
     var minimalCflags = [ 
-        '-w', '-g', '-Wall', '-Wno-deprecated-declarations', '-Wno-unused-result', '-Wshorten-64-to-32', '-mtune=generic']
+        '-O2', '-O', '-w', '-g', '-Wall', '-Wno-deprecated-declarations', '-Wno-unused-result', '-Wshorten-64-to-32', '-mtune=generic']
 
     function generate() {
         if (b.options.gen == 'start') {
