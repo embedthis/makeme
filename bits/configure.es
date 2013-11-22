@@ -595,7 +595,7 @@ module embedthis.bit {
                 }
                 search += control.search
             }
-            App.log.debug(2, "Probe for " + file + ' in search path: ' + search)
+            vtrace("Probe", "Search for \"" + file + '\" in search path: ' + search)
             for each (let s: Path in search) {
                 App.log.debug(2, "Probe for " + s.join(file) + ' exists: ' + s.join(file).exists)
                 if (s.join(file).exists) {
