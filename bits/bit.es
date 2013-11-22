@@ -419,11 +419,6 @@ public class Bit {
                 usage()
             }
             localPlatform = platforms[0]
-    /* UNUSED
-            if (!Path(localPlatform + '.bit').exists) {
-                trace('Generate', 'Create platform bit file: ' + localPlatform + '.bit')
-            }
-     */
             /* Must continue if probe can't locate tools, but does know a default */
             options['continue'] = true
         }
