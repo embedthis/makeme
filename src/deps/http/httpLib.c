@@ -140,11 +140,11 @@ PUBLIC void httpInitAuth(Http *http)
     httpAddAuthType("digest", httpDigestLogin, httpDigestParse, httpDigestSetHeaders);
     httpAddAuthType("form", formLogin, NULL, NULL);
 
-#if BIT_HAS_PAM && BIT_HTTP_PAM
     httpAddAuthStore("app", NULL);
+    httpAddAuthStore("internal", fileVerifyUser);
+#if BIT_HAS_PAM && BIT_HTTP_PAM
     httpAddAuthStore("system", httpPamVerifyUser);
 #endif
-    httpAddAuthStore("internal", fileVerifyUser);
 #if DEPRECATE || 1
     /*
         Deprecated in 4.4. Use "internal"
@@ -239,7 +239,6 @@ PUBLIC bool httpLogin(HttpConn *conn, cchar *username, cchar *password)
         mprTrace(5, "httpLogin missing username");
         return 0;
     }
-    assert(auth->store);
     if (!auth->store) {
         mprError("No AuthStore defined");
         return 0;
@@ -11111,7 +11110,7 @@ PUBLIC cchar *httpExpandRouteVars(HttpRoute *route, cchar *str)
 
 /*
     Make a path name. This replaces $references, converts to an absolute path name, cleans the path and maps delimiters.
-    Paths are resolved relative to the route home (configuration directory not documents).
+    Paths are resolved relative to the given directory or route home if "dir" is null.
  */
 PUBLIC char *httpMakePath(HttpRoute *route, cchar *dir, cchar *path)
 {
@@ -11677,6 +11676,21 @@ PUBLIC void httpAddHomeRoute(HttpRoute *parent)
     httpDefineRoute(parent, name, "GET,POST", pattern, path, source);
 }
 
+
+PUBLIC void httpAddWebSocketsRoute(HttpRoute *parent, cchar *prefix, cchar *name)
+{
+    HttpRoute   *route;
+    cchar       *path, *pattern;
+
+    if (parent->prefix) {
+        prefix = sjoin(parent->prefix, prefix, NULL);
+        name = sjoin(parent->prefix, name, NULL);
+    }
+    pattern = sfmt("^%s/{controller}/stream", prefix);
+    path = mprGetRelPath(stemplate("$1-cmd-stream", parent->vars), parent->documents);
+    route = httpDefineRoute(parent, name, "GET", pattern, path, parent->sourceName);
+    httpAddRouteFilter(route, "webSocketFilter", "", HTTP_STAGE_RX | HTTP_STAGE_TX);
+}
 
 /*************************************************** Support Routines ****************************************************/
 /*
@@ -13057,12 +13071,6 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
                     httpBadRequestError(conn, HTTP_ABORT | HTTP_CODE_BAD_REQUEST, "Bad content length");
                     return 0;
                 }
-                if (rx->length >= conn->limits->receiveBodySize) {
-                    httpLimitError(conn, HTTP_ABORT | HTTP_CODE_REQUEST_TOO_LARGE,
-                        "Request content length %,Ld bytes is too big. Limit %,Ld", 
-                        rx->length, conn->limits->receiveBodySize);
-                    return 0;
-                }
                 rx->contentLength = sclone(value);
                 assert(rx->length >= 0);
                 if (conn->endpoint || !scaselessmatch(tx->method, "HEAD")) {
@@ -13306,6 +13314,11 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
             }
             break;
         }
+    }
+    if (!rx->upload && rx->length >= conn->limits->receiveBodySize) {
+        httpLimitError(conn, HTTP_CLOSE | HTTP_CODE_REQUEST_TOO_LARGE,
+            "Request content length %,Ld bytes is too big. Limit %,Ld", rx->length, conn->limits->receiveBodySize);
+        return 0;
     }
     if (rx->form && rx->length >= conn->limits->receiveFormSize) {
         httpLimitError(conn, HTTP_CLOSE | HTTP_CODE_REQUEST_TOO_LARGE, 
@@ -15072,7 +15085,7 @@ PUBLIC int httpSetSessionVar(HttpConn *conn, cchar *key, cchar *value)
     if (value == 0) {
         httpRemoveSessionVar(conn, key);
     } else {
-        mprAddKey(sp->data, key, value);
+        mprAddKey(sp->data, key, sclone(value));
     }
     return 0;
 }
@@ -15172,7 +15185,9 @@ PUBLIC int httpSetSecurityToken(HttpConn *conn)
 
     securityToken = httpGetSecurityToken(conn);
     httpSetCookie(conn, BIT_XSRF_COOKIE, securityToken, "/", NULL,  0, 0);
+#if UNUSED
     httpSetHeader(conn, BIT_XSRF_HEADER, securityToken);
+#endif
     return 0;
 }
 
@@ -16057,8 +16072,14 @@ PUBLIC void httpOmitBody(HttpConn *conn)
 }
 
 
+static bool localEndpoint(cchar *host)
+{
+    return smatch(host, "localhost") || smatch(host, "127.0.0.1") || smatch(host, "::1");
+}
+
+
 /*
-    Redirect the user to another web page. The targetUri may or may not have a scheme.
+    Redirect the user to another URI. The targetUri may or may not have a scheme or hostname.
  */
 PUBLIC void httpRedirect(HttpConn *conn, int status, cchar *targetUri)
 {
@@ -16079,10 +16100,11 @@ PUBLIC void httpRedirect(HttpConn *conn, int status, cchar *targetUri)
     }
     tx->status = status;
 
+    /*
+        Expand the target for embedded tokens. Resolve relative to the current request URI
+        This may add "localhost" if the host is missing in the targetUri.
+     */
     targetUri = httpUri(conn, targetUri);
-    if (schr(targetUri, '$')) {
-        targetUri = httpExpandUri(conn, targetUri);
-    }
     mprLog(3, "redirect %d %s", status, targetUri);
     msg = httpLookupStatus(conn->http, status);
 
@@ -16096,15 +16118,12 @@ PUBLIC void httpRedirect(HttpConn *conn, int status, cchar *targetUri)
             Support URIs without a host:  https:///path. This is used to redirect onto the same host but with a 
             different scheme. So find a suitable local endpoint to supply the port for the scheme.
         */
-        if (!target->port &&
-                (!target->host || smatch(base->host, target->host)) &&
-                (target->scheme && !smatch(target->scheme, base->scheme))) {
-            endpoint = smatch(target->scheme, "https") ? conn->host->secureEndpoint : conn->host->defaultEndpoint;
-            if (endpoint) {
-                target->port = endpoint->port;
-            } else {
-                httpError(conn, HTTP_CODE_INTERNAL_SERVER_ERROR, "Cannot find endpoint for scheme %s", target->scheme);
-                return;
+        if (!target->port && (target->scheme && !smatch(target->scheme, base->scheme))) {
+            if (!target->host || smatch(base->host, target->host) || (localEndpoint(base->host) && localEndpoint(target->host))) {
+                endpoint = smatch(target->scheme, "https") ? conn->host->secureEndpoint : conn->host->defaultEndpoint;
+                if (endpoint) {
+                    target->port = endpoint->port;
+                }
             }
         }
         if (target->path && target->path[0] != '/') {
@@ -17503,9 +17522,9 @@ PUBLIC HttpUri *httpCompleteUri(HttpUri *uri, HttpUri *base)
     } else {
         if (!uri->host) {
             uri->host = base->host;
-            if (!uri->port) {
-                uri->port = base->port;
-            }
+        }
+        if (!uri->port) {
+            uri->port = base->port;
         }
         if (!uri->scheme) {
             uri->scheme = base->scheme;
@@ -17542,7 +17561,9 @@ PUBLIC char *httpFormatUri(cchar *scheme, cchar *host, int port, cchar *path, cc
             scheme = "http";
         }
         if (host == 0 || *host == '\0') {
-            host = "localhost";
+            if (port || path || reference || query) {
+                host = "localhost";
+            }
         }
         hostDelim = "://";
     } else {
@@ -18237,11 +18258,11 @@ PUBLIC void httpCreateCGIParams(HttpConn *conn)
         assert(params);
         for (index = 0, kp = 0; (kp = mprGetNextKey(rx->files, kp)) != 0; index++) {
             up = (HttpUploadFile*) kp->data;
-            mprSetJsonValue(params, sfmt("FILE_%d_FILENAME", index), up->filename, MPR_JSON_SIMPLE);
-            mprSetJsonValue(params, sfmt("FILE_%d_CLIENT_FILENAME", index), up->clientFilename, MPR_JSON_SIMPLE);
-            mprSetJsonValue(params, sfmt("FILE_%d_CONTENT_TYPE", index), up->contentType, MPR_JSON_SIMPLE);
-            mprSetJsonValue(params, sfmt("FILE_%d_NAME", index), kp->key, MPR_JSON_SIMPLE);
-            mprSetJsonValue(params, sfmt("FILE_%d_SIZE", index), sfmt("%d", up->size), MPR_JSON_SIMPLE);
+            mprSetJson(params, sfmt("FILE_%d_FILENAME", index), up->filename, MPR_JSON_SIMPLE);
+            mprSetJson(params, sfmt("FILE_%d_CLIENT_FILENAME", index), up->clientFilename, MPR_JSON_SIMPLE);
+            mprSetJson(params, sfmt("FILE_%d_CONTENT_TYPE", index), up->contentType, MPR_JSON_SIMPLE);
+            mprSetJson(params, sfmt("FILE_%d_NAME", index), kp->key, MPR_JSON_SIMPLE);
+            mprSetJson(params, sfmt("FILE_%d_SIZE", index), sfmt("%d", up->size), MPR_JSON_SIMPLE);
         }
     }
     if (conn->http->envCallback) {
@@ -18283,10 +18304,10 @@ static void addParamsFromBuf(HttpConn *conn, cchar *buf, ssize len)
             if (prior && prior->type == MPR_JSON_VALUE) {
                 if (*value) {
                     newValue = sjoin(prior->value, " ", value, NULL);
-                    mprSetJsonValue(params, keyword, newValue, MPR_JSON_SIMPLE);
+                    mprSetJson(params, keyword, newValue, MPR_JSON_SIMPLE);
                 }
             } else {
-                mprSetJsonValue(params, keyword, value, MPR_JSON_SIMPLE);
+                mprSetJson(params, keyword, value, MPR_JSON_SIMPLE);
             }
         }
         keyword = stok(0, "&", &tok);
@@ -18400,13 +18421,13 @@ PUBLIC char *httpGetParamsString(HttpConn *conn)
 
 PUBLIC void httpSetParam(HttpConn *conn, cchar *var, cchar *value) 
 {
-    mprSetJsonValue(httpGetParams(conn), var, value, MPR_JSON_SIMPLE);
+    mprSetJson(httpGetParams(conn), var, value, MPR_JSON_SIMPLE);
 }
 
 
 PUBLIC void httpSetIntParam(HttpConn *conn, cchar *var, int value) 
 {
-    mprSetJsonValue(httpGetParams(conn), var, sfmt("%d", value), MPR_JSON_SIMPLE);
+    mprSetJson(httpGetParams(conn), var, sfmt("%d", value), MPR_JSON_SIMPLE);
 }
 
 

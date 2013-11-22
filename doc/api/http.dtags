@@ -346,7 +346,14 @@
       <type>char *</type>
       <name>httpUri</name>
       <anchorfile>group___http_uri.html</anchorfile>
-      <anchor>ga00c4724cd6626b94ada3034eabefa60e</anchor>
+      <anchor>ga37c5f80dd753c174f0b4d3070fc56530</anchor>
+      <arglist>(struct HttpConn *conn, cchar *target)</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
+      <name>httpUriEx</name>
+      <anchorfile>group___http_uri.html</anchorfile>
+      <anchor>gae6643b3774cbf976a792ae4352cd4bb1</anchor>
       <arglist>(struct HttpConn *conn, cchar *target, MprHash *options)</arglist>
     </member>
     <member kind="function">
@@ -1724,10 +1731,10 @@
     </member>
     <member kind="function">
       <type>void</type>
-      <name>httpAddStaticRoute</name>
+      <name>httpAddWebSocketsRoute</name>
       <anchorfile>group___http_route.html</anchorfile>
-      <anchor>gaf718d7af90fc8912cf1bc1f4aa63dd2e</anchor>
-      <arglist>(HttpRoute *parent, cchar *name)</arglist>
+      <anchor>gad678ae1aebed7fd23d37b8c1edf90cb5</anchor>
+      <arglist>(HttpRoute *parent, cchar *prefix, cchar *name)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -2289,9 +2296,9 @@
     </member>
     <member kind="function">
       <type>int</type>
-      <name>httpRenderSecurityToken</name>
+      <name>httpSetSecurityToken</name>
       <anchorfile>group___http_session.html</anchorfile>
-      <anchor>ga880738dc43bba567f765f2304230f7d5</anchor>
+      <anchor>ga60490472b43be3b2c6a7cb6f64e5f5ab</anchor>
       <arglist>(HttpConn *conn)</arglist>
     </member>
     <member kind="function">
