@@ -2103,6 +2103,8 @@ public class Bit {
                 } else {
                     runShell(target, item.interpreter, item.script)
                 }
+            } catch (e) {
+                App.log.error('Error with target: ' + target.name + '\nCommand: ' + item.script + '\n' + e + '\n')
             } finally {
                 App.chdir(pwd)
                 global.TARGET = null
