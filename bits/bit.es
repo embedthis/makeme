@@ -23,6 +23,9 @@ public class Bit {
     public var options: Object = { control: {}}
 
     /** @hide */
+    public static const PACKAGE: Path = Path('package.json')
+
+    /** @hide */
     public static const MAIN: Path = Path('main.bit')
 
     /** @hide */
@@ -653,6 +656,13 @@ public class Bit {
             ver = bit.settings.version + '-' + bit.settings.buildNumber
         }
         quickLoad(bitfile)
+/* FUTURE
+        if (!bit.settings.version && PACKAGE.exists) {
+            try {
+                ver = PACKAGE.readJSON().version
+            } catch {}
+        }
+ */
         if (bit.platforms) {
             platforms = bit.platforms
             for (let [index,platform] in bit.platforms) {
@@ -1037,7 +1047,9 @@ public class Bit {
             if (Path(MAIN).exists) {
                 throw 'Cannot find suitable ' + START + '.\nRun "bit configure" first.'
             } else {
-                throw 'Cannot find suitable ' + START + '.\nRun "bit --gen start" to create stub start.bit'
+                if (options.gen != 'start') {
+                    throw 'Cannot find suitable ' + START + '.\nRun "bit --gen start" to create stub start.bit'
+                }
             }
         }
         return null
@@ -1938,7 +1950,13 @@ public class Bit {
             copy(file, target.path, target)
         }
         if (target.path.isDir && !bit.generating) {
-            let touch = Path(target.path).join('.touch')
+            touchDir(target.path)
+        }
+    }
+
+    function touchDir(path: Path) {
+        if (path.isDir) {
+            let touch = path.join('.touch')
             touch.remove()
             touch.write()
             touch.remove()
@@ -1950,6 +1968,9 @@ public class Bit {
         if (target.scripts) {
             vtrace(target.type.toPascal(), target.name)
             runTargetScript(target, 'build')
+        }
+        if (target.path && target.path.isDir && !bit.generating) {
+            touchDir(target.path)
         }
     }
 
@@ -2235,12 +2256,12 @@ public class Bit {
             return true
         }
         let path = target.path
-        if (!path.modified) {
+         if (!path.modified) {
             whyRebuild(target.name, 'Rebuild', target.path + ' is missing.')
             return true
         }
         for each (file in target.files) {
-            if (target.subtree) {
+             if (target.subtree) {
                 let p = path.join(file.trimStart(target.subtree + target.subtree.separator[0]))
                 if (!file.isDir && file.modified > p.modified) {
                     whyRebuild(path, 'Rebuild', 'input ' + file + ' has been modified.')
@@ -2249,6 +2270,18 @@ public class Bit {
                         print(path, path.modified)
                     }
                     return true
+                }
+
+            } else if (file.isDir) {
+                for each (f in file.files('**')) {
+                     if (f.modified > path.modified) {
+                        whyRebuild(path, 'Rebuild', 'input ' + f + ' has been modified.')
+                        if (options.why && options.verbose) {
+                            print(f, f.modified)
+                            print(path, path.modified)
+                        }
+                        return true
+                    }
                 }
             } else {
                 if (file.modified > path.modified) {
@@ -2486,7 +2519,7 @@ public class Bit {
         Path(bit.dir.out).join('test.setup').write('test.skip("Skip platform directory")\n')
     }
 
-    function safeCopy(from: Path, to: Path) {
+    public function safeCopy(from: Path, to: Path) {
         let p: Path = new Path(to)
         if (to.exists && !options.overwrite) {
             if (!from.isDir) {
@@ -2720,7 +2753,10 @@ public class Bit {
         '/Library': true,
         '/Network': true,
         '/System': true,
+        '/Program Files': true,
+        '/Program Files (x86)': true,
         '/Users': true,
+        '/bin': true,
         '/dev': true,
         '/etc': true,
         '/home': true,
@@ -2755,7 +2791,7 @@ public class Bit {
     /** @hide */
     public function safeRemove(dir: Path) {
         if (sysdirs[dir]) {
-            print("WARNING: prevent removal of", dir)
+            App.log.error("prevent removal of", dir)
             return
         }
         dir.removeAll()
@@ -3077,8 +3113,9 @@ public class Bit {
                 }
                 if (bit.generating) {
                     if (options.cat || options.expand || options.fold || options.compress) {
-                        dump("OPTIONS", options)
-                        throw "Cannot use processing options when generating"
+                        App.log.error('Cannot use options for copy() when generating')
+                        App.log.error('Skipping', src)
+                        continue
                     }
                     /* Must not use full options as it contains perms for the dest */
                     makeDir(to.dirname, {made: options.made})

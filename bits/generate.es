@@ -138,7 +138,7 @@ module embedthis.bit {
         let bits = Config.Bin.join('bits')
         let cfg = Path('configure')
         if (cfg.exists && !b.options.overwrite) {
-            traceFile('Exists', 'configure')
+            trace('Exists', 'configure')
         } else {
             let data = '#!/bin/bash\n#\n#   configure -- Configure for building\n#\n' +
                 'if ! type bit >/dev/null 2>&1 ; then\n' +
@@ -148,15 +148,15 @@ module embedthis.bit {
                     '    exit 255\n' +
                 'fi\n' + 
                 'bit configure "$@"'
-            traceFile(cfg.exists ? 'Overwrite' : 'Create', cfg)
+            trace(cfg.exists ? 'Overwrite' : 'Create', cfg)
             cfg.write(data)
             cfg.setAttributes({permissions: 0755})
         }
-        safeCopy(bits.join('sample-main.bit'), MAIN)
+        b.safeCopy(bits.join('sample-main.bit'), b.MAIN)
     }
 
     function generateStart() {
-        safeCopy(Path(Config.Bin).join('bits/sample-start.bit'), 'start.bit')
+        b.safeCopy(Path(Config.Bin).join('bits/sample-start.bit'), 'start.bit')
     }
 
     function generateShellProject(base: Path) {
