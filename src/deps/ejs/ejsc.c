@@ -288,6 +288,8 @@ MAIN(ejscMain, int argc, char **argv, char **envp)
     if ((ejs = ejsCreateVM(0, 0, ejsFlags)) == 0) {
         return MPR_ERR_MEMORY;
     }
+    mprRunDispatcher(ejs->dispatcher);
+
     if (ejsLoadModules(ejs, searchPath, app->modules) < 0) {
         return MPR_ERR_CANT_READ;
     }
