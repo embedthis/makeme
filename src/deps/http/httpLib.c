@@ -1996,8 +1996,7 @@ static HttpConn *openConnection(HttpConn *conn, struct MprSsl *ssl)
     }
 #endif
     if ((level = httpShouldTrace(conn, HTTP_TRACE_RX, HTTP_TRACE_CONN, NULL)) >= 0) {
-        mprLog(level, "### Outgoing connection from %s:%d to %s:%d", 
-            conn->ip, conn->port, conn->sock->ip, conn->sock->port);
+        mprLog(level, "### Outgoing connection to %s:%d", conn->ip, conn->port);
     }
     return conn;
 }
@@ -2020,9 +2019,9 @@ static void setDefaultHeaders(HttpConn *conn)
         }
     }
     if (conn->port != 80 && conn->port != 443) {
-        httpAddHeader(conn, "Host", "%s:%d", conn->ip, conn->port);
+        httpSetHeader(conn, "Host", "%s:%d", conn->ip, conn->port);
     } else {
-        httpAddHeaderString(conn, "Host", conn->ip);
+        httpSetHeaderString(conn, "Host", conn->ip);
     }
     httpAddHeaderString(conn, "Accept", "*/*");
     if (conn->keepAliveCount > 0) {
@@ -11688,7 +11687,7 @@ PUBLIC void httpAddWebSocketsRoute(HttpRoute *parent, cchar *prefix, cchar *name
     }
     pattern = sfmt("^%s/{controller}/stream", prefix);
     path = mprGetRelPath(stemplate("$1-cmd-stream", parent->vars), parent->documents);
-    route = httpDefineRoute(parent, name, "GET", pattern, path, parent->sourceName);
+    route = httpDefineRoute(parent, name, "GET", pattern, path, "${controller}.c");
     httpAddRouteFilter(route, "webSocketFilter", "", HTTP_STAGE_RX | HTTP_STAGE_TX);
 }
 
@@ -12687,7 +12686,7 @@ static bool parseIncoming(HttpConn *conn, HttpPacket *packet)
     /*
         Don't start processing until all the headers have been received (delimited by two blank lines)
      */
-    if ((end = sncontains(start, "\r\n\r\n", len)) == 0) {
+    if ((end = sncontains(start, "\r\n\r\n", len)) == 0 && (end = sncontains(start, "\n\n", len)) == 0) {
         if (len >= conn->limits->headerSize) {
             httpLimitError(conn, HTTP_ABORT | HTTP_CODE_REQUEST_TOO_LARGE, 
                 "Header too big. Length %d vs limit %d", len, conn->limits->headerSize);
@@ -13512,8 +13511,11 @@ static bool processContent(HttpConn *conn)
         if (conn->state < HTTP_STATE_FINALIZED) {
             if (conn->endpoint) {
                 if (!rx->route) {
-                    httpAddBodyParams(conn);
-                    mapMethod(conn);
+                    if (httpAddBodyParams(conn) < 0) {
+                        httpError(conn, HTTP_CODE_BAD_REQUEST, "Bad request parameters");
+                    } else {
+                        mapMethod(conn);
+                    }
                     httpRouteRequest(conn);
                     httpCreatePipeline(conn);
                     /*
@@ -14866,6 +14868,7 @@ PUBLIC void httpSendOutgoingService(HttpQueue *q) {}
 
 /********************************** Forwards  *********************************/
 
+static cchar *createSecurityToken(HttpConn *conn);
 static void manageSession(HttpSession *sp, int flags);
 
 /************************************* Code ***********************************/
@@ -14990,14 +14993,9 @@ PUBLIC HttpSession *httpGetSession(HttpConn *conn, int create)
                 flags = (rx->route->flags & HTTP_ROUTE_VISIBLE_SESSION) ? 0 : HTTP_COOKIE_HTTP;
                 httpSetCookie(conn, HTTP_SESSION_COOKIE, rx->session->id, "/", NULL, rx->session->lifespan, flags);
             }
-            /*
-                Ensure XSRF token is preserved in the new session
-             */
             if (rx->route->flags & HTTP_ROUTE_XSRF) {
-                if ((httpCreateSecurityToken(conn)) == 0) {
-                    return 0;
-                }
-                httpSetSecurityToken(conn);
+                createSecurityToken(conn);
+                httpAddSecurityToken(conn);
             }
         }
     }
@@ -15146,13 +15144,25 @@ PUBLIC cchar *httpGetSessionID(HttpConn *conn)
 
     Note: the HttpSession API prevents session hijacking by pairing with the client IP
  */
-PUBLIC cchar *httpCreateSecurityToken(HttpConn *conn)
+static cchar *createSecurityToken(HttpConn *conn)
 {
     HttpRx      *rx;
 
     rx = conn->rx;
-    rx->securityToken = mprGetRandomString(32);
-    httpSetSessionVar(conn, BIT_XSRF_COOKIE, rx->securityToken);
+    rx->securityToken = 0;
+
+    /*
+        The call to httpSetSessionVar below may create a session which may call this function.
+        To eliminate a double call, get the session first.
+     */
+    if (!rx->session) {
+        /* httpGetSesion may call this function if it creates a session */ 
+        httpGetSession(conn, 1);
+    }
+    if (!rx->securityToken) {
+        rx->securityToken = mprGetRandomString(32);
+        httpSetSessionVar(conn, BIT_XSRF_COOKIE, rx->securityToken);
+    }
     return rx->securityToken;
 }
 
@@ -15169,7 +15179,7 @@ PUBLIC cchar *httpGetSecurityToken(HttpConn *conn)
     if (rx->securityToken == 0) {
         rx->securityToken = (char*) httpGetSessionVar(conn, BIT_XSRF_COOKIE, 0);
         if (rx->securityToken == 0) {
-            httpCreateSecurityToken(conn);
+            createSecurityToken(conn);
         }
     }
     return rx->securityToken;
@@ -15177,24 +15187,22 @@ PUBLIC cchar *httpGetSecurityToken(HttpConn *conn)
 
 
 /*
-    Set the security token cookie and header
+    Add the security token to a XSRF cookie and response header
  */
-PUBLIC int httpSetSecurityToken(HttpConn *conn) 
+PUBLIC int httpAddSecurityToken(HttpConn *conn) 
 {
     cchar   *securityToken;
 
     securityToken = httpGetSecurityToken(conn);
     httpSetCookie(conn, BIT_XSRF_COOKIE, securityToken, "/", NULL,  0, 0);
-#if UNUSED
     httpSetHeader(conn, BIT_XSRF_HEADER, securityToken);
-#endif
     return 0;
 }
 
 
 /*
     Check the security token with the request. This must match the last generated token stored in the session state.
-    It is expected the client will set the X-XSRF-TOKEN header with the token or
+    It is expected the client will set the X-XSRF-TOKEN header with the token.
  */
 PUBLIC bool httpCheckSecurityToken(HttpConn *conn) 
 {
@@ -15213,7 +15221,10 @@ PUBLIC bool httpCheckSecurityToken(HttpConn *conn)
         if (!smatch(sessionToken, requestToken)) {
             /*
                 Potential CSRF attack. Deny request.
+                Re-create a new security token so legitimate clients can retry.
              */
+            createSecurityToken(conn);
+            httpAddSecurityToken(conn);
             return 0;
         }
     }
@@ -17230,41 +17241,30 @@ PUBLIC HttpUri *httpCreateUri(cchar *uri, int flags)
     }
     tok = up->uri = sclone(uri);
 
-    if (sncmp(up->uri, "http://", 7) == 0) {
-        up->scheme = sclone("http");
-        if (flags & HTTP_COMPLETE_URI) {
-            up->port = 80;
+    if ((next = scontains(tok, "://")) != 0) {
+        up->scheme = snclone(tok, (next - tok));
+        if (smatch(up->scheme, "http")) {
+            if (flags & HTTP_COMPLETE_URI) {
+                up->port = 80;
+            }
+        } else if (smatch(up->scheme, "ws")) {
+            if (flags & HTTP_COMPLETE_URI) {
+                up->port = 80;
+            }
+            up->webSockets = 1;
+        } else if (smatch(up->scheme, "https")) {
+            if (flags & HTTP_COMPLETE_URI) {
+                up->port = 443;
+            }
+            up->secure = 1;
+        } else if (smatch(up->scheme, "wss")) {
+            if (flags & HTTP_COMPLETE_URI) {
+                up->port = 443;
+            }
+            up->secure = 1;
+            up->webSockets = 1;
         }
-        tok = &up->uri[7];
-
-    } else if (sncmp(up->uri, "ws://", 5) == 0) {
-        up->scheme = sclone("ws");
-        if (flags & HTTP_COMPLETE_URI) {
-            up->port = 80;
-        }
-        tok = &up->uri[5];
-        up->webSockets = 1;
-
-    } else if (sncmp(up->uri, "https://", 8) == 0) {
-        up->scheme = sclone("https");
-        up->secure = 1;
-        if (flags & HTTP_COMPLETE_URI) {
-            up->port = 443;
-        }
-        tok = &up->uri[8];
-
-    } else if (sncmp(up->uri, "wss://", 6) == 0) {
-        up->scheme = sclone("wss");
-        up->secure = 1;
-        if (flags & HTTP_COMPLETE_URI) {
-            up->port = 443;
-        }
-        tok = &up->uri[6];
-        up->webSockets = 1;
-
-    } else {
-        up->scheme = 0;
-        tok = up->uri;
+        tok = &next[3];
     }
     if (schr(tok, ':')) {
         /* Has port specifier */
@@ -17522,9 +17522,10 @@ PUBLIC HttpUri *httpCompleteUri(HttpUri *uri, HttpUri *base)
     } else {
         if (!uri->host) {
             uri->host = base->host;
-        }
-        if (!uri->port) {
-            uri->port = base->port;
+            /* Must not add a port if there is already a host */
+            if (!uri->port) {
+                uri->port = base->port;
+            }
         }
         if (!uri->scheme) {
             uri->scheme = base->scheme;
@@ -18327,7 +18328,7 @@ PUBLIC void httpAddQueryParams(HttpConn *conn)
 }
 
 
-PUBLIC void httpAddBodyParams(HttpConn *conn)
+PUBLIC int httpAddBodyParams(HttpConn *conn)
 {
     HttpRx      *rx;
     HttpQueue   *q;
@@ -18346,11 +18347,14 @@ PUBLIC void httpAddBodyParams(HttpConn *conn)
                 addParamsFromBuf(conn, mprGetBufStart(content), mprGetBufLength(content));
 
             } else if (sstarts(rx->mimeType, "application/json")) {
-                mprParseJsonInto(httpGetBodyInput(conn), httpGetParams(conn));
+                if (mprParseJsonInto(httpGetBodyInput(conn), httpGetParams(conn)) == 0) {
+                    return MPR_ERR_BAD_FORMAT;
+                }
             }
         }
         rx->flags |= HTTP_ADDED_BODY_PARAMS;
     }
+    return 0;
 }
 
 

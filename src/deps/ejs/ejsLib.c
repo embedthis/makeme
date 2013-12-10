@@ -9212,6 +9212,7 @@ PUBLIC int ecGetToken(EcCompiler *cp)
 
         case '"':
         case '\'':
+        case '`':
             return makeQuotedToken(cp, tp, c);
 
         case '#':
@@ -9727,7 +9728,6 @@ static int makeQuotedToken(EcCompiler *cp, EcToken *tp, int c)
         if (c == '\\') {
             c = getNextChar(stream);
             switch (c) {
-            //  TBD -- others
             case '\\':
                 break;
             case '\'':
@@ -36961,7 +36961,7 @@ static bool waitForState(EjsHttp *hp, int state, MprTicks timeout, int throw)
     Ejs             *ejs;
     MprTicks        mark, remaining;
     HttpConn        *conn;
-    HttpUri         *uri;
+    HttpUri         *location, *uri;
     HttpRx          *rx;
     char            *url;
     int             count, redirectCount, success, rc;
@@ -36989,8 +36989,8 @@ static bool waitForState(EjsHttp *hp, int state, MprTicks timeout, int throw)
         if ((rc = httpWait(conn, HTTP_STATE_PARSED, remaining)) == 0) {
             if (httpNeedRetry(conn, &url)) {
                 if (url) {
-                    uri = httpCreateUri(url, 0);
-                    httpCompleteUri(uri, httpCreateUri(hp->uri, 0));
+                    location = httpCreateUri(url, 0);
+                    uri = httpJoinUri(conn->tx->parsedUri, 1, &location);
                     hp->uri = httpUriToString(uri, HTTP_COMPLETE_URI);
                 }
                 count--; 
@@ -44591,6 +44591,10 @@ static EjsArray *regex_exec(Ejs *ejs, EjsRegExp *rp, int argc, EjsObj **argv)
     } else {
         start = rp->endLastMatch;
     }
+    if (start < 0 || start >= str->length) {
+        rp->endLastMatch = 0;
+        return ESV(null);
+    }
     rp->matched = 0;
     assert(rp->compiled);
     count = pcre_exec(rp->compiled, NULL, str->value, (int) str->length, start, 0, matches, sizeof(matches) / sizeof(int));
@@ -51727,7 +51731,7 @@ static bool waitForHttpState(EjsWebSocket *ws, int state, MprTicks timeout, int 
     Ejs             *ejs;
     MprTicks        mark, remaining;
     HttpConn        *conn;
-    HttpUri         *uri;
+    HttpUri         *location, *uri;
     char            *url;
     int             count, redirectCount, success, rc;
 
@@ -51759,8 +51763,8 @@ static bool waitForHttpState(EjsWebSocket *ws, int state, MprTicks timeout, int 
         if ((rc = httpWait(conn, HTTP_STATE_PARSED, remaining)) == 0) {
             if (httpNeedRetry(conn, &url)) {
                 if (url) {
-                    uri = httpCreateUri(url, 0);
-                    httpCompleteUri(uri, httpCreateUri(ws->uri, 0));
+                    location = httpCreateUri(url, 0);
+                    uri = httpJoinUri(conn->tx->parsedUri, 1, &location);
                     ws->uri = httpUriToString(uri, HTTP_COMPLETE_URI);
                 }
                 count--; 
@@ -68259,7 +68263,7 @@ static EjsObj *zlib_uncompress(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv
     src = ((EjsPath*) argv[0])->value;
     dest = (argc >= 2) ? ejsToMulti(ejs, argv[1]) : 0;
     if (!dest) {
-        dest = sjoin(src, ".gz", NULL);
+        dest = strim(src, ".gz", MPR_TRIM_END);
     }
     if ((in = gzopen(src, "rb")) == 0) {
         ejsThrowIOError(ejs, "Cannot open from %s", src);
@@ -74914,6 +74918,7 @@ static int loadScriptModule(Ejs *ejs, cchar *filename, int minVersion, int maxVe
         ejsThrowIOError(ejs, "Cannot open module file %s", path);
         return MPR_ERR_CANT_OPEN;
     }
+    mprHold(file);
     mprTrace(5, "Loading module %s", path);
     mprEnableFileBuffering(file, 0, 0);
     firstModule = mprGetListLength(ejs->modules);
@@ -74938,6 +74943,9 @@ static int loadScriptModule(Ejs *ejs, cchar *filename, int minVersion, int maxVe
         if (ejs->loaderCallback) {
             (ejs->loaderCallback)(ejs, EJS_SECT_START, path, &hdr);
         }
+        /*
+            WARNING: this may block and GC may run
+         */
         if ((status = loadSections(ejs, file, path, &hdr, flags)) < 0) {
             if (ejs->exception == 0) {
                 ejsThrowReferenceError(ejs, "Cannot load module file %s", path);
@@ -74951,6 +74959,7 @@ static int loadScriptModule(Ejs *ejs, cchar *filename, int minVersion, int maxVe
         }
     }
     mprCloseFile(file);
+    mprRelease(file);
     return status;
 }
 
@@ -77596,10 +77605,9 @@ EjsArray *ejsCreateSearchPath(Ejs *ejs, cchar *search)
 
     /*
         Create a default search path
-        "." : APP_EXE_DIR/../lib : /usr/lib/ejs/1.0.0/lib
+        . : APP_EXE_DIR : /usr/local/lib/ejs/VERSION/bin
      */
     ejsSetProperty(ejs, ap, -1, ejsCreatePathFromAsc(ejs, "."));
-    ejsSetProperty(ejs, ap, -1, ejsCreatePathFromAsc(ejs, mprGetAppDir()));
     ejsSetProperty(ejs, ap, -1, ejsCreatePathFromAsc(ejs, mprGetAppDir()));
 #if !VXWORKS
     ejsSetProperty(ejs, ap, -1, ejsCreatePathFromAsc(ejs, BIT_VAPP_PREFIX "/bin"));

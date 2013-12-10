@@ -6666,7 +6666,7 @@ module ejs {
             Default is false.
         @option pretty Boolean determining if a human readable output is used with new lines after each property. 
             Default is false.
-        @option quotes Boolean If false, emit property names without quotes if they do not contain spaces.
+        @option quotes Boolean If false, emit property names without quotes if they do not contain spaces. Defaults to true.
         @option replacer an optional parameter that determines how object values are stringified for objects without a 
             toJSON method.  The replace has the following signature:
 
@@ -10440,7 +10440,7 @@ module ejs {
         /**
             Match a pattern using a regular expression
             @param pattern The regular expression pattern to search for
-            @return Returns an array of matching substrings.
+            @return If matches found, returns an array of matching substrings. Otherwise returns null.
          */
         native function match(pattern: RegExp): Array
 
@@ -15816,6 +15816,12 @@ module ejs.tar {
                                 Path(header.linkName).link(header.name, true)
                             } else if (header.type == SymLink) {
                                 Path(header.linkName).link(header.name)
+                            } else if (header.type == Directory) {
+                                Path(header.name).makeDir()
+                                archive.position += header.size
+                            } else if (isNaN(header.type)) {
+                                /* Skip Pax global header */
+                                archive.position += header.size
                             } else {
                                 let fp = new File(header.name, 'w')
                                 let len = header.size

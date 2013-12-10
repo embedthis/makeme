@@ -1470,9 +1470,6 @@ PUBLIC int mprCreateEventOutside(MprDispatcher *dispatcher, void *proc, void *da
 }
 
 
-
-
-
 PUBLIC bool mprEnableGC(bool on)
 {
     bool    old;
@@ -4661,7 +4658,7 @@ static void pruneCache(MprCache *cache, MprEvent *event)
          */
         for (kp = 0; (kp = mprGetNextKey(cache->store, kp)) != 0; ) {
             item = (CacheItem*) kp->data;
-            mprTrace(6, "Cache: \"%s\" lifespan %d, expires in %d secs", item->key, 
+            mprTrace(6, "Cache: \"%s\" lifespan %Ld, expires in %Ld secs", item->key, 
                     item->lifespan / 1000, (item->expires - when) / 1000);
             if (item->expires && item->expires <= when) {
                 mprTrace(5, "Cache prune expired key %s", kp->key);
@@ -9086,7 +9083,7 @@ PUBLIC void mprRelayEvent(MprDispatcher *dispatcher, void *proc, void *data, Mpr
 {
     MprOsThread     priorOwner;
 
-    if (isRunning(dispatcher) && dispatcher->owner != mprGetCurrentOsThread()) {
+    if (isRunning(dispatcher) && (dispatcher->owner && dispatcher->owner != mprGetCurrentOsThread())) {
         mprError("Relay to a running dispatcher owned by another thread");
     }
     if (event) {
@@ -9110,10 +9107,11 @@ PUBLIC void mprRelayEvent(MprDispatcher *dispatcher, void *proc, void *data, Mpr
 PUBLIC int mprRunDispatcher(MprDispatcher *dispatcher)
 {
     assert(dispatcher);
-    if (isRunning(dispatcher) && dispatcher->owner != mprGetCurrentOsThread()) {
+    if (isRunning(dispatcher) && (dispatcher->owner && dispatcher->owner != mprGetCurrentOsThread())) {
         mprError("Relay to a running dispatcher owned by another thread");
         return MPR_ERR_BAD_STATE;
     }
+    dispatcher->owner = mprGetCurrentOsThread();
     queueDispatcher(dispatcher->service->runQ, dispatcher);
     return 0;
 }
@@ -11988,6 +11986,9 @@ static MprJson *jsonParse(MprJsonParser *parser, MprJson *obj)
                 mprSetJsonError(parser, "Unexpected input");
                 return 0;
             }
+            if (child == 0) {
+                return 0;
+            }
             if (obj) {
                 if (parser->callback.setValue(parser, obj, name, child) < 0) {
                     return 0;
@@ -12142,15 +12143,12 @@ static int gettok(MprJsonParser *parser)
             case '\'':
                 if (parser->state == MPR_JSON_STATE_NAME || parser->state == MPR_JSON_STATE_VALUE) {
                     for (cp = parser->input; *cp; cp++) {
-                        if (*cp == '\\') {
+                        if (*cp == '\\' && cp[1]) {
                             cp++;
-                        }
-                        if (*cp == c) {
-                            if (cp == parser->input || cp[-1] != '\\') {
-                                parser->tokid = JTOK_STRING;
-                                parser->input = cp + 1;
-                                break;
-                            }
+                        } else if (*cp == c) {
+                            parser->tokid = JTOK_STRING;
+                            parser->input = cp + 1;
+                            break;
                         }
                         mprPutCharToBuf(parser->buf, *cp);
                     }
@@ -12169,13 +12167,14 @@ static int gettok(MprJsonParser *parser)
                         /* Allow unquoted names */
                         for (cp = parser->input; *cp; cp++) {
                             c = *cp;
-                            if (c == '\\') {
+                            if (c == '\\' && cp[1]) {
                                 if (isxdigit((uchar) cp[1]) && isxdigit((uchar) cp[2]) && isxdigit((uchar) cp[3]) && isxdigit((uchar) cp[4])) {
                                     c = (int) stoiradix(cp, 16, NULL);
                                     cp += 3;
+                                } else {
+                                    c = *cp++;
                                 }
-                            }
-                            if ((isspace((uchar) c) || c == ':') && (cp == parser->input || *cp != '\\')) {
+                            } else if (isspace((uchar) c) || c == ':') {
                                 break;
                             }
                             mprPutCharToBuf(parser->buf, c);
@@ -12317,7 +12316,7 @@ static void formatValue(MprBuf *buf, MprJson *obj, int flags)
     }
     mprPutCharToBuf(buf, '"');
     for (cp = obj->value; *cp; cp++) {
-        if (*cp == '\"') {
+        if (*cp == '\"' || *cp == '\\') {
             mprPutCharToBuf(buf, '\\');
         }
         mprPutCharToBuf(buf, *cp);
@@ -12573,7 +12572,9 @@ static char *splitExpression(char *property, int *operator, char **value)
         vp += i;
         if (*vp == '\'' || *vp == '"') {
             for (end = &vp[1]; *end; end++) {
-                if (*end == *vp && (end == &vp[1] || *end != '\\')) {
+                if (*end == '\\' && end[1]) {
+                    end++;
+                } else if (*end == *vp) {
                     *end = '\0';
                     vp++;
                 }
@@ -14131,6 +14132,9 @@ static int defaultSort(char **q1, char **q2, void *ctx)
 
 PUBLIC MprList *mprSortList(MprList *lp, MprSortProc compare, void *ctx)
 {
+    if (!lp) {
+        return 0;
+    }
     lock(lp);
     if (!compare) {
         compare = (MprSortProc) defaultSort;
@@ -23012,10 +23016,28 @@ PUBLIC bool shnumber(cchar *s)
 
 /*
     Floating point
+    Float:      [DIGITS].[DIGITS][(e|E)[+|-]DIGITS]
  */
 PUBLIC bool sfnumber(cchar *s)
 {
-    return s && *s && strspn(s, "1234567890.+-eE") == strlen(s);
+    cchar   *cp;
+    int     dots, valid;
+
+    valid = s && *s && strspn(s, "1234567890.+-eE") == strlen(s) && strspn(s, "1234567890") > 0;
+    if (valid) {
+        /*
+            Some extra checks
+         */
+        for (cp = s, dots = 0; *cp; cp++) {
+            if (*cp == '.') {
+                if (dots++ > 0) {
+                    valid = 0;
+                    break;
+                }
+            }
+        }
+    }
+    return valid;
 } 
 
 

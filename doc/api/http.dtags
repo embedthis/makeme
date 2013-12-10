@@ -2211,6 +2211,13 @@
     <title>HttpSession</title>
     <filename>group___http_session.html</filename>
     <member kind="function">
+      <type>int</type>
+      <name>httpAddSecurityToken</name>
+      <anchorfile>group___http_session.html</anchorfile>
+      <anchor>gafcadbc5f304c531aa3375bf6950b2f1d</anchor>
+      <arglist>(HttpConn *conn)</arglist>
+    </member>
+    <member kind="function">
       <type>HttpSession *</type>
       <name>httpAllocSession</name>
       <anchorfile>group___http_session.html</anchorfile>
@@ -2222,13 +2229,6 @@
       <name>httpCheckSecurityToken</name>
       <anchorfile>group___http_session.html</anchorfile>
       <anchor>ga4903d336a75b10b083900c58060e7e38</anchor>
-      <arglist>(HttpConn *conn)</arglist>
-    </member>
-    <member kind="function">
-      <type>cchar *</type>
-      <name>httpCreateSecurityToken</name>
-      <anchorfile>group___http_session.html</anchorfile>
-      <anchor>ga80e24e46366ad518eb7fc4a333c79c59</anchor>
       <arglist>(HttpConn *conn)</arglist>
     </member>
     <member kind="function">
@@ -2296,13 +2296,6 @@
     </member>
     <member kind="function">
       <type>int</type>
-      <name>httpSetSecurityToken</name>
-      <anchorfile>group___http_session.html</anchorfile>
-      <anchor>ga60490472b43be3b2c6a7cb6f64e5f5ab</anchor>
-      <arglist>(HttpConn *conn)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
       <name>httpSetSessionObj</name>
       <anchorfile>group___http_session.html</anchorfile>
       <anchor>ga56c600614329fbd1ba3537d2cc809488</anchor>
@@ -2354,10 +2347,10 @@
     <title>HttpRx</title>
     <filename>group___http_rx.html</filename>
     <member kind="function">
-      <type>void</type>
+      <type>int</type>
       <name>httpAddBodyParams</name>
       <anchorfile>group___http_rx.html</anchorfile>
-      <anchor>gabcf27ce00a81bb7dbe840d71b0550e53</anchor>
+      <anchor>gab53b87abd5349e40a0160d4632ce068f</anchor>
       <arglist>(HttpConn *conn)</arglist>
     </member>
     <member kind="function">

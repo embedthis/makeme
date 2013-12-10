@@ -4135,23 +4135,6 @@ PUBLIC void httpAddRouteResponseHeader(HttpRoute *route, int cmd, cchar *header,
  */
 PUBLIC int httpAddRouteUpdate(HttpRoute *route, cchar *name, cchar *details, int flags);
 
-#if UNUSED
-/**
-    Add a route for static content. This can be used for ESP applications. Use the EspDir
-        appweb configuration file directive to modify the directory.
-    @description This will add a route for static content. This will add the following route:
-    <table>
-        <tr><td>Name</td><td>Method</td><td>Pattern</td><td>Target</td></tr>
-        <tr><td>static</td><td>GET</td><td>^/static(/(.)*$</td><td>$1</td></tr>
-    </table>
-    @param parent Parent route from which to inherit configuration.
-    @param name Name to use for the directory basename. Defaults to "static" if set to null.
-    @ingroup HttpRoute
-    @stability Evolving
- */
-PUBLIC void httpAddStaticRoute(HttpRoute *parent, cchar *name);
-#endif
-
 /**
     Add a route using the WebSockets filter 
     @param parent Parent route from which to inherit configuration.
@@ -5136,16 +5119,6 @@ PUBLIC int httpWriteSession(HttpConn *conn);
 PUBLIC bool httpCheckSecurityToken(HttpConn *conn);
 
 /**
-    Create a new security token.
-    @description This will create a new security token and store it in the session state for validation by subsequent requests.
-    @param conn HttpConn connection object
-    @return The security token string
-    @ingroup HttpSession
-    @stability Prototype
-*/
-PUBLIC cchar *httpCreateSecurityToken(HttpConn *conn);
-
-/**
     Get a unique security token.
     @description This will get an existing security token or create a new token if none exist for the current request.
         The security token will be stored in the session state for validation by subsequent requests.
@@ -5157,7 +5130,7 @@ PUBLIC cchar *httpCreateSecurityToken(HttpConn *conn);
 PUBLIC cchar *httpGetSecurityToken(HttpConn *conn);
 
 /**
-    Set the security token in the response.
+    Add the security token to the response.
     @description To minimize form replay attacks, a security token may be required for POST requests on a route.
     This call will set a security token in the response as a response header and as a response cookie.  
     Client-side Javascript must then send this token as a request header in subsquent POST requests.
@@ -5166,10 +5139,11 @@ PUBLIC cchar *httpGetSecurityToken(HttpConn *conn);
     @ingroup HttpSession
     @stability Prototype
 */
-PUBLIC int httpSetSecurityToken(HttpConn *conn);
+PUBLIC int httpAddSecurityToken(HttpConn *conn);
 
 #if DEPRECATED || 1
-#define httpRenderSecurityToken httpSetSecurityToken
+#define httpRenderSecurityToken httpAddSecurityToken
+#define httpSetSecurityToken httpAddSecurityToken
 #endif
 
 /********************************** HttpUploadFile *********************************/
@@ -5366,11 +5340,12 @@ PUBLIC void httpAddQueryParams(HttpConn *conn);
     Add parameters from the request body content.
     @description This adds query data to the request params
     @param conn HttpConn connection object
+    @return Zero if successful, otherwise a negative MPR error code.
     @ingroup HttpRx
     @stability Internal
     @internal
  */
-PUBLIC void httpAddBodyParams(HttpConn *conn);
+PUBLIC int httpAddBodyParams(HttpConn *conn);
 
 /**
     Add parameters from a JSON body.
