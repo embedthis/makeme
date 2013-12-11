@@ -179,7 +179,10 @@ clobber: clean
 #   version
 #
 version: $(DEPS_1)
-	@cd bits; echo 0.9.0-0 ; cd ..
+	( \
+	cd bits; \
+	echo 0.9.0-0 ; \
+	)
 
 #
 #   est.h
@@ -644,7 +647,6 @@ DEPS_32 += $(CONFIG)/obj/ejsc.o
 DEPS_32 += $(CONFIG)/bin/ejsc
 
 $(CONFIG)/bin/ejs.mod: $(DEPS_32)
-	$(LBIN)/ejsc --out ./$(CONFIG)/bin/ejs.mod --optimize 9 --bind --require null src/deps/ejs/ejs.es
 endif
 
 #

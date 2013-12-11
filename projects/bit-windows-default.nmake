@@ -211,7 +211,7 @@ clean:
 #
 version: $(DEPS_1)
 	cd bits
-	@echo 0.9.0-0
+	echo 0.9.0-0
 	cd ..
 
 #
