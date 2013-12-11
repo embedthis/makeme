@@ -36307,7 +36307,7 @@ static EjsObj *http_setCredentials(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **arg
 
 
 /*  
-    function 5(key: String, value: String, overwrite: Boolean = true): Void
+    function setHeader(key: String, value: String, overwrite: Boolean = true): Void
  */
 static EjsObj *http_setHeader(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 {
