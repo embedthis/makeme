@@ -1,4 +1,4 @@
-LICENSE.md - Embedthis Bit Licenses
+Embedthis Bit Licenses
 ---
 
 This file documents the Embedthis Software Licenses. It includes the Embedthis Bit Open Source License and licenses for third-party components within Bit.
