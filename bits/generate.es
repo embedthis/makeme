@@ -926,6 +926,9 @@ module embedthis.bit {
             let sh = (bit.generating == 'make' | bit.generating == 'sh' || bit.generating == 'xcode') ? target['generate-sh'] : null
             cmd = target['generate-' + kind + '-' + bit.platform.os] || target['generate-' + kind] || 
                 target['generate-make-' + bit.platform.os] || target['generate-make'] || sh || target.generate
+            if (cmd) {
+                cmd = cmd.trim().replace(/\n/mg, ' ; \\\n')
+            }
         } 
         if (bit.generating == 'sh') {
             if (cmd) {
