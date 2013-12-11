@@ -5076,16 +5076,29 @@ PUBLIC bool httpLookupSessionID(cchar *id);
 PUBLIC int httpRemoveSessionVar(HttpConn *conn, cchar *name);
 
 /**
-    Set a session variable.
-    @description
+    Set a linked managed memory reference for a session.
+    @description When the session expires, the linked memory will be eligible for garbage collection.
+    This routine is useful to attach objects or memory to a session and have them be released together.
     @param conn Http connection object
-    @param name Variable name to set
-    @param value Variable value to use
-    @return A session state object
-    @ingroup HttpSession
-    @stability Evolving
+    @param key Cache item key to write
+    @param link Managed memory reference. May be NULL.
+    @ingroup MprCache
+    @stability Prototype
  */
-PUBLIC int httpSetSessionVar(HttpConn *conn, cchar *name, cchar *value);
+PUBLIC int httpSetCacheLink(HttpConn *conn, void *link);
+
+/**
+    Set a notification callback to be invoked for session notification events.
+    WARNING: the callback may happen on any thread. Use careful locking to synchronize access to data. Take care
+            not to block the thread issuing the callback.
+    @param notify MprCacheProc notification callback. Invoked for events of interest on cache items. 
+        The event is set to MPR_CACHE_NOTIFY_REMOVE when items are removed from the cache.  Invoked as:
+
+        (*MprCacheProc)(MprCache *cache, cchar *key, cchar *data, int event);
+    @ingroup HttpSession
+    @stability Prototype
+  */
+PUBLIC void httpSetSessionNotify(MprCacheProc notify);
 
 /**
     Set an object into the session state store.
@@ -5097,6 +5110,18 @@ PUBLIC int httpSetSessionVar(HttpConn *conn, cchar *name, cchar *value);
     @stability Evolving
  */
 PUBLIC int httpSetSessionObj(HttpConn *conn, cchar *key, MprHash *value);
+
+/**
+    Set a session variable.
+    @description
+    @param conn Http connection object
+    @param name Variable name to set
+    @param value Variable value to use
+    @return A session state object
+    @ingroup HttpSession
+    @stability Evolving
+ */
+PUBLIC int httpSetSessionVar(HttpConn *conn, cchar *name, cchar *value);
 
 /**
     Write the session state to persistent data storage

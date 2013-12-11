@@ -1,5 +1,5 @@
 /*
-    mprLib.c -- Multithreaded Portable Runtime Library Source
+    mprLib.c -- Embedthis Multithreaded Portable Runtime Library Source
 
     This file is a catenation of all the source code. Amalgamating into a
     single file makes embedding simpler and the resulting application faster.
@@ -4312,13 +4312,14 @@ static MprCache *shared;                /* Singleton shared cache */
 
 typedef struct CacheItem
 {
-    char        *key;                   /* Original key */
-    char        *data;                  /* Cache data */
-    MprTicks    lifespan;               /* Lifespan after each access to key (msec) */
-    MprTicks    lastAccessed;           /* Last accessed time */
-    MprTicks    expires;                /* Fixed expiry date. If zero, key is imortal. */
-    MprTime     lastModified;           /* Last update time. This is an MprTime and records world-time. */
-    int64       version;
+    char            *key;               /* Original key */
+    char            *data;              /* Cache data */
+    void            *link;              /* Linked managed reference */
+    MprTicks        lifespan;           /* Lifespan after each access to key (msec) */
+    MprTicks        lastAccessed;       /* Last accessed time */
+    MprTicks        expires;            /* Fixed expiry date. If zero, key is imortal. */
+    MprTime         lastModified;       /* Last update time. This is an MprTime and records world-time. */
+    int64           version;
 } CacheItem;
 
 #define CACHE_TIMER_PERIOD      (60 * MPR_TICKS_PER_SEC)
@@ -4514,6 +4515,18 @@ PUBLIC bool mprRemoveCache(MprCache *cache, cchar *key)
 }
 
 
+PUBLIC void mprSetCacheNotify(MprCache *cache, MprCacheProc notify)
+{
+    assert(cache);
+
+    if (cache->shared) {
+        cache = cache->shared;
+        assert(cache == shared);
+    }
+    cache->notify = notify;
+}
+
+
 PUBLIC void mprSetCacheLimits(MprCache *cache, int64 keys, MprTicks lifespan, int64 memory, int resolution)
 {
     assert(cache);
@@ -4551,7 +4564,7 @@ PUBLIC ssize mprWriteCache(MprCache *cache, cchar *key, cchar *value, MprTime mo
     CacheItem   *item;
     MprKey      *kp;
     ssize       len, oldLen;
-    int         exists, add, set, prepend, append, throw;
+    int         exists, add, set, prepend, append, throw, event;
 
     assert(cache);
     assert(key && *key);
@@ -4616,8 +4629,62 @@ PUBLIC ssize mprWriteCache(MprCache *cache, cchar *key, cchar *value, MprTime mo
         cache->timer = mprCreateTimerEvent(MPR->dispatcher, "localCacheTimer", cache->resolution, pruneCache, cache, 
             MPR_EVENT_STATIC_DATA); 
     }
+    if (cache->notify) {
+        if (exists) {
+            event = MPR_CACHE_NOTIFY_CREATE;
+        } else {
+            event = MPR_CACHE_NOTIFY_UPDATE;
+        }
+        (cache->notify)(cache, item->key, item->data, event);
+    }
     unlock(cache);
     return len;
+}
+
+
+PUBLIC void *mprGetCacheLink(MprCache *cache, cchar *key)
+{
+    CacheItem   *item;
+    MprKey      *kp;
+    void        *result;
+
+    assert(cache);
+    assert(key && *key);
+
+    if (cache->shared) {
+        cache = cache->shared;
+        assert(cache == shared);
+    }
+    result = 0;
+    lock(cache);
+    if ((kp = mprLookupKeyEntry(cache->store, key)) != 0) {
+        item = (CacheItem*) kp->data;
+        result = item->link;
+    }
+    unlock(cache);
+    return result;
+}
+
+
+PUBLIC int mprSetCacheLink(MprCache *cache, cchar *key, void *link)
+{
+    CacheItem   *item;
+    MprKey      *kp;
+
+    assert(cache);
+    assert(key && *key);
+
+    if (cache->shared) {
+        cache = cache->shared;
+        assert(cache == shared);
+    }
+    lock(cache);
+    if ((kp = mprLookupKeyEntry(cache->store, key)) != 0) {
+        item = (CacheItem*) kp->data;
+        item->link = link;
+    }
+    unlock(cache);
+    return kp ? 0 : MPR_ERR_CANT_FIND;
 }
 
 
@@ -4627,6 +4694,9 @@ static void removeItem(MprCache *cache, CacheItem *item)
     assert(item);
 
     lock(cache);
+    if (cache->notify) {
+        (cache->notify)(cache, item->key, item->data, MPR_CACHE_NOTIFY_REMOVE);
+    }
     mprRemoveKey(cache->store, item->key);
     cache->usedMem -= (slen(item->key) + slen(item->data));
     unlock(cache);
@@ -4682,7 +4752,7 @@ static void pruneCache(MprCache *cache, MprEvent *event)
                     item = (CacheItem*) kp->data;
                     if (item->expires && item->expires <= when) {
                         mprTrace(5, "Cache too big execess keys %Ld, mem %Ld, prune key %s", 
-                                excessKeys, (cache->maxMem - cache->usedMem), kp->key);
+                            excessKeys, (cache->maxMem - cache->usedMem), kp->key);
                         removeItem(cache, item);
                     }
                 }
@@ -14277,7 +14347,9 @@ PUBLIC char *mprListToString(MprList *list, cchar *join)
         mprPutStringToBuf(buf, s);
         mprPutStringToBuf(buf, join);
     }
-    mprAdjustBufEnd(buf, -1);
+    if (next > 0) {
+        mprAdjustBufEnd(buf, -1);
+    }
     mprAddNullToBuf(buf);
     return mprGetBufStart(buf);
 }

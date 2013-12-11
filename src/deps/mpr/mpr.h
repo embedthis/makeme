@@ -51,6 +51,7 @@ struct  Mpr;
 struct  MprMem;
 struct  MprBuf;
 struct  MprCmd;
+struct  MprCache;
 struct  MprCond;
 struct  MprDispatcher;
 struct  MprEvent;
@@ -8798,12 +8799,32 @@ PUBLIC ssize mprWriteCmd(MprCmd *cmd, int channel, cchar *buf, ssize bufsize);
 PUBLIC ssize mprWriteCmdBlock(MprCmd *cmd, int channel, cchar *buf, ssize bufsize);
 
 /********************************** Cache *************************************/
+/*
+    General cache options
+ */
+#define MPR_CACHE_SHARED        0x1     /**< Use shared cache for mprCreateCache() */
+#define MPR_CACHE_ADD           0x2     /**< mprWriteCache option to add key only if not already existing */
+#define MPR_CACHE_SET           0x4     /**< mprWriteCache option to update key value, create if required */
+#define MPR_CACHE_APPEND        0x8     /**< mprWriteCache option to set and append if already existing */
+#define MPR_CACHE_PREPEND       0x10    /**< mprWriteCache option to set and prepend if already existing */
 
-#define MPR_CACHE_SHARED        0x1     /**< Use shared cache */
-#define MPR_CACHE_ADD           0x2     /**< Add key if not already existing */
-#define MPR_CACHE_SET           0x4     /**< Update key value, create if required */
-#define MPR_CACHE_APPEND        0x8     /**< Set and append if already existing */
-#define MPR_CACHE_PREPEND       0x10    /**< Set and prepend if already existing */
+/*
+    Notification events
+ */
+#define MPR_CACHE_NOTIFY_CREATE        1     /**< Item has been created */
+#define MPR_CACHE_NOTIFY_REMOVE        2     /**< Item is about to be removed */
+#define MPR_CACHE_NOTIFY_UPDATE        4     /**< Item has been updated */
+
+/**
+    Cache item expiry callback
+    @param cache Cache object 
+    @param key Cached item key
+    @param data Cached item data
+    @param event Event of interest.
+    @ingroup MprCache
+    @stability Prototype
+ */
+typedef void (*MprCacheProc)(struct MprCache *cache, cchar *key, cchar *data, int event);
 
 /**
     In-memory caching. The MprCache provides a fast, in-memory caching of cache items. Cache items are string key / value 
@@ -8819,6 +8840,7 @@ typedef struct MprCache {
     MprMutex        *mutex;             /**< Cache lock */
     MprEvent        *timer;             /**< Pruning timer */
     MprTicks        lifespan;           /**< Default lifespan (msec) */
+    MprCacheProc    notify;             /* Notification callback for item expiry */
     int             resolution;         /**< Frequence for pruner */
     ssize           usedMem;            /**< Memory in use for keys and data */
     ssize           maxKeys;            /**< Max number of keys */
@@ -8828,8 +8850,7 @@ typedef struct MprCache {
 
 /**
     Create a new cache object
-    @param options Set of option flags. Select from #MPR_CACHE_SHARED, #MPR_CACHE_ADD, #MPR_CACHE_ADD, #MPR_CACHE_SET,
-        #MPR_CACHE_APPEND, #MPR_CACHE_PREPEND.
+    @param options Set of option flags. Use #MPR_CACHE_SHARED to select a global shared cache object.
     @return A cache instance object. On error, return null.
     @ingroup MprCache
     @stability Evolving
@@ -8919,6 +8940,20 @@ PUBLIC char *mprReadCache(MprCache *cache, cchar *key, MprTime *modified, int64 
 PUBLIC bool mprRemoveCache(MprCache *cache, cchar *key);
 
 /**
+    Set a notification callback to be invoked for events of interest on cached items.
+    WARNING: the callback may happen on any thread. Use careful locking to synchronize access to data. Take care
+        not to block the thread issuing the callback.
+    @param cache The cache instance object returned from #mprCreateCache.
+    @param notify MprCacheProc notification callback. Invoked for events of interest on cache items. 
+        The event is set to MPR_CACHE_NOTIFY_REMOVE when items are removed from the cache.  Invoked as:
+
+        (*MprCacheProc)(MprCache *cache, cchar *key, cchar *data, int event);
+    @ingroup MprCache
+    @stability Prototype
+  */
+PUBLIC void mprSetCacheNotify(MprCache *cache, MprCacheProc notify);
+
+/**
     Set the cache resource limits
     @param cache The cache instance object returned from #mprCreateCache.
     @param keys Set the maximum number of keys the cache can store
@@ -8932,10 +8967,20 @@ PUBLIC bool mprRemoveCache(MprCache *cache, cchar *key);
 PUBLIC void mprSetCacheLimits(MprCache *cache, int64 keys, MprTicks lifespan, int64 memory, int resolution);
 
 /**
+    Set a linked managed memory reference for a cached item.
+    @param cache The cache instance object returned from #mprCreateCache.
+    @param key Cache item key to write
+    @param link Managed memory reference. May be NULL.
+    @ingroup MprCache
+    @stability Prototype
+ */
+PUBLIC int mprSetCacheLink(MprCache *cache, cchar *key, void *link);
+
+/**
     Write a cache item
     @param cache The cache instance object returned from #mprCreateCache.
     @param key Cache item key to write
-    @param value Value to set for the cache item
+    @param value Value to set for the cache item. This must be allocated memory.
     @param modified Value to set for the cache last modified time. If set to zero, the current time is obtained via
         #mprGetTime.
     @param lifespan Lifespan of the item in milliseconds. The item will be removed from the cache by the Cache manager
