@@ -664,19 +664,7 @@ public class Bit {
         if (!bitfile.exists) {
             throw 'Cannot find ' + bitfile
         }
-        let ver
-        if (MAIN.exists) {
-            quickLoad(MAIN)
-            ver = bit.settings.version + '-' + bit.settings.buildNumber
-        }
         quickLoad(bitfile)
-/* FUTURE
-        if (!bit.settings.version && PACKAGE.exists) {
-            try {
-                ver = PACKAGE.readJSON().version
-            } catch {}
-        }
- */
         if (bit.platforms) {
             platforms = bit.platforms
             for (let [index,platform] in bit.platforms) {
@@ -685,7 +673,7 @@ public class Bit {
                 if (index == (bit.platforms.length - 1)) {
                     bit.platform.last = true
                 }
-                if (ver && (ver != (bit.settings.version + '-' + bit.settings.buildNumber))) {
+                if (bit.package && bit.package.version != bit.settings.version) {
                     trace('Upgrade', 'Main.bit has been updated, reconfiguring ...')
                     overlay('configure.es')
                     reconfigure()
@@ -2877,6 +2865,7 @@ public class Bit {
                 }
             }
         }
+        loadPackage()
         if (kind == 'windows') {
             /*
                 If 32 bit, /Program Files
@@ -2961,6 +2950,20 @@ public class Bit {
         return os1 == os2 && arch1 == arch2
     }
 
+    private function loadPackage() {
+        if (PACKAGE.exists) {
+            try {
+                let package = bit.package = PACKAGE.readJSON()
+                bit.settings ||= {}
+                bit.settings.product = package.name
+                bit.settings.title = package.description
+                bit.settings.version = package.version
+                bit.settings.buildNumber = '0'
+                bit.settings.company ||= (package.author && package.author.name)
+            } catch {}
+        }
+    }
+
     /**
         @hide
      */
@@ -2968,6 +2971,7 @@ public class Bit {
         global.bit = bit = makeBareBit()
         bit.quickLoad = true
         loadBitFile(bitfile)
+        loadPackage()
     }
 
     function validatePlatform(os, arch) {
