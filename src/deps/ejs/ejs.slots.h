@@ -2042,15 +2042,16 @@
 #define ES_Path_toJSON                                                 66
 #define ES_Path_toLowerCase                                            67
 #define ES_Path_toString                                               68
-#define ES_Path_trimEnd                                                69
-#define ES_Path_trimExt                                                70
-#define ES_Path_trimStart                                              71
-#define ES_Path_truncate                                               72
-#define ES_Path_windows                                                73
-#define ES_Path_write                                                  74
-#define ES_Path_makeTemp                                               75
-#define ES_Path_compact                                                76
-#define ES_Path_NUM_INSTANCE_PROP                                      77
+#define ES_Path_trimComponents                                         69
+#define ES_Path_trimEnd                                                70
+#define ES_Path_trimExt                                                71
+#define ES_Path_trimStart                                              72
+#define ES_Path_truncate                                               73
+#define ES_Path_windows                                                74
+#define ES_Path_write                                                  75
+#define ES_Path_makeTemp                                               76
+#define ES_Path_compact                                                77
+#define ES_Path_NUM_INSTANCE_PROP                                      78
 #define ES_Path_NUM_INHERITED_PROP                                     0
 
 
@@ -2613,7 +2614,7 @@
 #define ES_XMLList_NUM_INSTANCE_PROP                                   20
 #define ES_XMLList_NUM_INHERITED_PROP                                  0
 
-#define _ES_CHECKSUM_ejs   1516307
+#define _ES_CHECKSUM_ejs   1518368
 
 #endif
 

@@ -9362,6 +9362,14 @@ module ejs {
          */
         native override function toString(): String
 
+        /**
+            Trim the requested number of path components from the start or end of the path
+            @param count Number of directory components to remove. If negative, trim from the end.
+            @return Trimmed path
+         */
+        function trimComponents(count: Number): Path
+            components.slice(count).join(separator)
+
         //  TODO - should support reg expressions
         /**
             Trim a pattern from the end of the path
@@ -13462,7 +13470,7 @@ module ejs {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.db/Database.es"
+    Start of file "src/ejs.db/Database.es"
  */
 /************************************************************************/
 
@@ -13836,7 +13844,7 @@ module ejs.db {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.db/DatabaseConnector.es"
+    Start of file "src/ejs.db/DatabaseConnector.es"
  */
 /************************************************************************/
 
@@ -13958,7 +13966,7 @@ module ejs.db {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.db.mapper/Record.es"
+    Start of file "src/ejs.db.mapper/Record.es"
  */
 /************************************************************************/
 
@@ -15254,7 +15262,7 @@ module ejs.db.mapper {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.db.sqlite/Sqlite.es"
+    Start of file "src/ejs.db.sqlite/Sqlite.es"
  */
 /************************************************************************/
 
@@ -15590,7 +15598,7 @@ module ejs.db.sqlite {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.mail/Mail.es"
+    Start of file "src/ejs.mail/Mail.es"
  */
 /************************************************************************/
 
@@ -15687,7 +15695,7 @@ module ejs.mail {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.tar/Tar.es"
+    Start of file "src/ejs.tar/Tar.es"
  */
 /************************************************************************/
 
@@ -16105,7 +16113,7 @@ module ejs.tar {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.template/TemplateParser.es"
+    Start of file "src/ejs.template/TemplateParser.es"
  */
 /************************************************************************/
 
@@ -16427,7 +16435,7 @@ module ejs.template  {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.unix/Unix.es"
+    Start of file "src/ejs.unix/Unix.es"
  */
 /************************************************************************/
 
@@ -16475,7 +16483,7 @@ module ejs.unix {
             The wildcards "*", "**" and "?" are the only wild card patterns supported. The "**" pattern matches
             every directory and file. The Posix "[]" and "{a,b}" style expressions are not supported.
             If src is an existing directory, then the pattern is converted to 'dir/ * *' (without spaces) 
-            and the tree option is enabled.
+            and the tree option is enabled. This will copy the directories contents and not the directory itself.
         @param dest Destination file or directory. If multiple files are copied, dest is assumed to be a directory and 
             will be created if required.  If dest has a trailing "/", it is assumed to be a directory.
         @param options Processing and file attributes
@@ -16505,7 +16513,7 @@ module ejs.unix {
             for each (let file: Path in list) {
                 let to, from = base.join(file)
                 if (options.tree) {
-                    to = dest.join(base, file).normalize
+                    to = dest.join(file).normalize
                 } else if (destIsDir) {
                     to = dest.join(file.basename)
                 } else {
@@ -16522,7 +16530,6 @@ module ejs.unix {
         }
         return count
     }
-
     /**
         Get the directory name portion of a file. The dirname name portion is the leading portion including all 
         directory elements and excluding the base name. On some systems, it will include a drive specifier.
@@ -16811,7 +16818,7 @@ module ejs.unix {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/Cascade.es"
+    Start of file "src/ejs.web/Cascade.es"
  */
 /************************************************************************/
 
@@ -16868,7 +16875,7 @@ module ejs.web {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/CommonLog.es"
+    Start of file "src/ejs.web/CommonLog.es"
  */
 /************************************************************************/
 
@@ -16953,7 +16960,7 @@ module ejs.web {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/ContentType.es"
+    Start of file "src/ejs.web/ContentType.es"
  */
 /************************************************************************/
 
@@ -17018,7 +17025,7 @@ module ejs.web {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/Controller.es"
+    Start of file "src/ejs.web/Controller.es"
  */
 /************************************************************************/
 
@@ -17976,7 +17983,7 @@ module ejs.web {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/Dir.es"
+    Start of file "src/ejs.web/Dir.es"
  */
 /************************************************************************/
 
@@ -18058,7 +18065,7 @@ module ejs.web {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/Google.es"
+    Start of file "src/ejs.web/Google.es"
  */
 /************************************************************************/
 
@@ -18272,7 +18279,7 @@ module ejs.web {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/Head.es"
+    Start of file "src/ejs.web/Head.es"
  */
 /************************************************************************/
 
@@ -18333,7 +18340,7 @@ module ejs.web {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/Html.es"
+    Start of file "src/ejs.web/Html.es"
  */
 /************************************************************************/
 
@@ -19068,7 +19075,7 @@ module ejs.web {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/HttpServer.es"
+    Start of file "src/ejs.web/HttpServer.es"
  */
 /************************************************************************/
 
@@ -19784,7 +19791,7 @@ server.listen("127.0.0.1:7777")
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/MethodOverride.es"
+    Start of file "src/ejs.web/MethodOverride.es"
  */
 /************************************************************************/
 
@@ -19839,7 +19846,7 @@ module ejs.web {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/Middleware.es"
+    Start of file "src/ejs.web/Middleware.es"
  */
 /************************************************************************/
 
@@ -19889,7 +19896,7 @@ module ejs.web {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/Mvc.es"
+    Start of file "src/ejs.web/Mvc.es"
  */
 /************************************************************************/
 
@@ -20166,7 +20173,7 @@ module ejs.web {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/Request.es"
+    Start of file "src/ejs.web/Request.es"
  */
 /************************************************************************/
 
@@ -21385,7 +21392,7 @@ MOB - DEBUG
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/Router.es"
+    Start of file "src/ejs.web/Router.es"
  */
 /************************************************************************/
 
@@ -22460,7 +22467,7 @@ module ejs.web {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/Script.es"
+    Start of file "src/ejs.web/Script.es"
  */
 /************************************************************************/
 
@@ -22530,7 +22537,7 @@ module ejs.web {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/Session.es"
+    Start of file "src/ejs.web/Session.es"
  */
 /************************************************************************/
 
@@ -22598,7 +22605,7 @@ module ejs.web {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/ShowExceptions.es"
+    Start of file "src/ejs.web/ShowExceptions.es"
  */
 /************************************************************************/
 
@@ -22650,7 +22657,7 @@ module ejs.web {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/Static.es"
+    Start of file "src/ejs.web/Static.es"
  */
 /************************************************************************/
 
@@ -22875,7 +22882,7 @@ module ejs.web {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/Template.es"
+    Start of file "src/ejs.web/Template.es"
  */
 /************************************************************************/
 
@@ -22975,7 +22982,7 @@ module ejs.web {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/UploadFile.es"
+    Start of file "src/ejs.web/UploadFile.es"
  */
 /************************************************************************/
 
@@ -23046,7 +23053,7 @@ module ejs.web {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/UrlMap.es"
+    Start of file "src/ejs.web/UrlMap.es"
  */
 /************************************************************************/
 
@@ -23138,7 +23145,7 @@ module ejs.web {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/Utils.es"
+    Start of file "src/ejs.web/Utils.es"
  */
 /************************************************************************/
 
@@ -23279,7 +23286,7 @@ module ejs.web {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/View.es"
+    Start of file "src/ejs.web/View.es"
  */
 /************************************************************************/
 
@@ -24300,7 +24307,7 @@ MOB -- much more doc here
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.zip/Zip.es"
+    Start of file "src/ejs.zip/Zip.es"
  */
 /************************************************************************/
 
@@ -24372,7 +24379,7 @@ module ejs.tar {
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.zlib/Zlib.es"
+    Start of file "src/ejs.zlib/Zlib.es"
  */
 /************************************************************************/
 

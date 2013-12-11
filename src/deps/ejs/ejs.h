@@ -9418,7 +9418,7 @@ PUBLIC int64 ejsSwapInt64(Ejs *ejs, int64 word);
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/ejsWeb.h"
+    Start of file "src/ejs.web/ejsWeb.h"
  */
 /************************************************************************/
 

@@ -856,6 +856,7 @@ static int issueRequest(HttpConn *conn, cchar *url, MprList *files)
         if ((rc = httpWait(conn, HTTP_STATE_PARSED, conn->limits->requestTimeout)) == 0) {
             if (httpNeedRetry(conn, &redirect)) {
                 if (redirect) {
+                    httpRemoveHeader(conn, "Host");
                     location = httpCreateUri(redirect, 0);
                     target = httpJoinUri(conn->tx->parsedUri, 1, &location);
                     url = httpUriToString(target, HTTP_COMPLETE_URI);

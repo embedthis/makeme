@@ -12876,7 +12876,9 @@ static EcNode *parseLiteralField(EcCompiler *cp)
             return LEAVE(cp, 0);
         }
         cp->state->currentFunctionNode = fp;
-        fp = parseFunctionSignature(cp, fp);
+        if ((fp = parseFunctionSignature(cp, fp)) == 0) {
+            return LEAVE(cp, 0);
+        }
         fp->function.body = linkNode(fp, parseFunctionBody(cp, fp));
         if (fp->function.body == 0) {
             return LEAVE(cp, 0);
@@ -36305,7 +36307,7 @@ static EjsObj *http_setCredentials(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **arg
 
 
 /*  
-    function setHeader(key: String, value: String, overwrite: Boolean = true): Void
+    function 5(key: String, value: String, overwrite: Boolean = true): Void
  */
 static EjsObj *http_setHeader(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 {
@@ -36989,6 +36991,7 @@ static bool waitForState(EjsHttp *hp, int state, MprTicks timeout, int throw)
         if ((rc = httpWait(conn, HTTP_STATE_PARSED, remaining)) == 0) {
             if (httpNeedRetry(conn, &url)) {
                 if (url) {
+                    httpRemoveHeader(conn, "Host");
                     location = httpCreateUri(url, 0);
                     uri = httpJoinUri(conn->tx->parsedUri, 1, &location);
                     hp->uri = httpUriToString(uri, HTTP_COMPLETE_URI);
@@ -64751,7 +64754,7 @@ void ZLIB_INTERNAL zcfree (opaque, ptr)
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.db.sqlite/ejsSqlite.c"
+    Start of file "src/ejs.db.sqlite/ejsSqlite.c"
  */
 /************************************************************************/
 
@@ -65214,7 +65217,7 @@ PUBLIC int ejs_db_sqlite_Init(Ejs *ejs, MprModule *mp)
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/ejsHttpServer.c"
+    Start of file "src/ejs.web/ejsHttpServer.c"
  */
 /************************************************************************/
 
@@ -66208,7 +66211,7 @@ void ejsConfigureHttpServerType(Ejs *ejs)
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/ejsRequest.c"
+    Start of file "src/ejs.web/ejsRequest.c"
  */
 /************************************************************************/
 
@@ -67828,7 +67831,7 @@ void ejsConfigureRequestType(Ejs *ejs)
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/ejsSession.c"
+    Start of file "src/ejs.web/ejsSession.c"
  */
 /************************************************************************/
 
@@ -68103,7 +68106,7 @@ void ejsConfigureSessionType(Ejs *ejs)
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.web/ejsWeb.c"
+    Start of file "src/ejs.web/ejsWeb.c"
  */
 /************************************************************************/
 
@@ -68186,7 +68189,7 @@ int ejs_web_Init(Ejs *ejs, MprModule *mp)
 
 /************************************************************************/
 /*
-    Start of file "src/jems/ejs.zlib/ejsZlib.c"
+    Start of file "src/ejs.zlib/ejsZlib.c"
  */
 /************************************************************************/
 
