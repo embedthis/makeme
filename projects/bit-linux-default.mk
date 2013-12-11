@@ -1,5 +1,5 @@
 #
-#   bit-linux-default.mk -- Makefile to build Embedthis Bit - Built It Tool for linux
+#   bit-linux-default.mk -- Makefile to build Embedthis Bit for linux
 #
 
 PRODUCT            := bit
@@ -113,6 +113,7 @@ ifeq ($(BIT_PACK_EJSCRIPT),1)
 TARGETS            += $(CONFIG)/bin/ejs.mod
 endif
 TARGETS            += $(CONFIG)/bin/bit
+TARGETS            += bower.json
 
 unexport CDPATH
 
@@ -158,6 +159,7 @@ clean:
 	rm -f "$(CONFIG)/bin/libejs.so"
 	rm -f "$(CONFIG)/bin/ejs"
 	rm -f "$(CONFIG)/bin/ejsc"
+	rm -f "bower.json"
 	rm -f "$(CONFIG)/obj/estLib.o"
 	rm -f "$(CONFIG)/obj/mprLib.o"
 	rm -f "$(CONFIG)/obj/mprSsl.o"
@@ -858,14 +860,24 @@ $(CONFIG)/bin/bit: $(DEPS_35)
 	$(CC) -o $(CONFIG)/bin/bit $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/bit.o" $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) $(LIBS) 
 
 #
+#   bower.json
+#
+DEPS_36 += package.json
+
+bower.json: $(DEPS_36)
+	@echo '      [Copy] bower.json'
+	mkdir -p "."
+	cp package.json bower.json
+
+#
 #   stop
 #
-stop: $(DEPS_36)
+stop: $(DEPS_37)
 
 #
 #   installBinary
 #
-installBinary: $(DEPS_37)
+installBinary: $(DEPS_38)
 	mkdir -p "$(BIT_APP_PREFIX)"
 	rm -f "$(BIT_APP_PREFIX)/latest"
 	ln -s "0.9.0" "$(BIT_APP_PREFIX)/latest"
@@ -948,24 +960,24 @@ installBinary: $(DEPS_37)
 #
 #   start
 #
-start: $(DEPS_38)
+start: $(DEPS_39)
 
 #
 #   install
 #
-DEPS_39 += stop
-DEPS_39 += installBinary
-DEPS_39 += start
+DEPS_40 += stop
+DEPS_40 += installBinary
+DEPS_40 += start
 
-install: $(DEPS_39)
+install: $(DEPS_40)
 	
 
 #
 #   uninstall
 #
-DEPS_40 += stop
+DEPS_41 += stop
 
-uninstall: $(DEPS_40)
+uninstall: $(DEPS_41)
 	rm -fr "$(BIT_VAPP_PREFIX)"
 	rm -f "$(BIT_APP_PREFIX)/latest"
 	rmdir -p "$(BIT_APP_PREFIX)" 2>/dev/null ; true

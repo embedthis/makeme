@@ -1,5 +1,5 @@
 /*
-    est.h -- Embedded Security Transport Library Header
+    est.h -- Embethis EST Library Header
 
     This file is a catenation of all the source code. Amalgamating into a
     single file makes embedding simpler and the resulting application faster.

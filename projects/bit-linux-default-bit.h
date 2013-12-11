@@ -146,7 +146,7 @@
     #define BIT_SYNC "bitos,est,mpr,pcre,http,ejs"
 #endif
 #ifndef BIT_TITLE
-    #define BIT_TITLE "Embedthis Bit - Built It Tool"
+    #define BIT_TITLE "Embedthis Bit"
 #endif
 #ifndef BIT_TUNE
     #define BIT_TUNE "speed"

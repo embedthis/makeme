@@ -1,5 +1,5 @@
 /*
-    ejs.c -- Embedthis Ejscript Javascript Language Shell Command
+    ejs.c -- Embethis Ejscript Shell Command
 
     This file is a catenation of all the source code. Amalgamating into a
     single file makes embedding simpler and the resulting application faster.

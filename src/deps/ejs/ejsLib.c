@@ -1,5 +1,5 @@
 /*
-    ejsLib.c -- Embedthis Ejscript Javascript Language Library Source
+    ejsLib.c -- Embethis Ejscript Library Source
 
     This file is a catenation of all the source code. Amalgamating into a
     single file makes embedding simpler and the resulting application faster.
@@ -55178,7 +55178,7 @@ static void indent(MprBuf *bp, int level)
 
 /************************************************************************/
 /*
-    Start of file "winmap.h"
+    Start of file "src/winmap.h"
  */
 /************************************************************************/
 
@@ -55228,7 +55228,7 @@ static void indent(MprBuf *bp, int level)
 
 /************************************************************************/
 /*
-    Start of file "adler32.c"
+    Start of file "src/adler32.c"
  */
 /************************************************************************/
 
@@ -55425,7 +55425,7 @@ uLong ZEXPORT adler32_combine64(adler1, adler2, len2)
 
 /************************************************************************/
 /*
-    Start of file "compress.c"
+    Start of file "src/compress.c"
  */
 /************************************************************************/
 
@@ -55515,7 +55515,7 @@ uLong ZEXPORT compressBound (sourceLen)
 
 /************************************************************************/
 /*
-    Start of file "crc32.c"
+    Start of file "src/crc32.c"
  */
 /************************************************************************/
 
@@ -56424,7 +56424,7 @@ uLong ZEXPORT crc32_combine64(crc1, crc2, len2)
 
 /************************************************************************/
 /*
-    Start of file "deflate.c"
+    Start of file "src/deflate.c"
  */
 /************************************************************************/
 
@@ -58396,7 +58396,7 @@ local block_state deflate_huff(s, flush)
 
 /************************************************************************/
 /*
-    Start of file "gzclose.c"
+    Start of file "src/gzclose.c"
  */
 /************************************************************************/
 
@@ -58428,7 +58428,7 @@ int ZEXPORT gzclose(file)
 
 /************************************************************************/
 /*
-    Start of file "gzlib.c"
+    Start of file "src/gzlib.c"
  */
 /************************************************************************/
 
@@ -58999,7 +58999,7 @@ unsigned ZLIB_INTERNAL gz_intmax()
 
 /************************************************************************/
 /*
-    Start of file "gzread.c"
+    Start of file "src/gzread.c"
  */
 /************************************************************************/
 
@@ -59590,7 +59590,7 @@ int ZEXPORT gzclose_r(file)
 
 /************************************************************************/
 /*
-    Start of file "gzwrite.c"
+    Start of file "src/gzwrite.c"
  */
 /************************************************************************/
 
@@ -60190,7 +60190,7 @@ unsigned long ZEXPORT gzflags()
 
 /************************************************************************/
 /*
-    Start of file "infback.c"
+    Start of file "src/infback.c"
  */
 /************************************************************************/
 
@@ -60841,7 +60841,7 @@ z_streamp strm;
 
 /************************************************************************/
 /*
-    Start of file "inffast.c"
+    Start of file "src/inffast.c"
  */
 /************************************************************************/
 
@@ -61188,7 +61188,7 @@ unsigned start;         /* inflate()'s starting value for strm->avail_out */
 
 /************************************************************************/
 /*
-    Start of file "inflate.c"
+    Start of file "src/inflate.c"
  */
 /************************************************************************/
 
@@ -62704,7 +62704,7 @@ z_streamp strm;
 
 /************************************************************************/
 /*
-    Start of file "inftrees.c"
+    Start of file "src/inftrees.c"
  */
 /************************************************************************/
 
@@ -63017,7 +63017,7 @@ unsigned short FAR *work;
 
 /************************************************************************/
 /*
-    Start of file "trees.c"
+    Start of file "src/trees.c"
  */
 /************************************************************************/
 
@@ -64377,7 +64377,7 @@ local void copy_block(s, buf, len, header)
 
 /************************************************************************/
 /*
-    Start of file "uncompr.c"
+    Start of file "src/uncompr.c"
  */
 /************************************************************************/
 
@@ -64446,7 +64446,7 @@ int ZEXPORT uncompress (dest, destLen, source, sourceLen)
 
 /************************************************************************/
 /*
-    Start of file "zutil.c"
+    Start of file "src/zutil.c"
  */
 /************************************************************************/
 

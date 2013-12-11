@@ -5080,7 +5080,6 @@ PUBLIC int httpRemoveSessionVar(HttpConn *conn, cchar *name);
     @description When the session expires, the linked memory will be eligible for garbage collection.
     This routine is useful to attach objects or memory to a session and have them be released together.
     @param conn Http connection object
-    @param key Cache item key to write
     @param link Managed memory reference. May be NULL.
     @ingroup MprCache
     @stability Prototype

@@ -1,5 +1,5 @@
 /*
-    ejs.h -- Embedthis Ejscript Javascript Language Library Source
+    ejs.h -- Embethis Ejscript Library Source
 
     This file is a catenation of all the source code. Amalgamating into a
     single file makes embedding simpler and the resulting application faster.
@@ -38,7 +38,7 @@
 
 /************************************************************************/
 /*
-    Start of file "zconf.h"
+    Start of file "src/zconf.h"
  */
 /************************************************************************/
 
@@ -540,7 +540,7 @@ typedef uLong FAR uLongf;
 
 /************************************************************************/
 /*
-    Start of file "zlib.h"
+    Start of file "src/zlib.h"
  */
 /************************************************************************/
 
@@ -2279,7 +2279,7 @@ ZEXTERN int            ZEXPORT deflateResetKeep OF((z_streamp));
 
 /************************************************************************/
 /*
-    Start of file "gzguts.h"
+    Start of file "src/gzguts.h"
  */
 /************************************************************************/
 
@@ -2504,7 +2504,7 @@ unsigned ZLIB_INTERNAL gz_intmax OF((void));
 
 /************************************************************************/
 /*
-    Start of file "inftrees.h"
+    Start of file "src/inftrees.h"
  */
 /************************************************************************/
 
@@ -2576,7 +2576,7 @@ int ZLIB_INTERNAL inflate_table OF((codetype type, unsigned short FAR *lens,
 
 /************************************************************************/
 /*
-    Start of file "inffast.h"
+    Start of file "src/inffast.h"
  */
 /************************************************************************/
 
@@ -2597,7 +2597,7 @@ void ZLIB_INTERNAL inflate_fast OF((z_streamp strm, unsigned start));
 
 /************************************************************************/
 /*
-    Start of file "inffixed.h"
+    Start of file "src/inffixed.h"
  */
 /************************************************************************/
 
@@ -2701,7 +2701,7 @@ void ZLIB_INTERNAL inflate_fast OF((z_streamp strm, unsigned start));
 
 /************************************************************************/
 /*
-    Start of file "inflate.h"
+    Start of file "src/inflate.h"
  */
 /************************************************************************/
 
@@ -2833,7 +2833,7 @@ struct inflate_state {
 
 /************************************************************************/
 /*
-    Start of file "zutil.h"
+    Start of file "src/zutil.h"
  */
 /************************************************************************/
 
@@ -3090,7 +3090,7 @@ extern const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
 
 /************************************************************************/
 /*
-    Start of file "deflate.h"
+    Start of file "src/deflate.h"
  */
 /************************************************************************/
 

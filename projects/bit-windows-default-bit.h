@@ -137,7 +137,7 @@
     #define BIT_SYNC "bitos,est,mpr,pcre,http,ejs"
 #endif
 #ifndef BIT_TITLE
-    #define BIT_TITLE "Embedthis Bit - Built It Tool"
+    #define BIT_TITLE "Embedthis Bit"
 #endif
 #ifndef BIT_TUNE
     #define BIT_TUNE "speed"
@@ -163,46 +163,46 @@
     #define BIT_BASE_PREFIX "C:/Program Files"
 #endif
 #ifndef BIT_APP_PREFIX
-    #define BIT_APP_PREFIX "C:/Program Files/Embedthis Bit - Built It Tool"
+    #define BIT_APP_PREFIX "C:/Program Files/Embedthis Bit"
 #endif
 #ifndef BIT_VAPP_PREFIX
-    #define BIT_VAPP_PREFIX "C:/Program Files/Embedthis Bit - Built It Tool"
+    #define BIT_VAPP_PREFIX "C:/Program Files/Embedthis Bit"
 #endif
 #ifndef BIT_DATA_PREFIX
-    #define BIT_DATA_PREFIX "C:/Program Files/Embedthis Bit - Built It Tool"
+    #define BIT_DATA_PREFIX "C:/Program Files/Embedthis Bit"
 #endif
 #ifndef BIT_STATE_PREFIX
-    #define BIT_STATE_PREFIX "C:/Program Files/Embedthis Bit - Built It Tool"
+    #define BIT_STATE_PREFIX "C:/Program Files/Embedthis Bit"
 #endif
 #ifndef BIT_BIN_PREFIX
-    #define BIT_BIN_PREFIX "C:/Program Files/Embedthis Bit - Built It Tool/bin"
+    #define BIT_BIN_PREFIX "C:/Program Files/Embedthis Bit/bin"
 #endif
 #ifndef BIT_INC_PREFIX
-    #define BIT_INC_PREFIX "C:/Program Files/Embedthis Bit - Built It Tool/inc"
+    #define BIT_INC_PREFIX "C:/Program Files/Embedthis Bit/inc"
 #endif
 #ifndef BIT_LIB_PREFIX
-    #define BIT_LIB_PREFIX "C:/Program Files/Embedthis Bit - Built It Tool/lib"
+    #define BIT_LIB_PREFIX "C:/Program Files/Embedthis Bit/lib"
 #endif
 #ifndef BIT_MAN_PREFIX
-    #define BIT_MAN_PREFIX "C:/Program Files/Embedthis Bit - Built It Tool/man"
+    #define BIT_MAN_PREFIX "C:/Program Files/Embedthis Bit/man"
 #endif
 #ifndef BIT_ETC_PREFIX
-    #define BIT_ETC_PREFIX "C:/Program Files/Embedthis Bit - Built It Tool"
+    #define BIT_ETC_PREFIX "C:/Program Files/Embedthis Bit"
 #endif
 #ifndef BIT_WEB_PREFIX
-    #define BIT_WEB_PREFIX "C:/Program Files/Embedthis Bit - Built It Tool/web"
+    #define BIT_WEB_PREFIX "C:/Program Files/Embedthis Bit/web"
 #endif
 #ifndef BIT_LOG_PREFIX
-    #define BIT_LOG_PREFIX "C:/Program Files/Embedthis Bit - Built It Tool/log"
+    #define BIT_LOG_PREFIX "C:/Program Files/Embedthis Bit/log"
 #endif
 #ifndef BIT_SPOOL_PREFIX
-    #define BIT_SPOOL_PREFIX "C:/Program Files/Embedthis Bit - Built It Tool/tmp"
+    #define BIT_SPOOL_PREFIX "C:/Program Files/Embedthis Bit/tmp"
 #endif
 #ifndef BIT_CACHE_PREFIX
-    #define BIT_CACHE_PREFIX "C:/Program Files/Embedthis Bit - Built It Tool/cache"
+    #define BIT_CACHE_PREFIX "C:/Program Files/Embedthis Bit/cache"
 #endif
 #ifndef BIT_SRC_PREFIX
-    #define BIT_SRC_PREFIX "C:/Program Files/Embedthis Bit - Built It Tool/src"
+    #define BIT_SRC_PREFIX "C:/Program Files/Embedthis Bit/src"
 #endif
 
 /* Suffixes */

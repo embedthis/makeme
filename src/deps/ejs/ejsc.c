@@ -1,5 +1,5 @@
 /*
-    ejsc.c -- Embedthis Ejscript Javascript Language Compiler
+    ejsc.c -- Embethis Ejscript Compiler
 
     This file is a catenation of all the source code. Amalgamating into a
     single file makes embedding simpler and the resulting application faster.

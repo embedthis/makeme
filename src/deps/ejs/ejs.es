@@ -1,5 +1,5 @@
 /*
-    ejs.es -- Embedthis Ejscript Javascript Language Script Library
+    ejs.es -- Embethis Ejscript Script Library
 
     This file is a catenation of all the source code. Amalgamating into a
     single file makes embedding simpler and the resulting application faster.
