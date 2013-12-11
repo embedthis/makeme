@@ -492,12 +492,23 @@ function projCustomBuildStep(base, target) {
                 command += '\tcopy /Y ' + wpath(file.relativeTo(target.home)) + ' ' + wpath(path) + '\n'
             }
         }
+    } else if (target['generate-capture']) {
+        let capture = Path('bit-vs.tmp')
+        genOpen(capture)
+        runTargetScript(target, 'build')
+        genClose()
+        let data = capture.readString() + '\n'
+        command += data.replace(/^[ \t]*/mg, '').trim().replace(/^-md /m, 'md ').replace(/^-rd /m, 'rd ')
+        capture.remove()
+
     } else if (target['generate-vs']) {
         command += target['generate-vs']
+
     } else if (target['generate-nmake']) {
         let ncmd = target['generate-nmake']
         ncmd = ncmd.replace(/^[ \t]*/mg, '').trim().replace(/^-md /m, 'md ').replace(/^-rd /m, 'rd ')
         command += ncmd
+
     } else if (target['generate']) {
         let ncmd = target['generate']
         ncmd = ncmd.replace(/^[ \t]*/mg, '').trim()

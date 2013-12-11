@@ -91,9 +91,9 @@ public function deploy(manifest, prefixes, package): Array {
             if (item.packs && bit.generating) {
                 for each (r in item.packs) {
                     if (bit.platform.os == 'windows') {
-                        genWriteLine('!IF "$(BIT_PACK_' + r.toUpper() + ')" == "1"')
+                        gencmd('!IF "$(BIT_PACK_' + r.toUpper() + ')" == "1"')
                     } else {
-                        genWriteLine('ifeq ($(BIT_PACK_' + r.toUpper() + '),1)')
+                        gencmd('if [ "$(BIT_PACK_' + r.toUpper() + ')" = 1 ]; then ')
                     }
                 }
             }
@@ -124,9 +124,9 @@ public function deploy(manifest, prefixes, package): Array {
             if (item.packs && bit.generating) {
                 for each (r in item.packs.length) {
                     if (bit.platform.os == 'windows') {
-                        genWriteLine('!ENDIF')
+                        gencmd('!ENDIF')
                     } else {
-                        genWriteLine('endif')
+                        gencmd('fi')
                     }
                 }
             }

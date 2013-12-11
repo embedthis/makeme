@@ -41,8 +41,8 @@ module embedthis.bit {
             bit.dir[d] = bit.dir[d].replace(bit.original.platform.name, bit.platform.name)
         }
         bit.platform.last = true
-        bit.generating = true
         b.prepBuild()
+        bit.generating = true
         generateProjects()
         bit.generating = null
     }
@@ -90,6 +90,7 @@ module embedthis.bit {
 
     function generateTarget(target) {
         if (target.type == 'pack') return
+        global.TARGET = bit.target = target
 
         if (target.packs) {
             for each (r in target.packs) {
@@ -132,6 +133,7 @@ module embedthis.bit {
             }
         }
         genWriteLine('')
+        global.TARGET = bit.target = null
     }
 
     function generateMain() {
@@ -498,7 +500,7 @@ module embedthis.bit {
         let prefixes = mapPrefixes()
         for (let [name, value] in prefixes) {
             if (name.startsWith('programFiles')) continue
-            /* MOB bug - value.windows will change C:/ to C: */
+            /* TODO value.windows will change C:/ to C: */
             if (name == 'root') {
                 value = value.trimEnd('/')
             } else {
@@ -886,9 +888,13 @@ module embedthis.bit {
 
     function generateScript(target) {
         setRuleVars(target, target.home)
-        let prefix, suffix
-        //  UNUSED MOB - always true
+        let prefix = ''
+        let suffix = ''
         assert(bit.generating)
+        assert(bit.generating)
+
+        let kind = bit.generating
+        //  TODO - always true
         if (bit.generating) {
             if (bit.generating == 'sh' || bit.generating == 'make') {
                 prefix = 'cd ' + target.home.relative
@@ -905,29 +911,27 @@ module embedthis.bit {
                 prefix = suffix = ''
             }
         }
+        let cmd
         if (target['generate-capture']) {
-            genTargetDeps(target)
-            if (target.path) {
-                genWrite(target.path.relative + ':' + getDepsVar() + '\n')
-            } else {
-                genWrite(target.name + ':' + getDepsVar() + '\n')
-            }
-            generateDir(target)
             capture = []
-            vtrace(target.type.toPascal(), target.name)
             runTargetScript(target, 'build')
             if (capture.length > 0) {
-                genWriteLine('\t' + capture.join('\n\t'))
+                if (prefix && bit.generating != 'nmake') {
+                    cmd = capture.join(' ; \\\n\t')
+                } else {
+                    cmd = capture.join('\n\t')
+                }
             }
-            capture = null
-
-        } else if (bit.generating == 'sh') {
-            let cmd = target['generate-sh-' + bit.platform.os] || target['generate-sh'] ||
+        } else {
+            cmd = target['generate-' + kind + '-' + bit.platform.os] || target['generate-' + kind] || 
                 target['generate-make-' + bit.platform.os] || target['generate-make'] || target.generate
+        } 
+
+        if (bit.generating == 'sh') {
             if (cmd) {
                 cmd = cmd.trim()
                 cmd = cmd.replace(/\\\n/mg, '')
-                if (prefix || suffix) {
+                if (prefix) {
                     if (cmd.startsWith('@')) {
                         cmd = cmd.slice(1).replace(/^.*$/mg, '\t@' + prefix + '; $& ; ' + suffix)
                     } else {
@@ -953,18 +957,21 @@ module embedthis.bit {
                 genWrite(target.name + ':' + getDepsVar() + '\n')
             }
             generateDir(target)
-            let cmd = target['generate-make-' + bit.platform.os] || target['generate-make'] ||
-                target['generate-sh-' + bit.platform.os] || target['generate-sh'] || target.generate
             if (cmd) {
                 cmd = cmd.trim().replace(/^\s*/mg, '\t')
-                cmd = cmd.replace(/\\\n\s*/mg, '')
-                cmd = cmd.replace(/^\t*(ifeq|ifneq|else|endif)/mg, '$1')
-                if (prefix || suffix) {
-                    if (cmd.startsWith('\t@')) {
-                        cmd = cmd.slice(2).replace(/^\s*(.*)$/mg, '\t@' + prefix + '; $1 ; ' + suffix)
-                    } else {
-                        cmd = cmd.replace(/^\s(.*)$/mg, '\t' + prefix + '; $1 ; ' + suffix)
+                // cmd = cmd.replace(/\\\n\s*/mg, '')
+                /*
+                    cmd = cmd.replace(/^\t*(ifeq|ifneq|else|endif)/mg, '$1')
+                    if (prefix || suffix) {
+                        if (cmd.startsWith('\t@')) {
+                            cmd = cmd.slice(2).replace(/^\s*(.*)$/mg, '\t@' + prefix + '; $1 ; ' + suffix)
+                        } else {
+                            cmd = cmd.replace(/^\s(.*)$/mg, '\t' + prefix + '; $1 ; ' + suffix)
+                        }
                     }
+                */
+                if (prefix) {
+                    cmd = '\t( \\\n\t' + prefix + '; \\\n' + cmd + ' ; \\\n\t)'
                 }
                 bit.globals.LBIN = '$(LBIN)'
                 cmd = expand(cmd, {fill: null}).expand(target.vars, {fill: '${}'})
@@ -981,10 +988,8 @@ module embedthis.bit {
                 genWrite(target.name + ':' + getDepsVar() + '\n')
             }
             generateDir(target)
-            let cmd = target['generate-namke-' + bit.platform.os] || target['generate-nmake'] || target['generate-make'] ||
-                target.generate
             if (cmd) {
-                cmd = cmd.replace(/\\\n/mg, '')
+                // cmd = cmd.replace(/\\\n/mg, '')
                 cmd = cmd.trim().replace(/^cp /, 'copy ')
                 cmd = prefix + cmd + suffix
                 cmd = cmd.replace(/^[ \t]*/mg, '')
@@ -1123,10 +1128,11 @@ module embedthis.bit {
         return command
     }
 
-    //  MOB - should merge repvar and repvar2
-    function repvar2(command: String, home: Path): String {
-        command = command.replace(RegExp(bit.dir.top, 'g'), bit.dir.top.relativeTo(home))
-        if (bit.platform.like == 'windows' && bit.generating == 'nmake') {
+    function repvar2(command: String, home: Path? = null): String {
+        if (home) {
+            command = command.replace(RegExp(bit.dir.top, 'g'), bit.dir.top.relativeTo(home))
+        }
+        if (home && bit.platform.like == 'windows' && bit.generating == 'nmake') {
             let re = RegExp(bit.dir.top.windows.name.replace(/\\/g, '\\\\'), 'g')
             command = command.replace(re, bit.dir.top.relativeTo(home).windows)
         }
@@ -1159,6 +1165,20 @@ module embedthis.bit {
             path = path.portable 
         }
         return repvar(path)
+    }
+
+    public function gencmd(s) {
+        if (bit.target) {
+            s = repvar2(s, bit.target.home)
+        } else {
+            s = repvar2(s, bit.dirs.top)
+        }
+        if (capture) {
+            capture.push(s)
+        } else {
+            /* Coming here for buitins like clean: */
+            genout.writeLine('\t' + s)
+        }
     }
 
     function findLib(target, libraries, lib) {
@@ -1419,6 +1439,14 @@ module embedthis.bit {
     /** @hide */
     public function genWrite(str) {
         genout.write(repvar(str))
+    }
+
+    public function genOpen(path) {
+        genout = TextStream(File(path, 'w'))
+    }
+
+    public function genClose() {
+        genout.close()
     }
 
     /** @hide */

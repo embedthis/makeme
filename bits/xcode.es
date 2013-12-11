@@ -555,11 +555,6 @@ ${OUTPUTS}
         let outputs = ''
         let cmd = 'PATH=$PATH:/usr/local/bin\n'
 
-    /*  UNUSED
-        if (bit.platform.profile == 'mine' && bit.settings.product == 'appweb') {
-            cmd += 'rm -f ${BIN_DIR}/appweb\n'
-        }
-     */
         if (!target.home.same(base)) {
             cmd += 'cd ' + target.home.relativeTo(base) + '\n'
             makeDirGlobals(target.home)
@@ -569,6 +564,15 @@ ${OUTPUTS}
                 cmd += 'rm -rf ' + target.path.relativeTo(target.home) + '\n' +
                        'cp -r ' + file.relativeTo(target.home) + ' ' + target.path.relativeTo(target.home) + '\n'
             }
+        } else if (target['generate-capture']) {
+            let capture = Path('bit-xcode.tmp')
+            genOpen(capture)
+            runTargetScript(target, 'build')
+            genClose()
+            let data = capture.readString()
+            cmd += data.replace(RegExp(bit.dir.out.relativeTo(base), 'g'), '$${OUT_DIR}')
+            capture.remove()
+            
         } else {
             let gencmd = target['generate-xcode'] || target['generate-sh'] || target['generate']
             if (!gencmd) {

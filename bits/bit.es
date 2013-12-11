@@ -1714,6 +1714,7 @@ public class Bit {
             App.log.error('Possible recursive dependancy: target ' + target.name + ' is already building')
         }
         vtrace('Consider', target.name)
+        global.TARGET = bit.target = target
         target.building = true
         target.linker ||= []
         target.libpaths ||= []
@@ -1771,6 +1772,7 @@ public class Bit {
             throw new Error('Building target ' + target.name + '\n' + e)
         }
         target.building = false
+        global.TARGET = bit.target = null
     }
 
     function buildDir(target) {
@@ -2120,12 +2122,12 @@ public class Bit {
      */
     public function runTargetScript(target, when) {
         if (!target.scripts) return
+        global.TARGET = bit.target = target
         for each (item in target.scripts[when]) {
             let pwd = App.dir
             if (item.home && item.home != pwd) {
-                App.chdir(expand(item.home))
+                changeDir(expand(item.home))
             }
-            global.TARGET = bit.target = target
             try {
                 if (item.interpreter == 'ejs') {
                     if (item.script is Function) {
@@ -2141,8 +2143,7 @@ public class Bit {
             } catch (e) {
                 App.log.error('Error with target: ' + target.name + '\nCommand: ' + item.script + '\n' + e + '\n')
             } finally {
-                App.chdir(pwd)
-                global.TARGET = null
+                changeDir(pwd)
                 delete bit.target
             }
         }
@@ -3236,11 +3237,6 @@ public class Bit {
         out.close()
     }
 
-    function genrep(s) {
-        genout.writeLine(repvar(s))
-    }
-
-
     /**
         Link a file.
         This creates a symbolic link on systems that support symlinks.
@@ -3260,11 +3256,20 @@ public class Bit {
                 src.link(dest)
             }
         } else if (bit.generating != 'nmake') {
-            genrep('\trm -f "' + dest + '"')
-            genrep('\tln -s "' + src + '" "' + dest + '"')
+            gencmd('rm -f "' + dest + '"')
+            gencmd('ln -s "' + src + '" "' + dest + '"')
         }
     }
 
+    public function changeDir(path: Path) {
+        /* UNUSED
+            This is problematic with current makefiles as they depend on $(CONFIG) being a relative path
+            if (bit.generating) {
+                gencmd('cd "' + path.relative + '"')
+            }
+        */
+        App.chdir(path)
+    }
 
     /**
         Make a directory
@@ -3303,17 +3308,17 @@ public class Bit {
             if (bit.generating == 'nmake') {
                 /* BUG FIX */
                 if (path.name.endsWith('/')) {
-                    genrep('\tif not exist "' + path.windows + '/" md "' + path.windows + '/"')
+                    gencmd('if not exist "' + path.windows + '/" md "' + path.windows + '/"')
                 } else {
-                    genrep('\tif not exist "' + path.windows + '" md "' + path.windows + '"')
+                    gencmd('if not exist "' + path.windows + '" md "' + path.windows + '"')
                 }
             } else {
-                genrep('\tmkdir -p "' + path + '"')
+                gencmd('mkdir -p "' + path + '"')
                 if (options.permissions) {
-                    genrep('\tchmod ' + "%0o".format([options.permissions]) + ' "' + path + '"')
+                    gencmd('chmod ' + "%0o".format([options.permissions]) + ' "' + path + '"')
                 }
                 if (options.user || options.group) {
-                    genrep('\t[ `id -u` = 0 ] && chown ' + options.user + ':' + options.group + ' "' + path + '"; true')
+                    gencmd('[ `id -u` = 0 ] && chown ' + options.user + ':' + options.group + ' "' + path + '"; true')
                 }
             }
         }
@@ -3340,9 +3345,9 @@ public class Bit {
                 path = path.relative
             }
             if (bit.generating == 'nmake') {
-                genrep('\tif exist "' + path.windows + '" del /Q "' + path.windows + '"')
+                gencmd('if exist "' + path.windows + '" del /Q "' + path.windows + '"')
             } else {
-                genrep('\trm -f "' + path + '"')
+                gencmd('rm -f "' + path + '"')
             }
         }
     }
@@ -3375,15 +3380,15 @@ public class Bit {
             }
             if (bit.generating == 'nmake') {
                 if (options.empty) {
-                    genrep('\tif exist "' + path.windows + '" rd /Q "' + path.windows + '"')
+                    gencmd('if exist "' + path.windows + '" rd /Q "' + path.windows + '"')
                 } else {
-                    genrep('\tif exist "' + path.windows + '" rd /Q /S "' + path.windows + '"')
+                    gencmd('if exist "' + path.windows + '" rd /Q /S "' + path.windows + '"')
                 }
             } else {
                 if (options.empty) {
-                    genrep('\trmdir -p "' + path + '" 2>/dev/null ; true')
+                    gencmd('rmdir -p "' + path + '" 2>/dev/null ; true')
                 } else {
-                    genrep('\trm -fr "' + path + '"')
+                    gencmd('rm -fr "' + path + '"')
                 }
             }
         }
@@ -3407,10 +3412,10 @@ public class Bit {
                 path = path.relative
             }
             if (bit.generating == 'nmake') {
-                genrep('\tif exist "' + path.windows + '\\" rd /Q /S "' + path.windows + '"')
-                genrep('\tif exist "' + path.windows + '" del /Q "' + path.windows + '"')
+                gencmd('if exist "' + path.windows + '\\" rd /Q /S "' + path.windows + '"')
+                gencmd('if exist "' + path.windows + '" del /Q "' + path.windows + '"')
             } else {
-                genrep('\trm -fr "' + path + '"')
+                gencmd('rm -fr "' + path + '"')
             }
         }
     }
@@ -3441,10 +3446,12 @@ public class Bit {
         } else {
             let pwd = App.dir
             if (src.startsWith(pwd)) {
-                src = src.relative
+                // src = src.relative
+                src = src.relativeTo(bit.dir.top)
             }
             if (dest.startsWith(pwd)) {
-                dest = dest.relative
+                // dest = dest.relative
+                dest = dest.relativeTo(bit.dir.top)
             }
             if (src == dest) {
                 throw new Error('Cannot copy file. Source is the same as destination: ' + src)
@@ -3458,7 +3465,7 @@ public class Bit {
                 if (dest.contains(' ')) {
                     dest = '"' + dest + '"'
                 }
-                genrep('\tcopy /Y ' + src + ' ' + dest.windows)
+                gencmd('copy /Y ' + src + ' ' + dest.windows)
             } else {
                 if (src.contains(' ')) {
                     src = '"' + src + '"'
@@ -3466,14 +3473,14 @@ public class Bit {
                 if (dest.contains(' ')) {
                     dest = '"' + dest + '"'
                 }
-                genrep('\tcp ' + src + ' ' + dest)
+                gencmd('cp ' + src + ' ' + dest)
                 if (options.uid || options.gid) {
-                    genrep('\t[ `id -u` = 0 ] && chown ' + options.uid + ':' + options.gid + ' "' + dest + '"; true')
+                    gencmd('[ `id -u` = 0 ] && chown ' + options.uid + ':' + options.gid + ' "' + dest + '"; true')
                 } else if (options.user || options.group) {
-                    genrep('\t[ `id -u` = 0 ] && chown ' + options.user + ':' + options.group + ' "' + dest + '"; true')
+                    gencmd('[ `id -u` = 0 ] && chown ' + options.user + ':' + options.group + ' "' + dest + '"; true')
                 }
                 if (options.permissions) {
-                    genrep('\tchmod ' + "%0o".format([options.permissions]) + ' "' + dest + '"')
+                    gencmd('chmod ' + "%0o".format([options.permissions]) + ' "' + dest + '"')
                 }
             }
         }
