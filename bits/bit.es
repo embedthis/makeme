@@ -127,6 +127,7 @@ public class Bit {
             unset: { range: String, separator: Array },
             verbose: { alias: 'v' },
             version: { alias: 'V' },
+            watch: { range: Number },
             why: { alias: 'w' },
             'with': { range: String, separator: Array },
             without: { range: String, separator: Array },
@@ -178,6 +179,8 @@ public class Bit {
             '  --unset feature                          # Unset a feature\n' +
             '  --version                                # Display the bit version\n' +
             '  --verbose                                # Trace operations\n' +
+            '  --watch [sleep time]                     # Watch for changes and rebuild\n' +
+            '  --why                                    # Why a built did or did not build\n' +
             '  --with PACK[=PATH]                       # Build with package at PATH\n' +
             '  --without PACK                           # Build without a package\n' +
             '')
@@ -274,6 +277,12 @@ public class Bit {
             if (options.gen) {
                 overlay('generate.es')
                 generate()
+            } else if (options.watch) {
+                while (true) {
+                    vtrace('Check', 'for changes')
+                    process(options.file)
+                    App.sleep(options.watch || 1000)
+                }
             } else {
                 process(options.file)
             }
@@ -398,6 +407,11 @@ public class Bit {
         } else if (options.dump) {
             args.rest.push('dump')
             options.dump = true
+        }
+        if (args.rest.contains('watch')) {
+            options.watch = 1000
+            args.rest.remove('watch')
+            args.rest.push('all')
         }
         if (args.rest.contains('rebuild')) {
             options.rebuild = true

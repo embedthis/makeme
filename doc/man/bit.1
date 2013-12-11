@@ -60,6 +60,8 @@ bit \- Build It! -- Utility to build and manage programs
 [\fI--verbose\fR]
 .RE
 .RS 4
+[\fI--watch msec]\fR]
+[\fI--why]\fR]
 [\fI--with PACK[=PATH]\fR]
 [\fI--without PACK\fR]
 [targets|actions] ...
@@ -485,6 +487,15 @@ Print the \fBejs\fR command version and exit.
 .TP
 \fB\--verbose\fR
 Run in verbose mode with more trace about Bit activities.
+
+.TP
+\fB\--watch msec\fR
+Watch for changes and rebuild if required. This will sleep for the requested number of milliseconds between checking
+for changes. This can also be invoked as "bit watch" which will check every second for changes.
+
+.TP
+\fB\--why\fR
+Display why each target was or was not built.
 
 .TP
 \fB\--with PACK[=path]\fR
