@@ -22,12 +22,6 @@ Bit.load({
     ],
 
     settings: {
-        product: 'bit',
-        title: 'Embedthis Bit',
-        company: 'Embedthis',
-        version: '0.9.0',
-        buildNumber: '0',
-
         /*
             Installation prefix set
          */
@@ -132,6 +126,12 @@ Bit.load({
             subtree: 'bits',
             precious: true,
         }
+
+        'bower.json': {
+            type: 'file',
+            path: 'bower.json',
+            files: [ 'package.json' ],
+        },
 
         projects: {
             action: "
