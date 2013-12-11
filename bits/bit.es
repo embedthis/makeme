@@ -2956,7 +2956,7 @@ public class Bit {
                 let package = bit.package = PACKAGE.readJSON()
                 bit.settings ||= {}
                 bit.settings.product = package.name
-                bit.settings.title = package.description
+                bit.settings.title = package.title || package.description
                 bit.settings.version = package.version
                 bit.settings.buildNumber = '0'
                 bit.settings.company ||= (package.author && package.author.name)
