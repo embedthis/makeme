@@ -141,6 +141,27 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>MPR_CACHE_NOTIFY_CREATE</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a7ec43d5dbf59e707546bca9d19746dbe</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MPR_CACHE_NOTIFY_REMOVE</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a911a8fb4a9038af625719cfc408e75f3</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MPR_CACHE_NOTIFY_UPDATE</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a53f2f17fa896c01f34ddc47142401642</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>MPR_CACHE_PREPEND</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a21ba7373200a15b53e7e027fd446ff16</anchor>
@@ -1678,6 +1699,13 @@
       <anchorfile>group___mpr_buf.html</anchorfile>
       <anchor>gaa0f2f003728ef5bb244fdabe2edc56f7</anchor>
       <arglist>)(struct MprBuf *bp, void *arg)</arglist>
+    </member>
+    <member kind="typedef">
+      <type>void(*</type>
+      <name>MprCacheProc</name>
+      <anchorfile>group___mpr_cache.html</anchorfile>
+      <anchor>gac01803ba689551895d9a1ec183d5e920</anchor>
+      <arglist>)(struct MprCache *cache, cchar *key, cchar *data, int event)</arglist>
     </member>
     <member kind="typedef">
       <type>void(*</type>
@@ -4716,6 +4744,20 @@
       <anchorfile>group___mpr_cache.html</anchorfile>
       <anchor>gac79a433b92c0e81df3b282345eef07ad</anchor>
       <arglist>(MprCache *cache, int64 keys, MprTicks lifespan, int64 memory, int resolution)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>mprSetCacheLink</name>
+      <anchorfile>group___mpr_cache.html</anchorfile>
+      <anchor>gaaa3c0cea1ad910b3fb83dc7800b46b95</anchor>
+      <arglist>(MprCache *cache, cchar *key, void *link)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>mprSetCacheNotify</name>
+      <anchorfile>group___mpr_cache.html</anchorfile>
+      <anchor>gab0a5564222ed33ad6fd3e4ccbeb78aef</anchor>
+      <arglist>(MprCache *cache, MprCacheProc notify)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -9521,6 +9563,13 @@
     <name>MprCache</name>
     <title>MprCache</title>
     <filename>group___mpr_cache.html</filename>
+    <member kind="typedef">
+      <type>void(*</type>
+      <name>MprCacheProc</name>
+      <anchorfile>group___mpr_cache.html</anchorfile>
+      <anchor>gac01803ba689551895d9a1ec183d5e920</anchor>
+      <arglist>)(struct MprCache *cache, cchar *key, cchar *data, int event)</arglist>
+    </member>
     <member kind="function">
       <type>MprCache *</type>
       <name>mprCreateCache</name>
@@ -9583,6 +9632,20 @@
       <anchorfile>group___mpr_cache.html</anchorfile>
       <anchor>gac79a433b92c0e81df3b282345eef07ad</anchor>
       <arglist>(MprCache *cache, int64 keys, MprTicks lifespan, int64 memory, int resolution)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>mprSetCacheLink</name>
+      <anchorfile>group___mpr_cache.html</anchorfile>
+      <anchor>gaaa3c0cea1ad910b3fb83dc7800b46b95</anchor>
+      <arglist>(MprCache *cache, cchar *key, void *link)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>mprSetCacheNotify</name>
+      <anchorfile>group___mpr_cache.html</anchorfile>
+      <anchor>gab0a5564222ed33ad6fd3e4ccbeb78aef</anchor>
+      <arglist>(MprCache *cache, MprCacheProc notify)</arglist>
     </member>
     <member kind="function">
       <type>ssize</type>

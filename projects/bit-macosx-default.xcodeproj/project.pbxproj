@@ -1326,7 +1326,7 @@ fi";
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0430;
-				ORGANIZATIONNAME = "Embedthis";
+				ORGANIZATIONNAME = "Embedthis Software";
 			};
 			buildConfigurationList = 493D3589493D470700000002 /* Build configuration list for PBXProject "bit" */;
 			compatibilityVersion = "Xcode 3.2";

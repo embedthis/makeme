@@ -1,5 +1,5 @@
 #
-#   bit-macosx-default.mk -- Makefile to build Embedthis Bit for macosx
+#   bit-macosx-default.mk -- Makefile to build Embedthis Bit - Built It Tool for macosx
 #
 
 PRODUCT            := bit
@@ -647,6 +647,7 @@ DEPS_32 += $(CONFIG)/obj/ejsc.o
 DEPS_32 += $(CONFIG)/bin/ejsc
 
 $(CONFIG)/bin/ejs.mod: $(DEPS_32)
+	$(LBIN)/ejsc --out ./$(CONFIG)/bin/ejs.mod --optimize 9 --bind --require null src/deps/ejs/ejs.es
 endif
 
 #

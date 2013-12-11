@@ -1,5 +1,5 @@
 #
-#   bit-windows-default.nmake -- Makefile to build Embedthis Bit for windows
+#   bit-windows-default.nmake -- Makefile to build Embedthis Bit - Built It Tool for windows
 #
 
 PRODUCT            = bit
@@ -80,7 +80,7 @@ LIBS               = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.li
 
 BIT_ROOT_PREFIX    = C:
 BIT_BASE_PREFIX    = $(BIT_ROOT_PREFIX)\Program Files
-BIT_APP_PREFIX     = $(BIT_BASE_PREFIX)\Embedthis Bit
+BIT_APP_PREFIX     = $(BIT_BASE_PREFIX)\Embedthis Bit - Built It Tool
 BIT_VAPP_PREFIX    = $(BIT_APP_PREFIX)
 BIT_DATA_PREFIX    = $(BIT_VAPP_PREFIX)
 BIT_STATE_PREFIX   = $(BIT_VAPP_PREFIX)

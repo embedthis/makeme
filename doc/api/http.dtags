@@ -2295,6 +2295,13 @@
       <arglist>(HttpConn *conn, cchar *name)</arglist>
     </member>
     <member kind="function">
+      <type>void</type>
+      <name>httpSetSessionNotify</name>
+      <anchorfile>group___http_session.html</anchorfile>
+      <anchor>ga5cd506fee0206eaa112301a081ad6c02</anchor>
+      <arglist>(MprCacheProc notify)</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>httpSetSessionObj</name>
       <anchorfile>group___http_session.html</anchorfile>
