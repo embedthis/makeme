@@ -280,7 +280,11 @@ public class Bit {
             } else if (options.watch) {
                 while (true) {
                     vtrace('Check', 'for changes')
-                    process(options.file)
+                    try {
+                        process(options.file)
+                    } catch (e) {
+                        print(e)
+                    }
                     App.sleep(options.watch || 1000)
                 }
             } else {
