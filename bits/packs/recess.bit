@@ -1,0 +1,5 @@
+/*
+    recess.bit - Recess package for Bit
+ */
+
+program('recess', 'Recess Less Compiler')

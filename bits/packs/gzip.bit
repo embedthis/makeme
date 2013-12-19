@@ -1,0 +1,5 @@
+/*
+    gzip.bit - Gzip package for Bit
+ */
+
+program('gzip', 'Gzip Compression Tool')

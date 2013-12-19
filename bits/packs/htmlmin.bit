@@ -1,0 +1,5 @@
+/*
+    htmlmin.bit - Htmlmin package for Bit
+ */
+
+program('htmlmin', 'Htmlmin HTML Minimizer')
