@@ -4790,7 +4790,7 @@ PUBLIC struct EjsTrait *ejsGetPropertyTraits(Ejs *ejs, EjsAny *obj, int slotNum)
  */
 PUBLIC EjsAny *ejsInvokeOperator(Ejs *ejs, EjsAny *obj, int opCode, EjsAny *rhs);
 
-//  MOB rename
+//  TODO rename
 /** 
     Default implementation for operator invoke
     @description Invoke an Ejscript byte code operator on the specified variable given the expression right hand side.
@@ -5332,7 +5332,7 @@ PUBLIC struct EjsString *ejsObjToJSON(Ejs *ejs, EjsObj *obj, int argc, EjsObj **
 #define EJS_BLEND_ASSIGN        0x200       /**< Flag for ejsBlendObject for "=" property blend */
 #define EJS_BLEND_COND_ASSIGN   0x400       /**< Flag for ejsBlendObject for "?" property blend */
 
-//  MOB - rename ejsBlend
+//  TODO - rename ejsBlend
 /**
     Blend objects
     @description Merge one object into another. This is useful for inheriting and optionally overwriting option 
@@ -5670,7 +5670,7 @@ PUBLIC int ejsStartsWithAsc(Ejs *ejs, EjsString *sp, cchar *pat);
  */
 PUBLIC char *ejsToMulti(Ejs *ejs, void *obj);
 
-//  MOB - rename ejsFormat
+//  TODO - rename ejsFormat
 /** 
     Format arguments
     @param ejs Ejs reference returned from #ejsCreateVM
@@ -5983,7 +5983,7 @@ typedef struct EjsBlock {
     struct EjsBlock *scope;                         /**< Lexical scope chain for this block */
     struct EjsBlock *prev;                          /**< Previous block in activation chain */
 
-    //  MOB -- OPT and compress / eliminate some of these fields. Every function has these.
+    //  TODO -- OPT and compress / eliminate some of these fields. Every function has these.
     EjsObj          *prevException;                 /**< Previous exception if nested exceptions */
     EjsObj          **stackBase;                    /**< Start of stack in this block */
     uchar           *restartAddress;                /**< Restart instruction address */
@@ -6315,7 +6315,7 @@ PUBLIC int ejsBindFunction(Ejs *ejs, EjsAny *obj, int slotNum, void *fun);
  */
 PUBLIC EjsFunction *ejsCloneFunction(Ejs *ejs, EjsFunction *fun, int deep);
 
-//  MOB - refactor into several functions
+//  TODO - refactor into several functions
 /** 
     Create a function object
     @description This creates a function object and optionally associates byte code with the function.
@@ -6789,7 +6789,7 @@ PUBLIC EjsAny *ejsCacheReadObj(Ejs *ejs, EjsObj *cache, struct EjsString *key, E
  */
 PUBLIC EjsBoolean *ejsCacheRemove(Ejs *ejs, EjsObj *cache, struct EjsString *key);
 
-//  MOB - rename ejsSetCacheLimits
+//  TODO - rename ejsSetCacheLimits
 /** 
     Set the cache limits
     @param ejs Interpreter instance returned from #ejsCreateVM
@@ -6914,7 +6914,7 @@ PUBLIC EjsDate *ejsCreateDate(Ejs *ejs, MprTime value);
 #endif
 
 /******************************************** Error ***********************************************/
-//  MOB - missing SecurityException PermissionsException
+//  TODO - missing SecurityException PermissionsException
 /** 
     Error classes
     @description Base class for error exception objects. Exception objects are created by programs and by the system 
@@ -7893,7 +7893,7 @@ typedef struct EjsXmlTagState {
     @stability Internal
  */
 typedef struct EjsXmlState {
-    //  MOB -- should not be fixed but should be growable
+    //  TODO -- should not be fixed but should be growable
     EjsXmlTagState  nodeStack[BIT_XML_MAX_NODE_DEPTH];      /**< nodeStack */
     Ejs             *ejs;                                   /**< Convenient reference to ejs */
     struct EjsType  *xmlType;                               /**< Xml type reference */
@@ -8746,7 +8746,7 @@ PUBLIC int ejsEvalFile(cchar *path);
  */
 PUBLIC int ejsLoadScriptFile(Ejs *ejs, cchar *script, cchar *cache, int flags);
 
-//  MOB - rename ejsLoadScriptString
+//  TODO - rename ejsLoadScriptString
 /** 
     Load a script from a string
     @description This will compile the script string and then run it. If the cache path argument is provided, 
@@ -8806,7 +8806,7 @@ PUBLIC void ejsExit(Ejs *ejs, int status);
  */
 PUBLIC void *ejsGetHandle(Ejs *ejs);
 
-//  MOB - variable is the wrong name. ejsGetPropByName?
+//  TODO - variable is the wrong name. ejsGetPropByName?
 /** 
     Get a variable by name
     @description This looks for a property name in an object, its prototype or base classes.
@@ -9168,7 +9168,7 @@ typedef struct EjsModuleHdr {
  */
 typedef struct EjsModule {
     EjsString       *name;                  /**< Name of this module - basename of the filename without .mod extension */
-    //  MOB - document the version format
+    //  TODO - document the version format
     EjsString       *vname;                 /**< Versioned name - name with optional version suffix */
     MprMutex        *mutex;                 /**< Multithread locking */
     int             version;                /**< Made with EJS_MAKE_VERSION */
@@ -9179,7 +9179,7 @@ typedef struct EjsModule {
     EjsConstants    *constants;             /**< Constant pool */
     EjsFunction     *initializer;           /**< Initializer method */
 
-    //  MOB - should have isDefault bit
+    //  TODO - should have isDefault bit
     uint            compiling       : 1;    /**< Module currently being compiled from source */
     uint            configured      : 1;    /**< Module types have been configured with native code */
     uint            loaded          : 1;    /**< Module has been loaded from an external file */
@@ -9674,11 +9674,11 @@ extern "C" {
 /*
     Compiler validation modes. From "use standard|strict"
  */
-//  MOB DOC
+//  TODO DOC
 #define PRAGMA_MODE_STANDARD    1               /* Standard unstrict mode */
 #define PRAGMA_MODE_STRICT      2               /* Strict mode */
 
-//  MOB DOC
+//  TODO DOC
 #define STRICT_MODE(cp)         (cp->fileState->strict)
 
 /*
@@ -9691,7 +9691,7 @@ extern "C" {
 /*
     Phases for AST processing
  */
-//  MOB DOC
+//  TODO DOC
 #define EC_PHASE_DEFINE         0           /* Define types, functions and properties in types */
 #define EC_PHASE_CONDITIONAL    1           /* Do conditional processing, hoisting and then type fixups */
 #define EC_PHASE_FIXUP          2           /* Fixup type references */
@@ -9769,12 +9769,12 @@ typedef struct EcLocation {
 typedef struct EcNode   *Node;
 #endif
 
-//  MOB DOC
+//  TODO DOC
 /*
     Structure for code generation buffers
  */
 typedef struct EcCodeGen {
-//  MOB DOC
+//  TODO DOC
     MprBuf      *buf;                           /* Code generation buffer */
     MprList     *jumps;                         /* Break/continues to patch for this code block */
     MprList     *exceptions;                    /* Exception handlers for this code block */
@@ -9788,7 +9788,7 @@ typedef struct EcCodeGen {
 } EcCodeGen;
 
 
-//  MOB DOC
+//  TODO DOC
 typedef struct EcNode {
     char                *kindName;              /* Node kind string */
 #if BIT_DEBUG
@@ -9948,7 +9948,7 @@ typedef struct EcNode {
         struct {
             Node        nameExpr;           /* Name expression */
             Node        qualifierExpr;      /* Qualifier expression */
-            EjsObj      *nsvalue;           /* Initialization value (MOB - remove) */
+            EjsObj      *nsvalue;           /* Initialization value (TODO - remove) */
             uint        instanceVar  : 1;   /* Instance or static var (if defined in class) */
             uint        isAttribute  : 1;   /* Attribute identifier "@" */
             uint        isDefault    : 1;   /* use default namespace */
@@ -10227,7 +10227,7 @@ typedef int (*EcStreamGet)(struct EcStream *stream);
  */
 #define EC_STREAM_EOL       0x1                 /* End of line */
 
-//  MOB DOC
+//  TODO DOC
 
 typedef struct EcStream {
     struct EcCompiler *compiler;                /* Compiler back reference */
@@ -10245,7 +10245,7 @@ typedef struct EcStream {
 /*
     Parse source code from a file
  */
-//  MOB DOC
+//  TODO DOC
 typedef struct EcFileStream {
     EcStream    stream;
     MprFile     *file;
@@ -10255,7 +10255,7 @@ typedef struct EcFileStream {
 /*
     Parse source code from a memory block
  */
-//  MOB DOC
+//  TODO DOC
 typedef struct EcMemStream {
     EcStream    stream;
 } EcMemStream;
@@ -10264,7 +10264,7 @@ typedef struct EcMemStream {
 /*
     Parse input from the console (or file if using ejsh)
  */
-//  MOB DOC
+//  TODO DOC
 typedef struct EcConsoleStream {
     EcStream    stream;
 } EcConsoleStream;
@@ -10273,7 +10273,7 @@ typedef struct EcConsoleStream {
 /*
     Program source input tokens
  */
-//  MOB DOC
+//  TODO DOC
 typedef struct EcToken {
     wchar       *text;                  /* Token text */
     int         length;                 /* Length of text in characters */
@@ -10298,7 +10298,7 @@ typedef struct EcToken {
 #define EC_JUMP_CONTINUE    0x2
 #define EC_JUMP_GOTO        0x4
 
-//  MOB DOC
+//  TODO DOC
 typedef struct EcJump {
     int             kind;               /* Break, continue */
     int             offset;             /* Code offset to patch */
@@ -10310,7 +10310,7 @@ typedef struct EcJump {
     Current parse state. Each non-terminal production has its own state.
     Some state fields are inherited. We keep a linked list from EcCompiler.
  */
-//  MOB DOC
+//  TODO DOC
 typedef struct EcState {
     struct EcState  *next;                  /* State stack */
     uint            blockIsMethod    : 1;   /* Current function is a method */
@@ -10372,7 +10372,7 @@ PUBLIC void     ecStartBreakableStatement(struct EcCompiler *cp, int kinds);
 /*
     Primary compiler control structure
  */
-//  MOB DOC
+//  TODO DOC
 typedef struct EcCompiler {
     /*
         Properties ordered to make debugging easier
@@ -10389,7 +10389,7 @@ typedef struct EcCompiler {
     char        *docToken;                  /* Last doc token */
 
     EcState     *fileState;                 /* Top level state for the file */
-//  MOB -- these are risky and should be moved into state. A nested block, directive class etc willl modify
+//  TODO -- these are risky and should be moved into state. A nested block, directive class etc willl modify
     EcState     *directiveState;            /* State for the current directive - used in parse and CodeGen */
     EcState     *blockState;                /* State for the current block */
 
@@ -10447,8 +10447,8 @@ typedef struct EcCompiler {
 
 /********************************** Prototypes *******************************/
 
-//  MOB -- reorder
-//  MOB DOC
+//  TODO -- reorder
+//  TODO DOC
 PUBLIC int          ecAddModule(EcCompiler *cp, EjsModule *mp);
 PUBLIC EcNode       *ecAppendNode(EcNode *np, EcNode *child);
 PUBLIC int          ecAstFixup(EcCompiler *cp, struct EcNode *np);

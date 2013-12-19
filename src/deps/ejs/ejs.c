@@ -449,7 +449,7 @@ static int interpretCommands(EcCompiler *cp, cchar *cmd)
             }
         }
         if (!ejs->exception && ejs->result != ESV(undefined)) {
-            if (ejsIs(ejs, ejs->result, Date) /* MOB || ejsIsType(ejs, ejs->result) */) {
+            if (ejsIs(ejs, ejs->result, Date) /* TODO || ejsIsType(ejs, ejs->result) */) {
                 if ((result = (EjsString*) ejsToString(ejs, ejs->result)) != 0) {
                     mprPrintf("%@\n", result);
                 }

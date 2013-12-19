@@ -295,7 +295,7 @@ module ejs {
          */
         native static function putenv(name: String, value: String): Void
 
-        //  MOB - should this be renamed App.pump()
+        //  TODO - should this be renamed App.pump()
         /** 
             Run the application event loop. 
             A script may call run() to service events. Calling run() will cause the ejs shell to wait and service 
@@ -314,7 +314,7 @@ module ejs {
         native static function get search(): Array
         native static function set search(paths: Array): Void
 
-        //  MOB - sleep should not throw
+        //  TODO - sleep should not throw
         /** 
             Sleep the application for the given number of milliseconds. Events will be serviced while asleep.
             An alternative to sleep is $App.run which can be configured to sleep and return early if an event is received.
@@ -458,7 +458,7 @@ module ejs {
             }
         }
         if (config.cache) {
-            //  MOB - should there be a config.cache.enable instead
+            //  TODO - should there be a config.cache.enable instead
             App.cache = new Cache(null, blend({shared: true}, config.cache))
         }
     }
@@ -1239,7 +1239,7 @@ module ejs {
         # DOC_ONLY
         native function << (elements: Array): Array
 
-        //  MOB - need a function equivalent for this
+        //  TODO - need a function equivalent for this
         /**
             Array subtraction. Remove any items that appear in the supplied array.
             @param arr The array to remove.
@@ -1727,7 +1727,7 @@ module ejs {
 module ejs {
 
     // use strict
-    //  MOB - add indexOf(byteValue)
+    //  TODO - add indexOf(byteValue)
 
     /** 
         ByteArrays provide a resizable, integer indexed, in-memory store for bytes. ByteArrays can be used as a simple 
@@ -2051,8 +2051,8 @@ module ejs {
          */
         native function write(...data): Number
 
-//  MOB -- should these routines return the number of bytes written?
-//  MOB -- function write(buffer: ByteArray, offset: Number = 0, count: Number = -1): Number
+//  TODO -- should these routines return the number of bytes written?
+//  TODO -- function write(buffer: ByteArray, offset: Number = 0, count: Number = -1): Number
 
         /** 
             Write a byte to the array. Data is written to the current write $position pointer which is then incremented.
@@ -2248,7 +2248,7 @@ module ejs {
         function destroy(): Void
             adapter.destroy()
 
-        //  MOB - bit inconsistent that expires takes only a date and not a lifespan too
+        //  TODO - bit inconsistent that expires takes only a date and not a lifespan too
         /**
             Set a new expire date for a key
             @param key Key to modify
@@ -2451,7 +2451,7 @@ module ejs {
          */
         native function close(): Void 
 
-        //  MOB - should be a function. Need flags MPR_CMD_EXACT_ENV support.
+        //  TODO - should be a function. Need flags MPR_CMD_EXACT_ENV support.
         /**
             Hash of environment strings to pass to the command.
          */
@@ -2877,7 +2877,7 @@ module ejs {
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
-//  MOB -- much more 
+//  TODO -- much more 
 
 module ejs {
 
@@ -3242,7 +3242,7 @@ module ejs {
          */
         native function formatUTC(layout: String): String 
 
-//  MOB -- rethink name
+//  TODO -- rethink name
         /**
             Calculate a time that is $msec in the future
             @param msec Period into the future in milliseconds. Can be negative for the past.
@@ -3725,7 +3725,7 @@ module ejs {
             @param The operand date
             @return Return a new Date.
          */
-//  MOB -- reconsider
+//  TODO -- reconsider
         # TODO
         native function -(date: Date): Date
     }
@@ -4391,7 +4391,7 @@ module ejs {
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
-//  MOB - rethink various throws
+//  TODO - rethink various throws
 
 module ejs {
 
@@ -4498,7 +4498,7 @@ module ejs {
          */
         native function on(name, observer: Function): File
 
-        //  MOB - would it be better not to throw?
+        //  TODO - would it be better not to throw?
         /**  
             Open a file. This opens the file designated when the File constructor was called.
             @params options Optional options. If ommitted, the options default to open the file in read mode.
@@ -4564,7 +4564,7 @@ module ejs {
          */
         native function readBytes(count: Number = -1): ByteArray?
 
-        //  MOB UNICODE encoding. Should this do UTF-8 to Unicode-16?
+        //  TODO UNICODE encoding. Should this do UTF-8 to Unicode-16?
         /** 
             Read data from a file as a string.
             @param count Number of bytes to read. If -1, read the entire file.
@@ -4589,7 +4589,7 @@ module ejs {
          */
         native function get size(): Number 
 
-        //  MOB -- perhaps better to not throw
+        //  TODO -- perhaps better to not throw
         /**     
             Truncate the file. 
             @param value the new length of the file
@@ -4607,7 +4607,7 @@ module ejs {
          */
         native function write(...items): Number
 
-        //  MOB writeln would be useful
+        //  TODO writeln would be useful
     }
 }
 
@@ -4655,7 +4655,7 @@ module ejs {
 
         use default namespace public
 
-        //  MOB - getter
+        //  TODO - getter
         /**
             Get a list of file system drives
             @return An array of drives. Returns an empty list on systems without drive specifiers in filenames.
@@ -4853,7 +4853,7 @@ module ejs {
          */
         native function call(thisObject: Object, ...args): Object 
 
-        //  MOB this should return a bound function
+        //  TODO this should return a bound function
         /** 
             Bind the value of "this" for the function. This can set the value of "this" for the function. If
             $overwrite is false, it will only define the value of "this" if it is not already defined.
@@ -4998,7 +4998,7 @@ module ejs {
 
 module ejs {
 
-    //  MOB - fix order
+    //  TODO - fix order
 
     /**
         Constant set to true in all Ejscript interpreters
@@ -5018,14 +5018,14 @@ module ejs {
      */
     public namespace public
 
-    //  MOB - is this used as a global?
+    //  TODO - is this used as a global?
     /** 
         The internal namespace used to make entities visible within a single module only.
         @spec ejs
      */
     public namespace internal
 
-    //  MOB -- remove iterator namespace
+    //  TODO -- remove iterator namespace
     /** 
         The iterator namespace used to define iterators.
         @spec ejs
@@ -5130,7 +5130,7 @@ module ejs {
      */
     native function assert(condition: Boolean): Void
 
-    //  MOB - is this used?
+    //  TODO - is this used?
     /** 
         Replace the base type of a type with an exact clone. 
         @param klass Class in which to replace the base class.
@@ -5186,10 +5186,9 @@ module ejs {
         @param src Source object
         @param options Control options
         @option combine Boolean. If true, then support key prefixes "+", "=", "-", "?" to add, assign and subtract 
-            and conditionally assign key values.
-            When adding string properties, values will be appended using a space separator. Extra spaces will not 
-            be removed on subtraction.
-            Arrays with string values may also be combined using the key prefixes. 
+            and conditionally assign key values. When adding string properties, values will be appended using a 
+            space separator. Extra spaces will not be removed on subtraction.
+            Arrays with string values may also be combined using these key prefixes. 
         @option overwrite Boolean. If true, then overwrite existing properties in the destination object. Defaults to true.
         @option deep Boolean. If true, then recursively copy the properties of any objects referenced in the source object.
             Otherwise, the copy is only one level deep. Defaults to true.
@@ -5777,8 +5776,8 @@ FUTURE & KEEP
          */
         native function off(name, observer: Function): Void
 
-        //   MOB - rename "headers" => open
-        //   MOB - rename "complete" => close
+        //   TODO - rename "headers" => open
+        //   TODO - rename "complete" => close
         /** 
             @duplicate Stream.on
             All events are called with the following signature.  The "this" object will be set to the instance object
@@ -6102,7 +6101,7 @@ FUTURE & KEEP
             @param data Body data to send with the request. Set to null for no data. If set to null, the request
                 will be finalized. If not set to null, $finalize() must be called after writing all data.
             @param callback Optional function to invoke on completion of the request.
-            MOB - reimplement using pure Http and not XMLHttp
+            TODO - reimplement using pure Http and not XMLHttp
           */
         function afetch(method: String, uri: Uri, data: *, callback: Function? = null) {
             let xh = XMLHttp(this)
@@ -6231,7 +6230,7 @@ FUTURE & KEEP
         # Config.Legacy
         native function trace_old(uri: Uri? = null): Void
 
-        //  MOB - missing timeout legacy getter/setter method
+        //  TODO - missing timeout legacy getter/setter method
     }
 }
 
@@ -6807,10 +6806,10 @@ module ejs {
 
                 } else {
                     /* Missing or out of date cache mod file */
-                    //  MOB - can we eliminate preloaded and just use reload?
+                    //  TODO - can we eliminate preloaded and just use reload?
                     if (initializers[path] && config.app.preloaded) {
                         //  Everything compiled flat - everything in App.mod
-                        //  MOB -- warning. This prevents reload working. Should rebuild all and reload.
+                        //  TODO -- warning. This prevents reload working. Should rebuild all and reload.
                         initializer = initializers[path]
                         signatures[path] = exports = {}
                         App.log.debug(4, "Use preloaded \"" + path + "\"")
@@ -7349,7 +7348,7 @@ module ejs {
         function set outStream(stream: Stream): void
             _outStream = stream
 
-        //  MOB - rename from debug as useful for any level zero output
+        //  TODO - rename from debug as useful for any level zero output
         /** 
             Emit a debug message. The message level will be compared to the logger setting to determine 
             whether it will be output to the devices or not. Also, if the logger has a filter function set that 
@@ -7781,7 +7780,7 @@ module ejs {
          */
         native static function set redline(value: Number): Void
 
-        //  MOB BUG
+        //  TODO BUG
         /**
             Application's current resident set in bytes. This is the total memory used to host the application and 
             includes all the the application code, data and heap. It is measured by the O/S.
@@ -8454,7 +8453,7 @@ module ejs {
          */
         static native function getOwnPropertyDescriptor(obj: Object, prop: String): Object?
 
-//  MOB -- inconsistent with JSON.baseClasses
+//  TODO -- inconsistent with JSON.baseClasses
         /** 
             Return an array of all property names including non-enumerable properties. This returns the bare names
             and does not include the namespace portions of the names. Use getOwnPropertyDescriptor to access property
@@ -8912,7 +8911,7 @@ module ejs {
          */
         native function get isAbsolute(): Boolean
 
-        //  MOB - need isExecutable
+        //  TODO - need isExecutable
         /**
             Is the path a directory. If the path is a symbolic link, the target of the link is tested.
             @return true if the file is a directory
@@ -9101,9 +9100,9 @@ module ejs {
          */
         native function get parent(): Path
 
-        /*  MOB -- different to File.permissions. Should have something that returns an object with full path/file
+        /*  TODO -- different to File.permissions. Should have something that returns an object with full path/file
             attributes including group/user. The perms should be broken down into world:group:user */
-        //  MOB - should not use a setter should be functions
+        //  TODO - should not use a setter should be functions
         /**
             The file permissions of a path. This number contains the Posix style permissions value or null if the file 
             does not exist. NOTE: this is not a string representation of an octal posix mask. 
@@ -9210,7 +9209,7 @@ module ejs {
          */
         native function remove(): Boolean 
 
-        //  MOB - consider remove({contents: true})
+        //  TODO - consider remove({contents: true})
         /**
             Removes a directory and its contents
             If the path is a directory, this call will remove all subdirectories and their contents and finally the
@@ -9246,9 +9245,9 @@ module ejs {
         /**
             Rename a file. If the new path exists it is removed before the rename.
             @param target New name of the path
-            @return True if the file is renamed.
+            @throws IOError if the rename fails.
          */
-        native function rename(target: Path): Boolean
+        native function rename(target: Path): Void
         
         /**
             Replace the path extension and return a new path.
@@ -9333,7 +9332,7 @@ module ejs {
         function startsWith(prefix: String): Boolean
             portable.name.startsWith(Path(prefix).portable)
 
-        //  MOB - symlink is backwards
+        //  TODO - symlink is backwards
         /**
             Create the path as a symbolic link to refer to the target
             This will remove any pre-existing path and then create a symbolic link at path to refer to the target.
@@ -9419,9 +9418,9 @@ module ejs {
          */
         native function get windows(): Path
 
-        //  MOB rename? - bit confusing "write". This really does a "save"
-        //  MOB - rename to writecContents or save
-        //  MOB - last arg should be permissions?
+        //  TODO rename? - bit confusing "write". This really does a "save"
+        //  TODO - rename to writecContents or save
+        //  TODO - last arg should be permissions?
         /**
             Write the file contents. This method opens the file, writes the contents and closes the file.
             @param args The data to write to the file. Data is serialized in before writing. Note that numbers will not 
@@ -9582,7 +9581,7 @@ module ejs {
             try {
                 issue("success", ...args)
             } catch (e) {
-                //  MOB
+                //  TODO
                 print("CATCH", e)
                 emitError(e)
             }
@@ -9601,7 +9600,7 @@ module ejs {
             try {
                 issue("error", ...args)
             } catch (e) {
-                //  MOB -- use logging
+                //  TODO -- use logging
                 print("EmitError CATCH", e)
             }
         }
@@ -9614,7 +9613,7 @@ module ejs {
         function emitCancel(...args): Void
             issue("cancel", ...args)
 
-//  MOB -- why have cancel and emitCancel
+//  TODO -- why have cancel and emitCancel
         /** 
             Cancels the promise and removes "success" and "error" observers then issues a cancel event.
             @param args Args to pass to the "cancel" event observer
@@ -9628,7 +9627,7 @@ module ejs {
             issue("cancel", ...args)
         }
 
-//  MOB -- what about cancel?
+//  TODO -- what about cancel?
         /** 
             Convenience function to register callbacks. 
             @param success Success callback passed to onSuccess
@@ -9685,7 +9684,7 @@ module ejs {
             return this
         }
         
-        //  MOB - fix MaxInt
+        //  TODO - fix MaxInt
         /** 
             Wait for the promise to complete for a given period. This blocks execution until the promise completes or 
             is cancelled.
@@ -9983,7 +9982,7 @@ module ejs {
         /** @duplicate Stream.close */
         native function close(): Void
 
-        //  MOB - what about ipv6
+        //  TODO - what about ipv6
         /** 
             Establish a connection to a client from this socket to the supplied address. After a successful call to 
             connect() the socket may be used for sending and receiving.
@@ -10155,7 +10154,7 @@ module ejs {
          */
         function off(name, observer: Function): Void
 
-        //  MOB - define what this is set to in the callback
+        //  TODO - define what this is set to in the callback
         /** 
             Add an observer to the stream for the named events. 
             @param name :[String|Array] Name of the event to listen for. The name may be an array of events.
@@ -10375,7 +10374,7 @@ module ejs {
          */
         native function indexOf(pattern: String, startIndex: Number = 0): Number
 
-        //  MOB - should be isNumber
+        //  TODO - should be isNumber
         /**
             Is there is at least one character in the string and all characters are digits.
             @spec ejs
@@ -10758,7 +10757,7 @@ module ejs {
         function % (arg: Object): String
             format(arg)
 
-//  MOB - Cleanup
+//  TODO - Cleanup
         /** 
             @hide 
             @deprecated 2.0.0
@@ -10941,7 +10940,7 @@ module ejs {
             @duplicate Stream.close
          */
         function close(): Void {
-            inbuf.flush(2 /* MOB Stream.WRITE */)
+            inbuf.flush(2 /* TODO Stream.WRITE */)
             nextStream.close()
         }
 
@@ -11023,7 +11022,7 @@ module ejs {
             if (offset < 0) {
                 buffer.reset()
             } else {
-                buffer.flush(1 /* MOB Stream.READ */)
+                buffer.flush(1 /* TODO Stream.READ */)
             }
             let where = buffer.writePosition
             while (count > 0) {
@@ -11058,13 +11057,13 @@ module ejs {
                 return null
             }
             //  All systems strip both \n and \r\n to normalize text lines
-            //  MOB -- this should be a configurable option on a TextStream
+            //  TODO -- this should be a configurable option on a TextStream
             let nl = "\r\n"
             let nlchar = nl.charCodeAt(nl.length - 1)
             let nlchar0 = nl.charCodeAt(0)
             while (true) {
                 for (let i = inbuf.readPosition; i < inbuf.writePosition; i++) {
-                    //  MOB OPT. If ByteArray had indexOf(nl), then this could be MUCH faster
+                    //  TODO OPT. If ByteArray had indexOf(nl), then this could be MUCH faster
                     if (inbuf[i] == nlchar) {
                         if (nl.length == 2 && i > inbuf.readPosition && nlchar0 == inbuf[i-1]) {
                             result = inbuf.readString(i - inbuf.readPosition - 1)
@@ -11187,7 +11186,7 @@ module ejs {
 
 module ejs {
 
-    //  MOB - need a simple way to construct a timer and start in one step
+    //  TODO - need a simple way to construct a timer and start in one step
     /**
         Timers manage the execution of functions at some point in the future. Timers may run once, or they can be 
         scheduled to run repeatedly, until stopped by calling the $stop() method. Timers are scheduled with a granularity 
@@ -11351,7 +11350,7 @@ module ejs {
 module ejs {
 
     /*
-        MOB - REVISE
+        TODO - REVISE
         The Type class is unlike other class definitions. Rather than provide definitions that are accessed via
         the base-class and prototype chain, these properties are cloned directly into all types.
      */
@@ -11502,7 +11501,7 @@ module ejs {
             encode preserves:           ! * ' ( ) # ; , / ? : @ 
 
             NOTE: encodeComponent is encoding [] which is hard for IPv6
-            MOB:
+            TODO:
                 Don't encode [] for IPv6
                 Encode ! ' ( ) *
          */
@@ -11772,7 +11771,7 @@ module ejs {
 
         /** 
             Trim a pattern from the end of the URI path
-            NOTE: this does a case-sensitive match. MOB - is this right?
+            NOTE: this does a case-sensitive match. TODO - is this right?
             @return a new URI containing the trimmed URI
             TODO - should support reg expressions
          */
@@ -11790,7 +11789,7 @@ module ejs {
 
         /** 
             Trim a pattern from the start of the path
-            NOTE: this does a case-sensitive match. MOB - is this right?
+            NOTE: this does a case-sensitive match. TODO - is this right?
             @return a URI containing the trimmed path name
             TODO - should support reg expressions
          */
@@ -12223,7 +12222,7 @@ module ejs {
          */
         var name: String
 
-//  MOB -- should the worker exit when the script completes. Same question for terminate
+//  TODO -- should the worker exit when the script completes. Same question for terminate
         /**
             Create a new Worker instance. This call returns an outside worker object for using in the calling interpreter.
                 Inside the worker interpreter, a corresponding "inside" worker object is created that is paired to the
@@ -12320,7 +12319,7 @@ module ejs {
          */
         native function postMessage(data: Object, ports: Array? = null): Void
 
-        //  MOB - more description?
+        //  TODO - more description?
         /**
             Terminate the worker
          */
@@ -12484,7 +12483,7 @@ module ejs {
         # FUTURE
         native function addNamespace(ns: Namespace): XML
 
-        //  MOB - should be native
+        //  TODO - should be native
         /**
             Append a child to this XML object.
             @param child The child to add.
@@ -12640,7 +12639,7 @@ module ejs {
         # FUTURE
         native function inScopeNamespaces(): Array
 
-        //  MOB TODO - if marker is null. Insert at beginning or end?
+        //  TODO TODO - if marker is null. Insert at beginning or end?
         /**
             Insert a child object into an XML object immediately after a specified marker object. If the marker object 
             is null then the new object is inserted at the end. If the marker object is not found then the insertion 
@@ -12652,7 +12651,7 @@ module ejs {
         # FUTURE
         native function insertChildAfter(marker: Object?, child: Object): XML
 
-            // MOB - if marker is null. Insert at beginning or end?
+            // TODO - if marker is null. Insert at beginning or end?
         /**
             Insert a child object into an XML object immediately before a specified marker object. If the marker 
             object is null then the new object is inserted at the end. If the marker object is not found then the
@@ -13535,7 +13534,7 @@ module ejs.db {
             this.adapter = new global.module::[adapterClass](options)
         }
 
-        //  MOB - inconsistent naming. Add column,index vs create table
+        //  TODO - inconsistent naming. Add column,index vs create table
         /**
             Add a column to a table.
             @param table Name of the table
@@ -13604,7 +13603,7 @@ module ejs.db {
         function createDatabase(name: String, options: Object? = null): Void
             adapter.createDatabase(name, options)
 
-        //  MOB - should be addTable for consistency
+        //  TODO - should be addTable for consistency
         /**
             Create a new table
             @param table Name of the table
@@ -13641,7 +13640,7 @@ module ejs.db {
         function destroyDatabase(name: String): Void
             adapter.destroyDatabase(name)
 
-        //  MOB - should be removeTable for consistency
+        //  TODO - should be removeTable for consistency
         /**
             Destroy a table
             @param table Name of the table to destroy
@@ -13783,7 +13782,7 @@ module ejs.db {
         function startTransaction(): Void
             adapter.startTransaction()
 
-//  MOB -- should be setter/getter
+//  TODO -- should be setter/getter
         /**
             Trace all SQL statements on this database. Control whether trace is enabled for all SQL statements 
             issued against the database.
@@ -14197,7 +14196,7 @@ module ejs.db.mapper {
         }
 
         private static function checkNumber(thisObj: Record, field: String, value, options): Void {
-            //  MOB - what about decimal, +-
+            //  TODO - what about decimal, +-
             if (! RegExp(/^[0-9]+$/).test(value)) {
                 thisObj._errors[field] = (options && options.message) ? options.message : ErrorMessages.notNumber
             }
@@ -14375,7 +14374,7 @@ module ejs.db.mapper {
             return null
         }
 
-        //  MOB - should not throw when a record is not found. 
+        //  TODO - should not throw when a record is not found. 
         /**
             Find a record. Find and return a record identified by its primary key if supplied or by the specified options. 
             If more than one record matches, return the first matching record.
@@ -15538,13 +15537,13 @@ module ejs.db.sqlite {
          */
         function rollback(): Void {}
 
-        //  MOB - why have query and sql
+        //  TODO - why have query and sql
 
         /** @duplicate ejs.db::Database.query */
         function query(cmd: String, tag: String = "SQL", trace: Boolean~ = false): Array {
             //  TODO - need to access Database.traceAll
             let mark, size
-            //  MOB - rationalize Sqlite.query with Database.query and Record.innerFind
+            //  TODO - rationalize Sqlite.query with Database.query and Record.innerFind
             if (trace) {
                 App.log.debug(0, tag + ": " + cmd)
                 mark = new Date
@@ -15607,7 +15606,7 @@ module ejs.db.sqlite {
  */
 
 module ejs.mail {
-    //  MOB - include @options here
+    //  TODO - include @options here
     /** 
         Send mail using sendmail
         @param options Object hash with properties for: from, to, subject, date and Content-Type.
@@ -15647,7 +15646,7 @@ module ejs.mail {
             msg.push(boundary)
             let mime = Uri(file).mimeType || 'application/octet-stream'
             msg.push('Content-Transfer-Encoding: base64')
-            //  MOB - adding '' does nothing. Should the basename be in quotes
+            //  TODO - adding '' does nothing. Should the basename be in quotes
             msg.push('Content-Disposition: inline; filename=' + file.basename + '')
             msg.push('Content-Type: ' + mime + '; name="' + file.basename + '"')
             msg.push('')
@@ -16659,8 +16658,8 @@ module ejs.unix {
     function mkdir(path: String, permissions: Number = 0755): void
         Path(path).makeDir({permissions: permissions})
     
-    //  MOB - should allow toFile to be a directory
-    //  MOB - both args should be Paths
+    //  TODO - should allow toFile to be a directory
+    //  TODO - both args should be Paths
     /**
         Rename a file. If the new file name exists it is removed before the rename.
         @param fromFile Original file name.
@@ -16733,6 +16732,7 @@ module ejs.unix {
         return success
     }
 
+    //  TODO - need option to only remove empty directories
     /**
         Removes a directory and contents
         @param patterns Pattern to match files to delete. This can be a String, Path or array of String/Paths. 
@@ -16751,7 +16751,7 @@ module ejs.unix {
             patterns = [patterns]
         }
         for each (let pat:Path in patterns) {
-            for each (let path: Path in Path('.').files(pat)) {
+            for each (let path: Path in Path('.').files(pat, options)) {
                 if (path.isDir) {
                     rmdir(path.join('*'), options)
                 }
@@ -16920,7 +16920,7 @@ module ejs.web {
             this.logger = logger
         }
 
-        //  MOB -- rename
+        //  TODO -- rename
         function app(request: Request): Object {
             let start = new Date
             let response = innerApp.call(request, request)
@@ -17122,7 +17122,7 @@ module ejs.web {
             request ? request.uri : null
 
         /********************************************* Methods *******************************************/
-//  MOB - better name
+//  TODO - better name
         /** 
             Static factory method to create and initialize a controller. The controller class is specified by 
             params["controller"] which should be set to the controller name without the "Controller" suffix. 
@@ -17149,7 +17149,7 @@ module ejs.web {
          */
         function Controller(req: Request? = null) {
             /*  _initRequest may be set by create() to allow subclasses to omit constructors */
-            controllerName = typeOf(this).trim("Controller") //MOB || "-DefaultController-"
+            controllerName = typeOf(this).trim("Controller") //TODO || "-DefaultController-"
             request = req || _initRequest
             if (request) {
                 request.controller = this
@@ -17223,7 +17223,7 @@ module ejs.web {
                             setHeader("Last-Modified", Date(item.modified).toUTCString())
                             if (status == Http.Ok) {
                                 setHeader("Etag", cacheTag(cacheName))
-                                //  MOB - change this trace to just use "actionName"
+                                //  TODO - change this trace to just use "actionName"
                                 App.log.debug(5, "Use cached: " + cacheName)
                                 write(item.data)
                             } else {
@@ -17299,7 +17299,7 @@ module ejs.web {
             return false
         }
 
-        //  MOB - rename
+        //  TODO - rename
         /** 
             Controller web application. This function will run a controller action method and return a response object. 
             The action method may be specified by the $aname parameter or it may be supplied via 
@@ -17415,7 +17415,7 @@ module ejs.web {
                 "no-store" response may not be stored in a cache.
                 "must-revalidate" forces clients to revalidate the request with the server.
                 "proxy-revalidate" similar to must-revalidate except only for proxy caches>
-//  MOB - unclear, clarify
+//  TODO - unclear, clarify
             @option uri URI and parameter to further differentiate cached content. If supplied, different cache data
                 can be stored for each URI that applies to the given controller/action. If the URI is set to "*" all 
                 URIs for that action/controller are uniquely cached. If the request has POST data, the URI may include
@@ -17497,7 +17497,7 @@ module ejs.web {
                 let cacheName = cacheIndex
                 if (options.uri) {
                     cacheName += "::" + options.uri
-                    //  MOB - this is not clearing cache data with queries
+                    //  TODO - this is not clearing cache data with queries
                 }
                 if (data == null) {
                     App.log.debug(6, "Expire " + cacheName)
@@ -18410,14 +18410,14 @@ module ejs.web {
             "width":                "width",
         }
 
-        //  MOB -- need to be able to control treeview or not
+        //  TODO -- need to be able to control treeview or not
         private static const defaultStylesheets = [
             "/layout.css", 
             "/themes/default.css", 
             "/js/treeview.css", 
         ]
 
-        //  MOB -- Should offer all-in-one script
+        //  TODO -- Should offer all-in-one script
         private static const defaultScripts = [
             "/js/jquery", 
             "/js/jquery.tablesorter",
@@ -18497,7 +18497,7 @@ module ejs.web {
         }
 
         function icon(uri: String, options: Object): Void {
-            //  MOB - what other places should support use request.link
+            //  TODO - what other places should support use request.link
             uri = request.link(uri)
             write('    <link href="' + uri + '" rel="shortcut icon" />\r\n')
         }
@@ -18622,7 +18622,7 @@ module ejs.web {
                     write('    <script src="' + uri + '" type="text/javascript"></script>\r\n')
                 }
             } else {
-                //MOB uri = request.link(uri)
+                //TODO uri = request.link(uri)
                 write('    <script src="' + uri + '" type="text/javascript"></script>\r\n')
             }
         }
@@ -18712,7 +18712,7 @@ module ejs.web {
                 if (options.styleRows && options.styleRows[row]) {
                     styleRow = ' class="' + options.styleRows[row] + '"'
                 }
-                //  MOB - why not set these above when defining rowOptions
+                //  TODO - why not set these above when defining rowOptions
                 rowOptions.record = r
                 rowOptions.field = null
                 rowOptions.values = values
@@ -18745,7 +18745,7 @@ module ejs.web {
                     } else if (value is Number) {
                         attr = append(attr, ' align="right"')
                     }
-                    if (column.click || column.edit /* MOB options.cell */) {
+                    if (column.click || column.edit /* TODO options.cell */) {
                         /* really cell options */
                         rowOptions.record = r
                         rowOptions.row = row
@@ -18909,7 +18909,7 @@ module ejs.web {
                 setLinkOptions(options.click, options, "data-click")
 
             } else if (options.remote) {
-                //  MOB cleanup - data-remote only ever allow a boolean value.
+                //  TODO cleanup - data-remote only ever allow a boolean value.
                 if (options.remote == true && options.action) {
                     options.remote = options.action
                 }
@@ -18992,7 +18992,7 @@ module ejs.web {
             return (result == "") ? result : (" " + result.trimEnd())
         }
 
-//  MOB
+//  TODO
         /*
             Set option fields for a target URI:
                 options[prefix] == uri
@@ -19021,7 +19021,7 @@ module ejs.web {
             }
             target.uri ||= request.link(target)
             if (target.params) {
-//  MOB - should be a utility routine
+//  TODO - should be a utility routine
                 /* Process params and convert to an encoded query string */
                 let list = []
                 for (let [k,v] in target.params) {
@@ -19355,7 +19355,7 @@ server.listen("127.0.0.1:7777")
             if (web.session) {
                 openSession()
             }
-            //  MOB - BUG. Need this.fun to bind the function
+            //  TODO - BUG. Need this.fun to bind the function
             setInterval(this.pruneWorkers, PrunePeriod, this)
         }
 
@@ -19416,7 +19416,7 @@ server.listen("127.0.0.1:7777")
             return w
         }
 
-        //  MOB - should take an array of endpoints (like GoAhead) and allow https:///
+        //  TODO - should take an array of endpoints (like GoAhead) and allow https:///
 
         /** 
             Listen for client connections. This creates a HTTP server listening on a single socket endpoint. It can
@@ -19537,7 +19537,7 @@ server.listen("127.0.0.1:7777")
             }
             if (body is Array) {
                 for each (let item in body) {
-//  MOB -- what about async? what if can't accept all the data?
+//  TODO -- what about async? what if can't accept all the data?
                     request.write(item)
                 }
                 request.autoFinalize()
@@ -19546,24 +19546,24 @@ server.listen("127.0.0.1:7777")
                 if (body.async) {
                     request.async = true
                     //  Should we wait on request being writable or on the body stream being readable?
-//  MOB Must detect EOF and do a finalize()
+//  TODO Must detect EOF and do a finalize()
                     request.on("readable", function(event, request) {
                         let data = new ByteArray
                         if (request.read(data)) {
-//  MOB -- what about async? what if can't accept all the data?
+//  TODO -- what about async? what if can't accept all the data?
                             request.write(body)
                         } else {
                             request.autoFinalize()
                         }
                     })
-                    //  MOB -- or this? but what about error events
+                    //  TODO -- or this? but what about error events
                     request.on("complete", function(event, body) {
                         request.autoFinalize()
                     })
                 } else {
                     ba = new ByteArray
                     while (body.read(ba)) {
-//  MOB -- exceptions on all these writes should be caught --- normal situation for client to disappear
+//  TODO -- exceptions on all these writes should be caught --- normal situation for client to disappear
                         request.write(ba)
                     }
                     request.autoFinalize()
@@ -19665,7 +19665,7 @@ server.listen("127.0.0.1:7777")
                     passRequest(request, w)
                     /* Must not touch request from here on - the worker owns it now */
                 } else {
-                    //  MOB - rename response => responder
+                    //  TODO - rename response => responder
                     let mark = new Date
                     process(route.response, request)
                     App.log.debug(3, "Elapsed " + mark.elapsed + " msec for " + request.uri)
@@ -19930,7 +19930,7 @@ module ejs.web {
                 views: Path("views"),
             },
             mvc: {
-                //  MOB - should be moved to files
+                //  TODO - should be moved to files
                 appmod: "App.mod",
                 view: {
                     connectors: { },
@@ -20007,7 +20007,7 @@ module ejs.web {
             let dirs = config.dirs
             let appmod = dirs.cache.join(config.mvc.appmod)
             if (config.web.flat) {
-                //  MOB - implement flat
+                //  TODO - implement flat
                 if (!global.BaseController) {
                     global.load(appmod)
                 }
@@ -20122,7 +20122,7 @@ module ejs.web {
 
     }
 
-    //  MOB - who uses this?
+    //  TODO - who uses this?
     /**
         MVC request handler.  
         @param request Request object
@@ -20135,7 +20135,7 @@ module ejs.web {
         return app(request)
     }
 
-//  MOB -- update doc. Rename from builder?
+//  TODO -- update doc. Rename from builder?
     /** 
         MVC builder for use in routing tables. The MVC builder function can be included directly in Route table entries.
         @param request Request object. 
@@ -20211,7 +20211,7 @@ module ejs.web {
          */ 
         native enumerable var absHome: Uri
 
-        //  MOB - update
+        //  TODO - update
         /** 
             Authentication group. This property is set to the value of the authentication group header. 
             This field is read-only.
@@ -20302,7 +20302,7 @@ module ejs.web {
          */
         native enumerable var filename: Path
 
-//  MOB -- why public here
+//  TODO -- why public here
         /** 
             Notification "flash" messages to pass to the next request (only). By convention, the following keys are used.
             error: Negative errors (Warnings and errors), inform: Informational / postitive feedback (note),
@@ -20577,7 +20577,7 @@ module ejs.web {
          */
         function createSession(timeout: Number = -1): Session {
             if (timeout >= 0) {
-// - MOB - does this change the timeout for just this session or for all?
+// - TODO - does this change the timeout for just this session or for all?
                 setLimits({ sessionTimeout: timeout })
             }
             return session
@@ -20673,7 +20673,7 @@ module ejs.web {
         function inform(msg: String): Void
             notify("inform", msg)
 
-        // MOB - OPT make native
+        // TODO - OPT make native
         /** 
             Create a URI link. The target parameter may contain partial or complete URI information. The missing parts 
             are supplied using the current request and route tables. The resulting URI is a normalized, server-local 
@@ -20734,7 +20734,7 @@ r.link({product: "candy", quantity: "10", template: "/cart/{product}/{quantity}}
          */
         function link(target: Object): Uri {
             /*
-                MOB - refactor:
+                TODO - refactor:
                 Don't update target as the object hash. Don't use target.uri as the intermediate form. 
                 Don't support outside use of target.uri to tunnel a URI
              */
@@ -20743,7 +20743,7 @@ r.link({product: "candy", quantity: "10", template: "/cart/{product}/{quantity}}
             }
             if (target is String) {
                 if (target[0] == '@') {
-                    //  MOB - what about a possible controller in the target?
+                    //  TODO - what about a possible controller in the target?
                     target = {action: target}
                 } else {
                     if (target[0] == '~') {
@@ -20758,11 +20758,11 @@ r.link({product: "candy", quantity: "10", template: "/cart/{product}/{quantity}}
                     target = {uri: target}
                 }
             }
-            //  MOB - remove target.uri tunneling except internally in this routine
+            //  TODO - remove target.uri tunneling except internally in this routine
             if (!target.uri) {
                 target = target.clone()
                 if (target.action) {
-                    //  MOB - this should be genericized and take request.params to get a default action / controller
+                    //  TODO - this should be genericized and take request.params to get a default action / controller
                     //  and all other params
                     if (target.action[0] == '@') {
                         target.action = target.action.slice(1)
@@ -20867,7 +20867,7 @@ r.link({product: "candy", quantity: "10", template: "/cart/{product}/{quantity}}
          */
         native function on(name, observer: Function): Request
 
-//  MOB - should there be a blocking read option?
+//  TODO - should there be a blocking read option?
         /** 
             @duplicate Stream.read
             If the request is posting a form, i.e. the Http ContentType header is set to 
@@ -21091,7 +21091,7 @@ r.link({product: "candy", quantity: "10", template: "/cart/{product}/{quantity}}
          */
         native function write(...data): Number
 
-//  MOB - add this to ByteArray, Http, Socket (not to Stream)
+//  TODO - add this to ByteArray, Http, Socket (not to Stream)
         /** 
             Write a block of data to the client. This will buffer the written data which will be flushed when either 
             close(), flush() or finalize() is called or the underlying pipeline is full. 
@@ -21107,7 +21107,7 @@ r.link({product: "candy", quantity: "10", template: "/cart/{product}/{quantity}}
         native function writeBlock(buffer: ByteArray, offset: Number = 0, count: Number = -1): Number?
 
         /**
-MOB - DEBUG
+TODO - DEBUG
             Write content based on the requested accept mime type
             @param data Data to send to the client
             @hide
@@ -21204,7 +21204,7 @@ MOB - DEBUG
         native function get written(): Number
 
         /********************************************** JSGI  ********************************************************/
-        //   MOB - Deprecate
+        //   TODO - Deprecate
         /** 
             JSGI specification configuration object.
             @spec jsgi-0.3
@@ -21249,7 +21249,7 @@ MOB - DEBUG
 
         /*************************************** Deprecated ***************************************/
 
-//  MOB - remove all this legacy stuff
+//  TODO - remove all this legacy stuff
         /** 
             @hide
             @deprecated 2.0.0
@@ -21579,7 +21579,7 @@ module ejs.web {
          */
         public function addHandlers(): Void {
             let staticPattern = "\/" + (App.config.dirs.static.basename || "static") + "\/.*"
-            //  MOB - why test here?
+            //  TODO - why test here?
             if (staticPattern) {
                 add(staticPattern, {name: "default", response: StaticApp})
             }
@@ -21929,7 +21929,7 @@ module ejs.web {
             let log = request.log
             log.debug(5, "Routing " + request.pathInfo)
 
-            //  MOB - this is now done by http for "-http-method" and X-HTTP-METHOD-OVERRIDE
+            //  TODO - this is now done by http for "-http-method" and X-HTTP-METHOD-OVERRIDE
             if (request.method == "POST") {
                 let method = request.params["-ejs-method-"] || request.header("X-HTTP-METHOD-OVERRIDE")
                 if (method && method.toUpperCase() != request.method) {
@@ -21961,7 +21961,7 @@ module ejs.web {
         public function setDefaultApp(app: Function): Void
             defaultApp = app
 
-        //  MOB - rethink the "full" arg
+        //  TODO - rethink the "full" arg
         /**
             Show the route table
             @param extra Set to "full" to display extra route information
@@ -22239,7 +22239,7 @@ module ejs.web {
             this.originalTemplate = template
         }
 
-        //  MOB - see ESP. It does this a better way
+        //  TODO - see ESP. It does this a better way
 
         private function compileTemplate(options: Object): Void {
             if (template is String) {
@@ -22265,7 +22265,7 @@ module ejs.web {
                         t = t.replace("{" + token + "}", "([^/]*)")
                     }
                 } 
-                //  MOB - is this required?
+                //  TODO - is this required?
                 t = t.replace(/\//g, "\\/")
                 pattern = RegExp("^" + t + "$")
                 /*  Splitter ends up looking like "$1:$2:$3:$4" */
@@ -22493,7 +22493,7 @@ module ejs.web {
     }
 
 
-    //  MOB -- make all builder functions lower case: scriptBuilder -- or inline above
+    //  TODO -- make all builder functions lower case: scriptBuilder -- or inline above
     /** 
         Script builder to create a function to serve a script request (*.es).  
         @param request Request object. 
@@ -22504,7 +22504,7 @@ module ejs.web {
     function ScriptBuilder(request: Request): Object {
         if (!request.filename.exists) {
             request.writeError(Http.NotFound, "Cannot find " + escapeHtml(request.pathInfo)) 
-            //  MOB - should not need throw, just return
+            //  TODO - should not need throw, just return
             throw true
         }
         try {
@@ -22846,7 +22846,7 @@ module ejs.web {
         }
     }
 
-    //  MOB -- rename to scriptBuilder
+    //  TODO -- rename to scriptBuilder
     /** 
         Static builder for use in routing tables to serve static file content.
         @param request Request object. 
@@ -22855,7 +22855,7 @@ module ejs.web {
         @stability prototype
      */
     function StaticBuilder(request: Request): Function {
-        //  MOB - should not need "ejs.web"
+        //  TODO - should not need "ejs.web"
         return "ejs.web"::StaticApp
     }
 }
@@ -22945,7 +22945,7 @@ module ejs.web {
             path = request.filename
             if (path && !path.exists) {
                 request.writeError(Http.NotFound, "Cannot find " + escapeHtml(request.pathInfo))
-                //  MOB - is this a generic need for a function like this?
+                //  TODO - is this a generic need for a function like this?
                 return function() {}
             }
         }
@@ -23296,10 +23296,10 @@ module ejs.web {
 # Config.WEB
 module ejs.web {
 
-    //  MOB - is this necessary?
+    //  TODO - is this necessary?
     require ejs.web
 
-    //  MOB - what does option click Boolean mean below??
+    //  TODO - what does option click Boolean mean below??
     /*
         data-remote should only take true. Then data-click=URI data-remote=true. Otherwise can define both click and remote.
      */
@@ -23430,7 +23430,7 @@ module ejs.web {
                 if (helper.contains("::")) {
                     [mod, klass] = helper.split("::")
                     global.load(mod + ".mod")
-                    //  MOB -- should use blend(this, global.[mod]::[klass])
+                    //  TODO -- should use blend(this, global.[mod]::[klass])
                     blend(this, global[klass])
                 } else {
                     blend(this, global[helper])
@@ -23452,7 +23452,7 @@ module ejs.web {
 
         /** 
             Emit a status alert area
-MOB - review?
+TODO - review?
             @param text Initial message text to display. Status messages may be updated by calling the 
                 $Controller.status function.
             @param options Optional extra options. See $View for a list of the standard options.
@@ -23468,7 +23468,7 @@ MOB - review?
             getConnector("alert", options).alert(text, options)
         }
 
-        //  MOB - should have a URI argument (ESP)
+        //  TODO - should have a URI argument (ESP)
         /**
             Emit an anchor. This is a label inside an anchor reference. 
             @param text Link text to display
@@ -23476,7 +23476,7 @@ MOB - review?
          */
         function anchor(text: String, options: Object = {}): Void {
             options = getOptions(options)
-            //  MOB - should got to anchor
+            //  TODO - should got to anchor
             getConnector("label", options).label(text, options)
         }
 
@@ -23496,7 +23496,7 @@ MOB - review?
             getConnector("button", options).button(name, label, options)
         }
 
-        //  MOB - this really should have a URI parameter instead of relying on options conversion via options.click 
+        //  TODO - this really should have a URI parameter instead of relying on options conversion via options.click 
         /**
             Render a link button. This creates a button suitable for use outside an input form. When the button 
             is clicked, the associated URI will be invoked.
@@ -23507,7 +23507,7 @@ MOB - review?
          */
         function buttonLink(text: String, options: Object = {}): Void {
             options = getOptions(options)
-            //  MOB - why is this here - inconsistent
+            //  TODO - why is this here - inconsistent
             if (currentRecord) {
                 options.id ||= currentRecord.id
             }
@@ -23517,7 +23517,7 @@ MOB - review?
         /**
             Render a chart. The chart control can display static or dynamic tabular data. The client chart control manages
                 sorting by column, dynamic data refreshes, pagination and clicking on rows.
-    MOB -- update
+    TODO -- update
             @param data Optional initial data for the control. The data option may be used with the refresh option to 
                 dynamically refresh the data.
             @param options Object Optional extra options. See also $View for a list of the standard options.
@@ -23581,7 +23581,7 @@ MOB - review?
             @param options Optional extra options. See $View for a list of the standard options.
             @option retain Number. Number of seconds to retain the message. If <= 0, the message is retained until another
                 message is displayed. Default is 0.
-                MOB - this default implies it is displayed for zero seconds
+                TODO - this default implies it is displayed for zero seconds
             @example
                 <% flash("status") %>
                 <% flash() %>
@@ -23622,7 +23622,7 @@ MOB - review?
             will be generated once for the view and the same token will be used by all forms on the view page. To use
             security tokens outside a form, you need to manually call $securityToken in the &lt;head> section of the page.
 
-MOB -- much more doc here
+TODO -- much more doc here
     - Talk about controllers updating the record
             @param record Record to display and optionally update
             @param options Optional extra options. See $View for a list of the standard options.
@@ -23643,7 +23643,7 @@ MOB -- much more doc here
             connector.form(record, options)
         }
 
-        //  MOB - is this required if we have image()
+        //  TODO - is this required if we have image()
         /** 
             Emit an icon link.
             @param src Source name for the icon.
@@ -23691,7 +23691,7 @@ MOB -- much more doc here
                     let value = getValue(currentRecord, name, options)
                     datatype = Object.getTypeName(value).toLowerCase()
                 }
-                //  MOB TODO - needs fleshing out for each type
+                //  TODO TODO - needs fleshing out for each type
                 switch (datatype) {
                 case "binary":
                 case "date":
@@ -23776,7 +23776,7 @@ MOB -- much more doc here
             getConnector("mail", options).mail(name, address, options)
         }
 
-//  MOB -- redo progress using a commet style
+//  TODO -- redo progress using a commet style
         /** 
             Emit a progress bar.
             @param percent Progress percentage (0-100) 
@@ -23916,7 +23916,7 @@ MOB -- much more doc here
             <ul>
                 <li>align - Will right-align numbers by default</li>
                 <li>click - URI to invoke if the cell is clicked</li>
-                <li>edit - MOB </li>
+                <li>edit - TODO </li>
                 <li>formatter - Function to invoke to format the value to display</li>
                 <li>header - Header text for the column</li>
                 <li>style - Cell styles</li>
@@ -23938,7 +23938,7 @@ MOB -- much more doc here
          */
         function table(data, options: Object = {}): Void {
             options = getOptions(options)
-            //  MOB - move to client side (data-pivot). No good here as it can't be refreshed!
+            //  TODO - move to client side (data-pivot). No good here as it can't be refreshed!
             if (options.pivot) {
                 data = pivot(data)
             }
@@ -24006,7 +24006,7 @@ MOB -- much more doc here
             getConnector("tree", options).tree(data, options)
         }
 
-//MOB -- review and rethink this
+//TODO -- review and rethink this
         /**
             Render a partial view. This creates an HTML element with the required options. It is useful to generate
                 a dynamically refreshing division.
@@ -24034,8 +24034,8 @@ MOB -- much more doc here
             controller.writeTemplate(request.dir.join(config.dirs.views.basename, cname, action).joinExt(ext))
         }
 
-        // MOB TODO - need a rich text editor. Wiki style.  wiki()
-        // MOB TODO - need markdown style output?
+        // TODO TODO - need a rich text editor. Wiki style.  wiki()
+        // TODO TODO - need markdown style output?
 
         /***************************************** Wrapped Request Functions **********************************************/
         /**
@@ -24122,7 +24122,7 @@ MOB -- much more doc here
                 return connectors[name]
             }
             try {
-                //  MOB - what is this doing?
+                //  TODO - what is this doing?
                 return connectors[name] = new global[name](this)
             } catch (e: Error) {
                 throw new Error("Undefined view connector: " + name)
@@ -24157,7 +24157,7 @@ MOB -- much more doc here
             return options
         }
 
-//  MOB -- refactor - poor API
+//  TODO -- refactor - poor API
         /**
             @param record Optional record holding the data to display
             @param data String field name in record or object hash {field: field}. If record is not defined, "data" is
@@ -24222,7 +24222,7 @@ MOB -- much more doc here
             String: plainFormatter,
             Number: plainFormatter,
             Boolean: plainFormatter,
-            //  MOB -- put all standard types here -- faster
+            //  TODO -- put all standard types here -- faster
         }
 
         private static function dateFormatter(view: View, value: Object, options: Object): String
@@ -24233,7 +24233,7 @@ MOB -- much more doc here
        
         /************************************************ View Helpers ****************************************************/
         /**
-            Temporary helper function to format the date. MOB - should move to helpers somewhere
+            Temporary helper function to format the date. TODO - should move to helpers somewhere
             @param fmt Format string
             @returns a formatted string
          */
@@ -24244,7 +24244,7 @@ MOB -- much more doc here
         }
 
         /**
-            Temporary helper function to format a number as currency. MOB
+            Temporary helper function to format a number as currency. TODO
             @param fmt Format string
             @returns a formatted string
          */
@@ -24255,7 +24255,7 @@ MOB -- much more doc here
         }
 
         /**
-            Temporary helper function to format a number. MOB
+            Temporary helper function to format a number. TODO
             @param fmt Format string
             @returns a formatted string
          */
@@ -24318,7 +24318,7 @@ MOB -- much more doc here
 
 module ejs.tar {
 
-    //  MOB -- need some ability to trace commands  (tar tvf)
+    //  TODO -- need some ability to trace commands  (tar tvf)
 
     /** @hide */
     class Zip {
@@ -24347,7 +24347,7 @@ module ejs.tar {
             Cmd.sh(cmd)
         }
 
-        //  MOB -- incomplete
+        //  TODO -- incomplete
         function cat(...files): String {
             let cmd = "tar xOzf " + path + " " + files.join(" ")
             cmd = cmd.replace(/\\/g, "\\\\")
@@ -24389,7 +24389,7 @@ module ejs.tar {
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
-//  MOB - enabled while boostraping
+//  TODO - enabled while boostraping
 # Config.ZLIB || 1
 module ejs.zlib {
 

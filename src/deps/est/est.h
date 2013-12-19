@@ -36,7 +36,7 @@
 
 /*********************************** Forwards *********************************/
 
-//  MOB - what about x64?
+//  TODO - what about x64?
 #if BIT_CPU_ARCH == BIT_CPU_X86 || BIT_CPU_ARCH == BIT_CPU_X64
     #define EST_HAVE_ASM 1
 #endif
@@ -211,7 +211,7 @@
 #ifndef EST_BIGNUM_H
 #define EST_BIGNUM_H
 
-//  MOB unify
+//  TODO unify
 #define EST_ERR_MPI_FILE_IO_ERROR                     -0x0002
 #define EST_ERR_MPI_BAD_INPUT_DATA                    -0x0004
 #define EST_ERR_MPI_INVALID_CHARACTER                 -0x0006
@@ -225,8 +225,8 @@
 /*
    Define the base integer type, architecture-wise
  */
-//  MOB -remove wordsize 8
-//  MOB -remove t_int, t_dbl and use bitos types
+//  TODO -remove wordsize 8
+//  TODO -remove t_int, t_dbl and use bitos types
 
 #if BIT_WORDSIZE == 8
     typedef uchar t_int;
@@ -236,17 +236,17 @@
     typedef ulong t_dbl;
 #else
     typedef ulong t_int;
-    //  MOB #if WINDOWS && #if BIT_CPU_ARCH == BIT_CPU_X86
+    //  TODO #if WINDOWS && #if BIT_CPU_ARCH == BIT_CPU_X86
     #if defined(_MSC_VER) && defined(_M_IX86)
         typedef unsigned __int64 t_dbl;
     #else
-        //  MOB #if BIT_64
+        //  TODO #if BIT_64
         #if defined(__amd64__) || defined(__x86_64__) || defined(__ppc64__) || defined(__powerpc64__) || \
                 defined(__ia64__)  || defined(__alpha__)
             typedef uint t_dbl __attribute__ ((mode(TI)));
         #else
             typedef unsigned long long t_dbl;
-            //  MOB - should other cases use this too?
+            //  TODO - should other cases use this too?
             #define BIT_USE_LONG_LONG 1
         #endif
     #endif
@@ -570,7 +570,7 @@ extern "C" {
 #ifndef EST_NET_H
 #define EST_NET_H
 
-//  MOB - merge
+//  TODO - merge
 
 #define EST_ERR_NET_UNKNOWN_HOST                      -0x0F00
 #define EST_ERR_NET_SOCKET_FAILED                     -0x0F10
@@ -691,7 +691,7 @@ extern "C" {
 #ifndef EST_DHM_H
 #define EST_DHM_H
 
-//  MOB - unify error codes
+//  TODO - unify error codes
 #define EST_ERR_DHM_BAD_INPUT_DATA                    -0x0480
 #define EST_ERR_DHM_READ_PARAMS_FAILED                -0x0490
 #define EST_ERR_DHM_MAKE_PARAMS_FAILED                -0x04A0
@@ -820,7 +820,7 @@ extern "C" {
 #ifndef EST_RSA_H
 #define EST_RSA_H
 
-//  MOB - merge
+//  TODO - merge
 #define EST_ERR_RSA_BAD_INPUT_DATA                    -0x0400
 #define EST_ERR_RSA_INVALID_PADDING                   -0x0410
 #define EST_ERR_RSA_KEY_GEN_FAILED                    -0x0420
@@ -1316,7 +1316,7 @@ extern "C" {
 #ifndef EST_X509_H
 #define EST_X509_H
 
-//  MOB - merge
+//  TODO - merge
 #define EST_ERR_ASN1_OUT_OF_DATA                      -0x0014
 #define EST_ERR_ASN1_UNEXPECTED_TAG                   -0x0016
 #define EST_ERR_ASN1_INVALID_LENGTH                   -0x0018
@@ -1389,7 +1389,7 @@ extern "C" {
 #define PKCS9_EMAIL                     1
 
 /*
-   MOB
+   TODO
    Street   9
    Surname  4
    Serial   5
@@ -1440,7 +1440,7 @@ typedef struct _x509_time {
     int hour, min, sec;
 } x509_time;
 
-//  MOB - doc for all this file
+//  TODO - doc for all this file
 
 typedef struct _x509_cert {
     x509_buf raw;
@@ -1623,7 +1623,7 @@ extern "C" {
 #ifndef EST_SSL_H
 #define EST_SSL_H
 
-//  MOB - merge
+//  TODO - merge
 #define EST_ERR_SSL_FEATURE_UNAVAILABLE               -0x1000
 #define EST_ERR_SSL_BAD_INPUT_DATA                    -0x1800
 #define EST_ERR_SSL_INVALID_MAC                       -0x2000
@@ -1665,7 +1665,7 @@ extern "C" {
 #define SSL_COMPRESS_NULL               0
 
 #define SSL_VERIFY_NO_CHECK             0
-//  MOB - rename VERIFY_MANUAL. Reconsider all names
+//  TODO - rename VERIFY_MANUAL. Reconsider all names
 #define SSL_VERIFY_OPTIONAL             1
 #define SSL_VERIFY_REQUIRED             2
 
@@ -1683,7 +1683,7 @@ typedef struct EstCipher {
 
 /*
    Supported ciphersuites
-   MOB - need shorts for two byte ciphers. http://www.iana.org/assignments/tls-parameters/tls-parameters.xml
+   TODO - need shorts for two byte ciphers. http://www.iana.org/assignments/tls-parameters/tls-parameters.xml
  */
 #define TLS_RSA_WITH_RC4_128_MD5                0x4
 #define TLS_RSA_WITH_RC4_128_SHA                0x5
@@ -1962,7 +1962,7 @@ extern "C" {
        @param ssl      SSL context
        @param ca_chain trusted CA chain
        @param peer_cn  expected peer CommonName (or NULL)
-       @note           MOB TODO: add two more parameters: depth and crl
+       @note           TODO TODO: add two more parameters: depth and crl
      */
     PUBLIC void ssl_set_ca_chain(ssl_context *ssl, x509_cert *ca_chain, char *peer_cn);
 
@@ -2305,7 +2305,7 @@ extern "C" {
 #ifndef EST_BASE64_H
 #define EST_BASE64_H
 
-//  MOB - need unified error handling
+//  TODO - need unified error handling
 #define EST_ERR_BASE64_BUFFER_TOO_SMALL   -0x0010
 #define EST_ERR_BASE64_INVALID_CHARACTER  -0x0012
 
@@ -2376,7 +2376,7 @@ extern "C" {
 #ifndef EST_BN_MUL_H
 #define EST_BN_MUL_H
 
-//  MOB - convert to bitos.h
+//  TODO - convert to bitos.h
 
 #if defined(EST_HAVE_ASM)
 
@@ -3207,7 +3207,7 @@ extern "C" {
 extern "C" {
 #endif
 
-//  MOB
+//  TODO
 #if UNUSED
     extern char test_ca_crt[];
     extern char test_ca_key[];
@@ -3270,8 +3270,8 @@ extern "C" {
 #ifdef __cplusplus
 extern "C" {
 #endif
-    //  MOB - move to an estDep.h
-    //  MOB - doc
+    //  TODO - move to an estDep.h
+    //  TODO - doc
     PUBLIC int snfmt(char *buf, ssize bufsize, cchar *fmt, ...);
     PUBLIC char *debug_fmt(const char *format, ...);
     PUBLIC void debug_print_msg(ssl_context *ssl, int level, char *text);
@@ -3799,7 +3799,7 @@ extern "C" {
 #ifndef EST_PADLOCK_H
 #define EST_PADLOCK_H
 
-//  MOB - use #if BIT_CPU_ARCH == BIT_CPU_X86
+//  TODO - use #if BIT_CPU_ARCH == BIT_CPU_X86
 
 #if (defined(__GNUC__) && defined(__i386__))
 #ifndef EST_HAVE_X86
@@ -4022,7 +4022,7 @@ extern "C" {
 #ifndef EST_SHA4_H
 #define EST_SHA4_H
 
-//  MOB - update to use bits equivalent
+//  TODO - update to use bits equivalent
 #if defined(_MSC_VER) || defined(__WATCOMC__)
     #define UL64(x) x##ui64
     #define int64 __int64
@@ -4178,7 +4178,7 @@ struct hr_time {
 extern "C" {
 #endif
 
-    //  MOB - PUBLIC_DATA
+    //  TODO - PUBLIC_DATA
     extern int alarmed;
 
     /**

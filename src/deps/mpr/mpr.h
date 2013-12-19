@@ -909,7 +909,7 @@ PUBLIC void mprAtomicAdd64(volatile int64 *target, int64 value);
     @defgroup MprMem MprMem
     @see MprFreeMem MprHeap MprManager MprMemNotifier MprRegion mprAddRoot mprAlloc mprAllocMem mprAllocObj 
         mprAllocZeroed mprCreateMemService mprDestroyMemService mprEnableGC mprGetBlockSize mprGetMem 
-        mprGetMemStats mprGetMpr mprGetPageSize mprHasMemError mprHold mprIsParent mprIsValid mprMark 
+        mprGetMemStats mprGetMpr mprGetPageSize mprHasMemError mprHold mprIsParentPathOf mprIsValid mprMark 
         mprMemcmp mprMemcpy mprMemdup mprPrintMem mprRealloc mprRelease mprRemoveRoot mprRequestGC mprResetMemError 
         mprRevive mprSetAllocLimits mprSetManager mprSetMemError mprSetMemLimits mprSetMemNotifier mprSetMemPolicy 
         mprSetName mprVerifyMem mprVirtAlloc mprVirtFree 
@@ -2254,10 +2254,11 @@ PUBLIC char *ssub(cchar *str, ssize offset, ssize length);
 /**
     Trim a string.
     @description Trim leading and trailing characters off a string.
+    The original string is not modified and the return value is a newly allocated string.
     @param str String to trim.
     @param set String of characters to remove.
     @param where Flags to indicate trim from the start, end or both. Use MPR_TRIM_START, MPR_TRIM_END, MPR_TRIM_BOTH.
-    @return Returns a pointer to the trimmed string. May not equal \a str.
+    @return Returns a newly allocated trimmed string. May not equal \a str.
     @ingroup MprString
     @stability Stable
  */
@@ -4475,7 +4476,7 @@ PUBLIC void mprSetPathNewline(cchar *path, cchar *newline);
     @see MprFile mprAttachFileFd mprCloseFile mprDisableFileBuffering mprEnableFileBuffering mprFlushFile mprGetFileChar 
         mprGetFilePosition mprGetFileSize mprGetStderr mprGetStdin mprGetStdout mprOpenFile 
         mprPeekFileChar mprPutFileChar mprPutFileString mprReadFile mprReadLine mprSeekFile mprTruncateFile mprWriteFile 
-        mprWriteFormat mprWriteString 
+        mprWriteFileFmt mprWriteFileString 
         mprGetFileFd
     @defgroup MprFile MprFile
     @stability Internal
@@ -4774,7 +4775,7 @@ PUBLIC ssize mprWriteFileString(MprFile *file, cchar *str);
         mprGetFirstPathSeparator mprGetLastPathSeparator mprGetNativePath mprGetPathBase 
         mprGetPathDir mprGetPathExt mprGetPathFiles mprGetPathLink mprGetPathNewline mprGetPathParent 
         mprGetPathSeparators mprGetPortablePath mprGetRelPath mprGetTempPath mprGetWinPath mprIsAbsPath 
-        mprIsRelPath mprJoinPath mprJoinPathExt mprMakeDir mprMakeLink mprMapSeparators mprNormalizePath
+        mprIsRelPath mprJoinPath mprJoinPaths mprJoinPathExt mprMakeDir mprMakeLink mprMapSeparators mprNormalizePath
         mprPathExists mprReadPathContents mprReplacePathExt mprResolvePath mprSamePath mprSamePathCount mprSearchPath 
         mprTransformPath mprTrimPathExt mprTruncatePath 
     @defgroup MprPath MprPath
@@ -5153,7 +5154,16 @@ PUBLIC bool mprIsPathSeparator(cchar *path, cchar c);
  */
 PUBLIC char *mprJoinPath(cchar *base, cchar *path);
 
-//  FUTURE - need mprJoinPaths(base, ....);
+/**
+    Join paths
+    @description Join each given path in turn to the path. Calls mprJoinPath for each argument.
+    @param base Directory path name to use as the base.
+    @param ... Other paths to join to the base path.
+    @returns Allocated string containing the resolved path.
+    @ingroup MprPath
+    @stability Prototype
+ */
+PUBLIC char *mprJoinPaths(cchar *base, ...);
 
 /**
     Join an extension to a path
@@ -6118,11 +6128,13 @@ PUBLIC void mprXmlSetParserHandler(MprXml *xp, MprXmlHandler h);
 #define MPR_JSON_QUOTES         0x2         /**< Serialize output quoting keys */
 #define MPR_JSON_STRINGS        0x4         /**< Emit all values as quoted strings */
 
+#if UNUSED
 /*
     Flags for mprAddJson
  */
 #define MPR_JSON_APPEND         0x1         /**< Append property to object. Permits multiple properties of the same name */
 #define MPR_JSON_REPLACE        0x2         /**< Replace existing properties of the same name (default) */
+#endif
 
 /*
     Flags for mprQueryJson
@@ -6237,6 +6249,8 @@ typedef struct MprJsonParser {
 /**
     Blend two JSON objects
     @description This performs an N-level deep clone of the JSON object to be blended into the target object 
+        This will append arrays and add new object properties. If a primitive property already exists, it will only 
+        be updated if MPR_JSON_OVERWRITE is defined in flags.
     @param dest Parsed JSON object. This is the destination object. The "other" object will be blended into this object.
     @param other Parsed JSON object returned by mprJsonParser
     @param flags Set to MPR_JSON_OVERWRITE to overwrite existing properties.
@@ -6291,7 +6305,9 @@ PUBLIC MprHash *mprDeserializeInto(cchar *str, MprHash *hash);
         See $mprJsonQuery for a full description of key formats.
     @param flags Include MPR_JSON_SIMPLE for simple property names without embedded query expressions.
         Include MPR_JSON_TOP for properties at the top level (without embedded ".").
-    @return Returns the property value otherwise NULL if not found or not the correct type.
+    @return Returns the property value as an object, otherwise NULL if not found or not the correct type.
+        If MPR_JSON_TOP is specified in flags, the actual object reference is returned. 
+        Otherwise, a cloned copy of the object is returned.
     @ingroup MprJson
     @stability Prototype
  */
@@ -6352,6 +6368,7 @@ PUBLIC MprHash *mprJsonToHash(MprJson *json);
         users[name == 'john']
         users[age >= 50]
         users[phone ~ ^206]         //  Starts with 206
+        users[*]                    //  Set a new element
         colors[@ != 'red']          //  Array element not 'red'
         people..[name == 'john']    //  Elipsis descends down multiple levels
         </pre>
@@ -6360,7 +6377,8 @@ PUBLIC MprHash *mprJsonToHash(MprJson *json);
         If flags includes MPR_JSON_SIMPLE, the property is not parsed for expressions.
         Otherwise the the properties described by the keyPath are cloned and returned as a 
         children of a container object.
-    @return Json object containing the selected property values.
+    @return Json object containing the selected property values. The elements of the object are cloned and not references
+        into the original object.
  */
 PUBLIC MprJson *mprJsonQuery(MprJson *obj, cchar *keyPath, MprJson *value, int flags);
 
@@ -6484,6 +6502,15 @@ PUBLIC MprJson *mprQueryJson(MprJson *obj, cchar *key, int flags);
     @stability Prototype
  */
 PUBLIC MprJson *mprRemoveJson(MprJson *obj, cchar *key);
+
+/**
+    Remove a child from a JSON object
+    @param obj Parsed JSON object returned by mprParseJson
+    @param child JSON child to remove
+    @ingroup MprJson
+    @stability Prototype
+ */
+PUBLIC void mprRemoveJsonChild(MprJson *obj, MprJson *child);
 
 /**
     Save a JSON object to a filename

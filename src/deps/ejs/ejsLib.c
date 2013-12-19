@@ -3834,7 +3834,7 @@ static EjsNamespace *lookupNamespace(Ejs *ejs, EjsString *nspace)
 }
 
 
-//  MOB - common this with the slow-path version in the VM
+//  TODO - common this with the slow-path version in the VM
 
 /*
     Look for a variable by name in the scope chain and return the location in "cp->lookup" and a positive slot 
@@ -4792,7 +4792,7 @@ static void genClassName(EcCompiler *cp, EjsType *type)
     }
     slotNum = ejsLookupProperty(ejs, ejs->global, type->qname);
     if (cp->bind && slotNum < ES_global_NUM_CLASS_PROP) {
-        //  MOB - WARNING: this won't work if classes are implemented like Record.
+        //  TODO - WARNING: this won't work if classes are implemented like Record.
         assert(slotNum >= 0);
         genGlobalName(cp, slotNum);
 
@@ -10985,7 +10985,7 @@ PUBLIC void ecEncodeGlobal(EcCompiler *cp, EjsAny *obj, EjsName qname)
      */
     slotNum = ejsLookupProperty(ejs, ejs->global, qname);
 
-    //  MOB - don't bind for Appweb all-in-one. ejs.web can load at different places 
+    //  TODO - don't bind for Appweb all-in-one. ejs.web can load at different places 
     if (slotNum < ES_global_NUM_CLASS_PROP /* || cp->bind */) {
         if (slotNum >= 0) {
             ecEncodeNum(cp, (slotNum << 2) | EJS_ENCODE_GLOBAL_SLOT);
@@ -15209,7 +15209,7 @@ static EcNode *parseLetExpression(EcCompiler *cp)
     if (getToken(cp) != T_RPAREN) {
         return LEAVE(cp, expected(cp, ")"));
     }
-    //  MOB - was return 0
+    //  TODO - was return 0
     return np;
 }
 
@@ -20100,7 +20100,7 @@ static EcNode *parsePragmas(EcCompiler *cp, EcNode *np)
     }
     return LEAVE(cp, np);
 #else
-    //  MOB - does this allow multiple pragmas?
+    //  TODO - does this allow multiple pragmas?
     return LEAVE(cp, parsePragma(cp, np));
 #endif
 }
@@ -20728,7 +20728,7 @@ PUBLIC EcNode *ecResetError(EcCompiler *cp, EcNode *np, bool eatInput)
     /*
         Try to resync by eating input up to the next statement / directive
      */
-    //  MOB - workaround
+    //  TODO - workaround
     count = 0;
     while (!cp->interactive && count++ < 50) {
         tid = peekToken(cp);
@@ -26332,7 +26332,7 @@ static EjsPath *app_exePath(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 /*  
     Exit the application
     static function exit(status: Number, how: String = "default"): void
-    MOB - status is not implemented
+    TODO - status is not implemented
  */
 static EjsObj *app_exit(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 {
@@ -26503,7 +26503,7 @@ static EjsObj *app_run(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 /*  
     Pause the application. This services events while asleep.
     static function sleep(delay: Number = -1): void
-    MOB - sleep currently throws if an exception is generated in an event callback (worker).
+    TODO - sleep currently throws if an exception is generated in an event callback (worker).
     It should not.
  */
 static EjsObj *app_sleep(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
@@ -27406,7 +27406,7 @@ static bool compareArrayElement(Ejs *ejs, EjsObj *v1, EjsObj *v2)
     if (ejsIs(ejs, v1, Path)) {
         return smatch(((EjsPath*) v1)->value, ((EjsPath*) v2)->value);
     }
-    //  MOB - should expand for other types 
+    //  TODO - should expand for other types 
     return 0;
 }
 
@@ -29964,7 +29964,7 @@ PUBLIC EjsNumber *ejsWriteToByteArray(Ejs *ejs, EjsByteArray *ap, int argc, EjsO
             /*
                 Note: this only copies between the read/write positions of the source byte array
              */
-            //  MOB - should use RC value (== len)
+            //  TODO - should use RC value (== len)
             ejsCopyToByteArray(ejs, ap, ap->writePosition, (char*) &bp->value[bp->readPosition], len);
             ap->writePosition += len;
             wrote += len;
@@ -30165,7 +30165,7 @@ PUBLIC bool ejsMakeRoomInByteArray(Ejs *ejs, EjsByteArray *ap, ssize require)
     ssize   newLen;
 
     /*
-        MOB - should this do ejsResetByteArray if empty
+        TODO - should this do ejsResetByteArray if empty
      */
     if (room(ap) < require) {
         if (ap->emitter && availableBytes(ap)) {
@@ -30331,7 +30331,7 @@ PUBLIC ssize ejsCopyToByteArray(Ejs *ejs, EjsByteArray *ba, ssize offset, cchar 
         return EJS_ERR;
     }
     for (i = 0; i < length; i++) {
-        //  MOB OPT - memcpy
+        //  TODO OPT - memcpy
         ba->value[offset++] = data[i];
     }
     return length;
@@ -30835,7 +30835,7 @@ static EjsNumber *cmd_read(Ejs *ejs, EjsCmd *cmd, int argc, EjsObj **argv)
         nbytes = mprGetBufLength(cmd->stdoutBuf);
     }
     count = min(count, nbytes);
-    //  MOB - should use RC Value (== count)
+    //  TODO - should use RC Value (== count)
     ejsCopyToByteArray(ejs, buffer, buffer->writePosition, (char*) mprGetBufStart(cmd->stdoutBuf), count);
     ejsSetByteArrayPositions(ejs, buffer, -1, buffer->writePosition + count);
     mprAdjustBufStart(cmd->stdoutBuf, count);
@@ -30935,7 +30935,7 @@ static void cmdIOCallback(MprCmd *mc, int channel, void *data)
             cmd->error = ejsCreateByteArray(cmd->ejs, -1);
         }
         ba = cmd->error;
-        //  MOB - should use RC Value (== count)
+        //  TODO - should use RC Value (== count)
         ejsCopyToByteArray(cmd->ejs, ba, ba->writePosition, mprGetBufStart(buf), len);
         ba->writePosition += len;
         mprAdjustBufStart(buf, len);
@@ -35227,15 +35227,16 @@ PUBLIC int ejsBlendObject(Ejs *ejs, EjsObj *dest, EjsObj *src, int flags)
             continue;
         }
         qname = ejsGetPropertyName(ejs, src, i);
+        if (!qname.name || !qname.space) {
+            continue;
+        }
         if (!privateProps && ejsContainsAsc(ejs, qname.space, ",private") >= 0) {
             continue;
         }
         if (trace) {
             mprLog(0, "Blend name %N", qname);
         }
-
-        //  MOB - refactor into a function
-        if (combine) {
+        if (combine && qname.name) {
             cflags = flags;
             kind = qname.name->value[0];
             if (kind == '+') {
@@ -35344,7 +35345,6 @@ PUBLIC int ejsBlendObject(Ejs *ejs, EjsObj *dest, EjsObj *src, int flags)
                 }
             } else {
                 /*  Primitive type (including arrays) */
-                //  MOB - rethink this. Should the array be cloned?
                 if (overwrite) {
                     ejsSetPropertyByName(ejs, dest, qname, vp);
                 } else if (ejsLookupProperty(ejs, dest, qname) < 0) {
@@ -36776,7 +36776,7 @@ static ssize writeHttpData(Ejs *ejs, EjsHttp *hp)
             ejsThrowIOError(ejs, "Cannot write to socket");
             return 0;
         }
-        //  MOB - or should this be non-blocking
+        //  TODO - or should this be non-blocking
         nbytes = httpWriteBlock(conn->writeq, (cchar*) &ba->value[ba->readPosition], count, HTTP_BLOCK);
         if (nbytes < 0) {
             ejsThrowIOError(ejs, "Cannot write to socket");
@@ -37504,7 +37504,7 @@ static EjsString *g_serialize(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 }
 
 
-//  MOB - convert to use MPR json parser
+//  TODO - convert to use MPR json parser
 
 PUBLIC EjsAny *ejsDeserialize(Ejs *ejs, EjsString *str)
 {
@@ -37695,7 +37695,7 @@ Token getNextJsonToken(MprBuf *buf, wchar **token, JsonState *js)
                     continue;
                 }
                 /* 
-                    Not an allowable character outside quotes (MOB - removed space 
+                    Not an allowable character outside quotes (TODO - removed space 
                     Should really keep state for parsing keys or values and not allow -,+,. in keys
                  */
                 if (!(isalnum((uchar) *cp) || *cp == '_' || *cp == '-' || *cp == '+' || *cp == '.')) {
@@ -37709,6 +37709,7 @@ Token getNextJsonToken(MprBuf *buf, wchar **token, JsonState *js)
         if (buf) {
             mprAddNullToBuf(buf);
         }
+        while (*cp && isspace((int) *cp)) cp++;
         if (*cp == ',' || *cp == ':') {
             cp++;
         } else if (*cp != '}' && *cp != ']' && *cp != '\0' && *cp != '\n' && *cp != '\r' && *cp != ' ') {
@@ -37878,7 +37879,7 @@ PUBLIC EjsString *ejsToJSON(Ejs *ejs, EjsAny *vp, EjsObj *options)
 }
 
 
-//  MOB - should merge this with MPR routines
+//  TODO - should merge this with MPR routines
 
 PUBLIC EjsString *ejsSerializeWithOptions(Ejs *ejs, EjsAny *vp, EjsObj *options)
 {
@@ -37890,7 +37891,7 @@ PUBLIC EjsString *ejsSerializeWithOptions(Ejs *ejs, EjsAny *vp, EjsObj *options)
     memset(&json, 0, sizeof(Json));
     json.depth = 99;
     json.quotes = 1;
-    json.indent = sclone("  ");
+    json.indent = sclone("    ");
 
     if (options) {
         json.options = options;
@@ -38162,7 +38163,7 @@ PUBLIC void ejsConfigureJSONType(Ejs *ejs)
 
 /************************************ Locals **********************************/
 
-//  MOB - should this be refactored to use MprCache?
+//  TODO - should this be refactored to use MprCache?
 
 #define CACHE_TIMER_PERIOD  (60 * MPR_TICKS_PER_SEC)
 #define CACHE_HASH_SIZE     257
@@ -38371,7 +38372,7 @@ static EjsAny *sl_read(Ejs *ejs, EjsLocalCache *cache, int argc, EjsAny **argv)
         return ESV(null);
     }
 #if UNUSED && FUTURE
-    //  MOB - should reading refresh cache
+    //  TODO - should reading refresh cache
     //  Perhaps option "read-refresh"
     if (item->lifespan) {
         item->expires = mprGetTime() + item->lifespan;
@@ -39307,13 +39308,13 @@ static EjsNumber *lf_emit(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
             break;
 
         case S_String:
-            //  MOB - use NULL instead of &len
+            //  TODO - use NULL instead of &len
             arg = awtom(((EjsString*) vp)->value, &len);
             break;
 
         default:
             str = ejsToString(ejs, vp);
-            //  MOB - use NULL instead of &len
+            //  TODO - use NULL instead of &len
             arg = awtom(((EjsString*) str)->value, &len);
             break;
         }
@@ -42169,7 +42170,7 @@ PUBLIC EjsArray *ejsGetPathFiles(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
 static int globMatch(Ejs *ejs, cchar *s, cchar *pat, int isDir, int flags, cchar *seps, int count, cchar **nextPartPattern)
 {
     int     match;
-//  MOB - need recursion limits
+//  TODO - need recursion limits
     *nextPartPattern = 0;
 
     while (*s && *pat && *pat != seps[0] && *pat != seps[1]) {
@@ -42266,7 +42267,7 @@ static EjsArray *globPath(Ejs *ejs, EjsArray *results, cchar *path, cchar *base,
             continue;
         }
         add = 1;
-        //  MOB - OPT
+        //  TODO - OPT
         if (nextPartPattern && strcmp(nextPartPattern, "**") != 0 && strcmp(nextPartPattern, "**/") != 0
                    && strcmp(nextPartPattern, "**/*") != 0) {
             /* Double star matches zero or more */
@@ -42339,7 +42340,7 @@ static EjsBoolean *isPathLink(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
 {
     MprPath     info;
 
-    //  MOB -work around. GetPathInfo will return err if the target of the symlink does not exist.
+    //  TODO -work around. GetPathInfo will return err if the target of the symlink does not exist.
     info.isLink = 0;
     mprGetPathInfo(fp->value, &info);
     return ejsCreateBoolean(ejs, info.isLink);
@@ -42412,7 +42413,7 @@ static EjsPath *joinPathExt(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
     if (ext && *ext) {
         return ejsCreatePathFromAsc(ejs, sjoin(fp->value, ".", ext, NULL));
     }
-    //  MOB - should this clone?
+    //  TODO - should this clone?
     return fp;
 }
 
@@ -42451,7 +42452,7 @@ static EjsVoid *path_link(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
         ejsThrowIOError(ejs, "Cannot create link %s to refer to %s, error %d", target, fp->value, errno);
     }
 #else
-    //  MOB - does not work for directories
+    //  TODO - does not work for directories
     if (mprCopyPath(fp->value, target, 0644) < 0) {
         ejsThrowIOError(ejs, "Cannot copy %s to %s, error %d", fp->value, target, errno);
         return 0;
@@ -42489,7 +42490,7 @@ static void getUserGroup(Ejs *ejs, EjsObj *attributes, int *uid, int *gid)
     *uid = *gid = -1;
     if ((vp = ejsGetPropertyByName(ejs, attributes, EN("group"))) != 0 && ejsIsDefined(ejs, vp)) {
         vp = ejsToString(ejs, vp);
-        //  MOB - these are thread-safe on mac, but not on all systems. use getgrnam_r
+        //  TODO - these are thread-safe on mac, but not on all systems. use getgrnam_r
         if ((gp = getgrnam(ejsToMulti(ejs, vp))) == 0) {
             ejsThrowArgError(ejs, "Cannot find group %@", vp);
             return;
@@ -42770,7 +42771,7 @@ static EjsByteArray *readBytes(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
     rc = 0;
     offset = 0;
     while ((bytes = mprReadFile(file, buffer, BIT_MAX_BUFFER)) > 0) {
-        //  MOB - should use RC Value (== bytes)
+        //  TODO - should use RC Value (== bytes)
         if (ejsCopyToByteArray(ejs, result, offset, buffer, bytes) < 0) {
             ejsThrowMemoryError(ejs);
             rc = -1;
@@ -42944,7 +42945,7 @@ static EjsObj *removePath(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
 {
     MprPath     info;
 
-    //  MOB - workaround for isLink
+    //  TODO - workaround for isLink
     info.isLink = 0;
     if (mprGetPathInfo(fp->value, &info) == 0 || info.isLink == 1) {
         if (mprDeletePath(fp->value) < 0) {
@@ -42958,7 +42959,7 @@ static EjsObj *removePath(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
 /*
     Rename the file
   
-    function rename(to: Path): Boolean
+    function rename(to: Path): Void
  */
 static EjsObj *renamePathFile(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
 {
@@ -42968,7 +42969,8 @@ static EjsObj *renamePathFile(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
     to = (EjsPath*) argv[0];
     unlink((char*) to->value);
     if (rename(fp->value, to->value) < 0) {
-        return ESV(false);
+        ejsThrowIOError(ejs, "Cannot rename %s to %s, error %d", fp->value, to->value, errno);
+        return 0;
     }
     return ESV(true);
 }
@@ -43098,7 +43100,7 @@ static EjsVoid *path_symlink(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
         return 0;
     }
 #else
-    //  MOB - does not work for directories
+    //  TODO - does not work for directories
     if (mprCopyPath(target, fp->value, 0644) < 0) {
         ejsThrowIOError(ejs, "Cannot copy %s to %s, error %d", target, fp->value, errno);
         return 0;
@@ -44190,7 +44192,7 @@ static int hashProperty(Ejs *ejs, EjsPot *obj, int slotNum, EjsName qname)
     If numInstanceProp is < 0, then grow the number of properties by an increment. Otherwise, set the number of properties 
     to numInstanceProp. We currently don't allow reductions.
  */
-//  TODO MOB -- rename
+//  TODO TODO -- rename
 PUBLIC int ejsIndexProperties(Ejs *ejs, EjsPot *obj)
 {
     EjsSlot         *sp;
@@ -45085,7 +45087,7 @@ static EjsObj *sock_listen(Ejs *ejs, EjsSocket *sp, int argc, EjsObj **argv)
             address = ejsToString(ejs, address);
         }
         sp->address = ejsToMulti(ejs, address);
-        //  MOB - should listen to secure and permit https://IP:PORT
+        //  TODO - should listen to secure and permit https://IP:PORT
         mprParseSocketAddress(sp->address, &sp->address, &sp->port, NULL, 80);
     }
     if (!sp->sock) {
@@ -45392,7 +45394,7 @@ PUBLIC void ejsConfigureSocketType(Ejs *ejs)
 
 /*********************************** Locals ***********************************/
 
-//  MOB - should not be fixed
+//  TODO - should not be fixed
 #if !defined(BIT_MAX_REGEX_MATCHES)
     #define BIT_MAX_REGEX_MATCHES 128
 #endif
@@ -47120,13 +47122,11 @@ static EjsString *trimString(Ejs *ejs, EjsString *sp, int argc,  EjsObj **argv)
 {
     EjsString   *pattern;
 
-    assert(argc == 0 || (argc == 1 && ejsIs(ejs, argv[0], String)));
-
     if (argc == 0) {
         return trim(ejs, sp, NULL, MPR_TRIM_START | MPR_TRIM_END);
 
     } else {
-        pattern = (EjsString*) argv[0];
+        pattern = (EjsString*) ejsToString(ejs, argv[0]);
         return trim(ejs, sp, pattern, MPR_TRIM_START | MPR_TRIM_END);
     }
 }
@@ -47535,7 +47535,6 @@ PUBLIC int ejsContainsAsc(Ejs *ejs, EjsString *sp, cchar *pat)
     int     i, j, k;
 
     assert(sp);
-    assert(pat);
 
     if (pat == 0 || *pat == '\0' || sp == 0) {
         return 0;
@@ -47821,7 +47820,7 @@ PUBLIC EjsString *ejsInternWide(Ejs *ejs, wchar *value, ssize len)
     step = 0;
 
     lock(ip);
-    //  MOB - accesses should be debug only
+    //  TODO - accesses should be debug only
     ip->accesses++;
     index = whash(value, len) % ip->size;
     if ((head = &ip->buckets[index]) != NULL) {
@@ -48338,7 +48337,7 @@ static EjsString *system_hostname(Ejs *ejs, EjsObj *unused, int argc, EjsObj **a
  */
 static EjsString *system_ipaddr(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 {
-    //  MOB - move this into MPR and call mprSetIpAddr
+    //  TODO - move this into MPR and call mprSetIpAddr
 #if BIT_UNIX_LIKE || BIT_WIN_LIKE
     struct addrinfo *res, *reslist, hints;
     cchar           *ip;
@@ -50471,7 +50470,7 @@ static EjsUri *uri_replaceExtension(Ejs *ejs, EjsUri *up, int argc, EjsObj **arg
 }
 
 
-//  MOB - Uri should get a cast helper. Then this API and others can be typed.
+//  TODO - Uri should get a cast helper. Then this API and others can be typed.
 /*  
     function resolve(target): Uri
  */
@@ -50621,7 +50620,7 @@ static EjsUri *uri_template(Ejs *ejs, EjsUri *up, int argc, EjsObj **argv)
                     }
                 }
                 if (!ejsIsDefined(ejs, value)) {
-                    //  MOB - remove this. Should not be erasing the prior "/"
+                    //  TODO - remove this. Should not be erasing the prior "/"
                     if (cp >= &pattern[2] && cp[-2] == '/') {
                         mprAdjustBufEnd(buf, -1);
                     }
@@ -50936,7 +50935,7 @@ PUBLIC void ejsConfigureUriType(Ejs *ejs)
     if ((type = ejsFinalizeScriptType(ejs, N("ejs", "Uri"), sizeof(EjsUri), manageUri,
             EJS_TYPE_OBJ | EJS_TYPE_MUTABLE_INSTANCES)) != 0) {
         type->helpers.clone = (EjsCloneHelper) cloneUri;
-        //  MOB - Add cast helper to cast from Strings, Paths etc.
+        //  TODO - Add cast helper to cast from Strings, Paths etc.
         type->helpers.invokeOperator = (EjsInvokeOperatorHelper) invokeUriOperator;
 
         ejsBindMethod(ejs, type, ES_Uri_decode, uri_decode);
@@ -51325,7 +51324,7 @@ static EjsWebSocket *wsConstructor(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj 
         mprVerifySslPeer(ws->ssl, verify);
 #if FUTURE
         if (!hp->caFile) {
-            //MOB - Some define for this.
+            //TODO - Some define for this.
             hp->caFile = mprJoinPath(mprGetAppDir(), "http-ca.crt");
         }
         mprSetSslCaFile(hp->ssl, hp->caFile);
@@ -51420,10 +51419,10 @@ static EjsWebSocket *ws_on(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **argv)
 
     conn = ws->conn;
     if (conn->readq && conn->readq->count > 0) {
-        //  MOB - can't have NULL as data
+        //  TODO - can't have NULL as data
         onWebSocketEvent(ws, HTTP_EVENT_READABLE, 0, 0);
     }
-    //  MOB - don't need to test finalizedConnector
+    //  TODO - don't need to test finalizedConnector
     if (!conn->tx->finalizedConnector && 
             !conn->error && HTTP_STATE_CONNECTED <= conn->state && conn->state < HTTP_STATE_FINALIZED &&
             conn->writeq->ioCount == 0) {
@@ -51447,7 +51446,7 @@ static EjsString *ws_protocol(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **arg
  */
 static EjsNumber *ws_readyState(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj **argv)
 {
-    //  MOB - should have API for this
+    //  TODO - should have API for this
     return ejsCreateNumber(ejs, (MprNumber) ws->conn->rx->webSocket->state);
 }
 
@@ -52021,7 +52020,7 @@ static EjsWorker *initWorker(Ejs *ejs, EjsWorker *worker, Ejs *baseVM, cchar *na
     self->inside = 1;
     self->pair = worker;
     self->name = sjoin("inside-", worker->name, NULL);
-#if MOB
+#if TODO
     mprEnableDispatcher(wejs->dispatcher);
 #endif
     if (search) {
@@ -65432,7 +65431,7 @@ static EjsVoid *hs_listen(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
         loc = (argc >= 1) ? argv[0] : ESV(null);
         if (loc != ESV(null)) {
             address = ejsToString(ejs, loc);
-            //  MOB should permit https://IP:PORT
+            //  TODO should permit https://IP:PORT
             mprParseSocketAddress(address->value, &sp->ip, &sp->port, NULL, 0);
         } else {
             address = 0;
@@ -65491,8 +65490,8 @@ static EjsVoid *hs_listen(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
             httpSetRouteDocuments(route, documents->value);
         }
 #if KEEP
-        //  MOB -- what to do with home?
-        //  MOB - if removed, then the "home" property should be removed?
+        //  TODO -- what to do with home?
+        //  TODO - if removed, then the "home" property should be removed?
         home = ejsGetProperty(ejs, sp, ES_ejs_web_HttpServer_home);
         if (ejsIs(ejs, home, Path)) {
             httpSetRoutDir(host, home->value);
@@ -66702,7 +66701,7 @@ static char *makeRelativeHome(Ejs *ejs, EjsRequest *req)
         }
         *cp = '\0';
     } else {
-        //  MOB - was "./" -- if this is reverted, change mprAlloc to be +2 
+        //  TODO - was "./" -- if this is reverted, change mprAlloc to be +2 
         *home = '\0';
     }
     return home;
@@ -67288,7 +67287,7 @@ static EjsObj *req_finalize(Ejs *ejs, EjsRequest *req, int argc, EjsObj **argv)
 {
     if (req->conn) {
         if (!req->writeBuffer || req->writeBuffer == ESV(null)) {
-            //  MOB - should separate these 
+            //  TODO - should separate these 
             // httpFinalize(req->conn);
             httpFinalize(req->conn);
         } else {
@@ -67376,7 +67375,7 @@ static EjsRequest *req_on(Ejs *ejs, EjsRequest *req, int argc, EjsAny **argv)
     if (conn->readq->count > 0) {
         ejsSendEvent(ejs, req->emitter, "readable", NULL, req);
     }
-    //  MOB - should not ned to test finalizedConnector
+    //  TODO - should not ned to test finalizedConnector
     if (!conn->tx->finalizedConnector && 
             !conn->error && HTTP_STATE_CONNECTED <= conn->state && conn->state < HTTP_STATE_FINALIZED &&
             conn->writeq->ioCount == 0) {
@@ -67504,13 +67503,13 @@ static ssize writeResponseData(Ejs *ejs, EjsRequest *req, cchar *buf, ssize len)
     
     if (req->writeBuffer && req->writeBuffer != ESV(null)) {
         if ((written = ejsCopyToByteArray(ejs, req->writeBuffer, -1, buf, len)) > 0) {
-            //  MOB - need API to do combined write to ByteArray and inc writePosition
+            //  TODO - need API to do combined write to ByteArray and inc writePosition
             req->writeBuffer->writePosition += written;
         }
         httpSetResponded(req->conn);
         return written;
     } else {
-        //  MOB - or should this be non-blocking
+        //  TODO - or should this be non-blocking
         return httpWriteBlock(req->conn->writeq, buf, len, HTTP_BLOCK);
     }
 }
@@ -67575,7 +67574,7 @@ static EjsNumber *req_write(Ejs *ejs, EjsRequest *req, int argc, EjsObj **argv)
         req->written += written;
         total += written;
     }
-    //  MOB should not need to test finalizedConnector
+    //  TODO should not need to test finalizedConnector
     if (!conn->tx->finalizedConnector && 
             !conn->error && HTTP_STATE_CONNECTED <= conn->state && conn->state < HTTP_STATE_FINALIZED &&
             conn->writeq->ioCount == 0) {
@@ -70126,7 +70125,7 @@ void ejsMarkName(EjsName *qname)
  */
 #define top                     (*state->stack)
 
-//  MOB - ejs arg not used
+//  TODO - ejs arg not used
 #define pop(ejs)                (*state->stack--)
 
 #define push(value)             (*(++(state->stack))) = ((EjsObj*) (value))
@@ -72824,7 +72823,7 @@ EjsAny *ejsRunFunctionBySlot(Ejs *ejs, EjsAny *thisObj, int slotNum, int argc, v
 }
 
 
-//  MOB - this is inconsistent with ejsRunBySlot. This has a separate container and thisObj, whereas RunBySlot
+//  TODO - this is inconsistent with ejsRunBySlot. This has a separate container and thisObj, whereas RunBySlot
 //  has only one arg
 
 EjsAny *ejsRunFunctionByName(Ejs *ejs, EjsAny *container, EjsName qname, EjsAny *thisObj, int argc, void *argv)
