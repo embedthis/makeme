@@ -12547,7 +12547,7 @@ PUBLIC cchar *mprLookupJson(MprJson *obj, cchar *name)
  */
 PUBLIC char *getNextTerm(char *str, char **rest, int *flags)
 {
-    char    *start, *end, *seps;
+    char    *start, *end, *seps, *dot, *expr;
     ssize   i;
 
     if (flags) {
@@ -12574,7 +12574,16 @@ PUBLIC char *getNextTerm(char *str, char **rest, int *flags)
         }
         return 0;
     }
-    if ((end = strpbrk(start, seps)) != 0) {
+    dot = strpbrk(start, ".[");
+    expr = strpbrk(start, " \t=<>~!]");
+
+    if (expr && (!dot || (expr < dot))) {
+        /* Assume in [FIELD OP VALUE] */
+        end = strpbrk(start, "]");
+    } else {
+        end = strpbrk(start, seps);
+    }
+    if (end != 0) {
         if (*end == '[') {
             *flags |= JSON_PROP_ARRAY;
         }
