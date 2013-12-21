@@ -6,7 +6,7 @@
     "keywords": [
         "bit",
         "build",
-        "make",
+        "make"
     ],
     "homepage": "http://embedthis.com/products/bit/",
     "author": {
@@ -33,11 +33,27 @@
         "*-debug*",
         "*-release*"
     ],
-    "licenses": [{ 
-        "type": "GPL", 
-        "url": "http://www.gnu.org/licenses/gpl-2.0.html"
-    }, {
-        "type": "Commercial", 
-        "url": "http://embedthis.com/licensing/"
-    }]
+    "licenses": [
+        {
+            "type": "GPL",
+            "url": "http://www.gnu.org/licenses/gpl-2.0.html"
+        },
+        {
+            "type": "Commercial",
+            "url": "http://embedthis.com/licensing/"
+        }
+    ],
+    "dependencies": {
+        "bitos": "~0.8",
+        "ejs": "~2.3",
+        "est": "~0.6",
+        "http": "~4.5",
+        "mpr": "~4.5",
+        "pcre": "~1.0",
+        "sqlite": "~1.0",
+        "zlib": "~1.0"
+    },
+    "dirs": {
+        "paks": "src/paks"
+    }
 }

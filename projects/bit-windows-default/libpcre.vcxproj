@@ -100,7 +100,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <ClCompile Include="..\..\src\deps\pcre\pcre.c" />
+    <ClCompile Include="..\..\src\paks\pcre\pcre.c" />
   </ItemGroup>
 
   <ItemGroup>
@@ -114,7 +114,7 @@
   </Link>
 
   <CustomBuildStep>
-    <Command>cd ..\..\src\deps\pcre
+    <Command>cd ..\..\src\paks\pcre
 copy /Y pcre.h $(IncDir)
 cd ..\..\..\projects\bit-windows-default</Command>
     <Outputs>$(BinDir)\libpcre.dll</Outputs>

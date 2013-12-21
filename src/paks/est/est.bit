@@ -1,0 +1,25 @@
+/*
+    est.bit -- Embedded Secure Transport
+ */
+
+Bit.load({
+
+    targets: {
+        libest: {
+            type: 'lib',
+            headers: [ '*.h' ],
+            sources: [ 'estLib.c' ],
+            '-compiler': [
+                '-Wall',
+                '-Wshorten-64-to-32',
+            ],
+            packs: [ 'est' ],
+        },
+
+        'ca-crt': {
+            type: 'file',                                                                                  
+            files: [ 'ca.crt' ],                                                                       
+            path: '${BIN}/ca.crt',                                                                    
+        }, 
+	},
+})

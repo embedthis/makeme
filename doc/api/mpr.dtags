@@ -799,13 +799,6 @@
     </member>
     <member kind="define">
       <type>#define</type>
-      <name>MPR_JSON_APPEND</name>
-      <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>a2b1ef14203f71b74eba095eab95d71d2</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
       <name>MPR_JSON_ARRAY</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a9cc3a837cf3aa6011f170ad1bb5d0600</anchor>
@@ -879,13 +872,6 @@
       <name>MPR_JSON_REMOVE</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a2cd179b5b2262f6eb3e6e898d69a9e27</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
-      <name>MPR_JSON_REPLACE</name>
-      <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>a5609d37c5e5de9e42bb4082289e24dd8</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -3906,6 +3892,13 @@
       <arglist>(cchar *path, cchar *ext)</arglist>
     </member>
     <member kind="function">
+      <type>char *</type>
+      <name>mprJoinPaths</name>
+      <anchorfile>group___mpr_path.html</anchorfile>
+      <anchor>gacbb99ff8c33d0980b53fd66dc6c76d9c</anchor>
+      <arglist>(cchar *base,...)</arglist>
+    </member>
+    <member kind="function">
       <type>MprHash *</type>
       <name>mprJsonToHash</name>
       <anchorfile>group___mpr_json.html</anchorfile>
@@ -4485,6 +4478,13 @@
       <anchorfile>group___mpr_json.html</anchorfile>
       <anchor>gad5a8bb133d911d0fbdee71f80a6a7970</anchor>
       <arglist>(MprJson *obj, cchar *key)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>mprRemoveJsonChild</name>
+      <anchorfile>group___mpr_json.html</anchorfile>
+      <anchor>ga1e8620f652285658de49b662facf0676</anchor>
+      <arglist>(MprJson *obj, MprJson *child)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -8126,6 +8126,13 @@
       <arglist>(cchar *path, cchar *ext)</arglist>
     </member>
     <member kind="function">
+      <type>char *</type>
+      <name>mprJoinPaths</name>
+      <anchorfile>group___mpr_path.html</anchorfile>
+      <anchor>gacbb99ff8c33d0980b53fd66dc6c76d9c</anchor>
+      <arglist>(cchar *base,...)</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>mprMakeDir</name>
       <anchorfile>group___mpr_path.html</anchorfile>
@@ -8688,6 +8695,13 @@
       <anchorfile>group___mpr_json.html</anchorfile>
       <anchor>gad5a8bb133d911d0fbdee71f80a6a7970</anchor>
       <arglist>(MprJson *obj, cchar *key)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>mprRemoveJsonChild</name>
+      <anchorfile>group___mpr_json.html</anchorfile>
+      <anchor>ga1e8620f652285658de49b662facf0676</anchor>
+      <arglist>(MprJson *obj, MprJson *child)</arglist>
     </member>
     <member kind="function">
       <type>int</type>

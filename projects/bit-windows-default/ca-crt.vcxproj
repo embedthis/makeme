@@ -95,7 +95,7 @@
   </Link>
 
   <CustomBuildStep>
-    <Command>cd ..\..\src\deps\est
+    <Command>cd ..\..\src\paks\est
 if exist $(BinDir)\ca.crt del /Q $(BinDir)\ca.crt
 copy /Y ca.crt $(BinDir)\ca.crt
 cd ..\..\..\projects\bit-windows-default</Command>

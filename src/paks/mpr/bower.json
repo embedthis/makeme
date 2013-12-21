@@ -1,0 +1,42 @@
+{
+    "name": "mpr",
+    "description": "Embedthis Multithreaded Portable Runtime",
+    "title": "Embedthis MPR",
+    "version": "4.5.0",
+    "dirs": {
+        "paks": "src/paks"
+    },
+    "dependencies": {
+        "bitos": "~0.8",
+        "est": "~0.6"
+    },
+    "keywords": [
+        "mpr",
+        "runtime"
+    ],
+    "author": {
+        "name": "Embedthis Software",
+        "email": "dev@embedthis.com",
+        "url": "http://embedthis.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/embedthis/mpr-4.git"
+    },
+    "bugs": {
+        "url": "http://github.com/embedthis/mpr-4/issues"
+    },
+    "export": [
+        "doc/**"
+    ],
+    "licenses": [
+        {
+            "type": "GPL",
+            "url": "http://www.gnu.org/licenses/gpl-2.0.html"
+        },
+        {
+            "type": "Commercial",
+            "url": "http://embedthis.com/licensing/"
+        }
+    ]
+}

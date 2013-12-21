@@ -73,6 +73,13 @@ Bit.load({
                 set:         'package',
                 enable:      "bit.platform.os == 'windows' && Path('package/windows/removeFiles.c').exists",
 
+            /* Standard files for a Pak */
+            }, {
+                from:       [ 'LICENSE.md', 'README.md', 'package.json' ],
+                to:         '${src}/',
+                set:        'pak',
+            }, {
+
            },
         ],
     },

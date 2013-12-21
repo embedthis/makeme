@@ -151,6 +151,10 @@ copy /Y bits\packs\ejscript.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\packs\est.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
+copy /Y bits\packs\gzip.bit $(BinDir)\bits
+if exist $(BinDir)\bits del /Q $(BinDir)\bits
+copy /Y bits\packs\htmlmin.bit $(BinDir)\bits
+if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\packs\http.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\packs\lib.bit $(BinDir)\bits
@@ -167,7 +171,11 @@ copy /Y bits\packs\md5.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\packs\nanossl.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
+copy /Y bits\packs\ngmin.bit $(BinDir)\bits
+if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\packs\openssl.bit $(BinDir)\bits
+if exist $(BinDir)\bits del /Q $(BinDir)\bits
+copy /Y bits\packs\pak.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\packs\pcre.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
@@ -177,6 +185,8 @@ copy /Y bits\packs\ranlib.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\packs\rc.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
+copy /Y bits\packs\recess.bit $(BinDir)\bits
+if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\packs\sqlite.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\packs\ssl.bit $(BinDir)\bits
@@ -184,6 +194,8 @@ if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\packs\strip.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\packs\tidy.bit $(BinDir)\bits
+if exist $(BinDir)\bits del /Q $(BinDir)\bits
+copy /Y bits\packs\uglifyjs.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits
 copy /Y bits\packs\utest.bit $(BinDir)\bits
 if exist $(BinDir)\bits del /Q $(BinDir)\bits

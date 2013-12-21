@@ -563,33 +563,33 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		493D3589493D47070000002B /* estLib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = estLib.c; path = src/deps/est/estLib.c; sourceTree = "<group>"; };
+		493D3589493D47070000002B /* estLib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = estLib.c; path = src/paks/est/estLib.c; sourceTree = "<group>"; };
 		493D3589493D4707000000A4 /* bit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bit.h; path = macosx-x64-default/inc/bit.h; sourceTree = "<group>"; };
 		493D3589493D4707000000A5 /* est.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = est.h; path = macosx-x64-default/inc/est.h; sourceTree = "<group>"; };
 		493D3589493D4707000000A6 /* bitos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bitos.h; path = macosx-x64-default/inc/bitos.h; sourceTree = "<group>"; };
 		493D3589493D470700000043 /* libest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libest.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		493D3589493D47070000002D /* mprLib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mprLib.c; path = src/deps/mpr/mprLib.c; sourceTree = "<group>"; };
+		493D3589493D47070000002D /* mprLib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mprLib.c; path = src/paks/mpr/mprLib.c; sourceTree = "<group>"; };
 		493D3589493D4707000000A7 /* mpr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mpr.h; path = macosx-x64-default/inc/mpr.h; sourceTree = "<group>"; };
 		493D3589493D470700000041 /* libmpr */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libmpr.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		493D3589493D47070000002F /* mprSsl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mprSsl.c; path = src/deps/mpr/mprSsl.c; sourceTree = "<group>"; };
+		493D3589493D47070000002F /* mprSsl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mprSsl.c; path = src/paks/mpr/mprSsl.c; sourceTree = "<group>"; };
 		493D3589493D4707000000A8 /* libmprssl */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libmprssl.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		493D3589493D470700000031 /* makerom.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = makerom.c; path = src/deps/mpr/makerom.c; sourceTree = "<group>"; };
+		493D3589493D470700000031 /* makerom.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = makerom.c; path = src/paks/mpr/makerom.c; sourceTree = "<group>"; };
 		493D3589493D4707000000A9 /* makerom */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = makerom; sourceTree = BUILT_PRODUCTS_DIR; };
-		493D3589493D470700000033 /* pcre.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pcre.c; path = src/deps/pcre/pcre.c; sourceTree = "<group>"; };
+		493D3589493D470700000033 /* pcre.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pcre.c; path = src/paks/pcre/pcre.c; sourceTree = "<group>"; };
 		493D3589493D4707000000AA /* pcre.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pcre.h; path = macosx-x64-default/inc/pcre.h; sourceTree = "<group>"; };
 		493D3589493D470700000047 /* libpcre */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpcre.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		493D3589493D470700000035 /* httpLib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = httpLib.c; path = src/deps/http/httpLib.c; sourceTree = "<group>"; };
+		493D3589493D470700000035 /* httpLib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = httpLib.c; path = src/paks/http/httpLib.c; sourceTree = "<group>"; };
 		493D3589493D4707000000AB /* http.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = http.h; path = macosx-x64-default/inc/http.h; sourceTree = "<group>"; };
 		493D3589493D470700000049 /* libhttp */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libhttp.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		493D3589493D470700000037 /* http.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = http.c; path = src/deps/http/http.c; sourceTree = "<group>"; };
+		493D3589493D470700000037 /* http.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = http.c; path = src/paks/http/http.c; sourceTree = "<group>"; };
 		493D3589493D4707000000AC /* http */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = http; sourceTree = BUILT_PRODUCTS_DIR; };
-		493D3589493D470700000039 /* ejsLib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ejsLib.c; path = src/deps/ejs/ejsLib.c; sourceTree = "<group>"; };
+		493D3589493D470700000039 /* ejsLib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ejsLib.c; path = src/paks/ejs/ejsLib.c; sourceTree = "<group>"; };
 		493D3589493D4707000000AD /* ejs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ejs.h; path = macosx-x64-default/inc/ejs.h; sourceTree = "<group>"; };
 		493D3589493D4707000000AE /* ejs.slots.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ejs.slots.h; path = macosx-x64-default/inc/ejs.slots.h; sourceTree = "<group>"; };
 		493D3589493D470700000050 /* libejs */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libejs.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		493D3589493D47070000003B /* ejs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ejs.c; path = src/deps/ejs/ejs.c; sourceTree = "<group>"; };
+		493D3589493D47070000003B /* ejs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ejs.c; path = src/paks/ejs/ejs.c; sourceTree = "<group>"; };
 		493D3589493D4707000000AF /* ejs */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ejs; sourceTree = BUILT_PRODUCTS_DIR; };
-		493D3589493D47070000003D /* ejsc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ejsc.c; path = src/deps/ejs/ejsc.c; sourceTree = "<group>"; };
+		493D3589493D47070000003D /* ejsc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ejsc.c; path = src/paks/ejs/ejsc.c; sourceTree = "<group>"; };
 		493D3589493D4707000000B0 /* ejsc */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ejsc; sourceTree = BUILT_PRODUCTS_DIR; };
 		493D3589493D47070000003F /* bit.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = bit.c; path = src/bit.c; sourceTree = "<group>"; };
 		493D3589493D4707000000B1 /* bit */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = bit; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1093,7 +1093,7 @@
 			files = (
 			);
 			inputPaths = (
-../src/deps/est/ca.crt
+../src/paks/est/ca.crt
 			);
 			outputPaths = (
 ../macosx-x64-default/bin/ca.crt
@@ -1101,7 +1101,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
 			shellScript = "PATH=$PATH:/usr/local/bin
-cd ../src/deps/est
+cd ../src/paks/est
 rm -rf ../../${OUT_DIR}/bin/ca.crt
 cp -r ca.crt ../../${OUT_DIR}/bin/ca.crt
 ";
@@ -1112,7 +1112,7 @@ cp -r ca.crt ../../${OUT_DIR}/bin/ca.crt
 			files = (
 			);
 			inputPaths = (
-../src/deps/ejs/ejs.es
+../src/paks/ejs/ejs.es
 			);
 			outputPaths = (
 ../macosx-x64-default/bin/ejs.mod
@@ -1121,7 +1121,7 @@ cp -r ca.crt ../../${OUT_DIR}/bin/ca.crt
 			shellPath = /bin/bash;
 			shellScript = "PATH=$PATH:/usr/local/bin
 cd ..
-macosx-x64-default/bin/ejsc --out macosx-x64-default/bin/ejs.mod --optimize 9 --bind --require null src/deps/ejs/ejs.es";
+macosx-x64-default/bin/ejsc --out macosx-x64-default/bin/ejs.mod --optimize 9 --bind --require null src/paks/ejs/ejs.es";
 		};
 		493D3589493D470700000010 /* ShellScript for bits */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1155,6 +1155,8 @@ macosx-x64-default/bin/ejsc --out macosx-x64-default/bin/ejs.mod --optimize 9 --
 ../bits/packs/ejs.bit,
 ../bits/packs/ejscript.bit,
 ../bits/packs/est.bit,
+../bits/packs/gzip.bit,
+../bits/packs/htmlmin.bit,
 ../bits/packs/http.bit,
 ../bits/packs/lib.bit,
 ../bits/packs/link.bit,
@@ -1163,15 +1165,19 @@ macosx-x64-default/bin/ejsc --out macosx-x64-default/bin/ejs.mod --optimize 9 --
 ../bits/packs/matrixssl.bit,
 ../bits/packs/md5.bit,
 ../bits/packs/nanossl.bit,
+../bits/packs/ngmin.bit,
 ../bits/packs/openssl.bit,
+../bits/packs/pak.bit,
 ../bits/packs/pcre.bit,
 ../bits/packs/pmaker.bit,
 ../bits/packs/ranlib.bit,
 ../bits/packs/rc.bit,
+../bits/packs/recess.bit,
 ../bits/packs/sqlite.bit,
 ../bits/packs/ssl.bit,
 ../bits/packs/strip.bit,
 ../bits/packs/tidy.bit,
+../bits/packs/uglifyjs.bit,
 ../bits/packs/utest.bit,
 ../bits/packs/vxworks.bit,
 ../bits/packs/winsdk.bit,
@@ -1244,6 +1250,10 @@ cp -r bits/packs/ejscript.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
 cp -r bits/packs/est.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/gzip.bit macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/htmlmin.bit macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
 cp -r bits/packs/http.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
 cp -r bits/packs/lib.bit macosx-x64-default/bin/bits
@@ -1260,7 +1270,11 @@ cp -r bits/packs/md5.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
 cp -r bits/packs/nanossl.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/ngmin.bit macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
 cp -r bits/packs/openssl.bit macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/pak.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
 cp -r bits/packs/pcre.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
@@ -1270,6 +1284,8 @@ cp -r bits/packs/ranlib.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
 cp -r bits/packs/rc.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/recess.bit macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
 cp -r bits/packs/sqlite.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
 cp -r bits/packs/ssl.bit macosx-x64-default/bin/bits
@@ -1277,6 +1293,8 @@ rm -rf macosx-x64-default/bin/bits
 cp -r bits/packs/strip.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
 cp -r bits/packs/tidy.bit macosx-x64-default/bin/bits
+rm -rf macosx-x64-default/bin/bits
+cp -r bits/packs/uglifyjs.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
 cp -r bits/packs/utest.bit macosx-x64-default/bin/bits
 rm -rf macosx-x64-default/bin/bits
@@ -1340,26 +1358,26 @@ cp -r package.json bower.json
 if ! diff ${INC_DIR}/bit.h bit-macosx-default-bit.h >/dev/null ; then
 cp bit-macosx-default-bit.h ${INC_DIR}/bit.h
 fi
-if [ ../src/deps/est/est.h -nt ${OUT_DIR}/inc/est.h ] ; then
-cp ../src/deps/est/est.h ${OUT_DIR}/inc/est.h
+if [ ../src/paks/est/est.h -nt ${OUT_DIR}/inc/est.h ] ; then
+cp ../src/paks/est/est.h ${OUT_DIR}/inc/est.h
 fi
-if [ ../src/deps/mpr/mpr.h -nt ${OUT_DIR}/inc/mpr.h ] ; then
-cp ../src/deps/mpr/mpr.h ${OUT_DIR}/inc/mpr.h
+if [ ../src/paks/mpr/mpr.h -nt ${OUT_DIR}/inc/mpr.h ] ; then
+cp ../src/paks/mpr/mpr.h ${OUT_DIR}/inc/mpr.h
 fi
-if [ ../src/deps/pcre/pcre.h -nt ${OUT_DIR}/inc/pcre.h ] ; then
-cp ../src/deps/pcre/pcre.h ${OUT_DIR}/inc/pcre.h
+if [ ../src/paks/pcre/pcre.h -nt ${OUT_DIR}/inc/pcre.h ] ; then
+cp ../src/paks/pcre/pcre.h ${OUT_DIR}/inc/pcre.h
 fi
-if [ ../src/deps/http/http.h -nt ${OUT_DIR}/inc/http.h ] ; then
-cp ../src/deps/http/http.h ${OUT_DIR}/inc/http.h
+if [ ../src/paks/http/http.h -nt ${OUT_DIR}/inc/http.h ] ; then
+cp ../src/paks/http/http.h ${OUT_DIR}/inc/http.h
 fi
-if [ ../src/deps/ejs/ejs.h -nt ${OUT_DIR}/inc/ejs.h ] ; then
-cp ../src/deps/ejs/ejs.h ${OUT_DIR}/inc/ejs.h
+if [ ../src/paks/ejs/ejs.h -nt ${OUT_DIR}/inc/ejs.h ] ; then
+cp ../src/paks/ejs/ejs.h ${OUT_DIR}/inc/ejs.h
 fi
-if [ ../src/deps/ejs/ejs.slots.h -nt ${OUT_DIR}/inc/ejs.slots.h ] ; then
-cp ../src/deps/ejs/ejs.slots.h ${OUT_DIR}/inc/ejs.slots.h
+if [ ../src/paks/ejs/ejs.slots.h -nt ${OUT_DIR}/inc/ejs.slots.h ] ; then
+cp ../src/paks/ejs/ejs.slots.h ${OUT_DIR}/inc/ejs.slots.h
 fi
-if [ ../src/deps/ejs/ejsByteGoto.h -nt ${OUT_DIR}/inc/ejsByteGoto.h ] ; then
-cp ../src/deps/ejs/ejsByteGoto.h ${OUT_DIR}/inc/ejsByteGoto.h
+if [ ../src/paks/ejs/ejsByteGoto.h -nt ${OUT_DIR}/inc/ejsByteGoto.h ] ; then
+cp ../src/paks/ejs/ejsByteGoto.h ${OUT_DIR}/inc/ejsByteGoto.h
 fi
 if [ ../src/bitos.h -nt ${OUT_DIR}/inc/bitos.h ] ; then
 cp ../src/bitos.h ${OUT_DIR}/inc/bitos.h

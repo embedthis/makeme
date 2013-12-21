@@ -192,7 +192,7 @@ version: $(DEPS_1)
 $(CONFIG)/inc/est.h: $(DEPS_2)
 	@echo '      [Copy] $(CONFIG)/inc/est.h'
 	mkdir -p "$(CONFIG)/inc"
-	cp src/deps/est/est.h $(CONFIG)/inc/est.h
+	cp src/paks/est/est.h $(CONFIG)/inc/est.h
 
 #
 #   bit.h
@@ -216,9 +216,9 @@ DEPS_5 += $(CONFIG)/inc/est.h
 DEPS_5 += $(CONFIG)/inc/bitos.h
 
 $(CONFIG)/obj/estLib.o: \
-    src/deps/est/estLib.c $(DEPS_5)
+    src/paks/est/estLib.c $(DEPS_5)
 	@echo '   [Compile] $(CONFIG)/obj/estLib.o'
-	$(CC) -c -o $(CONFIG)/obj/estLib.o -arch $(CC_ARCH) $(IFLAGS) src/deps/est/estLib.c
+	$(CC) -c -o $(CONFIG)/obj/estLib.o -arch $(CC_ARCH) $(IFLAGS) src/paks/est/estLib.c
 
 ifeq ($(BIT_PACK_EST),1)
 #
@@ -237,12 +237,12 @@ endif
 #
 #   ca-crt
 #
-DEPS_7 += src/deps/est/ca.crt
+DEPS_7 += src/paks/est/ca.crt
 
 $(CONFIG)/bin/ca.crt: $(DEPS_7)
 	@echo '      [Copy] $(CONFIG)/bin/ca.crt'
 	mkdir -p "$(CONFIG)/bin"
-	cp src/deps/est/ca.crt $(CONFIG)/bin/ca.crt
+	cp src/paks/est/ca.crt $(CONFIG)/bin/ca.crt
 
 #
 #   mpr.h
@@ -250,7 +250,7 @@ $(CONFIG)/bin/ca.crt: $(DEPS_7)
 $(CONFIG)/inc/mpr.h: $(DEPS_8)
 	@echo '      [Copy] $(CONFIG)/inc/mpr.h'
 	mkdir -p "$(CONFIG)/inc"
-	cp src/deps/mpr/mpr.h $(CONFIG)/inc/mpr.h
+	cp src/paks/mpr/mpr.h $(CONFIG)/inc/mpr.h
 
 #
 #   mprLib.o
@@ -260,9 +260,9 @@ DEPS_9 += $(CONFIG)/inc/mpr.h
 DEPS_9 += $(CONFIG)/inc/bitos.h
 
 $(CONFIG)/obj/mprLib.o: \
-    src/deps/mpr/mprLib.c $(DEPS_9)
+    src/paks/mpr/mprLib.c $(DEPS_9)
 	@echo '   [Compile] $(CONFIG)/obj/mprLib.o'
-	$(CC) -c -o $(CONFIG)/obj/mprLib.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/mpr/mprLib.c
+	$(CC) -c -o $(CONFIG)/obj/mprLib.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/mpr/mprLib.c
 
 #
 #   libmpr
@@ -284,9 +284,9 @@ DEPS_11 += $(CONFIG)/inc/mpr.h
 DEPS_11 += $(CONFIG)/inc/est.h
 
 $(CONFIG)/obj/mprSsl.o: \
-    src/deps/mpr/mprSsl.c $(DEPS_11)
+    src/paks/mpr/mprSsl.c $(DEPS_11)
 	@echo '   [Compile] $(CONFIG)/obj/mprSsl.o'
-	$(CC) -c -o $(CONFIG)/obj/mprSsl.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/mpr/mprSsl.c
+	$(CC) -c -o $(CONFIG)/obj/mprSsl.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/mpr/mprSsl.c
 
 #
 #   libmprssl
@@ -319,9 +319,9 @@ DEPS_13 += $(CONFIG)/inc/bit.h
 DEPS_13 += $(CONFIG)/inc/mpr.h
 
 $(CONFIG)/obj/makerom.o: \
-    src/deps/mpr/makerom.c $(DEPS_13)
+    src/paks/mpr/makerom.c $(DEPS_13)
 	@echo '   [Compile] $(CONFIG)/obj/makerom.o'
-	$(CC) -c -o $(CONFIG)/obj/makerom.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/mpr/makerom.c
+	$(CC) -c -o $(CONFIG)/obj/makerom.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/mpr/makerom.c
 
 #
 #   makerom
@@ -345,7 +345,7 @@ $(CONFIG)/bin/makerom: $(DEPS_14)
 $(CONFIG)/inc/pcre.h: $(DEPS_15)
 	@echo '      [Copy] $(CONFIG)/inc/pcre.h'
 	mkdir -p "$(CONFIG)/inc"
-	cp src/deps/pcre/pcre.h $(CONFIG)/inc/pcre.h
+	cp src/paks/pcre/pcre.h $(CONFIG)/inc/pcre.h
 
 #
 #   pcre.o
@@ -354,9 +354,9 @@ DEPS_16 += $(CONFIG)/inc/bit.h
 DEPS_16 += $(CONFIG)/inc/pcre.h
 
 $(CONFIG)/obj/pcre.o: \
-    src/deps/pcre/pcre.c $(DEPS_16)
+    src/paks/pcre/pcre.c $(DEPS_16)
 	@echo '   [Compile] $(CONFIG)/obj/pcre.o'
-	$(CC) -c -o $(CONFIG)/obj/pcre.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/pcre/pcre.c
+	$(CC) -c -o $(CONFIG)/obj/pcre.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/pcre/pcre.c
 
 ifeq ($(BIT_PACK_PCRE),1)
 #
@@ -377,7 +377,7 @@ endif
 $(CONFIG)/inc/http.h: $(DEPS_18)
 	@echo '      [Copy] $(CONFIG)/inc/http.h'
 	mkdir -p "$(CONFIG)/inc"
-	cp src/deps/http/http.h $(CONFIG)/inc/http.h
+	cp src/paks/http/http.h $(CONFIG)/inc/http.h
 
 #
 #   httpLib.o
@@ -387,9 +387,9 @@ DEPS_19 += $(CONFIG)/inc/http.h
 DEPS_19 += $(CONFIG)/inc/mpr.h
 
 $(CONFIG)/obj/httpLib.o: \
-    src/deps/http/httpLib.c $(DEPS_19)
+    src/paks/http/httpLib.c $(DEPS_19)
 	@echo '   [Compile] $(CONFIG)/obj/httpLib.o'
-	$(CC) -c -o $(CONFIG)/obj/httpLib.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/http/httpLib.c
+	$(CC) -c -o $(CONFIG)/obj/httpLib.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/http/httpLib.c
 
 #
 #   libhttp
@@ -423,9 +423,9 @@ DEPS_21 += $(CONFIG)/inc/bit.h
 DEPS_21 += $(CONFIG)/inc/http.h
 
 $(CONFIG)/obj/http.o: \
-    src/deps/http/http.c $(DEPS_21)
+    src/paks/http/http.c $(DEPS_21)
 	@echo '   [Compile] $(CONFIG)/obj/http.o'
-	$(CC) -c -o $(CONFIG)/obj/http.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/http/http.c
+	$(CC) -c -o $(CONFIG)/obj/http.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/http/http.c
 
 #
 #   http
@@ -461,7 +461,7 @@ $(CONFIG)/bin/http: $(DEPS_22)
 $(CONFIG)/inc/ejs.h: $(DEPS_23)
 	@echo '      [Copy] $(CONFIG)/inc/ejs.h'
 	mkdir -p "$(CONFIG)/inc"
-	cp src/deps/ejs/ejs.h $(CONFIG)/inc/ejs.h
+	cp src/paks/ejs/ejs.h $(CONFIG)/inc/ejs.h
 
 #
 #   ejs.slots.h
@@ -469,7 +469,7 @@ $(CONFIG)/inc/ejs.h: $(DEPS_23)
 $(CONFIG)/inc/ejs.slots.h: $(DEPS_24)
 	@echo '      [Copy] $(CONFIG)/inc/ejs.slots.h'
 	mkdir -p "$(CONFIG)/inc"
-	cp src/deps/ejs/ejs.slots.h $(CONFIG)/inc/ejs.slots.h
+	cp src/paks/ejs/ejs.slots.h $(CONFIG)/inc/ejs.slots.h
 
 #
 #   ejsByteGoto.h
@@ -477,7 +477,7 @@ $(CONFIG)/inc/ejs.slots.h: $(DEPS_24)
 $(CONFIG)/inc/ejsByteGoto.h: $(DEPS_25)
 	@echo '      [Copy] $(CONFIG)/inc/ejsByteGoto.h'
 	mkdir -p "$(CONFIG)/inc"
-	cp src/deps/ejs/ejsByteGoto.h $(CONFIG)/inc/ejsByteGoto.h
+	cp src/paks/ejs/ejsByteGoto.h $(CONFIG)/inc/ejsByteGoto.h
 
 #
 #   ejsLib.o
@@ -491,9 +491,9 @@ DEPS_26 += $(CONFIG)/inc/http.h
 DEPS_26 += $(CONFIG)/inc/ejs.slots.h
 
 $(CONFIG)/obj/ejsLib.o: \
-    src/deps/ejs/ejsLib.c $(DEPS_26)
+    src/paks/ejs/ejsLib.c $(DEPS_26)
 	@echo '   [Compile] $(CONFIG)/obj/ejsLib.o'
-	$(CC) -c -o $(CONFIG)/obj/ejsLib.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/ejs/ejsLib.c
+	$(CC) -c -o $(CONFIG)/obj/ejsLib.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/ejs/ejsLib.c
 
 ifeq ($(BIT_PACK_EJSCRIPT),1)
 #
@@ -535,9 +535,9 @@ DEPS_28 += $(CONFIG)/inc/bit.h
 DEPS_28 += $(CONFIG)/inc/ejs.h
 
 $(CONFIG)/obj/ejs.o: \
-    src/deps/ejs/ejs.c $(DEPS_28)
+    src/paks/ejs/ejs.c $(DEPS_28)
 	@echo '   [Compile] $(CONFIG)/obj/ejs.o'
-	$(CC) -c -o $(CONFIG)/obj/ejs.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/ejs/ejs.c
+	$(CC) -c -o $(CONFIG)/obj/ejs.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/ejs/ejs.c
 
 ifeq ($(BIT_PACK_EJSCRIPT),1)
 #
@@ -582,9 +582,9 @@ DEPS_30 += $(CONFIG)/inc/bit.h
 DEPS_30 += $(CONFIG)/inc/ejs.h
 
 $(CONFIG)/obj/ejsc.o: \
-    src/deps/ejs/ejsc.c $(DEPS_30)
+    src/paks/ejs/ejsc.c $(DEPS_30)
 	@echo '   [Compile] $(CONFIG)/obj/ejsc.o'
-	$(CC) -c -o $(CONFIG)/obj/ejsc.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/ejs/ejsc.c
+	$(CC) -c -o $(CONFIG)/obj/ejsc.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/ejs/ejsc.c
 
 ifeq ($(BIT_PACK_EJSCRIPT),1)
 #
@@ -626,7 +626,7 @@ ifeq ($(BIT_PACK_EJSCRIPT),1)
 #
 #   ejs.mod
 #
-DEPS_32 += src/deps/ejs/ejs.es
+DEPS_32 += src/paks/ejs/ejs.es
 DEPS_32 += $(CONFIG)/inc/mpr.h
 DEPS_32 += $(CONFIG)/inc/bit.h
 DEPS_32 += $(CONFIG)/inc/bitos.h
@@ -649,7 +649,7 @@ DEPS_32 += $(CONFIG)/obj/ejsc.o
 DEPS_32 += $(CONFIG)/bin/ejsc
 
 $(CONFIG)/bin/ejs.mod: $(DEPS_32)
-	$(LBIN)/ejsc --out ./$(CONFIG)/bin/ejs.mod --optimize 9 --bind --require null src/deps/ejs/ejs.es
+	$(LBIN)/ejsc --out ./$(CONFIG)/bin/ejs.mod --optimize 9 --bind --require null src/paks/ejs/ejs.es
 endif
 
 #
@@ -681,6 +681,8 @@ DEPS_33 += bits/packs/dumpbin.bit
 DEPS_33 += bits/packs/ejs.bit
 DEPS_33 += bits/packs/ejscript.bit
 DEPS_33 += bits/packs/est.bit
+DEPS_33 += bits/packs/gzip.bit
+DEPS_33 += bits/packs/htmlmin.bit
 DEPS_33 += bits/packs/http.bit
 DEPS_33 += bits/packs/lib.bit
 DEPS_33 += bits/packs/link.bit
@@ -689,15 +691,19 @@ DEPS_33 += bits/packs/man2html.bit
 DEPS_33 += bits/packs/matrixssl.bit
 DEPS_33 += bits/packs/md5.bit
 DEPS_33 += bits/packs/nanossl.bit
+DEPS_33 += bits/packs/ngmin.bit
 DEPS_33 += bits/packs/openssl.bit
+DEPS_33 += bits/packs/pak.bit
 DEPS_33 += bits/packs/pcre.bit
 DEPS_33 += bits/packs/pmaker.bit
 DEPS_33 += bits/packs/ranlib.bit
 DEPS_33 += bits/packs/rc.bit
+DEPS_33 += bits/packs/recess.bit
 DEPS_33 += bits/packs/sqlite.bit
 DEPS_33 += bits/packs/ssl.bit
 DEPS_33 += bits/packs/strip.bit
 DEPS_33 += bits/packs/tidy.bit
+DEPS_33 += bits/packs/uglifyjs.bit
 DEPS_33 += bits/packs/utest.bit
 DEPS_33 += bits/packs/vxworks.bit
 DEPS_33 += bits/packs/winsdk.bit
@@ -748,6 +754,8 @@ $(CONFIG)/bin/bits: $(DEPS_33)
 	cp bits/packs/ejs.bit $(CONFIG)/bin/bits/packs/ejs.bit
 	cp bits/packs/ejscript.bit $(CONFIG)/bin/bits/packs/ejscript.bit
 	cp bits/packs/est.bit $(CONFIG)/bin/bits/packs/est.bit
+	cp bits/packs/gzip.bit $(CONFIG)/bin/bits/packs/gzip.bit
+	cp bits/packs/htmlmin.bit $(CONFIG)/bin/bits/packs/htmlmin.bit
 	cp bits/packs/http.bit $(CONFIG)/bin/bits/packs/http.bit
 	cp bits/packs/lib.bit $(CONFIG)/bin/bits/packs/lib.bit
 	cp bits/packs/link.bit $(CONFIG)/bin/bits/packs/link.bit
@@ -756,15 +764,19 @@ $(CONFIG)/bin/bits: $(DEPS_33)
 	cp bits/packs/matrixssl.bit $(CONFIG)/bin/bits/packs/matrixssl.bit
 	cp bits/packs/md5.bit $(CONFIG)/bin/bits/packs/md5.bit
 	cp bits/packs/nanossl.bit $(CONFIG)/bin/bits/packs/nanossl.bit
+	cp bits/packs/ngmin.bit $(CONFIG)/bin/bits/packs/ngmin.bit
 	cp bits/packs/openssl.bit $(CONFIG)/bin/bits/packs/openssl.bit
+	cp bits/packs/pak.bit $(CONFIG)/bin/bits/packs/pak.bit
 	cp bits/packs/pcre.bit $(CONFIG)/bin/bits/packs/pcre.bit
 	cp bits/packs/pmaker.bit $(CONFIG)/bin/bits/packs/pmaker.bit
 	cp bits/packs/ranlib.bit $(CONFIG)/bin/bits/packs/ranlib.bit
 	cp bits/packs/rc.bit $(CONFIG)/bin/bits/packs/rc.bit
+	cp bits/packs/recess.bit $(CONFIG)/bin/bits/packs/recess.bit
 	cp bits/packs/sqlite.bit $(CONFIG)/bin/bits/packs/sqlite.bit
 	cp bits/packs/ssl.bit $(CONFIG)/bin/bits/packs/ssl.bit
 	cp bits/packs/strip.bit $(CONFIG)/bin/bits/packs/strip.bit
 	cp bits/packs/tidy.bit $(CONFIG)/bin/bits/packs/tidy.bit
+	cp bits/packs/uglifyjs.bit $(CONFIG)/bin/bits/packs/uglifyjs.bit
 	cp bits/packs/utest.bit $(CONFIG)/bin/bits/packs/utest.bit
 	cp bits/packs/vxworks.bit $(CONFIG)/bin/bits/packs/vxworks.bit
 	cp bits/packs/winsdk.bit $(CONFIG)/bin/bits/packs/winsdk.bit
@@ -780,6 +792,8 @@ $(CONFIG)/bin/bits: $(DEPS_33)
 	cp bits/packs/ejs.bit $(CONFIG)/bin/bits/packs/ejs.bit
 	cp bits/packs/ejscript.bit $(CONFIG)/bin/bits/packs/ejscript.bit
 	cp bits/packs/est.bit $(CONFIG)/bin/bits/packs/est.bit
+	cp bits/packs/gzip.bit $(CONFIG)/bin/bits/packs/gzip.bit
+	cp bits/packs/htmlmin.bit $(CONFIG)/bin/bits/packs/htmlmin.bit
 	cp bits/packs/http.bit $(CONFIG)/bin/bits/packs/http.bit
 	cp bits/packs/lib.bit $(CONFIG)/bin/bits/packs/lib.bit
 	cp bits/packs/link.bit $(CONFIG)/bin/bits/packs/link.bit
@@ -788,15 +802,19 @@ $(CONFIG)/bin/bits: $(DEPS_33)
 	cp bits/packs/matrixssl.bit $(CONFIG)/bin/bits/packs/matrixssl.bit
 	cp bits/packs/md5.bit $(CONFIG)/bin/bits/packs/md5.bit
 	cp bits/packs/nanossl.bit $(CONFIG)/bin/bits/packs/nanossl.bit
+	cp bits/packs/ngmin.bit $(CONFIG)/bin/bits/packs/ngmin.bit
 	cp bits/packs/openssl.bit $(CONFIG)/bin/bits/packs/openssl.bit
+	cp bits/packs/pak.bit $(CONFIG)/bin/bits/packs/pak.bit
 	cp bits/packs/pcre.bit $(CONFIG)/bin/bits/packs/pcre.bit
 	cp bits/packs/pmaker.bit $(CONFIG)/bin/bits/packs/pmaker.bit
 	cp bits/packs/ranlib.bit $(CONFIG)/bin/bits/packs/ranlib.bit
 	cp bits/packs/rc.bit $(CONFIG)/bin/bits/packs/rc.bit
+	cp bits/packs/recess.bit $(CONFIG)/bin/bits/packs/recess.bit
 	cp bits/packs/sqlite.bit $(CONFIG)/bin/bits/packs/sqlite.bit
 	cp bits/packs/ssl.bit $(CONFIG)/bin/bits/packs/ssl.bit
 	cp bits/packs/strip.bit $(CONFIG)/bin/bits/packs/strip.bit
 	cp bits/packs/tidy.bit $(CONFIG)/bin/bits/packs/tidy.bit
+	cp bits/packs/uglifyjs.bit $(CONFIG)/bin/bits/packs/uglifyjs.bit
 	cp bits/packs/utest.bit $(CONFIG)/bin/bits/packs/utest.bit
 	cp bits/packs/vxworks.bit $(CONFIG)/bin/bits/packs/vxworks.bit
 	cp bits/packs/winsdk.bit $(CONFIG)/bin/bits/packs/winsdk.bit
@@ -923,6 +941,8 @@ installBinary: $(DEPS_38)
 	cp bits/packs/ejs.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/ejs.bit
 	cp bits/packs/ejscript.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/ejscript.bit
 	cp bits/packs/est.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/est.bit
+	cp bits/packs/gzip.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/gzip.bit
+	cp bits/packs/htmlmin.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/htmlmin.bit
 	cp bits/packs/http.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/http.bit
 	cp bits/packs/lib.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/lib.bit
 	cp bits/packs/link.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/link.bit
@@ -931,15 +951,19 @@ installBinary: $(DEPS_38)
 	cp bits/packs/matrixssl.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/matrixssl.bit
 	cp bits/packs/md5.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/md5.bit
 	cp bits/packs/nanossl.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/nanossl.bit
+	cp bits/packs/ngmin.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/ngmin.bit
 	cp bits/packs/openssl.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/openssl.bit
+	cp bits/packs/pak.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/pak.bit
 	cp bits/packs/pcre.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/pcre.bit
 	cp bits/packs/pmaker.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/pmaker.bit
 	cp bits/packs/ranlib.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/ranlib.bit
 	cp bits/packs/rc.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/rc.bit
+	cp bits/packs/recess.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/recess.bit
 	cp bits/packs/sqlite.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/sqlite.bit
 	cp bits/packs/ssl.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/ssl.bit
 	cp bits/packs/strip.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/strip.bit
 	cp bits/packs/tidy.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/tidy.bit
+	cp bits/packs/uglifyjs.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/uglifyjs.bit
 	cp bits/packs/utest.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/utest.bit
 	cp bits/packs/vxworks.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/vxworks.bit
 	cp bits/packs/winsdk.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/winsdk.bit

@@ -2445,6 +2445,7 @@ public class Bit {
         @param cmdOptions Options to pass to $Cmd.
         @option show Show the command line before executing. Similar to bit --show, but operates on just this command.
         @option noshow Do not show the command line before executing. Useful to override bit --show for one command.
+            noshow is used to hide command display and to suppress command output.
         @option continueOnErrors Continue processing even if this command is not successful.
      */
     public function run(command, cmdOptions = {}): String {
@@ -2490,7 +2491,9 @@ public class Bit {
                 msg = 'Command failure: ' + cmd.error + '\n' + cmd.response + '\nCommand: ' + command
             }
             if (cmdOptions.continueOnErrors || options['continue']) {
-                trace('Error', msg)
+                if (!cmdOptions.noshow) {
+                    trace('Error', msg)
+                }
             } else {
                 throw msg
             }

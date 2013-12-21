@@ -1,0 +1,37 @@
+{
+    "name": "zlib",
+    "description": "Zlib Library",
+    "title": "Zlib Library",
+    "version": "1.0.1",
+    "keywords": [
+        "zlib",
+    ],
+    "author": {
+        "name": "Embedthis Software",
+        "email": "dev@embedthis.com",
+        "url": "http://embedthis.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/embedthis/zlib.git"
+    },
+    "bugs": {
+        "email": "dev@embedthis.com",
+        "url": "http://github.com/embedthis/zlib/issues"
+    },
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "doc",
+        "test",
+        "releases",
+        "package",
+        "*-debug*",
+        "*-release*"
+    ],
+    "licenses": [{ 
+        "type": "ZLIB", 
+        "url": "https://github.com/embedthis/zlib/blob/master/LICENSE.md",
+    }]
+}

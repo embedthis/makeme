@@ -4,11 +4,11 @@
 
 Bit.load({
     blend: [
-        "src/deps/est/est.bit",
-        "src/deps/mpr/mpr.bit",
-        "src/deps/pcre/pcre.bit",
-        "src/deps/http/http.bit",
-        "src/deps/ejs/ejs.bit",
+        "src/paks/est/est.bit",
+        "src/paks/mpr/mpr.bit",
+        "src/paks/pcre/pcre.bit",
+        "src/paks/http/http.bit",
+        "src/paks/ejs/ejs.bit",
         "doc/doc.bit",
         "${BITS}/embedthis.bit",
     ],

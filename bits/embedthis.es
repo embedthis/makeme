@@ -302,6 +302,34 @@ function flatten(options) {
 }
 
 
+public function publish() {
+    let [manifest, package, prefixes] = setupPackage('pak')
+    if (package) {
+        trace('Package', bit.settings.title + ' Pak')
+        deploy(manifest, prefixes, package)
+        publishPackage(package, prefixes, 'pak')
+    }
+}
+
+public function cache() {
+    let [manifest, package, prefixes] = setupPackage('pak')
+    if (package) {
+        trace('Package', bit.settings.title + ' Pak')
+        deploy(manifest, prefixes, package)
+        cachePackage(package, prefixes, 'pak')
+    }
+}
+
+public function packagePak() {
+    let [manifest, package, prefixes] = setupPackage('pak')
+    if (package) {
+        trace('Package', bit.settings.title + ' Pak')
+        deploy(manifest, prefixes, package)
+        makeSimplePackage(package, prefixes, 'pak')
+    }
+}
+
+
 public function packageCombo() {
     let [manifest, package, prefixes] = setupPackage('combo')
     if (package) {
@@ -430,6 +458,11 @@ function updateLatestLink() {
 
 
 function makeSimplePackage(package, prefixes, fmt) {
+    if (fmt == 'pak') {
+        let base = prefixes.staging.join(bit.platform.vname)
+        let package = base.join('package.json')
+        package.copy(base.join('bower.json'))
+    }
     let name = bit.dir.rel.join(bit.platform.vname + '-' + fmt + '.tar')
     let zname = name.replaceExt('tgz')
     let options = {relativeTo: prefixes.staging, user: 'root', group: 'root', uid: 0, gid: 0}
@@ -446,6 +479,53 @@ function makeSimplePackage(package, prefixes, fmt) {
     zname.link(generic)
     bit.dir.rel.join('md5-' + bit.platform.vname + '-' + fmt + '.tgz.txt').write(md5(zname.readString()))
     trace('Package', generic)
+}
+
+
+function publishPackage(package, prefixes, fmt) {
+    let staging = prefixes.staging.absolute
+    let base = staging.join(bit.platform.vname)
+    let name = bit.settings.product
+    let package = base.join('package.json')
+    let version = package.readJSON().version
+    let home = App.dir
+
+    try {
+        trace('Publish', bit.settings.title + ' ' + version)
+        package.copy(base.join('bower.json'))
+        App.chdir(staging)
+        run('git clone git@github.com:embedthis/pak-' + name + '.git', {noshow: true})
+        staging.join('pak-' + name, '.git').rename(base.join('.git'))
+
+        App.chdir(base)
+        run('git add *')
+        run('git commit -q -mPublish-' + version + ' -a', {noshow: true, continueOnErrors: true})
+        run('git tag -d v' + version, {noshow: true, continueOnErrors: true })
+        run('git push -q origin :refs/tags/v' + version, {noshow: true, continueOnErrors: true})
+        run('git tag v' + version)
+        run('git push --tags -u origin master', {noshow: true})
+        
+    } finally {
+        App.chdir(home)
+    }
+}
+
+
+function cachePackage(package, prefixes, fmt) {
+    let staging = prefixes.staging.absolute
+    let base = staging.join(bit.platform.vname)
+    let name = bit.settings.product
+    let package = base.join('package.json')
+    let version = package.readJSON().version
+    let home = App.dir
+    try {
+        trace('Cache', bit.settings.title + ' ' + version)
+        package.copy(base.join('bower.json'))
+        App.chdir(staging)
+        run('pak -f cache ' + bit.platform.vname)
+    } finally {
+        App.chdir(home)
+    }
 }
 
 

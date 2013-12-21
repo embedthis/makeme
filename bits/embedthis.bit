@@ -295,7 +295,7 @@ Bit.load({
         package: {
             home: '${TOP}',
             enable: "'${OS}.match(/linux|macosx|windows/)",
-            depends: ['packageBinary', 'packageSource', 'packageCombo', 'packageFlat'],
+            depends: ['packageBinary', 'packageSource', 'packagePak', 'packageCombo', 'packageFlat'],
         },
 
         packageBinary: {
@@ -310,6 +310,12 @@ Bit.load({
             action: "packageSource()",
         },
 
+        packagePak: {
+            home: '${TOP}',
+            depends: ['all'],
+            action: "packagePak()",
+        },
+
         packageCombo: {
             home: '${TOP}',
             depends: ['all'],
@@ -320,6 +326,18 @@ Bit.load({
             home: '${TOP}',
             depends: ['all'],
             action: "packageFlat()",
+        },
+
+        publish: {
+            home: '${TOP}',
+            enable: "'${OS}.match(/linux|macosx|windows/)",
+            action: "publish()",
+        },
+
+        cache: {
+            home: '${TOP}',
+            enable: "'${OS}.match(/linux|macosx|windows/)",
+            action: "cache()",
         },
 
         uninstall: {
@@ -336,6 +354,16 @@ Bit.load({
 
         whatInstalled: {
             action: "whatInstalled()",
+        },
+
+        upgrade: {
+            home: '${TOP}',
+            action: "run('pak -f upgrade')",
+        },
+
+        status: {
+            home: '${TOP}',
+            action: "run('git status')",
         },
 
         testPackage: {
