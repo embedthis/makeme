@@ -114,7 +114,7 @@ module embedthis.bit {
                             let old = target.replaceExt('old')
                             vtrace('Preserve', 'Active library ' + target + ' as ' + old)
                             old.remove()
-                            target.rename(old)
+                            try { target.rename(old) } catch {}
                         }
                         cp(file, bit.dir.lib)
                     }

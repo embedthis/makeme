@@ -122,7 +122,6 @@ TARGETS            = $(TARGETS) $(CONFIG)\bin\ejs.mod
 !ENDIF
 TARGETS            = $(TARGETS) $(CONFIG)\bin\removeFiles.exe
 TARGETS            = $(TARGETS) $(CONFIG)\bin\bit.exe
-TARGETS            = $(TARGETS) bower.json
 
 !IFNDEF SHOW
 .SILENT:
@@ -192,7 +191,6 @@ clean:
 	if exist "$(CONFIG)\bin\removeFiles.lib" del /Q "$(CONFIG)\bin\removeFiles.lib"
 	if exist "$(CONFIG)\bin\removeFiles.pdb" del /Q "$(CONFIG)\bin\removeFiles.pdb"
 	if exist "$(CONFIG)\bin\removeFiles.exp" del /Q "$(CONFIG)\bin\removeFiles.exp"
-	if exist "bower.json" del /Q "bower.json"
 	if exist "$(CONFIG)\obj\estLib.obj" del /Q "$(CONFIG)\obj\estLib.obj"
 	if exist "$(CONFIG)\obj\mprLib.obj" del /Q "$(CONFIG)\obj\mprLib.obj"
 	if exist "$(CONFIG)\obj\mprSsl.obj" del /Q "$(CONFIG)\obj\mprSsl.obj"
@@ -928,25 +926,15 @@ $(CONFIG)\bin\bit.exe: $(DEPS_37)
 	"$(LD)" -out:$(CONFIG)\bin\bit.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) "$(CONFIG)\obj\bit.obj" $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) 
 
 #
-#   bower.json
-#
-DEPS_38 = $(DEPS_38) package.json
-
-bower.json: $(DEPS_38)
-	@echo '      [Copy] bower.json'
-	if not exist "." md "."
-	copy /Y package.json bower.json
-
-#
 #   stop
 #
-stop: $(DEPS_39)
+stop: $(DEPS_38)
 #  Omit build script stop
 
 #
 #   installBinary
 #
-installBinary: $(DEPS_40)
+installBinary: $(DEPS_39)
 	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
 	copy /Y $(CONFIG)\bin\bit.exe "$(BIT_VAPP_PREFIX)\bin\bit.exe"
 	copy /Y $(CONFIG)\bin\ejs.exe "$(BIT_VAPP_PREFIX)\bin\ejs.exe"
@@ -1024,25 +1012,25 @@ installBinary: $(DEPS_40)
 #
 #   start
 #
-start: $(DEPS_41)
+start: $(DEPS_40)
 #  Omit build script start
 
 #
 #   install
 #
-DEPS_42 = $(DEPS_42) stop
-DEPS_42 = $(DEPS_42) installBinary
-DEPS_42 = $(DEPS_42) start
+DEPS_41 = $(DEPS_41) stop
+DEPS_41 = $(DEPS_41) installBinary
+DEPS_41 = $(DEPS_41) start
 
-install: $(DEPS_42)
+install: $(DEPS_41)
 
 
 #
 #   uninstall
 #
-DEPS_43 = $(DEPS_43) stop
+DEPS_42 = $(DEPS_42) stop
 
-uninstall: $(DEPS_43)
+uninstall: $(DEPS_42)
 	if exist "$(BIT_VAPP_PREFIX)" rd /Q /S "$(BIT_VAPP_PREFIX)"
 	if exist "$(BIT_VAPP_PREFIX)\bin" rd /Q "$(BIT_VAPP_PREFIX)\bin"
 	if exist "$(BIT_VAPP_PREFIX)\man" rd /Q "$(BIT_VAPP_PREFIX)\man"

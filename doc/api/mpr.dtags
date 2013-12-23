@@ -3312,6 +3312,13 @@
     </member>
     <member kind="function">
       <type>char *</type>
+      <name>mprGetPassword</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>gae979265846e2c3dd9a8e5e8e62e99fa5</anchor>
+      <arglist>(cchar *prompt)</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
       <name>mprGetPathBase</name>
       <anchorfile>group___mpr_path.html</anchorfile>
       <anchor>gabd75bccc31adfe405ad12b566badcc68</anchor>
@@ -9943,6 +9950,13 @@
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>gad2fa15bdd6890ff1df432ae25f4c981c</anchor>
       <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
+      <name>mprGetPassword</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>gae979265846e2c3dd9a8e5e8e62e99fa5</anchor>
+      <arglist>(cchar *prompt)</arglist>
     </member>
     <member kind="function">
       <type>int</type>

@@ -1784,7 +1784,7 @@ public class Bit {
             let old = target.path.relative.replaceExt('old')
             trace('Preserve', 'Active target ' + target.path.relative + ' as ' + old)
             old.remove()
-            target.path.rename(old)
+            try { target.path.rename(old) } catch {}
         } else {
             safeRemove(target.path)
         }
@@ -1804,7 +1804,7 @@ public class Bit {
             let active = target.path.relative.replaceExt('old')
             trace('Preserve', 'Active target ' + target.path.relative + ' as ' + active)
             active.remove()
-            target.path.rename(target.path.replaceExt('old'))
+            try { target.path.rename(target.path.replaceExt('old')) } catch {}
         } else {
             safeRemove(target.path)
         }
@@ -1824,7 +1824,7 @@ public class Bit {
             let active = target.path.relative.replaceExt('old')
             trace('Preserve', 'Active target ' + target.path.relative + ' as ' + active)
             active.remove()
-            target.path.rename(target.path.replaceExt('old'))
+            try { target.path.rename(target.path.replaceExt('old')) } catch {}
         } else {
             safeRemove(target.path)
         }
@@ -1942,7 +1942,7 @@ public class Bit {
                 let active = target.path.relative.replaceExt('old')
                 trace('Preserve', 'Active target ' + target.path.relative + ' as ' + active)
                 active.remove()
-                target.path.rename(target.path.replaceExt('old'))
+                try { target.path.rename(target.path.replaceExt('old')) } catch {}
             } else {
                 safeRemove(target.path)
             }
@@ -3168,7 +3168,7 @@ public class Bit {
                                 if (options.active) {
                                     let active = to.replaceExt('old')
                                     active.remove()
-                                    to.rename(active)
+                                    try { to.rename(active) } catch {}
                                 }
                                 copyFile(from, to, attributes)
                             }
