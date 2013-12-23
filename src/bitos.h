@@ -352,7 +352,6 @@
 #endif
 #if MACOSX || LINUX
     #include    <libgen.h>
-    #include    <readpassphrase.h>
 #endif
     #include    <limits.h>
 #if BIT_UNIX_LIKE || VXWORKS
@@ -370,6 +369,9 @@
 #if !CYGWIN
     #include    <resolv.h>
 #endif
+#endif
+#if BIT_BSD_LIKE
+    #include    <readpassphrase.h>
 #endif
     #include    <setjmp.h>
     #include    <signal.h>

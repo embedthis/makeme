@@ -8146,8 +8146,9 @@ PUBLIC bool mprCheckPassword(cchar *plainTextPassword, cchar *passwordHash)
 
 PUBLIC char *mprGetPassword(cchar *prompt)
 {
-    char        *cp, *password, *result;
-#if BIT_UNIX_LIKE
+    char    *cp, *password, *result;
+
+#if BIT_BSD_LIKE
     char    passbuf[MPR_BUFSIZE];
 
     if (!prompt || !*prompt) {
@@ -8156,9 +8157,19 @@ PUBLIC char *mprGetPassword(cchar *prompt)
     if ((password = readpassphrase(prompt, passbuf, sizeof(passbuf), 0)) == 0) {
         return 0;
     }
+#elif BIT_UNIX_LIKE
+    if (!prompt || !*prompt) {
+        prompt = "Password: ";
+    }
+    if ((password = getpass(prompt)) == 0) {
+        return 0;
+    }
 #elif BIT_WIN_LIKE || VXWORKS
     int     c, i;
 
+    if (!prompt || !*prompt) {
+        prompt = "Password: ";
+    }
     fputs(prompt, stderr);
     for (i = 0; i < (int) sizeof(passbuf) - 1; i++) {
 #if VXWORKS
