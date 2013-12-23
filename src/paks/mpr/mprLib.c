@@ -8204,6 +8204,7 @@ PUBLIC char *mprGetPassword(cchar *prompt)
     }
     fputc('\n', stderr);
     passbuf[i] = '\0';
+    password = passbuf;
 #else
     return 0;
 #endif
