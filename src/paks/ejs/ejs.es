@@ -372,6 +372,12 @@ module ejs {
         native static function get uid(): Number
         
         /**
+            Get a password from the user's /dev/tty
+            @return A clear-text password string
+         */
+        native static function getpass(prompt: String): String
+
+        /**
             Redirect the Application's logger based on the App.config.log setting
             Ignored if app is invoked with --log on the command line.
          */

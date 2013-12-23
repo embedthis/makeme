@@ -352,6 +352,7 @@
 #endif
 #if MACOSX || LINUX
     #include    <libgen.h>
+    #include    <readpassphrase.h>
 #endif
     #include    <limits.h>
 #if BIT_UNIX_LIKE || VXWORKS

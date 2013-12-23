@@ -467,9 +467,10 @@
 #define ES_App_search                                                  33
 #define ES_App_sleep                                                   34
 #define ES_App_uid                                                     35
-#define ES_App_updateLog                                               36
-#define ES_App_waitForEvent                                            37
-#define ES_App_NUM_CLASS_PROP                                          38
+#define ES_App_getpass                                                 36
+#define ES_App_updateLog                                               37
+#define ES_App_waitForEvent                                            38
+#define ES_App_NUM_CLASS_PROP                                          39
 
 /*
    Prototype (instance) slots for "App" type 
@@ -492,6 +493,7 @@
 #define ES_App_run_timeout                                             0
 #define ES_App_run_oneEvent                                            1
 #define ES_App_sleep_delay                                             0
+#define ES_App_getpass_prompt                                          0
 #define ES_App_waitForEvent_obj                                        0
 #define ES_App_waitForEvent_events                                     1
 #define ES_App_waitForEvent_timeout                                    2
@@ -2614,7 +2616,7 @@
 #define ES_XMLList_NUM_INSTANCE_PROP                                   20
 #define ES_XMLList_NUM_INHERITED_PROP                                  0
 
-#define _ES_CHECKSUM_ejs   1518368
+#define _ES_CHECKSUM_ejs   1519803
 
 #endif
 

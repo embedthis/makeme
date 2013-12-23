@@ -8143,6 +8143,65 @@ PUBLIC bool mprCheckPassword(cchar *plainTextPassword, cchar *passwordHash)
     return !match;
 }
 
+
+PUBLIC char *mprGetPassword(cchar *prompt)
+{
+    char        *cp, *password, *result;
+#if BIT_UNIX_LIKE
+    char    passbuf[MPR_BUFSIZE];
+
+    if (!prompt || !*prompt) {
+        prompt = "Password: ";
+    }
+    if ((password = readpassphrase(prompt, passbuf, sizeof(passbuf), 0)) == 0) {
+        return 0;
+    }
+#elif BIT_WIN_LIKE || VXWORKS
+    int     c, i;
+
+    fputs(prompt, stderr);
+    for (i = 0; i < (int) sizeof(passbuf) - 1; i++) {
+#if VXWORKS
+        c = getchar();
+#else
+        c = _getch();
+#endif
+        if (c == '\r' || c == EOF) {
+            break;
+        }
+        if ((c == '\b' || c == 127) && i > 0) {
+            passbuf[--i] = '\0';
+            fputs("\b \b", stderr);
+            i--;
+        } else if (c == 26) {           /* Control Z */
+            c = EOF;
+            break;
+        } else if (c == 3) {            /* Control C */
+            fputs("^C\n", stderr);
+            exit(255);
+        } else if (!iscntrl((uchar) c) && (i < (int) sizeof(passbuf) - 1)) {
+            passbuf[i] = c;
+            fputc('*', stderr);
+        } else {
+            fputc('', stderr);
+            i--;
+        }
+    }
+    if (c == EOF) {
+        return "";
+    }
+    fputc('\n', stderr);
+    passbuf[i] = '\0';
+#else
+    return 0;
+#endif
+    result = sclone(password);
+    for (cp = password; *cp; cp++) {
+        *cp = 0;
+    }
+    return result;
+}
+
 /*
     @copy   default
 

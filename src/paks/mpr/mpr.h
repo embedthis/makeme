@@ -8177,6 +8177,15 @@ PUBLIC char *mprGetSHABase64(cchar *str);
 PUBLIC char *mprCryptPassword(cchar *password, cchar *salt, int rounds);
 
 /**
+    Get a password from the terminal console
+    @param prompt Text prompt to display before reading the password
+    @return The entered password.
+    @ingroup Mpr
+    @stability Prototype 
+ */
+PUBLIC char *mprGetPassword(cchar *prompt);
+
+/**
     Make salt for adding to a password.
     @param size Size in bytes of the salt text.
     @return The random salt text.
