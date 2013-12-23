@@ -127,12 +127,6 @@ Bit.load({
             precious: true,
         }
 
-        'bower.json': {
-            type: 'file',
-            path: 'bower.json',
-            files: [ 'package.json' ],
-        },
-
         projects: {
             action: "
                 genProjects('', 'default', ['freebsd-x86', 'linux-x86', 'macosx-x64', 'windows-x86'])
