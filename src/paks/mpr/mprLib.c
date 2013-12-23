@@ -8165,6 +8165,7 @@ PUBLIC char *mprGetPassword(cchar *prompt)
         return 0;
     }
 #elif BIT_WIN_LIKE || VXWORKS
+    char    passbuf[MPR_BUFSIZE];
     int     c, i;
 
     if (!prompt || !*prompt) {
