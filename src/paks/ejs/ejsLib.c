@@ -77597,7 +77597,7 @@ void ejsSetSearchPath(Ejs *ejs, EjsArray *paths)
 EjsArray *ejsCreateSearchPath(Ejs *ejs, cchar *search)
 {
     EjsArray    *ap;
-    char        *dir, *next, *tok;
+    char        *dir, *next, *tok, *home;
 
     ap = ejsCreateArray(ejs, 0);
 
@@ -77613,13 +77613,18 @@ EjsArray *ejsCreateSearchPath(Ejs *ejs, cchar *search)
 
     /*
         Create a default search path
-        . : APP_EXE_DIR : /usr/local/lib/ejs/VERSION/bin
+        . : APP_EXE_DIR : /usr/local/lib/ejs/VERSION/bin : ~/.ejs
      */
     ejsSetProperty(ejs, ap, -1, ejsCreatePathFromAsc(ejs, "."));
     ejsSetProperty(ejs, ap, -1, ejsCreatePathFromAsc(ejs, mprGetAppDir()));
 #if !VXWORKS
-    ejsSetProperty(ejs, ap, -1, ejsCreatePathFromAsc(ejs, BIT_VAPP_PREFIX "/bin"));
+    if (!smatch(mprGetAppDir(), BIT_VAPP_PREFIX "/bin")) {
+        ejsSetProperty(ejs, ap, -1, ejsCreatePathFromAsc(ejs, BIT_VAPP_PREFIX "/bin"));
+    }
 #endif
+    if ((home = getenv("HOME")) != 0) {
+        ejsSetProperty(ejs, ap, -1, ejsCreatePathFromAsc(ejs, sfmt("%s/.ejs", home)));
+    }
     return (EjsArray*) ap;
 }
 

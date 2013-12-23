@@ -236,7 +236,6 @@ function setupPackagePrefixes(kind, package) {
 
 function setupPackage(kind) {
     if (bit.settings.manifest) {
-        trace('Load', bit.settings.manifest)
         b.loadBitFile(bit.dir.src.join(bit.settings.manifest))
         b.runScript(bit.scripts, "loaded")
     }

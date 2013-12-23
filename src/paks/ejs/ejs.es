@@ -230,6 +230,12 @@ module ejs {
         native static function get gid(): Number
         
         /** 
+            The user's home directory
+            @return the path to the home directory
+         */
+        static function get home(): Path App.getenv('HOME')
+
+        /** 
             Set the standard input stream. Changing the input stream will close and reopen stdin.
          */
         static function get inputStream(): Stream
