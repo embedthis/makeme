@@ -1,4 +1,4 @@
-Embedthis Appweb GPL License Agreement
+Embedthis Bit GPL License Agreement
 
 This software is licensed according to the provisions of GNU GENERAL PUBLIC LICENSE below. 
 
