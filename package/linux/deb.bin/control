@@ -9,7 +9,7 @@ Replaces: bit
 Conflicts: bit
 Installed-Size: 10
 Maintainer: Embedthis Development <dev@embedthis.com>
-Description: Embedthis Ejscript
+Description: Embedthis Bit
  Bit is a modern replacement for the autoconf and make utilities. It uses Javascript to describe projects with smart defaults. 
  It then builds directly, or generates makefiles, and IDE projects.
  .
