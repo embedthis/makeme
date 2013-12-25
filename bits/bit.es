@@ -2927,12 +2927,17 @@ public class Bit {
             loadBitFile(bit.dir.bits.join('simple.bit'))
         }
         expandTokens(bit)
+/* UNUSED
         if (!bit.dir.packs.exists) {
             let pdir = bit.dir.home.join('packages-' + bit.platform.os + '-' + bit.platform.arch)
+            if (!pdir.exists) {
+                pdir = Path(bit.dir.src).join('src/paks')
+            }
             if (pdir.exists) {
                 bit.dir.packs = pdir
             }
         }
+*/
         loadModules()
         applyProfile()
         bit.standardSettings = bit.settings.clone(true)
@@ -2967,6 +2972,9 @@ public class Bit {
                 bit.settings.version = package.version
                 bit.settings.buildNumber = '0'
                 bit.settings.company ||= (package.author && package.author.name)
+                if (package.dirs && package.dirs.paks) {
+                    bit.dir.packs = package.dirs.paks
+                }
             } catch {}
         }
     }

@@ -617,7 +617,7 @@ module embedthis.bit {
             }
             throw 'Cannot find "' + file + '" for package "' + currentPack + '" on ' + b.currentPlatform + '. '
         }
-        App.log.debug(2, 'Probe for ' + file + ' found at ' + path)
+        vtrace('Found', file + ' found at ' + path)
         if (control.fullpath) {
             return path.portable
         }

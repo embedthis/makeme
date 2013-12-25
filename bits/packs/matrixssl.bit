@@ -18,17 +18,13 @@ Bit.pack({
         path: function (pack) {
             let path: Path? = pack.withpath
             if (!path) {
-                if (bit.dir.packs.join('matrixssl/latest').exists && Config.OS != 'windows') {
-                    path = bit.dir.packs.join('matrixssl/latest')
-                } else {
-                    let versions = sortVersions(bit.dir.packs.join('matrixssl').files('matrixssl-3*'))
-                    if (!versions.length || versions.length == 0) {
-                        throw 'Cannot find matrixssl'
-                    }
-                    path = versions[0]
+                if (bit.dir.packs) {
+                    path = bit.dir.packs.join('matrixssl')
+                }
+                if (!path.exists) {
+                    path = App.dir.join('../packages-' + bit.platform.os + '-' + bit.platform.arch, 'matrixssl/latest')
                 }
             }
-            //  MOB - split from here into config
             let search = [ (bit.platform.os == 'windows') ? path.join('Release') : path ]
             let lib = probe('libmatrixssl.' + bit.ext.shobj, {fullpath: true, search: search}).absolute
             pack.libpaths = [lib.parent]

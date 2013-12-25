@@ -16,21 +16,13 @@ Bit.pack({
             }
         },
         path: function (pack) {
-            let cfg
             let path: Path? = pack.withpath
             if (!path) {
-                if (bit.dir.packs.join('openssl/latest').exists && Config.OS != 'windows') {
-                    path = bit.dir.packs.join('openssl/latest')
-                } else {
-                    let versions = sortVersions(bit.dir.packs.join('openssl').files('openssl-*'))
-                    path = versions[0]
+                if (bit.dir.packs) {
+                    path = bit.dir.packs.join('openssl')
                 }
-                if (!path) {
-                    if (bit.platform.os == 'windows') {
-                        throw 'Cannot find openssl source distribution'
-                    } else {
-                        path = '/usr'
-                    }
+                if (!path.exists) {
+                    path = App.dir.join('../packages-' + bit.platform.os + '-' + bit.platform.arch, 'openssl/latest')
                 }
             }
             let search = [path]
