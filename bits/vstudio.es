@@ -265,6 +265,10 @@ function projBuild(projects: Array, base: Path, target) {
             return
         }
     }
+    global.TARGET = bit.target = target
+    if (target.files) {
+        target.cmdfiles = target.files.join(' ')
+    }
     for each (dname in target.depends) {
         let dep = bit.targets[dname]
         if (dep && dep.enable && !dep.vsbuilt) {

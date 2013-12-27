@@ -91,7 +91,9 @@ module embedthis.bit {
     function generateTarget(target) {
         if (target.type == 'pack') return
         global.TARGET = bit.target = target
-
+        if (target.files) {
+            target.cmdfiles = target.files.join(' ')
+        }
         if (target.packs) {
             for each (r in target.packs) {
                 if (bit.platform.os == 'windows') {

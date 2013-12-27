@@ -1713,7 +1713,11 @@ public class Bit {
         target.includes ||= []
         target.libraries ||= []
         target.vars ||= {}
-
+        if (target.files) {
+            target.cmdfiles = target.files.join(' ')
+        } else {
+            target.cmdfiles = ''
+        }
         if (target.message) {
             if (target.message is Array) {
                 trace(... target.message)
