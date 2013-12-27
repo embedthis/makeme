@@ -10,7 +10,7 @@ Bit.load({
 		inc:    '${dir.out}/inc',
 		lib:    '${dir.out}/bin',
 		obj:    '${dir.out}/obj',
-        packs:  '../packages-${platform.os}-${platform.arch}',
+        packs:  '${dir.top}/src/paks',
         pkg:    '${dir.out}/pkg',
 		proj: 	'${dir.top}/projects',
         rel:    '${dir.top}/releases',

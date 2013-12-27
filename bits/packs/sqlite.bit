@@ -5,7 +5,7 @@
 Bit.pack({
     sqlite: {
         description: 'SQLite Database',
-        path: bit.dir.src.join('src/paks/sqlite'),
+        path: bit.dir.packs.join('sqlite'),
         libraries: [ 'sql' ],
     },
 })

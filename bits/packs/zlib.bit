@@ -5,7 +5,7 @@
 Bit.pack({
     zlib: { 
         description: 'Zlib compression package',
-        path: bit.dir.src.join('src/paks/zlib'),
+        path: bit.dir.packs.join('zlib'),
         libraries: [ 'z' ],
     },
 })

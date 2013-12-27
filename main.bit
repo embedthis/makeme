@@ -83,16 +83,6 @@ Bit.load({
                 The default is to enable logging for both debug and release builds.                        
              */                                                                                            
             logging: true,                                                                                 
-
-            /*                                                                                             
-                Enable debug trace and asserts to the log file.                                            
-                This is enabled by default for debug builds.                                               
-             */                                                                                            
-            // tracing: true,                                                                             
-
-            alloc: {
-                parallel: true
-            },
         },
 
         tune: 'speed',

@@ -4,7 +4,7 @@
 Bit.pack({
     ejscript: {
         description: 'Appweb Web Server',
-        path: probe(bit.dir.src.join('src/paks/appweb/appwebLib.c')),
+        path: probe(bit.dir.packs.join('appweb/appwebLib.c')),
         depends: [ 'sqlite', 'libmpr', 'libhttp', 'libpcre', 'ejscript' ],
     },
 })

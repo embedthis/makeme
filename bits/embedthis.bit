@@ -404,21 +404,5 @@ Bit.load({
         /* Default stubs */
         start: { action: '', generate: ''},
         stop: { action: '',  generate: ''},
-
-        updateLicense: {
-            action: "
-                let license = Path('${TOP}/LICENSE.md')
-                let own = Path('${TOP}/doc/licenses').join(bit.settings.product + '-license.md')
-                trace('Create', license.relative)
-                trace('Append', own.relative)
-                license.write(own.readString())
-                for each (f in Path().files('doc/licenses/*.md')) {
-                    if (!f.same(own)) {
-                        trace('Append', f)
-                        license.append(f.readString() + '\n')
-                    }
-                }
-            ",
-        },
     },
 })
