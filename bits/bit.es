@@ -2981,6 +2981,13 @@ public class Bit {
                 }
             } catch {}
         }
+        if (bit.dir.packs && !bit.dir.packs.exists) {
+            if (Path('src/paks').exists) {
+                bit.dir.packs = Path('src/paks')
+            } else if (Path('src/deps').exists) {
+                bit.dir.packs = Path('src/deps')
+            }
+        }
     }
 
     /**
