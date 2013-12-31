@@ -17351,30 +17351,7 @@ PUBLIC HttpUri *httpCreateUri(cchar *uri, int flags)
         }
     }
     if (tok) {
-#if UNUSED
-        if ((next = spbrk(tok, "#?")) == NULL) {
-            if (*tok) {
-                up->path = sclone(tok);
-            }
-        } else {
-            if (next > tok) {
-                up->path = snclone(tok, next - tok);
-            }
-            tok = next + 1;
-            if (*next == '#') {
-                if ((next = schr(tok, '?')) != NULL) {
-                    up->reference = snclone(tok, next - tok);
-                    up->query = sclone(++next);
-                } else {
-                    up->reference = sclone(tok);
-                }
-            } else {
-                up->query = sclone(tok);
-            }
-        }
-#else
         up->path = sclone(tok);
-#endif
         if ((tok = srchr(up->path, '.')) != NULL) {
             if (tok[1]) {
                 if ((next = srchr(up->path, '/')) != NULL) {
@@ -17776,11 +17753,6 @@ PUBLIC HttpUri *httpJoinUri(HttpUri *uri, int argc, HttpUri **others)
             uri->host = sclone(other->host);
             uri->port = other->port;
         }
-#if UNUSED
-        if (other->port && !uri->host) {
-            uri->port = other->port;
-        }
-#endif
         if (other->path) {
             httpJoinUriPath(uri, uri, other);
         }

@@ -27285,7 +27285,9 @@ static EjsNumber *nextArrayKey(Ejs *ejs, EjsIterator *ip, int argc, EjsObj **arg
         return 0;
     }
     data = ap->data;
-
+    if (ap->length < ip->length) {
+        ip->length = ap->length;
+    }
     for (; ip->index < ip->length; ip->index++) {
         vp = data[ip->index];
         assert(vp);
@@ -27317,15 +27319,17 @@ static EjsIterator *getArrayIterator(Ejs *ejs, EjsArray *ap, int argc, EjsObj **
 static EjsObj *nextArrayValue(Ejs *ejs, EjsIterator *ip, int argc, EjsObj **argv)
 {
     EjsArray    *ap;
-    EjsObj          *vp, **data;
+    EjsObj      *vp, **data;
 
     ap = (EjsArray*) ip->target;
     if (!ejsIs(ejs, ap, Array)) {
         ejsThrowReferenceError(ejs, "Wrong type");
         return 0;
     }
-
     data = ap->data;
+    if (ap->length < ip->length) {
+        ip->length = ap->length;
+    }
     for (; ip->index < ip->length; ip->index++) {
         vp = data[ip->index];
         assert(vp);
@@ -40876,8 +40880,12 @@ static EjsObj *nextObjectKey(Ejs *ejs, EjsIterator *ip, int argc, EjsObj **argv)
     EjsObj      *obj;
     EjsName     qname;
     EjsTrait    *trait;
+    int         count;
 
     obj = ip->target;
+    if ((count = ejsGetLength(ejs, obj)) < ip->length) {
+        ip->length = count;
+    }
     for (; ip->index < ip->length; ip->index++) {
         qname = ejsGetPropertyName(ejs, obj, ip->index);
         if (qname.name == NULL) {
@@ -40915,8 +40923,12 @@ static EjsObj *nextObjectValue(Ejs *ejs, EjsIterator *ip, int argc, EjsObj **arg
 {
     EjsObj      *obj;
     EjsTrait    *trait;
+    int         count;
 
     obj = ip->target;
+    if ((count = ejsGetLength(ejs, obj)) < ip->length) {
+        ip->length = count;
+    }
     for (; ip->index < ip->length; ip->index++) {
         trait = ejsGetPropertyTraits(ejs, obj, ip->index);
         if (trait && trait->attributes & 
