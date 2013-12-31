@@ -2544,6 +2544,13 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>httpRemoveParam</name>
+      <anchorfile>group___http_rx.html</anchorfile>
+      <anchor>ga4b5d6b30818a07708ceec899032254b2</anchor>
+      <arglist>(HttpConn *conn, cchar *var)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>httpSetIntParam</name>
       <anchorfile>group___http_rx.html</anchorfile>
       <anchor>ga65544de95f88799ed0390fe6d468b2eb</anchor>

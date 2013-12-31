@@ -5634,6 +5634,16 @@ PUBLIC cchar *httpGetBodyInput(HttpConn *conn);
 PUBLIC char *httpReadString(HttpConn *conn);
 
 /**
+    Remove a request param
+    @description Remove the value of a named request param.
+    @param conn HttpConn connection object
+    @param var Name of the request param to retrieve
+    @ingroup HttpRx
+    @stability Prototype
+ */
+PUBLIC void httpRemoveParam(HttpConn *conn, cchar *var);
+
+/**
     Set a request param value
     @description Set the value of a named request param to a string value. Form variables are define via 
         www-urlencoded query or post data contained in the request.
@@ -7062,7 +7072,7 @@ PUBLIC void httpSetOption(MprHash *options, cchar *field, cchar *value);
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
+    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 

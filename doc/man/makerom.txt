@@ -52,7 +52,7 @@ REPORTING BUGS
        Report bugs to <dev@embedthis.com>.
 
 COPYRIGHT
-       Copyright (C) 2003-2013 Embedthis Software.
+       Copyright (C) 2003-2014 Embedthis Software.
 
 SEE ALSO
-makerom                           March 2013                        MAKEROM(1)
+makerom                           March 2014                        MAKEROM(1)

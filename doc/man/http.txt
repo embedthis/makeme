@@ -195,8 +195,8 @@ REPORTING BUGS
        Report bugs to dev@embedthis.com.
 
 COPYRIGHT
-       Copyright (C) 2003-2013 Embedthis Software.
+       Copyright (C) 2003-2014 Embedthis Software.
 
 
 
-http                               July 2013                           HTTP(1)
+http                               July 2014                           HTTP(1)

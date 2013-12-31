@@ -1093,8 +1093,8 @@ cp -r ca.crt ../../${OUT_DIR}/bin/ca.crt
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
 			shellScript = "PATH=$PATH:/usr/local/bin
-cd ..
-macosx-x64-default/bin/ejsc --out macosx-x64-default/bin/ejs.mod --optimize 9 --bind --require null src/paks/ejs/ejs.es";
+cd ../src/paks/ejs
+../../../macosx-x64-default/bin/ejsc --out ../../../macosx-x64-default/bin/ejs.mod --optimize 9 --bind --require null ejs.es";
 		};
 		493D3589493D470700000010 /* ShellScript for bits */ = {
 			isa = PBXShellScriptBuildPhase;

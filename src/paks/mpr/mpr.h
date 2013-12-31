@@ -1632,14 +1632,45 @@ PUBLIC bool mprEnableGC(bool on);
 PUBLIC void mprHold(cvoid *ptr);
 
 /**
+    Hold memory blocks
+    @description This call will protect a set of memory blocks from freeing by the garbage collector. Call mprReleaseBlocks to
+        allow the blocks to be collected.
+    @param ptr Any memory block
+    @param ... Other memory blocks. Terminate the list with a NULL.
+    @ingroup MprMem
+    @stability Prototype.
+  */
+PUBLIC void mprHoldBlocks(cvoid *ptr, ...);
+
+/**
+    Pause the garbage collector.
+    @description This call pause garbage collection so that all thread variables will be safe from collection.
+        It is useful to prevent collection when calling a routine that is known to yield.
+        This routine increments a pause counter and mprReleaseGC will decrement. Garbage collection can resume when the
+        counter is zero.
+    @ingroup MprMem
+    @stability Prototype.
+  */
+PUBLIC void mprPauseGC();
+
+/**
     Release a memory block
-    @description This call is used to allow a memory block to be freed by the garbage collector after calling
-        mprHold.
+    @description This call is used to allow a memory block to be freed by the garbage collector after calling mprHold.
     @param ptr Any memory block
     @ingroup MprMem
     @stability Stable.
   */
 PUBLIC void mprRelease(cvoid *ptr);
+
+/**
+    Release a memory blocks
+    @description This call is used to allow a memory blocks to be freed by the garbage collector after calling mprHoldBlocks.
+    @param ptr Any memory block
+    @param ... Other memory blocks. Terminate the list with a NULL.
+    @ingroup MprMem
+    @stability Prototype.
+  */
+PUBLIC void mprReleaseBlocks(cvoid *ptr, ...);
 
 /**
     remove a memory block as a root for garbage collection
@@ -1648,6 +1679,16 @@ PUBLIC void mprRelease(cvoid *ptr);
     @stability Stable.
   */
 PUBLIC void mprRemoveRoot(cvoid *ptr);
+
+/**
+    Resume the garbage collector.
+    @description This call pause garbage collection so that all thread variables will be safe from collection.
+        This routine increments a pause counter and mprReleaseGC will decrement. Garbage collection can resume when the
+        counter is zero.
+    @ingroup MprMem
+    @stability Prototype.
+  */
+PUBLIC void mprResumeGC();
 
 #if DOXYGEN
     /**
@@ -10083,7 +10124,7 @@ typedef struct MprTestFailure {
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
+    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 

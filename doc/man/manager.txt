@@ -80,11 +80,11 @@ REPORTING BUGS
        Report bugs to <dev@embedthis.com>.
 
 COPYRIGHT
-       Copyright (C) 2003-2013 Embedthis Software.
+       Copyright (C) 2003-2014 Embedthis Software.
 
 SEE ALSO
        appweb
 
 
 
-manager                          November 2013                      MANAGER(1)
+manager                          November 2014                      MANAGER(1)

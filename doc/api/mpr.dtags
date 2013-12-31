@@ -3696,6 +3696,13 @@
       <arglist>(cvoid *ptr)</arglist>
     </member>
     <member kind="function">
+      <type>void</type>
+      <name>mprHoldBlocks</name>
+      <anchorfile>group___mpr_mem.html</anchorfile>
+      <anchor>ga5d4c4bb8ea12d82c3170354c43ac4ab6</anchor>
+      <arglist>(cvoid *ptr,...)</arglist>
+    </member>
+    <member kind="function">
       <type>int64</type>
       <name>mprIncCache</name>
       <anchorfile>group___mpr_cache.html</anchorfile>
@@ -4214,6 +4221,13 @@
       <arglist>(cchar *path, int omode)</arglist>
     </member>
     <member kind="function">
+      <type>void</type>
+      <name>mprPauseGC</name>
+      <anchorfile>group___mpr_mem.html</anchorfile>
+      <anchor>gaee76d67d3414a3cfc3744f8f4de12761</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>mprPeekFileChar</name>
       <anchorfile>group___mpr_file.html</anchorfile>
@@ -4446,6 +4460,13 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>mprReleaseBlocks</name>
+      <anchorfile>group___mpr_mem.html</anchorfile>
+      <anchor>ga57e8bfb292529e6ce63b21aca0543fb3</anchor>
+      <arglist>(cvoid *ptr,...)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>mprReleaseWorker</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>adae3b874e39e0d5e0155d5179f1d83cc</anchor>
@@ -4625,6 +4646,13 @@
       <anchorfile>group___mpr_event.html</anchorfile>
       <anchor>ga6fa51ab06c56baaad50f1b4df7efc1d4</anchor>
       <arglist>(MprEvent *event)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>mprResumeGC</name>
+      <anchorfile>group___mpr_mem.html</anchorfile>
+      <anchor>ga8382412c4f3cad42738785782c9e29a7</anchor>
+      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -6338,6 +6366,13 @@
       <arglist>(cvoid *ptr)</arglist>
     </member>
     <member kind="function">
+      <type>void</type>
+      <name>mprHoldBlocks</name>
+      <anchorfile>group___mpr_mem.html</anchorfile>
+      <anchor>ga5d4c4bb8ea12d82c3170354c43ac4ab6</anchor>
+      <arglist>(cvoid *ptr,...)</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>mprIsValid</name>
       <anchorfile>group___mpr_mem.html</anchorfile>
@@ -6367,6 +6402,13 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>mprPauseGC</name>
+      <anchorfile>group___mpr_mem.html</anchorfile>
+      <anchor>gaee76d67d3414a3cfc3744f8f4de12761</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>mprPrintMem</name>
       <anchorfile>group___mpr_mem.html</anchorfile>
       <anchor>gae5a3493548a457c179c0f7006d6171a9</anchor>
@@ -6388,6 +6430,13 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>mprReleaseBlocks</name>
+      <anchorfile>group___mpr_mem.html</anchorfile>
+      <anchor>ga57e8bfb292529e6ce63b21aca0543fb3</anchor>
+      <arglist>(cvoid *ptr,...)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>mprRemoveRoot</name>
       <anchorfile>group___mpr_mem.html</anchorfile>
       <anchor>ga369beaea43886e4fdd3d4549a2c13cb7</anchor>
@@ -6405,6 +6454,13 @@
       <name>mprResetMemError</name>
       <anchorfile>group___mpr_mem.html</anchorfile>
       <anchor>gaccaaba6bc0501553b0c44d8514795b7a</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>mprResumeGC</name>
+      <anchorfile>group___mpr_mem.html</anchorfile>
+      <anchor>ga8382412c4f3cad42738785782c9e29a7</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">

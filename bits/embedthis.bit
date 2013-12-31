@@ -90,21 +90,6 @@ Bit.load({
             "
         },
 
-        sync: {
-            action: "
-                if (bit.settings.sync && !(bit.settings.sync is Array)) {
-                    bit.settings.sync = [bit.settings.sync]
-                }
-                for each (peer in bit.settings.sync) {
-                    let dir = bit.dir.src.parent.join(peer + '/releases')
-                    if (!dir.exists) {
-                        dir = bit.dir.src.parent.join(peer + '/out/releases')
-                    }
-                    syncup(dir.join(peer + '-combo.tgz'), bit.dir.src)
-                }
-            ",
-        },
-
         upload: {
             action: "
                 if (bit.settings.depth < 2) {
