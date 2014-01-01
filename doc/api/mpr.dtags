@@ -5419,6 +5419,13 @@
     </member>
     <member kind="function">
       <type>char *</type>
+      <name>mprTrimPathComponents</name>
+      <anchorfile>group___mpr_path.html</anchorfile>
+      <anchor>ga625d47ce700463caf6fa3987c7a8583a</anchor>
+      <arglist>(cchar *path, int count)</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
       <name>mprTrimPathDrive</name>
       <anchorfile>group___mpr_path.html</anchorfile>
       <anchor>ga4945b9360d7d3cb11b490d2e67e580fc</anchor>
@@ -8271,6 +8278,13 @@
       <anchorfile>group___mpr_path.html</anchorfile>
       <anchor>ga7e21012e1efb9cd5b62fbcce55728deb</anchor>
       <arglist>(cchar *path, int flags)</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
+      <name>mprTrimPathComponents</name>
+      <anchorfile>group___mpr_path.html</anchorfile>
+      <anchor>ga625d47ce700463caf6fa3987c7a8583a</anchor>
+      <arglist>(cchar *path, int count)</arglist>
     </member>
     <member kind="function">
       <type>char *</type>

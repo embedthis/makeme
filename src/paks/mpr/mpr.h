@@ -5391,6 +5391,17 @@ PUBLIC char *mprSearchPath(cchar *path, int flags, cchar *search, ...);
 PUBLIC char *mprTransformPath(cchar *path, int flags);
 
 /**
+    Trim path components from a path
+    @description Trim the requested number of path components from the front or end of a path
+    @param path Path to examine
+    @param count Number of components to trim. If negative, trim from the end.
+    @returns An allocated string with the trimmed path.
+    @ingroup MprPath
+    @stability Prototype
+ */
+PUBLIC char *mprTrimPathComponents(cchar *path, int count);
+
+/**
     Trim an extension from a path
     @description Trim a file extension (".ext") from a path name.
     @param path Path to examine
@@ -9129,7 +9140,7 @@ PUBLIC cchar *mprGetMimeProgram(MprHash *table, cchar *mimeType);
     This call will return the mime type from a limited internal set of mime types for the given path or extension.
     @param table Hash table of mime types to examine
     @param ext Path or extension to examine
-    @returns Mime type string
+    @returns Mime type string. Returns null if mime type is not known.
     @ingroup MprMime
     @stability Stable
  */

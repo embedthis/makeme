@@ -1161,6 +1161,7 @@ module ejs {
             return false
         }
 
+	//TODO - comparator differ from ECMA
         /**
             Sort the array. The array is sorted in lexical order. A compare function may be supplied.
             @param compare Function to use to compare. A null comparator will use a text compare. The compare signature is:

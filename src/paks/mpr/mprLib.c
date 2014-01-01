@@ -5514,7 +5514,7 @@ PUBLIC ssize mprWriteCmd(MprCmd *cmd, int channel, cchar *buf, ssize bufsize)
     if (bufsize <= 0) {
         bufsize = slen(buf);
     }
-    return write(cmd->files[channel].fd, buf, (wsize) bufsize);
+    return write(cmd->files[channel].fd, (char*) buf, (wsize) bufsize);
 }
 
 
@@ -15694,7 +15694,7 @@ PUBLIC cchar *mprLookupMime(MprHash *table, cchar *ext)
     cchar       *ep;
 
     if (ext == 0 || *ext == '\0') {
-        return "";
+        return 0;
     }
     if ((ep = strrchr(ext, '.')) != 0) {
         ext = &ep[1];
@@ -18450,6 +18450,42 @@ PUBLIC char *mprTransformPath(cchar *path, int flags)
 #endif
     }
     return result;
+}
+
+//  TODO - should these really return cchar
+
+PUBLIC char *mprTrimPathComponents(cchar *path, int count)
+{
+    MprFileSystem   *fs;
+    cchar           *cp;
+    int             sep;
+
+    fs = mprLookupFileSystem(path);
+
+    if (count == 0) {
+        return sclone(path);
+
+    } else if (count > 0) {
+        do {
+            if ((path = firstSep(fs, path)) == 0) {
+                return sclone("");
+            }
+            path++;
+        } while (--count > 0);
+        return sclone(path);
+
+    } else {
+        sep = (cp = firstSep(fs, path)) ? *cp : defaultSep(fs);
+        for (cp = &path[slen(path) - 1]; cp >= path && count < 0; cp--) {
+            if (*cp == sep) {
+                count++;
+            }
+        }
+        if (count == 0) {
+            return snclone(path, cp - path + 1);
+        }
+    }
+    return sclone("");
 }
 
 
