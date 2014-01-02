@@ -22,7 +22,8 @@ Bit.pack({
                     path = bit.dir.packs.join('openssl')
                 }
                 if (!path.exists) {
-                    path = App.dir.join('../packages-' + bit.platform.os + '-' + bit.platform.arch, 'openssl/latest')
+                    path = App.dir.join('../packages-' + bit.platform.os + '-' + bit.platform.arch, 'openssl')
+                    path = path.files('openssl*').reverse()[0]
                 }
             }
             let search = [path]
@@ -34,7 +35,7 @@ Bit.pack({
 
             if (bit.platform.os == 'windows') {
                 search = [path.join('out32dll')]
-                let lib = probe('libeay32.dll', {fullpath: true, search: search, nopath: true}).absolute
+                lib = probe('libeay32.dll', {fullpath: true, search: search, nopath: true}).absolute
                 pack.libraries = [ 'libeay32.lib', 'ssleay32.lib' ]
                 pack.libpaths = [ lib.parent ]
                 pack.imports = [ lib.parent.join('libeay32.dll'), lib.parent.join('libeay32.lib'),
