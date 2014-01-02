@@ -2199,11 +2199,12 @@ PUBLIC ssize httpWriteUploadData(HttpConn *conn, MprList *fileData, MprList *for
     return rc;
 }
 
+
 /*  
     Issue a http request.
     Assumes the Mpr and Http services are created and initialized.
  */
-PUBLIC int httpRequest(cchar *method, cchar *uri, cchar *data, char **response, char **err)
+PUBLIC HttpConn *httpRequest(cchar *method, cchar *uri, cchar *data, char **err)
 {
     Http        *http;
     HttpConn    *conn;
@@ -2212,14 +2213,9 @@ PUBLIC int httpRequest(cchar *method, cchar *uri, cchar *data, char **response, 
 
     http = MPR->httpService;
 
-    dummy = "";
-    if (response) {
-        *response = "";
-    } else {
-        response = &dummy;
-    }
+    dummy = sclone("");
     if (err) {
-        *err = "";
+        *err = dummy;
     } else {
         err = &dummy;
     }
@@ -2232,7 +2228,7 @@ PUBLIC int httpRequest(cchar *method, cchar *uri, cchar *data, char **response, 
     if (httpConnect(conn, method, uri, NULL) < 0) {
         *err = sfmt("Cannot connect to %s", uri);
         mprRemoveRoot(conn);
-        return MPR_ERR_CANT_CONNECT;
+        return 0;
     }
     if (data) {
         len = slen(data);
@@ -2244,11 +2240,10 @@ PUBLIC int httpRequest(cchar *method, cchar *uri, cchar *data, char **response, 
     if (httpWait(conn, HTTP_STATE_PARSED, 10000) < 0) {
         *err = sclone("No response");
         mprRemoveRoot(conn);
-        return MPR_ERR_BAD_STATE;
+        return 0;
     }
-    *response = httpReadString(conn);
     mprRemoveRoot(conn);
-    return httpGetStatus(conn);
+    return conn;
 }
 
 
@@ -6406,22 +6401,23 @@ static void emailRemedy(MprHash *args)
 
 static void httpRemedy(MprHash *args)
 {
-    cchar   *uri, *msg, *method;
-    char    *response, *err;
-    int     status;
+    HttpConn    *conn;
+    cchar       *uri, *msg, *method;
+    char        *err;
+    int         status;
 
     uri = mprLookupKey(args, "URI");
     if ((method = mprLookupKey(args, "METHOD")) == 0) {
         method = "POST";
     }
     msg = smatch(method, "POST") ? mprLookupKey(args, "MESSAGE") : 0;
-    status = httpRequest(method, uri, msg, &response, &err);
-    if (status < 0) {
+    if ((conn = httpRequest(method, uri, msg, &err)) == 0) {
         mprError("%s", err);
         return;
     }
+    status = httpGetStatus(conn);
     if (status != HTTP_CODE_OK) {
-        mprError("Remedy URI %s responded with status %d\n%s", status, response);
+        mprError("Remedy URI %s responded with status %d\n%s", status, httpReadString(conn));
     }
 }
 

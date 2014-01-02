@@ -739,14 +739,14 @@ PUBLIC void mprGlobalUnlock();
 /**
     Open and initialize the atomic subystem
     @ingroup MprSynch
-    @stability Evolving.
+    @stability Stable.
  */
 PUBLIC void mprAtomicOpen();
 
 /**
     Apply a full (read+write) memory barrier
     @ingroup MprSynch
-    @stability Evolving.
+    @stability Stable.
  */ 
 PUBLIC void mprAtomicBarrier();
 
@@ -777,7 +777,7 @@ PUBLIC int mprAtomicCas(void * volatile * target, void *expected, cvoid *value);
     @param target Address of the target word to add to.
     @param value Value to add to the target
     @ingroup MprSynch
-    @stability Evolving.
+    @stability Stable.
  */
 PUBLIC void mprAtomicAdd(volatile int *target, int value);
 
@@ -786,7 +786,7 @@ PUBLIC void mprAtomicAdd(volatile int *target, int value);
     @param target Address of the target word to add to.
     @param value Value to add to the target
     @ingroup MprSynch
-    @stability Evolving.
+    @stability Stable.
  */
 PUBLIC void mprAtomicAdd64(volatile int64 *target, int64 value);
 
@@ -1461,7 +1461,7 @@ PUBLIC void mprVirtFree(void *ptr, size_t size);
         specified via mprCreate will be called to allow global recovery.
     @remarks Do not mix calls to palloc and malloc.
     @ingroup MprMem
-    @stability Prototype.
+    @stability Evolving.
  */
 PUBLIC void *palloc(size_t size);
 
@@ -1471,7 +1471,7 @@ PUBLIC void *palloc(size_t size);
     @param ptr Pointer to the block
     @remarks Do not mix calls to pfree and free.
     @ingroup MprMem
-    @stability Prototype.
+    @stability Evolving.
  */
 PUBLIC void pfree(void *ptr);
 
@@ -1484,7 +1484,7 @@ PUBLIC void pfree(void *ptr);
         specified via mprCreate will be called to allow global recovery.
     @remarks Do not mix calls to prealloc and malloc.
     @ingroup MprMem
-    @stability Prototype.
+    @stability Evolving.
  */
 PUBLIC void *prealloc(void *ptr, size_t size);
 
@@ -1493,7 +1493,7 @@ PUBLIC void *prealloc(void *ptr, size_t size);
     @param ptr Pointer to the block
     @return Size of the allocated block.
     @ingroup MprMem
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC size_t psize(void *ptr);
 
@@ -2104,7 +2104,7 @@ PUBLIC bool sfnumber(cchar *s);
     @description The supported format is: [(+|-)][0][(x|X)][HEX_DIGITS]
     @return true if all characters are digits or 'x' or 'X'
     @ingroup MprString
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC bool shnumber(cchar *s);
 
@@ -2228,7 +2228,7 @@ PUBLIC char *stemplateJson(cchar *str, struct MprJson *tokens);
     @param str Pointer to the string to parse.
     @return Returns the double equivalent value of the string. 
     @ingroup MprString
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC double stof(cchar *str);
 
@@ -2270,7 +2270,7 @@ PUBLIC char *stok(char *str, cchar *delim, char **last);
    @param src Source string to parse
    @return List of arguments
    @ingroup MprString
-   @stability Prototype
+   @stability Evolving
  */
 PUBLIC struct MprList *stolist(cchar *src);
 
@@ -2488,7 +2488,7 @@ PUBLIC ssize mprEprintf(cchar *fmt, ...);
     @param ... Variable arguments to format
     @return Returns the number of bytes written
     @ingroup MprString
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize mprFprintf(struct MprFile *file, cchar *fmt, ...);
 
@@ -2717,7 +2717,7 @@ PUBLIC MprBuf *mprCloneBuf(MprBuf *orig);
     Clone a buffer contents
     @param bp Buffer to copy
     @return Returns a newly allocated memory block containing the buffer contents.
-    @stability Evolving.
+    @stability Stable.
  */
 PUBLIC char *mprCloneBufMem(MprBuf *bp);
 
@@ -2725,7 +2725,7 @@ PUBLIC char *mprCloneBufMem(MprBuf *bp);
     Clone a buffer contents
     @param bp Buffer to copy
     @return Returns a string containing the buffer contents.
-    @stability Evolving.
+    @stability Stable.
  */
 PUBLIC char *mprCloneBufAsString(MprBuf *bp);
 
@@ -2917,7 +2917,7 @@ PUBLIC int mprPutCharToBuf(MprBuf *buf, int c);
     @param ... Variable arguments for the format string
     @returns Zero if successful and otherwise a negative error code 
     @ingroup MprBuf
-    @stability Evolving.
+    @stability Stable.
  */
 PUBLIC ssize mprPutToBuf(MprBuf *buf, cchar *fmt, ...);
 
@@ -3493,7 +3493,7 @@ PUBLIC MprList *mprCreateList(int size, int flags);
     @param str String containing white space or comma separated words
     @return Returns a list of words
     @ingroup MprList
-    @stability Prototype.
+    @stability Evolving.
  */
 PUBLIC MprList *mprCreateListFromWords(cchar *str);
 
@@ -3911,7 +3911,7 @@ PUBLIC MprLogHandler mprGetLogHandler();
     @param fmt Printf style format string. Variable number of arguments to 
     @param ... Variable number of arguments for printf data
     @ingroup MprLog
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprInfo(cchar *fmt, ...);
 
@@ -3936,7 +3936,7 @@ PUBLIC void mprLogProc(int level, cchar *fmt, ...);
 /**
     Emit a descriptive log header
     @ingroup MprLog
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprLogHeader();
 
@@ -3979,14 +3979,14 @@ PUBLIC void mprRawLog(int level, cchar *fmt, ...);
     @param flags Set to MPR_LOG_APPEND to append to existing log files. Set to MPR_LOG_TRUNCATE to truncate log files
         on application restart.
     @ingroup MprLog
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprSetLogBackup(ssize logSize, int backupCount, int flags);
 
 /**
     Set a file to be used for logging
     @param file MprFile object instance
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprSetLogFile(struct MprFile *file);
 
@@ -4014,7 +4014,7 @@ PUBLIC void mprSetLogHandler(MprLogHandler handler);
     @param showConfig Set to true to log an initial system configuration.
     @return Zero if successful, otherwise a negative Mpr error code. See the Appweb log for diagnostics.
     @ingroup MprLog
-    @stability Evolving
+    @stability Stable
 */
 PUBLIC int mprStartLogging(cchar *logSpec, int showConfig);
 
@@ -4557,7 +4557,7 @@ typedef struct MprFile {
         @li O_APPEND Open to append
     @return Returns an MprFile object to use in other file operations.
     @ingroup MprFile
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC MprFile *mprAttachFileFd(int fd, cchar *name, int omode);
 
@@ -4576,7 +4576,7 @@ PUBLIC int mprCloseFile(MprFile *file);
     @description Disable any buffering of data when using the buffer.
     @param file File instance returned from #mprOpenFile
     @ingroup MprFile
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprDisableFileBuffering(MprFile *file);
 
@@ -4587,7 +4587,7 @@ PUBLIC void mprDisableFileBuffering(MprFile *file);
     @param size Size to allocate for the buffer.
     @param maxSize Maximum size the data buffer can grow to
     @ingroup MprFile
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprEnableFileBuffering(MprFile *file, ssize size, ssize maxSize);
 
@@ -4597,7 +4597,7 @@ PUBLIC int mprEnableFileBuffering(MprFile *file, ssize size, ssize maxSize);
     @param file Pointer to an MprFile object returned via MprOpen.
     @return Zero if successful, otherwise a negative MPR error code.
     @ingroup MprFile
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprFlushFile(MprFile *file);
 
@@ -5143,7 +5143,7 @@ PUBLIC char *mprGetWinPath(cchar *path);
     @param path Path name to examine
     @returns True if directory is a parent of the path or is the same as the given path.
     @ingroup MprPath
-    @stability Evolving
+    @stability Stable
  */ 
 PUBLIC bool mprIsParentPathOf(cchar *dir, cchar *path);
 
@@ -5199,7 +5199,7 @@ PUBLIC char *mprJoinPath(cchar *base, cchar *path);
     Join paths
     @description Join each given path in turn to the path. Calls mprJoinPath for each argument.
     @param base Directory path name to use as the base.
-    @param ... Other paths to join to the base path.
+    @param ... Other paths to join to the base path. List of other paths must be NULL terminated.
     @returns Allocated string containing the resolved path.
     @ingroup MprPath
     @stability Prototype
@@ -5240,7 +5240,7 @@ PUBLIC int mprMakeDir(cchar *path, int perms, int owner, int group, bool makeMis
     @param hard If true, make a hard link, otherwise make a soft link.
     @return Returns zero if successful, otherwise a negative MPR error code is returned.
     @ingroup MprPath
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprMakeLink(cchar *path, cchar *target, bool hard);
 
@@ -5348,7 +5348,7 @@ PUBLIC int mprSamePath(cchar *path1, cchar *path2);
     @param len How many characters to compare.
     @returns True if the file exists and can be accessed
     @ingroup MprPath
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int mprSamePathCount(cchar *path1, cchar *path2, ssize len);
 
@@ -5794,7 +5794,7 @@ typedef struct MprEventService {
 /**
     Clear the event service waiting flag
     @ingroup MprDispatcher
-    @stability Prototype
+    @stability Evolving
     @internal
  */
 PUBLIC void mprClearWaiting();
@@ -5848,7 +5848,7 @@ PUBLIC int mprServiceEvents(MprTicks delay, int flags);
     Set the maximum sleep time for the event service
     @param delay Maximum time to sleep before checking for events to service
     @ingroup MprDispatcher
-    @stability Prototype;
+    @stability Evolving;
  */
 PUBLIC void mprSetEventServiceSleep(MprTicks delay);
 
@@ -5867,7 +5867,7 @@ PUBLIC int mprWaitForEvent(MprDispatcher *dispatcher, MprTicks timeout);
     Wake the event service
     @description Used to wake the event service if an event is queued for service.
     @ingroup MprDispatcher
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprWakeEventService();
 
@@ -6336,7 +6336,7 @@ PUBLIC MprJson *mprCreateJson(int type);
     @param str JSON string. This must be an object with one-level of properties
     @return Hash of property values if successful, otherwise null.
     @ingroup MprJson
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC MprHash *mprDeserialize(cchar *str);
 
@@ -6582,7 +6582,7 @@ PUBLIC int mprSaveJson(MprJson *obj, cchar *path, int flags);
     MPR_JSON_QUOTES to wrap property names in quotes. Use MPR_JSON_STRINGS to emit all property values as quoted strings.
     @return JSON string
     @ingroup MprJson
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *mprSerialize(MprHash *hash, int flags);
 
@@ -7629,7 +7629,7 @@ PUBLIC int mprSetSocketBlockingMode(MprSocket *sp, bool on);
     @param sp Socket object returned from #mprCreateSocket
     @param dispatcher Dispatcher object reference
     @ingroup MprSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void mprSetSocketDispatcher(MprSocket *sp, MprDispatcher *dispatcher);
 
@@ -8910,7 +8910,7 @@ PUBLIC ssize mprWriteCmdBlock(MprCmd *cmd, int channel, cchar *buf, ssize bufsiz
     @param data Cached item data
     @param event Event of interest.
     @ingroup MprCache
-    @stability Prototype
+    @stability Evolving
  */
 typedef void (*MprCacheProc)(struct MprCache *cache, cchar *key, cchar *data, int event);
 
@@ -8978,7 +8978,7 @@ PUBLIC int mprExpireCacheItem(MprCache *cache, cchar *key, MprTicks expires);
     @param numKeys Number of keys currently stored
     @param mem Memory in use to store keys
     @ingroup MprCache
-    @stability Prototype
+    @stability Evolving
     @internal
  */
 PUBLIC void mprGetCacheStats(MprCache *cache, int *numKeys, ssize *mem);
@@ -9037,7 +9037,7 @@ PUBLIC bool mprRemoveCache(MprCache *cache, cchar *key);
 
         (*MprCacheProc)(MprCache *cache, cchar *key, cchar *data, int event);
     @ingroup MprCache
-    @stability Prototype
+    @stability Evolving
   */
 PUBLIC void mprSetCacheNotify(MprCache *cache, MprCacheProc notify);
 
@@ -9060,7 +9060,7 @@ PUBLIC void mprSetCacheLimits(MprCache *cache, int64 keys, MprTicks lifespan, in
     @param key Cache item key to write
     @param link Managed memory reference. May be NULL.
     @ingroup MprCache
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC int mprSetCacheLink(MprCache *cache, cchar *key, void *link);
 
@@ -9381,7 +9381,7 @@ PUBLIC cchar *mprGetAppVersion();
         programs to tell the MPR that command line logging has been used.
     @return True if command line logging is in use.
     @ingroup Mpr
-    @stability Evolving.
+    @stability Stable.
 */
 PUBLIC bool mprGetCmdlineLogging();
 
@@ -9470,7 +9470,7 @@ PUBLIC int mprGetRandomBytes(char *buf, ssize size, bool block);
     Get some random data in ascii
     @param size Size of the random data string
     @ingroup Mpr
-    @stability Evolving.
+    @stability Stable.
   */
 PUBLIC char *mprGetRandomString(ssize size);
 
@@ -9805,7 +9805,7 @@ PUBLIC void mprTerminate(int flags, int status);
     @param timeout Time in milliseconds to wait for the application to be idle
     @return True if the application is idle.
     @ingroup Mpr
-    @stability Evolving.
+    @stability Stable.
  */
 PUBLIC int mprWaitTillIdle(MprTicks timeout);
 

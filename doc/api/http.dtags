@@ -2751,11 +2751,11 @@
       <arglist>(HttpConn *conn, cchar *key)</arglist>
     </member>
     <member kind="function">
-      <type>int</type>
+      <type>HttpConn *</type>
       <name>httpRequest</name>
       <anchorfile>group___http_tx.html</anchorfile>
-      <anchor>gadb0565710ff24c28db3fd9af10961aec</anchor>
-      <arglist>(cchar *method, cchar *uri, cchar *data, char **response, char **err)</arglist>
+      <anchor>gac6c78c033db6361711cd370ba96c12b9</anchor>
+      <arglist>(cchar *method, cchar *uri, cchar *data, char **err)</arglist>
     </member>
     <member kind="function">
       <type>void</type>

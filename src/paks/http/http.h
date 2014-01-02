@@ -861,7 +861,7 @@ PUBLIC HttpLimits *httpCreateLimits(int serverSide);
         sizes supported by the system. Client side limits are eased by default.
     @param limits Limits object. This can be either HttpHost.limits HttpConn.limits or HttpEndpoint.limits
     @ingroup HttpLimits
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void httpEaseLimits(HttpLimits *limits);
 
@@ -1122,7 +1122,7 @@ PUBLIC char *httpUri(struct HttpConn *conn, cchar *target);
     @param options Hash of option values for embedded tokens. This hash is blended with the route variables.
     @return A normalized, server-local Uri string.
     @ingroup HttpUri
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC char *httpUriEx(struct HttpConn *conn, cchar *target, MprHash *options);
 
@@ -1148,7 +1148,7 @@ PUBLIC char *httpUriToString(HttpUri *uri, int flags);
     The URI must begin with a "/" both before and after decoding and normalization. 
     @param uri URI to validate.
     @return A validated, normalized URI path
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC char *httpValidateUriPath(cchar *uri);
 
@@ -1339,7 +1339,7 @@ PUBLIC HttpPacket *httpGetPacket(struct HttpQueue *q);
     @param packet Packet to examine.
     @return MprBuf reference or zero if there are not contents.
     @ingroup HttpPacket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize httpGetPacketContents(HttpPacket *packet);
 #else
@@ -1366,7 +1366,7 @@ PUBLIC ssize httpGetPacketLength(HttpPacket *packet);
     @param packet Packet to examine.
     @return A reference to the start of the packet contents.
     @ingroup HttpPacket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *httpGetPacketStart(HttpPacket *packet);
 
@@ -1376,7 +1376,7 @@ PUBLIC char *httpGetPacketStart(HttpPacket *packet);
     @param packet Packet to examine.
     @return A reference to the start of the packet contents.
     @ingroup HttpPacket
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC char *httpGetPacketString(HttpPacket *packet);
 
@@ -2164,7 +2164,7 @@ PUBLIC struct HttpStage *httpLookupStage(Http *http, cchar *name);
     @param q Current queue
     @param packet Packet containg data
     @ingroup HttpStage
-    @stability Prototype
+    @stability Evolving
 */
 PUBLIC void httpDefaultIncoming(HttpQueue *q, HttpPacket *packet);
 
@@ -2607,7 +2607,7 @@ PUBLIC void httpError(HttpConn *conn, int status, cchar *fmt, ...);
         or HTTP_CLOSE to close the connection at the completion of the request.
     @param fmt Printf style formatted string
     @ingroup HttpConn
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void httpLimitError(HttpConn *conn, int status, cchar *fmt, ...);
 
@@ -2618,7 +2618,7 @@ PUBLIC void httpLimitError(HttpConn *conn, int status, cchar *fmt, ...);
         or HTTP_CLOSE to close the connection at the completion of the request.
     @param fmt Printf style formatted string
     @ingroup HttpConn
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void httpBadRequestError(HttpConn *conn, int status, cchar *fmt, ...);
 
@@ -2628,7 +2628,7 @@ PUBLIC void httpBadRequestError(HttpConn *conn, int status, cchar *fmt, ...);
     @param conn HttpConn object created via #httpCreateConn
     @param event Event structure
     @ingroup HttpConn
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void httpEvent(struct HttpConn *conn, MprEvent *event);
 
@@ -2735,7 +2735,7 @@ PUBLIC void httpMemoryError(HttpConn *conn);
     @param event Event to issue
     @param arg Argument to event
     @ingroup HttpConn
-    @stability Evolving
+    @stability Stable
  */ 
 PUBLIC void httpNotify(HttpConn *conn, int event, int arg);
 
@@ -2856,7 +2856,7 @@ PUBLIC void httpSetConnHost(HttpConn *conn, void *host);
     @param conn HttpConn connection object created via #httpCreateConn
     @param notifier Notifier function. 
     @ingroup HttpConn
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void httpSetConnNotifier(HttpConn *conn, HttpNotifier notifier);
 
@@ -2962,7 +2962,7 @@ PUBLIC void httpSetTimeout(HttpConn *conn, MprTicks requestTimeout, MprTicks ina
     @description This routine initiates the writing of a timestamp in the MPR log file
     @param period Time in milliseconds between timestamps
     @ingroup HttpConn
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void httpSetTimestamp(MprTicks period);
 
@@ -3680,7 +3680,7 @@ PUBLIC void httpDefineAction(cchar *uri, HttpAction fun);
     @param uri URI prefix to match with.
     @return True if input should be streamed. False if it should be buffered.
     @ingroup HttpHost
-    @stability Prototype
+    @stability Evolving
     @internal
  */
 PUBLIC bool httpGetStreaming(struct HttpHost *host, cchar *mime, cchar *uri);
@@ -3692,7 +3692,7 @@ PUBLIC bool httpGetStreaming(struct HttpHost *host, cchar *mime, cchar *uri);
     @param uri URI prefix to match.
     @param streaming Set to true to enable streaming for this mime type.
     @ingroup HttpHost
-    @stability Prototype
+    @stability Evolving
     @internal
  */
 PUBLIC void httpSetStreaming(struct HttpHost *host, cchar *mime, cchar *uri, bool streaming);
@@ -3931,7 +3931,7 @@ PUBLIC void httpAddResourceGroup(HttpRoute *parent, cchar *prefix, cchar *resour
     @param prefix URI prefix to append to the application prefix when constructing route URIs.
     @param name Route name.
     @ingroup HttpRoute
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void httpAddClientRoute(HttpRoute *parent, cchar *prefix, cchar *name);
 
@@ -4064,7 +4064,7 @@ PUBLIC void httpAddRouteMapping(HttpRoute *route, cchar *extensions, cchar *mapp
     @param methods Set to a comma or space separated list of methods. Can also set to "All" or "*" for all possible 
         methods.  Typical methods include: "DELETE, GET, OPTIONS, POST, PUT, TRACE".
     @ingroup HttpRoute
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void httpAddRouteMethods(HttpRoute *route, cchar *methods);
 
@@ -4265,7 +4265,7 @@ PUBLIC HttpRoute *httpDefineRoute(HttpRoute *parent, cchar *name, cchar *methods
     @param resource Resource basename to use when constructing a source file name.
     @return Created route.
     @ingroup HttpRoute
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC HttpRoute *httpAddRestfulRoute(HttpRoute *parent, cchar *prefix, cchar *action, cchar *methods, cchar *pattern, 
     cchar * target, cchar *resource);
@@ -4440,7 +4440,7 @@ PUBLIC void httpMapFile(HttpConn *conn, cchar *filename);
     @description This sets the HttpTx filename, ext, etag and info fields.
     @param conn HttpConn connection object 
     @ingroup HttpRoute
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void httpMapRequest(HttpConn *conn);
 
@@ -4675,7 +4675,7 @@ PUBLIC void httpSetRouteServerPrefix(HttpRoute *route, cchar *prefix);
     @param route Route to modify
     @param on Set to true perserve frame boundaries
     @ingroup HttpRoute
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void httpSetRoutePreserveFrames(HttpRoute *route, bool on);
 
@@ -4697,7 +4697,7 @@ PUBLIC void httpSetRouteScript(HttpRoute *route, cchar *script, cchar *scriptPat
     @param route Route to modify
     @param on Set to true to show errors to the client. 
     @ingroup HttpRoute
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void httpSetRouteShowErrors(HttpRoute *route, bool on);
 
@@ -4717,7 +4717,7 @@ PUBLIC void httpSetRouteSource(HttpRoute *route, cchar *source);
     @param route Route to modify
     @param on Set to True to enable stealth mode
     @ingroup HttpRoute
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void httpSetRouteStealth(HttpRoute *route, bool on);
 
@@ -4924,7 +4924,7 @@ PUBLIC bool httpTokenizev(HttpRoute *route, cchar *str, cchar *fmt, va_list args
     @param tok Token to parse
     @return True if tok is set to "yes", "on", "true" or "1"
     @ingroup HttpRoute
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC bool httpGetBoolToken(cchar *tok);
 
@@ -5061,7 +5061,7 @@ PUBLIC cchar *httpGetSessionVar(HttpConn *conn, cchar *name, cchar *defaultValue
     @param id Session ID to lookup.
     @return True if the ID is associated with a session
     @ingroup HttpSession
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC bool httpLookupSessionID(cchar *id);
 
@@ -5917,7 +5917,7 @@ PUBLIC void httpDestroyTx(HttpTx *tx);
     i.e. httpFinalize can be called before all incoming data has been received. 
     @param conn HttpConn connection object
     @ingroup HttpTx
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void httpFinalizeOutput(HttpConn *conn);
 
@@ -5925,7 +5925,7 @@ PUBLIC void httpFinalizeOutput(HttpConn *conn);
     Flush tx data. This writes any buffered data. 
     @param conn HttpConn connection object created via #httpCreateConn
     @ingroup HttpTx
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void httpFlush(HttpConn *conn);
 
@@ -6034,7 +6034,7 @@ PUBLIC int httpIsFinalized(HttpConn *conn);
         to signify the end of transmit data.
     @param conn HttpConn connection object
     @ingroup HttpTx
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int httpIsOutputFinalized(HttpConn *conn);
 
@@ -6083,13 +6083,12 @@ PUBLIC int httpRemoveHeader(HttpConn *conn, cchar *key);
     @param method HTTP method to use
     @param uri URI to request
     @param data Optional data to send with request. Set to null for GET requests.
-    @param response Output parameter to receive the HTTP request response.
     @param err Output parameter to receive any error messages.
-    @return HTTP status or a negative MPR error code
+    @return HttpConn object. Use $httpGetStatus to read status and $httpReadString to read the response data.
     @ingroup HttpTx
     @stability Prototype
  */
-PUBLIC int httpRequest(cchar *method, cchar *uri, cchar *data, char **response, char **err);
+PUBLIC HttpConn *httpRequest(cchar *method, cchar *uri, cchar *data, char **err);
 
 /** 
     Define a content length header in the transmission. This will define a "Content-Length: NNN" request header and
@@ -6133,15 +6132,14 @@ PUBLIC void httpSetContentType(HttpConn *conn, cchar *mimeType);
     @ingroup HttpTx
     @stability Evolving
  */
-PUBLIC void httpSetCookie(HttpConn *conn, cchar *name, cchar *value, cchar *path, cchar *domain, 
-        MprTicks lifespan, int flags);
+PUBLIC void httpSetCookie(HttpConn *conn, cchar *name, cchar *value, cchar *path, cchar *domain, MprTicks lifespan, int flags);
 
 /**
     Remove a cookie from the client (browser)
     @param conn HttpConn connection object created via #httpCreateConn
     @param name Name of the cookie created with httpSetCookie
     @ingroup HttpTx
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void httpRemoveCookie(HttpConn *conn, cchar *name);
 
@@ -6161,7 +6159,7 @@ PUBLIC void httpSetEntityLength(HttpConn *conn, MprOff len);
     Most useful to set the Tx.filename and pass to the fileHandler.
     @param conn HttpConn connection object created via #httpCreateConn
     @param handler Handler to set
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void httpSetHandler(HttpConn *conn, HttpStage *handler);
 
@@ -6811,7 +6809,7 @@ PUBLIC char *httpGetWebSocketCloseReason(HttpConn *conn);
     @param conn HttpConn connection object created via #httpCreateConn
     @return The private data reference
     @ingroup HttpWebSocket
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void *httpGetWebSocketData(HttpConn *conn);
 
@@ -6925,7 +6923,7 @@ PUBLIC ssize httpSendClose(HttpConn *conn, int status, cchar *reason);
     @param conn HttpConn connection object created via #httpCreateConn
     @param data Managed data reference. 
     @ingroup HttpWebSocket
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void httpSetWebSocketData(HttpConn *conn, void *data);
 

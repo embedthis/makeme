@@ -24,6 +24,9 @@ Bit.pack({
                 if (!path.exists) {
                     path = App.dir.join('../packages-' + bit.platform.os + '-' + bit.platform.arch, 'openssl')
                     path = path.files('openssl*').reverse()[0]
+                    if (!path || !path.exists) {
+                        path = '.'
+                    }
                 }
             }
             let search = [path]
