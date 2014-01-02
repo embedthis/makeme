@@ -614,7 +614,7 @@ public class Bit {
             if (value) {
                 pack.withpath = Path(value)
             } else {
-                /*  MOB - Doing the following caused est to be disabled when reloading the bit file after configuring and 
+                /*  TODO - Doing the following caused est to be disabled when reloading the bit file after configuring and 
                     before generation
                     bit -platform macosx-x64-default -configure . -with est -gen make
                  */

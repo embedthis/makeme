@@ -322,6 +322,7 @@ Bit.load({
         cache: {
             home: '${TOP}',
             enable: "'${OS}.match(/linux|macosx|windows/)",
+            depends: ['all'],
             action: "cache()",
         },
 

@@ -153,17 +153,13 @@ function setupGlobals(manifest, package, prefixes) {
                             safeRemove(prefix)
                         }
                     }
-                    //  MOB - there should be an option in settings to require root
+                    //  TODO - there should be an option in settings to require root
                     if (App.uid != 0 && bit.installing && !bit.generating) {
                         throw 'Must run as root. Use "sudo bit install"'
                     }
-                    //  MOB remove generating here 
+                    //  TODO remove generating here 
                     if (bit.generating || !prefixes[pname].exists) {
                         if (prefixes[pname].contains(bit.settings.product)) {
-                            if (pname == 'cache') {
-                                /* Must remove old cache files */
-                                removeDir(prefixes[pname])
-                            }
                             makeDir(prefixes[pname])
                         }
                     }
