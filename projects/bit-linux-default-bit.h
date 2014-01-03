@@ -13,6 +13,9 @@
 #ifndef BIT_COMPANY
     #define BIT_COMPANY "Embedthis Software"
 #endif
+#ifndef BIT_COMPATIBLE
+    #define BIT_COMPATIBLE "0.9.1"
+#endif
 #ifndef BIT_DEBUG
     #define BIT_DEBUG 1
 #endif

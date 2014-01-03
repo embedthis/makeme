@@ -1552,13 +1552,6 @@
     </member>
     <member kind="function">
       <type>int</type>
-      <name>httpSetAuthStoreVerify</name>
-      <anchorfile>group___http_auth.html</anchorfile>
-      <anchor>ga72e16500d79e9e353b6bdae89697ffad</anchor>
-      <arglist>(cchar *name, HttpVerifyUser verifyUser)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
       <name>httpSetAuthType</name>
       <anchorfile>group___http_auth.html</anchorfile>
       <anchor>gaef35c77fbe3aab1e8c0b85e77cb0e377</anchor>
@@ -1570,6 +1563,13 @@
       <anchorfile>group___http_auth.html</anchorfile>
       <anchor>gae6a556554977838d96bff8cfdd61eefb</anchor>
       <arglist>(HttpAuth *auth, cchar *username)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpSetAuthVerify</name>
+      <anchorfile>group___http_auth.html</anchorfile>
+      <anchor>ga09beabd2ece2ccf6b7627a4ee73c5b86</anchor>
+      <arglist>(HttpAuth *auth, HttpVerifyUser verifyUser)</arglist>
     </member>
   </compound>
   <compound kind="group">
@@ -3247,6 +3247,13 @@
       <name>name</name>
       <anchorfile>struct_http_auth_store.html</anchorfile>
       <anchor>a0b440dbdd3aa06e0ea63b3627586ba9d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>HttpVerifyUser</type>
+      <name>verifyUser</name>
+      <anchorfile>struct_http_auth_store.html</anchorfile>
+      <anchor>ad3561d96978b73bb838d3436790c357d</anchor>
       <arglist></arglist>
     </member>
   </compound>

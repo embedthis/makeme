@@ -33,5 +33,8 @@
     ],
     "dependencies": {
         "bitos": "~0.8"
+    },
+    "dirs": {
+        "paks": "src/paks"
     }
 }
