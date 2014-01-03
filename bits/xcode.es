@@ -599,7 +599,7 @@ ${OUTPUTS}
             target.vars.OUT = outputs
         }
         let sid = getid('ID_ShellScript:' + target.name)
-        // TODO cmd = cmd.toJSON().expand(bit, eo).expand(bit.globals, eo).expand(target.vars, eo)
+        bit.target = target
         cmd = expand(cmd.toJSON())
         cmd = cmd.expand(target.vars, eo)
         output(section.expand({SID: sid, CMD: cmd, INPUTS: inputs, OUTPUTS: outputs, TNAME: target.name, SHELL: shell}))
