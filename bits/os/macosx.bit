@@ -16,7 +16,7 @@ Bit.load({
         'c->c':   '${packs.compiler.path} -E -arch ${CC_ARCH} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
         'c->o':   '${packs.compiler.path} -c -o ${OUTPUT} -arch ${CC_ARCH} ${MTUNE} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
         'cpp->o': '${packs.compiler.path} -c -o ${OUTPUT} -arch ${CC_ARCH} ${MTUNE} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
-        'shlib':  '${packs.compiler.path} -dynamiclib -o ${OUTPUT} -arch ${CC_ARCH} ${LDFLAGS} ${LIBPATHS} -install_name @rpath/${LIBNAME} -compatibility_version ${settings.version} -current_version ${settings.version} ${INPUT} ${LIBS}',
+        'shlib':  '${packs.compiler.path} -dynamiclib -o ${OUTPUT} -arch ${CC_ARCH} ${LDFLAGS} ${LIBPATHS} -install_name @rpath/${LIBNAME} -compatibility_version ${settings.compatible} -current_version ${settings.compatible} ${INPUT} ${LIBS}',
         'lib':    '${packs.lib.path} -cr ${OUTPUT} ${INPUT}',
         'exe':    '${packs.compiler.path} -o ${OUTPUT} -arch ${CC_ARCH} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS}',
         'gui':    '${packs.compiler.path} -o ${OUTPUT} -arch ${CC_ARCH} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS}',

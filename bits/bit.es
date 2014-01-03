@@ -2930,6 +2930,9 @@ public class Bit {
         if (!bit.settings.configured && !options.configure) {
             loadBitFile(bit.dir.bits.join('simple.bit'))
         }
+        if (bit.settings.version) {
+            bit.settings.compatible = bit.settings.version.split('-')[0]
+        }
         expandTokens(bit)
 /* UNUSED
         if (!bit.dir.packs.exists) {
