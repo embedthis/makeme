@@ -3094,10 +3094,10 @@ typedef bool (*HttpVerifyUser)(HttpConn *conn, cchar *username, cchar *password)
     @stability Internal
  */
 typedef struct HttpAuthType {
-    char                *name;          /**< Authentication protocol name: 'basic', 'digest', 'form' */
-    HttpAskLogin        askLogin;       /**< Callback to generate a client login response */
-    HttpParseAuth       parseAuth;      /**< Callback to parse request auth details */
-    HttpSetAuth         setAuth;        /**< Callback to set the HTTP response authentication headers */
+    char                *name;              /**< Authentication protocol name: 'basic', 'digest', 'form' */
+    HttpAskLogin        askLogin;           /**< Callback to generate a client login response */
+    HttpParseAuth       parseAuth;          /**< Callback to parse request auth details */
+    HttpSetAuth         setAuth;            /**< Callback to set the HTTP response authentication headers */
 } HttpAuthType;
 
 
@@ -3107,8 +3107,8 @@ typedef struct HttpAuthType {
     @stability Internal
  */
 typedef struct HttpAuthStore {
-    char            *name;          /**< Authentication password store name: 'system', 'file' */
-    HttpVerifyUser  verifyUser;
+    char            *name;                  /**< Authentication password store name: 'system', 'file' */
+    HttpVerifyUser  verifyUser;             /**< Default user verification routine */
 } HttpAuthStore;
 
 /** 
@@ -3168,6 +3168,7 @@ typedef struct HttpAuth {
     char            *qop;                   /**< Quality of service */
     HttpAuthType    *type;                  /**< Authorization protocol type (basic|digest|form|custom)*/
     HttpAuthStore   *store;                 /**< Authorization password backend (system|file|custom)*/
+    HttpVerifyUser  verifyUser;             /**< Password verification */
 } HttpAuth;
 
 
@@ -3197,13 +3198,12 @@ PUBLIC int httpAddAuthStore(cchar *name, HttpVerifyUser verifyUser);
 
 /**
     Set the verify callback for a authentication store
-    @param name Name of the authentication store
+    @param auth Auth object allocated by #httpCreateAuth.
     @param verifyUser Verification callback
-    @return Zero if successful, otherwise a negative MPR error code
     @ingroup HttpAuth
-    @stability Evolving
+    @stability Prototype
   */
-PUBLIC int httpSetAuthStoreVerify(cchar *name, HttpVerifyUser verifyUser);
+PUBLIC void httpSetAuthVerify(HttpAuth *auth, HttpVerifyUser verifyUser);
 
 /**
     Add a role

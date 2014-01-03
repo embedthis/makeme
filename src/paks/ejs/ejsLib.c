@@ -43245,13 +43245,10 @@ static EjsObj *writeToFile(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
 
 static cchar *getPathString(Ejs *ejs, EjsObj *vp)
 {
-    if (ejsIs(ejs, vp, String)) {
-        return (char*) ejsToMulti(ejs, vp);
-    } else if (ejsIs(ejs, vp, Path)) {
+    if (ejsIs(ejs, vp, Path)) {
         return ((EjsPath*) vp)->value;
     }
-    ejsThrowIOError(ejs, "Bad path");
-    return NULL;
+    return (char*) ejsToMulti(ejs, vp);
 }
 
 /*********************************** Factory **********************************/
