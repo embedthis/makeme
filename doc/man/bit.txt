@@ -546,7 +546,7 @@ REPORTING BUGS
        Report bugs to dev@embedthis.com.
 
 COPYRIGHT
-       Copyright  (C)  2004-2013  Embedthis  Software.  Bit and Ejscript are a
+       Copyright  (C)  2004-2014  Embedthis  Software.  Bit and Ejscript are a
        trademarks of Embedthis Software.
 
 SEE ALSO
@@ -554,4 +554,4 @@ SEE ALSO
 
 
 
-bit                               March 2013                            BIT(1)
+bit                              January 2014                           BIT(1)
