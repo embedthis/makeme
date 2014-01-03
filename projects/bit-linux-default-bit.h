@@ -14,7 +14,7 @@
     #define BIT_COMPANY "Embedthis Software"
 #endif
 #ifndef BIT_COMPATIBLE
-    #define BIT_COMPATIBLE "0.9.1"
+    #define BIT_COMPATIBLE "0.9.2"
 #endif
 #ifndef BIT_DEBUG
     #define BIT_DEBUG 1
@@ -152,7 +152,7 @@
     #define BIT_TUNE "speed"
 #endif
 #ifndef BIT_VERSION
-    #define BIT_VERSION "0.9.1"
+    #define BIT_VERSION "0.9.2"
 #endif
 #ifndef BIT_WARN64TO32
     #define BIT_WARN64TO32 0
@@ -181,7 +181,7 @@
     #define BIT_APP_PREFIX "/usr/local/lib/bit"
 #endif
 #ifndef BIT_VAPP_PREFIX
-    #define BIT_VAPP_PREFIX "/usr/local/lib/bit/0.9.1"
+    #define BIT_VAPP_PREFIX "/usr/local/lib/bit/0.9.2"
 #endif
 #ifndef BIT_BIN_PREFIX
     #define BIT_BIN_PREFIX "/usr/local/bin"
@@ -214,7 +214,7 @@
     #define BIT_CACHE_PREFIX "/var/spool/bit/cache"
 #endif
 #ifndef BIT_SRC_PREFIX
-    #define BIT_SRC_PREFIX "bit-0.9.1"
+    #define BIT_SRC_PREFIX "bit-0.9.2"
 #endif
 
 /* Suffixes */
@@ -256,10 +256,10 @@
     #define BIT_MINOR_VERSION 9
 #endif
 #ifndef BIT_PATCH_VERSION
-    #define BIT_PATCH_VERSION 1
+    #define BIT_PATCH_VERSION 2
 #endif
 #ifndef BIT_VNUM
-    #define BIT_VNUM 01
+    #define BIT_VNUM 02
 #endif
 
 /* Packs */
