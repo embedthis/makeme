@@ -239,7 +239,7 @@ Bit.load({
                 let missing = checkInstalled()
                 if (missing) {
                     trace('Missing', missing)
-                    throw 'Missing directories: ' + missing.join(' ')
+                    throw 'Missing directories: \n' + missing.join('\n')
                 } else {
                     trace('Installed', 'Products directories are created')
                 }
@@ -251,7 +251,7 @@ Bit.load({
                 let existing = checkUninstalled()
                 if (existing) {
                     trace('Existing', existing)
-                    throw 'Existing directories: ' + existing.join(' ')
+                    throw 'Existing directories: \n' + existing.join('\n')
                 } else {
                     trace('Info', 'Product is not installed')
                 }
