@@ -3322,7 +3322,7 @@ public class Bit {
         if (!bit.generating) {
             if (!options.dry) {
                 if (!path.isDir) {
-                    strace('Create', 'mkdir -p' + path)
+                    strace('Create', 'mkdir -p ' + path)
                     if (!path.makeDir()) {
                         throw "Cannot make directory" + path
                     }

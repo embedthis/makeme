@@ -154,7 +154,7 @@ function setupGlobals(manifest, package, prefixes) {
                         }
                     }
                     //  TODO - there should be an option in settings to require root
-                    if (App.uid != 0 && bit.installing && !bit.generating) {
+                    if (Config.OS != 'windows' && App.uid != 0 && bit.installing && !bit.generating) {
                         throw 'Must run as root. Use "sudo bit install"'
                     }
                     //  TODO remove generating here 
