@@ -2851,7 +2851,8 @@ public class Bit {
         bit.dir.bits = bit.dir.src.join('bits/standard.bit').exists ? 
             bit.dir.src.join('bits') : Config.Bin.join('bits').portable
         bit.dir.top = '.'
-        bit.dir.home = Path(App.getenv('HOME')).portable
+        let path = App.getenv('HOME') || App.getenv('HOMEPATH') || '.'
+        bit.dir.home = Path(path).portable
         bit.options ||= {}
         let cross = ((os + '-' + arch) != (Config.OS + '-' + Config.CPU))
 
