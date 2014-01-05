@@ -824,6 +824,16 @@ function packageWindows(prefixes) {
             'DestName: "' + dest.basename + '";\n')
     }
     cp.close()
+
+    let data = iss.readString()
+    if (bit.platform.arch == 'x64') {
+        sub = '{pf64}'
+    } else {
+        sub = '{pf32}'
+    }
+    data = data.replace(/{pf}/g, sub)
+    iss.write(data)
+
     let base = [s.product, s.version, s.buildNumber, bit.platform.dist, bit.platform.os, bit.platform.arch].join('-')
     let outfile = bit.dir.rel.join(base).joinExt('exe', true)
     run([bit.packs.pmaker.path, iss], {noshow: true})
