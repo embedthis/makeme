@@ -21061,14 +21061,6 @@ PUBLIC bool mprHasDualNetworkStack()
 
 #if defined(BIT_HAS_SINGLE_STACK) || VXWORKS
     dual = 0;
-#elif WINDOWS
-    {
-        OSVERSIONINFO info;
-        info.dwOSVersionInfoSize = sizeof(info);
-        GetVersionEx(&info);
-        /* Vista or later */
-        dual = info.dwMajorVersion >= 6;
-    }
 #else
     dual = MPR->socketService->hasIPv6;
 #endif
