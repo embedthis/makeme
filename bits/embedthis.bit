@@ -344,12 +344,12 @@ Bit.load({
 
         upgrade: {
             home: '${TOP}',
-            action: "run('pak -f upgrade')",
+            action: "sh('pak -f upgrade')",
         },
 
         status: {
             home: '${TOP}',
-            action: "run('git status')",
+            action: "sh('git status')",
         },
 
         testPackage: {
