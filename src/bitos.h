@@ -273,7 +273,7 @@
     #undef      _CRT_SECURE_NO_WARNINGS
     #define     _CRT_SECURE_NO_WARNINGS 1
     #ifndef     _WIN32_WINNT
-        #define _WIN32_WINNT 0x501
+        #define _WIN32_WINNT 0x601
     #endif
     /* 
         Work-around to allow the windows 7.* SDK to be used with VS 2012 
