@@ -41,8 +41,9 @@ Bit.pack({
             if (pack.winkit) {
                 bit.env.PATH = [ bin.join(bit.platform.arch) ]
                 bit.env.INCLUDE = [ path.join('Include/um').portable, path.join('Include/shared') ]
-                let winver = path.basename.replace('.0', '')
-                bit.env.LIB = [ path.join('Lib', 'win' + winver, 'um', bit.platform.arch).portable ]
+                /* Ugh - MS change the directory name yet again */
+                let winver = path.join('Lib').files()[0].basename || ('win' + path.basename.replace('.0', ''))
+                bit.env.LIB = [ path.join('Lib', winver, 'um', bit.platform.arch).portable ]
             } else {
                 if (bit.platform.arch == 'x64') {
                     bit.env.PATH = [ bin.join('x64'), bin ]

@@ -1100,7 +1100,9 @@ typedef int64 Ticks;
     #define SHUT_RDWR       2
 
     #define TIME_GENESIS UINT64(11644473600000000)
-    #define va_copy(d, s) ((d) = (s))
+    #ifndef va_copy
+        #define va_copy(d, s) ((d) = (s))
+    #endif
 
     #if !WINCE
     #define access      _access
