@@ -15825,6 +15825,7 @@ module ejs.tar {
                     App.chdir(options.chdir)
                 }
                 let data: ByteArray?
+                let links = {}
                 while ((data = archive.readBytes(BlockSize)) != null && data[0]) {
                     let header = new TarHeader(options)
                     header.parse(data)
@@ -15833,9 +15834,17 @@ module ejs.tar {
                         if (operation == Extract) {
                             Path(header.name).dirname.makeDir()
                             if (header.type == HardLink) {
-                                Path(header.linkName).link(header.name, true)
+                                if (Config.OS == 'windows') {
+                                    links[header.linkName] = header.name
+                                } else {
+                                    Path(header.linkName).link(header.name, true)
+                                }
                             } else if (header.type == SymLink) {
-                                Path(header.linkName).link(header.name)
+                                if (Config.OS == 'windows') {
+                                    links[header.linkName] = header.name
+                                } else {
+                                    Path(header.linkName).link(header.name)
+                                }
                             } else if (header.type == Directory) {
                                 Path(header.name).makeDir()
                                 archive.position += header.size
@@ -15890,6 +15899,11 @@ module ejs.tar {
                     let remainder = 512 - (header.size % 512)
                     if (remainder < 512) {
                         archive.position += remainder;
+                    }
+                }
+                if (operation == Extract) {
+                    for (let [target, path] in links) {
+                        Path(path).dirname.join(target).copy(path)
                     }
                 }
             } finally {
