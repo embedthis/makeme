@@ -56,6 +56,7 @@ typedef struct App {
     int     restartWarned;              /* Has user been notified */
     int     runAsDaemon;                /* Run as a daemon */
     int     servicePid;                 /* Process ID for the service */
+    char    *company;                   /* One word company name (lower case) */
     char    *serviceArgs;               /* Args to pass to service */
     char    *serviceHome;               /* Service home */
     char    *serviceName;               /* Basename of service program */
@@ -283,6 +284,7 @@ static void manageApp(void *ptr, int flags)
         mprMark(app->logSpec);
         mprMark(app->pidDir);
         mprMark(app->pidPath);
+        mprMark(app->company);
         mprMark(app->serviceArgs);
         mprMark(app->serviceHome);
         mprMark(app->serviceName);
@@ -294,6 +296,7 @@ static void manageApp(void *ptr, int flags)
 static void setAppDefaults()
 {
     app->appName = mprGetAppName();
+    app->company = stok(slower(BIT_COMPANY), " ", NULL);
     app->serviceProgram = sclone(SERVICE_PROGRAM);
     app->serviceName = sclone(SERVICE_NAME);
     app->serviceHome = mprGetNativePath(SERVICE_HOME);
@@ -364,7 +367,7 @@ static bool process(cchar *operation, bool quiet)
     name = app->serviceName;
     launch = upstart = update = service = 0;
 
-    if (exists("/bin/launchctl") && exists("/Library/LaunchDaemons/com.%s.%s.plist", slower(BIT_COMPANY), name)) {
+    if (exists("/bin/launchctl") && exists(sfmt("/Library/LaunchDaemons/com.%s.%s.plist", app->company, name))) {
         launch++;
 
     } else if (exists("/sbin/start") && exists("/etc/init/rc.conf") &&
@@ -426,7 +429,7 @@ static bool process(cchar *operation, bool quiet)
             Enable service (will start on reboot)
          */
         if (launch) {
-            path = sfmt("/Library/LaunchDaemons/com.%s.%s.plist", slower(BIT_COMPANY), name);
+            path = sfmt("/Library/LaunchDaemons/com.%s.%s.plist", app->company, name);
             /* 
                 Unfortunately, there is no launchctl command to do an enable without starting. So must do a stop below.
              */
@@ -456,7 +459,7 @@ static bool process(cchar *operation, bool quiet)
     } else if (smatch(operation, "disable")) {
         process("stop", 1);
         if (launch) {
-            rc = run("/bin/launchctl unload -w /Library/LaunchDaemons/com.%s.%s.plist", slower(BIT_COMPANY), name);
+            rc = run("/bin/launchctl unload -w /Library/LaunchDaemons/com.%s.%s.plist", app->company, name);
 
         } else if (update) {
             /*
@@ -476,7 +479,7 @@ static bool process(cchar *operation, bool quiet)
 
     } else if (smatch(operation, "start")) {
         if (launch) {
-            rc = run("/bin/launchctl load /Library/LaunchDaemons/com.%s.%s.plist", slower(BIT_COMPANY), name);
+            rc = run("/bin/launchctl load /Library/LaunchDaemons/com.%s.%s.plist", app->company, name);
 
         } else if (service) {
             rc = run("/sbin/service %s start", name);
@@ -495,7 +498,7 @@ static bool process(cchar *operation, bool quiet)
 
     } else if (smatch(operation, "stop")) {
         if (launch) {
-            rc = run("/bin/launchctl unload /Library/LaunchDaemons/com.%s.%s.plist", slower(BIT_COMPANY), name);
+            rc = run("/bin/launchctl unload /Library/LaunchDaemons/com.%s.%s.plist", app->company, name);
 
         } else if (service) {
             if (!run("/sbin/service %s stop", name)) {
@@ -815,6 +818,7 @@ typedef struct App {
     HWND         otherHwnd;          /* Existing instance window handle */
     int          restartCount;       /* Service restart count */
     int          restartWarned;      /* Has user been notified */
+    char         *company;           /* One word company name (lower case) */
     char         *serviceArgs;       /* Args to pass to service */
     cchar        *serviceHome;       /* Service home */
     cchar        *serviceName;       /* Service name */
@@ -1015,6 +1019,7 @@ static void manageApp(void *ptr, int flags)
     if (flags & MPR_MANAGE_MARK) {
         mprMark(app->appName);
         mprMark(app->appTitle);
+        mprMark(app->company);
         mprMark(app->serviceHome);
         mprMark(app->serviceName);
         mprMark(app->serviceProgram);
@@ -1556,8 +1561,9 @@ static int tellSCM(long state, long exitCode, long wait)
 static void setAppDefaults()
 {
     app->appName = mprGetAppName();
+    app->company = stok(slower(BIT_COMPANY), " ", NULL);
     app->serviceProgram = sjoin(mprGetAppDir(), "\\", BIT_PRODUCT, ".exe", NULL);
-    app->serviceName = sclone(BIT_COMPANY "-" BIT_PRODUCT);
+    app->serviceName = sjoin(app->company, "-", BIT_PRODUCT, NULL);
     app->serviceHome = NULL;
     app->serviceTitle = sclone(BIT_TITLE);
     app->serviceStopped = 0;

@@ -4280,7 +4280,7 @@ PUBLIC int mprPutCharToWideBuf(MprBuf *bp, int c)
 PUBLIC ssize mprPutFmtToWideBuf(MprBuf *bp, cchar *fmt, ...)
 {
     va_list     ap;
-    wchar     *wbuf;
+    wchar       *wbuf;
     char        *buf;
     ssize       len, space;
     ssize       rc;
@@ -4301,7 +4301,7 @@ PUBLIC ssize mprPutFmtToWideBuf(MprBuf *bp, cchar *fmt, ...)
 
 PUBLIC ssize mprPutStringToWideBuf(MprBuf *bp, cchar *str)
 {
-    wchar     *wstr;
+    wchar       *wstr;
     ssize       len;
 
     if (str) {
@@ -15519,6 +15519,7 @@ static char *standardMimeTypes[] = {
     "dmg",   "application/octet-stream",
     "doc",   "application/msword",
     "ejs",   "text/html",
+    "eof",   "application/vnd.ms-fontobject",
     "esp",   "text/html",
     "eps",   "application/postscript",
     "es",    "application/x-javascript",
@@ -15537,6 +15538,7 @@ static char *standardMimeTypes[] = {
     "mp3",   "audio/mpeg",
     "mpg",   "video/mpeg",
     "mpeg",  "video/mpeg",
+    "otf",   "application/x-font-opentype",
     "pdf",   "application/pdf",
     "php",   "application/x-php",
     "pl",    "application/x-perl",
@@ -15551,10 +15553,12 @@ static char *standardMimeTypes[] = {
     "rtf",   "text/rtf",
     "rv",    "video/vnd.rn-realvideo",
     "so",    "application/octet-stream",
+    "svg",   "image/svg+xml",
     "swf",   "application/x-shockwave-flash",
     "tar",   "application/x-tar",
     "tgz",   "application/x-gzip",
     "tiff",  "image/tiff",
+    "ttf",   "application/x-font-ttf",
     "txt",   "text/plain",
     "wav",   "audio/x-wav",
     "woff",  "application/font-woff",
@@ -29589,6 +29593,39 @@ static cchar *getHive(cchar *keyPath, HKEY *hive)
 }
 
 
+PUBLIC MprList *mprListRegistry(cchar *key)
+{
+    HKEY        top, h;
+    wchar       name[BIT_MAX_PATH];
+    MprList     *list;
+    int         index, size;
+
+    assert(key && *key);
+
+    /*
+        Get the registry hive
+     */
+    if ((key = getHive(key, &top)) == 0) {
+        return 0;
+    }
+    if (RegOpenKeyEx(top, wide(key), 0, KEY_READ, &h) != ERROR_SUCCESS) {
+        return 0;
+    }
+    list = mprCreateList(0, 0);
+    index = 0; 
+    while (1) {
+        size = sizeof(name) / sizeof(wchar);
+        if (RegEnumValue(h, index, name, &size, 0, NULL, NULL, NULL) != ERROR_SUCCESS) {
+            break;
+        }
+        mprAddItem(list, sclone(multi(name)));
+        index++;
+    }
+    RegCloseKey(h);
+    return list;
+}
+
+
 PUBLIC char *mprReadRegistry(cchar *key, cchar *name)
 {
     HKEY        top, h;
@@ -29629,6 +29666,7 @@ PUBLIC char *mprReadRegistry(cchar *key, cchar *name)
     value[size] = '\0';
     return value;
 }
+
 
 PUBLIC int mprWriteRegistry(cchar *key, cchar *name, cchar *value)
 {

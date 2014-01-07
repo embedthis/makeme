@@ -9225,7 +9225,6 @@ PUBLIC HttpRoute *httpCreateInheritedRoute(HttpRoute *parent)
     route->parent = parent;
     route->vars = parent->vars;
     route->map = parent->map;
-    route->mappings = parent->mappings;
     route->pattern = parent->pattern;
     route->patternCompiled = parent->patternCompiled;
     route->optimizedPattern = parent->optimizedPattern;
@@ -9268,7 +9267,6 @@ static void manageRoute(HttpRoute *route, int flags)
 {
     if (flags & MPR_MANAGE_MARK) {
         mprMark(route->map);
-        mprMark(route->mappings);
         mprMark(route->name);
         mprMark(route->pattern);
         mprMark(route->startSegment);
@@ -9297,7 +9295,6 @@ static void manageRoute(HttpRoute *route, int flags)
         mprMark(route->eroute);
         mprMark(route->vars);
         mprMark(route->map);
-        mprMark(route->mappings);
         mprMark(route->languages);
         mprMark(route->inputStages);
         mprMark(route->outputStages);
@@ -9749,7 +9746,7 @@ PUBLIC void httpMapRequest(HttpConn *conn)
     HttpRx      *rx;
     MprList     *extensions;
     MprPath     *info;
-    cchar       *ext, *filename, *mapped, *path;
+    cchar       *ext, *filename, *path;
     bool        acceptGzip, zipped;
     int         next;
 
@@ -9779,10 +9776,7 @@ PUBLIC void httpMapRequest(HttpConn *conn)
         Change the filename if using mapping. Typically used to prefer compressed or minified content.
      */
     if (route->map) {
-        if (route->mappings && (mapped = mprLookupKey(route->mappings, filename)) != 0) {
-            filename = mapped;
-            mprLog(3, "Mapping content to %s", filename);
-        } else if ((extensions = mprLookupKey(route->map, tx->ext)) != 0) {
+        if ((extensions = mprLookupKey(route->map, tx->ext)) != 0) {
             acceptGzip = scontains(rx->acceptEncoding, "gzip") != 0;
             for (ITERATE_ITEMS(extensions, ext, next)) {
                 zipped = sends(ext, "gz");
@@ -9793,18 +9787,12 @@ PUBLIC void httpMapRequest(HttpConn *conn)
                 if (mprGetPathInfo(path, info) == 0) {
                     filename = path;
                     mprLog(3, "Mapping content to %s", filename);
-                    mprAddKey(route->mappings, filename, path);
                     if (zipped) {
                         httpSetHeader(conn, "Content-Encoding", "gzip");
                     }
                     break;
                 }
             }
-            if (!ext) {
-                mprAddKey(route->mappings, filename, filename);
-            }
-        } else {
-            mprAddKey(route->mappings, filename, filename);
         }
     }
 #if DEPRECATE || 1
@@ -10037,9 +10025,6 @@ PUBLIC void httpAddRouteMapping(HttpRoute *route, cchar *extensions, cchar *mapp
     cchar       *ext, *map;
     char        *etok, *mtok;
 
-    if (!route->mappings) {
-        route->mappings = mprCreateHash(BIT_MAX_ROUTE_MAP_HASH, MPR_HASH_STABLE);
-    }
     if (!route->map) {
         route->map = mprCreateHash(BIT_MAX_ROUTE_MAP_HASH, MPR_HASH_STABLE);
     }
@@ -10289,9 +10274,6 @@ PUBLIC void httpResetRoutePipeline(HttpRoute *route)
     }
     if (!route->parent || route->map != route->parent->map) {
         route->map = 0;
-    }
-    if (!route->parent || route->mappings != route->parent->mappings) {
-        route->mappings = 0;
     }
     if (!route->parent || route->languages != route->parent->languages) {
         route->languages = 0;

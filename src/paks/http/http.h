@@ -3773,7 +3773,6 @@ typedef struct HttpRoute {
     MprList         *handlers;              /**< List of handlers for this route */
     HttpStage       *connector;             /**< Network connector to use */
     MprHash         *map;                   /**< Map of alternate extensions (gzip|minified) */
-    MprHash         *mappings;              /**< Runtime filename mappings */
     MprHash         *data;                  /**< Hash of extra data configuration */
     MprHash         *vars;                  /**< Route variables. Used to expand Path ${token} refrerences */
     MprHash         *languages;             /**< Languages supported */

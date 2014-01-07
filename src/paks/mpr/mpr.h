@@ -9854,6 +9854,15 @@ PUBLIC void mprSetSocketMessage(int message);
 
 #if (BIT_WIN_LIKE && !WINCE) || CYGWIN
 /**
+    List the subkeys for a key in the Windows registry
+    @param key Windows registry key to enumerate subkeys
+    @return List of subkey string names
+    @ingroup Mpr
+    @stability Prototype.
+  */
+PUBLIC MprList *mprListRegistry(cchar *key);
+
+/**
     Read a key from the Windows registry
     @param key Windows registry key to read
     @param name Windows registry name to read.
