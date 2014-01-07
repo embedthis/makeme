@@ -2525,6 +2525,18 @@ public class Bit {
         return cmd.response
     }
 
+    public function sh(commands, cmdOptions = {noio: true}): String {
+        let lines = commands.match(/^.*$/gm)
+        for each (cmd in lines) {
+            if (Config.OS == 'windows') {
+                response = run('cmd /c "' + cmd + '"', cmdOptions)
+            } else {
+                response = run('bash -c "' + cmd + '"', cmdOptions)
+            }
+        }
+        return response
+    }
+
     /**
         Make required output directories (carefully). Only make dirs inside the 'src' or 'top' directories.
         @hide
@@ -3616,6 +3628,10 @@ public function copy(src, dest: Path, options = {})
 /** @duplicate Bit.run */
 public function run(command, cmdOptions = {}): String
     b.run(command, cmdOptions)
+
+/** @hide */
+public function sh(commands, cmdOptions = {noio: true}): String
+    b.sh(commands, cmdOptions)
 
 /** @hide */
 public function safeRemove(dir: Path)
