@@ -883,94 +883,98 @@ $(CONFIG)/bin/bit: $(DEPS_35)
 #
 stop: $(DEPS_36)
 
+	@echo '   [Install] Complete'
 #
 #   installBinary
 #
 installBinary: $(DEPS_37)
-	mkdir -p "$(BIT_APP_PREFIX)"
-	rm -f "$(BIT_APP_PREFIX)/latest"
-	ln -s "0.9.2" "$(BIT_APP_PREFIX)/latest"
-	mkdir -p "$(BIT_VAPP_PREFIX)/bin"
-	cp $(CONFIG)/bin/bit $(BIT_VAPP_PREFIX)/bin/bit
-	mkdir -p "$(BIT_BIN_PREFIX)"
-	rm -f "$(BIT_BIN_PREFIX)/bit"
-	ln -s "$(BIT_VAPP_PREFIX)/bin/bit" "$(BIT_BIN_PREFIX)/bit"
-	cp $(CONFIG)/bin/ejs $(BIT_VAPP_PREFIX)/bin/ejs
-	cp $(CONFIG)/bin/libejs.so $(BIT_VAPP_PREFIX)/bin/libejs.so
-	cp $(CONFIG)/bin/libest.so $(BIT_VAPP_PREFIX)/bin/libest.so
-	cp $(CONFIG)/bin/libhttp.so $(BIT_VAPP_PREFIX)/bin/libhttp.so
-	cp $(CONFIG)/bin/libmpr.so $(BIT_VAPP_PREFIX)/bin/libmpr.so
-	cp $(CONFIG)/bin/libmprssl.so $(BIT_VAPP_PREFIX)/bin/libmprssl.so
-	cp $(CONFIG)/bin/libpcre.so $(BIT_VAPP_PREFIX)/bin/libpcre.so
-	cp $(CONFIG)/bin/ca.crt $(BIT_VAPP_PREFIX)/bin/ca.crt
-	cp $(CONFIG)/bin/ejs.mod $(BIT_VAPP_PREFIX)/bin/ejs.mod
-	mkdir -p "$(BIT_VAPP_PREFIX)/bin/bits"
-	mkdir -p "$(BIT_VAPP_PREFIX)/bin/bits/bits"
-	cp bits/bit.es $(BIT_VAPP_PREFIX)/bin/bits/bit.es
-	cp bits/configure.es $(BIT_VAPP_PREFIX)/bin/bits/configure.es
-	cp bits/embedthis-manifest.bit $(BIT_VAPP_PREFIX)/bin/bits/embedthis-manifest.bit
-	cp bits/embedthis.bit $(BIT_VAPP_PREFIX)/bin/bits/embedthis.bit
-	cp bits/embedthis.es $(BIT_VAPP_PREFIX)/bin/bits/embedthis.es
-	cp bits/gendoc.es $(BIT_VAPP_PREFIX)/bin/bits/gendoc.es
-	cp bits/generate.es $(BIT_VAPP_PREFIX)/bin/bits/generate.es
-	mkdir -p "$(BIT_VAPP_PREFIX)/bin/bits/os"
-	cp bits/os/freebsd.bit $(BIT_VAPP_PREFIX)/bin/bits/os/freebsd.bit
-	cp bits/os/gcc.bit $(BIT_VAPP_PREFIX)/bin/bits/os/gcc.bit
-	cp bits/os/linux.bit $(BIT_VAPP_PREFIX)/bin/bits/os/linux.bit
-	cp bits/os/macosx.bit $(BIT_VAPP_PREFIX)/bin/bits/os/macosx.bit
-	cp bits/os/solaris.bit $(BIT_VAPP_PREFIX)/bin/bits/os/solaris.bit
-	cp bits/os/unix.bit $(BIT_VAPP_PREFIX)/bin/bits/os/unix.bit
-	cp bits/os/vxworks.bit $(BIT_VAPP_PREFIX)/bin/bits/os/vxworks.bit
-	cp bits/os/windows.bit $(BIT_VAPP_PREFIX)/bin/bits/os/windows.bit
-	mkdir -p "$(BIT_VAPP_PREFIX)/bin/bits/packs"
-	cp bits/packs/appweb-embed.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/appweb-embed.bit
-	cp bits/packs/appweb.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/appweb.bit
-	cp bits/packs/compiler.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/compiler.bit
-	cp bits/packs/doxygen.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/doxygen.bit
-	cp bits/packs/dsi.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/dsi.bit
-	cp bits/packs/dumpbin.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/dumpbin.bit
-	cp bits/packs/ejs.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/ejs.bit
-	cp bits/packs/ejscript.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/ejscript.bit
-	cp bits/packs/est.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/est.bit
-	cp bits/packs/gzip.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/gzip.bit
-	cp bits/packs/htmlmin.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/htmlmin.bit
-	cp bits/packs/http.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/http.bit
-	cp bits/packs/lib.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/lib.bit
-	cp bits/packs/link.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/link.bit
-	cp bits/packs/man.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/man.bit
-	cp bits/packs/man2html.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/man2html.bit
-	cp bits/packs/matrixssl.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/matrixssl.bit
-	cp bits/packs/md5.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/md5.bit
-	cp bits/packs/nanossl.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/nanossl.bit
-	cp bits/packs/ngmin.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/ngmin.bit
-	cp bits/packs/openssl.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/openssl.bit
-	cp bits/packs/pak.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/pak.bit
-	cp bits/packs/pcre.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/pcre.bit
-	cp bits/packs/pmaker.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/pmaker.bit
-	cp bits/packs/ranlib.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/ranlib.bit
-	cp bits/packs/rc.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/rc.bit
-	cp bits/packs/recess.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/recess.bit
-	cp bits/packs/sqlite.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/sqlite.bit
-	cp bits/packs/ssl.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/ssl.bit
-	cp bits/packs/strip.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/strip.bit
-	cp bits/packs/tidy.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/tidy.bit
-	cp bits/packs/uglifyjs.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/uglifyjs.bit
-	cp bits/packs/utest.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/utest.bit
-	cp bits/packs/vxworks.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/vxworks.bit
-	cp bits/packs/winsdk.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/winsdk.bit
-	cp bits/packs/zip.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/zip.bit
-	cp bits/packs/zlib.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/zlib.bit
-	cp bits/sample-main.bit $(BIT_VAPP_PREFIX)/bin/bits/sample-main.bit
-	cp bits/sample-start.bit $(BIT_VAPP_PREFIX)/bin/bits/sample-start.bit
-	cp bits/simple.bit $(BIT_VAPP_PREFIX)/bin/bits/simple.bit
-	cp bits/standard.bit $(BIT_VAPP_PREFIX)/bin/bits/standard.bit
-	cp bits/vstudio.es $(BIT_VAPP_PREFIX)/bin/bits/vstudio.es
-	cp bits/xcode.es $(BIT_VAPP_PREFIX)/bin/bits/xcode.es
-	mkdir -p "$(BIT_VAPP_PREFIX)/doc/man/man1"
-	cp doc/man/bit.1 $(BIT_VAPP_PREFIX)/doc/man/man1/bit.1
-	mkdir -p "$(BIT_MAN_PREFIX)/man1"
-	rm -f "$(BIT_MAN_PREFIX)/man1/bit.1"
-	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/bit.1" "$(BIT_MAN_PREFIX)/man1/bit.1"
+	( \
+	cd .; \
+	mkdir -p "$(BIT_APP_PREFIX)" ; \
+	rm -f "$(BIT_APP_PREFIX)/latest" ; \
+	ln -s "0.9.2" "$(BIT_APP_PREFIX)/latest" ; \
+	mkdir -p "$(BIT_VAPP_PREFIX)/bin" ; \
+	cp $(CONFIG)/bin/bit $(BIT_VAPP_PREFIX)/bin/bit ; \
+	mkdir -p "$(BIT_BIN_PREFIX)" ; \
+	rm -f "$(BIT_BIN_PREFIX)/bit" ; \
+	ln -s "$(BIT_VAPP_PREFIX)/bin/bit" "$(BIT_BIN_PREFIX)/bit" ; \
+	cp $(CONFIG)/bin/ejs $(BIT_VAPP_PREFIX)/bin/ejs ; \
+	cp $(CONFIG)/bin/libejs.so $(BIT_VAPP_PREFIX)/bin/libejs.so ; \
+	cp $(CONFIG)/bin/libest.so $(BIT_VAPP_PREFIX)/bin/libest.so ; \
+	cp $(CONFIG)/bin/libhttp.so $(BIT_VAPP_PREFIX)/bin/libhttp.so ; \
+	cp $(CONFIG)/bin/libmpr.so $(BIT_VAPP_PREFIX)/bin/libmpr.so ; \
+	cp $(CONFIG)/bin/libmprssl.so $(BIT_VAPP_PREFIX)/bin/libmprssl.so ; \
+	cp $(CONFIG)/bin/libpcre.so $(BIT_VAPP_PREFIX)/bin/libpcre.so ; \
+	cp $(CONFIG)/bin/ca.crt $(BIT_VAPP_PREFIX)/bin/ca.crt ; \
+	cp $(CONFIG)/bin/ejs.mod $(BIT_VAPP_PREFIX)/bin/ejs.mod ; \
+	mkdir -p "$(BIT_VAPP_PREFIX)/bin/bits" ; \
+	mkdir -p "$(BIT_VAPP_PREFIX)/bin/bits/bits" ; \
+	cp bits/bit.es $(BIT_VAPP_PREFIX)/bin/bits/bit.es ; \
+	cp bits/configure.es $(BIT_VAPP_PREFIX)/bin/bits/configure.es ; \
+	cp bits/embedthis-manifest.bit $(BIT_VAPP_PREFIX)/bin/bits/embedthis-manifest.bit ; \
+	cp bits/embedthis.bit $(BIT_VAPP_PREFIX)/bin/bits/embedthis.bit ; \
+	cp bits/embedthis.es $(BIT_VAPP_PREFIX)/bin/bits/embedthis.es ; \
+	cp bits/gendoc.es $(BIT_VAPP_PREFIX)/bin/bits/gendoc.es ; \
+	cp bits/generate.es $(BIT_VAPP_PREFIX)/bin/bits/generate.es ; \
+	mkdir -p "$(BIT_VAPP_PREFIX)/bin/bits/os" ; \
+	cp bits/os/freebsd.bit $(BIT_VAPP_PREFIX)/bin/bits/os/freebsd.bit ; \
+	cp bits/os/gcc.bit $(BIT_VAPP_PREFIX)/bin/bits/os/gcc.bit ; \
+	cp bits/os/linux.bit $(BIT_VAPP_PREFIX)/bin/bits/os/linux.bit ; \
+	cp bits/os/macosx.bit $(BIT_VAPP_PREFIX)/bin/bits/os/macosx.bit ; \
+	cp bits/os/solaris.bit $(BIT_VAPP_PREFIX)/bin/bits/os/solaris.bit ; \
+	cp bits/os/unix.bit $(BIT_VAPP_PREFIX)/bin/bits/os/unix.bit ; \
+	cp bits/os/vxworks.bit $(BIT_VAPP_PREFIX)/bin/bits/os/vxworks.bit ; \
+	cp bits/os/windows.bit $(BIT_VAPP_PREFIX)/bin/bits/os/windows.bit ; \
+	mkdir -p "$(BIT_VAPP_PREFIX)/bin/bits/packs" ; \
+	cp bits/packs/appweb-embed.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/appweb-embed.bit ; \
+	cp bits/packs/appweb.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/appweb.bit ; \
+	cp bits/packs/compiler.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/compiler.bit ; \
+	cp bits/packs/doxygen.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/doxygen.bit ; \
+	cp bits/packs/dsi.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/dsi.bit ; \
+	cp bits/packs/dumpbin.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/dumpbin.bit ; \
+	cp bits/packs/ejs.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/ejs.bit ; \
+	cp bits/packs/ejscript.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/ejscript.bit ; \
+	cp bits/packs/est.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/est.bit ; \
+	cp bits/packs/gzip.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/gzip.bit ; \
+	cp bits/packs/htmlmin.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/htmlmin.bit ; \
+	cp bits/packs/http.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/http.bit ; \
+	cp bits/packs/lib.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/lib.bit ; \
+	cp bits/packs/link.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/link.bit ; \
+	cp bits/packs/man.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/man.bit ; \
+	cp bits/packs/man2html.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/man2html.bit ; \
+	cp bits/packs/matrixssl.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/matrixssl.bit ; \
+	cp bits/packs/md5.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/md5.bit ; \
+	cp bits/packs/nanossl.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/nanossl.bit ; \
+	cp bits/packs/ngmin.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/ngmin.bit ; \
+	cp bits/packs/openssl.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/openssl.bit ; \
+	cp bits/packs/pak.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/pak.bit ; \
+	cp bits/packs/pcre.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/pcre.bit ; \
+	cp bits/packs/pmaker.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/pmaker.bit ; \
+	cp bits/packs/ranlib.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/ranlib.bit ; \
+	cp bits/packs/rc.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/rc.bit ; \
+	cp bits/packs/recess.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/recess.bit ; \
+	cp bits/packs/sqlite.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/sqlite.bit ; \
+	cp bits/packs/ssl.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/ssl.bit ; \
+	cp bits/packs/strip.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/strip.bit ; \
+	cp bits/packs/tidy.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/tidy.bit ; \
+	cp bits/packs/uglifyjs.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/uglifyjs.bit ; \
+	cp bits/packs/utest.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/utest.bit ; \
+	cp bits/packs/vxworks.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/vxworks.bit ; \
+	cp bits/packs/winsdk.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/winsdk.bit ; \
+	cp bits/packs/zip.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/zip.bit ; \
+	cp bits/packs/zlib.bit $(BIT_VAPP_PREFIX)/bin/bits/packs/zlib.bit ; \
+	cp bits/sample-main.bit $(BIT_VAPP_PREFIX)/bin/bits/sample-main.bit ; \
+	cp bits/sample-start.bit $(BIT_VAPP_PREFIX)/bin/bits/sample-start.bit ; \
+	cp bits/simple.bit $(BIT_VAPP_PREFIX)/bin/bits/simple.bit ; \
+	cp bits/standard.bit $(BIT_VAPP_PREFIX)/bin/bits/standard.bit ; \
+	cp bits/vstudio.es $(BIT_VAPP_PREFIX)/bin/bits/vstudio.es ; \
+	cp bits/xcode.es $(BIT_VAPP_PREFIX)/bin/bits/xcode.es ; \
+	mkdir -p "$(BIT_VAPP_PREFIX)/doc/man/man1" ; \
+	cp doc/man/bit.1 $(BIT_VAPP_PREFIX)/doc/man/man1/bit.1 ; \
+	mkdir -p "$(BIT_MAN_PREFIX)/man1" ; \
+	rm -f "$(BIT_MAN_PREFIX)/man1/bit.1" ; \
+	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/bit.1" "$(BIT_MAN_PREFIX)/man1/bit.1" ; \
+	)
 
 #
 #   start
@@ -992,7 +996,10 @@ install: $(DEPS_39)
 DEPS_40 += stop
 
 uninstall: $(DEPS_40)
-	rm -fr "$(BIT_VAPP_PREFIX)"
-	rm -f "$(BIT_APP_PREFIX)/latest"
-	rmdir -p "$(BIT_APP_PREFIX)" 2>/dev/null ; true
+	( \
+	cd .; \
+	rm -fr "$(BIT_VAPP_PREFIX)" ; \
+	rm -f "$(BIT_APP_PREFIX)/latest" ; \
+	rmdir -p "$(BIT_APP_PREFIX)" 2>/dev/null ; true ; \
+	)
 

@@ -3042,13 +3042,6 @@
     </member>
     <member kind="function">
       <type>void</type>
-      <name>httpSetHostIpAddr</name>
-      <anchorfile>group___http_host.html</anchorfile>
-      <anchor>ga9c33731fd3222d8eed376feeb3b115ad</anchor>
-      <arglist>(HttpHost *host, cchar *ip, int port)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
       <name>httpSetHostName</name>
       <anchorfile>group___http_host.html</anchorfile>
       <anchor>ga446cc7ba87875c92e544e035a404f33f</anchor>

@@ -923,6 +923,8 @@ module embedthis.bit {
                 } else {
                     cmd = capture.join('\n\t')
                 }
+            } else {
+                prefix = suffix = ''
             }
         } else {
             let sh = (bit.generating == 'make' | bit.generating == 'sh' || bit.generating == 'xcode') ? target['generate-sh'] : null
@@ -964,7 +966,6 @@ module embedthis.bit {
             generateDir(target)
             if (cmd) {
                 cmd = cmd.trim().replace(/^\s*/mg, '\t')
-                // cmd = cmd.replace(/\\\n\s*/mg, '')
                 /*
                     cmd = cmd.replace(/^\t*(ifeq|ifneq|else|endif)/mg, '$1')
                     if (prefix || suffix) {
@@ -993,8 +994,10 @@ module embedthis.bit {
                 genWrite(target.name + ':' + getDepsVar() + '\n')
             }
             generateDir(target)
+            if (cmd && cmd.match(/^[ \t]*$/)) {
+               cmd = null
+            }
             if (cmd) {
-                // cmd = cmd.replace(/\\\n/mg, '')
                 cmd = cmd.trim().replace(/^cp /, 'copy ')
                 cmd = prefix + cmd + suffix
                 cmd = cmd.replace(/^[ \t]*/mg, '')

@@ -1039,7 +1039,7 @@ function skip(name, msg) {
 
 
 function fixlibs() {
-    throw new Error("UNUSED fixlibs not supported")
+    throw new Error("fixlibs not supported")
     let ldconfigSwitch = (bit.platform.os == 'freebsd') ? '-m' : '-n'
     let ldconfig = Cmd.locate('ldconfig')
     if (ldconfig) {

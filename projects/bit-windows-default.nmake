@@ -933,10 +933,12 @@ $(CONFIG)\bin\bit.exe: $(DEPS_37)
 stop: $(DEPS_38)
 #  Omit build script stop
 
+	@echo '   [Install] Complete'
 #
 #   installBinary
 #
 installBinary: $(DEPS_39)
+	cd .
 	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
 	copy /Y $(CONFIG)\bin\bit.exe "$(BIT_VAPP_PREFIX)\bin\bit.exe"
 	copy /Y $(CONFIG)\bin\ejs.exe "$(BIT_VAPP_PREFIX)\bin\ejs.exe"
@@ -1010,6 +1012,7 @@ installBinary: $(DEPS_39)
 	copy /Y bits\standard.bit "$(BIT_VAPP_PREFIX)\bin\bits\standard.bit"
 	copy /Y bits\vstudio.es "$(BIT_VAPP_PREFIX)\bin\bits\vstudio.es"
 	copy /Y bits\xcode.es "$(BIT_VAPP_PREFIX)\bin\bits\xcode.es"
+	cd .
 
 #
 #   start
@@ -1025,7 +1028,7 @@ DEPS_41 = $(DEPS_41) installBinary
 DEPS_41 = $(DEPS_41) start
 
 install: $(DEPS_41)
-
+#  Omit build script install
 
 #
 #   uninstall
@@ -1033,9 +1036,11 @@ install: $(DEPS_41)
 DEPS_42 = $(DEPS_42) stop
 
 uninstall: $(DEPS_42)
+	cd .
 	if exist "$(BIT_VAPP_PREFIX)" rd /Q /S "$(BIT_VAPP_PREFIX)"
 	if exist "$(BIT_VAPP_PREFIX)\bin" rd /Q "$(BIT_VAPP_PREFIX)\bin"
 	if exist "$(BIT_VAPP_PREFIX)\man" rd /Q "$(BIT_VAPP_PREFIX)\man"
 	if exist "$(BIT_VAPP_PREFIX)\latest" del /Q "$(BIT_VAPP_PREFIX)\latest"
 	if exist "$(BIT_VAPP_PREFIX)" rd /Q "$(BIT_VAPP_PREFIX)"
+	cd .
 
