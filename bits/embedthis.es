@@ -93,7 +93,7 @@ public function deploy(manifest, prefixes, package): Array {
                     if (bit.platform.os == 'windows') {
                         gencmd('!IF "$(BIT_PACK_' + r.toUpper() + ')" == "1"')
                     } else {
-                        gencmd('if [ "$(BIT_PACK_' + r.toUpper() + ')" = 1 ]; then ')
+                        gencmd('if [ "$(BIT_PACK_' + r.toUpper() + ')" = 1 ]; then true')
                     }
                 }
             }
@@ -374,6 +374,7 @@ public function installBinary() {
         if (!bit.generating) {
             trace('Complete', bit.settings.title + ' installed')
         }
+        gtrace('Install', 'Complete')
     }
     delete bit.installing
 }

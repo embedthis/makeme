@@ -908,7 +908,7 @@ module embedthis.bit {
                 prefix = suffix = ''
             }
             let rhome = target.home.relative
-            if (rhome == '.' || rhome.startsWith('..')) {
+            if (/* UNUSED rhome == '.' || */ rhome.startsWith('..')) {
                 /* Don't change directory out of source tree. Necessary for actions in standard.bit */
                 prefix = suffix = ''
             }
