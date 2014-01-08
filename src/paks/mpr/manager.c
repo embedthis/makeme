@@ -367,17 +367,32 @@ static bool process(cchar *operation, bool quiet)
     name = app->serviceName;
     launch = upstart = update = service = 0;
 
-    if (exists("/bin/launchctl") && exists(sfmt("/Library/LaunchDaemons/com.%s.%s.plist", app->company, name))) {
+    if (exists("/bin/launchctl")) {
+        path = sfmt("/Library/LaunchDaemons/com.%s.%s.plist", app->company, name);
+        if (!exists(path)) {
+            mprError("Cannot locate launch script at: %s", path);
+            return 0;
+        }
         launch++;
 
     } else if (exists("/sbin/start") && exists("/etc/init/rc.conf") &&
             (exists("/etc/init/%s.conf", name) || exists("/etc/init/%s.off", name))) {
         upstart++;
 
-    } else if (exists("/usr/sbin/update-rc.d") && exists("/etc/init.d/%s", name)) {
+    } else if (exists("/usr/sbin/update-rc.d")) {
+        path = sfmt("/etc/init.d/%s", name);
+        if (!exists(path)) {
+            mprError("Cannot locate init script at: %s", path);
+            return 0;
+        }
         update++;
 
-    } else if (exists("/sbin/service") && exists("/etc/init.d/%s", name)) {
+    } else if (exists("/sbin/service")) {
+        path = sfmt("/etc/init.d/%s", name);
+        if (!exists(path)) {
+            mprError("Cannot locate init script at: %s", path);
+            return 0;
+        }
         service++;
 
     } else {

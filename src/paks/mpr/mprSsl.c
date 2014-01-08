@@ -1717,7 +1717,7 @@ static int configureCertificateFiles(MprSsl *ssl, SSL_CTX *ctx, char *key, char 
         if (SSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_PEM) <= 0) {
             /* attempt ASN1 for self-signed format */
             if (SSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_ASN1) <= 0) {
-                mprError("OpenSSL: Cannot define private key file: %s", key); 
+                mprError("OpenSSL: Cannot open private key file: %s", key); 
                 return -1;
             }
         }
