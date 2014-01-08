@@ -6491,8 +6491,7 @@ PUBLIC void httpStopEndpoint(HttpEndpoint *endpoint);
     Host Object
     @description A Host object represents a logical host. Several logical hosts may share a single HttpEndpoint.
     @defgroup HttpHost HttpHost
-    @see HttpHost httpAddRoute httpCloneHost httpCreateHost httpResetRoutes httpSetHostHome httpSetHostIpAddr 
-        httpSetHostName httpSetHostProtocol
+    @see HttpHost httpAddRoute httpCloneHost httpCreateHost httpResetRoutes httpSetHostHome httpSetHostName httpSetHostProtocol
     @stability Internal
 */
 typedef struct HttpHost {
@@ -6502,8 +6501,6 @@ typedef struct HttpHost {
         and will not be used for matching.
      */
     char            *name;                  /**< Host name */
-    char            *ip;                    /**< Hostname/ip portion parsed from name */
-    int             port;                   /**< Port address portion parsed from name */
     struct HttpHost *parent;                /**< Parent host to inherit aliases, dirs, routes */
     MprCache        *responseCache;         /**< Response content caching store */
     MprList         *routes;                /**< List of Route defintions */
@@ -6664,18 +6661,6 @@ PUBLIC void httpSetHostSecureEndpoint(HttpHost *host, HttpEndpoint *endpoint);
     @stability Stable
  */
 PUBLIC void httpSetHostRoot(HttpHost *host, cchar *root);
-
-/**
-    Set the host internet address
-    @description Set the host IP and port address.
-    @param host HttpHost object
-    @param ip Internet address. This can be an IP address or a symbolic domain and host name.
-    @param port Port number 
-    @return "Zero" if the route can be added.
-    @ingroup HttpHost
-    @stability Stable
- */
-PUBLIC void httpSetHostIpAddr(HttpHost *host, cchar *ip, int port);
 
 /**
     Set the host name

@@ -250,7 +250,7 @@ PUBLIC bool httpLogin(HttpConn *conn, cchar *username, cchar *password)
         }
     }
     if (!verifyUser) {
-        mprError("No user verification routine defined");
+        mprError("No user verification routine defined on route %s", rx->route->name);
         return 0;
     }
     if (auth->username && *auth->username) {
@@ -3680,7 +3680,7 @@ PUBLIC HttpEndpoint *httpCreateConfiguredEndpoint(cchar *home, cchar *documents,
         return 0;
     }
     httpSetHostDefaultRoute(host, route);
-    httpSetHostIpAddr(host, ip, port);
+    httpSetHostName(host, sfmt("%s:%d", ip, port));
     httpAddHostToEndpoint(endpoint, host);
     httpSetRouteDocuments(route, documents);
     httpFinalizeRoute(route);
@@ -4389,7 +4389,6 @@ static void manageHost(HttpHost *host, int flags)
 {
     if (flags & MPR_MANAGE_MARK) {
         mprMark(host->name);
-        mprMark(host->ip);
         mprMark(host->parent);
         mprMark(host->responseCache);
         mprMark(host->routes);
@@ -4519,35 +4518,6 @@ PUBLIC void httpLogRoutes(HttpHost *host, bool full)
         printRoute(host->defaultRoute, next - 1, full);
     }
     mprRawLog(0, "\n");
-}
-
-
-/*
-    IP may be null in which case the host is listening on all interfaces. Port may be set to -1 and ip may contain a port
-    specifier, ie. "address:port".
- */
-PUBLIC void httpSetHostIpAddr(HttpHost *host, cchar *ip, int port)
-{
-    char    *pip;
-
-    if (port < 0 && schr(ip, ':')) {
-        mprParseSocketAddress(ip, &pip, &port, NULL, -1);
-        ip = pip;
-    }
-    host->ip = sclone(ip);
-    host->port = port;
-    if (!host->name) {
-        if (ip) {
-            if (port > 0) {
-                host->name = sfmt("%s:%d", ip, port);
-            } else {
-                host->name = sclone(ip);
-            }
-        } else {
-            assert(port > 0);
-            host->name = sfmt("*:%d", port);
-        }
-    }
 }
 
 
@@ -11786,7 +11756,6 @@ static void defineHostVars(HttpRoute *route)
     mprAddKey(route->vars, "DOCUMENTS", route->documents);
     mprAddKey(route->vars, "HOME", route->home);
     mprAddKey(route->vars, "SERVER_NAME", route->host->name);
-    mprAddKey(route->vars, "SERVER_PORT", itos(route->host->port));
 
 #if DEPRECATE || 1
     mprAddKey(route->vars, "ROUTE_HOME", route->home);
@@ -18227,10 +18196,12 @@ PUBLIC void httpCreateCGIParams(HttpConn *conn)
     mprAddKeyFmt(svars, "SERVER_PORT", "%d", sock->acceptPort);
     mprAddKey(svars, "SERVER_PROTOCOL", conn->protocol);
     mprAddKey(svars, "SERVER_SOFTWARE", conn->http->software);
+
     /*
         For PHP, REQUEST_URI must be the original URI. The SCRIPT_NAME will refer to the new pathInfo
      */
     mprAddKey(svars, "REQUEST_URI", rx->originalUri);
+
     /*
         URIs are broken into the following: http://{SERVER_NAME}:{SERVER_PORT}{SCRIPT_NAME}{PATH_INFO} 
         NOTE: Appweb refers to pathInfo as the app relative URI and scriptName as the app address before the pathInfo.
