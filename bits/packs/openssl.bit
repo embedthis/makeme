@@ -35,6 +35,7 @@ Bit.pack({
             }
             search += ['/usr/lib', '/lib' ]
             search += Path('/usr/lib').files('*-linux-gnu') + Path('/lib').files('*-linux-gnu')
+            let lib
 
             if (bit.platform.os == 'windows') {
                 search = [path.join('out32dll')]
@@ -46,14 +47,14 @@ Bit.pack({
                 pack.includes = [ probe('openssl/ssl.h', {search: [path.join('inc32')]}).absolute ]
 
             } else {
-                let lib = probe('libcrypto.' + bit.ext.shobj, {fullpath: true, search: search, nopath: true}).absolute
+                lib = probe('libcrypto.' + bit.ext.shobj, {fullpath: true, search: search, nopath: true}).absolute
                 pack.libraries = [ 'ssl', 'crypto' ]
                 pack.libpaths = [ lib.parent ]
                 pack.imports = lib.parent.files('libssl*.' + bit.ext.shobj + '*') + 
                                lib.parent.files('libcrypto*.' + bit.ext.shobj + '*')
                 pack.includes = [ probe('openssl/ssl.h', {search: [ path.join('include'), '/usr/include']}).absolute ]
             }
-            return path
+            return lib.dirname
         },
         conflicts: [ 'est', 'matrixssl', 'nanossl' ],
         packs: [ 'ssl' ],
