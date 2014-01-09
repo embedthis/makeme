@@ -883,7 +883,6 @@ $(CONFIG)/bin/bit: $(DEPS_35)
 #
 stop: $(DEPS_36)
 
-	@echo '   [Install] Complete'
 #
 #   installBinary
 #

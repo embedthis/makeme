@@ -933,7 +933,6 @@ $(CONFIG)\bin\bit.exe: $(DEPS_37)
 stop: $(DEPS_38)
 #  Omit build script stop
 
-	@echo '   [Install] Complete'
 #
 #   installBinary
 #
