@@ -374,9 +374,6 @@ public function installBinary() {
         if (!bit.generating) {
             trace('Complete', bit.settings.title + ' installed')
         }
-        if (bit.generating) {
-            gtrace('Install', 'Complete')
-        }
     }
     delete bit.installing
 }
