@@ -197,6 +197,8 @@ PUBLIC bool httpLoggedIn(HttpConn *conn)
     Get the username and password credentials. If using an in-protocol auth scheme like basic|digest, the
     rx->authDetails will contain the credentials and the parseAuth callback will be invoked to parse.
     Otherwise, it is expected that "username" and "password" fields are present in the request parameters.
+
+    This is called by authCondition which thereafter calls httpLogin
  */
 PUBLIC bool httpGetCredentials(HttpConn *conn, cchar **username, cchar **password)
 {
@@ -209,7 +211,7 @@ PUBLIC bool httpGetCredentials(HttpConn *conn, cchar **username, cchar **passwor
     auth = conn->rx->route->auth;
     if (auth->type) {
         if (conn->authType && !smatch(conn->authType, auth->type->name)) {
-            httpError(conn, HTTP_CODE_BAD_REQUEST, "Access denied. Wrong authentication protocol type.");
+            /* Do not call httpError so that a 401 response will be sent with WWW-Authenticate header */
             return 0;
         }
         if (auth->type->parseAuth && (auth->type->parseAuth)(conn, username, password) < 0) {
@@ -1833,7 +1835,7 @@ static void outgoingChunkService(HttpQueue *q)
                 tx->chunkSize = min(conn->limits->chunkSize, q->max);
             }
         }
-        if (tx->flags & HTTP_TX_USE_OWN_HEADERS) {
+        if (tx->flags & HTTP_TX_USE_OWN_HEADERS || conn->http10) {
             tx->chunkSize = -1;
         }
     }
@@ -2683,6 +2685,10 @@ PUBLIC HttpConn *httpAcceptConn(HttpEndpoint *endpoint, MprEvent *event)
  */
 PUBLIC void httpEvent(HttpConn *conn, MprEvent *event)
 {
+    if (!conn->http) {
+        /* Connection has been destroyed */
+        return;
+    }
     assert(conn->sock);
     mprTrace(6, "httpEvent for fd %d, mask %d", conn->sock->fd, event->mask);
     conn->lastActivity = conn->http->now;
@@ -2730,6 +2736,7 @@ static void readEvent(HttpConn *conn)
             break;
         }
         mprYield(0);
+        conn->lastActivity = conn->http->now;
     } while (conn->endpoint && prepForNext(conn));
 }
 
@@ -3432,10 +3439,10 @@ PUBLIC void httpDigestLogin(HttpConn *conn)
     if (smatch(auth->qop, "none")) {
         httpSetHeader(conn, "WWW-Authenticate", "Digest realm=\"%s\", nonce=\"%s\"", auth->realm, nonce);
     } else {
-        /* Value of null defaults to "auth" */
+        /* qop value of null defaults to "auth" */
         httpSetHeader(conn, "WWW-Authenticate", "Digest realm=\"%s\", domain=\"%s\", "
             "qop=\"auth\", nonce=\"%s\", opaque=\"%s\", algorithm=\"MD5\", stale=\"FALSE\"", 
-            auth->realm, conn->host->name, nonce, opaque);
+            auth->realm, "/", nonce, opaque);
     }
     httpSetContentType(conn, "text/plain");
     httpError(conn, HTTP_CODE_UNAUTHORIZED, "Access Denied. Login required");
@@ -7506,7 +7513,7 @@ static void readyPass(HttpQueue *q)
 static void readyError(HttpQueue *q)
 {
     if (!q->conn->error) {
-        httpError(q->conn, HTTP_CODE_SERVICE_UNAVAILABLE, "The requested resource is not available");
+        httpError(q->conn, HTTP_CODE_NOT_FOUND, "The requested resource is not available");
     }
     httpFinalize(q->conn);
 }
@@ -11230,16 +11237,29 @@ static int authCondition(HttpConn *conn, HttpRoute *route, HttpRouteOp *op)
     if (!httpLoggedIn(conn)) {
         httpGetCredentials(conn, &username, &password);
         if (!httpLogin(conn, username, password)) {
-            if (!conn->tx->finalized && route->auth && route->auth->type) {
-                (route->auth->type->askLogin)(conn);
+            if (!conn->tx->finalized) {
+                if (route->auth && route->auth->type) {
+                    (route->auth->type->askLogin)(conn);
+                } else {
+                    httpError(conn, HTTP_CODE_UNAUTHORIZED, "Access Denied. Login required");
+                }
+                /* Request has been denied and a response generated. So OK to accept this route. */
             }
-            /* Request has been denied and a response generated. So OK to accept this route. */
             return HTTP_ROUTE_OK;
         }
     }
     if (!httpCanUser(conn, NULL)) {
-        httpError(conn, HTTP_CODE_FORBIDDEN, "Access denied. User is not authorized for access.");
+        mprLog(2, "Access denied. User is not authorized for access.");
+        if (!conn->tx->finalized) {
+            if (route->auth && route->auth->type) {
+                (route->auth->type->askLogin)(conn);
+                /* Request has been denied and a response generated. So OK to accept this route. */
+            } else {
+                httpError(conn, HTTP_CODE_UNAUTHORIZED, "Access denied. User is not authorized for access.");
+            }
+        }
     }
+    /* OK to accept route. This does not mean the request was authenticated - an error may have been already generated */
     return HTTP_ROUTE_OK;
 }
 
@@ -13208,7 +13228,7 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
 
         case 't':
             if (strcasecmp(key, "transfer-encoding") == 0) {
-                if (scaselesscmp(value, "chunked") == 0) {
+                if (scaselesscmp(value, "chunked") == 0 && !conn->http10) {
                     /*
                         remainingContent will be revised by the chunk filter as chunks are processed and will 
                         be set to zero when the last chunk has been received.
@@ -16292,9 +16312,10 @@ static void setHeaders(HttpConn *conn, HttpPacket *packet)
 
     } else if (conn->endpoint) {
         /* Server must not emit a content length header for 1XX, 204 and 304 status */
-        if (!((100 <= tx->status && tx->status <= 199) || tx->status == 204 || 
-                tx->status == 304 || tx->flags & HTTP_TX_NO_LENGTH)) {
-            httpAddHeader(conn, "Content-Length", "%Ld", length);
+        if (!((100 <= tx->status && tx->status <= 199) || tx->status == 204 || tx->status == 304 || tx->flags & HTTP_TX_NO_LENGTH)) {
+            if (length >= 0) {
+                httpAddHeader(conn, "Content-Length", "%Ld", length);
+            }
         }
 
     } else if (tx->length > 0) {

@@ -3164,7 +3164,7 @@ PUBLIC void mprNop(void *ptr) {
 #if MPR_EVENT_ASYNC
 /***************************** Forward Declarations ***************************/
 
-static LRESULT msgProc(HWND hwnd, UINT msg, UINT wp, LPARAM lp);
+static LRESULT CALLBACK msgProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
 
 /************************************ Code ************************************/
 
@@ -3360,6 +3360,7 @@ PUBLIC int mprInitWindow()
     hwnd = CreateWindow(name, title, WS_OVERLAPPED, CW_USEDEFAULT, 0, 0, 0, NULL, NULL, 0, NULL);
     if (!hwnd) {
         mprError("Cannot create window");
+        UnregisterClass(name, 0);
         return -1;
     }
     ws->hwnd = hwnd;
@@ -3371,7 +3372,7 @@ PUBLIC int mprInitWindow()
 /*
     Windows message processing loop for wakeup and socket messages
  */
-static LRESULT msgProc(HWND hwnd, UINT msg, UINT wp, LPARAM lp)
+static LRESULT CALLBACK msgProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
     MprWaitService      *ws;
     int                 sock, winMask;
@@ -3382,7 +3383,7 @@ static LRESULT msgProc(HWND hwnd, UINT msg, UINT wp, LPARAM lp)
         mprTerminate(MPR_EXIT_DEFAULT, -1);
 
     } else if (msg && msg == ws->socketMessage) {
-        sock = wp;
+        sock = (int) wp;
         winMask = LOWORD(lp);
         mprServiceWinIO(MPR->waitService, sock, winMask);
 
@@ -6793,7 +6794,7 @@ PUBLIC int mprWaitForCond(MprCond *cp, MprTicks timeout)
             }
         }
 #endif
-    } while (!cp->triggered && rc == 0 && (now && (now = mprGetTicks()) < expire));
+    } while (!cp->triggered && rc == 0 && (!now || (now = mprGetTicks()) < expire));
 
     if (cp->triggered) {
         cp->triggered = 0;
@@ -9665,8 +9666,6 @@ static uchar charMatch[256] = {
     Max size of the port specification in a URL
  */
 #define MAX_PORT_LEN 8
-
-#define MIME_HASH_SIZE 67
 
 /************************************ Code ************************************/
 /*
@@ -15567,6 +15566,8 @@ static char *standardMimeTypes[] = {
     0,       0,
 };
 
+#define MIME_HASH_SIZE 67
+
 /********************************** Forward ***********************************/
 
 static void addStandardMimeTypes(MprHash *table);
@@ -15586,7 +15587,7 @@ PUBLIC MprHash *mprCreateMimeTypes(cchar *path)
         if ((file = mprOpenFile(path, O_RDONLY | O_TEXT, 0)) == 0) {
             return 0;
         }
-        if ((table = mprCreateHash(47, 0)) == 0) {
+        if ((table = mprCreateHash(MIME_HASH_SIZE, MPR_HASH_CASELESS)) == 0) {
             mprCloseFile(file);
             return 0;
         }
@@ -15612,7 +15613,7 @@ PUBLIC MprHash *mprCreateMimeTypes(cchar *path)
     } else 
 #endif
     {
-        if ((table = mprCreateHash(59, 0)) == 0) {
+        if ((table = mprCreateHash(MIME_HASH_SIZE, MPR_HASH_CASELESS)) == 0) {
             return 0;
         }
         addStandardMimeTypes(table);
@@ -26246,12 +26247,10 @@ PUBLIC MprTicks mprGetTicks()
     if ((diff = (result - lastTicks)) < 0) {
         /*
             Handle time reversals. Don't handle jumps forward. Sorry.
+            Note: this is not time day, so it should not matter.
          */
-        result = mprGetTime() + adjustTicks;
-        if ((diff = (result - lastTicks)) < 0) {
-            adjustTicks += diff;
-            result -= diff;
-        }
+        adjustTicks -= diff;
+        result -= diff;
     }
     lastTicks = result;
     mprSpinUnlock(&ticksSpin);
@@ -27953,7 +27952,15 @@ static void manageWaitService(MprWaitService *ws, int flags)
         mprMark(ws->spin);
     }
 #if MPR_EVENT_ASYNC
-    /* Nothing to manage */
+    if (flags & MPR_MANAGE_FREE) {
+        wchar *name = (wchar*) wide(mprGetAppName());
+        /* Clean up the Win32 registered class and window. */
+        if (ws->hwnd) {
+            DestroyWindow(ws->hwnd);
+            UnregisterClass(name, 0);
+            ws->hwnd = NULL;
+        }
+    }
 #endif
 #if MPR_EVENT_KQUEUE
     mprManageKqueue(ws, flags);
@@ -29413,7 +29420,7 @@ PUBLIC int mprLoadNativeModule(MprModule *mp)
         mp->modified = info.mtime;
         baseName = mprGetPathBase(mp->path);
         mprLog(2, "Loading native module %s", baseName);
-        if ((handle = GetModuleHandle(wide(baseName))) == 0 && (handle = LoadLibrary(wide(mp->path))) == 0) {
+        if ((handle = LoadLibrary(wide(mp->path))) == 0) {
             mprError("Cannot load module %s\nReason: \"%d\"\n", mp->path, mprGetOsError());
             return MPR_ERR_CANT_READ;
         } 

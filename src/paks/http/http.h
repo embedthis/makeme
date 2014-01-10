@@ -1847,7 +1847,8 @@ PUBLIC ssize httpWrite(HttpQueue *q, cchar *fmt, ...);
         In blocking mode (HTTP_BLOCK), it block for up to the inactivity timeout specified in the
         conn->limits->inactivityTimeout value.  In non-blocking mode (HTTP_NON_BLOCK), the call may return having written
         fewer bytes than requested. In buffering mode (HTTP_BUFFER), the data is always absorbed without blocking 
-        and queue size limits are ignored.
+        and queue size limits are ignored. When using HTTP_BLOCK, this function may yield to the garbage collector. 
+        Callers should treat HTTP_BLOCK calls as equivalent to a call to #mprYield when using temporary allocations.
         Data written after #httpFinalize, #httpFinalizeOutput or #httpError is called will be ignored.
     @param q Queue reference
     @param buf Buffer containing the write data
