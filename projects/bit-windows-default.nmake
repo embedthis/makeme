@@ -3,7 +3,7 @@
 #
 
 PRODUCT            = bit
-VERSION            = 0.9.2
+VERSION            = 0.9.3
 BUILD_NUMBER       = 0
 PROFILE            = default
 PA                 = $(PROCESSOR_ARCHITECTURE)
@@ -122,6 +122,7 @@ TARGETS            = $(TARGETS) $(CONFIG)\bin\ejs.mod
 !ENDIF
 TARGETS            = $(TARGETS) $(CONFIG)\bin\removeFiles.exe
 TARGETS            = $(TARGETS) $(CONFIG)\bin\bit.exe
+TARGETS            = $(TARGETS) bower.json
 
 !IFNDEF SHOW
 .SILENT:
@@ -191,6 +192,7 @@ clean:
 	if exist "$(CONFIG)\bin\removeFiles.lib" del /Q "$(CONFIG)\bin\removeFiles.lib"
 	if exist "$(CONFIG)\bin\removeFiles.pdb" del /Q "$(CONFIG)\bin\removeFiles.pdb"
 	if exist "$(CONFIG)\bin\removeFiles.exp" del /Q "$(CONFIG)\bin\removeFiles.exp"
+	if exist "bower.json" del /Q "bower.json"
 	if exist "$(CONFIG)\obj\estLib.obj" del /Q "$(CONFIG)\obj\estLib.obj"
 	if exist "$(CONFIG)\obj\mprLib.obj" del /Q "$(CONFIG)\obj\mprLib.obj"
 	if exist "$(CONFIG)\obj\mprSsl.obj" del /Q "$(CONFIG)\obj\mprSsl.obj"
@@ -211,7 +213,7 @@ clean:
 #
 version: $(DEPS_1)
 	cd bits
-	echo 0.9.2-0
+	echo 0.9.3-0
 	cd ..
 
 #
@@ -928,15 +930,25 @@ $(CONFIG)\bin\bit.exe: $(DEPS_37)
 	"$(LD)" -out:$(CONFIG)\bin\bit.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) "$(CONFIG)\obj\bit.obj" $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) 
 
 #
+#   bower.json
+#
+DEPS_38 = $(DEPS_38) package.json
+
+bower.json: $(DEPS_38)
+	@echo '      [Copy] bower.json'
+	if not exist "." md "."
+	copy /Y package.json bower.json
+
+#
 #   stop
 #
-stop: $(DEPS_38)
+stop: $(DEPS_39)
 #  Omit build script stop
 
 #
 #   installBinary
 #
-installBinary: $(DEPS_39)
+installBinary: $(DEPS_40)
 	cd .
 	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
 	copy /Y $(CONFIG)\bin\bit.exe "$(BIT_VAPP_PREFIX)\bin\bit.exe"
@@ -1016,25 +1028,25 @@ installBinary: $(DEPS_39)
 #
 #   start
 #
-start: $(DEPS_40)
+start: $(DEPS_41)
 #  Omit build script start
 
 #
 #   install
 #
-DEPS_41 = $(DEPS_41) stop
-DEPS_41 = $(DEPS_41) installBinary
-DEPS_41 = $(DEPS_41) start
+DEPS_42 = $(DEPS_42) stop
+DEPS_42 = $(DEPS_42) installBinary
+DEPS_42 = $(DEPS_42) start
 
-install: $(DEPS_41)
+install: $(DEPS_42)
 #  Omit build script install
 
 #
 #   uninstall
 #
-DEPS_42 = $(DEPS_42) stop
+DEPS_43 = $(DEPS_43) stop
 
-uninstall: $(DEPS_42)
+uninstall: $(DEPS_43)
 	cd .
 	if exist "$(BIT_VAPP_PREFIX)" rd /Q /S "$(BIT_VAPP_PREFIX)"
 	if exist "$(BIT_VAPP_PREFIX)\bin" rd /Q "$(BIT_VAPP_PREFIX)\bin"

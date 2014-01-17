@@ -265,6 +265,10 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
                 warnLevel = atoi(argv[++nextArg]);
             }
 
+        } else if (*argp == '-' && isdigit((uchar) argp[1])) {
+            mprStartLogging(sfmt("stderr:%s", &argp[1]), 0);
+            mprSetCmdlineLogging(1);
+
         } else {
             err++;
             break;
@@ -313,7 +317,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
     if (ejsLoadModules(ejs, searchPath, app->modules) < 0) {
         return MPR_ERR_CANT_READ;
     }
-    mprRequestGC(MPR_GC_FORCE | MPR_GC_COMPLETE);
+    mprGC(MPR_GC_FORCE);
     ecFlags = 0;
     ecFlags |= (merge) ? EC_FLAGS_MERGE: 0;
     ecFlags |= (bind) ? EC_FLAGS_BIND: 0;

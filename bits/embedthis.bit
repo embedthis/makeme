@@ -344,7 +344,7 @@ Bit.load({
 
         upgrade: {
             home: '${TOP}',
-            action: "sh('pak -f upgrade')",
+            action: "sh('pak -f upgrade ; bit build')",
         },
 
         status: {

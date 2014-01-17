@@ -76,7 +76,7 @@ static int  readPid();
 static bool process(cchar *operation, bool quiet);
 static void runService();
 static void setAppDefaults();
-static void terminating(int how, int status);
+static void terminating(int state, int how, int status);
 static int  writePid(int pid);
 
 /*********************************** Code *************************************/
@@ -315,7 +315,7 @@ static void setAppDefaults()
 }
 
 
-static void terminating(int how, int status)
+static void terminating(int state, int how, int status)
 {
     cleanup();
 }
@@ -869,7 +869,7 @@ static int      startDispatcher(LPSERVICE_MAIN_FUNCTION svcMain);
 static bool     startService();
 static bool     stopService(int cmd);
 static int      tellSCM(long state, long exitCode, long wait);
-static void     terminating(int how, int status);
+static void     terminating(int state, int how, int status);
 static void     updateStatus(int status, int exitCode);
 static void     writeToOsLog(cchar *message);
 
@@ -1618,7 +1618,7 @@ static void logHandler(int flags, int level, cchar *msg)
 }
 
 
-static void terminating(int how, int status)
+static void terminating(int state, int how, int status)
 {
 }
 

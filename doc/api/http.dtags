@@ -515,8 +515,8 @@
       <type>bool</type>
       <name>httpFlushQueue</name>
       <anchorfile>group___http_queue.html</anchorfile>
-      <anchor>ga668818c8040ad8157f0141b32b844897</anchor>
-      <arglist>(HttpQueue *q, bool block)</arglist>
+      <anchor>gac9d6922973cb9cbb0debd5c20e14577b</anchor>
+      <arglist>(HttpQueue *q, int flags)</arglist>
     </member>
     <member kind="function">
       <type>HttpPacket *</type>
@@ -573,6 +573,13 @@
       <anchorfile>group___http_queue.html</anchorfile>
       <anchor>ga476c8e99e1c02292781748edd59190dc</anchor>
       <arglist>(HttpQueue *q, ssize size)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>httpNextQueueFull</name>
+      <anchorfile>group___http_queue.html</anchorfile>
+      <anchor>gaeb9658e2e0085ea352ececc4e1883926</anchor>
+      <arglist>(HttpQueue *q)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -926,10 +933,17 @@
       <arglist>(HttpConn *conn, int status, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
-      <type>void</type>
-      <name>httpCloseConn</name>
+      <type>bool</type>
+      <name>httpClientConn</name>
       <anchorfile>group___http_conn.html</anchorfile>
-      <anchor>ga6072cd1886d95bf7d4c7e5953ca1d14f</anchor>
+      <anchor>ga8da7dd9e98833791be54b04a128c900e</anchor>
+      <arglist>(HttpConn *conn)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpClosePipeline</name>
+      <anchorfile>group___http_conn.html</anchorfile>
+      <anchor>ga326793150ad17d7420cf64f6081b14a3</anchor>
       <arglist>(HttpConn *conn)</arglist>
     </member>
     <member kind="function">
@@ -976,13 +990,6 @@
     </member>
     <member kind="function">
       <type>void</type>
-      <name>httpDestroyPipeline</name>
-      <anchorfile>group___http_conn.html</anchorfile>
-      <anchor>gaee426d7d2aaad28a62b4d8bb0c909a37</anchor>
-      <arglist>(HttpConn *conn)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
       <name>httpDiscardData</name>
       <anchorfile>group___http_conn.html</anchorfile>
       <anchor>ga95daeb1c8a91b734ed2027592c41f17f</anchor>
@@ -1015,20 +1022,6 @@
       <anchorfile>group___http_conn.html</anchorfile>
       <anchor>ga9f730354501b53a97b7678a91273a3be</anchor>
       <arglist>(HttpConn *conn, int status, cchar *fmt,...)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>httpEvent</name>
-      <anchorfile>group___http_conn.html</anchorfile>
-      <anchor>ga11f9e50765d2cc174c40aa50d378eeaf</anchor>
-      <arglist>(struct HttpConn *conn, MprEvent *event)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>httpFinalizeConnector</name>
-      <anchorfile>group___http_conn.html</anchorfile>
-      <anchor>gacfcd2c95c8988e79c314d0b336857e90</anchor>
-      <arglist>(HttpConn *conn)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -1088,6 +1081,13 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>httpIOEvent</name>
+      <anchorfile>group___http_conn.html</anchorfile>
+      <anchor>ga0eb39378bf2194ee24c9b82347067ddd</anchor>
+      <arglist>(struct HttpConn *conn, MprEvent *event)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>httpLimitError</name>
       <anchorfile>group___http_conn.html</anchorfile>
       <anchor>gaa37d7ebd9209d464a579300bfdeea00f</anchor>
@@ -1122,11 +1122,25 @@
       <arglist>(HttpConn *conn, bool keepHeaders)</arglist>
     </member>
     <member kind="function">
+      <type>bool</type>
+      <name>httpQueuesNeedService</name>
+      <anchorfile>group___http_conn.html</anchorfile>
+      <anchor>ga0f23b0bbbf907b0023a18d0d81dc501f</anchor>
+      <arglist>(HttpConn *conn)</arglist>
+    </member>
+    <member kind="function">
       <type>void</type>
       <name>httpReadyHandler</name>
       <anchorfile>group___http_conn.html</anchorfile>
       <anchor>ga2f25ecba7e7d54268b2a34541c2f247d</anchor>
       <arglist>(HttpConn *conn)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>httpRequestExpired</name>
+      <anchorfile>group___http_conn.html</anchorfile>
+      <anchor>ga4881adef12511e373fbf5c74756bfe1a</anchor>
+      <arglist>(HttpConn *conn, MprTicks timeout)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -1144,10 +1158,17 @@
     </member>
     <member kind="function">
       <type>bool</type>
+      <name>httpServerConn</name>
+      <anchorfile>group___http_conn.html</anchorfile>
+      <anchor>ga504fab8d5e964b174bb06868ede0ef0a</anchor>
+      <arglist>(HttpConn *conn)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
       <name>httpServiceQueues</name>
       <anchorfile>group___http_conn.html</anchorfile>
-      <anchor>ga167b27caf19d14a614670451fd3ef921</anchor>
-      <arglist>(HttpConn *conn)</arglist>
+      <anchor>ga07845aed4c6439339b1c43a817e0ad15</anchor>
+      <arglist>(HttpConn *conn, int flags)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -1318,6 +1339,13 @@
       <arglist>(HttpConn *conn)</arglist>
     </member>
     <member kind="function">
+      <type>Socket</type>
+      <name>httpStealSocketHandle</name>
+      <anchorfile>group___http_conn.html</anchorfile>
+      <anchor>ga2dabae1fcd13e8f482399d43133f4a69</anchor>
+      <arglist>(HttpConn *conn)</arglist>
+    </member>
+    <member kind="function">
       <type>bool</type>
       <name>httpVerifyWebSocketsHandshake</name>
       <anchorfile>group___http_conn.html</anchorfile>
@@ -1338,6 +1366,7 @@
     <filename>group___http_auth.html</filename>
     <class kind="struct">HttpAuthStore</class>
     <class kind="struct">HttpAuthType</class>
+    <class kind="struct">HttpDigest</class>
     <class kind="struct">HttpRole</class>
     <class kind="struct">HttpUser</class>
     <member kind="typedef">
@@ -1936,14 +1965,7 @@
       <type>void</type>
       <name>httpMapFile</name>
       <anchorfile>group___http_route.html</anchorfile>
-      <anchor>ga1f3d590785e56f3aff1bb5fca3df23c9</anchor>
-      <arglist>(HttpConn *conn, cchar *filename)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>httpMapRequest</name>
-      <anchorfile>group___http_route.html</anchorfile>
-      <anchor>gaaa74b0726593434020169a7ac20fae15</anchor>
+      <anchor>gac84aebec89adc28156f0704a7600b846</anchor>
       <arglist>(HttpConn *conn)</arglist>
     </member>
     <member kind="function">
@@ -2522,11 +2544,11 @@
       <arglist>(HttpConn *conn, cchar *var, cchar *expected)</arglist>
     </member>
     <member kind="function">
-      <type>bool</type>
-      <name>httpPumpRequest</name>
+      <type>void</type>
+      <name>httpProtocol</name>
       <anchorfile>group___http_rx.html</anchorfile>
-      <anchor>gabec750f9be88c9321ffe026fdabf7b90</anchor>
-      <arglist>(HttpConn *conn, HttpPacket *packet)</arglist>
+      <anchor>ga219ac3d9746f7b542b15def1a9109b50</anchor>
+      <arglist>(HttpConn *conn)</arglist>
     </member>
     <member kind="function">
       <type>ssize</type>
@@ -2548,6 +2570,13 @@
       <anchorfile>group___http_rx.html</anchorfile>
       <anchor>ga4b5d6b30818a07708ceec899032254b2</anchor>
       <arglist>(HttpConn *conn, cchar *var)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpSetEof</name>
+      <anchorfile>group___http_rx.html</anchorfile>
+      <anchor>gaab7c8b2c7b00b2c6170b93b3bcfe7805</anchor>
+      <arglist>(HttpConn *conn)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -2650,6 +2679,13 @@
       <name>httpFinalize</name>
       <anchorfile>group___http_tx.html</anchorfile>
       <anchor>ga279ad49e5163402e2afd6caf478bcc70</anchor>
+      <arglist>(HttpConn *conn)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpFinalizeConnector</name>
+      <anchorfile>group___http_tx.html</anchorfile>
+      <anchor>gacfcd2c95c8988e79c314d0b336857e90</anchor>
       <arglist>(HttpConn *conn)</arglist>
     </member>
     <member kind="function">
@@ -2784,6 +2820,13 @@
       <anchorfile>group___http_tx.html</anchorfile>
       <anchor>gaed30459991e9ceb3e3406d88f909eedd</anchor>
       <arglist>(HttpConn *conn, MprOff len)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpSetFilename</name>
+      <anchorfile>group___http_tx.html</anchorfile>
+      <anchor>ga52fbb3cefd07b37a2c2c2f1160713d2d</anchor>
+      <arglist>(HttpConn *conn, cchar *filename)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -3324,6 +3367,10 @@
       <anchor>a18af712cd1496522d3ae59be6cdb728b</anchor>
       <arglist></arglist>
     </member>
+  </compound>
+  <compound kind="struct">
+    <name>HttpDigest</name>
+    <filename>struct_http_digest.html</filename>
   </compound>
   <compound kind="struct">
     <name>HttpLang</name>

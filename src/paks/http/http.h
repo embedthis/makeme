@@ -1547,17 +1547,19 @@ PUBLIC void httpEnableQueue(HttpQueue *q);
 
 /**
     Flush queue data
-    @description This initiates writing buffered queue data (flushes) by scheduling the queue and servicing all
-    scheduled queues.  If blocking is requested, the call will block until the queue count falls below the queue
-    maximum.
-    WARNING: Be very careful when using blocking == true. Should only be used by end applications and not by middleware.
+    @description This initiates writing buffered data (flushes) by scheduling the queue and servicing the queues. 
+    If blocking mode is selected, all queues will be immediately serviced and the call may block while output drains. 
+    If non-blocking, the queues will be serviced but the call will not block nor yield.
+    This call may yield when called in blocking mode.
+    WARNING: Be careful when using blocking == true. Should typically only be used by end applications or client side code 
+        and not by handlers or filters.
     @param q Queue to flush
-    @param block If set to "true", this call will block until the data has drained below the queue maximum.
+    @param flags If set to HTTP_BLOCK, this call will block until the data has drained through the network connector.
     @return "True" if there is room for more data in the queue after flushing.
     @ingroup HttpQueue
     @stability Stable
  */
-PUBLIC bool httpFlushQueue(HttpQueue *q, bool block);
+PUBLIC bool httpFlushQueue(HttpQueue *q, int flags);
 
 /** 
     Get the room in the queue
@@ -1794,6 +1796,16 @@ PUBLIC bool httpVerifyQueue(HttpQueue *q);
  */
 PUBLIC bool httpWillNextQueueAcceptPacket(HttpQueue *q, HttpPacket *packet);
 
+/**
+    Test if the next queue is full
+    @description Tests if the next queue count is over the queue maximum
+    @param q Queue reference
+    @return "True" if the next q->count > q->max
+    @ingroup HttpQueue
+    @stability Prototype
+ */
+PUBLIC bool httpNextQueueFull(HttpQueue *q);
+
 /** 
     Determine if the given queue will accept this packet.
     @description Test if the queue will accept a packet. The packet will be resized, if split is true, in an
@@ -1833,9 +1845,9 @@ PUBLIC bool httpWillNextQueueAcceptSize(HttpQueue *q, ssize size);
  */
 PUBLIC ssize httpWrite(HttpQueue *q, cchar *fmt, ...);
 
-#define HTTP_BUFFER     0x1    /**< Flag for httpSendBlock and httpWriteBlock to always absorb the data without blocking */
-#define HTTP_BLOCK      0x2    /**< Flag for httpSendBlock and httpWriteBlock to indicate blocking operation */
-#define HTTP_NON_BLOCK  0x4    /**< Flag for httpSendBlock and httpWriteBlock to indicate non-blocking operation */
+#define HTTP_NON_BLOCK  0x1    /**< Flag for httpSendBlock and httpWriteBlock to indicate non-blocking operation */
+#define HTTP_BUFFER     0x2    /**< Flag for httpSendBlock and httpWriteBlock to always absorb the data without blocking */
+#define HTTP_BLOCK      0x4    /**< Flag for httpSendBlock and httpWriteBlock to indicate blocking operation */
 
 /** 
     Write a block of data to the queue
@@ -2352,7 +2364,7 @@ typedef void (*HttpIOCallback)(struct HttpConn *conn, MprEvent *event);
 /**
     Define an I/O callback for connections
     @description The I/O callback is invoked when I/O events are detected on the connection. The default I/O callback
-        is #httpEvent.
+        is #httpIOEvent.
     @param conn HttpConn object created via #httpCreateConn
     @param fn Callback function to invoke
     @ingroup HttpConn
@@ -2367,11 +2379,11 @@ PUBLIC void httpSetIOCallback(struct HttpConn *conn, HttpIOCallback fn);
         HTTP/1.1 keep-alive.
     @defgroup HttpConn HttpConn
     @see HttpConn HttpEnvCallback HttpGetPassword HttpListenCallback HttpNotifier HttpQueue HttpRedirectCallback 
-        HttpRx HttpStage HttpTx HtttpListenCallback httpCallEvent httpCloseConn httpFinalizeConnector httpConnTimeout
-        httpCreateConn httpCreateRxPipeline httpCreateTxPipeline httpDestroyConn httpDestroyPipeline httpDiscardData
-        httpDisconnect httpEnableUpload httpError httpEvent httpGetAsync httpGetChunkSize httpGetConnContext httpGetConnHost
+        HttpRx HttpStage HttpTx HtttpListenCallback httpCallEvent httpFinalizeConnector httpConnTimeout
+        httpCreateConn httpCreateRxPipeline httpCreateTxPipeline httpDestroyConn httpClosePipeline httpDiscardData
+        httpDisconnect httpEnableUpload httpError httpIOEvent httpGetAsync httpGetChunkSize httpGetConnContext httpGetConnHost
         httpGetError httpGetExt httpGetKeepAliveCount httpGetWriteQueueCount httpMatchHost httpMemoryError
-        httpAfterEvent httpPrepClientConn httpResetCredentials httpRouteRequest httpRunHandlerReady httpServiceQueues
+        httpAfterEvent httpPrepClientConn httpResetCredentials httpRouteRequest httpRunHandlerReady httpService
         httpSetAsync httpSetChunkSize httpSetConnContext httpSetConnHost httpSetConnNotifier httpSetCredentials
         httpSetKeepAliveCount httpSetProtocol httpSetRetries httpSetSendConnector httpSetState httpSetTimeout
         httpSetTimestamp httpShouldTrace httpStartPipeline
@@ -2383,7 +2395,6 @@ typedef struct HttpConn {
     int             state;                  /**< Connection state */
     int             error;                  /**< A request error has occurred */
     int             connError;              /**< A connection error has occurred */
-    int             pumping;                /**< Rre-entrancy prevention for httpPumpRequest() */
     int             activeRequest;          /**< Actively servicing a request */
 
     struct HttpRx   *rx;                    /**< Rx object */
@@ -2406,7 +2417,7 @@ typedef struct HttpConn {
     struct HttpHost *host;                  /**< Host object (if relevant) */
 
     HttpPacket      *input;                 /**< Header packet */
-    ssize           newData;                /**< Length of new data last read into the input packet */
+    ssize           lastRead;               /**< Length of new data last read into the input packet */
     HttpQueue       *connectorq;            /**< Connector write queue */
     MprTicks        started;                /**< When the request started (ticks) */
     MprTicks        lastActivity;           /**< Last activity on the connection */
@@ -2441,6 +2452,7 @@ typedef struct HttpConn {
     int             retries;                /**< Client request retries */
     int             secure;                 /**< Using https */
     int             seqno;                  /**< Unique connection sequence number */
+    int             timeout;                /**< Connection timeout indication */
     int             upgraded;               /**< Request protocol upgraded */
     int             worker;                 /**< Use worker */
 
@@ -2461,27 +2473,21 @@ typedef struct HttpConn {
     HttpIOCallback  ioCallback;             /**< I/O event callback */
     HttpHeadersCallback headersCallback;    /**< Callback to fill headers */
     void            *headersCallbackArg;    /**< Arg to fillHeaders */
-
     uint64          startMark;              /**< High resolution tick time of request */
 } HttpConn;
 
-
-/** 
-    Close a connection
-    @param conn HttpConn object created via #httpCreateConn
-    @ingroup HttpConn
-    @stability Stable
- */
-PUBLIC void httpCloseConn(HttpConn *conn);
-
 /**
-    Finalize connector output sending the response.
+    Destroy the request pipeline. 
+    @description This is called at the conclusion of a request.
     @param conn HttpConn object created via #httpCreateConn
     @ingroup HttpConn
     @stability Internal
-    @internal
- */ 
-PUBLIC void httpFinalizeConnector(HttpConn *conn);
+ */
+PUBLIC void httpClosePipeline(HttpConn *conn);
+
+#define HTTP_REQUEST_TIMEOUT        1
+#define HTTP_INACTIVITY_TIMEOUT     2
+#define HTTP_PARSE_TIMEOUT          3
 
 /**
     Signal a connection timeout on a connection
@@ -2535,15 +2541,6 @@ PUBLIC void httpCreateTxPipeline(HttpConn *conn, struct HttpRoute *route);
 PUBLIC void httpDestroyConn(HttpConn *conn);
 
 /**
-    Destroy the request pipeline. 
-    @description This is called at the conclusion of a request.
-    @param conn HttpConn object created via #httpCreateConn
-    @ingroup HttpConn
-    @stability Internal
- */
-PUBLIC void httpDestroyPipeline(HttpConn *conn);
-
-/**
     Discard buffered transmit pipeline data
     @param conn HttpConn object created via #httpCreateConn
     @param dir Queue direction. Either HTTP_QUEUE_TX or HTTP_QUEUE_RX.
@@ -2568,7 +2565,7 @@ PUBLIC void httpDisconnect(HttpConn *conn);
     @description Connection events are automatically disabled upon receipt of an I/O event on a connection. This 
         permits a connection to process the I/O without fear of interruption by another I/O event. At the completion
         of processing of the I/O request, the connection should be re-enabled via httpEnableConnEvents. This call is
-        made for requests in #httpEvent.
+        made for requests in #httpIOEvent.
     @param conn HttpConn connection object created via #httpCreateConn
     @ingroup HttpConn
     @stability Internal
@@ -2624,14 +2621,16 @@ PUBLIC void httpLimitError(HttpConn *conn, int status, cchar *fmt, ...);
 PUBLIC void httpBadRequestError(HttpConn *conn, int status, cchar *fmt, ...);
 
 /**
-    Http I/O event handler. Invoke when there is an I/O event on the connection. This is normally invoked automatically
-    when I/O events are received, but can be called manually after external events.
+    Respond to a HTTP IO event
+    @description This routine responds to an I/O event described by the supplied event. Event may be null.
+    If any readable data is present, it allocates a standard sized packet and reads data into this and then invokes
+    the #httpProtocol engine.
     @param conn HttpConn object created via #httpCreateConn
     @param event Event structure
     @ingroup HttpConn
-    @stability Stable
+    @stability Prototype
  */
-PUBLIC void httpEvent(struct HttpConn *conn, MprEvent *event);
+PUBLIC void httpIOEvent(struct HttpConn *conn, MprEvent *event);
 
 /**
     Get the async mode value for the connection
@@ -2711,6 +2710,29 @@ PUBLIC int httpGetKeepAliveCount(HttpConn *conn);
  */
 PUBLIC ssize httpGetWriteQueueCount(HttpConn *conn);
 
+#if DOXYGEN
+/**
+    Test if the connection is a server-side connection
+    @param conn HttpConn connection object created via #httpCreateConn
+    @return true if the connection is client-side
+    @ingroup HttpConn
+    @stability Prototype
+  */
+PUBLIC bool httpServerConn(HttpConn *conn);
+
+/**
+    Test if the connection is a client-side connection
+    @param conn HttpConn connection object created via #httpCreateConn
+    @return true if the connection is client-side
+    @ingroup HttpConn
+    @stability Prototype
+  */
+PUBLIC bool httpClientConn(HttpConn *conn);
+#else
+#define httpServerConn(conn) (conn && conn->endpoint)
+#define httpClientConn(conn) (conn && !conn->endpoint)
+#endif
+
 /**
     Match the HttpHost object that should serve this request
     @description This sets the conn->host field to the appropriate host. If no suitable host can be found, #httpError
@@ -2773,6 +2795,17 @@ PUBLIC void httpPrepClientConn(HttpConn *conn, bool keepHeaders);
  */
 PUBLIC void httpReadyHandler(HttpConn *conn);
 
+/**
+    Test if a request has exceeded its timeout limits
+    @description This tests the request against the HttpLimits.requestTimeout and HttpLimits.inactivityTimeout limits.
+    It uses the HttpConn.started and HttpConn.lastActivity time markers.
+    @param conn HttpConn object created via #httpCreateConn
+    @param timeout Overriding, smaller duration timeout that must also be satisfied.
+    @ingroup HttpConn
+    @stability Prototype
+ */
+PUBLIC bool httpRequestExpired(HttpConn *conn, MprTicks timeout);
+
 /** 
     Reset the current security credentials
     @description Remove any existing security credentials.
@@ -2792,11 +2825,24 @@ PUBLIC void httpRouteRequest(HttpConn *conn);
 
 /**
     Service pipeline queues to flow data.
+    @description This routine should not be called by handlers, filters or user applications. It should only be called
+        by the http pipeline and support routines.
     @param conn HttpConn object created via #httpCreateConn
+    @param flags Set to HTTP_BLOCK to yield for GC if due
+    @return True if work was done servicing queues.
     @ingroup HttpConn
-    @stability Stable
+    @stability Internal
  */
-PUBLIC bool httpServiceQueues(HttpConn *conn);
+PUBLIC bool httpServiceQueues(HttpConn *conn, int flags);
+
+/**
+    Test if the connection queues need service
+    @param conn HttpConn object created via #httpCreateConn
+    @return True if there are queues that require servicing
+    @ingroup HttpConn
+    @stability Prototype
+  */
+PUBLIC bool httpQueuesNeedService(HttpConn *conn);
 
 /**
     Set the async mode value for the connection
@@ -3007,16 +3053,31 @@ PUBLIC void httpStartPipeline(HttpConn *conn);
 PUBLIC void httpCreatePipeline(HttpConn *conn);
 
 /**
-    Steal a connection from Appweb
-    @description Steal a connection from Appweb and assume total responsibility for the connection.
-    This removes the connection from active management by Appweb. After calling, request and inactivity
-    timeouts will not be enforced. It is the callers responsibility to call mprCloseSocket.
+    Steal a socket from a connection 
+    @description Steal the MprSocket object from a connection to the caller can assume total responsibility for the socket.
+    After calling, the normal Appweb request and inactivity timeouts will not apply to the returned socket.
+    It is the callers responsibility to call mprCloseSocket when ready.
     @param conn HttpConn object created via #httpCreateConn
-    @return The connection socket object.
+    @return The socket object previously associated with the connection
     @ingroup HttpConn
     @stability Evolving
  */
 PUBLIC MprSocket *httpStealConn(HttpConn *conn);
+
+#if DEPRECATED || 1
+#define httpStealConn httpStealSocket
+#endif
+
+/**
+    Steal the O/S socket handle from the connection 
+    @description This removes the O/S socket handle from active management by the connection. After calling, request and inactivity
+    timeouts will not apply to the returned socket handle. It is the callers responsibility to call close() when ready.
+    @param conn HttpConn object created via #httpCreateConn
+    @return The O/S Socket handle.
+    @ingroup HttpConn
+    @stability Prototype
+ */
+PUBLIC Socket httpStealSocketHandle(HttpConn *conn);
 
 /**
     Verify the server handshake
@@ -3111,6 +3172,26 @@ typedef struct HttpAuthStore {
     char            *name;                  /**< Authentication password store name: 'system', 'file' */
     HttpVerifyUser  verifyUser;             /**< Default user verification routine */
 } HttpAuthStore;
+
+/**
+    Per-request digest authorization data
+    @see HttpAuth
+    @ingroup HttpAuth
+    @stability Evolving
+ */
+typedef struct HttpDigest 
+{
+    char    *algorithm;
+    char    *cnonce;
+    char    *domain;
+    char    *nc;
+    char    *nonce;
+    char    *opaque;
+    char    *qop;
+    char    *realm;
+    char    *stale;
+    char    *uri;
+} HttpDigest;
 
 /** 
     User Authorization. A user has a name, password and a set of roles. These roles define a set of abilities.
@@ -4425,24 +4506,14 @@ PUBLIC cchar *httpLookupRouteErrorDocument(HttpRoute *route, int status);
 PUBLIC char *httpMakePath(HttpRoute *route, cchar *dir, cchar *path);
 
 /**
-    Map the given filename.
-    @description This sets the HttpTx filename, ext, etag and info fields.
-    @param conn HttpConn connection object 
-    @param filename Tx filename to define.
-    @ingroup HttpRoute
-    @stability Evolving
- */
-PUBLIC void httpMapFile(HttpConn *conn, cchar *filename);
-
-/**
-    Map the request to a physical filename
-    Computes the filename from the request URI and route and calls httpMapFile.
+    Map the request URI to a filename in physical storage
+    Computes the filename from the request URI and route and calls httpMapFilename.
     @description This sets the HttpTx filename, ext, etag and info fields.
     @param conn HttpConn connection object 
     @ingroup HttpRoute
     @stability Evolving
  */
-PUBLIC void httpMapRequest(HttpConn *conn);
+PUBLIC void httpMapFile(HttpConn *conn);
 
 /**
     Remove HTTP methods for the route
@@ -5644,6 +5715,16 @@ PUBLIC char *httpReadString(HttpConn *conn);
 PUBLIC void httpRemoveParam(HttpConn *conn, cchar *var);
 
 /**
+    Set the HttpRx eof condition
+    @description This routine should be called rather than setting HttpRx.eof manually. This is because it will advance
+        the HttpConn state to HTTP_STATE_FINALIZED if the request and connector have been finalized.
+    @param conn HttpConn connection object
+    @ingroup HttpRx
+    @stability Prototype
+  */
+PUBLIC void httpSetEof(HttpConn *conn);
+
+/**
     Set a request param value
     @description Set the value of a named request param to a string value. Form variables are define via 
         www-urlencoded query or post data contained in the request.
@@ -5718,14 +5799,12 @@ PUBLIC int httpTestParam(HttpConn *conn, cchar *var);
 PUBLIC void httpTrimExtraPath(HttpConn *conn);
 
 /**
-    Pump the Http engine for a request
+    HTTP protocol state machine for server-side requests and client-side responses.
     @param conn HttpConn connection object
-    @param packet Optional packet of input data. Set to NULL if calling from user handlers.
-    @return True if the request is completed successfully.
     @ingroup HttpRx
     @stability Internal
  */
-PUBLIC bool httpPumpRequest(HttpConn *conn, HttpPacket *packet);
+PUBLIC void httpProtocol(HttpConn *conn);
 
 /* Internal */
 PUBLIC void httpCloseRx(struct HttpConn *conn);
@@ -5863,18 +5942,6 @@ PUBLIC void httpAppendHeader(HttpConn *conn, cchar *key, cchar *fmt, ...);
 PUBLIC void httpAppendHeaderString(HttpConn *conn, cchar *key, cchar *value);
 
 /** 
-    Indicate the request is finalized.
-    @description Calling this routine indicates that the handler has fully finished processing the request including
-        generating a full response and any other required processing. This call will invoke #httpFinalizeOutput and 
-        then set the request finalized flag. If the request is already finalized, this call does nothing. 
-        A handler MUST call httpFinalize when it has completed processing a request.
-    @param conn HttpConn connection object
-    @ingroup HttpTx
-    @stability Stable
- */
-PUBLIC void httpFinalize(HttpConn *conn);
-
-/** 
     Connect to a server and issue Http client request.
     @description Start a new Http request on the http object and return. This routine does not block.
         After starting the request, you can use #httpWait to wait for the request to achieve a certain state or to complete.
@@ -5908,13 +5975,43 @@ PUBLIC HttpTx *httpCreateTx(HttpConn *conn, MprHash *headers);
 PUBLIC void httpDestroyTx(HttpTx *tx);
 
 /** 
+    Indicate the request is finalized.
+    @description Calling this routine indicates that the handler has fully finished processing the request including
+        processing all input, generating a full response and any other required processing. This call will invoke 
+        #httpFinalizeOutput and then set the request finalized flag. If the request is already finalized, this call does nothing. 
+        A handler MUST call httpFinalize when it has completed processing a request.
+        As background: there are three finalize concepts: HttpTx.finalizedConnector means the connector has sent all the output
+        to the network. HttpTx.finalizedOutput means the handler has generated all the response output but it may not yet be fully
+        transmited through the pipeline and to the network by the connector. HttpTx.finalized means the application has fully 
+        processed the request including reading all the input data it wishes to read and has generated all the output that will
+        be generated. A fully finalized request has both HttpTx.finalized and HttpTx.finalizedConnector true.
+    @param conn HttpConn connection object
+    @ingroup HttpTx
+    @stability Stable
+ */
+PUBLIC void httpFinalize(HttpConn *conn);
+
+/**
+    Finalize connector output sending the response.
+    @description This should only be called by a connector.
+    @param conn HttpConn object created via #httpCreateConn
+    @ingroup HttpTx
+    @stability Internal
+    @internal
+ */ 
+PUBLIC void httpFinalizeConnector(HttpConn *conn);
+
+/** 
     Finalize transmission of the http response
-    @description This routine will force the transmission of buffered content to the peer. It should be called by clients
-    and Handlers to signify the end of the body content being sent with the request or response body. 
-    HttpFinalize will set the finalizedOutput flag and write a final chunk trailer if using chunked transfers. If the
-    request output is already finalized, this call does nothing.  Note that after finalization, incoming content may
-    continue to be processed.
-    i.e. httpFinalize can be called before all incoming data has been received. 
+    @description This routine should be called by clients and Handlers to signify the end of the body content being sent with 
+        the request or response body. This call will force the transmission of buffered content to the peer.
+    HttpFinalizeOutput will set the finalizedOutput flag and write a final chunk trailer if using chunked transfers. If the
+    output is already finalized, this call does nothing.  Note that after finalization, incoming content may continue to be processed.
+    i.e. httpFinalizeOutput can be called before all incoming data has been received. 
+    The difference between #httpFinalize and #httpFinalizeOutput is that #httpFinalize implies that all request processing is also
+    complete whereas #httpFinalizeOutput implies that the output is generated. Note that while the output may be fully generated, it
+    may not be fully transmitted by the pipeline and connector. When the output is fully transmitted, the connector will call
+    #httpFinalizeConnector.
     @param conn HttpConn connection object
     @ingroup HttpTx
     @stability Stable
@@ -5922,7 +6019,8 @@ PUBLIC void httpDestroyTx(HttpTx *tx);
 PUBLIC void httpFinalizeOutput(HttpConn *conn);
 
 /**
-    Flush tx data. This writes any buffered data. 
+    Flush transmit data. This initiates writing buffered data. 
+    If in sync mode this call may block until the output queues drain.
     @param conn HttpConn connection object created via #httpCreateConn
     @ingroup HttpTx
     @stability Stable
@@ -6084,7 +6182,7 @@ PUBLIC int httpRemoveHeader(HttpConn *conn, cchar *key);
     @param uri URI to request
     @param data Optional data to send with request. Set to null for GET requests.
     @param err Output parameter to receive any error messages.
-    @return HttpConn object. Use $httpGetStatus to read status and $httpReadString to read the response data.
+    @return HttpConn object. Use #httpGetStatus to read status and #httpReadString to read the response data.
     @ingroup HttpTx
     @stability Prototype
  */
@@ -6154,6 +6252,18 @@ PUBLIC void httpRemoveCookie(HttpConn *conn, cchar *name);
 PUBLIC void httpSetEntityLength(HttpConn *conn, MprOff len);
 
 /**
+    Set the filename.
+    @description This sets the HttpTx filename, ext, etag and info fields. This filename may be virtual or may be 
+        outside the documents root directory. Use httpMapFile if you wish validation that the filename is within
+        the documents root.
+    @param conn HttpConn connection object 
+    @param filename Tx filename to define.
+    @ingroup HttpTx
+    @stability Evolving
+ */
+PUBLIC void httpSetFilename(HttpConn *conn, cchar *filename);
+
+/**
     Set the handler for this request
     Use this request from the Handler rewrite callback to change the selected handler to process a request.
     Most useful to set the Tx.filename and pass to the fileHandler.
@@ -6198,8 +6308,10 @@ PUBLIC void httpSetStatus(HttpConn *conn, int status);
 
 /**
     Set the responded flag for the request
-    @description This call sets the requests responded status. Once status has been defined, headers generated or 
-        some output has been generated, the request is regarded as having "responded" in-part to the client.
+    @description This call sets the requests responded status. Once the HTTP response status code has been defined, 
+        HTTP response headers or any output has been generated, the request is regarded as having "responded" in-part to the client.
+        This means that any errors cannot revise the HTTP response status and may need to prematurely abort the request to signify
+        to the clien that the request has failed.
     @param conn HttpConn connection object
     @ingroup HttpTx
     @stability Stable
@@ -6215,9 +6327,10 @@ PUBLIC void httpSetResponded(HttpConn *conn);
 PUBLIC void httpSocketBlocked(HttpConn *conn);
 
 /** 
-    Wait for the connection to achieve the requested state.
+    Wait for the client connection to achieve the requested state.
     @description This call blocks until the connection reaches the desired state. It creates a wait handler and
         services any events while waiting. This is useful for blocking client requests.
+        Should never be used on server-side connections.
     @param conn HttpConn connection object created via #httpCreateConn
     @param state HTTP_STATE_XXX to wait for.
     @param timeout Timeout in milliseconds to wait. Set to -1 to use the default inactivity timeout. Set to zero

@@ -3,7 +3,7 @@
 #
 
 PRODUCT            := bit
-VERSION            := 0.9.2
+VERSION            := 0.9.3
 BUILD_NUMBER       := 0
 PROFILE            := default
 ARCH               := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
@@ -113,6 +113,7 @@ ifeq ($(BIT_PACK_EJSCRIPT),1)
 TARGETS            += $(CONFIG)/bin/ejs.mod
 endif
 TARGETS            += $(CONFIG)/bin/bit
+TARGETS            += bower.json
 
 unexport CDPATH
 
@@ -158,6 +159,7 @@ clean:
 	rm -f "$(CONFIG)/bin/libejs.dylib"
 	rm -f "$(CONFIG)/bin/ejs"
 	rm -f "$(CONFIG)/bin/ejsc"
+	rm -f "bower.json"
 	rm -f "$(CONFIG)/obj/estLib.o"
 	rm -f "$(CONFIG)/obj/mprLib.o"
 	rm -f "$(CONFIG)/obj/mprSsl.o"
@@ -181,7 +183,7 @@ clobber: clean
 version: $(DEPS_1)
 	( \
 	cd bits; \
-	echo 0.9.2-0 ; \
+	echo 0.9.3-0 ; \
 	)
 
 #
@@ -229,7 +231,7 @@ DEPS_6 += $(CONFIG)/obj/estLib.o
 
 $(CONFIG)/bin/libest.dylib: $(DEPS_6)
 	@echo '      [Link] $(CONFIG)/bin/libest.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libest.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libest.dylib -compatibility_version 0.9.2 -current_version 0.9.2 "$(CONFIG)/obj/estLib.o" $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libest.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libest.dylib -compatibility_version 0.9.3 -current_version 0.9.3 "$(CONFIG)/obj/estLib.o" $(LIBS) 
 endif
 
 #
@@ -272,7 +274,7 @@ DEPS_10 += $(CONFIG)/obj/mprLib.o
 
 $(CONFIG)/bin/libmpr.dylib: $(DEPS_10)
 	@echo '      [Link] $(CONFIG)/bin/libmpr.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libmpr.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libmpr.dylib -compatibility_version 0.9.2 -current_version 0.9.2 "$(CONFIG)/obj/mprLib.o" $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libmpr.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libmpr.dylib -compatibility_version 0.9.3 -current_version 0.9.3 "$(CONFIG)/obj/mprLib.o" $(LIBS) 
 
 #
 #   mprSsl.o
@@ -308,7 +310,7 @@ endif
 
 $(CONFIG)/bin/libmprssl.dylib: $(DEPS_12)
 	@echo '      [Link] $(CONFIG)/bin/libmprssl.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libmprssl.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libmprssl.dylib -compatibility_version 0.9.2 -current_version 0.9.2 "$(CONFIG)/obj/mprSsl.o" $(LIBPATHS_12) $(LIBS_12) $(LIBS_12) $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libmprssl.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libmprssl.dylib -compatibility_version 0.9.3 -current_version 0.9.3 "$(CONFIG)/obj/mprSsl.o" $(LIBPATHS_12) $(LIBS_12) $(LIBS_12) $(LIBS) 
 
 #
 #   makerom.o
@@ -366,7 +368,7 @@ DEPS_17 += $(CONFIG)/obj/pcre.o
 
 $(CONFIG)/bin/libpcre.dylib: $(DEPS_17)
 	@echo '      [Link] $(CONFIG)/bin/libpcre.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libpcre.dylib -arch $(CC_ARCH) $(LDFLAGS) -compatibility_version 0.9.2 -current_version 0.9.2 $(LIBPATHS) -install_name @rpath/libpcre.dylib -compatibility_version 0.9.2 -current_version 0.9.2 "$(CONFIG)/obj/pcre.o" $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libpcre.dylib -arch $(CC_ARCH) $(LDFLAGS) -compatibility_version 0.9.3 -current_version 0.9.3 $(LIBPATHS) -install_name @rpath/libpcre.dylib -compatibility_version 0.9.3 -current_version 0.9.3 "$(CONFIG)/obj/pcre.o" $(LIBS) 
 endif
 
 #
@@ -412,7 +414,7 @@ endif
 
 $(CONFIG)/bin/libhttp.dylib: $(DEPS_20)
 	@echo '      [Link] $(CONFIG)/bin/libhttp.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libhttp.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libhttp.dylib -compatibility_version 0.9.2 -current_version 0.9.2 "$(CONFIG)/obj/httpLib.o" $(LIBPATHS_20) $(LIBS_20) $(LIBS_20) $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libhttp.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libhttp.dylib -compatibility_version 0.9.3 -current_version 0.9.3 "$(CONFIG)/obj/httpLib.o" $(LIBPATHS_20) $(LIBS_20) $(LIBS_20) $(LIBS) 
 
 #
 #   http.o
@@ -523,7 +525,7 @@ endif
 
 $(CONFIG)/bin/libejs.dylib: $(DEPS_27)
 	@echo '      [Link] $(CONFIG)/bin/libejs.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libejs.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libejs.dylib -compatibility_version 0.9.2 -current_version 0.9.2 "$(CONFIG)/obj/ejsLib.o" $(LIBPATHS_27) $(LIBS_27) $(LIBS_27) $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libejs.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libejs.dylib -compatibility_version 0.9.3 -current_version 0.9.3 "$(CONFIG)/obj/ejsLib.o" $(LIBPATHS_27) $(LIBS_27) $(LIBS_27) $(LIBS) 
 endif
 
 #
@@ -879,19 +881,29 @@ $(CONFIG)/bin/bit: $(DEPS_35)
 	$(CC) -o $(CONFIG)/bin/bit -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/bit.o" $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) 
 
 #
+#   bower.json
+#
+DEPS_36 += package.json
+
+bower.json: $(DEPS_36)
+	@echo '      [Copy] bower.json'
+	mkdir -p "."
+	cp package.json bower.json
+
+#
 #   stop
 #
-stop: $(DEPS_36)
+stop: $(DEPS_37)
 
 #
 #   installBinary
 #
-installBinary: $(DEPS_37)
+installBinary: $(DEPS_38)
 	( \
 	cd .; \
 	mkdir -p "$(BIT_APP_PREFIX)" ; \
 	rm -f "$(BIT_APP_PREFIX)/latest" ; \
-	ln -s "0.9.2" "$(BIT_APP_PREFIX)/latest" ; \
+	ln -s "0.9.3" "$(BIT_APP_PREFIX)/latest" ; \
 	mkdir -p "$(BIT_VAPP_PREFIX)/bin" ; \
 	cp $(CONFIG)/bin/bit $(BIT_VAPP_PREFIX)/bin/bit ; \
 	mkdir -p "$(BIT_BIN_PREFIX)" ; \
@@ -978,23 +990,23 @@ installBinary: $(DEPS_37)
 #
 #   start
 #
-start: $(DEPS_38)
+start: $(DEPS_39)
 
 #
 #   install
 #
-DEPS_39 += stop
-DEPS_39 += installBinary
-DEPS_39 += start
+DEPS_40 += stop
+DEPS_40 += installBinary
+DEPS_40 += start
 
-install: $(DEPS_39)
+install: $(DEPS_40)
 
 #
 #   uninstall
 #
-DEPS_40 += stop
+DEPS_41 += stop
 
-uninstall: $(DEPS_40)
+uninstall: $(DEPS_41)
 	( \
 	cd .; \
 	rm -fr "$(BIT_VAPP_PREFIX)" ; \

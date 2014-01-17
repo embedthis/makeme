@@ -115,7 +115,13 @@ Bit.load({
             files: [ 'bits/**' ],
             subtree: 'bits',
             precious: true,
-        }
+        },
+
+        'bower.json': {
+            type: 'file',
+            path: 'bower.json',
+            files: [ 'package.json' ],
+        },
 
         projects: {
             action: "

@@ -238,11 +238,11 @@ PUBLIC Mpr *mprCreateMemService(MprManager manager, int flags)
     heap->stats.cacheHeap = BIT_MPR_ALLOC_CACHE;
     heap->stats.lowHeap = max(BIT_MPR_ALLOC_CACHE / 8, BIT_MPR_ALLOC_REGION_SIZE);
     heap->workQuota = BIT_MPR_ALLOC_QUOTA;
-    heap->enabled = !(heap->flags & MPR_DISABLE_GC);
+    heap->gcEnabled = !(heap->flags & MPR_DISABLE_GC);
 
     /* Internal testing use only */
     if (scmp(getenv("MPR_DISABLE_GC"), "1") == 0) {
-        heap->enabled = 0;
+        heap->gcEnabled = 0;
     }
 #if BIT_MPR_ALLOC_DEBUG
     if (scmp(getenv("MPR_SCRIBBLE_MEM"), "1") == 0) {
@@ -513,8 +513,7 @@ static MprMem *allocMem(size_t required)
                                 mp->size = (MprMemSize) required;
                                 ATOMIC_INC(splits);
                             }
-                            if (heap->workDone > heap->workQuota && 
-                                    heap->stats.bytesFree < heap->stats.lowHeap && !heap->gcRequested) {
+                            if (heap->workDone > heap->workQuota && heap->stats.bytesFree < heap->stats.lowHeap && !heap->gcRequested) {
                                 triggerGC();
                             }
                             ATOMIC_INC(reuse);
@@ -605,6 +604,7 @@ static void freeBlock(MprMem *mp)
     assert(!mp->free);
     SCRIBBLE(mp);
     INC(swept);
+    heap->freedBlocks = 1;
     freeLocation(mp);
 #if BIT_MPR_ALLOC_STATS
     heap->stats.freed += mp->size;
@@ -854,7 +854,7 @@ static void vmfree(void *ptr, size_t size)
 
 PUBLIC void mprStartGCService()
 {
-    if (heap->enabled) {
+    if (heap->gcEnabled) {
         mprTrace(7, "DEBUG: startMemWorkers: start marker");
         if ((heap->gc = mprCreateThread("sweeper", gc, NULL, 0)) == 0) {
             mprError("Cannot create marker thread");
@@ -885,7 +885,7 @@ PUBLIC void mprWakeGCService()
 
 static BIT_INLINE void triggerGC()
 {
-    if (!heap->gcRequested && heap->enabled && heap->gcCond) {
+    if (!heap->gcRequested && heap->gcEnabled && heap->gcCond) {
         heap->gcRequested = 1;
         mprSignalCond(heap->gcCond);
     }
@@ -895,32 +895,41 @@ static BIT_INLINE void triggerGC()
 /*
     Trigger a GC collection worthwhile. If MPR_GC_FORCE is set, force the collection regardless. Flags:
 
-    MPR_CG_DEFAULT      0x0     run GC if necessary. Will yield and block for GC. Won't wait for GC to fully complete.
-    MPR_GC_FORCE        0x1     force a GC whether it is required or not
-    MPR_GC_NO_BLOCK     0x2     dont wait for the GC complete
+    MPR_CG_DEFAULT      Run GC if necessary. Will yield and block for GC
+    MPR_GC_FORCE        Force a GC whether it is required or not
+    MPR_GC_NO_BLOCK     Run GC if necessary and return without yielding
+    MPR_GC_COMPLETE     Force a GC and wait until all threads yield and GC completes including sweeper
  */
-PUBLIC void mprRequestGC(int flags)
+PUBLIC void mprGC(int flags)
 {
-    mprTrace(7, "DEBUG: mprRequestGC");
+    MprThreadService    *ts;
 
-    if (flags & MPR_GC_COMPLETE) {
-        flags |= MPR_GC_FORCE;
-    }
-    if ((flags & MPR_GC_FORCE) || (heap->workDone > heap->workQuota)) {
+    ts = MPR->threadService;
+    heap->freedBlocks = 0;
+    if ((flags & (MPR_GC_FORCE | MPR_GC_COMPLETE)) || (heap->workDone > heap->workQuota)) {
+        assert(!heap->marking);
+        lock(ts->threads);
+        //  MOB - why set mustYield here?
+        heap->mustYield = 1;
         triggerGC();
+        unlock(ts->threads);
     }
     if (!(flags & MPR_GC_NO_BLOCK)) {
-        mprYield((flags & MPR_GC_COMPLETE) ? (MPR_YIELD_COMPLETE | MPR_YIELD_BLOCK) : 0);
+        mprYield((flags & MPR_GC_COMPLETE) ? MPR_YIELD_COMPLETE : 0);
     }
 }
+
 
 /*
     Called by user code to signify the thread is ready for GC and all object references are saved.  Flags:
 
-        MPR_YIELD_DEFAULT   Yield and only if GC is required, block for GC. Otherwise return without blocking.
-        MPR_YIELD_BLOCK     Yield and wait until the next GC starts and resumes user threads, regardless of whether GC is required.
-        MPR_YIELD_COMPLETE  Yield and wait until the GC entirely complete including sweeper.
-        MPR_YIELD_STICKY    Yield and remain yielded until reset. Does not block by default.
+    MPR_YIELD_DEFAULT   If GC is required, yield and wait for mark phase to coplete, otherwise return without blocking.
+    MPR_YIELD_COMPLETE  Yield and wait until the GC entirely completes including sweeper.
+    MPR_YIELD_STICKY    Yield and remain yielded until reset. Does not block.
+
+    A yielding thread may block for up to MPR_TIMEOUT_GC_SYNC (1/10th sec) for other threads to also yield. If one more
+    more threads do not yield, the marker will resume all yielded threads. If all threads yield, they will wait until
+    the mark phase has completed and then be resumed by the marker.
  */
 PUBLIC void mprYield(int flags)
 {
@@ -928,9 +937,6 @@ PUBLIC void mprYield(int flags)
     MprThread           *tp;
 
     ts = MPR->threadService;
-    if (flags & MPR_YIELD_COMPLETE) {
-        flags |= MPR_YIELD_BLOCK;
-    }
     if ((tp = mprGetCurrentThread()) == 0) {
         mprError("Yield called from an unknown thread");
         return;
@@ -945,24 +951,23 @@ PUBLIC void mprYield(int flags)
     }
     /*
         Double test to be lock free for the common case
+        - but mustYield may not be set and gcRequested is
+        - must handle waitForSweeper
      */
-    if ((heap->mustYield || (flags & MPR_YIELD_BLOCK))) {
-        tp->waitForGC = (flags & MPR_YIELD_COMPLETE) ? 1 : 0;
-
+    if (heap->mustYield) {
         lock(ts->threads);
-        while ((heap->mustYield || (flags & MPR_YIELD_BLOCK))) {
+        tp->waitForSweeper = (flags & MPR_YIELD_COMPLETE);
+        while (heap->mustYield /* MOB && !heap->pauseGC */) {
             tp->yielded = 1;
             tp->waiting = 1;
             unlock(ts->threads);
 
             mprSignalCond(ts->pauseThreads);
-            
             if (tp->stickyYield) {
                 tp->waiting = 0;
                 return;
             }
             mprWaitForCond(tp->cond, -1);
-
             lock(ts->threads);
             tp->waiting = 0;
             if (tp->yielded && !tp->stickyYield) {
@@ -972,8 +977,6 @@ PUBLIC void mprYield(int flags)
                     previous sticky yield. i.e. it did not wait.
                  */
                 tp->yielded = 0;
-            } else if (!tp->waitForGC) {
-                flags &= ~MPR_YIELD_BLOCK;
             }
         }
         unlock(ts->threads);
@@ -983,6 +986,15 @@ PUBLIC void mprYield(int flags)
         assert(!heap->marking);
     }
 }
+
+
+//  MOB - make macro
+#ifndef mprNeedYield
+PUBLIC bool mprNeedYield()
+{
+    return heap->mustYield && !heap->pauseGC;
+}
+#endif
 
 
 PUBLIC void mprResetYield()
@@ -1018,8 +1030,6 @@ PUBLIC void mprResetYield()
 
 /*
     Pause until all threads have yielded. Called by the GC marker only.
-    NOTE: this functions differently if parallel. If so, then it will abort waiting. If !parallel, it waits for all
-    threads to yield.
  */
 static int pauseThreads()
 {
@@ -1028,8 +1038,11 @@ static int pauseThreads()
     MprTicks            start;
     int                 i, allYielded, timeout;
 
-    ts = MPR->threadService;
+    /*
+        Short timeout wait for all threads to yield. Typically set to 1/10 sec
+     */
     timeout = MPR_TIMEOUT_GC_SYNC;
+    ts = MPR->threadService;
 
     mprTrace(7, "pauseThreads: wait for threads to yield, timeout %d", timeout);
     start = mprGetTicks();
@@ -1059,10 +1072,14 @@ static int pauseThreads()
             allYielded = 0;
         }
         unlock(ts->threads);
+        if (MPR->state >= MPR_STOPPING_CORE) {
+            /* Do not wait for paused threads if shutting down */
+            break;
+        }
         mprTrace(7, "pauseThreads: waiting for threads to yield");
         mprWaitForCond(ts->pauseThreads, 20);
 
-    } while (!allYielded && mprGetElapsedTicks(start) < timeout);
+    } while (mprGetElapsedTicks(start) < timeout);
 
     mprTrace(7, "TIME: pauseThreads elapsed %,Ld msec %", mprGetElapsedTicks(start));
     return (allYielded) ? 1 : 0;
@@ -1081,16 +1098,16 @@ static void resumeThreads(int flags)
     for (i = 0; i < ts->threads->length; i++) {
         tp = (MprThread*) mprGetItem(ts->threads, i);
         if (tp && tp->yielded) {
-            if (flags == WAITING_THREADS && !tp->waitForGC) {
+            if (flags == WAITING_THREADS && !tp->waitForSweeper) {
                 continue;
             }
-            if (flags == YIELDED_THREADS && tp->waitForGC) {
+            if (flags == YIELDED_THREADS && tp->waitForSweeper) {
                 continue;
             }
             if (!tp->stickyYield) {
                 tp->yielded = 0;
             }
-            tp->waitForGC = 0;
+            tp->waitForSweeper = 0;
             if (tp->waiting) {
                 assert(tp->stickyYield || !tp->yielded);
                 mprSignalCond(tp->cond);
@@ -1110,6 +1127,17 @@ static void gc(void *unused, MprThread *tp)
     tp->stickyYield = 1;
     tp->yielded = 1;
 
+#if UNUSED
+    while (1) {
+        while (!heap->gcRequested || heap->pauseGC) {
+            mprWaitForCond(heap->gcCond, -1);
+        }
+        if (mprIsFinished()) {
+            break;
+        }
+        markAndSweep();
+    }
+#else
     while (!mprIsFinished()) {
         if (!heap->mustYield) {
             mprWaitForCond(heap->gcCond, -1);
@@ -1119,6 +1147,8 @@ static void gc(void *unused, MprThread *tp)
         }
         markAndSweep();
     }
+#endif
+
     invokeDestructors();
     heap->gc = 0;
     resumeThreads(YIELDED_THREADS | WAITING_THREADS);
@@ -1133,11 +1163,11 @@ static void markAndSweep()
 {
     static int warnOnce = 0;
 
-    mprTrace(7, "GC: mark started");
     heap->mustYield = 1;
 
     if (!pauseThreads()) {
-        if (warnOnce++ == 0) {
+        if (!heap->pauseGC && warnOnce == 0) {
+            warnOnce++;
             mprTrace(7, "GC synchronization timed out, some threads did not yield.");
             mprTrace(7, "This is most often caused by a thread doing a long running operation and not first calling mprYield.");
             mprTrace(7, "If debugging, run the process with -D to enable debug mode.");
@@ -1147,7 +1177,6 @@ static void markAndSweep()
         return;
     }
     INC(collections);
-    heap->gcRequested = 0;
     heap->priorWeightedCount = heap->workDone;
     heap->workDone = 0;
 #if BIT_MPR_ALLOC_STATS
@@ -1155,15 +1184,17 @@ static void markAndSweep()
 #endif
 
     /*
-        Mark all roots
+        Mark all roots. All user threads are paused here
      */
     heap->mark = !heap->mark;
     MPR_MEASURE(BIT_MPR_ALLOC_LEVEL, "GC", "mark", markRoots());
+    heap->gcRequested = 0;
     heap->sweeping = 1;
     mprAtomicBarrier();
     heap->marking = 0;
 
 #if BIT_MPR_ALLOC_PARALLEL
+    /* This is the default to run the sweeper in parallel with user threads */
     resumeThreads(YIELDED_THREADS);
 #endif
     /*
@@ -1173,6 +1204,7 @@ static void markAndSweep()
     heap->sweeping = 0;
 
 #if BIT_MPR_ALLOC_PARALLEL
+    /* Now resume threads who are waiting for the sweeper to complete */
     resumeThreads(WAITING_THREADS);
 #else
     resumeThreads(YIELDED_THREADS | WAITING_THREADS);
@@ -1185,6 +1217,7 @@ static void markRoots()
     void    *root;
     int     next;
 
+    mprTrace(7, "GC: markRoots");
 #if BIT_MPR_ALLOC_STATS
     heap->stats.markVisited = 0;
     heap->stats.marked = 0;
@@ -1265,7 +1298,7 @@ static void sweep()
     MprMem      *mp, *next;
     int         joinBlocks;
 
-    if (!heap->enabled) {
+    if (!heap->gcEnabled) {
         mprTrace(0, "DEBUG: sweep: Abort sweep - GC disabled");
         return;
     }
@@ -1517,8 +1550,8 @@ PUBLIC bool mprEnableGC(bool on)
 {
     bool    old;
 
-    old = heap->enabled;
-    heap->enabled = on;
+    old = heap->gcEnabled;
+    heap->gcEnabled = on;
     return old;
 }
 
@@ -1660,13 +1693,10 @@ static void printGCStats()
 
 PUBLIC void mprPrintMem(cchar *msg, int flags)
 {
-    int     gflags;
-
     printf("\n%s\n", msg);
     printf("-------------\n");
     heap->printStats = (flags & MPR_MEM_DETAIL) ? 2 : 1;
-    gflags = MPR_GC_FORCE | MPR_GC_COMPLETE;
-    mprRequestGC(gflags);
+    mprGC(MPR_GC_FORCE | MPR_GC_COMPLETE);
 }
 
 
@@ -2569,8 +2599,11 @@ static void manageMpr(Mpr *mpr, int flags)
 /*
     Destroy the Mpr and all services
  */
-PUBLIC void mprDestroy(int how)
+PUBLIC bool mprDestroy(int how)
 {
+    MprTerminator   terminator;
+    int             i, next;
+
     if (!(how & MPR_EXIT_DEFAULT)) {
         MPR->exitStrategy = how;
     }
@@ -2579,37 +2612,45 @@ PUBLIC void mprDestroy(int how)
         if (how & MPR_EXIT_RESTART) {
             mprRestart();
             /* No return */
-            return;
+            return 1;
         }
         exit(0);
     }
     if (MPR->state < MPR_STOPPING) {
         mprTerminate(how, -1);
     }
-    mprRequestGC(MPR_GC_FORCE | MPR_GC_COMPLETE);
-
-    if (how & MPR_EXIT_GRACEFUL) {
-        mprWaitTillIdle(MPR->exitTimeout);
+    if (!mprWaitTillIdle((how & MPR_EXIT_GRACEFUL) ? MPR->exitTimeout : 0)) {
+        mprLog(5, "Cannot destroy MPR due to running threads or services");
+        return 0;
     }
+    mprStopModuleService();
+
     MPR->state = MPR_STOPPING_CORE;
     MPR->exitStrategy &= MPR_EXIT_GRACEFUL;
     MPR->exitStrategy |= MPR_EXIT_IMMEDIATE;
 
-    mprStopWorkers();
-    mprStopCmdService();
-    mprStopModuleService();
-    mprStopEventService();
-    mprStopSignalService();
+    /*
+        Now that we are idle and all requests are complete, the terminators can free resources 
+     */
+    for (ITERATE_ITEMS(MPR->terminators, terminator, next)) {
+        (terminator)(MPR->state, how, MPR->exitStatus);
+    }
 
-    /* Final GC to run all finalizers */
-    mprRequestGC(MPR_GC_FORCE | MPR_GC_COMPLETE);
-
+    /*
+        Run until we are not freeing any memory. This is for destructors that unpin other blocks in the destructor.
+        Which is not an ideal pattern!
+     */
+    for (i = 0; MPR->heap->freedBlocks && i < 25; i++) {
+        mprGC(MPR_GC_FORCE | MPR_GC_COMPLETE);
+    }
     if (how & MPR_EXIT_RESTART) {
         mprLog(2, "Restarting\n\n");
     } else {
         mprLog(2, "Exiting");
     }
     MPR->state = MPR_FINISHED;
+
+    mprStopSignalService();
     mprStopGCService();
     mprStopThreadService();
     mprStopOsService();
@@ -2617,6 +2658,7 @@ PUBLIC void mprDestroy(int how)
     if (how & MPR_EXIT_RESTART) {
         mprRestart();
     }
+    return 1;
 }
 
 
@@ -2656,17 +2698,13 @@ PUBLIC void mprTerminate(int how, int status)
     } else {
         mprTrace(7, "mprTerminate: how %d", how);
     }
-    /*
-        Invoke terminators, set stopping state and wake up everybody
-        Must invoke terminators before setting stopping state. Otherwise, the main app event loop will return from
-        mprServiceEvents and starting calling destroy before we have completed this routine.
-     */
     for (ITERATE_ITEMS(MPR->terminators, terminator, next)) {
-        (terminator)(how, status);
+        (terminator)(MPR->state, how, status);
     }
     mprStopWorkers();
-    mprWakeDispatchers();
-    mprWakeEventService();
+    mprStopCmdService();
+    mprStopModuleService();
+    mprStopEventService();
 }
 
 
@@ -2779,7 +2817,7 @@ PUBLIC bool mprIsStoppingCore()
 
 PUBLIC bool mprIsFinished()
 {
-    return MPR->state >= MPR_FINISHED;
+    return !MPR || MPR->state >= MPR_FINISHED;
 }
 
 
@@ -3208,8 +3246,10 @@ PUBLIC int mprNotifyOn(MprWaitService *ws, MprWaitHandler *wp, int mask)
  */
 PUBLIC int mprWaitForSingleIO(int fd, int desiredMask, MprTicks timeout)
 {
-    HANDLE      h;
-    int         winMask;
+    HANDLE              h;
+    DWORD               result;
+    WSANETWORKEVENTS    events;
+    int                 winMask, eventMask;
 
     if (timeout < 0 || timeout > MAXINT) {
         timeout = MAXINT;
@@ -3219,16 +3259,31 @@ PUBLIC int mprWaitForSingleIO(int fd, int desiredMask, MprTicks timeout)
         winMask |= FD_CLOSE | FD_READ;
     }
     if (desiredMask & MPR_WRITABLE) {
-        winMask |= FD_WRITE;
+        winMask |= FD_CLOSE | FD_WRITE;
     }
-    h = CreateEvent(NULL, FALSE, FALSE, UT("mprWaitForSingleIO"));
+    h = WSACreateEvent();
     WSAEventSelect(fd, h, winMask);
-    if (WaitForSingleObject(h, (DWORD) timeout) == WAIT_OBJECT_0) {
-        CloseHandle(h);
-        return desiredMask;
+
+    mprYield(MPR_YIELD_STICKY);
+    result = WSAWaitForMultipleEvents(1, &h, FALSE, (DWORD) timeout, FALSE);
+    mprResetYield();
+
+    eventMask = 0;
+    if ((result == WSA_WAIT_EVENT_0) && (WSAEnumNetworkEvents(fd, h, &events) == 0)) {
+        /*
+            We wait on FD_CLOSE for both MPR_READABLE and MPR_WRITABLE events, but only report for MPR_READABLE
+         */
+        if (events.lNetworkEvents & (FD_READ | FD_CLOSE)) {
+            if (desiredMask & MPR_READABLE) {
+                eventMask |= MPR_READABLE;
+            }
+        }
+        if (events.lNetworkEvents & FD_WRITE) {
+            eventMask |= MPR_WRITABLE;
+        }
     }
     CloseHandle(h);
-    return 0;
+    return eventMask;
 }
 
 
@@ -3349,7 +3404,7 @@ PUBLIC int mprInitWindow()
     wc.cbWndExtra       = 0;
     wc.hInstance        = 0;
     wc.hIcon            = NULL;
-    wc.lpfnWndProc      = (WNDPROC) msgProc;
+    wc.lpfnWndProc      = msgProc;
     wc.lpszMenuName     = wc.lpszClassName = name;
 
     rc = RegisterClass(&wc);
@@ -3383,7 +3438,7 @@ static LRESULT CALLBACK msgProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         mprTerminate(MPR_EXIT_DEFAULT, -1);
 
     } else if (msg && msg == ws->socketMessage) {
-        sock = (int) wp;
+        sock = wp;
         winMask = LOWORD(lp);
         mprServiceWinIO(MPR->waitService, sock, winMask);
 
@@ -4960,7 +5015,7 @@ static void manageCmdService(MprCmdService *cs, int flags)
         mprMark(cs->mutex);
 
     } else if (flags & MPR_MANAGE_FREE) {
-        mprStopCmdService();
+        cs->cmds = 0;
         cs->mutex = 0;
     }
 }
@@ -5034,7 +5089,9 @@ static void manageCmd(MprCmd *cmd, int flags)
         /*
             Note that "cmds" is a static list and so the cmd may still be in the cmds list.
          */
-        mprRemoveItem(MPR->cmdService->cmds, cmd);
+        if (MPR->cmdService->cmds) {
+            mprRemoveItem(MPR->cmdService->cmds, cmd);
+        }
     }
 }
 
@@ -9050,7 +9107,7 @@ PUBLIC void mprDestroyDispatcher(MprDispatcher *dispatcher)
 
 static void manageDispatcher(MprDispatcher *dispatcher, int flags)
 {
-    MprEvent        *q, *event, *next;
+    MprEvent    *q, *event, *next;
 
     if (flags & MPR_MANAGE_MARK) {
         mprMark(dispatcher->name);
@@ -10122,7 +10179,9 @@ PUBLIC int mprWaitForSingleIO(int fd, int mask, MprTicks timeout)
     if (ev.events) {
         epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ev);
     }
+    mprYield(MPR_YIELD_STICKY);
     rc = epoll_wait(epfd, events, sizeof(events) / sizeof(struct epoll_event), timeout);
+    mprResetYield();
     close(epfd);
 
     result = 0;
@@ -11064,7 +11123,7 @@ PUBLIC MprOff mprSeekFile(MprFile *file, int seekType, MprOff pos)
     } else {
         file->pos = fs->seekFile(file, SEEK_END, 0);
     }
-    if (fs->seekFile(file, SEEK_SET, (long) file->pos) != (long) file->pos) {
+    if (fs->seekFile(file, SEEK_SET, file->pos) != file->pos) {
         return MPR_ERR;
     }
     if (file->mode & (O_WRONLY | O_RDWR)) {
@@ -13460,10 +13519,13 @@ PUBLIC int mprWaitForSingleIO(int fd, int mask, MprTicks timeout)
     ts.tv_sec = ((int) (timeout / 1000));
     ts.tv_nsec = ((int) (timeout % 1000)) * 1000 * 1000;
 
-    result = 0;
-    if ((rc = kevent(kq, interest, interestCount, events, 1, &ts)) < 0) {
-        mprError("Kevent returned %d, errno %d", rc, errno);
+    mprYield(MPR_YIELD_STICKY);
+    rc = kevent(kq, interest, interestCount, events, 1, &ts);
+    mprResetYield();
 
+    result = 0;
+    if (rc < 0) {
+        mprError("Kevent returned %d, errno %d", rc, errno);
     } else if (rc > 0) {
         if (events[0].filter & EVFILT_READ) {
             result |= MPR_READABLE;
@@ -13966,8 +14028,9 @@ PUBLIC int mprRemoveItem(MprList *lp, cvoid *item)
 {
     int     index;
 
-    assert(lp);
-
+    if (!lp) {
+        return -1;
+    }
     lock(lp);
     index = mprLookupItem(lp, item);
     if (index < 0) {
@@ -14584,7 +14647,6 @@ static void manageLock(MprMutex *lock, int flags)
 #if BIT_UNIX_LIKE
         pthread_mutex_destroy(&lock->cs);
 #elif BIT_WIN_LIKE
-        lock->freed = 1;
         DeleteCriticalSection(&lock->cs);
 #elif VXWORKS
         semDelete(lock->cs);
@@ -14631,11 +14693,7 @@ PUBLIC bool mprTryLock(MprMutex *lock)
 #if BIT_UNIX_LIKE
     rc = pthread_mutex_trylock(&lock->cs) != 0;
 #elif BIT_WIN_LIKE
-    if (!lock->freed) {
-        rc = TryEnterCriticalSection(&lock->cs) == 0;
-    } else {
-        rc = 0;
-    }
+    rc = TryEnterCriticalSection(&lock->cs) == 0;
 #elif VXWORKS
     rc = semTake(lock->cs, NO_WAIT) != OK;
 #endif
@@ -14668,7 +14726,6 @@ PUBLIC void mprManageSpinLock(MprSpin *lock, int flags)
 #elif BIT_UNIX_LIKE
         pthread_mutex_destroy(&lock->cs);
 #elif BIT_WIN_LIKE
-        lock->freed = 1;
         DeleteCriticalSection(&lock->cs);
 #elif VXWORKS
         semDelete(lock->cs);
@@ -14738,11 +14795,7 @@ PUBLIC bool mprTrySpinLock(MprSpin *lock)
 #elif BIT_UNIX_LIKE
     rc = pthread_mutex_trylock(&lock->cs) != 0;
 #elif BIT_WIN_LIKE
-    if (!lock->freed) {
-        rc = TryEnterCriticalSection(&lock->cs) == 0;
-    } else {
-        rc = 0;
-    }
+    rc = TryEnterCriticalSection(&lock->cs) == 0;
 #elif VXWORKS
     rc = semTake(lock->cs, NO_WAIT) != OK;
 #endif
@@ -14794,9 +14847,7 @@ PUBLIC void mprLock(MprMutex *lock)
 #if BIT_UNIX_LIKE
     pthread_mutex_lock(&lock->cs);
 #elif BIT_WIN_LIKE
-    if (!lock->freed) {
-        EnterCriticalSection(&lock->cs);
-    }
+    EnterCriticalSection(&lock->cs);
 #elif VXWORKS
     semTake(lock->cs, WAIT_FOREVER);
 #endif
@@ -14846,9 +14897,7 @@ PUBLIC void mprSpinLock(MprSpin *lock)
 #elif BIT_UNIX_LIKE
     pthread_mutex_lock(&lock->cs);
 #elif BIT_WIN_LIKE
-    if (!lock->freed) {
-        EnterCriticalSection(&lock->cs);
-    }
+    EnterCriticalSection(&lock->cs);
 #elif VXWORKS
     semTake(lock->cs, WAIT_FOREVER);
 #endif
@@ -20271,8 +20320,13 @@ PUBLIC int mprWaitForSingleIO(int fd, int mask, MprTicks timeout)
     if (mask & MPR_WRITABLE) {
         FD_SET(fd, &writeMask);
     }
+
+    mprYield(MPR_YIELD_STICKY);
+    rc = select(fd + 1, &readMask, &writeMask, NULL, &tval);
+    mprResetYield();
+
     result = 0;
-    if ((rc = select(fd + 1, &readMask, &writeMask, NULL, &tval)) < 0) {
+    if (rc < 0) {
         mprError("Select returned %d, errno %d", rc, mprGetOsError());
 
     } else if (rc > 0) {
@@ -21015,6 +21069,30 @@ PUBLIC MprSocket *mprCreateSocket()
 }
 
 
+PUBLIC MprSocket *mprCloneSocket(MprSocket *sp)
+{
+    MprSocket   *newsp;
+
+    if ((newsp = mprCreateSocket()) == 0) {
+       return 0;
+    }
+    newsp->handler = sp->handler;
+    newsp->acceptIp = sp->acceptIp;
+    newsp->ip = sp->ip;
+    newsp->errorMsg = sp->errorMsg;
+    newsp->acceptPort = sp->acceptPort;
+    newsp->port = sp->port;
+    newsp->fd = sp->fd;
+    newsp->flags = sp->flags;
+    newsp->provider = sp->provider;
+    newsp->listenSock = sp->listenSock;
+    newsp->sslSocket = sp->sslSocket;
+    newsp->ssl = sp->ssl;
+    newsp->mutex = sp->mutex;
+    return newsp;
+}    
+
+
 static void manageSocket(MprSocket *sp, int flags)
 {
     if (flags & MPR_MANAGE_MARK) {
@@ -21405,7 +21483,7 @@ static void disconnectSocket(MprSocket *sp)
     if (!mprTryLock(sp->mutex)) {
         return;
     }
-    if (sp->fd == INVALID_SOCKET || !(sp->flags & MPR_SOCKET_EOF)) {
+    if (!(sp->flags & MPR_SOCKET_EOF)) {
         /*
             Read a reasonable amount of outstanding data to minimize resets. Then do a shutdown to send a FIN and read 
             outstanding data.  All non-blocking.
@@ -21423,6 +21501,8 @@ static void disconnectSocket(MprSocket *sp)
                 break;
             }
         }
+    }
+    if (sp->fd == INVALID_SOCKET || !(sp->flags & MPR_SOCKET_EOF)) {
         sp->flags |= MPR_SOCKET_EOF | MPR_SOCKET_DISCONNECTED;
         if (sp->handler) {
             mprRecallWaitHandler(sp->handler);
@@ -21434,11 +21514,7 @@ static void disconnectSocket(MprSocket *sp)
 
 PUBLIC void mprCloseSocket(MprSocket *sp, bool gracefully)
 {
-    if (sp == NULL) {
-        return;
-    }
-    assert(sp->provider);
-    if (sp->provider == 0) {
+    if (sp == 0 || sp->provider == 0) {
         return;
     }
     mprRemoveSocketHandler(sp);
@@ -21487,7 +21563,6 @@ static void closeSocket(MprSocket *sp, bool gracefully)
         closesocket(sp->fd);
         sp->fd = INVALID_SOCKET;
     }
-
     if (sp->flags & MPR_SOCKET_SERVER) {
         lock(ss);
         if (--ss->numAccept < 0) {
@@ -22006,11 +22081,24 @@ PUBLIC void mprSetSocketEof(MprSocket *sp, bool eof)
 
 
 /*
-    Return the O/S socket file handle
+    Return the O/S socket handle
  */
-PUBLIC Socket mprGetSocketFd(MprSocket *sp)
+PUBLIC Socket mprGetSocketHandle(MprSocket *sp)
 {
     return sp->fd;
+}
+
+
+PUBLIC Socket mprStealSocketHandle(MprSocket *sp)
+{
+    Socket  fd;
+
+    if (!sp) {
+        return INVALID_SOCKET;
+    }
+    fd = sp->fd;
+    sp->fd = INVALID_SOCKET;
+    return fd;
 }
 
 

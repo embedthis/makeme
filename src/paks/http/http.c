@@ -520,6 +520,9 @@ static int parseArgs(int argc, char **argv)
         } else if (smatch(argp, "-")) {
             break;
 
+        } else if (isdigit((uchar) argp[1])) {
+            mprStartLogging(sfmt("stdout:%s", &argp[1]), 0);
+
         } else {
             return showUsage();
         }
@@ -795,6 +798,7 @@ static int prepRequest(HttpConn *conn, MprList *files, int retry)
         static int next = 0;
         seq = itos(next++);
         httpSetHeader(conn, "X-Http-Seq", seq);
+        print("@@@@ seq %d", seq);
     }
     if (app->ranges) {
         httpSetHeader(conn, "Range", app->ranges);
@@ -830,6 +834,7 @@ static int sendRequest(HttpConn *conn, cchar *method, cchar *url, MprList *files
     }
     assert(!mprGetCurrentThread()->yielded);
     httpFinalizeOutput(conn);
+    httpFlush(conn);
     return 0;
 }
 
@@ -898,7 +903,7 @@ static int issueRequest(HttpConn *conn, cchar *url, MprList *files)
 }
 
 
-static int reportResponse(HttpConn *conn, cchar *url, MprTicks elapsed)
+static int reportResponse(HttpConn *conn, cchar *url)
 {
     HttpRx      *rx;
     MprOff      bytesRead;
@@ -913,7 +918,7 @@ static int reportResponse(HttpConn *conn, cchar *url, MprTicks elapsed)
     if (bytesRead < 0 && conn->rx) {
         bytesRead = conn->rx->bytesRead;
     }
-    mprTrace(6, "Response status %d, elapsed %Ld", status, elapsed);
+    mprTrace(6, "Response status %d, elapsed %Ld", status, mprGetTicks() - conn->started);
     if (conn->error) {
         app->success = 0;
     }
@@ -961,47 +966,28 @@ static void readBody(HttpConn *conn, MprFile *outFile)
     cchar       *result;
     ssize       bytes;
 
-    while (!conn->error && conn->sock && (bytes = httpRead(conn, buf, sizeof(buf))) > 0) {
+    while (!conn->error && (bytes = httpRead(conn, buf, sizeof(buf))) > 0) {
         if (!app->noout) {
             result = formatOutput(conn, buf, &bytes);
             if (result) {
                 mprWriteFile(outFile, result, bytes);
             }
         }
-#if KEEP
-        //  This should be pushed into a range filter.
-        //  Buffer all output and then parsing can work
-        type = httpGetHeader(conn, "Content-Type");
-        if (scontains(type, "multipart/byteranges")) {
-            if ((boundary = scontains(type, "boundary=")) != 0) {
-                boundary += 9;
-                if (*boundary) {
-                    boundary = sfmt("--%s\r\n", boundary);
-                }
-            }
-        }
-#endif
     }
 }
 
 
 static int doRequest(HttpConn *conn, cchar *url, MprList *files)
 {
-    MprTicks        mark, remaining;
-    HttpLimits      *limits;
-    MprFile         *outFile;
-    cchar           *path;
+    MprFile     *outFile;
+    cchar       *path;
 
     assert(url && *url);
-    limits = conn->limits;
-
     mprTrace(4, "fetch: %s %s", app->method, url);
-    mark = mprGetTicks();
 
     if (issueRequest(conn, url, files) < 0) {
         return MPR_ERR_CANT_CONNECT;
     }
-    remaining = limits->requestTimeout;
 
     if (app->outFilename) {
         path = app->loadThreads > 1 ? sfmt("%s-%s.tmp", app->outFilename, mprGetCurrentThreadName()): app->outFilename;
@@ -1013,22 +999,19 @@ static int doRequest(HttpConn *conn, cchar *url, MprList *files)
         outFile = mprGetStdout();
     }
     mprAddRoot(outFile);
-    while (!conn->tx->finalized && conn->state < HTTP_STATE_COMPLETE && remaining > 0) {
-        remaining = mprGetRemainingTicks(mark, limits->requestTimeout);
+    readBody(conn, outFile);
+    while (conn->state < HTTP_STATE_COMPLETE && !httpRequestExpired(conn, 0)) {
         readBody(conn, outFile);
-        httpWait(conn, 0, remaining);
+        httpWait(conn, 0, conn->limits->inactivityTimeout);
     }
     if (conn->state < HTTP_STATE_COMPLETE && !conn->error) {
-        httpError(conn, HTTP_ABORT | HTTP_CODE_REQUEST_TIMEOUT,
-            "Inactive request timed out, exceeded request timeout %d", app->timeout);
-    } else {
-        readBody(conn, outFile);
+        httpError(conn, HTTP_ABORT | HTTP_CODE_REQUEST_TIMEOUT, "Inactive request timed out, exceeded request timeout %d", app->timeout);
     }
     if (app->outFilename) {
         mprCloseFile(outFile);
     }
     mprRemoveRoot(outFile);
-    reportResponse(conn, url, mprGetTicks() - mark);
+    reportResponse(conn, url);
     httpDestroyRx(conn->rx);
     httpDestroyTx(conn->tx);
     return 0;
@@ -1127,12 +1110,8 @@ static ssize writeBody(HttpConn *conn, MprList *files)
                         sofar += nbytes;
                         assert(bytes >= 0);
                     }
-                    mprYield(0);
                 }
-                /*
-                    This is a blocking write
-                 */
-                httpFlushQueue(conn->writeq, 1);
+                httpFlushQueue(conn->writeq, HTTP_BLOCK);
                 mprCloseFile(file);
                 app->inFile = 0;
             }

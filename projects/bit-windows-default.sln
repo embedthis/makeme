@@ -152,6 +152,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bit", "bit-windows-default\
 		{15CD6B0D-0744-4102-B7B5-650754142C89} = {15CD6B0D-0744-4102-B7B5-650754142C89}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bower.json", "bit-windows-default\bower.json.vcxproj", "{CE7BF510-11CD-4E07-B8AC-6478772DB3C8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
+	EndProjectSection
+EndProject
 
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -289,6 +294,14 @@ Global
 {B5564BEE-479F-4C00-AF2D-30DA5DBD2B5E}.Release|Win32.Build.0 = Release|Win32
 {B5564BEE-479F-4C00-AF2D-30DA5DBD2B5E}.Release|x64.ActiveCfg = Release|x64
 {B5564BEE-479F-4C00-AF2D-30DA5DBD2B5E}.Release|x64.Build.0 = Release|x64
+{CE7BF510-11CD-4E07-B8AC-6478772DB3C8}.Debug|Win32.ActiveCfg = Debug|Win32
+{CE7BF510-11CD-4E07-B8AC-6478772DB3C8}.Debug|Win32.Build.0 = Debug|Win32
+{CE7BF510-11CD-4E07-B8AC-6478772DB3C8}.Debug|x64.ActiveCfg = Debug|x64
+{CE7BF510-11CD-4E07-B8AC-6478772DB3C8}.Debug|x64.Build.0 = Debug|x64
+{CE7BF510-11CD-4E07-B8AC-6478772DB3C8}.Release|Win32.ActiveCfg = Release|Win32
+{CE7BF510-11CD-4E07-B8AC-6478772DB3C8}.Release|Win32.Build.0 = Release|Win32
+{CE7BF510-11CD-4E07-B8AC-6478772DB3C8}.Release|x64.ActiveCfg = Release|x64
+{CE7BF510-11CD-4E07-B8AC-6478772DB3C8}.Release|x64.Build.0 = Release|x64
 EndGlobalSection
 
   GlobalSection(SolutionProperties) = preSolution

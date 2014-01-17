@@ -4961,10 +4961,8 @@ module ejs {
             run the garbage collector even if the $enable property is set to false. 
             It is normally not required to manually call the $run method as the ejs virtual machine runtime will 
             automatically run the garbage collector as required.
-            @param deep If set to true, will collect from all generations. The default is to collect only the youngest
-                geneartion of objects.
          */
-        native static function run(deep: Boolean = false): void
+        native static function run(): void
 
         /**
             Verify memory. In debug builds, this call verifies all memory blocks by checking a per-block signature.
@@ -12121,14 +12119,17 @@ module ejs {
          */
         native function send(...content): Number
 
+        /* 
+            WARNING: these must match the equivalent http.h definitions 
+         */
+        /**< sendBlock mode to not block and absorb only what can fit into the queue */
+        static const NON_BLOCK = 0x1
+
         /**< sendBlock mode to buffer the content */
-        static const BUFFER = 0x1
+        static const BUFFER = 0x2
 
         /**< sendBlock mode to block waiting for the content to be sent */
-        static const BLOCK = 0x2
-
-        /**< sendBlock mode to not block and absorb only what can fit into the queue */
-        static const NON_BLOCK = 0x4
+        static const BLOCK = 0x4
 
         /**
             Send a block of data with options to control message framing and buffering. 
@@ -20566,8 +20567,9 @@ module ejs.web {
 
         /** 
             @duplicate Stream.close
-            This closes the current request by finalizing all transmission data and sending a "close" event. It may 
-            not actually close the socket connection if the reuse limit has not been exceeded (see limits).
+            This closes the current request by finalizing all transmission data and sending a "close" event. HttpServer
+            attemps to reuse socket connections so calling close(), may not actually close the socket connection 
+            if the reuse limit has not been exceeded (see limits).
             It is normally not necessary to explicitly call close a request as the web framework will automatically 
             close finalized requests when all input data has fully been read. Calling close on an already closed
             request is silently ignored. 
