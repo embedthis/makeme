@@ -2594,12 +2594,10 @@ static void manageConn(HttpConn *conn, int flags)
 PUBLIC void httpConnTimeout(HttpConn *conn)
 {
     HttpLimits  *limits;
-    MprTicks    now;
 
     if (!conn->http) {
         return;
     }
-    now = conn->http->now;
     limits = conn->limits;
     assert(limits);
     mprLog(5, "Inactive connection timed out");
