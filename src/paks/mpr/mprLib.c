@@ -3438,7 +3438,7 @@ static LRESULT CALLBACK msgProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         mprTerminate(MPR_EXIT_DEFAULT, -1);
 
     } else if (msg && msg == ws->socketMessage) {
-        sock = wp;
+        sock = (int) wp;
         winMask = LOWORD(lp);
         mprServiceWinIO(MPR->waitService, sock, winMask);
 
