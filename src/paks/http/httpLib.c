@@ -2050,6 +2050,7 @@ PUBLIC int httpConnect(HttpConn *conn, cchar *method, cchar *uri, struct MprSsl 
 
     if (conn->tx == 0 || conn->state != HTTP_STATE_BEGIN) {
         /* WARNING: this will erase headers */
+        /* WARNING: this will yield */
         httpPrepClientConn(conn, 0);
     }
     assert(conn->state == HTTP_STATE_BEGIN);
@@ -2121,14 +2122,13 @@ PUBLIC void httpEnableUpload(HttpConn *conn)
 }
 
 
-//  MOB - should httpRead have a timeout?
-//  MOB - should httpRead have HTTP_BLOCK or HTTP_NON_BLOCK?
 /*
     Read data. If sync mode, this will block. If async, will never block.
     Will return what data is available up to the requested size. 
+    Timeout in milliseconds to wait. Set to -1 to use the default inactivity timeout. Set to zero to wait forever.
     Returns a count of bytes read. Returns zero if no data. EOF if returns zero and conn->state is > HTTP_STATE_CONTENT.
  */
-PUBLIC ssize httpRead(HttpConn *conn, char *buf, ssize size)
+PUBLIC ssize httpReadBlock(HttpConn *conn, char *buf, ssize size, MprTicks timeout, int flags)
 {
     HttpPacket  *packet;
     HttpQueue   *q;
@@ -2138,11 +2138,20 @@ PUBLIC ssize httpRead(HttpConn *conn, char *buf, ssize size)
     q = conn->readq;
     assert(q->count >= 0);
     assert(size >= 0);
+    if (flags == 0) {
+        flags = conn->async ? HTTP_NON_BLOCK : HTTP_BLOCK;
+    }
+    if (timeout <= 0) {
+        timeout = MPR_MAX_TIMEOUT;
+    }
+    timeout = min(timeout, conn->limits->inactivityTimeout);
 
-    while (!conn->async && q->count <= 0 && !conn->error && (conn->state <= HTTP_STATE_CONTENT)) {
-        httpEnableConnEvents(conn);
-        assert(httpClientConn(conn));
-        mprWaitForEvent(conn->dispatcher, conn->limits->inactivityTimeout);
+    if (flags & HTTP_BLOCK) {
+        while (q->count <= 0 && !conn->error && (conn->state <= HTTP_STATE_CONTENT) && !httpRequestExpired(conn, timeout)) {
+            httpEnableConnEvents(conn);
+            assert(httpClientConn(conn));
+            mprWaitForEvent(conn->dispatcher, timeout);
+        }
     }
     for (nbytes = 0; size > 0 && q->count > 0; ) {
         if ((packet = q->first) == 0) {
@@ -2164,12 +2173,21 @@ PUBLIC ssize httpRead(HttpConn *conn, char *buf, ssize size)
         if (mprGetBufLength(content) == 0) {
             httpGetPacket(q);
         }
+        if (flags & HTTP_NON_BLOCK) {
+            break;
+        }
     }
     assert(q->count >= 0);
     if (nbytes < size) {
         buf[nbytes] = '\0';
     }
     return nbytes;
+}
+
+
+PUBLIC ssize httpRead(HttpConn *conn, char *buf, ssize size)
+{
+    return httpReadBlock(conn, buf, size, -1, 0);
 }
 
 
@@ -2247,7 +2265,7 @@ PUBLIC HttpConn *httpRequest(cchar *method, cchar *uri, cchar *data, char **err)
         }
     }
     httpFinalizeOutput(conn);
-    if (httpWait(conn, HTTP_STATE_CONTENT, 10000) < 0) {
+    if (httpWait(conn, HTTP_STATE_CONTENT, MPR_MAX_TIMEOUT) < 0) {
         mprRemoveRoot(conn);
         *err = sclone("No response");
         return 0;
@@ -2335,7 +2353,7 @@ PUBLIC ssize httpWriteUploadData(HttpConn *conn, MprList *fileData, MprList *for
     Wait for the connection to reach a given state.
     Should only be used on the client side.
     @param state Desired state. Set to zero if you want to wait for one I/O event.
-    @param timeout Timeout in msec. If timeout is zer, wait forever. If timeout is < 0, use default inactivity 
+    @param timeout Timeout in msec. If timeout is zero, wait forever. If timeout is < 0, use default inactivity 
         and duration timeouts.
  */
 PUBLIC int httpWait(HttpConn *conn, int state, MprTicks timeout)
@@ -2361,7 +2379,9 @@ PUBLIC int httpWait(HttpConn *conn, int state, MprTicks timeout)
         }
         return MPR_ERR_BAD_STATE;
     }
-    if (timeout <= 0) {
+    if (timeout < 0) {
+        timeout = conn->limits->inactivityTimeout;
+    } else if (timeout == 0) {
         timeout = MPR_MAX_TIMEOUT;
     }
     if (state > HTTP_STATE_CONTENT) {
@@ -2610,7 +2630,7 @@ PUBLIC void httpConnTimeout(HttpConn *conn)
         assert(0);
         httpDestroyConn(conn);
     } else {
-        httpSetupWaitHandler(conn, MPR_READABLE);
+        httpSetupWaitHandler(conn, MPR_WRITABLE);
 #if UNUSED
         httpDisconnect(conn);
 #endif
@@ -2813,7 +2833,9 @@ PUBLIC void httpIOEvent(HttpConn *conn, MprEvent *event)
     mprTrace(6, "httpIOEvent for fd %d, mask %d", conn->sock->fd, event->mask);
     if (event->mask & MPR_WRITABLE) {
         httpResumeQueue(conn->connectorq);
+#if UNUSED
         conn->tx->writeBlocked = 0;
+#endif
     }
     if (event->mask & MPR_READABLE) {
         if ((packet = getPacket(conn, &size)) != 0) {
@@ -3226,7 +3248,11 @@ PUBLIC HttpLimits *httpSetUniqueConnLimits(HttpConn *conn)
 
 
 /*
+    Test if a request has expired relative to the default inactivity and request timeout limits.
     Set timeout to a non-zero value to apply an overriding smaller timeout
+    Set timeout to a value in msec. If timeout is zero, override default limits and wait forever. 
+    If timeout is < 0, use default inactivity and duration timeouts. If timeout is > 0, then use this timeout as an additional
+    timeout.
  */
 PUBLIC bool httpRequestExpired(HttpConn *conn, MprTicks timeout)
 {
@@ -3234,15 +3260,14 @@ PUBLIC bool httpRequestExpired(HttpConn *conn, MprTicks timeout)
     MprTicks    inactivityTimeout, requestTimeout;
 
     limits = conn->limits;
-    if (mprGetDebugMode()) {
+    if (mprGetDebugMode() || timeout == 0) {
         inactivityTimeout = requestTimeout = MPR_MAX_TIMEOUT;
-    } else {
+    } else if (timeout < 0) {
         inactivityTimeout = limits->inactivityTimeout;
         requestTimeout = limits->requestTimeout;
-    }
-    if (timeout > 0) {
-        inactivityTimeout = min(inactivityTimeout, timeout);
-        requestTimeout = min(requestTimeout, timeout);
+    } else {
+        inactivityTimeout = min(limits->inactivityTimeout, timeout);
+        requestTimeout = min(limits->requestTimeout, timeout);
     }
     if (mprGetRemainingTicks(conn->started, requestTimeout) < 0) {
         if (requestTimeout != timeout) {
@@ -5652,7 +5677,9 @@ PUBLIC bool httpConfigure(HttpConfigureProc proc, void *data, MprTicks timeout)
 
     http = MPR->httpService;
     mark = mprGetTicks();
-    if (timeout <= 0) {
+    if (timeout < 0) {
+        timeout = http->serverLimits->requestTimeout;
+    } else if (timeout == 0) {
         timeout = MAXINT;
     }
     do {
@@ -6680,6 +6707,8 @@ static void netOutgoingService(HttpQueue *q)
         }
     }
 #endif
+    tx->writeBlocked = 0;
+
     while (q->first || q->ioIndex) {
         if (q->ioIndex == 0 && buildNetVec(q) <= 0) {
             break;
@@ -6694,7 +6723,7 @@ static void netOutgoingService(HttpQueue *q)
             mprTrace(6, "netConnector: wrote %d, errno %d, qflags %x", (int) written, errCode, q->flags);
             if (errCode == EAGAIN || errCode == EWOULDBLOCK) {
                 /*  Socket full, wait for an I/O event */
-                httpSocketBlocked(conn);
+                tx->writeBlocked = 1;
                 break;
             }
             if (errCode == EPROTO && conn->secure) {
@@ -8401,7 +8430,9 @@ PUBLIC bool httpFlushQueue(HttpQueue *q, int flags)
                 return MPR_ERR_TIMEOUT;
             }
             conn->lastActivity = conn->http->now;
+#if UNUSED
             conn->tx->writeBlocked = 0;
+#endif
             httpResumeQueue(conn->connectorq);
             httpServiceQueues(conn, flags);
         }
@@ -12525,7 +12556,7 @@ PUBLIC void httpProtocol(HttpConn *conn)
             break;
 
         default:
-            canProceed = false;
+            canProceed = 0;
             break;
         }
         /* 
@@ -14429,6 +14460,8 @@ PUBLIC void httpSendOutgoingService(HttpQueue *q)
             return;
         }
     }
+    tx->writeBlocked = 0;
+
     if (q->ioIndex == 0) {
         buildSendVec(q);
     }
@@ -14442,7 +14475,7 @@ PUBLIC void httpSendOutgoingService(HttpQueue *q)
         errCode = mprGetError();
         if (errCode == EAGAIN || errCode == EWOULDBLOCK) {
             /*  Socket full, wait for an I/O event */
-            httpSocketBlocked(conn);
+            tx->writeBlocked = 1;
         } else {
             if (errCode != EPIPE && errCode != ECONNRESET && errCode != ECONNABORTED && errCode != ENOTCONN) {
                 httpError(conn, HTTP_ABORT | HTTP_CODE_COMMS_ERROR, "sendConnector: error, errCode %d", errCode);

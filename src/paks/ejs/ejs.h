@@ -6190,7 +6190,11 @@ typedef struct EjsCode {
     @ingroup EjsFunction
     @stability Evolving.
  */
+#if DOXYGEN
+typedef EjsObj* (*EjsProc)(Ejs *ejs, EjsAny *thisObj, int argc, struct EjsObj **argv);
+#else
 typedef struct EjsObj *(*EjsProc)(Ejs *ejs, EjsAny *thisObj, int argc, struct EjsObj **argv);
+#endif
 
 /** 
     Function class
@@ -6199,7 +6203,7 @@ typedef struct EjsObj *(*EjsProc)(Ejs *ejs, EjsAny *thisObj, int argc, struct Ej
     @defgroup EjsFunction EjsFunction
     @see EjsFunction ejsIsFunction ejsIsNativeFunction ejsIsInitializer ejsCreateFunction ejsCloneFunction
         ejsRunFunctionBySlot ejsRunFunction ejsRunInitializer
-        EjsProc ejsIsFunction ejsBindFunction ejsCloneFunction ejsCreateFunction ejsInitFunction
+        ejsIsFunction ejsBindFunction ejsCloneFunction ejsCreateFunction ejsInitFunction
         ejsCreateBareFunction ejsCreateActivation ejsRemoveConstructor ejsRunInitializer ejsRunFunction
         ejsRunFunctionBySlot ejsrunFunctionByName 
     @stability Internal

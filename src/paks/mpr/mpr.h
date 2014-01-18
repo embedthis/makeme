@@ -5314,15 +5314,15 @@ PUBLIC char *mprReplacePathExt(cchar *dir, cchar *ext);
     given paths to the directory portion of the current ("this") path. For example: 
     Path("/usr/bin/ejs/bin").resolve("lib") will return "/usr/lib/ejs/lib". i.e. it will return the
     sibling directory "lib".
-
+    \n\n
     Resolve operates by determining a virtual current directory for this Path object. It then successively 
     joins the given paths to the directory portion of the current result. If the next path is an absolute path, 
     it is used unmodified.  The effect is to find the given paths with a virtual current directory set to the 
     directory containing the prior path.
-
+    \n\n
     Resolve is useful for creating paths in the region of the current path and gracefully handles both 
     absolute and relative path segments.
-
+    \n\n
     Returns a joined (normalized) path.
     If path is absolute, then return path. If path is null, empty or "." then return path.
     @param base Base path to use as the base.

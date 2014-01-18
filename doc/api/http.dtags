@@ -2558,6 +2558,13 @@
       <arglist>(HttpConn *conn, char *buffer, ssize size)</arglist>
     </member>
     <member kind="function">
+      <type>ssize</type>
+      <name>httpReadBlock</name>
+      <anchorfile>group___http_rx.html</anchorfile>
+      <anchor>ga95ee7ae80f56a7468d8f83ebab6917b1</anchor>
+      <arglist>(HttpConn *conn, char *buffer, ssize size, MprTicks timeout, int flags)</arglist>
+    </member>
+    <member kind="function">
       <type>char *</type>
       <name>httpReadString</name>
       <anchorfile>group___http_rx.html</anchorfile>

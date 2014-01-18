@@ -645,8 +645,8 @@ typedef void (*HttpConfigureProc)(void *arg);
     This callback is required because configuration of the Http engine must be done when single-threaded.
     @param proc Function of the type HttpConfigureProc.
     @param arg Reference argument to pass to the callback proc. Can be a managed or an unmanaged reference.
-    @param timeout Timeout in milliseconds to wait. Set to -1 to use the default inactivity timeout. Set to zero
-        to wait for ever.
+    @param timeout Timeout in milliseconds to wait. Set to -1 to use the default server inactivity timeout. Set to zero
+        to wait forever.
     @ingroup Http
     @stability Prototype
   */
@@ -1548,11 +1548,11 @@ PUBLIC void httpEnableQueue(HttpQueue *q);
 /**
     Flush queue data
     @description This initiates writing buffered data (flushes) by scheduling the queue and servicing the queues. 
+    \n\n
     If blocking mode is selected, all queues will be immediately serviced and the call may block while output drains. 
     If non-blocking, the queues will be serviced but the call will not block nor yield.
-    This call may yield when called in blocking mode.
-    WARNING: Be careful when using blocking == true. Should typically only be used by end applications or client side code 
-        and not by handlers or filters.
+    In blocking mode, this routine may invoke mprYield before it blocks to consent for the garbage collector to trun. Callers must
+    ensure they have retained all required temporary memory before invoking this routine.
     @param q Queue to flush
     @param flags If set to HTTP_BLOCK, this call will block until the data has drained through the network connector.
     @return "True" if there is room for more data in the queue after flushing.
@@ -1671,7 +1671,7 @@ PUBLIC void httpPutForService(struct HttpQueue *q, HttpPacket *packet, bool serv
     @description The packet is passed to the queue by invoking its put() callback. 
         Note the receiving queue may immediately process the packet or it may choose to defer processing by putting to
         its service queue.  @param q Queue reference
-
+    \n\n
     Note: the garbage collector may run while calling httpSendBlock to reclaim unused packets. It is essential that all
         required memory be retained by a relevant manager calling mprMark as required.
 
@@ -1686,7 +1686,7 @@ PUBLIC void httpPutPacket(struct HttpQueue *q, HttpPacket *packet);
     @description Put a packet onto the next downstream queue by calling the downstream queue's put() method. 
         Note the receiving queue may immediately process the packet or it may choose to defer processing by putting to
         its service queue.  @param q Queue reference
-
+    \n\n
     Note: the garbage collector may run while calling httpSendBlock to reclaim unused packets. It is essential that all
         required memory be retained by a relevant manager calling mprMark as required.
 
@@ -1851,17 +1851,24 @@ PUBLIC ssize httpWrite(HttpQueue *q, cchar *fmt, ...);
 
 /** 
     Write a block of data to the queue
-    @description Write a block of data onto the end of the queue. This will queue the data an may initiaite writing
-        to the connection if the queue is full. Data will be appended to last packet in the queue
-        if there is room. Otherwise, data packets will be created as required to store the write data. This call operates
-        in buffering mode by default unless either the HTTP_BLOCK OR HTTP_NON_BLOCK flag is specified. When blocking, the
-        call will either accept and write all the data or it will fail, it will never return "short" with a partial write.
-        In blocking mode (HTTP_BLOCK), it block for up to the inactivity timeout specified in the
-        conn->limits->inactivityTimeout value.  In non-blocking mode (HTTP_NON_BLOCK), the call may return having written
-        fewer bytes than requested. In buffering mode (HTTP_BUFFER), the data is always absorbed without blocking 
-        and queue size limits are ignored. When using HTTP_BLOCK, this function may yield to the garbage collector. 
-        Callers should treat HTTP_BLOCK calls as equivalent to a call to #mprYield when using temporary allocations.
-        Data written after #httpFinalize, #httpFinalizeOutput or #httpError is called will be ignored.
+    @description Write a block of data onto the end of the queue. This will queue the data and may initiaite writing
+        to the connection if the queue is full. Data will be appended to last packet in the queue if there is room. 
+        Otherwise, data packets will be created as required to store the write data. 
+        \n\n
+        This call operates in buffering mode by default unless either the HTTP_BLOCK OR HTTP_NON_BLOCK flag is specified. 
+        When blocking, the call will either accept and write all the data or it will fail, it will never return "short" 
+        with a partial write.
+        \n\n
+        In blocking mode (HTTP_BLOCK), it block for up to the inactivity timeout specified in the 
+        conn->limits->inactivityTimeout value. In blocking mode, this routine may invoke mprYield before blocking to 
+        consent for the garbage collector to run. Callers must ensure they have retained all required temporary memory 
+        before invoking this routine.
+        \n\n
+        In non-blocking mode (HTTP_NON_BLOCK), the call may return having written fewer bytes than requested. 
+        \n\n
+        In buffering mode (HTTP_BUFFER), the data is always absorbed without blocking and queue size limits are ignored. 
+        \n\n
+        Data written after calling #httpFinalize, #httpFinalizeOutput or #httpError will be discarded.
     @param q Queue reference
     @param buf Buffer containing the write data
     @param size of the data in buf
@@ -2377,6 +2384,20 @@ PUBLIC void httpSetIOCallback(struct HttpConn *conn, HttpIOCallback fn);
     @description The HttpConn object represents a TCP/IP connection to the client. A connection object is created for
         each socket connection initiated by the client. One HttpConn object may service many Http requests due to 
         HTTP/1.1 keep-alive.
+        Each connection has a request timeout and inactivity timeout. These can be set via #httpSetTimeout.
+        The set of APIs that block and yield to the garbage collector are:
+        <ul>
+        <li>httpFlushQueue(, HTTP_BLOCK)</li>
+        <li>httpWriteBlock(, HTTP_BLOCK)</li>
+        <li>httpSendBlock(, HTTP_BLOCK)</li>
+        <li>httpRead() when in sync mode</li>
+        <li>httpReadBlock(, HTTP_BLOCK)</li>
+        <li>httpWait()</li>
+        <li>httpWriteUploadData</li>
+        </ul>
+        When these APIs block and yield, the garbage collector may reclaim allocated memory that does not have a
+        managed reference. Read Appweb memory allocation at http://embedthis.com/products/appweb/doc/ref/appweb/memory.html.
+
     @defgroup HttpConn HttpConn
     @see HttpConn HttpEnvCallback HttpGetPassword HttpListenCallback HttpNotifier HttpQueue HttpRedirectCallback 
         HttpRx HttpStage HttpTx HtttpListenCallback httpCallEvent httpFinalizeConnector httpConnTimeout
@@ -2800,7 +2821,9 @@ PUBLIC void httpReadyHandler(HttpConn *conn);
     @description This tests the request against the HttpLimits.requestTimeout and HttpLimits.inactivityTimeout limits.
     It uses the HttpConn.started and HttpConn.lastActivity time markers.
     @param conn HttpConn object created via #httpCreateConn
-    @param timeout Overriding, smaller duration timeout that must also be satisfied.
+    @param timeout Overriding timeout in milliseconds. If timeout is zero, override default limits and wait forever.
+        If timeout is < 0, use default connection inactivity and duration timeouts. If timeout is > 0, then use this 
+        timeout as an additional timeout.
     @ingroup HttpConn
     @stability Prototype
  */
@@ -5163,7 +5186,7 @@ PUBLIC int httpSetCacheLink(HttpConn *conn, void *link);
             not to block the thread issuing the callback.
     @param notifyProc MprCacheProc notification callback. Invoked for events of interest on cache items. 
         The event is set to MPR_CACHE_NOTIFY_REMOVE when items are removed from the cache.  Invoked as:
-
+        \n\n
         (*MprCacheProc)(MprCache *cache, cchar *key, cchar *data, int event);
     @ingroup HttpSession
     @stability Prototype
@@ -5673,16 +5696,56 @@ PUBLIC bool httpMatchParam(HttpConn *conn, cchar *var, cchar *expected);
 
 /** 
     Read rx body data. 
-    @description This will read available body data. If in sync mode, this call may block. If in async
-    mode, the call will not block and will return with whatever data is available.
+    @description This routine will read body data.
+    \n\n
+    This call will block depending on whether the connection is in async or sync mode. Sync mode is 
+    the default for client connections and async for server connections.
+    \n\n
+    If in sync mode, this call may block to wait for data. If in async mode, the call will not block and will 
+    return with whatever data is available.
+    \n\n
+    In sync mode, this routine may invoke mprYield before blocking to consent for the garbage collector to run. Callers must
+    ensure they have retained all required temporary memory before invoking this routine.
+    \n\n
+    This call will block for at most the timeout specified by the connection inactivity timeout defined in 
+    HttpConn.limits.inactivityTimeout. Use #httpSetTimeout to change the timeout value.
+
     @param conn HttpConn connection object created via #httpCreateConn
     @param buffer Buffer to receive read data
     @param size Size of buffer. 
-    @return The number of bytes read
+    @return The number of bytes read. Returns zero for not data. EOF can be detected by testing #httpIsEof.
     @ingroup HttpRx
     @stability Stable
  */
 PUBLIC ssize httpRead(HttpConn *conn, char *buffer, ssize size);
+
+/** 
+    Read a block of rx body data. 
+    @description This routine will read body data and provide control over blocking and call duration. 
+    \n\n
+    If in blocking mode (the default for client connections), this call may block to wait for data. If in non-blocking
+    mode (the default for server connections), the call will not block and will return with whatever data is available.
+    The blocking mode is set via the flags parameter. 
+    \n\n
+    In blocking mode, this routine may invoke mprYield before blocking to consent for the garbage collector to run. Callers must
+    ensure they have retained all required temporary memory before invoking this routine.
+    \n\n
+    This call will block for at most the timeout specified by the connection inactivity timeout defined in 
+    HttpConn.limits.inactivityTimeout. Use #httpSetTimeout to change the timeout value.
+
+    @param conn HttpConn connection object created via #httpCreateConn
+    @param buffer Buffer to receive read data
+    @param size Size of buffer. 
+    @param timeout Timeout in milliseconds to wait. Set to -1 to use the default inactivity timeout. Set to zero
+        to wait forever.
+    @param flags Set to HTTP_BLOCK to wait for data before returning. Set to HTTP_NON_BLOCK to read what is available and
+        return without blocking. If set to zero, it will default to HTTP_BLOCK for sync connections and HTTP_NON_BLOCK for
+        async connections.
+    @return The number of bytes read. Returns zero for not data. EOF can be detected by testing #httpIsEof.
+    @ingroup HttpRx
+    @stability Prototype
+ */
+PUBLIC ssize httpReadBlock(HttpConn *conn, char *buffer, ssize size, MprTicks timeout, int flags);
 
 /**
     Get the receive body input
@@ -6008,6 +6071,7 @@ PUBLIC void httpFinalizeConnector(HttpConn *conn);
     HttpFinalizeOutput will set the finalizedOutput flag and write a final chunk trailer if using chunked transfers. If the
     output is already finalized, this call does nothing.  Note that after finalization, incoming content may continue to be processed.
     i.e. httpFinalizeOutput can be called before all incoming data has been received. 
+    \n\n
     The difference between #httpFinalize and #httpFinalizeOutput is that #httpFinalize implies that all request processing is also
     complete whereas #httpFinalizeOutput implies that the output is generated. Note that while the output may be fully generated, it
     may not be fully transmitted by the pipeline and connector. When the output is fully transmitted, the connector will call
@@ -6019,8 +6083,11 @@ PUBLIC void httpFinalizeConnector(HttpConn *conn);
 PUBLIC void httpFinalizeOutput(HttpConn *conn);
 
 /**
-    Flush transmit data. This initiates writing buffered data. 
+    Flush transmit data. 
+    @description This call initiates writing buffered data. 
     If in sync mode this call may block until the output queues drain.
+    This routine may invoke mprYield before it blocks to consent for the garbage collector to run. Callers must
+    ensure they have retained all required temporary memory before invoking this routine.
     @param conn HttpConn connection object created via #httpCreateConn
     @ingroup HttpTx
     @stability Stable
@@ -6329,12 +6396,15 @@ PUBLIC void httpSocketBlocked(HttpConn *conn);
 /** 
     Wait for the client connection to achieve the requested state.
     @description This call blocks until the connection reaches the desired state. It creates a wait handler and
-        services any events while waiting. This is useful for blocking client requests.
-        Should never be used on server-side connections.
+        services events while waiting. This is useful for blocking client requests, and should never be used on 
+        server-side connections.
+        \n\n
+        This routine may invoke mprYield before it sleeps to consent for the garbage collector to turn. Callers must
+        ensure they have retained all required temporary memory before invoking this routine.
     @param conn HttpConn connection object created via #httpCreateConn
     @param state HTTP_STATE_XXX to wait for.
-    @param timeout Timeout in milliseconds to wait. Set to -1 to use the default inactivity timeout. Set to zero
-        to wait for ever.
+    @param timeout Timeout in milliseconds to wait. Set to -1 to use the default connection timeouts. Set to zero
+        to wait forever.
     @return "Zero" if successful. Otherwise return a negative MPR error code. Specific returns include:
         MPR_ERR_TIMEOUT and MPR_ERR_BAD_STATE.
     @ingroup HttpTx
@@ -6358,7 +6428,9 @@ PUBLIC void httpWriteHeaders(HttpQueue *q, HttpPacket *packet);
 /** 
     Write Http upload body data
     @description Write files and form fields as request body data. This will use transfer chunk encoding. This routine 
-        will block until all the buffer is written even if a callback is defined.
+        will block until all the buffer is written.
+        This routine may invoke mprYield before it blocks to consent for the garbage collector to turn. Callers must
+        ensure they have retained all required temporary memory before invoking this routine.
     @param conn Http connection object created via #httpCreateConn
     @param fileData List of string file names to upload
     @param formData List of strings containing "key=value" pairs. The form data should be already www-urlencoded.
@@ -6960,27 +7032,27 @@ PUBLIC ssize httpSend(HttpConn *conn, cchar *fmt, ...);
 /**
     Send a message of a given type to the WebSocket peer
     @description This is the lower-level message send routine. It permits control of message types and message framing.
-
+    \n\n
     This routine can operate in a blocking, non-blocking or buffered mode. Blocking mode is specified via the HTTP_BLOCK flag.  
     When blocking, the call will wait until it has written all the data. The call will either accept and write all the data 
     or it will fail, it will never return "short" with a partial write. If in blocking mode, the call may block for up to the 
     inactivity timeout specified in the conn->limits->inactivityTimeout value.
-
+    \n\n
     Non-blocking mode is specified via the HTTP_NON_BLOCK flag. In this mode, the call will consume that amount of data
     that will fit within the outgoing WebSocket queues. Consequently, it may return "short" with a partial write. If this occurs
     the next call to httpSendBlock should set the message type to WS_MSG_CONT to indicate a continued message. This is required
     by the WebSockets specification.
-
+    \n\n
     Buffered mode is the default and may be explicitly specified via the HTTP_BUFFER flag. In buffered mode, the entire message 
     will be accepted and will be buffered if required. 
-
+    \n\n
     This API may split the message into frames such that no frame is larger than the limit conn->limits->webSocketsFrameSize.
     However, if the HTTP_MORE flag is specified to indicate there is more data to complete this entire message, the data provided 
     to this call will not be split into frames and will not be aggregated with previous or subsequent messages. i.e. frame
     boundaries will be presserved and sent as-is to the peer.
-
-    Note: the garbage collector may run while calling httpSendBlock to reclaim unused packets. It is essential that all
-        required memory be retained by a relevant manager calling mprMark on the message.
+    \n\n
+    In blocking mode, this routine may invoke mprYield before blocking to consent for the garbage collector to run. Callers must
+        ensure they have retained all required temporary memory before invoking this routine.
 
     @param conn HttpConn connection object created via #httpCreateConn
     @param type Web socket message type. Choose from WS_MSG_TEXT, WS_MSG_BINARY or WS_MSG_PING. 

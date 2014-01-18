@@ -798,7 +798,6 @@ static int prepRequest(HttpConn *conn, MprList *files, int retry)
         static int next = 0;
         seq = itos(next++);
         httpSetHeader(conn, "X-Http-Seq", seq);
-        print("@@@@ seq %d", seq);
     }
     if (app->ranges) {
         httpSetHeader(conn, "Range", app->ranges);
