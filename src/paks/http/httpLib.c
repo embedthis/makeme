@@ -2050,7 +2050,6 @@ PUBLIC int httpConnect(HttpConn *conn, cchar *method, cchar *uri, struct MprSsl 
 
     if (conn->tx == 0 || conn->state != HTTP_STATE_BEGIN) {
         /* WARNING: this will erase headers */
-        /* WARNING: this will yield */
         httpPrepClientConn(conn, 0);
     }
     assert(conn->state == HTTP_STATE_BEGIN);
@@ -2714,6 +2713,7 @@ PUBLIC void httpPrepClientConn(HttpConn *conn, bool keepHeaders)
     assert(conn);
     if (conn->keepAliveCount > 0 && conn->sock) {
 #if KEEP
+        /* Cannot use this as it may block and therefore yield */
         consumeLastRequest(conn);
 #else
         conn->sock = 0;
