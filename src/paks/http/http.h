@@ -604,12 +604,13 @@ PUBLIC Http *httpCreate(int flags);
 PUBLIC int httpConfigureNamedVirtualEndpoints(Http *http, cchar *ip, int port);
 
 /**
-    Destroy the Http service object
-    @param http Http service object.
+    Destroy the Http service.
+    @description This routine is invoked as the final stage in shutting down the http service.
+        It stops the request timeout timer and releases all http memory.
     @ingroup Http
-    @stability Stable
+    @stability Internal
  */
-PUBLIC void httpDestroy(Http *http);
+PUBLIC void httpDestroy();
 
 /**
     Get the http context object
@@ -653,6 +654,38 @@ typedef void (*HttpConfigureProc)(void *arg);
 PUBLIC bool httpConfigure(HttpConfigureProc proc, void *arg, MprTicks timeout);
 
 /**
+    Lookup a Http status code
+    @description Lookup the code and return the corresponding text message briefly expaining the status.
+    @param http Http object created via #httpCreate
+    @param status Http status code
+    @return Text message corresponding to the status code
+    @ingroup Http
+    @stability Stable
+ */
+PUBLIC cchar *httpLookupStatus(Http *http, int status);
+
+/**
+    Lookup a host by name
+    @param http Http object created via #httpCreate
+    @param name The name of the host to find
+    @return The corresponding host object
+    @ingroup Http
+    @stability Stable
+ */
+PUBLIC struct HttpHost *httpLookupHost(Http *http, cchar *name);
+
+/**
+    Lookup a listening endpoint
+    @param http Http object created via #httpCreate
+    @param ip Listening IP address to look for
+    @param port Listening port number
+    @return HttpEndpoint object
+    @ingroup Http
+    @stability Stable
+ */
+PUBLIC struct HttpEndpoint *httpLookupEndpoint(Http *http, cchar *ip, int port);
+
+/**
     Set the http context object
     @param http Http object created via #httpCreate
     @param context New context object
@@ -693,38 +726,6 @@ PUBLIC void httpSetDefaultClientPort(Http *http, int port);
 PUBLIC void httpSetProxy(Http *http, cchar *host, int port);
 
 /**
-    Lookup a Http status code
-    @description Lookup the code and return the corresponding text message briefly expaining the status.
-    @param http Http object created via #httpCreate
-    @param status Http status code
-    @return Text message corresponding to the status code
-    @ingroup Http
-    @stability Stable
- */
-PUBLIC cchar *httpLookupStatus(Http *http, int status);
-
-/**
-    Lookup a host by name
-    @param http Http object created via #httpCreate
-    @param name The name of the host to find
-    @return The corresponding host object
-    @ingroup Http
-    @stability Stable
- */
-PUBLIC struct HttpHost *httpLookupHost(Http *http, cchar *name);
-
-/**
-    Lookup a listening endpoint
-    @param http Http object created via #httpCreate
-    @param ip Listening IP address to look for
-    @param port Listening port number
-    @return HttpEndpoint object
-    @ingroup Http
-    @stability Stable
- */
-PUBLIC struct HttpEndpoint *httpLookupEndpoint(Http *http, cchar *ip, int port);
-
-/**
     Set the software description
     @param http Http object created via #httpCreate
     @param description String describing the Http software. By default, this is set to HTTP_NAME.
@@ -732,6 +733,15 @@ PUBLIC struct HttpEndpoint *httpLookupEndpoint(Http *http, cchar *ip, int port);
     @stability Stable
  */
 PUBLIC void httpSetSoftware(Http *http, cchar *description);
+
+/**
+    Stop the Http service.
+    @param how Termination control flags. Use MPR_EXIT_GRACEFUL to allow all current requests and commands to
+        complete before exiting. Use MPR_EXIT_IMMEDIATE to abort all current requests.
+    @ingroup Http
+    @stability Prototype
+ */
+PUBLIC void httpStop(int how);
 
 /* Internal APIs */
 PUBLIC void httpAddConn(Http *http, struct HttpConn *conn);
@@ -5538,7 +5548,7 @@ PUBLIC cchar *httpGetCookies(HttpConn *conn);
     @param conn HttpConn connection object
     @param var Name of the request param to retrieve
     @param defaultValue Default value to return if the variable is not defined. Can be null.
-    @return String containing the request param's value. Caller should not free.
+    @return String containing a reference to the the request param's value. Caller should not mutate this value.
     @ingroup HttpRx
     @stability Stable
  */
@@ -5649,7 +5659,7 @@ PUBLIC char *httpGetPathExt(cchar *path);
     Get the request query string
     @description Get query string sent with the current request.
     @param conn HttpConn connection object
-    @return String containing the request query string. Caller should not free.
+    @return String containing a reference to the request query string. Caller should not mutate this value.
     @ingroup HttpRx
     @stability Stable
  */

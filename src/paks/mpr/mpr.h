@@ -1194,7 +1194,6 @@ typedef struct MprHeap {
     int              marking;               /**< Actually marking objects now */
     int              mustYield;             /**< Threads must yield for GC which is due */
     int              nextSeqno;             /**< Next sequence number */
-    int              pauseGC;               /**< Pause GC (short) */
     int              pageSize;              /**< System page size */
     int              priorWeightedCount;    /**< Prior weighted count after last sweep */
     int              printStats;            /**< Print diagnostic heap statistics */
@@ -1653,12 +1652,18 @@ PUBLIC void mprHoldBlocks(cvoid *ptr, ...);
     Pause the garbage collector.
     @description This call pause garbage collection so that all thread variables will be safe from collection.
         It is useful to prevent collection when calling a routine that is known to yield.
-        This routine increments a pause counter and mprReleaseGC will decrement. Garbage collection can resume when the
-        counter is zero.
+        This routine increments a pause counter and mprResumeGC will decrement. Garbage collection can resume when the
+        counter is zero. 
+        \n\n
+        It is essential that mprResumeGC is always invoked after mprPauseGC. Be very careful to ensure
+        that all error code paths call mprResumeGC as required.
+        \n\n
+        To be effective, this routine also pauses any MPR shutdown.
+    @return true if GC and MPR shutdown can be paused. Will return false if the MPR is stopping and GC cannot be paused.
     @ingroup MprMem
     @stability Prototype.
   */
-PUBLIC void mprPauseGC();
+PUBLIC bool mprPauseGC();
 
 /**
     Release a memory block
@@ -1691,7 +1696,7 @@ PUBLIC void mprRemoveRoot(cvoid *ptr);
     Resume the garbage collector.
     @description This call pause garbage collection so that all thread variables will be safe from collection.
         This routine increments a pause counter and mprReleaseGC will decrement. Garbage collection can resume when the
-        counter is zero.
+        counter is zero. This also resumes any shutdown capability for the application.
     @ingroup MprMem
     @stability Prototype.
   */
@@ -5905,17 +5910,38 @@ PUBLIC void mprSignalDispatcher(MprDispatcher *dispatcher);
  */
 PUBLIC MprEvent *mprCreateEvent(MprDispatcher *dispatcher, cchar *name, MprTicks period, void *proc, void *data, int flags);
 
-/**
-    Create an event outside the MPR
-    @description Create a new event when executing a non-MPR thread
-    @param dispatcher Dispatcher object created via mprCreateDispatcher
-    @param proc Function to invoke when the event is run
-    @param data Data to associate with the event and stored in event->data. The data must be non-MPR memory.
-    @return Returns zero if successful, otherwise a negative MPR error code.
-    @ingroup MprEvent
-    @stability Stable
+/*
+    Flags for mprCreateEventOutside
  */
-PUBLIC int mprCreateEventOutside(MprDispatcher *dispatcher, void *proc, void *data);
+#define MPR_EVENT_BLOCK         0x1     /*< Block while calling the event proc */
+#define MPR_EVENT_DELAY_RESUME  0x2     /*< Delay resumption of GC and shutdown services. User must call mprResumeGC() */
+
+/**
+    Create an event from outside the MPR
+    @description Create a new event when executing a non-MPR thread. This is the only safe way to invoke MPR services from
+        a foreign-thread. The reason for this is that the MPR uses a cooperative garbage collector and an outside thread
+        may call into the MPR at an inopportune time when the MPR is running the garbage collector which requires sole access
+        to application memory for its duration.
+        \n\n
+        This routine will create and queue the event and then return, unless MPR_EVENT_BLOCK is specified. In that case,
+        this call will wait while the event callback proc runs to completion then this routine will return.
+        \n\n
+        While creating and queuing the event, this routine pauses the garbage collector. If the collector is running, it 
+        waits until it completes before creating the event. This may necessitate a small delay before running the event.
+        If MPR_EVENT_BLOCK is specified, the callback will be run with the collector paused. In this case only, if the 
+        callback needs to block or run for a longer period of time, it should resume GC by calling #mprResumeGC and 
+        #mprYield to give the GC a chance to run. Before returning, it should re-pause the collector by calling #mprPauseGC.
+    NOTE: the event callback proc may run to completion before this function returns.
+    @param dispatcher Dispatcher object created via mprCreateDispatcher
+    @param proc Callback function to invoke when the event is run
+    @param data Data to associate with the event and stored in event->data. The data must be non-MPR memory.
+    @param flags Set to MPR_EVENT_BLOCK to invoke the callback and wait for its completion before returning.
+    @return Returns zero if successful, otherwise a negative MPR error code. Returns MPR_ERR_BAD_STATE if the MPR is stopping
+        and the event cannot be created.
+    @ingroup MprEvent
+    @stability Evolving
+ */
+PUBLIC int mprCreateEventOutside(MprDispatcher *dispatcher, void *proc, void *data, int flags);
 
 /*
     Queue a new event for service.
@@ -6005,6 +6031,7 @@ PUBLIC void mprRelayEvent(MprDispatcher *dispatcher, void *proc, void *data, Mpr
 /* Internal API */
 PUBLIC MprEvent *mprCreateEventQueue();
 PUBLIC MprEventService *mprCreateEventService();
+PUBLIC void mprDestroyEventService();
 PUBLIC void mprDedicateWorkerToDispatcher(MprDispatcher *dispatcher, struct MprWorker *worker);
 PUBLIC void mprDequeueEvent(MprEvent *event);
 PUBLIC bool mprDispatcherHasEvents(MprDispatcher *dispatcher);
@@ -6186,14 +6213,6 @@ PUBLIC void mprXmlSetParserHandler(MprXml *xp, MprXmlHandler h);
 #define MPR_JSON_PRETTY         0x1         /**< Serialize output in a more human readable, multiline "pretty" format */
 #define MPR_JSON_QUOTES         0x2         /**< Serialize output quoting keys */
 #define MPR_JSON_STRINGS        0x4         /**< Emit all values as quoted strings */
-
-#if UNUSED
-/*
-    Flags for mprAddJson
- */
-#define MPR_JSON_APPEND         0x1         /**< Append property to object. Permits multiple properties of the same name */
-#define MPR_JSON_REPLACE        0x2         /**< Replace existing properties of the same name (default) */
-#endif
 
 /*
     Flags for mprQueryJson
@@ -6842,10 +6861,24 @@ PUBLIC int mprStartThread(MprThread *thread);
 #endif
 
 /**
-    Yield a thread to allow garbage collection
-    @description Long running threads should regularly call mprYield to allow the garbage collector to run.
-    All transient memory must have references from "managed" objects (see mprAlloc) to ensure required memory is
-    retained.
+    Signify to the garbage collector that the thread is ready for garbage collection
+    @description This routine informas the garbage collector that the thread has secured all memory that must be
+    retained and is now ready for garbage collection. The MPR has a cooperative garbage collector that runs only
+    when all threads are ready for collection. Consequently, it is essential that threads "yield" before sleeping
+    or blocking.
+    \n\n
+    Normally, all threads yield automatically when waiting for I/O or otherwise sleeping via standard MPR routines. 
+    MPR threads tyically yield in their event loops and thread pool idle routines, so threads should not need to 
+    call mprYield unless calling custom blocking routines or long running routines.
+    \n\n
+    When calling a blocking routine, you should call mprYield(MPR_YIELD_STICK) to put the thread into a yielded state.
+    When the blocking call returns, you should call mprResetYield()
+    \n\n
+    While yielded, all transient memory must have references from "managed" objects (see mprAlloc) to ensure required memory is
+    retained. All other memory will be reclaimed.
+    \n\n
+    If a thread blocks and does not yield, it will prevent garbage collection and the applications memory size will grow
+    unnecessarily.
     @param flags Set to MPR_YIELD_WAIT to wait until the next collection is run. Set to MPR_YIELD_COMPLETE to wait until 
     the garbage collection is fully complete including sweep phase. This is not normally required as the sweeper runs
     in parallel with user threads. Set to MPR_YIELD_STICKY to remain in the yielded state. This is useful when sleeping 
@@ -6857,12 +6890,12 @@ PUBLIC void mprYield(int flags);
 #if DOXYGEN
 /**
     Test if a thread should call mprYield
-    @description This call tests if a garbage collection is required.
+    @description This call tests if a thread should yield to the garbage collector.
     @stability Prototype
  */
 PUBLIC bool mprNeedYield();
 #else
-#define mprNeedYield() (MPR->heap->mustYield && !MPR->heap->pauseGC)
+#define mprNeedYield() (MPR->heap->mustYield)
 #endif
 
 /**
@@ -6891,7 +6924,7 @@ PUBLIC MprThreadLocal *mprCreateThreadLocal();
 #define MPR_WRITE_PIPE         1            /* Write side of breakPipe */
 
 #if BIT_WIN_LIKE
-typedef long (*MprMsgCallback)(HWND hwnd, UINT msg, UINT wp, LPARAM lp);
+typedef long (*MprMsgCallback)(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
 #endif
 
 /**
@@ -9204,10 +9237,10 @@ PUBLIC int mprSetMimeProgram(MprHash *table, cchar *mimeType, cchar *program);
 /*
     Mpr state
  */
-#define MPR_STARTED                 0x1     /**< Mpr services started */
-#define MPR_STOPPING                0x2     /**< App is stopping. Services should not take new requests */
-#define MPR_STOPPING_CORE           0x4     /**< Stopping core services: GC and event dispatch */
-#define MPR_FINISHED                0x8     /**< Mpr object destroyed  */
+#define MPR_STARTED                 1       /**< Mpr services started */
+#define MPR_STOPPING                2       /**< App has been instructed to terminate. Services should not take new requests */
+#define MPR_DESTROYING              4       /**< Destroy core services and release memory */
+#define MPR_DESTROYED               5       /**< Mpr object destroyed  */
 
 /*
     MPR flags
@@ -9223,9 +9256,9 @@ typedef bool (*MprIdleCallback)();
     to give the service notice of impending exit. The terminator will be called twice. The first time with state set to
     MPR_STOPPING whereupon the terminator should stop servicing new requests and allow existing requests to complete 
     if the "how" parameter is set to MPR_EXIT_GRACEFUL. If how is set to MPR_EXIT_IMMEDIATE, all requests should be 
-    immediately terminated. The second time the terminator is called, state will be set to MPR_STOPPING_CORE. In 
+    immediately terminated. The second time the terminator is called, state will be set to MPR_DESTROYING. In 
     response the terminator should stop all requests and release all resources.
-    @param state Set to MPR_STOPPING or MPR_STOPPING_CORE
+    @param state Set to MPR_STOPPING or MPR_DESTROYING
     @param how Flags word including the flags: MPR_EXIT_GRACEFUL, MPR_EXIT_IMMEDIATE, MPR_EXIT_NORMAL, MPR_EXIT_RESTART.
     @param status The desired application exit status
     @ingroup Mpr
@@ -9240,7 +9273,7 @@ typedef void (*MprTerminator)(int state, int how, int status);
     mprEscapeCmd mprEscapseHtml mprGetApp mprGetAppDir mprGetAppName mprGetAppPath mprGetAppTitle mprGetAppVersion
     mprGetCmdlineLogging mprGetDebugMode mprGetDomainName mprGetEndian mprGetError mprGetHostName
     mprGetHwnd mprGetInst mprGetIpAddr mprGetKeyValue mprGetLogLevel mprGetMD5 mprGetMD5WithPrefix mprGetOsError
-    mprGetRandomBytes mprGetServerName mprIsExiting mprIsFinished mprIsIdle mprIsStopping mprIsStoppingCore mprMakeArgv
+    mprGetRandomBytes mprGetServerName mprIsFinished mprIsIdle mprIsStopping mprIsStoppingCore mprMakeArgv
     mprRandom mprReadRegistry mprRemoveKeyValue mprRestart mprServicesAreIdle mprSetAppName mprSetCmdlineLogging
     mprSetDebugMode mprSetDomainName mprSetExitStrategy mprSetHostName mprSetHwnd mprSetIdleCallback mprSetInst
     mprSetIpAddr mprSetLogLevel mprSetServerName mprSetSocketMessage mprShouldAbortRequests mprShouldDenyNewRequests
@@ -9353,11 +9386,13 @@ PUBLIC void mprNop(void *ptr);
 /**
     Add a terminator callback
     @description Services can create terminators such that when the MPR terminates, terminator callbacks will be invoked 
-    to give the service notice of impending exit. The terminator will be called twice. The first time with state set to
-    MPR_STOPPING whereupon the terminator should stop servicing new requests and allow existing requests to complete 
-    if the "how" parameter is set to MPR_EXIT_GRACEFUL. If how is set to MPR_EXIT_IMMEDIATE, all requests should be 
-    immediately terminated. The second time the terminator is called, state will be set to MPR_STOPPING_CORE. In 
-    response the terminator should stop all requests and release all resources.
+    so the service can shutdown in an orderly fashion. The terminator will be called twice. The first time with state set to
+    MPR_STOPPING whereupon the terminator should stop servicing new requests. If the "how" parameter is set to MPR_EXIT_GRACEFUL,
+    existing requests should be allowed to complete. If how is set to MPR_EXIT_IMMEDIATE, all requests should be 
+    immediately terminated. 
+    \n\n
+    The second time the terminator is invoked, state will be set to MPR_DESTROYING. In response the terminator should stop 
+    all requests and release all resources.
     @param terminator MprTerminator callback function
     @ingroup Mpr
     @stability Stable.
@@ -9379,7 +9414,7 @@ PUBLIC void mprAddTerminator(MprTerminator terminator);
 PUBLIC Mpr *mprCreate(int argc, char **argv, int flags);
 
 /**
-    Destroy the MPR
+    Destroy the MPR and all services using the MPR.
     @param how Exit strategy to use when exiting. Set to MPR_EXIT_DEFAULT to use the existing exit strategy.
     Set to MPR_EXIT_IMMEDIATE for an immediate abortive shutdown. Finalizers will not be run. Use MPR_EXIT_NORMAL to 
     allow garbage collection and finalizers to run. Use MPR_EXIT_GRACEFUL to allow all current requests and commands 
@@ -9488,7 +9523,7 @@ PUBLIC int mprGetError();
 
 /**
     Get the exit status
-    @description Get the exit status set via mprTerminate()
+    @description Get the exit status set via #mprTerminate
     @return The proposed application exit status
     @ingroup Mpr
     @stability Stable.
@@ -9557,19 +9592,10 @@ PUBLIC int mprGetOsError();
 PUBLIC cchar *mprGetServerName();
 
 /**
-    Determine if the MPR is exiting
-    @description Returns true if the MPR is in the process of exiting
-    @returns True if the App has been instructed to exit.
-    @ingroup Mpr
-    @stability Stable.
- */
-PUBLIC bool mprIsExiting();
-
-/**
     Determine if the MPR has finished. 
     @description This is true if the MPR services have been shutdown completely. This is typically
-        used to determine if the App has been gracefully shutdown.
-    @returns True if the App has been instructed to exit and all the MPR services have completed.
+        used to determine if the App has been shutdown.
+    @returns True if the App has been instructed to exit and all the MPR services have been destroyed.
     @ingroup Mpr
     @stability Stable.
  */
@@ -9597,13 +9623,17 @@ PUBLIC bool mprIsIdle();
 PUBLIC bool mprIsStopping();
 
 /**
-    Test if the application is stopping and core services are being terminated
+    Test if the application is terminating and core services are being destroyed
     All request should immediately terminate.
     @return True if the application is in the process of exiting and core services should also exit.
     @ingroup Mpr
-    @stability Stable.
+    @stability Prototype.
  */
-PUBLIC bool mprIsStoppingCore();
+PUBLIC bool mprIsDestroying();
+
+#if DEPRECATED || 1
+#define mprIsStoppingCore() mprIsDestroying()
+#endif
 
 #define MPR_ARGV_ARGS_ONLY    0x1     /**< Command is missing program name */
 
@@ -9737,7 +9767,7 @@ PUBLIC void mprSetEnv(cchar *key, cchar *value);
     Set the exit strategy for when the application terminates
     @param strategy Set strategy to MPR_EXIT_IMMEDIATE for the application to exit immediately when terminated.
         Set to MPR_EXIT_GRACEFUL for the application to exit gracefully after allowing all current requests to complete
-        before terminating.
+        before terminating. Set MPR_EXIT_RESTART for the application to restart after exiting.
     @ingroup Mpr
     @stability Stable.
   */
@@ -9845,7 +9875,7 @@ PUBLIC int mprStart();
 PUBLIC int mprStartEventsThread();
 
 /*
-    Terminate and Destroy flags
+    Destroy flags
  */
 #define MPR_EXIT_DEFAULT    0x1         /**< Exit as per MPR->defaultStrategy */
 #define MPR_EXIT_IMMEDIATE  0x2         /**< Immediate exit */
@@ -9854,21 +9884,28 @@ PUBLIC int mprStartEventsThread();
 #define MPR_EXIT_RESTART    0x10        /**< Restart after exiting */
 
 /**
-    Terminate the application.
-    @description Terminates the application and disposes of all allocated resources. The mprTerminate function will
-    recursively free all memory allocated by the MPR.
-    @param flags Termination control flags. Use MPR_EXIT_IMMEDIATE for an immediate abortive shutdown. Finalizers will
-        not be run. Use MPR_EXIT_NORMAL to allow garbage collection and finalizers to run. Use MPR_EXIT_GRACEFUL to
-        allow all current requests and commands to complete before exiting.
-    @param status Proposed program exit status.
+    Initiate termination of the application.
+    @description Begins termination of the application by setting the stopping flag. This will cause #mprServiceEvents 
+    to return. The application main program can then call #mprDestroy and exit.
+    \n\n
+    Depending on the reason for termination, mprTerminate may define "how" to shutdown. Options are MPR_EXIT_IMMEDIATE
+    for an immediate exit, MPR_EXIT_GRACEFUL for a graceful exit waiting for running requests to complete before exiting.
+    @param how Proposed exit strategy. This is used to invoke #mprSetExitStrategy which will then be utilized when
+        #mprDestroy is called. 
+        \n\n
+        Set strategy to MPR_EXIT_IMMEDIATE for the application to exit immediately when #mprDestroy is called.
+        Set to MPR_EXIT_GRACEFUL for the application to exit gracefully after allowing all current requests to complete
+        before terminating. Set MPR_EXIT_RESTART for the application to restart after exiting.
+        Set to MPR_EXIT_DEFAULT to not modify any existing exit strategy defined via #mprSetExitStrategy.
+    @param status Proposed exit status to use when the application exits. Sets Mpr.exitStatus.
     @ingroup Mpr
-    @stability Stable.
+    @stability Evolving.
  */
-PUBLIC void mprTerminate(int flags, int status);
+PUBLIC void mprTerminate(int how, int status);
 
 /**
     Wait until the application is idle
-    @description This call blocks until application services are idle.
+    @description This call blocks until application services are idle and all requests have completed.
     @param timeout Time in milliseconds to wait for the application to be idle
     @return True if the application is idle.
     @ingroup Mpr

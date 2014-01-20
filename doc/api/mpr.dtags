@@ -316,6 +316,20 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>MPR_DESTROYED</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a841f0e6572685f21ee34a805e18d2c7d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MPR_DESTROYING</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a55257578875234da846db3904da5aa80</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>MPR_DIAG</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a80911c8ba9d00b613c161b7aafc5d646</anchor>
@@ -704,13 +718,6 @@
       <name>MPR_FATAL_MSG</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>ae98cab91ffb1d0745e2ee620fe2fec62</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
-      <name>MPR_FINISHED</name>
-      <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>a8b41aafa86ce27f241349c86c4daaf05</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -1341,13 +1348,6 @@
       <name>MPR_STOPPING</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>add77d7932ad074fe60c0782cafc78b72</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
-      <name>MPR_STOPPING_CORE</name>
-      <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>a3da756fc694c397e02ead8774a1baa1b</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -2376,8 +2376,8 @@
       <type>int</type>
       <name>mprCreateEventOutside</name>
       <anchorfile>group___mpr_event.html</anchorfile>
-      <anchor>ga657761883a278d7b8e3f597c31f31a9c</anchor>
-      <arglist>(MprDispatcher *dispatcher, void *proc, void *data)</arglist>
+      <anchor>ga2cc0ea2cb695c41e948781228646909a</anchor>
+      <arglist>(MprDispatcher *dispatcher, void *proc, void *data, int flags)</arglist>
     </member>
     <member kind="function">
       <type>MprFileSystem *</type>
@@ -3781,9 +3781,9 @@
     </member>
     <member kind="function">
       <type>bool</type>
-      <name>mprIsExiting</name>
+      <name>mprIsDestroying</name>
       <anchorfile>group___mpr.html</anchorfile>
-      <anchor>gab471b134b4eeb28e7fe1cf85fb723f5d</anchor>
+      <anchor>ga50e188d75a8794ef709f68b3c2c75bc9</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
@@ -3882,13 +3882,6 @@
       <name>mprIsStopping</name>
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>gae20024a4d8b56242e293b3e5d54d9972</anchor>
-      <arglist>()</arglist>
-    </member>
-    <member kind="function">
-      <type>bool</type>
-      <name>mprIsStoppingCore</name>
-      <anchorfile>group___mpr.html</anchorfile>
-      <anchor>ga0246cb5dcc7c53e415885e1d8ac55320</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
@@ -4249,10 +4242,10 @@
       <arglist>(cchar *path, int omode)</arglist>
     </member>
     <member kind="function">
-      <type>void</type>
+      <type>bool</type>
       <name>mprPauseGC</name>
       <anchorfile>group___mpr_mem.html</anchorfile>
-      <anchor>gaee76d67d3414a3cfc3744f8f4de12761</anchor>
+      <anchor>ga80f85b5ac77f1c4666038c05a259226c</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
@@ -5421,8 +5414,8 @@
       <type>void</type>
       <name>mprTerminate</name>
       <anchorfile>group___mpr.html</anchorfile>
-      <anchor>ga0d636f2b2a27d7135d467177619fda6b</anchor>
-      <arglist>(int flags, int status)</arglist>
+      <anchor>ga9e04bb4b88735d3f8764376648905364</anchor>
+      <arglist>(int how, int status)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -6443,10 +6436,10 @@
       <arglist>(cvoid *ptr, size_t size)</arglist>
     </member>
     <member kind="function">
-      <type>void</type>
+      <type>bool</type>
       <name>mprPauseGC</name>
       <anchorfile>group___mpr_mem.html</anchorfile>
-      <anchor>gaee76d67d3414a3cfc3744f8f4de12761</anchor>
+      <anchor>ga80f85b5ac77f1c4666038c05a259226c</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
@@ -8480,8 +8473,8 @@
       <type>int</type>
       <name>mprCreateEventOutside</name>
       <anchorfile>group___mpr_event.html</anchorfile>
-      <anchor>ga657761883a278d7b8e3f597c31f31a9c</anchor>
-      <arglist>(MprDispatcher *dispatcher, void *proc, void *data)</arglist>
+      <anchor>ga2cc0ea2cb695c41e948781228646909a</anchor>
+      <arglist>(MprDispatcher *dispatcher, void *proc, void *data, int flags)</arglist>
     </member>
     <member kind="function">
       <type>MprEvent *</type>
@@ -10128,9 +10121,9 @@
     </member>
     <member kind="function">
       <type>bool</type>
-      <name>mprIsExiting</name>
+      <name>mprIsDestroying</name>
       <anchorfile>group___mpr.html</anchorfile>
-      <anchor>gab471b134b4eeb28e7fe1cf85fb723f5d</anchor>
+      <anchor>ga50e188d75a8794ef709f68b3c2c75bc9</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
@@ -10152,13 +10145,6 @@
       <name>mprIsStopping</name>
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>gae20024a4d8b56242e293b3e5d54d9972</anchor>
-      <arglist>()</arglist>
-    </member>
-    <member kind="function">
-      <type>bool</type>
-      <name>mprIsStoppingCore</name>
-      <anchorfile>group___mpr.html</anchorfile>
-      <anchor>ga0246cb5dcc7c53e415885e1d8ac55320</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
@@ -10368,8 +10354,8 @@
       <type>void</type>
       <name>mprTerminate</name>
       <anchorfile>group___mpr.html</anchorfile>
-      <anchor>ga0d636f2b2a27d7135d467177619fda6b</anchor>
-      <arglist>(int flags, int status)</arglist>
+      <anchor>ga9e04bb4b88735d3f8764376648905364</anchor>
+      <arglist>(int how, int status)</arglist>
     </member>
     <member kind="function">
       <type>char *</type>
@@ -10823,13 +10809,6 @@
       <name>pageSize</name>
       <anchorfile>struct_mpr_heap.html</anchorfile>
       <anchor>aeb5711432166603a0b5bc90f325336bd</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>pauseGC</name>
-      <anchorfile>struct_mpr_heap.html</anchorfile>
-      <anchor>af042d31267c6ab1b22a0bd03a8d19613</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable">

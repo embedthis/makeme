@@ -137,6 +137,7 @@ PUBLIC Mpr          *MPR;
 static MprHeap      *heap;
 static MprMemStats  memStats;
 static int          padding[] = { 0, MPR_MANAGER_SIZE };
+static int          pauseGC;
 
 /***************************** Forward Declarations ***************************/
 
@@ -885,8 +886,9 @@ PUBLIC void mprWakeGCService()
 
 static BIT_INLINE void triggerGC()
 {
-    if (!heap->gcRequested && heap->gcEnabled && heap->gcCond) {
+    if (!heap->gcRequested && heap->gcEnabled && !pauseGC) {
         heap->gcRequested = 1;
+        heap->mustYield = 1;
         mprSignalCond(heap->gcCond);
     }
 }
@@ -909,8 +911,6 @@ PUBLIC void mprGC(int flags)
     if ((flags & (MPR_GC_FORCE | MPR_GC_COMPLETE)) || (heap->workDone > heap->workQuota)) {
         assert(!heap->marking);
         lock(ts->threads);
-        //  MOB - why set mustYield here?
-        heap->mustYield = 1;
         triggerGC();
         unlock(ts->threads);
     }
@@ -957,7 +957,7 @@ PUBLIC void mprYield(int flags)
     if (heap->mustYield) {
         lock(ts->threads);
         tp->waitForSweeper = (flags & MPR_YIELD_COMPLETE);
-        while (heap->mustYield /* MOB && !heap->pauseGC */) {
+        while (heap->mustYield && !pauseGC) {
             tp->yielded = 1;
             tp->waiting = 1;
             unlock(ts->threads);
@@ -988,11 +988,10 @@ PUBLIC void mprYield(int flags)
 }
 
 
-//  MOB - make macro
 #ifndef mprNeedYield
 PUBLIC bool mprNeedYield()
 {
-    return heap->mustYield && !heap->pauseGC;
+    return heap->mustYield && !pauseGC;
 }
 #endif
 
@@ -1014,7 +1013,7 @@ PUBLIC void mprResetYield()
          */
         lock(ts->threads);
         tp->stickyYield = 0;
-        if (tp->yielded && heap->mustYield && !heap->pauseGC) {
+        if (tp->yielded && heap->mustYield && !pauseGC) {
             tp->yielded = 0;
             unlock(ts->threads);
             mprYield(0);
@@ -1041,6 +1040,7 @@ static int pauseThreads()
     /*
         Short timeout wait for all threads to yield. Typically set to 1/10 sec
      */
+    heap->mustYield = 1;
     timeout = MPR_TIMEOUT_GC_SYNC;
     ts = MPR->threadService;
 
@@ -1051,7 +1051,9 @@ static int pauseThreads()
     }
     do {
         lock(ts->threads);
-        if (!heap->pauseGC) {
+        if (pauseGC) {
+            allYielded = 0;
+        } else {
             allYielded = 1;
             for (i = 0; i < ts->threads->length; i++) {
                 tp = (MprThread*) mprGetItem(ts->threads, i);
@@ -1063,16 +1065,17 @@ static int pauseThreads()
                     break;
                 }
             }
-            if (allYielded) {
-                heap->marking = 1;
-                unlock(ts->threads);
-                break;
-            }
-        } else {
-            allYielded = 0;
+        }
+        if (allYielded) {
+            heap->marking = 1;
+            unlock(ts->threads);
+            break;
+        } else if (pauseGC) {
+            unlock(ts->threads);
+            break;
         }
         unlock(ts->threads);
-        if (MPR->state >= MPR_STOPPING_CORE) {
+        if (MPR->state >= MPR_DESTROYING) {
             /* Do not wait for paused threads if shutting down */
             break;
         }
@@ -1127,28 +1130,16 @@ static void gc(void *unused, MprThread *tp)
     tp->stickyYield = 1;
     tp->yielded = 1;
 
-#if UNUSED
-    while (1) {
-        while (!heap->gcRequested || heap->pauseGC) {
-            mprWaitForCond(heap->gcCond, -1);
-        }
-        if (mprIsFinished()) {
-            break;
-        }
-        markAndSweep();
-    }
-#else
     while (!mprIsFinished()) {
         if (!heap->mustYield) {
+            heap->gcRequested = 0;
             mprWaitForCond(heap->gcCond, -1);
-            if (mprIsFinished()) {
-                break;
-            }
+        }
+        if (pauseGC || mprIsFinished()) {
+            continue;
         }
         markAndSweep();
     }
-#endif
-
     invokeDestructors();
     heap->gc = 0;
     resumeThreads(YIELDED_THREADS | WAITING_THREADS);
@@ -1163,19 +1154,17 @@ static void markAndSweep()
 {
     static int warnOnce = 0;
 
-    heap->mustYield = 1;
-
     if (!pauseThreads()) {
-        if (!heap->pauseGC && warnOnce == 0) {
+        if (!pauseGC && warnOnce == 0 && !mprGetDebugMode()) {
             warnOnce++;
-            mprTrace(7, "GC synchronization timed out, some threads did not yield.");
-            mprTrace(7, "This is most often caused by a thread doing a long running operation and not first calling mprYield.");
-            mprTrace(7, "If debugging, run the process with -D to enable debug mode.");
+            mprTrace(5, "GC synchronization timed out, some threads did not yield.");
+            mprTrace(5, "This is most often caused by a thread doing a long running operation and not first calling mprYield.");
+            mprTrace(5, "If debugging, run the process with -D to enable debug mode.");
         }
-        heap->gcRequested = 0;
         resumeThreads(YIELDED_THREADS | WAITING_THREADS);
         return;
     }
+    assert(!pauseGC);
     INC(collections);
     heap->priorWeightedCount = heap->workDone;
     heap->workDone = 0;
@@ -1188,10 +1177,10 @@ static void markAndSweep()
      */
     heap->mark = !heap->mark;
     MPR_MEASURE(BIT_MPR_ALLOC_LEVEL, "GC", "mark", markRoots());
-    heap->gcRequested = 0;
     heap->sweeping = 1;
     mprAtomicBarrier();
     heap->marking = 0;
+    assert(!pauseGC);
 
 #if BIT_MPR_ALLOC_PARALLEL
     /* This is the default to run the sweeper in parallel with user threads */
@@ -1515,34 +1504,74 @@ PUBLIC void mprReleaseBlocks(cvoid *ptr, ...)
 }
 
 
-PUBLIC void mprPauseGC() {
-    mprAtomicAdd((int*) &heap->pauseGC, 1);
+typedef struct OutSideEvent {
+    void    (*proc)(void *data);
+    void    *data;
+    MprCond *cond;
+} OutsideEvent;
+
+
+static void relayOutsideEvent(void *data, struct MprEvent *event)
+{
+    OutsideEvent    *op;
+
+    op = data;
+    (op->proc)(op->data);
+    mprSignalCond(op->cond);
+}
+
+
+/*
+    This routine creates an event and is safe to call from outside MPR in a foreign thread. Notes:
+    1. Safe to use at any point before, before, during or after an MPR shutdown 
+    2. After the outside event is created, if using MPR_EVENT_BLOCK, will not shutdown until the event callback completes
+    3. Event without MPR_EVENT_BLOCK, the event may run before the function returns
+    4. The function always returns a valid status indicating whether the event could be scheduled.
+ */
+PUBLIC int mprCreateEventOutside(MprDispatcher *dispatcher, void *proc, void *data, int flags)
+{
+    MprEvent        *event;
+    OutsideEvent    outside;
+
+    memset(&outside, 0, sizeof(outside));
+    outside.proc = proc;
+    outside.data = data;
+
+    if (!mprPauseGC()) {
+        return MPR_ERR_BAD_STATE;
+    }
+    /*
+        The MPR is prevented from stopping now and a new GC sweep wont start, but we need to wait for a running GC to finish.
+     */
+    while (heap->mustYield) {
+        mprNap(0);
+        mprAtomicBarrier();
+    }
+    if (flags & MPR_EVENT_BLOCK) {
+        outside.cond = mprCreateCond();
+    }
+    event = mprCreateEvent(dispatcher, "relay", 0, relayOutsideEvent, &outside, MPR_EVENT_STATIC_DATA);
+    if (flags & MPR_EVENT_BLOCK) {
+        mprWaitForCond(outside.cond, -1);
+    }
+    mprResumeGC();
+    return 0;
+}
+
+
+PUBLIC bool mprPauseGC()
+{
+    mprAtomicAdd((int*) &pauseGC, 1);
+    if (mprIsStopping()) {
+        mprAtomicAdd((int*) &pauseGC, -1);
+        return 0;
+    }
+    return 1;
 }
 
 
 PUBLIC void mprResumeGC() {
-    mprAtomicAdd((int*) &heap->pauseGC, -1);
-}
-
-
-PUBLIC int mprCreateEventOutside(MprDispatcher *dispatcher, void *proc, void *data)
-{
-    MprEvent    *event;
-
-    mprPauseGC();
-    mprAtomicBarrier();
-    while (heap->mustYield) {
-        mprNap(0);
-    }
-    if (MPR->state >= MPR_STOPPING) {
-        return MPR_ERR_CANT_CREATE;
-    }
-    event = mprCreateEvent(dispatcher, "relay", 0, proc, data, MPR_EVENT_STATIC_DATA);
-    mprResumeGC();
-    if (!event) {
-        return MPR_ERR_CANT_CREATE;
-    }
-    return 0;
+    mprAtomicAdd((int*) &pauseGC, -1);
 }
 
 
@@ -2432,6 +2461,10 @@ static void monitorStack()
 
 
 
+/*********************************** Locals ***********************************/
+
+static int isStopping;
+
 /**************************** Forward Declarations ****************************/
 
 static void manageMpr(Mpr *mpr, int flags);
@@ -2446,6 +2479,7 @@ PUBLIC Mpr *mprCreate(int argc, char **argv, int flags)
     MprFileSystem   *fs;
     Mpr             *mpr;
 
+    isStopping = 0;
     srand((uint) time(NULL));
 
     mprAtomicOpen();
@@ -2598,6 +2632,7 @@ static void manageMpr(Mpr *mpr, int flags)
 
 /*
     Destroy the Mpr and all services
+    This routine will call service terminators to allow them to shutdown their services in an orderly manner 
  */
 PUBLIC bool mprDestroy(int how)
 {
@@ -2607,25 +2642,49 @@ PUBLIC bool mprDestroy(int how)
     if (!(how & MPR_EXIT_DEFAULT)) {
         MPR->exitStrategy = how;
     }
-    how = MPR->exitStrategy;
     if (how & MPR_EXIT_IMMEDIATE) {
         if (how & MPR_EXIT_RESTART) {
+            mprLog(3, "Immediate restart.");
             mprRestart();
             /* No return */
             return 1;
         }
-        exit(0);
+        mprLog(3, "Immediate exit.");
+        exit(MPR->exitStatus);
+
+    } else if (how & MPR_EXIT_NORMAL) {
+        mprLog(3, "Normal exit.");
+
+    } else if (how & MPR_EXIT_GRACEFUL) {
+        mprLog(3, "Graceful exit. Waiting for existing requests to complete.");
+
+    } else {
+        mprTrace(4, "mprDestroy: how %d", how);
     }
     if (MPR->state < MPR_STOPPING) {
         mprTerminate(how, -1);
     }
+    mprStopWorkers();
+    mprStopCmdService();
+
+    /*
+        Run terminators to cease new requests and inform running requests that a shutdown has been commenced
+     */
+    for (ITERATE_ITEMS(MPR->terminators, terminator, next)) {
+        (terminator)(MPR->state, how, MPR->exitStatus);
+    }
+
+    /*
+        Wait till all running requests and services have completed
+     */
     if (!mprWaitTillIdle((how & MPR_EXIT_GRACEFUL) ? MPR->exitTimeout : 0)) {
-        mprLog(5, "Cannot destroy MPR due to running threads or services");
+        mprLog(3, "Cannot destroy MPR due to running threads or services");
         return 0;
     }
+    mprStopEventService();
     mprStopModuleService();
 
-    MPR->state = MPR_STOPPING_CORE;
+    MPR->state = MPR_DESTROYING;
     MPR->exitStrategy &= MPR_EXIT_GRACEFUL;
     MPR->exitStrategy |= MPR_EXIT_IMMEDIATE;
 
@@ -2635,10 +2694,10 @@ PUBLIC bool mprDestroy(int how)
     for (ITERATE_ITEMS(MPR->terminators, terminator, next)) {
         (terminator)(MPR->state, how, MPR->exitStatus);
     }
+    mprDestroyEventService();
 
     /*
-        Run until we are not freeing any memory. This is for destructors that unpin other blocks in the destructor.
-        Which is not an ideal pattern!
+        Run GC until we are not freeing any memory. This is for destructors that unpin other blocks in the destructor.
      */
     for (i = 0; MPR->heap->freedBlocks && i < 25; i++) {
         mprGC(MPR_GC_FORCE | MPR_GC_COMPLETE);
@@ -2648,8 +2707,9 @@ PUBLIC bool mprDestroy(int how)
     } else {
         mprLog(2, "Exiting");
     }
-    MPR->state = MPR_FINISHED;
+    MPR->state = MPR_DESTROYED;
 
+    mprStopModuleService();
     mprStopSignalService();
     mprStopGCService();
     mprStopThreadService();
@@ -2663,48 +2723,23 @@ PUBLIC bool mprDestroy(int how)
 
 
 /*
-    Start termination of the Mpr. May be called by mprDestroy or elsewhere.
+    Start termination of the Mpr. This sets the stopping flag and wakes up the notifier and then 
+    mprServiceEvents will return.  The main program can then call mprDestroy.
  */
 PUBLIC void mprTerminate(int how, int status)
 {
-    MprTerminator   terminator;
-    int             next;
-
-    /*
-        Set the stopping flag. Services should stop accepting new requests. Current requests should be allowed to
-        complete if graceful exit strategy.
-     */
     if (MPR->state >= MPR_STOPPING) {
-        /* Already stopping and done the code below */
         return;
     }
-    MPR->state = MPR_STOPPING;
-
-    MPR->exitStatus = status;
     if (!(how & MPR_EXIT_DEFAULT)) {
         MPR->exitStrategy = how;
     }
-    how = MPR->exitStrategy;
-    if (how & MPR_EXIT_IMMEDIATE) {
-        mprLog(3, "Immediate exit. Terminate all requests and services.");
-        exit(status);
-
-    } else if (how & MPR_EXIT_NORMAL) {
-        mprLog(3, "Normal exit.");
-
-    } else if (how & MPR_EXIT_GRACEFUL) {
-        mprLog(3, "Graceful exit. Waiting for existing requests to complete.");
-
-    } else {
-        mprTrace(7, "mprTerminate: how %d", how);
-    }
-    for (ITERATE_ITEMS(MPR->terminators, terminator, next)) {
-        (terminator)(MPR->state, how, status);
-    }
-    mprStopWorkers();
-    mprStopCmdService();
-    mprStopModuleService();
-    mprStopEventService();
+    mprLog(3, "Shutdown initiated");
+    MPR->exitStatus = status;
+    MPR->state = MPR_STOPPING;
+    isStopping = 1;
+    mprWakeDispatchers();
+    mprWakeNotifier();
 }
 
 
@@ -2805,19 +2840,23 @@ PUBLIC bool mprShouldDenyNewRequests()
 
 PUBLIC bool mprIsStopping()
 {
-    return MPR->state >= MPR_STOPPING;
+    /*
+        This routine is called from mprCreateEventOutside and so must be safe to call at any time, even after the MPR is destroyed.
+        Therefore, cannot use MPR->state
+     */
+    return isStopping;
 }
 
 
 PUBLIC bool mprIsStoppingCore()
 {
-    return MPR->state >= MPR_STOPPING_CORE;
+    return MPR->state >= MPR_DESTROYED;
 }
 
 
 PUBLIC bool mprIsFinished()
 {
-    return !MPR || MPR->state >= MPR_FINISHED;
+    return !MPR || MPR->state >= MPR_DESTROYED;
 }
 
 
@@ -9031,9 +9070,28 @@ static void manageEventService(MprEventService *es, int flags)
 }
 
 
-PUBLIC void mprSetDispatcherImmediate(MprDispatcher *dispatcher)
+static void destroyDispatcherQueue(MprDispatcher *q)
 {
-    dispatcher->flags |= MPR_DISPATCHER_IMMEDIATE;
+    MprDispatcher   *dp, *next;
+
+    for (dp = q->next; dp != q; dp = next) {
+        next = dp->next;
+        mprDestroyDispatcher(dp);
+    }
+}
+
+
+PUBLIC void mprDestroyEventService()
+{
+    MprEventService     *es;
+        
+    es = MPR->eventService;
+    destroyDispatcherQueue(es->runQ);
+    destroyDispatcherQueue(es->readyQ);
+    destroyDispatcherQueue(es->waitQ);
+    destroyDispatcherQueue(es->idleQ);
+    destroyDispatcherQueue(es->pendingQ);
+    es->mutex = 0;
 }
 
 
@@ -9041,6 +9099,12 @@ PUBLIC void mprStopEventService()
 {
     mprWakeDispatchers();
     mprWakeNotifier();
+}
+
+
+PUBLIC void mprSetDispatcherImmediate(MprDispatcher *dispatcher)
+{
+    dispatcher->flags |= MPR_DISPATCHER_IMMEDIATE;
 }
 
 

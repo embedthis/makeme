@@ -100,8 +100,8 @@
       <type>void</type>
       <name>httpDestroy</name>
       <anchorfile>group___http.html</anchorfile>
-      <anchor>ga9df88d0ef0b9493ddcd78c2c2e0df18e</anchor>
-      <arglist>(Http *http)</arglist>
+      <anchor>gade9b0703105bdbad7cd4deebbeda2b22</anchor>
+      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>void *</type>
@@ -200,6 +200,13 @@
       <anchorfile>group___http.html</anchorfile>
       <anchor>ga74dbe19ccb82f86a72b42944906abd68</anchor>
       <arglist>(Http *http, cchar *description)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpStop</name>
+      <anchorfile>group___http.html</anchorfile>
+      <anchor>ga9ce11a57274cb20490bf4f2d3af549e9</anchor>
+      <arglist>(int how)</arglist>
     </member>
   </compound>
   <compound kind="group">
