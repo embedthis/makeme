@@ -59013,13 +59013,6 @@ PUBLIC int ejs_zlib_Init(Ejs *ejs, MprModule *mp)
 #define WINMAP_H
 
 #if _WIN32
-    #undef      _CRT_SECURE_NO_DEPRECATE
-    #define     _CRT_SECURE_NO_DEPRECATE 1
-    #undef      _CRT_SECURE_NO_WARNINGS
-    #define     _CRT_SECURE_NO_WARNINGS 1
-    #ifndef     _WIN32_WINNT
-        #define _WIN32_WINNT 0x501
-    #endif
     #define access      _access
     #define chdir       _chdir
     #define chmod       _chmod
