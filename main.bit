@@ -52,6 +52,7 @@ Bit.load({
             db: false,
             mail: false,
             mapper: false,
+            shell: false,
             tar: true,                                                                                     
             template: false,
             web: false,

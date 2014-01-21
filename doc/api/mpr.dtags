@@ -3766,6 +3766,13 @@
       <arglist>(MprList *list, int index, cvoid *item)</arglist>
     </member>
     <member kind="function">
+      <type>bool</type>
+      <name>mprIsAbsPathContained</name>
+      <anchorfile>group___mpr_path.html</anchorfile>
+      <anchor>gabea3b21605554425877eeb496cb5991c</anchor>
+      <arglist>(cchar *path, cchar *dir)</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>mprIsCmdComplete</name>
       <anchorfile>mpr_8h.html</anchorfile>
@@ -3823,17 +3830,17 @@
     </member>
     <member kind="function">
       <type>bool</type>
-      <name>mprIsParentPathOf</name>
-      <anchorfile>group___mpr_path.html</anchorfile>
-      <anchor>gab755afd1b09e2760b68bae05705f1473</anchor>
-      <arglist>(cchar *dir, cchar *path)</arglist>
-    </member>
-    <member kind="function">
-      <type>bool</type>
       <name>mprIsPathAbs</name>
       <anchorfile>group___mpr_path.html</anchorfile>
       <anchor>ga2049719abeb04bb8cc89e89dbc8ad4aa</anchor>
       <arglist>(cchar *path)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>mprIsPathContained</name>
+      <anchorfile>group___mpr_path.html</anchorfile>
+      <anchor>gaf9bf23ba3a4c680f860f8d392b17576c</anchor>
+      <arglist>(cchar *path, cchar *dir)</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
@@ -8169,10 +8176,10 @@
     </member>
     <member kind="function">
       <type>bool</type>
-      <name>mprIsParentPathOf</name>
+      <name>mprIsAbsPathContained</name>
       <anchorfile>group___mpr_path.html</anchorfile>
-      <anchor>gab755afd1b09e2760b68bae05705f1473</anchor>
-      <arglist>(cchar *dir, cchar *path)</arglist>
+      <anchor>gabea3b21605554425877eeb496cb5991c</anchor>
+      <arglist>(cchar *path, cchar *dir)</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
@@ -8180,6 +8187,13 @@
       <anchorfile>group___mpr_path.html</anchorfile>
       <anchor>ga2049719abeb04bb8cc89e89dbc8ad4aa</anchor>
       <arglist>(cchar *path)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>mprIsPathContained</name>
+      <anchorfile>group___mpr_path.html</anchorfile>
+      <anchor>gaf9bf23ba3a4c680f860f8d392b17576c</anchor>
+      <arglist>(cchar *path, cchar *dir)</arglist>
     </member>
     <member kind="function">
       <type>bool</type>

@@ -5157,7 +5157,22 @@ PUBLIC char *mprGetWinPath(cchar *path);
     @ingroup MprPath
     @stability Stable
  */ 
+PUBLIC bool mprIsPathContained(cchar *path, cchar *dir);
+
+#if DEPRECATED || 1
 PUBLIC bool mprIsParentPathOf(cchar *dir, cchar *path);
+#endif
+
+/**
+    Fast version of mprIsPathContained that works only for absolute paths.
+    Determine if a directory is the same as or a parent of a path.
+    @param path Path name to examine
+    @param dir Directory to examine if it is a parent of path or equal to path
+    @returns True if directory is a parent of the path or is the same as the given path.
+    @ingroup MprPath
+    @stability Evolving
+ */
+PUBLIC bool mprIsAbsPathContained(cchar *path, cchar *dir);
 
 /**
     Determine if a path is absolute

@@ -201,7 +201,6 @@ settings: {
     title: 'Multithreaded Portable Runtime',
     company: 'Embedthis',
     version: '4.0.5',
-    buildNumber: '4',
     '+required': [ 'utest' ],
     '+discover': [ 'doxygen', 'man', 'man2html', 'md5', 'matrixssl', 'openssl', 'ssl' ],
 .RE
@@ -211,8 +210,7 @@ settings: {
 .PP
 The 'required' property defines the extensions that are required to be present on the system to build. The 
 'discover' property defines those extensions that will be used if present, but are not required. The plus symbol before
-these properties indicates that these values should be added to pre-defined values. The buildNumber is a build
-patch number.
+these properties indicates that these values should be added to pre-defined values.
 
 .SH CROSS COMPILING
 To build a product for platform different to that of the local system is called cross compiling. Sometimes this

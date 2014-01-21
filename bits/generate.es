@@ -171,7 +171,6 @@ module embedthis.bit {
         genEnv()
         genout.writeLine('PRODUCT="' + bit.settings.product + '"')
         genout.writeLine('VERSION="' + bit.settings.version + '"')
-        genout.writeLine('BUILD_NUMBER="' + bit.settings.buildNumber + '"')
         genout.writeLine('PROFILE="' + bit.platform.profile + '"')
         genout.writeLine('ARCH="' + bit.platform.arch + '"')
         genout.writeLine('ARCH="`uname -m | sed \'s/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/\'`"')
@@ -359,7 +358,6 @@ module embedthis.bit {
         b.runScript(bit.scripts, 'pregen')
         genout.writeLine('PRODUCT            := ' + bit.settings.product)
         genout.writeLine('VERSION            := ' + bit.settings.version)
-        genout.writeLine('BUILD_NUMBER       := ' + bit.settings.buildNumber)
         genout.writeLine('PROFILE            := ' + bit.platform.profile)
         if (bit.platform.os == 'vxworks') {
             genout.writeLine("ARCH               := $(shell echo $(WIND_HOST_TYPE) | sed 's/-.*//')")
@@ -471,7 +469,6 @@ module embedthis.bit {
         b.runScript(bit.scripts, 'pregen')
         genout.writeLine('PRODUCT            = ' + bit.settings.product)
         genout.writeLine('VERSION            = ' + bit.settings.version)
-        genout.writeLine('BUILD_NUMBER       = ' + bit.settings.buildNumber)
         genout.writeLine('PROFILE            = ' + bit.platform.profile)
         genout.writeLine('PA                 = $(PROCESSOR_ARCHITECTURE)')
         genout.writeLine('')

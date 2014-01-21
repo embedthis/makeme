@@ -75,8 +75,8 @@ Bit.load({
         },
 
         version: {
-            action: "print(bit.settings.version + '-' + bit.settings.buildNumber)",
-            generate: "echo ${settings.version}-${settings.buildNumber}",
+            action: "print(bit.settings.version)",
+            generate: "echo ${settings.version}",
         },
     },
 })

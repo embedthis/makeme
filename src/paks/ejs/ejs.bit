@@ -29,7 +29,7 @@ Bit.load({
             },
             depends: [ 'libejs', 'ejscript' ],
             packs: [ 'ejscript' ],
-            enable: 'bit.packs.ejscript.enable',
+            enable: 'bit.packs.ejscript.enable && bit.settings.ejs.shell',
         },
 
         ejsc: {

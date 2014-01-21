@@ -208,7 +208,7 @@ function setupPackagePrefixes(kind, package) {
         prefixes.staging = bit.prefixes.app
         prefixes.media = prefixes.app
     } else {
-        bit.platform.vname = bit.settings.product + '-' + bit.settings.version + '-' + bit.settings.buildNumber
+        bit.platform.vname = bit.settings.product + '-' + bit.settings.version
         prefixes.staging = bit.dir.pkg.join(kind)
         prefixes.media = prefixes.staging.join(bit.platform.vname)
         safeRemove(prefixes.staging)
@@ -532,9 +532,9 @@ public function packageName() {
     let s = bit.settings
     let p = bit.platform
     if (Config.OS == 'macosx') {
-        name = s.product + '-' + s.version + '-' + s.buildNumber + '-' + p.dist + '-' + p.os + '-' + p.arch + '.pkg'
+        name = s.product + '-' + s.version + '-' + p.dist + '-' + p.os + '-' + p.arch + '.pkg'
     } else if (Config.OS == 'windows') {
-        name = s.product + '-' + s.version + '-' + s.buildNumber + '-' + p.dist + '-' + p.os + '-' + p.arch + '.exe.zip'
+        name = s.product + '-' + s.version + '-' + p.dist + '-' + p.os + '-' + p.arch + '.exe.zip'
     } else {
         return null
     }
@@ -592,18 +592,15 @@ public function whatInstalled() {
 
 
 function makeTarPackage(prefixes) {
-    let base = [bit.settings.product, bit.settings.version, bit.settings.buildNumber, 
-        bit.platform.dist, bit.platform.os, bit.platform.arch].join('-')
+    let base = [bit.settings.product, bit.settings.version, bit.platform.dist, bit.platform.os, bit.platform.arch].join('-')
     let name = bit.dir.rel.join(base).joinExt('tar', true)
     let zname = name.replaceExt('tgz')
     let files = prefixes.staging.files('**', {exclude: /\/$/, missing: undefined})
 
     let options = {relativeTo: prefixes.staging, user: 'root', group: 'root', uid: 0, gid: 0}
     let tar = new Tar(name, options)
-
     trace('Package', zname)
     tar.create(files)
-
     Zlib.compress(name, zname)
     name.remove()
     bit.dir.rel.join('md5-' + base).joinExt('tgz.txt', true).write(md5(zname.readString()))
@@ -676,7 +673,7 @@ function packageMacosx(prefixes) {
     }
     let staging = prefixes.staging
     let s = bit.settings
-    let base = [s.product, s.version, s.buildNumber, bit.platform.dist, bit.platform.os, bit.platform.arch].join('-')
+    let base = [s.product, s.version, bit.platform.dist, bit.platform.os, bit.platform.arch].join('-')
     let name = bit.dir.rel.join(base).joinExt('tar', true)
     let files = staging.files('**', {exclude: /\/$/, missing: undefined})
     let size = 20
@@ -725,7 +722,7 @@ function packageFedora(prefixes) {
         cpu = 'x86_64'
     }
     bit.platform.mappedCpu = cpu
-    let base = [s.product, s.version, s.buildNumber, bit.platform.dist, bit.platform.os, bit.platform.arch].join('-')
+    let base = [s.product, s.version, bit.platform.dist, bit.platform.os, bit.platform.arch].join('-')
 
     let RPM = prefixes.media.join('RPM')
     for each (d in ['SOURCES', 'SPECS', 'BUILD', 'RPMS', 'SRPMS']) {
@@ -765,7 +762,7 @@ function packageFedora(prefixes) {
     let outfile = bit.dir.rel.join(base).joinExt('rpm', true)
     trace('Package', outfile)
     run(bit.packs.pmaker.path + ' -ba --target ' + cpu + ' ' + spec.basename, {dir: RPM.join('SPECS'), noshow: true})
-    let rpmfile = RPM.join('RPMS', cpu, [s.product, s.version, s.buildNumber].join('-')).joinExt(cpu + '.rpm', true)
+    let rpmfile = RPM.join('RPMS', cpu, [s.product, s.version].join('-')).joinExt(cpu + '.rpm', true)
     rpmfile.rename(outfile)
     bit.dir.rel.join('md5-' + base).joinExt('rpm.txt', true).write(md5(outfile.readString()))
     App.putenv('HOME', home)
@@ -784,7 +781,7 @@ function packageUbuntu(prefixes) {
     }
     bit.platform.mappedCpu = cpu
     let s = bit.settings
-    let base = [s.product, s.version, s.buildNumber, bit.platform.dist, bit.platform.os, bit.platform.arch].join('-')
+    let base = [s.product, s.version, bit.platform.dist, bit.platform.os, bit.platform.arch].join('-')
 
     let DEBIAN = prefixes.root.join('DEBIAN')
     let opak = bit.dir.src.join('package/' + bit.platform.os)
@@ -834,7 +831,7 @@ function packageWindows(prefixes) {
     data = data.replace(/{pf}/g, sub)
     iss.write(data)
 
-    let base = [s.product, s.version, s.buildNumber, bit.platform.dist, bit.platform.os, bit.platform.arch].join('-')
+    let base = [s.product, s.version, bit.platform.dist, bit.platform.os, bit.platform.arch].join('-')
     let outfile = bit.dir.rel.join(base).joinExt('exe', true)
     run([bit.packs.pmaker.path, iss], {noshow: true})
     media.join('Output/setup.exe').copy(outfile)

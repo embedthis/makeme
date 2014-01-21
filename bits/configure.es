@@ -33,7 +33,7 @@ module embedthis.bit {
      */
     function checkMain() {
         let settings = bit.settings
-        for each (field in ['product', 'title', 'version', 'buildNumber', 'company']) {
+        for each (field in ['product', 'title', 'version', 'company']) {
             if (!settings[field]) {
                 throw b.MAIN + ' is missing settings.' + field
             }

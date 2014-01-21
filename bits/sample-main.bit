@@ -15,7 +15,6 @@ Bit.load({
 		title: 'Sample',
         company: 'Example Inc.',
 		version: '0.1.0',
-		buildNumber: 'B0',
         /*
             Put required and optional packs here. E.g.: 'doxygen', 'ejs', 'openssl' ...
          */

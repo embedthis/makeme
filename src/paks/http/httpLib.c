@@ -2622,8 +2622,6 @@ PUBLIC void httpConnTimeout(HttpConn *conn)
             mprTrace(2, "  State %d, uri %s", conn->state, conn->rx->uri);
         }
     }
-    assert(conn->connError);
-
     if (!conn->sock || conn->sock->fd == INVALID_SOCKET) {
         //  TODO - remove this code. Should never happen
         assert(0);
@@ -2712,12 +2710,9 @@ PUBLIC void httpPrepClientConn(HttpConn *conn, bool keepHeaders)
 
     assert(conn);
     if (conn->keepAliveCount > 0 && conn->sock) {
-#if KEEP
-        /* Cannot use this as it may block and therefore yield */
-        consumeLastRequest(conn);
-#else
-        conn->sock = 0;
-#endif
+        if (!httpIsEof(conn)) {
+            conn->sock = 0;
+        }
     } else {
         conn->input = 0;
     }
@@ -2834,7 +2829,7 @@ PUBLIC void httpIOEvent(HttpConn *conn, MprEvent *event)
         return;
     }
     mprTrace(6, "httpIOEvent for fd %d, mask %d", conn->sock->fd, event->mask);
-    if (event->mask & MPR_WRITABLE) {
+    if (event->mask & MPR_WRITABLE && conn->connectorq) {
         httpResumeQueue(conn->connectorq);
     }
     if (event->mask & MPR_READABLE) {
@@ -7554,12 +7549,6 @@ PUBLIC bool httpFlushQueue(HttpQueue *q, int flags)
             httpResumeQueue(conn->connectorq);
             httpServiceQueues(conn, flags);
         }
-#if BIT_DEBUG
-        if (!httpRequestExpired(conn, 0)) {
-            assert(q->count == 0);
-            assert(conn->connectorq->count == 0 || mprSocketHandshaking(conn->sock));
-        }
-#endif
     }
     return (q->count < q->max) ? 1 : 0;
 }
@@ -7567,9 +7556,10 @@ PUBLIC bool httpFlushQueue(HttpQueue *q, int flags)
 
 PUBLIC void httpResumeQueue(HttpQueue *q)
 {
-    mprTrace(7, "Resume q %s", q->name);
-    q->flags &= ~HTTP_QUEUE_SUSPENDED;
-    httpScheduleQueue(q);
+    if (q) {
+        q->flags &= ~HTTP_QUEUE_SUSPENDED;
+        httpScheduleQueue(q);
+    }
 }
 
 
@@ -8832,16 +8822,16 @@ PUBLIC void httpMapFile(HttpConn *conn)
         filename = mprJoinPath(lang->path, filename);
     }
     filename = mprJoinPath(route->documents, filename);
+    if (!tx->bypassDocuments) {
+        if (!mprIsAbsPathContained(filename, route->documents)) {
+            info->checked = 1;
+            info->valid = 0;
+            httpError(conn, HTTP_CODE_BAD_REQUEST, "Bad URL");
+            return;
+        }
+    }
 #if BIT_ROM
     filename = mprGetRelPath(filename, NULL);
-#endif
-#if BIT_WIN_LIKE || BIT_EXTRA_SECURITY
-    if (!mprIsParentPathOf(route->documents, filename)) {
-        info->checked = 1;
-        info->valid = 0;
-        httpError(conn, HTTP_CODE_BAD_REQUEST, "Bad URL");
-        return;
-    }
 #endif
     /*
         Change the filename if using mapping. Typically used to prefer compressed or minified content.
@@ -8877,7 +8867,7 @@ PUBLIC void httpMapFile(HttpConn *conn)
         }
     }
 #endif
-    httpSetFilename(conn, filename);
+    httpSetFilename(conn, filename, !tx->bypassDocuments);
 }
 
 
@@ -14127,9 +14117,9 @@ static bool isIdle()
     int             next;
     static MprTicks lastTrace = 0;
 
-    if ((http = (Http*) mprGetMpr()->httpService) != 0) {
-        lock(http->connections);
+    if ((http = MPR->httpService) != 0) {
         now = http->now;
+        lock(http->connections);
         for (next = 0; (conn = mprGetNextItem(http->connections, &next)) != 0; ) {
             if (conn->state != HTTP_STATE_BEGIN) {
                 if (lastTrace < now) {
@@ -14147,6 +14137,8 @@ static bool isIdle()
             }
         }
         unlock(http->connections);
+    } else {
+        now = mprGetTicks();
     }
     if (!mprServicesAreIdle()) {
         if (lastTrace < now) {
@@ -14383,7 +14375,7 @@ static void httpTimer(Http *http, MprEvent *event)
         limits = conn->limits;
         if (!conn->timeoutEvent) {
             abort = mprIsStopping();
-            if (httpServerConn(conn) && HTTP_STATE_BEGIN < conn->state && conn->state < HTTP_STATE_PARSED && 
+            if (httpServerConn(conn) && (HTTP_STATE_CONNECTED < conn->state && conn->state < HTTP_STATE_PARSED) && 
                     (conn->started + limits->requestParseTimeout) < http->now) {
                 conn->timeout = HTTP_PARSE_TIMEOUT;
                 abort = 1;
@@ -15585,7 +15577,6 @@ PUBLIC HttpTx *httpCreateTx(HttpConn *conn, MprHash *headers)
     tx->length = -1;
     tx->entityLength = -1;
     tx->chunkSize = -1;
-
     tx->queue[HTTP_QUEUE_TX] = httpCreateQueueHead(conn, "TxHead");
     conn->writeq = tx->queue[HTTP_QUEUE_TX]->nextQ;
     tx->queue[HTTP_QUEUE_RX] = httpCreateQueueHead(conn, "RxHead");
@@ -16288,7 +16279,7 @@ PUBLIC void httpSetEntityLength(HttpConn *conn, int64 len)
 /*
     Set the filename. The filename may be outside the route documents. So caller must take care.
  */
-PUBLIC void httpSetFilename(HttpConn *conn, cchar *filename)
+PUBLIC void httpSetFilename(HttpConn *conn, cchar *filename, bool bypass)
 {
     HttpTx      *tx;
     MprPath     *info;
@@ -16296,6 +16287,7 @@ PUBLIC void httpSetFilename(HttpConn *conn, cchar *filename)
     assert(conn);
 
     tx = conn->tx;
+    tx->bypassDocuments = bypass;
     info = &tx->fileInfo;
     tx->filename = sclone(filename);
     if ((tx->ext = httpGetPathExt(tx->filename)) == 0) {

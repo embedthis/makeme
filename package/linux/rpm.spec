@@ -4,13 +4,13 @@
 Summary: ${settings.title} -- A modern replacement for the autoconf and make tools
 Name: ${settings.product}
 Version: ${settings.version}
-Release: ${settings.buildNumber}
+Release: 0
 License: Dual GPL/commercial
 Group: Development/Other
 URL: http://embedthis.com
 Distribution: Embedthis
 Vendor: Embedthis Software
-BuildRoot: ${prefixes.rpm}/BUILDROOT/${settings.product}-${settings.version}-${settings.buildNumber}.${platform.mappedCpu}
+BuildRoot: ${prefixes.rpm}/BUILDROOT/${settings.product}-${settings.version}.${platform.mappedCpu}
 AutoReqProv: no
 
 %description
@@ -21,8 +21,8 @@ Bit is a replacement for the autoconf/make build tools. Bit is a single tool tha
 %build
 
 %install
-    mkdir -p ${prefixes.rpm}/BUILDROOT/${settings.product}-${settings.version}-${settings.buildNumber}.${platform.mappedCpu}
-    cp -r ${prefixes.content}/* ${prefixes.rpm}/BUILDROOT/${settings.product}-${settings.version}-${settings.buildNumber}.${platform.mappedCpu}
+    mkdir -p ${prefixes.rpm}/BUILDROOT/${settings.product}-${settings.version}.${platform.mappedCpu}
+    cp -r ${prefixes.content}/* ${prefixes.rpm}/BUILDROOT/${settings.product}-${settings.version}.${platform.mappedCpu}
 
 %clean
 

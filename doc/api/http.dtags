@@ -1340,9 +1340,9 @@
     </member>
     <member kind="function">
       <type>MprSocket *</type>
-      <name>httpStealConn</name>
+      <name>httpStealSocket</name>
       <anchorfile>group___http_conn.html</anchorfile>
-      <anchor>ga269af9eeb75763738059d298b48f1032</anchor>
+      <anchor>gadb3cbb5f0dc3e97c3a13a319f4103b19</anchor>
       <arglist>(HttpConn *conn)</arglist>
     </member>
     <member kind="function">
@@ -2839,8 +2839,8 @@
       <type>void</type>
       <name>httpSetFilename</name>
       <anchorfile>group___http_tx.html</anchorfile>
-      <anchor>ga52fbb3cefd07b37a2c2c2f1160713d2d</anchor>
-      <arglist>(HttpConn *conn, cchar *filename)</arglist>
+      <anchor>gaf2ebb5cff5a263e00804e5523cb845bb</anchor>
+      <arglist>(HttpConn *conn, cchar *filename, bool bypass)</arglist>
     </member>
     <member kind="function">
       <type>void</type>

@@ -6,7 +6,7 @@
 
 [Setup]
 AppName=${settings.title}
-AppVerName=${settings.title} ${settings.version}-${settings.buildNumber}
+AppVerName=${settings.title} ${settings.version}
 DefaultDirName={pf}\${settings.title}
 DefaultGroupName=${settings.title}
 UninstallDisplayIcon={app}/${settings.product}.exe

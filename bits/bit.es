@@ -70,7 +70,8 @@ public class Bit {
 
     private var home: Path
     private var bareBit: Object = { platforms: [], platform: {}, dir: {}, 
-        settings: { version: '1.0.0', buildNumber: '0', requires: [], discover: [], }, 
+        /* LEGACY buildNumber */
+        settings: { version: '1.0.0', buildNumber: 0, requires: [], discover: [], }, 
         packs: {}, targets: {}, env: {}, globals: {}, customSettings: {}}
 
     private var bit: Object = {}
@@ -505,7 +506,7 @@ public class Bit {
         }
         goals = args.rest
         if (goals[0] == 'version') {
-            print(bit.settings.version + '-' + bit.settings.buildNumber)
+            print(bit.settings.version)
             App.exit()
         }
         bareBit.options = options
@@ -2997,7 +2998,6 @@ public class Bit {
                 bit.settings.product = package.name
                 bit.settings.title = package.title || package.description
                 bit.settings.version = package.version
-                bit.settings.buildNumber = '0'
                 bit.settings.company ||= (package.author && package.author.name)
                 if (package.dirs && package.dirs.paks) {
                     bit.dir.packs = package.dirs.paks

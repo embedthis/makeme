@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis Bit 0.9.2 Documentation</title>
+    <title>Embedthis Bit 0.9.4 Documentation</title>
     <meta name="keywords" content="Bit, Build It!, Javascript"/>
 	<meta name="description" content="Embedthis Bit -- Fast, modern replacement for make and autoconf."/>
 	<meta name="robots" content="index,follow" />
@@ -20,7 +20,7 @@
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form">Loading</div>
-                <div class="version">Embedthis Bit 0.9.2</div>
+                <div class="version">Embedthis Bit 0.9.4</div>
             </div>
         </div>
         <div class="crumbs">
@@ -161,7 +161,6 @@ settings: {
     title: 'Multithreaded Portable Runtime',
     company: 'Embedthis',
     version: '4.0.5',
-    buildNumber: '4',
     '+required': [ 'utest' ],
     '+optional':  [ 'doxygen', 'man', 'man2html', 'md5', 'openssl', 'ssl' ],
 },
@@ -407,7 +406,6 @@ myTarget: {
                 <tr><td>product</td><td>Product or project name. Should be one word, lower case without spaces</td></tr>
                 <tr><td>title</td><td>Descriptive one sentence title for the product</td></tr>
                 <tr><td>version</td><td>Product version string. Should be of the form: MAJOR.MINOR.PATCH </td></tr>
-                <tr><td>buildNumber</td><td>Build number string</td></tr>
                 <tr><td>optional</td><td>List of optional packs to discover when configuring </td></tr>
                 <tr><td>required</td><td>List of required packs to discover when configuring </td></tr>
                 <tr><td>static</td><td>Build using static linking instead of building shared libraries</td></tr>
@@ -838,7 +836,6 @@ Bit.load({
         title: 'Acme Rocket',
         company: 'Acme',
         version: '1.0.0',
-        buildNumber: '0',
         static: false,
     },
     targets: {

@@ -4,7 +4,6 @@
 
 PRODUCT            := bit
 VERSION            := 0.9.3
-BUILD_NUMBER       := 0
 PROFILE            := default
 ARCH               := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 CC_ARCH            := $(shell echo $(ARCH) | sed 's/x86/i686/;s/x64/x86_64/')
@@ -104,9 +103,6 @@ ifeq ($(BIT_PACK_EJSCRIPT),1)
 TARGETS            += $(CONFIG)/bin/libejs.so
 endif
 ifeq ($(BIT_PACK_EJSCRIPT),1)
-TARGETS            += $(CONFIG)/bin/ejs
-endif
-ifeq ($(BIT_PACK_EJSCRIPT),1)
 TARGETS            += $(CONFIG)/bin/ejsc
 endif
 ifeq ($(BIT_PACK_EJSCRIPT),1)
@@ -157,7 +153,6 @@ clean:
 	rm -f "$(CONFIG)/bin/libhttp.so"
 	rm -f "$(CONFIG)/bin/http"
 	rm -f "$(CONFIG)/bin/libejs.so"
-	rm -f "$(CONFIG)/bin/ejs"
 	rm -f "$(CONFIG)/bin/ejsc"
 	rm -f "bower.json"
 	rm -f "$(CONFIG)/obj/estLib.o"
@@ -168,7 +163,6 @@ clean:
 	rm -f "$(CONFIG)/obj/httpLib.o"
 	rm -f "$(CONFIG)/obj/http.o"
 	rm -f "$(CONFIG)/obj/ejsLib.o"
-	rm -f "$(CONFIG)/obj/ejs.o"
 	rm -f "$(CONFIG)/obj/ejsc.o"
 	rm -f "$(CONFIG)/obj/bit.o"
 
@@ -183,7 +177,7 @@ clobber: clean
 version: $(DEPS_1)
 	( \
 	cd bits; \
-	echo 0.9.3-0 ; \
+	echo 0.9.3 ; \
 	)
 
 #
@@ -529,19 +523,19 @@ $(CONFIG)/bin/libejs.so: $(DEPS_27)
 endif
 
 #
-#   ejs.o
+#   ejsc.o
 #
 DEPS_28 += $(CONFIG)/inc/bit.h
 DEPS_28 += $(CONFIG)/inc/ejs.h
 
-$(CONFIG)/obj/ejs.o: \
-    src/paks/ejs/ejs.c $(DEPS_28)
-	@echo '   [Compile] $(CONFIG)/obj/ejs.o'
-	$(CC) -c -o $(CONFIG)/obj/ejs.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/ejs/ejs.c
+$(CONFIG)/obj/ejsc.o: \
+    src/paks/ejs/ejsc.c $(DEPS_28)
+	@echo '   [Compile] $(CONFIG)/obj/ejsc.o'
+	$(CC) -c -o $(CONFIG)/obj/ejsc.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/ejs/ejsc.c
 
 ifeq ($(BIT_PACK_EJSCRIPT),1)
 #
-#   ejs
+#   ejsc
 #
 DEPS_29 += $(CONFIG)/inc/mpr.h
 DEPS_29 += $(CONFIG)/inc/bit.h
@@ -561,7 +555,7 @@ DEPS_29 += $(CONFIG)/inc/ejs.slots.h
 DEPS_29 += $(CONFIG)/inc/ejsByteGoto.h
 DEPS_29 += $(CONFIG)/obj/ejsLib.o
 DEPS_29 += $(CONFIG)/bin/libejs.so
-DEPS_29 += $(CONFIG)/obj/ejs.o
+DEPS_29 += $(CONFIG)/obj/ejsc.o
 
 LIBS_29 += -lejs
 LIBS_29 += -lhttp
@@ -570,85 +564,38 @@ ifeq ($(BIT_PACK_PCRE),1)
     LIBS_29 += -lpcre
 endif
 
-$(CONFIG)/bin/ejs: $(DEPS_29)
-	@echo '      [Link] $(CONFIG)/bin/ejs'
-	$(CC) -o $(CONFIG)/bin/ejs $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/ejs.o" $(LIBPATHS_29) $(LIBS_29) $(LIBS_29) $(LIBS) $(LIBS) 
-endif
-
-#
-#   ejsc.o
-#
-DEPS_30 += $(CONFIG)/inc/bit.h
-DEPS_30 += $(CONFIG)/inc/ejs.h
-
-$(CONFIG)/obj/ejsc.o: \
-    src/paks/ejs/ejsc.c $(DEPS_30)
-	@echo '   [Compile] $(CONFIG)/obj/ejsc.o'
-	$(CC) -c -o $(CONFIG)/obj/ejsc.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/ejs/ejsc.c
-
-ifeq ($(BIT_PACK_EJSCRIPT),1)
-#
-#   ejsc
-#
-DEPS_31 += $(CONFIG)/inc/mpr.h
-DEPS_31 += $(CONFIG)/inc/bit.h
-DEPS_31 += $(CONFIG)/inc/bitos.h
-DEPS_31 += $(CONFIG)/obj/mprLib.o
-DEPS_31 += $(CONFIG)/bin/libmpr.so
-DEPS_31 += $(CONFIG)/inc/pcre.h
-DEPS_31 += $(CONFIG)/obj/pcre.o
-ifeq ($(BIT_PACK_PCRE),1)
-    DEPS_31 += $(CONFIG)/bin/libpcre.so
-endif
-DEPS_31 += $(CONFIG)/inc/http.h
-DEPS_31 += $(CONFIG)/obj/httpLib.o
-DEPS_31 += $(CONFIG)/bin/libhttp.so
-DEPS_31 += $(CONFIG)/inc/ejs.h
-DEPS_31 += $(CONFIG)/inc/ejs.slots.h
-DEPS_31 += $(CONFIG)/inc/ejsByteGoto.h
-DEPS_31 += $(CONFIG)/obj/ejsLib.o
-DEPS_31 += $(CONFIG)/bin/libejs.so
-DEPS_31 += $(CONFIG)/obj/ejsc.o
-
-LIBS_31 += -lejs
-LIBS_31 += -lhttp
-LIBS_31 += -lmpr
-ifeq ($(BIT_PACK_PCRE),1)
-    LIBS_31 += -lpcre
-endif
-
-$(CONFIG)/bin/ejsc: $(DEPS_31)
+$(CONFIG)/bin/ejsc: $(DEPS_29)
 	@echo '      [Link] $(CONFIG)/bin/ejsc'
-	$(CC) -o $(CONFIG)/bin/ejsc $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/ejsc.o" $(LIBPATHS_31) $(LIBS_31) $(LIBS_31) $(LIBS) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/ejsc $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/ejsc.o" $(LIBPATHS_29) $(LIBS_29) $(LIBS_29) $(LIBS) $(LIBS) 
 endif
 
 ifeq ($(BIT_PACK_EJSCRIPT),1)
 #
 #   ejs.mod
 #
-DEPS_32 += src/paks/ejs/ejs.es
-DEPS_32 += $(CONFIG)/inc/mpr.h
-DEPS_32 += $(CONFIG)/inc/bit.h
-DEPS_32 += $(CONFIG)/inc/bitos.h
-DEPS_32 += $(CONFIG)/obj/mprLib.o
-DEPS_32 += $(CONFIG)/bin/libmpr.so
-DEPS_32 += $(CONFIG)/inc/pcre.h
-DEPS_32 += $(CONFIG)/obj/pcre.o
+DEPS_30 += src/paks/ejs/ejs.es
+DEPS_30 += $(CONFIG)/inc/mpr.h
+DEPS_30 += $(CONFIG)/inc/bit.h
+DEPS_30 += $(CONFIG)/inc/bitos.h
+DEPS_30 += $(CONFIG)/obj/mprLib.o
+DEPS_30 += $(CONFIG)/bin/libmpr.so
+DEPS_30 += $(CONFIG)/inc/pcre.h
+DEPS_30 += $(CONFIG)/obj/pcre.o
 ifeq ($(BIT_PACK_PCRE),1)
-    DEPS_32 += $(CONFIG)/bin/libpcre.so
+    DEPS_30 += $(CONFIG)/bin/libpcre.so
 endif
-DEPS_32 += $(CONFIG)/inc/http.h
-DEPS_32 += $(CONFIG)/obj/httpLib.o
-DEPS_32 += $(CONFIG)/bin/libhttp.so
-DEPS_32 += $(CONFIG)/inc/ejs.h
-DEPS_32 += $(CONFIG)/inc/ejs.slots.h
-DEPS_32 += $(CONFIG)/inc/ejsByteGoto.h
-DEPS_32 += $(CONFIG)/obj/ejsLib.o
-DEPS_32 += $(CONFIG)/bin/libejs.so
-DEPS_32 += $(CONFIG)/obj/ejsc.o
-DEPS_32 += $(CONFIG)/bin/ejsc
+DEPS_30 += $(CONFIG)/inc/http.h
+DEPS_30 += $(CONFIG)/obj/httpLib.o
+DEPS_30 += $(CONFIG)/bin/libhttp.so
+DEPS_30 += $(CONFIG)/inc/ejs.h
+DEPS_30 += $(CONFIG)/inc/ejs.slots.h
+DEPS_30 += $(CONFIG)/inc/ejsByteGoto.h
+DEPS_30 += $(CONFIG)/obj/ejsLib.o
+DEPS_30 += $(CONFIG)/bin/libejs.so
+DEPS_30 += $(CONFIG)/obj/ejsc.o
+DEPS_30 += $(CONFIG)/bin/ejsc
 
-$(CONFIG)/bin/ejs.mod: $(DEPS_32)
+$(CONFIG)/bin/ejs.mod: $(DEPS_30)
 	( \
 	cd src/paks/ejs; \
 	../../../$(CONFIG)/bin/ejsc --out ../../../$(CONFIG)/bin/ejs.mod --optimize 9 --bind --require null ejs.es ; \
@@ -658,68 +605,68 @@ endif
 #
 #   bits
 #
-DEPS_33 += bits/bit.es
-DEPS_33 += bits/configure.es
-DEPS_33 += bits/embedthis-manifest.bit
-DEPS_33 += bits/embedthis.bit
-DEPS_33 += bits/embedthis.es
-DEPS_33 += bits/gendoc.es
-DEPS_33 += bits/generate.es
-DEPS_33 += bits/os
-DEPS_33 += bits/os/freebsd.bit
-DEPS_33 += bits/os/gcc.bit
-DEPS_33 += bits/os/linux.bit
-DEPS_33 += bits/os/macosx.bit
-DEPS_33 += bits/os/solaris.bit
-DEPS_33 += bits/os/unix.bit
-DEPS_33 += bits/os/vxworks.bit
-DEPS_33 += bits/os/windows.bit
-DEPS_33 += bits/packs
-DEPS_33 += bits/packs/appweb-embed.bit
-DEPS_33 += bits/packs/appweb.bit
-DEPS_33 += bits/packs/compiler.bit
-DEPS_33 += bits/packs/doxygen.bit
-DEPS_33 += bits/packs/dsi.bit
-DEPS_33 += bits/packs/dumpbin.bit
-DEPS_33 += bits/packs/ejs.bit
-DEPS_33 += bits/packs/ejscript.bit
-DEPS_33 += bits/packs/est.bit
-DEPS_33 += bits/packs/gzip.bit
-DEPS_33 += bits/packs/htmlmin.bit
-DEPS_33 += bits/packs/http.bit
-DEPS_33 += bits/packs/lib.bit
-DEPS_33 += bits/packs/link.bit
-DEPS_33 += bits/packs/man.bit
-DEPS_33 += bits/packs/man2html.bit
-DEPS_33 += bits/packs/matrixssl.bit
-DEPS_33 += bits/packs/md5.bit
-DEPS_33 += bits/packs/nanossl.bit
-DEPS_33 += bits/packs/ngmin.bit
-DEPS_33 += bits/packs/openssl.bit
-DEPS_33 += bits/packs/pak.bit
-DEPS_33 += bits/packs/pcre.bit
-DEPS_33 += bits/packs/pmaker.bit
-DEPS_33 += bits/packs/ranlib.bit
-DEPS_33 += bits/packs/rc.bit
-DEPS_33 += bits/packs/recess.bit
-DEPS_33 += bits/packs/sqlite.bit
-DEPS_33 += bits/packs/ssl.bit
-DEPS_33 += bits/packs/strip.bit
-DEPS_33 += bits/packs/tidy.bit
-DEPS_33 += bits/packs/uglifyjs.bit
-DEPS_33 += bits/packs/utest.bit
-DEPS_33 += bits/packs/vxworks.bit
-DEPS_33 += bits/packs/winsdk.bit
-DEPS_33 += bits/packs/zip.bit
-DEPS_33 += bits/packs/zlib.bit
-DEPS_33 += bits/sample-main.bit
-DEPS_33 += bits/sample-start.bit
-DEPS_33 += bits/simple.bit
-DEPS_33 += bits/standard.bit
-DEPS_33 += bits/vstudio.es
-DEPS_33 += bits/xcode.es
+DEPS_31 += bits/bit.es
+DEPS_31 += bits/configure.es
+DEPS_31 += bits/embedthis-manifest.bit
+DEPS_31 += bits/embedthis.bit
+DEPS_31 += bits/embedthis.es
+DEPS_31 += bits/gendoc.es
+DEPS_31 += bits/generate.es
+DEPS_31 += bits/os
+DEPS_31 += bits/os/freebsd.bit
+DEPS_31 += bits/os/gcc.bit
+DEPS_31 += bits/os/linux.bit
+DEPS_31 += bits/os/macosx.bit
+DEPS_31 += bits/os/solaris.bit
+DEPS_31 += bits/os/unix.bit
+DEPS_31 += bits/os/vxworks.bit
+DEPS_31 += bits/os/windows.bit
+DEPS_31 += bits/packs
+DEPS_31 += bits/packs/appweb-embed.bit
+DEPS_31 += bits/packs/appweb.bit
+DEPS_31 += bits/packs/compiler.bit
+DEPS_31 += bits/packs/doxygen.bit
+DEPS_31 += bits/packs/dsi.bit
+DEPS_31 += bits/packs/dumpbin.bit
+DEPS_31 += bits/packs/ejs.bit
+DEPS_31 += bits/packs/ejscript.bit
+DEPS_31 += bits/packs/est.bit
+DEPS_31 += bits/packs/gzip.bit
+DEPS_31 += bits/packs/htmlmin.bit
+DEPS_31 += bits/packs/http.bit
+DEPS_31 += bits/packs/lib.bit
+DEPS_31 += bits/packs/link.bit
+DEPS_31 += bits/packs/man.bit
+DEPS_31 += bits/packs/man2html.bit
+DEPS_31 += bits/packs/matrixssl.bit
+DEPS_31 += bits/packs/md5.bit
+DEPS_31 += bits/packs/nanossl.bit
+DEPS_31 += bits/packs/ngmin.bit
+DEPS_31 += bits/packs/openssl.bit
+DEPS_31 += bits/packs/pak.bit
+DEPS_31 += bits/packs/pcre.bit
+DEPS_31 += bits/packs/pmaker.bit
+DEPS_31 += bits/packs/ranlib.bit
+DEPS_31 += bits/packs/rc.bit
+DEPS_31 += bits/packs/recess.bit
+DEPS_31 += bits/packs/sqlite.bit
+DEPS_31 += bits/packs/ssl.bit
+DEPS_31 += bits/packs/strip.bit
+DEPS_31 += bits/packs/tidy.bit
+DEPS_31 += bits/packs/uglifyjs.bit
+DEPS_31 += bits/packs/utest.bit
+DEPS_31 += bits/packs/vxworks.bit
+DEPS_31 += bits/packs/winsdk.bit
+DEPS_31 += bits/packs/zip.bit
+DEPS_31 += bits/packs/zlib.bit
+DEPS_31 += bits/sample-main.bit
+DEPS_31 += bits/sample-start.bit
+DEPS_31 += bits/simple.bit
+DEPS_31 += bits/standard.bit
+DEPS_31 += bits/vstudio.es
+DEPS_31 += bits/xcode.es
 
-$(CONFIG)/bin/bits: $(DEPS_33)
+$(CONFIG)/bin/bits: $(DEPS_31)
 	@echo '      [Copy] $(CONFIG)/bin/bits'
 	mkdir -p "$(CONFIG)/bin/bits"
 	cp bits/bit.es $(CONFIG)/bin/bits/bit.es
@@ -833,59 +780,59 @@ $(CONFIG)/bin/bits: $(DEPS_33)
 #
 #   bit.o
 #
-DEPS_34 += $(CONFIG)/inc/bit.h
-DEPS_34 += $(CONFIG)/inc/ejs.h
+DEPS_32 += $(CONFIG)/inc/bit.h
+DEPS_32 += $(CONFIG)/inc/ejs.h
 
 $(CONFIG)/obj/bit.o: \
-    src/bit.c $(DEPS_34)
+    src/bit.c $(DEPS_32)
 	@echo '   [Compile] $(CONFIG)/obj/bit.o'
 	$(CC) -c -o $(CONFIG)/obj/bit.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/bit.c
 
 #
 #   bit
 #
-DEPS_35 += $(CONFIG)/inc/mpr.h
-DEPS_35 += $(CONFIG)/inc/bit.h
-DEPS_35 += $(CONFIG)/inc/bitos.h
-DEPS_35 += $(CONFIG)/obj/mprLib.o
-DEPS_35 += $(CONFIG)/bin/libmpr.so
-DEPS_35 += $(CONFIG)/inc/pcre.h
-DEPS_35 += $(CONFIG)/obj/pcre.o
+DEPS_33 += $(CONFIG)/inc/mpr.h
+DEPS_33 += $(CONFIG)/inc/bit.h
+DEPS_33 += $(CONFIG)/inc/bitos.h
+DEPS_33 += $(CONFIG)/obj/mprLib.o
+DEPS_33 += $(CONFIG)/bin/libmpr.so
+DEPS_33 += $(CONFIG)/inc/pcre.h
+DEPS_33 += $(CONFIG)/obj/pcre.o
 ifeq ($(BIT_PACK_PCRE),1)
-    DEPS_35 += $(CONFIG)/bin/libpcre.so
+    DEPS_33 += $(CONFIG)/bin/libpcre.so
 endif
-DEPS_35 += $(CONFIG)/inc/http.h
-DEPS_35 += $(CONFIG)/obj/httpLib.o
-DEPS_35 += $(CONFIG)/bin/libhttp.so
-DEPS_35 += $(CONFIG)/inc/ejs.h
-DEPS_35 += $(CONFIG)/inc/ejs.slots.h
-DEPS_35 += $(CONFIG)/inc/ejsByteGoto.h
-DEPS_35 += $(CONFIG)/obj/ejsLib.o
+DEPS_33 += $(CONFIG)/inc/http.h
+DEPS_33 += $(CONFIG)/obj/httpLib.o
+DEPS_33 += $(CONFIG)/bin/libhttp.so
+DEPS_33 += $(CONFIG)/inc/ejs.h
+DEPS_33 += $(CONFIG)/inc/ejs.slots.h
+DEPS_33 += $(CONFIG)/inc/ejsByteGoto.h
+DEPS_33 += $(CONFIG)/obj/ejsLib.o
 ifeq ($(BIT_PACK_EJSCRIPT),1)
-    DEPS_35 += $(CONFIG)/bin/libejs.so
+    DEPS_33 += $(CONFIG)/bin/libejs.so
 endif
-DEPS_35 += $(CONFIG)/bin/bits
-DEPS_35 += $(CONFIG)/obj/bit.o
+DEPS_33 += $(CONFIG)/bin/bits
+DEPS_33 += $(CONFIG)/obj/bit.o
 
-LIBS_35 += -lmpr
-LIBS_35 += -lhttp
+LIBS_33 += -lmpr
+LIBS_33 += -lhttp
 ifeq ($(BIT_PACK_PCRE),1)
-    LIBS_35 += -lpcre
+    LIBS_33 += -lpcre
 endif
 ifeq ($(BIT_PACK_EJSCRIPT),1)
-    LIBS_35 += -lejs
+    LIBS_33 += -lejs
 endif
 
-$(CONFIG)/bin/bit: $(DEPS_35)
+$(CONFIG)/bin/bit: $(DEPS_33)
 	@echo '      [Link] $(CONFIG)/bin/bit'
-	$(CC) -o $(CONFIG)/bin/bit $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/bit.o" $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/bit $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/bit.o" $(LIBPATHS_33) $(LIBS_33) $(LIBS_33) $(LIBS) $(LIBS) 
 
 #
 #   bower.json
 #
-DEPS_36 += package.json
+DEPS_34 += package.json
 
-bower.json: $(DEPS_36)
+bower.json: $(DEPS_34)
 	@echo '      [Copy] bower.json'
 	mkdir -p "."
 	cp package.json bower.json
@@ -893,12 +840,12 @@ bower.json: $(DEPS_36)
 #
 #   stop
 #
-stop: $(DEPS_37)
+stop: $(DEPS_35)
 
 #
 #   installBinary
 #
-installBinary: $(DEPS_38)
+installBinary: $(DEPS_36)
 	( \
 	cd .; \
 	mkdir -p "$(BIT_APP_PREFIX)" ; \
@@ -990,23 +937,23 @@ installBinary: $(DEPS_38)
 #
 #   start
 #
-start: $(DEPS_39)
+start: $(DEPS_37)
 
 #
 #   install
 #
-DEPS_40 += stop
-DEPS_40 += installBinary
-DEPS_40 += start
+DEPS_38 += stop
+DEPS_38 += installBinary
+DEPS_38 += start
 
-install: $(DEPS_40)
+install: $(DEPS_38)
 
 #
 #   uninstall
 #
-DEPS_41 += stop
+DEPS_39 += stop
 
-uninstall: $(DEPS_41)
+uninstall: $(DEPS_39)
 	( \
 	cd .; \
 	rm -fr "$(BIT_VAPP_PREFIX)" ; \

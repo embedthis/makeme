@@ -105,7 +105,7 @@ Bit.load({
                     if (!uri) {
                         throw 'Missing a farm upload URI'
                     }
-                    let base = s.product + '-' + s.version + '-' + s.buildNumber
+                    let base = s.product + '-' + s.version
                     let files = bit.dir.rel.files('*' + base + '*.pkg*')
                     files += bit.dir.rel.files('*' + base + '*x86.exe.zip*')
                     if (App.getenv('BUILD_UPLOAD_SOURCE') == 'true') {
@@ -373,8 +373,7 @@ Bit.load({
                             trace('Test', 'Install is missing files: ' + missing)
                         }
                         trace('Test', bit.settings.product + ' -V')
-                        assert(Cmd.run([bit.prefixes.bin.join(bit.settings.product), '-V']).trim() == 
-                            (bit.settings.version + '-' + bit.settings.buildNumber))
+                        assert(Cmd.run([bit.prefixes.bin.join(bit.settings.product), '-V']).trim() == bit.settings.version)
                         uninstallPackage()
                         if (Config.OS == 'windows') App.sleep(1000)
                         if (existing = checkUninstalled()) {

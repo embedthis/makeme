@@ -1855,9 +1855,12 @@ PUBLIC bool httpWillNextQueueAcceptSize(HttpQueue *q, ssize size);
  */
 PUBLIC ssize httpWrite(HttpQueue *q, cchar *fmt, ...);
 
-#define HTTP_NON_BLOCK  0x1    /**< Flag for httpSendBlock and httpWriteBlock to indicate non-blocking operation */
-#define HTTP_BUFFER     0x2    /**< Flag for httpSendBlock and httpWriteBlock to always absorb the data without blocking */
-#define HTTP_BLOCK      0x4    /**< Flag for httpSendBlock and httpWriteBlock to indicate blocking operation */
+/*
+    Set HTTP_BLOCK to 0x1 so that legacy calls to httpFlushQueue that supplied a boolean block value will function correctly
+ */
+#define HTTP_BLOCK      0x1    /**< Flag for httpSendBlock and httpWriteBlock to indicate blocking operation */
+#define HTTP_NON_BLOCK  0x2    /**< Flag for httpSendBlock and httpWriteBlock to indicate non-blocking operation */
+#define HTTP_BUFFER     0x4    /**< Flag for httpSendBlock and httpWriteBlock to always absorb the data without blocking */
 
 /** 
     Write a block of data to the queue
@@ -3095,7 +3098,7 @@ PUBLIC void httpCreatePipeline(HttpConn *conn);
     @ingroup HttpConn
     @stability Evolving
  */
-PUBLIC MprSocket *httpStealConn(HttpConn *conn);
+PUBLIC MprSocket *httpStealSocket(HttpConn *conn);
 
 #if DEPRECATED || 1
 #define httpStealConn httpStealSocket
@@ -3258,7 +3261,7 @@ typedef struct  HttpRole {
     @defgroup HttpAuth HttpAuth
     @see HttpAskLogin HttpAuth HttpAuthStore HttpAuthType HttpGetCredentials HttpRole HttpSetAuth HttpVerifyUser HttpUser
         HttpVerifyUser httpAddAuthType httpAddAuthStore httpAddRole httpAddUser httpCanUser httpAuthenticate
-        httpComputeAllUserAbilities httpComputeUserAbilities httpCreateRole httpCreateAuth httpCreateUser
+        httpComputeAllUserAbilities httpComputeUserAbilities httpCreateRole httpCreateAuth httpAdduser
         httpIsAuthenticated httpLogin httpRemoveRole httpRemoveUser httpSetAuthAllow httpSetAuthAnyValidUser
         httpSetAuthUsername httpSetAuthDeny httpSetAuthOrder httpSetAuthPermittedUsers httpSetAuthForm httpSetAuthQop
         httpSetAuthRealm httpSetAuthRequiredAbilities httpSetAuthStore httpSetAuthType
@@ -3344,6 +3347,10 @@ PUBLIC int httpAddRole(HttpAuth *auth, cchar *role, cchar *abilities);
     @stability Evolving
  */
 PUBLIC HttpUser *httpAddUser(HttpAuth *auth, cchar *user, cchar *password, cchar *abilities);
+
+#if DEPRECATED || 1
+#define httpCreateUser(auth, user, password, abilities) httpAddUser(auth, user, password, abilities)
+#endif
 
 /**
     Authenticate a user
@@ -3843,7 +3850,7 @@ PUBLIC void httpSetStreaming(struct HttpHost *host, cchar *mime, cchar *uri, boo
         httpAddRouteLoad httpAddRouteQuery httpAddRouteUpdate httpClearRouteStages httpCreateAliasRoute 
         httpCreateDefaultRoute httpCreateInheritedRoute httpCreateRoute httpDefineRoute
         httpDefineRouteCondition httpDefineRouteTarget httpDefineRouteUpdate httpFinalizeRoute httpGetRouteData 
-        httpGetRouteDir httpLookupRouteErrorDocument httpMakePath httpResetRoutePipeline 
+        httpGetRouteDocuments httpLookupRouteErrorDocument httpMakePath httpResetRoutePipeline 
         httpSetRouteAuth httpSetRouteAutoDelete httpSetRouteCompression httpSetRouteConnector httpSetRouteData 
         httpSetRouteDefaultLanguage httpSetRouteDocuments httpSetRouteFlags httpSetRouteHandler httpSetRouteHost 
         httpSetRouteIndex httpSetRouteMethods httpSetRouteName httpSetRouteVar httpSetRoutePattern 
@@ -4455,6 +4462,10 @@ PUBLIC void *httpGetRouteData(HttpRoute *route, cchar *key);
     @stability Evolving
  */
 PUBLIC cchar *httpGetRouteDocuments(HttpRoute *route);
+
+#if DEPRECATED || 1
+#define httpGetRouteDir(route) httpGetRouteDocuments(route)
+#endif
 
 /**
     Get the route home directory
@@ -5475,6 +5486,10 @@ PUBLIC void httpAddQueryParams(HttpConn *conn);
  */
 PUBLIC int httpAddBodyParams(HttpConn *conn);
 
+#if DEPRECATED || 1
+#define httpAddParams(conn) httpAddBodyParams(conn)
+#endif
+
 /**
     Add parameters from a JSON body.
     @description This adds query data and posted body data to the request params
@@ -5925,6 +5940,7 @@ typedef struct HttpTx {
     int             status;                 /**< HTTP response status */
     int             responded;              /**< The request has started to respond. Some output has been initiated. */
     int             started;                /**< Handler has started */
+    int             bypassDocuments;        /**< Bypass check serving documents outside the document root */
     MprOff          bytesWritten;           /**< Bytes written including headers */
     MprOff          entityLength;           /**< Original content length before range subsetting */
     ssize           chunkSize;              /**< Chunk size to use when using transfer encoding. Zero for unchunked. */
@@ -6331,14 +6347,16 @@ PUBLIC void httpSetEntityLength(HttpConn *conn, MprOff len);
 /**
     Set the filename.
     @description This sets the HttpTx filename, ext, etag and info fields. This filename may be virtual or may be 
-        outside the documents root directory. Use httpMapFile if you wish validation that the filename is within
+        outside the documents root directory. If it is not a file under the route documents directory, set the 
+        bypass parameter to true. Use httpMapFile if you wish validation that the filename is within
         the documents root.
     @param conn HttpConn connection object 
     @param filename Tx filename to define.
+    @param bypass Set to true if the filename should not be checked to be inside the route documents directory.
     @ingroup HttpTx
     @stability Evolving
  */
-PUBLIC void httpSetFilename(HttpConn *conn, cchar *filename);
+PUBLIC void httpSetFilename(HttpConn *conn, cchar *filename, bool bypass);
 
 /**
     Set the handler for this request

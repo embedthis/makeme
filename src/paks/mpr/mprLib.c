@@ -1530,7 +1530,6 @@ static void relayOutsideEvent(void *data, struct MprEvent *event)
  */
 PUBLIC int mprCreateEventOutside(MprDispatcher *dispatcher, void *proc, void *data, int flags)
 {
-    MprEvent        *event;
     OutsideEvent    outside;
 
     memset(&outside, 0, sizeof(outside));
@@ -1550,7 +1549,7 @@ PUBLIC int mprCreateEventOutside(MprDispatcher *dispatcher, void *proc, void *da
     if (flags & MPR_EVENT_BLOCK) {
         outside.cond = mprCreateCond();
     }
-    event = mprCreateEvent(dispatcher, "relay", 0, relayOutsideEvent, &outside, MPR_EVENT_STATIC_DATA);
+    mprCreateEvent(dispatcher, "relay", 0, relayOutsideEvent, &outside, MPR_EVENT_STATIC_DATA);
     if (flags & MPR_EVENT_BLOCK) {
         mprWaitForCond(outside.cond, -1);
     }
@@ -15126,7 +15125,7 @@ PUBLIC void mprLogHeader()
 {
     mprLog(MPR_INFO, "Configuration for %s", mprGetAppTitle());
     mprLog(MPR_INFO, "---------------------------------------------");
-    mprLog(MPR_INFO, "Version:            %s-%s", BIT_VERSION, BIT_BUILD_NUMBER);
+    mprLog(MPR_INFO, "Version:            %s", BIT_VERSION);
     mprLog(MPR_INFO, "BuildType:          %s", BIT_DEBUG ? "Debug" : "Release");
     mprLog(MPR_INFO, "CPU:                %s", BIT_CPU);
     mprLog(MPR_INFO, "OS:                 %s", BIT_OS);
@@ -17911,7 +17910,7 @@ PUBLIC char *mprGetWinPath(cchar *path)
 }
 
 
-PUBLIC bool mprIsParentPathOf(cchar *dir, cchar *path)
+PUBLIC bool mprIsPathContained(cchar *path, cchar *dir)
 {
     ssize   len;
     char    *base;
@@ -17923,6 +17922,32 @@ PUBLIC bool mprIsParentPathOf(cchar *dir, cchar *path)
         base = sclone(path);
         base[len] = '\0';
         if (mprSamePath(dir, base)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+
+#if DEPRECATED || 1
+PUBLIC bool mprIsParentPathOf(cchar *dir, cchar *path)
+{
+    return mprIsPathContained(path, dir);
+}
+#endif
+
+
+PUBLIC bool mprIsAbsPathContained(cchar *path, cchar *dir)
+{
+    MprFileSystem   *fs;
+    ssize            len;
+
+    assert(mprIsPathAbs(path));
+    assert(mprIsPathAbs(dir));
+    len = slen(dir);
+    if (len <= slen(path)) {
+        fs = mprLookupFileSystem(path);
+        if (mprSamePathCount(dir, path, len) && (path[len] == '\0' || isSep(fs, path[len]))) {
             return 1;
         }
     }

@@ -35,7 +35,6 @@ PRODUCT="${settings.product}"
 COMPANY="${settings.company}"
 NAME="${settings.title}"
 VERSION="${settings.version}"
-NUMBER="${settings.buildNumber}"
 OS="${platform.os}"
 CPU="${platform.arch}"
 
@@ -215,7 +214,7 @@ setup() {
 		exit 0
 	fi
 	binDir=${binDir:-$VAPP_PREFIX}
-	echo -e "\n$NAME ${VERSION}-${NUMBER} Removal\n"
+	echo -e "\n$NAME ${VERSION} Removal\n"
 }
 
 askUser() {

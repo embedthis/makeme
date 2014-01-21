@@ -204,6 +204,9 @@
 #ifndef _h_SLOTS_EjsSlots
 #define _h_SLOTS_EjsSlots 1
 
+#ifndef EJS_VERSION
+    #define EJS_VERSION "2.3.4"
+#endif
 
 /*
    Slots for the "ejs" module 
