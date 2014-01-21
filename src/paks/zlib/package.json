@@ -4,7 +4,7 @@
     "title": "Zlib Library",
     "version": "1.0.1",
     "keywords": [
-        "zlib",
+        "zlib"
     ],
     "author": {
         "name": "Embedthis Software",
@@ -30,8 +30,13 @@
         "*-debug*",
         "*-release*"
     ],
-    "licenses": [{ 
-        "type": "ZLIB", 
-        "url": "https://github.com/embedthis/zlib/blob/master/LICENSE.md",
-    }]
+    "licenses": [
+        {
+            "type": "ZLIB",
+            "url": "https://github.com/embedthis/zlib/blob/master/LICENSE.md"
+        }
+    ],
+    "dependencies": {
+        "bitos": "~0.8"
+    }
 }

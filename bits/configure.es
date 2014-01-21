@@ -664,7 +664,8 @@ module embedthis.bit {
         Note: setting CFLAGS, DFLAGS etc overwrites internal bit settings for compiler, defines etc.
      */
     internal function captureEnv() {
-        if (!bit.platform.cross) {
+        if ((!b.platforms || b.platforms.length > 1) && !bit.platform.cross) {
+            /* If building cross, then only apply env to cross build, not to native dev platform build */
             return
         }
         envSettings = { packs: { compiler: {} } }
@@ -680,7 +681,7 @@ module embedthis.bit {
             let value = App.getenv(flag)
             if (value) {
                 envSettings.packs.compiler[option] ||= []
-                envSettings.packs.compiler[option] += value
+                envSettings.packs.compiler[option] += [value]
             }
         }
         blend(bit, envSettings, {combine: true})

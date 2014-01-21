@@ -29,16 +29,10 @@
 #define ZCONF_H
 
 #include "bit.h"
+#include "bitos.h"
 
 #if EMBEDTHIS || 1
 #if _WIN32
-    #undef      _CRT_SECURE_NO_DEPRECATE
-    #define     _CRT_SECURE_NO_DEPRECATE 1
-    #undef      _CRT_SECURE_NO_WARNINGS
-    #define     _CRT_SECURE_NO_WARNINGS 1
-    #ifndef     _WIN32_WINNT
-        #define _WIN32_WINNT 0x501
-    #endif
     #define ZLIB_DLL
 #endif
 #endif
@@ -2264,20 +2258,10 @@ ZEXTERN int            ZEXPORT deflateResetKeep OF((z_streamp));
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 #include "bit.h"
+#include "bitos.h"
 
 #ifndef GZGUTS_H 
 #define GZGUTS_H 
-
-#if _WIN32
-    #undef      _CRT_SECURE_NO_DEPRECATE
-    #define     _CRT_SECURE_NO_DEPRECATE 1
-    #undef      _CRT_SECURE_NO_WARNINGS
-    #define     _CRT_SECURE_NO_WARNINGS 1
-    #ifndef     _WIN32_WINNT
-        #define _WIN32_WINNT 0x501
-    #endif
-    #include    <io.h>
-#endif
 
 #if VXWORKS
     #ifndef _VSB_CONFIG_FILE

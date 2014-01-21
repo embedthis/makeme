@@ -26246,10 +26246,6 @@ static int localTime(struct tm *timep, MprTime time);
 static MprTime makeTime(struct tm *tp);
 static void validateTime(struct tm *tm, struct tm *defaults);
 
-#if !MACOSX && !CLOCK_MONOTONIC_RAW && !CLOCK_MONOTONIC && !(BIT_WIN_LIKE && _WIN32_WINNT >= 0x0600)
-static MprSpin ticksSpin;
-#endif
-
 /************************************ Code ************************************/
 /*
     Initialize the time service
@@ -26416,8 +26412,8 @@ PUBLIC MprTime mprGetTime()
  */
 PUBLIC MprTicks mprGetTicks()
 {
-#if BIT_WIN_LIKE && _WIN32_WINNT >= 0x0600
-    /* Windows Vista and later */
+#if BIT_WIN_LIKE && BIT_64 && _WIN32_WINNT >= 0x0600
+    /* Windows Vista and later. Test for 64-bit so that building on deprecated Windows XP will work */
     return GetTickCount64();
 #elif MACOSX
     mach_timebase_info_data_t info;
@@ -26442,6 +26438,7 @@ PUBLIC MprTicks mprGetTicks()
 #else
     static MprTime lastTicks;
     static MprTime adjustTicks = 0;
+    static MprSpin ticksSpin;
     MprTime     result, diff;
 
     if (lastTicks == 0) {
