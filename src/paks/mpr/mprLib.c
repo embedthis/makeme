@@ -26387,10 +26387,32 @@ PUBLIC MprTime mprGetTime()
     }
 #endif
 
+/*
+    Ugh! Aparently monotonic clocks are broken on VxWorks prior to 6.7
+ */
+#if CLOCK_MONOTONIC_RAW
+    #if BIT_UNIX_LIKE
+        #define HAS_MONOTONIC_RAW 1
+    #elif VXWORKS
+        #if (_WRS_VXWORKS_MAJOR > 6 || (_WRS_VXWORKS_MAJOR == 6 && _WRS_VXWORKS_MINOR >= 7))
+            #define HAS_MONOTONIC_RAW 1
+        #endif
+    #endif
+#endif
+#if CLOCK_MONOTONIC
+    #if BIT_UNIX_LIKE
+        #define HAS_MONOTONIC 1
+    #elif VXWORKS
+        #if (_WRS_VXWORKS_MAJOR > 6 || (_WRS_VXWORKS_MAJOR == 6 && _WRS_VXWORKS_MINOR >= 7))
+            #define HAS_MONOTONIC 1
+        #endif
+    #endif
+#endif
 
 /*
     Return time in milliseconds that never goes backwards. This is used for timers and not for time of day.
     The actual value returned is system dependant and does not represent time since Jan 1 1970.
+    It may drift from real-time over time.
  */
 PUBLIC MprTicks mprGetTicks()
 {
@@ -26401,11 +26423,19 @@ PUBLIC MprTicks mprGetTicks()
     mach_timebase_info_data_t info;
     mach_timebase_info(&info);
     return mach_absolute_time() * info.numer / info.denom / (1000 * 1000);
-#elif CLOCK_MONOTONIC_RAW
+#elif HAS_MONOTONIC_RAW
+    /*
+        Monotonic raw is the local oscillator. This may over time diverge from real time ticks.
+        We prefer this to monotonic because the ticks will always increase by the same regular amount without adjustments.
+     */
     struct timespec tv;
     clock_gettime(CLOCK_MONOTONIC_RAW, &tv);
     return (MprTicks) (((MprTicks) tv.tv_sec) * 1000) + (tv.tv_nsec / (1000 * 1000));
-#elif CLOCK_MONOTONIC
+#elif HAS_MONOTONIC
+    /*
+        Monotonic is the local oscillator with NTP gradual adjustments as NTP learns the differences between the local
+        oscillator and NTP measured real clock time. i.e. it will adjust ticks over time to not lose ticks.
+     */
     struct timespec tv;
     clock_gettime(CLOCK_MONOTONIC, &tv);
     return (MprTicks) (((MprTicks) tv.tv_sec) * 1000) + (tv.tv_nsec / (1000 * 1000));

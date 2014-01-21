@@ -35,7 +35,7 @@
     #define BIT_EJS_MAPPER 0
 #endif
 #ifndef BIT_EJS_SHELL
-    #define BIT_EJS_SHELL 0
+    #define BIT_EJS_SHELL 1
 #endif
 #ifndef BIT_EJS_TAR
     #define BIT_EJS_TAR 1

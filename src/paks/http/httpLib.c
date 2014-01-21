@@ -2184,6 +2184,9 @@ PUBLIC ssize httpReadBlock(HttpConn *conn, char *buf, ssize size, MprTicks timeo
 }
 
 
+/*
+    Read with standard connection timeouts and in blocking mode for clients, non-blocking for server-side
+ */
 PUBLIC ssize httpRead(HttpConn *conn, char *buf, ssize size)
 {
     return httpReadBlock(conn, buf, size, -1, 0);
@@ -2867,6 +2870,7 @@ PUBLIC void httpIOEvent(HttpConn *conn, MprEvent *event)
 PUBLIC void httpEnableConnEvents(HttpConn *conn)
 {
     HttpRx      *rx;
+    HttpTx      *tx;
     HttpQueue   *q;
     MprEvent    *event;
     MprSocket   *sp;
@@ -2874,6 +2878,7 @@ PUBLIC void httpEnableConnEvents(HttpConn *conn)
 
     sp = conn->sock;
     rx = conn->rx;
+    tx = conn->tx;
 
     if (conn->workerEvent) {
         /* TODO: This is never used */
@@ -2884,11 +2889,12 @@ PUBLIC void httpEnableConnEvents(HttpConn *conn)
     }
     eventMask = 0;
     if (rx) {
-        if (conn->tx->writeBlocked || 
+        if (conn->connError || 
+           (tx->writeBlocked) || 
            (conn->connectorq && conn->connectorq->count > 0) || 
            (httpQueuesNeedService(conn)) || 
            (mprSocketHasBufferedWrite(sp)) ||
-           (conn->tx->finalized && conn->state < HTTP_STATE_FINALIZED)) {
+           (tx->finalized && conn->state < HTTP_STATE_FINALIZED)) {
 
             if (!mprSocketHandshaking(sp)) {
                 /* Must not pollute the data stream if the SSL stack is doing manual handshaking still */
