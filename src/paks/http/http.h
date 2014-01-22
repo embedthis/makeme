@@ -743,6 +743,9 @@ PUBLIC void httpSetSoftware(Http *http, cchar *description);
  */
 PUBLIC void httpStop(int how);
 
+//  MOB
+PUBLIC void httpStopConnections(void *data);
+
 /* Internal APIs */
 PUBLIC void httpAddConn(Http *http, struct HttpConn *conn);
 PUBLIC struct HttpEndpoint *httpGetFirstEndpoint(Http *http);
@@ -2908,6 +2911,9 @@ PUBLIC void httpSetChunkSize(HttpConn *conn, ssize size);
     @stability Stable
  */
 PUBLIC void httpSetConnContext(HttpConn *conn, void *context);
+
+//  MOB
+PUBLIC void httpSetConnData(HttpConn *conn, void *data);
 
 /**
     Set the connection host object

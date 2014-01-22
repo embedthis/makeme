@@ -9,7 +9,6 @@
 
 #define local static
 #define NO_DUMMY_DECL
-#undef TIME
 #include "bit.h"
 
 /************************************************************************/
@@ -32,6 +31,7 @@
 #include "bitos.h"
 
 #if EMBEDTHIS || 1
+    #undef TIME
 #if _WIN32
     #define ZLIB_DLL
 #endif
@@ -2258,7 +2258,6 @@ ZEXTERN int            ZEXPORT deflateResetKeep OF((z_streamp));
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 #include "bit.h"
-#include "bitos.h"
 
 #ifndef GZGUTS_H 
 #define GZGUTS_H 

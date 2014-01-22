@@ -902,7 +902,7 @@ static BIT_INLINE void triggerGC()
     MPR_GC_NO_BLOCK     Run GC if necessary and return without yielding
     MPR_GC_COMPLETE     Force a GC and wait until all threads yield and GC completes including sweeper
  */
-PUBLIC void mprGC(int flags)
+PUBLIC int mprGC(int flags)
 {
     MprThreadService    *ts;
 
@@ -917,6 +917,7 @@ PUBLIC void mprGC(int flags)
     if (!(flags & MPR_GC_NO_BLOCK)) {
         mprYield((flags & MPR_GC_COMPLETE) ? MPR_YIELD_COMPLETE : 0);
     }
+    return MPR->heap->freedBlocks;
 }
 
 
@@ -2638,7 +2639,9 @@ PUBLIC bool mprDestroy(int how)
     MprTerminator   terminator;
     int             i, next;
 
-    if (!(how & MPR_EXIT_DEFAULT)) {
+    if (how & MPR_EXIT_DEFAULT) {
+        how = MPR->exitStrategy;
+    } else {
         MPR->exitStrategy = how;
     }
     if (how & MPR_EXIT_IMMEDIATE) {
@@ -2698,8 +2701,10 @@ PUBLIC bool mprDestroy(int how)
     /*
         Run GC until we are not freeing any memory. This is for destructors that unpin other blocks in the destructor.
      */
-    for (i = 0; MPR->heap->freedBlocks && i < 25; i++) {
-        mprGC(MPR_GC_FORCE | MPR_GC_COMPLETE);
+    for (i = 0; i < 25; i++) {
+        if (mprGC(MPR_GC_FORCE | MPR_GC_COMPLETE) == 0) {
+            break;
+        }
     }
     if (how & MPR_EXIT_RESTART) {
         mprLog(2, "Restarting\n\n");
@@ -2819,6 +2824,7 @@ static void serviceEventsThread(void *data, MprThread *tp)
     }
     mprSignalCond(MPR->cond);
     mprServiceEvents(-1, 0);
+    mprRescheduleDispatcher(MPR->dispatcher);
 }
 
 
@@ -2862,17 +2868,27 @@ PUBLIC bool mprIsFinished()
 PUBLIC int mprWaitTillIdle(MprTicks timeout)
 {
     MprTicks    mark, remaining, lastTrace;
+    int         workDone;
 
     lastTrace = mark = mprGetTicks(); 
-    while (!mprIsIdle() && (remaining = mprGetRemainingTicks(mark, timeout)) > 0) {
-        mprSleep(1);
-        mprServiceEvents(10, MPR_SERVICE_ONE_THING);
-        if ((lastTrace - remaining) > MPR_TICKS_PER_SEC) {
+    do {
+        if (mprIsIdle()) {
+            return 1;
+        }
+        /* WARNING: Yields */
+        if (!MPR->eventing) {
+            workDone = mprServiceEvents(10, MPR_SERVICE_ONE_THING);
+        } else {
+            mprSleep(1);
+            workDone = 1;
+        }
+        remaining = mprGetRemainingTicks(mark, timeout);
+        if (remaining >= 0 && (lastTrace - remaining) > MPR_TICKS_PER_SEC) {
             mprLog(1, "Waiting for requests to complete, %d secs remaining ...", remaining / MPR_TICKS_PER_SEC);
             lastTrace = remaining;
         }
-    }
-    return mprIsIdle();
+    } while (remaining > 0 || workDone || MPR->heap->sweeping);
+    return 0;
 }
 
 
@@ -9213,7 +9229,7 @@ PUBLIC int mprServiceEvents(MprTicks timeout, int flags)
     MprEventService     *es;
     MprDispatcher       *dp;
     MprTicks            expires, delay;
-    int                 beginEventCount, eventCount, justOne;
+    int                 beginEventCount, eventCount;
 
     if (MPR->eventing) {
         mprError("mprServiceEvents() called reentrantly");
@@ -9229,9 +9245,7 @@ PUBLIC int mprServiceEvents(MprTicks timeout, int flags)
     if (expires < 0) {
         expires = MAXINT64;
     }
-    justOne = (flags & MPR_SERVICE_ONE_THING) ? 1 : 0;
-
-    while (es->now < expires) {
+    while (es->now <= expires) {
         eventCount = es->eventCount;
         mprServiceSignals();
 
@@ -9244,11 +9258,18 @@ PUBLIC int mprServiceEvents(MprTicks timeout, int flags)
                 queueDispatcher(es->pendingQ, dp);
                 continue;
             }
+#if UNUSED
+            /* Moved below so we service all pending events instead of just one */
             if (justOne) {
                 expires = 0;
                 break;
             }
+#endif
         } 
+        if (flags & MPR_SERVICE_NO_BLOCK) {
+            expires = 0;
+            break;
+        }
         if (es->eventCount == eventCount) {
             lock(es);
             delay = getIdleTicks(es, expires - es->now);
@@ -9265,7 +9286,7 @@ PUBLIC int mprServiceEvents(MprTicks timeout, int flags)
             }
         }
         es->now = mprGetTicks();
-        if (justOne || mprIsStopping()) {
+        if ((flags & MPR_SERVICE_NO_BLOCK) || mprIsStopping()) {
             break;
         }
     }
@@ -9476,6 +9497,15 @@ PUBLIC void mprScheduleDispatcher(MprDispatcher *dispatcher)
     }
     if (mustWakeWaitService) {
         mprWakeEventService();
+    }
+}
+
+
+PUBLIC void mprRescheduleDispatcher(MprDispatcher *dispatcher)
+{
+    if (dispatcher) {
+        dequeueDispatcher(dispatcher);
+        mprScheduleDispatcher(dispatcher);
     }
 }
 
@@ -10455,7 +10485,7 @@ PUBLIC MprEvent *mprCreateEvent(MprDispatcher *dispatcher, cchar *name, MprTicks
     if ((event = mprAllocObj(MprEvent, manageEvent)) == 0) {
         return 0;
     }
-    if (dispatcher == 0) {
+    if (dispatcher == 0 || (dispatcher->flags & MPR_DISPATCHER_DESTROYED)) {
         dispatcher = (flags & MPR_EVENT_QUICK) ? MPR->nonBlock : MPR->dispatcher;
     }
     initEvent(dispatcher, event, name, period, proc, data, flags);
@@ -18871,6 +18901,9 @@ PUBLIC void mprNap(MprTicks timeout)
 }
 
 
+/*
+    This routine yields
+ */
 PUBLIC void mprSleep(MprTicks timeout)
 {
     mprYield(MPR_YIELD_STICKY);

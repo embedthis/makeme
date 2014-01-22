@@ -347,6 +347,11 @@ Bit.load({
             action: "sh('pak -f upgrade ; bit build')",
         },
 
+        sync: {
+            home: '${TOP}',
+            action: "sh('pak -f upgrade')",
+        },
+
         status: {
             home: '${TOP}',
             action: "sh('git status')",

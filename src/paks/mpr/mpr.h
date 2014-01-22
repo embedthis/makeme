@@ -1609,10 +1609,12 @@ PUBLIC void mprAddRoot(cvoid *ptr);
     to perform a conditional sweep where the sweep is only performed if there is sufficient garbage to warrant a collection.
     Set to MPR_GC_NO_BLOCK to run GC if necessary and return without yielding. Use MPR_GC_COMPLETE to force a GC and wait
     until the GC cycle fully completes including the sweep phase.
+    @return The number of blocks freed on the last GC sweep. If using MPR_GC_NO_BLOCK, this may be the result from a prior GC
+        sweep.
     @ingroup MprMem
-    @stability Stable.
+    @stability Evolving.
   */
-PUBLIC void mprGC(int flags);
+PUBLIC int mprGC(int flags);
 
 #if DEPRECATED
 #define mprRequestGC mprGC
@@ -5856,8 +5858,12 @@ PUBLIC MprDispatcher *mprGetDispatcher();
 /*
     mprServiceEvents parameters
  */
-#define MPR_SERVICE_ONE_THING   0x4         /**< Wait for one event or one I/O */
+#define MPR_SERVICE_NO_BLOCK    0x4         /**< Do not block in mprServiceEvents */
 #define MPR_SERVICE_NO_GC       0x8         /**< Don't run GC */
+
+#if DEPRECATED || 1
+#define MPR_SERVICE_ONE_THING   MPR_SERVICE_NO_BLOCK  /**< Wait for one event or one I/O */
+#endif
 
 /**
     Service events. This can be called by any thread. Typically an app will dedicate one thread to be an event service 
@@ -6059,6 +6065,7 @@ PUBLIC void mprQueueTimerEvent(MprDispatcher *dispatcher, MprEvent *event);
 PUBLIC void mprReleaseWorkerFromDispatcher(MprDispatcher *dispatcher, struct MprWorker *worker);
 PUBLIC int  mprRunDispatcher(MprDispatcher *dispatcher);
 PUBLIC void mprScheduleDispatcher(MprDispatcher *dispatcher);
+PUBLIC void mprRescheduleDispatcher(MprDispatcher *dispatcher);
 PUBLIC void mprSetDispatcherImmediate(MprDispatcher *dispatcher);
 PUBLIC void mprStopEventService();
 PUBLIC void mprWakeDispatchers();

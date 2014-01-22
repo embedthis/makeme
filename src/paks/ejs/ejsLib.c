@@ -35594,6 +35594,7 @@ static EjsHttp *httpConstructor(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
         ejsThrowMemoryError(ejs);
         return 0;
     }
+    httpSetConnData(hp->conn, ejs);
     httpPrepClientConn(hp->conn, 0);
     httpSetConnNotifier(hp->conn, httpEventChange);
     httpSetConnContext(hp->conn, hp);
@@ -37187,28 +37188,28 @@ static void sendHttpErrorEvent(Ejs *ejs, EjsHttp *hp)
 /*  
     Manage the object properties for the garbage collector
  */
-static void manageHttp(EjsHttp *http, int flags)
+static void manageHttp(EjsHttp *hp, int flags)
 {
     if (flags & MPR_MANAGE_MARK) {
-        mprMark(http->emitter);
-        mprMark(http->data);
-        mprMark(http->limits);
-        mprMark(http->responseCache);
-        mprMark(http->conn);
-        mprMark(http->ssl);
-        mprMark(http->requestContent);
-        mprMark(http->responseContent);
-        mprMark(http->uri);
-        mprMark(http->method);
-        mprMark(http->caFile);
-        mprMark(http->certFile);
-        mprMark(TYPE(http));
+        mprMark(hp->emitter);
+        mprMark(hp->data);
+        mprMark(hp->limits);
+        mprMark(hp->responseCache);
+        mprMark(hp->conn);
+        mprMark(hp->ssl);
+        mprMark(hp->requestContent);
+        mprMark(hp->responseContent);
+        mprMark(hp->uri);
+        mprMark(hp->method);
+        mprMark(hp->caFile);
+        mprMark(hp->certFile);
+        mprMark(TYPE(hp));
 
     } else if (flags & MPR_MANAGE_FREE) {
-        if (http->conn) {
-            sendHttpCloseEvent(http->ejs, http);
-            httpDestroyConn(http->conn);
-            http->conn = 0;
+        if (hp->conn && hp->conn->http) {
+            sendHttpCloseEvent(hp->ejs, hp);
+            httpDestroyConn(hp->conn);
+            hp->conn = 0;
         }
     }
 }
@@ -48164,19 +48165,21 @@ PUBLIC void ejsManageString(EjsString *sp, int flags)
         mprMark(TYPE(sp));
 
     } else if (flags & MPR_MANAGE_FREE) {
-        ip = ((EjsService*) MPR->ejsService)->intern;
         mp = MPR_GET_MEM(sp);
         /*
             Other threads race with this if doing parallel GC (the default). The revive() routine may have 
             marked the string, so test here if it has been revived and only free if not.
             OPT - better to be lock free and try lock. If failed, GC will get next time
          */
-        lock(ip);
-        if (mp->mark != MPR->heap->mark) {
-            ip->count--;
-            unlinkString(sp);
+        if (MPR->ejsService) {
+            ip = ((EjsService*) MPR->ejsService)->intern;
+            lock(ip);
+            if (mp->mark != MPR->heap->mark) {
+                ip->count--;
+                unlinkString(sp);
+            }
+            unlock(ip);
         }
-        unlock(ip);
     }
 }
 
@@ -52036,9 +52039,6 @@ static EjsWorker *initWorker(Ejs *ejs, EjsWorker *worker, Ejs *baseVM, cchar *na
     self->inside = 1;
     self->pair = worker;
     self->name = sjoin("inside-", worker->name, NULL);
-#if TODO
-    mprEnableDispatcher(wejs->dispatcher);
-#endif
     if (search) {
         ejsSetSearchPath(ejs, (EjsArray*) search);
     }
@@ -52150,7 +52150,11 @@ PUBLIC void ejsRemoveWorkers(Ejs *ejs)
     int         next;
 
     for (next = 0; (worker = mprGetNextItem(ejs->workers, &next)) != NULL; ) {
+#if UNUSED
         worker->ejs = 0;
+#else
+        removeWorker(worker);
+#endif
     }
     ejs->workers = 0;
 }
@@ -75772,7 +75776,9 @@ void ejsRemoveModuleFromAll(EjsModule *mp)
     EjsService  *sp;
     int         next;
 
-    sp = MPR->ejsService;
+    if ((sp = MPR->ejsService) == 0) {
+        return;
+    }
     lock(sp);
     for (ITERATE_ITEMS(sp->vmlist, ejs, next)) {
         mprRemoveItem(ejs->modules, mp);
@@ -76952,9 +76958,6 @@ static EjsService *createService()
     sp->nativeModules = mprCreateHash(-1, MPR_HASH_STATIC_KEYS);
     sp->mutex = mprCreateLock();
     sp->vmlist = mprCreateList(-1, MPR_LIST_STATIC_VALUES);
-#if UNUSED
-    sp->vmpool = mprCreateList(-1, MPR_LIST_STATIC_VALUES);
-#endif
     sp->intern = ejsCreateIntern(sp);
     sp->dtoaSpin[0] = mprCreateSpinLock();
     sp->dtoaSpin[1] = mprCreateSpinLock();
@@ -76970,9 +76973,6 @@ static void manageEjsService(EjsService *sp, int flags)
         mprMark(sp->http);
         mprMark(sp->mutex);
         mprMark(sp->vmlist);
-#if UNUSED
-        mprMark(sp->vmpool);
-#endif
         mprMark(sp->nativeModules);
         mprMark(sp->intern);
         mprMark(sp->immutable);
@@ -76985,6 +76985,17 @@ static void manageEjsService(EjsService *sp, int flags)
     }
 }
 
+
+PUBLIC void ejsDestroy(Ejs *ejs)
+{
+    if (ejs) {
+        if (ejs->http) {
+            httpStopConnections(ejs);
+        }
+        ejsDestroyVM(ejs);
+    }
+    MPR->ejsService = 0;
+}
 
 
 Ejs *ejsCreateVM(int argc, cchar **argv, int flags)

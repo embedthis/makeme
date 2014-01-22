@@ -333,6 +333,9 @@ MAIN(ejscMain, int argc, char **argv, char **envp)
     if (cp->errorCount > 0) {
         err++;
     }
+    app->ejs = 0;
+    app->compiler = 0;
+    ejsDestroy(ejs);
     mprDestroy(MPR_EXIT_DEFAULT);
     return err;
 }

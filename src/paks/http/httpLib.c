@@ -2510,7 +2510,6 @@ PUBLIC void httpDestroyConn(HttpConn *conn)
     if (conn->http) {
         assert(conn->http);
         HTTP_NOTIFY(conn, HTTP_EVENT_DESTROY, 0);
-        httpRemoveConn(conn->http, conn);
         if (httpServerConn(conn)) {
             httpMonitorEvent(conn, HTTP_COUNTER_ACTIVE_CONNECTIONS, -1);
             if (conn->activeRequest) {
@@ -2537,6 +2536,7 @@ PUBLIC void httpDestroyConn(HttpConn *conn)
             mprDestroyDispatcher(conn->dispatcher);
             conn->dispatcher = 0;
         }
+        httpRemoveConn(conn->http, conn);
         conn->http = 0;
     }
 }
@@ -2588,7 +2588,9 @@ static void manageConn(HttpConn *conn, int flags)
         mprMark(conn->password);
 
     } else if (flags & MPR_MANAGE_FREE) {
-        httpDestroyConn(conn);
+        if (conn->http) {
+            httpDestroyConn(conn);
+        }
     }
 }
 
@@ -2617,17 +2619,12 @@ PUBLIC void httpConnTimeout(HttpConn *conn)
 
         } else if (conn->timeout == HTTP_REQUEST_TIMEOUT) {
             httpError(conn, HTTP_CODE_REQUEST_TIMEOUT, "Exceeded timeout %d sec", limits->requestTimeout / 1000);
-
-        } else {
-            assert(0);
         }
         if (conn->rx) {
-            mprTrace(2, "  State %d, uri %s", conn->state, conn->rx->uri);
+            mprTrace(5, "  State %d, uri %s", conn->state, conn->rx->uri);
         }
     }
-    if (!conn->sock || conn->sock->fd == INVALID_SOCKET) {
-        //  TODO - remove this code. Should never happen
-        assert(0);
+    if (httpClientConn(conn)) {
         httpDestroyConn(conn);
     } else {
         httpSetupWaitHandler(conn, MPR_WRITABLE);
@@ -3285,6 +3282,11 @@ PUBLIC bool httpRequestExpired(HttpConn *conn, MprTicks timeout)
     return 0;
 }
 
+
+PUBLIC void httpSetConnData(HttpConn *conn, void *data)
+{
+    conn->data = data;
+}
 
 /*
     @copy   default
@@ -14058,6 +14060,27 @@ PUBLIC void httpStop(int how)
 }
 
 
+PUBLIC void httpStopConnections(void *data)
+{
+    Http        *http;
+    HttpConn    *conn;
+    int         next;
+
+    http = MPR->httpService;
+    lock(http->connections);
+    for (next = 0; (conn = mprGetNextItem(http->connections, &next)) != 0; ) {
+        if (conn->data == data && !conn->timeoutEvent) {
+            if (conn->state == HTTP_STATE_BEGIN || conn->state == HTTP_STATE_COMPLETE) {
+                httpDestroyConn(conn);
+            } else {
+                conn->timeoutEvent = mprCreateEvent(conn->dispatcher, "connTimeout", 0, httpConnTimeout, conn, MPR_EVENT_QUICK);
+            }
+        }
+    }
+    unlock(http->connections);
+}
+
+
 /*
     Destroy the http service. This should be called only after ensuring all running requests have completed.
     Normally invoked by the http terminator from mprDestroy
@@ -14094,7 +14117,6 @@ PUBLIC void httpDestroy()
         http->timestamp = 0;
     }
     MPR->httpService = NULL;
-
 }
 
 
@@ -14127,14 +14149,16 @@ static bool isIdle()
         now = http->now;
         lock(http->connections);
         for (next = 0; (conn = mprGetNextItem(http->connections, &next)) != 0; ) {
-            if (conn->state != HTTP_STATE_BEGIN) {
+            if (conn->state != HTTP_STATE_BEGIN && conn->state != HTTP_STATE_COMPLETE) {
                 if (lastTrace < now) {
                     if (conn->rx) {
                         mprLog(2, "http: Request for \"%s\" is still active", conn->rx->uri ? conn->rx->uri : conn->rx->pathInfo);
+#if UNUSED
                     } else {
                         mprLog(2, "Waiting for connection to close");
                         conn->started = 0;
                         conn->timeoutEvent = mprCreateEvent(conn->dispatcher, "connTimeout", 0, httpConnTimeout, conn, 0);
+#endif
                     }
                     lastTrace = now;
                 }
@@ -14356,7 +14380,7 @@ PUBLIC void httpSetListenCallback(Http *http, HttpListenCallback fn)
 
 /*
     The http timer does maintenance activities and will fire per second while there are active requests.
-    This is run in both servers and clients.
+    This routine will also be called by httpTerminate with event == 0 to signify a shutdown.
     NOTE: Because we lock the http here, connections cannot be deleted while we are modifying the list.
  */
 static void httpTimer(Http *http, MprEvent *event)
@@ -14391,9 +14415,20 @@ static void httpTimer(Http *http, MprEvent *event)
             } else if ((conn->started + limits->requestTimeout) < http->now) {
                 conn->timeout = HTTP_REQUEST_TIMEOUT;
                 abort = 1;
+            } else if (!event) {
+                /* Called from httpStop to stop connections */
+                if (MPR->exitStrategy & MPR_EXIT_GRACEFUL) {
+                    if (conn->state == HTTP_STATE_COMPLETE || 
+                        (HTTP_STATE_CONNECTED < conn->state && conn->state < HTTP_STATE_PARSED)) {
+                        abort = 1;
+                    }
+                } else {
+                    abort = 1;
+                }
             }
             if (abort && !mprGetDebugMode()) {
-                conn->timeoutEvent = mprCreateEvent(conn->dispatcher, "connTimeout", 0, httpConnTimeout, conn, 0);
+                /* Will run on the HttpConn dispatcher unless shutting down and it is destroyed already */
+                conn->timeoutEvent = mprCreateEvent(conn->dispatcher, "connTimeout", 0, httpConnTimeout, conn, MPR_EVENT_QUICK);
             }
         }
     }
@@ -14441,7 +14476,7 @@ static void httpTimer(Http *http, MprEvent *event)
     } while (removed);
     unlock(http->addresses);
 
-    if (active == 0) {
+    if (active == 0 || mprIsStopping()) {
         if (event) {
             mprRemoveEvent(event);
         }
@@ -14454,7 +14489,6 @@ static void httpTimer(Http *http, MprEvent *event)
         mprGC(MPR_GC_NO_BLOCK);
     }
     unlock(http->connections);
-
 }
 
 
