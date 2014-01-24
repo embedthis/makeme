@@ -1191,6 +1191,13 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>MPR_SERVICE_NO_BLOCK</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a12f755dbacc1fd9a03fdcdfb3c1bbb24</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>MPR_SERVICE_NO_GC</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a2a21cf060065f6162ecae871533ea9f7</anchor>
@@ -2835,10 +2842,10 @@
       <arglist>(struct MprFile *file, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
-      <type>void</type>
+      <type>int</type>
       <name>mprGC</name>
       <anchorfile>group___mpr_mem.html</anchorfile>
-      <anchor>gac716b4c2821fe8eb5503339ae029c608</anchor>
+      <anchor>ga748a0f879d3b5ce8cb8eb23b01392552</anchor>
       <arglist>(int flags)</arglist>
     </member>
     <member kind="function">
@@ -6359,10 +6366,10 @@
       <arglist>(bool on)</arglist>
     </member>
     <member kind="function">
-      <type>void</type>
+      <type>int</type>
       <name>mprGC</name>
       <anchorfile>group___mpr_mem.html</anchorfile>
-      <anchor>gac716b4c2821fe8eb5503339ae029c608</anchor>
+      <anchor>ga748a0f879d3b5ce8cb8eb23b01392552</anchor>
       <arglist>(int flags)</arglist>
     </member>
     <member kind="function">

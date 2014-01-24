@@ -203,10 +203,10 @@
     </member>
     <member kind="function">
       <type>void</type>
-      <name>httpStop</name>
+      <name>httpStopConnections</name>
       <anchorfile>group___http.html</anchorfile>
-      <anchor>ga9ce11a57274cb20490bf4f2d3af549e9</anchor>
-      <arglist>(int how)</arglist>
+      <anchor>gacb9ca914bfec073e0505ef157336cc49</anchor>
+      <arglist>(void *data)</arglist>
     </member>
   </compound>
   <compound kind="group">
@@ -954,13 +954,6 @@
       <arglist>(HttpConn *conn)</arglist>
     </member>
     <member kind="function">
-      <type>void</type>
-      <name>httpConnTimeout</name>
-      <anchorfile>group___http_conn.html</anchorfile>
-      <anchor>ga4036c3e7d17f9757a3fa83a91de54629</anchor>
-      <arglist>(HttpConn *conn)</arglist>
-    </member>
-    <member kind="function">
       <type>HttpConn *</type>
       <name>httpCreateConn</name>
       <anchorfile>group___http_conn.html</anchorfile>
@@ -1161,6 +1154,13 @@
       <name>httpRouteRequest</name>
       <anchorfile>group___http_conn.html</anchorfile>
       <anchor>ga38b4d85fd8306384270ad7385bdd3fe4</anchor>
+      <arglist>(HttpConn *conn)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpScheduleConnTimeout</name>
+      <anchorfile>group___http_conn.html</anchorfile>
+      <anchor>gaeba6967829443276f4150d01db970177</anchor>
       <arglist>(HttpConn *conn)</arglist>
     </member>
     <member kind="function">

@@ -480,7 +480,7 @@ PUBLIC uint64 httpGetNumber(cchar *value);
     If the configuration is modified when the application is multithreaded, all requests must be first be quiesced.
     @defgroup Http Http
     @see Http HttpConn HttpEndpoint gettGetDateString httpConfigurenamedVirtualEndpoint httpCreate
-        httpDestroy httpGetContext httpGetDateString httpLookupEndpoint httpLookupStatus httpLooupHost 
+        httpGetContext httpGetDateString httpLookupEndpoint httpLookupStatus httpLooupHost 
         httpSetContext httpSetDefaultClientHost httpSetDefaultClientPort httpSetDefaultPort httpSetForkCallback 
         httpSetProxy httpSetSoftware httpConfigure
     @stability Internal
@@ -735,15 +735,14 @@ PUBLIC void httpSetProxy(Http *http, cchar *host, int port);
 PUBLIC void httpSetSoftware(Http *http, cchar *description);
 
 /**
-    Stop the Http service.
-    @param how Termination control flags. Use MPR_EXIT_GRACEFUL to allow all current requests and commands to
-        complete before exiting. Use MPR_EXIT_IMMEDIATE to abort all current requests.
+    Stop all connections owned by the data handle
+    @description This routine may be called by services to destory all connections owned by the service. It calls
+        httpDestroyConnection on all owned connections. This call must only be made on the same dispatcher used by ALL
+        the connections.
+    @param data HttpConn data value to search for in current connections
     @ingroup Http
-    @stability Prototype
+    @stability Internal
  */
-PUBLIC void httpStop(int how);
-
-//  MOB
 PUBLIC void httpStopConnections(void *data);
 
 /* Internal APIs */
@@ -2416,7 +2415,7 @@ PUBLIC void httpSetIOCallback(struct HttpConn *conn, HttpIOCallback fn);
 
     @defgroup HttpConn HttpConn
     @see HttpConn HttpEnvCallback HttpGetPassword HttpListenCallback HttpNotifier HttpQueue HttpRedirectCallback 
-        HttpRx HttpStage HttpTx HtttpListenCallback httpCallEvent httpFinalizeConnector httpConnTimeout
+        HttpRx HttpStage HttpTx HtttpListenCallback httpCallEvent httpFinalizeConnector httpScheduleConnTimeout
         httpCreateConn httpCreateRxPipeline httpCreateTxPipeline httpDestroyConn httpClosePipeline httpDiscardData
         httpDisconnect httpEnableUpload httpError httpIOEvent httpGetAsync httpGetChunkSize httpGetConnContext httpGetConnHost
         httpGetError httpGetExt httpGetKeepAliveCount httpGetWriteQueueCount httpMatchHost httpMemoryError
@@ -2527,16 +2526,15 @@ PUBLIC void httpClosePipeline(HttpConn *conn);
 #define HTTP_PARSE_TIMEOUT          3
 
 /**
-    Signal a connection timeout on a connection
-    @description This call cancels a connections current request, disconnects the socket and issues an error to the error 
-        log. This call is normally invoked by the httpTimer which runs regularly to check for timed out requests.
-        This call should not be made on another thread, but should be scheduled to run on the connection's dispatcher to
-        avoid thread races.
+    Schedule a connection timeout event on a connection
+    @description This call schedules an event to run serialized on the connection dispatcher. When run, it will
+        cancels the current request, disconnects the socket and issues an error to the error log. 
+        This call is normally invoked by the httpTimer which runs regularly to check for timed out requests.
     @param conn HttpConn connection object created via #httpCreateConn
     @ingroup HttpConn
     @stability Internal
   */
-PUBLIC void httpConnTimeout(HttpConn *conn);
+PUBLIC void httpScheduleConnTimeout(HttpConn *conn);
 
 /** 
     Create a connection object.
@@ -2571,6 +2569,12 @@ PUBLIC void httpCreateTxPipeline(HttpConn *conn, struct HttpRoute *route);
 
 /**
     Destroy the connection object
+    @description This call closes the connection socket, destroys the connection dispatcher, disconnects the HttpTx and HttpRx
+        property objects and removes the connection from the HttpHost list of connections. Thereafter, the garbage collector
+        can reclaim all memory. It may be called by client connections at any time from a top-level event running on the 
+        connection's dispatcher. Server-side code should not need to explicitly destroy the connection as it will be done 
+        automatically via httpIOEvent. This routine should not be called deep within the stack as it will zero the HttpConn.http
+        property to signify the connection is destroyed.
     @param conn HttpConn object created via #httpCreateConn
     @ingroup HttpConn
     @stability Internal
@@ -2588,12 +2592,13 @@ PUBLIC void httpDiscardData(HttpConn *conn, int dir);
 
 /**
     Disconnect the connection's socket
-    @description This call will close the socket and signal a connection error. Subsequent use of the connection socket
-        will not be possible.  This call should not be made on another thread, but should be scheduled to run on the 
-        connection's dispatcher to avoid thread races.
+    @description This call will close the socket and signal a connection error by setting connError. 
+        Subsequent use of the connection socket will not be possible. It will also set HttpRx.eof and will finalize
+        the request. Used internally when a connection times out and for abortive errors.
+        This should not be generally used. Rather, #httpDestroyConn and #httpError should be used in preference.
     @param conn HttpConn connection object created via #httpCreateConn
     @ingroup HttpConn
-    @stability Stable
+    @stability Internal
   */
 PUBLIC void httpDisconnect(HttpConn *conn);
 
@@ -2602,7 +2607,8 @@ PUBLIC void httpDisconnect(HttpConn *conn);
     @description Connection events are automatically disabled upon receipt of an I/O event on a connection. This 
         permits a connection to process the I/O without fear of interruption by another I/O event. At the completion
         of processing of the I/O request, the connection should be re-enabled via httpEnableConnEvents. This call is
-        made for requests in #httpIOEvent.
+        made for requests in #httpIOEvent. Client-side connections may need to enable connection events if the are running
+        in async mode and encounter a blocking condition.
     @param conn HttpConn connection object created via #httpCreateConn
     @ingroup HttpConn
     @stability Internal
@@ -2906,13 +2912,18 @@ PUBLIC void httpSetChunkSize(HttpConn *conn, ssize size);
 /**
     Set the connection context object
     @param conn HttpConn object created via #httpCreateConn
-    @param context New context object
+    @param context New context object. Must be a managed memory reference.
     @ingroup HttpConn
     @stability Stable
  */
 PUBLIC void httpSetConnContext(HttpConn *conn, void *context);
 
-//  MOB
+/**
+    Set the connection data field
+    @param conn HttpConn object created via #httpCreateConn
+    @param data Data object to associate with the connection. Must be a managed memory reference.
+    @stability Prototype
+ */
 PUBLIC void httpSetConnData(HttpConn *conn, void *data);
 
 /**
@@ -4045,11 +4056,6 @@ PUBLIC void httpAddPermResource(HttpRoute *parent, cchar *prefix, cchar *resourc
     @stability Evolving
  */
 PUBLIC void httpAddResourceGroup(HttpRoute *parent, cchar *prefix, cchar *resource);
-
-#if DEPRECATED || 1
-#define httpAddHomeRoute espAddHomeRoute
-#define httpAddRouteSet espAddRouteSet
-#endif
 
 /**
     Add a route for the client directory
@@ -6692,7 +6698,7 @@ PUBLIC int httpStartEndpoint(HttpEndpoint *endpoint);
 
 /** 
     Stop the server listening for client connections.
-    @description Closes the socket endpoint.
+    @description Closes the socket endpoint. This preserves connections accepted via the listening endpoint.
     @param endpoint HttpEndpoint object created via #httpCreateEndpoint
     @ingroup HttpEndpoint
     @stability Stable

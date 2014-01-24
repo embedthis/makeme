@@ -76989,9 +76989,6 @@ static void manageEjsService(EjsService *sp, int flags)
 PUBLIC void ejsDestroy(Ejs *ejs)
 {
     if (ejs) {
-        if (ejs->http) {
-            httpStopConnections(ejs);
-        }
         ejsDestroyVM(ejs);
     }
     MPR->ejsService = 0;
@@ -77029,9 +77026,10 @@ Ejs *ejsCreateVM(int argc, cchar **argv, int flags)
     /*
         Modules are not marked in the modules list. This way, modules are collected when not referenced.
         Workers are marked. This way workers are preserved to run in the background until they exit.
+        Stable lists without locking.
      */
-    ejs->modules = mprCreateList(-1, MPR_LIST_STATIC_VALUES);
-    ejs->workers = mprCreateList(0, 0);
+    ejs->modules = mprCreateList(-1, MPR_LIST_STATIC_VALUES | MPR_LIST_STABLE);
+    ejs->workers = mprCreateList(0, MPR_LIST_STABLE);
 
     initStack(ejs);
     initSearchPath(ejs, 0);
@@ -77113,14 +77111,17 @@ void ejsDestroyVM(Ejs *ejs)
     EjsService  *sp;
     EjsState    *state;
     EjsModule   *mp;   
+    MprList     *modules;
+    int         next;
 
     ejs->destroying = 1;
     sp = ejs->service;
     if (sp) {
-        while ((mp = mprGetFirstItem(ejs->modules)) != 0) {
+        modules = ejs->modules;
+        ejs->modules = 0;
+        for (ITERATE_ITEMS(modules, mp, next)) {
             ejsRemoveModule(ejs, mp);
         }
-        assert(ejs->modules->length == 0);
         ejsRemoveWorkers(ejs);
         state = ejs->state;
         if (state && state->stackBase) {
@@ -77133,6 +77134,9 @@ void ejsDestroyVM(Ejs *ejs)
         ejs->result = 0;
         if (ejs->dispatcher) {
             mprDestroyDispatcher(ejs->dispatcher);
+        }
+        if (ejs->http) {
+            httpStopConnections(ejs);
         }
     }
     mprTrace(6, "ejs: destroy VM");

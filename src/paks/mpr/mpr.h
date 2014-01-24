@@ -420,7 +420,7 @@ PUBLIC void assert(bool cond);
 typedef struct MprSynch { int dummy; } MprSynch;
 
 #ifndef BIT_MPR_SPIN_COUNT
-    #define BIT_MPR_SPIN_COUNT 5000 /* Windows lock spin count */
+    #define BIT_MPR_SPIN_COUNT 1500 /* Windows lock spin count */
 #endif
 
 /**
@@ -519,6 +519,7 @@ PUBLIC int mprWaitForMultiCond(MprCond *cond, MprTicks timeout);
 typedef struct MprMutex {
     #if BIT_WIN_LIKE
         CRITICAL_SECTION cs;            /**< Internal mutex critical section */
+        bool             freed;         /**< Mutex has been destroyed */
     #elif VXWORKS
         SEM_ID           cs;
     #elif BIT_UNIX_LIKE
@@ -526,7 +527,9 @@ typedef struct MprMutex {
     #else
         #warning "Unsupported OS in MprMutex definition in mpr.h"
     #endif
+#if BIT_DEBUG
         MprOsThread owner;
+#endif
 } MprMutex;
 
 
@@ -541,12 +544,9 @@ typedef struct MprSpin {
         MprMutex                cs;
     #elif BIT_WIN_LIKE
         CRITICAL_SECTION        cs;            /**< Internal mutex critical section */
+        bool                    freed;         /**< Mutex has been destroyed */
     #elif VXWORKS
-        #if KEEP && SPIN_LOCK_TASK_INIT
-            spinlockTask_t      cs;
-        #else
-            SEM_ID              cs;
-        #endif
+        SEM_ID                  cs;
     #elif MACOSX
         OSSpinLock              cs;
     #elif BIT_UNIX_LIKE
@@ -632,11 +632,6 @@ PUBLIC MprSpin *mprInitSpinLock(MprSpin *lock);
 PUBLIC bool mprTrySpinLock(MprSpin *lock);
 
 /*
-    Internal
- */
-PUBLIC void mprManageSpinLock(MprSpin *lock, int flags);
-
-/*
     For maximum performance, use the spin lock/unlock routines macros
  */
 #if !BIT_DEBUG
@@ -656,7 +651,7 @@ PUBLIC void mprManageSpinLock(MprSpin *lock, int flags);
         #define mprSpinLock(lock)   if (lock) pthread_mutex_lock(&((lock)->cs))
         #define mprSpinUnlock(lock) if (lock) pthread_mutex_unlock(&((lock)->cs))
     #elif BIT_WIN_LIKE
-        #define mprSpinLock(lock)   if (lock) EnterCriticalSection(&((lock)->cs))
+        #define mprSpinLock(lock)   if (lock && (!((MprSpin*)(lock))->freed)) EnterCriticalSection(&((lock)->cs))
         #define mprSpinUnlock(lock) if (lock) LeaveCriticalSection(&((lock)->cs))
     #elif VXWORKS
         #define mprSpinLock(lock)   if (lock) semTake((lock)->cs, WAIT_FOREVER)
@@ -670,7 +665,7 @@ PUBLIC void mprManageSpinLock(MprSpin *lock, int flags);
         #define mprLock(lock)       if (lock) pthread_mutex_lock(&((lock)->cs))
         #define mprUnlock(lock)     if (lock) pthread_mutex_unlock(&((lock)->cs))
     #elif BIT_WIN_LIKE
-        #define mprLock(lock)       if (lock) EnterCriticalSection(&((lock)->cs))
+        #define mprLock(lock)       if (lock && !(((MprSpin*)(lock))->freed)) EnterCriticalSection(&((lock)->cs))
         #define mprUnlock(lock)     if (lock) LeaveCriticalSection(&((lock)->cs))
     #elif VXWORKS
         #define mprLock(lock)       if (lock) semTake((lock)->cs, WAIT_FOREVER)
@@ -1605,6 +1600,8 @@ PUBLIC void mprAddRoot(cvoid *ptr);
     Collect garbage
     @description Initiates garbage collection to free unreachable memory blocks.
     It is normally not required for users to invoke this routine as the garbage collector will be scheduled as required.
+    If the MPR_GC_NO_BLOCK is not specified, this routine yields to the garbage collector by calling #mprYield. 
+    Callers must retain all required memory.
     @param flags Flags to control the collection. Set flags to MPR_GC_FORCE to force a collection. Set to MPR_GC_DEFAULT
     to perform a conditional sweep where the sweep is only performed if there is sufficient garbage to warrant a collection.
     Set to MPR_GC_NO_BLOCK to run GC if necessary and return without yielding. Use MPR_GC_COMPLETE to force a GC and wait
@@ -5887,6 +5884,7 @@ PUBLIC void mprSetEventServiceSleep(MprTicks delay);
 
 /**
     Wait for an event to occur on the given dispatcher
+    @description This routine yields to the garbage collector by calling #mprYield. Callers must retain all required memory.
     @param dispatcher Event dispatcher to monitor
     @param timeout for waiting in milliseconds
     @return Zero if successful and an event occurred before the timeout expired. Returns #MPR_ERR_TIMEOUT if no event
@@ -5949,9 +5947,6 @@ PUBLIC MprEvent *mprCreateEvent(MprDispatcher *dispatcher, cchar *name, MprTicks
         \n\n
         While creating and queuing the event, this routine pauses the garbage collector. If the collector is running, it 
         waits until it completes before creating the event. This may necessitate a small delay before running the event.
-        If MPR_EVENT_BLOCK is specified, the callback will be run with the collector paused. In this case only, if the 
-        callback needs to block or run for a longer period of time, it should resume GC by calling #mprResumeGC and 
-        #mprYield to give the GC a chance to run. Before returning, it should re-pause the collector by calling #mprPauseGC.
     NOTE: the event callback proc may run to completion before this function returns.
     @param dispatcher Dispatcher object created via mprCreateDispatcher
     @param proc Callback function to invoke when the event is run
@@ -6990,6 +6985,7 @@ PUBLIC int  mprStartWaitService(MprWaitService *ws);
 PUBLIC int  mprStopWaitService(MprWaitService *ws);
 PUBLIC void mprSetWaitServiceThread(MprWaitService *ws, MprThread *thread);
 PUBLIC int  mprInitWindow();
+PUBLIC void mprTermWindow();
 PUBLIC void mprWakeNotifier();
 #if MPR_EVENT_KQUEUE
     PUBLIC void mprManageKqueue(MprWaitService *ws, int flags);
@@ -7006,7 +7002,10 @@ PUBLIC void mprWakeNotifier();
 #endif
 
 /**
-    Wait for I/O. This call waits for any I/O events on wait handlers until the given timeout expires.
+    Wait for I/O. 
+    @description
+    This call waits for any I/O events on wait handlers until the given timeout expires.
+    This routine yields to the garbage collector by calling #mprYield. Callers must retain all required memory.
     @param ws Wait service object
     @param timeout Timeout in milliseconds to wait for an event.
     @ingroup MprWaitHandler

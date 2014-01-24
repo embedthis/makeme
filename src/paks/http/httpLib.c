@@ -2503,7 +2503,6 @@ PUBLIC HttpConn *httpCreateConn(Http *http, HttpEndpoint *endpoint, MprDispatche
 
 /*
     Destroy a connection. This removes the connection from the list of connections. Should GC after that.
-    This should only EVER be called from the top-level event loop from httpIOEvent.
  */
 PUBLIC void httpDestroyConn(HttpConn *conn)
 {
@@ -2517,6 +2516,8 @@ PUBLIC void httpDestroyConn(HttpConn *conn)
                 conn->activeRequest = 0;
             }
         }
+        httpRemoveConn(conn->http, conn);
+        conn->http = 0;
         conn->input = 0;
         if (conn->tx) {
             httpClosePipeline(conn);
@@ -2536,8 +2537,6 @@ PUBLIC void httpDestroyConn(HttpConn *conn)
             mprDestroyDispatcher(conn->dispatcher);
             conn->dispatcher = 0;
         }
-        httpRemoveConn(conn->http, conn);
-        conn->http = 0;
     }
 }
 
@@ -2595,14 +2594,39 @@ static void manageConn(HttpConn *conn, int flags)
 }
 
 
-PUBLIC void httpConnTimeout(HttpConn *conn)
+PUBLIC void httpDisconnect(HttpConn *conn)
+{
+    if (conn->sock) {
+        mprDisconnectSocket(conn->sock);
+    }
+    conn->connError = 1;
+    conn->error = 1;
+    conn->keepAliveCount = 0;
+    if (conn->tx) {
+        conn->tx->finalized = 1;
+        conn->tx->finalizedOutput = 1;
+        conn->tx->finalizedConnector = 1;
+    }
+    if (conn->rx) {
+        httpSetEof(conn);
+    }
+}
+
+
+static void connTimeout(HttpConn *conn, MprEvent *event)
 {
     HttpLimits  *limits;
+    cchar       *msg, *prefix;
 
     if (!conn->http) {
         return;
     }
+    assert(conn->dispatcher == event->dispatcher);
+    assert(conn->tx);
+    assert(conn->rx);
+
     limits = conn->limits;
+    msg = 0;
     assert(limits);
     mprLog(5, "Inactive connection timed out");
 
@@ -2610,24 +2634,44 @@ PUBLIC void httpConnTimeout(HttpConn *conn)
         (conn->timeoutCallback)(conn);
     }
     if (!conn->connError) {
+        prefix = (conn->state == HTTP_STATE_BEGIN) ? "Idle connection" : "Request";
         if (conn->timeout == HTTP_PARSE_TIMEOUT) {
-            httpError(conn, HTTP_CODE_REQUEST_TIMEOUT, "Exceeded parse headers timeout of %Ld sec", 
-                limits->requestParseTimeout  / 1000);
+            msg = sfmt("%s exceeded parse headers timeout of %Ld sec", prefix, limits->requestParseTimeout  / 1000);
 
         } else if (conn->timeout == HTTP_INACTIVITY_TIMEOUT) {
-            httpError(conn, HTTP_CODE_REQUEST_TIMEOUT, "Exceeded inactivity timeout of %Ld sec", limits->inactivityTimeout / 1000);
+            msg = sfmt("%s exceeded inactivity timeout of %Ld sec", prefix, limits->inactivityTimeout / 1000);
 
         } else if (conn->timeout == HTTP_REQUEST_TIMEOUT) {
-            httpError(conn, HTTP_CODE_REQUEST_TIMEOUT, "Exceeded timeout %d sec", limits->requestTimeout / 1000);
+            msg = sfmt("%s exceeded timeout %d sec", prefix, limits->requestTimeout / 1000);
         }
-        if (conn->rx) {
+        if (conn->rx && (conn->state > HTTP_STATE_CONNECTED)) {
             mprTrace(5, "  State %d, uri %s", conn->state, conn->rx->uri);
+        }
+        if (conn->state < HTTP_STATE_FIRST) {
+            httpDisconnect(conn);
+            if (msg) {
+                mprLog(5, msg);
+            }
+        } else {
+            httpError(conn, HTTP_CODE_REQUEST_TIMEOUT, msg);
         }
     }
     if (httpClientConn(conn)) {
         httpDestroyConn(conn);
     } else {
-        httpSetupWaitHandler(conn, MPR_WRITABLE);
+        httpEnableConnEvents(conn);
+    }
+}
+
+
+PUBLIC void httpScheduleConnTimeout(HttpConn *conn) 
+{
+    assert(conn->http);
+    if (!conn->timeoutEvent) {
+        /* 
+            Will run on the HttpConn dispatcher unless shutting down and it is destroyed already 
+         */
+        conn->timeoutEvent = mprCreateEvent(conn->dispatcher, "connTimeout", 0, connTimeout, conn, MPR_EVENT_QUICK);
     }
 }
 
@@ -2828,8 +2872,12 @@ PUBLIC void httpIOEvent(HttpConn *conn, MprEvent *event)
         /* Connection has been destroyed */
         return;
     }
+    assert(conn->dispatcher == event->dispatcher);
+    assert(conn->tx);
+    assert(conn->rx);
+
     mprTrace(6, "httpIOEvent for fd %d, mask %d", conn->sock->fd, event->mask);
-    if (event->mask & MPR_WRITABLE && conn->connectorq) {
+    if ((event->mask & MPR_WRITABLE) && conn->connectorq) {
         httpResumeQueue(conn->connectorq);
     }
     if (event->mask & MPR_READABLE) {
@@ -2888,13 +2936,12 @@ PUBLIC void httpEnableConnEvents(HttpConn *conn)
     if (rx) {
         if (conn->connError || 
            (tx->writeBlocked) || 
-           (conn->connectorq && conn->connectorq->count > 0) || 
+           (conn->connectorq && (conn->connectorq->count > 0 || conn->connectorq->ioCount > 0)) || 
            (httpQueuesNeedService(conn)) || 
            (mprSocketHasBufferedWrite(sp)) ||
-           (tx->finalized && conn->state < HTTP_STATE_FINALIZED)) {
-
+           (rx->eof && tx->finalized && conn->state < HTTP_STATE_FINALIZED)) {
             if (!mprSocketHandshaking(sp)) {
-                /* Must not pollute the data stream if the SSL stack is doing manual handshaking still */
+                /* Must not pollute the data stream if the SSL stack is still doing manual handshaking */
                 eventMask |= MPR_WRITABLE;
             }
         }
@@ -3709,7 +3756,6 @@ static char *calcDigest(HttpConn *conn, HttpDigest *dp, cchar *username)
 
 static void acceptConn(HttpEndpoint *endpoint);
 static int manageEndpoint(HttpEndpoint *endpoint, int flags);
-static int destroyEndpointConnections(HttpEndpoint *endpoint);
 
 /************************************ Code ************************************/
 /*
@@ -3726,7 +3772,7 @@ PUBLIC HttpEndpoint *httpCreateEndpoint(cchar *ip, int port, MprDispatcher *disp
     http = MPR->httpService;
     endpoint->http = http;
     endpoint->async = 1;
-    endpoint->http = MPR->httpService;
+    endpoint->http = http;
     endpoint->port = port;
     endpoint->ip = sclone(ip);
     endpoint->dispatcher = dispatcher;
@@ -3739,7 +3785,12 @@ PUBLIC HttpEndpoint *httpCreateEndpoint(cchar *ip, int port, MprDispatcher *disp
 
 PUBLIC void httpDestroyEndpoint(HttpEndpoint *endpoint)
 {
+#if KEEP
+    /*
+        Connections may survive and endpoint being closed
+     */
     destroyEndpointConnections(endpoint);
+#endif
     if (endpoint->sock) {
         mprCloseSocket(endpoint->sock, 0);
         endpoint->sock = 0;
@@ -3816,6 +3867,7 @@ PUBLIC HttpEndpoint *httpCreateConfiguredEndpoint(cchar *home, cchar *documents,
 }
 
 
+#if KEEP
 static int destroyEndpointConnections(HttpEndpoint *endpoint)
 {
     HttpConn    *conn;
@@ -3834,6 +3886,7 @@ static int destroyEndpointConnections(HttpEndpoint *endpoint)
     unlock(http->connections);
     return 0;
 }
+#endif
 
 
 static bool validateEndpoint(HttpEndpoint *endpoint)
@@ -4193,27 +4246,6 @@ static void errorv(HttpConn *conn, int flags, cchar *fmt, va_list args);
 static char *formatErrorv(HttpConn *conn, int status, cchar *fmt, va_list args);
 
 /*********************************** Code *************************************/
-
-PUBLIC void httpDisconnect(HttpConn *conn)
-{
-    assert(conn->sock);
-
-    if (conn->sock) {
-        mprDisconnectSocket(conn->sock);
-    }
-    conn->connError = 1;
-    conn->error = 1;
-    conn->keepAliveCount = 0;
-    if (conn->tx) {
-        conn->tx->finalized = 1;
-        conn->tx->finalizedOutput = 1;
-        conn->tx->finalizedConnector = 1;
-    }
-    if (conn->rx) {
-        httpSetEof(conn);
-    }
-}
-
 
 PUBLIC void httpBadRequestError(HttpConn *conn, int flags, cchar *fmt, ...)
 {
@@ -7549,7 +7581,7 @@ PUBLIC bool httpFlushQueue(HttpQueue *q, int flags)
          */
         while (tx->writeBlocked) {
             assert(!tx->finalizedConnector);
-            assert(conn->connectorq->count > 0);
+            assert(conn->connectorq->count > 0 || conn->connectorq->ioCount);
             if (!mprWaitForSingleIO((int) conn->sock->fd, MPR_WRITABLE, conn->limits->inactivityTimeout)) {
                 return MPR_ERR_TIMEOUT;
             }
@@ -14032,8 +14064,9 @@ static void manageHttp(Http *http, int flags)
 
 /*
     Stop listening endpoints. If shutdown is not graceful, abort running requests.
+    Called from terminateHttp
  */
-PUBLIC void httpStop(int how)
+static void stopHttp(int how)
 {
     Http            *http;
     HttpEndpoint    *endpoint;
@@ -14060,21 +14093,22 @@ PUBLIC void httpStop(int how)
 }
 
 
+/*
+    Called to close all connections owned by a service (e.g. ejs)
+ */
 PUBLIC void httpStopConnections(void *data)
 {
     Http        *http;
     HttpConn    *conn;
     int         next;
 
-    http = MPR->httpService;
+    if ((http = MPR->httpService) == 0) {
+        return;
+    }
     lock(http->connections);
     for (next = 0; (conn = mprGetNextItem(http->connections, &next)) != 0; ) {
-        if (conn->data == data && !conn->timeoutEvent) {
-            if (conn->state == HTTP_STATE_BEGIN || conn->state == HTTP_STATE_COMPLETE) {
-                httpDestroyConn(conn);
-            } else {
-                conn->timeoutEvent = mprCreateEvent(conn->dispatcher, "connTimeout", 0, httpConnTimeout, conn, MPR_EVENT_QUICK);
-            }
+        if (data == 0 || conn->data == data) {
+            httpDestroyConn(conn);
         }
     }
     unlock(http->connections);
@@ -14089,22 +14123,6 @@ PUBLIC void httpDestroy()
 {
     Http            *http;
 
-#if UNUSED
-    HttpConn        *conn;
-    int             next;
-
-    lock(http->connections);
-    for (next = 0; (conn = mprGetNextItem(http->connections, &next)) != 0; ) {
-        if (httpServerConn(conn)) {
-            /* Do not destroy conn here incase requests still running and code active with stack */
-            httpRemoveConn(http, conn);
-            next--;
-        } else {
-            httpDestroyConn(conn);
-        }
-    }
-    unlock(http->connections);
-#endif
     if ((http = MPR->httpService) == 0) {
         return;
     }
@@ -14116,6 +14134,7 @@ PUBLIC void httpDestroy()
         mprRemoveEvent(http->timestamp);
         http->timestamp = 0;
     }
+    httpStopConnections(0);
     MPR->httpService = NULL;
 }
 
@@ -14126,7 +14145,7 @@ PUBLIC void httpDestroy()
 static void terminateHttp(int state, int how, int status)
 {
     if (state == MPR_STOPPING) {
-        httpStop(how);
+        stopHttp(how);
 
     } else if (state == MPR_DESTROYING) {
         httpDestroy();
@@ -14152,13 +14171,8 @@ static bool isIdle()
             if (conn->state != HTTP_STATE_BEGIN && conn->state != HTTP_STATE_COMPLETE) {
                 if (lastTrace < now) {
                     if (conn->rx) {
-                        mprLog(2, "http: Request for \"%s\" is still active", conn->rx->uri ? conn->rx->uri : conn->rx->pathInfo);
-#if UNUSED
-                    } else {
-                        mprLog(2, "Waiting for connection to close");
-                        conn->started = 0;
-                        conn->timeoutEvent = mprCreateEvent(conn->dispatcher, "connTimeout", 0, httpConnTimeout, conn, 0);
-#endif
+                        mprLog(2, "http: Request for \"%s\" is still active", 
+                            conn->rx->uri ? conn->rx->uri : conn->rx->pathInfo);
                     }
                     lastTrace = now;
                 }
@@ -14189,7 +14203,9 @@ PUBLIC void httpAddEndpoint(Http *http, HttpEndpoint *endpoint)
 
 PUBLIC void httpRemoveEndpoint(Http *http, HttpEndpoint *endpoint)
 {
-    mprRemoveItem(http->endpoints, endpoint);
+    if (http) {
+        mprRemoveItem(http->endpoints, endpoint);
+    }
 }
 
 
@@ -14233,7 +14249,9 @@ PUBLIC void httpAddHost(Http *http, HttpHost *host)
 
 PUBLIC void httpRemoveHost(Http *http, HttpHost *host)
 {
-    mprRemoveItem(http->hosts, host);
+    if (http) {
+        mprRemoveItem(http->hosts, host);
+    }
 }
 
 
@@ -14416,7 +14434,7 @@ static void httpTimer(Http *http, MprEvent *event)
                 conn->timeout = HTTP_REQUEST_TIMEOUT;
                 abort = 1;
             } else if (!event) {
-                /* Called from httpStop to stop connections */
+                /* Called directly from httpStop to stop connections */
                 if (MPR->exitStrategy & MPR_EXIT_GRACEFUL) {
                     if (conn->state == HTTP_STATE_COMPLETE || 
                         (HTTP_STATE_CONNECTED < conn->state && conn->state < HTTP_STATE_PARSED)) {
@@ -14427,8 +14445,7 @@ static void httpTimer(Http *http, MprEvent *event)
                 }
             }
             if (abort && !mprGetDebugMode()) {
-                /* Will run on the HttpConn dispatcher unless shutting down and it is destroyed already */
-                conn->timeoutEvent = mprCreateEvent(conn->dispatcher, "connTimeout", 0, httpConnTimeout, conn, MPR_EVENT_QUICK);
+                httpScheduleConnTimeout(conn);
             }
         }
     }
@@ -14536,7 +14553,9 @@ PUBLIC void httpAddConn(Http *http, HttpConn *conn)
 
 PUBLIC void httpRemoveConn(Http *http, HttpConn *conn)
 {
-    mprRemoveItem(http->connections, conn);
+    if (http) {
+        mprRemoveItem(http->connections, conn);
+    }
 }
 
 
