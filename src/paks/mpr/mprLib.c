@@ -6104,6 +6104,11 @@ static int blendEnv(MprCmd *cmd, cchar **env, int flags)
      */
     if (!(flags & MPR_CMD_EXACT_ENV)) {
         for (ep = (cchar**) environ; ep && *ep; ep++) {
+#if MACOSX
+            if (sstarts(*ep, "DYLD_LIBRARY_PATH=")) {
+                continue;
+            }
+#endif
             mprAddItem(cmd->env, *ep);
         }
     }

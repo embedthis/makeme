@@ -4562,9 +4562,15 @@ PUBLIC cchar *httpLookupRouteErrorDocument(HttpRoute *route, int status);
 PUBLIC char *httpMakePath(HttpRoute *route, cchar *dir, cchar *path);
 
 /**
-    Map the request URI to a filename in physical storage
-    Computes the filename from the request URI and route and calls httpMapFilename.
-    @description This sets the HttpTx filename, ext, etag and info fields.
+    Map the request URI to a filename in physical storage for a handler.
+    @description This routine is invoked by handlers to map the request URI to a filename.
+    The request URI is resolved relative to the route documents directory. If a route language directory is defined, 
+    that directory is prefixed to the filename after the route documents directory.
+    \n\n
+    If route maps have been definedthe filename may be mapped to a preferred compressed or minified filename to serve.
+    \n\n
+    After computing the filename, this routine calls #httpSetFilename to set the HttpTx.filename, ext, etag and fileInfo
+    fields.
     @param conn HttpConn connection object 
     @ingroup HttpRoute
     @stability Evolving
@@ -5924,7 +5930,9 @@ PUBLIC void httpProcessWriteEvent(HttpConn *conn);
 #define HTTP_TX_HEADERS_CREATED     0x2     /**< Response headers have been created */
 #define HTTP_TX_SENDFILE            0x4     /**< Relay output via Send connector */
 #define HTTP_TX_USE_OWN_HEADERS     0x8     /**< Skip adding default headers */
-#define HTTP_TX_NO_LENGTH           0x10    /**< Don't emit a content length (used for TRACE) */
+#define HTTP_TX_NO_CHECK            0x10    /**< Do not check if the filename is inside the route documents directory */
+#define HTTP_TX_NO_LENGTH           0x20    /**< Do not emit a content length (used for TRACE) */
+#define HTTP_TX_NO_MAP              0x40    /**< Do not map the filename to compressed or minified alternatives */
 
 /** 
     Http Tx
@@ -5952,7 +5960,6 @@ typedef struct HttpTx {
     int             status;                 /**< HTTP response status */
     int             responded;              /**< The request has started to respond. Some output has been initiated. */
     int             started;                /**< Handler has started */
-    int             bypassDocuments;        /**< Bypass check serving documents outside the document root */
     MprOff          bytesWritten;           /**< Bytes written including headers */
     MprOff          entityLength;           /**< Original content length before range subsetting */
     ssize           chunkSize;              /**< Chunk size to use when using transfer encoding. Zero for unchunked. */
@@ -6357,18 +6364,24 @@ PUBLIC void httpRemoveCookie(HttpConn *conn, cchar *name);
 PUBLIC void httpSetEntityLength(HttpConn *conn, MprOff len);
 
 /**
-    Set the filename.
-    @description This sets the HttpTx filename, ext, etag and info fields. This filename may be virtual or may be 
-        outside the documents root directory. If it is not a file under the route documents directory, set the 
-        bypass parameter to true. Use httpMapFile if you wish validation that the filename is within
-        the documents root.
+    Set the filename to serve for a request
+    @description This routine defines a non-default response document filename.
+       The filename may be virtual and may be outside the documents root directory. If it is not a file under the 
+       route documents directory, set the flags parameter to HTTP_TX_NO_CHECK. Otherwise, the filename will be checked to 
+       ensure it is inside the route documents directory.
+       \n\n
+       Typically a handler will call #httpMapFile to perform default request URI to filename mapping and should not need
+       to call httpSetFilename unless a file outside the route documents directory is required to be served.
+       \n\n
+       This routine will set the HttpTx filename, ext, etag and fileInfo fields.
     @param conn HttpConn connection object 
     @param filename Tx filename to define.
-    @param bypass Set to true if the filename should not be checked to be inside the route documents directory.
+    @param flags Flags word. Or together the desired flags. Include to HTTP_TX_NO_CHECK to bypass checking if the 
+        filename resides inside the route documents directory. 
     @ingroup HttpTx
     @stability Evolving
  */
-PUBLIC void httpSetFilename(HttpConn *conn, cchar *filename, bool bypass);
+PUBLIC void httpSetFilename(HttpConn *conn, cchar *filename, int flags);
 
 /**
     Set the handler for this request

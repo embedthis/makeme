@@ -8835,48 +8835,23 @@ PUBLIC void httpSetHandler(HttpConn *conn, HttpStage *handler)
 }
 
 
-/*
-    Map the request URI target to a filename in physical storage. Sets tx->filename and tx->ext.
-    This will validate on windows (or BIT_EXTRA_SECURITY) if the resultant filename is within the route documents.
- */
-PUBLIC void httpMapFile(HttpConn *conn)
+static cchar *mapContent(HttpConn *conn, cchar *filename)
 {
-    HttpLang    *lang;
     HttpRoute   *route;
-    HttpTx      *tx;
     HttpRx      *rx;
+    HttpTx      *tx;
     MprList     *extensions;
     MprPath     *info;
-    cchar       *ext, *filename, *path;
     bool        acceptGzip, zipped;
+    cchar       *ext, *path;
     int         next;
 
-    rx = conn->rx;
     tx = conn->tx;
+    rx = conn->rx;
     route = rx->route;
-    filename = rx->target;
-    lang = rx->lang;
     info = &tx->fileInfo;
 
-    if (lang && lang->path) {
-        filename = mprJoinPath(lang->path, filename);
-    }
-    filename = mprJoinPath(route->documents, filename);
-    if (!tx->bypassDocuments) {
-        if (!mprIsAbsPathContained(filename, route->documents)) {
-            info->checked = 1;
-            info->valid = 0;
-            httpError(conn, HTTP_CODE_BAD_REQUEST, "Bad URL");
-            return;
-        }
-    }
-#if BIT_ROM
-    filename = mprGetRelPath(filename, NULL);
-#endif
-    /*
-        Change the filename if using mapping. Typically used to prefer compressed or minified content.
-     */
-    if (route->map) {
+    if (route->map && !(tx->flags & HTTP_TX_NO_MAP)) {
         if ((extensions = mprLookupKey(route->map, tx->ext)) != 0) {
             acceptGzip = scontains(rx->acceptEncoding, "gzip") != 0;
             for (ITERATE_ITEMS(extensions, ext, next)) {
@@ -8886,8 +8861,8 @@ PUBLIC void httpMapFile(HttpConn *conn)
                 }
                 path = mprReplacePathExt(filename, ext);
                 if (mprGetPathInfo(path, info) == 0) {
+                    mprLog(3, "Mapping content to %s", path);
                     filename = path;
-                    mprLog(3, "Mapping content to %s", filename);
                     if (zipped) {
                         httpSetHeader(conn, "Content-Encoding", "gzip");
                     }
@@ -8898,16 +8873,39 @@ PUBLIC void httpMapFile(HttpConn *conn)
     }
 #if DEPRECATE || 1
     /* 
-        Deprecated in 4.4 
+        Old style compression. Deprecated in 4.4 
      */
     if (!info->valid && !route->map && (route->flags & HTTP_ROUTE_GZIP) && scontains(rx->acceptEncoding, "gzip")) {
-        path = sjoin(tx->filename, ".gz", NULL);
+        path = sjoin(filename, ".gz", NULL);
         if (mprGetPathInfo(path, info) == 0) {
-            tx->filename = path;
+            filename = path;
         }
     }
 #endif
-    httpSetFilename(conn, filename, !tx->bypassDocuments);
+    return filename;
+}
+
+
+PUBLIC void httpMapFile(HttpConn *conn)
+{
+    HttpTx      *tx;
+    HttpLang    *lang;
+    cchar       *filename;
+
+    tx = conn->tx;
+    if (tx->filename) {
+        return;
+    }
+    filename = conn->rx->target;
+    lang = conn->rx->lang;
+    if (lang && lang->path) {
+        filename = mprJoinPath(lang->path, filename);
+    }
+    filename = mprJoinPath(conn->rx->route->documents, mapContent(conn, filename));
+#if BIT_ROM
+    filename = mprGetRelPath(filename, NULL);
+#endif
+    httpSetFilename(conn, filename, 0);
 }
 
 
@@ -16335,10 +16333,12 @@ PUBLIC void httpSetEntityLength(HttpConn *conn, int64 len)
 }
 
 
+
 /*
     Set the filename. The filename may be outside the route documents. So caller must take care.
+    This will update HttpTx.ext and HttpTx.fileInfo.
  */
-PUBLIC void httpSetFilename(HttpConn *conn, cchar *filename, bool bypass)
+PUBLIC void httpSetFilename(HttpConn *conn, cchar *filename, int flags)
 {
     HttpTx      *tx;
     MprPath     *info;
@@ -16346,18 +16346,35 @@ PUBLIC void httpSetFilename(HttpConn *conn, cchar *filename, bool bypass)
     assert(conn);
 
     tx = conn->tx;
-    tx->bypassDocuments = bypass;
     info = &tx->fileInfo;
-    tx->filename = sclone(filename);
-    if ((tx->ext = httpGetPathExt(tx->filename)) == 0) {
+    tx->flags &= (HTTP_TX_NO_CHECK | HTTP_TX_NO_MAP);
+    tx->flags |= (flags & (HTTP_TX_NO_CHECK | HTTP_TX_NO_MAP));
+
+    if (filename == 0) {
+        tx->filename = 0;
+        tx->ext = 0;
+        info->checked = info->valid = 0;
+        mprTrace(7, "httpSetFilename clear filename");
+        return;
+    }
+    if (!(tx->flags & HTTP_TX_NO_CHECK)) {
+        if (!mprIsAbsPathContained(filename, conn->rx->route->documents)) {
+            info->checked = 1;
+            info->valid = 0;
+            httpError(conn, HTTP_CODE_BAD_REQUEST, "Bad URL");
+            return;
+        }
+    }
+    if ((tx->ext = httpGetPathExt(filename)) == 0) {
         tx->ext = httpGetPathExt(conn->rx->pathInfo);
     }
-    mprGetPathInfo(tx->filename, info);
+    mprGetPathInfo(filename, info);
     if (info->valid) {
-        //  OPT - inodes mean this is harder to cache when served from multiple servers.
+        //  OPT - using inodes mean this is harder to cache when served from multiple servers.
         tx->etag = sfmt("\"%Lx-%Lx-%Lx\"", (int64) info->inode, (int64) info->size, (int64) info->mtime);
     }
-    mprTrace(7, "mapFile uri \"%s\", filename: \"%s\", extension: \"%s\"", conn->rx->uri, tx->filename, tx->ext);
+    tx->filename = sclone(filename);
+    mprTrace(7, "httpSetFilename uri \"%s\", filename: \"%s\", extension: \"%s\"", conn->rx->uri, tx->filename, tx->ext);
 }
 
 

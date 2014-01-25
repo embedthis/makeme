@@ -2839,8 +2839,8 @@
       <type>void</type>
       <name>httpSetFilename</name>
       <anchorfile>group___http_tx.html</anchorfile>
-      <anchor>gaf2ebb5cff5a263e00804e5523cb845bb</anchor>
-      <arglist>(HttpConn *conn, cchar *filename, bool bypass)</arglist>
+      <anchor>ga35ad71ee060b80ac5803a4e0fc6f37d5</anchor>
+      <arglist>(HttpConn *conn, cchar *filename, int flags)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
