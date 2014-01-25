@@ -2521,21 +2521,29 @@ PUBLIC void httpDestroyConn(HttpConn *conn)
         conn->input = 0;
         if (conn->tx) {
             httpClosePipeline(conn);
+#if UNUSED
             conn->tx->conn = 0;
             conn->tx = 0;
+#endif
         }
         if (conn->rx) {
+#if UNUSED
             conn->rx->conn = 0;
             conn->rx = 0;
+#endif
         }
         if (conn->sock) {
             mprLog(4, "Closing socket connection");
             mprCloseSocket(conn->sock, 0);
+#if UNUSED
             conn->sock = 0;
+#endif
         }
         if (conn->dispatcher && conn->dispatcher->flags & MPR_DISPATCHER_AUTO) {
             mprDestroyDispatcher(conn->dispatcher);
+#if UNUSED
             conn->dispatcher = 0;
+#endif
         }
     }
 }
@@ -8901,7 +8909,8 @@ PUBLIC void httpMapFile(HttpConn *conn)
     if (lang && lang->path) {
         filename = mprJoinPath(lang->path, filename);
     }
-    filename = mprJoinPath(conn->rx->route->documents, mapContent(conn, filename));
+    filename = mprJoinPath(conn->rx->route->documents, filename);
+    filename = mapContent(conn, filename);
 #if BIT_ROM
     filename = mprGetRelPath(filename, NULL);
 #endif

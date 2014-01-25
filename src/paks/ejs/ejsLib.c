@@ -35688,7 +35688,6 @@ static EjsObj *http_close(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
         }
         sendHttpCloseEvent(ejs, hp);
         httpDestroyConn(hp->conn);
-        //  TODO OPT - Better to do this on demand. This consumes a conn until GC.
         hp->conn = httpCreateConn(ejs->http, NULL, ejs->dispatcher);
         httpPrepClientConn(hp->conn, 0);
         httpSetConnNotifier(hp->conn, httpEventChange);
