@@ -3367,20 +3367,23 @@ PUBLIC void mprWaitForIO(MprWaitService *ws, MprTicks timeout)
         mprDoWaitRecall(ws);
         return;
     }
-    mprYield(MPR_YIELD_STICKY);
-
-    /*
-        Timer must be after yield
-     */
-    SetTimer(ws->hwnd, 0, (UINT) timeout, NULL);
-    if (GetMessage(&msg, NULL, 0, 0) == 0) {
-        mprResetYield();
-        mprTerminate(MPR_EXIT_DEFAULT, -1);
+    if (ws->hwnd) {
+        /*
+            Timer must be after yield
+         */
+        mprYield(MPR_YIELD_STICKY);
+        SetTimer(ws->hwnd, 0, (UINT) timeout, NULL);
+        if (GetMessage(&msg, NULL, 0, 0) == 0) {
+            mprResetYield();
+            mprTerminate(MPR_EXIT_DEFAULT, -1);
+        } else {
+            mprClearWaiting();
+            mprResetYield();
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
     } else {
-        mprClearWaiting();
-        mprResetYield();
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
+        mprYield(0);
     }
     ws->wakeRequested = 0;
 }
