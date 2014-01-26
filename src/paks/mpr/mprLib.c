@@ -2494,6 +2494,7 @@ PUBLIC Mpr *mprCreate(int argc, char **argv, int flags)
         assert(mpr);
         return 0;
     }
+    mpr->flags = flags;
     mpr->start = mprGetTime(); 
     mpr->exitStrategy = MPR_EXIT_NORMAL;
     mpr->emptyString = sclone("");
@@ -2826,9 +2827,7 @@ PUBLIC int mprStartEventsThread()
 static void serviceEventsThread(void *data, MprThread *tp)
 {
     mprLog(MPR_INFO, "Service thread started");
-    if (!(MPR->flags & MPR_NO_WINDOW)) {
-        mprInitWindow();
-    }
+    mprInitWindow();
     mprSignalCond(MPR->cond);
     mprServiceEvents(-1, 0);
     mprRescheduleDispatcher(MPR->dispatcher);
@@ -3354,6 +3353,7 @@ PUBLIC int mprWaitForSingleIO(int fd, int desiredMask, MprTicks timeout)
 PUBLIC void mprWaitForIO(MprWaitService *ws, MprTicks timeout)
 {
     MSG     msg;
+    int     localWindow;
 
     if (timeout < 0 || timeout > MAXINT) {
         timeout = MAXINT;
@@ -3366,6 +3366,10 @@ PUBLIC void mprWaitForIO(MprWaitService *ws, MprTicks timeout)
     if (ws->needRecall) {
         mprDoWaitRecall(ws);
         return;
+    }
+    localWindow = (ws->hwnd == 0);
+    if (localWindow) {
+        mprInitWindow();
     }
     if (ws->hwnd) {
         /*
@@ -3384,6 +3388,9 @@ PUBLIC void mprWaitForIO(MprWaitService *ws, MprTicks timeout)
         }
     } else {
         mprYield(0);
+    }
+    if (localWindow) {
+        mprTermWindow();
     }
     ws->wakeRequested = 0;
 }
@@ -3457,7 +3464,7 @@ PUBLIC int mprInitWindow()
     int             rc;
 
     ws = MPR->waitService;
-    if (ws->hwnd) {
+    if (ws->hwnd || (MPR->flags & MPR_NO_WINDOW)) {
         return 0;
     }
     name                = (wchar*) wide(mprGetAppName());
@@ -3472,8 +3479,7 @@ PUBLIC int mprInitWindow()
     wc.lpfnWndProc      = msgProc;
     wc.lpszMenuName     = wc.lpszClassName = name;
 
-    rc = RegisterClass(&wc);
-    if (rc == 0) {
+    if ((rc = RegisterClass(&wc)) == 0) {
         mprError("Cannot register windows class");
         return MPR_ERR_CANT_INITIALIZE;
     }
@@ -3494,10 +3500,11 @@ PUBLIC void mprTermWindow()
     MprWaitService  *ws;
 
     ws = MPR->waitService;
-    if (ws->hwnd) {
-        UnregisterClass(wide(mprGetAppName()), 0);
-        ws->hwnd = 0;
+    if (!ws->hwnd || (MPR->flags & MPR_NO_WINDOW)) {
+        return;
     }
+    UnregisterClass(wide(mprGetAppName()), 0);
+    ws->hwnd = 0;
 }
 
 
