@@ -3458,7 +3458,6 @@ PUBLIC void mprWakeNotifier()
     MprWaitService  *ws;
 
     ws = MPR->waitService;
-    assert(ws->hwnd);
     if (!ws->wakeRequested && ws->hwnd) {
         ws->wakeRequested = 1;
         PostMessage(ws->hwnd, WM_NULL, 0, 0L);

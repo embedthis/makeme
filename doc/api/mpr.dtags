@@ -1051,13 +1051,6 @@
     </member>
     <member kind="define">
       <type>#define</type>
-      <name>MPR_NO_WINDOW</name>
-      <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>a8ffe8c24f95b6d8cf62b935108d8681d</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
       <name>MPR_NORMAL_PRIORITY</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a00253cececc72225524d098e29d552a9</anchor>
