@@ -6728,6 +6728,7 @@ typedef struct MprThread {
     MprOsThread     osThread;           /**< O/S thread id */
 #if BIT_WIN_LIKE
     handle          threadHandle;       /**< Threads OS handle for WIN */
+    HWND            hwnd;               /**< Window handle */
 #endif
     MprThreadProc   entry;              /**< Users thread entry point */
     MprMutex        *mutex;             /**< Multi-thread locking */
@@ -6955,9 +6956,9 @@ typedef struct MprWaitService {
     int             wakeRequested;          /* Wakeup of the wait service has been requested */
     MprList         *handlerMap;            /* Map of fds to handlers */
 #if MPR_EVENT_ASYNC
+    HWND            hwnd;                   /* Window handle */
     int             nfd;                    /* Last used entry in the handlerMap array */
     int             fdmax;                  /* Size of the fds array */
-    HWND            hwnd;                   /* Window handle */
     int             socketMessage;          /* Message id for socket events */
     MprMsgCallback  msgCallback;            /* Message handler callback */
 #elif MPR_EVENT_EPOLL
@@ -6984,8 +6985,6 @@ PUBLIC void mprTermOsWait(MprWaitService *ws);
 PUBLIC int  mprStartWaitService(MprWaitService *ws);
 PUBLIC int  mprStopWaitService(MprWaitService *ws);
 PUBLIC void mprSetWaitServiceThread(MprWaitService *ws, MprThread *thread);
-PUBLIC int  mprInitWindow();
-PUBLIC void mprTermWindow();
 PUBLIC void mprWakeNotifier();
 #if MPR_EVENT_KQUEUE
     PUBLIC void mprManageKqueue(MprWaitService *ws, int flags);
@@ -6999,6 +6998,14 @@ PUBLIC void mprWakeNotifier();
 #if BIT_WIN_LIKE
     PUBLIC void mprSetWinMsgCallback(MprMsgCallback callback);
     PUBLIC void mprServiceWinIO(MprWaitService *ws, int sockFd, int winMask);
+    PUBLIC HWND mprCreateWindow(MprThread *tp, bool *created);
+    PUBLIC void mprDestroyWindow(MprThread *tp);
+    PUBLIC HWND mprGetWindow(bool *created);
+    PUBLIC int  mprCreateWindowClass();
+    PUBLIC void mprDestroyWindowClass();
+    PUBLIC void mprSetNotifierThread();
+#else
+    #define mprSetNotifierThread()
 #endif
 
 /**
@@ -9402,7 +9409,6 @@ PUBLIC void mprNop(void *ptr);
 
 #define MPR_DISABLE_GC          0x1         /**< Disable GC */
 #define MPR_USER_EVENTS_THREAD  0x2         /**< User will explicitly manage own mprServiceEvents calls */
-#define MPR_NO_WINDOW           0x4         /**< Don't create a windows Window */
 
 /**
     Add a terminator callback

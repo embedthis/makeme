@@ -2476,6 +2476,7 @@ static int isStopping;
 
 static void manageMpr(Mpr *mpr, int flags);
 static void serviceEventsThread(void *data, MprThread *tp);
+static void setProgramNames(Mpr *mpr, int argc, char **argv);
 
 /************************************* Code ***********************************/
 /*
@@ -2500,61 +2501,22 @@ PUBLIC Mpr *mprCreate(int argc, char **argv, int flags)
     mpr->emptyString = sclone("");
     mpr->oneString = sclone("1");
     mpr->exitTimeout = MPR_TIMEOUT_STOP;
-    mpr->title = sclone(BIT_TITLE);
-    mpr->version = sclone(BIT_VERSION);
     mpr->idleCallback = mprServicesAreIdle;
     mpr->mimeTypes = mprCreateMimeTypes(NULL);
     mpr->terminators = mprCreateList(0, MPR_LIST_STATIC_VALUES);
 
-    mprCreateTimeService();
+    fs = mprCreateFileSystem("/");
+    mprAddFileSystem(fs);
+    setProgramNames(mpr, argc, argv);
+
     mprCreateOsService();
+    mprCreateTimeService();
     mpr->mutex = mprCreateLock();
     mpr->spin = mprCreateSpinLock();
     mpr->verifySsl = 1;
 
-    fs = mprCreateFileSystem("/");
-    mprAddFileSystem(fs);
     mprCreateLogService();
     mprCreateCacheService();
-
-    if (argv) {
-#if BIT_WIN_LIKE
-        if (argc >= 2 && strstr(argv[1], "--cygroot") != 0) {
-            /*
-                Cygwin shebang is broken. It will catenate args into argv[1]
-             */
-            char *args, *arg0;
-            int  i;
-            args = argv[1];
-            for (i = 2; i < argc; i++) {
-                args = sjoin(args, " ", argv[i], NULL);
-            }
-            arg0 = argv[0];
-            argc = mprMakeArgv(args, &mpr->argBuf, MPR_ARGV_ARGS_ONLY);
-            argv = mpr->argBuf;
-            argv[0] = arg0;
-            mpr->argv = (cchar**) argv;
-        } else {
-            mpr->argv = mprAllocZeroed(sizeof(void*) * (argc + 1));
-            memcpy((char*) mpr->argv, argv, sizeof(void*) * argc);
-        }
-#else
-        mpr->argv = mprAllocZeroed(sizeof(void*) * (argc + 1));
-        memcpy((char*) mpr->argv, argv, sizeof(void*) * argc);
-#endif
-        mpr->argc = argc;
-        if (!mprIsPathAbs(mpr->argv[0])) {
-            mpr->argv[0] = mprGetAppPath();
-        } else {
-            mpr->argv[0] = sclone(mprGetAppPath());
-        }
-    } else {
-        mpr->name = sclone(BIT_PRODUCT);
-        mpr->argv = mprAllocZeroed(2 * sizeof(void*));
-        mpr->argv[0] = mpr->name;
-        mpr->argc = 0;
-    }
-    mpr->name = mprTrimPathExt(mprGetPathBase(mpr->argv[0]));
 
     mpr->signalService = mprCreateSignalService();
     mpr->threadService = mprCreateThreadService();
@@ -2564,18 +2526,13 @@ PUBLIC Mpr *mprCreate(int argc, char **argv, int flags)
     mpr->workerService = mprCreateWorkerService();
     mpr->waitService = mprCreateWaitService();
     mpr->socketService = mprCreateSocketService();
+    mpr->pathEnv = sclone(getenv("PATH"));
 
     mpr->dispatcher = mprCreateDispatcher("main", 0);
     mpr->nonBlock = mprCreateDispatcher("nonblock", 0);
     mprSetDispatcherImmediate(mpr->nonBlock);
 
-    mpr->pathEnv = sclone(getenv("PATH"));
-
-    if (flags & MPR_USER_EVENTS_THREAD) {
-        if (!(flags & MPR_NO_WINDOW)) {
-            mprInitWindow();
-        }
-    } else {
+    if (!(flags & MPR_USER_EVENTS_THREAD)) {
         mprRunDispatcher(mpr->dispatcher);
         mprStartEventsThread();
     }
@@ -2755,6 +2712,51 @@ PUBLIC void mprTerminate(int how, int status)
 }
 
 
+static void setProgramNames(Mpr *mpr, int argc, char **argv)
+{
+    if (argv) {
+#if BIT_WIN_LIKE
+        if (argc >= 2 && strstr(argv[1], "--cygroot") != 0) {
+            /*
+                Cygwin shebang is broken. It will catenate args into argv[1]
+             */
+            char *args, *arg0;
+            int  i;
+            args = argv[1];
+            for (i = 2; i < argc; i++) {
+                args = sjoin(args, " ", argv[i], NULL);
+            }
+            arg0 = argv[0];
+            argc = mprMakeArgv(args, &mpr->argBuf, MPR_ARGV_ARGS_ONLY);
+            argv = mpr->argBuf;
+            argv[0] = arg0;
+            mpr->argv = (cchar**) argv;
+        } else {
+            mpr->argv = mprAllocZeroed(sizeof(void*) * (argc + 1));
+            memcpy((char*) mpr->argv, argv, sizeof(void*) * argc);
+        }
+#else
+        mpr->argv = mprAllocZeroed(sizeof(void*) * (argc + 1));
+        memcpy((char*) mpr->argv, argv, sizeof(void*) * argc);
+#endif
+        mpr->argc = argc;
+        if (!mprIsPathAbs(mpr->argv[0])) {
+            mpr->argv[0] = mprGetAppPath();
+        } else {
+            mpr->argv[0] = sclone(mprGetAppPath());
+        }
+    } else {
+        mpr->name = sclone(BIT_PRODUCT);
+        mpr->argv = mprAllocZeroed(2 * sizeof(void*));
+        mpr->argv[0] = mpr->name;
+        mpr->argc = 0;
+    }
+    mpr->name = mprTrimPathExt(mprGetPathBase(mpr->argv[0]));
+    mpr->title = sclone(BIT_TITLE);
+    mpr->version = sclone(BIT_VERSION);
+}
+
+
 PUBLIC int mprGetExitStatus()
 {
     return MPR->exitStatus;
@@ -2827,11 +2829,9 @@ PUBLIC int mprStartEventsThread()
 static void serviceEventsThread(void *data, MprThread *tp)
 {
     mprLog(MPR_INFO, "Service thread started");
-    mprInitWindow();
     mprSignalCond(MPR->cond);
     mprServiceEvents(-1, 0);
     mprRescheduleDispatcher(MPR->dispatcher);
-    mprTermWindow();
 }
 
 
@@ -3252,6 +3252,9 @@ PUBLIC void mprNop(void *ptr) {
     async.c - Wait for I/O on Windows.
 
     This module provides io management for sockets on Windows like systems. 
+    A windows may be created per thread and will be retained until shutdown.
+    Typically, only one window is required and that is for the notifier thread
+    executing mprServiceEvents.
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
@@ -3274,6 +3277,23 @@ PUBLIC int mprCreateNotifierService(MprWaitService *ws)
 }
 
 
+PUBLIC void mprSetNotifierThread()
+{
+    MprThread       *tp;
+    MprWaitService  *ws;
+
+    ws = MPR->waitService;
+    if ((tp = mprGetCurrentThread()) == 0) {
+        mprError("mprSetNotifierThread called from non-MPR thread");
+        return;
+    }
+    if (!tp->hwnd) {
+        tp->hwnd = mprCreateWindow(tp, 0);
+    }
+    ws->hwnd = tp->hwnd;
+}
+
+
 PUBLIC int mprNotifyOn(MprWaitService *ws, MprWaitHandler *wp, int mask)
 {
     int     winMask;
@@ -3288,6 +3308,7 @@ PUBLIC int mprNotifyOn(MprWaitService *ws, MprWaitHandler *wp, int mask)
             winMask |= FD_WRITE;
         }
         wp->desiredMask = mask;
+        assert(ws->hwnd);
         WSAAsyncSelect(wp->fd, ws->hwnd, ws->socketMessage, winMask);
         if (wp->event) {
             mprRemoveEvent(wp->event);
@@ -3353,7 +3374,7 @@ PUBLIC int mprWaitForSingleIO(int fd, int desiredMask, MprTicks timeout)
 PUBLIC void mprWaitForIO(MprWaitService *ws, MprTicks timeout)
 {
     MSG     msg;
-    int     localWindow;
+    HWND    hwnd;
 
     if (timeout < 0 || timeout > MAXINT) {
         timeout = MAXINT;
@@ -3365,18 +3386,16 @@ PUBLIC void mprWaitForIO(MprWaitService *ws, MprTicks timeout)
 #endif
     if (ws->needRecall) {
         mprDoWaitRecall(ws);
-        return;
-    }
-    localWindow = (ws->hwnd == 0);
-    if (localWindow) {
-        mprInitWindow();
-    }
-    if (ws->hwnd) {
+        
+    } else if ((hwnd = mprGetWindow(0)) == 0) {
+        mprError("mprWaitForIO: Cannot get window");
+
+    } else {
         /*
             Timer must be after yield
          */
         mprYield(MPR_YIELD_STICKY);
-        SetTimer(ws->hwnd, 0, (UINT) timeout, NULL);
+        SetTimer(hwnd, 0, (UINT) timeout, NULL);
         if (GetMessage(&msg, NULL, 0, 0) == 0) {
             mprResetYield();
             mprTerminate(MPR_EXIT_DEFAULT, -1);
@@ -3386,11 +3405,6 @@ PUBLIC void mprWaitForIO(MprWaitService *ws, MprTicks timeout)
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
-    } else {
-        mprYield(0);
-    }
-    if (localWindow) {
-        mprTermWindow();
     }
     ws->wakeRequested = 0;
 }
@@ -3444,67 +3458,11 @@ PUBLIC void mprWakeNotifier()
     MprWaitService  *ws;
 
     ws = MPR->waitService;
+    assert(ws->hwnd);
     if (!ws->wakeRequested && ws->hwnd) {
         ws->wakeRequested = 1;
         PostMessage(ws->hwnd, WM_NULL, 0, 0L);
     }
-}
-
-
-/*
-    Create a default window if the application has not already created one.
-    Windows are meant to be per-thread, but this creates a window for mprServiceEvents.
- */ 
-PUBLIC int mprInitWindow()
-{
-    MprWaitService  *ws;
-    WNDCLASS        wc;
-    HWND            hwnd;
-    wchar           *name, *title;
-    int             rc;
-
-    ws = MPR->waitService;
-    if (ws->hwnd || (MPR->flags & MPR_NO_WINDOW)) {
-        return 0;
-    }
-    name                = (wchar*) wide(mprGetAppName());
-    title               = (wchar*) wide(mprGetAppTitle());
-    wc.style            = CS_HREDRAW | CS_VREDRAW;
-    wc.hbrBackground    = (HBRUSH) (COLOR_WINDOW+1);
-    wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
-    wc.cbClsExtra       = 0;
-    wc.cbWndExtra       = 0;
-    wc.hInstance        = 0;
-    wc.hIcon            = NULL;
-    wc.lpfnWndProc      = msgProc;
-    wc.lpszMenuName     = wc.lpszClassName = name;
-
-    if ((rc = RegisterClass(&wc)) == 0) {
-        mprError("Cannot register windows class");
-        return MPR_ERR_CANT_INITIALIZE;
-    }
-    hwnd = CreateWindow(name, title, WS_OVERLAPPED, CW_USEDEFAULT, 0, 0, 0, NULL, NULL, 0, NULL);
-    if (!hwnd) {
-        mprError("Cannot create window");
-        UnregisterClass(name, 0);
-        return -1;
-    }
-    ws->hwnd = hwnd;
-    ws->socketMessage = MPR_SOCKET_MESSAGE;
-    return 0;
-}
-
-
-PUBLIC void mprTermWindow()
-{
-    MprWaitService  *ws;
-
-    ws = MPR->waitService;
-    if (!ws->hwnd || (MPR->flags & MPR_NO_WINDOW)) {
-        return;
-    }
-    UnregisterClass(wide(mprGetAppName()), 0);
-    ws->hwnd = 0;
 }
 
 
@@ -3542,6 +3500,79 @@ PUBLIC void mprSetWinMsgCallback(MprMsgCallback callback)
 
     ws = MPR->waitService;
     ws->msgCallback = callback;
+}
+
+
+PUBLIC int mprCreateWindowClass()
+{
+    WNDCLASS        wc;
+    wchar           *name;
+    int             rc;
+
+    name                = (wchar*) wide(mprGetAppName());
+    wc.style            = CS_HREDRAW | CS_VREDRAW;
+    wc.hbrBackground    = (HBRUSH) (COLOR_WINDOW+1);
+    wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
+    wc.cbClsExtra       = 0;
+    wc.cbWndExtra       = 0;
+    wc.hInstance        = 0;
+    wc.hIcon            = NULL;
+    wc.lpfnWndProc      = msgProc;
+    wc.lpszMenuName     = wc.lpszClassName = name;
+
+    if ((rc = RegisterClass(&wc)) == 0) {
+        mprError("Cannot register windows class");
+        return MPR_ERR_CANT_INITIALIZE;
+    }
+    return 0;
+}
+
+
+PUBLIC void mprDestroyWindowClass()
+{
+    UnregisterClass(wide(mprGetAppName()), 0);
+}
+
+
+PUBLIC HWND mprCreateWindow(MprThread *tp, bool *created)
+{
+    cchar   *name, *title;
+
+    assert(!tp->hwnd);
+    name = (wchar*) wide(mprGetAppName());
+    title = (wchar*) wide(mprGetAppTitle());
+    tp->hwnd = CreateWindow(name, title, WS_OVERLAPPED, CW_USEDEFAULT, 0, 0, 0, NULL, NULL, 0, NULL);
+    if (!tp->hwnd) {
+        mprError("Cannot create window");
+        return 0;
+    }
+    return tp->hwnd;
+}
+
+
+PUBLIC void mprDestroyWindow(MprThread *tp)
+{
+    if (tp->hwnd) {
+        DestroyWindow(tp->hwnd);
+        tp->hwnd = 0;
+    }
+}
+
+
+PUBLIC HWND mprGetWindow(bool *created)
+{
+    MprThread   *tp;
+
+    if ((tp = mprGetCurrentThread()) == 0) {
+        return 0;
+    }
+    if (tp->hwnd == 0) {
+        if (created) {
+            *created = 1;
+        }
+        tp->hwnd = mprCreateWindow(tp, 0);
+    }
+    return tp->hwnd;
 }
 
 
@@ -8958,7 +8989,6 @@ PUBLIC MprDiskFileSystem *mprCreateDiskFileSystem(cchar *path)
     if ((dfs = mprAllocObj(MprDiskFileSystem, manageDiskFileSystem)) == 0) {
         return 0;
     }
-
     /*
         Temporary
      */
@@ -9281,6 +9311,8 @@ PUBLIC int mprServiceEvents(MprTicks timeout, int flags)
     if (expires < 0) {
         expires = MAXINT64;
     }
+    mprSetNotifierThread();
+
     while (es->now <= expires) {
         eventCount = es->eventCount;
         mprServiceSignals();
@@ -18941,17 +18973,6 @@ PUBLIC void mprWriteToOsLog(cchar *message, int flags, int level)
 }
 
 
-PUBLIC int mprInitWindow()
-{
-    return 0;
-}
-
-
-PUBLIC void mprTermWindow()
-{
-}
-
-
 PUBLIC void mprSetFilesLimit(int limit)
 {
     struct rlimit r;
@@ -25252,6 +25273,9 @@ static void manageThread(MprThread *tp, int flags)
         if (tp->threadHandle) {
             CloseHandle(tp->threadHandle);
         }
+        if (tp->hwnd) {
+            mprDestroyWindow(tp);
+        }
 #endif
     }
 }
@@ -28118,18 +28142,6 @@ PUBLIC int usleep(uint msec)
 }
 
 
-PUBLIC int mprInitWindow()
-{
-    return 0;
-}
-
-
-PUBLIC void mprTermWindow()
-{
-}
-
-
-
 /*
     Create a routine to pull in the GCC support routines for double and int64 manipulations for some platforms. Do this
     incase modules reference these routines. Without this, the modules have to reference them. Which leads to multiple 
@@ -28221,17 +28233,6 @@ static void manageWaitService(MprWaitService *ws, int flags)
         mprMark(ws->mutex);
         mprMark(ws->spin);
     }
-#if MPR_EVENT_ASYNC
-    if (flags & MPR_MANAGE_FREE) {
-        wchar *name = (wchar*) wide(mprGetAppName());
-        /* Clean up the Win32 registered class and window. */
-        if (ws->hwnd) {
-            DestroyWindow(ws->hwnd);
-            UnregisterClass(name, 0);
-            ws->hwnd = NULL;
-        }
-    }
-#endif
 #if MPR_EVENT_KQUEUE
     mprManageKqueue(ws, flags);
 #endif
@@ -29618,6 +29619,7 @@ PUBLIC int mprCreateOsService()
 {
     WSADATA     wsaData;
 
+    mprCreateWindowClass();
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
         return -1;
     }
@@ -29634,6 +29636,7 @@ PUBLIC int mprStartOsService()
 PUBLIC void mprStopOsService()
 {
     WSACleanup();
+    mprDestroyWindowClass();
 }
 
 
