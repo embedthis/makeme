@@ -2533,7 +2533,7 @@ PUBLIC Mpr *mprCreate(int argc, char **argv, int flags)
     mprSetDispatcherImmediate(mpr->nonBlock);
 
     if (flags & MPR_USER_EVENTS_THREAD) {
-        mprSetNotifierThread(tp);
+        mprSetNotifierThread(0);
     } else {
         mprRunDispatcher(mpr->dispatcher);
         mprStartEventsThread();
@@ -3285,6 +3285,9 @@ PUBLIC void mprSetNotifierThread(MprThread *tp)
     MprWaitService  *ws;
 
     ws = MPR->waitService;
+    if (!tp) {
+        tp = mprGetCurrentThread();
+    }
     if (!tp->hwnd) {
         tp->hwnd = mprCreateWindow(tp, 0);
     }
