@@ -2821,7 +2821,6 @@ PUBLIC int mprStartEventsThread()
     } else {
         MPR->threadService->eventsThread = tp;
         MPR->cond = mprCreateCond();
-        mprSetNotifierThread(tp);
         mprStartThread(tp);
         mprWaitForCond(MPR->cond, MPR_TIMEOUT_START_TASK);
     }
@@ -2832,6 +2831,7 @@ PUBLIC int mprStartEventsThread()
 static void serviceEventsThread(void *data, MprThread *tp)
 {
     mprLog(MPR_INFO, "Service thread started");
+    mprSetNotifierThread(tp);
     mprSignalCond(MPR->cond);
     mprServiceEvents(-1, 0);
     mprRescheduleDispatcher(MPR->dispatcher);
