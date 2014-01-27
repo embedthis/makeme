@@ -3308,7 +3308,7 @@ public class Bit {
                 strace('Link', 'ln -s', src, dest)
                 src.link(dest)
             }
-        } else if (bit.generating != 'nmake') {
+        } else if (bit.generating != 'nmake' && bit.generating != 'vs') {
             gencmd('rm -f "' + dest + '"')
             gencmd('ln -s "' + src + '" "' + dest + '"')
         }
@@ -3335,7 +3335,7 @@ public class Bit {
         if (!bit.generating) {
             if (!options.dry) {
                 if (!path.isDir) {
-                    strace('Create', 'mkdir -p ' + path)
+                    strace('Create', 'mkdir ' + path)
                     if (!path.makeDir()) {
                         throw "Cannot make directory" + path
                     }
@@ -3358,7 +3358,7 @@ public class Bit {
             if (path.startsWith(pwd)) {
                 path = path.relative
             }
-            if (bit.generating == 'nmake') {
+            if (bit.generating == 'nmake' || bit.generating == 'vs') {
                 /* BUG FIX */
                 if (path.name.endsWith('/')) {
                     gencmd('if not exist "' + path.windows + '/" md "' + path.windows + '/"')
@@ -3397,7 +3397,7 @@ public class Bit {
             if (path.startsWith(pwd)) {
                 path = path.relative
             }
-            if (bit.generating == 'nmake') {
+            if (bit.generating == 'nmake' || bit.generating == 'vs') {
                 gencmd('if exist "' + path.windows + '" del /Q "' + path.windows + '"')
             } else {
                 gencmd('rm -f "' + path + '"')
@@ -3431,7 +3431,7 @@ public class Bit {
             if (path.startsWith(pwd)) {
                 path = path.relative
             }
-            if (bit.generating == 'nmake') {
+            if (bit.generating == 'nmake' || bit.generating == 'vs') {
                 if (options.empty) {
                     gencmd('if exist "' + path.windows + '" rd /Q "' + path.windows + '"')
                 } else {
@@ -3464,7 +3464,7 @@ public class Bit {
             if (path.startsWith(pwd)) {
                 path = path.relative
             }
-            if (bit.generating == 'nmake') {
+            if (bit.generating == 'nmake' || bit.generating == 'vs') {
                 gencmd('if exist "' + path.windows + '\\" rd /Q /S "' + path.windows + '"')
                 gencmd('if exist "' + path.windows + '" del /Q "' + path.windows + '"')
             } else {
@@ -3509,7 +3509,7 @@ public class Bit {
             if (src == dest) {
                 throw new Error('Cannot copy file. Source is the same as destination: ' + src)
             }
-            if (bit.generating == 'nmake') {
+            if (bit.generating == 'nmake' || bit.generating == 'vs') {
                 src = src.windows
                 if (src.contains(' ')) {
                     src = '"' + src + '"'
