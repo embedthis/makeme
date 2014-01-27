@@ -7003,9 +7003,9 @@ PUBLIC void mprWakeNotifier();
     PUBLIC HWND mprGetWindow(bool *created);
     PUBLIC int  mprCreateWindowClass();
     PUBLIC void mprDestroyWindowClass();
-    PUBLIC void mprSetNotifierThread();
+    PUBLIC void mprSetNotifierThread(MprThread *tp);
 #else
-    #define mprSetNotifierThread()
+    #define mprSetNotifierThread(tp)
 #endif
 
 /**

@@ -2532,7 +2532,9 @@ PUBLIC Mpr *mprCreate(int argc, char **argv, int flags)
     mpr->nonBlock = mprCreateDispatcher("nonblock", 0);
     mprSetDispatcherImmediate(mpr->nonBlock);
 
-    if (!(flags & MPR_USER_EVENTS_THREAD)) {
+    if (flags & MPR_USER_EVENTS_THREAD) {
+        mprSetNotifierThread(tp);
+    } else {
         mprRunDispatcher(mpr->dispatcher);
         mprStartEventsThread();
     }
@@ -2819,6 +2821,7 @@ PUBLIC int mprStartEventsThread()
     } else {
         MPR->threadService->eventsThread = tp;
         MPR->cond = mprCreateCond();
+        mprSetNotifierThread(tp);
         mprStartThread(tp);
         mprWaitForCond(MPR->cond, MPR_TIMEOUT_START_TASK);
     }
@@ -3277,16 +3280,11 @@ PUBLIC int mprCreateNotifierService(MprWaitService *ws)
 }
 
 
-PUBLIC void mprSetNotifierThread()
+PUBLIC void mprSetNotifierThread(MprThread *tp)
 {
-    MprThread       *tp;
     MprWaitService  *ws;
 
     ws = MPR->waitService;
-    if ((tp = mprGetCurrentThread()) == 0) {
-        mprError("mprSetNotifierThread called from non-MPR thread");
-        return;
-    }
     if (!tp->hwnd) {
         tp->hwnd = mprCreateWindow(tp, 0);
     }
@@ -9310,7 +9308,7 @@ PUBLIC int mprServiceEvents(MprTicks timeout, int flags)
     if (expires < 0) {
         expires = MAXINT64;
     }
-    mprSetNotifierThread();
+    mprSetNotifierThread(mprGetCurrentThread());
 
     while (es->now <= expires) {
         eventCount = es->eventCount;
