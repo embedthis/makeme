@@ -7592,7 +7592,7 @@ PUBLIC bool httpFlushQueue(HttpQueue *q, int flags)
             assert(!tx->finalizedConnector);
             assert(conn->connectorq->count > 0 || conn->connectorq->ioCount);
             if (!mprWaitForSingleIO((int) conn->sock->fd, MPR_WRITABLE, conn->limits->inactivityTimeout)) {
-                return MPR_ERR_TIMEOUT;
+                break;
             }
             conn->lastActivity = conn->http->now;
             httpResumeQueue(conn->connectorq);

@@ -3327,11 +3327,14 @@ PUBLIC int mprNotifyOn(MprWaitService *ws, MprWaitHandler *wp, int mask)
  */
 PUBLIC int mprWaitForSingleIO(int fd, int desiredMask, MprTicks timeout)
 {
+    MprWaitService      *ws;
+    MprWaitHandler      *wp;
     HANDLE              h;
     DWORD               result;
     WSANETWORKEVENTS    events;
-    int                 winMask, eventMask;
+    int                 index, eventMask, priorMask, winMask;
 
+    ws = MPR->waitService;
     if (timeout < 0 || timeout > MAXINT) {
         timeout = MAXINT;
     }
@@ -3342,6 +3345,16 @@ PUBLIC int mprWaitForSingleIO(int fd, int desiredMask, MprTicks timeout)
     if (desiredMask & MPR_WRITABLE) {
         winMask |= FD_CLOSE | FD_WRITE;
     }
+    priorMask = -1;
+    lock(ws);
+    for (index = 0; (wp = (MprWaitHandler*) mprGetNextItem(ws->handlers, &index)) != 0; ) {
+        if (wp->fd == fd) {
+            priorMask = wp->desiredMask;
+            break;
+        }
+    }
+    unlock(ws);
+
     h = WSACreateEvent();
     WSAEventSelect(fd, h, winMask);
 
@@ -3364,6 +3377,17 @@ PUBLIC int mprWaitForSingleIO(int fd, int desiredMask, MprTicks timeout)
         }
     }
     CloseHandle(h);
+    if (priorMask >= 0) {
+        lock(ws);
+        for (index = 0; (wp = (MprWaitHandler*) mprGetNextItem(ws->handlers, &index)) != 0; ) {
+            if (wp->fd == fd) {
+                wp->desiredMask = -1;
+                mprWaitOn(wp, priorMask);
+                break;
+            }
+        }
+        unlock(ws);
+    }
     return eventMask;
 }
 
@@ -3417,7 +3441,6 @@ PUBLIC void mprServiceWinIO(MprWaitService *ws, int sockFd, int winMask)
     int                 index;
 
     lock(ws);
-
     for (index = 0; (wp = (MprWaitHandler*) mprGetNextItem(ws->handlers, &index)) != 0; ) {
         if (wp->fd == sockFd) {
             break;
