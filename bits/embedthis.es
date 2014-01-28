@@ -726,7 +726,9 @@ function packageMacosx(prefixes) {
             '--package-path ' + staging + ' ' + 
             '--resources package/macosx ' + outfile)
 
-        run('pkgutil --check-signature ' + outfile, {noshow: true})
+        if (sign) {
+            run('pkgutil --check-signature ' + outfile, {noshow: true})
+        }
     }
     bit.dir.rel.join('md5-' + base).joinExt('pkg.txt', true).write(md5(outfile.readString()))
 }
