@@ -2479,6 +2479,7 @@ typedef struct HttpConn {
 
     int             async;                  /**< Connection is in async mode (non-blocking) */
     int             delay;                  /**< Delay servicing request due to defense strategy */
+    int             destroyed;              /**< Connection has been destroyed */
     int             followRedirects;        /**< Follow redirects for client requests */
     int             keepAliveCount;         /**< Count of remaining Keep-Alive requests for this connection */
     int             mustClose;              /**< Peer explicitly requested the connection be closed via "Connection: close" */

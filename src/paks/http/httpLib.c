@@ -2507,8 +2507,7 @@ PUBLIC HttpConn *httpCreateConn(Http *http, HttpEndpoint *endpoint, MprDispatche
  */
 PUBLIC void httpDestroyConn(HttpConn *conn)
 {
-    if (conn->http) {
-        assert(conn->http);
+    if (!conn->destroyed) {
         HTTP_NOTIFY(conn, HTTP_EVENT_DESTROY, 0);
         if (httpServerConn(conn)) {
             httpMonitorEvent(conn, HTTP_COUNTER_ACTIVE_CONNECTIONS, -1);
@@ -2518,34 +2517,18 @@ PUBLIC void httpDestroyConn(HttpConn *conn)
             }
         }
         httpRemoveConn(conn->http, conn);
-        conn->http = 0;
         conn->input = 0;
         if (conn->tx) {
             httpClosePipeline(conn);
-#if UNUSED
-            conn->tx->conn = 0;
-            conn->tx = 0;
-#endif
-        }
-        if (conn->rx) {
-#if UNUSED
-            conn->rx->conn = 0;
-            conn->rx = 0;
-#endif
         }
         if (conn->sock) {
             mprLog(4, "Closing socket connection");
             mprCloseSocket(conn->sock, 0);
-#if UNUSED
-            conn->sock = 0;
-#endif
         }
         if (conn->dispatcher && conn->dispatcher->flags & MPR_DISPATCHER_AUTO) {
             mprDestroyDispatcher(conn->dispatcher);
-#if UNUSED
-            conn->dispatcher = 0;
-#endif
         }
+        conn->destroyed = 1;
     }
 }
 

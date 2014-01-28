@@ -148,6 +148,9 @@
 #ifndef BIT_VERSION
     #define BIT_VERSION "0.9.3"
 #endif
+#ifndef BIT_WHO
+    #define BIT_WHO "embedthis"
+#endif
 #ifndef BIT_WITHOUT_ALL
     #define BIT_WITHOUT_ALL "dsi,man,man2html"
 #endif
