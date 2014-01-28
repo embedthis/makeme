@@ -9409,6 +9409,7 @@ PUBLIC void mprNop(void *ptr);
 
 #define MPR_DISABLE_GC          0x1         /**< Disable GC */
 #define MPR_USER_EVENTS_THREAD  0x2         /**< User will explicitly manage own mprServiceEvents calls */
+#define MPR_NO_WINDOW           0x4         /**< Don't create a windows Window */
 
 /**
     Add a terminator callback

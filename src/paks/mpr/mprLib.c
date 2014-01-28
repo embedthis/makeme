@@ -2533,7 +2533,9 @@ PUBLIC Mpr *mprCreate(int argc, char **argv, int flags)
     mprSetDispatcherImmediate(mpr->nonBlock);
 
     if (flags & MPR_USER_EVENTS_THREAD) {
-        mprSetNotifierThread(0);
+        if (!(flags & MPR_NO_WINDOW)) {
+            mprSetNotifierThread(0);
+        }
     } else {
         mprRunDispatcher(mpr->dispatcher);
         mprStartEventsThread();
