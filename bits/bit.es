@@ -2146,6 +2146,7 @@ public class Bit {
                 }
             } catch (e) {
                 App.log.error('Error with target: ' + target.name + '\nCommand: ' + item.script + '\n' + e + '\n')
+                throw "Exiting"
             } finally {
                 changeDir(pwd)
                 delete bit.target
@@ -2993,12 +2994,14 @@ public class Bit {
     private function loadPackage() {
         if (PACKAGE.exists) {
             try {
+                //  REFACTOR
                 let package = bit.package = PACKAGE.readJSON()
                 bit.settings ||= {}
                 bit.settings.product = package.name
                 bit.settings.title = package.title || package.description
                 bit.settings.version = package.version
                 bit.settings.company ||= (package.author && package.author.name)
+                bit.settings.who = bit.settings.company.split(' ')[0].toLowerCase()
                 if (package.dirs && package.dirs.paks) {
                     bit.dir.packs = package.dirs.paks
                 }

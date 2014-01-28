@@ -639,6 +639,9 @@ var staffDir = {
 }
 
 
+/*
+    Used just for packageMaker
+ */
 function createMacContents(prefixes) {
     let staging = prefixes.staging
     let s = bit.settings
@@ -681,17 +684,20 @@ function packageMacosx(prefixes) {
         size += ((file.size + 999) / 1000)
     }
     bit.PACKAGE_SIZE = size
+    let opak = bit.dir.src.join('package/macosx')
+    copy(opak.join('background.png'), staging)
+    for each (f in opak.files('*.rtf')) {
+        copy(f, staging)
+    }
     let pm = s.product + '.pmdoc'
     let pmdoc = staging.join(pm)
-    let opak = bit.dir.src.join('package/' + bit.platform.os)
-    copy(opak.join('background.png'), staging)
-    copy(opak.join('license.rtf'), staging)
-    copy(opak.join('readme.rtf'), staging)
-    copy(opak.join(pm + '/*'), pmdoc, {expand: true, hidden: true})
+    if (opak.join(pm).exists) {
+        copy(opak.join(pm + '/*'), pmdoc, {expand: true, hidden: true})
+        createMacContents(prefixes)
+    }
     let scripts = staging.join('scripts')
     scripts.makeDir()
-    copy(bit.dir.src.join('package/' + bit.platform.os + '/scripts/*'), scripts, {expand: true})
-    createMacContents(prefixes)
+    copy(opak.join('scripts/*'), scripts, {expand: true})
 
     /* Remove extended attributes */
     Cmd.sh("cd " + staging + "; for i in $(ls -Rl@ | grep '^    ' | awk '{print $1}' | sort -u); do \
@@ -699,9 +705,29 @@ function packageMacosx(prefixes) {
 
     let outfile = bit.dir.rel.join(base).joinExt('pkg', true)
     trace('Package', outfile)
-    run(bit.packs.pmaker.path + ' --target 10.5 --domain system --doc ' + pmdoc + 
-        ' --id com.embedthis.' + s.product + '.bin.pkg --root-volume-only --no-relocate' +
-        ' --discard-forks --out ' + outfile)
+    if (opak.join(pm).exists) {
+        run(bit.packs.pmaker.path + ' --target 10.5 --domain system --doc ' + pmdoc + 
+            ' --id com.' + s.company + '.' + s.product + '.pkg --root-volume-only --no-relocate' +
+            ' --discard-forks --out ' + outfile)
+    } else {
+        copy(opak.join('distribution.xml'), staging, {expand: true})
+        let sign = ''
+        if (App.uid == 0) {
+            sign += '--sign "Developer ID Installer: ' + s.company + '"'
+        }
+        run('pkgbuild --quiet --install-location / ' + 
+            '--root ' + staging.join(s.product + '-' + s.version, 'contents') + ' ' + 
+            '--identifier com.' + s.who + '.' + s.product + '.pkg ' +
+            '--version ' + b.makeVersion(s.version) + ' ' +
+            '--scripts ' + scripts + ' ' + staging.join(s.product + '.pkg'))
+
+        run('productbuild --quiet ' + sign + ' ' +
+            '--distribution ' + staging.join('distribution.xml') + ' ' + 
+            '--package-path ' + staging + ' ' + 
+            '--resources package/macosx ' + outfile)
+
+        run('pkgutil --check-signature ' + outfile, {noshow: true})
+    }
     bit.dir.rel.join('md5-' + base).joinExt('pkg.txt', true).write(md5(outfile.readString()))
 }
 
