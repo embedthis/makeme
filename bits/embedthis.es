@@ -613,15 +613,17 @@ function makeTarPackage(prefixes) {
 function makeNativePackage(prefixes) {
     let os = (bit.cross) ? bit.platform.dev : bit.platform.os
     switch (bit.platform.os) {
+/* DISABLED
     case 'linux':
         if (bit.platform.dist == 'ubuntu') {
             packageUbuntu(prefixes)
         } else if (bit.platform.dist == 'fedora') {
             packageFedora(prefixes)
         } else {
-            trace('Info', 'Can\'t package for ' + bit.platform.dist + ' linux distribution')
+            trace('Info', 'Cannot package for ' + bit.platform.dist + ' linux distribution')
         }
         break
+ */
     case 'macosx':
         packageMacosx(prefixes)
         break
@@ -629,7 +631,7 @@ function makeNativePackage(prefixes) {
         packageWindows(prefixes)
         break
     default:
-        trace('Info', 'Cannot package for ' + bit.platform.os)
+        trace('Info', 'Cannot create native package for ' + bit.platform.os)
     }
 }
 
