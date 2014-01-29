@@ -16358,8 +16358,8 @@ PUBLIC void httpSetFilename(HttpConn *conn, cchar *filename, int flags)
             return;
         }
     }
-    if ((tx->ext = httpGetPathExt(filename)) == 0) {
-        tx->ext = httpGetPathExt(conn->rx->pathInfo);
+    if (!tx->ext || tx->ext[0] == '\0') {
+        tx->ext = httpGetPathExt(filename);
     }
     mprGetPathInfo(filename, info);
     if (info->valid) {

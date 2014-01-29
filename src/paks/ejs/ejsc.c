@@ -1,5 +1,5 @@
 /*
-    ejsc.c -- Embethis Ejscript Compiler
+    ejsc.c -- Embedthis Ejscript Compiler
 
     This file is a catenation of all the source code. Amalgamating into a
     single file makes embedding simpler and the resulting application faster.
@@ -59,7 +59,6 @@ MAIN(ejscMain, int argc, char **argv, char **envp)
         Initialize the Multithreaded Portable Runtime (MPR)
      */
     mpr = mprCreate(argc, argv, 0);
-    mprSetAppName(argv[0], 0, 0);
     app = mprAllocObj(App, manageApp);
     mprAddRoot(app);
     mprAddStandardSignals();
@@ -288,8 +287,9 @@ MAIN(ejscMain, int argc, char **argv, char **envp)
     if ((ejs = ejsCreateVM(0, 0, ejsFlags)) == 0) {
         return MPR_ERR_MEMORY;
     }
+#if UNUSED
     mprRunDispatcher(ejs->dispatcher);
-
+#endif
     if (ejsLoadModules(ejs, searchPath, app->modules) < 0) {
         return MPR_ERR_CANT_READ;
     }

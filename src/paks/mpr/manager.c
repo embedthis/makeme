@@ -41,7 +41,6 @@
 #define MANAGE_TIMEOUT (20 * 1000)      /* Timeout for actions */
 
 typedef struct App {
-    cchar   *appName;                   /* Manager name */
     int     continueOnErrors;           /* Keep going through errors */
     int     exiting;                    /* Program should exit */
     int     retries;                    /* Number of times to retry staring app */
@@ -86,15 +85,14 @@ PUBLIC int main(int argc, char *argv[])
     char    *argp, *value;
     int     err, nextArg, status;
 
-    err = 0;
-    mprCreate(argc, argv, MPR_USER_EVENTS_THREAD);
+    mprCreate(argc, argv, 0);
     app = mprAllocObj(App, manageApp);
     mprAddRoot(app);
     mprAddTerminator(terminating);
     mprAddStandardSignals();
     setAppDefaults();
 
-    for (nextArg = 1; nextArg < argc && !err; nextArg++) {
+    for (err = 0, nextArg = 1; nextArg < argc && !err; nextArg++) {
         argp = argv[nextArg];
         if (*argp != '-') {
             break;
@@ -239,9 +237,9 @@ PUBLIC int main(int argc, char *argv[])
             "    install              # Install the service\n"
             "    run                  # Run and watch over the service\n"
             "    start                # Start the service\n"
-            "    stop                 # Start the service\n"
+            "    stop                 # Stop the service\n"
             "    uninstall            # Uninstall the service\n"
-            , app->appName);
+            , mprGetAppName());
         return -1;
     }
 
@@ -261,7 +259,6 @@ PUBLIC int main(int argc, char *argv[])
         status = 2;
 
     } else {
-        mprStartEventsThread();
         for (; nextArg < argc; nextArg++) {
             if (!process(argv[nextArg], 0) && !app->continueOnErrors) {
                 status = 3;
@@ -277,7 +274,6 @@ PUBLIC int main(int argc, char *argv[])
 static void manageApp(void *ptr, int flags)
 {
     if (flags & MPR_MANAGE_MARK) {
-        mprMark(app->appName);
         mprMark(app->error);
         mprMark(app->output);
         mprMark(app->command);
@@ -295,7 +291,6 @@ static void manageApp(void *ptr, int flags)
 
 static void setAppDefaults()
 {
-    app->appName = mprGetAppName();
     app->company = stok(slower(BIT_COMPANY), " ", NULL);
     app->serviceProgram = sclone(SERVICE_PROGRAM);
     app->serviceName = sclone(SERVICE_NAME);
@@ -568,7 +563,7 @@ static void runService()
     app->servicePid = 0;
     atexit(cleanup);
 
-    mprLog(1, "%s: Watching over %s", app->appName, app->serviceProgram);
+    mprLog(1, "Watching over %s", app->serviceProgram);
 
     if (access(app->serviceProgram, X_OK) < 0) {
         mprError("start: can't access %s, errno %d", app->serviceProgram, mprGetOsError());
@@ -611,7 +606,7 @@ static void runService()
                 umask(022);
                 setsid();
 
-                mprLog(1, "%s: Change dir to %s", app->appName, app->serviceHome);
+                mprLog(1, "Change dir to %s", app->serviceHome);
                 if (chdir(app->serviceHome) < 0) {}
 
                 for (i = 3; i < 128; i++) {
@@ -638,29 +633,28 @@ static void runService()
                 }
                 argv[next++] = 0;
 
-                mprLog(1, "%s: Running %s", app->appName, app->serviceProgram);
+                mprLog(1, "Running %s", app->serviceProgram);
                 for (i = 1; argv[i]; i++) {
-                    mprLog(1, "%s: argv[%d] = %s", app->appName, i, argv[i]);
+                    mprLog(1, "  argv[%d] = %s", i, argv[i]);
                 }
                 execve(app->serviceProgram, (char**) argv, (char**) &env);
 
                 /* Should not get here */
                 err = errno;
-                mprError("%s: Cannot exec %s, err %d, cwd %s", app->appName, app->serviceProgram, err, app->serviceHome);
+                mprError("Cannot exec %s, err %d, cwd %s", app->serviceProgram, err, app->serviceHome);
                 exit(MPR_ERR_CANT_INITIALIZE);
             }
 
             /*
                 Parent
              */
-            mprLog(1, "%s: create child %s at pid %d", app->appName, app->serviceProgram, app->servicePid);
+            mprLog(1, "Create child %s at pid %d", app->serviceProgram, app->servicePid);
             app->restartCount++;
 
             waitpid(app->servicePid, &status, 0);
-            mprLog(1, "%s: %s has exited with status %d", app->appName, app->serviceProgram, WEXITSTATUS(status));
+            mprLog(1, "%s has exited with status %d", app->serviceProgram, WEXITSTATUS(status));
             if (!mprIsStopping()) {
-                mprLog(1, "%s: Restarting %s (%d/%d)...", 
-                    app->appName, app->serviceProgram, app->restartCount, app->retries);
+                mprLog(1, "Restarting %s (%d/%d)...", app->serviceProgram, app->restartCount, app->retries);
             }
             app->servicePid = 0;
         }
@@ -671,8 +665,7 @@ static void runService()
 static void cleanup()
 {
     if (app->servicePid > 0) {
-        mprLog(1, "%s: Killing %s at pid %d with signal %d", app->appName, app->serviceProgram, 
-            app->servicePid, app->signal);
+        mprLog(1, "Killing %s at pid %d with signal %d", app->serviceProgram, app->servicePid, app->signal);
         kill(app->servicePid, app->signal);
         app->servicePid = 0;
     }
@@ -822,8 +815,6 @@ static int makeDaemon()
 typedef struct App {
     HWND         hwnd;               /* Application window handle */
     HINSTANCE    appInst;            /* Current application instance */
-    cchar        *appName;           /* Manager name */
-    cchar        *appTitle;          /* Manager title */
     int          continueOnErrors;   /* Keep going through errors */
     int          createConsole;      /* Display service console */
     int          exiting;            /* Program should exit */
@@ -857,7 +848,7 @@ static SERVICE_TABLE_ENTRY      svcTable[] = {
 
 static void     WINAPI serviceCallback(ulong code);
 static bool     enableService(int enable);
-static void     setAppDefaults();
+static void     setWinDefaults(HINSTANCE inst);
 static bool     installService();
 static void     logHandler(int flags, int level, cchar *msg);
 static int      registerService();
@@ -885,30 +876,22 @@ static void WINAPI serviceMain(ulong argc, wchar **argv);
 
 int APIENTRY WinMain(HINSTANCE inst, HINSTANCE junk, char *args, int junk2)
 {
-    char    **argv, *argp;
-    int     argc, err, nextArg;
+    char    *argv[BIT_MAX_ARGC], *argp;
+    int     argc, err, nextArg, status;
 
-    mpr = mprCreate(0, NULL, MPR_USER_EVENTS_THREAD);
+	argv[0] = BIT_NAME "Manager";
+    argc = mprParseArgs(args, &argv[1], BIT_MAX_ARGC - 1) + 1;
+
+    mpr = mprCreate(argc, argv, 0);
     app = mprAllocObj(App, manageApp);
     mprAddRoot(app);
     mprAddTerminator(terminating);
 
-    err = 0;
-    app->appInst = inst;
-    app->heartBeatPeriod = HEART_BEAT_PERIOD;
-
-    setAppDefaults();
-
-    mprSetAppName(BIT_PRODUCT "Manager", BIT_TITLE " Manager", BIT_VERSION);
-    app->appName = mprGetAppName();
-    app->appTitle = mprGetAppTitle(mpr);
+    setWinDefaults(inst);
     mprSetLogHandler(logHandler);
     mprSetWinMsgCallback((MprMsgCallback) msgProc);
 
-    if ((argc = mprMakeArgv(args, &argv, MPR_ARGV_ARGS_ONLY)) < 0) {
-        return MPR_ERR_BAD_ARGS;
-    }
-    for (nextArg = 1; nextArg < argc; nextArg++) {
+    for (err = 0, nextArg = 1; nextArg < argc; nextArg++) {
         argp = argv[nextArg];
         if (*argp != '-' || strcmp(argp, "--") == 0) {
             break;
@@ -1006,34 +989,38 @@ int APIENTRY WinMain(HINSTANCE inst, HINSTANCE junk, char *args, int junk2)
                 "    start                # Start the service\n"
                 "    stop                 # Start the service\n"
                 "    run                  # Run and watch over the service\n",
-                args, app->appName);
+                args, mprGetAppName());
             return MPR_ERR_BAD_ARGS;
         }
     }
+    app->serviceTitle = sfmt("%s %s", stitle(app->company), stitle(app->serviceName));
+    status = 0;
+
     if (mprStart() < 0) {
         mprError("Cannot start MPR for %s", mprGetAppName());
+        status = 1;
+
     } else {
-        mprStartEventsThread();
         if (nextArg >= argc) {
             if (!process("run")) {
-                return MPR_ERR_CANT_COMPLETE;
+                status = 2;
             }
 
         } else for (; nextArg < argc; nextArg++) {
             if (!process(argv[nextArg]) && !app->continueOnErrors) {
-                return MPR_ERR_CANT_COMPLETE;
+                status = 3;
+                break;
             }
         }
     }
-    return 0;
+    mprDestroy(MPR_EXIT_DEFAULT);
+    return status;
 }
 
 
 static void manageApp(void *ptr, int flags)
 {
     if (flags & MPR_MANAGE_MARK) {
-        mprMark(app->appName);
-        mprMark(app->appTitle);
         mprMark(app->company);
         mprMark(app->serviceHome);
         mprMark(app->serviceName);
@@ -1096,7 +1083,7 @@ static void WINAPI serviceMain(ulong argc, char **argv)
 {
     int     threadId;
 
-    mprLog(1, "%s: Watching over %s", app->appName, app->serviceProgram);
+    mprLog(1, "Watching over %s", app->serviceProgram);
 
     app->serviceThreadEvent = CreateEvent(0, TRUE, FALSE, 0);
     app->heartBeatEvent = CreateEvent(0, TRUE, FALSE, 0);
@@ -1193,7 +1180,7 @@ static void run()
         if (app->servicePid == 0 && !app->serviceStopped) {
             if (app->restartCount >= RESTART_MAX) {
                 if (! app->restartWarned) {
-                    mprError("Too many restarts for %s, %d in ths last hour", app->appTitle, app->restartCount);
+                    mprError("Too many restarts for %s, %d in ths last hour", mprGetAppName(), app->restartCount);
                     app->restartWarned++;
                 }
                 /*
@@ -1573,14 +1560,14 @@ static int tellSCM(long state, long exitCode, long wait)
 }
 
 
-static void setAppDefaults()
+static void setWinDefaults(HINSTANCE inst)
 {
-    app->appName = mprGetAppName();
-    app->company = stok(slower(BIT_COMPANY), " ", NULL);
+    app->appInst = inst;
+    app->heartBeatPeriod = HEART_BEAT_PERIOD;
+    app->company = sclone(BIT_COMPANY);
+    app->serviceName = sclone(SERVICE_NAME);
     app->serviceProgram = sjoin(mprGetAppDir(), "\\", BIT_PRODUCT, ".exe", NULL);
-    app->serviceName = sjoin(app->company, "-", BIT_PRODUCT, NULL);
     app->serviceHome = NULL;
-    app->serviceTitle = sclone(BIT_TITLE);
     app->serviceStopped = 0;
 }
 
@@ -1627,7 +1614,7 @@ static void gracefulShutdown(MprTicks timeout)
 {
     HWND    hwnd;
 
-    hwnd = FindWindow(BIT_PRODUCT, BIT_TITLE);
+    hwnd = FindWindow(mprGetAppName(), mprGetAppName());
     if (hwnd) {
         PostMessage(hwnd, WM_QUIT, 0, 0L);
 
@@ -1637,7 +1624,7 @@ static void gracefulShutdown(MprTicks timeout)
         while (timeout > 0 && hwnd) {
             mprSleep(100);
             timeout -= 100;
-            hwnd = FindWindow(BIT_PRODUCT, BIT_TITLE);
+            hwnd = FindWindow(mprGetAppName(), mprGetAppName());
             if (hwnd == 0) {
                 return;
             }

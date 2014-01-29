@@ -108,8 +108,9 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
     if ((ejs = ejsCreateVM(argc, (cchar**) &argv[0], 0)) == 0) {
         return MPR_ERR_MEMORY;
     }
+#if UNUSED
     mprRunDispatcher(ejs->dispatcher);
-
+#endif
     app->ejs = ejs;
     if (ejsLoadModules(ejs, searchPath, NULL) < 0) {
         return MPR_ERR_CANT_READ;
@@ -139,7 +140,6 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
         err = mpr->exitStatus;
     }
     app->ejs = 0;
-    mprTerminate(MPR_EXIT_DEFAULT, err);
     ejsDestroyVM(ejs);
     mprDestroy(MPR_EXIT_DEFAULT);
     return err;

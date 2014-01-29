@@ -2476,7 +2476,7 @@ static int isStopping;
 
 static void manageMpr(Mpr *mpr, int flags);
 static void serviceEventsThread(void *data, MprThread *tp);
-static void setProgramNames(Mpr *mpr, int argc, char **argv);
+static void setNames(Mpr *mpr, int argc, char **argv);
 
 /************************************* Code ***********************************/
 /*
@@ -2504,16 +2504,16 @@ PUBLIC Mpr *mprCreate(int argc, char **argv, int flags)
     mpr->idleCallback = mprServicesAreIdle;
     mpr->mimeTypes = mprCreateMimeTypes(NULL);
     mpr->terminators = mprCreateList(0, MPR_LIST_STATIC_VALUES);
+    mpr->verifySsl = 1;
 
     fs = mprCreateFileSystem("/");
     mprAddFileSystem(fs);
-    setProgramNames(mpr, argc, argv);
+    setNames(mpr, argc, argv);
 
     mprCreateOsService();
     mprCreateTimeService();
     mpr->mutex = mprCreateLock();
     mpr->spin = mprCreateSpinLock();
-    mpr->verifySsl = 1;
 
     mprCreateLogService();
     mprCreateCacheService();
@@ -2534,10 +2534,10 @@ PUBLIC Mpr *mprCreate(int argc, char **argv, int flags)
 
     if (flags & MPR_USER_EVENTS_THREAD) {
         if (!(flags & MPR_NO_WINDOW)) {
+            /* Used by apps that need to use FindWindow after calling mprCreate() (appwebMonitor) */
             mprSetNotifierThread(0);
         }
     } else {
-        mprRunDispatcher(mpr->dispatcher);
         mprStartEventsThread();
     }
     mprStartGCService();
@@ -2590,7 +2590,7 @@ static void manageMpr(Mpr *mpr, int flags)
         mprMark(mpr->terminators);
         mprMark(mpr->mutex);
         mprMark(mpr->spin);
-        mprMark(mpr->cond);
+        mprMark(mpr->eventsCond);
         mprMark(mpr->emptyString);
         mprMark(mpr->oneString);
         mprMark(mpr->argv);
@@ -2716,7 +2716,7 @@ PUBLIC void mprTerminate(int how, int status)
 }
 
 
-static void setProgramNames(Mpr *mpr, int argc, char **argv)
+static void setNames(Mpr *mpr, int argc, char **argv)
 {
     if (argv) {
 #if BIT_WIN_LIKE
@@ -2756,7 +2756,7 @@ static void setProgramNames(Mpr *mpr, int argc, char **argv)
         mpr->argc = 0;
     }
     mpr->name = mprTrimPathExt(mprGetPathBase(mpr->argv[0]));
-    mpr->title = sclone(BIT_TITLE);
+    mpr->title = sfmt("%s %s", stitle(BIT_COMPANY), stitle(mpr->name));
     mpr->version = sclone(BIT_VERSION);
 }
 
@@ -2817,14 +2817,16 @@ PUBLIC int mprStart()
 PUBLIC int mprStartEventsThread()
 {
     MprThread   *tp;
+    MprTicks    timeout;
 
     if ((tp = mprCreateThread("events", serviceEventsThread, NULL, 0)) == 0) {
         MPR->hasError = 1;
     } else {
         MPR->threadService->eventsThread = tp;
-        MPR->cond = mprCreateCond();
+        MPR->eventsCond = mprCreateCond();
         mprStartThread(tp);
-        mprWaitForCond(MPR->cond, MPR_TIMEOUT_START_TASK);
+        timeout = mprGetDebugMode() ? MPR_MAX_TIMEOUT : MPR_TIMEOUT_START_TASK;
+        mprWaitForCond(MPR->eventsCond, timeout);
     }
     return 0;
 }
@@ -2833,8 +2835,12 @@ PUBLIC int mprStartEventsThread()
 static void serviceEventsThread(void *data, MprThread *tp)
 {
     mprLog(MPR_INFO, "Service thread started");
+#if UNUSED
+    //  MOB - in "esp compile" this prevents command events from being processed.
+    mprRunDispatcher(MPR->dispatcher);
+#endif
     mprSetNotifierThread(tp);
-    mprSignalCond(MPR->cond);
+    mprSignalCond(MPR->eventsCond);
     mprServiceEvents(-1, 0);
     mprRescheduleDispatcher(MPR->dispatcher);
 }
@@ -2889,7 +2895,7 @@ PUBLIC int mprWaitTillIdle(MprTicks timeout)
         }
         /* WARNING: Yields */
         if (!MPR->eventing) {
-            workDone = mprServiceEvents(10, MPR_SERVICE_ONE_THING);
+            workDone = mprServiceEvents(10, MPR_SERVICE_NO_BLOCK);
         } else {
             mprSleep(1);
             workDone = 1;
@@ -3282,7 +3288,7 @@ PUBLIC int mprCreateNotifierService(MprWaitService *ws)
 }
 
 
-PUBLIC void mprSetNotifierThread(MprThread *tp)
+PUBLIC HWND mprSetNotifierThread(MprThread *tp)
 {
     MprWaitService  *ws;
 
@@ -3291,9 +3297,23 @@ PUBLIC void mprSetNotifierThread(MprThread *tp)
         tp = mprGetCurrentThread();
     }
     if (!tp->hwnd) {
-        tp->hwnd = mprCreateWindow(tp, 0);
+        tp->hwnd = mprCreateWindow(tp);
     }
     ws->hwnd = tp->hwnd;
+    return ws->hwnd;
+}
+
+
+PUBLIC void mprManageAsync(MprWaitService *ws, int flags)
+{
+    if (flags & MPR_MANAGE_MARK) {
+
+    } else if (flags & MPR_MANAGE_FREE) {
+        if (ws->wclass) {
+            mprDestroyWindowClass(ws->wclass);
+            ws->wclass = 0;
+        }
+    }
 }
 
 
@@ -3396,7 +3416,7 @@ PUBLIC int mprWaitForSingleIO(int fd, int desiredMask, MprTicks timeout)
 
 /*
     Wait for I/O on all registered descriptors. Timeout is in milliseconds. Return the number of events serviced.
-    Should only be called by the thread that calls mprServiceEvents
+    Should only be called by the thread that calls mprServiceEvents.
  */
 PUBLIC void mprWaitForIO(MprWaitService *ws, MprTicks timeout)
 {
@@ -3528,46 +3548,46 @@ PUBLIC void mprSetWinMsgCallback(MprMsgCallback callback)
 }
 
 
-PUBLIC int mprCreateWindowClass()
+PUBLIC ATOM mprCreateWindowClass(cchar *name)
 {
-    WNDCLASS        wc;
-    wchar           *name;
-    int             rc;
+    WNDCLASS    wc;
+    ATOM        atom;
 
-    name                = (wchar*) wide(mprGetAppName());
-    wc.style            = CS_HREDRAW | CS_VREDRAW;
-    wc.hbrBackground    = (HBRUSH) (COLOR_WINDOW+1);
-    wc.hCursor          = LoadCursor(NULL, IDC_ARROW);
-    wc.cbClsExtra       = 0;
-    wc.cbWndExtra       = 0;
-    wc.hInstance        = 0;
-    wc.hIcon            = NULL;
-    wc.lpfnWndProc      = msgProc;
-    wc.lpszMenuName     = wc.lpszClassName = name;
+    memset(&wc, 0, sizeof(wc));
+    wc.lpszClassName = wide(name);
+    wc.lpfnWndProc = msgProc;
 
-    if ((rc = RegisterClass(&wc)) == 0) {
+    if ((atom = RegisterClass(&wc)) == 0) {
         mprError("Cannot register windows class");
-        return MPR_ERR_CANT_INITIALIZE;
+        return 0;
     }
-    return 0;
+    return atom;
 }
 
 
-PUBLIC void mprDestroyWindowClass()
+PUBLIC void mprDestroyWindowClass(ATOM wclass)
 {
-    UnregisterClass(wide(mprGetAppName()), 0);
+    if (wclass) {
+        UnregisterClass((LPCTSTR) wclass, 0);
+    }
 }
 
 
-PUBLIC HWND mprCreateWindow(MprThread *tp, bool *created)
+PUBLIC HWND mprCreateWindow(MprThread *tp)
 {
-    cchar   *name, *title;
+    MprWaitService  *ws;
+    cchar           *name;
 
+    ws = MPR->waitService;
+    name = mprGetAppName();
+    if (!ws->wclass && (ws->wclass = mprCreateWindowClass(name)) == 0) {
+        mprError("Cannot create window class");
+        return 0;
+    }
     assert(!tp->hwnd);
-    name = (wchar*) wide(mprGetAppName());
-    title = (wchar*) wide(mprGetAppTitle());
-    tp->hwnd = CreateWindow(name, title, WS_OVERLAPPED, CW_USEDEFAULT, 0, 0, 0, NULL, NULL, 0, NULL);
-    if (!tp->hwnd) {
+    //  MOB - try without WS_OVERLAPPED, set CW_USEDDEFAULT to 0
+    if ((tp->hwnd = CreateWindow((LPCTSTR) ws->wclass, wide(name), WS_OVERLAPPED, CW_USEDEFAULT, 0, 0, 0, 
+            NULL, NULL, 0, NULL)) == 0) {
         mprError("Cannot create window");
         return 0;
     }
@@ -3575,11 +3595,10 @@ PUBLIC HWND mprCreateWindow(MprThread *tp, bool *created)
 }
 
 
-PUBLIC void mprDestroyWindow(MprThread *tp)
+PUBLIC void mprDestroyWindow(HWND hwnd)
 {
-    if (tp->hwnd) {
-        DestroyWindow(tp->hwnd);
-        tp->hwnd = 0;
+    if (hwnd) {
+        DestroyWindow(hwnd);
     }
 }
 
@@ -3595,7 +3614,7 @@ PUBLIC HWND mprGetWindow(bool *created)
         if (created) {
             *created = 1;
         }
-        tp->hwnd = mprCreateWindow(tp, 0);
+        tp->hwnd = mprCreateWindow(tp);
     }
     return tp->hwnd;
 }
@@ -4959,7 +4978,7 @@ static void pruneCache(MprCache *cache, MprEvent *event)
         when = mprGetTicks();
     } else {
         /* Expire all items by setting event to NULL */
-        when = MAXINT64;
+        when = MPR_MAX_TIMEOUT;
     }
     if (mprTryLock(cache->mutex)) {
         /*
@@ -5868,7 +5887,7 @@ PUBLIC int mprWaitForCmd(MprCmd *cmd, MprTicks timeout)
         delay = (cmd->eofCount >= cmd->requiredEof) ? 10 : remaining;
 #endif
         if (!ts->eventsThread && mprGetCurrentThread() == ts->mainThread) {
-            mprServiceEvents(10, MPR_SERVICE_ONE_THING);
+            mprServiceEvents(10, MPR_SERVICE_NO_BLOCK);
             mprWaitForEvent(cmd->dispatcher, 10);
         } else {
             mprWaitForEvent(cmd->dispatcher, delay);
@@ -9309,13 +9328,14 @@ static void manageDispatcher(MprDispatcher *dispatcher, int flags)
 
 
 /*
-    Schedule events. This can be called by any thread. Typically an app will dedicate one thread to be an event service 
-    thread. This call will service events until the timeout expires or if MPR_SERVICE_ONE_THING is specified in flags, 
-    after one event. This will service all enabled dispatcher queues and pending I/O events.
-    @param dispatcher Primary dispatcher to service. This dispatcher is set to the running state and events on this
-        dispatcher will be serviced without starting a worker thread. This can be set to NULL.
+    Schedule events. 
+    This routine will service events until the timeout expires or if MPR_SERVICE_NO_BLOCK is specified in flags, 
+    until there are no more events to service. This routine will also return when the MPR is stopping. This will 
+    service all enabled non-running dispatcher queues and pending I/O events.
+    An app should dedicate only one thread to be an event service thread. 
     @param timeout Time in milliseconds to wait. Set to zero for no wait. Set to -1 to wait forever.
-    @returns Zero if not events occurred. Otherwise returns non-zero.
+    @param flags Set to MPR_SERVICE_NO_BLOCK for non-blocking.
+    @returns Number of events serviced.
  */
 PUBLIC int mprServiceEvents(MprTicks timeout, int flags)
 {
@@ -9332,11 +9352,11 @@ PUBLIC int mprServiceEvents(MprTicks timeout, int flags)
     es = MPR->eventService;
     beginEventCount = eventCount = es->eventCount;
     es->now = mprGetTicks();
-    expires = timeout < 0 ? MAXINT64 : (es->now + timeout);
+    expires = timeout < 0 ? MPR_MAX_TIMEOUT : (es->now + timeout);
     if (expires < 0) {
-        expires = MAXINT64;
+        expires = MPR_MAX_TIMEOUT;
     }
-    mprSetNotifierThread(mprGetCurrentThread());
+    mprSetNotifierThread(0);
 
     while (es->now <= expires) {
         eventCount = es->eventCount;
@@ -9515,6 +9535,7 @@ PUBLIC void mprRelayEvent(MprDispatcher *dispatcher, void *proc, void *data, Mpr
 }
 
 
+#if UNUSED
 /*
     Internal use only. Run the "main" dispatcher if not using a user events thread. 
  */
@@ -9529,6 +9550,7 @@ PUBLIC int mprRunDispatcher(MprDispatcher *dispatcher)
     queueDispatcher(dispatcher->service->runQ, dispatcher);
     return 0;
 }
+#endif
 
 
 /*
@@ -25299,7 +25321,7 @@ static void manageThread(MprThread *tp, int flags)
             CloseHandle(tp->threadHandle);
         }
         if (tp->hwnd) {
-            mprDestroyWindow(tp);
+            mprDestroyWindow(tp->hwnd);
         }
 #endif
     }
@@ -28258,11 +28280,14 @@ static void manageWaitService(MprWaitService *ws, int flags)
         mprMark(ws->mutex);
         mprMark(ws->spin);
     }
-#if MPR_EVENT_KQUEUE
-    mprManageKqueue(ws, flags);
+#if MPR_EVENT_ASYNC
+    mprManageAsync(ws, flags);
 #endif
 #if MPR_EVENT_EPOLL
     mprManageEpoll(ws, flags);
+#endif
+#if MPR_EVENT_KQUEUE
+    mprManageKqueue(ws, flags);
 #endif
 #if MPR_EVENT_SELECT
     mprManageSelect(ws, flags);
@@ -29644,7 +29669,6 @@ PUBLIC int mprCreateOsService()
 {
     WSADATA     wsaData;
 
-    mprCreateWindowClass();
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
         return -1;
     }
@@ -29661,7 +29685,6 @@ PUBLIC int mprStartOsService()
 PUBLIC void mprStopOsService()
 {
     WSACleanup();
-    mprDestroyWindowClass();
 }
 
 

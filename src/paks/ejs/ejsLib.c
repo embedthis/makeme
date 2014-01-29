@@ -1,5 +1,5 @@
 /*
-    ejsLib.c -- Embethis Ejscript Library Source
+    ejsLib.c -- Embedthis Ejscript Library Source
 
     This file is a catenation of all the source code. Amalgamating into a
     single file makes embedding simpler and the resulting application faster.

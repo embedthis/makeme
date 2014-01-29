@@ -159,7 +159,7 @@ struct  MprXml;
 #define MPR_TIMEOUT_NAP         20          /**< Short pause */
 
 #define MPR_TICKS_PER_SEC       1000        /**< Time ticks per second */
-#define MPR_MAX_TIMEOUT         MAXINT
+#define MPR_MAX_TIMEOUT         MAXINT64
 
 /*
     Default thread counts
@@ -5863,14 +5863,30 @@ PUBLIC MprDispatcher *mprGetDispatcher();
 #endif
 
 /**
-    Service events. This can be called by any thread. Typically an app will dedicate one thread to be an event service 
-    thread. This call will service events until the timeout expires or if MPR_SERVICE_ONE_THING is specified in flags, 
-    after one event. This will service all enabled dispatcher queues and pending I/O events.
+    Service events. 
+    @description This call services events on all dispatchers and services I/O events. 
+    An app should dedicate one and only one thread to be an event service thread. That thread should call mprServiceEvents
+    from the top-level. 
+    \n\n
+    This call will service events until the timeout expires or if MPR_SERVICE_NO_BLOCK is specified in flags, 
+    until there are no more events to service. This routine will also return if the MPR has been instructed to terminate and 
+    is stopping. Calling mprServiceE
+    \n\n
+    Application event code that is running off a dispatcher should never call mprServiceEvents recursively. Rather, the 
+    event code should call #mprWaitForEvent if it needs to wait while servicing events on its own dispatcher.
     @param delay Time in milliseconds to wait. Set to zero for no wait. Set to -1 to wait forever.
-    @param flags If set to MPR_SERVICE_ONE_THING, this call will service at most one event. Otherwise set to zero.
-    @returns The number of events serviced. Returns MPR_ERR_BUSY is another thread is servicing events and timeout is zero.
+    @param flags If set to MPR_SERVICE_NO_BLOCK, this call will service all due events without blocking. Otherwise set to zero.
+    @returns The number of events serviced. Returns MPR_ERR_BUSY is another thread is servicing events.
+        Returns when the MPR is stopping or if the timeout expires or if MPR_SERVICE_NO_BLOCK is specified and there are no more
+        events to service.
     @ingroup MprDispatcher
     @stability Stable
+ */
+/*
+    Schedule events. An app should dedicate one thread to be an event service thread. 
+    @param timeout Time in milliseconds to wait. Set to zero for no wait. Set to -1 to wait forever.
+    @param flags Set to MPR_SERVICE_NO_BLOCK for non-blocking.
+    @returns Number of events serviced.
  */
 PUBLIC int mprServiceEvents(MprTicks delay, int flags);
 
@@ -6956,6 +6972,7 @@ typedef struct MprWaitService {
     int             wakeRequested;          /* Wakeup of the wait service has been requested */
     MprList         *handlerMap;            /* Map of fds to handlers */
 #if MPR_EVENT_ASYNC
+    ATOM            wclass;                 /* Window class */
     HWND            hwnd;                   /* Window handle */
     int             nfd;                    /* Last used entry in the handlerMap array */
     int             fdmax;                  /* Size of the fds array */
@@ -6986,11 +7003,14 @@ PUBLIC int  mprStartWaitService(MprWaitService *ws);
 PUBLIC int  mprStopWaitService(MprWaitService *ws);
 PUBLIC void mprSetWaitServiceThread(MprWaitService *ws, MprThread *thread);
 PUBLIC void mprWakeNotifier();
-#if MPR_EVENT_KQUEUE
-    PUBLIC void mprManageKqueue(MprWaitService *ws, int flags);
+#if MPR_EVENT_ASYNC
+    PUBLIC void mprManageAsync(MprWaitService *ws, int flags);
 #endif
 #if MPR_EVENT_EPOLL
     PUBLIC void mprManageEpoll(MprWaitService *ws, int flags);
+#endif
+#if MPR_EVENT_KQUEUE
+    PUBLIC void mprManageKqueue(MprWaitService *ws, int flags);
 #endif
 #if MPR_EVENT_SELECT
     PUBLIC void mprManageSelect(MprWaitService *ws, int flags);
@@ -6998,12 +7018,12 @@ PUBLIC void mprWakeNotifier();
 #if BIT_WIN_LIKE
     PUBLIC void mprSetWinMsgCallback(MprMsgCallback callback);
     PUBLIC void mprServiceWinIO(MprWaitService *ws, int sockFd, int winMask);
-    PUBLIC HWND mprCreateWindow(MprThread *tp, bool *created);
-    PUBLIC void mprDestroyWindow(MprThread *tp);
+    PUBLIC HWND mprCreateWindow(MprThread *tp);
+    PUBLIC ATOM mprCreateWindowClass(cchar *name);
+    PUBLIC void mprDestroyWindow(HWND hwnd);
+    PUBLIC void mprDestroyWindowClass(ATOM wclass);
     PUBLIC HWND mprGetWindow(bool *created);
-    PUBLIC int  mprCreateWindowClass();
-    PUBLIC void mprDestroyWindowClass();
-    PUBLIC void mprSetNotifierThread(MprThread *tp);
+    PUBLIC HWND mprSetNotifierThread(MprThread *tp);
 #else
     #define mprSetNotifierThread(tp)
 #endif
@@ -9381,7 +9401,7 @@ typedef struct Mpr {
     MprOsThread     mainOsThread;           /**< Main OS thread ID */
     MprMutex        *mutex;                 /**< Thread synchronization */
     MprSpin         *spin;                  /**< Quick thread synchronization */
-    MprCond         *cond;                  /**< Sync after starting events thread */
+    MprCond         *eventsCond;            /**< Sync after starting events thread */
 
     char            *emptyString;           /**< "" string */
     char            *oneString;             /**< "1" string */
@@ -9670,6 +9690,8 @@ PUBLIC bool mprIsDestroying();
     @description The given command is parsed and broken into separate arguments and returned in a null-terminated, argv
         array. Arguments in the command may be quoted with single or double quotes to group words into one argument. 
         Use back-quote "\\" to escape quotes.
+        This routine allocates memory and must not be called before #mprCreate. Consider #mprParseArgs if you need to convert
+        a command line before calling #mprCreate.
     @param command Command string to parse.
     @param argv Output parameter containing the parsed arguments. 
     @param flags Set to MPR_ARGV_ARGS_ONLY if the command string does not contain a program name. In this case, argv[0] 
@@ -9693,8 +9715,8 @@ PUBLIC void mprNap(MprTicks msec);
     Make a argv style array of command arguments
     @description The given command is parsed and broken into separate arguments and returned in a null-terminated, argv
         array. Arguments in the command may be quoted with single or double quotes to group words into one argument. 
-        Use back-quote "\\" to escape quotes. This routine modifies command and does not allocate any memory and may be
-        used before mprCreate is invoked.
+        Use back-quote "\\" to escape quotes. This routine modifies supplied command parameter and does not allocate 
+        any memory and may be used before mprCreate is invoked.
     @param command Command string to parse.
     @param argv Array for the arguments.
     @param maxArgs Size of the argv array.

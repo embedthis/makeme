@@ -1,5 +1,5 @@
 /*
-    ejs.slots.h -- Embethis Ejscript Object Slot Definitions
+    ejs.slots.h -- Embedthis Ejscript Object Slot Definitions
 
     This file is a catenation of all the source code. Amalgamating into a
     single file makes embedding simpler and the resulting application faster.
