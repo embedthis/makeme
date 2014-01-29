@@ -2997,11 +2997,16 @@ public class Bit {
                 //  REFACTOR
                 let package = bit.package = PACKAGE.readJSON()
                 bit.settings ||= {}
-                bit.settings.product = package.name
+                bit.settings.name = package.name
+                bit.settings.description = package.description
                 bit.settings.title = package.title || package.description
                 bit.settings.version = package.version
-                bit.settings.company ||= (package.author && package.author.name)
-                bit.settings.who = bit.settings.company.split(' ')[0].toLowerCase()
+                bit.settings.author = package.author ? package.author.name : package.name
+
+                //  LEGACY
+                bit.settings.product = package.name
+                bit.settings.company = bit.settings.author.split(' ')[0].toLowerCase()
+
                 if (package.dirs && package.dirs.paks) {
                     bit.dir.packs = package.dirs.paks
                 }
