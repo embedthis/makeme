@@ -866,6 +866,14 @@ function packageWindows(prefixes) {
     run([bit.packs.pmaker.path, iss], {noshow: true})
     media.join('Output/setup.exe').copy(outfile)
 
+    /* Sign */
+    let cert = '/crt/signing.pfx'
+    if (Path(cert).exists) {
+        let pass = Path('/crt/signing.pass').readString().trim()
+        trace('Sign', outfile)
+        Cmd.run([bit.packs.winsdk.path.join('bin/x86/signtool.exe'),
+            'sign', '/f', cert, '/p', pass, '/t', 'http://tsa.starfieldtech.com', outfile], {noshow: true})
+    }
     /* Wrap in a zip archive */
     let zipfile = outfile.joinExt('zip', true)
     zipfile.remove()
