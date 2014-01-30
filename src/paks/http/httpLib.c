@@ -11593,6 +11593,7 @@ static void manageRx(HttpRx *rx, int flags)
         mprMark(rx->extraPath);
         mprMark(rx->conn);
         mprMark(rx->route);
+        mprMark(rx->session);
         mprMark(rx->etags);
         mprMark(rx->headerPacket);
         mprMark(rx->headers);
@@ -11604,6 +11605,7 @@ static void manageRx(HttpRx *rx, int flags)
         mprMark(rx->acceptCharset);
         mprMark(rx->acceptEncoding);
         mprMark(rx->acceptLanguage);
+        mprMark(rx->authDetails);
         mprMark(rx->cookie);
         mprMark(rx->connection);
         mprMark(rx->contentLength);
@@ -11611,22 +11613,22 @@ static void manageRx(HttpRx *rx, int flags)
         mprMark(rx->pragma);
         mprMark(rx->mimeType);
         mprMark(rx->originalMethod);
+        mprMark(rx->origin);
         mprMark(rx->originalUri);
         mprMark(rx->redirect);
         mprMark(rx->referrer);
         mprMark(rx->securityToken);
-        mprMark(rx->session);
+        mprMark(rx->upgrade);
         mprMark(rx->userAgent);
+        mprMark(rx->lang);
         mprMark(rx->params);
         mprMark(rx->svars);
         mprMark(rx->inputRange);
         mprMark(rx->passwordDigest);
+        mprMark(rx->paramString);
         mprMark(rx->files);
         mprMark(rx->uploadDir);
-        mprMark(rx->paramString);
-        mprMark(rx->lang);
         mprMark(rx->target);
-        mprMark(rx->upgrade);
         mprMark(rx->webSocket);
 
     } else if (flags & MPR_MANAGE_FREE) {
