@@ -505,10 +505,6 @@ public class Bit {
             poptions.enable.push(Config.OS == 'windows' ? 'charLen=2' : 'charLen=4')
         }
         goals = args.rest
-        if (goals[0] == 'version') {
-            print(bit.settings.version)
-            App.exit()
-        }
         bareBit.options = options
     }
 
