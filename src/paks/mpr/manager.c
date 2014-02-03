@@ -312,7 +312,9 @@ static void setAppDefaults()
 
 static void terminating(int state, int how, int status)
 {
-    cleanup();
+    if (state >= MPR_STOPPED) {
+        cleanup();
+    }
 }
 
 

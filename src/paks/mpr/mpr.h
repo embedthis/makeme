@@ -372,7 +372,8 @@ typedef Ticks MprTicks;
 /************************************** Debug *********************************/
 /**
     Trigger a breakpoint.
-    @description Triggers a breakpoint and traps to the debugger. 
+    @description This routine is invoked for assertion errors from #mprAssert and errors from #mprError.
+        It is useful in debuggers as breakpoint location for detecting errors.
     @ingroup Mpr
     @stability Stable
  */
@@ -415,9 +416,9 @@ PUBLIC void assert(bool cond);
         mprInitSpinLock mprLock mprResetCond mprSignalCond mprSignalMultiCond mprSpinLock mprSpinUnlock mprTryLock 
         mprTrySpinLock mprUnlock mprWaitForCond mprWaitForMultiCond 
     @stability Internal.
-    @defgroup MprSynch MprSynch
+    @defgroup MprSync MprSync
  */
-typedef struct MprSynch { int dummy; } MprSynch;
+typedef struct MprSync { int dummy; } MprSync;
 
 #ifndef BIT_MPR_SPIN_COUNT
     #define BIT_MPR_SPIN_COUNT 1500 /* Windows lock spin count */
@@ -428,7 +429,7 @@ typedef struct MprSynch { int dummy; } MprSynch;
     activities. These variables are level triggered in that a condition can be signalled prior to another thread 
     waiting. Condition variables can be used when single threaded but mprServiceEvents should be called to pump events
     until another callback invokes mprWaitForCond.
-    @ingroup MprSynch
+    @ingroup MprSync
     @stability Internal.
  */
 typedef struct MprCond {
@@ -449,7 +450,7 @@ typedef struct MprCond {
 /**
     Create a condition lock variable.
     @description This call creates a condition variable object that can be used in #mprWaitForCond and #mprSignalCond calls. 
-    @ingroup MprSynch
+    @ingroup MprSync
     @stability Stable.
  */
 PUBLIC MprCond *mprCreateCond();
@@ -457,7 +458,7 @@ PUBLIC MprCond *mprCreateCond();
 /**
     Reset a condition variable. This sets the condition variable to the unsignalled condition.
     @param cond Condition variable object created via #mprCreateCond
-    @ingroup MprSynch
+    @ingroup MprSync
     @stability Stable.
  */
 PUBLIC void mprResetCond(MprCond *cond);
@@ -470,7 +471,7 @@ PUBLIC void mprResetCond(MprCond *cond);
     @param cond Condition variable object created via #mprCreateCond
     @param timeout Time in milliseconds to wait for the condition variable to be signaled.
     @return Zero if the event was signalled. Returns < 0 for a timeout.
-    @ingroup MprSynch
+    @ingroup MprSync
     @stability Stable.
  */
 PUBLIC int mprWaitForCond(MprCond *cond, MprTicks timeout);
@@ -481,7 +482,7 @@ PUBLIC int mprWaitForCond(MprCond *cond, MprTicks timeout);
         #mprWaitForCond will be awakened. The condition variable will be automatically reset when the waiter awakes.
         Should only be used for single waiters. Use mprSignalMultiCond for use with multiple waiters.
     @param cond Condition variable object created via #mprCreateCond
-    @ingroup MprSynch
+    @ingroup MprSync
     @stability Stable.
  */
 PUBLIC void mprSignalCond(MprCond *cond);
@@ -492,7 +493,7 @@ PUBLIC void mprSignalCond(MprCond *cond);
         #mprWaitForCond will be awakened. The conditional variable will not be automatically reset and must be reset
         manually via mprResetCond.
     @param cond Condition variable object created via #mprCreateCond
-    @ingroup MprSynch
+    @ingroup MprSync
     @stability Stable.
  */
 PUBLIC void mprSignalMultiCond(MprCond *cond);
@@ -505,7 +506,7 @@ PUBLIC void mprSignalMultiCond(MprCond *cond);
     @param cond Condition variable object created via #mprCreateCond
     @param timeout Time in milliseconds to wait for the condition variable to be signaled.
     @return Zero if the event was signalled. Returns < 0 for a timeout.
-    @ingroup MprSynch
+    @ingroup MprSync
     @stability Stable.
  */
 PUBLIC int mprWaitForMultiCond(MprCond *cond, MprTicks timeout);
@@ -513,7 +514,7 @@ PUBLIC int mprWaitForMultiCond(MprCond *cond, MprTicks timeout);
 /**
     Multithreading lock control structure
     @description MprMutex is used for multithread locking in multithreaded applications.
-    @ingroup MprSynch
+    @ingroup MprSync
     @stability Internal.
  */
 typedef struct MprMutex {
@@ -536,7 +537,7 @@ typedef struct MprMutex {
 /**
     Multithreading spin lock control structure
     @description MprSpin is used for multithread locking in multithreaded applications.
-    @ingroup MprSynch
+    @ingroup MprSync
     @stability Internal.
  */
 typedef struct MprSpin {
@@ -576,7 +577,7 @@ typedef struct MprSpin {
 /**
     Create a Mutex lock object.
     @description This call creates a Mutex lock object that can be used in #mprLock, #mprTryLock and #mprUnlock calls. 
-    @ingroup MprSynch
+    @ingroup MprSync
     @stability Stable.
  */
 PUBLIC MprMutex *mprCreateLock();
@@ -587,7 +588,7 @@ PUBLIC MprMutex *mprCreateLock();
         in #mprLock, #mprTryLock and #mprUnlock calls.
     @param mutex Reference to an MprMutex structure to initialize
     @returns A reference to the supplied mutex. Returns null on errors.
-    @ingroup MprSynch
+    @ingroup MprSync
     @stability Stable.
  */
 PUBLIC MprMutex *mprInitLock(MprMutex *mutex);
@@ -597,7 +598,7 @@ PUBLIC MprMutex *mprInitLock(MprMutex *mutex);
     @description This call attempts to assert a lock on the given \a lock mutex so that other threads calling 
         mprLock or mprTryLock will block until the current thread calls mprUnlock.
     @returns Returns zero if the successful in locking the mutex. Returns a negative MPR error code if unsuccessful.
-    @ingroup MprSynch
+    @ingroup MprSync
     @stability Stable.
  */
 PUBLIC bool mprTryLock(MprMutex *lock);
@@ -606,7 +607,7 @@ PUBLIC bool mprTryLock(MprMutex *lock);
     Create a spin lock lock object.
     @description This call creates a spinlock object that can be used in #mprSpinLock, and #mprSpinUnlock calls. Spin locks
         using MprSpin are much faster than MprMutex based locks on some systems.
-    @ingroup MprSynch
+    @ingroup MprSync
     @stability Stable.
  */
 PUBLIC MprSpin *mprCreateSpinLock();
@@ -617,7 +618,7 @@ PUBLIC MprSpin *mprCreateSpinLock();
         in #mprSpinLock and #mprSpinUnlock calls.
     @param lock Reference to a static #MprSpin  object.
     @returns A reference to the MprSpin object. Returns null on errors.
-    @ingroup MprSynch
+    @ingroup MprSync
  */
 PUBLIC MprSpin *mprInitSpinLock(MprSpin *lock);
 
@@ -626,7 +627,7 @@ PUBLIC MprSpin *mprInitSpinLock(MprSpin *lock);
     @description This call attempts to assert a lock on the given \a spin lock so that other threads calling 
         mprSpinLock or mprTrySpinLock will block until the current thread calls mprSpinUnlock.
     @returns Returns zero if the successful in locking the spinlock. Returns a negative MPR error code if unsuccessful.
-    @ingroup MprSynch
+    @ingroup MprSync
     @stability Stable.
  */
 PUBLIC bool mprTrySpinLock(MprSpin *lock);
@@ -677,7 +678,7 @@ PUBLIC bool mprTrySpinLock(MprSpin *lock);
         Lock access.
         @description This call asserts a lock on the given \a lock mutex so that other threads calling mprLock will 
             block until the current thread calls mprUnlock.
-        @ingroup MprSynch
+        @ingroup MprSync
         @stability Stable.
      */
     PUBLIC void mprLock(MprMutex *lock);
@@ -685,7 +686,7 @@ PUBLIC bool mprTrySpinLock(MprSpin *lock);
     /**
         Unlock a mutex.
         @description This call unlocks a mutex previously locked via mprLock or mprTryLock.
-        @ingroup MprSynch
+        @ingroup MprSync
         @stability Stable.
      */
     PUBLIC void mprUnlock(MprMutex *lock);
@@ -694,7 +695,7 @@ PUBLIC bool mprTrySpinLock(MprSpin *lock);
         Lock a spinlock.
         @description This call asserts a lock on the given \a spinlock so that other threads calling mprSpinLock will
             block until the curren thread calls mprSpinUnlock.
-        @ingroup MprSynch
+        @ingroup MprSync
         @stability Stable.
      */
     PUBLIC void mprSpinLock(MprSpin *lock);
@@ -702,7 +703,7 @@ PUBLIC bool mprTrySpinLock(MprSpin *lock);
     /**
         Unlock a spinlock.
         @description This call unlocks a spinlock previously locked via mprSpinLock or mprTrySpinLock.
-        @ingroup MprSynch
+        @ingroup MprSync
         @stability Stable.
      */
     PUBLIC void mprSpinUnlock(MprSpin *lock);
@@ -712,7 +713,7 @@ PUBLIC bool mprTrySpinLock(MprSpin *lock);
     Globally lock the application.
     @description This call asserts the application global lock so that other threads calling mprGlobalLock will 
         block until the current thread calls mprGlobalUnlock.  WARNING: Use this API very sparingly.
-    @ingroup MprSynch
+    @ingroup MprSync
     @stability Stable.
  */
 PUBLIC void mprGlobalLock();
@@ -720,7 +721,7 @@ PUBLIC void mprGlobalLock();
 /**
     Unlock the global mutex.
     @description This call unlocks the global mutex previously locked via mprGlobalLock.
-    @ingroup MprSynch
+    @ingroup MprSync
     @stability Stable.
  */
 PUBLIC void mprGlobalUnlock();
@@ -731,14 +732,14 @@ PUBLIC void mprGlobalUnlock();
 
 /**
     Open and initialize the atomic subystem
-    @ingroup MprSynch
+    @ingroup MprSync
     @stability Stable.
  */
 PUBLIC void mprAtomicOpen();
 
 /**
     Apply a full (read+write) memory barrier
-    @ingroup MprSynch
+    @ingroup MprSync
     @stability Stable.
  */ 
 PUBLIC void mprAtomicBarrier();
@@ -749,7 +750,7 @@ PUBLIC void mprAtomicBarrier();
     @param head list head
     @param link Reference to the list head link field
     @param item Item to insert
-    @ingroup MprSynch
+    @ingroup MprSync
     @stability Evolving.
  */ 
 PUBLIC void mprAtomicListInsert(void **head, void **link, void *item);
@@ -760,7 +761,7 @@ PUBLIC void mprAtomicListInsert(void **head, void **link, void *item);
     @param expected Expected value of the target
     @param value New value to store at the target
     @return TRUE if the swap was successful
-    @ingroup MprSynch
+    @ingroup MprSync
     @stability Evolving.
  */
 PUBLIC int mprAtomicCas(void * volatile * target, void *expected, cvoid *value);
@@ -769,7 +770,7 @@ PUBLIC int mprAtomicCas(void * volatile * target, void *expected, cvoid *value);
     Atomic Add. This is a lock free function.
     @param target Address of the target word to add to.
     @param value Value to add to the target
-    @ingroup MprSynch
+    @ingroup MprSync
     @stability Stable.
  */
 PUBLIC void mprAtomicAdd(volatile int *target, int value);
@@ -778,7 +779,7 @@ PUBLIC void mprAtomicAdd(volatile int *target, int value);
     Atomic 64 bit Add. This is a lock free function.
     @param target Address of the target word to add to.
     @param value Value to add to the target
-    @ingroup MprSynch
+    @ingroup MprSync
     @stability Stable.
  */
 PUBLIC void mprAtomicAdd64(volatile int64 *target, int64 value);
@@ -1052,7 +1053,7 @@ typedef struct MprFreeQueue {
 #define MPR_ALLOC_POLICY_NOTHING    0       /**< Do nothing */
 #define MPR_ALLOC_POLICY_PRUNE      1       /**< Prune all non-essential memory and continue */
 #define MPR_ALLOC_POLICY_RESTART    2       /**< Gracefully restart the app if memory warnHeap level is exceeded */
-#define MPR_ALLOC_POLICY_EXIT       3       /**< Exit the app if max exceeded with a MPR_EXIT_NORMAL exit */
+#define MPR_ALLOC_POLICY_EXIT       3       /**< Exit the app if max exceeded with a MPR_EXIT_IMMEDIATE exit */
 
 /*
     MprMemNotifier cause argument
@@ -1203,6 +1204,7 @@ typedef struct MprHeap {
 
 /**
     Create and initialize the Memory service
+    @description Called internally by the MPR. Should not be called by users.
     @param manager Memory manager to manage the Mpr object
     @param flags Memory initialization control flags
     @return The Mpr control structure
@@ -1625,6 +1627,14 @@ PUBLIC int mprGC(int flags);
     @stability Stable.
  */
 PUBLIC bool mprEnableGC(bool on);
+
+
+/**
+    Test if GC has been paused
+    @return True if GC has been paused via #mprPauseGC
+    @stability Prototype.
+ */
+PUBLIC bool mprGCPaused();
 
 /**
     Hold a memory block
@@ -5463,6 +5473,7 @@ PUBLIC ssize mprWritePathContents(cchar *path, cchar *buf, ssize len, int mode);
 /********************************** O/S Dep ***********************************/
 /**
     Create and initialze the O/S dependent subsystem
+    @description Called internally by the MPR. Should not be called by users.
     @ingroup Mpr
     @stability Internal
  */
@@ -5611,7 +5622,7 @@ PUBLIC cchar *mprGetModuleSearchPath();
  */
 PUBLIC int mprLoadModule(MprModule *mp);
 
-#if (BIT_HAS_DYN_LOAD && !BIT_STATIC) || DOXYGEN
+#if BIT_HAS_DYN_LOAD || DOXYGEN
 /**
     Load a native module
     @param mp Module object created via #mprCreateModule.
@@ -5730,6 +5741,8 @@ PUBLIC int mprUnloadModule(MprModule *mp);
 #define MPR_EVENT_DONT_QUEUE        0x4     /**< Don't queue the event. User must call mprQueueEvent */
 #define MPR_EVENT_STATIC_DATA       0x8     /**< Event data is permanent and should not be marked by GC */
 #define MPR_EVENT_RUNNING           0x10    /**< Event currently executing */
+#define MPR_EVENT_BLOCK             0x20    /**< Blocking flag for mprCreateEventOutside */
+
 #define MPR_EVENT_MAGIC             0x12348765
 
 /**
@@ -5945,35 +5958,38 @@ PUBLIC void mprSignalDispatcher(MprDispatcher *dispatcher);
  */
 PUBLIC MprEvent *mprCreateEvent(MprDispatcher *dispatcher, cchar *name, MprTicks period, void *proc, void *data, int flags);
 
-/*
-    Flags for mprCreateEventOutside
- */
-#define MPR_EVENT_BLOCK         0x1     /*< Block while calling the event proc */
-#define MPR_EVENT_DELAY_RESUME  0x2     /*< Delay resumption of GC and shutdown services. User must call mprResumeGC() */
-
 /**
     Create an event from outside the MPR
     @description Create a new event when executing a non-MPR thread. This is the only safe way to invoke MPR services from
         a foreign-thread. The reason for this is that the MPR uses a cooperative garbage collector and an outside thread
         may call into the MPR at an inopportune time when the MPR is running the garbage collector which requires sole access
-        to application memory for its duration.
+        to application memory.
         \n\n
         This routine will create and queue the event and then return, unless MPR_EVENT_BLOCK is specified. In that case,
         this call will wait while the event callback proc runs to completion then this routine will return.
         \n\n
-        While creating and queuing the event, this routine pauses the garbage collector. If the collector is running, it 
-        waits until it completes before creating the event. This may necessitate a small delay before running the event.
-    NOTE: the event callback proc may run to completion before this function returns.
+        While creating and queuing the event, this routine temporarily pauses the garbage collector. If the garbage collector 
+        is running, this call waits for it to complete before creating the event. This may necessitate a small delay before 
+        running the event.
+        \n\n
+        NOTE: the event callback proc may run to completion before this function returns.
     @param dispatcher Dispatcher object created via mprCreateDispatcher
+        Set to NULL for the MPR dispatcher. Use MPR_EVENT_QUICK in the flags to run the event on the events nonBlock dispatcher.
+        This should only be used for quick, non-block event callbacks.  If using another dispatcher, it is essential that 
+        the dispatcher not be destroyed while this event is queued or running. Such dispatchers must be retained before calling
+        mprCallEventOutside via #mprAddRoot or #mprHold before using with this routine.
+    @param name Descriptive event name. Does not need to be unique.
     @param proc Callback function to invoke when the event is run
     @param data Data to associate with the event and stored in event->data. The data must be non-MPR memory.
     @param flags Set to MPR_EVENT_BLOCK to invoke the callback and wait for its completion before returning.
+        Include MPR_EVENT_QUICK to execute the event without creating using a worker. This should only be used for quick
+        non-blocking event callback.s
     @return Returns zero if successful, otherwise a negative MPR error code. Returns MPR_ERR_BAD_STATE if the MPR is stopping
         and the event cannot be created.
     @ingroup MprEvent
     @stability Evolving
  */
-PUBLIC int mprCreateEventOutside(MprDispatcher *dispatcher, void *proc, void *data, int flags);
+PUBLIC int mprCreateEventOutside(MprDispatcher *dispatcher, cchar *name, void *proc, void *data, int flags);
 
 /*
     Queue a new event for service.
@@ -8211,13 +8227,22 @@ PUBLIC void mprActivateWorker(MprWorker *worker, MprWorkerProc proc, void *data)
  */
 PUBLIC void mprDedicateWorker(MprWorker *worker);
 
-/*
+/**
     Get the worker object if the current thread is actually a worker thread.
     @returns A worker thread object if the thread is a worker thread. Otherwise, NULL.
     @ingroup MprWorker
     @stability Stable
  */
 PUBLIC MprWorker *mprGetCurrentWorker();
+
+/**
+    Get the count of workers in the busy queue.
+    @description This is thread-safe with respect to MPR->state
+    @return Count of workers in the busy queue
+    @ingroup MprWorker
+    @stability Prototype
+ */
+PUBLIC ssize mprGetBusyWorkerCount();
 
 /**
     Release a worker thread. This releases a worker thread to be assignable to any real thread.
@@ -8248,7 +8273,7 @@ PUBLIC int mprRandom();
 
 /**
     Decode a null terminated string using base-46 encoding.
-    Decoding will terminate at the first null or '='.
+    @description Decoding will terminate at the first null or '='.
     @param str String to decode
     @returns Buffer containing the encoded data
     @ingroup Mpr
@@ -8774,6 +8799,15 @@ PUBLIC void mprEnableCmdOutputEvents(MprCmd *cmd, bool on);
 PUBLIC void mprFinalizeCmd(MprCmd *cmd);
 
 /**
+    Get the count of active commands.
+    @description This is thread-safe with respect to MPR->state
+    @return Count of running commands
+    @ingroup MprCmd
+    @stability Prototype
+ */
+PUBLIC ssize mprGetActiveCmdCount();
+
+/**
     Get the underlying buffer for a channel
     @param cmd MprCmd object created via mprCreateCmd
     @param channel Channel number to close. Should be either MPR_CMD_STDIN, MPR_CMD_STDOUT or MPR_CMD_STDERR.
@@ -9285,10 +9319,12 @@ PUBLIC int mprSetMimeProgram(MprHash *table, cchar *mimeType, cchar *program);
 /*
     Mpr state
  */
-#define MPR_STARTED                 1       /**< Mpr services started */
-#define MPR_STOPPING                2       /**< App has been instructed to terminate. Services should not take new requests */
-#define MPR_DESTROYING              4       /**< Destroy core services and release memory */
-#define MPR_DESTROYED               5       /**< Mpr object destroyed  */
+#define MPR_CREATED                 1       /**< Applicationa and MPR services started */
+#define MPR_STARTED                 2       /**< Applicationa and MPR services started */
+#define MPR_STOPPING                3       /**< App has been instructed to shutdown. Services should not accept new requests */
+#define MPR_STOPPED                 4       /**< App is idle and now stopped. All requests should abort. */
+#define MPR_DESTROYING              5       /**< Destroying core MPR services and releasing memory */
+#define MPR_DESTROYED               6       /**< Application and MPR object destroyed  */
 
 /*
     MPR flags
@@ -9296,23 +9332,29 @@ PUBLIC int mprSetMimeProgram(MprHash *table, cchar *mimeType, cchar *program);
 #define MPR_LOG_APPEND              0x10    /**< Append to existing log files */
 #define MPR_LOG_ANEW                0x20    /**< Start anew on boot (rotate) */
 
-typedef bool (*MprIdleCallback)();
+typedef bool (*MprIdleCallback)(bool traceRequests);
 
 /**
-    Terminator Callback
-    @description Services can create terminators such that when the MPR terminates, terminator callbacks will be invoked 
-    to give the service notice of impending exit. The terminator will be called twice. The first time with state set to
-    MPR_STOPPING whereupon the terminator should stop servicing new requests and allow existing requests to complete 
-    if the "how" parameter is set to MPR_EXIT_GRACEFUL. If how is set to MPR_EXIT_IMMEDIATE, all requests should be 
-    immediately terminated. The second time the terminator is called, state will be set to MPR_DESTROYING. In 
-    response the terminator should stop all requests and release all resources.
-    @param state Set to MPR_STOPPING or MPR_DESTROYING
-    @param how Flags word including the flags: MPR_EXIT_GRACEFUL, MPR_EXIT_IMMEDIATE, MPR_EXIT_NORMAL, MPR_EXIT_RESTART.
+    Service shutdown notifier
+    @description Services may create shutdown notifiers, called terminators that are informed when the application 
+        commences a shutdown. The terminator may be invoked several times and the service should take appropriate 
+        action based on given the MPR state.
+        \n\n
+        If the state parameter is set to MPR_STOPPING, the service should not accept any new requests, but otherwise not take
+            any destructive actions. Note this state is required to be reversible if the shutdown is cancelled.
+        \n\n
+        If the state is MPR_STOPPED, the service should cancel all running requests, close files and connections and release 
+        all resources. This state is not reversible.
+        \n\n
+        This exitStrategy parameter is a flags word that defines the shutdown strategy. See #mprSetExitStrategy for details.
+    @param state Current MPR state. Set to #MPR_STARTED, #MPR_STOPPING, #MPR_STOPPED and #MPR_DESTROYED.
+    @param exitStrategy Flags word including the flags: MPR_EXIT_GRACEFUL, MPR_EXIT_ABORT, MPR_EXIT_IMMEDIATE, MPR_EXIT_RESTART, 
+        and MPR_EXIT_SAFE.
     @param status The desired application exit status
     @ingroup Mpr
     @stability Evolving
   */
-typedef void (*MprTerminator)(int state, int how, int status);
+typedef void (*MprTerminator)(int state, int exitStrategy, int status);
 
 /**
     Primary MPR application control structure
@@ -9321,12 +9363,12 @@ typedef void (*MprTerminator)(int state, int how, int status);
     mprEscapeCmd mprEscapseHtml mprGetApp mprGetAppDir mprGetAppName mprGetAppPath mprGetAppTitle mprGetAppVersion
     mprGetCmdlineLogging mprGetDebugMode mprGetDomainName mprGetEndian mprGetError mprGetHostName
     mprGetHwnd mprGetInst mprGetIpAddr mprGetKeyValue mprGetLogLevel mprGetMD5 mprGetMD5WithPrefix mprGetOsError
-    mprGetRandomBytes mprGetServerName mprIsFinished mprIsIdle mprIsStopping mprIsStoppingCore mprMakeArgv
+    mprGetRandomBytes mprGetServerName mprIsDestroyed mprIsIdle mprIsStopping mprIsDestroying mprMakeArgv
     mprRandom mprReadRegistry mprRemoveKeyValue mprRestart mprServicesAreIdle mprSetAppName mprSetCmdlineLogging
     mprSetDebugMode mprSetDomainName mprSetExitStrategy mprSetHostName mprSetHwnd mprSetIdleCallback mprSetInst
     mprSetIpAddr mprSetLogLevel mprSetServerName mprSetSocketMessage mprShouldAbortRequests mprShouldDenyNewRequests
-    mprSignalExit mprSleep mprStart mprStartEventsThread mprStartOsService mprStopOsService mprTerminate mprUriDecode
-    mprUriDecodeBuf mprUriEncode mprWaitTillIdle mprWriteRegistry 
+    mprSignalExit mprSleep mprStart mprStartEventsThread mprStartOsService mprStopOsService mprShutdown mprUriDecode
+    mprUriDecodeBuf mprUriEncode mprWriteRegistry 
     @defgroup Mpr Mpr
     @stability Internal.
  */
@@ -9364,7 +9406,9 @@ typedef struct Mpr {
     int             exitStatus;             /**< Proposed program exit status */
     int             flags;                  /**< Misc flags */
     int             hasError;               /**< Mpr has an initialization error */
+#if UNUSED
     int             state;                  /**< Processing state */
+#endif
     int             verifySsl;              /**< Default verification of SSL certificates */
 
     bool            cmdlineLogging;         /**< App has specified --log on the command line */
@@ -9396,12 +9440,13 @@ typedef struct Mpr {
     void            *httpService;           /**< Http service object */
     void            *testService;           /**< Test service object */
 
+    MprTicks        shutdownStarted;        /**< When the shutdown started */
     MprList         *terminators;           /**< Termination callbacks */
     MprIdleCallback idleCallback;           /**< Invoked to determine if the process is idle */
     MprOsThread     mainOsThread;           /**< Main OS thread ID */
-    MprMutex        *mutex;                 /**< Thread synchronization */
+    MprMutex        *mutex;                 /**< Thread synchronization used for global lock */
     MprSpin         *spin;                  /**< Quick thread synchronization */
-    MprCond         *eventsCond;            /**< Sync after starting events thread */
+    MprCond         *cond;                  /**< Sync after starting events thread */
 
     char            *emptyString;           /**< "" string */
     char            *oneString;             /**< "1" string */
@@ -9432,15 +9477,20 @@ PUBLIC void mprNop(void *ptr);
 #define MPR_NO_WINDOW           0x4         /**< Don't create a windows Window */
 
 /**
-    Add a terminator callback
-    @description Services can create terminators such that when the MPR terminates, terminator callbacks will be invoked 
-    so the service can shutdown in an orderly fashion. The terminator will be called twice. The first time with state set to
-    MPR_STOPPING whereupon the terminator should stop servicing new requests. If the "how" parameter is set to MPR_EXIT_GRACEFUL,
-    existing requests should be allowed to complete. If how is set to MPR_EXIT_IMMEDIATE, all requests should be 
-    immediately terminated. 
-    \n\n
-    The second time the terminator is invoked, state will be set to MPR_DESTROYING. In response the terminator should stop 
-    all requests and release all resources.
+    Add a service terminator
+    @description Services may create shutdown notifiers called terminators that are informed when the application commences a shutdown.
+        The terminator may be invoked several times and the service should take appropriate action based on the MPR state.
+        \n\n
+        If the state parameter is set to MPR_STOPPING, the service should not accept any new requests, but otherwise not take
+            any destructive actions. Note this state is required to be reversible if the shutdown is cancelled.
+        \n\n
+        If the state is MPR_STOPPED, the service should cancel all running requests, close files and connections and release
+        all resources. This state is not reversible.
+        \n\n
+        This exitStrategy parameter is a flags word that defines the shutdown strategy. See #mprSetExitStrategy for details.
+        \n\n
+        Services may also call #mprShouldDenyNewRequests to test if the MPR state is MPR_STOPPING and #mprShouldAbortRequests
+        if the state is MPR_STOPPED.
     @param terminator MprTerminator callback function
     @ingroup Mpr
     @stability Stable.
@@ -9448,13 +9498,29 @@ PUBLIC void mprNop(void *ptr);
 PUBLIC void mprAddTerminator(MprTerminator terminator);
 
 /**
-    Create an instance of the MPR.
+    Initialize the application by creating an instance of the MPR.
     @description Initializes the MPR and creates an Mpr control object. The Mpr Object manages all MPR facilities 
-        and services.
+        and services. This must be called before using any MPR API. When processing is complete, you should call
+        #mprDestroy before exiting the application.
     @param argc Count of command line args
     @param argv Command line arguments for the application. Arguments may be passed into the Mpr for retrieval
         by the unit test framework.
-    @param flags
+    @param flags Set MPR_USER_EVENTS_THREAD if you will manage calling #mprServiceEvents manually if required.
+    There are three styles of MPR applications with respect to servicing events: 
+    \n\n
+    1) Applications that don't require servicing events for I/O, commands or timers
+    \n\n
+    2) Applications that call #mprServiceEvents directly from their main program
+    \n\n
+    3) Applications that have a dedicated service events thread
+    \n\n
+    Applications that do not perform I/O, run commands or create events may not need a service events thread. 
+    While creating one will do no harm, performance may be enhanced for these applications by specifying MPR_USER_EVENTS_THREAD.
+    \n\n
+    Applications that have not forground processing requirements may invoke #mprServiceEvents from their main program instead
+    of creating a service events thread. This saves one thread.
+    \n\n
+    The default is to create a service events thread so the full scope of MPR services are supported.
     @return Returns a pointer to the Mpr object. 
     @ingroup Mpr
     @stability Stable.
@@ -9463,15 +9529,52 @@ PUBLIC Mpr *mprCreate(int argc, char **argv, int flags);
 
 /**
     Destroy the MPR and all services using the MPR.
-    @param how Exit strategy to use when exiting. Set to MPR_EXIT_DEFAULT to use the existing exit strategy.
-    Set to MPR_EXIT_IMMEDIATE for an immediate abortive shutdown. Finalizers will not be run. Use MPR_EXIT_NORMAL to 
-    allow garbage collection and finalizers to run. Use MPR_EXIT_GRACEFUL to allow all current requests and commands 
-    to complete before exiting.
-    @return True if the MPR can be destroyed. Returns false if some threads will not exit.
+    @description This call prepares to terminate the application by destroying the MPR and all services in 
+    a manner described by the specified exit strategy.
+    \n\n
+    An application begins processing by calling #mprCreate. This initializes the MPR, the memory allocator, garbage collector
+    and other services.  An application exits by invoking #mprDestroy or by calling #mprShutdown then #mprDestroy. 
+    \n\n
+    There are two styles of MPR applications with respect to shutdown: 
+    \n\n
+    1) Applications that have a dedicated service events thread
+    \n\n
+    2) Applications that call #mprServiceEvents directly from their main program
+    \n\n
+    Applications that have a service events thread can call mprDestroy directly from their main program when ready to exit.
+    Applications that call mprServiceEvents from their main program will typically have some other MPR thread call 
+    #mprShutdown to initiate a shutdown sequence. This will cause the #mprServiceEvents routine to return and then the 
+    main program can call mprDestroy.
+    \n\n
+    @param exitStrategy Shutdown policy.
+    There are three shutdown strategies: abortive, immediate, and graceful.
+    \n\n
+    If the MPR_EXIT_ABORT is specified, the application will immediately call exit() and will terminate without 
+    finishing current requests or orderly closing files. This is not recommended.
+    \n\n
+    If the MPR_EXIT_IMMEDIATE flag is defined, the shutdown will continue to process current requests without blocking
+    and then exit in an orderly fashion. Current requests that are waiting for I/O or application processing will be
+    terminated. Files will be closed before exiting.
+    \n\n
+    If the MPR_EXIT_GRACEFUL flag is defined, the shutdown will wait for current requests to complete. The app will 
+    wait for up to the timeout specified by #mprSetExitTimeout (defaults to 30 seconds). 
+    If requests do not complete prior to the exit timeout, they will be terminated.
+    \n\n
+    Set to MPR_EXIT_DEFAULT to not modify any existing exit strategy defined via #mprSetExitStrategy.
+    \n\n
+    There are also two modifiers for the strategy: safe and restart.
+    If MPR_EXIT_SAFE is defined, a graceful shutdown will be cancelled if all requests do not complete.
+    \n\n
+    Define the MPR_EXIT_RESTART flag for the application to restart after exiting.
+    \n\n
+    Once the shutdown conditions are satisfied, a thread executing #mprServiceEvents will return from that API and then
+    the application should call #mprDestroy and exit().
+    @return True if the MPR can be destroyed. Returns false if a graceful safe shutdown has been requested and 
+        some requests have not completed. In this case, the shutdown is cancelled and normal operations continue.
     @ingroup Mpr
     @stability Evolving.
  */
-PUBLIC bool mprDestroy(int how);
+PUBLIC bool mprDestroy(int exitStrategy);
 
 /**
     Reference to a permanent preallocated empty string.
@@ -9571,7 +9674,7 @@ PUBLIC int mprGetError();
 
 /**
     Get the exit status
-    @description Get the exit status set via #mprTerminate
+    @description Get the exit status set via #mprShutdown
     @return The proposed application exit status
     @ingroup Mpr
     @stability Stable.
@@ -9640,6 +9743,14 @@ PUBLIC int mprGetOsError();
 PUBLIC cchar *mprGetServerName();
 
 /**
+    Get the MPR execution state
+    @returns MPR_CREATED, MPR_STARTED, MPR_STOPPING, MPR_STOPPED, MPR_DESTROYING, or MPR_DESTROYED.
+    @ingroup Mpr
+    @stability Prototype
+  */
+PUBLIC int mprGetState();
+
+/**
     Determine if the MPR has finished. 
     @description This is true if the MPR services have been shutdown completely. This is typically
         used to determine if the App has been shutdown.
@@ -9647,28 +9758,47 @@ PUBLIC cchar *mprGetServerName();
     @ingroup Mpr
     @stability Stable.
  */
-PUBLIC bool mprIsFinished();
+PUBLIC bool mprIsDestroyed();
+
+#if DEPRECATED || 1
+#define mprIsFinished mprIsDestroyed
+#endif
 
 /**
     Determine if the App is idle. 
     @description This call returns true if the App is not currently servicing any requests. By default this returns true
-    if the MPR dispatcher, thread, worker and command subsytems are idle. Callers can replace or augment the standard
+    if the MPR dispatcher, worker thread and command subsytems are idle. Callers can replace or augment the standard
     idle testing by definining a new idle callback via mprSetIdleCallback.
+    \n\n
+    Note: this routine tests for worker threads but ignores other threads created via #mprCreateThread.
+    @param traceRequests If true, emit trace regarding running requests.
     @return True if the App are idle.
     @ingroup Mpr
     @stability Stable.
  */
-PUBLIC bool mprIsIdle();
+PUBLIC bool mprIsIdle(bool traceRequests);
 
 /**
     Test if the application is stopping
     If mprIsStopping is true, the application has commenced a shutdown. No new requests should be accepted and current request 
-    should complete if possible. Use #mprIsFinished to test if the application has completed its shutdown. 
+    should complete if possible. Use #mprIsDestroyed to test if the application has completed its shutdown. 
     @return True if the application is in the process of exiting
     @ingroup Mpr
     @stability Stable.
  */
 PUBLIC bool mprIsStopping();
+
+/**
+    Test if the application is stopped
+    If this routine returns true, the application shutdown has passed the point of no return. 
+        No new requests should be accepted and current requests should be aborted. 
+        Use #mprIsStopping to test if shutdown has been initiated but current requests may continue.
+        Use #mprIsDestroyed to test if the application has completed its shutdown. 
+    @return True if the application is in the process of exiting
+    @ingroup Mpr
+    @stability Prototype.
+ */
+PUBLIC bool mprIsStopped();
 
 /**
     Test if the application is terminating and core services are being destroyed
@@ -9738,11 +9868,12 @@ PUBLIC void mprRestart();
 /**
     Determine if the MPR services.
     @description This is the default routine invoked by mprIsIdle().
+    @param traceRequests If true, emit trace regarding running requests.
     @return True if the MPR services are idle.
     @ingroup Mpr
     @stability Stable.
  */
-PUBLIC bool mprServicesAreIdle();
+PUBLIC bool mprServicesAreIdle(bool traceRequests);
 
 /**
     Set the application name, title and version
@@ -9815,13 +9946,32 @@ PUBLIC void mprSetEnv(cchar *key, cchar *value);
 
 /**
     Set the exit strategy for when the application terminates
-    @param strategy Set strategy to MPR_EXIT_IMMEDIATE for the application to exit immediately when terminated.
-        Set to MPR_EXIT_GRACEFUL for the application to exit gracefully after allowing all current requests to complete
-        before terminating. Set MPR_EXIT_RESTART for the application to restart after exiting.
+    @param exitStrategy Shutdown policy.
+    There are three shutdown strategies: Abortive, Immediate, and Graceful.
+    \n\n
+    If the MPR_EXIT_ABORT flag is specified, the application will immediately call exit() and will terminate without 
+    finishing current requests or writing buffered data. This is not recommended for normal operation as data may be lost.
+    \n\n
+    If the MPR_EXIT_IMMEDIATE flag is defined, the shutdown will continue to process current requests without blocking
+    and then exit in an orderly fashion. Current requests that are waiting for I/O or application processing will be
+    terminated. Files will be closed before exiting. This is the default exit strategy.
+    \n\n
+    If the MPR_EXIT_GRACEFUL flag is defined, the shutdown will wait for all requests to complete. The app will 
+    wait for up to the timeout specified by #mprSetExitTimeout (defaults to 30 seconds), before exiting. 
+    If requests do not complete prior to the exit timeout, they will be terminated.
+    \n\n
+    If the MPR_EXIT_DEFAULT flag is used, the current existing exit strategy defined via #mprSetExitStrategy will be used.
+    \n\n
+    There are also two modifiers for the strategy: Safe and Restart.
+    \n\n
+    If MPR_EXIT_SAFE is defined, a graceful shutdown will be cancelled if all requests do not complete before the exit timeout
+    expires.
+    \n\n
+    Define the MPR_EXIT_RESTART flag for the application to automatically restart after exiting.
     @ingroup Mpr
     @stability Stable.
   */
-PUBLIC void mprSetExitStrategy(int strategy);
+PUBLIC void mprSetExitStrategy(int exitStrategy);
 
 /**
     Set the exit timeout for a graceful shutdown or restart. A graceful shutdown waits for existing requests to 
@@ -9882,8 +10032,9 @@ PUBLIC void mprSetServerName(cchar *s);
 
 /**
     Test if requests should be aborted. 
-    @description This is useful to determine if current requests should be terminated due to
-    the application exiting.
+    @description This routine indicates that current requests should be terminated due to an application shutdown.
+    This will be true then the MPR->state >= MPR_EXIT_STOPPED.
+    See also #mprShouldDenyNewRequests. 
     @return True if new requests should be denied.
     @ingroup Mpr
     @stability Stable.
@@ -9891,8 +10042,11 @@ PUBLIC void mprSetServerName(cchar *s);
 PUBLIC bool mprShouldAbortRequests();
 
 /**
-    Test if new requests should be denied. This is useful in denying new requests when doing a graceful shutdown while
-    continuing to service existing requests.
+    Test if new requests should be denied. 
+    @description This routine indicates if an application shutdown has been initiated and services should not 
+    accept new requests or connections. 
+    This will be true then the MPR->state >= MPR_EXIT_STOPPING.
+    See also #mprShouldAbortRequests. 
     @return True if new requests should be denied.
     @ingroup Mpr
     @stability Stable.
@@ -9928,40 +10082,91 @@ PUBLIC int mprStartEventsThread();
     Destroy flags
  */
 #define MPR_EXIT_DEFAULT    0x1         /**< Exit as per MPR->defaultStrategy */
-#define MPR_EXIT_IMMEDIATE  0x2         /**< Immediate exit */
-#define MPR_EXIT_NORMAL     0x4         /**< Normal shutdown without waiting for requests to complete  */
-#define MPR_EXIT_GRACEFUL   0x8         /**< Graceful shutdown waiting for requests to complete */
-#define MPR_EXIT_RESTART    0x10        /**< Restart after exiting */
+#define MPR_EXIT_ABORT      0x2         /**< Abort everything and call exit() */
+#define MPR_EXIT_IMMEDIATE  0x4         /**< Immediate shutdown without waiting for requests to complete. This will 
+                                            continue processing non-blocking requests and then exit */
+#define MPR_EXIT_GRACEFUL   0x8         /**< Graceful shutdown after waiting for requests to complete */
+#define MPR_EXIT_SAFE       0x10        /**< Graceful shutdown only if all requests complete */
+#define MPR_EXIT_RESTART    0x20        /**< Restart after exiting */
+
+#if DEPRECATED || 1
+#define MPR_EXIT_NORMAL MPR_EXIT_IMMEDIATE
+#endif
 
 /**
-    Initiate termination of the application.
-    @description Begins termination of the application by setting the stopping flag. This will cause #mprServiceEvents 
-    to return. The application main program can then call #mprDestroy and exit.
+    Initiate shutdown of the application.
+    @description Commence shutdown of the application according to the shutdown policy defined by the "exitStrategy" parameter.
+    An application may call this routine from any thread to request the application exit. Depending on the exitStrategy, this
+    may be an abortive, immediate or graceful exit. A desired application exit status code can defined to indicate the cause
+    of the shutdown.
     \n\n
-    Depending on the reason for termination, mprTerminate may define "how" to shutdown. Options are MPR_EXIT_IMMEDIATE
-    for an immediate exit, MPR_EXIT_GRACEFUL for a graceful exit waiting for running requests to complete before exiting.
-    @param how Proposed exit strategy. This is used to invoke #mprSetExitStrategy which will then be utilized when
-        #mprDestroy is called. 
-        \n\n
-        Set strategy to MPR_EXIT_IMMEDIATE for the application to exit immediately when #mprDestroy is called.
-        Set to MPR_EXIT_GRACEFUL for the application to exit gracefully after allowing all current requests to complete
-        before terminating. Set MPR_EXIT_RESTART for the application to restart after exiting.
-        Set to MPR_EXIT_DEFAULT to not modify any existing exit strategy defined via #mprSetExitStrategy.
-    @param status Proposed exit status to use when the application exits. Sets Mpr.exitStatus.
+    Once called, this routine will set the MPR execution state to MPR_EXIT_STOPPING. Services should detect this by calling
+    #mprShouldDenyNewRequests before accepting new connections or requests, but otherwise, services should not take any destructive
+    actions until the MPR state is advanced to MPR_EXIT_STOPPED by #mprDestroy. This state can be detected by calling
+    #mprShouldAbortRequests. Users can invoke #mprCancelShutdown to resume normal operations provided the shutdown has not
+    proceeded past the point of no return, i.e. #mprDestroy has not been called.
+    \n\n
+    Applications that have a user events thread and call #mprServiceEvents from their main program, will typically invoke
+    mprShutdown from some other MPR thread to initiate the shutdown. When running requests have completed, or if an immediate 
+    shutdown has been requested, the call to #mprServiceEvents in the main program will return and the application can then 
+    call #mprDestroy to complete the shutdown.
+    \n\n
+    Note: This routine starts the shutdown process but does not initiate any destructive actions.
+    @param exitStrategy Shutdown policy.
+    There are three shutdown strategies: Abortive, Immediate, and Graceful.
+    \n\n
+    If the MPR_EXIT_ABORT flag is specified, the application will immediately call exit() and will terminate without 
+    finishing current requests or writing buffered data. This is not recommended for normal operation as data may be lost.
+    \n\n
+    If the MPR_EXIT_IMMEDIATE flag is defined, the shutdown will continue to process current requests without blocking
+    and then exit in an orderly fashion. Current requests that are waiting for I/O or application processing will be
+    terminated. Files will be closed before exiting. This is the default exit strategy.
+    \n\n
+    If the MPR_EXIT_GRACEFUL flag is defined, the shutdown will wait for all requests to complete. The app will 
+    wait for up to the timeout specified by #mprSetExitTimeout (defaults to 30 seconds), before exiting. 
+    If requests do not complete prior to the exit timeout, they will be terminated.
+    \n\n
+    If the MPR_EXIT_DEFAULT flag is used, the current existing exit strategy defined via #mprSetExitStrategy will be used.
+    \n\n
+    There are also two modifiers for the strategy: Safe and Restart.
+    \n\n
+    If MPR_EXIT_SAFE is defined, a graceful shutdown will be cancelled if all requests do not complete before the exit timeout
+    expires.
+    \n\n
+    Define the MPR_EXIT_RESTART flag for the application to automatically restart after exiting.
+    @param status Proposed exit status to use when the application exits. See #mprGetExitStatus.
     @ingroup Mpr
     @stability Evolving.
  */
-PUBLIC void mprTerminate(int how, int status);
+PUBLIC void mprShutdown(int exitStrategy, int status);
 
+#if DEPRECATED
+#define mprTerminate mprShutdown
+#endif
+
+/**
+    Cancel a shutdown request
+    @description A graceful shutdown request initiated via #mprShutdown may be cancelled if the shutdown is still in progress
+    and has not passed the point of no return. If the MPR is still in the MPR_STOPPING state, the shutdown may be cancelled. 
+    See #mprGetState.
+    @return True if the shutdown can be cancelled. Returns false if a shutdown has not been requested or if the shutdown has
+    advanced past the point of no return.
+    @ingroup Mpr
+    @stability Prototype
+ */
+PUBLIC bool mprCancelShutdown();
+
+#if DEPRECATED
 /**
     Wait until the application is idle
     @description This call blocks until application services are idle and all requests have completed.
     @param timeout Time in milliseconds to wait for the application to be idle
     @return True if the application is idle.
     @ingroup Mpr
-    @stability Stable.
+    @stability Internal.
  */
 PUBLIC int mprWaitTillIdle(MprTicks timeout);
+#endif
 
 #if BIT_WIN_LIKE
 /**

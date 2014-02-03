@@ -3108,11 +3108,16 @@ PUBLIC void httpCreatePipeline(HttpConn *conn);
 
 /**
     Steal a socket from a connection 
-    @description Steal the MprSocket object from a connection to the caller can assume total responsibility for the socket.
-    After calling, the normal Appweb request and inactivity timeouts will not apply to the returned socket.
-    It is the callers responsibility to call mprCloseSocket when ready.
+    @description Steal the MprSocket object from a connection so the caller can assume total responsibility for the socket.
+    This routine returns a clone of the connection's socket object with the socket O/S handle. The handle is removed from the
+    connection's socket object. The connection retains ownership of the original socket object. This is done to preserve 
+    the HttpConn.sock object but remove the socket handle from its management.
+    \n\n
+    Note: The current request is aborted and queue data is discarded.
+    After calling, the normal Appweb request and inactivity timeouts will not apply to the returned socket object.
+    It is the callers responsibility to call mprCloseSocket on the returned MprSocket when ready.
     @param conn HttpConn object created via #httpCreateConn
-    @return The socket object previously associated with the connection
+    @return A clone of the connection's MprSocket object with the socket handle.
     @ingroup HttpConn
     @stability Evolving
  */
@@ -3123,9 +3128,10 @@ PUBLIC MprSocket *httpStealSocket(HttpConn *conn);
 #endif
 
 /**
-    Steal the O/S socket handle from the connection 
-    @description This removes the O/S socket handle from active management by the connection. After calling, request and inactivity
-    timeouts will not apply to the returned socket handle. It is the callers responsibility to call close() when ready.
+    Steal the O/S socket handle from the connection socket object.
+    @description This removes the O/S socket handle from active management by the connection. After calling, 
+    normal request and inactivity timeouts will apply to the connection, but will not disturb the underlying actual socket handle. 
+    It is the callers responsibility to call close() on the socket handle when ready.
     @param conn HttpConn object created via #httpCreateConn
     @return The O/S Socket handle.
     @ingroup HttpConn
@@ -3853,6 +3859,7 @@ PUBLIC void httpSetStreaming(struct HttpHost *host, cchar *mime, cchar *uri, boo
 #define HTTP_ROUTE_VISIBLE_SESSION      0x200       /**< Create a session cookie visible to client Javascript (not httponly) */
 #define HTTP_ROUTE_PRESERVE_FRAMES      0x400       /**< Preserve WebSocket frame boundaries */
 #define HTTP_ROUTE_HIDDEN               0x800       /**< Hide this route in route tables. */
+#define HTTP_ROUTE_ENV_ESCAPE           0x1000      /**< Escape env vars */
 
 #if (DEPRECATED || 1) && !DOXYGEN
 #define HTTP_ROUTE_GZIP                 0x1000      /**< Support gzipped content on this route */
@@ -3892,6 +3899,7 @@ typedef struct HttpRoute {
 
     char            *documents;             /**< Documents directory */
     char            *home;                  /**< Home directory for configuration files */
+    char            *envPrefix;             /**< Environment strings prefix */
     MprList         *indicies;              /**< Directory index documents */
     HttpStage       *handler;               /**< Fixed handler */
 
@@ -4689,6 +4697,30 @@ PUBLIC void httpSetRouteDocuments(HttpRoute *route, cchar *path);
 #if DEPRECATED || 1
 PUBLIC void httpSetRouteDir(HttpRoute *route, cchar *path);
 #endif
+
+/**
+    Define a prefix string for environment variables
+    @description When mapping URI query parameters and form variables to environment variables, it is 
+    important to prevent important system variables like SHELL, PATH and IFS being overwritten or 
+    corrupted. Defining a unique prefix for such parameters ensures they have their own namespace.
+    @param route Route to modify
+    @param prefix Prefix to use in front of environment variables for URI and form parameters.
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC void httpSetRouteEnvPrefix(HttpRoute *route, cchar *prefix);
+
+/**
+    Define whether shell special characters are escaped in environment variables
+    @description If using shell scripts as CGI programs, it is useful to escape all special shell characters
+    to make scripting easier. This will escape (with \) the following characters:
+    &;`'\"|*?~<>^()[]{}$\\\n and also on windows \r%
+    @param route Route to modify
+    @param on Set to true to enable escaping shell special characters.
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC void httpSetRouteEnvEscape(HttpRoute *route, bool on);
 
 /**
     Update the route flags

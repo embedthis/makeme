@@ -26348,14 +26348,18 @@ static EjsObj *app_exit(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 
     if (scmp(how, "default") == 0) {
         mode = MPR_EXIT_DEFAULT;
+    } else if (scmp(how, "abort") == 0) {
+        mode = MPR_EXIT_ABORT;
     } else if (scmp(how, "immediate") == 0) {
         mode = MPR_EXIT_IMMEDIATE;
     } else if (scmp(how, "graceful") == 0) {
         mode = MPR_EXIT_GRACEFUL;
+    } else if (scmp(how, "safe") == 0) {
+        mode = MPR_EXIT_GRACEFUL | MPR_EXIT_SAFE;
     } else {
-        mode = MPR_EXIT_NORMAL;
+        mode = MPR_EXIT_IMMEDIATE;
     }
-    mprTerminate(mode, status);
+    mprShutdown(mode, status);
     ejsAttention(ejs);
     return 0;
 }
@@ -37205,7 +37209,7 @@ static void manageHttp(EjsHttp *hp, int flags)
         mprMark(TYPE(hp));
 
     } else if (flags & MPR_MANAGE_FREE) {
-        if (hp->conn && hp->conn->http) {
+        if (hp->conn && !hp->conn->destroyed) {
             sendHttpCloseEvent(hp->ejs, hp);
             httpDestroyConn(hp->conn);
             hp->conn = 0;

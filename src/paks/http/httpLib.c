@@ -2579,7 +2579,7 @@ static void manageConn(HttpConn *conn, int flags)
         mprMark(conn->password);
 
     } else if (flags & MPR_MANAGE_FREE) {
-        if (conn->http) {
+        if (!conn->destroyed) {
             httpDestroyConn(conn);
         }
     }
@@ -2610,10 +2610,9 @@ static void connTimeout(HttpConn *conn, MprEvent *event)
     HttpLimits  *limits;
     cchar       *msg, *prefix;
 
-    if (!conn->http) {
+    if (conn->destroyed) {
         return;
     }
-    assert(conn->dispatcher == event->dispatcher);
     assert(conn->tx);
     assert(conn->rx);
 
@@ -2658,12 +2657,11 @@ static void connTimeout(HttpConn *conn, MprEvent *event)
 
 PUBLIC void httpScheduleConnTimeout(HttpConn *conn) 
 {
-    assert(conn->http);
-    if (!conn->timeoutEvent) {
+    if (!conn->timeoutEvent && !conn->destroyed) {
         /* 
             Will run on the HttpConn dispatcher unless shutting down and it is destroyed already 
          */
-        conn->timeoutEvent = mprCreateEvent(conn->dispatcher, "connTimeout", 0, connTimeout, conn, MPR_EVENT_QUICK);
+        conn->timeoutEvent = mprCreateEvent(conn->dispatcher, "connTimeout", 0, connTimeout, conn, 0);
     }
 }
 
@@ -2860,7 +2858,7 @@ PUBLIC void httpIOEvent(HttpConn *conn, MprEvent *event)
     HttpPacket  *packet;
     ssize       size;
 
-    if (!conn->http) {
+    if (conn->destroyed) {
         /* Connection has been destroyed */
         return;
     }
@@ -2979,13 +2977,17 @@ PUBLIC void httpUsePrimary(HttpConn *conn)
 /*
     Steal the socket object from a connection. This disconnects the socket from management by the Http service.
     It is the callers responsibility to call mprCloseSocket when required.
+    Harder than it looks. We clone the socket, steal the socket handle and set the connection socket handle to invalid.
+    This preserves the HttpConn.sock object for the connection and returns a new MprSocket for the caller.
  */
 PUBLIC MprSocket *httpStealSocket(HttpConn *conn)
 {
     MprSocket   *sock;
 
     assert(conn->sock);
-    if (conn->http) {
+    assert(!conn->destroyed);
+
+    if (!conn->destroyed) {
         lock(conn->http);
         sock = mprCloneSocket(conn->sock);
         (void) mprStealSocketHandle(conn->sock);
@@ -3006,7 +3008,8 @@ PUBLIC MprSocket *httpStealSocket(HttpConn *conn)
 
 /*
     Steal the O/S socket handle a connection's socket. This disconnects the socket handle from management by the connection.
-    It is the callers responsibility to call close() when required.
+    It is the callers responsibility to call close() on the Socket when required.
+    Note: this does not change the state of the connection. 
  */
 PUBLIC Socket httpStealSocketHandle(HttpConn *conn)
 {
@@ -8296,6 +8299,7 @@ PUBLIC HttpRoute *httpCreateInheritedRoute(HttpRoute *parent)
     route->defaultLanguage = parent->defaultLanguage;
     route->documents = parent->documents;
     route->home = parent->home;
+    route->envPrefix = parent->envPrefix;
     route->data = parent->data;
     route->eroute = parent->eroute;
     route->errorDocuments = parent->errorDocuments;
@@ -8369,6 +8373,7 @@ static void manageRoute(HttpRoute *route, int flags)
         mprMark(route->target);
         mprMark(route->documents);
         mprMark(route->home);
+        mprMark(route->envPrefix);
         mprMark(route->indicies);
         mprMark(route->handler);
         mprMark(route->caching);
@@ -9405,15 +9410,6 @@ PUBLIC int httpSetRouteConnector(HttpRoute *route, cchar *name)
 }
 
 
-PUBLIC void httpSetRouteSessionVisibility(HttpRoute *route, bool visible)
-{
-    route->flags &= ~HTTP_ROUTE_VISIBLE_SESSION;
-    if (visible) {
-        route->flags |= HTTP_ROUTE_VISIBLE_SESSION;
-    }
-}
-
-
 PUBLIC void httpSetRouteData(HttpRoute *route, cchar *key, void *data)
 {
     assert(route);
@@ -9455,6 +9451,21 @@ PUBLIC void httpSetRouteFlags(HttpRoute *route, int flags)
 {
     assert(route);
     route->flags = flags;
+}
+
+
+PUBLIC void httpSetRouteEnvEscape(HttpRoute *route, bool on)
+{
+    route->flags &= ~(HTTP_ROUTE_ENV_ESCAPE);
+    if (on) {
+        route->flags |= HTTP_ROUTE_ENV_ESCAPE;
+    }
+}
+
+
+PUBLIC void httpSetRouteEnvPrefix(HttpRoute *route, cchar *prefix)
+{
+    route->envPrefix = sclone(prefix);
 }
 
 
@@ -9609,6 +9620,15 @@ PUBLIC void httpSetRoutePrefix(HttpRoute *route, cchar *prefix)
 }
 
 
+PUBLIC void httpSetRoutePreserveFrames(HttpRoute *route, bool on)
+{
+    route->flags &= ~HTTP_ROUTE_PRESERVE_FRAMES;
+    if (on) {
+        route->flags |= HTTP_ROUTE_PRESERVE_FRAMES;
+    }
+}
+
+
 PUBLIC void httpSetRouteServerPrefix(HttpRoute *route, cchar *prefix)
 {
     assert(route);
@@ -9626,11 +9646,11 @@ PUBLIC void httpSetRouteServerPrefix(HttpRoute *route, cchar *prefix)
 }
 
 
-PUBLIC void httpSetRoutePreserveFrames(HttpRoute *route, bool on)
+PUBLIC void httpSetRouteSessionVisibility(HttpRoute *route, bool visible)
 {
-    route->flags &= ~HTTP_ROUTE_PRESERVE_FRAMES;
-    if (on) {
-        route->flags |= HTTP_ROUTE_PRESERVE_FRAMES;
+    route->flags &= ~HTTP_ROUTE_VISIBLE_SESSION;
+    if (visible) {
+        route->flags |= HTTP_ROUTE_VISIBLE_SESSION;
     }
 }
 
@@ -13916,7 +13936,7 @@ PUBLIC HttpStatusCode HttpStatusCodes[] = {
 /****************************** Forward Declarations **************************/
 
 static void httpTimer(Http *http, MprEvent *event);
-static bool isIdle();
+static bool isIdle(bool traceRequests);
 static void manageHttp(Http *http, int flags);
 static void terminateHttp(int state, int how, int status);
 static void updateCurrentDate(Http *http);
@@ -14056,37 +14076,6 @@ static void manageHttp(Http *http, int flags)
 
 
 /*
-    Stop listening endpoints. If shutdown is not graceful, abort running requests.
-    Called from terminateHttp
- */
-static void stopHttp(int how)
-{
-    Http            *http;
-    HttpEndpoint    *endpoint;
-    int             next;
-
-    if ((http = MPR->httpService) == 0) {
-        return;
-    }
-    if (how & MPR_EXIT_DEFAULT) {
-        how = MPR->exitStrategy;
-    }
-    /* 
-        Close the listening endpoints - this stops all new requests 
-     */
-    for (ITERATE_ITEMS(http->endpoints, endpoint, next)) {
-        httpStopEndpoint(endpoint);
-    }
-    if (!(how & MPR_EXIT_GRACEFUL)) {
-        /* 
-            Abort running requests by simulating a timeout expiry 
-         */
-        httpTimer(http, 0);
-    }
-}
-
-
-/*
     Called to close all connections owned by a service (e.g. ejs)
  */
 PUBLIC void httpStopConnections(void *data)
@@ -14115,10 +14104,14 @@ PUBLIC void httpStopConnections(void *data)
 PUBLIC void httpDestroy() 
 {
     Http            *http;
+    HttpEndpoint    *endpoint;
+    int             next;
 
     if ((http = MPR->httpService) == 0) {
         return;
     }
+    httpStopConnections(0);
+
     if (http->timer) {
         mprRemoveEvent(http->timer);
         http->timer = 0;
@@ -14127,7 +14120,9 @@ PUBLIC void httpDestroy()
         mprRemoveEvent(http->timestamp);
         http->timestamp = 0;
     }
-    httpStopConnections(0);
+    for (ITERATE_ITEMS(http->endpoints, endpoint, next)) {
+        httpStopEndpoint(endpoint);
+    }
     MPR->httpService = NULL;
 }
 
@@ -14137,10 +14132,7 @@ PUBLIC void httpDestroy()
  */
 static void terminateHttp(int state, int how, int status)
 {
-    if (state == MPR_STOPPING) {
-        stopHttp(how);
-
-    } else if (state == MPR_DESTROYING) {
+    if (state >= MPR_STOPPED) {
         httpDestroy();
     }
 }
@@ -14149,7 +14141,7 @@ static void terminateHttp(int state, int how, int status)
 /*
     Test if the http service (including MPR) is idle with no running requests
  */
-static bool isIdle()
+static bool isIdle(bool traceRequests)
 {
     HttpConn        *conn;
     Http            *http;
@@ -14162,10 +14154,9 @@ static bool isIdle()
         lock(http->connections);
         for (next = 0; (conn = mprGetNextItem(http->connections, &next)) != 0; ) {
             if (conn->state != HTTP_STATE_BEGIN && conn->state != HTTP_STATE_COMPLETE) {
-                if (lastTrace < now) {
+                if (traceRequests && lastTrace < now) {
                     if (conn->rx) {
-                        mprLog(2, "http: Request for \"%s\" is still active", 
-                            conn->rx->uri ? conn->rx->uri : conn->rx->pathInfo);
+                        mprLog(2, "http: Request for \"%s\" is still active", conn->rx->uri ? conn->rx->uri : conn->rx->pathInfo);
                     }
                     lastTrace = now;
                 }
@@ -14177,14 +14168,7 @@ static bool isIdle()
     } else {
         now = mprGetTicks();
     }
-    if (!mprServicesAreIdle()) {
-        if (lastTrace < now) {
-            mprLog(3, "Waiting for MPR services complete");
-            lastTrace = now;
-        }
-        return 0;
-    }
-    return 1;
+    return mprServicesAreIdle(traceRequests);
 }
 
 
@@ -14348,6 +14332,9 @@ PUBLIC void httpAddStage(Http *http, HttpStage *stage)
 
 PUBLIC HttpStage *httpLookupStage(Http *http, cchar *name)
 {
+    if (!http) {
+        return 0;
+    }
     return mprLookupKey(http->stages, name);
 }
 
@@ -14355,6 +14342,10 @@ PUBLIC HttpStage *httpLookupStage(Http *http, cchar *name)
 PUBLIC void *httpLookupStageData(Http *http, cchar *name)
 {
     HttpStage   *stage;
+
+    if (!http) {
+        return 0;
+    }
     if ((stage = mprLookupKey(http->stages, name)) != 0) {
         return stage->stageData;
     }

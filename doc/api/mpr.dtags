@@ -274,6 +274,13 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>MPR_CREATED</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a9b20fa4a74b7f9d436be9abd7f980106</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>MPR_CRITICAL_PRIORITY</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>ae06415ae3af35c8ac27f34b10d3001e3</anchor>
@@ -631,6 +638,13 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>MPR_EVENT_BLOCK</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>aa2419591af1d64acae7fe0b3b0751ca0</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>MPR_EVENT_CONTINUOUS</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a207b6b4c4dd69cefc5d48e0898677ff1</anchor>
@@ -680,6 +694,13 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>MPR_EXIT_ABORT</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a68c871907199435842d3874d7b580240</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>MPR_EXIT_DEFAULT</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>aff10757e54446408f4f71cefb854eb49</anchor>
@@ -701,16 +722,16 @@
     </member>
     <member kind="define">
       <type>#define</type>
-      <name>MPR_EXIT_NORMAL</name>
+      <name>MPR_EXIT_RESTART</name>
       <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>ab66db1e667041ab60b61aea991e20250</anchor>
+      <anchor>a2328bae311be87e903b6d9df39d607b4</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
       <type>#define</type>
-      <name>MPR_EXIT_RESTART</name>
+      <name>MPR_EXIT_SAFE</name>
       <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>a2328bae311be87e903b6d9df39d607b4</anchor>
+      <anchor>a1494c42c3e704a708b937ca6ece37531</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -1352,6 +1373,13 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>MPR_STOPPED</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>af0854041ae3023c413365e4129daaff9</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>MPR_STOPPING</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>add77d7932ad074fe60c0782cafc78b72</anchor>
@@ -1795,8 +1823,8 @@
       <type>void(*</type>
       <name>MprTerminator</name>
       <anchorfile>group___mpr.html</anchorfile>
-      <anchor>gaa4ac698a010f0c6b93f0e1a752ac00c4</anchor>
-      <arglist>)(int state, int how, int status)</arglist>
+      <anchor>gaf44802f2cd62d3139163df79721ee79b</anchor>
+      <arglist>)(int state, int exitStrategy, int status)</arglist>
     </member>
     <member kind="typedef">
       <type>int(*</type>
@@ -2102,42 +2130,42 @@
     <member kind="function">
       <type>void</type>
       <name>mprAtomicAdd</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>gaf64ed09ca5470083fd11e73c9611b3f3</anchor>
       <arglist>(volatile int *target, int value)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mprAtomicAdd64</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>ga70c05a2808827f0f5881a1961c95290c</anchor>
       <arglist>(volatile int64 *target, int64 value)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mprAtomicBarrier</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>gafa0c319f7e96e03123a67cfd50c1a46d</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>int</type>
       <name>mprAtomicCas</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>gadfb5ebec7f3b7ce4922916dcc49a5749</anchor>
       <arglist>(void *volatile *target, void *expected, cvoid *value)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mprAtomicListInsert</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>ga3f7604ac56fad55fbbb4cd38e742b8d1</anchor>
       <arglist>(void **head, void **link, void *item)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mprAtomicOpen</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>gab504ac7367801a163ce97c892049bbdf</anchor>
       <arglist>()</arglist>
     </member>
@@ -2189,6 +2217,13 @@
       <anchorfile>group___mpr_buf.html</anchorfile>
       <anchor>ga82bb10164b117911778ca5ef4bc0862e</anchor>
       <arglist>(MprBuf *buf)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>mprCancelShutdown</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>ga4e2256755255d337310a87fba9659f23</anchor>
+      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
@@ -2361,7 +2396,7 @@
     <member kind="function">
       <type>MprCond *</type>
       <name>mprCreateCond</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>ga56428893b86e3bf9e3dd411587a2cf54</anchor>
       <arglist>()</arglist>
     </member>
@@ -2383,8 +2418,8 @@
       <type>int</type>
       <name>mprCreateEventOutside</name>
       <anchorfile>group___mpr_event.html</anchorfile>
-      <anchor>ga2cc0ea2cb695c41e948781228646909a</anchor>
-      <arglist>(MprDispatcher *dispatcher, void *proc, void *data, int flags)</arglist>
+      <anchor>ga6a994158ec8edfe48a47a243ea09c4b8</anchor>
+      <arglist>(MprDispatcher *dispatcher, cchar *name, void *proc, void *data, int flags)</arglist>
     </member>
     <member kind="function">
       <type>MprFileSystem *</type>
@@ -2438,7 +2473,7 @@
     <member kind="function">
       <type>MprMutex *</type>
       <name>mprCreateLock</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>ga68fe682a34151374ac03be971192a54d</anchor>
       <arglist>()</arglist>
     </member>
@@ -2508,7 +2543,7 @@
     <member kind="function">
       <type>MprSpin *</type>
       <name>mprCreateSpinLock</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>gabd38617b3f690c3b21487982b440d1bb</anchor>
       <arglist>()</arglist>
     </member>
@@ -2621,8 +2656,8 @@
       <type>bool</type>
       <name>mprDestroy</name>
       <anchorfile>group___mpr.html</anchorfile>
-      <anchor>gac57ad5bfde1522388e126941e68a039a</anchor>
-      <arglist>(int how)</arglist>
+      <anchor>gac2ae691e84da0cc853f2e62b2458d673</anchor>
+      <arglist>(int exitStrategy)</arglist>
     </member>
     <member kind="function">
       <type>void *</type>
@@ -2849,11 +2884,25 @@
       <arglist>(int flags)</arglist>
     </member>
     <member kind="function">
+      <type>bool</type>
+      <name>mprGCPaused</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a90927eedeadff31acc043a6c7c55803a</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
       <type>char *</type>
       <name>mprGetAbsPath</name>
       <anchorfile>group___mpr_path.html</anchorfile>
       <anchor>ga1172d381790b8084ba79de901d4d3a03</anchor>
       <arglist>(cchar *path)</arglist>
+    </member>
+    <member kind="function">
+      <type>ssize</type>
+      <name>mprGetActiveCmdCount</name>
+      <anchorfile>group___mpr_cmd.html</anchorfile>
+      <anchor>ga6fefac67454f6a7bc3d9257fee59e532</anchor>
+      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>char *</type>
@@ -2954,6 +3003,13 @@
       <arglist>(MprBuf *buf)</arglist>
     </member>
     <member kind="function">
+      <type>ssize</type>
+      <name>mprGetBusyWorkerCount</name>
+      <anchorfile>group___mpr_worker.html</anchorfile>
+      <anchor>ga83ff4d8042ea5ddef429e084839d67a0</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
       <type>void</type>
       <name>mprGetCacheStats</name>
       <anchorfile>group___mpr_cache.html</anchorfile>
@@ -3021,6 +3077,13 @@
       <name>mprGetCurrentThreadName</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>af66dd50712bb5ed045f1f586a6ba6eb2</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>MprWorker *</type>
+      <name>mprGetCurrentWorker</name>
+      <anchorfile>group___mpr_worker.html</anchorfile>
+      <anchor>gad6450cfd406dedf3d2862272f43ace13</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
@@ -3549,6 +3612,13 @@
       <arglist>(int cipher)</arglist>
     </member>
     <member kind="function">
+      <type>int</type>
+      <name>mprGetState</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>ga187fdc48e7a489440fb6de67c643bf3b</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
       <type>MprFile *</type>
       <name>mprGetStderr</name>
       <anchorfile>group___mpr_file.html</anchorfile>
@@ -3628,14 +3698,14 @@
     <member kind="function">
       <type>void</type>
       <name>mprGlobalLock</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>ga45e1ba55d1912b43ca7c638e489b4bc3</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mprGlobalUnlock</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>gacafc4433dfa8809f7e764683dcb7639a</anchor>
       <arglist>()</arglist>
     </member>
@@ -3747,14 +3817,14 @@
     <member kind="function">
       <type>MprMutex *</type>
       <name>mprInitLock</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>gac0374683f5c3f5b97199b31fd94630d3</anchor>
       <arglist>(MprMutex *mutex)</arglist>
     </member>
     <member kind="function">
       <type>MprSpin *</type>
       <name>mprInitSpinLock</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>ga2e9ecc3090f226d6f6bb9c6bd35ca811</anchor>
       <arglist>(MprSpin *lock)</arglist>
     </member>
@@ -3795,6 +3865,13 @@
     </member>
     <member kind="function">
       <type>bool</type>
+      <name>mprIsDestroyed</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>gaf05af1ba863ae5a24bc205615874bace</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
       <name>mprIsDestroying</name>
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>ga50e188d75a8794ef709f68b3c2c75bc9</anchor>
@@ -3802,17 +3879,10 @@
     </member>
     <member kind="function">
       <type>bool</type>
-      <name>mprIsFinished</name>
-      <anchorfile>group___mpr.html</anchorfile>
-      <anchor>gadb9752464abb66fba198cb816fafde88</anchor>
-      <arglist>()</arglist>
-    </member>
-    <member kind="function">
-      <type>bool</type>
       <name>mprIsIdle</name>
       <anchorfile>group___mpr.html</anchorfile>
-      <anchor>gaead57cafdee5b1206e4a4f3b0468fb99</anchor>
-      <arglist>()</arglist>
+      <anchor>gaa07c03ff5f586d99e46ad8bc7b519eba</anchor>
+      <arglist>(bool traceRequests)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -3890,6 +3960,13 @@
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a9077f7fb7f0b3ab411af60dca7324da3</anchor>
       <arglist>(MprSocket *sp)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>mprIsStopped</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>gad06292505034e0cbafbdee9261c1d1b7</anchor>
+      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
@@ -3999,7 +4076,7 @@
     <member kind="function">
       <type>void</type>
       <name>mprLock</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>gad193cb5549a1101dc17177f046144ede</anchor>
       <arglist>(MprMutex *lock)</arglist>
     </member>
@@ -4629,7 +4706,7 @@
     <member kind="function">
       <type>void</type>
       <name>mprResetCond</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>ga3db47bdecb58c2c52197d625377cf71b</anchor>
       <arglist>(MprCond *cond)</arglist>
     </member>
@@ -4763,8 +4840,8 @@
       <type>bool</type>
       <name>mprServicesAreIdle</name>
       <anchorfile>group___mpr.html</anchorfile>
-      <anchor>ga40a197cef78eae1edc83d359cedb71e6</anchor>
-      <arglist>()</arglist>
+      <anchor>ga8f997de03358e990de88e7e952b48641</anchor>
+      <arglist>(bool traceRequests)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -4903,8 +4980,8 @@
       <type>void</type>
       <name>mprSetExitStrategy</name>
       <anchorfile>group___mpr.html</anchorfile>
-      <anchor>ga49b3d16b8a016c08580f0ea5b6c5e346</anchor>
-      <arglist>(int strategy)</arglist>
+      <anchor>ga7ff2032a7a15fce34b0118870799d1fe</anchor>
+      <arglist>(int exitStrategy)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -5230,8 +5307,15 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>mprShutdown</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>ga3216e5fb89169b760a4763f240c1810c</anchor>
+      <arglist>(int exitStrategy, int status)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>mprSignalCond</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>gab014329886bcb9a8cb9b970afc30378b</anchor>
       <arglist>(MprCond *cond)</arglist>
     </member>
@@ -5245,7 +5329,7 @@
     <member kind="function">
       <type>void</type>
       <name>mprSignalMultiCond</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>ga9b20d1bf69e28579dd968c1c0daf976b</anchor>
       <arglist>(MprCond *cond)</arglist>
     </member>
@@ -5308,14 +5392,14 @@
     <member kind="function">
       <type>void</type>
       <name>mprSpinLock</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>gaf2a84bc9cee343c8ebfc3bfa49751795</anchor>
       <arglist>(MprSpin *lock)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mprSpinUnlock</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>gaeb11c8a1f0c2c3f905967a932626121e</anchor>
       <arglist>(MprSpin *lock)</arglist>
     </member>
@@ -5426,13 +5510,6 @@
     </member>
     <member kind="function">
       <type>void</type>
-      <name>mprTerminate</name>
-      <anchorfile>group___mpr.html</anchorfile>
-      <anchor>ga9e04bb4b88735d3f8764376648905364</anchor>
-      <arglist>(int how, int status)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
       <name>mprTrace</name>
       <anchorfile>group___mpr_log.html</anchorfile>
       <anchor>ga61399f9e62412467e471690627570014</anchor>
@@ -5483,14 +5560,14 @@
     <member kind="function">
       <type>bool</type>
       <name>mprTryLock</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>ga2b3b8e824b92499192ea48512e31c26d</anchor>
       <arglist>(MprMutex *lock)</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
       <name>mprTrySpinLock</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>gac257b932fcc7140852e6830640d2301b</anchor>
       <arglist>(MprSpin *lock)</arglist>
     </member>
@@ -5511,7 +5588,7 @@
     <member kind="function">
       <type>void</type>
       <name>mprUnlock</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>ga40a516fe58b4b2998852cd0c853027ad</anchor>
       <arglist>(MprMutex *lock)</arglist>
     </member>
@@ -5595,7 +5672,7 @@
     <member kind="function">
       <type>int</type>
       <name>mprWaitForCond</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>ga2902c6005212638d289e867d567e16d7</anchor>
       <arglist>(MprCond *cond, MprTicks timeout)</arglist>
     </member>
@@ -5616,7 +5693,7 @@
     <member kind="function">
       <type>int</type>
       <name>mprWaitForMultiCond</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>ga0b4bca5c7c7922fddc14e08213892289</anchor>
       <arglist>(MprCond *cond, MprTicks timeout)</arglist>
     </member>
@@ -5647,13 +5724,6 @@
       <anchorfile>group___mpr_wait_handler.html</anchorfile>
       <anchor>gaa0e15d53ab8eab3472f5a170d4e3f27b</anchor>
       <arglist>(MprWaitHandler *wp, int desiredMask)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>mprWaitTillIdle</name>
-      <anchorfile>group___mpr.html</anchorfile>
-      <anchor>ga270c5c5030b1d061456d1c00fb258584</anchor>
-      <arglist>(MprTicks timeout)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -6119,177 +6189,177 @@
     </member>
   </compound>
   <compound kind="group">
-    <name>MprSynch</name>
-    <title>MprSynch</title>
-    <filename>group___mpr_synch.html</filename>
+    <name>MprSync</name>
+    <title>MprSync</title>
+    <filename>group___mpr_sync.html</filename>
     <class kind="struct">MprCond</class>
     <class kind="struct">MprMutex</class>
     <class kind="struct">MprSpin</class>
     <member kind="function">
       <type>void</type>
       <name>mprAtomicAdd</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>gaf64ed09ca5470083fd11e73c9611b3f3</anchor>
       <arglist>(volatile int *target, int value)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mprAtomicAdd64</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>ga70c05a2808827f0f5881a1961c95290c</anchor>
       <arglist>(volatile int64 *target, int64 value)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mprAtomicBarrier</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>gafa0c319f7e96e03123a67cfd50c1a46d</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>int</type>
       <name>mprAtomicCas</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>gadfb5ebec7f3b7ce4922916dcc49a5749</anchor>
       <arglist>(void *volatile *target, void *expected, cvoid *value)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mprAtomicListInsert</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>ga3f7604ac56fad55fbbb4cd38e742b8d1</anchor>
       <arglist>(void **head, void **link, void *item)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mprAtomicOpen</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>gab504ac7367801a163ce97c892049bbdf</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>MprCond *</type>
       <name>mprCreateCond</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>ga56428893b86e3bf9e3dd411587a2cf54</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>MprMutex *</type>
       <name>mprCreateLock</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>ga68fe682a34151374ac03be971192a54d</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>MprSpin *</type>
       <name>mprCreateSpinLock</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>gabd38617b3f690c3b21487982b440d1bb</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mprGlobalLock</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>ga45e1ba55d1912b43ca7c638e489b4bc3</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mprGlobalUnlock</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>gacafc4433dfa8809f7e764683dcb7639a</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>MprMutex *</type>
       <name>mprInitLock</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>gac0374683f5c3f5b97199b31fd94630d3</anchor>
       <arglist>(MprMutex *mutex)</arglist>
     </member>
     <member kind="function">
       <type>MprSpin *</type>
       <name>mprInitSpinLock</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>ga2e9ecc3090f226d6f6bb9c6bd35ca811</anchor>
       <arglist>(MprSpin *lock)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mprLock</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>gad193cb5549a1101dc17177f046144ede</anchor>
       <arglist>(MprMutex *lock)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mprResetCond</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>ga3db47bdecb58c2c52197d625377cf71b</anchor>
       <arglist>(MprCond *cond)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mprSignalCond</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>gab014329886bcb9a8cb9b970afc30378b</anchor>
       <arglist>(MprCond *cond)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mprSignalMultiCond</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>ga9b20d1bf69e28579dd968c1c0daf976b</anchor>
       <arglist>(MprCond *cond)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mprSpinLock</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>gaf2a84bc9cee343c8ebfc3bfa49751795</anchor>
       <arglist>(MprSpin *lock)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mprSpinUnlock</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>gaeb11c8a1f0c2c3f905967a932626121e</anchor>
       <arglist>(MprSpin *lock)</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
       <name>mprTryLock</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>ga2b3b8e824b92499192ea48512e31c26d</anchor>
       <arglist>(MprMutex *lock)</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
       <name>mprTrySpinLock</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>gac257b932fcc7140852e6830640d2301b</anchor>
       <arglist>(MprSpin *lock)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mprUnlock</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>ga40a516fe58b4b2998852cd0c853027ad</anchor>
       <arglist>(MprMutex *lock)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
       <name>mprWaitForCond</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>ga2902c6005212638d289e867d567e16d7</anchor>
       <arglist>(MprCond *cond, MprTicks timeout)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
       <name>mprWaitForMultiCond</name>
-      <anchorfile>group___mpr_synch.html</anchorfile>
+      <anchorfile>group___mpr_sync.html</anchorfile>
       <anchor>ga0b4bca5c7c7922fddc14e08213892289</anchor>
       <arglist>(MprCond *cond, MprTicks timeout)</arglist>
     </member>
@@ -8494,8 +8564,8 @@
       <type>int</type>
       <name>mprCreateEventOutside</name>
       <anchorfile>group___mpr_event.html</anchorfile>
-      <anchor>ga2cc0ea2cb695c41e948781228646909a</anchor>
-      <arglist>(MprDispatcher *dispatcher, void *proc, void *data, int flags)</arglist>
+      <anchor>ga6a994158ec8edfe48a47a243ea09c4b8</anchor>
+      <arglist>(MprDispatcher *dispatcher, cchar *name, void *proc, void *data, int flags)</arglist>
     </member>
     <member kind="function">
       <type>MprEvent *</type>
@@ -9435,6 +9505,20 @@
       <arglist>(MprWorker *worker)</arglist>
     </member>
     <member kind="function">
+      <type>ssize</type>
+      <name>mprGetBusyWorkerCount</name>
+      <anchorfile>group___mpr_worker.html</anchorfile>
+      <anchor>ga83ff4d8042ea5ddef429e084839d67a0</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>MprWorker *</type>
+      <name>mprGetCurrentWorker</name>
+      <anchorfile>group___mpr_worker.html</anchorfile>
+      <anchor>gad6450cfd406dedf3d2862272f43ace13</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>mprGetMaxWorkers</name>
       <anchorfile>group___mpr_worker.html</anchorfile>
@@ -9571,6 +9655,13 @@
       <anchorfile>group___mpr_cmd.html</anchorfile>
       <anchor>gac28276b68838d380698c4995fc9b1267</anchor>
       <arglist>(MprCmd *cmd)</arglist>
+    </member>
+    <member kind="function">
+      <type>ssize</type>
+      <name>mprGetActiveCmdCount</name>
+      <anchorfile>group___mpr_cmd.html</anchorfile>
+      <anchor>ga6fefac67454f6a7bc3d9257fee59e532</anchor>
+      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>MprBuf *</type>
@@ -9850,8 +9941,8 @@
       <type>void(*</type>
       <name>MprTerminator</name>
       <anchorfile>group___mpr.html</anchorfile>
-      <anchor>gaa4ac698a010f0c6b93f0e1a752ac00c4</anchor>
-      <arglist>)(int state, int how, int status)</arglist>
+      <anchor>gaf44802f2cd62d3139163df79721ee79b</anchor>
+      <arglist>)(int state, int exitStrategy, int status)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -9872,6 +9963,13 @@
       <name>mprBreakpoint</name>
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>gac5203b2138474e781207b39ac4726c1b</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>mprCancelShutdown</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>ga4e2256755255d337310a87fba9659f23</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
@@ -9920,8 +10018,8 @@
       <type>bool</type>
       <name>mprDestroy</name>
       <anchorfile>group___mpr.html</anchorfile>
-      <anchor>gac57ad5bfde1522388e126941e68a039a</anchor>
-      <arglist>(int how)</arglist>
+      <anchor>gac2ae691e84da0cc853f2e62b2458d673</anchor>
+      <arglist>(int exitStrategy)</arglist>
     </member>
     <member kind="function">
       <type>char *</type>
@@ -10141,6 +10239,20 @@
       <arglist>(cchar *buf, ssize len, cchar *prefix)</arglist>
     </member>
     <member kind="function">
+      <type>int</type>
+      <name>mprGetState</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>ga187fdc48e7a489440fb6de67c643bf3b</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>mprIsDestroyed</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>gaf05af1ba863ae5a24bc205615874bace</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
       <type>bool</type>
       <name>mprIsDestroying</name>
       <anchorfile>group___mpr.html</anchorfile>
@@ -10149,16 +10261,16 @@
     </member>
     <member kind="function">
       <type>bool</type>
-      <name>mprIsFinished</name>
+      <name>mprIsIdle</name>
       <anchorfile>group___mpr.html</anchorfile>
-      <anchor>gadb9752464abb66fba198cb816fafde88</anchor>
-      <arglist>()</arglist>
+      <anchor>gaa07c03ff5f586d99e46ad8bc7b519eba</anchor>
+      <arglist>(bool traceRequests)</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
-      <name>mprIsIdle</name>
+      <name>mprIsStopped</name>
       <anchorfile>group___mpr.html</anchorfile>
-      <anchor>gaead57cafdee5b1206e4a4f3b0468fb99</anchor>
+      <anchor>gad06292505034e0cbafbdee9261c1d1b7</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
@@ -10221,8 +10333,8 @@
       <type>bool</type>
       <name>mprServicesAreIdle</name>
       <anchorfile>group___mpr.html</anchorfile>
-      <anchor>ga40a197cef78eae1edc83d359cedb71e6</anchor>
-      <arglist>()</arglist>
+      <anchor>ga8f997de03358e990de88e7e952b48641</anchor>
+      <arglist>(bool traceRequests)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -10270,8 +10382,8 @@
       <type>void</type>
       <name>mprSetExitStrategy</name>
       <anchorfile>group___mpr.html</anchorfile>
-      <anchor>ga49b3d16b8a016c08580f0ea5b6c5e346</anchor>
-      <arglist>(int strategy)</arglist>
+      <anchor>ga7ff2032a7a15fce34b0118870799d1fe</anchor>
+      <arglist>(int exitStrategy)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -10338,6 +10450,13 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>mprShutdown</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>ga3216e5fb89169b760a4763f240c1810c</anchor>
+      <arglist>(int exitStrategy, int status)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>mprSleep</name>
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>ga85c39ea54c27d4b13825ba78c2e7adda</anchor>
@@ -10372,13 +10491,6 @@
       <arglist>()</arglist>
     </member>
     <member kind="function">
-      <type>void</type>
-      <name>mprTerminate</name>
-      <anchorfile>group___mpr.html</anchorfile>
-      <anchor>ga9e04bb4b88735d3f8764376648905364</anchor>
-      <arglist>(int how, int status)</arglist>
-    </member>
-    <member kind="function">
       <type>char *</type>
       <name>mprUriDecode</name>
       <anchorfile>group___mpr.html</anchorfile>
@@ -10398,13 +10510,6 @@
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>gaa1a1ac21c52992cfcec70fe8d9320f85</anchor>
       <arglist>(cchar *uri, int map)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>mprWaitTillIdle</name>
-      <anchorfile>group___mpr.html</anchorfile>
-      <anchor>ga270c5c5030b1d061456d1c00fb258584</anchor>
-      <arglist>(MprTicks timeout)</arglist>
     </member>
   </compound>
   <compound kind="group">
