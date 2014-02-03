@@ -4572,14 +4572,15 @@ PUBLIC char *httpMakePath(HttpRoute *route, cchar *dir, cchar *path);
 
 /**
     Map the request URI to a filename in physical storage for a handler.
-    @description This routine is invoked by handlers to map the request URI to a filename.
-    The request URI is resolved relative to the route documents directory. If a route language directory is defined, 
-    that directory is prefixed to the filename after the route documents directory.
+    @description This routine is invoked by handlers to map the request URI to a filename and should be called by handlers
+    that serve physical documents. The request URI is resolved relative to the route documents directory. 
+    If a route language directory is defined, that directory is prefixed to the filename after the route documents directory.
     \n\n
-    If route maps have been definedthe filename may be mapped to a preferred compressed or minified filename to serve.
+    If route maps have been defined, the filename may be mapped to a preferred compressed or minified filename to serve.
     \n\n
-    After computing the filename, this routine calls #httpSetFilename to set the HttpTx.filename, ext, etag and fileInfo
-    fields.
+    After computing the filename, this routine calls #httpSetFilename to set the HttpTx.filename, ext, etag and fileInfo fields.
+    If a filename has already been defined by a prior call to httpMapFile or #httpSetFilename, this routine will do nothing.
+    To reset a prior filename, use #httpSetFilename with a null argument.
     @param conn HttpConn connection object 
     @ingroup HttpRoute
     @stability Evolving
@@ -4714,7 +4715,7 @@ PUBLIC void httpSetRouteEnvPrefix(HttpRoute *route, cchar *prefix);
     Define whether shell special characters are escaped in environment variables
     @description If using shell scripts as CGI programs, it is useful to escape all special shell characters
     to make scripting easier. This will escape (with \) the following characters:
-    &;`'\"|*?~<>^()[]{}$\\\n and also on windows \r%
+    &;`'\"|*?~<>^()[]{}$\\\n and also on windows \\r%
     @param route Route to modify
     @param on Set to true to enable escaping shell special characters.
     @ingroup HttpRoute
@@ -6399,16 +6400,18 @@ PUBLIC void httpSetEntityLength(HttpConn *conn, MprOff len);
 /**
     Set the filename to serve for a request
     @description This routine defines a non-default response document filename.
-       The filename may be virtual and may be outside the documents root directory. If it is not a file under the 
-       route documents directory, set the flags parameter to HTTP_TX_NO_CHECK. Otherwise, the filename will be checked to 
-       ensure it is inside the route documents directory.
+       The filename may be virtual and not correspond to a physical file. It also may be a file outside the documents root 
+       directory. If it is not a file under the route documents directory, set the flags parameter to HTTP_TX_NO_CHECK. 
+       Otherwise, the filename will be checked to ensure it is inside the route documents directory.
        \n\n
        Typically a handler will call #httpMapFile to perform default request URI to filename mapping and should not need
        to call httpSetFilename unless a file outside the route documents directory is required to be served.
        \n\n
        This routine will set the HttpTx filename, ext, etag and fileInfo fields.
+       \n\n
+        Note: the response header mime type will be set based on the request URI. To override, use #httpSetContentType
     @param conn HttpConn connection object 
-    @param filename Tx filename to define.
+    @param filename Tx filename to define. Set to NULL to reset the filename.
     @param flags Flags word. Or together the desired flags. Include to HTTP_TX_NO_CHECK to bypass checking if the 
         filename resides inside the route documents directory. 
     @ingroup HttpTx

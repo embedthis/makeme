@@ -9465,7 +9465,7 @@ static void manageDispatcher(MprDispatcher *dispatcher, int flags)
 PUBLIC int mprServiceEvents(MprTicks timeout, int flags)
 {
     MprEventService     *es;
-    MprDispatcher       *dp, *holdQ;
+    MprDispatcher       *dp;
     MprTicks            expires, delay;
     int                 beginEventCount, eventCount;
 
@@ -9482,7 +9482,6 @@ PUBLIC int mprServiceEvents(MprTicks timeout, int flags)
         expires = MPR_MAX_TIMEOUT;
     }
     mprSetNotifierThread(0);
-    holdQ = createQhead("hold");
 
     while (es->now <= expires) {
         eventCount = es->eventCount;

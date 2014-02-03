@@ -2040,6 +2040,20 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>httpSetRouteEnvEscape</name>
+      <anchorfile>group___http_route.html</anchorfile>
+      <anchor>ga11a18eefd269777da3c11095d7f78aea</anchor>
+      <arglist>(HttpRoute *route, bool on)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpSetRouteEnvPrefix</name>
+      <anchorfile>group___http_route.html</anchorfile>
+      <anchor>ga46bcdb0cf373c27862fe61c7ae660c1b</anchor>
+      <arglist>(HttpRoute *route, cchar *prefix)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>httpSetRouteFlags</name>
       <anchorfile>group___http_route.html</anchorfile>
       <anchor>gacba5a4bea1af4b6e833b7b7fc4e922b1</anchor>
