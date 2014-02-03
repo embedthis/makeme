@@ -215,7 +215,8 @@ function setCompilerOptions(pack, settings) {
         pack.defines.push('BIT_DEBUG')
     }
     if (platform.like == 'unix') {
-        if (settings.hasDynLoad && !settings.static) {
+        /* Always include dl so that dlsym can be used even in static programs */
+        if (settings.hasDynLoad) {
             pack.libraries.push('dl')
         }
         pack.compiler.push('-Wall')
