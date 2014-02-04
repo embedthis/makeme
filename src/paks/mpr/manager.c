@@ -53,7 +53,6 @@ typedef struct App {
     char    *pidPath;                   /* Path to the manager pid for this service */
     int     restartCount;               /* Service restart count */
     int     restartWarned;              /* Has user been notified */
-    int     runAsDaemon;                /* Run as a daemon */
     int     servicePid;                 /* Process ID for the service */
     char    *company;                   /* One word company name (lower case) */
     char    *serviceArgs;               /* Args to pass to service */
@@ -67,9 +66,8 @@ static App *app;
 
 /***************************** Forward Declarations ***************************/
 
-static void cleanup();
+static void killService();
 static bool killPid();
-static int  makeDaemon();
 static void manageApp(void *unused, int flags);
 static int  readPid();
 static bool process(cchar *operation, bool quiet);
@@ -83,9 +81,15 @@ static int  writePid(int pid);
 PUBLIC int main(int argc, char *argv[])
 {
     char    *argp, *value;
-    int     err, nextArg, status;
+    int     err, nextArg, flags;
 
-    mprCreate(argc, argv, 0);
+    flags = 0;
+    for (err = 0, nextArg = 1; nextArg < argc && !err; nextArg++) {
+        if (smatch(argv[nextArg], "--daemon")) {
+            flags |= MPR_DAEMON;
+        }
+    }
+    mprCreate(argc, argv, flags);
     app = mprAllocObj(App, manageApp);
     mprAddRoot(app);
     mprAddTerminator(terminating);
@@ -114,8 +118,7 @@ PUBLIC int main(int argc, char *argv[])
             app->continueOnErrors = 1;
 
         } else if (strcmp(argp, "--daemon") == 0) {
-            app->runAsDaemon++;
-
+            /* Processed above */
 #if KEEP
         } else if (strcmp(argp, "--heartBeat") == 0) {
             /*
@@ -246,28 +249,24 @@ PUBLIC int main(int argc, char *argv[])
     if (!app->pidPath) {
         app->pidPath = sjoin(app->pidDir, "/", app->serviceName, ".pid", NULL);
     }
-    if (app->runAsDaemon) {
-        makeDaemon();
-    }
-    status = 0;
     if (getuid() != 0) {
         mprError("Must run with administrator privilege. Use sudo.");
-        status = 1;
+        mprSetExitStatus(1);
 
     } else if (mprStart() < 0) {
         mprError("Cannot start MPR for %s", mprGetAppName());
-        status = 2;
+        mprSetExitStatus(2);
 
     } else {
-        for (; nextArg < argc; nextArg++) {
-            if (!process(argv[nextArg], 0) && !app->continueOnErrors) {
-                status = 3;
+        for (; nextArg < MPR->argc; nextArg++) {
+            if (!process(MPR->argv[nextArg], 0) && !app->continueOnErrors) {
+                mprSetExitStatus(3);
                 break;
             }
         }
     }
-    mprDestroy(MPR_EXIT_DEFAULT);
-    return status;
+    mprDestroy(MPR_EXIT_IMMEDIATE);
+    return mprGetExitStatus();
 }
 
 
@@ -287,6 +286,8 @@ static void manageApp(void *ptr, int flags)
         mprMark(app->serviceProgram);
     }
 }
+
+
 
 
 static void setAppDefaults()
@@ -310,10 +311,14 @@ static void setAppDefaults()
 }
 
 
+/*
+    Called in response to mprShutdown and mprDestroy
+ */
 static void terminating(int state, int how, int status)
 {
-    if (state >= MPR_STOPPED) {
-        cleanup();
+    if (state >= MPR_STOPPING) {
+        /* Must kill here to wake up the main thread waiting on the service */
+        killService();
     }
 }
 
@@ -563,7 +568,7 @@ static void runService()
     int         err, i, status, ac, next;
 
     app->servicePid = 0;
-    atexit(cleanup);
+    atexit(killService);
 
     mprLog(1, "Watching over %s", app->serviceProgram);
 
@@ -664,7 +669,7 @@ static void runService()
 }
 
 
-static void cleanup()
+static void killService()
 {
     if (app->servicePid > 0) {
         mprLog(1, "Killing %s at pid %d with signal %d", app->serviceProgram, app->servicePid, app->signal);
@@ -726,84 +731,6 @@ static int writePid(int pid)
     }
     close(fd);
     return 0;
-}
-
-
-/*
-    Convert this Manager to a Deaemon
- */
-static int makeDaemon()
-{
-    struct sigaction    act, old;
-    int                 i, pid, status;
-
-    /*
-        Ignore child death signals
-     */
-    memset(&act, 0, sizeof(act));
-    act.sa_sigaction = (void (*)(int, siginfo_t*, void*)) SIG_DFL;
-    sigemptyset(&act.sa_mask);
-    act.sa_flags = SA_NOCLDSTOP | SA_RESTART | SA_SIGINFO;
-
-    if (sigaction(SIGCHLD, &act, &old) < 0) {
-        mprError("Cannot initialize signals");
-        return MPR_ERR_BAD_STATE;
-    }
-    /*
-        Close stdio so shells won't hang
-     */
-    for (i = 0; i < 3; i++) {
-        close(i);
-    }
-    /*
-        Fork twice to get a free child with no parent
-     */
-    if ((pid = fork()) < 0) {
-        mprError("Fork failed for background operation");
-        return MPR_ERR;
-
-    } else if (pid == 0) {
-        if ((pid = fork()) < 0) {
-            mprError("Second fork failed");
-            exit(127);
-
-        } else if (pid > 0) {
-            /* Parent of second child -- must exit */
-            exit(0);
-        }
-
-        /*
-            This is the real child that will continue as a daemon
-         */
-        setsid();
-        if (sigaction(SIGCHLD, &old, 0) < 0) {
-            mprError("Cannot restore signals");
-            return MPR_ERR_BAD_STATE;
-        }
-        mprLog(2, "Switching to background operation");
-        return 0;
-    }
-
-    /*
-        Original process waits for first child here. Must get child death notification with a successful exit status
-     */
-    while (waitpid(pid, &status, 0) != pid) {
-        if (errno == EINTR) {
-            mprSleep(100);
-            continue;
-        }
-        mprError("Cannot wait for daemon parent.");
-        exit(0);
-    }
-    if (WEXITSTATUS(status) != 0) {
-        mprError("Daemon parent had bad exit status.");
-        exit(0);
-    }
-    if (sigaction(SIGCHLD, &old, 0) < 0) {
-        mprError("Cannot restore signals");
-        return MPR_ERR_BAD_STATE;
-    }
-    exit(0);
 }
 
 
@@ -881,7 +808,7 @@ int APIENTRY WinMain(HINSTANCE inst, HINSTANCE junk, char *args, int junk2)
     char    *argv[BIT_MAX_ARGC], *argp;
     int     argc, err, nextArg, status;
 
-	argv[0] = BIT_NAME "Manager";
+    argv[0] = BIT_NAME "Manager";
     argc = mprParseArgs(args, &argv[1], BIT_MAX_ARGC - 1) + 1;
 
     mpr = mprCreate(argc, argv, 0);
@@ -1633,7 +1560,7 @@ static void gracefulShutdown(MprTicks timeout)
         }
     }
     if (app->servicePid) {
-        TerminateProcess((HANDLE) app->servicePid, MPR_EXIT_GRACEFUL);
+        TerminateProcess((HANDLE) app->servicePid, 0);
         app->servicePid = 0;
     }
 }

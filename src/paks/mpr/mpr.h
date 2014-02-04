@@ -1174,7 +1174,7 @@ typedef struct MprHeap {
     MprMemNotifier   notifier;              /**< Memory allocation failure callback */
     MprCond          *gcCond;               /**< GC sleep cond var */
     MprRegion        *regions;              /**< List of memory regions */
-    struct MprThread *gc;                   /**< GC thread */
+    struct MprThread *sweeper;              /**< GC sweeper thread */
     int              mark;                  /**< Mark version */
     int              allocPolicy;           /**< Memory allocation depletion policy */
     int              regionSize;            /**< Memory allocation region size */
@@ -9475,6 +9475,8 @@ PUBLIC void mprNop(void *ptr);
 #define MPR_DISABLE_GC          0x1         /**< Disable GC */
 #define MPR_USER_EVENTS_THREAD  0x2         /**< User will explicitly manage own mprServiceEvents calls */
 #define MPR_NO_WINDOW           0x4         /**< Don't create a windows Window */
+#define MPR_DELAY_GC_THREAD     0x8         /**< Delay starting the GC thread */
+#define MPR_DAEMON              0x10        /**< Make the process a daemon */
 
 /**
     Add a service terminator
@@ -9526,6 +9528,15 @@ PUBLIC void mprAddTerminator(MprTerminator terminator);
     @stability Stable.
  */
 PUBLIC Mpr *mprCreate(int argc, char **argv, int flags);
+
+/**
+    Convert the process into a daemon on unix systems
+    @description This converts the current process into a detached child without a parent.
+    @returns Zero if successful. Otherwise a negative MPR error code.
+    @ingroup Mpr
+    @stability Prototype
+ */
+PUBLIC int mprDaemon();
 
 /**
     Destroy the MPR and all services using the MPR.
@@ -9914,6 +9925,15 @@ PUBLIC bool mprSetCmdlineLogging(bool on);
     @stability Stable.
  */
 PUBLIC void mprSetDebugMode(bool on);
+
+/**
+    Set the proposed exit status
+    @description Set the exit status that can be retrieved via #mprGetExitStatus.
+    @param status Proposed exit status value.
+    @ingroup Mpr
+    @stability Prototype.
+ */
+PUBLIC void mprSetExitStatus(int status);
 
 /**
     Set the current logging level.
