@@ -161,13 +161,15 @@ PUBLIC bool httpAuthenticate(HttpConn *conn)
 {
     HttpRx      *rx;
     HttpAuth    *auth;
-    cchar       *username;
+    cchar       *ip, *username;
 
     rx = conn->rx;
     auth = rx->route->auth;
 
     if (!rx->authenticated) {
-        if ((username = httpGetSessionVar(conn, HTTP_SESSION_USERNAME, 0)) == 0) {
+        ip = httpGetSessionVar(conn, HTTP_SESSION_IP, 0);
+        username = httpGetSessionVar(conn, HTTP_SESSION_USERNAME, 0);
+        if (!smatch(ip, conn->ip) || !username) {
             if (auth->username && *auth->username) {
                 httpLogin(conn, auth->username, NULL);
                 username = httpGetSessionVar(conn, HTTP_SESSION_USERNAME, 0);
@@ -268,6 +270,7 @@ PUBLIC bool httpLogin(HttpConn *conn, cchar *username, cchar *password)
             return 0;
         }
         httpSetSessionVar(conn, HTTP_SESSION_USERNAME, username);
+        httpSetSessionVar(conn, HTTP_SESSION_IP, conn->ip);
     }
     rx->authenticated = 1;
     conn->username = sclone(username);
@@ -670,6 +673,13 @@ PUBLIC int httpSetAuthStore(HttpAuth *auth, cchar *store)
     }
     GRADUATE_HASH(auth, userCache);
     return 0;
+}
+
+
+PUBLIC void httpSetAuthStoreSessions(HttpAuthStore *store, bool noSession)
+{
+    assert(store);
+    store->noSession = noSession;
 }
 
 
@@ -18068,7 +18078,12 @@ PUBLIC char *httpUriEx(HttpConn *conn, cchar *target, MprHash *options)
     //  OPT
     target = httpTemplate(conn, tplate, options);
     uri = httpCreateUri(target, 0);
-    uri = httpResolveUri(httpCreateUri(rx->uri, 0), 1, &uri, 0);
+    /*
+        This was changed from: httpCreateUri(rx->uri) to rx->parsedUri.
+        The use case was appweb: /auth/form/login which redirects using: https:///auth/form/login on localhost:4443
+        This must extract the existing host and port from the prior request
+     */
+    uri = httpResolveUri(rx->parsedUri, 1, &uri, 0);
     httpNormalizeUri(uri);
     return httpUriToString(uri, 0);
 }

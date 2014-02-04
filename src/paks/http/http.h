@@ -3343,18 +3343,17 @@ PUBLIC HttpAuthStore *httpCreateAuthStore(cchar *name, HttpVerifyUser verifyUser
 PUBLIC int httpAddAuthStore(cchar *name, HttpVerifyUser verifyUser);
 #endif
 
-
 /**
     Control whether sessions are created for authenticated logins
     @description By default, a session and response cookie are created when a user is authenticated via #httpLogin.
     This boosts performance because subsequent requests that quote the cookie can bypass authentication.
     This API permits the default behavior to be suppressed and thus no cookie or session will be created.
     @param store AuthStore object created via #httpCreateAuthStore.
-    @param noSessions Set to true to suppress creation of sessions or cookies.
+    @param noSession Set to true to suppress creation of sessions or cookies.
     @ingroup HttpAuth
     @stability Prototype
  */
-PUBLIC void httpSetAuthStoreSessions(HttpAuthStore *store, bool noSessions);
+PUBLIC void httpSetAuthStoreSessions(HttpAuthStore *store, bool noSession);
 
 /**
     Set the verify callback for a authentication store
@@ -5151,6 +5150,7 @@ PUBLIC char *httpExpandUri(HttpConn *conn, cchar *str);
 
 #define HTTP_SESSION_COOKIE     "-http-session-"    /**< Session cookie name */
 #define HTTP_SESSION_USERNAME   "__USERNAME__"      /**< Username variable */
+#define HTTP_SESSION_IP         "__IP__"            /**< Connection IP address - prevents session hijack */
 
 /**
     Session state object

@@ -1587,6 +1587,13 @@
       <arglist>(HttpAuth *auth, cchar *store)</arglist>
     </member>
     <member kind="function">
+      <type>void</type>
+      <name>httpSetAuthStoreSessions</name>
+      <anchorfile>group___http_auth.html</anchorfile>
+      <anchor>ga895c0dc075f8c19759c0f52f06b98567</anchor>
+      <arglist>(HttpAuthStore *store, bool noSession)</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>httpSetAuthType</name>
       <anchorfile>group___http_auth.html</anchorfile>
@@ -3311,6 +3318,13 @@
       <name>name</name>
       <anchorfile>struct_http_auth_store.html</anchorfile>
       <anchor>a0b440dbdd3aa06e0ea63b3627586ba9d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>int</type>
+      <name>noSession</name>
+      <anchorfile>struct_http_auth_store.html</anchorfile>
+      <anchor>a3a3af729cfd76d8497c700f9de6d49c4</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable">
