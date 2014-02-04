@@ -866,7 +866,7 @@ static int issueRequest(HttpConn *conn, cchar *url, MprList *files)
                     url = httpUriToString(target, HTTP_COMPLETE_URI);
                     count = 0;
                 }
-                if (conn->rx && conn->rx->status == HTTP_CODE_UNAUTHORIZED && authType) {
+                if (conn->rx && conn->rx->status == HTTP_CODE_UNAUTHORIZED && authType && smatch(authType, conn->authType)) {
                     /* Supplied authentication details and failed */
                     break;
                 }

@@ -1406,13 +1406,6 @@
     </member>
     <member kind="function">
       <type>int</type>
-      <name>httpAddAuthStore</name>
-      <anchorfile>group___http_auth.html</anchorfile>
-      <anchor>ga3863f1d9e8e297c85355324c24f88c57</anchor>
-      <arglist>(cchar *name, HttpVerifyUser verifyUser)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
       <name>httpAddAuthType</name>
       <anchorfile>group___http_auth.html</anchorfile>
       <anchor>gaa6f7776164fd762e0f107f8049ef2755</anchor>
@@ -1459,6 +1452,13 @@
       <anchorfile>group___http_auth.html</anchorfile>
       <anchor>ga9b67b82baec4f1a4fd9d17d8a25e0d07</anchor>
       <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>HttpAuthStore *</type>
+      <name>httpCreateAuthStore</name>
+      <anchorfile>group___http_auth.html</anchorfile>
+      <anchor>ga94f376c6de2c2f698ab64ffbc75c00cc</anchor>
+      <arglist>(cchar *name, HttpVerifyUser verifyUser)</arglist>
     </member>
     <member kind="function">
       <type>HttpRole *</type>

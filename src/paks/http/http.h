@@ -3230,6 +3230,7 @@ typedef struct HttpAuthType {
  */
 typedef struct HttpAuthStore {
     char            *name;                  /**< Authentication password store name: 'system', 'file' */
+    int             noSession;              /**< Do not create a session after login */
     HttpVerifyUser  verifyUser;             /**< Default user verification routine */
 } HttpAuthStore;
 
@@ -3332,11 +3333,28 @@ PUBLIC int httpAddAuthType(cchar *name, HttpAskLogin askLogin, HttpParseAuth par
     @description This creates an AuthType object with the defined name and callbacks.
     @param name Unique authorization type name
     @param verifyUser Callback to verify the username and password contained in the HttpConn object passed to the callback.
-    @return Zero if successful, otherwise a negative MPR error code
+    @return Auth store if successful, otherwise zero.
     @ingroup HttpAuth
     @stability Evolving
  */
+PUBLIC HttpAuthStore *httpCreateAuthStore(cchar *name, HttpVerifyUser verifyUser);
+
+#if DEPRECATED || 1
 PUBLIC int httpAddAuthStore(cchar *name, HttpVerifyUser verifyUser);
+#endif
+
+
+/**
+    Control whether sessions are created for authenticated logins
+    @description By default, a session and response cookie are created when a user is authenticated via #httpLogin.
+    This boosts performance because subsequent requests that quote the cookie can bypass authentication.
+    This API permits the default behavior to be suppressed and thus no cookie or session will be created.
+    @param store AuthStore object created via #httpCreateAuthStore.
+    @param noSessions Set to true to suppress creation of sessions or cookies.
+    @ingroup HttpAuth
+    @stability Prototype
+ */
+PUBLIC void httpSetAuthStoreSessions(HttpAuthStore *store, bool noSessions);
 
 /**
     Set the verify callback for a authentication store
@@ -6005,6 +6023,7 @@ typedef struct HttpTx {
     HttpUri         *parsedUri;             /**< Client request uri */
     char            *method;                /**< Client request method GET, HEAD, POST, DELETE, OPTIONS, PUT, TRACE */
     cchar           *errorDocument;         /**< Error document to render */
+    char            *authType;              /**< Type of authentication: set to basic, digest, post or a custom name */
 
     struct HttpConn *conn;                  /**< Current connection object */
     MprList         *outputPipeline;        /**< Output processing */

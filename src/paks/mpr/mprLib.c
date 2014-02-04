@@ -1521,7 +1521,6 @@ static void relayInside(void *data, struct MprEvent *event)
 
     op = data;
     mprResumeGC();
-    print("RELAY");
 
     /*
         GC is now enabled, but shutdown is paused because this thread means !idle
@@ -1577,7 +1576,6 @@ PUBLIC int mprCreateEventOutside(MprDispatcher *dispatcher, cchar *name, void *p
         op->cond = mprCreateCond();
         mprHold(op->cond);
     }
-    print("PGC %d", mprGCPaused());
     mprCreateEvent(dispatcher, name, 0, relayInside, op, flags);
 
     if (flags & MPR_EVENT_BLOCK) {
