@@ -17,7 +17,7 @@
     #define BIT_COMPANY "embedthis"
 #endif
 #ifndef BIT_COMPATIBLE
-    #define BIT_COMPATIBLE "0.9.3"
+    #define BIT_COMPATIBLE "0.9.4"
 #endif
 #ifndef BIT_DEBUG
     #define BIT_DEBUG 1
@@ -155,7 +155,7 @@
     #define BIT_TUNE "speed"
 #endif
 #ifndef BIT_VERSION
-    #define BIT_VERSION "0.9.3"
+    #define BIT_VERSION "0.9.4"
 #endif
 #ifndef BIT_WITHOUT_ALL
     #define BIT_WITHOUT_ALL "dsi,man,man2html"
@@ -256,10 +256,10 @@
     #define BIT_MINOR_VERSION 9
 #endif
 #ifndef BIT_PATCH_VERSION
-    #define BIT_PATCH_VERSION 3
+    #define BIT_PATCH_VERSION 4
 #endif
 #ifndef BIT_VNUM
-    #define BIT_VNUM 03
+    #define BIT_VNUM 04
 #endif
 
 /* Packs */

@@ -3,7 +3,7 @@
 #
 
 PRODUCT            := bit
-VERSION            := 0.9.3
+VERSION            := 0.9.4
 PROFILE            := default
 ARCH               := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 CC_ARCH            := $(shell echo $(ARCH) | sed 's/x86/i686/;s/x64/x86_64/')
@@ -182,7 +182,7 @@ clobber: clean
 version: $(DEPS_1)
 	( \
 	cd bits; \
-	echo 0.9.3 ; \
+	echo 0.9.4 ; \
 	)
 
 #
@@ -902,7 +902,7 @@ installBinary: $(DEPS_38)
 	cd .; \
 	mkdir -p "$(BIT_APP_PREFIX)" ; \
 	rm -f "$(BIT_APP_PREFIX)/latest" ; \
-	ln -s "0.9.3" "$(BIT_APP_PREFIX)/latest" ; \
+	ln -s "0.9.4" "$(BIT_APP_PREFIX)/latest" ; \
 	mkdir -p "$(BIT_VAPP_PREFIX)/bin" ; \
 	cp $(CONFIG)/bin/bit $(BIT_VAPP_PREFIX)/bin/bit ; \
 	mkdir -p "$(BIT_BIN_PREFIX)" ; \
