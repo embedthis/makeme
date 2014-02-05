@@ -2264,8 +2264,8 @@
       <type>int</type>
       <name>httpAddSecurityToken</name>
       <anchorfile>group___http_session.html</anchorfile>
-      <anchor>gafcadbc5f304c531aa3375bf6950b2f1d</anchor>
-      <arglist>(HttpConn *conn)</arglist>
+      <anchor>ga6885fbd081fff504033038a476311023</anchor>
+      <arglist>(HttpConn *conn, bool recreate)</arglist>
     </member>
     <member kind="function">
       <type>HttpSession *</type>
@@ -2299,8 +2299,8 @@
       <type>cchar *</type>
       <name>httpGetSecurityToken</name>
       <anchorfile>group___http_session.html</anchorfile>
-      <anchor>ga57f15d62e4b0acec465c1c9e44e2b61d</anchor>
-      <arglist>(HttpConn *conn)</arglist>
+      <anchor>gaf9cf17d34b63a2982e6d4d9eb3f4c6cf</anchor>
+      <arglist>(HttpConn *conn, bool recreate)</arglist>
     </member>
     <member kind="function">
       <type>HttpSession *</type>

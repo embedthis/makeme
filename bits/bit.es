@@ -1050,7 +1050,7 @@ public class Bit {
             if (Path(MAIN).exists) {
                 throw 'Cannot find suitable ' + START + '.\nRun "bit configure" first.'
             } else {
-                if (options.gen != 'start') {
+                if (options.gen != 'start' && options.gen != 'main') {
                     throw 'Cannot find suitable ' + START + '.\nRun "bit --gen start" to create stub start.bit'
                 }
             }

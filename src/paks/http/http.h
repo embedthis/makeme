@@ -5329,26 +5329,29 @@ PUBLIC bool httpCheckSecurityToken(HttpConn *conn);
 
 /**
     Get a unique security token.
-    @description This will get an existing security token or create a new token if none exist for the current request.
-        The security token will be stored in the session state for validation by subsequent requests.
+    @description This will get an existing security token or create a new token if one does not exist.
+        If recreate is true, the security token will be recreated.
+        Use #httpAddSecurityToken to add the token to the response headers.
     @param conn HttpConn connection object
+    @param recreate Set to true to recreate the security token.
     @return The security token string
     @ingroup HttpSession
     @stability Prototype
 */
-PUBLIC cchar *httpGetSecurityToken(HttpConn *conn);
+PUBLIC cchar *httpGetSecurityToken(HttpConn *conn, bool recreate);
 
 /**
     Add the security token to the response.
     @description To minimize form replay attacks, a security token may be required for POST requests on a route.
     This call will set a security token in the response as a response header and as a response cookie.  
     Client-side Javascript must then send this token as a request header in subsquent POST requests.
-    To configure a route to require security tokens, call #httpSetRouteXsrf.
+    To configure a route to require security tokens, use #httpSetRouteXsrf.
     @param conn Http connection object
+    @param recreate Set to true to recreate the security token.
     @ingroup HttpSession
     @stability Prototype
 */
-PUBLIC int httpAddSecurityToken(HttpConn *conn);
+PUBLIC int httpAddSecurityToken(HttpConn *conn, bool recreate);
 
 #if DEPRECATED || 1
 #define httpRenderSecurityToken httpAddSecurityToken
@@ -5489,6 +5492,7 @@ typedef struct HttpRx {
 
     /* 
         Header values
+        TODO - these should be cchar
      */
     char            *accept;                /**< Accept header */
     char            *acceptCharset;         /**< Accept-Charset header */
@@ -6386,7 +6390,10 @@ PUBLIC void httpSetContentType(HttpConn *conn, cchar *mimeType);
     @param name Cookie name
     @param value Cookie value
     @param path URI path to which the cookie applies
-    @param domain Domain in which the cookie applies. Must have 2-3 dots.
+    @param domain Domain in which the cookie applies. Must have 2-3 dots. If null, a domain is created using the
+        current request host header. If set to the empty string, the domain field is omitted.
+        If the domain is a numerical IP address or localhost, the domain will not be included as the browsers do not support this
+        pattern consistently.
     @param lifespan Duration for the cookie to persist in msec
     @param flags Cookie options mask. The following options are supported:
         @li HTTP_COOKIE_SECURE   - Set the 'Secure' attribute on the cookie.

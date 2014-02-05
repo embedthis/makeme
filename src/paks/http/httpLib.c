@@ -13065,7 +13065,7 @@ PUBLIC void httpSetMethod(HttpConn *conn, cchar *method)
 static int setParsedUri(HttpConn *conn)
 {
     HttpRx      *rx;
-    char        *cp;
+    HttpUri     *up;
     cchar       *hostname;
 
     rx = conn->rx;
@@ -13078,16 +13078,14 @@ static int setParsedUri(HttpConn *conn)
         Complete the URI based on the connection state.
         Must have a complete scheme, host, port and path.
      */
-    rx->parsedUri->scheme = sclone(conn->secure ? "https" : "http");
+    up = rx->parsedUri;
+    up->scheme = sclone(conn->secure ? "https" : "http");
     hostname = rx->hostHeader ? rx->hostHeader : conn->host->name;
     if (!hostname) {
         hostname = conn->sock->acceptIp;
     }
-    rx->parsedUri->host = sclone(hostname);
-    if ((cp = strchr(rx->parsedUri->host, ':')) != 0) {
-        *cp = '\0';
-    }
-    rx->parsedUri->port = conn->sock->listenSock->port;
+    mprParseSocketAddress(hostname, &up->host, NULL, NULL, 0);
+    up->port = conn->sock->listenSock->port;
     return 0;
 }
 
@@ -14937,13 +14935,13 @@ PUBLIC HttpSession *httpGetSession(HttpConn *conn, int create)
                 return 0;
             }
             unlock(http);
-            if ((rx->session = allocSessionObj(conn, id, NULL)) != 0) {
-                flags = (rx->route->flags & HTTP_ROUTE_VISIBLE_SESSION) ? 0 : HTTP_COOKIE_HTTP;
-                httpSetCookie(conn, HTTP_SESSION_COOKIE, rx->session->id, "/", NULL, rx->session->lifespan, flags);
-            }
-            if (rx->route->flags & HTTP_ROUTE_XSRF) {
-                createSecurityToken(conn);
-                httpAddSecurityToken(conn);
+
+            rx->session = allocSessionObj(conn, id, NULL);
+            flags = (rx->route->flags & HTTP_ROUTE_VISIBLE_SESSION) ? 0 : HTTP_COOKIE_HTTP;
+            httpSetCookie(conn, HTTP_SESSION_COOKIE, rx->session->id, "/", NULL, rx->session->lifespan, flags);
+
+            if ((rx->route->flags & HTTP_ROUTE_XSRF) && rx->securityToken) {
+                httpSetSessionVar(conn, BIT_XSRF_COOKIE, rx->securityToken);
             }
         }
     }
@@ -15111,18 +15109,30 @@ static cchar *createSecurityToken(HttpConn *conn)
     HttpRx      *rx;
 
     rx = conn->rx;
-    rx->securityToken = 0;
-
-    /*
-        The call to httpSetSessionVar below may create a session which may call this function.
-        To eliminate a double call, get the session first.
-     */
-    if (!rx->session) {
-        /* httpGetSesion may call this function if it creates a session */ 
-        httpGetSession(conn, 1);
-    }
     if (!rx->securityToken) {
         rx->securityToken = mprGetRandomString(32);
+    }
+    return rx->securityToken;
+}
+
+
+/*
+    Get the security token from the session. Create one if one does not exist. Store the token in session store.
+    Recreate if required.
+ */
+PUBLIC cchar *httpGetSecurityToken(HttpConn *conn, bool recreate)
+{
+    HttpRx      *rx;
+
+    rx = conn->rx;
+
+    if (recreate) {
+        rx->securityToken = 0;
+    } else {
+        rx->securityToken = (char*) httpGetSessionVar(conn, BIT_XSRF_COOKIE, 0);
+    }
+    if (rx->securityToken == 0) {
+        createSecurityToken(conn);
         httpSetSessionVar(conn, BIT_XSRF_COOKIE, rx->securityToken);
     }
     return rx->securityToken;
@@ -15130,32 +15140,14 @@ static cchar *createSecurityToken(HttpConn *conn)
 
 
 /*
-    Get the security token. Create one if required.
- */
-PUBLIC cchar *httpGetSecurityToken(HttpConn *conn)
-{
-    HttpRx      *rx;
-
-    rx = conn->rx;
-
-    if (rx->securityToken == 0) {
-        rx->securityToken = (char*) httpGetSessionVar(conn, BIT_XSRF_COOKIE, 0);
-        if (rx->securityToken == 0) {
-            createSecurityToken(conn);
-        }
-    }
-    return rx->securityToken;
-}
-
-
-/*
     Add the security token to a XSRF cookie and response header
+    Set recreate to true to force a recreation of the token.
  */
-PUBLIC int httpAddSecurityToken(HttpConn *conn) 
+PUBLIC int httpAddSecurityToken(HttpConn *conn, bool recreate) 
 {
     cchar   *securityToken;
 
-    securityToken = httpGetSecurityToken(conn);
+    securityToken = httpGetSecurityToken(conn, recreate);
     httpSetCookie(conn, BIT_XSRF_COOKIE, securityToken, "/", NULL,  0, 0);
     httpSetHeader(conn, BIT_XSRF_HEADER, securityToken);
     return 0;
@@ -15182,11 +15174,9 @@ PUBLIC bool httpCheckSecurityToken(HttpConn *conn)
 #endif
         if (!smatch(sessionToken, requestToken)) {
             /*
-                Potential CSRF attack. Deny request.
-                Re-create a new security token so legitimate clients can retry.
+                Potential CSRF attack. Deny request. Re-create a new security token so legitimate clients can retry.
              */
-            createSecurityToken(conn);
-            httpAddSecurityToken(conn);
+            httpAddSecurityToken(conn, 1);
             return 0;
         }
     }
@@ -16149,14 +16139,17 @@ PUBLIC void httpSetCookie(HttpConn *conn, cchar *name, cchar *value, cchar *path
     if (path == 0) {
         path = "/";
     }
-    domain = (char*) cookieDomain;
-    if (!domain) {
-        domain = sclone(rx->hostHeader);
-        if ((cp = strchr(domain, ':')) != 0) {
-            *cp = '\0';
+    domain = 0;
+    if (cookieDomain) {
+        if (*cookieDomain) {
+            domain = (char*) cookieDomain;
+        } else {
+            /* Omit domain if set to empty string */
         }
-        if (*domain && domain[strlen(domain) - 1] == '.') {
-            domain[strlen(domain) - 1] = '\0';
+    } else if (rx->hostHeader) {
+        mprParseSocketAddress(rx->hostHeader, &domain, NULL, NULL, 0);
+        if (domain && (*domain == ':' || isdigit(*domain))) {
+            domain = 0;
         }
     }
     domainAtt = domain ? "; domain=" : "";

@@ -205,7 +205,7 @@
 #define _h_SLOTS_EjsSlots 1
 
 #ifndef EJS_VERSION
-    #define EJS_VERSION "2.3.4"
+    #define EJS_VERSION "2.3.5"
 #endif
 
 /*
