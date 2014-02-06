@@ -29,15 +29,11 @@ purpose. It is provided "as is" without express or implied warranty of any
 kind. These notices must be retained in any copies of any part of this 
 documentation and/or software. 
 
-###Qsort Routine License
-
-[QSort BSD 2 Clause](http://opensource.org/licenses/BSD-2-Claus
-
 ###EST License
 
 The optional EST SSL stack includes code from TropicSSL in the est library.
 
-[TropicSSL License - BSD 2 Clause](http://opensource.org/licenses/BSD-2-Clause
+[TropicSSL License - BSD 2 Clause](http://opensource.org/licenses/BSD-2-Clause)
 
 Trademarks and Copyrights
 ---

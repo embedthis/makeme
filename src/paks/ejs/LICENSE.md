@@ -36,17 +36,12 @@ FITNESS FOR ANY PARTICULAR PURPOSE.
 
 The optional EST SSL stack includes code from TropicSSL.
 
-[TropicSSL License - BSD 2 Clause](http://opensource.org/licenses/BSD-2-Clause
+[TropicSSL License - BSD 2 Clause](http://opensource.org/licenses/BSD-2-Clause)
 
 
 ###JQuery License
 
 [JQuery](http://jquery.org/license/) - [MIT](http://opensource.org/licenses/MIT)
-
-
-###Qsort Routine License
-
-[QSort BSD 2 Clause](http://opensource.org/licenses/BSD-2-Claus
 
 
 ###Perl Regular Expressions License

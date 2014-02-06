@@ -38,14 +38,10 @@ The optional EST SSL stack includes code from TropicSSL.
 TropicSSL - [BSD License](http://opensource.org/licenses/BSD-2-Clause
 
 
-###Qsort Routine License
-
-QSort - [BSD License](http://opensource.org/licenses/BSD-2-Clause)
-
-
 ###Perl Regular Expressions License
 
 PCRE - [BSD License](http://opensource.org/licenses/BSD-2-Clause)
+
 
 ###RSA MD5 License
 

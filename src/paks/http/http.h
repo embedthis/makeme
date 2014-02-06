@@ -5795,7 +5795,8 @@ PUBLIC bool httpMatchParam(HttpConn *conn, cchar *var, cchar *expected);
 
 /** 
     Read rx body data. 
-    @description This routine will read body data.
+    @description This routine will read body data from the connection read queue (HttpConn.readq) which is at the head
+    of the response pipeline.
     \n\n
     This call will block depending on whether the connection is in async or sync mode. Sync mode is 
     the default for client connections and async for server connections.
@@ -5808,6 +5809,9 @@ PUBLIC bool httpMatchParam(HttpConn *conn, cchar *var, cchar *expected);
     \n\n
     This call will block for at most the timeout specified by the connection inactivity timeout defined in 
     HttpConn.limits.inactivityTimeout. Use #httpSetTimeout to change the timeout value.
+    \n\n
+    Server applications often prefer to access packets directly from the connection readq which offers a higher performance
+    interface.
 
     @param conn HttpConn connection object created via #httpCreateConn
     @param buffer Buffer to receive read data
@@ -5831,6 +5835,10 @@ PUBLIC ssize httpRead(HttpConn *conn, char *buffer, ssize size);
     \n\n
     This call will block for at most the timeout specified by the connection inactivity timeout defined in 
     HttpConn.limits.inactivityTimeout. Use #httpSetTimeout to change the timeout value.
+    \n\n
+    Server applications should not call httpReadBlock in blocking mode as it will consume a valuable thread.
+    Rather, server apps should perform non-blocking reads or access packets directly from the connection readq 
+   which offers a higher performance interface.
 
     @param conn HttpConn connection object created via #httpCreateConn
     @param buffer Buffer to receive read data
