@@ -379,7 +379,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
     app->ejs = 0;
     app->compiler = 0;
     ejsDestroy(ejs);
-    mprDestroy(MPR_EXIT_GRACEFUL);
+    mprDestroy(MPR_EXIT_DEFAULT);
     return err;
 }
 

@@ -288,6 +288,13 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>MPR_DAEMON</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>ad1645441f4f2593704607bcaf695c0cb</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>MPR_DEBUG</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a990bc0ed43b1479ca1ea9e9c81fbb13a</anchor>
@@ -319,6 +326,13 @@
       <name>MPR_DEFAULT_MIN_THREADS</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a73941169dddea56ea21e373e25d6f630</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MPR_DELAY_GC_THREAD</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>ad957b8831fcd63137def593388ee9f73</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -2597,6 +2611,13 @@
       <arglist>(cchar *password, cchar *salt, int rounds)</arglist>
     </member>
     <member kind="function">
+      <type>int</type>
+      <name>mprDaemon</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>ga2db675dae92591c09c95fc6e640eb3cb</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
       <type>char *</type>
       <name>mprDecode64</name>
       <anchorfile>group___mpr.html</anchorfile>
@@ -4109,6 +4130,13 @@
       <arglist>(MprBuf *buf)</arglist>
     </member>
     <member kind="function">
+      <type>char *</type>
+      <name>mprLookupCache</name>
+      <anchorfile>group___mpr_cache.html</anchorfile>
+      <anchor>ga130657a098256f4589720ff569656479</anchor>
+      <arglist>(MprCache *cache, cchar *key, MprTime *modified, int64 *version)</arglist>
+    </member>
+    <member kind="function">
       <type>MprFileSystem *</type>
       <name>mprLookupFileSystem</name>
       <anchorfile>group___mpr_file_system.html</anchorfile>
@@ -4761,6 +4789,13 @@
     </member>
     <member kind="function">
       <type>int</type>
+      <name>mprRun</name>
+      <anchorfile>group___mpr_cmd.html</anchorfile>
+      <anchor>ga03f3b71716eefb236c7a88a4a92acbe4</anchor>
+      <arglist>(MprDispatcher *dispatcher, cchar *command, cchar *input, char **output, char **error, MprTicks timeout)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
       <name>mprRunCmd</name>
       <anchorfile>group___mpr_cmd.html</anchorfile>
       <anchor>gaea3178396a249792e696eb04ee9df3ba</anchor>
@@ -4975,6 +5010,13 @@
       <anchorfile>group___mpr_dispatcher.html</anchorfile>
       <anchor>gaecca029381f63b1dbd33b5df3556cc3d</anchor>
       <arglist>(MprTicks delay)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>mprSetExitStatus</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>gaf879e1101793951172696115c02ca346</anchor>
+      <arglist>(int status)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -9714,6 +9756,13 @@
     </member>
     <member kind="function">
       <type>int</type>
+      <name>mprRun</name>
+      <anchorfile>group___mpr_cmd.html</anchorfile>
+      <anchor>ga03f3b71716eefb236c7a88a4a92acbe4</anchor>
+      <arglist>(MprDispatcher *dispatcher, cchar *command, cchar *input, char **output, char **error, MprTicks timeout)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
       <name>mprRunCmd</name>
       <anchorfile>group___mpr_cmd.html</anchorfile>
       <anchor>gaea3178396a249792e696eb04ee9df3ba</anchor>
@@ -9842,6 +9891,13 @@
       <anchorfile>group___mpr_cache.html</anchorfile>
       <anchor>ga217793852b371ff5520edc80bc64358c</anchor>
       <arglist>(MprCache *cache, cchar *key, int64 amount)</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
+      <name>mprLookupCache</name>
+      <anchorfile>group___mpr_cache.html</anchorfile>
+      <anchor>ga130657a098256f4589720ff569656479</anchor>
+      <arglist>(MprCache *cache, cchar *key, MprTime *modified, int64 *version)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -9999,6 +10055,13 @@
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>ga39a7ff3da39a15a0de318740dc635a8c</anchor>
       <arglist>(cchar *password, cchar *salt, int rounds)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>mprDaemon</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>ga2db675dae92591c09c95fc6e640eb3cb</anchor>
+      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>char *</type>
@@ -10377,6 +10440,13 @@
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>gaa335e1d324029029795409a9a857dbdf</anchor>
       <arglist>(cchar *key, cchar *value)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>mprSetExitStatus</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>gaf879e1101793951172696115c02ca346</anchor>
+      <arglist>(int status)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -10854,13 +10924,6 @@
       <arglist></arglist>
     </member>
     <member kind="variable">
-      <type>struct MprThread *</type>
-      <name>gc</name>
-      <anchorfile>struct_mpr_heap.html</anchorfile>
-      <anchor>a07b5825be0679c095b472b9530208ca5</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
       <type>MprCond *</type>
       <name>gcCond</name>
       <anchorfile>struct_mpr_heap.html</anchorfile>
@@ -10991,6 +11054,13 @@
       <name>stats</name>
       <anchorfile>struct_mpr_heap.html</anchorfile>
       <anchor>a9f0beb949f7dca0391674c513f850260</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>struct MprThread *</type>
+      <name>sweeper</name>
+      <anchorfile>struct_mpr_heap.html</anchorfile>
+      <anchor>ad759957970a593589af4301a8cdfff07</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable">

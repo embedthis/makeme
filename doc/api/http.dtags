@@ -2026,6 +2026,13 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>httpSetRouteCookie</name>
+      <anchorfile>group___http_route.html</anchorfile>
+      <anchor>gaa866b1973062f7ac9ede6b344099f4d8</anchor>
+      <arglist>(HttpRoute *route, cchar *cookie)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>httpSetRouteData</name>
       <anchorfile>group___http_route.html</anchorfile>
       <anchor>gaf63bed103e906efe134668c20e5338ef</anchor>

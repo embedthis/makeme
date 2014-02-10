@@ -1078,10 +1078,13 @@ typedef struct MprFreeQueue {
 
 /**
     Memory allocation error callback. Notifiers are called if a low memory condition exists.
-    @param policy Memory depletion policy. Set to one of MPR_ALLOC_POLICY_NOTHING, MPR_ALLOC_POLICY_PRUNE,
-    MPR_ALLOC_POLICY_RESTART or MPR_ALLOC_POLICY_EXIT.  @param cause Cause of the memory allocation condition. If flags is
-    set to MPR_MEM_LOW, the memory pool is low, but the allocation succeeded. If flags contain MPR_MEM_DEPLETED, the
-    allocation failed.
+    @param cause Set to the cause of the memory error. Set to #MPR_MEM_WARNING if the allocation will exceed the warnHeap
+        limit. Set to #MPR_MEM_LIMIT if it would exceed the maxHeap memory limit. Set to #MPR_MEM_FAIL if the allocation failed.
+        Set to #MPR_MEM_TOO_BIG if the allocation block size is too large.
+        Allocations will be rejected for MPR_MEM_FAIL and MPR_MEM_TOO_BIG, otherwise the allocations will proceed and the 
+        memory notifier will be invoked.
+    @param policy Memory depletion policy. Set to one of #MPR_ALLOC_POLICY_NOTHING, #MPR_ALLOC_POLICY_PRUNE,
+        #MPR_ALLOC_POLICY_RESTART or #MPR_ALLOC_POLICY_EXIT.  
     @param size Size of the allocation that triggered the low memory condition.
     @param total Total memory currently in use
     @ingroup MprMem
@@ -1595,6 +1598,7 @@ PUBLIC void *mprAllocFast(size_t usize);
 /******************************** Garbage Coolector ***************************/
 /**
     Add a memory block as a root for garbage collection
+    @description Remove the root when no longer required via #mprAddRoot.
     @param ptr Any memory pointer
     @ingroup MprMem
     @stability Stable.
@@ -1707,7 +1711,8 @@ PUBLIC void mprRelease(cvoid *ptr);
 PUBLIC void mprReleaseBlocks(cvoid *ptr, ...);
 
 /**
-    remove a memory block as a root for garbage collection
+    Remove a memory block as a root for garbage collection
+    @description The memory block should have previously been added as a root via #mprAddRoot.
     @param ptr Any memory pointer
     @ingroup MprMem
     @stability Stable.
@@ -8898,6 +8903,20 @@ PUBLIC ssize mprReadCmd(MprCmd *cmd, int channel, char *buf, ssize bufsize);
 PUBLIC int mprReapCmd(MprCmd *cmd, MprTicks timeout);
 
 /**
+    Run a simple blocking command using a string command line. 
+    @param dispatcher MprDispatcher event queue to use for waiting. Set to NULL to use the default MPR dispatcher.
+    @param command Command line to run
+    @param input Command input. Data to write to the command which will be received on the comamnds stdin.
+    @param output Reference to a string to receive the stdout from the command.
+    @param error Reference to a string to receive the stderr from the command.
+    @param timeout Time in milliseconds to wait for the command to complete and exit.
+    @return Command exit status, or negative MPR error code.
+    @ingroup MprCmd
+    @stability Prototype
+ */
+PUBLIC int mprRun(MprDispatcher *dispatcher, cchar *command, cchar *input, char **output, char **error, MprTicks timeout);
+
+/**
     Run a command using a string command line. This starts the command via mprStartCmd() and waits for its completion.
     @param cmd MprCmd object created via mprCreateCmd
     @param command Command line to run
@@ -8911,6 +8930,8 @@ PUBLIC int mprReapCmd(MprCmd *cmd, MprTicks timeout);
         MPR_CMD_NEW_SESSION     Create a new session on Unix
         MPR_CMD_SHOW            Show the commands window on Windows
         MPR_CMD_IN              Connect to stdin
+        MPR_CMD_OUT             Capture stdout
+        MPR_CMD_ERR             Capture stderr
         MPR_CMD_EXACT_ENV       Use the exact environment supplied. Don't inherit and blend with existing environment.
     @return Command exit status, or negative MPR error code.
     @ingroup MprCmd
@@ -8933,6 +8954,8 @@ PUBLIC int mprRunCmd(MprCmd *cmd, cchar *command, cchar **envp, cchar *in, char 
         MPR_CMD_NEW_SESSION     Create a new session on Unix
         MPR_CMD_SHOW            Show the commands window on Windows
         MPR_CMD_IN              Connect to stdin
+        MPR_CMD_OUT             Capture stdout
+        MPR_CMD_ERR             Capture stderr
     @return Zero if successful. Otherwise a negative MPR error code.
     @ingroup MprCmd
     @stability Stable

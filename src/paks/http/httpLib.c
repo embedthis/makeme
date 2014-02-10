@@ -257,6 +257,12 @@ PUBLIC bool httpLogin(HttpConn *conn, cchar *username, cchar *password)
         mprError("No user verification routine defined on route %s", rx->route->name);
         return 0;
     }
+    if (!auth->store->noSession) {
+        if ((session = httpCreateSession(conn)) == 0) {
+            /* Too many sessions */
+            return 0;
+        }
+    }
     if (auth->username && *auth->username) {
         /* If using auto-login, replace the username */
         username = auth->username;
@@ -266,9 +272,6 @@ PUBLIC bool httpLogin(HttpConn *conn, cchar *username, cchar *password)
         return 0;
     }
     if (!auth->store->noSession) {
-        if ((session = httpCreateSession(conn)) == 0) {
-            return 0;
-        }
         httpSetSessionVar(conn, HTTP_SESSION_USERNAME, username);
         httpSetSessionVar(conn, HTTP_SESSION_IP, conn->ip);
     }
@@ -8357,6 +8360,7 @@ PUBLIC HttpRoute *httpCreateInheritedRoute(HttpRoute *parent)
     route->sourceName = parent->sourceName;
     route->ssl = parent->ssl;
     route->target = parent->target;
+    route->cookie = parent->cookie;
     route->targetRule = parent->targetRule;
     route->tokens = parent->tokens;
     route->updates = parent->updates;
@@ -8443,6 +8447,7 @@ static void manageRoute(HttpRoute *route, int flags)
         mprMark(route->corsOrigin);
         mprMark(route->corsHeaders);
         mprMark(route->corsMethods);
+        mprMark(route->cookie);
 
     } else if (flags & MPR_MANAGE_FREE) {
         if (route->patternCompiled && (route->flags & HTTP_ROUTE_FREE_PATTERN)) {
@@ -9596,6 +9601,14 @@ PUBLIC void httpSetRouteMethods(HttpRoute *route, cchar *methods)
 {
     route->methods = mprCreateHash(HTTP_SMALL_HASH_SIZE, MPR_HASH_STATIC_VALUES | MPR_HASH_STABLE);
     httpAddRouteMethods(route, methods);
+}
+
+
+PUBLIC void httpSetRouteCookie(HttpRoute *route, cchar *cookie)
+{
+    assert(route);
+    assert(cookie && *cookie);
+    route->cookie = cookie;
 }
 
 
@@ -12792,6 +12805,10 @@ static void createErrorRequest(HttpConn *conn)
      */
     key = 0;
     headers = 0;
+    /*
+        Ensure buffer always has a trailing null (one past buf->end)
+     */
+    mprAddNullToBuf(buf);
     for (cp = buf->data; cp < &buf->end[-1]; cp++) {
         if (*cp == '\0') {
             if (cp[1] == '\n') {
@@ -12799,6 +12816,9 @@ static void createErrorRequest(HttpConn *conn)
                     headers = &cp[2];
                 }
                 *cp = '\r';
+                if (&cp[4] <= buf->end && cp[2] == '\r' && cp[3] == '\n') {
+                    cp[4] = '\0';
+                }
                 key = 0;
             } else if (!key) {
                 *cp = ':';
@@ -14651,6 +14671,7 @@ PUBLIC void httpGetStats(HttpStats *sp)
     MprKey              *kp;
     MprMemStats         *ap;
     MprWorkerStats      wstats;
+    ssize               memSessions;
 
     memset(sp, 0, sizeof(*sp));
     http = MPR->httpService;
@@ -14671,10 +14692,11 @@ PUBLIC void httpGetStats(HttpStats *sp)
     sp->workersYielded = wstats.yielded;
     sp->workersMax = wstats.max;
 
-    sp->activeVMs = http->activeVMs;
     sp->activeConnections = mprGetListLength(http->connections);
     sp->activeProcesses = http->activeProcesses;
-    sp->activeSessions = http->activeSessions;
+
+    mprGetCacheStats(http->sessionCache, &sp->activeSessions, &memSessions);
+    sp->memSessions = memSessions;
 
     lock(http->addresses);
     for (ITERATE_KEY_DATA(http->addresses, kp, address)) {
@@ -14682,10 +14704,10 @@ PUBLIC void httpGetStats(HttpStats *sp)
         sp->activeClients++;
     }
     unlock(http->addresses);
+
     sp->totalRequests = http->totalRequests;
     sp->totalConnections = http->totalConnections;
     sp->totalSweeps = MPR->heap->iteration;
-
 }
 
 
@@ -14710,6 +14732,7 @@ PUBLIC char *httpStatsReport(int flags)
     mprPutToBuf(buf, "Heap        %8.1f MB, %5.1f%% mem\n", s.heap / mb, s.heap / (double) s.mem * 100.0);
     mprPutToBuf(buf, "Heap-used   %8.1f MB, %5.1f%% used\n", s.heapUsed / mb, s.heapUsed / (double) s.heap * 100.0);
     mprPutToBuf(buf, "Heap-free   %8.1f MB, %5.1f%% free\n", s.heapFree / mb, s.heapFree / (double) s.heap * 100.0);
+    mprPutToBuf(buf, "Sessions    %8.1f MB\n", s.memSessions / mb);
 
     mprPutCharToBuf(buf, '\n');
     mprPutToBuf(buf, "CPUs        %8d\n", s.cpus);
@@ -14725,7 +14748,6 @@ PUBLIC char *httpStatsReport(int flags)
     mprPutToBuf(buf, "Processes   %8d active\n", s.activeProcesses);
     mprPutToBuf(buf, "Requests    %8d active\n", s.activeRequests);
     mprPutToBuf(buf, "Sessions    %8d active\n", s.activeSessions);
-    mprPutToBuf(buf, "VMs         %8d active\n", s.activeVMs);
     mprPutCharToBuf(buf, '\n');
 
     mprPutToBuf(buf, "Workers     %8d busy - %d yielded, %d idle, %d max\n", 
@@ -14870,19 +14892,23 @@ PUBLIC void httpSetSessionNotify(MprCacheProc callback)
 PUBLIC void httpDestroySession(HttpConn *conn)
 {
     Http        *http;
+    HttpRx      *rx;
     HttpSession *sp;
+    cchar       *cookie;
 
     http = conn->http;
+    rx = conn->rx;
     assert(http);
 
     lock(http);
     if ((sp = httpGetSession(conn, 0)) != 0) {
-        httpRemoveCookie(conn, HTTP_SESSION_COOKIE);
+        cookie = rx->route->cookie ? rx->route->cookie : HTTP_SESSION_COOKIE;
+        httpRemoveCookie(conn, rx->route->cookie);
         mprExpireCacheItem(sp->cache, sp->id, 0);
         sp->id = 0;
-        conn->rx->session = 0;
+        rx->session = 0;
     }
-    conn->rx->sessionProbed = 0;
+    rx->sessionProbed = 0;
     unlock(http);
 }
 
@@ -14904,7 +14930,7 @@ PUBLIC HttpSession *httpGetSession(HttpConn *conn, int create)
 {
     Http        *http;
     HttpRx      *rx;
-    cchar       *data, *id;
+    cchar       *cookie, *data, *id;
     static int  nextSession = 0;
     int         flags;
 
@@ -14938,7 +14964,9 @@ PUBLIC HttpSession *httpGetSession(HttpConn *conn, int create)
 
             rx->session = allocSessionObj(conn, id, NULL);
             flags = (rx->route->flags & HTTP_ROUTE_VISIBLE_SESSION) ? 0 : HTTP_COOKIE_HTTP;
-            httpSetCookie(conn, HTTP_SESSION_COOKIE, rx->session->id, "/", NULL, rx->session->lifespan, flags);
+            cookie = rx->route->cookie ? rx->route->cookie : HTTP_SESSION_COOKIE;
+            httpSetCookie(conn, cookie, rx->session->id, "/", NULL, rx->session->lifespan, flags);
+            mprLog(3, "session: create new cookie %s=%s", cookie, rx->session->id);
 
             if ((rx->route->flags & HTTP_ROUTE_XSRF) && rx->securityToken) {
                 httpSetSessionVar(conn, BIT_XSRF_COOKIE, rx->securityToken);
@@ -15080,6 +15108,7 @@ PUBLIC int httpWriteSession(HttpConn *conn)
 PUBLIC cchar *httpGetSessionID(HttpConn *conn)
 {
     HttpRx  *rx;
+    cchar   *cookie;
 
     assert(conn);
     rx = conn->rx;
@@ -15094,7 +15123,8 @@ PUBLIC cchar *httpGetSessionID(HttpConn *conn)
         return 0;
     }
     rx->sessionProbed = 1;
-    return httpGetCookie(conn, HTTP_SESSION_COOKIE);
+    cookie = rx->route->cookie ? rx->route->cookie : HTTP_SESSION_COOKIE;
+    return httpGetCookie(conn, cookie);
 }
 
 

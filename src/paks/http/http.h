@@ -553,7 +553,6 @@ typedef struct Http {
     uint64          totalConnections;       /**< Total connections accepted */
     uint64          totalRequests;          /**< Total requests served */
 
-    int             activeVMs;              /**< Number of ejs VMs */
     int             flags;                  /**< Open flags */
     void            *context;               /**< Embedding context */
     MprTicks        currentTime;            /**< When currentDate was last calculated (ticks) */
@@ -765,6 +764,7 @@ typedef struct HttpStats {
     uint64  mem;                        /**< Current application memory */
     uint64  memRedline;                 /**< Memory heap warnHeap limit */
     uint64  memMax;                     /**< Memory heap maximum permitted */
+    uint64  memSessions;                /**< Memory used for sessions */ 
 
     uint64  heap;                       /**< Current application heap memory */
     uint64  heapUsed;                   /**< Current heap memory in use */
@@ -780,7 +780,6 @@ typedef struct HttpStats {
     int     activeProcesses;            /**< Current active processes */
     int     activeRequests;             /**< Current active requests */
     int     activeSessions;             /**< Current active sessions */
-    int     activeVMs;                  /**< Current ejs VMs */
 
     uint64  totalSweeps;                /**< Total GC sweeps */
     uint64  totalRequests;              /**< Total requests served */
@@ -3961,6 +3960,7 @@ typedef struct HttpRoute {
     HttpTrace       trace[2];               /**< Default route request tracing */
     int             traceMask;              /**< Request/response trace mask */
 
+    cchar           *cookie;                /**< Cookie name for session data */
     cchar           *corsOrigin;            /**< CORS permissible client origins */
     cchar           *corsHeaders;           /**< Headers to add for Access-Control-Expose-Headers */
     cchar           *corsMethods;           /**< Methods to add for Access-Control-Allow-Methods */
@@ -4803,6 +4803,15 @@ PUBLIC void httpSetRouteIgnoreEncodingErrors(HttpRoute *route, bool on);
     @stability Evolving
  */
 PUBLIC void httpSetRouteMethods(HttpRoute *route, cchar *methods);
+
+/**
+    Set the route session cookie
+    @param route Route to modify
+    @param cookie Session cookie name
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC void httpSetRouteCookie(HttpRoute *route, cchar *cookie);
 
 /**
     Set the route name

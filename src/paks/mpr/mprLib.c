@@ -1922,9 +1922,21 @@ PUBLIC void *mprCopyName(void *dest, void *src)
 
 /********************************************* Misc ***************************************************/
 
+static void printMemWarn(size_t used, bool critical)
+{
+    static int once = 0;
+
+    if (once++ == 0 || critical) {
+        mprLog(0, "%s: Memory used %,d, redline %,d, limit %,d.", MPR->name, (int) used, (int) heap->stats.warnHeap,
+            (int) heap->stats.maxHeap);
+    }
+}
+
+
 static void allocException(int cause, size_t size)
 {
-    size_t  used;
+    size_t      used;
+    static int  once = 0;
 
     INC(errors);
     if (heap->stats.inMemException || mprIsStopping()) {
@@ -1936,21 +1948,24 @@ static void allocException(int cause, size_t size)
     if (cause == MPR_MEM_FAIL) {
         heap->hasError = 1;
         mprError("%s: Cannot allocate memory block of size %,Ld bytes.", MPR->name, size);
+        printMemWarn(used, 1);
 
     } else if (cause == MPR_MEM_TOO_BIG) {
         heap->hasError = 1;
         mprError("%s: Cannot allocate memory block of size %,Ld bytes.", MPR->name, size);
+        printMemWarn(used, 1);
 
     } else if (cause == MPR_MEM_WARNING) {
-        mprError("%s: Memory request for %,Ld bytes exceeds memory red-line.", MPR->name, size);
+        if (once++ == 0) {
+            mprWarn("%s: Memory request for %,Ld bytes exceeds memory red-line.", MPR->name, size);
+        }
         mprPruneCache(NULL);
+        printMemWarn(used, 0);
 
     } else if (cause == MPR_MEM_LIMIT) {
         mprError("%s: Memory request for %,d bytes exceeds memory limit.", MPR->name, size);
+        printMemWarn(used, 1);
     }
-    mprError("%s: Memory used %,d, redline %,d, limit %,d.", MPR->name, (int) used, (int) heap->stats.warnHeap,
-        (int) heap->stats.maxHeap);
-    mprError("%s: Consider increasing memory limit.", MPR->name);
 
     if (heap->notifier) {
         (heap->notifier)(cause, heap->allocPolicy,  size, used);
@@ -1963,9 +1978,12 @@ static void allocException(int cause, size_t size)
         mprShutdown(MPR_EXIT_ABORT, 2);
 
     } else if (cause & MPR_MEM_LIMIT) {
+        /*
+            Over memory max limit
+         */
         if (heap->allocPolicy == MPR_ALLOC_POLICY_RESTART) {
-            mprError("Application restarting due to low memory condition.");
-            mprShutdown(MPR_EXIT_GRACEFUL | MPR_EXIT_RESTART, 1);
+            mprError("Application exiting gracefully due to low memory condition.");
+            mprShutdown(MPR_EXIT_GRACEFUL, 1);
 
         } else if (heap->allocPolicy == MPR_ALLOC_POLICY_EXIT) {
             mprError("Application exiting immediately due to memory depletion.");
@@ -2649,6 +2667,7 @@ static void shutdownMonitor(void *data, MprEvent *event)
     }
     if (mprIsIdle(1)) {
         if (mprState <= MPR_STOPPING) {
+            mprLog(2, "Shutdown proceeding, system is idle");
             mprState = MPR_STOPPED;
         }
     } else if (remaining <= 0) {
@@ -2683,7 +2702,9 @@ PUBLIC void mprShutdown(int how, int status)
     }
     MPR->shutdownStarted = mprGetTicks();
     MPR->exitStatus = status;
-
+    if (mprGetDebugMode()) {
+        MPR->exitTimeout = MPR_MAX_TIMEOUT;
+    }
     if (!(how & MPR_EXIT_DEFAULT)) {
         MPR->exitStrategy = how;
     }
@@ -5649,6 +5670,15 @@ PUBLIC void mprFinalizeCmd(MprCmd *cmd)
 PUBLIC int mprIsCmdComplete(MprCmd *cmd)
 {
     return cmd->complete;
+}
+
+
+PUBLIC int mprRun(MprDispatcher *dispatcher, cchar *command, cchar *input, char **output, char **error, MprTicks timeout)
+{
+    MprCmd  *cmd;
+   
+    cmd = mprCreateCmd(dispatcher);
+    return mprRunCmd(cmd, command, NULL, input, output, error, timeout, MPR_CMD_IN  | MPR_CMD_OUT | MPR_CMD_ERR);
 }
 
 
@@ -15725,7 +15755,6 @@ static void defaultLogHandler(int flags, int level, cchar *msg)
         }
         fmt(buf, sizeof(buf), "%s: %s: %s\n", prefix, tag, msg);
         mprWriteToOsLog(buf, flags, level);
-        fmt(buf, sizeof(buf), "%s: Error: %s\n", prefix, msg);
         mprWriteFileString(file, buf);
     }
 }
@@ -21106,7 +21135,7 @@ static void signalEvent(MprSignal *sp, MprEvent *event)
     if (sp->flags & MPR_SIGNAL_BEFORE) {
         (sp->handler)(sp->data, sp);
     } 
-    if (sp->sigaction) {
+    if (sp->sigaction && (sp->sigaction != SIG_IGN && sp->sigaction != SIG_DFL)) {
         /*
             Call the original (foreign) action handler. Cannot pass on siginfo, because there is no reliable and scalable
             way to save siginfo state when the signalHandler is reentrant for a given signal across multiple threads.
@@ -25424,9 +25453,6 @@ static void manageThreadService(MprThreadService *ts, int flags)
         mprMark(ts->threads);
         mprMark(ts->mainThread);
         mprMark(ts->pauseThreads);
-
-    } else if (flags & MPR_MANAGE_FREE) {
-        mprStopThreadService();
     }
 }
 
