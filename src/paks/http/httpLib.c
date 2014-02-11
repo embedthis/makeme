@@ -7602,7 +7602,10 @@ PUBLIC bool httpFlushQueue(HttpQueue *q, int flags)
         /*
             Blocking mode: Fully drain the pipeline. This blocks until the connector has written all the data to the O/S socket.
          */
-        while (tx->writeBlocked) {
+        while (tx->writeBlocked || conn->connectorq->count > 0 || conn->connectorq->ioCount) {
+            if (conn->connError) {
+                break;
+            }
             assert(!tx->finalizedConnector);
             assert(conn->connectorq->count > 0 || conn->connectorq->ioCount);
             if (!mprWaitForSingleIO((int) conn->sock->fd, MPR_WRITABLE, conn->limits->inactivityTimeout)) {
@@ -14903,7 +14906,7 @@ PUBLIC void httpDestroySession(HttpConn *conn)
     lock(http);
     if ((sp = httpGetSession(conn, 0)) != 0) {
         cookie = rx->route->cookie ? rx->route->cookie : HTTP_SESSION_COOKIE;
-        httpRemoveCookie(conn, rx->route->cookie);
+        httpRemoveCookie(conn, cookie);
         mprExpireCacheItem(sp->cache, sp->id, 0);
         sp->id = 0;
         rx->session = 0;
