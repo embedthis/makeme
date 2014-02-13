@@ -11,7 +11,12 @@ require ejs.zlib
 let TempFilter = /\.old$|\.tmp$|xcuserdata|xcworkspace|project.guid|-mine/
 
 public function deploy(manifest, prefixes, package): Array {
-    let sets = bit.options.sets || ((bit.platform.cross) ? package['sets-cross'] : null) || package.sets
+    let sets = bit.options.sets 
+    if (bit.options.deploy) {
+        sets ||= package['sets-cross'] 
+    } else {
+        sets ||= package.sets
+    }
     trace('Copy', 'File sets: ' + sets)
     let home = App.dir
     if (manifest.home) {
@@ -358,7 +363,7 @@ function checkRoot() {
 
 
 public function installBinary() {
-    if (bit.platforms.length > 1 && !bit.platform.cross) {
+    if (bit.options.deploy && bit.platforms.length > 1 && !bit.platform.cross) {
         trace('Skip', 'Deploy for ' + bit.platform.name)
         return
     }
