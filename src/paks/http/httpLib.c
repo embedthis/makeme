@@ -18144,7 +18144,7 @@ PUBLIC char *httpValidateUriPath(cchar *uri)
 {
     char    *up;
 
-    if (*uri != '/') {
+    if (uri == 0 || *uri != '/') {
         return 0;
     }
     if (!httpValidUriChars(uri)) {

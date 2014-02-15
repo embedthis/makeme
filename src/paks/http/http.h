@@ -1564,6 +1564,9 @@ PUBLIC void httpEnableQueue(HttpQueue *q);
     If non-blocking, the queues will be serviced but the call will not block nor yield.
     In blocking mode, this routine may invoke mprYield before it blocks to consent for the garbage collector to trun. Callers must
     ensure they have retained all required temporary memory before invoking this routine.
+    \n\n
+    This routine when used with HTTP_BLOCK should never be used in filters, connectors or by handlers outside their
+    open, close, ready, start and writable callbacks.
     @param q Queue to flush
     @param flags If set to HTTP_BLOCK, this call will block until the data has drained through the network connector.
     @return "True" if there is room for more data in the queue after flushing.
@@ -1847,6 +1850,12 @@ PUBLIC bool httpWillNextQueueAcceptSize(HttpQueue *q, ssize size);
         as required to store the write data. This call always accepts all the data and will buffer as required. 
         This call may block waiting for the downstream queue to drain if it is or becomes full.
         Data written after #httpFinalizeOutput or #httpError is called will be ignored.
+        \n\n
+        Handlers may only call httpWrite in their open, close, ready, start and writable callbacks as these are the only
+        callbacks permitted to block. If a handler
+        needs to write in other callbacks, it should use #httpWriteBlock and use the HTTP_NON_BLOCK or HTTP_BUFFER flags.
+        \n\n
+        Filters and connectors must never call httpWrite as it may block.
     @param q Queue reference
     @param fmt Printf style formatted string
     @param ... Arguments for fmt
@@ -2007,6 +2016,7 @@ typedef struct HttpStage {
         Open the stage
         @description Open the stage for this request instance. A handler may service the request in the open routine
             and may call #httpError if required.
+            Handlers may block or yield in this callback.
         @param q Queue instance object
         @ingroup HttpStage
         @stability Evolving
@@ -2016,6 +2026,7 @@ typedef struct HttpStage {
     /** 
         Close the stage
         @description Close the stage and cleanup any request resources.
+        Handlers may block or yield in this callback.
         @param q Queue instance object
         @ingroup HttpStage
         @stability Evolving
@@ -2029,7 +2040,7 @@ typedef struct HttpStage {
             Filters can choose to immediately process or forward the packet, or they can queue the packet on their queue and
             schedule their outgoingService callback for batch processing of all queued packets. This is a common pattern
             where the outgoing routine is not used and packets are automatically queued and the outgoingService 
-            callback is used to process data.
+           callback is used to process data. Filters should not block or yield in this callback.
         @param q Queue instance object
         @param packet Packet of data
         @ingroup HttpStage
@@ -2042,6 +2053,7 @@ typedef struct HttpStage {
         @description This callback should service packets on the queue and process or forward as appropriate.
         A service routine should check downstream queues by calling #httpWillNextQueueAcceptPacket before forwarding packets
         to ensure they do not overfow downstream queues.
+        Stages should not block or yield in this callback.
         @param q Queue instance object
         @ingroup HttpStage
         @stability Evolving
@@ -2056,6 +2068,7 @@ typedef struct HttpStage {
             for batch processing of all queued packets. This is a common pattern where the incoming routine is not 
             used and packets are automatically queued and the incomingService callback is used to process.
         Not used by connectors.
+        Stages should not block or yield in this callback.
         @param q Queue instance object
         @param packet Packet of data
         @ingroup HttpStage
@@ -2068,12 +2081,12 @@ typedef struct HttpStage {
         @description This callback should service packets on the queue and process or forward as appropriate.
         A service routine should check upstream queues by calling #httpWillNextQueueAcceptPacket before forwarding packets
         to ensure they do not overfow upstream queues.
+        Handlers may not block or yield in this callback.
         @param q Queue instance object
         @ingroup HttpStage
         @stability Evolving
      */
     void (*incomingService)(HttpQueue *q);
-
 
     /*  These callbacks apply only to handlers */
 
@@ -2084,9 +2097,10 @@ typedef struct HttpStage {
         Form requests with a Content-Type of "application/x-www-form-urlencoded", will be started after fully receiving all
         input data. Other requests will be started immediately after the request headers have been parsed and before
         receiving input data. This enables such requests to stream large quantities of input data without buffering.
-        The handler start callback should test the HTTP method in conn->rx->method and only respond to supported HTTP
+        The start callback should test the HTTP method in conn->rx->method and only respond to supported HTTP
         methods. It should call httpError for unsupported methods.
         The start callback will not be called if the request already has an error.
+        Handlers may block or yield in this callback.
         @param q Queue instance object
         @ingroup HttpStage
         @stability Evolving
@@ -2098,6 +2112,7 @@ typedef struct HttpStage {
         @description This callback will be invoked when all incoming data has been received. 
             The ready callback will not be called if the request already has an error.
             If a handler finishes processing the request, it should call #httpFinalizeOutput in the ready routine.
+        Handlers may block or yield in this callback.
         @param q Queue instance object
         @ingroup HttpStage
         @stability Evolving
@@ -2110,6 +2125,7 @@ typedef struct HttpStage {
         pipeline can absorb more output data (writable). As such, it may be called multiple times and can be effectively
         used for non-blocking generation of a response.
         The writable callback will not be invoked if the request output has been finalized or if an error has occurred.
+        Handlers may block or yield in this callback.
         @param q Queue instance object
         @ingroup HttpStage
         @stability Evolving
@@ -6207,6 +6223,8 @@ PUBLIC void httpFinalizeOutput(HttpConn *conn);
     If in sync mode this call may block until the output queues drain.
     This routine may invoke mprYield before it blocks to consent for the garbage collector to run. Callers must
     ensure they have retained all required temporary memory before invoking this routine.
+    Filters and connectors should not call this routine as it may block.
+    Handlers may only call this routine in their open, close, ready, start and writable callbacks.
     @param conn HttpConn connection object created via #httpCreateConn
     @ingroup HttpTx
     @stability Stable
