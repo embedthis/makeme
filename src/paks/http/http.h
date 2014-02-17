@@ -5314,7 +5314,7 @@ PUBLIC void httpSetSessionNotify(MprCacheProc notifyProc);
     @description Store an object in the session state store by serializing all properties.
     @param conn Http connection object
     @param key Session state key
-    @param value Object to serialize
+    @param value Object to serialize. This must be an MprHash object.
     @ingroup HttpSession
     @stability Evolving
  */
@@ -5325,7 +5325,7 @@ PUBLIC int httpSetSessionObj(HttpConn *conn, cchar *key, MprHash *value);
     @description
     @param conn Http connection object
     @param name Variable name to set
-    @param value Variable value to use
+    @param value String variable value to use. This must point to a valid null terminated string.
     @return A session state object
     @ingroup HttpSession
     @stability Evolving

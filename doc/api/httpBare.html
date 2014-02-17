@@ -5949,7 +5949,8 @@ Stage instance data - must be an unmanaged reference.
   <div class="apiDetail">
 <p>Flush queue data.</p>
     <dl><dt><b>Description</b>:</dt><dd>This initiates writing buffered data (flushes) by scheduling the queue and servicing the queues. <br/><br/>
- If blocking mode is selected, all queues will be immediately serviced and the call may block while output drains. If non-blocking, the queues will be serviced but the call will not block nor yield. In blocking mode, this routine may invoke mprYield before it blocks to consent for the garbage collector to trun. Callers must ensure they have retained all required temporary memory before invoking this routine.</dd></dl>
+ If blocking mode is selected, all queues will be immediately serviced and the call may block while output drains. If non-blocking, the queues will be serviced but the call will not block nor yield. In blocking mode, this routine may invoke mprYield before it blocks to consent for the garbage collector to trun. Callers must ensure they have retained all required temporary memory before invoking this routine. <br/><br/>
+ This routine when used with HTTP_BLOCK should never be used in filters, connectors or by handlers outside their open, close, ready, start and writable callbacks.</dd></dl>
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
     <tr><td class="param">q</td><td>Queue to flush.</td>
@@ -6436,7 +6437,9 @@ Stage instance data - must be an unmanaged reference.
   </div>
   <div class="apiDetail">
 <p>Write a formatted string.</p>
-    <dl><dt><b>Description</b>:</dt><dd>Write a formatted string of data into packets onto the end of the queue. Data packets will be created as required to store the write data. This call always accepts all the data and will buffer as required. This call may block waiting for the downstream queue to drain if it is or becomes full. Data written after <a class="ref" href="#group___http_tx_1ga49edf0602dd2143b518c247f9cee8720">httpFinalizeOutput</a> or <a class="ref" href="#group___http_conn_1ga9f730354501b53a97b7678a91273a3be">httpError</a> is called will be ignored.</dd></dl>
+    <dl><dt><b>Description</b>:</dt><dd>Write a formatted string of data into packets onto the end of the queue. Data packets will be created as required to store the write data. This call always accepts all the data and will buffer as required. This call may block waiting for the downstream queue to drain if it is or becomes full. Data written after <a class="ref" href="#group___http_tx_1ga49edf0602dd2143b518c247f9cee8720">httpFinalizeOutput</a> or <a class="ref" href="#group___http_conn_1ga9f730354501b53a97b7678a91273a3be">httpError</a> is called will be ignored. <br/><br/>
+ Handlers may only call httpWrite in their open, close, ready, start and writable callbacks as these are the only callbacks permitted to block. If a handler needs to write in other callbacks, it should use <a class="ref" href="#group___http_queue_1gab3aa1e003e80d683e11c1641826da076">httpWriteBlock</a> and use the HTTP_NON_BLOCK or HTTP_BUFFER flags. <br/><br/>
+ Filters and connectors must never call httpWrite as it may block.</dd></dl>
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
     <tr><td class="param">q</td><td>Queue reference.</td>
@@ -9866,7 +9869,7 @@ WARNING: the callback may happen on any thread. Use careful locking to synchroni
     <table class="parameters" title="Parameters">
     <tr><td class="param">conn</td><td>Http connection object.</td>
     <tr><td class="param">key</td><td>Session state key.</td>
-    <tr><td class="param">value</td><td>Object to serialize.</td>
+    <tr><td class="param">value</td><td>Object to serialize. This must be an <a class="ref" href="#struct_mpr_hash" external="mpr.dtags">MprHash</a> object.</td>
     </table></dd></dl>
     <dl><dt><b>API</b> Stability:</dt><dd>Evolving.</dd></dl>
     <dl><dt>See Also:</dt><dd>
@@ -9887,7 +9890,7 @@ WARNING: the callback may happen on any thread. Use careful locking to synchroni
     <table class="parameters" title="Parameters">
     <tr><td class="param">conn</td><td>Http connection object.</td>
     <tr><td class="param">name</td><td>Variable name to set.</td>
-    <tr><td class="param">value</td><td>Variable value to use.</td>
+    <tr><td class="param">value</td><td>String variable value to use. This must point to a valid null terminated string.</td>
     </table></dd></dl>
     <dl><dt>Returns:</dt><dd>A session state object.</dd></dl>
     <dl><dt><b>API</b> Stability:</dt><dd>Evolving.</dd></dl>
@@ -9929,7 +9932,7 @@ WARNING: the callback may happen on any thread. Use careful locking to synchroni
     <table class="parameters" title="Parameters">
     <tr><td class="param">void(*</td><td><td>close)(HttpQueue *q)</td><td>
 Close the stage. 
-<simplesect kind="par"><b>Description</b>:Close the stage and cleanup any request resources. </simplesect><parameterlist kind="param"><parameteritem><parameternamelist><parametername>q</parametername></parameternamelist><parameterdescription>Queue instance object</parameterdescription></parameteritem></parameterlist><simplesect kind="par"><b>API</b> Stability:Evolving </simplesect>
+<simplesect kind="par"><b>Description</b>:Close the stage and cleanup any request resources. Handlers may block or yield in this callback. </simplesect><parameterlist kind="param"><parameteritem><parameternamelist><parametername>q</parametername></parameternamelist><parameterdescription>Queue instance object</parameterdescription></parameteritem></parameterlist><simplesect kind="par"><b>API</b> Stability:Evolving </simplesect>
 </td>
     <tr><td class="param"><a class="ref" href="#struct_mpr_hash" external="mpr.dtags">MprHash</a> *</td><td><td>extensions</td><td>
 Matching extensions for this filter.
@@ -9939,11 +9942,11 @@ Stage flags.
 </td>
     <tr><td class="param">void(*</td><td><td>incoming)(HttpQueue *q, HttpPacket *packet)</td><td>
 Process incoming data. 
-<simplesect kind="par"><b>Description</b>:Accept an incoming packet of data. Filters and handlers recieve packets via their incoming callback. They can choose to immediately process or forward the packet, or they can queue the packet on their queue and schedule their incomingService callback for batch processing of all queued packets. This is a common pattern where the incoming routine is not used and packets are automatically queued and the incomingService callback is used to process. Not used by connectors. </simplesect><parameterlist kind="param"><parameteritem><parameternamelist><parametername>q</parametername></parameternamelist><parameterdescription>Queue instance object </parameterdescription></parameteritem><parameteritem><parameternamelist><parametername>packet</parametername></parameternamelist><parameterdescription>Packet of data</parameterdescription></parameteritem></parameterlist><simplesect kind="par"><b>API</b> Stability:Evolving </simplesect>
+<simplesect kind="par"><b>Description</b>:Accept an incoming packet of data. Filters and handlers recieve packets via their incoming callback. They can choose to immediately process or forward the packet, or they can queue the packet on their queue and schedule their incomingService callback for batch processing of all queued packets. This is a common pattern where the incoming routine is not used and packets are automatically queued and the incomingService callback is used to process. Not used by connectors. Stages should not block or yield in this callback. </simplesect><parameterlist kind="param"><parameteritem><parameternamelist><parametername>q</parametername></parameternamelist><parameterdescription>Queue instance object </parameterdescription></parameteritem><parameteritem><parameternamelist><parametername>packet</parametername></parameternamelist><parameterdescription>Packet of data</parameterdescription></parameteritem></parameterlist><simplesect kind="par"><b>API</b> Stability:Evolving </simplesect>
 </td>
     <tr><td class="param">void(*</td><td><td>incomingService)(HttpQueue *q)</td><td>
 Service the incoming data queue. 
-<simplesect kind="par"><b>Description</b>:This callback should service packets on the queue and process or forward as appropriate. A service routine should check upstream queues by calling <a class="ref" href="#group___http_queue_1ga5bd57d28f2fbce408fc8232e4c8cc7b7">httpWillNextQueueAcceptPacket</a> before forwarding packets to ensure they do not overfow upstream queues. </simplesect><parameterlist kind="param"><parameteritem><parameternamelist><parametername>q</parametername></parameternamelist><parameterdescription>Queue instance object</parameterdescription></parameteritem></parameterlist><simplesect kind="par"><b>API</b> Stability:Evolving </simplesect>
+<simplesect kind="par"><b>Description</b>:This callback should service packets on the queue and process or forward as appropriate. A service routine should check upstream queues by calling <a class="ref" href="#group___http_queue_1ga5bd57d28f2fbce408fc8232e4c8cc7b7">httpWillNextQueueAcceptPacket</a> before forwarding packets to ensure they do not overfow upstream queues. Handlers may not block or yield in this callback. </simplesect><parameterlist kind="param"><parameteritem><parameternamelist><parametername>q</parametername></parameternamelist><parameterdescription>Queue instance object</parameterdescription></parameteritem></parameterlist><simplesect kind="par"><b>API</b> Stability:Evolving </simplesect>
 </td>
     <tr><td class="param">int(*</td><td><td>match)(struct HttpConn *conn, struct HttpRoute *route, int dir)</td><td>
 Match a request. 
@@ -9957,22 +9960,22 @@ Stage name.
 </td>
     <tr><td class="param">void(*</td><td><td>open)(HttpQueue *q)</td><td>
 Open the stage. 
-<simplesect kind="par"><b>Description</b>:Open the stage for this request instance. A handler may service the request in the open routine and may call <a class="ref" href="#group___http_conn_1ga9f730354501b53a97b7678a91273a3be">httpError</a> if required. </simplesect><parameterlist kind="param"><parameteritem><parameternamelist><parametername>q</parametername></parameternamelist><parameterdescription>Queue instance object</parameterdescription></parameteritem></parameterlist><simplesect kind="par"><b>API</b> Stability:Evolving </simplesect>
+<simplesect kind="par"><b>Description</b>:Open the stage for this request instance. A handler may service the request in the open routine and may call <a class="ref" href="#group___http_conn_1ga9f730354501b53a97b7678a91273a3be">httpError</a> if required. Handlers may block or yield in this callback. </simplesect><parameterlist kind="param"><parameteritem><parameternamelist><parametername>q</parametername></parameternamelist><parameterdescription>Queue instance object</parameterdescription></parameteritem></parameterlist><simplesect kind="par"><b>API</b> Stability:Evolving </simplesect>
 </td>
     <tr><td class="param">void(*</td><td><td>outgoing)(HttpQueue *q, HttpPacket *packet)</td><td>
 Process outgoing data. 
-<simplesect kind="par"><b>Description</b>:Accept a packet as outgoing data. Not used by handlers as handler generate packets internally. Filters will use this entry point to accept outgoing packets. Filters can choose to immediately process or forward the packet, or they can queue the packet on their queue and schedule their outgoingService callback for batch processing of all queued packets. This is a common pattern where the outgoing routine is not used and packets are automatically queued and the outgoingService callback is used to process data. </simplesect><parameterlist kind="param"><parameteritem><parameternamelist><parametername>q</parametername></parameternamelist><parameterdescription>Queue instance object </parameterdescription></parameteritem><parameteritem><parameternamelist><parametername>packet</parametername></parameternamelist><parameterdescription>Packet of data</parameterdescription></parameteritem></parameterlist><simplesect kind="par"><b>API</b> Stability:Evolving </simplesect>
+<simplesect kind="par"><b>Description</b>:Accept a packet as outgoing data. Not used by handlers as handler generate packets internally. Filters will use this entry point to accept outgoing packets. Filters can choose to immediately process or forward the packet, or they can queue the packet on their queue and schedule their outgoingService callback for batch processing of all queued packets. This is a common pattern where the outgoing routine is not used and packets are automatically queued and the outgoingService callback is used to process data. Filters should not block or yield in this callback. </simplesect><parameterlist kind="param"><parameteritem><parameternamelist><parametername>q</parametername></parameternamelist><parameterdescription>Queue instance object </parameterdescription></parameteritem><parameteritem><parameternamelist><parametername>packet</parametername></parameternamelist><parameterdescription>Packet of data</parameterdescription></parameteritem></parameterlist><simplesect kind="par"><b>API</b> Stability:Evolving </simplesect>
 </td>
     <tr><td class="param">void(*</td><td><td>outgoingService)(HttpQueue *q)</td><td>
 Service the outgoing data queue. 
-<simplesect kind="par"><b>Description</b>:This callback should service packets on the queue and process or forward as appropriate. A service routine should check downstream queues by calling <a class="ref" href="#group___http_queue_1ga5bd57d28f2fbce408fc8232e4c8cc7b7">httpWillNextQueueAcceptPacket</a> before forwarding packets to ensure they do not overfow downstream queues. </simplesect><parameterlist kind="param"><parameteritem><parameternamelist><parametername>q</parametername></parameternamelist><parameterdescription>Queue instance object</parameterdescription></parameteritem></parameterlist><simplesect kind="par"><b>API</b> Stability:Evolving </simplesect>
+<simplesect kind="par"><b>Description</b>:This callback should service packets on the queue and process or forward as appropriate. A service routine should check downstream queues by calling <a class="ref" href="#group___http_queue_1ga5bd57d28f2fbce408fc8232e4c8cc7b7">httpWillNextQueueAcceptPacket</a> before forwarding packets to ensure they do not overfow downstream queues. Stages should not block or yield in this callback. </simplesect><parameterlist kind="param"><parameteritem><parameternamelist><parametername>q</parametername></parameternamelist><parameterdescription>Queue instance object</parameterdescription></parameteritem></parameterlist><simplesect kind="par"><b>API</b> Stability:Evolving </simplesect>
 </td>
     <tr><td class="param">char *</td><td><td>path</td><td>
 Backing module path (from LoadModule).
 </td>
     <tr><td class="param">void(*</td><td><td>ready)(HttpQueue *q)</td><td>
 The request is now fully ready. 
-<simplesect kind="par"><b>Description</b>:This callback will be invoked when all incoming data has been received. The ready callback will not be called if the request already has an error. If a handler finishes processing the request, it should call <a class="ref" href="#group___http_tx_1ga49edf0602dd2143b518c247f9cee8720">httpFinalizeOutput</a> in the ready routine. </simplesect><parameterlist kind="param"><parameteritem><parameternamelist><parametername>q</parametername></parameternamelist><parameterdescription>Queue instance object</parameterdescription></parameteritem></parameterlist><simplesect kind="par"><b>API</b> Stability:Evolving </simplesect>
+<simplesect kind="par"><b>Description</b>:This callback will be invoked when all incoming data has been received. The ready callback will not be called if the request already has an error. If a handler finishes processing the request, it should call <a class="ref" href="#group___http_tx_1ga49edf0602dd2143b518c247f9cee8720">httpFinalizeOutput</a> in the ready routine. Handlers may block or yield in this callback. </simplesect><parameterlist kind="param"><parameteritem><parameternamelist><parametername>q</parametername></parameternamelist><parameterdescription>Queue instance object</parameterdescription></parameteritem></parameterlist><simplesect kind="par"><b>API</b> Stability:Evolving </simplesect>
 </td>
     <tr><td class="param">int(*</td><td><td>rewrite)(struct HttpConn *conn)</td><td>
 Rewrite a request after matching. 
@@ -9983,11 +9986,11 @@ Private stage data.
 </td>
     <tr><td class="param">void(*</td><td><td>start)(HttpQueue *q)</td><td>
 Start the handler. 
-<simplesect kind="par"><b>Description</b>:The start callback is primarily responsible for starting the request processing. Depending on the request Content Type, the request will be started at different times. Form requests with a Content-Type of &quot;application/x-www-form-urlencoded&quot;, will be started after fully receiving all input data. Other requests will be started immediately after the request headers have been parsed and before receiving input data. This enables such requests to stream large quantities of input data without buffering. The handler start callback should test the HTTP method in conn-&gt;rx-&gt;method and only respond to supported HTTP methods. It should call httpError for unsupported methods. The start callback will not be called if the request already has an error. </simplesect><parameterlist kind="param"><parameteritem><parameternamelist><parametername>q</parametername></parameternamelist><parameterdescription>Queue instance object</parameterdescription></parameteritem></parameterlist><simplesect kind="par"><b>API</b> Stability:Evolving </simplesect>
+<simplesect kind="par"><b>Description</b>:The start callback is primarily responsible for starting the request processing. Depending on the request Content Type, the request will be started at different times. Form requests with a Content-Type of &quot;application/x-www-form-urlencoded&quot;, will be started after fully receiving all input data. Other requests will be started immediately after the request headers have been parsed and before receiving input data. This enables such requests to stream large quantities of input data without buffering. The start callback should test the HTTP method in conn-&gt;rx-&gt;method and only respond to supported HTTP methods. It should call httpError for unsupported methods. The start callback will not be called if the request already has an error. Handlers may block or yield in this callback. </simplesect><parameterlist kind="param"><parameteritem><parameternamelist><parametername>q</parametername></parameternamelist><parameterdescription>Queue instance object</parameterdescription></parameteritem></parameterlist><simplesect kind="par"><b>API</b> Stability:Evolving </simplesect>
 </td>
     <tr><td class="param">void(*</td><td><td>writable)(HttpQueue *q)</td><td>
 The outgoing pipeline is writable and can accept more response data. 
-<simplesect kind="par"><b>Description</b>:This callback will be invoked after all incoming data has been receeived and whenever the outgoing pipeline can absorb more output data (writable). As such, it may be called multiple times and can be effectively used for non-blocking generation of a response. The writable callback will not be invoked if the request output has been finalized or if an error has occurred. </simplesect><parameterlist kind="param"><parameteritem><parameternamelist><parametername>q</parametername></parameternamelist><parameterdescription>Queue instance object</parameterdescription></parameteritem></parameterlist><simplesect kind="par"><b>API</b> Stability:Evolving </simplesect>
+<simplesect kind="par"><b>Description</b>:This callback will be invoked after all incoming data has been receeived and whenever the outgoing pipeline can absorb more output data (writable). As such, it may be called multiple times and can be effectively used for non-blocking generation of a response. The writable callback will not be invoked if the request output has been finalized or if an error has occurred. Handlers may block or yield in this callback. </simplesect><parameterlist kind="param"><parameteritem><parameternamelist><parametername>q</parametername></parameternamelist><parameterdescription>Queue instance object</parameterdescription></parameteritem></parameterlist><simplesect kind="par"><b>API</b> Stability:Evolving </simplesect>
 </td>
     </table></dd></dl>
   </div>
@@ -10711,7 +10714,7 @@ This is used internally by the http library
   </div>
   <div class="apiDetail">
 <p>Flush transmit data.</p>
-    <dl><dt><b>Description</b>:</dt><dd>This call initiates writing buffered data. If in sync mode this call may block until the output queues drain. This routine may invoke mprYield before it blocks to consent for the garbage collector to run. Callers must ensure they have retained all required temporary memory before invoking this routine.</dd></dl>
+    <dl><dt><b>Description</b>:</dt><dd>This call initiates writing buffered data. If in sync mode this call may block until the output queues drain. This routine may invoke mprYield before it blocks to consent for the garbage collector to run. Callers must ensure they have retained all required temporary memory before invoking this routine. Filters and connectors should not call this routine as it may block. Handlers may only call this routine in their open, close, ready, start and writable callbacks.</dd></dl>
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
     <tr><td class="param">conn</td><td>HttpConn connection object created via <a class="ref" href="#group___http_conn_1ga0523a9be63f479ce193073c1de0b1cfa">httpCreateConn</a></td>

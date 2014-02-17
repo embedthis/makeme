@@ -3575,70 +3575,43 @@ PUBLIC int mprNotifyOn(MprWaitService *ws, MprWaitHandler *wp, int mask)
     Wait for I/O on a single descriptor. Return the number of I/O events found. Mask is the events of interest.
     Timeout is in milliseconds.
  */
-PUBLIC int mprWaitForSingleIO(int fd, int desiredMask, MprTicks timeout)
+PUBLIC int mprWaitForSingleIO(int fd, int mask, MprTicks timeout)
 {
-    MprWaitService      *ws;
-    MprWaitHandler      *wp;
-    HANDLE              h;
-    DWORD               result;
-    WSANETWORKEVENTS    events;
-    int                 index, eventMask, priorMask, winMask;
+    struct timeval  tval;
+    fd_set          readMask, writeMask;
+    int             rc, result;
 
-    ws = MPR->waitService;
     if (timeout < 0 || timeout > MAXINT) {
         timeout = MAXINT;
     }
-    winMask = 0;
-    if (desiredMask & MPR_READABLE) {
-        winMask |= FD_CLOSE | FD_READ;
-    }
-    if (desiredMask & MPR_WRITABLE) {
-        winMask |= FD_CLOSE | FD_WRITE;
-    }
-    priorMask = -1;
-    lock(ws);
-    for (index = 0; (wp = (MprWaitHandler*) mprGetNextItem(ws->handlers, &index)) != 0; ) {
-        if (wp->fd == fd) {
-            priorMask = wp->desiredMask;
-            break;
-        }
-    }
-    unlock(ws);
+    tval.tv_sec = (int) (timeout / 1000);
+    tval.tv_usec = (int) ((timeout % 1000) * 1000);
 
-    h = WSACreateEvent();
-    WSAEventSelect(fd, h, winMask);
-
+    FD_ZERO(&readMask);
+    if (mask & MPR_READABLE) {
+        FD_SET(fd, &readMask);
+    }
+    FD_ZERO(&writeMask);
+    if (mask & MPR_WRITABLE) {
+        FD_SET(fd, &writeMask);
+    }
     mprYield(MPR_YIELD_STICKY);
-    result = WSAWaitForMultipleEvents(1, &h, FALSE, (DWORD) timeout, FALSE);
+    rc = select(fd + 1, &readMask, &writeMask, NULL, &tval);
     mprResetYield();
 
-    eventMask = 0;
-    if ((result == WSA_WAIT_EVENT_0) && (WSAEnumNetworkEvents(fd, h, &events) == 0)) {
-        /*
-            We wait on FD_CLOSE for both MPR_READABLE and MPR_WRITABLE events, but only report for MPR_READABLE
-         */
-        if (events.lNetworkEvents & (FD_READ | FD_CLOSE)) {
-            if (desiredMask & MPR_READABLE) {
-                eventMask |= MPR_READABLE;
-            }
+    result = 0;
+    if (rc < 0) {
+        mprError("Select returned %d, errno %d", rc, mprGetOsError());
+
+    } else if (rc > 0) {
+        if (FD_ISSET(fd, &readMask)) {
+            result |= MPR_READABLE;
         }
-        if (events.lNetworkEvents & FD_WRITE) {
-            eventMask |= MPR_WRITABLE;
+        if (FD_ISSET(fd, &writeMask)) {
+            result |= MPR_WRITABLE;
         }
     }
-    CloseHandle(h);
-    if (priorMask >= 0) {
-        lock(ws);
-        for (index = 0; (wp = (MprWaitHandler*) mprGetNextItem(ws->handlers, &index)) != 0; ) {
-            if (wp->fd == fd) {
-                wp->desiredMask = -1;
-                mprWaitOn(wp, priorMask);
-                break;
-            }
-        }
-        unlock(ws);
-    }
-    return eventMask;
+    return result;
 }
 
 
@@ -20772,7 +20745,6 @@ PUBLIC int mprWaitForSingleIO(int fd, int mask, MprTicks timeout)
     if (mask & MPR_WRITABLE) {
         FD_SET(fd, &writeMask);
     }
-
     mprYield(MPR_YIELD_STICKY);
     rc = select(fd + 1, &readMask, &writeMask, NULL, &tval);
     mprResetYield();
