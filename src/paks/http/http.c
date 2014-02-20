@@ -150,7 +150,7 @@ MAIN(httpMain, int argc, char **argv, char **envp)
     if (!app->success && app->verbose) {
         mprError("Request failed");
     }
-    mprDestroy(MPR_EXIT_DEFAULT);
+    mprDestroy();
     return (app->success) ? 0 : 255;
 }
 
@@ -1131,7 +1131,7 @@ static void finishThread(MprThread *tp)
     if (tp) {
         mprLock(app->mutex);
         if (--app->activeLoadThreads <= 0) {
-            mprShutdown(MPR_EXIT_DEFAULT, -1);
+            mprShutdown(MPR_EXIT_NORMAL, 0, 0);
         }
         mprUnlock(app->mutex);
     }

@@ -8812,7 +8812,7 @@ PUBLIC int ejsEvalFile(cchar *path)
         mprDestroy(0);
         return MPR_ERR;
     }
-    mprDestroy(MPR_EXIT_DEFAULT);
+    mprDestroy();
     return 0;
 }
 
@@ -8839,7 +8839,7 @@ PUBLIC int ejsEvalScript(cchar *script)
         mprDestroy(0);
         return MPR_ERR;
     }
-    mprDestroy(MPR_EXIT_DEFAULT);
+    mprDestroy();
     return 0;
 }
 
@@ -26331,35 +26331,46 @@ static EjsPath *app_exePath(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 
 /*  
     Exit the application
-    static function exit(status: Number, how: String = "default"): void
+    static function exit(status: Number, how: String = "immediate"): void
     TODO - status is not implemented
  */
 static EjsObj *app_exit(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 {
-    cchar   *how;
-    int     status, mode;
+    MprTicks    timeout;
+    cchar       *how;
+    int         status, mode;
 
     if (ejs->dontExit) {
         ejsThrowStateError(ejs, "App.exit has been disabled");
         return 0;
     }
     status = argc >= 1 ? ejsGetInt(ejs, argv[0]) : 0;
+    timeout = argc >= 2 ? ejsGetInt(ejs, argv[1]) : 0;
     how = ejsToMulti(ejs, argc >= 2 ? ejsToString(ejs, argv[1]): ESV(empty));
 
-    if (scmp(how, "default") == 0) {
-        mode = MPR_EXIT_DEFAULT;
+    if (scmp(how, "normal") == 0) {
+        mode = 0;
     } else if (scmp(how, "abort") == 0) {
         mode = MPR_EXIT_ABORT;
-    } else if (scmp(how, "immediate") == 0) {
-        mode = MPR_EXIT_IMMEDIATE;
-    } else if (scmp(how, "graceful") == 0) {
-        mode = MPR_EXIT_GRACEFUL;
     } else if (scmp(how, "safe") == 0) {
-        mode = MPR_EXIT_GRACEFUL | MPR_EXIT_SAFE;
+        mode = MPR_EXIT_SAFE;
+    } else if (scmp(how, "restart") == 0) {
+        mode = MPR_EXIT_RESTART;
+#if DEPRECATE || 1
+    } else if (scmp(how, "immediate") == 0) {
+        mode = 0;
+    } else if (scmp(how, "graceful") == 0) {
+        mode = 0;
+        if (argc <= 2) {
+            timeout = 30 * 3000;
+        }
+    } else if (scmp(how, "default") == 0) {
+        mode = 0;
+#endif
     } else {
-        mode = MPR_EXIT_IMMEDIATE;
+        mode = 0;
     }
-    mprShutdown(mode, status);
+    mprShutdown(mode, status, timeout);
     ejsAttention(ejs);
     return 0;
 }
@@ -77667,7 +77678,7 @@ int ejsEvalModule(cchar *path)
     } else if (ejsRun(ejs) < 0) {
         status = EJS_ERR;
     }
-    mprDestroy(MPR_EXIT_DEFAULT);
+    mprDestroy();
     return status;
 }
 

@@ -265,8 +265,8 @@ PUBLIC int main(int argc, char *argv[])
             }
         }
     }
-    mprDestroy(MPR_EXIT_IMMEDIATE);
-    return mprGetExitStatus();
+    mprDestroy();
+    return 0;
 }
 
 
@@ -311,9 +311,6 @@ static void setAppDefaults()
 }
 
 
-/*
-    Called in response to mprShutdown and mprDestroy
- */
 static void terminating(int state, int how, int status)
 {
     if (state >= MPR_STOPPING) {
@@ -942,8 +939,8 @@ int APIENTRY WinMain(HINSTANCE inst, HINSTANCE junk, char *args, int junk2)
             }
         }
     }
-    mprDestroy(MPR_EXIT_DEFAULT);
-    return status;
+    mprDestroy();
+    return 0;
 }
 
 

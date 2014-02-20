@@ -652,6 +652,13 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>MPR_EVENT_ASYNC</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>aa75b23385a68cbe6d21e4fdb8ca72d1f</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>MPR_EVENT_BLOCK</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>aa2419591af1d64acae7fe0b3b0751ca0</anchor>
@@ -669,6 +676,20 @@
       <name>MPR_EVENT_DONT_QUEUE</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>ac32b25ad7f171f1e1d88f24ac6394b21</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MPR_EVENT_EPOLL</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a35751841ed0361d40361c375bca122a4</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MPR_EVENT_KQUEUE</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a9cf11fdbc5ec554791085628014ce354</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -694,6 +715,13 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>MPR_EVENT_SELECT</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>af178ffbd32723f67ab58ca731a4c3db7</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>MPR_EVENT_STATIC_DATA</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a58e11a0fe2de721fd742aa6c601ff8e4</anchor>
@@ -711,27 +739,6 @@
       <name>MPR_EXIT_ABORT</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a68c871907199435842d3874d7b580240</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
-      <name>MPR_EXIT_DEFAULT</name>
-      <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>aff10757e54446408f4f71cefb854eb49</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
-      <name>MPR_EXIT_GRACEFUL</name>
-      <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>a3c61ba925265abcf95ae040f2625843e</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
-      <name>MPR_EXIT_IMMEDIATE</name>
-      <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>a4f2dace6f8d1c8d7d7204f62725f8250</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -2677,8 +2684,8 @@
       <type>bool</type>
       <name>mprDestroy</name>
       <anchorfile>group___mpr.html</anchorfile>
-      <anchor>gac2ae691e84da0cc853f2e62b2458d673</anchor>
-      <arglist>(int exitStrategy)</arglist>
+      <anchor>gae5bbb2009f44f8e7803081ec0004b6ab</anchor>
+      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>void *</type>
@@ -2700,6 +2707,13 @@
       <anchorfile>group___mpr_dispatcher.html</anchorfile>
       <anchor>gafd35a965e3ebadc852b8b02aace7a08e</anchor>
       <arglist>(MprDispatcher *dispatcher)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>mprDestroyWaitHandler</name>
+      <anchorfile>group___mpr_wait_handler.html</anchorfile>
+      <anchor>gae7af42e3a8ef70c3a9f6879b91e0697d</anchor>
+      <arglist>(MprWaitHandler *wp)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -4301,8 +4315,8 @@
       <type>int</type>
       <name>mprNotifyOn</name>
       <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>a7d645142ebb3d7f1f2df54f7170f5b08</anchor>
-      <arglist>(MprWaitService *ws, MprWaitHandler *wp, int mask)</arglist>
+      <anchor>ac3ea30ea8cd57eb5767f1d2ae87b13d2</anchor>
+      <arglist>(MprWaitHandler *wp, int mask)</arglist>
     </member>
     <member kind="function">
       <type>MprFile *</type>
@@ -5020,13 +5034,6 @@
     </member>
     <member kind="function">
       <type>void</type>
-      <name>mprSetExitStrategy</name>
-      <anchorfile>group___mpr.html</anchorfile>
-      <anchor>ga7ff2032a7a15fce34b0118870799d1fe</anchor>
-      <arglist>(int exitStrategy)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
       <name>mprSetExitTimeout</name>
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>ga278ee775a1c2e956d09a4683e778caea</anchor>
@@ -5351,8 +5358,8 @@
       <type>void</type>
       <name>mprShutdown</name>
       <anchorfile>group___mpr.html</anchorfile>
-      <anchor>ga3216e5fb89169b760a4763f240c1810c</anchor>
-      <arglist>(int exitStrategy, int status)</arglist>
+      <anchor>ga2836549ee05ea1901a64a26e51f8ed86</anchor>
+      <arglist>(int exitStrategy, int status, MprTicks timeout)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -9067,6 +9074,13 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>mprDestroyWaitHandler</name>
+      <anchorfile>group___mpr_wait_handler.html</anchorfile>
+      <anchor>gae7af42e3a8ef70c3a9f6879b91e0697d</anchor>
+      <arglist>(MprWaitHandler *wp)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>mprRecallWaitHandler</name>
       <anchorfile>group___mpr_wait_handler.html</anchorfile>
       <anchor>ga82f81798dcccf075cc6fc272a4abcffc</anchor>
@@ -10081,8 +10095,8 @@
       <type>bool</type>
       <name>mprDestroy</name>
       <anchorfile>group___mpr.html</anchorfile>
-      <anchor>gac2ae691e84da0cc853f2e62b2458d673</anchor>
-      <arglist>(int exitStrategy)</arglist>
+      <anchor>gae5bbb2009f44f8e7803081ec0004b6ab</anchor>
+      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>char *</type>
@@ -10450,13 +10464,6 @@
     </member>
     <member kind="function">
       <type>void</type>
-      <name>mprSetExitStrategy</name>
-      <anchorfile>group___mpr.html</anchorfile>
-      <anchor>ga7ff2032a7a15fce34b0118870799d1fe</anchor>
-      <arglist>(int exitStrategy)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
       <name>mprSetExitTimeout</name>
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>ga278ee775a1c2e956d09a4683e778caea</anchor>
@@ -10522,8 +10529,8 @@
       <type>void</type>
       <name>mprShutdown</name>
       <anchorfile>group___mpr.html</anchorfile>
-      <anchor>ga3216e5fb89169b760a4763f240c1810c</anchor>
-      <arglist>(int exitStrategy, int status)</arglist>
+      <anchor>ga2836549ee05ea1901a64a26e51f8ed86</anchor>
+      <arglist>(int exitStrategy, int status, MprTicks timeout)</arglist>
     </member>
     <member kind="function">
       <type>void</type>

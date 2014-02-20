@@ -75,7 +75,7 @@
     #define BIT_CPU_ARCH BIT_CPU_ITANIUM
     #define CPU_ENDIAN BIT_LITTLE_ENDIAN
 
-#elif defined(__mips__)
+#elif defined(__mips__) || defined(__mips64)
     #define BIT_CPU "mips"
     #define BIT_CPU_ARCH BIT_CPU_MIPS
     #define CPU_ENDIAN BIT_BIG_ENDIAN
@@ -234,7 +234,7 @@
 
 #endif
 
-#if __WORDSIZE == 64 || __amd64 || __x86_64 || __x86_64__ || _WIN64
+#if __WORDSIZE == 64 || __amd64 || __x86_64 || __x86_64__ || _WIN64 || __mips64
     #define BIT_64 1
     #define BIT_WORDSIZE 64
 #else

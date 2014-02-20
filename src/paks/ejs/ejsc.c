@@ -336,7 +336,7 @@ MAIN(ejscMain, int argc, char **argv, char **envp)
     app->ejs = 0;
     app->compiler = 0;
     ejsDestroy(ejs);
-    mprDestroy(MPR_EXIT_IMMEDIATE);
+    mprDestroy();
     return err;
 }
 

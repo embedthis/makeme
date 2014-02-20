@@ -209,14 +209,15 @@ module ejs {
             Stop the program and exit.
             @param status The optional exit code to provide the environment. If running inside the ejs command program,
                 the status is used as process exit status.
-            @param how How the exit should proceed. Options are: "abort", "immediate" or "graceful". An abort exit
-                will call exit() without flushing buffered data or closing files. An immediate exit
-                will flush buffered data and close files and resources and then exit without waiting.  
-                A graceful exit will wait until the system is idle before exiting. 
-                A system is idle when it has no running commands, sockets, Http requests or worker threads.
-                The default is an 'immediate' exit.
+            @param how How the exit should proceed. Options are: "abort", "safe" or "normal". 
+                An option of "abort" will immediately abort the application without flushing buffered data. 
+                An option of "normal" which is the default, will wait for the application to become idle before exiting. 
+                A application is idle when it has no running commands, sockets, Http requests or worker threads.
+                An option of "safe" will try to exit, but if after the timeout expires the application is still not idle, 
+                the exit will be cancelled and this routine will return false. 
+            @param timeout Time period in milliseconds to wait for the application to become idle before exiting. Defaults to zero.
          */
-        native static function exit(status: Number = 0, how: String = "immediate"): Void
+        native static function exit(status: Number = 0, how: String = "normal", timeout: Number = 0): Boolean
 
         /** 
             Get an environment variable.

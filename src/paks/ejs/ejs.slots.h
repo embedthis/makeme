@@ -489,6 +489,7 @@
 #define ES_App_createSearch_searchPath                                 0
 #define ES_App_exit_status                                             0
 #define ES_App_exit_how                                                1
+#define ES_App_exit_timeout                                            2
 #define ES_App_getenv_name                                             0
 #define ES_App_loadrc_path                                             0
 #define ES_App_loadrc_overwrite                                        1
@@ -2615,7 +2616,7 @@
 #define ES_XMLList_NUM_INSTANCE_PROP                                   20
 #define ES_XMLList_NUM_INHERITED_PROP                                  0
 
-#define _ES_CHECKSUM_ejs   1519814
+#define _ES_CHECKSUM_ejs   1520590
 
 #endif
 

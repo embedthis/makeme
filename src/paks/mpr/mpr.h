@@ -207,18 +207,25 @@ struct  MprXml;
 #define MPR_MAX_FILE            256
 
 /*
-    Event notification mechanism
+    Event notification mechanisms
  */
-#if MACOSX || SOLARIS
-    #define MPR_EVENT_KQUEUE    1
-#elif WINDOWS
-    #define MPR_EVENT_ASYNC     1
-#elif VXWORKS
-    #define MPR_EVENT_SELECT    1
-#elif (LINUX || BIT_BSD_LIKE) && (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0))
-    #define MPR_EVENT_EPOLL     1
-#else
-    #define MPR_EVENT_SELECT    1
+#define MPR_EVENT_ASYNC         1           /**< Windows async select */
+#define MPR_EVENT_EPOLL         2           /**< epoll_wait */
+#define MPR_EVENT_KQUEUE        3           /**< BSD kqueue */
+#define MPR_EVENT_SELECT        4           /**< traditional select() */
+
+#ifndef BIT_EVENT_NOTIFIER
+    #if MACOSX || SOLARIS
+        #define BIT_EVENT_NOTIFIER MPR_EVENT_KQUEUE
+    #elif WINDOWS
+        #define BIT_EVENT_NOTIFIER MPR_EVENT_ASYNC
+    #elif VXWORKS
+        #define BIT_EVENT_NOTIFIER MPR_EVENT_SELECT
+    #elif (LINUX || BIT_BSD_LIKE) && (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0))
+        #define BIT_EVENT_NOTIFIER MPR_EVENT_EPOLL
+    #else
+        #define BIT_EVENT_NOTIFIER MPR_EVENT_SELECT
+    #endif
 #endif
 
 /**
@@ -1065,8 +1072,8 @@ typedef struct MprFreeQueue {
  */
 #define MPR_ALLOC_POLICY_NOTHING    0       /**< Do nothing */
 #define MPR_ALLOC_POLICY_PRUNE      1       /**< Prune all non-essential memory and continue */
-#define MPR_ALLOC_POLICY_RESTART    2       /**< Gracefully restart the app if memory warnHeap level is exceeded */
-#define MPR_ALLOC_POLICY_EXIT       3       /**< Exit the app if max exceeded with a MPR_EXIT_IMMEDIATE exit */
+#define MPR_ALLOC_POLICY_RESTART    2       /**< Gracefully restart the app if memory maxHeap level is exceeded */
+#define MPR_ALLOC_POLICY_EXIT       3       /**< Exit the app if maxHeap exceeded */
 
 /*
     MprMemNotifier cause argument
@@ -7005,19 +7012,19 @@ typedef struct MprWaitService {
     int             needRecall;             /* A handler needs a recall due to buffered data */
     int             wakeRequested;          /* Wakeup of the wait service has been requested */
     MprList         *handlerMap;            /* Map of fds to handlers */
-#if MPR_EVENT_ASYNC
+#if BIT_EVENT_NOTIFIER == MPR_EVENT_ASYNC
     ATOM            wclass;                 /* Window class */
     HWND            hwnd;                   /* Window handle */
     int             nfd;                    /* Last used entry in the handlerMap array */
     int             fdmax;                  /* Size of the fds array */
     int             socketMessage;          /* Message id for socket events */
     MprMsgCallback  msgCallback;            /* Message handler callback */
-#elif MPR_EVENT_EPOLL
+#elif BIT_EVENT_NOTIFIER == MPR_EVENT_EPOLL
     int             epoll;                  /* Epoll descriptor */
     int             breakFd[2];             /* Event or pipe to wakeup */
-#elif MPR_EVENT_KQUEUE
+#elif BIT_EVENT_NOTIFIER == MPR_EVENT_KQUEUE
     int             kq;                     /* Kqueue() return descriptor */
-#elif MPR_EVENT_SELECT
+#elif BIT_EVENT_NOTIFIER == MPR_EVENT_SELECT
     fd_set          readMask;               /* Current read events mask */
     fd_set          writeMask;              /* Current write events mask */
     int             highestFd;              /* Highest socket in masks + 1 */
@@ -7098,7 +7105,7 @@ PUBLIC int mprWaitForSingleIO(int fd, int mask, MprTicks timeout);
     @description Wait handlers provide callbacks for when I/O events occur. They provide a wait to service many
         I/O file descriptors without requiring a thread per descriptor.
     @see MprEvent MprWaitHandler mprCreateWaitHandler mprQueueIOEvent mprRecallWaitHandler mprRecallWaitHandlerByFd 
-        mprRemoveWaitHandler mprWaitOn 
+        mprDestroyWaitHandler mprWaitOn 
     @defgroup MprWaitHandler MprWaitHandler
     @stability Internal
  */
@@ -7108,13 +7115,11 @@ typedef struct MprWaitHandler {
     int             fd;                 /**< O/S File descriptor (sp->sock) */
     int             notifierIndex;      /**< Index for notifier */
     int             flags;              /**< Control flags */
-    void            *handlerData;       /**< Argument to pass to proc */
+    void            *handlerData;       /**< Argument to pass to proc - managed reference */
     MprEvent        *event;             /**< Event object to process I/O events */
     MprWaitService  *service;           /**< Wait service pointer */
     MprDispatcher   *dispatcher;        /**< Event dispatcher to use for I/O events */
     MprEventProc    proc;               /**< Callback event procedure */
-    struct MprWaitHandler *next;        /**< List linkage */
-    struct MprWaitHandler *prev;
     struct MprWorker *requiredWorker;   /**< Designate the required worker thread to run the callback */
     struct MprThread *thread;           /**< Thread executing the callback, set even if worker is null */
     MprCond         *callbackComplete;  /**< Signalled when a callback is complete */
@@ -7136,6 +7141,22 @@ typedef struct MprWaitHandler {
     @stability Stable
  */
 PUBLIC MprWaitHandler *mprCreateWaitHandler(int fd, int mask, MprDispatcher *dispatcher, void *proc, void *data, int flags);
+
+/**
+    Destroy a wait handler
+    @param wp Wait handler object
+    @ingroup MprWaitHandler
+    @stability Evolving
+ */
+PUBLIC void mprDestroyWaitHandler(MprWaitHandler *wp);
+
+/**
+    Remove a wait handler from the wait service
+    @param wp Wait handler object
+    @ingroup MprWaitHandler
+    @stability Stable
+ */
+PUBLIC void mprRemoveWaitHandler(MprWaitHandler *wp);
 
 /**
     Queue an IO event for dispatch on the wait handler dispatcher
@@ -7165,15 +7186,6 @@ PUBLIC void mprRecallWaitHandler(MprWaitHandler *wp);
 PUBLIC void mprRecallWaitHandlerByFd(Socket fd);
 
 /**
-    Disconnect a wait handler from its underlying file descriptor. This is used to prevent further I/O wait events while
-    still preserving the wait handler.
-    @param wp Wait handler object
-    @ingroup MprWaitHandler
-    @stability Stable
- */
-PUBLIC void mprRemoveWaitHandler(MprWaitHandler *wp);
-
-/**
     Subscribe for desired wait events
     @description Subscribe to the desired wait events for a given wait handler.
     @param wp Wait handler created via #mprCreateWaitHandler
@@ -7198,14 +7210,13 @@ PUBLIC int mprCreateNotifierService(MprWaitService *ws);
 
 /**
     Begin I/O notification services on a wait handler
-    @param ws Wait Service object
     @param wp Wait handler associated with the file descriptor
     @param mask Mask of events of interest. This is made by oring MPR_READABLE and MPR_WRITABLE
     @return Zero if successful, otherwise a negative MPR error code.
     @ingroup MprWaithHandler
     @stability Internal
  */
-PUBLIC int mprNotifyOn(MprWaitService *ws, MprWaitHandler *wp, int mask);
+PUBLIC int mprNotifyOn(MprWaitHandler *wp, int mask);
 
 /********************************** Sockets ***********************************/
 /**
@@ -8580,8 +8591,8 @@ PUBLIC void mprServiceSignals();
 
 /**
     Add standard trapping of system signals. The trapped signals are SIGINT, SIGQUIT, SIGTERM, SIGPIPE and SIGXFSZ. 
-    SIGPIPE and SIGXFSZ are ignored. A graceful shutdown is initiated for SIGTERM whereas SIGINT and SIGQUIT will 
-    do an immediate exit.
+    SIGPIPE and SIGXFSZ are ignored. A shutdown is initiated for SIGTERM whereas SIGINT and SIGQUIT will 
+    do an abortive exit. SIGUSR1 will do an in-process restart.
     @ingroup MprSignal
     @stability Stable
  */
@@ -9397,10 +9408,9 @@ typedef bool (*MprIdleCallback)(bool traceRequests);
         If the state is MPR_STOPPED, the service should cancel all running requests, close files and connections and release 
         all resources. This state is not reversible.
         \n\n
-        This exitStrategy parameter is a flags word that defines the shutdown strategy. See #mprSetExitStrategy for details.
+        This exitStrategy parameter is a flags word that defines the shutdown strategy. See #mprShutdown for details.
     @param state Current MPR state. Set to #MPR_STARTED, #MPR_STOPPING, #MPR_STOPPED and #MPR_DESTROYED.
-    @param exitStrategy Flags word including the flags: MPR_EXIT_GRACEFUL, MPR_EXIT_ABORT, MPR_EXIT_IMMEDIATE, MPR_EXIT_RESTART, 
-        and MPR_EXIT_SAFE.
+    @param exitStrategy Flags word including the flags: MPR_EXIT_ABORT, MPR_EXIT_RESTART and MPR_EXIT_SAFE.
     @param status The desired application exit status
     @ingroup Mpr
     @stability Evolving
@@ -9416,7 +9426,7 @@ typedef void (*MprTerminator)(int state, int exitStrategy, int status);
     mprGetHwnd mprGetInst mprGetIpAddr mprGetKeyValue mprGetLogLevel mprGetMD5 mprGetMD5WithPrefix mprGetOsError
     mprGetRandomBytes mprGetServerName mprIsDestroyed mprIsIdle mprIsStopping mprIsDestroying mprMakeArgv
     mprRandom mprReadRegistry mprRemoveKeyValue mprRestart mprServicesAreIdle mprSetAppName mprSetCmdlineLogging
-    mprSetDebugMode mprSetDomainName mprSetExitStrategy mprSetHostName mprSetHwnd mprSetIdleCallback mprSetInst
+    mprSetDebugMode mprSetDomainName mprSetHostName mprSetHwnd mprSetIdleCallback mprSetInst
     mprSetIpAddr mprSetLogLevel mprSetServerName mprSetSocketMessage mprShouldAbortRequests mprShouldDenyNewRequests
     mprSignalExit mprSleep mprStart mprStartEventsThread mprStartOsService mprStopOsService mprShutdown mprUriDecode
     mprUriDecodeBuf mprUriEncode mprWriteRegistry 
@@ -9453,8 +9463,7 @@ typedef struct Mpr {
     char            *appPath;               /**< Path name of application executable */
     char            *appDir;                /**< Path of directory containing app executable */
     int             eventing;               /**< Servicing events thread is active */
-    int             exitStrategy;           /**< How to exit the app (normal, immediate, graceful) */
-    int             exitStatus;             /**< Proposed program exit status */
+    int             exitStrategy;           /**< How to exit the app */
     int             flags;                  /**< Misc flags */
     int             hasError;               /**< Mpr has an initialization error */
     int             verifySsl;              /**< Default verification of SSL certificates */
@@ -9537,7 +9546,7 @@ PUBLIC void mprNop(void *ptr);
         If the state is MPR_STOPPED, the service should cancel all running requests, close files and connections and release
         all resources. This state is not reversible.
         \n\n
-        This exitStrategy parameter is a flags word that defines the shutdown strategy. See #mprSetExitStrategy for details.
+        This exitStrategy parameter is a flags word that defines the shutdown exit strategy. See #mprShutdown for details.
         \n\n
         Services may also call #mprShouldDenyNewRequests to test if the MPR state is MPR_STOPPING and #mprShouldAbortRequests
         if the state is MPR_STOPPED.
@@ -9588,52 +9597,34 @@ PUBLIC int mprDaemon();
 
 /**
     Destroy the MPR and all services using the MPR.
-    @description This call prepares to terminate the application by destroying the MPR and all services in 
-    a manner described by the specified exit strategy.
+    @description This call terminates the MPR and all services.
     \n\n
-    An application begins processing by calling #mprCreate. This initializes the MPR, the memory allocator, garbage collector
-    and other services.  An application exits by invoking #mprDestroy or by calling #mprShutdown then #mprDestroy. 
+    An application initializes the MPR by calling #mprCreate. This creates the Mpr object, the memory allocator, garbage collector
+    and other services. An application exits by invoking #mprDestroy or by calling #mprShutdown then #mprDestroy. 
     \n\n
     There are two styles of MPR applications with respect to shutdown: 
     \n\n
-    1) Applications that have a dedicated service events thread
+    1) Applications that have a dedicated service events thread.
     \n\n
-    2) Applications that call #mprServiceEvents directly from their main program
+    2) Applications that call #mprServiceEvents directly from their main program.
     \n\n
     Applications that have a service events thread can call mprDestroy directly from their main program when ready to exit.
     Applications that call mprServiceEvents from their main program will typically have some other MPR thread call 
-    #mprShutdown to initiate a shutdown sequence. This will cause the #mprServiceEvents routine to return and then the 
-    main program can call mprDestroy.
-    \n\n
-    @param exitStrategy Shutdown policy.
-    There are three shutdown strategies: abortive, immediate, and graceful.
-    \n\n
-    If the MPR_EXIT_ABORT is specified, the application will immediately call exit() and will terminate without 
-    finishing current requests or orderly closing files. This is not recommended.
-    \n\n
-    If the MPR_EXIT_IMMEDIATE flag is defined, the shutdown will continue to process current requests without blocking
-    and then exit in an orderly fashion. Current requests that are waiting for I/O or application processing will be
-    terminated. Files will be closed before exiting.
-    \n\n
-    If the MPR_EXIT_GRACEFUL flag is defined, the shutdown will wait for current requests to complete. The app will 
-    wait for up to the timeout specified by #mprSetExitTimeout (defaults to 30 seconds). 
-    If requests do not complete prior to the exit timeout, they will be terminated.
-    \n\n
-    Set to MPR_EXIT_DEFAULT to not modify any existing exit strategy defined via #mprSetExitStrategy.
-    \n\n
-    There are also two modifiers for the strategy: safe and restart.
-    If MPR_EXIT_SAFE is defined, a graceful shutdown will be cancelled if all requests do not complete.
-    \n\n
-    Define the MPR_EXIT_RESTART flag for the application to restart after exiting.
+    #mprShutdown to initiate a shutdown sequence. This will stop accepting new requests or connections and when the application
+    is idle, the #mprServiceEvents routine will return and then the main program can call then call mprDestroy.
     \n\n
     Once the shutdown conditions are satisfied, a thread executing #mprServiceEvents will return from that API and then
     the application should call #mprDestroy and exit().
-    @return True if the MPR can be destroyed. Returns false if a graceful safe shutdown has been requested and 
-        some requests have not completed. In this case, the shutdown is cancelled and normal operations continue.
+    \n\n
+    If an application needs to tailor how it exits with respect to current requests, use #mprShutdown first to specify a 
+    shutdown strategy.
+    @return True if the MPR can be destroyed. Returns false if the exit strategy MPR_EXIT_SAFE has been defined via 
+        #mprShutdown and current requests have not completed within the exit timeout
+        period defined by #mprSetExitTimeout. In this case, the shutdown is cancelled and normal operations continue.
     @ingroup Mpr
     @stability Evolving.
  */
-PUBLIC bool mprDestroy(int exitStrategy);
+PUBLIC bool mprDestroy();
 
 /**
     Reference to a permanent preallocated empty string.
@@ -9734,6 +9725,7 @@ PUBLIC int mprGetError();
 /**
     Get the exit status
     @description Get the exit status set via #mprShutdown
+    May be called after #mprDestroy.
     @return The proposed application exit status
     @ingroup Mpr
     @stability Stable.
@@ -9919,6 +9911,10 @@ PUBLIC int mprParseArgs(char *command, char **argv, int maxArgs);
     Restart the application
     @description This call immediately restarts the application. The standard input, output and error I/O channels are
     preserved. All other open file descriptors are closed.
+    \n\n
+    If the application is started via a monitoring launch daemon such as launchd or appman, the application should not use
+    this API, but rather defer to the launch daemon to restart the application. In that case, the application should simply
+    do a shutdown via #mprShutdown and/or #mprDestroy.
     @ingroup Mpr
     @stability Stable.
  */
@@ -10013,38 +10009,12 @@ PUBLIC void mprSetDomainName(cchar *s);
 PUBLIC void mprSetEnv(cchar *key, cchar *value);
 
 /**
-    Set the exit strategy for when the application terminates
-    @param exitStrategy Shutdown policy.
-    There are three shutdown strategies: Abortive, Immediate, and Graceful.
-    \n\n
-    If the MPR_EXIT_ABORT flag is specified, the application will immediately call exit() and will terminate without 
-    finishing current requests or writing buffered data. This is not recommended for normal operation as data may be lost.
-    \n\n
-    If the MPR_EXIT_IMMEDIATE flag is defined, the shutdown will continue to process current requests without blocking
-    and then exit in an orderly fashion. Current requests that are waiting for I/O or application processing will be
-    terminated. Files will be closed before exiting. This is the default exit strategy.
-    \n\n
-    If the MPR_EXIT_GRACEFUL flag is defined, the shutdown will wait for all requests to complete. The app will 
-    wait for up to the timeout specified by #mprSetExitTimeout (defaults to 30 seconds), before exiting. 
-    If requests do not complete prior to the exit timeout, they will be terminated.
-    \n\n
-    If the MPR_EXIT_DEFAULT flag is used, the current existing exit strategy defined via #mprSetExitStrategy will be used.
-    \n\n
-    There are also two modifiers for the strategy: Safe and Restart.
-    \n\n
-    If MPR_EXIT_SAFE is defined, a graceful shutdown will be cancelled if all requests do not complete before the exit timeout
-    expires.
-    \n\n
-    Define the MPR_EXIT_RESTART flag for the application to automatically restart after exiting.
-    @ingroup Mpr
-    @stability Stable.
-  */
-PUBLIC void mprSetExitStrategy(int exitStrategy);
-
-/**
-    Set the exit timeout for a graceful shutdown or restart. A graceful shutdown waits for existing requests to 
-    complete before exiting.
-    @param timeout Time in milliseconds to wait when terminating the MPR
+    Set the exit timeout for a shutdown. 
+    @description A shutdown waits for existing requests to complete before exiting. After this timeout has expired, 
+        the application will either invoke exit() or cancel the shutdown depending on whether MPR_EXIT_SAFE is defined in 
+        the exit strategy via #mprShutdown.
+        The default exit timeout is zero.
+    @param timeout Time in milliseconds to wait for current requests to complete and the application to become idle.
     @ingroup Mpr
     @stability Stable.
  */
@@ -10147,70 +10117,48 @@ PUBLIC int mprStart();
 PUBLIC int mprStartEventsThread();
 
 /*
-    Destroy flags
+    Shutdown flags
  */
-#define MPR_EXIT_DEFAULT    0x1         /**< Exit as per MPR->defaultStrategy */
-#define MPR_EXIT_ABORT      0x2         /**< Abort everything and call exit() */
-#define MPR_EXIT_IMMEDIATE  0x4         /**< Immediate shutdown without waiting for requests to complete. This will 
-                                            continue processing non-blocking requests and then exit */
-#define MPR_EXIT_GRACEFUL   0x8         /**< Graceful shutdown after waiting for requests to complete */
-#define MPR_EXIT_SAFE       0x10        /**< Graceful shutdown only if all requests complete */
-#define MPR_EXIT_RESTART    0x20        /**< Restart after exiting */
+#define MPR_EXIT_NORMAL     0x0         /**< Normal (graceful) exit */
+#define MPR_EXIT_ABORT      0x1         /**< Abort everything and call exit() */
+#define MPR_EXIT_SAFE       0x2         /**< Graceful shutdown only if all requests complete */
+#define MPR_EXIT_RESTART    0x4         /**< Restart after exiting */
 
-#if DEPRECATED || 1
-#define MPR_EXIT_NORMAL MPR_EXIT_IMMEDIATE
-#endif
+#define MPR_EXIT_TIMEOUT    -1          /**< Use timeout specified via #mprSetExitTimeout */
 
 /**
-    Initiate shutdown of the application.
+    Initiate shutdown of the MPR and application.
     @description Commence shutdown of the application according to the shutdown policy defined by the "exitStrategy" parameter.
     An application may call this routine from any thread to request the application exit. Depending on the exitStrategy, this
-    may be an abortive, immediate or graceful exit. A desired application exit status code can defined to indicate the cause
-    of the shutdown.
+    may be an abortive or graceful exit. A desired application exit status code can defined to indicate the cause of the shutdown.
     \n\n
     Once called, this routine will set the MPR execution state to MPR_EXIT_STOPPING. Services should detect this by calling
     #mprShouldDenyNewRequests before accepting new connections or requests, but otherwise, services should not take any destructive
     actions until the MPR state is advanced to MPR_EXIT_STOPPED by #mprDestroy. This state can be detected by calling
-    #mprShouldAbortRequests. Users can invoke #mprCancelShutdown to resume normal operations provided the shutdown has not
-    proceeded past the point of no return, i.e. #mprDestroy has not been called.
+    #mprShouldAbortRequests. Users can invoke #mprCancelShutdown to resume normal operations provided #mprDestroy has not
+    proceeded past the point of no return when destructive termination actions are commenced.
     \n\n
     Applications that have a user events thread and call #mprServiceEvents from their main program, will typically invoke
-    mprShutdown from some other MPR thread to initiate the shutdown. When running requests have completed, or if an immediate 
-    shutdown has been requested, the call to #mprServiceEvents in the main program will return and the application can then 
-    call #mprDestroy to complete the shutdown.
+    mprShutdown from some other MPR thread to initiate the shutdown. When running requests have completed, or when the
+    shutdown timeout expires (MPR->exitTimeout), the call to #mprServiceEvents in the main program will return and 
+    the application can then call #mprDestroy to complete the shutdown.
     \n\n
-    Note: This routine starts the shutdown process but does not initiate any destructive actions.
+    Note: This routine starts the shutdown process but does not perform any destructive actions.
     @param exitStrategy Shutdown policy.
-    There are three shutdown strategies: Abortive, Immediate, and Graceful.
-    \n\n
     If the MPR_EXIT_ABORT flag is specified, the application will immediately call exit() and will terminate without 
-    finishing current requests or writing buffered data. This is not recommended for normal operation as data may be lost.
+    waiting for current requests to complete. This is not recommended for normal operation as data may be lost.
     \n\n
-    If the MPR_EXIT_IMMEDIATE flag is defined, the shutdown will continue to process current requests without blocking
-    and then exit in an orderly fashion. Current requests that are waiting for I/O or application processing will be
-    terminated. Files will be closed before exiting. This is the default exit strategy.
+    If MPR_EXIT_SAFE is defined, the shutdown will be cancelled if all requests do not complete before the exit timeout
+    defined via #mprSetExitTimeout expires.
     \n\n
-    If the MPR_EXIT_GRACEFUL flag is defined, the shutdown will wait for all requests to complete. The app will 
-    wait for up to the timeout specified by #mprSetExitTimeout (defaults to 30 seconds), before exiting. 
-    If requests do not complete prior to the exit timeout, they will be terminated.
-    \n\n
-    If the MPR_EXIT_DEFAULT flag is used, the current existing exit strategy defined via #mprSetExitStrategy will be used.
-    \n\n
-    There are also two modifiers for the strategy: Safe and Restart.
-    \n\n
-    If MPR_EXIT_SAFE is defined, a graceful shutdown will be cancelled if all requests do not complete before the exit timeout
-    expires.
-    \n\n
-    Define the MPR_EXIT_RESTART flag for the application to automatically restart after exiting.
+    Define the MPR_EXIT_RESTART flag for the application to automatically restart after exiting. Do not use this option if 
+    the application is using a watchdog/angel process to automatically restart the application (such as appman by appweb).
     @param status Proposed exit status to use when the application exits. See #mprGetExitStatus.
+    @param timeout Exit timeout in milliseconds to wait for current requests to complete. If set to -1, 
     @ingroup Mpr
     @stability Evolving.
  */
-PUBLIC void mprShutdown(int exitStrategy, int status);
-
-#if DEPRECATED
-#define mprTerminate mprShutdown
-#endif
+PUBLIC void mprShutdown(int exitStrategy, int status, MprTicks timeout);
 
 /**
     Cancel a shutdown request
