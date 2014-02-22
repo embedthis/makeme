@@ -743,6 +743,13 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>MPR_EXIT_NORMAL</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>ab66db1e667041ab60b61aea991e20250</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>MPR_EXIT_RESTART</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a2328bae311be87e903b6d9df39d607b4</anchor>
@@ -753,6 +760,13 @@
       <name>MPR_EXIT_SAFE</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a1494c42c3e704a708b937ca6ece37531</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MPR_EXIT_TIMEOUT</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>ae0673073d2a8d3382a0ee082675c2148</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -1537,6 +1551,13 @@
       <name>MPR_WAIT_NEW_DISPATCHER</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a1c2ea8da2920f4756babba1ae142a952</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MPR_WAIT_NOT_SOCKET</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>af5149ad94a82e208ed753e1851e0bb10</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">

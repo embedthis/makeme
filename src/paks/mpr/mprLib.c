@@ -9540,7 +9540,6 @@ PUBLIC int mprWaitForEvent(MprDispatcher *dispatcher, MprTicks timeout)
 {
     MprEventService     *es;
     MprTicks            expires, delay;
-    MprOsThread         thread;
     int                 signalled, wasRunning, runEvents, nevents;
 
     es = MPR->eventService;
@@ -9553,7 +9552,6 @@ PUBLIC int mprWaitForEvent(MprDispatcher *dispatcher, MprTicks timeout)
     if (dispatcher->flags & MPR_DISPATCHER_WAITING) {
         return MPR_ERR_BUSY;
     }
-    thread = mprGetCurrentOsThread();
     expires = timeout < 0 ? (es->now + MPR_MAX_TIMEOUT) : (es->now + timeout);
     signalled = 0;
 
@@ -17566,6 +17564,14 @@ static MprList *getDirFiles(cchar *path)
 #endif /* !WIN */
 #endif /* !BIT_ROM */
 
+#if LINUX
+static int sortFiles(MprDirEntry **dp1, MprDirEntry **dp2)
+{
+    return strcmp((*dp1)->name, (*dp2)->name);
+}
+#endif
+
+
 /*
     Find files in the directory "dir". If base is set, use that as the prefix for returned files.
     Returns a list of MprDirEntry objects.
@@ -17604,16 +17610,12 @@ static MprList *findFiles(MprList *list, cchar *dir, cchar *base, int flags)
             mprAddItem(list, dp);
         }
     }
+#if LINUX
+    /* Linux returns directories not sorted */
+    mprSortList(list, (MprSortProc) sortFiles, 0);
+#endif
     return list;
 }
-
-
-#if LINUX
-static int sortFiles(MprDirEntry **dp1, MprDirEntry **dp2)
-{
-    return strcmp((*dp1)->name, (*dp2)->name);
-}
-#endif
 
 
 /*
@@ -17637,10 +17639,6 @@ PUBLIC MprList *mprGetPathFiles(cchar *dir, int flags)
     if ((list = findFiles(mprCreateList(-1, 0), dir, base, flags)) == 0) {
         return 0;
     }
-#if LINUX
-    /* Linux returns directories not sorted */
-    mprSortList(list, (MprSortProc) sortFiles, 0);
-#endif
     return list;
 }
 

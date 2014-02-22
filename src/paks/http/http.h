@@ -2472,7 +2472,7 @@ typedef struct HttpConn {
     MprTicks        started;                /**< When the request started (ticks) */
     MprTicks        lastActivity;           /**< Last activity on the connection */
     MprEvent        *timeoutEvent;          /**< Connection or request timeout event */
-    MprEvent        *workerEvent;           /**< Event for running connection via a worker thread */
+    MprEvent        *workerEvent;           /**< Event for running connection via a worker thread (used by ejs) */
 
     void            *context;               /**< Embedding context (EjsRequest) */
     void            *ejs;                   /**< Embedding VM */
@@ -2488,9 +2488,7 @@ typedef struct HttpConn {
     char            *boundary;              /**< File upload boundary */
     char            *errorMsg;              /**< Error message for the last request (if any) */
     char            *ip;                    /**< Remote client IP address */
-#if UNUSED || 1
     char            *protocol;              /**< HTTP protocol */
-#endif
     char            *protocols;             /**< Supported WebSocket protocols (clients) */
 
     int             async;                  /**< Connection is in async mode (non-blocking) */
@@ -3981,10 +3979,6 @@ typedef struct HttpRoute {
     char            *envPrefix;             /**< Environment strings prefix */
     MprList         *indicies;              /**< Directory index documents */
     HttpStage       *handler;               /**< Fixed handler */
-
-#if UNUSED && KEEP
-    char            *protocol;              /**< Defaults to "HTTP/1.1" */
-#endif
 
     int             nextGroup;              /**< Next route with a different startWith */
     int             responseStatus;         /**< Response status code */
@@ -6905,16 +6899,7 @@ typedef struct HttpHost {
     HttpEndpoint    *defaultEndpoint;       /**< Default endpoint for host */
     HttpEndpoint    *secureEndpoint;        /**< Secure endpoint for host */
     MprHash         *streams;               /**< Hash of mime-types to stream record */
-#if UNUSED
-    char            *protocol;              /**< Defaults to "HTTP/1.1" */
-#endif
-#if UNUSED
-    char            *root;                  /**< Home for this host */
-#endif
     int             flags;                  /**< Host flags */
-#if UNUSED
-    MprMutex        *mutex;                 /**< Multithread sync */
-#endif
 } HttpHost;
 
 /**
