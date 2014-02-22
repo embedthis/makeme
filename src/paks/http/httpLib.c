@@ -2282,7 +2282,7 @@ PUBLIC HttpConn *httpRequest(cchar *method, cchar *uri, cchar *data, char **err)
     mprAddRoot(conn);
 
     /* 
-       Open a connection to issue the GET. Then finalize the request output - this forces the request out.
+       Open a connection to issue the request. Then finalize the request output - this forces the request out.
      */
     if (httpConnect(conn, method, uri, NULL) < 0) {
         mprRemoveRoot(conn);
@@ -2489,8 +2489,8 @@ PUBLIC HttpConn *httpCreateConn(Http *http, HttpEndpoint *endpoint, MprDispatche
     if ((conn = mprAllocObj(HttpConn, manageConn)) == 0) {
         return 0;
     }
-    conn->http = http;
     conn->protocol = http->protocol;
+    conn->http = http;
     conn->port = -1;
     conn->retries = HTTP_RETRIES;
     conn->endpoint = endpoint;
@@ -2535,7 +2535,7 @@ PUBLIC HttpConn *httpCreateConn(Http *http, HttpEndpoint *endpoint, MprDispatche
  */
 PUBLIC void httpDestroyConn(HttpConn *conn)
 {
-    if (!conn->destroyed) {
+    if (!conn->destroyed && !conn->borrowed) {
         HTTP_NOTIFY(conn, HTTP_EVENT_DESTROY, 0);
         if (httpServerConn(conn)) {
             httpMonitorEvent(conn, HTTP_COUNTER_ACTIVE_CONNECTIONS, -1);
@@ -2714,6 +2714,9 @@ static bool prepForNext(HttpConn *conn)
     assert(conn->endpoint);
     assert(conn->state == HTTP_STATE_COMPLETE);
 
+    if (conn->borrowed) {
+        return 0;
+    }
     if (conn->keepAliveCount <= 0) {
         conn->state = HTTP_STATE_BEGIN;
         return 0;
@@ -2938,7 +2941,7 @@ PUBLIC void httpEnableConnEvents(HttpConn *conn)
     rx = conn->rx;
     tx = conn->tx;
 
-    if (mprShouldAbortRequests()) {
+    if (mprShouldAbortRequests() || conn->borrowed) {
         return;
     }
     if (conn->workerEvent) {
@@ -3001,6 +3004,27 @@ PUBLIC void httpUsePrimary(HttpConn *conn)
 }
 
 
+PUBLIC void httpBorrowConn(HttpConn *conn)
+{
+    assert(!conn->borrowed);
+    if (!conn->borrowed) {
+        mprAddRoot(conn);
+        conn->borrowed = 1;
+    }
+}
+
+
+PUBLIC void httpReturnConn(HttpConn *conn)
+{
+    assert(conn->borrowed);
+    if (conn->borrowed) {
+        conn->borrowed = 0;
+        mprRemoveRoot(conn);
+        httpEnableConnEvents(conn);
+    }
+}
+
+
 /*
     Steal the socket object from a connection. This disconnects the socket from management by the Http service.
     It is the callers responsibility to call mprCloseSocket when required.
@@ -3014,7 +3038,7 @@ PUBLIC MprSocket *httpStealSocket(HttpConn *conn)
     assert(conn->sock);
     assert(!conn->destroyed);
 
-    if (!conn->destroyed) {
+    if (!conn->destroyed && !conn->borrowed) {
         lock(conn->http);
         sock = mprCloneSocket(conn->sock);
         (void) mprStealSocketHandle(conn->sock);
@@ -4519,10 +4543,12 @@ PUBLIC HttpHost *httpCreateHost()
     }
     mprSetCacheLimits(host->responseCache, 0, BIT_MAX_CACHE_DURATION, 0, 0);
 
-    host->mutex = mprCreateLock();
     host->routes = mprCreateList(-1, MPR_LIST_STABLE);
     host->flags = HTTP_HOST_NO_TRACE;
+#if UNUSED
     host->protocol = sclone("HTTP/1.1");
+    host->mutex = mprCreateLock();
+#endif
     host->streams = mprCreateHash(HTTP_SMALL_HASH_SIZE, MPR_HASH_STABLE);
     httpSetStreaming(host, "application/x-www-form-urlencoded", NULL, 0);
     httpSetStreaming(host, "application/json", NULL, 0);
@@ -4541,8 +4567,9 @@ PUBLIC HttpHost *httpCloneHost(HttpHost *parent)
     if ((host = mprAllocObj(HttpHost, manageHost)) == 0) {
         return 0;
     }
+#if UNUSED
     host->mutex = mprCreateLock();
-
+#endif
     /*
         The dirs and routes are all copy-on-write.
         Don't clone ip, port and name
@@ -4551,7 +4578,9 @@ PUBLIC HttpHost *httpCloneHost(HttpHost *parent)
     host->responseCache = parent->responseCache;
     host->routes = parent->routes;
     host->flags = parent->flags | HTTP_HOST_VHOST;
+#if UNUSED
     host->protocol = parent->protocol;
+#endif
     host->streams = parent->streams;
     httpAddHost(http, host);
     return host;
@@ -4566,8 +4595,12 @@ static void manageHost(HttpHost *host, int flags)
         mprMark(host->responseCache);
         mprMark(host->routes);
         mprMark(host->defaultRoute);
+#if UNUSED
         mprMark(host->protocol);
+#endif
+#if UNUSED
         mprMark(host->mutex);
+#endif
         mprMark(host->defaultEndpoint);
         mprMark(host->secureEndpoint);
         mprMark(host->streams);
@@ -4696,10 +4729,12 @@ PUBLIC void httpSetHostName(HttpHost *host, cchar *name)
 }
 
 
+#if UNUSED
 PUBLIC void httpSetHostProtocol(HttpHost *host, cchar *protocol)
 {
     host->protocol = sclone(protocol);
 }
+#endif
 
 
 PUBLIC int httpAddRoute(HttpHost *host, HttpRoute *route)
@@ -7606,6 +7641,21 @@ PUBLIC bool httpFlushQueue(HttpQueue *q, int flags)
 }
 
 
+PUBLIC void httpFlush(HttpConn *conn)
+{
+    httpFlushQueue(conn->writeq, HTTP_NON_BLOCK);
+}
+
+
+/*
+    Flush the write queue. In sync mode, this call may yield. 
+ */
+PUBLIC void httpFlushAll(HttpConn *conn)
+{
+    httpFlushQueue(conn->writeq, conn->async ? HTTP_NON_BLOCK : HTTP_BLOCK);
+}
+
+
 PUBLIC void httpResumeQueue(HttpQueue *q)
 {
     if (q) {
@@ -8255,6 +8305,9 @@ PUBLIC HttpRoute *httpCreateRoute(HttpHost *host)
     route->targetRule = sclone("run");
     route->autoDelete = 1;
     route->workers = -1;
+#if KEEP && UNUSED
+    route->protocol = sclone("HTTP/1.1");
+#endif
 
     route->headers = mprCreateList(-1, MPR_LIST_STABLE);
     route->handlers = mprCreateList(-1, MPR_LIST_STABLE);
@@ -8341,6 +8394,9 @@ PUBLIC HttpRoute *httpCreateInheritedRoute(HttpRoute *parent)
     route->optimizedPattern = parent->optimizedPattern;
     route->prefix = parent->prefix;
     route->prefixLen = parent->prefixLen;
+#if KEEP && UNUSED
+    route->protocol = parent->protocol;
+#endif
     route->serverPrefix = parent->serverPrefix;
     route->requestHeaders = parent->requestHeaders;
     route->responseStatus = parent->responseStatus;
@@ -8384,6 +8440,9 @@ static void manageRoute(HttpRoute *route, int flags)
         mprMark(route->startSegment);
         mprMark(route->startWith);
         mprMark(route->optimizedPattern);
+#if KEEP && UNUSED
+        mprMark(route->protocol);
+#endif
         mprMark(route->prefix);
         mprMark(route->serverPrefix);
         mprMark(route->tplate);
@@ -9653,6 +9712,14 @@ PUBLIC void httpSetRoutePreserveFrames(HttpRoute *route, bool on)
         route->flags |= HTTP_ROUTE_PRESERVE_FRAMES;
     }
 }
+
+
+#if KEEP && UNUSED
+PUBLIC void httpSetRouteProtocol(HttpRoute *route, cchar *protocol)
+{
+    route->protocol = sclone(protocol);
+}
+#endif
 
 
 PUBLIC void httpSetRouteServerPrefix(HttpRoute *route, cchar *prefix)
@@ -15939,15 +16006,6 @@ PUBLIC int httpIsOutputFinalized(HttpConn *conn)
 
 
 /*
-    Flush the write queue. Only in async mode, this call may yield. 
- */
-PUBLIC void httpFlush(HttpConn *conn)
-{
-    httpFlushQueue(conn->writeq, conn->async ? HTTP_NON_BLOCK : HTTP_BLOCK);
-}
-
-
-/*
     This formats a response and sets the altBody. The response is not HTML escaped.
     This is the lowest level for formatResponse.
  */
@@ -16456,8 +16514,7 @@ PUBLIC void httpWriteHeaders(HttpQueue *q, HttpPacket *packet)
                 mprPutToBuf(buf, "http://%s:%d%s?%s %s", http->proxyHost, http->proxyPort, 
                     parsedUri->path, parsedUri->query, conn->protocol);
             } else {
-                mprPutToBuf(buf, "http://%s:%d%s %s", http->proxyHost, http->proxyPort, parsedUri->path,
-                    conn->protocol);
+                mprPutToBuf(buf, "http://%s:%d%s %s", http->proxyHost, http->proxyPort, parsedUri->path, conn->protocol);
             }
         } else {
             if (parsedUri->query && *parsedUri->query) {

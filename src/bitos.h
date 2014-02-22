@@ -676,8 +676,13 @@ typedef int64 Offset;
 #if DOXYGEN || BIT_UNIX_LIKE || VXWORKS
     /** Argument for sockets */
     typedef int Socket;
+    #ifndef SOCKET_ERROR
+        #define SOCKET_ERROR -1
+    #endif
     #define SOCKET_ERROR -1
-    #define INVALID_SOCKET -1
+    #ifndef INVALID_SOCKET
+        #define INVALID_SOCKET -1
+    #endif
 #elif BIT_WIN_LIKE
     typedef SOCKET Socket;
 #elif TIDSP
@@ -685,8 +690,12 @@ typedef int64 Offset;
     #define SOCKET_ERROR INVALID_SOCKET
 #else
     typedef int Socket;
-    #define SOCKET_ERROR -1
-    #define INVALID_SOCKET -1
+    #ifndef SOCKET_ERROR
+        #define SOCKET_ERROR -1
+    #endif
+    #ifndef INVALID_SOCKET
+        #define INVALID_SOCKET -1
+    #endif
 #endif
 
 typedef int64 Time;

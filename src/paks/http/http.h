@@ -561,8 +561,7 @@ typedef struct Http {
 
     char            *defaultClientHost;     /**< Default ip address */
     int             defaultClientPort;      /**< Default port */
-
-    char            *protocol;              /**< HTTP/1.0 or HTTP/1.1 */
+    char            *protocol;              /**< Default client protocol: HTTP/1.0 or HTTP/1.1 */
     char            *proxyHost;             /**< Proxy ip address */
     int             proxyPort;              /**< Proxy port */
 
@@ -2489,11 +2488,14 @@ typedef struct HttpConn {
     char            *boundary;              /**< File upload boundary */
     char            *errorMsg;              /**< Error message for the last request (if any) */
     char            *ip;                    /**< Remote client IP address */
+#if UNUSED || 1
     char            *protocol;              /**< HTTP protocol */
+#endif
     char            *protocols;             /**< Supported WebSocket protocols (clients) */
 
     int             async;                  /**< Connection is in async mode (non-blocking) */
     int             delay;                  /**< Delay servicing request due to defense strategy */
+    int             borrowed;               /**< Connection has been borrowed */
     int             destroyed;              /**< Connection has been destroyed */
     int             followRedirects;        /**< Follow redirects for client requests */
     int             keepAliveCount;         /**< Count of remaining Keep-Alive requests for this connection */
@@ -2542,15 +2544,30 @@ PUBLIC void httpClosePipeline(HttpConn *conn);
 #define HTTP_PARSE_TIMEOUT          3
 
 /**
-    Schedule a connection timeout event on a connection
-    @description This call schedules an event to run serialized on the connection dispatcher. When run, it will
-        cancels the current request, disconnects the socket and issues an error to the error log. 
-        This call is normally invoked by the httpTimer which runs regularly to check for timed out requests.
-    @param conn HttpConn connection object created via #httpCreateConn
+    Borrow a connection 
+    @description Borrow the connection from Http. This effectively gains an exclusive loan of the connection so that it 
+    cannot be destroyed while the loan is active. After the loan is complete, you must call return the connection 
+    by calling #httpReturnConn. Otherwise the connection will not be freed and memory will leak. 
+    \n\n
+    The httpBorrowConn routine is used to stabilize a connection while interacting with some outside service. 
+    Without this routine, the connection could be destroyed while waiting. Many things can happen while waiting. 
+    For example: the client could disconnect or the connection could timeout. These events will still be serviced 
+    while the connection is borrowed, but the connection object will not be destroyed.
+    \n\n
+    While borrowed, you must not access the connection using foreign / non-MPR threads. If you need to do this, 
+    use #mprCreateEventOutside to schedule an event to run on the connection's event dispatcher. 
+    This is essential to serialize access to the connection object.
+    Inside the event callback, you should first check the connection state via HttpConn.state to ensure the request is still active.
+    If the request has completed, the state will be HTTP_STATE_COMPLETE.
+    \n\n
+    Before returning from the event callback, you must call #httpReturnConn to end the exclusive loan. 
+    This restores normal processing of the connection and enables any required I/O events. 
+    \n\n
+    @param conn HttpConn object created via #httpCreateConn
     @ingroup HttpConn
-    @stability Internal
-  */
-PUBLIC void httpScheduleConnTimeout(HttpConn *conn);
+    @stability Prototype
+ */
+PUBLIC void httpBorrowConn(HttpConn *conn);
 
 /** 
     Create a connection object.
@@ -2877,12 +2894,40 @@ PUBLIC bool httpRequestExpired(HttpConn *conn, MprTicks timeout);
 PUBLIC void httpResetCredentials(HttpConn *conn);
 
 /**
+    Return a borrowed a connection 
+    @description Returns a borrowed connection back to the Http engine. This ends the exclusive loan of the connection so that 
+    the current request can be completed. It also enables I/O events based on the current state of the connection.
+    \n\n
+    While the connection is borrowed, you must not access the connection using foreign / non-MPR threads. 
+    Use #mprCreateEventOutside to schedule an event to run on the connection's event dispatcher. This is 
+    essential to serialize access to the connection object.
+    \n\n
+    You should only call this routine (once) after calling #httpBorrowConn.
+    \n\n
+    @param conn HttpConn object created via #httpCreateConn
+    @ingroup HttpConn
+    @stability Prototype
+ */
+PUBLIC void httpReturnConn(HttpConn *conn);
+
+/**
     Route the request and select that matching route and handle to process the request.
     @param conn HttpConn connection object created via #httpCreateConn
     @ingroup HttpConn
     @stability Internal
   */
 PUBLIC void httpRouteRequest(HttpConn *conn);
+
+/**
+    Schedule a connection timeout event on a connection
+    @description This call schedules an event to run serialized on the connection dispatcher. When run, it will
+        cancels the current request, disconnects the socket and issues an error to the error log. 
+        This call is normally invoked by the httpTimer which runs regularly to check for timed out requests.
+    @param conn HttpConn connection object created via #httpCreateConn
+    @ingroup HttpConn
+    @stability Internal
+  */
+PUBLIC void httpScheduleConnTimeout(HttpConn *conn);
 
 /**
     Service pipeline queues to flow data.
@@ -3131,6 +3176,8 @@ PUBLIC void httpCreatePipeline(HttpConn *conn);
     Note: The current request is aborted and queue data is discarded.
     After calling, the normal Appweb request and inactivity timeouts will not apply to the returned socket object.
     It is the callers responsibility to call mprCloseSocket on the returned MprSocket when ready.
+    \n\n
+    An alternative to this routine is #httpBorrowConn which temporarily loans the connection and secures it from destruction.
     @param conn HttpConn object created via #httpCreateConn
     @return A clone of the connection's MprSocket object with the socket handle.
     @ingroup HttpConn
@@ -3934,6 +3981,10 @@ typedef struct HttpRoute {
     char            *envPrefix;             /**< Environment strings prefix */
     MprList         *indicies;              /**< Directory index documents */
     HttpStage       *handler;               /**< Fixed handler */
+
+#if UNUSED && KEEP
+    char            *protocol;              /**< Defaults to "HTTP/1.1" */
+#endif
 
     int             nextGroup;              /**< Next route with a different startWith */
     int             responseStatus;         /**< Response status code */
@@ -6044,6 +6095,7 @@ typedef struct HttpTx {
     int             pendingFinalize;        /**< Call httpFinalize again once the Tx pipeline is created */
     int             finalizedConnector;     /**< Connector has finished sending the response */
     int             finalizedOutput;        /**< Handler or surrogate has finished writing output response */
+    HttpUri         *parsedUri;             /**< Client request uri */
     cchar           *filename;              /**< Name of a real file being served (typically pathInfo mapped) */
     int             flags;                  /**< Response flags */
     int             status;                 /**< HTTP response status */
@@ -6057,7 +6109,6 @@ typedef struct HttpTx {
     HttpStage       *handler;               /**< Final handler serving the request */
     MprOff          length;                 /**< Transmission content length */
     int             writeBlocked;           /**< Transmission writing is blocked */
-    HttpUri         *parsedUri;             /**< Client request uri */
     char            *method;                /**< Client request method GET, HEAD, POST, DELETE, OPTIONS, PUT, TRACE */
     cchar           *errorDocument;         /**< Error document to render */
     char            *authType;              /**< Type of authentication: set to basic, digest, post or a custom name */
@@ -6219,17 +6270,29 @@ PUBLIC void httpFinalizeOutput(HttpConn *conn);
 
 /**
     Flush transmit data. 
-    @description This call initiates writing buffered data. 
-    If in sync mode this call may block until the output queues drain.
-    This routine may invoke mprYield before it blocks to consent for the garbage collector to run. Callers must
-    ensure they have retained all required temporary memory before invoking this routine.
-    Filters and connectors should not call this routine as it may block.
+    @description This call initiates writing buffered data an will not block.
+    If you need to wait until all the data has been written to the socket, use #httpFlushAll.
     Handlers may only call this routine in their open, close, ready, start and writable callbacks.
     @param conn HttpConn connection object created via #httpCreateConn
     @ingroup HttpTx
     @stability Stable
  */
 PUBLIC void httpFlush(HttpConn *conn);
+
+/**
+    Flush transmit data and wait for all the data to be written to the socket. 
+    @description This call initiates writing buffered data. 
+    If in sync mode this call may block until the output queues drain.
+    In sync mode, this may invoke mprYield before blocking to consent for the garbage collector to run. Callers must
+    ensure they have retained all required temporary memory before invoking this routine.
+    Filters and connectors should not call this routine as it may block. Use #httpFlush in filters or connectors.
+    Handlers may only call this routine in their open, close, ready, start and writable callbacks.
+    See #httpFlush if you do need to wait for all the data to be written to the socket.
+    @param conn HttpConn connection object created via #httpCreateConn
+    @ingroup HttpTx
+    @stability Stable
+ */
+PUBLIC void httpFlushAll(HttpConn *conn);
 
 /** 
     Follow redirctions
@@ -6832,9 +6895,7 @@ PUBLIC void httpStopEndpoint(HttpEndpoint *endpoint);
 */
 typedef struct HttpHost {
     /*
-        NOTE: the ip:port names are used for vhost matching when there is only one such address. Otherwise a host may
-        be associated with multiple listening endpoints. In that case, the ip:port will store only one of these addresses 
-        and will not be used for matching.
+        NOTE: A host may be associated with multiple listening endpoints.
      */
     char            *name;                  /**< Host name */
     struct HttpHost *parent;                /**< Parent host to inherit aliases, dirs, routes */
@@ -6844,10 +6905,16 @@ typedef struct HttpHost {
     HttpEndpoint    *defaultEndpoint;       /**< Default endpoint for host */
     HttpEndpoint    *secureEndpoint;        /**< Secure endpoint for host */
     MprHash         *streams;               /**< Hash of mime-types to stream record */
+#if UNUSED
     char            *protocol;              /**< Defaults to "HTTP/1.1" */
+#endif
+#if UNUSED
     char            *root;                  /**< Home for this host */
+#endif
     int             flags;                  /**< Host flags */
+#if UNUSED
     MprMutex        *mutex;                 /**< Multithread sync */
+#endif
 } HttpHost;
 
 /**

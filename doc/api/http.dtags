@@ -940,6 +940,13 @@
       <arglist>(HttpConn *conn, int status, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
+      <type>void</type>
+      <name>httpBorrowConn</name>
+      <anchorfile>group___http_conn.html</anchorfile>
+      <anchor>ga11e1e52cca2138f7aec8f66b8b8e08ca</anchor>
+      <arglist>(HttpConn *conn)</arglist>
+    </member>
+    <member kind="function">
       <type>bool</type>
       <name>httpClientConn</name>
       <anchorfile>group___http_conn.html</anchorfile>
@@ -1147,6 +1154,13 @@
       <name>httpResetCredentials</name>
       <anchorfile>group___http_conn.html</anchorfile>
       <anchor>gafc31fb0e49b2f9ecad11297fe6a3d616</anchor>
+      <arglist>(HttpConn *conn)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpReturnConn</name>
+      <anchorfile>group___http_conn.html</anchorfile>
+      <anchor>ga1eea2fb67ffdc13f9ae78bde57b01d4d</anchor>
       <arglist>(HttpConn *conn)</arglist>
     </member>
     <member kind="function">
@@ -2742,6 +2756,13 @@
       <name>httpFlush</name>
       <anchorfile>group___http_tx.html</anchorfile>
       <anchor>ga23c2dd9ef6d1b76a146bb93731fa7b7d</anchor>
+      <arglist>(HttpConn *conn)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpFlushAll</name>
+      <anchorfile>group___http_tx.html</anchorfile>
+      <anchor>ga35bdc02cd0f2f7e5dc9350ca8a933972</anchor>
       <arglist>(HttpConn *conn)</arglist>
     </member>
     <member kind="function">

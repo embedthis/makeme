@@ -5810,10 +5810,10 @@ typedef struct MprEvent {
 /*
     Dispatcher flags
  */
-#define MPR_DISPATCHER_IMMEDIATE    0x1 /**< Dispatcher should run using the service events thread */
-#define MPR_DISPATCHER_WAITING      0x2 /**< Dispatcher waiting for an event in mprWaitForEvent */
-#define MPR_DISPATCHER_DESTROYED    0x4 /**< Dispatcher has been destroyed */
-#define MPR_DISPATCHER_AUTO         0x8 /**< Dispatcher was auto created in response to accept event */
+#define MPR_DISPATCHER_IMMEDIATE  0x1   /**< Dispatcher should run using the service events thread */
+#define MPR_DISPATCHER_WAITING    0x2   /**< Dispatcher waiting for an event in mprWaitForEvent */
+#define MPR_DISPATCHER_DESTROYED  0x4   /**< Dispatcher has been destroyed */
+#define MPR_DISPATCHER_AUTO       0x8   /**< Dispatcher was auto created in response to accept event */
 
 /**
     Event Dispatcher
@@ -5938,7 +5938,8 @@ PUBLIC void mprSetEventServiceSleep(MprTicks delay);
 
 /**
     Wait for an event to occur on the given dispatcher
-    @description This routine yields to the garbage collector by calling #mprYield. Callers must retain all required memory.
+    @description Use this routine to wait for an event and service the event on the given dispatcher. 
+    This routine yields to the garbage collector by calling #mprYield. Callers must retain all required memory.
     @param dispatcher Event dispatcher to monitor
     @param timeout for waiting in milliseconds
     @return Zero if successful and an event occurred before the timeout expired. Returns #MPR_ERR_TIMEOUT if no event
@@ -5993,6 +5994,10 @@ PUBLIC MprEvent *mprCreateEvent(MprDispatcher *dispatcher, cchar *name, MprTicks
         This routine will create and queue the event and then return, unless MPR_EVENT_BLOCK is specified. In that case,
         this call will wait while the event callback proc runs to completion then this routine will return.
         \n\n
+        If you want to access MPR objects in the event callback, you may need to take steps to ensure they still exist when
+        the event runs. This may mean calling #mprAddRoot before creating the event and calling #mprRemoveRoot inside the
+        event callback.
+        \n\n
         While creating and queuing the event, this routine temporarily pauses the garbage collector. If the garbage collector 
         is running, this call waits for it to complete before creating the event. This may necessitate a small delay before 
         running the event.
@@ -6003,7 +6008,7 @@ PUBLIC MprEvent *mprCreateEvent(MprDispatcher *dispatcher, cchar *name, MprTicks
         This should only be used for quick, non-block event callbacks.  If using another dispatcher, it is essential that 
         the dispatcher not be destroyed while this event is queued or running. Such dispatchers must be retained before calling
         mprCallEventOutside via #mprAddRoot or #mprHold before using with this routine.
-    @param name Descriptive event name. Does not need to be unique.
+    @param name Descriptive event name. Does not need to be unique. Can be null.
     @param proc Callback function to invoke when the event is run
     @param data Data to associate with the event and stored in event->data. The data must be non-MPR memory.
     @param flags Set to MPR_EVENT_BLOCK to invoke the callback and wait for its completion before returning.
@@ -7099,6 +7104,7 @@ PUBLIC int mprWaitForSingleIO(int fd, int mask, MprTicks timeout);
 #define MPR_WAIT_RECALL_HANDLER     0x1     /**< Wait handler flag to recall the handler asap */
 #define MPR_WAIT_NEW_DISPATCHER     0x2     /**< Wait handler flag to create a new dispatcher for each I/O event */
 #define MPR_WAIT_IMMEDIATE          0x4     /**< Wait handler flag to immediately service event on same thread */
+#define MPR_WAIT_NOT_SOCKET         0x8     /**< I/O file descriptor is not a socket - windows will ignore */
 
 /**
     Wait Handler Service
@@ -10227,7 +10233,7 @@ PUBLIC void mprSetInst(HINSTANCE inst);
 PUBLIC void mprSetSocketMessage(int message);
 #endif
 
-#if (BIT_WIN_LIKE && !WINCE) || CYGWIN
+#if BIT_WIN_LIKE || CYGWIN
 /**
     List the subkeys for a key in the Windows registry
     @param key Windows registry key to enumerate subkeys
@@ -10257,7 +10263,7 @@ PUBLIC char *mprReadRegistry(cchar *key, cchar *name);
     @stability Stable.
   */
 PUBLIC int mprWriteRegistry(cchar *key, cchar *name, cchar *value);
-#endif /* (BIT_WIN_LIKE && !WINCE) || CYGWIN */
+#endif /* BIT_WIN_LIKE || CYGWIN */
 
 /*
     Internal

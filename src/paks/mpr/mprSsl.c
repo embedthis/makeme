@@ -1213,10 +1213,10 @@ static ssize writeEst(MprSocket *sp, cvoid *buf, ssize len)
                 break;
             }
             if (rc == EST_ERR_NET_CONN_RESET) {                                                         
-                mprLog(0, "ssl_write peer closed");
+                mprLog(7, "ssl_write peer closed");
                 return -1;
             } else {
-                mprLog(0, "ssl_write failed rc -0x%x", -rc);
+                mprLog(7, "ssl_write failed rc -0x%x", -rc);
                 return -1;
             }
         } else {
