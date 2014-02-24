@@ -1948,8 +1948,7 @@ static int checkCert(MprSocket *sp)
             if ((dp = strchr(osp->peerName, '.')) != 0) {
                 /* Strip the host portion and just test the domain portion */
                 if (!smatch(pp, &dp[1])) {
-                    sp->errorMsg = sfmt("Certificate common name mismatch CN \"%s\" vs required \"%s\"", 
-                        peer, osp->peerName);
+                    sp->errorMsg = sfmt("Certificate common name mismatch CN \"%s\" vs required \"%s\"", peer, osp->peerName);
                     return -1;
                 }
             }

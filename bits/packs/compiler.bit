@@ -249,7 +249,7 @@ function setCompilerOptions(pack, settings) {
         }
 
     } else if (platform.os == 'macosx') {
-        pack.compiler.push('-Wno-deprecated-declarations')
+        //UNUSED pack.compiler.push('-Wno-deprecated-declarations')
         pack.linker.push('-Wl,-rpath,@executable_path/', '-Wl,-rpath,@loader_path/')
 
     } else if (platform.os == 'solaris') {

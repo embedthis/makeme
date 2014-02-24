@@ -20,7 +20,6 @@
 #ifndef BIT_ROM
     #define BIT_ROM 0                   /**< Build for execute from ROM */
 #endif
-
 #ifndef BIT_PACK_SSL
     #define BIT_PACK_SSL 0              /**< Build without SSL support */
 #endif
@@ -262,6 +261,13 @@
 #endif
 
 #define BIT_PLATFORM BIT_OS "-" BIT_CPU "-" BIT_PROFILE
+
+/*
+    Deprecated API warnings
+ */
+#if (__GNUC__ >= 3) || MACOSX
+    #define BIT_DEPRECATED(MSG) __attribute__ ((deprecated(MSG)))
+#endif
 
 /********************************* O/S Includes *******************************/
 /*

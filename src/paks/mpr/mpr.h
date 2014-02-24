@@ -2967,7 +2967,7 @@ PUBLIC int mprPutCharToBuf(MprBuf *buf, int c);
  */
 PUBLIC ssize mprPutToBuf(MprBuf *buf, cchar *fmt, ...);
 
-#if DEPRECATED
+#if DEPRECATED || 1
     /*
         Renamed in 4.3
      */
