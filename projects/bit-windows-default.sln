@@ -41,6 +41,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpcre", "bit-windows-defa
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libzlib", "bit-windows-default\libzlib.vcxproj", "{CB7A943F-B210-498C-80DD-8BA85D017F7E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
+	EndProjectSection
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libhttp", "bit-windows-default\libhttp.vcxproj", "{55D3272A-C6B1-45CB-9B3B-7BD1FF9B0ED9}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
@@ -69,6 +74,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libejs", "bit-windows-defau
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
 		{4BDD6F9C-78F4-4F4C-9A4B-9EBD713D1D00} = {4BDD6F9C-78F4-4F4C-9A4B-9EBD713D1D00}
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{CB7A943F-B210-498C-80DD-8BA85D017F7E} = {CB7A943F-B210-498C-80DD-8BA85D017F7E}
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
 		{02CA7374-D1AA-425D-8F85-9AD8320980E7} = {02CA7374-D1AA-425D-8F85-9AD8320980E7}
@@ -222,6 +230,14 @@ Global
 {4BDD6F9C-78F4-4F4C-9A4B-9EBD713D1D00}.Release|Win32.Build.0 = Release|Win32
 {4BDD6F9C-78F4-4F4C-9A4B-9EBD713D1D00}.Release|x64.ActiveCfg = Release|x64
 {4BDD6F9C-78F4-4F4C-9A4B-9EBD713D1D00}.Release|x64.Build.0 = Release|x64
+{CB7A943F-B210-498C-80DD-8BA85D017F7E}.Debug|Win32.ActiveCfg = Debug|Win32
+{CB7A943F-B210-498C-80DD-8BA85D017F7E}.Debug|Win32.Build.0 = Debug|Win32
+{CB7A943F-B210-498C-80DD-8BA85D017F7E}.Debug|x64.ActiveCfg = Debug|x64
+{CB7A943F-B210-498C-80DD-8BA85D017F7E}.Debug|x64.Build.0 = Debug|x64
+{CB7A943F-B210-498C-80DD-8BA85D017F7E}.Release|Win32.ActiveCfg = Release|Win32
+{CB7A943F-B210-498C-80DD-8BA85D017F7E}.Release|Win32.Build.0 = Release|Win32
+{CB7A943F-B210-498C-80DD-8BA85D017F7E}.Release|x64.ActiveCfg = Release|x64
+{CB7A943F-B210-498C-80DD-8BA85D017F7E}.Release|x64.Build.0 = Release|x64
 {55D3272A-C6B1-45CB-9B3B-7BD1FF9B0ED9}.Debug|Win32.ActiveCfg = Debug|Win32
 {55D3272A-C6B1-45CB-9B3B-7BD1FF9B0ED9}.Debug|Win32.Build.0 = Debug|Win32
 {55D3272A-C6B1-45CB-9B3B-7BD1FF9B0ED9}.Debug|x64.ActiveCfg = Debug|x64

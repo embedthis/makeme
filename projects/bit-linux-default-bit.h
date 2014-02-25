@@ -149,13 +149,10 @@
     #define BIT_PRODUCT "bit"
 #endif
 #ifndef BIT_REQUIRES
-    #define BIT_REQUIRES "compiler,lib,link,pcre,ejscript"
+    #define BIT_REQUIRES "compiler,lib,link,pcre,zlib,ejscript"
 #endif
 #ifndef BIT_STATIC
     #define BIT_STATIC 0
-#endif
-#ifndef BIT_SYNC
-    #define BIT_SYNC "bitos,est,mpr,pcre,http,ejs"
 #endif
 #ifndef BIT_TITLE
     #define BIT_TITLE "Embedthis Bit"
@@ -328,4 +325,7 @@
 #endif
 #ifndef BIT_PACK_ZIP
     #define BIT_PACK_ZIP 1
+#endif
+#ifndef BIT_PACK_ZLIB
+    #define BIT_PACK_ZLIB 1
 #endif

@@ -117,7 +117,7 @@
 
   <ItemDefinitionGroup>
   <Link>
-    <AdditionalDependencies>libhttp.lib;libmpr.lib;libpcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    <AdditionalDependencies>libhttp.lib;libmpr.lib;libpcre.lib;libzlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     <AdditionalLibraryDirectories>$(OutDir);$(Cfg)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
   </Link>
 
@@ -141,6 +141,13 @@ cd ..\..\..\projects\bit-windows-default</Command>
 <ItemGroup>
   <ProjectReference Include="libpcre.vcxproj">
   <Project>4bdd6f9c-78f4-4f4c-9a4b-9ebd713d1d00</Project>
+  <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+  </ProjectReference>
+</ItemGroup>
+
+<ItemGroup>
+  <ProjectReference Include="libzlib.vcxproj">
+  <Project>cb7a943f-b210-498c-80dd-8ba85d017f7e</Project>
   <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
   </ProjectReference>
 </ItemGroup>
