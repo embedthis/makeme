@@ -3863,10 +3863,9 @@ static int manageEndpoint(HttpEndpoint *endpoint, int flags)
 /*
     Convenience function to create and configure a new endpoint without using a config file.
  */
-PUBLIC HttpEndpoint *httpCreateConfiguredEndpoint(cchar *home, cchar *documents, cchar *ip, int port)
+PUBLIC HttpEndpoint *httpCreateConfiguredEndpoint(HttpHost *host, cchar *home, cchar *documents, cchar *ip, int port)
 {
     Http            *http;
-    HttpHost        *host;
     HttpEndpoint    *endpoint;
     HttpRoute       *route;
 
@@ -3893,14 +3892,20 @@ PUBLIC HttpEndpoint *httpCreateConfiguredEndpoint(cchar *home, cchar *documents,
             return 0;
         }
     }
-    if ((host = httpCreateHost(home)) == 0) {
-        return 0;
+    if (!host) {
+        if ((host = httpCreateHost()) == 0) {
+            return 0;
+        }
+        if ((route = httpCreateRoute(host)) == 0) {
+            return 0;
+        }
+        httpSetHostDefaultRoute(host, route);
+#if UNUSED
+        httpSetHostName(host, sfmt("%s:%d", ip, port));
+#endif
+    } else {
+        route = host->defaultRoute;
     }
-    if ((route = httpCreateRoute(host)) == 0) {
-        return 0;
-    }
-    httpSetHostDefaultRoute(host, route);
-    httpSetHostName(host, sfmt("%s:%d", ip, port));
     httpAddHostToEndpoint(endpoint, host);
     httpSetRouteDocuments(route, documents);
     httpFinalizeRoute(route);

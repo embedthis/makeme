@@ -6731,7 +6731,8 @@ PUBLIC void httpAddHostToEndpoint(HttpEndpoint *endpoint, struct HttpHost *host)
 /**
     Create and configure a new endpoint.
     @description Convenience function to create and configure a new endpoint without using a config file.
-        An endpoint is created with a default host and default route.
+        If no host is supplied, a default host and route are created.
+    @param host Optional HttpHost object.
     @param home Home directory for configuration files for the endpoint 
     @param documents Directory containing the 
     @param ip IP address to use for the endpoint. Set to null to listen on all interfaces.
@@ -6740,7 +6741,7 @@ PUBLIC void httpAddHostToEndpoint(HttpEndpoint *endpoint, struct HttpHost *host)
     @ingroup HttpEndpoint
     @stability Internal
 */
-PUBLIC HttpEndpoint *httpCreateConfiguredEndpoint(cchar *home, cchar *documents, cchar *ip, int port);
+PUBLIC HttpEndpoint *httpCreateConfiguredEndpoint(struct HttpHost *host, cchar *home, cchar *documents, cchar *ip, int port);
 
 /** 
     Create an endpoint  object.
