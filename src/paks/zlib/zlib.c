@@ -2657,6 +2657,7 @@ local void fill_window(s)
     do {
         more = (unsigned)(s->window_size -(ulg)s->lookahead -(ulg)s->strstart);
 
+#if UNUSED 
         /* Deal with !@#$% 64K limit: */
         if (sizeof(int) <= 2) {
             if (more == 0 && s->strstart == 0 && s->lookahead == 0) {
@@ -2669,6 +2670,7 @@ local void fill_window(s)
                 more--;
             }
         }
+#endif
 
         /* If the window is almost full and there is insufficient lookahead,
          * move the upper half to the lower one to make room in the upper half.

@@ -12,7 +12,7 @@ Bit.load({
             type:   'lib',
             sources: [ 'ejsLib.c' ],
             headers: [ '*.h' ],
-            depends: [ 'libhttp', 'libpcre', 'libmpr', 'ejscript' ],
+            depends: [ 'libhttp', 'libpcre', 'libzlib', 'libmpr', 'ejscript' ],
             packs: [ 'ejscript' ],
             enable: 'bit.packs.ejscript.enable',
         },

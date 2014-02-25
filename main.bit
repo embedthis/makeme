@@ -7,6 +7,7 @@ Bit.load({
         "src/paks/est/est.bit",
         "src/paks/mpr/mpr.bit",
         "src/paks/pcre/pcre.bit",
+        "src/paks/zlib/zlib.bit",
         "src/paks/http/http.bit",
         "src/paks/ejs/ejs.bit",
         "doc/doc.bit",
@@ -28,7 +29,6 @@ Bit.load({
         prefixes: 'embedthis-prefixes',
         manifest: 'package/manifest.bit',
 
-        sync: [ 'bitos', 'est', 'mpr', 'pcre', 'http', 'ejs' ],
         platforms: [ 'local' ],
         packs: [ 'bits/packs' ],
         static: false,
@@ -38,7 +38,7 @@ Bit.load({
             Optional packs to automatically discover and configure
          */
         '+discover': [ 'dsi', 'ejscript', 'man', 'man2html', 'pmaker', 'ssl', 'zip' ],
-        '+requires': [ 'compiler', 'pcre', 'ejscript' ],
+        '+requires': [ 'compiler', 'pcre', 'zlib', 'ejscript' ],
 
         /*
             Packs to disable when using --without all. Note: keep ssl.
