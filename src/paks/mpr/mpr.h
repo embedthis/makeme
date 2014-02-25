@@ -6078,7 +6078,7 @@ PUBLIC void mprEnableContinuousEvent(MprEvent *event, int enable);
     @param proc Function to invoke when the event is run
     @param period Time in milliseconds used by continuous events between firing of the event.
     @param data Data to associate with the event and stored in event->data.
-    @param flags Not used.
+    @param flags Reserved. Must be set to zero.
     @ingroup MprEvent
     @stability Stable
  */

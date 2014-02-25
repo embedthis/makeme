@@ -3420,8 +3420,9 @@ PUBLIC int mprDaemon()
         return MPR_ERR_BAD_STATE;
     }
     exit(0);
-#endif
+#else
     return 0;
+#endif
 }
 
 
@@ -5672,7 +5673,7 @@ PUBLIC int mprRunCmdV(MprCmd *cmd, int argc, cchar **argv, cchar **envp, cchar *
         if (err) {
             if (rc == MPR_ERR_CANT_ACCESS) {
                 *err = sfmt("Cannot access command %s", cmd->program);
-            } else if (MPR_ERR_CANT_OPEN) {
+            } else if (rc == MPR_ERR_CANT_OPEN) {
                 *err = sfmt("Cannot open standard I/O for command %s", cmd->program);
             } else if (rc == MPR_ERR_CANT_CREATE) {
                 *err = sfmt("Cannot create process for %s", cmd->program);
@@ -12605,11 +12606,11 @@ static MprJson *jsonParse(MprJsonParser *parser, MprJson *obj)
                 return obj;
             } else {
                 mprSetJsonError(parser, "Unexpected input. Missing comma.");
+                return 0;
             }
             break;
         }
     }
-    return obj;
 }
 
 
@@ -20905,7 +20906,6 @@ static void signalHandler(int signo, siginfo_t *info, void *arg)
         /* Fixes command line recall to complete the line */
         printf("\n");
         exit(1);
-        return;
     }
     ssp = MPR->signalService;
     ip = &ssp->info[signo];

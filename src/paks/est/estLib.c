@@ -11960,7 +11960,6 @@ static int asn1_get_len(uchar **p, uchar *end, int *len)
 
         default:
             return EST_ERR_ASN1_INVALID_LENGTH;
-            break;
         }
     }
     if (*len > (int)(end - *p)) {

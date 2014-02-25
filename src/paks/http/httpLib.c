@@ -5133,7 +5133,6 @@ PUBLIC void httpLogRequest(HttpConn *conn)
 }
 
 
-
 /*
     @copy   default
 
@@ -8275,9 +8274,9 @@ PUBLIC HttpRoute *httpCreateRoute(HttpHost *host)
     route->defaultLanguage = sclone("en");
     route->home = route->documents = mprGetCurrentPath(".");
     route->flags = HTTP_ROUTE_STEALTH;
-    if (BIT_DEBUG) {
-        route->flags |= HTTP_ROUTE_SHOW_ERRORS;
-    }
+#if BIT_DEBUG
+    route->flags |= HTTP_ROUTE_SHOW_ERRORS;
+#endif
     route->host = host;
     route->http = MPR->httpService;
     route->lifespan = BIT_MAX_CACHE_DURATION;
@@ -12879,6 +12878,9 @@ static bool processFinalized(HttpConn *conn)
         if (rx->route && rx->route->log) {
             httpLogRequest(conn);
         }
+        if (conn->http->logCallback) {
+            (conn->http->logCallback)(conn);
+        }
         httpMonitorEvent(conn, HTTP_COUNTER_NETWORK_IO, tx->bytesWritten);
     }
     httpSetState(conn, HTTP_STATE_COMPLETE);
@@ -12998,7 +13000,8 @@ PUBLIC cchar *httpGetCookie(HttpConn *conn, cchar *name)
     rx = conn->rx;
     assert(rx);
 
-    for (cookie = rx->cookie; cookie && (value = strstr(cookie, name)) != 0; cookie = value) {
+    cookie = rx->cookie; 
+    if (cookie && (value = strstr(cookie, name)) != 0) {
         value += strlen(name);
         while (isspace((uchar) *value) || *value == '=') {
             value++;
@@ -14588,9 +14591,14 @@ PUBLIC void httpAddConn(Http *http, HttpConn *conn)
 
     lock(http);
     conn->seqno = (int) http->totalConnections++;
-    if ((!BIT_DEBUG || !mprGetDebugMode()) && !http->timer) {
-        http->timer = mprCreateTimerEvent(NULL, "httpTimer", HTTP_TIMER_PERIOD, httpTimer, http, 
-            MPR_EVENT_CONTINUOUS | MPR_EVENT_QUICK);
+    if (!http->timer) {
+#if BIT_DEBUG
+        if (!mprGetDebugMode())
+#endif
+        {
+            http->timer = mprCreateTimerEvent(NULL, "httpTimer", HTTP_TIMER_PERIOD, httpTimer, http, 
+                MPR_EVENT_CONTINUOUS | MPR_EVENT_QUICK);
+        }
     }
     unlock(http);
 }
@@ -14806,6 +14814,14 @@ PUBLIC bool httpConfigure(HttpConfigureProc proc, void *data, MprTicks timeout)
     return 0;
 }
 
+
+PUBLIC void httpSetRequestLogCallback(HttpRequestCallback callback)
+{
+    Http    *http;
+
+    http = MPR->httpService;
+    http->logCallback = callback;
+}
 
 /*
     @copy   default
