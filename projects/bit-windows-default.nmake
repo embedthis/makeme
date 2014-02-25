@@ -1039,6 +1039,7 @@ installBinary: $(DEPS_43)
 	copy /Y $(CONFIG)\bin\libmpr.dll "$(BIT_VAPP_PREFIX)\bin\libmpr.dll"
 	copy /Y $(CONFIG)\bin\libmprssl.dll "$(BIT_VAPP_PREFIX)\bin\libmprssl.dll"
 	copy /Y $(CONFIG)\bin\libpcre.dll "$(BIT_VAPP_PREFIX)\bin\libpcre.dll"
+	copy /Y $(CONFIG)\bin\libzlib.dll "$(BIT_VAPP_PREFIX)\bin\libzlib.dll"
 	copy /Y $(CONFIG)\bin\ca.crt "$(BIT_VAPP_PREFIX)\bin\ca.crt"
 	copy /Y $(CONFIG)\bin\ejs.mod "$(BIT_VAPP_PREFIX)\bin\ejs.mod"
 	if not exist "$(BIT_VAPP_PREFIX)\bin\bits" md "$(BIT_VAPP_PREFIX)\bin\bits"

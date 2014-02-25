@@ -7588,7 +7588,7 @@ PUBLIC int mprGetSocketError(MprSocket *sp);
  */
 PUBLIC Socket mprGetSocketHandle(MprSocket *sp);
 
-#if DEPRECATE || 1
+#if DEPRECATED || 1
 #define mprGetSocketFd mprGetSocketHandle
 #endif
 

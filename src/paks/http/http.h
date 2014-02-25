@@ -1159,8 +1159,8 @@ PUBLIC char *httpUri(struct HttpConn *conn, cchar *target);
  */
 PUBLIC char *httpUriEx(struct HttpConn *conn, cchar *target, MprHash *options);
 
-#if DEPRECATE || 1
-PUBLIC char *httpLink(struct HttpConn *conn, cchar *target, MprHash *options);
+#if DEPRECATED || 1
+PUBLIC char *httpLink(struct HttpConn *conn, cchar *target, MprHash *options) BIT_DEPRECATED("Use httpUriEx instead");
 #endif
 
 /** 
@@ -2504,7 +2504,7 @@ typedef struct HttpConn {
     void            *data;                  /**< Custom data for request - must be a managed reference */
     void            *staticData;            /**< Custom data for request - must be an unmanaged reference */
 
-#if (DEPRECATE || 1) && !DOXYGEN
+#if (DEPRECATED || 1) && !DOXYGEN
     void            *grid;                  /**< Current request database grid for MVC apps */
     void            *record;                /**< Current request database record for MVC apps */
 #endif
@@ -3385,7 +3385,7 @@ typedef struct HttpAuth {
     MprHash         *userCache;             /**< Cache of authenticated users */
     MprHash         *roles;                 /**< Hash of roles */
     MprHash         *abilities;             /**< Set of required abilities (all are required) */
-#if DEPRECATE || 1
+#if DEPRECATED || 1
     MprHash         *permittedUsers;        /**< Set of valid users */
 #endif
     char            *loginPage;             /**< Web page for user login for 'post' type */

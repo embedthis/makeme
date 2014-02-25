@@ -993,6 +993,7 @@ installBinary: $(DEPS_41)
 	cp $(CONFIG)/bin/libmpr.so $(BIT_VAPP_PREFIX)/bin/libmpr.so ; \
 	cp $(CONFIG)/bin/libmprssl.so $(BIT_VAPP_PREFIX)/bin/libmprssl.so ; \
 	cp $(CONFIG)/bin/libpcre.so $(BIT_VAPP_PREFIX)/bin/libpcre.so ; \
+	cp $(CONFIG)/bin/libzlib.so $(BIT_VAPP_PREFIX)/bin/libzlib.so ; \
 	cp $(CONFIG)/bin/ca.crt $(BIT_VAPP_PREFIX)/bin/ca.crt ; \
 	cp $(CONFIG)/bin/ejs.mod $(BIT_VAPP_PREFIX)/bin/ejs.mod ; \
 	mkdir -p "$(BIT_VAPP_PREFIX)/bin/bits" ; \

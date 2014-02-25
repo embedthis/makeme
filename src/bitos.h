@@ -262,13 +262,6 @@
 
 #define BIT_PLATFORM BIT_OS "-" BIT_CPU "-" BIT_PROFILE
 
-/*
-    Deprecated API warnings
- */
-#if (__GNUC__ >= 3) || MACOSX
-    #define BIT_DEPRECATED(MSG) __attribute__ ((deprecated(MSG)))
-#endif
-
 /********************************* O/S Includes *******************************/
 /*
     Out-of-order definitions and includes. Order really matters in this section.
@@ -908,12 +901,11 @@ typedef int64 Ticks;
     #define ARRAY_FLEX
 #endif
 
-#ifdef __GNUC__
-    #define DEPRECATE(fn) fn __attribute__ ((deprecated))
-#elif defined(_MSC_VER)
-    #define DEPRECATE(fn) __declspec(deprecated) fn
-#else
-    #define DEPRECATE(fn) fn
+/*
+    Deprecated API warnings
+ */
+#if (__GNUC__ >= 3) || MACOSX
+    #define BIT_DEPRECATED(MSG) __attribute__ ((deprecated(MSG)))
 #endif
 
 /********************************** Tunables *********************************/
