@@ -923,6 +923,7 @@ module embedthis.bit {
             } else {
                 prefix = suffix = ''
             }
+            capture = null
         } else {
             let sh = (bit.generating == 'make' | bit.generating == 'sh' || bit.generating == 'xcode') ? target['generate-sh'] : null
             cmd = target['generate-' + kind + '-' + bit.platform.os] || target['generate-' + kind] || 
@@ -1181,7 +1182,7 @@ module embedthis.bit {
         if (capture) {
             capture.push(s)
         } else {
-            /* Coming here for buitins like clean: */
+            /* Coming here for builtins like clean: */
             genout.writeLine('\t' + s)
         }
     }
