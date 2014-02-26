@@ -906,6 +906,8 @@ typedef int64 Ticks;
  */
 #if (__GNUC__ >= 3) || MACOSX
     #define BIT_DEPRECATED(MSG) __attribute__ ((deprecated(MSG)))
+#else
+    #define BIT_DEPRECATED(MSG) 
 #endif
 
 /********************************** Tunables *********************************/
