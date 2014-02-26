@@ -3222,7 +3222,7 @@ PUBLIC void mprDecodeUniversalTime(struct tm *timep, MprTime time);
 /**
     Convert a time value to local time and format as a string.
     @description Safe replacement for ctime. 
-    @param fmt Time format string
+    @param fmt Time format string. See #mprFormatUniversalTime for time formats.
     @param time Time to format. Use mprGetTime to retrieve the current time.
     @return The formatting time string
     @ingroup MprTime
@@ -3232,8 +3232,116 @@ PUBLIC char *mprFormatLocalTime(cchar *fmt, MprTime time);
 
 /**
     Convert a time value to universal time and format as a string.
-    @description Safe replacement for ctime.
+    @description Format a time string. This uses strftime if available and so the supported formats vary from platform to platform.
+        Strftime should supports some of these these formats described below.
     @param fmt Time format string
+            \n
+        %A ... full weekday name (Monday)
+            \n
+        %a ... abbreviated weekday name (Mon)
+            \n
+        %B ... full month name (January)
+            \n
+         %b ... abbreviated month name (Jan)
+            \n
+         %C ... century. Year / 100. (0-N)
+            \n
+         %c ... standard date and time representation
+            \n
+         %D ... date (%m/%d/%y)
+            \n
+         %d ... day-of-month (01-31)
+            \n
+         %e ... day-of-month with a leading space if only one digit ( 1-31)
+            \n
+         %F ... same as %Y-%m-%d
+            \n
+         %H ... hour (24 hour clock) (00-23)
+            \n
+         %h ... same as %b
+            \n
+         %I ... hour (12 hour clock) (01-12)
+            \n
+         %j ... day-of-year (001-366)
+            \n
+         %k ... hour (24 hour clock) (0-23)
+            \n
+         %l ... the hour (12-hour clock) as a decimal number (1-12); single digits are preceded by a blank.
+            \n
+         %M ... minute (00-59)
+            \n
+         %m ... month (01-12)
+            \n
+         %n ... a newline
+            \n
+         %P ... lower case am / pm
+            \n
+         %p ... AM / PM
+            \n
+         %R ... same as %H:%M
+            \n
+         %r ... same as %H:%M:%S %p
+            \n
+         %S ... second (00-59)
+            \n
+         %s ... seconds since epoch
+            \n
+         %T ... time (%H:%M:%S)
+            \n
+         %t ... a tab.
+            \n
+         %U ... week-of-year, first day sunday (00-53)
+            \n
+         %u ... the weekday (Monday as the first day of the week) as a decimal number (1-7).
+            \n
+         %v ... is equivalent to ``%e-%b-%Y''.
+            \n
+         %W ... week-of-year, first day monday (00-53)
+            \n
+         %w ... weekday (0-6, sunday is 0)
+            \n
+         %X ... standard time representation
+            \n
+         %x ... standard date representation
+            \n
+         %Y ... year with century
+            \n
+         %y ... year without century (00-99)
+            \n
+         %Z ... timezone name
+            \n
+         %z ... offset from UTC (-hhmm or +hhmm)
+            \n
+         %+ ... national representation of the date and time (the format is similar to that produced by date(1)).
+            \n
+         %% ... percent sign
+            \n\n
+     Some platforms may also support the following format extensions:
+            \n
+        %E* ... POSIX locale extensions. Where "*" is one of the characters: c, C, x, X, y, Y.
+            \n
+        %G ... a year as a decimal number with century. This year is the one that contains the greater part of
+             the week (Monday as the first day of the week).
+            \n
+        %g ... the same year as in ``%G'', but as a decimal number without century (00-99).
+            \n
+        %O* ... POSIX locale extensions. Where "*" is one of the characters: d, e, H, I, m, M, S, u, U, V, w, W, y.
+             Additionly %OB implemented to represent alternative months names (used standalone, without day mentioned). 
+            \n
+        %V ... the week number of the year (Monday as the first day of the week) as a decimal number (01-53). If the week 
+             containing January 1 has four or more days in the new year, then it is week 1; otherwise it is the last 
+             week of the previous year, and the next week is week 1.
+        \n\n
+    Useful formats:
+            \n
+        RFC822: "%a, %d %b %Y %H:%M:%S %Z "Fri, 07 Jan 2003 12:12:21 PDT"
+            \n
+        "%T %F "12:12:21 2007-01-03"
+            \n
+        "%v "07-Jul-2003"
+            \n
+        RFC3399: "%FT%TZ" "1985-04-12T23:20:50.52Z"
+\n\n
     @param time Time to format. Use mprGetTime to retrieve the current time.
     @return The formatting time string
     @ingroup MprTime
@@ -3244,7 +3352,7 @@ PUBLIC char *mprFormatUniversalTime(cchar *fmt, MprTime time);
 /**
     Format a time value as a local time.
     @description This call formats the time value supplied via \a timep.
-    @param fmt The time format to use.
+    @param fmt The time format to use. See #mprFormatUniversalTime for time formats.
     @param timep The time value to format.
     @return The formatting time string.
     @ingroup MprTime
