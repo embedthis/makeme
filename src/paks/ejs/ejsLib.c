@@ -50420,7 +50420,7 @@ static EjsNumber *uri_port(Ejs *ejs, EjsUri *up, int argc, EjsObj **argv)
     uri = up->uri;
     if (uri->port <= 0) {
         return ESV(null);
-#if UNUSED
+#if KEEP
         if (uri->host == 0) {
             return ESV(null);
         }
@@ -50749,6 +50749,9 @@ static HttpUri *toHttpUri(Ejs *ejs, EjsObj *arg, int dup)
 {
     HttpUri     *uri;
 
+    if (!ejsIsDefined(ejs, arg)) {
+        arg = ESV(empty);
+    } 
     if (ejsIs(ejs, arg, String)) {
         uri = httpCreateUri(ejsToMulti(ejs, arg), 0);
 

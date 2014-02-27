@@ -2169,7 +2169,7 @@ PUBLIC char *spascal(cchar *str);
 #endif
 
 /**
-    Locate the a character in a string.
+    Locate the a character from a set in a string.
     @description This locates in the string the first occurence of any character from a given set of characters.
     @param str String to examine
     @param set Set of characters to scan for
