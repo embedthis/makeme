@@ -2556,6 +2556,7 @@ PUBLIC Mpr *mprCreate(int argc, char **argv, int flags)
     mpr->idleCallback = mprServicesAreIdle;
     mpr->mimeTypes = mprCreateMimeTypes(NULL);
     mpr->terminators = mprCreateList(0, MPR_LIST_STATIC_VALUES);
+    mpr->keys = mprCreateHash(0, 0);
     mpr->verifySsl = 1;
 
     fs = mprCreateFileSystem("/");
@@ -2620,6 +2621,7 @@ static void manageMpr(Mpr *mpr, int flags)
         mprMark(mpr->domainName);
         mprMark(mpr->hostName);
         mprMark(mpr->ip);
+        mprMark(mpr->keys);
         mprMark(mpr->stdError);
         mprMark(mpr->stdInput);
         mprMark(mpr->stdOutput);
@@ -3423,6 +3425,18 @@ PUBLIC int mprDaemon()
 #else
     return 0;
 #endif
+}
+
+
+PUBLIC void mprSetKey(cchar *key, void *value)
+{
+    mprAddKey(MPR->keys, key, value);
+}
+
+
+PUBLIC void *mprGetKey(cchar *key)
+{
+    return mprLookupKey(MPR->keys, key);
 }
 
 

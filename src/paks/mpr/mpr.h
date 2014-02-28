@@ -9558,6 +9558,7 @@ typedef struct Mpr {
     MprFile         *logFile;               /**< Log file */
     MprHash         *mimeTypes;             /**< Table of mime types */
     MprHash         *timeTokens;            /**< Date/Time parsing tokens */
+    MprHash         *keys;                  /**< Simple key/value store */
     MprFile         *stdError;              /**< Standard error file */
     MprFile         *stdInput;              /**< Standard input file */
     MprFile         *stdOutput;             /**< Standard output file */
@@ -9861,6 +9862,14 @@ PUBLIC cchar *mprGetHostName();
     @stability Stable.
  */
 PUBLIC cchar *mprGetIpAddr();
+
+/**
+    Get a key value
+    @param key String key value
+    @ingroup Mpr
+    @stability Prototype.
+ */
+PUBLIC void *mprGetKey(cchar *key);
 
 /**
     Get the current logging level
@@ -10167,6 +10176,15 @@ PUBLIC MprIdleCallback mprSetIdleCallback(MprIdleCallback idleCallback);
 PUBLIC void mprSetIpAddr(cchar *ip);
 
 /**
+    Store a key/value pair
+    @param key String key value
+    @param value Manage object reference
+    @ingroup Mpr
+    @stability Prototype.
+ */
+PUBLIC void mprSetKey(cchar *key, void *value);
+
+/**
     Set the O/S error code.
     @description Set errno or equivalent.
     @ingroup Mpr
@@ -10286,18 +10304,6 @@ PUBLIC void mprShutdown(int exitStrategy, int status, MprTicks timeout);
  */
 PUBLIC bool mprCancelShutdown();
 
-#if DEPRECATED
-/**
-    Wait until the application is idle
-    @description This call blocks until application services are idle and all requests have completed.
-    @param timeout Time in milliseconds to wait for the application to be idle
-    @return True if the application is idle.
-    @ingroup Mpr
-    @stability Internal.
- */
-PUBLIC int mprWaitTillIdle(MprTicks timeout);
-#endif
-
 #if BIT_WIN_LIKE
 /**
     Get the Windows window handle
@@ -10372,6 +10378,19 @@ PUBLIC char *mprReadRegistry(cchar *key, cchar *name);
   */
 PUBLIC int mprWriteRegistry(cchar *key, cchar *name, cchar *value);
 #endif /* BIT_WIN_LIKE || CYGWIN */
+
+
+#if DEPRECATED
+/**
+    Wait until the application is idle
+    @description This call blocks until application services are idle and all requests have completed.
+    @param timeout Time in milliseconds to wait for the application to be idle
+    @return True if the application is idle.
+    @ingroup Mpr
+    @stability Internal.
+ */
+PUBLIC int mprWaitTillIdle(MprTicks timeout);
+#endif
 
 /*
     Internal

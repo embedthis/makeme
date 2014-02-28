@@ -274,20 +274,6 @@ typedef void (*HttpEnvCallback)(struct HttpConn *conn);
  */
 typedef int (*HttpListenCallback)(struct HttpEndpoint *endpoint);
 
-#if UNUSED
-/** 
-    Define an callback for IO events on this connection.
-    @description The event callback will be invoked in response to I/O events.
-    @param conn HttpConn connection object created via #httpCreateConn
-    @param fn Callback function. 
-    @param arg Data argument to provide to the callback function.
-    @return The redirected URI string to use.
-    @ingroup HttpConn
-    @stability Stable
- */
-typedef cchar *(*HttpRedirectCallback)(struct HttpConn *conn, int *code, struct HttpUri *uri);
-#endif
-
 /**
     Request completion callback
     @param conn HttpConn object
@@ -582,9 +568,6 @@ typedef struct Http {
     MprForkCallback     forkCallback;       /**< Callback in child after fork() */
     HttpListenCallback  listenCallback;     /**< Invoked when creating listeners */
     HttpRequestCallback logCallback;        /**< Request completion callback */
-#if UNUSED
-    HttpRedirectCallback redirectCallback;  /**< Redirect callback */
-#endif
 } Http;
 
 /*

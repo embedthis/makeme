@@ -3900,9 +3900,6 @@ PUBLIC HttpEndpoint *httpCreateConfiguredEndpoint(HttpHost *host, cchar *home, c
             return 0;
         }
         httpSetHostDefaultRoute(host, route);
-#if UNUSED
-        httpSetHostName(host, sfmt("%s:%d", ip, port));
-#endif
     } else {
         route = host->defaultRoute;
     }
@@ -9689,14 +9686,6 @@ PUBLIC void httpSetRoutePreserveFrames(HttpRoute *route, bool on)
 }
 
 
-#if KEEP && UNUSED
-PUBLIC void httpSetRouteProtocol(HttpRoute *route, cchar *protocol)
-{
-    route->protocol = sclone(protocol);
-}
-#endif
-
-
 PUBLIC void httpSetRouteServerPrefix(HttpRoute *route, cchar *prefix)
 {
     assert(route);
@@ -10836,6 +10825,10 @@ PUBLIC void httpAddWebSocketsRoute(HttpRoute *parent, cchar *prefix, cchar *name
     pattern = sfmt("^%s/{controller}/stream", prefix);
     route = httpDefineRoute(parent, name, "GET", pattern, "$1-cmd-stream", "${controller}.c");
     httpAddRouteFilter(route, "webSocketFilter", "", HTTP_STAGE_RX | HTTP_STAGE_TX);
+
+    httpGraduateLimits(route, 0);
+    route->limits->inactivityTimeout = 15 * 60 * 1000;
+    route->limits->requestTimeout = MAXINT;
 }
 
 /*************************************************** Support Routines ****************************************************/
@@ -11552,7 +11545,11 @@ PUBLIC HttpLimits *httpGraduateLimits(HttpRoute *route, HttpLimits *limits)
 {
     if (route->parent && route->limits == route->parent->limits) {
         if (limits == 0) {
-            limits = ((Http*) MPR->httpService)->serverLimits;
+            if (route->parent->limits) {
+                limits = route->parent->limits;
+            } else {
+                limits = ((Http*) MPR->httpService)->serverLimits;
+            }
         }
         route->limits = mprMemdup(limits, sizeof(HttpLimits));
     }
@@ -16191,6 +16188,7 @@ PUBLIC void httpSetCookie(HttpConn *conn, cchar *name, cchar *value, cchar *path
 {
     HttpRx      *rx;
     char        *cp, *expiresAtt, *expires, *domainAtt, *domain, *secure, *httponly;
+    int         port;
 
     rx = conn->rx;
     if (path == 0) {
@@ -16204,8 +16202,8 @@ PUBLIC void httpSetCookie(HttpConn *conn, cchar *name, cchar *value, cchar *path
             /* Omit domain if set to empty string */
         }
     } else if (rx->hostHeader) {
-        mprParseSocketAddress(rx->hostHeader, &domain, NULL, NULL, 0);
-        if (domain && (*domain == ':' || isdigit(*domain))) {
+        mprParseSocketAddress(rx->hostHeader, &domain, &port, NULL, 0);
+        if (domain && port) {
             domain = 0;
         }
     }
