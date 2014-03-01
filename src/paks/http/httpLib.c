@@ -10526,10 +10526,12 @@ static int matchCondition(HttpConn *conn, HttpRoute *route, HttpRouteOp *op)
 
 /*
     Test if the connection is secure
+    Set op->details to a non-zero "age" to emit a Strict-Transport-Security header
+    A negative age signifies to "includeSubDomains"
  */
 static int secureCondition(HttpConn *conn, HttpRoute *route, HttpRouteOp *op)
 {
-    int64   age;
+    int64       age;
 
     assert(conn);
     if (op->details && op->details) {
@@ -10537,7 +10539,7 @@ static int secureCondition(HttpConn *conn, HttpRoute *route, HttpRouteOp *op)
         age = stoi(op->details);
         if (age < 0) {
             httpAddHeader(conn, "Strict-Transport-Security", "max-age=%Ld; includeSubDomains", -age / MPR_TICKS_PER_SEC);
-        } else {
+        } else if (age > 0) {
             httpAddHeader(conn, "Strict-Transport-Security", "max-age=%Ld", age / MPR_TICKS_PER_SEC);
         }
     }
@@ -10827,8 +10829,11 @@ PUBLIC void httpAddWebSocketsRoute(HttpRoute *parent, cchar *prefix, cchar *name
     httpAddRouteFilter(route, "webSocketFilter", "", HTTP_STAGE_RX | HTTP_STAGE_TX);
 
     httpGraduateLimits(route, 0);
-    route->limits->inactivityTimeout = 15 * 60 * 1000;
-    route->limits->requestTimeout = MAXINT;
+    /*
+        Set some reasonable defaults. 5 minutes for inactivity and no request timeout limit
+     */
+    route->limits->inactivityTimeout = BIT_MAX_INACTIVITY_DURATION * 10;
+    route->limits->requestTimeout = MPR_MAX_TIMEOUT;
 }
 
 /*************************************************** Support Routines ****************************************************/

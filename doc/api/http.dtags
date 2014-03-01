@@ -182,6 +182,27 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>httpSetContext</name>
+      <anchorfile>group___http.html</anchorfile>
+      <anchor>ga0d819593e26ecd9c011553fc00158435</anchor>
+      <arglist>(Http *http, void *context)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpSetDefaultClientHost</name>
+      <anchorfile>group___http.html</anchorfile>
+      <anchor>ga4e9c864aef59a820497577657d1364ba</anchor>
+      <arglist>(Http *http, cchar *host)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpSetDefaultClientPort</name>
+      <anchorfile>group___http.html</anchorfile>
+      <anchor>gae06679e424c64e4c663cf5237733b59c</anchor>
+      <arglist>(Http *http, int port)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>httpSetOption</name>
       <anchorfile>group___http.html</anchorfile>
       <anchor>ga1b68c24657b6564346e47d0e7521790a</anchor>
@@ -193,6 +214,13 @@
       <anchorfile>group___http.html</anchorfile>
       <anchor>ga7c0a123b785f897d3d3cc5cebcc971db</anchor>
       <arglist>(Http *http, cchar *host, int port)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpSetRequestLogCallback</name>
+      <anchorfile>group___http.html</anchorfile>
+      <anchor>gacbe610abeabbb771d5624a8f59da51d1</anchor>
+      <arglist>(HttpRequestCallback callback)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -912,13 +940,6 @@
       <arglist>)(struct HttpConn *conn, int event, int arg)</arglist>
     </member>
     <member kind="typedef">
-      <type>cchar *(*</type>
-      <name>HttpRedirectCallback</name>
-      <anchorfile>group___http_conn.html</anchorfile>
-      <anchor>ga92e83045579e22719e2092667dd97bd8</anchor>
-      <arglist>)(struct HttpConn *conn, int *code, struct HttpUri *uri)</arglist>
-    </member>
-    <member kind="typedef">
       <type>void(*</type>
       <name>HttpTimeoutCallback</name>
       <anchorfile>group___http_conn.html</anchorfile>
@@ -1235,31 +1256,10 @@
     </member>
     <member kind="function">
       <type>void</type>
-      <name>httpSetContext</name>
-      <anchorfile>group___http_conn.html</anchorfile>
-      <anchor>ga0d819593e26ecd9c011553fc00158435</anchor>
-      <arglist>(Http *http, void *context)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
       <name>httpSetCredentials</name>
       <anchorfile>group___http_conn.html</anchorfile>
       <anchor>gad6a93d697a3ae0fcba2ef78579fecf3c</anchor>
       <arglist>(HttpConn *conn, cchar *user, cchar *password, cchar *authType)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>httpSetDefaultClientHost</name>
-      <anchorfile>group___http_conn.html</anchorfile>
-      <anchor>ga4e9c864aef59a820497577657d1364ba</anchor>
-      <arglist>(Http *http, cchar *host)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>httpSetDefaultClientPort</name>
-      <anchorfile>group___http_conn.html</anchorfile>
-      <anchor>gae06679e424c64e4c663cf5237733b59c</anchor>
-      <arglist>(Http *http, int port)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -2424,6 +2424,13 @@
     <name>HttpRx</name>
     <title>HttpRx</title>
     <filename>group___http_rx.html</filename>
+    <member kind="typedef">
+      <type>void(*</type>
+      <name>HttpRequestCallback</name>
+      <anchorfile>group___http_rx.html</anchorfile>
+      <anchor>gaf7e40b80b2fd9ef614ad5aff34d0c84b</anchor>
+      <arglist>)(struct HttpConn *conn)</arglist>
+    </member>
     <member kind="function">
       <type>int</type>
       <name>httpAddBodyParams</name>
@@ -2970,8 +2977,8 @@
       <type>HttpEndpoint *</type>
       <name>httpCreateConfiguredEndpoint</name>
       <anchorfile>group___http_endpoint.html</anchorfile>
-      <anchor>ga68cc44b20078010230e96f874493db32</anchor>
-      <arglist>(cchar *home, cchar *documents, cchar *ip, int port)</arglist>
+      <anchor>ga659683b836c1548dbf53b69cf51fd4dc</anchor>
+      <arglist>(struct HttpHost *host, cchar *home, cchar *documents, cchar *ip, int port)</arglist>
     </member>
     <member kind="function">
       <type>HttpEndpoint *</type>
