@@ -37147,6 +37147,8 @@ PUBLIC void ejsSetHttpLimits(Ejs *ejs, HttpLimits *limits, EjsObj *obj, bool ser
     limits->chunkSize = (ssize) setLimit(ejs, obj, "chunk", 1);
     limits->inactivityTimeout = (int) setLimit(ejs, obj, "inactivityTimeout", MPR_TICKS_PER_SEC);
     limits->receiveBodySize = (MprOff) setLimit(ejs, obj, "receive", 1);
+    //  TODO - need dedicated "form" limit
+    limits->receiveFormSize = (MprOff) setLimit(ejs, obj, "receive", 1);
     limits->keepAliveMax = (int) setLimit(ejs, obj, "connReuse", 1);
     limits->requestTimeout = (int) setLimit(ejs, obj, "requestTimeout", MPR_TICKS_PER_SEC);
     limits->sessionTimeout = (int) setLimit(ejs, obj, "sessionTimeout", MPR_TICKS_PER_SEC);

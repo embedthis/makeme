@@ -15248,7 +15248,6 @@ PUBLIC void mprSpinUnlock(MprSpin *lock)
 
 /********************************** Forwards **********************************/
 
-static void defaultLogHandler(int flags, int level, cchar *msg);
 static void logOutput(int flags, int level, cchar *msg);
 
 /************************************ Code ************************************/
@@ -15545,11 +15544,11 @@ static void logOutput(int flags, int level, cchar *msg)
         (handler)(flags, level, msg);
         return;
     }
-    defaultLogHandler(flags, level, msg);
+    mprDefaultLogHandler(flags, level, msg);
 }
 
 
-static void defaultLogHandler(int flags, int level, cchar *msg)
+PUBLIC void mprDefaultLogHandler(int flags, int level, cchar *msg)
 {
     MprFile     *file;
     char        *prefix, buf[BIT_MAX_LOGLINE], *tag;
@@ -15727,7 +15726,7 @@ PUBLIC MprLogHandler mprGetLogHandler()
 
 PUBLIC int mprUsingDefaultLogHandler()
 {
-    return MPR->logHandler == defaultLogHandler;
+    return MPR->logHandler == mprDefaultLogHandler;
 }
 
 

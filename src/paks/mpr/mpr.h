@@ -4016,6 +4016,16 @@ PUBLIC void mprCreateLogService();
 PUBLIC int mprBackupLog(cchar *path, int count);
 
 /**
+    Default MPR log handler
+    @param flags
+    @param level Logging level for this message. The level is 0-9 with zero being the most verbose.
+    @param msg Message to log
+    @ingroup MprLog
+    @stability Prototype
+ */
+PUBLIC void mprDefaultLogHandler(int flags, int level, cchar *msg);
+
+/**
     Log an error message.
     @description Send an error message to the MPR debug logging subsystem. The 
         message will be to the log handler defined by #mprSetLogHandler. It 

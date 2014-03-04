@@ -2656,7 +2656,7 @@ static void connTimeout(HttpConn *conn, MprEvent *event)
             msg = sfmt("%s exceeded inactivity timeout of %Ld sec", prefix, limits->inactivityTimeout / 1000);
 
         } else if (conn->timeout == HTTP_REQUEST_TIMEOUT) {
-            msg = sfmt("%s exceeded timeout %d sec", prefix, limits->requestTimeout / 1000);
+            msg = sfmt("%s exceeded timeout %Ld sec", prefix, limits->requestTimeout / 1000);
         }
         if (conn->rx && (conn->state > HTTP_STATE_CONNECTED)) {
             mprTrace(5, "  State %d, uri %s", conn->state, conn->rx->uri);
@@ -8672,6 +8672,10 @@ static int matchRoute(HttpConn *conn, HttpRoute *route)
         Remove the route prefix. Restore after matching.
      */
     if (route->prefix) {
+        if (!sstarts(rx->pathInfo, route->prefix)) {
+            mprError("Route prefix missing in uri. Configuration error for route: %s", route->name);
+            return HTTP_ROUTE_REJECT;
+        }
         savePathInfo = rx->pathInfo;
         pathInfo = &rx->pathInfo[route->prefixLen];
         if (*pathInfo == '\0') {
@@ -12071,7 +12075,10 @@ static bool parseRequestLine(HttpConn *conn, HttpPacket *packet)
         httpBadRequestError(conn, HTTP_ABORT | HTTP_CODE_NOT_ACCEPTABLE, "Unsupported HTTP protocol");
         return 0;
     }
-    rx->originalUri = rx->uri = sclone(uri);
+    rx->uri = sclone(uri);
+    if (!rx->originalUri) {
+        rx->originalUri = rx->uri;
+    }
     conn->http->totalRequests++;
     httpSetState(conn, HTTP_STATE_FIRST);
     return 1;
@@ -12799,7 +12806,7 @@ static void createErrorRequest(HttpConn *conn)
     HttpTx      *tx;
     HttpPacket  *packet;
     MprBuf      *buf;
-    char        *cp, *headers;
+    char        *cp, *headers, *originalUri;
     int         key;
 
     rx = conn->rx;
@@ -12807,11 +12814,13 @@ static void createErrorRequest(HttpConn *conn)
     if (!rx->headerPacket) {
         return;
     }
+    originalUri = rx->uri;
     conn->rx = httpCreateRx(conn);
     conn->tx = httpCreateTx(conn, NULL);
 
     /* Preserve the old status */
     conn->tx->status = tx->status;
+    conn->rx->originalUri = originalUri;
     conn->error = 0;
     conn->errorMsg = 0;
     conn->upgraded = 0;
@@ -13001,37 +13010,43 @@ PUBLIC cchar *httpGetCookie(HttpConn *conn, cchar *name)
     HttpRx  *rx;
     cchar   *cookie;
     char    *cp, *value;
+    ssize   nlen;
     int     quoted;
 
     assert(conn);
     rx = conn->rx;
     assert(rx);
 
-    cookie = rx->cookie; 
-    if (cookie && (value = strstr(cookie, name)) != 0) {
-        value += strlen(name);
-        while (isspace((uchar) *value) || *value == '=') {
-            value++;
+    if ((cookie = rx->cookie) == 0 || name == 0 || *name == '\0') {
+        return 0;
+    }
+    nlen = slen(name);
+    while ((value = strstr(cookie, name)) != 0) {
+        if ((value == cookie || value[-1] == ' ' || value[-1] == ';') && value[nlen] == '=') {
+            break;
         }
-        quoted = 0;
-        if (*value == '"') {
-            value++;
-            quoted++;
-        }
-        for (cp = value; *cp; cp++) {
-            if (quoted) {
-                if (*cp == '"' && cp[-1] != '\\') {
-                    break;
-                }
-            } else {
-                if ((*cp == ',' || *cp == ';') && cp[-1] != '\\') {
-                    break;
-                }
+    }
+    value += nlen;
+    while (isspace((uchar) *value) || *value == '=') {
+        value++;
+    }
+    quoted = 0;
+    if (*value == '"') {
+        value++;
+        quoted++;
+    }
+    for (cp = value; *cp; cp++) {
+        if (quoted) {
+            if (*cp == '"' && cp[-1] != '\\') {
+                break;
+            }
+        } else {
+            if ((*cp == ',' || *cp == ';') && cp[-1] != '\\') {
+                break;
             }
         }
-        return snclone(value, cp - value);
     }
-    return 0;
+    return snclone(value, cp - value);
 }
 
 
@@ -14479,13 +14494,13 @@ static void httpTimer(Http *http, MprEvent *event)
         if (!conn->timeoutEvent) {
             abort = mprIsStopping();
             if (httpServerConn(conn) && (HTTP_STATE_CONNECTED < conn->state && conn->state < HTTP_STATE_PARSED) && 
-                    (conn->started + limits->requestParseTimeout) < http->now) {
+                    (http->now - conn->started) > limits->requestParseTimeout) {
                 conn->timeout = HTTP_PARSE_TIMEOUT;
                 abort = 1;
-            } else if ((conn->lastActivity + limits->inactivityTimeout) < http->now) {
+            } else if ((http->now - conn->lastActivity) > limits->inactivityTimeout) {
                 conn->timeout = HTTP_INACTIVITY_TIMEOUT;
                 abort = 1;
-            } else if ((conn->started + limits->requestTimeout) < http->now) {
+            } else if ((http->now - conn->started) > limits->requestTimeout) {
                 conn->timeout = HTTP_REQUEST_TIMEOUT;
                 abort = 1;
             } else if (!event) {
@@ -15233,7 +15248,7 @@ PUBLIC bool httpCheckSecurityToken(HttpConn *conn)
 {
     cchar   *requestToken, *sessionToken;
 
-    if ((sessionToken = httpGetSessionVar(conn, BIT_XSRF_COOKIE, "")) != 0) {
+    if ((sessionToken = httpGetSessionVar(conn, BIT_XSRF_COOKIE, 0)) != 0) {
         requestToken = httpGetHeader(conn, BIT_XSRF_HEADER);
 #if DEPRECATED || 1
         /*
@@ -16119,7 +16134,7 @@ PUBLIC void httpRedirect(HttpConn *conn, int status, cchar *targetUri)
         Expand the target for embedded tokens. Resolve relative to the current request URI
         This may add "localhost" if the host is missing in the targetUri.
      */
-    targetUri = httpUri(conn, targetUri);
+    targetUri = httpLink(conn, targetUri);
     mprLog(3, "redirect %d %s", status, targetUri);
     msg = httpLookupStatus(conn->http, status);
 
@@ -17876,13 +17891,6 @@ PUBLIC HttpUri *httpJoinUri(HttpUri *uri, int argc, HttpUri **others)
 }
 
 
-#if DEPRECATED || 1
-PUBLIC char *httpLink(HttpConn *conn, cchar *target, MprHash *options)
-{
-    return httpUriEx(conn, target, options);
-}
-#endif
-
 /*
     Create and resolve a URI link given a set of options.
  */
@@ -17897,9 +17905,10 @@ PUBLIC HttpUri *httpMakeUriLocal(HttpUri *uri)
 }
 
 
-PUBLIC void httpNormalizeUri(HttpUri *uri)
+PUBLIC HttpUri *httpNormalizeUri(HttpUri *uri)
 {
     uri->path = httpNormalizeUriPath(uri->path);
+    return uri;
 }
 
 
@@ -18035,7 +18044,7 @@ PUBLIC HttpUri *httpResolveUri(HttpUri *base, int argc, HttpUri **others, bool l
 }
 
 
-PUBLIC char *httpUriEx(HttpConn *conn, cchar *target, MprHash *options)
+PUBLIC HttpUri *httpLinkUri(HttpConn *conn, cchar *target, MprHash *options)
 {
     HttpRoute       *route, *lroute;
     HttpRx          *rx;
@@ -18137,15 +18146,33 @@ PUBLIC char *httpUriEx(HttpConn *conn, cchar *target, MprHash *options)
         This must extract the existing host and port from the prior request
      */
     uri = httpResolveUri(rx->parsedUri, 1, &uri, 0);
-    httpNormalizeUri(uri);
-    return httpUriToString(uri, 0);
+    return httpNormalizeUri(uri);
 }
 
+
+PUBLIC char *httpLink(HttpConn *conn, cchar *target)
+{
+    return httpLinkEx(conn, target, 0);
+}
+
+
+PUBLIC char *httpLinkEx(HttpConn *conn, cchar *target, MprHash *options)
+{
+    return httpUriToString(httpLinkUri(conn, target, options), 0);
+}
+
+
+#if DEPRECATED || 1
+PUBLIC char *httpUriEx(HttpConn *conn, cchar *target, MprHash *options)
+{
+    return httpLinkEx(conn, target, options);
+}
 
 PUBLIC char *httpUri(HttpConn *conn, cchar *target)
 {
-    return httpUriEx(conn, target, 0);
+    return httpLink(conn, target);
 }
+#endif
 
 
 PUBLIC char *httpUriToString(HttpUri *uri, int flags)

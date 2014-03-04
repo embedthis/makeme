@@ -93,10 +93,10 @@ struct HttpWebSocket;
     #define BIT_MAX_PROCESSES       10                  /**< Maximum concurrent processes */
 #endif
 #ifndef BIT_MAX_RECEIVE_BODY
-    #define BIT_MAX_RECEIVE_BODY    (256 * 1024)        /**< Maximum incoming body size (256K) */
+    #define BIT_MAX_RECEIVE_BODY    (512 * 1024)        /**< Maximum incoming body size (512K) */
 #endif
 #ifndef BIT_MAX_RECEIVE_FORM
-    #define BIT_MAX_RECEIVE_FORM    (256 * 1024)        /**< Maximum incoming form size (256K) */
+    #define BIT_MAX_RECEIVE_FORM    (512 * 1024)        /**< Maximum incoming form size (512K) */
 #endif
 #ifndef BIT_MAX_REQUESTS_PER_CLIENT
     #define BIT_MAX_REQUESTS_PER_CLIENT 20              /**< Maximum concurrent requests per client */
@@ -1012,10 +1012,11 @@ PUBLIC cchar *httpLookupMimeType(cchar *ext);
     Normalize a URI
     @description Validate and canonicalize a URI. This invokes httpNormalizeUriPath to normalize the URI path.
     @param uri URI object to normalize
+    @return The supplied uri so it can be used in chaining.
     @ingroup HttpUri
-    @stability Stable
+    @stability Evolving
  */
-PUBLIC void httpNormalizeUri(HttpUri *uri);
+PUBLIC HttpUri *httpNormalizeUri(HttpUri *uri);
 
 /** 
     Normalize a URI
@@ -1030,7 +1031,10 @@ PUBLIC char *httpNormalizeUriPath(cchar *uri);
 
 /**
     Get a relative URI from the base to the target
-    @description If the target is null, an absolute URI, or if a relative URI from the base cannot be constructed, then
+    @description This creates a URI relative from the base to the target. This may contain ".." segments. This API is
+        designed to create relative URIs for use in a browser web page.
+        \n\n
+        If the target is null, an absolute URI, or if a relative URI from the base cannot be constructed, then
         the target will be returned. If clone is true, then a clone of the target will be returned.
     @param base The base URI considered to be the current URI. Think of this as the current directory.
     @param target The destination URI for which a relative URI will be crafted to reach.
@@ -1062,10 +1066,12 @@ PUBLIC HttpUri *httpMakeUriLocal(HttpUri *uri);
   */
 PUBLIC HttpUri *httpResolveUri(HttpUri *base, int argc, HttpUri **others, bool local);
 
+//  TODO - this should be called httpLink because it returns char* and not a HttpUri
 /** 
-    Create a URI. 
-    @description Create a URI link based on a given target an expanding embedded tokens based on the current request and 
-        route state. The target URI parameter may contain partial or complete URI information. The missing parts are 
+    Create a URI link 
+    @description Create a URI link based on a given target relative to the current request. 
+        This API expands embedded tokens based on the current request and route state. 
+        The target URI parameter may contain partial or complete URI information. The missing parts are
         supplied using the current request and route tables. The resulting URI is a normalized, server-local URI (that 
         begins with "/"). The URI will include a required application route prefix, but will not include scheme, host or 
         port components.
@@ -1106,44 +1112,48 @@ PUBLIC HttpUri *httpResolveUri(HttpUri *base, int argc, HttpUri **others, bool l
                 {AT}Service/action.</li>
             <li>route String Route name to use for the URI template</li>
         </ul>
-    @return A normalized, server-local Uri string.
+    @return A normalized Uri string.
     @ingroup HttpUri
     @stability Evolving
     @remarks Examples:<pre>
-    httpUri(conn, "http://example.com/index.html");
-    httpUri(conn, "/path/to/index.html");
-    httpUri(conn, "../images/splash.png");
-    httpUri(conn, "~/static/images/splash.png");
-    httpUri(conn, "${app}/static/images/splash.png");
-    httpUri(conn, "@service/checkout");
-    httpUri(conn, "@service/")               //  Service = Service, action = index
-    httpUri(conn, "@init")                   //  Current service, action = init
-    httpUri(conn, "@")                       //  Current service, action = index
-    httpUri(conn, "{ action: '@post/create' }");
-    httpUri(conn, "{ action: 'checkout' }");
-    httpUri(conn, "{ action: 'logout', service: 'admin' }");
-    httpUri(conn, "{ action: 'admin/logout'");
-    httpUri(conn, "{ product: 'candy', quantity: '10', template: '/cart/${product}/${quantity}' }");
-    httpUri(conn, "{ route: '~/STAR/edit', action: 'checkout', id: '99' }");
-    httpUri(conn, "{ template: '~/static/images/${theme}/background.jpg', theme: 'blue' }");
+    httpLink(conn, "http://example.com/index.html");
+    httpLink(conn, "/path/to/index.html");
+    httpLink(conn, "../images/splash.png");
+    httpLink(conn, "~/static/images/splash.png");
+    httpLink(conn, "${app}/static/images/splash.png");
+    httpLink(conn, "@service/checkout");
+    httpLink(conn, "@service/")               //  Service = Service, action = index
+    httpLink(conn, "@init")                   //  Current service, action = init
+    httpLink(conn, "@")                       //  Current service, action = index
+    httpLink(conn, "{ action: '@post/create' }");
+    httpLink(conn, "{ action: 'checkout' }");
+    httpLink(conn, "{ action: 'logout', service: 'admin' }");
+    httpLink(conn, "{ action: 'admin/logout'");
+    httpLink(conn, "{ product: 'candy', quantity: '10', template: '/cart/${product}/${quantity}' }");
+    httpLink(conn, "{ route: '~/STAR/edit', action: 'checkout', id: '99' }");
+    httpLink(conn, "{ template: '~/static/images/${theme}/background.jpg', theme: 'blue' }");
 </pre>
  */
-PUBLIC char *httpUri(struct HttpConn *conn, cchar *target);
+PUBLIC char *httpLink(struct HttpConn *conn, cchar *target);
 
 /** 
-    Create a URI. 
-    @description Extended httpUri with custom options
+    Extended URI link creation. 
+    @description Extended httpLink with custom options. This routine extends the #httpLink API with an options hash
+        of token values. 
     @param [in] conn HttpConn connection object 
-    @param target The URI target. See #httpUri for details.
+    @param target The URI target. See #httpLink for details.
     @param options Hash of option values for embedded tokens. This hash is blended with the route variables.
     @return A normalized, server-local Uri string.
     @ingroup HttpUri
     @stability Evolving
  */
-PUBLIC char *httpUriEx(struct HttpConn *conn, cchar *target, MprHash *options);
+PUBLIC char *httpLinkEx(struct HttpConn *conn, cchar *target, MprHash *options);
+
+PUBLIC HttpUri *httpLinkUri(struct HttpConn *conn, cchar *target, MprHash *options);
 
 #if DEPRECATED || 1
-PUBLIC char *httpLink(struct HttpConn *conn, cchar *target, MprHash *options) BIT_DEPRECATED("Use httpUriEx instead");
+PUBLIC char *httpUri(struct HttpConn *conn, cchar *target) BIT_DEPRECATED("Use httpLink instead");
+PUBLIC char *httpUriEx(struct HttpConn *conn, cchar *target, MprHash *options) BIT_DEPRECATED("Use httpLinkEx instead");
 #endif
 
 /** 
@@ -3963,7 +3973,7 @@ PUBLIC void httpSetStreaming(struct HttpHost *host, cchar *mime, cchar *uri, boo
         httpSetRouteDefaultLanguage httpSetRouteDocuments httpSetRouteFlags httpSetRouteHandler httpSetRouteHost 
         httpSetRouteIndex httpSetRouteMethods httpSetRouteName httpSetRouteVar httpSetRoutePattern 
         httpSetRoutePrefix httpSetRouteScript httpSetRouteSource httpSetRouteTarget httpSetRouteWorkers httpTemplate 
-        httpSetTrace httpSetTraceFilter httpTokenize httpTokenizev httpUri
+        httpSetTrace httpSetTraceFilter httpTokenize httpTokenizev httpLink httpLinkEx
     @stability Internal
  */
 typedef struct HttpRoute {
@@ -4882,7 +4892,7 @@ PUBLIC void httpSetRouteCookie(HttpRoute *route, cchar *cookie);
 
 /**
     Set the route name
-    @description Symbolic route names are used by httpUri and when displaying route tables.
+    @description Symbolic route names are used by httpLink and when displaying route tables.
     @param route Route to modify
     @param name Unique symbolic name for the route. If a name is not defined, the route pattern will be used as the name. 
     @ingroup HttpRoute
@@ -5063,7 +5073,7 @@ PUBLIC int httpSetRouteTarget(HttpRoute *route, cchar *name, cchar *details);
 
 /**
     Set the route template
-    @description Set the route URI template uses when constructing URIs via httpUri.
+    @description Set the route URI template uses when constructing URIs via httpLink.
     @param route Route to modify
     @param tplate URI template to use. Templates may contain embedded tokens "{token}" where the token names correspond
         to the token names in the route pattern. 
