@@ -1,7 +1,7 @@
 ;
 ; install.iss -- Inno Setup 4 install configuration file for Embedthis Bit
 ;
-; Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
+; Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 ;
 
 [Setup]

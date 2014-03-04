@@ -99,7 +99,7 @@ NO WARRANTY
 
 Trademarks and Copyrights
 
-Copyright (c) 2003-2013 Embedthis Software, LLC. All Rights Reserved.
+Copyright (c) 2003-2014 Embedthis Software, LLC. All Rights Reserved.
 Embedthis, Embedthis Bit, Appweb, Ejscript, ESP and Embedthis GoAhead are trademarks of Embedthis Software, LLC. 
 Other brands and their products are trademarks of their respective holders.
 
