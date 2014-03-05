@@ -13025,6 +13025,10 @@ PUBLIC cchar *httpGetCookie(HttpConn *conn, cchar *name)
         if ((value == cookie || value[-1] == ' ' || value[-1] == ';') && value[nlen] == '=') {
             break;
         }
+        cookie += nlen;
+    }
+    if (value == 0) {
+        return 0;
     }
     value += nlen;
     while (isspace((uchar) *value) || *value == '=') {
