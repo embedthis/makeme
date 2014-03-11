@@ -22,9 +22,9 @@
 
 /********************************** Includes **********************************/
 
-#include    "bit.h"
+#include    "me.h"
 
-#if BIT_PACK_MATRIXSSL
+#if ME_EXT_MATRIXSSL
 
 #define MATRIX_USE_FILE_SYSTEM
 
@@ -490,7 +490,7 @@ static int handshakeMss(MprSocket *sp, short cipherSuite)
 {
     MatrixSocket    *msp;
     ssize           rc, written, toWrite;
-    char            *obuf, buf[BIT_MAX_BUFFER];
+    char            *obuf, buf[ME_MAX_BUFFER];
     int             mode;
 
     msp = sp->sslSocket;
@@ -742,7 +742,7 @@ static ssize flushMss(MprSocket *sp)
 
 #else
 void matrixsslDummy() {}
-#endif /* BIT_PACK_MATRIXSSL */
+#endif /* ME_EXT_MATRIXSSL */
 
 /*
     @copy   default
@@ -782,7 +782,7 @@ void matrixsslDummy() {}
 
 #include    "mpr.h"
 
-#if BIT_PACK_EST
+#if ME_EXT_EST
 
 #include    "est.h"
 
@@ -1334,7 +1334,7 @@ static void estTrace(void *fp, int level, char *str)
 
 #else
 void estDummy() {}
-#endif /* BIT_PACK_EST */
+#endif /* ME_EXT_EST */
 
 /*
     @copy   default
@@ -1372,7 +1372,7 @@ void estDummy() {}
 
 #include    "mpr.h"
 
-#if BIT_PACK_OPENSSL
+#if ME_EXT_OPENSSL
 
 /* Clashes with WinCrypt.h */
 #undef OCSP_RESPONSE
@@ -1455,7 +1455,7 @@ PUBLIC int mprCreateOpenSslModule()
     randBuf.now = mprGetTime();
     randBuf.pid = getpid();
     RAND_seed((void*) &randBuf, sizeof(randBuf));
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     mprLog(6, "OpenSsl: Before calling RAND_load_file");
     RAND_load_file("/dev/urandom", 256);
     mprLog(6, "OpenSsl: After calling RAND_load_file");
@@ -1502,7 +1502,7 @@ PUBLIC int mprCreateOpenSslModule()
         CRYPTO_set_dynlock_create_callback(sslCreateDynLock);
         CRYPTO_set_dynlock_destroy_callback(sslDestroyDynLock);
         CRYPTO_set_dynlock_lock_callback(sslDynLock);
-#if !BIT_WIN_LIKE
+#if !ME_WIN_LIKE
         /* OPT - Should be a configure option to specify desired ciphers */
         OpenSSL_add_all_algorithms();
 #endif
@@ -1764,7 +1764,7 @@ static int upgradeOss(MprSocket *sp, MprSsl *ssl, cchar *peerName)
 {
     OpenSocket      *osp;
     OpenConfig      *cfg;
-    char            ebuf[BIT_MAX_BUFFER];
+    char            ebuf[ME_MAX_BUFFER];
     ulong           error;
     int             rc;
 
@@ -1823,7 +1823,7 @@ static int upgradeOss(MprSocket *sp, MprSsl *ssl, cchar *peerName)
         }
         mprSetSocketBlockingMode(sp, 0);
     }
-#if defined(BIT_MPR_SSL_RENEGOTIATE) && !BIT_MPR_SSL_RENEGOTIATE
+#if defined(ME_MPR_SSL_RENEGOTIATE) && !ME_MPR_SSL_RENEGOTIATE
     /*
         Disable renegotiation after the initial handshake if renegotiate is explicitly set to false (CVE-2009-3555).
         Note: this really is a bogus CVE as disabling renegotiation is not required nor does it enhance security if
@@ -1967,7 +1967,7 @@ static int checkCert(MprSocket *sp)
 static ssize readOss(MprSocket *sp, void *buf, ssize len)
 {
     OpenSocket      *osp;
-    char            ebuf[BIT_MAX_BUFFER];
+    char            ebuf[ME_MAX_BUFFER];
     ulong           serror;
     int             rc, error, retries, i;
 
@@ -2358,7 +2358,7 @@ static DH *get_dh1024()
 
 #else
 void opensslDummy() {}
-#endif /* BIT_PACK_OPENSSL */
+#endif /* ME_EXT_OPENSSL */
 
 /*
     @copy   default
@@ -2419,7 +2419,7 @@ void opensslDummy() {}
     __ENABLE_MOCANA_SSL_CLIENT__
 #endif
 
-#if BIT_PACK_NANOSSL
+#if ME_EXT_NANOSSL
  #include "common/moptions.h"
  #include "common/mdefs.h"
  #include "common/mtypes.h"
@@ -2458,7 +2458,7 @@ typedef struct NanoSocket {
 static MprSocketProvider *nanoProvider;
 static NanoConfig *defaultNanoConfig;
 
-#if BIT_DEBUG
+#if ME_DEBUG
     #define SSL_HELLO_TIMEOUT   15000
     #define SSL_RECV_TIMEOUT    300000
 #else
@@ -2902,7 +2902,7 @@ static void nanoLog(sbyte4 module, sbyte4 severity, sbyte *msg)
 
 #else
 void nanosslDummy() {}
-#endif /* BIT_PACK_NANOSSL */
+#endif /* ME_EXT_NANOSSL */
 
 /*
     @copy   default
@@ -3027,31 +3027,31 @@ MprCipher mprCiphers[] = {
  */
 PUBLIC int mprSslInit(void *unused, MprModule *module)
 {
-#if BIT_PACK_SSL
+#if ME_EXT_SSL
     assert(module);
 
     /*
         Order matters. The last enabled stack becomes the default.
      */
-#if BIT_PACK_MATRIXSSL
+#if ME_EXT_MATRIXSSL
     if (mprCreateMatrixSslModule() < 0) {
         return MPR_ERR_CANT_OPEN;
     }
     MPR->socketService->sslProvider = sclone("matrixssl");
 #endif
-#if BIT_PACK_NANOSSL
+#if ME_EXT_NANOSSL
     if (mprCreateNanoSslModule() < 0) {
         return MPR_ERR_CANT_OPEN;
     }
     MPR->socketService->sslProvider = sclone("nanossl");
 #endif
-#if BIT_PACK_OPENSSL
+#if ME_EXT_OPENSSL
     if (mprCreateOpenSslModule() < 0) {
         return MPR_ERR_CANT_OPEN;
     }
     MPR->socketService->sslProvider = sclone("openssl");
 #endif
-#if BIT_PACK_EST
+#if ME_EXT_EST
     if (mprCreateEstModule() < 0) {
         return MPR_ERR_CANT_OPEN;
     }
@@ -3060,7 +3060,7 @@ PUBLIC int mprSslInit(void *unused, MprModule *module)
     return 0;
 #else
     return MPR_ERR_BAD_STATE;
-#endif /* BLD_PACK_SSL */
+#endif /* BLD_EXT_SSL */
 }
 
 

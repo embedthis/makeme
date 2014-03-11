@@ -1,0 +1,46 @@
+/*
+    matrixssl.me -- MatrixSSL probe
+ */
+
+Me.extension({ 
+    matrixssl: {
+        description: 'MatrixSSL',
+        generate: function (extension) {
+            extension.path = '/usr/src/matrixssl'
+            extension.libpaths = [ '$(ME_COMP_MATRIXSSL_PATH)' ]
+            extension.includes = [ '$(ME_COMP_MATRIXSSL_PATH)', '$(ME_COMP_MATRIXSSL_PATH)/matrixssl' ]
+            if (me.platform.os == 'windows') {
+                extension.libraries = [ 'matrixssl.lib' ]
+            } else {
+                extension.libraries = [ 'matrixssl' ]
+            }
+        },
+        path: function (extension) {
+            let path: Path? = extension.withpath
+            if (!path) {
+                if (me.dir.paks) {
+                    path = me.dir.paks.join('matrixssl')
+                }
+                if (!path.exists) {
+                    path = App.dir.join('../packages-' + me.platform.os + '-' + me.platform.arch, 'matrixssl/latest')
+                }
+            }
+            let search = [ (me.platform.os == 'windows') ? path.join('Release') : path ]
+            let lib = probe('libmatrixssl.' + me.ext.shobj, {fullpath: true, search: search}).absolute
+            extension.libpaths = [lib.parent]
+            if (me.platform.os == 'windows') {
+                extension.libraries = [ 'matrixssl.lib' ],
+                extension.imports = [ lib, lib.replaceExt('lib') ]
+            } else {
+                extension.libraries = [ 'matrixssl' ]
+                extension.imports = [ lib ]
+            }
+            let search = [ path.join('matrixssl') ]
+            let incdir = probe('matrixsslApi.h', {search: search}).absolute
+            extension.includes = [ incdir, incdir.parent ]
+            return path
+        },
+        extensions: [ 'ssl' ],
+        conflicts: [ 'est', 'nanossl', 'openssl' ],
+    },
+})

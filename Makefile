@@ -1,14 +1,14 @@
 #
-#   Makefile - Embedthis Bit Makefile wrapper for per-platform makefiles
+#   Makefile - Embedthis MakeMe Makefile wrapper for per-platform makefiles
 #
 #   This Makefile is for Unix/Linux and Cygwin. On windows, it can be invoked via make.bat.
 #
-#	See projects/$(OS)-$(ARCH)-$(PROFILE)-bit.h for configuration default settings. Can override 
+#	See projects/$(OS)-$(ARCH)-$(PROFILE)-me.h for configuration default settings. Can override 
 #	via make environment variables. For example: make BIT_PACK_SQLITE=0. These are converted to 
-#	DFLAGS and will then override the bit.h default values. Use "make help" for a list of available 
+#	DFLAGS and will then override the me.h default values. Use "make help" for a list of available 
 #	make variable options.
 #
-NAME    := bit
+NAME    := makeme
 OS      := $(shell uname | sed 's/CYGWIN.*/windows/;s/Darwin/macosx/' | tr '[A-Z]' '[a-z]')
 MAKE    := $(shell if which gmake >/dev/null 2>&1; then echo gmake ; else echo make ; fi) --no-print-directory
 PROFILE := default
@@ -49,12 +49,12 @@ version:
 
 boot:
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) compile
-	$(OS)-$(ARCH)-$(PROFILE)/bin/bit --release configure build
+	$(OS)-$(ARCH)-$(PROFILE)/bin/me --release configure build
 
 update:
 	git pull
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) compile
-	$(OS)-$(ARCH)-$(PROFILE)/bin/bit build
+	$(OS)-$(ARCH)-$(PROFILE)/bin/me build
 
 help:
 	@echo '' >&2

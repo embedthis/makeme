@@ -9,7 +9,7 @@
 
 #define local static
 #define NO_DUMMY_DECL
-#include "bit.h"
+#include "me.h"
 #include "zlib.h"
 
 /************************************************************************/

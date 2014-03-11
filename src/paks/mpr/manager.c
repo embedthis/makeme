@@ -24,16 +24,16 @@
 #include    "mpr.h"
 
 #ifndef SERVICE_PROGRAM
-    #define SERVICE_PROGRAM BIT_APP_PREFIX "/bin/" BIT_PRODUCT
+    #define SERVICE_PROGRAM ME_APP_PREFIX "/bin/" ME_NAME
 #endif
 #ifndef SERVICE_NAME
-    #define SERVICE_NAME BIT_PRODUCT
+    #define SERVICE_NAME ME_NAME
 #endif
 #ifndef SERVICE_HOME
     #define SERVICE_HOME "/"
 #endif
 
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
 /*********************************** Locals ***********************************/
 
 #define RESTART_DELAY (0 * 1000)        /* Default heart beat period (30 sec) */
@@ -292,7 +292,7 @@ static void manageApp(void *ptr, int flags)
 
 static void setAppDefaults()
 {
-    app->company = stok(slower(BIT_COMPANY), " ", NULL);
+    app->company = stok(slower(ME_COMPANY), " ", NULL);
     app->serviceProgram = sclone(SERVICE_PROGRAM);
     app->serviceName = sclone(SERVICE_NAME);
     app->serviceHome = mprGetNativePath(SERVICE_HOME);
@@ -731,12 +731,12 @@ static int writePid(int pid)
 }
 
 
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
 /*********************************** Locals ***********************************/
 
 #define HEART_BEAT_PERIOD   (10 * 1000) /* Default heart beat period (10 sec) */
 #define RESTART_MAX         (15)        /* Max restarts per hour */
-#define SERVICE_DESCRIPTION ("Manages " BIT_TITLE)
+#define SERVICE_DESCRIPTION ("Manages " ME_TITLE)
 
 typedef struct App {
     HWND         hwnd;               /* Application window handle */
@@ -802,11 +802,11 @@ static void WINAPI serviceMain(ulong argc, wchar **argv);
 
 int APIENTRY WinMain(HINSTANCE inst, HINSTANCE junk, char *args, int junk2)
 {
-    char    *argv[BIT_MAX_ARGC], *argp;
+    char    *argv[ME_MAX_ARGC], *argp;
     int     argc, err, nextArg, status;
 
-    argv[0] = BIT_NAME "Manager";
-    argc = mprParseArgs(args, &argv[1], BIT_MAX_ARGC - 1) + 1;
+    argv[0] = ME_NAME "Manager";
+    argc = mprParseArgs(args, &argv[1], ME_MAX_ARGC - 1) + 1;
 
     mpr = mprCreate(argc, argv, 0);
     app = mprAllocObj(App, manageApp);
@@ -1083,7 +1083,7 @@ static void run()
         Expect to find the service executable in the same directory as this manager program.
      */
     if (app->serviceProgram == 0) {
-        path = sfmt("\"%s\\%s.exe\"", mprGetAppDir(), BIT_PRODUCT);
+        path = sfmt("\"%s\\%s.exe\"", mprGetAppDir(), ME_NAME);
     } else {
         path = sfmt("\"%s\"", app->serviceProgram);
     }
@@ -1248,7 +1248,7 @@ static void WINAPI serviceCallback(ulong cmd)
 static bool installService()
 {
     SC_HANDLE   svc, mgr;
-    char        cmd[BIT_MAX_FNAME], key[BIT_MAX_FNAME];
+    char        cmd[ME_MAX_FNAME], key[ME_MAX_FNAME];
     int         serviceType;
 
     mgr = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
@@ -1490,9 +1490,9 @@ static void setWinDefaults(HINSTANCE inst)
 {
     app->appInst = inst;
     app->heartBeatPeriod = HEART_BEAT_PERIOD;
-    app->company = sclone(BIT_COMPANY);
+    app->company = sclone(ME_COMPANY);
     app->serviceName = sclone(SERVICE_NAME);
-    app->serviceProgram = sjoin(mprGetAppDir(), "\\", BIT_PRODUCT, ".exe", NULL);
+    app->serviceProgram = sjoin(mprGetAppDir(), "\\", ME_NAME, ".exe", NULL);
     app->serviceHome = NULL;
     app->serviceStopped = 0;
 }
@@ -1540,7 +1540,7 @@ static void gracefulShutdown(MprTicks timeout)
 {
     HWND    hwnd;
 
-    hwnd = FindWindow(BIT_NAME, BIT_NAME);
+    hwnd = FindWindow(ME_NAME, ME_NAME);
     if (hwnd) {
         PostMessage(hwnd, WM_QUIT, 0, 0L);
 
@@ -1550,7 +1550,7 @@ static void gracefulShutdown(MprTicks timeout)
         while (timeout > 0 && hwnd) {
             mprSleep(100);
             timeout -= 100;
-            hwnd = FindWindow(BIT_NAME, BIT_NAME);
+            hwnd = FindWindow(ME_NAME, ME_NAME);
             if (hwnd == 0) {
                 return;
             }
@@ -1567,7 +1567,7 @@ static void gracefulShutdown(MprTicks timeout)
 PUBLIC void stubManager() {
     fprintf(stderr, "Manager not supported on this architecture");
 }
-#endif /* BIT_WIN_LIKE */
+#endif /* ME_WIN_LIKE */
 
 /*
     @copy   default

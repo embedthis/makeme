@@ -1,5 +1,0 @@
-/*
-    dsi.bit - dsi package for Bit
- */
-
-program('dsi', 'Developer Side Include Tool')

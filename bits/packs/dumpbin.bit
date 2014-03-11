@@ -1,5 +1,0 @@
-/*
-    dumpbin.bit - Dumpbin package for Bit
- */
-
-program('dumpbin', 'Windows Symbols Tools', {packs: 'compiler'})

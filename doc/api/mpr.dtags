@@ -2681,6 +2681,13 @@
       <arglist>(MprWorker *worker)</arglist>
     </member>
     <member kind="function">
+      <type>void</type>
+      <name>mprDefaultLogHandler</name>
+      <anchorfile>group___mpr_log.html</anchorfile>
+      <anchor>ga397bb24e9f28b8d1e1482922d2b265a4</anchor>
+      <arglist>(int flags, int level, cchar *msg)</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>mprDeletePath</name>
       <anchorfile>group___mpr_path.html</anchorfile>
@@ -3309,6 +3316,13 @@
       <anchorfile>group___mpr_json.html</anchorfile>
       <anchor>ga804fb42efcb968510655e4bd90e4bbb7</anchor>
       <arglist>(MprJson *obj, cchar *key, int flags)</arglist>
+    </member>
+    <member kind="function">
+      <type>void *</type>
+      <name>mprGetKey</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>ga20b09458de8a01d16356288a8b41c23f</anchor>
+      <arglist>(cchar *key)</arglist>
     </member>
     <member kind="function">
       <type>void *</type>
@@ -5115,6 +5129,13 @@
       <anchorfile>group___mpr_json.html</anchorfile>
       <anchor>ga1cc4812cf6589a7314ee71fffc13da29</anchor>
       <arglist>(MprJson *obj, cchar *key, MprJson *value, int flags)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>mprSetKey</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>ga8a1f63942d93420121a18e0cf5a56d91</anchor>
+      <arglist>(cchar *key, void *value)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -7721,6 +7742,13 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>mprDefaultLogHandler</name>
+      <anchorfile>group___mpr_log.html</anchorfile>
+      <anchor>ga397bb24e9f28b8d1e1482922d2b265a4</anchor>
+      <arglist>(int flags, int level, cchar *msg)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>mprError</name>
       <anchorfile>group___mpr_log.html</anchorfile>
       <anchor>ga33ca1cbd4c7573013253873dab76f209</anchor>
@@ -10253,6 +10281,13 @@
       <arglist>()</arglist>
     </member>
     <member kind="function">
+      <type>void *</type>
+      <name>mprGetKey</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>ga20b09458de8a01d16356288a8b41c23f</anchor>
+      <arglist>(cchar *key)</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>mprGetLogLevel</name>
       <anchorfile>group___mpr.html</anchorfile>
@@ -10517,6 +10552,13 @@
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>ga1fa92eb8cb9bf4f023f4f60f57001abc</anchor>
       <arglist>(cchar *ip)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>mprSetKey</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>ga8a1f63942d93420121a18e0cf5a56d91</anchor>
+      <arglist>(cchar *key, void *value)</arglist>
     </member>
     <member kind="function">
       <type>void</type>

@@ -1,0 +1,16 @@
+/*
+    start.me -- Stand-alone MakeMe file
+ */
+
+Me.load({
+    targets: {
+        simpleAction: {
+            enable: false,
+            type: 'exe',
+            sources: ['*.c'],
+        },
+        work: {
+            action: "print('Do work')",
+        },
+    },
+})

@@ -27,8 +27,8 @@
 
 
 
-#if BIT_PACK_EJSCRIPT
-#if BIT_HAS_LIB_EDIT
+#if ME_EXT_EJS
+#if ME_HAS_LIB_EDIT
   #include  <histedit.h>
 #endif
 
@@ -45,7 +45,7 @@ typedef struct App {
 
 static App *app;
 
-#if BIT_HAS_LIB_EDIT
+#if ME_HAS_LIB_EDIT
 static History  *cmdHistory;
 static EditLine *eh; 
 static cchar    *prompt;
@@ -124,7 +124,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
                 }
             }
 
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
         } else if (smatch(argp, "--chroot")) {
             /* Not documented or supported */
             if (nextArg >= argc) {
@@ -150,7 +150,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
                 cmd = argv[++nextArg];
             }
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
         } else if (smatch(argp, "--cygroot")) {
             if (nextArg >= argc) {
                 err++;
@@ -368,7 +368,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
         }
     }
     if (stats) {
-#if BIT_DEBUG
+#if ME_DEBUG
         mprSetLogLevel(1);
         mprPrintMem("Memory Usage", 1);
 #endif
@@ -475,7 +475,7 @@ static int interpretCommands(EcCompiler *cp, cchar *cmd)
 
 
 /************************************************* Command line History **************************************/
-#if BIT_HAS_LIB_EDIT
+#if ME_HAS_LIB_EDIT
 
 static cchar *issuePrompt(EditLine *e) 
 {
@@ -528,11 +528,11 @@ static char *readline(cchar *msg)
     return NULL; 
 } 
 
-#else /* BIT_HAS_LIB_EDIT */
+#else /* ME_HAS_LIB_EDIT */
 
 static char *readline(cchar *msg)
 {
-    char    buf[BIT_MAX_PATH];
+    char    buf[ME_MAX_PATH];
 
     printf("%s", msg);
     fflush(stdout);
@@ -541,7 +541,7 @@ static char *readline(cchar *msg)
     }
     return strdup(buf);
 }
-#endif /* BIT_HAS_LIB_EDIT */
+#endif /* ME_HAS_LIB_EDIT */
 
 
 /*  
@@ -549,7 +549,7 @@ static char *readline(cchar *msg)
  */
 static int consoleGets(EcStream *stream)
 {
-    char    prompt[BIT_MAX_PATH], *line, *cp;
+    char    prompt[ME_MAX_PATH], *line, *cp;
     int     level;
 
     if (stream->flags & EC_STREAM_EOL) {
@@ -604,7 +604,7 @@ int main(int argc, char **argv)
     return 0;
 }
 
-#endif /* BIT_PACK_EJSCRIPT */
+#endif /* ME_EXT_EJS */
 
 /*
     @copy   default

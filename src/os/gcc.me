@@ -1,0 +1,22 @@
+/*
+    gcc.me -- GCC Build Settings
+ */
+
+Me.load({
+    rules: {
+        'c->c':   '${extensions.compiler.path} -E ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
+        'c->o':   '${extensions.compiler.path} -c -o ${OUTPUT} ${MTUNE} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
+        'cpp->o': '${extensions.compiler.path} -c -o ${OUTPUT} ${MTUNE} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
+        'shlib':  '${extensions.compiler.path} -shared -o ${OUTPUT} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS}',
+        'lib':    '${extensions.lib.path} -cr ${OUTPUT} ${INPUT}',
+        'exe':    '${extensions.compiler.path} -o ${OUTPUT} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS} ${LIBS}',
+        'gui':    '${extensions.compiler.path} -o ${OUTPUT} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS} ${LIBS}'
+        'res':    '${extensions.rc.path} -o ${OUTPUT} ${INPUT}',
+    },
+    platform: {
+        'arch-map': {
+            x86: 'i686',
+            x64: 'x86_64',
+        },
+    },
+})

@@ -7,9 +7,9 @@
     Prepared by: orion
  */
 
-#include "bit.h"
+#include "me.h"
 
-#if BIT_PACK_EST
+#if ME_EXT_EST
 
 #include "bitos.h"
 
@@ -37,106 +37,106 @@
 /*********************************** Forwards *********************************/
 
 //  TODO - what about x64?
-#if BIT_CPU_ARCH == BIT_CPU_X86 || BIT_CPU_ARCH == BIT_CPU_X64
+#if ME_CPU_ARCH == ME_CPU_X86 || ME_CPU_ARCH == ME_CPU_X64
     #define EST_HAVE_ASM 1
 #endif
 
 /* Enable if using Intel CPU with SSE2 */
-#define BIT_EST_SSE2 0
+#define ME_EST_SSE2 0
 /*
-    Default configuration, optionally overridden by bit.h
+    Default configuration, optionally overridden by me.h
  */
-#ifndef BIT_EST_AES
-    #define BIT_EST_AES 1
+#ifndef ME_EST_AES
+    #define ME_EST_AES 1
 #endif
-#ifndef BIT_EST_BIGNUM
-    #define BIT_EST_BIGNUM 1
+#ifndef ME_EST_BIGNUM
+    #define ME_EST_BIGNUM 1
 #endif
-#ifndef BIT_EST_BASE64
-    #define BIT_EST_BASE64 1
+#ifndef ME_EST_BASE64
+    #define ME_EST_BASE64 1
 #endif
-#ifndef BIT_EST_CAMELLIA
-    #define BIT_EST_CAMELLIA 0
+#ifndef ME_EST_CAMELLIA
+    #define ME_EST_CAMELLIA 0
 #endif
-#ifndef BIT_EST_DES
-    #define BIT_EST_DES 0
+#ifndef ME_EST_DES
+    #define ME_EST_DES 0
 #endif
-#ifndef BIT_EST_DHM
-    #define BIT_EST_DHM 1
+#ifndef ME_EST_DHM
+    #define ME_EST_DHM 1
 #endif
-#ifndef BIT_EST_GEN_PRIME
-    #define BIT_EST_GEN_PRIME 1
+#ifndef ME_EST_GEN_PRIME
+    #define ME_EST_GEN_PRIME 1
 #endif
-#ifndef BIT_EST_HAVEGE
-    #define BIT_EST_HAVEGE 1
+#ifndef ME_EST_HAVEGE
+    #define ME_EST_HAVEGE 1
 #endif
-#ifndef BIT_EST_LOGGING
-    #define BIT_EST_LOGGING 0
+#ifndef ME_EST_LOGGING
+    #define ME_EST_LOGGING 0
 #endif
-#ifndef BIT_EST_MD2
-    #define BIT_EST_MD2 0
+#ifndef ME_EST_MD2
+    #define ME_EST_MD2 0
 #endif
-#ifndef BIT_EST_MD4
-    #define BIT_EST_MD4 0
+#ifndef ME_EST_MD4
+    #define ME_EST_MD4 0
 #endif
-#ifndef BIT_EST_MD5
-    #define BIT_EST_MD5 1
+#ifndef ME_EST_MD5
+    #define ME_EST_MD5 1
 #endif
-#ifndef BIT_EST_NET
-    #define BIT_EST_NET 1
+#ifndef ME_EST_NET
+    #define ME_EST_NET 1
 #endif
-#ifndef BIT_EST_PADLOCK
-    #define BIT_EST_PADLOCK 1
+#ifndef ME_EST_PADLOCK
+    #define ME_EST_PADLOCK 1
 #endif
-#ifndef BIT_EST_RC4
-    #define BIT_EST_RC4 1
+#ifndef ME_EST_RC4
+    #define ME_EST_RC4 1
 #endif
-#ifndef BIT_EST_ROM_TABLES
-    #define BIT_EST_ROM_TABLES 1
+#ifndef ME_EST_ROM_TABLES
+    #define ME_EST_ROM_TABLES 1
 #endif
-#ifndef BIT_EST_RSA
-    #define BIT_EST_RSA 1
+#ifndef ME_EST_RSA
+    #define ME_EST_RSA 1
 #endif
-#ifndef BIT_EST_SELF_TEST
-    #define BIT_EST_SELF_TEST 0
+#ifndef ME_EST_SELF_TEST
+    #define ME_EST_SELF_TEST 0
 #endif
-#ifndef BIT_EST_SHA1
-    #define BIT_EST_SHA1 1
+#ifndef ME_EST_SHA1
+    #define ME_EST_SHA1 1
 #endif
-#ifndef BIT_EST_SHA2
-    #define BIT_EST_SHA2 1
+#ifndef ME_EST_SHA2
+    #define ME_EST_SHA2 1
 #endif
-#ifndef BIT_EST_SHA4
-    #define BIT_EST_SHA4 1
+#ifndef ME_EST_SHA4
+    #define ME_EST_SHA4 1
 #endif
-#ifndef BIT_EST_CLIENT
-    #define BIT_EST_CLIENT 1
-    #undef BIT_EST_MD5
-    #define BIT_EST_MD5 1
+#ifndef ME_EST_CLIENT
+    #define ME_EST_CLIENT 1
+    #undef ME_EST_MD5
+    #define ME_EST_MD5 1
 #endif
-#ifndef BIT_EST_SERVER
-    #undef BIT_EST_MD5
-    #define BIT_EST_MD5 1
-    #define BIT_EST_SERVER 1
+#ifndef ME_EST_SERVER
+    #undef ME_EST_MD5
+    #define ME_EST_MD5 1
+    #define ME_EST_SERVER 1
 #endif
-#ifndef BIT_EST_TEST_CERTS
-    #define BIT_EST_TEST_CERTS 1
+#ifndef ME_EST_TEST_CERTS
+    #define ME_EST_TEST_CERTS 1
 #endif
-#ifndef BIT_EST_X509
-    #define BIT_EST_X509 1
+#ifndef ME_EST_X509
+    #define ME_EST_X509 1
 #endif
-#ifndef BIT_EST_X509_WRITE
-    #define BIT_EST_X509_WRITE 1
+#ifndef ME_EST_X509_WRITE
+    #define ME_EST_X509_WRITE 1
 #endif
-#ifndef BIT_EST_XTEA
-    #define BIT_EST_XTEA 1
+#ifndef ME_EST_XTEA
+    #define ME_EST_XTEA 1
 #endif
 
 /*
     Required settings
  */
-#define BIT_EST_SSL 1
-#define BIT_EST_TIMING 1
+#define ME_EST_SSL 1
+#define ME_EST_TIMING 1
 
 #if UNUSED
 #define EST_CA_CERT "ca.crt"
@@ -229,15 +229,15 @@
 //  TODO -remove wordsize 8
 //  TODO -remove t_int, t_dbl and use bitos types
 
-#if BIT_WORDSIZE == 8
+#if ME_WORDSIZE == 8
     typedef uchar t_int;
     typedef ushort t_dbl;
-#elif BIT_WORDSIZE == 16
+#elif ME_WORDSIZE == 16
     typedef ushort t_int;
     typedef ulong t_dbl;
 #else
     typedef ulong t_int;
-    //  TODO #if WINDOWS && #if BIT_CPU_ARCH == BIT_CPU_X86
+    //  TODO #if WINDOWS && #if ME_CPU_ARCH == ME_CPU_X86
     #if defined(_MSC_VER) && defined(_M_IX86)
         typedef unsigned __int64 t_dbl;
     #else
@@ -247,7 +247,7 @@
         #else
             typedef unsigned long long t_dbl;
             //  TODO - should other cases use this too?
-            #define BIT_USE_LONG_LONG 1
+            #define ME_USE_LONG_LONG 1
         #endif
     #endif
 #endif
@@ -1360,7 +1360,7 @@ extern "C" {
  */
 #define EST_ASN1_BOOLEAN                 0x01
 #define EST_ASN1_INTEGER                 0x02
-#define EST_ASN1_BIT_STRING              0x03
+#define EST_ASN1_ME_STRING              0x03
 #define EST_ASN1_OCTET_STRING            0x04
 #define EST_ASN1_NULL                    0x05
 #define EST_ASN1_OID                     0x06
@@ -2400,7 +2400,7 @@ extern "C" {
     asm( "movl   %edx,   %ecx   " );            \
     asm( "stosl                 " );
 
-#if BIT_EST_SSE2
+#if ME_EST_SSE2
 
 #define MULADDC_HUIT                            \
     asm( "movd     %ecx,     %mm1     " );      \
@@ -2923,7 +2923,7 @@ extern "C" {
     __asm   mov     ecx, edx                    \
     __asm   stosd
 
-#if BIT_EST_SSE2
+#if ME_EST_SSE2
 
 #define EMIT __asm _emit
 
@@ -3009,7 +3009,7 @@ extern "C" {
 #endif /* EST_HAVE_ASM */
 
 #if !defined(MULADDC_CORE)
-#if BIT_USE_LONG_LONG
+#if ME_USE_LONG_LONG
 
 #define MULADDC_INIT                    \
 {                                       \
@@ -3238,8 +3238,8 @@ extern "C" {
 #ifndef SSL_DEBUG_H
 #define SSL_DEBUG_H
 
-#if FUTURE && BIT_EST_LOGGING
-#if BIT_DEBUG
+#if FUTURE && ME_EST_LOGGING
+#if ME_DEBUG
     #define LOG(l, ...) if (l <= logLevel) estLog(l, __VA_ARGS__) ; else
     #define RET(l, ...) if (l <= logLevel) estLog(l, __VA_ARGS__) ; else
 #else
@@ -3253,7 +3253,7 @@ extern "C" {
     #define SSL_DEBUG_CRT(level, text, crt)         debug_print_crt(ssl, level, text, crt);
 #endif
 
-#if BIT_EST_LOGGING
+#if ME_EST_LOGGING
     #define SSL_DEBUG_MSG(level, args)              debug_print_msg(ssl, level, debug_fmt args);
     #define SSL_DEBUG_RET(level, text, ret)         debug_print_ret(ssl, level, text, ret);
     #define SSL_DEBUG_BUF(level, text, buf, len)    debug_print_buf(ssl, level, text, buf, len);
@@ -3799,7 +3799,7 @@ extern "C" {
 #ifndef EST_PADLOCK_H
 #define EST_PADLOCK_H
 
-//  TODO - use #if BIT_CPU_ARCH == BIT_CPU_X86
+//  TODO - use #if ME_CPU_ARCH == ME_CPU_X86
 
 #if (defined(__GNUC__) && defined(__i386__))
 #ifndef EST_HAVE_X86
@@ -4304,4 +4304,4 @@ extern "C" {
 
     @end
  */
-#endif /* BIT_PACK_EST */
+#endif /* ME_EXT_EST */

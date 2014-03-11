@@ -1,0 +1,97 @@
+/*
+    vxworks.me - VxWorks tools
+ */
+
+Me.extension({
+    vxworks: {
+        description: 'VxWorks SDK'
+        path: function (extension) {
+            let path: Path? = extension.withpath
+            if (!path) {
+                /*
+                    Search for WorkBench/Tornado in common places
+                 */
+                let search = []
+                let base = App.getenv('WIND_BASE')
+                if (base) {
+                    search += [base]
+                }
+                for each (drive in (FileSystem.drives() - ['A', 'B'])) {
+                    search += Path(drive + ':/').files('WindRiver/vxworks-*')
+                }
+                search += Path('/WindRiver').files('vxworks-*') +
+                    Path('/usr/src/WindRiver').files('vxworks-*') +
+                    Path(App.getenv('HOME') + '/WindRiver').files('vxworks-*')
+                try {
+                    path = probe('target/h/vxWorks.h', {search: search.sort().reverse()})
+                } catch (e) {
+                    if (!me.options.gen) {
+                        throw e
+                    }
+                    path = Path('$(WIND_BASE)')
+                }
+            }
+            extension.includes = [ path.join('target/h'), path.join('target/h/wrn/coreip') ]
+            return path
+        },
+
+        generate: function (extension) {
+            let path = extension.path = Path('$(WIND_BASE)')
+            me.env.WIND_HOME = '$(WIND_BASE)/..'
+            extension.includes = [ path.join('target/h'), path.join('target/h/wrn/coreip') ]
+        },
+        config: function (extension) {
+            let path = extension.path
+            me.env.WIND_BASE = path
+            me.env.WIND_HOME = path.dirname
+
+            if (Config.OS == 'windows') {
+                me.env.WIND_HOST_TYPE = 'x86-win32'
+
+            } else if (Config.OS == 'linux') {
+                if (path.join('host/x86-linux').exists) {
+                    me.env.WIND_HOST_TYPE = 'x86-linux'
+                } else if (path.join('host/x86-linux2').exists) {
+                    me.env.WIND_HOST_TYPE = 'x86-linux2'
+                } else {
+                    throw 'Cannot determine the WIND_HOST_TYPE'
+                }
+
+            } else if (Config.OS == 'solaris') {
+                me.env.WIND_HOST_TYPE = 'solaris2'
+
+            } else if (!me.options.gen) {
+                throw me.platform.os + ' is not a supported O/S for VxWorks cross compilation'
+            }
+
+            if (!me.options.gen) {
+                let version: String = path.basename.toString().split('-')[1]
+                let major: Number = version.split('.')[0] cast Number
+
+                let env = me.env
+                if (major >= 6) {
+                    env.WIND_HOME = path.dirname
+                    let windPlatform = path.basename
+                    env.WIND_GNU_PATH = path.dirname.files('gnu/*-' + windPlatform).sort().reverse()[0]
+                    me.extensions.vxworks.search = [
+                        env.WIND_GNU_PATH.join(env.WIND_HOST_TYPE, 'bin'),
+                        env.WIND_GNU_PATH.join(env.WIND_HOST_TYPE, me.platform.arch + '-wrs-vxworks/bin'),
+                        env.WIND_BASE.join('host', env.WIND_HOST_TYPE, 'bin'),
+                        env.WIND_BASE.join('/host/resource/hutils/tcl'),
+                        env.WIND_HOME.files('workbench*/foundation/' + env.WIND_HOST_TYPE + '/bin').sort().reverse()[0],
+                    ]
+                } else {
+                    env.WIND_HOME = path
+                    env.WIND_GNU_PATH = ''
+                    me.extensions.vxworks.search = [
+                        env.WIND_BASE.join('host', env.WIND_HOST_TYPE, 'bin'),
+                        env.WIND_BASE.join('/host/resource/hutils/tcl'),
+                        env.WIND_HOME.files('workbench*/foundation/' + env.WIND_HOST_TYPE + '/bin').sort().reverse()[0],
+                    ]
+                }
+                me.env.DIST = 'WindRiver'
+                me.env.DIST_VER = version
+            }
+        },
+    },
+})

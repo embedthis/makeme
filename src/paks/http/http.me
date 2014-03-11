@@ -1,0 +1,35 @@
+/*
+    http.me -- Bit File for Http
+ */
+
+Me.load({
+
+    targets: {
+        libhttp: {
+            type: 'lib',
+            sources: [ 'httpLib.c' ],
+            headers: [ '*.h' ],
+            depends: [ 'libmpr', 'libpcre' ],
+            scripts: {
+                postblend: "
+                    let s = me.settings
+                    if (s.hasPam && s.http && s.http.pam) {
+                        me.target.libraries.push('pam')
+                    }
+                ",
+            },
+        },
+
+        http: {
+            type: 'exe',
+            sources: [ 'http.c' ],
+            depends: [ 'libhttp' ],
+            platforms: [ 'local' ],
+            postblend: function (target) {
+                if (target.static) {
+                    target.depends += ['libmprssl']
+                }
+            },
+        },
+	},
+})

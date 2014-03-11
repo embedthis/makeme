@@ -1,0 +1,85 @@
+/*
+    ejs.bit -- Bit File to build the Ejscript library when embedded in another product
+ */
+
+Me.load({
+    settings: {
+        ejsOneModule: true,
+    },
+
+    probe: {
+        ejs: {
+            depends: [ 'zlib' ],
+        },
+    },
+
+    targets: {
+        libejs: {
+            type:   'lib',
+            sources: [ 'ejsLib.c' ],
+            headers: [ '*.h' ],
+            depends: [ 'libhttp', 'libpcre', 'libzlib', 'libmpr' ],
+            extensions: [ 'ejs' ],
+        },
+
+        ejs: {
+            type:   'exe',
+            sources: [ 'ejs.c' ],
+            scripts: {
+                prebuild: "
+                    if (me.settings.hasLibEdit) {
+                        me.target.libraries.push('edit')
+                    }
+                ",
+            },
+            depends: [ 'libejs' ],
+            extensions: [ 'ejs' ],
+            enable: 'me.settings.ejs.shell',
+        },
+
+        ejsc: {
+            type:   'exe',
+            sources: [ 'ejsc.c' ],
+            depends: [ 'libejs' ],
+            extensions: [ 'ejs' ],
+        },
+
+		'ejs.mod': {
+            files: [ 'ejs.es' ],
+            path: "${BIN}/ejs.mod",
+            //  Add --debug for debug symbols
+            build: "
+                trace('Compile', 'ejs.mod')
+                run('${BIN}/ejsc --out ${BIN}/ejs.mod --optimize 9 --bind --require null ejs.es')
+            ",
+            'generate-nmake': '"${BIN}\\ejsc" --out "${BIN}/ejs.mod" --optimize 9 --bind --require null ejs.es',
+            'generate-sh': '${BIN}/ejsc --out ${BIN}/ejs.mod --optimize 9 --bind --require null ejs.es',
+            depends: [ 'ejsc' ],
+            extensions: [ 'ejs' ],
+		},
+
+        'sync-ejs': {
+            action: "
+                throw UNUSED
+                let paks = App.dir.parent
+                let ejs = paks.join('ejs')
+                let tgz = me.dir.top.join('../ejs/releases/ejs-flat.tgz')
+                let tar = paks.join('ejs.tar')
+                trace('Update', 'Ejscript distribution')
+                ejs.removeAll()
+                require ejs.zlib
+                require ejs.tar
+                Zlib.uncompress(tgz, tar)
+                Tar(tar, {chdir: paks}).extract()
+                let dir = paks.files('ejs-*').sort().reverse()[0]
+                dir.rename(ejs)
+                tar.remove()
+                for each (n in ['Makefile', 'me.h', 'mpr.h', 'http.h', 'deps.c', 'ejsmod.c', 'pcre.c', 'pcre.h', 
+                        'sqlite3.c', 'sqlite3.h', 'start.me']) {
+                    ejs.join(n).remove()
+                }
+                me.settings.ejsOneModule = true
+            ",
+        },
+    },
+})

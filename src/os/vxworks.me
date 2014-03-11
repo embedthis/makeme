@@ -1,0 +1,57 @@
+/*
+    vxworks.me -- VxWorks Settings
+ */
+Me.load({
+    blend: [    
+        'gcc.me',
+    ],
+
+    ext: {
+        exe:   'out',
+        lib:   'a',
+        res:   'res',
+        o:      'o',
+        shlib: 'out',
+        shobj: 'out',
+    },
+
+    prefixes: {
+        root:       'deploy'
+        base:       '${prefixes.root}',
+        data:       '${prefixes.root}',
+        state:      '${prefixes.root}',
+
+        bin:        '${prefixes.base}',
+        inc:        '${prefixes.base}/inc',
+        lib:        '${prefixes.base}',
+        man:        '${prefixes.base}',
+        sbin:       '${prefixes.base}',
+
+        etc:        '${prefixes.base}',
+        web:        '${prefixes.base}/web',
+
+        log:        '${prefixes.base}',
+        spool:      '${prefixes.base}',
+        cache:      '${prefixes.base}',
+
+        app:        '${prefixes.base}',
+        vapp:       '${prefixes.base}',
+        src:        '/usr/src/${settings.product}-${settings.version}',
+    },
+
+    settings: {
+        extension: {
+            require: [ 'vxworks', 'compiler', 'lib', 'link' ],
+        },
+    },
+
+    rules: {
+        'c->c':   '${extension.compiler.path} -E ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
+        'c->o':   '${extension.compiler.path} -c -o ${OUTPUT} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
+        'cpp->o': '${extension.compiler.path} -c -o ${OUTPUT} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
+        'shlib':  '${extension.compiler.path} -r -o ${OUTPUT} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS}'
+        'lib':    '${extension.lib.path} -cr ${OUTPUT} ${INPUT}'
+        'exe':    '${extension.compiler.path} -o ${OUTPUT} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS} ${LDFLAGS}'
+        'gui':    '${extension.compiler.path} -o ${OUTPUT} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS} ${LDFLAGS}'
+    },
+})

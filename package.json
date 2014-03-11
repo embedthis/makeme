@@ -1,14 +1,13 @@
 {
-    "name": "bit",
-    "description": "Embedthis Bit - Built It Tool",
-    "title": "Embedthis Bit",
-    "version": "0.9.4",
+    "name": "makeme",
+    "description": "Embedthis MakeMe",
+    "version": "0.8.0",
     "keywords": [
-        "bit",
+        "makeme",
         "build",
         "make"
     ],
-    "homepage": "http://embedthis.com/products/bit/",
+    "homepage": "http://embedthis.com/products/me/",
     "author": {
         "name": "Embedthis Software",
         "email": "dev@embedthis.com",
@@ -16,23 +15,12 @@
     },
     "repository": {
         "type": "git",
-        "url": "git://github.com/embedthis/bit.git"
+        "url": "git://github.com/embedthis/makeme.git"
     },
     "bugs": {
         "email": "dev@embedthis.com",
-        "url": "http://github.com/embedthis/bit/issues"
+        "url": "http://github.com/embedthis/makeme/issues"
     },
-    "ignore": [
-        "**/.*",
-        "node_modules",
-        "bower_components",
-        "doc",
-        "test",
-        "releases",
-        "package",
-        "*-debug*",
-        "*-release*"
-    ],
     "licenses": [
         {
             "type": "GPL",

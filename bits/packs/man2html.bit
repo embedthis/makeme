@@ -1,5 +1,0 @@
-/*
-    man2html.bit - Strip package for Bit
- */
-
-program('man2html', 'Manual Page to HTML Converter')

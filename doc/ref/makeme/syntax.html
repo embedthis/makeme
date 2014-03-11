@@ -1,0 +1,258 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis MakeMe 0.8.0 Documentation</title>
+    <meta name="keywords" content="MakeMe, Bit, GYP, autoconf"/>
+	<meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf."/>
+	<meta name="robots" content="index,follow" />
+	<link href="../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../iehacks.css" rel="stylesheet" type="text/css" />
+    </![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo"  href="http://embedthis.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form">Loading</div>
+                <div class="version">Embedthis MakeMe 0.8.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt;<a href="index.html">User Guide</a>&gt; <b>MakeMe File Syntax</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            
+                <h1>Quick Nav </h1>
+                <ul>
+                    <li><a href="#comments">Comments</a></li>
+                    <li><a href="#types">Property Types</a></li>
+                    <li><a href="#names">Object Property Names</a></li>
+                    <li><a href="#blending">Blending</a></li>
+                    <li><a href="#strings">Strings</a></li>
+                    <li><a href="#variables">Variables</a></li>
+                    <li><a href="#assigning">Assigning Variables</a></li>
+                </ul>
+<!-- BeginDsi "dsi/refSeeAlso.html" -->
+        <h1>See Also</h1>
+        <ul>
+            <li><a href="../../ref/makeme/syntax.html">MakeMe File Syntax</a></li>
+            <li><a href="../../ref/makeme/dom.html">MakeMe DOM</a></li>
+            <li><a href="../../ref/makeme/processing.html">MakeMe File Processing</a></li>
+            <li><a href="../../ref/makeme/commandline.html">MakeMe Command Line</a></li>
+            <li><a href="../../ref/makeme/events.html">MakeMe Events</a></li>
+            <li><a href="../../ref/makeme/targets.html">MakeMe Targets</a></li>
+
+            <li><a href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Ejscript Language</a></li>
+            <li><a href="http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a></li>
+        </ul>
+<!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+        <a id="syntax"></a>
+        <h1>MakeMe File Syntax</h1>
+        <p>A MakeMe file is an <em>Javascript</em> (Ejscript) file that is loaded by the <em>me</em> program. MakeMe files 
+        typically have a <em>.me</em> extension and contain a call to the static function <em>Me.load</em> to define build
+        instructions.  The argument to Me.load is a object that conforms to the 
+        <a href="dom.html">MakeMe Document Object Model</a> (DOM).  For example: this is a typical MakeMe file with one simple
+        target.</p>
+        
+        <pre>
+<b>Me.load</b>({
+    targets: {
+        hello: {
+            type: 'exe',
+            sources: [ 'hello.c' ],
+        },
+    },
+})
+</pre>
+        <p>Typically the DOM object argument is expressed as a Javascript object literal, but it could be constructed in
+        other ways via Javascript code.</p>
+<pre>
+let dom = {targets: {}}
+dom.targets.hello = {type: 'exe'}
+dom.targets.sources = Path('/some/path').files('**.c')
+<b>Me.load</b>(dom)
+</pre>
+        <a name="comments"></a>
+        <h2>Comments and Lines</h2>
+        <p>You can use either Javascript comments in most places including inside the DOM object. Both the
+        <em>/* comment */</em> and the <em>// rest-of-line</em> forms are supported.</p>
+        <p>If you have a long line that you wish to split for formatting purposes, you can use a back-quote <em>\\</em>
+        at the end of the line. This is typically only required inside embedded shell or make scripts.</p>
+        <a name="types"></a>
+        <h2>Property Types</h2>
+        <p>MakeMe DOM objects consist of an object collection with properties that define targets that
+        specify what to build and instructions for how to build the project. 
+        
+        
+        There are four basic types used as values for DOM values:</p>
+        <ul>
+            <li>Strings</li>
+            <li>Objects</li>
+            <li>Arrays</li>
+            <li>Numbers</li>
+            <li>Booleans</li>
+            <li>Regular Expressions</li>
+            <li>Dates</li>
+        </ul>
+        <p>MakeMe object properties are composed of standard Javascript values with the enhancements noted below.
+        For a full description of the capabilities of Ejscript, see the
+        <a href="http://ejscript.org/products/ejs/doc/api/ejscript/">Ejscript Language API</a>. and
+        <a href="http://www.ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a>.</p>
+        <a name="names"></a>
+        <h2>Object Property Names</h2>
+        <p>MakeMe objects are extend Javascript object syntax by allowing property names to omit quotes if they have no
+        spaces. For example:
+<pre>
+program: {
+    type: 'exe',
+},</pre>
+        <a name="blending"></a>
+        <h2>Blending</h2>
+        <p>When a MakeMe file is loaded, it is blended with existing MakeMe configuration from previously loaded MakeMe
+        files by overwriting or augmenting prior definitions. MakeMe facilitates this by extending the standard JSON syntax 
+        with aggregation prefixes (+, -, =, ?) to describe how to blend property values together.
+        The prefixes are uses at the start of the property name. For example:
+<pre>
+targets: {
+    hello: {
+        '+defines: [ 'WHO=WORLD' ],
+    },
+},
+</pre>
+        <p>This adds the define WHO=WORLD to the existing inherited definitions for this target.</p>
+        <p>The valid prefixes are:
+        <ul>
+            <li><em>+</em> &nbsp; to append values</li>
+            <li><em>-</em> &nbsp; to subtract value</li>
+            <li><em>=</em> &nbsp; to overwrite values</li>
+            <li><em>?</em> &nbsp; to overwrite if not already set</li>
+        </ul>
+        <p>When combining objects, MakeMe will automatically use append collections and so you do not need to use <em>+</em>
+        on object properties.</p>
+        <a name="strings"></a>
+        <h2>Strings</h2>
+        <p>Strings are wrapped with with either a single or double quote character. Enhancing Javascript, MakeMe strings
+        can span multiple lines. 
+        <a name="variables"></a>
+        <h2>Variables</h2>
+        <p>MakeMe property names and property string values can embed MakeMe variables. These variables are embedded using
+        the format: <em>${name}</em>. MakeMe variables are are expanded just prior to execution of any command.
+        Note: you cannot (yet) use MakeMe variables in just any string.</p>
+        <p>MakeMe variables take their value from three sources:
+        <ul>
+            <li>MakeMe Globals</li>
+            <li>MakeMe DOM fields</li>
+            <li>Rule specific variables values when compiling or linking</li>
+        </ul>
+        <p>MakeMe Globals are resolved from the <em>me.globals</em> collection, whereas MakeMe DOM fields are resolved relative
+        to the <em>me</em> object itself. For example:
+        <pre>
+{
+    settings: {
+        version: '4.1.0',
+    },
+    globals: {
+        ARCH: 'x64',
+    },
+    targets: {
+        rocket: {
+            path: '<b>output/rocket_${ARCH}_${settings.version}</b>',
+            /* ... */
+        },
+    },
+}
+</pre>
+        <a name="assigning"></a>
+        <h2>Assigning Variables</h2>
+        <p>Variables can be set simply by defining properties in the MakeMe DOM. This can be done literally when loading
+        the DOM object or programmatically in script code. For example:</p>
+<pre>
+{
+    my: {
+        food: 'fish',
+    },
+    targets: {
+        dinner: {
+            path: '/meals/${my.food}.txt',
+        },
+    },
+}
+</pre>
+        <p>If variables are defined in the me.globals collection, they can be accessed without any dot notation. For example:</p>
+<pre>
+{
+    globals: {
+        FOOD: 'fish',
+    },
+    targets: {
+        dinner: {
+            path: '/meals/${FOOD}.txt',
+        },
+    },
+}
+</pre>
+        <p>By convention, globals should be upper case.</p>
+        <p>To assign variables in script code
+        <pre>
+{
+    action: "
+        me.globals.FOOD = 'fish'
+        me.my.food = 'steak';
+    ",
+},
+</pre>
+        <h3>Platform Specific Files</h3>
+        <p>A convenient use of MakeMe global variables is to create per operating system file targets. For example:
+        <pre>
+cleanup: {
+    type: 'exe'
+    path: 'cleanup_${OS}',
+    sources: [ 'dep_${OS}' ],
+},
+</pre>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2014. 
+            All rights reserved. Embedthis MakeMe, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          'partner-pub-9935546676162772:ysvxxv4n9rx');
+
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-179169-5']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+</body>
+</html>

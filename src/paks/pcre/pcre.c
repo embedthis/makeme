@@ -7,7 +7,7 @@
     Prepared by: orion
  */
 
-#include "bit.h"
+#include "me.h"
 #include "pcre.h"
 
 /************************************************************************/
@@ -312,7 +312,7 @@ functions whose names all begin with "_pcre_". */
 #ifndef PCRE_INTERNAL_H
 #define PCRE_INTERNAL_H
 
-#include "bit.h"
+#include "me.h"
 
 
 /* EMBEDTHIS */
@@ -320,7 +320,7 @@ functions whose names all begin with "_pcre_". */
     #define _VSB_CONFIG_FILE "vsbConfig.h"
 #endif
 
-#if BIT_PACK_PCRE
+#if ME_EXT_PCRE
 /* Define DEBUG to get debugging output on stdout. */
 
 #if VXWORKS
@@ -503,8 +503,8 @@ to save lots of typing. I tried "uchar", but it causes problems on Digital
 Unix, where it is defined in sys/types, so use "uschar" instead. */
 
 /* EMBEDTHIS - added conditional */
-#ifdef BIT_CHAR
-typedef unsigned BIT_CHAR uschar;
+#ifdef ME_CHAR
+typedef unsigned ME_CHAR uschar;
 #else
 typedef unsigned char uschar;
 #endif
@@ -566,9 +566,9 @@ used for the external interface and appears in pcre.h, which is why its name
 must begin with PCRE_. */
 
 /* EMBEDTHIS - added conditional */
-#ifdef BIT_CHAR
-#define PCRE_SPTR const BIT_CHAR *
-#define USPTR const unsigned BIT_CHAR *
+#ifdef ME_CHAR
+#define PCRE_SPTR const ME_CHAR *
+#define USPTR const unsigned ME_CHAR *
 
 #else
 #ifdef CUSTOM_SUBJECT_PTR
@@ -1497,7 +1497,7 @@ extern BOOL         _pcre_xclass(int, const uschar *);
 #endif
 
 /* End of pcre_internal.h */
-#endif /* BIT_PACK_PCRE */
+#endif /* ME_EXT_PCRE */
 
 /************************************************************************/
 /*
@@ -1509,9 +1509,9 @@ extern BOOL         _pcre_xclass(int, const uschar *);
 *          Unicode Property Table handler        *
 *************************************************/
 
-#include "bit.h"
+#include "me.h"
 
-#if BIT_PACK_PCRE
+#if ME_EXT_PCRE
 
 #ifndef _UCP_H
 #define _UCP_H
@@ -1642,7 +1642,7 @@ enum {
 #endif
 
 /* End of ucp.h */
-#endif /* BIT_PACK_PCRE */
+#endif /* ME_EXT_PCRE */
 
 /************************************************************************/
 /*
@@ -1657,9 +1657,9 @@ enum {
 #ifndef _UCPINTERNAL_H
 #define _UCPINTERNAL_H
 
-#include "bit.h"
+#include "me.h"
 
-#if BIT_PACK_PCRE
+#if ME_EXT_PCRE
 
 /* Internal header file defining the layout of the bits in each pair of 32-bit
 words that form a data item in the table. */
@@ -1743,7 +1743,7 @@ When searching the data, proceed as follows:
     (2).
 */
 
-#endif /* BIT_PACK_PCRE */
+#endif /* ME_EXT_PCRE */
 #endif /* _UCPINTERNAL_H */
 
 /* End of ucpinternal.h */
@@ -1758,9 +1758,9 @@ When searching the data, proceed as follows:
 property table. See ucpinternal.h for a description of the layout.
 This version was made from the Unicode 5.0.0 tables. */
 
-#include "bit.h"
+#include "me.h"
 
-#if BIT_PACK_PCRE
+#if ME_EXT_PCRE
 
 static const cnode ucp_table[] = {
   { 0x09800000, 0x0000001f },
@@ -4847,7 +4847,7 @@ static const cnode ucp_table[] = {
   { 0x09900000, 0x0c00fffd },
 };
 
-#endif /* BIT_PACK_PCRE */
+#endif /* ME_EXT_PCRE */
 
 
 /************************************************************************/
@@ -4878,10 +4878,10 @@ and dead code stripping is activated. This leads to link errors. Pulling in the
 header ensures that the array gets flagged as "someone outside this compilation
 unit might reference this" and so it will always be supplied to the linker. */
 
-#include "bit.h"
+#include "me.h"
 
 
-#if BIT_PACK_PCRE
+#if ME_EXT_PCRE
 
 
 
@@ -5055,7 +5055,7 @@ graph, print, punct, and cntrl. Other classes are built from combinations. */
   0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};/* 248-255 */
 
 /* End of pcre_chartables.c */
-#endif /* BIT_PACK_PCRE */
+#endif /* ME_EXT_PCRE */
 
 /************************************************************************/
 /*
@@ -5107,10 +5107,10 @@ POSSIBILITY OF SUCH DAMAGE.
 supporting internal functions that are not used by other modules. */
 
 
-#include "bit.h"
+#include "me.h"
 
 
-#if BIT_PACK_PCRE
+#if ME_EXT_PCRE
 
 /* EMBEDTHIS */
 #undef NLBLOCK
@@ -11501,7 +11501,7 @@ return (pcre *)re;
 }
 
 /* End of pcre_compile.c */
-#endif /* BIT_PACK_PCRE */
+#endif /* ME_EXT_PCRE */
 
 /************************************************************************/
 /*
@@ -11553,10 +11553,10 @@ POSSIBILITY OF SUCH DAMAGE.
 pattern matching using an NFA algorithm, trying to mimic Perl as closely as
 possible. There are also some static supporting functions. */
 
-#include "bit.h"
+#include "me.h"
 
 
-#if BIT_PACK_PCRE
+#if ME_EXT_PCRE
 
 #undef NLBLOCK
 #define NLBLOCK md             /* Block containing newline information */
@@ -16493,7 +16493,7 @@ else
 }
 
 /* End of pcre_exec.c */
-#endif /* BIT_PACK_PCRE */
+#endif /* ME_EXT_PCRE */
 
 /************************************************************************/
 /*
@@ -16549,10 +16549,10 @@ indirection. These values can be changed by the caller, but are shared between
 all threads. However, when compiling for Virtual Pascal, things are done
 differently, and global variables are not used (see pcre.in). */
 
-#include "bit.h"
+#include "me.h"
 
 
-#if BIT_PACK_PCRE
+#if ME_EXT_PCRE
 
 
 #ifndef VPCOMPAT
@@ -16564,7 +16564,7 @@ PCRE_EXP_DATA_DEFN int   (*pcre_callout)(pcre_callout_block *) = NULL;
 #endif
 
 /* End of pcre_globals.c */
-#endif /* BIT_PACK_PCRE */
+#endif /* ME_EXT_PCRE */
 
 /************************************************************************/
 /*
@@ -16621,10 +16621,10 @@ and NLTYPE_ANY. The full list of Unicode newline characters is taken from
 http://unicode.org/unicode/reports/tr18/. */
 
 
-#include "bit.h"
+#include "me.h"
 
 
-#if BIT_PACK_PCRE
+#if ME_EXT_PCRE
 
 
 
@@ -16736,7 +16736,7 @@ else switch(c)
 }
 
 /* End of pcre_newline.c */
-#endif /* BIT_PACK_PCRE */
+#endif /* ME_EXT_PCRE */
 
 /************************************************************************/
 /*
@@ -16787,10 +16787,10 @@ POSSIBILITY OF SUCH DAMAGE.
 /* This file contains a private PCRE function that converts an ordinal
 character value into a UTF8 string. */
 
-#include "bit.h"
+#include "me.h"
 
 
-#if BIT_PACK_PCRE
+#if ME_EXT_PCRE
 
 
 
@@ -16829,7 +16829,7 @@ return 0;   /* Keep compiler happy; this function won't ever be */
 }
 
 /* End of pcre_ord2utf8.c */
-#endif /* BIT_PACK_PCRE */
+#endif /* ME_EXT_PCRE */
 
 /************************************************************************/
 /*
@@ -16883,10 +16883,10 @@ uses macros to change their names from _pcre_xxx to xxxx, thereby avoiding name
 clashes with the library. */
 
 
-#include "bit.h"
+#include "me.h"
 
 
-#if BIT_PACK_PCRE
+#if ME_EXT_PCRE
 
 
 
@@ -17155,7 +17155,7 @@ const int _pcre_utt_size = sizeof(_pcre_utt)/sizeof(ucp_type_table);
 #endif  /* SUPPORT_UTF8 */
 
 /* End of pcre_tables.c */
-#endif /* BIT_PACK_PCRE */
+#endif /* ME_EXT_PCRE */
 
 /************************************************************************/
 /*
@@ -17208,10 +17208,10 @@ see if it was compiled with the opposite endianness. If so, it uses an
 auxiliary local function to flip the appropriate bytes. */
 
 
-#include "bit.h"
+#include "me.h"
 
 
-#if BIT_PACK_PCRE
+#if ME_EXT_PCRE
 
 
 
@@ -17300,7 +17300,7 @@ return internal_re;
 }
 
 /* End of pcre_tryflipped.c */
-#endif /* BIT_PACK_PCRE */
+#endif /* ME_EXT_PCRE */
 
 /************************************************************************/
 /*
@@ -17351,10 +17351,10 @@ POSSIBILITY OF SUCH DAMAGE.
 /* This module contains code for searching the table of Unicode character
 properties. */
 
-#include "bit.h"
+#include "me.h"
 
 
-#if BIT_PACK_PCRE
+#if ME_EXT_PCRE
 
 
 
@@ -17487,7 +17487,7 @@ return (offset == 0)? NOTACHAR : c + offset;
 
 
 /* End of pcre_ucp_searchfuncs.c */
-#endif /* BIT_PACK_PCRE */
+#endif /* ME_EXT_PCRE */
 
 /************************************************************************/
 /*
@@ -17539,10 +17539,10 @@ POSSIBILITY OF SUCH DAMAGE.
 strings. */
 
 
-#include "bit.h"
+#include "me.h"
 
 
-#if BIT_PACK_PCRE
+#if ME_EXT_PCRE
 
 
 
@@ -17657,7 +17657,7 @@ return -1;
 }
 
 /* End of pcre_valid_utf8.c */
-#endif /* BIT_PACK_PCRE */
+#endif /* ME_EXT_PCRE */
 
 /************************************************************************/
 /*
@@ -17710,10 +17710,10 @@ class (one that contains characters whose values are > 255). It is used by both
 pcre_exec() and pcre_def_exec(). */
 
 
-#include "bit.h"
+#include "me.h"
 
 
-#if BIT_PACK_PCRE
+#if ME_EXT_PCRE
 
 
 
@@ -17813,4 +17813,4 @@ return negated;   /* char did not match */
 }
 
 /* End of pcre_xclass.c */
-#endif /* BIT_PACK_PCRE */
+#endif /* ME_EXT_PCRE */

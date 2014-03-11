@@ -9,7 +9,7 @@
 
 #include "est.h"
 
-#if BIT_PACK_EST
+#if ME_EXT_EST
 
 /************************************************************************/
 /*
@@ -29,7 +29,7 @@
  */
 
 
-#if BIT_EST_AES
+#if ME_EST_AES
 
 /*
     32-bit integer manipulation macros (little endian)
@@ -59,7 +59,7 @@
 //  TODO - map to a more unique name
 #define FSb AESFSb
 
-#if BIT_EST_ROM_TABLES
+#if ME_EST_ROM_TABLES
 /*
    Forward S-box
  */
@@ -429,7 +429,7 @@ void aes_setkey_enc(aes_context * ctx, uchar *key, int keysize)
     int i;
     ulong *RK;
 
-#if !BIT_EST_ROM_TABLES
+#if !ME_EST_ROM_TABLES
     if (aes_init_done == 0) {
         aes_gen_tables();
         aes_init_done = 1;
@@ -632,7 +632,7 @@ void aes_crypt_ecb(aes_context * ctx, int mode, uchar input[16], uchar output[16
     ulong   *RK, X0, X1, X2, X3, Y0, Y1, Y2, Y3;
 
 //  TODO - don't use EST_HAVE_X86
-#if BIT_EST_PADLOCK && defined(EST_HAVE_X86)
+#if ME_EST_PADLOCK && defined(EST_HAVE_X86)
     if (padlock_supports(PADLOCK_ACE)) {
         if (padlock_xcryptecb(ctx, mode, input, output) == 0) {
             return;
@@ -724,7 +724,7 @@ void aes_crypt_cbc(aes_context *ctx, int mode, int length, uchar iv[16], uchar *
     int     i;
     uchar   temp[16];
 
-#if BIT_EST_PADLOCK && defined(EST_HAVE_X86)
+#if ME_EST_PADLOCK && defined(EST_HAVE_X86)
     if (padlock_supports(PADLOCK_ACE)) {
         if (padlock_xcryptcbc(ctx, mode, length, iv, input, output) == 0)
             return;
@@ -837,7 +837,7 @@ void aes_crypt_cfb128(aes_context *ctx, int mode, int length, int *iv_off, uchar
  */
 
 
-#if BIT_EST_RC4
+#if ME_EST_RC4
 /*
    ARC4 key schedule
  */
@@ -928,7 +928,7 @@ void arc4_crypt(arc4_context *ctx, uchar *buf, int buflen)
  */
 
 
-#if BIT_EST_BASE64
+#if ME_EST_BASE64
 static const uchar base64_enc_map[64] = {
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
     'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
@@ -1119,7 +1119,7 @@ int base64_decode(uchar *dst, int *dlen, uchar *src, int slen)
 
 
 
-#if BIT_EST_BIGNUM
+#if ME_EST_BIGNUM
 
 #define ciL    ((int) sizeof(t_int))    /* chars in limb  */
 #define biL    (ciL << 3)               /* bits  in limb  */
@@ -2086,7 +2086,7 @@ int mpi_div_mpi(mpi *Q, mpi *R, mpi *A, mpi *B)
         if (X.p[i] >= Y.p[t])
             Z.p[i - t - 1] = ~0;
         else {
-#if BIT_USE_LONG_LONG
+#if ME_USE_LONG_LONG
             t_dbl r;
 
             r = (t_dbl) X.p[i] << biL;
@@ -2562,7 +2562,7 @@ cleanup:
 }
 
 
-#if BIT_EST_GEN_PRIME
+#if ME_EST_GEN_PRIME
 /*
     Modular inverse: X = A^-1 mod N  (HAC 14.61 / 14.64)
  */
@@ -2836,8 +2836,8 @@ cleanup:
     return ret;
 }
 
-#endif /* BIT_EST_GEN_PRIME */
-#endif /* BIT_EST_BIGNUM */
+#endif /* ME_EST_GEN_PRIME */
+#endif /* ME_EST_BIGNUM */
 
 /*
     @copy   default
@@ -2875,7 +2875,7 @@ cleanup:
  */
 
 
-#if BIT_EST_CAMELLIA
+#if ME_EST_CAMELLIA
 
 /*
     32-bit integer manipulation macros (big endian)
@@ -3502,7 +3502,7 @@ void camellia_crypt_cfb128(camellia_context *ctx, int mode, int length, int *iv_
 
 
 //  TODO - remove
-#if BIT_EST_TEST_CERTS
+#if ME_EST_TEST_CERTS
 
 char test_ca_crt[] =
     "-----BEGIN CERTIFICATE-----\r\n"
@@ -3759,7 +3759,7 @@ int snfmt(char *buf, ssize bufsize, cchar *fmt, ...)
     return n;
 }
 
-#if BIT_EST_LOGGING
+#if ME_EST_LOGGING
 
 char *debug_fmt(cchar *format, ...)
 {
@@ -3937,7 +3937,7 @@ void debug_print_crt(ssl_context *ssl, int level, char *text, x509_cert * crt)
  */
 
 
-#if BIT_EST_DES
+#if ME_EST_DES
 
 /*
     32-bit integer manipulation macros (big endian)
@@ -4528,7 +4528,7 @@ void des3_crypt_cbc(des3_context *ctx, int mode, int length, uchar iv[8], uchar 
  */
 
 
-#if BIT_EST_DHM
+#if ME_EST_DHM
 /*
    helper to validate the mpi size and import it
  */
@@ -4756,7 +4756,7 @@ void dhm_free(dhm_context * ctx)
  */
 
 
-#if BIT_EST_HAVEGE
+#if ME_EST_HAVEGE
 
 /* Undefine for windows */
 #undef IN
@@ -4969,7 +4969,7 @@ int havege_rand(void *p_rng)
  */
 
 
-#if BIT_EST_MD2
+#if ME_EST_MD2
 
 static const uchar PI_SUBST[256] = {
     0x29, 0x2E, 0x43, 0xC9, 0xA2, 0xD8, 0x7C, 0x01, 0x3D, 0x36,
@@ -5236,7 +5236,7 @@ void md2_hmac(uchar *key, int keylen, uchar *input, int ilen, uchar output[16])
  */
 
 
-#if BIT_EST_MD4
+#if ME_EST_MD4
 
 /*
    32-bit integer manipulation macros (little endian)
@@ -5610,7 +5610,7 @@ void md4_hmac(uchar *key, int keylen, uchar *input, int ilen, uchar output[16])
  */
 
 
-#if BIT_EST_MD5
+#if ME_EST_MD5
 
 /*
     32-bit integer manipulation macros (little endian)
@@ -6001,7 +6001,7 @@ void md5_hmac(uchar *key, int keylen, uchar *input, int ilen, uchar output[16])
  */
 
 
-#if BIT_EST_NET
+#if ME_EST_NET
 
 #if WINDOWS || WINCE
     //  TODO defined in bitos
@@ -6179,7 +6179,7 @@ int net_accept(int bind_fd, int *client_fd, void *client_ip)
  */
 int net_set_block(int fd)
 {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     long n = 0;
     return ioctlsocket(fd, FIONBIO, &n);
 #else
@@ -6190,7 +6190,7 @@ int net_set_block(int fd)
 
 int net_set_nonblock(int fd)
 {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     long n = 1;
     return ioctlsocket(fd, FIONBIO, &n);
 #else
@@ -6320,9 +6320,9 @@ void net_close(int fd)
  */
 
 
-#if BIT_EST_PADLOCK
+#if ME_EST_PADLOCK
 
-// #if BIT_CPU_ARCH == BIT_CPU_X86
+// #if ME_CPU_ARCH == ME_CPU_X86
 #if defined(EST_HAVE_X86)
 
 /*
@@ -6440,7 +6440,7 @@ asm("pushfl; popfl         \n" "movl    %%ebx, %0     \n" "movl    %2, %%ecx    
  */
 
 
-#if BIT_EST_RSA
+#if ME_EST_RSA
 
 /*
     Initialize an RSA context
@@ -6455,7 +6455,7 @@ void rsa_init(rsa_context *ctx, int padding, int hash_id, int (*f_rng) (void *),
 }
 
 
-#if BIT_EST_GEN_PRIME
+#if ME_EST_GEN_PRIME
 /*
     Generate an RSA keypair
  */
@@ -6934,7 +6934,7 @@ void rsa_free(rsa_context *ctx)
  */
 
 
-#if BIT_EST_SHA1
+#if ME_EST_SHA1
 
 /*
     32-bit integer manipulation macros (big endian)
@@ -7361,7 +7361,7 @@ void sha1_hmac(uchar *key, int keylen, uchar *input, int ilen, uchar output[20])
  */
 
 
-#if BIT_EST_SHA2
+#if ME_EST_SHA2
 
 /*
     32-bit integer manipulation macros (big endian)
@@ -7788,7 +7788,7 @@ void sha2_hmac(uchar *key, int keylen, uchar *input, int ilen, uchar output[32],
  */
 
 
-#if BIT_EST_SHA4
+#if ME_EST_SHA4
 
 /*
     64-bit integer manipulation macros (big endian)
@@ -8214,7 +8214,7 @@ void sha4_hmac(uchar *key, int keylen, uchar *input, int ilen, uchar output[64],
 
 
 
-#if BIT_EST_CLIENT
+#if ME_EST_CLIENT
 
 static int ssl_write_client_hello(ssl_context * ssl)
 {
@@ -8459,7 +8459,7 @@ static int ssl_parse_server_key_exchange(ssl_context * ssl)
         ssl->state++;
         return 0;
     }
-#if !BIT_EST_DHM
+#if !ME_EST_DHM
     SSL_DEBUG_MSG(1, ("support for dhm in not available"));
     return EST_ERR_SSL_FEATURE_UNAVAILABLE;
 #else
@@ -8609,7 +8609,7 @@ static int ssl_write_client_key_exchange(ssl_context * ssl)
     if (ssl->session->cipher == TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA ||
         ssl->session->cipher == TLS_DHE_RSA_WITH_AES_256_CBC_SHA ||
         ssl->session->cipher == TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA) {
-#if !BIT_EST_DHM
+#if !ME_EST_DHM
         SSL_DEBUG_MSG(1, ("support for dhm in not available"));
         return EST_ERR_SSL_FEATURE_UNAVAILABLE;
 #else
@@ -8864,7 +8864,7 @@ int ssl_handshake_client(ssl_context * ssl)
  */
 
 
-#if BIT_EST_SERVER
+#if ME_EST_SERVER
 
 static int ssl_parse_client_hello(ssl_context * ssl)
 {
@@ -9278,7 +9278,7 @@ static int ssl_write_server_key_exchange(ssl_context * ssl)
         ssl->state++;
         return 0;
     }
-#if !BIT_EST_DHM
+#if !ME_EST_DHM
     SSL_DEBUG_MSG(1, ("support for dhm is not available"));
     return EST_ERR_SSL_FEATURE_UNAVAILABLE;
 #else
@@ -9394,7 +9394,7 @@ static int ssl_parse_client_key_exchange(ssl_context * ssl)
     if (ssl->session->cipher == TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA ||
         ssl->session->cipher == TLS_DHE_RSA_WITH_AES_256_CBC_SHA ||
         ssl->session->cipher == TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA) {
-#if !BIT_EST_DHM
+#if !ME_EST_DHM
         SSL_DEBUG_MSG(1, ("support for dhm is not available"));
         return EST_ERR_SSL_FEATURE_UNAVAILABLE;
 #else
@@ -9664,33 +9664,33 @@ int ssl_handshake_server(ssl_context * ssl)
  */
 
 
-#if BIT_EST_SSL
+#if ME_EST_SSL
 
 //  TODO - Merge these two
 int ssl_default_ciphers[] = {
-#if BIT_EST_DHM
-#if BIT_EST_AES
+#if ME_EST_DHM
+#if ME_EST_AES
     TLS_DHE_RSA_WITH_AES_256_CBC_SHA,
 #endif
-#if BIT_EST_CAMELLIA
+#if ME_EST_CAMELLIA
     TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA,
 #endif
-#if BIT_EST_DES
+#if ME_EST_DES
     TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA,
 #endif
 #endif
-#if BIT_EST_AES
+#if ME_EST_AES
     TLS_RSA_WITH_AES_128_CBC_SHA,
     TLS_RSA_WITH_AES_256_CBC_SHA,
 #endif
-#if BIT_EST_CAMELLIA
+#if ME_EST_CAMELLIA
     TLS_RSA_WITH_CAMELLIA_128_CBC_SHA,
     TLS_RSA_WITH_CAMELLIA_256_CBC_SHA,
 #endif
-#if BIT_EST_DES
+#if ME_EST_DES
     TLS_RSA_WITH_3DES_EDE_CBC_SHA,
 #endif
-#if BIT_EST_RC4
+#if ME_EST_RC4
     TLS_RSA_WITH_RC4_128_SHA,
     TLS_RSA_WITH_RC4_128_MD5,
 #endif
@@ -9703,29 +9703,29 @@ int ssl_default_ciphers[] = {
     See: http://www.iana.org/assignments/tls-parameters/tls-parameters.xml
  */
 static EstCipher cipherList[] = {
-#if BIT_EST_RSA && BIT_EST_AES
+#if ME_EST_RSA && ME_EST_AES
     { "TLS_RSA_WITH_AES_128_CBC_SHA",           TLS_RSA_WITH_AES_128_CBC_SHA            /* 0x2F */ },
     { "TLS_RSA_WITH_AES_256_CBC_SHA",           TLS_RSA_WITH_AES_256_CBC_SHA            /* 0x35 */ },
 #endif
-#if BIT_EST_RSA && BIT_EST_RC4
+#if ME_EST_RSA && ME_EST_RC4
     { "TLS_RSA_WITH_RC4_128_SHA",               TLS_RSA_WITH_RC4_128_SHA                /* 0x05 */ },
 #endif
-#if BIT_EST_RSA && BIT_EST_DES
+#if ME_EST_RSA && ME_EST_DES
     { "TLS_RSA_WITH_3DES_EDE_CBC_SHA",          TLS_RSA_WITH_3DES_EDE_CBC_SHA           /* 0x0A */ },
 #endif
-#if BIT_EST_RSA && BIT_EST_RC4
+#if ME_EST_RSA && ME_EST_RC4
     { "TLS_RSA_WITH_RC4_128_MD5",               TLS_RSA_WITH_RC4_128_MD5                /* 0x04 */ },
 #endif
-#if BIT_EST_RSA && BIT_EST_AES && BIT_EST_DHM
+#if ME_EST_RSA && ME_EST_AES && ME_EST_DHM
     { "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",       TLS_DHE_RSA_WITH_AES_256_CBC_SHA        /* 0x39 */ },
 #endif
-#if BIT_EST_RSA && BIT_EST_DES && BIT_EST_DHM
+#if ME_EST_RSA && ME_EST_DES && ME_EST_DHM
     { "TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA",      TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA       /* 0x16 */ },
 #endif
-#if BIT_EST_RSA && BIT_EST_CAMELLIA
+#if ME_EST_RSA && ME_EST_CAMELLIA
     { "TLS_RSA_WITH_CAMELLIA_128_CBC_SHA",      TLS_RSA_WITH_CAMELLIA_128_CBC_SHA       /* 0x41 */ },
     { "TLS_RSA_WITH_CAMELLIA_256_CBC_SHA",      TLS_RSA_WITH_CAMELLIA_256_CBC_SHA       /* 0x88 */ },
-    #if BIT_EST_DHM
+    #if ME_EST_DHM
     { "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA",  TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA   /* 0x84 */ },
     #endif
 #endif
@@ -9982,7 +9982,7 @@ int ssl_derive_keys(ssl_context * ssl)
      * Determine the appropriate key, IV and MAC length.
      */
     switch (ssl->session->cipher) {
-#if BIT_EST_RC4
+#if ME_EST_RC4
     case TLS_RSA_WITH_RC4_128_MD5:
         ssl->keylen = 16;
         ssl->minlen = 16;
@@ -9998,7 +9998,7 @@ int ssl_derive_keys(ssl_context * ssl)
         break;
 #endif
 
-#if BIT_EST_DES
+#if ME_EST_DES
     case TLS_RSA_WITH_3DES_EDE_CBC_SHA:
     case TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA:
         ssl->keylen = 24;
@@ -10008,7 +10008,7 @@ int ssl_derive_keys(ssl_context * ssl)
         break;
 #endif
 
-#if BIT_EST_AES
+#if ME_EST_AES
     case TLS_RSA_WITH_AES_128_CBC_SHA:
         ssl->keylen = 16;
         ssl->minlen = 32;
@@ -10025,7 +10025,7 @@ int ssl_derive_keys(ssl_context * ssl)
         break;
 #endif
 
-#if BIT_EST_CAMELLIA
+#if ME_EST_CAMELLIA
     case TLS_RSA_WITH_CAMELLIA_128_CBC_SHA:
         ssl->keylen = 16;
         ssl->minlen = 32;
@@ -10074,7 +10074,7 @@ int ssl_derive_keys(ssl_context * ssl)
     }
 
     switch (ssl->session->cipher) {
-#if BIT_EST_RC4
+#if ME_EST_RC4
     case TLS_RSA_WITH_RC4_128_MD5:
     case TLS_RSA_WITH_RC4_128_SHA:
         arc4_setup((arc4_context *) ssl->ctx_enc, key1, ssl->keylen);
@@ -10082,7 +10082,7 @@ int ssl_derive_keys(ssl_context * ssl)
         break;
 #endif
 
-#if BIT_EST_DES
+#if ME_EST_DES
     case TLS_RSA_WITH_3DES_EDE_CBC_SHA:
     case TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA:
         des3_set3key_enc((des3_context *) ssl->ctx_enc, key1);
@@ -10090,7 +10090,7 @@ int ssl_derive_keys(ssl_context * ssl)
         break;
 #endif
 
-#if BIT_EST_AES
+#if ME_EST_AES
     case TLS_RSA_WITH_AES_128_CBC_SHA:
         aes_setkey_enc((aes_context *) ssl->ctx_enc, key1, 128);
         aes_setkey_dec((aes_context *) ssl->ctx_dec, key2, 128);
@@ -10103,7 +10103,7 @@ int ssl_derive_keys(ssl_context * ssl)
         break;
 #endif
 
-#if BIT_EST_CAMELLIA
+#if ME_EST_CAMELLIA
     case TLS_RSA_WITH_CAMELLIA_128_CBC_SHA:
         camellia_setkey_enc((camellia_context *) ssl->ctx_enc, key1, 128);
         camellia_setkey_dec((camellia_context *) ssl->ctx_dec, key2, 128);
@@ -10267,7 +10267,7 @@ static int ssl_encrypt_buf(ssl_context * ssl)
         }
     }
     if (ssl->ivlen == 0) {
-#if BIT_EST_RC4
+#if ME_EST_RC4
         padlen = 0;
         SSL_DEBUG_MSG(3, ("before encrypt: msglen = %d, " "including %d bytes of padding", ssl->out_msglen, 0));
         SSL_DEBUG_BUF(4, "before encrypt: output payload", ssl->out_msg, ssl->out_msglen);
@@ -10290,14 +10290,14 @@ static int ssl_encrypt_buf(ssl_context * ssl)
 
         switch (ssl->ivlen) {
         case 8:
-#if BIT_EST_DES
+#if ME_EST_DES
             des3_crypt_cbc((des3_context *) ssl->ctx_enc, DES_ENCRYPT, ssl->out_msglen,
                 ssl->iv_enc, ssl->out_msg, ssl->out_msg);
             break;
 #endif
 
         case 16:
-#if BIT_EST_AES
+#if ME_EST_AES
             if (ssl->session->cipher == TLS_RSA_WITH_AES_128_CBC_SHA ||
                 ssl->session->cipher == TLS_RSA_WITH_AES_256_CBC_SHA ||
                 ssl->session->cipher == TLS_DHE_RSA_WITH_AES_256_CBC_SHA) {
@@ -10307,7 +10307,7 @@ static int ssl_encrypt_buf(ssl_context * ssl)
             }
 #endif
 
-#if BIT_EST_CAMELLIA
+#if ME_EST_CAMELLIA
             if (ssl->session->cipher == TLS_RSA_WITH_CAMELLIA_128_CBC_SHA ||
                 ssl->session->cipher == TLS_RSA_WITH_CAMELLIA_256_CBC_SHA ||
                 ssl->session->cipher == TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA) {
@@ -10337,7 +10337,7 @@ static int ssl_decrypt_buf(ssl_context * ssl)
         return EST_ERR_SSL_INVALID_MAC;
     }
     if (ssl->ivlen == 0) {
-#if BIT_EST_RC4
+#if ME_EST_RC4
         padlen = 0;
         arc4_crypt((arc4_context *) ssl->ctx_dec, ssl->in_msg, ssl->in_msglen);
 #else
@@ -10352,7 +10352,7 @@ static int ssl_decrypt_buf(ssl_context * ssl)
             return EST_ERR_SSL_INVALID_MAC;
         }
         switch (ssl->ivlen) {
-#if BIT_EST_DES
+#if ME_EST_DES
         case 8:
             des3_crypt_cbc((des3_context *) ssl->ctx_dec, DES_DECRYPT, ssl->in_msglen,
                 ssl->iv_dec, ssl->in_msg, ssl->in_msg);
@@ -10360,7 +10360,7 @@ static int ssl_decrypt_buf(ssl_context * ssl)
 #endif
 
         case 16:
-#if BIT_EST_AES
+#if ME_EST_AES
             if (ssl->session->cipher == TLS_RSA_WITH_AES_128_CBC_SHA ||
                 ssl->session->cipher == TLS_RSA_WITH_AES_256_CBC_SHA ||
                 ssl->session->cipher == TLS_DHE_RSA_WITH_AES_256_CBC_SHA) {
@@ -10370,7 +10370,7 @@ static int ssl_decrypt_buf(ssl_context * ssl)
             }
 #endif
 
-#if BIT_EST_CAMELLIA
+#if ME_EST_CAMELLIA
             if (ssl->session->cipher == TLS_RSA_WITH_CAMELLIA_128_CBC_SHA ||
                 ssl->session->cipher == TLS_RSA_WITH_CAMELLIA_256_CBC_SHA ||
                 ssl->session->cipher == TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA) {
@@ -11356,7 +11356,7 @@ int ssl_get_verify_result(ssl_context * ssl)
 char *ssl_get_cipher(ssl_context * ssl)
 {
     switch (ssl->session->cipher) {
-#if BIT_EST_RC4
+#if ME_EST_RC4
     case TLS_RSA_WITH_RC4_128_MD5:
         return "TLS_RSA_WITH_RC4_128_MD5";
 
@@ -11364,7 +11364,7 @@ char *ssl_get_cipher(ssl_context * ssl)
         return "TLS_RSA_WITH_RC4_128_SHA";
 #endif
 
-#if BIT_EST_DES
+#if ME_EST_DES
     case TLS_RSA_WITH_3DES_EDE_CBC_SHA:
         return "TLS_RSA_WITH_3DES_EDE_CBC_SHA";
 
@@ -11372,7 +11372,7 @@ char *ssl_get_cipher(ssl_context * ssl)
         return "TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA";
 #endif
 
-#if BIT_EST_AES
+#if ME_EST_AES
     case TLS_RSA_WITH_AES_128_CBC_SHA:
         return "TLS_RSA_WITH_AES_128_CBC_SHA";
 
@@ -11383,7 +11383,7 @@ char *ssl_get_cipher(ssl_context * ssl)
         return "TLS_DHE_RSA_WITH_AES_256_CBC_SHA";
 #endif
 
-#if BIT_EST_CAMELLIA
+#if ME_EST_CAMELLIA
     case TLS_RSA_WITH_CAMELLIA_128_CBC_SHA:
         return "TLS_RSA_WITH_CAMELLIA_128_CBC_SHA";
 
@@ -11407,7 +11407,7 @@ char *ssl_get_cipher(ssl_context * ssl)
  */
 PUBLIC int ssl_handshake(ssl_context * ssl)
 {
-#if BIT_EST_LOGGING
+#if ME_EST_LOGGING
     char    cbuf[4096];
 #endif
     int old_state = ssl->state;
@@ -11415,18 +11415,18 @@ PUBLIC int ssl_handshake(ssl_context * ssl)
 
     SSL_DEBUG_MSG(2, ("=> handshake"));
 
-#if BIT_EST_CLIENT
+#if ME_EST_CLIENT
     if (ssl->endpoint == SSL_IS_CLIENT)
         ret = ssl_handshake_client(ssl);
 #endif
 
-#if BIT_EST_SERVER
+#if ME_EST_SERVER
     if (ssl->endpoint == SSL_IS_SERVER)
         ret = ssl_handshake_server(ssl);
 #endif
     SSL_DEBUG_MSG(2, ("<= handshake"));
     
-#if BIT_EST_LOGGING
+#if ME_EST_LOGGING
     if (ssl->state == SSL_HANDSHAKE_OVER && old_state != SSL_HANDSHAKE_OVER) {
         SSL_DEBUG_MSG(1, ("using cipher: %s", ssl_get_cipher(ssl)));
         if (ssl->peer_cert) {
@@ -11579,7 +11579,7 @@ void ssl_free(ssl_context * ssl)
         memset(ssl->in_ctr, 0, SSL_BUFFER_LEN);
         free(ssl->in_ctr);
     }
-#if BIT_EST_DHM
+#if ME_EST_DHM
     dhm_free(&ssl->dhm_ctx);
 #endif
     if (ssl->hostname != NULL) {
@@ -11630,7 +11630,7 @@ void ssl_free(ssl_context * ssl)
 
 
 //  TODO - MSVC won't work with this.
-#if BIT_EST_TIMING
+#if ME_EST_TIMING
 
 #if WINDOWS
 struct _hr_time {
@@ -11787,7 +11787,7 @@ void m_sleep(int milliseconds)
 //  TODO - needed for VxWorks too
 PUBLIC int gettimeofday(struct timeval *tv, struct timezone *tz)
 {
-    #if BIT_WIN_LIKE
+    #if ME_WIN_LIKE
         FILETIME        fileTime;
         Time            now;
         static int      tzOnce;
@@ -11927,7 +11927,7 @@ void m_sleep(int milliseconds)
 
 
 
-#if BIT_EST_X509
+#if ME_EST_X509
 
 /*
     ASN.1 DER decoding routines
@@ -12271,7 +12271,7 @@ static int x509_get_pubkey(uchar **p, uchar *end, x509_buf * pk_alg_oid, mpi * N
     if (pk_alg_oid->len != 9 || memcmp(pk_alg_oid->p, OID_PKCS1_RSA, 9) != 0) {
         return EST_ERR_X509_CERT_UNKNOWN_PK_ALG;
     }
-    if ((ret = asn1_get_tag(p, end, &len, EST_ASN1_BIT_STRING)) != 0) {
+    if ((ret = asn1_get_tag(p, end, &len, EST_ASN1_ME_STRING)) != 0) {
         return EST_ERR_X509_CERT_INVALID_PUBKEY | ret;
     }
     if ((end - *p) < 1) {
@@ -12311,7 +12311,7 @@ static int x509_get_sig(uchar **p, uchar *end, x509_buf * sig)
 
     sig->tag = **p;
 
-    if ((ret = asn1_get_tag(p, end, &len, EST_ASN1_BIT_STRING)) != 0) {
+    if ((ret = asn1_get_tag(p, end, &len, EST_ASN1_ME_STRING)) != 0) {
         return EST_ERR_X509_CERT_INVALID_SIGNATURE | ret;
     }
     if (--len < 1 || *(*p)++ != 0) {
@@ -12791,7 +12791,7 @@ int x509parse_crtfile(x509_cert * chain, char *path)
 }
 
 
-#if BIT_EST_DES
+#if ME_EST_DES
 /*
     Read a 16-byte hex string and convert it to binary
  */
@@ -12864,7 +12864,7 @@ int x509parse_key(rsa_context * rsa, uchar *buf, int buflen, uchar *pwd, int pwd
 {
     int     ret, len, enc;
     uchar   *s1, *s2, *p, *end;
-#if BIT_EST_DES
+#if ME_EST_DES
     uchar   des3_iv[8];
 #endif
 
@@ -12888,7 +12888,7 @@ int x509parse_key(rsa_context * rsa, uchar *buf, int buflen, uchar *pwd, int pwd
         enc = 0;
 
         if (memcmp(s1, "Proc-Type: 4,ENCRYPTED", 22) == 0) {
-#if BIT_EST_DES
+#if ME_EST_DES
             enc++;
             s1 += 22;
             if (*s1 == '\r') {
@@ -12935,7 +12935,7 @@ int x509parse_key(rsa_context * rsa, uchar *buf, int buflen, uchar *pwd, int pwd
         buflen = len;
 
         if (enc != 0) {
-#if BIT_EST_DES
+#if ME_EST_DES
             if (pwd == NULL) {
                 free(buf);
                 return EST_ERR_X509_KEY_PASSWORD_REQUIRED;
@@ -13231,12 +13231,12 @@ int x509parse_expired(x509_cert * crt)
 static void x509_hash(uchar *in, int len, int alg, uchar *out)
 {
     switch (alg) {
-#if BIT_EST_MD2
+#if ME_EST_MD2
     case RSA_MD2:
         md2(in, len, out);
         break;
 #endif
-#if BIT_EST_MD4
+#if ME_EST_MD4
     case RSA_MD4:
         md4(in, len, out);
         break;
@@ -13427,7 +13427,7 @@ void x509_free(x509_cert * crt)
  */
 
 
-#if BIT_EST_XTEA
+#if ME_EST_XTEA
 
 /*
    32-bit integer manipulation macros (big endian)
@@ -13523,4 +13523,4 @@ void xtea_crypt_ecb(xtea_context *ctx, int mode, uchar input[8], uchar output[8]
 
     @end
  */
-#endif /* BIT_PACK_EST */
+#endif /* ME_EXT_EST */

@@ -1,0 +1,62 @@
+/*
+    windows.me -- Windows Settings
+ */
+
+Me.load({
+    ext: {
+        exe:   'exe',
+        lib:   'lib',
+        o:     'obj',
+        res:   'res',
+        shlib: 'lib',
+        shobj: 'dll',
+    },
+
+    /* 
+        Prefixes are used when doing me install 
+     */
+    'windows-prefixes': {
+        /* programFiles32 may get (x86) at run-time if on a 64-me system */
+        root:               'C:/',
+
+        programFiles:       '${prefixes.root}Program Files',
+        programFiles32:     '${prefixes.root}Program Files',
+        base:               '${prefixes.programFiles}',
+        app:                '${prefixes.base}/${settings.title}',
+        vapp:               '${prefixes.app}',
+        data:               '${prefixes.app}',
+        state:              '${prefixes.app}',
+
+        bin:                '${prefixes.app}/bin',
+        inc:                '${prefixes.app}/inc',
+        lib:                '${prefixes.app}/lib',
+        man:                '${prefixes.app}/man',
+
+        etc:                '${prefixes.app}',
+        web:                '${prefixes.data}/web',
+
+        log:                '${prefixes.state}/log',
+        spool:              '${prefixes.state}/tmp',
+        cache:              '${prefixes.state}/cache',
+
+        src:                '${prefixes.data}/src',
+    },
+
+    settings: {
+        extensions: {
+            require: [ 'winsdk', 'compiler', 'lib', 'link', 'rc' ],
+        },
+    },
+
+    rules: {
+        'c->c':     '"${extensions.compiler.path}" -E -Fd${PDB} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
+        'c->obj':   '"${extensions.compiler.path}" -c -Fo${OUTPUT} -Fd${PDB} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
+        'cpp->obj': '"${extensions.compiler.path}" -c -Fo${OUTPUT} -Fd${PDB} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
+        'shlib':    '"${extensions.link.path}" -dll -out:${OUTPUT} -entry:${ENTRY} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS}',
+        'lib':      '"${extensions.lib.path}" -nologo -out:${OUTPUT} ${INPUT}',
+        'exe':      '"${extensions.link.path}" -out:${OUTPUT} -entry:${ENTRY} -subsystem:${SUBSYSTEM} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS}',
+        'gui':      '"${extensions.link.path}" -out:${OUTPUT} -entry:${ENTRY} -subsystem:${SUBSYSTEM} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS}',
+        'sym':      '"${extensions.dumpbin.path}" /symbols ${INPUT}',
+        'res':      '"${extensions.rc.path}" -nologo -Fo ${OUTPUT} ${INPUT}',
+    },
+})

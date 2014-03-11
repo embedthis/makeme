@@ -1,5 +1,0 @@
-/*
-    uglifyjs.bit - Uglifyjs package for ngmin
- */
-
-program('uglifyjs', 'Uglifyjs Javascript Minimizer')

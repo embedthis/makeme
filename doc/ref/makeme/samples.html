@@ -1,0 +1,180 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis MakeMe 0.8.0 Documentation</title>
+    <meta name="keywords" content="MakeMe, Bit, GYP, autoconf"/>
+	<meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf."/>
+	<meta name="robots" content="index,follow" />
+	<link href="../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../iehacks.css" rel="stylesheet" type="text/css" />
+    </![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo"  href="http://embedthis.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form">Loading</div>
+                <div class="version">Embedthis MakeMe 0.8.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt;<a href="index.html">User Guide</a>&gt; <b>MakeMe</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            
+                <h1>Quick Nav </h1>
+                <ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#example">Example</a></li>
+                </ul>
+<!-- BeginDsi "dsi/refSeeAlso.html" -->
+        <h1>See Also</h1>
+        <ul>
+            <li><a href="../../ref/makeme/syntax.html">MakeMe File Syntax</a></li>
+            <li><a href="../../ref/makeme/dom.html">MakeMe DOM</a></li>
+            <li><a href="../../ref/makeme/processing.html">MakeMe File Processing</a></li>
+            <li><a href="../../ref/makeme/commandline.html">MakeMe Command Line</a></li>
+            <li><a href="../../ref/makeme/events.html">MakeMe Events</a></li>
+            <li><a href="../../ref/makeme/targets.html">MakeMe Targets</a></li>
+
+            <li><a href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Ejscript Language</a></li>
+            <li><a href="http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a></li>
+        </ul>
+<!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+        <a id="files"></a>
+        
+        <a id="samples"></a>
+        <h2>MakeMe Samples</h2>
+        <p>Here are some example MakeMe files in the Appweb and Ejscript products:</p>
+        <ul>
+            <li><a
+                href="https://github.com/embedthis/appweb-4/blob/master/main.me">Appweb main.me &mdash; product level
+                MakeMe file</a></li>
+            <li><a href="https://github.com/embedthis/appweb-4/blob/master/src/server/server.me">Appweb
+                src/server/server.me &mdash; MakeMe file to build appweb binary</a></li>
+            <li><a href="https://github.com/embedthis/appweb-4/blob/master/src/libappweb.me">Appweb
+                src/libappweb.me &mdash; MakeMe file to build appweb library</a></li>
+            <li><a href="https://github.com/embedthis/appweb-4/blob/master/src/modules/modules.me">Appweb
+                src/modules/modules.me &mdash; MakeMe file to build appweb modules</a></li>
+            <li><a href="https://github.com/embedthis/appweb-4/blob/master/test/test.me">Appweb
+                test/test.me &mdash; MakeMe file to unit test appweb</a></li>
+            <li><a href="https://github.com/embedthis/ejs-2/blob/master/src/core/core.me">Ejscript
+                src/core/core.me &mdash; MakeMe file to build the ejscript module</a></li>
+            <li><a href="https://github.com/embedthis/ejs-2/blob/master/src/cmd/cmd.me">Ejscript
+                src/cmd/cmd.me &mdash; MakeMe file to build the ejscript executables</a></li>
+        </ul>
+        <a id="example"></a>
+        <h2>Example</h2>
+        <p>Here is a sample main.me file:</p>
+<pre>
+/*
+    main.me -- Main MakeMe File
+ */
+MakeMe.load({
+    blend: [
+        /* Blend these MakeMe files. Loaded before this file is processed */
+        'company.me',
+    ],
+    customize: [
+        /* Optionally load this if present to overwrite any property */
+        'custom.me',
+    ],
+    '+modules': [
+        /* Can put scripts or compiled mod file shere */
+        'makeme/company.es',
+    ],
+    /*
+        Core settings
+     */
+    settings: {
+        product: 'rocket',
+        title: 'Acme Rocket',
+        company: 'Acme',
+        version: '1.0.0',
+        /* Required MakeMe version */
+        me: '0.8.0'
+        /* Do dynamic linking by default */
+        static: false,
+    },
+    targets: {
+        librocket: {
+            /* Target to build a library */
+            type: 'lib',
+            sources: [
+                /* Use all C source in rocket */
+                'rocket/*.c'
+                /* Use all C source anywhere under space */
+                'space/**.c'
+            ],
+            /* Exclude any files with gemini or mercury in the name */
+            exclude: /mercury|gemini/,
+            /* Export these headers to the 'platform/inc' directory */
+            headers:     [ 'rocket/rocket.h' ],
+            /* Use these defines */
+            '+defines':  [ 'ION_DRIVE', ],
+            /* Search this directory for includes */
+            '+includes': [ 'rocket', ],
+            /* Add these compiler switches */
+            '+compiler': [ '-Wall', ],
+        },
+        saturn: {
+            /* Target to build an executable */
+            type: 'exe',
+            sources: [ 'saturn.c' ],
+            depends: [ 'librocket'],
+        },
+        'saturn-gui': {
+            /* Target to build an executable only on windows */
+            enable: me.platform.os == 'windows',
+            sources: [ 'saturnGui.c' ],
+            depends: [ 'librocket'],
+        },
+    },
+})
+</pre>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2014. 
+            All rights reserved. Embedthis MakeMe, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          'partner-pub-9935546676162772:ysvxxv4n9rx');
+
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-179169-5']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+</body>
+</html>

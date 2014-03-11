@@ -1,0 +1,11 @@
+/*
+    sqlite.me - SQLite probe
+ */
+
+Me.extension({
+    sqlite: {
+        description: 'SQLite Database',
+        path: me.dir.paks.join('sqlite'),
+        depends: [ 'libsql' ],
+    },
+})

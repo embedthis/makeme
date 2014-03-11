@@ -1,5 +1,0 @@
-/*
-    ngmin.bit - Ngmin package for Bit
- */
-
-program('ngmin', 'Angular Minimizer')

@@ -1,0 +1,13 @@
+/*
+    est.me - Embedded Security Transport (SSL) probe
+ */
+
+Me.extension({
+    est: {
+        description: 'Embedded Security Transport Library'
+        path: probe(me.dir.paks.join('est/estLib.c')),
+        depends:  [ 'libest' ],
+        extensions: [ 'ssl' ],
+        conflicts: [ 'matrixssl', 'openssl', 'nanossl' ],
+    },
+})

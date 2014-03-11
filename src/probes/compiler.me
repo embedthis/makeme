@@ -1,0 +1,446 @@
+/*
+    compiler.me - Compile extension
+
+    This is fairly complex due to the differences between compilers and operating systems.
+ */
+Me.extension({
+    compiler: {
+        description: 'C/C++ Compiler',
+        path: function (extension) {
+            if (me.platform.like == 'windows') {
+                path = findWindowsCompiler(extension)
+
+            } else if (me.platform.os == 'vxworks') {
+                path = findVxCompiler(extension)
+
+            } else {
+                path = findPosixCompiler(extension)
+            }
+            return path
+        },
+        config: function (extension) {
+            if (!me.options.configure) {
+                let settings = getDefaultSettings()
+                Me.load({settings: settings})
+            } else {
+                testCompilerCapabilities()
+            }
+            setCompilerOptions(extension, me.settings)
+        },
+        generate: function (extension) {
+            if (me.platform.like == 'windows') {
+                extension.path = 'cl'
+            } else if (me.platform.os == 'macosx') {
+                extension.path = 'clang'
+            } else if (me.platform.os == 'vxworks') {
+                extension.path = 'cc$(subst x86,pentium,$(ARCH))'
+            } else {
+                extension.path = 'gcc'
+            }
+            let settings = getDefaultSettings()
+            Me.load({ settings: settings })
+            setCompilerOptions(extension, settings)
+        },
+        discover: [ 'vxworks', 'winsdk' ],
+    },
+})
+
+
+function findWindowsCompiler(extension) {
+    let search
+    let vsdir: Path
+    let path: Path? = me.extensions.compiler.withpath
+
+    /*
+        Test here because may come here when cross generating
+     */
+    if (Config.OS == 'windows') {
+        /*
+            The VS bin+lib directories contain 32 bit compilers and libraries
+            The native VS 64 bit versions are under bin/amd64 and lib/x64
+            The cross compile for 64 bit on 32 bit systems is under bin/x86_64 and lib/x64
+            The cross compile for 32 bit on 64 bit systems can use the default 32 bit bin + lib
+            See: http://msdn.microsoft.com/en-us/library/x4d2c09s(v=vs.80).aspx
+            Also: http://blogs.msdn.com/b/david.wang/archive/2006/03/26/howto-detect-process-bitness.aspx
+         */
+        search = me.dir.programFiles32.files('Microsoft Visual Studio*/VC/Bin').sort().reverse()
+        if (!search || search.length == 0) {
+            throw 'Cannot find Visual Studio installation'
+        }
+        vsdir = Path(search[0]).parent.parent
+        if (me.platform.arch == 'x64') {
+            if (Config.CPU == 'x64') {
+                /* Running on a 64 bit */
+                search = search.map(function(e) Path(e).join('amd64'))
+            } else {
+                /* Cross compile for 64 bits on 32 bits */
+                search = search.map(function(e) Path(e).join('x86_amd64'))
+            }
+        }
+    }
+    let vsbin, vslib, version
+    if (Config.OS != 'windows') {
+        path = 'cl.exe'
+        vsdir = Path('$(VS)')
+        vsbin = vsdir.join('VC/Bin'),
+        vslib = vsdir.join('VC/lib')
+        version = '0'
+    } else {
+        path = probe(path || 'cl.exe', {fullpath: true, search: search})
+        vsbin = path.dirname
+        if (me.platform.arch == 'x64') {
+            vslib = vsbin.join('../../lib/amd64').normalize
+        } else {
+            vslib = vsbin.join('../lib').normalize
+        }
+        version = vsdir.name.match(/\d*\.\d/)[0]
+        extension.definitions = [ 'ME_VISUAL_STUDIO_VERSION="' + version + '"' ]
+    }
+    extension.version = version
+    extension.crt = version.replace('.', '')
+    extension.dir = vsdir
+    extension.search = search
+
+    me.env.PATH += [
+        vsbin,
+        vsdir.join('Common7/IDE'),
+        vsdir.join('Common7/Tools'),
+        vsdir.join('SDK/v3.5/bin'),
+        vsdir.join('VC/VCPackages'),
+    ]
+    me.env.INCLUDE += [
+        vsdir.join('VC/INCLUDE')
+    ]
+    me.env.LIB += [ vslib ]
+    return path
+}
+
+
+function findVxCompiler(extension) {
+    let path: Path? = me.extensions.compiler.withpath
+    let platform = me.platform
+    if (!path) {
+        if (platform.arch.match(/^i386$|^i486$$/)) {
+            path = 'cc386'
+        } else if (platform.arch.match(/^i[56]86$|^pentium$|^x86$/)) {
+            path = 'ccpentium'
+        } else if (platform.arch.match(/^ppc/)) {
+            path = 'ccppc'
+        } else if (platform.arch.match(/^xscale|^arm/)) {
+            path = 'ccarm'
+        } else if (platform.arch.match(/^68/)) {
+            path = 'cc68k'
+        } else if (platform.arch.match(/^sh/)) {
+            path = 'ccsh'
+        } else if (platform.arch.match(/^mips$/)) {
+            path = 'ccmips'
+        } else {
+            throw 'Unsupported CPU architecture: ' + platform.arch
+        }
+    }
+    path = probe(path, {fullpath: true, search: me.extensions.vxworks.search})
+    return path
+}
+
+
+function findPosixCompiler(extension) {
+    let path: Path? = me.extensions.compiler.withpath || ((me.platform.os == 'macosx') ? 'clang' : 'gcc')
+    return probe(path, {fullpath: true})
+}
+
+
+/*
+    Test compiler capabilities and determine a minimal set of compiler switches to store in me.settings
+ */
+function testCompilerCapabilities() {
+    let platform = me.platform
+    let settings = getDefaultSettings()
+    let cc = me.extensions.compiler.path
+
+    if (!me.options.gen && cc && (platform.like == 'unix' || (platform.os == 'vxworks' && Config.OS == 'linux'))) {
+        settings.hasAtomic = compile(cc, '',
+            'int main() { int a, b; a = 0 ; b = 1; __atomic_add_fetch(&a, b, __ATOMIC_RELAXED); return 0; }')
+        settings.hasAtomic64 = compile(cc, '',
+            'int main() { long long int a, b; a = 0 ; b = 1; __atomic_add_fetch(&a, b, __ATOMIC_RELAXED); return 0; }')
+        settings.hasDoubleBraces = compile(cc, '', 'typedef struct {int x, y;} Point;\nPoint p = {{0}};')
+        settings.hasDynLoad = compile(cc, '',
+            '#include <stdio.h>\n#include <dlfcn.h>\nint main() { dlopen(\"test.so\", 0); return 0; }')
+        settings.hasLibEdit = compile(cc, '',
+            '#include <histedit.h>\nint main() { history_init(); return 0; }')
+        settings.hasLibRt = compile(cc, '',
+            '#define _GNU_SOURCE\n#include <time.h>\nint main() { struct timespec tv; clock_gettime(CLOCK_REALTIME, &tv); return 0; }')
+        settings.hasMmu = compile(cc, '',
+            '#include <stdio.h>\n#include <unistd.h>\nint main() { fork(); return 0; }')
+        //  UNUSED MOB - mtune not used?
+        settings.hasMtune = compile(cc, '-mtune=generic', 'int main() { return 0;}')
+        settings.hasPam = compile(cc, '',
+            '#include <security/pam_appl.h>\nint main() { void *x = pam_start; return x != 0; }')
+        settings.hasStackProtector = compile(cc, '-fno-stack-protector', 'int main() { return 0;}')
+        settings.hasSync = compile(cc, '',
+            'int main() { int a, b; a = 0 ; b = 1; __sync_add_and_fetch(&a, b); return 0; }')
+        settings.hasSync64 = compile(cc, '',
+            'int main() { long long int a, b; a = 0 ; b = 1; __sync_add_and_fetch(&a, b); return 0; }')
+        settings.hasSyncCas = compile(cc, '',
+            '#include <stdio.h>\nint main() { void *ptr = 0; __sync_bool_compare_and_swap(&ptr, ptr, ptr); return 0; }')
+        settings.hasUnnamedUnions = compile(cc, '', 
+            '#include <stdio.h>\nint main() { struct test { union { int x; int y; };}; return 0; }')
+        settings.warnUnused = compile(cc, '-Wno-unused-result',
+            '#include <stdio.h>\n#include <stdlib.h>\nint main() { realloc(0, 1024); return 0; }')
+        settings.warn64to32 = compile(cc, '-Wshorten-64-to-32', 'int main() { return 0;}')
+    }
+    Me.load({ settings: settings })
+}
+
+function setCompilerOptions(extension, settings) {
+    let platform = me.platform
+    let arch = platform.arch
+
+    extension.compiler =  [ ]
+    extension.defines =   [ ]
+    extension.includes =  [ me.dir.inc ]
+    extension.linker =    [ ]
+    extension.libpaths =  [ me.dir.bin ]
+    extension.libraries = [ ]
+
+    if (settings.warnUnused) {
+        extension.compiler.push('-Wno-unused-result')
+    }
+    if (settings.warn64to32) {
+        extension.compiler.push('-Wshorten-64-to-32')
+    }
+    if (settings.hasLibRt) {
+        extension.libraries.push('rt')
+    }
+    if (settings.debug) {
+        extension.defines.push('ME_DEBUG')
+    }
+    if (platform.like == 'unix') {
+        /* Always include dl so that dlsym can be used even in static programs */
+        if (settings.hasDynLoad) {
+            extension.libraries.push('dl')
+        }
+        extension.compiler.push('-Wall')
+        extension.libraries.push('pthread', 'm')
+        if (settings.debug) {
+            extension.compiler.push('-g')
+            extension.linker.push('-g')
+        } else if (settings.tune == 'size') {
+            extension.compiler.push('-Os')
+        } else {
+            extension.compiler.push('-O2')
+        }
+        if (platform.os != 'macosx') {
+            /* GCC not mac */
+            if (!settings.static) {
+                extension.compiler.push('-fPIC')
+                extension.defines.push('_REENTRANT', 'PIC')
+            }
+            if (arch.startsWith('arm')) {
+                extension.compiler.push('-mno-sched-prolog')
+            } else if (arch.startsWith('ppc')) {
+                extension.defines.push('_GNU_TOOL')
+            }
+        }
+    }
+
+    if (platform.os == 'linux') {
+        if (!settings.static) {
+            extension.linker.push('-rdynamic', '-Wl,--enable-new-dtags', '-Wl,-rpath,$ORIGIN/')
+        }
+
+    } else if (platform.os == 'macosx') {
+        extension.compiler.push('-Wunreachable-code')
+        extension.linker.push('-Wl,-rpath,@executable_path/', '-Wl,-rpath,@loader_path/')
+
+    } else if (platform.os == 'solaris') {
+        extension.libraries.push('lxnet', 'rt', 'socket')
+
+    } else if (platform.os == 'vxworks') {
+        let cpu = platform.cpu
+        if (!cpu) {
+            if (arch == 'i386') {
+                cpu = 'I80386'
+            } else if (arch == 'i486') {
+                cpu = 'I80486'
+            } else if (arch.match(/^i.86$|^x86$/)) {
+                cpu = 'PENTIUM'
+            } else {
+                cpu = arch.toUpper()
+                if (arch == 'mips') {
+                    cpu = 'MIPS32'
+                } else if (arch == 'arm') {
+                    cpu = 'ARM7TDMI'
+                }
+            }
+        }
+        extension.defines.push('VXWORKS', 'RW_MULTI_THREAD', '_GNU_TOOL', 'CPU=' + cpu.toUpper())
+        extension.compiler.push('-fno-builtin', '-fno-defer-pop', '-fvolatile')
+        if (arch.match(/mips/)) {
+            /* Don't use mips global pointer */
+            extension.compiler.push('-G 0')
+        }
+        extension.includes += me.extensions.vxworks.includes
+        extension.libraries.push('gcc')
+        extension.linker.push('-Wl,-r')
+
+    } else if (platform.os == 'windows') {
+        extension.compiler.push('-nologo', '-GR-', '-W3')
+        extension.defines.push('_REENTRANT', '_MT')
+        extension.libraries.push('ws2_32.lib', 'advapi32.lib', 'user32.lib', 'kernel32.lib', 'oldnames.lib', 'msvcrt.lib', 'shell32.lib')
+        extension.linker.push('-nologo', '-nodefaultlib', '-incremental:no')
+        if (settings.debug) {
+            extension.compiler.push('-Zi', '-Od', '-MDd')
+            extension.linker.push('-debug')
+        } else {
+            extension.compiler.push('-O2', '-MD')
+        }
+        extension.subsystem = {
+            exe: 'console',
+            gui: 'windows',
+        }
+        extension.entry = {
+            exe: 'mainCRTStartup',
+            gui: 'WinMainCRTStartup',
+        }
+        if (platform.arch == 'x64') {
+            extension.linker.push('-machine:x64')
+            extension.entry.lib = '_DllMainCRTStartup'
+        } else {
+            extension.linker.push('-machine:x86')
+            extension.entry.lib = '_DllMainCRTStartup@12'
+        }
+    }
+}
+
+
+/*
+    Test compile to determine supported compiler switches. This is only used on gcc.
+ */
+function compile(cc: Path, command: String, contents: String = null): Boolean {
+    let file, cmd
+    let home = App.dir
+    try {
+        file = System.tmpdir.join('me-' + App.pid + '.c')
+        App.chdir(file.dirname)
+        if (contents) {
+            if (me.platform.os == 'vxworks') {
+                contents = '#define _VSB_CONFIG_FILE "vsbConfig.h\n' + contents
+            }
+            file.write(contents + '\n')
+            command += ' -c ' + file
+        }
+        command = '' + cc + ' -Werror -Wall ' + command
+        strace('Compile', command)
+        strace('Program', contents)
+        cmd = new Cmd
+        cmd.env = me.env
+        cmd.start(command)
+        if (cmd.status != 0) {
+            strace('Result', '  ' + cmd.error)
+        }
+    } finally {
+        if (file) {
+            file.remove()
+            file.basename.replaceExt('o').remove()
+        }
+    }
+    return cmd.status == 0
+}
+
+
+function getDefaultSettings() {
+    let platform = me.platform
+    let settings
+    if (platform.like == 'windows') {
+        settings = {
+            hasAtomic: false,
+            hasAtomic64: false,
+            hasDynLoad: true,
+            hasLibEdit: false,
+            hasLibRt: false,
+            hasMmu: true,
+            hasStackProtector: false,
+            hasSync: false,
+            hasSync64: false,
+            hasSyncCas: false,
+            hasUnnamedUnions: true,
+        }
+    } else if (platform.os == 'linux') {
+        settings = {
+            hasAtomic: false,
+            hasAtomic64: false,
+            hasDoubleBraces: false,
+            hasDynLoad: true,
+            hasLibEdit: false,
+            hasLibRt: true,
+            hasMmu: true,
+            hasMtune: true,
+            hasPam: false,
+            hasStackProtector: true,
+            hasSync: true,
+            hasSync64: true,
+            hasSyncCas: false,
+            hasUnnamedUnions: true,
+            warn64to32: false,
+            warnUnused: true,
+        }
+    } else if (platform.os == 'macosx') {
+        settings = {
+            hasAtomic: true,
+            hasAtomic64: true,
+            hasDoubleBraces: true,
+            hasLibEdit: true,
+            hasLibRt: false,
+            hasDynLoad: true,
+            hasMmu: true,
+            hasMtune: true,
+            hasPam: true,
+            hasStackProtector: true,
+            hasSync: true,
+            hasSync64: true,
+            hasSyncCas: true,
+            hasUnnamedUnions: true,
+            warn64to32: true,
+            warnUnused: true,
+        }
+    } else if (platform.os == 'vxworks') {
+        settings = {
+            hasAtomic: false,
+            hasAtomic64: false,
+            hasDoubleBraces: false,
+            hasLibEdit: false,
+            hasLibRt: false,
+            hasDynLoad: true,
+            hasMmu: true,
+            hasMtune: false,
+            hasPam: false,
+            hasStackProtector: true,
+            hasSync: false,
+            hasSync64: false,
+            hasSyncCas: false,
+            hasUnnamedUnions: true,
+            warn64to32: false,
+            warnUnused: false,
+        }
+    } else {
+        settings = {
+            hasAtomic: true,
+            hasAtomic64: true,
+            hasDoubleBraces: true,
+            hasLibEdit: false,
+            hasLibRt: false,
+            hasDynLoad: true,
+            hasMmu: true,
+            hasMtune: true,
+            hasPam: false,
+            hasStackProtector: true,
+            hasSync: false,
+            hasSync64: false,
+            hasSyncCas: false,
+            hasUnnamedUnions: true,
+            warn64to32: false,
+            warnUnused: false,
+        }
+    }
+    return settings
+}

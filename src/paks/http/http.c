@@ -126,7 +126,7 @@ MAIN(httpMain, int argc, char **argv, char **envp)
     start = mprGetTime();
     app->http = httpCreate(HTTP_CLIENT_SIDE);
 
-#if BIT_STATIC && BIT_PACK_SSL
+#if ME_STATIC && ME_EXT_SSL
     extern MprModuleEntry mprSslInit;
     mprNop(mprSslInit);
 #endif
@@ -499,7 +499,7 @@ static int parseArgs(int argc, char **argv)
             mprEprintf("%s %s\n"
                 "Copyright (C) Embedthis Software 2003-2014\n"
                 "Copyright (C) Michael O'Brien 2003-2014\n",
-               BIT_TITLE, BIT_VERSION);
+               ME_TITLE, ME_VERSION);
             exit(0);
 
         } else if (smatch(argp, "--workerTheads") || smatch(argp, "-w")) {
@@ -555,7 +555,7 @@ static int parseArgs(int argc, char **argv)
             app->method = "GET";
         }
     }
-#if BIT_PACK_SSL
+#if ME_EXT_SSL
 {
     HttpUri *uri = httpCreateUri(app->target, 0);
     if (uri->secure || ssl) {
@@ -961,7 +961,7 @@ static int reportResponse(HttpConn *conn, cchar *url)
 
 static void readBody(HttpConn *conn, MprFile *outFile)
 {
-    char        buf[BIT_MAX_BUFFER];
+    char        buf[ME_MAX_BUFFER];
     cchar       *result;
     ssize       bytes;
 
@@ -1057,7 +1057,7 @@ static int setContentLength(HttpConn *conn, MprList *files)
 static ssize writeBody(HttpConn *conn, MprList *files)
 {
     MprFile     *file;
-    char        buf[BIT_MAX_BUFFER], *path, *pair;
+    char        buf[ME_MAX_BUFFER], *path, *pair;
     ssize       bytes, len, count, nbytes, sofar;
     int         next;
 
@@ -1255,7 +1255,7 @@ static void trace(HttpConn *conn, cchar *url, int fetchCount, cchar *method, int
 }
 
 
-#if (BIT_WIN_LIKE && !WINCE) || VXWORKS
+#if (ME_WIN_LIKE && !WINCE) || VXWORKS
 static char *getpass(char *prompt)
 {
     static char password[80];

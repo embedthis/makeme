@@ -1,5 +1,0 @@
-/*
-    zip.bit - Zip package for Bit
- */
-
-program('zip', 'Zip Compression Tool')

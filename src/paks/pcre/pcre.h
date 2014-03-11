@@ -39,8 +39,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #ifndef _PCRE_H
 #define _PCRE_H
 
-#ifndef BIT_PACK_PCRE
-    #define BIT_PACK_PCRE 1
+#ifndef ME_EXT_PCRE
+    #define ME_EXT_PCRE 1
 #endif
 
 /* The current PCRE version information. */
@@ -241,8 +241,8 @@ typedef struct real_pcre pcre;
 replaced with a custom type. For conventional use, the public interface is a
 const char *. */
 
-#ifdef BIT_CHAR
-#define PCRE_SPTR const BIT_CHAR *
+#ifdef ME_CHAR
+#define PCRE_SPTR const ME_CHAR *
 #else
 #ifndef PCRE_SPTR
 #define PCRE_SPTR const char *

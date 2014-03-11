@@ -1,0 +1,17 @@
+/*
+    lib.me - Library probe
+ */
+
+Me.extension({
+    lib: { 
+        description: 'Library Archive Tool',
+        path: function (extension) {
+            let name = extension.withpath || ((me.platform.like == 'windows') ? 'lib.exe' : 'ar')
+            return probe(name, { fullpath: true, search: me.extensions.compiler.search, default: name })
+        },
+        generate: function (extension) {
+            extension.path = (me.platform.like == 'windows') ? 'lib.exe' : 'ar'
+        }
+        extensions: ['compiler'],
+    },
+})

@@ -10,7 +10,7 @@
 #define EJS_DEFINE_OPTABLE 1
 #include "ejs.h"
 
-#if BIT_PACK_EJSCRIPT
+#if ME_EXT_EJS
 
 /************************************************************************/
 /*
@@ -23,7 +23,7 @@
  */
 #include "mpr.h"
 
-#if BIT_ROM
+#if ME_ROM
 static uchar _file_1[] = {
     112,114,105,110,116, 40, 39, 72,101,108,108,111, 32, 87,111,114,
     108,100, 39, 41, 10,
@@ -33,7 +33,7 @@ MprRomInode romFiles[] = {
     { "hello.es", _file_1, 21, 1 },
     { 0, 0, 0, 0 },
 };
-#endif /* BIT_ROM */
+#endif /* ME_ROM */
 
 /*
     @copy   default
@@ -7803,13 +7803,13 @@ static int mapToken(EcCompiler *cp, int tokenId)
     cond = cp->state->conditional;
 
     switch (tokenId) {
-    case T_BIT_AND:
+    case T_ME_AND:
         return EJS_OP_AND;
 
-    case T_BIT_OR:
+    case T_ME_OR:
         return EJS_OP_OR;
 
-    case T_BIT_XOR:
+    case T_ME_XOR:
         return EJS_OP_XOR;
 
     case T_DIV:
@@ -8224,7 +8224,7 @@ static void addModule(EcCompiler *cp, EjsModule *mp)
 
 
 //  TODO -- cleanup
-#if BIT_MPR_TRACING
+#if ME_MPR_TRACING
 static int level = 8;
 #endif
 
@@ -8620,7 +8620,7 @@ static int compileInner(EcCompiler *cp, int argc, char **argv)
      */
     for (i = 0; i < argc && !cp->fatalError; i++) {
         ext = mprGetPathExt(argv[i]);
-        if (scaselesscmp(ext, "mod") == 0 || scaselesscmp(ext, BIT_SHOBJ) == 0) {
+        if (scaselesscmp(ext, "mod") == 0 || scaselesscmp(ext, ME_SHOBJ) == 0) {
             nextModule = mprGetListLength(ejs->modules);
             lflags = cp->strict ? EJS_LOADER_STRICT : 0;
             if ((rc = ejsLoadModule(cp->ejs, ejsCreateStringFromAsc(ejs, argv[i]), -1, -1, lflags)) < 0) {
@@ -9129,7 +9129,7 @@ PUBLIC void ecInitLexer(EcCompiler *cp)
         return;
     }
     for (rp = keywords; rp->name; rp++) {
-#if BIT_CHAR_LEN > 1
+#if ME_CHAR_LEN > 1
         rp->name = amtow(cp->keywords, rp->name, NULL);
 #endif
         mprAddKey(cp->keywords, rp->name, rp);
@@ -9406,10 +9406,10 @@ PUBLIC int ecGetToken(EcCompiler *cp)
 
             } else if (c == '=') {
                 addCharToToken(tp, '&');
-                return makeSubToken(tp, c, T_ASSIGN, T_BIT_AND_ASSIGN, G_OPERATOR | G_COMPOUND_ASSIGN);
+                return makeSubToken(tp, c, T_ASSIGN, T_ME_AND_ASSIGN, G_OPERATOR | G_COMPOUND_ASSIGN);
             }
             putBackChar(stream, c);
-            return makeToken(tp, '&', T_BIT_AND, G_OPERATOR);
+            return makeToken(tp, '&', T_ME_AND, G_OPERATOR);
 
         case '<':
             c = getNextChar(stream);
@@ -9489,10 +9489,10 @@ PUBLIC int ecGetToken(EcCompiler *cp)
 
             } else if (c == '=') {
                 addCharToToken(tp, '^');
-                return makeSubToken(tp, '=', T_ASSIGN, T_BIT_XOR_ASSIGN, G_OPERATOR | G_COMPOUND_ASSIGN);
+                return makeSubToken(tp, '=', T_ASSIGN, T_ME_XOR_ASSIGN, G_OPERATOR | G_COMPOUND_ASSIGN);
             }
             putBackChar(stream, c);
-            return makeToken(tp, '^', T_BIT_XOR, G_OPERATOR);
+            return makeToken(tp, '^', T_ME_XOR, G_OPERATOR);
 
         case '|':
             c = getNextChar(stream);
@@ -9508,11 +9508,11 @@ PUBLIC int ecGetToken(EcCompiler *cp)
 
             } else if (c == '=') {
                 addCharToToken(tp, '|');
-                return makeSubToken(tp, '=', T_ASSIGN, T_BIT_OR_ASSIGN, G_OPERATOR | G_COMPOUND_ASSIGN);
+                return makeSubToken(tp, '=', T_ASSIGN, T_ME_OR_ASSIGN, G_OPERATOR | G_COMPOUND_ASSIGN);
 
             }
             putBackChar(stream, c);
-            return makeToken(tp, '|', T_BIT_OR, G_OPERATOR);
+            return makeToken(tp, '|', T_ME_OR, G_OPERATOR);
         }
     }
 }
@@ -10051,7 +10051,7 @@ PUBLIC void ecSetStreamBuf(EcStream *sp, cchar *contents, ssize len)
     wchar       *buf;
 
     if (contents) {
-#if BIT_CHAR_LEN > 1
+#if ME_CHAR_LEN > 1
         buf = amtow(cp, contents, &len);
 #else
         buf = (wchar*) contents;
@@ -11264,9 +11264,9 @@ static int swapShortField(EcCompiler *cp, int word)
 
 static int swapCodePoint(EcCompiler *cp, int word)
 {
-#if BIT_CHAR_LEN == 4
+#if ME_CHAR_LEN == 4
     return swapWordField(cp, word);
-#elif BIT_CHAR_LEN == 2
+#elif ME_CHAR_LEN == 2
     return swapShortField(cp, word);
 #else
     return word;
@@ -11510,13 +11510,13 @@ static EcNode   *removeNode(EcNode *np, EcNode *child);
 static void     setNodeDoc(EcCompiler *cp, EcNode *np);
 static EcNode   *unexpected(EcCompiler *cp);
 
-#if BIT_DEBUG
+#if ME_DEBUG
 static void     updateDebug(EcCompiler *cp);
 #else
 #define         updateDebug(cp)
 #endif
 
-#if BIT_DEBUG
+#if ME_DEBUG
 /*
     Just for debugging. Generated via tokens.ksh
  */
@@ -11742,7 +11742,7 @@ char *nodes[] = {
     0,
 };
 
-#endif  /* BIT_DEBUG */
+#endif  /* ME_DEBUG */
 
 /************************************ Code ************************************/
 /*
@@ -14912,7 +14912,7 @@ static EcNode *parseBitwiseAndExpression(EcCompiler *cp)
 
     while (np) {
         switch (peekToken(cp)) {
-        case T_BIT_AND:
+        case T_ME_AND:
             getToken(cp);
             parent = createNode(cp, N_BINARY_OP, NULL);
             np = createBinaryNode(cp, np, parseEqualityExpression(cp), parent);
@@ -14945,7 +14945,7 @@ static EcNode *parseBitwiseXorExpression(EcCompiler *cp)
 
     while (np) {
         switch (peekToken(cp)) {
-        case T_BIT_XOR:
+        case T_ME_XOR:
             getToken(cp);
             parent = createNode(cp, N_BINARY_OP, NULL);
             np = createBinaryNode(cp, np, parseBitwiseAndExpression(cp), parent);
@@ -14978,7 +14978,7 @@ static EcNode *parseBitwiseOrExpression(EcCompiler *cp)
 
     while (np) {
         switch (peekToken(cp)) {
-        case T_BIT_OR:
+        case T_ME_OR:
             getToken(cp);
             parent = createNode(cp, N_BINARY_OP, NULL);
             np = createBinaryNode(cp, np, parseBitwiseXorExpression(cp), parent);
@@ -18838,8 +18838,8 @@ static EcNode *parseOverloadedOperator(EcCompiler *cp)
     case T_LSH:
     case T_RSH:
     case T_RSH_ZERO:
-    case T_BIT_AND:
-    case T_BIT_OR:
+    case T_ME_AND:
+    case T_ME_OR:
     case T_STRICT_EQ:
     case T_NE:
     case T_STRICT_NE:
@@ -20796,7 +20796,7 @@ static char *detab(EcCompiler *cp, char *src)
 #endif
 
 
-#if BIT_DEBUG
+#if ME_DEBUG
 static void updateDebug(EcCompiler *cp)
 {
     assert(cp);
@@ -20923,7 +20923,7 @@ static void appendDocString(EcCompiler *cp, EcNode *np, EcNode *parameter, EcNod
 {
     EjsString   *defaultValue;
     Ejs         *ejs;
-    char        arg[BIT_MAX_BUFFER];
+    char        arg[ME_MAX_BUFFER];
     int         found;
     
     ejs = cp->ejs;
@@ -21667,7 +21667,7 @@ static EcNode *createNode(EcCompiler *cp, int kind, EjsString *name)
     if (token && token->loc.source) {
         np->loc = token->loc;
     }
-#if BIT_DEBUG
+#if ME_DEBUG
     np->kindName = nodes[kind];
     if (token && token->tokenId >= 0) {
         np->tokenName = tokenNames[token->tokenId];
@@ -22035,13 +22035,13 @@ PUBLIC EcNode *ecLeaveStateWithResult(EcCompiler *cp, EcNode *np)
  */
 
 #if EMBEDTHIS || 1
- #include    "bit.h"
+ #include    "me.h"
  #include    "bitos.h"
 #endif
-#ifndef BIT_FLOAT
-    #define BIT_FLOAT 1
+#ifndef ME_FLOAT
+    #define ME_FLOAT 1
 #endif
-#if BIT_FLOAT
+#if ME_FLOAT
 
 #if EMBEDTHIS || 1
 #include    "mpr.h"
@@ -22054,7 +22054,7 @@ PUBLIC EcNode *ecLeaveStateWithResult(EcCompiler *cp, EcNode *np)
     #endif
     #define Long int32_t
     #define ULong uint32_t
-#if BIT_ENDIAN == MPR_BIG_ENDIAN
+#if ME_ENDIAN == MPR_BIG_ENDIAN
     #define IEEE_MC68k 1
 #else
     #define IEEE_8087 1
@@ -26141,7 +26141,7 @@ dtoa
 #undef ACQUIRE_DTOA_LOCK
 #undef Avoid_Underflow
 #undef BBias
-#undef BIT_FLOAT
+#undef ME_FLOAT
 #undef Bcopy
 #undef Big0
 #undef Big1
@@ -26221,7 +26221,7 @@ dtoa
 #undef strtod_diglim
 #undef word0
 #undef word1
-#endif /* BIT_FLOAT */
+#endif /* ME_FLOAT */
 
 /*
     @copy   default
@@ -26434,7 +26434,7 @@ static EjsAny *app_getenv(Ejs *ejs, EjsObj *app, int argc, EjsObj **argv)
  */
 static EjsNumber *app_gid(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 {
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     return ejsCreateNumber(ejs, getgid());
 #else
     return ESV(null);
@@ -26557,7 +26557,7 @@ static EjsObj *app_sleep(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
  */
 static EjsNumber *app_uid(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 {
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     return ejsCreateNumber(ejs, getuid());
 #else
     return ESV(null);
@@ -27562,7 +27562,7 @@ static EjsString *joinArray(Ejs *ejs, EjsArray *ap, int argc, EjsObj **argv)
         len += (ap->length * sep->length);
     }
     if (nonString) {
-        len += BIT_MAX_BUFFER;
+        len += ME_MAX_BUFFER;
     }
     buf = mprCreateBuf(len + 1, -1);
 
@@ -29054,10 +29054,10 @@ static int  flushByteArray(Ejs *ejs, EjsByteArray *ap);
 static ssize  getInput(Ejs *ejs, EjsByteArray *ap, ssize required);
 static int  lookupByteArrayProperty(Ejs *ejs, EjsByteArray *ap, EjsName qname);
 
-static BIT_INLINE int swap16(EjsByteArray *ap, int a);
-static BIT_INLINE int swap32(EjsByteArray *ap, int a);
-static BIT_INLINE int64 swap64(EjsByteArray *ap, int64 a);
-static BIT_INLINE double swapDouble(EjsByteArray *ap, double a);
+static ME_INLINE int swap16(EjsByteArray *ap, int a);
+static ME_INLINE int swap32(EjsByteArray *ap, int a);
+static ME_INLINE int64 swap64(EjsByteArray *ap, int64 a);
+static ME_INLINE double swapDouble(EjsByteArray *ap, double a);
 static int putByte(EjsByteArray *ap, int value);
 static int putInteger(EjsByteArray *ap, int value);
 static int putLong(EjsByteArray *ap, int64 value);
@@ -29306,12 +29306,12 @@ static EjsByteArray *ba_ByteArray(Ejs *ejs, EjsByteArray *ap, int argc, EjsObj *
 
     assert(0 <= argc && argc <= 2);
 
-    size = (argc >= 1) ? ejsGetInt(ejs, argv[0]) : BIT_MAX_BUFFER;
+    size = (argc >= 1) ? ejsGetInt(ejs, argv[0]) : ME_MAX_BUFFER;
     if (size <= 0) {
         size = 1;
     }
     resizable = (argc == 2) ? ejsGetBoolean(ejs, argv[1]): 1;
-    ap->growInc = (resizable) ? BIT_MAX_BUFFER : 0;
+    ap->growInc = (resizable) ? ME_MAX_BUFFER : 0;
     ap->endian = mprGetEndian(ejs);
     ap->resizable = 1;
     if (ejsGrowByteArray(ejs, ap, size) < 0) {
@@ -30213,7 +30213,7 @@ PUBLIC bool ejsMakeRoomInByteArray(Ejs *ejs, EjsByteArray *ap, ssize require)
 }
 
 
-static BIT_INLINE int swap16(EjsByteArray *ap, int a)
+static ME_INLINE int swap16(EjsByteArray *ap, int a)
 {
     if (!ap->swap) {
         return a;
@@ -30222,7 +30222,7 @@ static BIT_INLINE int swap16(EjsByteArray *ap, int a)
 }
 
 
-static BIT_INLINE int swap32(EjsByteArray *ap, int a)
+static ME_INLINE int swap32(EjsByteArray *ap, int a)
 {
     if (!ap->swap) {
         return a;
@@ -30231,7 +30231,7 @@ static BIT_INLINE int swap32(EjsByteArray *ap, int a)
 }
 
 
-static BIT_INLINE int64 swap64(EjsByteArray *ap, int64 a)
+static ME_INLINE int64 swap64(EjsByteArray *ap, int64 a)
 {
     int64   low, high;
 
@@ -30245,7 +30245,7 @@ static BIT_INLINE int64 swap64(EjsByteArray *ap, int64 a)
 }
 
 
-static BIT_INLINE double swapDouble(EjsByteArray *ap, double a)
+static ME_INLINE double swapDouble(EjsByteArray *ap, double a)
 {
     int64   low, high;
 
@@ -30394,11 +30394,11 @@ PUBLIC EjsByteArray *ejsCreateByteArray(Ejs *ejs, ssize size)
         return 0;
     }
     if (size <= 0) {
-        size = BIT_MAX_BUFFER;
+        size = ME_MAX_BUFFER;
     }
     ap->async = -1;
     ap->resizable = 1;
-    ap->growInc = BIT_MAX_BUFFER;
+    ap->growInc = ME_MAX_BUFFER;
     ap->endian = mprGetEndian(ejs);
     if (ejsGrowByteArray(ejs, ap, size) < 0) {
         return 0;
@@ -30661,8 +30661,8 @@ static EjsObj *cmd_start(Ejs *ejs, EjsCmd *cmd, int argc, EjsObj **argv);
  */
 static EjsCmd *cmd_constructor(Ejs *ejs, EjsCmd *cmd, int argc, EjsObj **argv)
 {
-    cmd->stdoutBuf = mprCreateBuf(BIT_MAX_BUFFER, -1);
-    cmd->stderrBuf = mprCreateBuf(BIT_MAX_BUFFER, -1);
+    cmd->stdoutBuf = mprCreateBuf(ME_MAX_BUFFER, -1);
+    cmd->stderrBuf = mprCreateBuf(ME_MAX_BUFFER, -1);
     cmd->ejs = ejs;
     cmd->timeout = -1;
     if (argc >= 1) {
@@ -30747,7 +30747,7 @@ static EjsObj *cmd_kill(Ejs *ejs, EjsAny *unused, int argc, EjsObj **argv)
 {
     int     rc, pid, signal;
 
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     signal = SIGINT;
 #else
     signal = 2;
@@ -30760,7 +30760,7 @@ static EjsObj *cmd_kill(Ejs *ejs, EjsAny *unused, int argc, EjsObj **argv)
         ejsThrowStateError(ejs, "No process to kill");
         return 0;
     }
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
 {
     HANDLE	handle;
 	handle = OpenProcess(PROCESS_TERMINATE, 0, pid);
@@ -30852,7 +30852,7 @@ static EjsNumber *cmd_read(Ejs *ejs, EjsCmd *cmd, int argc, EjsObj **argv)
     }
     count = buffer->size - buffer->writePosition;
     if (count <= 0) {
-        if (ejsGrowByteArray(ejs, buffer, BIT_MAX_BUFFER) < 0) {
+        if (ejsGrowByteArray(ejs, buffer, ME_MAX_BUFFER) < 0) {
             return 0;
         }
         count = buffer->size - buffer->writePosition;
@@ -30940,8 +30940,8 @@ static void cmdIOCallback(MprCmd *mc, int channel, void *data)
      */
     mprResetBufIfEmpty(buf);
     space = mprGetBufSpace(buf);
-    if (space < (BIT_MAX_BUFFER / 4)) {
-        if (mprGrowBuf(buf, BIT_MAX_BUFFER) < 0) {
+    if (space < (ME_MAX_BUFFER / 4)) {
+        if (mprGrowBuf(buf, ME_MAX_BUFFER) < 0) {
             mprCloseCmdFd(mc, channel);
             return;
         }
@@ -31257,7 +31257,7 @@ static EjsNumber *cmd_write(Ejs *ejs, EjsCmd *cmd, int argc, EjsObj **argv)
  */
 static EjsObj *cmd_exec(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 {
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     cchar   **argVector, *path;
 
 #if FUTURE
@@ -31405,7 +31405,7 @@ PUBLIC void ejsDefineConfigProperties(Ejs *ejs)
         There will still be a -Config- property in slot[0]
      */
     att = EJS_PROP_STATIC | EJS_PROP_ENUMERABLE;
-    ejsDefineProperty(ejs, type, -1, N("public", "Debug"), 0, att, BIT_DEBUG ? ESV(true): ESV(false));
+    ejsDefineProperty(ejs, type, -1, N("public", "Debug"), 0, att, ME_DEBUG ? ESV(true): ESV(false));
 
 #if WINDOWS
 {
@@ -31422,29 +31422,28 @@ PUBLIC void ejsDefineConfigProperties(Ejs *ejs)
     ejsDefineProperty(ejs, type, -1, N("public", "CPU"), 0, att, ejsCreateStringFromAsc(ejs, cpu));
 }
 #else
-    ejsDefineProperty(ejs, type, -1, N("public", "CPU"), 0, att, ejsCreateStringFromAsc(ejs, BIT_CPU));
+    ejsDefineProperty(ejs, type, -1, N("public", "CPU"), 0, att, ejsCreateStringFromAsc(ejs, ME_CPU));
 #endif
-    ejsDefineProperty(ejs, type, -1, N("public", "OS"), 0, att, ejsCreateStringFromAsc(ejs, BIT_OS));
-    ejsDefineProperty(ejs, type, -1, N("public", "Product"), 0, att, 
-        ejsCreateStringFromAsc(ejs, BIT_PRODUCT));
-    ejsDefineProperty(ejs, type, -1, N("public", "Title"), 0, att, ejsCreateStringFromAsc(ejs, BIT_TITLE));
-    ejsDefineProperty(ejs, type, -1, N("public", "Version"), 0, att, ejsCreateStringFromAsc(ejs, BIT_VERSION));
+    ejsDefineProperty(ejs, type, -1, N("public", "OS"), 0, att, ejsCreateStringFromAsc(ejs, ME_OS));
+    ejsDefineProperty(ejs, type, -1, N("public", "Product"), 0, att, ejsCreateStringFromAsc(ejs, ME_NAME));
+    ejsDefineProperty(ejs, type, -1, N("public", "Title"), 0, att, ejsCreateStringFromAsc(ejs, ME_TITLE));
+    ejsDefineProperty(ejs, type, -1, N("public", "Version"), 0, att, ejsCreateStringFromAsc(ejs, ME_VERSION));
 
     ejsDefineProperty(ejs, type, -1, N("public", "Legacy"), 0, att, ejsCreateBoolean(ejs, 0));
-    ejsDefineProperty(ejs, type, -1, N("public", "SSL"), 0, att, ejsCreateBoolean(ejs, BIT_PACK_SSL));
-    ejsDefineProperty(ejs, type, -1, N("public", "SQLITE"), 0, att, ejsCreateBoolean(ejs, BIT_PACK_SQLITE));
-#if defined(BIT_EJS_DB)
-    ejsDefineProperty(ejs, type, -1, N("public", "DB"), 0, att, ejsCreateBoolean(ejs, BIT_EJS_DB));
-    ejsDefineProperty(ejs, type, -1, N("public", "MAPPER"), 0, att, ejsCreateBoolean(ejs, BIT_EJS_MAPPER));
-    ejsDefineProperty(ejs, type, -1, N("public", "WEB"), 0, att, ejsCreateBoolean(ejs, BIT_EJS_WEB));
-    ejsDefineProperty(ejs, type, -1, N("public", "MAIL"), 0, att, ejsCreateBoolean(ejs, BIT_EJS_MAIL));
-    ejsDefineProperty(ejs, type, -1, N("public", "TEMPLATE"), 0, att, ejsCreateBoolean(ejs, BIT_EJS_TEMPLATE));
-    ejsDefineProperty(ejs, type, -1, N("public", "TAR"), 0, att, ejsCreateBoolean(ejs, BIT_EJS_TAR));
+    ejsDefineProperty(ejs, type, -1, N("public", "SSL"), 0, att, ejsCreateBoolean(ejs, ME_EXT_SSL));
+    ejsDefineProperty(ejs, type, -1, N("public", "SQLITE"), 0, att, ejsCreateBoolean(ejs, ME_EXT_SQLITE));
+#if defined(ME_EJS_DB)
+    ejsDefineProperty(ejs, type, -1, N("public", "DB"), 0, att, ejsCreateBoolean(ejs, ME_EJS_DB));
+    ejsDefineProperty(ejs, type, -1, N("public", "MAPPER"), 0, att, ejsCreateBoolean(ejs, ME_EJS_MAPPER));
+    ejsDefineProperty(ejs, type, -1, N("public", "WEB"), 0, att, ejsCreateBoolean(ejs, ME_EJS_WEB));
+    ejsDefineProperty(ejs, type, -1, N("public", "MAIL"), 0, att, ejsCreateBoolean(ejs, ME_EJS_MAIL));
+    ejsDefineProperty(ejs, type, -1, N("public", "TEMPLATE"), 0, att, ejsCreateBoolean(ejs, ME_EJS_TEMPLATE));
+    ejsDefineProperty(ejs, type, -1, N("public", "TAR"), 0, att, ejsCreateBoolean(ejs, ME_EJS_TAR));
 #endif
 
-    if (mprSamePath(mprGetAppDir(), BIT_VAPP_PREFIX "/bin")) {
-        ejsDefineProperty(ejs, type, -1, N("public", "Bin"), 0, att, ejsCreatePathFromAsc(ejs, BIT_VAPP_PREFIX "/bin"));
-        ejsDefineProperty(ejs, type, -1, N("public", "Inc"), 0, att, ejsCreatePathFromAsc(ejs, BIT_VAPP_PREFIX "/inc"));
+    if (mprSamePath(mprGetAppDir(), ME_VAPP_PREFIX "/bin")) {
+        ejsDefineProperty(ejs, type, -1, N("public", "Bin"), 0, att, ejsCreatePathFromAsc(ejs, ME_VAPP_PREFIX "/bin"));
+        ejsDefineProperty(ejs, type, -1, N("public", "Inc"), 0, att, ejsCreatePathFromAsc(ejs, ME_VAPP_PREFIX "/inc"));
     } else {
         ejsDefineProperty(ejs, type, -1, N("public", "Bin"), 0, att, ejsCreatePathFromAsc(ejs, mprGetAppDir()));
         ejsDefineProperty(ejs, type, -1, N("public", "Inc"), 0, att, 
@@ -31497,7 +31496,7 @@ PUBLIC void ejsDefineConfigProperties(Ejs *ejs)
  */
 #define fixed(n) ((int64) (floor(n)))
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
 #pragma warning (disable:4244)
 #endif
 
@@ -32615,10 +32614,10 @@ PUBLIC void ejsConfigureDateType(Ejs *ejs)
  */
 static EjsObj *debug_breakpoint(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 {
-#if BIT_DEBUG && DEBUG_IDE
-    #if BIT_WIN_LIKE && !BIT_64
+#if ME_DEBUG && DEBUG_IDE
+    #if ME_WIN_LIKE && !ME_64
         __asm { int 3 };
-    #elif (MACOSX || LINUX) && (BIT_CPU_ARCH == MPR_CPU_IX86 || BIT_CPU_ARCH == MPR_CPU_IX64)
+    #elif (MACOSX || LINUX) && (ME_CPU_ARCH == MPR_CPU_IX86 || ME_CPU_ARCH == MPR_CPU_IX64)
         asm("int $03");
         /*  __asm__ __volatile__ ("int $03"); */
     #endif
@@ -32880,7 +32879,7 @@ PUBLIC void ejsConfigureErrorType(Ejs *ejs)
 
 /********************************** Defines ***********************************/
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
 #define isDelim(fp, c)  (c == '/' || c == fp->delimiter)
 #else
 #define isDelim(fp, c)  (c == fp->delimiter)
@@ -32897,7 +32896,7 @@ static int mapMode(cchar *mode);
 static EjsObj *openFile(Ejs *ejs, EjsFile *fp, int argc, EjsObj **argv);
 static ssize readData(Ejs *ejs, EjsFile *fp, EjsByteArray *ap, ssize offset, ssize count);
 
-#if BIT_CC_MMU && FUTURE
+#if ME_CC_MMU && FUTURE
 static void *mapFile(EjsFile *fp, uint size, int mode);
 static void unmapFile(EjsFile *fp);
 #endif
@@ -32928,7 +32927,7 @@ static EjsNumber *getFileProperty(Ejs *ejs, EjsFile *fp, int slotNum)
     }
 #endif
 
-#if BIT_CC_MMU && FUTURE
+#if ME_CC_MMU && FUTURE
     //  must check against mapped size here.
     c = fp->mapped[slotNum];
 #else
@@ -32993,7 +32992,7 @@ static int setFileProperty(Ejs *ejs, EjsFile *fp, int slotNum, EjsObj *value)
         slotNum = (int) offset;
     }
 
-#if BIT_CC_MMU && FUTURE
+#if ME_CC_MMU && FUTURE
     fp->mapped[slotNum] = c;
 #else
     if (offset != slotNum && mprSeekFile(fp->file, SEEK_SET, slotNum) != slotNum) {
@@ -33124,7 +33123,7 @@ static EjsObj *closeFile(Ejs *ejs, EjsFile *fp, int argc, EjsObj **argv)
         mprCloseFile(fp->file);
         fp->file = 0;
     }
-#if BIT_CC_MMU && FUTURE
+#if ME_CC_MMU && FUTURE
     if (fp->mapped) {
         unmapFile(fp);
         fp->mapped = 0;
@@ -33183,7 +33182,7 @@ static EjsObj *nextValue(Ejs *ejs, EjsIterator *ip, int argc, EjsObj **argv)
     }
 
     if (ip->index < fp->info.size) {
-#if !BIT_CC_MMU || 1
+#if !ME_CC_MMU || 1
         if (mprSeekFile(fp->file, SEEK_CUR, 0) != ip->index) {
             if (mprSeekFile(fp->file, SEEK_SET, ip->index) != ip->index) {
                 ejsThrowIOError(ejs, "Cannot seek to %d", ip->index);
@@ -33197,7 +33196,7 @@ static EjsObj *nextValue(Ejs *ejs, EjsIterator *ip, int argc, EjsObj **argv)
 #endif
     }
 
-#if BIT_CC_MMU && FUTURE
+#if ME_CC_MMU && FUTURE
     unmapFile(fp);
     fp->mapped = 0;
 #endif
@@ -33329,7 +33328,7 @@ static EjsObj *openFile(Ejs *ejs, EjsFile *fp, int argc, EjsObj **argv)
     if (options) {
         ejsSetPathAttributes(ejs, fp->path, options);
     }
-#if BIT_CC_MMU && FUTURE
+#if ME_CC_MMU && FUTURE
     mprGetPathInfo(&fp->info);
     fp->mapped = mapFile(fp, fp->info.size, MPR_MAP_READ | MPR_MAP_WRITE);
 #endif
@@ -33382,7 +33381,7 @@ static EjsObj *readFileBytes(Ejs *ejs, EjsFile *fp, int argc, EjsObj **argv)
             count = (int) info.size;
             count -= (int) mprGetFilePosition(fp->file);
         } else {
-            count = BIT_MAX_BUFFER;
+            count = ME_MAX_BUFFER;
         }
         assert(count >= 0);
     }
@@ -33438,7 +33437,7 @@ static EjsString *readFileString(Ejs *ejs, EjsFile *fp, int argc, EjsObj **argv)
             count = (int) info.size;
             count -= (int) mprGetFilePosition(fp->file);
         } else {
-            count = BIT_MAX_BUFFER;
+            count = ME_MAX_BUFFER;
         }
         assert(count >= 0);
     }
@@ -33494,7 +33493,7 @@ static EjsNumber *readFile(Ejs *ejs, EjsFile *fp, int argc, EjsObj **argv)
             count = (int) info.size;
             count -= (int) mprGetFilePosition(fp->file);
         } else {
-            count = BIT_MAX_BUFFER;
+            count = ME_MAX_BUFFER;
         }
         assert(count >= 0);
     }
@@ -33628,7 +33627,7 @@ static ssize readData(Ejs *ejs, EjsFile *fp, EjsByteArray *ap, ssize offset, ssi
 }
 
 
-#if BIT_CC_MMU && FUTURE
+#if ME_CC_MMU && FUTURE
 static void *mapFile(EjsFile *fp, uint size, int mode)
 {
     Mpr         *mpr;
@@ -33851,7 +33850,7 @@ static EjsArray *fs_drives(Ejs *ejs, EjsFileSystem *unused, int argc, EjsObj **a
     if ((ap = ejsCreateArray(ejs, 0)) == 0) {
         return 0;
     }
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
 {
     char        dbuf[2];
     int         i, mask;
@@ -35615,8 +35614,8 @@ static EjsHttp *httpConstructor(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
         hp->uri = httpUriToString(((EjsUri*) argv[0])->uri, HTTP_COMPLETE_URI);
     }
     hp->method = sclone("GET");
-    hp->requestContent = mprCreateBuf(BIT_MAX_BUFFER, -1);
-    hp->responseContent = mprCreateBuf(BIT_MAX_BUFFER, -1);
+    hp->requestContent = mprCreateBuf(ME_MAX_BUFFER, -1);
+    hp->responseContent = mprCreateBuf(ME_MAX_BUFFER, -1);
     return hp;
 }
 
@@ -36142,16 +36141,16 @@ static EjsArray *http_providers(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 
     result = ejsCreateArray(ejs, 0);
     i = 0;
-#if BIT_PACK_EST
+#if ME_EXT_EST
     ejsSetProperty(ejs, result, i++, ejsCreateStringFromAsc(ejs, "est"));
 #endif
-#if BIT_PACK_OPENSSL
+#if ME_EXT_OPENSSL
     ejsSetProperty(ejs, result, i++, ejsCreateStringFromAsc(ejs, "openssl"));
 #endif
-#if BIT_PACK_MATRIXSSL
+#if ME_EXT_MATRIXSSL
     ejsSetProperty(ejs, result, i++, ejsCreateStringFromAsc(ejs, "matrixssl"));
 #endif
-#if BIT_PACK_MOCANA
+#if ME_EXT_MOCANA
     ejsSetProperty(ejs, result, i++, ejsCreateStringFromAsc(ejs, "mocana"));
 #endif
     return result;
@@ -36759,7 +36758,7 @@ static ssize readHttpData(Ejs *ejs, EjsHttp *hp, ssize count)
     buf = hp->responseContent;
     mprResetBufIfEmpty(buf);
     while (count < 0 || mprGetBufLength(buf) < count) {
-        len = (count < 0) ? BIT_MAX_BUFFER : (count - mprGetBufLength(buf));
+        len = (count < 0) ? ME_MAX_BUFFER : (count - mprGetBufLength(buf));
         space = mprGetBufSpace(buf);
         if (space < len) {
             mprGrowBuf(buf, len - space);
@@ -37933,7 +37932,7 @@ PUBLIC EjsString *ejsSerializeWithOptions(Ejs *ejs, EjsAny *vp, EjsObj *options)
                 //  TODO - get another solution to hold
             } else if (ejsIs(ejs, arg, Number)) {
                 i = ejsGetInt(ejs, arg);
-                if (0 <= i && i < BIT_MAX_BUFFER) {
+                if (0 <= i && i < ME_MAX_BUFFER) {
                     json.indent = mprAlloc(i + 1);
                     //  TODO - get another solution to hold
                     memset(json.indent, ' ', i);
@@ -40290,7 +40289,7 @@ static EjsObj *numberToString(Ejs *ejs, EjsNumber *vp, int argc, EjsObj **argv)
 #ifndef ejsIsNan
 PUBLIC int ejsIsNan(double f)
 {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     return _isnan(f);
 #elif VXWORKS
     return isnan(f);
@@ -40303,7 +40302,7 @@ PUBLIC int ejsIsNan(double f)
 
 PUBLIC bool ejsIsInfinite(MprNumber f)
 {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     return !_finite(f);
 #elif VXWORKS
     return isinf(f);
@@ -41786,7 +41785,7 @@ static EjsObj *getAttributes(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
     ejsSetPropertyByName(ejs, attributes, EN("uid"), ejsCreateNumber(ejs, info.owner));
     ejsSetPropertyByName(ejs, attributes, EN("gid"), ejsCreateNumber(ejs, info.group));
 
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     struct passwd   *pw;
     struct group    *gp;
     if ((pw = getpwuid(info.owner)) != 0) {
@@ -41868,7 +41867,7 @@ PUBLIC int ejsSetPathAttributes(Ejs *ejs, cchar *path, EjsObj *attributes)
     if (attributes == 0) {
         return 0;
     }
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
 {
     int     uid, gid;
     getUserGroup(ejs, attributes, &uid, &gid);
@@ -41925,13 +41924,13 @@ static EjsObj *copyPath(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
     if (options) {
         ejsSetPathAttributes(ejs, toPath, options);
     }
-    if ((buf = mprAlloc(BIT_MAX_BUFFER)) == NULL) {
+    if ((buf = mprAlloc(ME_MAX_BUFFER)) == NULL) {
         ejsThrowMemoryError(ejs);
         mprCloseFile(to);
         mprCloseFile(from);
         return 0;
     }
-    while ((bytes = mprReadFile(from, buf, BIT_MAX_BUFFER)) > 0) {
+    while ((bytes = mprReadFile(from, buf, ME_MAX_BUFFER)) > 0) {
         if (mprWriteFile(to, buf, bytes) != bytes) {
             ejsThrowIOError(ejs, "Write error to %s", toPath);
             break;
@@ -42477,7 +42476,7 @@ static EjsVoid *path_link(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
         return 0;
     }
     unlink(target);
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     if (mprMakeLink(fp->value, target, hard) < 0) {
         ejsThrowIOError(ejs, "Cannot create link %s to refer to %s, error %d", target, fp->value, errno);
     }
@@ -42512,7 +42511,7 @@ static EjsPath *pathLinkTarget(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
  */
 static void getUserGroup(Ejs *ejs, EjsObj *attributes, int *uid, int *gid)
 {
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     EjsAny          *vp;
     struct passwd   *pp;
     struct group    *gp;
@@ -42776,7 +42775,7 @@ static EjsByteArray *readBytes(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
     MprFile         *file;
     EjsByteArray    *result;
     cchar           *path;
-    char            buffer[BIT_MAX_BUFFER];
+    char            buffer[ME_MAX_BUFFER];
     int             bytes, offset, rc;
 
     assert(argc == 1 && ejsIs(ejs, argv[0], String));
@@ -42800,7 +42799,7 @@ static EjsByteArray *readBytes(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
 
     rc = 0;
     offset = 0;
-    while ((bytes = mprReadFile(file, buffer, BIT_MAX_BUFFER)) > 0) {
+    while ((bytes = mprReadFile(file, buffer, ME_MAX_BUFFER)) > 0) {
         //  TODO - should use RC Value (== bytes)
         if (ejsCopyToByteArray(ejs, result, offset, buffer, bytes) < 0) {
             ejsThrowMemoryError(ejs);
@@ -42826,7 +42825,7 @@ static EjsArray *readLines(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
     MprBuf      *data;
     EjsArray    *result;
     cchar       *path;
-    char        *start, *end, *cp, buffer[BIT_MAX_BUFFER];
+    char        *start, *end, *cp, buffer[ME_MAX_BUFFER];
     int         bytes, rc, lineno;
 
     assert(argc == 1 && ejsIs(ejs, argv[0], String));
@@ -42856,7 +42855,7 @@ static EjsArray *readLines(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
     }
 
     rc = 0;
-    while ((bytes = mprReadFile(file, buffer, BIT_MAX_BUFFER)) > 0) {
+    while ((bytes = mprReadFile(file, buffer, ME_MAX_BUFFER)) > 0) {
         if (mprPutBlockToBuf(data, buffer, bytes) != bytes) {
             ejsThrowMemoryError(ejs);
             rc = -1;
@@ -42896,7 +42895,7 @@ static EjsString *readFileAsString(Ejs *ejs, EjsPath *fp, int argc, EjsObj **arg
     MprFile     *file;
     MprBuf      *data;
     cchar       *path;
-    char        buffer[BIT_MAX_BUFFER];
+    char        buffer[ME_MAX_BUFFER];
     int         bytes;
 
     assert(argc == 1 && ejsIs(ejs, argv[0], String));
@@ -42917,7 +42916,7 @@ static EjsString *readFileAsString(Ejs *ejs, EjsPath *fp, int argc, EjsObj **arg
         mprCloseFile(file);
         return 0;
     }
-    while ((bytes = mprReadFile(file, buffer, BIT_MAX_BUFFER)) > 0) {
+    while ((bytes = mprReadFile(file, buffer, ME_MAX_BUFFER)) > 0) {
         if (mprPutBlockToBuf(data, buffer, bytes) != bytes) {
             ejsThrowMemoryError(ejs);
             break;
@@ -43124,7 +43123,7 @@ static EjsVoid *path_symlink(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
         return 0;
     }
     unlink(fp->value);
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     if (symlink(target, fp->value) < 0) {
         ejsThrowIOError(ejs, "Cannot create symlink %s to refer to %s, error %d", fp->value, target, errno);
         return 0;
@@ -43475,7 +43474,7 @@ PUBLIC EjsAny *ejsClonePot(Ejs *ejs, EjsAny *obj, bool deep)
                 ;
             } else if ((ejsIsType(ejs, vp) && ((EjsType*) vp)->mutable) || 
                       (!ejsIsType(ejs, vp) && TYPE(vp)->mutableInstances)) {
-#if BIT_MEMORY_DEBUG
+#if ME_MEMORY_DEBUG
                 EjsName qname = ejsGetPropertyName(ejs, src, i);
                 mprSetName(dp->value.ref, qname.name->value);
                 // mprTrace(0, "CLONE %N", qname);
@@ -44506,8 +44505,8 @@ PUBLIC void ejsCreatePotHelpers(Ejs *ejs)
 
 /********************************** Defines ***********************************/
 
-#if !defined(BIT_MAX_REGEX_MATCHES)
-    #define BIT_MAX_REGEX_MATCHES 64
+#if !defined(ME_MAX_REGEX_MATCHES)
+    #define ME_MAX_REGEX_MATCHES 64
 #endif
 
 /********************************* Forwards ***********************************/
@@ -44613,7 +44612,7 @@ static EjsArray *regex_exec(Ejs *ejs, EjsRegExp *rp, int argc, EjsObj **argv)
 {
     EjsArray    *results;
     EjsString   *match, *str;
-    int         matches[BIT_MAX_REGEX_MATCHES * 3];
+    int         matches[ME_MAX_REGEX_MATCHES * 3];
     int         count, start, len, i, index;
 
     str = (EjsString*) argv[0];
@@ -45421,8 +45420,8 @@ PUBLIC void ejsConfigureSocketType(Ejs *ejs)
 /*********************************** Locals ***********************************/
 
 //  TODO - should not be fixed
-#if !defined(BIT_MAX_REGEX_MATCHES)
-    #define BIT_MAX_REGEX_MATCHES 128
+#if !defined(ME_MAX_REGEX_MATCHES)
+    #define ME_MAX_REGEX_MATCHES 128
 #endif
 
 static int internHashSizes[] = {
@@ -45988,7 +45987,7 @@ static EjsString *formatString(Ejs *ejs, EjsString *sp, int argc, EjsObj **argv)
             args = inner;
         }
     }
-    if ((result = ejsCreateBareString(ejs, BIT_MAX_BUFFER)) == NULL) {
+    if ((result = ejsCreateBareString(ejs, ME_MAX_BUFFER)) == NULL) {
         ejsThrowMemoryError(ejs);
         return 0;
     }
@@ -46364,7 +46363,7 @@ static EjsArray *match(Ejs *ejs, EjsString *sp, int argc, EjsObj **argv)
     EjsRegExp   *rp;
     EjsArray    *results;
     EjsString   *match;
-    int         matches[BIT_MAX_REGEX_MATCHES * 3];
+    int         matches[ME_MAX_REGEX_MATCHES * 3];
     int         i, count, len, resultCount;
 
     rp = (EjsRegExp*) argv[0];
@@ -46509,7 +46508,7 @@ static EjsString *removeCharsFromString(Ejs *ejs, EjsString *sp, int argc, EjsOb
 
 static EjsString *getReplacementText(Ejs *ejs, EjsFunction *fn, int count, int *matches, EjsString *sp)
 {
-    EjsAny  *result, *argv[BIT_MAX_REGEX_MATCHES * 3];
+    EjsAny  *result, *argv[ME_MAX_REGEX_MATCHES * 3];
     int     i, offset, argc;
 
     assert(fn);
@@ -46540,7 +46539,7 @@ static EjsString *replace(Ejs *ejs, EjsString *sp, int argc, EjsObj **argv)
     EjsFunction *replacementFunction;
     wchar       cbuf[1];
     ssize       patternLength, index;
-    int         matches[BIT_MAX_REGEX_MATCHES * 3], enabled;
+    int         matches[ME_MAX_REGEX_MATCHES * 3], enabled;
 
     result = 0;
     if (argc == 1) {
@@ -46561,7 +46560,7 @@ static EjsString *replace(Ejs *ejs, EjsString *sp, int argc, EjsObj **argv)
 
         rp = (EjsRegExp*) argv[0];
 
-        result = ejsCreateBareString(ejs, BIT_MAX_BUFFER);
+        result = ejsCreateBareString(ejs, ME_MAX_BUFFER);
         result->length = 0;
         startNextMatch = endLastMatch = 0;
         do {
@@ -46659,7 +46658,7 @@ static EjsString *replace(Ejs *ejs, EjsString *sp, int argc, EjsObj **argv)
         patternLength = pattern->length;
         index = indexof(sp->value, sp->length, pattern, patternLength, 1);
         if (index >= 0) {
-            if ((result = ejsCreateBareString(ejs, BIT_MAX_BUFFER)) == NULL) {
+            if ((result = ejsCreateBareString(ejs, ME_MAX_BUFFER)) == NULL) {
                 return 0;
             }
             result->length = 0;
@@ -46713,7 +46712,7 @@ static EjsNumber *searchString(Ejs *ejs, EjsString *sp, int argc, EjsObj **argv)
     EjsRegExp   *rp;
     EjsString   *pattern;
     ssize       index, patternLength;
-    int         count, matches[BIT_MAX_REGEX_MATCHES * 3];
+    int         count, matches[ME_MAX_REGEX_MATCHES * 3];
 
     if (ejsIs(ejs, argv[0], String)) {
         pattern = (EjsString*) argv[0];
@@ -46838,7 +46837,7 @@ static EjsArray *split(Ejs *ejs, EjsString *sp, int argc, EjsObj **argv)
     } else if (ejsIs(ejs, argv[0], RegExp)) {
         EjsRegExp   *rp;
         EjsString   *match;
-        int         matches[BIT_MAX_REGEX_MATCHES * 3], count, resultCount;
+        int         matches[ME_MAX_REGEX_MATCHES * 3], count, resultCount;
         
         rp = (EjsRegExp*) argv[0];
         rp->endLastMatch = 0;
@@ -47616,7 +47615,7 @@ PUBLIC char *ejsToMulti(Ejs *ejs, EjsAny *ev)
     }
     assert(ejsIs(ejs, ev, String));
     //  UNICODE
-#if BIT_CHAR_LEN == 1
+#if ME_CHAR_LEN == 1
 {
     EjsString   *s = (EjsString*) ev;
     char        *ptr;
@@ -47918,7 +47917,7 @@ PUBLIC EjsString *ejsInternAsc(Ejs *ejs, cchar *value, ssize len)
         }
     }
     if ((sp = ejsAlloc(ejs, ESV(String), (len + 1) * sizeof(wchar))) != NULL) {
-#if BIT_CHAR_LEN > 1
+#if ME_CHAR_LEN > 1
         for (i = 0; i < len; i++) {
             sp->value[i] = value[i];
         }
@@ -47941,13 +47940,13 @@ PUBLIC EjsString *ejsInternAsc(Ejs *ejs, cchar *value, ssize len)
 }
 
 
-#if BIT_CHAR_LEN == 1
+#if ME_CHAR_LEN == 1
 PUBLIC EjsString *ejsInternMulti(Ejs *ejs, cchar *value, ssize len)
 {
     return ejsInternAsc(ejs, value, len);
 }
 
-#else /* BIT_CHAR_LEN > 1 */
+#else /* ME_CHAR_LEN > 1 */
 
 PUBLIC EjsString *ejsInternMulti(Ejs *ejs, cchar *value, ssize len)
 {
@@ -47997,7 +47996,7 @@ PUBLIC EjsString *ejsInternMulti(Ejs *ejs, cchar *value, ssize len)
     unlock(ip);
     return sp;
 }
-#endif /* BIT_CHAR_LEN > 1 */
+#endif /* ME_CHAR_LEN > 1 */
 
 
 static int getInternHashSize(int size)
@@ -48364,10 +48363,10 @@ static EjsString *system_hostname(Ejs *ejs, EjsObj *unused, int argc, EjsObj **a
 static EjsString *system_ipaddr(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 {
     //  TODO - move this into MPR and call mprSetIpAddr
-#if BIT_UNIX_LIKE || BIT_WIN_LIKE
+#if ME_UNIX_LIKE || ME_WIN_LIKE
     struct addrinfo *res, *reslist, hints;
     cchar           *ip;
-    char            ipaddr[BIT_MAX_PATH], service[BIT_MAX_PATH];
+    char            ipaddr[ME_MAX_PATH], service[ME_MAX_PATH];
     int             rc;
 
     if ((ip = mprGetIpAddr(ejs)) != 0) {
@@ -48414,7 +48413,7 @@ static EjsPath *system_tmpdir(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 
 #if WINCE
     dir = "/Temp";
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
 {
     MprFileSystem   *fs;
     fs = mprLookupFileSystem("/");
@@ -48907,7 +48906,7 @@ PUBLIC EjsType *ejsCreateCoreType(Ejs *ejs, EjsName qname, int size, int sid, in
 {
     EjsType     *type;
 
-#if BIT_DEBUG
+#if ME_DEBUG
     if (attributes & EJS_TYPE_POT) {
         if (size > sizeof(EjsPot)) {
             assert(attributes & EJS_TYPE_DYNAMIC_INSTANCES);
@@ -49724,7 +49723,7 @@ static int setTypeProperty(Ejs *ejs, EjsType *type, int slotNum, EjsObj *value)
  */
 static void manageDefault(EjsObj *ev, int flags)
 {
-#if BIT_DEBUG
+#if ME_DEBUG
     if (flags & MPR_MANAGE_MARK) {
         assert(!TYPE(ev)->isPot);
     }
@@ -51284,7 +51283,7 @@ PUBLIC void ejsConfigureVoidType(Ejs *ejs)
 
 
 
-#if BIT_HTTP_WEB_SOCKETS
+#if ME_HTTP_WEB_SOCKETS
 /*********************************** Forwards *********************************/
 
 static void onWebSocketEvent(EjsWebSocket *ws, int event, EjsAny *data, HttpPacket *packet);
@@ -51942,7 +51941,7 @@ PUBLIC void ejsConfigureWebSocketType(Ejs *ejs)
     ejsBindMethod(ejs, prototype, ES_WebSocket_url, ws_url);
     ejsBindMethod(ejs, prototype, ES_WebSocket_wait, ws_wait);
 }
-#endif /* BIT_HTTP_WEB_SOCKETS */
+#endif /* ME_HTTP_WEB_SOCKETS */
 
 /*
     @copy   default
@@ -52998,7 +52997,7 @@ static EjsAny *castXml(Ejs *ejs, EjsXML *xml, EjsType *type)
                 }
             }
         }
-        buf = mprCreateBuf(BIT_MAX_BUFFER, -1);
+        buf = mprCreateBuf(ME_MAX_BUFFER, -1);
         if (ejsXMLToBuf(ejs, buf, xml, -1) < 0) {
             return 0;
         }
@@ -53617,7 +53616,7 @@ static EjsObj *saveXml(Ejs *ejs, EjsXML *xml, int argc, EjsObj **argv)
     /*
         Create a buffer to hold the output. All in memory.
      */
-    buf = mprCreateBuf(BIT_MAX_BUFFER, -1);
+    buf = mprCreateBuf(ME_MAX_BUFFER, -1);
     mprPutStringToBuf(buf, "<?xml version=\"1.0\"?>\n");
 
     if (ejsXMLToBuf(ejs, buf, xml, 0) < 0) {
@@ -54092,7 +54091,7 @@ static EjsObj *xlCast(Ejs *ejs, EjsXML *vp, EjsType *type)
         return result;
 
     case S_String:
-        buf = mprCreateBuf(BIT_MAX_BUFFER, -1);
+        buf = mprCreateBuf(ME_MAX_BUFFER, -1);
         if (mprGetListLength(vp->elements) == 1) {
             elt = mprGetFirstItem(vp->elements);
             if (elt->kind == EJS_XML_ELEMENT) {
@@ -54886,8 +54885,8 @@ PUBLIC void ejsConfigureXMLListType(Ejs *ejs)
 
 /********************************** Defines ***********************************/
 
-#if !defined(BIT_XML_MAX_NODE_DEPTH)
-    #define BIT_XML_MAX_NODE_DEPTH 2048
+#if !defined(ME_XML_MAX_NODE_DEPTH)
+    #define ME_XML_MAX_NODE_DEPTH 2048
 #endif
 
 /****************************** Forward Declarations **************************/
@@ -54913,7 +54912,7 @@ MprXml *ejsCreateXmlParser(Ejs *ejs, EjsXML *xml, cchar *filename)
     EjsXmlState *parser;
     MprXml      *xp;
     
-    xp = mprXmlOpen(BIT_MAX_BUFFER, -1);
+    xp = mprXmlOpen(ME_MAX_BUFFER, -1);
     assert(xp);
 
     /*
@@ -54983,7 +54982,7 @@ static int parserHandler(MprXml *xp, int state, cchar *tagName, cchar *attName, 
         break;
 
     case MPR_XML_NEW_ELT:
-        if (parser->topOfStack > BIT_XML_MAX_NODE_DEPTH) {
+        if (parser->topOfStack > ME_XML_MAX_NODE_DEPTH) {
             ejsThrowSyntaxError(ejs,  "XML nodes nested too deeply in %s at line %d", parser->filename, 
                 mprXmlGetLineNumber(xp));
             return MPR_ERR_BAD_SYNTAX;
@@ -55200,16 +55199,16 @@ static void indent(MprBuf *bp, int level)
 
 
 
-#if BIT_PACK_SQLITE && BIT_EJS_DB
+#if ME_EXT_SQLITE && ME_EJS_DB
     /* Indent to no create dependency */
     #include    "sqlite3.h"
 
 
-#ifndef BIT_MAX_SQLITE_MEM
-    #define BIT_MAX_SQLITE_MEM      (2*1024*1024)   /**< Maximum buffering for Sqlite */
+#ifndef ME_MAX_SQLITE_MEM
+    #define ME_MAX_SQLITE_MEM      (2*1024*1024)   /**< Maximum buffering for Sqlite */
 #endif
-#ifndef BIT_MAX_SQLITE_DURATION
-    #define BIT_MAX_SQLITE_DURATION 30000           /**< Database busy timeout */
+#ifndef ME_MAX_SQLITE_DURATION
+    #define ME_MAX_SQLITE_DURATION 30000           /**< Database busy timeout */
 #endif
 
 /*********************************** Locals ***********************************/
@@ -55285,8 +55284,8 @@ static EjsObj *sqliteConstructor(Ejs *ejs, EjsSqlite *db, int argc, EjsObj **arg
                 ejsThrowIOError(ejs, "Cannot open database %s", path);
                 return 0;
             }
-            sqlite3_soft_heap_limit(BIT_MAX_SQLITE_MEM);
-            sqlite3_busy_timeout(sdb, BIT_MAX_SQLITE_DURATION);
+            sqlite3_soft_heap_limit(ME_MAX_SQLITE_MEM);
+            sqlite3_busy_timeout(sdb, ME_MAX_SQLITE_DURATION);
 
         } else {
             ejsThrowArgError(ejs, "Unknown SQLite database URI %s", path);
@@ -55622,7 +55621,7 @@ PUBLIC int ejs_db_sqlite_Init(Ejs *ejs, MprModule *mp)
     return ejsAddNativeModule(ejs, "ejs.db.sqlite", configureSqliteTypes, _ES_CHECKSUM_ejs_db_sqlite, EJS_LOADER_ETERNAL);
 }
 
-#endif /* BIT_PACK_SQLITE */
+#endif /* ME_EXT_SQLITE */
 
 /*
     @copy   default
@@ -55657,9 +55656,9 @@ PUBLIC int ejs_db_sqlite_Init(Ejs *ejs, MprModule *mp)
  */
 /********************************** Includes **********************************/
 
-#include    "bit.h"
+#include    "me.h"
 
-#if BIT_EJS_WEB
+#if ME_EJS_WEB
 
 
 
@@ -56019,7 +56018,7 @@ static EjsVoid *hs_run(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
  */
 static EjsObj *hs_secure(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
 {
-#if BIT_PACK_SSL
+#if ME_EXT_SSL
     EjsArray    *protocols;
     cchar       *token;
     int         mask, protoMask, i;
@@ -56650,9 +56649,9 @@ void ejsConfigureHttpServerType(Ejs *ejs)
  */
 /********************************** Includes **********************************/
 
-#include    "bit.h"
+#include    "me.h"
 
-#if BIT_EJS_WEB
+#if ME_EJS_WEB
 
 
 
@@ -57829,7 +57828,7 @@ static EjsNumber *req_read(Ejs *ejs, EjsRequest *req, int argc, EjsObj **argv)
     count = (argc >= 3) ? ejsGetInt(ejs, argv[2]) : -1;
 
     ejsResetByteArray(ejs, ba);
-    if (!ejsMakeRoomInByteArray(ejs, ba, count >= 0 ? count : BIT_MAX_BUFFER)) {
+    if (!ejsMakeRoomInByteArray(ejs, ba, count >= 0 ? count : ME_MAX_BUFFER)) {
         return 0;
     }
     if (offset < 0) {
@@ -58270,9 +58269,9 @@ void ejsConfigureRequestType(Ejs *ejs)
 
 /********************************** Includes **********************************/
 
-#include    "bit.h"
+#include    "me.h"
 
-#if BIT_EJS_WEB
+#if ME_EJS_WEB
 
 
 
@@ -58544,9 +58543,9 @@ void ejsConfigureSessionType(Ejs *ejs)
  */
 /********************************** Includes **********************************/
 
-#include    "bit.h"
+#include    "me.h"
 
-#if BIT_EJS_WEB
+#if ME_EJS_WEB
 
 
 
@@ -58630,7 +58629,7 @@ int ejs_web_Init(Ejs *ejs, MprModule *mp)
 
 
 
-#if BIT_EJS_ZLIB
+#if ME_EJS_ZLIB
 
 
 
@@ -58645,7 +58644,7 @@ static EjsObj *zlib_compress(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
     MprFile     *in;
     gzFile      out;
     cchar       *src, *dest;
-    uchar       inbuf[BIT_MAX_BUFFER];
+    uchar       inbuf[ME_MAX_BUFFER];
     ssize       nbytes;
 
     src = ((EjsPath*) argv[0])->value;
@@ -58687,7 +58686,7 @@ static EjsObj *zlib_uncompress(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv
     MprFile     *out;
     gzFile      in;
     cchar       *src, *dest;
-    uchar       inbuf[BIT_MAX_BUFFER];
+    uchar       inbuf[ME_MAX_BUFFER];
     ssize       nbytes;
 
     src = ((EjsPath*) argv[0])->value;
@@ -58966,7 +58965,7 @@ PUBLIC int ejs_zlib_Init(Ejs *ejs, MprModule *mp)
 {
     return ejsAddNativeModule(ejs, "ejs.zlib", configureZlibTypes, _ES_CHECKSUM_ejs_zlib, EJS_LOADER_ETERNAL);
 }
-#endif /* BIT_EJS_ZLIB */
+#endif /* ME_EJS_ZLIB */
 
 /*
     @copy   default
@@ -59062,7 +59061,7 @@ static EjsAny *createException(Ejs *ejs, EjsType *type, cchar* fmt, va_list fmtA
 
     assert(type);
     
-#if BIT_DEBUG
+#if ME_DEBUG
     /* Breakpoint opportunity */
     if (!ejs->empty) {
         mprNop(0);
@@ -59789,7 +59788,7 @@ int ejsSetPropertyByName(Ejs *ejs, EjsAny *vp, EjsName qname, EjsAny *value)
             return EJS_ERR;
         }
         //  UNICODE
-#if BIT_DEBUG
+#if ME_DEBUG
         if (((EjsObj*) value)->mem == 0) {
             mprSetName(value, qname.name->value);
         }
@@ -60305,7 +60304,7 @@ EjsAny *ejsParse(Ejs *ejs, wchar *str, int preferredType)
     case S_Boolean:
         return ejsCreateBoolean(ejs, parseBoolean(ejs, buf));
 
-#if BIT_PACK_PCRE
+#if ME_EXT_PCRE
     case S_RegExp:
         return ejsParseRegExp(ejs, ejsCreateStringFromAsc(ejs, buf));
 #endif
@@ -60572,7 +60571,7 @@ void ejsMarkName(EjsName *qname)
 
 static void callFunction(Ejs *ejs, EjsFunction *fun, EjsAny *thisObj, int argc, int stackAdjust);
 
-static BIT_INLINE void getPropertyFromSlot(Ejs *ejs, EjsAny *thisObj, EjsAny *obj, int slotNum) 
+static ME_INLINE void getPropertyFromSlot(Ejs *ejs, EjsAny *thisObj, EjsAny *obj, int slotNum) 
 {
     EjsFunction     *fun, *value;
 
@@ -60601,7 +60600,7 @@ static BIT_INLINE void getPropertyFromSlot(Ejs *ejs, EjsAny *thisObj, EjsAny *ob
 
 #define GET_SLOT(thisObj, obj, slotNum) getPropertyFromSlot(ejs, thisObj, obj, slotNum)
 
-static BIT_INLINE void checkGetter(Ejs *ejs, EjsAny *value, EjsAny *thisObj, EjsAny *obj, int slotNum) 
+static ME_INLINE void checkGetter(Ejs *ejs, EjsAny *value, EjsAny *thisObj, EjsAny *obj, int slotNum) 
 {
     EjsFunction     *fun;
 
@@ -60674,7 +60673,7 @@ static BIT_INLINE void checkGetter(Ejs *ejs, EjsAny *value, EjsAny *thisObj, Ejs
     #define traceCode(ejs, opcode) opcode
 #endif
 
-#if BIT_UNIX_LIKE || (VXWORKS && !BIT_DIAB)
+#if ME_UNIX_LIKE || (VXWORKS && !ME_DIAB)
     #define CASE(opcode) opcode
     #define BREAK goto *opcodeJump[opcode = traceCode(ejs, GET_BYTE())]
 #else
@@ -60732,7 +60731,7 @@ static void VM(Ejs *ejs, EjsFunction *fun, EjsAny *otherThis, int argc, int stac
     EjsString   *str;
     int         i, offset, count, opcode, attributes, paused;
 
-#if BIT_UNIX_LIKE || (VXWORKS && !BIT_DIAB)
+#if ME_UNIX_LIKE || (VXWORKS && !ME_DIAB)
     /*
         Direct threading computed goto processing. Include computed goto jump table.
      */
@@ -60757,7 +60756,7 @@ static void VM(Ejs *ejs, EjsFunction *fun, EjsAny *otherThis, int argc, int stac
     assert(state->fp);
     FRAME->caller = 0;
 
-#if BIT_UNIX_LIKE || (VXWORKS && !BIT_DIAB)
+#if ME_UNIX_LIKE || (VXWORKS && !ME_DIAB)
     /*
         Direct threading computed goto processing. Include computed goto jump table.
      */
@@ -60974,7 +60973,7 @@ static void VM(Ejs *ejs, EjsFunction *fun, EjsAny *otherThis, int argc, int stac
                 Stack after         [RegExp]
          */
         CASE (EJS_OP_LOAD_REGEXP):
-#if BIT_PACK_PCRE
+#if ME_EXT_PCRE
             str = GET_STRING();
             v1 = (EjsObj*) ejsParseRegExp(ejs, str);
             push(v1);
@@ -62938,13 +62937,13 @@ static void VM(Ejs *ejs, EjsFunction *fun, EjsAny *otherThis, int argc, int stac
             assert(0);
             BREAK;
 
-#if !BIT_UNIX_LIKE && !(VXWORKS && !BIT_DIAB)
+#if !ME_UNIX_LIKE && !(VXWORKS && !ME_DIAB)
         }
     }
 #endif
     
 done:
-#if BIT_DEBUG && FUTURE
+#if ME_DEBUG && FUTURE
     if (ejs->initialized) {
         ejsShowOpFrequency(ejs);
     }
@@ -63821,7 +63820,7 @@ int ejsGrowStack(Ejs *ejs, int incr)
         /*
             Allocate a stack
          */
-        if (sp->top >= &sp->bottom[BIT_MAX_EJS_STACK]) {
+        if (sp->top >= &sp->bottom[ME_MAX_EJS_STACK]) {
             return MPR_ERR_MEMORY;
         }
         size = (sizeof(EjsObj*) * incr);
@@ -64138,7 +64137,7 @@ static EjsAny *getNthBlock(Ejs *ejs, int nth)
 void ejsLog(Ejs *ejs, cchar *fmt, ...)
 {
     va_list     args;
-    char        buf[BIT_MAX_BUFFER];
+    char        buf[ME_MAX_BUFFER];
 
     va_start(args, fmt);
     fmtv(buf, sizeof(buf) - 1, fmt, args);
@@ -64148,7 +64147,7 @@ void ejsLog(Ejs *ejs, cchar *fmt, ...)
 
 
 #if FUTURE
-#if BIT_HAS_LIB_EDIT
+#if ME_HAS_LIB_EDIT
 static History  *cmdHistory;
 static EditLine *eh; 
 static cchar    *prompt;
@@ -64318,7 +64317,7 @@ void ejsShowOpFrequency(Ejs *ejs)
 }
 #endif
 
-#endif /* BIT_DEBUG */
+#endif /* ME_DEBUG */
 
 
 /*
@@ -65289,7 +65288,7 @@ static int loadDocSection(Ejs *ejs, EjsModule *mp)
 static int loadNativeLibrary(Ejs *ejs, EjsModule *mp, cchar *modPath)
 {
     MprModule   *native;
-    char        *base, *bare, *path, *moduleName, initName[BIT_MAX_PATH], *cp;
+    char        *base, *bare, *path, *moduleName, initName[ME_MAX_PATH], *cp;
 
     /*
         Replace ".mod" with ".so", ".dll" or ".dylib"
@@ -65300,9 +65299,9 @@ static int loadNativeLibrary(Ejs *ejs, EjsModule *mp, cchar *modPath)
     }
     base = mprGetPathBase(bare);
     if (!sstarts(base, "lib")) {
-        path = mprJoinPath(mprGetPathDir(bare), sjoin("lib", base, BIT_SHOBJ, NULL));
+        path = mprJoinPath(mprGetPathDir(bare), sjoin("lib", base, ME_SHOBJ, NULL));
     } else {
-        path = sjoin(bare, BIT_SHOBJ, NULL);
+        path = sjoin(bare, ME_SHOBJ, NULL);
     }
     if (! mprPathExists(path, R_OK)) {
         mprError("Native module not found %s", path);
@@ -66873,7 +66872,7 @@ EjsName ejsModuleReadName(Ejs *ejs, EjsModule *mp)
 #if UNUSED && KEEP
 int ejsSwapInt16(Ejs *ejs, int word)
 {
-    if (mprGetEndian(ejs) == BIT_LITTLE_ENDIAN) {
+    if (mprGetEndian(ejs) == ME_LITTLE_ENDIAN) {
         return word;
     }
     return ((word & 0xFF) << 8) | ((word & 0xFF00) >> 8);
@@ -66883,7 +66882,7 @@ int ejsSwapInt16(Ejs *ejs, int word)
 
 int ejsSwapInt32(Ejs *ejs, int word)
 {
-    if (mprGetEndian(ejs) == BIT_LITTLE_ENDIAN) {
+    if (mprGetEndian(ejs) == ME_LITTLE_ENDIAN) {
         return word;
     }
     return ((word & 0xFF000000) >> 24) | ((word & 0xFF0000) >> 8) | ((word & 0xFF00) << 8) | ((word & 0xFF) << 24);
@@ -66894,7 +66893,7 @@ int64 ejsSwapInt64(Ejs *ejs, int64 a)
 {
     int64   low, high;
 
-    if (mprGetEndian(ejs) == BIT_LITTLE_ENDIAN) {
+    if (mprGetEndian(ejs) == ME_LITTLE_ENDIAN) {
         return a;
     }
     low = a & 0xFFFFFFFF;
@@ -66911,7 +66910,7 @@ double ejsSwapDouble(Ejs *ejs, double a)
         double  d;
     } alias;
     
-    if (mprGetEndian(ejs) == BIT_LITTLE_ENDIAN) {
+    if (mprGetEndian(ejs) == ME_LITTLE_ENDIAN) {
         return a;
     }
     alias.d = a;
@@ -66924,7 +66923,7 @@ double ejsSwapDouble(Ejs *ejs, double a)
 {
     int64   low, high;
 
-    if (mprGetEndian(ejs) == BIT_LITTLE_ENDIAN) {
+    if (mprGetEndian(ejs) == ME_LITTLE_ENDIAN) {
         return a;
     }
     low = ((int64) a) & 0xFFFFFFFF;
@@ -67261,7 +67260,7 @@ EjsAny *ejsGetVarByName(Ejs *ejs, EjsAny *obj, EjsName name, EjsLookup *lookup)
 
 void ejsShowBlockScope(Ejs *ejs, EjsBlock *block)
 {
-#if BIT_DEBUG
+#if ME_DEBUG
     EjsNamespace    *nsp;
     MprList         *namespaces;
     int             nextNsp;
@@ -67282,7 +67281,7 @@ void ejsShowBlockScope(Ejs *ejs, EjsBlock *block)
 
 void ejsShowCurrentScope(Ejs *ejs)
 {
-#if BIT_DEBUG
+#if ME_DEBUG
     EjsNamespace    *nsp;
     MprList         *namespaces;
     EjsBlock        *block;
@@ -67847,14 +67846,14 @@ static void defineSharedTypes(Ejs *ejs)
     ejsCreateGlobalNamespaces(ejs);
     ejsAddNativeModule(ejs, "ejs", configureEjs, _ES_CHECKSUM_ejs, 0);
 
-#if BIT_EJS_ONE_MODULE
-    #if BIT_PACK_SQLITE && BIT_EJS_DB
+#if ME_EJS_ONE_MODULE
+    #if ME_EXT_SQLITE && ME_EJS_DB
         ejs_db_sqlite_Init(ejs, NULL);
     #endif
-#if BIT_EJS_WEB
+#if ME_EJS_WEB
     ejs_web_Init(ejs, NULL);
 #endif
-#if BIT_EJS_ZLIB
+#if ME_EJS_ZLIB
     ejs_zlib_Init(ejs, NULL);
 #endif
 #endif
@@ -67909,7 +67908,7 @@ static void initStack(Ejs *ejs)
         This will allocate memory virtually for systems with virutal memory. Otherwise, it will just use malloc.
      */
     state = ejs->state;
-    state->stackSize = MPR_PAGE_ALIGN(BIT_MAX_EJS_STACK, mprGetPageSize(ejs));
+    state->stackSize = MPR_PAGE_ALIGN(ME_MAX_EJS_STACK, mprGetPageSize(ejs));
     if ((state->stackBase = mprVirtAlloc(state->stackSize, MPR_MAP_READ | MPR_MAP_WRITE)) != 0) {
         state->stack = &state->stackBase[-1];
     }
@@ -67956,7 +67955,7 @@ static int configureEjs(Ejs *ejs)
         ejsConfigureWorkerType(ejs);
         ejsConfigureXMLType(ejs);
         ejsConfigureXMLListType(ejs);
-#if BIT_HTTP_WEB_SOCKETS
+#if ME_HTTP_WEB_SOCKETS
         ejsConfigureWebSocketType(ejs);
 #endif
         ejs->service->immutableInitialized = 1;
@@ -68050,8 +68049,8 @@ EjsArray *ejsCreateSearchPath(Ejs *ejs, cchar *search)
     ejsSetProperty(ejs, ap, -1, ejsCreatePathFromAsc(ejs, "."));
     ejsSetProperty(ejs, ap, -1, ejsCreatePathFromAsc(ejs, mprGetAppDir()));
 #if !VXWORKS
-    if (!smatch(mprGetAppDir(), BIT_VAPP_PREFIX "/bin")) {
-        ejsSetProperty(ejs, ap, -1, ejsCreatePathFromAsc(ejs, BIT_VAPP_PREFIX "/bin"));
+    if (!smatch(mprGetAppDir(), ME_VAPP_PREFIX "/bin")) {
+        ejsSetProperty(ejs, ap, -1, ejsCreatePathFromAsc(ejs, ME_VAPP_PREFIX "/bin"));
     }
 #endif
     if ((home = getenv("HOME")) != 0) {
@@ -68513,4 +68512,4 @@ void ejsDisableExit(Ejs *ejs)
 
     @end
  */
-#endif /* BIT_PACK_EJSCRIPT */
+#endif /* ME_EXT_EJS */

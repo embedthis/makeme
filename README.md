@@ -1,15 +1,15 @@
-Embedthis Bit
+Embedthis MakeMe
 ===
 
-Embedthis Build It. A modern replacement for autoconf/make.
+Embedthis MakeMe. A modern replacement for autoconf/make.
 
 Licensing
 ---
-See [LICENSE.md](https://github.com/embedthis/bit/blob/master/LICENSE.md) for details.
+See [LICENSE.md](https://github.com/embedthis/makeme/blob/master/LICENSE.md) for details.
 
 ### Documentation:
 
-    Coming soon at http://embedthis.com/products/bit/doc/product/index.html
+    Coming soon at http://embedthis.com/products/makeme/doc/product/index.html
 
 ### To build first time:
 
@@ -17,13 +17,17 @@ See [LICENSE.md](https://github.com/embedthis/bit/blob/master/LICENSE.md) for de
 
 ### To install
 
-    */bin/bit install
+    */bin/me install
 
 ### To build thereafter: 
 
-    bit
+    me
+
+### Command line to build things
+
+    me
 
 Resources
 ---
-  - [Bit Web Site](http://embedthis.com/products/bit/)
-  - [Bit GitHub repository](https://github.com/embedthis/bit)
+  - [MakeMe Web Site](http://embedthis.com/products/makeme/)
+  - [MakeMe GitHub repository](https://github.com/embedthis/makeme)

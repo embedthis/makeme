@@ -1,5 +1,0 @@
-/*
-    pak.bit - Pak package for Bit
- */
-
-program('pak', 'Pak Package Manager')

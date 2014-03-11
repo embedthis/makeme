@@ -68,9 +68,9 @@
 
 /*
     Memory checking and breakpoints
-    BIT_MPR_ALLOC_DEBUG checks that blocks are valid and keeps track of the location where memory is allocated from.
+    ME_MPR_ALLOC_DEBUG checks that blocks are valid and keeps track of the location where memory is allocated from.
  */
-#if BIT_MPR_ALLOC_DEBUG
+#if ME_MPR_ALLOC_DEBUG
     /*
         Set this address to break when this address is allocated or freed
         Only used for debug, but defined regardless so we can have constant exports.
@@ -106,7 +106,7 @@
 
 #define ATOMIC_ADD(field, adj) mprAtomicAdd64((int64*) &heap->stats.field, adj)
 
-#if BIT_MPR_ALLOC_STATS
+#if ME_MPR_ALLOC_STATS
     #define ATOMIC_INC(field) mprAtomicAdd64((int64*) &heap->stats.field, 1)
     #define INC(field) heap->stats.field++
 #else
@@ -114,17 +114,17 @@
     #define INC(field)
 #endif
 
-#if LINUX || BIT_BSD_LIKE
+#if LINUX || ME_BSD_LIKE
     #define findFirstBit(word) ffsl((long) word)
 #endif
 #if MACOSX
     #define findLastBit(x) flsl((long) x)
 #endif
 #ifndef findFirstBit
-    static BIT_INLINE int findFirstBit(size_t word);
+    static ME_INLINE int findFirstBit(size_t word);
 #endif
 #ifndef findLastBit
-    static BIT_INLINE int findLastBit(size_t word);
+    static ME_INLINE int findLastBit(size_t word);
 #endif
 
 #define YIELDED_THREADS     0x1         /* Resume threads that are yielded (only) */
@@ -141,53 +141,53 @@ static int          pauseGC;
 
 /***************************** Forward Declarations ***************************/
 
-static BIT_INLINE bool acquire(MprFreeQueue *freeq);
+static ME_INLINE bool acquire(MprFreeQueue *freeq);
 static void allocException(int cause, size_t size);
 static MprMem *allocMem(size_t size);
-static BIT_INLINE int cas(size_t *target, size_t expected, size_t value);
-static BIT_INLINE bool claim(MprMem *mp);
-static BIT_INLINE void clearbitmap(size_t *bitmap, int bindex);
+static ME_INLINE int cas(size_t *target, size_t expected, size_t value);
+static ME_INLINE bool claim(MprMem *mp);
+static ME_INLINE void clearbitmap(size_t *bitmap, int bindex);
 static void dummyManager(void *ptr, int flags);
 static size_t fastMemSize();
 static void freeBlock(MprMem *mp);
 static void getSystemInfo();
 static MprMem *growHeap(size_t size);
-static BIT_INLINE size_t qtosize(int qindex);
-static BIT_INLINE bool linkBlock(MprMem *mp); 
-static BIT_INLINE void linkSpareBlock(char *ptr, size_t size);
-static BIT_INLINE void initBlock(MprMem *mp, size_t size, int first);
+static ME_INLINE size_t qtosize(int qindex);
+static ME_INLINE bool linkBlock(MprMem *mp); 
+static ME_INLINE void linkSpareBlock(char *ptr, size_t size);
+static ME_INLINE void initBlock(MprMem *mp, size_t size, int first);
 static int initQueues();
 static void invokeDestructors();
 static void markAndSweep();
 static void markRoots();
 static int pauseThreads();
 static void printMemReport();
-static BIT_INLINE void release(MprFreeQueue *freeq);
+static ME_INLINE void release(MprFreeQueue *freeq);
 static void resumeThreads(int flags);
-static BIT_INLINE void setbitmap(size_t *bitmap, int bindex);
-static BIT_INLINE int sizetoq(size_t size);
+static ME_INLINE void setbitmap(size_t *bitmap, int bindex);
+static ME_INLINE int sizetoq(size_t size);
 static void sweep();
 static void sweeperThread(void *unused, MprThread *tp);
-static BIT_INLINE void triggerGC();
-static BIT_INLINE void unlinkBlock(MprMem *mp);
+static ME_INLINE void triggerGC();
+static ME_INLINE void unlinkBlock(MprMem *mp);
 static void *vmalloc(size_t size, int mode);
 static void vmfree(void *ptr, size_t size);
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     static int winPageModes(int flags);
 #endif
-#if BIT_MPR_ALLOC_DEBUG
+#if ME_MPR_ALLOC_DEBUG
     static void breakpoint(MprMem *mp);
     static int validBlk(MprMem *mp);
     static void freeLocation(MprMem *mp);
 #else
     #define freeLocation(mp)
 #endif
-#if BIT_MPR_ALLOC_STATS
+#if ME_MPR_ALLOC_STATS
     static void printQueueStats();
     static void printGCStats();
 #endif
-#if BIT_MPR_ALLOC_STACK
+#if ME_MPR_ALLOC_STACK
     static void monitorStack();
 #else
     #define monitorStack()
@@ -217,7 +217,7 @@ PUBLIC Mpr *mprCreateMemService(MprManager manager, int flags)
      */
     mprSize = MPR_ALLOC_ALIGN(sizeof(MprMem) + sizeof(Mpr) + (MPR_MANAGER_SIZE * sizeof(void*)));
     regionSize = MPR_ALLOC_ALIGN(sizeof(MprRegion));
-    size = max(mprSize + regionSize, BIT_MPR_ALLOC_REGION_SIZE);
+    size = max(mprSize + regionSize, ME_MPR_ALLOC_REGION_SIZE);
     if ((region = mprVirtAlloc(size, MPR_MAP_READ | MPR_MAP_WRITE)) == NULL) {
         return NULL;
     }
@@ -233,19 +233,19 @@ PUBLIC Mpr *mprCreateMemService(MprManager manager, int flags)
 
     heap->flags = flags;
     heap->nextSeqno = 1;
-    heap->regionSize = BIT_MPR_ALLOC_REGION_SIZE;
+    heap->regionSize = ME_MPR_ALLOC_REGION_SIZE;
     heap->stats.maxHeap = (size_t) -1;
     heap->stats.warnHeap = ((size_t) -1) / 100 * 95;
-    heap->stats.cacheHeap = BIT_MPR_ALLOC_CACHE;
-    heap->stats.lowHeap = max(BIT_MPR_ALLOC_CACHE / 8, BIT_MPR_ALLOC_REGION_SIZE);
-    heap->workQuota = BIT_MPR_ALLOC_QUOTA;
+    heap->stats.cacheHeap = ME_MPR_ALLOC_CACHE;
+    heap->stats.lowHeap = max(ME_MPR_ALLOC_CACHE / 8, ME_MPR_ALLOC_REGION_SIZE);
+    heap->workQuota = ME_MPR_ALLOC_QUOTA;
     heap->gcEnabled = !(heap->flags & MPR_DISABLE_GC);
 
     /* Internal testing use only */
     if (scmp(getenv("MPR_DISABLE_GC"), "1") == 0) {
         heap->gcEnabled = 0;
     }
-#if BIT_MPR_ALLOC_DEBUG
+#if ME_MPR_ALLOC_DEBUG
     if (scmp(getenv("MPR_SCRIBBLE_MEM"), "1") == 0) {
         heap->scribble = 1;
     }
@@ -275,7 +275,7 @@ PUBLIC Mpr *mprCreateMemService(MprManager manager, int flags)
 }
 
 
-static BIT_INLINE void initBlock(MprMem *mp, size_t size, int first)
+static ME_INLINE void initBlock(MprMem *mp, size_t size, int first)
 {
     static MprMem empty = {0};
 
@@ -435,7 +435,7 @@ static int initQueues()
     for (freeq = heap->freeq, qindex = 0; freeq < &heap->freeq[MPR_ALLOC_NUM_QUEUES]; freeq++, qindex++) {
         /* Size includes MprMem header */
         freeq->minSize = (MprMemSize) qtosize(qindex);
-#if (BIT_MPR_ALLOC_STATS && BIT_MPR_ALLOC_DEBUG)
+#if (ME_MPR_ALLOC_STATS && ME_MPR_ALLOC_DEBUG)
         printf("Queue: %d, usize %u  size %u\n",
             (int) (freeq - heap->freeq), (int) freeq->minSize - (int) sizeof(MprMem), (int) freeq->minSize);
 #endif
@@ -608,7 +608,7 @@ static void freeBlock(MprMem *mp)
     INC(swept);
     heap->freedBlocks = 1;
     freeLocation(mp);
-#if BIT_MPR_ALLOC_STATS
+#if ME_MPR_ALLOC_STATS
     heap->stats.freed += mp->size;
 #endif
     if (mp->first) {
@@ -627,7 +627,7 @@ static void freeBlock(MprMem *mp)
 /*
     Map a queue index to a block size. This size includes the MprMem header.
  */
-static BIT_INLINE size_t qtosize(int qindex)
+static ME_INLINE size_t qtosize(int qindex)
 {
     size_t  size;
     int     high, low;
@@ -638,7 +638,7 @@ static BIT_INLINE size_t qtosize(int qindex)
         low += MPR_ALLOC_NUM_QBITS;
     }
     high = max(0, high - 1);
-    size = (low << high) << BIT_MPR_ALLOC_ALIGN_SHIFT;
+    size = (low << high) << ME_MPR_ALLOC_ALIGN_SHIFT;
     size += sizeof(MprMem);
     return size;
 }
@@ -649,7 +649,7 @@ static BIT_INLINE size_t qtosize(int qindex)
     based on user sizes (sans header). This permits block searches to avoid scanning the next highest queue for 
     common block sizes: eg. 1K.
  */
-static BIT_INLINE int sizetoq(size_t size)
+static ME_INLINE int sizetoq(size_t size)
 {
     size_t      asize;
     int         msb, shift, high, low, qindex;
@@ -661,7 +661,7 @@ static BIT_INLINE int sizetoq(size_t size)
         return -1;
     }
     size -= sizeof(MprMem);
-    asize = (size >> BIT_MPR_ALLOC_ALIGN_SHIFT);
+    asize = (size >> ME_MPR_ALLOC_ALIGN_SHIFT);
     msb = findLastBit(asize) - 1;
     high = max(0, msb - MPR_ALLOC_QBITS_SHIFT + 1);
     shift = max(0, high - 1);
@@ -676,7 +676,7 @@ static BIT_INLINE int sizetoq(size_t size)
     Add a block to a free q. Called by user threads from allocMem and by sweeper from freeBlock.
     WARNING: Must be called with the freelist not acquired. This is the opposite of unlinkBlock.
  */
-static BIT_INLINE bool linkBlock(MprMem *mp) 
+static ME_INLINE bool linkBlock(MprMem *mp) 
 {
     MprFreeQueue    *freeq;
     MprFreeMem      *fp;
@@ -722,7 +722,7 @@ static BIT_INLINE bool linkBlock(MprMem *mp)
     Remove a block from a free q.
     WARNING: Must be called with the freelist acquired.
  */
-static BIT_INLINE void unlinkBlock(MprMem *mp) 
+static ME_INLINE void unlinkBlock(MprMem *mp) 
 {
     MprFreeQueue    *freeq;
     MprFreeMem      *fp;
@@ -734,7 +734,7 @@ static BIT_INLINE void unlinkBlock(MprMem *mp)
     freeq = &heap->freeq[mp->qindex];
     freeq->count--;
     mp->qindex = 0;
-#if BIT_MPR_ALLOC_DEBUG
+#if ME_MPR_ALLOC_DEBUG
     fp->next = fp->prev = NULL;
 #endif
     mprAtomicAdd64((int64*) &heap->stats.bytesFree, -(int64) mp->size);
@@ -744,7 +744,7 @@ static BIT_INLINE void unlinkBlock(MprMem *mp)
 /*
     This must be robust. i.e. the block spare memory must end up on the freeq
  */
-static BIT_INLINE void linkSpareBlock(char *ptr, size_t size)
+static ME_INLINE void linkSpareBlock(char *ptr, size_t size)
 { 
     MprMem  *mp;
     size_t  len;
@@ -810,12 +810,12 @@ static void *vmalloc(size_t size, int mode)
 {
     void    *ptr;
 
-#if BIT_MPR_ALLOC_VIRTUAL
-    #if BIT_UNIX_LIKE
+#if ME_MPR_ALLOC_VIRTUAL
+    #if ME_UNIX_LIKE
         if ((ptr = mmap(0, size, mode, MAP_PRIVATE | MAP_ANON, -1, 0)) == (void*) -1) {
             return 0;
         }
-    #elif BIT_WIN_LIKE
+    #elif ME_WIN_LIKE
         ptr = VirtualAlloc(0, size, MEM_RESERVE | MEM_COMMIT, winPageModes(mode));
     #else
         if ((ptr = malloc(size)) != 0) {
@@ -833,12 +833,12 @@ static void *vmalloc(size_t size, int mode)
 
 static void vmfree(void *ptr, size_t size)
 {
-#if BIT_MPR_ALLOC_VIRTUAL
-    #if BIT_UNIX_LIKE
+#if ME_MPR_ALLOC_VIRTUAL
+    #if ME_UNIX_LIKE
         if (munmap(ptr, size) != 0) {
             assert(0);
         }
-    #elif BIT_WIN_LIKE
+    #elif ME_WIN_LIKE
         VirtualFree(ptr, 0, MEM_RELEASE);
     #else
         if (heap->scribble) {
@@ -884,7 +884,7 @@ PUBLIC void mprWakeGCService()
 }
 
 
-static BIT_INLINE void triggerGC()
+static ME_INLINE void triggerGC()
 {
     if (!heap->gcRequested && heap->gcEnabled && !pauseGC) {
         heap->gcRequested = 1;
@@ -1169,7 +1169,7 @@ static void markAndSweep()
     INC(collections);
     heap->priorWeightedCount = heap->workDone;
     heap->workDone = 0;
-#if BIT_MPR_ALLOC_STATS
+#if ME_MPR_ALLOC_STATS
     heap->priorFree = heap->stats.bytesFree;
 #endif
 
@@ -1177,23 +1177,23 @@ static void markAndSweep()
         Mark all roots. All user threads are paused here
      */
     heap->mark = !heap->mark;
-    MPR_MEASURE(BIT_MPR_ALLOC_LEVEL, "GC", "mark", markRoots());
+    MPR_MEASURE(ME_MPR_ALLOC_LEVEL, "GC", "mark", markRoots());
     heap->sweeping = 1;
     mprAtomicBarrier();
     heap->marking = 0;
     assert(!pauseGC);
 
-#if BIT_MPR_ALLOC_PARALLEL
+#if ME_MPR_ALLOC_PARALLEL
     /* This is the default to run the sweeper in parallel with user threads */
     resumeThreads(YIELDED_THREADS);
 #endif
     /*
         Sweep unused memory with user threads resumed
      */
-    MPR_MEASURE(BIT_MPR_ALLOC_LEVEL, "GC", "sweep", sweep());
+    MPR_MEASURE(ME_MPR_ALLOC_LEVEL, "GC", "sweep", sweep());
     heap->sweeping = 0;
 
-#if BIT_MPR_ALLOC_PARALLEL
+#if ME_MPR_ALLOC_PARALLEL
     /* Now resume threads who are waiting for the sweeper to complete */
     resumeThreads(WAITING_THREADS);
 #else
@@ -1208,7 +1208,7 @@ static void markRoots()
     int     next;
 
     mprTrace(7, "GC: markRoots");
-#if BIT_MPR_ALLOC_STATS
+#if ME_MPR_ALLOC_STATS
     heap->stats.markVisited = 0;
     heap->stats.marked = 0;
 #endif
@@ -1251,7 +1251,7 @@ static void invokeDestructors()
 /*
     Claim a block from its freeq for the sweeper. This removes the block from the freeq and clears the "free" bit.
  */
-static BIT_INLINE bool claim(MprMem *mp)
+static ME_INLINE bool claim(MprMem *mp)
 {
     MprFreeQueue    *freeq;
     int             qindex;
@@ -1293,7 +1293,7 @@ static void sweep()
         return;
     }
     mprTrace(7, "GC: sweep started");
-#if BIT_MPR_ALLOC_STATS
+#if ME_MPR_ALLOC_STATS
     heap->stats.sweepVisited = 0;
     heap->stats.swept = 0;
     heap->stats.freed = 0;
@@ -1382,7 +1382,7 @@ static void sweep()
             prior = region;
         }
     }
-#if (BIT_MPR_ALLOC_STATS && BIT_MPR_ALLOC_DEBUG) && KEEP
+#if (ME_MPR_ALLOC_STATS && ME_MPR_ALLOC_DEBUG) && KEEP
     printf("GC: Marked %lld / %lld, Swept %lld / %lld, freed %lld, bytesFree %lld (prior %lld)\n"
                  "    WeightedCount %d / %d, allocated blocks %lld allocated bytes %lld\n"
                  "    Unpins %lld, Collections %lld\n",
@@ -1634,7 +1634,7 @@ PUBLIC void mprRemoveRoot(cvoid *root)
 
 /****************************************************** Debug *************************************************************/
 
-#if BIT_MPR_ALLOC_STATS
+#if ME_MPR_ALLOC_STATS
 static void printQueueStats() 
 {
     MprFreeQueue    *freeq;
@@ -1653,7 +1653,7 @@ static void printQueueStats()
 }
 
 
-#if BIT_MPR_ALLOC_DEBUG
+#if ME_MPR_ALLOC_DEBUG
 static MprLocationStats sortLocations[MPR_TRACK_HASH];
 
 static int sortLocation(cvoid *l1, cvoid *l2)
@@ -1694,7 +1694,7 @@ static void printTracking()
         }
     }
 }
-#endif /* BIT_MPR_ALLOC_DEBUG */
+#endif /* ME_MPR_ALLOC_DEBUG */
 
 
 static void printGCStats()
@@ -1752,7 +1752,7 @@ static void printGCStats()
     printf("  Eternal: %9d blocks, %12ld bytes\n", eternalCount, eternalBytes);
     printf("  Free:    %9d blocks, %12ld bytes\n", freeCount, freeBytes);
 }
-#endif /* BIT_MPR_ALLOC_STATS */
+#endif /* ME_MPR_ALLOC_STATS */
 
 
 PUBLIC void mprPrintMem(cchar *msg, int flags)
@@ -1787,7 +1787,7 @@ static void printMemReport()
     printf("  Allocation errors %14d\n",               (int) ap->errors);
     printf("\n");
 
-#if BIT_MPR_ALLOC_STATS
+#if ME_MPR_ALLOC_STATS
     printf("  Memory requests   %14d\n",                (int) ap->requests);
     printf("  Region allocs     %14.2f %% (%d)\n",      ap->allocs * 100.0 / ap->requests, (int) ap->allocs);
     printf("  Region unpins     %14.2f %% (%d)\n",      ap->unpins * 100.0 / ap->requests, (int) ap->unpins);
@@ -1805,17 +1805,17 @@ static void printMemReport()
     printGCStats();
     if (heap->printStats > 1) {
         printQueueStats();
-#if BIT_MPR_ALLOC_DEBUG
+#if ME_MPR_ALLOC_DEBUG
         if (heap->track) {
             printTracking();
         }
 #endif
     }
-#endif /* BIT_MPR_ALLOC_STATS */
+#endif /* ME_MPR_ALLOC_STATS */
 }
 
 
-#if BIT_MPR_ALLOC_DEBUG
+#if ME_MPR_ALLOC_DEBUG
 static int validBlk(MprMem *mp)
 {
     assert(mp->magic == MPR_ALLOC_MAGIC);
@@ -1842,7 +1842,7 @@ static void breakpoint(MprMem *mp)
 }
 
 
-#if BIT_MPR_ALLOC_DEBUG
+#if ME_MPR_ALLOC_DEBUG
 /*
     Called to set the memory block name when doing an allocation
  */
@@ -2014,7 +2014,7 @@ static void getSystemInfo()
     }
     alloc.pageSize = sysconf(_SC_PAGESIZE);
 }
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
 {
     SYSTEM_INFO     info;
 
@@ -2023,7 +2023,7 @@ static void getSystemInfo()
     memStats.pageSize = info.dwPageSize;
 
 }
-#elif BIT_BSD_LIKE
+#elif ME_BSD_LIKE
     {
         int     cmd[2];
         size_t  len;
@@ -2081,7 +2081,7 @@ static void getSystemInfo()
 }
 
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
 static int winPageModes(int flags)
 {
     if (flags & MPR_MAP_EXECUTE) {
@@ -2113,7 +2113,7 @@ PUBLIC MprMemStats *mprGetMemStats()
         close(fd);
     }
 #endif
-#if BIT_BSD_LIKE
+#if ME_BSD_LIKE
     size_t      len;
     int         mib[2];
 #if FREEBSD
@@ -2152,10 +2152,10 @@ PUBLIC size_t mprGetMem()
 
 #if LINUX
     int fd;
-    char path[BIT_MAX_PATH];
+    char path[ME_MAX_PATH];
     sprintf(path, "/proc/%d/status", getpid());
     if ((fd = open(path, O_RDONLY)) >= 0) {
-        char buf[BIT_MAX_BUFFER], *tok;
+        char buf[ME_MAX_BUFFER], *tok;
         int nbytes = read(fd, buf, sizeof(buf) - 1);
         close(fd);
         if (nbytes > 0) {
@@ -2177,7 +2177,7 @@ PUBLIC size_t mprGetMem()
     if (task_info(mach_task_self(), TASK_BASIC_INFO, (task_info_t) &info, &count) == KERN_SUCCESS) {
         size = info.resident_size;
     }
-#elif BIT_BSD_LIKE
+#elif ME_BSD_LIKE
     struct rusage   rusage;
     getrusage(RUSAGE_SELF, &rusage);
     size = rusage.ru_maxrss;
@@ -2218,7 +2218,7 @@ static size_t fastMemSize()
 
 
 #ifndef findFirstBit
-static BIT_INLINE int findFirstBit(size_t word)
+static ME_INLINE int findFirstBit(size_t word)
 {
     int     b;
     for (b = 0; word; word >>= 1, b++) {
@@ -2233,7 +2233,7 @@ static BIT_INLINE int findFirstBit(size_t word)
 
 
 #ifndef findLastBit
-static BIT_INLINE int findLastBit(size_t word)
+static ME_INLINE int findLastBit(size_t word)
 {
     int     b;
 
@@ -2246,15 +2246,15 @@ static BIT_INLINE int findLastBit(size_t word)
 /*
     Acquire the freeq. Note: this is only ever used by non-blocking algorithms.
  */
-static BIT_INLINE bool acquire(MprFreeQueue *freeq)
+static ME_INLINE bool acquire(MprFreeQueue *freeq)
 {
 #if MACOSX
     return OSSpinLockTry(&freeq->lock.cs);
-#elif BIT_UNIX_LIKE && BIT_HAS_SPINLOCK
+#elif ME_UNIX_LIKE && ME_HAS_SPINLOCK
     return pthread_spin_trylock(&freeq->lock.cs) == 0;
-#elif BIT_UNIX_LIKE
+#elif ME_UNIX_LIKE
     return pthread_mutex_trylock(&freeq->lock.cs) == 0;
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
     return TryEnterCriticalSection(&freeq->lock.cs) != 0;
 #elif VXWORKS
     return semTake(freeq->lock.cs, NO_WAIT) == OK;
@@ -2264,15 +2264,15 @@ static BIT_INLINE bool acquire(MprFreeQueue *freeq)
 }
 
 
-static BIT_INLINE void release(MprFreeQueue *freeq)
+static ME_INLINE void release(MprFreeQueue *freeq)
 {
 #if MACOSX
     OSSpinLockUnlock(&freeq->lock.cs);
-#elif BIT_UNIX_LIKE && BIT_HAS_SPINLOCK
+#elif ME_UNIX_LIKE && ME_HAS_SPINLOCK
     pthread_spin_unlock(&freeq->lock.cs);
-#elif BIT_UNIX_LIKE
+#elif ME_UNIX_LIKE
     pthread_mutex_unlock(&freeq->lock.cs);
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
     LeaveCriticalSection(&freeq->lock.cs);
 #elif VXWORKS
     semGive(freeq->lock.cs);
@@ -2280,13 +2280,13 @@ static BIT_INLINE void release(MprFreeQueue *freeq)
 }
 
 
-static BIT_INLINE int cas(size_t *target, size_t expected, size_t value)
+static ME_INLINE int cas(size_t *target, size_t expected, size_t value)
 {
     return mprAtomicCas((void**) target, (void*) expected, (cvoid*) value);
 }
 
 
-static BIT_INLINE void clearbitmap(size_t *bitmap, int bindex) 
+static ME_INLINE void clearbitmap(size_t *bitmap, int bindex) 
 {
     size_t  bit, prior;
 
@@ -2300,7 +2300,7 @@ static BIT_INLINE void clearbitmap(size_t *bitmap, int bindex)
 }
 
 
-static BIT_INLINE void setbitmap(size_t *bitmap, int bindex) 
+static ME_INLINE void setbitmap(size_t *bitmap, int bindex) 
 {
     size_t  bit, prior;
 
@@ -2314,7 +2314,7 @@ static BIT_INLINE void setbitmap(size_t *bitmap, int bindex)
 }
 
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
 PUBLIC Mpr *mprGetMpr()
 {
     return MPR;
@@ -2363,7 +2363,7 @@ PUBLIC void mprSetMemLimits(ssize warnHeap, ssize maxHeap, ssize cacheHeap)
     }
     if (cacheHeap >= 0) {
         heap->stats.cacheHeap = cacheHeap;
-        heap->stats.lowHeap = cacheHeap ? cacheHeap / 8 : BIT_MPR_ALLOC_REGION_SIZE;
+        heap->stats.lowHeap = cacheHeap ? cacheHeap / 8 : ME_MPR_ALLOC_REGION_SIZE;
     }
 }
 
@@ -2400,7 +2400,7 @@ PUBLIC int mprIsValid(cvoid *ptr)
     if (mp->free) {
         return 0;
     }
-#if BIT_WIN
+#if ME_WIN
     if (isBadWritePtr(mp, sizeof(MprMem))) {
         return 0;
     }
@@ -2412,7 +2412,7 @@ PUBLIC int mprIsValid(cvoid *ptr)
     }
     return 0;
 #else
-#if BIT_MPR_ALLOC_DEBUG
+#if ME_MPR_ALLOC_DEBUG
     return ptr && mp->magic == MPR_ALLOC_MAGIC && mp->size > 0;
 #else
     return ptr && mp->size > 0;
@@ -2441,7 +2441,7 @@ PUBLIC void *mprSetManager(void *ptr, MprManager manager)
 }
 
 
-#if BIT_MPR_ALLOC_STACK
+#if ME_MPR_ALLOC_STACK
 static void monitorStack()
 {
     MprThread   *tp;
@@ -2464,7 +2464,7 @@ static void monitorStack()
 }
 #endif
 
-#if !BIT_MPR_ALLOC_DEBUG
+#if !ME_MPR_ALLOC_DEBUG
 #undef mprSetName
 #undef mprCopyName
 #undef mprSetAllocName
@@ -2846,7 +2846,7 @@ PUBLIC bool mprDestroy()
 static void setNames(Mpr *mpr, int argc, char **argv)
 {
     if (argv) {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
         if (argc >= 2 && strstr(argv[1], "--cygroot") != 0) {
             /*
                 Cygwin shebang is broken. It will catenate args into argv[1]
@@ -2877,14 +2877,14 @@ static void setNames(Mpr *mpr, int argc, char **argv)
             mpr->argv[0] = sclone(mprGetAppPath());
         }
     } else {
-        mpr->name = sclone(BIT_PRODUCT);
+        mpr->name = sclone(ME_NAME);
         mpr->argv = mprAllocZeroed(2 * sizeof(void*));
         mpr->argv[0] = mpr->name;
         mpr->argc = 0;
     }
     mpr->name = mprTrimPathExt(mprGetPathBase(mpr->argv[0]));
-    mpr->title = sfmt("%s %s", stitle(BIT_COMPANY), stitle(mpr->name));
-    mpr->version = sclone(BIT_VERSION);
+    mpr->title = sfmt("%s %s", stitle(ME_COMPANY), stitle(mpr->name));
+    mpr->version = sclone(ME_VERSION);
 }
 
 
@@ -2908,7 +2908,7 @@ PUBLIC void mprAddTerminator(MprTerminator terminator)
 
 PUBLIC void mprRestart()
 {
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     int     i;
 
     for (i = 3; i < MPR_MAX_FILE; i++) {
@@ -3312,7 +3312,7 @@ PUBLIC int mprGetEndian()
 
     test = 1;
     probe = (char*) &test;
-    return (*probe == 1) ? BIT_LITTLE_ENDIAN : BIT_BIG_ENDIAN;
+    return (*probe == 1) ? ME_LITTLE_ENDIAN : ME_BIG_ENDIAN;
 }
 
 
@@ -3324,7 +3324,7 @@ PUBLIC char *mprEmptyString()
 
 PUBLIC void mprSetEnv(cchar *key, cchar *value)
 {
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     setenv(key, value, 1);
 #else
     char *cmd = sjoin(key, "=", value, NULL);
@@ -3351,7 +3351,7 @@ PUBLIC void mprNop(void *ptr) {
  */
 PUBLIC int mprDaemon()
 {
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     struct sigaction    act, old;
     int                 i, pid, status;
 
@@ -3481,7 +3481,7 @@ PUBLIC void *mprGetKey(cchar *key)
 
 
 
-#if BIT_EVENT_NOTIFIER == MPR_EVENT_ASYNC
+#if ME_EVENT_NOTIFIER == MPR_EVENT_ASYNC
 
 /***************************** Forward Declarations ***************************/
 
@@ -3616,7 +3616,7 @@ PUBLIC void mprWaitForIO(MprWaitService *ws, MprTicks timeout)
     if (timeout < 0 || timeout > MAXINT) {
         timeout = MAXINT;
     }
-#if BIT_DEBUG
+#if ME_DEBUG
     if (mprGetDebugMode() && timeout > 30000) {
         timeout = 30000;
     }
@@ -3874,22 +3874,22 @@ PUBLIC void mprAtomicBarrier()
     #elif defined(VX_MEM_BARRIER_RW)
         VX_MEM_BARRIER_RW();
 
-    #elif BIT_WIN_LIKE
+    #elif ME_WIN_LIKE
         MemoryBarrier();
 
-    #elif BIT_HAS_ATOMIC
+    #elif ME_HAS_ATOMIC
         __atomic_thread_fence(__ATOMIC_SEQ_CST);
 
-    #elif BIT_HAS_SYNC
+    #elif ME_HAS_SYNC
         __sync_synchronize();
 
-    #elif __GNUC__ && (BIT_CPU_ARCH == BIT_CPU_X86 || BIT_CPU_ARCH == BIT_CPU_X64)
+    #elif __GNUC__ && (ME_CPU_ARCH == ME_CPU_X86 || ME_CPU_ARCH == ME_CPU_X64)
         asm volatile ("mfence" : : : "memory");
 
-    #elif __GNUC__ && (BIT_CPU_ARCH == BIT_CPU_PPC)
+    #elif __GNUC__ && (ME_CPU_ARCH == ME_CPU_PPC)
         asm volatile ("sync" : : : "memory");
 
-    #elif __GNUC__ && (BIT_CPU_ARCH == BIT_CPU_ARM) && KEEP
+    #elif __GNUC__ && (ME_CPU_ARCH == ME_CPU_ARM) && KEEP
         asm volatile ("isync" : : : "memory");
 
     #else
@@ -3908,28 +3908,28 @@ PUBLIC int mprAtomicCas(void * volatile *addr, void *expected, cvoid *value)
     #if MACOSX
         return OSAtomicCompareAndSwapPtrBarrier(expected, (void*) value, (void*) addr);
 
-    #elif VXWORKS && _VX_ATOMIC_INIT && !BIT_64
+    #elif VXWORKS && _VX_ATOMIC_INIT && !ME_64
         /* vxCas operates with integer values */
         return vxCas((atomic_t*) addr, (atomicVal_t) expected, (atomicVal_t) value);
 
-    #elif BIT_WIN_LIKE
+    #elif ME_WIN_LIKE
         return InterlockedCompareExchangePointer(addr, (void*) value, expected) == expected;
 
-    #elif BIT_HAS_ATOMIC
+    #elif ME_HAS_ATOMIC
         void *localExpected = expected;
         return __atomic_compare_exchange(addr, &localExpected, (void**) &value, 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
 
-    #elif BIT_HAS_SYNC_CAS
+    #elif ME_HAS_SYNC_CAS
         return __sync_bool_compare_and_swap(addr, expected, value);
 
-    #elif __GNUC__ && (BIT_CPU_ARCH == BIT_CPU_X86)
+    #elif __GNUC__ && (ME_CPU_ARCH == ME_CPU_X86)
         void *prev;
         asm volatile ("lock; cmpxchgl %2, %1"
             : "=a" (prev), "=m" (*addr)
             : "r" (value), "m" (*addr), "0" (expected));
         return expected == prev;
 
-    #elif __GNUC__ && (BIT_CPU_ARCH == BIT_CPU_X64)
+    #elif __GNUC__ && (ME_CPU_ARCH == ME_CPU_X64)
         void *prev;
         asm volatile ("lock; cmpxchgq %q2, %1"
             : "=a" (prev), "=m" (*addr)
@@ -3937,7 +3937,7 @@ PUBLIC int mprAtomicCas(void * volatile *addr, void *expected, cvoid *value)
               "0" (expected));
             return expected == prev;
 
-    #elif __GNUC__ && (BIT_CPU_ARCH == BIT_CPU_ARM) && KEEP
+    #elif __GNUC__ && (ME_CPU_ARCH == ME_CPU_ARM) && KEEP
 
     #else
         mprSpinLock(atomicSpin);
@@ -3960,20 +3960,20 @@ PUBLIC void mprAtomicAdd(volatile int *ptr, int value)
     #if MACOSX
         OSAtomicAdd32(value, ptr);
 
-    #elif BIT_WIN_LIKE
+    #elif ME_WIN_LIKE
         InterlockedExchangeAdd(ptr, value);
 
-    #elif BIT_HAS_ATOMIC
+    #elif ME_HAS_ATOMIC
         //  OPT - could use __ATOMIC_RELAXED
         __atomic_add_fetch(ptr, value, __ATOMIC_SEQ_CST);
 
-    #elif BIT_HAS_SYNC_CAS
+    #elif ME_HAS_SYNC_CAS
         __sync_add_and_fetch(ptr, value);
 
     #elif VXWORKS && _VX_ATOMIC_INIT
         vxAtomicAdd(ptr, value);
 
-    #elif __GNUC__ && (BIT_CPU_ARCH == BIT_CPU_X86 || BIT_CPU_ARCH == BIT_CPU_X64)
+    #elif __GNUC__ && (ME_CPU_ARCH == ME_CPU_X86 || ME_CPU_ARCH == ME_CPU_X64)
         asm volatile("lock; addl %1,%0"
              : "+m" (*ptr)
              : "ir" (value));
@@ -3994,23 +3994,23 @@ PUBLIC void mprAtomicAdd64(volatile int64 *ptr, int64 value)
     #if MACOSX
         OSAtomicAdd64(value, ptr);
     
-    #elif BIT_WIN_LIKE && BIT_64
+    #elif ME_WIN_LIKE && ME_64
         InterlockedExchangeAdd64(ptr, value);
     
-    #elif BIT_HAS_ATOMIC64 && (BIT_64 || BIT_CPU_ARCH == BIT_CPU_X86 || BIT_CPU_ARCH == BIT_CPU_X64)
+    #elif ME_HAS_ATOMIC64 && (ME_64 || ME_CPU_ARCH == ME_CPU_X86 || ME_CPU_ARCH == ME_CPU_X64)
         //  OPT - could use __ATOMIC_RELAXED
         __atomic_add_fetch(ptr, value, __ATOMIC_SEQ_CST);
 
-    #elif BIT_HAS_SYNC64 && (BIT_64 || BIT_CPU_ARCH == BIT_CPU_X86 || BIT_CPU_ARCH == BIT_CPU_X64)
+    #elif ME_HAS_SYNC64 && (ME_64 || ME_CPU_ARCH == ME_CPU_X86 || ME_CPU_ARCH == ME_CPU_X64)
         __sync_add_and_fetch(ptr, value);
 
-    #elif __GNUC__ && (BIT_CPU_ARCH == BIT_CPU_X86)
+    #elif __GNUC__ && (ME_CPU_ARCH == ME_CPU_X86)
         asm volatile ("lock; xaddl %0,%1"
             : "=r" (value), "=m" (*ptr)
             : "0" (value), "m" (*ptr)
             : "memory", "cc");
     
-    #elif __GNUC__ && (BIT_CPU_ARCH == BIT_CPU_X64)
+    #elif __GNUC__ && (ME_CPU_ARCH == ME_CPU_X64)
         asm volatile("lock; addq %1,%0"
              : "=m" (*ptr)
              : "er" (value), "m" (*ptr));
@@ -4032,13 +4032,13 @@ PUBLIC void *mprAtomicExchange(void *volatile *addr, cvoid *value)
         OSAtomicCompareAndSwapPtrBarrier(old, (void*) value, addr);
         return old;
     
-    #elif BIT_WIN_LIKE
+    #elif ME_WIN_LIKE
         return (void*) InterlockedExchange((volatile LONG*) addr, (LONG) value);
     
-    #elif BIT_HAS_ATOMIC
+    #elif ME_HAS_ATOMIC
         __atomic_exchange_n(addr, value, __ATOMIC_SEQ_CST);
 
-    #elif BIT_HAS_SYNC
+    #elif ME_HAS_SYNC
         return __sync_lock_test_and_set(addr, (void*) value);
     
     #else
@@ -4117,7 +4117,7 @@ PUBLIC MprBuf *mprCreateBuf(ssize initialSize, ssize maxSize)
     MprBuf      *bp;
 
     if (initialSize <= 0) {
-        initialSize = BIT_MAX_BUFFER;
+        initialSize = ME_MAX_BUFFER;
     }
     if ((bp = mprAllocObj(MprBuf, manageBuf)) == 0) {
         return 0;
@@ -4640,7 +4640,7 @@ PUBLIC char *mprBufToString(MprBuf *bp)
 }
 
 
-#if BIT_CHAR_LEN > 1 && KEEP
+#if ME_CHAR_LEN > 1 && KEEP
 PUBLIC void mprAddNullToWideBuf(MprBuf *bp)
 {
     ssize      space;
@@ -4716,7 +4716,7 @@ PUBLIC ssize mprPutStringToWideBuf(MprBuf *bp, cchar *str)
     return 0;
 }
 
-#endif /* BIT_CHAR_LEN > 1 */
+#endif /* ME_CHAR_LEN > 1 */
 
 /*
     @copy   default
@@ -5348,7 +5348,7 @@ static int startProcess(MprCmd *cmd);
 static void stdinCallback(MprCmd *cmd, MprEvent *event);
 static void stdoutCallback(MprCmd *cmd, MprEvent *event);
 static void stderrCallback(MprCmd *cmd, MprEvent *event);
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
 static cchar *makeWinEnvBlock(MprCmd *cmd);
 #endif
 
@@ -5461,7 +5461,7 @@ static void manageCmd(MprCmd *cmd, int flags)
         mprMark(cmd->userData);
         mprMark(cmd->mutex);
         mprMark(cmd->searchPath);
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
         mprMark(cmd->command);
         mprMark(cmd->arg0);
 #endif
@@ -5575,7 +5575,7 @@ PUBLIC void mprCloseCmdFd(MprCmd *cmd, int channel)
     if (cmd->files[channel].fd != -1) {
         close(cmd->files[channel].fd);
         cmd->files[channel].fd = -1;
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
         cmd->files[channel].handle = 0;
 #endif
         if (channel != MPR_CMD_STDIN) {
@@ -5665,10 +5665,10 @@ PUBLIC int mprRunCmdV(MprCmd *cmd, int argc, cchar **argv, cchar **envp, cchar *
         flags &= ~MPR_CMD_OUT;
     }
     if (flags & MPR_CMD_OUT) {
-        cmd->stdoutBuf = mprCreateBuf(BIT_MAX_BUFFER, -1);
+        cmd->stdoutBuf = mprCreateBuf(ME_MAX_BUFFER, -1);
     }
     if (flags & MPR_CMD_ERR) {
-        cmd->stderrBuf = mprCreateBuf(BIT_MAX_BUFFER, -1);
+        cmd->stderrBuf = mprCreateBuf(ME_MAX_BUFFER, -1);
     }
     mprSetCmdCallback(cmd, defaultCmdCallback, NULL);
     rc = mprStartCmd(cmd, argc, argv, envp, flags);
@@ -5867,7 +5867,7 @@ PUBLIC int mprStopCmd(MprCmd *cmd, int signal)
     }
     cmd->stopped = 1;
     if (cmd->pid) {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
         return TerminateProcess(cmd->process, 2) == 0;
 #elif VXWORKS
         return taskDelete(cmd->pid);
@@ -5884,7 +5884,7 @@ PUBLIC int mprStopCmd(MprCmd *cmd, int signal)
  */
 PUBLIC ssize mprReadCmd(MprCmd *cmd, int channel, char *buf, ssize bufsize)
 {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     int     rc, count;
     /*
         Need to detect EOF in windows. Pipe always in blocking mode, but reads block even with no one on the other end.
@@ -5935,7 +5935,7 @@ PUBLIC ssize mprReadCmd(MprCmd *cmd, int channel, char *buf, ssize bufsize)
  */
 PUBLIC ssize mprWriteCmd(MprCmd *cmd, int channel, cchar *buf, ssize bufsize)
 {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     /*
         No waiting. Use this just to check if the process has exited and thus EOF on the pipe.
      */
@@ -5955,7 +5955,7 @@ PUBLIC ssize mprWriteCmd(MprCmd *cmd, int channel, cchar *buf, ssize bufsize)
  */
 PUBLIC ssize mprWriteCmdBlock(MprCmd *cmd, int channel, cchar *buf, ssize bufsize)
 {
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     MprCmdFile  *file;
     ssize       wrote;
 
@@ -6010,7 +6010,7 @@ PUBLIC void mprDisableCmdEvents(MprCmd *cmd, int channel)
 }
 
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
 /*
     Windows only routine to wait for I/O on the channels to the gateway and the child process.
     This will queue events on the dispatcher queue when I/O occurs or the process dies.
@@ -6094,7 +6094,7 @@ PUBLIC int mprWaitForCmd(MprCmd *cmd, MprTicks timeout)
         if (mprShouldAbortRequests()) {
             break;
         }
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
         mprPollWinCmd(cmd, remaining);
         delay = 10;
 #else
@@ -6134,7 +6134,7 @@ static void reapCmd(MprCmd *cmd, bool finalizing)
     if (cmd->pid == 0) {
         return;
     }
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     if ((rc = waitpid(cmd->pid, &status, WNOHANG | __WALL)) < 0) {
         mprTrace(6, "waitpid failed for pid %d, errno %d", cmd->pid, errno);
 
@@ -6175,7 +6175,7 @@ static void reapCmd(MprCmd *cmd, bool finalizing)
     cmd->pid = 0;
     rc = 0;
 #endif
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     if (GetExitCodeProcess(cmd->process, (ulong*) &status) == 0) {
         mprTrace(3, "cmd: GetExitProcess error");
         return;
@@ -6235,8 +6235,8 @@ static void defaultCmdCallback(MprCmd *cmd, int channel, void *data)
         Read and aggregate the result into a single string
      */
     space = mprGetBufSpace(buf);
-    if (space < (BIT_MAX_BUFFER / 4)) {
-        if (mprGrowBuf(buf, BIT_MAX_BUFFER) < 0) {
+    if (space < (ME_MAX_BUFFER / 4)) {
+        if (mprGrowBuf(buf, ME_MAX_BUFFER) < 0) {
             mprCloseCmdFd(cmd, channel);
             return;
         }
@@ -6342,7 +6342,7 @@ PUBLIC void mprSetCmdDir(MprCmd *cmd, cchar *dir)
 }
 
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
 static int sortEnv(char **str1, char **str2)
 {
     cchar    *s1, *s2;
@@ -6423,7 +6423,7 @@ static int blendEnv(MprCmd *cmd, cchar **env, int flags)
             mprAddItem(cmd->env, *ep);
         }
     }
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     /*
         Windows requires a caseless sort with two trailing nulls
      */
@@ -6434,7 +6434,7 @@ static int blendEnv(MprCmd *cmd, cchar **env, int flags)
 }
 
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
 static cchar *makeWinEnvBlock(MprCmd *cmd)
 {
     char    *item, *dp, *ep, *env;
@@ -6467,12 +6467,12 @@ static cchar *makeWinEnvBlock(MprCmd *cmd)
  */
 static int sanitizeArgs(MprCmd *cmd, int argc, cchar **argv, cchar **env, int flags)
 {
-#if BIT_UNIX_LIKE || VXWORKS
+#if ME_UNIX_LIKE || VXWORKS
     cmd->argv = argv;
     cmd->argc = argc;
 #endif
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     /*
         WARNING: If starting a program compiled with Cygwin, there is a bug in Cygwin's parsing of the command
         string where embedded quotes are parsed incorrectly by the Cygwin CRT runtime. If an arg starts with a 
@@ -6554,12 +6554,12 @@ static int sanitizeArgs(MprCmd *cmd, int argc, cchar **argv, cchar **env, int fl
     *dp = '\0';
     argv[0] = saveArg0;
     mprLog(5, "Windows command line: %s", cmd->command);
-#endif /* BIT_WIN_LIKE */
+#endif /* ME_WIN_LIKE */
     return 0;
 }
 
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
 static int startProcess(MprCmd *cmd)
 {
     PROCESS_INFORMATION procInfo;
@@ -6681,7 +6681,7 @@ static int makeChannel(MprCmd *cmd, int index)
 }
 
 
-#elif BIT_UNIX_LIKE
+#elif ME_UNIX_LIKE
 static int makeChannel(MprCmd *cmd, int index)
 {
     MprCmdFile      *file;
@@ -6713,9 +6713,9 @@ static int makeChannel(MprCmd *cmd, int index)
     static int      tempSeed = 0;
 
     file = &cmd->files[index];
-    file->name = sfmt("/pipe/%s_%d_%d", BIT_PRODUCT, taskIdSelf(), tempSeed++);
+    file->name = sfmt("/pipe/%s_%d_%d", ME_NAME, taskIdSelf(), tempSeed++);
 
-    if (pipeDevCreate(file->name, 5, BIT_MAX_BUFFER) < 0) {
+    if (pipeDevCreate(file->name, 5, ME_MAX_BUFFER) < 0) {
         mprError("Cannot create pipes to run %s", cmd->program);
         return MPR_ERR_CANT_OPEN;
     }
@@ -6738,7 +6738,7 @@ static int makeChannel(MprCmd *cmd, int index)
 #endif
 
 
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
 /*
     Called on the cmd dispatcher in response to a child death
  */
@@ -6859,7 +6859,7 @@ PUBLIC int startProcess(MprCmd *cmd)
         program = mprTrimPathExt(program);
         entryPoint = program;
     }
-#if BIT_CPU_ARCH == MPR_CPU_IX86 || BIT_CPU_ARCH == MPR_CPU_IX64 || BIT_CPU_ARCH == MPR_CPU_SH
+#if ME_CPU_ARCH == MPR_CPU_IX86 || ME_CPU_ARCH == MPR_CPU_IX64 || ME_CPU_ARCH == MPR_CPU_SH
     /*
         A leading underscore is required on some architectures
      */
@@ -6881,7 +6881,7 @@ PUBLIC int startProcess(MprCmd *cmd)
     }
     taskPriorityGet(taskIdSelf(), &pri);
 
-    cmd->pid = taskSpawn(entryPoint, pri, VX_FP_TASK | VX_PRIVATE_ENV, BIT_STACK_SIZE, (FUNCPTR) cmdTaskEntry, 
+    cmd->pid = taskSpawn(entryPoint, pri, VX_FP_TASK | VX_PRIVATE_ENV, ME_STACK_SIZE, (FUNCPTR) cmdTaskEntry, 
         (int) cmd->program, (int) entryFn, (int) cmd, 0, 0, 0, 0, 0, 0, 0);
 
     if (cmd->pid < 0) {
@@ -7050,7 +7050,7 @@ PUBLIC MprCond *mprCreateCond()
     cp->triggered = 0;
     cp->mutex = mprCreateLock();
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     cp->cv = CreateEvent(NULL, FALSE, FALSE, NULL);
 #elif VXWORKS
     cp->cv = semCCreate(SEM_Q_PRIORITY, SEM_EMPTY);
@@ -7070,7 +7070,7 @@ static void manageCond(MprCond *cp, int flags)
 
     } else if (flags & MPR_MANAGE_FREE) {
         assert(cp->mutex);
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
         CloseHandle(cp->cv);
 #elif VXWORKS
         semDelete(cp->cv);
@@ -7093,7 +7093,7 @@ PUBLIC int mprWaitForCond(MprCond *cp, MprTicks timeout)
 {
     MprTicks            now, expire;
     int                 rc;
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     struct timespec     waitTill;
     struct timeval      current;
     int                 usec;
@@ -7105,7 +7105,7 @@ PUBLIC int mprWaitForCond(MprCond *cp, MprTicks timeout)
     if (timeout >= 0) {
         now = mprGetTicks();
         expire = now + timeout;
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
         gettimeofday(&current, NULL);
         usec = current.tv_usec + ((int) (timeout % 1000)) * 1000;
         waitTill.tv_sec = current.tv_sec + ((int) (timeout / 1000)) + (usec / 1000000);
@@ -7124,7 +7124,7 @@ PUBLIC int mprWaitForCond(MprCond *cp, MprTicks timeout)
         spurious wakeups which can happen (on windows).
      */
     do {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
         /*
             Regardless of the state of cp->triggered, we must call WaitForSingleObject to consume the signalled
             internal state of the object.
@@ -7155,7 +7155,7 @@ PUBLIC int mprWaitForCond(MprCond *cp, MprTicks timeout)
             }
         }
 
-#elif BIT_UNIX_LIKE
+#elif ME_UNIX_LIKE
         /*
             The pthread_cond_wait routines will atomically unlock the mutex before sleeping and will relock on awakening.
             WARNING: pthreads may do spurious wakeups without being triggered
@@ -7200,7 +7200,7 @@ PUBLIC void mprSignalCond(MprCond *cp)
     mprLock(cp->mutex);
     if (!cp->triggered) {
         cp->triggered = 1;
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
         SetEvent(cp->cv);
 #elif VXWORKS
         semGive(cp->cv);
@@ -7216,7 +7216,7 @@ PUBLIC void mprResetCond(MprCond *cp)
 {
     mprLock(cp->mutex);
     cp->triggered = 0;
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     ResetEvent(cp->cv);
 #elif VXWORKS
     semDelete(cp->cv);
@@ -7242,7 +7242,7 @@ PUBLIC void mprResetCond(MprCond *cp)
 PUBLIC int mprWaitForMultiCond(MprCond *cp, MprTicks timeout)
 {
     int         rc;
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     struct timespec     waitTill;
     struct timeval      current;
     int                 usec;
@@ -7253,7 +7253,7 @@ PUBLIC int mprWaitForMultiCond(MprCond *cp, MprTicks timeout)
     if (timeout < 0) {
         timeout = MAXINT;
     }
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     gettimeofday(&current, NULL);
     usec = current.tv_usec + ((int) (timeout % 1000)) * 1000;
     waitTill.tv_sec = current.tv_sec + ((int) (timeout / 1000)) + (usec / 1000000);
@@ -7263,7 +7263,7 @@ PUBLIC int mprWaitForMultiCond(MprCond *cp, MprTicks timeout)
     expire = now + timeout;
 #endif
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     rc = WaitForSingleObject(cp->cv, (int) (expire - now));
     if (rc == WAIT_OBJECT_0) {
         rc = 0;
@@ -7281,7 +7281,7 @@ PUBLIC int mprWaitForMultiCond(MprCond *cp, MprTicks timeout)
             rc = MPR_ERR;
         }
     }
-#elif BIT_UNIX_LIKE
+#elif ME_UNIX_LIKE
     mprLock(cp->mutex);
     rc = pthread_cond_timedwait(&cp->cv, &cp->mutex->cs,  &waitTill);
     if (rc == ETIMEDOUT) {
@@ -7302,7 +7302,7 @@ PUBLIC int mprWaitForMultiCond(MprCond *cp, MprTicks timeout)
 PUBLIC void mprSignalMultiCond(MprCond *cp)
 {
     mprLock(cp->mutex);
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     /* Pulse event */
     SetEvent(cp->cv);
     ResetEvent(cp->cv);
@@ -8485,7 +8485,7 @@ PUBLIC char *mprCryptPassword(cchar *password, cchar *salt, int rounds)
     ssize           len, limit;
     int             i, j;
 
-    if (slen(password) > BIT_MPR_MAX_PASSWORD) {
+    if (slen(password) > ME_MPR_MAX_PASSWORD) {
         return 0;
     }
     key = sfmt("%s:%s", salt, password);
@@ -8536,7 +8536,7 @@ PUBLIC char *mprMakePassword(cchar *password, int saltLength, int rounds)
 {
     cchar   *salt;
 
-    if (slen(password) > BIT_MPR_MAX_PASSWORD) {
+    if (slen(password) > ME_MPR_MAX_PASSWORD) {
         return 0;
     }
     if (saltLength <= 0) {
@@ -8559,7 +8559,7 @@ PUBLIC bool mprCheckPassword(cchar *plainTextPassword, cchar *passwordHash)
     if (!passwordHash || !plainTextPassword) {
         return 0;
     }
-    if (slen(plainTextPassword) > BIT_MPR_MAX_PASSWORD) {
+    if (slen(plainTextPassword) > ME_MPR_MAX_PASSWORD) {
         return 0;
     }
     stok(sclone(passwordHash), ":", &tok);
@@ -8583,7 +8583,7 @@ PUBLIC char *mprGetPassword(cchar *prompt)
 {
     char    *cp, *password, *result;
 
-#if BIT_BSD_LIKE
+#if ME_BSD_LIKE
     char    passbuf[MPR_BUFSIZE];
 
     if (!prompt || !*prompt) {
@@ -8592,14 +8592,14 @@ PUBLIC char *mprGetPassword(cchar *prompt)
     if ((password = readpassphrase(prompt, passbuf, sizeof(passbuf), 0)) == 0) {
         return 0;
     }
-#elif BIT_UNIX_LIKE
+#elif ME_UNIX_LIKE
     if (!prompt || !*prompt) {
         prompt = "Password: ";
     }
     if ((password = getpass(prompt)) == 0) {
         return 0;
     }
-#elif BIT_WIN_LIKE || VXWORKS
+#elif ME_WIN_LIKE || VXWORKS
     char    passbuf[MPR_BUFSIZE];
     int     c, i;
 
@@ -8688,7 +8688,7 @@ PUBLIC char *mprGetPassword(cchar *prompt)
 
 
 
-#if !BIT_ROM
+#if !ME_ROM
 /*********************************** Defines **********************************/
 
 #if WINDOWS
@@ -8778,7 +8778,7 @@ static void manageDiskFile(MprFile *file, int flags)
         mprMark(file->path);
         mprMark(file->fileSystem);
         mprMark(file->buf);
-#if BIT_ROM
+#if ME_ROM
         mprMark(file->inode);
 #endif
     } else if (flags & MPR_MANAGE_FREE) {
@@ -8842,9 +8842,9 @@ static MprOff seekFile(MprFile *file, int seekType, MprOff distance)
     if (file == 0) {
         return MPR_ERR_BAD_HANDLE;
     }
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     return (MprOff) _lseeki64(file->fd, (int64) distance, seekType);
-#elif BIT_HAS_OFF64
+#elif ME_HAS_OFF64
     return (MprOff) lseek64(file->fd, (off64_t) distance, seekType);
 #else
     return (MprOff) lseek(file->fd, (off_t) distance, seekType);
@@ -8854,7 +8854,7 @@ static MprOff seekFile(MprFile *file, int seekType, MprOff distance)
 
 static bool accessPath(MprDiskFileSystem *fs, cchar *path, int omode)
 {
-#if BIT_WIN && KEEP
+#if ME_WIN && KEEP
     if (access(path, omode) < 0) {
         if (*path == '/') {
             path = sjoin(fs->cygwin, path, NULL);
@@ -8908,7 +8908,7 @@ static int makeDir(MprDiskFileSystem *fs, cchar *path, int perms, int owner, int
     if (rc < 0) {
         return MPR_ERR_CANT_CREATE;
     }
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     if ((owner != -1 || group != -1) && chown(path, owner, group) < 0) {
         rmdir(path);
         return MPR_ERR_CANT_COMPLETE;
@@ -8920,7 +8920,7 @@ static int makeDir(MprDiskFileSystem *fs, cchar *path, int perms, int owner, int
 
 static int makeLink(MprDiskFileSystem *fs, cchar *path, cchar *target, int hard)
 {
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     if (hard) {
         return link(path, target);
     } else {
@@ -8934,7 +8934,7 @@ static int makeLink(MprDiskFileSystem *fs, cchar *path, cchar *target, int hard)
 
 static int getPathInfo(MprDiskFileSystem *fs, cchar *path, MprPath *info)
 {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     struct __stat64     s;
     cchar               *ext;
 
@@ -8952,7 +8952,7 @@ static int getPathInfo(MprDiskFileSystem *fs, cchar *path, MprPath *info)
         path = strim(path, "\\", MPR_TRIM_END);
     }
     if (_stat64(path, &s) < 0) {
-#if BIT_WIN && KEEP
+#if ME_WIN && KEEP
         /*
             Try under /cygwin
          */
@@ -9080,8 +9080,8 @@ static int getPathInfo(MprDiskFileSystem *fs, cchar *path, MprPath *info)
  
 static char *getPathLink(MprDiskFileSystem *fs, cchar *path)
 {
-#if BIT_UNIX_LIKE
-    char    pbuf[BIT_MAX_PATH];
+#if ME_UNIX_LIKE
+    char    pbuf[ME_MAX_PATH];
     ssize   len;
 
     if ((len = readlink(path, pbuf, sizeof(pbuf) - 1)) < 0) {
@@ -9098,7 +9098,7 @@ static char *getPathLink(MprDiskFileSystem *fs, cchar *path)
 static int truncateFile(MprDiskFileSystem *fs, cchar *path, MprOff size)
 {
     if (!mprPathExists(path, F_OK)) {
-#if BIT_WIN_LIKE && KEEP
+#if ME_WIN_LIKE && KEEP
         /*
             Try under /cygwin
          */
@@ -9109,7 +9109,7 @@ static int truncateFile(MprDiskFileSystem *fs, cchar *path, MprOff size)
 #endif
         return MPR_ERR_CANT_ACCESS;
     }
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
 {
     HANDLE  h;
 
@@ -9149,7 +9149,7 @@ static void manageDiskFileSystem(MprDiskFileSystem *dfs, int flags)
         mprMark(dfs->separators);
         mprMark(dfs->newline);
         mprMark(dfs->root);
-#if BIT_WIN_LIKE || CYGWIN
+#if ME_WIN_LIKE || CYGWIN
         mprMark(dfs->cygdrive);
         mprMark(dfs->cygwin);
 #endif
@@ -9208,7 +9208,7 @@ PUBLIC MprDiskFileSystem *mprCreateDiskFileSystem(cchar *path)
 
     return dfs;
 }
-#endif /* !BIT_ROM */
+#endif /* !ME_ROM */
 
 
 /*
@@ -10233,7 +10233,7 @@ PUBLIC char *mprEscapeCmd(cchar *cmd, int esc)
     }
     op = result;
     while ((c = (uchar) *cmd++) != 0) {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
         if ((c == '\r' || c == '\n') && *cmd != '\0') {
             c = ' ';
             continue;
@@ -10388,7 +10388,7 @@ PUBLIC char *mprEscapeSQL(cchar *cmd)
 
 
 
-#if BIT_EVENT_NOTIFIER == MPR_EVENT_EPOLL
+#if ME_EVENT_NOTIFIER == MPR_EVENT_EPOLL
 /********************************** Forwards **********************************/
 
 static void serviceIO(MprWaitService *ws, struct epoll_event *events, int count);
@@ -10402,7 +10402,7 @@ PUBLIC int mprCreateNotifierService(MprWaitService *ws)
     if ((ws->handlerMap = mprCreateList(MPR_FD_MIN, 0)) == 0) {
         return MPR_ERR_CANT_INITIALIZE;
     }
-    if ((ws->epoll = epoll_create(BIT_MAX_EVENTS)) < 0) {
+    if ((ws->epoll = epoll_create(ME_MAX_EVENTS)) < 0) {
         mprError("Call to epoll() failed");
         return MPR_ERR_CANT_INITIALIZE;
     }
@@ -10517,7 +10517,7 @@ PUBLIC int mprWaitForSingleIO(int fd, int mask, MprTicks timeout)
     memset(&ev, 0, sizeof(ev));
     memset(events, 0, sizeof(events));
     ev.data.fd = fd;
-    if ((epfd = epoll_create(BIT_MAX_EVENTS)) < 0) {
+    if ((epfd = epoll_create(ME_MAX_EVENTS)) < 0) {
         mprError("Call to epoll() failed");
         return MPR_ERR_CANT_INITIALIZE;
     }
@@ -10559,13 +10559,13 @@ PUBLIC int mprWaitForSingleIO(int fd, int mask, MprTicks timeout)
  */
 PUBLIC void mprWaitForIO(MprWaitService *ws, MprTicks timeout)
 {
-    struct epoll_event  events[BIT_MAX_EVENTS];
+    struct epoll_event  events[ME_MAX_EVENTS];
     int                 nevents;
 
     if (timeout < 0 || timeout > MAXINT) {
         timeout = MAXINT;
     }
-#if BIT_DEBUG
+#if ME_DEBUG
     if (mprGetDebugMode() && timeout > 30000) {
         timeout = 30000;
     }
@@ -11157,7 +11157,7 @@ PUBLIC int mprGetFileChar(MprFile *file)
         return MPR_ERR;
     }
     if (file->buf == 0) {
-        file->buf = mprCreateBuf(BIT_MAX_BUFFER, BIT_MAX_BUFFER);
+        file->buf = mprCreateBuf(ME_MAX_BUFFER, ME_MAX_BUFFER);
     }
     bp = file->buf;
 
@@ -11230,7 +11230,7 @@ PUBLIC char *mprReadLine(MprFile *file, ssize maxline, ssize *lenp)
         *lenp = 0;
     }
     if (maxline <= 0) {
-        maxline = BIT_MAX_BUFFER;
+        maxline = ME_MAX_BUFFER;
     }
     fs = file->fileSystem;
     newline = fs->newline;
@@ -11326,7 +11326,7 @@ PUBLIC ssize mprPutFileString(MprFile *file, cchar *str)
         Buffer output and flush when full.
      */
     if (file->buf == 0) {
-        file->buf = mprCreateBuf(BIT_MAX_BUFFER, 0);
+        file->buf = mprCreateBuf(ME_MAX_BUFFER, 0);
         if (file->buf == 0) {
             return MPR_ERR_CANT_ALLOCATE;
         }
@@ -11373,7 +11373,7 @@ PUBLIC int mprPeekFileChar(MprFile *file)
         return MPR_ERR;
     }
     if (file->buf == 0) {
-        file->buf = mprCreateBuf(BIT_MAX_BUFFER, BIT_MAX_BUFFER);
+        file->buf = mprCreateBuf(ME_MAX_BUFFER, ME_MAX_BUFFER);
     }
     bp = file->buf;
 
@@ -11602,10 +11602,10 @@ PUBLIC int mprEnableFileBuffering(MprFile *file, ssize initialSize, ssize maxSiz
         return MPR_ERR_BAD_STATE;
     }
     if (initialSize <= 0) {
-        initialSize = BIT_MAX_BUFFER;
+        initialSize = ME_MAX_BUFFER;
     }
     if (maxSize <= 0) {
-        maxSize = BIT_MAX_BUFFER;
+        maxSize = ME_MAX_BUFFER;
     }
     if (maxSize <= initialSize) {
         maxSize = initialSize;
@@ -11679,13 +11679,13 @@ PUBLIC MprFileSystem *mprCreateFileSystem(cchar *path)
     /*
         FUTURE: evolve this to support multiple file systems in a single system
      */
-#if BIT_ROM
+#if ME_ROM
     fs = (MprFileSystem*) mprCreateRomFileSystem(path);
 #else
     fs = (MprFileSystem*) mprCreateDiskFileSystem(path);
 #endif
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     fs->separators = sclone("\\/");
     fs->newline = sclone("\r\n");
 #elif CYGWIN
@@ -11696,13 +11696,13 @@ PUBLIC MprFileSystem *mprCreateFileSystem(cchar *path)
     fs->newline = sclone("\n");
 #endif
 
-#if BIT_WIN_LIKE || MACOSX || CYGWIN
+#if ME_WIN_LIKE || MACOSX || CYGWIN
     fs->caseSensitive = 0;
 #else
     fs->caseSensitive = 1;
 #endif
 
-#if BIT_WIN_LIKE || VXWORKS || CYGWIN
+#if ME_WIN_LIKE || VXWORKS || CYGWIN
     fs->hasDriveSpecs = 1;
 #endif
 
@@ -11713,7 +11713,7 @@ PUBLIC MprFileSystem *mprCreateFileSystem(cchar *path)
     if ((cp = strpbrk(fs->root, fs->separators)) != 0) {
         *++cp = '\0';
     }
-#if BIT_WIN_LIKE || CYGWIN
+#if ME_WIN_LIKE || CYGWIN
     fs->cygwin = mprReadRegistry("HKEY_LOCAL_MACHINE\\SOFTWARE\\Cygwin\\setup", "rootdir");
     fs->cygdrive = sclone("/cygdrive");
 #endif
@@ -11840,8 +11840,8 @@ PUBLIC void mprSetPathNewline(cchar *path, cchar *newline)
 
 /********************************** Defines ***********************************/
 
-#ifndef BIT_MAX_HASH
-    #define BIT_MAX_HASH 23           /* Default initial hash size */
+#ifndef ME_MAX_HASH
+    #define ME_MAX_HASH 23           /* Default initial hash size */
 #endif
 
 /********************************** Forwards **********************************/
@@ -11862,8 +11862,8 @@ PUBLIC MprHash *mprCreateHash(int hashSize, int flags)
     if ((hash = mprAllocObjNoZero(MprHash, manageHashTable)) == 0) {
         return 0;
     }
-    if (hashSize < BIT_MAX_HASH) {
-        hashSize = BIT_MAX_HASH;
+    if (hashSize < ME_MAX_HASH) {
+        hashSize = ME_MAX_HASH;
     }
     if ((hash->buckets = mprAllocZeroed(sizeof(MprKey*) * hashSize)) == 0) {
         return NULL;
@@ -11876,7 +11876,7 @@ PUBLIC MprHash *mprCreateHash(int hashSize, int flags)
     } else {
         hash->mutex = 0;
     }
-#if BIT_CHAR_LEN > 1 && KEEP
+#if ME_CHAR_LEN > 1 && KEEP
     if (hash->flags & MPR_HASH_UNICODE) {
         if (hash->flags & MPR_HASH_CASELESS) {
             hash->fn = (MprHashProc) whashlower;
@@ -11909,7 +11909,7 @@ static void manageHashTable(MprHash *hash, int flags)
             for (sp = (MprKey*) hash->buckets[i]; sp; sp = sp->next) {
                 mprMark(sp);
                 if (!(hash->flags & MPR_HASH_STATIC_VALUES)) {
-#if BIT_DEBUG
+#if ME_DEBUG
                     if (sp->data && !mprIsValid(sp->data)) {
                         mprLog(0, "Data in key %s is not valid", sp->key);
                     }
@@ -12185,7 +12185,7 @@ static MprKey *lookupHash(int *bucketIndex, MprKey **prevSp, MprHash *hash, cvoi
     prev = 0;
 
     while (sp) {
-#if BIT_CHAR_LEN > 1 && KEEP
+#if ME_CHAR_LEN > 1 && KEEP
         if (hash->flags & MPR_HASH_UNICODE) {
             wchar *u1, *u2;
             u1 = (wchar*) sp->key;
@@ -12271,7 +12271,7 @@ PUBLIC MprKey *mprGetNextKey(MprHash *hash, MprKey *last)
 
 static void *dupKey(MprHash *hash, cvoid *key)
 {
-#if BIT_CHAR_LEN > 1 && KEEP
+#if ME_CHAR_LEN > 1 && KEEP
     if (hash->flags & MPR_HASH_UNICODE) {
         return wclone((wchar*) key);
     } else
@@ -13755,7 +13755,7 @@ PUBLIC MprHash *mprJsonToHash(MprJson *json)
 
 
 
-#if BIT_EVENT_NOTIFIER == MPR_EVENT_KQUEUE
+#if ME_EVENT_NOTIFIER == MPR_EVENT_KQUEUE
 
 /********************************** Forwards **********************************/
 
@@ -13906,7 +13906,7 @@ PUBLIC int mprWaitForSingleIO(int fd, int mask, MprTicks timeout)
 PUBLIC void mprWaitForIO(MprWaitService *ws, MprTicks timeout)
 {
     struct timespec ts;
-    struct kevent   events[BIT_MAX_EVENTS];
+    struct kevent   events[ME_MAX_EVENTS];
     int             nevents;
 
     if (ws->needRecall) {
@@ -13916,7 +13916,7 @@ PUBLIC void mprWaitForIO(MprWaitService *ws, MprTicks timeout)
     if (timeout < 0 || timeout > MAXINT) {
         timeout = MAXINT;
     }
-#if BIT_DEBUG
+#if ME_DEBUG
     if (mprGetDebugMode() && timeout > 30000) {
         timeout = 30000;
     }
@@ -13926,7 +13926,7 @@ PUBLIC void mprWaitForIO(MprWaitService *ws, MprTicks timeout)
 
     mprYield(MPR_YIELD_STICKY);
 
-    if ((nevents = kevent(ws->kq, NULL, 0, events, BIT_MAX_EVENTS, &ts)) < 0) {
+    if ((nevents = kevent(ws->kq, NULL, 0, events, ME_MAX_EVENTS, &ts)) < 0) {
         if (errno != EINTR) {
             mprTrace(7, "Kevent returned %d, errno %d", nevents, mprGetOsError());
         }
@@ -14071,8 +14071,8 @@ void kqueueDummy() {}
 
 /********************************** Defines ***********************************/
 
-#ifndef BIT_MAX_LIST
-    #define BIT_MAX_LIST   8
+#ifndef ME_MAX_LIST
+    #define ME_MAX_LIST   8
 #endif
 
 /********************************** Forwards **********************************/
@@ -14118,7 +14118,7 @@ static void manageList(MprList *lp, int flags)
         mprMark(lp->items);
         if (!(lp->flags & MPR_LIST_STATIC_VALUES)) {
             for (i = 0; i < lp->length; i++) {
-#if BIT_DEBUG
+#if ME_DEBUG
                 assert(lp->items[i] == 0 || mprIsValid(lp->items[i]));
 #endif
                 mprMark(lp->items[i]);
@@ -14150,7 +14150,7 @@ PUBLIC int mprSetListLimits(MprList *lp, int initialSize, int maxSize)
     ssize   size;
 
     if (initialSize <= 0) {
-        initialSize = BIT_MAX_LIST;
+        initialSize = ME_MAX_LIST;
     }
     if (maxSize <= 0) {
         maxSize = MAXINT;
@@ -14734,7 +14734,7 @@ static int growList(MprList *lp, int incr)
         how much the list needs to grow.
      */
     if (incr <= 1) {
-        len = BIT_MAX_LIST + (lp->size * 2);
+        len = ME_MAX_LIST + (lp->size * 2);
     } else {
         len = lp->size + incr;
     }
@@ -14919,9 +14919,9 @@ static void manageLock(MprMutex *lock, int flags)
 {
     if (flags & MPR_MANAGE_FREE) {
         assert(lock);
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
         pthread_mutex_destroy(&lock->cs);
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
         lock->freed = 1;
         DeleteCriticalSection(&lock->cs);
 #elif VXWORKS
@@ -14933,18 +14933,18 @@ static void manageLock(MprMutex *lock, int flags)
 
 PUBLIC MprMutex *mprInitLock(MprMutex *lock)
 {
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
     pthread_mutex_init(&lock->cs, &attr);
     pthread_mutexattr_destroy(&attr);
 
-#elif BIT_WIN_LIKE && !BIT_DEBUG && CRITICAL_SECTION_NO_DEBUG_INFO
-    InitializeCriticalSectionEx(&lock->cs, BIT_MPR_SPIN_COUNT, CRITICAL_SECTION_NO_DEBUG_INFO);
+#elif ME_WIN_LIKE && !ME_DEBUG && CRITICAL_SECTION_NO_DEBUG_INFO
+    InitializeCriticalSectionEx(&lock->cs, ME_MPR_SPIN_COUNT, CRITICAL_SECTION_NO_DEBUG_INFO);
 
-#elif BIT_WIN_LIKE
-    InitializeCriticalSectionAndSpinCount(&lock->cs, BIT_MPR_SPIN_COUNT);
+#elif ME_WIN_LIKE
+    InitializeCriticalSectionAndSpinCount(&lock->cs, ME_MPR_SPIN_COUNT);
 
 #elif VXWORKS
     lock->cs = semMCreate(SEM_Q_PRIORITY | SEM_DELETE_SAFE);
@@ -14962,14 +14962,14 @@ PUBLIC bool mprTryLock(MprMutex *lock)
 
     if (lock == 0) return 0;
 
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     rc = pthread_mutex_trylock(&lock->cs) != 0;
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
     rc = TryEnterCriticalSection(&lock->cs) == 0;
 #elif VXWORKS
     rc = semTake(lock->cs, NO_WAIT) != OK;
 #endif
-#if BIT_DEBUG
+#if ME_DEBUG
     lock->owner = mprGetCurrentOsThread();
 #endif
     return (rc) ? 0 : 1;
@@ -14993,11 +14993,11 @@ static void manageSpinLock(MprSpin *lock, int flags)
         assert(lock);
 #if USE_MPR_LOCK || MACOSX
         ;
-#elif BIT_UNIX_LIKE && BIT_HAS_SPINLOCK
+#elif ME_UNIX_LIKE && ME_HAS_SPINLOCK
         pthread_spin_destroy(&lock->cs);
-#elif BIT_UNIX_LIKE
+#elif ME_UNIX_LIKE
         pthread_mutex_destroy(&lock->cs);
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
         lock->freed = 1;
         DeleteCriticalSection(&lock->cs);
 #elif VXWORKS
@@ -15018,27 +15018,27 @@ PUBLIC MprSpin *mprInitSpinLock(MprSpin *lock)
 #elif MACOSX
     lock->cs = OS_SPINLOCK_INIT;
 
-#elif BIT_UNIX_LIKE && BIT_HAS_SPINLOCK
+#elif ME_UNIX_LIKE && ME_HAS_SPINLOCK
     pthread_spin_init(&lock->cs, 0);
 
-#elif BIT_UNIX_LIKE
+#elif ME_UNIX_LIKE
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
     pthread_mutex_init(&lock->cs, &attr);
     pthread_mutexattr_destroy(&attr);
 
-#elif BIT_WIN_LIKE && !BIT_DEBUG && CRITICAL_SECTION_NO_DEBUG_INFO
-    InitializeCriticalSectionEx(&lock->cs, BIT_MPR_SPIN_COUNT, CRITICAL_SECTION_NO_DEBUG_INFO);
+#elif ME_WIN_LIKE && !ME_DEBUG && CRITICAL_SECTION_NO_DEBUG_INFO
+    InitializeCriticalSectionEx(&lock->cs, ME_MPR_SPIN_COUNT, CRITICAL_SECTION_NO_DEBUG_INFO);
 
-#elif BIT_WIN_LIKE
-    InitializeCriticalSectionAndSpinCount(&lock->cs, BIT_MPR_SPIN_COUNT);
+#elif ME_WIN_LIKE
+    InitializeCriticalSectionAndSpinCount(&lock->cs, ME_MPR_SPIN_COUNT);
 
 #elif VXWORKS
     lock->cs = semMCreate(SEM_Q_PRIORITY | SEM_DELETE_SAFE);
 #endif /* VXWORKS */
 
-#if BIT_DEBUG
+#if ME_DEBUG
     lock->owner = 0;
 #endif
     return lock;
@@ -15058,16 +15058,16 @@ PUBLIC bool mprTrySpinLock(MprSpin *lock)
     mprTryLock(&lock->cs);
 #elif MACOSX
     rc = !OSSpinLockTry(&lock->cs);
-#elif BIT_UNIX_LIKE && BIT_HAS_SPINLOCK
+#elif ME_UNIX_LIKE && ME_HAS_SPINLOCK
     rc = pthread_spin_trylock(&lock->cs) != 0;
-#elif BIT_UNIX_LIKE
+#elif ME_UNIX_LIKE
     rc = pthread_mutex_trylock(&lock->cs) != 0;
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
     rc = (lock->freed) ? 0 : (TryEnterCriticalSection(&lock->cs) == 0);
 #elif VXWORKS
     rc = semTake(lock->cs, NO_WAIT) != OK;
 #endif
-#if BIT_DEBUG && COSTLY
+#if ME_DEBUG && COSTLY
     if (rc == 0) {
         assert(lock->owner != mprGetCurrentOsThread());
         lock->owner = mprGetCurrentOsThread();
@@ -15096,7 +15096,7 @@ PUBLIC void mprGlobalUnlock()
 }
 
 
-#if BIT_USE_LOCK_MACROS
+#if ME_USE_LOCK_MACROS
 /*
     Still define these even if using macros to make linking with *.def export files easier
  */
@@ -15112,16 +15112,16 @@ PUBLIC void mprGlobalUnlock()
 PUBLIC void mprLock(MprMutex *lock)
 {
     if (lock == 0) return;
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     pthread_mutex_lock(&lock->cs);
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
     if (!lock->freed) {
         EnterCriticalSection(&lock->cs);
     }
 #elif VXWORKS
     semTake(lock->cs, WAIT_FOREVER);
 #endif
-#if BIT_DEBUG
+#if ME_DEBUG
     /* Store last locker only */ 
     lock->owner = mprGetCurrentOsThread();
 #endif
@@ -15131,9 +15131,9 @@ PUBLIC void mprLock(MprMutex *lock)
 PUBLIC void mprUnlock(MprMutex *lock)
 {
     if (lock == 0) return;
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     pthread_mutex_unlock(&lock->cs);
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
     LeaveCriticalSection(&lock->cs);
 #elif VXWORKS
     semGive(lock->cs);
@@ -15151,7 +15151,7 @@ PUBLIC void mprSpinLock(MprSpin *lock)
 {
     if (lock == 0) return;
 
-#if BIT_DEBUG
+#if ME_DEBUG
     /*
         Spin locks don't support recursive locking on all operating systems.
      */
@@ -15162,18 +15162,18 @@ PUBLIC void mprSpinLock(MprSpin *lock)
     mprTryLock(&lock->cs);
 #elif MACOSX
     OSSpinLockLock(&lock->cs);
-#elif BIT_UNIX_LIKE && BIT_HAS_SPINLOCK
+#elif ME_UNIX_LIKE && ME_HAS_SPINLOCK
     pthread_spin_lock(&lock->cs);
-#elif BIT_UNIX_LIKE
+#elif ME_UNIX_LIKE
     pthread_mutex_lock(&lock->cs);
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
     if (!lock->freed) {
         EnterCriticalSection(&lock->cs);
     }
 #elif VXWORKS
     semTake(lock->cs, WAIT_FOREVER);
 #endif
-#if BIT_DEBUG
+#if ME_DEBUG
     assert(lock->owner != mprGetCurrentOsThread());
     lock->owner = mprGetCurrentOsThread();
 #endif
@@ -15184,7 +15184,7 @@ PUBLIC void mprSpinUnlock(MprSpin *lock)
 {
     if (lock == 0) return;
 
-#if BIT_DEBUG
+#if ME_DEBUG
     lock->owner = 0;
 #endif
 
@@ -15192,11 +15192,11 @@ PUBLIC void mprSpinUnlock(MprSpin *lock)
     mprUnlock(&lock->cs);
 #elif MACOSX
     OSSpinLockUnlock(&lock->cs);
-#elif BIT_UNIX_LIKE && BIT_HAS_SPINLOCK
+#elif ME_UNIX_LIKE && ME_HAS_SPINLOCK
     pthread_spin_unlock(&lock->cs);
-#elif BIT_UNIX_LIKE
+#elif ME_UNIX_LIKE
     pthread_mutex_unlock(&lock->cs);
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
     LeaveCriticalSection(&lock->cs);
 #elif VXWORKS
     semGive(lock->cs);
@@ -15242,8 +15242,8 @@ PUBLIC void mprSpinUnlock(MprSpin *lock)
 
 /********************************** Defines ***********************************/
 
-#ifndef BIT_MAX_LOGLINE
-    #define BIT_MAX_LOGLINE 8192           /* Max size of a log line */
+#ifndef ME_MAX_LOGLINE
+    #define ME_MAX_LOGLINE 8192           /* Max size of a log line */
 #endif
 
 /********************************** Forwards **********************************/
@@ -15297,7 +15297,7 @@ PUBLIC int mprStartLogging(cchar *logSpec, int showConfig)
             file = MPR->stdOutput;
         } else if (strcmp(path, "stderr") == 0) {
             file = MPR->stdError;
-#if !BIT_ROM
+#if !ME_ROM
         } else {
             MprPath     info;
             int         mode;
@@ -15333,13 +15333,13 @@ PUBLIC void mprLogHeader()
 {
     mprLog(MPR_INFO, "Configuration for %s", mprGetAppTitle());
     mprLog(MPR_INFO, "---------------------------------------------");
-    mprLog(MPR_INFO, "Version:            %s", BIT_VERSION);
-    mprLog(MPR_INFO, "BuildType:          %s", BIT_DEBUG ? "Debug" : "Release");
-    mprLog(MPR_INFO, "CPU:                %s", BIT_CPU);
-    mprLog(MPR_INFO, "OS:                 %s", BIT_OS);
+    mprLog(MPR_INFO, "Version:            %s", ME_VERSION);
+    mprLog(MPR_INFO, "BuildType:          %s", ME_DEBUG ? "Debug" : "Release");
+    mprLog(MPR_INFO, "CPU:                %s", ME_CPU);
+    mprLog(MPR_INFO, "OS:                 %s", ME_OS);
     mprLog(MPR_INFO, "Host:               %s", mprGetHostName());
     mprLog(MPR_INFO, "Directory:          %s", mprGetCurrentPath());
-    mprLog(MPR_INFO, "Configure:          %s", BIT_CONFIG_CMD);
+    mprLog(MPR_INFO, "Configure:          %s", ME_CONFIG_CMD);
     mprLog(MPR_INFO, "---------------------------------------------");
 }
 
@@ -15376,7 +15376,7 @@ PUBLIC void mprSetLogBackup(ssize size, int backup, int flags)
 PUBLIC void mprTraceProc(int level, cchar *fmt, ...)
 {
     va_list     args;
-    char        buf[BIT_MAX_LOGLINE];
+    char        buf[ME_MAX_LOGLINE];
 
     va_start(args, fmt);
     logOutput(MPR_LOG_MSG, level, fmtv(buf, sizeof(buf), fmt, args));
@@ -15387,7 +15387,7 @@ PUBLIC void mprTraceProc(int level, cchar *fmt, ...)
 PUBLIC void mprLogProc(int level, cchar *fmt, ...)
 {
     va_list     args;
-    char        buf[BIT_MAX_LOGLINE];
+    char        buf[ME_MAX_LOGLINE];
 
     va_start(args, fmt);
     logOutput(MPR_LOG_MSG, level, fmtv(buf, sizeof(buf), fmt, args));
@@ -15411,7 +15411,7 @@ PUBLIC void mprRawLog(int level, cchar *fmt, ...)
 PUBLIC void mprError(cchar *fmt, ...)
 {
     va_list     args;
-    char        buf[BIT_MAX_LOGLINE];
+    char        buf[ME_MAX_LOGLINE];
 
     va_start(args, fmt);
     logOutput(MPR_ERROR_MSG, MPR_ERROR, fmtv(buf, sizeof(buf), fmt, args));
@@ -15423,7 +15423,7 @@ PUBLIC void mprError(cchar *fmt, ...)
 PUBLIC void mprFatal(cchar *fmt, ...)
 {
     va_list     args;
-    char        buf[BIT_MAX_LOGLINE];
+    char        buf[ME_MAX_LOGLINE];
 
     va_start(args, fmt);
     fmtv(buf, sizeof(buf), fmt, args);
@@ -15436,7 +15436,7 @@ PUBLIC void mprFatal(cchar *fmt, ...)
 PUBLIC void mprInfo(cchar *fmt, ...)
 {
     va_list     args;
-    char        buf[BIT_MAX_LOGLINE];
+    char        buf[ME_MAX_LOGLINE];
 
     va_start(args, fmt);
     logOutput(MPR_INFO_MSG, MPR_INFO, fmtv(buf, sizeof(buf), fmt, args));
@@ -15448,7 +15448,7 @@ PUBLIC void mprInfo(cchar *fmt, ...)
 PUBLIC void mprWarn(cchar *fmt, ...)
 {
     va_list     args;
-    char        buf[BIT_MAX_LOGLINE];
+    char        buf[ME_MAX_LOGLINE];
 
     va_start(args, fmt);
     logOutput(MPR_WARN_MSG, 0, fmtv(buf, sizeof(buf), fmt, args));
@@ -15461,7 +15461,7 @@ PUBLIC void mprWarn(cchar *fmt, ...)
 PUBLIC void mprMemoryError(cchar *fmt, ...)
 {
     va_list     args;
-    char        buf[BIT_MAX_LOGLINE];
+    char        buf[ME_MAX_LOGLINE];
 
     if (fmt == 0) {
         logOutput(MPR_ERROR_MSG, 0, "Memory allocation error");
@@ -15477,7 +15477,7 @@ PUBLIC void mprMemoryError(cchar *fmt, ...)
 PUBLIC void mprUserError(cchar *fmt, ...)
 {
     va_list     args;
-    char        buf[BIT_MAX_LOGLINE];
+    char        buf[ME_MAX_LOGLINE];
 
     va_start(args, fmt);
     fmtv(buf, sizeof(buf), fmt, args);
@@ -15489,15 +15489,15 @@ PUBLIC void mprUserError(cchar *fmt, ...)
 PUBLIC void mprStaticError(cchar *fmt, ...)
 {
     va_list     args;
-    char        buf[BIT_MAX_LOGLINE];
+    char        buf[ME_MAX_LOGLINE];
 
     va_start(args, fmt);
     fmtv(buf, sizeof(buf), fmt, args);
     va_end(args);
-#if BIT_UNIX_LIKE || VXWORKS
+#if ME_UNIX_LIKE || VXWORKS
     if (write(2, (char*) buf, slen(buf)) < 0) {}
     if (write(2, (char*) "\n", 1) < 0) {}
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
     if (fprintf(stderr, "%s\n", buf) < 0) {}
     fflush(stderr);
 #endif
@@ -15508,11 +15508,11 @@ PUBLIC void mprStaticError(cchar *fmt, ...)
 
 PUBLIC void mprAssert(cchar *loc, cchar *msg)
 {
-#if BIT_MPR_TRACING
-    char    buf[BIT_MAX_LOGLINE];
+#if ME_MPR_TRACING
+    char    buf[ME_MAX_LOGLINE];
 
     if (loc) {
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
         snprintf(buf, sizeof(buf), "Assertion %s, failed at %s", msg, loc);
 #else
         sprintf(buf, "Assertion %s, failed at %s", msg, loc);
@@ -15521,7 +15521,7 @@ PUBLIC void mprAssert(cchar *loc, cchar *msg)
     }
     mprTrace(0, "%s", buf);
     mprBreakpoint();
-#if BIT_DEBUG_WATSON
+#if ME_DEBUG_WATSON
     fprintf(stderr, "Pause for debugger to attach\n");
     mprSleep(24 * 3600 * 1000);
 #endif
@@ -15551,14 +15551,14 @@ static void logOutput(int flags, int level, cchar *msg)
 PUBLIC void mprDefaultLogHandler(int flags, int level, cchar *msg)
 {
     MprFile     *file;
-    char        *prefix, buf[BIT_MAX_LOGLINE], *tag;
+    char        *prefix, buf[ME_MAX_LOGLINE], *tag;
 
     if ((file = MPR->logFile) == 0) {
         return;
     }
     prefix = MPR->name;
 
-#if !BIT_ROM
+#if !ME_ROM
     {
         static int  check = 0;
         MprPath     info;
@@ -15612,7 +15612,7 @@ PUBLIC void mprDefaultLogHandler(int flags, int level, cchar *msg)
  */
 PUBLIC int mprGetOsError()
 {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     int     rc;
     rc = GetLastError();
 
@@ -15623,7 +15623,7 @@ PUBLIC int mprGetOsError()
         return EPIPE;
     }
     return rc;
-#elif BIT_UNIX_LIKE || VXWORKS
+#elif ME_UNIX_LIKE || VXWORKS
     return errno;
 #else
     return 0;
@@ -15633,9 +15633,9 @@ PUBLIC int mprGetOsError()
 
 PUBLIC void mprSetOsError(int error)
 {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     SetLastError(error);
-#elif BIT_UNIX_LIKE || VXWORKS
+#elif ME_UNIX_LIKE || VXWORKS
     errno = error;
 #endif
 }
@@ -15646,7 +15646,7 @@ PUBLIC void mprSetOsError(int error)
  */
 PUBLIC int mprGetError()
 {
-#if !BIT_WIN_LIKE
+#if !ME_WIN_LIKE
     return mprGetOsError();
 #else
     int     err;
@@ -15897,7 +15897,7 @@ static void manageMimeType(MprMime *mt, int flags);
 PUBLIC MprHash *mprCreateMimeTypes(cchar *path)
 {
     MprHash     *table;
-#if !BIT_ROM
+#if !ME_ROM
     MprFile     *file;
     char        *buf, *tok, *ext, *type;
     int         line;
@@ -16069,7 +16069,7 @@ PUBLIC cchar *mprLookupMime(MprHash *table, cchar *ext)
 
 
 
-#if BIT_CHAR_LEN > 1 && KEEP
+#if ME_CHAR_LEN > 1 && KEEP
 /********************************** Forwards **********************************/
 
 PUBLIC int mcaselesscmp(wchar *str1, cchar *str2)
@@ -16475,7 +16475,7 @@ PUBLIC wchar *mtrim(wchar *str, cchar *set, int where)
 
 #else
 PUBLIC void dummyWide() {}
-#endif /* BIT_CHAR_LEN > 1 */
+#endif /* ME_CHAR_LEN > 1 */
 
 /*
     @copy   default
@@ -16564,7 +16564,7 @@ PUBLIC int mprStartModuleService()
             return MPR_ERR_CANT_INITIALIZE;
         }
     }
-#if VXWORKS && BIT_DEBUG && SYM_SYNC_INCLUDED
+#if VXWORKS && ME_DEBUG && SYM_SYNC_INCLUDED
     symSyncLibInit();
 #endif
     return 0;
@@ -16712,7 +16712,7 @@ PUBLIC void mprSetModuleSearchPath(char *searchPath)
 
     ms = MPR->moduleService;
     if (searchPath == 0) {
-        ms->searchPath = sjoin(mprGetAppDir(), MPR_SEARCH_SEP, mprGetAppDir(), MPR_SEARCH_SEP, BIT_VAPP_PREFIX "/bin", NULL);
+        ms->searchPath = sjoin(mprGetAppDir(), MPR_SEARCH_SEP, mprGetAppDir(), MPR_SEARCH_SEP, ME_VAPP_PREFIX "/bin", NULL);
     } else {
         ms->searchPath = sclone(searchPath);
     }
@@ -16730,7 +16730,7 @@ PUBLIC cchar *mprGetModuleSearchPath()
  */
 PUBLIC int mprLoadModule(MprModule *mp)
 {
-#if BIT_HAS_DYN_LOAD
+#if ME_HAS_DYN_LOAD
     assert(mp);
 
     if (mprLoadNativeModule(mp) < 0) {
@@ -16752,7 +16752,7 @@ PUBLIC int mprUnloadModule(MprModule *mp)
     if (mprStopModule(mp) < 0) {
         return MPR_ERR_NOT_READY;
     }
-#if BIT_HAS_DYN_LOAD
+#if ME_HAS_DYN_LOAD
     if (mp->handle) {
         if (mprUnloadNativeModule(mp) != 0) {
             mprError("Cannot unload module %s", mp->name);
@@ -16765,7 +16765,7 @@ PUBLIC int mprUnloadModule(MprModule *mp)
 }
 
 
-#if BIT_HAS_DYN_LOAD
+#if ME_HAS_DYN_LOAD
 /*
     Return true if the shared library in "file" can be found. Return the actual path in *path. The filename
     may not have a shared library extension which is typical so calling code can be cross platform.
@@ -16780,8 +16780,8 @@ static char *probe(cchar *filename)
     if (mprPathExists(filename, R_OK)) {
         return sclone(filename);
     }
-    if (strstr(filename, BIT_SHOBJ) == 0) {
-        path = sjoin(filename, BIT_SHOBJ, NULL);
+    if (strstr(filename, ME_SHOBJ) == 0) {
+        path = sjoin(filename, ME_SHOBJ, NULL);
         mprTrace(7, "Probe for native module %s", path);
         if (mprPathExists(path, R_OK)) {
             return path;
@@ -16797,7 +16797,7 @@ static char *probe(cchar *filename)
  */
 PUBLIC char *mprSearchForModule(cchar *filename)
 {
-#if BIT_HAS_DYN_LOAD
+#if ME_HAS_DYN_LOAD
     char    *path, *f, *searchPath, *dir, *tok;
 
     filename = mprNormalizePath(filename);
@@ -16824,7 +16824,7 @@ PUBLIC char *mprSearchForModule(cchar *filename)
         }
         dir = stok(0, MPR_SEARCH_SEP, &tok);
     }
-#endif /* BIT_HAS_DYN_LOAD */
+#endif /* ME_HAS_DYN_LOAD */
     return 0;
 }
 
@@ -16871,7 +16871,7 @@ PUBLIC char *mprSearchForModule(cchar *filename)
 /*
     Find the first separator in the path
  */
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     #define firstSep(fs, path)  strchr(path, fs->separators[0])
 #else
     #define firstSep(fs, path)  strpbrk(path, fs->separators)
@@ -16881,7 +16881,7 @@ PUBLIC char *mprSearchForModule(cchar *filename)
 
 /************************************* Code ***********************************/
 
-static BIT_INLINE bool isSep(MprFileSystem *fs, int c) 
+static ME_INLINE bool isSep(MprFileSystem *fs, int c) 
 {
     char    *separators;
 
@@ -16894,7 +16894,7 @@ static BIT_INLINE bool isSep(MprFileSystem *fs, int c)
 }
 
 
-static BIT_INLINE bool hasDrive(MprFileSystem *fs, cchar *path) 
+static ME_INLINE bool hasDrive(MprFileSystem *fs, cchar *path) 
 {
     char    *cp, *endDrive;
 
@@ -16917,7 +16917,7 @@ static BIT_INLINE bool hasDrive(MprFileSystem *fs, cchar *path)
     This means the path portion after an optional drive specifier must begin with a directory speparator charcter.
     Cygwin returns true for "/abc" and "C:/abc".
  */
-static BIT_INLINE bool isAbsPath(MprFileSystem *fs, cchar *path) 
+static ME_INLINE bool isAbsPath(MprFileSystem *fs, cchar *path) 
 {
     char    *cp, *endDrive;
 
@@ -16952,12 +16952,12 @@ static BIT_INLINE bool isAbsPath(MprFileSystem *fs, cchar *path)
     On windows, this means it must have a drive specifier.
     On cygwin, this means it must not have a drive specifier.
  */
-static BIT_INLINE bool isFullPath(MprFileSystem *fs, cchar *path) 
+static ME_INLINE bool isFullPath(MprFileSystem *fs, cchar *path) 
 {
     assert(fs);
     assert(path);
 
-#if BIT_WIN_LIKE || VXWORKS
+#if ME_WIN_LIKE || VXWORKS
 {
     char    *cp, *endDrive;
 
@@ -16981,7 +16981,7 @@ static BIT_INLINE bool isFullPath(MprFileSystem *fs, cchar *path)
 /*
     Return true if the directory is the root directory on a file system
  */
-static BIT_INLINE bool isRoot(MprFileSystem *fs, cchar *path) 
+static ME_INLINE bool isRoot(MprFileSystem *fs, cchar *path) 
 {
     char    *cp;
 
@@ -16995,7 +16995,7 @@ static BIT_INLINE bool isRoot(MprFileSystem *fs, cchar *path)
 }
 
 
-static BIT_INLINE char *lastSep(MprFileSystem *fs, cchar *path) 
+static ME_INLINE char *lastSep(MprFileSystem *fs, cchar *path) 
 {
     char    *cp;
 
@@ -17015,7 +17015,7 @@ PUBLIC int mprCopyPath(cchar *fromName, cchar *toName, int mode)
 {
     MprFile     *from, *to;
     ssize       count;
-    char        buf[BIT_MAX_BUFFER];
+    char        buf[ME_MAX_BUFFER];
 
     if ((from = mprOpenFile(fromName, O_RDONLY | O_BINARY, 0)) == 0) {
         mprError("Cannot open %s", fromName);
@@ -17059,7 +17059,7 @@ PUBLIC char *mprGetAbsPath(cchar *path)
     if (path == 0 || *path == '\0') {
         path = ".";
     }
-#if BIT_ROM
+#if ME_ROM
     result =  mprNormalizePath(path);
     mprMapSeparators(result, defaultSep(fs));
     return result;
@@ -17095,9 +17095,9 @@ PUBLIC char *mprGetAbsPath(cchar *path)
         return result;
     }
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
 {
-    wchar    buf[BIT_MAX_PATH];
+    wchar    buf[ME_MAX_PATH];
     GetFullPathName(wide(path), sizeof(buf) - 1, buf, NULL);
     buf[sizeof(buf) - 1] = '\0';
     result = mprNormalizePath(multi(buf));
@@ -17157,7 +17157,7 @@ PUBLIC char *mprGetAppPath()
 #if MACOSX
 {
     MprPath info;
-    char    path[BIT_MAX_PATH], pbuf[BIT_MAX_PATH];
+    char    path[ME_MAX_PATH], pbuf[ME_MAX_PATH];
     uint    size;
     ssize   len;
 
@@ -17178,10 +17178,10 @@ PUBLIC char *mprGetAppPath()
         MPR->appPath = mprGetAbsPath(path);
     }
 }
-#elif BIT_BSD_LIKE 
+#elif ME_BSD_LIKE 
 {
     MprPath info;
-    char    pbuf[BIT_MAX_PATH];
+    char    pbuf[ME_MAX_PATH];
     int     len;
 
     len = readlink("/proc/curproc/file", pbuf, sizeof(pbuf) - 1);
@@ -17191,10 +17191,10 @@ PUBLIC char *mprGetAppPath()
      pbuf[len] = '\0';
      MPR->appPath = mprGetAbsPath(pbuf);
 }
-#elif BIT_UNIX_LIKE 
+#elif ME_UNIX_LIKE 
 {
     MprPath info;
-    char    pbuf[BIT_MAX_PATH], *path;
+    char    pbuf[ME_MAX_PATH], *path;
     int     len;
 #if SOLARIS
     path = sfmt("/proc/%i/path/a.out", getpid()); 
@@ -17214,9 +17214,9 @@ PUBLIC char *mprGetAppPath()
         MPR->appPath = mprGetAbsPath(path);
     }
 }
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
 {
-    wchar    pbuf[BIT_MAX_PATH];
+    wchar    pbuf[ME_MAX_PATH];
 
     if (GetModuleFileName(0, pbuf, sizeof(pbuf) - 1) <= 0) {
         return 0;
@@ -17239,7 +17239,7 @@ PUBLIC char *mprGetAppPath()
  */
 PUBLIC char *mprGetCurrentPath()
 {
-    char    dir[BIT_MAX_PATH];
+    char    dir[ME_MAX_PATH];
 
     if (getcwd(dir, sizeof(dir)) == 0) {
         return mprGetAbsPath("/");
@@ -17261,7 +17261,7 @@ PUBLIC char *mprGetCurrentPath()
         return sjoin(dir, sep, NULL);
     }
 }
-#elif BIT_WIN_LIKE || CYGWIN
+#elif ME_WIN_LIKE || CYGWIN
 {
     MprFileSystem   *fs;
     fs = mprLookupFileSystem(dir);
@@ -17428,7 +17428,7 @@ static void manageDirEntry(MprDirEntry *dp, int flags)
 }
 
 
-#if BIT_ROM
+#if ME_ROM
 static MprList *getDirFiles(cchar *path)
 {
     MprRomFileSystem    *rfs;
@@ -17461,11 +17461,11 @@ static MprList *getDirFiles(cchar *path)
     return list;
 }
 
-#else /* !BIT_ROM */
+#else /* !ME_ROM */
 /*
     This returns a list of MprDirEntry objects
  */
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
 static MprList *getDirFiles(cchar *dir)
 {
     HANDLE          h;
@@ -17473,7 +17473,7 @@ static MprList *getDirFiles(cchar *dir)
     MprPath         fileInfo;
     MprList         *list;
     cchar           *seps;
-    char            *path, pbuf[BIT_MAX_PATH];
+    char            *path, pbuf[ME_MAX_PATH];
     WIN32_FIND_DATA findData;
 
     list = mprCreateList(-1, 0);
@@ -17576,7 +17576,7 @@ static MprList *getDirFiles(cchar *path)
     return list;
 }
 #endif /* !WIN */
-#endif /* !BIT_ROM */
+#endif /* !ME_ROM */
 
 #if LINUX
 static int sortFiles(MprDirEntry **dp1, MprDirEntry **dp2)
@@ -17933,7 +17933,7 @@ PUBLIC char *mprGetPortablePath(cchar *path)
 PUBLIC char *mprGetRelPath(cchar *destArg, cchar *originArg)
 {
     MprFileSystem   *fs;
-    char            originBuf[BIT_MAX_FNAME], *dp, *result, *dest, *lastdp, *origin, *op, *lastop;
+    char            originBuf[ME_MAX_FNAME], *dp, *result, *dest, *lastdp, *origin, *op, *lastop;
     int             originSegments, i, commonSegments, sep;
 
     fs = mprLookupFileSystem(destArg);
@@ -18045,7 +18045,7 @@ PUBLIC char *mprGetTempPath(cchar *tempDir)
     static int      tempSeed = 0;
 
     if (tempDir == 0 || *tempDir == '\0') {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
 {
         MprFileSystem   *fs;
         fs = mprLookupFileSystem(tempDir ? tempDir : (cchar*) "/");
@@ -18089,7 +18089,7 @@ PUBLIC char *mprGetWinPath(cchar *path)
     if (path == 0 || *path == '\0') {
         path = ".";
     }
-#if BIT_ROM
+#if ME_ROM
     result = mprNormalizePath(path);
 #elif CYGWIN
 {
@@ -18453,7 +18453,7 @@ PUBLIC char *mprNormalizePath(cchar *pathArg)
             addSep++;
         }
     }
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     if (strcmp(segments[segmentCount - 1], " ") == 0) {
         segmentCount--;
     }
@@ -18733,8 +18733,8 @@ PUBLIC char *mprSearchPath(cchar *file, int flags, cchar *search, ...)
     if ((result = checkPath(file, flags)) != 0) {
         return result;
     }
-    if ((flags & MPR_SEARCH_EXE) && *BIT_EXE) {
-        if ((result = checkPath(mprJoinPathExt(file, BIT_EXE), flags)) != 0) {
+    if ((flags & MPR_SEARCH_EXE) && *ME_EXE) {
+        if ((result = checkPath(mprJoinPathExt(file, ME_EXE), flags)) != 0) {
             return result;
         }
     }
@@ -18748,8 +18748,8 @@ PUBLIC char *mprSearchPath(cchar *file, int flags, cchar *search, ...)
             if ((result = checkPath(path, flags)) != 0) {
                 return mprNormalizePath(result);
             }
-            if ((flags & MPR_SEARCH_EXE) && *BIT_EXE) {
-                if ((result = checkPath(mprJoinPathExt(path, BIT_EXE), flags)) != 0) {
+            if ((flags & MPR_SEARCH_EXE) && *ME_EXE) {
+                if ((result = checkPath(mprJoinPathExt(path, ME_EXE), flags)) != 0) {
                     return mprNormalizePath(result);
                 }
             }
@@ -18788,7 +18788,7 @@ PUBLIC char *mprTransformPath(cchar *path, int flags)
         result = mprNormalizePath(path);
     }
     if (flags & MPR_PATH_NATIVE_SEP) {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
         mprMapSeparators(result, '\\');
 #elif CYGWIN
         mprMapSeparators(result, '/');
@@ -18927,7 +18927,7 @@ PUBLIC ssize mprWritePathContents(cchar *path, cchar *buf, ssize len, int mode)
 
 
 
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
 /*********************************** Code *************************************/
 
 PUBLIC int mprCreateOsService()
@@ -18985,7 +18985,7 @@ PUBLIC int mprGetRandomBytes(char *buf, ssize length, bool block)
 }
 
 
-#if BIT_HAS_DYN_LOAD
+#if ME_HAS_DYN_LOAD
 PUBLIC int mprLoadNativeModule(MprModule *mp)
 {
     MprModuleEntry  fn;
@@ -19006,7 +19006,7 @@ PUBLIC int mprLoadNativeModule(MprModule *mp)
 #endif
 #endif
     if (!mp->entry || !dlsym(handle, mp->entry)) {
-#if BIT_STATIC
+#if ME_STATIC
         mprError("Cannot load module %s, product built static", mp->name);
         return MPR_ERR_BAD_STATE;
 #else
@@ -19026,7 +19026,7 @@ PUBLIC int mprLoadNativeModule(MprModule *mp)
             return MPR_ERR_CANT_OPEN;
         } 
         mp->handle = handle;
-#endif /* !BIT_STATIC */
+#endif /* !ME_STATIC */
 
     } else if (mp->entry) {
         mprLog(2, "Activating native module %s", mp->name);
@@ -19144,7 +19144,7 @@ PUBLIC void mprSetFilesLimit(int limit)
     mprTrace(6, "Set files limit to soft %d, max %d", r.rlim_cur, r.rlim_max);
 }
 
-#endif /* BIT_UNIX_LIKE */
+#endif /* ME_UNIX_LIKE */
 
 /*
     @copy   default
@@ -19311,7 +19311,7 @@ typedef struct Format {
  */
 typedef struct MprEjsString {
     void            *xtype;
-#if BIT_DEBUG
+#if ME_DEBUG
     char            *kind;
     void            *type;
     MprMem          *mem;
@@ -19329,8 +19329,8 @@ typedef struct MprEjsName {
 
 /********************************** Defines ***********************************/
 
-#ifndef BIT_MAX_FMT
-    #define BIT_MAX_FMT 256           /* Initial size of a printf buffer */
+#ifndef ME_MAX_FMT
+    #define ME_MAX_FMT 256           /* Initial size of a printf buffer */
 #endif
 
 /***************************** Forward Declarations ***************************/
@@ -19340,10 +19340,10 @@ static int  growBuf(Format *fmt);
 PUBLIC char *mprPrintfCore(char *buf, ssize maxsize, cchar *fmt, va_list arg);
 static void outNum(Format *fmt, cchar *prefix, uint64 val);
 static void outString(Format *fmt, cchar *str, ssize len);
-#if BIT_CHAR_LEN > 1 && KEEP
+#if ME_CHAR_LEN > 1 && KEEP
 static void outWideString(Format *fmt, wchar *str, ssize len);
 #endif
-#if BIT_FLOAT
+#if ME_FLOAT
 static void outFloat(Format *fmt, char specChar, double value);
 #endif
 
@@ -19418,12 +19418,12 @@ PUBLIC int mprStaticPrintf(cchar *fmt, ...)
 {
     MprFileSystem   *fs;
     va_list         ap;
-    char            buf[BIT_MAX_BUFFER];
+    char            buf[ME_MAX_BUFFER];
 
     fs = mprLookupFileSystem(NULL, "/");
 
     va_start(ap, fmt);
-    mprPrintfCore(buf, BIT_MAX_BUFFER, fmt, ap);
+    mprPrintfCore(buf, ME_MAX_BUFFER, fmt, ap);
     va_end(ap);
     return mprWriteFile(fs->stdOutput, buf, slen(buf));
 }
@@ -19436,12 +19436,12 @@ PUBLIC int mprStaticPrintfError(cchar *fmt, ...)
 {
     MprFileSystem   *fs;
     va_list         ap;
-    char            buf[BIT_MAX_BUFFER];
+    char            buf[ME_MAX_BUFFER];
 
     fs = mprLookupFileSystem(NULL, "/");
 
     va_start(ap, fmt);
-    mprPrintfCore(buf, BIT_MAX_BUFFER, fmt, ap);
+    mprPrintfCore(buf, ME_MAX_BUFFER, fmt, ap);
     va_end(ap);
     return mprWriteFile(fs->stdError, buf, slen(buf));
 }
@@ -19513,7 +19513,7 @@ PUBLIC char *mprPrintfCore(char *buf, ssize maxsize, cchar *spec, va_list args)
         if (maxsize <= 0) {
             maxsize = MAXINT;
         }
-        len = min(BIT_MAX_FMT, maxsize);
+        len = min(ME_MAX_FMT, maxsize);
         if ((buf = mprAlloc(len)) == 0) {
             return 0;
         }
@@ -19617,13 +19617,13 @@ PUBLIC char *mprPrintfCore(char *buf, ssize maxsize, cchar *spec, va_list args)
         case STATE_TYPE:
             switch (c) {
             case 'e':
-#if BIT_FLOAT
+#if ME_FLOAT
             case 'g':
             case 'f':
                 fmt.radix = 10;
                 outFloat(&fmt, c, (double) va_arg(args, double));
                 break;
-#endif /* BIT_FLOAT */
+#endif /* ME_FLOAT */
 
             case 'c':
                 BPUT(&fmt, (char) va_arg(args, int));
@@ -19633,7 +19633,7 @@ PUBLIC char *mprPrintfCore(char *buf, ssize maxsize, cchar *spec, va_list args)
                 /* Name */
                 qname = va_arg(args, MprEjsName);
                 if (qname.name) {
-#if BIT_CHAR_LEN > 1 && KEEP
+#if ME_CHAR_LEN > 1 && KEEP
                     outWideString(&fmt, (wchar*) qname.space->value, qname.space->length);
                     BPUT(&fmt, ':');
                     BPUT(&fmt, ':');
@@ -19651,7 +19651,7 @@ PUBLIC char *mprPrintfCore(char *buf, ssize maxsize, cchar *spec, va_list args)
 
             case 'S':
                 /* Safe string */
-#if BIT_CHAR_LEN > 1 && KEEP
+#if ME_CHAR_LEN > 1 && KEEP
                 if (fmt.flags & SPRINTF_LONG) {
                     //  UNICODE - not right wchar
                     safe = mprEscapeHtml(va_arg(args, wchar*));
@@ -19668,7 +19668,7 @@ PUBLIC char *mprPrintfCore(char *buf, ssize maxsize, cchar *spec, va_list args)
                 /* MprEjsString */
                 es = va_arg(args, MprEjsString*);
                 if (es) {
-#if BIT_CHAR_LEN > 1 && KEEP
+#if ME_CHAR_LEN > 1 && KEEP
                     outWideString(&fmt, es->value, es->length);
 #else
                     outString(&fmt, (char*) es->value, es->length);
@@ -19680,7 +19680,7 @@ PUBLIC char *mprPrintfCore(char *buf, ssize maxsize, cchar *spec, va_list args)
 
             case 'w':
                 /* Wide string of wchar characters (Same as %ls"). Null terminated. */
-#if BIT_CHAR_LEN > 1 && KEEP
+#if ME_CHAR_LEN > 1 && KEEP
                 outWideString(&fmt, va_arg(args, wchar*), -1);
                 break;
 #else
@@ -19689,7 +19689,7 @@ PUBLIC char *mprPrintfCore(char *buf, ssize maxsize, cchar *spec, va_list args)
 
             case 's':
                 /* Standard string */
-#if BIT_CHAR_LEN > 1 && KEEP
+#if ME_CHAR_LEN > 1 && KEEP
                 if (fmt.flags & SPRINTF_LONG) {
                     outWideString(&fmt, va_arg(args, wchar*), -1);
                 } else
@@ -19777,7 +19777,7 @@ PUBLIC char *mprPrintfCore(char *buf, ssize maxsize, cchar *spec, va_list args)
                 break;
 
             case 'p':       /* Pointer */
-#if BIT_64
+#if ME_64
                 uValue = (uint64) va_arg(args, void*);
 #else
                 uValue = (uint) PTOI(va_arg(args, void*));
@@ -19835,7 +19835,7 @@ static void outString(Format *fmt, cchar *str, ssize len)
 }
 
 
-#if BIT_CHAR_LEN > 1 && KEEP
+#if ME_CHAR_LEN > 1 && KEEP
 static void outWideString(Format *fmt, wchar *str, ssize len)
 {
     wchar     *cp;
@@ -19958,7 +19958,7 @@ static void outNum(Format *fmt, cchar *prefix, uint64 value)
 }
 
 
-#if BIT_FLOAT
+#if ME_FLOAT
 static void outFloat(Format *fmt, char specChar, double value)
 {
     char    result[256], *cp;
@@ -20038,7 +20038,7 @@ PUBLIC int mprIsZero(double value) {
     return fpclassify(value) == FP_ZERO;
 #endif
 }
-#endif /* BIT_FLOAT */
+#endif /* ME_FLOAT */
 
 
 /*
@@ -20143,11 +20143,11 @@ PUBLIC ssize print(cchar *fmt, ...)
 
 
 
-#if BIT_ROM 
+#if ME_ROM 
 /********************************** Defines ***********************************/
 
-#ifndef BIT_MAX_ROMFS
-    #define BIT_MAX_ROMFS 37           /* Size of the ROMFS hash lookup */
+#ifndef ME_MAX_ROMFS
+    #define ME_MAX_ROMFS 37           /* Size of the ROMFS hash lookup */
 #endif
 
 /********************************** Forwards **********************************/
@@ -20344,7 +20344,7 @@ PUBLIC int mprSetRomFileSystem(MprRomInode *inodeList)
 
     rfs = (MprRomFileSystem*) MPR->fileSystem;
     rfs->romInodes = inodeList;
-    rfs->fileIndex = mprCreateHash(BIT_MAX_ROMFS, MPR_HASH_STATIC_KEYS | MPR_HASH_STATIC_VALUES);
+    rfs->fileIndex = mprCreateHash(ME_MAX_ROMFS, MPR_HASH_STATIC_KEYS | MPR_HASH_STATIC_VALUES);
 
     for (ri = inodeList; ri->path; ri++) {
         if (mprAddKey(rfs->fileIndex, ri->path, ri) < 0) {
@@ -20363,7 +20363,7 @@ PUBLIC void manageRomFileSystem(MprRomFileSystem *rfs, int flags)
         mprMark(fs->separators);
         mprMark(fs->newline);
         mprMark(fs->root);
-#if BIT_WIN_LIKE || CYGWIN
+#if ME_WIN_LIKE || CYGWIN
         mprMark(fs->cygdrive);
         mprMark(fs->cygwin);
 #endif
@@ -20422,7 +20422,7 @@ PUBLIC MprRomFileSystem *mprCreateRomFileSystem(cchar *path)
 #else
 void romDummy() {}
 
-#endif /* BIT_ROM */
+#endif /* ME_ROM */
 
 /*
     @copy   default
@@ -20462,7 +20462,7 @@ void romDummy() {}
 
 
 
-#if BIT_EVENT_NOTIFIER == MPR_EVENT_SELECT
+#if ME_EVENT_NOTIFIER == MPR_EVENT_SELECT
 
 /********************************** Forwards **********************************/
 
@@ -20486,13 +20486,13 @@ PUBLIC int mprCreateNotifierService(MprWaitService *ws)
         Try to find a good port to use to break out of the select wait
      */ 
     maxTries = 100;
-    breakPort = BIT_WAKEUP_PORT;
+    breakPort = ME_WAKEUP_PORT;
     for (rc = retries = 0; retries < maxTries; retries++) {
         breakSock = socket(AF_INET, SOCK_DGRAM, 0);
         if (breakSock < 0) {
             mprWarn("Cannot open port %d to use for select. Retrying.\n");
         }
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
         fcntl(breakSock, F_SETFD, FD_CLOEXEC);
 #endif
         ws->breakAddress.sin_family = AF_INET;
@@ -20647,7 +20647,7 @@ PUBLIC void mprWaitForIO(MprWaitService *ws, MprTicks timeout)
     if (timeout < 0 || timeout > MAXINT) {
         timeout = MAXINT;
     }
-#if BIT_DEBUG
+#if ME_DEBUG
     if (mprGetDebugMode() && timeout > 30000) {
         timeout = 30000;
     }
@@ -20803,7 +20803,7 @@ void selectDummy() {}
 
 
 /*********************************** Forwards *********************************/
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
 
 static void manageSignal(MprSignal *sp, int flags);
 static void manageSignalService(MprSignalService *ssp, int flags);
@@ -21103,7 +21103,7 @@ PUBLIC void mprAddStandardSignals()
 #if SIGXFSZ
     mprAddItem(ssp->standard, mprAddSignalHandler(SIGXFSZ, standardSignalHandler, 0, 0, MPR_SIGNAL_AFTER));
 #endif
-#if MACOSX && BIT_DEBUG && KEEP
+#if MACOSX && ME_DEBUG && KEEP
     mprAddItem(ssp->standard, mprAddSignalHandler(SIGBUS, standardSignalHandler, 0, 0, MPR_SIGNAL_AFTER));
     mprAddItem(ssp->standard, mprAddSignalHandler(SIGSEGV, standardSignalHandler, 0, 0, MPR_SIGNAL_AFTER));
 #endif
@@ -21117,7 +21117,7 @@ static void standardSignalHandler(void *ignored, MprSignal *sp)
         mprShutdown(MPR_EXIT_NORMAL, -1, MPR_EXIT_TIMEOUT);
 
     } else if (sp->signo == SIGINT || sp->signo == SIGQUIT) {
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
         /*  Ensure shell input goes to a new line */
         if (isatty(1)) {
             if (write(1, "\n", 1) < 0) {}
@@ -21146,13 +21146,13 @@ static void standardSignalHandler(void *ignored, MprSignal *sp)
 }
 
 
-#else /* BIT_UNIX_LIKE */
+#else /* ME_UNIX_LIKE */
     void mprAddStandardSignals() {}
     MprSignalService *mprCreateSignalService() { return mprAlloc(0); }
     void mprStopSignalService() {};
     void mprRemoveSignalHandler(MprSignal *sp) { }
     void mprServiceSignals() {}
-#endif /* BIT_UNIX_LIKE */
+#endif /* ME_UNIX_LIKE */
 
 /*
     @copy   default
@@ -21196,13 +21196,13 @@ static void standardSignalHandler(void *ignored, MprSignal *sp)
 /*
     On MAC OS X, getaddrinfo is not thread-safe and crashes when called by a 2nd thread at any time. ie. locking wont help.
  */
-#define BIT_HAS_GETADDRINFO 1
+#define ME_HAS_GETADDRINFO 1
 #endif
 
 /********************************** Defines ***********************************/
 
-#ifndef BIT_MAX_IP
-    #define BIT_MAX_IP 1024
+#ifndef ME_MAX_IP
+    #define ME_MAX_IP 1024
 #endif
 
 /********************************** Forwards **********************************/
@@ -21229,7 +21229,7 @@ static ssize writeSocket(MprSocket *sp, cvoid *buf, ssize bufsize);
 PUBLIC MprSocketService *mprCreateSocketService()
 {
     MprSocketService    *ss;
-    char                hostName[BIT_MAX_IP], serverName[BIT_MAX_IP], domainName[BIT_MAX_IP], *dp;
+    char                hostName[ME_MAX_IP], serverName[ME_MAX_IP], domainName[ME_MAX_IP], *dp;
     Socket              fd;
 
     if ((ss = mprAllocObj(MprSocketService, manageSocketService)) == 0) {
@@ -21435,7 +21435,7 @@ PUBLIC bool mprHasDualNetworkStack()
 {
     bool dual;
 
-#if defined(BIT_HAS_SINGLE_STACK) || VXWORKS
+#if defined(ME_HAS_SINGLE_STACK) || VXWORKS
     dual = 0;
 #else
     dual = MPR->socketService->hasIPv6;
@@ -21491,7 +21491,7 @@ PUBLIC Socket mprListenOnSocket(MprSocket *sp, cchar *ip, int port, int flags)
         return SOCKET_ERROR;
     }
 
-#if !BIT_WIN_LIKE && !VXWORKS
+#if !ME_WIN_LIKE && !VXWORKS
     /*
         Children won't inherit this fd
      */
@@ -21500,9 +21500,9 @@ PUBLIC Socket mprListenOnSocket(MprSocket *sp, cchar *ip, int port, int flags)
 
     if (!(sp->flags & MPR_SOCKET_NOREUSE)) {
         rc = 1;
-#if BIT_UNIX_LIKE || VXWORKS
+#if ME_UNIX_LIKE || VXWORKS
         setsockopt(sp->fd, SOL_SOCKET, SO_REUSEADDR, (char*) &rc, sizeof(rc));
-#elif BIT_WIN_LIKE && defined(SO_EXCLUSIVEADDRUSE)
+#elif ME_WIN_LIKE && defined(SO_EXCLUSIVEADDRUSE)
         setsockopt(sp->fd, SOL_SOCKET, SO_REUSEADDR | SO_EXCLUSIVEADDRUSE, (char*) &rc, sizeof(rc));
 #endif
     }
@@ -21555,7 +21555,7 @@ PUBLIC Socket mprListenOnSocket(MprSocket *sp, cchar *ip, int port, int flags)
         }
     }
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     /*
         Delay setting reuse until now so that we can be assured that we have exclusive use of the port.
      */
@@ -21700,7 +21700,7 @@ static int connectSocket(MprSocket *sp, cchar *ip, int port, int initialFlags)
         unlock(sp);
         return MPR_ERR_CANT_OPEN;
     }
-#if !BIT_WIN_LIKE && !VXWORKS
+#if !ME_WIN_LIKE && !VXWORKS
     /*
         Children should not inherit this fd
      */
@@ -21723,7 +21723,7 @@ static int connectSocket(MprSocket *sp, cchar *ip, int port, int initialFlags)
         if (rc < 0) {
             /* MAC/BSD returns EADDRINUSE */
             if (errno == EINPROGRESS || errno == EALREADY || errno == EADDRINUSE) {
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
                 do {
                     struct pollfd pfd;
                     pfd.fd = sp->fd;
@@ -21770,7 +21770,7 @@ PUBLIC void mprDisconnectSocket(MprSocket *sp)
 
 static void disconnectSocket(MprSocket *sp)
 {
-    char    buf[BIT_MAX_BUFFER];
+    char    buf[ME_MAX_BUFFER];
     int     i;
 
     /*
@@ -21873,7 +21873,7 @@ PUBLIC MprSocket *mprAcceptSocket(MprSocket *listen)
     MprSocket                   *nsp;
     struct sockaddr_storage     addrStorage, saddrStorage;
     struct sockaddr             *addr, *saddr;
-    char                        ip[BIT_MAX_IP], acceptIp[BIT_MAX_IP];
+    char                        ip[ME_MAX_IP], acceptIp[ME_MAX_IP];
     Socklen                     addrlen, saddrlen;
     Socket                      fd;
     int                         port, acceptPort;
@@ -21916,7 +21916,7 @@ PUBLIC MprSocket *mprAcceptSocket(MprSocket *listen)
     }
     unlock(ss);
 
-#if !BIT_WIN_LIKE && !VXWORKS
+#if !ME_WIN_LIKE && !VXWORKS
     /* Prevent children inheriting this socket */
     fcntl(fd, F_SETFD, FD_CLOEXEC);
 #endif
@@ -22093,7 +22093,7 @@ static ssize writeSocket(MprSocket *sp, cvoid *buf, ssize bufsize)
                 if (errCode == EINTR) {
                     continue;
                 } else if (errCode == EAGAIN || errCode == EWOULDBLOCK) {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
                     /*
                         Windows sockets don't support blocking I/O. So we simulate here
                         OPT - could wait for a writable event
@@ -22136,7 +22136,7 @@ PUBLIC ssize mprWriteSocketVector(MprSocket *sp, MprIOVec *iovec, int count)
     ssize       total, len, written;
     int         i;
 
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     if (sp->sslSocket == 0) {
         return writev(sp->fd, (const struct iovec*) iovec, (int) count);
     } else
@@ -22175,11 +22175,11 @@ PUBLIC ssize mprWriteSocketVector(MprSocket *sp, MprIOVec *iovec, int count)
 }
 
 
-#if !BIT_ROM
+#if !ME_ROM
 #if !LINUX || __UCLIBC__
 static ssize localSendfile(MprSocket *sp, MprFile *file, MprOff offset, ssize len)
 {
-    char    buf[BIT_MAX_BUFFER];
+    char    buf[ME_MAX_BUFFER];
 
     mprSeekFile(file, SEEK_SET, (int) offset);
     len = min(len, sizeof(buf));
@@ -22255,7 +22255,7 @@ PUBLIC MprOff mprSendFileToSocket(MprSocket *sock, MprFile *file, MprOff offset,
         }
 
         if (!done && toWriteFile > 0 && file->fd >= 0) {
-#if LINUX && !__UCLIBC__ && !BIT_HAS_OFF64
+#if LINUX && !__UCLIBC__ && !ME_HAS_OFF64
             off_t off = (off_t) offset;
 #endif
             while (!done && toWriteFile > 0) {
@@ -22264,7 +22264,7 @@ PUBLIC MprOff mprSendFileToSocket(MprSocket *sock, MprFile *file, MprOff offset,
                     mprYield(MPR_YIELD_STICKY);
                 }
 #if LINUX && !__UCLIBC__
-    #if BIT_HAS_OFF64
+    #if ME_HAS_OFF64
                 rc = sendfile64(sock->fd, file->fd, &offset, nbytes);
     #else
                 rc = sendfile(sock->fd, file->fd, &off, nbytes);
@@ -22300,7 +22300,7 @@ PUBLIC MprOff mprSendFileToSocket(MprSocket *sock, MprFile *file, MprOff offset,
     }
     return written;
 }
-#endif /* !BIT_ROM */
+#endif /* !ME_ROM */
 
 
 static ssize flushSocket(MprSocket *sp)
@@ -22430,7 +22430,7 @@ PUBLIC int mprSetSocketBlockingMode(MprSocket *sp, bool on)
     if (on) {
         sp->flags |= MPR_SOCKET_BLOCK;
     }
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
 {
     int flag = (sp->flags & MPR_SOCKET_BLOCK) ? 0 : 1;
     ioctlsocket(sp->fd, FIONBIO, (ulong*) &flag);
@@ -22466,7 +22466,7 @@ PUBLIC int mprSetSocketNoDelay(MprSocket *sp, bool on)
     } else {
         sp->flags &= ~(MPR_SOCKET_NODELAY);
     }
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     {
         BOOL    noDelay;
         noDelay = on ? 1 : 0;
@@ -22478,7 +22478,7 @@ PUBLIC int mprSetSocketNoDelay(MprSocket *sp, bool on)
         noDelay = on ? 1 : 0;
         setsockopt(sp->fd, IPPROTO_TCP, TCP_NODELAY, (char*) &noDelay, sizeof(int));
     }
-#endif /* BIT_WIN_LIKE */
+#endif /* ME_WIN_LIKE */
     unlock(sp);
     return oldDelay;
 }
@@ -22498,7 +22498,7 @@ PUBLIC int mprGetSocketPort(MprSocket *sp)
  */
 PUBLIC int mprGetSocketError(MprSocket *sp)
 {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     int     rc;
     switch (rc = WSAGetLastError()) {
     case WSAEINTR:
@@ -22531,7 +22531,7 @@ PUBLIC int mprGetSocketError(MprSocket *sp)
 }
 
 
-#if BIT_HAS_GETADDRINFO
+#if ME_HAS_GETADDRINFO
 /*
     Get a socket address from a host/port combination. If a host provides both IPv4 and IPv6 addresses, 
     prefer the IPv4 address.
@@ -22668,7 +22668,7 @@ PUBLIC int mprGetSocketInfo(cchar *ip, int port, int *family, int *protocol, str
  */
 static int getSocketIpAddr(struct sockaddr *addr, int addrlen, char *ip, int ipLen, int *port)
 {
-#if (BIT_UNIX_LIKE || WIN)
+#if (ME_UNIX_LIKE || WIN)
     char    service[NI_MAXSERV];
 
 #ifdef IN6_IS_ADDR_V4MAPPED
@@ -22928,7 +22928,7 @@ PUBLIC MprSsl *mprCloneSsl(MprSsl *src)
 
 PUBLIC int mprLoadSsl()
 {
-#if BIT_PACK_SSL
+#if ME_EXT_SSL
     MprSocketService    *ss;
     MprModule           *mp;
     cchar               *path;
@@ -24209,7 +24209,7 @@ PUBLIC MprList *stolist(cchar *src)
 
 
 
-#if BIT_MPR_TEST
+#if ME_MPR_TEST
 /***************************** Forward Declarations ***************************/
 
 static void     adjustFailedCount(int adj);
@@ -24278,7 +24278,7 @@ PUBLIC int mprParseTestArgs(MprTestService *sp, int argc, char *argv[], MprTestP
     outputVersion = 0;
 
     programName = mprGetPathBase(argv[0]);
-    sp->name = sclone(BIT_PRODUCT);
+    sp->name = sclone(ME_NAME);
 
     /*
         Save the command line
@@ -24429,7 +24429,7 @@ PUBLIC int mprParseTestArgs(MprTestService *sp, int argc, char *argv[], MprTestP
         return MPR_ERR_BAD_ARGS;
     }
     if (outputVersion) {
-        mprEprintf("%s: Version: %s\n", BIT_TITLE, BIT_VERSION);
+        mprEprintf("%s: Version: %s\n", ME_TITLE, ME_VERSION);
         return MPR_ERR_BAD_ARGS;
     }
     sp->argc = argc;
@@ -24467,7 +24467,7 @@ static int parseFilter(MprTestService *sp, cchar *filter)
 static int loadTestModule(MprTestService *sp, cchar *fileName)
 {
     MprModule   *mp;
-    char        *cp, *base, entry[BIT_MAX_FNAME], path[BIT_MAX_FNAME];
+    char        *cp, *base, entry[ME_MAX_FNAME], path[ME_MAX_FNAME];
 
     assert(fileName && *fileName);
 
@@ -24481,9 +24481,9 @@ static int loadTestModule(MprTestService *sp, cchar *fileName)
     }
     fmt(entry, sizeof(entry), "%sInit", base);
     if (fileName[0] == '/' || (*fileName && fileName[1] == ':')) {
-        fmt(path, sizeof(path), "%s%s", fileName, BIT_SHOBJ);
+        fmt(path, sizeof(path), "%s%s", fileName, ME_SHOBJ);
     } else {
-        fmt(path, sizeof(path), "./%s%s", fileName, BIT_SHOBJ);
+        fmt(path, sizeof(path), "./%s%s", fileName, ME_SHOBJ);
     }
     if ((mp = mprCreateModule(base, path, entry, sp)) == 0) {
         mprError("Cannot create module %s", path);
@@ -25016,7 +25016,7 @@ static void runTestProc(MprTestGroup *gp, MprTestCase *test)
 static char *getErrorMessage(MprTestGroup *gp)
 {
     MprTestFailure  *fp;
-    char            msg[BIT_MAX_BUFFER], *errorMsg;
+    char            msg[ME_MAX_BUFFER], *errorMsg;
     int             next;
 
     next = 0;
@@ -25200,7 +25200,7 @@ static int setLogging(char *logSpec)
     return 0;
 }
 
-#endif /* BIT_MPR_TEST */
+#endif /* ME_MPR_TEST */
 
 /*
     @copy   default
@@ -25270,7 +25270,7 @@ PUBLIC MprThreadService *mprCreateThreadService()
     }
     MPR->mainOsThread = mprGetCurrentOsThread();
     MPR->threadService = ts;
-    ts->stackSize = BIT_STACK_SIZE;
+    ts->stackSize = ME_STACK_SIZE;
     /*
         Don't actually create the thread. Just create a thread object for this main thread.
      */
@@ -25376,7 +25376,7 @@ PUBLIC MprThread *mprCreateThread(cchar *name, void *entry, void *data, ssize st
     } else {
         tp->stackSize = stackSize;
     }
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     tp->threadHandle = 0;
 #endif
     assert(ts);
@@ -25398,7 +25398,7 @@ static void manageThread(MprThread *tp, int flags)
 
     } else if (flags & MPR_MANAGE_FREE) {
         assert(tp->pid == 0);
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
         if (tp->threadHandle) {
             CloseHandle(tp->threadHandle);
         }
@@ -25413,7 +25413,7 @@ static void manageThread(MprThread *tp, int flags)
 /*
     Entry thread function
  */ 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
 static uint __stdcall threadProcWrapper(void *data) 
 {
     threadProc((MprThread*) data);
@@ -25464,7 +25464,7 @@ PUBLIC int mprStartThread(MprThread *tp)
 {
     lock(tp);
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
 {
     HANDLE          h;
     uint            threadId;
@@ -25515,9 +25515,9 @@ PUBLIC int mprStartThread(MprThread *tp)
 
 PUBLIC MprOsThread mprGetCurrentOsThread()
 {
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     return (MprOsThread) pthread_self();
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
     return (MprOsThread) GetCurrentThreadId();
 #elif VXWORKS
     return (MprOsThread) taskIdSelf();
@@ -25532,7 +25532,7 @@ PUBLIC void mprSetThreadPriority(MprThread *tp, int newPriority)
     lock(tp);
     osPri = mprMapMprPriorityToOs(newPriority);
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     SetThreadPriority(tp->threadHandle, osPri);
 #elif VXWORKS
     taskPrioritySet(tp->osThread, osPri);
@@ -25547,15 +25547,15 @@ PUBLIC void mprSetThreadPriority(MprThread *tp, int newPriority)
 static void manageThreadLocal(MprThreadLocal *tls, int flags)
 {
     if (flags & MPR_MANAGE_MARK) {
-#if !BIT_UNIX_LIKE && !BIT_WIN_LIKE
+#if !ME_UNIX_LIKE && !ME_WIN_LIKE
         mprMark(tls->store);
 #endif
     } else if (flags & MPR_MANAGE_FREE) {
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
         if (tls->key) {
             pthread_key_delete(tls->key);
         }
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
         if (tls->key >= 0) {
             TlsFree(tls->key);
         }
@@ -25571,12 +25571,12 @@ PUBLIC MprThreadLocal *mprCreateThreadLocal()
     if ((tls = mprAllocObj(MprThreadLocal, manageThreadLocal)) == 0) {
         return 0;
     }
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     if (pthread_key_create(&tls->key, NULL) != 0) {
         tls->key = 0;
         return 0;
     }
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
     if ((tls->key = TlsAlloc()) < 0) {
         return 0;
     }
@@ -25593,9 +25593,9 @@ PUBLIC int mprSetThreadData(MprThreadLocal *tls, void *value)
 {
     bool    err;
 
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     err = pthread_setspecific(tls->key, value) != 0;
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
     err = TlsSetValue(tls->key, value) != 0;
 #else
     {
@@ -25610,9 +25610,9 @@ PUBLIC int mprSetThreadData(MprThreadLocal *tls, void *value)
 
 PUBLIC void *mprGetThreadData(MprThreadLocal *tls)
 {
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     return pthread_getspecific(tls->key);
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
     return TlsGetValue(tls->key);
 #else
     {
@@ -25624,7 +25624,7 @@ PUBLIC void *mprGetThreadData(MprThreadLocal *tls)
 }
 
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
 /*
     Map Mpr priority to Windows native priority. Windows priorities range from -15 to +15 (zero is normal). 
     Warning: +15 will not yield the CPU, -15 may get starved. We should be very wary going above +11.
@@ -26566,7 +26566,7 @@ PUBLIC MprTime mprGetTime()
     High resolution timer
  */
 #if MPR_HIGH_RES_TIMER
-    #if (LINUX || MACOSX) && (BIT_CPU_ARCH == BIT_CPU_X86 || BIT_CPU_ARCH == BIT_CPU_X64)
+    #if (LINUX || MACOSX) && (ME_CPU_ARCH == ME_CPU_X86 || ME_CPU_ARCH == ME_CPU_X64)
         uint64 mprGetHiResTicks() {
             uint64  now;
             __asm__ __volatile__ ("rdtsc" : "=A" (now));
@@ -26593,7 +26593,7 @@ PUBLIC MprTime mprGetTime()
     Ugh! Apparently monotonic clocks are broken on VxWorks prior to 6.7
  */
 #if CLOCK_MONOTONIC_RAW
-    #if BIT_UNIX_LIKE
+    #if ME_UNIX_LIKE
         #define HAS_MONOTONIC_RAW 1
     #elif VXWORKS
         #if (_WRS_VXWORKS_MAJOR > 6 || (_WRS_VXWORKS_MAJOR == 6 && _WRS_VXWORKS_MINOR >= 7))
@@ -26602,7 +26602,7 @@ PUBLIC MprTime mprGetTime()
     #endif
 #endif
 #if CLOCK_MONOTONIC
-    #if BIT_UNIX_LIKE
+    #if ME_UNIX_LIKE
         #define HAS_MONOTONIC 1
     #elif VXWORKS
         #if (_WRS_VXWORKS_MAJOR > 6 || (_WRS_VXWORKS_MAJOR == 6 && _WRS_VXWORKS_MINOR >= 7))
@@ -26618,7 +26618,7 @@ PUBLIC MprTime mprGetTime()
  */
 PUBLIC MprTicks mprGetTicks()
 {
-#if BIT_WIN_LIKE && BIT_64 && _WIN32_WINNT >= 0x0600
+#if ME_WIN_LIKE && ME_64 && _WIN32_WINNT >= 0x0600
     /* Windows Vista and later. Test for 64-bit so that building on deprecated Windows XP will work */
     return GetTickCount64();
 #elif MACOSX
@@ -26653,7 +26653,7 @@ PUBLIC MprTicks mprGetTicks()
 
     if (lastTicks == 0) {
         /* This will happen at init time when single threaded */
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
         lastTicks = GetTickCount();
 #else
         lastTicks = mprGetTime();
@@ -26661,7 +26661,7 @@ PUBLIC MprTicks mprGetTicks()
         mprInitSpinLock(&ticksSpin);
     }
     mprSpinLock(&ticksSpin);
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     /*
         GetTickCount will wrap in 49.7 days
      */
@@ -26778,7 +26778,7 @@ PUBLIC MprTime mprMakeUniversalTime(struct tm *tp)
 
 static int localTime(struct tm *timep, MprTime time)
 {
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     time_t when = (time_t) (time / MS_PER_SEC);
     if (localtime_r(&when, timep) == 0) {
         return MPR_ERR;
@@ -26797,7 +26797,7 @@ static int localTime(struct tm *timep, MprTime time)
 
 struct tm *universalTime(struct tm *timep, MprTime time)
 {
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     time_t when = (time_t) (time / MS_PER_SEC);
     return gmtime_r(&when, timep);
 #else
@@ -26819,7 +26819,7 @@ struct tm *universalTime(struct tm *timep, MprTime time)
  */
 static int getTimeZoneOffsetFromTm(struct tm *tp)
 {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     int                     offset;
     TIME_ZONE_INFORMATION   tinfo;
     GetTimeZoneInformation(&tinfo);
@@ -26844,7 +26844,7 @@ static int getTimeZoneOffsetFromTm(struct tm *tp)
         }
     }
     return offset;
-#elif BIT_UNIX_LIKE && !CYGWIN
+#elif ME_UNIX_LIKE && !CYGWIN
     return (int) tp->tm_gmtoff * MS_PER_SEC;
 #else
     struct timezone     tz;
@@ -26977,7 +26977,7 @@ static void decodeTime(struct tm *tp, MprTime when, bool local)
             offset = getTimeZoneOffsetFromTm(&t);
             dst = t.tm_isdst;
         }
-#if BIT_UNIX_LIKE && !CYGWIN
+#if ME_UNIX_LIKE && !CYGWIN
         zoneName = (char*) t.tm_zone;
 #endif
         when += offset;
@@ -26992,7 +26992,7 @@ static void decodeTime(struct tm *tp, MprTime when, bool local)
     tp->tm_yday     = (int) (floorDiv(when, MS_PER_DAY) - daysSinceEpoch(year));
     tp->tm_mon      = getMonth(year, tp->tm_yday);
     tp->tm_isdst    = dst != 0;
-#if BIT_UNIX_LIKE && !CYGWIN
+#if ME_UNIX_LIKE && !CYGWIN
     tp->tm_gmtoff   = offset / MS_PER_SEC;
     tp->tm_zone     = zoneName;
 #endif
@@ -27336,7 +27336,7 @@ static void digits(MprBuf *buf, int count, int fill, int value)
 
 static char *getTimeZoneName(struct tm *tp)
 {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     TIME_ZONE_INFORMATION   tz;
     WCHAR                   *wzone;
     GetTimeZoneInformation(&tz);
@@ -27737,7 +27737,7 @@ PUBLIC int mprParseTime(MprTime *time, cchar *dateString, int zoneFlags, struct 
     tm.tm_year = -MAXINT;
     tm.tm_mon = tm.tm_mday = tm.tm_hour = tm.tm_sec = tm.tm_min = tm.tm_wday = -1;
     tm.tm_min = tm.tm_sec = tm.tm_yday = -1;
-#if BIT_UNIX_LIKE && !CYGWIN
+#if ME_UNIX_LIKE && !CYGWIN
     tm.tm_gmtoff = 0;
     tm.tm_zone = 0;
 #endif
@@ -28015,10 +28015,10 @@ static void validateTime(struct tm *tp, struct tm *defaults)
 /*
     Compatibility for windows and VxWorks
  */
-#if BIT_WIN_LIKE || VXWORKS
+#if ME_WIN_LIKE || VXWORKS
 PUBLIC int gettimeofday(struct timeval *tv, struct timezone *tz)
 {
-    #if BIT_WIN_LIKE
+    #if ME_WIN_LIKE
         FILETIME        fileTime;
         MprTime         now;
         static int      tzOnce;
@@ -28070,7 +28070,7 @@ PUBLIC int gettimeofday(struct timeval *tv, struct timezone *tz)
         return rc;
     #endif
 }
-#endif /* BIT_WIN_LIKE || VXWORKS */
+#endif /* ME_WIN_LIKE || VXWORKS */
 
 /*
     @copy   default
@@ -28163,7 +28163,7 @@ PUBLIC int mprLoadNativeModule(MprModule *mp)
     handle = 0;
 
     entry = mp->entry;
-#if BIT_CPU_ARCH == MPR_CPU_IX86 || BIT_CPU_ARCH == MPR_CPU_IX64 || BIT_CPU_ARCH == MPR_CPU_SH
+#if ME_CPU_ARCH == MPR_CPU_IX86 || ME_CPU_ARCH == MPR_CPU_IX64 || ME_CPU_ARCH == MPR_CPU_SH
     entry = sjoin("_", entry, NULL);
 #endif
     if (!mp->entry || symFindByName(sysSymTbl, entry, (char**) (void*) &fn, &symType) == -1) {
@@ -28367,16 +28367,16 @@ static void manageWaitService(MprWaitService *ws, int flags)
         mprMark(ws->mutex);
         mprMark(ws->spin);
     }
-#if BIT_EVENT_NOTIFIER == MPR_EVENT_ASYNC
+#if ME_EVENT_NOTIFIER == MPR_EVENT_ASYNC
     mprManageAsync(ws, flags);
 #endif
-#if BIT_EVENT_NOTIFIER == MPR_EVENT_EPOLL
+#if ME_EVENT_NOTIFIER == MPR_EVENT_EPOLL
     mprManageEpoll(ws, flags);
 #endif
-#if BIT_EVENT_NOTIFIER == MPR_EVENT_KQUEUE
+#if ME_EVENT_NOTIFIER == MPR_EVENT_KQUEUE
     mprManageKqueue(ws, flags);
 #endif
-#if BIT_EVENT_NOTIFIER == MPR_EVENT_SELECT
+#if ME_EVENT_NOTIFIER == MPR_EVENT_SELECT
     mprManageSelect(ws, flags);
 #endif
 }
@@ -28390,7 +28390,7 @@ static MprWaitHandler *initWaitHandler(MprWaitHandler *wp, int fd, int mask, Mpr
     assert(fd >= 0);
     ws = MPR->waitService;
 
-#if BIT_DEBUG
+#if ME_DEBUG
     {
         MprWaitHandler  *op;
         int             index;
@@ -28418,7 +28418,7 @@ static MprWaitHandler *initWaitHandler(MprWaitHandler *wp, int fd, int mask, Mpr
         mprTrace(6, "io: Too many io handlers: %d", FD_SETSIZE);
         return 0;
     }
-#if BIT_UNIX_LIKE || VXWORKS
+#if ME_UNIX_LIKE || VXWORKS
     if (fd >= FD_SETSIZE) {
         mprError("File descriptor %d exceeds max io of %d", fd, FD_SETSIZE);
     }
@@ -28639,7 +28639,7 @@ PUBLIC void mprDoWaitRecall(MprWaitService *ws)
 
 
 
-#if BIT_CHAR_LEN > 1
+#if ME_CHAR_LEN > 1
 #if KEEP
 /************************************ Code ************************************/
 /*
@@ -29382,13 +29382,13 @@ PUBLIC ssize wtom(char *dest, ssize destCount, wchar *src, ssize count)
         destCount = MAXSSIZE;
     }
     if (count > 0) {
-#if BIT_CHAR_LEN == 1
+#if ME_CHAR_LEN == 1
         if (dest) {
             len = scopy(dest, destCount, src);
         } else {
             len = min(slen(src), destCount - 1);
         }
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
         len = WideCharToMultiByte(CP_ACP, 0, src, count, dest, (DWORD) destCount - 1, NULL, NULL);
 #else
         len = wcstombs(dest, src, destCount - 1);
@@ -29422,13 +29422,13 @@ PUBLIC ssize mtow(wchar *dest, ssize destCount, cchar *src, ssize count)
         destCount = MAXSSIZE;
     }
     if (destCount > 0) {
-#if BIT_CHAR_LEN == 1
+#if ME_CHAR_LEN == 1
         if (dest) {
             len = scopy(dest, destCount, src);
         } else {
             len = min(slen(src), destCount - 1);
         }
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
         len = MultiByteToWideChar(CP_ACP, 0, src, count, dest, (DWORD) destCount - 1);
 #else
         len = mbstowcs(dest, src, destCount - 1);
@@ -29706,7 +29706,7 @@ PUBLIC ssize xwtom(char *dest, ssize destMax, wchar *src, ssize len)
 
 #endif /* KEEP */
 
-#else /* BIT_CHAR_LEN == 1 */
+#else /* ME_CHAR_LEN == 1 */
 
 PUBLIC wchar *amtow(cchar *src, ssize *len)
 {
@@ -29726,7 +29726,7 @@ PUBLIC char *awtom(wchar *src, ssize *len)
 }
 
 
-#endif /* BIT_CHAR_LEN > 1 */
+#endif /* ME_CHAR_LEN > 1 */
 
 /*
     @copy   default
@@ -29768,7 +29768,7 @@ PUBLIC char *awtom(wchar *src, ssize *len)
  #include "w32api/windows.h"
 #endif
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
 /*********************************** Code *************************************/
 /*
     Initialize the O/S platform layer
@@ -29837,7 +29837,7 @@ PUBLIC int mprLoadNativeModule(MprModule *mp)
         handle = GetModuleHandle(NULL);
     }
     if (!handle || !mp->entry || !GetProcAddress(handle, mp->entry)) {
-#if BIT_STATIC
+#if ME_STATIC
         mprError("Cannot load module %s, product built static", mp->name);
         return MPR_ERR_BAD_STATE;
 #else
@@ -29858,7 +29858,7 @@ PUBLIC int mprLoadNativeModule(MprModule *mp)
             return MPR_ERR_CANT_READ;
         } 
         mp->handle = handle;
-#endif /* !BIT_STATIC */
+#endif /* !ME_STATIC */
 
     } else if (mp->entry) {
         mprLog(2, "Activating native module %s", mp->name);
@@ -29928,7 +29928,7 @@ PUBLIC void mprWriteToOsLog(cchar *message, int flags, int level)
     void        *event;
     long        errorType;
     ulong       exists;
-    char        buf[BIT_MAX_BUFFER], logName[BIT_MAX_BUFFER], *cp, *value;
+    char        buf[ME_MAX_BUFFER], logName[ME_MAX_BUFFER], *cp, *value;
     wchar       *lines[9];
     int         type;
     static int  once = 0;
@@ -29980,17 +29980,17 @@ PUBLIC void mprWriteToOsLog(cchar *message, int flags, int level)
 }
 
 
-#endif /* BIT_WIN_LIKE */
+#endif /* ME_WIN_LIKE */
 
 
-#if BIT_WIN_LIKE || CYGWIN
+#if ME_WIN_LIKE || CYGWIN
 /*
     Determine the registry hive by the first portion of the path. Return 
     a pointer to the rest of key path after the hive portion.
  */ 
 static cchar *getHive(cchar *keyPath, HKEY *hive)
 {
-    char    key[BIT_MAX_PATH], *cp;
+    char    key[ME_MAX_PATH], *cp;
     ssize   len;
 
     assert(keyPath && *keyPath);
@@ -30028,7 +30028,7 @@ static cchar *getHive(cchar *keyPath, HKEY *hive)
 PUBLIC MprList *mprListRegistry(cchar *key)
 {
     HKEY        top, h;
-    wchar       name[BIT_MAX_PATH];
+    wchar       name[ME_MAX_PATH];
     MprList     *list;
     int         index, size;
 
@@ -30146,7 +30146,7 @@ PUBLIC int mprWriteRegistry(cchar *key, cchar *name, cchar *value)
 
 #else
 void winDummy() {}
-#endif /* BIT_WIN_LIKE || CYGWIN */
+#endif /* ME_WIN_LIKE || CYGWIN */
 
 /*
     @copy   default
@@ -30207,7 +30207,7 @@ PUBLIC MprXml *mprXmlOpen(ssize initialSize, ssize maxSize)
 
     xp = mprAllocObj(MprXml, manageXml);
 
-    xp->inBuf = mprCreateBuf(BIT_MAX_BUFFER, BIT_MAX_BUFFER);
+    xp->inBuf = mprCreateBuf(ME_MAX_BUFFER, ME_MAX_BUFFER);
     xp->tokBuf = mprCreateBuf(initialSize, maxSize);
     return xp;
 }

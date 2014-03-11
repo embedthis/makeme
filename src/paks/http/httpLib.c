@@ -142,7 +142,7 @@ PUBLIC void httpInitAuth(Http *http)
 
     httpCreateAuthStore("app", NULL);
     httpCreateAuthStore("internal", fileVerifyUser);
-#if BIT_HAS_PAM && BIT_HTTP_PAM
+#if ME_HAS_PAM && ME_HTTP_PAM
     httpCreateAuthStore("system", httpPamVerifyUser);
 #endif
 #if DEPRECATED || 1
@@ -150,7 +150,7 @@ PUBLIC void httpInitAuth(Http *http)
         Deprecated in 4.4. Use "internal"
      */
     httpCreateAuthStore("file", fileVerifyUser);
-#if BIT_HAS_PAM && BIT_HTTP_PAM
+#if ME_HAS_PAM && ME_HTTP_PAM
     httpCreateAuthStore("pam", httpPamVerifyUser);
 #endif
 #endif
@@ -664,7 +664,7 @@ PUBLIC int httpSetAuthStore(HttpAuth *auth, cchar *store)
     }
     //  DEPRECATED "pam"
     if (smatch(store, "system") || smatch(store, "pam")) {
-#if BIT_HAS_PAM && BIT_HTTP_PAM
+#if ME_HAS_PAM && ME_HTTP_PAM
         if (auth->type && smatch(auth->type->name, "digest")) {
             mprError("Cannot use the PAM password store with digest authentication");
             return MPR_ERR_BAD_ARGS;
@@ -874,7 +874,7 @@ PUBLIC void httpComputeUserAbilities(HttpAuth *auth, HttpUser *user)
     for (ability = stok(sclone(user->roles), " \t,", &tok); ability; ability = stok(NULL, " \t,", &tok)) {
         computeAbilities(auth, user->abilities, ability);
     }
-#if BIT_DEBUG
+#if ME_DEBUG
     {
         MprBuf *buf = mprCreateBuf(0, 0);
         MprKey *ap;
@@ -1779,7 +1779,7 @@ PUBLIC ssize httpFilterChunkData(HttpQueue *q, HttpPacket *packet)
             return (ssize) min(rx->remainingContent, mprGetBufLength(buf));
         }
         /* End of chunk - prep for the next chunk */
-        rx->remainingContent = BIT_MAX_BUFFER;
+        rx->remainingContent = ME_MAX_BUFFER;
         rx->chunkState = HTTP_CHUNK_START;
         /* Fall through */
 
@@ -2004,7 +2004,7 @@ static HttpConn *openConnection(HttpConn *conn, struct MprSsl *ssl)
     conn->secure = uri->secure;
     conn->keepAliveCount = (conn->limits->keepAliveMax) ? conn->limits->keepAliveMax : 0;
 
-#if BIT_PACK_SSL
+#if ME_EXT_SSL
     /* Must be done even if using keep alive for repeat SSL requests */
     if (uri->secure) {
         char *peerName;
@@ -2019,7 +2019,7 @@ static HttpConn *openConnection(HttpConn *conn, struct MprSsl *ssl)
         }
     }
 #endif
-#if BIT_HTTP_WEB_SOCKETS
+#if ME_HTTP_WEB_SOCKETS
     if (uri->webSockets && httpUpgradeWebSocket(conn) < 0) {
         conn->errorMsg = sp->errorMsg;
         return 0;
@@ -2245,17 +2245,17 @@ PUBLIC char *httpReadString(HttpConn *conn)
             remaining -= nbytes;
         }
     } else {
-        content = mprAlloc(BIT_MAX_BUFFER);
+        content = mprAlloc(ME_MAX_BUFFER);
         sofar = 0;
         while (1) {
-            nbytes = httpRead(conn, &content[sofar], BIT_MAX_BUFFER);
+            nbytes = httpRead(conn, &content[sofar], ME_MAX_BUFFER);
             if (nbytes < 0) {
                 return 0;
             } else if (nbytes == 0) {
                 break;
             }
             sofar += nbytes;
-            content = mprRealloc(content, sofar + BIT_MAX_BUFFER);
+            content = mprRealloc(content, sofar + ME_MAX_BUFFER);
         }
     }
     content[sofar] = '\0';
@@ -2309,7 +2309,7 @@ PUBLIC HttpConn *httpRequest(cchar *method, cchar *uri, cchar *data, char **err)
 static int blockingFileCopy(HttpConn *conn, cchar *path)
 {
     MprFile     *file;
-    char        buf[BIT_MAX_BUFFER];
+    char        buf[ME_MAX_BUFFER];
     ssize       bytes, nbytes, offset;
 
     file = mprOpenFile(path, O_RDONLY | O_BINARY, 0);
@@ -3109,12 +3109,12 @@ static HttpPacket *getPacket(HttpConn *conn, ssize *size)
         /*
             Boost the size of the packet if we have already read a largish amount of data
          */
-        psize = (conn->rx && conn->rx->bytesRead > BIT_MAX_BUFFER) ? BIT_MAX_BUFFER * 8 : BIT_MAX_BUFFER;
+        psize = (conn->rx && conn->rx->bytesRead > ME_MAX_BUFFER) ? ME_MAX_BUFFER * 8 : ME_MAX_BUFFER;
         conn->input = packet = httpCreateDataPacket(psize);
     } else {
         content = packet->content;
         mprResetBufIfEmpty(content);
-        if (mprGetBufSpace(content) < BIT_MAX_BUFFER && mprGrowBuf(content, BIT_MAX_BUFFER) < 0) {
+        if (mprGetBufSpace(content) < ME_MAX_BUFFER && mprGrowBuf(content, ME_MAX_BUFFER) < 0) {
             mprMemoryError(0);
             conn->keepAliveCount = 0;
             conn->state = HTTP_STATE_BEGIN;
@@ -3281,7 +3281,7 @@ PUBLIC void httpSetState(HttpConn *conn, int targetState)
 }
 
 
-#if BIT_MPR_TRACING
+#if ME_MPR_TRACING
 static char *events[] = {
     "undefined", "state-change", "readable", "writable", "error", "destroy", "app-open", "app-close",
 };
@@ -3881,7 +3881,7 @@ PUBLIC HttpEndpoint *httpCreateConfiguredEndpoint(HttpHost *host, cchar *home, c
         } else {
             ip = "localhost";
             if (port <= 0) {
-                port = BIT_HTTP_PORT;
+                port = ME_HTTP_PORT;
             }
             if ((endpoint = httpCreateEndpoint(ip, port, NULL)) == 0) {
                 return 0;
@@ -4140,7 +4140,7 @@ PUBLIC void httpSetEndpointNotifier(HttpEndpoint *endpoint, HttpNotifier notifie
 
 PUBLIC int httpSecureEndpoint(HttpEndpoint *endpoint, struct MprSsl *ssl)
 {
-#if BIT_PACK_SSL
+#if ME_EXT_SSL
     endpoint->ssl = ssl;
     return 0;
 #else
@@ -4216,6 +4216,7 @@ PUBLIC HttpHost *httpLookupHostOnEndpoint(HttpEndpoint *endpoint, cchar *name)
         }
         if (*host->name == '*') {
             if (host->name[1] == '\0') {
+                /* Match all hosts */
                 return host;
             }
             if (scontains(name, &host->name[1])) {
@@ -4547,7 +4548,7 @@ PUBLIC HttpHost *httpCreateHost()
     if ((host->responseCache = mprCreateCache(MPR_CACHE_SHARED)) == 0) {
         return 0;
     }
-    mprSetCacheLimits(host->responseCache, 0, BIT_MAX_CACHE_DURATION, 0, 0);
+    mprSetCacheLimits(host->responseCache, 0, ME_MAX_CACHE_DURATION, 0, 0);
 
     host->routes = mprCreateList(-1, MPR_LIST_STABLE);
     host->flags = HTTP_HOST_NO_TRACE;
@@ -4927,7 +4928,7 @@ PUBLIC int httpSetRouteLog(HttpRoute *route, cchar *path, ssize size, int backup
     assert(format);
 
     if (format == NULL || *format == '\0') {
-        format = BIT_HTTP_LOG_FORMAT;
+        format = ME_HTTP_LOG_FORMAT;
     }
     route->logFlags = flags;
     route->logSize = size;
@@ -5032,9 +5033,9 @@ PUBLIC void httpLogRequest(HttpConn *conn)
     }
     fmt = route->logFormat;
     if (fmt == 0) {
-        fmt = BIT_HTTP_LOG_FORMAT;
+        fmt = ME_HTTP_LOG_FORMAT;
     }
-    len = BIT_MAX_URI + 256;
+    len = ME_MAX_URI + 256;
     buf = mprCreateBuf(len, len);
 
     while ((c = *fmt++) != '\0') {
@@ -5619,7 +5620,7 @@ static void banRemedy(MprHash *args)
     int         status;
 
     if ((ip = mprLookupKey(args, "IP")) != 0) {
-        period = lookupTicks(args, "PERIOD", BIT_HTTP_BAN_PERIOD);
+        period = lookupTicks(args, "PERIOD", ME_HTTP_BAN_PERIOD);
         msg = mprLookupKey(args, "MESSAGE");
         status = ((banStatus = mprLookupKey(args, "STATUS")) != 0) ? atoi(banStatus) : 0;
         httpBanClient(ip, period, status, msg);
@@ -5634,7 +5635,7 @@ static void cmdRemedy(MprHash *args)
     char        *command, *data;
     int         rc, status, argc, background;
 
-#if DEBUG_IDE && BIT_UNIX_LIKE
+#if DEBUG_IDE && ME_UNIX_LIKE
     unsetenv("DYLD_LIBRARY_PATH");
     unsetenv("DYLD_FRAMEWORK_PATH");
 #endif
@@ -5653,8 +5654,8 @@ static void cmdRemedy(MprHash *args)
         command = strim(command, "&", MPR_TRIM_END);
     }
     argc = mprMakeArgv(command, &argv, 0);
-    cmd->stdoutBuf = mprCreateBuf(BIT_MAX_BUFFER, -1);
-    cmd->stderrBuf = mprCreateBuf(BIT_MAX_BUFFER, -1);
+    cmd->stdoutBuf = mprCreateBuf(ME_MAX_BUFFER, -1);
+    cmd->stderrBuf = mprCreateBuf(ME_MAX_BUFFER, -1);
     if (mprStartCmd(cmd, argc, argv, NULL, MPR_CMD_DETACH | MPR_CMD_IN) < 0) {
         mprError("Cannot start command: %s", command);
         return;
@@ -5665,7 +5666,7 @@ static void cmdRemedy(MprHash *args)
     }
     mprFinalizeCmd(cmd);
     if (!background) {
-        rc = mprWaitForCmd(cmd, BIT_HTTP_REMEDY_TIMEOUT);
+        rc = mprWaitForCmd(cmd, ME_HTTP_REMEDY_TIMEOUT);
         status = mprGetCmdExitStatus(cmd);
         if (rc < 0 || status != 0) {
             mprError("Email remedy failed. Error: %s\nResult: %s", mprGetBufStart(cmd->stderrBuf), mprGetBufStart(cmd->stdoutBuf));
@@ -5687,9 +5688,9 @@ static void delayRemedy(MprHash *args)
     http = MPR->httpService;
     if ((ip = mprLookupKey(args, "IP")) != 0) {
         if ((address = mprLookupKey(http->addresses, ip)) != 0) {
-            delayUntil = http->now + lookupTicks(args, "PERIOD", BIT_HTTP_DELAY_PERIOD);
+            delayUntil = http->now + lookupTicks(args, "PERIOD", ME_HTTP_DELAY_PERIOD);
             address->delayUntil = max(delayUntil, address->delayUntil);
-            delay = (int) lookupTicks(args, "DELAY", BIT_HTTP_DELAY);
+            delay = (int) lookupTicks(args, "DELAY", ME_HTTP_DELAY);
             address->delay = max(delay, address->delay);
             mprLog(0, "%s", mprLookupKey(args, "MESSAGE"));
             mprLog(0, "Initiate delay of %d for IP address %s", address->delay, ip);
@@ -5871,7 +5872,7 @@ static void netOutgoingService(HttpQueue *q)
             return;
         }
     }
-#if !BIT_ROM
+#if !ME_ROM
     if (tx->flags & HTTP_TX_SENDFILE) {
         /* Relay via the send connector */
         if (tx->file == 0) {
@@ -5958,7 +5959,7 @@ static MprOff buildNetVec(HttpQueue *q)
             }
             httpWriteHeaders(q, packet);
         }
-        if (q->ioIndex >= (BIT_MAX_IOVEC - 2)) {
+        if (q->ioIndex >= (ME_MAX_IOVEC - 2)) {
             break;
         }
         if (httpGetPacketLength(packet) > 0 || packet->prefix) {
@@ -6001,7 +6002,7 @@ static void addPacketForNet(HttpQueue *q, HttpPacket *packet)
     tx = conn->tx;
 
     assert(q->count >= 0);
-    assert(q->ioIndex < (BIT_MAX_IOVEC - 2));
+    assert(q->ioIndex < (ME_MAX_IOVEC - 2));
 
     if (packet->prefix) {
         addToNetVector(q, mprGetBufStart(packet->prefix), mprGetBufLength(packet->prefix));
@@ -6162,7 +6163,7 @@ PUBLIC HttpPacket *httpCreatePacket(ssize size)
         return 0;
     }
     if (size != 0) {
-        if ((packet->content = mprCreateBuf(size < 0 ? BIT_MAX_BUFFER: (ssize) size, -1)) == 0) {
+        if ((packet->content = mprCreateBuf(size < 0 ? ME_MAX_BUFFER: (ssize) size, -1)) == 0) {
             return 0;
         }
     }
@@ -6223,7 +6224,7 @@ PUBLIC HttpPacket *httpCreateHeaderPacket()
 {
     HttpPacket    *packet;
 
-    if ((packet = httpCreatePacket(BIT_MAX_BUFFER)) == 0) {
+    if ((packet = httpCreatePacket(ME_MAX_BUFFER)) == 0) {
         return 0;
     }
     packet->flags = HTTP_PACKET_HEADER;
@@ -6607,7 +6608,7 @@ PUBLIC HttpPacket *httpSplitPacket(HttpPacket *orig, ssize offset)
 
         } else {
             count = httpGetPacketLength(orig) - offset;
-            size = max(count, BIT_MAX_BUFFER);
+            size = max(count, ME_MAX_BUFFER);
             size = HTTP_PACKET_ALIGN(size);
             if ((tail = httpCreateDataPacket(size)) == 0) {
                 return 0;
@@ -6667,7 +6668,7 @@ bool httpIsLastPacket(HttpPacket *packet)
 
 
 
-#if BIT_HAS_PAM && BIT_HTTP_PAM
+#if ME_HAS_PAM && ME_HTTP_PAM
  #include    <security/pam_appl.h>
 
 /********************************* Defines ************************************/
@@ -6737,7 +6738,7 @@ PUBLIC bool httpPamVerifyUser(HttpConn *conn, cchar *username, cchar *password)
                     mprPutToBuf(abilities, "%s ", gp->gr_name);
                 }
             }
-#if BIT_DEBUG
+#if ME_DEBUG
             mprAddNullToBuf(abilities);
             mprTrace(5, "Create temp user \"%s\" with abilities: %s", username, mprGetBufStart(abilities));
 #endif
@@ -6791,7 +6792,7 @@ static int pamChat(int msgCount, const struct pam_message **msg, struct pam_resp
     *resp = reply;
     return PAM_SUCCESS;
 }
-#endif /* BIT_HAS_PAM */
+#endif /* ME_HAS_PAM */
 
 /*
     @copy   default
@@ -7029,7 +7030,7 @@ PUBLIC void httpCreateTxPipeline(HttpConn *conn, HttpRoute *route)
         }
     }
     if (tx->connector == 0) {
-#if !BIT_ROM
+#if !ME_ROM
         if (tx->handler == http->fileHandler && (rx->flags & HTTP_GET) && !hasOutputFilters && 
                 !conn->secure && httpShouldTrace(conn, HTTP_TRACE_TX, HTTP_TRACE_BODY, tx->ext) < 0) {
             tx->connector = http->sendConnector;
@@ -7183,7 +7184,7 @@ static void openQueues(HttpConn *conn)
 
 PUBLIC void httpSetSendConnector(HttpConn *conn, cchar *path)
 {
-#if !BIT_ROM
+#if !ME_ROM
     HttpTx      *tx;
 
     tx = conn->tx;
@@ -7850,7 +7851,7 @@ PUBLIC bool httpWillNextQueueAcceptSize(HttpQueue *q, ssize size)
 }
 
 
-#if BIT_DEBUG
+#if ME_DEBUG
 PUBLIC bool httpVerifyQueue(HttpQueue *q)
 {
     HttpPacket  *packet;
@@ -8214,7 +8215,7 @@ static bool fixRangeLength(HttpConn *conn)
 
 
 
-#if BIT_PACK_PCRE
+#if ME_EXT_PCRE
  #include    "pcre.h"
 #endif
 
@@ -8276,12 +8277,12 @@ PUBLIC HttpRoute *httpCreateRoute(HttpHost *host)
     route->defaultLanguage = sclone("en");
     route->home = route->documents = mprGetCurrentPath(".");
     route->flags = HTTP_ROUTE_STEALTH;
-#if BIT_DEBUG
+#if ME_DEBUG
     route->flags |= HTTP_ROUTE_SHOW_ERRORS;
 #endif
     route->host = host;
     route->http = MPR->httpService;
-    route->lifespan = BIT_MAX_CACHE_DURATION;
+    route->lifespan = ME_MAX_CACHE_DURATION;
     route->pattern = MPR->emptyString;
     route->targetRule = sclone("run");
     route->autoDelete = 1;
@@ -8504,7 +8505,7 @@ PUBLIC HttpRoute *httpCreateConfiguredRoute(HttpHost *host, int serverSide)
      */
     route = httpCreateRoute(host);
     http = route->http;
-#if BIT_HTTP_WEB_SOCKETS
+#if ME_HTTP_WEB_SOCKETS
     httpAddRouteFilter(route, http->webSocketFilter->name, NULL, HTTP_STAGE_RX | HTTP_STAGE_TX);
 #endif
     if (serverSide) {
@@ -8555,7 +8556,7 @@ PUBLIC HttpRoute *httpCreateActionRoute(HttpRoute *parent, cchar *pattern, HttpA
 
 PUBLIC int httpStartRoute(HttpRoute *route)
 {
-#if !BIT_ROM
+#if !ME_ROM
     if (!(route->flags & HTTP_ROUTE_STARTED)) {
         route->flags |= HTTP_ROUTE_STARTED;
         if (route->logPath && (!route->parent || route->logPath != route->parent->logPath)) {
@@ -8601,7 +8602,7 @@ PUBLIC void httpRouteRequest(HttpConn *conn)
         route = rx->route = conn->host->defaultRoute;
 
     } else {
-        for (next = rewrites = 0; rewrites < BIT_MAX_REWRITE; ) {
+        for (next = rewrites = 0; rewrites < ME_MAX_REWRITE; ) {
             if (next >= conn->host->routes->length) {
                 break;
             }
@@ -8640,7 +8641,7 @@ PUBLIC void httpRouteRequest(HttpConn *conn)
     conn->trace[0] = route->trace[0];
     conn->trace[1] = route->trace[1];
 
-    if (rewrites >= BIT_MAX_REWRITE) {
+    if (rewrites >= ME_MAX_REWRITE) {
         httpError(conn, HTTP_CODE_INTERNAL_SERVER_ERROR, "Too many request rewrites");
     }
     if (tx->finalized) {
@@ -8744,7 +8745,7 @@ static int checkRoute(HttpConn *conn, HttpRoute *route)
     HttpRx          *rx;
     HttpTx          *tx;
     cchar           *token, *value, *header, *field;
-    int             next, rc, matched[BIT_MAX_ROUTE_MATCHES * 2], count, result;
+    int             next, rc, matched[ME_MAX_ROUTE_MATCHES * 2], count, result;
 
     assert(conn);
     assert(route);
@@ -8953,7 +8954,7 @@ PUBLIC void httpMapFile(HttpConn *conn)
     }
     filename = mprJoinPath(conn->rx->route->documents, filename);
     filename = mapContent(conn, filename);
-#if BIT_ROM
+#if ME_ROM
     filename = mprGetRelPath(filename, NULL);
 #endif
     httpSetFilename(conn, filename, 0);
@@ -9152,7 +9153,7 @@ PUBLIC void httpAddRouteMapping(HttpRoute *route, cchar *extensions, cchar *mapp
     char        *etok, *mtok;
 
     if (!route->map) {
-        route->map = mprCreateHash(BIT_MAX_ROUTE_MAP_HASH, MPR_HASH_STABLE);
+        route->map = mprCreateHash(ME_MAX_ROUTE_MAP_HASH, MPR_HASH_STABLE);
     }
     for (ext = stok(sclone(extensions), ", \t", &etok); ext; ext = stok(NULL, ", \t", &etok)) {
         if (*ext == '.') {
@@ -9595,7 +9596,7 @@ PUBLIC void httpAddRouteMethods(HttpRoute *route, cchar *methods)
     assert(route);
 
     if (methods == NULL || *methods == '\0') {
-        methods = BIT_HTTP_DEFAULT_METHODS;
+        methods = ME_HTTP_DEFAULT_METHODS;
     } else if (scaselessmatch(methods, "ALL")) {
        methods = "*";
     }
@@ -10169,7 +10170,7 @@ PUBLIC char *httpTemplate(HttpConn *conn, cchar *template, MprHash *options)
     HttpRx      *rx;
     HttpRoute   *route;
     cchar       *cp, *ep, *value;
-    char        key[BIT_MAX_BUFFER];
+    char        key[ME_MAX_BUFFER];
 
     rx = conn->rx;
     route = rx->route;
@@ -10181,7 +10182,7 @@ PUBLIC char *httpTemplate(HttpConn *conn, cchar *template, MprHash *options)
         if (cp == template && *cp == '~') {
             mprPutStringToBuf(buf, route->prefix ? route->prefix : "/");
 
-        } else if (cp == template && *cp == BIT_SERVER_PREFIX_CHAR) {
+        } else if (cp == template && *cp == ME_SERVER_PREFIX_CHAR) {
             mprPutStringToBuf(buf, route->prefix ? route->prefix : "/");
             mprPutStringToBuf(buf, route->serverPrefix ? route->serverPrefix : "/");
 
@@ -10513,7 +10514,7 @@ static int existsCondition(HttpConn *conn, HttpRoute *route, HttpRouteOp *op)
 static int matchCondition(HttpConn *conn, HttpRoute *route, HttpRouteOp *op)
 {
     char    *str;
-    int     matched[BIT_MAX_ROUTE_MATCHES * 2], count;
+    int     matched[ME_MAX_ROUTE_MATCHES * 2], count;
 
     assert(conn);
     assert(route);
@@ -10836,7 +10837,7 @@ PUBLIC void httpAddWebSocketsRoute(HttpRoute *parent, cchar *prefix, cchar *name
     /*
         Set some reasonable defaults. 5 minutes for inactivity and no request timeout limit
      */
-    route->limits->inactivityTimeout = BIT_MAX_INACTIVITY_DURATION * 10;
+    route->limits->inactivityTimeout = ME_MAX_INACTIVITY_DURATION * 10;
     route->limits->requestTimeout = MPR_MAX_TIMEOUT;
 }
 
@@ -10936,10 +10937,10 @@ static void definePathVars(HttpRoute *route)
 {
     assert(route);
 
-    mprAddKey(route->vars, "PRODUCT", sclone(BIT_PRODUCT));
-    mprAddKey(route->vars, "OS", sclone(BIT_OS));
-    mprAddKey(route->vars, "VERSION", sclone(BIT_VERSION));
-    mprAddKey(route->vars, "PLATFORM", sclone(BIT_PLATFORM));
+    mprAddKey(route->vars, "PRODUCT", sclone(ME_NAME));
+    mprAddKey(route->vars, "OS", sclone(ME_OS));
+    mprAddKey(route->vars, "VERSION", sclone(ME_VERSION));
+    mprAddKey(route->vars, "PLATFORM", sclone(ME_PLATFORM));
     mprAddKey(route->vars, "BIN_DIR", mprGetAppDir());
 #if DEPRECATED || 1
     mprAddKey(route->vars, "LIBDIR", mprGetAppDir());
@@ -12368,8 +12369,8 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
                     if (conn->keepAliveCount < 0) {
                         conn->keepAliveCount = 0;
                     }
-                    if (conn->keepAliveCount > BIT_MAX_KEEP_ALIVE) {
-                        conn->keepAliveCount = BIT_MAX_KEEP_ALIVE;
+                    if (conn->keepAliveCount > ME_MAX_KEEP_ALIVE) {
+                        conn->keepAliveCount = ME_MAX_KEEP_ALIVE;
                     }
                     /*
                         IMPORTANT: Deliberately close client connections one request early. This encourages a client-led 
@@ -12439,7 +12440,7 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
                     This is for those who want very large forms and to do their own custom handling.
                  */
                 rx->ownParams = 1;
-#if BIT_DEBUG
+#if ME_DEBUG
             } else if (strcasecmp(key, "x-chunk-size") == 0) {
                 tx->chunkSize = atoi(value);
                 if (tx->chunkSize <= 0) {
@@ -12551,7 +12552,7 @@ static bool processParsed(HttpConn *conn)
                 httpStartPipeline(conn);
             }
         }
-#if BIT_HTTP_WEB_SOCKETS
+#if ME_HTTP_WEB_SOCKETS
     } else {
         if (conn->upgraded && !httpVerifyWebSocketsHandshake(conn)) {
             httpSetState(conn, HTTP_STATE_FINALIZED);
@@ -12826,7 +12827,7 @@ static void createErrorRequest(HttpConn *conn)
     conn->upgraded = 0;
     conn->worker = 0;
 
-    packet = httpCreateDataPacket(BIT_MAX_BUFFER);
+    packet = httpCreateDataPacket(ME_MAX_BUFFER);
     mprPutToBuf(packet->content, "%s %s %s\r\n", rx->method, tx->errorDocument, conn->protocol);
     buf = rx->headerPacket->content;
     /*
@@ -12884,7 +12885,7 @@ static bool processFinalized(HttpConn *conn)
     assert(tx->finalizedOutput);
     assert(tx->finalizedConnector);
 
-#if BIT_TRACE_MEM
+#if ME_TRACE_MEM
     mprTrace(1, "Request complete, status %d, error %d, connError %d, %s%s, memsize %.2f MB",
         tx->status, conn->error, conn->connError, rx->hostHeader, rx->uri, mprGetMem() / 1024 / 1024.0);
 #endif
@@ -13613,7 +13614,7 @@ static int sendContinue(HttpConn *conn)
 
 
 /**************************** Forward Declarations ****************************/
-#if !BIT_ROM
+#if !ME_ROM
 
 static void addPacketForSend(HttpQueue *q, HttpPacket *packet);
 static void adjustSendVec(HttpQueue *q, MprOff written);
@@ -13768,7 +13769,7 @@ static MprOff buildSendVec(HttpQueue *q)
         if (packet->flags & HTTP_PACKET_HEADER) {
             httpWriteHeaders(q, packet);
         }
-        if (q->ioFile || q->ioIndex >= (BIT_MAX_IOVEC - 2)) {
+        if (q->ioFile || q->ioIndex >= (ME_MAX_IOVEC - 2)) {
             /* Only one file entry allowed */
             break;
         }
@@ -13813,7 +13814,7 @@ static void addPacketForSend(HttpQueue *q, HttpPacket *packet)
     tx = conn->tx;
 
     assert(q->count >= 0);
-    assert(q->ioIndex < (BIT_MAX_IOVEC - 2));
+    assert(q->ioIndex < (ME_MAX_IOVEC - 2));
 
     if (packet->prefix) {
         addToSendVector(q, mprGetBufStart(packet->prefix), mprGetBufLength(packet->prefix));
@@ -13930,7 +13931,7 @@ static void adjustSendVec(HttpQueue *q, MprOff written)
 PUBLIC int httpOpenSendConnector(Http *http) { return 0; }
 PUBLIC void httpSendOpen(HttpQueue *q) {}
 PUBLIC void httpSendOutgoingService(HttpQueue *q) {}
-#endif /* !BIT_ROM */
+#endif /* !ME_ROM */
 
 /*
     @copy   default
@@ -14050,7 +14051,7 @@ PUBLIC Http *httpCreate(int flags)
         return 0;
     }
     MPR->httpService = http;
-    http->software = sclone(BIT_HTTP_SOFTWARE);
+    http->software = sclone(ME_HTTP_SOFTWARE);
     http->protocol = sclone("HTTP/1.1");
     http->mutex = mprCreateLock();
     http->stages = mprCreateHash(-1, MPR_HASH_STABLE);
@@ -14074,7 +14075,7 @@ PUBLIC Http *httpCreate(int flags)
     httpOpenSendConnector(http);
     httpOpenRangeFilter(http);
     httpOpenChunkFilter(http);
-#if BIT_HTTP_WEB_SOCKETS
+#if ME_HTTP_WEB_SOCKETS
     httpOpenWebSockFilter(http);
 #endif
     mprSetIdleCallback(isIdle);
@@ -14339,35 +14340,35 @@ PUBLIC HttpHost *httpLookupHost(Http *http, cchar *name)
 PUBLIC void httpInitLimits(HttpLimits *limits, bool serverSide)
 {
     memset(limits, 0, sizeof(HttpLimits));
-    limits->bufferSize = BIT_MAX_QBUFFER;
-    limits->cacheItemSize = BIT_MAX_CACHE_ITEM;
-    limits->chunkSize = BIT_MAX_CHUNK;
-    limits->clientMax = BIT_MAX_CLIENTS;
-    limits->connectionsMax = BIT_MAX_CONNECTIONS;
-    limits->headerMax = BIT_MAX_NUM_HEADERS;
-    limits->headerSize = BIT_MAX_HEADERS;
-    limits->keepAliveMax = BIT_MAX_KEEP_ALIVE;
-    limits->processMax = BIT_MAX_PROCESSES;
-    limits->requestsPerClientMax = BIT_MAX_REQUESTS_PER_CLIENT;
-    limits->sessionMax = BIT_MAX_SESSIONS;
-    limits->uriSize = BIT_MAX_URI;
+    limits->bufferSize = ME_MAX_QBUFFER;
+    limits->cacheItemSize = ME_MAX_CACHE_ITEM;
+    limits->chunkSize = ME_MAX_CHUNK;
+    limits->clientMax = ME_MAX_CLIENTS;
+    limits->connectionsMax = ME_MAX_CONNECTIONS;
+    limits->headerMax = ME_MAX_NUM_HEADERS;
+    limits->headerSize = ME_MAX_HEADERS;
+    limits->keepAliveMax = ME_MAX_KEEP_ALIVE;
+    limits->processMax = ME_MAX_PROCESSES;
+    limits->requestsPerClientMax = ME_MAX_REQUESTS_PER_CLIENT;
+    limits->sessionMax = ME_MAX_SESSIONS;
+    limits->uriSize = ME_MAX_URI;
 
-    limits->inactivityTimeout = BIT_MAX_INACTIVITY_DURATION;
-    limits->requestTimeout = BIT_MAX_REQUEST_DURATION;
-    limits->requestParseTimeout = BIT_MAX_PARSE_DURATION;
-    limits->sessionTimeout = BIT_MAX_SESSION_DURATION;
+    limits->inactivityTimeout = ME_MAX_INACTIVITY_DURATION;
+    limits->requestTimeout = ME_MAX_REQUEST_DURATION;
+    limits->requestParseTimeout = ME_MAX_PARSE_DURATION;
+    limits->sessionTimeout = ME_MAX_SESSION_DURATION;
 
-    limits->webSocketsMax = BIT_MAX_WSS_SOCKETS;
-    limits->webSocketsMessageSize = BIT_MAX_WSS_MESSAGE;
-    limits->webSocketsFrameSize = BIT_MAX_WSS_FRAME;
-    limits->webSocketsPacketSize = BIT_MAX_WSS_PACKET;
-    limits->webSocketsPing = BIT_MAX_PING_DURATION;
+    limits->webSocketsMax = ME_MAX_WSS_SOCKETS;
+    limits->webSocketsMessageSize = ME_MAX_WSS_MESSAGE;
+    limits->webSocketsFrameSize = ME_MAX_WSS_FRAME;
+    limits->webSocketsPacketSize = ME_MAX_WSS_PACKET;
+    limits->webSocketsPing = ME_MAX_PING_DURATION;
 
     if (serverSide) {
-        limits->receiveFormSize = BIT_MAX_RECEIVE_FORM;
-        limits->receiveBodySize = BIT_MAX_RECEIVE_BODY;
-        limits->transmissionBodySize = BIT_MAX_TX_BODY;
-        limits->uploadSize = BIT_MAX_UPLOAD;
+        limits->receiveFormSize = ME_MAX_RECEIVE_FORM;
+        limits->receiveBodySize = ME_MAX_RECEIVE_BODY;
+        limits->transmissionBodySize = ME_MAX_TX_BODY;
+        limits->uploadSize = ME_MAX_UPLOAD;
     } else {
         limits->receiveFormSize = MAXOFF;
         limits->receiveBodySize = MAXOFF;
@@ -14618,7 +14619,7 @@ PUBLIC void httpAddConn(Http *http, HttpConn *conn)
     lock(http);
     conn->seqno = (int) http->totalConnections++;
     if (!http->timer) {
-#if BIT_DEBUG
+#if ME_DEBUG
         if (!mprGetDebugMode())
 #endif
         {
@@ -14914,7 +14915,7 @@ static HttpSession *allocSessionObj(HttpConn *conn, cchar *id, cchar *data)
         sp->data = mprDeserialize(data);
     }
     if (!sp->data) {
-        sp->data = mprCreateHash(BIT_MAX_SESSION_HASH, 0);
+        sp->data = mprCreateHash(ME_MAX_SESSION_HASH, 0);
     }
     return sp;
 }
@@ -15029,7 +15030,7 @@ PUBLIC HttpSession *httpGetSession(HttpConn *conn, int create)
             mprLog(3, "session: create new cookie %s=%s", cookie, rx->session->id);
 
             if ((rx->route->flags & HTTP_ROUTE_XSRF) && rx->securityToken) {
-                httpSetSessionVar(conn, BIT_XSRF_COOKIE, rx->securityToken);
+                httpSetSessionVar(conn, ME_XSRF_COOKIE, rx->securityToken);
             }
         }
     }
@@ -15219,11 +15220,11 @@ PUBLIC cchar *httpGetSecurityToken(HttpConn *conn, bool recreate)
     if (recreate) {
         rx->securityToken = 0;
     } else {
-        rx->securityToken = (char*) httpGetSessionVar(conn, BIT_XSRF_COOKIE, 0);
+        rx->securityToken = (char*) httpGetSessionVar(conn, ME_XSRF_COOKIE, 0);
     }
     if (rx->securityToken == 0) {
         createSecurityToken(conn);
-        httpSetSessionVar(conn, BIT_XSRF_COOKIE, rx->securityToken);
+        httpSetSessionVar(conn, ME_XSRF_COOKIE, rx->securityToken);
     }
     return rx->securityToken;
 }
@@ -15238,8 +15239,8 @@ PUBLIC int httpAddSecurityToken(HttpConn *conn, bool recreate)
     cchar   *securityToken;
 
     securityToken = httpGetSecurityToken(conn, recreate);
-    httpSetCookie(conn, BIT_XSRF_COOKIE, securityToken, "/", NULL,  0, 0);
-    httpSetHeader(conn, BIT_XSRF_HEADER, securityToken);
+    httpSetCookie(conn, ME_XSRF_COOKIE, securityToken, "/", NULL,  0, 0);
+    httpSetHeader(conn, ME_XSRF_HEADER, securityToken);
     return 0;
 }
 
@@ -15252,14 +15253,14 @@ PUBLIC bool httpCheckSecurityToken(HttpConn *conn)
 {
     cchar   *requestToken, *sessionToken;
 
-    if ((sessionToken = httpGetSessionVar(conn, BIT_XSRF_COOKIE, 0)) != 0) {
-        requestToken = httpGetHeader(conn, BIT_XSRF_HEADER);
+    if ((sessionToken = httpGetSessionVar(conn, ME_XSRF_COOKIE, 0)) != 0) {
+        requestToken = httpGetHeader(conn, ME_XSRF_HEADER);
 #if DEPRECATED || 1
         /*
             Deprecated in 4.4
         */
         if (!requestToken) {
-            requestToken = httpGetParam(conn, BIT_XSRF_PARAM, 0);
+            requestToken = httpGetParam(conn, ME_XSRF_PARAM, 0);
         }
 #endif
         if (!smatch(sessionToken, requestToken)) {
@@ -15735,7 +15736,7 @@ PUBLIC HttpTx *httpCreateTx(HttpConn *conn, MprHash *headers)
     } else {
         tx->headers = mprCreateHash(HTTP_SMALL_HASH_SIZE, MPR_HASH_CASELESS | MPR_HASH_STABLE);
         if (httpClientConn(conn)) {
-            httpAddHeaderString(conn, "User-Agent", sclone(BIT_HTTP_SOFTWARE));
+            httpAddHeaderString(conn, "User-Agent", sclone(ME_HTTP_SOFTWARE));
         }
     }
     return tx;
@@ -16825,7 +16826,7 @@ static void openUpload(HttpQueue *q)
     rx->autoDelete = rx->route->autoDelete;
 
     if (rx->uploadDir == 0) {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
         rx->uploadDir = mprNormalizePath(getenv("TEMP"));
 #else
         rx->uploadDir = sclone("/tmp");
@@ -17264,7 +17265,7 @@ static int processUploadData(HttpQueue *q)
             httpSetParam(conn, key, data);
 
             if (packet == 0) {
-                packet = httpCreatePacket(BIT_MAX_BUFFER);
+                packet = httpCreatePacket(ME_MAX_BUFFER);
             }
             if (httpGetPacketLength(packet) > 0) {
                 /*
@@ -18282,7 +18283,7 @@ static cchar *expandRouteName(HttpConn *conn, cchar *routeName)
     if (sstarts(routeName, "${app}")) {
         return sjoin(route->prefix, &routeName[6], NULL);
     }
-    if (routeName[0] == BIT_SERVER_PREFIX_CHAR) {
+    if (routeName[0] == ME_SERVER_PREFIX_CHAR) {
         if (route->serverPrefix) {
             return sjoin(route->prefix, "/", route->serverPrefix, &routeName[1], NULL);
         }
@@ -18698,7 +18699,7 @@ PUBLIC void httpRemoveAllUploadedFiles(HttpConn *conn)
 
 
 
-#if BIT_HTTP_WEB_SOCKETS
+#if ME_HTTP_WEB_SOCKETS
 /********************************** Locals ************************************/
 /*
     Message frame states
@@ -18910,7 +18911,7 @@ static int matchWebSock(HttpConn *conn, HttpRoute *route, int dir)
             httpSetHeader(conn, "Sec-WebSocket-Protocol", ws->subProtocol);
         }
         httpSetHeader(conn, "X-Request-Timeout", "%Ld", conn->limits->requestTimeout / MPR_TICKS_PER_SEC);
-        httpSetHeader(conn, "X-Inactivity-Timeout", "%Ld", conn->limits->requestTimeout / MPR_TICKS_PER_SEC);
+        httpSetHeader(conn, "X-Inactivity-Timeout", "%Ld", conn->limits->inactivityTimeout / MPR_TICKS_PER_SEC);
 
         if (route->webSocketsPingPeriod) {
             ws->pingEvent = mprCreateEvent(conn->dispatcher, "webSocket", route->webSocketsPingPeriod, 
@@ -19837,7 +19838,7 @@ PUBLIC int httpUpgradeWebSocket(HttpConn *conn)
     httpSetHeader(conn, "Sec-WebSocket-Protocol", conn->protocols ? conn->protocols : "chat");
     httpSetHeader(conn, "Sec-WebSocket-Version", "13");
     httpSetHeader(conn, "X-Request-Timeout", "%Ld", conn->limits->requestTimeout / MPR_TICKS_PER_SEC);
-    httpSetHeader(conn, "X-Inactivity-Timeout", "%Ld", conn->limits->requestTimeout / MPR_TICKS_PER_SEC);
+    httpSetHeader(conn, "X-Inactivity-Timeout", "%Ld", conn->limits->inactivityTimeout / MPR_TICKS_PER_SEC);
 
     conn->upgraded = 1;
     conn->keepAliveCount = 0;
@@ -19887,7 +19888,7 @@ PUBLIC bool httpVerifyWebSocketsHandshake(HttpConn *conn)
     return 1;
 }
 
-#endif /* BIT_HTTP_WEB_SOCKETS */
+#endif /* ME_HTTP_WEB_SOCKETS */
 /*
     @copy   default
 

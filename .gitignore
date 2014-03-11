@@ -16,10 +16,10 @@
 *.out
 *.app
 releases
-start.bit
+start.me
 projects/.flags
 /*-*-*/
-/*-*-*.bit
+/*-*-*.me
 *-*-mine*
 *-mine*
 *.guid
@@ -27,6 +27,7 @@ projects/.flags
 *.tmp
 .DS_Store
 *.dmp
-bit.sublime-*
+me.sublime-*
 project.xcworkspace
 xcuserdata/
+testme

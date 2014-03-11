@@ -1,0 +1,262 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis MakeMe 0.8.0 Documentation</title>
+    <meta name="keywords" content="MakeMe, Bit, GYP, autoconf"/>
+	<meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf."/>
+	<meta name="robots" content="index,follow" />
+	<link href="../../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../../iehacks.css" rel="stylesheet" type="text/css" />
+    </![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo"  href="http://embedthis.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form">Loading</div>
+                <div class="version">Embedthis MakeMe 0.8.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt;<a href="index.html">Source Code</a>&gt; <b>Building from Source Code</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            <h1>Quick Nav</h1>
+            <ul>
+                <li><a href="#platforms">Supported Platforms</a></li>
+                <li><a href="#env">Prepare the Environment</a></li>
+                <li><a href="#overview">Build Overview</a></li>
+                <li><a href="#repository">Repository Building</a></li>
+                <li><a href="#directories">Key Directories</a></li>
+                <li><a href="make.html">Building with Make</a></li>
+                <li><a href="ide.html">Building with an ID</a></li>
+            </ul>
+<!-- BeginDsi "dsi/sourceSeeAlso.html" -->
+            <h1>See Also</h1>
+            <ul>
+                <li><a href="../../../guide/makeme/source/index.html">Working with Source</a></li>
+                <li><a href="../../../guide/makeme/source/building.html">Building from Source</a></li>
+                <li><a href="../../../product/changeLog.html">Change Log</a></li>
+                <li><a href="../../../product/releaseNotes.html">Release Notes</a></li>
+                <li><a href="../../../product/install/mac.html">Installing on Mac OS X</a></li>
+                <li><a href="../../../product/install/windows.html">Installing on Windows</a></li>
+            </ul>
+<!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+            <h1>Building from Source Code</h1>
+            <p>This page describes the process to build MakeMe from source for a supported platform.
+            The source distribution contains all the necessary source files, headers and tools to
+            reconfigure, build and verify the software. </p>
+            
+            <a id="platforms"></a>
+            <p>Several build environments are supported:</p>
+            <ul>
+                <li><b>Linux</b> &mdash; Linux 2.6 with GNU C/C++</li>
+                <li><b>Windows</b> &mdash; Microsoft Windows 7 with Visual Studio 2010 or later</li>
+                <li><b>Mac OSX</b> &mdash; Mac OSX 10.7 (Lion) or later</li>
+            </ul>
+            <p>The source code has been designed to run on FreeBSD, Linux, Mac OSX, Solaris Windows, VxWorks and other
+            operating systems. It has been tested under Fedora and Ubuntu Linux based on the Linux 2.6 Kernel, Microsoft
+            Windows XP, Vista, 7 (32 and 64-bit), VxWorks 5.4, 6.3 and MAC OSX 10.7. Both single and multi-cpu systems are
+            supported.</p>
+    
+            <p>If you want to build using source from the source code repository, please read these <a href=
+                "#repository">additional instructions</a>.</p>
+            <a id="env"></a>
+            <h2 class="section">Preparing the Environment</h2>
+            <p>Before building, you may need to install required tools such as cross-compilers, SDKs, and system
+            libraries. If you wish to build the software with the support of third-party packages such as 
+            MatrixSSL or OpenSSL, you may need to download the source from the relevant vendor and build the
+            required libraries for the software to utilize.</p>
+            <h3>Windows</h3>
+            <p>To build on Windows, you will need to install Microsoft Visual Studio 10.0 or later. Either the full 
+            product or the express editions will work fine. You will also need to 
+            install the <a href="http://msdn.microsoft.com/en-us/windowsserver/bb980924.aspx">Windows SDK</a>.
+            <p>Before building or configuring, you need to define certain Microsoft compiler environment variables as
+            described in the Microsoft Visual Studio installation. These variables are the PATH, INCLUDE and LIB
+            variables. They need to be
+            defined so they will contain references to where the Microsoft compiler and libraries are installed on your
+            system. The <em>vcvarsall.bat</em> command supplied with Visual Studio is the normal way to define these
+            variables.</p>
+            <h3>Unix / Linux</h3>
+            <p>To build on Linux, you may need to install the libpam and zlib libraries.</p>
+            <a id="overview"></a>
+            <h2 class="section">Build Overview</h2>
+            <p>The software supports two methods of building from source.
+            Building via Make is the simplest and quickest way to build. Use Make if you are looking to build
+            and move on. </p>
+            <p>Select the appropriate instructions:</p>
+            <ul>
+                <li><a href="make.html">How to build with Make</a></li>
+                <li><a href="ide.html">How to build with IDE</a></li>
+            </ul>
+            <a id="repository"></a>
+            <h2 class="section">Building from the Repository</h2>
+            <p>You can checkout a copy of the product source code from the official source code repository via:</p>
+            <pre>
+ git clone <a href="http://github.com/embedthis/makeme">http://github.com/embedthis/makeme</a>
+</pre>
+            <p>There are three repository branches that you can select:
+            <ul>
+                <li>stable &mdash; Source code for the most recent release.</li>
+                <li>master &mdash; Most recent, quasi-stable development snapshot.</li>
+                <li>dev &mdash; Current source code under active development. Least stable.</li>
+            </ul>
+            <p>Once checked out, the normal instructions for building from source apply.</p>
+            
+            <a id="directories"></a>
+            <h2 class="section">Key Directories</h2>
+            <p>Source trees contain the following key directories under the top directory.</p>
+            <table title="dirs">
+                <thead>
+                    <tr>
+                        <th>Directory</th>
+                        <th>Subdirectory</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>makeme</td>
+                    <td></td>
+                    <td>MakeMe configuration and scripts.</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>packs</td>
+                    <td>MakeMe extension packs.</td>
+                </tr>
+                <tr>
+                    <td class="nowrap">OS-ARCH-PROFILE</td>
+                    <td></td>
+                    <td>Build output directory.</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>bin</td>
+                    <td>Output binaries.</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>inc</td>
+                    <td>Include headers</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>obj</td>
+                    <td>Directory to hold generated objects.</td>
+                </tr>
+                <tr>
+                    <td>releases</td>
+                    <td></td>
+                    <td>Generated release distributions.</td>
+                </tr>
+                <tr>
+                    <td>package</td>
+                    <td></td>
+                    <td>Scripts for creating release distribution packages.</td>
+                </tr>
+                <tr>
+                    <td>projects</td>
+                    <td></td>
+                    <td>Microsoft Visual Studio and Eclipse project and workspace files.</td>
+                </tr>
+                <tr>
+                    <td>src</td>
+                    <td></td>
+                    <td>Product source code.</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>deps</td>
+                    <td>Dependant libraries including MPR, Http, Pcre.</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>samples</td>
+                    <td>Sample source code and examples</td>
+                </tr>
+                <tr>
+                    <td>test</td>
+                    <td></td>
+                    <td>Unit and integration tests.</td>
+                </tr>
+            </tbody>
+            </table>
+            <h3>Key Build Files</h3>
+            <table title="files">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>configure</td>
+                    <td>Build configuration script to use when building with MakeMe. This invokes MakeMe to configure MakeMe on
+                        the development system.</td> 
+                </tr>
+                <tr>
+                    <td class="nowrap">OS-ARCH-PROFILE.me</td>
+                    <td>Platform specific MakeMe file. There will be one platform MakeMe file for each target platform.</td>
+                </tr>
+                <tr>
+                    <td>main.me</td>
+                    <td>Main MakeMe file for MakeMe. It specifies the MakeMe key settings and configured options.</td>
+                </tr>
+                <tr>
+                    <td>start.me</td>
+                    <td>Startup MakeMe file for MakeMe. This file refers to the relevant MakeMe files for platforms.</td>
+                </tr>
+                <tr>
+                    <td>*/inc/me.h</td>
+                    <td>Build header created by MakeMe and included in all source files.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2014. 
+            All rights reserved. Embedthis MakeMe, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          'partner-pub-9935546676162772:ysvxxv4n9rx');
+
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-179169-5']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+</body>
+</html>

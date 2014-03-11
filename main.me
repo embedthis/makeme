@@ -1,0 +1,128 @@
+/*
+    main.me -- Main MakeMe file
+ */
+
+Me.load({
+    blend: [
+        "src/paks/*/*.me",
+        "doc/doc.me",
+        "${MAKEME}/embedthis.me",
+    ],
+
+    customize: [
+        /* 
+            The optional custom.me file is loaded after main.me is fully processed. It can
+            thus override any setting. Feel free to create and customize. 
+         */
+        'custom.me',
+    ],
+
+    settings: {
+        /*
+            Installation prefix set
+         */
+        prefixes: 'embedthis-prefixes',
+        manifest: 'package/manifest.me',
+
+        platforms: [ 'local' ],
+        probes: [ 'makeme/probes' ],
+        static: false,
+        tune: 'size',
+
+        extensions: {
+            require: [ 'compiler', 'bitos', 'ejs', 'mpr', 'http', 'pcre', 'zlib' ],
+            discover: [ 'dsi', 'man', 'man2html', 'pmaker', 'ssl', 'zip' ],
+        },
+
+        ejs: {
+            /*
+                Control if ejs.* is enabled or disabled
+             */
+            db: false,
+            mail: false,
+            mapper: false,
+            shell: true,
+            tar: true,                                                                                     
+            template: false,
+            web: false,
+            zlib: true,
+        }, 
+
+        /*
+            EST SSL stack configuration
+         */
+        est: {
+            camellia: false,
+            padlock: false,
+            sslClient: false,
+            des: false,
+            testCerts: false,
+            xtea: false,
+            romTables: false,
+            genPrime: false,
+        },
+
+        http: {
+            /* Use PAM (Plugable Authentication Module) to store passwords */
+            pam: false,
+        },
+                                                                                                           
+        mpr: {                                                                                             
+            /*                                                                                             
+                Enable logging via mprLog to the log file. Error messages are always enabled.              
+                The default is to enable logging for both debug and release builds.                        
+             */                                                                                            
+            logging: true,                                                                                 
+        },
+
+        tune: 'speed',
+    },
+
+    targets: {
+        'me.mod': {
+            path: '${BIN}/makeme/me.mod',
+            files: [ 'src/me.es' ],
+            precious: true,
+            run: '${BIN}/ejsc --out ${BIN}/makeme/me.mod --optimize 9 src/me.es',
+            depends: [ 'ejsc', 'me' ],
+            enable: false,
+        },
+
+        'me': {
+            type: 'exe',
+            path: '${BIN}/me${EXE}',
+            sources: [ 'src/*.c' ],
+            static: false,
+            active: true,
+            precious: true,
+            depends: [ 'libmpr', 'libhttp', 'libejs', 'me', 'me.mod' ],
+        },
+
+        makeme: {
+            type: 'file',
+            path: '${BIN}/makeme/',
+            files: [ 'src/**' ],
+            exclude: /src\/me.c|src\/paks/,
+            subtree: 'src',
+            precious: true,
+        },
+
+        'bower.json': {
+            type: 'file',
+            path: 'bower.json',
+            files: [ 'package.json' ],
+        },
+
+        projects: {
+            action: "
+                genProjects('', 'default', ['freebsd-x86', 'linux-x86', 'macosx-x64', 'windows-x86'])
+            ",
+        },
+    },
+
+    UNUSED_extensions: {
+        esp: { enable: true, silent: true},
+        ejs: { enable: true, silent: true},
+        sqlite: { enable: false, silent: true},
+    },
+})

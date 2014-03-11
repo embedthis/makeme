@@ -343,6 +343,20 @@
       <arglist>(HttpUri *result, HttpUri *base, HttpUri *other)</arglist>
     </member>
     <member kind="function">
+      <type>char *</type>
+      <name>httpLink</name>
+      <anchorfile>group___http_uri.html</anchorfile>
+      <anchor>ga296488cb7235d5d6b91cbce120bc000c</anchor>
+      <arglist>(struct HttpConn *conn, cchar *target)</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
+      <name>httpLinkEx</name>
+      <anchorfile>group___http_uri.html</anchorfile>
+      <anchor>gaf3c816600e82083ebade8bfa43efd208</anchor>
+      <arglist>(struct HttpConn *conn, cchar *target, MprHash *options)</arglist>
+    </member>
+    <member kind="function">
       <type>cchar *</type>
       <name>httpLookupMimeType</name>
       <anchorfile>group___http_uri.html</anchorfile>
@@ -357,10 +371,10 @@
       <arglist>(HttpUri *uri)</arglist>
     </member>
     <member kind="function">
-      <type>void</type>
+      <type>HttpUri *</type>
       <name>httpNormalizeUri</name>
       <anchorfile>group___http_uri.html</anchorfile>
-      <anchor>gab6de6ed30c95a9e9a3b8f9bf7acaf625</anchor>
+      <anchor>ga4918d9e52cb7fa05278c4a151b7cfad4</anchor>
       <arglist>(HttpUri *uri)</arglist>
     </member>
     <member kind="function">
@@ -376,20 +390,6 @@
       <anchorfile>group___http_uri.html</anchorfile>
       <anchor>ga53a807f2a2750df3f88d4f4b2ac89fa2</anchor>
       <arglist>(HttpUri *base, int argc, HttpUri **others, bool local)</arglist>
-    </member>
-    <member kind="function">
-      <type>char *</type>
-      <name>httpUri</name>
-      <anchorfile>group___http_uri.html</anchorfile>
-      <anchor>ga37c5f80dd753c174f0b4d3070fc56530</anchor>
-      <arglist>(struct HttpConn *conn, cchar *target)</arglist>
-    </member>
-    <member kind="function">
-      <type>char *</type>
-      <name>httpUriEx</name>
-      <anchorfile>group___http_uri.html</anchorfile>
-      <anchor>gae6643b3774cbf976a792ae4352cd4bb1</anchor>
-      <arglist>(struct HttpConn *conn, cchar *target, MprHash *options)</arglist>
     </member>
     <member kind="function">
       <type>char *</type>

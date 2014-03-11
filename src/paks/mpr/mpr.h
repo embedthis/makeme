@@ -36,7 +36,7 @@
 
 /********************************** Includes **********************************/
 
-#include "bit.h"
+#include "me.h"
 #include "bitos.h"
 
 /*********************************** Defines **********************************/
@@ -87,37 +87,37 @@ struct  MprWorker;
 struct  MprWorkerService;
 struct  MprXml;
 
-#ifndef BIT_MPR_LOGGING
-    #define BIT_MPR_LOGGING 1           /**< Default for logging is "on" */
+#ifndef ME_MPR_LOGGING
+    #define ME_MPR_LOGGING 1           /**< Default for logging is "on" */
 #endif
-#ifndef BIT_MPR_TRACING
-    #if BIT_DEBUG
-        #define BIT_MPR_TRACING 1       /**< Tracing is on in debug builds */
+#ifndef ME_MPR_TRACING
+    #if ME_DEBUG
+        #define ME_MPR_TRACING 1       /**< Tracing is on in debug builds */
     #else
-        #define BIT_MPR_TRACING 0
+        #define ME_MPR_TRACING 0
     #endif
 #endif
-#ifndef BIT_MPR_TEST
-    #define BIT_MPR_TEST 1
+#ifndef ME_MPR_TEST
+    #define ME_MPR_TEST 1
 #endif
 
-#ifndef BIT_MPR_MAX_PASSWORD
-    #define BIT_MPR_MAX_PASSWORD 256    /**< Max password length */
+#ifndef ME_MPR_MAX_PASSWORD
+    #define ME_MPR_MAX_PASSWORD 256    /**< Max password length */
 #endif
 
 #if DEPRECATED || 1
     /* Remove in 4.5 */
-    #define MPR_MAX_STRING      BIT_MAX_BUFFER
-    #define MPR_MAX_PATH        BIT_MAX_PATH
-    #define MPR_MAX_FNAME       BIT_MAX_FNAME
-    #define MPR_BUFSIZE         BIT_MAX_BUFFER
+    #define MPR_MAX_STRING      ME_MAX_BUFFER
+    #define MPR_MAX_PATH        ME_MAX_PATH
+    #define MPR_MAX_FNAME       ME_MAX_FNAME
+    #define MPR_BUFSIZE         ME_MAX_BUFFER
 #endif
 
 /*
     Select wakeup port. Port can be any free port number. If this is not free, the MPR will use the next free port.
  */
-#ifndef BIT_WAKEUP_PORT
-    #define BIT_WAKEUP_PORT     9473
+#ifndef ME_WAKEUP_PORT
+    #define ME_WAKEUP_PORT     9473
 #endif
 #define MPR_FD_MIN              32
 
@@ -214,25 +214,25 @@ struct  MprXml;
 #define MPR_EVENT_KQUEUE        3           /**< BSD kqueue */
 #define MPR_EVENT_SELECT        4           /**< traditional select() */
 
-#ifndef BIT_EVENT_NOTIFIER
+#ifndef ME_EVENT_NOTIFIER
     #if MACOSX || SOLARIS
-        #define BIT_EVENT_NOTIFIER MPR_EVENT_KQUEUE
+        #define ME_EVENT_NOTIFIER MPR_EVENT_KQUEUE
     #elif WINDOWS
-        #define BIT_EVENT_NOTIFIER MPR_EVENT_ASYNC
+        #define ME_EVENT_NOTIFIER MPR_EVENT_ASYNC
     #elif VXWORKS
-        #define BIT_EVENT_NOTIFIER MPR_EVENT_SELECT
-    #elif (LINUX || BIT_BSD_LIKE) && (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0))
-        #define BIT_EVENT_NOTIFIER MPR_EVENT_EPOLL
+        #define ME_EVENT_NOTIFIER MPR_EVENT_SELECT
+    #elif (LINUX || ME_BSD_LIKE) && (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0))
+        #define ME_EVENT_NOTIFIER MPR_EVENT_EPOLL
     #else
-        #define BIT_EVENT_NOTIFIER MPR_EVENT_SELECT
+        #define ME_EVENT_NOTIFIER MPR_EVENT_SELECT
     #endif
 #endif
 
 /**
     Maximum number of notifier events
  */
-#ifndef BIT_MAX_EVENTS
-    #define BIT_MAX_EVENTS      32
+#ifndef ME_MAX_EVENTS
+    #define ME_MAX_EVENTS      32
 #endif
 
 /*
@@ -342,26 +342,26 @@ struct  MprXml;
         static int innerMain(int argc, char **argv, char **envp); \
         int name(char *arg0, ...) { \
             va_list args; \
-            char *argp, *largv[BIT_MAX_ARGC]; \
+            char *argp, *largv[ME_MAX_ARGC]; \
             int largc = 0; \
             va_start(args, arg0); \
             largv[largc++] = #name; \
             if (arg0) { \
                 largv[largc++] = arg0; \
             } \
-            for (argp = va_arg(args, char*); argp && largc < BIT_MAX_ARGC; argp = va_arg(args, char*)) { \
+            for (argp = va_arg(args, char*); argp && largc < ME_MAX_ARGC; argp = va_arg(args, char*)) { \
                 largv[largc++] = argp; \
             } \
             return innerMain(largc, largv, NULL); \
         } \
         static int innerMain(_argc, _argv, _envp)
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
     #define MAIN(name, _argc, _argv, _envp)  \
         APIENTRY WinMain(HINSTANCE inst, HINSTANCE junk, char *command, int junk2) { \
             PUBLIC int main(); \
-            char *largv[BIT_MAX_ARGC]; \
+            char *largv[ME_MAX_ARGC]; \
             int largc; \
-            largc = mprParseArgs(command, &largv[1], BIT_MAX_ARGC - 1); \
+            largc = mprParseArgs(command, &largv[1], ME_MAX_ARGC - 1); \
             largv[0] = #name; \
             main(largc, largv, NULL); \
         } \
@@ -370,9 +370,9 @@ struct  MprXml;
     #define MAIN(name, _argc, _argv, _envp) int main(_argc, _argv, _envp)
 #endif
 
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     typedef pthread_t   MprOsThread;
-#elif BIT_64
+#elif ME_64
     typedef int64       MprOsThread;
 #else
     typedef int         MprOsThread;
@@ -402,7 +402,7 @@ PUBLIC void mprBreakpoint();
     @stability evolving
  */
 PUBLIC void assert(bool cond);
-#elif BIT_MPR_TRACING
+#elif ME_MPR_TRACING
     #undef assert
     #if DEPRECATED || 1
         /*  
@@ -434,8 +434,8 @@ PUBLIC void assert(bool cond);
  */
 typedef struct MprSync { int dummy; } MprSync;
 
-#ifndef BIT_MPR_SPIN_COUNT
-    #define BIT_MPR_SPIN_COUNT 1500 /* Windows lock spin count */
+#ifndef ME_MPR_SPIN_COUNT
+    #define ME_MPR_SPIN_COUNT 1500 /* Windows lock spin count */
 #endif
 
 /**
@@ -447,9 +447,9 @@ typedef struct MprSync { int dummy; } MprSync;
     @stability Internal.
  */
 typedef struct MprCond {
-    #if BIT_UNIX_LIKE
+    #if ME_UNIX_LIKE
         pthread_cond_t cv;          /**< Unix pthreads condition variable */
-    #elif BIT_WIN_LIKE
+    #elif ME_WIN_LIKE
         HANDLE cv;                  /**< Windows event handle */
     #elif VXWORKS
         SEM_ID cv;                  /**< Condition variable */
@@ -536,17 +536,17 @@ PUBLIC int mprWaitForMultiCond(MprCond *cond, MprTicks timeout);
     @stability Internal.
  */
 typedef struct MprMutex {
-    #if BIT_WIN_LIKE
+    #if ME_WIN_LIKE
         CRITICAL_SECTION cs;            /**< Internal mutex critical section */
         bool             freed;         /**< Mutex has been destroyed */
     #elif VXWORKS
         SEM_ID           cs;
-    #elif BIT_UNIX_LIKE
+    #elif ME_UNIX_LIKE
         pthread_mutex_t  cs;
     #else
         #warning "Unsupported OS in MprMutex definition in mpr.h"
     #endif
-#if BIT_DEBUG
+#if ME_DEBUG
         MprOsThread owner;
 #endif
 } MprMutex;
@@ -561,15 +561,15 @@ typedef struct MprMutex {
 typedef struct MprSpin {
     #if USE_MPR_LOCK
         MprMutex                cs;
-    #elif BIT_WIN_LIKE
+    #elif ME_WIN_LIKE
         CRITICAL_SECTION        cs;            /**< Internal mutex critical section */
         bool                    freed;         /**< Mutex has been destroyed */
     #elif VXWORKS
         SEM_ID                  cs;
     #elif MACOSX
         OSSpinLock              cs;
-    #elif BIT_UNIX_LIKE
-        #if BIT_HAS_SPINLOCK
+    #elif ME_UNIX_LIKE
+        #if ME_HAS_SPINLOCK
             pthread_spinlock_t  cs;
         #else
             pthread_mutex_t     cs;
@@ -577,7 +577,7 @@ typedef struct MprSpin {
     #else
         #warning "Unsupported OS in MprSpin definition in mpr.h"
     #endif
-#if BIT_DEBUG
+#if ME_DEBUG
         MprOsThread             owner;
 #endif
 } MprSpin;
@@ -653,23 +653,23 @@ PUBLIC bool mprTrySpinLock(MprSpin *lock);
 /*
     For maximum performance, use the spin lock/unlock routines macros
  */
-#if !BIT_DEBUG
-#define BIT_USE_LOCK_MACROS 1
+#if !ME_DEBUG
+#define ME_USE_LOCK_MACROS 1
 #endif
-#if BIT_USE_LOCK_MACROS && !DOXYGEN
+#if ME_USE_LOCK_MACROS && !DOXYGEN
     /*
         Spin lock macros
      */
     #if MACOSX
         #define mprSpinLock(lock)   if (lock) OSSpinLockLock(&((lock)->cs))
         #define mprSpinUnlock(lock) if (lock) OSSpinLockUnlock(&((lock)->cs))
-    #elif BIT_UNIX_LIKE && BIT_HAS_SPINLOCK
+    #elif ME_UNIX_LIKE && ME_HAS_SPINLOCK
         #define mprSpinLock(lock)   if (lock) pthread_spin_lock(&((lock)->cs))
         #define mprSpinUnlock(lock) if (lock) pthread_spin_unlock(&((lock)->cs))
-    #elif BIT_UNIX_LIKE
+    #elif ME_UNIX_LIKE
         #define mprSpinLock(lock)   if (lock) pthread_mutex_lock(&((lock)->cs))
         #define mprSpinUnlock(lock) if (lock) pthread_mutex_unlock(&((lock)->cs))
-    #elif BIT_WIN_LIKE
+    #elif ME_WIN_LIKE
         #define mprSpinLock(lock)   if (lock && (!((MprSpin*)(lock))->freed)) EnterCriticalSection(&((lock)->cs))
         #define mprSpinUnlock(lock) if (lock) LeaveCriticalSection(&((lock)->cs))
     #elif VXWORKS
@@ -680,10 +680,10 @@ PUBLIC bool mprTrySpinLock(MprSpin *lock);
     /*
         Lock macros
      */
-    #if BIT_UNIX_LIKE
+    #if ME_UNIX_LIKE
         #define mprLock(lock)       if (lock) pthread_mutex_lock(&((lock)->cs))
         #define mprUnlock(lock)     if (lock) pthread_mutex_unlock(&((lock)->cs))
-    #elif BIT_WIN_LIKE
+    #elif ME_WIN_LIKE
         #define mprLock(lock)       if (lock && !(((MprSpin*)(lock))->freed)) EnterCriticalSection(&((lock)->cs))
         #define mprUnlock(lock)     if (lock) LeaveCriticalSection(&((lock)->cs))
     #elif VXWORKS
@@ -807,85 +807,85 @@ PUBLIC void mprAtomicAdd64(volatile int64 *target, int64 value);
     Allocator debug and stats selection
     Use configure --set mprAllocCheck=true to enable
  */
-#if BIT_MPR_ALLOC_CHECK
-    #ifndef BIT_MPR_ALLOC_DEBUG
-        #define BIT_MPR_ALLOC_DEBUG     1                   /**< Fill blocks, verifies block integrity, block names */
+#if ME_MPR_ALLOC_CHECK
+    #ifndef ME_MPR_ALLOC_DEBUG
+        #define ME_MPR_ALLOC_DEBUG     1                   /**< Fill blocks, verifies block integrity, block names */
     #endif
-    #ifndef BIT_MPR_ALLOC_STATS
-        #define BIT_MPR_ALLOC_STATS     1                   /**< Include memory statistics */
+    #ifndef ME_MPR_ALLOC_STATS
+        #define ME_MPR_ALLOC_STATS     1                   /**< Include memory statistics */
     #endif
-    #ifndef BIT_MPR_ALLOC_STACK
-        #define BIT_MPR_ALLOC_STACK     1                   /**< Monitor stack usage */
+    #ifndef ME_MPR_ALLOC_STACK
+        #define ME_MPR_ALLOC_STACK     1                   /**< Monitor stack usage */
     #endif
 #else
-    #ifndef BIT_MPR_ALLOC_DEBUG
-        #define BIT_MPR_ALLOC_DEBUG     0
+    #ifndef ME_MPR_ALLOC_DEBUG
+        #define ME_MPR_ALLOC_DEBUG     0
     #endif
-    #ifndef BIT_MPR_ALLOC_STATS
-        #define BIT_MPR_ALLOC_STATS     0
+    #ifndef ME_MPR_ALLOC_STATS
+        #define ME_MPR_ALLOC_STATS     0
     #endif
-    #ifndef BIT_MPR_ALLOC_STACK
-        #define BIT_MPR_ALLOC_STACK     0
+    #ifndef ME_MPR_ALLOC_STACK
+        #define ME_MPR_ALLOC_STACK     0
     #endif
 #endif
 
 /*
     Allocator Tunables
  */
-#ifndef BIT_MPR_ALLOC_CACHE
+#ifndef ME_MPR_ALLOC_CACHE
     /* 
         Try to cache at least this amount in the heap free queues 
      */
-    #if BIT_TUNE_SIZE
-        #define BIT_MPR_ALLOC_CACHE 0   
-    #elif BIT_TUNE_SPEED
-        #define BIT_MPR_ALLOC_CACHE (1 * 1024 * 1024)   /* 1MB */
+    #if ME_TUNE_SIZE
+        #define ME_MPR_ALLOC_CACHE 0   
+    #elif ME_TUNE_SPEED
+        #define ME_MPR_ALLOC_CACHE (1 * 1024 * 1024)   /* 1MB */
     #else
-        #define BIT_MPR_ALLOC_CACHE BIT_MPR_ALLOC_REGION_SIZE
+        #define ME_MPR_ALLOC_CACHE ME_MPR_ALLOC_REGION_SIZE
     #endif
 #endif
-#ifndef BIT_MPR_ALLOC_LEVEL
-    #define BIT_MPR_ALLOC_LEVEL     7                   /* Emit mark/sweek elapsed time at this level */
+#ifndef ME_MPR_ALLOC_LEVEL
+    #define ME_MPR_ALLOC_LEVEL     7                   /* Emit mark/sweek elapsed time at this level */
 #endif
-#ifndef BIT_MPR_ALLOC_PARALLEL
-    #define BIT_MPR_ALLOC_PARALLEL  1                   /* Run sweeper in parallel with user threads */
+#ifndef ME_MPR_ALLOC_PARALLEL
+    #define ME_MPR_ALLOC_PARALLEL  1                   /* Run sweeper in parallel with user threads */
 #endif
-#if BIT_HAS_MMU
-    #define BIT_MPR_ALLOC_VIRTUAL   1                   /* Use virtual memory allocations */
+#if ME_HAS_MMU
+    #define ME_MPR_ALLOC_VIRTUAL   1                   /* Use virtual memory allocations */
 #else
-    #define BIT_MPR_ALLOC_VIRTUAL   0                   /* Use malloc() for region allocations */
+    #define ME_MPR_ALLOC_VIRTUAL   0                   /* Use malloc() for region allocations */
 #endif
-#ifndef BIT_MPR_ALLOC_QUOTA
-    #define BIT_MPR_ALLOC_QUOTA     8192                /* Number of allocations before a GC is worthwhile */
+#ifndef ME_MPR_ALLOC_QUOTA
+    #define ME_MPR_ALLOC_QUOTA     8192                /* Number of allocations before a GC is worthwhile */
 #endif
-#ifndef BIT_MPR_ALLOC_REGION_SIZE
-    #define BIT_MPR_ALLOC_REGION_SIZE (256 * 1024)      /* Memory region allocation chunk size */
+#ifndef ME_MPR_ALLOC_REGION_SIZE
+    #define ME_MPR_ALLOC_REGION_SIZE (256 * 1024)      /* Memory region allocation chunk size */
 #endif
 
-#ifndef BIT_MPR_ALLOC_ALIGN_SHIFT
+#ifndef ME_MPR_ALLOC_ALIGN_SHIFT
     /*
         Allocated block alignment expressed as a bit shift. The default alignment is set so that allocated memory can be used
         for doubles. NOTE: SSE and AltiVec instuctions may require 16 byte alignment.
      */
-    #if !BIT_64 && !(BIT_CPU_ARCH == BIT_CPU_MIPS)
-        #define BIT_MPR_ALLOC_ALIGN_SHIFT 3             /* 8 byte alignment */
+    #if !ME_64 && !(ME_CPU_ARCH == ME_CPU_MIPS)
+        #define ME_MPR_ALLOC_ALIGN_SHIFT 3             /* 8 byte alignment */
     #else
-        #define BIT_MPR_ALLOC_ALIGN_SHIFT 3             /* 8 byte alignment */
+        #define ME_MPR_ALLOC_ALIGN_SHIFT 3             /* 8 byte alignment */
     #endif
 #endif
-#define BIT_MPR_ALLOC_ALIGN (1 << BIT_MPR_ALLOC_ALIGN_SHIFT)
+#define ME_MPR_ALLOC_ALIGN (1 << ME_MPR_ALLOC_ALIGN_SHIFT)
 
 /*
     The allocator (by default) is limited to individual allocations of 4GB (32 bits). This enables memory blocks to 
-    be optimally aligned with minimal overhead. Define BIT_MPR_ALLOC_BIG on 64-bit systems to enable allocating blocks
+    be optimally aligned with minimal overhead. Define ME_MPR_ALLOC_BIG on 64-bit systems to enable allocating blocks
     greater than 4GB.
  */
-#if BIT_MPR_ALLOC_BIG && BIT_64
+#if ME_MPR_ALLOC_BIG && ME_64
     typedef uint64 MprMemSize;
 #else
     typedef uint MprMemSize;
 #endif
-#define MPR_ALLOC_MAX ((MprMemSize) - BIT_MPR_ALLOC_ALIGN)
+#define MPR_ALLOC_MAX ((MprMemSize) - ME_MPR_ALLOC_ALIGN)
 
 /**
     Memory Allocation Service.
@@ -896,7 +896,7 @@ PUBLIC void mprAtomicAdd64(volatile int64 *target, int64 value);
     \n\n
     The allocator uses a garbage collector for freeing unused memory. The collector is a cooperative, non-compacting, 
     parallel collector.  The allocator is optimized for frequent allocations of small blocks (< 4K) and uses a scheme 
-    of free queues for fast allocation. Allocations are aligned as specified by BIT_MPR_ALLOC_ALIGN_SHIFT. This is typically
+    of free queues for fast allocation. Allocations are aligned as specified by ME_MPR_ALLOC_ALIGN_SHIFT. This is typically
     16 byte aligned for 64-bit systems and 8 byte aligned for 32-bit systems. The allocator will return unused memory 
     back to the O/S to minimize application memory footprint. 
     \n\n
@@ -927,7 +927,7 @@ PUBLIC void mprAtomicAdd64(volatile int64 *target, int64 value);
         mprSetName mprVerifyMem mprVirtAlloc mprVirtFree 
  */
 typedef struct MprMem {
-    MprMemSize  size;                   /**< Size in bytes. This is a 32-bit quantity on all systems unless BIT_MPR_ALLOC_BIG 
+    MprMemSize  size;                   /**< Size in bytes. This is a 32-bit quantity on all systems unless ME_MPR_ALLOC_BIG 
                                              is defined and then it will be 64 bits. */
     uchar       qindex;                 /**< Freeq index. Always less than 512 queues. */
     uchar       eternal;                /**< Immune from GC. Implemented as a byte to be atomic */
@@ -937,12 +937,12 @@ typedef struct MprMem {
     uchar       mark: 1;                /**< GC mark indicator. Toggled for each GC pass by mark() when thread yielded. */
     uchar       fullRegion: 1;          /**< Block is an entire region - never on free queues . */
 
-#if BIT_MPR_ALLOC_DEBUG
+#if ME_MPR_ALLOC_DEBUG
     /* This increases the size of MprMem from 8 bytes to 16 bytes on 32-bit systems and 24 bytes on 64 bit systems */
     cchar       *name;                  /**< Debug name */
     ushort      magic;                  /**< Unique signature */
     ushort      seqno;                  /**< Allocation sequence number */
-#if BIT_64
+#if ME_64
     uchar       filler[4];
 #endif
 #else
@@ -975,9 +975,9 @@ typedef struct MprFreeQueue {
     MprMemSize          minSize;        /**< Minimum size of blocks in queue. This is the user block size sans MprMem header. */
 } MprFreeQueue;
 
-#define MPR_ALLOC_ALIGN(x)          (((x) + BIT_MPR_ALLOC_ALIGN - 1) & ~(BIT_MPR_ALLOC_ALIGN - 1))
+#define MPR_ALLOC_ALIGN(x)          (((x) + ME_MPR_ALLOC_ALIGN - 1) & ~(ME_MPR_ALLOC_ALIGN - 1))
 #define MPR_ALLOC_MIN_BLOCK         sizeof(MprFreeMem)
-#define MPR_ALLOC_MAX_BLOCK         (BIT_MPR_ALLOC_REGION_SIZE - sizeof(MprRegion))
+#define MPR_ALLOC_MAX_BLOCK         (ME_MPR_ALLOC_REGION_SIZE - sizeof(MprRegion))
 #define MPR_ALLOC_MIN_SPLIT         (32 + sizeof(MprMem))
 #define MPR_ALLOC_MAGIC             0xe813
 
@@ -1004,20 +1004,20 @@ typedef struct MprFreeQueue {
 #define MPR_ALLOC_NUM_QBITS         (1 << MPR_ALLOC_QBITS_SHIFT)
 
 /*
-    Should set region shift to log(BIT_MPR_ALLOC_REGION_SIZE)
+    Should set region shift to log(ME_MPR_ALLOC_REGION_SIZE)
     We don't expect users to tinker with these
  */
-#if BIT_MPR_ALLOC_REGION_SIZE == (128 * 1024)
-    #define BIT_MPR_ALLOC_REGION_SHIFT 18
-#elif BIT_MPR_ALLOC_REGION_SIZE == (256 * 1024)
-    #define BIT_MPR_ALLOC_REGION_SHIFT 19
-#elif BIT_MPR_ALLOC_REGION_SIZE == (512 * 1024)
-    #define BIT_MPR_ALLOC_REGION_SHIFT 20
+#if ME_MPR_ALLOC_REGION_SIZE == (128 * 1024)
+    #define ME_MPR_ALLOC_REGION_SHIFT 18
+#elif ME_MPR_ALLOC_REGION_SIZE == (256 * 1024)
+    #define ME_MPR_ALLOC_REGION_SHIFT 19
+#elif ME_MPR_ALLOC_REGION_SIZE == (512 * 1024)
+    #define ME_MPR_ALLOC_REGION_SHIFT 20
 #else
-    #define BIT_MPR_ALLOC_REGION_SHIFT 24
+    #define ME_MPR_ALLOC_REGION_SHIFT 24
 #endif
 
-#define MPR_ALLOC_NUM_QUEUES        ((BIT_MPR_ALLOC_REGION_SHIFT - BIT_MPR_ALLOC_ALIGN_SHIFT - MPR_ALLOC_QBITS_SHIFT) * \
+#define MPR_ALLOC_NUM_QUEUES        ((ME_MPR_ALLOC_REGION_SHIFT - ME_MPR_ALLOC_ALIGN_SHIFT - MPR_ALLOC_QBITS_SHIFT) * \
                                         MPR_ALLOC_NUM_QBITS)
 #define MPR_ALLOC_BITMAP_BITS       BITS(size_t)
 #define MPR_ALLOC_NUM_BITMAPS       ((MPR_ALLOC_NUM_QUEUES + MPR_ALLOC_BITMAP_BITS - 1) / MPR_ALLOC_BITMAP_BITS)
@@ -1049,7 +1049,7 @@ typedef struct MprFreeQueue {
 /*
     VirtAloc flags
  */
-#if BIT_WIN_LIKE || VXWORKS
+#if ME_WIN_LIKE || VXWORKS
     #define MPR_MAP_READ            0x1
     #define MPR_MAP_WRITE           0x2
     #define MPR_MAP_EXECUTE         0x4
@@ -1059,7 +1059,7 @@ typedef struct MprFreeQueue {
     #define MPR_MAP_EXECUTE         PROT_EXEC
 #endif
 
-#if BIT_MPR_ALLOC_DEBUG
+#if ME_MPR_ALLOC_DEBUG
     #define MPR_CHECK_BLOCK(bp)     mprCheckBlock(bp)
     #define MPR_VERIFY_MEM()        if (MPR->heap->verify) { mprVerifyMem(); } else
 #else
@@ -1107,7 +1107,7 @@ typedef void (*MprMemNotifier)(int cause, int policy, size_t size, size_t total)
  */
 typedef void (*MprManager)(void *ptr, int flags);
 
-#if BIT_MPR_ALLOC_DEBUG
+#if ME_MPR_ALLOC_DEBUG
 /*
     The location stats table tracks the source code location responsible for each allocation
     Very costly. Don't use except for debug.
@@ -1141,7 +1141,7 @@ typedef struct MprMemStats {
     uint64          rss;                    /**< OS calculated resident stack size in bytes */
     uint64          user;                   /**< System user RAM size in bytes (excludes kernel) */
     uint64          warnHeap;               /**< Warn if heap size exceeds this level */
-#if BIT_MPR_ALLOC_STATS
+#if ME_MPR_ALLOC_STATS
     /*
         Extended memory stats
      */
@@ -1164,7 +1164,7 @@ typedef struct MprMemStats {
     uint64          tryFails;
     uint64          unpins;                 /**< Count of times a block was unpinned and released back to the O/S */
 #endif
-#if BIT_MPR_ALLOC_DEBUG
+#if ME_MPR_ALLOC_DEBUG
     MprLocationStats locations[MPR_TRACK_HASH]; /* Per location allocation stats */
 #endif
 } MprMemStats;
@@ -1219,7 +1219,7 @@ typedef struct MprHeap {
     uint64           priorFree;             /**< Last sweep free memory */
     int              scribble;              /**< Scribble over freed memory (slow) */
     int              sweeping;              /**< Actually sweeping objects now */
-    int              track;                 /**< Track memory allocations (requires BIT_MPR_ALLOC_DEBUG) */
+    int              track;                 /**< Track memory allocations (requires ME_MPR_ALLOC_DEBUG) */
     int              verify;                /**< Verify memory contents (very slow) */
     int              workDone;              /**< Count of allocations weighted by block size */
     int              workQuota;             /**< Quota of work done before idle GC worthwhile */
@@ -1521,7 +1521,7 @@ PUBLIC size_t psize(void *ptr);
 /*
     In debug mode, all memory blocks can have a debug name
  */
-#if BIT_MPR_ALLOC_DEBUG
+#if ME_MPR_ALLOC_DEBUG
     PUBLIC void *mprSetName(void *ptr, cchar *name);
     PUBLIC void *mprCopyName(void *dest, void *src);
     #define mprGetName(ptr) (MPR_GET_MEM(ptr)->name)
@@ -1751,7 +1751,7 @@ PUBLIC void mprResumeGC();
     @ingroup MprMem
 
 #else
-#if BIT_MPR_ALLOC_STATS
+#if ME_MPR_ALLOC_STATS
     #define HINC(field) MPR->heap->stats.field++                                                                                     
 #else
     #define HINC(field)
@@ -2371,7 +2371,7 @@ PUBLIC char *supper(cchar *str);
 PUBLIC wchar   *amtow(cchar *src, ssize *len);
 PUBLIC char    *awtom(wchar *src, ssize *len);
 
-#if BIT_CHAR_LEN > 1
+#if ME_CHAR_LEN > 1
 #define multi(s) awtom(s, 0)
 #define wide(s)  amtow(s, 0)
 #else
@@ -2379,7 +2379,7 @@ PUBLIC char    *awtom(wchar *src, ssize *len);
 #define wide(s)  (s)
 #endif
 
-#if BIT_CHAR_LEN > 1
+#if ME_CHAR_LEN > 1
 PUBLIC ssize   wtom(char *dest, ssize count, wchar *src, ssize len);
 PUBLIC ssize   mtow(wchar *dest, ssize count, cchar *src, ssize len);
 
@@ -2457,14 +2457,14 @@ PUBLIC wchar    *wupper(wchar *s);
 #define wtrim(str, set, where)              strim(str, set, where)
 #define wupper(str)                         supper(str)
 
-#endif /* BIT_CHAR_LEN > 1 */
+#endif /* ME_CHAR_LEN > 1 */
 
 /********************************* Mixed Strings ******************************/
 /*
     These routines operate on wide strings mixed with a multibyte/ascii operand
     This API is not yet public
  */
-#if BIT_CHAR_LEN > 1
+#if ME_CHAR_LEN > 1
 #if KEEP
 PUBLIC int      mcaselesscmp(wchar *s1, cchar *s2);
 PUBLIC int      mcmp(wchar *s1, cchar *s2);
@@ -2488,7 +2488,7 @@ PUBLIC wchar    *mtok(wchar *str, cchar *delim, wchar **last);
 PUBLIC wchar    *mtrim(wchar *str, cchar *set, int where);
 #endif
 
-#else /* BIT_CHAR_LEN <= 1 */
+#else /* ME_CHAR_LEN <= 1 */
 
 #define mcaselesscmp(s1, s2)            scaselesscmp(s1, s2)
 #define mcmp(s1, s2)                    scmp(s1, s2)
@@ -2511,7 +2511,7 @@ PUBLIC wchar    *mtrim(wchar *str, cchar *set, int where);
 #define mtok(str, delim, last)          stok(str, delim, last)
 #define mtrim(str, set, where)          strim(str, set, where)
 
-#endif /* BIT_CHAR_LEN <= 1 */
+#endif /* ME_CHAR_LEN <= 1 */
 
 /************************************ Formatting ******************************/
 /**
@@ -2611,7 +2611,7 @@ PUBLIC char *mprAsprintfv(cchar *fmt, va_list arg);
 PUBLIC char *mprPrintfCore(char *buf, ssize maxsize, cchar *fmt, va_list args);
 
 /********************************* Floating Point *****************************/
-#if BIT_FLOAT
+#if ME_FLOAT
 /**
     Floating Point Services
     @stability Stable
@@ -2648,7 +2648,7 @@ PUBLIC int mprIsZero(double value);
  */
 PUBLIC int mprIsNan(double value);
 
-#endif /* BIT_FLOAT */
+#endif /* ME_FLOAT */
 /********************************* Buffering **********************************/
 /**
     Buffer refill callback function
@@ -3078,7 +3078,7 @@ PUBLIC void mprSetBufRefillProc(MprBuf *buf, MprBufProc fn, void *arg);
  */
 PUBLIC int mprSetBufSize(MprBuf *buf, ssize size, ssize maxSize);
 
-#if DOXYGEN || BIT_CHAR_LEN > 1
+#if DOXYGEN || ME_CHAR_LEN > 1
 #if KEEP
 /**
     Add a wide null character to the buffer contents.
@@ -3126,7 +3126,7 @@ PUBLIC ssize mprPutStringToWideBuf(MprBuf *buf, cchar *str);
 PUBLIC ssize mprPutFmtToWideBuf(MprBuf *buf, cchar *fmt, ...);
 
 #endif /* KEEP */
-#else /* BIT_CHAR_LEN == 1 */
+#else /* ME_CHAR_LEN == 1 */
 
 #define mprAddNullToWideBuf     mprAddNullToBuf
 #define mprPutCharToWideBuf     mprPutCharToBuf
@@ -3400,13 +3400,13 @@ PUBLIC char *mprGetDate(char *fmt);
  */
 PUBLIC uint64 mprGetHiResTicks();
 
-#if (LINUX || MACOSX || WINDOWS) && (BIT_CPU_ARCH == BIT_CPU_X86 || BIT_CPU_ARCH == BIT_CPU_X64)
+#if (LINUX || MACOSX || WINDOWS) && (ME_CPU_ARCH == ME_CPU_X86 || ME_CPU_ARCH == ME_CPU_X64)
     #define MPR_HIGH_RES_TIMER 1
 #else
     #define MPR_HIGH_RES_TIMER 0
 #endif
 
-#if BIT_MPR_TRACING
+#if ME_MPR_TRACING
     #if MPR_HIGH_RES_TIMER
         #define MPR_MEASURE(level, tag1, tag2, op) \
             if ((level) <= MPR->logLevel) { \
@@ -4082,7 +4082,7 @@ PUBLIC void mprInfo(cchar *fmt, ...);
 #if DOXYGEN
 /**
     Write a message to the log file.
-    @description Send a message to the MPR logging subsystem. Logging support is enabled via the BIT_MPR_LOGGING
+    @description Send a message to the MPR logging subsystem. Logging support is enabled via the ME_MPR_LOGGING
         define which is typically set via the Bit setting "logging: true".
         Logging typically is enabled in both debug and release builds.
         The mprLog function is a macro which translates into the mprLogProc function.
@@ -4185,7 +4185,7 @@ PUBLIC int mprStartLogging(cchar *logSpec, int showConfig);
 #if DOXYGEN
 /**
     Write a trace message to the diagnostic log file.
-    @description Send a trace message to the MPR logging subsystem. Debug tracing support is enabled via the BIT_MPR_TRACING
+    @description Send a trace message to the MPR logging subsystem. Debug tracing support is enabled via the ME_MPR_TRACING
         define which is typically set via the Bit setting "tracing: true".
         Tracing is typically is enabled in only debug builds.
         The mprTrace function is a macro which translates into the mprTraceProc function.
@@ -4239,13 +4239,13 @@ PUBLIC int mprUsingDefaultLogHandler();
  */
 PUBLIC void mprWarn(cchar *fmt, ...);
 
-#if BIT_MPR_TRACING
+#if ME_MPR_TRACING
     #define mprTrace(l, ...) if ((l) <= MPR->logLevel) { mprTraceProc(l, __VA_ARGS__); } else
 #else
     #define mprTrace(l, ...) if (1) ; else
 #endif
 
-#if BIT_MPR_LOGGING
+#if ME_MPR_LOGGING
     #define mprLog(l, ...) if ((l) <= MPR->logLevel) { mprLogProc(l, __VA_ARGS__); } else
 #else
     #define mprLog(l, ...) if (1) ; else
@@ -4568,7 +4568,7 @@ typedef struct MprFileSystem {
     char                *separators;    /**< Filename path separators. First separator is the preferred separator. */
     char                *newline;       /**< Newline for text files */
     cchar               *root;          /**< Root file path */
-#if BIT_WIN_LIKE || CYGWIN
+#if ME_WIN_LIKE || CYGWIN
     char                *cygwin;        /**< Cygwin install directory */
     char                *cygdrive;      /**< Cygwin drive root */
 #endif
@@ -4584,7 +4584,7 @@ typedef struct MprFileSystem {
  */
 PUBLIC MprFileSystem *mprCreateFileSystem(cchar *path);
 
-#if BIT_ROM
+#if ME_ROM
 /**
     A RomInode is created for each file in the Rom file system.
     @ingroup FileSystem
@@ -4623,7 +4623,7 @@ PUBLIC MprRomFileSystem *mprCreateRomFileSystem(cchar *path);
     @stability Stable
  */
 PUBLIC int mprSetRomFileSystem(MprRomInode *inodeList);
-#else /* BIT_ROM */
+#else /* ME_ROM */
 
 typedef MprFileSystem MprDiskFileSystem;
 /**
@@ -4635,7 +4635,7 @@ typedef MprFileSystem MprDiskFileSystem;
     @stability Internal
  */
 PUBLIC MprDiskFileSystem *mprCreateDiskFileSystem(cchar *path);
-#endif /* !BIT_ROM */
+#endif /* !ME_ROM */
 
 /**
     Create and initialize the disk FileSystem. 
@@ -4697,7 +4697,7 @@ typedef struct MprFile {
     int             perms;              /**< File permissions */
     int             fd;                 /**< File handle */
     int             attached;           /**< Attached to existing descriptor */
-#if BIT_ROM
+#if ME_ROM
     MprRomInode     *inode;             /**< Reference to ROM file */
 #endif
 } MprFile;
@@ -5019,7 +5019,7 @@ typedef struct MprDirEntry {
 /*
     Search path separator
  */
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     #define MPR_SEARCH_SEP      ";"
     #define MPR_SEARCH_SEP_CHAR ';'
 #else
@@ -5765,7 +5765,7 @@ PUBLIC cchar *mprGetModuleSearchPath();
  */
 PUBLIC int mprLoadModule(MprModule *mp);
 
-#if BIT_HAS_DYN_LOAD || DOXYGEN
+#if ME_HAS_DYN_LOAD || DOXYGEN
 /**
     Load a native module
     @param mp Module object created via #mprCreateModule.
@@ -6906,7 +6906,7 @@ PUBLIC void mprStopThreadService();
  */
 typedef struct MprThread {
     MprOsThread     osThread;           /**< O/S thread id */
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     handle          threadHandle;       /**< Threads OS handle for WIN */
     HWND            hwnd;               /**< Window handle */
 #endif
@@ -6919,7 +6919,7 @@ typedef struct MprThread {
     int             isMain;             /**< Is the main thread */
     int             priority;           /**< Current priority */
     ssize           stackSize;          /**< Only VxWorks implements */
-#if BIT_MPR_ALLOC_STACK
+#if ME_MPR_ALLOC_STACK
     void            *stackBase;         /**< Base of stack (approx) */
     int             peakStack;          /**< Peak stack usage */
 #endif
@@ -6936,9 +6936,9 @@ typedef struct MprThread {
     @internal
  */
 typedef struct MprThreadLocal {
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     pthread_key_t   key;                /**< Data key */
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
     DWORD           key;
 #else
     MprHash         *store;             /**< Thread local data store */
@@ -7121,7 +7121,7 @@ PUBLIC MprThreadLocal *mprCreateThreadLocal();
 #define MPR_READ_PIPE          0            /* Read side of breakPipe */
 #define MPR_WRITE_PIPE         1            /* Write side of breakPipe */
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
 typedef long (*MprMsgCallback)(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
 #endif
 
@@ -7135,19 +7135,19 @@ typedef struct MprWaitService {
     int             needRecall;             /* A handler needs a recall due to buffered data */
     int             wakeRequested;          /* Wakeup of the wait service has been requested */
     MprList         *handlerMap;            /* Map of fds to handlers */
-#if BIT_EVENT_NOTIFIER == MPR_EVENT_ASYNC
+#if ME_EVENT_NOTIFIER == MPR_EVENT_ASYNC
     ATOM            wclass;                 /* Window class */
     HWND            hwnd;                   /* Window handle */
     int             nfd;                    /* Last used entry in the handlerMap array */
     int             fdmax;                  /* Size of the fds array */
     int             socketMessage;          /* Message id for socket events */
     MprMsgCallback  msgCallback;            /* Message handler callback */
-#elif BIT_EVENT_NOTIFIER == MPR_EVENT_EPOLL
+#elif ME_EVENT_NOTIFIER == MPR_EVENT_EPOLL
     int             epoll;                  /* Epoll descriptor */
     int             breakFd[2];             /* Event or pipe to wakeup */
-#elif BIT_EVENT_NOTIFIER == MPR_EVENT_KQUEUE
+#elif ME_EVENT_NOTIFIER == MPR_EVENT_KQUEUE
     int             kq;                     /* Kqueue() return descriptor */
-#elif BIT_EVENT_NOTIFIER == MPR_EVENT_SELECT
+#elif ME_EVENT_NOTIFIER == MPR_EVENT_SELECT
     fd_set          readMask;               /* Current read events mask */
     fd_set          writeMask;              /* Current write events mask */
     int             highestFd;              /* Highest socket in masks + 1 */
@@ -7179,7 +7179,7 @@ PUBLIC void mprWakeNotifier();
 #if MPR_EVENT_SELECT
     PUBLIC void mprManageSelect(MprWaitService *ws, int flags);
 #endif
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     PUBLIC void mprSetWinMsgCallback(MprMsgCallback callback);
     PUBLIC void mprServiceWinIO(MprWaitService *ws, int sockFd, int winMask);
     PUBLIC HWND mprCreateWindow(MprThread *tp);
@@ -7872,7 +7872,7 @@ PUBLIC ssize mprReadSocket(MprSocket *sp, void *buf, ssize size);
  */
 PUBLIC void mprRemoveSocketHandler(MprSocket *sp);
 
-#if !BIT_ROM
+#if !ME_ROM
 /**
     Send a file to a socket
     @description Write the contents of a file to a socket. If the socket is in non-blocking mode (the default), the write
@@ -8207,16 +8207,16 @@ PUBLIC void mprVerifySslIssuer(struct MprSsl *ssl, bool on);
  */
 PUBLIC void mprVerifySslDepth(struct MprSsl *ssl, int depth);
 
-#if BIT_PACK_EST
+#if ME_EXT_EST
     PUBLIC int mprCreateEstModule();
 #endif
-#if BIT_PACK_MATRIXSSL
+#if ME_EXT_MATRIXSSL
     PUBLIC int mprCreateMatrixSslModule();
 #endif
-#if BIT_PACK_NANOSSL
+#if ME_EXT_NANOSSL
     PUBLIC int mprCreateNanoSslModule();
 #endif
-#if BIT_PACK_OPENSSL
+#if ME_EXT_OPENSSL
     PUBLIC int mprCreateOpenSslModule();
 #endif
 
@@ -8699,7 +8699,7 @@ typedef struct MprSignalService {
     MprMutex        *mutex;                 /**< Multithread sync */
     MprSignalInfo   info[MPR_MAX_SIGNALS];  /**< Actual signal info and arg */
     int             hasSignals;             /**< Signal sent to process */
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     struct sigaction prior[MPR_MAX_SIGNALS];/**< Prior sigaction handler before hooking */
 #endif
 } MprSignalService;
@@ -8805,7 +8805,7 @@ typedef struct MprCmdFile {
     char            *name;
     int             fd;
     int             clientFd;
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     HANDLE          handle;
 #endif
 } MprCmdFile;
@@ -8854,7 +8854,7 @@ typedef struct MprCmd {
     MprBuf          *stderrBuf;         /**< Standard error output from the client */
     void            *userData;          /**< User data storage */
     int             userFlags;          /**< User flags storage */
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     HANDLE          thread;             /**< Handle of the primary thread for the created process */
     HANDLE          process;            /**< Process handle for the created process */
     char            *command;           /**< Windows command line */
@@ -9632,14 +9632,14 @@ typedef struct Mpr {
 
     char            *emptyString;           /**< "" string */
     char            *oneString;             /**< "1" string */
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     HINSTANCE       appInstance;            /**< Application instance (windows) */
 #endif
 } Mpr;
 
 PUBLIC void mprNop(void *ptr);
 
-#if DOXYGEN || BIT_WIN_LIKE
+#if DOXYGEN || ME_WIN_LIKE
     /**
         Return the MPR control instance.
         @description Return the MPR singleton control object. 
@@ -10314,7 +10314,7 @@ PUBLIC void mprShutdown(int exitStrategy, int status, MprTicks timeout);
  */
 PUBLIC bool mprCancelShutdown();
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
 /**
     Get the Windows window handle
     @return the windows HWND reference
@@ -10357,7 +10357,7 @@ PUBLIC void mprSetInst(HINSTANCE inst);
 PUBLIC void mprSetSocketMessage(int message);
 #endif
 
-#if BIT_WIN_LIKE || CYGWIN
+#if ME_WIN_LIKE || CYGWIN
 /**
     List the subkeys for a key in the Windows registry
     @param key Windows registry key to enumerate subkeys
@@ -10387,7 +10387,7 @@ PUBLIC char *mprReadRegistry(cchar *key, cchar *name);
     @stability Stable.
   */
 PUBLIC int mprWriteRegistry(cchar *key, cchar *name, cchar *value);
-#endif /* BIT_WIN_LIKE || CYGWIN */
+#endif /* ME_WIN_LIKE || CYGWIN */
 
 
 #if DEPRECATED

@@ -1,0 +1,82 @@
+/*
+    standard.me -- Standard Settings and Targets
+ */
+
+Me.load({
+	dir: {
+		out:    '${platform.name}',
+		bin:    '${dir.out}/bin',
+        flat:   '${dir.out}/flat',
+		inc:    '${dir.out}/inc',
+		lib:    '${dir.out}/bin',
+		obj:    '${dir.out}/obj',
+        paks:   '${dir.top}/src/paks',
+        pkg:    '${dir.out}/pkg',
+		proj: 	'${dir.top}/projects',
+        rel:    '${dir.top}/releases',
+	},
+
+    targets: {
+        clean: {
+            action: "
+                builtin('cleanTargets')
+                safeRemove('${REL}')
+                safeRemove('${PKG}')
+                safeRemove('${FLAT}')
+            ",
+        },
+
+        clobber: {
+            depends: ['clean'],
+            action: "
+                rmdir(['${TOP}/*-*-debug', '${TOP}/*-*-release'])
+                rm('${TOP}/*-*.me')
+                rm('${TOP}/*.dmp')
+                rmdir('${TOP}/releases')
+            "
+        },
+
+        /* Compatibility for those familiar with make */
+        compile: {
+            depends: ['all'],
+        },
+
+        /* Legacy */
+        build: {
+            depends: ['all'],
+        },
+
+        configure: {
+            type: 'configure',
+        },
+
+        configuration: {
+            type: 'configuration',
+        },
+
+        deploy: {
+            type: 'deploy',
+        },
+
+        reconfigure: {
+            type: 'reconfigure',
+        },
+
+        dump: {
+            type: 'dump',
+        },
+
+        generate: {
+            type: 'generate',
+        },
+
+        rebuild: {
+            type: 'rebuild',
+        },
+
+        version: {
+            action: "print(me.settings.version)",
+            generate: "echo ${settings.version}",
+        },
+    },
+})

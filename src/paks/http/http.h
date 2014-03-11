@@ -38,138 +38,138 @@ struct HttpWebSocket;
 
 /********************************** Tunables **********************************/
 
-#ifndef BIT_HTTP_DEFAULT_METHODS
-    #define BIT_HTTP_DEFAULT_METHODS "GET,POST"         /**< Default methods for routes */
+#ifndef ME_HTTP_DEFAULT_METHODS
+    #define ME_HTTP_DEFAULT_METHODS "GET,POST"         /**< Default methods for routes */
 #endif
-#ifndef BIT_HTTP_PORT
-    #define BIT_HTTP_PORT           80
+#ifndef ME_HTTP_PORT
+    #define ME_HTTP_PORT           80
 #endif
-#ifndef BIT_HTTP_SOFTWARE
-    #define BIT_HTTP_SOFTWARE       "Embedthis-http"    /**< Default Http protocol name used in Http Server header */
+#ifndef ME_HTTP_SOFTWARE
+    #define ME_HTTP_SOFTWARE       "Embedthis-http"    /**< Default Http protocol name used in Http Server header */
 #endif
-#ifndef BIT_HTTP_BAN_PERIOD
-    #define BIT_HTTP_BAN_PERIOD     (5 * 60 * 1000)     /**< Default ban IP period */
+#ifndef ME_HTTP_BAN_PERIOD
+    #define ME_HTTP_BAN_PERIOD     (5 * 60 * 1000)     /**< Default ban IP period */
 #endif
-#ifndef BIT_HTTP_DELAY_PERIOD
-    #define BIT_HTTP_DELAY_PERIOD   (5 * 60 * 1000)     /**< Default delay IP period */
+#ifndef ME_HTTP_DELAY_PERIOD
+    #define ME_HTTP_DELAY_PERIOD   (5 * 60 * 1000)     /**< Default delay IP period */
 #endif
-#ifndef BIT_HTTP_REMEDY_TIMEOUT
-    #define BIT_HTTP_REMEDY_TIMEOUT (60 * 1000)         /**< Default remedy command timeout */
+#ifndef ME_HTTP_REMEDY_TIMEOUT
+    #define ME_HTTP_REMEDY_TIMEOUT (60 * 1000)         /**< Default remedy command timeout */
 #endif
-#ifndef BIT_HTTP_DELAY
-    #define BIT_HTTP_DELAY          (2000)              /**< 2 second delay per request - while delay enforced */
+#ifndef ME_HTTP_DELAY
+    #define ME_HTTP_DELAY          (2000)              /**< 2 second delay per request - while delay enforced */
 #endif
-#ifndef BIT_MAX_URI
-    #define BIT_MAX_URI             512                 /**< Reasonable URI size */
+#ifndef ME_MAX_URI
+    #define ME_MAX_URI             512                 /**< Reasonable URI size */
 #endif
-#ifndef BIT_MAX_IOVEC
-    #define BIT_MAX_IOVEC           16                  /**< Number of fragments in a single socket write */
+#ifndef ME_MAX_IOVEC
+    #define ME_MAX_IOVEC           16                  /**< Number of fragments in a single socket write */
 #endif
-#ifndef BIT_MAX_CLIENTS_HASH
-    #define BIT_MAX_CLIENTS_HASH    131                 /**< Hash table for client IP addresses */
+#ifndef ME_MAX_CLIENTS_HASH
+    #define ME_MAX_CLIENTS_HASH    131                 /**< Hash table for client IP addresses */
 #endif
-#ifndef  BIT_MAX_CACHE_ITEM
-    #define BIT_MAX_CACHE_ITEM      (256 * 1024)        /**< Maximum cachable item size */
+#ifndef  ME_MAX_CACHE_ITEM
+    #define ME_MAX_CACHE_ITEM      (256 * 1024)        /**< Maximum cachable item size */
 #endif
-#ifndef BIT_MAX_CHUNK
-    #define BIT_MAX_CHUNK           (8 * 1024)          /**< Maximum chunk size for transfer chunk encoding */
+#ifndef ME_MAX_CHUNK
+    #define ME_MAX_CHUNK           (8 * 1024)          /**< Maximum chunk size for transfer chunk encoding */
 #endif
-#ifndef BIT_MAX_CLIENTS
-    #define BIT_MAX_CLIENTS         32                  /**< Maximum unique client IP addresses */
+#ifndef ME_MAX_CLIENTS
+    #define ME_MAX_CLIENTS         32                  /**< Maximum unique client IP addresses */
 #endif
-#ifndef BIT_MAX_CONNECTIONS
-    #define BIT_MAX_CONNECTIONS     50                  /**< Maximum concurrent client endpoints */
+#ifndef ME_MAX_CONNECTIONS
+    #define ME_MAX_CONNECTIONS     50                  /**< Maximum concurrent client endpoints */
 #endif
-#ifndef BIT_MAX_HEADERS
-    #define BIT_MAX_HEADERS         8192                /**< Maximum size of the headers (8K) */
+#ifndef ME_MAX_HEADERS
+    #define ME_MAX_HEADERS         8192                /**< Maximum size of the headers (8K) */
 #endif
-#ifndef BIT_MAX_KEEP_ALIVE
-    #define BIT_MAX_KEEP_ALIVE      200                 /**< Maximum requests per connection */
+#ifndef ME_MAX_KEEP_ALIVE
+    #define ME_MAX_KEEP_ALIVE      200                 /**< Maximum requests per connection */
 #endif
-#ifndef BIT_MAX_NUM_HEADERS
-    #define BIT_MAX_NUM_HEADERS     64                  /**< Maximum number of header lines */
+#ifndef ME_MAX_NUM_HEADERS
+    #define ME_MAX_NUM_HEADERS     64                  /**< Maximum number of header lines */
 #endif
-#ifndef BIT_MAX_PROCESSES
-    #define BIT_MAX_PROCESSES       10                  /**< Maximum concurrent processes */
+#ifndef ME_MAX_PROCESSES
+    #define ME_MAX_PROCESSES       10                  /**< Maximum concurrent processes */
 #endif
-#ifndef BIT_MAX_RECEIVE_BODY
-    #define BIT_MAX_RECEIVE_BODY    (512 * 1024)        /**< Maximum incoming body size (512K) */
+#ifndef ME_MAX_RECEIVE_BODY
+    #define ME_MAX_RECEIVE_BODY    (512 * 1024)        /**< Maximum incoming body size (512K) */
 #endif
-#ifndef BIT_MAX_RECEIVE_FORM
-    #define BIT_MAX_RECEIVE_FORM    (512 * 1024)        /**< Maximum incoming form size (512K) */
+#ifndef ME_MAX_RECEIVE_FORM
+    #define ME_MAX_RECEIVE_FORM    (512 * 1024)        /**< Maximum incoming form size (512K) */
 #endif
-#ifndef BIT_MAX_REQUESTS_PER_CLIENT
-    #define BIT_MAX_REQUESTS_PER_CLIENT 20              /**< Maximum concurrent requests per client */
+#ifndef ME_MAX_REQUESTS_PER_CLIENT
+    #define ME_MAX_REQUESTS_PER_CLIENT 20              /**< Maximum concurrent requests per client */
 #endif
-#ifndef BIT_MAX_REWRITE
-    #define BIT_MAX_REWRITE         20                  /**< Maximum URI rewrites */
+#ifndef ME_MAX_REWRITE
+    #define ME_MAX_REWRITE         20                  /**< Maximum URI rewrites */
 #endif
-#ifndef BIT_MAX_ROUTE_MATCHES
-    #define BIT_MAX_ROUTE_MATCHES   32                  /**< Maximum number of submatches in routes */
+#ifndef ME_MAX_ROUTE_MATCHES
+    #define ME_MAX_ROUTE_MATCHES   32                  /**< Maximum number of submatches in routes */
 #endif
-#ifndef BIT_MAX_ROUTE_MAP_HASH
-    #define BIT_MAX_ROUTE_MAP_HASH  17                  /**< Size of the route mapping hash */
+#ifndef ME_MAX_ROUTE_MAP_HASH
+    #define ME_MAX_ROUTE_MAP_HASH  17                  /**< Size of the route mapping hash */
 #endif
-#ifndef BIT_MAX_SESSIONS
-    #define BIT_MAX_SESSIONS        100                 /**< Maximum concurrent sessions */
+#ifndef ME_MAX_SESSIONS
+    #define ME_MAX_SESSIONS        100                 /**< Maximum concurrent sessions */
 #endif
-#ifndef BIT_MAX_QBUFFER
-    #define BIT_MAX_QBUFFER         (32 * 1024)         /**< Maximum buffer for any pipeline queue */
+#ifndef ME_MAX_QBUFFER
+    #define ME_MAX_QBUFFER         (32 * 1024)         /**< Maximum buffer for any pipeline queue */
 #endif
-#ifndef BIT_MAX_SESSION_HASH
-    #define BIT_MAX_SESSION_HASH    31                  /**< Hash table for session data */
+#ifndef ME_MAX_SESSION_HASH
+    #define ME_MAX_SESSION_HASH    31                  /**< Hash table for session data */
 #endif
-#ifndef BIT_MAX_TX_BODY
-    #define BIT_MAX_TX_BODY         (INT_MAX)           /**< Maximum buffer for response data */
+#ifndef ME_MAX_TX_BODY
+    #define ME_MAX_TX_BODY         (INT_MAX)           /**< Maximum buffer for response data */
 #endif
-#ifndef BIT_MAX_UPLOAD
-    #define BIT_MAX_UPLOAD          (INT_MAX)           /**< Maximum file upload size */
+#ifndef ME_MAX_UPLOAD
+    #define ME_MAX_UPLOAD          (INT_MAX)           /**< Maximum file upload size */
 #endif
-#ifndef BIT_MAX_WSS_FRAME
-    #define BIT_MAX_WSS_FRAME       (4 * 1024)          /**< Default max WebSockets message frame size */
+#ifndef ME_MAX_WSS_FRAME
+    #define ME_MAX_WSS_FRAME       (4 * 1024)          /**< Default max WebSockets message frame size */
 #endif
-#ifndef BIT_MAX_WSS_PACKET
-    #define BIT_MAX_WSS_PACKET      (8 * 1024)          /**< Default size to provide to application in one packet */
+#ifndef ME_MAX_WSS_PACKET
+    #define ME_MAX_WSS_PACKET      (8 * 1024)          /**< Default size to provide to application in one packet */
 #endif
-#ifndef BIT_MAX_WSS_SOCKETS
-    #define BIT_MAX_WSS_SOCKETS     25                  /**< Default max WebSockets */
+#ifndef ME_MAX_WSS_SOCKETS
+    #define ME_MAX_WSS_SOCKETS     25                  /**< Default max WebSockets */
 #endif
-#ifndef BIT_MAX_WSS_MESSAGE
-    #define BIT_MAX_WSS_MESSAGE     (2147483647)        /**< Default max WebSockets message size (2GB) */
+#ifndef ME_MAX_WSS_MESSAGE
+    #define ME_MAX_WSS_MESSAGE     (2147483647)        /**< Default max WebSockets message size (2GB) */
 #endif
-#ifndef BIT_MAX_CACHE_DURATION
-    #define BIT_MAX_CACHE_DURATION  (86400 * 1000)      /**< Default cache lifespan to 1 day */
+#ifndef ME_MAX_CACHE_DURATION
+    #define ME_MAX_CACHE_DURATION  (86400 * 1000)      /**< Default cache lifespan to 1 day */
 #endif
-#ifndef BIT_MAX_INACTIVITY_DURATION
-    #define BIT_MAX_INACTIVITY_DURATION (30  * 1000)    /**< Default keep connection alive between requests timeout (30 sec) */
+#ifndef ME_MAX_INACTIVITY_DURATION
+    #define ME_MAX_INACTIVITY_DURATION (30  * 1000)    /**< Default keep connection alive between requests timeout (30 sec) */
 #endif
-#ifndef BIT_MAX_PARSE_DURATION
-    #define BIT_MAX_PARSE_DURATION  (5  * 1000)         /**< Default request parse header timeout (5 sec) */
+#ifndef ME_MAX_PARSE_DURATION
+    #define ME_MAX_PARSE_DURATION  (5  * 1000)         /**< Default request parse header timeout (5 sec) */
 #endif
-#ifndef BIT_MAX_REQUEST_DURATION
-    #define BIT_MAX_REQUEST_DURATION (5 * 60 * 1000)    /**< Default request timeout (5 minutes) */
+#ifndef ME_MAX_REQUEST_DURATION
+    #define ME_MAX_REQUEST_DURATION (5 * 60 * 1000)    /**< Default request timeout (5 minutes) */
 #endif
-#ifndef BIT_MAX_SESSION_DURATION
-    #define BIT_MAX_SESSION_DURATION (5 * 60 * 1000)    /**< Default session inactivity timeout (5 mins) */
+#ifndef ME_MAX_SESSION_DURATION
+    #define ME_MAX_SESSION_DURATION (5 * 60 * 1000)    /**< Default session inactivity timeout (5 mins) */
 #endif
-#ifndef BIT_MAX_PING_DURATION
-    #define BIT_MAX_PING_DURATION   (30 * 1000)         /**< WSS ping defeat Keep-Alive timeouts (30 sec) */
+#ifndef ME_MAX_PING_DURATION
+    #define ME_MAX_PING_DURATION   (30 * 1000)         /**< WSS ping defeat Keep-Alive timeouts (30 sec) */
 #endif
-#ifndef BIT_SERVER_PREFIX_CHAR
-    #define BIT_SERVER_PREFIX_CHAR '|'                  /**< URI prefix character for server prefix */
+#ifndef ME_SERVER_PREFIX_CHAR
+    #define ME_SERVER_PREFIX_CHAR '|'                  /**< URI prefix character for server prefix */
 #endif
-#ifndef BIT_XSRF_COOKIE
-    #define BIT_XSRF_COOKIE        "XSRF-TOKEN"         /**< CSRF token cookie name */
+#ifndef ME_XSRF_COOKIE
+    #define ME_XSRF_COOKIE        "XSRF-TOKEN"         /**< CSRF token cookie name */
 #endif
-#ifndef BIT_XSRF_HEADER
-    #define BIT_XSRF_HEADER        "X-XSRF-TOKEN"       /**< CSRF token name in Http headers */
+#ifndef ME_XSRF_HEADER
+    #define ME_XSRF_HEADER        "X-XSRF-TOKEN"       /**< CSRF token name in Http headers */
 #endif
-#ifndef BIT_XSRF_PARAM
-    #define BIT_XSRF_PARAM         "-xsrf-"             /**< CSRF parameter in form fields */
+#ifndef ME_XSRF_PARAM
+    #define ME_XSRF_PARAM         "-xsrf-"             /**< CSRF parameter in form fields */
 #endif
 
-#ifndef BIT_HTTP_LOG
-    #define BIT_HTTP_LOG_FORMAT     "%h %l %u %t \"%r\" %>s %b %n"
+#ifndef ME_HTTP_LOG
+    #define ME_HTTP_LOG_FORMAT     "%h %l %u %t \"%r\" %>s %b %n"
 #endif
 
 #define HTTP_RETRIES                3                   /**< Default number of retries for client requests */
@@ -1152,8 +1152,8 @@ PUBLIC char *httpLinkEx(struct HttpConn *conn, cchar *target, MprHash *options);
 PUBLIC HttpUri *httpLinkUri(struct HttpConn *conn, cchar *target, MprHash *options);
 
 #if DEPRECATED || 1
-PUBLIC char *httpUri(struct HttpConn *conn, cchar *target) BIT_DEPRECATED("Use httpLink instead");
-PUBLIC char *httpUriEx(struct HttpConn *conn, cchar *target, MprHash *options) BIT_DEPRECATED("Use httpLinkEx instead");
+PUBLIC char *httpUri(struct HttpConn *conn, cchar *target) ME_DEPRECATED("Use httpLink instead");
+PUBLIC char *httpUriEx(struct HttpConn *conn, cchar *target, MprHash *options) ME_DEPRECATED("Use httpLinkEx instead");
 #endif
 
 /** 
@@ -1532,7 +1532,7 @@ typedef struct HttpQueue {
     /*  
         Connector instance data
      */
-    MprIOVec            iovec[BIT_MAX_IOVEC];
+    MprIOVec            iovec[ME_MAX_IOVEC];
     int                 ioIndex;                /**< Next index into iovec */
     int                 ioFile;                 /**< Sending a file */
     MprOff              ioCount;                /**< Count of bytes in iovec including file I/O */
@@ -1799,7 +1799,7 @@ PUBLIC void httpSetQueueLimits(HttpQueue *q, ssize low, ssize max);
  */
 PUBLIC void httpSuspendQueue(HttpQueue *q);
 
-#if BIT_DEBUG
+#if ME_DEBUG
 /**
     Verify a queue 
     @param q Queue reference
@@ -3092,7 +3092,7 @@ PUBLIC void httpSetProtocol(HttpConn *conn, cchar *protocol);
  */
 PUBLIC void httpSetRetries(HttpConn *conn, int retries);
 
-#if !BIT_ROM
+#if !ME_ROM
 /**
     Set the "Send" connector to process the request
     @description If the net connection has been selected, but the response content is a file, the pipeline connector
@@ -5621,7 +5621,7 @@ typedef struct HttpRx {
         Routing info
      */
     char            *target;                /**< Route target */
-    int             matches[BIT_MAX_ROUTE_MATCHES * 2];
+    int             matches[ME_MAX_ROUTE_MATCHES * 2];
     int             matchCount;
 } HttpRx;
 

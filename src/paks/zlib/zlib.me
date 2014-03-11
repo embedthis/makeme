@@ -1,0 +1,18 @@
+/*
+    zlib.me -- Bit File for the zlib library
+ */
+
+Me.load({
+
+    targets: {
+        libzlib: {
+            type: 'lib',
+            sources: [ '*.c' ],
+            headers: [ 'zlib.h' ],
+            extensions: [ 'zlib' ],
+            '-compiler': [
+                '-Wunreachable-code',
+            ],
+        },
+	},
+})
