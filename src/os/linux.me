@@ -20,15 +20,15 @@ Me.load({
         man:        '${prefixes.base}/share/man',
         sbin:       '${prefixes.base}/sbin',
 
-        etc:        '${prefixes.data}/etc/${settings.product}',
-        web:        '${prefixes.data}/www/${settings.product}-default',
+        etc:        '${prefixes.data}/etc/${settings.name}',
+        web:        '${prefixes.data}/www/${settings.name}-default',
 
-        log:        '${prefixes.state}/log/${settings.product}',
-        spool:      '${prefixes.state}/spool/${settings.product}',
-        cache:      '${prefixes.state}/cache/${settings.product}',
+        log:        '${prefixes.state}/log/${settings.name}',
+        spool:      '${prefixes.state}/spool/${settings.name}',
+        cache:      '${prefixes.state}/cache/${settings.name}',
 
-        app:        '${prefixes.lib}/${settings.product}',
+        app:        '${prefixes.lib}/${settings.name}',
         vapp:       '${prefixes.app}',
-        src:        '${prefixes.base}/src/${settings.product}-${settings.version}',
+        src:        '${prefixes.base}/src/${settings.name}-${settings.version}',
     },
 })

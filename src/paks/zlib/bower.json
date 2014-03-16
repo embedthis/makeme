@@ -37,6 +37,5 @@
         }
     ],
     "dependencies": {
-        "bitos": "~0.8"
     }
 }

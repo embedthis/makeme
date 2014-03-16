@@ -54,18 +54,39 @@
             <h2 class="section">Changes in 0.8.0</h2>
             <h3>Major Features</h3>
             <ul>
-                <li>
-                    <a href="https://github.com/embedthis/bit/issues/51">[issue 51]</a></li>
+                <li>Rename to MakeMe from Bit. Renamed to avoid typing confusion with "bit" vs "git" and
+                    to select a name that can be googled. 
+                    <a href="https://github.com/embedthis/bit/issues/1">[issue 1]</a></li>
+                <li>Support full integration with <a href="http://embedthis.com/products/pak">Pak</a> 
+                    and package.json files. This allows using Pak to install packages and have them automatically
+                    integrate and be built via MakeMe.
+                    <a href="https://github.com/embedthis/bit/issues/2">[issue 2]</a></li>
+                <li>Improved support for per-project extensions. These are configurable per-project components that
+                        are discovered and configured by a project's configure command.
+                    <a href="https://github.com/embedthis/bit/issues/3">[issue 3]</a></li>
+                <li>MakeMe plugin support. Plugins are a way of enhancing a MakeMe installation with additional
+                    commands, targets and scripts. Plugins are published on the 
+                    <a href="http://embedthis.com/catalog">Pak Online Catalog</a>.
+                    <a href="https://github.com/embedthis/bit/issues/4">[issue 4]</a></li>
             </ul>
             <h3>Minor Features</h3>
             <ul>
-                <!--
-                <li>Deprecate support for Windows XP and Vista
-                    <a href="https://github.com/embedthis/bit/issues/51">[issue 51]</a></li>
-                    -->
+                <li>Improved flexibility in generated makefiles
+                    <a href="https://github.com/embedthis/bit/issues/5">[issue 5]</a></li>
+                <li>Mixin property for plugin script
+                    <a href="https://github.com/embedthis/bit/issues/6">[issue 6]</a></li>
+                <li>Updated documentation</li>
+            </ul>
+            <h3>Changes relative to Bit</h3>
+            <ul>
+                <li>MakeMe is invoked via "<em>me</em>" instead of "<em>bit</em>".</li>
+                <li>MakeMe and files have "<em>.me</em>" extension instead of "<em>.bit</em>".</li>
+                <li>The "packs" property is renamed to an extensions collection with sub-properties of
+                    "require", "discover" and "omit".</li>
+                <li>The "settings.product" is renamed to "settings.name" for compatibility with Pak.</li>
             </ul>
             <h2 class="section">History</h2>
-            <p>MakeMe was previously named Bit. Here is the change log for the precursor Bit releases.</p>
+            <p>MakeMe was previously named Bit. Here are the change log entries for the precursor Bit releases.</p>
             <a name="0.9.3"></a>
             <h2 class="section">Changes in 0.9.3</h2>
             <h3>Minor Features</h3>

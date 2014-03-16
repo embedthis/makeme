@@ -38,6 +38,9 @@ struct HttpWebSocket;
 
 /********************************** Tunables **********************************/
 
+#ifndef ME_HTTP_WEB_SOCKETS
+    #define ME_HTTP_WEB_SOCKETS     1
+#endif
 #ifndef ME_HTTP_DEFAULT_METHODS
     #define ME_HTTP_DEFAULT_METHODS "GET,POST"         /**< Default methods for routes */
 #endif

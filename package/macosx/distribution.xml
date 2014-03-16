@@ -14,6 +14,6 @@
         <line choice="install"/>
     </choices-outline>
     <choice id="install" visible="true" title="Install" description="${settings.title} Installation">
-        <pkg-ref id="com.${settings.who}.${settings.product}.pkg">#${settings.product}.pkg</pkg-ref>
+        <pkg-ref id="com.${settings.who}.${settings.name}.pkg">#${settings.name}.pkg</pkg-ref>
     </choice>
 </installer-gui-script>

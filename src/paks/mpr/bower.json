@@ -2,13 +2,13 @@
     "name": "mpr",
     "description": "Embedthis Multithreaded Portable Runtime",
     "title": "Embedthis MPR",
-    "version": "4.5.0",
+    "version": "5.0.0",
     "dirs": {
         "paks": "src/paks"
     },
     "dependencies": {
-        "bitos": "~0.8",
-        "est": "~0.6"
+        "est": "~0.6",
+        "osdep": "~0.8"
     },
     "keywords": [
         "mpr",

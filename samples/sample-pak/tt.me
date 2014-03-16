@@ -1,0 +1,20 @@
+Me.load({
+    probe: {
+        tt: {
+            description: 'Really tt',
+        },
+    },
+
+    mixin: `
+        print("LOAD REALLY")
+        function really() {
+            print('REALLY?')
+        }
+    `
+
+    targets: {
+        snl: {
+            build: `really()`,
+        }
+    }
+})

@@ -156,19 +156,21 @@ static cchar *findMe()
 {
     cchar    *path;
 
-    path = "makeme/me.mod"; 
-    if (mprPathExists(path, R_OK)) {
-        return sclone(path);
+    if (mprPathExists("makeme", X_OK)) {
+        path = "makeme/me.mod"; 
+        if (mprPathExists(path, R_OK)) {
+            return sclone(path);
+        }
+        path = "makeme/me.es"; 
+        if (mprPathExists(path, R_OK)) {
+            return sclone(path);
+        }
     }
-    path = mprJoinPath(mprGetAppDir(), "makeme/me.mod"); 
+    path = mprJoinPath(mprGetAppDir(), "me.mod"); 
     if (mprPathExists(path, R_OK)) {
         return path;
     }
-    path = "makeme/me.es"; 
-    if (mprPathExists(path, R_OK)) {
-        return sclone(path);
-    }
-    path = mprJoinPath(mprGetAppDir(), "makeme/me.es"); 
+    path = mprJoinPath(mprGetAppDir(), "me.es"); 
     if (mprPathExists(path, R_OK)) {
         return path;
     }

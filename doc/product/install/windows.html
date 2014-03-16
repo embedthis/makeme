@@ -34,9 +34,9 @@
             <h1>Quick Nav</h1>
             <ul>
                 <li><a href="#exe">Installing the EXE Image</a></li>
-                <li><a href="#removing">Removing Bit</a></li>
+                <li><a href="#removing">Removing MakeMe</a></li>
                 <li><a href="#silentInstallation">Silent Installation</a></li>
-                <li><a href="#running">Running Bit</a></li>
+                <li><a href="#running">Running MakeMe</a></li>
             </ul>
             <h1>See Also</h1>
             <ul>
@@ -50,8 +50,8 @@
         </div>
         <div class="contentLeft">
             <h1>Installing on Windows</h1>
-            <p>The Bit install package for Windows is an installation executable compressed in a ZIP file 
-                available <a href="http://embedthis.com/downloads/bit/download.ejs">here</a>.</p>
+            <p>The MakeMe install package for Windows is an installation executable compressed in a ZIP file 
+                available <a href="http://embedthis.com/downloads/makeme/download.ejs">here</a>.</p>
             <p>The distribution image contains the binary distribution and documentation 
             headers in one package.</p>
             
@@ -65,27 +65,27 @@
             </ol>
             
             <a id="removing"></a>
-            <h2 class="section">Removing Bit</h2>
+            <h2 class="section">Removing MakeMe</h2>
             <ol>
                 <li>Login with administrator privileges</li>
                 <li>Run the <b>Add / Remove Programs</b> applet from the <b>control panel</b>.</li>
-                <li>Select <b>Embedthis Bit</b> and click remove.</li>
+                <li>Select <b>Embedthis MakeMe</b> and click remove.</li>
             </ol><a id="silentInstallation"></a>
             <h2 class="section">Silent Installation</h2>
-            <p>If you need to do batch or unattended installations, you can install Bit silently. Use the /silent
+            <p>If you need to do batch or unattended installations, you can install MakeMe silently. Use the /silent
             switch to suppress questions and /verysilent to suppress all visual output.</p>
             <a id="running"></a>
-            <h2 class="section">Running Bit</h2>
-            <p>You can invoke Bit simply as <em>bit</em>
-            <pre><b>$ bit</b>
-bit.es: ERROR: Can't find suitable start.bit.
-Run "bit --gen start" to create stub start.bit
+            <h2 class="section">Running MakeMe</h2>
+            <p>You can invoke MakeMe simply as <em>me</em>
+            <pre><b>$ me</b>
+me.es: ERROR: Can't find suitable start.me.
+Run "me --gen start" to create stub start.me
 </pre>
-            <p>This indicates you are ready to start by creating your first <em>start.bit</em> file.
-            To learn more, read the <a href="../../guide/bit/overview.html ">Bit Overview</a>.</p>
-            <p>To display the various Bit command options, type:
-            <pre><b>$ bit help</b>
-Usage: bit [options] [targets|actions] ...
+            <p>This indicates you are ready to start by creating your first <em>start.me</em> file.
+            To learn more, read the <a href="../../guide/makeme/overview.html ">MakeMe Overview</a>.</p>
+            <p>To display the various MakeMe command options, type:
+            <pre><b>$ me help</b>
+Usage: me [options] [targets|actions] ...
   Options:
   --benchmark                              # Measure elapsed time
   --configure path-to-source               # Configure for building
@@ -93,13 +93,13 @@ Usage: bit [options] [targets|actions] ...
   --debug                                  # Same as --profile debug
   --depth level                            # Set utest depth level
   --diagnose                               # Emit diagnostic trace 
-  --dump                                   # Dump the full project bit file
+  --dump                                   # Dump the full project me file
   --endian [big|little]                    # Define the CPU endianness
-  --file file.bit                          # Use the specified bit file
+  --file file.me                           # Use the specified me file
   --force                                  # Override warnings
   --gen [make|nmake|sh|vs|xcode|main|start]# Generate project file
   --help                                   # Print help message
-  --import                                 # Import standard bit environment
+  --import                                 # Import standard me environment
   --keep                                   # Keep intermediate files
   --log logSpec                            # Save errors to a log file
   --nocross                                # Build natively
@@ -119,8 +119,10 @@ Usage: bit [options] [targets|actions] ...
   --static                                 # Make static libraries
   --unicode                                # Set char size to wide (unicode)
   --unset feature                          # Unset a feature
-  --version                                # Display the bit version
+  --version                                # Display the me version
   --verbose                                # Trace operations
+  --watch [sleep time]                     # Watch for changes and rebuild
+  --why                                    # Why a target was or was not built
   --with PACK[=PATH]                       # Build with package at PATH
   --without PACK                           # Build without a package
 </pre>

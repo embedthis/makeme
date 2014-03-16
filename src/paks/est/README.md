@@ -10,7 +10,7 @@ See LICENSE.md for details.
   See doc/index.html
 
 ### Prerequisites:
-    Ejscript (http://www.ejscript.org/downloads/ejs/download.ejs) for the Bit and Utest tools to configure and build.
+    Ejscript (http://www.ejscript.org/downloads/ejs/download.ejs) for the MakeMe and Utest tools to configure and build.
 
 ### To Build:
 

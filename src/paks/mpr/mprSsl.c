@@ -3060,7 +3060,7 @@ PUBLIC int mprSslInit(void *unused, MprModule *module)
     return 0;
 #else
     return MPR_ERR_BAD_STATE;
-#endif /* BLD_EXT_SSL */
+#endif /* BLD_COMP_SSL */
 }
 
 

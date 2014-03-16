@@ -6004,7 +6004,7 @@ void md5_hmac(uchar *key, int keylen, uchar *input, int ilen, uchar output[16])
 #if ME_EST_NET
 
 #if WINDOWS || WINCE
-    //  TODO defined in bitos
+    //  TODO defined in osdep
     #undef read
     #undef write
     #undef close

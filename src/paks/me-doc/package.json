@@ -1,0 +1,35 @@
+{
+    "name": "me-doc",
+    "description": "Documentation Targets",
+    "version": "0.8.0",
+    "dirs": {
+        "paks": "src/paks"
+    },
+    "dependencies": {
+    },
+    "keywords": [
+        "me-plugin",
+    ],
+    "author": {
+        "name": "Embedthis Software",
+        "email": "dev@embedthis.com",
+        "url": "http://embedthis.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/embedthis/me-doc.git"
+    },
+    "bugs": {
+        "url": "http://github.com/embedthis/me-doc/issues"
+    },
+    "licenses": [
+        {
+            "type": "GPL",
+            "url": "http://www.gnu.org/licenses/gpl-2.0.html"
+        },
+        {
+            "type": "Commercial",
+            "url": "http://embedthis.com/licensing/"
+        }
+    ]
+}

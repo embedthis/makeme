@@ -6,7 +6,6 @@ Me.load({
     blend: [
         "src/paks/*/*.me",
         "doc/doc.me",
-        "${MAKEME}/embedthis.me",
     ],
 
     customize: [
@@ -18,20 +17,14 @@ Me.load({
     ],
 
     settings: {
-        /*
-            Installation prefix set
-         */
-        prefixes: 'embedthis-prefixes',
-        manifest: 'package/manifest.me',
-
         platforms: [ 'local' ],
-        probes: [ 'makeme/probes' ],
         static: false,
         tune: 'size',
 
         extensions: {
-            require: [ 'compiler', 'bitos', 'ejs', 'mpr', 'http', 'pcre', 'zlib' ],
+            require:  [ 'compiler', 'osdep', 'ejs', 'mpr', 'http', 'pcre', 'zlib' ],
             discover: [ 'dsi', 'man', 'man2html', 'pmaker', 'ssl', 'zip' ],
+            omit:     [ 'openssl' ]
         },
 
         ejs: {
@@ -76,6 +69,9 @@ Me.load({
         },
 
         tune: 'speed',
+
+        prefixes: 'package-prefixes',
+        manifest: 'package/manifest.me',
     },
 
     targets: {
@@ -84,7 +80,7 @@ Me.load({
             files: [ 'src/me.es' ],
             precious: true,
             run: '${BIN}/ejsc --out ${BIN}/makeme/me.mod --optimize 9 src/me.es',
-            depends: [ 'ejsc', 'me' ],
+            depends: [ 'ejsc' ],
             enable: false,
         },
 
@@ -95,22 +91,16 @@ Me.load({
             static: false,
             active: true,
             precious: true,
-            depends: [ 'libmpr', 'libhttp', 'libejs', 'me', 'me.mod' ],
+            depends: [ 'libmpr', 'libhttp', 'libejs', 'me.mod' ],
         },
 
-        makeme: {
+        'me-core': {
             type: 'file',
-            path: '${BIN}/makeme/',
+            path: '${BIN}/',
             files: [ 'src/**' ],
-            exclude: /src\/me.c|src\/paks/,
+            exclude: /src\/me.c|src\/paks|\/$/,
             subtree: 'src',
             precious: true,
-        },
-
-        'bower.json': {
-            type: 'file',
-            path: 'bower.json',
-            files: [ 'package.json' ],
         },
 
         projects: {
@@ -118,11 +108,5 @@ Me.load({
                 genProjects('', 'default', ['freebsd-x86', 'linux-x86', 'macosx-x64', 'windows-x86'])
             ",
         },
-    },
-
-    UNUSED_extensions: {
-        esp: { enable: true, silent: true},
-        ejs: { enable: true, silent: true},
-        sqlite: { enable: false, silent: true},
     },
 })

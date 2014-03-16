@@ -56,8 +56,8 @@
                 <li><a href="../../../guide/makeme/developers/executables.html">Building Executables</a></li>
                 <li><a href="../../../guide/makeme/developers/scripts.html">Running Scripts</a></li>
                 <li><a href="../../../guide/makeme/developers/copying.html">Copying Files</a></li>
-                <li><a href="../../../guide/makeme/developers/creating.html">Creating a Project</a></li>
-                <li><a href="../../../guide/makeme/developers/extensions.html">Creating Extensions</a></li>
+                <li><a href="../../../guide/makeme/developers/main.html">Creating Main.me</a></li>
+                <li><a href="../../../guide/makeme/developers/extensions.html">Creating Project Extensions</a></li>
                 <li><a href="../../../guide/makeme/developers/generating.html">Generating Projects</a></li>
                 <li><a href="../../../guide/makeme/developers/samples.html">MakeMe Samples</a></li>
 
@@ -90,19 +90,22 @@
         command line. There are variables for the compiler, linker, compiler flags, output directory and installation prefixes, 
         Here is a sample of the Makefile variables:
         <pre>
-CC      := /usr/bin/gcc
-LD      := /usr/bin/ld
-CONFIG  := $(OS)-$(ARCH)-$(PROFILE)
+CC      ?= /usr/bin/gcc
+LD      ?= /usr/bin/ld
+CONFIG  ?= $(OS)-$(ARCH)-$(PROFILE)
 </pre>
-        <p>To override, set the relevant Makefile variable. Note: this must be supplied each time Make is invoked.
+        <p>To override, set the relevant Makefile variable in the environment. Note: this must be supplied each time Make is invoked.
         <pre>
-make CC=/usr/bin/ccache/gcc
+CC=/usr/bin/ccache/gcc make
 </pre>
-        <p>Further definitions are contains in the generated me.h source code header. All make variables provided on the 
-        command line are converted into preprocessor definitions and are passed to the compiler. The me.h header is
+        <p>On Linux (Unix), these may also be provided on the make command line. But for Windows, they must be provided
+        via the environment.</p>
+        <p>The definitions are made available to source files during compilation via the generated <em>me.h</em> header file. 
+        Make variables provided via the environment are converted into preprocessor definitions and override the default
+        values in me.h. The me.h header is
         constructed in such a way to allow overriding by command line preprocessor definitions. For example:</p>
 <pre>
-make ME_EXT_SSL=0
+ME_EXT_SSL=0 make
 </pre>
         <p>This will override the me.h definition and will disable the use of SSL.</p>
         <a id="windows"></a>
@@ -183,7 +186,7 @@ stest: {
         <p>MakeMe can generate conditional Makefiles where the list of targets to build may be modified at run-time depending
         on Make environment variables. These variables override default values defined in the platform makefile and/or the
         product <em>me.h</em> configuration header.  For example:
-        <pre>$ make <b>ME_EXT_EST=0</b></pre>
+        <pre>$ <b>ME_EXT_EST=0</b> make</pre>
         <p>This will disable use of the EST (Embedded Security Transport SSL).</p>
         <p>The <em>extensions</em> target property is used to specify what extensions are required by a target before it 
         will be built. 

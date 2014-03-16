@@ -1,5 +1,5 @@
 /*
-    manifest.bit - Package File Manifest for Bit
+    manifest.me - MakeMe file for MakeMe Manifest 
  */
 
 Me.load({
@@ -9,23 +9,23 @@ Me.load({
         The sets used are: binary, service, test, doc, dev, package, source
      */
     manifest: {
-        home: bit.dir.src,
+        home: me.dir.src,
         packages:   {
             install: {
-                inherit:    'embedthis-manifest',
+                inherit:    'package-manifest',
                 prefixes:   [ 'root', 'app', 'vapp', 'bin', 'man'],
                 sets:       [ 'core', 'libs', 'doc' ],
                 platforms:  [ 'windows', 'unix' ]
             },
             binary: {
-                inherit:    'embedthis-manifest',
+                inherit:    'package-manifest',
                 prefixes:   [ 'root', 'app', 'vapp', 'bin', 'man'],
                 formats:    [ 'native', 'tar' ],
                 sets:       [ 'core', 'libs', 'doc', 'package' ],
                 platforms:  [ 'freebsd', 'linux', 'windows', 'macosx' ]
             },
             source: {
-                inherit:    'embedthis-manifest',
+                inherit:    'package-manifest',
                 prefixes:   [ 'root', 'src'],
                 formats:    [ 'tar' ],
                 sets:       [ 'source' ],
@@ -34,13 +34,12 @@ Me.load({
 
         files: [ 
             /* Binary Set */
-            {   from:   '${BIN}/bit${EXE}',
+            {   from:   '${BIN}/me${EXE}',
                 to:     '${abin}/',
                 linkin: '${bin}',
                 set:    'core',
 
             },{ from: [
-                    '${BIN}/ejs${EXE}',
                     '${BIN}/libejs${SHOBJ}',
                     '${BIN}/libest${SHOBJ}',
                     '${BIN}/libhttp${SHOBJ}',
@@ -51,7 +50,7 @@ Me.load({
                 ],
                 to:     '${abin}/',
                 set:    'libs',
-                enable: '!bit.settings.static',
+                enable: '!me.settings.static',
 
             },{ from: [
                     '${BIN}/ca.crt',
@@ -60,21 +59,21 @@ Me.load({
                 to:     '${abin}/',
                 set:    'core',
 
-            },{ from:   'bits/**',
-                to:     '${abin}/bits',
-                subtree:'bits',
+            },{ from:   'makeme/**',
+                to:     '${abin}/makeme',
+                subtree:'makeme',
                 set:    'core',
 
-            },{ from:   '${BIN}/bits/bit.mod',
-                to:     '${abin}/bits/',
+            },{ from:   '${BIN}/makeme/me.mod',
+                to:     '${abin}/makeme/',
                 set:    'core',
                 enable: false,
 
-            },{ from:   'doc/man/bit.1',
+            },{ from:   'doc/man/me.1',
                 to:     '${adoc}/man/man1/',
                 set:    'doc',
                 linkin: '${man}/man1',
-                enable: "bit.platform.like == 'unix'",
+                enable: "me.platform.like == 'unix'",
 
             /* Source Set */
             },{ from:   [ '*.md' ],
@@ -88,7 +87,8 @@ Me.load({
                 permissions: 0755,     
                 set:    'source',
 
-            },{ from:   [ 'Makefile', 'make.bat', 'main.bit', , 'package.json', 'bits', 'src', 'doc', 'projects', 'package' ],
+            },{ from:   [ 'Makefile', 'make.bat', 'main.me', , 'package.json',
+                          'src', 'doc', 'projects', 'package' ],
                 to:     '${src}/',
                 set:    'source',
             },

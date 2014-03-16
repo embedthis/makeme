@@ -26,7 +26,7 @@
         <div class="crumbs">
             <a href="../../../index.html">Home</a>
 <!-- EndDsi -->
-             &gt;<a href="index.html">Developer Guide</a>&gt; <b>Creating Extensions</b>
+             &gt;<a href="index.html">Developer Guide</a>&gt; <b>Creating Project Extensions</b>
         </div>
     </div>
     <div class="content">
@@ -46,8 +46,8 @@
                 <li><a href="../../../guide/makeme/developers/executables.html">Building Executables</a></li>
                 <li><a href="../../../guide/makeme/developers/scripts.html">Running Scripts</a></li>
                 <li><a href="../../../guide/makeme/developers/copying.html">Copying Files</a></li>
-                <li><a href="../../../guide/makeme/developers/creating.html">Creating a Project</a></li>
-                <li><a href="../../../guide/makeme/developers/extensions.html">Creating Extensions</a></li>
+                <li><a href="../../../guide/makeme/developers/main.html">Creating Main.me</a></li>
+                <li><a href="../../../guide/makeme/developers/extensions.html">Creating Project Extensions</a></li>
                 <li><a href="../../../guide/makeme/developers/generating.html">Generating Projects</a></li>
                 <li><a href="../../../guide/makeme/developers/samples.html">MakeMe Samples</a></li>
 
@@ -57,101 +57,143 @@
 <!-- EndDsi -->
         </div>
         <div class="contentLeft">
-        <h2>Creating Extensions</h2>
+        <h1>Creating Project Extensions</h1>
         <p>A project built by MakeMe, may be extended by the discovery and inclusion of extensions. These are modules that
-        contribute libraries, files or other components to your project to extend core functionality. Examples are:
-        the ESP web framework, OpenSSL SSL stack, or simple tools like the htmlmin compressor.</p>
-        <p>Extensions are located and defined when users run <em>configure</em> before building the product. To locate
-        extensions, MakeMe uses extension <em>probes</em> which are MakeMe scripts that locate and configure the extension.
+        contribute programs, libraries, files or other components to your project to extend core functionality. Examples are:
+        the <a href="http://embedthis.com/products/esp/">ESP</a> web framework, OpenSSL SSL stack, or simple tools like the 
+        doxygen documentation generator.</p>
+        <p>Extensions are located and defined when users first run <em>configure</em> before building the product. To locate
+        extensions, MakeMe uses extension <em>probes</em> that are MakeMe scripts to locate and configure the extension.
    
-        <p>When creating a product, you specify the set of extensions in the product's <em>main.me</em> file. For example:</p>
+        <h2>Specifying Extensions</h2>
+        <p>In the project's <em>main.me</em> file, you specify the set of possible extensions. For example:</p>
 <pre>
 settings: {
     extensions: {
-        required: [ 'pcre' ],
+        require:  [ 'pcre' ],
         discover: [ 'cgi', 'dir', 'doxygen', 'dsi', 'esp', 'est', 'php', 'sqlite'],
-        omitted:  [ 'openssl' ],
+        omit:     [ 'openssl' ],
     }
 },
 </pre>
-        <p>When configure is run, it consults these fields to determine which extensions to include.</p>
-        <h3>Required, Discoverable and Optional Extensions</h3>
         <p>Extensions are designated as either <em>required</em>, <em>discoverable</em> or <em>omitted</em>. 
         Required extensions are essential for the basic operation of the product. Discoverable extensions are optional
         extensions for which MakeMe will search the local system to see if the extension is present. Omitted extensions
-        will not be automatically discovered and must be explicitly requested by the user when configuring: </p> <pre>
+        will not be automatically discovered and must be explicitly requested by the user when configuring via the
+        <em>--with</em> switch. For example:</p> 
+        <pre>
 configure -with EXTENSION
 configure -with EXTENSION=/path/to/extension</pre>
-
         <h2>Extension Probes</h2>
-        <p>Extensions are located and configured via special scripts called extension probes. These are Javascript
-        object definitions that are loaded and run by MakeMe during configuration. An extension probe may be specified
-        in a stand-alone script file under the <em>makeme/probes</em> directory or via probe properties in an 
-        extension Pak under the <em>src/paks</em> directory.MakeMe provides a standard set of probes for common 
-        tools and libraries.</p>
-
-        <p>When the probe is run, it searches for the extension resources to test if the extension is available on the system. 
-        MakeMe then creates a property collection for the extension under <em>me.extensions</em> that fully describes the
-        extension, its location and how to build with it. This collection is also copied to <em>me.targets</em> so that any build
-        target can depend upon the extension to inherit its build settings.</p>
-
-        <h2>Creating Extensions</h2>
-        <p>Product extensions may be delivered via one of two mechanisms:</p>
+        <p>Extensions are located and configured via special MakeMe files called extension probes. 
+        An extension probe may be defined via:
         <ul>
-            <li>Stand-alone probe script</li>
-            <li>Extension Paks</li>
+            <li>MakeMe probe file under the project's <em>makeme/probes</em> directory</li>
+            <li>Probe property collection in an extension delivered using <a href="http://embedthis.com/products/pak/">Pak</a>.</li>
         </ul>
-
-        <h3>Probe Scripts</h3>
-        <p>An extension that is already on the user's system, such as a system library or command line utility, may be located 
-        via a stand-alone probe script. If the extension is referenced in the main.me extensions property, MakeMe will 
-        search for a script of the same name as the extension under the '<em>makeme/probes</em>' directory.</p>
-
-        <p>The probe script supplies the probe definition to the <em>Me.extension</em> function. For example:</p>
+        <p>When the probe is run, it searches for the extension to test if the extension is available on the system. If found,
+        MakeMe creates a definition for the extension in the platform MakeMe file in the <em>me.extensions</em> collection
+        that fully describes the extension, its location and how to build with it. 
+        This definition is also created as a target in <em>me.targets</em> so that any build target can depend upon the 
+        extension to inherit its build settings.</p>
+        <h2>Standard Probes</h2>
+        <p>Here is a partial list of the standard extension probes supplied with MakeMe.</p>
+        <table title="extensions">
+        <thead>
+        <tr><th>Extension</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>compilermeme</td><td>Compiler detection</td></tr>
+            <tr><td>doxygen.me</td><td>Doxygen documentation generator</td></tr>
+            <tr><td>ejs.me</td><td>Ejscript shell tool</td></tr>
+            <tr><td>est.me</td><td>Embedded Security Transport (SSL)</td></tr>
+            <tr><td>http.me</td><td>Http command tool</td></tr>
+            <tr><td>lib.me</td><td>Library archive program (ar, lib)</td></tr>
+            <tr><td>link.me</td><td>Linker program</td></tr>
+            <tr><td>man.me</td><td>Man page tool</td></tr>
+            <tr><td>man2html.me</td><td>Man page to HTML tool</td></tr>
+            <tr><td>matrixssl.me</td><td>MatrixSSL (SSL)</td></tr>
+            <tr><td>md5.me</td><td>MD5 checksum tool</td></tr>
+            <tr><td>nanossl.me</td><td>Mocana NanoSSL (SSL)</td></tr>
+            <tr><td>openssl.me</td><td>OpenSSL (SSL)</td></tr>
+            <tr><td>pcre.me</td><td>PCRE regular expression library</td></tr>
+            <tr><td>pmaker.me</td><td>Package maker tool (PackageMaker, rpmbuild, InnoSetup)</td></tr>
+            <tr><td>ranlib.me</td><td>Ranlib tool</td></tr>
+            <tr><td>rc.me</td><td>Resource compiler tool on windows</td></tr>
+            <tr><td>sqlite.me</td><td>SQLite library</td></tr>
+            <tr><td>ssl.me</td><td>SSL Support</td></tr>
+            <tr><td>strip.me</td><td>Strip tool</td></tr>
+            <tr><td>tidy.me</td><td>HTML tidy program</td></tr>
+            <tr><td>utest.me</td><td>Ejscript unit test framework</td></tr>
+            <tr><td>vxworks.me</td><td>WindRiver VxWorks Development Environment</td></tr>
+            <tr><td>winsdk.me</td><td>Windows SDK</td></tr>
+            <tr><td>zip.me</td><td>Zip command tool</td></tr>
+            <tr><td>zlib.me</td><td>Zlib library</td></tr>
+            </tbody>
+        </table>
+        <h2>Packaging Extensions</h2>
+        <p>Project extensions may be delivered via one of two mechanisms:</p>
+        <ul>
+            <li>Stand-alone probe script in the project/makeme/probes directory</li>
+            <li>Extension Pak under src/paks directory</li>
+            <li>MakeMe provides a standard set of probes for common extensions.</li>
+        </ul>
+        <h2>Stand-Alone Probes</h2>
+        <p>If an extension's resources are already on the user's system, such as a system library or command line utility, 
+        the exension may be simply located and configured via a stand-alone probe script. For example:
 <pre>
 Me.extension({
-    php: {
-        description: 'PHP Web Framework'
-        path: "/php",
-        defines: [ 'ZEND_DEBUG' ],
-        includes: [
-            "/php",
-            "/php/main",
-            "/php/Zend",
-            "/php/TSRM",
-        ],
-        libraries: [ "php5" ],
-        linker: [ "-L/php/libs" ],
-        imports: [ "/php/libs/libphp5.dylib" ],
-    }, 
+    myssl: {
+        description: 'MySSL',
+        path: function (extension) {
+            let path = extension.withpath || Path('/usr/lib/myssl')
+            if (!path.exists) {
+                throw 'Cannot find MySSL'
+            }
+            extension.includes =  [ path.join('include') ]
+            extension.libraries = [ 'myssl' ]
+            extension.libpaths =  [ path.join('lib') ]
+            return path
+        },
+        extensions: [ 'ssl' ],
+    },
 })
 </pre>
-
-        <h3>Extension Paks</h3>
-        <p>If an extension is packaged and installed using the
-        <a href="http://embedthis.com/products/pak">Pak</a> tool, it may provide a probe script inline in its own
-        extension.me file. During configuration, MakeMe will load the extension's MakeMe file can run the probe script to
-        determine if the extension should be enabled and configured.</p>
-
-        <a name="create"></a>
-        <h2>Creating Probes</h2>
-        <p>A MakeMe extension probe is a Javascript file with a <em>.me</em> extension that resides under a 
-        <em>makeme/probes</em> directory. MakeMe provides a standard set of probes and these are augmented by per-product
-        probes. </p>
-        <p>If an extension is defined as a Pak under <em>src/paks</em>, the extension can define its probe directly in its
-        '.me' file in a '<em>probe</em>' property. For example:
+        <p>This probe searches first for the extension at a location supplied via configure:</p>
+        <pre>configure --with myssl=/usr/home/dev/myssl</pre>
+        <p>If that fails, it checks the standard system location <em>/usr/lib/myssl</em>.
+        <p>If the extension is located, the libraries and compilation include paths are defined for the extension. 
+        Targets will inherit these automatically if the extension is configured.</p>
+        <h2>Extension Paks</h2>
+        <p>Extensions can be conveniently packaged and delivered using the 
+        <a href="http://embedthis.com/products/pak">Pak</a> tool. Pak is a package manager and distribution tool
+        for distributing application components. These may then be delivered either as part of the project, 
+       or they may be separately downloaded and installed by the user just prior to configuring. </p>
+        <p>Extension packs may define their probe script inline via the extension's MakeMe build file. If a Pak omits to
+        define a probe, then a default probe is created for the extension automatically by MakeMe.</p>
+        <p>For example: </p>
         <pre>
 {
     probe: {
-        myext: {
-            depends: [ 'libejs', 'zlib', 'sqlite' ],
+        myssl: {
+            description: 'MySSL',
+            path: function (extension) {
+                let path = extension.withpath || Path('/usr/lib/myssl')
+                if (!path.exists) {
+                    throw 'Cannot find MySSL'
+                }
+                extension.includes =  [ path.join('include') ]
+                extension.libraries = [ 'myssl' ]
+                extension.libpaths =  [ path.join('lib') ]
+                return path
+            },
+            extensions: [ 'ssl' ],
         },
     }
 }
 </pre>
-        <h2>Extensions Properties</h2>
-        <p>The extension property collection may contain properties of any name, but the following properties 
-            have special meaning:</p>
+        <h2>Probe Properties</h2>
+        <p>The extension probe may contain properties of any name, but the following properties have special meaning:</p>
         <ul>
             <li>config &mdash; Function run to define extension properties.</li>
             <li>description &mdash; Short, one-sentance description of the extension.</li>
@@ -172,34 +214,29 @@ Me.extension({
             <li>extensions &mdash; Array of other extensions that must be available for this extension to be enabled.</li>
             <li>path &mdash; Path to primary extension resource or directory. May be the path to the binary for tools.</li>
         </ul>
-        <h2>Referencing Extensions in Targets</h2>
+        <h2>Using Extensions in Targets</h2>
         <p>If a target specifies an extension in its <em>depends</em> property, and the extension is found and
         enabled, then the extension properties: defines, includes, libraries, linker and libpaths, will be inherited by the
         target. </p>
-        <p>If the target specifies the extension via its <em>extensions</em> property and the extension is not enabled, then the
-        target will (silently) be omitted from the build. If the extension is enabled, the target will be built.</p>
-        <p>For example, consider the earlier PHP extension definition, then a target desiring to use this php extension
+        <p>If the target specifies the extension via its <em>extensions</em> property the target will only be built if the
+        extension is enabled. Otherwise, the target will (silently) be omitted from the build. </p>
+        <p>For example, consider the earlier MySSL extension definition, then a target desiring to use this php extension
          could be specified like this:</p>
 <pre>
 app: {
     type: 'exe',
     sources: 'app.c',
-    <b>depends: ['php']</b>,
-    <b>extensions: ['php']</b>,
+    <b>depends: ['myssl']</b>,
+    <b>extensions: ['myssl']</b>,
 },
 </pre>
-        <p>MakeMe will automatically import the libphp5 library into the local tree at configure time. Because of the
-        <em>depends</em> property, MakeMe will add the PHP compiler definitions when compiling app.c and linking with the PHP
-        library.</p> 
-        <p>If the PHP extension is disabled, the application will not be built.</p>
-
+        <p>MakeMe will automatically import the libmyssl library into the local tree at configure time. Because of the
+        <em>depends</em> property, MakeMe will add the <em>libmyssl</em> when linking the executable.</p>
         <a name="api"></a>
         <h2>Extension API</h2>
-        <p>An extension is defined by creating properties in the MakeMe DOM. While this can be done directly, it is
-        easier to use the 
-        <a href="../../../api/makeme/me.html#extension">Me.extension</a> API. This takes
-        an extension description in the form of set of properties. The description specifies the name of the extension and a
-        short, single-line description for the extension. </p>
+        <p>An extension is defined by creating properties in the MakeMe DOM. For probe scripts, the
+        <a href="../../../api/makeme/me.html#extension">Me.extension</a> API is used. This takes a set of properties that
+        describes the extension including the name of the extension, and a short, single-line description for the extension. </p>
 <pre>
 <b>Me.extension({</b>
     mydemo: {
@@ -208,8 +245,9 @@ app: {
     },
 })
 </pre>
-        <p>The extension will typically define a path which represents the directory to the extension or the path to a
-        program. The description may also provide libraries, library paths, compiler definitions, and include directories.
+        <p>The extension will typically define a path which represents the directory to the extension or the path to
+        the primary program of the extension. The description may also provide libraries, library paths, compiler 
+        definitions, and include directories.
         An extension may define any of these standard properties, or it may define any custom property it chooses.
         For example:</p>
 <pre>
@@ -224,8 +262,8 @@ Me.extension({
 })
 </pre>
         <h3>Extension Path</h3>
-        <p>The extension path should be the filename of the program if the extension represents a simple tool (like zip). Or it
-        should be the directory to the extension if it represents something more complex like an SDK. The
+        <p>The extension path should be the filename of the program if the extension represents a simple tool (like zip). 
+        Otherwise, it should be the directory to the extension if it represents something more complex like an SDK. The
         path may be a simple string or path, or it may be a function that returns the path for the extension. If
         path is set to a function, it will be invoked with the extension object as its argument. For example:</p>
         <pre>
@@ -239,9 +277,9 @@ Me.extension({
     },
 })
 </pre>
-        <p>The <a href="../../../api/makeme/global.html#probe">probe()</a> API may be used to search the system for a program or
-        extension resource. See below for more details.  Note that the probe API may be used directly and not nested inside a
-        function. For example:</p>
+        <p>The <a href="../../../api/makeme/global.html#probe">probe</a> API may be used to search the system for a program or
+        extension resource. See below for more details.  Note that the probe API may nested inside a
+        function or it may be directly assigned to the path property. For example:</p>
         <pre>
 Me.extension({
     lib: {
@@ -256,15 +294,14 @@ Me.extension({
         <p>The extension script can then access the requested path via <em>extension.withpath</em>. A common pattern for 
             probing for extension resources is to use the <em>withpath</em> as the default before probing:</p>
             <pre>path: function (extension) {
-    let name = extension.withpath || 'programName'
-    return probe(name)
+    return probe(extension.withpath || '/usr/local/bin/programName')
 },  
 </pre>
         <h3>Exceptions</h3>
         <p>If an exception is thrown by any code in the extension probe, the exception will be caught and the extension will be
         disabled. This is a common pattern, to throw exceptions if the extension cannot be fully configured and enabled.</p>
         <h3>The <a href="../../../api/makeme/global.html#program">program()</a> API</h3>
-        <p>If you wish to design an extension for a simple command line tool, use the <em>program</em> function to 
+        <p>If you wish to create an extension for a simple command line tool, use the <em>program</em> function to 
             search and define the tool. This works if the tool is accessible using the current PATH definition.
 <pre>Me.program('zip', 'Zip utility')</pre>
             <p>The program function searches for Zip and defines the extension if zip can be found.</p>
@@ -288,7 +325,7 @@ Me.extension({
         <p>Under the <em>makeme</em> directory will be the primary MakeMe script <em>me.es</em> and its compiled form
         <em>me.mod</em>. If you need to hack me.es, remove the me.mod file and MakeMe will utilize your modifications.
         When ready, you can compile me.es to create a new me.mod via:</p>
-        <pre>ejsc --optimize 9 --out me.mod me.es</pre>
+        <pre>/usr/local/bin/makeme/latest/bin/ejsc --optimize 9 --out me.mod me.es</pre>
         <a name="samples"></a>
         <h2>Samples</h2>
         <p>The standard extension probes are a good source of samples for how to create extension probes. 

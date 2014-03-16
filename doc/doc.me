@@ -32,7 +32,7 @@ Me.load({
                 let bin = Cmd.locate('ejsmod').dirname
                 let src = me.dir.src.join('src')
                 let docmod = Path('').temp().replaceExt('mod')
-                run(bin.join('ejsc') + ' --doc --bind --out ' + docmod + ' ../makeme/me.es ../makeme/configure.es')
+                run(bin.join('ejsc') + ' --doc --bind --out ' + docmod + ' ../src/me.es ../src/configure.es')
                 let edir = me.dir.src.join('doc/api/makeme')
                 rmdir([edir.join('*.html'), edir.join('*.css'), edir.join('images/*')])
                 run(bin.join('ejsmod') + ' --warn --html ' + edir + ' ' + docmod)

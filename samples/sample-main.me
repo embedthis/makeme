@@ -1,0 +1,44 @@
+/*
+    main.me -- Main Me File
+ */
+
+Me.load({
+    blend: [
+        // Load other me files
+    ],
+
+    settings: {
+        /* 
+            Define for your product
+         */
+		name: 'sample',
+		title: 'Sample',
+        company: 'Example Inc.',
+		version: '0.1.0',
+
+        extensions: {
+            require: [ ],
+            discover: [ ],
+            omit: [ ],
+        },
+    },
+
+    /*
+        Define targets to build
+     */
+    targets: {
+        libsample: {
+            enable: false,
+            type: 'lib',
+            sources: [ '*.c' ],
+            depends: [ 'openssl' ],
+        },
+
+        program: {
+            enable: false,
+            type: 'exe',
+            depends: [ 'libsample' ],
+            sources: [ 'dir/main.c' ],                                                                
+        },
+    },
+})

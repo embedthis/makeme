@@ -1,0 +1,37 @@
+/*
+    sqlite.me -- MakeMe file for SQLite
+ */
+
+Me.load({
+    targets: {
+        libsql: {
+            type: 'lib',
+            headers: [ '*.h' ],
+            sources: [ 'sqlite3.c' ],
+            '-compiler': [
+                '-Wall',
+                '-Wshorten-64-to-32',
+                '-Wunreachable-code',
+            ],
+            scripts: {
+                '+precompile': "
+                    if (me.extensions.compiler.path.basename == 'gcc') {
+                        me.target.compiler.push('-w')
+                    } else if (me.extensions.compiler.path.basename == 'clang') {
+                        me.target.compiler.push('-w')
+                    }
+                ",
+            },
+            extensions: [ 'sqlite' ],
+        },
+
+        sqliteshell: {
+            path: "${BIN}/sqlite${EXE}",
+            type: 'exe'
+            sources: [ 'sqlite.c' ],
+            depends: [ 'libsql' ],
+            platforms: [ 'local' ],
+            extensions: [ 'sqlite' ],
+        },
+	},
+})

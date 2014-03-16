@@ -9,7 +9,7 @@ module embedthis.me {
     require ejs.zlib
 
     /** @hide */
-    public var currentComponent: String?
+    public var currentExtension: String?
 
     /** @hide */
     var envTools = {
@@ -49,7 +49,7 @@ module embedthis.me {
         b.quickLoad(b.options.configure.join(b.MAIN))
         checkMain()
         let settings = me.settings
-        if (settings.me && b.makeVersion(Config.Version) < b.makeVersion(settings.me)) {
+        if (settings.me && b.makeVersion(Config.Version) < b.makeVersion(settings.makeme)) {
             throw 'This product requires a newer version of Me. Please upgrade Me to ' + settings.me + '\n'
         }
         if (settings.platforms && !b.options.gen && !b.options.nocross) {
@@ -72,7 +72,7 @@ module embedthis.me {
                 createPlatformMeFile()
                 b.makeOutDirs()
                 createMeHeader()
-                importComponentFiles()
+                importExtensionFiles()
             }
         }
         if (!b.options.gen) {
@@ -101,7 +101,7 @@ module embedthis.me {
         App.log.error('No prior configuration to use')
     }
 
-    internal function importComponentFiles() {
+    internal function importExtensionFiles() {
         for (let [pname, extension] in me.extensions) {
             if (extension.enable) {
                 for each (file in extension.imports) {
@@ -159,13 +159,13 @@ module embedthis.me {
         if (envSettings) {
             blend(nme, envSettings, {combine: true})
         }
-        if (me.dir.makeme != Config.Bin.join('makeme')) {
+        if (me.dir.makeme != Config.Bin) {
             nme.dir.makeme = me.dir.makeme
         }
         if (nme.settings) {
             Object.sortProperties(nme.settings)
         }
-        b.runScript(me.scripts, "postconfig")
+        b.runScript(me.scripts, 'postconfig')
         if (b.options.configure) {
             let path: Path = Path(me.platform.name).joinExt('me')
             trace('Generate', path)
@@ -190,15 +190,21 @@ module embedthis.me {
         if (me.options.gen == 'make' || me.options.gen == 'nmake') {
             for each (target in me.targets) {
                 for each (pname in target.extensions) {
-                    me.extensions[pname] ||= {}
-                    me.extensions[pname].enable = true
+                    if (!me.extensions[pname]) {
+                        me.extensions[pname] ||= {}
+                        me.extensions[pname].name = pname
+                        me.extensions[pname].enable = true
+                        if (b.options.why) {
+                            trace('Create', 'Extension "' + pname + '", required for target "' + target.name + '"')
+                        }
+                    }
                 }
             }
         }
     }
 
     internal function createMeHeader() {
-        b.runScript(me.scripts, "preheader")
+        b.runScript(me.scripts, 'preheader')
         let path = me.dir.inc.join('me.h')
         let f = TextStream(File(path, 'w'))
         f.writeLine('/*\n    me.h -- MakeMe Configuration Header for ' + me.platform.name + '\n\n' +
@@ -239,7 +245,7 @@ module embedthis.me {
             settings.endian = b.options.endian == 'little' ? 1 : 2
         }
         f.writeLine('\n/* Settings */')
-        writeSettings(f, "ME", settings)
+        writeSettings(f, 'ME', settings)
 
         f.writeLine('\n/* Prefixes */')
         for (let [name, prefix] in me.prefixes) {
@@ -258,9 +264,7 @@ module embedthis.me {
         f.writeLine('\n/* Profile */')
         let args = 'me ' + App.args.slice(1).join(' ')
         def(f, 'ME_CONFIG_CMD', '"' + args + '"')
-        //  LEGACY
         def(f, 'ME_' + settings.name.toUpper() + '_PRODUCT', '1')
-        def(f, 'ME_' + settings.name.toUpper() + '_NAME', '1')
         def(f, 'ME_PROFILE', '"' + me.platform.profile + '"')
         def(f, 'ME_TUNE_' + (me.settings.tune || "size").toUpper(), '1')
 
@@ -316,25 +320,15 @@ module embedthis.me {
 
     /** 
         Search for an extension probe. Search in:
-        - ME/makeme/probes
-        - ./makeme/probes
+        - dir.makeme/probe
         - paks/NAME/package.json extensions:NAME.file
 
         @hide 
      */
     function findProbe(extension) {
-        let probeDirs = []
-        if (me.settings.probes) {
-           probeDirs += me.settings.probes
-        }
-        probeDirs.push(me.dir.makeme.join('probes'))
-        let probe = null
-        for each (d in probeDirs) {
-            let path = Path(me.dir.src).join(d, extension + '.me')
-            if (path.exists) {
-                vtrace('Found', 'Component ' + extension + ' at ' + path)
-                return path
-            }
+        let path = Path(me.dir.makeme.join('probe', extension + '.me'))
+        if (path.exists) {
+            return path
         }
         let path = me.dir.paks.join(extension).join(Me.PACKAGE)
         if (path.exists) {
@@ -354,19 +348,22 @@ module embedthis.me {
         if (!settings.extensions) {
             return
         }
+        /* UNUSED
+            Create an extension for the product itself
         let extension = me.extensions[settings.name] ||= {}
         extension.name ||= settings.name
         extension.enable = true
         extension.silent = true
+         */
 
-        vtrace('Search', 'For extensions')
         let extensions = settings.extensions.require + settings.extensions.discover
 
         for each (let pname in me.settings.extensions.omit) {
             let extension = me.extensions[pname] ||= {}
             extension.name = pname
         }
-        createExtensions(extensions)
+        vtrace('Find', 'Extensions: ' + extensions.join(' '))
+        loadProbes(extensions)
         enableExtensions()
         configureExtensions()
         Object.sortProperties(me.extensions)
@@ -376,10 +373,10 @@ module embedthis.me {
     }
 
     /*
-        Create stub extensions, but don't run probes yet. Probes must be run in recursive dependency order.
+        Create stub extensions and load probes.
+        Probes may run code in their global code, but others will wait for the 'config' event
      */
-    internal function createExtensions(extensions) {
-        vtrace('Search', 'Extensions: ' + extensions.join(' '))
+    internal function loadProbes(extensions) {
         for each (cname in extensions) {
             if (me.extensions[cname]) {
                 let extension = me.extensions[cname]
@@ -388,20 +385,18 @@ module embedthis.me {
                 }
             }
             let extension = me.extensions[cname] ||= {}
+            extension.name ||= cname
             if (extension.enable == false) {
                 continue
             }
-            extension.name ||= cname
             extension.enable ||= undefined
 
             try {
                 let probe = findProbe(cname)
                 if (probe) {
                     extension.file = probe.portable
-                    currentComponent = cname
-                    vtrace('Load', 'Component: ' + cname)
+                    currentExtension = cname
                     b.loadMeFile(probe)
-
                 } else {
                     let path = me.dir.paks.join(cname)
                     if (path.join(cname + '.me').exists) {
@@ -438,18 +433,18 @@ module embedthis.me {
                     }
                 }
                 if (extension.extensions) {
-                    createExtensions(extension.extensions)
+                    loadProbes(extension.extensions)
                 }
                 if (extension.discover) {
-                    createExtensions(extension.discover)
+                    loadProbes(extension.discover)
                 }
                 for each (dname in extension.depends) {
                     if (findProbe(dname) || me.dir.paks.join(dname).exists) {
-                        createExtensions([dname])
+                        loadProbes([dname])
                     }
                 }
                 if (extension.require) {
-                    throw "extension.require not supported"
+                    throw 'extension.require not supported'
                 }
                 if (extension.enable === undefined) {
                     extension.enable = true
@@ -459,19 +454,18 @@ module embedthis.me {
                     App.log.debug(0, e)
                 }
                 extension.enable = false
-                extension.diagnostic = "" + e
+                extension.diagnostic = '' + e
+                vtrace('Probe', cname + ' probe failed: ' + extension.diagnostic)
             }
         }
     }
 
     internal function enableExtensions() {
-        if (!me.options.gen) {
-            for each (extension in me.extensions) {
-                if (extension.enabling) {
-                    continue
-                }
-                enableComponent(extension)
+        for each (extension in me.extensions) {
+            if (extension.enabling) {
+                continue
             }
+            enableExtension(extension)
         }
     }
 
@@ -479,13 +473,17 @@ module embedthis.me {
         Check for --without, and run enable scripts/functions
         Enable scripts do not run in dependency order. This are meant for simple scripts without extension dependencies.
      */
-    internal function enableComponent(extension) {
+    internal function enableExtension(extension) {
+        if (me.options.gen) {
+            return
+        }
         extension.enabling = true
         global.COMP = extension
         if (extension.enable === false && extension.explicit) {
-            runComponentScript(extension, "without")
+            runExtensionScript(extension, 'without')
 
         } else if (extension.enable is Function) {
+            vtrace('Run', 'Probe: ' + extension.name)
             extension.enable = extension.enable.call(b, extension)
 
         } else if (extension.enable) {                                                                           
@@ -507,11 +505,11 @@ module embedthis.me {
     internal function configureExtensions() {
         for (let [cname, extension] in me.extensions) {
             extension.name ||= cname
-            configureComponent(extension)
+            configureExtension(extension)
         }
     }
 
-    internal function configureComponent(extension) {
+    internal function configureExtension(extension) {
         if (extension.configuring) {
             return
         }
@@ -519,31 +517,36 @@ module embedthis.me {
 
         for each (pname in extension.discover) {
             if (me.extensions[pname]) {
-                configureComponent(me.extensions[pname])
+                configureExtension(me.extensions[pname])
             }
         }
         for each (pname in extension.extensions) {
             if (me.extensions[pname]) {
-                configureComponent(me.extensions[pname])
+                configureExtension(me.extensions[pname])
             } else if (!me.targets[pname]) {
-throw "UNUSED - MISSING COMPONENT TARGET"
-                me.extensions[pname] = { name: pname, enable: false, diagnostic: 'Component not defined' }
+throw 'UNUSED - MISSING COMPONENT TARGET'
+                me.extensions[pname] = { name: pname, enable: false, diagnostic: 'Extension not defined' }
             }
         }
-        currentComponent = extension.name
+        currentExtension = extension.name
         b.currentMeFile = extension.file
         global.COMP = extension
         try {
             if (me.options.gen) {
-                extension.path = Path(extension.name)
+                if (extension.path is Path) {
+                    extension.path = extension.path.relative
+                } else {
+                    extension.path = Path(extension.name)
+                }
                 if (extension.scripts && extension.scripts.generate) {
-                    runComponentScript(extension, "generate")
+                    runExtensionScript(extension, 'generate')
                 }
             } else {
                 if (extension.path is Function) {
+                    //  MOB - should use runExtensionScript
                     extension.path = extension.path.call(b, extension)
                 }
-                runComponentScript(extension, "config")
+                runExtensionScript(extension, 'config')
             }
             if (extension.path) {
                 extension.path = Path(extension.path)
@@ -554,7 +557,8 @@ throw "UNUSED - MISSING COMPONENT TARGET"
                 App.log.debug(0, e)
             }
             extension.enable = false
-            extension.diagnostic = "" + e
+            extension.diagnostic = '' + e
+            vtrace('Omit', 'Extension "' + extension.name + '": ' + extension.diagnostic + '\n')
         }
         delete global.COMP
     }
@@ -576,16 +580,18 @@ throw "UNUSED - MISSING COMPONENT TARGET"
                 }
             } else {
                 omitted[pname] = extension
+                vtrace('Omit', pname + ': ' + extension.description + ':\n                 ' + extension.diagnostic)
             }
         }
         if (b.options.why) {
             for (let [pname, extension] in omitted) {
-                trace('Omitted', pname + ': ' + extension.description + ': ' + extension.diagnostic)
+                extension.diagnostic ||= 'Not configured'
+                trace('Omit', pname + ': ' + extension.diagnostic)
             }
         }
     }
 
-    internal function checkComponent(extension) {
+    internal function checkExtension(extension) {
         if (extension.checking) {
             return
         }
@@ -596,7 +602,7 @@ throw "UNUSED - MISSING COMPONENT TARGET"
         for each (pname in extension.extensions) {
             let p = me.extensions[pname]
             if (p) {
-                checkComponent(p)
+                checkExtension(p)
                 if (!p.enable) {
                     extension.enable = false
                     extension.diagnostic ||= 'required extension ' + p.name + ' is not enabled'
@@ -627,7 +633,7 @@ throw "UNUSED - MISSING COMPONENT TARGET"
 
     internal function checkExtensions() {
         for each (extension in me.extensions) {
-            checkComponent(extension)
+            checkExtension(extension)
         }
     }
 
@@ -660,7 +666,7 @@ throw "UNUSED - MISSING COMPONENT TARGET"
         if (file.exists) {
             path = file
         } else {
-            if ((dir = me.extensions[currentComponent].path) && !(dir is Function)) {
+            if ((dir = me.extensions[currentExtension].path) && !(dir is Function)) {
                 search.push(dir)
             }
             if (control.search) {
@@ -669,9 +675,7 @@ throw "UNUSED - MISSING COMPONENT TARGET"
                 }
                 search += control.search
             }
-            vtrace("Probe", "Search for \"" + file + '\" in search path: ' + search)
             for each (let s: Path in search) {
-                App.log.debug(2, "Probe for " + s.join(file) + ' exists: ' + s.join(file).exists)
                 if (s.join(file).exists) {
                     path = s.join(file)
                     break
@@ -683,15 +687,14 @@ throw "UNUSED - MISSING COMPONENT TARGET"
         }
         if (!path) {
             if (b.options.why) {
-                trace('Probe', 'File ' + file)
-                trace('Search', search.join(' '))
+                trace('Missing', 'Extension "' + currentExtension + '" cannot find: "' + file + '"\n')
             }
             if (b.options['continue'] && control.default) {
                 return control.default
             }
-            throw 'Cannot find "' + file + '" for extension "' + currentComponent + '" on ' + b.currentPlatform + '. '
+            throw 'Cannot find "' + file + '" for extension "' + currentExtension + '" on ' + b.currentPlatform + '. '
         }
-        vtrace('Found', file + ' found at ' + path)
+        vtrace('Probe', 'Extension "' + currentExtension + '" found: "' + path + '"\n')
         if (control.fullpath) {
             return path.portable
         }
@@ -711,7 +714,7 @@ throw "UNUSED - MISSING COMPONENT TARGET"
         @param options Extra options to pass to Me.extension when defining the program.
      */
     public function program(name: Path, description = null, options = {}): Path {
-        let extension = me.extensions[currentComponent]
+        let extension = me.extensions[currentExtension]
         let path
         try {
             if (me.options.gen) {
@@ -761,7 +764,7 @@ throw "UNUSED - MISSING COMPONENT TARGET"
         blend(me, envSettings, {combine: true})
     }
 
-    internal function runComponentScript(extension, when) {
+    internal function runExtensionScript(extension, when) {
         if (!extension.scripts) return
         for each (item in extension.scripts[when]) {
             let pwd = App.dir
@@ -779,7 +782,7 @@ throw "UNUSED - MISSING COMPONENT TARGET"
                         eval(script)
                     }
                 } else {
-                    throw "Only ejscripts are support for extensions"
+                    throw 'Only ejscripts are support for extensions'
                 }
             } finally {
                 App.chdir(pwd)

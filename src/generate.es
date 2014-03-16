@@ -13,7 +13,8 @@ module embedthis.me {
     var capture: Array?
 
     var minimalCflags = [ 
-        '-O2', '-O', '-w', '-g', '-Wall', '-Wno-deprecated-declarations', '-Wno-unused-result', '-Wshorten-64-to-32', '-mtune=generic']
+        '-O2', '-O', '-w', '-g', '-Wall', '-Wno-deprecated-declarations', '-Wno-unused-result', 
+        '-Wshorten-64-to-32', '-Wunreachable-code', '-mtune=generic']
 
     function generate() {
         if (b.options.gen == 'start') {
@@ -29,7 +30,7 @@ module embedthis.me {
         } else {
             b.createMe(b.localPlatform, b.options.file)
         }
-        me.settings.product ||= App.dir.basename.replace(/-/g, '_')
+        me.settings.name ||= App.dir.basename.replace(/-/g, '_')
 
         platforms = me.platforms = [b.localPlatform]
         me.original = {
@@ -50,9 +51,14 @@ module embedthis.me {
     function generateProjects() {
         b.selectTargets('all')
         let cpack = me.extensions.compiler
+        let cflags = cpack.compiler.join(' ')
+        for each (word in minimalCflags) {
+            cflags = cflags.replace(word, '')
+        }
+        cflags = cflags.replace(/^ *$/, '')
         gen = {
             configuration:  me.platform.name
-            compiler:       cpack.compiler.join(' '),
+            compiler:       cflags,
             defines :       cpack.defines.map(function(e) '-D' + e).join(' '),
             includes:       cpack.includes.map(function(e) '-I' + e).join(' '),
             linker:         cpack.linker.join(' '),
@@ -62,11 +68,11 @@ module embedthis.me {
         blend(gen, me.prefixes)
         for each (item in b.options.gen) {
             me.generating = item
-            me.settings.product ||= 'app'
-            let base = me.dir.proj.join(me.settings.product + '-' + me.platform.os + '-' + me.platform.profile)
+            me.settings.name ||= 'app'
+            let base = me.dir.proj.join(me.settings.name + '-' + me.platform.os + '-' + me.platform.profile)
             let path = me.original.dir.inc.join('me.h')
             let hfile = me.dir.src.join('projects', 
-                    me.settings.product + '-' + me.platform.os + '-' + me.platform.profile + '-me.h')
+                    me.settings.name + '-' + me.platform.os + '-' + me.platform.profile + '-me.h')
             if (path.exists) {
                 trace('Generate', 'project header: ' + hfile.relative)
                 path.copy(hfile)
@@ -169,7 +175,7 @@ module embedthis.me {
         genout = TextStream(File(path, 'w'))
         genout.writeLine('#\n#   ' + path.basename + ' -- MakeMe Shell Script to build ' + me.settings.title + '\n#\n')
         genEnv()
-        genout.writeLine('PRODUCT="' + me.settings.product + '"')
+        genout.writeLine('NAME="' + me.settings.name + '"')
         genout.writeLine('VERSION="' + me.settings.version + '"')
         genout.writeLine('PROFILE="' + me.platform.profile + '"')
         genout.writeLine('ARCH="' + me.platform.arch + '"')
@@ -195,16 +201,16 @@ module embedthis.me {
         genout.writeLine('[ ! -x ${CONFIG}/inc ] && ' + 'mkdir -p ${CONFIG}/inc\n')
         genout.writeLine('[ ! -x ${CONFIG}/bin ] && ' + 'mkdir -p ${CONFIG}/bin\n')
         genout.writeLine('[ ! -x ${CONFIG}/obj ] && ' + 'mkdir -p ${CONFIG}/obj\n')
-        if (me.dir.src.join('src/paks/bitos/bitos.h').exists) {
-            genout.writeLine('[ ! -f ${CONFIG}/inc/bitos.h ] && cp ${SRC}/src/paks/bitos/bitos.h ${CONFIG}/inc/bitos.h')
+        if (me.dir.src.join('src/paks/osdep/osdep.h').exists) {
+            genout.writeLine('[ ! -f ${CONFIG}/inc/osdep.h ] && cp ${SRC}/src/paks/osdep/osdep.h ${CONFIG}/inc/osdep.h')
         }
         if (me.dir.inc.join('me.h').exists) {
             genout.writeLine('[ ! -f ${CONFIG}/inc/me.h ] && ' + 
-                'cp projects/' + me.settings.product + '-${OS}-${PROFILE}-me.h ${CONFIG}/inc/me.h')
-            genout.writeLine('if ! diff ${CONFIG}/inc/me.h projects/' + me.settings.product + 
+                'cp projects/' + me.settings.name + '-${OS}-${PROFILE}-me.h ${CONFIG}/inc/me.h')
+            genout.writeLine('if ! diff ${CONFIG}/inc/me.h projects/' + me.settings.name + 
                 '-${OS}-${PROFILE}-me.h >/dev/null ; then')
         }
-        genout.writeLine('\tcp projects/' + me.settings.product + '-${OS}-${PROFILE}-me.h ${CONFIG}/inc/me.h')
+        genout.writeLine('\tcp projects/' + me.settings.name + '-${OS}-${PROFILE}-me.h ${CONFIG}/inc/me.h')
         genout.writeLine('fi\n')
         b.build()
         genout.close()
@@ -248,39 +254,39 @@ module embedthis.me {
                 value = '$(ME_ROOT_PREFIX)' + value
             }
             value = value.replace(me.settings.version, '$(VERSION)')
-            value = value.replace(me.settings.product, '$(PRODUCT)')
+            value = value.replace(me.settings.name, '$(NAME)')
             prefixes[name] = Path(value.toString())
         }
         return prefixes
     }
 
-    function generateComponentDefs() {
-        let neededExtensions = {}
+    function generateExtensionDefs() {
+        let neededTargets = {}
         for each (extension in me.extensions) {
             if (extension.explicit) {
-                neededExtensions[extension.name] = true
+                neededTargets[extension.name] = true
             }
         }
         for each (target in me.targets) {
             if (target.enable) {
-                neededExtensions[target.name] = true
+                neededTargets[target.name] = true
             }
             for each (r in (target.extensions + target.depends)) {
                 if (me.extensions[r]) {
-                    neededExtensions[r] = true
+                    neededTargets[r] = true
                 }
             }
         }
         for each (let pname in me.settings.extensions.omit) {
             me.extensions[pname] ||= {}
             me.extensions[pname].enable ||= false
-            neededExtensions[pname] = true
+            neededTargets[pname] = true
         }
         for (let [name, extension] in me.extensions) {
-            if (neededExtensions[name]) {
+            if (neededTargets[name]) {
                 for each (r in extension.extensions) {
                     if (me.extensions[r]) {
-                        neededExtensions[r] = true
+                        neededTargets[r] = true
                     }
                 }
             }
@@ -289,13 +295,17 @@ module embedthis.me {
             Emit ME_EXT_* definitions 
          */
         Object.sortProperties(me.extensions)
+        let emitted = {}
         for (let [name, extension] in me.extensions) {
-            if (neededExtensions[name]) {
+            if (neededTargets[name]) {
                 if (me.platform.os == 'windows' ) {
-                    genout.writeLine('%-18s = %s'.format(['ME_EXT_' + name.toUpper(), extension.enable ? 1 : 0]))
+                    genout.writeLine('!IF "$(ME_EXT_' + name.toUpper() + ')" == ""')
+                    genout.writeLine('%-21s = %s'.format(['ME_EXT_' + name.toUpper(), extension.enable ? 1 : 0]))
+                    genout.writeLine('!ENDIF')
                 } else {
-                    genout.writeLine('%-18s := %s'.format(['ME_EXT_' + name.toUpper(), extension.enable ? 1 : 0]))
+                    genout.writeLine('%-21s ?= %s'.format(['ME_EXT_' + name.toUpper(), extension.enable ? 1 : 0]))
                 }
+                emitted[name] = true
             }
         }
         genout.writeLine('')
@@ -303,31 +313,37 @@ module embedthis.me {
         /*
             Emit extension dependencies
          */
-        for (let [pname, extension] in me.extensions) {
-            if (extension.extensions) {
+        for (let [name, extension] in me.extensions) {
+            if (neededTargets[name] && extension.extensions) {
                 if (me.platform.os == 'windows' ) {
-                    genout.writeLine('!IF "$(ME_EXT_' + pname.toUpper() + ')" == "1"')
                     for each (r in extension.extensions) {
-                        genout.writeLine('ME_EXT_' + r.toUpper() + ' = 1')
+                        if (!emitted[r]) {
+                            genout.writeLine('!IF "$(ME_EXT_' + r.toUpper() + ')" == ""')
+                            genout.writeLine('%-21s = 1'.format(['ME_EXT_' + r.toUpper()]))
+                            genout.writeLine('!ENDIF\n')
+                            emitted[r] = true
+                        }
                     }
-                    genout.writeLine('!ENDIF\n')
                 } else {
-                    genout.writeLine('ifeq ($(ME_EXT_' + pname.toUpper() + '),1)')
                     for each (r in extension.extensions) {
-                        genout.writeLine('    ME_EXT_' + r.toUpper() + ' := 1')
+                        if (!emitted[r]) {
+                            genout.writeLine('%-21s ?= 1'.format(['ME_EXT_' + r.toUpper()]))
+                            emitted[r] = true
+                        }
                     }
-                    genout.writeLine('endif')
                 }
             }
         }
-        genout.writeLine('')
 
+        /*
+            Emit extension paths
+         */
         for each (extension in me.extensions) {
             if (extension.path) {
                 if (me.platform.os == 'windows') {
-                    genout.writeLine('%-25s = %s'.format(['ME_EXT_' + extension.name.toUpper() + '_PATH', extension.path]))
+                    genout.writeLine('%-21s = %s'.format(['ME_EXT_' + extension.name.toUpper() + '_PATH', extension.path]))
                 } else {
-                    genout.writeLine('%-25s := %s'.format(['ME_EXT_' + extension.name.toUpper() + '_PATH', extension.path]))
+                    genout.writeLine('%-21s ?= %s'.format(['ME_EXT_' + extension.name.toUpper() + '_PATH', extension.path]))
                 }
             }
         }
@@ -338,7 +354,7 @@ module embedthis.me {
          */
         let dflags = ''
         for (let [name, extension] in me.extensions) {
-            if (neededExtensions[name]) {
+            if (neededTargets[name]) {
                 dflags += '-DME_EXT_' + name.toUpper() + '=$(ME_EXT_' + name.toUpper() + ') '
             }
         }
@@ -352,25 +368,26 @@ module embedthis.me {
         genout.writeLine('#\n#   ' + path.basename + ' -- Makefile to build ' + 
             me.settings.title + ' for ' + me.platform.os + '\n#\n')
         b.runScript(me.scripts, 'pregen')
-        genout.writeLine('PRODUCT            := ' + me.settings.product)
-        genout.writeLine('VERSION            := ' + me.settings.version)
-        genout.writeLine('PROFILE            := ' + me.platform.profile)
+        genout.writeLine('NAME                  := ' + me.settings.name)
+        genout.writeLine('VERSION               := ' + me.settings.version)
+        genout.writeLine('PROFILE               ?= ' + me.platform.profile)
         if (me.platform.os == 'vxworks') {
-            genout.writeLine("ARCH               := $(shell echo $(WIND_HOST_TYPE) | sed 's/-.*//')")
-            genout.writeLine("CPU                := $(subst X86,PENTIUM,$(shell echo $(ARCH) | tr a-z A-Z))")
+            genout.writeLine("ARCH                  ?= $(shell echo $(WIND_HOST_TYPE) | sed 's/-.*//')")
+            genout.writeLine("CPU                   ?= $(subst X86,PENTIUM,$(shell echo $(ARCH) | tr a-z A-Z))")
         } else {
-            genout.writeLine('ARCH               := $(shell uname -m | sed \'s/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/\')')
-            genout.writeLine('CC_ARCH            := $(shell echo $(ARCH) | sed \'s/x86/i686/;s/x64/x86_64/\')')
+            genout.writeLine('ARCH                  ?= $(shell uname -m | sed \'s/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/\')')
+            genout.writeLine('CC_ARCH               ?= $(shell echo $(ARCH) | sed \'s/x86/i686/;s/x64/x86_64/\')')
         }
-        genout.writeLine('OS                 := ' + me.platform.os)
-        genout.writeLine('CC                 := ' + me.extensions.compiler.path)
+        genout.writeLine('OS                    ?= ' + me.platform.os)
+        genout.writeLine('CC                    ?= ' + me.extensions.compiler.path)
         if (me.extensions.link) {
-            genout.writeLine('LD                 := ' + me.extensions.link.path)
+            genout.writeLine('LD                    ?= ' + me.extensions.link.path)
         }
-        genout.writeLine('CONFIG             := $(OS)-$(ARCH)-$(PROFILE)')
-        genout.writeLine('LBIN               := $(CONFIG)/bin\n')
+        genout.writeLine('CONFIG                ?= $(OS)-$(ARCH)-$(PROFILE)')
+        genout.writeLine('LBIN                  ?= $(CONFIG)/bin')
+        genout.writeLine('PATH                  := $(LBIN):$(PATH)\n')
 
-        let dflags = generateComponentDefs()
+        let dflags = generateExtensionDefs()
         genEnv()
 
         let cflags = gen.compiler
@@ -378,40 +395,40 @@ module embedthis.me {
             cflags = cflags.replace(word, '')
         }
         cflags += ' -w'
-        genout.writeLine('CFLAGS             += ' + cflags.trim())
-        genout.writeLine('DFLAGS             += ' + gen.defines.replace(/-DME_DEBUG */, '') + 
+        genout.writeLine('CFLAGS                += ' + cflags.trim())
+        genout.writeLine('DFLAGS                += ' + gen.defines.replace(/-DME_DEBUG */, '') + 
             ' $(patsubst %,-D%,$(filter ME_%,$(MAKEFLAGS))) ' + dflags)
-        genout.writeLine('IFLAGS             += "' + 
+        genout.writeLine('IFLAGS                += "' + 
             repvar(me.extensions.compiler.includes.map(function(path) '-I' + reppath(path.relative)).join(' ')) + '"')
         let linker = me.extensions.compiler.linker.map(function(s) "'" + s + "'").join(' ')
         let ldflags = repvar(linker).replace(/\$ORIGIN/g, '$$$$ORIGIN').replace(/'-g' */, '')
-        genout.writeLine('LDFLAGS            += ' + ldflags)
-        genout.writeLine('LIBPATHS           += ' + repvar(gen.libpaths))
-        genout.writeLine('LIBS               += ' + gen.libraries + '\n')
+        genout.writeLine('LDFLAGS               += ' + ldflags)
+        genout.writeLine('LIBPATHS              += ' + repvar(gen.libpaths))
+        genout.writeLine('LIBS                  += ' + gen.libraries + '\n')
 
-        genout.writeLine('DEBUG              := ' + (me.settings.debug ? 'debug' : 'release'))
-        genout.writeLine('CFLAGS-debug       := -g')
-        genout.writeLine('DFLAGS-debug       := -DME_DEBUG')
-        genout.writeLine('LDFLAGS-debug      := -g')
-        genout.writeLine('DFLAGS-release     := ')
-        genout.writeLine('CFLAGS-release     := -O2')
-        genout.writeLine('LDFLAGS-release    := ')
-        genout.writeLine('CFLAGS             += $(CFLAGS-$(DEBUG))')
-        genout.writeLine('DFLAGS             += $(DFLAGS-$(DEBUG))')
-        genout.writeLine('LDFLAGS            += $(LDFLAGS-$(DEBUG))\n')
+        genout.writeLine('DEBUG                 ?= ' + (me.settings.debug ? 'debug' : 'release'))
+        genout.writeLine('CFLAGS-debug          ?= -g')
+        genout.writeLine('DFLAGS-debug          ?= -DME_DEBUG')
+        genout.writeLine('LDFLAGS-debug         ?= -g')
+        genout.writeLine('DFLAGS-release        ?= ')
+        genout.writeLine('CFLAGS-release        ?= -O2')
+        genout.writeLine('LDFLAGS-release       ?= ')
+        genout.writeLine('CFLAGS                += $(CFLAGS-$(DEBUG))')
+        genout.writeLine('DFLAGS                += $(DFLAGS-$(DEBUG))')
+        genout.writeLine('LDFLAGS               += $(LDFLAGS-$(DEBUG))\n')
 
         let prefixes = mapPrefixes()
         for (let [name, value] in prefixes) {
             if (name == 'root' && value == '/') {
                 value = ''
             }
-            genout.writeLine('%-18s := %s'.format(['ME_' + name.toUpper() + '_PREFIX', value]))
+            genout.writeLine('%-21s ?= %s'.format(['ME_' + name.toUpper() + '_PREFIX', value]))
         }
         genout.writeLine('')
         b.runScript(me.scripts, 'gencustom')
         genout.writeLine('')
 
-        let pop = me.settings.product + '-' + me.platform.os + '-' + me.platform.profile
+        let pop = me.settings.name + '-' + me.platform.os + '-' + me.platform.profile
         genTargets()
         genout.writeLine('unexport CDPATH\n')
         genout.writeLine('ifndef SHOW\n.SILENT:\nendif\n')
@@ -430,10 +447,10 @@ module embedthis.me {
         genout.writeLine('\t@[ ! -x $(CONFIG)/bin ] && ' + 'mkdir -p $(CONFIG)/bin; true')
         genout.writeLine('\t@[ ! -x $(CONFIG)/inc ] && ' + 'mkdir -p $(CONFIG)/inc; true')
         genout.writeLine('\t@[ ! -x $(CONFIG)/obj ] && ' + 'mkdir -p $(CONFIG)/obj; true')
-        if (me.dir.src.join('src/paks/bitos/bitos.h').exists) {
-            genout.writeLine('\t@[ ! -f $(CONFIG)/inc/bitos.h ] && cp src/paks/bitos/bitos.h $(CONFIG)/inc/bitos.h ; true')
-            genout.writeLine('\t@if ! diff $(CONFIG)/inc/bitos.h src/paks/bitos/bitos.h >/dev/null ; then\\')
-            genout.writeLine('\t\tcp src/paks/bitos/bitos.h $(CONFIG)/inc/bitos.h  ; \\')
+        if (me.dir.src.join('src/paks/osdep/osdep.h').exists) {
+            genout.writeLine('\t@[ ! -f $(CONFIG)/inc/osdep.h ] && cp src/paks/osdep/osdep.h $(CONFIG)/inc/osdep.h ; true')
+            genout.writeLine('\t@if ! diff $(CONFIG)/inc/osdep.h src/paks/osdep/osdep.h >/dev/null ; then\\')
+            genout.writeLine('\t\tcp src/paks/osdep/osdep.h $(CONFIG)/inc/osdep.h  ; \\')
             genout.writeLine('\tfi; true')
         }
         if (me.dir.inc.join('me.h').exists) {
@@ -463,34 +480,41 @@ module embedthis.me {
         genout.writeLine('#\n#   ' + path.basename + ' -- Makefile to build ' + me.settings.title + 
             ' for ' + me.platform.os + '\n#\n')
         b.runScript(me.scripts, 'pregen')
-        genout.writeLine('PRODUCT            = ' + me.settings.product)
-        genout.writeLine('VERSION            = ' + me.settings.version)
-        genout.writeLine('PROFILE            = ' + me.platform.profile)
-        genout.writeLine('PA                 = $(PROCESSOR_ARCHITECTURE)')
+        genout.writeLine('NAME                  = ' + me.settings.name)
+        genout.writeLine('VERSION               = ' + me.settings.version + '\n')
+        genout.writeLine('OS                    = ' + me.platform.os)
+        genout.writeLine('PA                    = $(PROCESSOR_ARCHITECTURE)')
+
+        genout.writeLine('!IF "$(PROFILE)" == ""')
+        genout.writeLine('PROFILE               = ' + me.platform.profile)
+        genout.writeLine('!ENDIF\n')
+
         genout.writeLine('')
         genout.writeLine('!IF "$(PA)" == "AMD64"')
-            genout.writeLine('ARCH               = x64')
-            genout.writeLine('ENTRY              = _DllMainCRTStartup')
+            genout.writeLine('ARCH                  = x64')
+            genout.writeLine('ENTRY                 = _DllMainCRTStartup')
         genout.writeLine('!ELSE')
-            genout.writeLine('ARCH               = x86')
-            genout.writeLine('ENTRY              = _DllMainCRTStartup@12')
+            genout.writeLine('ARCH                  = x86')
+            genout.writeLine('ENTRY                 = _DllMainCRTStartup@12')
         genout.writeLine('!ENDIF\n')
-        genout.writeLine('OS                 = ' + me.platform.os)
-        genout.writeLine('CONFIG             = $(OS)-$(ARCH)-$(PROFILE)')
-        genout.writeLine('LBIN               = $(CONFIG)\\bin\n')
 
-        let dflags = generateComponentDefs()
+        genout.writeLine('!IF "$(CONFIG)" == ""')
+        genout.writeLine('CONFIG                = $(OS)-$(ARCH)-$(PROFILE)')
+        genout.writeLine('!ENDIF\n')
+        genout.writeLine('LBIN                  = $(CONFIG)\\bin\n')
 
-        genout.writeLine('CC                 = cl')
-        genout.writeLine('LD                 = link')
-        genout.writeLine('RC                 = rc')
-        genout.writeLine('CFLAGS             = ' + gen.compiler)
-        genout.writeLine('DFLAGS             = ' + gen.defines + ' ' + dflags)
-        genout.writeLine('IFLAGS             = ' + 
+        let dflags = generateExtensionDefs()
+
+        genout.writeLine('CC                    = cl')
+        genout.writeLine('LD                    = link')
+        genout.writeLine('RC                    = rc')
+        genout.writeLine('CFLAGS                = ' + gen.compiler)
+        genout.writeLine('DFLAGS                = ' + gen.defines + ' ' + dflags)
+        genout.writeLine('IFLAGS                = ' + 
             repvar(me.extensions.compiler.includes.map(function(path) '-I' + reppath(path)).join(' ')))
-        genout.writeLine('LDFLAGS            = ' + repvar(gen.linker).replace(/-machine:x86/, '-machine:$$(ARCH)'))
-        genout.writeLine('LIBPATHS           = ' + repvar(gen.libpaths).replace(/\//g, '\\'))
-        genout.writeLine('LIBS               = ' + gen.libraries + '\n')
+        genout.writeLine('LDFLAGS               = ' + repvar(gen.linker).replace(/-machine:x86/, '-machine:$$(ARCH)'))
+        genout.writeLine('LIBPATHS              = ' + repvar(gen.libpaths).replace(/\//g, '\\'))
+        genout.writeLine('LIBS                  = ' + gen.libraries + '\n')
 
         let prefixes = mapPrefixes()
         for (let [name, value] in prefixes) {
@@ -501,14 +525,14 @@ module embedthis.me {
             } else {
                 value = value.map('\\')
             }
-            genout.writeLine('%-18s = '.format(['ME_' + name.toUpper() + '_PREFIX']) + value)
+            genout.writeLine('%-21s = '.format(['ME_' + name.toUpper() + '_PREFIX']) + value)
         }
         genout.writeLine('')
         b.runScript(me.scripts, 'gencustom')
         genout.writeLine('')
 
         genTargets()
-        let pop = me.settings.product + '-' + me.platform.os + '-' + me.platform.profile
+        let pop = me.settings.name + '-' + me.platform.os + '-' + me.platform.profile
         genout.writeLine('!IFNDEF SHOW\n.SILENT:\n!ENDIF\n')
         genout.writeLine('all build compile: prep $(TARGETS)\n')
         genout.writeLine('.PHONY: prep\n\nprep:')
@@ -576,7 +600,7 @@ module embedthis.me {
                 } 
             }
             if (me.generating == 'make') {
-                genout.writeLine('export %-18s := %s' % [key, value])
+                genout.writeLine('export %-14s ?= %s' % [key, value])
 
             } else if (me.generating == 'nmake') {
                 value = value.replace(/\//g, '\\')
@@ -588,7 +612,7 @@ module embedthis.me {
             found = true
         }
         if (me.platform.os == 'vxworks') {
-            genout.writeLine('%-25s := %s'.format(['export PATH', '$(WIND_GNU_PATH)/$(WIND_HOST_TYPE)/bin:$(PATH)']))
+            genout.writeLine('%-21s := %s'.format(['export PATH', '$(WIND_GNU_PATH)/$(WIND_HOST_TYPE)/bin:$(PATH)']))
         }
         if (found) {
             genout.writeLine('')
@@ -608,9 +632,9 @@ module embedthis.me {
                         }
                     }
                     if (me.platform.os == 'windows') {
-                        genout.writeLine('TARGETS            = $(TARGETS) ' + reppath(target.path))
+                        genout.writeLine('TARGETS               = $(TARGETS) ' + reppath(target.path))
                     } else {
-                        genout.writeLine('TARGETS            += ' + reppath(target.path))
+                        genout.writeLine('    TARGETS           += ' + reppath(target.path))
                     }
                     for (i in target.extensions.length) {
                         if (me.platform.os == 'windows') {
@@ -621,9 +645,9 @@ module embedthis.me {
                     }
                 } else {
                     if (me.platform.os == 'windows') {
-                        genout.writeLine('TARGETS            = $(TARGETS) ' + reppath(target.path))
+                        genout.writeLine('TARGETS               = $(TARGETS) ' + reppath(target.path))
                     } else {
-                        genout.writeLine('TARGETS            += ' + reppath(target.path))
+                        genout.writeLine('TARGETS               += ' + reppath(target.path))
                     }
                 }
             }
@@ -1050,11 +1074,18 @@ module embedthis.me {
      */
     function repcmd(command: String): String {
         if (me.generating == 'make' || me.generating == 'nmake') {
+            for each (word in minimalCflags) {
+                command = rep(command, word, '')
+            }
             if (gen.defines != '') {
                 command = rep(command, gen.defines, '$(DFLAGS)')
+            } else {
+                command = rep(command, ' -c ', ' -c $(DFLAGS) ')
+            }
+            if (gen.compiler != '') {
                 command = rep(command, gen.compiler, '$(CFLAGS)')
             } else {
-                command = rep(command, gen.compiler, '$(CFLAGS) $(DFLAGS)')
+                command = rep(command, ' -c ', ' -c $(CFLAGS) ')
             }
             if (gen.linker != '') {
                 command = rep(command, gen.linker, '$(LDFLAGS)')
@@ -1071,17 +1102,25 @@ module embedthis.me {
             if (me.extensions.rc) {
                 command = repCmd(command, me.extensions.rc.path, '$(RC)')
             }
+
+        } else if (me.generating == 'sh') {
             for each (word in minimalCflags) {
                 command = rep(command, word, '')
             }
-
-        } else if (me.generating == 'sh') {
-            command = rep(command, gen.compiler, '${CFLAGS}')
+            if (gen.defines != '') {
+                command = rep(command, gen.defines, '${DFLAGS}')
+            } else {
+                command = rep(command, ' -c ', ' -c ${DFLAGS} ')
+            }
+            if (gen.compiler != '') {
+                command = rep(command, gen.compiler, '${CFLAGS}')
+            } else {
+                command = rep(command, ' -c ', ' -c ${CFLAGS} ')
+            }
             if (gen.linker != '') {
                 command = rep(command, gen.linker, '${LDFLAGS}')
             }
             command = rep(command, gen.libpaths, '${LIBPATHS}')
-            command = rep(command, gen.defines, '${DFLAGS}')
             command = rep(command, gen.includes, '${IFLAGS}')
             /* Twice because libraries are repeated and replace only changes the first occurrence */
             command = rep(command, gen.libraries, '${LIBS}')
@@ -1346,6 +1385,9 @@ module embedthis.me {
 
     function getAllDeps(top, target, result = []) {
         for each (dname in target.depends) {
+            if (dname == target.name) {
+                continue
+            }
             if (!result.contains(dname)) {
                 let dep = me.targets[dname]
                 if (dep && dep.enable) {

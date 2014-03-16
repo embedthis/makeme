@@ -1,0 +1,48 @@
+/*
+    appweb.me -- MakeMe Appweb probe
+ */
+Me.extension({
+    appweb: {
+        description: 'Appweb Web Server',
+        libraries: [ 'appweb', 'http', 'mpr', 'mprssl' ],
+        path: function (ext) {
+            let search = [ ]
+            if (ext.withpath) {
+                search.push(ext.withpath)
+            }
+            for (let d: Path = '.'; d.parent != d; d = d.parent) {
+                let path: Path = d.join(me.platform.name)
+                if (path.join('bin/libappweb.' + me.ext.shobj).exists) {
+                    search.push(path)
+                    break
+                }
+            }
+            let appweb = Cmd.locate('appweb')
+            if (appweb) {
+                search.push(appweb.dirname.parent)
+            }
+            search.push('/usr/local/lib/appweb/latest')
+            if (me.platform.os == 'windows') {
+                search.push(me.dir.programFiles32.join('Embedthis Appweb'))
+            }
+            return probe('bin/libappweb.' + me.ext.shobj, { search: search });
+        },
+        config: function (ext) {
+            let bin = probe('libappweb.' + me.ext.shobj, {fullpath: true, search: ext.path.join('bin')}).dirname
+            ext.libpaths = [ bin ]
+            ext.includes = [ probe('appweb.h', {search: ext.path.join('inc')}) ]
+            if (me.platform.os != 'windows') {
+                ext.linker = [ '-Wl,-rpath,' + bin ]
+            }
+        },
+        generate: function (ext) {
+            if (me.platform.os == 'windows') {
+                ext.path = 'C:/Program Files/Embedthis Appweb'
+            } else {
+                ext.path = '/usr/local/lib/appweb/latest'
+            }
+            ext.libpaths = [ '$(ME_EXT_APPWEB_PATH)/bin' ]
+            ext.includes = [ '$(ME_EXT_APPWEB_PATH)/inc' ]
+        },
+    },
+})

@@ -90,9 +90,9 @@ usage: make [clean, compile, install, run, uninstall]
 The default configuration can be modified by setting make variables
 Set to 0 to disable and 1 to enable:
   PROFILE            # Select default or static for static linking
-  BIT_MPR_LOGGING    # Enable application logging
-  BIT_MPR_TRACING    # Enable debug tracing
-  ME_EXT_EST       # Enable the EST SSL stack
+  ME_MPR_LOGGING     # Enable application logging
+  ME_MPR_TRACING     # Enable debug tracing
+  ME_EXT_EST         # Enable the EST SSL stack
 For example, to disable EST:
   ME_EXT_EST=0 make
 Other make variables:

@@ -1,32 +1,19 @@
 /*
-    me.h -- Embedthis MakeMe Configuration Header for macosx-x64-default
+    me.h -- MakeMe Configuration Header for macosx-x64-default
 
-    This header is created by MakeMe during configuration. To change settings, re-run
+    This header is created by Me during configuration. To change settings, re-run
     configure or define variables in your Makefile to override these default values.
  */
-
 
 /* Settings */
 #ifndef ME_AUTHOR
     #define ME_AUTHOR "Embedthis Software"
 #endif
-#ifndef ME_BUILD_NUMBER
-    #define ME_BUILD_NUMBER 0
-#endif
 #ifndef ME_COMPANY
     #define ME_COMPANY "embedthis"
 #endif
 #ifndef ME_COMPATIBLE
-    #define ME_COMPATIBLE "0.9.4"
-#endif
-#ifndef ME_COMPONENTS_DISCOVER
-    #define ME_COMPONENTS_DISCOVER "dsi,man,man2html,pmaker,ssl,zip"
-#endif
-#ifndef ME_COMPONENTS_REQUIRED
-    #define ME_COMPONENTS_REQUIRED "compiler,lib,link,bitos,ejs,mpr,http,pcre,zlib"
-#endif
-#ifndef ME_COMPONENTS_WITHOUT
-    #define ME_COMPONENTS_WITHOUT "est,matrixssl,nanossl,openssl,libest"
+    #define ME_COMPATIBLE "0.8.0"
 #endif
 #ifndef ME_DEBUG
     #define ME_DEBUG 1
@@ -88,6 +75,15 @@
 #ifndef ME_EST_XTEA
     #define ME_EST_XTEA 0
 #endif
+#ifndef ME_EXTENSIONS_DISCOVER
+    #define ME_EXTENSIONS_DISCOVER "dsi,man,man2html,pmaker,ssl,zip"
+#endif
+#ifndef ME_EXTENSIONS_OMIT
+    #define ME_EXTENSIONS_OMIT "openssl"
+#endif
+#ifndef ME_EXTENSIONS_REQUIRE
+    #define ME_EXTENSIONS_REQUIRE "compiler,lib,link,osdep,ejs,mpr,http,pcre,zlib"
+#endif
 #ifndef ME_HAS_ATOMIC
     #define ME_HAS_ATOMIC 1
 #endif
@@ -134,25 +130,19 @@
     #define ME_HTTP_PAM 0
 #endif
 #ifndef ME_MANIFEST
-    #define ME_MANIFEST "package/manifest.bit"
+    #define ME_MANIFEST "package/manifest.me"
 #endif
 #ifndef ME_MPR_LOGGING
     #define ME_MPR_LOGGING 1
 #endif
 #ifndef ME_NAME
-    #define ME_NAME "bit"
+    #define ME_NAME "makeme"
 #endif
 #ifndef ME_PLATFORMS
     #define ME_PLATFORMS "local"
 #endif
 #ifndef ME_PREFIXES
-    #define ME_PREFIXES "embedthis-prefixes"
-#endif
-#ifndef ME_PROBES
-    #define ME_PROBES "makeme/probes"
-#endif
-#ifndef ME_PRODUCT
-    #define ME_PRODUCT "bit"
+    #define ME_PREFIXES "package-prefixes"
 #endif
 #ifndef ME_STATIC
     #define ME_STATIC 0
@@ -164,7 +154,7 @@
     #define ME_TUNE "speed"
 #endif
 #ifndef ME_VERSION
-    #define ME_VERSION "0.9.4"
+    #define ME_VERSION "0.8.0"
 #endif
 #ifndef ME_WARN64TO32
     #define ME_WARN64TO32 1
@@ -187,10 +177,10 @@
     #define ME_STATE_PREFIX "/var"
 #endif
 #ifndef ME_APP_PREFIX
-    #define ME_APP_PREFIX "/usr/local/lib/bit"
+    #define ME_APP_PREFIX "/usr/local/lib/makeme"
 #endif
 #ifndef ME_VAPP_PREFIX
-    #define ME_VAPP_PREFIX "/usr/local/lib/bit/0.9.4"
+    #define ME_VAPP_PREFIX "/usr/local/lib/makeme/0.8.0"
 #endif
 #ifndef ME_BIN_PREFIX
     #define ME_BIN_PREFIX "/usr/local/bin"
@@ -208,22 +198,22 @@
     #define ME_SBIN_PREFIX "/usr/local/sbin"
 #endif
 #ifndef ME_ETC_PREFIX
-    #define ME_ETC_PREFIX "/etc/bit"
+    #define ME_ETC_PREFIX "/etc/makeme"
 #endif
 #ifndef ME_WEB_PREFIX
-    #define ME_WEB_PREFIX "/var/www/bit-default"
+    #define ME_WEB_PREFIX "/var/www/makeme-default"
 #endif
 #ifndef ME_LOG_PREFIX
-    #define ME_LOG_PREFIX "/var/log/bit"
+    #define ME_LOG_PREFIX "/var/log/makeme"
 #endif
 #ifndef ME_SPOOL_PREFIX
-    #define ME_SPOOL_PREFIX "/var/spool/bit"
+    #define ME_SPOOL_PREFIX "/var/spool/makeme"
 #endif
 #ifndef ME_CACHE_PREFIX
-    #define ME_CACHE_PREFIX "/var/spool/bit/cache"
+    #define ME_CACHE_PREFIX "/var/spool/makeme/cache"
 #endif
 #ifndef ME_SRC_PREFIX
-    #define ME_SRC_PREFIX "bit-0.9.4"
+    #define ME_SRC_PREFIX "makeme-0.8.0"
 #endif
 
 /* Suffixes */
@@ -245,10 +235,10 @@
 
 /* Profile */
 #ifndef ME_CONFIG_CMD
-    #define ME_CONFIG_CMD "bit -d -q -platform macosx-x64-default -configure . -gen xcode"
+    #define ME_CONFIG_CMD "me -d -q -platform macosx-x64-default -configure . -gen xcode"
 #endif
-#ifndef ME_ME_PRODUCT
-    #define ME_ME_PRODUCT 1
+#ifndef ME_MAKEME_NAME
+    #define ME_MAKEME_NAME 1
 #endif
 #ifndef ME_PROFILE
     #define ME_PROFILE "default"
@@ -262,22 +252,16 @@
     #define ME_MAJOR_VERSION 0
 #endif
 #ifndef ME_MINOR_VERSION
-    #define ME_MINOR_VERSION 9
+    #define ME_MINOR_VERSION 8
 #endif
 #ifndef ME_PATCH_VERSION
-    #define ME_PATCH_VERSION 4
+    #define ME_PATCH_VERSION 0
 #endif
 #ifndef ME_VNUM
-    #define ME_VNUM 04
+    #define ME_VNUM 00
 #endif
 
-/* Components */
-#ifndef ME_EXT_BIT
-    #define ME_EXT_BIT 1
-#endif
-#ifndef ME_EXT_BITOS
-    #define ME_EXT_BITOS 1
-#endif
+/* Extensions */
 #ifndef ME_EXT_CC
     #define ME_EXT_CC 1
 #endif
@@ -286,9 +270,6 @@
 #endif
 #ifndef ME_EXT_EJS
     #define ME_EXT_EJS 1
-#endif
-#ifndef ME_EXT_ESP
-    #define ME_EXT_ESP 1
 #endif
 #ifndef ME_EXT_EST
     #define ME_EXT_EST 1
@@ -320,23 +301,23 @@
 #ifndef ME_EXT_OPENSSL
     #define ME_EXT_OPENSSL 0
 #endif
+#ifndef ME_EXT_OSDEP
+    #define ME_EXT_OSDEP 1
+#endif
 #ifndef ME_EXT_PCRE
     #define ME_EXT_PCRE 1
 #endif
 #ifndef ME_EXT_PMAKER
     #define ME_EXT_PMAKER 1
 #endif
-#ifndef ME_EXT_SQLITE
-    #define ME_EXT_SQLITE 0
-#endif
 #ifndef ME_EXT_SSL
     #define ME_EXT_SSL 1
 #endif
 #ifndef ME_EXT_VXWORKS
-    #define ME_EXT_VXWORKS 0
+    #define ME_EXT_VXWORKS 1
 #endif
 #ifndef ME_EXT_WINSDK
-    #define ME_EXT_WINSDK 0
+    #define ME_EXT_WINSDK 1
 #endif
 #ifndef ME_EXT_ZIP
     #define ME_EXT_ZIP 1

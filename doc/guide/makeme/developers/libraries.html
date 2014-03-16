@@ -48,8 +48,8 @@
                 <li><a href="../../../guide/makeme/developers/executables.html">Building Executables</a></li>
                 <li><a href="../../../guide/makeme/developers/scripts.html">Running Scripts</a></li>
                 <li><a href="../../../guide/makeme/developers/copying.html">Copying Files</a></li>
-                <li><a href="../../../guide/makeme/developers/creating.html">Creating a Project</a></li>
-                <li><a href="../../../guide/makeme/developers/extensions.html">Creating Extensions</a></li>
+                <li><a href="../../../guide/makeme/developers/main.html">Creating Main.me</a></li>
+                <li><a href="../../../guide/makeme/developers/extensions.html">Creating Project Extensions</a></li>
                 <li><a href="../../../guide/makeme/developers/generating.html">Generating Projects</a></li>
                 <li><a href="../../../guide/makeme/developers/samples.html">MakeMe Samples</a></li>
 
@@ -81,7 +81,6 @@ me libdemo
         <p>When building, MakeMe transparently creates targets for each of the compiled source files and for 
         any include files referenced by the sources. If the source file or its include files are updated, the 
         relevant source file or files will be recompiled and library rebuilt.</p>
-
         <a name="dependencies"></a>
         <h2>Dependencies</h2>
         <p>On some platforms, linking a library will require that all unresolved references in other libraries be
@@ -110,7 +109,6 @@ libappweb: {
         <p>Note: the names in the depends property these are the target names (target.name property) and not
         the library name. To specify external libraries that are not built with MakeMe, use the <em>libraries</em> 
         property collection.</p>
-
         <h2>Extensions</h2>
         <p>Products are sometimes configured with extensions that provide libraries to augment the product. For
         example: the PHP extension adds the libphp5 library. To conditionally build a target only if an specific
@@ -125,7 +123,6 @@ librocket: {
         <p>The <em>extensions</em> property indicates that this target should only be built if the <em>fuel</em> extension is
         enabled. Note this will not import any defined libraries, library paths, include paths or compiler definitions to
         this target. To do that, you need to use the <em>depends</em> property</p>
-
         <a name="static"></a>
         <h2>Static Libraries</h2>
         <p>By default, MakeMe will build a shared library for a library target. To build a static library, set the 
@@ -137,7 +134,8 @@ libname: {
     static: true,
 },
 </pre>
-        <p>A complete static build is also possible via the <em>--static</em> configure option. </p>
+        <p>A complete static build is also possible via the <em>--static</em> configure option. This will cause
+        all targets of type '<em>lib</em>' to be static libraries instead of shared libraries.</p>
 <pre>configure --static</pre>
         <p>To learn more, read about <a href="executables.html">Creating Executables</a>.</p>
         </div>

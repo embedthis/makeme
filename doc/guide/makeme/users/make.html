@@ -68,13 +68,13 @@
    [Compile] src/deps/mpr/mprLib.c
       [Link] libmpr
 </pre>
-            <p>Note the output is simplified to make build errors and compiler warnings more obvious. If you wish to
-            see the full compiler, linker and other build commands, run:
+            <p>Note the output is simplified so that build errors and compiler warnings are more obvious. If you wish to
+            see the full compiler, linker and other build commands, include the <em>SHOW=1</em> option:
 <pre>$ make <b>SHOW=1</b>
        [Run] make --no-print-directory -f projects/appweb-macosx-default.mk all
       [Info] Use make SHOW=1 to trace executed commands.
    [Compile] src/deps/mpr/mprLib.c
-/usr/bin/clang -c -o macosx-x64-default/obj/mprLib.o -w -g  -DBIT_DEBUG \
+/usr/bin/clang -c -o macosx-x64-default/obj/mprLib.o -w -g -DME_DEBUG \
 -Imacosx-x64-default/inc src/deps/mpr/mprLib.c
       [Link] libmpr
 /usr/bin/clang -dynamiclib -o macosx-x64-default/bin/libmpr.dylib \
@@ -86,8 +86,9 @@ macosx-x64-default/obj/mprLib.o -lpthread -lm -ldl
             <a name="platform"></a>
             <h2>Platform Makefiles</h2>
             <p>MakeMe eschews creating Makefiles that will work on all the possible platforms, rather it generates
-                simple, fast, non-recursive Makefiles that run quickly and simply for the dominant platforms: Linux, Mac OSX,
-                Windows, and BSD. Developers can then easily extend for other platforms if required.</p>
+                dedicated, simple, fast, non-recursive Makefiles that run quickly and simply for the dominant platforms: 
+               Linux, Mac OSX, Windows, and BSD. There is one Makefile for each platform. Developers can then easily 
+               extend for other platforms if required.</p>
             <p>Developers typically deliver these per-platform Makefiles and IDE projects under the a <em>projects</em>
             directory and provide a top-level Makefile that detects your operating system and CPU architecture and
             then invokes the relevant per-platform Makefile for your system. For example:</p>
@@ -97,7 +98,7 @@ make -f projects/appweb-macosx-default.mk all
             <a name="selecting"></a>
             <h3>Selecting a Platform Makefile</h3>
             <p>Invoking the top-level Makefile will automatically invoke the appropriate platform makefile for the
-                current system architecture. Many products provide optional <em>static</em> build makefiles. These
+                current system architecture. Some products provide optional <em>static</em> build makefiles. These
                 are named: PRODUCT-OS-static.mk. If provided, you can select a static build via:</p>
                 <pre>$ make PROFILE=static</pre>
                 
@@ -111,24 +112,26 @@ make -f projects/appweb-macosx-default.mk all
 nmake -f projects\appweb-windows.nmake
 </pre>
             <a name="modifying"></a>
-            <h2>Modifying the Makefile Defaults</h2>
-            <p>Generated Makefiles to not require the use of a configure program.
-            Rather, you supply desired configuration options directly to Make. These options override default values defined
-            in the platform makefile and/or the product <em>me.h</em> configuration header. For example:
-            <pre>$ make <b>ME_EXT_EST=0 </b></pre>
-            <p>Extension packs are enabled by setting their corresponing ME_EXT_NAME option to 1. Disable by setting
-                to zero. Some packs requires a path to locate libraries and headers. Use ME_EXT_NAME_PATH to define
-                the path to the extension pack.</p>
+            <h2>Modifying Makefile Defaults</h2>
+            <p>Generated Makefiles to not require the use of a configure program and provide a limited means of 
+            tailoring the build by suppling configuration options directly to <em>make</em>. These options override 
+           default values defined in the platform makefile. For example:
+            <pre>$ <b>ME_EXT_EST=0</b> make</b></pre>
+            <p>On linux and unix, you can supply the overrides as environment variables or on the make command line. 
+            On Windows, you must supply the overrides as environment variables only.</p>
+            <p>Extensions are enabled by setting their corresponing ME_EXT_<em>NAME</em> option to 1. Disable by setting
+                to zero. Some extensions require a path to locate their libraries and headers. Use ME_EXT_NAME_PATH to define
+                the path to the extension.</p>
             <p>By defining make variables such as CC and CFLAGS, you can modify the compiler options. This is the
                 also the technique used when cross-compiling.</p>
             <h3>Make Install</h3>
-            <p>If using make to install the product after compiling, you use <em>make install</em>. However,
+            <p>If using make to install the product after compiling, use <em>make install</em>. However,
                 it is essential when invoking <em>make install</em>, that you provide the same make flags and options
                 as you did when compiling. This is because the Makefile will conditionally install only the selected
                 components for those options.</p>
             <p>For example, to build and install OpenSSL:</p>
-                <pre>$ make <b>ME_EXT_OPENSSL=1 ME_EXT_OPENSSL_PATH=/usr/src/openssl</b> compile
-$ sudo make <b>ME_EXT_OPENSSL=1 ME_EXT_OPENSSL_PATH=/usr/src/openssl</b> install</pre>
+                <pre>$ <b>ME_EXT_OPENSSL=1 ME_EXT_OPENSSL_PATH=/usr/src/openssl</b> make compile
+$ sudo <b>ME_EXT_OPENSSL=1 ME_EXT_OPENSSL_PATH=/usr/src/openssl</b> make install</pre>
             <a id="cross"></a>
             <h2 class="section">Cross Compiling with Make</h2>
             <p>Building a product for a platform different to that of the local system is called <em>cross compiling</em>.
@@ -149,8 +152,8 @@ make -f projects/appweb-vxworks-default.mk ARCH=x86 PROFILE=debug
             <p>If there is not a makefile for your  target operating system, you may be able to copy the closest makefile 
             and edit to suit your target platform.</p>
             <h3>Specifying the CPU</h3>
-            <p>The make will use a generic CPU type within the specified architecture. To override the default choice and
-            specify a CPU type within an architecture, use the CPU variable. For example:/p>
+            <p>Make will use a generic CPU type within the specified architecture. To override the default choice and
+            specify a CPU type within an architecture, use the CPU variable. For example:</p>
             <pre>make OS=vxworks ARCH=arm CPU=arm7tdmi</pre>
             <h3>Specifying a Tool Chain</h3>
             <p>You may need to specify where Make can locate your cross-compiler and other tools.

@@ -28,7 +28,6 @@
 #define ZCONF_H
 
 #include "me.h"
-#include "bitos.h"
 
 #if EMBEDTHIS || 1
     #undef TIME

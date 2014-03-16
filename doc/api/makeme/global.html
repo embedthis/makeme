@@ -45,7 +45,7 @@ This is trace that is displayed if me --show is invoked.</td></tr>
    <tr class='apiDef'><td class='apiType'> </td><td><a href='#linkFile'><b>linkFile</b></a>(src: <a href='Path.html'>Path</a>, dest: <a href='Path.html'>Path</a>, options)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Link a file.</td></tr>
    <tr class='apiDef'><td class='apiType'> </td><td><a href='#probe'><b>probe</b></a>(file: <a href='Path.html'>Path</a>, control = expression): <a href='Path.html'>Path</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Probe for a file and locate
 Will throw an exception if the file is not found, unless {continue, default} specified in control options.</td></tr>
-   <tr class='apiDef'><td class='apiType'> </td><td><a href='#program'><b>program</b></a>(name: <a href='Path.html'>Path</a>, description = null, options = expression): <a href='Path.html'>Path</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Define a component for a command line program.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#program'><b>program</b></a>(name: <a href='Path.html'>Path</a>, description = null, options = expression): <a href='Path.html'>Path</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Define an extension for a command line program.</td></tr>
    <tr class='apiDef'><td class='apiType'> </td><td><a href='#removeDir'><b>removeDir</b></a>(path: <a href='Path.html'>Path</a>, options)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Remove a directory.</td></tr>
    <tr class='apiDef'><td class='apiType'> </td><td><a href='#removeFile'><b>removeFile</b></a>(path: <a href='Path.html'>Path</a>, options)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Remove a file.</td></tr>
    <tr class='apiDef'><td class='apiType'> </td><td><a href='#removePath'><b>removePath</b></a>(path: <a href='Path.html'>Path</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Remove a file or directory.</td></tr>
@@ -203,10 +203,10 @@ Will throw an exception if the file is not found, unless {continue, default} spe
 <div class='apiSig'>    program(name: <a href='Path.html'>Path</a>, description = null, options = expression): <a href='Path.html'>Path</a>
 </div>
 <div class='apiDetail'>
-<dl><dt>Description</dt></dd><dd>Define a component for a command line program. This registers the component and loads the Me DOM with the component configuration.</dd></dl>
+<dl><dt>Description</dt></dd><dd>Define an extension for a command line program. This registers the extension and loads the Me DOM with the extension configuration.</dd></dl>
 <dl><dt>Parameters</dt>
 <dd><table class='parameters' summary ='parameters'>
-<tr class='param'><td class='param'>name: <a href='Path.html'>Path</a> </td><td>Program name. Can be either a path or a basename with optional extension.</td></tr><tr class='param'><td class='param'>description </td><td>Short, single-line program description. [default: null]</td></tr><tr class='param'><td class='param'>options </td><td>Extra options to pass to Me.component when defining the program. [default: expression]</td></tr></table></dd>
+<tr class='param'><td class='param'>name: <a href='Path.html'>Path</a> </td><td>Program name. Can be either a path or a basename with optional extension.</td></tr><tr class='param'><td class='param'>description </td><td>Short, single-line program description. [default: null]</td></tr><tr class='param'><td class='param'>options </td><td>Extra options to pass to Me.extension when defining the program. [default: expression]</td></tr></table></dd>
 </dl></div>
 </div>
 <hr />

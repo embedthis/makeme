@@ -26,7 +26,7 @@
         <div class="crumbs">
             <a href="../../../index.html">Home</a>
 <!-- EndDsi -->
-             &gt;<a href="index.html">User Guide</a>&gt; <b>Configuring</b>
+             &gt;<a href="index.html">User Guide</a>&gt; <b>Runing Configure</b>
         </div>
     </div>
     <div class="content">
@@ -56,53 +56,37 @@
         </div>
         <div class="contentLeft">
         <a id="configuring"></a>
-        <h2>Configuring</h2>
-        <p>If your projects has been designed for configuring, it will have a <em>main.me</em>
-        that describes your project, what it requires to build, and how it can be extended.</p>
-        <p>When configuring, MakeMe will determine the capabilities of the system and search
-        for available extensions. MakeMe will use the <em>extensions.require</em> and <em>extensions.discover</em>
-        properties in the main.me file for the list of required tools and extensions. MakeMe will 
-        search for these and will then create a MakeMe configuration description file that is used for subsequent builds.</p>
-        
-        <a name="platform-makeme"></a>
-        <h3>Platform MakeMe File</h3>
-        <p>The generated MakeMe configuration description consists of a platform MakeMe file and C source header that 
-        records the current configuration. The platform MakeMe file is named OS-ARCH-PROFILE.me and will be loaded 
-        by start.me for all subsequent builds. </p>
-        <p>During configuration, MakeMe creates a platform output directory of the form: OS-ARCH-PROFILE. This directory holds
-        compiled objects, libraries and executables.  Under the platform directory, you will find <em>bin</em>, <em>inc</em>
-        and <em>obj</em> directories for binaries, headers and objects. The generated <em>inc/me.h</em> can be included by
-        source files to access various configuration settings.</p>
-        
-        <p>For example, this is a typical main.me description:</p>
-<pre>
-settings: {
-    name: 'mpr',
-    description: 'Multithreaded Portable Runtime',
-    company: 'Embedthis',
-    version: '4.0.5',
-    extensions: {
-        require:  [ 'ssl' ],
-        discover: [ 'doxygen', 'man', 'man2html', 'md5' ],
-    }
-},
-</pre>
-        <p>The <em>require</em> property specifies the extensions that are necessary for any build to succeed.
-        The <em>discover</em> property defines the optional extensions that will be included if they are available 
-        on the local system.</p>
-        <p>MakeMe will define certain required tools such as the <em>compiler</em> and <em>linker</em> as part of its standard definitions.</p>
-        <p>MakeMe can be invoked to configure your project three ways:</p>
+        <h2>Running Configure</h2>
+        <p>If your project has been designed for configuring, it will have a <em>main.me</em> file
+        that describes the project, what it requires to build, and which extensions it can utilize.</p>
+        <p>For configurable products, developers typically provide a configure script to mimic the familiar autoconf 
+        configure pattern. This script minimally invokes MakeMe using the configure target:
+        <pre>
+# configure script
+me configure "$@"</pre>
+        <p>MakeMe can also be invoked directly to configure your project:</p>
         <ul>
             <li>me configure</li>
             <li>me -config</li>
-            <li>configure   # If your project has supplied a configure script</li>
         </ul>
-        <p>Note that MakeMe switches can be prefixed with either a double <em>--</em> or a single <em>-</em>.</p>
+        <p>Note that MakeMe switches can be prefixed with either a double "<em>--</em>" or a single "<em>-</em>" dashes.</p>
+        <h2>Configuration Outputs</h2>
+        <p>When configuring, MakeMe will determine the capabilities of your system and create a several files and 
+        directories. These include:</p>
+        <ul>
+            <li>A platform output directory for objects, libraries and executables: <em>OS-ARCH-PROFILE</em></li>
+            <li>A startup MakeMe file: <em>start.me</em></li>
+            <li>A platform specific MakeMe file: <em>OS-ARCH-PROFILE.me</em></li>
+            <li>A source definitions header:<em>me.h</em></li>
+        </ul>
+        <p>MakeMe will use these files and output directory when performing subsequent builds and compiling sources.</p>
+        <p>The <em>start.me</em> file is the primary MakeMe file that is invoked when MakeMe is run. For configured
+        projects, this simply loads the platform MakeMe file.</p>
         <a name="customizing"></a>
         <h2 class="section">Customizing the Build</h2>
         <p>Before customizing, it can be helpful to see the current configuration. The following command will display
         the complete, current configuration:</p>
-        <pre>me --configuration</pre>
+        <pre>me configuration</pre>
         <p>When running "me configure", you can modify the configuration by adding or removing extensions and enabling or
            disabling various features.</p> 
         <h3>Extensions</h3>
@@ -206,18 +190,24 @@ the form <em>--set KEY=VALUE</em>. For example:
             <pre>CC=/path/to/compiler CFLAGS=-w me configure</pre>
         <a name="useful"></a>
         <h2>Useful Configure Commands</h2>
-        <p>Here are a few other useful configure commands:</p>
-        <p>See the current configuration settings:</p>
-        <pre>me --configuration</pre>
+        <p>Show commands as they are executed:</p>
+        <pre>me --show</pre>
         <p>To dump the entire configuration into a single MakeMe file. This is great for debugging.</p>
         <pre>configure --dump</pre>
         <p>To learn more, read about <a href="debugging.html">Debugging a Build</a>.</p>
         <a name="customize-me"></a> 
         <h2>Customize.me</h2>
-        <p>Instead of manually specifying settings to configure, you can create a customize.me file that will be loaded
-        after the main.me and all referenced MakeMe files are fully loaded. The customize.me file can thus override any prior
+        <p>Instead of manually specifying settings to configure, you can create a <em>customize.me</em> file that will be loaded
+        after the <em>main.me</em> and all referenced MakeMe files are fully loaded. 
+        The customize.me file can thus override any prior
         MakeMe setting. Projects should not ship this file and so
         users need not fear their customize.me file will be overwritten.</p>
+        <pre>
+settings: {
+    customize: [
+        'custom.me',
+    ],
+}</pre>
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->

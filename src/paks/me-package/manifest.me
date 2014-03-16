@@ -1,0 +1,96 @@
+/*
+    manifest.me - Packaging manifest for standard files in an installable package
+ */
+
+Me.load({
+    'package-manifest': {
+        packages: {
+            binary: {
+                prefixes:   [ 'app' ],
+                platforms:  [ 'windows', 'macosx' ],
+            },
+        },
+
+        files: [
+           {
+                from:       [ 'doc/product/README.TXT', 'package/install.sh', 'package/uninstall.sh' ],
+                to:         '${media}/',
+                expand:     true,
+                set:        'package',
+
+           }, {
+                from:       [ 'package/windows/LICENSE.TXT' ],
+                to:         '${media}/',
+                expand:     true,
+                fold:       true,
+                set:        'package',
+                enable:     "me.platform.os == 'windows'",
+
+           }, {
+                from:       [ 'package/windows/LICENSE.TXT' ],
+                to:         '${app}/LICENSE.TXT',
+                textfile:   true,
+                fold:       true,
+                set:        'package',
+                enable:     "me.platform.os == 'windows'",
+
+           }, {
+                from:       [ 'doc/product/README.TXT' ],
+                to:         '${app}/',
+                fold:       true,
+                expand:     true,
+                set:        'package',
+
+           }, {
+                from:       [ 'package/install.sh' ],
+                to:         '${abin}/install',
+                expand:     true,
+                permissions: 0755,
+                set:        'package',
+
+           }, {
+                from:       [ 'package/uninstall.sh' ],
+                to:         '${abin}/uninstall',
+                expand:     true,
+                permissions: 0755,
+                set:        'package',
+
+            }, {
+                postcopy:    "linkFile('${settings.version}', '${app}/latest')",
+                linkin:     '${app}',
+                set:        'core',
+                enable:     "me.platform.like == 'unix'",
+
+            }, {
+                from:       '${extensions.compiler.dir}/VC/redist/${platform.arch}/Microsoft.VC${extensions.compiler.crt}.CRT/msvcr${extensions.compiler.crt}.dll',
+                to:         '${abin}',
+                set:        'package',
+                enable:     "me.platform.os == 'windows' && !me.generating",
+
+            }, {
+                from:        '${BIN}/removeFiles${EXE}',
+                to:          '${abin}/',
+                set:         'package',
+                enable:      "me.platform.os == 'windows' && Path('package/windows/removeFiles.c').exists",
+
+            /* Standard files for a Pak */
+            }, {
+                from:       [ 'LICENSE.md', 'README.md' ],
+                to:         '${src}/',
+                set:        'pak',
+
+            }, {
+                from:       [ 'package/package.json' ],
+                to:         '${src}/',
+                set:        'pak',
+                enable:      "Path('package/package.json').exists",
+            }, {
+                from:       [ 'package.json' ],
+                to:         '${src}/',
+                set:        'pak',
+                enable:      "!Path('package/package.json').exists && Path('package.json').exists",
+           },
+        ],
+    },
+})
+

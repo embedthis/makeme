@@ -15,7 +15,7 @@ Me.load({
 
     'opt-prefixes': {
         root:       '/',
-        base:       '${prefixes.root}/opt/${settings.product}',
+        base:       '${prefixes.root}/opt/${settings.name}',
         data:       '${prefixes.root}/share',
         state:      '${prefixes.root}/var',
 
@@ -25,16 +25,16 @@ Me.load({
         man:        '${prefixes.base}/share/man',
         sbin:       '${prefixes.base}/sbin',
 
-        etc:        '${prefixes.root}/etc/${settings.product}',
-        web:        '${prefixes.data}/share/www/${settings.product}-default',
+        etc:        '${prefixes.root}/etc/${settings.name}',
+        web:        '${prefixes.data}/share/www/${settings.name}-default',
 
         log:        '${prefixes.state}/logs',
         spool:      '${prefixes.state}/spool',
         cache:      '${prefixes.state}/cache',
 
-        app:        '${prefixes.base}/lib/${settings.product}',
+        app:        '${prefixes.base}/lib/${settings.name}',
         vapp:       '${prefixes.app}',
-        src:        '${prefixes.data}/src/${settings.product}-${settings.version}',
+        src:        '${prefixes.data}/src/${settings.name}-${settings.version}',
     },
 
     settings: {

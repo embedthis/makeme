@@ -7803,13 +7803,13 @@ static int mapToken(EcCompiler *cp, int tokenId)
     cond = cp->state->conditional;
 
     switch (tokenId) {
-    case T_ME_AND:
+    case T_BIT_AND:
         return EJS_OP_AND;
 
-    case T_ME_OR:
+    case T_BIT_OR:
         return EJS_OP_OR;
 
-    case T_ME_XOR:
+    case T_BIT_XOR:
         return EJS_OP_XOR;
 
     case T_DIV:
@@ -9406,10 +9406,10 @@ PUBLIC int ecGetToken(EcCompiler *cp)
 
             } else if (c == '=') {
                 addCharToToken(tp, '&');
-                return makeSubToken(tp, c, T_ASSIGN, T_ME_AND_ASSIGN, G_OPERATOR | G_COMPOUND_ASSIGN);
+                return makeSubToken(tp, c, T_ASSIGN, T_BIT_AND_ASSIGN, G_OPERATOR | G_COMPOUND_ASSIGN);
             }
             putBackChar(stream, c);
-            return makeToken(tp, '&', T_ME_AND, G_OPERATOR);
+            return makeToken(tp, '&', T_BIT_AND, G_OPERATOR);
 
         case '<':
             c = getNextChar(stream);
@@ -9489,10 +9489,10 @@ PUBLIC int ecGetToken(EcCompiler *cp)
 
             } else if (c == '=') {
                 addCharToToken(tp, '^');
-                return makeSubToken(tp, '=', T_ASSIGN, T_ME_XOR_ASSIGN, G_OPERATOR | G_COMPOUND_ASSIGN);
+                return makeSubToken(tp, '=', T_ASSIGN, T_BIT_XOR_ASSIGN, G_OPERATOR | G_COMPOUND_ASSIGN);
             }
             putBackChar(stream, c);
-            return makeToken(tp, '^', T_ME_XOR, G_OPERATOR);
+            return makeToken(tp, '^', T_BIT_XOR, G_OPERATOR);
 
         case '|':
             c = getNextChar(stream);
@@ -9508,11 +9508,11 @@ PUBLIC int ecGetToken(EcCompiler *cp)
 
             } else if (c == '=') {
                 addCharToToken(tp, '|');
-                return makeSubToken(tp, '=', T_ASSIGN, T_ME_OR_ASSIGN, G_OPERATOR | G_COMPOUND_ASSIGN);
+                return makeSubToken(tp, '=', T_ASSIGN, T_BIT_OR_ASSIGN, G_OPERATOR | G_COMPOUND_ASSIGN);
 
             }
             putBackChar(stream, c);
-            return makeToken(tp, '|', T_ME_OR, G_OPERATOR);
+            return makeToken(tp, '|', T_BIT_OR, G_OPERATOR);
         }
     }
 }
@@ -14912,7 +14912,7 @@ static EcNode *parseBitwiseAndExpression(EcCompiler *cp)
 
     while (np) {
         switch (peekToken(cp)) {
-        case T_ME_AND:
+        case T_BIT_AND:
             getToken(cp);
             parent = createNode(cp, N_BINARY_OP, NULL);
             np = createBinaryNode(cp, np, parseEqualityExpression(cp), parent);
@@ -14945,7 +14945,7 @@ static EcNode *parseBitwiseXorExpression(EcCompiler *cp)
 
     while (np) {
         switch (peekToken(cp)) {
-        case T_ME_XOR:
+        case T_BIT_XOR:
             getToken(cp);
             parent = createNode(cp, N_BINARY_OP, NULL);
             np = createBinaryNode(cp, np, parseBitwiseAndExpression(cp), parent);
@@ -14978,7 +14978,7 @@ static EcNode *parseBitwiseOrExpression(EcCompiler *cp)
 
     while (np) {
         switch (peekToken(cp)) {
-        case T_ME_OR:
+        case T_BIT_OR:
             getToken(cp);
             parent = createNode(cp, N_BINARY_OP, NULL);
             np = createBinaryNode(cp, np, parseBitwiseXorExpression(cp), parent);
@@ -18838,8 +18838,8 @@ static EcNode *parseOverloadedOperator(EcCompiler *cp)
     case T_LSH:
     case T_RSH:
     case T_RSH_ZERO:
-    case T_ME_AND:
-    case T_ME_OR:
+    case T_BIT_AND:
+    case T_BIT_OR:
     case T_STRICT_EQ:
     case T_NE:
     case T_STRICT_NE:
@@ -22036,7 +22036,7 @@ PUBLIC EcNode *ecLeaveStateWithResult(EcCompiler *cp, EcNode *np)
 
 #if EMBEDTHIS || 1
  #include    "me.h"
- #include    "bitos.h"
+ #include    "osdep.h"
 #endif
 #ifndef ME_FLOAT
     #define ME_FLOAT 1
@@ -31425,7 +31425,8 @@ PUBLIC void ejsDefineConfigProperties(Ejs *ejs)
     ejsDefineProperty(ejs, type, -1, N("public", "CPU"), 0, att, ejsCreateStringFromAsc(ejs, ME_CPU));
 #endif
     ejsDefineProperty(ejs, type, -1, N("public", "OS"), 0, att, ejsCreateStringFromAsc(ejs, ME_OS));
-    ejsDefineProperty(ejs, type, -1, N("public", "Product"), 0, att, ejsCreateStringFromAsc(ejs, ME_NAME));
+    ejsDefineProperty(ejs, type, -1, N("public", "Product"), 0, att, 
+        ejsCreateStringFromAsc(ejs, ME_NAME));
     ejsDefineProperty(ejs, type, -1, N("public", "Title"), 0, att, ejsCreateStringFromAsc(ejs, ME_TITLE));
     ejsDefineProperty(ejs, type, -1, N("public", "Version"), 0, att, ejsCreateStringFromAsc(ejs, ME_VERSION));
 

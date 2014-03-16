@@ -10,7 +10,7 @@
 #include "me.h"
 #if ME_EXT_EJS
 
-#include "bitos.h"
+#include "osdep.h"
 #include "mpr.h"
 #include "http.h"
 #include "ejs.slots.h"
@@ -6644,12 +6644,12 @@ typedef struct EcNode {
 #define T_ASSIGN                    1
 #define T_AT                        2
 #define T_ATTRIBUTE                 3
-#define T_ME_AND                   4
-#define T_ME_AND_ASSIGN            5
-#define T_ME_OR                    6
-#define T_ME_OR_ASSIGN             7
-#define T_ME_XOR                   8
-#define T_ME_XOR_ASSIGN            9
+#define T_BIT_AND                   4
+#define T_BIT_AND_ASSIGN            5
+#define T_BIT_OR                    6
+#define T_BIT_OR_ASSIGN             7
+#define T_BIT_XOR                   8
+#define T_BIT_XOR_ASSIGN            9
 #define T_BREAK                    10
 #define T_CALL                     11
 #define T_CALLEE                   12

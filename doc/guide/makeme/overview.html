@@ -62,15 +62,23 @@
             <h1>Embedthis MakeMe&trade; Overview</h1>
         <p>MakeMe is a modern replacement for the venerable 
         <a href="http://en.wikipedia.org/wiki/Make_(software)">make</a> and the not so popular 
-        <a href="http://en.wikipedia.org/wiki/Autoconf">autoconf</a> tool. MakeMe manages the building of
+        <a href="http://en.wikipedia.org/wiki/Autoconf">autoconf</a> tool. It manages the building of
         programs and products by simply and efficiently determining which pieces have been updated and thus which
-        components need to be rebuilt. It effectively handles the direct compilation and generation of projects 
+        components need to be rebuilt. It effectively handles the direct compilation and also the generation of IDE projects 
         and Makefiles.</p>
+        <h2>MakeMe Command</h2>
+        <p>MakeMe is run via the "<em>me</em>" command. So to build a project, just type:</p>
+        <pre><b>me</b></pre>
+        <p>Just like <em>make</em> you can build specific targets which MakeMe calls <em>goals</em>:</p>
+        <pre>
+me clean
+me compile
+me myapp</pre>
         <h2>A Simple MakeMe File</h2>
         <p>A MakeMe file is written in Javascript, though with a .me extension and contains a set of build
         instructions expressed as a Javascript object literal. For example:
         <pre>
-MakeMe.load({
+Me.load({
     targets: {
         /* Build the rocket executable */
         rocket: {
@@ -80,33 +88,28 @@ MakeMe.load({
     }, 
 })
 </pre>
-        <p>MakeMe knows how to compile sources, build libraries and create executables, and it can do so
-        on multiple operating systems and platforms through a unified MakeMe project definition.</p>
-        <a id="overview"></a>
-        <h2>Overview</h2>
-        <p>MakeMe parses files that have a <em>.me</em> extension. MakeMe files contain a Javascript literal 
-            that describes what to build. Arbitrary Javascript is permitted in MakeMe files, but 
-            typically, little script code is needed.</p>
+        <p>MakeMe files invoke <em>Me.load</em> to process build instructsions. Arbitrary Javascript is permitted in 
+        MakeMe files, but typically, little script code is needed.</p>
         <p>MakeMe files specify targets. These can be source files, libraries, executables or other actions to run.
         MakeMe has built-in rules to compile source code, build libraries, create executables, copy files, build packages and generate
         IDE projects. So, typically, you need to type very little to do the common tasks of building.</p>
         <p>MakeMe files can intelligently inherit global settings for a project and can override or augment values
-        locally. MakeMe files run with a current directory set to that of the '.me' file itself, so it can 
+        locally. MakeMe files run with a current directory set to that of the '<em>.me</em>' file itself, so it can 
         easily reference local resources. MakeMe projects are easy to relocate and avoid absolute directory
         references except for global tool chain programs and directories.</p>
-        <p>MakeMe provides a "configure" capability where it searches for required and optional tools for building. 
+        <p>MakeMe also provides a "configure" capability where it searches for required and optional tools for building. 
         MakeMe also supports cross-platform and cross-compilation building.</p>
         <a id="whyMakeMe"></a>
         <h2>Why MakeMe?</h2>
         <p>Many projects rely on <a href="http://en.wikipedia.org/wiki/Autoconf">autoconf</a> 
-        to configure products and make to build. But autoconf is a baroque maze of
+        to configure products and '<em>make</em>' to build. But autoconf is a baroque maze of
         scripts and make provides too little support for easily building executables and libraries in a cross platform
         manner. Further, neither of these tools work well for Windows and embedded platforms like VxWorks. 
         Consequently, creating portable Makefiles and autoconf scripts that will work on a variety of platforms
         and support cross compilation is an exercise in patience. Often the result is slow, fragile build
         systems, especially on Windows.</p>
         <p>MakeMe replaces both autoconf and make with a single utility. MakeMe provides a higher level of
-        abstraction to easily specify the targets to build (libraries and executables). It can build directly on Linux,
+        abstraction to easily specify the targets to build (libraries and executables) and can build directly on Linux,
         Mac OS X or Windows and cross compile for other platforms. It will generate native projects for Visual Studio,
         XCode, Make, Nmake and shell scripts. MakeMe builds fast without the complexity of autoconf and
         make.</p>
@@ -118,7 +121,7 @@ MakeMe.load({
         (<a href="http://embedthis.com/">Embedthis</a>)
         were expending too large a percentage of our time on the build system and less on the actual products. Out of this
         frustration, MakeMe was born. We do not expect MakeMe to be a universal replacement for Make or Autoconf for everyone, 
-        but for some users, it may be a good choice.</p>
+        but for some users with needs similar to our own, it may be an excellent choice.</p>
         
         <h3>MakeMe Design Goals</h3> 
         <p>When creating MakeMe, our design goals were:</p> <ul>

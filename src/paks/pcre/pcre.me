@@ -1,12 +1,10 @@
 /*
-    pcre.me -- Bit File for the PCRE Regular Expressions
+    pcre.me -- MakeMe file PCRE 
  */
 
 Me.load({
-
     targets: {
         libpcre: {
-            enable: 'me.extensions.pcre && me.extensions.pcre.enable',
 			scripts: {
 				prebuild: "
 					if (me.settings.charlen == 2) {

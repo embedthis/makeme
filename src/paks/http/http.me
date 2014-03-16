@@ -1,9 +1,8 @@
 /*
-    http.me -- Bit File for Http
+    http.me -- MakeMe file for Http
  */
 
 Me.load({
-
     targets: {
         libhttp: {
             type: 'lib',
@@ -20,7 +19,7 @@ Me.load({
             },
         },
 
-        http: {
+        httpcmd: {
             type: 'exe',
             sources: [ 'http.c' ],
             depends: [ 'libhttp' ],

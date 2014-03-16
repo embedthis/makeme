@@ -259,7 +259,7 @@ public class Me {
 
     function overlay(name) {
         let src = options.configure || Path('.')
-        let makeme = src.join('makeme/standard.me').exists ? src.join('makeme') : Config.Bin.join('makeme')
+        let makeme = src.join('makeme/standard.me').exists ? src.join('makeme') : Config.Bin
         global.load(makeme.join(name))
     }
 
@@ -396,8 +396,8 @@ public class Me {
             App.exit(0)
         }
         if (options.more) {
-            let cmd = App.exePath + ' ' + App.args.slice(1).join(' ').replace(/[ \t]*--more[ \t]*$|[ \t]*-m[ \t]*$/, '') + 
-                ' 2>&1 | more'
+            let cmd = App.exePath + ' ' + 
+                App.args.slice(1).join(' ').replace(/[ \t]*-*more[ \t]*|[ \t]*-m[ \t]*/, ' ') + ' 2>&1 | more'
             if (options.show) {
                 print(cmd)
             }
@@ -645,12 +645,6 @@ public class Me {
             extension.essential = true
             delete extension.diagnostic
             if (!me.settings.extensions.require.contains(field) && !me.settings.extensions.discover.contains(field)) {
-/* UNUSED
-                let probe = findProbe(field)
-                if (!probe && !me.dir.paks.join(field, PACKAGE).exists) {
-                    throw 'Cannot find extension probe: ' + field + '.me'
-                }
- */
                 require.push(field)
             }
         }
@@ -722,6 +716,13 @@ public class Me {
                 global.load(module)
             } catch (e) {
                 throw new Error('When loading: ' + module + '\n' + e)
+            }
+        }
+        for each (let mix in me.mixin) {
+            try {
+                global.eval(mix)
+            } catch (e) {
+                throw new Error('When loading mixin' + e)
             }
         }
     }
@@ -923,13 +924,9 @@ public class Me {
         /*
             Blend internal for only the targets in this file. Delay blending defaults.
         if (o.internal) {
-            // blend(target, o.internal, {combine: true})
             let base = blend({}, o.internal, {combine: true})
             target = blend(base, target, {combine: true})
 
-            //if (me.targets[tname]) {
-            //    target = blend(me.targets[tname], target, {combine: true})
-            //}
             o.targets[tname] = me.targets[tname] = target
             o.targets[tname] = target
         }
@@ -945,6 +942,10 @@ public class Me {
         /*
             Arrays must have a +prefix to blend
          */
+        if (o.mixin) {
+            o.mixin = makeArray(o.mixin)
+            plus(o, 'mixin')
+        }
         plus(o, 'modules')
         plus(o.defaults, 'includes')
         plus(o.internal, 'includes')
@@ -955,20 +956,29 @@ public class Me {
         let extensions = settings.extensions
 
         //  LEGACY
+        if (o.modules) {
+            throw "WARNING: modules is deprecated. Use mix require instead"
+        }
         if (settings.requires) {
-            print("WARNING: settings.requires is deprecated. Use settings.extensions.require instead")
+            throw "WARNING: settings.requires is deprecated. Use settings.extensions.require instead"
         }
         if (settings['+requires']) {
-            print("WARNING: settings.requires is deprecated. Use settings.extensions.require instead")
+            throw "WARNING: settings.requires is deprecated. Use settings.extensions.require instead"
         }
         if (settings.discover) {
-            print("WARNING: settings.discover is deprecated. Use settings.extensions.require instead")
+            throw "WARNING: settings.discover is deprecated. Use settings.extensions.require instead"
         }
         if (settings['+discover']) {
-            print("WARNING: settings.discover is deprecated. Use settings.extensions.require instead")
+            throw "WARNING: settings.discover is deprecated. Use settings.extensions.require instead"
         }
         if (settings.extensions.requires) {
-            print("WARNING: settings.extensions.requires is deprecated. Use settings.extensions.require instead")
+            throw "WARNING: settings.extensions.requires is deprecated. Use settings.extensions.require instead"
+        }
+        if (settings.extensions.required) {
+            throw "WARNING: settings.extensions.required is deprecated. Use settings.extensions.require instead"
+        }
+        if (settings.extensions.without) {
+            throw "WARNING: settings.extensions.without is deprecated. Use settings.extensions.omit instead"
         }
 
         plus(extensions, 'require')
@@ -982,6 +992,7 @@ public class Me {
         fixScripts(o)
         fixScripts(o.defaults)
         fixScripts(o.internal)
+
         for each (extension in o.extensions) {
             fixScripts(extension, ['config', 'without', 'postconfig', 'generate'])
         }
@@ -1024,7 +1035,11 @@ public class Me {
                 } else {
                     path = home.join(expand(path, {fill: null}))
                 }
-                for each (let p in Path('.').files(path)) {
+                let files = Path('.').files(path)
+                if (files.length == 0) {
+                    throw 'Cannot find blended module: ' + path
+                }
+                for each (let p in files) {
                     loadMeFile(p)
                 }
             }
@@ -1101,7 +1116,7 @@ public class Me {
         makeConstGlobals()
         makeDirGlobals()
         enableTargets()
-        createComponentTargets()
+        createExtensionTargets()
         blendDefaults()
         resolveDependencies()
         expandWildcards()
@@ -1331,7 +1346,7 @@ public class Me {
     }
 
 
-    function createComponentTarget(pname) {
+    function createExtensionTarget(pname) {
         if (me.targets[pname]) {
             throw "Target name clash with extension of the same name:" + pname
         } else if (!me.targets[pname]) {
@@ -1342,19 +1357,19 @@ public class Me {
                 for each (d in extension.depends) {
                     let dep = me.targets[d]
                     if (!dep) {
-                        createComponentTarget(d)
+                        createExtensionTarget(d)
                     }
                 }
             }
         }
     }
 
-    function createComponentTargets() {
+    function createExtensionTargets() {
         for each (target in me.targets) {
             for each (dname in target.depends) {
                 let dep = me.targets[dname]
                 if (!dep) {
-                    createComponentTarget(dname)
+                    createExtensionTarget(dname)
                 }
             }
         }
@@ -2024,7 +2039,7 @@ public class Me {
         @hide
      */
     public function makeDirGlobals(base: Path? = null) {
-    //  MOB - remove makeme - only used for embedthis.me. Remove when it is a pak.
+        //  MOB - remove makeme - only used for embedthis.me. Remove when it is a pak.
         for each (n in ['BIN', 'OUT', 'MAKEME', 'FLAT', 'INC', 'LIB', 'OBJ', 'PAKS', 'PKG', 'REL', 'SRC', 'TOP']) {
             /* 
                 These globals are always in portable format so they can be used in build scripts. Windows back-slashes
@@ -2527,6 +2542,9 @@ public class Me {
         return cmd.response
     }
 
+    /** 
+        @hide
+     */
     public function sh(commands, cmdOptions = {noio: true}): String {
         let lines = commands.match(/^.*$/gm)
         for each (cmd in lines) {
@@ -2554,6 +2572,9 @@ public class Me {
         Path(me.dir.out).join('test.setup').write('test.skip("Skip platform directory")\n')
     }
 
+    /** 
+        @hide
+     */
     public function safeCopy(from: Path, to: Path) {
         let p: Path = new Path(to)
         if (to.exists && !options.overwrite) {
@@ -2763,7 +2784,7 @@ public class Me {
         library paths, compiler definitions, and include directories. A extension may define any of these standard properties, or
         it may define any custom property it chooses.
 
-        @param obj Component object collection. The collection should contain the following properties. Name, description,
+        @param obj Extension object collection. The collection should contain the following properties. Name, description,
             and enable are mandatory.
         @option description Short, one-sentance description of the extension.
         @option defines Array of C pre-processor definitions for targets using this extension.
@@ -2774,7 +2795,7 @@ public class Me {
         @option libraries Array of C libraries for targets using this extension.
         @option linker Array of linker options for targets using this extension.
         @option libpaths Array of linker library search paths for targets using this extension.
-        @option name Component name. Should equal the extension collection property name.
+        @option name Extension name. Should equal the extension collection property name.
         @option path Path to primary extension resource or directory. May be the path to the binary for tools.
      */
     public static function extension(obj: Object) {
@@ -2860,7 +2881,7 @@ public class Me {
         let kind = like(os)
         global.me = me = makeBareMe()
         me.dir.src = options.configure || Path('.')
-        me.dir.makeme = me.dir.src.join('makeme/standard.me').exists ? me.dir.src.join('makeme') : Config.Bin.join('makeme').portable
+        me.dir.makeme = me.dir.src.join('makeme/standard.me').exists ?  me.dir.src.join('makeme') : Config.Bin.portable
         me.dir.top = '.'
         let path = App.getenv('HOME') || App.getenv('HOMEPATH') || '.'
         me.dir.home = Path(path).portable
@@ -2993,6 +3014,7 @@ public class Me {
                 }
             } catch {}
         }
+        me.settings.author ||= ''
         me.settings.company ||= me.settings.author.split(' ')[0].toLowerCase()
         if (me.dir.paks && !me.dir.paks.exists) {
             if (Path('src/paks').exists) {
@@ -3013,8 +3035,9 @@ public class Me {
         loadPackage()
     }
 
-    /*
+    /**
         TODO - should this be static?
+        @hide
      */
     public function loadMeProbe(mefile: Path) {
         let save = me
@@ -3317,6 +3340,7 @@ public class Me {
         }
     }
 
+    /** @hide */
     public function changeDir(path: Path) {
         /* UNUSED
             This is problematic with current makefiles as they depend on $(CONFIG) being a relative path
@@ -3585,7 +3609,7 @@ public class Me {
 
 } /* me class */
 
-} /* me module */
+} /* embedthis.me module */
 
 /*
     Global functions for me files
@@ -3594,6 +3618,7 @@ require embedthis.me
 
 /**
     Me DOM object
+    @hide
  */
 public var b: Me = new Me
 

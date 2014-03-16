@@ -1,8 +1,13 @@
 /*
-    zlib.me -- Bit File for the zlib library
+    zlib.me -- MakeMe file for the zlib library
  */
 
 Me.load({
+    probe: {
+        zlib: {
+            depends: [ 'libzlib' ],
+        },
+    },
 
     targets: {
         libzlib: {

@@ -12,10 +12,10 @@ var out: Stream             //  Project output file stream
 
 const PREP_CODE = 
 "[ ! -x ${INC_DIR} ] && mkdir -p ${INC_DIR} ${OBJ_DIR} ${LIB_DIR} ${BIN_DIR}
-[ ! -f ${INC_DIR}/me.h ] && cp ${settings.product}-macosx-${platform.profile}-me.h ${INC_DIR}/me.h
-[ ! -f ${INC_DIR}/bitos.h ] && cp ${SRC_DIR}/src/paks/bitos/bitos.h ${INC_DIR}/bitos.h
-if ! diff ${INC_DIR}/me.h ${settings.product}-macosx-${platform.profile}-me.h >/dev/null ; then
-    cp ${settings.product}-macosx-${platform.profile}-me.h ${INC_DIR}/me.h
+[ ! -f ${INC_DIR}/me.h ] && cp ${settings.name}-macosx-${platform.profile}-me.h ${INC_DIR}/me.h
+[ ! -f ${INC_DIR}/osdep.h ] && cp ${SRC_DIR}/src/paks/osdep/osdep.h ${INC_DIR}/osdep.h
+if ! diff ${INC_DIR}/me.h ${settings.name}-macosx-${platform.profile}-me.h >/dev/null ; then
+    cp ${settings.name}-macosx-${platform.profile}-me.h ${INC_DIR}/me.h
 fi"
 
 var ids = {}                //  IDs stores the set of unique IDs used by generated Xcode projects. 
@@ -467,7 +467,14 @@ function groups(base: Path) {
     Find all dependencies for a target. This chases through pseudo extension targets
  */
 function getAllDeps(target, result = []) {
+    if (target._getAllDeps) {
+        return
+    }
+    target._getAllDeps = true
     for each (dname in target.depends) {
+        if (dname == target.name) {
+            continue
+        }
         let dep = me.targets[dname]
         if (dep && !result.contains(dep)) {
             getAllDeps(dep, result)
@@ -476,6 +483,7 @@ function getAllDeps(target, result = []) {
             }
         }
     }
+    delete target._getAllDeps
     return result
 }
 
@@ -498,7 +506,7 @@ function targets(base) {
 ${DEPS}
 			);
 			name = ${TNAME};
-			productName = ${settings.product};
+			productName = ${settings.name};
 			productReference = ${REF} /* ${TNAME} */;
 			productType = "${PTYPE}";
 		};'
@@ -620,7 +628,7 @@ function project(base) {
 				LastUpgradeCheck = 0430;
 				ORGANIZATIONNAME = "${settings.company}";
 			};
-			buildConfigurationList = ${ID_ProjectConfigList} /* Build configuration list for PBXProject "${settings.product}" */;
+			buildConfigurationList = ${ID_ProjectConfigList} /* Build configuration list for PBXProject "${settings.name}" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -832,8 +840,8 @@ function projectConfigSection(base) {
 
                 CONFIGURATION_TEMP_DIR = "$(OBJ_DIR)/tmp/$(CONFIGURATION)";
                 CONFIGURATION_BUILD_DIR = "$(BIN_DIR)";
-                INSTALL_PATH = "/usr/lib/${settings.product}";
-                DSTROOT = "/tmp/${settings.product}.dst";
+                INSTALL_PATH = "/usr/lib/${settings.name}";
+                DSTROOT = "/tmp/${settings.name}.dst";
                 OBJROOT = "$(OBJ_DIR)";
                 SYMROOT = "$(BIN_DIR)";'
 
@@ -951,7 +959,7 @@ ${RELEASE_SETTINGS}
 function targetConfigSection() {
     let section = '
 /* Begin XCConfigurationList section */
-		${ID_ProjectConfigList} /* Build configuration list for PBXProject "${settings.product}" */ = {
+		${ID_ProjectConfigList} /* Build configuration list for PBXProject "${settings.name}" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				${ID_ProjectDebug} /* Debug */,

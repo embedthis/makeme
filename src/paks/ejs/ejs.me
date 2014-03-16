@@ -1,5 +1,5 @@
 /*
-    ejs.bit -- Bit File to build the Ejscript library when embedded in another product
+    ejs.me -- MakeMe file for Ejscript
  */
 
 Me.load({
@@ -9,7 +9,7 @@ Me.load({
 
     probe: {
         ejs: {
-            depends: [ 'zlib' ],
+            depends: [ 'libejs', 'zlib' ],
         },
     },
 
@@ -18,11 +18,11 @@ Me.load({
             type:   'lib',
             sources: [ 'ejsLib.c' ],
             headers: [ '*.h' ],
-            depends: [ 'libhttp', 'libpcre', 'libzlib', 'libmpr' ],
+            depends: [ 'libhttp', 'libpcre', 'libmpr', 'zlib' ],
             extensions: [ 'ejs' ],
         },
 
-        ejs: {
+        ejscmd: {
             type:   'exe',
             sources: [ 'ejs.c' ],
             scripts: {

@@ -1,0 +1,127 @@
+/*
+    dev.me -- me-dev Targets
+ */
+
+Me.load({
+    modules: [
+        'dev.es',
+    ],
+
+    internal: {
+        platforms: [ 'local' ],
+    },
+
+    settings: {
+        depth: App.getenv('BUILD_DEPTH') || 1,
+    },
+
+    targets: {
+        push: {
+            home: '${TOP}',
+            action: "pushToGit()",
+        },
+
+        removeFiles: {
+            home: '${TOP}',
+            type: 'exe',
+            rule: 'gui'
+            sources: [ 'package/windows/removeFiles.c' ],
+            platforms: [ 'local' ],
+            enable: "me.platform.like == 'windows' && Path('package/windows/removeFiles.c').exists",
+        },
+
+        projects: {
+            action: "genProjects()",
+            home: '${TOP}',
+        },
+
+        /*
+            Target to build a personal project for the current configuration
+         */
+        mine: {
+            action: "
+                let cmd = Cmd.locate('me')
+                let runopt = {dir: me.dir.src, show: true}
+                /* Xcode and VS use separate profiles */
+                if (me.platform.name == 'macosx-x64-debug') {
+                    run(cmd + ' -q -d -platform macosx-x64-mine -configure . -gen xcode', runopt)
+                } else if (me.platform.name == 'windows-x86-debug') {
+                    run(cmd + ' -q -d -platform windows-x86-mine -configure . -gen vs', runopt)
+                }
+                run(cmd + ' -q -configure . ', runopt)
+            ",
+        },
+
+        'projects-clobber': {
+            action: "
+                rm(['${dir.proj}/*.mk', '${dir.proj}/*.sh'])
+                rmdir(['${dir.proj}/*-*-default'])
+            "
+        },
+
+        upload: {
+            action: "
+                if (me.settings.depth < 2) {
+                    trace('Info', 'Upload skipped at build depth ' + me.settings.depth)
+                } else {
+                    let s = me.settings
+                    let uri = s.farmUri || App.getenv('BUILD_UPLOAD')
+                    let key = s.farmKey || App.getenv('BUILD_KEY')
+                    let branch = App.getenv('BUILD_BRANCH') || 'dev'
+                    if (!key) {
+                        throw 'Missing a farm authorization key'
+                    }
+                    if (!uri) {
+                        throw 'Missing a farm upload URI'
+                    }
+                    let base = s.product + '-' + s.version
+                    let files = me.dir.rel.files('*' + base + '*.pkg*')
+                    files += me.dir.rel.files('*' + base + '*x86.exe.zip*')
+                    if (App.getenv('BUILD_UPLOAD_SOURCE') == 'true') {
+                        files += me.dir.rel.files('*' + base + '-src*')
+                        files += me.dir.rel.files('*' + base + '-flat*')
+                        files += me.dir.rel.files(s.product + '-flat.tgz')
+                    }
+                    for each (file in files) {
+                        let http = new Http
+                        trace('Upload', file.relativeTo(me.dir.rel) + ' size ' + 
+                            (file.size / 1024 / 1024).toFixed(2) + ' MB')
+                        http.upload(uri, file, {branch: branch, server: System.hostname, key: key})
+                        if (http.status != 200) {
+                            throw 'Cant upload ' + file + '\n' + http.response
+                        }
+                    }
+                }
+            ",
+        },
+
+        unit_test: {
+            type: 'test',
+            action: "
+                if (!me.targets.test) {
+                    let utest = me.extensions.utest ? me.extensions.utest.path : null
+                    if (!utest) {
+                        utest = Cmd.locate('utest', [me.dir.top.join(me.platform.name, 'bin/utest'), App.exeDir])
+                    }
+                    if (utest) {
+                        if (me.dir.src.join('src').exists) {
+                            run([utest, '-v', '-d', me.settings.depth], {noio: true, dir: me.dir.src.join('src')})
+                        }
+                    } else {
+                        trace('Test', 'The utest program cannot be located')
+                    }
+                }
+            ",
+        }
+
+        upgrade: {
+            home: '${TOP}',
+            action: "sh('pak -f upgrade ; me build')",
+        },
+
+        sync: {
+            home: '${TOP}',
+            action: "sh('pak -f upgrade')",
+        },
+    },
+})

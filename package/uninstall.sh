@@ -31,7 +31,7 @@
 HOME=`pwd`
 FMT=
 
-PRODUCT="${settings.product}"
+PRODUCT="${settings.name}"
 COMPANY="${settings.company}"
 NAME="${settings.title}"
 VERSION="${settings.version}"

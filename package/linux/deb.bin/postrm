@@ -4,8 +4,8 @@
 #	Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 #
 
-BIT_PRODUCT=${settings.product}
-BIT_NAME="${settings.title}"
+ME_PRODUCT=${settings.product}
+ME_NAME="${settings.title}"
 
 ###############################################################################
 
@@ -82,5 +82,5 @@ case $action in
 esac
 
 echo
-echo "$BIT_NAME $action successful"
+echo "$ME_NAME $action successful"
 exit 0

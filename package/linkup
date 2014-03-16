@@ -6,7 +6,7 @@
 #
 
 TASK=$1
-PRODUCT=${settings.product}
+PRODUCT=${settings.name}
 EXE=
 INC_DIR="${prefixes.inc}"
 MAN_DIR="${prefixes.man}"
