@@ -10,36 +10,36 @@ See LICENSE.md for details.
   See doc/index.html
 
 ### Prerequisites:
-    Ejscript (http://www.ejscript.org/downloads/ejs/download.ejs) for the Bit and Utest tools to configure and build.
+    MakeMe (http://embedthis.com/downloads/makeme/download.esp) for MakeMe to configure and build.
 
 ### To Build:
 
     ./configure
-    bit
+    me
 
     Alternatively to build without Ejscript:
 
     make
 
-Images are built into */bin. The build configuration is saved in */inc/bit.h.
+Images are built into */bin. The build configuration is saved in */inc/me.h.
 
 ### To Test:
 
-    bit test
+    me test
 
 ### To Run:
 
-    bit run
+    me run
 
 This will run appweb in the src/server directory using the src/server/appweb.conf configuration file.
 
 ### To Install:
 
-    bit install
+    me install
 
 ### To Create Packages:
 
-    bit package
+    me package
 
 Resources
 ---

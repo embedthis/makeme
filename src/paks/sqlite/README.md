@@ -10,37 +10,37 @@ This software is dual-licensed under a GPLv2 license and commercial licenses are
 See LICENSE.md for details.
 
 ### Prerequisites: 
-    Bit (http://embedthis.com/downloads/bit/download.ejs) for Bit to configure and build.
-    Ejscript (http://ejscript.org/downloads/ejs/download.ejs) for utest to test.
+    MakeMe (http://embedthis.com/downloads/makeme/download.esp) for MakeMe to configure and build.
+    Ejscript (http://ejscript.org/downloads/ejs/download.esp) for utest to test.
 
 ### To Build:
 
     ./configure
-    bit
+    me
 
-    Alternatively to build without Bit:
+    Alternatively to build without MakeMe:
 
     make 
 
-Images are built into */bin. The build configuration is saved in */inc/bit.h.
+Images are built into */bin. The build configuration is saved in */inc/me.h.
 
 ### To Test:
 
-    bit test 
+    me test 
 
 ### To Run:
 
-    bit run
+    me run
 
 This will run appweb in the src/server directory using the src/server/appweb.conf configuration file.
 
 ### To Install: 
 
-    bit install
+    me install
 
 ### To Create Packages:
 
-    bit package
+    me package
 
 ### Copyright
 

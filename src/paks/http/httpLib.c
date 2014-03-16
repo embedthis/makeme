@@ -257,12 +257,6 @@ PUBLIC bool httpLogin(HttpConn *conn, cchar *username, cchar *password)
         mprError("No user verification routine defined on route %s", rx->route->name);
         return 0;
     }
-    if (!auth->store->noSession) {
-        if ((session = httpCreateSession(conn)) == 0) {
-            /* Too many sessions */
-            return 0;
-        }
-    }
     if (auth->username && *auth->username) {
         /* If using auto-login, replace the username */
         username = auth->username;
@@ -272,6 +266,10 @@ PUBLIC bool httpLogin(HttpConn *conn, cchar *username, cchar *password)
         return 0;
     }
     if (!auth->store->noSession) {
+        if ((session = httpCreateSession(conn)) == 0) {
+            /* Too many sessions */
+            return 0;
+        }
         httpSetSessionVar(conn, HTTP_SESSION_USERNAME, username);
         httpSetSessionVar(conn, HTTP_SESSION_IP, conn->ip);
     }
@@ -1351,10 +1349,10 @@ static void cacheAtClient(HttpConn *conn)
     if (!mprLookupKey(tx->headers, "Cache-Control")) {
         if ((value = mprLookupKey(conn->tx->headers, "Cache-Control")) != 0) {
             if (strstr(value, "max-age") == 0) {
-                httpAppendHeader(conn, "Cache-Control", "public, max-age=%d", cache->clientLifespan / MPR_TICKS_PER_SEC);
+                httpAppendHeader(conn, "Cache-Control", "public, max-age=%Ld", cache->clientLifespan / MPR_TICKS_PER_SEC);
             }
         } else {
-            httpAddHeader(conn, "Cache-Control", "public, max-age=%d", cache->clientLifespan / MPR_TICKS_PER_SEC);
+            httpAddHeader(conn, "Cache-Control", "public, max-age=%Ld", cache->clientLifespan / MPR_TICKS_PER_SEC);
             /* 
                 Old HTTP/1.0 clients don't understand Cache-Control 
              */
@@ -3462,25 +3460,28 @@ PUBLIC int httpDigestParse(HttpConn *conn, cchar **username, cchar **password)
         while (*tok && !isspace((uchar) *tok) && *tok != ',' && *tok != '=') {
             tok++;
         }
-        *tok++ = '\0';
-
+        if (*tok) {
+            *tok++ = '\0';
+        }
         while (isspace((uchar) *tok)) {
             tok++;
         }
         seenComma = 0;
         if (*tok == '\"') {
             value = ++tok;
-            while (*tok != '\"' && *tok != '\0') {
+            while (*tok && *tok != '\"') {
                 tok++;
             }
         } else {
             value = tok;
-            while (*tok != ',' && *tok != '\0') {
+            while (*tok && *tok != ',') {
                 tok++;
             }
             seenComma++;
         }
-        *tok++ = '\0';
+        if (*tok) {
+            *tok++ = '\0';
+        }
 
         /*
             Handle back-quoting
@@ -11571,6 +11572,9 @@ PUBLIC uint64 httpGetNumber(cchar *value)
 {
     uint64  number;
 
+    if (smatch(value, "infinite") || smatch(value, "never")) {
+        return MPR_MAX_TIMEOUT / MPR_TICKS_PER_SEC;
+    }
     value = strim(slower(value), " \t", MPR_TRIM_BOTH);
     if (sends(value, "sec") || sends(value, "secs") || sends(value, "seconds") || sends(value, "seconds")) {
         number = stoi(value);
@@ -18842,6 +18846,9 @@ static int matchWebSock(HttpConn *conn, HttpRoute *route, int dir)
     assert(rx);
     assert(tx);
 
+    if (conn->error || tx->responded) {
+        return HTTP_ROUTE_REJECT;
+    }
     if (httpClientConn(conn)) {
         if (rx->webSocket) {
             return HTTP_ROUTE_OK;

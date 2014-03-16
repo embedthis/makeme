@@ -1,4 +1,4 @@
-Embedthis Bit O/S Layer
+Embedthis O/S Dependent Layer
 ===
 
 Licensing
@@ -8,8 +8,8 @@ See LICENSE.md for details.
 ### To Package:
 
     ./configure
-    bit package
+    me package
 
 Resources
 ---
-  - [Bit O/S GitHub repository](http://github.com/embedthis/bitos)
+  - [Osdep GitHub repository](http://github.com/embedthis/osdep)

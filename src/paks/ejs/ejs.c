@@ -27,7 +27,8 @@
 
 
 
-#if ME_EXT_EJS
+//  UNUSED
+#if ME_EXT_EJS || 1
 #if ME_HAS_LIB_EDIT
   #include  <histedit.h>
 #endif

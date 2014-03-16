@@ -5322,7 +5322,7 @@ PUBLIC void mprGetCacheStats(MprCache *cache, int *numKeys, ssize *mem)
  */
 /************************************************************************/
 
-/* 
+/*
     cmd.c - Run external commands
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
@@ -5364,8 +5364,8 @@ static void cmdTaskEntry(char *program, MprCmdTaskFn entry, int cmdArg);
     #define slock(cmd) mprLock(MPR->cmdService->mutex)
     #define sunlock(cmd) mprUnlock(MPR->cmdService->mutex)
 #else
-    #define slock(cmd) 
-    #define sunlock(cmd) 
+    #define slock(cmd)
+    #define sunlock(cmd)
 #endif
 
 /************************************* Code ***********************************/
@@ -5610,7 +5610,7 @@ PUBLIC int mprIsCmdComplete(MprCmd *cmd)
 PUBLIC int mprRun(MprDispatcher *dispatcher, cchar *command, cchar *input, char **output, char **error, MprTicks timeout)
 {
     MprCmd  *cmd;
-   
+
     cmd = mprCreateCmd(dispatcher);
     return mprRunCmd(cmd, command, NULL, input, output, error, timeout, MPR_CMD_IN  | MPR_CMD_OUT | MPR_CMD_ERR);
 }
@@ -5636,7 +5636,7 @@ PUBLIC int mprRunCmd(MprCmd *cmd, cchar *command, cchar **envp, cchar *in, char 
 
 
 /*
-    This routine runs a command and waits for its completion. Stdoutput and Stderr are returned in *out and *err 
+    This routine runs a command and waits for its completion. Stdoutput and Stderr are returned in *out and *err
     respectively. The command returns the exit status of the command.
     Valid flags are:
         MPR_CMD_NEW_SESSION     Create a new session on Unix
@@ -5718,24 +5718,24 @@ static int addCmdHandlers(MprCmd *cmd)
 {
     int     stdinFd, stdoutFd, stderrFd;
 
-    stdinFd = cmd->files[MPR_CMD_STDIN].fd; 
-    stdoutFd = cmd->files[MPR_CMD_STDOUT].fd; 
-    stderrFd = cmd->files[MPR_CMD_STDERR].fd; 
+    stdinFd = cmd->files[MPR_CMD_STDIN].fd;
+    stdoutFd = cmd->files[MPR_CMD_STDOUT].fd;
+    stderrFd = cmd->files[MPR_CMD_STDERR].fd;
 
     if (stdinFd >= 0 && cmd->handlers[MPR_CMD_STDIN] == 0) {
-        if ((cmd->handlers[MPR_CMD_STDIN] = mprCreateWaitHandler(stdinFd, MPR_WRITABLE, cmd->dispatcher, 
+        if ((cmd->handlers[MPR_CMD_STDIN] = mprCreateWaitHandler(stdinFd, MPR_WRITABLE, cmd->dispatcher,
                 stdinCallback, cmd, 0)) == 0) {
             return MPR_ERR_CANT_OPEN;
         }
     }
     if (stdoutFd >= 0 && cmd->handlers[MPR_CMD_STDOUT] == 0) {
-        if ((cmd->handlers[MPR_CMD_STDOUT] = mprCreateWaitHandler(stdoutFd, MPR_READABLE, cmd->dispatcher, 
+        if ((cmd->handlers[MPR_CMD_STDOUT] = mprCreateWaitHandler(stdoutFd, MPR_READABLE, cmd->dispatcher,
                 stdoutCallback, cmd,0)) == 0) {
             return MPR_ERR_CANT_OPEN;
         }
     }
     if (stderrFd >= 0 && cmd->handlers[MPR_CMD_STDERR] == 0) {
-        if ((cmd->handlers[MPR_CMD_STDERR] = mprCreateWaitHandler(stderrFd, MPR_READABLE, cmd->dispatcher, 
+        if ((cmd->handlers[MPR_CMD_STDERR] = mprCreateWaitHandler(stderrFd, MPR_READABLE, cmd->dispatcher,
                 stderrCallback, cmd,0)) == 0) {
             return MPR_ERR_CANT_OPEN;
         }
@@ -5762,7 +5762,7 @@ PUBLIC void mprSetCmdSearchPath(MprCmd *cmd, cchar *search)
 
 
 /*
-    Start the command to run (stdIn and stdOut are named from the client's perspective). This is the lower-level way to 
+    Start the command to run (stdIn and stdOut are named from the client's perspective). This is the lower-level way to
     run a command. The caller needs to do code like mprRunCmd() themselves to wait for completion and to send/receive data.
     The routine does not wait. Callers must call mprWaitForCmd to wait for the command to complete.
  */
@@ -5893,7 +5893,7 @@ PUBLIC ssize mprReadCmd(MprCmd *cmd, int channel, char *buf, ssize bufsize)
     rc = PeekNamedPipe(cmd->files[channel].handle, NULL, 0, NULL, &count, NULL);
     if (rc > 0 && count > 0) {
         return read(cmd->files[channel].fd, buf, (uint) bufsize);
-    } 
+    }
     if (cmd->process == 0 || WaitForSingleObject(cmd->process, 0) == WAIT_OBJECT_0) {
         /* Process has exited - EOF */
         return 0;
@@ -6015,7 +6015,7 @@ PUBLIC void mprDisableCmdEvents(MprCmd *cmd, int channel)
     Windows only routine to wait for I/O on the channels to the gateway and the child process.
     This will queue events on the dispatcher queue when I/O occurs or the process dies.
     NOTE: NamedPipes can't use WaitForMultipleEvents, so we dedicate a thread to polling.
-    WARNING: this should not be called from a dispatcher other than cmd->dispatcher. 
+    WARNING: this should not be called from a dispatcher other than cmd->dispatcher.
  */
 PUBLIC void mprPollWinCmd(MprCmd *cmd, MprTicks timeout)
 {
@@ -6065,7 +6065,7 @@ PUBLIC void mprPollWinCmd(MprCmd *cmd, MprTicks timeout)
 
 
 /*
-    Wait for a command to complete. Return 0 if the command completed, otherwise it will return MPR_ERR_TIMEOUT. 
+    Wait for a command to complete. Return 0 if the command completed, otherwise it will return MPR_ERR_TIMEOUT.
  */
 PUBLIC int mprWaitForCmd(MprCmd *cmd, MprTicks timeout)
 {
@@ -6101,7 +6101,7 @@ PUBLIC int mprWaitForCmd(MprCmd *cmd, MprTicks timeout)
         delay = (cmd->eofCount >= cmd->requiredEof) ? 10 : remaining;
 #endif
         if (!ts->eventsThread && mprGetCurrentThread() == ts->mainThread) {
-            /* 
+            /*
                 Main program without any events loop
              */
             mprServiceEvents(10, MPR_SERVICE_NO_BLOCK);
@@ -6120,7 +6120,7 @@ PUBLIC int mprWaitForCmd(MprCmd *cmd, MprTicks timeout)
 
 
 /*
-    Gather the child's exit status. 
+    Gather the child's exit status.
     WARNING: this may be called with a false-positive, ie. SIGCHLD will get invoked for all process deaths and not just
     when this cmd has completed.
  */
@@ -6205,7 +6205,7 @@ static void reapCmd(MprCmd *cmd, bool finalizing)
 
 
 /*
-    Default callback routine for the mprRunCmd routines. Uses may supply their own callback instead of this routine. 
+    Default callback routine for the mprRunCmd routines. Uses may supply their own callback instead of this routine.
     The callback is run whenever there is I/O to read/write to the CGI gateway.
  */
 static void defaultCmdCallback(MprCmd *cmd, int channel, void *data)
@@ -6244,7 +6244,7 @@ static void defaultCmdCallback(MprCmd *cmd, int channel, void *data)
     }
     len = mprReadCmd(cmd, channel, mprGetBufEnd(buf), space);
     errCode = mprGetError();
-    mprTrace(6, "defaultCmdCallback channel %d, read len %d, pid %d, eof %d/%d", channel, len, cmd->pid, cmd->eofCount, 
+    mprTrace(6, "defaultCmdCallback channel %d, read len %d, pid %d, eof %d/%d", channel, len, cmd->pid, cmd->eofCount,
         cmd->requiredEof);
     if (len <= 0) {
         if (len == 0 || (len < 0 && !(errCode == EAGAIN || errCode == EWOULDBLOCK))) {
@@ -6318,9 +6318,9 @@ PUBLIC void mprSetCmdTimeout(MprCmd *cmd, MprTicks timeout)
 }
 
 
-PUBLIC int mprGetCmdFd(MprCmd *cmd, int channel) 
-{ 
-    return cmd->files[channel].fd; 
+PUBLIC int mprGetCmdFd(MprCmd *cmd, int channel)
+{
+    return cmd->files[channel].fd;
 }
 
 
@@ -6370,7 +6370,7 @@ static int sortEnv(char **str1, char **str2)
 /*
     Match two environment keys up to the '='
  */
-static bool matchEnvKey(cchar *s1, cchar *s2) 
+static bool matchEnvKey(cchar *s1, cchar *s2)
 {
     for (; *s1 && *s2; s1++, s2++) {
         if (*s1 != *s2) {
@@ -6475,8 +6475,8 @@ static int sanitizeArgs(MprCmd *cmd, int argc, cchar **argv, cchar **env, int fl
 #if ME_WIN_LIKE
     /*
         WARNING: If starting a program compiled with Cygwin, there is a bug in Cygwin's parsing of the command
-        string where embedded quotes are parsed incorrectly by the Cygwin CRT runtime. If an arg starts with a 
-        drive spec, embedded backquoted quotes will be stripped and the backquote will be passed in. Windows CRT 
+        string where embedded quotes are parsed incorrectly by the Cygwin CRT runtime. If an arg starts with a
+        drive spec, embedded backquoted quotes will be stripped and the backquote will be passed in. Windows CRT
         handles this correctly.  For example:
             ./args "c:/path \"a b\"
             Cygwin will parse as  argv[1] == c:/path \a \b
@@ -6881,7 +6881,7 @@ PUBLIC int startProcess(MprCmd *cmd)
     }
     taskPriorityGet(taskIdSelf(), &pri);
 
-    cmd->pid = taskSpawn(entryPoint, pri, VX_FP_TASK | VX_PRIVATE_ENV, ME_STACK_SIZE, (FUNCPTR) cmdTaskEntry, 
+    cmd->pid = taskSpawn(entryPoint, pri, VX_FP_TASK | VX_PRIVATE_ENV, ME_STACK_SIZE, (FUNCPTR) cmdTaskEntry,
         (int) cmd->program, (int) entryFn, (int) cmd, 0, 0, 0, 0, 0, 0, 0);
 
     if (cmd->pid < 0) {
@@ -7003,7 +7003,7 @@ static void closeFiles(MprCmd *cmd)
     Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -7118,9 +7118,9 @@ PUBLIC int mprWaitForCond(MprCond *cp, MprTicks timeout)
     mprLock(cp->mutex);
     /*
         NOTE: The WaitForSingleObject and semTake APIs keeps state as to whether the object is signalled.
-        WaitForSingleObject and semTake will not block if the object is already signalled. However, pthread_cond_ 
-        is different and does not keep such state. If it is signalled before pthread_cond_wait, the thread will 
-        still block. Consequently we need to keep our own state in cp->triggered. This also protects against 
+        WaitForSingleObject and semTake will not block if the object is already signalled. However, pthread_cond_
+        is different and does not keep such state. If it is signalled before pthread_cond_wait, the thread will
+        still block. Consequently we need to keep our own state in cp->triggered. This also protects against
         spurious wakeups which can happen (on windows).
      */
     do {
@@ -7233,7 +7233,7 @@ PUBLIC void mprResetCond(MprCond *cp)
     Wait for the event to be triggered when there may be multiple waiters. This routine may return early due to
     other signals or events. The caller must verify if the signalled condition truly exists. If the event is already
     triggered, then it will return immediately. This call will not reset cp->triggered and must be reset manually.
-    A timeout of -1 means wait forever. Timeout of 0 means no wait.  Returns 0 if the event was signalled. 
+    A timeout of -1 means wait forever. Timeout of 0 means no wait.  Returns 0 if the event was signalled.
     Returns < 0 for a timeout.
 
     WARNING: On unix, the pthread_cond_timedwait uses an absolute time (Ugh!). So time-warps for daylight-savings may
@@ -7324,7 +7324,7 @@ PUBLIC void mprSignalMultiCond(MprCond *cp)
     Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.

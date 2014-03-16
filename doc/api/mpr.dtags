@@ -19,7 +19,6 @@
     <class kind="struct">MprMemStats</class>
     <class kind="struct">MprMutex</class>
     <class kind="struct">MprRegion</class>
-    <class kind="struct">MprRomInode</class>
     <class kind="struct">MprSignalInfo</class>
     <class kind="struct">MprSignalService</class>
     <class kind="struct">MprSocketProvider</class>
@@ -36,23 +35,23 @@
     <class kind="struct">MprWorkerStats</class>
     <member kind="define">
       <type>#define</type>
-      <name>BIT_MAX_EVENTS</name>
+      <name>ME_MAX_EVENTS</name>
       <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>a7349c55cdfc3b7f43649a5d18afba3bb</anchor>
+      <anchor>af821420781729d00310228b21dc11aea</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
       <type>#define</type>
-      <name>BIT_MPR_LOGGING</name>
+      <name>ME_MPR_LOGGING</name>
       <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>acdd6dbd60b7b6fd7c8b1aa0c67aee862</anchor>
+      <anchor>af8ebacbfd3978c3b12cef8c9f7b7db11</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
       <type>#define</type>
-      <name>BIT_MPR_MAX_PASSWORD</name>
+      <name>ME_MPR_MAX_PASSWORD</name>
       <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>aa130b1fa260d87a9fe7cdd4d5bc10a95</anchor>
+      <anchor>a9d90dbb86522baf78c10b9aa51078770</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -2443,6 +2442,13 @@
       <arglist>()</arglist>
     </member>
     <member kind="function">
+      <type>MprDiskFileSystem *</type>
+      <name>mprCreateDiskFileSystem</name>
+      <anchorfile>group___mpr_file_system.html</anchorfile>
+      <anchor>ga5d33c9eaec3fef58119ed5f63d550cf2</anchor>
+      <arglist>(cchar *path)</arglist>
+    </member>
+    <member kind="function">
       <type>MprDispatcher *</type>
       <name>mprCreateDispatcher</name>
       <anchorfile>group___mpr_dispatcher.html</anchorfile>
@@ -2567,13 +2573,6 @@
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>ga85bb50d63a783a867786d7df20a1e2ec</anchor>
       <arglist>()</arglist>
-    </member>
-    <member kind="function">
-      <type>MprRomFileSystem *</type>
-      <name>mprCreateRomFileSystem</name>
-      <anchorfile>group___mpr_file_system.html</anchorfile>
-      <anchor>ga7c499dabec9038118eb7f09ddf5ddd7e</anchor>
-      <arglist>(cchar *path)</arglist>
     </member>
     <member kind="function">
       <type>MprSocket *</type>
@@ -3955,25 +3954,11 @@
       <arglist>(bool traceRequests)</arglist>
     </member>
     <member kind="function">
-      <type>int</type>
-      <name>mprIsInfinite</name>
-      <anchorfile>group___mpr_float.html</anchorfile>
-      <anchor>ga00cde73edc55911e4ba714f445544502</anchor>
-      <arglist>(double value)</arglist>
-    </member>
-    <member kind="function">
       <type>bool</type>
       <name>mprIsIPv6</name>
       <anchorfile>group___mpr_socket.html</anchorfile>
       <anchor>gaec9134c334a714e44c62396c88a012c9</anchor>
       <arglist>(cchar *ip)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>mprIsNan</name>
-      <anchorfile>group___mpr_float.html</anchorfile>
-      <anchor>ga05a04872e6d51bca40b2223e466984b7</anchor>
-      <arglist>(double value)</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
@@ -4051,13 +4036,6 @@
       <anchorfile>group___mpr_mem.html</anchorfile>
       <anchor>ga60f5c1f8065e2d164160fbc71275d300</anchor>
       <arglist>(cvoid *ptr)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>mprIsZero</name>
-      <anchorfile>group___mpr_float.html</anchorfile>
-      <anchor>gafb9eede8122d445daefbadd3122bba42</anchor>
-      <arglist>(double value)</arglist>
     </member>
     <member kind="function">
       <type>char *</type>
@@ -4907,6 +4885,13 @@
       <arglist>(MprFile *file, int seekType, MprOff distance)</arglist>
     </member>
     <member kind="function">
+      <type>MprOff</type>
+      <name>mprSendFileToSocket</name>
+      <anchorfile>group___mpr_socket.html</anchorfile>
+      <anchor>gaea913bebd8f6a4f5c56843faa8de44eb</anchor>
+      <arglist>(MprSocket *sock, MprFile *file, MprOff offset, MprOff bytes, MprIOVec *beforeVec, int beforeCount, MprIOVec *afterVec, int afterCount)</arglist>
+    </member>
+    <member kind="function">
       <type>char *</type>
       <name>mprSerialize</name>
       <anchorfile>group___mpr_json.html</anchorfile>
@@ -5276,13 +5261,6 @@
       <anchorfile>group___mpr_file_system.html</anchorfile>
       <anchor>ga604f5f0da674b354c16dc30be6f058d2</anchor>
       <arglist>(cchar *path, cchar *separators)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>mprSetRomFileSystem</name>
-      <anchorfile>group___mpr_file_system.html</anchorfile>
-      <anchor>ga8ad660a935382da195d08a5d5d63067c</anchor>
-      <arglist>(MprRomInode *inodeList)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -7093,32 +7071,6 @@
     </member>
   </compound>
   <compound kind="group">
-    <name>MprFloat</name>
-    <title>MprFloat</title>
-    <filename>group___mpr_float.html</filename>
-    <member kind="function">
-      <type>int</type>
-      <name>mprIsInfinite</name>
-      <anchorfile>group___mpr_float.html</anchorfile>
-      <anchor>ga00cde73edc55911e4ba714f445544502</anchor>
-      <arglist>(double value)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>mprIsNan</name>
-      <anchorfile>group___mpr_float.html</anchorfile>
-      <anchor>ga05a04872e6d51bca40b2223e466984b7</anchor>
-      <arglist>(double value)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>mprIsZero</name>
-      <anchorfile>group___mpr_float.html</anchorfile>
-      <anchor>gafb9eede8122d445daefbadd3122bba42</anchor>
-      <arglist>(double value)</arglist>
-    </member>
-  </compound>
-  <compound kind="group">
     <name>MprBuf</name>
     <title>MprBuf</title>
     <filename>group___mpr_buf.html</filename>
@@ -7975,17 +7927,17 @@
       <arglist>(MprFileSystem *fs)</arglist>
     </member>
     <member kind="function">
+      <type>MprDiskFileSystem *</type>
+      <name>mprCreateDiskFileSystem</name>
+      <anchorfile>group___mpr_file_system.html</anchorfile>
+      <anchor>ga5d33c9eaec3fef58119ed5f63d550cf2</anchor>
+      <arglist>(cchar *path)</arglist>
+    </member>
+    <member kind="function">
       <type>MprFileSystem *</type>
       <name>mprCreateFileSystem</name>
       <anchorfile>group___mpr_file_system.html</anchorfile>
       <anchor>gadde06254bb6b9cdaa7669d797ccd59ee</anchor>
-      <arglist>(cchar *path)</arglist>
-    </member>
-    <member kind="function">
-      <type>MprRomFileSystem *</type>
-      <name>mprCreateRomFileSystem</name>
-      <anchorfile>group___mpr_file_system.html</anchorfile>
-      <anchor>ga7c499dabec9038118eb7f09ddf5ddd7e</anchor>
       <arglist>(cchar *path)</arglist>
     </member>
     <member kind="function">
@@ -8008,13 +7960,6 @@
       <anchorfile>group___mpr_file_system.html</anchorfile>
       <anchor>ga604f5f0da674b354c16dc30be6f058d2</anchor>
       <arglist>(cchar *path, cchar *separators)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>mprSetRomFileSystem</name>
-      <anchorfile>group___mpr_file_system.html</anchorfile>
-      <anchor>ga8ad660a935382da195d08a5d5d63067c</anchor>
-      <arglist>(MprRomInode *inodeList)</arglist>
     </member>
   </compound>
   <compound kind="group">
@@ -9372,6 +9317,13 @@
       <anchorfile>group___mpr_socket.html</anchorfile>
       <anchor>ga02e481047fbc58df3cf3afc31f15a2b4</anchor>
       <arglist>(MprSocket *sp)</arglist>
+    </member>
+    <member kind="function">
+      <type>MprOff</type>
+      <name>mprSendFileToSocket</name>
+      <anchorfile>group___mpr_socket.html</anchorfile>
+      <anchor>gaea913bebd8f6a4f5c56843faa8de44eb</anchor>
+      <arglist>(MprSocket *sock, MprFile *file, MprOff offset, MprOff bytes, MprIOVec *beforeVec, int beforeCount, MprIOVec *afterVec, int afterCount)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -10771,13 +10723,6 @@
     <name>MprCond</name>
     <filename>struct_mpr_cond.html</filename>
     <member kind="variable">
-      <type>pthread_cond_t</type>
-      <name>cv</name>
-      <anchorfile>struct_mpr_cond.html</anchorfile>
-      <anchor>a0e6b1e38a4ba7a567b0e884aa66ff6eb</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
       <type>struct MprMutex *</type>
       <name>mutex</name>
       <anchorfile>struct_mpr_cond.html</anchorfile>
@@ -11394,38 +11339,6 @@
     </member>
   </compound>
   <compound kind="struct">
-    <name>MprRomInode</name>
-    <filename>struct_mpr_rom_inode.html</filename>
-    <member kind="variable">
-      <type>uchar *</type>
-      <name>data</name>
-      <anchorfile>struct_mpr_rom_inode.html</anchorfile>
-      <anchor>a715a39717f6c4a2b884b38846085aa98</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>num</name>
-      <anchorfile>struct_mpr_rom_inode.html</anchorfile>
-      <anchor>afe5ef901e2dfdb1c26a67660d812943e</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>char *</type>
-      <name>path</name>
-      <anchorfile>struct_mpr_rom_inode.html</anchorfile>
-      <anchor>afa7ff319c35c23b7c48aa224de9801b8</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>size</name>
-      <anchorfile>struct_mpr_rom_inode.html</anchorfile>
-      <anchor>a26a709911c0d9140d5bff025433ffd6f</anchor>
-      <arglist></arglist>
-    </member>
-  </compound>
-  <compound kind="struct">
     <name>MprSignalInfo</name>
     <filename>struct_mpr_signal_info.html</filename>
     <member kind="variable">
@@ -11459,13 +11372,6 @@
       <anchorfile>struct_mpr_signal_service.html</anchorfile>
       <anchor>a66be0bc663ce6ab7b3861a2db73585f9</anchor>
       <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>struct sigaction</type>
-      <name>prior</name>
-      <anchorfile>struct_mpr_signal_service.html</anchorfile>
-      <anchor>aab86563b1cda9f819f3d800f6509f2d8</anchor>
-      <arglist>[MPR_MAX_SIGNALS]</arglist>
     </member>
     <member kind="variable">
       <type>MprSignal **</type>
@@ -11822,10 +11728,10 @@
     <name>MprThreadLocal</name>
     <filename>struct_mpr_thread_local.html</filename>
     <member kind="variable">
-      <type>pthread_key_t</type>
-      <name>key</name>
+      <type>MprHash *</type>
+      <name>store</name>
       <anchorfile>struct_mpr_thread_local.html</anchorfile>
-      <anchor>a76226f0ba0cb5d4d37a438947493a39f</anchor>
+      <anchor>a191fc1e66f2167504a0dd8e069ec91fb</anchor>
       <arglist></arglist>
     </member>
   </compound>

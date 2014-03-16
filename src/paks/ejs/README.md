@@ -16,7 +16,7 @@ See LICENSE.md for details.
     ./configure
     make
 
-Images are built into */bin. The build configuration is saved in */inc/bit.h.
+Images are built into */bin. The build configuration is saved in */inc/me.h.
 
 ### To Test:
 

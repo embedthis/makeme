@@ -4,7 +4,7 @@
     "title": "SQLite Library",
     "version": "1.0.2",
     "keywords": [
-        "sqlite",
+        "sqlite"
     ],
     "author": {
         "name": "Embedthis Software",
@@ -18,8 +18,18 @@
     "bugs": {
         "url": "http://github.com/embedthis/sqlite/issues"
     },
-    "licenses": [{ 
-        "type": "PUBLIC", 
-        "url": "https://github.com/embedthis/sqlite/blob/master/LICENSE.md",
-    }]
+    "licenses": [
+        {
+            "type": "PUBLIC",
+            "url": "https://github.com/embedthis/sqlite/blob/master/LICENSE.md"
+        }
+    ],
+    "dirs": {
+        "paks": "src/paks"
+    },
+    "dependencies": {
+        "me-dev": "~0.8",
+        "me-doc": "~0.8",
+        "me-package": "~0.8"
+    }
 }

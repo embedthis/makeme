@@ -13,18 +13,30 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/embedthis/osdep.git",
+        "url": "https://github.com/embedthis/osdep.git"
     },
     "bugs": {
         "url": "http://github.com/embedthis/osdep/issues"
     },
     "export": [
-        "src/osdep.h",
+        "src/osdep.h"
     ],
-    "licenses": [ { 
-        "type": "GPL", 
-        "url": "http://www.gnu.org/licenses/gpl-2.0.html"
-    }, {
-        "type": "Commercial", "url": "http://embedthis.com/licensing/"
-    }]
+    "licenses": [
+        {
+            "type": "GPL",
+            "url": "http://www.gnu.org/licenses/gpl-2.0.html"
+        },
+        {
+            "type": "Commercial",
+            "url": "http://embedthis.com/licensing/"
+        }
+    ],
+    "dirs": {
+        "paks": "src/paks"
+    },
+    "dependencies": {
+        "me-dev": "~0.8",
+        "me-doc": "~0.8",
+        "me-package": "~0.8"
+    }
 }
