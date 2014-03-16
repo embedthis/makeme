@@ -225,8 +225,8 @@
 #ifndef ME_CONFIG_CMD
     #define ME_CONFIG_CMD "me -d -q -platform windows-x86-default -configure . -gen vs"
 #endif
-#ifndef ME_MAKEME_NAME
-    #define ME_MAKEME_NAME 1
+#ifndef ME_MAKEME_PRODUCT
+    #define ME_MAKEME_PRODUCT 1
 #endif
 #ifndef ME_PROFILE
     #define ME_PROFILE "default"
@@ -300,6 +300,9 @@
 #endif
 #ifndef ME_EXT_RC
     #define ME_EXT_RC 1
+#endif
+#ifndef ME_EXT_SQLITE
+    #define ME_EXT_SQLITE 1
 #endif
 #ifndef ME_EXT_SSL
     #define ME_EXT_SSL 1

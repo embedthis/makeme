@@ -38,6 +38,7 @@ ME_EXT_OPENSSL_PATH   ?= /usr/src/openssl
 ME_EXT_OSDEP_PATH     ?= src/paks/osdep
 ME_EXT_PCRE_PATH      ?= src/paks/pcre
 ME_EXT_PMAKER_PATH    ?= pmaker
+ME_EXT_SQLITE_PATH    ?= src/paks/sqlite
 ME_EXT_SSL_PATH       ?= ssl
 ME_EXT_VXWORKS_PATH   ?= $(WIND_BASE)
 ME_EXT_WINSDK_PATH    ?= winsdk
@@ -99,17 +100,13 @@ ifeq ($(ME_EXT_EST),1)
     TARGETS           += $(CONFIG)/bin/libest.dylib
 endif
 TARGETS               += $(CONFIG)/bin/ca.crt
-TARGETS               += $(CONFIG)/bin/httpcmd
+TARGETS               += $(CONFIG)/bin/http
 TARGETS               += $(CONFIG)/bin/libmprssl.dylib
-ifeq ($(ME_EXT_SQLITE),1)
-    TARGETS           += $(CONFIG)/bin/libsql.dylib
-endif
 ifeq ($(ME_EXT_SQLITE),1)
     TARGETS           += $(CONFIG)/bin/sqlite
 endif
 TARGETS               += $(CONFIG)/bin/me
-TARGETS               += $(CONFIG)/bin/makeme
-TARGETS               += bower.json
+TARGETS               += $(CONFIG)/bin
 
 unexport CDPATH
 
@@ -150,7 +147,7 @@ clean:
 	rm -f "$(CONFIG)/bin/libest.dylib"
 	rm -f "$(CONFIG)/bin/ca.crt"
 	rm -f "$(CONFIG)/bin/libhttp.dylib"
-	rm -f "$(CONFIG)/bin/httpcmd"
+	rm -f "$(CONFIG)/bin/http"
 	rm -f "$(CONFIG)/bin/libmpr.dylib"
 	rm -f "$(CONFIG)/bin/libmprssl.dylib"
 	rm -f "$(CONFIG)/bin/makerom"
@@ -158,7 +155,6 @@ clean:
 	rm -f "$(CONFIG)/bin/libsql.dylib"
 	rm -f "$(CONFIG)/bin/sqlite"
 	rm -f "$(CONFIG)/bin/libzlib.dylib"
-	rm -f "bower.json"
 	rm -f "$(CONFIG)/obj/ejsLib.o"
 	rm -f "$(CONFIG)/obj/ejs.o"
 	rm -f "$(CONFIG)/obj/ejsc.o"
@@ -184,7 +180,7 @@ clobber: clean
 #
 version: $(DEPS_1)
 	( \
-	cd macosx-x64-release/bin/makeme; \
+	cd macosx-x64-release/bin; \
 	echo 0.8.0 ; \
 	)
 
@@ -328,7 +324,7 @@ DEPS_14 += $(CONFIG)/inc/zlib.h
 $(CONFIG)/obj/zlib.o: \
     src/paks/zlib/zlib.c $(DEPS_14)
 	@echo '   [Compile] $(CONFIG)/obj/zlib.o'
-	$(CC) -c $(CFLAGS) $(DFLAGS) -o $(CONFIG)/obj/zlib.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/zlib/zlib.c
+	$(CC) -c $(CFLAGS) $(DFLAGS) -o $(CONFIG)/obj/zlib.o -arch $(CC_ARCH) $(IFLAGS) src/paks/zlib/zlib.c
 
 ifeq ($(ME_EXT_ZLIB),1)
 #
@@ -344,9 +340,41 @@ $(CONFIG)/bin/libzlib.dylib: $(DEPS_15)
 endif
 
 #
+#   sqlite3.h
+#
+$(CONFIG)/inc/sqlite3.h: $(DEPS_16)
+	@echo '      [Copy] $(CONFIG)/inc/sqlite3.h'
+	mkdir -p "$(CONFIG)/inc"
+	cp src/paks/sqlite/sqlite3.h $(CONFIG)/inc/sqlite3.h
+
+#
+#   sqlite3.o
+#
+DEPS_17 += $(CONFIG)/inc/me.h
+DEPS_17 += $(CONFIG)/inc/sqlite3.h
+
+$(CONFIG)/obj/sqlite3.o: \
+    src/paks/sqlite/sqlite3.c $(DEPS_17)
+	@echo '   [Compile] $(CONFIG)/obj/sqlite3.o'
+	$(CC) -c $(CFLAGS) $(DFLAGS) -o $(CONFIG)/obj/sqlite3.o -arch $(CC_ARCH) $(IFLAGS) src/paks/sqlite/sqlite3.c
+
+ifeq ($(ME_EXT_SQLITE),1)
+#
+#   libsql
+#
+DEPS_18 += $(CONFIG)/inc/sqlite3.h
+DEPS_18 += $(CONFIG)/inc/me.h
+DEPS_18 += $(CONFIG)/obj/sqlite3.o
+
+$(CONFIG)/bin/libsql.dylib: $(DEPS_18)
+	@echo '      [Link] $(CONFIG)/bin/libsql.dylib'
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libsql.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libsql.dylib -compatibility_version 0.8.0 -current_version 0.8.0 "$(CONFIG)/obj/sqlite3.o" $(LIBS) 
+endif
+
+#
 #   ejs.h
 #
-$(CONFIG)/inc/ejs.h: $(DEPS_16)
+$(CONFIG)/inc/ejs.h: $(DEPS_19)
 	@echo '      [Copy] $(CONFIG)/inc/ejs.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp src/paks/ejs/ejs.h $(CONFIG)/inc/ejs.h
@@ -354,7 +382,7 @@ $(CONFIG)/inc/ejs.h: $(DEPS_16)
 #
 #   ejs.slots.h
 #
-$(CONFIG)/inc/ejs.slots.h: $(DEPS_17)
+$(CONFIG)/inc/ejs.slots.h: $(DEPS_20)
 	@echo '      [Copy] $(CONFIG)/inc/ejs.slots.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp src/paks/ejs/ejs.slots.h $(CONFIG)/inc/ejs.slots.h
@@ -362,7 +390,7 @@ $(CONFIG)/inc/ejs.slots.h: $(DEPS_17)
 #
 #   ejsByteGoto.h
 #
-$(CONFIG)/inc/ejsByteGoto.h: $(DEPS_18)
+$(CONFIG)/inc/ejsByteGoto.h: $(DEPS_21)
 	@echo '      [Copy] $(CONFIG)/inc/ejsByteGoto.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp src/paks/ejs/ejsByteGoto.h $(CONFIG)/inc/ejsByteGoto.h
@@ -370,17 +398,17 @@ $(CONFIG)/inc/ejsByteGoto.h: $(DEPS_18)
 #
 #   ejsLib.o
 #
-DEPS_19 += $(CONFIG)/inc/me.h
-DEPS_19 += $(CONFIG)/inc/ejs.h
-DEPS_19 += $(CONFIG)/inc/mpr.h
-DEPS_19 += $(CONFIG)/inc/pcre.h
-DEPS_19 += $(CONFIG)/inc/osdep.h
-DEPS_19 += $(CONFIG)/inc/http.h
-DEPS_19 += $(CONFIG)/inc/ejs.slots.h
-DEPS_19 += $(CONFIG)/inc/zlib.h
+DEPS_22 += $(CONFIG)/inc/me.h
+DEPS_22 += $(CONFIG)/inc/ejs.h
+DEPS_22 += $(CONFIG)/inc/mpr.h
+DEPS_22 += $(CONFIG)/inc/pcre.h
+DEPS_22 += $(CONFIG)/inc/osdep.h
+DEPS_22 += $(CONFIG)/inc/http.h
+DEPS_22 += $(CONFIG)/inc/ejs.slots.h
+DEPS_22 += $(CONFIG)/inc/zlib.h
 
 $(CONFIG)/obj/ejsLib.o: \
-    src/paks/ejs/ejsLib.c $(DEPS_19)
+    src/paks/ejs/ejsLib.c $(DEPS_22)
 	@echo '   [Compile] $(CONFIG)/obj/ejsLib.o'
 	$(CC) -c $(CFLAGS) $(DFLAGS) -o $(CONFIG)/obj/ejsLib.o -arch $(CC_ARCH) $(IFLAGS) src/paks/ejs/ejsLib.c
 
@@ -388,51 +416,59 @@ ifeq ($(ME_EXT_EJS),1)
 #
 #   libejs
 #
-DEPS_20 += $(CONFIG)/inc/mpr.h
-DEPS_20 += $(CONFIG)/inc/me.h
-DEPS_20 += $(CONFIG)/inc/osdep.h
-DEPS_20 += $(CONFIG)/obj/mprLib.o
-DEPS_20 += $(CONFIG)/bin/libmpr.dylib
-DEPS_20 += $(CONFIG)/inc/pcre.h
-DEPS_20 += $(CONFIG)/obj/pcre.o
+DEPS_23 += $(CONFIG)/inc/mpr.h
+DEPS_23 += $(CONFIG)/inc/me.h
+DEPS_23 += $(CONFIG)/inc/osdep.h
+DEPS_23 += $(CONFIG)/obj/mprLib.o
+DEPS_23 += $(CONFIG)/bin/libmpr.dylib
+DEPS_23 += $(CONFIG)/inc/pcre.h
+DEPS_23 += $(CONFIG)/obj/pcre.o
 ifeq ($(ME_EXT_PCRE),1)
-    DEPS_20 += $(CONFIG)/bin/libpcre.dylib
+    DEPS_23 += $(CONFIG)/bin/libpcre.dylib
 endif
-DEPS_20 += $(CONFIG)/inc/http.h
-DEPS_20 += $(CONFIG)/obj/httpLib.o
-DEPS_20 += $(CONFIG)/bin/libhttp.dylib
-DEPS_20 += $(CONFIG)/inc/zlib.h
-DEPS_20 += $(CONFIG)/obj/zlib.o
+DEPS_23 += $(CONFIG)/inc/http.h
+DEPS_23 += $(CONFIG)/obj/httpLib.o
+DEPS_23 += $(CONFIG)/bin/libhttp.dylib
+DEPS_23 += $(CONFIG)/inc/zlib.h
+DEPS_23 += $(CONFIG)/obj/zlib.o
 ifeq ($(ME_EXT_ZLIB),1)
-    DEPS_20 += $(CONFIG)/bin/libzlib.dylib
+    DEPS_23 += $(CONFIG)/bin/libzlib.dylib
 endif
-DEPS_20 += $(CONFIG)/inc/ejs.h
-DEPS_20 += $(CONFIG)/inc/ejs.slots.h
-DEPS_20 += $(CONFIG)/inc/ejsByteGoto.h
-DEPS_20 += $(CONFIG)/obj/ejsLib.o
+DEPS_23 += $(CONFIG)/inc/sqlite3.h
+DEPS_23 += $(CONFIG)/obj/sqlite3.o
+ifeq ($(ME_EXT_SQLITE),1)
+    DEPS_23 += $(CONFIG)/bin/libsql.dylib
+endif
+DEPS_23 += $(CONFIG)/inc/ejs.h
+DEPS_23 += $(CONFIG)/inc/ejs.slots.h
+DEPS_23 += $(CONFIG)/inc/ejsByteGoto.h
+DEPS_23 += $(CONFIG)/obj/ejsLib.o
 
-LIBS_20 += -lhttp
-LIBS_20 += -lmpr
+LIBS_23 += -lhttp
+LIBS_23 += -lmpr
 ifeq ($(ME_EXT_PCRE),1)
-    LIBS_20 += -lpcre
+    LIBS_23 += -lpcre
 endif
 ifeq ($(ME_EXT_ZLIB),1)
-    LIBS_20 += -lzlib
+    LIBS_23 += -lzlib
+endif
+ifeq ($(ME_EXT_SQLITE),1)
+    LIBS_23 += -lsql
 endif
 
-$(CONFIG)/bin/libejs.dylib: $(DEPS_20)
+$(CONFIG)/bin/libejs.dylib: $(DEPS_23)
 	@echo '      [Link] $(CONFIG)/bin/libejs.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libejs.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libejs.dylib -compatibility_version 0.8.0 -current_version 0.8.0 "$(CONFIG)/obj/ejsLib.o" $(LIBPATHS_20) $(LIBS_20) $(LIBS_20) $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libejs.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libejs.dylib -compatibility_version 0.8.0 -current_version 0.8.0 "$(CONFIG)/obj/ejsLib.o" $(LIBPATHS_23) $(LIBS_23) $(LIBS_23) $(LIBS) 
 endif
 
 #
 #   ejs.o
 #
-DEPS_21 += $(CONFIG)/inc/me.h
-DEPS_21 += $(CONFIG)/inc/ejs.h
+DEPS_24 += $(CONFIG)/inc/me.h
+DEPS_24 += $(CONFIG)/inc/ejs.h
 
 $(CONFIG)/obj/ejs.o: \
-    src/paks/ejs/ejs.c $(DEPS_21)
+    src/paks/ejs/ejs.c $(DEPS_24)
 	@echo '   [Compile] $(CONFIG)/obj/ejs.o'
 	$(CC) -c $(CFLAGS) $(DFLAGS) -o $(CONFIG)/obj/ejs.o -arch $(CC_ARCH) $(IFLAGS) src/paks/ejs/ejs.c
 
@@ -440,106 +476,6 @@ ifeq ($(ME_EXT_EJS),1)
 #
 #   ejscmd
 #
-DEPS_22 += $(CONFIG)/inc/mpr.h
-DEPS_22 += $(CONFIG)/inc/me.h
-DEPS_22 += $(CONFIG)/inc/osdep.h
-DEPS_22 += $(CONFIG)/obj/mprLib.o
-DEPS_22 += $(CONFIG)/bin/libmpr.dylib
-DEPS_22 += $(CONFIG)/inc/pcre.h
-DEPS_22 += $(CONFIG)/obj/pcre.o
-ifeq ($(ME_EXT_PCRE),1)
-    DEPS_22 += $(CONFIG)/bin/libpcre.dylib
-endif
-DEPS_22 += $(CONFIG)/inc/http.h
-DEPS_22 += $(CONFIG)/obj/httpLib.o
-DEPS_22 += $(CONFIG)/bin/libhttp.dylib
-DEPS_22 += $(CONFIG)/inc/zlib.h
-DEPS_22 += $(CONFIG)/obj/zlib.o
-ifeq ($(ME_EXT_ZLIB),1)
-    DEPS_22 += $(CONFIG)/bin/libzlib.dylib
-endif
-DEPS_22 += $(CONFIG)/inc/ejs.h
-DEPS_22 += $(CONFIG)/inc/ejs.slots.h
-DEPS_22 += $(CONFIG)/inc/ejsByteGoto.h
-DEPS_22 += $(CONFIG)/obj/ejsLib.o
-DEPS_22 += $(CONFIG)/bin/libejs.dylib
-DEPS_22 += $(CONFIG)/obj/ejs.o
-
-LIBS_22 += -lejs
-LIBS_22 += -lhttp
-LIBS_22 += -lmpr
-ifeq ($(ME_EXT_PCRE),1)
-    LIBS_22 += -lpcre
-endif
-ifeq ($(ME_EXT_ZLIB),1)
-    LIBS_22 += -lzlib
-endif
-
-$(CONFIG)/bin/ejscmd: $(DEPS_22)
-	@echo '      [Link] $(CONFIG)/bin/ejscmd'
-	$(CC) -o $(CONFIG)/bin/ejscmd -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/ejs.o" $(LIBPATHS_22) $(LIBS_22) $(LIBS_22) $(LIBS) -ledit 
-endif
-
-#
-#   ejsc.o
-#
-DEPS_23 += $(CONFIG)/inc/me.h
-DEPS_23 += $(CONFIG)/inc/ejs.h
-
-$(CONFIG)/obj/ejsc.o: \
-    src/paks/ejs/ejsc.c $(DEPS_23)
-	@echo '   [Compile] $(CONFIG)/obj/ejsc.o'
-	$(CC) -c $(CFLAGS) $(DFLAGS) -o $(CONFIG)/obj/ejsc.o -arch $(CC_ARCH) $(IFLAGS) src/paks/ejs/ejsc.c
-
-ifeq ($(ME_EXT_EJS),1)
-#
-#   ejsc
-#
-DEPS_24 += $(CONFIG)/inc/mpr.h
-DEPS_24 += $(CONFIG)/inc/me.h
-DEPS_24 += $(CONFIG)/inc/osdep.h
-DEPS_24 += $(CONFIG)/obj/mprLib.o
-DEPS_24 += $(CONFIG)/bin/libmpr.dylib
-DEPS_24 += $(CONFIG)/inc/pcre.h
-DEPS_24 += $(CONFIG)/obj/pcre.o
-ifeq ($(ME_EXT_PCRE),1)
-    DEPS_24 += $(CONFIG)/bin/libpcre.dylib
-endif
-DEPS_24 += $(CONFIG)/inc/http.h
-DEPS_24 += $(CONFIG)/obj/httpLib.o
-DEPS_24 += $(CONFIG)/bin/libhttp.dylib
-DEPS_24 += $(CONFIG)/inc/zlib.h
-DEPS_24 += $(CONFIG)/obj/zlib.o
-ifeq ($(ME_EXT_ZLIB),1)
-    DEPS_24 += $(CONFIG)/bin/libzlib.dylib
-endif
-DEPS_24 += $(CONFIG)/inc/ejs.h
-DEPS_24 += $(CONFIG)/inc/ejs.slots.h
-DEPS_24 += $(CONFIG)/inc/ejsByteGoto.h
-DEPS_24 += $(CONFIG)/obj/ejsLib.o
-DEPS_24 += $(CONFIG)/bin/libejs.dylib
-DEPS_24 += $(CONFIG)/obj/ejsc.o
-
-LIBS_24 += -lejs
-LIBS_24 += -lhttp
-LIBS_24 += -lmpr
-ifeq ($(ME_EXT_PCRE),1)
-    LIBS_24 += -lpcre
-endif
-ifeq ($(ME_EXT_ZLIB),1)
-    LIBS_24 += -lzlib
-endif
-
-$(CONFIG)/bin/ejsc: $(DEPS_24)
-	@echo '      [Link] $(CONFIG)/bin/ejsc'
-	$(CC) -o $(CONFIG)/bin/ejsc -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/ejsc.o" $(LIBPATHS_24) $(LIBS_24) $(LIBS_24) $(LIBS) 
-endif
-
-ifeq ($(ME_EXT_EJS),1)
-#
-#   ejs.mod
-#
-DEPS_25 += src/paks/ejs/ejs.es
 DEPS_25 += $(CONFIG)/inc/mpr.h
 DEPS_25 += $(CONFIG)/inc/me.h
 DEPS_25 += $(CONFIG)/inc/osdep.h
@@ -558,15 +494,136 @@ DEPS_25 += $(CONFIG)/obj/zlib.o
 ifeq ($(ME_EXT_ZLIB),1)
     DEPS_25 += $(CONFIG)/bin/libzlib.dylib
 endif
+DEPS_25 += $(CONFIG)/inc/sqlite3.h
+DEPS_25 += $(CONFIG)/obj/sqlite3.o
+ifeq ($(ME_EXT_SQLITE),1)
+    DEPS_25 += $(CONFIG)/bin/libsql.dylib
+endif
 DEPS_25 += $(CONFIG)/inc/ejs.h
 DEPS_25 += $(CONFIG)/inc/ejs.slots.h
 DEPS_25 += $(CONFIG)/inc/ejsByteGoto.h
 DEPS_25 += $(CONFIG)/obj/ejsLib.o
 DEPS_25 += $(CONFIG)/bin/libejs.dylib
-DEPS_25 += $(CONFIG)/obj/ejsc.o
-DEPS_25 += $(CONFIG)/bin/ejsc
+DEPS_25 += $(CONFIG)/obj/ejs.o
 
-$(CONFIG)/bin/ejs.mod: $(DEPS_25)
+LIBS_25 += -lejs
+LIBS_25 += -lhttp
+LIBS_25 += -lmpr
+ifeq ($(ME_EXT_PCRE),1)
+    LIBS_25 += -lpcre
+endif
+ifeq ($(ME_EXT_ZLIB),1)
+    LIBS_25 += -lzlib
+endif
+ifeq ($(ME_EXT_SQLITE),1)
+    LIBS_25 += -lsql
+endif
+
+$(CONFIG)/bin/ejscmd: $(DEPS_25)
+	@echo '      [Link] $(CONFIG)/bin/ejscmd'
+	$(CC) -o $(CONFIG)/bin/ejscmd -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/ejs.o" $(LIBPATHS_25) $(LIBS_25) $(LIBS_25) $(LIBS) -ledit 
+endif
+
+#
+#   ejsc.o
+#
+DEPS_26 += $(CONFIG)/inc/me.h
+DEPS_26 += $(CONFIG)/inc/ejs.h
+
+$(CONFIG)/obj/ejsc.o: \
+    src/paks/ejs/ejsc.c $(DEPS_26)
+	@echo '   [Compile] $(CONFIG)/obj/ejsc.o'
+	$(CC) -c $(CFLAGS) $(DFLAGS) -o $(CONFIG)/obj/ejsc.o -arch $(CC_ARCH) $(IFLAGS) src/paks/ejs/ejsc.c
+
+ifeq ($(ME_EXT_EJS),1)
+#
+#   ejsc
+#
+DEPS_27 += $(CONFIG)/inc/mpr.h
+DEPS_27 += $(CONFIG)/inc/me.h
+DEPS_27 += $(CONFIG)/inc/osdep.h
+DEPS_27 += $(CONFIG)/obj/mprLib.o
+DEPS_27 += $(CONFIG)/bin/libmpr.dylib
+DEPS_27 += $(CONFIG)/inc/pcre.h
+DEPS_27 += $(CONFIG)/obj/pcre.o
+ifeq ($(ME_EXT_PCRE),1)
+    DEPS_27 += $(CONFIG)/bin/libpcre.dylib
+endif
+DEPS_27 += $(CONFIG)/inc/http.h
+DEPS_27 += $(CONFIG)/obj/httpLib.o
+DEPS_27 += $(CONFIG)/bin/libhttp.dylib
+DEPS_27 += $(CONFIG)/inc/zlib.h
+DEPS_27 += $(CONFIG)/obj/zlib.o
+ifeq ($(ME_EXT_ZLIB),1)
+    DEPS_27 += $(CONFIG)/bin/libzlib.dylib
+endif
+DEPS_27 += $(CONFIG)/inc/sqlite3.h
+DEPS_27 += $(CONFIG)/obj/sqlite3.o
+ifeq ($(ME_EXT_SQLITE),1)
+    DEPS_27 += $(CONFIG)/bin/libsql.dylib
+endif
+DEPS_27 += $(CONFIG)/inc/ejs.h
+DEPS_27 += $(CONFIG)/inc/ejs.slots.h
+DEPS_27 += $(CONFIG)/inc/ejsByteGoto.h
+DEPS_27 += $(CONFIG)/obj/ejsLib.o
+DEPS_27 += $(CONFIG)/bin/libejs.dylib
+DEPS_27 += $(CONFIG)/obj/ejsc.o
+
+LIBS_27 += -lejs
+LIBS_27 += -lhttp
+LIBS_27 += -lmpr
+ifeq ($(ME_EXT_PCRE),1)
+    LIBS_27 += -lpcre
+endif
+ifeq ($(ME_EXT_ZLIB),1)
+    LIBS_27 += -lzlib
+endif
+ifeq ($(ME_EXT_SQLITE),1)
+    LIBS_27 += -lsql
+endif
+
+$(CONFIG)/bin/ejsc: $(DEPS_27)
+	@echo '      [Link] $(CONFIG)/bin/ejsc'
+	$(CC) -o $(CONFIG)/bin/ejsc -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/ejsc.o" $(LIBPATHS_27) $(LIBS_27) $(LIBS_27) $(LIBS) 
+endif
+
+ifeq ($(ME_EXT_EJS),1)
+#
+#   ejs.mod
+#
+DEPS_28 += src/paks/ejs/ejs.es
+DEPS_28 += $(CONFIG)/inc/mpr.h
+DEPS_28 += $(CONFIG)/inc/me.h
+DEPS_28 += $(CONFIG)/inc/osdep.h
+DEPS_28 += $(CONFIG)/obj/mprLib.o
+DEPS_28 += $(CONFIG)/bin/libmpr.dylib
+DEPS_28 += $(CONFIG)/inc/pcre.h
+DEPS_28 += $(CONFIG)/obj/pcre.o
+ifeq ($(ME_EXT_PCRE),1)
+    DEPS_28 += $(CONFIG)/bin/libpcre.dylib
+endif
+DEPS_28 += $(CONFIG)/inc/http.h
+DEPS_28 += $(CONFIG)/obj/httpLib.o
+DEPS_28 += $(CONFIG)/bin/libhttp.dylib
+DEPS_28 += $(CONFIG)/inc/zlib.h
+DEPS_28 += $(CONFIG)/obj/zlib.o
+ifeq ($(ME_EXT_ZLIB),1)
+    DEPS_28 += $(CONFIG)/bin/libzlib.dylib
+endif
+DEPS_28 += $(CONFIG)/inc/sqlite3.h
+DEPS_28 += $(CONFIG)/obj/sqlite3.o
+ifeq ($(ME_EXT_SQLITE),1)
+    DEPS_28 += $(CONFIG)/bin/libsql.dylib
+endif
+DEPS_28 += $(CONFIG)/inc/ejs.h
+DEPS_28 += $(CONFIG)/inc/ejs.slots.h
+DEPS_28 += $(CONFIG)/inc/ejsByteGoto.h
+DEPS_28 += $(CONFIG)/obj/ejsLib.o
+DEPS_28 += $(CONFIG)/bin/libejs.dylib
+DEPS_28 += $(CONFIG)/obj/ejsc.o
+DEPS_28 += $(CONFIG)/bin/ejsc
+
+$(CONFIG)/bin/ejs.mod: $(DEPS_28)
 	( \
 	cd src/paks/ejs; \
 	../../../$(CONFIG)/bin/ejsc --out ../../../$(CONFIG)/bin/ejs.mod --optimize 9 --bind --require null ejs.es ; \
@@ -576,7 +633,7 @@ endif
 #
 #   est.h
 #
-$(CONFIG)/inc/est.h: $(DEPS_26)
+$(CONFIG)/inc/est.h: $(DEPS_29)
 	@echo '      [Copy] $(CONFIG)/inc/est.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp src/paks/est/est.h $(CONFIG)/inc/est.h
@@ -584,25 +641,25 @@ $(CONFIG)/inc/est.h: $(DEPS_26)
 #
 #   estLib.o
 #
-DEPS_27 += $(CONFIG)/inc/me.h
-DEPS_27 += $(CONFIG)/inc/est.h
-DEPS_27 += $(CONFIG)/inc/osdep.h
+DEPS_30 += $(CONFIG)/inc/me.h
+DEPS_30 += $(CONFIG)/inc/est.h
+DEPS_30 += $(CONFIG)/inc/osdep.h
 
 $(CONFIG)/obj/estLib.o: \
-    src/paks/est/estLib.c $(DEPS_27)
+    src/paks/est/estLib.c $(DEPS_30)
 	@echo '   [Compile] $(CONFIG)/obj/estLib.o'
-	$(CC) -c $(CFLAGS) $(DFLAGS) -o $(CONFIG)/obj/estLib.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/est/estLib.c
+	$(CC) -c $(CFLAGS) $(DFLAGS) -o $(CONFIG)/obj/estLib.o -arch $(CC_ARCH) $(IFLAGS) src/paks/est/estLib.c
 
 ifeq ($(ME_EXT_EST),1)
 #
 #   libest
 #
-DEPS_28 += $(CONFIG)/inc/est.h
-DEPS_28 += $(CONFIG)/inc/me.h
-DEPS_28 += $(CONFIG)/inc/osdep.h
-DEPS_28 += $(CONFIG)/obj/estLib.o
+DEPS_31 += $(CONFIG)/inc/est.h
+DEPS_31 += $(CONFIG)/inc/me.h
+DEPS_31 += $(CONFIG)/inc/osdep.h
+DEPS_31 += $(CONFIG)/obj/estLib.o
 
-$(CONFIG)/bin/libest.dylib: $(DEPS_28)
+$(CONFIG)/bin/libest.dylib: $(DEPS_31)
 	@echo '      [Link] $(CONFIG)/bin/libest.dylib'
 	$(CC) -dynamiclib -o $(CONFIG)/bin/libest.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libest.dylib -compatibility_version 0.8.0 -current_version 0.8.0 "$(CONFIG)/obj/estLib.o" $(LIBS) 
 endif
@@ -610,9 +667,9 @@ endif
 #
 #   ca-crt
 #
-DEPS_29 += src/paks/est/ca.crt
+DEPS_32 += src/paks/est/ca.crt
 
-$(CONFIG)/bin/ca.crt: $(DEPS_29)
+$(CONFIG)/bin/ca.crt: $(DEPS_32)
 	@echo '      [Copy] $(CONFIG)/bin/ca.crt'
 	mkdir -p "$(CONFIG)/bin"
 	cp src/paks/est/ca.crt $(CONFIG)/bin/ca.crt
@@ -620,109 +677,77 @@ $(CONFIG)/bin/ca.crt: $(DEPS_29)
 #
 #   http.o
 #
-DEPS_30 += $(CONFIG)/inc/me.h
-DEPS_30 += $(CONFIG)/inc/http.h
+DEPS_33 += $(CONFIG)/inc/me.h
+DEPS_33 += $(CONFIG)/inc/http.h
 
 $(CONFIG)/obj/http.o: \
-    src/paks/http/http.c $(DEPS_30)
+    src/paks/http/http.c $(DEPS_33)
 	@echo '   [Compile] $(CONFIG)/obj/http.o'
 	$(CC) -c $(CFLAGS) $(DFLAGS) -o $(CONFIG)/obj/http.o -arch $(CC_ARCH) $(IFLAGS) src/paks/http/http.c
 
 #
 #   httpcmd
 #
-DEPS_31 += $(CONFIG)/inc/mpr.h
-DEPS_31 += $(CONFIG)/inc/me.h
-DEPS_31 += $(CONFIG)/inc/osdep.h
-DEPS_31 += $(CONFIG)/obj/mprLib.o
-DEPS_31 += $(CONFIG)/bin/libmpr.dylib
-DEPS_31 += $(CONFIG)/inc/pcre.h
-DEPS_31 += $(CONFIG)/obj/pcre.o
+DEPS_34 += $(CONFIG)/inc/mpr.h
+DEPS_34 += $(CONFIG)/inc/me.h
+DEPS_34 += $(CONFIG)/inc/osdep.h
+DEPS_34 += $(CONFIG)/obj/mprLib.o
+DEPS_34 += $(CONFIG)/bin/libmpr.dylib
+DEPS_34 += $(CONFIG)/inc/pcre.h
+DEPS_34 += $(CONFIG)/obj/pcre.o
 ifeq ($(ME_EXT_PCRE),1)
-    DEPS_31 += $(CONFIG)/bin/libpcre.dylib
+    DEPS_34 += $(CONFIG)/bin/libpcre.dylib
 endif
-DEPS_31 += $(CONFIG)/inc/http.h
-DEPS_31 += $(CONFIG)/obj/httpLib.o
-DEPS_31 += $(CONFIG)/bin/libhttp.dylib
-DEPS_31 += $(CONFIG)/obj/http.o
+DEPS_34 += $(CONFIG)/inc/http.h
+DEPS_34 += $(CONFIG)/obj/httpLib.o
+DEPS_34 += $(CONFIG)/bin/libhttp.dylib
+DEPS_34 += $(CONFIG)/obj/http.o
 
-LIBS_31 += -lhttp
-LIBS_31 += -lmpr
+LIBS_34 += -lhttp
+LIBS_34 += -lmpr
 ifeq ($(ME_EXT_PCRE),1)
-    LIBS_31 += -lpcre
+    LIBS_34 += -lpcre
 endif
 
-$(CONFIG)/bin/httpcmd: $(DEPS_31)
-	@echo '      [Link] $(CONFIG)/bin/httpcmd'
-	$(CC) -o $(CONFIG)/bin/httpcmd -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/http.o" $(LIBPATHS_31) $(LIBS_31) $(LIBS_31) $(LIBS) 
+$(CONFIG)/bin/http: $(DEPS_34)
+	@echo '      [Link] $(CONFIG)/bin/http'
+	$(CC) -o $(CONFIG)/bin/http -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/http.o" $(LIBPATHS_34) $(LIBS_34) $(LIBS_34) $(LIBS) 
 
 #
 #   mprSsl.o
 #
-DEPS_32 += $(CONFIG)/inc/me.h
-DEPS_32 += $(CONFIG)/inc/mpr.h
-DEPS_32 += $(CONFIG)/inc/est.h
+DEPS_35 += $(CONFIG)/inc/me.h
+DEPS_35 += $(CONFIG)/inc/mpr.h
+DEPS_35 += $(CONFIG)/inc/est.h
 
 $(CONFIG)/obj/mprSsl.o: \
-    src/paks/mpr/mprSsl.c $(DEPS_32)
+    src/paks/mpr/mprSsl.c $(DEPS_35)
 	@echo '   [Compile] $(CONFIG)/obj/mprSsl.o'
 	$(CC) -c $(CFLAGS) $(DFLAGS) -o $(CONFIG)/obj/mprSsl.o -arch $(CC_ARCH) $(IFLAGS) src/paks/mpr/mprSsl.c
 
 #
 #   libmprssl
 #
-DEPS_33 += $(CONFIG)/inc/mpr.h
-DEPS_33 += $(CONFIG)/inc/me.h
-DEPS_33 += $(CONFIG)/inc/osdep.h
-DEPS_33 += $(CONFIG)/obj/mprLib.o
-DEPS_33 += $(CONFIG)/bin/libmpr.dylib
-DEPS_33 += $(CONFIG)/inc/est.h
-DEPS_33 += $(CONFIG)/obj/estLib.o
-ifeq ($(ME_EXT_EST),1)
-    DEPS_33 += $(CONFIG)/bin/libest.dylib
-endif
-DEPS_33 += $(CONFIG)/obj/mprSsl.o
-
-LIBS_33 += -lmpr
-ifeq ($(ME_EXT_EST),1)
-    LIBS_33 += -lest
-endif
-
-$(CONFIG)/bin/libmprssl.dylib: $(DEPS_33)
-	@echo '      [Link] $(CONFIG)/bin/libmprssl.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libmprssl.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libmprssl.dylib -compatibility_version 0.8.0 -current_version 0.8.0 "$(CONFIG)/obj/mprSsl.o" $(LIBPATHS_33) $(LIBS_33) $(LIBS_33) $(LIBS) 
-
-#
-#   sqlite3.h
-#
-$(CONFIG)/inc/sqlite3.h: $(DEPS_34)
-	@echo '      [Copy] $(CONFIG)/inc/sqlite3.h'
-	mkdir -p "$(CONFIG)/inc"
-	cp src/paks/sqlite/sqlite3.h $(CONFIG)/inc/sqlite3.h
-
-#
-#   sqlite3.o
-#
-DEPS_35 += $(CONFIG)/inc/me.h
-DEPS_35 += $(CONFIG)/inc/sqlite3.h
-
-$(CONFIG)/obj/sqlite3.o: \
-    src/paks/sqlite/sqlite3.c $(DEPS_35)
-	@echo '   [Compile] $(CONFIG)/obj/sqlite3.o'
-	$(CC) -c $(CFLAGS) $(DFLAGS) -o $(CONFIG)/obj/sqlite3.o -arch $(CC_ARCH) $(IFLAGS) src/paks/sqlite/sqlite3.c
-
-ifeq ($(ME_EXT_SQLITE),1)
-#
-#   libsql
-#
-DEPS_36 += $(CONFIG)/inc/sqlite3.h
+DEPS_36 += $(CONFIG)/inc/mpr.h
 DEPS_36 += $(CONFIG)/inc/me.h
-DEPS_36 += $(CONFIG)/obj/sqlite3.o
-
-$(CONFIG)/bin/libsql.dylib: $(DEPS_36)
-	@echo '      [Link] $(CONFIG)/bin/libsql.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libsql.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libsql.dylib -compatibility_version 0.8.0 -current_version 0.8.0 "$(CONFIG)/obj/sqlite3.o" $(LIBS) 
+DEPS_36 += $(CONFIG)/inc/osdep.h
+DEPS_36 += $(CONFIG)/obj/mprLib.o
+DEPS_36 += $(CONFIG)/bin/libmpr.dylib
+DEPS_36 += $(CONFIG)/inc/est.h
+DEPS_36 += $(CONFIG)/obj/estLib.o
+ifeq ($(ME_EXT_EST),1)
+    DEPS_36 += $(CONFIG)/bin/libest.dylib
 endif
+DEPS_36 += $(CONFIG)/obj/mprSsl.o
+
+LIBS_36 += -lmpr
+ifeq ($(ME_EXT_EST),1)
+    LIBS_36 += -lest
+endif
+
+$(CONFIG)/bin/libmprssl.dylib: $(DEPS_36)
+	@echo '      [Link] $(CONFIG)/bin/libmprssl.dylib'
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libmprssl.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libmprssl.dylib -compatibility_version 0.8.0 -current_version 0.8.0 "$(CONFIG)/obj/mprSsl.o" $(LIBPATHS_36) $(LIBS_36) $(LIBS_36) $(LIBS) 
 
 #
 #   sqlite.o
@@ -733,7 +758,7 @@ DEPS_37 += $(CONFIG)/inc/sqlite3.h
 $(CONFIG)/obj/sqlite.o: \
     src/paks/sqlite/sqlite.c $(DEPS_37)
 	@echo '   [Compile] $(CONFIG)/obj/sqlite.o'
-	$(CC) -c $(CFLAGS) $(DFLAGS) -o $(CONFIG)/obj/sqlite.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/sqlite/sqlite.c
+	$(CC) -c $(CFLAGS) $(DFLAGS) -o $(CONFIG)/obj/sqlite.o -arch $(CC_ARCH) $(IFLAGS) src/paks/sqlite/sqlite.c
 
 ifeq ($(ME_EXT_SQLITE),1)
 #
@@ -784,6 +809,11 @@ DEPS_40 += $(CONFIG)/obj/zlib.o
 ifeq ($(ME_EXT_ZLIB),1)
     DEPS_40 += $(CONFIG)/bin/libzlib.dylib
 endif
+DEPS_40 += $(CONFIG)/inc/sqlite3.h
+DEPS_40 += $(CONFIG)/obj/sqlite3.o
+ifeq ($(ME_EXT_SQLITE),1)
+    DEPS_40 += $(CONFIG)/bin/libsql.dylib
+endif
 DEPS_40 += $(CONFIG)/inc/ejs.h
 DEPS_40 += $(CONFIG)/inc/ejs.slots.h
 DEPS_40 += $(CONFIG)/inc/ejsByteGoto.h
@@ -804,13 +834,16 @@ endif
 ifeq ($(ME_EXT_ZLIB),1)
     LIBS_40 += -lzlib
 endif
+ifeq ($(ME_EXT_SQLITE),1)
+    LIBS_40 += -lsql
+endif
 
 $(CONFIG)/bin/me: $(DEPS_40)
 	@echo '      [Link] $(CONFIG)/bin/me'
 	$(CC) -o $(CONFIG)/bin/me -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/me.o" $(LIBPATHS_40) $(LIBS_40) $(LIBS_40) $(LIBS) 
 
 #
-#   makeme
+#   me-core
 #
 DEPS_41 += src/configure.es
 DEPS_41 += src/gendoc.es
@@ -863,7 +896,7 @@ DEPS_41 += src/standard.me
 DEPS_41 += src/vstudio.es
 DEPS_41 += src/xcode.es
 
-$(CONFIG)/bin/makeme: $(DEPS_41)
+$(CONFIG)/bin: $(DEPS_41)
 	@echo '      [Copy] $(CONFIG)/bin'
 	mkdir -p "$(CONFIG)/bin"
 	cp src/configure.es $(CONFIG)/bin/configure.es
@@ -920,24 +953,14 @@ $(CONFIG)/bin/makeme: $(DEPS_41)
 	cp src/xcode.es $(CONFIG)/bin/xcode.es
 
 #
-#   bower.json
-#
-DEPS_42 += package.json
-
-bower.json: $(DEPS_42)
-	@echo '      [Copy] bower.json'
-	mkdir -p "."
-	cp package.json bower.json
-
-#
 #   stop
 #
-stop: $(DEPS_43)
+stop: $(DEPS_42)
 
 #
 #   installBinary
 #
-installBinary: $(DEPS_44)
+installBinary: $(DEPS_43)
 	( \
 	cd .; \
 	mkdir -p "$(ME_APP_PREFIX)" ; \
@@ -957,7 +980,8 @@ installBinary: $(DEPS_44)
 	cp $(CONFIG)/bin/libzlib.dylib $(ME_VAPP_PREFIX)/bin/libzlib.dylib ; \
 	cp $(CONFIG)/bin/ca.crt $(ME_VAPP_PREFIX)/bin/ca.crt ; \
 	cp $(CONFIG)/bin/ejs.mod $(ME_VAPP_PREFIX)/bin/ejs.mod ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin/makeme" ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin/makeme/makeme" ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/doc/man/man1" ; \
 	cp doc/man/me.1 $(ME_VAPP_PREFIX)/doc/man/man1/me.1 ; \
 	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \
@@ -968,23 +992,23 @@ installBinary: $(DEPS_44)
 #
 #   start
 #
-start: $(DEPS_45)
+start: $(DEPS_44)
 
 #
 #   install
 #
-DEPS_46 += stop
-DEPS_46 += installBinary
-DEPS_46 += start
+DEPS_45 += stop
+DEPS_45 += installBinary
+DEPS_45 += start
 
-install: $(DEPS_46)
+install: $(DEPS_45)
 
 #
 #   uninstall
 #
-DEPS_47 += stop
+DEPS_46 += stop
 
-uninstall: $(DEPS_47)
+uninstall: $(DEPS_46)
 	( \
 	cd .; \
 	rm -fr "$(ME_VAPP_PREFIX)" ; \

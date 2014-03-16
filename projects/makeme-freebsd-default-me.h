@@ -237,8 +237,8 @@
 #ifndef ME_CONFIG_CMD
     #define ME_CONFIG_CMD "me -d -q -platform freebsd-x86-default -configure . -gen make"
 #endif
-#ifndef ME_MAKEME_NAME
-    #define ME_MAKEME_NAME 1
+#ifndef ME_MAKEME_PRODUCT
+    #define ME_MAKEME_PRODUCT 1
 #endif
 #ifndef ME_PROFILE
     #define ME_PROFILE "default"
