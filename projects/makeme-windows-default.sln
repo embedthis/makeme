@@ -39,9 +39,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libejs", "makeme-windows-de
 	ProjectSection(ProjectDependencies) = postProject
 		{cb7a943f-b210-498c-80dd-8ba85d017f7e} = {cb7a943f-b210-498c-80dd-8ba85d017f7e}
 	EndProjectSection
-	ProjectSection(ProjectDependencies) = postProject
-		{b0bd0136-b55a-44d0-9cc5-d614727183f1} = {b0bd0136-b55a-44d0-9cc5-d614727183f1}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ejscmd", "makeme-windows-default\ejscmd.vcxproj", "{03098E3E-8A0C-4717-9DBC-E1E61D1C8F71}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -107,19 +104,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "makerom", "makeme-windows-d
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
 		{02CA7374-D1AA-425D-8F85-9AD8320980E7} = {02CA7374-D1AA-425D-8F85-9AD8320980E7}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libsql", "makeme-windows-default\libsql.vcxproj", "{B0BD0136-B55A-44D0-9CC5-D614727183F1}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sqliteshell", "makeme-windows-default\sqliteshell.vcxproj", "{A08C8CBC-064C-46F1-AD03-6B7236FC154C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
-	EndProjectSection
-	ProjectSection(ProjectDependencies) = postProject
-		{B0BD0136-B55A-44D0-9CC5-D614727183F1} = {B0BD0136-B55A-44D0-9CC5-D614727183F1}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libzlib", "makeme-windows-default\libzlib.vcxproj", "{CB7A943F-B210-498C-80DD-8BA85D017F7E}"
@@ -267,22 +251,6 @@ Global
 {503708C8-907B-47BA-8FC1-B4CE86861D44}.Release|Win32.Build.0 = Release|Win32
 {503708C8-907B-47BA-8FC1-B4CE86861D44}.Release|x64.ActiveCfg = Release|x64
 {503708C8-907B-47BA-8FC1-B4CE86861D44}.Release|x64.Build.0 = Release|x64
-{B0BD0136-B55A-44D0-9CC5-D614727183F1}.Debug|Win32.ActiveCfg = Debug|Win32
-{B0BD0136-B55A-44D0-9CC5-D614727183F1}.Debug|Win32.Build.0 = Debug|Win32
-{B0BD0136-B55A-44D0-9CC5-D614727183F1}.Debug|x64.ActiveCfg = Debug|x64
-{B0BD0136-B55A-44D0-9CC5-D614727183F1}.Debug|x64.Build.0 = Debug|x64
-{B0BD0136-B55A-44D0-9CC5-D614727183F1}.Release|Win32.ActiveCfg = Release|Win32
-{B0BD0136-B55A-44D0-9CC5-D614727183F1}.Release|Win32.Build.0 = Release|Win32
-{B0BD0136-B55A-44D0-9CC5-D614727183F1}.Release|x64.ActiveCfg = Release|x64
-{B0BD0136-B55A-44D0-9CC5-D614727183F1}.Release|x64.Build.0 = Release|x64
-{A08C8CBC-064C-46F1-AD03-6B7236FC154C}.Debug|Win32.ActiveCfg = Debug|Win32
-{A08C8CBC-064C-46F1-AD03-6B7236FC154C}.Debug|Win32.Build.0 = Debug|Win32
-{A08C8CBC-064C-46F1-AD03-6B7236FC154C}.Debug|x64.ActiveCfg = Debug|x64
-{A08C8CBC-064C-46F1-AD03-6B7236FC154C}.Debug|x64.Build.0 = Debug|x64
-{A08C8CBC-064C-46F1-AD03-6B7236FC154C}.Release|Win32.ActiveCfg = Release|Win32
-{A08C8CBC-064C-46F1-AD03-6B7236FC154C}.Release|Win32.Build.0 = Release|Win32
-{A08C8CBC-064C-46F1-AD03-6B7236FC154C}.Release|x64.ActiveCfg = Release|x64
-{A08C8CBC-064C-46F1-AD03-6B7236FC154C}.Release|x64.Build.0 = Release|x64
 {CB7A943F-B210-498C-80DD-8BA85D017F7E}.Debug|Win32.ActiveCfg = Debug|Win32
 {CB7A943F-B210-498C-80DD-8BA85D017F7E}.Debug|Win32.Build.0 = Debug|Win32
 {CB7A943F-B210-498C-80DD-8BA85D017F7E}.Debug|x64.ActiveCfg = Debug|x64

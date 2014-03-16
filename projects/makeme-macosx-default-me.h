@@ -79,7 +79,7 @@
     #define ME_EXTENSIONS_DISCOVER "dsi,man,man2html,pmaker,ssl,zip"
 #endif
 #ifndef ME_EXTENSIONS_OMIT
-    #define ME_EXTENSIONS_OMIT "openssl"
+    #define ME_EXTENSIONS_OMIT "openssl,sqlite"
 #endif
 #ifndef ME_EXTENSIONS_REQUIRE
     #define ME_EXTENSIONS_REQUIRE "compiler,lib,link,osdep,ejs,mpr,http,pcre,zlib"
