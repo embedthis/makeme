@@ -102,9 +102,6 @@ endif
 TARGETS               += $(CONFIG)/bin/ca.crt
 TARGETS               += $(CONFIG)/bin/http
 TARGETS               += $(CONFIG)/bin/libmprssl.dylib
-ifeq ($(ME_EXT_SQLITE),1)
-    TARGETS           += $(CONFIG)/bin/sqlite
-endif
 TARGETS               += $(CONFIG)/bin/me
 TARGETS               += $(CONFIG)/bin
 
@@ -153,7 +150,6 @@ clean:
 	rm -f "$(CONFIG)/bin/makerom"
 	rm -f "$(CONFIG)/bin/libpcre.dylib"
 	rm -f "$(CONFIG)/bin/libsql.dylib"
-	rm -f "$(CONFIG)/bin/sqlite"
 	rm -f "$(CONFIG)/bin/libzlib.dylib"
 	rm -f "$(CONFIG)/obj/ejsLib.o"
 	rm -f "$(CONFIG)/obj/ejs.o"
@@ -165,8 +161,6 @@ clean:
 	rm -f "$(CONFIG)/obj/mprSsl.o"
 	rm -f "$(CONFIG)/obj/makerom.o"
 	rm -f "$(CONFIG)/obj/pcre.o"
-	rm -f "$(CONFIG)/obj/sqlite3.o"
-	rm -f "$(CONFIG)/obj/sqlite.o"
 	rm -f "$(CONFIG)/obj/zlib.o"
 	rm -f "$(CONFIG)/obj/me.o"
 
@@ -340,38 +334,6 @@ $(CONFIG)/bin/libzlib.dylib: $(DEPS_15)
 endif
 
 #
-#   sqlite3.h
-#
-$(CONFIG)/inc/sqlite3.h: $(DEPS_16)
-	@echo '      [Copy] $(CONFIG)/inc/sqlite3.h'
-	mkdir -p "$(CONFIG)/inc"
-	cp src/paks/sqlite/sqlite3.h $(CONFIG)/inc/sqlite3.h
-
-#
-#   sqlite3.o
-#
-DEPS_17 += $(CONFIG)/inc/me.h
-DEPS_17 += $(CONFIG)/inc/sqlite3.h
-
-$(CONFIG)/obj/sqlite3.o: \
-    src/paks/sqlite/sqlite3.c $(DEPS_17)
-	@echo '   [Compile] $(CONFIG)/obj/sqlite3.o'
-	$(CC) -c $(CFLAGS) $(DFLAGS) -o $(CONFIG)/obj/sqlite3.o -arch $(CC_ARCH) $(IFLAGS) src/paks/sqlite/sqlite3.c
-
-ifeq ($(ME_EXT_SQLITE),1)
-#
-#   libsql
-#
-DEPS_18 += $(CONFIG)/inc/sqlite3.h
-DEPS_18 += $(CONFIG)/inc/me.h
-DEPS_18 += $(CONFIG)/obj/sqlite3.o
-
-$(CONFIG)/bin/libsql.dylib: $(DEPS_18)
-	@echo '      [Link] $(CONFIG)/bin/libsql.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libsql.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libsql.dylib -compatibility_version 0.8.0 -current_version 0.8.0 "$(CONFIG)/obj/sqlite3.o" $(LIBS) 
-endif
-
-#
 #   ejs.h
 #
 $(CONFIG)/inc/ejs.h: $(DEPS_19)
@@ -434,11 +396,6 @@ DEPS_23 += $(CONFIG)/obj/zlib.o
 ifeq ($(ME_EXT_ZLIB),1)
     DEPS_23 += $(CONFIG)/bin/libzlib.dylib
 endif
-DEPS_23 += $(CONFIG)/inc/sqlite3.h
-DEPS_23 += $(CONFIG)/obj/sqlite3.o
-ifeq ($(ME_EXT_SQLITE),1)
-    DEPS_23 += $(CONFIG)/bin/libsql.dylib
-endif
 DEPS_23 += $(CONFIG)/inc/ejs.h
 DEPS_23 += $(CONFIG)/inc/ejs.slots.h
 DEPS_23 += $(CONFIG)/inc/ejsByteGoto.h
@@ -451,9 +408,6 @@ ifeq ($(ME_EXT_PCRE),1)
 endif
 ifeq ($(ME_EXT_ZLIB),1)
     LIBS_23 += -lzlib
-endif
-ifeq ($(ME_EXT_SQLITE),1)
-    LIBS_23 += -lsql
 endif
 
 $(CONFIG)/bin/libejs.dylib: $(DEPS_23)
@@ -494,11 +448,6 @@ DEPS_25 += $(CONFIG)/obj/zlib.o
 ifeq ($(ME_EXT_ZLIB),1)
     DEPS_25 += $(CONFIG)/bin/libzlib.dylib
 endif
-DEPS_25 += $(CONFIG)/inc/sqlite3.h
-DEPS_25 += $(CONFIG)/obj/sqlite3.o
-ifeq ($(ME_EXT_SQLITE),1)
-    DEPS_25 += $(CONFIG)/bin/libsql.dylib
-endif
 DEPS_25 += $(CONFIG)/inc/ejs.h
 DEPS_25 += $(CONFIG)/inc/ejs.slots.h
 DEPS_25 += $(CONFIG)/inc/ejsByteGoto.h
@@ -514,9 +463,6 @@ ifeq ($(ME_EXT_PCRE),1)
 endif
 ifeq ($(ME_EXT_ZLIB),1)
     LIBS_25 += -lzlib
-endif
-ifeq ($(ME_EXT_SQLITE),1)
-    LIBS_25 += -lsql
 endif
 
 $(CONFIG)/bin/ejscmd: $(DEPS_25)
@@ -557,11 +503,6 @@ DEPS_27 += $(CONFIG)/obj/zlib.o
 ifeq ($(ME_EXT_ZLIB),1)
     DEPS_27 += $(CONFIG)/bin/libzlib.dylib
 endif
-DEPS_27 += $(CONFIG)/inc/sqlite3.h
-DEPS_27 += $(CONFIG)/obj/sqlite3.o
-ifeq ($(ME_EXT_SQLITE),1)
-    DEPS_27 += $(CONFIG)/bin/libsql.dylib
-endif
 DEPS_27 += $(CONFIG)/inc/ejs.h
 DEPS_27 += $(CONFIG)/inc/ejs.slots.h
 DEPS_27 += $(CONFIG)/inc/ejsByteGoto.h
@@ -577,9 +518,6 @@ ifeq ($(ME_EXT_PCRE),1)
 endif
 ifeq ($(ME_EXT_ZLIB),1)
     LIBS_27 += -lzlib
-endif
-ifeq ($(ME_EXT_SQLITE),1)
-    LIBS_27 += -lsql
 endif
 
 $(CONFIG)/bin/ejsc: $(DEPS_27)
@@ -609,11 +547,6 @@ DEPS_28 += $(CONFIG)/inc/zlib.h
 DEPS_28 += $(CONFIG)/obj/zlib.o
 ifeq ($(ME_EXT_ZLIB),1)
     DEPS_28 += $(CONFIG)/bin/libzlib.dylib
-endif
-DEPS_28 += $(CONFIG)/inc/sqlite3.h
-DEPS_28 += $(CONFIG)/obj/sqlite3.o
-ifeq ($(ME_EXT_SQLITE),1)
-    DEPS_28 += $(CONFIG)/bin/libsql.dylib
 endif
 DEPS_28 += $(CONFIG)/inc/ejs.h
 DEPS_28 += $(CONFIG)/inc/ejs.slots.h
@@ -750,34 +683,6 @@ $(CONFIG)/bin/libmprssl.dylib: $(DEPS_36)
 	$(CC) -dynamiclib -o $(CONFIG)/bin/libmprssl.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libmprssl.dylib -compatibility_version 0.8.0 -current_version 0.8.0 "$(CONFIG)/obj/mprSsl.o" $(LIBPATHS_36) $(LIBS_36) $(LIBS_36) $(LIBS) 
 
 #
-#   sqlite.o
-#
-DEPS_37 += $(CONFIG)/inc/me.h
-DEPS_37 += $(CONFIG)/inc/sqlite3.h
-
-$(CONFIG)/obj/sqlite.o: \
-    src/paks/sqlite/sqlite.c $(DEPS_37)
-	@echo '   [Compile] $(CONFIG)/obj/sqlite.o'
-	$(CC) -c $(CFLAGS) $(DFLAGS) -o $(CONFIG)/obj/sqlite.o -arch $(CC_ARCH) $(IFLAGS) src/paks/sqlite/sqlite.c
-
-ifeq ($(ME_EXT_SQLITE),1)
-#
-#   sqliteshell
-#
-DEPS_38 += $(CONFIG)/inc/sqlite3.h
-DEPS_38 += $(CONFIG)/inc/me.h
-DEPS_38 += $(CONFIG)/obj/sqlite3.o
-DEPS_38 += $(CONFIG)/bin/libsql.dylib
-DEPS_38 += $(CONFIG)/obj/sqlite.o
-
-LIBS_38 += -lsql
-
-$(CONFIG)/bin/sqlite: $(DEPS_38)
-	@echo '      [Link] $(CONFIG)/bin/sqlite'
-	$(CC) -o $(CONFIG)/bin/sqlite -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/sqlite.o" $(LIBPATHS_38) $(LIBS_38) $(LIBS_38) $(LIBS) 
-endif
-
-#
 #   me.o
 #
 DEPS_39 += $(CONFIG)/inc/me.h
@@ -809,11 +714,6 @@ DEPS_40 += $(CONFIG)/obj/zlib.o
 ifeq ($(ME_EXT_ZLIB),1)
     DEPS_40 += $(CONFIG)/bin/libzlib.dylib
 endif
-DEPS_40 += $(CONFIG)/inc/sqlite3.h
-DEPS_40 += $(CONFIG)/obj/sqlite3.o
-ifeq ($(ME_EXT_SQLITE),1)
-    DEPS_40 += $(CONFIG)/bin/libsql.dylib
-endif
 DEPS_40 += $(CONFIG)/inc/ejs.h
 DEPS_40 += $(CONFIG)/inc/ejs.slots.h
 DEPS_40 += $(CONFIG)/inc/ejsByteGoto.h
@@ -833,9 +733,6 @@ ifeq ($(ME_EXT_EJS),1)
 endif
 ifeq ($(ME_EXT_ZLIB),1)
     LIBS_40 += -lzlib
-endif
-ifeq ($(ME_EXT_SQLITE),1)
-    LIBS_40 += -lsql
 endif
 
 $(CONFIG)/bin/me: $(DEPS_40)

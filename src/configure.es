@@ -439,6 +439,9 @@ module embedthis.me {
                     loadProbes(extension.discover)
                 }
                 for each (dname in extension.depends) {
+                    if (me.settings.extensions.omit && me.settings.extensions.omit[dname]) {
+                        continue
+                    }
                     if (findProbe(dname) || me.dir.paks.join(dname).exists) {
                         loadProbes([dname])
                     }

@@ -311,7 +311,7 @@
     #define ME_EXT_PMAKER 1
 #endif
 #ifndef ME_EXT_SQLITE
-    #define ME_EXT_SQLITE 1
+    #define ME_EXT_SQLITE 0
 #endif
 #ifndef ME_EXT_SSL
     #define ME_EXT_SSL 1

@@ -5,7 +5,13 @@
 Me.extension({
     sqlite: {
         description: 'SQLite Database',
-        path: me.dir.paks.join('sqlite'),
+        path: function(ext) {
+            let path = me.dir.paks.join('sqlite')
+            if (path.exists) {
+                return path
+            }
+            throw "Cannot find " + path
+        }
         depends: [ 'libsql' ],
     },
 })

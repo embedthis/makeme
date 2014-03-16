@@ -59,13 +59,14 @@ Me.load({
                 to:     '${abin}/',
                 set:    'core',
 
-            },{ from:   'makeme/**',
-                to:     '${abin}/makeme',
-                subtree:'makeme',
+            },{ from:   'src/**',
+                to:     '${abin}/',
+                exclude: /src\/me.c|src\/paks|\/$/,
+                subtree:'src'
                 set:    'core',
 
-            },{ from:   '${BIN}/makeme/me.mod',
-                to:     '${abin}/makeme/',
+            },{ from:   '${BIN}/me.mod',
+                to:     '${abin}/',
                 set:    'core',
                 enable: false,
 
