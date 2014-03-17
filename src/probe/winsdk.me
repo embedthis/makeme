@@ -2,6 +2,7 @@
     winsdk.me - Windows SDK
  */
 
+
 Me.extension({
     winsdk: {
         description: 'Windows SDK',
@@ -35,9 +36,9 @@ Me.extension({
                 bin = path.join('Bin').portable
             }
             extension.search = bin
+            extension.path = path
 
             let bin = extension.search
-            path = extension.path
             if (extension.winkit) {
                 me.env.PATH = [ bin.join(me.platform.arch) ]
                 me.env.INCLUDE = [ path.join('Include/um').portable, path.join('Include/shared') ]
