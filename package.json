@@ -1,5 +1,5 @@
 {
-    "name": "makeme",
+    "name": "me",
     "description": "Embedthis MakeMe",
     "version": "0.8.0",
     "keywords": [
@@ -15,11 +15,11 @@
     },
     "repository": {
         "type": "git",
-        "url": "git://github.com/embedthis/makeme.git"
+        "url": "git://github.com/embedthis/me.git"
     },
     "bugs": {
         "email": "dev@embedthis.com",
-        "url": "http://github.com/embedthis/makeme/issues"
+        "url": "http://github.com/embedthis/me/issues"
     },
     "licenses": [
         {

@@ -76,10 +76,10 @@ Me.load({
 
     targets: {
         'me.mod': {
-            path: '${BIN}/makeme/me.mod',
+            path: '${BIN}/me.mod',
             files: [ 'src/me.es' ],
             precious: true,
-            run: '${BIN}/ejsc --out ${BIN}/makeme/me.mod --optimize 9 src/me.es',
+            run: '${BIN}/ejsc --out ${BIN}/me.mod --optimize 9 src/me.es',
             depends: [ 'ejsc' ],
             enable: false,
         },
