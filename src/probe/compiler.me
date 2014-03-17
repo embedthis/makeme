@@ -6,47 +6,50 @@
 Me.extension({
     compiler: {
         description: 'C/C++ Compiler',
-        path: function (extension) {
+        path: function (ext) {
+            let path: Path
+            if (me.options.gen) {
+                if (me.platform.like == 'windows') {
+                    path = 'cl'
+                } else if (me.platform.os == 'macosx') {
+                    path = 'clang'
+                } else if (me.platform.os == 'vxworks') {
+                    path = 'cc$(subst x86,pentium,$(ARCH))'
+                } else {
+                    path = 'gcc'
+                }
+                //UNUSED ext.path = path
+                let settings = getDefaultSettings()
+                Me.load({ settings: settings })
+                setCompilerOptions(ext, settings)
+                return path
+            }
             if (me.platform.like == 'windows') {
-                path = findWindowsCompiler(extension)
+                path = findWindowsCompiler(ext)
 
             } else if (me.platform.os == 'vxworks') {
-                path = findVxCompiler(extension)
+                path = findVxCompiler(ext)
 
             } else {
-                path = findPosixCompiler(extension)
+                path = findPosixCompiler(ext)
             }
-            return path
-        },
-        config: function (extension) {
+            ext.path = path
             if (!me.options.configure) {
+throw "WHO EVER COMES HERE MOB AA"
                 let settings = getDefaultSettings()
                 Me.load({settings: settings})
             } else {
                 testCompilerCapabilities()
             }
-            setCompilerOptions(extension, me.settings)
-        },
-        generate: function (extension) {
-            if (me.platform.like == 'windows') {
-                extension.path = 'cl'
-            } else if (me.platform.os == 'macosx') {
-                extension.path = 'clang'
-            } else if (me.platform.os == 'vxworks') {
-                extension.path = 'cc$(subst x86,pentium,$(ARCH))'
-            } else {
-                extension.path = 'gcc'
-            }
-            let settings = getDefaultSettings()
-            Me.load({ settings: settings })
-            setCompilerOptions(extension, settings)
+            setCompilerOptions(ext, me.settings)
+            return path
         },
         discover: [ 'vxworks', 'winsdk' ],
     },
 })
 
 
-function findWindowsCompiler(extension) {
+function findWindowsCompiler(ext) {
     let search
     let vsdir: Path
     let path: Path? = me.extensions.compiler.withpath
@@ -94,12 +97,12 @@ function findWindowsCompiler(extension) {
             vslib = vsbin.join('../lib').normalize
         }
         version = vsdir.name.match(/\d*\.\d/)[0]
-        extension.definitions = [ 'ME_VISUAL_STUDIO_VERSION="' + version + '"' ]
+        ext.definitions = [ 'ME_VISUAL_STUDIO_VERSION="' + version + '"' ]
     }
-    extension.version = version
-    extension.crt = version.replace('.', '')
-    extension.dir = vsdir
-    extension.search = search
+    ext.version = version
+    ext.crt = version.replace('.', '')
+    ext.dir = vsdir
+    ext.search = search
 
     me.env.PATH += [
         vsbin,
@@ -116,7 +119,7 @@ function findWindowsCompiler(extension) {
 }
 
 
-function findVxCompiler(extension) {
+function findVxCompiler(ext) {
     let path: Path? = me.extensions.compiler.withpath
     let platform = me.platform
     if (!path) {
@@ -143,7 +146,7 @@ function findVxCompiler(extension) {
 }
 
 
-function findPosixCompiler(extension) {
+function findPosixCompiler(ext) {
     let path: Path? = me.extensions.compiler.withpath || ((me.platform.os == 'macosx') ? 'clang' : 'gcc')
     return probe(path, {fullpath: true})
 }
@@ -191,69 +194,71 @@ function testCompilerCapabilities() {
     Me.load({ settings: settings })
 }
 
-function setCompilerOptions(extension, settings) {
+function setCompilerOptions(ext, settings) {
     let platform = me.platform
     let arch = platform.arch
 
-    extension.compiler =  [ ]
-    extension.defines =   [ ]
-    extension.includes =  [ me.dir.inc ]
-    extension.linker =    [ ]
-    extension.libpaths =  [ me.dir.bin ]
-    extension.libraries = [ ]
+    ext.compiler =  [ ]
+    ext.defines =   [ ]
+    ext.includes =  [ me.dir.inc ]
+    ext.linker =    [ ]
+    ext.libpaths =  [ me.dir.bin ]
+    ext.libraries = [ ]
 
     if (settings.warnUnused) {
-        extension.compiler.push('-Wno-unused-result')
+        ext.compiler.push('-Wno-unused-result')
     }
     if (settings.warn64to32) {
-        extension.compiler.push('-Wshorten-64-to-32')
+        ext.compiler.push('-Wshorten-64-to-32')
     }
     if (settings.hasLibRt) {
-        extension.libraries.push('rt')
+        ext.libraries.push('rt')
     }
     if (settings.debug) {
-        extension.defines.push('ME_DEBUG')
+        ext.defines.push('ME_DEBUG')
     }
     if (platform.like == 'unix') {
         /* Always include dl so that dlsym can be used even in static programs */
         if (settings.hasDynLoad) {
-            extension.libraries.push('dl')
+            ext.libraries.push('dl')
         }
-        extension.compiler.push('-Wall')
-        extension.libraries.push('pthread', 'm')
+        ext.compiler.push('-Wall')
+        ext.libraries.push('pthread', 'm')
         if (settings.debug) {
-            extension.compiler.push('-g')
-            extension.linker.push('-g')
+            ext.compiler.push('-g')
+            ext.linker.push('-g')
         } else if (settings.tune == 'size') {
-            extension.compiler.push('-Os')
+            ext.compiler.push('-Os')
         } else {
-            extension.compiler.push('-O2')
+            ext.compiler.push('-O2')
         }
         if (platform.os != 'macosx') {
             /* GCC not mac */
             if (!settings.static) {
-                extension.compiler.push('-fPIC')
-                extension.defines.push('_REENTRANT', 'PIC')
+                ext.compiler.push('-fPIC')
+                ext.defines.push('_REENTRANT', 'PIC')
             }
             if (arch.startsWith('arm')) {
-                extension.compiler.push('-mno-sched-prolog')
+                ext.compiler.push('-mno-sched-prolog')
             } else if (arch.startsWith('ppc')) {
-                extension.defines.push('_GNU_TOOL')
+                ext.defines.push('_GNU_TOOL')
             }
         }
     }
 
     if (platform.os == 'linux') {
         if (!settings.static) {
-            extension.linker.push('-rdynamic', '-Wl,--enable-new-dtags', '-Wl,-rpath,$ORIGIN/')
+            ext.linker.push('-rdynamic', '-Wl,--enable-new-dtags', '-Wl,-rpath,$ORIGIN/')
         }
 
     } else if (platform.os == 'macosx') {
-        extension.compiler.push('-Wunreachable-code')
-        extension.linker.push('-Wl,-rpath,@executable_path/', '-Wl,-rpath,@loader_path/')
+        /* PHP, SQLITE warn with this
+        ext.compiler.push('-Wunreachable-code')
+         */
+        ext.linker.push('-Wl,-rpath,@executable_path/', '-Wl,-rpath,@loader_path/')
 
     } else if (platform.os == 'solaris') {
-        extension.libraries.push('lxnet', 'rt', 'socket')
+        ext.libraries.push('lxnet', 'rt', 'socket')
 
     } else if (platform.os == 'vxworks') {
         let cpu = platform.cpu
@@ -273,41 +278,41 @@ function setCompilerOptions(extension, settings) {
                 }
             }
         }
-        extension.defines.push('VXWORKS', 'RW_MULTI_THREAD', '_GNU_TOOL', 'CPU=' + cpu.toUpper())
-        extension.compiler.push('-fno-builtin', '-fno-defer-pop', '-fvolatile')
+        ext.defines.push('VXWORKS', 'RW_MULTI_THREAD', '_GNU_TOOL', 'CPU=' + cpu.toUpper())
+        ext.compiler.push('-fno-builtin', '-fno-defer-pop', '-fvolatile')
         if (arch.match(/mips/)) {
             /* Don't use mips global pointer */
-            extension.compiler.push('-G 0')
+            ext.compiler.push('-G 0')
         }
-        extension.includes += me.extensions.vxworks.includes
-        extension.libraries.push('gcc')
-        extension.linker.push('-Wl,-r')
+        ext.includes += me.extensions.vxworks.includes
+        ext.libraries.push('gcc')
+        ext.linker.push('-Wl,-r')
 
     } else if (platform.os == 'windows') {
-        extension.compiler.push('-nologo', '-GR-', '-W3')
-        extension.defines.push('_REENTRANT', '_MT')
-        extension.libraries.push('ws2_32.lib', 'advapi32.lib', 'user32.lib', 'kernel32.lib', 'oldnames.lib', 'msvcrt.lib', 'shell32.lib')
-        extension.linker.push('-nologo', '-nodefaultlib', '-incremental:no')
+        ext.compiler.push('-nologo', '-GR-', '-W3')
+        ext.defines.push('_REENTRANT', '_MT')
+        ext.libraries.push('ws2_32.lib', 'advapi32.lib', 'user32.lib', 'kernel32.lib', 'oldnames.lib', 'msvcrt.lib', 'shell32.lib')
+        ext.linker.push('-nologo', '-nodefaultlib', '-incremental:no')
         if (settings.debug) {
-            extension.compiler.push('-Zi', '-Od', '-MDd')
-            extension.linker.push('-debug')
+            ext.compiler.push('-Zi', '-Od', '-MDd')
+            ext.linker.push('-debug')
         } else {
-            extension.compiler.push('-O2', '-MD')
+            ext.compiler.push('-O2', '-MD')
         }
-        extension.subsystem = {
+        ext.subsystem = {
             exe: 'console',
             gui: 'windows',
         }
-        extension.entry = {
+        ext.entry = {
             exe: 'mainCRTStartup',
             gui: 'WinMainCRTStartup',
         }
         if (platform.arch == 'x64') {
-            extension.linker.push('-machine:x64')
-            extension.entry.lib = '_DllMainCRTStartup'
+            ext.linker.push('-machine:x64')
+            ext.entry.lib = '_DllMainCRTStartup'
         } else {
-            extension.linker.push('-machine:x86')
-            extension.entry.lib = '_DllMainCRTStartup@12'
+            ext.linker.push('-machine:x86')
+            ext.entry.lib = '_DllMainCRTStartup@12'
         }
     }
 }
@@ -343,6 +348,7 @@ function compile(cc: Path, command: String, contents: String = null): Boolean {
             file.remove()
             file.basename.replaceExt('o').remove()
         }
+        App.chdir(home)
     }
     return cmd.status == 0
 }

@@ -189,11 +189,13 @@ module embedthis.me {
     internal function setRequiredExtensions() { 
         if (me.options.gen == 'make' || me.options.gen == 'nmake') {
             for each (target in me.targets) {
+//  MOB - AA
                 for each (pname in target.extensions) {
                     if (!me.extensions[pname]) {
                         me.extensions[pname] ||= {}
                         me.extensions[pname].name = pname
                         me.extensions[pname].enable = true
+trace('MOB AA Create', 'Extension "' + pname + '", required for target "' + target.name + '"')
                         if (b.options.why) {
                             trace('Create', 'Extension "' + pname + '", required for target "' + target.name + '"')
                         }
@@ -392,31 +394,34 @@ module embedthis.me {
             extension.enable ||= undefined
 
             try {
-                let probe = findProbe(cname)
-                if (probe) {
-                    extension.file = probe.portable
-                    currentExtension = cname
-                    b.loadMeFile(probe)
-                } else {
-                    let path = me.dir.paks.join(cname)
-                    if (path.join(cname + '.me').exists) {
-                        /*
-                            Pak with a me file. Check for an extensions property and load it
-                         */
-                        let pme = b.loadMeProbe(path.join(cname + '.me'))
-                        if (pme.probe && pme.probe[cname]) {
-                            Me.extension(pme.probe)
-                        }
-                        extension = me.extensions[cname]
-                        extension.path = path
-                        if (extension.enable == null) {
-                            extension.enable ||= true
-                        }
-
-                    } else if (path.join(Me.PACKAGE).exists) {
-                        extension.enable = true
-                        extension.path = path 
-
+                let pak = me.dir.paks.join(cname, cname + '.me')
+                if (pak.exists) {
+                    /*
+                        src/paks/NAME/NAME.me
+                     */
+                    let pme = b.loadMeProbe(pak)
+                    if (pme.probe && pme.probe[cname]) {
+                        Me.extension(pme.probe)
+                    }
+                    extension = me.extensions[cname]
+                    if (extension.enable == null) {
+                        extension.enable ||= true
+                    }
+                }
+                if (!extension.path) {
+                    let probe: Path?
+                    if (me.probe && me.probe[cname]) {
+                        probe = me.probe[cname].file
+                    } 
+                    if (!probe) {
+                        probe = findProbe(cname)
+                    }
+                    if (probe) {
+                        extension.file = probe.portable
+                        currentExtension = cname
+                        b.loadMeFile(probe)
+                    } else if (pak.exists) {
+                        extension.path = pak
                     } else {
                         extension.enable = false
                         extension.diagnostic = 'Cannot find extension: ' + cname + '.me'
@@ -442,6 +447,7 @@ module embedthis.me {
                     if (me.settings.extensions.omit && me.settings.extensions.omit.contains(dname)) {
                         continue
                     }
+//  MOB - why not just recurse and not test here
                     if (findProbe(dname) || me.dir.paks.join(dname).exists) {
                         loadProbes([dname])
                     }
@@ -477,9 +483,6 @@ module embedthis.me {
         Enable scripts do not run in dependency order. This are meant for simple scripts without extension dependencies.
      */
     internal function enableExtension(extension) {
-        if (me.options.gen) {
-            return
-        }
         extension.enabling = true
         global.COMP = extension
         if (extension.enable === false && extension.explicit) {
@@ -535,6 +538,7 @@ throw 'UNUSED - MISSING COMPONENT TARGET'
         b.currentMeFile = extension.file
         global.COMP = extension
         try {
+/* MOB AA
             if (me.options.gen) {
                 if (extension.path is Path) {
                     extension.path = extension.path.relative
@@ -545,11 +549,25 @@ throw 'UNUSED - MISSING COMPONENT TARGET'
                     runExtensionScript(extension, 'generate')
                 }
             } else {
+ */
                 if (extension.path is Function) {
                     //  MOB - should use runExtensionScript
-                    extension.path = extension.path.call(b, extension)
+                    let result = extension.path.call(b, extension)
+                    if (result is String || result is Path) {
+                        extension.path = result
+                    } else if (Object.getOwnPropertyCount(result) > 0) {
+                        blend(extension, result)
+                    }
+                }
+                if (extension.path is Path) {
+                    extension.path = extension.path.compact()
                 }
                 runExtensionScript(extension, 'config')
+/* MOB
+            }
+            MOB AA */
+            if (extension.scripts && extension.scripts.generate) {
+                print("WARNING: generate scripts in probes are deprecated: ", extension.name)
             }
             if (extension.path) {
                 extension.path = Path(extension.path)
@@ -559,6 +577,7 @@ throw 'UNUSED - MISSING COMPONENT TARGET'
             if (!(e is String)) {
                 App.log.debug(0, e)
             }
+            extension.path = null
             extension.enable = false
             extension.diagnostic = '' + e
             vtrace('Omit', 'Extension "' + extension.name + '": ' + extension.diagnostic + '\n')
@@ -661,9 +680,11 @@ throw 'UNUSED - MISSING COMPONENT TARGET'
         @option fullpath Return the full path to the located file
      */
     public function probe(file: Path, control = {}): Path {
+/* MOB AA
         if (me.options.gen) {
             return file
         }
+ */
         let path: Path?
         let search = [], dir
         if (file.exists) {
@@ -720,11 +741,7 @@ throw 'UNUSED - MISSING COMPONENT TARGET'
         let extension = me.extensions[currentExtension]
         let path
         try {
-            if (me.options.gen) {
-                path = name
-            } else {
-                path = probe(extension.withpath || name, {fullpath: true})
-            }
+            path = (me.options.gen) ? name : probe(extension.withpath || name, {fullpath: true})
         } catch (e) {
             throw e
         }

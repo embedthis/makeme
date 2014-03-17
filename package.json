@@ -41,7 +41,7 @@
         "zlib": "~1.0"
     },
     "optionalDependencies": {
-        "sqlite": "~1.0",
+        "sqlite": "~1.0"
     },
     "dirs": {
         "paks": "src/paks"

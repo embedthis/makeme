@@ -35,12 +35,9 @@ Me.extension({
                 bin = path.join('Bin').portable
             }
             extension.search = bin
-            return path
-        },
 
-        config: function (extension) {
             let bin = extension.search
-            let path: Path? = extension.path
+            path = extension.path
             if (extension.winkit) {
                 me.env.PATH = [ bin.join(me.platform.arch) ]
                 me.env.INCLUDE = [ path.join('Include/um').portable, path.join('Include/shared') ]
@@ -60,6 +57,7 @@ Me.extension({
                     me.env.LIB = [ path.join('Lib').portable ]
                 }
             }
+            return path
         },
     },
 })

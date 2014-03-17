@@ -5,18 +5,16 @@
 Me.extension({ 
     matrixssl: {
         description: 'MatrixSSL',
-        generate: function (extension) {
-            extension.path = '/usr/src/matrixssl'
-            extension.libpaths = [ '$(ME_EXT_MATRIXSSL_PATH)' ]
-            extension.includes = [ '$(ME_EXT_MATRIXSSL_PATH)', '$(ME_EXT_MATRIXSSL_PATH)/matrixssl' ]
-            if (me.platform.os == 'windows') {
-                extension.libraries = [ 'matrixssl.lib' ]
-            } else {
-                extension.libraries = [ 'matrixssl' ]
+        path: function (ext) {
+            if (me.options.gen) {
+                return {
+                    path: ext.withpath || '/usr/src/matrixssl',
+                    libpaths: [ '$(ME_EXT_MATRIXSSL_PATH)' ],
+                    includes: [ '$(ME_EXT_MATRIXSSL_PATH)', '$(ME_EXT_MATRIXSSL_PATH)/matrixssl' ],
+                        libraries: [(me.platform.os == 'windows') ? 'matrixssl.lib' : 'matrixssl'],
+                }
             }
-        },
-        path: function (extension) {
-            let path: Path? = extension.withpath
+            let path: Path? = ext.withpath
             if (!path) {
                 if (me.dir.paks) {
                     path = me.dir.paks.join('matrixssl')
@@ -27,17 +25,17 @@ Me.extension({
             }
             let search = [ (me.platform.os == 'windows') ? path.join('Release') : path ]
             let lib = probe('libmatrixssl.' + me.ext.shobj, {fullpath: true, search: search}).absolute
-            extension.libpaths = [lib.parent]
+            ext.libpaths = [lib.parent]
             if (me.platform.os == 'windows') {
-                extension.libraries = [ 'matrixssl.lib' ],
-                extension.imports = [ lib, lib.replaceExt('lib') ]
+                ext.libraries = [ 'matrixssl.lib' ],
+                ext.imports = [ lib, lib.replaceExt('lib') ]
             } else {
-                extension.libraries = [ 'matrixssl' ]
-                extension.imports = [ lib ]
+                ext.libraries = [ 'matrixssl' ]
+                ext.imports = [ lib ]
             }
             let search = [ path.join('matrixssl') ]
             let incdir = probe('matrixsslApi.h', {search: search}).absolute
-            extension.includes = [ incdir, incdir.parent ]
+            ext.includes = [ incdir, incdir.parent ]
             return path
         },
         extensions: [ 'ssl' ],

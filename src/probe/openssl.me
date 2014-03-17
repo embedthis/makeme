@@ -5,18 +5,17 @@
 Me.extension({
     openssl: {
         description: 'OpenSSL',
-        generate: function (extension) {
-            extension.path = '/usr/src/openssl'
-            extension.includes = [ '$(ME_EXT_OPENSSL_PATH)/include' ]
-            extension.libpaths = [ '$(ME_EXT_OPENSSL_PATH)' ]
-            if (me.platform.os == 'windows') {
-                extension.libraries = [ 'libeay32.lib', 'ssleay32.lib' ]
-            } else {
-                extension.libraries = [ 'ssl', 'crypto' ]
+        path: function (ext) {
+            if (me.options.gen) {
+                return {
+                    path: ext.withpath || '/usr/src/openssl',
+                    includes: [ '$(ME_EXT_OPENSSL_PATH)/include' ],
+                    libpaths: [ '$(ME_EXT_OPENSSL_PATH)' ],
+                    libraries: me.platform.os == 'windows' 
+                            ? ([ 'libeay32.lib', 'ssleay32.lib' ]) : ([ 'ssl', 'crypto' ]),
+                }
             }
-        },
-        path: function (extension) {
-            let path: Path? = extension.withpath
+            let path: Path? = ext.withpath
             if (!path) {
                 if (me.dir.paks) {
                     path = me.dir.paks.join('openssl')
@@ -40,19 +39,19 @@ Me.extension({
             if (me.platform.os == 'windows') {
                 search = [path.join('out32dll')]
                 lib = probe('libeay32.dll', {fullpath: true, search: search, nopath: true}).absolute
-                extension.libraries = [ 'libeay32.lib', 'ssleay32.lib' ]
-                extension.libpaths = [ lib.parent ]
-                extension.imports = [ lib.parent.join('libeay32.dll'), lib.parent.join('libeay32.lib'),
+                ext.libraries = [ 'libeay32.lib', 'ssleay32.lib' ]
+                ext.libpaths = [ lib.parent ]
+                ext.imports = [ lib.parent.join('libeay32.dll'), lib.parent.join('libeay32.lib'),
                     lib.parent.join('ssleay32.dll'), lib.parent.join('ssleay32.lib') ]
-                extension.includes = [ probe('openssl/ssl.h', {search: [path.join('inc32')]}).absolute ]
+                ext.includes = [ probe('openssl/ssl.h', {search: [path.join('inc32')]}).absolute ]
 
             } else {
                 lib = probe('libcrypto.' + me.ext.shobj, {fullpath: true, search: search, nopath: true}).absolute
-                extension.libraries = [ 'ssl', 'crypto' ]
-                extension.libpaths = [ lib.parent ]
-                extension.imports = lib.parent.files('libssl*.' + me.ext.shobj + '*') + 
+                ext.libraries = [ 'ssl', 'crypto' ]
+                ext.libpaths = [ lib.parent ]
+                ext.imports = lib.parent.files('libssl*.' + me.ext.shobj + '*') + 
                     lib.parent.files('libcrypto*.' + me.ext.shobj + '*')
-                extension.includes = [ probe('openssl/ssl.h', {search: [ path.join('include'), '/usr/include']}).absolute ]
+                ext.includes = [ probe('openssl/ssl.h', {search: [ path.join('include'), '/usr/include']}).absolute ]
             }
             return lib.dirname
         },

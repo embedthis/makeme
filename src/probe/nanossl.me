@@ -5,14 +5,16 @@
 Me.extension({
     nanossl: {
         description: 'Mocana NanoSSL',
-        generate: function (extension) {
-            extension.path = '/usr/src/nanossl'
-            extension.libraries = [ 'ssls' ]
-            extension.libpaths = [ '$(ME_EXT_NANOSSL_PATH)/bin' ]
-            extension.includes = [ '$(ME_EXT_NANOSSL_PATH)/src' ]
-        },
-        path: function (extension) {
-            let path: Path? = extension.withpath
+        path: function (ext) {
+            if (me.options.gen) {
+                return {
+                    path: ext.withpath || '/usr/src/nanossl',
+                    libraries: [ 'ssls' ],
+                    libpaths: [ '$(ME_EXT_NANOSSL_PATH)/bin' ],
+                    includes: [ '$(ME_EXT_NANOSSL_PATH)/src' ]
+                }
+            }
+            let path: Path? = ext.withpath
             if (!path) {
                 if (me.dir.paks) {
                     path = me.dir.paks.join('nanossl')
@@ -23,12 +25,12 @@ Me.extension({
             }
             let search = [ path.join('bin') ]
             let lib = probe('libssls.' + me.ext.lib, {fullpath: true, search: search}).absolute
-            extension.libpaths = [ lib.parent ]
-            extension.libraries = [ 'ssls' ]
-            extension.imports = [ lib ]
+            ext.libpaths = [ lib.parent ]
+            ext.libraries = [ 'ssls' ]
+            ext.imports = [ lib ]
 
             let incdir = probe('common/moptions.h', {search: [path.join('src')]}).absolute
-            extension.includes = [ incdir ]
+            ext.includes = [ incdir ]
             return path
         },
         extensions: [ 'ssl' ],

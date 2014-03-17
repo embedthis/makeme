@@ -6,11 +6,13 @@ Me.extension({
     md5: {
         description: 'Message Digest Tool',
         path: function (extension) {
-            let md5 = probe(extension.withpath || 'md5', {'continue': true, fullpath: true})
-            if (!md5) {
-                md5 = probe('md5sum', {fullpath: true})
+            if (me.options.gen) {
+                return "md5"
             }
-            return md5
+            let path: Path = extension.withpath || 
+                probe('md5', {'continue': true, fullpath: true}) ||
+                probe('md5sum', {fullpath: true})
+            return path
         },
     },
 })
