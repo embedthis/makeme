@@ -568,9 +568,21 @@ ${OUTPUTS}
             makeDirGlobals(target.home)
         }
         if (target.type == 'file') {
+            let dest: Path = (target.dest || target.path).relativeTo(target.home)
             for each (let file: Path in target.files) {
-                cmd += 'rm -rf ' + target.path.relativeTo(target.home) + '\n' +
-                       'cp -r ' + file.relativeTo(target.home) + ' ' + target.path.relativeTo(target.home) + '\n'
+                let to
+                if (target.subtree) {
+                    to = dest.join(file.trimStart(Path(target.subtree).portable.name + '/'))
+                } else if (dest.isDir) {
+                    to = dest.join(file.basename)
+                } else {
+                    to = dest
+                }
+                cmd += 'mkdir -p ' + to.dirname + '\n'
+                cmd += 'cp -r ' + file.relativeTo(target.home) + ' ' + to + '\n'
+            }
+            if (target.dest) {
+                cmd += 'touch ' + target.path.relativeTo(target.home) + '\n'
             }
         } else if (target['generate-capture']) {
             let capture = Path('me-xcode.tmp')
@@ -820,7 +832,7 @@ function projectConfigSection(base) {
     let common_settings = '
                 /* Common Settings */
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_ME)";
+                ONLY_ACTIVE_ARCH = YES;
                 CURRENT_PROJECT_VERSION = ${settings.compatible};
                 DYLIB_COMPATIBILITY_VERSION = "$(CURRENT_PROJECT_VERSION)";
                 DYLIB_CURRENT_VERSION = "$(CURRENT_PROJECT_VERSION)";

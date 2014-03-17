@@ -487,7 +487,8 @@ function projCustomBuildStep(base, target) {
     }
     if (target.type == 'file') {
         for each (let file: Path in target.files) {
-            let path = target.path.relativeTo(Base)
+            let path = target.dest || target.path
+            let path = path.relativeTo(Base)
             command += 'if exist ' + wpath(path) + ' del /Q ' + wpath(path) + '\n'
             if (file.isDir) {
                 command += '\tif not exist ' + wpath(path) + ' md ' + wpath(path) + '\n'

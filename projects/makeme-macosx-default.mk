@@ -9,7 +9,7 @@ ARCH                  ?= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm
 CC_ARCH               ?= $(shell echo $(ARCH) | sed 's/x86/i686/;s/x64/x86_64/')
 OS                    ?= macosx
 CC                    ?= clang
-LD                    ?= link
+LD                    ?= ld
 CONFIG                ?= $(OS)-$(ARCH)-$(PROFILE)
 LBIN                  ?= $(CONFIG)/bin
 PATH                  := $(LBIN):$(PATH)
@@ -25,23 +25,20 @@ ME_EXT_ZLIB           ?= 1
 ME_EXT_COMPILER_PATH  ?= clang
 ME_EXT_DSI_PATH       ?= dsi
 ME_EXT_EJS_PATH       ?= src/paks/ejs
-ME_EXT_EST_PATH       ?= src/paks/est/estLib.c
-ME_EXT_HTTP_PATH      ?= src/paks/http
+ME_EXT_EST_PATH       ?= src/paks/est
+ME_EXT_HTTP_PATH      ?= src/paks/http/http.me
 ME_EXT_LIB_PATH       ?= ar
-ME_EXT_LINK_PATH      ?= link
+ME_EXT_LINK_PATH      ?= ld
 ME_EXT_MAN_PATH       ?= man
 ME_EXT_MAN2HTML_PATH  ?= man2html
 ME_EXT_MATRIXSSL_PATH ?= /usr/src/matrixssl
-ME_EXT_MPR_PATH       ?= src/paks/mpr
+ME_EXT_MPR_PATH       ?= src/paks/mpr/mpr.me
 ME_EXT_NANOSSL_PATH   ?= /usr/src/nanossl
 ME_EXT_OPENSSL_PATH   ?= /usr/src/openssl
-ME_EXT_OSDEP_PATH     ?= src/paks/osdep
-ME_EXT_PCRE_PATH      ?= src/paks/pcre
-ME_EXT_PMAKER_PATH    ?= pmaker
-ME_EXT_SQLITE_PATH    ?= sqlite
-ME_EXT_SSL_PATH       ?= ssl
+ME_EXT_OSDEP_PATH     ?= src/paks/osdep/osdep.me
+ME_EXT_PCRE_PATH      ?= src/paks/pcre/pcre.me
+ME_EXT_PMAKER_PATH    ?= /Applications/PackageMaker.app/Contents/MacOS/PackageMaker
 ME_EXT_VXWORKS_PATH   ?= $(WIND_BASE)
-ME_EXT_WINSDK_PATH    ?= winsdk
 ME_EXT_ZIP_PATH       ?= zip
 ME_EXT_ZLIB_PATH      ?= src/paks/zlib
 
@@ -103,7 +100,7 @@ TARGETS               += $(CONFIG)/bin/ca.crt
 TARGETS               += $(CONFIG)/bin/http
 TARGETS               += $(CONFIG)/bin/libmprssl.dylib
 TARGETS               += $(CONFIG)/bin/me
-TARGETS               += $(CONFIG)/bin
+TARGETS               += $(CONFIG)/bin/.updated
 
 unexport CDPATH
 
@@ -173,7 +170,7 @@ clobber: clean
 #
 version: $(DEPS_1)
 	( \
-	cd macosx-x64-release/bin; \
+	cd macosx-x64-debug/bin; \
 	echo 0.8.0 ; \
 	)
 
@@ -760,7 +757,6 @@ DEPS_36 += src/probe/doxygen.me
 DEPS_36 += src/probe/dsi.me
 DEPS_36 += src/probe/dumpbin.me
 DEPS_36 += src/probe/ejscmd.me
-DEPS_36 += src/probe/est.me
 DEPS_36 += src/probe/gzip.me
 DEPS_36 += src/probe/htmlmin.me
 DEPS_36 += src/probe/httpcmd.me
@@ -774,11 +770,11 @@ DEPS_36 += src/probe/nanossl.me
 DEPS_36 += src/probe/ngmin.me
 DEPS_36 += src/probe/openssl.me
 DEPS_36 += src/probe/pak.me
+DEPS_36 += src/probe/php.me
 DEPS_36 += src/probe/pmaker.me
 DEPS_36 += src/probe/ranlib.me
 DEPS_36 += src/probe/rc.me
 DEPS_36 += src/probe/recess.me
-DEPS_36 += src/probe/sqlite.me
 DEPS_36 += src/probe/ssl.me
 DEPS_36 += src/probe/strip.me
 DEPS_36 += src/probe/tidy.me
@@ -792,7 +788,7 @@ DEPS_36 += src/standard.me
 DEPS_36 += src/vstudio.es
 DEPS_36 += src/xcode.es
 
-$(CONFIG)/bin: $(DEPS_36)
+$(CONFIG)/bin/.updated: $(DEPS_36)
 	@echo '      [Copy] $(CONFIG)/bin'
 	mkdir -p "$(CONFIG)/bin"
 	cp src/configure.es $(CONFIG)/bin/configure.es
@@ -816,7 +812,6 @@ $(CONFIG)/bin: $(DEPS_36)
 	cp src/probe/dsi.me $(CONFIG)/bin/probe/dsi.me
 	cp src/probe/dumpbin.me $(CONFIG)/bin/probe/dumpbin.me
 	cp src/probe/ejscmd.me $(CONFIG)/bin/probe/ejscmd.me
-	cp src/probe/est.me $(CONFIG)/bin/probe/est.me
 	cp src/probe/gzip.me $(CONFIG)/bin/probe/gzip.me
 	cp src/probe/htmlmin.me $(CONFIG)/bin/probe/htmlmin.me
 	cp src/probe/httpcmd.me $(CONFIG)/bin/probe/httpcmd.me
@@ -830,11 +825,11 @@ $(CONFIG)/bin: $(DEPS_36)
 	cp src/probe/ngmin.me $(CONFIG)/bin/probe/ngmin.me
 	cp src/probe/openssl.me $(CONFIG)/bin/probe/openssl.me
 	cp src/probe/pak.me $(CONFIG)/bin/probe/pak.me
+	cp src/probe/php.me $(CONFIG)/bin/probe/php.me
 	cp src/probe/pmaker.me $(CONFIG)/bin/probe/pmaker.me
 	cp src/probe/ranlib.me $(CONFIG)/bin/probe/ranlib.me
 	cp src/probe/rc.me $(CONFIG)/bin/probe/rc.me
 	cp src/probe/recess.me $(CONFIG)/bin/probe/recess.me
-	cp src/probe/sqlite.me $(CONFIG)/bin/probe/sqlite.me
 	cp src/probe/ssl.me $(CONFIG)/bin/probe/ssl.me
 	cp src/probe/strip.me $(CONFIG)/bin/probe/strip.me
 	cp src/probe/tidy.me $(CONFIG)/bin/probe/tidy.me
@@ -847,6 +842,8 @@ $(CONFIG)/bin: $(DEPS_36)
 	cp src/standard.me $(CONFIG)/bin/standard.me
 	cp src/vstudio.es $(CONFIG)/bin/vstudio.es
 	cp src/xcode.es $(CONFIG)/bin/xcode.es
+	rm -fr "$(CONFIG)/bin/.updated"
+	mkdir -p "$(CONFIG)/bin/.updated"
 
 #
 #   stop
@@ -897,7 +894,6 @@ installBinary: $(DEPS_38)
 	cp src/probe/dsi.me $(ME_VAPP_PREFIX)/bin/probe/dsi.me ; \
 	cp src/probe/dumpbin.me $(ME_VAPP_PREFIX)/bin/probe/dumpbin.me ; \
 	cp src/probe/ejscmd.me $(ME_VAPP_PREFIX)/bin/probe/ejscmd.me ; \
-	cp src/probe/est.me $(ME_VAPP_PREFIX)/bin/probe/est.me ; \
 	cp src/probe/gzip.me $(ME_VAPP_PREFIX)/bin/probe/gzip.me ; \
 	cp src/probe/htmlmin.me $(ME_VAPP_PREFIX)/bin/probe/htmlmin.me ; \
 	cp src/probe/httpcmd.me $(ME_VAPP_PREFIX)/bin/probe/httpcmd.me ; \
@@ -911,11 +907,11 @@ installBinary: $(DEPS_38)
 	cp src/probe/ngmin.me $(ME_VAPP_PREFIX)/bin/probe/ngmin.me ; \
 	cp src/probe/openssl.me $(ME_VAPP_PREFIX)/bin/probe/openssl.me ; \
 	cp src/probe/pak.me $(ME_VAPP_PREFIX)/bin/probe/pak.me ; \
+	cp src/probe/php.me $(ME_VAPP_PREFIX)/bin/probe/php.me ; \
 	cp src/probe/pmaker.me $(ME_VAPP_PREFIX)/bin/probe/pmaker.me ; \
 	cp src/probe/ranlib.me $(ME_VAPP_PREFIX)/bin/probe/ranlib.me ; \
 	cp src/probe/rc.me $(ME_VAPP_PREFIX)/bin/probe/rc.me ; \
 	cp src/probe/recess.me $(ME_VAPP_PREFIX)/bin/probe/recess.me ; \
-	cp src/probe/sqlite.me $(ME_VAPP_PREFIX)/bin/probe/sqlite.me ; \
 	cp src/probe/ssl.me $(ME_VAPP_PREFIX)/bin/probe/ssl.me ; \
 	cp src/probe/strip.me $(ME_VAPP_PREFIX)/bin/probe/strip.me ; \
 	cp src/probe/tidy.me $(ME_VAPP_PREFIX)/bin/probe/tidy.me ; \

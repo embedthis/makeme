@@ -1485,7 +1485,35 @@ public class Me {
             }
             runTargetScript(target, 'presource')
             if (target.files) {
-                target.files = buildFileList(target, target.files, target.exclude)
+                let files = buildFileList(target, target.files, target.exclude)
+                if (target.path) {
+                    target.path = Path(expand(target.path))
+                }
+                if (target.type == 'file' && files.length > 1) {
+                    if (me.options.gen || me.options.gen == 'vs' || me.options.gen == 'xcode') {
+                        target.dest = target.path
+                        target.path = target.path.join('.updated')
+                        target.files = files
+                    } else {
+                        for each (file in files) {
+                            let dest, name
+                            if (target.subtree) {
+                                name = file.relativeTo(target.subtree)
+                                dest = Path(target.path).join(name)
+                            } else {
+                                name = file.relative
+                                dest = Path(target.path).join(name)
+                            }
+                            me.targets[dest] = { name: name, type: 'file', enable: true, path: dest, files: [file],
+                                goals: ['all', 'generate', target.name], home: target.home }
+                        }
+                        target.depends = files
+                        target.files = []
+                        target.type = 'group'
+                    }
+                } else {
+                    target.files = files
+                }
             }
             if (target.headers) {
                 /*
@@ -3526,11 +3554,9 @@ public class Me {
         } else {
             let pwd = App.dir
             if (src.startsWith(pwd)) {
-                // src = src.relative
                 src = src.relativeTo(me.dir.top)
             }
             if (dest.startsWith(pwd)) {
-                // dest = dest.relative
                 dest = dest.relativeTo(me.dir.top)
             }
             if (src == dest) {

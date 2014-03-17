@@ -51,24 +51,20 @@ ME_EXT_ZLIB           = 1
 ME_EXT_COMPILER_PATH  = cl
 ME_EXT_DSI_PATH       = dsi
 ME_EXT_EJS_PATH       = src/paks/ejs
-ME_EXT_EST_PATH       = src/paks/est/estLib.c
-ME_EXT_HTTP_PATH      = src/paks/http
+ME_EXT_EST_PATH       = src/paks/est
+ME_EXT_HTTP_PATH      = src/paks/http/http.me
 ME_EXT_LIB_PATH       = lib.exe
-ME_EXT_LINK_PATH      = link
+ME_EXT_LINK_PATH      = link.exe
 ME_EXT_MAN_PATH       = man
 ME_EXT_MAN2HTML_PATH  = man2html
 ME_EXT_MATRIXSSL_PATH = /usr/src/matrixssl
-ME_EXT_MPR_PATH       = src/paks/mpr
+ME_EXT_MPR_PATH       = src/paks/mpr/mpr.me
 ME_EXT_NANOSSL_PATH   = /usr/src/nanossl
 ME_EXT_OPENSSL_PATH   = /usr/src/openssl
-ME_EXT_OSDEP_PATH     = src/paks/osdep
-ME_EXT_PCRE_PATH      = src/paks/pcre
-ME_EXT_PMAKER_PATH    = pmaker
-ME_EXT_RC_PATH        = rc
-ME_EXT_SQLITE_PATH    = sqlite
-ME_EXT_SSL_PATH       = ssl
+ME_EXT_OSDEP_PATH     = src/paks/osdep/osdep.me
+ME_EXT_PCRE_PATH      = src/paks/pcre/pcre.me
+ME_EXT_RC_PATH        = rc.exe
 ME_EXT_VXWORKS_PATH   = $(WIND_BASE)
-ME_EXT_WINSDK_PATH    = winsdk
 ME_EXT_ZIP_PATH       = zip
 ME_EXT_ZLIB_PATH      = src/paks/zlib
 
@@ -120,7 +116,7 @@ TARGETS               = $(TARGETS) $(CONFIG)\bin\http.exe
 TARGETS               = $(TARGETS) $(CONFIG)\bin\removeFiles.exe
 TARGETS               = $(TARGETS) $(CONFIG)\bin\libmprssl.dll
 TARGETS               = $(TARGETS) $(CONFIG)\bin\me.exe
-TARGETS               = $(TARGETS) $(CONFIG)\bin
+TARGETS               = $(TARGETS) $(CONFIG)\bin\.updated
 
 !IFNDEF SHOW
 .SILENT:
@@ -214,7 +210,7 @@ clean:
 #   version
 #
 version: $(DEPS_1)
-	cd macosx-x64-release\bin
+	cd macosx-x64-debug\bin
 	echo 0.8.0
 	cd ..\..
 
@@ -828,7 +824,6 @@ DEPS_39 = $(DEPS_39) src\probe\doxygen.me
 DEPS_39 = $(DEPS_39) src\probe\dsi.me
 DEPS_39 = $(DEPS_39) src\probe\dumpbin.me
 DEPS_39 = $(DEPS_39) src\probe\ejscmd.me
-DEPS_39 = $(DEPS_39) src\probe\est.me
 DEPS_39 = $(DEPS_39) src\probe\gzip.me
 DEPS_39 = $(DEPS_39) src\probe\htmlmin.me
 DEPS_39 = $(DEPS_39) src\probe\httpcmd.me
@@ -842,11 +837,11 @@ DEPS_39 = $(DEPS_39) src\probe\nanossl.me
 DEPS_39 = $(DEPS_39) src\probe\ngmin.me
 DEPS_39 = $(DEPS_39) src\probe\openssl.me
 DEPS_39 = $(DEPS_39) src\probe\pak.me
+DEPS_39 = $(DEPS_39) src\probe\php.me
 DEPS_39 = $(DEPS_39) src\probe\pmaker.me
 DEPS_39 = $(DEPS_39) src\probe\ranlib.me
 DEPS_39 = $(DEPS_39) src\probe\rc.me
 DEPS_39 = $(DEPS_39) src\probe\recess.me
-DEPS_39 = $(DEPS_39) src\probe\sqlite.me
 DEPS_39 = $(DEPS_39) src\probe\ssl.me
 DEPS_39 = $(DEPS_39) src\probe\strip.me
 DEPS_39 = $(DEPS_39) src\probe\tidy.me
@@ -860,7 +855,7 @@ DEPS_39 = $(DEPS_39) src\standard.me
 DEPS_39 = $(DEPS_39) src\vstudio.es
 DEPS_39 = $(DEPS_39) src\xcode.es
 
-$(CONFIG)\bin: $(DEPS_39)
+$(CONFIG)\bin\.updated: $(DEPS_39)
 	@echo '      [Copy] $(CONFIG)/bin'
 	if not exist "$(CONFIG)\bin" md "$(CONFIG)\bin"
 	copy /Y src\configure.es $(CONFIG)\bin\configure.es
@@ -884,7 +879,6 @@ $(CONFIG)\bin: $(DEPS_39)
 	copy /Y src\probe\dsi.me $(CONFIG)\bin\probe\dsi.me
 	copy /Y src\probe\dumpbin.me $(CONFIG)\bin\probe\dumpbin.me
 	copy /Y src\probe\ejscmd.me $(CONFIG)\bin\probe\ejscmd.me
-	copy /Y src\probe\est.me $(CONFIG)\bin\probe\est.me
 	copy /Y src\probe\gzip.me $(CONFIG)\bin\probe\gzip.me
 	copy /Y src\probe\htmlmin.me $(CONFIG)\bin\probe\htmlmin.me
 	copy /Y src\probe\httpcmd.me $(CONFIG)\bin\probe\httpcmd.me
@@ -898,11 +892,11 @@ $(CONFIG)\bin: $(DEPS_39)
 	copy /Y src\probe\ngmin.me $(CONFIG)\bin\probe\ngmin.me
 	copy /Y src\probe\openssl.me $(CONFIG)\bin\probe\openssl.me
 	copy /Y src\probe\pak.me $(CONFIG)\bin\probe\pak.me
+	copy /Y src\probe\php.me $(CONFIG)\bin\probe\php.me
 	copy /Y src\probe\pmaker.me $(CONFIG)\bin\probe\pmaker.me
 	copy /Y src\probe\ranlib.me $(CONFIG)\bin\probe\ranlib.me
 	copy /Y src\probe\rc.me $(CONFIG)\bin\probe\rc.me
 	copy /Y src\probe\recess.me $(CONFIG)\bin\probe\recess.me
-	copy /Y src\probe\sqlite.me $(CONFIG)\bin\probe\sqlite.me
 	copy /Y src\probe\ssl.me $(CONFIG)\bin\probe\ssl.me
 	copy /Y src\probe\strip.me $(CONFIG)\bin\probe\strip.me
 	copy /Y src\probe\tidy.me $(CONFIG)\bin\probe\tidy.me
@@ -915,6 +909,8 @@ $(CONFIG)\bin: $(DEPS_39)
 	copy /Y src\standard.me $(CONFIG)\bin\standard.me
 	copy /Y src\vstudio.es $(CONFIG)\bin\vstudio.es
 	copy /Y src\xcode.es $(CONFIG)\bin\xcode.es
+	if exist "$(CONFIG)\bin\.updated" rd /Q /S "$(CONFIG)\bin\.updated"
+	if not exist "$(CONFIG)\bin\.updated" md "$(CONFIG)\bin\.updated"
 
 #
 #   stop
@@ -959,7 +955,6 @@ installBinary: $(DEPS_41)
 	copy /Y src\probe\dsi.me "$(ME_VAPP_PREFIX)\bin\probe\dsi.me"
 	copy /Y src\probe\dumpbin.me "$(ME_VAPP_PREFIX)\bin\probe\dumpbin.me"
 	copy /Y src\probe\ejscmd.me "$(ME_VAPP_PREFIX)\bin\probe\ejscmd.me"
-	copy /Y src\probe\est.me "$(ME_VAPP_PREFIX)\bin\probe\est.me"
 	copy /Y src\probe\gzip.me "$(ME_VAPP_PREFIX)\bin\probe\gzip.me"
 	copy /Y src\probe\htmlmin.me "$(ME_VAPP_PREFIX)\bin\probe\htmlmin.me"
 	copy /Y src\probe\httpcmd.me "$(ME_VAPP_PREFIX)\bin\probe\httpcmd.me"
@@ -973,11 +968,11 @@ installBinary: $(DEPS_41)
 	copy /Y src\probe\ngmin.me "$(ME_VAPP_PREFIX)\bin\probe\ngmin.me"
 	copy /Y src\probe\openssl.me "$(ME_VAPP_PREFIX)\bin\probe\openssl.me"
 	copy /Y src\probe\pak.me "$(ME_VAPP_PREFIX)\bin\probe\pak.me"
+	copy /Y src\probe\php.me "$(ME_VAPP_PREFIX)\bin\probe\php.me"
 	copy /Y src\probe\pmaker.me "$(ME_VAPP_PREFIX)\bin\probe\pmaker.me"
 	copy /Y src\probe\ranlib.me "$(ME_VAPP_PREFIX)\bin\probe\ranlib.me"
 	copy /Y src\probe\rc.me "$(ME_VAPP_PREFIX)\bin\probe\rc.me"
 	copy /Y src\probe\recess.me "$(ME_VAPP_PREFIX)\bin\probe\recess.me"
-	copy /Y src\probe\sqlite.me "$(ME_VAPP_PREFIX)\bin\probe\sqlite.me"
 	copy /Y src\probe\ssl.me "$(ME_VAPP_PREFIX)\bin\probe\ssl.me"
 	copy /Y src\probe\strip.me "$(ME_VAPP_PREFIX)\bin\probe\strip.me"
 	copy /Y src\probe\tidy.me "$(ME_VAPP_PREFIX)\bin\probe\tidy.me"

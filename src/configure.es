@@ -404,6 +404,7 @@ trace('MOB AA Create', 'Extension "' + pname + '", required for target "' + targ
                         Me.extension(pme.probe)
                         extension.path ||= extension.withpath || me.dir.paks.join(cname)
                         extension.description ||= ''
+                        extension.probed = 'Probe from pak: ' + pak
                     }
                     extension = me.extensions[cname]
                     if (extension.enable == null) {
@@ -413,10 +414,12 @@ trace('MOB AA Create', 'Extension "' + pname + '", required for target "' + targ
                 if (!extension.path) {
                     let probe: Path?
                     if (me.probe && me.probe[cname]) {
+                        extension.probed = 'Inline probe for : ' + cname
                         probe = me.probe[cname].file
                     } 
                     if (!probe) {
                         probe = findProbe(cname)
+                        extension.probed = 'Find probe: ' + probe
                     }
                     if (probe) {
                         extension.file = probe.portable

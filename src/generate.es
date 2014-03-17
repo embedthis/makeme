@@ -623,6 +623,7 @@ module embedthis.me {
         let all = []
         for each (target in b.topTargets) {
             if (target.path && target.enable && !target.nogen) {
+                let path = target.path
                 if (target.extensions) {
                     for each (pname in target.extensions) {
                         if (me.platform.os == 'windows') {
@@ -632,9 +633,9 @@ module embedthis.me {
                         }
                     }
                     if (me.platform.os == 'windows') {
-                        genout.writeLine('TARGETS               = $(TARGETS) ' + reppath(target.path))
+                        genout.writeLine('TARGETS               = $(TARGETS) ' + reppath(path))
                     } else {
-                        genout.writeLine('    TARGETS           += ' + reppath(target.path))
+                        genout.writeLine('    TARGETS           += ' + reppath(path))
                     }
                     for (i in target.extensions.length) {
                         if (me.platform.os == 'windows') {
@@ -645,9 +646,9 @@ module embedthis.me {
                     }
                 } else {
                     if (me.platform.os == 'windows') {
-                        genout.writeLine('TARGETS               = $(TARGETS) ' + reppath(target.path))
+                        genout.writeLine('TARGETS               = $(TARGETS) ' + reppath(path))
                     } else {
-                        genout.writeLine('TARGETS               += ' + reppath(target.path))
+                        genout.writeLine('TARGETS               += ' + reppath(path))
                     }
                 }
             }
@@ -836,21 +837,26 @@ module embedthis.me {
         target.made ||= {}
         if (me.generating == 'make' || me.generating == 'nmake') {
             genTargetDeps(target)
-            genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
+            if (target.touch) {
+                genout.write(reppath(target.touch) + ':' + getDepsVar() + '\n')
+            } else {
+                genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
+            }
         }
-        gtrace('Copy', target.path.relative.portable)
+        let dest = target.dest || target.path
+        gtrace('Copy', dest.relative.portable)
+
         generateDir(target)
         for each (let file: Path in target.files) {
             /* Auto-generated headers targets for includes have file == target.path */
             if (file == target.path) {
                 continue
             }
-            if (target.subtree) {
-                /* File must be abs to allow for a subtree substitution */
-                copy(file, target.path, target)
-            } else {
-                copy(file, target.path, target)
-            }
+            copy(file, dest, target)
+        }
+        if (target.dest) {
+            removeDir(target.path)
+            makeDir(target.path)
         }
         delete target.made
     }
