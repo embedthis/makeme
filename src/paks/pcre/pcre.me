@@ -3,10 +3,16 @@
  */
 
 Me.load({
+    probe: {
+        sqlite: {
+            description: 'PCRE Regular expressions',
+            depends: [ 'libpcre' ],
+        },
+    },
     targets: {
         libpcre: {
 			scripts: {
-				prebuild: "
+				prebuild: `
 					if (me.settings.charlen == 2) {
 						me.target.defines = [ '-DPCRE_CHAR=short' ]
 					} else if (me.settings.charlen == 4) {
@@ -18,7 +24,7 @@ Me.load({
                         me.target.linker.push('-compatibility_version ' + me.settings.compatible)
                         me.target.linker.push('-current_version ' + me.settings.compatible)                                
                     }  
-				",
+				`,
 			}
             type: 'lib',
             headers: [ '*.h' ],

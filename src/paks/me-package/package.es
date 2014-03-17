@@ -232,7 +232,7 @@ function setupPackagePrefixes(kind, package) {
 }
 
 
-function setupPackage(kind) {
+public function setupPackage(kind) {
     if (me.settings.manifest) {
         b.loadMeFile(me.dir.src.join(me.settings.manifest))
         b.runScript(me.scripts, "loaded")
@@ -489,7 +489,7 @@ function makeSimplePackage(package, prefixes, fmt) {
     if (fmt == 'pak') {
         let base = prefixes.staging.join(me.platform.vname)
         let package = base.join('package.json')
-        package.copy(base.join('bower.json'))
+        // UNUSED package.copy(base.join('bower.json'))
     }
     let name = me.dir.rel.join(me.platform.vname + '-' + fmt + '.tar')
     let zname = name.replaceExt('tgz')

@@ -51,27 +51,30 @@ public function genProjects(extensions = '', profiles = ["default", "static"], p
 }
 
 
-
 /*
-    UNUSED Unfinished
+    Publish a pak to a git pak repository
  */
-function pushToGit(package, prefixes, fmt) {
+public function publishToGit() {
+    let [manifest, package, prefixes] = setupPackage('pak')
     let staging = prefixes.staging.absolute
     let base = staging.join(me.platform.vname)
     let name = me.settings.name
-    let package = base.join('package.json')
-    let version = package.readJSON().version
+
+    deploy(manifest, prefixes, package)
+
+    let path = base.join('package.json')
+    let version = path.readJSON().version
     let home = App.dir
 
     try {
         trace('Publish', me.settings.title + ' ' + version)
-        package.copy(base.join('bower.json'))
         App.chdir(staging)
         run('git clone git@github.com:embedthis/pak-' + name + '.git', {noshow: true})
-        staging.join('pak-' + name, '.git').rename(base.join('.git'))
 
+        /* Steal the .git */
+        staging.join('pak-' + name, '.git').rename(base.join('.git'))
         App.chdir(base)
-        run('git add *')
+        run('git add -A *')
         run('git commit -q -mPublish-' + version + ' -a', {noshow: true, continueOnErrors: true})
         run('git tag -d v' + version, {noshow: true, continueOnErrors: true })
         run('git push -q origin :refs/tags/v' + version, {noshow: true, continueOnErrors: true})

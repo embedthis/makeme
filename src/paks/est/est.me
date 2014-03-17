@@ -3,6 +3,15 @@
  */
 
 Me.load({
+    probe: {
+        est: {
+            description: 'Embedded Security Transport Library'
+            depends:    [ 'libest' ],
+            extensions: [ 'ssl' ],
+            conflicts:  [ 'matrixssl', 'openssl', 'nanossl' ],
+        },
+    },
+
     targets: {
         libest: {
             type: 'lib',

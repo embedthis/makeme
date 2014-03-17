@@ -35,13 +35,15 @@
         "ejs": "~2.3",
         "est": "~0.6",
         "http": "~5",
+        "me-dev": "~0.8",
+        "me-doc": "~0.8",
+        "me-package": "~0.8",
         "mpr": "~5",
         "osdep": "~0.8",
         "pcre": "~1.0",
         "zlib": "~1.0"
     },
     "optionalDependencies": {
-        "sqlite": "~1.0"
     },
     "dirs": {
         "paks": "src/paks"

@@ -9,6 +9,7 @@ Me.load({
 
     probe: {
         ejs: {
+            description: 'Ejscript Javascript Language',
             depends: [ 'libejs', 'zlib', 'sqlite' ],
         },
     },
@@ -57,29 +58,5 @@ Me.load({
             depends: [ 'ejsc' ],
             extensions: [ 'ejs' ],
 		},
-
-        'sync-ejs': {
-            action: "
-                throw UNUSED
-                let paks = App.dir.parent
-                let ejs = paks.join('ejs')
-                let tgz = me.dir.top.join('../ejs/releases/ejs-flat.tgz')
-                let tar = paks.join('ejs.tar')
-                trace('Update', 'Ejscript distribution')
-                ejs.removeAll()
-                require ejs.zlib
-                require ejs.tar
-                Zlib.uncompress(tgz, tar)
-                Tar(tar, {chdir: paks}).extract()
-                let dir = paks.files('ejs-*').sort().reverse()[0]
-                dir.rename(ejs)
-                tar.remove()
-                for each (n in ['Makefile', 'me.h', 'mpr.h', 'http.h', 'deps.c', 'ejsmod.c', 'pcre.c', 'pcre.h', 
-                        'sqlite3.c', 'sqlite3.h', 'start.me']) {
-                    ejs.join(n).remove()
-                }
-                me.settings.ejsOneModule = true
-            ",
-        },
     },
 })

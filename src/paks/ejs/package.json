@@ -40,8 +40,10 @@
         "mpr": "~5.0",
         "osdep": "~0.8",
         "pcre": "~1.0",
-        "sqlite": "~1.0",
         "zlib": "~1.0"
+    },
+    "optionalDependencies": {
+        "sqlite": "~1.0"
     },
     "dirs": {
         "paks": "src/paks"
