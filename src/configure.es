@@ -402,6 +402,8 @@ trace('MOB AA Create', 'Extension "' + pname + '", required for target "' + targ
                     let pme = b.loadMeProbe(pak)
                     if (pme.probe && pme.probe[cname]) {
                         Me.extension(pme.probe)
+                        extension.path ||= extension.withpath || me.dir.paks.join(cname)
+                        extension.description ||= ''
                     }
                     extension = me.extensions[cname]
                     if (extension.enable == null) {

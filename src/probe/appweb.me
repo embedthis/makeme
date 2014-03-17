@@ -23,8 +23,8 @@ Me.extension({
             }
             for (let d: Path = '.'; d.parent != d; d = d.parent) {
                 let sp = d.join(me.platform.name)
-                if (let sp.join('bin/libappweb.' + me.ext.shobj).exists) {
-                    search.push(let sp)
+                if (sp.join('bin/libappweb.' + me.ext.shobj).exists) {
+                    search.push(sp)
                     break
                 }
             }
