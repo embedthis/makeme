@@ -3,7 +3,7 @@
 #   idebuild -- Build a project using the native IDE
 #
 
-PRODUCT=bit
+PRODUCT=me
 VS="${PROGRAMFILES}/Microsoft Visual Studio 10.0/Common7/IDE/devenv.exe"
 XCODE=/usr/bin/xcodebuild
 PROFILE=default
