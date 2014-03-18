@@ -77,7 +77,7 @@ public class Me {
             extensions: { 
                 require: [], 
                 discover: [], 
-                omit: [], 
+                generate: [], 
             }, 
         },
         extensions: {}, 
@@ -978,12 +978,15 @@ public class Me {
             throw "WARNING: settings.extensions.required is deprecated. Use settings.extensions.require instead"
         }
         if (settings.extensions.without) {
-            throw "WARNING: settings.extensions.without is deprecated. Use settings.extensions.omit instead"
+            throw "WARNING: settings.extensions.without is deprecated. Use settings.extensions.generate instead"
+        }
+        if (settings.extensions.omit) {
+            throw "WARNING: settings.extensions.omit is deprecated. Use settings.extensions.generate instead"
         }
 
         plus(extensions, 'require')
         plus(extensions, 'discover')
-        plus(extensions, 'omit')
+        plus(extensions, 'generate')
 
         rebase(home, o, 'modules')
         rebase(home, o.defaults, 'includes')
@@ -1159,9 +1162,11 @@ public class Me {
 
             for each (item in target.extensions) {
                 if (!me.extensions[item] || !me.extensions[item].enable) {
-                    whySkip(target.name, 'disabled because the required extension ' + item + ' is not enabled')
-                    target.enable = false
-                    reported = true
+                    if (!(me.options.gen && me.settings.extensions.generate.contains(item))) {
+                        whySkip(target.name, 'disabled because the required extension ' + item + ' is not enabled')
+                        target.enable = false
+                        reported = true
+                    }
                 }
             }
             if (target.enable == undefined) {
@@ -1220,7 +1225,10 @@ public class Me {
     }
 
     function getDependentTargets(target, goal) {
-        if (target.selected || !target.enable) {
+        if (target.selected) {
+            return
+        }
+        if (!target.enable) {
             return
         }
         if (goal === true || target.goals.contains(goal)) {
@@ -3065,9 +3073,10 @@ public class Me {
 
     /**
         TODO - should this be static?
+        Load but don't update "me"
         @hide
      */
-    public function loadMeProbe(mefile: Path) {
+    public function loadMe(mefile: Path) {
         let save = me
         global.me = me = makeBareMe()
         me.quickLoad = true

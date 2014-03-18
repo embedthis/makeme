@@ -65,7 +65,7 @@ module embedthis.me {
             trace('Configure', platform)
             b.createMe(platform, b.options.configure.join(b.MAIN))
             findExtensions()
-            setRequiredExtensions()
+            // UNUSED setRequiredExtensions()
             captureEnv()
             b.castDirTypes()
             if (b.options.configure) {
@@ -128,8 +128,7 @@ module embedthis.me {
         nme.platforms = b.platforms
         trace('Generate', b.START)
         let data = '/*\n    start.me -- Startup Me File for ' + me.settings.title + 
-            '\n */\n\nMe.load(' + 
-            serialize(nme, {pretty: true, indent: 4, commas: true, quotes: false}) + ')\n'
+            '\n */\n\nMe.load(' + serialize(nme, {pretty: true, indent: 4, commas: true, quotes: false}) + ')\n'
         b.START.write(data)
     }
 
@@ -185,17 +184,15 @@ module embedthis.me {
 
     /*
         Set extensions required for generation
-     */
+        UNUSED
     internal function setRequiredExtensions() { 
         if (me.options.gen == 'make' || me.options.gen == 'nmake') {
             for each (target in me.targets) {
-//  MOB - AA
                 for each (pname in target.extensions) {
                     if (!me.extensions[pname]) {
                         me.extensions[pname] ||= {}
                         me.extensions[pname].name = pname
                         me.extensions[pname].enable = true
-trace('MOB AA Create', 'Extension "' + pname + '", required for target "' + target.name + '"')
                         if (b.options.why) {
                             trace('Create', 'Extension "' + pname + '", required for target "' + target.name + '"')
                         }
@@ -204,6 +201,7 @@ trace('MOB AA Create', 'Extension "' + pname + '", required for target "' + targ
             }
         }
     }
+     */
 
     internal function createMeHeader() {
         b.runScript(me.scripts, 'preheader')
@@ -350,21 +348,9 @@ trace('MOB AA Create', 'Extension "' + pname + '", required for target "' + targ
         if (!settings.extensions) {
             return
         }
-        /* UNUSED
-            Create an extension for the product itself
-        let extension = me.extensions[settings.name] ||= {}
-        extension.name ||= settings.name
-        extension.enable = true
-        extension.silent = true
-         */
-
-        let extensions = settings.extensions.require + settings.extensions.discover
-
-        for each (let pname in me.settings.extensions.omit) {
-            let extension = me.extensions[pname] ||= {}
-            extension.name = pname
-        }
+        let extensions = settings.extensions.require + settings.extensions.discover + settings.extensions.generate
         vtrace('Find', 'Extensions: ' + extensions.join(' '))
+        createExtensionStubs(extensions)
         loadProbes(extensions)
         enableExtensions()
         configureExtensions()
@@ -374,102 +360,93 @@ trace('MOB AA Create', 'Extension "' + pname + '", required for target "' + targ
         resetExtensions()
     }
 
-    /*
-        Create stub extensions and load probes.
-        Probes may run code in their global code, but others will wait for the 'config' event
-     */
+    internal function loadProbe(extension) {
+        if (extension.loading || extension.enable === false) {
+            return
+        }
+        let cname = extension.name
+        try {
+            extension.loading = true
+            let pak = me.dir.paks.join(cname, cname + '.me')
+            if (pak.exists) {
+                /*
+                    src/paks/NAME/NAME.me
+                 */
+                let pme = b.loadMe(pak)
+                if (pme.probe && pme.probe[cname]) {
+                    Me.extension(pme.probe)
+                    extension.path ||= extension.withpath || me.dir.paks.join(cname)
+                    extension.description ||= ''
+                    extension.probed = 'Probe from pak: ' + pak
+                }
+                if (extension.enable == null) {
+                    extension.enable ||= true
+                }
+            }
+            if (!extension.path) {
+                let probe: Path?
+                if (me.probe && me.probe[cname]) {
+                    extension.probed = 'Inline probe for : ' + cname
+                    probe = me.probe[cname].file
+                } 
+                if (!probe) {
+                    probe = findProbe(cname)
+                    extension.probed = 'Found probe: ' + probe
+                }
+                if (probe) {
+                    extension.file = probe.portable
+                    currentExtension = cname
+                    b.loadMeFile(probe)
+
+                } else if (pak.exists) {
+                    extension.path = pak
+
+                } else if (me.extensions[cname]) {
+                    extension.enable = false
+                    extension.diagnostic = 'Cannot find extension: ' + cname + '.me'
+                    throw extension.diagnostic
+                }
+            }
+
+            if (!extension.description) {
+                let path = me.dir.paks.join(cname)
+                if (extension.enable && path.join(Me.PACKAGE).exists) {
+                    let spec = path.join(Me.PACKAGE).readJSON()
+                    extension.description = spec.description
+                }
+            }
+            if (extension.extensions) {
+                loadProbes(extension.extensions)
+            }
+            if (extension.discover) {
+                loadProbes(extension.discover)
+            }
+            loadProbes(extension.depends)
+
+            if (extension.enable === undefined) {
+                extension.enable = true
+            }
+        } catch (e) {
+            if (!(e is String)) {
+                App.log.debug(0, e)
+            }
+            extension.enable = false
+            extension.diagnostic = '' + e
+            vtrace('Probe', cname + ' probe failed: ' + extension.diagnostic)
+        }
+    }
+
+    internal function createExtensionStubs(extensions) {
+        for each (name in extensions) {
+            let extension = me.extensions[name] ||= {}
+            extension.name ||= name
+        }
+    }
+
     internal function loadProbes(extensions) {
-        for each (cname in extensions) {
-            if (me.extensions[cname]) {
-                let extension = me.extensions[cname]
-                if (extension.loaded || extension.enable === false) {
-                    continue
-                }
-            }
-            let extension = me.extensions[cname] ||= {}
-            extension.name ||= cname
-            if (extension.enable == false) {
-                continue
-            }
-            extension.enable ||= undefined
-
-            try {
-                let pak = me.dir.paks.join(cname, cname + '.me')
-                if (pak.exists) {
-                    /*
-                        src/paks/NAME/NAME.me
-                     */
-                    let pme = b.loadMeProbe(pak)
-                    if (pme.probe && pme.probe[cname]) {
-                        Me.extension(pme.probe)
-                        extension.path ||= extension.withpath || me.dir.paks.join(cname)
-                        extension.description ||= ''
-                        extension.probed = 'Probe from pak: ' + pak
-                    }
-                    extension = me.extensions[cname]
-                    if (extension.enable == null) {
-                        extension.enable ||= true
-                    }
-                }
-                if (!extension.path) {
-                    let probe: Path?
-                    if (me.probe && me.probe[cname]) {
-                        extension.probed = 'Inline probe for : ' + cname
-                        probe = me.probe[cname].file
-                    } 
-                    if (!probe) {
-                        probe = findProbe(cname)
-                        extension.probed = 'Find probe: ' + probe
-                    }
-                    if (probe) {
-                        extension.file = probe.portable
-                        currentExtension = cname
-                        b.loadMeFile(probe)
-                    } else if (pak.exists) {
-                        extension.path = pak
-                    } else {
-                        extension.enable = false
-                        extension.diagnostic = 'Cannot find extension: ' + cname + '.me'
-                        throw extension.diagnostic
-                    }
-                }
-                extension.loaded = true
-
-                if (!extension.description) {
-                    let path = me.dir.paks.join(cname)
-                    if (extension.enable && path.join(Me.PACKAGE).exists) {
-                        let spec = path.join(Me.PACKAGE).readJSON()
-                        extension.description = spec.description
-                    }
-                }
-                if (extension.extensions) {
-                    loadProbes(extension.extensions)
-                }
-                if (extension.discover) {
-                    loadProbes(extension.discover)
-                }
-                for each (dname in extension.depends) {
-                    if (me.settings.extensions.omit && me.settings.extensions.omit.contains(dname)) {
-                        continue
-                    }
-//  MOB - why not just recurse and not test here
-                    if (findProbe(dname) || me.dir.paks.join(dname).exists) {
-                        loadProbes([dname])
-                    }
-                }
-                if (extension.require) {
-                    throw 'extension.require not supported'
-                }
-                if (extension.enable === undefined) {
-                    extension.enable = true
-                }
-            } catch (e) {
-                if (!(e is String)) {
-                    App.log.debug(0, e)
-                }
-                extension.enable = false
-                extension.diagnostic = '' + e
-                vtrace('Probe', cname + ' probe failed: ' + extension.diagnostic)
+        for each (name in extensions) {
+            if (me.extensions[name]) {
+                loadProbe(me.extensions[name])
             }
         }
     }
@@ -507,6 +484,20 @@ trace('MOB AA Create', 'Extension "' + pname + '", required for target "' + targ
                 }
             }
         }
+        if (extension.explicit) {
+            for each (dname in extension.depends) {
+                let dep = me.extensions[dname]
+                if (dep) {
+                    dep.explicit = true
+                }
+            }
+        }
+        if (me.settings.extensions.generate.contains(extension.name)) {
+            if (!extension.explicit) {
+                extension.enable = false
+                extension.probed = 'Extension must be explicitly included via --with'
+            }
+        }
         delete global.COMP
     }
 
@@ -526,10 +517,10 @@ trace('MOB AA Create', 'Extension "' + pname + '", required for target "' + targ
         }
         extension.configuring = true
 
-        for each (pname in extension.discover) {
-            if (me.extensions[pname]) {
-                configureExtension(me.extensions[pname])
-            }
+        for each (dname in extension.discover) {
+            let dext = me.extensions[dname] ||= {}
+            dext.name = dname
+            configureExtension(me.extensions[dname])
         }
         for each (pname in extension.extensions) {
             if (me.extensions[pname]) {
@@ -543,34 +534,20 @@ throw 'UNUSED - MISSING COMPONENT TARGET'
         b.currentMeFile = extension.file
         global.COMP = extension
         try {
-/* MOB AA
-            if (me.options.gen) {
-                if (extension.path is Path) {
-                    extension.path = extension.path.relative
-                } else {
-                    extension.path = Path(extension.name)
+            if (extension.path is Function) {
+                //  MOB - should use runExtensionScript - check all other call()
+                let result = extension.path.call(b, extension)
+                if (result is String || result is Path) {
+                    extension.path = result
+                } else if (Object.getOwnPropertyCount(result) > 0) {
+                    blend(extension, result)
                 }
-                if (extension.scripts && extension.scripts.generate) {
-                    runExtensionScript(extension, 'generate')
-                }
-            } else {
- */
-                if (extension.path is Function) {
-                    //  MOB - should use runExtensionScript
-                    let result = extension.path.call(b, extension)
-                    if (result is String || result is Path) {
-                        extension.path = result
-                    } else if (Object.getOwnPropertyCount(result) > 0) {
-                        blend(extension, result)
-                    }
-                }
-                if (extension.path is Path) {
-                    extension.path = extension.path.compact()
-                }
-                runExtensionScript(extension, 'config')
-/* MOB
             }
-            MOB AA */
+            if (extension.path is Path) {
+                extension.path = extension.path.compact()
+            }
+            runExtensionScript(extension, 'config')
+            
             if (extension.scripts && extension.scripts.generate) {
                 print("WARNING: generate scripts in probes are deprecated: ", extension.name)
             }
@@ -591,7 +568,7 @@ throw 'UNUSED - MISSING COMPONENT TARGET'
     }
 
     internal function traceExtensions() {
-        let omitted = {}
+        let disabled = {}
         if (!b.options.configure && !b.options.verbose) return
         for (let [pname, extension] in me.extensions) {
             if (extension.enable && !extension.silent) {
@@ -606,12 +583,12 @@ throw 'UNUSED - MISSING COMPONENT TARGET'
                     trace('Found', pname + ': ' + extension.description)
                 }
             } else {
-                omitted[pname] = extension
+                disabled[pname] = extension
                 vtrace('Omit', pname + ': ' + extension.description + ':\n                 ' + extension.diagnostic)
             }
         }
         if (b.options.why) {
-            for (let [pname, extension] in omitted) {
+            for (let [pname, extension] in disabled) {
                 extension.diagnostic ||= 'Not configured'
                 trace('Omit', pname + ': ' + extension.diagnostic)
             }
@@ -666,7 +643,7 @@ throw 'UNUSED - MISSING COMPONENT TARGET'
 
     internal function resetExtensions() {
         for each (extension in me.extensions) {
-            delete extension.loaded 
+            delete extension.loading 
             delete extension.enabling 
             delete extension.configuring 
             delete extension.inheriting 
@@ -685,11 +662,6 @@ throw 'UNUSED - MISSING COMPONENT TARGET'
         @option fullpath Return the full path to the located file
      */
     public function probe(file: Path, control = {}): Path {
-/* MOB AA
-        if (me.options.gen) {
-            return file
-        }
- */
         let path: Path?
         let search = [], dir
         if (file.exists) {

@@ -277,7 +277,7 @@ module embedthis.me {
                 }
             }
         }
-        for each (let pname in me.settings.extensions.omit) {
+        for each (let pname in me.settings.extensions.generate) {
             me.extensions[pname] ||= {}
             me.extensions[pname].enable ||= false
             neededTargets[pname] = true
@@ -295,7 +295,6 @@ module embedthis.me {
             Emit ME_EXT_* definitions 
          */
         Object.sortProperties(me.extensions)
-        let emitted = {}
         for (let [name, extension] in me.extensions) {
             if (neededTargets[name]) {
                 if (me.platform.os == 'windows' ) {
@@ -305,35 +304,75 @@ module embedthis.me {
                 } else {
                     genout.writeLine('%-21s ?= %s'.format(['ME_EXT_' + name.toUpper(), extension.enable ? 1 : 0]))
                 }
-                emitted[name] = true
             }
         }
         genout.writeLine('')
 
         /*
-            Emit extension dependencies
+            Emit extension extensions[]
          */
         for (let [name, extension] in me.extensions) {
             if (neededTargets[name] && extension.extensions) {
                 if (me.platform.os == 'windows' ) {
                     for each (r in extension.extensions) {
-                        if (!emitted[r]) {
-                            genout.writeLine('!IF "$(ME_EXT_' + r.toUpper() + ')" == ""')
-                            genout.writeLine('%-21s = 1'.format(['ME_EXT_' + r.toUpper()]))
-                            genout.writeLine('!ENDIF\n')
-                            emitted[r] = true
-                        }
+                        genout.writeLine('!IF "$(ME_EXT_' + r.toUpper() + ')" == ""')
+                        genout.writeLine('%-21s = 1'.format(['ME_EXT_' + r.toUpper()]))
+                        genout.writeLine('!ENDIF\n')
                     }
                 } else {
                     for each (r in extension.extensions) {
-                        if (!emitted[r]) {
-                            genout.writeLine('%-21s ?= 1'.format(['ME_EXT_' + r.toUpper()]))
-                            emitted[r] = true
+                        genout.writeLine('ifeq ($(ME_EXT_' + name.toUpper() + '),1)')
+                        for each (r in extension.extensions) {
+                            genout.writeLine('    ME_EXT_' + r.toUpper() + ' := 1')
                         }
+                        genout.writeLine('endif')
                     }
                 }
             }
         }
+        genout.writeLine('')
+
+        /*
+            Emit extension depends[]
+            UNUSED
+        let emitted = {}
+        for (let [name, extension] in me.extensions) {
+            if (neededTargets[name] && extension.depends && !emitted[name]) {
+                emitted[name] = true
+                let seenItem = false
+                if (me.platform.os == 'windows' ) {
+                    for each (r in extension.depends) {
+                        if (me.extensions[name]) {
+                            if (me.extensions[r]) {
+                                if (!seenItem) {
+                                    genout.writeLine('!IF "$(ME_EXT_' + r.toUpper() + ')" == ""')
+                                    seenItem = true
+                                }
+                                genout.writeLine('%-21s = 1'.format(['ME_EXT_' + r.toUpper()]))
+                            }
+                        }
+                    }
+                    if (seenItem) {
+                        genout.writeLine('!ENDIF\n')
+                    }
+                } else {
+                    for each (r in extension.depends) {
+                        if (me.extensions[r] && me.extensions[r].enable) {
+                            if (!seenItem) {
+                                genout.writeLine('ifeq ($(ME_EXT_' + name.toUpper() + '),1)')
+                                seenItem = true
+                            }
+                            genout.writeLine('    ME_EXT_' + r.toUpper() + ' := 1')
+                        }
+                    }
+                    if (seenItem) {
+                        genout.writeLine('endif')
+                    }
+                }
+            }
+        }
+         */
+        genout.writeLine('')
 
         /*
             Emit extension paths
