@@ -126,7 +126,7 @@ MAIN(httpMain, int argc, char **argv, char **envp)
     start = mprGetTime();
     app->http = httpCreate(HTTP_CLIENT_SIDE);
 
-#if ME_STATIC && ME_EXT_SSL
+#if ME_STATIC && ME_COM_SSL
     extern MprModuleEntry mprSslInit;
     mprNop(mprSslInit);
 #endif
@@ -555,7 +555,7 @@ static int parseArgs(int argc, char **argv)
             app->method = "GET";
         }
     }
-#if ME_EXT_SSL
+#if ME_COM_SSL
 {
     HttpUri *uri = httpCreateUri(app->target, 0);
     if (uri->secure || ssl) {

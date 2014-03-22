@@ -1,0 +1,52 @@
+/*
+    appweb.me -- Appweb Extension
+ */
+Me.load({
+    targets: {
+        appweb: {
+            description: 'Appweb HTTP Server',
+            config: function (target) {
+                let path: Path
+                if (me.options.gen) {
+                    if (me.platform.os == 'windows') {
+                        path = 'C:/Program Files/Embedthis Appweb'
+                    } else {
+                        path = '/usr/local/lib/appweb/latest'
+                    }
+                    return {
+                        path:     path,
+                        libpaths: [ '$(ME_COM_APPWEB_PATH)/bin' ],
+                        includes: [ '$(ME_COM_APPWEB_PATH)/inc' ],
+                    }
+                }
+                let search = [ ]
+                if (target.withpath) {
+                    search.push(target.withpath)
+                }
+                for (let d: Path = '.'; d.parent != d; d = d.parent) {
+                    let sp = d.join(me.platform.name)
+                    if (sp.join('bin/libappweb.' + me.ext.shobj).exists) {
+                        search.push(sp)
+                        break
+                    }
+                }
+                let appweb = Cmd.locate('appweb')
+                if (appweb) {
+                    search.push(appweb.dirname.parent)
+                }
+                search.push('/usr/local/lib/appweb/latest')
+                if (me.platform.os == 'windows') {
+                    search.push(me.dir.programFiles32.join('Embedthis Appweb'))
+                }
+                path = probe('bin/libappweb.' + me.ext.shobj, { search: search });
+                let bin = probe('libappweb.' + me.ext.shobj, {fullpath: true, search: path.join('bin')}).dirname
+                return {
+                    path:       path,
+                    libpaths:  [ bin ],
+                    libraries: [ 'appweb' ],
+                    includes:  [ probe('appweb.h', {search: path.join('inc')}) ],
+                }
+            },
+        },
+    },
+})

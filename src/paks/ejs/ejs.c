@@ -28,8 +28,8 @@
 
 
 //  UNUSED
-#if ME_EXT_EJS || 1
-#if ME_HAS_LIB_EDIT
+#if ME_COM_EJS || 1
+#if ME_COMPILER_HAS_LIB_EDIT
   #include  <histedit.h>
 #endif
 
@@ -46,7 +46,7 @@ typedef struct App {
 
 static App *app;
 
-#if ME_HAS_LIB_EDIT
+#if ME_COMPILER_HAS_LIB_EDIT
 static History  *cmdHistory;
 static EditLine *eh; 
 static cchar    *prompt;
@@ -476,7 +476,7 @@ static int interpretCommands(EcCompiler *cp, cchar *cmd)
 
 
 /************************************************* Command line History **************************************/
-#if ME_HAS_LIB_EDIT
+#if ME_COMPILER_HAS_LIB_EDIT
 
 static cchar *issuePrompt(EditLine *e) 
 {
@@ -529,7 +529,7 @@ static char *readline(cchar *msg)
     return NULL; 
 } 
 
-#else /* ME_HAS_LIB_EDIT */
+#else /* ME_COMPILER_HAS_LIB_EDIT */
 
 static char *readline(cchar *msg)
 {
@@ -542,7 +542,7 @@ static char *readline(cchar *msg)
     }
     return strdup(buf);
 }
-#endif /* ME_HAS_LIB_EDIT */
+#endif /* ME_COMPILER_HAS_LIB_EDIT */
 
 
 /*  
@@ -605,7 +605,7 @@ int main(int argc, char **argv)
     return 0;
 }
 
-#endif /* ME_EXT_EJS */
+#endif /* ME_COM_EJS */
 
 /*
     @copy   default

@@ -142,7 +142,7 @@ PUBLIC void httpInitAuth(Http *http)
 
     httpCreateAuthStore("app", NULL);
     httpCreateAuthStore("internal", fileVerifyUser);
-#if ME_HAS_PAM && ME_HTTP_PAM
+#if ME_COMPILER_HAS_PAM && ME_HTTP_PAM
     httpCreateAuthStore("system", httpPamVerifyUser);
 #endif
 #if DEPRECATED || 1
@@ -150,7 +150,7 @@ PUBLIC void httpInitAuth(Http *http)
         Deprecated in 4.4. Use "internal"
      */
     httpCreateAuthStore("file", fileVerifyUser);
-#if ME_HAS_PAM && ME_HTTP_PAM
+#if ME_COMPILER_HAS_PAM && ME_HTTP_PAM
     httpCreateAuthStore("pam", httpPamVerifyUser);
 #endif
 #endif
@@ -662,7 +662,7 @@ PUBLIC int httpSetAuthStore(HttpAuth *auth, cchar *store)
     }
     //  DEPRECATED "pam"
     if (smatch(store, "system") || smatch(store, "pam")) {
-#if ME_HAS_PAM && ME_HTTP_PAM
+#if ME_COMPILER_HAS_PAM && ME_HTTP_PAM
         if (auth->type && smatch(auth->type->name, "digest")) {
             mprError("Cannot use the PAM password store with digest authentication");
             return MPR_ERR_BAD_ARGS;
@@ -2002,7 +2002,7 @@ static HttpConn *openConnection(HttpConn *conn, struct MprSsl *ssl)
     conn->secure = uri->secure;
     conn->keepAliveCount = (conn->limits->keepAliveMax) ? conn->limits->keepAliveMax : 0;
 
-#if ME_EXT_SSL
+#if ME_COM_SSL
     /* Must be done even if using keep alive for repeat SSL requests */
     if (uri->secure) {
         char *peerName;
@@ -4141,7 +4141,7 @@ PUBLIC void httpSetEndpointNotifier(HttpEndpoint *endpoint, HttpNotifier notifie
 
 PUBLIC int httpSecureEndpoint(HttpEndpoint *endpoint, struct MprSsl *ssl)
 {
-#if ME_EXT_SSL
+#if ME_COM_SSL
     endpoint->ssl = ssl;
     return 0;
 #else
@@ -6669,7 +6669,7 @@ bool httpIsLastPacket(HttpPacket *packet)
 
 
 
-#if ME_HAS_PAM && ME_HTTP_PAM
+#if ME_COMPILER_HAS_PAM && ME_HTTP_PAM
  #include    <security/pam_appl.h>
 
 /********************************* Defines ************************************/
@@ -6793,7 +6793,7 @@ static int pamChat(int msgCount, const struct pam_message **msg, struct pam_resp
     *resp = reply;
     return PAM_SUCCESS;
 }
-#endif /* ME_HAS_PAM */
+#endif /* ME_COMPILER_HAS_PAM */
 
 /*
     @copy   default
@@ -8216,7 +8216,7 @@ static bool fixRangeLength(HttpConn *conn)
 
 
 
-#if ME_EXT_PCRE
+#if ME_COM_PCRE
  #include    "pcre.h"
 #endif
 

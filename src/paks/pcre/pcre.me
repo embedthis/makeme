@@ -3,13 +3,12 @@
  */
 
 Me.load({
-    probe: {
-        sqlite: {
-            description: 'PCRE Regular expressions',
-            depends: [ 'libpcre' ],
-        },
-    },
     targets: {
+        pcre: {
+            configurable: true,
+            depends:      [ 'libpcre' ],
+        },
+
         libpcre: {
 			scripts: {
 				prebuild: `
@@ -29,7 +28,7 @@ Me.load({
             type: 'lib',
             headers: [ '*.h' ],
             sources: [ 'pcre.c' ],
-            extensions: [ 'pcre' ],
+            ifdef:   [ 'pcre' ],
         },
 	},
 })

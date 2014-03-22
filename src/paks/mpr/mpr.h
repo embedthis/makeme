@@ -569,7 +569,7 @@ typedef struct MprSpin {
     #elif MACOSX
         OSSpinLock              cs;
     #elif ME_UNIX_LIKE
-        #if ME_HAS_SPINLOCK
+        #if ME_COMPILER_HAS_SPINLOCK
             pthread_spinlock_t  cs;
         #else
             pthread_mutex_t     cs;
@@ -663,7 +663,7 @@ PUBLIC bool mprTrySpinLock(MprSpin *lock);
     #if MACOSX
         #define mprSpinLock(lock)   if (lock) OSSpinLockLock(&((lock)->cs))
         #define mprSpinUnlock(lock) if (lock) OSSpinLockUnlock(&((lock)->cs))
-    #elif ME_UNIX_LIKE && ME_HAS_SPINLOCK
+    #elif ME_UNIX_LIKE && ME_COMPILER_HAS_SPINLOCK
         #define mprSpinLock(lock)   if (lock) pthread_spin_lock(&((lock)->cs))
         #define mprSpinUnlock(lock) if (lock) pthread_spin_unlock(&((lock)->cs))
     #elif ME_UNIX_LIKE
@@ -850,7 +850,7 @@ PUBLIC void mprAtomicAdd64(volatile int64 *target, int64 value);
 #ifndef ME_MPR_ALLOC_PARALLEL
     #define ME_MPR_ALLOC_PARALLEL  1                   /* Run sweeper in parallel with user threads */
 #endif
-#if ME_HAS_MMU
+#if ME_COMPILER_HAS_MMU
     #define ME_MPR_ALLOC_VIRTUAL   1                   /* Use virtual memory allocations */
 #else
     #define ME_MPR_ALLOC_VIRTUAL   0                   /* Use malloc() for region allocations */
@@ -5765,7 +5765,7 @@ PUBLIC cchar *mprGetModuleSearchPath();
  */
 PUBLIC int mprLoadModule(MprModule *mp);
 
-#if ME_HAS_DYN_LOAD || DOXYGEN
+#if ME_COMPILER_HAS_DYN_LOAD || DOXYGEN
 /**
     Load a native module
     @param mp Module object created via #mprCreateModule.
@@ -8207,16 +8207,16 @@ PUBLIC void mprVerifySslIssuer(struct MprSsl *ssl, bool on);
  */
 PUBLIC void mprVerifySslDepth(struct MprSsl *ssl, int depth);
 
-#if ME_EXT_EST
+#if ME_COM_EST
     PUBLIC int mprCreateEstModule();
 #endif
-#if ME_EXT_MATRIXSSL
+#if ME_COM_MATRIXSSL
     PUBLIC int mprCreateMatrixSslModule();
 #endif
-#if ME_EXT_NANOSSL
+#if ME_COM_NANOSSL
     PUBLIC int mprCreateNanoSslModule();
 #endif
-#if ME_EXT_OPENSSL
+#if ME_COM_OPENSSL
     PUBLIC int mprCreateOpenSslModule();
 #endif
 

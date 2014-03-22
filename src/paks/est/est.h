@@ -9,7 +9,7 @@
 
 #include "me.h"
 
-#if ME_EXT_EST
+#if ME_COM_EST
 
 #include "osdep.h"
 
@@ -4301,4 +4301,4 @@ extern "C" {
 
     @end
  */
-#endif /* ME_EXT_EST */
+#endif /* ME_COM_EST */

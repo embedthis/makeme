@@ -7,20 +7,21 @@ Me.load({
         ejsOneModule: true,
     },
 
-    probe: {
-        ejs: {
-            description: 'Ejscript Javascript Language',
-            depends: [ 'libejs', 'zlib', 'sqlite' ],
-        },
-    },
-
     targets: {
+        ejs: {
+            configurable: true,
+            depends:      [ 'libejs', 'zlib' ],
+            requires:     [ 'zlib' ],
+            uses:         [ 'sqlite' ],
+        },
+
         libejs: {
             type:   'lib',
             sources: [ 'ejsLib.c' ],
             headers: [ '*.h' ],
-            depends: [ 'libhttp', 'libpcre', 'libmpr', 'zlib', 'sqlite' ],
-            extensions: [ 'ejs' ],
+            depends: [ 'libhttp', 'libpcre', 'libmpr', 'libzlib' ],
+            uses:    [ 'sqlite' ],
+            ifdef:   [ 'ejs' ],
         },
 
         ejscmd: {
@@ -28,13 +29,13 @@ Me.load({
             sources: [ 'ejs.c' ],
             scripts: {
                 prebuild: "
-                    if (me.settings.hasLibEdit) {
+                    if (me.settings.compiler.hasLibEdit) {
                         me.target.libraries.push('edit')
                     }
                 ",
             },
             depends: [ 'libejs' ],
-            extensions: [ 'ejs' ],
+            ifdef:   [ 'ejs' ],
             enable: 'me.settings.ejs.shell',
         },
 
@@ -42,7 +43,7 @@ Me.load({
             type:   'exe',
             sources: [ 'ejsc.c' ],
             depends: [ 'libejs' ],
-            extensions: [ 'ejs' ],
+            ifdef:   [ 'ejs' ],
         },
 
 		'ejs.mod': {
@@ -56,7 +57,7 @@ Me.load({
             'generate-nmake': '"${BIN}\\ejsc" --out "${BIN}/ejs.mod" --optimize 9 --bind --require null ejs.es',
             'generate-sh': '${BIN}/ejsc --out ${BIN}/ejs.mod --optimize 9 --bind --require null ejs.es',
             depends: [ 'ejsc' ],
-            extensions: [ 'ejs' ],
+            ifdef:   [ 'ejs' ],
 		},
     },
 })

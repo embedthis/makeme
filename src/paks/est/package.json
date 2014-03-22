@@ -35,7 +35,8 @@
         "me-dev": "~0.8",
         "me-doc": "~0.8",
         "me-package": "~0.8",
-        "osdep": "~0.8"
+        "osdep": "~0.8",
+        "ssl": "~0.8"
     },
     "dirs": {
         "paks": "src/paks"

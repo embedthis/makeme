@@ -1,0 +1,59 @@
+/*
+    ssl.me - SSL support. This is the interface above SSL providers: Embedthis EST, MatrixSSL, Mocana NanoSSL, OpenSSL
+ */
+
+Me.load({
+    blend: [
+        'matrixssl.me',
+        'openssl.me',
+        'nanossl.me',
+    ],
+
+    targets: {
+        ssl: {
+            configurable: true,
+            description: 'Secure Socket Layer Interface',
+            discovers: [ 'est', 'matrixssl', 'nanossl', 'openssl' ],
+            uses:      [ 'est', 'matrixssl', 'nanossl', 'openssl' ],
+            config: function (target) {
+                let provider
+                for each (p in target.discovers) {
+                    if (me.targets[p].enable && me.targets[p].explicit) {
+                        provider = p
+                        break
+                    }
+                }
+                for each (p in target.discovers) {
+                    if (p == provider) {
+                        continue
+                    }
+                    if (me.targets[p] && me.targets[p].enable && !provider) {
+                        provider = p
+                    } else if (provider) {
+                        me.targets[p].enable = false
+                        me.targets[p].diagnostic = 'Using the "' + provider + '" SSL provider instead.'
+                    }
+                }
+                if (provider) {
+                    let from = me.targets[provider]
+                    target.provider = provider
+                    for each (field in ['defines', 'includes', 'libraries', 'libpaths', 'imports']) {
+                        if (from[field]) {
+                            target[field] = from[field]
+                        }
+                    }
+                    target.description += ' (' + me.targets[provider].description + ')'
+
+                } else {
+                    throw "No enabled SSL providers"
+                }
+            },
+            without: function(target) {
+                for each (p in target.discovers) {
+                    me.targets[p].enable = false
+                    me.targets[p].diagnostic = 'configured --without ssl'
+                }
+            },
+        },
+    },
+})

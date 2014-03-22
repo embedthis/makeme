@@ -42,21 +42,19 @@ Me.load({
         src:                '${prefixes.data}/src',
     },
 
-    settings: {
-        extensions: {
-            require: [ 'winsdk', 'compiler', 'lib', 'link', 'rc' ],
-        },
+    configure: {
+        requires: [ 'winsdk', 'compiler', 'lib', 'link', 'rc' ],
     },
 
     rules: {
-        'c->c':     '"${extensions.compiler.path}" -E -Fd${PDB} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
-        'c->obj':   '"${extensions.compiler.path}" -c -Fo${OUTPUT} -Fd${PDB} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
-        'cpp->obj': '"${extensions.compiler.path}" -c -Fo${OUTPUT} -Fd${PDB} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
-        'shlib':    '"${extensions.link.path}" -dll -out:${OUTPUT} -entry:${ENTRY} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS}',
-        'lib':      '"${extensions.lib.path}" -nologo -out:${OUTPUT} ${INPUT}',
-        'exe':      '"${extensions.link.path}" -out:${OUTPUT} -entry:${ENTRY} -subsystem:${SUBSYSTEM} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS}',
-        'gui':      '"${extensions.link.path}" -out:${OUTPUT} -entry:${ENTRY} -subsystem:${SUBSYSTEM} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS}',
-        'sym':      '"${extensions.dumpbin.path}" /symbols ${INPUT}',
-        'res':      '"${extensions.rc.path}" -nologo -Fo ${OUTPUT} ${INPUT}',
+        'c->c':     '"${targets.compiler.path}" -E -Fd${PDB} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
+        'c->obj':   '"${targets.compiler.path}" -c -Fo${OUTPUT} -Fd${PDB} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
+        'cpp->obj': '"${targets.compiler.path}" -c -Fo${OUTPUT} -Fd${PDB} ${CFLAGS} ${DEFINES} ${INCLUDES} ${PREPROCESS} ${INPUT}',
+        'shlib':    '"${targets.link.path}" -dll -out:${OUTPUT} -entry:${ENTRY} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS}',
+        'lib':      '"${targets.lib.path}" -nologo -out:${OUTPUT} ${INPUT}',
+        'exe':      '"${targets.link.path}" -out:${OUTPUT} -entry:${ENTRY} -subsystem:${SUBSYSTEM} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS}',
+        'gui':      '"${targets.link.path}" -out:${OUTPUT} -entry:${ENTRY} -subsystem:${SUBSYSTEM} ${LDFLAGS} ${LIBPATHS} ${INPUT} ${LIBS}',
+        'sym':      '"${targets.dumpbin.path}" /symbols ${INPUT}',
+        'res':      '"${targets.rc.path}" -nologo -Fo ${OUTPUT} ${INPUT}',
     },
 })

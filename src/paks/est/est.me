@@ -3,16 +3,14 @@
  */
 
 Me.load({
-    probe: {
-        est: {
-            description: 'Embedded Security Transport Library'
-            depends:    [ 'libest' ],
-            extensions: [ 'ssl' ],
-            conflicts:  [ 'matrixssl', 'openssl', 'nanossl' ],
-        },
-    },
-
     targets: {
+        est: {
+            configurable: true,
+            depends:      [ 'libest' ],
+            ifdef:        [ 'ssl' ],
+            conflicts:    [ 'matrixssl', 'openssl', 'nanossl' ],
+        },
+
         libest: {
             type: 'lib',
             headers: [ '*.h' ],
@@ -21,13 +19,14 @@ Me.load({
                 '-Wall',
                 '-Wshorten-64-to-32',
             ],
-            extensions: [ 'est' ],
+            ifdef: [ 'est' ],
         },
 
         'ca-crt': {
             type: 'file',                                                                                  
             files: [ 'ca.crt' ],                                                                       
             path: '${BIN}/ca.crt',                                                                    
+            ifdef: [ 'est' ],
         }, 
 	},
 })

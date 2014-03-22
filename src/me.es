@@ -72,15 +72,14 @@ public class Me {
         platforms: [], 
         platform: {}, 
         dir: {}, 
+        configure: { 
+            requires: [], 
+            discovers: [], 
+            extras: [], 
+        }, 
         settings: { 
             version: '1.0.0', 
-            extensions: { 
-                require: [], 
-                discover: [], 
-                generate: [], 
-            }, 
         },
-        extensions: {}, 
         targets: {}, 
         env: {}, 
         globals: {}, 
@@ -143,7 +142,6 @@ public class Me {
             version: { alias: 'V' },
             watch: { range: Number },
             why: { alias: 'w' },
-            //  MOB - with should be CONNREV
             'with': { range: String, separator: Array },
             without: { range: String, separator: Array },
         },
@@ -221,34 +219,34 @@ public class Me {
                     }
                     print('')
                 }
-                if (me.extensions) {
+                if (me.targets) {
                     let header
-                    Object.sortProperties(me.extensions)
+                    Object.sortProperties(me.targets)
                     b.overlay('configure.es')
-                    for (name in me.extensions) {
-                        let extension = me.extensions[name]
-                        let desc = extension.description
+                    for each (target in me.targets) {
+                        if (!target.configurable) continue
+                        let desc = target.description
                         if (!desc) {
-                            let path = findProbe(name)
+                            let path = findComponent(target.name)
                             if (path) {
                                 let matches = path.readString().match(/description:.*'(.*)'|program\(.*, '(.*)'/m)
                                 if (matches) {
                                     desc = matches[1]
                                 }
                             } else {
-                                let path = me.dir.paks.join(name, PACKAGE)
+                                let path = me.dir.paks.join(target.name, PACKAGE)
                                 if (path.exists) {
                                     desc = PACKAGE.readJSON().description
                                 }
                             }
                         }
-                        if (!me.settings.extensions.require.contains(name) && desc) {
+                        if (!me.configure.requires.contains(target.name) && desc) {
                             if (!header) {
-                                print('Extensions (--with NAME, --without NAME):')
+                                print('Components (--with NAME, --without NAME):')
                                 header = true
                             }
                             desc ||= ''
-                            print('    %-38s # %s'.format([name, desc]))
+                            print('    %-38s # %s'.format([target.name, desc]))
                         }
                     }
                 }
@@ -259,8 +257,9 @@ public class Me {
 
     function overlay(name) {
         let src = options.configure || Path('.')
-        let makeme = src.join('makeme/standard.me').exists ? src.join('makeme') : Config.Bin
-        global.load(makeme.join(name))
+        //  TODO SHOULD be done once centrally
+        let base = src.join('me/standard.me').exists ? src.join('me') : Config.Bin
+        global.load(base.join(name))
     }
 
     function main() {
@@ -331,8 +330,8 @@ public class Me {
         
         Support Autoconf style args:
             --prefix, --bindir, --libdir, --sysconfdir, --includedir, --libexec
-            --with-extension
-            --without-extension
+            --with-component
+            --without-component
             --enable-feature
             --disable-feature
      */ 
@@ -366,13 +365,13 @@ public class Me {
                 return --i
             }
             if (arg.startsWith('--with-')) {
-                let extension = arg.trimStart('--with-')
-                argv.splice(i, 1, '--with', extension)
+                let component = arg.trimStart('--with-')
+                argv.splice(i, 1, '--with', component)
                 return --i
             }
             if (arg.startsWith('--without-')) {
-                let extension = arg.trimStart('--without-')
-                argv.splice(i, 1, '--without', extension)
+                let component = arg.trimStart('--without-')
+                argv.splice(i, 1, '--without', component)
                 return --i
             }
         }
@@ -471,7 +470,7 @@ public class Me {
                 usage()
             }
             localPlatform = platforms[0]
-            /* Must continue if probe can't locate tools, but does know a default */
+            /* Must continue if configure can't locate tools, but does know a default */
             options['continue'] = true
         }
         let [os, arch] = localPlatform.split('-') 
@@ -544,8 +543,14 @@ public class Me {
 
     function showConfiguration() {
         print("// Configuration for Platform: " + me.platform.name)
-        print("\nextensions:")
-        print(serialize(me.extensions, {pretty: true, quotes: false}))
+        print("\nConfigurable Components:")
+        let configurable = []
+        for each (target in me.targets) {
+            if (target.configurable) {
+                configurable.push(target)
+            }
+        }
+        print(serialize(configurable, {pretty: true, quotes: false}))
         print("\nsettings:")
         print(serialize(me.settings, {pretty: true, quotes: false}))
     }
@@ -595,62 +600,56 @@ public class Me {
             if (value == undefined) {
                 value = true
             }
-            let extensions = me.settings.extensions.require + me.settings.extensions.discover + 
-                Object.getOwnPropertyNames(me.extensions)
-            if (extensions.contains(field)) {
-                App.log.error("Using \"--set " + field + "\", but " + field + " is an extension. " + 
+            let configure = me.configure.requires + me.configure.discovers
+            if (configure.contains(field)) {
+                App.log.error("Using \"--set " + field + "\", but " + field + " is a configurable target. " + 
                         "Use --with or --without instead.")
                 App.exit(1)
             }
             setSetting(me.settings, field, value)
         }
-        for each (field in me.settings.without) {
-            let extension = me.extensions[field] ||= {}
-            extension.enable = false
-            extension.name = field
-        }
         for each (field in poptions['without']) {
-            if (me.settings.extensions.require.contains(field)) { 
-                throw 'Required extension ' + field + ' cannot be disabled.'
+            if (me.configure.requires.contains(field)) { 
+                throw 'Required component "' + field + '"" cannot be disabled.'
             }
-            me.extensions[field] ||= {}
-            let extension = me.extensions[field]
             if (field == 'all' || field == 'default') {
                 let list = me.settings['without-' + field] || me.settings.discover
                 for each (f in list) {
-                    me.extensions[f] ||= {}
-                    extension = me.extensions[f]
-                    extension.name = f
-                    extension.enable = false
-                    extension.explicit = true
-                    extension.diagnostic = 'configured --without ' + f + '.'
+                    let target = me.targets[f] ||= {}
+                    target.name ||= f
+                    target.without = true
+                    target.enable = false
+                    target.explicit = true
+                    target.diagnostic = 'Component disabled via --without ' + f + '.'
                 }
                 continue
             }
-            extension.name = field
-            extension.enable = false
-            extension.diagnostic = 'configured --without ' + field + '.'
-            extension.explicit = true
+            let target = me.targets[field] ||= {}
+            target.name ||= field
+            target.without = true
+            target.enable = false
+            target.explicit = true
+            target.diagnostic = 'Component disabled via --without ' + field + '.'
         }
-        let require = []
+        let requires = []
         for each (field in poptions['with']) {
             let [field,value] = field.split('=')
-            me.extensions[field] ||= {}
-            let extension = me.extensions[field]
+            let target = me.targets[field] ||= {}
+            target.name ||= field
+            target.enable = true
+            target.explicit = true
+            target.essential = true
             if (value) {
-                extension.withpath = Path(value)
+                target.withpath = Path(value)
             }
-            extension.enable = true
-            extension.explicit = true
-            extension.essential = true
-            delete extension.diagnostic
-            if (!me.settings.extensions.require.contains(field) && !me.settings.extensions.discover.contains(field)) {
-                require.push(field)
+            delete target.diagnostic
+            if (!me.configure.requires.contains(field) && !me.configure.discovers.contains(field)) {
+                requires.push(field)
             }
         }
-        if (require.length > 0) {
+        if (requires.length > 0) {
             /* Insert explicit require first */
-            me.settings.extensions.require = require + me.settings.extensions.require
+            me.configure.requires = requires + me.configure.requires
         }
     }
 
@@ -794,7 +793,7 @@ public class Me {
                 Convert to canonical long form
              */
             let home = currentMeFile.dirname
-            for (let [event,item] in o.scripts) {
+            for (let [event, item] in o.scripts) {
                 if (item is String || item is Function) {
                     o.scripts[event] = [{ home: home, interpreter: 'ejs', script: item }]
                 } else if (item is Array) {
@@ -869,25 +868,25 @@ public class Me {
     function fixTarget(o, tname, target) {
         target.home = absPath(target.home)
         let home = target.home
-        if (target.path) {
-            // target.path = absPath(target.path)
+        if (target.path && !target.configurable) {
+            //  Because compiler.path was changing 'clang'
             rebase(home, target, 'path')
         }
         for (let [key,value] in target.defines) {
             target.defines[key] = value.trimStart('-D')
         }
-        if (target.extensions) {
-            target.extensions = makeArray(target.extensions)
+        if (target.ifdef) {
+            target.ifdef = makeArray(target.ifdef)
         }
-        if (target.provides) {
-            target.provides = makeArray(target.provides)
+        if (target.uses) {
+            target.uses = makeArray(target.uses)
+        } else {
+            target.uses = []
         }
         if (target.depends) {
             target.depends = makeArray(target.depends)
-        }
-        if (target.use) {
-            trace('Warn', 'Target ' + target.name + ' in ' + currentMeFile + ' is using "use" instead of "depends"')
-            target.use = makeArray(target.use)
+        } else {
+            target.depends = []
         }
         rebase(home, target, 'includes')
         rebase(home, target, 'headers')
@@ -906,7 +905,7 @@ public class Me {
             Expand short-form scripts into the long-form. Set the target type if not defined to 'script'.
          */
         let build = target.build
-        for each (n in ['action', 'build', 'shell', 'postblend', 'preresolve', 'postresolve', 'postsource', 
+        for each (n in ['action', 'build', 'shell', 'postblend', 'preresolve', 'postresolve', 'presource', 'postsource', 
                 'precompile', 'postcompile', 'prebuild', 'postbuild', 'test']) {
             if (target[n] != undefined) {
                 target.type ||= 'script'
@@ -918,19 +917,9 @@ public class Me {
                 delete target[n]
             }
         }
-        fixScripts(target)
+        fixScripts(target, ['config', 'without', 'postconfig', 'generate'])
         fixGoals(target, build)
 
-        /*
-            Blend internal for only the targets in this file. Delay blending defaults.
-        if (o.internal) {
-            let base = blend({}, o.internal, {combine: true})
-            target = blend(base, target, {combine: true})
-
-            o.targets[tname] = me.targets[tname] = target
-            o.targets[tname] = target
-        }
-         */
         if (o.internal) {
             target.internal = o.internal
         }
@@ -951,42 +940,30 @@ public class Me {
         plus(o.internal, 'includes')
 
         o.settings ||= {}
-        o.settings.extensions ||= {}
+        o.configure ||= {}
         let settings = o.settings
-        let extensions = settings.extensions
+        let configure = o.configure
 
         //  LEGACY
         if (o.modules) {
-            throw "WARNING: modules is deprecated. Use mix require instead"
+            throw 'WARNING: modules is deprecated. Use mix instead'
         }
-        if (settings.requires) {
-            throw "WARNING: settings.requires is deprecated. Use settings.extensions.require instead"
+        if (o.extensions) {
+            throw 'WARNING: extensions is deprecated. Use "configure" instead'
         }
-        if (settings['+requires']) {
-            throw "WARNING: settings.requires is deprecated. Use settings.extensions.require instead"
+        if (o.extensions && o.extensions.generates) {
+            throw 'WARNING: extensions.generates is deprecated. Use extensions.extras instead'
+        }
+        if (settings.extensions) {
+            throw 'WARNING: settings.extensions is deprecated. Use "configure" instead'
         }
         if (settings.discover) {
-            throw "WARNING: settings.discover is deprecated. Use settings.extensions.require instead"
-        }
-        if (settings['+discover']) {
-            throw "WARNING: settings.discover is deprecated. Use settings.extensions.require instead"
-        }
-        if (settings.extensions.requires) {
-            throw "WARNING: settings.extensions.requires is deprecated. Use settings.extensions.require instead"
-        }
-        if (settings.extensions.required) {
-            throw "WARNING: settings.extensions.required is deprecated. Use settings.extensions.require instead"
-        }
-        if (settings.extensions.without) {
-            throw "WARNING: settings.extensions.without is deprecated. Use settings.extensions.generate instead"
-        }
-        if (settings.extensions.omit) {
-            throw "WARNING: settings.extensions.omit is deprecated. Use settings.extensions.generate instead"
+            throw 'WARNING: settings.discover is deprecated. Use "discovers" instead'
         }
 
-        plus(extensions, 'require')
-        plus(extensions, 'discover')
-        plus(extensions, 'generate')
+        plus(configure, 'requires')
+        plus(configure, 'discovers')
+        plus(configure, 'extras')
 
         rebase(home, o, 'modules')
         rebase(home, o.defaults, 'includes')
@@ -996,9 +973,6 @@ public class Me {
         fixScripts(o.defaults)
         fixScripts(o.internal)
 
-        for each (extension in o.extensions) {
-            fixScripts(extension, ['config', 'without', 'postconfig', 'generate'])
-        }
         for (let [tname,target] in o.targets) {
             target.name ||= tname
             target.home ||= home
@@ -1026,21 +1000,30 @@ public class Me {
             blend(me.platform, o.platform, {combine: true})
         }
         if (!me.quickLoad) {
-            me.globals.MAKEME = me.dir.makeme
+            me.globals.ME = me.dir.me
             me.globals.SRC = me.dir.src
             for each (let path in o.blend) {
+                let files
                 if (path.startsWith('?')) {
-                    path = home.join(expand(path.slice(1), {fill: null}))
-                    if (!path.exists) {
-                        vtrace('SKIP', 'Skip blending optional ' + path.relative)
-                    }
-                    continue
+                    files = home.files(expand(path.slice(1), {fill: null}))
                 } else {
-                    path = home.join(expand(path, {fill: null}))
-                }
-                let files = Path('.').files(path)
-                if (files.length == 0) {
-                    throw 'Cannot find blended module: ' + path
+                    path = Path(expand(path, {fill: null}))
+                    files = home.files(path)
+                    if (files.length == 0) {
+                        vtrace('Probe', me.dir.home.join('.paks', path.trimExt(), '*', path))
+                        files = me.dir.home.join('.paks', path.trimExt()).files('*/' + path).reverse().slice(0, 1)
+                        /* UNUSED
+                        vtrace('Probe', me.dir.home.join('.me/paks', path))
+                        files = me.dir.home.join('.me/paks').files(path)
+                        if (files.length == 0) {
+                            vtrace('Probe', me.dir.me.join('paks', path))
+                            files = me.dir.me.join('paks').files(path)
+                        }
+                        */
+                        if (files.length == 0) {
+                            throw 'Cannot find blended module: ' + path
+                        }
+                    }
                 }
                 for each (let p in files) {
                     loadMeFile(p)
@@ -1089,13 +1072,14 @@ public class Me {
     }
 
     function import() {
-        let bin = Path(Config.Bin)
-        for each (dest in bin.files('makeme/**', {relative: true})) {
-            let src = bin.join(dest)
-            if (src.isDir) {
+        b.createMe(Config.OS + '-' + Config.CPU, START)
+        mkdir(me.dir.top.join('me'), 0755)
+        for each (src in Config.Bin.files('**', {relative: true})) {
+            let dest = me.dir.top.join('me', src)
+            if (Config.Bin.join(src).isDir) {
                 mkdir(dest.dirname, 0755)
             } else {
-                safeCopy(src, dest)
+                safeCopy(Config.Bin.join(src), dest)
             }
         }
     }
@@ -1119,12 +1103,13 @@ public class Me {
         makeConstGlobals()
         makeDirGlobals()
         enableTargets()
-        createExtensionTargets()
         blendDefaults()
         resolveDependencies()
         expandWildcards()
         castTargetTypes()
         setTargetPaths()
+
+        Object.sortProperties(me.targets)
         Object.sortProperties(me)
 
         if (options.dump) {
@@ -1132,8 +1117,8 @@ public class Me {
             delete o.blend
             let path = Path(currentPlatform + '.dmp')
             Object.sortProperties(o)
-            if (o.extensions) {
-                Object.sortProperties(o.extensions)
+            if (o.configure) {
+                Object.sortProperties(o.configure)
             }
             if (o.targets) {
                 Object.sortProperties(o.targets)
@@ -1143,9 +1128,6 @@ public class Me {
             }
             for each (target in o.targets) {
                 Object.sortProperties(target)
-            }
-            for each (extension in o.extensions) {
-                Object.sortProperties(extension)
             }
             path.write(serialize(o, {pretty: true, commas: true, indent: 4, quotes: false}))
             trace('Dump', 'Save Me DOM to: ' + path)
@@ -1160,10 +1142,10 @@ public class Me {
             let reported = false
             target.name ||= tname
 
-            for each (item in target.extensions) {
-                if (!me.extensions[item] || !me.extensions[item].enable) {
-                    if (!(me.options.gen && me.settings.extensions.generate.contains(item))) {
-                        whySkip(target.name, 'disabled because the required extension ' + item + ' is not enabled')
+            for each (item in target.ifdef) {
+                if (!me.targets[item] || !me.targets[item].enable) {
+                    if (!(me.options.gen && me.configure.extras.contains(item))) {
+                        whySkip(target.name, 'disabled because the required target ' + item + ' is not enabled')
                         target.enable = false
                         reported = true
                     }
@@ -1224,7 +1206,7 @@ public class Me {
         return null
     }
 
-    function getDependentTargets(target, goal) {
+    function selectDependentTargets(target, goal) {
         if (target.selected) {
             return
         }
@@ -1233,20 +1215,29 @@ public class Me {
         }
         if (goal === true || target.goals.contains(goal)) {
             target.selected = true
-            for each (dname in target.depends) {
+            for each (dname in (target.depends + target.uses)) {
                 if (dname == ALL) {
                     for each (target in me.targets) {
-                        getDependentTargets(target, dname)
+                        selectDependentTargets(target, dname)
                     }
                 } else {
                     let dep = me.targets[dname]
                     if (dep) {
                         if (!dep.selected) {
-                            getDependentTargets(dep, true)
+                            selectDependentTargets(dep, true)
                         }
-                    } else if (!Path(dname).exists && !me.extensions[dname]) {
+                    } else if (!Path(dname).exists && !me.targets[dname]) {
                         throw 'Unknown dependency "' + dname + '" in target "' + target.name + '"'
                     }
+                }
+            }
+            /*
+                Select targets used by this target if they are enabled. No error if not enabled.
+             */
+            for each (dname in target.uses) {
+                let dep = me.targets[dname]
+                if (dep && dep.enable && !dep.selected) {
+                    selectDependentTargets(dep, true)
                 }
             }
             selectedTargets.push(target)
@@ -1266,7 +1257,7 @@ public class Me {
             delete target.selected
         }
         for each (target in me.targets) {
-            getDependentTargets(target, goal)
+            selectDependentTargets(target, goal)
         }
         if (selectedTargets.length == 0) {
             if (goal != 'all') {
@@ -1311,6 +1302,7 @@ public class Me {
                     }
                 }
             }
+            Object.sortProperties(target)
         }
     }
 
@@ -1321,7 +1313,7 @@ public class Me {
     function buildFileList(target, include, exclude = null) {
         if (!target.copytemp) {
             if (exclude) {
-                /* Join exclude pattersn. Strip leading and trailing slashes and change \/ to / */
+                /* Join exclude patterns. Strip leading and trailing slashes and change \/ to / */
                 let ex = (TempFilter.toString().slice(1, -1) + '|' + exclude.toString().slice(1, -1)).replace(/\\\//g, '/')
                 exclude = RegExp(ex)
             } else {
@@ -1351,36 +1343,6 @@ public class Me {
             }
         }
         return files
-    }
-
-
-    function createExtensionTarget(pname) {
-        if (me.targets[pname]) {
-            throw "Target name clash with extension of the same name:" + pname
-        } else if (!me.targets[pname]) {
-            let extension = me.extensions[pname]
-            if (extension) {
-                me.targets[pname] = extension
-                extension.goals ||= [ pname ]
-                for each (d in extension.depends) {
-                    let dep = me.targets[d]
-                    if (!dep) {
-                        createExtensionTarget(d)
-                    }
-                }
-            }
-        }
-    }
-
-    function createExtensionTargets() {
-        for each (target in me.targets) {
-            for each (dname in target.depends) {
-                let dep = me.targets[dname]
-                if (!dep) {
-                    createExtensionTarget(dname)
-                }
-            }
-        }
     }
 
     function inheritDep(target, dep) {
@@ -1424,7 +1386,7 @@ public class Me {
     }
 
     /*
-        Resolve a target by inheriting dependent libraries from dependent targets and extensions
+        Resolve a target by inheriting dependent libraries from dependent targets
      */
     function resolve(target) {
         if (target.resolved) {
@@ -1432,10 +1394,11 @@ public class Me {
         }
         runTargetScript(target, 'preresolve')
         target.resolved = true
-        for each (dname in target.depends) {
+        for each (dname in (target.depends + target.uses)) {
             let dep = getDep(dname)
             if (dep) {
-                if (!dep.enable) {
+                /* If generating, still want to inherit libs */
+                if (!dep.enable && !me.options.gen) {
                     continue
                 }
                 if (!dep.resolved) {
@@ -1463,6 +1426,11 @@ public class Me {
                     }
                     if (!target.libraries.contains(lpath)) {
                         target.libraries = target.libraries + [lpath]
+                    }
+                } else if (dep.configurable) {
+                    if (dep.libraries) {
+                        target.libraries ||= []
+                        target.libraries = (target.libraries + dep.libraries).unique()
                     }
                 }
                 inheritDep(target, dep)
@@ -1534,7 +1502,6 @@ public class Me {
                     /* Always overwrite dynamically created targets created via makeDepends */
                     me.targets[header] = { name: header, enable: true, path: header, type: 'header', 
                         goals: [target.name], files: [ file ], includes: target.includes }
-                    target.depends ||= []
                     target.depends.push(header)
                 }
             }
@@ -1553,7 +1520,6 @@ public class Me {
                     }
                     me.targets[resTarget.name] = resTarget
                     target.files.push(res)
-                    target.depends ||= []
                     target.depends.push(res)
                 }
             }
@@ -1577,7 +1543,6 @@ public class Me {
                     }
                     me.targets[objTarget.name] = objTarget
                     target.files.push(obj)
-                    target.depends ||= []
                     target.depends.push(obj)
 
                     /*
@@ -1616,7 +1581,7 @@ public class Me {
             }
             let base = {}
             if (target.type == 'exe' || target.type == 'lib') {
-                base = inheritDep(base, me.extensions.compiler)
+                base = inheritDep(base, me.targets.compiler)
             }
             if (Object.getOwnPropertyCount(me.defaults)) {
                 for (let [key,value] in me.defaults) {
@@ -1664,7 +1629,7 @@ public class Me {
         for (let [key,value] in me.dir) {
             me.dir[key] = Path(value).absolute
         }
-        let defaults = me.extensions.compiler
+        let defaults = me.targets.compiler
         if (defaults) {
             for (let [key,value] in defaults.includes) {
                 defaults.includes[key] = Path(value).absolute
@@ -1690,29 +1655,6 @@ public class Me {
                 }
             } else {
                 me.prefixes[pname] = me.prefixes[pname].normalize
-            }
-        }
-        for each (extension in me.extensions) {
-            if (extension.dir) {
-                extension.dir = Path(extension.dir).absolute
-            }
-            if (extension.path) {
-                /* Must not make absolute incase extension resolves using PATH at run-time. e.g. cc */
-                extension.path = Path(extension.path)
-            }
-            for (let [key,value] in extension.includes) {
-                if (!value.startsWith('$')) {
-                    extension.includes[key] = Path(value).absolute
-                } else {
-                    extension.includes[key] = Path(value)
-                }
-            }
-            for (let [key,value] in extension.libpaths) {
-                if (!value.startsWith('$')) {
-                    extension.libpaths[key] = Path(value).absolute
-                } else {
-                    extension.libpaths[key] = Path(value)
-                }
             }
         }
     }
@@ -1743,6 +1685,8 @@ public class Me {
             for (i in target.resources) {
                 target.resources[i] = Path(target.resources[i])
             }
+            target.depends ||= []
+            target.uses ||= []
         }
     }
 
@@ -2075,8 +2019,7 @@ public class Me {
         @hide
      */
     public function makeDirGlobals(base: Path? = null) {
-        //  MOB - remove makeme - only used for embedthis.me. Remove when it is a pak.
-        for each (n in ['BIN', 'OUT', 'MAKEME', 'FLAT', 'INC', 'LIB', 'OBJ', 'PAKS', 'PKG', 'REL', 'SRC', 'TOP']) {
+        for each (n in ['BIN', 'OUT', 'INC', 'LIB', 'OBJ', 'PAKS', 'PKG', 'REL', 'SRC', 'TOP']) {
             /* 
                 These globals are always in portable format so they can be used in build scripts. Windows back-slashes
                 require quoting! 
@@ -2111,11 +2054,11 @@ public class Me {
             tv.LIBPATHS = mapLibPaths(target.libpaths, base)
         }
         if (me.platform.os == 'windows') {
-            let entry = target.entry || me.extensions.compiler.entry
+            let entry = target.entry || me.targets.compiler.entry
             if (entry) {
                 tv.ENTRY = entry[target.rule || target.type]
             }
-            let subsystem = target.subsystem || me.extensions.compiler.subsystem
+            let subsystem = target.subsystem || me.targets.compiler.subsystem
             if (subsystem) {
                 tv.SUBSYSTEM = subsystem[target.rule || target.type]
             }
@@ -2176,10 +2119,13 @@ public class Me {
         Run an event script in the directory of the me file
         @hide
      */
-    public function runTargetScript(target, when) {
-        if (!target.scripts) return
+    public function runTargetScript(target, event, options = {}) {
+        let result
+        if (!target.scripts) {
+            return null
+        }
         global.TARGET = me.target = target
-        for each (item in target.scripts[when]) {
+        for each (item in target.scripts[event]) {
             let pwd = App.dir
             if (item.home && item.home != pwd) {
                 changeDir(expand(item.home))
@@ -2187,23 +2133,28 @@ public class Me {
             try {
                 if (item.interpreter == 'ejs') {
                     if (item.script is Function) {
-                        item.script.call(this, target)
+                        result = item.script.call(this, target)
                     } else {
                         let script = expand(item.script).expand(target.vars, {fill: ''})
                         script = 'require ejs.unix\n' + script
-                        eval(script)
+                        result = eval(script)
                     }
                 } else {
                     runShell(target, item.interpreter, item.script)
                 }
             } catch (e) {
-                App.log.error('Error with target: ' + target.name + '\nCommand: ' + item.script + '\n' + e + '\n')
-                throw "Exiting"
+                if (options.rethrow) {
+                    throw e
+                } else {
+                    App.log.error('Error with target: ' + target.name + '\nCommand: ' + item.script + '\n' + e + '\n')
+                    throw "Exiting"
+                }
             } finally {
                 changeDir(pwd)
                 delete me.target
             }
         }
+        return result
     }
 
     /**
@@ -2266,7 +2217,7 @@ public class Me {
                 if (me.targets['lib' + name] || me.dir.lib.join(libname).exists) {
                     libs[i] = libname
                 } else {
-                    let libpaths = target ? target.libpaths : me.extensions.compiler.libpaths
+                    let libpaths = target ? target.libpaths : me.targets.compiler.libpaths
                     for each (dir in libpaths) {
                         if (dir.join(libname).exists) {
                             libs[i] = dir.join(libname)
@@ -2366,11 +2317,11 @@ public class Me {
                 }
             }
         }
-        for each (let dname: Path in target.depends) {
+        for each (let dname: Path in (target.depends + target.uses)) {
             let file
             let dep = getDep(dname)
             if (!dep) {
-                /* Dependency not found as a target or extension, so treat as a file */
+                /* Dependency not found as a target , so treat as a file */
                 if (!dname.modified) {
                     whyRebuild(path, 'Rebuild', 'missing dependency ' + dname)
                     return true
@@ -2381,53 +2332,38 @@ public class Me {
                 }
                 return false
 
-            } else if (dep.type == 'extension') {
-                if (!extension.enable) {
+            } else if (dep.configurable) {
+                if (!dep.enable) {
                     continue
                 }
-                file = extension.path
+                file = dep.path
                 if (!file) {
                     continue
                 }
                 if (!file.exists) {
-                    whyRebuild(path, 'Rebuild', 'missing ' + file + ' for extension ' + dname)
+                    whyRebuild(path, 'Rebuild', 'missing ' + file + ' for "' + dname + '"')
                     return true
                 }
 
             } else {
                 file = dep.path
-            }
-            if (!file || file.modified > path.modified) {
-                whyRebuild(path, 'Rebuild', 'dependent ' + file + ' has been modified.')
-                return true
+                if (!file) {
+                    continue
+                }
+                if (file.modified > path.modified) {
+                    whyRebuild(path, 'Rebuild', 'dependent ' + file + ' has been modified.')
+                    return true
+                }
             }
         }
         return false
     }
 
     /*
-        Create an array of dependencies for a target
+        Create an array of header dependencies for source files
      */
-    function makeDepends(target): Array {
+    function makeDepends(target) {
         let includes: Array = []
-        /*
-            FUTURE - persist dependencies
-
-            for each (path in target.files) {
-                if (path.modified <= me.settings.lastBuild) {
-                    continue
-                }
-                let dep = me.targets[path]
-                if (dep) {
-                    for each (h in dep.depends) {
-                    let str = path.readString()
-                    let more = str.match(/^#include.*"$/gm)
-                    if (more) {
-                        includes += more
-                    }
-                }
-            }
-         */
         for each (path in target.files) {
             if (path.exists) {
                 let str = path.readString()
@@ -2484,7 +2420,6 @@ public class Me {
         if (depends.length > 0) {
             target.depends = depends
         }
-        return depends
     }
 
     /*
@@ -2531,10 +2466,10 @@ public class Me {
                 }
                 if (me.platform.os == 'windows') {
                     /* Replacement may contain $(VS) */
-                    if (!me.extensions.compiler.dir.contains('$'))
-                        value = value.replace(/\$\(VS\)/g, me.extensions.compiler.dir)
-                    if (!me.extensions.winsdk.path.contains('$'))
-                        value = value.replace(/\$\(SDK\)/g, me.extensions.winsdk.path)
+                    if (!me.targets.compiler.dir.contains('$'))
+                        value = value.replace(/\$\(VS\)/g, me.targets.compiler.dir)
+                    if (!me.targets.winsdk.path.contains('$'))
+                        value = value.replace(/\$\(SDK\)/g, me.targets.winsdk.path)
                 }
                 if (env[key] && (key == 'PATH' || key == 'INCLUDE' || key == 'LIB')) {
                     env[key] = value + App.SearchSeparator + env[key]
@@ -2807,37 +2742,6 @@ public class Me {
         b.loadMeObject(obj, ns)
     }
 
-    /**
-        Load a me extension into the Me DOM
-        @description The Me.extension() API is the primary API to define an extension. It takes an extension description 
-        in the form of set of properties. The description specifies the name of the extension and a short, single-line 
-        description for the extension.
-        The extension description will typically define a path which represents the directory to the extension or the path to a
-        program.  The extension path should be the filename of the program if the extension represents a simple tool (like zip). 
-        Or it should be the directory to the extension extension if the extension represents something more complex like an SDK. 
-        The path may be a simple string or path, or it may be a function that returns the path for the extension. If path is set to a
-        function, it will be invoked with the extension object as its argument.  The description may also provide libraries,
-        library paths, compiler definitions, and include directories. A extension may define any of these standard properties, or
-        it may define any custom property it chooses.
-
-        @param obj Extension object collection. The collection should contain the following properties. Name, description,
-            and enable are mandatory.
-        @option description Short, one-sentance description of the extension.
-        @option defines Array of C pre-processor definitions for targets using this extension.
-        @option depends Array of extensions from which to inherit compiler, defines, libraries, libpaths and linker settings.
-        @option discover Array of extensions that may optionally be discovered and utilized by this extension.
-        @option imports Libraries, files and resources to import into the local source tree.
-        @option includes Array of C pre-processor include directories for targets using this extension.
-        @option libraries Array of C libraries for targets using this extension.
-        @option linker Array of linker options for targets using this extension.
-        @option libpaths Array of linker library search paths for targets using this extension.
-        @option name Extension name. Should equal the extension collection property name.
-        @option path Path to primary extension resource or directory. May be the path to the binary for tools.
-     */
-    public static function extension(obj: Object) {
-        b.loadMeObject({extensions: obj} )
-    }
-
     private var sysdirs = {
         '/Applications': true,
         '/Library': true,
@@ -2907,6 +2811,36 @@ public class Me {
         }
     }
 
+    function setDirs() {
+        let dir = me.dir
+        dir.top = Path(dir.top)
+        if (me.settings.configured || options.configure) {
+            dir.out  ||= Path(me.platform.name)
+            dir.bin  ||= dir.out.join('bin')
+            dir.lib  ||= dir.bin
+            dir.inc  ||= dir.out.join('inc')
+            dir.obj  ||= dir.out.join('obj')
+            dir.paks ||= dir.top.join('src/paks')
+            dir.pkg  ||= dir.out.join('pkg')
+            dir.proj ||= dir.top.join('projects')
+            dir.rel  ||= dir.top.join('releases')
+        } else {
+            dir.out  ||=  Path('.')
+            dir.bin  ||= dir.out
+            dir.lib  ||= dir.out
+            dir.inc  ||= dir.out
+            dir.obj  ||= dir.out
+            dir.paks ||= dir.top.join('paks')
+        }
+        dir.me   ||=   dir.bin
+
+        for (let [key,value] in dir) {
+            dir[key] = Path(value.toString().expand(me)).absolute
+        }
+        makeDir(dir.obj)
+        makeDir(dir.bin)
+    }
+
     /**
         Make a me object. This will load the required me files.
         @hide
@@ -2917,10 +2851,12 @@ public class Me {
         let kind = like(os)
         global.me = me = makeBareMe()
         me.dir.src = options.configure || Path('.')
-        me.dir.makeme = me.dir.src.join('makeme/standard.me').exists ?  me.dir.src.join('makeme') : Config.Bin.portable
-        me.dir.top = '.'
-        let path = App.getenv('HOME') || App.getenv('HOMEPATH') || '.'
-        me.dir.home = Path(path).portable
+        /*
+            If imported, resolve MakeMe files relative to the imported 'me' directory
+         */
+        me.dir.top = Path('.')
+        let home = Path(App.getenv('HOME') || App.getenv('HOMEPATH') || '.')
+        me.dir.home = home.portable
         me.options ||= {}
         let cross = ((os + '-' + arch) != (Config.OS + '-' + Config.CPU))
 
@@ -2937,8 +2873,18 @@ public class Me {
         if (cpu) {
             me.platform.cpu = cpu
         }
-        loadMeFile(me.dir.makeme.join('standard.me'))
-        loadMeFile(me.dir.makeme.join('os/' + me.platform.os + '.me'))
+        let base = me.dir.src.join('me/standard.me').exists ?  me.dir.src.join('me') : Config.Bin.portable
+        loadMeFile(base.join('standard.me'))
+        me.dir.me = base
+
+        /*  UNUSED
+            Load standard plugins from global 'me/latest/paks' and from ~/.me/paks
+        Me.load({ blend: [ 
+            '?' + App.exePath.join('../paks/*/*.me'),
+            '?' + me.dir.home.join('.me/paks/*/*.me'),
+        ]})
+         */
+
         me.globals.PLATFORM = currentPlatform = platform
         if (mefile.exists) {
             loadMeFile(mefile)
@@ -2952,7 +2898,13 @@ public class Me {
                 }
             }
         }
+        setDirs()
+        if (!me.settings.configured && !options.configure) {
+            loadMeFile(me.dir.me.join('simple.me'))
+        }
+        loadMeFile(me.dir.me.join('os/' + me.platform.os + '.me'))
         loadPackage()
+
         if (kind == 'windows') {
             /*
                 If 32 bit, /Program Files
@@ -2970,7 +2922,7 @@ public class Me {
             me.settings.prefixes = pset
             blend(me.prefixes, me[pset])
         } else {
-            if (!me.prefixes) {
+            if (!me.prefixes || Object.getOwnPropertyCount(me.prefixes) == 0) {
                 me.prefixes = {}
                 me.settings.prefixes ||= 'debian-prefixes'
                 blend(me.prefixes, me[me.settings.prefixes])
@@ -3003,9 +2955,6 @@ public class Me {
                 me.ext['dot' + key] = value
             }
         }
-        if (!me.settings.configured && !options.configure) {
-            loadMeFile(me.dir.makeme.join('simple.me'))
-        }
         if (me.settings.version) {
             me.settings.compatible = me.settings.version.split('-')[0]
         }
@@ -3021,7 +2970,7 @@ public class Me {
         }
         if (!me.settings.configured && !options.configure) {
             overlay('configure.es')
-            findExtensions()
+            findComponents()
             castDirTypes()
         }
         runScript(me.scripts, "loaded")
@@ -3293,9 +3242,9 @@ public class Me {
                         foldLines(to)
                         to.setAttributes(attributes)
                     }
-                    if (options.strip && me.extensions.strip && me.platform.profile == 'release') {
+                    if (options.strip && me.targets.strip && me.platform.profile == 'release') {
                         strace('Strip', to)
-                        Cmd.run(me.extensions.strip.path + ' ' + to)
+                        Cmd.run(me.targets.strip.path + ' ' + to)
                     }
                     if (options.compress) {
                         let zname = Path(to.name + '.gz')
@@ -3737,8 +3686,8 @@ public function removePath(path: Path)
     b.removePath(path)
 
 /** @hide */
-public function runTargetScript(target, when)
-    b.runTargetScript(target, when)
+public function runTargetScript(target, when, options = {})
+    b.runTargetScript(target, when, options)
 
 /** @duplicate Me.whyRebuild */
 public function whyRebuild(path, tag, msg)

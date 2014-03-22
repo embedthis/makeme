@@ -24,7 +24,7 @@
 
 #include    "me.h"
 
-#if ME_EXT_MATRIXSSL
+#if ME_COM_MATRIXSSL
 
 #define MATRIX_USE_FILE_SYSTEM
 
@@ -742,7 +742,7 @@ static ssize flushMss(MprSocket *sp)
 
 #else
 void matrixsslDummy() {}
-#endif /* ME_EXT_MATRIXSSL */
+#endif /* ME_COM_MATRIXSSL */
 
 /*
     @copy   default
@@ -782,7 +782,7 @@ void matrixsslDummy() {}
 
 #include    "mpr.h"
 
-#if ME_EXT_EST
+#if ME_COM_EST
 
 #include    "est.h"
 
@@ -1334,7 +1334,7 @@ static void estTrace(void *fp, int level, char *str)
 
 #else
 void estDummy() {}
-#endif /* ME_EXT_EST */
+#endif /* ME_COM_EST */
 
 /*
     @copy   default
@@ -1372,7 +1372,7 @@ void estDummy() {}
 
 #include    "mpr.h"
 
-#if ME_EXT_OPENSSL
+#if ME_COM_OPENSSL
 
 /* Clashes with WinCrypt.h */
 #undef OCSP_RESPONSE
@@ -2358,7 +2358,7 @@ static DH *get_dh1024()
 
 #else
 void opensslDummy() {}
-#endif /* ME_EXT_OPENSSL */
+#endif /* ME_COM_OPENSSL */
 
 /*
     @copy   default
@@ -2419,7 +2419,7 @@ void opensslDummy() {}
     __ENABLE_MOCANA_SSL_CLIENT__
 #endif
 
-#if ME_EXT_NANOSSL
+#if ME_COM_NANOSSL
  #include "common/moptions.h"
  #include "common/mdefs.h"
  #include "common/mtypes.h"
@@ -2902,7 +2902,7 @@ static void nanoLog(sbyte4 module, sbyte4 severity, sbyte *msg)
 
 #else
 void nanosslDummy() {}
-#endif /* ME_EXT_NANOSSL */
+#endif /* ME_COM_NANOSSL */
 
 /*
     @copy   default
@@ -3027,31 +3027,31 @@ MprCipher mprCiphers[] = {
  */
 PUBLIC int mprSslInit(void *unused, MprModule *module)
 {
-#if ME_EXT_SSL
+#if ME_COM_SSL
     assert(module);
 
     /*
         Order matters. The last enabled stack becomes the default.
      */
-#if ME_EXT_MATRIXSSL
+#if ME_COM_MATRIXSSL
     if (mprCreateMatrixSslModule() < 0) {
         return MPR_ERR_CANT_OPEN;
     }
     MPR->socketService->sslProvider = sclone("matrixssl");
 #endif
-#if ME_EXT_NANOSSL
+#if ME_COM_NANOSSL
     if (mprCreateNanoSslModule() < 0) {
         return MPR_ERR_CANT_OPEN;
     }
     MPR->socketService->sslProvider = sclone("nanossl");
 #endif
-#if ME_EXT_OPENSSL
+#if ME_COM_OPENSSL
     if (mprCreateOpenSslModule() < 0) {
         return MPR_ERR_CANT_OPEN;
     }
     MPR->socketService->sslProvider = sclone("openssl");
 #endif
-#if ME_EXT_EST
+#if ME_COM_EST
     if (mprCreateEstModule() < 0) {
         return MPR_ERR_CANT_OPEN;
     }

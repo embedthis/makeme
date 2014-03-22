@@ -3,19 +3,17 @@
  */
 
 Me.load({
-    probe: {
+    targets: {
         zlib: {
-            description: 'ZLIB Compression Library',
+            configurable: true,
             depends: [ 'libzlib' ],
         },
-    },
 
-    targets: {
         libzlib: {
             type: 'lib',
             sources: [ '*.c' ],
             headers: [ 'zlib.h' ],
-            extensions: [ 'zlib' ],
+            ifdef:   [ 'zlib' ],
             '-compiler': [
                 '-Wunreachable-code',
             ],

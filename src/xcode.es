@@ -888,9 +888,9 @@ ${RELEASE_SETTINGS}
 			name = Release;
 		};'
 
-    let compiler = me.extensions.compiler.path.basename == 'gcc' ? 
+    let compiler = me.targets.compiler.path.basename == 'gcc' ? 
           'com.apple.compilers.llvmgcc42' : 'com.apple.compilers.llvm.clang.1_0'
-    let defaults = me.extensions.compiler
+    let defaults = me.targets.compiler
     let overridable = appendSetting('', defaults.compiler, 
         ['GCC_WARN_64_TO_32_ME_CONVERSION'], 'shorten-64-to-32')
     overridable += appendSetting(overridable, defaults.compiler, 

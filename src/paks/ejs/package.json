@@ -33,6 +33,7 @@
         }
     ],
     "dependencies": {
+        "est": "~0.6",
         "http": "~5.0",
         "me-dev": "~0.8",
         "me-doc": "~0.8",

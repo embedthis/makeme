@@ -10,7 +10,7 @@
 #define EJS_DEFINE_OPTABLE 1
 #include "ejs.h"
 
-#if ME_EXT_EJS
+#if ME_COM_EJS
 
 /************************************************************************/
 /*
@@ -31431,8 +31431,8 @@ PUBLIC void ejsDefineConfigProperties(Ejs *ejs)
     ejsDefineProperty(ejs, type, -1, N("public", "Version"), 0, att, ejsCreateStringFromAsc(ejs, ME_VERSION));
 
     ejsDefineProperty(ejs, type, -1, N("public", "Legacy"), 0, att, ejsCreateBoolean(ejs, 0));
-    ejsDefineProperty(ejs, type, -1, N("public", "SSL"), 0, att, ejsCreateBoolean(ejs, ME_EXT_SSL));
-    ejsDefineProperty(ejs, type, -1, N("public", "SQLITE"), 0, att, ejsCreateBoolean(ejs, ME_EXT_SQLITE));
+    ejsDefineProperty(ejs, type, -1, N("public", "SSL"), 0, att, ejsCreateBoolean(ejs, ME_COM_SSL));
+    ejsDefineProperty(ejs, type, -1, N("public", "SQLITE"), 0, att, ejsCreateBoolean(ejs, ME_COM_SQLITE));
 #if defined(ME_EJS_DB)
     ejsDefineProperty(ejs, type, -1, N("public", "DB"), 0, att, ejsCreateBoolean(ejs, ME_EJS_DB));
     ejsDefineProperty(ejs, type, -1, N("public", "MAPPER"), 0, att, ejsCreateBoolean(ejs, ME_EJS_MAPPER));
@@ -36142,16 +36142,16 @@ static EjsArray *http_providers(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 
     result = ejsCreateArray(ejs, 0);
     i = 0;
-#if ME_EXT_EST
+#if ME_COM_EST
     ejsSetProperty(ejs, result, i++, ejsCreateStringFromAsc(ejs, "est"));
 #endif
-#if ME_EXT_OPENSSL
+#if ME_COM_OPENSSL
     ejsSetProperty(ejs, result, i++, ejsCreateStringFromAsc(ejs, "openssl"));
 #endif
-#if ME_EXT_MATRIXSSL
+#if ME_COM_MATRIXSSL
     ejsSetProperty(ejs, result, i++, ejsCreateStringFromAsc(ejs, "matrixssl"));
 #endif
-#if ME_EXT_MOCANA
+#if ME_COM_MOCANA
     ejsSetProperty(ejs, result, i++, ejsCreateStringFromAsc(ejs, "mocana"));
 #endif
     return result;
@@ -55200,7 +55200,7 @@ static void indent(MprBuf *bp, int level)
 
 
 
-#if ME_EXT_SQLITE && ME_EJS_DB
+#if ME_COM_SQLITE && ME_EJS_DB
     /* Indent to no create dependency */
     #include    "sqlite3.h"
 
@@ -55622,7 +55622,7 @@ PUBLIC int ejs_db_sqlite_Init(Ejs *ejs, MprModule *mp)
     return ejsAddNativeModule(ejs, "ejs.db.sqlite", configureSqliteTypes, _ES_CHECKSUM_ejs_db_sqlite, EJS_LOADER_ETERNAL);
 }
 
-#endif /* ME_EXT_SQLITE */
+#endif /* ME_COM_SQLITE */
 
 /*
     @copy   default
@@ -56019,7 +56019,7 @@ static EjsVoid *hs_run(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
  */
 static EjsObj *hs_secure(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
 {
-#if ME_EXT_SSL
+#if ME_COM_SSL
     EjsArray    *protocols;
     cchar       *token;
     int         mask, protoMask, i;
@@ -60305,7 +60305,7 @@ EjsAny *ejsParse(Ejs *ejs, wchar *str, int preferredType)
     case S_Boolean:
         return ejsCreateBoolean(ejs, parseBoolean(ejs, buf));
 
-#if ME_EXT_PCRE
+#if ME_COM_PCRE
     case S_RegExp:
         return ejsParseRegExp(ejs, ejsCreateStringFromAsc(ejs, buf));
 #endif
@@ -60974,7 +60974,7 @@ static void VM(Ejs *ejs, EjsFunction *fun, EjsAny *otherThis, int argc, int stac
                 Stack after         [RegExp]
          */
         CASE (EJS_OP_LOAD_REGEXP):
-#if ME_EXT_PCRE
+#if ME_COM_PCRE
             str = GET_STRING();
             v1 = (EjsObj*) ejsParseRegExp(ejs, str);
             push(v1);
@@ -64148,7 +64148,7 @@ void ejsLog(Ejs *ejs, cchar *fmt, ...)
 
 
 #if FUTURE
-#if ME_HAS_LIB_EDIT
+#if ME_COMPILER_HAS_LIB_EDIT
 static History  *cmdHistory;
 static EditLine *eh; 
 static cchar    *prompt;
@@ -67848,7 +67848,7 @@ static void defineSharedTypes(Ejs *ejs)
     ejsAddNativeModule(ejs, "ejs", configureEjs, _ES_CHECKSUM_ejs, 0);
 
 #if ME_EJS_ONE_MODULE
-    #if ME_EXT_SQLITE && ME_EJS_DB
+    #if ME_COM_SQLITE && ME_EJS_DB
         ejs_db_sqlite_Init(ejs, NULL);
     #endif
 #if ME_EJS_WEB
@@ -68513,4 +68513,4 @@ void ejsDisableExit(Ejs *ejs)
 
     @end
  */
-#endif /* ME_EXT_EJS */
+#endif /* ME_COM_EJS */

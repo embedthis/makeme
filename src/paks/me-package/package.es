@@ -53,9 +53,9 @@ public function deploy(manifest, prefixes, package): Array {
         let name = item.name || serialize(item)
         let enable = true
 
-        for each (r in item.extensions) {
+        for each (r in item.ifdef) {
             if (!me.generating) {
-                if ((!me.extensions[r] || !me.extensions[r].enable)) {
+                if ((!me.targets[r] || !me.targets[r].enable)) {
                     skip(name, 'Required extension ' + r + ' is not enabled')
                     enable = false
                     break
@@ -94,8 +94,8 @@ public function deploy(manifest, prefixes, package): Array {
             if (item.precopy) {
                 eval('require ejs.unix\n' + expand(item.precopy))
             }
-            if (item.extensions && me.generating) {
-                for each (r in item.extensions) {
+            if (item.ifdef && me.generating) {
+                for each (r in item.ifdef) {
                     if (me.platform.os == 'windows') {
                         gencmd('!IF "$(ME_EXT_' + r.toUpper() + ')" == "1"')
                     } else {
@@ -127,8 +127,8 @@ public function deploy(manifest, prefixes, package): Array {
                     }
                 }
             }
-            if (item.extensions && me.generating) {
-                for each (r in item.extensions.length) {
+            if (item.ifdef && me.generating) {
+                for each (r in item.ifdef.length) {
                     if (me.platform.os == 'windows') {
                         gencmd('!ENDIF')
                     } else {
@@ -195,8 +195,8 @@ function setupManifest(kind, package, prefixes) {
         manifest = me.manifest.clone()
     }
     for each (item in manifest.files) {
-        if (item.extensions && !(item.extensions is Array)) {
-            item.extensions = [item.extensions]
+        if (item.ifdef && !(item.ifdef is Array)) {
+            item.ifdef = [item.ifdef]
         }
     }
     return manifest
@@ -536,7 +536,7 @@ public function installPackage() {
     } else if (Config.OS == 'windows') {
         trace('Install', package.basename)
         package.trimExt().remove()
-        run([me.extensions.zip.path.replace(/zip/, 'unzip'), '-q', package], {dir: me.dir.rel})
+        run(['unzip', '-q', package], {dir: me.dir.rel})
         run([package.trimExt(), '/verysilent'], {noshow: true})
         package.trimExt().remove()
     }
@@ -636,9 +636,6 @@ function createMacContents(prefixes) {
 
 
 function packageMacosx(prefixes) {
-    if (!me.extensions.pmaker || !me.extensions.pmaker.path) {
-        throw 'Configured without pmaker: PackageMaker'
-    }
     let staging = prefixes.staging
     let s = me.settings
     let base = [s.name, s.version, me.platform.dist, me.platform.os, me.platform.arch].join('-')
@@ -671,7 +668,17 @@ function packageMacosx(prefixes) {
     let outfile = me.dir.rel.join(base).joinExt('pkg', true)
     trace('Package', outfile)
     if (opak.join(pm).exists) {
-        run(me.extensions.pmaker.path + ' --target 10.5 --domain system --doc ' + pmdoc + 
+        let pmaker = Cmd.locate('PackageMaker.app', [
+            '/Applications',
+            '/Applications/Utilities',
+            '/Xcode4/Applications/Utilities',
+            '/Developer/Applications/Utilities'
+        ])
+        pmaker = pmaker.join('Contents/MacOS/PackageMaker')
+        if (!pmaker) {
+            throw 'Cannot locate PackageMaker.app'
+        }
+        run(pmaker + ' --target 10.5 --domain system --doc ' + pmdoc + 
             ' --id com.' + s.company + '.' + s.name + '.pkg --root-volume-only --no-relocate' +
             ' --discard-forks --out ' + outfile)
     } else {
@@ -700,8 +707,9 @@ function packageMacosx(prefixes) {
 
 
 function packageFedora(prefixes) {
-    if (!me.extensions.pmaker || !me.extensions.pmaker.path) {
-        throw 'Configured without pmaker: rpmbuild'
+    let pmaker = Cmd.locate('rpmbuild')
+    if (!pmaker) {
+        throw 'Cannot locate rpmbuild'
     }
     let home = App.getenv('HOME')
     App.putenv('HOME', me.dir.out)
@@ -754,7 +762,7 @@ function packageFedora(prefixes) {
 %__os_install_post /usr/lib/rpm/brp-compress %{!?__debug_package:/usr/lib/rpm/brp-strip %{__strip}} /usr/lib/rpm/brp-strip-static-archive %{__strip} /usr/lib/rpm/brp-strip-comment-note %{__strip} %{__objdump} %{nil}')
     let outfile = me.dir.rel.join(base).joinExt('rpm', true)
     trace('Package', outfile)
-    run(me.extensions.pmaker.path + ' -ba --target ' + cpu + ' ' + spec.basename, {dir: RPM.join('SPECS'), noshow: true})
+    run(pmaker + ' -ba --target ' + cpu + ' ' + spec.basename, {dir: RPM.join('SPECS'), noshow: true})
     let rpmfile = RPM.join('RPMS', cpu, [s.name, s.version].join('-')).joinExt(cpu + '.rpm', true)
     rpmfile.rename(outfile)
     me.dir.rel.join('md5-' + base).joinExt('rpm.txt', true).write(md5(outfile.readString()))
@@ -763,8 +771,9 @@ function packageFedora(prefixes) {
 
 
 function packageUbuntu(prefixes) {
-    if (!me.extensions.pmaker || !me.extensions.pmaker.path) {
-        throw 'Configured without pmaker: dpkg'
+    let pmaker = Cmd.locate('dpkg')
+    if (!pmaker) {
+        throw 'Cannot locate dpkg'
     }
     let cpu = me.platform.arch
     if (cpu.match(/^i.86$|x86/)) {
@@ -785,14 +794,16 @@ function packageUbuntu(prefixes) {
 
     let outfile = me.dir.rel.join(base).joinExt('deb', true)
     trace('Package', outfile)
-    run(me.extensions.pmaker.path + ' --build ' + DEBIAN.dirname + ' ' + outfile, {noshow: true})
+    run(pmaker + ' --build ' + DEBIAN.dirname + ' ' + outfile, {noshow: true})
     me.dir.rel.join('md5-' + base).joinExt('deb.txt', true).write(md5(outfile.readString()))
 }
 
 
 function packageWindows(prefixes) {
-    if (!me.extensions.pmaker || !me.extensions.pmaker.path) {
-        throw 'Configured without pmaker: Inno Setup'
+    let search = me.dir.programFiles32.files('Inno Setup*').sort().reverse()
+    let pmaker = Cmd.locate('iscc.exe', search)
+    if (!pmaker) {
+        throw 'Cannot locate Inno Setup'
     }
     let s = me.settings
     let wpak = me.dir.src.join('package/' + me.platform.os)
@@ -826,7 +837,7 @@ function packageWindows(prefixes) {
 
     let base = [s.name, s.version, me.platform.dist, me.platform.os, me.platform.arch].join('-')
     let outfile = me.dir.rel.join(base).joinExt('exe', true)
-    run([me.extensions.pmaker.path, iss], {noshow: true})
+    run([pmaker, iss], {noshow: true})
     media.join('Output/setup.exe').copy(outfile)
 
     /* Sign */
@@ -834,14 +845,14 @@ function packageWindows(prefixes) {
     if (Path(cert).exists) {
         let pass = Path('/crt/signing.pass').readString().trim()
         trace('Sign', outfile)
-        Cmd.run([me.extensions.winsdk.path.join('bin/x86/signtool.exe'),
+        Cmd.run([me.targets.winsdk.path.join('bin/x86/signtool.exe'),
             'sign', '/f', cert, '/p', pass, '/t', 'http://tsa.starfieldtech.com', outfile], {noshow: true})
     }
     /* Wrap in a zip archive */
     let zipfile = outfile.joinExt('zip', true)
     zipfile.remove()
     trace('Package', zipfile)
-    run([me.extensions.zip.path, '-q', zipfile.basename, outfile.basename], {dir: me.dir.rel})
+    run([me.targets.zip.path, '-q', zipfile.basename, outfile.basename], {dir: me.dir.rel})
     me.dir.rel.join('md5-' + base).joinExt('exe.zip.txt', true).write(md5(zipfile.readString()))
     outfile.remove()
 }

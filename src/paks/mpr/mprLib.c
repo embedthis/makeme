@@ -2250,7 +2250,7 @@ static ME_INLINE bool acquire(MprFreeQueue *freeq)
 {
 #if MACOSX
     return OSSpinLockTry(&freeq->lock.cs);
-#elif ME_UNIX_LIKE && ME_HAS_SPINLOCK
+#elif ME_UNIX_LIKE && ME_COMPILER_HAS_SPINLOCK
     return pthread_spin_trylock(&freeq->lock.cs) == 0;
 #elif ME_UNIX_LIKE
     return pthread_mutex_trylock(&freeq->lock.cs) == 0;
@@ -2268,7 +2268,7 @@ static ME_INLINE void release(MprFreeQueue *freeq)
 {
 #if MACOSX
     OSSpinLockUnlock(&freeq->lock.cs);
-#elif ME_UNIX_LIKE && ME_HAS_SPINLOCK
+#elif ME_UNIX_LIKE && ME_COMPILER_HAS_SPINLOCK
     pthread_spin_unlock(&freeq->lock.cs);
 #elif ME_UNIX_LIKE
     pthread_mutex_unlock(&freeq->lock.cs);
@@ -3877,10 +3877,10 @@ PUBLIC void mprAtomicBarrier()
     #elif ME_WIN_LIKE
         MemoryBarrier();
 
-    #elif ME_HAS_ATOMIC
+    #elif ME_COMPILER_HAS_ATOMIC
         __atomic_thread_fence(__ATOMIC_SEQ_CST);
 
-    #elif ME_HAS_SYNC
+    #elif ME_COMPILER_HAS_SYNC
         __sync_synchronize();
 
     #elif __GNUC__ && (ME_CPU_ARCH == ME_CPU_X86 || ME_CPU_ARCH == ME_CPU_X64)
@@ -3915,11 +3915,11 @@ PUBLIC int mprAtomicCas(void * volatile *addr, void *expected, cvoid *value)
     #elif ME_WIN_LIKE
         return InterlockedCompareExchangePointer(addr, (void*) value, expected) == expected;
 
-    #elif ME_HAS_ATOMIC
+    #elif ME_COMPILER_HAS_ATOMIC
         void *localExpected = expected;
         return __atomic_compare_exchange(addr, &localExpected, (void**) &value, 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
 
-    #elif ME_HAS_SYNC_CAS
+    #elif ME_COMPILER_HAS_SYNC_CAS
         return __sync_bool_compare_and_swap(addr, expected, value);
 
     #elif __GNUC__ && (ME_CPU_ARCH == ME_CPU_X86)
@@ -3963,11 +3963,11 @@ PUBLIC void mprAtomicAdd(volatile int *ptr, int value)
     #elif ME_WIN_LIKE
         InterlockedExchangeAdd(ptr, value);
 
-    #elif ME_HAS_ATOMIC
+    #elif ME_COMPILER_HAS_ATOMIC
         //  OPT - could use __ATOMIC_RELAXED
         __atomic_add_fetch(ptr, value, __ATOMIC_SEQ_CST);
 
-    #elif ME_HAS_SYNC_CAS
+    #elif ME_COMPILER_HAS_SYNC_CAS
         __sync_add_and_fetch(ptr, value);
 
     #elif VXWORKS && _VX_ATOMIC_INIT
@@ -3997,11 +3997,11 @@ PUBLIC void mprAtomicAdd64(volatile int64 *ptr, int64 value)
     #elif ME_WIN_LIKE && ME_64
         InterlockedExchangeAdd64(ptr, value);
     
-    #elif ME_HAS_ATOMIC64 && (ME_64 || ME_CPU_ARCH == ME_CPU_X86 || ME_CPU_ARCH == ME_CPU_X64)
+    #elif ME_COMPILER_HAS_ATOMIC64 && (ME_64 || ME_CPU_ARCH == ME_CPU_X86 || ME_CPU_ARCH == ME_CPU_X64)
         //  OPT - could use __ATOMIC_RELAXED
         __atomic_add_fetch(ptr, value, __ATOMIC_SEQ_CST);
 
-    #elif ME_HAS_SYNC64 && (ME_64 || ME_CPU_ARCH == ME_CPU_X86 || ME_CPU_ARCH == ME_CPU_X64)
+    #elif ME_COMPILER_HAS_SYNC64 && (ME_64 || ME_CPU_ARCH == ME_CPU_X86 || ME_CPU_ARCH == ME_CPU_X64)
         __sync_add_and_fetch(ptr, value);
 
     #elif __GNUC__ && (ME_CPU_ARCH == ME_CPU_X86)
@@ -4035,10 +4035,10 @@ PUBLIC void *mprAtomicExchange(void *volatile *addr, cvoid *value)
     #elif ME_WIN_LIKE
         return (void*) InterlockedExchange((volatile LONG*) addr, (LONG) value);
     
-    #elif ME_HAS_ATOMIC
+    #elif ME_COMPILER_HAS_ATOMIC
         __atomic_exchange_n(addr, value, __ATOMIC_SEQ_CST);
 
-    #elif ME_HAS_SYNC
+    #elif ME_COMPILER_HAS_SYNC
         return __sync_lock_test_and_set(addr, (void*) value);
     
     #else
@@ -8844,7 +8844,7 @@ static MprOff seekFile(MprFile *file, int seekType, MprOff distance)
     }
 #if ME_WIN_LIKE
     return (MprOff) _lseeki64(file->fd, (int64) distance, seekType);
-#elif ME_HAS_OFF64
+#elif ME_COMPILER_HAS_OFF64
     return (MprOff) lseek64(file->fd, (off64_t) distance, seekType);
 #else
     return (MprOff) lseek(file->fd, (off_t) distance, seekType);
@@ -14993,7 +14993,7 @@ static void manageSpinLock(MprSpin *lock, int flags)
         assert(lock);
 #if USE_MPR_LOCK || MACOSX
         ;
-#elif ME_UNIX_LIKE && ME_HAS_SPINLOCK
+#elif ME_UNIX_LIKE && ME_COMPILER_HAS_SPINLOCK
         pthread_spin_destroy(&lock->cs);
 #elif ME_UNIX_LIKE
         pthread_mutex_destroy(&lock->cs);
@@ -15018,7 +15018,7 @@ PUBLIC MprSpin *mprInitSpinLock(MprSpin *lock)
 #elif MACOSX
     lock->cs = OS_SPINLOCK_INIT;
 
-#elif ME_UNIX_LIKE && ME_HAS_SPINLOCK
+#elif ME_UNIX_LIKE && ME_COMPILER_HAS_SPINLOCK
     pthread_spin_init(&lock->cs, 0);
 
 #elif ME_UNIX_LIKE
@@ -15058,7 +15058,7 @@ PUBLIC bool mprTrySpinLock(MprSpin *lock)
     mprTryLock(&lock->cs);
 #elif MACOSX
     rc = !OSSpinLockTry(&lock->cs);
-#elif ME_UNIX_LIKE && ME_HAS_SPINLOCK
+#elif ME_UNIX_LIKE && ME_COMPILER_HAS_SPINLOCK
     rc = pthread_spin_trylock(&lock->cs) != 0;
 #elif ME_UNIX_LIKE
     rc = pthread_mutex_trylock(&lock->cs) != 0;
@@ -15162,7 +15162,7 @@ PUBLIC void mprSpinLock(MprSpin *lock)
     mprTryLock(&lock->cs);
 #elif MACOSX
     OSSpinLockLock(&lock->cs);
-#elif ME_UNIX_LIKE && ME_HAS_SPINLOCK
+#elif ME_UNIX_LIKE && ME_COMPILER_HAS_SPINLOCK
     pthread_spin_lock(&lock->cs);
 #elif ME_UNIX_LIKE
     pthread_mutex_lock(&lock->cs);
@@ -15192,7 +15192,7 @@ PUBLIC void mprSpinUnlock(MprSpin *lock)
     mprUnlock(&lock->cs);
 #elif MACOSX
     OSSpinLockUnlock(&lock->cs);
-#elif ME_UNIX_LIKE && ME_HAS_SPINLOCK
+#elif ME_UNIX_LIKE && ME_COMPILER_HAS_SPINLOCK
     pthread_spin_unlock(&lock->cs);
 #elif ME_UNIX_LIKE
     pthread_mutex_unlock(&lock->cs);
@@ -16730,7 +16730,7 @@ PUBLIC cchar *mprGetModuleSearchPath()
  */
 PUBLIC int mprLoadModule(MprModule *mp)
 {
-#if ME_HAS_DYN_LOAD
+#if ME_COMPILER_HAS_DYN_LOAD
     assert(mp);
 
     if (mprLoadNativeModule(mp) < 0) {
@@ -16752,7 +16752,7 @@ PUBLIC int mprUnloadModule(MprModule *mp)
     if (mprStopModule(mp) < 0) {
         return MPR_ERR_NOT_READY;
     }
-#if ME_HAS_DYN_LOAD
+#if ME_COMPILER_HAS_DYN_LOAD
     if (mp->handle) {
         if (mprUnloadNativeModule(mp) != 0) {
             mprError("Cannot unload module %s", mp->name);
@@ -16765,7 +16765,7 @@ PUBLIC int mprUnloadModule(MprModule *mp)
 }
 
 
-#if ME_HAS_DYN_LOAD
+#if ME_COMPILER_HAS_DYN_LOAD
 /*
     Return true if the shared library in "file" can be found. Return the actual path in *path. The filename
     may not have a shared library extension which is typical so calling code can be cross platform.
@@ -16797,7 +16797,7 @@ static char *probe(cchar *filename)
  */
 PUBLIC char *mprSearchForModule(cchar *filename)
 {
-#if ME_HAS_DYN_LOAD
+#if ME_COMPILER_HAS_DYN_LOAD
     char    *path, *f, *searchPath, *dir, *tok;
 
     filename = mprNormalizePath(filename);
@@ -16824,7 +16824,7 @@ PUBLIC char *mprSearchForModule(cchar *filename)
         }
         dir = stok(0, MPR_SEARCH_SEP, &tok);
     }
-#endif /* ME_HAS_DYN_LOAD */
+#endif /* ME_COMPILER_HAS_DYN_LOAD */
     return 0;
 }
 
@@ -18985,7 +18985,7 @@ PUBLIC int mprGetRandomBytes(char *buf, ssize length, bool block)
 }
 
 
-#if ME_HAS_DYN_LOAD
+#if ME_COMPILER_HAS_DYN_LOAD
 PUBLIC int mprLoadNativeModule(MprModule *mp)
 {
     MprModuleEntry  fn;
@@ -21196,7 +21196,7 @@ static void standardSignalHandler(void *ignored, MprSignal *sp)
 /*
     On MAC OS X, getaddrinfo is not thread-safe and crashes when called by a 2nd thread at any time. ie. locking wont help.
  */
-#define ME_HAS_GETADDRINFO 1
+#define ME_COMPILER_HAS_GETADDRINFO 1
 #endif
 
 /********************************** Defines ***********************************/
@@ -21435,7 +21435,7 @@ PUBLIC bool mprHasDualNetworkStack()
 {
     bool dual;
 
-#if defined(ME_HAS_SINGLE_STACK) || VXWORKS
+#if defined(ME_COMPILER_HAS_SINGLE_STACK) || VXWORKS
     dual = 0;
 #else
     dual = MPR->socketService->hasIPv6;
@@ -22255,7 +22255,7 @@ PUBLIC MprOff mprSendFileToSocket(MprSocket *sock, MprFile *file, MprOff offset,
         }
 
         if (!done && toWriteFile > 0 && file->fd >= 0) {
-#if LINUX && !__UCLIBC__ && !ME_HAS_OFF64
+#if LINUX && !__UCLIBC__ && !ME_COMPILER_HAS_OFF64
             off_t off = (off_t) offset;
 #endif
             while (!done && toWriteFile > 0) {
@@ -22264,7 +22264,7 @@ PUBLIC MprOff mprSendFileToSocket(MprSocket *sock, MprFile *file, MprOff offset,
                     mprYield(MPR_YIELD_STICKY);
                 }
 #if LINUX && !__UCLIBC__
-    #if ME_HAS_OFF64
+    #if ME_COMPILER_HAS_OFF64
                 rc = sendfile64(sock->fd, file->fd, &offset, nbytes);
     #else
                 rc = sendfile(sock->fd, file->fd, &off, nbytes);
@@ -22531,7 +22531,7 @@ PUBLIC int mprGetSocketError(MprSocket *sp)
 }
 
 
-#if ME_HAS_GETADDRINFO
+#if ME_COMPILER_HAS_GETADDRINFO
 /*
     Get a socket address from a host/port combination. If a host provides both IPv4 and IPv6 addresses, 
     prefer the IPv4 address.
@@ -22928,7 +22928,7 @@ PUBLIC MprSsl *mprCloneSsl(MprSsl *src)
 
 PUBLIC int mprLoadSsl()
 {
-#if ME_EXT_SSL
+#if ME_COM_SSL
     MprSocketService    *ss;
     MprModule           *mp;
     cchar               *path;

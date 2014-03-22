@@ -1,58 +1,53 @@
 /*
-    compiler.me - Compile extension
-
-    This is fairly complex due to the differences between compilers and operating systems.
+    compiler.me - Compiler Component
  */
-Me.extension({
-    compiler: {
-        description: 'C/C++ Compiler',
-        path: function (ext) {
-            let path: Path
-            if (me.options.gen) {
-                if (me.platform.like == 'windows') {
-                    path = 'cl'
-                } else if (me.platform.os == 'macosx') {
-                    path = 'clang'
-                } else if (me.platform.os == 'vxworks') {
-                    path = 'cc$(subst x86,pentium,$(ARCH))'
+Me.load({
+    targets: {
+        compiler: {
+            description: 'C/C++ Compiler',
+            config: function (target) {
+                let results = {}, settings
+                if (me.options.gen) {
+                    if (me.platform.like == 'windows') {
+                        results.path = 'cl'
+                    } else if (me.platform.os == 'macosx') {
+                        results.path = 'clang'
+                    } else if (me.platform.os == 'vxworks') {
+                        results.path = 'cc$(subst x86,pentium,$(ARCH))'
+                    } else {
+                        results.path = 'gcc'
+                    }
+                    settings = getDefaultSettings()
                 } else {
-                    path = 'gcc'
+                    if (me.platform.like == 'windows') {
+                        findWindowsCompiler(results)
+
+                    } else if (me.platform.os == 'vxworks') {
+                        findVxCompiler(results)
+
+                    } else {
+                        findPosixCompiler(results)
+                    }
+                    if (!me.options.configure) {
+                        /* For stand-alone use */
+                        settings = getDefaultSettings()
+                    } else {
+                        settings = getCompilerSettings(results.path)
+                    }
                 }
-                //UNUSED ext.path = path
-                let settings = getDefaultSettings()
-                Me.load({ settings: settings })
-                setCompilerOptions(ext, settings)
-                return path
-            }
-            if (me.platform.like == 'windows') {
-                path = findWindowsCompiler(ext)
-
-            } else if (me.platform.os == 'vxworks') {
-                path = findVxCompiler(ext)
-
-            } else {
-                path = findPosixCompiler(ext)
-            }
-            ext.path = path
-            if (!me.options.configure) {
-                /* For stand-alone use */
-                let settings = getDefaultSettings()
-                Me.load({settings: settings})
-            } else {
-                testCompilerCapabilities()
-            }
-            setCompilerOptions(ext, me.settings)
-            return path
+                setCompilerOptions(results, settings)
+                return results
+            },
+            discovers: [ 'vxworks', 'winsdk' ],
         },
-        discover: [ 'vxworks', 'winsdk' ],
     },
 })
 
 
-function findWindowsCompiler(ext) {
+function findWindowsCompiler(results) {
     let search
     let vsdir: Path
-    let path: Path? = me.extensions.compiler.withpath
+    let path: Path? = me.targets.compiler.withpath
 
     /*
         Test here because may come here when cross generating
@@ -81,7 +76,7 @@ function findWindowsCompiler(ext) {
             }
         }
     }
-    let vsbin, vslib, version
+    let definitions, vsbin, vslib, version
     if (Config.OS != 'windows') {
         path = 'cl.exe'
         vsdir = Path('$(VS)')
@@ -97,30 +92,36 @@ function findWindowsCompiler(ext) {
             vslib = vsbin.join('../lib').normalize
         }
         version = vsdir.name.match(/\d*\.\d/)[0]
-        ext.definitions = [ 'ME_VISUAL_STUDIO_VERSION="' + version + '"' ]
+        definitions = [ 'ME_VISUAL_STUDIO_VERSION="' + version + '"' ]
     }
-    ext.version = version
-    ext.crt = version.replace('.', '')
-    ext.dir = vsdir
-    ext.search = search
 
-    me.env.PATH += [
+    env = {}
+    env.PATH = [
         vsbin,
         vsdir.join('Common7/IDE'),
         vsdir.join('Common7/Tools'),
         vsdir.join('SDK/v3.5/bin'),
         vsdir.join('VC/VCPackages'),
     ]
-    me.env.INCLUDE += [
+    env.INCLUDE = [
         vsdir.join('VC/INCLUDE')
     ]
-    me.env.LIB += [ vslib ]
-    return path
+    env.LIB = [ vslib ]
+
+    results.path = path
+    results.env = env
+    results.definitions = definitions
+    results.version = version
+    results.crt = version.replace('.', '')
+    results.dir = vsdir
+    results.search = search
+
+    return results
 }
 
 
-function findVxCompiler(ext) {
-    let path: Path? = me.extensions.compiler.withpath
+function findVxCompiler(results) {
+    let path: Path? = me.targets.compiler.withpath
     let platform = me.platform
     if (!path) {
         if (platform.arch.match(/^i386$|^i486$$/)) {
@@ -141,26 +142,25 @@ function findVxCompiler(ext) {
             throw 'Unsupported CPU architecture: ' + platform.arch
         }
     }
-    path = probe(path, {fullpath: true, search: me.extensions.vxworks.search})
-    return path
+    results.path = probe(path, {fullpath: true, search: me.targets.vxworks.search})
+    return results
 }
 
 
-function findPosixCompiler(ext) {
-    let path: Path? = me.extensions.compiler.withpath || ((me.platform.os == 'macosx') ? 'clang' : 'gcc')
-    return probe(path, {fullpath: true})
+function findPosixCompiler(results) {
+    let path: Path? = me.targets.compiler.withpath || ((me.platform.os == 'macosx') ? 'clang' : 'gcc')
+    results.path = probe(path, {fullpath: true})
+    return results
 }
 
 
 /*
-    Test compiler capabilities and determine a minimal set of compiler switches to store in me.settings
+    Test compiler capabilities and determine a minimal set of compiler switches
  */
-function testCompilerCapabilities() {
-    let platform = me.platform
-    let settings = getDefaultSettings()
-    let cc = me.extensions.compiler.path
-
-    if (!me.options.gen && cc && (platform.like == 'unix' || (platform.os == 'vxworks' && Config.OS == 'linux'))) {
+function getCompilerSettings(cc) {
+    let settings = {}
+    if (!me.options.gen && cc && (me.platform.like == 'unix' || 
+        (me.platform.os == 'vxworks' && Config.OS == 'linux'))) {
         settings.hasAtomic = compile(cc, '',
             'int main() { int a, b; a = 0 ; b = 1; __atomic_add_fetch(&a, b, __ATOMIC_RELAXED); return 0; }')
         settings.hasAtomic64 = compile(cc, '',
@@ -191,74 +191,76 @@ function testCompilerCapabilities() {
             '#include <stdio.h>\n#include <stdlib.h>\nint main() { realloc(0, 1024); return 0; }')
         settings.warn64to32 = compile(cc, '-Wshorten-64-to-32', 'int main() { return 0;}')
     }
-    Me.load({ settings: settings })
+    return settings
 }
 
-function setCompilerOptions(ext, settings) {
+function setCompilerOptions(results, settings) {
     let platform = me.platform
     let arch = platform.arch
 
-    ext.compiler =  [ ]
-    ext.defines =   [ ]
-    ext.includes =  [ me.dir.inc ]
-    ext.linker =    [ ]
-    ext.libpaths =  [ me.dir.bin ]
-    ext.libraries = [ ]
+    Me.load({ settings: { compiler: settings }})
+
+    results.compiler =  [ ]
+    results.defines =   [ ]
+    results.includes =  [ me.dir.inc ]
+    results.linker =    [ ]
+    results.libpaths =  [ me.dir.bin ]
+    results.libraries = [ ]
 
     if (settings.warnUnused) {
-        ext.compiler.push('-Wno-unused-result')
+        results.compiler.push('-Wno-unused-result')
     }
     if (settings.warn64to32) {
-        ext.compiler.push('-Wshorten-64-to-32')
+        results.compiler.push('-Wshorten-64-to-32')
     }
     if (settings.hasLibRt) {
-        ext.libraries.push('rt')
+        results.libraries.push('rt')
     }
     if (settings.debug) {
-        ext.defines.push('ME_DEBUG')
+        results.defines.push('ME_DEBUG')
     }
     if (platform.like == 'unix') {
         /* Always include dl so that dlsym can be used even in static programs */
         if (settings.hasDynLoad) {
-            ext.libraries.push('dl')
+            results.libraries.push('dl')
         }
-        ext.compiler.push('-Wall')
-        ext.libraries.push('pthread', 'm')
-        if (settings.debug) {
-            ext.compiler.push('-g')
-            ext.linker.push('-g')
-        } else if (settings.tune == 'size') {
-            ext.compiler.push('-Os')
+        results.compiler.push('-Wall')
+        results.libraries.push('pthread', 'm')
+        if (me.settings.debug) {
+            results.compiler.push('-g')
+            results.linker.push('-g')
+        } else if (me.settings.tune == 'size') {
+            results.compiler.push('-Os')
         } else {
-            ext.compiler.push('-O2')
+            results.compiler.push('-O2')
         }
         if (platform.os != 'macosx') {
             /* GCC not mac */
-            if (!settings.static) {
-                ext.compiler.push('-fPIC')
-                ext.defines.push('_REENTRANT', 'PIC')
+            if (!me.settings.static) {
+                results.compiler.push('-fPIC')
+                results.defines.push('_REENTRANT', 'PIC')
             }
             if (arch.startsWith('arm')) {
-                ext.compiler.push('-mno-sched-prolog')
+                results.compiler.push('-mno-sched-prolog')
             } else if (arch.startsWith('ppc')) {
-                ext.defines.push('_GNU_TOOL')
+                results.defines.push('_GNU_TOOL')
             }
         }
     }
 
     if (platform.os == 'linux') {
-        if (!settings.static) {
-            ext.linker.push('-rdynamic', '-Wl,--enable-new-dtags', '-Wl,-rpath,$ORIGIN/')
+        if (!me.settings.static) {
+            results.linker.push('-rdynamic', '-Wl,--enable-new-dtags', '-Wl,-rpath,$ORIGIN/')
         }
 
     } else if (platform.os == 'macosx') {
         /* PHP, SQLITE warn with this
-        ext.compiler.push('-Wunreachable-code')
+            results.compiler.push('-Wunreachable-code')
          */
-        ext.linker.push('-Wl,-rpath,@executable_path/', '-Wl,-rpath,@loader_path/')
+        results.linker.push('-Wl,-rpath,@executable_path/', '-Wl,-rpath,@loader_path/')
 
     } else if (platform.os == 'solaris') {
-        ext.libraries.push('lxnet', 'rt', 'socket')
+        results.libraries.push('lxnet', 'rt', 'socket')
 
     } else if (platform.os == 'vxworks') {
         let cpu = platform.cpu
@@ -278,43 +280,44 @@ function setCompilerOptions(ext, settings) {
                 }
             }
         }
-        ext.defines.push('VXWORKS', 'RW_MULTI_THREAD', '_GNU_TOOL', 'CPU=' + cpu.toUpper())
-        ext.compiler.push('-fno-builtin', '-fno-defer-pop', '-fvolatile')
+        results.defines.push('VXWORKS', 'RW_MULTI_THREAD', '_GNU_TOOL', 'CPU=' + cpu.toUpper())
+        results.compiler.push('-fno-builtin', '-fno-defer-pop', '-fvolatile')
         if (arch.match(/mips/)) {
             /* Don't use mips global pointer */
-            ext.compiler.push('-G 0')
+            results.compiler.push('-G 0')
         }
-        ext.includes += me.extensions.vxworks.includes
-        ext.libraries.push('gcc')
-        ext.linker.push('-Wl,-r')
+        results.includes += me.targets.vxworks.includes
+        results.libraries.push('gcc')
+        results.linker.push('-Wl,-r')
 
     } else if (platform.os == 'windows') {
-        ext.compiler.push('-nologo', '-GR-', '-W3')
-        ext.defines.push('_REENTRANT', '_MT')
-        ext.libraries.push('ws2_32.lib', 'advapi32.lib', 'user32.lib', 'kernel32.lib', 'oldnames.lib', 'msvcrt.lib', 'shell32.lib')
-        ext.linker.push('-nologo', '-nodefaultlib', '-incremental:no')
-        if (settings.debug) {
-            ext.compiler.push('-Zi', '-Od', '-MDd')
-            ext.linker.push('-debug')
+        results.compiler.push('-nologo', '-GR-', '-W3')
+        results.defines.push('_REENTRANT', '_MT')
+        results.libraries.push('ws2_32.lib', 'advapi32.lib', 'user32.lib', 'kernel32.lib', 'oldnames.lib', 'msvcrt.lib', 'shell32.lib')
+        results.linker.push('-nologo', '-nodefaultlib', '-incremental:no')
+        if (me.settings.debug) {
+            results.compiler.push('-Zi', '-Od', '-MDd')
+            results.linker.push('-debug')
         } else {
-            ext.compiler.push('-O2', '-MD')
+            results.compiler.push('-O2', '-MD')
         }
-        ext.subsystem = {
+        results.subsystem = {
             exe: 'console',
             gui: 'windows',
         }
-        ext.entry = {
+        results.entry = {
             exe: 'mainCRTStartup',
             gui: 'WinMainCRTStartup',
         }
         if (platform.arch == 'x64') {
-            ext.linker.push('-machine:x64')
-            ext.entry.lib = '_DllMainCRTStartup'
+            results.linker.push('-machine:x64')
+            results.entry.lib = '_DllMainCRTStartup'
         } else {
-            ext.linker.push('-machine:x86')
-            ext.entry.lib = '_DllMainCRTStartup@12'
+            results.linker.push('-machine:x86')
+            results.entry.lib = '_DllMainCRTStartup@12'
         }
     }
+    return results
 }
 
 

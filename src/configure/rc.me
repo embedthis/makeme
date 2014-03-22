@@ -1,0 +1,19 @@
+/*
+    rc.me - Resource compiler Extension
+ */
+
+Me.load({
+    targets: {
+        rc: {
+            description: 'Windows Resource Compiler',
+            path: function (target) {
+                return probe(target.withpath || 'rc.exe', {
+                    fullpath: true, 
+                    search: me.targets.winsdk.search, 
+                    default: 'rc.exe'
+                })
+            },
+            ifdef: [ 'winsdk' ],
+        },
+    },
+})

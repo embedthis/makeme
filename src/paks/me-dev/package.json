@@ -20,10 +20,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "git://github.com/embedthis/me-emdev.git"
+        "url": "git://github.com/embedthis/me-dev.git"
     },
     "bugs": {
-        "url": "http://github.com/embedthis/me-emdev/issues"
+        "url": "http://github.com/embedthis/me-dev/issues"
     },
     "licenses": [
         {

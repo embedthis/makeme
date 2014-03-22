@@ -29,7 +29,7 @@ public function vstudio(base: Path) {
     me.TOOLS_VERSION = TOOLS_VERSION
     me.PROJECT_FILE_VERSION = PROJECT_FILE_VERSION
     let saveDir = []
-    for each (n in ["BIN", "OUT", "FLAT", "INC", "LIB", "OBJ", "PAKS", "PKG", "REL", "SRC", "TOP"]) {
+    for each (n in ["BIN", "OUT", "INC", "LIB", "OBJ", "PAKS", "PKG", "REL", "SRC", "TOP"]) {
         saveDir[n] = me.globals[n]
         me.globals[n] = me.globals[n].relativeTo(base)
     }
@@ -450,7 +450,7 @@ function projResources(base, target) {
 }
 
 function projLink(base, target) {
-    me.LIBS = target.libraries ? mapLibs(target, target.libraries - me.extensions.compiler.libraries).join(';') : ''
+    me.LIBS = target.libraries ? mapLibs(target, target.libraries - me.targets.compiler.libraries).join(';') : ''
     me.LIBPATHS = target.libpaths ? target.libpaths.map(function(p) wpath(p)).join(';') : ''
     output('
   <ItemDefinitionGroup>
@@ -561,7 +561,7 @@ function projDeps(base, target) {
     for each (dname in target.depends) {
         let dep = me.targets[dname]
         if (!dep) {
-            if (me.extensions[dname] || dname == 'build') {
+            if ((me.targets[dname] && me.targets[dname].type == 'extension') || dname == 'build') {
                 continue
             }
             throw 'Missing dependency ' + dname + ' for target ' + target.name

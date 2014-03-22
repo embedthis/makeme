@@ -13,8 +13,8 @@
 /*
     MakeMe defaults
  */
-#ifndef ME_EXT_SSL
-    #define ME_EXT_SSL 0                /**< Build without SSL support */
+#ifndef ME_COM_SSL
+    #define ME_COM_SSL 0                /**< Build without SSL support */
 #endif
 #ifndef ME_DEBUG
     #define ME_DEBUG 0                  /**< Default to a debug build */
@@ -858,23 +858,23 @@ typedef int64 Ticks;
 #endif
 
 #if !__UCLIBC__ && !CYGWIN && __USE_XOPEN2K
-    #define ME_HAS_SPINLOCK    1
+    #define ME_COMPILER_HAS_SPINLOCK    1
 #endif
 
-#if ME_HAS_DOUBLE_BRACES
+#if ME_COMPILER_HAS_DOUBLE_BRACES
     #define  NULL_INIT    {{0}}
 #else
     #define  NULL_INIT    {0}
 #endif
 
 #ifdef __USE_FILE_OFFSET64
-    #define ME_HAS_OFF64 1
+    #define ME_COMPILER_HAS_OFF64 1
 #else
-    #define ME_HAS_OFF64 0
+    #define ME_COMPILER_HAS_OFF64 0
 #endif
 
 #if ME_UNIX_LIKE
-    #define ME_HAS_FCNTL 1
+    #define ME_COMPILER_HAS_FCNTL 1
 #endif
 
 #ifndef R_OK
@@ -934,7 +934,7 @@ typedef int64 Ticks;
 #endif
 
 #ifndef ME_STACK_SIZE
-#if ME_HAS_MMU && !VXWORKS
+#if ME_COMPILER_HAS_MMU && !VXWORKS
     /*
         If the system supports virtual memory, then stack size should use system default. Only used pages will
         actually consume memory
@@ -969,9 +969,9 @@ typedef int64 Ticks;
 #endif
 
 #if !TIDSP
-    #define ME_HAS_MACRO_VARARGS 1
+    #define ME_COMPILER_HAS_MACRO_VARARGS 1
 #else
-    #define ME_HAS_MACRO_VARARGS 1
+    #define ME_COMPILER_HAS_MACRO_VARARGS 1
 #endif
 
 #if ME_UNIX_LIKE

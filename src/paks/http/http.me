@@ -4,6 +4,13 @@
 
 Me.load({
     targets: {
+        http: {
+            configurable: true,
+            depends:      [ 'libhttp' ],
+            requires:     [ 'pcre' ],
+            uses:         [ 'ssl' ],
+        },
+
         libhttp: {
             type: 'lib',
             sources: [ 'httpLib.c' ],

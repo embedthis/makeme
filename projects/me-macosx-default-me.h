@@ -76,13 +76,13 @@
     #define ME_EST_XTEA 0
 #endif
 #ifndef ME_EXTENSIONS_DISCOVER
-    #define ME_EXTENSIONS_DISCOVER "dsi,man,man2html,pmaker,ssl,zip"
+    #define ME_EXTENSIONS_DISCOVER ""
 #endif
 #ifndef ME_EXTENSIONS_OMIT
-    #define ME_EXTENSIONS_OMIT "openssl,sqlite"
+    #define ME_EXTENSIONS_OMIT ""
 #endif
 #ifndef ME_EXTENSIONS_REQUIRE
-    #define ME_EXTENSIONS_REQUIRE "compiler,lib,link,osdep,ejs,mpr,http,pcre,zlib"
+    #define ME_EXTENSIONS_REQUIRE "compiler,lib,link"
 #endif
 #ifndef ME_HAS_ATOMIC
     #define ME_HAS_ATOMIC 1
@@ -235,7 +235,7 @@
 
 /* Profile */
 #ifndef ME_CONFIG_CMD
-    #define ME_CONFIG_CMD "me -d -q -platform macosx-x64-default -configure . -gen xcode"
+    #define ME_CONFIG_CMD "me -d -q -platform macosx-x64-default -configure . -gen make"
 #endif
 #ifndef ME_ME_PRODUCT
     #define ME_ME_PRODUCT 1
@@ -265,66 +265,15 @@
 #ifndef ME_EXT_CC
     #define ME_EXT_CC 1
 #endif
-#ifndef ME_EXT_DSI
-    #define ME_EXT_DSI 1
-#endif
-#ifndef ME_EXT_EJS
-    #define ME_EXT_EJS 1
-#endif
-#ifndef ME_EXT_EST
-    #define ME_EXT_EST 1
-#endif
-#ifndef ME_EXT_HTTP
-    #define ME_EXT_HTTP 1
-#endif
 #ifndef ME_EXT_LIB
     #define ME_EXT_LIB 1
 #endif
 #ifndef ME_EXT_LINK
     #define ME_EXT_LINK 1
 #endif
-#ifndef ME_EXT_MAN
-    #define ME_EXT_MAN 1
-#endif
-#ifndef ME_EXT_MAN2HTML
-    #define ME_EXT_MAN2HTML 1
-#endif
-#ifndef ME_EXT_MATRIXSSL
-    #define ME_EXT_MATRIXSSL 0
-#endif
-#ifndef ME_EXT_MPR
-    #define ME_EXT_MPR 1
-#endif
-#ifndef ME_EXT_NANOSSL
-    #define ME_EXT_NANOSSL 0
-#endif
-#ifndef ME_EXT_OPENSSL
-    #define ME_EXT_OPENSSL 0
-#endif
-#ifndef ME_EXT_OSDEP
-    #define ME_EXT_OSDEP 1
-#endif
-#ifndef ME_EXT_PCRE
-    #define ME_EXT_PCRE 1
-#endif
-#ifndef ME_EXT_PMAKER
-    #define ME_EXT_PMAKER 1
-#endif
-#ifndef ME_EXT_SQLITE
-    #define ME_EXT_SQLITE 0
-#endif
-#ifndef ME_EXT_SSL
-    #define ME_EXT_SSL 1
-#endif
 #ifndef ME_EXT_VXWORKS
     #define ME_EXT_VXWORKS 1
 #endif
 #ifndef ME_EXT_WINSDK
     #define ME_EXT_WINSDK 0
-#endif
-#ifndef ME_EXT_ZIP
-    #define ME_EXT_ZIP 1
-#endif
-#ifndef ME_EXT_ZLIB
-    #define ME_EXT_ZLIB 1
 #endif

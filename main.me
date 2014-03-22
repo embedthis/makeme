@@ -8,6 +8,12 @@ Me.load({
         "doc/doc.me",
     ],
 
+    configure: {
+        requires:  [ 'osdep', 'ejs', 'mpr', 'http', 'pcre', 'zlib' ],
+        discovers: [ 'ssl' ],
+        extras:    [ 'sqlite' ]
+    },
+
     customize: [
         /* 
             The optional custom.me file is loaded after main.me is fully processed. It can
@@ -20,12 +26,6 @@ Me.load({
         platforms: [ 'local' ],
         static: false,
         tune: 'size',
-
-        extensions: {
-            require:  [ 'compiler', 'osdep', 'ejs', 'mpr', 'http', 'pcre', 'zlib' ],
-            discover: [ 'dsi', 'man', 'man2html', 'pmaker', 'ssl', 'zip' ],
-            generate: [ 'openssl', 'sqlite' ]
-        },
 
         ejs: {
             /*
@@ -72,6 +72,14 @@ Me.load({
 
         prefixes: 'package-prefixes',
         manifest: 'package/manifest.me',
+    },
+
+    scripts: {
+        loaded: `
+            me.targets.makerom.enable = false
+            me.targets.httpcmd.enable = false
+            me.targets.ejscmd.enable = false
+        `
     },
 
     targets: {

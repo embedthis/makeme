@@ -3,12 +3,13 @@
  */
 
 Me.load({
-	dir: {
+	UNUSED_dir: {
 		out:    '${platform.name}',
 		bin:    '${dir.out}/bin',
         flat:   '${dir.out}/flat',
 		inc:    '${dir.out}/inc',
 		lib:    '${dir.out}/bin',
+        me:     '${dir.out}/bin',
 		obj:    '${dir.out}/obj',
         paks:   '${dir.top}/src/paks',
         pkg:    '${dir.out}/pkg',
@@ -22,7 +23,6 @@ Me.load({
                 builtin('cleanTargets')
                 safeRemove('${REL}')
                 safeRemove('${PKG}')
-                safeRemove('${FLAT}')
             ",
         },
 
@@ -41,7 +41,6 @@ Me.load({
             depends: ['all'],
         },
 
-        /* Legacy */
         build: {
             depends: ['all'],
         },

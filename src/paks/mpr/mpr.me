@@ -3,8 +3,13 @@
  */
 
 Me.load({
-
     targets: {
+        mpr: {
+            configurable: true,
+            depends:      [ 'libmpr' ],
+            uses:         [ 'ssl' ],
+        },
+
         libmpr: {
             type: 'lib',
             sources: [ 'mprLib.c' ],

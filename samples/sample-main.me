@@ -7,20 +7,21 @@ Me.load({
         // Load other me files
     ],
 
+    configure: {
+        requires:  [ ],
+        discovers: [ ],
+        extras:    [ ],
+    },
+
     settings: {
         /* 
             Define for your product
+            Can also do this in a package.json
          */
 		name: 'sample',
 		title: 'Sample',
         company: 'Example Inc.',
 		version: '0.1.0',
-
-        extensions: {
-            require: [ ],
-            discover: [ ],
-            omit: [ ],
-        },
     },
 
     /*

@@ -62,7 +62,7 @@ Me.load({
                 enable:     "me.platform.like == 'unix'",
 
             }, {
-                from:       '${extensions.compiler.dir}/VC/redist/${platform.arch}/Microsoft.VC${extensions.compiler.crt}.CRT/msvcr${extensions.compiler.crt}.dll',
+                from: '${targets.compiler.dir}/VC/redist/${platform.arch}/Microsoft.VC${targets.compiler.crt}.CRT/msvcr${targets.compiler.crt}.dll',
                 to:         '${abin}',
                 set:        'package',
                 enable:     "me.platform.os == 'windows' && !me.generating",

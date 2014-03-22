@@ -58,11 +58,10 @@
                     to select a name that can be googled. 
                     <a href="https://github.com/embedthis/bit/issues/1">[issue 1]</a></li>
                 <li>Support full integration with <a href="http://embedthis.com/products/pak">Pak</a> 
-                    and package.json files. This allows using Pak to install packages and have them automatically
-                    integrate and be built via MakeMe.
+                    and package.json files. This allows using Pak to distribute and install packages. 
                     <a href="https://github.com/embedthis/bit/issues/2">[issue 2]</a></li>
-                <li>Improved support for per-project extensions. These are configurable per-project components that
-                        are discovered and configured by a project's configure command.
+                <li>Improved support for project components and configuration. Components are configurable 
+                    per-project modules that are discovered and configured by a project's configure command.
                     <a href="https://github.com/embedthis/bit/issues/3">[issue 3]</a></li>
                 <li>MakeMe plugin support. Plugins are a way of enhancing a MakeMe installation with additional
                     commands, targets and scripts. Plugins are published on the 
@@ -81,9 +80,14 @@
             <ul>
                 <li>MakeMe is invoked via "<em>me</em>" instead of "<em>bit</em>".</li>
                 <li>MakeMe and files have "<em>.me</em>" extension instead of "<em>.bit</em>".</li>
-                <li>The "packs" property is renamed to an extensions collection with sub-properties of
-                    "require", "discover" and "omit".</li>
+                <li>The "packs" property is renamed to a "configure" with sub-properties of
+                    "requires", "discovers" and "extra".</li>
                 <li>The "settings.product" is renamed to "settings.name" for compatibility with Pak.</li>
+                <li>The BIT_ definitions are mapped to ME_. The compiler defines BIT_HAS are now
+                    ME_COMPILER_HAS.</li>
+                <li>The conditional "paks" property is renamed to "ifdef"</li>
+                <li>The old packs (now components) are implemented as standard targets with a "configurable"
+                    property.</li>
             </ul>
             <h2 class="section">History</h2>
             <p>MakeMe was previously named Bit. Here are the change log entries for the precursor Bit releases.</p>

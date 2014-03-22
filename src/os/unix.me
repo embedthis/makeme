@@ -37,10 +37,11 @@ Me.load({
         src:        '${prefixes.data}/src/${settings.name}-${settings.version}',
     },
 
+    configure: {
+        requires: [ 'compiler', 'lib' ],
+    },
+
     settings: {
-        extensions: {
-            require: [ 'compiler', 'lib', 'link' ],
-        },
-        prefixes: ['debian'],
+        //UNUSED prefixes: ['debian'],
     }
 })
