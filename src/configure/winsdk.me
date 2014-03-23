@@ -7,6 +7,9 @@ Me.load({
         winsdk: {
             description: 'Windows SDK',
             config: function (target) {
+                if (me.options.gen) {
+                    return
+                }
                 if (Config.OS != 'windows') {
                     throw 'Winsdk only available on windows'
                 }

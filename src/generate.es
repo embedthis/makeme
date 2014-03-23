@@ -95,7 +95,6 @@ module embedthis.me {
     }
 
     function generateTarget(target) {
-        //  MOB - remove
         if (target.configurable) return
         global.TARGET = me.target = target
         if (target.files) {
@@ -264,7 +263,6 @@ module embedthis.me {
     function generateComponentDefs() {
         let needed = {}
         for each (target in me.targets) {
-            //  MOB - remove
             if (target.configurable) continue
             if (target.explicit || target.enable) {
                 needed[target.name] = true
@@ -1344,7 +1342,6 @@ module embedthis.me {
                 continue
             }
             dep = getLib(lib)
-            //  MOB - remove configurable
             if (dep && !dep.configurable) {
                 name = dep.name
                 ifdef = dep.ifdef

@@ -1398,8 +1398,10 @@ public class Me {
             let dep = getDep(dname)
             if (dep) {
                 /* If generating, still want to inherit libs */
-                if (!dep.enable && !me.options.gen) {
-                    continue
+                if (!dep.enable) {
+                    if (!me.options.gen || (me.options.gen != 'make' && me.options.gen !== 'nmake')) {
+                        continue
+                    }
                 }
                 if (!dep.resolved) {
                     resolve(dep)
