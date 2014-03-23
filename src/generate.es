@@ -132,8 +132,6 @@ module embedthis.me {
             generateRun(target)
         } else if (target.dir) {
             generateDir(target, true)
-        } else {
-            print("XXX", target.name)
         }
         if (target.ifdef) {
             for (i in target.ifdef.length) {
