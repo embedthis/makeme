@@ -95,7 +95,9 @@ module embedthis.me {
     }
 
     function generateTarget(target) {
-        if (target.configurable) return
+        if (target.configurable) {
+            return
+        }
         global.TARGET = me.target = target
         if (target.files) {
             target.cmdfiles = target.files.join(' ')
@@ -130,6 +132,8 @@ module embedthis.me {
             generateRun(target)
         } else if (target.dir) {
             generateDir(target, true)
+        } else {
+            print("XXX", target.name)
         }
         if (target.ifdef) {
             for (i in target.ifdef.length) {

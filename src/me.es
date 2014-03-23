@@ -860,6 +860,9 @@ public class Me {
                 target.generateScript = true
             }
         }
+        if (target.scripts && target.scripts.generate) {
+            target.generateScript = true
+        }
         if (target.generateScript && !target.goals.contains('generate')) {
             target.goals.push('generate')
         }
