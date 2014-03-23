@@ -271,9 +271,6 @@
 #ifndef ME_COM_MATRIXSSL
     #define ME_COM_MATRIXSSL 0
 #endif
-#ifndef ME_COM_ME-SIMPLIFY
-    #define ME_COM_ME-SIMPLIFY 1
-#endif
 #ifndef ME_COM_MPR
     #define ME_COM_MPR 1
 #endif
@@ -299,7 +296,7 @@
     #define ME_COM_VXWORKS 0
 #endif
 #ifndef ME_COM_WINSDK
-    #define ME_COM_WINSDK 0
+    #define ME_COM_WINSDK 1
 #endif
 #ifndef ME_COM_ZLIB
     #define ME_COM_ZLIB 1

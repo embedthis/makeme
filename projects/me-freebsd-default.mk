@@ -16,14 +16,13 @@ PATH                  := $(LBIN):$(PATH)
 ME_COM_EJS            ?= 1
 ME_COM_EST            ?= 1
 ME_COM_MATRIXSSL      ?= 0
-ME_COM_ME-SIMPLIFY    ?= 1
 ME_COM_NANOSSL        ?= 0
 ME_COM_OPENSSL        ?= 0
 ME_COM_PCRE           ?= 1
 ME_COM_SQLITE         ?= 0
 ME_COM_SSL            ?= 1
 ME_COM_VXWORKS        ?= 0
-ME_COM_WINSDK         ?= 0
+ME_COM_WINSDK         ?= 1
 ME_COM_ZLIB           ?= 1
 
 ifeq ($(ME_COM_EST),1)
@@ -43,21 +42,13 @@ ifeq ($(ME_COM_EJS),1)
 endif
 
 ME_COM_COMPILER_PATH  ?= gcc
-ME_COM_EJS_PATH       ?= src/paks/ejs
-ME_COM_EST_PATH       ?= src/paks/est
-ME_COM_HTTP_PATH      ?= src/paks/http
 ME_COM_LIB_PATH       ?= ar
 ME_COM_MATRIXSSL_PATH ?= /usr/src/matrixssl
-ME_COM_MPR_PATH       ?= src/paks/mpr
 ME_COM_NANOSSL_PATH   ?= /usr/src/nanossl
 ME_COM_OPENSSL_PATH   ?= [object Object]
-ME_COM_OSDEP_PATH     ?= src/paks/osdep
-ME_COM_PCRE_PATH      ?= src/paks/pcre
-ME_COM_SSL_PATH       ?= src/paks/ssl
-ME_COM_ZLIB_PATH      ?= src/paks/zlib
 
 CFLAGS                += -fPIC -w
-DFLAGS                += -D_REENTRANT -DPIC $(patsubst %,-D%,$(filter ME_%,$(MAKEFLAGS))) -DME_COM_EJS=$(ME_COM_EJS) -DME_COM_EST=$(ME_COM_EST) -DME_COM_MATRIXSSL=$(ME_COM_MATRIXSSL) -DME_COM_ME-SIMPLIFY=$(ME_COM_ME-SIMPLIFY) -DME_COM_NANOSSL=$(ME_COM_NANOSSL) -DME_COM_OPENSSL=$(ME_COM_OPENSSL) -DME_COM_PCRE=$(ME_COM_PCRE) -DME_COM_SQLITE=$(ME_COM_SQLITE) -DME_COM_SSL=$(ME_COM_SSL) -DME_COM_VXWORKS=$(ME_COM_VXWORKS) -DME_COM_WINSDK=$(ME_COM_WINSDK) -DME_COM_ZLIB=$(ME_COM_ZLIB) 
+DFLAGS                += -D_REENTRANT -DPIC $(patsubst %,-D%,$(filter ME_%,$(MAKEFLAGS))) -DME_COM_EJS=$(ME_COM_EJS) -DME_COM_EST=$(ME_COM_EST) -DME_COM_MATRIXSSL=$(ME_COM_MATRIXSSL) -DME_COM_NANOSSL=$(ME_COM_NANOSSL) -DME_COM_OPENSSL=$(ME_COM_OPENSSL) -DME_COM_PCRE=$(ME_COM_PCRE) -DME_COM_SQLITE=$(ME_COM_SQLITE) -DME_COM_SSL=$(ME_COM_SSL) -DME_COM_VXWORKS=$(ME_COM_VXWORKS) -DME_COM_WINSDK=$(ME_COM_WINSDK) -DME_COM_ZLIB=$(ME_COM_ZLIB) 
 IFLAGS                += "-I$(CONFIG)/inc"
 LDFLAGS               += 
 LIBPATHS              += -L$(CONFIG)/bin
@@ -99,10 +90,6 @@ endif
 ifeq ($(ME_COM_EJS),1)
     TARGETS           += $(CONFIG)/bin/ejs.mod
 endif
-ifeq ($(ME_COM_EJS),1)
-    TARGETS           += $(CONFIG)/bin/ejscmd
-endif
-TARGETS               += $(CONFIG)/bin/http
 ifeq ($(ME_COM_EST),1)
     TARGETS           += $(CONFIG)/bin/libest.so
 endif
@@ -143,13 +130,10 @@ prep:
 	@echo $(MAKEFLAGS) >$(CONFIG)/.makeflags
 
 clean:
-	rm -f "$(CONFIG)/obj/ejs.o"
 	rm -f "$(CONFIG)/obj/ejsLib.o"
 	rm -f "$(CONFIG)/obj/ejsc.o"
 	rm -f "$(CONFIG)/obj/estLib.o"
-	rm -f "$(CONFIG)/obj/http.o"
 	rm -f "$(CONFIG)/obj/httpLib.o"
-	rm -f "$(CONFIG)/obj/makerom.o"
 	rm -f "$(CONFIG)/obj/me.o"
 	rm -f "$(CONFIG)/obj/mprLib.o"
 	rm -f "$(CONFIG)/obj/mprSsl.o"
@@ -157,8 +141,6 @@ clean:
 	rm -f "$(CONFIG)/obj/zlib.o"
 	rm -f "$(CONFIG)/bin/ca.crt"
 	rm -f "$(CONFIG)/bin/ejsc"
-	rm -f "$(CONFIG)/bin/ejscmd"
-	rm -f "$(CONFIG)/bin/http"
 	rm -f "$(CONFIG)/bin/libejs.so"
 	rm -f "$(CONFIG)/bin/libest.so"
 	rm -f "$(CONFIG)/bin/libhttp.so"
@@ -166,7 +148,6 @@ clean:
 	rm -f "$(CONFIG)/bin/libmprssl.so"
 	rm -f "$(CONFIG)/bin/libpcre.so"
 	rm -f "$(CONFIG)/bin/libzlib.so"
-	rm -f "$(CONFIG)/bin/makerom"
 
 clobber: clean
 	rm -fr ./$(CONFIG)
@@ -514,105 +495,11 @@ $(CONFIG)/bin/ejs.mod: $(DEPS_23)
 	)
 endif
 
-#
-#   ejs.o
-#
-DEPS_24 += $(CONFIG)/inc/me.h
-DEPS_24 += $(CONFIG)/inc/ejs.h
-
-$(CONFIG)/obj/ejs.o: \
-    src/paks/ejs/ejs.c $(DEPS_24)
-	@echo '   [Compile] $(CONFIG)/obj/ejs.o'
-	$(CC) -c -o $(CONFIG)/obj/ejs.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/ejs/ejs.c
-
-ifeq ($(ME_COM_EJS),1)
-#
-#   ejscmd
-#
-DEPS_25 += $(CONFIG)/inc/mpr.h
-DEPS_25 += $(CONFIG)/inc/me.h
-DEPS_25 += $(CONFIG)/inc/osdep.h
-DEPS_25 += $(CONFIG)/obj/mprLib.o
-DEPS_25 += $(CONFIG)/bin/libmpr.so
-DEPS_25 += $(CONFIG)/inc/pcre.h
-DEPS_25 += $(CONFIG)/obj/pcre.o
-ifeq ($(ME_COM_PCRE),1)
-    DEPS_25 += $(CONFIG)/bin/libpcre.so
-endif
-DEPS_25 += $(CONFIG)/inc/http.h
-DEPS_25 += $(CONFIG)/obj/httpLib.o
-DEPS_25 += $(CONFIG)/bin/libhttp.so
-DEPS_25 += $(CONFIG)/inc/zlib.h
-DEPS_25 += $(CONFIG)/obj/zlib.o
-ifeq ($(ME_COM_ZLIB),1)
-    DEPS_25 += $(CONFIG)/bin/libzlib.so
-endif
-DEPS_25 += $(CONFIG)/inc/ejs.h
-DEPS_25 += $(CONFIG)/inc/ejs.slots.h
-DEPS_25 += $(CONFIG)/inc/ejsByteGoto.h
-DEPS_25 += $(CONFIG)/obj/ejsLib.o
-DEPS_25 += $(CONFIG)/bin/libejs.so
-DEPS_25 += $(CONFIG)/obj/ejs.o
-
-LIBS_25 += -lejs
-LIBS_25 += -lhttp
-LIBS_25 += -lmpr
-ifeq ($(ME_COM_PCRE),1)
-    LIBS_25 += -lpcre
-endif
-ifeq ($(ME_COM_ZLIB),1)
-    LIBS_25 += -lzlib
-endif
-
-$(CONFIG)/bin/ejscmd: $(DEPS_25)
-	@echo '      [Link] $(CONFIG)/bin/ejscmd'
-	$(CC) -o $(CONFIG)/bin/ejscmd $(LIBPATHS) "$(CONFIG)/obj/ejs.o" $(LIBPATHS_25) $(LIBS_25) $(LIBS_25) $(LIBS) $(LIBS) 
-endif
-
-
-#
-#   http.o
-#
-DEPS_26 += $(CONFIG)/inc/me.h
-DEPS_26 += $(CONFIG)/inc/http.h
-
-$(CONFIG)/obj/http.o: \
-    src/paks/http/http.c $(DEPS_26)
-	@echo '   [Compile] $(CONFIG)/obj/http.o'
-	$(CC) -c -o $(CONFIG)/obj/http.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/http/http.c
-
-#
-#   httpcmd
-#
-DEPS_27 += $(CONFIG)/inc/mpr.h
-DEPS_27 += $(CONFIG)/inc/me.h
-DEPS_27 += $(CONFIG)/inc/osdep.h
-DEPS_27 += $(CONFIG)/obj/mprLib.o
-DEPS_27 += $(CONFIG)/bin/libmpr.so
-DEPS_27 += $(CONFIG)/inc/pcre.h
-DEPS_27 += $(CONFIG)/obj/pcre.o
-ifeq ($(ME_COM_PCRE),1)
-    DEPS_27 += $(CONFIG)/bin/libpcre.so
-endif
-DEPS_27 += $(CONFIG)/inc/http.h
-DEPS_27 += $(CONFIG)/obj/httpLib.o
-DEPS_27 += $(CONFIG)/bin/libhttp.so
-DEPS_27 += $(CONFIG)/obj/http.o
-
-LIBS_27 += -lhttp
-LIBS_27 += -lmpr
-ifeq ($(ME_COM_PCRE),1)
-    LIBS_27 += -lpcre
-endif
-
-$(CONFIG)/bin/http: $(DEPS_27)
-	@echo '      [Link] $(CONFIG)/bin/http'
-	$(CC) -o $(CONFIG)/bin/http $(LIBPATHS) "$(CONFIG)/obj/http.o" $(LIBPATHS_27) $(LIBS_27) $(LIBS_27) $(LIBS) $(LIBS) 
 
 #
 #   est.h
 #
-$(CONFIG)/inc/est.h: $(DEPS_28)
+$(CONFIG)/inc/est.h: $(DEPS_24)
 	@echo '      [Copy] $(CONFIG)/inc/est.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp src/paks/est/est.h $(CONFIG)/inc/est.h
@@ -620,12 +507,12 @@ $(CONFIG)/inc/est.h: $(DEPS_28)
 #
 #   estLib.o
 #
-DEPS_29 += $(CONFIG)/inc/me.h
-DEPS_29 += $(CONFIG)/inc/est.h
-DEPS_29 += $(CONFIG)/inc/osdep.h
+DEPS_25 += $(CONFIG)/inc/me.h
+DEPS_25 += $(CONFIG)/inc/est.h
+DEPS_25 += $(CONFIG)/inc/osdep.h
 
 $(CONFIG)/obj/estLib.o: \
-    src/paks/est/estLib.c $(DEPS_29)
+    src/paks/est/estLib.c $(DEPS_25)
 	@echo '   [Compile] $(CONFIG)/obj/estLib.o'
 	$(CC) -c -o $(CONFIG)/obj/estLib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/est/estLib.c
 
@@ -633,12 +520,12 @@ ifeq ($(ME_COM_EST),1)
 #
 #   libest
 #
-DEPS_30 += $(CONFIG)/inc/est.h
-DEPS_30 += $(CONFIG)/inc/me.h
-DEPS_30 += $(CONFIG)/inc/osdep.h
-DEPS_30 += $(CONFIG)/obj/estLib.o
+DEPS_26 += $(CONFIG)/inc/est.h
+DEPS_26 += $(CONFIG)/inc/me.h
+DEPS_26 += $(CONFIG)/inc/osdep.h
+DEPS_26 += $(CONFIG)/obj/estLib.o
 
-$(CONFIG)/bin/libest.so: $(DEPS_30)
+$(CONFIG)/bin/libest.so: $(DEPS_26)
 	@echo '      [Link] $(CONFIG)/bin/libest.so'
 	$(CC) -shared -o $(CONFIG)/bin/libest.so $(LIBPATHS) "$(CONFIG)/obj/estLib.o" $(LIBS) 
 endif
@@ -646,132 +533,132 @@ endif
 #
 #   mprSsl.o
 #
-DEPS_31 += $(CONFIG)/inc/me.h
-DEPS_31 += $(CONFIG)/inc/mpr.h
-DEPS_31 += $(CONFIG)/inc/est.h
+DEPS_27 += $(CONFIG)/inc/me.h
+DEPS_27 += $(CONFIG)/inc/mpr.h
+DEPS_27 += $(CONFIG)/inc/est.h
 
 $(CONFIG)/obj/mprSsl.o: \
-    src/paks/mpr/mprSsl.c $(DEPS_31)
+    src/paks/mpr/mprSsl.c $(DEPS_27)
 	@echo '   [Compile] $(CONFIG)/obj/mprSsl.o'
 	$(CC) -c -o $(CONFIG)/obj/mprSsl.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_EXT_MATRIXSSL_PATH)" "-I$(ME_EXT_MATRIXSSL_PATH)/matrixssl" "-I$(ME_EXT_NANOSSL_PATH)/src" src/paks/mpr/mprSsl.c
 
 #
 #   libmprssl
 #
-DEPS_32 += $(CONFIG)/inc/mpr.h
-DEPS_32 += $(CONFIG)/inc/me.h
-DEPS_32 += $(CONFIG)/inc/osdep.h
-DEPS_32 += $(CONFIG)/obj/mprLib.o
-DEPS_32 += $(CONFIG)/bin/libmpr.so
-DEPS_32 += $(CONFIG)/inc/est.h
-DEPS_32 += $(CONFIG)/obj/estLib.o
+DEPS_28 += $(CONFIG)/inc/mpr.h
+DEPS_28 += $(CONFIG)/inc/me.h
+DEPS_28 += $(CONFIG)/inc/osdep.h
+DEPS_28 += $(CONFIG)/obj/mprLib.o
+DEPS_28 += $(CONFIG)/bin/libmpr.so
+DEPS_28 += $(CONFIG)/inc/est.h
+DEPS_28 += $(CONFIG)/obj/estLib.o
 ifeq ($(ME_COM_EST),1)
-    DEPS_32 += $(CONFIG)/bin/libest.so
+    DEPS_28 += $(CONFIG)/bin/libest.so
 endif
-DEPS_32 += $(CONFIG)/obj/mprSsl.o
+DEPS_28 += $(CONFIG)/obj/mprSsl.o
 
-LIBS_32 += -lmpr
+LIBS_28 += -lmpr
 ifeq ($(ME_COM_EST),1)
-    LIBS_32 += -lest
+    LIBS_28 += -lest
 endif
 ifeq ($(ME_COM_MATRIXSSL),1)
-    LIBS_32 += -lmatrixssl
-    LIBPATHS_32 += -L$(ME_EXT_MATRIXSSL_PATH)
+    LIBS_28 += -lmatrixssl
+    LIBPATHS_28 += -L$(ME_EXT_MATRIXSSL_PATH)
 endif
 ifeq ($(ME_COM_NANOSSL),1)
-    LIBS_32 += -lssls
-    LIBPATHS_32 += -L$(ME_EXT_NANOSSL_PATH)/bin
+    LIBS_28 += -lssls
+    LIBPATHS_28 += -L$(ME_EXT_NANOSSL_PATH)/bin
 endif
 
-$(CONFIG)/bin/libmprssl.so: $(DEPS_32)
+$(CONFIG)/bin/libmprssl.so: $(DEPS_28)
 	@echo '      [Link] $(CONFIG)/bin/libmprssl.so'
-	$(CC) -shared -o $(CONFIG)/bin/libmprssl.so $(LIBPATHS)   "$(CONFIG)/obj/mprSsl.o" $(LIBPATHS_32) $(LIBS_32) $(LIBS_32) $(LIBS) 
+	$(CC) -shared -o $(CONFIG)/bin/libmprssl.so $(LIBPATHS)   "$(CONFIG)/obj/mprSsl.o" $(LIBPATHS_28) $(LIBS_28) $(LIBS_28) $(LIBS) 
 
 #
 #   me.o
 #
-DEPS_33 += $(CONFIG)/inc/me.h
-DEPS_33 += $(CONFIG)/inc/ejs.h
+DEPS_29 += $(CONFIG)/inc/me.h
+DEPS_29 += $(CONFIG)/inc/ejs.h
 
 $(CONFIG)/obj/me.o: \
-    src/me.c $(DEPS_33)
+    src/me.c $(DEPS_29)
 	@echo '   [Compile] $(CONFIG)/obj/me.o'
 	$(CC) -c -o $(CONFIG)/obj/me.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/me.c
 
 #
 #   me
 #
-DEPS_34 += $(CONFIG)/inc/mpr.h
-DEPS_34 += $(CONFIG)/inc/me.h
-DEPS_34 += $(CONFIG)/inc/osdep.h
-DEPS_34 += $(CONFIG)/obj/mprLib.o
-DEPS_34 += $(CONFIG)/bin/libmpr.so
-DEPS_34 += $(CONFIG)/inc/pcre.h
-DEPS_34 += $(CONFIG)/obj/pcre.o
+DEPS_30 += $(CONFIG)/inc/mpr.h
+DEPS_30 += $(CONFIG)/inc/me.h
+DEPS_30 += $(CONFIG)/inc/osdep.h
+DEPS_30 += $(CONFIG)/obj/mprLib.o
+DEPS_30 += $(CONFIG)/bin/libmpr.so
+DEPS_30 += $(CONFIG)/inc/pcre.h
+DEPS_30 += $(CONFIG)/obj/pcre.o
 ifeq ($(ME_COM_PCRE),1)
-    DEPS_34 += $(CONFIG)/bin/libpcre.so
+    DEPS_30 += $(CONFIG)/bin/libpcre.so
 endif
-DEPS_34 += $(CONFIG)/inc/http.h
-DEPS_34 += $(CONFIG)/obj/httpLib.o
-DEPS_34 += $(CONFIG)/bin/libhttp.so
-DEPS_34 += $(CONFIG)/inc/zlib.h
-DEPS_34 += $(CONFIG)/obj/zlib.o
+DEPS_30 += $(CONFIG)/inc/http.h
+DEPS_30 += $(CONFIG)/obj/httpLib.o
+DEPS_30 += $(CONFIG)/bin/libhttp.so
+DEPS_30 += $(CONFIG)/inc/zlib.h
+DEPS_30 += $(CONFIG)/obj/zlib.o
 ifeq ($(ME_COM_ZLIB),1)
-    DEPS_34 += $(CONFIG)/bin/libzlib.so
+    DEPS_30 += $(CONFIG)/bin/libzlib.so
 endif
-DEPS_34 += $(CONFIG)/inc/ejs.h
-DEPS_34 += $(CONFIG)/inc/ejs.slots.h
-DEPS_34 += $(CONFIG)/inc/ejsByteGoto.h
-DEPS_34 += $(CONFIG)/obj/ejsLib.o
+DEPS_30 += $(CONFIG)/inc/ejs.h
+DEPS_30 += $(CONFIG)/inc/ejs.slots.h
+DEPS_30 += $(CONFIG)/inc/ejsByteGoto.h
+DEPS_30 += $(CONFIG)/obj/ejsLib.o
 ifeq ($(ME_COM_EJS),1)
-    DEPS_34 += $(CONFIG)/bin/libejs.so
+    DEPS_30 += $(CONFIG)/bin/libejs.so
 endif
-DEPS_34 += $(CONFIG)/obj/me.o
+DEPS_30 += $(CONFIG)/obj/me.o
 
-LIBS_34 += -lmpr
-LIBS_34 += -lhttp
+LIBS_30 += -lmpr
+LIBS_30 += -lhttp
 ifeq ($(ME_COM_PCRE),1)
-    LIBS_34 += -lpcre
+    LIBS_30 += -lpcre
 endif
 ifeq ($(ME_COM_EJS),1)
-    LIBS_34 += -lejs
+    LIBS_30 += -lejs
 endif
 ifeq ($(ME_COM_ZLIB),1)
-    LIBS_34 += -lzlib
+    LIBS_30 += -lzlib
 endif
 
-$(CONFIG)/bin/me: $(DEPS_34)
+$(CONFIG)/bin/me: $(DEPS_30)
 	@echo '      [Link] $(CONFIG)/bin/me'
-	$(CC) -o $(CONFIG)/bin/me $(LIBPATHS) "$(CONFIG)/obj/me.o" $(LIBPATHS_34) $(LIBS_34) $(LIBS_34) $(LIBS) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/me $(LIBPATHS) "$(CONFIG)/obj/me.o" $(LIBPATHS_30) $(LIBS_30) $(LIBS_30) $(LIBS) $(LIBS) 
 
 #
 #   me-core
 #
-DEPS_35 += src/configure/appweb.me
-DEPS_35 += src/configure/compiler.me
-DEPS_35 += src/configure/lib.me
-DEPS_35 += src/configure/link.me
-DEPS_35 += src/configure/rc.me
-DEPS_35 += src/configure/vxworks.me
-DEPS_35 += src/configure/winsdk.me
-DEPS_35 += src/configure.es
-DEPS_35 += src/gendoc.es
-DEPS_35 += src/generate.es
-DEPS_35 += src/me.es
-DEPS_35 += src/os/freebsd.me
-DEPS_35 += src/os/gcc.me
-DEPS_35 += src/os/linux.me
-DEPS_35 += src/os/macosx.me
-DEPS_35 += src/os/solaris.me
-DEPS_35 += src/os/unix.me
-DEPS_35 += src/os/vxworks.me
-DEPS_35 += src/os/windows.me
-DEPS_35 += src/simple.me
-DEPS_35 += src/standard.me
-DEPS_35 += src/vstudio.es
-DEPS_35 += src/xcode.es
+DEPS_31 += src/configure/appweb.me
+DEPS_31 += src/configure/compiler.me
+DEPS_31 += src/configure/lib.me
+DEPS_31 += src/configure/link.me
+DEPS_31 += src/configure/rc.me
+DEPS_31 += src/configure/vxworks.me
+DEPS_31 += src/configure/winsdk.me
+DEPS_31 += src/configure.es
+DEPS_31 += src/gendoc.es
+DEPS_31 += src/generate.es
+DEPS_31 += src/me.es
+DEPS_31 += src/os/freebsd.me
+DEPS_31 += src/os/gcc.me
+DEPS_31 += src/os/linux.me
+DEPS_31 += src/os/macosx.me
+DEPS_31 += src/os/solaris.me
+DEPS_31 += src/os/unix.me
+DEPS_31 += src/os/vxworks.me
+DEPS_31 += src/os/windows.me
+DEPS_31 += src/simple.me
+DEPS_31 += src/standard.me
+DEPS_31 += src/vstudio.es
+DEPS_31 += src/xcode.es
 
-$(CONFIG)/bin/.updated: $(DEPS_35)
+$(CONFIG)/bin/.updated: $(DEPS_31)
 	@echo '      [Copy] $(CONFIG)/bin'
 	mkdir -p "$(CONFIG)/bin/configure"
 	cp src/configure/appweb.me $(CONFIG)/bin/configure/appweb.me
@@ -803,9 +690,14 @@ $(CONFIG)/bin/.updated: $(DEPS_35)
 	mkdir -p "$(CONFIG)/bin/.updated"
 
 #
+#   stop
+#
+stop: $(DEPS_32)
+
+#
 #   installBinary
 #
-installBinary: $(DEPS_36)
+installBinary: $(DEPS_33)
 	( \
 	cd .; \
 	mkdir -p "$(ME_APP_PREFIX)" ; \
@@ -860,23 +752,32 @@ installBinary: $(DEPS_36)
 #
 #   start
 #
-start: $(DEPS_37)
+start: $(DEPS_34)
 
 #
-#   stop
+#   install
 #
-stop: $(DEPS_38)
+DEPS_35 += stop
+DEPS_35 += installBinary
+DEPS_35 += start
+
+install: $(DEPS_35)
 
 #
 #   uninstall
 #
-DEPS_39 += stop
+DEPS_36 += stop
 
-uninstall: $(DEPS_39)
+uninstall: $(DEPS_36)
 	( \
 	cd .; \
 	rm -fr "$(ME_VAPP_PREFIX)" ; \
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
 	rmdir -p "$(ME_APP_PREFIX)" 2>/dev/null ; true ; \
 	)
+
+#
+#   version
+#
+version: $(DEPS_37)
 
