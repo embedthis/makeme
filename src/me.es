@@ -1103,6 +1103,9 @@ public class Me {
         if (options.gen || options.configure) {
             missing = ''
         }
+        if (me.options.gen == 'make' || me.options.gen == 'nmake') {
+            me.options.configurableProject = true
+        }
         makeConstGlobals()
         makeDirGlobals()
         enableTargets()
@@ -1147,7 +1150,7 @@ public class Me {
 
             for each (item in target.ifdef) {
                 if (!me.targets[item] || !me.targets[item].enable) {
-                    if (!(me.options.gen && me.configure.extras.contains(item))) {
+                    if (!(me.configure.extras.contains(item) && me.options.configurableProject)) {
                         whySkip(target.name, 'disabled because the required target ' + item + ' is not enabled')
                         target.enable = false
                         reported = true
@@ -1400,9 +1403,8 @@ public class Me {
         for each (dname in (target.depends + target.uses)) {
             let dep = getDep(dname)
             if (dep) {
-                /* If generating, still want to inherit libs */
                 if (!dep.enable) {
-                    if (!me.options.gen || (me.options.gen != 'make' && me.options.gen !== 'nmake')) {
+                    if (!me.options.configurableProject) {
                         continue
                     }
                 }
@@ -1471,7 +1473,7 @@ public class Me {
                     target.path = Path(expand(target.path))
                 }
                 if (target.type == 'file' && files.length > 1) {
-                    if (me.options.gen || me.options.gen == 'vs' || me.options.gen == 'xcode') {
+                    if (me.options.gen && !me.options.configurableTarget) {
                         target.dest = target.path
                         target.path = target.path.join('.updated')
                         target.files = files
