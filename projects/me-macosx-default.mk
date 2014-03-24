@@ -197,7 +197,7 @@ DEPS_5 += $(CONFIG)/inc/osdep.h
 $(CONFIG)/obj/mprLib.o: \
     src/paks/mpr/mprLib.c $(DEPS_5)
 	@echo '   [Compile] $(CONFIG)/obj/mprLib.o'
-	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/mprLib.o -arch $(CC_ARCH) $(IFLAGS) src/paks/mpr/mprLib.c
+	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/mprLib.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) src/paks/mpr/mprLib.c
 
 #
 #   libmpr
@@ -228,7 +228,7 @@ DEPS_8 += $(CONFIG)/inc/pcre.h
 $(CONFIG)/obj/pcre.o: \
     src/paks/pcre/pcre.c $(DEPS_8)
 	@echo '   [Compile] $(CONFIG)/obj/pcre.o'
-	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/pcre.o -arch $(CC_ARCH) $(IFLAGS) src/paks/pcre/pcre.c
+	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/pcre.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) src/paks/pcre/pcre.c
 
 ifeq ($(ME_COM_PCRE),1)
 #
@@ -261,7 +261,7 @@ DEPS_11 += $(CONFIG)/inc/mpr.h
 $(CONFIG)/obj/httpLib.o: \
     src/paks/http/httpLib.c $(DEPS_11)
 	@echo '   [Compile] $(CONFIG)/obj/httpLib.o'
-	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/httpLib.o -arch $(CC_ARCH) $(IFLAGS) src/paks/http/httpLib.c
+	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/httpLib.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) src/paks/http/httpLib.c
 
 #
 #   libhttp
@@ -305,7 +305,7 @@ DEPS_14 += $(CONFIG)/inc/zlib.h
 $(CONFIG)/obj/zlib.o: \
     src/paks/zlib/zlib.c $(DEPS_14)
 	@echo '   [Compile] $(CONFIG)/obj/zlib.o'
-	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/zlib.o -arch $(CC_ARCH) $(IFLAGS) src/paks/zlib/zlib.c
+	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/zlib.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) src/paks/zlib/zlib.c
 
 ifeq ($(ME_COM_ZLIB),1)
 #
@@ -359,7 +359,7 @@ DEPS_19 += $(CONFIG)/inc/zlib.h
 $(CONFIG)/obj/ejsLib.o: \
     src/paks/ejs/ejsLib.c $(DEPS_19)
 	@echo '   [Compile] $(CONFIG)/obj/ejsLib.o'
-	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/ejsLib.o -arch $(CC_ARCH) $(IFLAGS) src/paks/ejs/ejsLib.c
+	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/ejsLib.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) src/paks/ejs/ejsLib.c
 
 ifeq ($(ME_COM_EJS),1)
 #
@@ -411,7 +411,7 @@ DEPS_21 += $(CONFIG)/inc/ejs.h
 $(CONFIG)/obj/ejsc.o: \
     src/paks/ejs/ejsc.c $(DEPS_21)
 	@echo '   [Compile] $(CONFIG)/obj/ejsc.o'
-	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/ejsc.o -arch $(CC_ARCH) $(IFLAGS) src/paks/ejs/ejsc.c
+	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/ejsc.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) src/paks/ejs/ejsc.c
 
 ifeq ($(ME_COM_EJS),1)
 #
@@ -514,7 +514,7 @@ DEPS_25 += $(CONFIG)/inc/osdep.h
 $(CONFIG)/obj/estLib.o: \
     src/paks/est/estLib.c $(DEPS_25)
 	@echo '   [Compile] $(CONFIG)/obj/estLib.o'
-	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/estLib.o -arch $(CC_ARCH) $(IFLAGS) src/paks/est/estLib.c
+	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/estLib.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) src/paks/est/estLib.c
 
 ifeq ($(ME_COM_EST),1)
 #
@@ -540,7 +540,7 @@ DEPS_27 += $(CONFIG)/inc/est.h
 $(CONFIG)/obj/mprSsl.o: \
     src/paks/mpr/mprSsl.c $(DEPS_27)
 	@echo '   [Compile] $(CONFIG)/obj/mprSsl.o'
-	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/mprSsl.o -arch $(CC_ARCH) $(IFLAGS) "-I$(ME_EXT_MATRIXSSL_PATH)" "-I$(ME_EXT_MATRIXSSL_PATH)/matrixssl" "-I$(ME_EXT_NANOSSL_PATH)/src" src/paks/mpr/mprSsl.c
+	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/mprSsl.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_EXT_MATRIXSSL_PATH)" "-I$(ME_EXT_MATRIXSSL_PATH)/matrixssl" "-I$(ME_EXT_NANOSSL_PATH)/src" src/paks/mpr/mprSsl.c
 
 #
 #   libmprssl
@@ -583,7 +583,7 @@ DEPS_29 += $(CONFIG)/inc/ejs.h
 $(CONFIG)/obj/me.o: \
     src/me.c $(DEPS_29)
 	@echo '   [Compile] $(CONFIG)/obj/me.o'
-	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/me.o -arch $(CC_ARCH) $(IFLAGS) src/me.c
+	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/me.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) src/me.c
 
 #
 #   me

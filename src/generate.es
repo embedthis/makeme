@@ -55,7 +55,7 @@ module embedthis.me {
         for each (word in minimalCflags) {
             cflags = cflags.replace(word + ' ', ' ')
         }
-        cflags = cflags.replace(/^ *$/, '')
+        cflags = cflags.replace(/^ */, '')
         gen = {
             configuration:  me.platform.name
             compiler:       cflags,
@@ -1143,9 +1143,6 @@ module embedthis.me {
                 /* Linker has -g which is also in minimal C flags */
                 command = rep(command, gen.linker, '$(LDFLAGS)')
             }
-            for each (word in minimalCflags) {
-                command = rep(command, word + ' ', ' ')
-            }
             if (gen.defines != '') {
                 command = rep(command, gen.defines, '$(DFLAGS)')
             } else {
@@ -1155,6 +1152,9 @@ module embedthis.me {
                 command = rep(command, gen.compiler, '$(CFLAGS)')
             } else {
                 command = rep(command, ' -c ', ' -c $(CFLAGS) ')
+            }
+            for each (word in minimalCflags) {
+                command = rep(command, word + ' ', ' ')
             }
             command = rep(command, gen.libpaths, '$(LIBPATHS)')
             command = rep(command, gen.includes, '$(IFLAGS)')
