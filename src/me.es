@@ -1015,14 +1015,6 @@ public class Me {
                     if (files.length == 0) {
                         vtrace('Probe', me.dir.home.join('.paks', path.trimExt(), '*', path))
                         files = me.dir.home.join('.paks', path.trimExt()).files('*/' + path).reverse().slice(0, 1)
-                        /* UNUSED
-                        vtrace('Probe', me.dir.home.join('.me/paks', path))
-                        files = me.dir.home.join('.me/paks').files(path)
-                        if (files.length == 0) {
-                            vtrace('Probe', me.dir.me.join('paks', path))
-                            files = me.dir.me.join('paks').files(path)
-                        }
-                        */
                         if (files.length == 0) {
                             throw 'Cannot find blended module: ' + path
                         }
