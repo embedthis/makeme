@@ -11,26 +11,18 @@ Me.load({
                     return {
                         path: target.withpath || '/usr/src/nanossl',
                         libraries: [ 'ssls' ],
-                        libpaths: [ '$(ME_EXT_NANOSSL_PATH)/bin' ],
-                        includes: [ '$(ME_EXT_NANOSSL_PATH)/src' ]
+                        libpaths: [ '$(ME_COM_NANOSSL_PATH)/bin' ],
+                        includes: [ '$(ME_COM_NANOSSL_PATH)/src' ]
                     }
                 }
-                let path: Path? = target.withpath
-                if (!path) {
-                    if (me.dir.paks) {
-                        path = me.dir.paks.join('nanossl')
-                    }
-                    if (!path.exists) {
-                        path = App.dir.join('../packages-' + me.platform.os + '-' + me.platform.arch, 'nanossl/latest')
-                    }
-                }
-                let search = [ path.join('bin') ]
+                let search = getComponentSearch(target, 'nanossl-src', 'bin')
                 let lib = probe('libssls.' + me.ext.lib, {fullpath: true, search: search}).absolute
+                let path = lib.dirname
                 let incdir = probe('common/moptions.h', {search: [path.join('src')]}).absolute
                 return {
                     path:      path,
                     includes:  [ incdir ]
-                    libpaths:  [ lib.parent ]
+                    libpaths:  [ path ]
                     libraries: [ 'ssls' ]
                     imports:   [ lib ]
                 }

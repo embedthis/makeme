@@ -99,7 +99,7 @@ Me.load({
             type: 'test',
             action: "
                 if (!me.targets.test) {
-                    let utest = me.targets.utest ? me.extensions.utest.path : null
+                    let utest = Cmd.locate('utest')
                     if (!utest) {
                         utest = Cmd.locate('utest', [me.dir.top.join(me.platform.name, 'bin/utest'), App.exeDir])
                     }

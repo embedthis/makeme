@@ -10,22 +10,16 @@ Me.load({
                 if (me.options.gen) {
                     return {
                         path: target.withpath || '/usr/src/matrixssl',
-                        libpaths: [ '$(ME_EXT_MATRIXSSL_PATH)' ],
-                        includes: [ '$(ME_EXT_MATRIXSSL_PATH)', '$(ME_EXT_MATRIXSSL_PATH)/matrixssl' ],
+                        libpaths: [ '$(ME_COM_MATRIXSSL_PATH)' ],
+                        includes: [ '$(ME_COM_MATRIXSSL_PATH)', '$(ME_COM_MATRIXSSL_PATH)/matrixssl' ],
                         libraries: [(me.platform.os == 'windows') ? 'matrixssl.lib' : 'matrixssl'],
                     }
                 }
-                let path: Path? = target.withpath
-                if (!path) {
-                    if (me.dir.paks) {
-                        path = me.dir.paks.join('matrixssl')
-                    }
-                    if (!path.exists) {
-                        path = App.dir.join('../packages-' + me.platform.os + '-' + me.platform.arch, 'matrixssl/latest')
-                    }
-                }
-                let search = [ (me.platform.os == 'windows') ? path.join('Release') : path ]
+                let search = getComponentSearch(target, 'matrixssl-src', 
+                    (me.platform.os == 'windows') ? path.join('Release') : '.')
+
                 let lib = probe('libmatrixssl.' + me.ext.shobj, {fullpath: true, search: search}).absolute
+
                 let imports, libraries
                 if (me.platform.os == 'windows') {
                     libraries = [ 'matrixssl.lib' ],
@@ -34,12 +28,12 @@ Me.load({
                     libraries = [ 'matrixssl' ]
                     imports = [ lib ]
                 }
-                let search = [ path.join('matrixssl') ]
-                let incdir = probe('matrixsslApi.h', {search: search}).absolute
+                let path = lib.dirname
+                let incdir = probe('matrixsslApi.h', {search: [ path.join('matrixssl')]}).absolute
                 return {
                     path:       path,
                     includes:   [ incdir, incdir.parent ]
-                    libpaths:   [lib.parent],
+                    libpaths:   [ path ],
                     libraries:  libraries,
                     imports:    imports,
                 }

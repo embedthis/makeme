@@ -1188,7 +1188,7 @@ static int matchCacheFilter(HttpConn *conn, HttpRoute *route, int dir)
         mprTrace(3, "cacheFilter: Cache response content for '%s'", conn->rx->uri);
         return HTTP_ROUTE_OK;
     }
-    return HTTP_ROUTE_REJECT;
+    return HTTP_ROUTE_OMIT_FILTER;
 }
 
 
@@ -1708,7 +1708,7 @@ static int matchChunk(HttpConn *conn, HttpRoute *route, int dir)
     tx = conn->tx;
 
     if (conn->upgraded || (httpClientConn(conn) && tx->parsedUri && tx->parsedUri->webSockets)) {
-        return HTTP_ROUTE_REJECT;
+        return HTTP_ROUTE_OMIT_FILTER;
     }
     if (dir & HTTP_STAGE_TX) {
         /* 
@@ -1716,7 +1716,7 @@ static int matchChunk(HttpConn *conn, HttpRoute *route, int dir)
             the X_APPWEB_CHUNK_SIZE header which may set the chunk size to zero.
          */
         if (tx->length >= 0 || tx->chunkSize == 0) {
-            return HTTP_ROUTE_REJECT;
+            return HTTP_ROUTE_OMIT_FILTER;
         }
         return HTTP_ROUTE_OK;
     } else {
@@ -7949,7 +7949,7 @@ static int matchRange(HttpConn *conn, HttpRoute *route, int dir)
     if ((dir & HTTP_STAGE_TX) && conn->tx->outputRanges) {
         return HTTP_ROUTE_OK;
     }
-    return HTTP_ROUTE_REJECT;
+    return HTTP_ROUTE_OMIT_FILTER;
 }
 
 
@@ -16790,11 +16790,11 @@ static int matchUpload(HttpConn *conn, HttpRoute *route, int dir)
     ssize   len;
 
     if (!(dir & HTTP_STAGE_RX)) {
-        return HTTP_ROUTE_REJECT;
+        return HTTP_ROUTE_OMIT_FILTER;
     }
     rx = conn->rx;
     if (!(rx->flags & HTTP_POST) || rx->remainingContent <= 0) {
-        return HTTP_ROUTE_REJECT;
+        return HTTP_ROUTE_OMIT_FILTER;
     }
     pat = "multipart/form-data";
     len = strlen(pat);
@@ -16803,7 +16803,7 @@ static int matchUpload(HttpConn *conn, HttpRoute *route, int dir)
         mprTrace(5, "matchUpload for %s", rx->uri);
         return HTTP_ROUTE_OK;
     }
-    return HTTP_ROUTE_REJECT;
+    return HTTP_ROUTE_OMIT_FILTER;
 }
 
 
@@ -18846,8 +18846,8 @@ static int matchWebSock(HttpConn *conn, HttpRoute *route, int dir)
     assert(rx);
     assert(tx);
 
-    if (conn->error || tx->responded) {
-        return HTTP_ROUTE_REJECT;
+    if (conn->error) {
+        return HTTP_ROUTE_OMIT_FILTER;
     }
     if (httpClientConn(conn)) {
         if (rx->webSocket) {
@@ -18862,16 +18862,19 @@ static int matchWebSock(HttpConn *conn, HttpRoute *route, int dir)
             ws->state = WS_STATE_CONNECTING;
             return HTTP_ROUTE_OK;
         }
-        return HTTP_ROUTE_REJECT;
+        return HTTP_ROUTE_OMIT_FILTER;
     }
     if (dir & HTTP_STAGE_TX) {
-        return rx->webSocket ? HTTP_ROUTE_OK : HTTP_ROUTE_REJECT;
+        return rx->webSocket ? HTTP_ROUTE_OK : HTTP_ROUTE_OMIT_FILTER;
     }
     if (!rx->upgrade || !scaselessmatch(rx->upgrade, "websocket")) {
-        return HTTP_ROUTE_REJECT;
+        return HTTP_ROUTE_OMIT_FILTER;
     }
     if (!rx->hostHeader || !smatch(rx->method, "GET")) {
-        return HTTP_ROUTE_REJECT;
+        return HTTP_ROUTE_OMIT_FILTER;
+    }
+    if (tx->flags & HTTP_TX_HEADERS_CREATED) {
+        return HTTP_ROUTE_OMIT_FILTER;
     }
     version = (int) stoi(httpGetHeader(conn, "sec-websocket-version"));
     if (version < WS_VERSION) {
@@ -18930,7 +18933,7 @@ static int matchWebSock(HttpConn *conn, HttpRoute *route, int dir)
         rx->remainingContent = MAXINT;
         return HTTP_ROUTE_OK;
     }
-    return HTTP_ROUTE_REJECT;
+    return HTTP_ROUTE_OMIT_FILTER;
 }
 
 

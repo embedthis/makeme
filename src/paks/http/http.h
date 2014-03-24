@@ -4090,9 +4090,10 @@ typedef struct HttpRouteOp {
 /*
     Route matching return codes
  */
-#define HTTP_ROUTE_OK       0             /**< The route matches the request */
-#define HTTP_ROUTE_REJECT   1             /**< The route does not match the request */
-#define HTTP_ROUTE_REROUTE  2             /**< Request has been modified and must be re-routed */
+#define HTTP_ROUTE_OK           0           /**< The route matches the request */
+#define HTTP_ROUTE_REJECT       1           /**< The route does not match the request */
+#define HTTP_ROUTE_REROUTE      2           /**< Request has been modified and must be re-routed */
+#define HTTP_ROUTE_OMIT_FILTER  1           /**< Omit filter. Same code as HTTP_ROUTE_REJECT for handlers */
 
 /**
     General route procedure. Used by targets, conditions and updates.

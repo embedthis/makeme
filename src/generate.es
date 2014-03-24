@@ -974,26 +974,21 @@ module embedthis.me {
         setRuleVars(target, target.home)
         let prefix = ''
         let suffix = ''
-        assert(me.generating)
-        assert(me.generating)
 
         let kind = me.generating
-        //  TODO - always true
-        if (me.generating) {
-            if (me.generating == 'sh' || me.generating == 'make') {
-                prefix = 'cd ' + target.home.relative
-                suffix = 'cd ' + me.dir.top.relativeTo(target.home)
-            } else if (me.generating == 'nmake') {
-                prefix = 'cd ' + target.home.relative.windows + '\n'
-                suffix = '\ncd ' + me.dir.src.relativeTo(target.home).windows
-            } else {
-                prefix = suffix = ''
-            }
-            let rhome = target.home.relative
-            if (/* UNUSED rhome == '.' || */ rhome.startsWith('..')) {
-                /* Don't change directory out of source tree. Necessary for actions in standard.me */
-                prefix = suffix = ''
-            }
+        if (me.generating == 'sh' || me.generating == 'make') {
+            prefix = 'cd ' + target.home.relative
+            suffix = 'cd ' + me.dir.top.relativeTo(target.home)
+        } else if (me.generating == 'nmake') {
+            prefix = 'cd ' + target.home.relative.windows + '\n'
+            suffix = '\ncd ' + me.dir.src.relativeTo(target.home).windows
+        } else {
+            prefix = suffix = ''
+        }
+        let rhome = target.home.relative
+        if (rhome.startsWith('..')) {
+            /* Don't change directory out of source tree. Necessary for actions in standard.me */
+            prefix = suffix = ''
         }
         let cmd
         if (target['generate-capture']) {

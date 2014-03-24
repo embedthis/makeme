@@ -36,11 +36,10 @@
         "est": "~0.6",
         "http": "~5.0",
         "me-dev": "~0.8",
-        "me-doc": "~0.8",
-        "me-package": "~0.8",
         "mpr": "~5.0",
         "osdep": "~0.8",
         "pcre": "~1.0",
+        "ssl": "~0.8",
         "zlib": "~1.0"
     },
     "optionalDependencies": {

@@ -6,53 +6,39 @@ Me.load({
     targets: {
         openssl: {
             description: 'OpenSSL',
-            path: function (target) {
+            config: function (target) {
                 if (me.options.gen) {
                     return {
-                        path: target.withpath || '/usr/src/openssl',
-                        includes: [ '$(ME_EXT_OPENSSL_PATH)/include' ],
-                        libpaths: [ '$(ME_EXT_OPENSSL_PATH)' ],
+                        path: target.withpath || Path('/usr/src/openssl'),
+                        includes: [ '$(ME_COM_OPENSSL_PATH)/include' ],
+                        libpaths: [ '$(ME_COM_OPENSSL_PATH)' ],
                         libraries: me.platform.os == 'windows' 
-                                ? ([ 'libeay32.lib', 'ssleay32.lib' ]) : ([ 'ssl', 'crypto' ]),
+                            ? ([ 'libeay32.lib', 'ssleay32.lib' ]) : ([ 'ssl', 'crypto' ]),
                     }
                 }
-                let path: Path? = target.withpath
-                if (!path) {
-                    if (me.dir.paks) {
-                        path = me.dir.paks.join('openssl')
-                    }
-                    if (!path.exists) {
-                        path = App.dir.join('../packages-' + me.platform.os + '-' + me.platform.arch, 'openssl')
-                        path = path.files('openssl*').reverse()[0]
-                        if (!path || !path.exists) {
-                            path = '.'
-                        }
-                    }
-                }
-                let search = [path]
-                if (me.platform.arch == 'x64') {
-                    search += ['/usr/lib64', '/lib64']
-                }
-                search += ['/usr/lib', '/lib' ]
-                search += Path('/usr/lib').files('*-linux-gnu') + Path('/lib').files('*-linux-gnu')
                 let lib, libraries, libpaths, imports, includes
+                let search = getComponentSearch(target, 'openssl-src')
 
                 if (me.platform.os == 'windows') {
-                    search = [path.join('out32dll')]
+                    for (let [index, item] in search) {
+                        search[index] = Path(item).join('out32dll')
+                    }
                     lib = probe('libeay32.dll', {fullpath: true, search: search, nopath: true}).absolute
                     libraries = [ 'libeay32.lib', 'ssleay32.lib' ]
                     libpaths = [ lib.parent ]
                     imports = [ lib.parent.join('libeay32.dll'), lib.parent.join('libeay32.lib'),
                         lib.parent.join('ssleay32.dll'), lib.parent.join('ssleay32.lib') ]
+                    let path = lib.dirname
                     includes = [ probe('openssl/ssl.h', {search: [path.join('inc32')]}).absolute ]
 
                 } else {
                     lib = probe('libcrypto.' + me.ext.shobj, {fullpath: true, search: search, nopath: true}).absolute
+                    let path = lib.dirname
                     libraries = [ 'ssl', 'crypto' ]
                     libpaths = [ lib.parent ]
                     imports = lib.parent.files('libssl*.' + me.ext.shobj + '*') + 
                         lib.parent.files('libcrypto*.' + me.ext.shobj + '*')
-                    includes = [ probe('openssl/ssl.h', {search: [ path.join('include'), '/usr/include']}).absolute ]
+                    includes = [ probe('openssl/ssl.h', {search: [ lib.join('include'), '/usr/include']}).absolute ]
                 }
                 return {
                     path:       lib.dirname,

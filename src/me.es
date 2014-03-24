@@ -920,7 +920,7 @@ public class Me {
                 delete target[n]
             }
         }
-        fixScripts(target, ['config', 'without', 'postconfig', 'generate'])
+        fixScripts(target, ['config', 'without', 'postconfig'])
         fixGoals(target, build)
 
         if (o.internal) {

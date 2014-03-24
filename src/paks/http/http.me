@@ -16,10 +16,11 @@ Me.load({
             sources: [ 'httpLib.c' ],
             headers: [ '*.h' ],
             depends: [ 'libmpr', 'libpcre' ],
+            ifdef:   [ 'http' ],
             scripts: {
                 postblend: "
                     let s = me.settings
-                    if (s.hasPam && s.http && s.http.pam) {
+                    if (me.settings.compiler.hasPam && me.settings.http && me.settings.http.pam) {
                         me.target.libraries.push('pam')
                     }
                 ",
@@ -29,9 +30,10 @@ Me.load({
         httpcmd: {
             path: '${BIN}/http${EXE}',
             type: 'exe',
-            sources: [ 'http.c' ],
-            depends: [ 'libhttp' ],
+            sources:   [ 'http.c' ],
+            depends:   [ 'libhttp' ],
             platforms: [ 'local' ],
+            ifdef:     [ 'http' ],
             postblend: function (target) {
                 if (target.static) {
                     target.depends += ['libmprssl']

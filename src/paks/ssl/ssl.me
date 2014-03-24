@@ -18,9 +18,13 @@ Me.load({
             config: function (target) {
                 let provider
                 for each (p in target.discovers) {
-                    if (me.targets[p].enable && me.targets[p].explicit) {
-                        provider = p
-                        break
+                    if (me.targets[p].explicit) {
+                        if (me.targets[p].enable) {
+                            provider = p
+                            break
+                        } else if (!me.targets[p].without) {
+                            throw 'Required SSL provider "' + p + '" is not enabled'
+                        }
                     }
                 }
                 for each (p in target.discovers) {
@@ -45,7 +49,7 @@ Me.load({
                     target.description += ' (' + me.targets[provider].description + ')'
 
                 } else {
-                    throw "No enabled SSL providers"
+                    throw 'No enabled SSL providers'
                 }
             },
             without: function(target) {
