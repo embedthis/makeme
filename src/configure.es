@@ -566,7 +566,14 @@ module embedthis.me {
                 target.path = target.path.compact()
             }
             if (target.env) {
-                blend(me.env, target.env, {combine: true})
+                let env = target.env.clone()
+                for each (field in ['PATH', 'INCLUDE', 'LIB']) {
+                    if (env[field]) {
+                        env['+' + field] = env[field]
+                        delete env[field]
+                    }
+                }
+                blend(me.env, env, {combine: true})
             }
             if (target.scripts && target.scripts.generate) {
                 print("WARNING: generate scripts are deprecated: ", target.name)
