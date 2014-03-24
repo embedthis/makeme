@@ -37,9 +37,7 @@
         }
     ],
     "dependencies": {
-        "me-dev": "~0.8",
-        "me-doc": "~0.8",
-        "me-package": "~0.8"
+        "me-dev": "~0.8"
     },
     "dirs": {
         "paks": "src/paks"

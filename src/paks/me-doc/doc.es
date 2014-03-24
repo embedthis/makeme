@@ -24,7 +24,7 @@ public function apidoc(dox: Path, headers, title: String, tags) {
     let data = api.join(name + '.dox').readString().replace(/^INPUT .*=.*$/m, 'INPUT = ' + headers)
     Path(doxtmp).write(data)
     trace('Generate', name.toPascal() + ' documentation')
-    run([me.extensions.doxygen.path, doxtmp], {dir: api})
+    run(['doxygen', doxtmp], {dir: api})
     if (output) {
         output.remove()
     }
@@ -36,7 +36,7 @@ public function apidoc(dox: Path, headers, title: String, tags) {
     files += ls(api.join('xml/group*')) + ls(api.join('xml/struct_*.xml'))
     let tstr = tags ? tags.map(function(i) '--tags ' + Path(i).absolute).join(' ') : ''
 
-    run('ejs ' + me.dir.makeme.join('gendoc.es') + ' --bare ' + '--title \"' + 
+    run('ejs ' + me.dir.src.join('src/paks/me-doc/gendoc.es') + ' --bare ' + '--title \"' + 
         me.settings.name.toUpper() + ' - ' + title + ' Native API\" --out ' + name + 
         'Bare.html ' +  tstr + ' ' + files.join(' '), {dir: api})
     if (!me.options.keep) {

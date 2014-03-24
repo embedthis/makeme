@@ -34,7 +34,7 @@ public function deploy(manifest, prefixes, package): Array {
         }
         let prior = App.dir
         if (item.home) {
-            App.chdir(item.home)
+            App.chdir(expand(item.home))
         }
         for (let [key,value] in item) {
             if (value is String && value.contains('${')) {
@@ -97,9 +97,9 @@ public function deploy(manifest, prefixes, package): Array {
             if (item.ifdef && me.generating) {
                 for each (r in item.ifdef) {
                     if (me.platform.os == 'windows') {
-                        gencmd('!IF "$(ME_EXT_' + r.toUpper() + ')" == "1"')
+                        gencmd('!IF "$(ME_COM_' + r.toUpper() + ')" == "1"')
                     } else {
-                        gencmd('if [ "$(ME_EXT_' + r.toUpper() + ')" = 1 ]; then true')
+                        gencmd('if [ "$(ME_COM_' + r.toUpper() + ')" = 1 ]; then true')
                     }
                 }
             }
@@ -109,6 +109,9 @@ public function deploy(manifest, prefixes, package): Array {
                     makeDir(dir, item)
                     strace('Create', dir.relativeTo(me.dir.top))
                 }
+            }
+            if (item.copy) {
+                eval('require ejs.unix\n' + expand(item.copy))
             }
             if (item.from) {
                 copy(item.from, item.to, item)
@@ -324,7 +327,6 @@ function cachePackage(package, prefixes, fmt) {
     let home = App.dir
     try {
         trace('Cache', me.settings.title + ' ' + version)
-        // UNUSED package.copy(base.join('bower.json'))
         App.chdir(staging)
         run('pak -f cache ' + me.platform.vname)
     } finally {
@@ -350,29 +352,6 @@ public function packagePak() {
         makeSimplePackage(package, prefixes, 'pak')
     }
 }
-
-
-/* UNUSED
-public function packageCombo() {
-    let [manifest, package, prefixes] = setupPackage('combo')
-    if (package) {
-        trace('Package', me.settings.title + ' Combo')
-        deploy(manifest, prefixes, package)
-        makeSimplePackage(package, prefixes, 'combo')
-    }
-}
-
-
-public function packageFlat() {
-    let [manifest, package, prefixes] = setupPackage('flat')
-    if (package) {
-        trace('Package', me.settings.title + ' Flat')
-        deploy(manifest, prefixes, package)
-        flatten()
-        makeSimplePackage(package, prefixes, 'flat')
-    }
-}
-*/
 
 
 function checkRoot() {
@@ -489,7 +468,6 @@ function makeSimplePackage(package, prefixes, fmt) {
     if (fmt == 'pak') {
         let base = prefixes.staging.join(me.platform.vname)
         let package = base.join('package.json')
-        // UNUSED package.copy(base.join('bower.json'))
     }
     let name = me.dir.rel.join(me.platform.vname + '-' + fmt + '.tar')
     let zname = name.replaceExt('tgz')
