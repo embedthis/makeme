@@ -1284,7 +1284,7 @@ module embedthis.me {
         if (me.target) {
             s = repvar2(s, me.target.home)
         } else {
-            s = repvar2(s, me.dirs.top)
+            s = repvar2(s, me.dir.top)
         }
         if (capture) {
             capture.push(s)
