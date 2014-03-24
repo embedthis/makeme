@@ -209,7 +209,7 @@ DEPS_6 += $(CONFIG)/obj/mprLib.o
 
 $(CONFIG)/bin/libmpr.dylib: $(DEPS_6)
 	@echo '      [Link] $(CONFIG)/bin/libmpr.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libmpr.dylib -arch $(CC_ARCH) -Wl,-rpath,@executable_path/ -Wl,-rpath,@loader_path/ $(LIBPATHS) -install_name @rpath/libmpr.dylib -compatibility_version 0.8.0 -current_version 0.8.0 "$(CONFIG)/obj/mprLib.o" $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libmpr.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libmpr.dylib -compatibility_version 0.8.0 -current_version 0.8.0 "$(CONFIG)/obj/mprLib.o" $(LIBS) 
 
 #
 #   pcre.h
@@ -240,7 +240,7 @@ DEPS_9 += $(CONFIG)/obj/pcre.o
 
 $(CONFIG)/bin/libpcre.dylib: $(DEPS_9)
 	@echo '      [Link] $(CONFIG)/bin/libpcre.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libpcre.dylib -arch $(CC_ARCH) -Wl,-rpath,@executable_path/ -Wl,-rpath,@loader_path/ -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libpcre.dylib -compatibility_version 0.8.0 -current_version 0.8.0 "$(CONFIG)/obj/pcre.o" $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libpcre.dylib -arch $(CC_ARCH) $(LDFLAGS) -compatibility_version 0.8.0 -current_version 0.8.0 $(LIBPATHS) -install_name @rpath/libpcre.dylib -compatibility_version 0.8.0 -current_version 0.8.0 "$(CONFIG)/obj/pcre.o" $(LIBS) 
 endif
 
 #
@@ -286,7 +286,7 @@ endif
 
 $(CONFIG)/bin/libhttp.dylib: $(DEPS_12)
 	@echo '      [Link] $(CONFIG)/bin/libhttp.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libhttp.dylib -arch $(CC_ARCH) -Wl,-rpath,@executable_path/ -Wl,-rpath,@loader_path/ $(LIBPATHS) -install_name @rpath/libhttp.dylib -compatibility_version 0.8.0 -current_version 0.8.0 "$(CONFIG)/obj/httpLib.o" $(LIBPATHS_12) $(LIBS_12) $(LIBS_12) $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libhttp.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libhttp.dylib -compatibility_version 0.8.0 -current_version 0.8.0 "$(CONFIG)/obj/httpLib.o" $(LIBPATHS_12) $(LIBS_12) $(LIBS_12) $(LIBS) 
 
 #
 #   zlib.h
@@ -317,7 +317,7 @@ DEPS_15 += $(CONFIG)/obj/zlib.o
 
 $(CONFIG)/bin/libzlib.dylib: $(DEPS_15)
 	@echo '      [Link] $(CONFIG)/bin/libzlib.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libzlib.dylib -arch $(CC_ARCH) -Wl,-rpath,@executable_path/ -Wl,-rpath,@loader_path/ $(LIBPATHS) -install_name @rpath/libzlib.dylib -compatibility_version 0.8.0 -current_version 0.8.0 "$(CONFIG)/obj/zlib.o" $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libzlib.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libzlib.dylib -compatibility_version 0.8.0 -current_version 0.8.0 "$(CONFIG)/obj/zlib.o" $(LIBS) 
 endif
 
 #
@@ -399,7 +399,7 @@ endif
 
 $(CONFIG)/bin/libejs.dylib: $(DEPS_20)
 	@echo '      [Link] $(CONFIG)/bin/libejs.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libejs.dylib -arch $(CC_ARCH) -Wl,-rpath,@executable_path/ -Wl,-rpath,@loader_path/ $(LIBPATHS) -install_name @rpath/libejs.dylib -compatibility_version 0.8.0 -current_version 0.8.0 "$(CONFIG)/obj/ejsLib.o" $(LIBPATHS_20) $(LIBS_20) $(LIBS_20) $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libejs.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libejs.dylib -compatibility_version 0.8.0 -current_version 0.8.0 "$(CONFIG)/obj/ejsLib.o" $(LIBPATHS_20) $(LIBS_20) $(LIBS_20) $(LIBS) 
 endif
 
 #
@@ -454,7 +454,7 @@ endif
 
 $(CONFIG)/bin/ejsc: $(DEPS_22)
 	@echo '      [Link] $(CONFIG)/bin/ejsc'
-	$(CC) -o $(CONFIG)/bin/ejsc -arch $(CC_ARCH) -Wl,-rpath,@executable_path/ -Wl,-rpath,@loader_path/ $(LIBPATHS) "$(CONFIG)/obj/ejsc.o" $(LIBPATHS_22) $(LIBS_22) $(LIBS_22) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/ejsc -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/ejsc.o" $(LIBPATHS_22) $(LIBS_22) $(LIBS_22) $(LIBS) 
 endif
 
 ifeq ($(ME_COM_EJS),1)
@@ -527,7 +527,7 @@ DEPS_26 += $(CONFIG)/obj/estLib.o
 
 $(CONFIG)/bin/libest.dylib: $(DEPS_26)
 	@echo '      [Link] $(CONFIG)/bin/libest.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libest.dylib -arch $(CC_ARCH) -Wl,-rpath,@executable_path/ -Wl,-rpath,@loader_path/ $(LIBPATHS) -install_name @rpath/libest.dylib -compatibility_version 0.8.0 -current_version 0.8.0 "$(CONFIG)/obj/estLib.o" $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libest.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libest.dylib -compatibility_version 0.8.0 -current_version 0.8.0 "$(CONFIG)/obj/estLib.o" $(LIBS) 
 endif
 
 #
@@ -572,7 +572,7 @@ endif
 
 $(CONFIG)/bin/libmprssl.dylib: $(DEPS_28)
 	@echo '      [Link] $(CONFIG)/bin/libmprssl.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libmprssl.dylib -arch $(CC_ARCH) -Wl,-rpath,@executable_path/ -Wl,-rpath,@loader_path/ $(LIBPATHS)   -install_name @rpath/libmprssl.dylib -compatibility_version 0.8.0 -current_version 0.8.0 "$(CONFIG)/obj/mprSsl.o" $(LIBPATHS_28) $(LIBS_28) $(LIBS_28) $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libmprssl.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)   -install_name @rpath/libmprssl.dylib -compatibility_version 0.8.0 -current_version 0.8.0 "$(CONFIG)/obj/mprSsl.o" $(LIBPATHS_28) $(LIBS_28) $(LIBS_28) $(LIBS) 
 
 #
 #   me.o
@@ -629,7 +629,7 @@ endif
 
 $(CONFIG)/bin/me: $(DEPS_30)
 	@echo '      [Link] $(CONFIG)/bin/me'
-	$(CC) -o $(CONFIG)/bin/me -arch $(CC_ARCH) -Wl,-rpath,@executable_path/ -Wl,-rpath,@loader_path/ $(LIBPATHS) "$(CONFIG)/obj/me.o" $(LIBPATHS_30) $(LIBS_30) $(LIBS_30) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/me -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/me.o" $(LIBPATHS_30) $(LIBS_30) $(LIBS_30) $(LIBS) 
 
 #
 #   me-core
@@ -642,7 +642,6 @@ DEPS_31 += src/configure/rc.me
 DEPS_31 += src/configure/vxworks.me
 DEPS_31 += src/configure/winsdk.me
 DEPS_31 += src/configure.es
-DEPS_31 += src/gendoc.es
 DEPS_31 += src/generate.es
 DEPS_31 += src/me.es
 DEPS_31 += src/os/freebsd.me
@@ -670,7 +669,6 @@ $(CONFIG)/bin/.updated: $(DEPS_31)
 	cp src/configure/winsdk.me $(CONFIG)/bin/configure/winsdk.me
 	mkdir -p "$(CONFIG)/bin"
 	cp src/configure.es $(CONFIG)/bin/configure.es
-	cp src/gendoc.es $(CONFIG)/bin/gendoc.es
 	cp src/generate.es $(CONFIG)/bin/generate.es
 	cp src/me.es $(CONFIG)/bin/me.es
 	mkdir -p "$(CONFIG)/bin/os"
@@ -726,7 +724,6 @@ installBinary: $(DEPS_33)
 	cp src/configure/vxworks.me $(ME_VAPP_PREFIX)/bin/configure/vxworks.me ; \
 	cp src/configure/winsdk.me $(ME_VAPP_PREFIX)/bin/configure/winsdk.me ; \
 	cp src/configure.es $(ME_VAPP_PREFIX)/bin/configure.es ; \
-	cp src/gendoc.es $(ME_VAPP_PREFIX)/bin/gendoc.es ; \
 	cp src/generate.es $(ME_VAPP_PREFIX)/bin/generate.es ; \
 	cp src/me.es $(ME_VAPP_PREFIX)/bin/me.es ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/os" ; \

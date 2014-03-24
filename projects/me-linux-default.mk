@@ -209,7 +209,7 @@ DEPS_6 += $(CONFIG)/obj/mprLib.o
 
 $(CONFIG)/bin/libmpr.so: $(DEPS_6)
 	@echo '      [Link] $(CONFIG)/bin/libmpr.so'
-	$(CC) -shared -o $(CONFIG)/bin/libmpr.so -rdynamic -Wl,--enable-new-dtags -Wl,-rpath,$ORIGIN/ $(LIBPATHS) "$(CONFIG)/obj/mprLib.o" $(LIBS) 
+	$(CC) -shared -o $(CONFIG)/bin/libmpr.so $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/mprLib.o" $(LIBS) 
 
 #
 #   pcre.h
@@ -240,7 +240,7 @@ DEPS_9 += $(CONFIG)/obj/pcre.o
 
 $(CONFIG)/bin/libpcre.so: $(DEPS_9)
 	@echo '      [Link] $(CONFIG)/bin/libpcre.so'
-	$(CC) -shared -o $(CONFIG)/bin/libpcre.so -rdynamic -Wl,--enable-new-dtags -Wl,-rpath,$ORIGIN/ $(LIBPATHS) "$(CONFIG)/obj/pcre.o" $(LIBS) 
+	$(CC) -shared -o $(CONFIG)/bin/libpcre.so $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/pcre.o" $(LIBS) 
 endif
 
 #
@@ -286,7 +286,7 @@ endif
 
 $(CONFIG)/bin/libhttp.so: $(DEPS_12)
 	@echo '      [Link] $(CONFIG)/bin/libhttp.so'
-	$(CC) -shared -o $(CONFIG)/bin/libhttp.so -rdynamic -Wl,--enable-new-dtags -Wl,-rpath,$ORIGIN/ $(LIBPATHS) "$(CONFIG)/obj/httpLib.o" $(LIBPATHS_12) $(LIBS_12) $(LIBS_12) $(LIBS) 
+	$(CC) -shared -o $(CONFIG)/bin/libhttp.so $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/httpLib.o" $(LIBPATHS_12) $(LIBS_12) $(LIBS_12) $(LIBS) 
 
 #
 #   zlib.h
@@ -317,7 +317,7 @@ DEPS_15 += $(CONFIG)/obj/zlib.o
 
 $(CONFIG)/bin/libzlib.so: $(DEPS_15)
 	@echo '      [Link] $(CONFIG)/bin/libzlib.so'
-	$(CC) -shared -o $(CONFIG)/bin/libzlib.so -rdynamic -Wl,--enable-new-dtags -Wl,-rpath,$ORIGIN/ $(LIBPATHS) "$(CONFIG)/obj/zlib.o" $(LIBS) 
+	$(CC) -shared -o $(CONFIG)/bin/libzlib.so $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/zlib.o" $(LIBS) 
 endif
 
 #
@@ -399,7 +399,7 @@ endif
 
 $(CONFIG)/bin/libejs.so: $(DEPS_20)
 	@echo '      [Link] $(CONFIG)/bin/libejs.so'
-	$(CC) -shared -o $(CONFIG)/bin/libejs.so -rdynamic -Wl,--enable-new-dtags -Wl,-rpath,$ORIGIN/ $(LIBPATHS) "$(CONFIG)/obj/ejsLib.o" $(LIBPATHS_20) $(LIBS_20) $(LIBS_20) $(LIBS) 
+	$(CC) -shared -o $(CONFIG)/bin/libejs.so $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/ejsLib.o" $(LIBPATHS_20) $(LIBS_20) $(LIBS_20) $(LIBS) 
 endif
 
 #
@@ -454,7 +454,7 @@ endif
 
 $(CONFIG)/bin/ejsc: $(DEPS_22)
 	@echo '      [Link] $(CONFIG)/bin/ejsc'
-	$(CC) -o $(CONFIG)/bin/ejsc -rdynamic -Wl,--enable-new-dtags -Wl,-rpath,$ORIGIN/ $(LIBPATHS) "$(CONFIG)/obj/ejsc.o" $(LIBPATHS_22) $(LIBS_22) $(LIBS_22) $(LIBS) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/ejsc $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/ejsc.o" $(LIBPATHS_22) $(LIBS_22) $(LIBS_22) $(LIBS) $(LIBS) 
 endif
 
 ifeq ($(ME_COM_EJS),1)
@@ -527,7 +527,7 @@ DEPS_26 += $(CONFIG)/obj/estLib.o
 
 $(CONFIG)/bin/libest.so: $(DEPS_26)
 	@echo '      [Link] $(CONFIG)/bin/libest.so'
-	$(CC) -shared -o $(CONFIG)/bin/libest.so -rdynamic -Wl,--enable-new-dtags -Wl,-rpath,$ORIGIN/ $(LIBPATHS) "$(CONFIG)/obj/estLib.o" $(LIBS) 
+	$(CC) -shared -o $(CONFIG)/bin/libest.so $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/estLib.o" $(LIBS) 
 endif
 
 #
@@ -572,7 +572,7 @@ endif
 
 $(CONFIG)/bin/libmprssl.so: $(DEPS_28)
 	@echo '      [Link] $(CONFIG)/bin/libmprssl.so'
-	$(CC) -shared -o $(CONFIG)/bin/libmprssl.so -rdynamic -Wl,--enable-new-dtags -Wl,-rpath,$ORIGIN/ $(LIBPATHS)   "$(CONFIG)/obj/mprSsl.o" $(LIBPATHS_28) $(LIBS_28) $(LIBS_28) $(LIBS) 
+	$(CC) -shared -o $(CONFIG)/bin/libmprssl.so $(LDFLAGS) $(LIBPATHS)   "$(CONFIG)/obj/mprSsl.o" $(LIBPATHS_28) $(LIBS_28) $(LIBS_28) $(LIBS) 
 
 #
 #   me.o
@@ -629,7 +629,7 @@ endif
 
 $(CONFIG)/bin/me: $(DEPS_30)
 	@echo '      [Link] $(CONFIG)/bin/me'
-	$(CC) -o $(CONFIG)/bin/me -rdynamic -Wl,--enable-new-dtags -Wl,-rpath,$ORIGIN/ $(LIBPATHS) "$(CONFIG)/obj/me.o" $(LIBPATHS_30) $(LIBS_30) $(LIBS_30) $(LIBS) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/me $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/me.o" $(LIBPATHS_30) $(LIBS_30) $(LIBS_30) $(LIBS) $(LIBS) 
 
 #
 #   me-core
@@ -642,7 +642,6 @@ DEPS_31 += src/configure/rc.me
 DEPS_31 += src/configure/vxworks.me
 DEPS_31 += src/configure/winsdk.me
 DEPS_31 += src/configure.es
-DEPS_31 += src/gendoc.es
 DEPS_31 += src/generate.es
 DEPS_31 += src/me.es
 DEPS_31 += src/os/freebsd.me
@@ -670,7 +669,6 @@ $(CONFIG)/bin/.updated: $(DEPS_31)
 	cp src/configure/winsdk.me $(CONFIG)/bin/configure/winsdk.me
 	mkdir -p "$(CONFIG)/bin"
 	cp src/configure.es $(CONFIG)/bin/configure.es
-	cp src/gendoc.es $(CONFIG)/bin/gendoc.es
 	cp src/generate.es $(CONFIG)/bin/generate.es
 	cp src/me.es $(CONFIG)/bin/me.es
 	mkdir -p "$(CONFIG)/bin/os"
@@ -726,7 +724,6 @@ installBinary: $(DEPS_33)
 	cp src/configure/vxworks.me $(ME_VAPP_PREFIX)/bin/configure/vxworks.me ; \
 	cp src/configure/winsdk.me $(ME_VAPP_PREFIX)/bin/configure/winsdk.me ; \
 	cp src/configure.es $(ME_VAPP_PREFIX)/bin/configure.es ; \
-	cp src/gendoc.es $(ME_VAPP_PREFIX)/bin/gendoc.es ; \
 	cp src/generate.es $(ME_VAPP_PREFIX)/bin/generate.es ; \
 	cp src/me.es $(ME_VAPP_PREFIX)/bin/me.es ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/os" ; \

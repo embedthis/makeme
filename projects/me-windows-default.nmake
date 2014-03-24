@@ -689,7 +689,6 @@ DEPS_31 = $(DEPS_31) src\configure\rc.me
 DEPS_31 = $(DEPS_31) src\configure\vxworks.me
 DEPS_31 = $(DEPS_31) src\configure\winsdk.me
 DEPS_31 = $(DEPS_31) src\configure.es
-DEPS_31 = $(DEPS_31) src\gendoc.es
 DEPS_31 = $(DEPS_31) src\generate.es
 DEPS_31 = $(DEPS_31) src\me.es
 DEPS_31 = $(DEPS_31) src\os\freebsd.me
@@ -717,7 +716,6 @@ $(CONFIG)\bin\.updated: $(DEPS_31)
 	copy /Y src\configure\winsdk.me $(CONFIG)\bin\configure\winsdk.me
 	if not exist "$(CONFIG)\bin" md "$(CONFIG)\bin"
 	copy /Y src\configure.es $(CONFIG)\bin\configure.es
-	copy /Y src\gendoc.es $(CONFIG)\bin\gendoc.es
 	copy /Y src\generate.es $(CONFIG)\bin\generate.es
 	copy /Y src\me.es $(CONFIG)\bin\me.es
 	if not exist "$(CONFIG)\bin\os" md "$(CONFIG)\bin\os"
@@ -787,7 +785,6 @@ installBinary: $(DEPS_35)
 	copy /Y src\configure\vxworks.me $(ME_VAPP_PREFIX)\bin\configure\vxworks.me
 	copy /Y src\configure\winsdk.me $(ME_VAPP_PREFIX)\bin\configure\winsdk.me
 	copy /Y src\configure.es $(ME_VAPP_PREFIX)\bin\configure.es
-	copy /Y src\gendoc.es $(ME_VAPP_PREFIX)\bin\gendoc.es
 	copy /Y src\generate.es $(ME_VAPP_PREFIX)\bin\generate.es
 	copy /Y src\me.es $(ME_VAPP_PREFIX)\bin\me.es
 	if not exist "$(ME_VAPP_PREFIX)\bin\os" md "$(ME_VAPP_PREFIX)\bin\os"

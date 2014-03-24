@@ -464,7 +464,7 @@ function groups(base: Path) {
 
 
 /*
-    Find all dependencies for a target. This chases through pseudo extension targets
+    Find all dependencies for a target
  */
 function getAllDeps(target, result = []) {
     if (target._getAllDeps) {
@@ -478,7 +478,19 @@ function getAllDeps(target, result = []) {
         let dep = me.targets[dname]
         if (dep && !result.contains(dep)) {
             getAllDeps(dep, result)
-            if (dep.enable && dep.type != 'extension' && dep.xtarget) { 
+            if (dep.enable && dep.xtarget) { 
+                result.push(dep)
+            }
+        }
+    }
+    for each (dname in target.uses) {
+        if (dname == target.name) {
+            continue
+        }
+        let dep = me.targets[dname]
+        if (dep && dep.enable && !result.contains(dep)) {
+            getAllDeps(dep, result)
+            if (dep.enable && dep.xtarget) { 
                 result.push(dep)
             }
         }

@@ -197,7 +197,7 @@ DEPS_5 += $(CONFIG)/inc/osdep.h
 $(CONFIG)/obj/mprLib.o: \
     src/paks/mpr/mprLib.c $(DEPS_5)
 	@echo '   [Compile] $(CONFIG)/obj/mprLib.o'
-	$(CC) -c -o $(CONFIG)/obj/mprLib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/mpr/mprLib.c
+	$(CC) -c -o $(CONFIG)/obj/mprLib.o $(LDFLAGS) -fPIC $(DFLAGS) $(IFLAGS) src/paks/mpr/mprLib.c
 
 #
 #   libmpr
@@ -209,7 +209,7 @@ DEPS_6 += $(CONFIG)/obj/mprLib.o
 
 $(CONFIG)/bin/libmpr.so: $(DEPS_6)
 	@echo '      [Link] $(CONFIG)/bin/libmpr.so'
-	$(CC) -shared -o $(CONFIG)/bin/libmpr.so $(LIBPATHS) "$(CONFIG)/obj/mprLib.o" $(LIBS) 
+	$(CC) -shared -o $(CONFIG)/bin/libmpr.so $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/mprLib.o" $(LIBS) 
 
 #
 #   pcre.h
@@ -228,7 +228,7 @@ DEPS_8 += $(CONFIG)/inc/pcre.h
 $(CONFIG)/obj/pcre.o: \
     src/paks/pcre/pcre.c $(DEPS_8)
 	@echo '   [Compile] $(CONFIG)/obj/pcre.o'
-	$(CC) -c -o $(CONFIG)/obj/pcre.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/pcre/pcre.c
+	$(CC) -c -o $(CONFIG)/obj/pcre.o $(LDFLAGS) -fPIC $(DFLAGS) $(IFLAGS) src/paks/pcre/pcre.c
 
 ifeq ($(ME_COM_PCRE),1)
 #
@@ -240,7 +240,7 @@ DEPS_9 += $(CONFIG)/obj/pcre.o
 
 $(CONFIG)/bin/libpcre.so: $(DEPS_9)
 	@echo '      [Link] $(CONFIG)/bin/libpcre.so'
-	$(CC) -shared -o $(CONFIG)/bin/libpcre.so $(LIBPATHS) "$(CONFIG)/obj/pcre.o" $(LIBS) 
+	$(CC) -shared -o $(CONFIG)/bin/libpcre.so $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/pcre.o" $(LIBS) 
 endif
 
 #
@@ -261,7 +261,7 @@ DEPS_11 += $(CONFIG)/inc/mpr.h
 $(CONFIG)/obj/httpLib.o: \
     src/paks/http/httpLib.c $(DEPS_11)
 	@echo '   [Compile] $(CONFIG)/obj/httpLib.o'
-	$(CC) -c -o $(CONFIG)/obj/httpLib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/http/httpLib.c
+	$(CC) -c -o $(CONFIG)/obj/httpLib.o $(LDFLAGS) -fPIC $(DFLAGS) $(IFLAGS) src/paks/http/httpLib.c
 
 #
 #   libhttp
@@ -286,7 +286,7 @@ endif
 
 $(CONFIG)/bin/libhttp.so: $(DEPS_12)
 	@echo '      [Link] $(CONFIG)/bin/libhttp.so'
-	$(CC) -shared -o $(CONFIG)/bin/libhttp.so $(LIBPATHS) "$(CONFIG)/obj/httpLib.o" $(LIBPATHS_12) $(LIBS_12) $(LIBS_12) $(LIBS) 
+	$(CC) -shared -o $(CONFIG)/bin/libhttp.so $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/httpLib.o" $(LIBPATHS_12) $(LIBS_12) $(LIBS_12) $(LIBS) 
 
 #
 #   zlib.h
@@ -305,7 +305,7 @@ DEPS_14 += $(CONFIG)/inc/zlib.h
 $(CONFIG)/obj/zlib.o: \
     src/paks/zlib/zlib.c $(DEPS_14)
 	@echo '   [Compile] $(CONFIG)/obj/zlib.o'
-	$(CC) -c -o $(CONFIG)/obj/zlib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/zlib/zlib.c
+	$(CC) -c -o $(CONFIG)/obj/zlib.o $(LDFLAGS) -fPIC $(DFLAGS) $(IFLAGS) src/paks/zlib/zlib.c
 
 ifeq ($(ME_COM_ZLIB),1)
 #
@@ -317,7 +317,7 @@ DEPS_15 += $(CONFIG)/obj/zlib.o
 
 $(CONFIG)/bin/libzlib.so: $(DEPS_15)
 	@echo '      [Link] $(CONFIG)/bin/libzlib.so'
-	$(CC) -shared -o $(CONFIG)/bin/libzlib.so $(LIBPATHS) "$(CONFIG)/obj/zlib.o" $(LIBS) 
+	$(CC) -shared -o $(CONFIG)/bin/libzlib.so $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/zlib.o" $(LIBS) 
 endif
 
 #
@@ -359,7 +359,7 @@ DEPS_19 += $(CONFIG)/inc/zlib.h
 $(CONFIG)/obj/ejsLib.o: \
     src/paks/ejs/ejsLib.c $(DEPS_19)
 	@echo '   [Compile] $(CONFIG)/obj/ejsLib.o'
-	$(CC) -c -o $(CONFIG)/obj/ejsLib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/ejs/ejsLib.c
+	$(CC) -c -o $(CONFIG)/obj/ejsLib.o $(LDFLAGS) -fPIC $(DFLAGS) $(IFLAGS) src/paks/ejs/ejsLib.c
 
 ifeq ($(ME_COM_EJS),1)
 #
@@ -399,7 +399,7 @@ endif
 
 $(CONFIG)/bin/libejs.so: $(DEPS_20)
 	@echo '      [Link] $(CONFIG)/bin/libejs.so'
-	$(CC) -shared -o $(CONFIG)/bin/libejs.so $(LIBPATHS) "$(CONFIG)/obj/ejsLib.o" $(LIBPATHS_20) $(LIBS_20) $(LIBS_20) $(LIBS) 
+	$(CC) -shared -o $(CONFIG)/bin/libejs.so $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/ejsLib.o" $(LIBPATHS_20) $(LIBS_20) $(LIBS_20) $(LIBS) 
 endif
 
 #
@@ -411,7 +411,7 @@ DEPS_21 += $(CONFIG)/inc/ejs.h
 $(CONFIG)/obj/ejsc.o: \
     src/paks/ejs/ejsc.c $(DEPS_21)
 	@echo '   [Compile] $(CONFIG)/obj/ejsc.o'
-	$(CC) -c -o $(CONFIG)/obj/ejsc.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/ejs/ejsc.c
+	$(CC) -c -o $(CONFIG)/obj/ejsc.o $(LDFLAGS) -fPIC $(DFLAGS) $(IFLAGS) src/paks/ejs/ejsc.c
 
 ifeq ($(ME_COM_EJS),1)
 #
@@ -454,7 +454,7 @@ endif
 
 $(CONFIG)/bin/ejsc: $(DEPS_22)
 	@echo '      [Link] $(CONFIG)/bin/ejsc'
-	$(CC) -o $(CONFIG)/bin/ejsc $(LIBPATHS) "$(CONFIG)/obj/ejsc.o" $(LIBPATHS_22) $(LIBS_22) $(LIBS_22) $(LIBS) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/ejsc $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/ejsc.o" $(LIBPATHS_22) $(LIBS_22) $(LIBS_22) $(LIBS) $(LIBS) 
 endif
 
 ifeq ($(ME_COM_EJS),1)
@@ -514,7 +514,7 @@ DEPS_25 += $(CONFIG)/inc/osdep.h
 $(CONFIG)/obj/estLib.o: \
     src/paks/est/estLib.c $(DEPS_25)
 	@echo '   [Compile] $(CONFIG)/obj/estLib.o'
-	$(CC) -c -o $(CONFIG)/obj/estLib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/est/estLib.c
+	$(CC) -c -o $(CONFIG)/obj/estLib.o $(LDFLAGS) -fPIC $(DFLAGS) $(IFLAGS) src/paks/est/estLib.c
 
 ifeq ($(ME_COM_EST),1)
 #
@@ -527,7 +527,7 @@ DEPS_26 += $(CONFIG)/obj/estLib.o
 
 $(CONFIG)/bin/libest.so: $(DEPS_26)
 	@echo '      [Link] $(CONFIG)/bin/libest.so'
-	$(CC) -shared -o $(CONFIG)/bin/libest.so $(LIBPATHS) "$(CONFIG)/obj/estLib.o" $(LIBS) 
+	$(CC) -shared -o $(CONFIG)/bin/libest.so $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/estLib.o" $(LIBS) 
 endif
 
 #
@@ -540,7 +540,7 @@ DEPS_27 += $(CONFIG)/inc/est.h
 $(CONFIG)/obj/mprSsl.o: \
     src/paks/mpr/mprSsl.c $(DEPS_27)
 	@echo '   [Compile] $(CONFIG)/obj/mprSsl.o'
-	$(CC) -c -o $(CONFIG)/obj/mprSsl.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_EXT_MATRIXSSL_PATH)" "-I$(ME_EXT_MATRIXSSL_PATH)/matrixssl" "-I$(ME_EXT_NANOSSL_PATH)/src" src/paks/mpr/mprSsl.c
+	$(CC) -c -o $(CONFIG)/obj/mprSsl.o $(LDFLAGS) -fPIC $(DFLAGS) $(IFLAGS) "-I$(ME_EXT_MATRIXSSL_PATH)" "-I$(ME_EXT_MATRIXSSL_PATH)/matrixssl" "-I$(ME_EXT_NANOSSL_PATH)/src" src/paks/mpr/mprSsl.c
 
 #
 #   libmprssl
@@ -572,7 +572,7 @@ endif
 
 $(CONFIG)/bin/libmprssl.so: $(DEPS_28)
 	@echo '      [Link] $(CONFIG)/bin/libmprssl.so'
-	$(CC) -shared -o $(CONFIG)/bin/libmprssl.so $(LIBPATHS)   "$(CONFIG)/obj/mprSsl.o" $(LIBPATHS_28) $(LIBS_28) $(LIBS_28) $(LIBS) 
+	$(CC) -shared -o $(CONFIG)/bin/libmprssl.so $(LDFLAGS) $(LIBPATHS)   "$(CONFIG)/obj/mprSsl.o" $(LIBPATHS_28) $(LIBS_28) $(LIBS_28) $(LIBS) 
 
 #
 #   me.o
@@ -583,7 +583,7 @@ DEPS_29 += $(CONFIG)/inc/ejs.h
 $(CONFIG)/obj/me.o: \
     src/me.c $(DEPS_29)
 	@echo '   [Compile] $(CONFIG)/obj/me.o'
-	$(CC) -c -o $(CONFIG)/obj/me.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/me.c
+	$(CC) -c -o $(CONFIG)/obj/me.o $(LDFLAGS) -fPIC $(DFLAGS) $(IFLAGS) src/me.c
 
 #
 #   me
@@ -629,7 +629,7 @@ endif
 
 $(CONFIG)/bin/me: $(DEPS_30)
 	@echo '      [Link] $(CONFIG)/bin/me'
-	$(CC) -o $(CONFIG)/bin/me $(LIBPATHS) "$(CONFIG)/obj/me.o" $(LIBPATHS_30) $(LIBS_30) $(LIBS_30) $(LIBS) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/me $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/me.o" $(LIBPATHS_30) $(LIBS_30) $(LIBS_30) $(LIBS) $(LIBS) 
 
 #
 #   me-core
@@ -642,7 +642,6 @@ DEPS_31 += src/configure/rc.me
 DEPS_31 += src/configure/vxworks.me
 DEPS_31 += src/configure/winsdk.me
 DEPS_31 += src/configure.es
-DEPS_31 += src/gendoc.es
 DEPS_31 += src/generate.es
 DEPS_31 += src/me.es
 DEPS_31 += src/os/freebsd.me
@@ -670,7 +669,6 @@ $(CONFIG)/bin/.updated: $(DEPS_31)
 	cp src/configure/winsdk.me $(CONFIG)/bin/configure/winsdk.me
 	mkdir -p "$(CONFIG)/bin"
 	cp src/configure.es $(CONFIG)/bin/configure.es
-	cp src/gendoc.es $(CONFIG)/bin/gendoc.es
 	cp src/generate.es $(CONFIG)/bin/generate.es
 	cp src/me.es $(CONFIG)/bin/me.es
 	mkdir -p "$(CONFIG)/bin/os"
@@ -726,7 +724,6 @@ installBinary: $(DEPS_33)
 	cp src/configure/vxworks.me $(ME_VAPP_PREFIX)/bin/configure/vxworks.me ; \
 	cp src/configure/winsdk.me $(ME_VAPP_PREFIX)/bin/configure/winsdk.me ; \
 	cp src/configure.es $(ME_VAPP_PREFIX)/bin/configure.es ; \
-	cp src/gendoc.es $(ME_VAPP_PREFIX)/bin/gendoc.es ; \
 	cp src/generate.es $(ME_VAPP_PREFIX)/bin/generate.es ; \
 	cp src/me.es $(ME_VAPP_PREFIX)/bin/me.es ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/os" ; \
