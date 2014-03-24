@@ -1139,6 +1139,10 @@ module embedthis.me {
      */
     function repcmd(command: String): String {
         if (me.generating == 'make' || me.generating == 'nmake') {
+            if (gen.linker != '') {
+                /* Linker has -g which is also in minimal C flags */
+                command = rep(command, gen.linker, '$(LDFLAGS)')
+            }
             for each (word in minimalCflags) {
                 command = rep(command, word, '')
             }
@@ -1151,9 +1155,6 @@ module embedthis.me {
                 command = rep(command, gen.compiler, '$(CFLAGS)')
             } else {
                 command = rep(command, ' -c ', ' -c $(CFLAGS) ')
-            }
-            if (gen.linker != '') {
-                command = rep(command, gen.linker, '$(LDFLAGS)')
             }
             command = rep(command, gen.libpaths, '$(LIBPATHS)')
             command = rep(command, gen.includes, '$(IFLAGS)')
@@ -1173,6 +1174,9 @@ module embedthis.me {
             }
 
         } else if (me.generating == 'sh') {
+            if (gen.linker != '') {
+                command = rep(command, gen.linker, '${LDFLAGS}')
+            }
             for each (word in minimalCflags) {
                 command = rep(command, word, '')
             }
