@@ -53,7 +53,7 @@ module embedthis.me {
         let cpack = me.targets.compiler
         let cflags = cpack.compiler.join(' ')
         for each (word in minimalCflags) {
-            cflags = cflags.replace(word, '')
+            cflags = cflags.replace(word + ' ', ' ')
         }
         cflags = cflags.replace(/^ *$/, '')
         gen = {
@@ -190,7 +190,7 @@ module embedthis.me {
         }
         let cflags = gen.compiler
         for each (word in minimalCflags) {
-            cflags = cflags.replace(word, '')
+            cflags = cflags.replace(word + ' ', ' ')
         }
         cflags += ' -w'
         genout.writeLine('CFLAGS="' + cflags.trim() + '"')
@@ -451,7 +451,7 @@ module embedthis.me {
 
         let cflags = gen.compiler
         for each (word in minimalCflags) {
-            cflags = cflags.replace(word, '')
+            cflags = cflags.replace(word + ' ', ' ')
         }
         cflags += ' -w'
         genout.writeLine('CFLAGS                += ' + cflags.trim())
@@ -1144,7 +1144,7 @@ module embedthis.me {
                 command = rep(command, gen.linker, '$(LDFLAGS)')
             }
             for each (word in minimalCflags) {
-                command = rep(command, word, '')
+                command = rep(command, word + ' ', ' ')
             }
             if (gen.defines != '') {
                 command = rep(command, gen.defines, '$(DFLAGS)')
@@ -1178,7 +1178,7 @@ module embedthis.me {
                 command = rep(command, gen.linker, '${LDFLAGS}')
             }
             for each (word in minimalCflags) {
-                command = rep(command, word, '')
+                command = rep(command, word + ' ', ' ')
             }
             if (gen.defines != '') {
                 command = rep(command, gen.defines, '${DFLAGS}')
@@ -1206,7 +1206,7 @@ module embedthis.me {
                 command = repCmd(command, me.targets.link.path, '${LD}')
             }
             for each (word in minimalCflags) {
-                command = rep(command, word, '')
+                command = rep(command, word + ' ', ' ')
             }
         }
         if (me.generating == 'nmake') {
