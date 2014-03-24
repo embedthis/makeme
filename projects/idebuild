@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#   idebuild -- Build a project using the native IDE
+#   idebuild -- Build a project using the native IDE 
 #
 
 PRODUCT=me
