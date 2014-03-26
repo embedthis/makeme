@@ -2126,13 +2126,14 @@ PUBLIC bool httpNeedRetry(HttpConn *conn, char **url)
             }
             return 1;
         }
-    } else if (HTTP_CODE_MOVED_PERMANENTLY <= rx->status && rx->status <= HTTP_CODE_MOVED_TEMPORARILY && conn->followRedirects) {
+    } else if (HTTP_CODE_MOVED_PERMANENTLY <= rx->status && rx->status <= HTTP_CODE_MOVED_TEMPORARILY && 
+            conn->followRedirects) {
         if (rx->redirect) {
             *url = rx->redirect;
             return 1;
         }
         httpError(conn, rx->status, "Missing location header");
-        return -1;
+        return 0;
     }
     return 0;
 }
@@ -2836,11 +2837,13 @@ PUBLIC HttpConn *httpAcceptConn(HttpEndpoint *endpoint, MprEvent *event)
     address = conn->address;
     if (address && address->banUntil > http->now) {
         if (address->banStatus) {
-            httpError(conn, HTTP_CLOSE | address->banStatus, address->banMsg ? address->banMsg : "Client banned");
-        } else if (address->banMsg) {
-            httpError(conn, HTTP_CLOSE | HTTP_CODE_NOT_ACCEPTABLE, address->banMsg);
+            httpError(conn, HTTP_CLOSE | address->banStatus, 
+                "Connection refused, client banned: %s", address->banMsg ? address->banMsg : "");
+        } else if (address->banMsg && address->banMsg) {
+            httpError(conn, HTTP_CLOSE | HTTP_CODE_NOT_ACCEPTABLE, 
+                "Connection refused, client banned: %s", address->banMsg ? address->banMsg : "");
         } else {
-            httpDisconnect(conn);
+            httpDestroyConn(conn);
             return 0;
         }
     }
@@ -4392,11 +4395,10 @@ static void errorv(HttpConn *conn, int flags, cchar *fmt, va_list args)
     cchar       *uri;
     int         status;
 
-    assert(fmt);
     rx = conn->rx;
     tx = conn->tx;
 
-    if (conn == 0) {
+    if (conn == 0 || fmt == 0) {
         return;
     }
     status = flags & HTTP_CODE_MASK;
@@ -5251,24 +5253,26 @@ static void checkCounter(HttpMonitor *monitor, HttpCounter *counter, cchar *ip)
 
     if (monitor->expr == '>') {
         if (counter->value > monitor->limit) {
-            fmt = "WARNING: Monitor%s for %s at %Ld / %Ld secs exceeds limit of %Ld";
+            fmt = "Monitor%s for \"%s\". Value %Ld per %Ld secs exceeds limit of %Ld.";
         }
 
     } else if (monitor->expr == '>') {
         if (counter->value < monitor->limit) {
-            fmt = "WARNING: Monitor%s for %s at %Ld / %Ld secs outside limit of %Ld";
+            fmt = "Monitor%s for \"%s\". Value %Ld per %Ld secs outside limit of %Ld.";
         }
     }
     if (fmt) {
         period = monitor->period / 1000;
         address = ip ? sfmt(" %s", ip) : "";
         msg = sfmt(fmt, address, monitor->counterName, counter->value, period, monitor->limit);
+        mprLog(2, "%s", msg);
+
         subject = sfmt("Monitor %s Alert", monitor->counterName);
         args = mprDeserialize(
             sfmt("{ COUNTER: '%s', DATE: '%s', IP: '%s', LIMIT: %Ld, MESSAGE: '%s', PERIOD: %Ld, SUBJECT: '%s', VALUE: %Ld }", 
             monitor->counterName, mprGetDate(NULL), ip, monitor->limit, msg, period, subject, counter->value));
         /*  
-            WARNING: yields 
+            WARNING: may yield depending on remedy
          */
         invokeDefenses(monitor, args);
     }
@@ -5279,7 +5283,7 @@ static void checkCounter(HttpMonitor *monitor, HttpCounter *counter, cchar *ip)
 
 
 /*
-    WARNING: this routine yields
+    WARNING: this routine may yield
  */
 static void checkMonitor(HttpMonitor *monitor, MprEvent *event)
 {
@@ -5323,17 +5327,20 @@ static void checkMonitor(HttpMonitor *monitor, MprEvent *event)
                     Expire old records
                  */
                 if ((address->updated + http->monitorMaxPeriod) < http->now) {
-                    mprRemoveKey(http->addresses, kp->key);
-                    removed = 1;
-                    break;
+                    if (address->banUntil < http->now) {
+                        mprLog(1, "Remove ban on client %s", kp->key);
+                        mprRemoveKey(http->addresses, kp->key);
+                        removed = 1;
+                        break;
+                    }
                 }
             }
         } while (removed);
-        unlock(http->addresses);
 
         if (mprGetHashLength(http->addresses) == 0) {
             stopMonitors();
         }
+        unlock(http->addresses);
         return;
     }
 }
@@ -5382,8 +5389,8 @@ PUBLIC int httpAddMonitor(cchar *counterName, cchar *expr, uint64 limit, MprTick
     tok = sclone(defenses);
     while ((def = stok(tok, " \t", &tok)) != 0) {
         if ((defense = mprLookupKey(http->defenses, def)) == 0) {
-            mprError("Cannot find defense \"%s\"", def);
-            return 0;
+            mprError("Cannot find Defense \"%s\"", def);
+            return MPR_ERR_CANT_FIND;
         }
         mprAddItem(defenseList, defense);
     }
@@ -5439,10 +5446,10 @@ static void stopMonitors()
     Http            *http;
     int             next;
 
-    mprTrace(4, "Stop monitors");
     http = MPR->httpService;
     lock(http);
     if (http->monitorsStarted) {
+        mprTrace(4, "Stop monitors");
         for (ITERATE_ITEMS(http->monitors, monitor, next)) {
             if (monitor->timer) {
                 mprStopContinuousEvent(monitor->timer);
@@ -5600,9 +5607,11 @@ PUBLIC int httpBanClient(cchar *ip, MprTicks period, int status, cchar *msg)
     }
     banUntil = http->now + period;
     address->banUntil = max(banUntil, address->banUntil);
-    address->banMsg = msg;
+    if (msg && *msg) {
+        address->banMsg = sclone(msg);
+    }
     address->banStatus = status;
-    mprLog(1, "Client %s banned for %Ld secs. %s", ip, period / 1000, address->banMsg ? address->banMsg : "");
+    mprLog(1, "Client %s banned for %Ld secs", ip, period / 1000);
     return 0;
 }
 
@@ -5661,6 +5670,7 @@ static void cmdRemedy(MprHash *args)
         mprError("Cannot start command: %s", command);
         return;
     }
+    mprLog(1, "Cmd data: %s", data);
     if (data && mprWriteCmdBlock(cmd, MPR_CMD_STDIN, data, -1) < 0) {
         mprError("Cannot write to command: %s", command);
         return;
@@ -5733,6 +5743,7 @@ static void httpRemedy(MprHash *args)
 }
 
 
+/* TODO - message already logged at level 2 */
 static void logRemedy(MprHash *args)
 {
     mprLog(0, "%s", mprLookupKey(args, "MESSAGE"));
@@ -11817,7 +11828,9 @@ static bool parseIncoming(HttpConn *conn)
     HttpRx      *rx;
     HttpAddress *address;
     HttpPacket  *packet;
+    HttpLimits  *limits;
     ssize       len;
+    int64       value;
     char        *start, *end;
 
     if ((packet = conn->input) == 0) {
@@ -11830,6 +11843,22 @@ static bool parseIncoming(HttpConn *conn)
     assert(conn->rx);
     assert(conn->tx);
     rx = conn->rx;
+    limits = conn->limits;
+
+    if (httpServerConn(conn) && !conn->activeRequest) {
+        /*
+            ErrorDocuments may come through here twice so test activeRequest to keep counters valid.
+         */
+        conn->activeRequest = 1;
+        if ((value = httpMonitorEvent(conn, HTTP_COUNTER_ACTIVE_REQUESTS, 1)) >= limits->requestsPerClientMax) {
+            httpError(conn, HTTP_ABORT | HTTP_CODE_SERVICE_UNAVAILABLE, 
+                "Too many concurrent requests for client: %s %d/%d", conn->ip, (int) value, 
+                limits->requestsPerClientMax);
+            return 0;
+        }
+        httpMonitorEvent(conn, HTTP_COUNTER_REQUESTS, 1);
+    }
+
     if ((len = httpGetPacketLength(packet)) == 0) {
         return 0;
     }
@@ -11842,16 +11871,16 @@ static bool parseIncoming(HttpConn *conn)
         Don't start processing until all the headers have been received (delimited by two blank lines)
      */
     if ((end = sncontains(start, "\r\n\r\n", len)) == 0 && (end = sncontains(start, "\n\n", len)) == 0) {
-        if (len >= conn->limits->headerSize) {
+        if (len >= limits->headerSize) {
             httpLimitError(conn, HTTP_ABORT | HTTP_CODE_REQUEST_TOO_LARGE, 
-                "Header too big. Length %d vs limit %d", len, conn->limits->headerSize);
+                "Header too big. Length %d vs limit %d", len, limits->headerSize);
         }
         return 0;
     }
     len = end - start;
-    if (len >= conn->limits->headerSize) {
+    if (len >= limits->headerSize) {
         httpLimitError(conn, HTTP_ABORT | HTTP_CODE_REQUEST_TOO_LARGE, "Header too big. Length %d vs limit %d", len, 
-            conn->limits->headerSize);
+            limits->headerSize);
         return 0;
     }
     if (httpServerConn(conn)) {
@@ -12040,17 +12069,6 @@ static bool parseRequestLine(HttpConn *conn, HttpPacket *packet)
     conn->startMark = mprGetHiResTicks();
     conn->started = conn->http->now;
 
-    /*
-        ErrorDocuments may come through here twice so test activeRequest to keep counters valid.
-     */
-    if (httpServerConn(conn) && !conn->activeRequest) {
-        conn->activeRequest = 1;
-        if (httpMonitorEvent(conn, HTTP_COUNTER_ACTIVE_REQUESTS, 1) >= limits->requestsPerClientMax) {
-            httpError(conn, HTTP_ABORT | HTTP_CODE_SERVICE_UNAVAILABLE, "Too many concurrent requests for client: %s", conn->ip);
-            return 0;
-        }
-        httpMonitorEvent(conn, HTTP_COUNTER_REQUESTS, 1);
-    }
     traceRequest(conn, packet);
     rx->originalMethod = rx->method = supper(getToken(conn, 0));
     parseMethod(conn);

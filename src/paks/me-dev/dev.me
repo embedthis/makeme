@@ -61,7 +61,6 @@ Me.load({
 
         upload: {
             action: `
-                //  UNUSED
                 me.settings.depth = App.getenv('BUILD_DEPTH') || 1
                 if (me.settings.depth < 2) {
                     trace('Info', 'Upload skipped at build depth ' + me.settings.depth)

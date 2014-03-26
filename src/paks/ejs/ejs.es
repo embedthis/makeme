@@ -2511,7 +2511,7 @@ module ejs {
          */
         static function locate(program: Path, search = []): Path? {
             search += App.getenv("PATH").split(App.SearchSeparator)
-            for each (dir in App.getenv("PATH").split(App.SearchSeparator)) {
+            for each (dir in search) {
                 let path = Path(dir).join(program)
                 if (path.exists && !path.isDir) {
                     return path

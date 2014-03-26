@@ -906,7 +906,7 @@ typedef int64 Ticks;
 /*
     Deprecated API warnings
  */
-#if (__GNUC__ >= 3) || MACOSX
+#if ((__GNUC__ >= 3) || MACOSX) && !VXWORKS
     #define ME_DEPRECATED(MSG) __attribute__ ((deprecated(MSG)))
 #else
     #define ME_DEPRECATED(MSG) 
