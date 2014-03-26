@@ -133,7 +133,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
             err = MPR_ERR;
         }
     }
-    if (!err) {
+    if (err) {
         mprSetExitStatus(err);
     }
     app->ejs = 0;
