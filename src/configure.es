@@ -380,9 +380,6 @@ module embedthis.me {
                         b.loadMeFile(pak)
                         target.path ||= path
                         target.diagnostic = 'Load component from pak: ' + pak
-                        /* UNUSED if (target.enable == null) {
-                            target.enable ||= true
-                        } */
                     } else {
                         path = findComponent(target.name)
                         if (path) {
@@ -402,6 +399,7 @@ module embedthis.me {
                     }
                 }
                 target.loaded = true
+                delete target.bare
             }
       
             if (!target.description) {
@@ -446,13 +444,15 @@ module embedthis.me {
         for each (name in components) {
             let target = me.targets[name]
             if (target) {
-                target.loaded = true
+                if (!target.bare) {
+                    target.loaded = true
+                }
             } else {
                 target = {}
                 me.targets[name] = target
-                target.created = true
+                target.bare = true
+                target.name = name
             }
-            target.name ||= name
             target.type ||= 'group'
             target.configurable = true
         }
