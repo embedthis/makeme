@@ -190,6 +190,8 @@ function getCompilerSettings(cc) {
         settings.warnUnused = compile(cc, '-Wno-unused-result',
             '#include <stdio.h>\n#include <stdlib.h>\nint main() { realloc(0, 1024); return 0; }')
         settings.warn64to32 = compile(cc, '-Wshorten-64-to-32', 'int main() { return 0;}')
+    } else {
+        settings = getDefaultSettings()
     }
     return settings
 }
