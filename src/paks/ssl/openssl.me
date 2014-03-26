@@ -16,7 +16,7 @@ Me.load({
                             ? ([ 'libeay32.lib', 'ssleay32.lib' ]) : ([ 'ssl', 'crypto' ]),
                     }
                 }
-                let lib, libraries, libpaths, imports, includes
+                let lib, libraries, libpaths, imports, includes, path
                 /*
                     Convention for build farm
                  */
@@ -36,12 +36,12 @@ Me.load({
                     libpaths = [ lib.parent ]
                     imports = [ lib.parent.join('libeay32.dll'), lib.parent.join('libeay32.lib'),
                         lib.parent.join('ssleay32.dll'), lib.parent.join('ssleay32.lib') ]
-                    let path = lib.dirname.parent
+                    path = lib.dirname.parent
                     includes = [ probe('openssl/ssl.h', {search: [path.join('inc32')]}).absolute ]
 
                 } else {
                     lib = probe('libcrypto.' + me.ext.shobj, {fullpath: true, search: search, nopath: true}).absolute
-                    let path = lib.dirname
+                    path = lib.dirname
                     libraries = [ 'ssl', 'crypto' ]
                     libpaths = [ lib.parent ]
                     imports = lib.parent.files('libssl*.' + me.ext.shobj + '*') + 
