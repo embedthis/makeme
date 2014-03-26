@@ -38,7 +38,7 @@ Me.load({
                     libpaths = [ lib.parent ]
                     imports = lib.parent.files('libssl*.' + me.ext.shobj + '*') + 
                         lib.parent.files('libcrypto*.' + me.ext.shobj + '*')
-                    includes = [ probe('openssl/ssl.h', {search: [ lib.join('include'), '/usr/include']}).absolute ]
+                    includes = [ probe('openssl/ssl.h', {search: [ path.join('include'), '/usr/include']}).absolute ]
                 }
                 return {
                     path:       lib.dirname,

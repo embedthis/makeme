@@ -769,6 +769,7 @@ PUBLIC void httpDefineRouteBuiltins();
     @stability Internal
  */
 typedef struct HttpStats {
+    uint64  ram;                        /**< System total RAM */
     uint64  mem;                        /**< Current application memory */
     uint64  memRedline;                 /**< Memory heap warnHeap limit */
     uint64  memMax;                     /**< Memory heap maximum permitted */
@@ -777,6 +778,7 @@ typedef struct HttpStats {
     uint64  heap;                       /**< Current application heap memory */
     uint64  heapUsed;                   /**< Current heap memory in use */
     uint64  heapFree;                   /**< Current heap memory available */
+    uint    heapRegions;                /**< Count of heap memory regions */
 
     int     workersBusy;                /**< Current busy worker threads */
     int     workersIdle;                /**< Current idle worker threads */
@@ -792,8 +794,8 @@ typedef struct HttpStats {
     uint64  totalSweeps;                /**< Total GC sweeps */
     uint64  totalRequests;              /**< Total requests served */
     uint64  totalConnections;           /**< Total connections accepted */
+    uint64  cpu;                        /**< CPU usage */
 
-    int     regions;                    /**< Current memory region count */
     int     cpus;
 } HttpStats;
 

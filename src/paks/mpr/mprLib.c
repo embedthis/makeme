@@ -1286,7 +1286,7 @@ static void sweep()
 {
     MprRegion   *region, *nextRegion, *prior, *rp;
     MprMem      *mp, *next;
-    int         joinBlocks;
+    int         joinBlocks, rcount;
 
     if (!heap->gcEnabled) {
         mprTrace(0, "DEBUG: sweep: Abort sweep - GC disabled");
@@ -1309,6 +1309,7 @@ static void sweep()
         the front of heap->regions. This code is the only code that frees regions.
      */
     prior = NULL;
+    rcount = 0;
     for (region = heap->regions; region; region = nextRegion) {
         nextRegion = region->next;
         joinBlocks = heap->stats.bytesFree >= heap->stats.cacheHeap;
@@ -1380,8 +1381,11 @@ static void sweep()
             INC(unpins);
         } else {
             prior = region;
+            rcount++;
         }
     }
+    heap->stats.heapRegions = rcount;
+    heap->stats.sweeps++;
 #if (ME_MPR_ALLOC_STATS && ME_MPR_ALLOC_DEBUG) && KEEP
     printf("GC: Marked %lld / %lld, Swept %lld / %lld, freed %lld, bytesFree %lld (prior %lld)\n"
                  "    WeightedCount %d / %d, allocated blocks %lld allocated bytes %lld\n"
@@ -1780,8 +1784,8 @@ static void printMemReport()
         printf("  Heap redline      %14u MB (%.2f %%)\n", 
             (int) (ap->warnHeap / (1024 * 1024)), ap->bytesAllocated * 100.0 / ap->warnHeap);
     }
-    printf("  Heap cache        %14u MB (%.2f %%)\n",    (int) (ap->cacheHeap / (1024 * 1024)), ap->cacheHeap * 100.0 / ap->maxHeap);
-    printf("  Allocation errors %14d\n",               (int) ap->errors);
+    printf("  Heap cache        %14u MB (%.2f %%)\n",   (int) (ap->cacheHeap / (1024 * 1024)), ap->cacheHeap * 100.0 / ap->maxHeap);
+    printf("  Allocation errors %14d\n",                (int) ap->errors);
     printf("\n");
 
 #if ME_MPR_ALLOC_STATS
@@ -2120,10 +2124,14 @@ PUBLIC MprMemStats *mprGetMemStats()
     int64 ram, usermem;
     mib[1] = HW_PHYSMEM;
 #endif
+#if MACOSX
+    sysctlbyname("hw.memsize", &ram, &len, NULL, 0);
+#else
     mib[0] = CTL_HW;
     len = sizeof(ram);
     ram = 0;
     sysctl(mib, 2, &ram, &len, NULL, 0);
+#endif
     heap->stats.ram = ram;
 
     mib[0] = CTL_HW;
@@ -2134,6 +2142,7 @@ PUBLIC MprMemStats *mprGetMemStats()
     heap->stats.user = usermem;
 #endif
     heap->stats.rss = mprGetMem();
+    heap->stats.cpu = mprGetCPU();
     return &heap->stats;
 }
 
@@ -2183,6 +2192,40 @@ PUBLIC size_t mprGetMem()
         size = (size_t) heap->stats.bytesAllocated;
     }
     return size;
+}
+
+
+PUBLIC uint64 mprGetCPU()
+{
+    uint64     ticks;
+
+    ticks = 0;
+#if LINUX
+    int fd;
+    char path[ME_MAX_PATH];
+    sprintf(path, "/proc/%d/stat", getpid());
+    if ((fd = open(path, O_RDONLY)) >= 0) {
+        char buf[ME_MAX_BUFFER];
+        int nbytes = read(fd, buf, sizeof(buf) - 1);
+        close(fd);
+        if (nbytes > 0) {
+            ulong utime, stime;
+            buf[nbytes] = '\0';
+            sscanf(buf, "%*d %*s %*c %*d %*d %*d %*d %*d %*u %*u %*u %*u %*u %lu %lu", &utime, &stime);
+            ticks = (utime + stime) * MPR_TICKS_PER_SEC / sysconf(_SC_CLK_TCK);
+        }
+    }
+#elif MACOSX
+    struct task_basic_info info;
+    mach_msg_type_number_t count = TASK_BASIC_INFO_COUNT;
+    if (task_info(mach_task_self(), TASK_BASIC_INFO, (task_info_t) &info, &count) == KERN_SUCCESS) {
+        uint64 utime, stime;
+        utime = info.user_time.seconds * MPR_TICKS_PER_SEC + info.user_time.microseconds / 1000;
+        stime = info.system_time.seconds * MPR_TICKS_PER_SEC + info.system_time.microseconds / 1000;
+        ticks = utime + stime;
+    }
+#endif
+    return ticks;
 }
 
 

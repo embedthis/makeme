@@ -14734,7 +14734,9 @@ PUBLIC void httpGetStats(HttpStats *sp)
     http = MPR->httpService;
     ap = mprGetMemStats();
 
+    sp->cpu = ap->cpu;
     sp->cpus = ap->numCpu;
+    sp->ram = ap->ram;
     sp->mem = ap->rss;
     sp->memRedline = ap->warnHeap;
     sp->memMax = ap->maxHeap;
@@ -14742,6 +14744,7 @@ PUBLIC void httpGetStats(HttpStats *sp)
     sp->heap = ap->bytesAllocated + ap->bytesFree;
     sp->heapUsed = ap->bytesAllocated;
     sp->heapFree = ap->bytesFree;
+    sp->heapRegions = ap->heapRegions;
 
     mprGetWorkerStats(&wstats);
     sp->workersBusy = wstats.busy;
@@ -14764,7 +14767,7 @@ PUBLIC void httpGetStats(HttpStats *sp)
 
     sp->totalRequests = http->totalRequests;
     sp->totalConnections = http->totalConnections;
-    sp->totalSweeps = MPR->heap->iteration;
+    sp->totalSweeps = MPR->heap->stats.sweeps;
 }
 
 

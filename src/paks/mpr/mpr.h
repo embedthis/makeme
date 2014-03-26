@@ -117,7 +117,7 @@ struct  MprXml;
     Select wakeup port. Port can be any free port number. If this is not free, the MPR will use the next free port.
  */
 #ifndef ME_WAKEUP_PORT
-    #define ME_WAKEUP_PORT     9473
+    #define ME_WAKEUP_PORT      9473
 #endif
 #define MPR_FD_MIN              32
 
@@ -1131,6 +1131,9 @@ typedef struct MprMemStats {
     int             inMemException;         /**< Recursive protect */
     uint            numCpu;                 /**< Number of CPUs */
     uint            pageSize;               /**< System page size */
+    uint            heapRegions;            /**< Heap region count */
+    uint            sweeps;                 /**< Number of GC sweeps */
+    uint64          cpu;                    /**< Process CPU usage in ticks */
     uint64          cacheHeap;              /**< Heap cache. Try to keep at least this amount in the free queues  */
     uint64          bytesAllocated;         /**< Bytes currently allocated. Includes active and free. */
     uint64          bytesFree;              /**< Bytes currently free and retained in the heap queues */
@@ -1209,7 +1212,6 @@ typedef struct MprHeap {
     int              gcEnabled;             /**< GC is enabled */
     int              gcRequested;           /**< GC has been requested */
     int              hasError;              /**< Memory allocation error */
-    int              iteration;             /**< GC iteration counter (debug only) */
     int              marking;               /**< Actually marking objects now */
     int              mustYield;             /**< Threads must yield for GC which is due */
     int              nextSeqno;             /**< Next sequence number */
@@ -1259,6 +1261,14 @@ PUBLIC struct Mpr *mprCreateMemService(MprManager manager, int flags);
     @stability Stable.
  */
 PUBLIC void *mprAllocMem(size_t size, int flags);
+
+/**
+    Return the process CPU usage.
+    @returns The total number of ticks of cpu usage since process tart
+    @ingroup MprMem
+    @stability Prototype.
+ */
+PUBLIC uint64 mprGetCPU();
 
 /**
     Return the current allocation memory statistics block

@@ -2876,14 +2876,6 @@ public class Me {
         loadMeFile(base.join('standard.me'))
         me.dir.me = base
 
-        /*  UNUSED
-            Load standard plugins from global 'me/latest/paks' and from ~/.me/paks
-        Me.load({ blend: [ 
-            '?' + App.exePath.join('../paks/*/*.me'),
-            '?' + me.dir.home.join('.me/paks/*/*.me'),
-        ]})
-         */
-
         me.globals.PLATFORM = currentPlatform = platform
         if (mefile.exists) {
             loadMeFile(mefile)

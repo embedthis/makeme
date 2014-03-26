@@ -11,7 +11,7 @@
         "me-package": "~0.8"
     },
     "keywords": [
-        "me-plugin"
+        "me-plugin",
     ],
     "author": {
         "name": "Embedthis Software",

@@ -11,8 +11,8 @@ Me.load({
         platforms: [ 'local' ],
     },
 
-    settings: {
-        depth: App.getenv('BUILD_DEPTH') || 1,
+    scripts: {
+        loaded: `me.settings.depth = App.getenv('BUILD_DEPTH') || 1`
     },
 
     targets: {
@@ -60,7 +60,9 @@ Me.load({
         },
 
         upload: {
-            action: "
+            action: `
+                //  UNUSED
+                me.settings.depth = App.getenv('BUILD_DEPTH') || 1
                 if (me.settings.depth < 2) {
                     trace('Info', 'Upload skipped at build depth ' + me.settings.depth)
                 } else {
@@ -74,13 +76,13 @@ Me.load({
                     if (!uri) {
                         throw 'Missing a farm upload URI'
                     }
-                    let base = s.product + '-' + s.version
+                    let base = s.name + '-' + s.version
                     let files = me.dir.rel.files('*' + base + '*.pkg*')
                     files += me.dir.rel.files('*' + base + '*x86.exe.zip*')
                     if (App.getenv('BUILD_UPLOAD_SOURCE') == 'true') {
                         files += me.dir.rel.files('*' + base + '-src*')
                         files += me.dir.rel.files('*' + base + '-flat*')
-                        files += me.dir.rel.files(s.product + '-flat.tgz')
+                        files += me.dir.rel.files(s.name + '-flat.tgz')
                     }
                     for each (file in files) {
                         let http = new Http
@@ -92,7 +94,7 @@ Me.load({
                         }
                     }
                 }
-            ",
+            `,
         },
 
         unit_test: {
