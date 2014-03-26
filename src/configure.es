@@ -450,9 +450,7 @@ module embedthis.me {
     internal function createTargets(components) {
         for each (name in components) {
             let target = me.targets[name]
-            if (target) {
-                target.loaded = true
-            }
+            // UNUSED - remove target.loaded = true. Broke vxworks created but not loaded
             target ||= {}
             me.targets[name] = target
             target.name ||= name
