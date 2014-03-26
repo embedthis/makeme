@@ -18,7 +18,7 @@ Me.load({
     targets: {
         publish: {
             home: '${TOP}',
-            action: "publishToGit()",
+            action: `publishToGit()`,
         },
 
         removeFiles: {
@@ -27,11 +27,11 @@ Me.load({
             rule: 'gui'
             sources: [ 'package/windows/removeFiles.c' ],
             platforms: [ 'local' ],
-            enable: "me.platform.like == 'windows' && Path('package/windows/removeFiles.c').exists",
+            enable: `me.platform.like == 'windows' && Path('package/windows/removeFiles.c').exists`,
         },
 
         projects: {
-            action: "genProjects()",
+            action: `genProjects()`,
             home: '${TOP}',
         },
 
@@ -39,7 +39,7 @@ Me.load({
             Target to build a personal project for the current configuration
          */
         mine: {
-            action: "
+            action: `
                 let cmd = Cmd.locate('me')
                 let runopt = {dir: me.dir.src, show: true}
                 /* Xcode and VS use separate profiles */
@@ -49,14 +49,14 @@ Me.load({
                     run(cmd + ' -q -d -platform windows-x86-mine -configure . -gen vs', runopt)
                 }
                 run(cmd + ' -q -configure . ', runopt)
-            ",
+            `,
         },
 
         'projects-clobber': {
-            action: "
+            action: `
                 rm(['${dir.proj}/*.mk', '${dir.proj}/*.sh'])
                 rmdir(['${dir.proj}/*-*-default'])
-            "
+            `
         },
 
         upload: {
@@ -98,7 +98,8 @@ Me.load({
 
         unit_test: {
             type: 'test',
-            action: "
+            home: '${TOP}',
+            action: `
                 if (!me.targets.test) {
                     let utest = Cmd.locate('utest')
                     if (!utest) {
@@ -112,17 +113,17 @@ Me.load({
                         trace('Test', 'The utest program cannot be located')
                     }
                 }
-            ",
+            `,
         }
 
         upgrade: {
             home: '${TOP}',
-            action: "sh('pak -f upgrade ; me build')",
+            action: `sh('pak -f upgrade ; me build')`,
         },
 
         sync: {
             home: '${TOP}',
-            action: "sh('pak -f upgrade')",
+            action: `sh('pak -f upgrade')`,
         },
     },
 })

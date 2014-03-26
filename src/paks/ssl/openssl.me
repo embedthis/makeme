@@ -24,7 +24,7 @@ Me.load({
                 packages = packages.files('openssl*').reverse()[0]
 
                 let search = getComponentSearch(target, 'openssl-src')
-                if (packages.exists) {
+                if (packages && packages.exists) {
                     search.push(packages)
                 }
                 if (me.platform.os == 'windows') {
