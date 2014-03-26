@@ -372,11 +372,6 @@ module embedthis.me {
                 path = target.withpath
             } else {
                 if (target.loaded) {
-                    /* UNUSED if (target.enable == null) {
-                        target.enable ||= true
-                    }
-                    target.path ||= path
-                    */
                     target.diagnostic = 'Pre-loaded component'
                 } else {
                     path = me.dir.paks.join(target.name)
@@ -450,9 +445,13 @@ module embedthis.me {
     internal function createTargets(components) {
         for each (name in components) {
             let target = me.targets[name]
-            // UNUSED - remove target.loaded = true. Broke vxworks created but not loaded
-            target ||= {}
-            me.targets[name] = target
+            if (target) {
+                target.loaded = true
+            } else {
+                target = {}
+                me.targets[name] = target
+                target.created = true
+            }
             target.name ||= name
             target.type ||= 'group'
             target.configurable = true
@@ -527,13 +526,9 @@ module embedthis.me {
         if (target.discovers) {
             components += target.discovers
         }
+        createTargets(components)
         for each (dname in components) {
-            //  UNUSED - creation
-            assert(me.targets[dname])
-            let dext = me.targets[dname] ||= {}
-            dext.name = dname
-            dext.type ||= 'group'
-            dext.configurable = true
+            let dext = me.targets[dname]
             configureComponent(dext)
         }
         for each (name in target.ifdef) {
