@@ -845,21 +845,25 @@ PUBLIC void mprAtomicAdd64(volatile int64 *target, int64 value);
     #endif
 #endif
 #ifndef ME_MPR_ALLOC_LEVEL
-    #define ME_MPR_ALLOC_LEVEL     7                   /* Emit mark/sweek elapsed time at this level */
+    #define ME_MPR_ALLOC_LEVEL     7                    /* Emit mark/sweek elapsed time at this level */
 #endif
 #ifndef ME_MPR_ALLOC_PARALLEL
-    #define ME_MPR_ALLOC_PARALLEL  1                   /* Run sweeper in parallel with user threads */
+    #define ME_MPR_ALLOC_PARALLEL  1                    /* Run sweeper in parallel with user threads */
 #endif
 #if ME_COMPILER_HAS_MMU
-    #define ME_MPR_ALLOC_VIRTUAL   1                   /* Use virtual memory allocations */
+    #define ME_MPR_ALLOC_VIRTUAL   1                    /* Use virtual memory allocations */
 #else
-    #define ME_MPR_ALLOC_VIRTUAL   0                   /* Use malloc() for region allocations */
+    #define ME_MPR_ALLOC_VIRTUAL   0                    /* Use malloc() for region allocations */
 #endif
 #ifndef ME_MPR_ALLOC_QUOTA
-    #define ME_MPR_ALLOC_QUOTA     8192                /* Number of allocations before a GC is worthwhile */
+    #if ME_TUNE_SIZE
+        #define ME_MPR_ALLOC_QUOTA  2048                /* Number of allocations before a GC is worthwhile */
+    #else
+        #define ME_MPR_ALLOC_QUOTA  8192
+    #endif
 #endif
 #ifndef ME_MPR_ALLOC_REGION_SIZE
-    #define ME_MPR_ALLOC_REGION_SIZE (256 * 1024)      /* Memory region allocation chunk size */
+    #define ME_MPR_ALLOC_REGION_SIZE (256 * 1024)       /* Memory region allocation chunk size */
 #endif
 
 #ifndef ME_MPR_ALLOC_ALIGN_SHIFT
@@ -868,9 +872,9 @@ PUBLIC void mprAtomicAdd64(volatile int64 *target, int64 value);
         for doubles. NOTE: SSE and AltiVec instuctions may require 16 byte alignment.
      */
     #if !ME_64 && !(ME_CPU_ARCH == ME_CPU_MIPS)
-        #define ME_MPR_ALLOC_ALIGN_SHIFT 3             /* 8 byte alignment */
+        #define ME_MPR_ALLOC_ALIGN_SHIFT 3              /* 8 byte alignment */
     #else
-        #define ME_MPR_ALLOC_ALIGN_SHIFT 3             /* 8 byte alignment */
+        #define ME_MPR_ALLOC_ALIGN_SHIFT 3
     #endif
 #endif
 #define ME_MPR_ALLOC_ALIGN (1 << ME_MPR_ALLOC_ALIGN_SHIFT)
@@ -1144,6 +1148,8 @@ typedef struct MprMemStats {
     uint64          rss;                    /**< OS calculated resident stack size in bytes */
     uint64          user;                   /**< System user RAM size in bytes (excludes kernel) */
     uint64          warnHeap;               /**< Warn if heap size exceeds this level */
+    uint64          swept;                  /**< Number of blocks swept */
+    uint64          sweptBytes;             /**< Number of bytes swept */
 #if ME_MPR_ALLOC_STATS
     /*
         Extended memory stats
@@ -1162,7 +1168,6 @@ typedef struct MprMemStats {
     uint64          qrace;                  /**< Count of times a queue was empty - racing with another thread */
     uint64          splits;                 /**< Count of times a block was split */
     uint64          sweepVisited;           /**< Number of blocks examined for sweeping */
-    uint64          swept;                  /**< Number of blocks swept */
     uint64          trys;
     uint64          tryFails;
     uint64          unpins;                 /**< Count of times a block was unpinned and released back to the O/S */
@@ -8826,7 +8831,7 @@ typedef struct MprCmdFile {
         read, write and error data with the command. 
     @stability Stable.
     @see mprCloseCmdFd mprCreateCmd mprDestroyCmd mprDisableCmdEvents mprDisconnectCmd mprEnableCmdEvents 
-        mprFinalizeCmd mprGetCmdBuf mprGetCmdExitStatus mprGetCmdFd mprIsCmdComplete mprIsCmdRunning mprPollCmd 
+        mprFinalizeCmd mprGetCmdBuf mprGetCmdExitStatus mprGetCmdFd mprIsCmdComplete mprIsCmdRunning
         mprReadCmd mprReapCmd mprRunCmd mprRunCmdV mprSetCmdCallback mprSetCmdDir mprSetCmdEnv mprSetCmdSearchPath 
         mprStartCmd mprStopCmd mprWaitForCmd mprWriteCmd mprWriteCmdBlock
     @defgroup MprCmd MprCmd
@@ -9016,6 +9021,7 @@ PUBLIC int mprIsCmdComplete(MprCmd *cmd);
  */
 PUBLIC bool mprIsCmdRunning(MprCmd *cmd);
 
+#if ME_WIN_LIKE
 /**
     Poll for I/O on the command pipes. This is only used on windows which can't adequately detect EOF on a named pipe.
     @param cmd MprCmd object created via mprCreateCmd
@@ -9024,6 +9030,16 @@ PUBLIC bool mprIsCmdRunning(MprCmd *cmd);
     @stability Stable
  */
 PUBLIC void mprPollWinCmd(MprCmd *cmd, MprTicks timeout);
+
+/**
+   Start a timer calling mprPollWinCmd.
+   @description This is useful for detached commands.
+   @param cmd MprCmd object created via mprCreateCmd
+   @ingroup MprCmd
+   @stability Prototype
+ */
+PUBLIC void mprStartWinPollTimer(MprCmd *cmd);
+#endif
 
 /**
     Make the I/O channels to send and receive data to and from the command.

@@ -31111,7 +31111,11 @@ static EjsObj *cmd_start(Ejs *ejs, EjsCmd *cmd, int argc, EjsObj **argv)
         ejsThrowError(ejs, "Command failed: %s\nError Output: %s", cmd->argv[0], err);
         return 0;
     }
-    if (!(flags & MPR_CMD_DETACH)) {
+    if (flags & MPR_CMD_DETACH) {
+#if ME_WIN_LIKE
+        mprStartWinPollTimer(cmd->mc);
+#endif
+    } else {
         assert(cmd->mc);
         mprFinalizeCmd(cmd->mc);
         if (mprWaitForCmd(cmd->mc, cmd->timeout) < 0) {

@@ -605,7 +605,10 @@ static void freeBlock(MprMem *mp)
 
     assert(!mp->free);
     SCRIBBLE(mp);
-    INC(swept);
+#if ME_DEBUG || ME_MPR_ALLOC_STATS
+    heap->stats.swept++;
+    heap->stats.sweptBytes += mp->size;
+#endif
     heap->freedBlocks = 1;
     freeLocation(mp);
 #if ME_MPR_ALLOC_STATS
@@ -1293,9 +1296,12 @@ static void sweep()
         return;
     }
     mprTrace(7, "GC: sweep started");
+#if ME_DEBUG || ME_MPR_ALLOC_STATS
+    heap->stats.swept = 0;
+    heap->stats.sweptBytes = 0;
+#endif
 #if ME_MPR_ALLOC_STATS
     heap->stats.sweepVisited = 0;
-    heap->stats.swept = 0;
     heap->stats.freed = 0;
 #endif
     /*
@@ -5389,6 +5395,7 @@ static void stdinCallback(MprCmd *cmd, MprEvent *event);
 static void stdoutCallback(MprCmd *cmd, MprEvent *event);
 static void stderrCallback(MprCmd *cmd, MprEvent *event);
 #if ME_WIN_LIKE
+static void pollWinTimer(MprCmd *cmd, MprEvent *event);
 static cchar *makeWinEnvBlock(MprCmd *cmd);
 #endif
 
@@ -5580,6 +5587,7 @@ static void completeCommand(MprCmd *cmd)
         After removing the command from the cmds list, it can be garbage collected if no other reference is retained
      */
     cmd->complete = 1;
+    mprDisconnectCmd(cmd);
     mprRemoveItem(MPR->cmdService->cmds, cmd);
 }
 
@@ -5736,6 +5744,9 @@ PUBLIC int mprRunCmdV(MprCmd *cmd, int argc, cchar **argv, cchar **envp, cchar *
         return rc;
     }
     if (cmd->flags & MPR_CMD_DETACH) {
+#if ME_WIN_LIKE
+        mprStartWinPollTimer(cmd);
+#endif
         return 0;
     }
     if (mprWaitForCmd(cmd, timeout) < 0) {
@@ -6100,6 +6111,21 @@ PUBLIC void mprPollWinCmd(MprCmd *cmd, MprTicks timeout)
         } while (cmd->eofCount == cmd->requiredEof);
     }
     sunlock(cmd);
+}
+
+
+static void pollWinTimer(MprCmd *cmd, MprEvent *event)
+{
+    mprPollWinCmd(cmd, 0);
+    if (cmd->complete) {
+        mprStopContinuousEvent(event);
+    }
+}
+
+
+PUBLIC void mprStartWinPollTimer(MprCmd *cmd)
+{
+    mprCreateTimerEvent(cmd->dispatcher, "pollWinTimer", 0, pollWinTimer, cmd, 0);
 }
 #endif
 

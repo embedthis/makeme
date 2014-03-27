@@ -4,7 +4,8 @@
     "title": "PCRE Library",
     "version": "1.0.3",
     "keywords": [
-        "pcre"
+        "pcre",
+        "me"
     ],
     "author": {
         "name": "Embedthis Software",

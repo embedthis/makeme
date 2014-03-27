@@ -5328,7 +5328,9 @@ static void checkMonitor(HttpMonitor *monitor, MprEvent *event)
                  */
                 if ((address->updated + http->monitorMaxPeriod) < http->now) {
                     if (address->banUntil < http->now) {
-                        mprLog(1, "Remove ban on client %s", kp->key);
+                        if (address->banUntil) {
+                            mprLog(1, "Remove ban on client %s", kp->key);
+                        }
                         mprRemoveKey(http->addresses, kp->key);
                         removed = 1;
                         break;

@@ -7,6 +7,10 @@ Me.load({
         'dev.es',
     ],
 
+    settings: {
+        depth: App.getenv('BUILD_DEPTH') || 1,
+    },
+
     internal: {
         platforms: [ 'local' ],
     },

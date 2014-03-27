@@ -38,6 +38,29 @@ struct HttpWebSocket;
 
 /********************************** Tunables **********************************/
 
+#if ME_TUNE_SIZE
+    #ifndef ME_MAX_QBUFFER
+        #define ME_MAX_QBUFFER         (4 * 1024)       /**< Maximum buffer for any pipeline queue */
+    #endif
+    #ifndef ME_MAX_CHUNK
+        #define ME_MAX_CHUNK           (4 * 1024)          /**< Maximum chunk size for transfer chunk encoding */
+    #endif
+#elif ME_TUNE_SPEED
+    #ifndef ME_MAX_QBUFFER
+        #define ME_MAX_QBUFFER         (32 * 1024)
+    #endif
+    #ifndef ME_MAX_CHUNK
+        #define ME_MAX_CHUNK           (8 * 1024)          /**< Maximum chunk size for transfer chunk encoding */
+    #endif
+#else
+    #ifndef ME_MAX_QBUFFER
+        #define ME_MAX_QBUFFER         (8 * 1024)
+    #endif
+    #ifndef ME_MAX_CHUNK
+        #define ME_MAX_CHUNK           (8 * 1024)          /**< Maximum chunk size for transfer chunk encoding */
+    #endif
+#endif
+
 #ifndef ME_HTTP_WEB_SOCKETS
     #define ME_HTTP_WEB_SOCKETS     1
 #endif
@@ -115,9 +138,6 @@ struct HttpWebSocket;
 #endif
 #ifndef ME_MAX_SESSIONS
     #define ME_MAX_SESSIONS        100                 /**< Maximum concurrent sessions */
-#endif
-#ifndef ME_MAX_QBUFFER
-    #define ME_MAX_QBUFFER         (32 * 1024)         /**< Maximum buffer for any pipeline queue */
 #endif
 #ifndef ME_MAX_SESSION_HASH
     #define ME_MAX_SESSION_HASH    31                  /**< Hash table for session data */
