@@ -391,10 +391,6 @@ module embedthis.me {
 
                         } else if (me.targets[target.name]) {
                             throw 'Cannot find component: ' + target.name + '.me'
-
-                        } else {
-                            print("UNUSED NEVER GET HERE")
-                            throw 'BOOM'
                         }
                     }
                 }
