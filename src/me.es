@@ -3324,12 +3324,6 @@ public class Me {
 
     /** @hide */
     public function changeDir(path: Path) {
-        /* UNUSED
-            This is problematic with current makefiles as they depend on $(CONFIG) being a relative path
-            if (me.generating) {
-                gencmd('cd "' + path.relative + '"')
-            }
-        */
         App.chdir(path)
     }
 

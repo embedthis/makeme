@@ -174,7 +174,7 @@ function getCompilerSettings(cc) {
             '#define _GNU_SOURCE\n#include <time.h>\nint main() { struct timespec tv; clock_gettime(CLOCK_REALTIME, &tv); return 0; }')
         settings.hasMmu = compile(cc, '',
             '#include <stdio.h>\n#include <unistd.h>\nint main() { fork(); return 0; }')
-        //  UNUSED MOB - mtune not used?
+        //  UNUSED - mtune not used?
         settings.hasMtune = compile(cc, '-mtune=generic', 'int main() { return 0;}')
         settings.hasPam = compile(cc, '',
             '#include <security/pam_appl.h>\nint main() { void *x = pam_start; return x != 0; }')

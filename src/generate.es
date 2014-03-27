@@ -285,13 +285,6 @@ module embedthis.me {
                 }
             }
         }
-        /* UNUSED - replaced with below so you don't have to repeat in extras
-        for each (let name in (me.configure.discovers + me.configure.extras)) {
-            me.targets[name] ||= {}
-            me.targets[name].enable ||= false
-            needed[name] = true
-        }
-        */
         for each (let target in me.targets) {
             if (!target.configurable) continue
             if (me.configure.requires.contains(target.name)) continue
