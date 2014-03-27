@@ -11,10 +11,6 @@ Me.load({
         platforms: [ 'local' ],
     },
 
-    scripts: {
-        loaded: `me.settings.depth = App.getenv('BUILD_DEPTH') || 1`
-    },
-
     targets: {
         publish: {
             home: '${TOP}',
@@ -61,7 +57,7 @@ Me.load({
 
         upload: {
             action: `
-                me.settings.depth = App.getenv('BUILD_DEPTH') || 1
+                me.settings.depth = App.getenv('BUILD_DEPTH') || me.settings.depth
                 if (me.settings.depth < 2) {
                     trace('Info', 'Upload skipped at build depth ' + me.settings.depth)
                 } else {
@@ -82,6 +78,9 @@ Me.load({
                         files += me.dir.rel.files('*' + base + '-src*')
                         files += me.dir.rel.files('*' + base + '-flat*')
                         files += me.dir.rel.files(s.name + '-flat.tgz')
+                    }
+                    if (files.length == 0) {
+                        trace('Info', 'No files to upload')
                     }
                     for each (file in files) {
                         let http = new Http

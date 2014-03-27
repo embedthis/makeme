@@ -2,14 +2,14 @@
     "name": "me-doc",
     "description": "Documentation Targets",
     "version": "0.8.0",
+    "keywords": [
+        "me",
+    ],
     "dirs": {
         "paks": "src/paks"
     },
     "dependencies": {
     },
-    "keywords": [
-        "me-plugin",
-    ],
     "author": {
         "name": "Embedthis Software",
         "email": "dev@embedthis.com",

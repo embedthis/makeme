@@ -3,6 +3,9 @@
     "description": "Embedthis Development Lifecycle Support",
     "title": "Embedthis Development",
     "version": "0.8.0",
+    "keywords": [
+        "me",
+    ],
     "dirs": {
         "paks": "src/paks"
     },
@@ -10,9 +13,6 @@
         "me-doc": "~0.8",
         "me-package": "~0.8"
     },
-    "keywords": [
-        "me-plugin",
-    ],
     "author": {
         "name": "Embedthis Software",
         "email": "dev@embedthis.com",

@@ -27349,6 +27349,7 @@ PUBLIC char *mprFormatTm(cchar *format, struct tm *tp)
     }
 #if WINDOWS
     _putenv("TZ=");
+    _tzset();
 #endif
     if (strftime(buf, sizeof(buf) - 1, format, tp) > 0) {
         buf[sizeof(buf) - 1] = '\0';

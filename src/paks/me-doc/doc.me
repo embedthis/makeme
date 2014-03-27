@@ -12,10 +12,6 @@ Me.load({
         platforms: [ 'local' ],
     },
 
-    settings: {
-        depth: App.getenv('BUILD_DEPTH') || 1,
-    },
-
     targets: {
         doc: {
             depends: ['patch', 'manpages', 'api', 'clean-doc', 'ssi'],
