@@ -2896,6 +2896,11 @@ public class Me {
         loadMeFile(me.dir.me.join('os/' + me.platform.os + '.me'))
         loadPackage()
 
+        if (me.scripts && me.scripts.postloadall) {
+            runScript(me.scripts, "postloadall")
+            delete me.scripts.postloadall
+        }
+
         if (kind == 'windows') {
             /*
                 If 32 bit, /Program Files
