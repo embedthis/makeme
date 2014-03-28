@@ -33589,7 +33589,7 @@ PUBLIC EjsObj *writeFile(Ejs *ejs, EjsFile *fp, int argc, EjsObj **argv)
             break;
         }
         if (mprWriteFile(fp->file, buf, len) != len) {
-            mprLog(0, "Write IO error %d\n", mprGetOsError());
+            mprLog(0, "Write IO error %d", mprGetOsError());
             ejsThrowIOError(ejs, "Cannot write to %s", fp->path);
             return 0;
         }

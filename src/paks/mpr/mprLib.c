@@ -5883,7 +5883,7 @@ PUBLIC int mprStartCmd(MprCmd *cmd, int argc, cchar **argv, cchar **envp, int fl
     sunlock(cmd);
 #if ME_WIN_LIKE
     if (!rc) {
-        mprCreateTimerEvent(cmd->dispatcher, "pollWinTimer", 0, pollWinTimer, cmd, 0);
+        mprCreateTimerEvent(cmd->dispatcher, "pollWinTimer", 10, pollWinTimer, cmd, 0);
     }
 #endif
     return rc;
@@ -6088,6 +6088,7 @@ static void pollWinCmd(MprCmd *cmd, MprTicks timeout)
             if (wp && wp->desiredMask & MPR_READABLE) {
                 rc = PeekNamedPipe(cmd->files[i].handle, NULL, 0, NULL, &nbytes, NULL);
                 if (rc && nbytes > 0 || cmd->process == 0) {
+                    wp->presentMask |= MPR_READABLE;
                     mprQueueIOEvent(wp);
                 }
             }
@@ -6096,6 +6097,7 @@ static void pollWinCmd(MprCmd *cmd, MprTicks timeout)
     if (cmd->files[MPR_CMD_STDIN].handle) {
         wp = cmd->handlers[MPR_CMD_STDIN];
         if (wp && wp->desiredMask & MPR_WRITABLE) {
+            wp->presentMask |= MPR_WRITABLE;
             mprQueueIOEvent(wp);
         }
     }
@@ -6159,7 +6161,7 @@ PUBLIC int mprWaitForCmd(MprCmd *cmd, MprTicks timeout)
         if (mprShouldAbortRequests()) {
             break;
         }
-#if ME_WIN_LIKE
+#if ME_WIN_LIKE && UNUSED
         pollWinCmd(cmd, remaining);
         delay = 10;
 #else
