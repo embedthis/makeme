@@ -37,6 +37,7 @@
     #undef TIME
 #if _WIN32
     #define ZLIB_DLL
+        #include <io.h>
 #endif
 #endif
 

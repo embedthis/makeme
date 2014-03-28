@@ -59,6 +59,7 @@ version:
 	@$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@
 
 boot:
+	rm -fr $(OS)-$(ARCH)-*
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) compile
 	$(OS)-$(ARCH)-$(PROFILE)/bin/me --release configure build
 
