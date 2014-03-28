@@ -5395,6 +5395,7 @@ static void stdinCallback(MprCmd *cmd, MprEvent *event);
 static void stdoutCallback(MprCmd *cmd, MprEvent *event);
 static void stderrCallback(MprCmd *cmd, MprEvent *event);
 #if ME_WIN_LIKE
+static void pollWinCmd(MprCmd *cmd, MprTicks timeout);
 static void pollWinTimer(MprCmd *cmd, MprEvent *event);
 static cchar *makeWinEnvBlock(MprCmd *cmd);
 #endif
@@ -5744,9 +5745,6 @@ PUBLIC int mprRunCmdV(MprCmd *cmd, int argc, cchar **argv, cchar **envp, cchar *
         return rc;
     }
     if (cmd->flags & MPR_CMD_DETACH) {
-#if ME_WIN_LIKE
-        mprStartWinPollTimer(cmd);
-#endif
         return 0;
     }
     if (mprWaitForCmd(cmd, timeout) < 0) {
@@ -5883,6 +5881,11 @@ PUBLIC int mprStartCmd(MprCmd *cmd, int argc, cchar **argv, cchar **envp, int fl
     rc = startProcess(cmd);
     cmd->originalPid = cmd->pid;
     sunlock(cmd);
+#if ME_WIN_LIKE
+    if (!rc) {
+        mprCreateTimerEvent(cmd->dispatcher, "pollWinTimer", 0, pollWinTimer, cmd, 0);
+    }
+#endif
     return rc;
 }
 
@@ -6068,7 +6071,7 @@ PUBLIC void mprDisableCmdEvents(MprCmd *cmd, int channel)
     NOTE: NamedPipes can't use WaitForMultipleEvents, so we dedicate a thread to polling.
     WARNING: this should not be called from a dispatcher other than cmd->dispatcher.
  */
-PUBLIC void mprPollWinCmd(MprCmd *cmd, MprTicks timeout)
+static void pollWinCmd(MprCmd *cmd, MprTicks timeout)
 {
     MprTicks        mark, delay;
     MprWaitHandler  *wp;
@@ -6116,16 +6119,12 @@ PUBLIC void mprPollWinCmd(MprCmd *cmd, MprTicks timeout)
 
 static void pollWinTimer(MprCmd *cmd, MprEvent *event)
 {
-    mprPollWinCmd(cmd, 0);
+    if (!cmd->complete) {
+        pollWinCmd(cmd, 0);
+    }
     if (cmd->complete) {
         mprStopContinuousEvent(event);
     }
-}
-
-
-PUBLIC void mprStartWinPollTimer(MprCmd *cmd)
-{
-    mprCreateTimerEvent(cmd->dispatcher, "pollWinTimer", 0, pollWinTimer, cmd, 0);
 }
 #endif
 
@@ -6161,7 +6160,7 @@ PUBLIC int mprWaitForCmd(MprCmd *cmd, MprTicks timeout)
             break;
         }
 #if ME_WIN_LIKE
-        mprPollWinCmd(cmd, remaining);
+        pollWinCmd(cmd, remaining);
         delay = 10;
 #else
         delay = (cmd->eofCount >= cmd->requiredEof) ? 10 : remaining;
@@ -28498,9 +28497,11 @@ static MprWaitHandler *initWaitHandler(MprWaitHandler *wp, int fd, int mask, Mpr
         return 0;
     }
 #if ME_UNIX_LIKE || VXWORKS
+#if ME_EVENT_NOTIFIER == MPR_EVENT_SELECT
     if (fd >= FD_SETSIZE) {
         mprError("File descriptor %d exceeds max io of %d", fd, FD_SETSIZE);
     }
+#endif
 #endif
     if (mask) {
         if (mprAddItem(ws->handlers, wp) < 0) {
