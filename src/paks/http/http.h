@@ -5276,6 +5276,7 @@ typedef struct HttpSession {
     MprCache        *cache;                     /**< Cache store reference */
     MprTicks        lifespan;                   /**< Session inactivity timeout (msecs) */
     MprHash         *data;                      /**< Intermediate session data before writing to cache */
+    int             dirty;                      /**< Session updated and needs saving */
 } HttpSession;
 
 /**

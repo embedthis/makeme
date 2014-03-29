@@ -25,7 +25,7 @@ Me.load({
 
                 let search = getComponentSearch(target, 'openssl-src')
                 if (packages && packages.exists) {
-                    search.push(packages)
+                    search = [packages] + search
                 }
                 if (me.platform.os == 'windows') {
                     for (let [index, item] in search) {
