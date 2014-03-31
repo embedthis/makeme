@@ -16,9 +16,7 @@ Me.load({
                     }
                 }
                 let search = getComponentSearch(target, 'matrixssl-src', (me.platform.os == 'windows') ? 'Release' : '')
-
                 let lib = probe('libmatrixssl.' + me.ext.shobj, {fullpath: true, search: search}).absolute
-
                 let imports, libraries
                 if (me.platform.os == 'windows') {
                     libraries = [ 'matrixssl.lib' ],

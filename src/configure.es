@@ -773,14 +773,21 @@ module embedthis.me {
                 search.push(me.dir.paks.join(component, objdir))
             }
             /*
-                ~/.paks/NAME/OLDEST-VERSION
+                ~/.paks/NAME/NEWEST-VERSION
              */
             let path = me.dir.home.join('.paks', component).files('*').reverse()[0]
             if (path) {
                 search.push(path.join(objdir))
             }
             /*
-                /usr/local/lib/me/paks/NAME/OLDEST-VERSION
+                ../packages/packages-OS-ARCH/NEWEST-VERSION
+             */
+            let path = me.dir.top.join('../packages-' + me.platform.os + '-' + me.platform.arch, component)
+            if (path) {
+                search.push(path.join(objdir))
+            }
+            /*
+                /usr/local/lib/me/paks/NAME/NEWEST-VERSION
              */
             path = me.dir.me.join('../paks', component).files('*').reverse()[0]
             if (path) {

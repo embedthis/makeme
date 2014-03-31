@@ -17,16 +17,7 @@ Me.load({
                     }
                 }
                 let lib, libraries, libpaths, imports, includes, path
-                /*
-                    Convention for build farm
-                 */
-                let packages = me.dir.top.join('../packages-' + me.platform.os + '-' + me.platform.arch, 'openssl')
-                packages = packages.files('openssl*').reverse()[0]
-
                 let search = getComponentSearch(target, 'openssl-src')
-                if (packages && packages.exists) {
-                    search = [packages] + search
-                }
                 if (me.platform.os == 'windows') {
                     for (let [index, item] in search) {
                         search[index] = Path(item).join('out32dll')
