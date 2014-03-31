@@ -1627,7 +1627,7 @@ static OpenConfig *createOpenSslConfig(MprSocket *sp)
         }
         if ((!SSL_CTX_load_verify_locations(context, ssl->caFile, ssl->caPath)) ||
                 (!SSL_CTX_set_default_verify_paths(context))) {
-            sp->errorMsg = sclone("OpenSSL: Unable to set certificate locations"); 
+            sp->errorMsg = sfmt("OpenSSL: Unable to set certificate locations: %s: %s", ssl->caFile, ssl->caPath); 
             SSL_CTX_free(context);
             return 0;
         }

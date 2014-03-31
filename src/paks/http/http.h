@@ -798,6 +798,7 @@ typedef struct HttpStats {
     uint64  heap;                       /**< Current application heap memory */
     uint64  heapUsed;                   /**< Current heap memory in use */
     uint64  heapFree;                   /**< Current heap memory available */
+    uint64  heapMax;                    /**< Max heap memory */
     uint    heapRegions;                /**< Count of heap memory regions */
 
     int     workersBusy;                /**< Current busy worker threads */

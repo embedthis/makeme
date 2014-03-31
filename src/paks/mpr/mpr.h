@@ -1141,6 +1141,7 @@ typedef struct MprMemStats {
     uint64          cacheHeap;              /**< Heap cache. Try to keep at least this amount in the free queues  */
     uint64          bytesAllocated;         /**< Bytes currently allocated. Includes active and free. */
     uint64          bytesFree;              /**< Bytes currently free and retained in the heap queues */
+    uint64          bytesMax;               /**< Max ever bytes allocated */
     uint64          errors;                 /**< Allocation errors */
     uint64          lowHeap;                /**< Low memory level at which to initiate a collection */
     uint64          maxHeap;                /**< Max memory that can be allocated */
@@ -6239,6 +6240,10 @@ PUBLIC void mprRescheduleEvent(MprEvent *event, MprTicks period);
  */
 PUBLIC void mprRelayEvent(MprDispatcher *dispatcher, void *proc, void *data, MprEvent *event);
 
+//  MOB
+PUBLIC int mprStartDispatcher(MprDispatcher *dispatcher);
+PUBLIC int mprStopDispatcher(MprDispatcher *dispatcher);
+
 /* Internal API */
 PUBLIC MprEvent *mprCreateEventQueue();
 PUBLIC MprEventService *mprCreateEventService();
@@ -6253,7 +6258,6 @@ PUBLIC MprDispatcher *mprGetNonBlockDispatcher();
 PUBLIC void mprInitEventQ(MprEvent *q);
 PUBLIC void mprQueueTimerEvent(MprDispatcher *dispatcher, MprEvent *event);
 PUBLIC void mprReleaseWorkerFromDispatcher(MprDispatcher *dispatcher, struct MprWorker *worker);
-PUBLIC int  mprRunDispatcher(MprDispatcher *dispatcher);
 PUBLIC void mprScheduleDispatcher(MprDispatcher *dispatcher);
 PUBLIC void mprRescheduleDispatcher(MprDispatcher *dispatcher);
 PUBLIC void mprSetDispatcherImmediate(MprDispatcher *dispatcher);

@@ -312,10 +312,8 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
     if ((ejs = ejsCreateVM(argc - nextArg, (cchar **) &argv[nextArg], 0)) == 0) {
         return MPR_ERR_MEMORY;
     }
+    mprStartDispatcher(ejs->dispatcher);
     app->ejs = ejs;
-#if UNUSED
-    mprRunDispatcher(ejs->dispatcher);
-#endif
 
     if (ejsLoadModules(ejs, searchPath, app->modules) < 0) {
         return MPR_ERR_CANT_READ;

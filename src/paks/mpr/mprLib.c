@@ -435,7 +435,7 @@ static int initQueues()
     for (freeq = heap->freeq, qindex = 0; freeq < &heap->freeq[MPR_ALLOC_NUM_QUEUES]; freeq++, qindex++) {
         /* Size includes MprMem header */
         freeq->minSize = (MprMemSize) qtosize(qindex);
-#if (ME_MPR_ALLOC_STATS && ME_MPR_ALLOC_DEBUG)
+#if (ME_MPR_ALLOC_STATS && ME_MPR_ALLOC_DEBUG) && KEEP
         printf("Queue: %d, usize %u  size %u\n",
             (int) (freeq - heap->freeq), (int) freeq->minSize - (int) sizeof(MprMem), (int) freeq->minSize);
 #endif
@@ -486,7 +486,7 @@ static MprMem *allocMem(size_t required)
          */
         for (bindex = baseBindex; bindex < MPR_ALLOC_NUM_BITMAPS; bitmap++, bindex++) {
             /* Mask queues lower than the base queue */
-            localMap = heap->bitmap[bindex] & ((size_t) -1 << max(0, (qindex - (MPR_ALLOC_BITMAP_BITS * bindex))));
+            localMap = heap->bitmap[bindex] & ((size_t) ((uint64) -1 << max(0, (qindex - (MPR_ALLOC_BITMAP_BITS * bindex)))));
 
             while (localMap) {
                 qindex = (bindex * MPR_ALLOC_BITMAP_BITS) + findFirstBit(localMap) - 1;
@@ -526,6 +526,7 @@ static MprMem *allocMem(size_t required)
                             release(freeq);
                         }
                     } else {
+                        /* Contention on this queue */
                         ATOMIC_INC(tryFails);
                         if (freeq->count > 0 && retryIndex < 0) {
                             retryIndex = qindex;
@@ -593,6 +594,15 @@ static MprMem *growHeap(size_t required)
     }
     mprAtomicListInsert((void**) &heap->regions, (void**) &region->next, region);
     ATOMIC_ADD(bytesAllocated, size);
+    /*
+        Tolerate races
+     */
+    if (heap->stats.bytesAllocated > heap->stats.bytesMax) {
+        heap->stats.bytesMax = heap->stats.bytesAllocated;
+#if (ME_MPR_ALLOC_STATS && ME_MPR_ALLOC_DEBUG)
+        printf("MPR: Heap new max %lld request %lu\n", heap->stats.bytesMax, required);
+#endif
+    }
     CHECK(mp);
     ATOMIC_INC(allocs);
     return mp;
@@ -1400,6 +1410,9 @@ static void sweep()
         heap->stats.freed, heap->stats.bytesFree, heap->priorFree, heap->priorWeightedCount, heap->workQuota,
         heap->stats.sweepVisited - heap->stats.swept, heap->stats.bytesAllocated, heap->stats.unpins, 
         heap->stats.collections);
+#if KEEP
+    printf("SWEPT %lld %lld\n\n", heap->stats.swept, heap->stats.sweptBytes);
+#endif
 #endif
     if (heap->printStats) {
         printMemReport();
@@ -1755,9 +1768,9 @@ static void printGCStats()
             regionCount, (int) available, tag);
     }
     printf("\nGC Stats\n");
-    printf("  Active:  %9d blocks, %12ld bytes\n", activeCount, activeBytes);
-    printf("  Eternal: %9d blocks, %12ld bytes\n", eternalCount, eternalBytes);
-    printf("  Free:    %9d blocks, %12ld bytes\n", freeCount, freeBytes);
+    printf("  Active:  %9d blocks, %12lld bytes\n", activeCount, activeBytes);
+    printf("  Eternal: %9d blocks, %12lld bytes\n", eternalCount, eternalBytes);
+    printf("  Free:    %9d blocks, %12lld bytes\n", freeCount, freeBytes);
 }
 #endif /* ME_MPR_ALLOC_STATS */
 
@@ -1780,6 +1793,7 @@ static void printMemReport()
     printf("  Total app memory  %14u K\n",             (int) (mprGetMem() / 1024));
     printf("  Allocated memory  %14u K\n",             (int) (ap->bytesAllocated / 1024));
     printf("  Free heap memory  %14u K\n",             (int) (ap->bytesFree / 1024));
+    printf("  Max allocated     %14u K\n",             (int) (ap->bytesMax / 1024));
 
     if (ap->maxHeap == (size_t) -1) {
         printf("  Memory limit           unlimited\n");
@@ -6173,6 +6187,12 @@ PUBLIC int mprWaitForCmd(MprCmd *cmd, MprTicks timeout)
              */
             mprServiceEvents(10, MPR_SERVICE_NO_BLOCK);
         } else {
+            if (cmd->dispatcher->owner != mprGetCurrentOsThread()) {
+#if ME_DEBUG
+                mprLog(0, "WARNING: non-owning thread waiting on dispatcher");
+#endif
+                delay = 10;
+            }
             mprWaitForEvent(cmd->dispatcher, delay);
         }
         remaining = (expires - mprGetTicks());
@@ -9493,7 +9513,6 @@ PUBLIC void mprDestroyDispatcher(MprDispatcher *dispatcher)
             }
         }
         dequeueDispatcher(dispatcher);
-        dispatcher->owner = 0;
         dispatcher->flags |= MPR_DISPATCHER_DESTROYED;
         unlock(es);
     }
@@ -9739,25 +9758,49 @@ PUBLIC int mprDispatchersAreIdle()
  */
 PUBLIC void mprRelayEvent(MprDispatcher *dispatcher, void *proc, void *data, MprEvent *event)
 {
-    MprOsThread     priorOwner;
-
-    if (!canRun(dispatcher)) {
-        mprError("Relay to a running dispatcher owned by another thread");
+    if (mprStartDispatcher(dispatcher) < 0) {
+        return;
     }
-    if (event) {
-        event->timestamp = dispatcher->service->now;
+    if (proc) {
+        if (event) {
+            event->timestamp = dispatcher->service->now;
+        }
+        ((MprEventProc) proc)(data, event);
     }
-    priorOwner = dispatcher->owner;
-    assert(priorOwner == 0 || priorOwner == mprGetCurrentOsThread());
+    mprStopDispatcher(dispatcher);
+}
 
+
+PUBLIC int mprStartDispatcher(MprDispatcher *dispatcher)
+{
+    if (dispatcher->owner && dispatcher->owner != mprGetCurrentOsThread()) {
+        mprError("Cannot start dispatcher - owned by another thread");
+        return MPR_ERR_BAD_STATE;
+    }
+    if (isRunning(dispatcher)) {
+        mprError("Cannot start a running dispatcher");
+        return MPR_ERR_BAD_STATE;
+    }
     queueDispatcher(dispatcher->service->runQ, dispatcher);
-
     dispatcher->owner = mprGetCurrentOsThread();
-    ((MprEventProc) proc)(data, event);
-    dispatcher->owner = priorOwner;
+    return 0;
+}
 
+
+PUBLIC int mprStopDispatcher(MprDispatcher *dispatcher)
+{
+    if (dispatcher->owner != mprGetCurrentOsThread()) {
+        mprError("Cannot stop dispatcher - owned by another thread");
+        return MPR_ERR_BAD_STATE;
+    }
+    if (!isRunning(dispatcher)) {
+        mprError("Cannot stop a stopped dispatcher");
+        return MPR_ERR_BAD_STATE;
+    }
+    dispatcher->owner = 0;
     dequeueDispatcher(dispatcher);
     mprScheduleDispatcher(dispatcher);
+    return 0;
 }
 
 
@@ -9852,10 +9895,13 @@ static int dispatchEvents(MprDispatcher *dispatcher)
         mprTrace(7, "Call event %s", event->name);
         assert(!(event->flags & MPR_EVENT_RUNNING));
         event->flags |= MPR_EVENT_RUNNING;
-        assert(event->proc);
 
+        assert(event->proc);
         (event->proc)(event->data, event);
 
+        if (dispatcher->flags & MPR_DISPATCHER_DESTROYED) {
+            break;
+        }
         event->flags &= ~MPR_EVENT_RUNNING;
 
         lock(es);
@@ -9875,6 +9921,7 @@ static int dispatchEvents(MprDispatcher *dispatcher)
         }
         es->eventCount++;
         unlock(es);
+        assert(dispatcher->owner == mprGetCurrentOsThread());
     }
     dispatcher->owner = priorOwner;
     return count;

@@ -14764,6 +14764,7 @@ PUBLIC void httpGetStats(HttpStats *sp)
     sp->heap = ap->bytesAllocated + ap->bytesFree;
     sp->heapUsed = ap->bytesAllocated;
     sp->heapFree = ap->bytesFree;
+    sp->heapMax = ap->bytesMax;
     sp->heapRegions = ap->heapRegions;
 
     mprGetWorkerStats(&wstats);
@@ -14812,6 +14813,7 @@ PUBLIC char *httpStatsReport(int flags)
     mprPutToBuf(buf, "Heap        %8.1f MB, %5.1f%% mem\n", s.heap / mb, s.heap / (double) s.mem * 100.0);
     mprPutToBuf(buf, "Heap-used   %8.1f MB, %5.1f%% used\n", s.heapUsed / mb, s.heapUsed / (double) s.heap * 100.0);
     mprPutToBuf(buf, "Heap-free   %8.1f MB, %5.1f%% free\n", s.heapFree / mb, s.heapFree / (double) s.heap * 100.0);
+    mprPutToBuf(buf, "Heap-max    %8.1f MB, %5.1f%% free\n", s.heapMax / mb, s.heapMax / (double) s.heap * 100.0);
     mprPutToBuf(buf, "Sessions    %8.1f MB\n", s.memSessions / mb);
 
     mprPutCharToBuf(buf, '\n');
