@@ -3338,10 +3338,16 @@ public class Me {
         if (!me.generating) {
             if (!options.dry) {
                 if (!path.isDir) {
-                    strace('Create', 'mkdir ' + path)
-                    if (!path.makeDir()) {
+                    try {
+                        strace('Create', 'mkdir ' + path)
+                        if (!path.makeDir()) {
+                            throw "Cannot make directory" + path
+                        }
+                    } catch (e) {
+                        print(e)
+                        print("CANNOT MAKE DIR", path)
                         throw "Cannot make directory" + path
-                    }
+                    } 
                 }
                 if ((options.user || options.group || options.uid || options.gid) && App.uid == 0) {
                     path.setAttributes(options)
