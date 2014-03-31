@@ -782,7 +782,7 @@ module embedthis.me {
             /*
                 ../packages/packages-OS-ARCH/NEWEST-VERSION
              */
-            let path = me.dir.top.join('../packages-' + me.platform.os + '-' + me.platform.arch, component)
+            let path = me.dir.top.join('../packages-' + me.platform.os + '-' + me.platform.arch, component.replace('-src', ''))
             if (path) {
                 search.push(path.join(objdir))
             }
