@@ -1343,7 +1343,7 @@ public class Me {
         return files
     }
 
-    function inheritDep(target, dep) {
+    function inheritDep(target, dep, inheritCompiler = false) {
         target.defines ||= []
         target.compiler ||= []
         target.includes ||= []
@@ -1375,9 +1375,11 @@ public class Me {
                 target.defines.push(option)
             }
         }
-        for each (option in dep.compiler) {
-            if (!target.compiler.contains(option)) {
-                target.compiler.push(option)
+        if (inheritCompiler) {
+            for each (option in dep.compiler) {
+                if (!target.compiler.contains(option)) {
+                    target.compiler.push(option)
+                }
             }
         }
         return target
@@ -1580,7 +1582,7 @@ public class Me {
             }
             let base = {}
             if (target.type == 'exe' || target.type == 'lib') {
-                base = inheritDep(base, me.targets.compiler)
+                base = inheritDep(base, me.targets.compiler, true)
             }
             if (Object.getOwnPropertyCount(me.defaults)) {
                 for (let [key,value] in me.defaults) {
