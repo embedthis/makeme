@@ -1216,7 +1216,7 @@ public class Me {
         }
         if (goal === true || target.goals.contains(goal)) {
             target.selected = true
-            for each (dname in (target.depends + target.uses)) {
+            for each (dname in target.depends) {
                 if (dname == ALL) {
                     for each (target in me.targets) {
                         selectDependentTargets(target, dname)
@@ -1230,6 +1230,12 @@ public class Me {
                     } else if (!Path(dname).exists && !me.targets[dname]) {
                         throw 'Unknown dependency "' + dname + '" in target "' + target.name + '"'
                     }
+                }
+            }
+            for each (dname in target.uses) {
+                let dep = me.targets[dname]
+                if (dep && !dep.selected) {
+                    selectDependentTargets(dep, true)
                 }
             }
             /*
