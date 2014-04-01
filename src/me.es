@@ -634,11 +634,14 @@ public class Me {
         let requires = []
         for each (field in poptions['with']) {
             let [field,value] = field.split('=')
+            let prior = me.targets[field]
             let target = me.targets[field] ||= {}
             target.name ||= field
-            target.enable = true
             target.explicit = true
             target.essential = true
+            if (!prior) {
+                target.bare = true
+            }
             if (value) {
                 target.withpath = Path(value)
             }

@@ -336,10 +336,16 @@ module embedthis.me {
         @hide
      */
     function findComponents() {
-        let configure = me.configure.requires + me.configure.discovers + me.configure.extras
+        let configure = me.configure.requires + me.configure.discovers //MOB + me.configure.extras
+
+        /*
+            Add pre-loaded configurable targets. If these are in "extras" only load if generating
+         */
         for each (target in me.targets) {
             if (target.configurable && !configure.contains(target.name)) {
-                configure.push(target.name)
+                if (me.options.gen || !me.configure.extras.contains(target.name)) {
+                    configure.push(target.name)
+                }
             }
         }
         configure = configure.unique()
@@ -368,8 +374,16 @@ module embedthis.me {
         target.loading = true
         try {
             let path: Path?, pak: Path?
-            if (target.withPath) {
-                path = target.withpath
+            if (target.withpath) {
+                pak = target.withpath.join(target.name + '.me')
+                if (pak.exists) {
+                    b.loadMeFile(pak)
+                    target.path = target.withpath
+                    target.diagnostic = 'Load component from pak: ' + pak
+                } else {
+                    throw 'Cannot find definition for component: ' + target.name + ' at ' + pak
+                }
+                
             } else {
                 if (target.loaded) {
                     target.diagnostic = 'Pre-loaded component'
@@ -390,7 +404,7 @@ module embedthis.me {
                             b.loadMeFile(path)
 
                         } else if (me.targets[target.name]) {
-                            throw 'Cannot find component: ' + target.name + '.me'
+                            throw 'Cannot find definition for component: ' + target.name + '.me'
                         }
                     }
                 }
@@ -421,10 +435,10 @@ module embedthis.me {
                 loadComponents(target.discovers)
             }
             loadComponents(target.depends)
-
             if (target.enable === undefined) {
                 target.enable = true
             }
+
         } catch (e) {
             //  MOB - why try / catch here. What about enableComponents, configureComponents...
             if (!(e is String)) {
@@ -719,7 +733,8 @@ module embedthis.me {
             if (b.options['continue'] && control.default) {
                 return control.default
             }
-            throw 'Cannot find "' + file + '" for component "' + currentComponent + '" on ' + b.currentPlatform + '. '
+            throw 'Cannot find "' + file + '" for component "' + currentComponent + '" on ' + b.currentPlatform + '.\n' + 
+                'Using search: ' + serialize(search, {pretty: true})
         }
         vtrace('Probe', 'Component "' + currentComponent + '" found: "' + path)
         if (control.fullpath) {
@@ -762,10 +777,11 @@ module embedthis.me {
     }
 
     public function getComponentSearch(target, component, objdir = '.') {
-        let search = []
         if (target.withpath) {
-            search.push(target.withpath)
-        } else if (me.dir) {
+            return [Path(target.withpath).join(objdir)]
+        } 
+        let search = []
+        if (me.dir) {
             if (me.dir.paks) {
                 /*
                     src/paks/NAME
