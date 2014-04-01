@@ -336,7 +336,10 @@ module embedthis.me {
         @hide
      */
     function findComponents() {
-        let configure = me.configure.requires + me.configure.discovers //MOB + me.configure.extras
+        let configure = me.configure.requires + me.configure.discovers
+        if (me.options.gen) {
+            configure += me.configure.extras
+        }
 
         /*
             Add pre-loaded configurable targets. If these are in "extras" only load if generating
