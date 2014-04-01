@@ -15,7 +15,7 @@ Me.load({
                         includes: [ '$(ME_COM_NANOSSL_PATH)/src' ]
                     }
                 }
-                let search = getComponentSearch(target, 'nanossl-src', 'bin')
+                let search = getComponentSearch(target, 'nanossl', 'bin')
                 let lib = probe('libssls.' + me.ext.lib, {fullpath: true, search: search}).absolute
                 let path = lib.dirname
                 let incdir = probe('common/moptions.h', {search: [path.join('src')]}).absolute

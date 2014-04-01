@@ -17,7 +17,7 @@ Me.load({
                     }
                 }
                 let lib, libraries, libpaths, imports, includes, path
-                let search = getComponentSearch(target, 'openssl-src')
+                let search = getComponentSearch(target, 'openssl')
                 if (me.platform.os == 'windows') {
                     for (let [index, item] in search) {
                         search[index] = Path(item).join('out32dll')
