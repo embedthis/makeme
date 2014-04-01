@@ -2333,6 +2333,9 @@ public class Me {
             if (!dep) {
                 /* Dependency not found as a target , so treat as a file */
                 if (!dname.modified) {
+                    if (target.uses.contains(dname.toString())) {
+                        continue
+                    }
                     whyRebuild(path, 'Rebuild', 'missing dependency ' + dname)
                     return true
                 }
