@@ -48664,7 +48664,7 @@ static void manageTimer(EjsTimer *tp, int flags)
 {
     if (flags & MPR_MANAGE_MARK) {
         /* Pooled interpreter being abandoned */
-        if (tp->ejs->abandoned) {
+        if (tp->ejs == 0 || tp->ejs->abandoned) {
             if (tp->event) {
                 mprRemoveEvent(tp->event);
                 tp->event = 0;

@@ -5277,8 +5277,35 @@ static void checkCounter(HttpMonitor *monitor, HttpCounter *counter, cchar *ip)
         invokeDefenses(monitor, args);
     }
     mprTrace(5, "CheckCounter \"%s\" (%Ld %c limit %Ld) every %Ld secs", monitor->counterName, counter->value, 
-            monitor->expr, monitor->limit, monitor->period / 1000);
+            monitor->expr, monitor->limit, monitor->period / MPR_TICKS_PER_SEC);
     counter->value = 0;
+}
+
+
+PUBLIC void httpPruneMonitors()
+{
+    Http        *http;
+    HttpAddress *address;
+    MprTicks    period;
+    MprKey      *kp;
+
+    http = MPR->httpService;
+    period = max(http->monitorMaxPeriod, 15 * MPR_TICKS_PER_SEC);
+    lock(http->addresses);
+    for (ITERATE_KEY_DATA(http->addresses, kp, address)) {
+        if ((address->updated + period) < http->now) {
+            if (address->banUntil) {
+                if (address->banUntil < http->now) {
+                    mprLog(1, "Remove ban on client %s", kp->key);
+                    mprRemoveKey(http->addresses, kp->key);
+                }
+            } else {
+                mprRemoveKey(http->addresses, kp->key);
+                /* Safe to keep iterating after removal of key */
+            }
+        }
+    }
+    unlock(http->addresses);
 }
 
 
@@ -5291,7 +5318,6 @@ static void checkMonitor(HttpMonitor *monitor, MprEvent *event)
     HttpAddress     *address;
     HttpCounter     c, *counter;
     MprKey          *kp;
-    int             removed;
 
     http = monitor->http;
     http->now = mprGetTicks();
@@ -5316,34 +5342,23 @@ static void checkMonitor(HttpMonitor *monitor, MprEvent *event)
             Check the monitor for each active client address
          */
         lock(http->addresses);
-        do {
-            removed = 0;
-            for (ITERATE_KEY_DATA(http->addresses, kp, address)) {
-                counter = &address->counters[monitor->counterIndex];
-                unlock(http->addresses);
-                checkCounter(monitor, counter, kp->key);
-                lock(http->addresses);
-                /*
-                    Expire old records
-                 */
-                if ((address->updated + http->monitorMaxPeriod) < http->now) {
-                    if (address->banUntil < http->now) {
-                        if (address->banUntil) {
-                            mprLog(1, "Remove ban on client %s", kp->key);
-                        }
-                        mprRemoveKey(http->addresses, kp->key);
-                        removed = 1;
-                        break;
-                    }
-                }
-            }
-        } while (removed);
+        for (ITERATE_KEY_DATA(http->addresses, kp, address)) {
+            counter = &address->counters[monitor->counterIndex];
+            unlock(http->addresses);
 
+            /*
+                WARNING: this may allow new addresses to be added or stale addresses to be removed.
+                Regardless, because GC is paused, iterating is safe.
+             */
+            checkCounter(monitor, counter, kp->key);
+
+            lock(http->addresses);
+        }
         if (mprGetHashLength(http->addresses) == 0) {
             stopMonitors();
         }
         unlock(http->addresses);
-        return;
+        httpPruneMonitors();
     }
 }
 
@@ -5487,7 +5502,7 @@ PUBLIC int64 httpMonitorEvent(HttpConn *conn, int counterIndex, int64 adj)
             if (address) {
                 address = mprRealloc(address, sizeof(HttpAddress) * ncounters * sizeof(HttpCounter));
             } else {
-                address = mprAllocMem(sizeof(HttpAddress) * ncounters * sizeof(HttpCounter), MPR_ALLOC_MANAGER | MPR_ALLOC_ZERO);
+                address = mprAllocBlock(sizeof(HttpAddress) * ncounters * sizeof(HttpCounter), MPR_ALLOC_MANAGER | MPR_ALLOC_ZERO);
                 mprSetManager(address, (MprManager) manageAddress);
             }
             if (!address) {
@@ -5672,7 +5687,7 @@ static void cmdRemedy(MprHash *args)
         mprError("Cannot start command: %s", command);
         return;
     }
-    mprLog(1, "Cmd data: %s", data);
+    mprLog(1, "Cmd data: \n%s", data);
     if (data && mprWriteCmdBlock(cmd, MPR_CMD_STDIN, data, -1) < 0) {
         mprError("Cannot write to command: %s", command);
         return;
@@ -5682,7 +5697,7 @@ static void cmdRemedy(MprHash *args)
         rc = mprWaitForCmd(cmd, ME_HTTP_REMEDY_TIMEOUT);
         status = mprGetCmdExitStatus(cmd);
         if (rc < 0 || status != 0) {
-            mprError("Email remedy failed. Error: %s\nResult: %s", mprGetBufStart(cmd->stderrBuf), mprGetBufStart(cmd->stdoutBuf));
+            mprError("Remedy failed. Error: %s\nResult: %s", mprGetBufStart(cmd->stderrBuf), mprGetBufStart(cmd->stdoutBuf));
             return;
         }
         mprDestroyCmd(cmd);
@@ -14505,10 +14520,8 @@ static void httpTimer(Http *http, MprEvent *event)
     HttpConn    *conn;
     HttpStage   *stage;
     HttpLimits  *limits;
-    HttpAddress *address;
     MprModule   *module;
-    MprKey      *kp;
-    int         removed, next, active, abort, period;
+    int         next, active, abort;
 
     updateCurrentDate(http);
 
@@ -14573,24 +14586,7 @@ static void httpTimer(Http *http, MprEvent *event)
             }
         }
     }
-
-    /*
-        Expire old client addresses. This is done in checkMonitor if monitors exist.
-        Do here just to cleanup old addresses
-     */
-    period = (int) max(http->monitorMaxPeriod, 60 * 1000);
-    lock(http->addresses);
-    do {
-        removed = 0;
-        for (ITERATE_KEY_DATA(http->addresses, kp, address)) {
-            if ((address->updated + period) < http->now) {
-                mprRemoveKey(http->addresses, kp->key);
-                removed = 1;
-                break;
-            }
-        }
-    } while (removed);
-    unlock(http->addresses);
+    httpPruneMonitors();
 
     if (active == 0 || mprIsStopping()) {
         if (event) {
@@ -14754,17 +14750,17 @@ PUBLIC void httpGetStats(HttpStats *sp)
     http = MPR->httpService;
     ap = mprGetMemStats();
 
-    sp->cpu = ap->cpu;
-    sp->cpus = ap->numCpu;
+    sp->cpuUsage = ap->cpuUsage;
+    sp->cpuCores = ap->cpuCores;
     sp->ram = ap->ram;
     sp->mem = ap->rss;
     sp->memRedline = ap->warnHeap;
     sp->memMax = ap->maxHeap;
 
-    sp->heap = ap->bytesAllocated + ap->bytesFree;
-    sp->heapUsed = ap->bytesAllocated;
+    sp->heap = ap->bytesAllocated;
+    sp->heapUsed = ap->bytesAllocated - ap->bytesFree;
+    sp->heapPeak = ap->bytesAllocatedPeak;
     sp->heapFree = ap->bytesFree;
-    sp->heapMax = ap->bytesMax;
     sp->heapRegions = ap->heapRegions;
 
     mprGetWorkerStats(&wstats);
@@ -14809,31 +14805,35 @@ PUBLIC char *httpStatsReport(int flags)
     buf = mprCreateBuf(0, 0);
 
     mprPutToBuf(buf, "\nHttp Report: at %s\n\n", mprGetDate("%D %T"));
-    mprPutToBuf(buf, "Memory      %8.1f MB, %5.1f%% max\n", s.mem / mb, s.mem / (double) s.memMax * 100.0);
-    mprPutToBuf(buf, "Heap        %8.1f MB, %5.1f%% mem\n", s.heap / mb, s.heap / (double) s.mem * 100.0);
-    mprPutToBuf(buf, "Heap-used   %8.1f MB, %5.1f%% used\n", s.heapUsed / mb, s.heapUsed / (double) s.heap * 100.0);
-    mprPutToBuf(buf, "Heap-free   %8.1f MB, %5.1f%% free\n", s.heapFree / mb, s.heapFree / (double) s.heap * 100.0);
-    mprPutToBuf(buf, "Heap-max    %8.1f MB, %5.1f%% free\n", s.heapMax / mb, s.heapMax / (double) s.heap * 100.0);
-    mprPutToBuf(buf, "Sessions    %8.1f MB\n", s.memSessions / mb);
+    if (flags & HTTP_STATS_MEMORY) {
+        mprPutToBuf(buf, "Memory       %8.1f MB, %5.1f%% max\n", s.mem / mb, s.mem / (double) s.memMax * 100.0);
+        mprPutToBuf(buf, "Heap         %8.1f MB, %5.1f%% mem\n", s.heap / mb, s.heap / (double) s.mem * 100.0);
+        mprPutToBuf(buf, "Heap-peak    %8.1f MB\n", s.heapPeak / mb);
+        mprPutToBuf(buf, "Heap-used    %8.1f MB, %5.1f%% used\n", s.heapUsed / mb, s.heapUsed / (double) s.heap * 100.0);
+        mprPutToBuf(buf, "Heap-free    %8.1f MB, %5.1f%% free\n", s.heapFree / mb, s.heapFree / (double) s.heap * 100.0);
 
-    mprPutCharToBuf(buf, '\n');
-    mprPutToBuf(buf, "CPUs        %8d\n", s.cpus);
-    mprPutCharToBuf(buf, '\n');
+        if (s.memMax == (size_t) -1) {
+            mprPutToBuf(buf, "Heap limit          -\n");
+            mprPutToBuf(buf, "Heap readline       -\n");
+        } else {
+            mprPutToBuf(buf, "Heap limit   %8.1f MB\n", s.memMax / mb);
+            mprPutToBuf(buf, "Heap redline %8.1f MB\n", s.memRedline / mb);
+        }
+    }
 
-    mprPutToBuf(buf, "Connections %8.1f per/sec\n", (s.totalConnections - last.totalConnections) / elapsed);
-    mprPutToBuf(buf, "Requests    %8.1f per/sec\n", (s.totalRequests - last.totalRequests) / elapsed);
-    mprPutToBuf(buf, "Sweeps      %8.1f per/sec\n", (s.totalSweeps - last.totalSweeps) / elapsed);
-    mprPutCharToBuf(buf, '\n');
-
-    mprPutToBuf(buf, "Clients     %8d active\n", s.activeClients);
-    mprPutToBuf(buf, "Connections %8d active\n", s.activeConnections);
-    mprPutToBuf(buf, "Processes   %8d active\n", s.activeProcesses);
-    mprPutToBuf(buf, "Requests    %8d active\n", s.activeRequests);
-    mprPutToBuf(buf, "Sessions    %8d active\n", s.activeSessions);
+    mprPutToBuf(buf, "Connections  %8.1f per/sec\n", (s.totalConnections - last.totalConnections) / elapsed);
+    mprPutToBuf(buf, "Requests     %8.1f per/sec\n", (s.totalRequests - last.totalRequests) / elapsed);
+    mprPutToBuf(buf, "Sweeps       %8.1f per/sec\n", (s.totalSweeps - last.totalSweeps) / elapsed);
     mprPutCharToBuf(buf, '\n');
 
-    mprPutToBuf(buf, "Workers     %8d busy - %d yielded, %d idle, %d max\n", 
+    mprPutToBuf(buf, "Clients      %8d active\n", s.activeClients);
+    mprPutToBuf(buf, "Connections  %8d active\n", s.activeConnections);
+    mprPutToBuf(buf, "Processes    %8d active\n", s.activeProcesses);
+    mprPutToBuf(buf, "Requests     %8d active\n", s.activeRequests);
+    mprPutToBuf(buf, "Sessions     %8d active\n", s.activeSessions);
+    mprPutToBuf(buf, "Workers      %8d busy - %d yielded, %d idle, %d max\n", 
         s.workersBusy, s.workersYielded, s.workersIdle, s.workersMax);
+    mprPutToBuf(buf, "Sessions     %8.1f MB\n", s.memSessions / mb);
     mprPutCharToBuf(buf, '\n');
 
     last = s;

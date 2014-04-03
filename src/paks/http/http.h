@@ -491,6 +491,7 @@ PUBLIC void httpAddCounters();
 PUBLIC int httpAddRemedies();
 PUBLIC MprTicks httpGetTicks(cchar *value);
 PUBLIC uint64 httpGetNumber(cchar *value);
+PUBLIC void httpPruneMonitors();
 
 /************************************ Http **********************************/
 /** 
@@ -790,15 +791,15 @@ PUBLIC void httpDefineRouteBuiltins();
  */
 typedef struct HttpStats {
     uint64  ram;                        /**< System total RAM */
-    uint64  mem;                        /**< Current application memory */
+    uint64  mem;                        /**< Current application memory (includes code + data + heap) */
     uint64  memRedline;                 /**< Memory heap warnHeap limit */
     uint64  memMax;                     /**< Memory heap maximum permitted */
     uint64  memSessions;                /**< Memory used for sessions */ 
 
     uint64  heap;                       /**< Current application heap memory */
+    uint64  heapPeak;                   /**< Peak heap memory usage */
     uint64  heapUsed;                   /**< Current heap memory in use */
     uint64  heapFree;                   /**< Current heap memory available */
-    uint64  heapMax;                    /**< Max heap memory */
     uint    heapRegions;                /**< Count of heap memory regions */
 
     int     workersBusy;                /**< Current busy worker threads */
@@ -815,10 +816,12 @@ typedef struct HttpStats {
     uint64  totalSweeps;                /**< Total GC sweeps */
     uint64  totalRequests;              /**< Total requests served */
     uint64  totalConnections;           /**< Total connections accepted */
-    uint64  cpu;                        /**< CPU usage */
-
-    int     cpus;
+    uint64  cpuUsage;                   /**< Total process CPU usage in ticks */
+    int     cpuCores;
 } HttpStats;
+
+#define HTTP_STATS_MEMORY   0x1
+#define HTTP_STATS_ALL      0x1
 
 /** 
     Get an Http performance report

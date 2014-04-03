@@ -207,7 +207,7 @@ PUBLIC Mpr *mprCreateMemService(MprManager manager, int flags)
         return NULL;
     }
     memset(heap, 0, sizeof(MprHeap));
-    heap->stats.numCpu = memStats.numCpu;
+    heap->stats.cpuCores = memStats.cpuCores;
     heap->stats.pageSize = memStats.pageSize;
     heap->stats.maxHeap = (size_t) -1;
     heap->stats.warnHeap = ((size_t) -1) / 100 * 95;
@@ -257,6 +257,7 @@ PUBLIC Mpr *mprCreateMemService(MprManager manager, int flags)
     }
 #endif
     heap->stats.bytesAllocated += size;
+    heap->stats.bytesAllocatedPeak = heap->stats.bytesAllocated;
     INC(allocs);
     initQueues();
 
@@ -456,7 +457,7 @@ static MprMem *allocMem(size_t required)
     MprFreeMem      *fp;
     MprMem          *mp;
     size_t          *bitmap, localMap;
-    int             baseBindex, bindex, qindex, retryIndex;
+    int             baseBindex, bindex, qindex, baseQindex, retryIndex;
 
     ATOMIC_INC(requests);
 
@@ -474,8 +475,10 @@ static MprMem *allocMem(size_t required)
             }
         }
     }
+    baseQindex = qindex;
+
     if (qindex >= 0) {
-        heap->workDone += qindex;
+        heap->workDone += required;
     retry:
         retryIndex = -1;
         baseBindex = qindex / MPR_ALLOC_BITMAP_BITS;
@@ -486,63 +489,81 @@ static MprMem *allocMem(size_t required)
          */
         for (bindex = baseBindex; bindex < MPR_ALLOC_NUM_BITMAPS; bitmap++, bindex++) {
             /* Mask queues lower than the base queue */
-            localMap = heap->bitmap[bindex] & ((size_t) ((uint64) -1 << max(0, (qindex - (MPR_ALLOC_BITMAP_BITS * bindex)))));
+            localMap = *bitmap & ((size_t) ((uint64) -1 << max(0, (qindex - (MPR_ALLOC_BITMAP_BITS * bindex)))));
 
             while (localMap) {
                 qindex = (bindex * MPR_ALLOC_BITMAP_BITS) + findFirstBit(localMap) - 1;
                 freeq = &heap->freeq[qindex];
                 ATOMIC_INC(trys);
-                if (freeq->next != (MprFreeMem*) freeq) {
-                    if (acquire(freeq)) {
-                        if (freeq->next != (MprFreeMem*) freeq) {
-                            /* Inline unlinkBlock for speed */
-                            fp = freeq->next;
-                            fp->prev->next = fp->next;
-                            fp->next->prev = fp->prev;
-                            fp->blk.qindex = 0;
-                            fp->blk.mark = heap->mark;
-                            fp->blk.free = 0;
-                            if (--freeq->count == 0) {
-                                clearbitmap(bitmap, qindex % MPR_ALLOC_BITMAP_BITS);
-                            }
-                            mp = (MprMem*) fp;
-                            release(freeq);
-                            mprAtomicAdd64((int64*) &heap->stats.bytesFree, -(int64) mp->size);
+                if (acquire(freeq)) {
+                    if (freeq->next != (MprFreeMem*) freeq) {
+                        /* Inline unlinkBlock for speed */
+                        fp = freeq->next;
+                        fp->prev->next = fp->next;
+                        fp->next->prev = fp->prev;
+                        fp->blk.qindex = 0;
+                        fp->blk.mark = heap->mark;
+                        fp->blk.free = 0;
+                        if (--freeq->count == 0) {
+                            clearbitmap(bitmap, qindex % MPR_ALLOC_BITMAP_BITS);
+                        }
+                        assert(freeq->count >= 0);
+                        mp = (MprMem*) fp;
+                        release(freeq);
+                        mprAtomicAdd64((int64*) &heap->stats.bytesFree, -(int64) mp->size);
 
-                            if (mp->size >= (size_t) (required + MPR_ALLOC_MIN_SPLIT)) {
-                                linkSpareBlock(((char*) mp) + required, mp->size - required);
-                                mp->size = (MprMemSize) required;
-                                ATOMIC_INC(splits);
-                            }
-                            if (heap->workDone > heap->workQuota && heap->stats.bytesFree < heap->stats.lowHeap && 
-                                    !heap->gcRequested) {
-                                triggerGC();
-                            }
-                            ATOMIC_INC(reuse);
-                            assert(mp->size >= required);
-                            return mp;
-                        } else {
-                            /* Someone beat us to the last block */
-                            release(freeq);
+                        if (mp->size >= (size_t) (required + MPR_ALLOC_MIN_SPLIT)) {
+                            linkSpareBlock(((char*) mp) + required, mp->size - required);
+                            mp->size = (MprMemSize) required;
+                            ATOMIC_INC(splits);
                         }
+                        if (!heap->gcRequested && heap->workDone > heap->workQuota) {
+                            triggerGC();
+                        }
+                        ATOMIC_INC(reuse);
+                        assert(mp->size >= required);
+                        return mp;
                     } else {
-                        /* Contention on this queue */
-                        ATOMIC_INC(tryFails);
-                        if (freeq->count > 0 && retryIndex < 0) {
-                            retryIndex = qindex;
+                        /* Another thread raced for the last block */
+                        ATOMIC_INC(race);
+                        if (freeq->count == 0) {
+                            clearbitmap(bitmap, qindex % MPR_ALLOC_BITMAP_BITS);
                         }
+                        release(freeq);
+                    }
+                } else {
+                    /* Contention on this queue */
+                    ATOMIC_INC(tryFails);
+                    if (freeq->count > 0 && retryIndex < 0) {
+                        retryIndex = qindex;
                     }
                 }
-                /* Refresh the bitmap incase other threads have split or depleted suitable queues. +1 to clear current queue */
-                localMap = heap->bitmap[bindex] & ((size_t) ((uint64) -1 << max(0, (qindex + 1 - (MPR_ALLOC_BITMAP_BITS * bindex)))));
+                /* 
+                    Refresh the bitmap incase threads have split or depleted suitable queues. 
+                    +1 to step past the current queue.
+                 */
+                localMap = *bitmap & ((size_t) ((uint64) -1 << max(0, (qindex + 1 - (MPR_ALLOC_BITMAP_BITS * bindex)))));
                 ATOMIC_INC(qrace);
             }
         }
+        /*
+            Avoid growing the heap if there is a suitable block in the heap.
+         */
         if (retryIndex >= 0) {
-            /* Avoid growHeap if there is a suitable block in the heap */
+            /* Contention on a suitable queue - retry that */
             ATOMIC_INC(retries);
             qindex = retryIndex;
             goto retry;
+        }
+        if (heap->stats.bytesFree > heap->stats.lowHeap) {
+            /* A suitable block may be available - try again */
+            bitmap = &heap->bitmap[baseBindex];
+            for (bindex = baseBindex; bindex < MPR_ALLOC_NUM_BITMAPS; bitmap++, bindex++) {
+                if (*bitmap & ((size_t) ((uint64) -1 << max(0, (baseQindex - (MPR_ALLOC_BITMAP_BITS * bindex)))))) {
+                    qindex = baseQindex;
+                    goto retry;
+                }
+            }
         }
     }
     return growHeap(required);
@@ -597,10 +618,10 @@ static MprMem *growHeap(size_t required)
     /*
         Tolerate races
      */
-    if (heap->stats.bytesAllocated > heap->stats.bytesMax) {
-        heap->stats.bytesMax = heap->stats.bytesAllocated;
-#if (ME_MPR_ALLOC_STATS && ME_MPR_ALLOC_DEBUG)
-        printf("MPR: Heap new max %lld request %lu\n", heap->stats.bytesMax, required);
+    if (heap->stats.bytesAllocated > heap->stats.bytesAllocatedPeak) {
+        heap->stats.bytesAllocatedPeak = heap->stats.bytesAllocated;
+#if (ME_MPR_ALLOC_STATS && ME_MPR_ALLOC_DEBUG) && KEEP
+        printf("MPR: Heap new max %lld request %lu\n", heap->stats.bytesAllocatedPeak, required);
 #endif
     }
     CHECK(mp);
@@ -620,7 +641,6 @@ static void freeBlock(MprMem *mp)
     heap->stats.sweptBytes += mp->size;
 #endif
     heap->freedBlocks = 1;
-    freeLocation(mp);
 #if ME_MPR_ALLOC_STATS
     heap->stats.freed += mp->size;
 #endif
@@ -708,6 +728,7 @@ static ME_INLINE bool linkBlock(MprMem *mp)
         will retry next time. Note: the bitmap is updated with the queue acquired to safeguard the integrity of 
         this queue's free bit.
      */
+    ATOMIC_INC(trys);
     if (!acquire(freeq)) {
         ATOMIC_INC(tryFails);
         mp->mark = !mp->mark;
@@ -769,7 +790,7 @@ static ME_INLINE void linkSpareBlock(char *ptr, size_t size)
     while (size > 0) {
         initBlock(mp, len, 0);
         if (!linkBlock(mp)) {
-            /* Break into pieces and try lesser queue */
+            /* Cannot acquire queue. Break into pieces and try lesser queue */
             if (len >= (MPR_ALLOC_MIN_BLOCK * 8)) {
                 len = MPR_ALLOC_ALIGN(len / 2);
                 len = min(size, len);
@@ -1180,17 +1201,21 @@ static void markAndSweep()
     }
     assert(!pauseGC);
     INC(collections);
-    heap->priorWeightedCount = heap->workDone;
+    heap->priorWorkDone = heap->workDone;
     heap->workDone = 0;
 #if ME_MPR_ALLOC_STATS
     heap->priorFree = heap->stats.bytesFree;
 #endif
+    /*
+        Toggle the mark each collection
+     */
+    heap->mark = !heap->mark;
 
     /*
         Mark all roots. All user threads are paused here
      */
-    heap->mark = !heap->mark;
     MPR_MEASURE(ME_MPR_ALLOC_LEVEL, "GC", "mark", markRoots());
+
     heap->sweeping = 1;
     mprAtomicBarrier();
     heap->marking = 0;
@@ -1302,7 +1327,6 @@ static void sweep()
     int         joinBlocks, rcount;
 
     if (!heap->gcEnabled) {
-        mprTrace(0, "DEBUG: sweep: Abort sweep - GC disabled");
         return;
     }
     mprTrace(7, "GC: sweep started");
@@ -1342,15 +1366,26 @@ static void sweep()
                 continue;
             } 
             if (mp->free && joinBlocks) {
+                /*
+                    Coalesce already free blocks if the next is also free
+                    This may be needed because the code below only coalesces forward.
+                 */
                 if (next < region->end && !next->free && next->mark != heap->mark && claim(mp)) {
                     mp->mark = !heap->mark;
                     INC(compacted);
                 }
             }
             if (!mp->free && mp->mark != heap->mark) {
+                freeLocation(mp);
                 if (joinBlocks) {
+                    /*
+                        Try to join this block with successors
+                     */
                     while (next < region->end && !next->eternal) {
                         if (next->free) {
+                            /*
+                                Block is free and on a freeq - must claim
+                             */
                             if (!claim(next)) {
                                 break;
                             }
@@ -1361,6 +1396,9 @@ static void sweep()
                             INC(joins);
 
                         } else if (next->mark != heap->mark) {
+                            /*
+                                Block is now free and NOT on a freeq - no need to claim
+                             */
                             assert(!next->free);
                             assert(next->qindex == 0);
                             mp->size += next->size;
@@ -1407,12 +1445,12 @@ static void sweep()
                  "    WeightedCount %d / %d, allocated blocks %lld allocated bytes %lld\n"
                  "    Unpins %lld, Collections %lld\n",
         heap->stats.marked, heap->stats.markVisited, heap->stats.swept, heap->stats.sweepVisited, 
-        heap->stats.freed, heap->stats.bytesFree, heap->priorFree, heap->priorWeightedCount, heap->workQuota,
+        heap->stats.freed, heap->stats.bytesFree, heap->priorFree, heap->priorWorkDone, heap->workQuota,
         heap->stats.sweepVisited - heap->stats.swept, heap->stats.bytesAllocated, heap->stats.unpins, 
         heap->stats.collections);
-#if KEEP
-    printf("SWEPT %lld %lld\n\n", heap->stats.swept, heap->stats.sweptBytes);
 #endif
+#if KEEP
+    printf("SWEPT blocks %lld bytes %lld, workDone %d\n", heap->stats.swept, heap->stats.sweptBytes, heap->priorWorkDone);
 #endif
     if (heap->printStats) {
         printMemReport();
@@ -1661,8 +1699,10 @@ PUBLIC void mprRemoveRoot(cvoid *root)
 static void printQueueStats() 
 {
     MprFreeQueue    *freeq;
+    double          mb;
     int             i;
 
+    mb = 1024.0 * 1024;
     /*
         Note the total size is a minimum as blocks may be larger than minSize
      */
@@ -1673,6 +1713,8 @@ static void printQueueStats()
                 freeq->minSize * freeq->count);
         }
     }
+    printf("\n");
+    printf("Heap-used    %8.1f MB\n", (heap->stats.bytesAllocated - heap->stats.bytesFree) / mb);
 }
 
 
@@ -1685,9 +1727,9 @@ static int sortLocation(cvoid *l1, cvoid *l2)
 
     lp1 = (MprLocationStats*) l1;
     lp2 = (MprLocationStats*) l2;
-    if (lp1->count < lp2->count) {
+    if (lp1->total < lp2->total) {
         return -1;
-    } else if (lp1->count == lp2->count) {
+    } else if (lp1->total == lp2->total) {
         return 0;
     }
     return 1;
@@ -1697,25 +1739,32 @@ static int sortLocation(cvoid *l1, cvoid *l2)
 static void printTracking() 
 {
     MprLocationStats     *lp;
+    double              mb;
+    size_t              total;
     cchar                **np;
 
     printf("\nAllocation Stats\n     Size Location\n");
     memcpy(sortLocations, heap->stats.locations, sizeof(sortLocations));
     qsort(sortLocations, MPR_TRACK_HASH, sizeof(MprLocationStats), sortLocation);
 
+    total = 0;
     for (lp = sortLocations; lp < &sortLocations[MPR_TRACK_HASH]; lp++) {
-        if (lp->count) {
+        if (lp->total) {
             for (np = &lp->names[0]; *np && np < &lp->names[MPR_TRACK_NAMES]; np++) {
                 if (*np) {
                     if (np == lp->names) {
-                        printf("%10d %-24s\n", (int) lp->count, *np);
+                        printf("%10d %-24s %d\n", (int) lp->total, *np, lp->count);
                     } else {
                         printf("           %-24s\n", *np);
                     }
                 }
             }
+            total += lp->total;
         }
     }
+    mb = 1024.0 * 1024;
+    printf("Total:    %8.1f MB\n", total / (1024.0 * 1024));
+    printf("Heap-used %8.1f MB\n", (MPR->heap->stats.bytesAllocated - MPR->heap->stats.bytesFree) / mb);
 }
 #endif /* ME_MPR_ALLOC_DEBUG */
 
@@ -1725,10 +1774,12 @@ static void printGCStats()
     MprRegion   *region;
     MprMem      *mp;
     uint64      freeBytes, activeBytes, eternalBytes, regionBytes, available;
+    double      mb;
     char        *tag;
     int         regions, freeCount, activeCount, eternalCount, regionCount;
 
-    printf("\nRegion Stats\n");
+    mb = 1024.0 * 1024;
+    printf("\nRegion Stats:\n");
     regions = 0;
     activeBytes = eternalBytes = freeBytes = 0;
     activeCount = eternalCount = freeCount = 0;
@@ -1764,21 +1815,20 @@ static void printGCStats()
         } else {
             tag = "";
         }
-        printf("  Region %3d size %d, allocated %4d blocks, %7d bytes free %s\n", regions, (int) region->size, 
+        printf("  Region %2d size %d, allocated %4d blocks, %7d bytes free %s\n", regions, (int) region->size, 
             regionCount, (int) available, tag);
     }
-    printf("\nGC Stats\n");
-    printf("  Active:  %9d blocks, %12lld bytes\n", activeCount, activeBytes);
-    printf("  Eternal: %9d blocks, %12lld bytes\n", eternalCount, eternalBytes);
-    printf("  Free:    %9d blocks, %12lld bytes\n", freeCount, freeBytes);
+    printf("\nGC Stats:\n");
+    printf("  Active:  %8d blocks, %6.1f MB\n", activeCount, activeBytes / mb);
+    printf("  Eternal: %8d blocks, %6.1f MB\n", eternalCount, eternalBytes / mb);
+    printf("  Free:    %8d blocks, %6.1f MB\n", freeCount, freeBytes / mb);
 }
 #endif /* ME_MPR_ALLOC_STATS */
 
 
 PUBLIC void mprPrintMem(cchar *msg, int flags)
 {
-    printf("\n%s\n", msg);
-    printf("-------------\n");
+    printf("%s:\n\n", msg);
     heap->printStats = (flags & MPR_MEM_DETAIL) ? 2 : 1;
     mprGC(MPR_GC_FORCE | MPR_GC_COMPLETE);
 }
@@ -1787,41 +1837,45 @@ PUBLIC void mprPrintMem(cchar *msg, int flags)
 static void printMemReport()
 {
     MprMemStats     *ap;
+    double          mb;
 
     ap = mprGetMemStats();
+    mb = 1024.0 * 1024;
 
-    printf("  Total app memory  %14u K\n",             (int) (mprGetMem() / 1024));
-    printf("  Allocated memory  %14u K\n",             (int) (ap->bytesAllocated / 1024));
-    printf("  Free heap memory  %14u K\n",             (int) (ap->bytesFree / 1024));
-    printf("  Max allocated     %14u K\n",             (int) (ap->bytesMax / 1024));
+    printf("Memory Stats:\n");
+    printf("  Memory          %12.1f MB\n", mprGetMem() / mb);
+    printf("  Heap            %12.1f MB\n", ap->bytesAllocated / mb);
+    printf("  Heap-peak       %12.1f MB\n", ap->bytesAllocatedPeak / mb);
+    printf("  Heap-used       %12.1f MB\n", (ap->bytesAllocated - ap->bytesFree) / mb);
+    printf("  Heap-free       %12.1f MB\n", ap->bytesFree / mb);
 
     if (ap->maxHeap == (size_t) -1) {
-        printf("  Memory limit           unlimited\n");
-        printf("  Memory redline         unlimited\n");
+        printf("  Heap limit         unlimited\n");
+        printf("  Heap readline      unlimited\n");
     } else {
-        printf("  Heap max          %14u MB (%.2f %%)\n", 
-            (int) (ap->maxHeap / (1024 * 1024)), ap->bytesAllocated * 100.0 / ap->maxHeap);
-        printf("  Heap redline      %14u MB (%.2f %%)\n", 
-            (int) (ap->warnHeap / (1024 * 1024)), ap->bytesAllocated * 100.0 / ap->warnHeap);
+        printf("  Heap limit      %12.1f MB\n", ap->maxHeap / mb);
+        printf("  Heap redline    %12.1f MB\n", ap->warnHeap / mb);
     }
-    printf("  Heap cache        %14u MB (%.2f %%)\n",   (int) (ap->cacheHeap / (1024 * 1024)), ap->cacheHeap * 100.0 / ap->maxHeap);
-    printf("  Allocation errors %14d\n",                (int) ap->errors);
+    printf("  Heap cache      %12.1f MB (%.2f %%)\n", ap->cacheHeap / mb, ap->cacheHeap * 100.0 / ap->maxHeap);
+    printf("  Errors          %12d\n", (int) ap->errors);
+    printf("  CPU cores       %12d\n", (int) ap->cpuCores);
     printf("\n");
 
 #if ME_MPR_ALLOC_STATS
-    printf("  Memory requests   %14d\n",                (int) ap->requests);
-    printf("  Region allocs     %14.2f %% (%d)\n",      ap->allocs * 100.0 / ap->requests, (int) ap->allocs);
-    printf("  Region unpins     %14.2f %% (%d)\n",      ap->unpins * 100.0 / ap->requests, (int) ap->unpins);
-    printf("  Reuse             %14.2f %%\n",           ap->reuse * 100.0 / ap->requests);
-    printf("  Joins             %14.2f %% (%d)\n",      ap->joins * 100.0 / ap->requests, (int) ap->joins);
-    printf("  Splits            %14.2f %% (%d)\n",      ap->splits * 100.0 / ap->requests, (int) ap->splits);
-    printf("  Q races           %14.2f %% (%d)\n",      ap->qrace * 100.0 / ap->requests, (int) ap->qrace);
-    printf("  Compacted         %14.2f %% (%d)\n",      ap->compacted * 100.0 / ap->requests, (int) ap->compacted);
-    printf("  Freeq failures    %14.2f %% (%d / %d)\n", ap->tryFails * 100.0 / ap->trys, (int) ap->tryFails, (int) ap->trys);
-    printf("  Alloc retries     %14.2f %% (%d / %d)\n", ap->retries * 100.0 / ap->requests, (int) ap->retries, (int) ap->requests);
-    printf("  GC Collections    %14.2f %% (%d)\n",      ap->collections * 100.0 / ap->requests, (int) ap->collections);
-    printf("  MprMem size       %14d\n",                (int) sizeof(MprMem));
-    printf("  MprFreeMem size   %14d\n",                (int) sizeof(MprFreeMem));
+    printf("Allocator Stats:\n");
+    printf("  Memory requests %12d\n",                (int) ap->requests);
+    printf("  Region allocs   %12.2f %% (%d)\n",      ap->allocs * 100.0 / ap->requests, (int) ap->allocs);
+    printf("  Region unpins   %12.2f %% (%d)\n",      ap->unpins * 100.0 / ap->requests, (int) ap->unpins);
+    printf("  Reuse           %12.2f %%\n",           ap->reuse * 100.0 / ap->requests);
+    printf("  Joins           %12.2f %% (%d)\n",      ap->joins * 100.0 / ap->requests, (int) ap->joins);
+    printf("  Splits          %12.2f %% (%d)\n",      ap->splits * 100.0 / ap->requests, (int) ap->splits);
+    printf("  Q races         %12.2f %% (%d)\n",      ap->qrace * 100.0 / ap->requests, (int) ap->qrace);
+    printf("  Q contention    %12.2f %% (%d / %d)\n", ap->tryFails * 100.0 / ap->trys, (int) ap->tryFails, (int) ap->trys);
+    printf("  Alloc retries   %12.2f %% (%d / %d)\n", ap->retries * 100.0 / ap->requests, (int) ap->retries, (int) ap->requests);
+    printf("  GC collections  %12.2f %% (%d)\n",      ap->collections * 100.0 / ap->requests, (int) ap->collections);
+    printf("  Compact next    %12.2f %% (%d)\n",      ap->compacted * 100.0 / ap->requests, (int) ap->compacted);
+    printf("  MprMem size     %12d\n",                (int) sizeof(MprMem));
+    printf("  MprFreeMem size %12d\n",                (int) sizeof(MprFreeMem));
 
     printGCStats();
     if (heap->printStats > 1) {
@@ -1869,12 +1923,18 @@ static void breakpoint(MprMem *mp)
  */
 PUBLIC void *mprSetAllocName(void *ptr, cchar *name)
 {
-    MPR_GET_MEM(ptr)->name = name;
+    MprMem  *mp;
+
+    assert(name && *name);
+
+    mp = GET_MEM(ptr);
+    mp->name = name;
 
     if (heap->track) {
         MprLocationStats    *lp;
         cchar               **np, *n;
         int                 index;
+
         if (name == 0) {
             name = "";
         }
@@ -1885,11 +1945,13 @@ PUBLIC void *mprSetAllocName(void *ptr, cchar *name)
             if (n == 0 || n == name || strcmp(n, name) == 0) {
                 break;
             }
+            /* Collision */
         }
         if (np < &lp->names[MPR_TRACK_NAMES]) {
             *np = (char*) name;
         }
-        lp->count += GET_MEM(ptr)->size;
+        mprAtomicAdd64((int64*) &lp->total, mp->size);
+        mprAtomicAdd(&lp->count, 1);
     }
     return ptr;
 }
@@ -1899,38 +1961,38 @@ static void freeLocation(MprMem *mp)
 {
     MprLocationStats    *lp;
     cchar               *name;
-    int                 index, i;
+    int                 index;
 
     if (!heap->track) {
         return;
     }
     name = mp->name;
     if (name == 0) {
-        name = "";
+        return;
     }
     index = shash(name, strlen(name)) % MPR_TRACK_HASH;
     lp = &heap->stats.locations[index];
-    if (lp->count >= mp->size) {
-        lp->count -= mp->size;
+    mprAtomicAdd(&lp->count, -1);
+    if (lp->total >= mp->size) {
+        mprAtomicAdd64((int64*) &lp->total, - (int64) mp->size);
     } else {
-        lp->count = 0;
+        lp->total = 0;
     }
-    if (lp->count == 0) {
-        for (i = 0; i < MPR_TRACK_NAMES; i++) {
-            lp->names[i] = 0;
-        }
-    }
+    SET_NAME(mp, NULL);
 }
 #endif
 
 
 PUBLIC void *mprSetName(void *ptr, cchar *name) 
 {
-    MprMem  *mp = GET_MEM(ptr);
+    MprMem  *mp;
+
+    assert(name && *name);
+    mp = GET_MEM(ptr);
     if (mp->name) {
         freeLocation(mp);
-        mprSetAllocName(ptr, name);
     }
+    mprSetAllocName(ptr, name);
     return ptr;
 }
 
@@ -2017,20 +2079,20 @@ static void allocException(int cause, size_t size)
 
 static void getSystemInfo()
 {
-    memStats.numCpu = 1;
+    memStats.cpuCores = 1;
 
 #if MACOSX
     #ifdef _SC_NPROCESSORS_ONLN
-        memStats.numCpu = (uint) sysconf(_SC_NPROCESSORS_ONLN);
+        memStats.cpuCores = (uint) sysconf(_SC_NPROCESSORS_ONLN);
     #else
-        memStats.numCpu = 1;
+        memStats.cpuCores = 1;
     #endif
     memStats.pageSize = (uint) sysconf(_SC_PAGESIZE);
 #elif SOLARIS
 {
     FILE *ptr;
     if  ((ptr = popen("psrinfo -p", "r")) != NULL) {
-        fscanf(ptr, "%d", &alloc.numCpu);
+        fscanf(ptr, "%d", &alloc.cpuCores);
         (void) pclose(ptr);
     }
     alloc.pageSize = sysconf(_SC_PAGESIZE);
@@ -2040,7 +2102,7 @@ static void getSystemInfo()
     SYSTEM_INFO     info;
 
     GetSystemInfo(&info);
-    memStats.numCpu = info.dwNumberOfProcessors;
+    memStats.cpuCores = info.dwNumberOfProcessors;
     memStats.pageSize = info.dwPageSize;
 
 }
@@ -2051,10 +2113,10 @@ static void getSystemInfo()
 
         cmd[0] = CTL_HW;
         cmd[1] = HW_NCPU;
-        len = sizeof(memStats.numCpu);
-        memStats.numCpu = 0;
-        if (sysctl(cmd, 2, &memStats.numCpu, &len, 0, 0) < 0) {
-            memStats.numCpu = 1;
+        len = sizeof(memStats.cpuCores);
+        memStats.cpuCores = 0;
+        if (sysctl(cmd, 2, &memStats.cpuCores, &len, 0, 0) < 0) {
+            memStats.cpuCores = 1;
         }
         memStats.pageSize = sysconf(_SC_PAGESIZE);
     }
@@ -2069,7 +2131,7 @@ static void getSystemInfo()
             return;
         }
         match = 1;
-        memStats.numCpu = 0;
+        memStats.cpuCores = 0;
         for (col = 0; read(fd, &c, 1) == 1; ) {
             if (c == '\n') {
                 col = 0;
@@ -2082,13 +2144,13 @@ static void getSystemInfo()
                     col++;
 
                 } else if (match) {
-                    memStats.numCpu++;
+                    memStats.cpuCores++;
                     match = 0;
                 }
             }
         }
-        if (memStats.numCpu <= 0) {
-            memStats.numCpu = 1;
+        if (memStats.cpuCores <= 0) {
+            memStats.cpuCores = 1;
         }
         close(fd);
         memStats.pageSize = sysconf(_SC_PAGESIZE);
@@ -2162,7 +2224,7 @@ PUBLIC MprMemStats *mprGetMemStats()
     heap->stats.user = usermem;
 #endif
     heap->stats.rss = mprGetMem();
-    heap->stats.cpu = mprGetCPU();
+    heap->stats.cpuUsage = mprGetCPU();
     return &heap->stats;
 }
 
@@ -2346,11 +2408,11 @@ static ME_INLINE int cas(size_t *target, size_t expected, size_t value)
 }
 
 
-static ME_INLINE void clearbitmap(size_t *bitmap, int bindex) 
+static ME_INLINE void clearbitmap(size_t *bitmap, int index) 
 {
     size_t  bit, prior;
 
-    bit = (((size_t) 1) << bindex);
+    bit = (((size_t) 1) << index);
     do {
         prior = *bitmap;
         if (!(prior & bit)) {
@@ -2360,11 +2422,11 @@ static ME_INLINE void clearbitmap(size_t *bitmap, int bindex)
 }
 
 
-static ME_INLINE void setbitmap(size_t *bitmap, int bindex) 
+static ME_INLINE void setbitmap(size_t *bitmap, int index) 
 {
     size_t  bit, prior;
 
-    bit = (((size_t) 1) << bindex);
+    bit = (((size_t) 1) << index);
     do {
         prior = *bitmap;
         if (prior & bit) {
@@ -6188,9 +6250,6 @@ PUBLIC int mprWaitForCmd(MprCmd *cmd, MprTicks timeout)
             mprServiceEvents(10, MPR_SERVICE_NO_BLOCK);
         } else {
             if (cmd->dispatcher->owner != mprGetCurrentOsThread()) {
-#if ME_DEBUG
-                mprLog(0, "WARNING: non-owning thread waiting on dispatcher");
-#endif
                 delay = 10;
             }
             mprWaitForEvent(cmd->dispatcher, delay);
@@ -26081,7 +26140,7 @@ PUBLIC int mprAvailableWorkers()
      */
     spareThreads = wstats.max - wstats.busy - wstats.idle;
     activeWorkers = wstats.busy - wstats.yielded;
-    spareCores = MPR->heap->stats.numCpu - activeWorkers;
+    spareCores = MPR->heap->stats.cpuCores - activeWorkers;
     if (spareCores <= 0) {
         return 0;
     }

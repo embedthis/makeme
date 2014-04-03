@@ -805,7 +805,7 @@ PUBLIC void mprAtomicAdd64(volatile int64 *target, int64 value);
 /********************************* Memory Allocator ***************************/
 /*
     Allocator debug and stats selection
-    Use configure --set mprAllocCheck=true to enable
+    Use configure --set mpr.alloc.check=true to enable
  */
 #if ME_MPR_ALLOC_CHECK
     #ifndef ME_MPR_ALLOC_DEBUG
@@ -857,9 +857,9 @@ PUBLIC void mprAtomicAdd64(volatile int64 *target, int64 value);
 #endif
 #ifndef ME_MPR_ALLOC_QUOTA
     #if ME_TUNE_SIZE
-        #define ME_MPR_ALLOC_QUOTA  2048                /* Number of allocations before a GC is worthwhile */
+        #define ME_MPR_ALLOC_QUOTA  (200 * 1024)        /* Total allocations before a GC is worthwhile */
     #else
-        #define ME_MPR_ALLOC_QUOTA  8192
+        #define ME_MPR_ALLOC_QUOTA  (512 * 1024)
     #endif
 #endif
 #ifndef ME_MPR_ALLOC_REGION_SIZE
@@ -1116,12 +1116,13 @@ typedef void (*MprManager)(void *ptr, int flags);
     The location stats table tracks the source code location responsible for each allocation
     Very costly. Don't use except for debug.
  */
-#define MPR_TRACK_HASH        2053              /* Size of location name hash */
-#define MPR_TRACK_NAMES       8                 /* Length of collision chain */
+#define MPR_TRACK_HASH        2053          /* Size of location name hash */
+#define MPR_TRACK_NAMES       8             /* Length of collision chain */
 
 typedef struct MprLocationStats {
-    size_t          count;                      /* Total allocations for this manager */
-    cchar           *names[MPR_TRACK_NAMES];    /* Manager names */
+    size_t  total;                          /* Total allocations for this location */
+    int     count;                          /* Count of allocations for this location */
+    cchar   *names[MPR_TRACK_NAMES];        /* Manager names */
 } MprLocationStats;
 #endif
 
@@ -1133,20 +1134,20 @@ typedef struct MprLocationStats {
   */
 typedef struct MprMemStats {
     int             inMemException;         /**< Recursive protect */
-    uint            numCpu;                 /**< Number of CPUs */
+    uint            cpuCores;               /**< Number of CPU cores */
     uint            pageSize;               /**< System page size */
     uint            heapRegions;            /**< Heap region count */
     uint            sweeps;                 /**< Number of GC sweeps */
-    uint64          cpu;                    /**< Process CPU usage in ticks */
+    uint64          cpuUsage;               /**< Process CPU usage in ticks */
     uint64          cacheHeap;              /**< Heap cache. Try to keep at least this amount in the free queues  */
     uint64          bytesAllocated;         /**< Bytes currently allocated. Includes active and free. */
+    uint64          bytesAllocatedPeak;     /**< Max ever bytes allocated */
     uint64          bytesFree;              /**< Bytes currently free and retained in the heap queues */
-    uint64          bytesMax;               /**< Max ever bytes allocated */
     uint64          errors;                 /**< Allocation errors */
     uint64          lowHeap;                /**< Low memory level at which to initiate a collection */
     uint64          maxHeap;                /**< Max memory that can be allocated */
     uint64          ram;                    /**< System RAM size in bytes */
-    uint64          rss;                    /**< OS calculated resident stack size in bytes */
+    uint64          rss;                    /**< OS calculated memory resident set size in bytes */
     uint64          user;                   /**< System user RAM size in bytes (excludes kernel) */
     uint64          warnHeap;               /**< Warn if heap size exceeds this level */
     uint64          swept;                  /**< Number of blocks swept */
@@ -1163,14 +1164,15 @@ typedef struct MprMemStats {
     uint64          joins;                  /**< Count of times a block was joined (coalesced) with its neighbours */
     uint64          markVisited;            /**< Number of blocks examined for marking */
     uint64          marked;                 /**< Number of blocks marked */
+    uint64          race;                   /**< Another thread raced for a block and won */
     uint64          requests;               /**< Count of memory requests */
     uint64          reuse;                  /**< Count of times a block was reused from a free queue */
     uint64          retries;                /**< Queue retries */
     uint64          qrace;                  /**< Count of times a queue was empty - racing with another thread */
     uint64          splits;                 /**< Count of times a block was split */
     uint64          sweepVisited;           /**< Number of blocks examined for sweeping */
-    uint64          trys;
-    uint64          tryFails;
+    uint64          trys;                   /**< Attempts to acquire a freeq */
+    uint64          tryFails;               /** Acquire a freeq fail count */
     uint64          unpins;                 /**< Count of times a block was unpinned and released back to the O/S */
 #endif
 #if ME_MPR_ALLOC_DEBUG
@@ -1222,9 +1224,9 @@ typedef struct MprHeap {
     int              mustYield;             /**< Threads must yield for GC which is due */
     int              nextSeqno;             /**< Next sequence number */
     int              pageSize;              /**< System page size */
-    int              priorWeightedCount;    /**< Prior weighted count after last sweep */
     int              printStats;            /**< Print diagnostic heap statistics */
     uint64           priorFree;             /**< Last sweep free memory */
+    uint64           priorWorkDone;         /**< Prior workDone before last sweep */
     int              scribble;              /**< Scribble over freed memory (slow) */
     int              sweeping;              /**< Actually sweeping objects now */
     int              track;                 /**< Track memory allocations (requires ME_MPR_ALLOC_DEBUG) */
