@@ -8045,6 +8045,11 @@ static bool applyRange(HttpQueue *q, HttpPacket *packet)
     tx = conn->tx;
     range = tx->currentRange;
 
+    if (mprNeedYield()) {
+        httpScheduleQueue(q);
+        return 0;
+    }
+
     /*
         Process the data packet over multiple ranges ranges until all the data is processed or discarded.
         A packet may contain data or it may be empty with an associated entityLength. If empty, range packets
@@ -12631,6 +12636,10 @@ static ssize filterPacket(HttpConn *conn, HttpPacket *packet, int *more)
 
     if (mprIsSocketEof(conn->sock)) {
         httpSetEof(conn);
+        if (rx->remainingContent > 0 || (rx->chunkState && rx->chunkState != HTTP_CHUNK_EOF)) {
+            httpError(conn, HTTP_ABORT | HTTP_CODE_COMMS_ERROR, "Connection lost");
+            return 0;
+        }
     }
     if (rx->chunkState) {
         nbytes = httpFilterChunkData(tx->queue[HTTP_QUEUE_RX], packet);
