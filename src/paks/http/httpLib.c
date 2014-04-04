@@ -1674,7 +1674,7 @@ static cchar *setHeadersFromCache(HttpConn *conn, cchar *content)
 /********************************** Forwards **********************************/
 
 static int matchChunk(HttpConn *conn, HttpRoute *route, int dir);
-static void openChunk(HttpQueue *q);
+static int openChunk(HttpQueue *q);
 static void outgoingChunkService(HttpQueue *q);
 static void setChunkPrefix(HttpQueue *q, HttpPacket *packet);
 
@@ -1725,12 +1725,10 @@ static int matchChunk(HttpConn *conn, HttpRoute *route, int dir)
 }
 
 
-static void openChunk(HttpQueue *q)
+static int openChunk(HttpQueue *q)
 {
-    HttpConn    *conn;
-
-    conn = q->conn;
-    q->packetSize = min(conn->limits->bufferSize, q->max);
+    q->packetSize = min(q->conn->limits->bufferSize, q->max);
+    return 0;
 }
 
 
@@ -2613,8 +2611,8 @@ PUBLIC void httpDisconnect(HttpConn *conn)
     if (conn->sock) {
         mprDisconnectSocket(conn->sock);
     }
-    conn->connError = 1;
-    conn->error = 1;
+    conn->connError++;
+    conn->error++;
     conn->keepAliveCount = 0;
     if (conn->tx) {
         conn->tx->finalized = 1;
@@ -2825,12 +2823,12 @@ PUBLIC HttpConn *httpAcceptConn(HttpEndpoint *endpoint, MprEvent *event)
     conn->ip = sclone(sock->ip);
 
     if ((value = httpMonitorEvent(conn, HTTP_COUNTER_ACTIVE_CONNECTIONS, 1)) > conn->limits->connectionsMax) {
-        mprError("Too many concurrent connections %d/%d", (int) value, conn->limits->connectionsMax);
+        mprLog(2, "Too many concurrent connections %d/%d", (int) value, conn->limits->connectionsMax);
         httpDestroyConn(conn);
         return 0;
     }
     if (mprGetHashLength(http->addresses) > conn->limits->clientMax) {
-        mprError("Too many concurrent clients %d/%d", mprGetHashLength(http->addresses), conn->limits->clientMax);
+        mprLog(2, "Too many concurrent clients %d/%d", mprGetHashLength(http->addresses), conn->limits->clientMax);
         httpDestroyConn(conn);
         return 0;
     }
@@ -4409,11 +4407,10 @@ static void errorv(HttpConn *conn, int flags, cchar *fmt, va_list args)
         conn->keepAliveCount = 0;
     }
     if (flags & HTTP_ABORT) {
-        conn->connError = 1;
+        conn->connError++;
     }
     if (!conn->error) {
-        //  FUTURE - if aborting, could abbreviate some of this
-        conn->error = 1;
+        conn->error++;
         httpOmitBody(conn);
         conn->errorMsg = formatErrorv(conn, status, fmt, args);
         mprLog(2, "Error: %s", conn->errorMsg);
@@ -7065,11 +7062,7 @@ PUBLIC void httpCreateTxPipeline(HttpConn *conn, HttpRoute *route)
             tx->connector = http->sendConnector;
         } else 
 #endif
-        if (route && route->connector) {
-            tx->connector = route->connector;
-        } else {
-            tx->connector = http->netConnector;
-        }
+        tx->connector = (route && route->connector) ? route->connector : http->netConnector;
     }
     mprAddItem(tx->outputPipeline, tx->connector);
     if (rx->traceLevel >= 0) {
@@ -7096,9 +7089,17 @@ PUBLIC void httpCreateTxPipeline(HttpConn *conn, HttpRoute *route)
     httpPutForService(conn->writeq, httpCreateHeaderPacket(), HTTP_DELAY_SERVICE);
 
     /*
-        Open the pipelien stages. This calls the open entrypoints on all stages
+        Open the pipeline stages. This calls the open entrypoints on all stages.
      */
     openQueues(conn);
+
+    if (conn->error) {
+        if (tx->handler != http->passHandler) {
+            tx->handler = http->passHandler;
+            httpAssignQueue(conn->writeq, tx->handler, HTTP_QUEUE_TX);
+        }
+    }
+    tx->flags |= HTTP_TX_PIPELINE;
 }
 
 
@@ -7197,12 +7198,19 @@ static void openQueues(HttpConn *conn)
     for (i = 0; i < HTTP_MAX_QUEUE; i++) {
         qhead = tx->queue[i];
         for (q = qhead->nextQ; q != qhead; q = q->nextQ) {
-            if (q->open && !(q->flags & (HTTP_QUEUE_OPEN))) {
-                if (q->pair == 0 || !(q->pair->flags & HTTP_QUEUE_OPEN)) {
+            if (q->open && !(q->flags & (HTTP_QUEUE_OPEN_TRIED))) {
+                if (q->pair == 0 || !(q->pair->flags & HTTP_QUEUE_OPEN_TRIED)) {
                     openQueue(q, tx->chunkSize);
-                    if (q->open && !tx->finalized) {
-                        q->flags |= HTTP_QUEUE_OPEN;
-                        q->stage->open(q);
+                    if (q->open) {
+                        q->flags |= HTTP_QUEUE_OPEN_TRIED;
+                        if (q->stage->open(q) == 0) {
+                            q->flags |= HTTP_QUEUE_OPENED;
+                        } else {
+                            if (!conn->error) {
+                                httpError(conn, HTTP_CODE_INTERNAL_SERVER_ERROR, "Cannot open stage %s", q->stage->name);
+                            }
+
+                        }
                     }
                 }
             }
@@ -7236,8 +7244,8 @@ PUBLIC void httpClosePipeline(HttpConn *conn)
         for (i = 0; i < HTTP_MAX_QUEUE; i++) {
             qhead = tx->queue[i];
             for (q = qhead->nextQ; q != qhead; q = q->nextQ) {
-                if (q->close && q->flags & HTTP_QUEUE_OPEN) {
-                    q->flags &= ~HTTP_QUEUE_OPEN;
+                if (q->close && q->flags & HTTP_QUEUE_OPENED) {
+                    q->flags &= ~HTTP_QUEUE_OPENED;
                     q->stage->close(q);
                 }
             }
@@ -7258,7 +7266,7 @@ PUBLIC void httpStartPipeline(HttpConn *conn)
 
     if (rx->needInputPipeline) {
         qhead = tx->queue[HTTP_QUEUE_RX];
-        for (q = qhead->nextQ; !tx->finalized && q->nextQ != qhead; q = nextQ) {
+        for (q = qhead->nextQ; q->nextQ != qhead; q = nextQ) {
             nextQ = q->nextQ;
             if (q->start && !(q->flags & HTTP_QUEUE_STARTED)) {
                 if (q->pair == 0 || !(q->pair->flags & HTTP_QUEUE_STARTED)) {
@@ -7269,7 +7277,7 @@ PUBLIC void httpStartPipeline(HttpConn *conn)
         }
     }
     qhead = tx->queue[HTTP_QUEUE_TX];
-    for (q = qhead->prevQ; !tx->finalized && q->prevQ != qhead; q = prevQ) {
+    for (q = qhead->prevQ; q->prevQ != qhead; q = prevQ) {
         prevQ = q->prevQ;
         if (q->start && !(q->flags & HTTP_QUEUE_STARTED)) {
             q->flags |= HTTP_QUEUE_STARTED;
@@ -7290,7 +7298,7 @@ PUBLIC void httpReadyHandler(HttpConn *conn)
     HttpQueue   *q;
 
     q = conn->writeq;
-    if (q->stage && q->stage->ready && !conn->tx->finalized && !(q->flags & HTTP_QUEUE_READY)) {
+    if (q->stage && q->stage->ready && !(q->flags & HTTP_QUEUE_READY)) {
         q->flags |= HTTP_QUEUE_READY;
         q->stage->ready(q);
     }
@@ -7305,7 +7313,7 @@ static void httpStartHandler(HttpConn *conn)
 
     conn->tx->started = 1;
     q = conn->writeq;
-    if (q->stage->start && !conn->tx->finalized && !(q->flags & HTTP_QUEUE_STARTED)) {
+    if (q->stage->start && !(q->flags & HTTP_QUEUE_STARTED)) {
         q->flags |= HTTP_QUEUE_STARTED;
         q->stage->start(q);
     }
@@ -8047,9 +8055,9 @@ static bool applyRange(HttpQueue *q, HttpPacket *packet)
 
     if (mprNeedYield()) {
         httpScheduleQueue(q);
+        httpPutBackPacket(q, packet);
         return 0;
     }
-
     /*
         Process the data packet over multiple ranges ranges until all the data is processed or discarded.
         A packet may contain data or it may be empty with an associated entityLength. If empty, range packets
@@ -12112,6 +12120,7 @@ static bool parseRequestLine(HttpConn *conn, HttpPacket *packet)
             rx->needInputPipeline = 1;
         }
         conn->http10 = 1;
+        conn->mustClose = 1;
         conn->protocol = protocol;
     } else if (strcmp(protocol, "HTTP/1.1") == 0) {
         conn->protocol = protocol;
@@ -12517,13 +12526,6 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
             break;
         }
     }
-#if MOVED
-    if (!rx->upload && rx->length >= conn->limits->receiveBodySize) {
-        httpLimitError(conn, HTTP_CLOSE | HTTP_CODE_REQUEST_TOO_LARGE,
-            "Request content length %,Ld bytes is too big. Limit %,Ld", rx->length, conn->limits->receiveBodySize);
-        return 0;
-    }
-#endif
     if (rx->form && rx->length >= conn->limits->receiveFormSize) {
         httpLimitError(conn, HTTP_CLOSE | HTTP_CODE_REQUEST_TOO_LARGE, 
             "Request form of %,Ld bytes is too big. Limit %,Ld", rx->length, conn->limits->receiveFormSize);
@@ -12636,10 +12638,6 @@ static ssize filterPacket(HttpConn *conn, HttpPacket *packet, int *more)
 
     if (mprIsSocketEof(conn->sock)) {
         httpSetEof(conn);
-        if (rx->remainingContent > 0 || (rx->chunkState && rx->chunkState != HTTP_CHUNK_EOF)) {
-            httpError(conn, HTTP_ABORT | HTTP_CODE_COMMS_ERROR, "Connection lost");
-            return 0;
-        }
     }
     if (rx->chunkState) {
         nbytes = httpFilterChunkData(tx->queue[HTTP_QUEUE_RX], packet);
@@ -12678,7 +12676,8 @@ static ssize filterPacket(HttpConn *conn, HttpPacket *packet, int *more)
         httpTraceContent(conn, HTTP_TRACE_RX, HTTP_TRACE_BODY, packet, nbytes, rx->bytesRead);
     }
     if (rx->eof) {
-        if (rx->remainingContent > 0 && !conn->mustClose) {
+        if ((rx->remainingContent > 0 && (rx->length > 0 || !conn->mustClose)) ||
+            (rx->chunkState && rx->chunkState != HTTP_CHUNK_EOF)) {
             /* Closing is the only way for HTTP/1.0 to signify the end of data */
             httpError(conn, HTTP_ABORT | HTTP_CODE_COMMS_ERROR, "Connection lost");
             return 0;
@@ -13691,7 +13690,7 @@ PUBLIC int httpOpenSendConnector(Http *http)
 /*
     Initialize the send connector for a request
  */
-PUBLIC void httpSendOpen(HttpQueue *q)
+PUBLIC int httpSendOpen(HttpQueue *q)
 {
     HttpConn    *conn;
     HttpTx      *tx;
@@ -13702,20 +13701,21 @@ PUBLIC void httpSendOpen(HttpQueue *q)
     if (tx->connector != conn->http->sendConnector) {
         httpAssignQueue(q, tx->connector, HTTP_QUEUE_TX);
         tx->connector->open(q);
-        return;
+        return 0;
     }
     if (!(tx->flags & HTTP_TX_NO_BODY)) {
         assert(tx->fileInfo.valid);
         if (tx->fileInfo.size > conn->limits->transmissionBodySize) {
             httpLimitError(conn, HTTP_ABORT | HTTP_CODE_REQUEST_TOO_LARGE,
                 "Http transmission aborted. File size exceeds max body of %,Ld bytes", conn->limits->transmissionBodySize);
-            return;
+            return MPR_ERR_CANT_OPEN;
         }
         tx->file = mprOpenFile(tx->filename, O_RDONLY | O_BINARY, 0);
         if (tx->file == 0) {
             httpError(conn, HTTP_CODE_NOT_FOUND, "Cannot open document: %s, err %d", tx->filename, mprGetError());
         }
     }
+    return 0;
 }
 
 
@@ -13977,7 +13977,7 @@ static void adjustSendVec(HttpQueue *q, MprOff written)
 
 #else
 PUBLIC int httpOpenSendConnector(Http *http) { return 0; }
-PUBLIC void httpSendOpen(HttpQueue *q) {}
+PUBLIC int httpSendOpen(HttpQueue *q) {}
 PUBLIC void httpSendOutgoingService(HttpQueue *q) {}
 #endif /* !ME_ROM */
 
@@ -16045,7 +16045,7 @@ PUBLIC void httpFinalizeOutput(HttpConn *conn)
 
     tx->responded = 1;
     tx->finalizedOutput = 1;
-    if (conn->writeq == tx->queue[HTTP_QUEUE_TX]) {
+    if (!(tx->flags & HTTP_TX_PIPELINE)) {
         /* Tx Pipeline not yet created */
         tx->pendingFinalize = 1;
         return;
@@ -16479,7 +16479,7 @@ PUBLIC void httpSetFilename(HttpConn *conn, cchar *filename, int flags)
 
     tx = conn->tx;
     info = &tx->fileInfo;
-    tx->flags &= (HTTP_TX_NO_CHECK | HTTP_TX_NO_MAP);
+    tx->flags &= ~(HTTP_TX_NO_CHECK | HTTP_TX_NO_MAP);
     tx->flags |= (flags & (HTTP_TX_NO_CHECK | HTTP_TX_NO_MAP));
 
     if (filename == 0) {
@@ -16800,7 +16800,7 @@ static void incomingUpload(HttpQueue *q, HttpPacket *packet);
 static void manageHttpUploadFile(HttpUploadFile *file, int flags);
 static void manageUpload(Upload *up, int flags);
 static int matchUpload(HttpConn *conn, HttpRoute *route, int dir);
-static void openUpload(HttpQueue *q);
+static int openUpload(HttpQueue *q);
 static int  processUploadBoundary(HttpQueue *q, char *line);
 static int  processUploadHeader(HttpQueue *q, char *line);
 static int  processUploadData(HttpQueue *q);
@@ -16853,7 +16853,7 @@ static int matchUpload(HttpConn *conn, HttpRoute *route, int dir)
 /*
     Initialize the upload filter for a new request
  */
-static void openUpload(HttpQueue *q)
+static int openUpload(HttpQueue *q)
 {
     HttpConn    *conn;
     HttpRx      *rx;
@@ -16865,7 +16865,7 @@ static void openUpload(HttpQueue *q)
 
     mprTrace(5, "Open upload filter");
     if ((up = mprAllocObj(Upload, manageUpload)) == 0) {
-        return;
+        return MPR_ERR_MEMORY;
     }
     q->queueData = up;
     up->contentState = HTTP_UPLOAD_BOUNDARY;
@@ -16888,9 +16888,10 @@ static void openUpload(HttpQueue *q)
     }
     if (up->boundaryLen == 0 || *up->boundary == '\0') {
         httpError(conn, HTTP_CODE_BAD_REQUEST, "Bad boundary");
-        return;
+        return MPR_ERR_BAD_ARGS;
     }
     httpSetParam(conn, "UPLOAD_DIR", rx->uploadDir);
+    return 0;
 }
 
 
@@ -18836,7 +18837,7 @@ static void closeWebSock(HttpQueue *q);
 static void incomingWebSockData(HttpQueue *q, HttpPacket *packet);
 static void manageWebSocket(HttpWebSocket *ws, int flags);
 static int matchWebSock(HttpConn *conn, HttpRoute *route, int dir);
-static void openWebSock(HttpQueue *q);
+static int openWebSock(HttpQueue *q);
 static void outgoingWebSockService(HttpQueue *q);
 static int processFrame(HttpQueue *q, HttpPacket *packet);
 static void readyWebSock(HttpQueue *q);
@@ -18983,7 +18984,7 @@ static int matchWebSock(HttpConn *conn, HttpRoute *route, int dir)
 /*
     Open the filter for a new request
  */
-static void openWebSock(HttpQueue *q)
+static int openWebSock(HttpQueue *q)
 {
     HttpConn        *conn;
     HttpWebSocket   *ws;
@@ -19004,6 +19005,7 @@ static void openWebSock(HttpQueue *q)
         httpPutForService(q, packet, HTTP_SCHEDULE_QUEUE);
     }
     conn->tx->responded = 0;
+    return 0;
 }
 
 
@@ -19028,9 +19030,12 @@ static void closeWebSock(HttpQueue *q)
     if (q->conn && q->conn->rx) {
         ws = q->conn->rx->webSocket;
         assert(ws);
-        if (ws && ws->pingEvent) {
-            mprRemoveEvent(ws->pingEvent);
-            ws->pingEvent = 0;
+        if (ws) {
+            ws->state = WS_STATE_CLOSED;
+           if (ws->pingEvent) {
+                mprRemoveEvent(ws->pingEvent);
+                ws->pingEvent = 0;
+           }
         }
     }
 }

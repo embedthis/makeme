@@ -1482,26 +1482,27 @@ PUBLIC HttpPacket *httpSplitPacket(HttpPacket *packet, ssize offset);
 /*  
     Queue directions
  */
-#define HTTP_QUEUE_TX             0           /**< Send (transmit to client) queue */
-#define HTTP_QUEUE_RX             1           /**< Receive (read from client) queue */
-#define HTTP_MAX_QUEUE            2           /**< Number of queue types */
+#define HTTP_QUEUE_TX             0         /**< Send (transmit to client) queue */
+#define HTTP_QUEUE_RX             1         /**< Receive (read from client) queue */
+#define HTTP_MAX_QUEUE            2         /**< Number of queue types */
 
 /* 
    Queue flags
  */
-#define HTTP_QUEUE_OPEN           0x1         /**< Queue's open routine has been called */
-#define HTTP_QUEUE_SUSPENDED      0x2         /**< Queue's service routine is suspended due to flow control */
-#define HTTP_QUEUE_ALL            0x10        /**< Queue has all the data there is and will be */
-#define HTTP_QUEUE_SERVICED       0x20        /**< Queue has been serviced at least once */
-#define HTTP_QUEUE_EOF            0x40        /**< Queue at end of data */
-#define HTTP_QUEUE_STARTED        0x80        /**< Handler stage start routine called */
-#define HTTP_QUEUE_READY          0x100       /**< Handler stage ready routine called */
-#define HTTP_QUEUE_RESERVICE      0x200       /**< Queue requires reservicing */
+#define HTTP_QUEUE_OPEN_TRIED     0x1       /**< Queue's open routine has been called */
+#define HTTP_QUEUE_OPENED         0x2       /**< Queue's open routine has been called */
+#define HTTP_QUEUE_SUSPENDED      0x4       /**< Queue's service routine is suspended due to flow control */
+#define HTTP_QUEUE_ALL            0x8       /**< Queue has all the data there is and will be */
+#define HTTP_QUEUE_SERVICED       0x10      /**< Queue has been serviced at least once */
+#define HTTP_QUEUE_EOF            0x20      /**< Queue at end of data */
+#define HTTP_QUEUE_STARTED        0x40      /**< Handler stage start routine called */
+#define HTTP_QUEUE_READY          0x80      /**< Handler stage ready routine called */
+#define HTTP_QUEUE_RESERVICE      0x100     /**< Queue requires reservicing */
 
 /*  
     Queue callback prototypes
  */
-typedef void (*HttpQueueOpen)(struct HttpQueue *q);
+typedef int  (*HttpQueueOpen)(struct HttpQueue *q);
 typedef void (*HttpQueueClose)(struct HttpQueue *q);
 typedef void (*HttpQueueStart)(struct HttpQueue *q);
 typedef void (*HttpQueueData)(struct HttpQueue *q, HttpPacket *packet);
@@ -2051,6 +2052,7 @@ typedef struct HttpStage {
         Rewrite a request after matching.
         @description This callback will be invoked for handlers after matching and selecting the handler.
         @param conn HttpConn connection object
+        @return Zero for success. Otherwise a negative MPR error code.
         @ingroup HttpStage
         @stability Evolving
      */
@@ -2062,10 +2064,11 @@ typedef struct HttpStage {
             and may call #httpError if required.
             Handlers may block or yield in this callback.
         @param q Queue instance object
+        @return Zero for success. Otherwise a negative MPR error code.
         @ingroup HttpStage
         @stability Evolving
      */
-    void (*open)(HttpQueue *q);
+    int (*open)(HttpQueue *q);
 
     /** 
         Close the stage
@@ -2339,7 +2342,7 @@ PUBLIC int httpOpenNetConnector(Http *http);
 PUBLIC int httpOpenSendConnector(Http *http);
 PUBLIC int httpOpenUploadFilter(Http *http);
 PUBLIC int httpOpenWebSockFilter(Http *http);
-PUBLIC void httpSendOpen(HttpQueue *q);
+PUBLIC int httpSendOpen(HttpQueue *q);
 PUBLIC void httpSendOutgoingService(HttpQueue *q);
 
 /********************************** HttpConn *********************************/
@@ -2488,7 +2491,7 @@ typedef struct HttpConn {
     /*  Ordered for debugability */
 
     int             state;                  /**< Connection state */
-    int             error;                  /**< A request error has occurred */
+    int             error;                  /**< A connection and/or request error has occurred */
     int             connError;              /**< A connection error has occurred */
     int             activeRequest;          /**< Actively servicing a request */
 
@@ -4123,6 +4126,7 @@ typedef struct HttpRouteOp {
 
 /**
     General route procedure. Used by targets, conditions and updates.
+    @return Zero for success. Otherwise a negative MPR error code.
  */
 typedef int (HttpRouteProc)(HttpConn *conn, HttpRoute *route, HttpRouteOp *item);
 
@@ -6114,6 +6118,7 @@ PUBLIC void httpProcessWriteEvent(HttpConn *conn);
 #define HTTP_TX_NO_CHECK            0x10    /**< Do not check if the filename is inside the route documents directory */
 #define HTTP_TX_NO_LENGTH           0x20    /**< Do not emit a content length (used for TRACE) */
 #define HTTP_TX_NO_MAP              0x40    /**< Do not map the filename to compressed or minified alternatives */
+#define HTTP_TX_PIPELINE            0x80    /**< Created Tx pipeline */
 
 /** 
     Http Tx

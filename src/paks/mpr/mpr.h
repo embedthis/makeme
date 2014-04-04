@@ -805,7 +805,10 @@ PUBLIC void mprAtomicAdd64(volatile int64 *target, int64 value);
 /********************************* Memory Allocator ***************************/
 /*
     Allocator debug and stats selection
-    Use configure --set mpr.alloc.check=true to enable
+    To set via configure:
+         configure --set mpr.alloc.check=true
+         configure --set mpr.alloc.cache=NNN
+         configure --set mpr.alloc.quota=NNN
  */
 #if ME_MPR_ALLOC_CHECK
     #ifndef ME_MPR_ALLOC_DEBUG
