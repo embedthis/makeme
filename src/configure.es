@@ -224,7 +224,7 @@ module embedthis.me {
                 def(f, key, value cast Number)
             } else if (Object.getOwnPropertyCount(value) > 0 && !(value is Array)) {
                 writeSettings(f, key, value)
-            } else {
+            } else if (typeOf(value) != 'Object') {
                 def(f, key, '"' + value + '"')
             }
         }
