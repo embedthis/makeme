@@ -1164,12 +1164,12 @@ static void sweeperThread(void *unused, MprThread *tp)
     tp->stickyYield = 1;
     tp->yielded = 1;
 
-    while (!mprIsFinished()) {
+    while (!mprIsDestroyed()) {
         if (!heap->mustYield) {
             heap->gcRequested = 0;
             mprWaitForCond(heap->gcCond, -1);
         }
-        if (pauseGC || mprIsFinished()) {
+        if (pauseGC || mprIsDestroyed()) {
             continue;
         }
         markAndSweep();
@@ -6212,12 +6212,7 @@ PUBLIC int mprWaitForCmd(MprCmd *cmd, MprTicks timeout)
         if (mprShouldAbortRequests()) {
             break;
         }
-#if ME_WIN_LIKE && UNUSED
-        pollWinCmd(cmd, remaining);
-        delay = 10;
-#else
         delay = (cmd->eofCount >= cmd->requiredEof) ? 10 : remaining;
-#endif
         if (!ts->eventsThread && mprGetCurrentThread() == ts->mainThread) {
             /*
                 Main program without any events loop
@@ -8705,7 +8700,7 @@ PUBLIC char *mprGetPassword(cchar *prompt)
     char    *cp, *password, *result;
 
 #if ME_BSD_LIKE
-    char    passbuf[MPR_BUFSIZE];
+    char    passbuf[ME_MAX_BUFFER];
 
     if (!prompt || !*prompt) {
         prompt = "Password: ";
@@ -8721,7 +8716,7 @@ PUBLIC char *mprGetPassword(cchar *prompt)
         return 0;
     }
 #elif ME_WIN_LIKE || VXWORKS
-    char    passbuf[MPR_BUFSIZE];
+    char    passbuf[ME_MAX_BUFFER];
     int     c, i;
 
     if (!prompt || !*prompt) {
@@ -10781,7 +10776,7 @@ static void serviceIO(MprWaitService *ws, struct epoll_event *events, int count)
         }
         wp->presentMask = mask & wp->desiredMask;
 
-#if UNUSED && KEEP
+#if KEEP
         if (ev->events & EPOLLERR) {
             int error = 0;
             socklen_t errlen = sizeof(error);
@@ -15617,55 +15612,6 @@ PUBLIC void mprWarn(cchar *fmt, ...)
 }
 
 
-#if DEPRECATED
-PUBLIC void mprMemoryError(cchar *fmt, ...)
-{
-    va_list     args;
-    char        buf[ME_MAX_LOGLINE];
-
-    if (fmt == 0) {
-        logOutput(MPR_ERROR_MSG, 0, "Memory allocation error");
-    } else {
-        va_start(args, fmt);
-        fmtv(buf, sizeof(buf), fmt, args);
-        va_end(args);
-        logOutput(MPR_ERROR_MSG, MPR_WARN, buf);
-    }
-}
-
-
-PUBLIC void mprUserError(cchar *fmt, ...)
-{
-    va_list     args;
-    char        buf[ME_MAX_LOGLINE];
-
-    va_start(args, fmt);
-    fmtv(buf, sizeof(buf), fmt, args);
-    va_end(args);
-    logOutput(MPR_USER_MSG | MPR_ERROR_MSG, 0, buf);
-}
-
-
-PUBLIC void mprStaticError(cchar *fmt, ...)
-{
-    va_list     args;
-    char        buf[ME_MAX_LOGLINE];
-
-    va_start(args, fmt);
-    fmtv(buf, sizeof(buf), fmt, args);
-    va_end(args);
-#if ME_UNIX_LIKE || VXWORKS
-    if (write(2, (char*) buf, slen(buf)) < 0) {}
-    if (write(2, (char*) "\n", 1) < 0) {}
-#elif ME_WIN_LIKE
-    if (fprintf(stderr, "%s\n", buf) < 0) {}
-    fflush(stderr);
-#endif
-    mprBreakpoint();
-}
-#endif /* DEPRECATED */
-
-
 PUBLIC void mprAssert(cchar *loc, cchar *msg)
 {
 #if ME_MPR_TRACING
@@ -15753,9 +15699,7 @@ PUBLIC void mprDefaultLogHandler(int flags, int level, cchar *msg)
         mprWriteFileString(file, msg);
 
     } else {
-        if (flags & MPR_FATAL_MSG) {
-            tag = "Fatal";
-        } else if (flags & MPR_WARN_MSG) {
+        if (flags & MPR_WARN_MSG) {
            tag = "Warning";
         } else {
            tag = "Error";
@@ -18291,14 +18235,6 @@ PUBLIC bool mprIsPathContained(cchar *path, cchar *dir)
 }
 
 
-#if DEPRECATED || 1
-PUBLIC bool mprIsParentPathOf(cchar *dir, cchar *path)
-{
-    return mprIsPathContained(path, dir);
-}
-#endif
-
-
 PUBLIC bool mprIsAbsPathContained(cchar *path, cchar *dir)
 {
     MprFileSystem   *fs;
@@ -19256,9 +19192,7 @@ PUBLIC void mprWriteToOsLog(cchar *message, int flags, int level)
 {
     int     sflag;
 
-    if (flags & MPR_FATAL_MSG) {
-        sflag = LOG_ERR;
-    } else if (flags & MPR_INFO_MSG) {
+    if (flags & MPR_INFO_MSG) {
         sflag = LOG_WARNING;
     } else if (flags & MPR_ASSERT_MSG) {
         sflag = LOG_WARNING;
@@ -25318,12 +25252,10 @@ static void logHandler(int flags, int level, cchar *msg)
         mprFprintf(file, "%s: %d: %s\n", prefix, level, msg);
     } else if (flags & MPR_ERROR_MSG) {
         mprFprintf(file, "%s: Error: %s\n", prefix, msg);
-    } else if (flags & MPR_FATAL_MSG) {
-        mprFprintf(file, "%s: Fatal: %s\n", prefix, msg);
     } else if (flags & MPR_RAW_MSG) {
         mprFprintf(file, "%s", msg);
     }
-    if (flags & (MPR_ERROR_MSG | MPR_FATAL_MSG)) {
+    if (flags & MPR_ERROR_MSG) {
         mprBreakpoint();
     }
 }

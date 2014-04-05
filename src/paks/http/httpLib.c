@@ -145,7 +145,7 @@ PUBLIC void httpInitAuth(Http *http)
 #if ME_COMPILER_HAS_PAM && ME_HTTP_PAM
     httpCreateAuthStore("system", httpPamVerifyUser);
 #endif
-#if DEPRECATED || 1
+#if DEPRECATED
     /*
         Deprecated in 4.4. Use "internal"
      */
@@ -301,12 +301,10 @@ PUBLIC bool httpCanUser(HttpConn *conn, cchar *abilities)
     MprKey      *kp;
 
     auth = conn->rx->route->auth;
-#if DEPRECATED || 1
     if (auth->permittedUsers && !mprLookupKey(auth->permittedUsers, conn->username)) {
         mprLog(2, "User \"%s\" is not specified as a permitted user to access %s", conn->username, conn->rx->pathInfo);
         return 0;
     }
-#endif
     if (!auth->abilities && !abilities) {
         /* No abilities are required */
         return 1;
@@ -375,9 +373,7 @@ PUBLIC HttpAuth *httpCreateInheritedAuth(HttpAuth *parent)
         auth->flags = parent->flags;
         auth->qop = parent->qop;
         auth->realm = parent->realm;
-#if DEPRECATED || 1
         auth->permittedUsers = parent->permittedUsers;
-#endif
         auth->abilities = parent->abilities;
         auth->userCache = parent->userCache;
         auth->roles = parent->roles;
@@ -398,9 +394,7 @@ static void manageAuth(HttpAuth *auth, int flags)
         mprMark(auth->deny);
         mprMark(auth->loggedIn);
         mprMark(auth->loginPage);
-#if DEPRECATED || 1
         mprMark(auth->permittedUsers);
-#endif
         mprMark(auth->qop);
         mprMark(auth->realm);
         mprMark(auth->abilities);
@@ -468,7 +462,7 @@ PUBLIC HttpAuthStore *httpCreateAuthStore(cchar *name, HttpVerifyUser verifyUser
 }
 
 
-#if DEPRECATED || 1
+#if DEPRECATED
 PUBLIC int httpAddAuthStore(cchar *name, HttpVerifyUser verifyUser)
 {
     if (httpCreateAuthStore(name, verifyUser) == 0) {
@@ -492,12 +486,10 @@ PUBLIC void httpSetAuthAllow(HttpAuth *auth, cchar *allow)
 }
 
 
-#if DEPRECATED || 1
 PUBLIC void httpSetAuthAnyValidUser(HttpAuth *auth)
 {
     auth->permittedUsers = 0;
 }
-#endif
 
 
 /*
@@ -636,9 +628,8 @@ PUBLIC void httpSetAuthRealm(HttpAuth *auth, cchar *realm)
 }
 
 
-#if DEPRECATED || 1
 /*
-    Can achieve this via abilities
+    Can also achieve this via abilities
  */
 PUBLIC void httpSetAuthPermittedUsers(HttpAuth *auth, cchar *users)
 {
@@ -649,7 +640,6 @@ PUBLIC void httpSetAuthPermittedUsers(HttpAuth *auth, cchar *users)
         mprAddKey(auth->permittedUsers, user, user);
     }
 }
-#endif
 
 
 PUBLIC int httpSetAuthStore(HttpAuth *auth, cchar *store)
@@ -660,8 +650,7 @@ PUBLIC int httpSetAuthStore(HttpAuth *auth, cchar *store)
     if ((auth->store = mprLookupKey(http->authStores, store)) == 0) {
         return MPR_ERR_CANT_FIND;
     }
-    //  DEPRECATED "pam"
-    if (smatch(store, "system") || smatch(store, "pam")) {
+    if (smatch(store, "system")) {
 #if ME_COMPILER_HAS_PAM && ME_HTTP_PAM
         if (auth->type && smatch(auth->type->name, "digest")) {
             mprError("Cannot use the PAM password store with digest authentication");
@@ -2942,7 +2931,6 @@ PUBLIC void httpEnableConnEvents(HttpConn *conn)
     if (mprShouldAbortRequests() || conn->borrowed) {
         return;
     }
-#if DEPRECATED || 1
     /*
         Used by ejs
      */
@@ -2952,12 +2940,10 @@ PUBLIC void httpEnableConnEvents(HttpConn *conn)
         mprQueueEvent(conn->dispatcher, event);
         return;
     }
-#endif
     eventMask = 0;
     if (rx) {
-        if (conn->connError || 
-           /* TODO - should not need tx->writeBlocked or connectorq->count  */ 
-           (tx->writeBlocked) || (conn->connectorq && (conn->connectorq->count > 0 || conn->connectorq->ioCount > 0)) || 
+        if (conn->connError || (tx->writeBlocked) || 
+           (conn->connectorq && (conn->connectorq->count > 0 || conn->connectorq->ioCount > 0)) || 
            (httpQueuesNeedService(conn)) || 
            (mprSocketHasBufferedWrite(sp)) ||
            (rx->eof && tx->finalized && conn->state < HTTP_STATE_FINALIZED)) {
@@ -2977,7 +2963,6 @@ PUBLIC void httpEnableConnEvents(HttpConn *conn)
 }
 
 
-#if DEPRECATED || 1
 /*
     Used by ejs
  */
@@ -2991,7 +2976,6 @@ PUBLIC void httpUseWorker(HttpConn *conn, MprDispatcher *dispatcher, MprEvent *e
     conn->workerEvent = event;
     unlock(conn->http);
 }
-#endif
 
 
 PUBLIC void httpUsePrimary(HttpConn *conn)
@@ -3114,7 +3098,6 @@ static HttpPacket *getPacket(HttpConn *conn, ssize *size)
         content = packet->content;
         mprResetBufIfEmpty(content);
         if (mprGetBufSpace(content) < ME_MAX_BUFFER && mprGrowBuf(content, ME_MAX_BUFFER) < 0) {
-            mprMemoryError(0);
             conn->keepAliveCount = 0;
             conn->state = HTTP_STATE_BEGIN;
             return 0;
@@ -6922,7 +6905,7 @@ static void handleTrace(HttpConn *conn)
 }
 
 
-#if DEPRECATED || 1
+#if DEPRECATED
 PUBLIC void httpHandleOptionsTrace(HttpConn *conn)
 {
     HttpRx      *rx;
@@ -8964,7 +8947,7 @@ static cchar *mapContent(HttpConn *conn, cchar *filename)
             }
         }
     }
-#if DEPRECATED || 1
+#if DEPRECATED
     /* 
         Old style compression. Deprecated in 4.4 
      */
@@ -9480,7 +9463,7 @@ PUBLIC void httpSetRouteAutoDelete(HttpRoute *route, bool enable)
 }
 
 
-#if DEPRECATED || 1
+#if DEPRECATED
 PUBLIC void httpSetRouteCompression(HttpRoute *route, int flags)
 {
     assert(route);
@@ -9528,14 +9511,14 @@ PUBLIC void httpSetRouteDocuments(HttpRoute *route, cchar *path)
 
     route->documents = httpMakePath(route, route->home, path);
     httpSetRouteVar(route, "DOCUMENTS", route->documents);
-#if DEPRECATED || 1
+#if DEPRECATED
     httpSetRouteVar(route, "DOCUMENTS_DIR", route->documents);
     httpSetRouteVar(route, "DOCUMENT_ROOT", route->documents);
 #endif
 }
 
 
-#if DEPRECATED || 1
+#if DEPRECATED
 PUBLIC void httpSetRouteDir(HttpRoute *route, cchar *path)
 {
     httpSetRouteDocuments(route, path);
@@ -9588,9 +9571,10 @@ PUBLIC void httpSetRouteHome(HttpRoute *route, cchar *path)
 
     route->home = httpMakePath(route, ".", path);
     httpSetRouteVar(route, "HOME", route->home);
-    //  DEPRECATED
+#if DEPRECATED
     httpSetRouteVar(route, "HOME_DIR", route->home);
     httpSetRouteVar(route, "ROUTE_HOME", route->home);
+#endif
 }
 
 
@@ -10984,7 +10968,7 @@ static void definePathVars(HttpRoute *route)
     mprAddKey(route->vars, "VERSION", sclone(ME_VERSION));
     mprAddKey(route->vars, "PLATFORM", sclone(ME_PLATFORM));
     mprAddKey(route->vars, "BIN_DIR", mprGetAppDir());
-#if DEPRECATED || 1
+#if DEPRECATED
     mprAddKey(route->vars, "LIBDIR", mprGetAppDir());
 #endif
     if (route->host) {
@@ -11000,7 +10984,7 @@ static void defineHostVars(HttpRoute *route)
     mprAddKey(route->vars, "HOME", route->home);
     mprAddKey(route->vars, "SERVER_NAME", route->host->name);
 
-#if DEPRECATED || 1
+#if DEPRECATED
     mprAddKey(route->vars, "ROUTE_HOME", route->home);
     mprAddKey(route->vars, "DOCUMENT_ROOT", route->documents);
     mprAddKey(route->vars, "SERVER_ROOT", route->home);
@@ -15299,7 +15283,7 @@ PUBLIC bool httpCheckSecurityToken(HttpConn *conn)
 
     if ((sessionToken = httpGetSessionVar(conn, ME_XSRF_COOKIE, 0)) != 0) {
         requestToken = httpGetHeader(conn, ME_XSRF_HEADER);
-#if DEPRECATED || 1
+#if DEPRECATED
         /*
             Deprecated in 4.4
         */
@@ -18215,7 +18199,7 @@ PUBLIC char *httpLinkEx(HttpConn *conn, cchar *target, MprHash *options)
 }
 
 
-#if DEPRECATED || 1
+#if DEPRECATED
 PUBLIC char *httpUriEx(HttpConn *conn, cchar *target, MprHash *options)
 {
     return httpLinkEx(conn, target, options);
@@ -18439,10 +18423,11 @@ PUBLIC void httpCreateCGIParams(HttpConn *conn)
     mprAddKey(svars, "REMOTE_ADDR", conn->ip);
     mprAddKeyFmt(svars, "REMOTE_PORT", "%d", conn->port);
 
-    //  DEPRECATED - use DOCUMENTS
+#if DEPRECATED
     mprAddKey(svars, "DOCUMENT_ROOT", rx->route->documents);
     //  DEPRECATED - use ROUTE_HOME
     mprAddKey(svars, "SERVER_ROOT", rx->route->home);
+#endif
 
     /* Set to the same as AUTH_USER */
     mprAddKey(svars, "REMOTE_USER", conn->username);

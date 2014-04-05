@@ -487,8 +487,7 @@ static int parseArgs(int argc, char **argv)
                 app->username = argv[++nextArg];
             }
 
-        //  DEPRECATED validate. Preserve verify.
-        } else if (smatch(argp, "--validate") || smatch(argp, "--verify")) {
+        } else if (smatch(argp, "--verify")) {
             app->verifyPeer = 1;
             ssl = 1;
 

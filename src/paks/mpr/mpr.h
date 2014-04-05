@@ -105,14 +105,6 @@ struct  MprXml;
     #define ME_MPR_MAX_PASSWORD 256    /**< Max password length */
 #endif
 
-#if DEPRECATED || 1
-    /* Remove in 4.5 */
-    #define MPR_MAX_STRING      ME_MAX_BUFFER
-    #define MPR_MAX_PATH        ME_MAX_PATH
-    #define MPR_MAX_FNAME       ME_MAX_FNAME
-    #define MPR_BUFSIZE         ME_MAX_BUFFER
-#endif
-
 /*
     Select wakeup port. Port can be any free port number. If this is not free, the MPR will use the next free port.
  */
@@ -297,14 +289,6 @@ struct  MprXml;
 #define MPR_VERBOSE         9           /**< Highest level of trace */
 #define MPR_LEVEL_MASK      0xf         /**< Level mask */
 
-#if DEPRECATED || 1
-/*  
-    Removed in 4.3
- */
-#define MPR_CONFIG          MPR_INFO
-#define MPR_DEBUG           4           /**< Debug information trace level */
-#endif
-
 /*
     Log message flags
  */
@@ -315,13 +299,6 @@ struct  MprXml;
 #define MPR_RAW_MSG         0x100       /**< Raw message output */
 #define MPR_TRACE_MSG       0x200       /**< Originated from mprTrace */
 #define MPR_WARN_MSG        0x400       /**< Originated from mprWarn */
-
-#if DEPRECATED || 1
-/*  
-    Removed in 4.3
- */
-#define MPR_FATAL_MSG       0x800       /**< Fatal error, log and exit */
-#endif
 
 /*
     Error line number information.
@@ -404,22 +381,10 @@ PUBLIC void mprBreakpoint();
 PUBLIC void assert(bool cond);
 #elif ME_MPR_TRACING
     #undef assert
-    #if DEPRECATED || 1
-        /*  
-            Removed in 4.3
-         */
-        #define mprAssure(C)    if (C) ; else mprAssert(MPR_LOC, #C)
-    #endif
-    #define assert(C)       if (C) ; else mprAssert(MPR_LOC, #C)
+    #define assert(C)   if (C) ; else mprAssert(MPR_LOC, #C)
 #else
     #undef assert
-    #if DEPRECATED || 1
-        /* 
-            Removed in 4.3
-         */
-        #define mprAssure(C)    if (C) ; else
-    #endif
-    #define assert(C)       if (1) ; else
+    #define assert(C)   if (1) ; else
 #endif
 
 /*********************************** Thread Sync ******************************/
@@ -1660,10 +1625,6 @@ PUBLIC void mprAddRoot(cvoid *ptr);
   */
 PUBLIC int mprGC(int flags);
 
-#if DEPRECATED
-#define mprRequestGC mprGC
-#endif
-
 /**
     Enable or disable the garbage collector
     @param on Set to one to enable and zero to disable.
@@ -1807,7 +1768,7 @@ PUBLIC int  mprSyncThreads(MprTicks timeout);
     @defgroup MprString MprString
     @see MprString itos itosradix itosbuf mprEprintf mprPrintf scamel scaselesscmp scaselessmatch schr 
         sclone scmp scontains scopy sends sfmt sfmtv shash shashlower sjoin sjoinv slen slower smatch sncaselesscmp snclone
-        sncmp sncopy snumber sfnumber shnumber spascal spbrk srchr srejoin srejoinv sreplace sspn sstarts ssub stemplate 
+        sncmp sncopy snumber sfnumber shnumber stitle spbrk srchr srejoin srejoinv sreplace sspn sstarts ssub stemplate 
         stemplateJson stoi stoiradix stok strim supper sncontains mprFprintf fmtv fmt
     @stability Internal
  */
@@ -2184,10 +2145,6 @@ PUBLIC bool shnumber(cchar *s);
     @stability Stable
  */
 PUBLIC char *stitle(cchar *str);
-
-#if DEPRECATED || 1
-PUBLIC char *spascal(cchar *str);
-#endif
 
 /**
     Locate the a character from a set in a string.
@@ -2576,42 +2533,6 @@ PUBLIC ssize mprPrintf(cchar *fmt, ...);
  */
 PUBLIC ssize print(cchar *fmt, ...);
 
-#if DEPRECATED
-/**
-    Format a string into an allocated buffer.
-    @description This call will dynamically allocate a buffer up to the specified maximum size and will format the 
-        supplied arguments into the buffer.  A trailing null will always be appended. The call returns
-        the allocated string. This call is deprecated. Use #sfmt instead.
-    @param fmt Printf style format string
-    @param ... Variable arguments to format
-    @return Returns the number of characters in the string.
-    @ingroup MprString
-    @internal
-    @stability Deprecated
- */
-PUBLIC char *mprAsprintf(cchar *fmt, ...);
-
-/**
-    Allocate a buffer of sufficient length to hold the formatted string.
-    @description This call will dynamically allocate a buffer up to the specified maximum size and will format 
-        the supplied arguments into the buffer. A trailing null will always be appended. The call returns the
-        allocated string. This call is deprecated. Use #sfmtv instead.
-    @param fmt Printf style format string
-    @param arg Varargs argument obtained from va_start.
-    @return Returns the number of characters in the string.
-    @ingroup MprString
-    @internal
-    @stability Deprecated
- */
-PUBLIC char *mprAsprintfv(cchar *fmt, va_list arg);
-#else
-    /*
-        Removed in 4.3
-     */
-    #define mprAsprintf sfmt
-    #define mprAsprintfv sfmtv
-#endif
-
 /*
     Internal
  */
@@ -2987,13 +2908,6 @@ PUBLIC int mprPutCharToBuf(MprBuf *buf, int c);
     @stability Stable.
  */
 PUBLIC ssize mprPutToBuf(MprBuf *buf, cchar *fmt, ...);
-
-#if DEPRECATED || 1
-    /*
-        Renamed in 4.3
-     */
-    #define mprPutFmtToBuf mprPutToBuf
-#endif
 
 /**
     Put an integer to the buffer.
@@ -3458,11 +3372,6 @@ PUBLIC uint64 mprGetHiResTicks();
     #define MPR_MEASURE(level, tag1, tag2, op) op
 #endif
 
-#if DEPRECATED || 1
-#define mprGetHiResTime mprGetHiResTicks
-#endif
-
-
 /**
     Return the time remaining until a timeout has elapsed
     @param mark Starting time stamp 
@@ -3472,10 +3381,6 @@ PUBLIC uint64 mprGetHiResTicks();
     @stability Stable
  */
 PUBLIC MprTicks mprGetRemainingTicks(MprTicks mark, MprTicks timeout);
-
-#if DEPRECATED || 1
-#define mprGetRemainingTime mprGetRemainingTicks
-#endif
 
 /**
     Get the elapsed time since a ticks mark. Create the ticks mark with mprGetTicks()
@@ -3548,9 +3453,6 @@ PUBLIC int mprGetTimeZoneOffset(MprTime when);
 #define MPR_OBJ_LIST            0x1     /**< Object is a hash */
 #define MPR_LIST_STATIC_VALUES  0x20    /**< Flag for #mprCreateList when values are permanent */
 #define MPR_LIST_STABLE         0x40    /**< Contents are stable or only accessed by one thread. Does not need thread locking */
-#if DEPRECATED || 1
-#define MPR_LIST_OWN MPR_LIST_STABLE
-#endif
 
 /**
     List data structure.
@@ -4125,24 +4027,6 @@ PUBLIC void mprLogProc(int level, cchar *fmt, ...);
  */
 PUBLIC void mprLogHeader();
 
-#if DEPRECATED
-/**
-    Log a memory error message.
-    @description Send a memory error message to the MPR debug logging subsystem. The message will be 
-        passed to the log handler defined by #mprSetLogHandler. It is up to the log handler to respond appropriately
-        to the fatal message, the MPR takes no other action other than logging the message. Typically, a memory 
-        message will be logged and the application will be shutdown. The preferred method of operation is to define
-        a memory depletion callback via #mprCreate. This will be invoked whenever a memory allocation error occurs.
-    @param fmt Printf style format string. Variable number of arguments to 
-    @param ... Variable number of arguments for printf data
-    @ingroup MprLog
-    @stability Stable
- */
-PUBLIC void mprMemoryError(cchar *fmt, ...);
-#else
-#define mprMemoryError mprError
-#endif
-
 /**
     Write a raw log message to the diagnostic log file.
     @description Send a raw message to the MPR logging subsystem. Raw messages do not have any application prefix
@@ -4222,23 +4106,6 @@ PUBLIC void mprTrace(int level, cchar *fmt, ...);
 #endif
 PUBLIC void mprTraceProc(int level, cchar *fmt, ...);
 
-#if DEPRECATED
-/**
-    Display an error message to the user.
-    @description Display an error message to the user and then send it to the 
-        MPR debug logging subsystem. The message will be passed to the log 
-        handler defined by mprSetLogHandler. It is up to the log handler to 
-        respond appropriately and display the message to the user.
-    @param fmt Printf style format string. Variable number of arguments to 
-    @param ... Variable number of arguments for printf data
-    @ingroup MprLog
-    @stability Stable
- */
-PUBLIC void mprUserError(cchar *fmt, ...);
-#else
-#define mprUserError mprError
-#endif
-
 /**
     Determine if the app is using the default MPR log handler.
     @description Returns true if no custom log handler has been installed.
@@ -4270,14 +4137,6 @@ PUBLIC void mprWarn(cchar *fmt, ...);
     #define mprLog(l, ...) if ((l) <= MPR->logLevel) { mprLogProc(l, __VA_ARGS__); } else
 #else
     #define mprLog(l, ...) if (1) ; else
-#endif
-
-#if DEPRECATED
-    #define LOG mprTrace
-    #define mprUserError mprError
-    #define mprMemoryError mprError
-    #define mprPrintfError mprEprintf
-    #define assure assert
 #endif
 
 /************************************ Hash ************************************/
@@ -4320,10 +4179,6 @@ typedef uint (*MprHashProc)(cvoid *name, ssize len);
 #define MPR_HASH_UNIQUE         0x200   /**< Add to existing will fail */
 #define MPR_HASH_STABLE         0x400   /**< Contents are stable or only accessed by one thread. Does not need thread locking */
 #define MPR_HASH_STATIC_ALL     (MPR_HASH_STATIC_KEYS | MPR_HASH_STATIC_VALUES)
-
-#if DEPRECATED || 1
-#define MPR_HASH_OWN MPR_HASH_STABLE
-#endif
 
 /**
     Hash table control structure
@@ -5332,10 +5187,6 @@ PUBLIC char *mprGetWinPath(cchar *path);
  */ 
 PUBLIC bool mprIsPathContained(cchar *path, cchar *dir);
 
-#if DEPRECATED || 1
-PUBLIC bool mprIsParentPathOf(cchar *dir, cchar *path);
-#endif
-
 /**
     Fast version of mprIsPathContained that works only for absolute paths.
     Determine if a directory is the same as or a parent of a path.
@@ -6035,10 +5886,6 @@ PUBLIC MprDispatcher *mprGetDispatcher();
 #define MPR_SERVICE_NO_BLOCK    0x4         /**< Do not block in mprServiceEvents */
 #define MPR_SERVICE_NO_GC       0x8         /**< Don't run GC */
 
-#if DEPRECATED || 1
-#define MPR_SERVICE_ONE_THING   MPR_SERVICE_NO_BLOCK  /**< Wait for one event or one I/O */
-#endif
-
 /**
     Service events. 
     @description This call services events on all dispatchers and services I/O events. 
@@ -6245,8 +6092,22 @@ PUBLIC void mprRescheduleEvent(MprEvent *event, MprTicks period);
  */
 PUBLIC void mprRelayEvent(MprDispatcher *dispatcher, void *proc, void *data, MprEvent *event);
 
-//  MOB
+/**
+    Start a dispatcher by setting it on the run queue
+    @param dispatcher Dispatcher object created via #mprCreateDispatcher
+    @return Zero if successful, otherwise a negative MPR status code.
+    @stability Prototype
+    @ingroup MprEvent
+ */
 PUBLIC int mprStartDispatcher(MprDispatcher *dispatcher);
+
+/**
+    Stop a dispatcher by removing it from the run queue
+    @param dispatcher Dispatcher object created via #mprCreateDispatcher
+    @return Zero if successful, otherwise a negative MPR status code.
+    @stability Prototype
+    @ingroup MprEvent
+ */
 PUBLIC int mprStopDispatcher(MprDispatcher *dispatcher);
 
 /* Internal API */
@@ -7077,11 +6938,6 @@ PUBLIC int mprStartThread(MprThread *thread);
 #define MPR_YIELD_COMPLETE  0x1     /**< mprYield flag to wait until the GC entirely completes including sweep phase */
 #define MPR_YIELD_STICKY    0x2     /**< mprYield flag to yield and remain yielded until reset. Does not block */
 
-#if DEPRECATED
-#define MPR_YIELD_NO_BLOCK  0
-#define MPR_YIELD_BLOCK     0x1     /**< mprYield flag to yield and wait until the next GC starts regardless */
-#endif
-
 /**
     Signify to the garbage collector that the thread is ready for garbage collection
     @description This routine informas the garbage collector that the thread has secured all memory that must be
@@ -7729,10 +7585,6 @@ PUBLIC int mprGetSocketError(MprSocket *sp);
     @stability Stable
  */
 PUBLIC Socket mprGetSocketHandle(MprSocket *sp);
-
-#if DEPRECATED || 1
-#define mprGetSocketFd mprGetSocketHandle
-#endif
 
 /**
     Get the socket for an IP:Port address
@@ -9979,10 +9831,6 @@ PUBLIC int mprGetState();
  */
 PUBLIC bool mprIsDestroyed();
 
-#if DEPRECATED || 1
-#define mprIsFinished mprIsDestroyed
-#endif
-
 /**
     Determine if the App is idle. 
     @description This call returns true if the App is not currently servicing any requests. By default this returns true
@@ -10027,10 +9875,6 @@ PUBLIC bool mprIsStopped();
     @stability Prototype.
  */
 PUBLIC bool mprIsDestroying();
-
-#if DEPRECATED || 1
-#define mprIsStoppingCore() mprIsDestroying()
-#endif
 
 #define MPR_ARGV_ARGS_ONLY    0x1     /**< Command is missing program name */
 
@@ -10423,19 +10267,6 @@ PUBLIC char *mprReadRegistry(cchar *key, cchar *name);
   */
 PUBLIC int mprWriteRegistry(cchar *key, cchar *name, cchar *value);
 #endif /* ME_WIN_LIKE || CYGWIN */
-
-
-#if DEPRECATED
-/**
-    Wait until the application is idle
-    @description This call blocks until application services are idle and all requests have completed.
-    @param timeout Time in milliseconds to wait for the application to be idle
-    @return True if the application is idle.
-    @ingroup Mpr
-    @stability Internal.
- */
-PUBLIC int mprWaitTillIdle(MprTicks timeout);
-#endif
 
 /*
     Internal

@@ -1180,7 +1180,7 @@ PUBLIC char *httpLinkEx(struct HttpConn *conn, cchar *target, MprHash *options);
 
 PUBLIC HttpUri *httpLinkUri(struct HttpConn *conn, cchar *target, MprHash *options);
 
-#if DEPRECATED || 1
+#if DEPRECATED
 PUBLIC char *httpUri(struct HttpConn *conn, cchar *target) ME_DEPRECATED("Use httpLink instead");
 PUBLIC char *httpUriEx(struct HttpConn *conn, cchar *target, MprHash *options) ME_DEPRECATED("Use httpLinkEx instead");
 #endif
@@ -2287,7 +2287,7 @@ PUBLIC void httpDefaultOutgoingServiceStage(HttpQueue *q);
  */
 PUBLIC cvoid *httpGetStageData(struct HttpConn *conn, cchar *key);
 
-#if DEPRECATED || 1
+#if DEPRECATED
 /**
     Handle a Http Trace or Options method request
     @description Convenience routine to respond to an OPTIONS or TRACE request. 
@@ -2527,12 +2527,9 @@ typedef struct HttpConn {
     void            *pool;                  /**< Pool of VMs */
     void            *mark;                  /**< Reference for GC marking */
     void            *data;                  /**< Custom data for request - must be a managed reference */
-    void            *staticData;            /**< Custom data for request - must be an unmanaged reference */
-
-#if (DEPRECATED || 1) && !DOXYGEN
     void            *grid;                  /**< Current request database grid for MVC apps */
     void            *record;                /**< Current request database record for MVC apps */
-#endif
+    void            *staticData;            /**< Custom data for request - must be an unmanaged reference */
     char            *boundary;              /**< File upload boundary */
     char            *errorMsg;              /**< Error message for the last request (if any) */
     char            *ip;                    /**< Remote client IP address */
@@ -3231,7 +3228,7 @@ PUBLIC void httpCreatePipeline(HttpConn *conn);
  */
 PUBLIC MprSocket *httpStealSocket(HttpConn *conn);
 
-#if DEPRECATED || 1
+#if DEPRECATED
 #define httpStealConn httpStealSocket
 #endif
 
@@ -3410,9 +3407,7 @@ typedef struct HttpAuth {
     MprHash         *userCache;             /**< Cache of authenticated users */
     MprHash         *roles;                 /**< Hash of roles */
     MprHash         *abilities;             /**< Set of required abilities (all are required) */
-#if DEPRECATED || 1
     MprHash         *permittedUsers;        /**< Set of valid users */
-#endif
     char            *loginPage;             /**< Web page for user login for 'post' type */
     char            *loggedIn;              /**< Target URI after logging in */
     char            *username;              /**< Automatic login username. Password not required if defined */
@@ -3447,7 +3442,7 @@ PUBLIC int httpAddAuthType(cchar *name, HttpAskLogin askLogin, HttpParseAuth par
  */
 PUBLIC HttpAuthStore *httpCreateAuthStore(cchar *name, HttpVerifyUser verifyUser);
 
-#if DEPRECATED || 1
+#if DEPRECATED
 PUBLIC int httpAddAuthStore(cchar *name, HttpVerifyUser verifyUser);
 #endif
 
@@ -3497,7 +3492,7 @@ PUBLIC int httpAddRole(HttpAuth *auth, cchar *role, cchar *abilities);
  */
 PUBLIC HttpUser *httpAddUser(HttpAuth *auth, cchar *user, cchar *password, cchar *abilities);
 
-#if DEPRECATED || 1
+#if DEPRECATED
 #define httpCreateUser(auth, user, password, abilities) httpAddUser(auth, user, password, abilities)
 #endif
 
@@ -3986,7 +3981,7 @@ PUBLIC void httpSetStreaming(struct HttpHost *host, cchar *mime, cchar *uri, boo
 #define HTTP_ROUTE_HIDDEN               0x800       /**< Hide this route in route tables. */
 #define HTTP_ROUTE_ENV_ESCAPE           0x1000      /**< Escape env vars */
 
-#if (DEPRECATED || 1) && !DOXYGEN
+#if DEPRECATED
 #define HTTP_ROUTE_GZIP                 0x1000      /**< Support gzipped content on this route */
 #endif
 
@@ -4001,7 +3996,7 @@ PUBLIC void httpSetStreaming(struct HttpHost *host, cchar *mime, cchar *uri, boo
         httpCreateDefaultRoute httpCreateInheritedRoute httpCreateRoute httpDefineRoute
         httpDefineRouteCondition httpDefineRouteTarget httpDefineRouteUpdate httpFinalizeRoute httpGetRouteData 
         httpGetRouteDocuments httpLookupRouteErrorDocument httpMakePath httpResetRoutePipeline 
-        httpSetRouteAuth httpSetRouteAutoDelete httpSetRouteCompression httpSetRouteConnector httpSetRouteData 
+        httpSetRouteAuth httpSetRouteAutoDelete httpSetRouteConnector httpSetRouteData 
         httpSetRouteDefaultLanguage httpSetRouteDocuments httpSetRouteFlags httpSetRouteHandler httpSetRouteHost 
         httpSetRouteIndex httpSetRouteMethods httpSetRouteName httpSetRouteVar httpSetRoutePattern 
         httpSetRoutePrefix httpSetRouteScript httpSetRouteSource httpSetRouteTarget httpSetRouteWorkers httpTemplate 
@@ -4612,7 +4607,7 @@ PUBLIC void *httpGetRouteData(HttpRoute *route, cchar *key);
  */
 PUBLIC cchar *httpGetRouteDocuments(HttpRoute *route);
 
-#if DEPRECATED || 1
+#if DEPRECATED
 #define httpGetRouteDir(route) httpGetRouteDocuments(route)
 #endif
 
@@ -4755,6 +4750,7 @@ PUBLIC void httpSetRouteAuth(HttpRoute *route, HttpAuth *auth);
  */
 PUBLIC void httpSetRouteAutoDelete(HttpRoute *route, bool on);
 
+#if DEPRECATED
 /**
     Contol content compression for the route
     @description This configures content compression for the route. Some handlers observe the content compression status
@@ -4767,6 +4763,7 @@ PUBLIC void httpSetRouteAutoDelete(HttpRoute *route, bool on);
     @stability Evolving
  */
 PUBLIC void httpSetRouteCompression(HttpRoute *route, int flags);
+#endif
 
 /**
     Set the connector to use for a route
@@ -4823,7 +4820,7 @@ PUBLIC void httpSetRouteDefaultLanguage(HttpRoute *route, cchar *language);
  */
 PUBLIC void httpSetRouteDocuments(HttpRoute *route, cchar *path);
 
-#if DEPRECATED || 1
+#if DEPRECATED
 PUBLIC void httpSetRouteDir(HttpRoute *route, cchar *path);
 #endif
 
@@ -5474,7 +5471,7 @@ PUBLIC cchar *httpGetSecurityToken(HttpConn *conn, bool recreate);
 */
 PUBLIC int httpAddSecurityToken(HttpConn *conn, bool recreate);
 
-#if DEPRECATED || 1
+#if DEPRECATED
 #define httpRenderSecurityToken httpAddSecurityToken
 #define httpSetSecurityToken httpAddSecurityToken
 #endif
@@ -5681,7 +5678,7 @@ PUBLIC void httpAddQueryParams(HttpConn *conn);
  */
 PUBLIC int httpAddBodyParams(HttpConn *conn);
 
-#if DEPRECATED || 1
+#if DEPRECATED
 #define httpAddParams(conn) httpAddBodyParams(conn)
 #endif
 
