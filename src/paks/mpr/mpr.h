@@ -893,7 +893,7 @@ PUBLIC void mprAtomicAdd64(volatile int64 *target, int64 value);
     @defgroup MprMem MprMem
     @see MprFreeMem MprHeap MprManager MprMemNotifier MprRegion mprAddRoot mprAlloc mprAllocMem mprAllocObj 
         mprAllocZeroed mprCreateMemService mprDestroyMemService mprEnableGC mprGetBlockSize mprGetMem 
-        mprGetMemStats mprGetMpr mprGetPageSize mprHasMemError mprHold mprIsParentPathOf mprIsValid mprMark 
+        mprGetMemStats mprGetMpr mprGetPageSize mprHasMemError mprHold mprIsPathContained mprIsValid mprMark 
         mprMemcmp mprMemcpy mprMemdup mprPrintMem mprRealloc mprRelease mprRemoveRoot mprGC mprResetMemError 
         mprRevive mprSetAllocLimits mprSetManager mprSetMemError mprSetMemLimits mprSetMemNotifier mprSetMemPolicy 
         mprSetName mprVerifyMem mprVirtAlloc mprVirtFree 
@@ -1199,8 +1199,8 @@ typedef struct MprHeap {
     int              sweeping;              /**< Actually sweeping objects now */
     int              track;                 /**< Track memory allocations (requires ME_MPR_ALLOC_DEBUG) */
     int              verify;                /**< Verify memory contents (very slow) */
-    int              workDone;              /**< Count of allocations weighted by block size */
-    int              workQuota;             /**< Quota of work done before idle GC worthwhile */
+    uint64           workDone;              /**< Count of allocations weighted by block size */
+    uint64           workQuota;             /**< Quota of work done before idle GC worthwhile */
 } MprHeap;
 
 /**
@@ -10175,7 +10175,7 @@ PUBLIC int mprStartEventsThread();
     Define the MPR_EXIT_RESTART flag for the application to automatically restart after exiting. Do not use this option if 
     the application is using a watchdog/angel process to automatically restart the application (such as appman by appweb).
     @param status Proposed exit status to use when the application exits. See #mprGetExitStatus.
-    @param timeout Exit timeout in milliseconds to wait for current requests to complete. If set to -1, 
+    @param timeout Exit timeout in milliseconds to wait for current requests to complete. If set to -1, for the default exit timeout.
     @ingroup Mpr
     @stability Evolving.
  */

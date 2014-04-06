@@ -9782,24 +9782,6 @@ PUBLIC int mprDispatchersAreIdle()
 }
 
 
-/*
-    Relay an event to a dispatcher. This invokes the callback proc as though it was invoked from the given dispatcher. 
- */
-PUBLIC void mprRelayEvent(MprDispatcher *dispatcher, void *proc, void *data, MprEvent *event)
-{
-    if (mprStartDispatcher(dispatcher) < 0) {
-        return;
-    }
-    if (proc) {
-        if (event) {
-            event->timestamp = dispatcher->service->now;
-        }
-        ((MprEventProc) proc)(data, event);
-    }
-    mprStopDispatcher(dispatcher);
-}
-
-
 PUBLIC int mprStartDispatcher(MprDispatcher *dispatcher)
 {
     if (dispatcher->owner && dispatcher->owner != mprGetCurrentOsThread()) {
@@ -9830,6 +9812,24 @@ PUBLIC int mprStopDispatcher(MprDispatcher *dispatcher)
     dequeueDispatcher(dispatcher);
     mprScheduleDispatcher(dispatcher);
     return 0;
+}
+
+
+/*
+    Relay an event to a dispatcher. This invokes the callback proc as though it was invoked from the given dispatcher. 
+ */
+PUBLIC void mprRelayEvent(MprDispatcher *dispatcher, void *proc, void *data, MprEvent *event)
+{
+    if (mprStartDispatcher(dispatcher) < 0) {
+        return;
+    }
+    if (proc) {
+        if (event) {
+            event->timestamp = dispatcher->service->now;
+        }
+        ((MprEventProc) proc)(data, event);
+    }
+    mprStopDispatcher(dispatcher);
 }
 
 
@@ -15095,7 +15095,7 @@ PUBLIC MprMutex *mprInitLock(MprMutex *lock)
     pthread_mutex_init(&lock->cs, &attr);
     pthread_mutexattr_destroy(&attr);
 
-#elif ME_WIN_LIKE && !ME_DEBUG && CRITICAL_SECTION_NO_DEBUG_INFO
+#elif ME_WIN_LIKE && !ME_DEBUG && CRITICAL_SECTION_NO_DEBUG_INFO && _WIN32_WINNT >= 0x0600
     InitializeCriticalSectionEx(&lock->cs, ME_MPR_SPIN_COUNT, CRITICAL_SECTION_NO_DEBUG_INFO);
 
 #elif ME_WIN_LIKE
@@ -15183,7 +15183,7 @@ PUBLIC MprSpin *mprInitSpinLock(MprSpin *lock)
     pthread_mutex_init(&lock->cs, &attr);
     pthread_mutexattr_destroy(&attr);
 
-#elif ME_WIN_LIKE && !ME_DEBUG && CRITICAL_SECTION_NO_DEBUG_INFO
+#elif ME_WIN_LIKE && !ME_DEBUG && CRITICAL_SECTION_NO_DEBUG_INFO && _WIN32_WINNT >= 0x0600
     InitializeCriticalSectionEx(&lock->cs, ME_MPR_SPIN_COUNT, CRITICAL_SECTION_NO_DEBUG_INFO);
 
 #elif ME_WIN_LIKE
@@ -23803,12 +23803,6 @@ PUBLIC char *stitle(cchar *str)
     }
     ptr[0] = (char) toupper((uchar) ptr[0]);
     return ptr;
-}
-
-
-PUBLIC char *spascal(cchar *str)
-{
-    return stitle(str);
 }
 
 
