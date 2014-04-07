@@ -734,7 +734,7 @@ PUBLIC void mprAtomicBarrier();
     @param link Reference to the list head link field
     @param item Item to insert
     @ingroup MprSync
-    @stability Evolving.
+    @stability Evolving
  */ 
 PUBLIC void mprAtomicListInsert(void **head, void **link, void *item);
 
@@ -745,7 +745,7 @@ PUBLIC void mprAtomicListInsert(void **head, void **link, void *item);
     @param value New value to store at the target
     @return TRUE if the swap was successful
     @ingroup MprSync
-    @stability Evolving.
+    @stability Evolving
  */
 PUBLIC int mprAtomicCas(void * volatile * target, void *expected, cvoid *value);
 
@@ -1242,7 +1242,7 @@ PUBLIC void *mprAllocMem(size_t size, int flags);
     Return the process CPU usage.
     @returns The total number of ticks of cpu usage since process tart
     @ingroup MprMem
-    @stability Prototype.
+    @stability Evolving
  */
 PUBLIC uint64 mprGetCPU();
 
@@ -1465,7 +1465,7 @@ PUBLIC void mprVirtFree(void *ptr, size_t size);
         specified via mprCreate will be called to allow global recovery.
     @remarks Do not mix calls to palloc and malloc.
     @ingroup MprMem
-    @stability Evolving.
+    @stability Evolving
  */
 PUBLIC void *palloc(size_t size);
 
@@ -1475,7 +1475,7 @@ PUBLIC void *palloc(size_t size);
     @param ptr Pointer to the block
     @remarks Do not mix calls to pfree and free.
     @ingroup MprMem
-    @stability Evolving.
+    @stability Evolving
  */
 PUBLIC void pfree(void *ptr);
 
@@ -1488,7 +1488,7 @@ PUBLIC void pfree(void *ptr);
         specified via mprCreate will be called to allow global recovery.
     @remarks Do not mix calls to prealloc and malloc.
     @ingroup MprMem
-    @stability Evolving.
+    @stability Evolving
  */
 PUBLIC void *prealloc(void *ptr, size_t size);
 
@@ -1621,7 +1621,7 @@ PUBLIC void mprAddRoot(cvoid *ptr);
     @return The number of blocks freed on the last GC sweep. If using MPR_GC_NO_BLOCK, this may be the result from a prior GC
         sweep.
     @ingroup MprMem
-    @stability Evolving.
+    @stability Evolving
   */
 PUBLIC int mprGC(int flags);
 
@@ -1638,7 +1638,7 @@ PUBLIC bool mprEnableGC(bool on);
 /**
     Test if GC has been paused
     @return True if GC has been paused via #mprPauseGC
-    @stability Prototype.
+    @stability Evolving
  */
 PUBLIC bool mprGCPaused();
 
@@ -1659,7 +1659,7 @@ PUBLIC void mprHold(cvoid *ptr);
     @param ptr Any memory block
     @param ... Other memory blocks. Terminate the list with a NULL.
     @ingroup MprMem
-    @stability Prototype.
+    @stability Evolving
   */
 PUBLIC void mprHoldBlocks(cvoid *ptr, ...);
 
@@ -1676,7 +1676,7 @@ PUBLIC void mprHoldBlocks(cvoid *ptr, ...);
         To be effective, this routine also pauses any MPR shutdown.
     @return true if GC and MPR shutdown can be paused. Will return false if the MPR is stopping and GC cannot be paused.
     @ingroup MprMem
-    @stability Prototype.
+    @stability Evolving
   */
 PUBLIC bool mprPauseGC();
 
@@ -1695,7 +1695,7 @@ PUBLIC void mprRelease(cvoid *ptr);
     @param ptr Any memory block
     @param ... Other memory blocks. Terminate the list with a NULL.
     @ingroup MprMem
-    @stability Prototype.
+    @stability Evolving
   */
 PUBLIC void mprReleaseBlocks(cvoid *ptr, ...);
 
@@ -1714,7 +1714,7 @@ PUBLIC void mprRemoveRoot(cvoid *ptr);
         This routine increments a pause counter and mprReleaseGC will decrement. Garbage collection can resume when the
         counter is zero. This also resumes any shutdown capability for the application.
     @ingroup MprMem
-    @stability Prototype.
+    @stability Evolving
   */
 PUBLIC void mprResumeGC();
 
@@ -2252,7 +2252,7 @@ PUBLIC char *stemplateJson(cchar *str, struct MprJson *tokens);
     @param str Pointer to the string to parse.
     @return Returns the double equivalent value of the string. 
     @ingroup MprString
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC double stof(cchar *str);
 
@@ -2533,14 +2533,11 @@ PUBLIC ssize mprPrintf(cchar *fmt, ...);
  */
 PUBLIC ssize print(cchar *fmt, ...);
 
-/*
-    Internal
- */
 /**
     Format a string into a buffer.
-    @description This routine will format the arguments into a result. If a buffer is supplied, it will be used. Otherwise
-        if the buf argument is NULL, a buffer will be allocated. The arguments will be formatted up to the maximum
-        size supplied by the maxsize argument.  A trailing null will always be appended. 
+    @description This routine will format the arguments into a result. If a buffer is supplied, it will be used.
+        Otherwise if the buf argument is NULL, a buffer will be allocated. The arguments will be formatted up 
+        to the maximum size supplied by the maxsize argument.  A trailing null will always be appended. 
     @param buf Optional buffer to contain the formatted result
     @param maxsize Maximum size of the result
     @param fmt Printf style format string
@@ -2548,7 +2545,7 @@ PUBLIC ssize print(cchar *fmt, ...);
     @return Returns the number of characters in the string.
     @ingroup MprString
     @internal
-    @stability Deprecated
+    @stability Stable
  */
 PUBLIC char *mprPrintfCore(char *buf, ssize maxsize, cchar *fmt, va_list args);
 
@@ -2928,7 +2925,7 @@ PUBLIC ssize mprPutIntToBuf(MprBuf *buf, int64 i);
     @param count Count of pad characters to put
     @returns Zero if successful and otherwise a negative error code 
     @ingroup MprBuf
-    @stability Evolving.
+    @stability Evolving
  */
 PUBLIC ssize mprPutPadToBuf(MprBuf *buf, int c, ssize count);
 
@@ -3570,7 +3567,7 @@ PUBLIC MprList *mprCreateList(int size, int flags);
     @param str String containing white space or comma separated words
     @return Returns a list of words
     @ingroup MprList
-    @stability Evolving.
+    @stability Evolving
  */
 PUBLIC MprList *mprCreateListFromWords(cchar *str);
 
@@ -3646,7 +3643,7 @@ PUBLIC void *mprGetNextItem(MprList *list, int *lastIndex);
     @param lastIndex Pointer to an integer that will hold the last index retrieved.
     @ingroup MprList
     @internal
-    @stability Evolving.
+    @stability Evolving
  */
 PUBLIC void *mprGetNextStableItem(MprList *list, int *lastIndex);
 
@@ -3694,7 +3691,7 @@ PUBLIC int mprInsertItemAtPos(MprList *list, int index, cvoid *item);
     @param list List pointer returned from mprCreateList.
     @param join String to use as the element join string. May be null.
     @ingroup MprList
-    @stability Evolving.
+    @stability Evolving
  */
 PUBLIC char *mprListToString(MprList *list, cchar *join);
 
@@ -3944,7 +3941,7 @@ PUBLIC int mprBackupLog(cchar *path, int count);
     @param level Logging level for this message. The level is 0-9 with zero being the most verbose.
     @param msg Message to log
     @ingroup MprLog
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void mprDefaultLogHandler(int flags, int level, cchar *msg);
 
@@ -4372,7 +4369,7 @@ PUBLIC MprHash *mprBlendHash(MprHash *target, MprHash *other);
     @param join String to use as the element join string.
     @return String consisting of the joined hash values
     @ingroup MprHash
-    @stability Evolving.
+    @stability Evolving
 */
 PUBLIC char *mprHashToString(MprHash *hash, cchar *join);
 
@@ -4382,7 +4379,7 @@ PUBLIC char *mprHashToString(MprHash *hash, cchar *join);
     @param join String to use as the element join string.
     @return String consisting of the joined hash keys
     @ingroup MprHash
-    @stability Evolving.
+    @stability Evolving
 */
 PUBLIC char *mprHashKeysToString(MprHash *hash, cchar *join);
 
@@ -5253,7 +5250,7 @@ PUBLIC char *mprJoinPath(cchar *base, cchar *path);
     @param ... Other paths to join to the base path. List of other paths must be NULL terminated.
     @returns Allocated string containing the resolved path.
     @ingroup MprPath
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC char *mprJoinPaths(cchar *base, ...);
 
@@ -5448,7 +5445,7 @@ PUBLIC char *mprTransformPath(cchar *path, int flags);
     @param count Number of components to trim. If negative, trim from the end.
     @returns An allocated string with the trimmed path.
     @ingroup MprPath
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC char *mprTrimPathComponents(cchar *path, int count);
 
@@ -5918,7 +5915,7 @@ PUBLIC int mprServiceEvents(MprTicks delay, int flags);
     Set the maximum sleep time for the event service
     @param delay Maximum time to sleep before checking for events to service
     @ingroup MprDispatcher
-    @stability Evolving;
+    @stability Evolving
  */
 PUBLIC void mprSetEventServiceSleep(MprTicks delay);
 
@@ -8269,7 +8266,7 @@ PUBLIC MprWorker *mprGetCurrentWorker();
     @description This is thread-safe with respect to MPR->state
     @return Count of workers in the busy queue
     @ingroup MprWorker
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC ssize mprGetBusyWorkerCount();
 
@@ -8401,7 +8398,7 @@ PUBLIC char *mprGetSHABase64(cchar *str);
     @param rounds Number of times to encrypt. More times, makes the routine slower and passwords harder to crack.
     @return The encrypted password.
     @ingroup Mpr
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC char *mprCryptPassword(cchar *password, cchar *salt, int rounds);
 
@@ -8410,7 +8407,7 @@ PUBLIC char *mprCryptPassword(cchar *password, cchar *salt, int rounds);
     @param prompt Text prompt to display before reading the password
     @return The entered password.
     @ingroup Mpr
-    @stability Prototype 
+    @stability Evolving 
  */
 PUBLIC char *mprGetPassword(cchar *prompt);
 
@@ -8419,7 +8416,7 @@ PUBLIC char *mprGetPassword(cchar *prompt);
     @param size Size in bytes of the salt text.
     @return The random salt text.
     @ingroup Mpr
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC char *mprMakeSalt(ssize size);
 
@@ -8430,7 +8427,7 @@ PUBLIC char *mprMakeSalt(ssize size);
     @param rounds Number of times to encrypt. More times, makes the routine slower and passwords harder to crack.
     @return The encrypted password.
     @ingroup Mpr
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC char *mprMakePassword(cchar *password, int saltLength, int rounds);
 
@@ -8440,7 +8437,7 @@ PUBLIC char *mprMakePassword(cchar *password, int saltLength, int rounds);
     @param passwordHash Required password in hashed format previously computed by mprMakePassword.
     @return True if the password is correct.
     @ingroup Mpr
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC bool mprCheckPassword(cchar *plainTextPassword, cchar *passwordHash);
 
@@ -8832,7 +8829,7 @@ PUBLIC void mprFinalizeCmd(MprCmd *cmd);
     @description This is thread-safe with respect to MPR->state
     @return Count of running commands
     @ingroup MprCmd
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC ssize mprGetActiveCmdCount();
 
@@ -8934,7 +8931,7 @@ PUBLIC int mprReapCmd(MprCmd *cmd, MprTicks timeout);
     @param timeout Time in milliseconds to wait for the command to complete and exit.
     @return Command exit status, or negative MPR error code.
     @ingroup MprCmd
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC int mprRun(MprDispatcher *dispatcher, cchar *command, cchar *input, char **output, char **error, MprTicks timeout);
 
@@ -9603,7 +9600,7 @@ PUBLIC Mpr *mprCreate(int argc, char **argv, int flags);
     @description This converts the current process into a detached child without a parent.
     @returns Zero if successful. Otherwise a negative MPR error code.
     @ingroup Mpr
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC int mprDaemon();
 
@@ -9634,7 +9631,7 @@ PUBLIC int mprDaemon();
         #mprShutdown and current requests have not completed within the exit timeout
         period defined by #mprSetExitTimeout. In this case, the shutdown is cancelled and normal operations continue.
     @ingroup Mpr
-    @stability Evolving.
+    @stability Evolving
  */
 PUBLIC bool mprDestroy();
 
@@ -9764,7 +9761,7 @@ PUBLIC cchar *mprGetIpAddr();
     Get a key value
     @param key String key value
     @ingroup Mpr
-    @stability Prototype.
+    @stability Stable
  */
 PUBLIC void *mprGetKey(cchar *key);
 
@@ -9817,7 +9814,7 @@ PUBLIC cchar *mprGetServerName();
     Get the MPR execution state
     @returns MPR_CREATED, MPR_STARTED, MPR_STOPPING, MPR_STOPPED, MPR_DESTROYING, or MPR_DESTROYED.
     @ingroup Mpr
-    @stability Prototype
+    @stability Stable
   */
 PUBLIC int mprGetState();
 
@@ -9863,7 +9860,7 @@ PUBLIC bool mprIsStopping();
         Use #mprIsDestroyed to test if the application has completed its shutdown. 
     @return True if the application is in the process of exiting
     @ingroup Mpr
-    @stability Prototype.
+    @stability Evolving
  */
 PUBLIC bool mprIsStopped();
 
@@ -9872,7 +9869,7 @@ PUBLIC bool mprIsStopped();
     All request should immediately terminate.
     @return True if the application is in the process of exiting and core services should also exit.
     @ingroup Mpr
-    @stability Prototype.
+    @stability Evolving
  */
 PUBLIC bool mprIsDestroying();
 
@@ -9987,7 +9984,7 @@ PUBLIC void mprSetDebugMode(bool on);
     @description Set the exit status that can be retrieved via #mprGetExitStatus.
     @param status Proposed exit status value.
     @ingroup Mpr
-    @stability Prototype.
+    @stability Evolving
  */
 PUBLIC void mprSetExitStatus(int status);
 
@@ -10036,7 +10033,7 @@ PUBLIC void mprSetExitTimeout(MprTicks timeout);
     Set the maximum number of open file/socket descriptors
     @param limit Limit to enforce
     @ingroup Mpr
-    @stability Evolving.
+    @stability Evolving
  */
 PUBLIC void mprSetFilesLimit(int limit);
 
@@ -10069,7 +10066,7 @@ PUBLIC void mprSetIpAddr(cchar *ip);
     @param key String key value
     @param value Manage object reference
     @ingroup Mpr
-    @stability Prototype.
+    @stability Stable
  */
 PUBLIC void mprSetKey(cchar *key, void *value);
 
@@ -10177,7 +10174,7 @@ PUBLIC int mprStartEventsThread();
     @param status Proposed exit status to use when the application exits. See #mprGetExitStatus.
     @param timeout Exit timeout in milliseconds to wait for current requests to complete. If set to -1, for the default exit timeout.
     @ingroup Mpr
-    @stability Evolving.
+    @stability Evolving
  */
 PUBLIC void mprShutdown(int exitStrategy, int status, MprTicks timeout);
 
@@ -10189,7 +10186,7 @@ PUBLIC void mprShutdown(int exitStrategy, int status, MprTicks timeout);
     @return True if the shutdown can be cancelled. Returns false if a shutdown has not been requested or if the shutdown has
     advanced past the point of no return.
     @ingroup Mpr
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC bool mprCancelShutdown();
 
@@ -10242,7 +10239,7 @@ PUBLIC void mprSetSocketMessage(int message);
     @param key Windows registry key to enumerate subkeys
     @return List of subkey string names
     @ingroup Mpr
-    @stability Prototype.
+    @stability Stable
   */
 PUBLIC MprList *mprListRegistry(cchar *key);
 

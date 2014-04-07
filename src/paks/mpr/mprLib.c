@@ -1170,6 +1170,7 @@ static void sweeperThread(void *unused, MprThread *tp)
             mprWaitForCond(heap->gcCond, -1);
         }
         if (pauseGC || mprIsDestroyed()) {
+            heap->mustYield = 0;
             continue;
         }
         markAndSweep();
