@@ -40,7 +40,7 @@
     },
     "optionalDependencies": {
         "est": "~0.6",
-        "ssl": "~0.8"
+        "me-ssl": "~0.8"
     },
     "dirs": {
         "paks": "src/paks"

@@ -76,7 +76,7 @@ module embedthis.me {
         }
         if (!b.options.gen) {
             createStartMeFile(b.platforms[0])
-            trace('Info', 'Type "me" to build. Use "me configuration" to see current settings"')
+            trace('Info', 'Type "me" to build. Use "me configuration" to see current settings.')
         }
     }
 

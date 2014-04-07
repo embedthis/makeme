@@ -797,13 +797,6 @@
       <arglist>(struct HttpConn *conn)</arglist>
     </member>
     <member kind="function">
-      <type>void</type>
-      <name>httpHandleOptionsTrace</name>
-      <anchorfile>group___http_stage.html</anchorfile>
-      <anchor>ga2aab75b36881d1cd08a868a547715304</anchor>
-      <arglist>(struct HttpConn *conn)</arglist>
-    </member>
-    <member kind="function">
       <type>struct HttpStage *</type>
       <name>httpLookupStage</name>
       <anchorfile>group___http_stage.html</anchorfile>
@@ -846,10 +839,10 @@
       <arglist>)(struct HttpConn *conn, struct HttpRoute *route, int dir)</arglist>
     </member>
     <member kind="variable">
-      <type>void(*</type>
+      <type>int(*</type>
       <name>open</name>
       <anchorfile>group___http_stage.html</anchorfile>
-      <anchor>gaa1d7ed1c16d6db80311f0b8b7ea8c301</anchor>
+      <anchor>gaa49ed2dd84e9c37b141094643d05a6aa</anchor>
       <arglist>)(HttpQueue *q)</arglist>
     </member>
     <member kind="variable">
@@ -2023,13 +2016,6 @@
       <anchorfile>group___http_route.html</anchorfile>
       <anchor>gaddcc56c566e6857c3d1339f95fd5e712</anchor>
       <arglist>(HttpRoute *route, bool on)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>httpSetRouteCompression</name>
-      <anchorfile>group___http_route.html</anchorfile>
-      <anchor>ga15322e55dffb1723004814cf54636d02</anchor>
-      <arglist>(HttpRoute *route, int flags)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
