@@ -2147,24 +2147,33 @@ PUBLIC ssize httpReadBlock(HttpConn *conn, char *buf, ssize size, MprTicks timeo
     HttpPacket  *packet;
     HttpQueue   *q;
     MprBuf      *content;
+    MprTime     mark;
     ssize       nbytes, len;
 
     q = conn->readq;
     assert(q->count >= 0);
     assert(size >= 0);
+    assert(httpClientConn(conn));
+
     if (flags == 0) {
         flags = conn->async ? HTTP_NON_BLOCK : HTTP_BLOCK;
     }
-    if (timeout <= 0) {
+    if (timeout < 0) {
+        timeout = conn->limits->inactivityTimeout;
+    } else if (timeout == 0) {
         timeout = MPR_MAX_TIMEOUT;
     }
-    timeout = min(timeout, conn->limits->inactivityTimeout);
-
     if (flags & HTTP_BLOCK) {
-        while (q->count <= 0 && !conn->error && (conn->state <= HTTP_STATE_CONTENT) && !httpRequestExpired(conn, timeout)) {
+        mark = conn->http->now;
+        while (q->count <= 0 && !conn->error && (conn->state <= HTTP_STATE_CONTENT)) {
+            if (httpRequestExpired(conn, -1)) {
+                break;
+            }
             httpEnableConnEvents(conn);
-            assert(httpClientConn(conn));
-            mprWaitForEvent(conn->dispatcher, timeout);
+            mprWaitForEvent(conn->dispatcher, min(conn->limits->inactivityTimeout, mprGetRemainingTicks(mark, timeout)));
+            if (mprGetRemainingTicks(mark, timeout) <= 0) {
+                break;
+            }
         }
     }
     for (nbytes = 0; size > 0 && q->count > 0; ) {
@@ -2375,7 +2384,8 @@ PUBLIC ssize httpWriteUploadData(HttpConn *conn, MprList *fileData, MprList *for
  */
 PUBLIC int httpWait(HttpConn *conn, int state, MprTicks timeout)
 {
-    int     justOne;
+    MprTicks    mark;
+    int         justOne;
 
     if (httpServerConn(conn)) {
         mprError("Should not call httpWait on the server side");
@@ -2397,24 +2407,32 @@ PUBLIC int httpWait(HttpConn *conn, int state, MprTicks timeout)
         return MPR_ERR_BAD_STATE;
     }
     if (timeout < 0) {
-        timeout = conn->limits->inactivityTimeout;
+        timeout = conn->limits->requestTimeout;
     } else if (timeout == 0) {
         timeout = MPR_MAX_TIMEOUT;
     }
     if (state > HTTP_STATE_CONTENT) {
         httpFinalizeOutput(conn);
     }
-    while (conn->state < state && !conn->error && !mprIsSocketEof(conn->sock) && !httpRequestExpired(conn, timeout)) {
+    mark = conn->http->now;
+    while (conn->state < state && !conn->error && !mprIsSocketEof(conn->sock)) {
+        if (httpRequestExpired(conn, -1)) {
+            return MPR_ERR_TIMEOUT;
+        }
         httpEnableConnEvents(conn);
-        assert(httpClientConn(conn));
-        mprWaitForEvent(conn->dispatcher, min(conn->limits->inactivityTimeout, timeout));
-        if (justOne) break;
+        mprWaitForEvent(conn->dispatcher, min(conn->limits->inactivityTimeout, mprGetRemainingTicks(mark, timeout)));
+        if (justOne || mprGetRemainingTicks(mark, timeout) <= 0) {
+            break;
+        }
     }
     if (conn->error) {
-        return MPR_ERR_CANT_CONNECT;
+        return MPR_ERR_NOT_READY;
+    }
+    if (httpRequestExpired(conn, -1)) {
+        return MPR_ERR_TIMEOUT;
     }
     if (!justOne && conn->state < state) {
-        return httpRequestExpired(conn, timeout) ? MPR_ERR_TIMEOUT : MPR_ERR_CANT_READ;
+        return MPR_ERR_CANT_READ;
     }
     conn->lastActivity = conn->http->now;
     return 0;

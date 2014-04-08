@@ -1000,12 +1000,12 @@ static int doRequest(HttpConn *conn, cchar *url, MprList *files)
     }
     mprAddRoot(outFile);
     readBody(conn, outFile);
-    while (conn->state < HTTP_STATE_COMPLETE && !httpRequestExpired(conn, 0)) {
+    while (conn->state < HTTP_STATE_COMPLETE && !httpRequestExpired(conn, -1)) {
         readBody(conn, outFile);
-        httpWait(conn, 0, conn->limits->inactivityTimeout);
+        httpWait(conn, 0, -1);
     }
     if (conn->state < HTTP_STATE_COMPLETE && !conn->error) {
-        httpError(conn, HTTP_ABORT | HTTP_CODE_REQUEST_TIMEOUT, "Inactive request timed out, exceeded request timeout %d", app->timeout);
+        httpError(conn, HTTP_ABORT | HTTP_CODE_REQUEST_TIMEOUT, "Request timed out");
     }
     if (app->outFilename) {
         mprCloseFile(outFile);
