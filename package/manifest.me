@@ -41,7 +41,6 @@ Me.load({
 
             },{ from: [
                     '${BIN}/libejs${SHOBJ}',
-                    '${BIN}/libest${SHOBJ}',
                     '${BIN}/libhttp${SHOBJ}',
                     '${BIN}/libmpr${SHOBJ}',
                     '${BIN}/libmprssl${SHOBJ}',
@@ -51,6 +50,32 @@ Me.load({
                 to:     '${abin}/',
                 set:    'libs',
                 enable: '!me.settings.static',
+
+            },{ from: [
+                    '${BIN}/libest${SHOBJ}',
+                ],
+                to:     '${abin}/',
+                set:    'libs',
+                enable: '!me.settings.static',
+                ifdef:  'est',
+
+            },{ from: [
+                    '${BIN}/libssl*${SHOBJ}*',
+                    '${BIN}/libcrypto*${SHOBJ}*',
+                ],
+                to:     '${abin}/',
+                set:    'libs',
+                enable: 'me.platform.os != "windows"',
+                ifdef:  'openssl',
+
+            },{ from: [
+                    '${BIN}/libeay32${SHOBJ}',
+                    '${BIN}/ssleay32${SHOBJ}',
+                ],
+                to:     '${abin}/',
+                set:    'libs',
+                enable: 'me.platform.os == "windows"',
+                ifdef:  'openssl',
 
             },{ from: [
                     '${BIN}/ca.crt',
