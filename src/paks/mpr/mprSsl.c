@@ -1934,7 +1934,7 @@ static int checkCert(MprSocket *sp)
         mprLog(4, "OpenSSL Peer: %s", peer);
         X509_free(cert);
     }
-    if (ssl->verifyPeer) {
+    if (ssl->verifyPeer && osp->peerName) {
         target = osp->peerName;
         certName = peer;
 
