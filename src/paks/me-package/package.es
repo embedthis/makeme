@@ -824,7 +824,8 @@ function packageWindows(prefixes) {
         let pass = Path('/crt/signing.pass').readString().trim()
         trace('Sign', outfile)
         Cmd.run([me.targets.winsdk.path.join('bin/x86/signtool.exe'),
-            'sign', '/f', cert, '/p', pass, '/t', 'http://tsa.starfieldtech.com', outfile], {noshow: true})
+            'sign', '/f', cert, '/p', pass, '/t', 'http://timestamp.verisign.com/scripts/timestamp.dll', outfile], 
+            {noshow: true})
     }
     /* Wrap in a zip archive */
     let zipfile = outfile.joinExt('zip', true)
