@@ -1909,7 +1909,7 @@ static int checkCert(MprSocket *sp)
     OpenSocket  *osp;
     X509        *cert;
     X509_NAME   *xSubject;
-    char        subject[512], issuer[512], peer[512], *dp, *pp;
+    char        subject[512], issuer[512], peer[512], *target, *certName, *tp;
 
     ssl = sp->ssl;
     osp = (OpenSocket*) sp->sslSocket;
@@ -1934,26 +1934,34 @@ static int checkCert(MprSocket *sp)
         mprLog(4, "OpenSSL Peer: %s", peer);
         X509_free(cert);
     }
-    if (ssl->verifyPeer && osp->peerName) {
-        if (smatch(peer, osp->peerName)) {
-            /* simple match */
-        } else if (*peer == '*' && peer[1] == '.') {
-            pp = &peer[2];
-            /* Cert peer must be of the form *.domain.tld. i.e. *.com is not valid */
-            if (!strchr(pp, '.')) {
+    if (ssl->verifyPeer) {
+        target = osp->peerName;
+        certName = peer;
+
+        if (target == 0 || *target == '\0' || strchr(target, '.') == 0) {
+            sp->errorMsg = sfmt("Bad peer name");
+            return -1;
+        }
+        if (strchr(certName, '.') == 0) {
+            sp->errorMsg = sfmt("Peer certificate must have a domain: \"%s\"", certName);
+            return -1;
+        }
+        if (*certName == '*' && certName[1] == '.') {
+            /* Wildcard cert */
+            certName = &certName[2];
+            if (strchr(certName, '.') == 0) {
+                /* Peer must be of the form *.domain.tld. i.e. *.com is not valid */
                 sp->errorMsg = sfmt("Peer CN is not valid %s", peer);
                 return -1;
             }
-            /* Required peer name must have a domain portion. i.e. domain.tld */
-            if ((dp = strchr(osp->peerName, '.')) != 0) {
-                /* Strip the host portion and just test the domain portion */
-                if (!smatch(pp, &dp[1])) {
-                    sp->errorMsg = sfmt("Certificate common name mismatch CN \"%s\" vs required \"%s\"", peer, osp->peerName);
-                    return -1;
-                }
+            if ((tp = strchr(target, '.')) != 0 && strchr(&tp[1], '.')) {
+                /* Strip host name if target has a host name */
+                target = &tp[1];
             }
-        } else {
+        }
+        if (!smatch(target, certName)) {
             sp->errorMsg = sfmt("Certificate common name mismatch CN \"%s\" vs required \"%s\"", peer, osp->peerName);
+            return -1;
         }
     }
     return 0;
