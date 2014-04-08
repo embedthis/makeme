@@ -699,8 +699,6 @@ static void threadMain(void *data, MprThread *tp)
     e.mask = MPR_READABLE;
     e.data = tp;
     mprRelayEvent(conn->dispatcher, (MprEventProc) processThread, conn, &e);
-
-    mprDestroyDispatcher(td->dispatcher);
 }
 
 
@@ -770,6 +768,7 @@ static int processThread(HttpConn *conn, MprEvent *event)
         }
     }
     httpDestroyConn(conn);
+    mprDestroyDispatcher(conn->dispatcher);
     finishThread((MprThread*) event->data);
     return -1;
 }
