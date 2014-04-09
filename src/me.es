@@ -2995,8 +2995,13 @@ public class Me {
 
     private function loadPackage() {
         if (PACKAGE.exists) {
+            let package
             try {
-                let package = me.package = PACKAGE.readJSON()
+                package = me.package = PACKAGE.readJSON()
+            } catch (e) {
+                trace('WARN', 'Cannot parse: ' + PACKAGE + '\n' + e)
+            }
+            try {
                 me.settings ||= {}
                 me.settings.name = package.name
                 me.settings.description = package.description
