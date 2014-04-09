@@ -926,7 +926,7 @@ ${RELEASE_SETTINGS}
     section = '\t\t${TARGET_DEBUG} /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = ${TNAME};
+				PRODUCT_NAME = ${PNAME};
 ${OVERRIDABLE_SETTINGS}
 ${DEBUG_SETTINGS}
 			};
@@ -935,7 +935,7 @@ ${DEBUG_SETTINGS}
 		${TARGET_RELEASE} /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = ${TNAME};
+				PRODUCT_NAME = ${PNAME};
 ${OVERRIDABLE_SETTINGS}
 ${RELEASE_SETTINGS}
 			};
@@ -968,7 +968,8 @@ ${RELEASE_SETTINGS}
         if (target.type == 'lib' && me.settings.static) {
             overridable += '\t\t\t\tEXECUTABLE_EXTENSION = a;\n'
         }
-        output(section.expand({TNAME: target.name, TARGET_DEBUG: tdid, TARGET_RELEASE: trid, 
+        let pname = target.path ? Path(target.path).basename : target.name
+        output(section.expand({PNAME: pname, TNAME: target.name, TARGET_DEBUG: tdid, TARGET_RELEASE: trid, 
             OVERRIDABLE_SETTINGS: overridable,
             DEBUG_SETTINGS: prepareSettings(base, ts, true),
             RELEASE_SETTINGS: prepareSettings(base, ts, false),
