@@ -25,7 +25,8 @@ Me.load({
         },
 
         ejscmd: {
-            type:   'exe',
+            path: '${BIN}/ejs${EXE}',
+            type: 'exe',
             sources: [ 'ejs.c' ],
             scripts: {
                 prebuild: `

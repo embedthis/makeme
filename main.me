@@ -76,9 +76,11 @@ Me.load({
 
     scripts: {
         loaded: `
+            if (!me.dir.home.join('.embedthis').exists) {
+                me.targets.httpcmd.enable = false
+                me.targets.ejscmd.enable = false
+            }
             me.targets.makerom.enable = false
-            me.targets.httpcmd.enable = false
-            me.targets.ejscmd.enable = false
         `
     },
 
