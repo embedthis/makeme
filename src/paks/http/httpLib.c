@@ -5236,6 +5236,11 @@ static void invokeDefenses(HttpMonitor *monitor, MprHash *args)
 
         /*  WARNING: yields */
         remedyProc(args);
+#if FUTURE
+        if (http->monitorCallback) {
+            (http->monitorCallback)(monitor, defense, args);
+        }
+#endif
     }
     mprRelease(args);
 }

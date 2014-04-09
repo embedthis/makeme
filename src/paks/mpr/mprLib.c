@@ -8901,6 +8901,7 @@ static void manageDiskFile(MprFile *file, int flags)
     } else if (flags & MPR_MANAGE_FREE) {
         if (file->fd >= 0) {
             close(file->fd);
+            file->fd = -1;
         }
     }
 }
