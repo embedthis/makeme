@@ -1279,21 +1279,22 @@ public class Me {
      */
     function setTargetPaths() {
         for each (target in me.targets) {
+            let name = target.pname || target.name
             if (!target.path) {
                 if (target.type == 'lib') {
                     if (target.static) {
-                        target.path = me.dir.lib.join(target.name).joinExt(me.ext.lib, true)
+                        target.path = me.dir.lib.join(name).joinExt(me.ext.lib, true)
                     } else {
-                        target.path = me.dir.lib.join(target.name).joinExt(me.ext.shobj, true)
+                        target.path = me.dir.lib.join(name).joinExt(me.ext.shobj, true)
                     }
                 } else if (target.type == 'obj') {
-                    target.path = me.dir.obj.join(target.name).joinExt(me.ext.o, true)
+                    target.path = me.dir.obj.join(name).joinExt(me.ext.o, true)
                 } else if (target.type == 'exe') {
-                    target.path = me.dir.bin.join(target.name).joinExt(me.ext.exe, true)
+                    target.path = me.dir.bin.join(name).joinExt(me.ext.exe, true)
                 } else if (target.type == 'file') {
-                    target.path = me.dir.lib.join(target.name)
+                    target.path = me.dir.lib.join(name)
                 } else if (target.type == 'res') {
-                    target.path = me.dir.res.join(target.name).joinExt(me.ext.res, true)
+                    target.path = me.dir.res.join(name).joinExt(me.ext.res, true)
                 }
             }
             if (target.path) {

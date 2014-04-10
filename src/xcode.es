@@ -968,7 +968,7 @@ ${RELEASE_SETTINGS}
         if (target.type == 'lib' && me.settings.static) {
             overridable += '\t\t\t\tEXECUTABLE_EXTENSION = a;\n'
         }
-        let pname = target.path ? Path(target.path).basename : target.name
+        let pname = target.pname ? target.pname : target.name
         output(section.expand({PNAME: pname, TNAME: target.name, TARGET_DEBUG: tdid, TARGET_RELEASE: trid, 
             OVERRIDABLE_SETTINGS: overridable,
             DEBUG_SETTINGS: prepareSettings(base, ts, true),
