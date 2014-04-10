@@ -766,7 +766,6 @@
 				D17998CCD179A83E0000009B /* me.h */,
 				D17998CCD179A83E000000A1 /* mpr.h */,
 				D17998CCD179A83E000000A6 /* est.h */,
-				D17998CCD179A83E000000A3 /* osdep.h */,
 				D17998CCD179A83E00000031 /* mprSsl.c */,
 			);
             name = "libmprssl";

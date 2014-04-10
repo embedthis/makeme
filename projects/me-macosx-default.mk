@@ -622,7 +622,6 @@ $(CONFIG)/inc/est.h: $(DEPS_28)
 DEPS_29 += $(CONFIG)/inc/me.h
 DEPS_29 += $(CONFIG)/inc/mpr.h
 DEPS_29 += $(CONFIG)/inc/est.h
-DEPS_29 += $(CONFIG)/inc/osdep.h
 
 $(CONFIG)/obj/mprSsl.o: \
     src/paks/mpr/mprSsl.c $(DEPS_29)
