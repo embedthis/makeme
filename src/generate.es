@@ -1050,7 +1050,7 @@ module embedthis.me {
                 if (prefix) {
                     cmd = '\t( \\\n\t' + prefix + '; \\\n' + cmd + ' ; \\\n\t)'
                 }
-                me.globals.LBIN = '$(LBIN)'
+                me.globals.LBIN = me.dir.top.relativeTo(target.home).join('$(LBIN)')
                 cmd = expand(cmd, {fill: null}).expand(target.vars, {fill: '${}'})
                 cmd = repvar2(cmd, target.home)
                 me.globals.LBIN = b.localBin
