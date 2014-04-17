@@ -7,7 +7,6 @@
 /**
     @file mpr.h
     The Multithreaded Portable Runtime (MPR) is a portable runtime library for embedded applications.
-    \n\n
     @description The MPR provides management for logging, error handling, events, files, http, memory, ssl, 
     sockets, strings, xml parsing, and date/time functions. It also provides a foundation of safe routines for secure 
     programming, that help to prevent buffer overflows and other security threats. The MPR is a library and a C API that can
@@ -288,6 +287,10 @@ struct  MprXml;
 #define MPR_DIAG            3           /**< Diagnostic trace level. */
 #define MPR_VERBOSE         9           /**< Highest level of trace */
 #define MPR_LEVEL_MASK      0xf         /**< Level mask */
+
+#if DEPRECATED || 1
+#define MPR_CONFIG          MPR_INFO
+#endif
 
 /*
     Log message flags
@@ -2145,6 +2148,9 @@ PUBLIC bool shnumber(cchar *s);
     @stability Stable
  */
 PUBLIC char *stitle(cchar *str);
+#if DEPRECATED || 1
+#define spascal(s) stitle(s)
+#endif
 
 /**
     Locate the a character from a set in a string.
