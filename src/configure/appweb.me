@@ -43,7 +43,7 @@ Me.load({
                 return {
                     path:       path,
                     libpaths:  [ bin ],
-                    libraries: [ 'appweb' ],
+                    libraries: [ 'appweb', 'http', 'mpr', 'pcre' ],
                     includes:  [ probe('appweb.h', {search: path.join('inc')}) ],
                 }
             },
