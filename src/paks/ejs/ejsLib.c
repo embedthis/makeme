@@ -22176,8 +22176,8 @@ static double private_mem[PRIVATE_mem], *pmem_next = private_mem;
  #include "math.h"
 #endif
 
-#if !EMBEDTHIS
-#define strtod unused_strtod
+#if EMBEDTHIS || 1
+#define strtod own_strtod
 #endif
 
 #ifdef __cplusplus
