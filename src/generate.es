@@ -1082,7 +1082,7 @@ module embedthis.me {
                         }
                     }
                 }
-                me.globals.LBIN = '$(LBIN)'
+                me.globals.LBIN = me.dir.top.relativeTo(target.home).join('$(LBIN)').windows
                 try {
                     cmd = expand(cmd, {fill: null}).expand(target.vars, {fill: '${}'})
                 } catch (e) {
