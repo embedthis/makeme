@@ -3280,7 +3280,7 @@ public class Me {
                     if (options.linkin && me.platform.like == 'unix') {
                         let linkin = Path(expand(options.linkin))
                         linkin.makeDir(options)
-                        let lto = linkin.join(from.basename)
+                        let lto = linkin.join(to.basename)
                         linkFile(to.relativeTo(lto.dirname), lto, options)
                         if (options.filelist) {
                             options.filelist.push(lto)
