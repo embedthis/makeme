@@ -2967,7 +2967,9 @@ public class Me {
             }
         }
         if (me.settings.version) {
-            me.settings.compatible = me.settings.version.split('-')[0]
+            let ver = me.settings.version.split('-')[0]
+            let majmin = ver.split('.').slice(0,2).join('.')
+            me.settings.compatible ||= majmin
         }
         expandTokens(me)
         loadModules()
