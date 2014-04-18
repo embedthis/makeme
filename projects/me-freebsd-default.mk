@@ -500,7 +500,7 @@ DEPS_22 += $(CONFIG)/bin/ejsc
 $(CONFIG)/bin/ejs.mod: $(DEPS_22)
 	( \
 	cd src/paks/ejs; \
-	../../../$(CONFIG)/bin/ejsc --out ../../../$(CONFIG)/bin/ejs.mod --optimize 9 --bind --require null ejs.es ; \
+	../../../$(LBIN)/ejsc --out ../../../$(CONFIG)/bin/ejs.mod --optimize 9 --bind --require null ejs.es ; \
 	)
 endif
 
