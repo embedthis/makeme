@@ -14888,8 +14888,9 @@ PUBLIC void httpSetRequestLogCallback(HttpRequestCallback callback)
 {
     Http    *http;
 
-    http = MPR->httpService;
-    http->logCallback = callback;
+    if ((http = MPR->httpService) != 0) {
+        http->logCallback = callback;
+    }
 }
 
 /*

@@ -9151,7 +9151,7 @@ module ejs {
             @return An object.
             @throws IOError if the file cannot be read
             @example:
-                data = Path("/tmp/a.json").readJson()
+                data = Path("/tmp/a.json").readJSON()
          */
         function readJSON(): Object? {
             let file: File = open(this)
