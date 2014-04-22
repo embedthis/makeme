@@ -17,11 +17,11 @@
     },
     "repository": {
         "type": "git",
-        "url": "git://github.com/embedthis/ejs-2.git"
+        "url": "git://github.com/embedthis/ejs.git"
     },
     "bugs": {
         "email": "dev@embedthis.com",
-        "url": "http://github.com/embedthis/ejs-2/issues"
+        "url": "http://github.com/embedthis/ejs/issues"
     },
     "licenses": [
         {

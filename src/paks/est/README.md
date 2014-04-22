@@ -45,5 +45,5 @@ Resources
 ---
   - [Embedthis web site](http://embedthis.com/)
   - [Appweb web site](http://appwebserver.org/)
-  - [MPR GitHub repository](http://github.com/embedthis/mpr-4)
-  - [Appweb GitHub repository](http://github.com/embedthis/appweb-4)
+  - [MPR GitHub repository](http://github.com/embedthis/mpr)
+  - [Appweb GitHub repository](http://github.com/embedthis/appweb)

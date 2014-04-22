@@ -25621,8 +25621,23 @@ PUBLIC void mprSetThreadPriority(MprThread *tp, int newPriority)
     SetThreadPriority(tp->threadHandle, osPri);
 #elif VXWORKS
     taskPrioritySet(tp->osThread, osPri);
-#else
+#elif ME_UNIX_LIKE && DISABLED
+    MprOsThread ost;
+    pthread_attr_t attr;
+    int policy = 0;
+    int max_prio_for_policy = 0;
+
+    ost = pthread_self();
+    pthread_attr_init(&attr);
+    pthread_attr_getschedpolicy(&attr, &policy);
+    max_prio_for_policy = sched_get_priority_max(policy);
+
+    pthread_setschedprio(ost, max_prio_for_policy);
+    pthread_attr_destroy(&thAttr);
+#elif DEPRECATED
     setpriority(PRIO_PROCESS, (int) tp->pid, osPri);
+#else
+    /* Nothing can be done */
 #endif
     tp->priority = newPriority;
     unlock(tp);

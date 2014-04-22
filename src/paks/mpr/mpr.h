@@ -6787,8 +6787,7 @@ PUBLIC void mprStopThreadService();
         thread primitives with the locking and synchronization primitives offered by #MprMutex, #MprSpin and 
         #MprCond - you can create cross platform multi-threaded applications.
     @see MprThread MprThreadProc MprThreadService mprCreateThread mprGetCurrentOsThread mprGetCurrentThread 
-        mprGetCurrentThreadName mprGetThreadName mprGetThreadPriority mprNeedYield mprResetYield mprSetCurrentThreadPriority 
-        mprSetThreadPriority mprStartThread mprYield 
+        mprGetCurrentThreadName mprGetThreadName mprNeedYield mprResetYield mprStartThread mprYield 
     @defgroup MprThread MprThread
     @stability Internal
  */
@@ -6892,7 +6891,7 @@ PUBLIC cchar *mprGetThreadName(MprThread *thread);
     @param thread Thread object returned by #mprCreateThread
     @returns An integer MPR thread priority between 0 and 100 inclusive.
     @ingroup MprThread
-    @stability Stable
+    @stability Deprecated
  */
 PUBLIC int mprGetThreadPriority(MprThread *thread);
 
@@ -6906,7 +6905,7 @@ PUBLIC int mprGetThreadPriority(MprThread *thread);
         @li MPR_NORMAL_PRIORITY
         @li MPR_HIGH_PRIORITY
     @ingroup MprThread
-    @stability Stable
+    @stability Deprecated
  */
 PUBLIC void mprSetCurrentThreadPriority(int priority);
 
@@ -6921,7 +6920,7 @@ PUBLIC void mprSetCurrentThreadPriority(int priority);
         @li MPR_NORMAL_PRIORITY
         @li MPR_HIGH_PRIORITY
     @ingroup MprThread
-    @stability Stable
+    @stability Deprecated
  */
 PUBLIC void mprSetThreadPriority(MprThread *thread, int priority);
 
