@@ -377,43 +377,41 @@ module embedthis.me {
         target.loading = true
         try {
             let path: Path?, pak: Path?
-            if (target.withpath) {
+            if (target.loaded) {
+                target.diagnostic = 'Pre-loaded component'
+
+            } else if (target.withpath) {
                 pak = target.withpath.join(target.name + '.me')
                 if (pak.exists) {
                     b.loadMeFile(pak)
                     target.path = target.withpath
                     target.diagnostic = 'Load component from pak: ' + pak
-                } else {
-                    throw 'Cannot find definition for component: ' + target.name + ' at ' + pak
+                    target.loaded = true
                 }
-                
-            } else {
-                if (target.loaded) {
-                    target.diagnostic = 'Pre-loaded component'
+            }
+            if (!target.loaded) {
+                path = me.dir.paks.join(target.name)
+                pak = path.join(target.name + '.me')
+                if (pak.exists) {
+                    b.loadMeFile(pak)
+                    target.path ||= path
+                    target.diagnostic = 'Load component from pak: ' + pak
                 } else {
-                    path = me.dir.paks.join(target.name)
-                    pak = path.join(target.name + '.me')
-                    if (pak.exists) {
-                        b.loadMeFile(pak)
-                        target.path ||= path
-                        target.diagnostic = 'Load component from pak: ' + pak
-                    } else {
-                        path = findComponent(target.name)
-                        if (path) {
-                            vtrace('Found', 'Component at:' + path)
-                            target.diagnostic = 'Found component: ' + path
-                            target.file = path.portable
-                            currentComponent = target.name
-                            b.loadMeFile(path)
+                    path = findComponent(target.name)
+                    if (path) {
+                        vtrace('Found', 'Component at:' + path)
+                        target.diagnostic = 'Found component: ' + path
+                        target.file = path.portable
+                        currentComponent = target.name
+                        b.loadMeFile(path)
 
-                        } else if (me.targets[target.name]) {
-                            throw 'Cannot find definition for component: ' + target.name + '.me'
-                        }
+                    } else if (me.targets[target.name]) {
+                        throw 'Cannot find definition for component: ' + target.name + '.me'
                     }
                 }
                 target.loaded = true
-                delete target.bare
             }
+            delete target.bare
       
             if (!target.description) {
                 let path = me.dir.paks.join(target.name)
