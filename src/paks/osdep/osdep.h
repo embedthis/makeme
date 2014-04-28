@@ -1217,7 +1217,9 @@ extern "C" {
 #endif
 
 #if VXWORKS
-    PUBLIC int gettimeofday(struct timeval *tv, struct timezone *tz);
+    #if _WRS_VXWORKS_MAJOR < 6 || (_WRS_VXWORKS_MAJOR == 6 && _WRS_VXWORKS_MINOR < 9)
+        PUBLIC int gettimeofday(struct timeval *tv, struct timezone *tz);
+    #endif
     PUBLIC uint mprGetpid();
     PUBLIC char *strdup(const char *);
     PUBLIC int sysClkRateGet();

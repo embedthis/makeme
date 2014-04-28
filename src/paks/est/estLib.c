@@ -11770,12 +11770,14 @@ DWORD WINAPI TimerProc(LPVOID uElapse)
 }
 
 
+#if UNUSED
 void set_alarm(int seconds)
 {
     DWORD ThreadId;
     alarmed = 0;
     CloseHandle(CreateThread(NULL, 0, TimerProc, (LPVOID) (seconds * 1000), 0, &ThreadId));
 }
+#endif
 
 
 void m_sleep(int milliseconds)
@@ -11864,12 +11866,14 @@ static void sighandler(int signum)
 }
 
 
+#if UNUSED
 void set_alarm(int seconds)
 {
     alarmed = 0;
     signal(SIGALRM, sighandler);
     alarm(seconds);
 }
+#endif
 
 
 void m_sleep(int milliseconds)

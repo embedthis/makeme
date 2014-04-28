@@ -1,0 +1,49 @@
+.TH MAKEROM "1" "March 2014" "makerom" "User Commands"
+.SH NAME
+makerom - Compile files into C source code
+.SH SYNOPSIS
+.B makerom [options] files ... >output.c
+.P
+[\fI--files fileList\fR] 
+[\fI--name structName\fR]
+[\fI--prefix prefix\fR]
+.SH DESCRIPTION
+To enable files to be accessed on embedded systems without a file system, the
+\fBmakerom\fR command converts arbitrary files into C code that
+can be compiled and linked into a program. This is useful for applications
+that must execute completely from ROM and not access a file system.
+This facility can also enhance security by preventing the
+modification of files.
+.PP
+The MPR portable runtime provides routines which can then read these files
+much as you would read any file on disk.
+.SH OPTIONS
+.TP
+\fB\--files fileList\fR
+Option to provide a list of files that should be converted.
+\fB\--p prefix\fR 
+Specifies a prefix to remove from each of the compiled file names. 
+.TP
+\fB\--name structName\fR 
+Specifies the name of top level C structure that holds the converted files.
+.TP
+\fB\--prefix prefix\fR 
+Specifies a leading file name prefix to remove from the file names.
+.PP
+.SH "EXAMPLE"
+This example will create a list of web files and then convert these
+files into C structures in the file romFiles.c.
+
+.PP
+    find web -type f -print >fileList
+.PP
+    makerom --files filelist >romFiles.c
+.PP
+    cc -o romFiles.o romFiles.c
+
+.SH "REPORTING BUGS"
+Report bugs to <dev@embedthis.com>.
+.SH COPYRIGHT
+Copyright \(co 2003-2014 Embedthis Software.
+.br
+.SH "SEE ALSO"

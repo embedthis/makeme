@@ -4190,11 +4190,13 @@ extern "C" {
      */
     PUBLIC ulong get_timer(struct hr_time *val, int reset);
 
+#if UNUSED
     /**
        @brief          Setup an alarm clock
        @param seconds  delay before the "alarmed" flag is set
      */
     PUBLIC void set_alarm(int seconds);
+#endif
 
     /**
        @brief          Sleep for a certain amount of time

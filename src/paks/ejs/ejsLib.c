@@ -35308,6 +35308,7 @@ PUBLIC int ejsBlendObject(Ejs *ejs, EjsObj *dest, EjsObj *src, int flags)
                         ejsRemoveItem(ejs, (EjsArray*) dp, ejsToString(ejs, vp), 1);
                     }
                 } else if (cflags & EJS_BLEND_COND_ASSIGN) {
+                    //  MOB - but this is always true here
                     if (ejsLookupProperty(ejs, dest, trimmedName) < 0) {
                         ejsSetPropertyByName(ejs, dest, trimmedName, ejsClone(ejs, vp, deep));
                     }
@@ -35321,6 +35322,7 @@ PUBLIC int ejsBlendObject(Ejs *ejs, EjsObj *dest, EjsObj *src, int flags)
                     ejsSetPropertyByName(ejs, dest, trimmedName, ejsClone(ejs, vp, deep));
 
                 } else if (cflags & EJS_BLEND_COND_ASSIGN) {
+                    //  MOB - but this is always true here
                     if (ejsLookupProperty(ejs, dest, trimmedName) < 0) {
                         ejsSetPropertyByName(ejs, dest, trimmedName, ejsClone(ejs, vp, deep));
                     }
@@ -35336,7 +35338,11 @@ PUBLIC int ejsBlendObject(Ejs *ejs, EjsObj *dest, EjsObj *src, int flags)
                     
                 } else if (cflags & EJS_BLEND_SUB) {
                     str = sreplace(sclone(((EjsString*) dp)->value), ejsToMulti(ejs, vp), "");
-                    ejsSetPropertyByName(ejs, dest, trimmedName, ejsCreateString(ejs, str, -1));
+                    if (stok(str, " ", 0) == 0) {
+                        ejsDeletePropertyByName(ejs, dest, trimmedName);
+                    } else {
+                        ejsSetPropertyByName(ejs, dest, trimmedName, ejsCreateString(ejs, str, -1));
+                    }
                     
                 } else if (cflags & EJS_BLEND_COND_ASSIGN) {
                     /* Do nothing */;
@@ -35347,7 +35353,9 @@ PUBLIC int ejsBlendObject(Ejs *ejs, EjsObj *dest, EjsObj *src, int flags)
                 }
             } else {
                 /* Assign */
-                ejsSetPropertyByName(ejs, dest, trimmedName, vp);
+                if (!(cflags & EJS_BLEND_SUB)) {
+                    ejsSetPropertyByName(ejs, dest, trimmedName, vp);
+                }
             }
 
         } else {

@@ -6958,7 +6958,6 @@ PUBLIC int startProcess(MprCmd *cmd)
 {
     MprCmdTaskFn    entryFn;
     MprModule       *mp;
-    SYM_TYPE        symType;
     char            *entryPoint, *program, *pair;
     int             pri, next;
 
@@ -6982,7 +6981,7 @@ PUBLIC int startProcess(MprCmd *cmd)
      */
     entryPoint = sjoin("_", entryPoint, NULL);
 #endif
-    if (symFindByName(sysSymTbl, entryPoint, (char**) (void*) &entryFn, &symType) < 0) {
+    if (mprFindVxSym(sysSymTbl, entryPoint, (char**) (void*) &entryFn) < 0) {
         if ((mp = mprCreateModule(cmd->program, cmd->program, NULL, NULL)) == 0) {
             mprError("start: can't create module");
             return MPR_ERR_CANT_CREATE;
@@ -6991,7 +6990,7 @@ PUBLIC int startProcess(MprCmd *cmd)
             mprError("start: can't load DLL %s, errno %d", program, mprGetOsError());
             return MPR_ERR_CANT_READ;
         }
-        if (symFindByName(sysSymTbl, entryPoint, (char**) (void*) &entryFn, &symType) < 0) {
+        if (mprFindVxSym(sysSymTbl, entryPoint, (char**) (void*) &entryFn) < 0) {
             mprError("start: can't find symbol %s, errno %d", entryPoint, mprGetOsError());
             return MPR_ERR_CANT_ACCESS;
         }
@@ -12539,7 +12538,8 @@ PUBLIC char *mprHashKeysToString(MprHash *hash, cchar *join)
 
 /****************************** Forward Declarations **************************/
 
-static int setProperty(MprJson *obj, cchar *name, MprJson *child, int flags);
+static void adoptChildren(MprJson *obj, MprJson *other);
+static void appendItem(MprJson *obj, MprJson *child, int flags);
 static int checkBlockCallback(MprJsonParser *parser, cchar *name, bool leave);
 static void formatValue(MprBuf *buf, MprJson *obj, int flags);
 static int gettok(MprJsonParser *parser);
@@ -12547,6 +12547,7 @@ static MprJson *jsonParse(MprJsonParser *parser, MprJson *obj);
 static void jsonErrorCallback(MprJsonParser *parser, cchar *msg);
 static int peektok(MprJsonParser *parser);
 static void puttok(MprJsonParser *parser);
+static MprJson *setProperty(MprJson *obj, cchar *name, MprJson *child, int flags);
 static void setValue(MprJson *obj, cchar *value);
 static int setValueCallback(MprJsonParser *parser, MprJson *obj, cchar *name, MprJson *child);
 static void spaces(MprBuf *buf, int count);
@@ -13124,51 +13125,113 @@ PUBLIC void mprSetJsonError(MprJsonParser *parser, cchar *fmt, ...)
     parser->tokid = JTOK_ERR;
 }
 
-
 /*
  **************** JSON object query API -- only works for MprJson implementations *****************
  */
 
-PUBLIC int mprBlendJson(MprJson *obj, MprJson *other, int flags)
+PUBLIC int mprBlendJson(MprJson *dest, MprJson *src, int flags)
 {
-    MprJson     *dp, *sp;
-    int         si, di;
+    MprJson     *dp, *sp, *child;
+    cchar       *trimmedName;
+    int         kind, si;
 
-    if (other == 0) {
+    if (src == 0) {
         return 0;
     }
-    if (obj == 0) {
-        obj = mprCreateJson(MPR_JSON_OBJ);
+    if (dest == 0) {
+        dest = mprCreateJson(MPR_JSON_OBJ);
     }
-    /*
-        Loop over source object properties
-     */
-    if (obj->type & MPR_JSON_ARRAY) {
-        for (ITERATE_JSON(other, sp, si)) {
-            for (ITERATE_JSON(obj, dp, di)) {
-                if (smatch(dp->value, sp->value)) break;
+    if ((MPR_JSON_TYPE_MASK & dest->type) != (MPR_JSON_TYPE_MASK & src->type)) {
+        if (flags & (MPR_JSON_APPEND | MPR_JSON_REPLACE)) {
+            return 0;
+        }
+    }
+    if (src->type & MPR_JSON_OBJ) {
+#if UNUSED
+        if (0 && flags & MPR_JSON_OVERWRITE) {
+            if ((sp = mprCloneJson(src)) != 0) {
+                adoptChildren(dest, sp);
             }
-            if (di >= obj->length) {
-                setProperty(obj, sp->name, mprCloneJson(sp), flags);
+        } else 
+#endif
+        if (flags & MPR_JSON_CREATE) {
+            /* Already present */
+        } else {
+            /* Examine each property for: MPR_JSON_APPEND (default) | MPR_JSON_REPLACE) */
+            for (ITERATE_JSON(src, sp, si)) {
+                trimmedName = sp->name;
+                if (flags & MPR_JSON_COMBINE && sp->name) {
+                    kind = sp->name[0];
+                    if (kind == '+') {
+                        flags = MPR_JSON_APPEND | (flags & MPR_JSON_COMBINE);
+                        trimmedName = &sp->name[1];
+                    } else if (kind == '-') {
+                        flags = MPR_JSON_REPLACE | (flags & MPR_JSON_COMBINE);
+                        trimmedName = &sp->name[1];
+                    } else if (kind == '?') {
+                        flags = MPR_JSON_CREATE | (flags & MPR_JSON_COMBINE);
+                        trimmedName = &sp->name[1];
+                    } else if (kind == '=') {
+                        flags = MPR_JSON_OVERWRITE | (flags & MPR_JSON_COMBINE);
+                        trimmedName = &sp->name[1];
+                    }
+                }
+                if ((dp = mprLookupJsonObj(dest, trimmedName)) == 0) {
+                    /* Absent in destination */
+                    if (flags & MPR_JSON_COMBINE && sp->type == MPR_JSON_OBJ) {
+                        dp = mprCreateJson(sp->type);
+                        setProperty(dest, trimmedName, dp, flags);
+                        mprBlendJson(dp, sp, flags);
+                    } else if (!(flags & MPR_JSON_REPLACE)) {
+                        setProperty(dest, trimmedName, mprCloneJson(sp), flags);
+                    }
+                } else if (!(flags & MPR_JSON_CREATE)) {
+                    /* Already present in destination */
+                    if (sp->type & MPR_JSON_OBJ && (MPR_JSON_TYPE_MASK & dp->type) != (MPR_JSON_TYPE_MASK & sp->type)) {
+                        dp = setProperty(dest, trimmedName, mprCreateJson(sp->type), flags);
+                    }
+                    mprBlendJson(dp, sp, flags);
+
+                    if (flags & MPR_JSON_REPLACE && !(sp->type & (MPR_JSON_OBJ | MPR_JSON_ARRAY)) && sspace(sp->value)) {
+                        mprRemoveJsonChild(dest, dp);
+                    }
+                }
             }
         }
-    } else if (obj->type & MPR_JSON_OBJ) {
-        for (ITERATE_JSON(other, sp, si)) {
-            for (ITERATE_JSON(obj, dp, di)) {
-                if (smatch(dp->name, sp->name)) {
-                    break;
+    } else if (src->type & MPR_JSON_ARRAY) {
+        if (flags & MPR_JSON_REPLACE) {
+            for (ITERATE_JSON(src, sp, si)) {
+                if ((child = mprLookupJsonValue(dest, sp->value)) != 0) {
+                    mprRemoveJsonChild(dest, child);
                 }
             }
-            if (di < obj->length) {
-                /* Already present in destination */
-                if (dp->type & (MPR_JSON_OBJ | MPR_JSON_ARRAY)) {
-                    mprBlendJson(dp, sp, flags);
-                } else if (flags & MPR_JSON_OVERWRITE) {
-                    setProperty(obj, sp->name, mprCloneJson(sp), flags);
+        } else if (flags & MPR_JSON_CREATE) {
+            ;
+        } else if (flags & MPR_JSON_APPEND) {
+            for (ITERATE_JSON(src, sp, si)) {
+                if ((flags & MPR_JSON_DUPLICATE) || (child = mprLookupJsonValue(dest, sp->value)) == 0) {
+                    appendItem(dest, sp, flags);
                 }
+            }
+        } else {
+            /* Default is to MPR_JSON_OVERWRITE */
+            if ((sp = mprCloneJson(src)) != 0) {
+                adoptChildren(dest, sp);
+            }
+        }
+
+    } else {
+        /* Ordinary string value */
+        if (src->value) {
+            if (flags & MPR_JSON_APPEND) {
+                setValue(dest, sjoin(dest->value, " ", src->value, NULL));
+            } else if (flags & MPR_JSON_REPLACE) {
+                setValue(dest, sreplace(dest->value, src->value, NULL));
+            } else if (flags & MPR_JSON_CREATE) {
+                /* Do nothing */
             } else {
-                /* Absent in destination */
-                setProperty(obj, sp->name, mprCloneJson(sp), flags);
+                /* MPR_JSON_OVERWRITE (default) */
+                dest->value = sclone(src->value);
             }
         }
     }
@@ -13211,6 +13274,23 @@ PUBLIC cchar *mprLookupJson(MprJson *obj, cchar *name)
 
     if ((item = mprLookupJsonObj(obj, name)) != 0 && item->type & MPR_JSON_VALUE) {
         return item->value;
+    }
+    return 0;
+}
+
+
+PUBLIC MprJson *mprLookupJsonValue(MprJson *obj, cchar *value)
+{
+    MprJson     *child;
+    int         i;
+
+    if (!obj || !value) {
+        return 0;
+    }
+    for (ITERATE_JSON(obj, child, i)) {
+        if (smatch(child->value, value)) {
+            return child;
+        }
     }
     return 0;
 }
@@ -13642,7 +13722,7 @@ PUBLIC int mprSetJsonObj(MprJson *obj, cchar *key, MprJson *value, int flags)
     MprJson     *result;
 
     if (flags & MPR_JSON_TOP) {
-        return setProperty(obj, sclone(key), value, flags);
+        return setProperty(obj, sclone(key), value, flags) != 0;
     }
     result = mprJsonQuery(obj, key, value, flags);
     return (result && result->children) ? 0 : MPR_ERR_CANT_WRITE;
@@ -13652,7 +13732,7 @@ PUBLIC int mprSetJsonObj(MprJson *obj, cchar *key, MprJson *value, int flags)
 PUBLIC int mprSetJson(MprJson *obj, cchar *key, cchar *value, int flags)
 {
     if (flags & MPR_JSON_TOP) {
-        return setProperty(obj, sclone(key), createJsonValue(value), flags);
+        return setProperty(obj, sclone(key), createJsonValue(value), flags) != 0;
     }
     return mprSetJsonObj(obj, key, createJsonValue(value), flags);
 }
@@ -13712,19 +13792,19 @@ PUBLIC void mprTraceJson(int level, MprJson *obj)
 /*
     Add the child as property in the given object. The child is not cloned and is dedicated to this object.
  */
-static int setProperty(MprJson *obj, cchar *name, MprJson *child, int flags)
+static MprJson *setProperty(MprJson *obj, cchar *name, MprJson *child, int flags)
 {
     MprJson      *prior, *existing;
 
     if (!obj || !child) {
-        return MPR_ERR_BAD_STATE;
+        return 0;
     }
     if (!(flags & MPR_JSON_DUPLICATE) && (existing = mprLookupJsonObj(obj, name)) != 0) {
         existing->value = child->value;
         existing->children = child->children;
         existing->type = child->type;
         existing->length = child->length;
-        return 0;
+        return existing;
     } 
     if (obj->children) {
         prior = obj->children->prev;
@@ -13738,7 +13818,16 @@ static int setProperty(MprJson *obj, cchar *name, MprJson *child, int flags)
     }
     child->name = name;
     obj->length++;
-    return 0;
+    return child;
+}
+
+
+static void adoptChildren(MprJson *obj, MprJson *other)
+{
+    if (obj && other) {
+        obj->children = other->children;
+        obj->length = other->length;
+    }
 }
 
 
@@ -13753,7 +13842,7 @@ static int checkBlockCallback(MprJsonParser *parser, cchar *name, bool leave)
  */
 static int setValueCallback(MprJsonParser *parser, MprJson *obj, cchar *name, MprJson *child)
 {
-    return setProperty(obj, name, child, 0);
+    return setProperty(obj, name, child, 0) != 0;
 }
 
 
@@ -23752,6 +23841,21 @@ PUBLIC bool snumber(cchar *s)
 } 
 
 
+PUBLIC bool sspace(cchar *s)
+{
+    if (!s) {
+        return 1;
+    }
+    while (isspace((uchar) *s)) {
+        s++;
+    }
+    if (*s) {
+        return 1;
+    }
+    return 0;
+} 
+
+
 /*
     Hex
  */
@@ -25614,16 +25718,18 @@ PUBLIC MprOsThread mprGetCurrentOsThread()
 
 PUBLIC void mprSetThreadPriority(MprThread *tp, int newPriority)
 {
-    int     osPri;
-
+#if ME_WIN_LIKE || VXWORKS
+    int     osPri = mprMapMprPriorityToOs(newPriority);
+#endif
     lock(tp);
-    osPri = mprMapMprPriorityToOs(newPriority);
-
 #if ME_WIN_LIKE
     SetThreadPriority(tp->threadHandle, osPri);
 #elif VXWORKS
     taskPrioritySet(tp->osThread, osPri);
 #elif ME_UNIX_LIKE && DISABLED
+    /*
+        Not worth setting thread priorities on linux
+     */
     MprOsThread ost;
     pthread_attr_t attr;
     int policy = 0;
@@ -25637,6 +25743,9 @@ PUBLIC void mprSetThreadPriority(MprThread *tp, int newPriority)
     pthread_setschedprio(ost, max_prio_for_policy);
     pthread_attr_destroy(&thAttr);
 #elif DEPRECATED
+    /*
+        Don't set process priority
+     */
     setpriority(PRIO_PROCESS, (int) tp->pid, osPri);
 #else
     /* Nothing can be done */
@@ -28118,8 +28227,10 @@ static void validateTime(struct tm *tp, struct tm *defaults)
 /*
     Compatibility for windows and VxWorks
  */
-#if ME_WIN_LIKE || VXWORKS
+#if ME_WIN_LIKE || (VXWORKS && (_WRS_VXWORKS_MAJOR < 6 || (_WRS_VXWORKS_MAJOR == 6 && _WRS_VXWORKS_MINOR < 9)))
+
 PUBLIC int gettimeofday(struct timeval *tv, struct timezone *tz)
+
 {
     #if ME_WIN_LIKE
         FILETIME        fileTime;
@@ -28252,10 +28363,37 @@ PUBLIC int mprGetRandomBytes(char *buf, int length, bool block)
 }
 
 
+#if _WRS_VXWORKS_MAJOR < 6 || (_WRS_VXWORKS_MAJOR == 6 && _WRS_VXWORKS_MINOR < 9)
+int mprFindVxSym(SYMTAB_ID sid, char *name, char **pvalue)
+{
+    SYM_TYPE    type;
+
+    return symFindByName(sid, name, pvalue, &type);
+}
+#else
+
+int mprFindVxSym(SYMTAB_ID sid, char *name, char **pvalue)
+{
+    SYMBOL_DESC     symDesc;
+
+    memset(&symDesc, 0, sizeof(SYMBOL_DESC));
+    symDesc.mask = SYM_FIND_BY_NAME;
+    symDesc.name = name;
+
+    if (symFind(sid, &symDesc) == ERROR) {
+        return ERROR;
+    }
+    if (pvalue != NULL) {
+        *pvalue = (char*) symDesc.value;
+    }
+    return OK;
+}
+#endif
+
+
 PUBLIC int mprLoadNativeModule(MprModule *mp)
 {
     MprModuleEntry  fn;
-    SYM_TYPE        symType;
     MprPath         info;
     char            *at, *entry;
     void            *handle;
@@ -28269,7 +28407,7 @@ PUBLIC int mprLoadNativeModule(MprModule *mp)
 #if ME_CPU_ARCH == MPR_CPU_IX86 || ME_CPU_ARCH == MPR_CPU_IX64 || ME_CPU_ARCH == MPR_CPU_SH
     entry = sjoin("_", entry, NULL);
 #endif
-    if (!mp->entry || symFindByName(sysSymTbl, entry, (char**) (void*) &fn, &symType) == -1) {
+    if (!mp->entry || mprFindFxSym(sysSymTbl, entry, (char**) (void*) &fn) == -1) {
         if ((at = mprSearchForModule(mp->path)) == 0) {
             mprError("Cannot find module \"%s\", cwd: \"%s\", search path \"%s\"", mp->path, mprGetCurrentPath(),
                 mprGetModuleSearchPath());
@@ -28300,7 +28438,7 @@ PUBLIC int mprLoadNativeModule(MprModule *mp)
         mprLog(2, "Activating module %s", mp->name);
     }
     if (mp->entry) {
-        if (symFindByName(sysSymTbl, entry, (char**) (void*) &fn, &symType) == -1) {
+        if (mprFindVxSym(sysSymTbl, entry, (char**) (void*) &fn) == -1) {
             mprError("Cannot find symbol %s when loading %s", entry, mp->path);
             return MPR_ERR_CANT_READ;
         }

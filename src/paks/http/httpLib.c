@@ -4067,7 +4067,7 @@ PUBLIC void httpMatchHost(HttpConn *conn)
     }
     if (conn->rx->traceLevel >= 0) {
         mprLog(conn->rx->traceLevel, "Use endpoint: %s:%d", endpoint->ip, endpoint->port);
-        mprLog(conn->rx->traceLevel, "Use host %s", host->name);
+        mprLog(conn->rx->traceLevel, "Use host %s", host->name ? host->name : "default");
     }
     conn->host = host;
 }
@@ -5453,7 +5453,7 @@ static void startMonitors()
         http->monitorsStarted = 1;
     }
     unlock(http);
-    mprTrace(4, "Start monitors: min %Ld, max %Ld",  http->monitorMinPeriod, http->monitorMaxPeriod);
+    mprTrace(6, "Start monitors: min period %Ld, max period %Ld",  http->monitorMinPeriod, http->monitorMaxPeriod);
 }
 
 

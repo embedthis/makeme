@@ -2113,15 +2113,6 @@ PUBLIC char *sncontains(cchar *str, cchar *pattern, ssize limit);
 PUBLIC ssize sncopy(char *dest, ssize destMax, cchar *src, ssize len);
 
 /*
-    Test if a string is a radix 10 number.
-    @description The supported format is: [(+|-)][DIGITS]
-    @return true if all characters are digits or '+' or '-'
-    @ingroup MprString
-    @stability Stable
- */
-PUBLIC bool snumber(cchar *s);
-
-/*
     Test if a string is a floating point number
     @description The supported format is: [+|-][DIGITS][.][DIGITS][(e|E)[+|-]DIGITS]
     @return true if all characters are digits or '.', 'e', 'E', '+' or '-'
@@ -2138,6 +2129,15 @@ PUBLIC bool sfnumber(cchar *s);
     @stability Evolving
  */
 PUBLIC bool shnumber(cchar *s);
+
+/*
+    Test if a string is a radix 10 number.
+    @description The supported format is: [(+|-)][DIGITS]
+    @return true if all characters are digits or '+' or '-'
+    @ingroup MprString
+    @stability Stable
+ */
+PUBLIC bool snumber(cchar *s);
 
 /**
     Create a Title Case version of the string
@@ -2209,12 +2209,20 @@ PUBLIC char *srejoinv(char *buf, va_list args);
  */
 PUBLIC char *sreplace(cchar *str, cchar *pattern, cchar *replacement);
 
+/*
+    Test if a string is all white space
+    @return true if all characters are ' ', '\t', '\n', '\r'. True if the string is empty.
+    @ingroup MprString
+    @stability Prototype
+ */
+PUBLIC bool sspace(cchar *s);
+
 /**
     Find the end of a spanning prefix
     @description This scans the given string for characters from the set and returns an index to the first character not in the set.
     @param str String to examine
     @param set Set of characters to span
-    @return Returns an index to the first character after the spanning set.
+    @return Returns an index to the first character after the spanning set. If not found, returns the index of the first null.
     @ingroup MprString
     @stability Stable
   */
@@ -6320,6 +6328,7 @@ PUBLIC void mprXmlSetParserHandler(MprXml *xp, MprXmlHandler h);
 #define MPR_JSON_STRING         0x80        /**< The property is a string. MPR_JSON_VALUE also set. */
 #define MPR_JSON_TRUE           0x100       /**< The property is true. MPR_JSON_VALUE also set. */
 #define MPR_JSON_UNDEFINED      0x200       /**< The property is undefined. MPR_JSON_VALUE also set. */
+#define MPR_JSON_TYPE_MASK      0x7         /**< Mask for core type */
 
 #define MPR_JSON_STATE_EOF      1           /* End of input */
 #define MPR_JSON_STATE_ERR      2           /* Some parse error */
@@ -6392,36 +6401,52 @@ typedef struct MprJsonCallback {
     @stability Internal
  */
 typedef struct MprJsonParser {
-    cchar           *input;         /* Current input (unmanaged) */
-    cchar           *token;         /* Current parse token */
-    int             tokid;          /* Current tokend ID */
-    cchar           *putback;       /* Putback parse token */
-    MprBuf          *buf;           /* Token buffer */
-    int             putid;          /* Putback token id */
-    cchar           *errorMsg;      /* Parse error message */
-    int             lineNumber;     /* Current line number in path */
-    MprJsonCallback callback;       /* JSON parser callbacks */
-    int             state;          /* Parse state */
-    void            *data;          /* Custom data handle (unmanaged) */
-    cchar           *path;          /* Optional JSON filename */
-    int             tolerant;       /* Tolerant parsing: unquoted names, comma before last property of object */
+    cchar           *input;             /* Current input (unmanaged) */
+    cchar           *token;             /* Current parse token */
+    int             tokid;              /* Current tokend ID */
+    cchar           *putback;           /* Putback parse token */
+    MprBuf          *buf;               /* Token buffer */
+    int             putid;              /* Putback token id */
+    cchar           *errorMsg;          /* Parse error message */
+    int             lineNumber;         /* Current line number in path */
+    MprJsonCallback callback;           /* JSON parser callbacks */
+    int             state;              /* Parse state */
+    void            *data;              /* Custom data handle (unmanaged) */
+    cchar           *path;              /* Optional JSON filename */
+    int             tolerant;           /* Tolerant parsing: unquoted names, comma before last property of object */
 } MprJsonParser;
 
-#define MPR_JSON_OVERWRITE 0x1      /**< Overwrite existing properties */
+/*
+    Flags for mprBlendJson
+ */
+#define MPR_JSON_COMBINE        0x1     /**< Combine properties using '+' '-' '=' '?' prefixes */
+#define MPR_JSON_OVERWRITE      0x2     /**< Default to overwrite existing properties '=' */
+#define MPR_JSON_APPEND         0x4     /**< Default to append to existing '+' (default) */
+#define MPR_JSON_REPLACE        0x8     /**< Replace existing properties '-' */
+#define MPR_JSON_CREATE         0x10    /**< Create if not already existing '?' */
 
 /**
     Blend two JSON objects
-    @description This performs an N-level deep clone of the JSON object to be blended into the target object 
-        This will append arrays and add new object properties. If a primitive property already exists, it will only 
-        be updated if MPR_JSON_OVERWRITE is defined in flags.
-    @param dest Parsed JSON object. This is the destination object. The "other" object will be blended into this object.
-    @param other Parsed JSON object returned by mprJsonParser
-    @param flags Set to MPR_JSON_OVERWRITE to overwrite existing properties.
+    @description This performs an N-level deep clone of the source JSON object to be blended into the destination object.
+        By default, this add new object properties and overwrite arrays and string values. 
+        The property combination prefixes: '+', '=', '-' and '?' to append, overwrite, replace and
+            conditionally overwrite are supported if the MPR_JSON_COMBINE flag is present.
+    @param dest Parsed JSON object. This is the destination object. The "src" object will be blended into this object.
+    @param src Source JSON object to blend into dest. Parsed JSON object returned by mprJsonParser.
+    @param flags The MPR_JSON_COMBINE flag enables property name prefixes: '+', '=', '-', '?' to append, overwrite, replace and
+            and conditionally overwrite key values if not already present. When adding string properties, values will be 
+            appended using a space separator. Extra spaces will not be removed on replacement.
+            \n\n
+        Without MPR_JSON_COMBINE or for properties without a prefix, the default is to blend objects by creating new 
+        properties if not already existing in the destination, and to treat overwrite arrays and strings.
+        Use the MPR_JSON_OVERWRITE flag to override the default appending of objects and rather overwrite existing properties. 
+        Use the MPR_JSON_APPEND flag to override the default of overwriting arrays and strings and rather append to 
+        existing properties.
     @return Zero if successful.
     @ingroup MprJson
     @stability Prototype
  */
-PUBLIC int mprBlendJson(MprJson *dest, MprJson *other, int flags);
+PUBLIC int mprBlendJson(MprJson *dest, MprJson *src, int flags);
 
 /**
     Clone a JSON object
@@ -6581,7 +6606,6 @@ PUBLIC MprJson *mprLoadJson(cchar *path);
  */
 PUBLIC MprJson *mprLookupJsonObj(MprJson *obj, cchar *name);
 
-
 /**
     Lookup a JSON object
     @description This is a low-level simple JSON property lookup routine. It does a one-level property lookup. 
@@ -6594,6 +6618,19 @@ PUBLIC MprJson *mprLookupJsonObj(MprJson *obj, cchar *name);
     @stability prototype
  */
 PUBLIC cchar *mprLookupJson(MprJson *obj, cchar *name);
+
+/**
+    Lookup a JSON object by value
+    @description This is a low-level simple JSON property lookup routine that searches for a property in the JSON object
+    by value. It does a one-level property lookup. Use mprQueryJson or mprGetJson to lookup properties that are not 
+    direct properties at the top level of the given object i.e. those that contain ".".
+    @param obj Parsed JSON object returned by mprParseJson
+    @param value Value to search for.
+    @return The JSON object or null if not found.
+    @ingroup MprJson
+    @stability prototype
+ */
+PUBLIC MprJson *mprLookupJsonValue(MprJson *obj, cchar *value);
 
 /**
     Parse a JSON string into an object tree.
@@ -6669,6 +6706,7 @@ PUBLIC MprJson *mprRemoveJson(MprJson *obj, cchar *key);
 
 /**
     Remove a child from a JSON object
+    WARNING: do not call this API when traversing the object in question using ITERATE_JSON.
     @param obj Parsed JSON object returned by mprParseJson
     @param child JSON child to remove
     @ingroup MprJson
@@ -10269,6 +10307,10 @@ PUBLIC char *mprReadRegistry(cchar *key, cchar *name);
   */
 PUBLIC int mprWriteRegistry(cchar *key, cchar *name, cchar *value);
 #endif /* ME_WIN_LIKE || CYGWIN */
+
+#if VXWORKS
+PUBLIC int mprFindVxSym(SYMTAB_ID sid, char *name, char **pvalue);
+#endif
 
 /*
     Internal

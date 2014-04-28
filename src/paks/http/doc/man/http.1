@@ -1,0 +1,200 @@
+.TH HTTP "1" "July 2014" "http" "User Commands"
+.SH NAME
+http \- HTTP Client program
+.SH SYNOPSIS
+.B http [options] [files] url
+.PP
+[\fI--auth basic|digest \fR]
+[\fI--benchmark \fR]
+[\fI--cert file\fR]
+[\fI--chunk size \fR]
+[\fI--continue\fR] 
+[\fI--cookie cookieString\fR] 
+[\fI--data\fR] 
+[\fI--debugger\fR] 
+[\fI--delete\fR] 
+[\fI--form string\fR]
+[\fI--header 'key: value'\fR]
+[\fI--host hostName\fR]
+[\fI--iterations count\fR]
+[\fI--key file\fR]
+[\fI--log logSpec\fR]
+[\fI--method HTTP_METHOD\fR]
+[\fI--nofollow\fR]
+[\fI--noout\fR]
+[\fI--out file\fR]
+[\fI--password pass\fR]
+[\fI--post\fR]
+[\fI--printable\fR]
+[\fI--protocol version\fR]
+[\fI--provider name\fR]
+[\fI--put\fR]
+[\fI--range byteRanges\fR]
+[\fI--retries count\fR]
+[\fI--sequence\fR]
+[\fI--showHeaders\fR]
+[\fI--showStatus\fR]
+[\fI--single\fR]
+[\fI--threads count\fR]
+[\fI--timeout seconds\fR]
+[\fI--upload\fR]
+[\fI--user name\fR]
+[\fI--verify\fR]
+[\fI--verbose\fR]
+[\fI--workers count\fR]
+[\fI--zero\fR] 
+.SH DESCRIPTION
+The http command issues HTTP commands to retrieve files from a web server. If "files" are provided on the command line
+these are included in the request body data. 
+.SH OPTIONS
+.TP
+\fB\--auth basic|digest\fR 
+Set the type of authentication to use. Defaults to basic.
+.TP
+\fB\--benchmark\fR 
+Output timing results after retrieving URLs.
+.TP
+\fB\--cert file\fR 
+Certificate to send to the server to identify the client.
+If using --cert, you will need to use --key to specify the private key file.
+.TP
+\fB\--cacert bundle\fR 
+Certificate bundle to use when validating the server certificate.
+.TP
+\fB\--chunk size\fR 
+Request that web server use use transfer encoding for the response and break the response data into 
+chunks of the requested size. This is an Appweb web server custom header and will be ignored by other web servers.
+.TP
+\fB\--continue\fR 
+Continue on errors. Default is to stop on the first error.
+.TP
+\fB\--cookie cookieString\fR 
+Define a cookie string to send with the request. Multiple uses okay.
+.TP
+\fB\--debugger\fR 
+Run in debug mode and disable all timeouts. Useful when running a server in the debugger to prevent the client
+from retrying or killing the request.
+.TP
+\fB\--data\fR 
+String of raw body data to send with the request.
+.TP
+\fB\--delete\fR 
+Issue a DELETE request. This is an alias for --method DELETE.
+.TP
+\fB\--form formData\fR 
+String of body data to send with the request. Assumed to be URL encoded. ie. "name=paul&address=uk".
+You cannot use this switch with either the --datafile or --form switches.
+.TP
+\fB\--header "key: value"\fR 
+Add a custom header to send with the request. Multiple --header switches can be supplied.
+.TP
+\fB\--host name\fR 
+Prepend all URLs with the specified host. For example if '-h www.myHost.com:8888" were used with the URL "/index.html", 
+then http will retrieve http://www.myHost.com:8888.
+.TP
+\fB\--iterations count\fR 
+Retrieve the URLs iterations times. Useful for load testing. This switch can also be abbreviated as \fB\-i\fR.
+.TP
+\fB\--key file\fR 
+Private key file to use with the certificate file specified via --cert.
+.TP
+\fB\--log logSpec\fR 
+Specify a file to log messages.  The syntax is: \fB"--log logFile[:logLevel]"\fR.
+Level 3 will trace the request and response headers.
+.TP
+\fB\--method method\fR 
+Set the HTTP method. Values may be "GET", "PUT", "OPTIONS", "TRACE".
+.TP
+\fB\--nofollow \fR 
+Don't automatically follow redirects. Normal behaviour is to follow redirects and reissue the request if the server
+responds with a redirection response (30X response).
+.TP
+\fB\--noout \fR 
+Run in quiet mode and do no output. Suppress tracing requests.
+This switch can also be abbreviated as \fB\-n\fR or as \fB--quiet\fR or \fB-q\fR.
+.TP
+\fB\--out file \fR 
+Save response output to the given file.
+.TP
+\fB\--password passPhrase\fR 
+Specify a password to send with the request. Requires a user name to be also specified via --user.
+.TP
+\fB\--post\fR 
+Issue a POST request. This is an alias for --method POST.
+.TP
+\fB\--printable\fR 
+Make binary output printable by printing hex digits for each character.
+.TP
+\fB\--protocol HTTP_VERSION\fR 
+Use the specified HTTP protocol. httpVersion should be either '0' for HTTP/1.0 or 1 for HTTP/1.1.
+.TP
+\fB\--provider openssl|matrixssl\fR 
+Select the SSL stack provider. 
+.TP
+\fB\--put\fR 
+Issue a PUT request. This is an alias for --method PUT.
+.TP
+\fB\--range byteRange\fR 
+Request that only the specified byte range of data be returned with the response. This will add a "Range" header to the request.
+The range format  is:  Range: bytes=n1-n2,n3-n4,... where n1 is first byte position and n2 is last byte position.
+Multiple --range switches can be supplied.
+Examples:
+.PP
+.PD 0
+       0-49             first 50 bytes
+.PP
+       50-99,200-249    Two 50 byte ranges from 50 and 200
+.PP
+       -50              Last 50 bytes
+.PP
+       1-               Skip first byte then emit the rest
+.PD 1
+.PP
+.TP
+\fB\--retries retryCount\fR 
+Retry failed requests this number of times.
+.TP
+\fB\--showHeaders \fR 
+Output HTTP headers to stdout. Useful for debugging.
+.TP
+\fB\--showStatus \fR 
+Output the HTTP response code to stdout. 
+If this switch is used, the command will always exit with zero status.
+.TP
+\fB\--single \fR 
+Single step between requests by pausing for user input before proceeding.
+.TP
+\fB\--threads loadThreads\fR 
+Number of threads to use. Each URL will be retrieved by all threads. Useful only for load testing. 
+.TP
+\fB\--timeout seconds\fR 
+Specifies a timeout to use for each request in seconds.
+.TP
+\fB\--upload\fR 
+Issue a POST request with multipart mime encoding for the files specified on the command line. This is an alias 
+for --method POST with files on the command line.
+.TP
+\fB\--user user\fR 
+Specify a user name to send with the request. If a password is not specified via --password, the program will 
+prompt for a password (which will not be echoed). The username and password will be sent with the request
+according to the authentication protocol required by the requested web server and requested document.
+.TP
+\fB\--verify\fR 
+Verify the server presented certificate when using SSL. This will verify the certificate has not expired, is validly
+issued and that the certificate common name corresponds to the host name.
+.TP
+\fB\--verbose\fR 
+Verbose mode. Trace activity to stdout. Can by specified multiple times for more verbose tracing.  
+This switch can also be abbreviated as \fB\-v\fR.
+.TP
+\fB\--workers count\fR 
+Specify the number of worker threads to use. Worker threads temporarily assigned to process callbacks.
+.TP
+\fB\--zero\fR 
+Exit with a zero status for any valid HTTP response. Normally returns a non-zero status if the HTTP response 
+code is not a 2XX or 3XX series response code.
+.PP
+.SH "REPORTING BUGS"
+Report bugs to dev@embedthis.com.
+.SH COPYRIGHT
+Copyright \(co 2003-2014 Embedthis Software.

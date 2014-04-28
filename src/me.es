@@ -1268,7 +1268,7 @@ public class Me {
         }
         if (selectedTargets.length == 0) {
             if (goal != 'all') {
-                trace('Info', 'No enabled targets for goal "' + goal + '"')
+                vtrace('Info', 'No enabled targets for goal "' + goal + '"')
             }
         }
         return selectedTargets

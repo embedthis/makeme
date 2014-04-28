@@ -3052,8 +3052,8 @@ PUBLIC void httpSetConnHost(HttpConn *conn, void *host);
         outgoing pipeline is empties and can absorb more data.</li>
     <li>HTTP_EVENT_ERROR &mdash; The request has encountered an error</li>
     <li>HTTP_EVENT_DESTROY &mdash; The connection structure is about to be destoyed</li>
-    <li>HTTP_EVENT_OPEN &mdash; The application layer is now open</li>
-    <li>HTTP_EVENT_CLOSE &mdash; The application layer is now closed</li>
+    <li>HTTP_EVENT_APP_OPEN &mdash; The application layer is now open</li>
+    <li>HTTP_EVENT_APP_CLOSE &mdash; The application layer is now closed</li>
     </ul>
     @param conn HttpConn connection object created via #httpCreateConn
     @param notifier Notifier function. 
