@@ -2150,7 +2150,6 @@ PUBLIC ssize httpReadBlock(HttpConn *conn, char *buf, ssize size, MprTicks timeo
     q = conn->readq;
     assert(q->count >= 0);
     assert(size >= 0);
-    assert(httpClientConn(conn));
 
     if (flags == 0) {
         flags = conn->async ? HTTP_NON_BLOCK : HTTP_BLOCK;

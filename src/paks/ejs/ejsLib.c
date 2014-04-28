@@ -35338,7 +35338,7 @@ PUBLIC int ejsBlendObject(Ejs *ejs, EjsObj *dest, EjsObj *src, int flags)
                     
                 } else if (cflags & EJS_BLEND_SUB) {
                     str = sreplace(sclone(((EjsString*) dp)->value), ejsToMulti(ejs, vp), "");
-                    if (stok(str, " ", 0) == 0) {
+                    if (sspace(str)) {
                         ejsDeletePropertyByName(ejs, dest, trimmedName);
                     } else {
                         ejsSetPropertyByName(ejs, dest, trimmedName, ejsCreateString(ejs, str, -1));

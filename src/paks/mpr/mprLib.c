@@ -13192,7 +13192,7 @@ PUBLIC int mprBlendJson(MprJson *dest, MprJson *src, int flags)
                     }
                     mprBlendJson(dp, sp, flags);
 
-                    if (flags & MPR_JSON_REPLACE && !(sp->type & (MPR_JSON_OBJ | MPR_JSON_ARRAY)) && sspace(sp->value)) {
+                    if (flags & MPR_JSON_REPLACE && !(sp->type & (MPR_JSON_OBJ | MPR_JSON_ARRAY)) && sspace(dp->value)) {
                         mprRemoveJsonChild(dest, dp);
                     }
                 }
@@ -23849,7 +23849,7 @@ PUBLIC bool sspace(cchar *s)
     while (isspace((uchar) *s)) {
         s++;
     }
-    if (*s) {
+    if (*s == '\0') {
         return 1;
     }
     return 0;
