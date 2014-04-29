@@ -6502,14 +6502,16 @@ PUBLIC MprHash *mprDeserializeInto(cchar *str, MprHash *hash);
 PUBLIC MprJson *mprGetJsonObj(MprJson *obj, cchar *key, int flags);
 
 /**
-    Lookup a JSON object tree for a string key value
-    @description This routine is useful to querying leaf property values in a JSON object.
+    Lookup a JSON key and return a string value.
+    @description This routine is useful to querying JSON property or object values.
+        If the supplied key is an array or object, the result is a string representation of the array or object.
     @param obj Parsed JSON object returned by mprParseJson
     @param key Property name to search for. This may include ".". For example: "settings.mode".
         See #mprJsonQuery for a full description of key formats.
-    @param flags Include MPR_JSON_SIMPLE for simple property names without embedded query expressions.
-        Include MPR_JSON_TOP for properties at the top level (without embedded ".").
-    @return A string property value or NULL if not found or not a string property type.
+    @param flags There are two flags for optimized (faster) queryies: use MPR_JSON_SIMPLE for simple property 
+        names without embedded query expressions. Use MPR_JSON_TOP for properties at the top level 
+        (without embedded ".").
+    @return A string property value or NULL if the key is not found.
     @ingroup MprJson
     @stability Prototype
  */

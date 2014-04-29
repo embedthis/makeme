@@ -9193,15 +9193,29 @@ PUBLIC void httpAddRouteLoad(HttpRoute *route, cchar *module, cchar *path)
 PUBLIC void httpAddRouteMapping(HttpRoute *route, cchar *extensions, cchar *mappings)
 {
     MprList     *mapList;
-    cchar       *ext, *map;
-    char        *etok, *mtok;
+    cchar       *map;
+    char        *etok, *ext, *mtok;
+    ssize       len;
 
+    if (extensions == 0) {
+        return;
+    }
+    if (*extensions == '[') {
+        extensions = strim(extensions, "[]", 0);
+    }
     if (!route->map) {
         route->map = mprCreateHash(ME_MAX_ROUTE_MAP_HASH, MPR_HASH_STABLE);
     }
     for (ext = stok(sclone(extensions), ", \t", &etok); ext; ext = stok(NULL, ", \t", &etok)) {
         if (*ext == '.') {
             ext++;
+        }
+        if (*ext == '"') {
+            ext++;
+        }
+        len = slen(ext);
+        if (ext[len - 1] == '"') {
+            ext[len - 1] = '\0';
         }
         mapList = mprCreateList(0, MPR_LIST_STABLE);
         for (map = stok(sclone(mappings), ", \t", &mtok); map; map = stok(NULL, ", \t", &mtok)) {

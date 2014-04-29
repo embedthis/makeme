@@ -13133,7 +13133,7 @@ PUBLIC int mprBlendJson(MprJson *dest, MprJson *src, int flags)
 {
     MprJson     *dp, *sp, *child;
     cchar       *trimmedName;
-    int         kind, si;
+    int         kind, si, pflags;
 
     if (src == 0) {
         return 0;
@@ -13147,52 +13147,48 @@ PUBLIC int mprBlendJson(MprJson *dest, MprJson *src, int flags)
         }
     }
     if (src->type & MPR_JSON_OBJ) {
-#if UNUSED
-        if (0 && flags & MPR_JSON_OVERWRITE) {
-            if ((sp = mprCloneJson(src)) != 0) {
-                adoptChildren(dest, sp);
-            }
-        } else 
-#endif
         if (flags & MPR_JSON_CREATE) {
             /* Already present */
         } else {
             /* Examine each property for: MPR_JSON_APPEND (default) | MPR_JSON_REPLACE) */
+            pflags = flags;
             for (ITERATE_JSON(src, sp, si)) {
                 trimmedName = sp->name;
+                pflags = flags;
                 if (flags & MPR_JSON_COMBINE && sp->name) {
                     kind = sp->name[0];
                     if (kind == '+') {
-                        flags = MPR_JSON_APPEND | (flags & MPR_JSON_COMBINE);
+                        pflags = MPR_JSON_APPEND | (flags & MPR_JSON_COMBINE);
                         trimmedName = &sp->name[1];
                     } else if (kind == '-') {
-                        flags = MPR_JSON_REPLACE | (flags & MPR_JSON_COMBINE);
+                        pflags = MPR_JSON_REPLACE | (flags & MPR_JSON_COMBINE);
                         trimmedName = &sp->name[1];
                     } else if (kind == '?') {
-                        flags = MPR_JSON_CREATE | (flags & MPR_JSON_COMBINE);
+                        pflags = MPR_JSON_CREATE | (flags & MPR_JSON_COMBINE);
                         trimmedName = &sp->name[1];
                     } else if (kind == '=') {
-                        flags = MPR_JSON_OVERWRITE | (flags & MPR_JSON_COMBINE);
+                        pflags = MPR_JSON_OVERWRITE | (flags & MPR_JSON_COMBINE);
                         trimmedName = &sp->name[1];
                     }
                 }
                 if ((dp = mprLookupJsonObj(dest, trimmedName)) == 0) {
                     /* Absent in destination */
-                    if (flags & MPR_JSON_COMBINE && sp->type == MPR_JSON_OBJ) {
+                    if (pflags & MPR_JSON_COMBINE && sp->type == MPR_JSON_OBJ) {
                         dp = mprCreateJson(sp->type);
-                        setProperty(dest, trimmedName, dp, flags);
-                        mprBlendJson(dp, sp, flags);
-                    } else if (!(flags & MPR_JSON_REPLACE)) {
-                        setProperty(dest, trimmedName, mprCloneJson(sp), flags);
+                        setProperty(dest, trimmedName, dp, pflags);
+                        mprBlendJson(dp, sp, pflags);
+                    } else if (!(pflags & MPR_JSON_REPLACE)) {
+                        setProperty(dest, trimmedName, mprCloneJson(sp), pflags);
                     }
-                } else if (!(flags & MPR_JSON_CREATE)) {
+                } else if (!(pflags & MPR_JSON_CREATE)) {
                     /* Already present in destination */
                     if (sp->type & MPR_JSON_OBJ && (MPR_JSON_TYPE_MASK & dp->type) != (MPR_JSON_TYPE_MASK & sp->type)) {
-                        dp = setProperty(dest, trimmedName, mprCreateJson(sp->type), flags);
+                        dp = setProperty(dest, trimmedName, mprCreateJson(sp->type), pflags);
                     }
-                    mprBlendJson(dp, sp, flags);
+                    mprBlendJson(dp, sp, pflags);
 
-                    if (flags & MPR_JSON_REPLACE && !(sp->type & (MPR_JSON_OBJ | MPR_JSON_ARRAY)) && sspace(dp->value)) {
+                    if (pflags & MPR_JSON_REPLACE && 
+                            !(sp->type & (MPR_JSON_OBJ | MPR_JSON_ARRAY)) && sspace(dp->value)) {
                         mprRemoveJsonChild(dest, dp);
                     }
                 }
@@ -13711,6 +13707,8 @@ PUBLIC cchar *mprGetJson(MprJson *obj, cchar *key, int flags)
     if ((result = mprGetJsonObj(obj, key, flags)) != 0) {
         if (result->type & MPR_JSON_VALUE) {
             return result->value;
+        } else {
+            return mprJsonToString(result, 0);
         }
     }
     return 0;
