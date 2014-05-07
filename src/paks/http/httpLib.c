@@ -16722,6 +16722,7 @@ PUBLIC void httpGetUserGroup()
         http->group = sclone(gp->gr_name);
     }
 #else
+    Http *http = MPR->httpService;
     http->uid = http->gid = -1;
 #endif
 }

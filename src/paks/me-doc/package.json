@@ -5,7 +5,7 @@
     "keywords": [
         "me",
     ],
-    "dirs": {
+    "directories": {
         "paks": "src/paks"
     },
     "dependencies": {
