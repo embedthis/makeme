@@ -45,7 +45,7 @@
     },
     "optionalDependencies": {
     },
-    "dirs": {
+    "directories": {
         "paks": "src/paks"
     }
 }

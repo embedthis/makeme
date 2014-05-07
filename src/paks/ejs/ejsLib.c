@@ -35283,6 +35283,8 @@ PUBLIC int ejsBlendObject(Ejs *ejs, EjsObj *dest, EjsObj *src, int flags)
                 }
                 dp = ejsCreateObj(ejs, TYPE(vp), 0);
                 ejsSetPropertyByName(ejs, dest, trimmedName, dp);
+                cflags &= ~EJS_BLEND_COND_ASSIGN;
+                cflags |= EJS_BLEND_ADD;
             }
             /* Destination present */
             if (ejsIs(ejs, dp, Array)) {

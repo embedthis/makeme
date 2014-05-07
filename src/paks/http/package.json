@@ -42,7 +42,7 @@
         "est": "~0.6",
         "me-ssl": "~0.8"
     },
-    "dirs": {
+    "directories": {
         "paks": "src/paks"
     }
 }

@@ -36,7 +36,7 @@
         "me-ssl": "~0.8",
         "osdep": "~0.8"
     },
-    "dirs": {
+    "directories": {
         "paks": "src/paks"
     }
 }

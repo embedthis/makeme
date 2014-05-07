@@ -3,7 +3,7 @@
     "description": "Embedthis Multithreaded Portable Runtime",
     "title": "Embedthis MPR",
     "version": "5.0.0",
-    "dirs": {
+    "directories": {
         "paks": "src/paks"
     },
     "dependencies": {

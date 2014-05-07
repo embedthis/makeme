@@ -46,7 +46,7 @@
         "me-ssl": "~0.8",
         "sqlite": "~1.0"
     },
-    "dirs": {
+    "directories": {
         "paks": "src/paks"
     }
 }

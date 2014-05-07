@@ -447,6 +447,18 @@ PUBLIC int httpAddMonitor(cchar *counter, cchar *expr, uint64 limit, MprTicks pe
 PUBLIC int httpAddDefense(cchar *name, cchar *remedy, cchar *args);
 
 /**
+    Add a defense using JSON arguments
+    @param name Name of defensive policy
+    @param remedy Remedy action to invoke. Standard remedies include: ban, cmd, delay, email, http and log.
+        This can be null and the remedy can be specified via REMEDY=remedy in the args.
+    @param jargs Arguments to pass to the remedy as a JSON object. These may include ${tokens}.
+    @return Zero if successful, otherwise a negative MPR error code.
+    @ingroup HttpMonitor
+    @stability Prototype
+ */
+PUBLIC int httpAddDefenseFromJson(cchar *name, cchar *remedy, MprJson *jargs);
+
+/**
     Add a counter to be monitored
     @param name Name of the counter 
     @return The counter index in HttpAddress.counters[] to use
@@ -509,10 +521,12 @@ typedef struct Http {
     MprList         *endpoints;             /**< Currently configured listening endpoints */
     MprList         *hosts;                 /**< List of host objects */
     MprList         *connections;           /**< Currently open connection requests */
+    MprHash         *parsers;               /**< Table config parser callbacks */
     MprHash         *stages;                /**< Possible stages in connection pipelines */
     MprCache        *sessionCache;          /**< Session state cache */
     MprHash         *statusCodes;           /**< Http status codes */
 
+    MprHash         *routeSets;             /**< Http route sets functions */
     MprHash         *routeTargets;          /**< Http route target functions */
     MprHash         *routeConditions;       /**< Http route condition functions */
     MprHash         *routeUpdates;          /**< Http route update functions */
@@ -585,6 +599,16 @@ typedef struct Http {
     char            *proxyHost;             /**< Proxy ip address */
     int             proxyPort;              /**< Proxy port */
 
+    cchar           *group;                 /**< O/S application group name */
+    cchar           *localPlatform;         /**< Local (dev) platform os-arch-profile (lower case) */
+    cchar           *platform;              /**< Target platform os-arch-profile (lower case) */
+    cchar           *platformDir;           /**< Path to platform directory containing binaries */
+    cchar           *user;                  /**< O/S application user name */
+    int             uid;                    /**< User Id */
+    int             gid;                    /**< Group Id */
+    int             userChanged;            /**< User name changed */
+    int             groupChanged;           /**< Group name changed */
+
     /*
         Callbacks
      */
@@ -594,6 +618,40 @@ typedef struct Http {
     HttpRequestCallback logCallback;        /**< Request completion callback */
 } Http;
 
+/**
+    Callback procedure for HttpConfigure
+    @param arg User definable data. May be managed or unmanaged.
+    @ingroup Http
+    @stability Prototype
+ */
+typedef void (*HttpConfigureProc)(void *arg);
+
+/**
+    Apply the changed group ID.
+    @description Apply configuration changes and actually change the group id
+    @return Zero if successful, otherwise a negative Mpr error code. See the Appweb log for diagnostics.
+    @ingroup Http
+    @stability Prototype
+ */
+PUBLIC int httpApplyChangedGroup();
+
+/**
+    Apply the changed user ID
+    @description Apply configuration changes and actually change the user id
+    @ingroup Http
+    @stability Prototype
+ */
+PUBLIC int httpApplyChangedUser();
+
+/**
+    Apply the changed user and group ID.
+    @description Apply configuration changes and actually change the user and group id
+    @return Zero if successful, otherwise a negative Mpr error code. See the Appweb log for diagnostics.
+    @ingroup Http
+    @stability Prototype
+ */
+PUBLIC int httpApplyUserGroup();
+
 /*
     Flags for httpCreate
  */
@@ -602,14 +660,18 @@ typedef struct Http {
 #define HTTP_UTILITY        0x4             /**< Http engine for utilities (esp) */
 
 /**
-    Create a Http service object
-    @description Create a http service object. One http service object should be created per application.
-    @param flags Set to zero to initialize bo Initialize the client-side support only. 
-    @return The http service object.
+    Alter the configuration by first quiescing all Http activity. This waits until there are no open connections 
+    and then invokes the configuration callback while blocking further connections. When the callback completes,
+    connections are resumed with the new configuration.
+    This callback is required because configuration of the Http engine must be done when single-threaded.
+    @param proc Function of the type HttpConfigureProc.
+    @param arg Reference argument to pass to the callback proc. Can be a managed or an unmanaged reference.
+    @param timeout Timeout in milliseconds to wait. Set to -1 to use the default server inactivity timeout. Set to zero
+        to wait forever.
     @ingroup Http
-    @stability Stable
- */
-PUBLIC Http *httpCreate(int flags);
+    @stability Prototype
+  */
+PUBLIC bool httpConfigure(HttpConfigureProc proc, void *arg, MprTicks timeout);
 
 /**
     Configure endpoints with named virtual hosts
@@ -620,6 +682,16 @@ PUBLIC Http *httpCreate(int flags);
     @stability Stable
  */
 PUBLIC int httpConfigureNamedVirtualEndpoints(Http *http, cchar *ip, int port);
+
+/**
+    Create a Http service object
+    @description Create a http service object. One http service object should be created per application.
+    @param flags Set to zero to initialize bo Initialize the client-side support only. 
+    @return The http service object.
+    @ingroup Http
+    @stability Stable
+ */
+PUBLIC Http *httpCreate(int flags);
 
 /**
     Destroy the Http service.
@@ -650,26 +722,20 @@ PUBLIC void *httpGetContext(Http *http);
 PUBLIC char *httpGetDateString(MprPath *sbuf);
 
 /**
-    Callback procedure for HttpConfigure
-    @param arg User definable data. May be managed or unmanaged.
+    Get the user group
+    @description Get the user and group ID for the process
+    @ingroup Http
+    @stability Internal
+ */
+PUBLIC void httpGetUserGroup();
+
+/**
+    Initialize the Http configuration parser
+    @return Zero if successful, otherwise a negative Mpr error code. See the Appweb log for diagnostics.
     @ingroup Http
     @stability Prototype
  */
-typedef void (*HttpConfigureProc)(void *arg);
-
-/**
-    Alter the configuration by first quiescing all Http activity. This waits until there are no open connections 
-    and then invokes the configuration callback while blocking further connections. When the callback completes,
-    connections are resumed with the new configuration.
-    This callback is required because configuration of the Http engine must be done when single-threaded.
-    @param proc Function of the type HttpConfigureProc.
-    @param arg Reference argument to pass to the callback proc. Can be a managed or an unmanaged reference.
-    @param timeout Timeout in milliseconds to wait. Set to -1 to use the default server inactivity timeout. Set to zero
-        to wait forever.
-    @ingroup Http
-    @stability Prototype
-  */
-PUBLIC bool httpConfigure(HttpConfigureProc proc, void *arg, MprTicks timeout);
+PUBLIC int httpInitParser();
 
 /**
     Lookup a Http status code
@@ -704,6 +770,18 @@ PUBLIC struct HttpHost *httpLookupHost(Http *http, cchar *name);
 PUBLIC struct HttpEndpoint *httpLookupEndpoint(Http *http, cchar *ip, int port);
 
 /**
+    Parse a platform string
+    @param platform The platform string. Must be of the form: os-arch-profile
+    @param os Parsed O/S portion
+    @param arch Parsed architecture portion
+    @param profile Parsed profile portion
+    @return Zero if successful, otherwise a negative Mpr error code.
+    @ingroup Http
+    @stability Prototype
+ */
+PUBLIC int httpParsePlatform(cchar *platform, cchar **os, cchar **arch, cchar **profile);
+
+/**
     Set the http context object
     @param http Http object created via #httpCreate
     @param context New context object
@@ -733,14 +811,28 @@ PUBLIC void httpSetDefaultClientHost(Http *http, cchar *host);
 PUBLIC void httpSetDefaultClientPort(Http *http, int port);
 
 /**
-    Define a request completion callback
-    @description This routine is used to define a callback that is invoked when each request is completed.
-    The callback is passed the HttpConn object prior to destruction.
-    @param callback HttpRequestCallback function
+    Set the group account
+    @description Define the group account name under which to run the process
+    @param group Group name. Must be defined in the system group database.
+    @return Zero if successful, otherwise a negative Mpr error code. 
     @ingroup Http
     @stability Prototype
  */
-PUBLIC void httpSetRequestLogCallback(HttpRequestCallback callback);
+PUBLIC int httpSetGroupAccount(cchar *newGroup);
+
+/**
+    Set platform and platform directory location
+    @description Some web frameworks need to recompile sources before serving requests (ESP).
+        These need access to the http libraries to link with.
+    @param platform Platform string of the form: OS-ARCH-PROFILE. This may also be a full path to the platform
+        directory.
+    @param probe file to search for when identifying a platform directory. This should be a relative path from
+        the platform directory to file in the platform directory.
+    @return Zero if successful, otherwise a negative Mpr error code.
+    @ingroup Http
+    @stability Prototype
+ */
+PUBLIC int httpSetPlatform(cchar *platform, cchar *probe);
 
 /** 
     Define a Http proxy host to use for all client connect requests.
@@ -754,6 +846,16 @@ PUBLIC void httpSetRequestLogCallback(HttpRequestCallback callback);
 PUBLIC void httpSetProxy(Http *http, cchar *host, int port);
 
 /**
+    Define a request completion callback
+    @description This routine is used to define a callback that is invoked when each request is completed.
+    The callback is passed the HttpConn object prior to destruction.
+    @param callback HttpRequestCallback function
+    @ingroup Http
+    @stability Prototype
+ */
+PUBLIC void httpSetRequestLogCallback(HttpRequestCallback callback);
+
+/**
     Set the software description
     @param http Http object created via #httpCreate
     @param description String describing the Http software. By default, this is set to HTTP_NAME.
@@ -761,6 +863,16 @@ PUBLIC void httpSetProxy(Http *http, cchar *host, int port);
     @stability Stable
  */
 PUBLIC void httpSetSoftware(Http *http, cchar *description);
+
+/**
+    Set the user account
+    @description Define the user account name under which to run the process
+    @param user User name. Must be defined in the system password database.
+    @return Zero if successful, otherwise a negative Mpr error code.
+    @ingroup Http
+    @stability Prototype
+ */
+PUBLIC int httpSetUserAccount(cchar *newUser);
 
 /**
     Stop all connections owned by the data handle
@@ -1095,7 +1207,6 @@ PUBLIC HttpUri *httpMakeUriLocal(HttpUri *uri);
   */
 PUBLIC HttpUri *httpResolveUri(HttpUri *base, int argc, HttpUri **others, bool local);
 
-//  TODO - this should be called httpLink because it returns char* and not a HttpUri
 /** 
     Create a URI link 
     @description Create a URI link based on a given target relative to the current request. 
@@ -3762,7 +3873,7 @@ PUBLIC bool httpPamVerifyUser(HttpConn *conn, cchar *username, cchar *password);
 PUBLIC bool httpInternalVerifyUser(HttpConn *conn, cchar *username, cchar *password);
 PUBLIC void httpComputeAllUserAbilities(HttpAuth *auth);
 PUBLIC void httpComputeUserAbilities(HttpAuth *auth, HttpUser *user);
-PUBLIC void httpInitAuth(Http *http);
+PUBLIC void httpInitAuth();
 PUBLIC HttpAuth *httpCreateInheritedAuth(HttpAuth *parent);
 PUBLIC HttpAuthType *httpLookupAuthType(cchar *type);
 PUBLIC bool httpGetCredentials(HttpConn *conn, cchar **username, cchar **password);
@@ -3983,6 +4094,12 @@ PUBLIC void httpSetStreaming(struct HttpHost *host, cchar *mime, cchar *uri, boo
 #define HTTP_ROUTE_GZIP                 0x1000      /**< Support gzipped content on this route */
 #endif
 
+#if UNUSED
+#ifndef ME_HTTP_CONFIG
+    #define ME_HTTP_CONFIG "package.json"          /**< Configuration file name */
+#endif
+#endif
+
 /**
     Route Control
     @description Configuration is not thread safe and must occur at initialization time when the application is single threaded. 
@@ -4027,12 +4144,25 @@ typedef struct HttpRoute {
     ssize           startWithLen;           /**< Length of startWith */
     ssize           startSegmentLen;        /**< Prefix length */
 
+    MprJson         *config;                /**< Configuration file content */
+    MprTime         configLoaded;           /**< When package.json was last loaded */
+    cchar           *mode;                  /**< Application run mode (debug|release) */
+
+    cchar           *database;              /**< Name of database for route */
+    cchar           *responseFormat;        /**< Client response format */
+    cchar           *client;                /**< Configuration to send to the client */
+    int             combine;                /**< Compile the application in "combine" mode */
+    int             keepSource;             /**< Preserve generated source */
+    int             loaded;                 /**< App has been loaded */
+    int             update;                 /**< Auto-update modified ESP source */
+
     MprList         *caching;               /**< Items to cache */
     MprTicks        lifespan;               /**< Default lifespan for all cache items in route */
     HttpAuth        *auth;                  /**< Per route block authentication */
     Http            *http;                  /**< Http service object (copy of appweb->http) */
     struct HttpHost *host;                  /**< Owning host */
     int             flags;                  /**< Route flags */
+    int             error;                  /**< Parse or runtime error */
 
     char            *defaultLanguage;       /**< Default language */
     MprHash         *extensions;            /**< Hash of handlers by extensions */
@@ -4118,10 +4248,106 @@ typedef struct HttpRouteOp {
 #define HTTP_ROUTE_OMIT_FILTER  1           /**< Omit filter. Same code as HTTP_ROUTE_REJECT for handlers */
 
 /**
+    Http JSON configuration parse callback
+    @param route Current route
+    @param key Configuration file property key
+    @param child Key value as a JSON object
+    @ingroup HttpRoute
+    @stability Prototype
+  */
+typedef void (*HttpParseCallback)(struct HttpRoute *route, cchar *key, MprJson *child);
+
+/**
     General route procedure. Used by targets, conditions and updates.
     @return Zero for success. Otherwise a negative MPR error code.
  */
 typedef int (HttpRouteProc)(HttpConn *conn, HttpRoute *route, HttpRouteOp *item);
+
+/**
+    RouteSet callback
+    @param route Parent route for new routes
+    @param name Name of route set to add
+    @ingroup HttpRoute
+    @stability Prototype
+  */
+typedef void (*HttpRouteSetProc)(HttpRoute *route, cchar *name);
+
+/**
+    Add a configuration file callback for a property key
+    @param key Configuration file property key
+    @param callback Callback function of type #HttpParseCallback
+    @return Returns prior callback function. This should be invoked from the new callback to implemented multiple
+        callbacks per key.
+    @ingroup HttpRoute
+    @stability Prototype
+  */
+PUBLIC HttpParseCallback httpAddConfig(cchar *key, HttpParseCallback callback);
+
+/**
+    Define a route set callback
+    @param name Name of the route set
+    @param fn Callback function
+    @ingroup HttpRoute
+    @stability Prototype
+  */
+PUBLIC HttpRouteSetProc httpDefineRouteSet(cchar *name, HttpRouteSetProc fn);
+
+/**
+    Get a route directory variable
+    @description This looks up the value of the directory 
+    @param route Route to modify
+    @param name Lower case name of the directory. This should not include the "_DIR" suffix. 
+    @return Directory path
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC cchar *httpGetDir(HttpRoute *route, cchar *name);
+
+/**
+    Load a JSON configuration file
+    @description This loads the JSON configuration file.
+    @param route Parent route to configure
+    @param path Filename of the JSON configuration file. If this is a relative path, it will be resolved relative
+        to the routes home directory.
+    @return "Zero" if successful, otherwise a negative MPR error code.
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC int httpLoadConfig(HttpRoute *route, cchar *path);
+
+/**
+    Define the default directory route variables
+    @description This defines the default directories for the "cache", "client" and "pak" directories.
+    @param route Route to modify
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC void httpSetDefaultDirs(HttpRoute *route);
+
+/**
+    Define a route directory path variable
+    @description This creates an upper case route variable with a _DIR suffix for the given name.
+    @param route Route to modify
+    @param name Name of the directory to define
+    @param value Directory path value.
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC void httpSetDir(HttpRoute *route, cchar *name, cchar *value);
+
+/**
+    Add a route set
+    @description This will add a set of routes. It will add a home route and optional routes depending on the route set.
+    <table>
+        <tr><td>Name</td><td>Method</td><td>Pattern</td><td>Target</td></tr>
+        <tr><td>home</td><td>GET,POST,PUT</td><td>^/$</td><td>index.esp</td></tr>
+    </table>
+    @param route Parent route from which to inherit configuration.
+    @param set Route set to select. Use "angular-mvc", or "html-mvc".  
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC void httpAddRouteSet(HttpRoute *route, cchar *set);
 
 /**
     Add routes for a resource
@@ -5128,9 +5354,9 @@ PUBLIC void httpSetRouteTraceFilter(HttpRoute *route, int dir, int levels[HTTP_T
         cchar *exclude);
 
 /**
-    Define a path token variable
-    @description The #httpMakePath routine and route conditions, updates, headers, fields and targets will expand 
-        tokenized expressions "${token}". Additional tokens can be defined via this API.
+    Define a route variable
+    @description This defines a route variable that will be used by #httpMakePath and route conditions, 
+        updates, headers, fields and targets to expand tokenized expressions "${token}". 
     @param route Route to modify
     @param token Name of the token to define 
     @param value Value of the token
@@ -6753,6 +6979,16 @@ PUBLIC HttpConn *httpAcceptConn(HttpEndpoint *endpoint, MprEvent *event);
 PUBLIC void httpAddHostToEndpoint(HttpEndpoint *endpoint, struct HttpHost *host);
 
 /**
+    Add a host to all unassigned endpoints
+    @description Add the host to any endpoints that do not have an assigned host. 
+    @param endpoint Endpoint to which the host will be added.
+    @param host HttpHost object to add.
+    @ingroup HttpEndpoint
+    @stability Internal
+ */
+PUBLIC void httpAddHostToEndpoints(struct HttpHost *host);
+
+/**
     Create and configure a new endpoint.
     @description Convenience function to create and configure a new endpoint without using a config file.
         If no host is supplied, a default host and route are created.
@@ -6902,7 +7138,7 @@ PUBLIC void httpSetEndpointNotifier(HttpEndpoint *endpoint, HttpNotifier fn);
 PUBLIC void httpSetHasNamedVirtualHosts(HttpEndpoint *endpoint, bool on);
 
 /** 
-    Start listening for client connections.
+    Start listening for client connections on an endpoint.
     @description Opens the endpoint socket and starts listening for connections.
     @param endpoint HttpEndpoint object created via #httpCreateEndpoint
     @returns "Zero" if successful, otherwise a negative MPR error code.
@@ -6910,6 +7146,23 @@ PUBLIC void httpSetHasNamedVirtualHosts(HttpEndpoint *endpoint, bool on);
     @stability Stable
  */
 PUBLIC int httpStartEndpoint(HttpEndpoint *endpoint);
+
+/** 
+    Start listening for client connections on all endpoints
+    @description Opens all endpoints and starts listening for connections.
+    @returns "Zero" if successful, otherwise a negative MPR error code.
+    @ingroup HttpEndpoint
+    @stability Prototype
+ */
+PUBLIC int httpStartEndpoints();
+
+/** 
+    Stop listening for client connections on all endpoints
+    @description Closes all endpoints and stops listening for connections. Does not impact running requests.
+    @returns "Zero" if successful, otherwise a negative MPR error code.
+    @ingroup HttpEndpoint
+ */
+PUBLIC void httpStopEndpoints();
 
 /** 
     Stop the server listening for client connections.

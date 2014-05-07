@@ -40,7 +40,7 @@
     "dependencies": {
         "me-dev": "~0.8"
     },
-    "dirs": {
+    "directories": {
         "paks": "src/paks"
     }
 }
