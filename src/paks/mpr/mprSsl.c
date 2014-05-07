@@ -2160,8 +2160,12 @@ static int verifyX509Certificate(int ok, X509_STORE_CTX *xContext)
         }
         break;
 
-    case X509_V_ERR_CERT_CHAIN_TOO_LONG:
     case X509_V_ERR_CERT_HAS_EXPIRED:
+        sp->errorMsg = sfmt("Certificate has expired");
+        ok = 0;
+        break;
+
+    case X509_V_ERR_CERT_CHAIN_TOO_LONG:
     case X509_V_ERR_CERT_NOT_YET_VALID:
     case X509_V_ERR_CERT_REJECTED:
     case X509_V_ERR_CERT_SIGNATURE_FAILURE:
