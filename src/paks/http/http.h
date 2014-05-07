@@ -4089,6 +4089,7 @@ PUBLIC void httpSetStreaming(struct HttpHost *host, cchar *mime, cchar *uri, boo
 #define HTTP_ROUTE_PRESERVE_FRAMES      0x400       /**< Preserve WebSocket frame boundaries */
 #define HTTP_ROUTE_HIDDEN               0x800       /**< Hide this route in route tables. */
 #define HTTP_ROUTE_ENV_ESCAPE           0x1000      /**< Escape env vars */
+#define HTTP_ROUTE_DOTNET_DIGEST_FIX    0x2000      /**< .NET digest auth omits query in MD5 */
 
 #if DEPRECATED
 #define HTTP_ROUTE_GZIP                 0x1000      /**< Support gzipped content on this route */

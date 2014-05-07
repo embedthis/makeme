@@ -10508,7 +10508,7 @@ PUBLIC void mprResetTestGroup(MprTestGroup *gp);
     @ingroup MprTestService
     @stability Internal
  */
-PUBLIC bool assertTrue(MprTestGroup *gp, cchar *loc, bool success, cchar *msg);
+PUBLIC bool assertTrue(MprTestGroup *gp, cchar *loc, int success, cchar *msg);
 
 /**
     Signal a test is complete

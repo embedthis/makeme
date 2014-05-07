@@ -5383,7 +5383,16 @@ static char *calcDigest(HttpConn *conn, HttpDigest *dp, cchar *username)
     /*
         HA2
      */ 
+#if PROTOTYPE || 1
+    if (conn->rx->route->flags & HTTP_ROUTE_DOTNET_DIGEST_FIX) {
+        char *uri = stok(sclone(dp->uri), "?", 0);
+        ha2 = mprGetMD5(sfmt("%s:%s", conn->rx->method, uri));
+    } else {
+        ha2 = mprGetMD5(sfmt("%s:%s", conn->rx->method, dp->uri));
+    }
+#else
     ha2 = mprGetMD5(sfmt("%s:%s", conn->rx->method, dp->uri));
+#endif
 
     /*
         H(HA1:nonce:HA2)
