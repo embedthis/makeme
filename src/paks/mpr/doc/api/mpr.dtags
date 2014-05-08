@@ -848,6 +848,13 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>MPR_JSON_APPEND</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a2b1ef14203f71b74eba095eab95d71d2</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>MPR_JSON_ARRAY</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a9cc3a837cf3aa6011f170ad1bb5d0600</anchor>
@@ -855,9 +862,16 @@
     </member>
     <member kind="define">
       <type>#define</type>
-      <name>MPR_JSON_DUPLICATE</name>
+      <name>MPR_JSON_COMBINE</name>
       <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>a19469e45da7bc32237a59ba47931e449</anchor>
+      <anchor>aa2de7fdcae9f8f06b0937753a5d0a267</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MPR_JSON_CREATE</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>af2f5b7a271c166ad4808bce83c05be33</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -925,9 +939,9 @@
     </member>
     <member kind="define">
       <type>#define</type>
-      <name>MPR_JSON_SIMPLE</name>
+      <name>MPR_JSON_REPLACE</name>
       <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>a1721619bf8820bacf556a924f067616d</anchor>
+      <anchor>a5609d37c5e5de9e42bb4082289e24dd8</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -946,16 +960,16 @@
     </member>
     <member kind="define">
       <type>#define</type>
-      <name>MPR_JSON_TOP</name>
+      <name>MPR_JSON_TRUE</name>
       <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>a4643f6cd5504952b7f5db28a1abd4cbc</anchor>
+      <anchor>a68d0ce9b3c807a6c6ec1d57b40b98f7a</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
       <type>#define</type>
-      <name>MPR_JSON_TRUE</name>
+      <name>MPR_JSON_TYPE_MASK</name>
       <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>a68d0ce9b3c807a6c6ec1d57b40b98f7a</anchor>
+      <anchor>a0795e92c3c85ec9b8dd2b07eb424f6cb</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -1921,8 +1935,8 @@
       <type>bool</type>
       <name>assertTrue</name>
       <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>ga7f44ec8c71e361a86def92a6d0911c79</anchor>
-      <arglist>(MprTestGroup *gp, cchar *loc, bool success, cchar *msg)</arglist>
+      <anchor>ga421431720587185f9865285e813a3cf8</anchor>
+      <arglist>(MprTestGroup *gp, cchar *loc, int success, cchar *msg)</arglist>
     </member>
     <member kind="function">
       <type>char *</type>
@@ -2222,8 +2236,8 @@
       <type>int</type>
       <name>mprBlendJson</name>
       <anchorfile>group___mpr_json.html</anchorfile>
-      <anchor>gabed04b5118a1ed87ddd88695d14f4796</anchor>
-      <arglist>(MprJson *dest, MprJson *other, int flags)</arglist>
+      <anchor>gae916ca4eacb71b4fda228fa7cbb977d3</anchor>
+      <arglist>(MprJson *dest, MprJson *src, int flags)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -3286,8 +3300,8 @@
       <type>cchar *</type>
       <name>mprGetJson</name>
       <anchorfile>group___mpr_json.html</anchorfile>
-      <anchor>ga6205522220b68e22d06a9a91afcabd15</anchor>
-      <arglist>(MprJson *obj, cchar *key, int flags)</arglist>
+      <anchor>gae53853463c712ef0aee5a4d6f5c5d0f7</anchor>
+      <arglist>(MprJson *obj, cchar *key)</arglist>
     </member>
     <member kind="function">
       <type>ssize</type>
@@ -3300,8 +3314,8 @@
       <type>MprJson *</type>
       <name>mprGetJsonObj</name>
       <anchorfile>group___mpr_json.html</anchorfile>
-      <anchor>ga804fb42efcb968510655e4bd90e4bbb7</anchor>
-      <arglist>(MprJson *obj, cchar *key, int flags)</arglist>
+      <anchor>ga4fbf57d20f3c98f6a52ecca4c3efac1c</anchor>
+      <arglist>(MprJson *obj, cchar *key)</arglist>
     </member>
     <member kind="function">
       <type>void *</type>
@@ -4067,13 +4081,6 @@
       <arglist>(cchar *base,...)</arglist>
     </member>
     <member kind="function">
-      <type>MprJson *</type>
-      <name>mprJsonQuery</name>
-      <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>af36e279f6effb5a35381d158c65749b6</anchor>
-      <arglist>(MprJson *obj, cchar *keyPath, MprJson *value, int flags)</arglist>
-    </member>
-    <member kind="function">
       <type>MprHash *</type>
       <name>mprJsonToHash</name>
       <anchorfile>group___mpr_json.html</anchorfile>
@@ -4198,6 +4205,13 @@
       <anchorfile>group___mpr_json.html</anchorfile>
       <anchor>ga66eb120953e85a0256fc25a32ef64882</anchor>
       <arglist>(MprJson *obj, cchar *name)</arglist>
+    </member>
+    <member kind="function">
+      <type>MprJson *</type>
+      <name>mprLookupJsonValue</name>
+      <anchorfile>group___mpr_json.html</anchorfile>
+      <anchor>ga16b5834ac7876ffbc9ecfa688427851c</anchor>
+      <arglist>(MprJson *obj, cchar *value)</arglist>
     </member>
     <member kind="function">
       <type>void *</type>
@@ -4518,8 +4532,8 @@
       <type>MprJson *</type>
       <name>mprQueryJson</name>
       <anchorfile>group___mpr_json.html</anchorfile>
-      <anchor>gaebbb13c55520cbe14c494d34e6b0adbe</anchor>
-      <arglist>(MprJson *obj, cchar *key, int flags)</arglist>
+      <anchor>gae2ad4b6a2ae31d195c4feed07e02b037</anchor>
+      <arglist>(MprJson *obj, cchar *key, cchar *value, int flags)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -4676,10 +4690,10 @@
       <arglist>(MprJson *obj, cchar *key)</arglist>
     </member>
     <member kind="function">
-      <type>void</type>
+      <type>MprJson *</type>
       <name>mprRemoveJsonChild</name>
       <anchorfile>group___mpr_json.html</anchorfile>
-      <anchor>ga1e8620f652285658de49b662facf0676</anchor>
+      <anchor>ga55074f1046d23d477946d56454409b1a</anchor>
       <arglist>(MprJson *obj, MprJson *child)</arglist>
     </member>
     <member kind="function">
@@ -5092,8 +5106,8 @@
       <type>int</type>
       <name>mprSetJson</name>
       <anchorfile>group___mpr_json.html</anchorfile>
-      <anchor>gabde52d14ceb750f5f9e8e0692092e5b3</anchor>
-      <arglist>(MprJson *obj, cchar *key, cchar *value, int flags)</arglist>
+      <anchor>ga51a75e2685a9627539e1f23f2041223b</anchor>
+      <arglist>(MprJson *obj, cchar *key, cchar *value)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -5106,8 +5120,8 @@
       <type>int</type>
       <name>mprSetJsonObj</name>
       <anchorfile>group___mpr_json.html</anchorfile>
-      <anchor>ga1cc4812cf6589a7314ee71fffc13da29</anchor>
-      <arglist>(MprJson *obj, cchar *key, MprJson *value, int flags)</arglist>
+      <anchor>ga04c9228e3a21d19bc8780fab856eb8d2</anchor>
+      <arglist>(MprJson *obj, cchar *key, MprJson *value)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -5603,8 +5617,8 @@
       <type>void</type>
       <name>mprTraceJson</name>
       <anchorfile>group___mpr_json.html</anchorfile>
-      <anchor>gac93b74c4de4bd192db0b9e53237d05ea</anchor>
-      <arglist>(int level, MprJson *obj)</arglist>
+      <anchor>gaee304820e747238f961c4fbd375584df</anchor>
+      <arglist>(int level, MprJson *obj, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>char *</type>
@@ -8868,8 +8882,8 @@
       <type>int</type>
       <name>mprBlendJson</name>
       <anchorfile>group___mpr_json.html</anchorfile>
-      <anchor>gabed04b5118a1ed87ddd88695d14f4796</anchor>
-      <arglist>(MprJson *dest, MprJson *other, int flags)</arglist>
+      <anchor>gae916ca4eacb71b4fda228fa7cbb977d3</anchor>
+      <arglist>(MprJson *dest, MprJson *src, int flags)</arglist>
     </member>
     <member kind="function">
       <type>MprJson *</type>
@@ -8903,8 +8917,8 @@
       <type>cchar *</type>
       <name>mprGetJson</name>
       <anchorfile>group___mpr_json.html</anchorfile>
-      <anchor>ga6205522220b68e22d06a9a91afcabd15</anchor>
-      <arglist>(MprJson *obj, cchar *key, int flags)</arglist>
+      <anchor>gae53853463c712ef0aee5a4d6f5c5d0f7</anchor>
+      <arglist>(MprJson *obj, cchar *key)</arglist>
     </member>
     <member kind="function">
       <type>ssize</type>
@@ -8917,8 +8931,8 @@
       <type>MprJson *</type>
       <name>mprGetJsonObj</name>
       <anchorfile>group___mpr_json.html</anchorfile>
-      <anchor>ga804fb42efcb968510655e4bd90e4bbb7</anchor>
-      <arglist>(MprJson *obj, cchar *key, int flags)</arglist>
+      <anchor>ga4fbf57d20f3c98f6a52ecca4c3efac1c</anchor>
+      <arglist>(MprJson *obj, cchar *key)</arglist>
     </member>
     <member kind="function">
       <type>MprJson *</type>
@@ -8964,6 +8978,13 @@
     </member>
     <member kind="function">
       <type>MprJson *</type>
+      <name>mprLookupJsonValue</name>
+      <anchorfile>group___mpr_json.html</anchorfile>
+      <anchor>ga16b5834ac7876ffbc9ecfa688427851c</anchor>
+      <arglist>(MprJson *obj, cchar *value)</arglist>
+    </member>
+    <member kind="function">
+      <type>MprJson *</type>
       <name>mprParseJson</name>
       <anchorfile>group___mpr_json.html</anchorfile>
       <anchor>gac91edf84d85d99af3e18b36d5a9cf98b</anchor>
@@ -8987,8 +9008,8 @@
       <type>MprJson *</type>
       <name>mprQueryJson</name>
       <anchorfile>group___mpr_json.html</anchorfile>
-      <anchor>gaebbb13c55520cbe14c494d34e6b0adbe</anchor>
-      <arglist>(MprJson *obj, cchar *key, int flags)</arglist>
+      <anchor>gae2ad4b6a2ae31d195c4feed07e02b037</anchor>
+      <arglist>(MprJson *obj, cchar *key, cchar *value, int flags)</arglist>
     </member>
     <member kind="function">
       <type>MprJson *</type>
@@ -8998,10 +9019,10 @@
       <arglist>(MprJson *obj, cchar *key)</arglist>
     </member>
     <member kind="function">
-      <type>void</type>
+      <type>MprJson *</type>
       <name>mprRemoveJsonChild</name>
       <anchorfile>group___mpr_json.html</anchorfile>
-      <anchor>ga1e8620f652285658de49b662facf0676</anchor>
+      <anchor>ga55074f1046d23d477946d56454409b1a</anchor>
       <arglist>(MprJson *obj, MprJson *child)</arglist>
     </member>
     <member kind="function">
@@ -9022,8 +9043,8 @@
       <type>int</type>
       <name>mprSetJson</name>
       <anchorfile>group___mpr_json.html</anchorfile>
-      <anchor>gabde52d14ceb750f5f9e8e0692092e5b3</anchor>
-      <arglist>(MprJson *obj, cchar *key, cchar *value, int flags)</arglist>
+      <anchor>ga51a75e2685a9627539e1f23f2041223b</anchor>
+      <arglist>(MprJson *obj, cchar *key, cchar *value)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -9036,15 +9057,15 @@
       <type>int</type>
       <name>mprSetJsonObj</name>
       <anchorfile>group___mpr_json.html</anchorfile>
-      <anchor>ga1cc4812cf6589a7314ee71fffc13da29</anchor>
-      <arglist>(MprJson *obj, cchar *key, MprJson *value, int flags)</arglist>
+      <anchor>ga04c9228e3a21d19bc8780fab856eb8d2</anchor>
+      <arglist>(MprJson *obj, cchar *key, MprJson *value)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mprTraceJson</name>
       <anchorfile>group___mpr_json.html</anchorfile>
-      <anchor>gac93b74c4de4bd192db0b9e53237d05ea</anchor>
-      <arglist>(int level, MprJson *obj)</arglist>
+      <anchor>gaee304820e747238f961c4fbd375584df</anchor>
+      <arglist>(int level, MprJson *obj, cchar *fmt,...)</arglist>
     </member>
   </compound>
   <compound kind="group">
@@ -10692,8 +10713,8 @@
       <type>bool</type>
       <name>assertTrue</name>
       <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>ga7f44ec8c71e361a86def92a6d0911c79</anchor>
-      <arglist>(MprTestGroup *gp, cchar *loc, bool success, cchar *msg)</arglist>
+      <anchor>ga421431720587185f9865285e813a3cf8</anchor>
+      <arglist>(MprTestGroup *gp, cchar *loc, int success, cchar *msg)</arglist>
     </member>
     <member kind="function">
       <type>MprTestGroup *</type>

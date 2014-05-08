@@ -30,6 +30,13 @@
     </member>
     <member kind="function">
       <type>int</type>
+      <name>httpAddDefenseFromJson</name>
+      <anchorfile>group___http_monitor.html</anchorfile>
+      <anchor>gaadde2922692a98bb23ee3a77d8a0f625</anchor>
+      <arglist>(cchar *name, cchar *remedy, MprJson *jargs)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
       <name>httpAddMonitor</name>
       <anchorfile>group___http_monitor.html</anchorfile>
       <anchor>ga931db10ade516aff29d2fd827b4450bb</anchor>
@@ -81,6 +88,27 @@
       <anchorfile>group___http.html</anchorfile>
       <anchor>ga0b81bb7e1e229c931533804c3bab6ed3</anchor>
       <arglist>(MprHash *options, cchar *field, cchar *value)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>httpApplyChangedGroup</name>
+      <anchorfile>group___http.html</anchorfile>
+      <anchor>ga9cb8ca6b7dfbdda9d970e7c5f495b7ab</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>httpApplyChangedUser</name>
+      <anchorfile>group___http.html</anchorfile>
+      <anchor>gaac4f59ea2ef94b5ef62fab395cbfbfc9</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>httpApplyUserGroup</name>
+      <anchorfile>group___http.html</anchorfile>
+      <anchor>ga94bfa4610a28a5efc57124dfe7956f09</anchor>
+      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
@@ -140,6 +168,20 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>httpGetUserGroup</name>
+      <anchorfile>group___http.html</anchorfile>
+      <anchor>gad2cdbb9ff54bbca9c174a224e048b144</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>httpInitParser</name>
+      <anchorfile>group___http.html</anchorfile>
+      <anchor>ga958aa81ff7a0333552ec02bffb7f15e5</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>httpInsertOption</name>
       <anchorfile>group___http.html</anchorfile>
       <anchor>ga8300fb76d2cf94a5cb2a61c04da11312</anchor>
@@ -174,6 +216,13 @@
       <arglist>(MprHash *options, cchar *field, cchar *value, int useDefault)</arglist>
     </member>
     <member kind="function">
+      <type>int</type>
+      <name>httpParsePlatform</name>
+      <anchorfile>group___http.html</anchorfile>
+      <anchor>ga2cad4480b80e0496513b14cf20e413af</anchor>
+      <arglist>(cchar *platform, cchar **os, cchar **arch, cchar **profile)</arglist>
+    </member>
+    <member kind="function">
       <type>void</type>
       <name>httpRemoveOption</name>
       <anchorfile>group___http.html</anchorfile>
@@ -202,11 +251,25 @@
       <arglist>(Http *http, int port)</arglist>
     </member>
     <member kind="function">
+      <type>int</type>
+      <name>httpSetGroupAccount</name>
+      <anchorfile>group___http.html</anchorfile>
+      <anchor>ga0036ccea9d7e39eaa1469497c00b4cc9</anchor>
+      <arglist>(cchar *group)</arglist>
+    </member>
+    <member kind="function">
       <type>void</type>
       <name>httpSetOption</name>
       <anchorfile>group___http.html</anchorfile>
       <anchor>ga1b68c24657b6564346e47d0e7521790a</anchor>
       <arglist>(MprHash *options, cchar *field, cchar *value)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>httpSetPlatform</name>
+      <anchorfile>group___http.html</anchorfile>
+      <anchor>ga829921903bb25b9fd879b3a30947a8fc</anchor>
+      <arglist>(cchar *platform, cchar *probe)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -228,6 +291,13 @@
       <anchorfile>group___http.html</anchorfile>
       <anchor>ga74dbe19ccb82f86a72b42944906abd68</anchor>
       <arglist>(Http *http, cchar *description)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>httpSetUserAccount</name>
+      <anchorfile>group___http.html</anchorfile>
+      <anchor>gac05133f3e673b469e173d17b7e421437</anchor>
+      <arglist>(cchar *user)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -1653,12 +1723,33 @@
     <title>HttpRoute</title>
     <filename>group___http_route.html</filename>
     <class kind="struct">HttpLang</class>
+    <member kind="typedef">
+      <type>void(*</type>
+      <name>HttpParseCallback</name>
+      <anchorfile>group___http_route.html</anchorfile>
+      <anchor>ga38190e4a91c06e1099db19f18e3ad071</anchor>
+      <arglist>)(struct HttpRoute *route, cchar *key, MprJson *child)</arglist>
+    </member>
+    <member kind="typedef">
+      <type>void(*</type>
+      <name>HttpRouteSetProc</name>
+      <anchorfile>group___http_route.html</anchorfile>
+      <anchor>ga55465b3f4f2340485790ef17bd2a8b41</anchor>
+      <arglist>)(HttpRoute *route, cchar *name)</arglist>
+    </member>
     <member kind="function">
       <type>void</type>
       <name>httpAddClientRoute</name>
       <anchorfile>group___http_route.html</anchorfile>
       <anchor>gad03894d47dea385d9db736be22c375ea</anchor>
       <arglist>(HttpRoute *parent, cchar *prefix, cchar *name)</arglist>
+    </member>
+    <member kind="function">
+      <type>HttpParseCallback</type>
+      <name>httpAddConfig</name>
+      <anchorfile>group___http_route.html</anchorfile>
+      <anchor>gabcacdaa121aba75e553dbed398ee8431</anchor>
+      <arglist>(cchar *key, HttpParseCallback callback)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -1773,6 +1864,13 @@
       <arglist>(HttpRoute *route, int cmd, cchar *header, cchar *value)</arglist>
     </member>
     <member kind="function">
+      <type>void</type>
+      <name>httpAddRouteSet</name>
+      <anchorfile>group___http_route.html</anchorfile>
+      <anchor>gac0a0680a1f833cde8a1ac651a812580a</anchor>
+      <arglist>(HttpRoute *route, cchar *set)</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>httpAddRouteUpdate</name>
       <anchorfile>group___http_route.html</anchorfile>
@@ -1857,6 +1955,13 @@
       <arglist>(cchar *name, HttpRouteProc *proc)</arglist>
     </member>
     <member kind="function">
+      <type>HttpRouteSetProc</type>
+      <name>httpDefineRouteSet</name>
+      <anchorfile>group___http_route.html</anchorfile>
+      <anchor>ga34d610fd687290ec83cca228004139e0</anchor>
+      <arglist>(cchar *name, HttpRouteSetProc fn)</arglist>
+    </member>
+    <member kind="function">
       <type>void</type>
       <name>httpDefineRouteTarget</name>
       <anchorfile>group___http_route.html</anchorfile>
@@ -1897,6 +2002,13 @@
       <anchorfile>group___http_route.html</anchorfile>
       <anchor>gae3e560397e0fa36954827ff06d59f830</anchor>
       <arglist>(HttpHost *host)</arglist>
+    </member>
+    <member kind="function">
+      <type>cchar *</type>
+      <name>httpGetDir</name>
+      <anchorfile>group___http_route.html</anchorfile>
+      <anchor>ga046887bf73d0bc724a6df84eb42bddda</anchor>
+      <arglist>(HttpRoute *route, cchar *name)</arglist>
     </member>
     <member kind="function">
       <type>HttpRoute *</type>
@@ -1946,6 +2058,13 @@
       <anchorfile>group___http_route.html</anchorfile>
       <anchor>ga2b82eae86554fe49b2a170c462c56012</anchor>
       <arglist>(HttpRoute *route, HttpLimits *limits)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>httpLoadConfig</name>
+      <anchorfile>group___http_route.html</anchorfile>
+      <anchor>ga133abd3fc95e87bb89e120f01a514dce</anchor>
+      <arglist>(HttpRoute *route, cchar *path)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -2002,6 +2121,20 @@
       <anchorfile>group___http_route.html</anchorfile>
       <anchor>ga204e52b8069446315dc98f9e99dc1ad0</anchor>
       <arglist>(HttpRoute *route)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpSetDefaultDirs</name>
+      <anchorfile>group___http_route.html</anchorfile>
+      <anchor>ga9f60e209ad7c87ab65db13eea26a4e85</anchor>
+      <arglist>(HttpRoute *route)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpSetDir</name>
+      <anchorfile>group___http_route.html</anchorfile>
+      <anchor>ga6c60c9b1504eaf1fc2550e2ad6e4f6c0</anchor>
+      <arglist>(HttpRoute *route, cchar *name, cchar *value)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -2953,6 +3086,13 @@
       <arglist>(HttpEndpoint *endpoint, struct HttpHost *host)</arglist>
     </member>
     <member kind="function">
+      <type>void</type>
+      <name>httpAddHostToEndpoints</name>
+      <anchorfile>group___http_endpoint.html</anchorfile>
+      <anchor>gaf6ef9ec1f92784e56f31b45366145e12</anchor>
+      <arglist>(struct HttpHost *host)</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>httpConfigureNamedVirtualEndpoints</name>
       <anchorfile>group___http_endpoint.html</anchorfile>
@@ -3065,11 +3205,25 @@
       <arglist>(HttpEndpoint *endpoint)</arglist>
     </member>
     <member kind="function">
+      <type>int</type>
+      <name>httpStartEndpoints</name>
+      <anchorfile>group___http_endpoint.html</anchorfile>
+      <anchor>gaa44ca5ccf74181c8438b282471234624</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
       <type>void</type>
       <name>httpStopEndpoint</name>
       <anchorfile>group___http_endpoint.html</anchorfile>
       <anchor>ga4c1deccf2ac027252158420937d43156</anchor>
       <arglist>(HttpEndpoint *endpoint)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpStopEndpoints</name>
+      <anchorfile>group___http_endpoint.html</anchorfile>
+      <anchor>ga4cec2f977d31166f320c791c04ddff41</anchor>
+      <arglist>()</arglist>
     </member>
   </compound>
   <compound kind="group">

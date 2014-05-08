@@ -459,17 +459,6 @@ PUBLIC HttpAuthStore *httpCreateAuthStore(cchar *name, HttpVerifyUser verifyUser
 }
 
 
-#if DEPRECATED
-PUBLIC int httpAddAuthStore(cchar *name, HttpVerifyUser verifyUser)
-{
-    if (httpCreateAuthStore(name, verifyUser) == 0) {
-        return MPR_ERR_CANT_CREATE;
-    }
-    return 0;
-}
-#endif
-
-
 PUBLIC void httpSetAuthVerify(HttpAuth *auth, HttpVerifyUser verifyUser)
 {
     auth->verifyUser = verifyUser;
@@ -3364,10 +3353,7 @@ static void parseContentHandlers(HttpRoute *route, cchar *key, MprJson *prop)
 
 static void parsePrefix(HttpRoute *route, cchar *key, MprJson *prop)
 {
-    //  MOB - should we be prepending the outer prefix?
     httpSetRoutePrefix(route, sjoin(route->prefix, prop->value, 0));
-    //  MOB - this should be pushed into httpSetRoutePrefix
-    httpSetRouteVar(route, "PREFIX", prop->value);
 }
 
 
@@ -4466,16 +4452,18 @@ PUBLIC HttpConn *httpAcceptConn(HttpEndpoint *endpoint, MprEvent *event)
         return 0;
     }
     address = conn->address;
-    if (address && address->banUntil > http->now) {
-        if (address->banStatus) {
-            httpError(conn, HTTP_CLOSE | address->banStatus, 
-                "Connection refused, client banned: %s", address->banMsg ? address->banMsg : "");
-        } else if (address->banMsg && address->banMsg) {
-            httpError(conn, HTTP_CLOSE | HTTP_CODE_NOT_ACCEPTABLE, 
-                "Connection refused, client banned: %s", address->banMsg ? address->banMsg : "");
+    if (address && address->banUntil) {
+        if (address->banUntil < http->now) {
+            mprLog(1, "Remove ban on client %s at %s", sock->ip, mprGetDate(0));
+            address->banUntil = 0;
         } else {
-            httpDestroyConn(conn);
-            return 0;
+            if (address->banStatus) {
+                httpError(conn, HTTP_CLOSE | address->banStatus, 
+                    "Connection refused, client banned: %s", address->banMsg ? address->banMsg : "");
+            } else {
+                httpDestroyConn(conn);
+                return 0;
+            }
         }
     }
     if (endpoint->ssl) {
@@ -6892,7 +6880,7 @@ static void invokeDefenses(HttpMonitor *monitor, MprHash *args)
             kp->data = stemplate(kp->data, args);
         }
         mprBlendHash(args, extra);
-        mprLog(1, "Defense \"%s\" activated. Running remedy \"%s\".", defense->name, defense->remedy);
+        mprLog(4, "Defense \"%s\" running remedy \"%s\".", defense->name, defense->remedy);
 
         /*  WARNING: yields */
         remedyProc(args);
@@ -6956,16 +6944,13 @@ PUBLIC void httpPruneMonitors()
     period = max(http->monitorMaxPeriod, 15 * MPR_TICKS_PER_SEC);
     lock(http->addresses);
     for (ITERATE_KEY_DATA(http->addresses, kp, address)) {
-        if ((address->updated + period) < http->now) {
-            if (address->banUntil) {
-                if (address->banUntil < http->now) {
-                    mprLog(1, "Remove ban on client %s", kp->key);
-                    mprRemoveKey(http->addresses, kp->key);
-                }
-            } else {
-                mprRemoveKey(http->addresses, kp->key);
-                /* Safe to keep iterating after removal of key */
-            }
+        if (address->banUntil && address->banUntil < http->now) {
+            mprLog(1, "Remove ban on client %s at %s", kp->key, mprGetDate(0));
+            address->banUntil = 0;
+        }
+        if ((address->updated + period) < http->now && address->banUntil == 0) {
+            mprRemoveKey(http->addresses, kp->key);
+            /* Safe to keep iterating after removal of key */
         }
     }
     unlock(http->addresses);
@@ -7307,13 +7292,15 @@ PUBLIC int httpBanClient(cchar *ip, MprTicks period, int status, cchar *msg)
         mprLog(1, "Cannot find client %s to ban", ip);
         return MPR_ERR_CANT_FIND;
     }
+    if (address->banUntil < http->now) {
+        mprLog(1, "httpBanClient: %s banned for %Ld secs at %s", ip, period / 1000, mprGetDate(0));
+    }
     banUntil = http->now + period;
     address->banUntil = max(banUntil, address->banUntil);
     if (msg && *msg) {
         address->banMsg = sclone(msg);
     }
     address->banStatus = status;
-    mprLog(1, "Client %s banned for %Ld secs", ip, period / 1000);
     return 0;
 }
 
@@ -7360,7 +7347,7 @@ static void cmdRemedy(MprHash *args)
         data = stok(command, "|", &command);
         data = stemplate(data, args);
     }
-    mprTrace(1, "Run cmd remedy: %s", command);
+    mprLog(1, "Run cmd remedy: %s", command);
     command = strim(command, " \t", MPR_TRIM_BOTH);
     if ((background = (sends(command, "&"))) != 0) {
         command = strim(command, "&", MPR_TRIM_END);
@@ -7372,7 +7359,7 @@ static void cmdRemedy(MprHash *args)
         mprError("Cannot start command: %s", command);
         return;
     }
-    mprLog(1, "Cmd data: \n%s", data);
+    mprLog(4, "Cmd data: \n%s", data);
     if (data && mprWriteCmdBlock(cmd, MPR_CMD_STDIN, data, -1) < 0) {
         mprError("Cannot write to command: %s", command);
         return;
@@ -8608,21 +8595,6 @@ static void handleTrace(HttpConn *conn)
     httpPutForService(q, traceData, HTTP_DELAY_SERVICE);
     httpFinalize(conn);
 }
-
-
-#if DEPRECATED
-PUBLIC void httpHandleOptionsTrace(HttpConn *conn)
-{
-    HttpRx      *rx;
-
-    rx = conn->rx;
-    if (rx->flags & HTTP_OPTIONS) {
-        httpHandleOptions(conn);
-    } else if (rx->flags & HTTP_TRACE) {
-        handleTrace(conn);
-    }
-}
-#endif
 
 
 PUBLIC int httpOpenPassHandler(Http *http)
@@ -10102,9 +10074,6 @@ PUBLIC HttpRoute *httpCreateInheritedRoute(HttpRoute *parent)
     route->http = MPR->httpService;
     route->indicies = parent->indicies;
     route->inputStages = parent->inputStages;
-#if UNUSED
-    route->json = parent->json;
-#endif
     route->keepSource = parent->keepSource;
     route->languages = parent->languages;
     route->lifespan = parent->lifespan;
@@ -10669,17 +10638,6 @@ static cchar *mapContent(HttpConn *conn, cchar *filename)
             }
         }
     }
-#if DEPRECATED
-    /* 
-        Old style compression. Deprecated in 4.4 
-     */
-    if (!info->valid && !route->map && (route->flags & HTTP_ROUTE_GZIP) && scontains(rx->acceptEncoding, "gzip")) {
-        path = sjoin(filename, ".gz", NULL);
-        if (mprGetPathInfo(path, info) == 0) {
-            filename = path;
-        }
-    }
-#endif
     return filename;
 }
 
@@ -11199,16 +11157,6 @@ PUBLIC void httpSetRouteAutoDelete(HttpRoute *route, bool enable)
 }
 
 
-#if DEPRECATED
-PUBLIC void httpSetRouteCompression(HttpRoute *route, int flags)
-{
-    assert(route);
-    route->flags &= ~(HTTP_ROUTE_GZIP);
-    route->flags |= (HTTP_ROUTE_GZIP & flags);
-}
-#endif
-
-
 PUBLIC int httpSetRouteConnector(HttpRoute *route, cchar *name)
 {
     HttpStage     *stage;
@@ -11247,19 +11195,7 @@ PUBLIC void httpSetRouteDocuments(HttpRoute *route, cchar *path)
 
     route->documents = httpMakePath(route, route->home, path);
     httpSetRouteVar(route, "DOCUMENTS", route->documents);
-#if DEPRECATED
-    httpSetRouteVar(route, "DOCUMENTS_DIR", route->documents);
-    httpSetRouteVar(route, "DOCUMENT_ROOT", route->documents);
-#endif
 }
-
-
-#if DEPRECATED
-PUBLIC void httpSetRouteDir(HttpRoute *route, cchar *path)
-{
-    httpSetRouteDocuments(route, path);
-}
-#endif
 
 
 PUBLIC void httpSetRouteFlags(HttpRoute *route, int flags)
@@ -11307,10 +11243,6 @@ PUBLIC void httpSetRouteHome(HttpRoute *route, cchar *path)
 
     route->home = httpMakePath(route, ".", path);
     httpSetRouteVar(route, "HOME", route->home);
-#if DEPRECATED
-    httpSetRouteVar(route, "HOME_DIR", route->home);
-    httpSetRouteVar(route, "ROUTE_HOME", route->home);
-#endif
 }
 
 
@@ -11440,6 +11372,7 @@ PUBLIC void httpSetRoutePrefix(HttpRoute *route, cchar *prefix)
     } else {
         route->prefix = 0;
         route->prefixLen = 0;
+        httpSetRouteVar(route, "PREFIX", "");
     }
     if (route->pattern) {
         finalizePattern(route);
@@ -12707,9 +12640,6 @@ static void definePathVars(HttpRoute *route)
     mprAddKey(route->vars, "VERSION", sclone(ME_VERSION));
     mprAddKey(route->vars, "PLATFORM", sclone(ME_PLATFORM));
     mprAddKey(route->vars, "BIN_DIR", mprGetAppDir());
-#if DEPRECATED
-    mprAddKey(route->vars, "LIBDIR", mprGetAppDir());
-#endif
     if (route->host) {
         defineHostVars(route);
     }
@@ -12722,12 +12652,6 @@ static void defineHostVars(HttpRoute *route)
     mprAddKey(route->vars, "DOCUMENTS", route->documents);
     mprAddKey(route->vars, "HOME", route->home);
     mprAddKey(route->vars, "SERVER_NAME", route->host->name);
-
-#if DEPRECATED
-    mprAddKey(route->vars, "ROUTE_HOME", route->home);
-    mprAddKey(route->vars, "DOCUMENT_ROOT", route->documents);
-    mprAddKey(route->vars, "SERVER_ROOT", route->home);
-#endif
 }
 
 
@@ -15845,6 +15769,7 @@ PUBLIC Http *httpCreate(int flags)
     http->monitorMinPeriod = MAXINT;
     http->secret = mprGetRandomString(HTTP_MAX_SECRET);
     http->localPlatform = slower(sfmt("%s-%s-%s", ME_OS, ME_CPU, ME_PROFILE));
+    httpSetPlatform(http->localPlatform);
 
     updateCurrentDate();
     http->statusCodes = mprCreateHash(41, MPR_HASH_STATIC_VALUES | MPR_HASH_STATIC_KEYS | MPR_HASH_STABLE);
@@ -16910,96 +16835,70 @@ PUBLIC int httpApplyChangedGroup()
 }
 
 
-PUBLIC int httpParsePlatform(cchar *platform, cchar **os, cchar **arch, cchar **profile)
+PUBLIC int httpParsePlatform(cchar *platform, cchar **osp, cchar **archp, cchar **profilep)
 {
-    char   *rest;
+    char   *arch, *os, *profile, *rest;
 
+    if (osp) {
+        *osp = 0;
+    }
+    if (archp) {
+       *archp = 0;
+    }
+    if (profilep) {
+       *profilep = 0;
+    }
     if (platform == 0 || *platform == '\0') {
         return MPR_ERR_BAD_ARGS;
     }
-    *os = stok(sclone(platform), "-", &rest);
-    *arch = sclone(stok(NULL, "-", &rest));
-    *profile = sclone(rest);
-    if (*os == 0 || *arch == 0 || *profile == 0 || **os == '\0' || **arch == '\0' || **profile == '\0') {
+    os = stok(sclone(platform), "-", &rest);
+    arch = sclone(stok(NULL, "-", &rest));
+    profile = sclone(rest);
+    if (os == 0 || arch == 0 || profile == 0 || *os == '\0' || *arch == '\0' || *profile == '\0') {
         return MPR_ERR_BAD_ARGS;
+    }
+    if (osp) {
+        *osp = os;
+    }
+    if (archp) {
+       *archp = arch;
+    }
+    if (profilep) {
+       *profilep = profile;
     }
     return 0;
 }
 
 
-/*
-    Set the platform and platform objects location
-    PlatformPath may be a platform spec that must be located, or it may be a complete path to the platform output directory.
-    If platformPath is null, the local platform definition is used.
-    Probe is the name of the primary executable program in the platform bin directory.
- */
-PUBLIC int httpSetPlatform(cchar *platformPath, cchar *probe)
+PUBLIC int httpSetPlatform(cchar *platform)
 {
-    Http            *http;
-    MprDirEntry     *dp;
-    cchar           *platform, *dir, *junk, *path;
-    int             next, i;
+    Http    *http;
+    cchar   *junk;
 
     http = MPR->httpService;
-    http->platform = http->platformDir = 0;
-
-    if (!platformPath) {
-        platformPath = http->localPlatform;
-    }
-    platform = mprGetPathBase(platformPath);
-
-    if (mprPathExists(mprJoinPath(platformPath, probe), R_OK)) {
-        http->platform = platform;
-        http->platformDir = sclone(platformPath);
-
-    } else if (smatch(platform, http->localPlatform)) {
-        /*
-            Check probe with current executable
-         */
-        path = mprJoinPath(mprGetPathDir(mprGetAppDir()), probe);
-        if (mprPathExists(path, R_OK)) {
-            http->platform = http->localPlatform;
-            http->platformDir = mprGetPathParent(mprGetAppDir());
-
-        } else {
-            /*
-                Check probe with installed product
-             */
-            if (mprPathExists(mprJoinPath(ME_VAPP_PREFIX, probe), R_OK)) {
-                http->platform = http->localPlatform;
-                http->platformDir = sclone(ME_VAPP_PREFIX);
-            }
-        }
-    }
-    
-    /*
-        Last chance. Search up the tree for a similar platform directory.
-        This permits specifying a partial platform like "vxworks" without architecture and profile.
-     */
-    if (!http->platformDir) {
-        dir = mprGetCurrentPath();
-        for (i = 0; !mprSamePath(dir, "/") && i < 64; i++) {
-            for (ITERATE_ITEMS(mprGetPathFiles(dir, 0), dp, next)) {
-                if (dp->isDir && sstarts(mprGetPathBase(dp->name), platform)) {
-                    path = mprJoinPath(dir, dp->name);
-                    if (mprPathExists(mprJoinPath(path, probe), R_OK)) {
-                        http->platform = mprGetPathBase(dp->name);
-                        http->platformDir = mprJoinPath(dir, dp->name);
-                        break;
-                    }
-                }
-            }
-            dir = mprGetPathParent(dir);
-        }
-    }
-    if (!http->platform) {
-        return MPR_ERR_CANT_FIND;
-    }
-    if (httpParsePlatform(http->platform, &junk, &junk, &junk) < 0) {
+    if (platform && httpParsePlatform(platform, &junk, &junk, &junk) < 0) {
         return MPR_ERR_BAD_ARGS;
     }
-    http->platformDir = mprGetAbsPath(http->platformDir);
-    mprLog(1, "Using platform %s at \"%s\"", http->platform, http->platformDir);
+    http->platform = platform ? sclone(platform) : http->localPlatform;
+    mprLog(2, "Using platform %s", http->platform);
+    return 0;
+}
+
+
+/*
+    Set the platform objects location
+ */
+PUBLIC int httpSetPlatformDir(cchar *path)
+{
+    Http    *http;
+
+    http = MPR->httpService;
+    if (path) {
+        http->platformDir = mprGetAbsPath(path);
+    } else {
+        http->platformDir = mprGetPathDir(mprGetPathDir(mprGetAppPath()));
+    }
+    mprLog(2, "Using platform directory \"%s\"", mprGetRelPath(http->platformDir, 0));
     return 0;
 }
 
@@ -17415,14 +17314,6 @@ PUBLIC bool httpCheckSecurityToken(HttpConn *conn)
 
     if ((sessionToken = httpGetSessionVar(conn, ME_XSRF_COOKIE, 0)) != 0) {
         requestToken = httpGetHeader(conn, ME_XSRF_HEADER);
-#if DEPRECATED
-        /*
-            Deprecated in 4.4
-        */
-        if (!requestToken) {
-            requestToken = httpGetParam(conn, ME_XSRF_PARAM, 0);
-        }
-#endif
         if (!smatch(sessionToken, requestToken)) {
             /*
                 Potential CSRF attack. Deny request. Re-create a new security token so legitimate clients can retry.
@@ -20331,19 +20222,6 @@ PUBLIC char *httpLinkEx(HttpConn *conn, cchar *target, MprHash *options)
 }
 
 
-#if DEPRECATED
-PUBLIC char *httpUriEx(HttpConn *conn, cchar *target, MprHash *options)
-{
-    return httpLinkEx(conn, target, options);
-}
-
-PUBLIC char *httpUri(HttpConn *conn, cchar *target)
-{
-    return httpLink(conn, target);
-}
-#endif
-
-
 PUBLIC char *httpUriToString(HttpUri *uri, int flags)
 {
     return httpFormatUri(uri->scheme, uri->host, uri->port, uri->path, uri->reference, uri->query, flags);
@@ -20555,13 +20433,9 @@ PUBLIC void httpCreateCGIParams(HttpConn *conn)
     mprAddKey(svars, "REMOTE_ADDR", conn->ip);
     mprAddKeyFmt(svars, "REMOTE_PORT", "%d", conn->port);
 
-#if DEPRECATED
-    mprAddKey(svars, "DOCUMENT_ROOT", rx->route->documents);
-    //  DEPRECATED - use ROUTE_HOME
-    mprAddKey(svars, "SERVER_ROOT", rx->route->home);
-#endif
-
-    /* Set to the same as AUTH_USER */
+    /* 
+        Set to the same as AUTH_USER 
+     */
     mprAddKey(svars, "REMOTE_USER", conn->username);
     mprAddKey(svars, "REQUEST_METHOD", rx->method);
     mprAddKey(svars, "REQUEST_TRANSPORT", sclone((char*) ((conn->secure) ? "https" : "http")));

@@ -6311,11 +6311,6 @@ PUBLIC void mprXmlSetParserHandler(MprXml *xp, MprXmlHandler h);
     Flags for mprQueryJson
  */
 #define MPR_JSON_REMOVE         0x1         /**< Remove matching properties */
-#if UNUSED
-#define MPR_JSON_DUPLICATE      0x2         /**< Permit duplicate properties of the same name */
-#define MPR_JSON_NO_CLONE       0x4         /**< Optimize by not cloning json value */
-#define MPR_JSON_TOP            0x2         /**< Optimize by querying top level properties only */
-#endif
 
 /*
     Data types for obj property values

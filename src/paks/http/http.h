@@ -369,7 +369,7 @@ typedef struct HttpMonitor {
 } HttpMonitor;
 
 /**
-    Per-IP address structure.
+    Per-IP address structure
     @ingroup HttpMonitor HttpMonitor
     @stability Internal
  */
@@ -818,21 +818,28 @@ PUBLIC void httpSetDefaultClientPort(Http *http, int port);
     @ingroup Http
     @stability Prototype
  */
-PUBLIC int httpSetGroupAccount(cchar *newGroup);
+PUBLIC int httpSetGroupAccount(cchar *group);
 
 /**
-    Set platform and platform directory location
+    Set platform description
     @description Some web frameworks need to recompile sources before serving requests (ESP).
         These need access to the http libraries to link with.
-    @param platform Platform string of the form: OS-ARCH-PROFILE. This may also be a full path to the platform
-        directory.
-    @param probe file to search for when identifying a platform directory. This should be a relative path from
-        the platform directory to file in the platform directory.
+    @param platform Platform string of the form: OS-ARCH-PROFILE.
+    @return Zero if the platform string parses, otherwise a negative Mpr error code.
+    @ingroup Http
+    @stability Prototype
+ */
+PUBLIC int httpSetPlatform(cchar *platform);
+
+/**
+    Set platform directory location
+    @description Set the platform directory location which contains libraries and headers for the application.
+    @param platform Path to the platform directory.
     @return Zero if successful, otherwise a negative Mpr error code.
     @ingroup Http
     @stability Prototype
  */
-PUBLIC int httpSetPlatform(cchar *platform, cchar *probe);
+PUBLIC int httpSetPlatformDir(cchar *platform);
 
 /** 
     Define a Http proxy host to use for all client connect requests.
@@ -872,7 +879,7 @@ PUBLIC void httpSetSoftware(Http *http, cchar *description);
     @ingroup Http
     @stability Prototype
  */
-PUBLIC int httpSetUserAccount(cchar *newUser);
+PUBLIC int httpSetUserAccount(cchar *user);
 
 /**
     Stop all connections owned by the data handle
@@ -1290,11 +1297,6 @@ PUBLIC char *httpLink(struct HttpConn *conn, cchar *target);
 PUBLIC char *httpLinkEx(struct HttpConn *conn, cchar *target, MprHash *options);
 
 PUBLIC HttpUri *httpLinkUri(struct HttpConn *conn, cchar *target, MprHash *options);
-
-#if DEPRECATED
-PUBLIC char *httpUri(struct HttpConn *conn, cchar *target) ME_DEPRECATED("Use httpLink instead");
-PUBLIC char *httpUriEx(struct HttpConn *conn, cchar *target, MprHash *options) ME_DEPRECATED("Use httpLinkEx instead");
-#endif
 
 /** 
     Convert a Uri to a string.
@@ -2395,17 +2397,6 @@ PUBLIC void httpDefaultOutgoingServiceStage(HttpQueue *q);
  */
 PUBLIC cvoid *httpGetStageData(struct HttpConn *conn, cchar *key);
 
-#if DEPRECATED
-/**
-    Handle a Http Trace or Options method request
-    @description Convenience routine to respond to an OPTIONS or TRACE request. 
-    @param conn HttpConn object created via #httpCreateConn
-    @ingroup HttpStage
-    @stability Deprecated
- */
-PUBLIC void httpHandleOptionsTrace(struct HttpConn *conn);
-#endif
-
 /**
     Handle a Http Options method request
     @description Convenience routine to respond to an OPTIONS request. 
@@ -3337,10 +3328,6 @@ PUBLIC void httpCreatePipeline(HttpConn *conn);
  */
 PUBLIC MprSocket *httpStealSocket(HttpConn *conn);
 
-#if DEPRECATED
-#define httpStealConn httpStealSocket
-#endif
-
 /**
     Steal the O/S socket handle from the connection socket object.
     @description This removes the O/S socket handle from active management by the connection. After calling, 
@@ -3551,10 +3538,6 @@ PUBLIC int httpAddAuthType(cchar *name, HttpAskLogin askLogin, HttpParseAuth par
  */
 PUBLIC HttpAuthStore *httpCreateAuthStore(cchar *name, HttpVerifyUser verifyUser);
 
-#if DEPRECATED
-PUBLIC int httpAddAuthStore(cchar *name, HttpVerifyUser verifyUser);
-#endif
-
 /**
     Control whether sessions are created for authenticated logins
     @description By default, a session and response cookie are created when a user is authenticated via #httpLogin.
@@ -3600,10 +3583,6 @@ PUBLIC int httpAddRole(HttpAuth *auth, cchar *role, cchar *abilities);
     @stability Evolving
  */
 PUBLIC HttpUser *httpAddUser(HttpAuth *auth, cchar *user, cchar *password, cchar *abilities);
-
-#if DEPRECATED
-#define httpCreateUser(auth, user, password, abilities) httpAddUser(auth, user, password, abilities)
-#endif
 
 /**
     Authenticate a user
@@ -4090,16 +4069,6 @@ PUBLIC void httpSetStreaming(struct HttpHost *host, cchar *mime, cchar *uri, boo
 #define HTTP_ROUTE_HIDDEN               0x800       /**< Hide this route in route tables. */
 #define HTTP_ROUTE_ENV_ESCAPE           0x1000      /**< Escape env vars */
 #define HTTP_ROUTE_DOTNET_DIGEST_FIX    0x2000      /**< .NET digest auth omits query in MD5 */
-
-#if DEPRECATED
-#define HTTP_ROUTE_GZIP                 0x1000      /**< Support gzipped content on this route */
-#endif
-
-#if UNUSED
-#ifndef ME_HTTP_CONFIG
-    #define ME_HTTP_CONFIG "package.json"          /**< Configuration file name */
-#endif
-#endif
 
 /**
     Route Control
@@ -4832,10 +4801,6 @@ PUBLIC void *httpGetRouteData(HttpRoute *route, cchar *key);
  */
 PUBLIC cchar *httpGetRouteDocuments(HttpRoute *route);
 
-#if DEPRECATED
-#define httpGetRouteDir(route) httpGetRouteDocuments(route)
-#endif
-
 /**
     Get the route home directory
     @description Routes can define a home directory for configuration files. 
@@ -4975,21 +4940,6 @@ PUBLIC void httpSetRouteAuth(HttpRoute *route, HttpAuth *auth);
  */
 PUBLIC void httpSetRouteAutoDelete(HttpRoute *route, bool on);
 
-#if DEPRECATED
-/**
-    Contol content compression for the route
-    @description This configures content compression for the route. Some handlers observe the content compression status
-        and will attempt to use or compress content before transmitting to the client. The fileHandler is currently
-        the only handler that uses this capability. By default, routes will be created with compression enabled.
-    @param route Route to modify
-    @param flags Set to HTTP_ROUTE_GZIP to enable the fileHandler to serve eqivalent compressed content with a "gz"
-        extension.
-    @ingroup HttpRoute
-    @stability Evolving
- */
-PUBLIC void httpSetRouteCompression(HttpRoute *route, int flags);
-#endif
-
 /**
     Set the connector to use for a route
     @param route Route to modify
@@ -5044,10 +4994,6 @@ PUBLIC void httpSetRouteDefaultLanguage(HttpRoute *route, cchar *language);
     @stability Evolving
  */
 PUBLIC void httpSetRouteDocuments(HttpRoute *route, cchar *path);
-
-#if DEPRECATED
-PUBLIC void httpSetRouteDir(HttpRoute *route, cchar *path);
-#endif
 
 /**
     Define a prefix string for environment variables
@@ -5696,11 +5642,6 @@ PUBLIC cchar *httpGetSecurityToken(HttpConn *conn, bool recreate);
 */
 PUBLIC int httpAddSecurityToken(HttpConn *conn, bool recreate);
 
-#if DEPRECATED
-#define httpRenderSecurityToken httpAddSecurityToken
-#define httpSetSecurityToken httpAddSecurityToken
-#endif
-
 /********************************** HttpUploadFile *********************************/
 /**
     Upload File
@@ -5902,10 +5843,6 @@ PUBLIC void httpAddQueryParams(HttpConn *conn);
     @internal
  */
 PUBLIC int httpAddBodyParams(HttpConn *conn);
-
-#if DEPRECATED
-#define httpAddParams(conn) httpAddBodyParams(conn)
-#endif
 
 /**
     Add parameters from a JSON body.
@@ -6982,7 +6919,6 @@ PUBLIC void httpAddHostToEndpoint(HttpEndpoint *endpoint, struct HttpHost *host)
 /**
     Add a host to all unassigned endpoints
     @description Add the host to any endpoints that do not have an assigned host. 
-    @param endpoint Endpoint to which the host will be added.
     @param host HttpHost object to add.
     @ingroup HttpEndpoint
     @stability Internal
