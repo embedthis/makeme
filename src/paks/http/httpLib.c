@@ -2681,7 +2681,7 @@ static void postParse(HttpRoute *route)
         clientCopy(route, client, mappings);
         mprSetJson(client, "prefix", route->prefix ? route->prefix : "");
         route->client = mprJsonToString(client, MPR_JSON_QUOTES);
-        mprTrace(4, "Client Config: %s", mprJsonToString(client, MPR_JSON_PRETTY));
+        mprTrace(6, "Client Config: for %s, %s", route->name, mprJsonToString(client, MPR_JSON_PRETTY));
     }
 
     httpAddHostToEndpoints(route->host);
@@ -2766,6 +2766,11 @@ static void parseDirectories(HttpRoute *route, cchar *key, MprJson *prop)
     int         ji;
     
     for (ITERATE_CONFIG(route, prop, child, ji)) {
+        if (smatch(child->name, "documents")) {
+            httpSetRouteDocuments(route, child->value);
+        } else if (smatch(child->name, "home")) {
+            httpSetRouteHome(route, child->value);
+        }
         httpSetDir(route, child->name, child->value);
     }
 }
@@ -3041,7 +3046,11 @@ static void parseHeadersRemove(HttpRoute *route, cchar *key, MprJson *prop)
     int         ji;
 
     for (ITERATE_CONFIG(route, prop, child, ji)) {
-        httpAddRouteResponseHeader(route, HTTP_ROUTE_REMOVE_HEADER, child->name, child->value);
+        if (prop->type & MPR_JSON_ARRAY) {
+            httpAddRouteResponseHeader(route, HTTP_ROUTE_REMOVE_HEADER, child->value, 0);
+        } else {
+            httpAddRouteResponseHeader(route, HTTP_ROUTE_REMOVE_HEADER, child->name, 0);
+        }
     }
 }
 
@@ -3062,6 +3071,7 @@ static void parseIndexes(HttpRoute *route, cchar *key, MprJson *prop)
     MprJson     *child;
     int         ji;
 
+    httpResetRouteIndexes(route);
     for (ITERATE_CONFIG(route, prop, child, ji)) {
         httpAddRouteIndex(route, child->value);
     }
@@ -3318,50 +3328,30 @@ static void parsePipelineFilters(HttpRoute *route, cchar *key, MprJson *prop)
 }
 
 
-#if TODO
-static void parseContentHandlers(HttpRoute *route, cchar *key, MprJson *prop)
+static void parsePipelineHandlers(HttpRoute *route, cchar *key, MprJson *prop)
 {
     MprJson     *child;
-    cchar       *name, *extensions, *direction;
-    int         flags, ji;
+    int         ji;
 
-    for (ITERATE_CONFIG(route, prop, child, ji)) {
-        if (prop->type & MPR_JSON_STRING) {
-            flags = HTTP_STAGE_RX | HTTP_STAGE_TX;
-            extensions = 0;
-            name = child->value;
-        } else {
-            name = mprGetJson(child, "name");
-            extensions = getList(mprGetJsonObj(child, "extensions"));
-            direction = mprGetJson(child, "direction");
-            flags |= smatch(direction, "input") ? HTTP_STAGE_RX : 0;
-            flags |= smatch(direction, "output") ? HTTP_STAGE_TX : 0;
-            flags |= smatch(direction, "both") ? HTTP_STAGE_RX | HTTP_STAGE_TX : 0;
+    if (prop->type & MPR_JSON_STRING) {
+        if (httpAddRouteHandler(route, prop->name, 0) < 0) {
+            httpParseError(route, "Cannot add handler %s", prop->name);
         }
-        if (httpAddRouteFilter(route, name, extensions, flags) < 0) {
-            httpParseError(route, "Cannot add filter %s", name);
-            break;
-        }
-        if (httpAddRouteHandler(route, handler, extensions) < 0) {
-            httpParseError(route, "Cannot add handler %s", handler);
-            break;
+
+    } else {
+        for (ITERATE_CONFIG(route, prop, child, ji)) {
+            if (httpAddRouteHandler(route, child->name, getList(child)) < 0) {
+                httpParseError(route, "Cannot add handler %s", child->name);
+                break;
+            }
         }
     }
 }
-#endif
 
 
 static void parsePrefix(HttpRoute *route, cchar *key, MprJson *prop)
 {
     httpSetRoutePrefix(route, sjoin(route->prefix, prop->value, 0));
-}
-
-
-static void parseProtocol(HttpRoute *route, cchar *key, MprJson *prop)
-{
-    if (sstarts(prop->value, "https")) {
-        httpAddRouteCondition(route, "secure", 0, 0);
-    }
 }
 
 
@@ -3490,6 +3480,14 @@ static void parseRoutes(HttpRoute *route, cchar *key, MprJson *prop)
                 httpFinalizeRoute(newRoute);
             }
         }
+    }
+}
+
+
+static void parseScheme(HttpRoute *route, cchar *key, MprJson *prop)
+{
+    if (sstarts(prop->value, "https")) {
+        httpAddRouteCondition(route, "secure", 0, 0);
     }
 }
 
@@ -3737,43 +3735,6 @@ static void parseSslKey(HttpRoute *route, cchar *key, MprJson *prop)
 }
 
 
-static void parseSslProtocol(HttpRoute *route, cchar *key, MprJson *prop)
-{
-    char    *word, *tok;
-    int     mask, protoMask;
-
-    protoMask = 0;
-    word = stok(sclone(prop->value), " \t", &tok);
-    while (word) {
-        mask = -1;
-        if (*word == '-') {
-            word++;
-            mask = 0;
-        } else if (*word == '+') {
-            word++;
-        }
-        if (scaselesscmp(word, "SSLv2") == 0) {
-            protoMask &= ~(MPR_PROTO_SSLV2 & ~mask);
-            protoMask |= (MPR_PROTO_SSLV2 & mask);
-
-        } else if (scaselesscmp(word, "SSLv3") == 0) {
-            protoMask &= ~(MPR_PROTO_SSLV3 & ~mask);
-            protoMask |= (MPR_PROTO_SSLV3 & mask);
-
-        } else if (scaselesscmp(word, "TLSv1") == 0) {
-            protoMask &= ~(MPR_PROTO_TLSV1 & ~mask);
-            protoMask |= (MPR_PROTO_TLSV1 & mask);
-
-        } else if (scaselesscmp(word, "ALL") == 0) {
-            protoMask &= ~(MPR_PROTO_ALL & ~mask);
-            protoMask |= (MPR_PROTO_ALL & mask);
-        }
-        word = stok(0, " \t", &tok);
-    }
-    mprSetSslProtocols(route->ssl, protoMask);
-}
-
-
 static void parseSslProvider(HttpRoute *route, cchar *key, MprJson *prop)
 {
     mprSetSslProvider(route->ssl, prop->value);
@@ -4001,13 +3962,11 @@ PUBLIC int httpInitParser()
     httpAddConfig("app.http.pattern", parsePattern);
     httpAddConfig("app.http.pipeline", parseAll);
     httpAddConfig("app.http.pipeline.filter", parsePipelineFilters);
-#if TODO
     httpAddConfig("app.http.pipeline.handlers", parsePipelineHandlers);
-#endif
     httpAddConfig("app.http.prefix", parsePrefix);
-    httpAddConfig("app.http.protocol", parseProtocol);
     httpAddConfig("app.http.redirect", parseRedirect);
     httpAddConfig("app.http.routeName", parseRouteName);
+    httpAddConfig("app.http.scheme", parseScheme);
 
     httpAddConfig("app.http.server", parseAll);
     httpAddConfig("app.http.server.account", parseServerAccount);
@@ -4026,7 +3985,6 @@ PUBLIC int httpInitParser()
     httpAddConfig("app.http.ssl.certificate", parseSslCertificate);
     httpAddConfig("app.http.ssl.ciphers", parseSslCiphers);
     httpAddConfig("app.http.ssl.key", parseSslKey);
-    httpAddConfig("app.http.ssl.protocol", parseSslProtocol);
     httpAddConfig("app.http.ssl.provider", parseSslProvider);
     httpAddConfig("app.http.ssl.verify", parseAll);
     httpAddConfig("app.http.ssl.verify.client", parseSslVerifyClient);
@@ -5550,11 +5508,9 @@ PUBLIC void httpAddHostToEndpoints(HttpHost *host)
     }
     http = MPR->httpService;
     for (next = 0; (endpoint = mprGetNextItem(http->endpoints, &next)) != 0; ) {
-        if (mprGetListLength(endpoint->hosts) == 0) {
-            httpAddHostToEndpoint(endpoint, host);
-            if (!host->name) {
-                httpSetHostName(host, sfmt("%s:%d", endpoint->ip, endpoint->port));
-            }
+        httpAddHostToEndpoint(endpoint, host);
+        if (!host->name) {
+            httpSetHostName(host, sfmt("%s:%d", endpoint->ip, endpoint->port));
         }
     }
 }
@@ -5704,11 +5660,15 @@ PUBLIC void httpMatchHost(HttpConn *conn)
         mprCloseSocket(conn->sock, 0);
         return;
     }
+#if UNUSED
     if (httpHasNamedVirtualHosts(endpoint)) {
         host = httpLookupHostOnEndpoint(endpoint, conn->rx->hostHeader);
     } else {
         host = mprGetFirstItem(endpoint->hosts);
     }
+#else
+    host = httpLookupHostOnEndpoint(endpoint, conn->rx->hostHeader);
+#endif
     if (host == 0) {
         httpSetConnHost(conn, 0);
         httpError(conn, HTTP_CODE_NOT_FOUND, "No host to serve request. Searching for %s", conn->rx->hostHeader);
@@ -5827,13 +5787,16 @@ PUBLIC int httpSecureEndpointByName(cchar *name, struct MprSsl *ssl)
 
 PUBLIC void httpAddHostToEndpoint(HttpEndpoint *endpoint, HttpHost *host)
 {
-    mprAddItem(endpoint->hosts, host);
+    if (mprLookupItem(endpoint->hosts, host) < 0) {
+        mprAddItem(endpoint->hosts, host);
+    }
     if (endpoint->limits == 0) {
         endpoint->limits = host->defaultRoute->limits;
     }
 }
 
 
+#if UNUSED
 PUBLIC bool httpHasNamedVirtualHosts(HttpEndpoint *endpoint)
 {
     return endpoint->flags & HTTP_NAMED_VHOST;
@@ -5848,21 +5811,19 @@ PUBLIC void httpSetHasNamedVirtualHosts(HttpEndpoint *endpoint, bool on)
         endpoint->flags &= ~HTTP_NAMED_VHOST;
     }
 }
+#endif
 
 
-/*
-    Only used for named virtual hosts
- */
-PUBLIC HttpHost *httpLookupHostOnEndpoint(HttpEndpoint *endpoint, cchar *name)
+PUBLIC HttpHost *httpLookupHostOnEndpoint(HttpEndpoint *endpoint, cchar *hostHeader)
 {
     HttpHost    *host;
     int         next;
 
-    if (name == 0 || *name == '\0') {
+    if (hostHeader == 0 || *hostHeader == '\0' || mprGetListLength(endpoint->hosts) <= 1) {
         return mprGetFirstItem(endpoint->hosts);
     }
     for (next = 0; (host = mprGetNextItem(endpoint->hosts, &next)) != 0; ) {
-        if (smatch(host->name, name)) {
+        if (smatch(host->name, hostHeader)) {
             return host;
         }
         if (*host->name == '*') {
@@ -5870,7 +5831,7 @@ PUBLIC HttpHost *httpLookupHostOnEndpoint(HttpEndpoint *endpoint, cchar *name)
                 /* Match all hosts */
                 return host;
             }
-            if (scontains(name, &host->name[1])) {
+            if (scontains(hostHeader, &host->name[1])) {
                 return host;
             }
         }
@@ -5879,6 +5840,7 @@ PUBLIC HttpHost *httpLookupHostOnEndpoint(HttpEndpoint *endpoint, cchar *name)
 }
 
 
+#if UNUSED
 PUBLIC int httpConfigureNamedVirtualEndpoints(Http *http, cchar *ip, int port)
 {
     HttpEndpoint    *endpoint;
@@ -5898,6 +5860,7 @@ PUBLIC int httpConfigureNamedVirtualEndpoints(Http *http, cchar *ip, int port)
     }
     return (count == 0) ? MPR_ERR_CANT_FIND : 0;
 }
+#endif
 
 
 /*
@@ -6309,9 +6272,9 @@ static void printRoute(HttpRoute *route, int next, bool full)
         mprRawLog(0, "    Documents:    %s\n", route->documents);
         mprRawLog(0, "    Source:       %s\n", route->sourceName);
         mprRawLog(0, "    Template:     %s\n", route->tplate);
-        if (route->indicies) {
-            mprRawLog(0, "    Indicies      ");
-            for (ITERATE_ITEMS(route->indicies, index, nextIndex)) {
+        if (route->indexes) {
+            mprRawLog(0, "    Indexes       ");
+            for (ITERATE_ITEMS(route->indexes, index, nextIndex)) {
                 mprRawLog(0, "%s ", index);
             }
         }
@@ -6826,6 +6789,7 @@ PUBLIC void httpLogRequest(HttpConn *conn)
 
 /********************************** Forwards **********************************/
 
+static MprTicks lookupTicks(MprHash *args, cchar *key, MprTicks defaultValue);
 static void stopMonitors();
 
 /************************************ Code ************************************/
@@ -6880,10 +6844,35 @@ static void invokeDefenses(HttpMonitor *monitor, MprHash *args)
             kp->data = stemplate(kp->data, args);
         }
         mprBlendHash(args, extra);
+
+        if (defense->suppressPeriod) {
+            typedef struct SuppressDefense {
+                MprTicks    suppressUntil;
+            } SuppressDefense;
+
+            SuppressDefense *sd;
+            cchar *str = mprHashToString(args, "");
+            if (!defense->suppress) {
+                defense->suppress = mprCreateHash(0, 0);
+            }
+            if ((sd = mprLookupKey(defense->suppress, str)) != 0) {
+                if (sd->suppressUntil > http->now) {
+                    continue;
+                }
+                sd->suppressUntil = http->now + defense->suppressPeriod;
+            } else {
+                if ((sd = mprAllocStruct(SuppressDefense)) != 0) {
+                    mprAddKey(defense->suppress, str, sd);
+                }
+                sd->suppressUntil = http->now + defense->suppressPeriod;
+            }
+            //  MOB - how to expire old suppressions
+        }
         mprLog(4, "Defense \"%s\" running remedy \"%s\".", defense->name, defense->remedy);
 
         /*  WARNING: yields */
         remedyProc(args);
+
 #if FUTURE
         if (http->monitorCallback) {
             (http->monitorCallback)(monitor, defense, args);
@@ -7179,6 +7168,7 @@ static int manageDefense(HttpDefense *defense, int flags)
         mprMark(defense->name);
         mprMark(defense->remedy);
         mprMark(defense->args);
+        mprMark(defense->suppress);
     }
     return 0;
 }
@@ -7194,6 +7184,7 @@ static HttpDefense *createDefense(cchar *name, cchar *remedy, MprHash *args)
     defense->name = sclone(name);
     defense->remedy = sclone(remedy);
     defense->args = args;
+    defense->suppressPeriod = lookupTicks(args, "SUPPRESS", 0);
     return defense;
 }
 
@@ -9994,7 +9985,7 @@ PUBLIC HttpRoute *httpCreateRoute(HttpHost *host)
 
     route->headers = mprCreateList(-1, MPR_LIST_STABLE);
     route->handlers = mprCreateList(-1, MPR_LIST_STABLE);
-    route->indicies = mprCreateList(-1, MPR_LIST_STABLE);
+    route->indexes = mprCreateList(-1, MPR_LIST_STABLE);
     route->inputStages = mprCreateList(-1, MPR_LIST_STABLE);
     route->outputStages = mprCreateList(-1, MPR_LIST_STABLE);
 
@@ -10072,7 +10063,7 @@ PUBLIC HttpRoute *httpCreateInheritedRoute(HttpRoute *parent)
     route->home = parent->home;
     route->host = parent->host;
     route->http = MPR->httpService;
-    route->indicies = parent->indicies;
+    route->indexes = parent->indexes;
     route->inputStages = parent->inputStages;
     route->keepSource = parent->keepSource;
     route->languages = parent->languages;
@@ -10149,7 +10140,7 @@ static void manageRoute(HttpRoute *route, int flags)
         mprMark(route->home);
         mprMark(route->host);
         mprMark(route->http);
-        mprMark(route->indicies);
+        mprMark(route->indexes);
         mprMark(route->inputStages);
         mprMark(route->languages);
         mprMark(route->limits);
@@ -11096,8 +11087,8 @@ PUBLIC void httpResetRoutePipeline(HttpRoute *route)
     if (!route->parent || route->inputStages != route->parent->inputStages) {
         route->inputStages = mprCreateList(-1, MPR_LIST_STABLE);
     }
-    if (!route->parent || route->indicies != route->parent->indicies) {
-        route->indicies = mprCreateList(-1, MPR_LIST_STABLE);
+    if (!route->parent || route->indexes != route->parent->indexes) {
+        route->indexes = mprCreateList(-1, MPR_LIST_STABLE);
     }
     if (!route->parent || route->outputStages != route->parent->outputStages) {
         route->outputStages = mprCreateList(-1, MPR_LIST_STABLE);
@@ -11273,13 +11264,13 @@ PUBLIC void httpAddRouteIndex(HttpRoute *route, cchar *index)
     assert(route);
     assert(index && *index);
 
-    GRADUATE_LIST(route, indicies);
-    for (ITERATE_ITEMS(route->indicies, item, next)) {
+    GRADUATE_LIST(route, indexes);
+    for (ITERATE_ITEMS(route->indexes, item, next)) {
         if (smatch(index, item)) {
             return;
         }
     }
-    mprAddItem(route->indicies, sclone(index));
+    mprAddItem(route->indexes, sclone(index));
 }
 
 
@@ -11316,6 +11307,13 @@ PUBLIC void httpRemoveRouteMethods(HttpRoute *route, cchar *methods)
         mprRemoveKey(route->methods, method);
     }
 }
+
+
+PUBLIC void httpResetRouteIndexes(HttpRoute *route)
+{
+    route->indexes = mprCreateList(-1, MPR_LIST_STABLE);
+}
+
 
 PUBLIC void httpSetRouteMethods(HttpRoute *route, cchar *methods)
 {
@@ -11848,8 +11846,8 @@ PUBLIC void httpFinalizeRoute(HttpRoute *route)
         This is important as requests process routes in-order.
      */
     assert(route);
-    if (mprGetListLength(route->indicies) == 0) {
-        mprAddItem(route->indicies,  sclone("index.html"));
+    if (mprGetListLength(route->indexes) == 0) {
+        mprAddItem(route->indexes,  sclone("index.html"));
     }
     httpAddRoute(route->host, route);
 }
@@ -12651,7 +12649,10 @@ static void defineHostVars(HttpRoute *route)
     assert(route);
     mprAddKey(route->vars, "DOCUMENTS", route->documents);
     mprAddKey(route->vars, "HOME", route->home);
+    mprAddKey(route->vars, "HOST", route->host->name);
+#if DEPRECATED || 1
     mprAddKey(route->vars, "SERVER_NAME", route->host->name);
+#endif
 }
 
 
@@ -12831,7 +12832,7 @@ PUBLIC char *httpExpandUri(HttpConn *conn, cchar *str)
 
 
 /*
-    Replace text using pcre regular expression match indicies
+    Replace text using pcre regular expression match indexes
  */
 static char *expandPatternTokens(cchar *str, cchar *replacement, int *matches, int matchCount)
 {
