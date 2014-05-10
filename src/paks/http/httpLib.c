@@ -2560,14 +2560,12 @@ static void blendMode(HttpRoute *route, MprJson *config)
 {
     MprJson     *currentMode, *app;
     cchar       *mode;
-    bool        debug;
 
     mode = mprGetJson(config, "app.http.mode");
     if (!mode) {
         mode = sclone("debug");
         mprLog(3, "Route \"%s\" running in \"%s\" mode", route->name, mode);
     }
-    debug = smatch(mode, "debug");
     if ((currentMode = mprGetJsonObj(config, sfmt("app.modes.%s", mode))) != 0) {
         app = mprLookupJsonObj(config, "app");
         mprBlendJson(app, currentMode, MPR_JSON_OVERWRITE);
@@ -3002,7 +3000,7 @@ static void parseDatabase(HttpRoute *route, cchar *key, MprJson *prop)
 
 static void parseDeleteUploads(HttpRoute *route, cchar *key, MprJson *prop)
 {
-    httpSetRouteAutoDelete(route, (prop->type & MPR_JSON_TRUE));
+    httpSetRouteAutoDelete(route, (prop->type & MPR_JSON_TRUE) ? 1 : 0);
 }
 
 
@@ -3675,7 +3673,7 @@ static void parseServerPrefix(HttpRoute *route, cchar *key, MprJson *prop)
 
 static void parseShowErrors(HttpRoute *route, cchar *key, MprJson *prop)
 {
-    httpSetRouteShowErrors(route, prop->type & MPR_JSON_TRUE);
+    httpSetRouteShowErrors(route, (prop->type & MPR_JSON_TRUE) ? 1 : 0);
 }
 
 
@@ -3743,19 +3741,19 @@ static void parseSslProvider(HttpRoute *route, cchar *key, MprJson *prop)
 
 static void parseSslVerifyClient(HttpRoute *route, cchar *key, MprJson *prop)
 {
-    mprVerifySslPeer(route->ssl, prop->type & MPR_JSON_TRUE);
+    mprVerifySslPeer(route->ssl, (prop->type & MPR_JSON_TRUE) ? 1 : 0);
 }
 
 
 static void parseSslVerifyIssuer(HttpRoute *route, cchar *key, MprJson *prop)
 {
-    mprVerifySslIssuer(route->ssl, prop->type & MPR_JSON_TRUE);
+    mprVerifySslIssuer(route->ssl, (prop->type & MPR_JSON_TRUE) ? 1 : 0);
 }
 
 
 static void parseStealth(HttpRoute *route, cchar *key, MprJson *prop)
 {
-    httpSetRouteStealth(route, prop->type & MPR_JSON_TRUE);
+    httpSetRouteStealth(route, (prop->type & MPR_JSON_TRUE) ? 1 : 0);
 }
 
 

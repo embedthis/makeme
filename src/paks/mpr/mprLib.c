@@ -13923,7 +13923,7 @@ PUBLIC void mprTraceJson(int level, MprJson *obj, cchar *fmt, ...)
     va_start(ap, fmt);
     msg = sfmtv(fmt, ap);
     va_end(ap);
-    mprTrace(level, "%s: %s", msg, mprJsonToString(obj, MPR_JSON_PRETTY));
+    mprLog(level, "%s: %s", msg, mprJsonToString(obj, MPR_JSON_PRETTY));
 }
 
 
