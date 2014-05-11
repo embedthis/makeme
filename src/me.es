@@ -2903,6 +2903,8 @@ public class Me {
                     loadMeFile(path)
                 }
             }
+        } else {
+            throw "Cannot open " + mefile
         }
         setDirs()
         if (!me.settings.configured && !options.configure) {
