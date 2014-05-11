@@ -2505,7 +2505,7 @@ static void httpParseError(HttpRoute *route, cchar *fmt, ...)
 
 static cchar *getList(MprJson *prop)
 {
-    cchar   *jstr;
+    char    *jstr, *cp;
 
     if (prop == 0) {
         return 0;
@@ -2514,7 +2514,12 @@ static cchar *getList(MprJson *prop)
         return 0;
     }
     if (*jstr == '[') {
-        return strim(jstr, "[]", 0);
+        jstr = strim(jstr, "[]", 0);
+    }
+    for (cp = jstr; *cp; cp++) {
+        if (*cp == '"') {
+            *cp = ' ';
+        }
     }
     return jstr;
 }
@@ -2561,7 +2566,7 @@ static void blendMode(HttpRoute *route, MprJson *config)
     MprJson     *currentMode, *app;
     cchar       *mode;
 
-    mode = mprGetJson(config, "app.http.mode");
+    mode = mprGetJson(config, "app.mode");
     if (!mode) {
         mode = sclone("debug");
         mprLog(3, "Route \"%s\" running in \"%s\" mode", route->name, mode);
@@ -2659,7 +2664,7 @@ static void postParse(HttpRoute *route)
         return;
     }
     http = route->http;
-    route->mode = mprGetJson(route->config, "app.http.mode");
+    route->mode = mprGetJson(route->config, "app.mode");
     
     /*
         Apply defaults for when unspecified
@@ -2906,30 +2911,29 @@ static void parseCache(HttpRoute *route, cchar *key, MprJson *prop)
     int         flags, ji;
     
     for (ITERATE_CONFIG(route, prop, child, ji)) {
-        clientLifespan = httpGetNumber(mprGetJson(prop, "lifespan.client"));
-        serverLifespan = httpGetNumber(mprGetJson(prop, "lifespan.server"));
-        methods = getList(mprGetJsonObj(prop, "methods"));
-        extensions = getList(mprGetJsonObj(prop, "methods"));
-        uris = getList(mprGetJsonObj(prop, "methods"));
-        mimeTypes = getList(mprGetJsonObj(prop, "methods"));
+        clientLifespan = httpGetNumber(mprGetJson(child, "lifespan.client"));
+        serverLifespan = httpGetNumber(mprGetJson(child, "lifespan.server"));
+        methods = getList(mprGetJsonObj(child, "methods"));
+        extensions = getList(mprGetJsonObj(child, "extensions"));
+        uris = getList(mprGetJsonObj(child, "uris"));
+        mimeTypes = getList(mprGetJsonObj(child, "mime"));
 
         flags = 0;
-        //  TODO - refactor and simplify these options
-        if (smatch(mprGetJson(prop, "all"), "true")) {
+        if (smatch(mprGetJson(child, "all"), "true")) {
             /* Cache same pathInfo regardless of params */
             flags |= HTTP_CACHE_ALL;
             flags &= ~(HTTP_CACHE_ONLY | HTTP_CACHE_UNIQUE);
         }
-        if (smatch(mprGetJson(prop, "manual"), "true")) {
+        if (smatch(mprGetJson(child, "manual"), "true")) {
             /* User must manually call httpWriteCache */
             flags |= HTTP_CACHE_MANUAL;
         }
-        if (smatch(mprGetJson(prop, "only"), "true")) {
+        if (smatch(mprGetJson(child, "only"), "true")) {
             /* Cache only the specified URIs with parameters */
             flags |= HTTP_CACHE_ONLY;
             flags &= ~(HTTP_CACHE_ALL | HTTP_CACHE_UNIQUE);
         }
-        if (smatch(mprGetJson(prop, "unique"), "true")) {
+        if (smatch(mprGetJson(child, "unique"), "true")) {
             /* Cache each request uniquely with different parameters */
             flags |= HTTP_CACHE_UNIQUE;
             flags &= ~(HTTP_CACHE_ALL | HTTP_CACHE_ONLY);
@@ -3490,6 +3494,17 @@ static void parseScheme(HttpRoute *route, cchar *key, MprJson *prop)
 }
 
 
+/*
+    The server collection is only parsed for utilities and not if hosted
+ */
+static void parseServer(HttpRoute *route, cchar *key, MprJson *prop)
+{
+    if (route->http->flags & HTTP_UTILITY) {
+        parseAll(route, key, prop);
+    }
+}
+
+
 static void parseServerAccount(HttpRoute *route, cchar *key, MprJson *prop)
 {
     cchar       *value;
@@ -3966,7 +3981,7 @@ PUBLIC int httpInitParser()
     httpAddConfig("app.http.routeName", parseRouteName);
     httpAddConfig("app.http.scheme", parseScheme);
 
-    httpAddConfig("app.http.server", parseAll);
+    httpAddConfig("app.http.server", parseServer);
     httpAddConfig("app.http.server.account", parseServerAccount);
     httpAddConfig("app.http.server.chroot", parseServerChroot);
     httpAddConfig("app.http.server.defenses", parseServerDefenses);

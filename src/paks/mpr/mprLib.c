@@ -9458,6 +9458,9 @@ static void destroyDispatcherQueue(MprDispatcher *q)
     for (dp = q->next; dp != q; dp = next) {
         next = dp->next;
         mprDestroyDispatcher(dp);
+        if (next == dp->next) { 
+            break;
+        }
     }
 }
 
@@ -23836,8 +23839,6 @@ PUBLIC char *slower(cchar *str)
 {
     char    *cp, *s;
 
-    assert(str);
-
     if (str) {
         s = sclone(str);
         for (cp = s; *cp; cp++) {
@@ -24395,7 +24396,6 @@ PUBLIC char *supper(cchar *str)
 {
     char    *cp, *s;
 
-    assert(str);
     if (str) {
         s = sclone(str);
         for (cp = s; *cp; cp++) {
