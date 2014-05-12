@@ -3357,25 +3357,39 @@ static void parsePrefix(HttpRoute *route, cchar *key, MprJson *prop)
 }
 
 
-static void parseRedirect(HttpRoute *route, cchar *key, MprJson *prop)
+static void createRedirectAlias(HttpRoute *route, int status, cchar *from, cchar *to)
 {
     HttpRoute   *alias;
+    cchar       *pattern;
+
+    if (sends(from, "/")) {
+        pattern = sfmt("^%s(.*)$", from);
+    } else {
+        /* Add a non-capturing optional trailing "/" */
+        pattern = sfmt("^%s(?:/)*(.*)$", from);
+    }
+    alias = httpCreateAliasRoute(route, pattern, to, 0);
+    httpSetRouteTarget(alias, "redirect", sfmt("%d %s/$1", status, to));
+    if (sstarts(to, "https")) {
+        httpAddRouteCondition(alias, "secure", 0, HTTP_ROUTE_NOT);
+    }
+    httpFinalizeRoute(alias);
+}
+
+
+static void parseRedirect(HttpRoute *route, cchar *key, MprJson *prop)
+{
     MprJson     *child;
-    cchar       *from, *status, *target, *to;
-    int         code, ji;
+    cchar       *from, *status, *to;
+    int         ji;
 
     if (prop->type & MPR_JSON_STRING) {
-        alias = httpCreateAliasRoute(route, "/", 0, 0);
-        httpSetRouteTarget(alias, "redirect", sfmt("0 %s", prop->value));
-        if (sstarts(prop->value, "https")) {
-            httpAddRouteCondition(alias, "secure", 0, HTTP_ROUTE_NOT);
-        }
-        httpFinalizeRoute(alias);
+        createRedirectAlias(route, 0, "/", prop->value);
 
     } else {
         for (ITERATE_CONFIG(route, prop, child, ji)) {
             if (child->type & MPR_JSON_STRING) {
-                from = 0;
+                from = "/";
                 to = child->value;
                 status = "302";
             } else {
@@ -3383,21 +3397,7 @@ static void parseRedirect(HttpRoute *route, cchar *key, MprJson *prop)
                 to = mprGetJson(child, "to");
                 status = mprGetJson(child, "status");
             }
-            code = (int) stoi(status);
-            if (!from) {
-                from = "/";
-            }
-            alias = httpCreateAliasRoute(route, from, 0, code);
-            target = (to) ? sfmt("%d %s", status, to) : status;
-            httpSetRouteTarget(alias, "redirect", target);
-            if (sstarts(to, "https://")) {
-                /* 
-                    Accept this route if !secure. That will then do a redirect.
-                    Set details to null to avoid creating Strict-Transport-Security header 
-                 */
-                httpAddRouteCondition(alias, "secure", 0, HTTP_ROUTE_NOT);
-            }
-            httpFinalizeRoute(alias);
+            createRedirectAlias(route, (int) stoi(status), from, to);
         }
     }
 }
@@ -9645,7 +9645,6 @@ static int matchRange(HttpConn *conn, HttpRoute *route, int dir)
 {
     assert(conn->rx);
 
-    httpSetHeader(conn, "Accept-Ranges", "bytes");
     if ((dir & HTTP_STAGE_TX) && conn->tx->outputRanges) {
         return HTTP_ROUTE_OK;
     }
@@ -9665,11 +9664,13 @@ static void startRange(HttpQueue *q)
      */
     if (tx->outputRanges == 0 || tx->status != HTTP_CODE_OK || !fixRangeLength(conn)) {
         httpRemoveQueue(q);
+        tx->outputRanges = 0;
     } else {
         tx->status = HTTP_CODE_PARTIAL;
         if (tx->outputRanges->next) {
             createRangeBoundary(conn);
         }
+        httpSetHeader(conn, "Accept-Ranges", "bytes");
     }
 }
 
@@ -9844,7 +9845,9 @@ static bool fixRangeLength(HttpConn *conn)
 
     tx = conn->tx;
     length = tx->entityLength ? tx->entityLength : tx->length;
-
+    if (length <= 0) {
+        return 0;
+    }
     for (range = tx->outputRanges; range; range = range->next) {
         /*
                 Range: 0-49             first 50 bytes
@@ -9863,8 +9866,8 @@ static bool fixRangeLength(HttpConn *conn)
         if (range->start < 0) {
             if (length <= 0) {
                 /*
-                    Cannot compute an offset from the end as we don't know the entity length and it is not always possible
-                    or wise to buffer all the output.
+                    Cannot compute an offset from the end as we don't know the entity length and it is not 
+                    always possible or wise to buffer all the output.
                  */
                 httpError(conn, HTTP_CODE_RANGE_NOT_SATISFIABLE, "Cannot compute end range with unknown content length"); 
                 return 0;
@@ -14305,7 +14308,7 @@ static ssize filterPacket(HttpConn *conn, HttpPacket *packet, int *more)
     tx = conn->tx;
     *more = 0;
 
-    if (mprIsSocketEof(conn->sock)) {
+    if (mprIsSocketEof(conn->sock) || conn->connError) {
         httpSetEof(conn);
     }
     if (rx->chunkState) {
@@ -18208,7 +18211,6 @@ PUBLIC void httpRedirect(HttpConn *conn, int status, cchar *targetUri)
         This may add "localhost" if the host is missing in the targetUri.
      */
     targetUri = httpLink(conn, targetUri);
-    mprLog(3, "redirect %d %s", status, targetUri);
     msg = httpLookupStatus(conn->http, status);
 
     if (300 <= status && status <= 399) {
@@ -18248,6 +18250,7 @@ PUBLIC void httpRedirect(HttpConn *conn, int status, cchar *targetUri)
             "<html><head><title>%s</title></head>\r\n"
             "<body><h1>%s</h1>\r\n<p>The document has moved <a href=\"%s\">here</a>.</p></body></html>\r\n",
             msg, msg, targetUri);
+        mprLog(3, "httpRedirect: %d %s", status, targetUri);
     } else {
         httpFormatResponse(conn, 
             "<!DOCTYPE html>\r\n"
