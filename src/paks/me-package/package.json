@@ -5,11 +5,6 @@
     "keywords": [
         "me",
     ],
-    "directories": {
-        "paks": "src/paks"
-    },
-    "dependencies": {
-    },
     "author": {
         "name": "Embedthis Software",
         "email": "dev@embedthis.com",

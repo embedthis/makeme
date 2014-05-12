@@ -7,9 +7,6 @@
         "me",
         "ssl",
     ],
-    "dirs": {
-        "paks": "src/paks"
-    },
     "dependencies": {
     },
     "author": {

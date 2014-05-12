@@ -6,9 +6,6 @@
     "keywords": [
         "me",
     ],
-    "directories": {
-        "paks": "src/paks"
-    },
     "dependencies": {
         "me-doc": "~0.8",
         "me-package": "~0.8"

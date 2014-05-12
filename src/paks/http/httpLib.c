@@ -2963,10 +2963,10 @@ static void parseContentCompress(HttpRoute *route, cchar *key, MprJson *prop)
     int         ji;
     
     for (ITERATE_CONFIG(route, prop, child, ji)) {
-        if (mprGetJson(route->config, sfmt("app.content.minify[@ = '%s']", child->value))) {
-            httpAddRouteMapping(route, prop->value, "${1}.gz, min.${1}.gz, min.${1}");
+        if (mprGetJson(route->config, sfmt("app.http.content.minify[@ = '%s']", child->value))) {
+            httpAddRouteMapping(route, child->value, "${1}.gz, min.${1}.gz, min.${1}");
         } else {
-            httpAddRouteMapping(route, prop->value, "${1}.gz");
+            httpAddRouteMapping(route, child->value, "${1}.gz");
         }
     }
 }
@@ -2989,8 +2989,8 @@ static void parseContentMinify(HttpRoute *route, cchar *key, MprJson *prop)
         /*
             Compressed and minified is handled in parseContentCompress
          */
-        if (mprGetJson(route->config, sfmt("app.content.compress[@ = '%s']", child->value)) == 0) {
-            httpAddRouteMapping(route, prop->value, "min.${1}");
+        if (mprGetJson(route->config, sfmt("app.http.content.compress[@ = '%s']", child->value)) == 0) {
+            httpAddRouteMapping(route, child->value, "min.${1}");
         }
     }
 }
@@ -3380,7 +3380,7 @@ static void parseRedirect(HttpRoute *route, cchar *key, MprJson *prop)
                 status = "302";
             } else {
                 from = mprGetJson(child, "from");
-                to = mprGetJson(child, "from");
+                to = mprGetJson(child, "to");
                 status = mprGetJson(child, "status");
             }
             code = (int) stoi(status);
@@ -3390,7 +3390,7 @@ static void parseRedirect(HttpRoute *route, cchar *key, MprJson *prop)
             alias = httpCreateAliasRoute(route, from, 0, code);
             target = (to) ? sfmt("%d %s", status, to) : status;
             httpSetRouteTarget(alias, "redirect", target);
-            if (sstarts(from, "https://")) {
+            if (sstarts(to, "https://")) {
                 /* 
                     Accept this route if !secure. That will then do a redirect.
                     Set details to null to avoid creating Strict-Transport-Security header 
