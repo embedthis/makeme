@@ -4149,7 +4149,6 @@ typedef struct HttpRoute {
     MprHash         *errorDocuments;        /**< Set of error documents to use on errors */
     void            *context;               /**< Hosting context (Appweb == EjsPool) */
     void            *eroute;                /**< Extended route information for handler (only) */
-    char            *uploadDir;             /**< Upload directory */
     int             autoDelete;             /**< Automatically delete uploaded files */
 
     MprFile         *log;                   /**< File object for access logging */
@@ -5817,7 +5816,6 @@ typedef struct HttpRx {
         Upload details
      */
     MprHash         *files;                 /**< Uploaded files. Managed by the upload filter */
-    char            *uploadDir;             /**< Upload directory */
     int             autoDelete;             /**< Automatically delete uploaded files */
 
     struct HttpWebSocket *webSocket;        /**< WebSocket state */
