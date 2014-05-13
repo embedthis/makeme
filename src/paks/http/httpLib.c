@@ -2669,8 +2669,16 @@ static void postParse(HttpRoute *route)
     /*
         Apply defaults for when unspecified
      */
-    if (smatch(route->mode, "debug") && mprGetJson(route->config, "app.http.showErrors") == 0) {
-        httpSetRouteShowErrors(route, 1);
+    if (smatch(route->mode, "debug")) {
+        if (mprGetJson(route->config, "app.http.showErrors") == 0) {
+            httpSetRouteShowErrors(route, 1);
+        }
+        if (mprGetJson(route->config, "app.http.update") == 0) {
+            route->update = 1;
+        }
+        if (mprGetJson(route->config, "app.http.keepSource") == 0) {
+            route->keepSource = 1;
+        }
     }
     if (mprGetJson(route->config, "app.http.xsrf") == 0) {
         httpSetRouteXsrf(route, 1);
@@ -3362,6 +3370,9 @@ static void createRedirectAlias(HttpRoute *route, int status, cchar *from, cchar
     HttpRoute   *alias;
     cchar       *pattern;
 
+    if (from == 0 || *from == '\0') {
+        from = "/";
+    }
     if (sends(from, "/")) {
         pattern = sfmt("^%s(.*)$", from);
     } else {
@@ -3369,6 +3380,7 @@ static void createRedirectAlias(HttpRoute *route, int status, cchar *from, cchar
         pattern = sfmt("^%s(?:/)*(.*)$", from);
     }
     alias = httpCreateAliasRoute(route, pattern, 0, 0);
+    httpSetRouteMethods(alias, "*");
     httpSetRouteTarget(alias, "redirect", sfmt("%d %s/$1", status, to));
     if (sstarts(to, "https")) {
         httpAddRouteCondition(alias, "secure", 0, HTTP_ROUTE_NOT);
