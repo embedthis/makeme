@@ -147,7 +147,6 @@ module embedthis.me {
     }
 
     function generateMain() {
-        let makeme = Config.Bin.join('makeme')
         let cfg = Path('configure')
         if (cfg.exists && !b.options.overwrite) {
             trace('Exists', 'configure')
@@ -164,11 +163,14 @@ module embedthis.me {
             cfg.write(data)
             cfg.setAttributes({permissions: 0755})
         }
-        b.safeCopy(makeme.join('sample-main.me'), b.MAIN)
+        // let makeme = Config.Bin.join('makeme')
+        // b.safeCopy(makeme.join('master-main.me'), b.MAIN)
+        b.safeCopy(Config.Bin.join('master-main.me'), b.MAIN)
     }
 
     function generateStart() {
-        b.safeCopy(Path(Config.Bin).join('makeme/sample-start.me'), 'start.me')
+        // b.safeCopy(Path(Config.Bin).join('makeme/master-start.me'), 'start.me')
+        b.safeCopy(Config.Bin.join('master-start.me'), 'start.me')
     }
 
     function generateShellProject(base: Path) {

@@ -34,7 +34,7 @@ module embedthis.me {
      */
     function checkMain() {
         let settings = me.settings
-        for each (field in ['name', 'description', 'version', 'author']) {
+        for each (field in ['name', 'description', 'version']) {
             if (!settings[field]) {
                 throw b.MAIN + ' is missing settings.' + field
             }

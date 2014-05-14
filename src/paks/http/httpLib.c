@@ -3640,7 +3640,7 @@ static void parseServerLog(HttpRoute *route, cchar *key, MprJson *prop)
     level = (int) stoi(mprGetJson(prop, "level"));
     backup = (int) stoi(mprGetJson(prop, "backup"));
     anew = smatch(mprGetJson(prop, "anew"), "true");
-    size = httpGetNumber(mprGetJson(prop, "size"));
+    size = (ssize) httpGetNumber(mprGetJson(prop, "size"));
     timestamp = httpGetNumber(mprGetJson(prop, "location"));
 
     if (size < (10 * 1000)) {
@@ -3869,7 +3869,7 @@ static void parseTraceRx(HttpRoute *route, cchar *key, MprJson *prop)
     
     include = getList(mprGetJsonObj(prop, "include"));
     exclude = getList(mprGetJsonObj(prop, "exclude"));
-    size = httpGetNumber(mprGetJson(prop, "size"));
+    size = (ssize) httpGetNumber(mprGetJson(prop, "size"));
     dir = smatch(prop->name, "rx") ? HTTP_TRACE_RX : HTTP_TRACE_TX;
 
     for (i = 0; i < HTTP_TRACE_MAX_ITEM; i++) {
