@@ -33,6 +33,7 @@
             "url": "http://embedthis.com/licensing/"
         }
     ],
+    "pak": "~0.9",
     "dependencies": {
         "http": "~5.0",
         "me-dev": "~0.8",

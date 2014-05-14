@@ -12545,7 +12545,7 @@ PUBLIC char *mprHashKeysToString(MprHash *hash, cchar *join)
 
 static void adoptChildren(MprJson *obj, MprJson *other);
 static void appendItem(MprJson *obj, MprJson *child);
-static void appendProperty(MprJson *obj, MprJson *child, int flags);
+static void appendProperty(MprJson *obj, MprJson *child);
 static int checkBlockCallback(MprJsonParser *parser, cchar *name, bool leave);
 static void formatValue(MprBuf *buf, MprJson *obj, int flags);
 static int gettok(MprJsonParser *parser);
@@ -12555,7 +12555,7 @@ static int peektok(MprJsonParser *parser);
 static void puttok(MprJsonParser *parser);
 static MprJson *queryCore(MprJson *obj, cchar *key, MprJson *value, int flags);
 static MprJson *queryLeaf(MprJson *obj, cchar *property, MprJson *value, int flags);
-static MprJson *setProperty(MprJson *obj, cchar *name, MprJson *child, int flags);
+static MprJson *setProperty(MprJson *obj, cchar *name, MprJson *child);
 static void setValue(MprJson *obj, cchar *value);
 static int setValueCallback(MprJsonParser *parser, MprJson *obj, cchar *name, MprJson *child);
 static void spaces(MprBuf *buf, int count);
@@ -12664,7 +12664,7 @@ PUBLIC MprJson *mprParseJsonEx(cchar *str, MprJsonCallback *callback, void *data
     if (obj) {
         for (i = 0, child = result->children; child && i < result->length; child = next, i++) {
             next = child->next;
-            setProperty(obj, child->name, child, 0);
+            setProperty(obj, child->name, child);
         }
     } else {
         obj = result;
@@ -13189,15 +13189,21 @@ PUBLIC int mprBlendJson(MprJson *dest, MprJson *src, int flags)
                     /* Absent in destination */
                     if (pflags & MPR_JSON_COMBINE && sp->type == MPR_JSON_OBJ) {
                         dp = mprCreateJson(sp->type);
-                        setProperty(dest, trimmedName, dp, pflags);
+                        if (trimmedName == &sp->name[1]) {
+                            trimmedName = sclone(trimmedName);
+                        }
+                        setProperty(dest, trimmedName, dp);
                         mprBlendJson(dp, sp, pflags);
                     } else if (!(pflags & MPR_JSON_REPLACE)) {
-                        setProperty(dest, trimmedName, mprCloneJson(sp), pflags);
+                        if (trimmedName == &sp->name[1]) {
+                            trimmedName = sclone(trimmedName);
+                        }
+                        setProperty(dest, trimmedName, mprCloneJson(sp));
                     }
                 } else if (!(pflags & MPR_JSON_CREATE)) {
                     /* Already present in destination */
                     if (sp->type & MPR_JSON_OBJ && (MPR_JSON_TYPE_MASK & dp->type) != (MPR_JSON_TYPE_MASK & sp->type)) {
-                        dp = setProperty(dest, trimmedName, mprCreateJson(sp->type), pflags);
+                        dp = setProperty(dest, dp->name, mprCreateJson(sp->type));
                     }
                     mprBlendJson(dp, sp, pflags);
 
@@ -13219,8 +13225,8 @@ PUBLIC int mprBlendJson(MprJson *dest, MprJson *src, int flags)
             ;
         } else if (flags & MPR_JSON_APPEND) {
             for (ITERATE_JSON(src, sp, si)) {
-                if (/* UNUSED (flags & MPR_JSON_DUPLICATE) || */ (child = mprLookupJsonValue(dest, sp->value)) == 0) {
-                    appendProperty(dest, mprCloneJson(sp), flags);
+                if ((child = mprLookupJsonValue(dest, sp->value)) == 0) {
+                    appendProperty(dest, mprCloneJson(sp));
                 }
             }
         } else {
@@ -13501,10 +13507,10 @@ static bool matchExpression(MprJson *obj, int operator, char *value)
 }
 
 
-static void appendProperty(MprJson *obj, MprJson *child, int flags)
+static void appendProperty(MprJson *obj, MprJson *child)
 {
     if (child) {
-        setProperty(obj, child->name, child, flags);
+        setProperty(obj, child->name, child);
     }
 }
 
@@ -13512,7 +13518,7 @@ static void appendProperty(MprJson *obj, MprJson *child, int flags)
 static void appendItem(MprJson *obj, MprJson *child)
 {
     if (child) {
-        setProperty(obj, 0, child, 0);
+        setProperty(obj, 0, child);
     }
 }
 
@@ -13728,7 +13734,7 @@ static MprJson *queryLeaf(MprJson *obj, cchar *property, MprJson *value, int fla
     assert(property && *property);
 
     if (value) {
-        setProperty(obj, property, value, flags);
+        setProperty(obj, sclone(property), value);
         return 0;
 
     } else if (flags & MPR_JSON_REMOVE) {
@@ -13796,7 +13802,7 @@ static MprJson *queryCore(MprJson *obj, cchar *key, MprJson *value, int flags)
         } else if ((child = mprLookupJsonObj(obj, property)) == 0) {
             if (value) {
                 child = mprCreateJson(termType & JSON_PROP_ARRAY ? MPR_JSON_ARRAY : MPR_JSON_OBJ);
-                setProperty(obj, property, child, flags);
+                setProperty(obj, sclone(property), child);
                 obj = (MprJson*) child;
             } else {
                 break;
@@ -13850,7 +13856,7 @@ PUBLIC cchar *mprGetJson(MprJson *obj, cchar *key)
 PUBLIC int mprSetJsonObj(MprJson *obj, cchar *key, MprJson *value)
 {
     if (key && !strpbrk(key, ".[]*")) {
-        if (setProperty(obj, sclone(key), value, 0) == 0) {
+        if (setProperty(obj, sclone(key), value) == 0) {
             return MPR_ERR_CANT_WRITE;
         }
     } else if (queryCore(obj, key, value, 0) == 0) {
@@ -13863,7 +13869,7 @@ PUBLIC int mprSetJsonObj(MprJson *obj, cchar *key, MprJson *value)
 PUBLIC int mprSetJson(MprJson *obj, cchar *key, cchar *value)
 {
     if (key && !strpbrk(key, ".[]*")) {
-        if (setProperty(obj, sclone(key), createJsonValue(value), 0) == 0) {
+        if (setProperty(obj, sclone(key), createJsonValue(value)) == 0) {
             return MPR_ERR_CANT_WRITE;
         }
     } else if (queryCore(obj, key, createJsonValue(value), 0) == 0) {
@@ -13934,17 +13940,15 @@ PUBLIC void mprTraceJson(int level, MprJson *obj, cchar *fmt, ...)
     Add the child as property in the given object. The child is not cloned and is dedicated to this object.
     NOTE: name must be a managed reference. For arrays, name can be a string index value. If name is null or empty,
     then the property will be appended. This is the typical pattern for appending to an array.
-
-    TODO - Can remove flags
  */
-static MprJson *setProperty(MprJson *obj, cchar *name, MprJson *child, int flags)
+static MprJson *setProperty(MprJson *obj, cchar *name, MprJson *child)
 {
     MprJson      *prior, *existing;
 
     if (!obj || !child) {
         return 0;
     }
-    if (/* UNUSED !(flags & MPR_JSON_DUPLICATE) && */ (existing = mprLookupJsonObj(obj, name)) != 0) {
+    if ((existing = mprLookupJsonObj(obj, name)) != 0) {
         existing->value = child->value;
         existing->children = child->children;
         existing->type = child->type;
@@ -13987,7 +13991,7 @@ static int checkBlockCallback(MprJsonParser *parser, cchar *name, bool leave)
  */
 static int setValueCallback(MprJsonParser *parser, MprJson *obj, cchar *name, MprJson *child)
 {
-    return setProperty(obj, name, child, 0) != 0;
+    return setProperty(obj, name, child) != 0;
 }
 
 
@@ -14033,7 +14037,7 @@ PUBLIC MprJson *mprCloneJson(MprJson *obj)
     result->value = obj->value;
     result->type = obj->type;
     for (ITERATE_JSON(obj, child, index)) {
-        setProperty(result, child->name, mprCloneJson(child), 0);
+        setProperty(result, child->name, mprCloneJson(child));
     }
     return result;
 }
@@ -14076,7 +14080,7 @@ PUBLIC char *mprSerialize(MprHash *hash, int flags)
     obj = mprCreateJson(MPR_JSON_OBJ);
     for (ITERATE_KEYS(hash, kp)) {
         key = (hash->flags & MPR_HASH_STATIC_KEYS) ? sclone(kp->key) : kp->key;
-        setProperty(obj, key, createJsonValue(kp->data), 0);
+        setProperty(obj, key, createJsonValue(kp->data));
     }
     return mprJsonToString(obj, flags);
 }
@@ -14086,10 +14090,12 @@ PUBLIC MprJson *mprHashToJson(MprHash *hash)
 {
     MprJson     *obj;
     MprKey      *kp;
+    cchar       *key;
 
     obj = mprCreateJson(0);
     for (ITERATE_KEYS(hash, kp)) {
-        setProperty(obj, kp->key, createJsonValue(kp->data), 0);
+        key = (hash->flags & MPR_HASH_STATIC_KEYS) ? sclone(kp->key) : kp->key;
+        setProperty(obj, key, createJsonValue(kp->data));
     }
     return obj;
 }

@@ -31,6 +31,7 @@
             "url": "http://embedthis.com/licensing/"
         }
     ],
+    "pak": "~0.9",
     "dependencies": {
         "me-dev": "~0.8",
         "me-ssl": "~0.8",

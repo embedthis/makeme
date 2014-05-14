@@ -6681,7 +6681,6 @@ PUBLIC MprJson *mprParseJsonInto(cchar *str, MprJson *obj);
     @param value If a value is provided, the property described by the key is set to the value.
         If getting property values, or removing, set to NULL.
     @param flags If flags includes MPR_JSON_REMOVE, the properties described by the key are removed.
-        Include MPR_JSON_DUPLICATE to permit duplicate properties with the same name.
     @return If getting properties, the selected properties are cloned and returned in a JSON array.
         Note: these are not references into the original properties. If the requested properties are not found
         an empty array is returned. If removing properties, the selected properties are removed and returned 
