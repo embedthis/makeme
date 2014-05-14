@@ -8,10 +8,11 @@ module embedthis.me {
 
 require ejs.unix
 require ejs.zlib
+require ejs.version
 
 /**
     Me Class
-    This implements the Me tool and provide access via the Me DOM.
+    This implements the "me" tool and provide access via the Me DOM.
     @stability Prototype
   */
 public class Me {

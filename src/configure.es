@@ -7,6 +7,7 @@ module embedthis.me {
 
     require ejs.unix
     require ejs.zlib
+    require ejs.version
 
     /** @hide */
     public var currentComponent: String?
@@ -49,8 +50,9 @@ module embedthis.me {
         b.quickLoad(b.options.configure.join(b.MAIN))
         checkMain()
         let settings = me.settings
-        if (settings.makeme && b.makeVersion(Config.Version) < b.makeVersion(settings.makeme)) {
-            throw 'This product requires a newer version of MakeMe. Please upgrade Me to ' + settings.makeme + '\n'
+        if (settings.me && !Version(Config.Version).acceptable(settings.me)) {
+            throw '' + settings.title + ' requires MakeMe ' + settings.me + '. MakeMe version ' + Config.Version +
+                ' is not compatible with this requirement.' + '\n'
         }
         if (settings.platforms && !b.options.gen && !b.options.nocross) {
             if (!(settings.platforms is Array)) {

@@ -87,11 +87,12 @@ Me.load({
     targets: {
         'me.mod': {
             path: '${BIN}/me.mod',
-            files: [ 'src/me.es' ],
+            files: [ 'src/me.es', 'src/paks/ejs-version/Version.es' ],
             precious: true,
-            run: '${BIN}/ejsc --out ${BIN}/me.mod --optimize 9 src/me.es',
+            run: '${BIN}/ejsc --out ${BIN}/me.mod --optimize 9 ${target.cmdfiles}',
+            'FUTURE-generate-nmake': `"${BIN}\\ejsc" --out "${BIN}/me.mod" ${settings.esflags} --optimize 9 ${target.         cmdfiles}`,
+            'FUTURE-generate-sh': '${LBIN}/ejsc --out ${BIN}/me.mod --optimize 9 ${target.cmdfiles}',
             depends: [ 'ejsc' ],
-            enable: false,
         },
 
         'me': {
