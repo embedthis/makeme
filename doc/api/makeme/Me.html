@@ -22,7 +22,7 @@
 </table>
 
 <p class='classBrief'>Me Class
-This implements the Me tool and provide access via the Me DOM.</p>
+This implements the "me" tool and provide access via the Me DOM.</p>
 
 </div>
 
@@ -41,7 +41,6 @@ This implements the Me tool and provide access via the Me DOM.</p>
 <h2 class='classSection'>Me Class Methods</h2>
 <table class='apiIndex' summary='methods'>
    <tr><th>Qualifiers</th><th width='95%'>Method</th></tr>
-   <tr class='apiDef'><td class='apiType'>static </td><td><a href='#extension'><b>extension</b></a>(obj: <a href='Object.html'>Object</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Load a me extension into the Me DOM.</td></tr>
    <tr class='apiDef'><td class='apiType'>static </td><td><a href='#load'><b>load</b></a>(obj: <a href='Object.html'>Object</a>, ns = null)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Load an object into the Me DOM.</td></tr>
 </table>
 
@@ -55,19 +54,19 @@ This implements the Me tool and provide access via the Me DOM.</p>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#copy'><b>copy</b></a>(src, dest: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Copy files.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#copyFile'><b>copyFile</b></a>(src: <a href='Path.html'>Path</a>, dest: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Copy a file.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#expand'><b>expand</b></a>(s: <a href='String.html'>String</a>, options = expression): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Expand tokens in a string.</td></tr>
-   <tr class='apiDef'><td class='apiType'></td><td><a href='#linkFile'><b>linkFile</b></a>(src: <a href='Path.html'>Path</a>, dest: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Link a file.</td></tr>
-   <tr class='apiDef'><td class='apiType'></td><td><a href='#run'><b>run</b></a>(command, cmdOptions = expression): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Run a command and trace output if cmdOptions.true or options.show.</td></tr>
-   <tr class='apiDef'><td class='apiType'></td><td><a href='#makeDir'><b>makeDir</b></a>(path: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Make a directory
-This creates a directory and all required parents.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#strace'><b>strace</b></a>(tag, args: <a href='Array.html'>Array</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit "show" trace
 This is trace that is displayed if me --show is invoked.</td></tr>
-   <tr class='apiDef'><td class='apiType'></td><td><a href='#vtrace'><b>vtrace</b></a>(tag, args: <a href='Array.html'>Array</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit "verbose" trace
-This is trace that is displayed if me --verbose is invoked.</td></tr>
-   <tr class='apiDef'><td class='apiType'></td><td><a href='#whyRebuild'><b>whyRebuild</b></a>(path, tag, msg)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit trace for me --why on why a target is being rebuilt.</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#linkFile'><b>linkFile</b></a>(src: <a href='Path.html'>Path</a>, dest: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Link a file.</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#run'><b>run</b></a>(command, cmdOptions = expression): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Run a command and trace output if cmdOptions.true or options.show.</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#trace'><b>trace</b></a>(tag: <a href='String.html'>String</a>, args: <a href='Array.html'>Array</a>): <a href='Void.html'>Void</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit trace.</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#makeDir'><b>makeDir</b></a>(path: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Make a directory
+This creates a directory and all required parents.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#removeDir'><b>removeDir</b></a>(path: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Remove a directory.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#removeFile'><b>removeFile</b></a>(path: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Remove a file.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#removePath'><b>removePath</b></a>(path: <a href='Path.html'>Path</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Remove a file or directory.</td></tr>
-   <tr class='apiDef'><td class='apiType'></td><td><a href='#trace'><b>trace</b></a>(tag: <a href='String.html'>String</a>, args: <a href='Array.html'>Array</a>): <a href='Void.html'>Void</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit trace.</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#vtrace'><b>vtrace</b></a>(tag, args: <a href='Array.html'>Array</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit "verbose" trace
+This is trace that is displayed if me --verbose is invoked.</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#whyRebuild'><b>whyRebuild</b></a>(path, tag, msg)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit trace for me --why on why a target is being rebuilt.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#whySkip'><b>whySkip</b></a>(path, msg)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit trace for me --why on why a target is being skipped.</td></tr>
 </table>
 
@@ -138,29 +137,16 @@ Calls <a href='String.html#expand'>String.expand</a> to expand variables from th
 </div>
 </div>
 <hr />
-<a name='extension'></a>
+<a name='strace'></a>
 <div class='api'>
-<div class='apiSig'>static  extension(obj: <a href='Object.html'>Object</a>)
+<div class='apiSig'>    strace(tag, args: <a href='Array.html'>Array</a>)
 </div>
 <div class='apiDetail'>
-<dl><dt>Description</dt></dd><dd>Load a me extension into the Me DOM. </dd></dl>
+<dl><dt>Description</dt></dd><dd>Emit "show" trace
+This is trace that is displayed if me --show is invoked. </dd></dl>
 <dl><dt>Parameters</dt>
 <dd><table class='parameters' summary ='parameters'>
-<tr class='param'><td class='param'>obj: <a href='Object.html'>Object</a> </td><td>Extension object collection. The collection should contain the following properties. Name, description, and enable are mandatory.</td></tr></table></dd>
-</dl><dl><dt>Options</dt>
-<dd><table class='parameters' summary ='options'>
-<td class='param'>description</td><td>Short, one-sentance description of the extension.</td></tr>
-<td class='param'>defines</td><td>Array of C pre-processor definitions for targets using this extension.</td></tr>
-<td class='param'>depends</td><td>Array of extensions from which to inherit compiler, defines, libraries, libpaths and linker settings.</td></tr>
-<td class='param'>discover</td><td>Array of extensions that may optionally be discovered and utilized by this extension.</td></tr>
-<td class='param'>imports</td><td>Libraries, files and resources to import into the local source tree.</td></tr>
-<td class='param'>includes</td><td>Array of C pre-processor include directories for targets using this extension.</td></tr>
-<td class='param'>libraries</td><td>Array of C libraries for targets using this extension.</td></tr>
-<td class='param'>linker</td><td>Array of linker options for targets using this extension.</td></tr>
-<td class='param'>libpaths</td><td>Array of linker library search paths for targets using this extension.</td></tr>
-<td class='param'>name</td><td>Extension name. Should equal the extension collection property name.</td></tr>
-<td class='param'>path</td><td>Path to primary extension resource or directory. May be the path to the binary for tools. ˜.</td></tr>
-</table></dd>
+<tr class='param'><td class='param'>tag </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>args: <a href='Array.html'>Array</a> </td><td>Message args to display.</td></tr></table></dd>
 </dl></div>
 </div>
 <hr />
@@ -175,18 +161,6 @@ This either links files or if generating, emits code to link files.</dd></dl>
 <dl><dt>Parameters</dt>
 <dd><table class='parameters' summary ='parameters'>
 <tr class='param'><td class='param'>src: <a href='Path.html'>Path</a> </td><td>Source file.</td></tr><tr class='param'><td class='param'>dest: <a href='Path.html'>Path</a> </td><td>Destination.</td></tr><tr class='param'><td class='param'>options </td><td>See <a href='#copy'>copy()</a> for supported options. [default: expression]</td></tr></table></dd>
-</dl></div>
-</div>
-<hr />
-<a name='load'></a>
-<div class='api'>
-<div class='apiSig'>static  load(obj: <a href='Object.html'>Object</a>, ns = null)
-</div>
-<div class='apiDetail'>
-<dl><dt>Description</dt></dd><dd>Load an object into the Me DOM. </dd></dl>
-<dl><dt>Parameters</dt>
-<dd><table class='parameters' summary ='parameters'>
-<tr class='param'><td class='param'>obj: <a href='Object.html'>Object</a> </td><td>Object collection to load into the DOM.</td></tr><tr class='param'><td class='param'>ns </td><td>Reserved. [default: null]</td></tr></table></dd>
 </dl></div>
 </div>
 <hr />
@@ -208,6 +182,30 @@ This either links files or if generating, emits code to link files.</dd></dl>
 </dl></div>
 </div>
 <hr />
+<a name='trace'></a>
+<div class='api'>
+<div class='apiSig'>    trace(tag: <a href='String.html'>String</a>, args: <a href='Array.html'>Array</a>): <a href='Void.html'>Void</a>
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Emit trace. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' summary ='parameters'>
+<tr class='param'><td class='param'>tag: <a href='String.html'>String</a> </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>args: <a href='Array.html'>Array</a> </td><td>Message args to display.</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='load'></a>
+<div class='api'>
+<div class='apiSig'>static  load(obj: <a href='Object.html'>Object</a>, ns = null)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Load an object into the Me DOM. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' summary ='parameters'>
+<tr class='param'><td class='param'>obj: <a href='Object.html'>Object</a> </td><td>Object collection to load into the DOM.</td></tr><tr class='param'><td class='param'>ns </td><td>Reserved. [default: null]</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
 <a name='makeDir'></a>
 <div class='api'>
 <div class='apiSig'>    makeDir(path: <a href='Path.html'>Path</a>, options = expression)
@@ -218,44 +216,6 @@ This creates a directory and all required parents. This either makes a directory
 <dl><dt>Parameters</dt>
 <dd><table class='parameters' summary ='parameters'>
 <tr class='param'><td class='param'>path: <a href='Path.html'>Path</a> </td><td>Directory path to make.</td></tr><tr class='param'><td class='param'>options </td><td>See <a href='#copy'>copy()</a> for supported options. [default: expression]</td></tr></table></dd>
-</dl></div>
-</div>
-<hr />
-<a name='strace'></a>
-<div class='api'>
-<div class='apiSig'>    strace(tag, args: <a href='Array.html'>Array</a>)
-</div>
-<div class='apiDetail'>
-<dl><dt>Description</dt></dd><dd>Emit "show" trace
-This is trace that is displayed if me --show is invoked. </dd></dl>
-<dl><dt>Parameters</dt>
-<dd><table class='parameters' summary ='parameters'>
-<tr class='param'><td class='param'>tag </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>args: <a href='Array.html'>Array</a> </td><td>Message args to display.</td></tr></table></dd>
-</dl></div>
-</div>
-<hr />
-<a name='vtrace'></a>
-<div class='api'>
-<div class='apiSig'>    vtrace(tag, args: <a href='Array.html'>Array</a>)
-</div>
-<div class='apiDetail'>
-<dl><dt>Description</dt></dd><dd>Emit "verbose" trace
-This is trace that is displayed if me --verbose is invoked. </dd></dl>
-<dl><dt>Parameters</dt>
-<dd><table class='parameters' summary ='parameters'>
-<tr class='param'><td class='param'>tag </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>args: <a href='Array.html'>Array</a> </td><td>Message args to display.</td></tr></table></dd>
-</dl></div>
-</div>
-<hr />
-<a name='whyRebuild'></a>
-<div class='api'>
-<div class='apiSig'>    whyRebuild(path, tag, msg)
-</div>
-<div class='apiDetail'>
-<dl><dt>Description</dt></dd><dd>Emit trace for me --why on why a target is being rebuilt. </dd></dl>
-<dl><dt>Parameters</dt>
-<dd><table class='parameters' summary ='parameters'>
-<tr class='param'><td class='param'>path </td><td>Target path being considered.</td></tr><tr class='param'><td class='param'>tag </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>msg </td><td>Message to display 8.</td></tr></table></dd>
 </dl></div>
 </div>
 <hr />
@@ -301,15 +261,28 @@ This either removes directories or if generating, emits code to remove directori
 </dl></div>
 </div>
 <hr />
-<a name='trace'></a>
+<a name='vtrace'></a>
 <div class='api'>
-<div class='apiSig'>    trace(tag: <a href='String.html'>String</a>, args: <a href='Array.html'>Array</a>): <a href='Void.html'>Void</a>
+<div class='apiSig'>    vtrace(tag, args: <a href='Array.html'>Array</a>)
 </div>
 <div class='apiDetail'>
-<dl><dt>Description</dt></dd><dd>Emit trace. </dd></dl>
+<dl><dt>Description</dt></dd><dd>Emit "verbose" trace
+This is trace that is displayed if me --verbose is invoked. </dd></dl>
 <dl><dt>Parameters</dt>
 <dd><table class='parameters' summary ='parameters'>
-<tr class='param'><td class='param'>tag: <a href='String.html'>String</a> </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>args: <a href='Array.html'>Array</a> </td><td>Message args to display.</td></tr></table></dd>
+<tr class='param'><td class='param'>tag </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>args: <a href='Array.html'>Array</a> </td><td>Message args to display.</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='whyRebuild'></a>
+<div class='api'>
+<div class='apiSig'>    whyRebuild(path, tag, msg)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Emit trace for me --why on why a target is being rebuilt. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' summary ='parameters'>
+<tr class='param'><td class='param'>path </td><td>Target path being considered.</td></tr><tr class='param'><td class='param'>tag </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>msg </td><td>Message to display 8.</td></tr></table></dd>
 </dl></div>
 </div>
 <hr />

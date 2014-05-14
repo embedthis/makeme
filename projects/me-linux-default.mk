@@ -702,93 +702,135 @@ $(CONFIG)/bin/libmprssl.so: $(DEPS_32)
 	$(CC) -shared -o $(CONFIG)/bin/libmprssl.so $(LDFLAGS) $(LIBPATHS)    "$(CONFIG)/obj/mprSsl.o" $(LIBPATHS_32) $(LIBS_32) $(LIBS_32) $(LIBS) 
 
 #
+#   me.mod
+#
+DEPS_33 += $(CONFIG)/inc/mpr.h
+DEPS_33 += $(CONFIG)/inc/me.h
+DEPS_33 += $(CONFIG)/inc/osdep.h
+DEPS_33 += $(CONFIG)/obj/mprLib.o
+DEPS_33 += $(CONFIG)/bin/libmpr.so
+DEPS_33 += $(CONFIG)/inc/pcre.h
+DEPS_33 += $(CONFIG)/obj/pcre.o
+ifeq ($(ME_COM_PCRE),1)
+    DEPS_33 += $(CONFIG)/bin/libpcre.so
+endif
+DEPS_33 += $(CONFIG)/inc/http.h
+DEPS_33 += $(CONFIG)/obj/httpLib.o
+ifeq ($(ME_COM_HTTP),1)
+    DEPS_33 += $(CONFIG)/bin/libhttp.so
+endif
+DEPS_33 += $(CONFIG)/inc/zlib.h
+DEPS_33 += $(CONFIG)/obj/zlib.o
+ifeq ($(ME_COM_ZLIB),1)
+    DEPS_33 += $(CONFIG)/bin/libzlib.so
+endif
+DEPS_33 += $(CONFIG)/inc/ejs.h
+DEPS_33 += $(CONFIG)/inc/ejs.slots.h
+DEPS_33 += $(CONFIG)/inc/ejsByteGoto.h
+DEPS_33 += $(CONFIG)/obj/ejsLib.o
+ifeq ($(ME_COM_EJS),1)
+    DEPS_33 += $(CONFIG)/bin/libejs.so
+endif
+DEPS_33 += $(CONFIG)/obj/ejsc.o
+ifeq ($(ME_COM_EJS),1)
+    DEPS_33 += $(CONFIG)/bin/ejsc
+endif
+
+me.mod: $(DEPS_33)
+	/Users/mob/git/me/linux-x86-default/bin/ejsc --out /Users/mob/git/me/linux-x86-default/bin/me.mod --optimize 9 /Users/mob/git/me/src/me.es /Users/mob/git/me/src/paks/ejs-version/Version.es
+#
 #   me.o
 #
-DEPS_33 += $(CONFIG)/inc/me.h
-DEPS_33 += $(CONFIG)/inc/ejs.h
+DEPS_34 += $(CONFIG)/inc/me.h
+DEPS_34 += $(CONFIG)/inc/ejs.h
 
 $(CONFIG)/obj/me.o: \
-    src/me.c $(DEPS_33)
+    src/me.c $(DEPS_34)
 	@echo '   [Compile] $(CONFIG)/obj/me.o'
 	$(CC) -c -o $(CONFIG)/obj/me.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/me.c
 
 #
 #   me
 #
-DEPS_34 += $(CONFIG)/inc/mpr.h
-DEPS_34 += $(CONFIG)/inc/me.h
-DEPS_34 += $(CONFIG)/inc/osdep.h
-DEPS_34 += $(CONFIG)/obj/mprLib.o
-DEPS_34 += $(CONFIG)/bin/libmpr.so
-DEPS_34 += $(CONFIG)/inc/pcre.h
-DEPS_34 += $(CONFIG)/obj/pcre.o
+DEPS_35 += $(CONFIG)/inc/mpr.h
+DEPS_35 += $(CONFIG)/inc/me.h
+DEPS_35 += $(CONFIG)/inc/osdep.h
+DEPS_35 += $(CONFIG)/obj/mprLib.o
+DEPS_35 += $(CONFIG)/bin/libmpr.so
+DEPS_35 += $(CONFIG)/inc/pcre.h
+DEPS_35 += $(CONFIG)/obj/pcre.o
 ifeq ($(ME_COM_PCRE),1)
-    DEPS_34 += $(CONFIG)/bin/libpcre.so
+    DEPS_35 += $(CONFIG)/bin/libpcre.so
 endif
-DEPS_34 += $(CONFIG)/inc/http.h
-DEPS_34 += $(CONFIG)/obj/httpLib.o
+DEPS_35 += $(CONFIG)/inc/http.h
+DEPS_35 += $(CONFIG)/obj/httpLib.o
 ifeq ($(ME_COM_HTTP),1)
-    DEPS_34 += $(CONFIG)/bin/libhttp.so
+    DEPS_35 += $(CONFIG)/bin/libhttp.so
 endif
-DEPS_34 += $(CONFIG)/inc/zlib.h
-DEPS_34 += $(CONFIG)/obj/zlib.o
+DEPS_35 += $(CONFIG)/inc/zlib.h
+DEPS_35 += $(CONFIG)/obj/zlib.o
 ifeq ($(ME_COM_ZLIB),1)
-    DEPS_34 += $(CONFIG)/bin/libzlib.so
+    DEPS_35 += $(CONFIG)/bin/libzlib.so
 endif
-DEPS_34 += $(CONFIG)/inc/ejs.h
-DEPS_34 += $(CONFIG)/inc/ejs.slots.h
-DEPS_34 += $(CONFIG)/inc/ejsByteGoto.h
-DEPS_34 += $(CONFIG)/obj/ejsLib.o
+DEPS_35 += $(CONFIG)/inc/ejs.h
+DEPS_35 += $(CONFIG)/inc/ejs.slots.h
+DEPS_35 += $(CONFIG)/inc/ejsByteGoto.h
+DEPS_35 += $(CONFIG)/obj/ejsLib.o
 ifeq ($(ME_COM_EJS),1)
-    DEPS_34 += $(CONFIG)/bin/libejs.so
+    DEPS_35 += $(CONFIG)/bin/libejs.so
 endif
-DEPS_34 += $(CONFIG)/obj/me.o
+DEPS_35 += $(CONFIG)/obj/ejsc.o
+ifeq ($(ME_COM_EJS),1)
+    DEPS_35 += $(CONFIG)/bin/ejsc
+endif
+DEPS_35 += $(CONFIG)/bin/me.mod
+DEPS_35 += $(CONFIG)/obj/me.o
 
-LIBS_34 += -lmpr
+LIBS_35 += -lmpr
 ifeq ($(ME_COM_HTTP),1)
-    LIBS_34 += -lhttp
+    LIBS_35 += -lhttp
 endif
 ifeq ($(ME_COM_PCRE),1)
-    LIBS_34 += -lpcre
+    LIBS_35 += -lpcre
 endif
 ifeq ($(ME_COM_EJS),1)
-    LIBS_34 += -lejs
+    LIBS_35 += -lejs
 endif
 ifeq ($(ME_COM_ZLIB),1)
-    LIBS_34 += -lzlib
+    LIBS_35 += -lzlib
 endif
 
-$(CONFIG)/bin/me: $(DEPS_34)
+$(CONFIG)/bin/me: $(DEPS_35)
 	@echo '      [Link] $(CONFIG)/bin/me'
-	$(CC) -o $(CONFIG)/bin/me $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/me.o" $(LIBPATHS_34) $(LIBS_34) $(LIBS_34) $(LIBS) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/me $(LDFLAGS) $(LIBPATHS) "$(CONFIG)/obj/me.o" $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) $(LIBS) 
 
 #
 #   me-core
 #
-DEPS_35 += src/configure/appweb.me
-DEPS_35 += src/configure/compiler.me
-DEPS_35 += src/configure/lib.me
-DEPS_35 += src/configure/link.me
-DEPS_35 += src/configure/rc.me
-DEPS_35 += src/configure/vxworks.me
-DEPS_35 += src/configure/winsdk.me
-DEPS_35 += src/configure.es
-DEPS_35 += src/generate.es
-DEPS_35 += src/me.es
-DEPS_35 += src/os/freebsd.me
-DEPS_35 += src/os/gcc.me
-DEPS_35 += src/os/linux.me
-DEPS_35 += src/os/macosx.me
-DEPS_35 += src/os/solaris.me
-DEPS_35 += src/os/unix.me
-DEPS_35 += src/os/vxworks.me
-DEPS_35 += src/os/windows.me
-DEPS_35 += src/simple.me
-DEPS_35 += src/standard.me
-DEPS_35 += src/vstudio.es
-DEPS_35 += src/xcode.es
+DEPS_36 += src/configure/appweb.me
+DEPS_36 += src/configure/compiler.me
+DEPS_36 += src/configure/lib.me
+DEPS_36 += src/configure/link.me
+DEPS_36 += src/configure/rc.me
+DEPS_36 += src/configure/vxworks.me
+DEPS_36 += src/configure/winsdk.me
+DEPS_36 += src/configure.es
+DEPS_36 += src/generate.es
+DEPS_36 += src/me.es
+DEPS_36 += src/os/freebsd.me
+DEPS_36 += src/os/gcc.me
+DEPS_36 += src/os/linux.me
+DEPS_36 += src/os/macosx.me
+DEPS_36 += src/os/solaris.me
+DEPS_36 += src/os/unix.me
+DEPS_36 += src/os/vxworks.me
+DEPS_36 += src/os/windows.me
+DEPS_36 += src/simple.me
+DEPS_36 += src/standard.me
+DEPS_36 += src/vstudio.es
+DEPS_36 += src/xcode.es
 
-$(CONFIG)/bin/.updated: $(DEPS_35)
+$(CONFIG)/bin/.updated: $(DEPS_36)
 	@echo '      [Copy] $(CONFIG)/bin'
 	mkdir -p "$(CONFIG)/bin/configure"
 	cp src/configure/appweb.me $(CONFIG)/bin/configure/appweb.me
@@ -821,12 +863,12 @@ $(CONFIG)/bin/.updated: $(DEPS_35)
 #
 #   stop
 #
-stop: $(DEPS_36)
+stop: $(DEPS_37)
 
 #
 #   installBinary
 #
-installBinary: $(DEPS_37)
+installBinary: $(DEPS_38)
 	( \
 	cd .; \
 	mkdir -p "$(ME_APP_PREFIX)" ; \
@@ -886,23 +928,23 @@ installBinary: $(DEPS_37)
 #
 #   start
 #
-start: $(DEPS_38)
+start: $(DEPS_39)
 
 #
 #   install
 #
-DEPS_39 += stop
-DEPS_39 += installBinary
-DEPS_39 += start
+DEPS_40 += stop
+DEPS_40 += installBinary
+DEPS_40 += start
 
-install: $(DEPS_39)
+install: $(DEPS_40)
 
 #
 #   uninstall
 #
-DEPS_40 += stop
+DEPS_41 += stop
 
-uninstall: $(DEPS_40)
+uninstall: $(DEPS_41)
 	( \
 	cd .; \
 	rm -fr "$(ME_VAPP_PREFIX)" ; \
@@ -913,7 +955,7 @@ uninstall: $(DEPS_40)
 #
 #   version
 #
-version: $(DEPS_41)
+version: $(DEPS_42)
 	( \
 	cd macosx-x64-release/bin; \
 	echo 0.8.0 ; \

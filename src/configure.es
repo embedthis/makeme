@@ -133,6 +133,9 @@ module embedthis.me {
         b.START.write(data)
     }
 
+    /**
+        @hide
+      */
     function getConfigurableTargets() {
         let targets = {}
         for each (target in me.targets) {
@@ -779,6 +782,9 @@ module embedthis.me {
         blend(me, envSettings, {combine: true})
     }
 
+    /**
+        @hide
+      */
     public function getComponentSearch(target, component, objdir = '.') {
         if (target.withpath) {
             return [Path(target.withpath).join(objdir)]
