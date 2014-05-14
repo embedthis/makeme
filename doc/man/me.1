@@ -2,69 +2,51 @@
 .SH NAME
 me \- MakeMe -- Utility to make and manage programs and products
 .SH SYNOPSIS
-.B me [\fI--benchmark\fR]
-[\fI--configuration\fR]
-[\fI--configure /path/to/source\fR]
-.RS 4
-[\fI--continue\fR]
-[\fI--debug\fR]
-[\fI--deploy directory\fR]
-[\fI--depth level\fR]
-[\fI--diagnose\fR]
-.RE
-.RS 4
-[\fI--dump\fR]
-[\fI--endian [big|little]\fR]
-[\fI--file file.me\fR]
-[\fI--force\fR]
-.RE
-.RS 4
-[\fI--gen [make|nmake|sh|vs|xcode|main|start]\fR]
-[\fI--get field\fR]
-[\fI--help\fR]
-.RE
-.RS 4
-[\fI--import\fR]
-[\fI--keep\fR]
-[\fI--log logSpec\fR]
-[\fI--nocross\fR]
-[\fI--overwrite\fR]
-.RE
-.RS 4
-[\fI--out path\fR]
-[\fI--platform os-arch\fR]
-[\fI--pre\fR]
-[\fI--prefix dir=path\fR]
-.RE
-.RS 4
-[\fI--prefixes debian|embedthis|opt\fR]
-[\fI--profile [debug|release|...]\fR]
-.RE
-.RS 4
-[\fI--quiet\fR]
-[\fI--rebuild\fR]
-[\fI--reconfigure\fR]
-[\fI--release\fR]
-[\fI--rom\fR]
-.RE
-.RS 4
-[\fI--set [feature=value]\fR]
-[\fI--sets [set,set,...]\fR]
-[\fI--show\fR]
-[\fI--static\fR]
-.RE
-.RS 4
-[\fI--unicode\fR]
-[\fI--unset feature\fR]
-[\fI--version\fR]
-[\fI--verbose\fR]
-.RE
-.RS 4
-[\fI--watch msec]\fR]
-[\fI--why]\fR]
-[\fI--with PACK[=PATH]\fR]
-[\fI--without PACK\fR]
-[targets|actions] ...
+.B me 
+    \fB--benchmark\fR
+    \fB--configuration\fR
+    \fB--configure /path/to/source\fR
+    \fB--continue\fR
+    \fB--debug\fR
+    \fB--deploy directory\fR
+    \fB--depth level\fR
+    \fB--diagnose\fR
+    \fB--dump\fR
+    \fB--endian [big|little]\fR
+    \fB--file file.me\fR
+    \fB--force\fR
+    \fB--gen [make|nmake|sh|vs|xcode|main|start]\fR
+    \fB--get field\fR
+    \fB--help\fR
+    \fB--import\fR
+    \fB--keep\fR
+    \fB--log logSpec\fR
+    \fB--nocross\fR
+    \fB--overwrite\fR
+    \fB--out path\fR
+    \fB--platform os-arch\fR
+    \fB--pre\fR
+    \fB--prefix dir=path\fR
+    \fB--prefixes [debian|embedthis|opt]\fR
+    \fB--profile [debug|release|...]\fR
+    \fB--quiet\fR
+    \fB--rebuild\fR
+    \fB--reconfigure\fR
+    \fB--release\fR
+    \fB--rom\fR
+    \fB--set [feature=value]\fR
+    \fB--sets [set,set,...]\fR
+    \fB--show\fR
+    \fB--static\fR
+    \fB--unicode\fR
+    \fB--unset feature\fR
+    \fB--version\fR
+    \fB--verbose\fR
+    \fB--watch msec]\fR
+    \fB--why]\fR
+    \fB--with PACK[=PATH]\fR
+    \fB--without PACK\fR
+    \fB[targets|actions] ...\fR
 .SH DESCRIPTION
 MakeMe and its "\fBme\fR" command is modern replacement for the venerable make and not so popular autoconf utilities.
 MakeMe manages the building of programs and products by effectively determining which pieces have been updated and 
@@ -511,4 +493,4 @@ Report bugs to dev@embedthis.com.
 Copyright \(co 2004-2014 Embedthis Software. MakeMe and Ejscript are a trademarks of Embedthis Software.
 .br
 .SH "SEE ALSO"
-ejs
+pak
