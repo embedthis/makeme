@@ -17362,6 +17362,9 @@ PUBLIC bool httpCheckSecurityToken(HttpConn *conn)
 
     if ((sessionToken = httpGetSessionVar(conn, ME_XSRF_COOKIE, 0)) != 0) {
         requestToken = httpGetHeader(conn, ME_XSRF_HEADER);
+        if (!requestToken) {
+            requestToken = httpGetParam(conn, ME_XSRF_PARAM, 0);
+        }
         if (!smatch(sessionToken, requestToken)) {
             /*
                 Potential CSRF attack. Deny request. Re-create a new security token so legitimate clients can retry.
