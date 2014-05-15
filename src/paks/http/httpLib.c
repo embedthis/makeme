@@ -3368,16 +3368,18 @@ static void parsePrefix(HttpRoute *route, cchar *key, MprJson *prop)
 static void createRedirectAlias(HttpRoute *route, int status, cchar *from, cchar *to)
 {
     HttpRoute   *alias;
-    cchar       *pattern;
+    cchar       *pattern, *prefix;
 
     if (from == 0 || *from == '\0') {
         from = "/";
     }
+    prefix = route->prefix ? route->prefix : "";
+
     if (sends(from, "/")) {
-        pattern = sfmt("^%s(.*)$", from);
+        pattern = sfmt("^%s%s(.*)$", prefix, from);
     } else {
         /* Add a non-capturing optional trailing "/" */
-        pattern = sfmt("^%s(?:/)*(.*)$", from);
+        pattern = sfmt("^%s%s(?:/)*(.*)$", prefix, from);
     }
     alias = httpCreateAliasRoute(route, pattern, 0, 0);
     httpSetRouteMethods(alias, "*");
@@ -10413,7 +10415,6 @@ static int matchRoute(HttpConn *conn, HttpRoute *route)
      */
     if (route->prefix) {
         if (!sstarts(rx->pathInfo, route->prefix)) {
-            mprError("Route prefix missing in uri. Configuration error for route: %s", route->name);
             return HTTP_ROUTE_REJECT;
         }
         savePathInfo = rx->pathInfo;
