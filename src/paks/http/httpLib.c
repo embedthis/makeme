@@ -11747,7 +11747,7 @@ static char *finalizeReplacement(HttpRoute *route, cchar *str)
                         for (ep = tok; *ep && isdigit((uchar) *ep); ep++) ;
                     }
                     token = snclone(tok, ep - tok);
-                    if (schr(token, ':')) {
+                    if (schr(token, ':') || schr(token, '.')) {
                         /* Double quote to get through two levels of expansion in writeTarget */
                         mprPutStringToBuf(buf, "$${");
                         mprPutStringToBuf(buf, token);
@@ -12741,7 +12741,7 @@ static char *expandRequestTokens(HttpConn *conn, char *str)
         if (tok > cp) {
             mprPutBlockToBuf(buf, cp, tok - cp);
         }
-        if ((key = stok(&tok[2], ":}", &value)) == 0) {
+        if ((key = stok(&tok[2], ".:}", &value)) == 0) {
             continue;
         }
         stok(value, "}", &cp);
