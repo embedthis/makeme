@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#	uninstall: Bit uninstall script
+#	uninstall: MakeMe uninstall script
 #
 #	Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 #

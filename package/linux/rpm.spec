@@ -14,7 +14,7 @@ BuildRoot: ${prefixes.rpm}/BUILDROOT/${settings.name}-${settings.version}.${plat
 AutoReqProv: no
 
 %description
-Bit is a replacement for the autoconf/make build tools. Bit is a single tool that configures, builds and generated native build projects for applications. It expresses build rules in the JavaScript language.
+MakeMe is a replacement for the autoconf/make build tools. MakeMe is a single tool that configures, builds and generated native build projects for applications. It expresses build rules in the JavaScript language.
 
 %prep
 

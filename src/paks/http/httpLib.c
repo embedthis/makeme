@@ -2658,31 +2658,13 @@ static void postParse(HttpRoute *route)
     HttpHost    *host;
     HttpRoute   *rp;
     MprJson     *mappings, *client;
-    int         nextHost, nextRoute;
+    int         nextHost, nextRoute, update, showErrors, keepSource, xsrf;
 
     if (route->error) {
         return;
     }
     http = route->http;
     route->mode = mprGetJson(route->config, "app.mode");
-    
-    /*
-        Apply defaults for when unspecified
-     */
-    if (smatch(route->mode, "debug")) {
-        if (mprGetJson(route->config, "app.http.showErrors") == 0) {
-            httpSetRouteShowErrors(route, 1);
-        }
-        if (mprGetJson(route->config, "app.http.update") == 0) {
-            route->update = 1;
-        }
-        if (mprGetJson(route->config, "app.http.keepSource") == 0) {
-            route->keepSource = 1;
-        }
-    }
-    if (mprGetJson(route->config, "app.http.xsrf") == 0) {
-        httpSetRouteXsrf(route, 1);
-    }
     
     /*
         Create a subset, optimized configuration to send to the client
@@ -2697,6 +2679,22 @@ static void postParse(HttpRoute *route)
 
     httpAddHostToEndpoints(route->host);
 
+    xsrf = 1;
+    keepSource = showErrors = update = smatch(route->mode, "debug");
+
+    if (mprGetJson(route->config, "app.http.showErrors")) {
+        showErrors = smatch(mprGetJson(route->config, "app.http.showErrors"), "true");
+    }
+    if (mprGetJson(route->config, "app.http.update")) {
+        update = smatch(mprGetJson(route->config, "app.http.update"), "true");
+    }
+    if (mprGetJson(route->config, "app.http.keepSource")) {
+        keepSource = smatch(mprGetJson(route->config, "app.http.keepSource"), "true");
+    }
+    if (mprGetJson(route->config, "app.http.xsrf")) {
+        xsrf = smatch(mprGetJson(route->config, "app.http.xsrf"), "true");
+    }
+
     /*
         Ensure the host home directory is set and the file handler is defined
         Propagate the HttpRoute.client to all child routes.
@@ -2710,7 +2708,22 @@ static void postParse(HttpRoute *route)
                 httpAddRouteIndex(rp, "index.html");
             }
             if (rp->parent == route) {
+                /*
+                    Apply defaults for if some properties are unspecified
+                 */
                 rp->client = route->client;
+                if (mprGetJson(rp->config, "app.http.showErrors") == 0) {
+                    httpSetRouteShowErrors(rp, showErrors);
+                }
+                if (mprGetJson(rp->config, "app.http.update") == 0) {
+                    rp->update = update;
+                }
+                if (mprGetJson(rp->config, "app.http.keepSource") == 0) {
+                    rp->keepSource = keepSource;
+                }
+                if (mprGetJson(rp->config, "app.http.xsrf") == 0) {
+                    httpSetRouteXsrf(rp, xsrf);
+                }
             }
         }
     }
@@ -14606,7 +14619,7 @@ static void createErrorRequest(HttpConn *conn)
         conn->input = packet;
         conn->state = HTTP_STATE_CONNECTED;
     } else {
-        httpBadRequestError(conn, HTTP_ABORT | HTTP_CODE_BAD_REQUEST, "Can't reconstruct headers");
+        httpBadRequestError(conn, HTTP_ABORT | HTTP_CODE_BAD_REQUEST, "Cannot reconstruct headers");
     }
 }
 

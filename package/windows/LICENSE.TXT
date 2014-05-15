@@ -1,4 +1,4 @@
-Embedthis Bit GPL License Agreement
+Embedthis MakeMe GPL License Agreement
 
 This software is licensed according to the provisions of GNU GENERAL PUBLIC LICENSE below. 
 
@@ -100,7 +100,7 @@ NO WARRANTY
 Trademarks and Copyrights
 
 Copyright (c) 2003-2014 Embedthis Software, LLC. All Rights Reserved.
-Embedthis, Embedthis Bit, Appweb, Ejscript, ESP and Embedthis GoAhead are trademarks of Embedthis Software, LLC. 
+Embedthis, Embedthis MakeMe, Appweb, Ejscript, ESP and Embedthis GoAhead are trademarks of Embedthis Software, LLC. 
 Other brands and their products are trademarks of their respective holders.
 
 Third Party Components
