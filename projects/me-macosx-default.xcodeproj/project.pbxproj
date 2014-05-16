@@ -1143,6 +1143,8 @@ cp -r ca.crt ../../${OUT_DIR}/bin/ca.crt
 ../src/configure/winsdk.me,
 ../src/configure.es,
 ../src/generate.es,
+../src/master-main.me,
+../src/master-start.me,
 ../src/me.es,
 ../src/os/freebsd.me,
 ../src/os/gcc.me,
@@ -1182,6 +1184,10 @@ mkdir -p macosx-x64-default/bin
 cp -r src/configure.es macosx-x64-default/bin/configure.es
 mkdir -p macosx-x64-default/bin
 cp -r src/generate.es macosx-x64-default/bin/generate.es
+mkdir -p macosx-x64-default/bin
+cp -r src/master-main.me macosx-x64-default/bin/master-main.me
+mkdir -p macosx-x64-default/bin
+cp -r src/master-start.me macosx-x64-default/bin/master-start.me
 mkdir -p macosx-x64-default/bin
 cp -r src/me.es macosx-x64-default/bin/me.es
 mkdir -p macosx-x64-default/bin/os

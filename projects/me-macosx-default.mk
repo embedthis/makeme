@@ -3,7 +3,7 @@
 #
 
 NAME                  := me
-VERSION               := 0.8.0
+VERSION               := 0.8.1
 PROFILE               ?= default
 ARCH                  ?= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 CC_ARCH               ?= $(shell echo $(ARCH) | sed 's/x86/i686/;s/x64/x86_64/')
@@ -856,6 +856,8 @@ DEPS_37 += src/configure/vxworks.me
 DEPS_37 += src/configure/winsdk.me
 DEPS_37 += src/configure.es
 DEPS_37 += src/generate.es
+DEPS_37 += src/master-main.me
+DEPS_37 += src/master-start.me
 DEPS_37 += src/me.es
 DEPS_37 += src/os/freebsd.me
 DEPS_37 += src/os/gcc.me
@@ -883,6 +885,8 @@ $(CONFIG)/bin/.updated: $(DEPS_37)
 	mkdir -p "$(CONFIG)/bin"
 	cp src/configure.es $(CONFIG)/bin/configure.es
 	cp src/generate.es $(CONFIG)/bin/generate.es
+	cp src/master-main.me $(CONFIG)/bin/master-main.me
+	cp src/master-start.me $(CONFIG)/bin/master-start.me
 	cp src/me.es $(CONFIG)/bin/me.es
 	mkdir -p "$(CONFIG)/bin/os"
 	cp src/os/freebsd.me $(CONFIG)/bin/os/freebsd.me
@@ -913,7 +917,7 @@ installBinary: $(DEPS_39)
 	cd .; \
 	mkdir -p "$(ME_APP_PREFIX)" ; \
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
-	ln -s "0.8.0" "$(ME_APP_PREFIX)/latest" ; \
+	ln -s "0.8.1" "$(ME_APP_PREFIX)/latest" ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
 	cp $(CONFIG)/bin/me $(ME_VAPP_PREFIX)/bin/me ; \
 	mkdir -p "$(ME_BIN_PREFIX)" ; \
@@ -934,6 +938,7 @@ installBinary: $(DEPS_39)
 	fi ; \
 	cp $(CONFIG)/bin/ca.crt $(ME_VAPP_PREFIX)/bin/ca.crt ; \
 	cp $(CONFIG)/bin/ejs.mod $(ME_VAPP_PREFIX)/bin/ejs.mod ; \
+	cp $(CONFIG)/bin/me.mod $(ME_VAPP_PREFIX)/bin/me.mod ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/configure" ; \
 	cp src/configure/appweb.me $(ME_VAPP_PREFIX)/bin/configure/appweb.me ; \
 	cp src/configure/compiler.me $(ME_VAPP_PREFIX)/bin/configure/compiler.me ; \
@@ -944,6 +949,8 @@ installBinary: $(DEPS_39)
 	cp src/configure/winsdk.me $(ME_VAPP_PREFIX)/bin/configure/winsdk.me ; \
 	cp src/configure.es $(ME_VAPP_PREFIX)/bin/configure.es ; \
 	cp src/generate.es $(ME_VAPP_PREFIX)/bin/generate.es ; \
+	cp src/master-main.me $(ME_VAPP_PREFIX)/bin/master-main.me ; \
+	cp src/master-start.me $(ME_VAPP_PREFIX)/bin/master-start.me ; \
 	cp src/me.es $(ME_VAPP_PREFIX)/bin/me.es ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/os" ; \
 	cp src/os/freebsd.me $(ME_VAPP_PREFIX)/bin/os/freebsd.me ; \
@@ -998,6 +1005,6 @@ uninstall: $(DEPS_42)
 version: $(DEPS_43)
 	( \
 	cd macosx-x64-release/bin; \
-	echo 0.8.0 ; \
+	echo 0.8.1 ; \
 	)
 

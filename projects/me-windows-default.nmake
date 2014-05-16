@@ -3,7 +3,7 @@
 #
 
 NAME                  = me
-VERSION               = 0.8.0
+VERSION               = 0.8.1
 
 OS                    = windows
 PA                    = $(PROCESSOR_ARCHITECTURE)
@@ -909,6 +909,8 @@ DEPS_37 = $(DEPS_37) src\configure\vxworks.me
 DEPS_37 = $(DEPS_37) src\configure\winsdk.me
 DEPS_37 = $(DEPS_37) src\configure.es
 DEPS_37 = $(DEPS_37) src\generate.es
+DEPS_37 = $(DEPS_37) src\master-main.me
+DEPS_37 = $(DEPS_37) src\master-start.me
 DEPS_37 = $(DEPS_37) src\me.es
 DEPS_37 = $(DEPS_37) src\os\freebsd.me
 DEPS_37 = $(DEPS_37) src\os\gcc.me
@@ -936,6 +938,8 @@ $(CONFIG)\bin\.updated: $(DEPS_37)
 	if not exist "$(CONFIG)\bin" md "$(CONFIG)\bin"
 	copy /Y src\configure.es $(CONFIG)\bin\configure.es
 	copy /Y src\generate.es $(CONFIG)\bin\generate.es
+	copy /Y src\master-main.me $(CONFIG)\bin\master-main.me
+	copy /Y src\master-start.me $(CONFIG)\bin\master-start.me
 	copy /Y src\me.es $(CONFIG)\bin\me.es
 	if not exist "$(CONFIG)\bin\os" md "$(CONFIG)\bin\os"
 	copy /Y src\os\freebsd.me $(CONFIG)\bin\os\freebsd.me
@@ -1001,6 +1005,7 @@ installBinary: $(DEPS_41)
 !ENDIF
 	copy /Y $(CONFIG)\bin\ca.crt "$(ME_VAPP_PREFIX)\bin\ca.crt"
 	copy /Y $(CONFIG)\bin\ejs.mod "$(ME_VAPP_PREFIX)\bin\ejs.mod"
+	copy /Y $(CONFIG)\bin\me.mod "$(ME_VAPP_PREFIX)\bin\me.mod"
 	if not exist "$(ME_VAPP_PREFIX)\bin\configure" md "$(ME_VAPP_PREFIX)\bin\configure"
 	copy /Y src\configure\appweb.me "$(ME_VAPP_PREFIX)\bin\configure\appweb.me"
 	copy /Y src\configure\compiler.me "$(ME_VAPP_PREFIX)\bin\configure\compiler.me"
@@ -1011,6 +1016,8 @@ installBinary: $(DEPS_41)
 	copy /Y src\configure\winsdk.me "$(ME_VAPP_PREFIX)\bin\configure\winsdk.me"
 	copy /Y src\configure.es "$(ME_VAPP_PREFIX)\bin\configure.es"
 	copy /Y src\generate.es "$(ME_VAPP_PREFIX)\bin\generate.es"
+	copy /Y src\master-main.me "$(ME_VAPP_PREFIX)\bin\master-main.me"
+	copy /Y src\master-start.me "$(ME_VAPP_PREFIX)\bin\master-start.me"
 	copy /Y src\me.es "$(ME_VAPP_PREFIX)\bin\me.es"
 	if not exist "$(ME_VAPP_PREFIX)\bin\os" md "$(ME_VAPP_PREFIX)\bin\os"
 	copy /Y src\os\freebsd.me "$(ME_VAPP_PREFIX)\bin\os\freebsd.me"
@@ -1062,6 +1069,6 @@ uninstall: $(DEPS_44)
 #
 version: $(DEPS_45)
 	cd macosx-x64-release\bin
-	echo 0.8.0
+	echo 0.8.1
 	cd ..\..
 
