@@ -20,6 +20,7 @@ Me.load({
             type: 'lib',
             depends: [ 'libmpr', 'ssl' ],
             sources: [ 'mprSsl.c' ],
+            scripts: { postresolve: `if (me.platform.os == 'macosx') { TARGET.compiler.push('-Wno-deprecated-declarations') }`}
         },
 
         manager: {

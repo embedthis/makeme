@@ -1,7 +1,7 @@
 {
     "name": "ejs-version",
     "description": "Version parsing for SemVer versions",
-    "version": "0.8.2",
+    "version": "0.8.4",
     "keywords": [
         "ejs",
     ],

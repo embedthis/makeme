@@ -253,6 +253,43 @@ class Version {
      */
     public function get pre() preVersion
 
+    private static function sortCallback(versions, i, j): Number {
+        let a = Version(Path(versions[i]).basename)
+        let b = Version(Path(versions[j]).basename)
+        if (a.major < b.major) {
+            return -1
+        } else if (a.major > b.major) {
+            return 1
+        } else if (a.minor < b.minor) {
+            return -1
+        } else if (a.minor > b.minor) {
+            return 1
+        } else if (a.patch < b.patch) {
+            return -1
+        } else if (a.patch > b.patch) {
+            return 1
+        } else if (a.pre == '') {
+            if (b.pre != '') {
+                return 1
+            }
+        } else if (b.pre == '') {
+            return -1
+        } else {
+            if (a.pre < b.pre) {
+                return -1
+            } else if (a.pre > b.pre) {
+                return 1
+            }
+        }
+        return 0
+    }
+
+    /**
+        Sort an array of versions. The version strings can be pathnames where the basename is the version.
+      */
+    public static function sort(versions, direction = 1): Array
+        versions.sort(sortCallback, direction)
+
 } /* Version */
 } /* ejs.version */
 

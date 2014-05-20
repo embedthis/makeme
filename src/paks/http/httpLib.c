@@ -18853,7 +18853,7 @@ typedef struct Upload {
 /********************************** Forwards **********************************/
 
 static void closeUpload(HttpQueue *q);
-static char *getBoundary(void *buf, ssize bufLen, void *boundary, ssize boundaryLen, bool *pureData);
+static char *getBoundary(char *buf, ssize bufLen, char *boundary, ssize boundaryLen, bool *pureData);
 static void incomingUpload(HttpQueue *q, HttpPacket *packet);
 static void manageHttpUploadFile(HttpUploadFile *file, int flags);
 static void manageUpload(Upload *up, int flags);
@@ -19415,7 +19415,7 @@ static int processUploadData(HttpQueue *q)
 /*
     Find the boundary signature in memory. Returns pointer to the first match.
  */ 
-static char *getBoundary(void *buf, ssize bufLen, void *boundary, ssize boundaryLen, bool *pureData)
+static char *getBoundary(char *buf, ssize bufLen, char *boundary, ssize boundaryLen, bool *pureData)
 {
     char    *cp, *endp;
     char    first;
@@ -19424,26 +19424,25 @@ static char *getBoundary(void *buf, ssize bufLen, void *boundary, ssize boundary
     assert(boundary);
     assert(boundaryLen > 0);
 
-    first = *((char*) boundary);
-    cp = (char*) buf;
-    *pureData = 0;
+    first = *boundary & 0xff;
+    endp = &buf[bufLen];
 
-    if (bufLen < boundaryLen) {
-        *pureData = memchr(cp, first, bufLen) != 0;
-        return 0;
-    }
-    endp = cp + (bufLen - boundaryLen) + 1;
-    while (cp < endp) {
-        cp = (char *) memchr(cp, first, endp - cp);
-        if (!cp) {
+    for (cp = buf; cp < endp; cp++) {
+        if ((cp = memchr(cp, first, endp - cp)) == 0) {
             *pureData = 1;
             return 0;
         }
+        /* Potential boundary */
+        if ((endp - cp) < boundaryLen) {
+            *pureData = 0;
+            return 0;
+        }
         if (memcmp(cp, boundary, boundaryLen) == 0) {
+            *pureData = 0;
             return cp;
         }
-        cp++;
     }
+    *pureData = 0;
     return 0;
 }
 
