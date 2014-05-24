@@ -673,18 +673,6 @@ PUBLIC int httpApplyUserGroup();
   */
 PUBLIC bool httpConfigure(HttpConfigureProc proc, void *arg, MprTicks timeout);
 
-#if UNUSED
-/**
-    Configure endpoints with named virtual hosts
-    @param http Http service object.
-    @param ip IP address for the named virtual host
-    @param port address for the named virtual host
-    @ingroup HttpEndpoint
-    @stability Stable
- */
-PUBLIC int httpConfigureNamedVirtualEndpoints(Http *http, cchar *ip, int port);
-#endif
-
 /**
     Create a Http service object
     @description Create a http service object. One http service object should be created per application.
@@ -3530,7 +3518,7 @@ typedef struct HttpAuth {
 PUBLIC int httpAddAuthType(cchar *name, HttpAskLogin askLogin, HttpParseAuth parse, HttpSetAuth setAuth);
 
 /**
-    Add an authorization store for password validation. The pre-supplied types are 'system' and 'file'
+    Add an authorization store for password validation. The pre-supplied types are "config" and "system".
     @description This creates an AuthType object with the defined name and callbacks.
     @param name Unique authorization type name
     @param verifyUser Callback to verify the username and password contained in the HttpConn object passed to the callback.
@@ -3815,7 +3803,7 @@ PUBLIC void httpSetAuthRequiredAbilities(HttpAuth *auth, cchar *abilities);
 /**
     Set the authentication password store to use
     @param auth Auth object allocated by #httpCreateAuth.
-    @param store Password store to use. Select from: 'system', 'file'
+    @param store Password store to use. Select from: "app", "config" or "system"
     @ingroup HttpAuth
     @stability Evolving
  */
@@ -3882,9 +3870,8 @@ typedef struct HttpLang {
 #define HTTP_CACHE_SERVER           0x2     /**< Cache on the server side */
 #define HTTP_CACHE_MANUAL           0x4     /**< Cache manually. User must call httpWriteCache */
 #define HTTP_CACHE_RESET            0x8     /**< Don't inherit cache config from outer routes */
-#define HTTP_CACHE_ALL              0x10    /**< Cache the same pathInfo together regardless of the request params */
-#define HTTP_CACHE_ONLY             0x20    /**< Cache exactly the specified URI with params */
-#define HTTP_CACHE_UNIQUE           0x40    /**< Uniquely cache request with different params */
+#define HTTP_CACHE_UNIQUE           0x10    /**< Uniquely cache request with different params */
+#define HTTP_CACHE_HAS_PARAMS       0x20    /**< Cache definition has params */
 
 /**
     Cache Control
@@ -3947,15 +3934,16 @@ typedef struct HttpCache {
         the URI may include such post data in a sorted query format. E.g. {uri: /buy?item=scarf&quantity=1}.
     @param extensions List of document extensions for which caching should be enabled. Set to a comma or space 
         separated list of extensions. Extensions should not have a period prefix. Set to null or "*" for all extensions.
-        Example: "html, css, js".
+        Example: "html, css, js". The URI may include request parameters in sorted www-urlencoded format. For example:
+        /example.esp?hobby=sailing&name=john.
     @param types List of document mime types for which caching should be enabled. Set to a comma or space 
         separated list of types. The mime types are those that correspond to the document extension and NOT the
         content type defined by the handler serving the document. Set to null or "*" for all types.
         Example: "image/gif, application/x-php".
-    @param clientLifespan Lifespan of client cache items in milliseconds. If not set to positive integer, the lifespan will
-        default to the route lifespan.
-    @param serverLifespan Lifespan of server cache items in milliseconds. If not set to positive integer, the lifespan will
-        default to the route lifespan.
+    @param clientLifespan Lifespan of client cache items in milliseconds. If not set to positive integer, 
+        the lifespan will default to the route lifespan.
+    @param serverLifespan Lifespan of server cache items in milliseconds. If not set to positive integer, 
+        the lifespan will default to the route lifespan.
     @param flags Cache control flags. Select HTTP_CACHE_MANUAL to enable manual mode. In manual mode, cached content
         will not be automatically sent. Use #httpWriteCached in the request handler to write previously cached content.
         \n\n
@@ -3965,17 +3953,9 @@ typedef struct HttpCache {
         \n\n
         Select HTTP_CACHE_RESET to first reset existing caching configuration for this route.
         \n\n
-        Select HTTP_CACHE_ALL, HTTP_CACHE_ONLY or HTTP_CACHE_UNIQUE to define the server-side caching mode. Only
-        one of these three mode flags should be specified.
+        Select HTTP_CACHE_SERVER to define the server-side caching mode.
         \n\n
-        If the HTTP_CACHE_ALL flag is set, the request params (query, post data, and route parameters) will be
-        ignored and all requests for a given URI path will cache to the same cache record.
-        \n\n
-        Select HTTP_CACHE_UNIQUE to uniquely cache requests with different request parameters. The URIs specified in 
-        uris should not contain any request parameters.
-        \n\n
-        Select HTTP_CACHE_ONLY to cache only the exact URI with parameters specified in uris. The parameters must be 
-        in sorted www-urlencoded format. For example: /example.esp?hobby=sailing&name=john.
+        Select HTTP_CACHE_UNIQUE to uniquely cache requests with different request parameters. 
     @return A count of the bytes actually written
     @ingroup HttpCache
     @stability Evolving
@@ -3986,8 +3966,8 @@ PUBLIC void httpAddCache(struct HttpRoute *route, cchar *methods, cchar *uris, c
 /**
     Update the cached content for a URI
     @param conn HttpConn connection object 
-    @param uri The request URI for which to update the cache. If using the HTTP_CACHE_ONLY flag when configuring 
-        the cached item, then the URI should contain the request parameters in sorted www-urlencoded format.
+    @param uri The request URI for which to update the cache. The URI may 
+        contain the request parameters in sorted www-urlencoded format.
     @param data Data to cache for the URI. If you wish to cache response headers, include those at the start of the
     data followed by an additional new line. For example: "Content-Type: text/plain\n\nHello World\n".
     @param lifespan Lifespan in milliseconds for the cached content
@@ -6867,10 +6847,7 @@ PUBLIC ssize httpWriteUploadData(HttpConn *conn, MprList *formData, MprList *fil
 /*  
     Endpoint flags
  */
-#if UNUSED
-#define HTTP_NAMED_VHOST    0x1             /**< Using named virtual hosting */
-#endif
-#define HTTP_NEW_DISPATCHER 0x2             /**< New dispatcher for each connection */
+#define HTTP_NEW_DISPATCHER     0x1         /**< New dispatcher for each connection */
 
 /** 
     Listening endpoints. Endpoints may have multiple virtual named hosts.
@@ -6978,17 +6955,6 @@ PUBLIC void httpDestroyEndpoint(HttpEndpoint *endpoint);
  */
 PUBLIC void *httpGetEndpointContext(HttpEndpoint *endpoint);
 
-#if UNUSED
-/**
-    Test if an endpoint has named virtual hosts.
-    @param endpoint Endpoint object to examine
-    @return True if the endpoint has named virutal hosts.
-    @ingroup HttpEndpoint
-    @stability Deprecated
- */
-PUBLIC bool httpHasNamedVirtualHosts(HttpEndpoint *endpoint);
-#endif
-
 /**
     Get if the endpoint is running in asynchronous mode
     @param endpoint HttpEndpoint object created via #httpCreateEndpoint
@@ -7073,17 +7039,6 @@ PUBLIC void httpSetEndpointContext(HttpEndpoint *endpoint, void *context);
     @stability Stable
  */
 PUBLIC void httpSetEndpointNotifier(HttpEndpoint *endpoint, HttpNotifier fn);
-
-#if UNUSED
-/**
-    Control whether the endpoint has named virtual hosts.
-    @param endpoint Endpoint object to examine
-    @param on Set to true to enable named virtual hosts
-    @ingroup HttpEndpoint
-    @stability Stable
- */
-PUBLIC void httpSetHasNamedVirtualHosts(HttpEndpoint *endpoint, bool on);
-#endif
 
 /** 
     Start listening for client connections on an endpoint.

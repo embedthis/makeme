@@ -130,7 +130,7 @@ static void manageAuth(HttpAuth *auth, int flags);
 static void manageRole(HttpRole *role, int flags);
 static void manageUser(HttpUser *user, int flags);
 static void formLogin(HttpConn *conn);
-static bool fileVerifyUser(HttpConn *conn, cchar *username, cchar *password);
+static bool configVerifyUser(HttpConn *conn, cchar *username, cchar *password);
 
 /*********************************** Code *************************************/
 
@@ -141,9 +141,10 @@ PUBLIC void httpInitAuth()
     httpAddAuthType("form", formLogin, NULL, NULL);
 
     httpCreateAuthStore("app", NULL);
-    httpCreateAuthStore("file", fileVerifyUser);
+    httpCreateAuthStore("config", configVerifyUser);
 #if DEPRECATED || 1
-    httpCreateAuthStore("internal", fileVerifyUser);
+    httpCreateAuthStore("file", configVerifyUser);
+    httpCreateAuthStore("internal", configVerifyUser);
 #endif
 #if ME_COMPILER_HAS_PAM && ME_HTTP_PAM
     httpCreateAuthStore("system", httpPamVerifyUser);
@@ -878,10 +879,10 @@ PUBLIC void httpComputeAllUserAbilities(HttpAuth *auth)
 
 
 /*
-    Verify the user password based on the internal users set. This is used when not using PAM or custom verification.
+    Verify the user password based on the users defined via the configuration files. 
     Password may be NULL only if using auto-login.
  */
-static bool fileVerifyUser(HttpConn *conn, cchar *username, cchar *password)
+static bool configVerifyUser(HttpConn *conn, cchar *username, cchar *password)
 {
     HttpRx      *rx;
     HttpAuth    *auth;
@@ -891,7 +892,7 @@ static bool fileVerifyUser(HttpConn *conn, cchar *username, cchar *password)
     rx = conn->rx;
     auth = rx->route->auth;
     if (!conn->user && (conn->user = mprLookupKey(auth->userCache, username)) == 0) {
-        mprLog(5, "fileVerifyUser: Unknown user \"%s\" for route %s", username, rx->route->name);
+        mprLog(5, "configVerifyUser: Unknown user \"%s\" for route %s", username, rx->route->name);
         return 0;
     }
     if (password) {
@@ -1287,7 +1288,7 @@ static HttpCache *lookupCacheControl(HttpConn *conn)
      */
     for (next = 0; (cache = mprGetNextItem(rx->route->caching, &next)) != 0; ) {
         if (cache->uris) {
-            if (cache->flags & HTTP_CACHE_ONLY) {
+            if (cache->flags & HTTP_CACHE_HAS_PARAMS) {
                 ukey = sfmt("%s?%s", rx->pathInfo, httpGetParamsString(conn));
             } else {
                 ukey = rx->pathInfo;
@@ -1529,15 +1530,10 @@ PUBLIC void httpAddCache(HttpRoute *route, cchar *methods, cchar *uris, cchar *e
     if (uris) {
         cache->uris = mprCreateHash(0, MPR_HASH_STABLE);
         for (item = stok(sclone(uris), " \t,", &tok); item; item = stok(0, " \t,", &tok)) {
-            if (flags & HTTP_CACHE_ONLY && route->prefix && !scontains(item, sfmt("prefix=%s", route->prefix))) {
-                /*
-                    Auto-add ?prefix=ROUTE_NAME if there is no query
-                 */
-                if (!schr(item, '?')) {
-                    item = sfmt("%s?prefix=%s", item, route->prefix); 
-                }
-            }
             mprAddKey(cache->uris, item, cache);
+            if (schr(item, '?')) {
+                flags |= HTTP_CACHE_UNIQUE;
+            }
         }
     }
     if (clientLifespan <= 0) {
@@ -1580,7 +1576,7 @@ static char *makeCacheKey(HttpConn *conn)
     HttpRx      *rx;
 
     rx = conn->rx;
-    if (conn->tx->cache->flags & (HTTP_CACHE_ONLY | HTTP_CACHE_UNIQUE)) {
+    if (conn->tx->cache->flags & HTTP_CACHE_UNIQUE) {
         return sfmt("http::response-%s?%s", rx->pathInfo, httpGetParamsString(conn));
     } else {
         return sfmt("http::response-%s", rx->pathInfo);
@@ -2472,7 +2468,7 @@ PUBLIC int httpWait(HttpConn *conn, int state, MprTicks timeout)
 
 /************************************ Forwards ********************************/
 static void parseAll(HttpRoute *route, cchar *key, MprJson *prop);
-static void parseAuthType(HttpRoute *route, cchar *key, MprJson *prop);
+static void parseAuthStore(HttpRoute *route, cchar *key, MprJson *prop);
 static void postParse(HttpRoute *route);
 static void parseRoutes(HttpRoute *route, cchar *key, MprJson *prop);
 
@@ -2803,14 +2799,14 @@ static void parseDirectories(HttpRoute *route, cchar *key, MprJson *prop)
 static void parseAuth(HttpRoute *route, cchar *key, MprJson *prop)
 {
     if (prop->type & MPR_JSON_STRING) {
-        parseAuthType(route, key, prop);
+        parseAuthStore(route, key, prop);
     } else if (prop->type == MPR_JSON_OBJ) {
         parseAll(route, key, prop);
     }
 }
 
 
-static void parseAuthType(HttpRoute *route, cchar *key, MprJson *prop)
+static void parseAuthStore(HttpRoute *route, cchar *key, MprJson *prop)
 {
     if (httpSetAuthStore(route->auth, prop->value) < 0) {
         httpParseError(route, "The %s AuthStore is not available on this platform", prop->value);
@@ -2897,67 +2893,35 @@ static void parseAuthUsers(HttpRoute *route, cchar *key, MprJson *prop)
 }
 
 
-#if KEEP
-static void parseContent(HttpRoute *route, cchar *key, MprJson *prop)
-{
-    MprJson     *child;
-    int         combine, compress, minify, ji;
-    
-    for (ITERATE_CONFIG(route, prop, child, ji)) {
-        combine = smatch(mprGetJson(child, "combine"), "true");
-        compress = smatch(mprGetJson(child, "compress"), "true");
-        minify = smatch(mprGetJson(child, "minify"), "true");
-        if (smatch(child->name, "c")) {
-            route->combine = 1;
-        }
-        if (compress) {
-            if (minify) {
-                httpAddRouteMapping(route, prop->value, "min.${1}.gz");
-            } else {
-                httpAddRouteMapping(route, prop->value, "${1}.gz");
-            }
-        } else if (minify) {
-            httpAddRouteMapping(route, prop->value, "min.${1}");
-        }
-    }
-}
-#endif
-
-
 static void parseCache(HttpRoute *route, cchar *key, MprJson *prop)
 {
     MprJson     *child;
     MprTicks    clientLifespan, serverLifespan;
-    cchar       *methods, *extensions, *uris, *mimeTypes;
+    cchar       *methods, *extensions, *uris, *mimeTypes, *client, *server;
     int         flags, ji;
     
     for (ITERATE_CONFIG(route, prop, child, ji)) {
-        clientLifespan = httpGetNumber(mprGetJson(child, "lifespan.client"));
-        serverLifespan = httpGetNumber(mprGetJson(child, "lifespan.server"));
+        flags = 0;
+        if ((client = mprGetJson(child, "client")) != 0) {
+            flags |= HTTP_CACHE_CLIENT;
+            clientLifespan = httpGetNumber(client);
+        }
+        if ((server = mprGetJson(child, "server")) != 0) {
+            flags |= HTTP_CACHE_SERVER;
+            serverLifespan = httpGetNumber(server);
+        }
         methods = getList(mprGetJsonObj(child, "methods"));
         extensions = getList(mprGetJsonObj(child, "extensions"));
         uris = getList(mprGetJsonObj(child, "uris"));
         mimeTypes = getList(mprGetJsonObj(child, "mime"));
 
-        flags = 0;
-        if (smatch(mprGetJson(child, "all"), "true")) {
-            /* Cache same pathInfo regardless of params */
-            flags |= HTTP_CACHE_ALL;
-            flags &= ~(HTTP_CACHE_ONLY | HTTP_CACHE_UNIQUE);
+        if (smatch(mprGetJson(child, "unique"), "true")) {
+            /* Uniquely cache requests with different params */
+            flags |= HTTP_CACHE_UNIQUE;
         }
         if (smatch(mprGetJson(child, "manual"), "true")) {
             /* User must manually call httpWriteCache */
             flags |= HTTP_CACHE_MANUAL;
-        }
-        if (smatch(mprGetJson(child, "only"), "true")) {
-            /* Cache only the specified URIs with parameters */
-            flags |= HTTP_CACHE_ONLY;
-            flags &= ~(HTTP_CACHE_ALL | HTTP_CACHE_UNIQUE);
-        }
-        if (smatch(mprGetJson(child, "unique"), "true")) {
-            /* Cache each request uniquely with different parameters */
-            flags |= HTTP_CACHE_UNIQUE;
-            flags &= ~(HTTP_CACHE_ALL | HTTP_CACHE_ONLY);
         }
         httpAddCache(route, methods, uris, extensions, mimeTypes, clientLifespan, serverLifespan, flags);
     }
@@ -3810,16 +3774,16 @@ static void parseStealth(HttpRoute *route, cchar *key, MprJson *prop)
 */
 static void parseTarget(HttpRoute *route, cchar *key, MprJson *prop)
 {
-    cchar   *name, *rule;
+    cchar   *name, *args;
 
     if (prop->type & MPR_JSON_OBJ) {
-        name = mprGetJson(prop, "name");
-        rule = mprGetJson(prop, "rule");
+        name = mprGetJson(prop, "operation");
+        args = mprGetJson(prop, "args");
     } else {
         name = "run";
-        rule = prop->value;
+        args = prop->value;
     }
-    httpSetRouteTarget(route, name, rule);
+    httpSetRouteTarget(route, name, args);
 }
 
 
@@ -3946,7 +3910,10 @@ PUBLIC int httpInitParser()
     httpAddConfig("app.http", parseHttp);
     //  MOB - should have Http in all names
     httpAddConfig("app.http.auth", parseAuth);
-    httpAddConfig("app.http.auth.type", parseAuthType);
+#if DEPRECATED || 1
+    httpAddConfig("app.http.auth.type", parseAuthStore);
+#endif
+    httpAddConfig("app.http.auth.store", parseAuthStore);
     httpAddConfig("app.http.auth.login", parseAuthLogin);
     httpAddConfig("app.http.auth.realm", parseAuthRealm);
     httpAddConfig("app.http.auth.require", parseAll);
@@ -5700,15 +5667,7 @@ PUBLIC void httpMatchHost(HttpConn *conn)
         mprCloseSocket(conn->sock, 0);
         return;
     }
-#if UNUSED
-    if (httpHasNamedVirtualHosts(endpoint)) {
-        host = httpLookupHostOnEndpoint(endpoint, conn->rx->hostHeader);
-    } else {
-        host = mprGetFirstItem(endpoint->hosts);
-    }
-#else
     host = httpLookupHostOnEndpoint(endpoint, conn->rx->hostHeader);
-#endif
     if (host == 0) {
         httpSetConnHost(conn, 0);
         httpError(conn, HTTP_CODE_NOT_FOUND, "No host to serve request. Searching for %s", conn->rx->hostHeader);
@@ -5836,24 +5795,6 @@ PUBLIC void httpAddHostToEndpoint(HttpEndpoint *endpoint, HttpHost *host)
 }
 
 
-#if UNUSED
-PUBLIC bool httpHasNamedVirtualHosts(HttpEndpoint *endpoint)
-{
-    return endpoint->flags & HTTP_NAMED_VHOST;
-}
-
-
-PUBLIC void httpSetHasNamedVirtualHosts(HttpEndpoint *endpoint, bool on)
-{
-    if (on) {
-        endpoint->flags |= HTTP_NAMED_VHOST;
-    } else {
-        endpoint->flags &= ~HTTP_NAMED_VHOST;
-    }
-}
-#endif
-
-
 PUBLIC HttpHost *httpLookupHostOnEndpoint(HttpEndpoint *endpoint, cchar *hostHeader)
 {
     HttpHost    *host;
@@ -5878,29 +5819,6 @@ PUBLIC HttpHost *httpLookupHostOnEndpoint(HttpEndpoint *endpoint, cchar *hostHea
     }
     return 0;
 }
-
-
-#if UNUSED
-PUBLIC int httpConfigureNamedVirtualEndpoints(Http *http, cchar *ip, int port)
-{
-    HttpEndpoint    *endpoint;
-    int             next, count;
-
-    if (ip == 0) {
-        ip = "";
-    }
-    for (count = 0, next = 0; (endpoint = mprGetNextItem(http->endpoints, &next)) != 0; ) {
-        if (endpoint->port <= 0 || port <= 0 || endpoint->port == port) {
-            assert(endpoint->ip);
-            if (*endpoint->ip == '\0' || *ip == '\0' || scmp(endpoint->ip, ip) == 0) {
-                httpSetHasNamedVirtualHosts(endpoint, 1);
-                count++;
-            }
-        }
-    }
-    return (count == 0) ? MPR_ERR_CANT_FIND : 0;
-}
-#endif
 
 
 /*
@@ -6231,6 +6149,8 @@ PUBLIC HttpHost *httpCloneHost(HttpHost *parent)
     host->routes = parent->routes;
     host->flags = parent->flags | HTTP_HOST_VHOST;
     host->streams = parent->streams;
+    host->secureEndpoint = parent->secureEndpoint;
+    host->defaultEndpoint = parent->defaultEndpoint;
     httpAddHost(http, host);
     return host;
 }
@@ -10146,9 +10066,6 @@ PUBLIC HttpRoute *httpCreateInheritedRoute(HttpRoute *parent)
     route->trace[1] = parent->trace[1];
     route->update = parent->update;
     route->updates = parent->updates;
-#if UNUSED
-    route->uploadDir = parent->uploadDir;
-#endif
     route->vars = parent->vars;
     route->workers = parent->workers;
     return route;
@@ -10218,9 +10135,6 @@ static void manageRoute(HttpRoute *route, int flags)
         mprMark(route->tokens);
         mprMark(route->tplate);
         mprMark(route->updates);
-#if UNUSED
-        mprMark(route->uploadDir);
-#endif
         mprMark(route->vars);
         mprMark(route->webSocketsProtocol);
 
@@ -13306,6 +13220,9 @@ PUBLIC uint64 httpGetNumber(cchar *value)
 {
     uint64  number;
 
+    if (smatch(value, "unlimited")) {
+        return MAXINT64;
+    }
     if (smatch(value, "infinite") || smatch(value, "never")) {
         return MPR_MAX_TIMEOUT / MPR_TICKS_PER_SEC;
     }
@@ -13467,9 +13384,6 @@ static void manageRx(HttpRx *rx, int flags)
         mprMark(rx->passwordDigest);
         mprMark(rx->paramString);
         mprMark(rx->files);
-#if UNUSED
-        mprMark(rx->uploadDir);
-#endif
         mprMark(rx->target);
         mprMark(rx->webSocket);
     }
@@ -20677,6 +20591,12 @@ PUBLIC int httpGetIntParam(HttpConn *conn, cchar *var, int defaultValue)
 }
 
 
+static int sortParam(MprJson **j1, MprJson **j2)
+{
+    return scmp((*j1)->name, (*j2)->name);
+}
+
+
 /*
     Return the request parameters as a string. 
     This will return the exact same string regardless of the order of form parameters.
@@ -20684,12 +20604,39 @@ PUBLIC int httpGetIntParam(HttpConn *conn, cchar *var, int defaultValue)
 PUBLIC char *httpGetParamsString(HttpConn *conn)
 {
     HttpRx      *rx;
+    MprJson     *jp, *params;
+    MprList     *list;
+    char        *buf, *cp;
+    ssize       len;
+    int         ji, next;
 
     assert(conn);
     rx = conn->rx;
 
     if (rx->paramString == 0) {
-        rx->paramString = mprJsonToString(rx->params, 0);
+        if ((params = conn->rx->params) != 0) {
+            if ((list = mprCreateList(params->length, 0)) != 0) {
+                len = 0;
+                for (ITERATE_JSON(params, jp, ji)) {
+                    if (jp->type & MPR_JSON_VALUE) {
+                        mprAddItem(list, jp);
+                        len += slen(jp->name) + slen(jp->value) + 2;
+                    }
+                }
+                if ((buf = mprAlloc(len + 1)) != 0) {
+                    mprSortList(list, (MprSortProc) sortParam, 0);
+                    cp = buf;
+                    for (next = 0; (jp = mprGetNextItem(list, &next)) != 0; ) {
+                        strcpy(cp, jp->name); cp += slen(jp->name);
+                        *cp++ = '=';
+                        strcpy(cp, jp->value); cp += slen(jp->value);
+                        *cp++ = '&';
+                    }
+                    cp[-1] = '\0';
+                    rx->paramString = buf;
+                }
+            }
+        }
     }
     return rx->paramString;
 }

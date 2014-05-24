@@ -9,7 +9,7 @@ This software is also distributed under an MIT license if used with
 an Embedthis Commercial License for Appweb or ESP.
 
 * [MIT License](http://opensource.org/licenses/MIT)
-* [Embedthis Commercial License](http://embedthis.com/licensing/index.html)
+* [Embedthis Commercial License](http://embedthis.com/licensing/)
 
 Trademarks and Copyrights
 ---

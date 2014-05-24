@@ -7,7 +7,7 @@ non-open source programs. Commercial licenses for this software and support
 services are available from Embedthis Software.
 
 * [GPL License](http://www.gnu.org/licenses/gpl-2.0.html)
-* [Embedthis Commercial License](http://embedthis.com/licensing/index.html)
+* [Embedthis Commercial License](http://embedthis.com/licensing/)
 
 
 Third Party Licenses
@@ -15,11 +15,11 @@ Third Party Licenses
 
 The Software contains third party software under the agreements that follow.
 
-###Perl Regular Expressions License
+### Perl Regular Expressions License
 
 [PCRE License - BSD 2 Clause](http://opensource.org/licenses/BSD-2-Clause)
 
-###RSA MD5 License
+### RSA MD5 License
 
 License to copy and use this software is granted provided that it is identified 
 as the "RSA Data Security, Inc. MD5 Message-Digest Algorithm" in all material 
@@ -34,7 +34,7 @@ kind. These notices must be retained in any copies of any part of this
 documentation and/or software. 
 
 
-###EST License
+### EST License
 
 The optional EST SSL stack includes code from TropicSSL.
 

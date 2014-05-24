@@ -4,7 +4,7 @@ Embedthis Http Library
 Licensing
 ---
 The Http library is dual-licensed under a GPLv2 license and commercial licenses are offered by Embedthis Software.
-See http://embedthis.com/licensing/index.html for licensing details.
+See http://embedthis.com/licensing/ for licensing details.
 
 ### To Read Documentation:
 
