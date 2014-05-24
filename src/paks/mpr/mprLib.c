@@ -18586,11 +18586,10 @@ PUBLIC char *mprJoinPaths(cchar *base, ...)
     cchar       *path;
 
     va_start(args, base);
-    va_end(args);
-
     while ((path = va_arg(args, char*)) != 0) {
         base = mprJoinPath(base, path);
     }
+    va_end(args);
     return (char*) base;
 }
 
