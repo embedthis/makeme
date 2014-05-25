@@ -18475,7 +18475,7 @@ PUBLIC void httpSetFilename(HttpConn *conn, cchar *filename, int flags)
         if (!mprIsAbsPathContained(filename, conn->rx->route->documents)) {
             info->checked = 1;
             info->valid = 0;
-            httpError(conn, HTTP_CODE_BAD_REQUEST, "Bad URL");
+            httpError(conn, HTTP_CODE_BAD_REQUEST, "Bad filename");
             return;
         }
     }

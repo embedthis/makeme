@@ -5,11 +5,11 @@ This software is distributed under the GPL open source license.
 
 * [GPL License](http://www.gnu.org/licenses/gpl-2.0.html)
 
-This software is also distributed under an MIT license if used with
-an Embedthis Commercial License for Appweb or ESP.
+This software is also distributed under the Embedthis Open Source
+license which is an MIT style license if used with an Embedthis
+Commercial License.
 
-* [MIT License](http://opensource.org/licenses/MIT)
-* [Embedthis Commercial License](http://embedthis.com/licensing/)
+* [Embedthis OpenSource License](http://embedthis.com/licensing/open.html)
 
 Trademarks and Copyrights
 ---
