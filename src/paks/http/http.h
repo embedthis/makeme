@@ -4078,8 +4078,8 @@ typedef struct HttpRoute {
     char            *startSegment;          /**< Starting literal segment of pattern (includes prefix) */
     char            *startWith;             /**< Starting literal segment of pattern (includes prefix) */
     char            *optimizedPattern;      /**< Processed pattern (excludes prefix) */
-    char            *prefix;                /**< Application scriptName prefix. Set to NULL for "/" */
-    char            *serverPrefix;          /**< Prefix for the server-side. Does not include prefix. Set to NULL for "/" */
+    char            *prefix;                /**< Application scriptName prefix. Set to "" for "/". Always set */
+    char            *serverPrefix;          /**< Prefix for the server-side. Does not include prefix. Always set */
     char            *tplate;                /**< URI template for forming links based on this route (includes prefix) */
     char            *targetRule;            /**< Target rule */
     char            *target;                /**< Route target details */
@@ -4580,10 +4580,11 @@ PUBLIC int httpAddRouteUpdate(HttpRoute *route, cchar *name, cchar *details, int
     @param parent Parent route from which to inherit configuration.
     @param prefix URI prefix to append to the application prefix when constructing route URIs.
     @param name Route name.
+    @return The new route object.
     @ingroup HttpRoute
     @stability Evolving
  */
-PUBLIC void httpAddWebSocketsRoute(HttpRoute *parent, cchar *prefix, cchar *name);
+PUBLIC HttpRoute *httpAddWebSocketsRoute(HttpRoute *parent, cchar *prefix, cchar *name);
 
 /**
     Backup the route log if required

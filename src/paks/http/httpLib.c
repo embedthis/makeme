@@ -2668,7 +2668,7 @@ static void postParse(HttpRoute *route)
     if ((mappings = mprGetJsonObj(route->config, "app.client.mappings")) != 0) {
         client = mprCreateJson(MPR_JSON_OBJ);
         clientCopy(route, client, mappings);
-        mprSetJson(client, "prefix", route->prefix ? route->prefix : "");
+        mprSetJson(client, "prefix", route->prefix);
         route->client = mprJsonToString(client, MPR_JSON_QUOTES);
         mprTrace(6, "Client Config: for %s, %s", route->name, mprJsonToString(client, MPR_JSON_PRETTY));
     }
@@ -3331,20 +3331,19 @@ static void parsePrefix(HttpRoute *route, cchar *key, MprJson *prop)
 static void createRedirectAlias(HttpRoute *route, int status, cchar *from, cchar *to)
 {
     HttpRoute   *alias;
-    cchar       *pattern, *prefix;
+    cchar       *pattern;
 
     if (from == 0 || *from == '\0') {
         from = "/";
     }
-    prefix = route->prefix ? route->prefix : "";
-
     if (sends(from, "/")) {
-        pattern = sfmt("^%s%s(.*)$", prefix, from);
+        pattern = sfmt("^%s%s(.*)$", route->prefix, from);
     } else {
         /* Add a non-capturing optional trailing "/" */
-        pattern = sfmt("^%s%s(?:/)*(.*)$", prefix, from);
+        pattern = sfmt("^%s%s(?:/)*(.*)$", route->prefix, from);
     }
     alias = httpCreateAliasRoute(route, pattern, 0, 0);
+    httpSetRouteName(alias, sfmt("redirect-%s", route->name));
     httpSetRouteMethods(alias, "*");
     httpSetRouteTarget(alias, "redirect", sfmt("%d %s/$1", status, to));
     if (sstarts(to, "https")) {
@@ -9949,6 +9948,8 @@ PUBLIC HttpRoute *httpCreateRoute(HttpHost *host)
     route->targetRule = sclone("run");
     route->autoDelete = 1;
     route->workers = -1;
+    route->prefix = MPR->emptyString;
+    route->serverPrefix = MPR->emptyString;
 
     route->headers = mprCreateList(-1, MPR_LIST_STABLE);
     route->handlers = mprCreateList(-1, MPR_LIST_STABLE);
@@ -10344,7 +10345,7 @@ static int matchRoute(HttpConn *conn, HttpRoute *route)
     /*
         Remove the route prefix. Restore after matching.
      */
-    if (route->prefix) {
+    if (route->prefix && *route->prefix) {
         if (!sstarts(rx->pathInfo, route->prefix)) {
             return HTTP_ROUTE_REJECT;
         }
@@ -10359,7 +10360,7 @@ static int matchRoute(HttpConn *conn, HttpRoute *route)
     if ((rc = matchRequestUri(conn, route)) == HTTP_ROUTE_OK) {
         rc = checkRoute(conn, route);
     }
-    if (rc == HTTP_ROUTE_REJECT && route->prefix) {
+    if (rc == HTTP_ROUTE_REJECT && savePathInfo) {
         /* Keep the modified pathInfo if OK or REWRITE */
         rx->pathInfo = savePathInfo;
         rx->scriptName = 0;
@@ -10480,10 +10481,8 @@ static int checkRoute(HttpConn *conn, HttpRoute *route)
             }
         }
     }
-    if (route->prefix) {
-        /* This is needed by some handler match routines */
-        httpSetParam(conn, "prefix", route->prefix);
-    }
+    httpSetParam(conn, "prefix", route->prefix);
+
     if ((rc = selectHandler(conn, route)) != HTTP_ROUTE_OK) {
         return rc;
     }
@@ -11315,7 +11314,7 @@ PUBLIC void httpSetRoutePattern(HttpRoute *route, cchar *pattern, int flags)
 
 
 /*
-    Set the prefix to null if no prefix
+    Set the prefix to empty if no prefix
  */
 PUBLIC void httpSetRoutePrefix(HttpRoute *route, cchar *prefix)
 {
@@ -11324,7 +11323,7 @@ PUBLIC void httpSetRoutePrefix(HttpRoute *route, cchar *prefix)
 
     if (prefix && *prefix) {
         if (smatch(prefix, "/")) {
-            route->prefix = 0;
+            route->prefix = MPR->emptyString;
             route->prefixLen = 0;
         } else {
             route->prefix = sclone(prefix);
@@ -11332,13 +11331,14 @@ PUBLIC void httpSetRoutePrefix(HttpRoute *route, cchar *prefix)
             httpSetRouteVar(route, "PREFIX", prefix);
         }
     } else {
-        route->prefix = 0;
+        route->prefix = MPR->emptyString;
         route->prefixLen = 0;
         httpSetRouteVar(route, "PREFIX", "");
     }
     if (route->pattern) {
         finalizePattern(route);
     }
+    assert(route->prefix);
 }
 
 
@@ -11358,13 +11358,14 @@ PUBLIC void httpSetRouteServerPrefix(HttpRoute *route, cchar *prefix)
 
     if (prefix && *prefix) {
         if (smatch(prefix, "/")) {
-            route->serverPrefix = 0;
+            route->serverPrefix = MPR->emptyString;
         } else {
             route->serverPrefix = sclone(prefix);
         }
     } else {
-        route->serverPrefix = 0;
+        route->serverPrefix = MPR->emptyString;
     }
+    assert(route->serverPrefix);
 }
 
 
@@ -11569,7 +11570,7 @@ static void finalizePattern(HttpRoute *route)
     /*
         Remove the route prefix from the start of the compiled pattern.
      */
-    if (route->prefix && sstarts(startPattern, route->prefix)) {
+    if (route->prefix && *route->prefix && sstarts(startPattern, route->prefix)) {
         assert(route->prefixLen <= route->startWithLen);
         startPattern = sfmt("^%s", &startPattern[route->prefixLen]);
     } else {
@@ -11839,11 +11840,11 @@ PUBLIC char *httpTemplate(HttpConn *conn, cchar *template, MprHash *options)
     buf = mprCreateBuf(-1, -1);
     for (cp = template; *cp; cp++) {
         if (cp == template && *cp == '~') {
-            mprPutStringToBuf(buf, route->prefix ? route->prefix : "/");
+            mprPutStringToBuf(buf, route->prefix);
 
         } else if (cp == template && *cp == ME_SERVER_PREFIX_CHAR) {
-            mprPutStringToBuf(buf, route->prefix ? route->prefix : "/");
-            mprPutStringToBuf(buf, route->serverPrefix ? route->serverPrefix : "/");
+            mprPutStringToBuf(buf, route->prefix);
+            mprPutStringToBuf(buf, route->serverPrefix);
 
         } else if (*cp == '$' && cp[1] == '{' && (cp == template || cp[-1] != '\\')) {
             cp += 2;
@@ -12385,22 +12386,21 @@ PUBLIC HttpRoute *httpDefineRoute(HttpRoute *parent, cchar *name, cchar *methods
 }
 
 
-/*
-    Add a restful route. The parent route may supply a route prefix. If defined, the route name will prepend the prefix.
- */
-PUBLIC HttpRoute *httpAddRestfulRoute(HttpRoute *parent, cchar *prefix, cchar *action, cchar *methods, cchar *pattern, 
+PUBLIC HttpRoute *httpAddRestfulRoute(HttpRoute *parent, cchar *uprefix, cchar *action, cchar *methods, cchar *pattern, 
         cchar *target, cchar *resource)
 {
     cchar       *name, *nameResource, *source, *routePrefix;
 
-    routePrefix = parent->prefix ? parent->prefix : "";
-    prefix = prefix ? prefix : "";
+    routePrefix = parent->prefix;
+    if (!uprefix) {
+        uprefix = parent->serverPrefix;
+    }
     nameResource = smatch(resource, "{controller}") ? "*" : resource;
-    name = sfmt("%s%s/%s/%s", routePrefix, prefix, nameResource, action);
+    name = sfmt("%s%s/%s/%s", routePrefix, uprefix, nameResource, action);
     if (*resource == '{') {
-        pattern = sfmt("^%s%s/%s%s", routePrefix, prefix, resource, pattern);
+        pattern = sfmt("^%s%s/%s%s", routePrefix, uprefix, resource, pattern);
     } else {
-        pattern = sfmt("^%s%s/{controller=%s}%s", routePrefix, prefix, resource, pattern);
+        pattern = sfmt("^%s%s/{controller=%s}%s", routePrefix, uprefix, resource, pattern);
     }
     if (*resource == '{') {
         target = sfmt("$%s-%s", resource, target);
@@ -12413,53 +12413,56 @@ PUBLIC HttpRoute *httpAddRestfulRoute(HttpRoute *parent, cchar *prefix, cchar *a
 }
 
 
-PUBLIC void httpAddResourceGroup(HttpRoute *parent, cchar *prefix, cchar *resource)
+PUBLIC void httpAddResourceGroup(HttpRoute *parent, cchar *uprefix, cchar *resource)
 {
-    httpAddRestfulRoute(parent, prefix, "create",    "POST",    "(/)*$",                       "create",          resource);
-    httpAddRestfulRoute(parent, prefix, "edit",      "GET",     "/{id=[0-9]+}/edit$",          "edit",            resource);
-    httpAddRestfulRoute(parent, prefix, "get",       "GET",     "/{id=[0-9]+}$",               "get",             resource);
-    httpAddRestfulRoute(parent, prefix, "init",      "GET",     "/init$",                      "init",            resource);
-    httpAddRestfulRoute(parent, prefix, "list",      "GET",     "/list$",                      "list",            resource);
-    httpAddRestfulRoute(parent, prefix, "remove",    "DELETE",  "/{id=[0-9]+}$",               "remove",          resource);
-    httpAddRestfulRoute(parent, prefix, "update",    "POST",    "/{id=[0-9]+}$",               "update",          resource);
-    httpAddRestfulRoute(parent, prefix, "action",    "GET,POST","/{id=[0-9]+}/{action}(/)*$",  "${action}",       resource);
-    httpAddRestfulRoute(parent, prefix, "default",   "GET,POST","/{action}(/)*$",              "cmd-${action}",   resource);
+    httpAddRestfulRoute(parent, uprefix, "create",    "POST",    "(/)*$",                       "create",          resource);
+    httpAddRestfulRoute(parent, uprefix, "edit",      "GET",     "/{id=[0-9]+}/edit$",          "edit",            resource);
+    httpAddRestfulRoute(parent, uprefix, "get",       "GET",     "/{id=[0-9]+}$",               "get",             resource);
+    httpAddRestfulRoute(parent, uprefix, "init",      "GET",     "/init$",                      "init",            resource);
+    httpAddRestfulRoute(parent, uprefix, "list",      "GET",     "/list$",                      "list",            resource);
+    httpAddRestfulRoute(parent, uprefix, "remove",    "DELETE",  "/{id=[0-9]+}$",               "remove",          resource);
+    httpAddRestfulRoute(parent, uprefix, "update",    "POST",    "/{id=[0-9]+}$",               "update",          resource);
+    httpAddRestfulRoute(parent, uprefix, "action",    "GET,POST","/{id=[0-9]+}/{action}(/)*$",  "${action}",       resource);
+    httpAddRestfulRoute(parent, uprefix, "default",   "GET,POST","/{action}(/)*$",              "cmd-${action}",   resource);
 }
 
 
-PUBLIC void httpAddResource(HttpRoute *parent, cchar *prefix, cchar *resource)
+PUBLIC void httpAddResource(HttpRoute *parent, cchar *uprefix, cchar *resource)
 {
-    httpAddRestfulRoute(parent, prefix, "create",    "POST",    "(/)*$",          "create",     resource);
-    httpAddRestfulRoute(parent, prefix, "edit",      "GET",     "/edit$",         "edit",       resource);
-    httpAddRestfulRoute(parent, prefix, "get",       "GET",     "(/)*$",          "get",        resource);
-    httpAddRestfulRoute(parent, prefix, "init",      "GET",     "/init$",         "init",       resource);
-    httpAddRestfulRoute(parent, prefix, "update",    "POST",    "(/)*$",          "update",     resource);
-    httpAddRestfulRoute(parent, prefix, "remove",    "DELETE",  "(/)*$",          "remove",     resource);
-    httpAddRestfulRoute(parent, prefix, "default",   "GET,POST","/{action}(/)*$", "${action}",  resource);
+    httpAddRestfulRoute(parent, uprefix, "create",    "POST",    "(/)*$",          "create",     resource);
+    httpAddRestfulRoute(parent, uprefix, "edit",      "GET",     "/edit$",         "edit",       resource);
+    httpAddRestfulRoute(parent, uprefix, "get",       "GET",     "(/)*$",          "get",        resource);
+    httpAddRestfulRoute(parent, uprefix, "init",      "GET",     "/init$",         "init",       resource);
+    httpAddRestfulRoute(parent, uprefix, "update",    "POST",    "(/)*$",          "update",     resource);
+    httpAddRestfulRoute(parent, uprefix, "remove",    "DELETE",  "(/)*$",          "remove",     resource);
+    httpAddRestfulRoute(parent, uprefix, "default",   "GET,POST","/{action}(/)*$", "${action}",  resource);
 }
 
 
 /*
     Add routes for a permanent resource. Cannot create or remove.
  */
-PUBLIC void httpAddPermResource(HttpRoute *parent, cchar *prefix, cchar *resource)
+PUBLIC void httpAddPermResource(HttpRoute *parent, cchar *uprefix, cchar *resource)
 {
-    httpAddRestfulRoute(parent, prefix, "get",       "GET",     "(/)*$",          "get",        resource);
-    httpAddRestfulRoute(parent, prefix, "update",    "POST",    "(/)*$",          "update",     resource);
-    httpAddRestfulRoute(parent, prefix, "default",   "GET,POST","/{action}(/)*$", "${action}",  resource);
+    httpAddRestfulRoute(parent, uprefix, "get",       "GET",     "(/)*$",          "get",        resource);
+    httpAddRestfulRoute(parent, uprefix, "update",    "POST",    "(/)*$",          "update",     resource);
+    httpAddRestfulRoute(parent, uprefix, "default",   "GET,POST","/{action}(/)*$", "${action}",  resource);
 }
 
 
-PUBLIC void httpAddClientRoute(HttpRoute *parent, cchar *prefix, cchar *name)
+PUBLIC void httpAddClientRoute(HttpRoute *parent, cchar *uprefix, cchar *name)
 {
     HttpRoute   *route;
     cchar       *path, *pattern;
 
+    if (!uprefix) {
+        uprefix = "";
+    }
     if (parent->prefix) {
-        prefix = sjoin(parent->prefix, prefix, NULL);
+        uprefix = sjoin(parent->prefix, uprefix, NULL);
         name = sjoin(parent->prefix, name, NULL);
     }
-    pattern = sfmt("^%s(/.*)", prefix);
+    pattern = sfmt("^%s(/.*)", uprefix);
     path = mprGetRelPath(stemplate("${CLIENT_DIR}$1", parent->vars), parent->documents);
     route = httpDefineRoute(parent, name, "GET", pattern, path, parent->sourceName);
     httpAddRouteHandler(route, "fileHandler", "");
@@ -12468,27 +12471,28 @@ PUBLIC void httpAddClientRoute(HttpRoute *parent, cchar *prefix, cchar *name)
 
 PUBLIC void httpAddHomeRoute(HttpRoute *parent)
 {
-    cchar   *source, *name, *path, *pattern, *prefix;
+    cchar   *source, *name, *path, *pattern;
 
-    prefix = parent->prefix ? parent->prefix : "";
     source = parent->sourceName;
-    name = sjoin(prefix, "/home", NULL);
+    name = sjoin(parent->prefix, "/home", NULL);
     path = stemplate("${CLIENT_DIR}/index.esp", parent->vars);
-    pattern = sfmt("^%s(/)$", prefix);
+    pattern = sfmt("^%s(/)$", parent->prefix);
     httpDefineRoute(parent, name, "GET,POST", pattern, path, source);
 }
 
 
-PUBLIC void httpAddWebSocketsRoute(HttpRoute *parent, cchar *prefix, cchar *name)
+PUBLIC HttpRoute *httpAddWebSocketsRoute(HttpRoute *parent, cchar *uprefix, cchar *name)
 {
     HttpRoute   *route;
     cchar       *pattern;
 
+    if (!uprefix) {
+        uprefix = parent->serverPrefix;
+    }
     if (parent->prefix) {
-        prefix = sjoin(parent->prefix, prefix, NULL);
         name = sjoin(parent->prefix, name, NULL);
     }
-    pattern = sfmt("^%s/{controller}/stream", prefix);
+    pattern = sfmt("^%s%s/{controller}/stream", parent->prefix, uprefix);
     route = httpDefineRoute(parent, name, "GET", pattern, "$1-cmd-stream", "${controller}.c");
     httpAddRouteFilter(route, "webSocketFilter", "", HTTP_STAGE_RX | HTTP_STAGE_TX);
 
@@ -12498,6 +12502,7 @@ PUBLIC void httpAddWebSocketsRoute(HttpRoute *parent, cchar *prefix, cchar *name
      */
     route->limits->inactivityTimeout = ME_MAX_INACTIVITY_DURATION * 10;
     route->limits->requestTimeout = MPR_MAX_TIMEOUT;
+    return route;
 }
 
 /*************************************************** Support Routines ****************************************************/
@@ -17288,11 +17293,15 @@ PUBLIC bool httpCheckSecurityToken(HttpConn *conn)
         requestToken = httpGetHeader(conn, ME_XSRF_HEADER);
         if (!requestToken) {
             requestToken = httpGetParam(conn, ME_XSRF_PARAM, 0);
+            if (!requestToken) {
+                mprLog(4, "Missing security token in request");
+            }
         }
         if (!smatch(sessionToken, requestToken)) {
             /*
                 Potential CSRF attack. Deny request. Re-create a new security token so legitimate clients can retry.
              */
+            mprLog(4, "Security token in request: %s does not match session token %s", requestToken, sessionToken);
             httpAddSecurityToken(conn, 1);
             return 0;
         }
@@ -18186,6 +18195,8 @@ PUBLIC void httpRedirect(HttpConn *conn, int status, cchar *targetUri)
                 endpoint = smatch(target->scheme, "https") ? conn->host->secureEndpoint : conn->host->defaultEndpoint;
                 if (endpoint) {
                     target->port = endpoint->port;
+                } else if (smatch(target->scheme, "https")) {
+                    mprError("Missing secure endpoint to use with https redirection");
                 }
             }
         }
@@ -20311,10 +20322,7 @@ static cchar *expandRouteName(HttpConn *conn, cchar *routeName)
         return sjoin(route->prefix, &routeName[6], NULL);
     }
     if (routeName[0] == ME_SERVER_PREFIX_CHAR) {
-        if (route->serverPrefix) {
-            return sjoin(route->prefix, "/", route->serverPrefix, &routeName[1], NULL);
-        }
-        return sjoin(route->prefix, &routeName[1], NULL);
+        return sjoin(route->prefix, route->serverPrefix, &routeName[1], NULL);
     }
     return routeName;
 }
@@ -20325,17 +20333,16 @@ static cchar *expandRouteName(HttpConn *conn, cchar *routeName)
  */
 static char *actionRoute(HttpRoute *route, cchar *controller, cchar *action)
 {
-    cchar   *prefix, *controllerPrefix;
+    cchar   *controllerPrefix;
 
-    prefix = route->prefix ? route->prefix : "";
     if (action == 0 || *action == '\0') {
         action = "default";
     }
     if (controller) {
         controllerPrefix = (controller && smatch(controller, "{controller}")) ? "*" : controller;
-        return sjoin(prefix, "/", controllerPrefix, "/", action, NULL);
+        return sjoin(route->prefix, route->serverPrefix, "/", controllerPrefix, "/", action, NULL);
     } else {
-        return sjoin(prefix, "/", action, NULL);
+        return sjoin(route->prefix, route->serverPrefix, "/", action, NULL);
     }
 }
 
