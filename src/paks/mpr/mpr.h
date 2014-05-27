@@ -1944,6 +1944,14 @@ PUBLIC ssize scopy(char *dest, ssize destMax, cchar *src);
 PUBLIC bool sends(cchar *str, cchar *suffix);
 
 /**
+    Erase the contents of a string
+    @param str String to erase
+    @ingroup MprString
+    @stability Prototype
+ */
+PUBLIC void serase(char *str);
+
+/**
     Format a string. This is a secure verion of printf that can handle null args.
     @description Format the given arguments according to the printf style format. See mprPrintf for a full list of the
         format specifies. This is a secure replacement for sprintf, it can handle null arguments without crashes.
@@ -2013,6 +2021,17 @@ PUBLIC char *sjoin(cchar *str, ...);
     @stability Stable
  */
 PUBLIC char *sjoinv(cchar *str, va_list args);
+
+/**
+    Join an array of strings
+    @param argc number of strings to join
+    @param argv Array of strings
+    @param sep Separator string to use. If NULL, then no separator is used.
+    @return A single joined string.
+    @stability prototype
+    @ingroup MprString 
+ */
+PUBLIC cchar *sjoinArgs(int argc, cchar **argv, cchar *sep);
 
 /**
     Return the length of a string.

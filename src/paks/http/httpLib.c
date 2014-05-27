@@ -136,19 +136,26 @@ static bool configVerifyUser(HttpConn *conn, cchar *username, cchar *password);
 
 PUBLIC void httpInitAuth()
 {
-    httpAddAuthType("basic", httpBasicLogin, httpBasicParse, httpBasicSetHeaders);
-    httpAddAuthType("digest", httpDigestLogin, httpDigestParse, httpDigestSetHeaders);
-    httpAddAuthType("form", formLogin, NULL, NULL);
+    /*
+        Types: basic, digest, form
+     */
+    httpCreateAuthType("basic", httpBasicLogin, httpBasicParse, httpBasicSetHeaders);
+    httpCreateAuthType("digest", httpDigestLogin, httpDigestParse, httpDigestSetHeaders);
+    httpCreateAuthType("form", formLogin, NULL, NULL);
 
+    /*
+        Stores: app, config, system
+     */
     httpCreateAuthStore("app", NULL);
     httpCreateAuthStore("config", configVerifyUser);
+#if ME_COMPILER_HAS_PAM && ME_HTTP_PAM
+    httpCreateAuthStore("system", httpPamVerifyUser);
+#endif
+
 #if DEPRECATED || 1
     httpCreateAuthStore("file", configVerifyUser);
     httpCreateAuthStore("internal", configVerifyUser);
-#endif
 #if ME_COMPILER_HAS_PAM && ME_HTTP_PAM
-    httpCreateAuthStore("system", httpPamVerifyUser);
-#if DEPRECATED || 1
     httpCreateAuthStore("pam", httpPamVerifyUser);
 #endif
 #endif
@@ -351,6 +358,7 @@ PUBLIC HttpAuth *httpCreateAuth()
     if ((auth = mprAllocObj(HttpAuth, manageAuth)) == 0) {
         return 0;
     }
+    auth->realm = MPR->emptyString;
     return auth;
 }
 
@@ -413,7 +421,7 @@ static void manageAuthType(HttpAuthType *type, int flags)
 }
 
 
-PUBLIC int httpAddAuthType(cchar *name, HttpAskLogin askLogin, HttpParseAuth parseAuth, HttpSetAuth setAuth)
+PUBLIC int httpCreateAuthType(cchar *name, HttpAskLogin askLogin, HttpParseAuth parseAuth, HttpSetAuth setAuth)
 {
     Http            *http;
     HttpAuthType    *type;
@@ -675,7 +683,7 @@ PUBLIC int httpSetAuthType(HttpAuth *auth, cchar *type, cchar *details)
         return MPR_ERR_CANT_FIND;
     }
     if (!auth->store) {
-        httpSetAuthStore(auth, "file");
+        httpSetAuthStore(auth, "config");
     }
     return 0;
 }
@@ -699,23 +707,6 @@ PUBLIC HttpAuthType *httpLookupAuthType(cchar *type)
 }
 
 
-PUBLIC HttpRole *httpCreateRole(HttpAuth *auth, cchar *name, cchar *abilities)
-{
-    HttpRole    *role;
-    char        *ability, *tok;
-
-    if ((role = mprAllocObj(HttpRole, manageRole)) == 0) {
-        return 0;
-    }
-    role->name = sclone(name);
-    role->abilities = mprCreateHash(0, 0);
-    for (ability = stok(sclone(abilities), " \t", &tok); ability; ability = stok(NULL, " \t", &tok)) {
-        mprAddKey(role->abilities, ability, role);
-    }
-    return role;
-}
-
-
 static void manageRole(HttpRole *role, int flags)
 {
     if (flags & MPR_MANAGE_MARK) {
@@ -725,22 +716,33 @@ static void manageRole(HttpRole *role, int flags)
 }
 
 
-PUBLIC int httpAddRole(HttpAuth *auth, cchar *name, cchar *abilities)
+PUBLIC HttpRole *httpAddRole(HttpAuth *auth, cchar *name, cchar *abilities)
 {
     HttpRole    *role;
+    char        *ability, *tok;
 
     GRADUATE_HASH(auth, roles);
-    if (mprLookupKey(auth->roles, name)) {
-        return MPR_ERR_ALREADY_EXISTS;
+    if ((role = mprLookupKey(auth->roles, name)) == 0) {
+        if ((role = mprAllocObj(HttpRole, manageRole)) == 0) {
+            return 0;
+        }
+        role->name = sclone(name);
     }
-    if ((role = httpCreateRole(auth, name, abilities)) == 0) {
-        return MPR_ERR_MEMORY;
+    role->abilities = mprCreateHash(0, 0);
+    for (ability = stok(sclone(abilities), " \t", &tok); ability; ability = stok(NULL, " \t", &tok)) {
+        mprAddKey(role->abilities, ability, role);
     }
     if (mprAddKey(auth->roles, name, role) == 0) {
-        return MPR_ERR_MEMORY;
+        return 0;
     }
     mprLog(5, "Role \"%s\" has abilities: %s", role->name, abilities);
-    return 0;
+    return role;
+}
+
+
+PUBLIC HttpRole *httpLookupRole(HttpAuth *auth, cchar *role)
+{
+    return mprLookupKey(auth->roles, role);
 }
 
 
@@ -751,23 +753,6 @@ PUBLIC int httpRemoveRole(HttpAuth *auth, cchar *role)
     }
     mprRemoveKey(auth->roles, role);
     return 0;
-}
-
-
-static HttpUser *createUser(HttpAuth *auth, cchar *name, cchar *password, cchar *roles)
-{
-    HttpUser    *user;
-
-    if ((user = mprAllocObj(HttpUser, manageUser)) == 0) {
-        return 0;
-    }
-    user->name = sclone(name);
-    user->password = sclone(password);
-    if (roles) {
-        user->roles = sclone(roles);
-        httpComputeUserAbilities(auth, user);
-    }
-    return user;
 }
 
 
@@ -789,17 +774,23 @@ PUBLIC HttpUser *httpAddUser(HttpAuth *auth, cchar *name, cchar *password, cchar
     if (!auth->userCache) {
         auth->userCache = mprCreateHash(0, 0);
     }
-    if (mprLookupKey(auth->userCache, name)) {
-        return 0;
+    if ((user = mprLookupKey(auth->userCache, name)) == 0) {
+        if ((user = mprAllocObj(HttpUser, manageUser)) == 0) {
+            return 0;
+        }
+        user->name = sclone(name);
     }
-    if ((user = createUser(auth, name, password, roles)) == 0) {
-        return 0;
+    user->password = sclone(password);
+    if (roles) {
+        user->roles = sclone(roles);
+        httpComputeUserAbilities(auth, user);
     }
     if (mprAddKey(auth->userCache, name, user) == 0) {
         return 0;
     }
     return user;
 }
+
 
 
 PUBLIC HttpUser *httpLookupUser(HttpAuth *auth, cchar *name)
@@ -925,7 +916,11 @@ static bool configVerifyUser(HttpConn *conn, cchar *username, cchar *password)
  */
 static void formLogin(HttpConn *conn)
 {
-    httpRedirect(conn, HTTP_CODE_MOVED_TEMPORARILY, conn->rx->route->auth->loginPage);
+    if (conn->rx->route->auth && conn->rx->route->auth->loginPage) {
+        httpRedirect(conn, HTTP_CODE_MOVED_TEMPORARILY, conn->rx->route->auth->loginPage);
+    } else {
+        httpError(conn, HTTP_CODE_UNAUTHORIZED, "Access Denied. Login required");
+    }
 }
 
 
@@ -2716,7 +2711,6 @@ PUBLIC void httpSetDir(HttpRoute *route, cchar *name, cchar *value)
 
 PUBLIC void httpSetDefaultDirs(HttpRoute *route)
 {
-    //  MOB - cache may need to be relative for chroot to work
     httpSetDir(route, "cache", 0);
     httpSetDir(route, "client", 0);
     httpSetDir(route, "paks", "paks");
@@ -2849,6 +2843,12 @@ static void parseAuthType(HttpRoute *route, cchar *key, MprJson *prop)
 {
     if (httpSetAuthType(route->auth, prop->value, 0) < 0) {
         httpParseError(route, "The %s AuthType is not available on this platform", prop->value);
+    }
+    if (smatch(prop->value, "basic") || smatch(prop->value, "digest")) {
+        /*
+            These are implemented by the browser, so we can use a global auth-condition
+         */
+        httpAddRouteCondition(route, "auth", 0, 0);
     }
 }
 
@@ -3910,7 +3910,6 @@ PUBLIC int httpInitParser()
 
     httpAddConfig("app", parseAll);
     httpAddConfig("app.http", parseHttp);
-    //  MOB - should have Http in all names
     httpAddConfig("app.http.auth", parseAuth);
     httpAddConfig("app.http.auth.login", parseAuthLogin);
     httpAddConfig("app.http.auth.realm", parseAuthRealm);

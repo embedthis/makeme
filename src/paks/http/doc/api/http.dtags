@@ -268,8 +268,15 @@
       <type>int</type>
       <name>httpSetPlatform</name>
       <anchorfile>group___http.html</anchorfile>
-      <anchor>ga829921903bb25b9fd879b3a30947a8fc</anchor>
-      <arglist>(cchar *platform, cchar *probe)</arglist>
+      <anchor>gac9c4b2f7b5648ac745444088639a40f3</anchor>
+      <arglist>(cchar *platform)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>httpSetPlatformDir</name>
+      <anchorfile>group___http.html</anchorfile>
+      <anchor>ga5274cbe0c198c6a2660c0fc3762d6e59</anchor>
+      <arglist>(cchar *platform)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -1482,17 +1489,10 @@
       <arglist>)(HttpConn *conn, cchar *username, cchar *password)</arglist>
     </member>
     <member kind="function">
-      <type>int</type>
-      <name>httpAddAuthType</name>
-      <anchorfile>group___http_auth.html</anchorfile>
-      <anchor>gaa6f7776164fd762e0f107f8049ef2755</anchor>
-      <arglist>(cchar *name, HttpAskLogin askLogin, HttpParseAuth parse, HttpSetAuth setAuth)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
+      <type>HttpRole *</type>
       <name>httpAddRole</name>
       <anchorfile>group___http_auth.html</anchorfile>
-      <anchor>ga817c321a931cb42635e628b60c99b67a</anchor>
+      <anchor>ga70f35d5d3651d61e9eb5f85d8f670285</anchor>
       <arglist>(HttpAuth *auth, cchar *role, cchar *abilities)</arglist>
     </member>
     <member kind="function">
@@ -1538,11 +1538,11 @@
       <arglist>(cchar *name, HttpVerifyUser verifyUser)</arglist>
     </member>
     <member kind="function">
-      <type>HttpRole *</type>
-      <name>httpCreateRole</name>
+      <type>int</type>
+      <name>httpCreateAuthType</name>
       <anchorfile>group___http_auth.html</anchorfile>
-      <anchor>ga880fa20529b90237898ad1d9bbc434a5</anchor>
-      <arglist>(HttpAuth *auth, cchar *name, cchar *abilities)</arglist>
+      <anchor>gae8052332998e2f77591f4dbd63c91961</anchor>
+      <arglist>(cchar *name, HttpAskLogin askLogin, HttpParseAuth parse, HttpSetAuth setAuth)</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
@@ -1571,6 +1571,13 @@
       <anchorfile>group___http_auth.html</anchorfile>
       <anchor>gad3645d7419bde032ac01eb1cb4e3c316</anchor>
       <arglist>(HttpConn *conn)</arglist>
+    </member>
+    <member kind="function">
+      <type>HttpRole *</type>
+      <name>httpLookupRole</name>
+      <anchorfile>group___http_auth.html</anchorfile>
+      <anchor>ga3dcf0a572a1842431ee3f6849a1c9bf0</anchor>
+      <arglist>(HttpAuth *auth, cchar *name)</arglist>
     </member>
     <member kind="function">
       <type>HttpUser *</type>
@@ -1878,10 +1885,10 @@
       <arglist>(HttpRoute *route, cchar *name, cchar *details, int flags)</arglist>
     </member>
     <member kind="function">
-      <type>void</type>
+      <type>HttpRoute *</type>
       <name>httpAddWebSocketsRoute</name>
       <anchorfile>group___http_route.html</anchorfile>
-      <anchor>gad678ae1aebed7fd23d37b8c1edf90cb5</anchor>
+      <anchor>ga544e638e474a034b9250798e5202621d</anchor>
       <arglist>(HttpRoute *parent, cchar *prefix, cchar *name)</arglist>
     </member>
     <member kind="function">
@@ -3093,13 +3100,6 @@
       <arglist>(struct HttpHost *host)</arglist>
     </member>
     <member kind="function">
-      <type>int</type>
-      <name>httpConfigureNamedVirtualEndpoints</name>
-      <anchorfile>group___http_endpoint.html</anchorfile>
-      <anchor>gab8694430f1f3941a97515ca5697e1bae</anchor>
-      <arglist>(Http *http, cchar *ip, int port)</arglist>
-    </member>
-    <member kind="function">
       <type>HttpEndpoint *</type>
       <name>httpCreateConfiguredEndpoint</name>
       <anchorfile>group___http_endpoint.html</anchorfile>
@@ -3125,13 +3125,6 @@
       <name>httpGetEndpointContext</name>
       <anchorfile>group___http_endpoint.html</anchorfile>
       <anchor>gac0eb38f7ce5403815c0d1200f086db41</anchor>
-      <arglist>(HttpEndpoint *endpoint)</arglist>
-    </member>
-    <member kind="function">
-      <type>bool</type>
-      <name>httpHasNamedVirtualHosts</name>
-      <anchorfile>group___http_endpoint.html</anchorfile>
-      <anchor>ga95038407668d474b404fc8784006c9c2</anchor>
       <arglist>(HttpEndpoint *endpoint)</arglist>
     </member>
     <member kind="function">
@@ -3189,13 +3182,6 @@
       <anchorfile>group___http_endpoint.html</anchorfile>
       <anchor>ga5bd47c988eb934173a7ac411ed2e58b0</anchor>
       <arglist>(HttpEndpoint *endpoint, HttpNotifier fn)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>httpSetHasNamedVirtualHosts</name>
-      <anchorfile>group___http_endpoint.html</anchorfile>
-      <anchor>ga768ffb7411647773b0e6f5b839763795</anchor>
-      <arglist>(HttpEndpoint *endpoint, bool on)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -3578,10 +3564,24 @@
       <arglist></arglist>
     </member>
     <member kind="variable">
+      <type>MprHash *</type>
+      <name>suppress</name>
+      <anchorfile>struct_http_defense.html</anchorfile>
+      <anchor>a1f0b79382f57d2dbc1e9135e686c4c16</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
       <type>int</type>
       <name>suppressed</name>
       <anchorfile>struct_http_defense.html</anchorfile>
       <anchor>a18af712cd1496522d3ae59be6cdb728b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>MprTicks</type>
+      <name>suppressPeriod</name>
+      <anchorfile>struct_http_defense.html</anchorfile>
+      <anchor>ae14c5355858f2d10c1b94f8acb5c0435</anchor>
       <arglist></arglist>
     </member>
   </compound>

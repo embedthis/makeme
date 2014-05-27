@@ -6069,6 +6069,13 @@
       <arglist>(cchar *str, cchar *suffix)</arglist>
     </member>
     <member kind="function">
+      <type>void</type>
+      <name>serase</name>
+      <anchorfile>group___mpr_string.html</anchorfile>
+      <anchor>gaa8268a9b3d82b99597f99088126f8f54</anchor>
+      <arglist>(char *str)</arglist>
+    </member>
+    <member kind="function">
       <type>char *</type>
       <name>sfmt</name>
       <anchorfile>group___mpr_string.html</anchorfile>
@@ -6102,6 +6109,13 @@
       <anchorfile>group___mpr_string.html</anchorfile>
       <anchor>ga7cd1d95fc19a644ec75f713d8b2fd9fb</anchor>
       <arglist>(cchar *str,...)</arglist>
+    </member>
+    <member kind="function">
+      <type>cchar *</type>
+      <name>sjoinArgs</name>
+      <anchorfile>group___mpr_string.html</anchorfile>
+      <anchor>ga909efbbc46b9491be6c93747fdb62ddf</anchor>
+      <arglist>(int argc, cchar **argv, cchar *sep)</arglist>
     </member>
     <member kind="function">
       <type>char *</type>
@@ -6889,6 +6903,13 @@
       <arglist>(cchar *str, cchar *suffix)</arglist>
     </member>
     <member kind="function">
+      <type>void</type>
+      <name>serase</name>
+      <anchorfile>group___mpr_string.html</anchorfile>
+      <anchor>gaa8268a9b3d82b99597f99088126f8f54</anchor>
+      <arglist>(char *str)</arglist>
+    </member>
+    <member kind="function">
       <type>char *</type>
       <name>sfmt</name>
       <anchorfile>group___mpr_string.html</anchorfile>
@@ -6922,6 +6943,13 @@
       <anchorfile>group___mpr_string.html</anchorfile>
       <anchor>ga7cd1d95fc19a644ec75f713d8b2fd9fb</anchor>
       <arglist>(cchar *str,...)</arglist>
+    </member>
+    <member kind="function">
+      <type>cchar *</type>
+      <name>sjoinArgs</name>
+      <anchorfile>group___mpr_string.html</anchorfile>
+      <anchor>ga909efbbc46b9491be6c93747fdb62ddf</anchor>
+      <arglist>(int argc, cchar **argv, cchar *sep)</arglist>
     </member>
     <member kind="function">
       <type>char *</type>

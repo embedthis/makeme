@@ -3494,7 +3494,7 @@ typedef struct HttpAuth {
     MprHash         *roles;                 /**< Hash of roles */
     MprHash         *abilities;             /**< Set of required abilities (all are required) */
     MprHash         *permittedUsers;        /**< Set of valid users */
-    char            *loginPage;             /**< Web page for user login for 'post' type */
+    char            *loginPage;             /**< Web page for user login for 'form' type */
     char            *loggedIn;              /**< Target URI after logging in */
     char            *username;              /**< Automatic login username. Password not required if defined */
     char            *qop;                   /**< Quality of service */
@@ -3505,8 +3505,9 @@ typedef struct HttpAuth {
 
 
 /**
-    Add an authorization type. The pre-supplied types are 'basic', 'digest' and 'post'.
-    @description This creates an AuthType object with the defined name and callbacks.
+    Create an authorization protocol type. The pre-supplied types are 'basic', 'digest' and 'form'.
+    @description This creates an AuthType with the defined name and callbacks.
+        The basic and digest types are supported by most browsers. The form type is implemented via web form requests over HTTP.
     @param name Unique authorization type name
     @param askLogin Callback to generate a client login response
     @param parse Callback to parse the HTTP authentication headers
@@ -3515,7 +3516,11 @@ typedef struct HttpAuth {
     @ingroup HttpAuth
     @stability Evolving
  */
-PUBLIC int httpAddAuthType(cchar *name, HttpAskLogin askLogin, HttpParseAuth parse, HttpSetAuth setAuth);
+PUBLIC int httpCreateAuthType(cchar *name, HttpAskLogin askLogin, HttpParseAuth parse, HttpSetAuth setAuth);
+
+#if DEPRECATE || 1
+#define httpAddAuthType httpCreateAuthType
+#endif
 
 /**
     Add an authorization store for password validation. The pre-supplied types are "config" and "system".
@@ -3555,14 +3560,14 @@ PUBLIC void httpSetAuthVerify(HttpAuth *auth, HttpVerifyUser verifyUser);
     @param auth Auth object allocated by #httpCreateAuth.
     @param role Role name to add
     @param abilities Space separated list of abilities.
-    @return Zero if successful, otherwise a negative MPR error code
+    @return Allocated role object.
     @ingroup HttpAuth
     @stability Evolving
  */
-PUBLIC int httpAddRole(HttpAuth *auth, cchar *role, cchar *abilities);
+PUBLIC HttpRole *httpAddRole(HttpAuth *auth, cchar *role, cchar *abilities);
 
 /**
-    Add a user
+    Add a user. If the user already exists, the user is updated.
     @description This creates the user and adds the user to the authentication database.
     @param auth Auth object allocated by #httpCreateAuth.
     @param user User name to add
@@ -3623,18 +3628,6 @@ PUBLIC void httpComputeUserAbilities(HttpAuth *auth, HttpUser *user);
 PUBLIC HttpAuth *httpCreateAuth();
 
 /**
-    Create a new role
-    @description The role is not added to the authentication database
-    @param auth Auth object allocated by #httpCreateAuth.
-    @param name Role name 
-    @param abilities Space separated list of abilities.
-    @return Zero if successful, otherwise a negative MPR error code
-    @ingroup HttpAuth
-    @stability Evolving
- */
-PUBLIC HttpRole *httpCreateRole(HttpAuth *auth, cchar *name, cchar *abilities);
-
-/**
     Test if the user is authenticated
     @param conn HttpConn connection object 
     @return True if the username and password have been authenticated and the user has the abilities required
@@ -3675,6 +3668,16 @@ PUBLIC bool httpLoggedIn(HttpConn *conn);
     @stability Prototype
  */
 PUBLIC void httpLogout(HttpConn *conn);
+
+/**
+    Lookup a role by name
+    @param auth HttpAuth object. Stored in HttpConn.rx.route.auth
+    @param name Role name
+    @return Role object
+    @ingroup HttpAuth
+    @stability Prototype
+  */
+PUBLIC HttpRole *httpLookupRole(HttpAuth *auth, cchar *name);
 
 /**
     Lookup a user by username
@@ -3755,7 +3758,7 @@ PUBLIC void httpSetAuthOrder(HttpAuth *auth, int order);
 PUBLIC void httpSetAuthPermittedUsers(HttpAuth *auth, cchar *users);
 
 /**
-    Define the callbabcks for the 'post' authentication type.
+    Define the callbabcks for the 'form' authentication type.
     @description This creates a new route for the login page.
     @param parent Parent route from which to inherit when creating a route for the login page.
     @param loginPage Web page URI for the user to enter username and password.
