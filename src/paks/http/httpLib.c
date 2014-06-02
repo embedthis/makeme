@@ -3613,7 +3613,7 @@ static void parseServerLog(HttpRoute *route, cchar *key, MprJson *prop)
     backup = (int) stoi(mprGetJson(prop, "backup"));
     anew = smatch(mprGetJson(prop, "anew"), "true");
     size = (ssize) httpGetNumber(mprGetJson(prop, "size"));
-    timestamp = httpGetNumber(mprGetJson(prop, "location"));
+    timestamp = httpGetNumber(mprGetJson(prop, "timestamp"));
 
     if (size < HTTP_TRACE_MIN_LOG_SIZE) {
         size = HTTP_TRACE_MIN_LOG_SIZE;
@@ -3826,7 +3826,6 @@ static void parseTimeoutsSession(HttpRoute *route, cchar *key, MprJson *prop)
 
 static void parseTrace(HttpRoute *route, cchar *key, MprJson *prop)
 {
-    MprTicks    timestamp;
     MprJson     *levels;
     cchar       *location;
     ssize       size;
@@ -3842,7 +3841,6 @@ static void parseTrace(HttpRoute *route, cchar *key, MprJson *prop)
     backup = (int) stoi(mprGetJson(prop, "backup"));
     anew = smatch(mprGetJson(prop, "anew"), "true");
     size = (ssize) httpGetNumber(mprGetJson(prop, "size"));
-    timestamp = httpGetNumber(mprGetJson(prop, "location"));
 
     if (level < 0) {
         level = 0;
@@ -7527,13 +7525,10 @@ static void addToNetVector(HttpQueue *q, char *ptr, ssize bytes)
  */
 static void addPacketForNet(HttpQueue *q, HttpPacket *packet)
 {
-    HttpTx      *tx;
     HttpConn    *conn;
     int         item;
 
     conn = q->conn;
-    tx = conn->tx;
-
     assert(q->count >= 0);
     assert(q->ioIndex < (ME_MAX_IOVEC - 2));
 
@@ -14300,14 +14295,11 @@ static void measure(HttpConn *conn)
 {
     MprTicks    elapsed;
     HttpTx      *tx;
-    cchar       *uri;
 
     tx = conn->tx;
     if (conn->rx == 0 || tx == 0) {
         return;
     }
-    uri = httpServerConn(conn) ? conn->rx->uri : tx->parsedUri->path;
-
     if (httpShouldTrace(conn, HTTP_TRACE_COMPLETE)) {
         elapsed = mprGetTicks() - conn->started;
 #if MPR_HIGH_RES_TIMER
@@ -15339,13 +15331,10 @@ static void addToSendVector(HttpQueue *q, char *ptr, ssize bytes)
  */
 static void addPacketForSend(HttpQueue *q, HttpPacket *packet)
 {
-    HttpTx      *tx;
     HttpConn    *conn;
     int         item;
 
     conn = q->conn;
-    tx = conn->tx;
-
     assert(q->count >= 0);
     assert(q->ioIndex < (ME_MAX_IOVEC - 2));
 
@@ -17564,6 +17553,8 @@ PUBLIC void httpTracePacket(HttpConn *conn, int event, HttpPacket *packet, cchar
             msg = "tx headers";
         } else if (event == HTTP_TRACE_TX_BODY) {
             msg = "tx body";
+        } else {
+            msg = 0;
         }
     }
     if (packet->prefix) {

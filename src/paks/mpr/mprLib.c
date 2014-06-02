@@ -1185,9 +1185,9 @@ static void markAndSweep()
     if (!pauseThreads()) {
         if (!pauseGC && warnOnce == 0 && !mprGetDebugMode()) {
             warnOnce++;
-            mprWarn("mpr memory", "GC synchronization timed out, some threads did not yield.");
-            mprWarn("mpr memory", "This can be caused by a thread doing a long running operation and not first calling mprYield.");
-            mprWarn("mpr memory", "If debugging, run the process with -D to enable debug mode.");
+            mprLog("mpr memory", 4, "GC synchronization timed out, some threads did not yield.");
+            mprLog("mpr memory", 4, "This can be caused by a thread doing a long running operation and not first calling mprYield.");
+            mprLog("mpr memory", 4, "If debugging, run the process with -D to enable debug mode.");
         }
         resumeThreads(YIELDED_THREADS | WAITING_THREADS);
         return;
@@ -15875,7 +15875,7 @@ static void backupLog()
         mode = O_CREAT | O_WRONLY | O_TEXT;
         if ((file = mprOpenFile(MPR->logPath, mode, 0664)) == 0) {
             mprError("mpr log", "Cannot open log file %s, errno=%d", MPR->logPath, errno);
-            MPR->logSize = MAXINT64;
+            MPR->logSize = MAXINT;
             unlock(MPR);
             return;
         }
@@ -20790,7 +20790,7 @@ PUBLIC int mprCreateNotifierService(MprWaitService *ws)
     for (rc = retries = 0; retries < maxTries; retries++) {
         breakSock = socket(AF_INET, SOCK_DGRAM, 0);
         if (breakSock < 0) {
-            mprWarn("Cannot open port %d to use for select. Retrying.\n");
+            mprWarn("mpr select", "Cannot open port %d to use for select. Retrying.\n");
         }
 #if ME_UNIX_LIKE
         fcntl(breakSock, F_SETFD, FD_CLOEXEC);
@@ -20819,7 +20819,7 @@ PUBLIC int mprCreateNotifierService(MprWaitService *ws)
         breakPort++;
     }
     if (breakSock < 0 || rc < 0) {
-        mprWarn("Cannot bind any port to use for select. Tried %d-%d\n", breakPort, breakPort - maxTries);
+        mprWarn("mpr select", "Cannot bind any port to use for select. Tried %d-%d\n", breakPort, breakPort - maxTries);
         return MPR_ERR_CANT_OPEN;
     }
     ws->breakSock = breakSock;
@@ -30229,7 +30229,7 @@ PUBLIC int mprLoadNativeModule(MprModule *mp)
         mprGetPathInfo(mp->path, &info);
         mp->modified = info.mtime;
         baseName = mprGetPathBase(mp->path);
-        mprLog(2, "Loading native module %s", baseName);
+        mprLog("mpr", 2, "Loading native module %s", baseName);
         if ((handle = LoadLibrary(wide(mp->path))) == 0) {
             mprError("mpr", "Cannot load module %s\nReason: \"%d\"\n", mp->path, mprGetOsError());
             return MPR_ERR_CANT_READ;
@@ -30238,7 +30238,7 @@ PUBLIC int mprLoadNativeModule(MprModule *mp)
 #endif /* !ME_STATIC */
 
     } else if (mp->entry) {
-        mprLog(2, "Activating native module %s", mp->name);
+        mprLog("mpr", 2, "Activating native module %s", mp->name);
     }
     if (mp->entry) {
         if ((fn = (MprModuleEntry) GetProcAddress((HINSTANCE) handle, mp->entry)) == 0) {
