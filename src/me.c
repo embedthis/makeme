@@ -41,7 +41,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
     mprAddStandardSignals();
 
     if (mprStart(mpr) < 0) {
-        mprError("Cannot start mpr services");
+        mprError("me", "Cannot start mpr services");
         return EJS_ERR;
     }
     err = 0;
@@ -60,7 +60,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
             } else {
                 homeDir = argv[++nextArg];
                 if (chdir((char*) homeDir) < 0) {
-                    mprError("Cannot change directory to %s", homeDir);
+                    mprError("me", "Cannot change directory to %s", homeDir);
                 }
             }
 
@@ -99,11 +99,9 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
         }
     }
     if ((app->script = findMe()) == 0) {
-        mprError("Cannot find me.es or me.mod");
+        mprError("me", "Cannot find me.es or me.mod");
         return MPR_ERR_CANT_FIND;
     }
-    mprLog(2, "Using me script %s", app->script);
-
     argv[0] = (char*) app->script;
     if ((ejs = ejsCreateVM(argc, (cchar**) &argv[0], 0)) == 0) {
         return MPR_ERR_MEMORY;
@@ -113,7 +111,6 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
     if (ejsLoadModules(ejs, searchPath, NULL) < 0) {
         return MPR_ERR_CANT_READ;
     }
-    mprTrace(2, "Load script \"%s\"", app->script);
     flags = EC_FLAGS_BIND | EC_FLAGS_DEBUG | EC_FLAGS_NO_OUT | EC_FLAGS_THROW;
     if ((ec = ecCreateCompiler(ejs, flags)) == 0) {
         return MPR_ERR_MEMORY;

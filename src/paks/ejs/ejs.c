@@ -78,7 +78,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
     mprAddStandardSignals();
 
     if (mprStart(mpr) < 0) {
-        mprError("Cannot start mpr services");
+        mprError("ejs", "Cannot start mpr services");
         return EJS_ERR;
     }
     err = 0;
@@ -120,7 +120,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
             } else {
                 homeDir = argv[++nextArg];
                 if (chdir((char*) homeDir) < 0) {
-                    mprError("Cannot change directory to %s", homeDir);
+                    mprError("ejs", "Cannot change directory to %s", homeDir);
                 }
             }
 
@@ -406,7 +406,7 @@ static int interpretFiles(EcCompiler *cp, MprList *files, int argc, char **argv,
 
     ejs = cp->ejs;
     if (ecCompile(cp, files->length, (char**) files->items) < 0) {
-        mprRawLog(0, "%s\n", cp->errorMsg);
+        mprLog("ejs", 0, "%s\n", cp->errorMsg);
         return EJS_ERR;
     }
     if (cp->errorCount == 0) {
@@ -433,7 +433,7 @@ static int interpretCommands(EcCompiler *cp, cchar *cmd)
     cp->interactive = 1;
 
     if (ecOpenConsoleStream(cp, (cmd) ? commandGets: consoleGets, cmd) < 0) {
-        mprError("Cannot open input");
+        mprError("ejs", "Cannot open input");
         return EJS_ERR;
     }
     tmpArgv[0] = EC_INPUT_STREAM;
@@ -443,7 +443,7 @@ static int interpretCommands(EcCompiler *cp, cchar *cmd)
         cp->uid = 0;
         ejs->result = ESV(undefined);
         if (ecCompile(cp, 1, tmpArgv) < 0) {
-            mprRawLog(0, "%s", cp->errorMsg);
+            mprLog("ejs", 0, "%s", cp->errorMsg);
             ejs->result = ESV(undefined);
             err++;
         }

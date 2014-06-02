@@ -215,7 +215,7 @@ static int upgradeMss(MprSocket *sp, MprSsl *ssl, cchar *peerName)
             return MPR_ERR_MEMORY;
         }
         if (matrixSslNewKeys(&cfg->keys) < 0) {
-            mprError("MatrixSSL: Cannot create new MatrixSSL keys");
+            mprError("matrixssl", "Cannot create new MatrixSSL keys");
             unlock(sp);
             return MPR_ERR_CANT_INITIALIZE;
         }
@@ -224,7 +224,7 @@ static int upgradeMss(MprSocket *sp, MprSsl *ssl, cchar *peerName)
          */
         password = NULL;
         if (matrixSslLoadRsaKeys(cfg->keys, ssl->certFile, ssl->keyFile, password, ssl->caFile) < 0) {
-            mprError("MatrixSSL: Could not read or decode certificate or key file."); 
+            mprError("matrixssl", "Could not read or decode certificate or key file."); 
             unlock(sp);
             return MPR_ERR_CANT_READ;
         }
@@ -239,7 +239,7 @@ static int upgradeMss(MprSocket *sp, MprSsl *ssl, cchar *peerName)
     if (sp->flags & MPR_SOCKET_SERVER) {
         flags = (ssl->verifyPeer) ? SSL_FLAGS_CLIENT_AUTH : 0;
         if (matrixSslNewServerSession(&msp->ctx, cfg->keys, NULL, flags) < 0) {
-            mprError("MatrixSSL: Cannot create new server session");
+            mprError("matrixssl", "Cannot create new server session");
             unlock(sp);
             return MPR_ERR_CANT_CREATE;
         }
@@ -249,7 +249,7 @@ static int upgradeMss(MprSocket *sp, MprSsl *ssl, cchar *peerName)
         msp->peerName = sclone(peerName);
         cipherSuite = 0;
         if (matrixSslNewClientSession(&msp->ctx, cfg->keys, NULL, cipherSuite, verifyCert, NULL, NULL, 0) < 0) {
-            mprError("MatrixSSL: Cannot create new client session");
+            mprError("matrixssl", "Cannot create new client session");
             unlock(sp);
             return MPR_ERR_CANT_CONNECT;
         }
@@ -301,7 +301,7 @@ static char *getMssState(MprSocket *sp)
     mprPutToBuf(buf, "PROVIDER=matrixssl,CIPHER=%s,", cipherName ? cipherName: "unknown");
     mprPutBlockToBuf(buf, mprGetBufStart(msp->peerCert), mprGetBufLength(msp->peerCert));
     parseCert(buf, sp->acceptIp ? "CLIENT" : "SERVER", ctx->keys->cert);
-    mprLog(5, "MatrixSSL certs: %s", mprGetBufStart(buf));
+    mprLog("mpr ssl matrixssl", 5, "%s", mprGetBufStart(buf));
     return mprGetBufStart(buf);
 }
 
@@ -336,9 +336,9 @@ static int verifyCert(ssl_t *ssl, psX509Cert_t *cert, int32 alert)
     cipherCode = msp->ctx->cipher->ident;
     cipherName = mprGetSslCipherName(cipherCode);
     if (cipherName) {
-        mprLog(3, "MatrixSSL connected using cipher: %s, %x", cipherName, cipherCode);
+        mprLog("mpr ssl matrixssl", 3, "Connected using cipher: %s, %x", cipherName, cipherCode);
     } else {
-        mprLog(3, "MatrixSSL connected using cipher: %x", cipherCode);
+        mprLog("mpr ssl matrixssl", 3, "Connected using cipher: %x", cipherCode);
     }
     if (!sp) {
         /* Should not get here */
@@ -441,8 +441,8 @@ static int verifyCert(ssl_t *ssl, psX509Cert_t *cert, int32 alert)
      */
     msp->peerCert = mprCreateBuf(0, 0);
     parseCert(msp->peerCert, sp->acceptIp ? "SERVER" : "CLIENT", cert);
-    mprLog(3, "MatrixSSL: Certificate verified");
-    mprLog(4, "MatrixSSL: %s", mprGetBufStart(msp->peerCert));
+    mprLog("mpr ssl matrixssl", 3, "Certificate verified");
+    mprLog("mpr ssl matrixssl", 4, "%s", mprGetBufStart(msp->peerCert));
     return PS_SUCCESS;
 }
 
@@ -497,7 +497,7 @@ static int handshakeMss(MprSocket *sp, short cipherSuite)
 
     toWrite = matrixSslGetOutdata(msp->ctx, (uchar**) &obuf);
     if ((written = blockingWrite(sp, obuf, toWrite)) < 0) {
-        mprError("MatrixSSL: Error in socketWrite");
+        mprError("matrixssl", "Error in socketWrite");
         return MPR_ERR_CANT_INITIALIZE;
     }
     matrixSslSentData(msp->ctx, (int) written);
@@ -516,7 +516,7 @@ static int handshakeMss(MprSocket *sp, short cipherSuite)
                 break;
             }
         } else {
-            mprError("MatrixSSL: sslRead error in sslDoHandhake, rc %d", rc);
+            mprError("matrixssl", "sslRead error in sslDoHandhake, rc %d", rc);
             mprSetSocketBlockingMode(sp, mode);
             return MPR_ERR_CANT_INITIALIZE;
         }
@@ -554,7 +554,7 @@ static ssize processMssData(MprSocket *sp, char *buf, ssize size, ssize nbytes, 
         case MATRIXSSL_REQUEST_SEND:
             toWrite = matrixSslGetOutdata(msp->ctx, &obuf);
             if ((written = blockingWrite(sp, obuf, toWrite)) < 0) {
-                mprError("MatrixSSL: Error in process");
+                mprError("matrixssl", "Error in process");
                 return MPR_ERR_CANT_INITIALIZE;
             }
             matrixSslSentData(msp->ctx, (int) written);
@@ -1069,7 +1069,7 @@ static int handshakeEst(MprSocket *sp)
         break;
     }
     sp->flags &= ~MPR_SOCKET_HANDSHAKING;
-    mprLog(4, "Est handshake complete in %,d msec", mprGetTicks() - est->started);
+    mprLog("mpr ssl est", 4, "Handshake complete in %,d msec", mprGetTicks() - est->started);
 
     /*
         Analyze the handshake result
@@ -1081,7 +1081,7 @@ static int handshakeEst(MprSocket *sp)
         } else {
             sp->errorMsg = sfmt("Cannot handshake: error -0x%x", -rc);
         }
-        mprLog(4, "%s", sp->errorMsg);
+        mprLog("mpr ssl est", 4, "%s", sp->errorMsg);
         sp->flags |= MPR_SOCKET_EOF;
         errno = EPROTO;
         return -1;
@@ -1113,7 +1113,7 @@ static int handshakeEst(MprSocket *sp)
                 sp->errorMsg = sfmt("Cannot handshake: error -0x%x", -rc);
             }
         }
-        mprLog(4, "%s", sp->errorMsg);
+        mprLog("mpr ssl est", 4, "%s", sp->errorMsg);
         if (sp->ssl->verifyPeer) {
             /* 
                If not verifying the issuer, permit certs that are only untrusted (no other error).
@@ -1130,7 +1130,7 @@ static int handshakeEst(MprSocket *sp)
 #if UNUSED
     } else {
         /* TODO - being emitted when no cert supplied */
-        mprLog(3, "EST: Certificate verified");
+        mprLog("mpr ssl est", 3, "Certificate verified");
 #endif
     }
     return 1;
@@ -1157,21 +1157,21 @@ static ssize readEst(MprSocket *sp, void *buf, ssize len)
     }
     while (1) {
         rc = ssl_read(&est->ctx, buf, (int) len);
-        mprLog(5, "EST: ssl_read %d", rc);
+        mprLog("mpr ssl est", 5, "ssl_read %d", rc);
         if (rc < 0) {
             if (rc == EST_ERR_NET_TRY_AGAIN)  {
                 rc = 0;
                 break;
             } else if (rc == EST_ERR_SSL_PEER_CLOSE_NOTIFY) {
-                mprLog(5, "EST: connection was closed gracefully\n");
+                mprLog("mpr ssl est", 5, "connection was closed gracefully\n");
                 sp->flags |= MPR_SOCKET_EOF;
                 return -1;
             } else if (rc == EST_ERR_NET_CONN_RESET) {
-                mprLog(5, "EST: connection reset");
+                mprLog("mpr ssl est", 5, "connection reset");
                 sp->flags |= MPR_SOCKET_EOF;
                 return -1;
             } else {
-                mprLog(4, "EST: read error -0x%", -rc);
+                mprLog("mpr ssl est", 4, "read error -0x%", -rc);
                 sp->flags |= MPR_SOCKET_EOF;
                 return -1;
             }
@@ -1207,23 +1207,23 @@ static ssize writeEst(MprSocket *sp, cvoid *buf, ssize len)
     rc = 0;
     do {
         rc = ssl_write(&est->ctx, (uchar*) buf, (int) len);
-        mprLog(7, "EST: written %d, requested len %d", rc, len);
+        mprLog("mpr ssl est", 5, "written %d, requested len %d", rc, len);
         if (rc <= 0) {
             if (rc == EST_ERR_NET_TRY_AGAIN) {                                                          
                 break;
             }
             if (rc == EST_ERR_NET_CONN_RESET) {                                                         
-                mprLog(7, "ssl_write peer closed");
+                mprLog("mpr ssl est", 5, "ssl_write peer closed");
                 return -1;
             } else {
-                mprLog(7, "ssl_write failed rc -0x%x", -rc);
+                mprLog("mpr ssl est", 5, "ssl_write failed rc -0x%x", -rc);
                 return -1;
             }
         } else {
             totalWritten += rc;
             buf = (void*) ((char*) buf + rc);
             len -= rc;
-            mprLog(7, "EST: write: len %d, written %d, total %d", len, rc, totalWritten);
+            mprLog("mpr ssl est", 5, "write: len %d, written %d, total %d", len, rc, totalWritten);
         }
     } while (len > 0);
     mprHiddenSocketData(sp, est->ctx.out_left, MPR_WRITABLE);
@@ -1261,7 +1261,7 @@ static char *getEstState(MprSocket *sp)
         x509parse_cert_info(own, cbuf, sizeof(cbuf), ctx->own_cert);
         mprPutStringToBuf(buf, cbuf);
     }
-    mprTrace(5, "EST state: %s", mprGetBufStart(buf));
+    mprDebug("mpr ssl est", 5, "state=%s", mprGetBufStart(buf));
     return mprGetBufStart(buf);
 }
 
@@ -1328,7 +1328,7 @@ static void estTrace(void *fp, int level, char *str)
 {
     level += 3;
     if (level <= MPR->logLevel) {
-        mprRawLog(level, "%s: %d: EST: %s", MPR->name, level, str);
+        mprLog("est", level, "%s: %d: EST: %s", MPR->name, level, str);
     }
 }
 
@@ -1456,9 +1456,9 @@ PUBLIC int mprCreateOpenSslModule()
     randBuf.pid = getpid();
     RAND_seed((void*) &randBuf, sizeof(randBuf));
 #if ME_UNIX_LIKE
-    mprLog(6, "OpenSsl: Before calling RAND_load_file");
+    mprLog("mpr ssl openssl", 6, "Before calling RAND_load_file");
     RAND_load_file("/dev/urandom", 256);
-    mprLog(6, "OpenSsl: After calling RAND_load_file");
+    mprLog("mpr ssl openssl", 6, "After calling RAND_load_file");
 #endif
 
     if ((openProvider = mprAllocObj(MprSocketProvider, manageOpenProvider)) == NULL) {
@@ -1597,7 +1597,7 @@ static OpenConfig *createOpenSslConfig(MprSocket *sp)
     assert(cfg);
 
     if ((context = SSL_CTX_new(SSLv23_method())) == 0) {
-        mprError("OpenSSL: Unable to create SSL context"); 
+        mprError("openssl", "Unable to create SSL context"); 
         return 0;
     }
     SSL_CTX_set_app_data(context, (void*) ssl);
@@ -1627,7 +1627,7 @@ static OpenConfig *createOpenSslConfig(MprSocket *sp)
         }
         if ((!SSL_CTX_load_verify_locations(context, ssl->caFile, ssl->caPath)) ||
                 (!SSL_CTX_set_default_verify_paths(context))) {
-            sp->errorMsg = sfmt("OpenSSL: Unable to set certificate locations: %s: %s", ssl->caFile, ssl->caPath); 
+            sp->errorMsg = sfmt("openssl", "Unable to set certificate locations: %s: %s", ssl->caFile, ssl->caPath); 
             SSL_CTX_free(context);
             return 0;
         }
@@ -1708,7 +1708,7 @@ static int configureCertificateFiles(MprSsl *ssl, SSL_CTX *ctx, char *key, char 
     }
     if (cert && SSL_CTX_use_certificate_chain_file(ctx, cert) <= 0) {
         if (SSL_CTX_use_certificate_file(ctx, cert, SSL_FILETYPE_ASN1) <= 0) {
-            mprError("OpenSSL: Cannot open certificate file: %s", cert); 
+            mprError("openssl", "Cannot open certificate file: %s", cert); 
             return -1;
         }
     }
@@ -1717,12 +1717,12 @@ static int configureCertificateFiles(MprSsl *ssl, SSL_CTX *ctx, char *key, char 
         if (SSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_PEM) <= 0) {
             /* attempt ASN1 for self-signed format */
             if (SSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_ASN1) <= 0) {
-                mprError("OpenSSL: Cannot open private key file: %s", key); 
+                mprError("openssl", "Cannot open private key file: %s", key); 
                 return -1;
             }
         }
         if (!SSL_CTX_check_private_key(ctx)) {
-            mprError("OpenSSL: Check of private key file failed: %s", key);
+            mprError("openssl", "Check of private key file failed: %s", key);
             return -1;
         }
     }
@@ -1812,12 +1812,12 @@ static int upgradeOss(MprSocket *sp, MprSsl *ssl, cchar *peerName)
         sp->errorMsg = 0;
         if ((rc = SSL_connect(osp->handle)) < 1) {
             if (sp->errorMsg) {
-                mprLog(4, "%s", sp->errorMsg);
+                mprLog("mpr ssl openssl", 4, "%s", sp->errorMsg);
             } else {
                 error = ERR_get_error();
                 ERR_error_string_n(error, ebuf, sizeof(ebuf) - 1);
                 sp->errorMsg = sclone(ebuf);
-                mprLog(4, "SSL_read error %s", ebuf);
+                mprLog("mpr ssl openssl", 4, "SSL_read error %s", ebuf);
             }
             return MPR_ERR_CANT_CONNECT;
         }
@@ -1892,7 +1892,7 @@ static char *getOssState(MprSocket *sp)
         parseCertFields(buf, prefix, "I_", &issuer[1]);
         /* Don't call X509_free on own cert */
     }
-    mprTrace(5, "OpenSSL state: %s", mprGetBufStart(buf));
+    mprDebug("mpr ssl openssl", 5, "state=%s", mprGetBufStart(buf));
     return mprGetBufStart(buf);
 }
 
@@ -1914,24 +1914,24 @@ static int checkCert(MprSocket *sp)
     ssl = sp->ssl;
     osp = (OpenSocket*) sp->sslSocket;
 
-    mprLog(4, "OpenSSL connected using cipher: \"%s\"", SSL_get_cipher(osp->handle));
+    mprLog("mpr ssl openssl", 4, "Connected using cipher: \"%s\"", SSL_get_cipher(osp->handle));
     if (ssl->caFile) {
-        mprLog(4, "OpenSSL: Using certificates from %s", ssl->caFile);
+        mprLog("mpr ssl openssl", 4, "Using certificates from %s", ssl->caFile);
     } else if (ssl->caPath) {
-        mprLog(4, "OpenSSL: Using certificates from directory %s", ssl->caPath);
+        mprLog("mpr ssl openssl", 4, "Using certificates from directory %s", ssl->caPath);
     }
     cert = SSL_get_peer_certificate(osp->handle);
     if (cert == 0) {
-        mprLog(4, "OpenSSL: client supplied no certificate");
+        mprLog("mpr ssl openssl", 4, "Client supplied no certificate");
         peer[0] = '\0';
     } else {
         xSubject = X509_get_subject_name(cert);
         X509_NAME_oneline(xSubject, subject, sizeof(subject) -1);
         X509_NAME_oneline(X509_get_issuer_name(cert), issuer, sizeof(issuer) -1);
         X509_NAME_get_text_by_NID(xSubject, NID_commonName, peer, sizeof(peer) - 1);
-        mprLog(4, "OpenSSL Subject %s", subject);
-        mprLog(4, "OpenSSL Issuer: %s", issuer);
-        mprLog(4, "OpenSSL Peer: %s", peer);
+        mprLog("mpr ssl openssl", 4, "Subject %s", subject);
+        mprLog("mpr ssl openssl", 4, "Issuer: %s", issuer);
+        mprLog("mpr ssl openssl", 4, "Peer: %s", peer);
         X509_free(cert);
     }
     if (ssl->verifyPeer && osp->peerName) {
@@ -2002,7 +2002,7 @@ static ssize readOss(MprSocket *sp, void *buf, ssize len)
             }
             serror = ERR_get_error();
             ERR_error_string_n(serror, ebuf, sizeof(ebuf) - 1);
-            mprLog(5, "SSL_read %s", ebuf);
+            mprLog("mpr ssl openssl", 5, "SSL_read %s", ebuf);
         }
         break;
     }
@@ -2029,7 +2029,7 @@ static ssize readOss(MprSocket *sp, void *buf, ssize len)
             /* SSL_ERROR_SSL */
             serror = ERR_get_error();
             ERR_error_string_n(serror, ebuf, sizeof(ebuf) - 1);
-            mprLog(4, "OpenSSL: connection with protocol error: %s", ebuf);
+            mprLog("mpr ssl openssl", 4, "Connection with protocol error: %s", ebuf);
             rc = -1;
             sp->flags |= MPR_SOCKET_EOF;
         }
@@ -2066,7 +2066,7 @@ static ssize writeOss(MprSocket *sp, cvoid *buf, ssize len)
 
     do {
         rc = SSL_write(osp->handle, buf, (int) len);
-        mprLog(7, "OpenSSL: written %d, requested len %d", rc, len);
+        mprLog("mpr ssl openssl", 7, "Wrote %d, requested len %d", rc, len);
         if (rc <= 0) {
             if (SSL_get_error(osp->handle, rc) == SSL_ERROR_WANT_WRITE) {
                 break;
@@ -2077,7 +2077,7 @@ static ssize writeOss(MprSocket *sp, cvoid *buf, ssize len)
         totalWritten += rc;
         buf = (void*) ((char*) buf + rc);
         len -= rc;
-        mprLog(7, "OpenSSL: write: len %d, written %d, total %d, error %d", len, rc, totalWritten, SSL_get_error(osp->handle, rc));
+        mprLog("mpr ssl openssl", 7, "write len %d, written %d, total %d, error %d", len, rc, totalWritten, SSL_get_error(osp->handle, rc));
     } while (len > 0);
     unlock(sp);
 
@@ -2178,14 +2178,14 @@ static int verifyX509Certificate(int ok, X509_STORE_CTX *xContext)
         break;
     }
     if (ok) {
-        mprLog(3, "OpenSSL: Certificate verified");
+        mprLog("mpr ssl openssl", 3, "Certificate verified");
     } else {
-        mprLog(3, "OpenSSL: Certificate cannot be verified (more trace at level 4)");
-        mprLog(3, "OpenSSL: %s", sp->errorMsg);
+        mprLog("mpr ssl openssl", 3, "Certificate cannot be verified (more trace at level 4)");
+        mprLog("mpr ssl openssl", 3, "%s", sp->errorMsg);
     }
-    mprLog(4, "OpenSSL: Subject: %s", subject);
-    mprLog(4, "OpenSSL: Issuer: %s", issuer);
-    mprLog(4, "OpenSSL: Peer: %s", peer);
+    mprLog("mpr ssl openssl", 4, "Subject: %s", subject);
+    mprLog("mpr ssl openssl", 4, "Issuer: %s", issuer);
+    mprLog("mpr ssl openssl", 4, ": Peer: %s", peer);
     return ok;
 }
 
@@ -2520,12 +2520,12 @@ PUBLIC int mprCreateNanoSslModule()
         return MPR_ERR_MEMORY;
     }
     if (MOCANA_initMocana() < 0) {
-        mprError("NanoSSL initialization failed");
+        mprError("nanossl", "initialization failed");
         return MPR_ERR_CANT_INITIALIZE;
     }
     MOCANA_initLog(nanoLog);
     if (SSL_init(SOMAXCONN, 0) < 0) {
-        mprError("SSL_init failed");
+        mprError("nanossl", "SSL_init failed");
         return MPR_ERR_CANT_INITIALIZE;
     }
     settings = SSL_sslSettings();
@@ -2623,7 +2623,7 @@ static int nanoUpgrade(MprSocket *sp, MprSsl *ssl, cchar *peerName)
         if (ssl->certFile) {
             certDescriptor tmp;
             if ((rc = MOCANA_readFile((sbyte*) ssl->certFile, &tmp.pCertificate, &tmp.certLength)) < 0) {
-                mprError("NanoSSL: Unable to read certificate %s", ssl->certFile); 
+                mprError("nanossl", "Unable to read certificate %s", ssl->certFile); 
                 CA_MGMT_freeCertificate(&tmp);
                 unlock(ssl);
                 return MPR_ERR_CANT_READ;
@@ -2631,7 +2631,7 @@ static int nanoUpgrade(MprSocket *sp, MprSsl *ssl, cchar *peerName)
             assert(__ENABLE_MOCANA_PEM_CONVERSION__);
             if ((rc = CA_MGMT_decodeCertificate(tmp.pCertificate, tmp.certLength, &cfg->cert.pCertificate, 
                     &cfg->cert.certLength)) < 0) {
-                mprError("NanoSSL: Unable to decode PEM certificate %s", ssl->certFile); 
+                mprError("nanossl", "Unable to decode PEM certificate %s", ssl->certFile); 
                 CA_MGMT_freeCertificate(&tmp);
                 unlock(ssl);
                 return MPR_ERR_CANT_READ;
@@ -2641,13 +2641,13 @@ static int nanoUpgrade(MprSocket *sp, MprSsl *ssl, cchar *peerName)
         if (ssl->keyFile) {
             certDescriptor tmp;
             if ((rc = MOCANA_readFile((sbyte*) ssl->keyFile, &tmp.pKeyBlob, &tmp.keyBlobLength)) < 0) {
-                mprError("NanoSSL: Unable to read key file %s", ssl->keyFile); 
+                mprError("nanossl", "Unable to read key file %s", ssl->keyFile); 
                 CA_MGMT_freeCertificate(&cfg->cert);
                 unlock(ssl);
             }
             if ((rc = CA_MGMT_convertKeyPEM(tmp.pKeyBlob, tmp.keyBlobLength, 
                     &cfg->cert.pKeyBlob, &cfg->cert.keyBlobLength)) < 0) {
-                mprError("NanoSSL: Unable to decode PEM key file %s", ssl->keyFile); 
+                mprError("nanossl", "Unable to decode PEM key file %s", ssl->keyFile); 
                 CA_MGMT_freeCertificate(&tmp);
                 unlock(ssl);
                 return MPR_ERR_CANT_READ;
@@ -2657,14 +2657,14 @@ static int nanoUpgrade(MprSocket *sp, MprSsl *ssl, cchar *peerName)
         if (ssl->caFile) {
             certDescriptor tmp;
             if ((rc = MOCANA_readFile((sbyte*) ssl->caFile, &tmp.pCertificate, &tmp.certLength)) < 0) {
-                mprError("NanoSSL: Unable to read CA certificate file %s", ssl->caFile); 
+                mprError("nanossl", "Unable to read CA certificate file %s", ssl->caFile); 
                 CA_MGMT_freeCertificate(&tmp);
                 unlock(ssl);
                 return MPR_ERR_CANT_READ;
             }
             if ((rc = CA_MGMT_decodeCertificate(tmp.pCertificate, tmp.certLength, &cfg->ca.pCertificate, 
                     &cfg->ca.certLength)) < 0) {
-                mprError("NanoSSL: Unable to decode PEM certificate %s", ssl->caFile); 
+                mprError("nanossl", "Unable to decode PEM certificate %s", ssl->caFile); 
                 CA_MGMT_freeCertificate(&tmp);
                 unlock(ssl);
                 return MPR_ERR_CANT_READ;
@@ -2672,7 +2672,7 @@ static int nanoUpgrade(MprSocket *sp, MprSsl *ssl, cchar *peerName)
             MOCANA_freeReadFile(&tmp.pCertificate);
         }
         if (SSL_initServerCert(&cfg->cert, FALSE, 0)) {
-            mprError("SSL_initServerCert failed");
+            mprError("nanossl", "SSL_initServerCert failed");
             unlock(ssl);
             return MPR_ERR_CANT_INITIALIZE;
         }
@@ -2685,7 +2685,7 @@ static int nanoUpgrade(MprSocket *sp, MprSsl *ssl, cchar *peerName)
             return -1;
         }
     } else {
-        mprError("NanoSSL does not support client side SSL");
+        mprError("nanossl", "does not support client side SSL");
     }
     return 0;
 }
@@ -2709,15 +2709,15 @@ static void checkCert(MprSocket *sp)
     np = (NanoSocket*) sp->sslSocket;
 
     if (ssl->caFile) {
-        mprLog(4, "NanoSSL: Using certificates from %s", ssl->caFile);
+        mprLog("mpr ssl nanossl", 4, "Using certificates from %s", ssl->caFile);
     } else if (ssl->caPath) {
-        mprLog(4, "NanoSSL: Using certificates from directory %s", ssl->caPath);
+        mprLog("mpr ssl nanossl", 4, "Using certificates from directory %s", ssl->caPath);
     }
     /*
         Trace cipher being used
      */
     if (SSL_getCipherInfo(np->handle, &cipher, &ecurve) < 0) {
-        mprLog(0, "Cannot get cipher info");
+        mprLog("mpr ssl nanossl", 0, "Cannot get cipher info");
         return;
     }
     for (cp = mprCiphers; cp->name; cp++) {
@@ -2726,9 +2726,9 @@ static void checkCert(MprSocket *sp)
         }
     }
     if (cp) {
-        mprLog(0, "NanoSSL connected using cipher: %s, %x", cp->name, (int) cipher);
+        mprLog("mpr ssl nanossl", 0, "Connected using cipher: %s, %x", cp->name, (int) cipher);
     } else {
-        mprLog(0, "NanoSSL connected using cipher: %x", (int) cipher);
+        mprLog("mpr ssl nanossl", 0, "Connected using cipher: %x", (int) cipher);
     }
 }
 
@@ -2782,7 +2782,7 @@ static int nanoHandshake(MprSocket *sp)
             sp->errorMsg = sclone("Certificate does not validate");
         }
         DISPLAY_ERROR(0, rc); 
-        mprLog(4, "NanoSSL: Cannot handshake: error %d", rc);
+        mprLog("mpr ssl nanossl", 4, "Cannot handshake: error %d", rc);
         errno = EPROTO;
         return -1;
     }
@@ -2810,7 +2810,7 @@ static ssize nanoRead(MprSocket *sp, void *buf, ssize len)
     while (1) {
         nbytes = 0;
         rc = SSL_recv(np->handle, buf, (sbyte4) len, &nbytes, 0);
-        mprLog(5, "NanoSSL: ssl_read %d", rc);
+        mprLog("mpr ssl nanossl", 5, "ssl_read %d", rc);
         if (rc < 0) {
             if (rc != ERR_TCP_READ_ERROR) {
                 sp->flags |= MPR_SOCKET_EOF;
@@ -2846,14 +2846,14 @@ static ssize nanoWrite(MprSocket *sp, cvoid *buf, ssize len)
     rc = 0;
     do {
         rc = sent = SSL_send(np->handle, (sbyte*) buf, (int) len);
-        mprLog(7, "NanoSSL: written %d, requested len %d", sent, len);
+        mprLog("mpr ssl nanossl", 5, "written %d, requested len %d", sent, len);
         if (rc <= 0) {
             break;
         }
         totalWritten += sent;
         buf = (void*) ((char*) buf + sent);
         len -= sent;
-        mprLog(7, "NanoSSL: write: len %d, written %d, total %d", len, sent, totalWritten);
+        mprLog("mpr ssl nanossl", 5, "write: len %d, written %d, total %d", len, sent, totalWritten);
     } while (len > 0);
 
     SSL_sendPending(np->handle, &count);
@@ -2883,14 +2883,14 @@ static int setNanoCiphers(MprSocket *sp, cchar *cipherSuite)
     count = 0;
     while ((cipher = stok(suite, ":, \t", &next)) != 0 && count < MAX_CIPHERS) {
         if ((cipherCode = mprGetSslCipherCode(cipher)) < 0) {
-            mprError("Requested cipher %s is not supported by this provider", cipher);
+            mprError("nanossl", "Requested cipher %s is not supported by this provider", cipher);
         } else {
             ciphers[count++] = cipherCode;
         }
         suite = 0;
     }
     if (SSL_enableCiphers(np->handle, ciphers, count) < 0) {
-        mprError("Requested cipher suite %s is not supported by this provider", cipherSuite);
+        mprError("nanossl", "Requested cipher suite %s is not supported by this provider", cipherSuite);
         return MPR_ERR_BAD_STATE;
     }
     return 0;
@@ -2899,17 +2899,17 @@ static int setNanoCiphers(MprSocket *sp, cchar *cipherSuite)
 
 static void DEBUG_PRINT(void *where, void *msg)
 {
-    mprRawLog(4, "%s", msg);
+    mprLog("nanossl", 4, "%s", msg);
 }
 
 static void DEBUG_PRINTNL(void *where, void *msg)
 {
-    mprLog(4, "%s", msg);
+    mprLog("mpr ssl nanossl", 4, "%s", msg);
 }
 
 static void nanoLog(sbyte4 module, sbyte4 severity, sbyte *msg)
 {
-    mprLog(3, "%s", (cchar*) msg);
+    mprLog("mpr ssl nanossl", 3, "%s", (cchar*) msg);
 }
 
 #else

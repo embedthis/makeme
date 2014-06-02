@@ -4018,7 +4018,7 @@ static void badAst(EcCompiler *cp, EcNode *np)
 {
     cp->fatalError = 1;
     cp->errorCount++;
-    mprError("Unsupported language feature\nUnknown AST node kind %d",  np->kind);
+    mprError("ejs compiler", "Unsupported language feature\nUnknown AST node kind %d",  np->kind);
 }
 
 
@@ -8240,7 +8240,7 @@ static void pushStack(EcCompiler *cp, int count)
     code->stackCount += count;
     assert(code->stackCount >= 0);
 
-    mprTrace(level, "Stack %d, after push %d", code->stackCount, count);
+    mprDebug("ejs compiler", level, "Stack %d, after push %d", code->stackCount, count);
 }
 
 
@@ -8256,7 +8256,7 @@ static void popStack(EcCompiler *cp, int count)
     code->stackCount -= count;
     assert(code->stackCount >= 0);
 
-    mprTrace(level, "Stack %d, after pop %d", code->stackCount, count);
+    mprDebug("ejs compiler", level, "Stack %d, after pop %d", code->stackCount, count);
 }
 
 
@@ -8297,7 +8297,7 @@ static void discardStackItems(EcCompiler *cp, int preserve)
     }
     code->stackCount -= count;
     assert(code->stackCount >= 0);
-    mprTrace(level, "Stack %d, after discard\n", code->stackCount);
+    mprDebug("ejs compiler", level, "Stack %d, after discard\n", code->stackCount);
 }
 
 
@@ -8315,7 +8315,7 @@ static void discardBlockItems(EcCompiler *cp, int preserve)
     }
     code->blockCount -= count;
     assert(code->blockCount >= 0);
-    mprTrace(level, "Block level %d, after discard\n", code->blockCount);
+    mprDebug("ejs compiler", level, "Block level %d, after discard\n", code->blockCount);
 }
 
 
@@ -8325,7 +8325,7 @@ static void discardBlockItems(EcCompiler *cp, int preserve)
 static void setCodeBuffer(EcCompiler *cp, EcCodeGen *saveCode)
 {
     cp->state->code = saveCode;
-    mprTrace(level, "Stack %d, after restore code buffer\n", cp->state->code->stackCount);
+    mprDebug("ejs compiler", level, "Stack %d, after restore code buffer\n", cp->state->code->stackCount);
 }
 
 
@@ -8444,7 +8444,7 @@ static void badNode(EcCompiler *cp, EcNode *np)
 {
     cp->fatalError = 1;
     cp->errorCount++;
-    mprError("Unsupported language feature\nUnknown AST node kind %d", np->kind);
+    mprError("ejs compiler", "Unsupported language feature\nUnknown AST node kind %d", np->kind);
 }
 
 
@@ -8781,7 +8781,7 @@ PUBLIC int ejsLoadScriptLiteral(Ejs *ejs, EjsString *script, cchar *cache, int f
     }
     //  UNICODE -- should this API be multi or unicode
     if (ecOpenMemoryStream(cp, ejsToMulti(ejs, script), script->length) < 0) {
-        mprError("Cannot open memory stream");
+        mprError("ejs compiler", "Cannot open memory stream");
         mprRemoveRoot(cp);
         return EJS_ERR;
     }
@@ -10228,8 +10228,6 @@ PUBLIC int ecCreateModuleSection(EcCompiler *cp)
     mp = state->currentModule;
     constants = mp->constants;
 
-    mprTrace(7, "Create module section %s", mp->name);
-
     ecEncodeByte(cp, EJS_SECT_MODULE);
     ecEncodeConst(cp, mp->name);
     ecEncodeNum(cp, mp->version);
@@ -10303,7 +10301,6 @@ static void createDependencySection(EcCompiler *cp)
                 return;
             }
             mp->checksum += sumString(module->name);
-            mprTrace(7, "    dependency section for %s from module %s", module->name, mp->name);
         }
     }
 }
@@ -10330,7 +10327,7 @@ static void createGlobalProperties(EcCompiler *cp)
         slotNum = ejsLookupProperty(ejs, ejs->global, *prop);
         if (slotNum < 0) {
             cp->fatalError = 1;
-            mprError("Code generation error. Cannot find global property %s.", prop->name);
+            mprError("ejs compiler", "Code generation error. Cannot find global property %s.", prop->name);
             return;
         }
         vp = ejsGetProperty(ejs, ejs->global, slotNum);
@@ -10445,8 +10442,6 @@ static void createClassSection(EcCompiler *cp, EjsPot *block, int slotNum, EjsPo
     qname = ejsGetPropertyName(ejs, ejs->global, slotNum);
     assert(qname.name);
 
-    mprTrace(7, "    type section %@ for module %@", qname.name, mp->name);
-    
     type = ejsGetProperty(ejs, ejs->global, slotNum);
     assert(type);
     assert(ejsIsType(ejs, type));
@@ -10748,8 +10743,6 @@ static void createPropertySection(EcCompiler *cp, EjsPot *block, int slotNum, Ej
     trait = ejsGetPropertyTraits(ejs, block, slotNum);
     attributes = trait->attributes;
 
-    mprTrace(7, "    global property section %@", qname.name);
-
     if (trait->type) {
         if (trait->type == EST(Namespace) || (!ejs->initialized && trait->type->qname.name == EST(Namespace)->qname.name)){
             attributes |= EJS_PROP_HAS_VALUE;
@@ -10949,7 +10942,6 @@ PUBLIC int ecAddModuleConstant(EcCompiler *cp, EjsModule *mp, cchar *str)
         return PTOI(kp->data);
     }
     index = ejsAddConstant(cp->ejs, mp, str);
-    // mprTrace(0, "%6d %s", index, str);
     mprAddKey(constants->table, str, ITOP(index));
     return index;
 }
@@ -11185,7 +11177,7 @@ PUBLIC void ecEncodeByteAtPos(EcCompiler *cp, int offset, int value)
 PUBLIC void ecEncodeInt32AtPos(EcCompiler *cp, int offset, int value)
 {
     if (abs(value) > EJS_ENCODE_MAX_WORD) {
-        mprError("Code generation error. Word %d exceeds maximum %d", value, EJS_ENCODE_MAX_WORD);
+        mprError("ejs compiler", "Code generation error. Word %d exceeds maximum %d", value, EJS_ENCODE_MAX_WORD);
         cp->fatalError = 1;
         return;
     }
@@ -21259,7 +21251,6 @@ static void applyAttributes(EcCompiler *cp, EcNode *np, EcNode *attributeNode, E
     assert(nspace);
     np->qname.space = nspace;
 
-    mprTrace(7, "Parser apply attributes namespace = \"%@\", current line %w", nspace, np->loc.source);
     assert(np->qname.space);
     np->attributes |= attributes;
 }
@@ -33114,8 +33105,6 @@ static EjsObj *closeFile(Ejs *ejs, EjsFile *fp, int argc, EjsObj **argv)
         if (mprFlushFile(fp->file) < 0) {
             if (ejs) {
                 ejsThrowIOError(ejs, "Cannot flush file data");
-            } else {
-                mprError("Cannot flush file data");
             }
             return 0;
         }
@@ -33589,7 +33578,6 @@ PUBLIC EjsObj *writeFile(Ejs *ejs, EjsFile *fp, int argc, EjsObj **argv)
             break;
         }
         if (mprWriteFile(fp->file, buf, len) != len) {
-            mprLog(0, "Write IO error %d", mprGetOsError());
             ejsThrowIOError(ejs, "Cannot write to %s", fp->path);
             return 0;
         }
@@ -35251,7 +35239,8 @@ PUBLIC int ejsBlendObject(Ejs *ejs, EjsObj *dest, EjsObj *src, int flags)
             continue;
         }
         if (trace) {
-            mprLog(0, "Blend name %N", qname);
+            //  TODO - remove
+            mprLog("ejs blend", 0, "Blend name %N", qname);
         }
         if (combine && qname.name) {
             cflags = flags;
@@ -36394,63 +36383,35 @@ static int getNumOption(Ejs *ejs, EjsObj *options, cchar *field)
 }
 
 
-static void setupTrace(Ejs *ejs, HttpTrace *trace, int dir, EjsObj *options)
+static void setupTrace(Ejs *ejs, HttpTrace *trace, EjsObj *options)
 {
-    EjsArray    *extensions;
-    EjsObj      *ext;
-    HttpTrace   *tp;
-    int         i, level, *levels;
+    char        *levels;
+    int         i, level;
 
-    tp = &trace[dir];
-    levels = tp->levels;
+    levels = trace->levels;
     if ((level = getNumOption(ejs, options, "all")) >= 0) {
         for (i = 0; i < HTTP_TRACE_MAX_ITEM; i++) {
             levels[i] = level;
         }
     } else {
         levels[HTTP_TRACE_CONN] = getNumOption(ejs, options, "conn");
-        levels[HTTP_TRACE_FIRST] = getNumOption(ejs, options, "first");
-        levels[HTTP_TRACE_HEADER] = getNumOption(ejs, options, "headers");
-        levels[HTTP_TRACE_BODY] = getNumOption(ejs, options, "body");
+        levels[HTTP_TRACE_ERROR] = getNumOption(ejs, options, "error");
+        levels[HTTP_TRACE_INFO] = getNumOption(ejs, options, "info");
+        levels[HTTP_TRACE_RX_FIRST] = getNumOption(ejs, options, "rx-first");
+        levels[HTTP_TRACE_RX_HEADERS] = getNumOption(ejs, options, "rx-headers");
+        levels[HTTP_TRACE_RX_BODY] = getNumOption(ejs, options, "rx-body");
+        levels[HTTP_TRACE_TX_FIRST] = getNumOption(ejs, options, "tx-first");
+        levels[HTTP_TRACE_TX_HEADERS] = getNumOption(ejs, options, "tx-headers");
+        levels[HTTP_TRACE_TX_BODY] = getNumOption(ejs, options, "tx-body");
+        levels[HTTP_TRACE_COMPLETE] = getNumOption(ejs, options, "complete");
     }
-    tp->size = getNumOption(ejs, options, "size");
-    if ((extensions = (EjsArray*) ejsGetPropertyByName(ejs, options, EN("include"))) != 0) {
-        if (!ejsIs(ejs, extensions, Array)) {
-            ejsThrowArgError(ejs, "include is not an array");
-            return;
-        }
-        tp->include = mprCreateHash(0, 0);
-        for (i = 0; i < extensions->length; i++) {
-            if ((ext = ejsGetProperty(ejs, extensions, i)) != 0) {
-                mprAddKey(tp->include, ejsToMulti(ejs, ejsToString(ejs, ext)), "");
-            }
-        }
-    }
-    if ((extensions = (EjsArray*) ejsGetPropertyByName(ejs, options, EN("exclude"))) != 0) {
-        if (!ejsIs(ejs, extensions, Array)) {
-            ejsThrowArgError(ejs, "exclude is not an array");
-            return;
-        }
-        tp->exclude = mprCreateHash(0, 0);
-        for (i = 0; i < extensions->length; i++) {
-            if ((ext = ejsGetProperty(ejs, extensions, i)) != 0) {
-                mprAddKey(tp->exclude, ejsToMulti(ejs, ejsToString(ejs, ext)), MPR->emptyString);
-            }
-        }
-    }
+    trace->size = getNumOption(ejs, options, "size");
 }
 
 
 PUBLIC int ejsSetupHttpTrace(Ejs *ejs, HttpTrace *trace, EjsObj *options)
 {
-    EjsObj      *rx, *tx;
-
-    if ((rx = ejsGetPropertyByName(ejs, options, EN("rx"))) != 0) {
-        setupTrace(ejs, trace, HTTP_TRACE_RX, rx);
-    }
-    if ((tx = ejsGetPropertyByName(ejs, options, EN("tx"))) != 0) {
-        setupTrace(ejs, trace, HTTP_TRACE_TX, tx);
-    }
+    setupTrace(ejs, trace, options);
     return 0;
 }
 
@@ -36971,13 +36932,13 @@ static bool expired(EjsHttp *hp)
     if (diff < 0) {
         if (conn->rx) {
             if (inactivity) {
-                mprTrace(4, "Inactive request timed out %s, exceeded inactivity timeout %d", 
+                mprDebug("ejs http", 4, "Inactive request timed out %s, exceeded inactivity timeout %d", 
                     conn->rx->uri, inactivityTimeout);
             } else {
-                mprTrace(4, "Request timed out %s, exceeded timeout %d", conn->rx->uri, requestTimeout);
+                mprDebug("ejs http", 4, "Request timed out %s, exceeded timeout %d", conn->rx->uri, requestTimeout);
             }
         } else {
-            mprTrace(4, "Idle connection timed out");
+            mprDebug("ejs http", 4, "Idle connection timed out");
         }
     }
 }
@@ -38619,7 +38580,7 @@ static EjsNumber *sl_write(Ejs *ejs, EjsLocalCache *cache, int argc, EjsAny **ar
     cache->usedMem += (len - oldLen);
 
     if (cache->timer == 0) {
-        mprTrace(5, "Start LocalCache pruner with resolution %d", cache->resolution);
+        mprDebug("ejs cache", 5, "Start LocalCache pruner with resolution %d", cache->resolution);
         /* 
             Use the MPR dispatcher incase this VM is destroyed 
          */
@@ -38660,11 +38621,11 @@ static void localPruner(EjsLocalCache *cache, MprEvent *event)
         for (kp = 0; (kp = mprGetNextKey(cache->store, kp)) != 0; ) {
             item = (CacheItem*) kp->data;
 #if KEEP
-            mprTrace(6, "LocalCache: \"%@\" lifespan %d, expires in %d secs", item->key, 
+            mprDebug("ejs cache", 6, "LocalCache: \"%@\" lifespan %d, expires in %d secs", item->key, 
                     item->lifespan / 1000, (item->expires - when) / 1000);
 #endif
             if (item->expires && item->expires <= when) {
-                mprTrace(5, "LocalCache prune expired key %s", kp->key);
+                mprDebug("ejs cache", 5, "LocalCache prune expired key %s", kp->key);
                 removeItem(cache, item);
             }
         }
@@ -38680,7 +38641,7 @@ static void localPruner(EjsLocalCache *cache, MprEvent *event)
                     for (kp = 0; (kp = mprGetNextKey(cache->store, kp)) != 0; ) {
                         item = (CacheItem*) kp->data;
                         if (item->expires && item->expires <= when) {
-                            mprTrace(5, "LocalCache too big execess keys %Ld, mem %Ld, prune key %s", 
+                            mprDebug("ejs cache", 5, "LocalCache too big execess keys %Ld, mem %Ld, prune key %s", 
                                     excessKeys, (cache->maxMem - cache->usedMem), kp->key);
                             removeItem(cache, item);
                             excessKeys--;
@@ -39357,7 +39318,7 @@ static EjsNumber *lf_emit(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
         msg = srejoin(msg, arg, NULL);
     }
     if (msg) {
-        mprRawLog(level, "%s", msg);
+        mprLog("ejs", level, "%s", msg);
         written += slen(msg);
     }
     ejsUnblockGC(ejs, paused);
@@ -43488,7 +43449,6 @@ PUBLIC EjsAny *ejsClonePot(Ejs *ejs, EjsAny *obj, bool deep)
 #if ME_MEMORY_DEBUG
                 EjsName qname = ejsGetPropertyName(ejs, src, i);
                 mprSetName(dp->value.ref, qname.name->value);
-                // mprTrace(0, "CLONE %N", qname);
 #endif
                 dp->value.ref = ejsClone(ejs, vp, deep);
             }
@@ -48039,9 +47999,6 @@ static int rebuildIntern(EjsIntern *ip)
             return 0;
         }
     }
-    mprTrace(6, "Grow string intern new size %d old size %d, count %d, sizeof(EjsString) %d", 
-        newSize, oldSize, ip->count, sizeof(EjsString));
-
     if ((ip->buckets = mprAllocZeroed((newSize * sizeof(EjsString)))) == NULL) {
         return MPR_ERR_MEMORY;
     }
@@ -48407,7 +48364,7 @@ static EjsString *system_ipaddr(Ejs *ejs, EjsObj *unused, int argc, EjsObj **arg
         }
         return ejsCreateStringFromAsc(ejs, ip ? ip : "127.0.0.1");
     } else {
-        mprError("Cannot get IP address, check system hostname. Error %d.\n", rc);
+        mprLog("ejs system", 2, "Cannot get IP address, check system hostname. Error %d.\n", rc);
     }
 #endif
     return ESV(null);
@@ -48623,7 +48580,7 @@ static int timerCallback(EjsTimer *tp, MprEvent *e)
             ejsClearException(ejs);
             ejsRunFunction(ejs, tp->onerror, thisObj, 1, &error);
         } else {
-            mprError("Uncaught exception in timer\n%s", ejsGetErrorMsg(ejs, 1));
+            mprLog("ejs timer", 2, "Uncaught exception in timer\n%s", ejsGetErrorMsg(ejs, 1));
             ejsClearException(ejs);
         }
     }
@@ -48941,7 +48898,7 @@ PUBLIC EjsType *ejsFinalizeCoreType(Ejs *ejs, EjsName qname)
     EjsType     *type;
 
     if ((type = ejsGetTypeByName(ejs, qname)) == 0) {
-        mprError("Cannot find %N type", qname);
+        mprError("ejs type", "Cannot find %N type", qname);
         return 0;
     }
     if (type->configured) {
@@ -48960,7 +48917,7 @@ PUBLIC EjsType *ejsFinalizeScriptType(Ejs *ejs, EjsName qname, int size, void *m
     EjsType     *type;
 
     if ((type = ejsGetTypeByName(ejs, qname)) == 0) {
-        mprError("Cannot find %N type", qname);
+        mprError("ejs type", "Cannot find %N type", qname);
         return 0;
     }
     if (type->configured) {
@@ -49422,12 +49379,14 @@ PUBLIC int ejsBindAccess(Ejs *ejs, void *obj, int slotNum, void *getter, void *s
         fun = ejsGetProperty(ejs, obj, slotNum);
         if (fun == 0 || !ejsIsFunction(ejs, fun) || fun->setter == 0 || !ejsIsFunction(ejs, fun->setter)) {
             ejs->hasError = 1;
-            mprError("Attempt to bind non-existant setter function for slot %d in \"%s\"", slotNum, mprGetName(obj));
+            mprError("ejs type", "Attempt to bind non-existant setter function for slot %d in \"%s\"", 
+                slotNum, mprGetName(obj));
             return EJS_ERR;
         }
         fun = fun->setter;
         if (fun->body.code) {
-            mprError("Setting a native method on a non-native function \"%@\" in \"%s\"", fun->name, mprGetName(obj));
+            mprError("ejs type", "Setting a native method on a non-native function \"%@\" in \"%s\"", 
+                fun->name, mprGetName(obj));
             ejs->hasError = 1;
         }
         fun->body.proc = setter;
@@ -49446,18 +49405,19 @@ PUBLIC int ejsBindFunction(Ejs *ejs, EjsAny *obj, int slotNum, void *nativeProc)
 
     if (ejsGetLength(ejs, obj) < slotNum) {
         ejs->hasError = 1;
-        mprError("Attempt to bind non-existant function for slot %d in \"%s\"", slotNum, mprGetName(obj));
+        mprError("ejs type", "Attempt to bind non-existant function for slot %d in \"%s\"", slotNum, mprGetName(obj));
         return EJS_ERR;
     }
     fun = ejsGetProperty(ejs, obj, slotNum);
     if (fun == 0 || !ejsIsFunction(ejs, fun)) {
         assert(fun);
         ejs->hasError = 1;
-        mprError("Attempt to bind non-existant function for slot %d in \"%s\"", slotNum, mprGetName(obj));
+        mprError("ejs type", "Attempt to bind non-existant function for slot %d in \"%s\"", slotNum, mprGetName(obj));
         return EJS_ERR;
     }
     if (fun->body.code) {
-        mprError("Setting a native method on a non-native function \"%@\" in \"%s\"", fun->name, mprGetName(obj));
+        mprError("ejs type", "Setting a native method on a non-native function \"%@\" in \"%s\"", 
+            fun->name, mprGetName(obj));
         ejs->hasError = 1;
     }
     assert(fun->body.proc == 0);
@@ -51723,7 +51683,6 @@ static void webSocketNotify(HttpConn *conn, int event, int arg)
     case HTTP_EVENT_STATE:
         if (arg == HTTP_STATE_CONTENT) {
             ws->protocol = (char*) httpGetHeader(conn, "Sec-WebSocket-Protocol");
-            mprTrace(3, "Web socket protocol %s", ws->protocol);
             onWebSocketEvent(ws, HTTP_EVENT_APP_OPEN, 0, 0);
         }
         break;
@@ -52194,7 +52153,7 @@ static EjsObj *startWorker(Ejs *ejs, EjsWorker *outsideWorker, int timeout)
     assert(outsideWorker->pair);
     assert(outsideWorker->pair->ejs);
 
-    mprTrace(5, "Worker.startWorker");
+    mprDebug("ejs worker", 5, "Worker.startWorker");
 
     if (outsideWorker->state > EJS_WORKER_BEGIN) {
         ejsThrowStateError(ejs, "Worker has already started");
@@ -52329,7 +52288,7 @@ static int join(Ejs *ejs, EjsObj *workers, int timeout)
     MprTicks    mark;
     int         result, remaining;
 
-    mprTrace(5, "Worker.join: joining %d", ejs->joining);
+    mprDebug("ejs worker", 5, "Worker.join: joining %d", ejs->joining);
     
     mark = mprGetTicks();
     remaining = timeout;
@@ -52351,7 +52310,7 @@ static int join(Ejs *ejs, EjsObj *workers, int timeout)
     }
     result = (ejs->joining) ? MPR_ERR_TIMEOUT: 0;
     ejs->joining = 0;
-    mprTrace(7, "Worker.join: result %d", result);
+    mprDebug("ejs worker", 7, "Worker.join: result %d", result);
     return result;
 }
 
@@ -52488,7 +52447,7 @@ static int doMessage(Message *msg, MprEvent *mprEvent)
 
     if (callback == 0 || ejsIs(ejs, callback, Null)) {
         if (msg->callbackSlot == ES_Worker_onmessage) {
-            mprTrace(6, "Discard message as no onmessage handler defined for worker");
+            mprDebug("ejs worker", 6, "Discard message as no onmessage handler defined for worker");
             
         } else if (msg->callbackSlot == ES_Worker_onerror) {
             if (ejsIs(ejs, msg->message, String)) {
@@ -52511,7 +52470,7 @@ static int doMessage(Message *msg, MprEvent *mprEvent)
     if (msg->callbackSlot == ES_Worker_onclose) {
         assert(!worker->inside);
         worker->state = EJS_WORKER_COMPLETE;
-        mprTrace(5, "Worker.doMessage: complete");
+        mprDebug("ejs worker", 5, "Worker.doMessage: complete");
         /* Worker and insider interpreter are now eligible for garbage collection */
         removeWorker(worker);
     }
@@ -53347,8 +53306,6 @@ static int setXmlPropertyByName(Ejs *ejs, EjsXML *xml, EjsName qname, EjsObj *va
 
     last = 0;
     lastElt = 0;
-
-    mprTrace(9, "XMLSet %@.%@ = \"%@\"", xml->qname.name, qname.name, ejsCast(ejs, value, String));
 
     if (isdigit((uchar) qname.name->value[0]) && allDigitsForXml(qname.name)) {
         ejsThrowTypeError(ejs, "Integer indicies for set are not allowed");
@@ -55598,7 +55555,7 @@ static void initSqlite()
 #endif
         sqlite3_config(THREAD_STYLE);
         if (sqlite3_initialize() != SQLITE_OK) {
-            mprError("Cannot initialize SQLite");
+            mprError("ejs sqlite", "Cannot initialize SQLite");
             return;
         }
         sqliteInitialized = 1;
@@ -55714,7 +55671,7 @@ static EjsRequest *hs_accept(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **arg
     event.sock = sock;
     if ((conn = httpAcceptConn(sp->endpoint, &event)) == 0) {
         /* Just ignore */
-        mprError("Cannot accept connection");
+        mprError("ejs web", "Cannot accept connection");
         return 0;
     }
     return createRequest(sp, conn);
@@ -56343,14 +56300,11 @@ static void incomingEjs(HttpQueue *q, HttpPacket *packet)
 static void setupConnTrace(HttpConn *conn)
 {
     EjsHttpServer   *sp;
-    int             i;
 
     assert(conn->endpoint);
     if (conn->endpoint) {
         if ((sp = httpGetEndpointContext(conn->endpoint)) != 0) {
-            for (i = 0; i < HTTP_TRACE_MAX_DIR; i++) {
-                conn->trace[i] = sp->trace[i];
-            }
+            conn->trace = sp->trace;
         }
     }
 }
@@ -56495,8 +56449,7 @@ static void manageHttpServer(EjsHttpServer *sp, int flags)
         mprMark(sp->ejs);
         mprMark(sp->endpoint);
         mprMark(sp->ssl);
-        httpManageTrace(&sp->trace[0], flags);
-        httpManageTrace(&sp->trace[1], flags);
+        mprMark(sp->trace);
         mprMark(sp->connector);
         mprMark(sp->keyFile);
         mprMark(sp->certFile);
@@ -56533,7 +56486,7 @@ static EjsHttpServer *createHttpServer(Ejs *ejs, EjsType *type, int size)
     sp->ejs = ejs;
     sp->hosted = ejs->hosted;
     sp->async = 1;
-    httpInitTrace(sp->trace);
+    sp->trace = httpCreateTrace(0);
     return sp;
 }
 
@@ -56558,7 +56511,7 @@ EjsHttpServer *ejsCloneHttpServer(Ejs *ejs, EjsHttpServer *sp, bool deep)
     nsp->keyFile = sp->keyFile;
     nsp->ciphers = sp->ciphers;
     nsp->protocols = sp->protocols;
-    httpInitTrace(nsp->trace);
+    nsp->trace = httpCreateTrace(sp->trace);
     return nsp;
 }
 
@@ -59154,7 +59107,7 @@ EjsAny *ejsCreateException(Ejs *ejs, int slot, cchar *fmt, va_list fmtArgs)
     EjsAny      *error;
 
     if (ejs->exception) {
-        mprError("Double exception: %s", sfmtv(fmt, fmtArgs));
+        mprError("ejs vm", "Double exception: %s", sfmtv(fmt, fmtArgs));
         return ejs->exception;
     }
     type = (ejs->initialized) ? ejsGetProperty(ejs, ejs->global, slot) : NULL;
@@ -63157,7 +63110,7 @@ EjsObj *ejsRunInitializer(Ejs *ejs, EjsModule *mp)
                 }
             }
         }
-        mprTrace(7, "Running initializer for module %@", mp->name);
+        mprDebug("ejs vm", 7, "Running initializer for module %@", mp->name);
         result = ejsRunFunction(ejs, mp->initializer, ejs->global, 0, NULL);
     }
     return result;
@@ -63197,7 +63150,7 @@ EjsAny *ejsRunFunction(Ejs *ejs, EjsFunction *fun, EjsAny *thisObj, int argc, vo
     assert(fun);
     assert(ejsIsFunction(ejs, fun));
     if (ejs->exception) {
-        mprTrace(0, "STOP");
+        mprDebug("ejs vm", 0, "STOP");
     }
     assert(ejs->exception == 0);
 
@@ -64153,7 +64106,7 @@ void ejsLog(Ejs *ejs, cchar *fmt, ...)
     va_start(args, fmt);
     fmtv(buf, sizeof(buf) - 1, fmt, args);
     va_end(args);
-    mprLog(0, "%s", buf);
+    mprLog("ejs", 0, "%s", buf);
 }
 
 
@@ -64321,15 +64274,13 @@ void ejsShowOpFrequency(Ejs *ejs)
         return;
     }
     optable = ejsGetOptable();
-    mprTrace(0, "Opcode Frequency");
+    mprDebug("ejs vm", 0, "Opcode Frequency");
     for (i = 0; i < 256 && optable[i].name; i++) {
-        mprTrace(6, "%4d %24s %8d", (uchar) i, optable[i].name, opcount[i]);
+        mprDebug("ejs vm", 6, "%4d %24s %8d", (uchar) i, optable[i].name, opcount[i]);
     }
 }
 #endif
-
 #endif /* ME_DEBUG */
-
 
 /*
     Cleanup defines for combo builds
@@ -64525,7 +64476,7 @@ static char *search(Ejs *ejs, cchar *filename, int minVersion, int maxVersion)
     assert(filename && *filename);
 
     if ((path = ejsSearchForModule(ejs, filename, minVersion, maxVersion)) == 0) {
-        mprTrace(2, "Cannot find module file \"%s\"", filename);
+        mprDebug("ejs vm", 2, "Cannot find module file \"%s\"", filename);
         if (minVersion <= 0 && maxVersion <= 0) {
             ejsThrowReferenceError(ejs,  "Cannot find module file \"%s\"", filename);
         } else if (minVersion == 0 && maxVersion == EJS_MAX_VERSION) {
@@ -64556,10 +64507,9 @@ static int loadSections(Ejs *ejs, MprFile *file, cchar *path, EjsModuleHdr *hdr,
 
     while ((sectionType = (int) mprGetFileChar(file)) >= 0) {
         if (sectionType < 0 || sectionType >= EJS_SECT_MAX) {
-            mprError("Bad section type %d in %@", sectionType, mp->name);
+            mprError("ejs vm", "Bad section type %d in %@", sectionType, mp->name);
             return MPR_ERR_CANT_LOAD;
         }
-        mprTrace(9, "Load section type %d", sectionType);
         assert(mp == NULL || mp->scope == NULL || mp->scope != mp->scope->scope);
 
         rc = 0;
@@ -64723,15 +64673,12 @@ static EjsModule *loadModuleSection(Ejs *ejs, MprFile *file, EjsModuleHdr *hdr, 
     if (ejs->loaderCallback) {
         (ejs->loaderCallback)(ejs, EJS_SECT_MODULE, mp);
     }
-    mprTrace(9, "Load module section %@", name);
     return mp;
 }
 
 
 static int loadEndModuleSection(Ejs *ejs, EjsModule *mp)
 {
-    mprTrace(9, "End module section %@", mp->name);
-
     if (ejs->loaderCallback) {
         (ejs->loaderCallback)(ejs, EJS_SECT_MODULE_END, mp);
     }
@@ -64765,7 +64712,6 @@ static int loadDependencySection(Ejs *ejs, EjsModule *mp)
         nextModule = mprGetListLength(ejs->modules);
         ejs->loaderCallback = NULL;
 
-        mprTrace(6, "    Load dependency section %@", name);
         rc = loadScriptModule(ejs, ejsToMulti(ejs, name), minVersion, maxVersion, mp->flags | EJS_LOADER_DEP);
         ejs->loaderCallback = saveCallback;
         if (rc < 0) {
@@ -64835,8 +64781,6 @@ static int loadBlockSection(Ejs *ejs, EjsModule *mp)
 
 static int loadEndBlockSection(Ejs *ejs, EjsModule *mp)
 {
-    mprTrace(9, "    End block section %@", mp->name);
-
     if (ejs->loaderCallback) {
         (ejs->loaderCallback)(ejs, EJS_SECT_BLOCK_END, mp);
     }
@@ -64880,8 +64824,6 @@ static int loadClassSection(Ejs *ejs, EjsModule *mp)
                 fixup = createFixup(ejs, mp, (baseType) ? baseType->qname : EST(Object)->qname, -1);
             }
         }
-        mprTrace(9, "    Load %@ class %@ for module %@ at slotNum %d", qname.space, qname.name, mp->name, slotNum);
-
         type = ejsCreateType(ejs, qname, mp, baseType, NULL, slotNum, numTypeProp, numInstanceProp, 0, 0, attributes);
         if (type == 0) {
             ejsThrowInternalError(ejs, "Cannot create class %@", qname.name);
@@ -64899,12 +64841,12 @@ static int loadClassSection(Ejs *ejs, EjsModule *mp)
             Currently errors on Namespace
          */
         if (attributes & EJS_TYPE_HAS_CONSTRUCTOR && !type->hasConstructor) {
-            mprError("WARNING: module indicates a constructor required but none exists for \"%@\"", type->qname.name);
+            mprError("ejs vm", "WARNING: module indicates a constructor required but none exists for \"%@\"", type->qname.name);
         }
 #endif
 #if UNUSED && KEEP
         if (!type->native) {
-            mprError("WARNING: type not defined as native: \"%@\"", type->qname.name);
+            mprError("ejs vm", "WARNING: type not defined as native: \"%@\"", type->qname.name);
         }
 #endif
     }
@@ -64958,8 +64900,6 @@ static int loadClassSection(Ejs *ejs, EjsModule *mp)
 static int loadEndClassSection(Ejs *ejs, EjsModule *mp)
 {
     EjsType     *type;
-
-    mprTrace(9, "    End class section");
 
     if (ejs->loaderCallback) {
         (ejs->loaderCallback)(ejs, EJS_SECT_CLASS_END, mp, mp->scope);
@@ -65020,8 +64960,6 @@ static int loadFunctionSection(Ejs *ejs, EjsModule *mp)
     assert(block);
     assert(numArgs >= 0 && numArgs < EJS_MAX_ARGS);
     assert(numExceptions >= 0 && numExceptions < EJS_MAX_EXCEPTIONS);
-
-    mprTrace(9, "Loading function %N at slot %d", qname, slotNum);
 
     if (attributes & EJS_PROP_NATIVE) {
         mp->hasNative = 1;
@@ -65111,8 +65049,6 @@ static int loadFunctionSection(Ejs *ejs, EjsModule *mp)
 static int loadEndFunctionSection(Ejs *ejs, EjsModule *mp)
 {
     EjsFunction     *fun;
-
-    mprTrace(9, "    End function section");
 
     fun = (EjsFunction*) mp->scope;
     fun->endFunction = (int) mprGetFilePosition(mp->file) - 1;
@@ -65219,7 +65155,6 @@ static int loadPropertySection(Ejs *ejs, EjsModule *mp, int sectionType)
         /*  Only doing for namespaces currently */
         value = (EjsObj*) ejsCreateNamespace(ejs, str);
     }
-    mprTrace(9, "Loading property %N at slot %d", qname, slotNum);
 
     if (attributes & EJS_PROP_NATIVE) {
         mp->hasNative = 1;
@@ -65278,8 +65213,6 @@ static int loadDocSection(Ejs *ejs, EjsModule *mp)
 {
     EjsString   *doc;
 
-    mprTrace(9, "    Documentation section");
-
     doc = ejsModuleReadConst(ejs, mp);
 
     if (ejs->flags & EJS_FLAG_DOC) {
@@ -65315,7 +65248,7 @@ static int loadNativeLibrary(Ejs *ejs, EjsModule *mp, cchar *modPath)
         path = sjoin(bare, ME_SHOBJ, NULL);
     }
     if (! mprPathExists(path, R_OK)) {
-        mprError("Native module not found %s", path);
+        mprError("ejs vm", "Native module not found %s", path);
         return MPR_ERR_CANT_ACCESS;
     }
     /*
@@ -65330,7 +65263,6 @@ static int loadNativeLibrary(Ejs *ejs, EjsModule *mp, cchar *modPath)
             *cp = '_';
         }
     }
-    mprTrace(5, "Loading native module %s", path);
     native = mprCreateModule(mp->name->value, path, initName, ejs);
     if (mprLoadModule(native) < 0) {
         return MPR_ERR_CANT_READ;
@@ -65358,7 +65290,6 @@ static int loadScriptModule(Ejs *ejs, cchar *filename, int minVersion, int maxVe
         return MPR_ERR_CANT_OPEN;
     }
     mprHold(file);
-    mprTrace(5, "Loading module %s", path);
     mprEnableFileBuffering(file, 0, 0);
     firstModule = mprGetListLength(ejs->modules);
 
@@ -65568,8 +65499,6 @@ static char *probe(Ejs *ejs, cchar *path, int minVersion, int maxVersion)
     assert(ejs);
     assert(path);
 
-    mprTrace(7, "Probe for file %s", path);
-
     if (maxVersion == 0) {
         if (mprPathExists(path, R_OK)) {
             return sclone(path);
@@ -65636,8 +65565,6 @@ static char *searchForModule(Ejs *ejs, cchar *moduleName, int minVersion, int ma
     }
     withDotMod = makeModuleName(moduleName);
     name = mprNormalizePath(withDotMod);
-
-    mprTrace(7, "Search for module \"%s\"", name);
 
     /*
         1. Search for path directly
@@ -65739,7 +65666,7 @@ static char *searchForModule(Ejs *ejs, cchar *moduleName, int minVersion, int ma
 
 char *ejsSearchForModule(Ejs *ejs, cchar *moduleName, int minVersion, int maxVersion)
 {
-    char        *path, *withDotMod, *name;
+    char    *withDotMod, *name;
 
     assert(moduleName && *moduleName);
 
@@ -65748,12 +65675,7 @@ char *ejsSearchForModule(Ejs *ejs, cchar *moduleName, int minVersion, int maxVer
     }
     withDotMod = makeModuleName(moduleName);
     name = mprNormalizePath(withDotMod);
-
-    path = searchForModule(ejs, name, minVersion, maxVersion);
-    if (path) {
-        mprTrace(6, "Found %s at %s", name, path);
-    }
-    return path;
+    return searchForModule(ejs, name, minVersion, maxVersion);
 }
 
 
@@ -66320,7 +66242,7 @@ int ejsAddConstant(Ejs *ejs, EjsModule *mp, cchar *str)
 
     cp = mp->constants;
     if (cp->locked) {
-        mprError("Constant pool for module is locked. Cannot add constant \"%s\".",  str);
+        mprError("ejs vm", "Constant pool for module is locked. Cannot add constant \"%s\".",  str);
         return MPR_ERR_CANT_WRITE;
     }
     lock(mp);
@@ -66463,7 +66385,7 @@ static EjsDebug *loadDebug(Ejs *ejs, EjsFunction *fun)
     lock(mp);
     if (mp->file == 0) {
         if ((mp->file = mprOpenFile(mp->path, O_RDONLY | O_BINARY, 0666)) == NULL) {
-            mprTrace(5, "Cannot open module file %s", mp->path);
+            mprDebug("ejs vm", 5, "Cannot open module file %s", mp->path);
             unlock(mp);
             return NULL;
         }
@@ -67209,7 +67131,6 @@ int ejsLookupVarWithNamespaces(Ejs *ejs, EjsAny *obj, EjsName name, EjsLookup *l
                 for (next = -1; (nsp = (EjsNamespace*) mprGetPrevItem(&b->namespaces, &next)) != 0; ) {
                     qname.space = nsp->value;
                     if ((slotNum = ejsLookupProperty(ejs, obj, qname)) >= 0) {
-                        // mprTrace(5, "WARNING: Object has multiple properties of the same name \"%@\"", name.name); 
                         goto done;
                     }
                 }
@@ -67217,7 +67138,6 @@ int ejsLookupVarWithNamespaces(Ejs *ejs, EjsAny *obj, EjsName name, EjsLookup *l
             for (next = -1; (nsp = mprGetPrevItem(globalSpaces, &next)) != 0; ) {
                 qname.space = nsp->value;
                 if ((slotNum = ejsLookupProperty(ejs, obj, qname)) >= 0) {
-                    // mprTrace(5, "WARNING: Object has multiple properties of the same name \"%@\"", name.name); 
                     goto done;
                 }
             }
@@ -67276,13 +67196,13 @@ void ejsShowBlockScope(Ejs *ejs, EjsBlock *block)
     MprList         *namespaces;
     int             nextNsp;
 
-    mprTrace(6, "\n  Block scope");
+    mprDebug("ejs vm", 6, "\n  Block scope");
     for (; block; block = block->scope) {
-        mprTrace(6, "    Block \"%s\" 0x%08x", mprGetName(block), block);
+        mprDebug("ejs vm", 6, "    Block \"%s\" 0x%08x", mprGetName(block), block);
         namespaces = &block->namespaces;
         if (namespaces) {
             for (nextNsp = 0; (nsp = (EjsNamespace*) mprGetNextItem(namespaces, &nextNsp)) != 0; ) {
-                mprTrace(6, "        \"%@\"", nsp->value);
+                mprDebug("ejs vm", 6, "        \"%@\"", nsp->value);
             }
         }
     }
@@ -67298,13 +67218,13 @@ void ejsShowCurrentScope(Ejs *ejs)
     EjsBlock        *block;
     int             nextNsp;
 
-    mprTrace(6, "\n  Current scope");
+    mprDebug("ejs vm", 6, "\n  Current scope");
     for (block = ejs->state->bp; block; block = block->scope) {
-        mprTrace(6, "    Block \"%s\" 0x%08x", mprGetName(block), block);
+        mprDebug("ejs vm", 6, "    Block \"%s\" 0x%08x", mprGetName(block), block);
         namespaces = &block->namespaces;
         if (namespaces) {
             for (nextNsp = 0; (nsp = (EjsNamespace*) mprGetNextItem(namespaces, &nextNsp)) != 0; ) {
-                mprTrace(6, "        \"%@\"", nsp->value);
+                mprDebug("ejs vm", 6, "        \"%@\"", nsp->value);
             }
         }
     }
@@ -67463,10 +67383,10 @@ Ejs *ejsCreateVM(int argc, cchar **argv, int flags)
 
     if (ejs->hasError || mprHasMemError(ejs)) {
         ejsDestroyVM(ejs);
-        mprError("Cannot create VM");
+        mprError("ejs vm", "Cannot create VM");
         return 0;
     }
-    mprTrace(5, "ejs: create VM");
+    mprDebug("ejs vm", 5, "create VM");
     return ejs;
 }
 
@@ -67523,7 +67443,7 @@ int ejsLoadModules(Ejs *ejs, cchar *search, MprList *require)
     }
     unlock(sp);
     if (mprHasMemError(ejs)) {
-        mprError("Memory allocation error during initialization");
+        mprError("ejs vm", "Memory allocation error during initialization");
         ejsDestroyVM(ejs);
         return MPR_ERR_MEMORY;
     }
@@ -67565,7 +67485,7 @@ void ejsDestroyVM(Ejs *ejs)
             httpStopConnections(ejs);
         }
     }
-    mprTrace(6, "ejs: destroy VM");
+    mprDebug("ejs vm", 6, "destroy VM");
 }
 
 
@@ -67692,7 +67612,7 @@ Ejs *ejsAllocPoolVM(EjsPool *pool, int flags)
 
     if ((ejs = mprPopItem(pool->list)) == 0) {
         if (pool->count >= pool->max) {
-            mprError("Too many ejs VMS: %d max %d", pool->count, pool->max);
+            mprError("ejs vm", "Too many ejs VMS: %d max %d", pool->count, pool->max);
             return 0;
         }
         lock(pool);
@@ -67712,7 +67632,7 @@ Ejs *ejsAllocPoolVM(EjsPool *pool, int flags)
                 script = ejsCreateStringFromAsc(pool->template, pool->templateScript);
                 paused = ejsBlockGC(pool->template);
                 if (ejsLoadScriptLiteral(pool->template, script, NULL, EC_FLAGS_NO_OUT | EC_FLAGS_BIND) < 0) {
-                    mprError("Cannot execute \"%@\"\n%s", script, ejsGetErrorMsg(pool->template, 1));
+                    mprError("ejs vm", "Cannot execute \"%@\"\n%s", script, ejsGetErrorMsg(pool->template, 1));
                     unlock(pool);
                     ejsUnblockGC(pool->template, paused);
                     return 0;
@@ -67723,7 +67643,7 @@ Ejs *ejsAllocPoolVM(EjsPool *pool, int flags)
         unlock(pool);
 
         if ((ejs = ejsCloneVM(pool->template)) == 0) {
-            mprError("Cannot alloc ejs VM");
+            mprError("ejs vm", "Cannot alloc ejs VM");
             return 0;
         }
         if (pool->hostedDocuments) {
@@ -67735,14 +67655,14 @@ Ejs *ejsAllocPoolVM(EjsPool *pool, int flags)
         mprAddRoot(ejs);
         if (pool->startScriptPath) {
             if (ejsLoadScriptFile(ejs, pool->startScriptPath, NULL, EC_FLAGS_NO_OUT | EC_FLAGS_BIND) < 0) {
-                mprError("Cannot load \"%s\"\n%s", pool->startScriptPath, ejsGetErrorMsg(ejs, 1));
+                mprError("ejs vm", "Cannot load \"%s\"\n%s", pool->startScriptPath, ejsGetErrorMsg(ejs, 1));
                 mprRemoveRoot(ejs);
                 return 0;
             }
         } else if (pool->startScript) {
             script = ejsCreateStringFromAsc(ejs, pool->startScript);
             if (ejsLoadScriptLiteral(ejs, script, NULL, EC_FLAGS_NO_OUT | EC_FLAGS_BIND) < 0) {
-                mprError("Cannot load \"%@\"\n%s", script, ejsGetErrorMsg(ejs, 1));
+                mprError("ejs vm", "Cannot load \"%@\"\n%s", script, ejsGetErrorMsg(ejs, 1));
                 mprRemoveRoot(ejs);
                 return 0;
             }
@@ -67751,7 +67671,7 @@ Ejs *ejsAllocPoolVM(EjsPool *pool, int flags)
         pool->count++;
     }
     pool->lastActivity = mprGetTime();
-    mprTrace(5, "ejs: Alloc VM active %d, allocated %d, max %d", pool->count - mprGetListLength(pool->list), 
+    mprDebug("ejs", 5, "Alloc VM active %d, allocated %d, max %d", pool->count - mprGetListLength(pool->list), 
         pool->count, pool->max);
 
 #if UNUSED && OPT
@@ -67776,7 +67696,7 @@ void ejsFreePoolVM(EjsPool *pool, Ejs *ejs)
     ejs->exception = 0;
     pool->lastActivity = mprGetTime();
     mprPushItem(pool->list, ejs);
-    mprTrace(5, "ejs: Free VM, active %d, allocated %d, max %d", pool->count - mprGetListLength(pool->list), pool->count,
+    mprDebug("ejs", 5, "Free VM, active %d, allocated %d, max %d", pool->count - mprGetListLength(pool->list), pool->count,
         pool->max);
 }
 
@@ -67794,7 +67714,7 @@ static void poolTimer(EjsPool *pool, MprEvent *event)
         mprClearList(pool->list);
         pool->count = 0;
         pool->template = 0;
-        mprTrace(5, "ejs: Release %d VMs in inactive pool. Invoking GC.", pool->count);
+        mprDebug("ejs", 5, "Release %d VMs in inactive pool. Invoking GC.", pool->count);
         mprRequestGC(MPR_GC_FORCE);
         mprRemoveEvent(event);
         pool->timer = 0;
@@ -68162,7 +68082,7 @@ static int runSpecificMethod(Ejs *ejs, cchar *className, cchar *methodName)
         type = (EjsType*) ejsGetPropertyByName(ejs, ejs->global, N(EJS_PUBLIC_NAMESPACE, className));
     }
     if (type == 0 || !ejsIsType(ejs, type)) {
-        mprError("Cannot find class \"%s\"", className);
+        mprError("ejs vm", "Cannot find class \"%s\"", className);
         return EJS_ERR;
     }
     slotNum = ejsLookupProperty(ejs, type, N(EJS_PUBLIC_NAMESPACE, methodName));
@@ -68171,11 +68091,11 @@ static int runSpecificMethod(Ejs *ejs, cchar *className, cchar *methodName)
     }
     fun = (EjsFunction*) ejsGetProperty(ejs, type, slotNum);
     if (! ejsIsFunction(ejs, fun)) {
-        mprError("Property is not a function");
+        mprError("ejs vm", "Property is not a function");
         return MPR_ERR_BAD_STATE;
     }
     if (!ejsPropertyHasTrait(ejs, type, slotNum, EJS_PROP_STATIC)) {
-        mprError("Method is not declared static");
+        mprError("ejs vm", "Method is not declared static");
         return EJS_ERR;
     }
     args = ejsCreateArray(ejs, ejs->argc);
@@ -68419,9 +68339,9 @@ void ejsReportError(Ejs *ejs, char *fmt, ...)
     }
     if (ejs->exception) {
         char *name = MPR->name;
-        mprRawLog(0, "%s: %s\n", name, msg);
+        mprLog("ejs vm", 0, "%s: %s\n", name, msg);
     } else {
-        mprError("%s", msg);
+        mprError("ejs vm", "%s", msg);
     }
     va_end(arg);
 }
@@ -68459,7 +68379,7 @@ void ejsLoadHttpService(Ejs *ejs)
     }
     ejs->http = ejs->service->http = mprGetMpr()->httpService;
     if (ejs->http == 0) {
-        mprError("Cannot load Http Service");
+        mprError("ejs vm", "Cannot load Http Service");
     }
     ejsUnlockService();
 }

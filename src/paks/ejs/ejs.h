@@ -6058,7 +6058,7 @@ typedef struct EjsHttpServer {
     Ejs             *ejs;                       /**< Ejscript interpreter handle */
     HttpEndpoint    *endpoint;                  /**< Http endpoint object */
     struct MprSsl   *ssl;                       /**< SSL configuration */
-    HttpTrace       trace[2];                   /**< Default tracing for requests */
+    HttpTrace       *trace;                     /**< Default tracing for requests */
     cchar           *connector;                 /**< Pipeline connector */
     char            *keyFile;                   /**< SSL key file */
     char            *certFile;                  /**< SSL certificate file */

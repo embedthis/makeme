@@ -113,13 +113,6 @@
     </member>
     <member kind="define">
       <type>#define</type>
-      <name>MPR_ASSERT_MSG</name>
-      <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>acc6038be47135551f98dc67ba85858e5</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
       <name>MPR_BACKGROUND_PRIORITY</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a5e2e7058ae62846bc72aa87a94998e35</anchor>
@@ -281,6 +274,13 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>MPR_CRITICAL_MSG</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>abb7ae3dd33a709c0fdef3b2e09154392</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>MPR_CRITICAL_PRIORITY</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>ae06415ae3af35c8ac27f34b10d3001e3</anchor>
@@ -291,6 +291,13 @@
       <name>MPR_DAEMON</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>ad1645441f4f2593704607bcaf695c0cb</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MPR_DEBUG_MSG</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a365b8555edaf365aa89f1c1076e52edb</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -764,6 +771,13 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>MPR_FATAL_MSG</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>ae98cab91ffb1d0745e2ee620fe2fec62</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>MPR_GC_COMPLETE</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a63bdc4d8799bf974274a81b7398c6ea7</anchor>
@@ -988,13 +1002,6 @@
     </member>
     <member kind="define">
       <type>#define</type>
-      <name>MPR_LEVEL_MASK</name>
-      <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>abf11373096ecc123c0921e09e8551d89</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
       <name>MPR_LIST_STABLE</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a7e0930a91bd30665bf00a6354e836b27</anchor>
@@ -1030,9 +1037,16 @@
     </member>
     <member kind="define">
       <type>#define</type>
-      <name>MPR_LOG_MSG</name>
+      <name>MPR_LOG_CMDLINE</name>
       <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>a34dd02c4b3ad666298e6f1db05ca54e7</anchor>
+      <anchor>aa200568b3ecd710321e791e3273a8121</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MPR_LOG_CONFIG</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>ac1db3b9b54fcbf6b53d1e0f44d9169df</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -1485,13 +1499,6 @@
     </member>
     <member kind="define">
       <type>#define</type>
-      <name>MPR_TRACE_MSG</name>
-      <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>ad5cbb26432bafe64ba8005d245aa94c6</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
       <name>MPR_TRIM_BOTH</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a3b1ce37c5154b1c6a6b8f2efb15c747d</anchor>
@@ -1788,8 +1795,8 @@
       <type>void(*</type>
       <name>MprLogHandler</name>
       <anchorfile>group___mpr_log.html</anchorfile>
-      <anchor>ga95e033ad5fa41baa87cb3fefdb782951</anchor>
-      <arglist>)(int flags, int level, cchar *msg)</arglist>
+      <anchor>gaf504d68391d9628050c54037b51b94da</anchor>
+      <arglist>)(int flags, cchar *tags, int level, cchar *msg)</arglist>
     </member>
     <member kind="typedef">
       <type>void(*</type>
@@ -2625,6 +2632,13 @@
       <arglist>(int fd, int mask, MprDispatcher *dispatcher, void *proc, void *data, int flags)</arglist>
     </member>
     <member kind="function">
+      <type>void</type>
+      <name>mprCritical</name>
+      <anchorfile>group___mpr_log.html</anchorfile>
+      <anchor>ga99b8d4dc2fc905aadbe6a705ed4fb8ec</anchor>
+      <arglist>(cchar *tags, cchar *fmt,...)</arglist>
+    </member>
+    <member kind="function">
       <type>char *</type>
       <name>mprCryptPassword</name>
       <anchorfile>group___mpr.html</anchorfile>
@@ -2637,6 +2651,13 @@
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>ga2db675dae92591c09c95fc6e640eb3cb</anchor>
       <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>mprDebug</name>
+      <anchorfile>group___mpr_log.html</anchorfile>
+      <anchor>ga08742c4a5b8340886661acd20827b12c</anchor>
+      <arglist>(cchar *tags, int level, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>char *</type>
@@ -2677,8 +2698,8 @@
       <type>void</type>
       <name>mprDefaultLogHandler</name>
       <anchorfile>group___mpr_log.html</anchorfile>
-      <anchor>ga397bb24e9f28b8d1e1482922d2b265a4</anchor>
-      <arglist>(int flags, int level, cchar *msg)</arglist>
+      <anchor>gaf0366a52c4280127f3b0edf25dcf0bc0</anchor>
+      <arglist>(int type, cchar *tags, int level, cchar *msg)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -2838,8 +2859,8 @@
       <type>void</type>
       <name>mprError</name>
       <anchorfile>group___mpr_log.html</anchorfile>
-      <anchor>ga33ca1cbd4c7573013253873dab76f209</anchor>
-      <arglist>(cchar *fmt,...)</arglist>
+      <anchor>gaa29ca2fc7ccd5dc2314b1c0c53f5f788</anchor>
+      <arglist>(cchar *tags, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>char *</type>
@@ -2873,8 +2894,8 @@
       <type>void</type>
       <name>mprFatal</name>
       <anchorfile>group___mpr_log.html</anchorfile>
-      <anchor>ga7404720039367f5599f01e8fbf2887b3</anchor>
-      <arglist>(cchar *fmt,...)</arglist>
+      <anchor>gab1a684aa002d809702fce0122c200258</anchor>
+      <arglist>(cchar *tags, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -3872,13 +3893,6 @@
     </member>
     <member kind="function">
       <type>void</type>
-      <name>mprInfo</name>
-      <anchorfile>group___mpr_log.html</anchorfile>
-      <anchor>ga9da75cbcc753ea71cedb661ed4894cb1</anchor>
-      <arglist>(cchar *fmt,...)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
       <name>mprInitList</name>
       <anchorfile>group___mpr_list.html</anchorfile>
       <anchor>ga0c797a3ea868662ad6dabb35f5255399</anchor>
@@ -4147,15 +4161,22 @@
       <type>void</type>
       <name>mprLog</name>
       <anchorfile>group___mpr_log.html</anchorfile>
-      <anchor>ga21fa2199e7f70707c1fb3b63daed6ecf</anchor>
-      <arglist>(int level, cchar *fmt,...)</arglist>
+      <anchor>ga13660aa56e0e5945b6de8f2708aed520</anchor>
+      <arglist>(cchar *tags, int level, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
-      <name>mprLogHeader</name>
+      <name>mprLogConfig</name>
       <anchorfile>group___mpr_log.html</anchorfile>
-      <anchor>gaeaa023b9736347b621f77f765f6b91ba</anchor>
+      <anchor>ga1e65a84796ccdd5b3bd8bbc4fbff5f11</anchor>
       <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>mprLogJson</name>
+      <anchorfile>group___mpr_json.html</anchorfile>
+      <anchor>gaafb43ca094e5307a1570fbd6414eecff</anchor>
+      <arglist>(int level, MprJson *obj, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -4548,13 +4569,6 @@
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>ga1ca968c92371da9a84a0152dfd0603cc</anchor>
       <arglist>()</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>mprRawLog</name>
-      <anchorfile>group___mpr_log.html</anchorfile>
-      <anchor>ga0ab29654e80cbd645e24a4125b1883a7</anchor>
-      <arglist>(int level, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>char *</type>
@@ -5519,8 +5533,8 @@
       <type>int</type>
       <name>mprStartLogging</name>
       <anchorfile>group___mpr_log.html</anchorfile>
-      <anchor>gaaa6773428f23b0a3cede171550bb4abc</anchor>
-      <arglist>(cchar *logSpec, int showConfig)</arglist>
+      <anchor>ga8497fae7134238ba1b5f22680b1fd344</anchor>
+      <arglist>(cchar *logSpec, int flags)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -5605,20 +5619,6 @@
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>gaba3a98bd9017492538bba54529d905d3</anchor>
       <arglist>()</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>mprTrace</name>
-      <anchorfile>group___mpr_log.html</anchorfile>
-      <anchor>ga61399f9e62412467e471690627570014</anchor>
-      <arglist>(int level, cchar *fmt,...)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>mprTraceJson</name>
-      <anchorfile>group___mpr_json.html</anchorfile>
-      <anchor>gaee304820e747238f961c4fbd375584df</anchor>
-      <arglist>(int level, MprJson *obj, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>char *</type>
@@ -5834,8 +5834,8 @@
       <type>void</type>
       <name>mprWarn</name>
       <anchorfile>group___mpr_log.html</anchorfile>
-      <anchor>ga522d10dbc7691186cf7c90c50c2dc929</anchor>
-      <arglist>(cchar *fmt,...)</arglist>
+      <anchor>ga2d63128e155e91a918710e0de25c2cf6</anchor>
+      <arglist>(cchar *tags, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>ssize</type>
@@ -7758,8 +7758,8 @@
       <type>void(*</type>
       <name>MprLogHandler</name>
       <anchorfile>group___mpr_log.html</anchorfile>
-      <anchor>ga95e033ad5fa41baa87cb3fefdb782951</anchor>
-      <arglist>)(int flags, int level, cchar *msg)</arglist>
+      <anchor>gaf504d68391d9628050c54037b51b94da</anchor>
+      <arglist>)(int flags, cchar *tags, int level, cchar *msg)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -7784,24 +7784,38 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>mprCritical</name>
+      <anchorfile>group___mpr_log.html</anchorfile>
+      <anchor>ga99b8d4dc2fc905aadbe6a705ed4fb8ec</anchor>
+      <arglist>(cchar *tags, cchar *fmt,...)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>mprDebug</name>
+      <anchorfile>group___mpr_log.html</anchorfile>
+      <anchor>ga08742c4a5b8340886661acd20827b12c</anchor>
+      <arglist>(cchar *tags, int level, cchar *fmt,...)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>mprDefaultLogHandler</name>
       <anchorfile>group___mpr_log.html</anchorfile>
-      <anchor>ga397bb24e9f28b8d1e1482922d2b265a4</anchor>
-      <arglist>(int flags, int level, cchar *msg)</arglist>
+      <anchor>gaf0366a52c4280127f3b0edf25dcf0bc0</anchor>
+      <arglist>(int type, cchar *tags, int level, cchar *msg)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mprError</name>
       <anchorfile>group___mpr_log.html</anchorfile>
-      <anchor>ga33ca1cbd4c7573013253873dab76f209</anchor>
-      <arglist>(cchar *fmt,...)</arglist>
+      <anchor>gaa29ca2fc7ccd5dc2314b1c0c53f5f788</anchor>
+      <arglist>(cchar *tags, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>mprFatal</name>
       <anchorfile>group___mpr_log.html</anchorfile>
-      <anchor>ga7404720039367f5599f01e8fbf2887b3</anchor>
-      <arglist>(cchar *fmt,...)</arglist>
+      <anchor>gab1a684aa002d809702fce0122c200258</anchor>
+      <arglist>(cchar *tags, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>struct MprFile *</type>
@@ -7819,31 +7833,17 @@
     </member>
     <member kind="function">
       <type>void</type>
-      <name>mprInfo</name>
-      <anchorfile>group___mpr_log.html</anchorfile>
-      <anchor>ga9da75cbcc753ea71cedb661ed4894cb1</anchor>
-      <arglist>(cchar *fmt,...)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
       <name>mprLog</name>
       <anchorfile>group___mpr_log.html</anchorfile>
-      <anchor>ga21fa2199e7f70707c1fb3b63daed6ecf</anchor>
-      <arglist>(int level, cchar *fmt,...)</arglist>
+      <anchor>ga13660aa56e0e5945b6de8f2708aed520</anchor>
+      <arglist>(cchar *tags, int level, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
-      <name>mprLogHeader</name>
+      <name>mprLogConfig</name>
       <anchorfile>group___mpr_log.html</anchorfile>
-      <anchor>gaeaa023b9736347b621f77f765f6b91ba</anchor>
+      <anchor>ga1e65a84796ccdd5b3bd8bbc4fbff5f11</anchor>
       <arglist>()</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>mprRawLog</name>
-      <anchorfile>group___mpr_log.html</anchorfile>
-      <anchor>ga0ab29654e80cbd645e24a4125b1883a7</anchor>
-      <arglist>(int level, cchar *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -7863,15 +7863,8 @@
       <type>int</type>
       <name>mprStartLogging</name>
       <anchorfile>group___mpr_log.html</anchorfile>
-      <anchor>gaaa6773428f23b0a3cede171550bb4abc</anchor>
-      <arglist>(cchar *logSpec, int showConfig)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>mprTrace</name>
-      <anchorfile>group___mpr_log.html</anchorfile>
-      <anchor>ga61399f9e62412467e471690627570014</anchor>
-      <arglist>(int level, cchar *fmt,...)</arglist>
+      <anchor>ga8497fae7134238ba1b5f22680b1fd344</anchor>
+      <arglist>(cchar *logSpec, int flags)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -7884,8 +7877,8 @@
       <type>void</type>
       <name>mprWarn</name>
       <anchorfile>group___mpr_log.html</anchorfile>
-      <anchor>ga522d10dbc7691186cf7c90c50c2dc929</anchor>
-      <arglist>(cchar *fmt,...)</arglist>
+      <anchor>ga2d63128e155e91a918710e0de25c2cf6</anchor>
+      <arglist>(cchar *tags, cchar *fmt,...)</arglist>
     </member>
   </compound>
   <compound kind="group">
@@ -8991,6 +8984,13 @@
       <arglist>(cchar *path)</arglist>
     </member>
     <member kind="function">
+      <type>void</type>
+      <name>mprLogJson</name>
+      <anchorfile>group___mpr_json.html</anchorfile>
+      <anchor>gaafb43ca094e5307a1570fbd6414eecff</anchor>
+      <arglist>(int level, MprJson *obj, cchar *fmt,...)</arglist>
+    </member>
+    <member kind="function">
       <type>cchar *</type>
       <name>mprLookupJson</name>
       <anchorfile>group___mpr_json.html</anchorfile>
@@ -9087,13 +9087,6 @@
       <anchorfile>group___mpr_json.html</anchorfile>
       <anchor>ga04c9228e3a21d19bc8780fab856eb8d2</anchor>
       <arglist>(MprJson *obj, cchar *key, MprJson *value)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>mprTraceJson</name>
-      <anchorfile>group___mpr_json.html</anchorfile>
-      <anchor>gaee304820e747238f961c4fbd375584df</anchor>
-      <arglist>(int level, MprJson *obj, cchar *fmt,...)</arglist>
     </member>
   </compound>
   <compound kind="group">
