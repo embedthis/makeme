@@ -4018,7 +4018,7 @@ static void badAst(EcCompiler *cp, EcNode *np)
 {
     cp->fatalError = 1;
     cp->errorCount++;
-    mprError("ejs compiler", "Unsupported language feature\nUnknown AST node kind %d",  np->kind);
+    mprLog("ejs compiler", 0, "Unsupported language feature, unknown AST node kind %d",  np->kind);
 }
 
 
@@ -8444,7 +8444,7 @@ static void badNode(EcCompiler *cp, EcNode *np)
 {
     cp->fatalError = 1;
     cp->errorCount++;
-    mprError("ejs compiler", "Unsupported language feature\nUnknown AST node kind %d", np->kind);
+    mprLog("ejs compiler", 0, "Unsupported language feature, unknown AST node kind %d", np->kind);
 }
 
 
@@ -8781,7 +8781,7 @@ PUBLIC int ejsLoadScriptLiteral(Ejs *ejs, EjsString *script, cchar *cache, int f
     }
     //  UNICODE -- should this API be multi or unicode
     if (ecOpenMemoryStream(cp, ejsToMulti(ejs, script), script->length) < 0) {
-        mprError("ejs compiler", "Cannot open memory stream");
+        mprLog("ejs compiler", 0, "Cannot open memory stream");
         mprRemoveRoot(cp);
         return EJS_ERR;
     }
@@ -10327,7 +10327,7 @@ static void createGlobalProperties(EcCompiler *cp)
         slotNum = ejsLookupProperty(ejs, ejs->global, *prop);
         if (slotNum < 0) {
             cp->fatalError = 1;
-            mprError("ejs compiler", "Code generation error. Cannot find global property %s.", prop->name);
+            mprLog("ejs compiler", 0, "Code generation error. Cannot find global property %s.", prop->name);
             return;
         }
         vp = ejsGetProperty(ejs, ejs->global, slotNum);
@@ -11177,7 +11177,7 @@ PUBLIC void ecEncodeByteAtPos(EcCompiler *cp, int offset, int value)
 PUBLIC void ecEncodeInt32AtPos(EcCompiler *cp, int offset, int value)
 {
     if (abs(value) > EJS_ENCODE_MAX_WORD) {
-        mprError("ejs compiler", "Code generation error. Word %d exceeds maximum %d", value, EJS_ENCODE_MAX_WORD);
+        mprLog("ejs compiler", 0, "Code generation error. Word %d exceeds maximum %d", value, EJS_ENCODE_MAX_WORD);
         cp->fatalError = 1;
         return;
     }
@@ -48898,7 +48898,7 @@ PUBLIC EjsType *ejsFinalizeCoreType(Ejs *ejs, EjsName qname)
     EjsType     *type;
 
     if ((type = ejsGetTypeByName(ejs, qname)) == 0) {
-        mprError("ejs type", "Cannot find %N type", qname);
+        mprLog("ejs type", 0, "Cannot find %N type", qname);
         return 0;
     }
     if (type->configured) {
@@ -48917,7 +48917,7 @@ PUBLIC EjsType *ejsFinalizeScriptType(Ejs *ejs, EjsName qname, int size, void *m
     EjsType     *type;
 
     if ((type = ejsGetTypeByName(ejs, qname)) == 0) {
-        mprError("ejs type", "Cannot find %N type", qname);
+        mprLog("ejs type", 0, "Cannot find %N type", qname);
         return 0;
     }
     if (type->configured) {
@@ -49379,13 +49379,13 @@ PUBLIC int ejsBindAccess(Ejs *ejs, void *obj, int slotNum, void *getter, void *s
         fun = ejsGetProperty(ejs, obj, slotNum);
         if (fun == 0 || !ejsIsFunction(ejs, fun) || fun->setter == 0 || !ejsIsFunction(ejs, fun->setter)) {
             ejs->hasError = 1;
-            mprError("ejs type", "Attempt to bind non-existant setter function for slot %d in \"%s\"", 
+            mprLog("ejs type", 0, "Attempt to bind non-existant setter function for slot %d in \"%s\"", 
                 slotNum, mprGetName(obj));
             return EJS_ERR;
         }
         fun = fun->setter;
         if (fun->body.code) {
-            mprError("ejs type", "Setting a native method on a non-native function \"%@\" in \"%s\"", 
+            mprLog("ejs type", 0, "Setting a native method on a non-native function \"%@\" in \"%s\"", 
                 fun->name, mprGetName(obj));
             ejs->hasError = 1;
         }
@@ -49405,18 +49405,18 @@ PUBLIC int ejsBindFunction(Ejs *ejs, EjsAny *obj, int slotNum, void *nativeProc)
 
     if (ejsGetLength(ejs, obj) < slotNum) {
         ejs->hasError = 1;
-        mprError("ejs type", "Attempt to bind non-existant function for slot %d in \"%s\"", slotNum, mprGetName(obj));
+        mprLog("ejs type", 0, "Attempt to bind non-existant function for slot %d in \"%s\"", slotNum, mprGetName(obj));
         return EJS_ERR;
     }
     fun = ejsGetProperty(ejs, obj, slotNum);
     if (fun == 0 || !ejsIsFunction(ejs, fun)) {
         assert(fun);
         ejs->hasError = 1;
-        mprError("ejs type", "Attempt to bind non-existant function for slot %d in \"%s\"", slotNum, mprGetName(obj));
+        mprLog("ejs type", 0, "Attempt to bind non-existant function for slot %d in \"%s\"", slotNum, mprGetName(obj));
         return EJS_ERR;
     }
     if (fun->body.code) {
-        mprError("ejs type", "Setting a native method on a non-native function \"%@\" in \"%s\"", 
+        mprLog("ejs type", 0, "Setting a native method on a non-native function \"%@\" in \"%s\"", 
             fun->name, mprGetName(obj));
         ejs->hasError = 1;
     }
@@ -55555,7 +55555,7 @@ static void initSqlite()
 #endif
         sqlite3_config(THREAD_STYLE);
         if (sqlite3_initialize() != SQLITE_OK) {
-            mprError("ejs sqlite", "Cannot initialize SQLite");
+            mprLog("ejs sqlite", 0, "Cannot initialize SQLite");
             return;
         }
         sqliteInitialized = 1;
@@ -55671,7 +55671,7 @@ static EjsRequest *hs_accept(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **arg
     event.sock = sock;
     if ((conn = httpAcceptConn(sp->endpoint, &event)) == 0) {
         /* Just ignore */
-        mprError("ejs web", "Cannot accept connection");
+        mprLog("ejs web", 0, "Cannot accept connection");
         return 0;
     }
     return createRequest(sp, conn);
@@ -59107,7 +59107,7 @@ EjsAny *ejsCreateException(Ejs *ejs, int slot, cchar *fmt, va_list fmtArgs)
     EjsAny      *error;
 
     if (ejs->exception) {
-        mprError("ejs vm", "Double exception: %s", sfmtv(fmt, fmtArgs));
+        mprLog("ejs vm", 0, "Double exception: %s", sfmtv(fmt, fmtArgs));
         return ejs->exception;
     }
     type = (ejs->initialized) ? ejsGetProperty(ejs, ejs->global, slot) : NULL;
@@ -64507,7 +64507,7 @@ static int loadSections(Ejs *ejs, MprFile *file, cchar *path, EjsModuleHdr *hdr,
 
     while ((sectionType = (int) mprGetFileChar(file)) >= 0) {
         if (sectionType < 0 || sectionType >= EJS_SECT_MAX) {
-            mprError("ejs vm", "Bad section type %d in %@", sectionType, mp->name);
+            mprLog("ejs vm", 0, "Bad section type %d in %@", sectionType, mp->name);
             return MPR_ERR_CANT_LOAD;
         }
         assert(mp == NULL || mp->scope == NULL || mp->scope != mp->scope->scope);
@@ -64841,12 +64841,13 @@ static int loadClassSection(Ejs *ejs, EjsModule *mp)
             Currently errors on Namespace
          */
         if (attributes & EJS_TYPE_HAS_CONSTRUCTOR && !type->hasConstructor) {
-            mprError("ejs vm", "WARNING: module indicates a constructor required but none exists for \"%@\"", type->qname.name);
+            mprLog("ejs vm", 0, "WARNING: module indicates a constructor required but none exists for \"%@\"", 
+                type->qname.name);
         }
 #endif
 #if UNUSED && KEEP
         if (!type->native) {
-            mprError("ejs vm", "WARNING: type not defined as native: \"%@\"", type->qname.name);
+            mprLog("ejs vm", 0, "WARNING: type not defined as native: \"%@\"", type->qname.name);
         }
 #endif
     }
@@ -65248,7 +65249,7 @@ static int loadNativeLibrary(Ejs *ejs, EjsModule *mp, cchar *modPath)
         path = sjoin(bare, ME_SHOBJ, NULL);
     }
     if (! mprPathExists(path, R_OK)) {
-        mprError("ejs vm", "Native module not found %s", path);
+        mprLog("ejs vm", 0, "Native module not found %s", path);
         return MPR_ERR_CANT_ACCESS;
     }
     /*
@@ -66242,7 +66243,7 @@ int ejsAddConstant(Ejs *ejs, EjsModule *mp, cchar *str)
 
     cp = mp->constants;
     if (cp->locked) {
-        mprError("ejs vm", "Constant pool for module is locked. Cannot add constant \"%s\".",  str);
+        mprLog("ejs vm", 0, "Constant pool for module is locked. Cannot add constant \"%s\".",  str);
         return MPR_ERR_CANT_WRITE;
     }
     lock(mp);
@@ -67383,7 +67384,7 @@ Ejs *ejsCreateVM(int argc, cchar **argv, int flags)
 
     if (ejs->hasError || mprHasMemError(ejs)) {
         ejsDestroyVM(ejs);
-        mprError("ejs vm", "Cannot create VM");
+        mprLog("ejs vm", 0, "Cannot create VM");
         return 0;
     }
     mprDebug("ejs vm", 5, "create VM");
@@ -67443,7 +67444,7 @@ int ejsLoadModules(Ejs *ejs, cchar *search, MprList *require)
     }
     unlock(sp);
     if (mprHasMemError(ejs)) {
-        mprError("ejs vm", "Memory allocation error during initialization");
+        mprLog("ejs vm", 0, "Memory allocation error during initialization");
         ejsDestroyVM(ejs);
         return MPR_ERR_MEMORY;
     }
@@ -67612,7 +67613,7 @@ Ejs *ejsAllocPoolVM(EjsPool *pool, int flags)
 
     if ((ejs = mprPopItem(pool->list)) == 0) {
         if (pool->count >= pool->max) {
-            mprError("ejs vm", "Too many ejs VMS: %d max %d", pool->count, pool->max);
+            mprLog("ejs vm", 0, "Too many ejs VMS: %d max %d", pool->count, pool->max);
             return 0;
         }
         lock(pool);
@@ -67632,7 +67633,7 @@ Ejs *ejsAllocPoolVM(EjsPool *pool, int flags)
                 script = ejsCreateStringFromAsc(pool->template, pool->templateScript);
                 paused = ejsBlockGC(pool->template);
                 if (ejsLoadScriptLiteral(pool->template, script, NULL, EC_FLAGS_NO_OUT | EC_FLAGS_BIND) < 0) {
-                    mprError("ejs vm", "Cannot execute \"%@\"\n%s", script, ejsGetErrorMsg(pool->template, 1));
+                    mprLog("ejs vm", 0, "Cannot execute \"%@\"\n%s", script, ejsGetErrorMsg(pool->template, 1));
                     unlock(pool);
                     ejsUnblockGC(pool->template, paused);
                     return 0;
@@ -67643,7 +67644,7 @@ Ejs *ejsAllocPoolVM(EjsPool *pool, int flags)
         unlock(pool);
 
         if ((ejs = ejsCloneVM(pool->template)) == 0) {
-            mprError("ejs vm", "Cannot alloc ejs VM");
+            mprLog("ejs vm", 0, "Cannot alloc ejs VM");
             return 0;
         }
         if (pool->hostedDocuments) {
@@ -67655,14 +67656,14 @@ Ejs *ejsAllocPoolVM(EjsPool *pool, int flags)
         mprAddRoot(ejs);
         if (pool->startScriptPath) {
             if (ejsLoadScriptFile(ejs, pool->startScriptPath, NULL, EC_FLAGS_NO_OUT | EC_FLAGS_BIND) < 0) {
-                mprError("ejs vm", "Cannot load \"%s\"\n%s", pool->startScriptPath, ejsGetErrorMsg(ejs, 1));
+                mprLog("ejs vm", 0, "Cannot load \"%s\"\n%s", pool->startScriptPath, ejsGetErrorMsg(ejs, 1));
                 mprRemoveRoot(ejs);
                 return 0;
             }
         } else if (pool->startScript) {
             script = ejsCreateStringFromAsc(ejs, pool->startScript);
             if (ejsLoadScriptLiteral(ejs, script, NULL, EC_FLAGS_NO_OUT | EC_FLAGS_BIND) < 0) {
-                mprError("ejs vm", "Cannot load \"%@\"\n%s", script, ejsGetErrorMsg(ejs, 1));
+                mprLog("ejs vm", 0, "Cannot load \"%@\"\n%s", script, ejsGetErrorMsg(ejs, 1));
                 mprRemoveRoot(ejs);
                 return 0;
             }
@@ -68082,7 +68083,7 @@ static int runSpecificMethod(Ejs *ejs, cchar *className, cchar *methodName)
         type = (EjsType*) ejsGetPropertyByName(ejs, ejs->global, N(EJS_PUBLIC_NAMESPACE, className));
     }
     if (type == 0 || !ejsIsType(ejs, type)) {
-        mprError("ejs vm", "Cannot find class \"%s\"", className);
+        mprLog("ejs vm", 0, "Cannot find class \"%s\"", className);
         return EJS_ERR;
     }
     slotNum = ejsLookupProperty(ejs, type, N(EJS_PUBLIC_NAMESPACE, methodName));
@@ -68091,11 +68092,11 @@ static int runSpecificMethod(Ejs *ejs, cchar *className, cchar *methodName)
     }
     fun = (EjsFunction*) ejsGetProperty(ejs, type, slotNum);
     if (! ejsIsFunction(ejs, fun)) {
-        mprError("ejs vm", "Property is not a function");
+        mprLog("ejs vm", 0, "Property is not a function");
         return MPR_ERR_BAD_STATE;
     }
     if (!ejsPropertyHasTrait(ejs, type, slotNum, EJS_PROP_STATIC)) {
-        mprError("ejs vm", "Method is not declared static");
+        mprLog("ejs vm", 0, "Method is not declared static");
         return EJS_ERR;
     }
     args = ejsCreateArray(ejs, ejs->argc);
@@ -68341,7 +68342,7 @@ void ejsReportError(Ejs *ejs, char *fmt, ...)
         char *name = MPR->name;
         mprLog("ejs vm", 0, "%s: %s\n", name, msg);
     } else {
-        mprError("ejs vm", "%s", msg);
+        mprLog("ejs vm", 0, "%s", msg);
     }
     va_end(arg);
 }
@@ -68379,7 +68380,7 @@ void ejsLoadHttpService(Ejs *ejs)
     }
     ejs->http = ejs->service->http = mprGetMpr()->httpService;
     if (ejs->http == 0) {
-        mprError("ejs vm", "Cannot load Http Service");
+        mprLog("ejs vm", 0, "Cannot load Http Service");
     }
     ejsUnlockService();
 }

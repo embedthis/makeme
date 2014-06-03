@@ -289,6 +289,7 @@ struct  MprXml;
 #define MPR_CONFIG          MPR_INFO
 #endif
 
+#if UNUSED
 /*
     Log message types
  */
@@ -300,6 +301,7 @@ struct  MprXml;
 #define MPR_FATAL_MSG       6        /**< Originated from mprFatal */
 #define MPR_RAW_MSG         7        /**< Raw message output */
 #define MPR_SEVERITY_MASK   7
+#endif
 
 /*
     Error line number information.
@@ -3946,7 +3948,7 @@ typedef struct MprLog { int dummy; } MprLog;
     @ingroup MprLog
     @stability Stable
  */
-typedef void (*MprLogHandler)(int flags, cchar *tags, int level, cchar *msg);
+typedef void (*MprLogHandler)(cchar *tags, int level, cchar *msg);
 
 /**
     Output an assure assertion failed message.
@@ -3967,6 +3969,7 @@ PUBLIC void mprAssert(cchar *loc, cchar *msg);
  */
 PUBLIC void mprCreateLogService();
 
+#if UNUSED
 /**
     Log a critical error message.
     @description Send a critical error message to the MPR debug logging subsystem.
@@ -3979,6 +3982,7 @@ PUBLIC void mprCreateLogService();
     @stability Stable
  */
 PUBLIC void mprCritical(cchar *tags, cchar *fmt, ...);
+#endif
 
 /**
     Backup a log
@@ -3998,8 +4002,9 @@ PUBLIC int mprBackupLog(cchar *path, int count);
     @ingroup MprLog
     @stability Evolving
  */
-PUBLIC void mprDefaultLogHandler(int type, cchar *tags, int level, cchar *msg);
+PUBLIC void mprDefaultLogHandler(cchar *tags, int level, cchar *msg);
 
+#if DEPRECATED && MOB && REENABLE
 /**
     Log an error message.
     @description Send an error message to the MPR debug logging subsystem. The 
@@ -4012,7 +4017,9 @@ PUBLIC void mprDefaultLogHandler(int type, cchar *tags, int level, cchar *msg);
     @stability Stable
  */
 PUBLIC void mprError(cchar *tags, cchar *fmt, ...);
+#endif
 
+#if UNUSED
 /**
     Log a fatal error message and exit.
     @description Send a fatal error message to the MPR debug logging subsystem and then exit the application by
@@ -4025,6 +4032,7 @@ PUBLIC void mprError(cchar *tags, cchar *fmt, ...);
     @stability Stable
  */
 PUBLIC void mprFatal(cchar *tags, cchar *fmt, ...);
+#endif
 
 /**
     Get the log file object
@@ -4048,7 +4056,7 @@ PUBLIC MprLogHandler mprGetLogHandler();
 /**
     Write a message to the log file.
     @description Send a message to the MPR logging subsystem. Logging support is enabled via the ME_MPR_LOGGING
-        define which is typically set via the Bit setting "logging: true".
+        define which is typically set via the MakeMe setting "logging: true".
         Logging typically is enabled in both debug and release builds.
         The mprLog function is a macro which translates into the mprLogProc function.
     @param tags Descriptive tag words to classify this message.
@@ -4128,9 +4136,9 @@ PUBLIC int mprStartLogging(cchar *logSpec, int flags);
 /**
     Write a trace message to the diagnostic log file.
     @description Send a trace message to the MPR logging subsystem. Debug tracing support is enabled via the ME_MPR_TRACING
-        define which is typically set via the Bit setting "tracing: true".
+        define which is typically set via the MakeMe setting "tracing: true".
         Tracing is typically is enabled in only debug builds.
-        The mprDebug function is a macro which translates into the mprDebugProc function.
+        The mprDebug function is a macro which translates into the mprLogProc function.
     @description Sends a debug trace message to the MPR logging subsystem. 
     @param tags List of space separated tag words. May also be key=value.
     @param level Logging level for this message. The level is 0-5 with zero being the most verbose.
@@ -4141,7 +4149,7 @@ PUBLIC int mprStartLogging(cchar *logSpec, int flags);
  */
 PUBLIC void mprDebug(cchar *tags, int level, cchar *fmt, ...);
 #endif
-PUBLIC void mprDebugProc(cchar *tags, int level, cchar *fmt, ...);
+PUBLIC void mprLogProc(cchar *tags, int level, cchar *fmt, ...);
 
 /**
     Determine if the app is using the default MPR log handler.
@@ -4152,6 +4160,7 @@ PUBLIC void mprDebugProc(cchar *tags, int level, cchar *fmt, ...);
  */
 PUBLIC int mprUsingDefaultLogHandler();
 
+#if UNUSED
 /**
     Log a warning message.
     @description Send a warning message to the MPR debug logging subsystem. The 
@@ -4164,9 +4173,10 @@ PUBLIC int mprUsingDefaultLogHandler();
     @stability Stable
  */
 PUBLIC void mprWarn(cchar *tags, cchar *fmt, ...);
+#endif
 
 #if ME_MPR_TRACING
-    #define mprDebug(tags, l, ...) if ((l) <= MPR->logLevel) { mprDebugProc(tags, l, __VA_ARGS__); } else
+    #define mprDebug(tags, l, ...) if ((l) <= MPR->logLevel) { mprLogProc(tags, l, __VA_ARGS__); } else
 #else
     #define mprDebug(tags, l, ...) if (1) ; else
 #endif
@@ -10337,7 +10347,7 @@ PUBLIC int mprFindVxSym(SYMTAB_ID sid, char *name, char **pvalue);
 /*
     Internal
  */
-PUBLIC void mprWriteToOsLog(cchar *msg, int flags, int level);
+PUBLIC void mprWriteToOsLog(cchar *msg, int level);
 
 /************************************* Test ***********************************/
 

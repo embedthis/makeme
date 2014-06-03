@@ -53,7 +53,7 @@ PUBLIC void httpDefineAction(cchar *name, HttpAction action)
     HttpStage   *stage;
 
     if ((stage = httpLookupStage(MPR->httpService, "actionHandler")) == 0) {
-        mprError("http action", "Cannot find actionHandler");
+        mprLog("http action", 0, "Cannot find actionHandler");
         return;
     }
     mprAddKey(stage->stageData, name, action);
@@ -249,7 +249,7 @@ PUBLIC bool httpLogin(HttpConn *conn, cchar *username, cchar *password)
         return 0;
     }
     if (!auth->store) {
-        mprError("http auth", "No AuthStore defined");
+        mprLog("http auth", 0, "No AuthStore defined");
         return 0;
     }
     if ((verifyUser = auth->verifyUser) == 0) {
@@ -258,7 +258,7 @@ PUBLIC bool httpLogin(HttpConn *conn, cchar *username, cchar *password)
         }
     }
     if (!verifyUser) {
-        mprError("No user verification routine defined on route %s", rx->route->name);
+        mprLog("http auth", 0, "No user verification routine defined on route %s", rx->route->name);
         return 0;
     }
     if (auth->username && *auth->username) {
@@ -655,11 +655,11 @@ PUBLIC int httpSetAuthStore(HttpAuth *auth, cchar *store)
     if (smatch(store, "system")) {
 #if ME_COMPILER_HAS_PAM && ME_HTTP_PAM
         if (auth->type && smatch(auth->type->name, "digest")) {
-            mprError("http auth", "Cannot use the PAM password store with digest authentication");
+            mprLog("critical http auth", 0, "Cannot use the PAM password store with digest authentication");
             return MPR_ERR_BAD_ARGS;
         }
 #else
-        mprError("http auth", "PAM is not supported in the current configuration");
+        mprLog("critical http auth", 0, "PAM is not supported in the current configuration");
         return MPR_ERR_BAD_ARGS;
 #endif
     }
@@ -681,7 +681,7 @@ PUBLIC int httpSetAuthType(HttpAuth *auth, cchar *type, cchar *details)
 
     http = MPR->httpService;
     if ((auth->type = mprLookupKey(http->authTypes, type)) == 0) {
-        mprError("Cannot find auth type %s", type);
+        mprLog("critical http auth", 0, "Cannot find auth type %s", type);
         return MPR_ERR_CANT_FIND;
     }
     if (!auth->store) {
@@ -1478,7 +1478,7 @@ PUBLIC void httpAddCache(HttpRoute *route, cchar *methods, cchar *uris, cchar *e
     cache = 0;
     if (!route->caching) {
         if (route->handler) {
-            mprError("Caching handler disabled because SetHandler used in route %s. Use AddHandler instead", 
+            mprLog("http cache", 0, "Caching handler disabled because SetHandler used in route %s. Use AddHandler instead",
                 route->name);
         }
         httpAddRouteHandler(route, "cacheHandler", NULL);
@@ -2276,7 +2276,7 @@ static int blockingFileCopy(HttpConn *conn, cchar *path)
 
     file = mprOpenFile(path, O_RDONLY | O_BINARY, 0);
     if (file == 0) {
-        mprError("Cannot open %s", path);
+        mprLog("http client", 0, "Cannot open %s", path);
         return MPR_ERR_CANT_OPEN;
     }
     mprAddRoot(file);
@@ -2355,7 +2355,7 @@ PUBLIC int httpWait(HttpConn *conn, int state, MprTicks timeout)
     int         justOne;
 
     if (httpServerConn(conn)) {
-        mprError("http client", "Should not call httpWait on the server side");
+        mprLog("http client", 0, "Should not call httpWait on the server side");
         return MPR_ERR_BAD_STATE;
     }
     if (state == 0) {
@@ -2474,7 +2474,7 @@ static void httpParseError(HttpRoute *route, cchar *fmt, ...)
 
     va_start(args, fmt);
     msg = sfmtv(fmt, args);
-    mprError("%s", msg);
+    mprLog("http config", 0, "%s", msg);
     va_end(args);
     route->error = 1;
 }
@@ -2528,7 +2528,7 @@ static int testConfig(HttpRoute *route, cchar *path)
         return 0;
     }
     if (!mprPathExists(path, R_OK)) {
-        mprError("Cannot find %s", path);
+        mprLog("http config", 0, "Cannot find %s", path);
         return MPR_ERR_CANT_READ;
     }
     return 0;
@@ -2562,11 +2562,11 @@ PUBLIC int parseFile(HttpRoute *route, cchar *path)
     cchar       *data, *errorMsg;
 
     if ((data = mprReadPathContents(path, NULL)) == 0) {
-        mprError("Cannot read configuration from \"%s\"", path);
+        mprLog("http config", 0, "Cannot read configuration from \"%s\"", path);
         return MPR_ERR_CANT_READ;
     }
     if ((config = mprParseJsonEx(data, 0, 0, 0, &errorMsg)) == 0) {
-        mprError("Cannot parse %s: error %s", path, errorMsg);
+        mprLog("http config", 0, "Cannot parse %s: error %s", path, errorMsg);
         return MPR_ERR_CANT_READ;
     }
     if (route->config == 0) {
@@ -3400,7 +3400,7 @@ PUBLIC void httpAddRouteSet(HttpRoute *route, cchar *set)
     if ((proc = mprLookupKey(route->http->routeSets, set)) != 0) {
         (proc)(route, set);
     } else {
-        mprError("Cannot find route set \"%s\"", set);
+        mprLog("http config", 0, "Cannot find route set \"%s\"", set);
     }
 }
 
@@ -5526,7 +5526,7 @@ static bool validateEndpoint(HttpEndpoint *endpoint)
     HttpHost    *host;
 
     if ((host = mprGetFirstItem(endpoint->hosts)) == 0) {
-        mprError("http config", "Missing host object on endpoint");
+        mprLog("http config", 0, "Missing host object on endpoint");
         return 0;
     }
     return 1;
@@ -5551,10 +5551,10 @@ PUBLIC int httpStartEndpoint(HttpEndpoint *endpoint)
     if (mprListenOnSocket(endpoint->sock, endpoint->ip, endpoint->port, 
                 MPR_SOCKET_NODELAY | MPR_SOCKET_THREAD) == SOCKET_ERROR) {
         if (mprGetError() == EADDRINUSE) {
-            mprError("http endpoint", "Cannot open a socket on %s:%d, socket already bound.", 
+            mprLog("http endpoint", 0, "Cannot open a socket on %s:%d, socket already bound.", 
                 *endpoint->ip ? endpoint->ip : "*", endpoint->port);
         } else {
-            mprError("http endpoint", "Cannot open a socket on %s:%d", *endpoint->ip ? endpoint->ip : "*", endpoint->port);
+            mprLog("http endpoint", 0, "Cannot open a socket on %s:%d", *endpoint->ip ? endpoint->ip : "*", endpoint->port);
         }
         return MPR_ERR_CANT_OPEN;
     }
@@ -5640,7 +5640,7 @@ PUBLIC void httpMatchHost(HttpConn *conn)
     listenSock = conn->sock->listenSock;
 
     if ((endpoint = httpLookupEndpoint(http, listenSock->ip, listenSock->port)) == 0) {
-        mprError("http endpoint", "No listening endpoint for request from %s:%d", listenSock->ip, listenSock->port);
+        mprLog("http endpoint", 0, "No listening endpoint for request from %s:%d", listenSock->ip, listenSock->port);
         mprCloseSocket(conn->sock, 0);
         return;
     }
@@ -5726,7 +5726,7 @@ PUBLIC int httpSecureEndpoint(HttpEndpoint *endpoint, struct MprSsl *ssl)
     endpoint->ssl = ssl;
     return 0;
 #else
-    mprError("http endpoint", "Configuration lacks SSL support");
+    mprLog("http endpoint", 0, "Configuration lacks SSL support");
     return MPR_ERR_BAD_STATE;
 #endif
 }
@@ -6239,6 +6239,9 @@ PUBLIC void httpLogRoutes(HttpHost *host, bool full)
     HttpRoute   *route;
     int         next, foundDefault;
 
+    if (!host) {
+        host = httpGetDefaultHost();
+    }
     if (!full) {
         mprLog("http route", 0, "%-30s %-16s %-50s %-14s\n", "Name", "Methods", "Pattern", "Target");
     }
@@ -6863,12 +6866,12 @@ PUBLIC int httpAddMonitor(cchar *counterName, cchar *expr, uint64 limit, MprTick
         return MPR_ERR_BAD_ARGS;
     }
     if ((counterIndex = mprLookupStringItem(http->counters, counterName)) < 0) {
-        mprError("Cannot find counter %s", counterName);
+        mprLog("http monitor", 0, "Cannot find counter %s", 0, counterName);
         return MPR_ERR_CANT_FIND;
     }
     for (ITERATE_ITEMS(http->monitors, mp, next)) {
         if (mp->counterIndex == counterIndex) {
-            mprError("Monitor already exists for counter %s", counterName);
+            mprLog("http monitor", 0, "Monitor already exists for counter %s", counterName);
             return MPR_ERR_ALREADY_EXISTS;
         }
     }
@@ -6881,7 +6884,7 @@ PUBLIC int httpAddMonitor(cchar *counterName, cchar *expr, uint64 limit, MprTick
     tok = sclone(defenses);
     while ((def = stok(tok, " \t", &tok)) != 0) {
         if ((defense = mprLookupKey(http->defenses, def)) == 0) {
-            mprError("Cannot find Defense \"%s\"", def);
+            mprLog("http monitor", 0, "Cannot find Defense \"%s\"", def);
             return MPR_ERR_CANT_FIND;
         }
         mprAddItem(defenseList, defense);
@@ -7187,12 +7190,12 @@ static void cmdRemedy(MprHash *args)
     cmd->stdoutBuf = mprCreateBuf(ME_MAX_BUFFER, -1);
     cmd->stderrBuf = mprCreateBuf(ME_MAX_BUFFER, -1);
     if (mprStartCmd(cmd, argc, argv, NULL, MPR_CMD_DETACH | MPR_CMD_IN) < 0) {
-        mprError("Cannot start command: %s", command);
+        mprLog("http monitor", 0, "Cannot start command: %s", command);
         return;
     }
     mprLog("http monitor", 4, "Cmd data: \n%s", data);
     if (data && mprWriteCmdBlock(cmd, MPR_CMD_STDIN, data, -1) < 0) {
-        mprError("Cannot write to command: %s", command);
+        mprLog("http monitor", 0, "Cannot write to command: %s", command);
         return;
     }
     mprFinalizeCmd(cmd);
@@ -7200,7 +7203,8 @@ static void cmdRemedy(MprHash *args)
         rc = mprWaitForCmd(cmd, ME_HTTP_REMEDY_TIMEOUT);
         status = mprGetCmdExitStatus(cmd);
         if (rc < 0 || status != 0) {
-            mprError("Remedy failed. Error: %s\nResult: %s", mprGetBufStart(cmd->stderrBuf), mprGetBufStart(cmd->stdoutBuf));
+            mprLog("http monitor", 0, "Remedy failed. Error: %s\nResult: %s", 
+                mprGetBufStart(cmd->stderrBuf), mprGetBufStart(cmd->stdoutBuf));
             return;
         }
         mprDestroyCmd(cmd);
@@ -7253,12 +7257,12 @@ static void httpRemedy(MprHash *args)
     }
     msg = smatch(method, "POST") ? mprLookupKey(args, "MESSAGE") : 0;
     if ((conn = httpRequest(method, uri, msg, &err)) == 0) {
-        mprError("%s", err);
+        mprLog("http monitory remedy", 0, "%s", err);
         return;
     }
     status = httpGetStatus(conn);
     if (status != HTTP_CODE_OK) {
-        mprError("Remedy URI %s responded with http status %d\n%s", uri, status);
+        mprLog("http monitor remedy", 0, "Remedy URI %s responded with http status %d\n%s", uri, status);
     }
 }
 
@@ -7272,7 +7276,7 @@ static void logRemedy(MprHash *args)
 
 static void restartRemedy(MprHash *args)
 {
-    mprError("http monitor", "RestartRemedy: Restarting ...");
+    mprLog("http monitor", 0, "RestartRemedy: Restarting ...");
     mprRestart();
 }
 
@@ -8711,7 +8715,7 @@ PUBLIC void httpSetSendConnector(HttpConn *conn, cchar *path)
     tx->flags |= HTTP_TX_SENDFILE;
     tx->filename = sclone(path);
 #else
-    mprError("http config", "Send connector not available if ROMFS enabled");
+    mprLog("http config", 0, "Send connector not available if ROMFS enabled");
 #endif
 }
 
@@ -10489,7 +10493,7 @@ PUBLIC int httpAddRouteCondition(HttpRoute *route, cchar *name, cchar *details, 
             return MPR_ERR_BAD_SYNTAX;
         }
         if ((op->mdata = pcre_compile2(pattern, 0, 0, &errMsg, &column, NULL)) == 0) {
-            mprError("http route", "Cannot compile condition match pattern. Error %s at column %d", errMsg, column); 
+            mprLog("http route", 0, "Cannot compile condition match pattern. Error %s at column %d", errMsg, column); 
             return MPR_ERR_BAD_SYNTAX;
         }
         op->details = finalizeReplacement(route, value);
@@ -10514,13 +10518,14 @@ PUBLIC int httpAddRouteFilter(HttpRoute *route, cchar *name, cchar *extensions, 
 
     for (ITERATE_ITEMS(route->outputStages, stage, next)) {
         if (smatch(stage->name, name)) {
-            mprError("http route", "Stage \"%s\" is already configured for the route \"%s\". Ignoring.", name, route->name); 
+            mprLog("http route", 0, "Stage \"%s\" is already configured for the route \"%s\". Ignoring.", 
+                name, route->name); 
             return 0;
         }
     }
     stage = httpLookupStage(route->http, name);
     if (stage == 0) {
-        mprError("http route", "Cannot find filter %s", name); 
+        mprLog("http route", 0, "Cannot find filter %s", name); 
         return MPR_ERR_CANT_FIND;
     }
     /*
@@ -10572,15 +10577,15 @@ PUBLIC int httpAddRouteHandler(HttpRoute *route, cchar *name, cchar *extensions)
 
     http = route->http;
     if ((handler = httpLookupStage(http, name)) == 0) {
-        mprError("http route", "Cannot find stage %s", name); 
+        mprLog("http route", 0, "Cannot find stage %s", name); 
         return MPR_ERR_CANT_FIND;
     }
     if (route->handler) {
-        mprError("http route", "Cannot add handler \"%s\" to route \"%s\" once SetHandler used.", 
+        mprLog("http route", 0, "Cannot add handler \"%s\" to route \"%s\" once SetHandler used.", 
             handler->name, route->name);
     }
     if (!extensions && !handler->match) {
-        mprError("http route", "Adding handler \"%s\" without extensions to match", handler->name);
+        mprLog("http route", 0, "Adding handler \"%s\" without extensions to match", handler->name);
     }
     if (extensions) {
         /*
@@ -10601,7 +10606,7 @@ PUBLIC int httpAddRouteHandler(HttpRoute *route, cchar *name, cchar *extensions)
                 }
                 prior = mprLookupKey(route->extensions, word);
                 if (prior && prior != handler) {
-                    mprError("http route", "Route \"%s\" has multiple handlers defined for extension \"%s\". "
+                    mprLog("http route", 0, "Route \"%s\" has multiple handlers defined for extension \"%s\". "
                             "Handlers: \"%s\", \"%s\".", route->name, word, handler->name, 
                             ((HttpStage*) mprLookupKey(route->extensions, word))->name);
                 } else {
@@ -10693,7 +10698,7 @@ PUBLIC void httpAddRouteParam(HttpRoute *route, cchar *field, cchar *value, int 
         return;
     }
     if ((op->mdata = pcre_compile2(value, 0, 0, &errMsg, &column, NULL)) == 0) {
-        mprError("http route", "Cannot compile field pattern. Error %s at column %d", errMsg, column); 
+        mprLog("http route", 0, "Cannot compile field pattern. Error %s at column %d", errMsg, column); 
     } else {
         mprAddItem(route->params, op);
     }
@@ -10718,7 +10723,7 @@ PUBLIC void httpAddRouteRequestHeaderCheck(HttpRoute *route, cchar *header, ccha
         return;
     }
     if ((op->mdata = pcre_compile2(pattern, 0, 0, &errMsg, &column, NULL)) == 0) {
-        mprError("http route", "Cannot compile header pattern. Error %s at column %d", errMsg, column); 
+        mprLog("http route", 0, "Cannot compile header pattern. Error %s at column %d", errMsg, column); 
     } else {
         mprAddItem(route->requestHeaders, op);
     }
@@ -10953,7 +10958,7 @@ PUBLIC int httpSetRouteConnector(HttpRoute *route, cchar *name)
 
     stage = httpLookupStage(route->http, name);
     if (stage == 0) {
-        mprError("http route", "Cannot find connector %s", name); 
+        mprLog("http route", 0, "Cannot find connector %s", name); 
         return MPR_ERR_CANT_FIND;
     }
     route->connector = stage;
@@ -11016,7 +11021,7 @@ PUBLIC int httpSetRouteHandler(HttpRoute *route, cchar *name)
     assert(name && *name);
 
     if ((handler = httpLookupStage(route->http, name)) == 0) {
-        mprError("http route", "Cannot find handler %s", name); 
+        mprLog("http route", 0, "Cannot find handler %s", name); 
         return MPR_ERR_CANT_FIND;
     }
     route->handler = handler;
@@ -11461,7 +11466,7 @@ static void finalizePattern(HttpRoute *route)
         free(route->patternCompiled);
     }
     if ((route->patternCompiled = pcre_compile2(route->optimizedPattern, 0, 0, &errMsg, &column, NULL)) == 0) {
-        mprError("http route", "Cannot compile route. Error %s at column %d", errMsg, column); 
+        mprLog("http route", 0, "Cannot compile route. Error %s at column %d", errMsg, column); 
     }
     route->flags |= HTTP_ROUTE_FREE_PATTERN;
 }
@@ -11519,7 +11524,7 @@ static char *finalizeReplacement(HttpRoute *route, cchar *str)
                             mprPutCharToBuf(buf, '$');
                             mprPutStringToBuf(buf, token);
                         } else {
-                            mprError("http route", "Cannot find token \"%s\" in template \"%s\"", token, route->pattern);
+                            mprLog("http route", 0, "Cannot find token \"%s\" in template \"%s\"", token, route->pattern);
                         }
                     }
                 }
@@ -12080,7 +12085,7 @@ static int cmdUpdate(HttpConn *conn, HttpRoute *route, HttpRouteOp *op)
     if ((status = mprRunCmd(cmd, command, NULL, NULL, &out, &err, -1, 0)) != 0) {
         /* Don't call httpError, just set errorMsg which can be retrieved via: ${request:error} */
         conn->errorMsg = sfmt("Command failed: %s\nStatus: %d\n%s\n%s", command, status, out, err);
-        mprError("http route", "%s", conn->errorMsg);
+        mprLog("http route", 0, "%s", conn->errorMsg);
         /* Continue */
     }
     return HTTP_ROUTE_OK;
@@ -16410,7 +16415,7 @@ PUBLIC int httpApplyUserGroup()
     if (http->userChanged || http->groupChanged) {
         if (!smatch(MPR->logPath, "stdout") && !smatch(MPR->logPath, "stderr")) {
             if (chown(MPR->logPath, http->uid, http->gid) < 0) {
-                mprError("Cannot change ownership on %s", MPR->logPath);
+                mprLog("critical http", 0, "Cannot change ownership on %s", MPR->logPath);
             }
         }
     }
@@ -16456,13 +16461,13 @@ PUBLIC void httpGetUserGroup()
     http = MPR->httpService;
     http->uid = getuid();
     if ((pp = getpwuid(http->uid)) == 0) {
-        mprCritical("http", "Cannot read user credentials: %d. Check your /etc/passwd file.", http->uid);
+        mprLog("critical http", 0, "Cannot read user credentials: %d. Check your /etc/passwd file.", http->uid);
     } else {
         http->user = sclone(pp->pw_name);
     }
     http->gid = getgid();
     if ((gp = getgrgid(http->gid)) == 0) {
-        mprCritical("http", "Cannot read group credentials: %d. Check your /etc/group file", http->gid);
+        mprLog("critical http", 0, "Cannot read group credentials: %d. Check your /etc/group file", http->gid);
     } else {
         http->group = sclone(gp->gr_name);
     }
@@ -16500,14 +16505,14 @@ PUBLIC int httpSetUserAccount(cchar *newUser)
     if (snumber(newUser)) {
         http->uid = atoi(newUser);
         if ((pp = getpwuid(http->uid)) == 0) {
-            mprCritical("http", "Bad user id: %d", http->uid);
+            mprLog("critical http", 0, "Bad user id: %d", http->uid);
             return MPR_ERR_CANT_ACCESS;
         }
         newUser = pp->pw_name;
 
     } else {
         if ((pp = getpwnam(newUser)) == 0) {
-            mprCritical("http", "Bad user name: %s", newUser);
+            mprLog("critical http", 0, "Bad user name: %s", newUser);
             return MPR_ERR_CANT_ACCESS;
         }
         http->uid = pp->pw_uid;
@@ -16558,14 +16563,14 @@ PUBLIC int httpSetGroupAccount(cchar *newGroup)
     if (snumber(newGroup)) {
         http->gid = atoi(newGroup);
         if ((gp = getgrgid(http->gid)) == 0) {
-            mprCritical("http", "Bad group id: %d", http->gid);
+            mprLog("critical http", 0, "Bad group id: %d", http->gid);
             return MPR_ERR_CANT_ACCESS;
         }
         newGroup = gp->gr_name;
 
     } else {
         if ((gp = getgrnam(newGroup)) == 0) {
-            mprCritical("http", "Bad group name: %s", newGroup);
+            mprLog("critical http", 0, "Bad group name: %s", newGroup);
             return MPR_ERR_CANT_ACCESS;
         }
         http->gid = gp->gr_gid;
@@ -16586,29 +16591,26 @@ PUBLIC int httpApplyChangedUser()
     if (http->userChanged && http->uid >= 0) {
         if (http->gid >= 0 && http->groupChanged) {
             if (setgroups(0, NULL) == -1) {
-                mprCritical("http", "Cannot clear supplemental groups");
+                mprLog("critical http", 0, "Cannot clear supplemental groups");
             }
             if (setgid(http->gid) == -1) {
-                mprCritical("http", "Cannot change group to %s: %d\n"
+                mprLog("critical http", 0, "Cannot change group to %s: %d"
                     "WARNING: This is a major security exposure", http->group, http->gid);
             }
         } else {
             struct passwd   *pp;
             if ((pp = getpwuid(http->uid)) == 0) {
-                mprCritical("http", "Cannot get user entry for id: %d", http->uid);
+                mprLog("critical http", 0, "Cannot get user entry for id: %d", http->uid);
                 return MPR_ERR_CANT_ACCESS;
             }
             mprLog("http", 4, "Initgroups for %s GID %d", http->user, pp->pw_gid);
             if (initgroups(http->user, pp->pw_gid) == -1) {
-                mprCritical("http", "Cannot initgroups for %s, errno: %d", http->user, errno);
+                mprLog("critical http", 0, "Cannot initgroups for %s, errno: %d", http->user, errno);
             }
         }
         if ((setuid(http->uid)) != 0) {
-            mprCritical("http", "Cannot change user to: %s: %d\n"
+            mprLog("critical http", 0, "Cannot change user to: %s: %d"
                 "WARNING: This is a major security exposure", http->user, http->uid);
-            if (getuid() != 0) {
-                mprCritical("http", "Log in as administrator/root and retry");
-            }
             return MPR_ERR_BAD_STATE;
 #if LINUX && PR_SET_DUMPABLE
         } else {
@@ -16629,10 +16631,10 @@ PUBLIC int httpApplyChangedGroup()
     http = MPR->httpService;
     if (http->groupChanged && http->gid >= 0) {
         if (setgid(http->gid) != 0) {
-            mprCritical("http", "Cannot change group to %s: %d\n"
+            mprLog("critical http", 0, "Cannot change group to %s: %d\n"
                 "WARNING: This is a major security exposure", http->group, http->gid);
             if (getuid() != 0) {
-                mprCritical("http", "Log in as administrator/root and retry");
+                mprLog("critical http", 0, "Log in as administrator/root and retry");
             }
             return MPR_ERR_BAD_STATE;
 #if LINUX && PR_SET_DUMPABLE
@@ -17026,7 +17028,7 @@ PUBLIC int httpWriteSession(HttpConn *conn)
     if ((sp = conn->rx->session) != 0) {
         if (sp->dirty) {
             if (mprWriteCache(sp->cache, sp->id, mprSerialize(sp->data, 0), 0, sp->lifespan, 0, MPR_CACHE_SET) == 0) {
-                mprError("http session", "Cannot persist session cache");
+                mprLog("http session", 0, "Cannot persist session cache");
                 return MPR_ERR_CANT_WRITE;
             }
             sp->dirty = 0;
@@ -17263,7 +17265,7 @@ PUBLIC HttpStage *httpCreateStage(Http *http, cchar *name, int flags, MprModule 
 
     if ((stage = httpLookupStage(http, name)) != 0) {
         if (!(stage->flags & HTTP_STAGE_UNLOADED)) {
-            mprError("Stage %s already exists", name);
+            mprLog("http", 0, "Stage %s already exists", name);
             return 0;
         }
     } else if ((stage = mprAllocObj(HttpStage, manageStage)) == 0) {
@@ -17721,7 +17723,7 @@ PUBLIC int httpOpenTraceLogFile(HttpTrace *trace)
             } else if (smatch(trace->path, "stderr")) {
                 file = MPR->stdError;
             } else if ((file = mprOpenFile(trace->path, mode, 0664)) == 0) {
-                mprError("Cannot open log file %s", trace->path);
+                mprLog("http trace", 0, "Cannot open log file %s", trace->path);
                 return MPR_ERR_CANT_OPEN;
             }
         }
@@ -20269,7 +20271,7 @@ PUBLIC HttpUri *httpLinkUri(HttpConn *conn, cchar *target, MprHash *options)
             }
         }
         if (!tplate) {
-            mprError("Cannot find template for URI %s", target);
+            mprLog("http", 0, "Cannot find template for URI %s", target);
             target = "/";
         }
     }

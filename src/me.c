@@ -41,7 +41,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
     mprAddStandardSignals();
 
     if (mprStart(mpr) < 0) {
-        mprError("me", "Cannot start mpr services");
+        mprLog("me", 0, "Cannot start mpr services");
         return EJS_ERR;
     }
     err = 0;
@@ -60,7 +60,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
             } else {
                 homeDir = argv[++nextArg];
                 if (chdir((char*) homeDir) < 0) {
-                    mprError("me", "Cannot change directory to %s", homeDir);
+                    mprLog("me", 0, "Cannot change directory to %s", homeDir);
                 }
             }
 
@@ -99,7 +99,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
         }
     }
     if ((app->script = findMe()) == 0) {
-        mprError("me", "Cannot find me.es or me.mod");
+        mprLog("me", 0, "Cannot find me.es or me.mod");
         return MPR_ERR_CANT_FIND;
     }
     argv[0] = (char*) app->script;

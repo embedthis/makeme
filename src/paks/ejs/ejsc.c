@@ -62,7 +62,7 @@ MAIN(ejscMain, int argc, char **argv, char **envp)
     mprAddStandardSignals();
 
     if (mprStart() < 0) {
-        mprError("ejsc", "Cannot start mpr services");
+        mprLog("ejsc", 0, "Cannot start mpr services");
         return EJS_ERR;
     }
     err = 0;
