@@ -2589,7 +2589,11 @@ public class Me {
         if (!options.quiet) {
             let msg = args.join(" ")
             let msg = "%12s %s" % (["[" + tag + "]"] + [msg]) + "\n"
-            out.write(msg)
+            if (out) {
+                out.write(msg)
+            } else {
+                stdout.write(msg)
+            }
         }
     }
 
