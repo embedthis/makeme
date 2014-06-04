@@ -1,7 +1,7 @@
 {
     "name": "osdep",
     "description": "Embedthis O/S Dependent Layer",
-    "version": "0.8.0",
+    "version": "0.8.1",
     "keywords": [
         "osdep",
         "me"
@@ -34,4 +34,11 @@
     "directories": {
         "paks": "src/paks"
     },
+    "optionalDependencies": {
+        "me-dev": "~0.8"
+    },
+    "files": [
+        "osdep.h",
+        "osdep.me"
+    ]
 }
