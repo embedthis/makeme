@@ -2683,6 +2683,7 @@ static void postParse(HttpRoute *route)
 }
 
 
+#if MOVED
 PUBLIC cchar *httpGetDir(HttpRoute *route, cchar *name)
 {
     cchar   *key;
@@ -2708,6 +2709,7 @@ PUBLIC void httpSetDefaultDirs(HttpRoute *route)
     httpSetDir(route, "client", 0);
     httpSetDir(route, "paks", "paks");
 }
+#endif
 
 /**************************************** Parser Callbacks ****************************************/
 
@@ -3608,6 +3610,10 @@ static void parseServerLog(HttpRoute *route, cchar *key, MprJson *prop)
     ssize       size;
     int         level, anew, backup;
 
+    if (mprGetCmdlineLogging()) {
+        mprLog("http config", 4, "Already logging. Ignoring log configuration");
+        return;
+    }
     location = mprGetJson(prop, "location");
     level = (int) stoi(mprGetJson(prop, "level"));
     backup = (int) stoi(mprGetJson(prop, "backup"));
@@ -3833,6 +3839,10 @@ static void parseTrace(HttpRoute *route, cchar *key, MprJson *prop)
     char        level, tlevels[HTTP_TRACE_MAX_ITEM];
     int         anew, backup;
 
+    if (route->trace && route->trace->flags & MPR_LOG_CMDLINE) {
+        mprLog("http config", 4, "Already tracing. Ignoring trace configuration");
+        return;
+    }
     size = (ssize) httpGetNumber(mprGetJson(prop, "size"));
     format = mprGetJson(prop, "format");
     type = mprGetJson(prop, "type");
@@ -3852,7 +3862,7 @@ static void parseTrace(HttpRoute *route, cchar *key, MprJson *prop)
         return;
     }
     if (location == 0) {
-        httpParseError(route, "Missing filename");
+        httpParseError(route, "Missing trace filename");
         return;
     }
     if (!smatch(location, "stdout") && !smatch(location, "stderr")) {
@@ -6193,43 +6203,43 @@ static void printRoute(HttpRoute *route, int next, bool full)
     pattern = (route->pattern && *route->pattern) ? route->pattern : "^/";
     target = (route->target && *route->target) ? route->target : "$&";
     if (full) {
-        mprLog("http route", 0, "\n%d. %s\n", next, route->name);
-        mprLog("http route", 0, "    Pattern:      %s\n", pattern);
-        mprLog("http route", 0, "    StartSegment: %s\n", route->startSegment);
-        mprLog("http route", 0, "    StartsWith:   %s\n", route->startWith);
-        mprLog("http route", 0, "    RegExp:       %s\n", route->optimizedPattern);
-        mprLog("http route", 0, "    Methods:      %s\n", methods);
-        mprLog("http route", 0, "    Prefix:       %s\n", route->prefix);
-        mprLog("http route", 0, "    Target:       %s\n", target);
-        mprLog("http route", 0, "    Home:         %s\n", route->home);
-        mprLog("http route", 0, "    Documents:    %s\n", route->documents);
-        mprLog("http route", 0, "    Source:       %s\n", route->sourceName);
-        mprLog("http route", 0, "    Template:     %s\n", route->tplate);
+        mprLog("", 1, "\n%d. %s\n", next, route->name);
+        mprLog("", 1, "    Pattern:      %s\n", pattern);
+        mprLog("", 1, "    StartSegment: %s\n", route->startSegment);
+        mprLog("", 1, "    StartsWith:   %s\n", route->startWith);
+        mprLog("", 1, "    RegExp:       %s\n", route->optimizedPattern);
+        mprLog("", 1, "    Methods:      %s\n", methods);
+        mprLog("", 1, "    Prefix:       %s\n", route->prefix);
+        mprLog("", 1, "    Target:       %s\n", target);
+        mprLog("", 1, "    Home:         %s\n", route->home);
+        mprLog("", 1, "    Documents:    %s\n", route->documents);
+        mprLog("", 1, "    Source:       %s\n", route->sourceName);
+        mprLog("", 1, "    Template:     %s\n", route->tplate);
         if (route->indexes) {
-            mprLog("http route", 0, "    Indexes       ");
+            mprLog("", 1, "    Indexes       ");
             for (ITERATE_ITEMS(route->indexes, index, nextIndex)) {
-                mprLog("http route", 0, "%s ", index);
+                mprLog("", 1, "%s ", index);
             }
         }
-        mprLog("http route", 0, "\n    Next Group    %d\n", route->nextGroup);
+        mprLog("", 1, "\n    Next Group    %d\n", route->nextGroup);
         if (route->handler) {
-            mprLog("http route", 0, "    Handler:      %s\n", route->handler->name);
+            mprLog("", 1, "    Handler:      %s\n", route->handler->name);
         }
         if (full) {
             if (route->extensions) {
                 for (ITERATE_KEYS(route->extensions, kp)) {
                     handler = (HttpStage*) kp->data;
-                    mprLog("http route", 0, "    Extension:    %s => %s\n", kp->key, handler->name);
+                    mprLog("", 1, "    Extension:    %s => %s\n", kp->key, handler->name);
                 }
             }
             if (route->handlers) {
                 for (ITERATE_ITEMS(route->handlers, handler, nextIndex)) {
-                    mprLog("http route", 0, "    Handler:      %s\n", handler->name);
+                    mprLog("", 1, "    Handler:      %s\n", handler->name);
                 }
             }
         }
     } else {
-        mprLog("http route", 0, "%-30s %-16s %-50s %-14s", route->name, methods ? methods : "*", pattern, target);
+        mprLog(0, 1, "%-30s %-16s %-50s %-14s", route->name, methods ? methods : "*", pattern, target);
     }
 }
 
@@ -6243,7 +6253,7 @@ PUBLIC void httpLogRoutes(HttpHost *host, bool full)
         host = httpGetDefaultHost();
     }
     if (!full) {
-        mprLog("http route", 0, "%-30s %-16s %-50s %-14s\n", "Name", "Methods", "Pattern", "Target");
+        mprLog(0, 1, "%-30s %-16s %-50s %-14s", "Name", "Methods", "Pattern", "Target");
     }
     for (foundDefault = next = 0; (route = mprGetNextItem(host->routes, &next)) != 0; ) {
         printRoute(route, next - 1, full);
@@ -6257,7 +6267,6 @@ PUBLIC void httpLogRoutes(HttpHost *host, bool full)
     if (!foundDefault && host->defaultRoute) {
         printRoute(host->defaultRoute, next - 1, full);
     }
-    mprLog("http route", 0, "\n");
 }
 
 
@@ -9853,6 +9862,7 @@ PUBLIC HttpRoute *httpCreateRoute(HttpHost *host)
         route->mimeTypes = MPR->mimeTypes;
     }
     definePathVars(route);
+    httpSetDefaultDirs(route);
     return route;
 }
 
@@ -12923,6 +12933,33 @@ static char *trimQuotes(char *str)
         return snclone(&str[1], len - 2);
     }
     return sclone(str);
+}
+
+
+PUBLIC cchar *httpGetDir(HttpRoute *route, cchar *name)
+{
+    cchar   *key;
+
+    key = sjoin(supper(name), "_DIR", NULL);
+    return httpGetRouteVar(route, key);
+}
+
+
+PUBLIC void httpSetDir(HttpRoute *route, cchar *name, cchar *value)
+{
+    if (value == 0) {
+        value = name;
+    }
+    value = mprJoinPath(route->documents, value);
+    httpSetRouteVar(route, sjoin(supper(name), "_DIR", NULL), httpMakePath(route, 0, value));
+}
+
+
+PUBLIC void httpSetDefaultDirs(HttpRoute *route)
+{
+    httpSetDir(route, "cache", 0);
+    httpSetDir(route, "client", 0);
+    httpSetDir(route, "paks", "paks");
 }
 
 
@@ -16858,8 +16895,8 @@ PUBLIC HttpSession *httpGetSession(HttpConn *conn, int create)
     Http        *http;
     HttpRx      *rx;
     cchar       *cookie, *data, *id;
-    static int  nextSession = 0;
-    int         flags;
+    static int  seqno = 0;
+    int         flags, thisSeqno;
 
     assert(conn);
     rx = conn->rx;
@@ -16873,13 +16910,12 @@ PUBLIC HttpSession *httpGetSession(HttpConn *conn, int create)
             }
         }
         if (!rx->session && create) {
-            /* 
-                Thread race here on nextSession++ not critical 
-             */
-            id = sfmt("%08x%08x%d", PTOI(conn->data) + PTOI(conn), (int) mprGetTicks(), nextSession++);
-            id = mprGetMD5WithPrefix(id, slen(id), "::http.session::");
-
             lock(http);
+            thisSeqno = seqno++;
+            id = sfmt("%08x%08x%d", PTOI(conn->data) + PTOI(conn), (int) mprGetTicks(), thisSeqno);
+            id = mprGetMD5WithPrefix(id, slen(id), "-http.session-");
+            id = sfmt("%d%s", thisSeqno, mprGetMD5WithPrefix(id, slen(id), "::http.session::"));
+
             mprGetCacheStats(http->sessionCache, &http->activeSessions, NULL);
             if (http->activeSessions >= conn->limits->sessionMax) {
                 unlock(http);
@@ -17519,7 +17555,7 @@ PUBLIC void httpTraceContent(HttpConn *conn, int event, cchar *buf, ssize len, c
     }
     if ((event == HTTP_TRACE_RX_BODY && (conn->rx->bytesRead >= conn->trace->size)) ||
         (event == HTTP_TRACE_TX_BODY && (conn->tx->bytesWritten >= conn->trace->size))) {
-        if (!conn->rx->skipTrace) {
+        if (!conn->rx->skipTrace && !conn->rx->webSocket) {
             conn->rx->skipTrace = 1;
             httpTrace(conn, event, "Abbreviating body trace");
         }
@@ -17542,6 +17578,17 @@ PUBLIC void httpTracePacket(HttpConn *conn, int event, HttpPacket *packet, cchar
     assert(conn);
     assert(packet);
 
+    if (packet->prefix) {
+        mprAddNullToBuf(packet->prefix);
+        if (event == HTTP_TRACE_RX_BODY) {
+            msg = "rx body";
+        } else if (event == HTTP_TRACE_TX_BODY) {
+            msg = "tx prefix";
+        } else {
+            msg = 0;
+        }
+        httpTraceContent(conn, event, mprGetBufStart(packet->prefix), mprGetBufLength(packet->prefix), msg);
+    }
     if (fmt) {
         va_start(ap, fmt);
         msg = sfmtv(fmt, ap);
@@ -17558,10 +17605,6 @@ PUBLIC void httpTracePacket(HttpConn *conn, int event, HttpPacket *packet, cchar
         } else {
             msg = 0;
         }
-    }
-    if (packet->prefix) {
-        mprAddNullToBuf(packet->prefix);
-        httpTraceContent(conn, event, mprGetBufStart(packet->prefix), mprGetBufLength(packet->prefix), msg);
     }
     if (packet->content) {
         mprAddNullToBuf(packet->content);
@@ -17645,14 +17688,15 @@ static cchar *makePrintable(HttpConn *conn, int event, cchar *buf, ssize *lenp)
 PUBLIC void httpDetailTraceFormatter(HttpConn *conn, int event, cchar *msg, cchar *buf, ssize len)
 {
     char    *boundary, prefix[64];
-    int     client;
+    int     client, sessionSeqno;
 
     assert(conn);
     assert(event >= 0);
     assert(msg && *msg);
 
     client = conn->address ? conn->address->seqno : 0;
-    fmt(prefix, sizeof(prefix), "\n<%d-%d-%d> ", client, conn->seqno, conn->rx->seqno);
+    sessionSeqno = conn->rx->session ? (int) stoi(conn->rx->session->id) : 0;
+    fmt(prefix, sizeof(prefix), "\n<%d-%d-%d-%d> ", client, sessionSeqno, conn->seqno, conn->rx->seqno);
     httpWriteTrace(conn, prefix, slen(prefix));
     httpWriteTrace(conn, msg, slen(msg));
 
@@ -17734,20 +17778,23 @@ PUBLIC int httpOpenTraceLogFile(HttpTrace *trace)
 }
 
 
-PUBLIC int httpStartTracing(cchar *path)
+/*
+    Start tracing when instructed via a command line option. No backup, max size or custom format.
+ */
+PUBLIC int httpStartTracing(cchar *traceSpec)
 {
     Http        *http;
     HttpTrace   *trace;
     char        *lspec;
 
-    if ((http = MPR->httpService) == 0 || http->trace == 0) {
+    if ((http = MPR->httpService) == 0 || http->trace == 0 || traceSpec == 0 || *traceSpec == '\0') {
         return MPR_ERR_BAD_STATE;
     }
     trace = http->trace;
-    trace->path = stok(sclone(path), ":", &lspec);
+    trace->flags = MPR_LOG_ANEW | MPR_LOG_CMDLINE;
+    trace->path = stok(sclone(traceSpec), ":", &lspec);
     http->traceLevel = (int) stoi(lspec);
-    httpSetTraceLogFile(trace, trace->path, 0, 0, 0, 0);
-    return 0;
+    return httpOpenTraceLogFile(trace);
 }
 
 
@@ -17765,8 +17812,8 @@ PUBLIC int httpSetTraceLogFile(HttpTrace *trace, cchar *path, ssize size, int ba
     trace->backupCount = backup;
     trace->flags = flags;
     trace->format = sclone(format);
-    trace->path = sclone(path);
     trace->size = size;
+    trace->path = sclone(path);
     return httpOpenTraceLogFile(trace);
 }
 
@@ -21169,7 +21216,7 @@ static void incomingWebSockData(HttpQueue *q, HttpPacket *packet)
          */
         httpJoinPacketForService(q, packet, 0);
     }
-    mprDebug("http websockets", 5, "webSocketFilter: incoming data, state %d, frame state %d, length: %d", 
+    httpTracePacket(conn, HTTP_TRACE_RX_BODY, packet, "WebSocket: state=%d frame=%d length=%d", 
         ws->state, ws->frameState, httpGetPacketLength(packet));
 
     if (packet->flags & HTTP_PACKET_END) {
@@ -21395,7 +21442,7 @@ static int processFrame(HttpQueue *q, HttpPacket *packet)
 
     if (3 <= MPR->logLevel) {
         mprAddNullToBuf(content);
-        mprLog("http websockets", 3, "WebSocket: %d: receive \"%s\" (%d) frame, last %d, length %d",
+        mprDebug("http websockets", 3, "WebSocket: %d: receive \"%s\" (%d) frame, last %d, length %d",
              ws->rxSeq++, codetxt[packet->type], packet->type, packet->last, mprGetBufLength(content));
     }
     validated = 0;
@@ -21758,7 +21805,9 @@ static void outgoingWebSockService(HttpQueue *q)
             }
             if (packet->type == WS_MSG_TEXT && packet->content) {
                 mprAddNullToBuf(packet->content);
-                mprDebug("http websockets", 4, "webSocketFilter: Send text \"%s\"", packet->content->start);
+#if UNUSED
+                httpTracePacket(conn, HTTP_TRACE_TX_BODY, packet, "websockets);
+#endif
             }
             if (httpClientConn(conn)) {
                 mprGetRandomBytes(dataMask, sizeof(dataMask), 0);
@@ -21773,7 +21822,7 @@ static void outgoingWebSockService(HttpQueue *q)
             }
             *prefix = '\0';
             mprAdjustBufEnd(packet->prefix, prefix - packet->prefix->start);
-            mprLog("http websockets", 3, "WebSocket: %d: send \"%s\" (%d) frame, last %d, length %d",
+            httpTracePacket(conn, HTTP_TRACE_TX_BODY, packet, "WebSocket: seqno=%d send=%s type=%d last=%d length=%d",
                 ws->txSeq++, codetxt[packet->type], packet->type, packet->last, httpGetPacketLength(packet));
         }
         httpPutPacketToNext(q, packet);

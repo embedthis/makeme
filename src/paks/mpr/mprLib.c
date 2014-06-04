@@ -15651,52 +15651,48 @@ PUBLIC int mprStartLogging(cchar *logSpec, int flags)
     char        *levelSpec, *path;
     int         level;
 
+    if (logSpec == 0 || strcmp(logSpec, "none") == 0) {
+        return 0;
+    }
     level = -1;
     file = 0;
-    if (logSpec == 0) {
-        logSpec = "stderr:0";
+    MPR->logPath = path = sclone(logSpec);
+    if ((levelSpec = strrchr(path, ':')) != 0 && isdigit((uchar) levelSpec[1])) {
+        *levelSpec++ = '\0';
+        level = atoi(levelSpec);
     }
-    if (*logSpec && strcmp(logSpec, "none") != 0) {
-        MPR->logPath = path = sclone(logSpec);
-        if ((levelSpec = strrchr(path, ':')) != 0 && isdigit((uchar) levelSpec[1])) {
-            *levelSpec++ = '\0';
-            level = atoi(levelSpec);
-        }
-        if (strcmp(path, "stdout") == 0) {
-            file = MPR->stdOutput;
-        } else if (strcmp(path, "stderr") == 0) {
-            file = MPR->stdError;
+    if (strcmp(path, "stdout") == 0) {
+        file = MPR->stdOutput;
+    } else if (strcmp(path, "stderr") == 0) {
+        file = MPR->stdError;
 #if !ME_ROM
-        } else {
-            MprPath     info;
-            int         mode;
-            mode = (MPR->flags & MPR_LOG_ANEW) ? O_TRUNC : O_APPEND;
-            mode |= O_CREAT | O_WRONLY | O_TEXT;
-            if (MPR->logBackup > 0) {
-                mprGetPathInfo(path, &info);
-                if (MPR->logSize <= 0 || (info.valid && info.size > MPR->logSize) || (MPR->flags & MPR_LOG_ANEW)) {
-                    mprBackupLog(path, MPR->logBackup);
-                }
+    } else {
+        MprPath     info;
+        int         mode;
+        mode = (flags & MPR_LOG_ANEW) ? O_TRUNC : O_APPEND;
+        mode |= O_CREAT | O_WRONLY | O_TEXT;
+        if (MPR->logBackup > 0) {
+            mprGetPathInfo(path, &info);
+            if (MPR->logSize <= 0 || (info.valid && info.size > MPR->logSize) || (flags & MPR_LOG_ANEW)) {
+                mprBackupLog(path, MPR->logBackup);
             }
-            if ((file = mprOpenFile(path, mode, 0664)) == 0) {
-                mprLog("mpr log", 0, "Cannot open log file %s, errno=%d", path, errno);
-                return MPR_ERR_CANT_OPEN;
-            }
+        }
+        if ((file = mprOpenFile(path, mode, 0664)) == 0) {
+            mprLog("mpr log", 0, "Cannot open log file %s, errno=%d", path, errno);
+            return MPR_ERR_CANT_OPEN;
+        }
 #endif
-        }
-        if (level >= 0) {
-            mprSetLogLevel(level);
-        }
-        if (file) {
-            mprSetLogFile(file);
-        }
-        if (flags & MPR_LOG_CONFIG) {
-            mprLogConfig();
-        }
-        if (flags & MPR_LOG_CMDLINE) {
-            MPR->cmdlineLogging = 1;
-        }
     }
+    if (level >= 0) {
+        mprSetLogLevel(level);
+    }
+    if (file) {
+        mprSetLogFile(file);
+    }
+    if (flags & MPR_LOG_CONFIG) {
+        mprLogConfig();
+    }
+    MPR->flags |= (flags & (MPR_LOG_ANEW | MPR_LOG_CONFIG | MPR_LOG_CMDLINE)); 
     return 0;
 }
 
@@ -15748,14 +15744,14 @@ PUBLIC void mprSetLogBackup(ssize size, int backup, int flags)
 }
 
 
-#if DEPRECATED || MOB
-PUBLIC void mprError(int level, cchar *fmt, ...)
+#if DEPRECATED || 1
+PUBLIC void mprError(cchar *fmt, ...)
 {
     va_list     args;
     char        buf[ME_MAX_LOGLINE];
 
     va_start(args, fmt);
-    logOutput(MPR->name, level, fmtv(buf, sizeof(buf), fmt, args));
+    logOutput(MPR->name, 0, fmtv(buf, sizeof(buf), fmt, args));
     va_end(args);
 }
 #endif
@@ -15864,8 +15860,12 @@ PUBLIC void mprDefaultLogHandler(cchar *tags, int level, cchar *msg)
     if (MPR->logBackup && MPR->logSize && (check++ % 1000) == 0) {
         backupLog();
     }
-    fmt(tbuf, sizeof(tbuf), "%s%-14s: ", level ? "" : "error", tags ? tags : "");
-    mprWriteFileString(file, tbuf);
+    if (level == 0 || tags) {
+        fmt(tbuf, sizeof(tbuf), "%s%-14s: ", level ? "" : "error ", tags ? tags : "");
+        mprWriteFileString(file, tbuf);
+    } else {
+    mprWriteFileString(file, ": ");
+    }
     mprWriteFileString(file, msg);
     mprWriteFileString(file, "\n");
     if (level == 0) {
@@ -16028,15 +16028,18 @@ PUBLIC bool mprSetCmdlineLogging(bool on)
 {
     bool    wasLogging;
 
-    wasLogging = MPR->cmdlineLogging;
-    MPR->cmdlineLogging = on;
+    wasLogging = MPR->flags & MPR_LOG_CMDLINE;
+    MPR->flags &= ~MPR_LOG_CMDLINE;
+    if (on) {
+        MPR->flags |= MPR_LOG_CMDLINE;
+    }
     return wasLogging;
 }
 
 
 PUBLIC bool mprGetCmdlineLogging()
 {
-    return MPR->cmdlineLogging;
+    return MPR->flags & MPR_LOG_CMDLINE ? 1 : 0;
 }
 
 
@@ -28551,7 +28554,7 @@ PUBLIC void mprSleep(MprTicks timeout)
 }
 
 
-PUBLIC void mprWriteToOsLog(cchar *message, int flags, int level)
+PUBLIC void mprWriteToOsLog(cchar *message, int level)
 {
 }
 

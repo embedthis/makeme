@@ -739,7 +739,7 @@ PUBLIC bool httpShouldTrace(struct HttpConn *conn, int event);
 #endif
 
 /**
-    Start tracing for the given trace log file
+    Start tracing for the given trace log file when instructed via a command line switch.
     @param traceSpec Set the trace log file name and level. The format is "pathName[:level]".
     The following levels are generally observed:
     <ul>
@@ -750,6 +750,7 @@ PUBLIC bool httpShouldTrace(struct HttpConn *conn, int event);
         <li>4 - Debug information</li>
         <li>5 - Most verbose levels of messages useful for debugging</li>
     </ul>
+    If the traceSpec is null, not tracing is enabled.
     @return Zero if successful, otherwise a negative Mpr error code. See the Appweb log for diagnostics.
     @ingroup HttpTrace
     @stability Prototype
@@ -5645,6 +5646,7 @@ typedef struct HttpSession {
     MprTicks        lifespan;                   /**< Session inactivity timeout (msecs) */
     MprHash         *data;                      /**< Intermediate session data before writing to cache */
     int             dirty;                      /**< Session updated and needs saving */
+    int             seqno;                      /**< Unique sequence number */
 } HttpSession;
 
 /**

@@ -4004,7 +4004,7 @@ PUBLIC int mprBackupLog(cchar *path, int count);
  */
 PUBLIC void mprDefaultLogHandler(cchar *tags, int level, cchar *msg);
 
-#if DEPRECATED && MOB && REENABLE
+#if DEPRECATED || 1
 /**
     Log an error message.
     @description Send an error message to the MPR debug logging subsystem. The 
@@ -4016,7 +4016,7 @@ PUBLIC void mprDefaultLogHandler(cchar *tags, int level, cchar *msg);
     @ingroup MprLog
     @stability Stable
  */
-PUBLIC void mprError(cchar *tags, cchar *fmt, ...);
+PUBLIC void mprError(cchar *fmt, ...);
 #endif
 
 #if UNUSED
@@ -4109,9 +4109,6 @@ PUBLIC void mprSetLogFile(struct MprFile *file);
  */
 PUBLIC void mprSetLogHandler(MprLogHandler handler);
 
-#define MPR_LOG_CONFIG      0x1     /**< Show the configuration */
-#define MPR_LOG_CMDLINE     0x2     /**< Command line log switch uses */
-
 /**
     Start logging 
     @param logSpec Set the log file name and level. The format is "pathName[:level]".
@@ -4124,7 +4121,9 @@ PUBLIC void mprSetLogHandler(MprLogHandler handler);
         <li>4 - Debug information</li>
         <li>5 - Most verbose levels of messages useful for debugging</li>
     </ul>
-    @param flags Set to MPR_LOG_CONFIG to show the configuration. Set to MPR_LOG_CMDLINE if a command line
+    If logSpec is set to null, then logging is not started. The filename may be set to "stdout", "stderr" or "none". The latter
+    is the same as supplying null as the logSpec.
+    @param flags Set to MPR_LOG_CONFIG to show the configuration in the log file. Set to MPR_LOG_CMDLINE if a command line
         override has been used to initiate logging.
     @return Zero if successful, otherwise a negative Mpr error code. See the Appweb log for diagnostics.
     @ingroup MprLog
@@ -9465,17 +9464,19 @@ PUBLIC int mprSetMimeProgram(MprHash *table, cchar *mimeType, cchar *program);
 /*
     Mpr state
  */
-#define MPR_CREATED                 1       /**< Applicationa and MPR services started */
-#define MPR_STARTED                 2       /**< Applicationa and MPR services started */
-#define MPR_STOPPING                3       /**< App has been instructed to shutdown. Services should not accept new requests */
-#define MPR_STOPPED                 4       /**< App is idle and now stopped. All requests should abort. */
-#define MPR_DESTROYING              5       /**< Destroying core MPR services and releasing memory */
-#define MPR_DESTROYED               6       /**< Application and MPR object destroyed  */
+#define MPR_CREATED         1           /**< Applicationa and MPR services started */
+#define MPR_STARTED         2           /**< Applicationa and MPR services started */
+#define MPR_STOPPING        3           /**< App has been instructed to shutdown. Services should not accept new requests */
+#define MPR_STOPPED         4           /**< App is idle and now stopped. All requests should abort. */
+#define MPR_DESTROYING      5           /**< Destroying core MPR services and releasing memory */
+#define MPR_DESTROYED       6           /**< Application and MPR object destroyed  */
 
 /*
     MPR flags
  */
-#define MPR_LOG_ANEW                0x10    /**< Start anew on restart after backup */
+#define MPR_LOG_ANEW        0x1         /**< Start anew on restart after backup */
+#define MPR_LOG_CONFIG      0x2         /**< Show the configuration at the start of the log */
+#define MPR_LOG_CMDLINE     0x4         /**< Command line log switch uses */
 
 typedef bool (*MprIdleCallback)(bool traceRequests);
 
@@ -9508,7 +9509,7 @@ typedef void (*MprTerminator)(int state, int exitStrategy, int status);
     mprGetCmdlineLogging mprGetDebugMode mprGetDomainName mprGetEndian mprGetError mprGetHostName
     mprGetHwnd mprGetInst mprGetIpAddr mprGetKeyValue mprGetLogLevel mprGetMD5 mprGetMD5WithPrefix mprGetOsError
     mprGetRandomBytes mprGetServerName mprIsDestroyed mprIsIdle mprIsStopping mprIsDestroying mprMakeArgv
-    mprRandom mprReadRegistry mprRemoveKeyValue mprRestart mprServicesAreIdle mprSetAppName mprSetCmdlineLogging
+    mprRandom mprReadRegistry mprRemoveKeyValue mprRestart mprServicesAreIdle mprSetAppName
     mprSetDebugMode mprSetDomainName mprSetHostName mprSetHwnd mprSetIdleCallback mprSetInst
     mprSetIpAddr mprSetLogLevel mprSetServerName mprSetSocketMessage mprShouldAbortRequests mprShouldDenyNewRequests
     mprSignalExit mprSleep mprStart mprStartEventsThread mprStartOsService mprStopOsService mprShutdown mprUriDecode
@@ -9551,8 +9552,6 @@ typedef struct Mpr {
     int             flags;                  /**< Misc flags */
     int             hasError;               /**< Mpr has an initialization error */
     int             verifySsl;              /**< Default verification of SSL certificates */
-
-    bool            cmdlineLogging;         /**< App has specified --log on the command line */
 
     /*
         Service pointers

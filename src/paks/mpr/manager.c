@@ -149,8 +149,6 @@ PUBLIC int main(int argc, char *argv[])
                 err++;
             } else {
                 app->logSpec = sclone(argv[++nextArg]);
-                mprStartLogging(app->logSpec, 0);
-                mprSetCmdlineLogging(1);
             }
 
         } else if (strcmp(argp, "--name") == 0) {
@@ -245,7 +243,9 @@ PUBLIC int main(int argc, char *argv[])
             , mprGetAppName());
         return -1;
     }
-
+    if (app->logSpec) {
+        mprStartLogging(app->logSpec, MPR_LOG_CMDLINE);
+    }
     if (!app->pidPath) {
         app->pidPath = sjoin(app->pidDir, "/", app->serviceName, ".pid", NULL);
     }
