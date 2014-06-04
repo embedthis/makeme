@@ -542,9 +542,6 @@ PUBLIC void httpPruneMonitors();
 #define HTTP_TRACE_MAX_SIZE         (10 * 1024) /**< Default maximum body size to trace */
 #define HTTP_TRACE_MIN_LOG_SIZE     (10 * 1024) /**< Minimum log file size */
 
-#define HTTP_TRACE_DATE             "%T-%F"
-//    MPR_RFC3399_DATE %FT%TZ
-
 /**
     Request trace formatter callback
     @param conn Connection object

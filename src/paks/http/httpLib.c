@@ -4454,7 +4454,7 @@ PUBLIC HttpConn *httpAcceptConn(HttpEndpoint *endpoint, MprEvent *event)
 
     if (httpShouldTrace(conn, HTTP_TRACE_CONN)) {
         httpTrace(conn, HTTP_TRACE_CONN, "Accept connection; date=%s from=%s:%d to=%s:%d secure=%d", 
-             mprGetDate(HTTP_TRACE_DATE), conn->ip, conn->port, sock->acceptIp, sock->acceptPort, conn->secure);
+             mprGetDate(MPR_LOG_DATE), conn->ip, conn->port, sock->acceptIp, sock->acceptPort, conn->secure);
     }
     event->mask = MPR_READABLE;
     event->timestamp = conn->http->now;
@@ -17697,6 +17697,7 @@ PUBLIC void httpDetailTraceFormatter(HttpConn *conn, int event, cchar *msg, ccha
     client = conn->address ? conn->address->seqno : 0;
     sessionSeqno = conn->rx->session ? (int) stoi(conn->rx->session->id) : 0;
     fmt(prefix, sizeof(prefix), "\n<%d-%d-%d-%d> ", client, sessionSeqno, conn->seqno, conn->rx->seqno);
+    lock(conn->trace);
     httpWriteTrace(conn, prefix, slen(prefix));
     httpWriteTrace(conn, msg, slen(msg));
 
@@ -17709,6 +17710,7 @@ PUBLIC void httpDetailTraceFormatter(HttpConn *conn, int event, cchar *msg, ccha
     } else {
         httpWriteTrace(conn, "\n", 1);
     }
+    unlock(conn->trace);
 }
 
 

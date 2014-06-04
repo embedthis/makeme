@@ -3140,6 +3140,12 @@ PUBLIC ssize mprPutFmtToWideBuf(MprBuf *buf, cchar *fmt, ...);
  */
 #define MPR_RFC3399_DATE    "%FT%TZ"
 
+/**
+    Date for use in log files (compact)
+ */
+#define MPR_LOG_DATE     "%T-%F"
+// #define MPR_LOG_DATE        "%b %e %T"
+
 /********************************** Defines ***********************************/
 /**
     Date and Time Service

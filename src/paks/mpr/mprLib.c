@@ -15861,10 +15861,14 @@ PUBLIC void mprDefaultLogHandler(cchar *tags, int level, cchar *msg)
         backupLog();
     }
     if (level == 0 || tags) {
-        fmt(tbuf, sizeof(tbuf), "%s%-14s: ", level ? "" : "error ", tags ? tags : "");
+        if (level == 0) {
+            fmt(tbuf, sizeof(tbuf), "%s error %-14s: ", mprGetDate(MPR_LOG_DATE), tags ? tags : "");
+        } else {
+            fmt(tbuf, sizeof(tbuf), "%s %-20s: ", mprGetDate(MPR_LOG_DATE), tags ? tags : "");
+        }
         mprWriteFileString(file, tbuf);
     } else {
-    mprWriteFileString(file, ": ");
+        mprWriteFileString(file, ": ");
     }
     mprWriteFileString(file, msg);
     mprWriteFileString(file, "\n");

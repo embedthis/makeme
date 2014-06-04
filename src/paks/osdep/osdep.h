@@ -1107,6 +1107,12 @@ typedef int64 Ticks;
     #define ENETUNREACH     51
     #define ECONNABORTED    53
     #endif
+    #ifndef ENOTCONN
+        #define ENOTCONN    126
+    #endif
+    #ifndef EPROTO
+        #define EPROTO      134
+    #endif
 
     #undef SHUT_RDWR
     #define SHUT_RDWR       2
