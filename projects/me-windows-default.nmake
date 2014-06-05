@@ -3,7 +3,7 @@
 #
 
 NAME                  = me
-VERSION               = 0.8.1
+VERSION               = 0.8.2
 
 OS                    = windows
 PA                    = $(PROCESSOR_ARCHITECTURE)
@@ -1069,6 +1069,6 @@ uninstall: $(DEPS_44)
 #
 version: $(DEPS_45)
 	cd macosx-x64-release\bin
-	echo 0.8.1
+	echo 0.8.2
 	cd ..\..
 
