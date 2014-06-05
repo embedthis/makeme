@@ -26,7 +26,6 @@ Me.load({
             type: 'exe',
             rule: 'gui'
             sources: [ 'package/windows/removeFiles.c' ],
-            platforms: [ 'local' ],
             enable: `me.platform.like == 'windows' && Path('package/windows/removeFiles.c').exists`,
         },
 
