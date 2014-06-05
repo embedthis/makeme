@@ -2660,9 +2660,7 @@ static void postParse(HttpRoute *route)
         clientCopy(route, client, mappings);
         mprSetJson(client, "prefix", route->prefix);
         route->client = mprJsonToString(client, MPR_JSON_QUOTES);
-        mprDebug("http config", 5, "Client Config: for %s, %s", route->name, mprJsonToString(client, MPR_JSON_PRETTY));
     }
-
     httpAddHostToEndpoints(route->host);
 
     /*
@@ -4482,7 +4480,6 @@ PUBLIC void httpIOEvent(HttpConn *conn, MprEvent *event)
     assert(conn->tx);
     assert(conn->rx);
 
-    mprDebug("http connection", 5, "IO event, fd=%d, mask=%d", conn->sock->fd, event->mask);
     if ((event->mask & MPR_WRITABLE) && conn->connectorq) {
         httpResumeQueue(conn->connectorq);
     }
@@ -5580,9 +5577,9 @@ PUBLIC int httpStartEndpoint(HttpEndpoint *endpoint)
     proto = endpoint->ssl ? "HTTPS" : "HTTP";
     ip = *endpoint->ip ? endpoint->ip : "*";
     if (mprIsSocketV6(endpoint->sock)) {
-        mprLog("http", MPR_INFO, "Started %s service on \"[%s]:%d\"", proto, ip, endpoint->port);
+        mprLog("http", MPR_INFO, "Started %s service on [%s]:%d", proto, ip, endpoint->port);
     } else {
-        mprLog("http", MPR_INFO, "Started %s service on \"%s:%d\"", proto, ip, endpoint->port);
+        mprLog("http", MPR_INFO, "Started %s service on %s:%d", proto, ip, endpoint->port);
     }
     return 0;
 }
@@ -10280,7 +10277,7 @@ static int checkRoute(HttpConn *conn, HttpRoute *route)
         for (next = 0; (op = mprGetNextItem(route->requestHeaders, &next)) != 0; ) {
             if ((header = httpGetHeader(conn, op->name)) != 0) {
                 count = pcre_exec(op->mdata, NULL, header, (int) slen(header), 0, 0, 
-                    matched, sizeof(matched) / sizeof(int)); 
+                    matched, sizeof(matched) / sizeof(int));
                 result = count > 0;
                 if (op->flags & HTTP_ROUTE_NOT) {
                     result = !result;
@@ -10295,7 +10292,7 @@ static int checkRoute(HttpConn *conn, HttpRoute *route)
         for (next = 0; (op = mprGetNextItem(route->params, &next)) != 0; ) {
             if ((field = httpGetParam(conn, op->name, "")) != 0) {
                 count = pcre_exec(op->mdata, NULL, field, (int) slen(field), 0, 0, 
-                    matched, sizeof(matched) / sizeof(int)); 
+                    matched, sizeof(matched) / sizeof(int));
                 result = count > 0;
                 if (op->flags & HTTP_ROUTE_NOT) {
                     result = !result;
@@ -10503,7 +10500,7 @@ PUBLIC int httpAddRouteCondition(HttpRoute *route, cchar *name, cchar *details, 
             return MPR_ERR_BAD_SYNTAX;
         }
         if ((op->mdata = pcre_compile2(pattern, 0, 0, &errMsg, &column, NULL)) == 0) {
-            mprLog("http route", 0, "Cannot compile condition match pattern. Error %s at column %d", errMsg, column); 
+            mprLog("http route", 0, "Cannot compile condition match pattern. Error %s at column %d", errMsg, column);
             return MPR_ERR_BAD_SYNTAX;
         }
         op->details = finalizeReplacement(route, value);
@@ -10529,13 +10526,13 @@ PUBLIC int httpAddRouteFilter(HttpRoute *route, cchar *name, cchar *extensions, 
     for (ITERATE_ITEMS(route->outputStages, stage, next)) {
         if (smatch(stage->name, name)) {
             mprLog("http route", 0, "Stage \"%s\" is already configured for the route \"%s\". Ignoring.", 
-                name, route->name); 
+                name, route->name);
             return 0;
         }
     }
     stage = httpLookupStage(route->http, name);
     if (stage == 0) {
-        mprLog("http route", 0, "Cannot find filter %s", name); 
+        mprLog("http route", 0, "Cannot find filter %s", name);
         return MPR_ERR_CANT_FIND;
     }
     /*
@@ -10587,7 +10584,7 @@ PUBLIC int httpAddRouteHandler(HttpRoute *route, cchar *name, cchar *extensions)
 
     http = route->http;
     if ((handler = httpLookupStage(http, name)) == 0) {
-        mprLog("http route", 0, "Cannot find stage %s", name); 
+        mprLog("http route", 0, "Cannot find stage %s", name);
         return MPR_ERR_CANT_FIND;
     }
     if (route->handler) {
@@ -10708,7 +10705,7 @@ PUBLIC void httpAddRouteParam(HttpRoute *route, cchar *field, cchar *value, int 
         return;
     }
     if ((op->mdata = pcre_compile2(value, 0, 0, &errMsg, &column, NULL)) == 0) {
-        mprLog("http route", 0, "Cannot compile field pattern. Error %s at column %d", errMsg, column); 
+        mprLog("http route", 0, "Cannot compile field pattern. Error %s at column %d", errMsg, column);
     } else {
         mprAddItem(route->params, op);
     }
@@ -10733,7 +10730,7 @@ PUBLIC void httpAddRouteRequestHeaderCheck(HttpRoute *route, cchar *header, ccha
         return;
     }
     if ((op->mdata = pcre_compile2(pattern, 0, 0, &errMsg, &column, NULL)) == 0) {
-        mprLog("http route", 0, "Cannot compile header pattern. Error %s at column %d", errMsg, column); 
+        mprLog("http route", 0, "Cannot compile header pattern. Error %s at column %d", errMsg, column);
     } else {
         mprAddItem(route->requestHeaders, op);
     }
@@ -10968,7 +10965,7 @@ PUBLIC int httpSetRouteConnector(HttpRoute *route, cchar *name)
 
     stage = httpLookupStage(route->http, name);
     if (stage == 0) {
-        mprLog("http route", 0, "Cannot find connector %s", name); 
+        mprLog("http route", 0, "Cannot find connector %s", name);
         return MPR_ERR_CANT_FIND;
     }
     route->connector = stage;
@@ -11031,7 +11028,7 @@ PUBLIC int httpSetRouteHandler(HttpRoute *route, cchar *name)
     assert(name && *name);
 
     if ((handler = httpLookupStage(route->http, name)) == 0) {
-        mprLog("http route", 0, "Cannot find handler %s", name); 
+        mprLog("http route", 0, "Cannot find handler %s", name);
         return MPR_ERR_CANT_FIND;
     }
     route->handler = handler;
@@ -11476,7 +11473,7 @@ static void finalizePattern(HttpRoute *route)
         free(route->patternCompiled);
     }
     if ((route->patternCompiled = pcre_compile2(route->optimizedPattern, 0, 0, &errMsg, &column, NULL)) == 0) {
-        mprLog("http route", 0, "Cannot compile route. Error %s at column %d", errMsg, column); 
+        mprLog("http route", 0, "Cannot compile route. Error %s at column %d", errMsg, column);
     }
     route->flags |= HTTP_ROUTE_FREE_PATTERN;
 }
@@ -12029,7 +12026,7 @@ static int matchCondition(HttpConn *conn, HttpRoute *route, HttpRouteOp *op)
     assert(op);
 
     str = expandTokens(conn, op->details);
-    count = pcre_exec(op->mdata, NULL, str, (int) slen(str), 0, 0, matched, sizeof(matched) / sizeof(int)); 
+    count = pcre_exec(op->mdata, NULL, str, (int) slen(str), 0, 0, matched, sizeof(matched) / sizeof(int));
     if (count > 0) {
         return HTTP_ROUTE_OK;
     }
@@ -16100,7 +16097,6 @@ static void httpTimer(Http *http, MprEvent *event)
        OPT - could check for expired connections every 10 seconds.
      */
     lock(http->connections);
-    mprDebug("http", 5, "httpTimer: %d active connections", mprGetListLength(http->connections));
     for (active = 0, next = 0; (conn = mprGetNextItem(http->connections, &next)) != 0; active++) {
         limits = conn->limits;
         if (!conn->timeoutEvent) {
@@ -21218,7 +21214,7 @@ static void incomingWebSockData(HttpQueue *q, HttpPacket *packet)
          */
         httpJoinPacketForService(q, packet, 0);
     }
-    httpTracePacket(conn, HTTP_TRACE_RX_BODY, packet, "WebSocket: state=%d frame=%d length=%d", 
+    httpTracePacket(conn, HTTP_TRACE_RX_BODY, packet, "WebSockets; state=%d frame=%d length=%d", 
         ws->state, ws->frameState, httpGetPacketLength(packet));
 
     if (packet->flags & HTTP_PACKET_END) {
@@ -21240,7 +21236,7 @@ static void incomingWebSockData(HttpQueue *q, HttpPacket *packet)
         switch (ws->frameState) {
         case WS_CLOSED:
             if (httpGetPacketLength(packet) > 0) {
-                mprDebug("http websockets", 4, "webSocketFilter: closed, ignore incoming packet");
+                httpTrace(conn, HTTP_TRACE_ERROR, "WebSockets closed: ignore incoming packet");
             }
             httpFinalize(conn);
             httpSetState(conn, HTTP_STATE_FINALIZED);
@@ -21255,31 +21251,32 @@ static void incomingWebSockData(HttpQueue *q, HttpPacket *packet)
             fp = content->start;
             if (GET_RSV(*fp) != 0) {
                 error = WS_STATUS_PROTOCOL_ERROR;
-                mprDebug("http websockets", 2, "WebSockets protocol error: bad reserved field");
+                httpTrace(conn, HTTP_TRACE_ERROR, "WebSockets protocol error: bad reserved field");
                 break;
             }
             packet->last = GET_FIN(*fp);
             opcode = GET_CODE(*fp);
             if (opcode == WS_MSG_CONT) {
                 if (!ws->currentMessageType) {
-                    mprDebug("http websockets", 2, "WebSockets protocol error: continuation frame but not prior message");
+                    httpTrace(conn, HTTP_TRACE_ERROR, "WebSockets protocol error: continuation frame but not prior message");
                     error = WS_STATUS_PROTOCOL_ERROR;
                     break;
                 }
             } else if (opcode < WS_MSG_CONTROL && ws->currentMessageType) {
-                mprDebug("http websockets", 2, "WebSockets protocol error: data frame received but expected a continuation frame");
+                httpTrace(conn, HTTP_TRACE_ERROR, 
+                    "WebSockets protocol error,: data frame received but expected a continuation frame");
                 error = WS_STATUS_PROTOCOL_ERROR;
                 break;
             }
             if (opcode > WS_MSG_PONG) {
-                mprDebug("http websockets", 2, "WebSockets protocol error: bad frame opcode");
+                httpTrace(conn, HTTP_TRACE_ERROR, "WebSockets protocol error: bad frame opcode");
                 error = WS_STATUS_PROTOCOL_ERROR;
                 break;
             }
             packet->type = opcode;
             if (opcode >= WS_MSG_CONTROL && !packet->last) {
                 /* Control frame, must not be fragmented */
-                mprDebug("http websockets", 2, "WebSockets protocol error: fragmented control frame");
+                httpTrace(conn, HTTP_TRACE_ERROR, "WebSockets protocol error: fragmented control frame");
                 error = WS_STATUS_PROTOCOL_ERROR;
                 break;
             }
@@ -21306,7 +21303,7 @@ static void incomingWebSockData(HttpQueue *q, HttpPacket *packet)
             }
             if (packet->type >= WS_MSG_CONTROL && len > WS_MAX_CONTROL) {
                 /* Too big */
-                mprDebug("http websockets", 2, "WebSockets protocol error: control frame too big");
+                httpTrace(conn, HTTP_TRACE_ERROR, "WebSockets protocol error: control frame too big");
                 error = WS_STATUS_PROTOCOL_ERROR;
                 break;
             }
@@ -21340,8 +21337,6 @@ static void incomingWebSockData(HttpQueue *q, HttpPacket *packet)
                 if ((tail = httpSplitPacket(packet, offset)) != 0) {
                     content = packet->content;
                     httpPutBackPacket(q, tail);
-                    mprDebug("http websockets", 5, "webSocketFilter: Split data packet, %d/%d", 
-                        ws->frameLength, httpGetPacketLength(tail));
                     len = httpGetPacketLength(packet);
                 }
             }
@@ -21360,7 +21355,6 @@ static void incomingWebSockData(HttpQueue *q, HttpPacket *packet)
                 }
             } 
             if (packet->type == WS_MSG_CONT && ws->currentFrame) {
-                mprDebug("http websockets", 5, "webSocketFilter: Joining data packet %d/%d", currentFrameLen, len);
                 httpJoinPacket(ws->currentFrame, packet);
                 packet = ws->currentFrame;
                 content = packet->content;
@@ -21400,7 +21394,7 @@ static void incomingWebSockData(HttpQueue *q, HttpPacket *packet)
             break;
 
         default:
-            mprDebug("http websockets", 2, "WebSockets protocol error: unknown frame state");
+            httpTrace(conn, HTTP_TRACE_ERROR, "WebSockets protocol error: unknown frame state");
             error = WS_STATUS_PROTOCOL_ERROR;
             break;
         }
@@ -21440,19 +21434,16 @@ static int processFrame(HttpQueue *q, HttpPacket *packet)
     rx = conn->rx;
     assert(packet);
     content = packet->content;
+    validated = 0;
     assert(content);
 
-    if (3 <= MPR->logLevel) {
-        mprAddNullToBuf(content);
-        mprDebug("http websockets", 3, "WebSocket: %d: receive \"%s\" (%d) frame, last %d, length %d",
-             ws->rxSeq++, codetxt[packet->type], packet->type, packet->last, mprGetBufLength(content));
-    }
-    validated = 0;
+    mprAddNullToBuf(content);
+    httpTrace(conn, HTTP_TRACE_INFO, "WebSockets; receive seq=%d type=%s ptype=%d last=%d length=%d",
+         ws->rxSeq++, codetxt[packet->type], packet->type, packet->last, mprGetBufLength(content));
 
     switch (packet->type) {
     case WS_MSG_TEXT:
-        mprDebug("http websockets", 4, "webSocketFilter: Receive text \"%s\"", content->start);
-
+        httpTracePacket(conn, HTTP_TRACE_RX_BODY, packet, "WebSockets receive text");
         /* Fall through */
 
     case WS_MSG_BINARY:
@@ -21550,7 +21541,7 @@ static int processFrame(HttpQueue *q, HttpPacket *packet)
                 }
             }
         }
-        mprDebug("http websockets", 4, "webSocketFilter: receive close packet, status %d, reason \"%s\", closing %d", 
+        httpTrace(conn, HTTP_TRACE_INFO, "WebSocket receive close packet; status=%d, reason=\"%s\" closing=%d", 
             ws->closeStatus, ws->closeReason, ws->closing);
         if (ws->closing) {
             httpDisconnect(conn);
@@ -21745,7 +21736,7 @@ PUBLIC ssize httpSendClose(HttpConn *conn, int status, cchar *reason)
     if (reason) {
         scopy(&msg[2], len - 2, reason);
     }
-    mprDebug("http websockets", 4, "webSocketFilter: send close packet, status %d reason \"%s\"", status, reason);
+    httpTrace(conn, HTTP_TRACE_INFO, "WebSocket send close packet, status %d reason \"%s\"", status, reason);
     return httpSendBlock(conn, WS_MSG_CLOSE, msg, len, HTTP_BUFFER);
 }
 
@@ -21765,8 +21756,6 @@ static void outgoingWebSockService(HttpQueue *q)
 
     conn = q->conn;
     ws = conn->rx->webSocket;
-    mprDebug("http websockets", 5, "webSocketFilter: outgoing service");
-
     for (packet = httpGetPacket(q); packet; packet = httpGetPacket(q)) {
         if (!(packet->flags & (HTTP_PACKET_END | HTTP_PACKET_HEADER))) {
             if (!(packet->flags & HTTP_PACKET_SOLO)) {
@@ -21959,7 +21948,7 @@ static int validUTF8(cchar *str, ssize len)
          */
         state = utfTable[256 + (state * 16) + type];
         if (state == UTF8_REJECT) {
-            mprDebug("http websockets", 0, "Invalid UTF8 at offset %d", cp - (uchar*) str);
+            mprLog("http websockets", 0, "Invalid UTF8 at offset %d", cp - (uchar*) str);
             break;
         }
     }
@@ -22032,9 +22021,7 @@ PUBLIC int httpUpgradeWebSocket(HttpConn *conn)
     char    num[16];
 
     tx = conn->tx;
-
     assert(httpClientConn(conn));
-    mprDebug("http websockets", 3, "webSocketFilter: Upgrade socket");
 
     httpSetStatus(conn, HTTP_CODE_SWITCHING);
     httpSetHeader(conn, "Upgrade", "websocket");
@@ -22091,7 +22078,6 @@ PUBLIC bool httpVerifyWebSocketsHandshake(HttpConn *conn)
         return 0;
     }
     rx->webSocket->state = WS_STATE_OPEN;
-    mprDebug("http websockets", 4, "WebSockets handsake verified");
     return 1;
 }
 

@@ -15860,15 +15860,22 @@ PUBLIC void mprDefaultLogHandler(cchar *tags, int level, cchar *msg)
     if (MPR->logBackup && MPR->logSize && (check++ % 1000) == 0) {
         backupLog();
     }
-    if (level == 0 || tags) {
-        if (level == 0) {
-            fmt(tbuf, sizeof(tbuf), "%s error %-14s: ", mprGetDate(MPR_LOG_DATE), tags ? tags : "");
+    if (MPR->logPath) {
+        if (level == 0 || tags) {
+            if (level == 0) {
+                fmt(tbuf, sizeof(tbuf), "%s error %-14s: ", mprGetDate(MPR_LOG_DATE), tags ? tags : "");
+            } else {
+                fmt(tbuf, sizeof(tbuf), "%s %-20s: ", mprGetDate(MPR_LOG_DATE), tags ? tags : "");
+            }
+            mprWriteFileString(file, tbuf);
         } else {
-            fmt(tbuf, sizeof(tbuf), "%s %-20s: ", mprGetDate(MPR_LOG_DATE), tags ? tags : "");
+            mprWriteFileString(file, ": ");
         }
-        mprWriteFileString(file, tbuf);
     } else {
-        mprWriteFileString(file, ": ");
+        if (level == 0) {
+            fmt(tbuf, sizeof(tbuf), "%s: error: ", MPR->name);
+            mprWriteFileString(file, tbuf);
+        }
     }
     mprWriteFileString(file, msg);
     mprWriteFileString(file, "\n");
@@ -17052,13 +17059,11 @@ static char *probe(cchar *filename)
 
     assert(filename && *filename);
 
-    mprDebug("mpr", 5, "Probe for native module %s", filename);
     if (mprPathExists(filename, R_OK)) {
         return sclone(filename);
     }
     if (strstr(filename, ME_SHOBJ) == 0) {
         path = sjoin(filename, ME_SHOBJ, NULL);
-        mprDebug("mpr", 5, "Probe for native module %s", path);
         if (mprPathExists(path, R_OK)) {
             return path;
         }
@@ -17082,7 +17087,6 @@ PUBLIC char *mprSearchForModule(cchar *filename)
         Search for the path directly
      */
     if ((path = probe(filename)) != 0) {
-        mprDebug("mpr", 5, "Found native module %s at %s", filename, path);
         return path;
     }
 
@@ -17095,7 +17099,6 @@ PUBLIC char *mprSearchForModule(cchar *filename)
     while (dir && *dir) {
         f = mprJoinPath(dir, filename);
         if ((path = probe(f)) != 0) {
-            mprDebug("mpr", 5, "Found native module %s at %s", filename, path);
             return path;
         }
         dir = stok(0, MPR_SEARCH_SEP, &tok);
