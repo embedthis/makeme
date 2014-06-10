@@ -33,7 +33,6 @@ Me.load({
             type: 'exe',
             sources:   [ 'http.c' ],
             depends:   [ 'libhttp' ],
-            platforms: [ 'local' ],
             ifdef:     [ 'http' ],
             postblend: function (target) {
                 if (target.static) {

@@ -5987,21 +5987,21 @@ FUTURE & KEEP
             level 2 and to trace headers at level 3. The options argument contains optional properties.
             These may contain an object hash which describes the following fields:
             @param options. Set of trace options with properties for:
-                The conn property specifies that new connections should be traced.
+                The connection property specifies that new connections should be traced.
                 The error property specifies that new connections should be traced.
                 The info property specifies that new connections should be traced.
-                The rx-first property specifies that the first line of the request should be traced.
-                The rx-headers property specifies that the headers (including first line) of the request should be traced.
-                The rx-body property specifies that the body content of the request should be traced.
-                The tx-first property specifies that the first line of the response should be traced.
-                The tx-headers property specifies that the headers (including first line) of the response should be traced.
-                The tx-body property specifies that the body content of the request should be traced.
+                The rxFirst property specifies that the first line of the request should be traced.
+                The rxHeaders property specifies that the headers (including first line) of the request should be traced.
+                The rxBody property specifies that the body content of the request should be traced.
+                The txFirst property specifies that the first line of the response should be traced.
+                The txHeaders property specifies that the headers (including first line) of the response should be traced.
+                The txBody property specifies that the body content of the request should be traced.
                 The complete property specifies that the body content of the request should be traced.
                 The size property specifies a maximum body size in bytes that will be traced. Content beyond this limit 
                     will not be traced.
             @example:
                 trace({
-                    "rx-headers": 3, "rx-body": 4, size: 1000000 }
+                    "rxHeaders": 3, "rxBody": 4, size: 1000000 }
                 })
           */
         native function trace(options: Object): Void
@@ -19739,21 +19739,21 @@ server.listen("127.0.0.1:7777")
             level 2 and to trace headers at level 3. The options argument contains optional properties.
             These contain an object hash which describes  the following fields:
             @param options. Set of trace options with properties for:
-                The conn property specifies that new connections should be traced.
+                The connection property specifies that new connections should be traced.
                 The error property specifies that new connections should be traced.
                 The info property specifies that new connections should be traced.
-                The rx-first property specifies that the first line of the request should be traced.
-                The rx-headers property specifies that the headers (including first line) of the request should be traced.
-                The rx-body property specifies that the body content of the request should be traced.
-                The tx-first property specifies that the first line of the response should be traced.
-                The tx-headers property specifies that the headers (including first line) of the response should be traced.
-                The tx-body property specifies that the body content of the request should be traced.
+                The rxFirst property specifies that the first line of the request should be traced.
+                The rxHeaders property specifies that the headers (including first line) of the request should be traced.
+                The rxBody property specifies that the body content of the request should be traced.
+                The txFirst property specifies that the first line of the response should be traced.
+                The txHeaders property specifies that the headers (including first line) of the response should be traced.
+                The txBody property specifies that the body content of the request should be traced.
                 The complete property specifies that the body content of the request should be traced.
                 The size property specifies a maximum body size in bytes that will be traced. Content beyond this limit
                     will not be traced.
             @example:
                 trace({
-                    "rx-headers": 3, "rx-body": 4, size: 1000000 }
+                    "rxHeaders": 3, "rxBody": 4, size: 1000000 }
                 })
           */
         native function trace(options: Object): Void
@@ -21076,31 +21076,25 @@ r.link({product: "candy", quantity: "10", template: "/cart/{product}/{quantity}}
         }
 
         /**
-            Configure tracing for this request. Tracing is initialized by the owning HttpServer and is typically
-            defined to trace the first line of requests and responses at level 2, headers at level 3 and body content
-            at level 4. Once the request has been created however, the first line and headers of the request are 
-            already parsed and traced by the HttpServer, so modifying the trace level via trace() on the request object
-            will only impact the tracing of response body content.
-            
-            The options argument contains optional properties: rx and tx 
-            (for receive and transmit tracing). The rx and tx properties may contain an object hash which describes 
-            the tracing for that direction and includes any of the following fields:
-            @param options. Set of trace options with properties "rx" and "tx" for receive and transmit direction tracing.
-                The include property is an array of file extensions to include in tracing.
-                The include property is an array of file extensions to exclude from tracing.
-                The all property specifies that everything for this direction should be traced.
-                The conn property specifies that new connections should be traced. (Rx only)
-                The first property specifies that the first line of the request should be traced.
-                The headers property specifies that the headers (including first line) of the request should be traced.
-                The body property specifies that the body content of the request should be traced.
-                The size property specifies a maximum body size in bytes that will be traced. Content beyond this limit 
+            Configure request tracing for the request. The default is to trace the first line of requests and responses at
+            level 2 and to trace headers at level 3. The options argument contains optional properties.
+            These may contain an object hash which describes the following fields:
+            @param options. Set of trace options with properties for:
+                The connection property specifies that new connections should be traced.
+                The error property specifies that new connections should be traced.
+                The info property specifies that new connections should be traced.
+                The rxFirst property specifies that the first line of the request should be traced.
+                The rxHeaders property specifies that the headers (including first line) of the request should be traced.
+                The rxBody property specifies that the body content of the request should be traced.
+                The txFirst property specifies that the first line of the response should be traced.
+                The txHeaders property specifies that the headers (including first line) of the response should be traced.
+                The txBody property specifies that the body content of the request should be traced.
+                The complete property specifies that the body content of the request should be traced.
+                The size property specifies a maximum body size in bytes that will be traced. Content beyond this limit
                     will not be traced.
-            @option tx. Object hash with optional properties: include, exclude, first, headers, body, size.
-            @option rx. Object hash with optional properties: include, exclude, conn, first, headers, body, size.
             @example:
                 trace({
-                    tx: { exclude: ["gif", "png"], "first": 2, "headers": 3, "body": 4, size: 1000000 }
-                    rx: { "conn": 1, "first": 2, "headers": 3 , "body": 4, size: 1024 }
+                    "rxHeaders": 3, "rxBody": 4, size: 1000000 
                 })
           */
         native function trace(options: Object): Void
@@ -21938,12 +21932,7 @@ module ejs.web {
                 request.setLimits(r.limits)
             }
             if (r.trace) {
-                if (r.trace.include && (!r.trace.include.contains(request.extension)) ||
-                    r.trace.exclude && r.trace.exclude.contains(request.extension)) {
-                    request.trace(99)
-                } else {
-                    request.trace(r.trace.level || 0, r.trace.options, r.trace.size)
-                }
+                request.trace(r.trace.level || 0, r.trace.options, r.trace.size)
             }
             request.route = r
             return r

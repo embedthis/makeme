@@ -41,7 +41,7 @@ static void startAction(HttpQueue *q)
 
     name = conn->rx->pathInfo;
     if ((action = mprLookupKey(conn->tx->handler->stageData, name)) == 0) {
-        httpError(conn, HTTP_TRACE_ERROR, "Cannot find action: %s", name);
+        httpError(conn, HTTP_CODE_NOT_FOUND, "Cannot find action: %s", name);
     } else {
         (*action)(conn);
     }
@@ -182,7 +182,7 @@ PUBLIC bool httpAuthenticate(HttpConn *conn)
                 return 0;
             }
         }
-        httpTrace(conn, HTTP_TRACE_ERROR, "Using cached authentication data; user=%s", username);
+        httpTrace(conn, "error", "Using cached authentication data", "username=%s", username);
         conn->username = username;
         rx->authenticated = 1;
     }
@@ -245,7 +245,7 @@ PUBLIC bool httpLogin(HttpConn *conn, cchar *username, cchar *password)
     rx = conn->rx;
     auth = rx->route->auth;
     if (!username || !*username) {
-        httpTrace(conn, HTTP_TRACE_ERROR, "httpLogin missing username");
+        httpTrace(conn, "error", "httpLogin missing username", 0);
         return 0;
     }
     if (!auth->store) {
@@ -306,8 +306,7 @@ PUBLIC bool httpCanUser(HttpConn *conn, cchar *abilities)
 
     auth = conn->rx->route->auth;
     if (auth->permittedUsers && !mprLookupKey(auth->permittedUsers, conn->username)) {
-        httpTrace(conn, HTTP_TRACE_ERROR, "User not permitted for access; name=%s uri=%s", 
-            conn->username, conn->rx->pathInfo);
+        httpTrace(conn, "error", "User not permitted for access", "username=%s", conn->username);
         return 0;
     }
     if (!auth->abilities && !abilities) {
@@ -319,24 +318,22 @@ PUBLIC bool httpCanUser(HttpConn *conn, cchar *abilities)
         return 0;
     }
     if (!conn->user && (conn->user = mprLookupKey(auth->userCache, conn->username)) == 0) {
-        httpTrace(conn, HTTP_TRACE_ERROR, "Cannot find user; name=%s", conn->username);
+        httpTrace(conn, "error", "Cannot find user", "username=%s", conn->username);
         return 0;
     }
     if (abilities) {
         for (ability = stok(sclone(abilities), " \t,", &tok); abilities; abilities = stok(NULL, " \t,", &tok)) {
             if (!mprLookupKey(conn->user->abilities, ability)) {
-                httpTrace(conn, HTTP_TRACE_ERROR, 
-                    "User does not possess the required ability; name=%s ability=%s uri= %s", 
-                    conn->username, ability, conn->rx->pathInfo);
+                httpTrace(conn, "error", "User does not possess the required ability", "username=%s, ability=%s", 
+                    conn->username, ability);
                 return 0;
             }
         }
     } else {
         for (ITERATE_KEYS(auth->abilities, kp)) {
             if (!mprLookupKey(conn->user->abilities, kp->key)) {
-                httpTrace(conn, HTTP_TRACE_ERROR, 
-                    "User does not possess the required ability; name=%s ability=%s uri=%s", 
-                    conn->username, kp->key, conn->rx->pathInfo);
+                httpTrace(conn, "error", "User does not possess the required ability", "username=%s, ability=%s", 
+                    conn->username, kp->key);
                 return 0;
             }
         }
@@ -885,7 +882,7 @@ static bool configVerifyUser(HttpConn *conn, cchar *username, cchar *password)
     rx = conn->rx;
     auth = rx->route->auth;
     if (!conn->user && (conn->user = mprLookupKey(auth->userCache, username)) == 0) {
-        httpTrace(conn, HTTP_TRACE_ERROR, "Unknown user; name=%s", username);
+        httpTrace(conn, "error", "Unknown user", "username=%s", username);
         return 0;
     }
     if (password) {
@@ -903,9 +900,9 @@ static bool configVerifyUser(HttpConn *conn, cchar *username, cchar *password)
             success = smatch(password, requiredPassword);
         }
         if (success) {
-            httpTrace(conn, HTTP_TRACE_INFO, "User authenticated; name =\"%s\"", username);
+            httpTrace(conn, "info", "User authenticated", "username=%s", username);
         } else {
-            httpTrace(conn, HTTP_TRACE_ERROR, "Password failed to authenticate; user=%s", username);
+            httpTrace(conn, "error", "Password failed to authenticate", "username=%s", username);
         }
         return success;
     }
@@ -1150,7 +1147,7 @@ static void readyCacheHandler(HttpQueue *q)
     tx = conn->tx;
 
     if (tx->cachedContent) {
-        httpTrace(conn, HTTP_TRACE_INFO, "Save cached content");
+        httpTrace(conn, "info", "Using cached content", 0);
         if ((data = setHeadersFromCache(conn, tx->cachedContent)) != 0) {
             tx->length = slen(data);
             httpWriteString(q, data);
@@ -1198,7 +1195,7 @@ static void outgoingCacheFilterService(HttpQueue *q)
      */
     if (mprLookupKey(conn->tx->headers, "X-SendCache") != 0) {
         if (fetchCachedResponse(conn)) {
-            httpTrace(conn, HTTP_TRACE_INFO, "Save cached content");
+            httpTrace(conn, "info", "Using cached content", 0);
             cachedData = setHeadersFromCache(conn, tx->cachedContent);
             tx->length = slen(cachedData);
         }
@@ -1238,8 +1235,8 @@ static void outgoingCacheFilterService(HttpQueue *q)
                     tx->cacheBufferLength += size;
                 } else {
                     tx->cacheBuffer = 0;
-                    httpTrace(conn, HTTP_TRACE_INFO, "Item too big to cache; size=%d, limit=%d", 
-                        tx->cacheBufferLength + size, conn->limits->cacheItemSize);
+                    httpTrace(conn, "info", "Item too big to cache", "size=%d, limit=%d", tx->cacheBufferLength + size, 
+                        conn->limits->cacheItemSize);
                 }
             }
             foundDataPacket = 1;
@@ -1358,7 +1355,7 @@ static bool fetchCachedResponse(HttpConn *conn)
     key = makeCacheKey(conn);
     if ((value = httpGetHeader(conn, "Cache-Control")) != 0 && 
             (scontains(value, "max-age=0") == 0 || scontains(value, "no-cache") == 0)) {
-        httpTrace(conn, HTTP_TRACE_INFO, "Client reload");
+        httpTrace(conn, "info", "Client reload", 0);
 
     } else if ((tx->cachedContent = mprReadCache(conn->host->responseCache, key, &modified, 0)) != 0) {
         /*
@@ -1385,13 +1382,13 @@ static bool fetchCachedResponse(HttpConn *conn)
             }
         }
         status = (canUseClientCache && cacheOk) ? HTTP_CODE_NOT_MODIFIED : HTTP_CODE_OK;
-        httpTrace(conn, HTTP_TRACE_INFO, "Use cached content; key=%s, status=%d", key, status);
+        httpTrace(conn, "info", "Use cached content", "key=%s, status=%d", key, status);
         httpSetStatus(conn, status);
         httpSetHeader(conn, "Etag", mprGetMD5(key));
         httpSetHeader(conn, "Last-Modified", mprFormatUniversalTime(MPR_HTTP_DATE, modified));
         return 1;
     }
-    httpTrace(conn, HTTP_TRACE_INFO, "No cached content; key=%s", key);
+    httpTrace(conn, "info", "No cached content", "key=%s", key);
     return 0;
 }
 
@@ -1426,10 +1423,10 @@ PUBLIC ssize httpWriteCached(HttpConn *conn)
     }
     cacheKey = makeCacheKey(conn);
     if ((content = mprReadCache(conn->host->responseCache, cacheKey, &modified, 0)) == 0) {
-        httpTrace(conn, HTTP_TRACE_INFO, "No response data in cache; key=%s", cacheKey);
+        httpTrace(conn, "info", "No response data in cache", "key=%s", cacheKey);
         return 0;
     }
-    httpTrace(conn, HTTP_TRACE_INFO, "Used cached response; key=", cacheKey);
+    httpTrace(conn, "info", "Used cached response", "key=%s", cacheKey);
     data = setHeadersFromCache(conn, content);
     httpSetHeader(conn, "Etag", mprGetMD5(cacheKey));
     httpSetHeader(conn, "Last-Modified", mprFormatUniversalTime(MPR_HTTP_DATE, modified));
@@ -1932,12 +1929,12 @@ static HttpConn *openConnection(HttpConn *conn, struct MprSsl *ssl)
         port = (uri->secure) ? 443 : 80;
     }
     if (conn && conn->sock) {
-        if (conn->keepAliveCount-- <= 0 || port != conn->port || strcmp(ip, conn->ip) != 0 || 
+        if (conn->keepAliveCount-- <= 0 || port != conn->port || strcmp(ip, conn->ip) != 0 ||
                 uri->secure != (conn->sock->ssl != 0) || conn->sock->ssl != ssl) {
             mprCloseSocket(conn->sock, 0);
             conn->sock = 0;
         } else {
-            httpTrace(conn, HTTP_TRACE_INFO, "Reuse socket; keepAliveCount=%d", conn->keepAliveCount);
+            httpTrace(conn, "info", "Reuse socket", "keepAlive=%d", conn->keepAliveCount);
         }
     }
     if (conn->sock) {
@@ -1967,7 +1964,7 @@ static HttpConn *openConnection(HttpConn *conn, struct MprSsl *ssl)
         peerName = isdigit(uri->host[0]) ? 0 : uri->host;
         if (mprUpgradeSocket(sp, ssl, peerName) < 0) {
             conn->errorMsg = sp->errorMsg;
-            httpTrace(conn, HTTP_TRACE_ERROR, "Cannot upgrade socket; error=\"%s\"", conn->errorMsg);
+            httpTrace(conn, "error", sfmt("Cannot upgrade socket, %s", conn->errorMsg), 0);
             return 0;
         }
     }
@@ -1978,8 +1975,8 @@ static HttpConn *openConnection(HttpConn *conn, struct MprSsl *ssl)
         return 0;
     }
 #endif
-    if (httpShouldTrace(conn, HTTP_TRACE_CONN)) {
-        httpTrace(conn, HTTP_TRACE_CONN, "open connection; address=%s:%d", conn->ip, conn->port);
+    if (httpShouldTrace(conn, "connection")) {
+        httpTrace(conn, "connection", 0, "peer=%s:%d", conn->ip, conn->port);
     }
     return conn;
 }
@@ -2025,7 +2022,7 @@ PUBLIC int httpConnect(HttpConn *conn, cchar *method, cchar *uri, struct MprSsl 
         httpError(conn, HTTP_CODE_BAD_GATEWAY, "Cannot call connect in a server");
         return MPR_ERR_BAD_STATE;
     }
-    httpTrace(conn, HTTP_TRACE_INFO, "Connect; method=%s uri=%s", method, uri);
+    httpTrace(conn, "info", "Connect", "method=%s, uri=%s", method, uri);
 
     if (conn->tx == 0 || conn->state != HTTP_STATE_BEGIN) {
         /* WARNING: this will erase headers */
@@ -2081,7 +2078,7 @@ PUBLIC bool httpNeedRetry(HttpConn *conn, char **url)
             }
             return 1;
         }
-    } else if (HTTP_CODE_MOVED_PERMANENTLY <= rx->status && rx->status <= HTTP_CODE_MOVED_TEMPORARILY && 
+    } else if (HTTP_CODE_MOVED_PERMANENTLY <= rx->status && rx->status <= HTTP_CODE_MOVED_TEMPORARILY &&
             conn->followRedirects) {
         if (rx->redirect) {
             *url = rx->redirect;
@@ -2106,7 +2103,7 @@ PUBLIC void httpEnableUpload(HttpConn *conn)
 
 /*
     Read data. If sync mode, this will block. If async, will never block.
-    Will return what data is available up to the requested size. 
+    Will return what data is available up to the requested size.
     Timeout in milliseconds to wait. Set to -1 to use the default inactivity timeout. Set to zero to wait forever.
     Returns a count of bytes read. Returns zero if no data. EOF if returns zero and conn->state is > HTTP_STATE_CONTENT.
  */
@@ -2225,7 +2222,7 @@ PUBLIC char *httpReadString(HttpConn *conn)
 }
 
 
-/*  
+/*
     Issue a client http request.
     Assumes the Mpr and Http services are created and initialized.
  */
@@ -2243,7 +2240,7 @@ PUBLIC HttpConn *httpRequest(cchar *method, cchar *uri, cchar *data, char **err)
     conn = httpCreateConn(http, NULL, NULL);
     mprAddRoot(conn);
 
-    /* 
+    /*
        Open a connection to issue the request. Then finalize the request output - this forces the request out.
      */
     if (httpConnect(conn, method, uri, NULL) < 0) {
@@ -2325,7 +2322,7 @@ PUBLIC ssize httpWriteUploadData(HttpConn *conn, MprList *fileData, MprList *for
                 return MPR_ERR_CANT_OPEN;
             }
             name = mprGetPathBase(path);
-            rc += httpWrite(conn->writeq, "%s\r\nContent-Disposition: form-data; name=\"file%d\"; filename=\"%s\"\r\n", 
+            rc += httpWrite(conn->writeq, "%s\r\nContent-Disposition: form-data; name=\"file%d\"; filename=\"%s\"\r\n",
                 conn->boundary, next - 1, name);
             if ((type = mprLookupMime(MPR->mimeTypes, path)) != 0) {
                 rc += httpWrite(conn->writeq, "Content-Type: %s\r\n", mprLookupMime(MPR->mimeTypes, path));
@@ -2346,7 +2343,7 @@ PUBLIC ssize httpWriteUploadData(HttpConn *conn, MprList *fileData, MprList *for
     Wait for the connection to reach a given state.
     Should only be used on the client side.
     @param state Desired state. Set to zero if you want to wait for one I/O event.
-    @param timeout Timeout in msec. If timeout is zero, wait forever. If timeout is < 0, use default inactivity 
+    @param timeout Timeout in msec. If timeout is zero, wait forever. If timeout is < 0, use default inactivity
         and duration timeouts.
  */
 PUBLIC int httpWait(HttpConn *conn, int state, MprTicks timeout)
@@ -2412,7 +2409,7 @@ PUBLIC int httpWait(HttpConn *conn, int state, MprTicks timeout)
     Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -2651,7 +2648,7 @@ static void postParse(HttpRoute *route)
     }
     http = route->http;
     route->mode = mprGetJson(route->config, "app.mode");
-    
+
     /*
         Create a subset, optimized configuration to send to the client
      */
@@ -2712,7 +2709,7 @@ PUBLIC void httpSetDefaultDirs(HttpRoute *route)
 /**************************************** Parser Callbacks ****************************************/
 
 
-static void parseKey(HttpRoute *route, cchar *key, MprJson *prop) 
+static void parseKey(HttpRoute *route, cchar *key, MprJson *prop)
 {
     Http                *http;
     HttpParseCallback   parser;
@@ -2740,7 +2737,7 @@ static void parseDirectories(HttpRoute *route, cchar *key, MprJson *prop)
 {
     MprJson     *child;
     int         ji;
-    
+
     for (ITERATE_CONFIG(route, prop, child, ji)) {
         if (smatch(child->name, "documents")) {
             httpSetRouteDocuments(route, child->value);
@@ -2779,7 +2776,7 @@ static void parseAuthRequireRoles(HttpRoute *route, cchar *key, MprJson *prop)
 {
     MprJson     *child;
     int         ji;
-    
+
     for (ITERATE_CONFIG(route, prop, child, ji)) {
         httpSetAuthRequiredAbilities(route->auth, prop->value);
     }
@@ -2790,7 +2787,7 @@ static void parseAuthRequireUsers(HttpRoute *route, cchar *key, MprJson *prop)
 {
     MprJson     *child;
     int         ji;
-    
+
     if (prop->type & MPR_JSON_STRING) {
         if (smatch(prop->value, "*")) {
             httpSetAuthAnyValidUser(route->auth);
@@ -2814,13 +2811,25 @@ static void parseAuthRoles(HttpRoute *route, cchar *key, MprJson *prop)
 {
     MprJson     *child;
     int         ji;
-    
+
     for (ITERATE_CONFIG(route, prop, child, ji)) {
         if (httpAddRole(route->auth, child->name, getList(child)) < 0) {
             httpParseError(route, "Cannot add role %s", child->name);
             break;
         }
     }
+}
+
+
+static void parseAuthSessionCookie(HttpRoute *route, cchar *key, MprJson *prop)
+{
+    httpSetRouteCookie(route, prop->value);
+}
+
+
+static void parseAuthSessionVisibility(HttpRoute *route, cchar *key, MprJson *prop)
+{
+    httpSetRouteSessionVisibility(route, scaselessmatch(prop->value, "visible"));
 }
 
 
@@ -2851,7 +2860,7 @@ static void parseAuthUsers(HttpRoute *route, cchar *key, MprJson *prop)
     MprJson     *child;
     cchar       *roles, *password;
     int         ji;
-    
+
     for (ITERATE_CONFIG(route, prop, child, ji)) {
         password = mprGetJson(child, "password");
         roles = getList(mprGetJsonObj(child, "roles"));
@@ -2869,7 +2878,7 @@ static void parseCache(HttpRoute *route, cchar *key, MprJson *prop)
     MprTicks    clientLifespan, serverLifespan;
     cchar       *methods, *extensions, *uris, *mimeTypes, *client, *server;
     int         flags, ji;
-    
+
     clientLifespan = serverLifespan = 0;
     for (ITERATE_CONFIG(route, prop, child, ji)) {
         flags = 0;
@@ -2903,7 +2912,7 @@ static void parseContentCombine(HttpRoute *route, cchar *key, MprJson *prop)
 {
     MprJson     *child;
     int         ji;
-    
+
     for (ITERATE_CONFIG(route, prop, child, ji)) {
         if (smatch(child->value, "c")) {
             route->combine = 1;
@@ -2917,7 +2926,7 @@ static void parseContentCompress(HttpRoute *route, cchar *key, MprJson *prop)
 {
     MprJson     *child;
     int         ji;
-    
+
     for (ITERATE_CONFIG(route, prop, child, ji)) {
         if (mprGetJson(route->config, sfmt("app.http.content.minify[@ = '%s']", child->value))) {
             httpAddRouteMapping(route, child->value, "${1}.gz, min.${1}.gz, min.${1}");
@@ -2942,7 +2951,7 @@ static void parseContentMinify(HttpRoute *route, cchar *key, MprJson *prop)
 {
     MprJson     *child;
     int         ji;
-    
+
     for (ITERATE_CONFIG(route, prop, child, ji)) {
         /*
             Compressed and minified is handled in parseContentCompress
@@ -3510,7 +3519,7 @@ static void parseServerChroot(HttpRoute *route, cchar *key, MprJson *prop)
 {
 #if ME_UNIX_LIKE
     char        *home;
-    
+
     home = httpMakePath(route, 0, prop->value);
     if (chdir(home) < 0) {
         httpParseError(route, "Cannot change working directory to %s", home);
@@ -3533,14 +3542,14 @@ static void parseServerChroot(HttpRoute *route, cchar *key, MprJson *prop)
 #else
     mprLog("http config", MPR_INFO, "Chroot directive not supported on this operating system\n");
 #endif
-} 
+}
 
 
 static void parseServerDefenses(HttpRoute *route, cchar *key, MprJson *prop)
 {
     MprJson     *child;
     int         ji;
-    
+
     for (ITERATE_CONFIG(route, prop, child, ji)) {
         httpAddDefenseFromJson(child->name, 0, child);
     }
@@ -3577,7 +3586,7 @@ static void parseServerListen(HttpRoute *route, cchar *key, MprJson *prop)
             httpSecureEndpoint(endpoint, route->ssl);
             if (!host->secureEndpoint) {
                 httpSetHostSecureEndpoint(host, endpoint);
-            } 
+            }
         }
         /*
             Single stack networks cannot support IPv4 and IPv6 with one socket. So create a specific IPv6 endpoint.
@@ -3649,7 +3658,7 @@ static void parseServerMonitors(HttpRoute *route, cchar *key, MprJson *prop)
     MprTicks    period;
     cchar       *counter, *expression, *limit, *relation, *defenses;
     int         ji;
-    
+
     for (ITERATE_CONFIG(route, prop, child, ji)) {
         defenses = mprGetJson(child, "defenses");
         expression = mprGetJson(child, "expression");
@@ -3688,7 +3697,7 @@ static void parseSource(HttpRoute *route, cchar *key, MprJson *prop)
 static void parseSsl(HttpRoute *route, cchar *key, MprJson *prop)
 {
     HttpRoute   *parent;
-    
+
     parent = route->parent;
     if (route->ssl == 0) {
         if (parent && parent->ssl) {
@@ -3765,7 +3774,7 @@ static void parseStealth(HttpRoute *route, cchar *key, MprJson *prop)
         close:      [immediate]
         redirect:   status URI
         run:        ${DOCUMENT_ROOT}/${request:uri}
-        run:        ${controller}-${name} 
+        run:        ${controller}-${name}
         write:      [-r] status "Hello World\r\n"
 */
 static void parseTarget(HttpRoute *route, cchar *key, MprJson *prop)
@@ -3830,12 +3839,12 @@ static void parseTimeoutsSession(HttpRoute *route, cchar *key, MprJson *prop)
 
 static void parseTrace(HttpRoute *route, cchar *key, MprJson *prop)
 {
-    MprJson     *levels;
+    MprJson     *levels, *child;
     cchar       *location;
     ssize       size;
-    cchar       *format, *type;
-    char        level, tlevels[HTTP_TRACE_MAX_ITEM];
-    int         anew, backup;
+    cchar       *format, *formatter;
+    char        level;
+    int         anew, backup, ji;
 
     if (route->trace && route->trace->flags & MPR_LOG_CMDLINE) {
         mprLog("http config", 4, "Already tracing. Ignoring trace configuration");
@@ -3843,7 +3852,7 @@ static void parseTrace(HttpRoute *route, cchar *key, MprJson *prop)
     }
     size = (ssize) httpGetNumber(mprGetJson(prop, "size"));
     format = mprGetJson(prop, "format");
-    type = mprGetJson(prop, "type");
+    formatter = mprGetJson(prop, "formatter");
     location = mprGetJson(prop, "location");
     level = (char) stoi(mprGetJson(prop, "level"));
     backup = (int) stoi(mprGetJson(prop, "backup"));
@@ -3866,25 +3875,17 @@ static void parseTrace(HttpRoute *route, cchar *key, MprJson *prop)
     if (!smatch(location, "stdout") && !smatch(location, "stderr")) {
         location = httpMakePath(route, 0, location);
     }
-    memset(tlevels, 0, sizeof(tlevels));
     if ((levels = mprGetJsonObj(prop, "levels")) != 0) {
-        tlevels[HTTP_TRACE_CONN] = (char) stoi(mprGetJson(levels, "conn"));
-        tlevels[HTTP_TRACE_ERROR] = (char) stoi(mprGetJson(levels, "errors"));
-        tlevels[HTTP_TRACE_INFO] = (char) stoi(mprGetJson(levels, "info"));
-        tlevels[HTTP_TRACE_RX_FIRST] = (char) stoi(mprGetJson(levels, "rx.first"));
-        tlevels[HTTP_TRACE_RX_HEADERS] = (char) stoi(mprGetJson(levels, "rx.headers"));
-        tlevels[HTTP_TRACE_RX_BODY] = (char) stoi(mprGetJson(levels, "rx.body"));
-        tlevels[HTTP_TRACE_TX_FIRST] = (char) stoi(mprGetJson(levels, "tx.first"));
-        tlevels[HTTP_TRACE_TX_HEADERS] = (char) stoi(mprGetJson(levels, "tx.headers"));
-        tlevels[HTTP_TRACE_TX_BODY] = (char) stoi(mprGetJson(levels, "tx.body"));
-        tlevels[HTTP_TRACE_COMPLETE] = (char) stoi(mprGetJson(levels, "complete"));
+        for (ITERATE_CONFIG(route, prop, child, ji)) {
+            httpSetTraceEventLevel(route->trace, child->name, (int) stoi(child->value));
+        }
     }
     route->trace = httpCreateTrace(route->trace);
-    httpSetTraceType(route->trace, type);
+    httpSetTraceFormatterName(route->trace, formatter);
     httpSetTraceLogFile(route->trace, location, size, backup, format, anew ? MPR_LOG_ANEW : 0);
     httpSetTraceFormat(route->trace, format);
+    httpSetTraceSize(route->trace, size);
     httpSetTraceLevel(level);
-    httpSetTraceLevels(route->trace, tlevels, size);
 }
 
 
@@ -3911,7 +3912,7 @@ static void parseInclude(HttpRoute *route, cchar *key, MprJson *prop)
 }
 
 
-PUBLIC int httpInitParser() 
+PUBLIC int httpInitParser()
 {
     Http    *http;
 
@@ -3927,6 +3928,8 @@ PUBLIC int httpInitParser()
     httpAddConfig("app.http.auth.require.roles", parseAuthRequireRoles);
     httpAddConfig("app.http.auth.require.users", parseAuthRequireUsers);
     httpAddConfig("app.http.auth.roles", parseAuthRoles);
+    httpAddConfig("app.http.auth.session.cookie", parseAuthSessionCookie);
+    httpAddConfig("app.http.auth.session.vibility", parseAuthSessionVisibility);
     httpAddConfig("app.http.auth.store", parseAuthStore);
     httpAddConfig("app.http.auth.type", parseAuthType);
     httpAddConfig("app.http.auth.users", parseAuthUsers);
@@ -4024,7 +4027,7 @@ PUBLIC int httpInitParser()
     httpAddConfig("include", parseInclude);
 
     return 0;
-} 
+}
 
 /*
     @copy   default
@@ -4032,7 +4035,7 @@ PUBLIC int httpInitParser()
     Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -4181,6 +4184,7 @@ static void manageConn(HttpConn *conn, int flags)
         mprMark(conn->pool);
         mprMark(conn->mark);
         mprMark(conn->data);
+        mprMark(conn->reqData);
         mprMark(conn->grid);
         mprMark(conn->record);
         mprMark(conn->boundary);
@@ -4228,10 +4232,9 @@ static void connTimeout(HttpConn *conn, MprEvent *event)
     assert(conn->tx);
     assert(conn->rx);
 
+    msg = 0;
     limits = conn->limits;
     assert(limits);
-    msg = 0;
-    httpTrace(conn, HTTP_TRACE_INFO, "Inactive connection timed out");
 
     if (conn->timeoutCallback) {
         (conn->timeoutCallback)(conn);
@@ -4250,7 +4253,7 @@ static void connTimeout(HttpConn *conn, MprEvent *event)
         if (conn->state < HTTP_STATE_FIRST) {
             httpDisconnect(conn);
             if (msg) {
-                httpTrace(conn, HTTP_TRACE_INFO, msg);
+                httpTrace(conn, "close", msg, 0);
             }
         } else {
             httpError(conn, HTTP_CODE_REQUEST_TIMEOUT, msg);
@@ -4264,11 +4267,11 @@ static void connTimeout(HttpConn *conn, MprEvent *event)
 }
 
 
-PUBLIC void httpScheduleConnTimeout(HttpConn *conn) 
+PUBLIC void httpScheduleConnTimeout(HttpConn *conn)
 {
     if (!conn->timeoutEvent && !conn->destroyed) {
-        /* 
-            Will run on the HttpConn dispatcher unless shutting down and it is destroyed already 
+        /*
+            Will run on the HttpConn dispatcher unless shutting down and it is destroyed already
          */
         conn->timeoutEvent = mprCreateEvent(conn->dispatcher, "connTimeout", 0, connTimeout, conn, 0);
     }
@@ -4329,8 +4332,8 @@ static bool prepForNext(HttpConn *conn)
 
 
 #if KEEP
-/* 
-    Eat remaining input incase last request did not consume all data 
+/*
+    Eat remaining input incase last request did not consume all data
  */
 static void consumeLastRequest(HttpConn *conn)
 {
@@ -4377,8 +4380,8 @@ PUBLIC void httpPrepClientConn(HttpConn *conn, bool keepHeaders)
 
 
 /*
-    Accept a new client connection on a new socket. 
-    This will come in on a worker thread with a new dispatcher dedicated to this connection. 
+    Accept a new client connection on a new socket.
+    This will come in on a worker thread with a new dispatcher dedicated to this connection.
  */
 PUBLIC HttpConn *httpAcceptConn(HttpEndpoint *endpoint, MprEvent *event)
 {
@@ -4411,25 +4414,25 @@ PUBLIC HttpConn *httpAcceptConn(HttpEndpoint *endpoint, MprEvent *event)
     conn->ip = sclone(sock->ip);
 
     if ((value = httpMonitorEvent(conn, HTTP_COUNTER_ACTIVE_CONNECTIONS, 1)) > conn->limits->connectionsMax) {
-        httpTrace(conn, HTTP_TRACE_ERROR, "Too many concurrent connections; active=%d max=%d", 
+        httpTrace(conn, "error", "Too many concurrent connections", "active=%d, max=%d", 
             (int) value, conn->limits->connectionsMax);
         httpDestroyConn(conn);
         return 0;
     }
     if (mprGetHashLength(http->addresses) > conn->limits->clientMax) {
-        httpTrace(conn, HTTP_TRACE_ERROR, "Too many concurrent clients; active=%d max=%d", 
-            mprGetHashLength(http->addresses), conn->limits->clientMax);
+        httpTrace(conn, "error", "Too many concurrent clients", "active=%d, max=%d", mprGetHashLength(http->addresses), 
+            conn->limits->clientMax);
         httpDestroyConn(conn);
         return 0;
     }
     address = conn->address;
     if (address && address->banUntil) {
         if (address->banUntil < http->now) {
-            httpTrace(conn, HTTP_TRACE_INFO, "Remove ban on client; address=%s date=%s", sock->ip, mprGetDate(0));
+            httpTrace(conn, "info", "Remove ban on client", "peer=%s:%d", conn->ip, conn->port);
             address->banUntil = 0;
         } else {
             if (address->banStatus) {
-                httpError(conn, HTTP_CLOSE | address->banStatus, 
+                httpError(conn, HTTP_CLOSE | address->banStatus,
                     "Connection refused, client banned: %s", address->banMsg ? address->banMsg : "");
             } else {
                 httpDestroyConn(conn);
@@ -4439,9 +4442,9 @@ PUBLIC HttpConn *httpAcceptConn(HttpEndpoint *endpoint, MprEvent *event)
     }
     if (endpoint->ssl) {
         if (mprUpgradeSocket(sock, endpoint->ssl, 0) < 0) {
-            httpTrace(conn, HTTP_TRACE_ERROR, "Cannot upgrade socket; error=\"%s\"", sock->errorMsg);
+            httpTrace(conn, "error", sfmt("Cannot upgrade socket, %s", sock->errorMsg), 0);
             mprCloseSocket(sock, 0);
-            httpMonitorEvent(conn, HTTP_COUNTER_SSL_ERRORS, 1); 
+            httpMonitorEvent(conn, HTTP_COUNTER_SSL_ERRORS, 1);
             httpDestroyConn(conn);
             return 0;
         }
@@ -4450,9 +4453,9 @@ PUBLIC HttpConn *httpAcceptConn(HttpEndpoint *endpoint, MprEvent *event)
     assert(conn->state == HTTP_STATE_BEGIN);
     httpSetState(conn, HTTP_STATE_CONNECTED);
 
-    if (httpShouldTrace(conn, HTTP_TRACE_CONN)) {
-        httpTrace(conn, HTTP_TRACE_CONN, "Accept connection; date=%s from=%s:%d to=%s:%d secure=%d", 
-             mprGetDate(MPR_LOG_DATE), conn->ip, conn->port, sock->acceptIp, sock->acceptPort, conn->secure);
+    if (httpShouldTrace(conn, "connection")) {
+        httpTrace(conn, "connection", 0, "peer=%s:%d, endpoint=%s:%d, secure=%d", 
+             conn->ip, conn->port, sock->acceptIp, sock->acceptPort, conn->secure);
     }
     event->mask = MPR_READABLE;
     event->timestamp = conn->http->now;
@@ -4462,7 +4465,7 @@ PUBLIC HttpConn *httpAcceptConn(HttpEndpoint *endpoint, MprEvent *event)
 
 
 /*
-    IO event handler. This is invoked by the wait subsystem in response to I/O events. It is also invoked via 
+    IO event handler. This is invoked by the wait subsystem in response to I/O events. It is also invoked via
     relay when an accept event is received by the server. Initially the conn->dispatcher will be set to the
     server->dispatcher and the first I/O event will be handled on the server thread (or main thread). A request handler
     may create a new conn->dispatcher and transfer execution to a worker thread if required.
@@ -4540,9 +4543,9 @@ PUBLIC void httpEnableConnEvents(HttpConn *conn)
     }
     eventMask = 0;
     if (rx) {
-        if (conn->connError || (tx->writeBlocked) || 
-           (conn->connectorq && (conn->connectorq->count > 0 || conn->connectorq->ioCount > 0)) || 
-           (httpQueuesNeedService(conn)) || 
+        if (conn->connError || (tx->writeBlocked) ||
+           (conn->connectorq && (conn->connectorq->count > 0 || conn->connectorq->ioCount > 0)) ||
+           (httpQueuesNeedService(conn)) ||
            (mprSocketHasBufferedWrite(sp)) ||
            (rx->eof && tx->finalized && conn->state < HTTP_STATE_FINALIZED)) {
             if (!mprSocketHandshaking(sp)) {
@@ -4645,7 +4648,7 @@ PUBLIC MprSocket *httpStealSocket(HttpConn *conn)
 /*
     Steal the O/S socket handle a connection's socket. This disconnects the socket handle from management by the connection.
     It is the callers responsibility to call close() on the Socket when required.
-    Note: this does not change the state of the connection. 
+    Note: this does not change the state of the connection.
  */
 PUBLIC Socket httpStealSocketHandle(HttpConn *conn)
 {
@@ -4854,7 +4857,7 @@ PUBLIC void httpSetState(HttpConn *conn, int targetState)
         /* Prevent regressions */
         return;
     }
-    for (state = conn->state + 1; state <= targetState; state++) { 
+    for (state = conn->state + 1; state <= targetState; state++) {
         conn->state = state;
         HTTP_NOTIFY(conn, HTTP_EVENT_STATE, state);
     }
@@ -4906,7 +4909,7 @@ PUBLIC HttpLimits *httpSetUniqueConnLimits(HttpConn *conn)
 /*
     Test if a request has expired relative to the default inactivity and request timeout limits.
     Set timeout to a non-zero value to apply an overriding smaller timeout
-    Set timeout to a value in msec. If timeout is zero, override default limits and wait forever. 
+    Set timeout to a value in msec. If timeout is zero, override default limits and wait forever.
     If timeout is < 0, use default inactivity and duration timeouts. If timeout is > 0, then use this timeout as an additional
     timeout.
  */
@@ -4927,14 +4930,13 @@ PUBLIC bool httpRequestExpired(HttpConn *conn, MprTicks timeout)
     }
     if (mprGetRemainingTicks(conn->started, requestTimeout) < 0) {
         if (requestTimeout != timeout) {
-            httpTrace(conn, HTTP_TRACE_ERROR, "Request duration exceeded; timeout=%d", requestTimeout / 1000);
+            httpTrace(conn, "error", "Request duration exceeded", "timeout=%d", requestTimeout / 1000);
         }
         return 1;
     }
     if (mprGetRemainingTicks(conn->lastActivity, inactivityTimeout) < 0) {
         if (inactivityTimeout != timeout) {
-            httpTrace(conn, HTTP_TRACE_ERROR, "Request cancelled due to inactivity; timeout=%d", 
-                inactivityTimeout / 1000);
+            httpTrace(conn, "error", "Request cancelled due to inactivity", "timeout=%d", inactivityTimeout / 1000);
         }
         return 1;
     }
@@ -4947,13 +4949,19 @@ PUBLIC void httpSetConnData(HttpConn *conn, void *data)
     conn->data = data;
 }
 
+
+PUBLIC void httpSetConnReqData(HttpConn *conn, void *data)
+{
+    conn->reqData = data;
+}
+
 /*
     @copy   default
 
     Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -5164,19 +5172,19 @@ PUBLIC int httpDigestParse(HttpConn *conn, cchar **username, cchar **password)
         when = 0;
         parseDigestNonce(dp->nonce, &secret, &realm, &when);
         if (!smatch(secret, secret)) {
-            httpTrace(conn, HTTP_TRACE_ERROR, "Access denied, Nonce mismatch\n");
+            httpTrace(conn, "error", "Access denied, Nonce mismatch", 0);
             return MPR_ERR_BAD_STATE;
 
         } else if (!smatch(realm, rx->route->auth->realm)) {
-            httpTrace(conn, HTTP_TRACE_ERROR, "Access denied, Realm mismatch\n");
+            httpTrace(conn, "error", "Access denied, Realm mismatch", 0);
             return MPR_ERR_BAD_STATE;
 
         } else if (dp->qop && !smatch(dp->qop, "auth")) {
-            httpTrace(conn, HTTP_TRACE_ERROR, "Access denied, Bad qop\n");
+            httpTrace(conn, "error", "Access denied, Bad qop", 0);
             return MPR_ERR_BAD_STATE;
 
         } else if ((when + (5 * 60)) < time(0)) {
-            httpTrace(conn, HTTP_TRACE_ERROR, "Access denied, Nonce is stale\n");
+            httpTrace(conn, "error", "Access denied, Nonce is stale", 0);
             return MPR_ERR_BAD_STATE;
         }
         rx->passwordDigest = calcDigest(conn, dp, *username);
@@ -5558,10 +5566,10 @@ PUBLIC int httpStartEndpoint(HttpEndpoint *endpoint)
     if (mprListenOnSocket(endpoint->sock, endpoint->ip, endpoint->port, 
                 MPR_SOCKET_NODELAY | MPR_SOCKET_THREAD) == SOCKET_ERROR) {
         if (mprGetError() == EADDRINUSE) {
-            mprLog("http endpoint", 0, "Cannot open a socket on %s:%d, socket already bound.", 
+            mprLog("http", 0, "Cannot open a socket on %s:%d, socket already bound.", 
                 *endpoint->ip ? endpoint->ip : "*", endpoint->port);
         } else {
-            mprLog("http endpoint", 0, "Cannot open a socket on %s:%d", *endpoint->ip ? endpoint->ip : "*", endpoint->port);
+            mprLog("http", 0, "Cannot open a socket on %s:%d", *endpoint->ip ? endpoint->ip : "*", endpoint->port);
         }
         return MPR_ERR_CANT_OPEN;
     }
@@ -5647,7 +5655,7 @@ PUBLIC void httpMatchHost(HttpConn *conn)
     listenSock = conn->sock->listenSock;
 
     if ((endpoint = httpLookupEndpoint(http, listenSock->ip, listenSock->port)) == 0) {
-        mprLog("http endpoint", 0, "No listening endpoint for request from %s:%d", listenSock->ip, listenSock->port);
+        mprLog("http", 0, "No listening endpoint for request from %s:%d", listenSock->ip, listenSock->port);
         mprCloseSocket(conn->sock, 0);
         return;
     }
@@ -5733,7 +5741,7 @@ PUBLIC int httpSecureEndpoint(HttpEndpoint *endpoint, struct MprSsl *ssl)
     endpoint->ssl = ssl;
     return 0;
 #else
-    mprLog("http endpoint", 0, "Configuration lacks SSL support");
+    mprLog("http", 0, "Configuration lacks SSL support");
     return MPR_ERR_BAD_STATE;
 #endif
 }
@@ -5963,8 +5971,7 @@ static void errorv(HttpConn *conn, int flags, cchar *fmt, va_list args)
         conn->error++;
         httpOmitBody(conn);
         conn->errorMsg = formatErrorv(conn, status, fmt, args);
-        httpTrace(conn, HTTP_TRACE_ERROR, "Error: %s", conn->errorMsg);
-
+        httpTrace(conn, "error", conn->errorMsg, 0);
         HTTP_NOTIFY(conn, HTTP_EVENT_ERROR, 0);
         if (httpServerConn(conn)) {
             if (status == HTTP_CODE_NOT_FOUND) {
@@ -6473,9 +6480,10 @@ PUBLIC void httpSetStreaming(HttpHost *host, cchar *mime, cchar *uri, bool enabl
 /************************************ Code ************************************/
 /*
     Common Log Formatter (NCSA)
-    This formatter only emits messages for the TRACE_COMPLETE message. 
+    This formatter only emits messages for the TRACE_COMPLETE message.
  */
-PUBLIC void httpCommonTraceFormatter(HttpConn *conn, int event, cchar *msgUnused, cchar *bufUnused, ssize lenUnused)
+PUBLIC void httpCommonTraceFormatter(HttpConn *conn, cchar *event, cchar *msgUnused, cchar *valuesUnused,
+    cchar *bufUnused, ssize lenUnused)
 {
     HttpRx      *rx;
     HttpTx      *tx;
@@ -6486,9 +6494,9 @@ PUBLIC void httpCommonTraceFormatter(HttpConn *conn, int event, cchar *msgUnused
     int         len;
 
     assert(conn);
-    assert(event >= 0);
+    assert(event);
 
-    if (event != HTTP_TRACE_COMPLETE) {
+    if (!smatch(event, "complete")) {
         return;
     }
     rx = conn->rx;
@@ -6520,7 +6528,7 @@ PUBLIC void httpCommonTraceFormatter(HttpConn *conn, int event, cchar *msgUnused
                 mprPutCharToBuf(buf, '-');
             } else {
                 mprPutIntToBuf(buf, tx->bytesWritten);
-            } 
+            }
             break;
 
         case 'B':                           /* Bytes written (minus headers) */
@@ -6604,7 +6612,7 @@ PUBLIC void httpCommonTraceFormatter(HttpConn *conn, int event, cchar *msgUnused
     Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -7337,10 +7345,10 @@ PUBLIC int httpAddRemedies()
 /************************************************************************/
 
 /*
-    netConnector.c -- General network connector. 
+    netConnector.c -- General network connector.
 
     The Network connector handles output data (only) from upstream handlers and filters. It uses vectored writes to
-    aggregate output packets into fewer actual I/O requests to the O/S. 
+    aggregate output packets into fewer actual I/O requests to the O/S.
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
@@ -7443,15 +7451,14 @@ static void netOutgoingService(HttpQueue *q)
         written = mprWriteSocketVector(conn->sock, q->iovec, q->ioIndex);
         if (written < 0) {
             errCode = mprGetError();
-            httpTrace(conn, HTTP_TRACE_ERROR, "Connector write error; wrote=%d, errno=%d, qflags=%x", 
-                (int) written, errCode, q->flags);
+            httpTrace(conn, "error", "Connector write error", "errno=%d", errCode);
             if (errCode == EAGAIN || errCode == EWOULDBLOCK) {
                 /*  Socket full, wait for an I/O event */
                 tx->writeBlocked = 1;
                 break;
             }
             if (errCode == EPROTO && conn->secure) {
-                httpError(conn, HTTP_ABORT | HTTP_CODE_COMMS_ERROR, 
+                httpError(conn, HTTP_ABORT | HTTP_CODE_COMMS_ERROR,
                     "Can't negotiate SSL with server: %s", conn->sock->errorMsg);
             } else if (errCode != EPIPE && errCode != ECONNRESET && errCode != ECONNABORTED && errCode != ENOTCONN) {
                 httpError(conn, HTTP_ABORT | HTTP_CODE_COMMS_ERROR, "netConnector: Can't write. errno %d", errCode);
@@ -7489,7 +7496,7 @@ static MprOff buildNetVec(HttpQueue *q)
     tx = conn->tx;
 
     /*
-        Examine each packet and accumulate as many packets into the I/O vector as possible. Leave the packets on the queue 
+        Examine each packet and accumulate as many packets into the I/O vector as possible. Leave the packets on the queue
         for now, they are removed after the IO is complete for the entire packet.
      */
     for (packet = prev = q->first; packet && !(packet->flags & HTTP_PACKET_END); packet = packet->next) {
@@ -7536,7 +7543,7 @@ static void addToNetVector(HttpQueue *q, char *ptr, ssize bytes)
 static void addPacketForNet(HttpQueue *q, HttpPacket *packet)
 {
     HttpConn    *conn;
-    int         item;
+    cchar       *event;
 
     conn = q->conn;
     assert(q->count >= 0);
@@ -7548,9 +7555,9 @@ static void addPacketForNet(HttpQueue *q, HttpPacket *packet)
     if (httpGetPacketLength(packet) > 0) {
         addToNetVector(q, mprGetBufStart(packet->content), mprGetBufLength(packet->content));
     }
-    item = (packet->flags & HTTP_PACKET_HEADER) ? HTTP_TRACE_TX_HEADERS : HTTP_TRACE_TX_BODY;
-    if (httpShouldTrace(conn, item)) {
-        httpTracePacket(conn, item, packet, 0);
+    event = (packet->flags & HTTP_PACKET_HEADER) ? "txHeaders" : "txBody";
+    if (httpShouldTrace(conn, event)) {
+        httpTracePacket(conn, event, packet, 0, 0);
     }
 }
 
@@ -7653,7 +7660,7 @@ static void adjustNetVec(HttpQueue *q, ssize written)
     Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -8553,7 +8560,7 @@ PUBLIC void httpCreateTxPipeline(HttpConn *conn, HttpRoute *route)
     if (tx->connector == 0) {
 #if !ME_ROM
         if (tx->handler == http->fileHandler && (rx->flags & HTTP_GET) && !hasOutputFilters && 
-                !conn->secure && !httpShouldTrace(conn, HTTP_TRACE_TX_BODY)) {
+                !conn->secure && !httpShouldTrace(conn, "txBody")) {
             tx->connector = http->sendConnector;
         } else 
 #endif
@@ -10426,7 +10433,7 @@ static cchar *mapContent(HttpConn *conn, cchar *filename)
                 }
                 path = mprReplacePathExt(filename, ext);
                 if (mprGetPathInfo(path, info) == 0) {
-                    httpTrace(conn, HTTP_TRACE_INFO, "Mapping content, from=%s to=%s", filename, path);
+                    httpTrace(conn, "info", 0, "originalFilename=\"%s\", filename=\"%s\"", filename, path);
                     filename = path;
                     if (zipped) {
                         httpSetHeader(conn, "Content-Encoding", "gzip");
@@ -11927,7 +11934,7 @@ static int authCondition(HttpConn *conn, HttpRoute *route, HttpRouteOp *op)
         }
     }
     if (!httpCanUser(conn, NULL)) {
-        httpTrace(conn, HTTP_TRACE_ERROR, "Access denied, user is not authorized for access.");
+        httpTrace(conn, "error", "Access denied, user is not authorized for access", 0);
         if (!conn->tx->finalized) {
             if (route->auth && route->auth->type) {
                 (route->auth->type->askLogin)(conn);
@@ -13336,7 +13343,7 @@ PUBLIC void httpProtocol(HttpConn *conn)
             canProceed = 0;
             break;
         }
-        /* 
+        /*
             This may block briefly if GC is due
          */
         httpServiceQueues(conn, HTTP_BLOCK);
@@ -13383,8 +13390,8 @@ static bool parseIncoming(HttpConn *conn)
          */
         conn->activeRequest = 1;
         if ((value = httpMonitorEvent(conn, HTTP_COUNTER_ACTIVE_REQUESTS, 1)) >= limits->requestsPerClientMax) {
-            httpError(conn, HTTP_ABORT | HTTP_CODE_SERVICE_UNAVAILABLE, 
-                "Too many concurrent requests for client: %s %d/%d", conn->ip, (int) value, 
+            httpError(conn, HTTP_ABORT | HTTP_CODE_SERVICE_UNAVAILABLE,
+                "Too many concurrent requests for client: %s %d/%d", conn->ip, (int) value,
                 limits->requestsPerClientMax);
             return 0;
         }
@@ -13404,14 +13411,14 @@ static bool parseIncoming(HttpConn *conn)
      */
     if ((end = sncontains(start, "\r\n\r\n", len)) == 0 && (end = sncontains(start, "\n\n", len)) == 0) {
         if (len >= limits->headerSize) {
-            httpLimitError(conn, HTTP_ABORT | HTTP_CODE_REQUEST_TOO_LARGE, 
+            httpLimitError(conn, HTTP_ABORT | HTTP_CODE_REQUEST_TOO_LARGE,
                 "Header too big. Length %d vs limit %d", len, limits->headerSize);
         }
         return 0;
     }
     len = end - start;
     if (len >= limits->headerSize) {
-        httpLimitError(conn, HTTP_ABORT | HTTP_CODE_REQUEST_TOO_LARGE, "Header too big. Length %d vs limit %d", len, 
+        httpLimitError(conn, HTTP_ABORT | HTTP_CODE_REQUEST_TOO_LARGE, "Header too big. Length %d vs limit %d", len,
             limits->headerSize);
         return 0;
     }
@@ -13432,7 +13439,7 @@ static bool parseIncoming(HttpConn *conn)
             return 0;
         }
     } else if (rx->status != HTTP_CODE_CONTINUE) {
-        /* 
+        /*
             Ignore Expect status responses. NOTE: Clients have already created their Tx pipeline.
          */
         httpCreateRxPipeline(conn, conn->http->clientRoute);
@@ -13474,7 +13481,7 @@ static bool mapMethod(HttpConn *conn)
     rx = conn->rx;
     if (rx->flags & HTTP_POST && (method = httpGetParam(conn, "-http-method-", 0)) != 0) {
         if (!scaselessmatch(method, rx->method)) {
-            httpTrace(conn, HTTP_TRACE_INFO, "Change method; from=%s to=%s uri=%s", rx->method, method, rx->uri);
+            httpTrace(conn, "info", 0, "originalMethod=%s, method=%s", rx->method, method);
             httpSetMethod(conn, method);
             return 1;
         }
@@ -13513,17 +13520,17 @@ static void traceRequest(HttpConn *conn, HttpPacket *packet)
     /*
         If tracing header, do entire header including first line
      */
-    if (httpShouldTrace(conn, HTTP_TRACE_RX_HEADERS)) {
+    if (httpShouldTrace(conn, "rxHeaders")) {
         endp = strstr((char*) content->start, "\r\n\r\n");
         len = (endp) ? (int) (endp - content->start + 4) : 0;
-        httpTraceContent(conn, HTTP_TRACE_RX_HEADERS, content->start, len, "rx headers");
+        httpTraceContent(conn, "rxHeaders", content->start, len, 0, "peer=%s", conn->ip);
 
-    } else if (httpShouldTrace(conn, HTTP_TRACE_RX_FIRST)) {
+    } else if (httpShouldTrace(conn, "rxFirst")) {
         endp = strstr((char*) content->start, "\r\n");
         len = (endp) ? (int) (endp - content->start + 2) : 0;
         if (len > 0) {
             content->start[len - 2] = '\0';
-            httpTrace(conn, HTTP_TRACE_RX_FIRST, "rx; request=\"%s\"", content->start);
+            httpTraceContent(conn, "rxFirst", content->start, len - 2, 0, "peer=%s", conn->ip);
             content->start[len - 2] = '\r';
         }
     }
@@ -13612,7 +13619,7 @@ static bool parseRequestLine(HttpConn *conn, HttpPacket *packet)
         httpBadRequestError(conn, HTTP_ABORT | HTTP_CODE_BAD_REQUEST, "Bad HTTP request. Empty URI");
         return 0;
     } else if (len >= limits->uriSize) {
-        httpLimitError(conn, HTTP_ABORT | HTTP_CODE_REQUEST_URL_TOO_LARGE, 
+        httpLimitError(conn, HTTP_ABORT | HTTP_CODE_REQUEST_URL_TOO_LARGE,
             "Bad request. URI too long. Length %d vs limit %d", len, limits->uriSize);
         return 0;
     }
@@ -13660,11 +13667,11 @@ static bool parseResponseLine(HttpConn *conn, HttpPacket *packet)
     tx = conn->tx;
     traced = 0;
 
-    if (httpShouldTrace(conn, HTTP_TRACE_RX_HEADERS)) {
+    if (httpShouldTrace(conn, "rxHeaders")) {
         content = packet->content;
         endp = strstr((char*) content->start, "\r\n\r\n");
         len = (endp) ? (int) (endp - content->start + 4) : 0;
-        httpTraceContent(conn, HTTP_TRACE_RX_HEADERS, content->start, len, "response headers");
+        httpTraceContent(conn, "rxHeaders", content->start, len, 0, 0);
         traced = 1;
     }
     protocol = conn->protocol = supper(getToken(conn, 0));
@@ -13687,13 +13694,12 @@ static bool parseResponseLine(HttpConn *conn, HttpPacket *packet)
 
     len = slen(rx->statusMessage);
     if (len >= conn->limits->uriSize) {
-        httpLimitError(conn, HTTP_CLOSE | HTTP_CODE_REQUEST_URL_TOO_LARGE, 
+        httpLimitError(conn, HTTP_CLOSE | HTTP_CODE_REQUEST_URL_TOO_LARGE,
             "Bad response. Status message too long. Length %d vs limit %d", len, conn->limits->uriSize);
         return 0;
     }
-    if (!traced && httpShouldTrace(conn, HTTP_TRACE_RX_FIRST)) {
-        httpTrace(conn, HTTP_TRACE_RX_FIRST, "response; protocol=%s status=%d message=\"%s\"", 
-            protocol, rx->status, rx->statusMessage);
+    if (!traced && httpShouldTrace(conn, "rxFirst")) {
+        httpTrace(conn, "rxFirst", 0, "protocol=%s, status=%d", protocol, rx->status);
     }
     return 1;
 }
@@ -13833,7 +13839,7 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
                         rx->form = scontains(rx->mimeType, "application/x-www-form-urlencoded") != 0;
                         rx->upload = scontains(rx->mimeType, "multipart/form-data") != 0;
                     }
-                } else { 
+                } else {
                     rx->form = rx->upload = 0;
                 }
             } else if (strcasecmp(key, "cookie") == 0) {
@@ -13929,7 +13935,7 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
                         conn->keepAliveCount = ME_MAX_KEEP_ALIVE;
                     }
                     /*
-                        IMPORTANT: Deliberately close client connections one request early. This encourages a client-led 
+                        IMPORTANT: Deliberately close client connections one request early. This encourages a client-led
                         termination and may help relieve excessive server-side TIME_WAIT conditions.
                      */
                     if (httpClientConn(conn) && conn->keepAliveCount == 1) {
@@ -13975,7 +13981,7 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
             if (strcasecmp(key, "transfer-encoding") == 0) {
                 if (scaselesscmp(value, "chunked") == 0 && !conn->http10) {
                     /*
-                        remainingContent will be revised by the chunk filter as chunks are processed and will 
+                        remainingContent will be revised by the chunk filter as chunks are processed and will
                         be set to zero when the last chunk has been received.
                      */
                     rx->flags |= HTTP_CHUNKED;
@@ -14030,7 +14036,7 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
         }
     }
     if (rx->form && rx->length >= conn->limits->receiveFormSize) {
-        httpLimitError(conn, HTTP_CLOSE | HTTP_CODE_REQUEST_TOO_LARGE, 
+        httpLimitError(conn, HTTP_CLOSE | HTTP_CODE_REQUEST_TOO_LARGE,
             "Request form of %,Ld bytes is too big. Limit %,Ld", rx->length, conn->limits->receiveFormSize);
     }
     if (conn->error) {
@@ -14051,7 +14057,7 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
     }
     if (!(rx->flags & HTTP_CHUNKED)) {
         /*
-            Step over "\r\n" after headers. 
+            Step over "\r\n" after headers.
             Don't do this if chunked so chunking can parse a single chunk delimiter of "\r\nSIZE ...\r\n"
          */
         mprAdjustBufStart(content, 2);
@@ -14095,10 +14101,10 @@ static bool processParsed(HttpConn *conn)
         if (rx->streaming) {
             httpCreatePipeline(conn);
 
-            httpTrace(conn, HTTP_TRACE_4, "Select route; route=%s handler=%s target=%s endpoint=%s:%d host=%s", 
-                rx->route->name, tx->handler->name, rx->route->targetRule, conn->endpoint->ip, conn->endpoint->port, 
+            httpTrace(conn, "info", 0,
+                "route=%s, handler=%s, target=\"%s\", endpoint=%s:%d, host=%s",
+                rx->route->name, tx->handler->name, rx->route->targetRule, conn->endpoint->ip, conn->endpoint->port,
                 conn->host->name ? conn->host->name : "default");
-    
             /*
                 Delay starting uploads until the files are extracted.
              */
@@ -14173,15 +14179,15 @@ static ssize filterPacket(HttpConn *conn, HttpPacket *packet, int *more)
      */
     size = rx->bytesRead - rx->bytesUploaded;
     if (size >= conn->limits->receiveBodySize) {
-        httpLimitError(conn, HTTP_CLOSE | HTTP_CODE_REQUEST_TOO_LARGE, 
+        httpLimitError(conn, HTTP_CLOSE | HTTP_CODE_REQUEST_TOO_LARGE,
             "Receive body of %,Ld bytes (sofar) is too big. Limit %,Ld", size, conn->limits->receiveBodySize);
 
     } else if (rx->form && size >= conn->limits->receiveFormSize) {
-        httpLimitError(conn, HTTP_CLOSE | HTTP_CODE_REQUEST_TOO_LARGE, 
+        httpLimitError(conn, HTTP_CLOSE | HTTP_CODE_REQUEST_TOO_LARGE,
             "Receive form of %,Ld bytes (sofar) is too big. Limit %,Ld", size, conn->limits->receiveFormSize);
     }
-    if (packet && httpShouldTrace(conn, HTTP_TRACE_RX_BODY)) {
-        httpTraceContent(conn, HTTP_TRACE_RX_BODY, packet->content->start, nbytes, "receive body");
+    if (packet && httpShouldTrace(conn, "rxBody")) {
+        httpTraceContent(conn, "rxBody", packet->content->start, nbytes, 0, 0);
     }
     if (rx->eof) {
         if ((rx->remainingContent > 0 && (rx->length > 0 || !conn->mustClose)) ||
@@ -14330,28 +14336,6 @@ static bool getOutput(HttpConn *conn)
 }
 
 
-static void measure(HttpConn *conn)
-{
-    MprTicks    elapsed;
-    HttpTx      *tx;
-
-    tx = conn->tx;
-    if (conn->rx == 0 || tx == 0) {
-        return;
-    }
-    if (httpShouldTrace(conn, HTTP_TRACE_COMPLETE)) {
-        elapsed = mprGetTicks() - conn->started;
-#if MPR_HIGH_RES_TIMER
-        if (elapsed < 1000) {
-            httpTrace(conn, HTTP_TRACE_COMPLETE, "request complete; msec=%,Ld ticks=%,Ld ticks", 
-                elapsed, mprGetHiResTicks() - conn->startMark);
-        } else
-#endif
-            httpTrace(conn, HTTP_TRACE_COMPLETE, "request complete; msec=%,Ld", elapsed);
-    }
-}
-
-
 static void createErrorRequest(HttpConn *conn)
 {
     HttpRx      *rx;
@@ -14366,8 +14350,7 @@ static void createErrorRequest(HttpConn *conn)
     if (!rx->headerPacket) {
         return;
     }
-    httpTrace(conn, HTTP_TRACE_INFO, "Create error document; doc=%s status=%d uri=%s", 
-        tx->errorDocument, tx->status, rx->uri);
+    httpTrace(conn, "info", "Redirect to error document", "location=%s, status=%d", tx->errorDocument, tx->status, rx->uri);
 
     originalUri = rx->uri;
     conn->rx = httpCreateRx(conn);
@@ -14456,12 +14439,34 @@ static bool processFinalized(HttpConn *conn)
 }
 
 
+static void measure(HttpConn *conn)
+{
+    MprTicks    elapsed;
+    HttpTx      *tx;
+
+    tx = conn->tx;
+    if (conn->rx == 0 || tx == 0) {
+        return;
+    }
+    if (httpShouldTrace(conn, "complete")) {
+        elapsed = mprGetTicks() - conn->started;
+#if MPR_HIGH_RES_TIMER
+        if (elapsed < 1000) {
+            httpTrace(conn, "complete", 0, "elapsed=%Ld, elapsedTicks=%Ld, sent=%Ld",
+                elapsed, mprGetHiResTicks() - conn->startMark, tx->bytesWritten);
+        } else
+#endif
+            httpTrace(conn, "complete", 0, "elapsed=%Ld, sent=%Ld", elapsed, tx->bytesWritten);
+    }
+}
+
+
 static bool processCompletion(HttpConn *conn)
 {
     HttpRx      *rx;
-    
+
     rx = conn->rx;
-    
+
     if (rx->session) {
         httpWriteSession(conn);
     }
@@ -14754,7 +14759,7 @@ PUBLIC ssize httpGetReadCount(HttpConn *conn)
 }
 
 
-PUBLIC bool httpIsEof(HttpConn *conn) 
+PUBLIC bool httpIsEof(HttpConn *conn)
 {
     return conn->rx == 0 || conn->rx->eof;
 }
@@ -14774,7 +14779,7 @@ PUBLIC cchar *httpGetBodyInput(HttpConn *conn)
     if (q->first) {
         httpJoinPackets(q, -1);
         if ((content = q->first->content) != 0) {
-            mprAddNullToBuf(content); 
+            mprAddNullToBuf(content);
             return mprGetBufStart(content);
         }
     }
@@ -14806,7 +14811,7 @@ static void addMatchEtag(HttpConn *conn, char *etag)
 /*
     Get the next input token. The content buffer is advanced to the next token. This routine always returns a
     non-zero token. The empty string means the delimiter was not found. The delimiter is a string to match and not
-    a set of characters. If null, it means use white space (space or tab) as a delimiter. 
+    a set of characters. If null, it means use white space (space or tab) as a delimiter.
  */
 static char *getToken(HttpConn *conn, cchar *delim)
 {
@@ -15089,8 +15094,8 @@ PUBLIC HttpLang *httpGetLanguage(HttpConn *conn, MprHash *spoken, cchar *default
 
 
 /*
-    Trim extra path information after the uri extension. This is used by CGI and PHP only. The strategy is to 
-    heuristically find the script name in the uri. This is assumed to be the original uri up to and including 
+    Trim extra path information after the uri extension. This is used by CGI and PHP only. The strategy is to
+    heuristically find the script name in the uri. This is assumed to be the original uri up to and including
     first path component containing a "." Any path information after that is regarded as extra path.
     WARNING: Extra path is an old, unreliable, CGI specific technique. Do not use directories with embedded periods.
  */
@@ -15101,7 +15106,7 @@ PUBLIC void httpTrimExtraPath(HttpConn *conn)
     ssize       len;
 
     rx = conn->rx;
-    if (!(rx->flags & (HTTP_OPTIONS | HTTP_TRACE))) { 
+    if (!(rx->flags & (HTTP_OPTIONS | HTTP_TRACE))) {
         if ((cp = strchr(rx->pathInfo, '.')) != 0 && (extra = strchr(cp, '/')) != 0) {
             len = extra - rx->pathInfo;
             if (0 < len && len < slen(rx->pathInfo)) {
@@ -15143,7 +15148,7 @@ static int sendContinue(HttpConn *conn)
     Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -15164,10 +15169,10 @@ static int sendContinue(HttpConn *conn)
 /************************************************************************/
 
 /*
-    sendConnector.c -- Send file connector. 
+    sendConnector.c -- Send file connector.
 
-    The Sendfile connector supports the optimized transmission of whole static files. It uses operating system 
-    sendfile APIs to eliminate reading the document into user space and multiple socket writes. The send connector 
+    The Sendfile connector supports the optimized transmission of whole static files. It uses operating system
+    sendfile APIs to eliminate reading the document into user space and multiple socket writes. The send connector
     is not a general purpose connector. It cannot handle dynamic data or ranged requests. It does support chunked requests.
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
@@ -15197,7 +15202,7 @@ PUBLIC int httpOpenSendConnector(Http *http)
     }
     stage->open = httpSendOpen;
     stage->close = sendClose;
-    stage->outgoingService = httpSendOutgoingService; 
+    stage->outgoingService = httpSendOutgoingService;
     http->sendConnector = stage;
     return 0;
 }
@@ -15279,15 +15284,14 @@ PUBLIC void httpSendOutgoingService(HttpQueue *q)
         buildSendVec(q);
     }
     /*
-        No need to loop around as send file tries to write as much of the file as possible. 
+        No need to loop around as send file tries to write as much of the file as possible.
         If not eof, will always have the socket blocked.
      */
     file = q->ioFile ? tx->file : 0;
     written = mprSendFileToSocket(conn->sock, file, q->ioPos, q->ioCount, q->iovec, q->ioIndex, NULL, 0);
     if (written < 0) {
         errCode = mprGetError();
-        httpTrace(conn, HTTP_TRACE_ERROR, "Connector write error; wrote=%d errno=%d qflags=%x", 
-            (int) written, errCode, q->flags);
+        httpTrace(conn, "error", "Connector write error", "errno=%d", errCode);
         if (errCode == EAGAIN || errCode == EWOULDBLOCK) {
             /*  Socket full, wait for an I/O event */
             tx->writeBlocked = 1;
@@ -15311,8 +15315,8 @@ PUBLIC void httpSendOutgoingService(HttpQueue *q)
 
 
 /*
-    Build the IO vector. This connector uses the send file API which permits multiple IO blocks to be written with 
-    file data. This is used to write transfer the headers and chunk encoding boundaries. Return the count of bytes to 
+    Build the IO vector. This connector uses the send file API which permits multiple IO blocks to be written with
+    file data. This is used to write transfer the headers and chunk encoding boundaries. Return the count of bytes to
     be written. Return -1 for EOF.
  */
 static MprOff buildSendVec(HttpQueue *q)
@@ -15325,8 +15329,8 @@ static MprOff buildSendVec(HttpQueue *q)
 
     /*
         Examine each packet and accumulate as many packets into the I/O vector as possible. Can only have one data packet at
-        a time due to the limitations of the sendfile API (on Linux). And the data packet must be after all the 
-        vector entries. Leave the packets on the queue for now, they are removed after the IO is complete for the 
+        a time due to the limitations of the sendfile API (on Linux). And the data packet must be after all the
+        vector entries. Leave the packets on the queue for now, they are removed after the IO is complete for the
         entire packet.
      */
     for (packet = prev = q->first; packet && !(packet->flags & HTTP_PACKET_END); packet = packet->next) {
@@ -15370,8 +15374,8 @@ static void addToSendVector(HttpQueue *q, char *ptr, ssize bytes)
  */
 static void addPacketForSend(HttpQueue *q, HttpPacket *packet)
 {
-    HttpConn    *conn;
-    int         item;
+    HttpConn     *conn;
+    cchar        *event;
 
     conn = q->conn;
     assert(q->count >= 0);
@@ -15390,9 +15394,9 @@ static void addPacketForSend(HttpQueue *q, HttpPacket *packet)
             Header packets have actual content. File data packets are virtual and only have a count.
          */
         addToSendVector(q, mprGetBufStart(packet->content), httpGetPacketLength(packet));
-        item = (packet->flags & HTTP_PACKET_HEADER) ? HTTP_TRACE_TX_HEADERS : HTTP_TRACE_TX_BODY;
-        if (httpShouldTrace(conn, item)) {
-            httpTracePacket(conn, item, packet, 0);
+        event = (packet->flags & HTTP_PACKET_HEADER) ? "txHeaders" : "txBody";
+        if (httpShouldTrace(conn, event)) {
+            httpTracePacket(conn, event, packet, 0, 0, 0);
         }
     }
 }
@@ -15500,7 +15504,7 @@ PUBLIC void httpSendOutgoingService(HttpQueue *q) {}
     Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -16925,7 +16929,7 @@ PUBLIC HttpSession *httpGetSession(HttpConn *conn, int create)
             flags = (rx->route->flags & HTTP_ROUTE_VISIBLE_SESSION) ? 0 : HTTP_COOKIE_HTTP;
             cookie = rx->route->cookie ? rx->route->cookie : HTTP_SESSION_COOKIE;
             httpSetCookie(conn, cookie, rx->session->id, "/", NULL, rx->session->lifespan, flags);
-            httpTrace(conn, HTTP_TRACE_INFO, "Create new session cookie; %s=%s", cookie, rx->session->id);
+            httpTrace(conn, "info", "Create new session cookie", "cookie=%s, session=%s", cookie, rx->session->id);
 
             if ((rx->route->flags & HTTP_ROUTE_XSRF) && rx->securityToken) {
                 httpSetSessionVar(conn, ME_XSRF_COOKIE, rx->securityToken);
@@ -17162,15 +17166,14 @@ PUBLIC bool httpCheckSecurityToken(HttpConn *conn)
         if (!requestToken) {
             requestToken = httpGetParam(conn, ME_XSRF_PARAM, 0);
             if (!requestToken) {
-                httpTrace(conn, HTTP_TRACE_ERROR, "Missing security token in request");
+                httpTrace(conn, "error", "Missing security token in request", 0);
             }
         }
         if (!smatch(sessionToken, requestToken)) {
             /*
                 Potential CSRF attack. Deny request. Re-create a new security token so legitimate clients can retry.
              */
-            httpTrace(conn, HTTP_TRACE_ERROR, 
-                "Security token in request does not match session token; requestToken=%s securityToken=%s",
+            httpTrace(conn, "error", "Security token in request does not match session token", "xsrf=%s, sessionXsrf=%s",
                 requestToken, sessionToken);
             httpAddSecurityToken(conn, 1);
             return 0;
@@ -17402,6 +17405,7 @@ static void manageTrace(HttpTrace *trace, int flags)
         mprMark(trace->format);
         mprMark(trace->mutex);
         mprMark(trace->path);
+        mprMark(trace->events);
     }
 }
 
@@ -17417,8 +17421,6 @@ static void manageTrace(HttpTrace *trace, int flags)
 PUBLIC HttpTrace *httpCreateTrace(HttpTrace *parent)
 {
     HttpTrace   *trace;
-    char        *levels;
-    int         i;
 
     if ((trace = mprAllocObj(HttpTrace, manageTrace)) == 0) {
         return 0;
@@ -17427,21 +17429,20 @@ PUBLIC HttpTrace *httpCreateTrace(HttpTrace *parent)
         *trace = *parent;
         trace->parent = parent;
     } else {
-        levels = trace->levels;
-        for (i = 0; i <= HTTP_TRACE_5; i++) {
-            levels[i] = i;
+        if ((trace->events = mprCreateHash(0, MPR_HASH_STATIC_VALUES)) == 0) {
+            return 0;
         }
-        levels[HTTP_TRACE_RX_FIRST] = 2;
-        levels[HTTP_TRACE_ERROR] = 2;
-        levels[HTTP_TRACE_CONN] = 3;
-        levels[HTTP_TRACE_RX_HEADERS] = 3;
-        levels[HTTP_TRACE_TX_FIRST] = 3;
-        levels[HTTP_TRACE_TX_HEADERS] = 3;
-        levels[HTTP_TRACE_INFO] = 3;
-        levels[HTTP_TRACE_RX_BODY] = 5;
-        levels[HTTP_TRACE_TX_BODY] = 5;
-        levels[HTTP_TRACE_COMPLETE] = 4;
-        
+        mprAddKey(trace->events, "rxFirst", ITOP(2));
+        mprAddKey(trace->events, "error", ITOP(2));
+        mprAddKey(trace->events, "connection", ITOP(3));
+        mprAddKey(trace->events, "rxHeaders", ITOP(3));
+        mprAddKey(trace->events, "txFirst", ITOP(3));
+        mprAddKey(trace->events, "txHeaders", ITOP(3));
+        mprAddKey(trace->events, "info", ITOP(3));
+        mprAddKey(trace->events, "complete", ITOP(4));
+        mprAddKey(trace->events, "rxBody", ITOP(5));
+        mprAddKey(trace->events, "txBody", ITOP(5));
+
         trace->size = HTTP_TRACE_MAX_SIZE;
         trace->formatter = httpDetailTraceFormatter;
         trace->logger = httpWriteTraceLogFile;
@@ -17457,9 +17458,13 @@ PUBLIC void httpSetTraceFormat(HttpTrace *trace, cchar *format)
 }
 
 
-PUBLIC void httpSetTraceFormatter(HttpTrace *trace, HttpTraceFormatter callback)
+PUBLIC HttpTraceFormatter httpSetTraceFormatter(HttpTrace *trace, HttpTraceFormatter callback)
 {
+    HttpTraceFormatter  prior;
+
+    prior = trace->formatter;
     trace->formatter = callback;
+    return prior;
 }
 
 
@@ -17477,19 +17482,16 @@ PUBLIC void httpSetTraceLevel(int level)
 }
 
 
-PUBLIC void httpSetTraceLevels(HttpTrace *trace, char *levels, ssize bodySize)
+PUBLIC void httpSetTraceEventLevel(HttpTrace *trace, cchar *event, int level)
 {
-    int     i;
-
     assert(trace);
-    assert(levels);
+    mprAddKey(trace->events, event, ITOP(level));
+}
 
-    for (i = HTTP_TRACE_5 + 1;  i < HTTP_TRACE_MAX_ITEM; i++) {
-        if (levels[i] >= 0) {
-            trace->levels[i] = levels[i];
-        }
-    }
-    trace->bodySize = bodySize;
+
+PUBLIC void httpSetTraceSize(HttpTrace *trace, ssize size)
+{
+    trace->bodySize = size;
 }
 
 
@@ -17499,16 +17501,15 @@ PUBLIC void httpSetTraceLogger(HttpTrace *trace, HttpTraceLogger callback)
 }
 
 
-PUBLIC void httpSetTraceType(HttpTrace *trace, cchar *type)
+PUBLIC void httpSetTraceFormatterName(HttpTrace *trace, cchar *name)
 {
     HttpTraceFormatter  formatter;
-    int                 i;
 
-    if (type && smatch(type, "common")) {
-        for (i = HTTP_TRACE_5; i < HTTP_TRACE_MAX_ITEM; i++) {
-            trace->levels[i] = 6;
+    if (name && smatch(name, "common")) {
+        if ((trace->events = mprCreateHash(0, MPR_HASH_STATIC_VALUES)) == 0) {
+            return;
         }
-        trace->levels[HTTP_TRACE_COMPLETE] = 0;
+        mprAddKey(trace->events, "complete", ITOP(0));
         formatter = httpCommonTraceFormatter;
     } else {
        formatter = httpDetailTraceFormatter;
@@ -17520,26 +17521,28 @@ PUBLIC void httpSetTraceType(HttpTrace *trace, cchar *type)
 /*
     Trace a simple message
  */
-PUBLIC void httpTrace(HttpConn *conn, int event, cchar *fmt, ...)
+PUBLIC void httpTrace(HttpConn *conn, cchar *event, cchar *msg, cchar *values, ...)
 {
     va_list     ap;
 
     assert(conn);
-    assert(event >= 0);
-    assert(fmt && *fmt);
+    assert(event && *event);
 
     if (httpShouldTrace(conn, event) && !conn->rx->skipTrace) {
-        va_start(ap, fmt);
-        httpFormatTrace(conn, event, sfmtv(fmt, ap), 0, 0);
-        va_end(ap);
+        if (values) {
+            va_start(ap, values);
+            values = sfmtv(values, ap);
+            va_end(ap);
+        }
+        httpFormatTrace(conn, event, msg, values, 0, 0);
     }
 }
 
 
 /*
     Trace body content
- */ 
-PUBLIC void httpTraceContent(HttpConn *conn, int event, cchar *buf, ssize len, cchar *fmt, ...)
+ */
+PUBLIC void httpTraceContent(HttpConn *conn, cchar *event, cchar *buf, ssize len, cchar *msg, cchar *values, ...)
 {
     va_list     ap;
 
@@ -17549,69 +17552,52 @@ PUBLIC void httpTraceContent(HttpConn *conn, int event, cchar *buf, ssize len, c
     if (!httpShouldTrace(conn, event) || conn->rx->skipTrace) {
         return;
     }
-    if ((event == HTTP_TRACE_RX_BODY && (conn->rx->bytesRead >= conn->trace->size)) ||
-        (event == HTTP_TRACE_TX_BODY && (conn->tx->bytesWritten >= conn->trace->size))) {
+    if ((smatch(event, "rx.body") && (conn->rx->bytesRead >= conn->trace->size)) ||
+        (smatch(event, "tx.body") && (conn->tx->bytesWritten >= conn->trace->size))) {
         if (!conn->rx->skipTrace && !conn->rx->webSocket) {
             conn->rx->skipTrace = 1;
-            httpTrace(conn, event, "Abbreviating body trace");
+            httpTrace(conn, event, "Abbreviating body trace", 0);
         }
         return;
     }
-    va_start(ap, fmt);
-    httpFormatTrace(conn, event | HTTP_TRACE_CONTENT, sfmtv(fmt, ap), buf, len);
-    va_end(ap);
+    if (values) {
+        va_start(ap, values);
+        values = sfmtv(values, ap);
+        va_end(ap);
+    }
+    httpFormatTrace(conn, event, msg, values, buf, len);
 }
 
 
 /*
-    Trace a packet 
+    Trace a packet
  */
-PUBLIC void httpTracePacket(HttpConn *conn, int event, HttpPacket *packet, cchar *fmt, ...)
+PUBLIC void httpTracePacket(HttpConn *conn, cchar *event, HttpPacket *packet, cchar *msg, cchar *values, ...)
 {
     va_list     ap;
-    cchar       *msg;
 
     assert(conn);
     assert(packet);
 
     if (packet->prefix) {
         mprAddNullToBuf(packet->prefix);
-        if (event == HTTP_TRACE_RX_BODY) {
-            msg = "rx body";
-        } else if (event == HTTP_TRACE_TX_BODY) {
-            msg = "tx prefix";
-        } else {
-            msg = 0;
-        }
-        httpTraceContent(conn, event, mprGetBufStart(packet->prefix), mprGetBufLength(packet->prefix), msg);
+        httpTraceContent(conn, event, mprGetBufStart(packet->prefix), mprGetBufLength(packet->prefix), 0, 0);
     }
-    if (fmt) {
-        va_start(ap, fmt);
-        msg = sfmtv(fmt, ap);
+    if (values) {
+        va_start(ap, values);
+        values = sfmtv(values, ap);
         va_end(ap);
-    } else {
-        if (event == HTTP_TRACE_RX_HEADERS) {
-            msg = "rx headers";
-        } else if (event == HTTP_TRACE_RX_BODY) {
-            msg = "rx body";
-        } else if (event == HTTP_TRACE_TX_HEADERS) {
-            msg = "tx headers";
-        } else if (event == HTTP_TRACE_TX_BODY) {
-            msg = "tx body";
-        } else {
-            msg = 0;
-        }
     }
     if (packet->content) {
         mprAddNullToBuf(packet->content);
-        httpTraceContent(conn, event, mprGetBufStart(packet->content), httpGetPacketLength(packet), msg);
+        httpTraceContent(conn, event, mprGetBufStart(packet->content), httpGetPacketLength(packet), msg, values);
     }
 }
 
 
-PUBLIC void httpFormatTrace(HttpConn *conn, int event, cchar *msg, cchar *buf, ssize len)
+PUBLIC void httpFormatTrace(HttpConn *conn, cchar *event, cchar *msg, cchar *values, cchar *buf, ssize len)
 {
-    (conn->trace->formatter)(conn, event, msg, buf, len);
+    (conn->trace->formatter)(conn, event, msg, values, buf, len);
 }
 
 
@@ -17629,7 +17615,7 @@ PUBLIC void httpWriteTrace(HttpConn *conn, cchar *buf, ssize len)
     This will use the tx or rx mime type if possible.
     Skips UTF encoding prefixes
  */
-static cchar *makePrintable(HttpConn *conn, int event, cchar *buf, ssize *lenp)
+PUBLIC cchar *httpMakePrintable(HttpConn *conn, cchar *event, cchar *buf, ssize *lenp)
 {
     cchar   *start, *cp, *digits;
     char    *data, *dp;
@@ -17637,13 +17623,13 @@ static cchar *makePrintable(HttpConn *conn, int event, cchar *buf, ssize *lenp)
     int     i;
 
     /*
-        Fast path, check the mime type
-     */ 
-    if (event == HTTP_TRACE_RX_BODY) {
+        MOB - need faster way to do this
+     */
+    if (smatch(event, "rx.body")) {
         if (sstarts(mprLookupMime(0, conn->rx->mimeType), "text/")) {
             return buf;
         }
-    } else if (event == HTTP_TRACE_TX_BODY) {
+    } else if (smatch(event, "tx.body")) {
         if (sstarts(mprLookupMime(0, conn->tx->mimeType), "text/")) {
             return buf;
         }
@@ -17681,28 +17667,36 @@ static cchar *makePrintable(HttpConn *conn, int event, cchar *buf, ssize *lenp)
 /*
     Format a detailed request message
  */
-PUBLIC void httpDetailTraceFormatter(HttpConn *conn, int event, cchar *msg, cchar *buf, ssize len)
+PUBLIC void httpDetailTraceFormatter(HttpConn *conn, cchar *event, cchar *msg, cchar *values, cchar *data, ssize len)
 {
-    char    *boundary, prefix[64];
+    char    *boundary, buf[256];
     int     client, sessionSeqno;
 
     assert(conn);
-    assert(event >= 0);
-    assert(msg && *msg);
+    assert(event);
 
     client = conn->address ? conn->address->seqno : 0;
     sessionSeqno = conn->rx->session ? (int) stoi(conn->rx->session->id) : 0;
-    fmt(prefix, sizeof(prefix), "\n<%d-%d-%d-%d> ", client, sessionSeqno, conn->seqno, conn->rx->seqno);
+    fmt(buf, sizeof(buf), "\n%s %d-%d-%d-%d ", mprGetDate(MPR_LOG_DATE), client, sessionSeqno, conn->seqno, 
+            conn->rx->seqno, event);
     lock(conn->trace);
-    httpWriteTrace(conn, prefix, slen(prefix));
-    httpWriteTrace(conn, msg, slen(msg));
-
-    if (buf) {
-        boundary = ", --details--\n";
+    httpWriteTrace(conn, buf, slen(buf));
+    if (msg) {
+        msg = fmt(buf, sizeof(buf), "%s msg=\"%s\", ", event, msg);
+        httpWriteTrace(conn, buf, slen(buf));
+    } else {
+        msg = fmt(buf, sizeof(buf), "%s, ", event);
+        httpWriteTrace(conn, buf, slen(buf));
+    }
+    if (values) {
+        httpWriteTrace(conn, values, slen(values));
+    }
+    if (data) {
+        boundary = " --details--\n";
         httpWriteTrace(conn, boundary, slen(boundary));
-        buf = makePrintable(conn, event, buf, &len);
-        httpWriteTrace(conn, buf, len);
-        httpWriteTrace(conn, &boundary[2], slen(boundary) - 2);
+        data = httpMakePrintable(conn, event, data, &len);
+        httpWriteTrace(conn, data, len);
+        httpWriteTrace(conn, &boundary[1], slen(boundary) - 1);
     } else {
         httpWriteTrace(conn, "\n", 1);
     }
@@ -17846,7 +17840,7 @@ PUBLIC void httpWriteTraceLogFile(HttpConn *conn, cchar *buf, ssize len)
     Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -18015,7 +18009,7 @@ PUBLIC void httpAddHeaderString(HttpConn *conn, cchar *key, cchar *value)
 }
 
 
-/* 
+/*
    Append a header. If already defined, the value is catenated to the pre-existing value after a ", " separator.
    As per the HTTP/1.1 spec. Except for Set-Cookie which HTTP permits multiple headers but not of the same cookie. Ugh!
  */
@@ -18065,7 +18059,7 @@ PUBLIC void httpAppendHeader(HttpConn *conn, cchar *key, cchar *fmt, ...)
 }
 
 
-/* 
+/*
    Append a header string. If already defined, the value is catenated to the pre-existing value after a ", " separator.
    As per the HTTP/1.1 spec.
  */
@@ -18135,7 +18129,7 @@ PUBLIC void httpFinalizeConnector(HttpConn *conn)
 /*
     Finalize the request. This means the caller is totally completed with the request. They have sent all
     output and have read all input. Further input can be discarded. Note that output may not yet have drained from
-    the socket and so the connection state will not be transitioned to FINALIIZED until that happens and all 
+    the socket and so the connection state will not be transitioned to FINALIIZED until that happens and all
     remaining input has been dealt with.
  */
 PUBLIC void httpFinalize(HttpConn *conn)
@@ -18155,7 +18149,7 @@ PUBLIC void httpFinalize(HttpConn *conn)
 
 
 /*
-    This means the caller has generated the entire transmit body. Note: the data may not yet have drained from 
+    This means the caller has generated the entire transmit body. Note: the data may not yet have drained from
     the pipeline or socket and the caller may not have read a response.
  */
 PUBLIC void httpFinalizeOutput(HttpConn *conn)
@@ -18321,7 +18315,7 @@ PUBLIC void httpRedirect(HttpConn *conn, int status, cchar *targetUri)
         target = httpCreateUri(targetUri, 0);
         base = rx->parsedUri;
         /*
-            Support URIs without a host:  https:///path. This is used to redirect onto the same host but with a 
+            Support URIs without a host:  https:///path. This is used to redirect onto the same host but with a
             different scheme. So find a suitable local endpoint to supply the port for the scheme.
         */
         if (!target->port && (target->scheme && !smatch(target->scheme, base->scheme))) {
@@ -18330,7 +18324,8 @@ PUBLIC void httpRedirect(HttpConn *conn, int status, cchar *targetUri)
                 if (endpoint) {
                     target->port = endpoint->port;
                 } else if (smatch(target->scheme, "https")) {
-                    httpTrace(conn, HTTP_TRACE_ERROR, "Missing secure endpoint to use with https redirection");
+                    //  MOB - should this be mprLog
+                    httpTrace(conn, "error", "Missing secure endpoint to use with https redirection", 0);
                 }
             }
         }
@@ -18348,14 +18343,14 @@ PUBLIC void httpRedirect(HttpConn *conn, int status, cchar *targetUri)
         target = httpCompleteUri(target, base);
         targetUri = httpUriToString(target, 0);
         httpSetHeader(conn, "Location", "%s", targetUri);
-        httpFormatResponse(conn, 
+        httpFormatResponse(conn,
             "<!DOCTYPE html>\r\n"
             "<html><head><title>%s</title></head>\r\n"
             "<body><h1>%s</h1>\r\n<p>The document has moved <a href=\"%s\">here</a>.</p></body></html>\r\n",
             msg, msg, targetUri);
-        httpTrace(conn, HTTP_TRACE_INFO, "redirect; status=%d uri=%s", status, targetUri);
+        httpTrace(conn, "info", "redirect", "status=%d, location=%s", status, targetUri);
     } else {
-        httpFormatResponse(conn, 
+        httpFormatResponse(conn,
             "<!DOCTYPE html>\r\n"
             "<html><head><title>%s</title></head>\r\n"
             "<body><h1>%s</h1>\r\n</body></html>\r\n",
@@ -18423,10 +18418,10 @@ PUBLIC void httpSetCookie(HttpConn *conn, cchar *name, cchar *value, cchar *path
     secure = (conn->secure & (flags & HTTP_COOKIE_SECURE)) ? "; secure" : "";
     httponly = (flags & HTTP_COOKIE_HTTP) ?  "; httponly" : "";
 
-    /* 
+    /*
        Allow multiple cookie headers. Even if the same name. Later definitions take precedence.
      */
-    httpAppendHeader(conn, "Set-Cookie", 
+    httpAppendHeader(conn, "Set-Cookie",
         sjoin(name, "=", value, "; path=", path, domainAtt, domain, expiresAtt, expires, secure, httponly, NULL));
     if ((cp = mprLookupKey(conn->tx->headers, "Cache-Control")) == 0 || !scontains(cp, "no-cache")) {
         httpAppendHeader(conn, "Cache-Control", "no-cache=\"set-cookie\"");
@@ -18491,7 +18486,7 @@ static void setHeaders(HttpConn *conn, HttpPacket *packet)
     route = rx->route;
 
     /*
-        Mandatory headers that must be defined here use httpSetHeader which overwrites existing values. 
+        Mandatory headers that must be defined here use httpSetHeader which overwrites existing values.
      */
     httpAddHeaderString(conn, "Date", conn->http->currentDate);
 
@@ -18561,7 +18556,7 @@ static void setHeaders(HttpConn *conn, HttpPacket *packet)
         if (route->flags & HTTP_ROUTE_CORS) {
             setCorsHeaders(conn);
         }
-        /* 
+        /*
             Apply route headers
          */
         for (ITERATE_ITEMS(route->headers, item, next)) {
@@ -18630,8 +18625,7 @@ PUBLIC void httpSetFilename(HttpConn *conn, cchar *filename, int flags)
         tx->etag = sfmt("\"%Lx-%Lx-%Lx\"", (int64) info->inode, (int64) info->size, (int64) info->mtime);
     }
     tx->filename = sclone(filename);
-    httpTrace(conn, HTTP_TRACE_5, "Set filename; filename=\"%s\" uri=%s extension=%s", 
-        tx->filename, conn->rx->uri, tx->ext);
+    httpTrace(conn, "info", 0, "filename=\"%s\"", tx->filename);
 }
 
 
@@ -18699,7 +18693,7 @@ PUBLIC void httpWriteHeaders(HttpQueue *q, HttpPacket *packet)
         parsedUri = tx->parsedUri;
         if (http->proxyHost && *http->proxyHost) {
             if (parsedUri->query && *parsedUri->query) {
-                mprPutToBuf(buf, "http://%s:%d%s?%s %s", http->proxyHost, http->proxyPort, 
+                mprPutToBuf(buf, "http://%s:%d%s?%s %s", http->proxyHost, http->proxyPort,
                     parsedUri->path, parsedUri->query, conn->protocol);
             } else {
                 mprPutToBuf(buf, "http://%s:%d%s %s", http->proxyHost, http->proxyPort, parsedUri->path, conn->protocol);
@@ -18716,7 +18710,7 @@ PUBLIC void httpWriteHeaders(HttpQueue *q, HttpPacket *packet)
     }
     mprPutStringToBuf(buf, "\r\n");
 
-    /* 
+    /*
         Output headers
      */
     kp = mprGetFirstKey(conn->tx->headers);
@@ -18729,7 +18723,7 @@ PUBLIC void httpWriteHeaders(HttpQueue *q, HttpPacket *packet)
         mprPutStringToBuf(packet->content, "\r\n");
         kp = mprGetNextKey(conn->tx->headers, kp);
     }
-    /* 
+    /*
         By omitting the "\r\n" delimiter after the headers, chunks can emit "\r\nSize\r\n" as a single chunk delimiter
      */
     if (tx->length >= 0 || tx->chunkSize <= 0) {
@@ -18862,7 +18856,7 @@ PUBLIC ssize httpWrite(HttpQueue *q, cchar *fmt, ...)
     Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -18884,7 +18878,7 @@ PUBLIC ssize httpWrite(HttpQueue *q, cchar *fmt, ...)
 
 /*
     uploadFilter.c - Upload file filter.
-    The upload filter processes post data according to RFC-1867 ("multipart/form-data" post data). 
+    The upload filter processes post data according to RFC-1867 ("multipart/form-data" post data).
     It saves the uploaded files in a configured upload directory.
     Copyright (c) All Rights Reserved. See copyright notice at the bottom of the file.
  */
@@ -18941,10 +18935,10 @@ PUBLIC int httpOpenUploadFilter(Http *http)
         return MPR_ERR_CANT_CREATE;
     }
     http->uploadFilter = filter;
-    filter->match = matchUpload; 
-    filter->open = openUpload; 
-    filter->close = closeUpload; 
-    filter->incoming = incomingUpload; 
+    filter->match = matchUpload;
+    filter->open = openUpload;
+    filter->close = closeUpload;
+    filter->incoming = incomingUpload;
     return 0;
 }
 
@@ -18969,7 +18963,6 @@ static int matchUpload(HttpConn *conn, HttpRoute *route, int dir)
     len = strlen(pat);
     if (sncaselesscmp(rx->mimeType, pat, len) == 0) {
         rx->upload = 1;
-        httpTrace(conn, HTTP_TRACE_INFO, "Enable upload filter; uri=%s", rx->uri);
         return HTTP_ROUTE_OK;
     }
     return HTTP_ROUTE_OMIT_FILTER;
@@ -19014,7 +19007,6 @@ static int openUpload(HttpQueue *q)
 
     uploadDir = getUploadDir(rx->route);
     httpSetParam(conn, "UPLOAD_DIR", uploadDir);
-    httpTrace(conn, HTTP_TRACE_5, "Upload directory; path=%s", uploadDir);
 
     if ((boundary = strstr(rx->mimeType, "boundary=")) != 0) {
         boundary += 9;
@@ -19109,7 +19101,7 @@ static void incomingUpload(HttpQueue *q, HttpPacket *packet)
             line = mprGetBufStart(content);
             if ((nextTok = memchr(line, '\n', mprGetBufLength(content))) == 0) {
                 /* Incomplete line */
-                break; 
+                break;
             }
             *nextTok++ = '\0';
             mprAdjustBufStart(content, (int) (nextTok - line));
@@ -19148,8 +19140,8 @@ static void incomingUpload(HttpQueue *q, HttpPacket *packet)
     assert(q->count >= 0);
 
     if (httpGetPacketLength(packet) == 0) {
-        /* 
-            Quicker to remove the buffer so the packets don't have to be joined the next time 
+        /*
+            Quicker to remove the buffer so the packets don't have to be joined the next time
          */
         httpGetPacket(q);
     } else {
@@ -19227,7 +19219,7 @@ static int processUploadHeader(HttpQueue *q, char *line)
             >>blank line
             Field Data
             ---boundary
- 
+
             Content-Disposition: form-data; name="field1" ->
                 filename="user.file"
             >>blank line
@@ -19260,12 +19252,11 @@ static int processUploadHeader(HttpQueue *q, char *line)
                 uploadDir = getUploadDir(rx->route);
                 up->tmpPath = mprGetTempPath(uploadDir);
                 if (up->tmpPath == 0) {
-                    httpError(conn, HTTP_CODE_INTERNAL_SERVER_ERROR, 
+                    httpError(conn, HTTP_CODE_INTERNAL_SERVER_ERROR,
                         "Cannot create upload temp file %s. Check upload temp dir %s", up->tmpPath, uploadDir);
                     return MPR_ERR_CANT_OPEN;
                 }
-                httpTrace(conn, HTTP_TRACE_INFO, "File upload; clientFilename=%s localFilename=%s", 
-                    up->clientFilename, up->tmpPath);
+                httpTrace(conn, "info", "File upload", "clientFilename=%s, filename=%s", up->clientFilename, up->tmpPath);
 
                 up->file = mprOpenFile(up->tmpPath, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0600);
                 if (up->file == 0) {
@@ -19356,7 +19347,7 @@ static int writeToFile(HttpQueue *q, char *data, ssize len)
          */
         rc = mprWriteFile(up->file, data, len);
         if (rc != len) {
-            httpError(conn, HTTP_CODE_INTERNAL_SERVER_ERROR, 
+            httpError(conn, HTTP_CODE_INTERNAL_SERVER_ERROR,
                 "Cannot write to upload temp file %s, rc %d, errno %d", up->tmpPath, rc, mprGetOsError());
             return MPR_ERR_CANT_WRITE;
         }
@@ -19437,8 +19428,10 @@ static int processUploadData(HttpQueue *q)
             /*
                 Normal string form data variables
              */
-            data[dataLen] = '\0'; 
-            httpTrace(conn, HTTP_TRACE_RX_BODY, "upload form; form[%s]=\"%s\"", up->id, data);
+            data[dataLen] = '\0';
+#if KEEP
+            httpTrace(conn, "info", 0, "\"%s\"=\"%s\"", up->id, data);
+#endif
             key = mprUriDecode(up->id);
             data = mprUriDecode(data);
             httpSetParam(conn, key, data);
@@ -19476,7 +19469,7 @@ static int processUploadData(HttpQueue *q)
 
 /*
     Find the boundary signature in memory. Returns pointer to the first match.
- */ 
+ */
 static char *getBoundary(char *buf, ssize bufLen, char *boundary, ssize boundaryLen, bool *pureData)
 {
     char    *cp, *endp;
@@ -19514,7 +19507,7 @@ static char *getBoundary(char *buf, ssize bufLen, char *boundary, ssize boundary
     Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -20926,7 +20919,7 @@ static char *codetxt[16] = {
     |                     Payload Data continued ...                |
     +---------------------------------------------------------------+
 
-    Single message has 
+    Single message has
         fin == 1
     Fragmented message has
         fin == 0, opcode != 0
@@ -20989,7 +20982,7 @@ static void webSockPing(HttpConn *conn);
 static void webSockTimeout(HttpConn *conn);
 
 /*********************************** Code *************************************/
-/* 
+/*
    WebSocket Filter initialization
  */
 PUBLIC int httpOpenWebSockFilter(Http *http)
@@ -21002,12 +20995,12 @@ PUBLIC int httpOpenWebSockFilter(Http *http)
         return MPR_ERR_CANT_CREATE;
     }
     http->webSocketFilter = filter;
-    filter->match = matchWebSock; 
-    filter->open = openWebSock; 
-    filter->ready = readyWebSock; 
-    filter->close = closeWebSock; 
-    filter->outgoingService = outgoingWebSockService; 
-    filter->incoming = incomingWebSockData; 
+    filter->match = matchWebSock;
+    filter->open = openWebSock;
+    filter->ready = readyWebSock;
+    filter->close = closeWebSock;
+    filter->outgoingService = outgoingWebSockService;
+    filter->incoming = incomingWebSockData;
     return 0;
 }
 
@@ -21109,7 +21102,7 @@ static int matchWebSock(HttpConn *conn, HttpRoute *route, int dir)
         httpSetHeader(conn, "X-Inactivity-Timeout", "%Ld", conn->limits->inactivityTimeout / MPR_TICKS_PER_SEC);
 
         if (route->webSocketsPingPeriod) {
-            ws->pingEvent = mprCreateEvent(conn->dispatcher, "webSocket", route->webSocketsPingPeriod, 
+            ws->pingEvent = mprCreateEvent(conn->dispatcher, "webSocket", route->webSocketsPingPeriod,
                 webSockPing, conn, MPR_EVENT_CONTINUOUS);
         }
         conn->keepAliveCount = 0;
@@ -21214,12 +21207,12 @@ static void incomingWebSockData(HttpQueue *q, HttpPacket *packet)
          */
         httpJoinPacketForService(q, packet, 0);
     }
-    httpTracePacket(conn, HTTP_TRACE_RX_BODY, packet, "WebSockets; state=%d frame=%d length=%d", 
+    httpTracePacket(conn, "rxBody", packet, "WebSockets", "state%d, frame%d, length%d",
         ws->state, ws->frameState, httpGetPacketLength(packet));
 
     if (packet->flags & HTTP_PACKET_END) {
-        /* 
-            EOF packet means the socket has been abortively closed 
+        /*
+            EOF packet means the socket has been abortively closed
          */
         if (ws->state != WS_STATE_CLOSED) {
             ws->closing = 1;
@@ -21236,7 +21229,7 @@ static void incomingWebSockData(HttpQueue *q, HttpPacket *packet)
         switch (ws->frameState) {
         case WS_CLOSED:
             if (httpGetPacketLength(packet) > 0) {
-                httpTrace(conn, HTTP_TRACE_ERROR, "WebSockets closed: ignore incoming packet");
+                httpTrace(conn, "error", "WebSockets closed, ignore incoming packet", 0);
             }
             httpFinalize(conn);
             httpSetState(conn, HTTP_STATE_FINALIZED);
@@ -21251,32 +21244,31 @@ static void incomingWebSockData(HttpQueue *q, HttpPacket *packet)
             fp = content->start;
             if (GET_RSV(*fp) != 0) {
                 error = WS_STATUS_PROTOCOL_ERROR;
-                httpTrace(conn, HTTP_TRACE_ERROR, "WebSockets protocol error: bad reserved field");
+                httpTrace(conn, "error", "WebSockets protocol error, bad reserved field", 0);
                 break;
             }
             packet->last = GET_FIN(*fp);
             opcode = GET_CODE(*fp);
             if (opcode == WS_MSG_CONT) {
                 if (!ws->currentMessageType) {
-                    httpTrace(conn, HTTP_TRACE_ERROR, "WebSockets protocol error: continuation frame but not prior message");
+                    httpTrace(conn, "error", "WebSockets protocol error, continuation frame but not prior message", 0);
                     error = WS_STATUS_PROTOCOL_ERROR;
                     break;
                 }
             } else if (opcode < WS_MSG_CONTROL && ws->currentMessageType) {
-                httpTrace(conn, HTTP_TRACE_ERROR, 
-                    "WebSockets protocol error,: data frame received but expected a continuation frame");
+                httpTrace(conn, "error", "WebSockets protocol error, data frame received but expected a continuation frame", 0);
                 error = WS_STATUS_PROTOCOL_ERROR;
                 break;
             }
             if (opcode > WS_MSG_PONG) {
-                httpTrace(conn, HTTP_TRACE_ERROR, "WebSockets protocol error: bad frame opcode");
+                httpTrace(conn, "error", "WebSockets protocol error, bad frame opcode", 0);
                 error = WS_STATUS_PROTOCOL_ERROR;
                 break;
             }
             packet->type = opcode;
             if (opcode >= WS_MSG_CONTROL && !packet->last) {
                 /* Control frame, must not be fragmented */
-                httpTrace(conn, HTTP_TRACE_ERROR, "WebSockets protocol error: fragmented control frame");
+                httpTrace(conn, "error", "WebSockets protocol error, fragmented control frame", 0);
                 error = WS_STATUS_PROTOCOL_ERROR;
                 break;
             }
@@ -21303,7 +21295,7 @@ static void incomingWebSockData(HttpQueue *q, HttpPacket *packet)
             }
             if (packet->type >= WS_MSG_CONTROL && len > WS_MAX_CONTROL) {
                 /* Too big */
-                httpTrace(conn, HTTP_TRACE_ERROR, "WebSockets protocol error: control frame too big");
+                httpTrace(conn, "error", "WebSockets protocol error, control frame too big", 0);
                 error = WS_STATUS_PROTOCOL_ERROR;
                 break;
             }
@@ -21344,7 +21336,7 @@ static void incomingWebSockData(HttpQueue *q, HttpPacket *packet)
                 if (httpServerConn(conn)) {
                     httpMonitorEvent(conn, HTTP_COUNTER_LIMIT_ERRORS, 1);
                 }
-                httpTrace(conn, HTTP_TRACE_ERROR, "webSocketFilter: Incoming message is too large; size=%d max=%d", 
+                httpTrace(conn, "error", "WebSockets incoming message is too large", "wsLength=%d, wsMaxLength=%d",
                     len, limits->webSocketsMessageSize);
                 error = WS_STATUS_MESSAGE_TOO_LARGE;
                 break;
@@ -21353,7 +21345,7 @@ static void incomingWebSockData(HttpQueue *q, HttpPacket *packet)
                 for (cp = content->start; cp < content->end; cp++) {
                     *cp = *cp ^ ws->dataMask[ws->maskOffset++ & 0x3];
                 }
-            } 
+            }
             if (packet->type == WS_MSG_CONT && ws->currentFrame) {
                 httpJoinPacket(ws->currentFrame, packet);
                 packet = ws->currentFrame;
@@ -21394,7 +21386,7 @@ static void incomingWebSockData(HttpQueue *q, HttpPacket *packet)
             break;
 
         default:
-            httpTrace(conn, HTTP_TRACE_ERROR, "WebSockets protocol error: unknown frame state");
+            httpTrace(conn, "error", "WebSockets protocol error, unknown frame state", 0);
             error = WS_STATUS_PROTOCOL_ERROR;
             break;
         }
@@ -21402,7 +21394,7 @@ static void incomingWebSockData(HttpQueue *q, HttpPacket *packet)
             /*
                 Notify of the error and send a close to the peer. The peer may or may not be still there.
              */
-            httpTrace(conn, HTTP_TRACE_ERROR, "Websockets error; status=%d", error);
+            httpTrace(conn, "error", "Websockets error", "webSocketError=%d", error);
             HTTP_NOTIFY(conn, HTTP_EVENT_ERROR, error);
             httpSendClose(conn, error, NULL);
             ws->frameState = WS_CLOSED;
@@ -21438,12 +21430,12 @@ static int processFrame(HttpQueue *q, HttpPacket *packet)
     assert(content);
 
     mprAddNullToBuf(content);
-    httpTrace(conn, HTTP_TRACE_INFO, "WebSockets; receive seq=%d type=%s ptype=%d last=%d length=%d",
+    httpTrace(conn, "info", "WebSockets receive", "wsSeq=%d, wsTypeName=%s, wsType=%d, wsLast=%d, wsLength=%d",
          ws->rxSeq++, codetxt[packet->type], packet->type, packet->last, mprGetBufLength(content));
 
     switch (packet->type) {
     case WS_MSG_TEXT:
-        httpTracePacket(conn, HTTP_TRACE_RX_BODY, packet, "WebSockets receive text");
+        httpTracePacket(conn, "rxBody", packet, "WebSockets receive text", 0);
         /* Fall through */
 
     case WS_MSG_BINARY:
@@ -21457,7 +21449,7 @@ static int processFrame(HttpQueue *q, HttpPacket *packet)
         }
         if (packet->type == WS_MSG_CONT) {
             if (!ws->currentMessageType) {
-                httpTrace(conn, HTTP_TRACE_ERROR, "Websockets bad continuation packet");
+                httpTrace(conn, "error", "Websockets bad continuation packet", 0);
                 return WS_STATUS_PROTOCOL_ERROR;
             }
             packet->type = ws->currentMessageType;
@@ -21506,7 +21498,7 @@ static int processFrame(HttpQueue *q, HttpPacket *packet)
             if (packet->last) {
                 ws->currentMessageType = 0;
             }
-        } 
+        }
         break;
 
     case WS_MSG_CLOSE:
@@ -21514,20 +21506,20 @@ static int processFrame(HttpQueue *q, HttpPacket *packet)
         if (httpGetPacketLength(packet) == 0) {
             ws->closeStatus = WS_STATUS_OK;
         } else if (httpGetPacketLength(packet) < 2) {
-            httpTrace(conn, HTTP_TRACE_ERROR, "Websockets missing close status");
+            httpTrace(conn, "error", "Websockets missing close status", 0);
             return WS_STATUS_PROTOCOL_ERROR;
         } else {
             ws->closeStatus = ((uchar) cp[0]) << 8 | (uchar) cp[1];
 
-            /* 
-                WebSockets is a hideous spec, as if UTF validation wasn't bad enough, we must invalidate these codes: 
+            /*
+                WebSockets is a hideous spec, as if UTF validation wasn't bad enough, we must invalidate these codes:
                     1004, 1005, 1006, 1012-1016, 2000-2999
              */
             if (ws->closeStatus < 1000 || ws->closeStatus >= 5000 ||
                 (1004 <= ws->closeStatus && ws->closeStatus <= 1006) ||
                 (1012 <= ws->closeStatus && ws->closeStatus <= 1016) ||
                 (1100 <= ws->closeStatus && ws->closeStatus <= 2999)) {
-                httpTrace(conn, HTTP_TRACE_ERROR, "Websockets bad close; status=%d", ws->closeStatus);
+                httpTrace(conn, "error", "Websockets bad close", "wsCloseStatus=%d", ws->closeStatus);
                 return WS_STATUS_PROTOCOL_ERROR;
             }
             mprAdjustBufStart(content, 2);
@@ -21535,13 +21527,13 @@ static int processFrame(HttpQueue *q, HttpPacket *packet)
                 ws->closeReason = mprCloneBufMem(content);
                 if (!rx->route || !rx->route->ignoreEncodingErrors) {
                     if (validUTF8(ws->closeReason, slen(ws->closeReason)) != UTF8_ACCEPT) {
-                        httpTrace(conn, HTTP_TRACE_ERROR, "Websockets text packet has invalid UTF8");
+                        httpTrace(conn, "error", "Websockets text packet has invalid UTF8", 0);
                         return WS_STATUS_INVALID_UTF8;
                     }
                 }
             }
         }
-        httpTrace(conn, HTTP_TRACE_INFO, "WebSocket receive close packet; status=%d, reason=\"%s\" closing=%d", 
+        httpTrace(conn, "info", "WebSockets receive close packet", "wsCloseStatus=%d, wsCloseReason=\"%s\", wsClosing=%d",
             ws->closeStatus, ws->closeReason, ws->closing);
         if (ws->closing) {
             httpDisconnect(conn);
@@ -21567,7 +21559,7 @@ static int processFrame(HttpQueue *q, HttpPacket *packet)
         break;
 
     default:
-        httpTrace(conn, HTTP_TRACE_ERROR, "Websockets bad message; type=%d", packet->type);
+        httpTrace(conn, "error", "Websockets bad message", "wsType=%d", packet->type);
         ws->state = WS_STATE_CLOSED;
         return WS_STATUS_PROTOCOL_ERROR;
     }
@@ -21607,15 +21599,15 @@ PUBLIC ssize httpSendBlock(HttpConn *conn, int type, cchar *buf, ssize len, int 
     conn->tx->responded = 1;
 
     /*
-        Note: we can come here before the handshake is complete. The data is queued and if the connection handshake 
+        Note: we can come here before the handshake is complete. The data is queued and if the connection handshake
         succeeds, then the data is sent.
      */
     if (!(HTTP_STATE_CONNECTED <= conn->state && conn->state < HTTP_STATE_FINALIZED) || !conn->upgraded) {
         return MPR_ERR_BAD_STATE;
     }
-    if (type != WS_MSG_CONT && type != WS_MSG_TEXT && type != WS_MSG_BINARY && type != WS_MSG_CLOSE && 
+    if (type != WS_MSG_CONT && type != WS_MSG_TEXT && type != WS_MSG_BINARY && type != WS_MSG_CLOSE &&
             type != WS_MSG_PING && type != WS_MSG_PONG) {
-        httpTrace(conn, HTTP_TRACE_ERROR, "Websockets bad message; type=%d", type);
+        httpTrace(conn, "error", "Websockets bad message", "wsType=%d", type);
         return MPR_ERR_BAD_ARGS;
     }
     q = conn->writeq;
@@ -21629,7 +21621,7 @@ PUBLIC ssize httpSendBlock(HttpConn *conn, int type, cchar *buf, ssize len, int 
         if (httpServerConn(conn)) {
             httpMonitorEvent(conn, HTTP_COUNTER_LIMIT_ERRORS, 1);
         }
-        httpTrace(conn, HTTP_TRACE_ERROR, "Outgoing websockets message is too large; size=%d max=%d", 
+        httpTrace(conn, "error", "Outgoing websockets message is too large", "wsLength=%d, wsMaxLength=%d",
             len, conn->limits->webSocketsMessageSize);
         return MPR_ERR_WONT_FIT;
     }
@@ -21641,7 +21633,7 @@ PUBLIC ssize httpSendBlock(HttpConn *conn, int type, cchar *buf, ssize len, int 
             }
         }
         /*
-            Break into frames if the user is not preserving frames and has not explicitly specified "more". 
+            Break into frames if the user is not preserving frames and has not explicitly specified "more".
             The outgoingWebSockService will encode each packet as a frame.
          */
         if (ws->preserveFrames || (flags & HTTP_MORE)) {
@@ -21722,12 +21714,12 @@ PUBLIC ssize httpSendClose(HttpConn *conn, int status, cchar *reason)
     if (!(HTTP_STATE_CONNECTED <= conn->state && conn->state < HTTP_STATE_FINALIZED) || !conn->upgraded) {
         /* Ignore closes when already finalized or not yet connected */
         return 0;
-    } 
+    }
     len = 2;
     if (reason) {
         if (slen(reason) >= 124) {
             reason = "WebSockets reason message was too big";
-            httpTrace(conn, HTTP_TRACE_ERROR, reason);
+            httpTrace(conn, "error", reason, 0);
         }
         len += slen(reason) + 1;
     }
@@ -21736,13 +21728,13 @@ PUBLIC ssize httpSendClose(HttpConn *conn, int status, cchar *reason)
     if (reason) {
         scopy(&msg[2], len - 2, reason);
     }
-    httpTrace(conn, HTTP_TRACE_INFO, "WebSocket send close packet, status %d reason \"%s\"", status, reason);
+    httpTrace(conn, "info", "WebSockets send close packet", "wsCloseStatus=%d, wsCloseReason=\"%s\"", status, reason);
     return httpSendBlock(conn, WS_MSG_CLOSE, msg, len, HTTP_BUFFER);
 }
 
 
 /*
-    This is the outgoing filter routine. It services packets on the outgoing queue and transforms them into 
+    This is the outgoing filter routine. It services packets on the outgoing queue and transforms them into
     WebSockets frames.
  */
 static void outgoingWebSockService(HttpQueue *q)
@@ -21797,7 +21789,7 @@ static void outgoingWebSockService(HttpQueue *q)
             if (packet->type == WS_MSG_TEXT && packet->content) {
                 mprAddNullToBuf(packet->content);
 #if UNUSED
-                httpTracePacket(conn, HTTP_TRACE_TX_BODY, packet, "websockets);
+                httpTracePacket(conn, HTTP_TRACE_TX_BODY, packet, "websockets", 0);
 #endif
             }
             if (httpClientConn(conn)) {
@@ -21813,7 +21805,8 @@ static void outgoingWebSockService(HttpQueue *q)
             }
             *prefix = '\0';
             mprAdjustBufEnd(packet->prefix, prefix - packet->prefix->start);
-            httpTracePacket(conn, HTTP_TRACE_TX_BODY, packet, "WebSocket: seqno=%d send=%s type=%d last=%d length=%d",
+            httpTracePacket(conn, "txBody", packet, 
+                "WebSockets", "wsSeqno:%d, wsTypeName:\"%s\", wsType:%d, wsLast:%d, wsLength:%d",
                 ws->txSeq++, codetxt[packet->type], packet->type, packet->last, httpGetPacketLength(packet));
         }
         httpPutPacketToNext(q, packet);
@@ -21929,7 +21922,7 @@ PUBLIC void httpSetWebSocketPreserveFrames(HttpConn *conn, bool on)
 
 
 /*
-    Test if a string is a valid unicode string. 
+    Test if a string is a valid unicode string.
     The return state may be UTF8_ACCEPT if all codepoints validate and are complete.
     Return UTF8_REJECT if an invalid codepoint was found.
     Otherwise, return the state for a partial codepoint.
@@ -21988,7 +21981,7 @@ static bool validateText(HttpConn *conn, HttpPacket *packet)
         valid = state != UTF8_REJECT;
     }
     if (!valid) {
-        httpTrace(conn, HTTP_TRACE_ERROR, "WebSocket text packet has invalid UTF8");
+        httpTrace(conn, "error", "WebSocket text packet has invalid UTF8", 0);
     }
     return valid;
 }
@@ -22088,7 +22081,7 @@ PUBLIC bool httpVerifyWebSocketsHandshake(HttpConn *conn)
     Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.

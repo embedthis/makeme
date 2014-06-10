@@ -36385,27 +36385,18 @@ static int getNumOption(Ejs *ejs, EjsObj *options, cchar *field)
 
 static void setupTrace(Ejs *ejs, HttpTrace *trace, EjsObj *options)
 {
-    char        *levels;
-    int         i, level;
+    httpSetTraceEventLevel(trace, "connection", getNumOption(ejs, options, "connection"));
+    httpSetTraceEventLevel(trace, "error", getNumOption(ejs, options, "error"));
+    httpSetTraceEventLevel(trace, "inform", getNumOption(ejs, options, "info"));
+    httpSetTraceEventLevel(trace, "rxFirst", getNumOption(ejs, options, "rxFirst"));
+    httpSetTraceEventLevel(trace, "rxHeaders", getNumOption(ejs, options, "rxHeaders"));
+    httpSetTraceEventLevel(trace, "rxBody", getNumOption(ejs, options, "rxBody"));
+    httpSetTraceEventLevel(trace, "txFirst", getNumOption(ejs, options, "txFirst"));
+    httpSetTraceEventLevel(trace, "txHeaders", getNumOption(ejs, options, "txHeaders"));
+    httpSetTraceEventLevel(trace, "txBody", getNumOption(ejs, options, "txBody"));
+    httpSetTraceEventLevel(trace, "complete", getNumOption(ejs, options, "complete"));
 
-    levels = trace->levels;
-    if ((level = getNumOption(ejs, options, "all")) >= 0) {
-        for (i = 0; i < HTTP_TRACE_MAX_ITEM; i++) {
-            levels[i] = level;
-        }
-    } else {
-        levels[HTTP_TRACE_CONN] = getNumOption(ejs, options, "conn");
-        levels[HTTP_TRACE_ERROR] = getNumOption(ejs, options, "error");
-        levels[HTTP_TRACE_INFO] = getNumOption(ejs, options, "info");
-        levels[HTTP_TRACE_RX_FIRST] = getNumOption(ejs, options, "rx-first");
-        levels[HTTP_TRACE_RX_HEADERS] = getNumOption(ejs, options, "rx-headers");
-        levels[HTTP_TRACE_RX_BODY] = getNumOption(ejs, options, "rx-body");
-        levels[HTTP_TRACE_TX_FIRST] = getNumOption(ejs, options, "tx-first");
-        levels[HTTP_TRACE_TX_HEADERS] = getNumOption(ejs, options, "tx-headers");
-        levels[HTTP_TRACE_TX_BODY] = getNumOption(ejs, options, "tx-body");
-        levels[HTTP_TRACE_COMPLETE] = getNumOption(ejs, options, "complete");
-    }
-    trace->size = getNumOption(ejs, options, "size");
+    httpSetTraceSize(trace, getNumOption(ejs, options, "size"));
 }
 
 
