@@ -1886,7 +1886,6 @@ static void parseCertFields(MprBuf *buf, char *prefix, char *prefix2, char *info
 
 static char *getOssState(MprSocket *sp)
 {
-    MprSsl          *ssl;
     OpenSocket      *osp;
     MprBuf          *buf;
     X509_NAME       *xSubject;
@@ -1894,7 +1893,6 @@ static char *getOssState(MprSocket *sp)
     char            *prefix;
     char            subject[512], issuer[512], peer[512];
 
-    ssl = sp->ssl;
     osp = sp->sslSocket;
     buf = mprCreateBuf(0, 0);
     mprPutToBuf(buf, "PROVIDER=openssl,CIPHER=%s,", SSL_get_cipher(osp->handle));
