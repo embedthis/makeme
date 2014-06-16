@@ -5,11 +5,10 @@ Licensing
 ---
 See LICENSE.md for details.
 
-### To Package:
+### To Cache
 
-    ./configure
-    me package
+    pak -f cache
 
 Resources
 ---
-  - [Osdep GitHub repository](http://github.com/embedthis/osdep)
+  - [osdep GitHub repository](http://github.com/embedthis/osdep)

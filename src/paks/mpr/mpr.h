@@ -87,13 +87,13 @@ struct  MprWorkerService;
 struct  MprXml;
 
 #ifndef ME_MPR_LOGGING
-    #define ME_MPR_LOGGING 1           /**< Default for logging is "on" */
+    #define ME_MPR_LOGGING 1            /**< Default for logging is "on" */
 #endif
-#ifndef ME_MPR_TRACING
+#ifndef ME_MPR_DEBUG_LOGGING
     #if ME_DEBUG
-        #define ME_MPR_TRACING 1       /**< Tracing is on in debug builds */
+        #define ME_MPR_DEBUG_LOGGING 1
     #else
-        #define ME_MPR_TRACING 0
+        #define ME_MPR_DEBUG_LOGGING 0
     #endif
 #endif
 #ifndef ME_MPR_TEST
@@ -254,7 +254,7 @@ struct  MprXml;
 #define MPR_ERR_BUSY                    -11     /**< Resource is busy */
 #define MPR_ERR_CANT_ACCESS             -12     /**< Cannot access the file or resource */
 #define MPR_ERR_CANT_ALLOCATE           -13     /**< Cannot allocate resource */
-#define MPR_ERR_CANT_COMPLETE           -14     /**< Operation can't complete */
+#define MPR_ERR_CANT_COMPLETE           -14     /**< Operation cannot complete */
 #define MPR_ERR_CANT_CONNECT            -15     /**< Cannot connect to network or resource */
 #define MPR_ERR_CANT_CREATE             -16     /**< Cannot create the file or resource */
 #define MPR_ERR_CANT_DELETE             -17     /**< Cannot delete the resource */
@@ -276,6 +276,8 @@ struct  MprXml;
 #define MPR_ERR_WOULD_BLOCK             -33     /**< Blocking operation would block */
 #define MPR_ERR_MAX                     -34
 
+//  MOB - REENABLE
+#if DEPRECATED
 /**
     Standard logging trace levels are 0 to 5 with 0 being the least verbose.
  */
@@ -284,8 +286,6 @@ struct  MprXml;
 #define MPR_INFO            2           /**< Information trace level */
 #define MPR_DIAG            3           /**< Diagnostic trace level */
 #define MPR_VERBOSE         5           /**< Highest level of trace */
-
-#if DEPRECATED || 1
 #define MPR_CONFIG          MPR_INFO
 #endif
 
@@ -368,7 +368,7 @@ PUBLIC void mprBreakpoint();
     @stability evolving
  */
 PUBLIC void assert(bool cond);
-#elif ME_MPR_TRACING
+#elif ME_MPR_DEBUG_LOGGING
     #undef assert
     #define assert(C)   if (C) ; else mprAssert(MPR_LOC, #C)
 #else
@@ -3373,7 +3373,7 @@ PUBLIC uint64 mprGetHiResTicks();
     #define MPR_HIGH_RES_TIMER 0
 #endif
 
-#if ME_MPR_TRACING
+#if ME_MPR_DEBUG_LOGGING
     #if MPR_HIGH_RES_TIMER
         #define MPR_MEASURE(level, tag1, tag2, op) \
             if ((level) <= MPR->logLevel) { \
@@ -3931,14 +3931,12 @@ typedef struct MprLog { int dummy; } MprLog;
 /**
     Log handler callback type.
     @description Callback prototype for the log handler. Used by mprSetLogHandler to define
-        a message logging handler to process log and error messages.
+        a message logging handler to process log and error messages. See #mprLog for more details.
     @param file Source filename. Derived by using __FILE__.
     @param line Source line number. Derived by using __LINE__.
     @param flags Error flags.
-    @param tags List of space separated tag words. May also be key=value.
-        By convention, tags may use one of the severity levels defined in RFC 5424:
-        "debug", "info", "notice", "warn", "error", "critical".
-    @param level Message logging level. Levels are 0-5 with zero being the most verbose.
+    @param tags List of space separated tag words.
+    @param level Message logging level. Levels are 0-5 with five being the most verbose.
     @param msg Message being logged.
     @ingroup MprLog
     @stability Stable
@@ -3975,11 +3973,8 @@ PUBLIC int mprBackupLog(cchar *path, int count);
 
 /**
     Default MPR log handler
-    @param type Message type
     @param tags Descriptive tag words to classify this message.
-        By convention, tags may use one of the severity levels defined in RFC 5424:
-        "debug", "info", "notice", "warn", "error", "critical".
-    @param level Logging level for this message. The level is 0-5 with zero being the most verbose.
+    @param level Logging level for this message. The level is 0-5 with five being the most verbose.
     @param msg Message to log
     @ingroup MprLog
     @stability Evolving
@@ -3992,7 +3987,6 @@ PUBLIC void mprDefaultLogHandler(cchar *tags, int level, cchar *msg);
         message will be to the log handler defined by #mprSetLogHandler. It
         is up to the log handler to respond appropriately and log the message.
         This will invoke mprLog with a severity tag of "error".
-    @param tags List of space separated tag words. May also be key=value.
     @param fmt Printf style format string. Variable number of arguments to
     @param ... Variable number of arguments for printf data
     @ingroup MprLog
@@ -4021,19 +4015,35 @@ PUBLIC MprLogHandler mprGetLogHandler();
 #if DOXYGEN
 /**
     Write a message to the log file.
-    @description Send a message to the MPR logging subsystem. Logging support is enabled via the ME_MPR_LOGGING
-        define which is typically set via the MakeMe setting "logging: true".
-        Logging typically is enabled in both debug and release builds.
-        The mprLog function is a macro which translates into the mprLogProc function.
-    @param tags Descriptive tag words to classify this message.
-        By convention, tags may use one of the severity levels defined in RFC 5424:
-        "debug", "info", "notice", "warn", "error", "critical".
-    @param level Logging level for this message. The level is 0-5 with zero being the most verbose.
+    @description Send a message to the MPR logging subsystem. By default, log messages are sent to the standard error
+        output. Applications may redirect output by installing a log handler using #mprSetLogHandler.
+        \n\n
+        Log messages should be a single text line to facilitate machine processing of log files. Descriptive tag words 
+        may be provided to indicate a severity level and to classifiy messages. 
+        By convention, tags may include one of the severity levels defined in RFC 5424: "debug", 
+        "info", "notice", "warn", "error", "critical". Messages using the "error", "critical" tags should use 
+        a level of zero.  Tags should be space separated.
+        \n\n
+        Logging typically is enabled in both debug and release builds and may be controlled via the build define
+        ME_MPR_LOGGING which is typically set via the MakeMe setting "logging: true".
+        \n\n
+        The #mprDebug API may be used to emit log messages only in debug builds.
+        \n\n
+        If level zero is used, the message is also sent to any relevant operating system logging facility such as
+        syslog or the Windows event database.
+    @param tags Descriptive space separated tag words to classify this message.
+        The default log handler emits messages in three formats depending on whether MPR_LOG_DETAILED is provided to
+        #mprStartLogging and the value of the tags parameter. 
+        If MPR_LOG_DETAILED and tags are supplied, the format is: "MM/DD/YY HH:MM:SS LEVEL TAGS, Message". Otherwise a 
+        a simplified output format is used: "Name: severity: message", where severity is set to "error" for level 0 
+        messages. This is useful for utility programs.
+        If tags are null, the message is output raw, without any any prefixes.
+    @param level Logging level for this message. The level is 0-5 with five being the most verbose.
     @param fmt Printf style format string. Variable number of arguments to
     @param ... Variable number of arguments for printf data
     @remarks mprLog is highly useful as a debugging aid when integrating or when developing new modules.
     @ingroup MprLog
-    @stability Stable
+    @stability Evolving
  */
 PUBLIC void mprLog(cchar *tags, int level, cchar *fmt, ...);
 #endif
@@ -4081,19 +4091,21 @@ PUBLIC MprLogHandler mprSetLogHandler(MprLogHandler handler);
 /**
     Start logging
     @param logSpec Set the log file name and level. The format is "pathName[:level]".
+    The level is a verbosity level from 0 to 5 with 5 being the most verbose.
     The following levels are generally observed:
     <ul>
-        <li>0 - Essential messages, fatal errors and critical warnings</li>
-        <li>1 - Hard errors</li>
-        <li>2 - Configuration setup and soft warnings</li>
+        <li>0 - Essential messages: errors and warnings</li>
+        <li>1 - Non-essential warnings</li>
+        <li>2 - Configuration information</li>
         <li>3 - Useful informational messages</li>
         <li>4 - Debug information</li>
         <li>5 - Most verbose levels of messages useful for debugging</li>
     </ul>
-    If logSpec is set to null, then logging is not started. The filename may be set to "stdout", "stderr" or "none". The latter
-    is the same as supplying null as the logSpec.
+    If logSpec is set to null, then logging is not started. 
+    The filename may be set to "stdout", "stderr" or "none". The latter is the same as supplying null as the logSpec.
     @param flags Set to MPR_LOG_CONFIG to show the configuration in the log file. Set to MPR_LOG_CMDLINE if a command line
-        override has been used to initiate logging.
+        override has been used to initiate logging. Set MPR_LOG_DETAILED to use the detailed message format.
+        Set MPR_LOG_ANEW to truncate existing log files after backup.
     @return Zero if successful, otherwise a negative Mpr error code. See the Appweb log for diagnostics.
     @ingroup MprLog
     @stability Stable
@@ -4102,16 +4114,10 @@ PUBLIC int mprStartLogging(cchar *logSpec, int flags);
 
 #if DOXYGEN
 /**
-    Write a trace message to the diagnostic log file.
-    @description Send a trace message to the MPR logging subsystem. Debug tracing support is enabled via the ME_MPR_TRACING
-        define which is typically set via the MakeMe setting "tracing: true".
-        Tracing is typically is enabled in only debug builds.
-        The mprDebug function is a macro which translates into the mprLogProc function.
-    @description Sends a debug trace message to the MPR logging subsystem.
-    @param tags List of space separated tag words. May also be key=value.
-        By convention, tags may use one of the severity levels defined in RFC 5424:
-        "debug", "info", "notice", "warn", "error", "critical".
-    @param level Logging level for this message. The level is 0-5 with zero being the most verbose.
+    Write a log message to the log file when the product is built in debug mode.
+    @description This routine permits the addition of debug messages that are compiled out in production builds.
+    @param tags List of space separated tag words.
+    @param level Logging level for this message. The level is 0-5 with five being the most verbose.
     @param fmt Printf style format string. Variable number of arguments to
     @param ... Variable number of arguments for printf data
     @ingroup MprLog
@@ -4130,7 +4136,7 @@ PUBLIC void mprLogProc(cchar *tags, int level, cchar *fmt, ...);
  */
 PUBLIC int mprUsingDefaultLogHandler();
 
-#if ME_MPR_TRACING
+#if ME_MPR_DEBUG_LOGGING
     #define mprDebug(tags, l, ...) if ((l) <= MPR->logLevel) { mprLogProc(tags, l, __VA_ARGS__); } else
 #else
     #define mprDebug(tags, l, ...) if (1) ; else
@@ -4140,6 +4146,17 @@ PUBLIC int mprUsingDefaultLogHandler();
     #define mprLog(tags, l, ...) if ((l) <= MPR->logLevel) { mprLogProc(tags, l, __VA_ARGS__); } else
 #else
     #define mprLog(tags, l, ...) if (1) ; else
+#endif
+
+#if DEPRECATED || 1
+/*
+    Should use mprDebug for debug messages and mprLog for production messages
+ */
+#if ME_MPR_TRACING || ME_MPR_DEBUG_LOGGING
+    #define mprTrace(l, ...) if ((l) <= MPR->logLevel) { mprLogProc(l, __VA_ARGS__); } else
+#else
+    #define mprTrace(l, ...) if (1) ; else
+#endif
 #endif
 
 /************************************ Hash ************************************/
@@ -5595,7 +5612,7 @@ typedef struct MprModule {
     @description Loadable modules can have an entry point that is invoked automatically when a module is loaded.
     @param data Data passed to mprCreateModule
     @param mp Module object reference returned from #mprCreateModule
-    @return a new MprModule structure for the module. Return NULL if the module can't be initialized.
+    @return a new MprModule structure for the module. Return NULL if the module cannot be initialized.
     @ingroup MprModule
     @stability Stable
  */
@@ -7467,6 +7484,11 @@ typedef struct MprSocket {
     struct MprSocket *listenSock;       /**< Listening socket */
     void            *sslSocket;         /**< Extended SSL socket state */
     struct MprSsl   *ssl;               /**< SSL configuration */
+    char            *cipher;            /**< Selected SSL cipher */
+    char            *peerName;          /**< Peer common SSL name */
+    char            *peerCert;          /**< Peer SSL certificate */
+    char            *peerCertIssuer;    /**< Issuer of peer certificate */
+    bool            secured;            /**< SSL Peer verified */
     MprMutex        *mutex;             /**< Multi-thread sync */
 } MprSocket;
 
@@ -7949,13 +7971,14 @@ typedef struct MprSsl {
     char            *caFile;            /**< Certificate verification cert file or bundle */
     char            *caPath;            /**< Certificate verification cert directory (OpenSSL only) */
     char            *ciphers;           /**< Candidate ciphers to use */
-    int             configured;         /**< Set if this SSL configuration has been processed */
+    bool            verified;           /**< Peer has been verified */
     void            *config;            /**< Extended provider SSL configuration */
-    int             verifyPeer;         /**< Verify the peer verificate */
-    int             verifyIssuer;       /**< Set if the certificate issuer should be also verified */
-    int             verifyDepth;        /**< Set if the cert chain depth should be verified */
+    bool            configured;         /**< Set if this SSL configuration has been processed */
+    bool            verifyPeer;         /**< Verify the peer verificate */
+    bool            verifyIssuer;       /**< Set if the certificate issuer should be also verified */
+    bool            changed;            /**< Set if there is a change in the SSL config. Reset by providers */
+    int             verifyDepth;        /**< Cert chain depth that should be verified */
     int             protocols;          /**< SSL protocols */
-    int             changed;            /**< Set if there is a change in the SSL config. Reset by providers */
     MprMutex        *mutex;             /**< Multithread sync */
 } MprSsl;
 
@@ -8912,7 +8935,7 @@ PUBLIC bool mprIsCmdRunning(MprCmd *cmd);
 
 #if ME_WIN_LIKE
 /**
-    Poll for I/O on the command pipes. This is only used on windows which can't adequately detect EOF on a named pipe.
+    Poll for I/O on the command pipes. This is only used on windows which cannot adequately detect EOF on a named pipe.
     @param cmd MprCmd object created via mprCreateCmd
     @param timeout Time in milliseconds to wait for the command to complete and exit.
     @ingroup MprCmd
@@ -9433,6 +9456,7 @@ PUBLIC int mprSetMimeProgram(MprHash *table, cchar *mimeType, cchar *program);
 #define MPR_LOG_ANEW        0x1         /**< Start anew on restart after backup */
 #define MPR_LOG_CONFIG      0x2         /**< Show the configuration at the start of the log */
 #define MPR_LOG_CMDLINE     0x4         /**< Command line log switch uses */
+#define MPR_LOG_DETAILED    0x8         /**< Use detailed log formatting with timestamps and tags */
 
 typedef bool (*MprIdleCallback)(bool traceRequests);
 

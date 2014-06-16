@@ -260,8 +260,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
             }
 
         } else if (smatch(argp, "--verbose") || smatch(argp, "-v")) {
-            mprStartLogging("stderr:2", 0);
-            mprSetCmdlineLogging(1);
+            logSpec = "stderr:2";
 
         } else if (smatch(argp, "--version") || smatch(argp, "-V")) {
             mprPrintf("%s\n", EJS_VERSION);
@@ -323,7 +322,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
         return -1;
     }
     if (logSpec) {
-        mprStartLogging(logSpec, MPR_LOG_CONFIG | MPR_LOG_CMDLINE);
+        mprStartLogging(logSpec, MPR_LOG_CMDLINE);
     }
     if (traceSpec) {
         httpStartTracing(traceSpec);

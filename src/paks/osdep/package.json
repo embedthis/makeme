@@ -19,7 +19,8 @@
         "url": "http://github.com/embedthis/osdep/issues"
     },
     "export": [
-        "src/osdep.h"
+        "src/osdep.h",
+        "doc/**"
     ],
     "licenses": [
         {
@@ -35,10 +36,17 @@
         "paks": "src/paks"
     },
     "optionalDependencies": {
-        "me-dev": "~0.8"
+        "me-dev": "~0.8",
+        "me-doc": "~0.8"
     },
     "files": [
         "osdep.h",
-        "osdep.me"
-    ]
+        "osdep.me",
+        "doc/api/osdep.dtags",
+        "doc/api/osdepBare.tags",
+        "doc/api/osdepBare.html",
+    ],
+    "ignore": [
+        "start.me"
+    ],
 }

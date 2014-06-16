@@ -8223,8 +8223,7 @@ static void addModule(EcCompiler *cp, EjsModule *mp)
 }
 
 
-//  TODO -- cleanup
-#if ME_MPR_TRACING
+#if ME_MPR_DEBUG_LOGGING
 static int level = 8;
 #endif
 
@@ -36396,7 +36395,7 @@ static void setupTrace(Ejs *ejs, HttpTrace *trace, EjsObj *options)
     httpSetTraceEventLevel(trace, "txBody", getNumOption(ejs, options, "txBody"));
     httpSetTraceEventLevel(trace, "complete", getNumOption(ejs, options, "complete"));
 
-    httpSetTraceSize(trace, getNumOption(ejs, options, "size"));
+    httpSetTraceContentSize(trace, getNumOption(ejs, options, "size"));
 }
 
 

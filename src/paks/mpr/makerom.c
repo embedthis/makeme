@@ -104,7 +104,7 @@ static int binToC(MprList *files, char *romName, char *prefix)
             continue;
         } 
         if ((fd = open(filename, O_RDONLY | O_BINARY, 0666)) < 0) {
-            mprLog("makerom", 0, "Cannot open file %s", filename);
+            mprLog("error makerom", 0, "Cannot open file %s", filename);
             return -1;
         }
         mprPrintf("static uchar _file_%d[] = {\n", next);

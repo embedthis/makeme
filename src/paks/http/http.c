@@ -123,7 +123,7 @@ MAIN(httpMain, int argc, char **argv, char **envp)
     }
     mprSetMaxWorkers(app->workers);
     if (mprStart() < 0) {
-        mprLog("http", 0, "Cannot start MPR for %s", mprGetAppTitle());
+        mprLog("error http", 0, "Cannot start MPR for %s", mprGetAppTitle());
         exit(2);
     }
     start = mprGetTime();
@@ -150,7 +150,7 @@ MAIN(httpMain, int argc, char **argv, char **envp)
         mprPrintf("Worker threads:      %13d\n", app->workers);
     }
     if (!app->success && app->verbose) {
-        mprLog("http", 0, "Request failed");
+        mprLog("error http", 0, "Request failed");
     }
     mprDestroy();
     return (app->success) ? 0 : 255;
@@ -242,7 +242,7 @@ static int parseArgs(int argc, char **argv)
             } else {
                 app->ca = sclone(argv[++nextArg]);
                 if (!mprPathExists(app->ca, R_OK)) {
-                    mprLog("http", 0, "Cannot find ca file %s", app->ca);
+                    mprLog("error http", 0, "Cannot find ca file %s", app->ca);
                     return MPR_ERR_BAD_ARGS;
                 }
             }
@@ -254,7 +254,7 @@ static int parseArgs(int argc, char **argv)
             } else {
                 app->cert = sclone(argv[++nextArg]);
                 if (!mprPathExists(app->cert, R_OK)) {
-                    mprLog("http", 0, "Cannot find cert file %s", app->cert);
+                    mprLog("error http", 0, "Cannot find cert file %s", app->cert);
                     return MPR_ERR_BAD_ARGS;
                 }
             }
@@ -267,7 +267,7 @@ static int parseArgs(int argc, char **argv)
                 value = argv[++nextArg];
                 app->chunkSize = atoi(value);
                 if (app->chunkSize < 0) {
-                    mprLog("http", 0, "Bad chunksize %d", app->chunkSize);
+                    mprLog("error http", 0, "Bad chunksize %d", app->chunkSize);
                     return MPR_ERR_BAD_ARGS;
                 }
             }
@@ -324,7 +324,7 @@ static int parseArgs(int argc, char **argv)
             } else {
                 key = argv[++nextArg];
                 if ((value = strchr(key, ':')) == 0) {
-                    mprLog("http", 0, "Bad header format. Must be \"key: value\"");
+                    mprLog("error http", 0, "Bad header format. Must be \"key: value\"");
                     return MPR_ERR_BAD_ARGS;
                 }
                 *value++ = '\0';
@@ -362,7 +362,7 @@ static int parseArgs(int argc, char **argv)
             } else {
                 app->key = sclone(argv[++nextArg]);
                 if (!mprPathExists(app->key, R_OK)) {
-                    mprLog("http", 0, "Cannot find key file %s", app->key);
+                    mprLog("error http", 0, "Cannot find key file %s", app->key);
                     return MPR_ERR_BAD_ARGS;
                 }
             }
@@ -542,7 +542,7 @@ static int parseArgs(int argc, char **argv)
         }
     }
     if (logSpec) {
-        mprStartLogging(logSpec, MPR_LOG_CONFIG | MPR_LOG_CMDLINE);
+        mprStartLogging(logSpec, MPR_LOG_CMDLINE);
     }
     if (traceSpec) {
         httpStartTracing(traceSpec);
@@ -585,14 +585,14 @@ static int parseArgs(int argc, char **argv)
         }
         if (app->cert) {
             if (!app->key) {
-                mprLog("http", 0, "Must specify key file");
+                mprLog("error http", 0, "Must specify key file");
                 return 0;
             }
             mprSetSslCertFile(app->ssl, app->cert);
             mprSetSslKeyFile(app->ssl, app->key);
         }
         if (app->ca) {
-            mprLog("http", 4, "Using CA: \"%s\"", app->ca);
+            mprLog("info http", 4, "Using CA: \"%s\"", app->ca);
             mprSetSslCaFile(app->ssl, app->ca);
         }
         if (app->verifyIssuer == -1) {
@@ -834,7 +834,7 @@ static int prepRequest(HttpConn *conn, MprList *files, int retry)
 static int sendRequest(HttpConn *conn, cchar *method, cchar *url, MprList *files)
 {
     if (httpConnect(conn, method, url, app->ssl) < 0) {
-        mprLog("http", 0, "Cannot process request for \"%s\"\n%s", url, httpGetError(conn));
+        mprLog("error http", 0, "Cannot process request for \"%s\"\n%s", url, httpGetError(conn));
         return MPR_ERR_CANT_OPEN;
     }
     /*
@@ -846,7 +846,7 @@ static int sendRequest(HttpConn *conn, cchar *method, cchar *url, MprList *files
             httpSetChunkSize(conn, app->chunkSize);
         }
         if (writeBody(conn, files) < 0) {
-            mprLog("http", 0, "Cannot write body data to \"%s\". %s", url, httpGetError(conn));
+            mprLog("error http", 0, "Cannot write body data to \"%s\". %s", url, httpGetError(conn));
             return MPR_ERR_CANT_WRITE;
         }
     }
@@ -916,7 +916,7 @@ static int issueRequest(HttpConn *conn, cchar *url, MprList *files)
     if (conn->error) {
         msg = (conn->errorMsg) ? conn->errorMsg : "";
         sep = (msg && *msg) ? "\n" : "";
-        mprLog("http", 0, "failed \"%s\" request for %s after %d attempt(s).%s%s", app->method, url, count, sep, msg);
+        mprLog("error http", 0, "Failed \"%s\" request for %s after %d attempt(s).%s%s", app->method, url, count, sep, msg);
         return MPR_ERR_CANT_CONNECT;
     }
     return 0;
@@ -955,7 +955,7 @@ static int reportResponse(HttpConn *conn, cchar *url)
         }
     }
     if (status < 0) {
-        mprLog("http", 0, "Cannot process request for \"%s\" %s", url, httpGetError(conn));
+        mprLog("error http", 0, "Cannot process request for \"%s\" %s", url, httpGetError(conn));
         return MPR_ERR_CANT_READ;
 
     } else if (status == 0 && conn->protocol == 0) {
@@ -966,7 +966,7 @@ static int reportResponse(HttpConn *conn, cchar *url)
             app->success = 0;
         }
         if (!app->showStatus) {
-            mprLog("http", 0, "Cannot process request for \"%s\" (%d) %s", url, status, httpGetError(conn));
+            mprLog("error http", 0, "Cannot process request for \"%s\" (%d) %s", url, status, httpGetError(conn));
             return MPR_ERR_CANT_READ;
         }
     }
@@ -1003,16 +1003,14 @@ static int doRequest(HttpConn *conn, cchar *url, MprList *files)
     cchar       *path;
 
     assert(url && *url);
-    mprDebug("http", 4, "fetch: %s %s", app->method, url);
 
     if (issueRequest(conn, url, files) < 0) {
         return MPR_ERR_CANT_CONNECT;
     }
-
     if (app->outFilename) {
         path = app->loadThreads > 1 ? sfmt("%s-%s.tmp", app->outFilename, mprGetCurrentThreadName()): app->outFilename;
         if ((outFile = mprOpenFile(path, O_CREAT | O_WRONLY | O_TRUNC | O_TEXT, 0664)) == 0) {
-            mprLog("http", 0, "Cannot open %s", path);
+            mprLog("error http", 0, "Cannot open %s", path);
             return MPR_ERR_CANT_OPEN;
         }
     } else {
@@ -1053,7 +1051,7 @@ static int setContentLength(HttpConn *conn, MprList *files)
     for (next = 0; (path = mprGetNextItem(files, &next)) != 0; ) {
         if (strcmp(path, "-") != 0) {
             if (mprGetPathInfo(path, &info) < 0) {
-                mprLog("http", 0, "Cannot access file %s", path);
+                mprLog("error http", 0, "Cannot access file %s", path);
                 return MPR_ERR_CANT_ACCESS;
             }
             len += info.size;
@@ -1112,7 +1110,7 @@ static ssize writeBody(HttpConn *conn, MprList *files)
                     file = mprOpenFile(path, O_RDONLY | O_BINARY, 0);
                 }
                 if (file == 0) {
-                    mprLog("http", 0, "Cannot open \"%s\"", path);
+                    mprLog("error http", 0, "Cannot open \"%s\"", path);
                     return MPR_ERR_CANT_OPEN;
                 }
                 app->inFile = file;

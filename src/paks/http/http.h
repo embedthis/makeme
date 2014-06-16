@@ -543,7 +543,7 @@ typedef struct HttpTrace {
     int                 backupCount;                    /**< Trace logger backup count */
     int                 flags;                          /**< Trace control flags (append|anew) */
     MprOff              size;                           /**< Max trace log size */
-    ssize               bodySize;                       /**< Maximum body size to trace */
+    ssize               maxContent;                     /**< Maximum content size to trace */
     MprHash             *events;                        /**< Configuration of events */
     HttpTraceFormatter  formatter;                      /**< Trace formatter */
     HttpTraceLogger     logger;                         /**< Trace logger */
@@ -656,6 +656,14 @@ PUBLIC void httpSetTraceFormat(HttpTrace *trace, cchar *format);
 PUBLIC void httpSetTraceLevel(int level);
 
 /**
+    Get the current tracing level
+    @return The tracing level 0-5
+    @ingroup HttpTrace
+    @stability Prototype
+ */
+PUBLIC int httpGetTraceLevel();
+
+/**
     Configure the tracing level for an event
     @param trace Tracing object
     @param event Event to configure
@@ -667,13 +675,14 @@ PUBLIC void httpSetTraceLevel(int level);
 PUBLIC void httpSetTraceEventLevel(HttpTrace *trace, cchar *event, int level);
 
 /**
-    Configure the tracing levels and maximum size for trace events.
+    Set the maximum content size to trace
+    @description Tracing will be suspended for files that are larger than this size. 
+    @param trace Tracing object
     @param size Maximum content size to trace
     @ingroup HttpTrace
     @stability Prototype.
-    @internal
  */
-PUBLIC void httpSetTraceSize(HttpTrace *trace, ssize size);
+PUBLIC void httpSetTraceContentSize(HttpTrace *trace, ssize size);
 
 /**
     Set the trace callback to use with a trace object
@@ -724,6 +733,7 @@ PUBLIC bool httpShouldTrace(struct HttpConn *conn, cchar *event);
     #define httpShouldTrace(conn, event) \
         (conn->http->traceLevel > 0 && PTOI(mprLookupKey(conn->trace->events, event)) <= conn->http->traceLevel)
 #endif
+#define httpTracing(conn) (conn->http->traceLevel > 0)
 
 /**
     Start tracing for the given trace log file when instructed via a command line switch.
@@ -744,17 +754,25 @@ PUBLIC bool httpShouldTrace(struct HttpConn *conn, cchar *event);
 */
 PUBLIC int httpStartTracing(cchar *traceSpec);
 
+#if DOXYGEN
 /**
     Trace an event of interest
     @param conn HttpConn connection object created via #httpCreateConn
-    @param event Event to trace. The standard set of events is:
-        connection, error, info, rxFirst, rxHeaders, rxBody, txFirst, txHeaders, txBody, complete.
+    @param event Event to trace. The standard set of events and their default trace levels are:
+    first:1, error:1, complete:2, connection:3, headers:3, context:3, close:3, rx:4, tx:5.
     @param msg Message to add to trace event
     @param values Formatted comma separated key=value pairs
     @ingroup HttpTrace
     @stability Prototype
  */
 PUBLIC void httpTrace(struct HttpConn *conn, cchar *event, cchar *msg, cchar *values, ...);
+#else
+    #define httpTrace(conn, event, msg, values, ...) \
+        if (conn->http->traceLevel > 0 && PTOI(mprLookupKey(conn->trace->events, event)) <= conn->http->traceLevel) { \
+            httpTraceProc(conn, event, msg, values, __VA_ARGS__); \
+        }
+#endif
+PUBLIC void httpTraceProc(struct HttpConn *conn, cchar *event, cchar *msg, cchar *values, ...);
 
 /**
     Trace request content
@@ -5941,6 +5959,7 @@ typedef struct HttpRx {
     HttpRoute       *route;                 /**< Route for request */
     HttpSession     *session;               /**< Session for request */
     bool            sessionProbed;          /**< Session has been resolved */
+    ssize           headerPacketLength;     /**< Size of the headers */
     int             seqno;                  /**< Unique request sequence number */
 
     MprList         *etags;                 /**< Document etag to uniquely identify the document version */

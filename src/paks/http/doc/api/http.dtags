@@ -79,8 +79,8 @@
       <type>void(*</type>
       <name>HttpTraceFormatter</name>
       <anchorfile>group___http_trace.html</anchorfile>
-      <anchor>ga0997f06b3b122ccf0d30031c3997c7f5</anchor>
-      <arglist>)(struct HttpConn *conn, int event, cchar *msg, cchar *buf, ssize len)</arglist>
+      <anchor>ga4915b1313e3083d193fd153df9146b37</anchor>
+      <arglist>)(struct HttpConn *conn, cchar *type, cchar *msg, cchar *values, cchar *buf, ssize len)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -93,8 +93,8 @@
       <type>void</type>
       <name>httpCommonTraceFormatter</name>
       <anchorfile>group___http_trace.html</anchorfile>
-      <anchor>gad22047d472a36fa5065f478faee72dbd</anchor>
-      <arglist>(struct HttpConn *conn, int event, cchar *msg, cchar *buf, ssize len)</arglist>
+      <anchor>gafbf066ddb68c45671fc2bbb6529d306b</anchor>
+      <arglist>(struct HttpConn *conn, cchar *event, cchar *msg, cchar *values, cchar *buf, ssize len)</arglist>
     </member>
     <member kind="function">
       <type>HttpTrace *</type>
@@ -107,15 +107,36 @@
       <type>void</type>
       <name>httpDetailTraceFormatter</name>
       <anchorfile>group___http_trace.html</anchorfile>
-      <anchor>gab169ae5aa6eaa6a8f1aa697091a69e20</anchor>
-      <arglist>(struct HttpConn *conn, int event, cchar *msg, cchar *buf, ssize len)</arglist>
+      <anchor>ga4394c974770bd5e2ac3fc1116e1077cc</anchor>
+      <arglist>(struct HttpConn *conn, cchar *event, cchar *msg, cchar *values, cchar *buf, ssize len)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>httpFormatTrace</name>
       <anchorfile>group___http_trace.html</anchorfile>
-      <anchor>ga26de93a0e7c8908b6728d315944dc72b</anchor>
-      <arglist>(struct HttpConn *conn, int event, cchar *msg, cchar *buf, ssize len)</arglist>
+      <anchor>ga52cd5d3136872b1feb5773a7058bbfab</anchor>
+      <arglist>(struct HttpConn *conn, cchar *event, cchar *msg, cchar *values, cchar *buf, ssize len)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>httpGetTraceLevel</name>
+      <anchorfile>group___http_trace.html</anchorfile>
+      <anchor>ga0ac3988dc0a5142b4cfb380c05e66c68</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpSetTraceContentSize</name>
+      <anchorfile>group___http_trace.html</anchorfile>
+      <anchor>ga71f8a68f4dbc193564ab35d8380b90c0</anchor>
+      <arglist>(HttpTrace *trace, ssize size)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpSetTraceEventLevel</name>
+      <anchorfile>group___http_trace.html</anchorfile>
+      <anchor>ga2cb7ae15f30fff06a056cd241cf9a589</anchor>
+      <arglist>(HttpTrace *trace, cchar *event, int level)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -125,11 +146,18 @@
       <arglist>(HttpTrace *trace, cchar *format)</arglist>
     </member>
     <member kind="function">
-      <type>void</type>
+      <type>HttpTraceFormatter</type>
       <name>httpSetTraceFormatter</name>
       <anchorfile>group___http_trace.html</anchorfile>
-      <anchor>ga696bc6fc032d1b714dbd4d876ad9e725</anchor>
+      <anchor>ga982ac8b4d1b6c485cafa8c1b12ccef46</anchor>
       <arglist>(HttpTrace *trace, HttpTraceFormatter callback)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>httpSetTraceFormatterName</name>
+      <anchorfile>group___http_trace.html</anchorfile>
+      <anchor>ga582f52028a132d95bfeaf9ea33866319</anchor>
+      <arglist>(HttpTrace *trace, cchar *name)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -137,13 +165,6 @@
       <anchorfile>group___http_trace.html</anchorfile>
       <anchor>ga0487bcd42a3dc29ee5beb49a2c41d7e5</anchor>
       <arglist>(int level)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>httpSetTraceLevels</name>
-      <anchorfile>group___http_trace.html</anchorfile>
-      <anchor>gaba253663c2b58956a999c11cc517dd90</anchor>
-      <arglist>(HttpTrace *trace, char *levels, ssize size)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -160,18 +181,11 @@
       <arglist>(HttpTrace *trace, HttpTraceLogger callback)</arglist>
     </member>
     <member kind="function">
-      <type>void</type>
-      <name>httpSetTraceType</name>
-      <anchorfile>group___http_trace.html</anchorfile>
-      <anchor>ga0229fd7a8237ebf4b97b5068743bb483</anchor>
-      <arglist>(HttpTrace *trace, cchar *type)</arglist>
-    </member>
-    <member kind="function">
       <type>bool</type>
       <name>httpShouldTrace</name>
       <anchorfile>group___http_trace.html</anchorfile>
-      <anchor>gaed1c07bbec0e1d06d844b50447b75019</anchor>
-      <arglist>(struct HttpConn *conn, int event)</arglist>
+      <anchor>ga383829693c547f1c4f2c4e921432ac82</anchor>
+      <arglist>(struct HttpConn *conn, cchar *event)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -184,22 +198,22 @@
       <type>void</type>
       <name>httpTrace</name>
       <anchorfile>group___http_trace.html</anchorfile>
-      <anchor>ga45e7f4872004353aef3396a4a31c4995</anchor>
-      <arglist>(struct HttpConn *conn, int event, cchar *fmt,...)</arglist>
+      <anchor>ga54db7cd30faa7366addfaf56bc7d26de</anchor>
+      <arglist>(struct HttpConn *conn, cchar *event, cchar *msg, cchar *values,...)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>httpTraceContent</name>
       <anchorfile>group___http_trace.html</anchorfile>
-      <anchor>ga731150d66feed1c529168c5615cee7f0</anchor>
-      <arglist>(struct HttpConn *conn, int event, cchar *buf, ssize len, cchar *fmt,...)</arglist>
+      <anchor>ga1609fc03c142f4e58b313b7f755f9687</anchor>
+      <arglist>(struct HttpConn *conn, cchar *event, cchar *buf, ssize len, cchar *msg, cchar *values,...)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
       <name>httpTracePacket</name>
       <anchorfile>group___http_trace.html</anchorfile>
-      <anchor>gae3da23042bce1971492a9ca68aa342c0</anchor>
-      <arglist>(struct HttpConn *conn, int event, struct HttpPacket *packet, cchar *fmt,...)</arglist>
+      <anchor>ga9acc2d1a4c21ea07ab805f2fb83682dc</anchor>
+      <arglist>(struct HttpConn *conn, cchar *event, struct HttpPacket *packet, cchar *msg, cchar *values,...)</arglist>
     </member>
     <member kind="function">
       <type>void</type>

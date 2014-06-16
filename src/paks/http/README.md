@@ -1,10 +1,9 @@
-Embedthis Http Library
+Embedthis Multithreaded Portable Runtime (MPR) 4.X
 ===
 
 Licensing
 ---
-The Http library is dual-licensed under a GPLv2 license and commercial licenses are offered by Embedthis Software.
-See http://embedthis.com/licensing/ for licensing details.
+See LICENSE.md for details.
 
 ### To Read Documentation:
 
@@ -45,7 +44,6 @@ This will run appweb in the src/server directory using the src/server/appweb.con
 
 Resources
 ---
-  - [MPR GitHub repository](http://github.com/embedthis/mpr-4)
   - [Embedthis web site](http://embedthis.com/)
+  - [MPR GitHub repository](http://github.com/embedthis/mpr-4)
   - [MakeMe GitHub repository](http://github.com/embedthis/makeme)
-

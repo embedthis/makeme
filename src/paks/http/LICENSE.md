@@ -1,4 +1,4 @@
-Embedthis Http Licenses
+Embedthis MPR Licenses
 ===
 
 This software is distributed under commercial and GPL open source licenses.
@@ -15,11 +15,7 @@ Third Party Licenses
 
 The Software contains third party software under the agreements that follow.
 
-### Perl Regular Expressions License
-
-[PCRE License - BSD 2 Clause](http://opensource.org/licenses/BSD-2-Clause)
-
-### RSA MD5 License
+###RSA MD5 License
 
 License to copy and use this software is granted provided that it is identified 
 as the "RSA Data Security, Inc. MD5 Message-Digest Algorithm" in all material 
@@ -33,13 +29,11 @@ purpose. It is provided "as is" without express or implied warranty of any
 kind. These notices must be retained in any copies of any part of this 
 documentation and/or software. 
 
+###EST License
 
-### EST License
-
-The optional EST SSL stack includes code from TropicSSL.
+The optional EST SSL stack includes code from TropicSSL in the est library.
 
 [TropicSSL License - BSD 2 Clause](http://opensource.org/licenses/BSD-2-Clause)
-
 
 Trademarks and Copyrights
 ---
