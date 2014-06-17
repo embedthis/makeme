@@ -15992,6 +15992,97 @@ PUBLIC int mprGetError()
 }
 
 
+/*
+    Set the mapped (portable, Posix) error code
+ */
+PUBLIC void mprSetError(error)
+{
+#if !ME_WIN_LIKE
+    mprSetOsError(error);
+    return;
+#else
+    switch (error) {
+    case ENOENT:
+        error = ERROR_FILE_NOT_FOUND;
+        break;
+
+    case EPERM:
+        error = ERROR_ACCESS_DENIED;
+        break;
+
+    case EBADF:
+        error = ERROR_INVALID_HANDLE;
+        break;
+
+    case ENOMEM:
+        error = ERROR_NOT_ENOUGH_MEMORY;
+        break;
+
+    case EBUSY:
+        error = ERROR_BUSY;
+        break;
+
+    case EEXIST:
+        error = ERROR_FILE_EXISTS;
+        break;
+
+    case EINVAL:
+        error = ERROR_BAD_ARGUMENTS;
+        break;
+
+    case EINTR:
+        error = WSAEINTR;
+        break;
+
+    case EACCES:
+        error = WSAEACCES;
+        break;
+
+    case EINPROGRESS:
+        error = WSAEINPROGRESS;
+        break;
+
+    case EALREADY:
+        error = WSAEALREADY;
+        break;
+
+    case EADDRINUSE:
+        error = WSAEADDRINUSE;
+        break;
+
+    case EADDRNOTAVAIL:
+        error = WSAEADDRNOTAVAIL;
+        break;
+
+    case ENETDOWN:
+        error = WSAENETDOWN;
+        break;
+
+    case ENETUNREACH:
+        error = WSAENETUNREACH;
+        break;
+
+    case ECONNABORTED:
+        error = WSAECONNABORTED;
+        break;
+
+    case ECONNRESET:
+        error = WSAECONNRESET;
+        break;
+
+    case ECONNREFUSED:
+        error = WSAECONNREFUSED;
+        break;
+
+    case EAGAIN:
+        error = WSAEWOULDBLOCK;
+        break;
+    }
+    mprSetOsError(error);
+#endif
+}
+
+
 PUBLIC int mprGetLogLevel()
 {
     Mpr     *mpr;

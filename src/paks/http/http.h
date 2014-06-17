@@ -2902,7 +2902,7 @@ typedef struct HttpConn {
     void            *ejs;                   /**< Embedding VM */
     void            *pool;                  /**< Pool of VMs */
     void            *mark;                  /**< Reference for GC marking */
-    void            *reqData;               /**< Extended request data - Used by ESP */
+    void            *reqData;               /**< Extended request data for use by web frameworks */
     void            *data;                  /**< Custom data for request - must be a managed reference */
     void            *grid;                  /**< Current request database grid for MVC apps */
     void            *record;                /**< Current request database record for MVC apps */
@@ -3406,7 +3406,9 @@ PUBLIC void httpSetConnContext(HttpConn *conn, void *context);
 
 /**
     Set the connection data field
-    @description The data field is a managed reference that applications can use to retain their own per connection state.
+    @description The HttpConn.data field is a managed reference that applications can use to retain their 
+        own per connection state. It will be marked for GC retention by Http.
+        See also HttpConn.reqData and HttpQueue.stageData;
     @param conn HttpConn object created via #httpCreateConn
     @param data Data object to associate with the connection. Must be a managed memory reference.
     @stability Stable

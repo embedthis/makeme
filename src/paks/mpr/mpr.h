@@ -4733,8 +4733,8 @@ PUBLIC MprFile *mprGetStdout();
         @li O_RDONLY Open read only
         @li O_WRONLY Open write only
         @li O_RDWR Open for read and write
-        @li O_CREAT Create or re-create
-        @li O_TRUNC Truncate
+        @li O_CREAT Create file if it does not exist
+        @li O_TRUNC Truncate size to zero length
         @li O_BINARY Open for binary data
         @li O_TEXT Open for text data
         @li O_EXCL Open with an exclusive lock
@@ -10070,6 +10070,14 @@ PUBLIC void mprSetDomainName(cchar *s);
     @stability Stable.
  */
 PUBLIC void mprSetEnv(cchar *key, cchar *value);
+
+/**
+    Set the error code.
+    @description Set errno or equivalent.
+    @ingroup Mpr
+    @stability Stable.
+ */
+PUBLIC void mprSetError(int error);
 
 /**
     Set the exit timeout for a shutdown.

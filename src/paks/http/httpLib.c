@@ -4454,7 +4454,7 @@ PUBLIC HttpConn *httpAcceptConn(HttpEndpoint *endpoint, MprEvent *event)
     assert(conn->state == HTTP_STATE_BEGIN);
     httpSetState(conn, HTTP_STATE_CONNECTED);
 
-    httpTrace(conn, "connection", 0, "peer=%s, endpoint=%s:%d", conn->ip, sock->acceptIp, sock->acceptPort);
+    httpTrace(conn, "connection", "new connection", "peer=%s, endpoint=%s:%d", conn->ip, sock->acceptIp, sock->acceptPort);
     
     event->mask = MPR_READABLE;
     event->timestamp = conn->http->now;
@@ -4515,11 +4515,11 @@ PUBLIC void httpIOEvent(HttpConn *conn, MprEvent *event)
     if (sp->secured && !conn->secure) {
         conn->secure = 1;
         if (sp->peerCert) {
-            httpTrace(conn, "context", "Connection secured with peer certificate", 
+            httpTrace(conn, "connection", "Connection secured with peer certificate", 
                 "secure=true, cipher=%s, peerName=\"%s\", subject=\"%s\", issuer=\"%s\"", 
                 sp->cipher, sp->peerName, sp->peerCert, sp->peerCertIssuer);
         } else {
-            httpTrace(conn, "context", "Connection secured without peer certificate", 
+            httpTrace(conn, "connection", "Connection secured without peer certificate", 
                 "secure=true, cipher=%s", sp->cipher);
         }
     }
@@ -13589,17 +13589,27 @@ static bool parseRequestLine(HttpConn *conn, HttpPacket *packet)
     cchar       *endp;
     MprBuf      *content;
     ssize       len;
+    bool        traceRequired = 0;
 
     rx = conn->rx;
     limits = conn->limits;
 
     /*
-        These are initially set when the connection is accepted via httpAddConn.
-        Revise to mark a new request.
+        These are initially set when the connection is accepted via httpAddConn. Revise to mark a new request.
      */
     conn->startMark = mprGetHiResTicks();
     conn->started = conn->http->now;
 
+    if (httpTracing(conn)) {
+        if (httpShouldTrace(conn, "headers")) {
+            content = packet->content;
+            endp = strstr((char*) content->start, "\r\n\r\n");
+            len = (endp) ? (int) (endp - content->start + 2) : 0;
+            httpTraceContent(conn, "headers", content->start, len, 0, "peer=%s", conn->ip);
+        } else {
+            traceRequired = 1;
+        }
+    }
     rx->originalMethod = rx->method = supper(getToken(conn, 0));
     parseMethod(conn);
 
@@ -13635,20 +13645,9 @@ static bool parseRequestLine(HttpConn *conn, HttpPacket *packet)
     }
     conn->http->totalRequests++;
     httpSetState(conn, HTTP_STATE_FIRST);
-
-    if (httpTracing(conn)) {
-        /*
-            Trace either just the first line or the entire headers
-         */
-        if (!httpShouldTrace(conn, "headers")) {
-            httpTrace(conn, "first", 0, "method=%s, uri=%s, protocol=%s, peer=%s", rx->method, rx->uri, 
-                conn->protocol, conn->ip);
-        } else {
-            content = packet->content;
-            endp = strstr((char*) content->start, "\r\n\r\n");
-            len = (endp) ? (int) (endp - content->start + 2) : 0;
-            httpTraceContent(conn, "headers", content->start, len, 0, "peer=%s", conn->ip);
-        }
+    if (traceRequired) {
+        httpTrace(conn, "first", 0, "method=%s, uri=%s, protocol=%s, peer=%s", rx->method, rx->uri, 
+            conn->protocol, conn->ip);
     }
     return 1;
 }
@@ -17407,30 +17406,6 @@ static void manageTrace(HttpTrace *trace, int flags)
     }
 }
 
-/*
-    Usage cases:
-        server:
-            1. request                              rxFirst
-            2. request + completion with status:    rxFirst, completion         Put tx-status in completion
-            3. Request and response headers
-            4. (3) + rx body
-            5. Full body
-
-        client
-            1. Request                              txFirst
-            2. request + completion with status     txFirst,  completion
-            3. Request and response headers
-            4. (3) + tx body
-            5. Full body
-
-    Initialize trace to default levels:
-    Levels 0-5: Numeric trace levels
-    Level 1: rx first line, errors
-    Level 2: tx first line
-    Level 3: connection, rx headers, tx headers, context, completions
-    Level 4: rx body
-    Level 5: tx body
- */
 PUBLIC HttpTrace *httpCreateTrace(HttpTrace *parent)
 {
     HttpTrace   *trace;
