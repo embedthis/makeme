@@ -805,9 +805,9 @@ static int prepRequest(HttpConn *conn, MprList *files, int retry)
 
     for (next = 0; (header = mprGetNextItem(app->headers, &next)) != 0; ) {
         if (scaselessmatch(header->key, "User-Agent")) {
-            httpSetHeader(conn, header->key, header->value);
+            httpSetHeaderString(conn, header->key, header->value);
         } else {
-            httpAppendHeader(conn, header->key, header->value);
+            httpAppendHeaderString(conn, header->key, header->value);
         }
     }
     if (app->text) {
@@ -816,13 +816,13 @@ static int prepRequest(HttpConn *conn, MprList *files, int retry)
     if (app->sequence) {
         static int next = 0;
         seq = itos(next++);
-        httpSetHeader(conn, "X-Http-Seq", seq);
+        httpSetHeaderString(conn, "X-Http-Seq", seq);
     }
     if (app->ranges) {
-        httpSetHeader(conn, "Range", app->ranges);
+        httpSetHeaderString(conn, "Range", app->ranges);
     }
     if (app->formData) {
-        httpSetHeader(conn, "Content-Type", "application/x-www-form-urlencoded");
+        httpSetHeaderString(conn, "Content-Type", "application/x-www-form-urlencoded");
     }
     if (setContentLength(conn, files) < 0) {
         return MPR_ERR_CANT_OPEN;
@@ -938,7 +938,7 @@ static int reportResponse(HttpConn *conn, cchar *url)
     if (bytesRead < 0 && conn->rx) {
         bytesRead = conn->rx->bytesRead;
     }
-    mprDebug("http", 6, "Response status %d, elapsed %Ld", status, mprGetTicks() - conn->started);
+    mprDebug("http", 6, "Response status %d, elapsed %lld", status, mprGetTicks() - conn->started);
     if (conn->error) {
         app->success = 0;
     }
@@ -1091,7 +1091,7 @@ static ssize writeBody(HttpConn *conn, MprList *files)
                 len = strlen(pair);
                 if (next < count) {
                     len = slen(pair);
-                    if (httpWrite(conn->writeq, pair, len) != len || httpWrite(conn->writeq, "&", 1) != 1) {
+                    if (httpWriteString(conn->writeq, pair) != len || httpWriteString(conn->writeq, "&") != 1) {
                         return MPR_ERR_CANT_WRITE;
                     }
                 } else {

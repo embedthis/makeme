@@ -1182,7 +1182,7 @@ static ssize readEst(MprSocket *sp, void *buf, ssize len)
                 sp->flags |= MPR_SOCKET_EOF;
                 return -1;
             } else {
-                mprDebug("debug mpr ssl est", 4, "read error -0x%", -rc);
+                mprDebug("debug mpr ssl est", 4, "read error -0x%x", -rc);
                 sp->flags |= MPR_SOCKET_EOF;
                 return -1;
             }
@@ -1218,7 +1218,7 @@ static ssize writeEst(MprSocket *sp, cvoid *buf, ssize len)
     rc = 0;
     do {
         rc = ssl_write(&est->ctx, (uchar*) buf, (int) len);
-        mprDebug("debug mpr ssl est", 5, "written %d, requested len %d", rc, len);
+        mprDebug("debug mpr ssl est", 5, "written %d, requested len %zd", rc, len);
         if (rc <= 0) {
             if (rc == EST_ERR_NET_TRY_AGAIN) {                                                          
                 break;
@@ -1234,7 +1234,7 @@ static ssize writeEst(MprSocket *sp, cvoid *buf, ssize len)
             totalWritten += rc;
             buf = (void*) ((char*) buf + rc);
             len -= rc;
-            mprDebug("debug mpr ssl est", 5, "write: len %d, written %d, total %d", len, rc, totalWritten);
+            mprDebug("debug mpr ssl est", 5, "write: len %zd, written %d, total %zd", len, rc, totalWritten);
         }
     } while (len > 0);
 
@@ -1640,7 +1640,7 @@ static OpenConfig *createOpenSslConfig(MprSocket *sp)
         }
         if ((!SSL_CTX_load_verify_locations(context, ssl->caFile, ssl->caPath)) ||
                 (!SSL_CTX_set_default_verify_paths(context))) {
-            sp->errorMsg = sfmt("openssl", "Unable to set certificate locations: %s: %s", ssl->caFile, ssl->caPath); 
+            sp->errorMsg = sfmt("Unable to set certificate locations: %s: %s", ssl->caFile, ssl->caPath); 
             SSL_CTX_free(context);
             return 0;
         }
@@ -1747,6 +1747,7 @@ static void manageOpenSocket(OpenSocket *osp, int flags)
 {
     if (flags & MPR_MANAGE_MARK) {
         mprMark(osp->sock);
+        mprMark(osp->cfg);
         mprMark(osp->requiredPeerName);
 
     } else if (flags & MPR_MANAGE_FREE) {
@@ -2096,7 +2097,7 @@ static ssize writeOss(MprSocket *sp, cvoid *buf, ssize len)
 
     do {
         rc = SSL_write(osp->handle, buf, (int) len);
-        mprLog("info mpr ssl openssl", 7, "Wrote %d, requested len %d", rc, len);
+        mprLog("info mpr ssl openssl", 7, "Wrote %d, requested len %zd", rc, len);
         if (rc <= 0) {
             if (SSL_get_error(osp->handle, rc) == SSL_ERROR_WANT_WRITE) {
                 break;
@@ -2107,13 +2108,13 @@ static ssize writeOss(MprSocket *sp, cvoid *buf, ssize len)
         totalWritten += rc;
         buf = (void*) ((char*) buf + rc);
         len -= rc;
-        mprLog("info mpr ssl openssl", 7, "write len %d, written %d, total %d, error %d", len, rc, totalWritten, 
+        mprLog("info mpr ssl openssl", 7, "write len %zd, written %d, total %zd, error %d", len, rc, totalWritten, 
             SSL_get_error(osp->handle, rc));
     } while (len > 0);
     unlock(sp);
 
     if (totalWritten == 0 && rc == SSL_ERROR_WANT_WRITE) {
-        mprSetOsError(EAGAIN);
+        mprSetError(EAGAIN);
         return -1;
     }
     return totalWritten;

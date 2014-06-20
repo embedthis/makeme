@@ -1999,7 +1999,7 @@ static void printMemWarn(size_t used, bool critical)
     static int once = 0;
 
     if (once++ == 0 || critical) {
-        mprLog("warn mpr memory", 0, "Memory used %,d, redline %,d, limit %,d.", (int) used, (int) heap->stats.warnHeap,
+        mprLog("warn mpr memory", 0, "Memory used %'d, redline %'d, limit %'d.", (int) used, (int) heap->stats.warnHeap,
             (int) heap->stats.maxHeap);
     }
 }
@@ -2019,23 +2019,23 @@ static void allocException(int cause, size_t size)
 
     if (cause == MPR_MEM_FAIL) {
         heap->hasError = 1;
-        mprLog("error mpr memory", 0, "Cannot allocate memory block of size %,Ld bytes.", size);
+        mprLog("error mpr memory", 0, "Cannot allocate memory block of size %'zd bytes.", size);
         printMemWarn(used, 1);
 
     } else if (cause == MPR_MEM_TOO_BIG) {
         heap->hasError = 1;
-        mprLog("error mpr memory", 0, "Cannot allocate memory block of size %,Ld bytes.", size);
+        mprLog("error mpr memory", 0, "Cannot allocate memory block of size %'zd bytes.", size);
         printMemWarn(used, 1);
 
     } else if (cause == MPR_MEM_WARNING) {
         if (once++ == 0) {
-            mprLog("error mpr memory", 0, "Memory request for %,Ld bytes exceeds memory red-line.", size);
+            mprLog("error mpr memory", 0, "Memory request for %'zd bytes exceeds memory red-line.", size);
         }
         mprPruneCache(NULL);
         printMemWarn(used, 0);
 
     } else if (cause == MPR_MEM_LIMIT) {
-        mprLog("error mpr memory", 0, "Memory request for %,d bytes exceeds memory limit.", size);
+        mprLog("error mpr memory", 0, "Memory request for %'zd bytes exceeds memory limit.", size);
         printMemWarn(used, 1);
     }
 
@@ -2769,7 +2769,7 @@ static void shutdownMonitor(void *data, MprEvent *event)
             }
         }
     } else {
-        mprLog("info mpr", 2, "Waiting for requests to complete, %d secs remaining ...", remaining / MPR_TICKS_PER_SEC);
+        mprLog("info mpr", 2, "Waiting for requests to complete, %lld secs remaining ...", remaining / MPR_TICKS_PER_SEC);
         mprRescheduleEvent(event, 1000);
     }
 }
@@ -5314,7 +5314,7 @@ static void pruneCache(MprCache *cache, MprEvent *event)
                 for (kp = 0; (kp = mprGetNextKey(cache->store, kp)) != 0; ) {
                     item = (CacheItem*) kp->data;
                     if (item->expires && item->expires <= when) {
-                        mprDebug("debug mpr cache", 3, "Cache too big, execess keys %Ld, mem %Ld, prune key %s", 
+                        mprDebug("debug mpr cache", 3, "Cache too big, execess keys %zd, mem %zd, prune key %s", 
                             excessKeys, (cache->maxMem - cache->usedMem), kp->key);
                         removeItem(cache, item);
                     }
@@ -6336,7 +6336,7 @@ static void defaultCmdCallback(MprCmd *cmd, int channel, void *data)
     }
     len = mprReadCmd(cmd, channel, mprGetBufEnd(buf), space);
     errCode = mprGetError();
-    mprDebug("mpr cmd", 5, "defaultCmdCallback channel %d, read len %d, pid %d, eof %d/%d", channel, len, cmd->pid, 
+    mprDebug("mpr cmd", 5, "defaultCmdCallback channel %d, read len %zd, pid %d, eof %d/%d", channel, len, cmd->pid, 
             cmd->eofCount, cmd->requiredEof);
     if (len <= 0) {
         if (len == 0 || (len < 0 && !(errCode == EAGAIN || errCode == EWOULDBLOCK))) {
@@ -14326,8 +14326,9 @@ static void serviceIO(MprWaitService *ws, struct kevent *events, int count)
         }
         if (fd < 0 || (wp = mprGetItem(ws->handlerMap, fd)) == 0) {
             /*
-                This can happen if a writable event has been triggered (e.g. MprCmd command stdin pipe) and the pipe is closed.
-                This thread may have waked from kevent before the pipe is closed and the wait handler removed from the map.
+                This can happen if a writable event has been triggered (e.g. MprCmd command stdin pipe) and the 
+                pipe is closed. This thread may have waked from kevent before the pipe is closed and the wait 
+                handler removed from the map.
              */
             continue;
         }
@@ -14353,7 +14354,7 @@ static void serviceIO(MprWaitService *ws, struct kevent *events, int count)
                 continue;
 
             } else if (err == EBADF || err == EINVAL) {
-                mprLog("error mpr event", 0, "Kqueue invalid file descriptor %d, fd %d", wp->fd);
+                mprLog("error mpr event", 0, "Kqueue invalid file descriptor fd %d", wp->fd);
                 mprRemoveWaitHandler(wp);
                 wp->presentMask = 0;
             }
@@ -19615,6 +19616,7 @@ static char classMap[] = {
 #define SPRINTF_INT64       0x80        /* 64-bit */
 #define SPRINTF_COMMA       0x100       /* Thousand comma separators */
 #define SPRINTF_UPPER_CASE  0x200       /* As the name says for numbers */
+#define SPRINTF_SSIZE       0x400       /* Size of ssize */
 
 typedef struct Format {
     uchar   *buf;
@@ -19908,6 +19910,7 @@ PUBLIC char *mprPrintfCore(char *buf, ssize maxsize, cchar *spec, va_list args)
                 fmt.flags |= SPRINTF_LEAD_SPACE;
                 break;
             case ',':
+            case '\'':
                 fmt.flags |= SPRINTF_COMMA;
                 break;
             }
@@ -19947,12 +19950,20 @@ PUBLIC char *mprPrintfCore(char *buf, ssize maxsize, cchar *spec, va_list args)
 
         case STATE_BITS:
             switch (c) {
+            case 'z':
+                fmt.flags |= SPRINTF_SSIZE;
+                break;
+
             case 'L':
                 fmt.flags |= SPRINTF_INT64;
                 break;
 
             case 'l':
-                fmt.flags |= SPRINTF_LONG;
+                if (fmt.flags & SPRINTF_LONG) {
+                    fmt.flags |= SPRINTF_INT64;
+                } else {
+                    fmt.flags |= SPRINTF_LONG;
+                }
                 break;
 
             case 'h':
@@ -20053,6 +20064,8 @@ PUBLIC char *mprPrintfCore(char *buf, ssize maxsize, cchar *spec, va_list args)
                     iValue = (short) va_arg(args, int);
                 } else if (fmt.flags & SPRINTF_LONG) {
                     iValue = (long) va_arg(args, long);
+                } else if (fmt.flags & SPRINTF_SSIZE) {
+                    iValue = (ssize) va_arg(args, ssize);
                 } else if (fmt.flags & SPRINTF_INT64) {
                     iValue = (int64) va_arg(args, int64);
                 } else {
@@ -20081,6 +20094,8 @@ PUBLIC char *mprPrintfCore(char *buf, ssize maxsize, cchar *spec, va_list args)
                     uValue = (ushort) va_arg(args, uint);
                 } else if (fmt.flags & SPRINTF_LONG) {
                     uValue = (ulong) va_arg(args, ulong);
+                } else if (fmt.flags & SPRINTF_SSIZE) {
+                    uValue = (ssize) va_arg(args, ssize);
                 } else if (fmt.flags & SPRINTF_INT64) {
                     uValue = (uint64) va_arg(args, uint64);
                 } else {

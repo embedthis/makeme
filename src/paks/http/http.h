@@ -521,14 +521,14 @@ PUBLIC void httpPruneMonitors();
     Request trace formatter callback
     @param conn Connection object
     @param type Type of event to trace
-    @param msg Trace message to write
+    @param event Event to trace
     @param values Formatted comma separated key=value pairs
     @param buf Data buffer
     @param len Length of data in buf. May be zero.
     @stability Prototype
     @ingroup HttpTrace
  */
-typedef void (*HttpTraceFormatter)(struct HttpConn *conn, cchar *type, cchar *msg, cchar *values, cchar *buf, ssize len);
+typedef void (*HttpTraceFormatter)(struct HttpConn *conn, cchar *type, cchar *event, cchar *values, cchar *buf, ssize len);
 typedef void (*HttpTraceLogger)(struct HttpConn *conn, cchar *buf, ssize len);
 
 /**
@@ -567,14 +567,13 @@ PUBLIC int httpBackupTraceLogFile(HttpTrace *trace);
     Common Log trace formatter
     @param conn HttpConn connection object created via #httpCreateConn
     @param event Event to trace
-    @param msg Trace message to write (unused)
     @param values Formatted comma separated key=value pairs (unused)
     @param buf Trace data buffer to write (unused)
     @param len Length of data buffer (unused)
     @ingroup HttpTrace
     @stability Prototype
  */
-PUBLIC void httpCommonTraceFormatter(struct HttpConn *conn, cchar *event, cchar *msg, cchar *values, cchar *buf, ssize len);
+PUBLIC void httpCommonTraceFormatter(struct HttpConn *conn, cchar *type, cchar *event, cchar *values, cchar *buf, ssize len);
 
 /**
     Create a trace object.
@@ -589,29 +588,29 @@ PUBLIC HttpTrace *httpCreateTrace(HttpTrace *parent);
 /**
     Detailed log trace formatter
     @param conn HttpConn connection object created via #httpCreateConn
+    @param type Event type to trace
     @param event Event to trace
-    @param msg Trace message to write
     @param values Formatted comma separated key=value pairs
     @param buf Trace data buffer to write
     @param len Length of data buffer
     @ingroup HttpTrace
     @stability Prototype
  */
-PUBLIC void httpDetailTraceFormatter(struct HttpConn *conn, cchar *event, cchar *msg, cchar *values, cchar *buf, ssize len);
+PUBLIC void httpDetailTraceFormatter(struct HttpConn *conn, cchar *type, cchar *event, cchar *values, cchar *buf, ssize len);
 
 /**
     Convenience routine to format trace via the configured formatter
     @description The formatter will invoke the trace logger and actually write the trace mesage
     @param conn HttpConn connection object created via #httpCreateConn
-    @param event Event to trace
-    @param msg Trace message to write
+    @param type Event type to trace
+    @param event Event name to trace
     @param values Formatted comma separated key=value pairs
     @param buf Trace data buffer to write
     @param len Length of data buffer
     @ingroup HttpTrace
     @stability Prototype
  */
-PUBLIC void httpFormatTrace(struct HttpConn *conn, cchar *event, cchar *msg, cchar *values, cchar *buf, ssize len);
+PUBLIC void httpFormatTrace(struct HttpConn *conn, cchar *type, cchar *event, cchar *values, cchar *buf, ssize len);
 
 /*
     Trace LogFile logger
@@ -664,15 +663,15 @@ PUBLIC void httpSetTraceLevel(int level);
 PUBLIC int httpGetTraceLevel();
 
 /**
-    Configure the tracing level for an event
+    Configure the tracing level for an event type
     @param trace Tracing object
-    @param event Event to configure
+    @param type Event type to modify
     @param level Desired trace level (0-5)
     @ingroup HttpTrace
     @stability Prototype.
     @internal
  */
-PUBLIC void httpSetTraceEventLevel(HttpTrace *trace, cchar *event, int level);
+PUBLIC void httpSetTraceEventLevel(HttpTrace *trace, cchar *type, int level);
 
 /**
     Set the maximum content size to trace
@@ -723,15 +722,15 @@ PUBLIC void httpSetTraceFormatterName(HttpTrace *trace, cchar *name);
     Test if an event should be considered for tracing
     @description Optimization for httpTrace.
     @param conn HttpConn connection object created via #httpCreateConn
-    @param event Event to trace
+    @param type Event type to trace
     @return True if the httpTrace should be called.
     @ingroup HttpTrace
     @stability Internal
   */
-PUBLIC bool httpShouldTrace(struct HttpConn *conn, cchar *event);
+PUBLIC bool httpShouldTrace(struct HttpConn *conn, cchar *type);
 #else
-    #define httpShouldTrace(conn, event) \
-        (conn->http->traceLevel > 0 && PTOI(mprLookupKey(conn->trace->events, event)) <= conn->http->traceLevel)
+    #define httpShouldTrace(conn, type) \
+        (conn->http->traceLevel > 0 && PTOI(mprLookupKey(conn->trace->events, type)) <= conn->http->traceLevel)
 #endif
 #define httpTracing(conn) (conn->http->traceLevel > 0)
 
@@ -758,21 +757,21 @@ PUBLIC int httpStartTracing(cchar *traceSpec);
 /**
     Trace an event of interest
     @param conn HttpConn connection object created via #httpCreateConn
-    @param event Event to trace. The standard set of events and their default trace levels are:
-    first:1, error:1, complete:2, connection:3, headers:3, context:3, close:3, rx:4, tx:5.
-    @param msg Message to add to trace event
-    @param values Formatted comma separated key=value pairs
+    @param type Event to type trace. The standard set of events types and their default trace levels are:
+    first:1, error:1, complete:2, connection:3, headers:3, context:3, close:3, rx:4, tx:5. Users can create custom types.
+    @param event Event name to trace.
+    @param values Printf style format string. String should be comma separated key=value pairs
     @ingroup HttpTrace
     @stability Prototype
  */
-PUBLIC void httpTrace(struct HttpConn *conn, cchar *event, cchar *msg, cchar *values, ...);
+PUBLIC void httpTrace(struct HttpConn *conn, cchar *type, cchar *event, cchar *values, ...);
 #else
-    #define httpTrace(conn, event, msg, values, ...) \
-        if (conn->http->traceLevel > 0 && PTOI(mprLookupKey(conn->trace->events, event)) <= conn->http->traceLevel) { \
-            httpTraceProc(conn, event, msg, values, __VA_ARGS__); \
-        }
+    #define httpTrace(conn, type, event, ...) \
+        if (conn->http->traceLevel > 0 && PTOI(mprLookupKey(conn->trace->events, type)) <= conn->http->traceLevel) { \
+            httpTraceProc(conn, type, event, __VA_ARGS__); \
+        } else 
 #endif
-PUBLIC void httpTraceProc(struct HttpConn *conn, cchar *event, cchar *msg, cchar *values, ...);
+PUBLIC void httpTraceProc(struct HttpConn *conn, cchar *type, cchar *event, cchar *values, ...) PRINTF_ATTRIBUTE(4,5);
 
 /**
     Trace request content
@@ -780,15 +779,16 @@ PUBLIC void httpTraceProc(struct HttpConn *conn, cchar *event, cchar *msg, cchar
     If the buffer contains binary data, it will be displayed in hex format. The content will be traced up
     to the maximum size defined via #httpSetTraceLogFile.
     @param conn HttpConn connection object created via #httpCreateConn
+    @param type Event type to trace
     @param event Event to trace
     @param buf Data buffer to trace
     @param len Size of the data buffer.
-    @param msg message to add to trace event
     @param values Formatted comma separated key=value pairs
     @ingroup HttpTrace
     @stability Prototype
  */
-PUBLIC void httpTraceContent(struct HttpConn *conn, cchar *event, cchar *buf, ssize len, cchar *msg, cchar *values, ...);
+PUBLIC void httpTraceContent(struct HttpConn *conn, cchar *type, cchar *event, cchar *buf, ssize len, 
+    cchar *values, ...) PRINTF_ATTRIBUTE(6,7);
 
 /**
     Trace request packet
@@ -796,14 +796,15 @@ PUBLIC void httpTraceContent(struct HttpConn *conn, cchar *event, cchar *buf, ss
     If the buffer contains binary data, it will be displayed in hex format. The content will be traced up
     to the maximum size defined via #httpSetTraceLogFile.
     @param conn HttpConn connection object created via #httpCreateConn
+    @param type Event type to trace
     @param event Event to trace
     @param packet Packet to trace.
-    @param msg message to add to trace event
     @param values Formatted comma separated key=value pairs
     @ingroup HttpTrace
     @stability Prototype
  */
-PUBLIC void httpTracePacket(struct HttpConn *conn, cchar *event, struct HttpPacket *packet, cchar *msg, cchar *values, ...);
+PUBLIC void httpTracePacket(struct HttpConn *conn, cchar *type, cchar *event, struct HttpPacket *packet, 
+    cchar *values, ...) PRINTF_ATTRIBUTE(5,6);
 
 /**
     Convenience routine to write trace to the trace logger
@@ -829,7 +830,7 @@ PUBLIC void httpWriteTraceLogFile(struct HttpConn *conn, cchar *buf, ssize len);
 /*
     Internal
  */
-PUBLIC cchar *httpMakePrintable(struct HttpConn *conn, cchar *event, cchar *buf, ssize *lenp);
+PUBLIC cchar *httpMakePrintable(struct HttpConn *conn, cchar *type, cchar *event, cchar *buf, ssize *lenp);
 
 /************************************ Http **********************************/
 /**
@@ -2330,7 +2331,7 @@ PUBLIC bool httpWillNextQueueAcceptSize(HttpQueue *q, ssize size);
     @ingroup HttpQueue
     @stability Stable
  */
-PUBLIC ssize httpWrite(HttpQueue *q, cchar *fmt, ...);
+PUBLIC ssize httpWrite(HttpQueue *q, cchar *fmt, ...) PRINTF_ATTRIBUTE(2,3);
 
 /*
     Set HTTP_BLOCK to 0x1 so that legacy calls to httpFlushQueue that supplied a boolean block value will function correctly
@@ -3096,7 +3097,7 @@ PUBLIC void httpEnableUpload(HttpConn *conn);
     @ingroup HttpConn
     @stability Stable
  */
-PUBLIC void httpError(HttpConn *conn, int status, cchar *fmt, ...);
+PUBLIC void httpError(HttpConn *conn, int status, cchar *fmt, ...) PRINTF_ATTRIBUTE(3,4);
 
 /**
     Emit an error message for limit violations
@@ -3107,7 +3108,7 @@ PUBLIC void httpError(HttpConn *conn, int status, cchar *fmt, ...);
     @ingroup HttpConn
     @stability Evolving
  */
-PUBLIC void httpLimitError(HttpConn *conn, int status, cchar *fmt, ...);
+PUBLIC void httpLimitError(HttpConn *conn, int status, cchar *fmt, ...) PRINTF_ATTRIBUTE(3,4);
 
 /**
     Emit an error message for a badly formatted request
@@ -3118,7 +3119,7 @@ PUBLIC void httpLimitError(HttpConn *conn, int status, cchar *fmt, ...);
     @ingroup HttpConn
     @stability Evolving
  */
-PUBLIC void httpBadRequestError(HttpConn *conn, int status, cchar *fmt, ...);
+PUBLIC void httpBadRequestError(HttpConn *conn, int status, cchar *fmt, ...) PRINTF_ATTRIBUTE(3,4);
 
 /**
     Respond to a HTTP IO event
@@ -3711,8 +3712,7 @@ typedef struct HttpAuthStore {
     @ingroup HttpAuth
     @stability Evolving
  */
-typedef struct HttpDigest
-{
+typedef struct HttpDigest {
     char    *algorithm;
     char    *cnonce;
     char    *domain;
@@ -6583,7 +6583,7 @@ typedef struct HttpTx {
     @ingroup HttpTx
     @stability Stable
  */
-PUBLIC void httpAddHeader(HttpConn *conn, cchar *key, cchar *fmt, ...);
+PUBLIC void httpAddHeader(HttpConn *conn, cchar *key, cchar *fmt, ...) PRINTF_ATTRIBUTE(3,4);
 
 /**
     Add a header to the transmission
@@ -6608,7 +6608,7 @@ PUBLIC void httpAddHeaderString(HttpConn *conn, cchar *key, cchar *value);
     @ingroup HttpTx
     @stability Stable
  */
-PUBLIC void httpAppendHeader(HttpConn *conn, cchar *key, cchar *fmt, ...);
+PUBLIC void httpAppendHeader(HttpConn *conn, cchar *key, cchar *fmt, ...) PRINTF_ATTRIBUTE(3,4);
 
 /**
     Append a transmission header string
@@ -6750,7 +6750,7 @@ PUBLIC void httpFollowRedirects(HttpConn *conn, bool follow);
     @ingroup HttpTx
     @stability Stable
  */
-PUBLIC void httpFormatError(HttpConn *conn, int status, cchar *fmt, ...);
+PUBLIC void httpFormatError(HttpConn *conn, int status, cchar *fmt, ...) PRINTF_ATTRIBUTE(3,4);
 
 /**
     Format an alternate response
@@ -6765,7 +6765,7 @@ PUBLIC void httpFormatError(HttpConn *conn, int status, cchar *fmt, ...);
     @ingroup HttpTx
     @stability Stable
  */
-PUBLIC ssize httpFormatResponse(HttpConn *conn, cchar *fmt, ...);
+PUBLIC ssize httpFormatResponse(HttpConn *conn, cchar *fmt, ...) PRINTF_ATTRIBUTE(2,3);
 
 /**
     Format an alternate response
@@ -6797,7 +6797,7 @@ PUBLIC ssize httpFormatResponsev(HttpConn *conn, cchar *fmt, va_list args);
     @ingroup HttpTx
     @stability Stable
  */
-PUBLIC ssize httpFormatResponseBody(HttpConn *conn, cchar *title, cchar *fmt, ...);
+PUBLIC ssize httpFormatResponseBody(HttpConn *conn, cchar *title, cchar *fmt, ...) PRINTF_ATTRIBUTE(3,4);
 
 /**
     Get the queue data for the connection
@@ -6994,7 +6994,7 @@ PUBLIC void httpSetHandler(HttpConn *conn, HttpStage *handler);
     @ingroup HttpTx
     @stability Stable
  */
-PUBLIC void httpSetHeader(HttpConn *conn, cchar *key, cchar *fmt, ...);
+PUBLIC void httpSetHeader(HttpConn *conn, cchar *key, cchar *fmt, ...) PRINTF_ATTRIBUTE(3,4);
 
 /**
     Set a simple key/value transmission header
@@ -7551,7 +7551,8 @@ typedef struct HttpWebSocket {
     HttpPacket      *currentMessage;        /**< Current incoming messsage so far */
     HttpPacket      *tailMessage;           /**< Subsequent message frames */
     MprEvent        *pingEvent;             /**< Ping timer event */
-    char            *closeReason;           /**< Reason for closure */
+    cchar           *errorMsg;              /**< Error message for last I/O */
+    cchar           *closeReason;           /**< Reason for closure */
     uchar           dataMask[4];            /**< Mask for data */
     int             currentMessageType;     /**< Current incoming messsage type */
     int             maskOffset;             /**< Offset in dataMask */
@@ -7618,7 +7619,7 @@ typedef struct HttpWebSocket {
     @ingroup HttpWebSocket
     @stability Evolving
  */
-PUBLIC char *httpGetWebSocketCloseReason(HttpConn *conn);
+PUBLIC cchar *httpGetWebSocketCloseReason(HttpConn *conn);
 
 /**
     Get the WebSocket private data
@@ -7669,7 +7670,7 @@ PUBLIC ssize httpGetWebSocketState(HttpConn *conn);
     @ingroup HttpWebSocket
     @stability Evolving
  */
-PUBLIC ssize httpSend(HttpConn *conn, cchar *fmt, ...);
+PUBLIC ssize httpSend(HttpConn *conn, cchar *fmt, ...) PRINTF_ATTRIBUTE(2,3);
 
 /**
     Flag for #httpSendBlock to indicate there are more frames for this message
