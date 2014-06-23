@@ -413,7 +413,7 @@
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___mpr_module_1ga585388ae65782b535dcea572e65ed94b" class="nameRef">mprLoadNativeModule</a>(<a href="#group___mpr_module" class="ref">MprModule</a> *mp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Load a native module.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___mpr_ssl_1ga4cf59cde7f99bce19be6056483180e51" class="nameRef">mprLoadSsl</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Load the SSL module.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___mpr_sync_1gad193cb5549a1101dc17177f046144ede" class="nameRef">mprLock</a>(<a href="#struct_mpr_mutex" class="ref">MprMutex</a> *lock)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Lock access.</td></tr>
-<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___mpr_log_1ga13660aa56e0e5945b6de8f2708aed520" class="nameRef">mprLog</a>(<a href="osdepBare.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *tags, int level, <a href="osdepBare.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *fmt, ...)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Write a message to the log file.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___mpr_log_1ga13660aa56e0e5945b6de8f2708aed520" class="nameRef">mprLog</a>(<a href="osdepBare.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *tags, int level, <a href="osdepBare.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *fmt, ...)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Write a message to the error log file.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___mpr_log_1ga1e65a84796ccdd5b3bd8bbc4fbff5f11" class="nameRef">mprLogConfig</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Show the product configuration at the start of the log file.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___mpr_json_1gaafb43ca094e5307a1570fbd6414eecff" class="nameRef">mprLogJson</a>(int level, <a href="#group___mpr_json" class="ref">MprJson</a> *obj, <a href="osdepBare.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *fmt, ...)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Trace the JSON object to the debug log.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___mpr_buf_1ga9ae5abc2e8c8b3359ca450e505564359" class="nameRef">mprLookAtLastCharInBuf</a>(<a href="#group___mpr_buf" class="ref">MprBuf</a> *buf)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Peek at the last character in the buffer.</td></tr>
@@ -542,6 +542,7 @@
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___mpr_1gacb25fd80b4d560d2c347ae8a692de0f1" class="nameRef">mprSetDebugMode</a>(<a href="osdepBare.html#osdep_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a> on)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Turn on debug mode.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___mpr_1ga9dbc9553237fd2af50c9cf7e19f3045a" class="nameRef">mprSetDomainName</a>(<a href="osdepBare.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *s)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the application domain name string.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___mpr_1gaa335e1d324029029795409a9a857dbdf" class="nameRef">mprSetEnv</a>(<a href="osdepBare.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *key, <a href="osdepBare.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *value)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set an environment variable value.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___mpr_1ga85f5df7ec845e2748c1ce3dd4afc64ce" class="nameRef">mprSetError</a>(int error)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the error code.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___mpr_dispatcher_1gaecca029381f63b1dbd33b5df3556cc3d" class="nameRef">mprSetEventServiceSleep</a>(<a href="#mpr_8h_1adbceeccda24c35e7b4c6090db7065319" class="ref">MprTicks</a> delay)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the maximum sleep time for the event service.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___mpr_1gaf879e1101793951172696115c02ca346" class="nameRef">mprSetExitStatus</a>(int status)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the proposed exit status.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___mpr_1ga278ee775a1c2e956d09a4683e778caea" class="nameRef">mprSetExitTimeout</a>(<a href="#mpr_8h_1adbceeccda24c35e7b4c6090db7065319" class="ref">MprTicks</a> timeout)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the exit timeout for a shutdown.</td></tr>
@@ -953,6 +954,10 @@
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Destroying core MPR services and releasing memory.</td></tr>
 <tr class="apiDef">
+<td>#define</td><td><a href="#mpr_8h_1a80911c8ba9d00b613c161b7aafc5d646" class="nameRef">MPR_DIAG</a>&nbsp;&nbsp;&nbsp;3</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Diagnostic trace level.</td></tr>
+<tr class="apiDef">
 <td>#define</td><td><a href="#mpr_8h_1acbca6bd804a91e8cf0ed731c1a2d35af" class="nameRef">MPR_DISABLE_GC</a>&nbsp;&nbsp;&nbsp;0x1</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Disable GC.</td></tr>
@@ -1113,6 +1118,10 @@
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Blocking operation would block.</td></tr>
 <tr class="apiDef">
+<td>#define</td><td><a href="#mpr_8h_1ab58f968604e9f630b90bd20b66f9fc6b" class="nameRef">MPR_ERROR</a>&nbsp;&nbsp;&nbsp;0</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Standard logging trace levels are 0 to 5 with 0 being the least verbose.</td></tr>
+<tr class="apiDef">
 <td>#define</td><td><a href="#mpr_8h_1aa75b23385a68cbe6d21e4fdb8ca72d1f" class="nameRef">MPR_EVENT_ASYNC</a>&nbsp;&nbsp;&nbsp;1</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Windows async select.</td></tr>
@@ -1220,6 +1229,10 @@
 <td>#define</td><td><a href="#mpr_8h_1a4de2c3f94ca0f0e9806af2ed5b645829" class="nameRef">MPR_HTTP_DATE</a>&nbsp;&nbsp;&nbsp;&quot;%a, %d %b %Y %T GMT&quot;</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Date format for use in HTTP (headers).</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#mpr_8h_1a94d79684fe7d99bd0572d9d01e5fb27f" class="nameRef">MPR_INFO</a>&nbsp;&nbsp;&nbsp;2</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Information trace level.</td></tr>
 <tr class="apiDef">
 <td>#define</td><td><a href="#mpr_8h_1a2b1ef14203f71b74eba095eab95d71d2" class="nameRef">MPR_JSON_APPEND</a>&nbsp;&nbsp;&nbsp;0x4</td>
 </tr>
@@ -1605,6 +1618,10 @@
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Use UTC timezone.</td></tr>
 <tr class="apiDef">
+<td>#define</td><td><a href="#mpr_8h_1a1c59802fc5285441e89e2c745b269700" class="nameRef">MPR_VERBOSE</a>&nbsp;&nbsp;&nbsp;5</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Highest level of trace.</td></tr>
+<tr class="apiDef">
 <td>#define</td><td><a href="#mpr_8h_1a12dd137a676e44d1ceed715b5343a950" class="nameRef">MPR_WAIT_IMMEDIATE</a>&nbsp;&nbsp;&nbsp;0x4</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Wait handler flag to immediately service event on same thread.</td></tr>
@@ -1620,6 +1637,10 @@
 <td>#define</td><td><a href="#mpr_8h_1a6c34a6c6e526d8151c128cfc2e984df3" class="nameRef">MPR_WAIT_RECALL_HANDLER</a>&nbsp;&nbsp;&nbsp;0x1</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Wait handler flag to recall the handler asap.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#mpr_8h_1a7d4e688fcd1ef27f95e92853050fe446" class="nameRef">MPR_WARN</a>&nbsp;&nbsp;&nbsp;1</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Soft warning trace level.</td></tr>
 <tr class="apiDef">
 <td>#define</td><td><a href="#mpr_8h_1a9008127e0539e689567741f1c2b066be" class="nameRef">MPR_WORKER_BUSY</a>&nbsp;&nbsp;&nbsp;0x1</td>
 </tr>
@@ -3074,6 +3095,21 @@ to test if the application has completed its shutdown
     <tr><td class="param">key</td><td>Variable name.</td>
     <tr><td class="param">value</td><td>Variable value.</td>
     </table></dd></dl>
+    <dl><dt><b>API</b> Stability:</dt><dd>Stable.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="#group___mpr_1ga34490595fe86683f06e8d6e9abc72aa3" class="ref">mprAddTerminator</a>, <a href="#group___mpr_1gac5203b2138474e781207b39ac4726c1b" class="ref">mprBreakpoint</a>, <a href="#group___mpr_1ga7efcdd2a5f01795791fbb21f4b073d37" class="ref">mprCreate</a>, <a href="#group___mpr_1ga85bb50d63a783a867786d7df20a1e2ec" class="ref">mprCreateOsService</a>, <a href="#group___mpr_1ga7544a4578b5965495a2708ca7cc6cf44" class="ref">mprDecode64</a>, <a href="#group___mpr_1gae5bbb2009f44f8e7803081ec0004b6ab" class="ref">mprDestroy</a>, <a href="#group___mpr_1ga14459c3278e0c72246970cd1c15dd55d" class="ref">mprEmptyString</a>, <a href="#group___mpr_1ga673dc62bf4786f92566ae697b1fdcc89" class="ref">mprEncode64</a>, <a href="#group___mpr_1gaff5e6ee77f47f68793d0ca2991085a2c" class="ref">mprEscapeCmd</a>, <a href="#group___mpr_1ga3dfd4398a5607868c1110b47eebaea61" class="ref">mprGetAppDir</a>, <a href="#group___mpr_1ga5a96ecb8e54ab11f8772110f257154c8" class="ref">mprGetAppName</a>, <a href="#group___mpr_1gabfbea308cbe0f4db570bcc26e4f62815" class="ref">mprGetAppPath</a>, <a href="#group___mpr_1ga8560f36dc46bc8e8f63adb10ba38595a" class="ref">mprGetAppTitle</a>, <a href="#group___mpr_1ga93175ba8542800e4ddfac2d1499b69f4" class="ref">mprGetAppVersion</a>, <a href="#group___mpr_1ga27c4f99c98b7a8b75812851dc2775936" class="ref">mprGetCmdlineLogging</a>, <a href="#group___mpr_1gaf8419ba9c08c3e06b228034de3146cf5" class="ref">mprGetDebugMode</a>, <a href="#group___mpr_1ga9d261e899187c6fd8245e7baae0c7b11" class="ref">mprGetDomainName</a>, <a href="#group___mpr_1ga9d297bffc1b4168def6ca8664a3c5021" class="ref">mprGetEndian</a>, <a href="#group___mpr_1gaf184a06275222c97f80e0a8d807418ac" class="ref">mprGetError</a>, <a href="#group___mpr_1ga3d02e4f6ba5b6db9581ced2d9998bfb7" class="ref">mprGetHostName</a>, <a href="#group___mpr_1gaf619a8ca734f025bb96b25b4a46e4c6a" class="ref">mprGetIpAddr</a>, <a href="#group___mpr_1ga00ebec5e256f0540f9806ba4bae45a55" class="ref">mprGetLogLevel</a>, <a href="#group___mpr_1ga8097b3e02c4e50d5e9b1d4e8cbd29a8e" class="ref">mprGetMD5</a>, <a href="#group___mpr_1gae9a408ec54d4128208f6685b1eeaef8c" class="ref">mprGetMD5WithPrefix</a>, <a href="#group___mpr_1gad2fa15bdd6890ff1df432ae25f4c981c" class="ref">mprGetOsError</a>, <a href="#group___mpr_1ga69984bba38604d0bbc89c6b57ee18bef" class="ref">mprGetRandomBytes</a>, <a href="#group___mpr_1gae159a5aef748a3f62cd1acd541cf3d31" class="ref">mprGetServerName</a>, <a href="#group___mpr_1gaf05af1ba863ae5a24bc205615874bace" class="ref">mprIsDestroyed</a>, <a href="#group___mpr_1ga50e188d75a8794ef709f68b3c2c75bc9" class="ref">mprIsDestroying</a>, <a href="#group___mpr_1gaa07c03ff5f586d99e46ad8bc7b519eba" class="ref">mprIsIdle</a>, <a href="#group___mpr_1gae20024a4d8b56242e293b3e5d54d9972" class="ref">mprIsStopping</a>, <a href="#group___mpr_1ga02a389f1cd2f5a8ba4e5d2417ae87276" class="ref">mprMakeArgv</a>, <a href="#group___mpr_1ga1ca968c92371da9a84a0152dfd0603cc" class="ref">mprRandom</a>, <a href="#group___mpr_1gaa9ff9a812130215272eca40d5deb53d5" class="ref">mprRestart</a>, <a href="#group___mpr_1ga8f997de03358e990de88e7e952b48641" class="ref">mprServicesAreIdle</a>, <a href="#group___mpr_1gad48220b7862b645de3920d74aa9b011e" class="ref">mprSetAppName</a>, <a href="#group___mpr_1gacb25fd80b4d560d2c347ae8a692de0f1" class="ref">mprSetDebugMode</a>, <a href="#group___mpr_1ga9dbc9553237fd2af50c9cf7e19f3045a" class="ref">mprSetDomainName</a>, <a href="#group___mpr_1gaf61307049c58bbb253244babc9d5a6b1" class="ref">mprSetHostName</a>, <a href="#group___mpr_1ga829517ad9c44a5a377f3d70928c6d9c2" class="ref">mprSetIdleCallback</a>, <a href="#group___mpr_1ga1fa92eb8cb9bf4f023f4f60f57001abc" class="ref">mprSetIpAddr</a>, <a href="#group___mpr_log_1ga5072dbfb7278b3247096146ead8b7162" class="ref">mprSetLogLevel</a>, <a href="#group___mpr_1ga4def6498567ad43a6da505d43bb119fc" class="ref">mprSetServerName</a>, <a href="#group___mpr_1ga0206927d986cd9ca7c42f8c530de6000" class="ref">mprShouldAbortRequests</a>, <a href="#group___mpr_1gaa8bdc374a789eed08f5b15c17a86559f" class="ref">mprShouldDenyNewRequests</a>, <a href="#group___mpr_1ga2836549ee05ea1901a64a26e51f8ed86" class="ref">mprShutdown</a>, <a href="#group___mpr_1ga85c39ea54c27d4b13825ba78c2e7adda" class="ref">mprSleep</a>, <a href="#group___mpr_1ga3d488881e616f7cff999dc214d1ff7d8" class="ref">mprStart</a>, <a href="#group___mpr_1ga201d701e07e26e2ec458d4f5be81bf17" class="ref">mprStartEventsThread</a>, <a href="#group___mpr_1ga4141529427d59501d97564428a3b346e" class="ref">mprStartOsService</a>, <a href="#group___mpr_1gaba3a98bd9017492538bba54529d905d3" class="ref">mprStopOsService</a>, <a href="#group___mpr_1ga0583ac902111b5a259b401cd4c8269c6" class="ref">mprUriDecode</a>, <a href="#group___mpr_1gaa1a1ac21c52992cfcec70fe8d9320f85" class="ref">mprUriEncode</a></dd></dl>
+  </div>
+</div>
+<a name="group___mpr_1ga85f5df7ec845e2748c1ce3dd4afc64ce"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    mprSetError
+(int error)
+  </div>
+  <div class="apiDetail">
+<p>Set the error code.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Set errno or equivalent.</dd></dl>
     <dl><dt><b>API</b> Stability:</dt><dd>Stable.</dd></dl>
     <dl><dt>See Also:</dt><dd>
     <a href="#group___mpr_1ga34490595fe86683f06e8d6e9abc72aa3" class="ref">mprAddTerminator</a>, <a href="#group___mpr_1gac5203b2138474e781207b39ac4726c1b" class="ref">mprBreakpoint</a>, <a href="#group___mpr_1ga7efcdd2a5f01795791fbb21f4b073d37" class="ref">mprCreate</a>, <a href="#group___mpr_1ga85bb50d63a783a867786d7df20a1e2ec" class="ref">mprCreateOsService</a>, <a href="#group___mpr_1ga7544a4578b5965495a2708ca7cc6cf44" class="ref">mprDecode64</a>, <a href="#group___mpr_1gae5bbb2009f44f8e7803081ec0004b6ab" class="ref">mprDestroy</a>, <a href="#group___mpr_1ga14459c3278e0c72246970cd1c15dd55d" class="ref">mprEmptyString</a>, <a href="#group___mpr_1ga673dc62bf4786f92566ae697b1fdcc89" class="ref">mprEncode64</a>, <a href="#group___mpr_1gaff5e6ee77f47f68793d0ca2991085a2c" class="ref">mprEscapeCmd</a>, <a href="#group___mpr_1ga3dfd4398a5607868c1110b47eebaea61" class="ref">mprGetAppDir</a>, <a href="#group___mpr_1ga5a96ecb8e54ab11f8772110f257154c8" class="ref">mprGetAppName</a>, <a href="#group___mpr_1gabfbea308cbe0f4db570bcc26e4f62815" class="ref">mprGetAppPath</a>, <a href="#group___mpr_1ga8560f36dc46bc8e8f63adb10ba38595a" class="ref">mprGetAppTitle</a>, <a href="#group___mpr_1ga93175ba8542800e4ddfac2d1499b69f4" class="ref">mprGetAppVersion</a>, <a href="#group___mpr_1ga27c4f99c98b7a8b75812851dc2775936" class="ref">mprGetCmdlineLogging</a>, <a href="#group___mpr_1gaf8419ba9c08c3e06b228034de3146cf5" class="ref">mprGetDebugMode</a>, <a href="#group___mpr_1ga9d261e899187c6fd8245e7baae0c7b11" class="ref">mprGetDomainName</a>, <a href="#group___mpr_1ga9d297bffc1b4168def6ca8664a3c5021" class="ref">mprGetEndian</a>, <a href="#group___mpr_1gaf184a06275222c97f80e0a8d807418ac" class="ref">mprGetError</a>, <a href="#group___mpr_1ga3d02e4f6ba5b6db9581ced2d9998bfb7" class="ref">mprGetHostName</a>, <a href="#group___mpr_1gaf619a8ca734f025bb96b25b4a46e4c6a" class="ref">mprGetIpAddr</a>, <a href="#group___mpr_1ga00ebec5e256f0540f9806ba4bae45a55" class="ref">mprGetLogLevel</a>, <a href="#group___mpr_1ga8097b3e02c4e50d5e9b1d4e8cbd29a8e" class="ref">mprGetMD5</a>, <a href="#group___mpr_1gae9a408ec54d4128208f6685b1eeaef8c" class="ref">mprGetMD5WithPrefix</a>, <a href="#group___mpr_1gad2fa15bdd6890ff1df432ae25f4c981c" class="ref">mprGetOsError</a>, <a href="#group___mpr_1ga69984bba38604d0bbc89c6b57ee18bef" class="ref">mprGetRandomBytes</a>, <a href="#group___mpr_1gae159a5aef748a3f62cd1acd541cf3d31" class="ref">mprGetServerName</a>, <a href="#group___mpr_1gaf05af1ba863ae5a24bc205615874bace" class="ref">mprIsDestroyed</a>, <a href="#group___mpr_1ga50e188d75a8794ef709f68b3c2c75bc9" class="ref">mprIsDestroying</a>, <a href="#group___mpr_1gaa07c03ff5f586d99e46ad8bc7b519eba" class="ref">mprIsIdle</a>, <a href="#group___mpr_1gae20024a4d8b56242e293b3e5d54d9972" class="ref">mprIsStopping</a>, <a href="#group___mpr_1ga02a389f1cd2f5a8ba4e5d2417ae87276" class="ref">mprMakeArgv</a>, <a href="#group___mpr_1ga1ca968c92371da9a84a0152dfd0603cc" class="ref">mprRandom</a>, <a href="#group___mpr_1gaa9ff9a812130215272eca40d5deb53d5" class="ref">mprRestart</a>, <a href="#group___mpr_1ga8f997de03358e990de88e7e952b48641" class="ref">mprServicesAreIdle</a>, <a href="#group___mpr_1gad48220b7862b645de3920d74aa9b011e" class="ref">mprSetAppName</a>, <a href="#group___mpr_1gacb25fd80b4d560d2c347ae8a692de0f1" class="ref">mprSetDebugMode</a>, <a href="#group___mpr_1ga9dbc9553237fd2af50c9cf7e19f3045a" class="ref">mprSetDomainName</a>, <a href="#group___mpr_1gaf61307049c58bbb253244babc9d5a6b1" class="ref">mprSetHostName</a>, <a href="#group___mpr_1ga829517ad9c44a5a377f3d70928c6d9c2" class="ref">mprSetIdleCallback</a>, <a href="#group___mpr_1ga1fa92eb8cb9bf4f023f4f60f57001abc" class="ref">mprSetIpAddr</a>, <a href="#group___mpr_log_1ga5072dbfb7278b3247096146ead8b7162" class="ref">mprSetLogLevel</a>, <a href="#group___mpr_1ga4def6498567ad43a6da505d43bb119fc" class="ref">mprSetServerName</a>, <a href="#group___mpr_1ga0206927d986cd9ca7c42f8c530de6000" class="ref">mprShouldAbortRequests</a>, <a href="#group___mpr_1gaa8bdc374a789eed08f5b15c17a86559f" class="ref">mprShouldDenyNewRequests</a>, <a href="#group___mpr_1ga2836549ee05ea1901a64a26e51f8ed86" class="ref">mprShutdown</a>, <a href="#group___mpr_1ga85c39ea54c27d4b13825ba78c2e7adda" class="ref">mprSleep</a>, <a href="#group___mpr_1ga3d488881e616f7cff999dc214d1ff7d8" class="ref">mprStart</a>, <a href="#group___mpr_1ga201d701e07e26e2ec458d4f5be81bf17" class="ref">mprStartEventsThread</a>, <a href="#group___mpr_1ga4141529427d59501d97564428a3b346e" class="ref">mprStartOsService</a>, <a href="#group___mpr_1gaba3a98bd9017492538bba54529d905d3" class="ref">mprStopOsService</a>, <a href="#group___mpr_1ga0583ac902111b5a259b401cd4c8269c6" class="ref">mprUriDecode</a>, <a href="#group___mpr_1gaa1a1ac21c52992cfcec70fe8d9320f85" class="ref">mprUriEncode</a></dd></dl>
@@ -5901,7 +5937,7 @@ Current file size.
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
     <tr><td class="param">filename</td><td>String containing the filename to open or create.</td>
-    <tr><td class="param">omode</td><td>Posix style file open mode mask. The open mode may contain the following mask values ored together: <ul><li>O_RDONLY Open read only </li><li>O_WRONLY Open write only </li><li>O_RDWR Open for read and write </li><li>O_CREAT Create or re-create </li><li>O_TRUNC Truncate </li><li>O_BINARY Open for binary data </li><li>O_TEXT Open for text data </li><li>O_EXCL Open with an exclusive lock </li><li>O_APPEND Open to append </li></ul></td>
+    <tr><td class="param">omode</td><td>Posix style file open mode mask. The open mode may contain the following mask values ored together: <ul><li>O_RDONLY Open read only </li><li>O_WRONLY Open write only </li><li>O_RDWR Open for read and write </li><li>O_CREAT Create file if it does not exist </li><li>O_TRUNC Truncate size to zero length </li><li>O_BINARY Open for binary data </li><li>O_TEXT Open for text data </li><li>O_EXCL Open with an exclusive lock </li><li>O_APPEND Open to append </li></ul></td>
     <tr><td class="param">perms</td><td>Posix style file permissions mask.</td>
     </table></dd></dl>
     <dl><dt>Returns:</dt><dd>Returns an MprFile object to use in other file operations.</dd></dl>
@@ -8247,12 +8283,14 @@ This uses the specified join string between the elements
 (<a href="osdepBare.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *tags, int level, <a href="osdepBare.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *fmt, ...)
   </div>
   <div class="apiDetail">
-<p>Write a message to the log file.</p>
-    <dl><dt><b>Description</b>:</dt><dd>Send a message to the MPR logging subsystem. By default, log messages are sent to the standard error output. Applications may redirect output by installing a log handler using <a class="ref" href="#mpr_8h_1a834e7ceec5efa68d0d73eb45c3c69780">mprSetLogHandler</a>. <br/><br/>
+<p>Write a message to the error log file.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Send a message to the MPR error logging subsystem. The purpose of the error log is to record essential configuration and error conditions. Per-request trace typically is sent to a separate trace log. <br/><br/>
+ By default, error log messages are sent to the standard error output. Applications may redirect output by installing a log handler using <a class="ref" href="#mpr_8h_1a834e7ceec5efa68d0d73eb45c3c69780">mprSetLogHandler</a>. <br/><br/>
  Log messages should be a single text line to facilitate machine processing of log files. Descriptive tag words may be provided to indicate a severity level and to classifiy messages. By convention, tags may include one of the severity levels defined in RFC 5424: &quot;debug&quot;, &quot;info&quot;, &quot;notice&quot;, &quot;warn&quot;, &quot;error&quot;, &quot;critical&quot;. Messages using the &quot;error&quot;, &quot;critical&quot; tags should use a level of zero. Tags should be space separated. <br/><br/>
  Logging typically is enabled in both debug and release builds and may be controlled via the build define ME_MPR_LOGGING which is typically set via the MakeMe setting &quot;logging: true&quot;. <br/><br/>
  The <a class="ref" href="#group___mpr_log_1ga08742c4a5b8340886661acd20827b12c">mprDebug</a> API may be used to emit log messages only in debug builds. <br/><br/>
- If level zero is used, the message is also sent to any relevant operating system logging facility such as syslog or the Windows event database.</dd></dl>
+ If level zero is used, the message is also sent to any relevant operating system logging facility such as syslog or the Windows event database. <br/><br/>
+ It is good practice to only include debug trace at levels above level 2 so that essential error messages are clearly visible in the error log and are not swamped by debug messages.</dd></dl>
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
     <tr><td class="param">tags</td><td>Descriptive space separated tag words to classify this message. The default log handler emits messages in three formats depending on whether MPR_LOG_DETAILED is provided to <a class="ref" href="#group___mpr_log_1ga8497fae7134238ba1b5f22680b1fd344">mprStartLogging</a> and the value of the tags parameter. If MPR_LOG_DETAILED and tags are supplied, the format is: &quot;MM/DD/YY HH:MM:SS LEVEL TAGS, Message&quot;. Otherwise a a simplified output format is used: &quot;Name: severity: message&quot;, where severity is set to &quot;error&quot; for level 0 messages. This is useful for utility programs. If tags are null, the message is output raw, without any any prefixes.</td>

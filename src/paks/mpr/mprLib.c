@@ -19537,19 +19537,19 @@ PUBLIC void mprSetFilesLimit(int limit)
 /*
     Class definitions
  */
-#define CLASS_NORMAL    0               /* [All other]      Normal characters */
-#define CLASS_PERCENT   1               /* [%]              Begin format */
-#define CLASS_MODIFIER  2               /* [-+ #,]          Modifiers */
-#define CLASS_ZERO      3               /* [0]              Special modifier - zero pad */
-#define CLASS_STAR      4               /* [*]              Width supplied by arg */
-#define CLASS_DIGIT     5               /* [1-9]            Field widths */
-#define CLASS_DOT       6               /* [.]              Introduce precision */
-#define CLASS_BITS      7               /* [hlL]            Length bits */
-#define CLASS_TYPE      8               /* [cdefginopsSuxX] Type specifiers */
+#define CLASS_NORMAL    0               /* [All other]       Normal characters */
+#define CLASS_PERCENT   1               /* [%]               Begin format */
+#define CLASS_MODIFIER  2               /* [-+ #,']          Modifiers */
+#define CLASS_ZERO      3               /* [0]               Special modifier - zero pad */
+#define CLASS_STAR      4               /* [*]               Width supplied by arg */
+#define CLASS_DIGIT     5               /* [1-9]             Field widths */
+#define CLASS_DOT       6               /* [.]               Introduce precision */
+#define CLASS_BITS      7               /* [hlLz]            Length bits */
+#define CLASS_TYPE      8               /* [cdefginopsSuxX]  Type specifiers */
 
 #define STATE_NORMAL    0               /* Normal chars in format string */
 #define STATE_PERCENT   1               /* "%" */
-#define STATE_MODIFIER  2               /* -+ #,*/
+#define STATE_MODIFIER  2               /* -+ #,' */
 #define STATE_WIDTH     3               /* Width spec */
 #define STATE_DOT       4               /* "." */
 #define STATE_PRECISION 5               /* Precision spec */
@@ -19578,7 +19578,7 @@ static char stateMap[] = {
  */
 static char classMap[] = {
     /*   0  ' '    !     "     #     $     %     &     ' */
-             2,    0,    0,    2,    0,    1,    0,    0,
+             2,    0,    0,    2,    0,    1,    0,    2,
     /*  07   (     )     *     +     ,     -     .     / */
              0,    0,    4,    2,    2,    2,    6,    0,
     /*  10   0     1     2     3     4     5     6     7 */
@@ -19600,7 +19600,7 @@ static char classMap[] = {
     /*  50   p     q     r     s     t     u     v     w */
              8,    0,    0,    8,    0,    8,    0,    8,
     /*  57   x     y     z  */
-             8,    0,    0,
+             8,    0,    7,
 };
 
 /*
@@ -19950,12 +19950,12 @@ PUBLIC char *mprPrintfCore(char *buf, ssize maxsize, cchar *spec, va_list args)
 
         case STATE_BITS:
             switch (c) {
-            case 'z':
-                fmt.flags |= SPRINTF_SSIZE;
-                break;
-
             case 'L':
                 fmt.flags |= SPRINTF_INT64;
+                break;
+
+            case 'h':
+                fmt.flags |= SPRINTF_SHORT;
                 break;
 
             case 'l':
@@ -19966,8 +19966,8 @@ PUBLIC char *mprPrintfCore(char *buf, ssize maxsize, cchar *spec, va_list args)
                 }
                 break;
 
-            case 'h':
-                fmt.flags |= SPRINTF_SHORT;
+            case 'z':
+                fmt.flags |= SPRINTF_SSIZE;
                 break;
             }
             break;
@@ -21893,7 +21893,7 @@ PUBLIC Socket mprListenOnSocket(MprSocket *sp, cchar *ip, int port, int flags)
         if (errno == EADDRINUSE) {
             mprLog("error mpr socket", 3, "Cannot bind, address %s:%d already in use", ip, port);
         } else {
-            mprLog("error mpr socket", 3, "Cannot bind, address %s:%d errno", ip, port, errno);
+            mprLog("error mpr socket", 3, "Cannot bind, address %s:%d errno %d", ip, port, errno);
         }
         rc = mprGetOsError();
         closesocket(sp->fd);
@@ -23349,7 +23349,7 @@ PUBLIC int mprUpgradeSocket(MprSocket *sp, MprSsl *ssl, cchar *peerName)
         }
         providerName = (ssl->providerName) ? ssl->providerName : ss->sslProvider;
         if ((ssl->provider = mprLookupKey(ss->providers, providerName)) == 0) {
-            mprLog("error mpr", 0, "Cannot use SSL, missing SSL provider %s", providerName);
+            sp->errorMsg = sfmt("Cannot use SSL, missing SSL provider %s", providerName);
             return MPR_ERR_CANT_INITIALIZE;
         }
         ssl->providerName = providerName;

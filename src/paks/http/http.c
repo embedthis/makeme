@@ -592,7 +592,6 @@ static int parseArgs(int argc, char **argv)
             mprSetSslKeyFile(app->ssl, app->key);
         }
         if (app->ca) {
-            mprLog("info http", 4, "Using CA: \"%s\"", app->ca);
             mprSetSslCaFile(app->ssl, app->ca);
         }
         if (app->verifyIssuer == -1) {

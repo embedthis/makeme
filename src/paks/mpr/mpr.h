@@ -3087,7 +3087,7 @@ PUBLIC ssize mprPutFmtToWideBuf(MprBuf *buf, cchar *fmt, ...) PRINTF_ATTRIBUTE(2
 /*
     Macros for speed
  */
-#define mprGetBufLength(bp) ((bp)->end - (bp)->start)
+#define mprGetBufLength(bp) ((ssize) ((bp)->end - (bp)->start))
 #define mprGetBufSize(bp) ((bp)->buflen)
 #define mprGetBufSpace(bp) ((bp)->endbuf - (bp)->end)
 #define mprGetBuf(bp) ((bp)->data)
@@ -4004,9 +4004,13 @@ PUBLIC MprLogHandler mprGetLogHandler();
 
 #if DOXYGEN
 /**
-    Write a message to the log file.
-    @description Send a message to the MPR logging subsystem. By default, log messages are sent to the standard error
-        output. Applications may redirect output by installing a log handler using #mprSetLogHandler.
+    Write a message to the error log file.
+    @description Send a message to the MPR error logging subsystem. 
+        The purpose of the error log is to record essential configuration and error conditions. Per-request trace
+        typically is sent to a separate trace log. 
+        \n\n
+        By default, error log messages are sent to the standard error output. 
+        Applications may redirect output by installing a log handler using #mprSetLogHandler.
         \n\n
         Log messages should be a single text line to facilitate machine processing of log files. Descriptive tag words 
         may be provided to indicate a severity level and to classifiy messages. 
@@ -4021,6 +4025,9 @@ PUBLIC MprLogHandler mprGetLogHandler();
         \n\n
         If level zero is used, the message is also sent to any relevant operating system logging facility such as
         syslog or the Windows event database.
+        \n\n
+        It is good practice to only include debug trace at levels above level 2 so that essential error messages are clearly 
+        visible in the error log and are not swamped by debug messages.
     @param tags Descriptive space separated tag words to classify this message.
         The default log handler emits messages in three formats depending on whether MPR_LOG_DETAILED is provided to
         #mprStartLogging and the value of the tags parameter. 

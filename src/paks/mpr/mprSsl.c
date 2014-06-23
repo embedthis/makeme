@@ -1056,12 +1056,11 @@ static int handshakeEst(MprSocket *sp)
 {
     EstSocket   *est;
     char        cbuf[5120];
-    int         rc, vrc, trusted;
+    int         rc, vrc;
 
     est = (EstSocket*) sp->sslSocket;
     assert(!(est->ctx.state == SSL_HANDSHAKE_OVER));
     rc = 0;
-    trusted = 1;
 
     sp->flags |= MPR_SOCKET_HANDSHAKING;
     while (est->ctx.state != SSL_HANDSHAKE_OVER && (rc = ssl_handshake(&est->ctx)) != 0) {

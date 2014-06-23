@@ -337,6 +337,13 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>MPR_DIAG</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a80911c8ba9d00b613c161b7aafc5d646</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>MPR_DISABLE_GC</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>acbca6bd804a91e8cf0ed731c1a2d35af</anchor>
@@ -617,6 +624,13 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>MPR_ERROR</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>ab58f968604e9f630b90bd20b66f9fc6b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>MPR_EVENT_ASYNC</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>aa75b23385a68cbe6d21e4fdb8ca72d1f</anchor>
@@ -802,6 +816,13 @@
       <name>MPR_HTTP_DATE</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a4de2c3f94ca0f0e9806af2ed5b645829</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MPR_INFO</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a94d79684fe7d99bd0572d9d01e5fb27f</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -1478,6 +1499,13 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>MPR_VERBOSE</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a1c59802fc5285441e89e2c745b269700</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>MPR_WAIT_IMMEDIATE</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a12dd137a676e44d1ceed715b5343a950</anchor>
@@ -1502,6 +1530,13 @@
       <name>MPR_WAIT_RECALL_HANDLER</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>a6c34a6c6e526d8151c128cfc2e984df3</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MPR_WARN</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a7d4e688fcd1ef27f95e92853050fe446</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -4968,6 +5003,13 @@
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>gaa335e1d324029029795409a9a857dbdf</anchor>
       <arglist>(cchar *key, cchar *value)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>mprSetError</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>ga85f5df7ec845e2748c1ce3dd4afc64ce</anchor>
+      <arglist>(int error)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -10440,6 +10482,13 @@
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>gaa335e1d324029029795409a9a857dbdf</anchor>
       <arglist>(cchar *key, cchar *value)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>mprSetError</name>
+      <anchorfile>group___mpr.html</anchorfile>
+      <anchor>ga85f5df7ec845e2748c1ce3dd4afc64ce</anchor>
+      <arglist>(int error)</arglist>
     </member>
     <member kind="function">
       <type>void</type>

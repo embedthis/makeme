@@ -518,18 +518,28 @@ PUBLIC void httpPruneMonitors();
 #define HTTP_TRACE_MIN_LOG_SIZE     (10 * 1024) /**< Minimum log file size */
 
 /**
-    Request trace formatter callback
+    Trace formatter callback
+    @param trace Trace object
     @param conn Connection object
-    @param type Type of event to trace
     @param event Event to trace
+    @param type Type of event to trace
     @param values Formatted comma separated key=value pairs
     @param buf Data buffer
     @param len Length of data in buf. May be zero.
     @stability Prototype
     @ingroup HttpTrace
  */
-typedef void (*HttpTraceFormatter)(struct HttpConn *conn, cchar *type, cchar *event, cchar *values, cchar *buf, ssize len);
-typedef void (*HttpTraceLogger)(struct HttpConn *conn, cchar *buf, ssize len);
+typedef void (*HttpTraceFormatter)(struct HttpTrace *trace, struct HttpConn *conn, cchar *event, cchar *type, 
+    cchar *values, cchar *buf, ssize len);
+/**
+    Trace logger callback
+    @param trace Trace object
+    @param buf Data buffer to write.
+    @param len Length of data in buf.
+    @stability Prototype
+    @ingroup HttpTrace
+ */
+typedef void (*HttpTraceLogger)(struct HttpTrace *trace, cchar *buf, ssize len);
 
 /**
     Trace management structure
@@ -551,7 +561,6 @@ typedef struct HttpTrace {
     MprMutex            *mutex;                         /**< Multithread sync */
 } HttpTrace;
 
-
 /**
     Backup the request trace log if required
     @description If the log file is greater than the maximum configured, or MPR_ANEW was set via httpSetTraceLog,
@@ -565,15 +574,18 @@ PUBLIC int httpBackupTraceLogFile(HttpTrace *trace);
 
 /**
     Common Log trace formatter
+    @param trace HttpTrace object
     @param conn HttpConn connection object created via #httpCreateConn
     @param event Event to trace
+    @param type Event type
     @param values Formatted comma separated key=value pairs (unused)
     @param buf Trace data buffer to write (unused)
     @param len Length of data buffer (unused)
     @ingroup HttpTrace
     @stability Prototype
  */
-PUBLIC void httpCommonTraceFormatter(struct HttpConn *conn, cchar *type, cchar *event, cchar *values, cchar *buf, ssize len);
+PUBLIC void httpCommonTraceFormatter(HttpTrace *trace, struct HttpConn *conn, cchar *event, cchar *type, cchar *values, 
+    cchar *buf, ssize len);
 
 /**
     Create a trace object.
@@ -587,20 +599,23 @@ PUBLIC HttpTrace *httpCreateTrace(HttpTrace *parent);
 
 /**
     Detailed log trace formatter
+    @param trace HttpTrace object 
     @param conn HttpConn connection object created via #httpCreateConn
-    @param type Event type to trace
     @param event Event to trace
+    @param type Event type to trace
     @param values Formatted comma separated key=value pairs
     @param buf Trace data buffer to write
     @param len Length of data buffer
     @ingroup HttpTrace
     @stability Prototype
  */
-PUBLIC void httpDetailTraceFormatter(struct HttpConn *conn, cchar *type, cchar *event, cchar *values, cchar *buf, ssize len);
+PUBLIC void httpDetailTraceFormatter(HttpTrace *trace, struct HttpConn *conn, cchar *event, cchar *type, cchar *values, 
+    cchar *buf, ssize len);
 
 /**
     Convenience routine to format trace via the configured formatter
     @description The formatter will invoke the trace logger and actually write the trace mesage
+    @param trace HttpTrace object
     @param conn HttpConn connection object created via #httpCreateConn
     @param type Event type to trace
     @param event Event name to trace
@@ -610,7 +625,8 @@ PUBLIC void httpDetailTraceFormatter(struct HttpConn *conn, cchar *type, cchar *
     @ingroup HttpTrace
     @stability Prototype
  */
-PUBLIC void httpFormatTrace(struct HttpConn *conn, cchar *type, cchar *event, cchar *values, cchar *buf, ssize len);
+PUBLIC void httpFormatTrace(HttpTrace *trace, struct HttpConn *conn, cchar *event, cchar *type, cchar *values, 
+    cchar *buf, ssize len);
 
 /*
     Trace LogFile logger
@@ -717,21 +733,6 @@ PUBLIC int httpSetTraceLogFile(HttpTrace *trace, cchar *path, ssize size, int ba
  */
 PUBLIC void httpSetTraceFormatterName(HttpTrace *trace, cchar *name);
 
-#if DOXYGEN
-/**
-    Test if an event should be considered for tracing
-    @description Optimization for httpTrace.
-    @param conn HttpConn connection object created via #httpCreateConn
-    @param type Event type to trace
-    @return True if the httpTrace should be called.
-    @ingroup HttpTrace
-    @stability Internal
-  */
-PUBLIC bool httpShouldTrace(struct HttpConn *conn, cchar *type);
-#else
-    #define httpShouldTrace(conn, type) \
-        (conn->http->traceLevel > 0 && PTOI(mprLookupKey(conn->trace->events, type)) <= conn->http->traceLevel)
-#endif
 #define httpTracing(conn) (conn->http->traceLevel > 0)
 
 /**
@@ -756,22 +757,38 @@ PUBLIC int httpStartTracing(cchar *traceSpec);
 #if DOXYGEN
 /**
     Trace an event of interest
+    @description The Http trace log is for operational request and server messages and should be used in preference to 
+    the MPR error log which should be used only for configuration and hard system-wide errors.
     @param conn HttpConn connection object created via #httpCreateConn
-    @param type Event to type trace. The standard set of events types and their default trace levels are:
-    first:1, error:1, complete:2, connection:3, headers:3, context:3, close:3, rx:4, tx:5. Users can create custom types.
     @param event Event name to trace.
+    @param type Event type to trace. Events are grouped into types that are traced at the same level.
+    The standard set of types and their default trace levels are:
+    request:1, result:2, context:3, form:4, body:5, debug:5. Users can create custom types.
+    The request type is used for the initial http request line. The result type is used for the request status.
+    The context type is used for general information including http headers. The form type is used for POST form data.
+    The body type is used for request body data.
+    \n\n
+    Context type events may include a "msg" field. By convention, these messages should be aggregated by trace 
+    formatters so that subsequent context events do not overwrite prior messages. All errors, should be in 
+    \n\n
+    Event types are orthogonal to event names. 
     @param values Printf style format string. String should be comma separated key=value pairs
+    @return True if the event was traced
     @ingroup HttpTrace
     @stability Prototype
  */
-PUBLIC void httpTrace(struct HttpConn *conn, cchar *type, cchar *event, cchar *values, ...);
+PUBLIC bool httpTrace(struct HttpConn *conn, cchar *event, cchar *type, cchar *values, ...);
 #else
-    #define httpTrace(conn, type, event, ...) \
-        if (conn->http->traceLevel > 0 && PTOI(mprLookupKey(conn->trace->events, type)) <= conn->http->traceLevel) { \
-            httpTraceProc(conn, type, event, __VA_ARGS__); \
+    #define httpTrace(conn, event, type, ...) \
+        if (HTTP->traceLevel > 0) { \
+            HttpTrace *trace = conn ? ((HttpConn*) conn)->trace : HTTP->trace; \
+            int __tlevel = PTOI(mprLookupKey(trace->events, type)); \
+            if (__tlevel > 0 && __tlevel <= HTTP->traceLevel) { \
+                httpTraceProc(conn, event, type, __VA_ARGS__); \
+            } \
         } else 
 #endif
-PUBLIC void httpTraceProc(struct HttpConn *conn, cchar *type, cchar *event, cchar *values, ...) PRINTF_ATTRIBUTE(4,5);
+PUBLIC bool httpTraceProc(struct HttpConn *conn, cchar *event, cchar *type, cchar *values, ...) PRINTF_ATTRIBUTE(4,5);
 
 /**
     Trace request content
@@ -779,15 +796,16 @@ PUBLIC void httpTraceProc(struct HttpConn *conn, cchar *type, cchar *event, ccha
     If the buffer contains binary data, it will be displayed in hex format. The content will be traced up
     to the maximum size defined via #httpSetTraceLogFile.
     @param conn HttpConn connection object created via #httpCreateConn
-    @param type Event type to trace
     @param event Event to trace
+    @param type Event type to trace
     @param buf Data buffer to trace
     @param len Size of the data buffer.
     @param values Formatted comma separated key=value pairs
+    @return True if the event was traced
     @ingroup HttpTrace
     @stability Prototype
  */
-PUBLIC void httpTraceContent(struct HttpConn *conn, cchar *type, cchar *event, cchar *buf, ssize len, 
+PUBLIC bool httpTraceContent(struct HttpConn *conn, cchar *event, cchar *type, cchar *buf, ssize len, 
     cchar *values, ...) PRINTF_ATTRIBUTE(6,7);
 
 /**
@@ -796,47 +814,49 @@ PUBLIC void httpTraceContent(struct HttpConn *conn, cchar *type, cchar *event, c
     If the buffer contains binary data, it will be displayed in hex format. The content will be traced up
     to the maximum size defined via #httpSetTraceLogFile.
     @param conn HttpConn connection object created via #httpCreateConn
-    @param type Event type to trace
     @param event Event to trace
+    @param type Event type to trace
     @param packet Packet to trace.
     @param values Formatted comma separated key=value pairs
+    @return True if the event was traced
     @ingroup HttpTrace
     @stability Prototype
  */
-PUBLIC void httpTracePacket(struct HttpConn *conn, cchar *type, cchar *event, struct HttpPacket *packet, 
+PUBLIC bool httpTracePacket(struct HttpConn *conn, cchar *event, cchar *type, struct HttpPacket *packet, 
     cchar *values, ...) PRINTF_ATTRIBUTE(5,6);
 
 /**
     Convenience routine to write trace to the trace logger
-    @param conn HttpConn connection object created via #httpCreateConn
+    @param trace HttpTrace object
     @param buf Trace message to write
     @param len Length of trace message
     @ingroup HttpTrace
     @stability Prototype
  */
-PUBLIC void httpWriteTrace(struct HttpConn *conn, cchar *buf, ssize len);
-
+PUBLIC void httpWriteTrace(HttpTrace *trace, cchar *buf, ssize len);
 
 /**
     Write a message to the trace file logger
-    @param conn HttpConn object
+    @param trace HttpTrace object
     @param buf Message to write
     @param len Length of message
     @ingroup HttpTrace
     @stability Evolving
  */
-PUBLIC void httpWriteTraceLogFile(struct HttpConn *conn, cchar *buf, ssize len);
+PUBLIC void httpWriteTraceLogFile(HttpTrace *trace, cchar *buf, ssize len);
 
 /*
     Internal
  */
-PUBLIC cchar *httpMakePrintable(struct HttpConn *conn, cchar *type, cchar *event, cchar *buf, ssize *lenp);
+PUBLIC bool httpTraceBody(struct HttpConn *conn, bool outgoing, struct HttpPacket *packet, ssize len);
+PUBLIC cchar *httpMakePrintable(HttpTrace *trace, struct HttpConn *conn, cchar *event, cchar *buf, ssize *lenp);
 
 /************************************ Http **********************************/
 /**
     Http service object
-    @description Configuration is not thread safe and must occur at initialization time when the application is single threaded.
-    If the configuration is modified when the application is multithreaded, all requests must be first be quiesced.
+    @description Configuration is not thread safe and must occur at initialization time when the application is 
+    single threaded. If the configuration is modified when the application is multithreaded, all requests must be 
+    first be quiesced.
     @defgroup Http Http
     @see Http HttpConn HttpEndpoint gettGetDateString httpCreate httpGetContext httpGetDateString
         httpLookupEndpoint httpLookupStatus httpLooupHost httpSetContext httpSetDefaultClientHost
@@ -946,6 +966,19 @@ typedef struct Http {
     HttpRequestCallback requestCallback;    /**< Request completion callback */
 
 } Http;
+
+#if DOXYGEN
+    /**
+        Return the MPR control instance.
+        @description Return the MPR singleton control object.
+        @return Returns the MPR control object.
+        @ingroup Mpr
+        @stability Stable.
+     */
+    PUBLIC Http *HTTP;
+#else
+    #define HTTP ((Http*) (MPR->httpService))
+#endif
 
 /**
     Callback procedure for HttpConfigure
@@ -4386,10 +4419,14 @@ typedef struct HttpRoute {
     cchar           *database;              /**< Name of database for route */
     cchar           *responseFormat;        /**< Client response format */
     cchar           *client;                /**< Configuration to send to the client */
-    int             combine;                /**< Compile the application in "combine" mode */
-    int             keepSource;             /**< Preserve generated source */
-    int             loaded;                 /**< App has been loaded */
-    int             update;                 /**< Auto-update modified ESP source */
+
+    bool            combine: 1;             /**< Compile the application in "combine" mode */
+    bool            error: 1;               /**< Parse or runtime error */
+    bool            keepSource: 1;          /**< Preserve generated source */
+    bool            loaded: 1;              /**< App has been loaded */
+    bool            update: 1;              /**< Auto-update modified ESP source */
+    bool            debug: 1;               /**< Application running in debug mode */
+    bool            ignoreEncodingErrors: 1;/**< Ignore UTF8 encoding errors */
 
     MprList         *caching;               /**< Items to cache */
     MprTicks        lifespan;               /**< Default lifespan for all cache items in route */
@@ -4397,7 +4434,6 @@ typedef struct HttpRoute {
     Http            *http;                  /**< Http service object (copy of appweb->http) */
     struct HttpHost *host;                  /**< Owning host */
     int             flags;                  /**< Route flags */
-    int             error;                  /**< Parse or runtime error */
 
     char            *defaultLanguage;       /**< Default language */
     MprHash         *extensions;            /**< Hash of handlers by extensions */
@@ -4418,7 +4454,6 @@ typedef struct HttpRoute {
     MprHash         *mimeTypes;             /**< Hash table of mime types (key is extension) */
 
     HttpTrace       *trace;                 /**< Per-route tracing configuration */
-    int             traceMask;              /**< Request/response trace mask */
 
     cchar           *cookie;                /**< Cookie name for session data */
     cchar           *corsOrigin;            /**< CORS permissible client origins */
@@ -4450,7 +4485,6 @@ typedef struct HttpRoute {
 
     char            *webSocketsProtocol;    /**< WebSockets sub-protocol */
     MprTicks        webSocketsPingPeriod;   /**< Time between pings (msec) */
-    int             ignoreEncodingErrors;   /**< Ignore UTF8 encoding errors */
 
 } HttpRoute;
 
