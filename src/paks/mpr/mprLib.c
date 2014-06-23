@@ -19960,6 +19960,7 @@ PUBLIC char *mprPrintfCore(char *buf, ssize maxsize, cchar *spec, va_list args)
 
             case 'l':
                 if (fmt.flags & SPRINTF_LONG) {
+                    fmt.flags &= ~SPRINTF_LONG;
                     fmt.flags |= SPRINTF_INT64;
                 } else {
                     fmt.flags |= SPRINTF_LONG;
