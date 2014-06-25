@@ -1391,10 +1391,10 @@ typedef struct HttpUri {
     char        *ext;                   /**< Document extension */
     char        *reference;             /**< Reference fragment within the specified resource */
     char        *query;                 /**< Query string */
+    char        *uri;                   /**< Original URI (not decoded) */
     int         port;                   /**< Port number */
     int         secure;                 /**< Using https */
     int         webSockets;             /**< Using WebSockets */
-    char        *uri;                   /**< Original URI (not decoded) */
 } HttpUri;
 
 #define HTTP_COMPLETE_URI       0x1     /**< Complete all missing URI fields. Set from "http://localhost/" */
@@ -2957,17 +2957,20 @@ typedef struct HttpConn {
     int             timeout;                /**< Connection timeout indication */
     int             totalRequests;          /**< Total number of requests serviced */
 
-    bool            async;                  /**< Connection is in async mode (non-blocking) */
-    bool            borrowed;               /**< Connection has been borrowed */
-    bool            destroyed;              /**< Connection has been destroyed */
-    bool            suppressTrace;          /**< Do not trace this connection */
-    bool            followRedirects;        /**< Follow redirects for client requests */
-    bool            mustClose;              /**< Peer explicitly requested the connection be closed via "Connection: close" */
-    bool            http10;                 /**< Using legacy HTTP/1.0 */
-    bool            ownDispatcher;          /**< Own the dispatcher and should destroy when closing connection */
-    bool            secure;                 /**< Using https */
-    bool            upgraded;               /**< Request protocol upgraded */
-    bool            worker;                 /**< Use worker */
+    bool            async: 1;               /**< Connection is in async mode (non-blocking) */
+    bool            authRequested: 1;       /**< Authorization requested based on user credentials */
+    bool            borrowed: 1;            /**< Connection has been borrowed */
+    bool            destroyed: 1;           /**< Connection has been destroyed */
+    bool            encoded: 1;             /**< True if the password is MD5(username:realm:password) */
+    bool            followRedirects: 1;     /**< Follow redirects for client requests */
+    bool            http10: 1;              /**< Using legacy HTTP/1.0 */
+    bool            mustClose: 1;           /**< Peer requested the connection be closed via "Connection: close" */
+    bool            ownDispatcher: 1;       /**< Own the dispatcher and should destroy when closing connection */
+    bool            secure: 1;              /**< Using https */
+    bool            suppressTrace: 1;       /**< Do not trace this connection */
+    bool            upgraded: 1;            /**< Request protocol upgraded */
+    bool            worker: 1;              /**< Use worker */
+
 
     HttpTrace       *trace;                 /**< Tracing configuration */
 
@@ -2979,9 +2982,6 @@ typedef struct HttpConn {
     cchar           *username;              /**< Supplied user name */
     cchar           *password;              /**< Password for client requests (only) */
     struct HttpUser *user;                  /**< Authorized User record for access checking */
-
-    bool            authRequested;          /**< Authorization requested based on user credentials */
-    bool            encoded;                /**< True if the password is MD5(username:realm:password) */
 
     HttpTimeoutCallback timeoutCallback;    /**< Request and inactivity timeout callback */
     HttpIOCallback  ioCallback;             /**< I/O event callback */
@@ -3821,8 +3821,8 @@ typedef struct HttpAuth {
 
 /**
     Create an authorization protocol type. The pre-supplied types are 'basic', 'digest' and 'form'.
-    @description This creates an AuthType with the defined name and callbacks.
-        The basic and digest types are supported by most browsers. The form type is implemented via web form requests over HTTP.
+    @description This creates an AuthType with the defined name and callbacks. The basic and digest types are 
+        supported by most browsers. The form type is implemented via web form requests over HTTP.
     @param name Unique authorization type name
     @param askLogin Callback to generate a client login response
     @param parse Callback to parse the HTTP authentication headers
@@ -6557,16 +6557,19 @@ PUBLIC void httpProcessWriteEvent(HttpConn *conn);
  */
 typedef struct HttpTx {
     /* Ordered for debugging */
+    HttpUri         *parsedUri;             /**< Client request uri */
+    cchar           *filename;              /**< Name of a real file being served (typically pathInfo mapped) */
+
     int             finalized;              /**< Request response generated and handler processing is complete */
     int             pendingFinalize;        /**< Call httpFinalize again once the Tx pipeline is created */
     int             finalizedConnector;     /**< Connector has finished sending the response */
     int             finalizedOutput;        /**< Handler or surrogate has finished writing output response */
-    HttpUri         *parsedUri;             /**< Client request uri */
-    cchar           *filename;              /**< Name of a real file being served (typically pathInfo mapped) */
     int             flags;                  /**< Response flags */
     int             status;                 /**< HTTP response status */
     int             responded;              /**< The request has started to respond. Some output has been initiated. */
     int             started;                /**< Handler has started */
+    int             writeBlocked;           /**< Transmission writing is blocked */
+
     MprOff          bytesWritten;           /**< Bytes written including headers */
     MprOff          entityLength;           /**< Original content length before range subsetting */
     ssize           chunkSize;              /**< Chunk size to use when using transfer encoding. Zero for unchunked. */
@@ -6574,7 +6577,6 @@ typedef struct HttpTx {
     char            *etag;                  /**< Unique identifier tag */
     HttpStage       *handler;               /**< Final handler serving the request */
     MprOff          length;                 /**< Transmission content length */
-    int             writeBlocked;           /**< Transmission writing is blocked */
     char            *method;                /**< Client request method GET, HEAD, POST, DELETE, OPTIONS, PUT, TRACE */
     cchar           *errorDocument;         /**< Error document to render */
     char            *authType;              /**< Type of authentication: set to basic, digest, post or a custom name */
@@ -7581,16 +7583,6 @@ typedef struct HttpWebSocket {
     int             frameState;             /**< Message frame state */
     int             closing;                /**< Started closing sequnce */
     int             closeStatus;            /**< Close status provided by peer */
-    ssize           frameLength;            /**< Length of the current frame */
-    ssize           messageLength;          /**< Length of the current message */
-    char            *subProtocol;           /**< Application level sub-protocol */
-    HttpPacket      *currentFrame;          /**< Message frame being currently read */
-    HttpPacket      *currentMessage;        /**< Current incoming messsage so far */
-    HttpPacket      *tailMessage;           /**< Subsequent message frames */
-    MprEvent        *pingEvent;             /**< Ping timer event */
-    cchar           *errorMsg;              /**< Error message for last I/O */
-    cchar           *closeReason;           /**< Reason for closure */
-    uchar           dataMask[4];            /**< Mask for data */
     int             currentMessageType;     /**< Current incoming messsage type */
     int             maskOffset;             /**< Offset in dataMask */
     int             more;                   /**< More data to send in a message */
@@ -7598,7 +7590,17 @@ typedef struct HttpWebSocket {
     int             partialUTF;             /**< Last frame had a partial UTF codepoint */
     int             rxSeq;                  /**< Incoming packet number */
     int             txSeq;                  /**< Outgoing packet number */
+    ssize           frameLength;            /**< Length of the current frame */
+    ssize           messageLength;          /**< Length of the current message */
+    HttpPacket      *currentFrame;          /**< Message frame being currently read */
+    HttpPacket      *currentMessage;        /**< Current incoming messsage so far */
+    HttpPacket      *tailMessage;           /**< Subsequent message frames */
+    MprEvent        *pingEvent;             /**< Ping timer event */
+    char            *subProtocol;           /**< Application level sub-protocol */
+    cchar           *errorMsg;              /**< Error message for last I/O */
+    cchar           *closeReason;           /**< Reason for closure */
     void            *data;                  /**< Custom data for applications (marked) */
+    uchar           dataMask[4];            /**< Mask for data */
 } HttpWebSocket;
 
 #define WS_MAGIC        "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"

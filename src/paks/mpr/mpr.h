@@ -934,7 +934,8 @@ typedef struct MprFreeQueue {
     struct MprFreeMem   *next;          /**< Next free block */
     MprSpin             lock;           /**< Queue lock-free lock */
     uint                count;          /**< Number of blocks on the queue */
-    MprMemSize          minSize;        /**< Minimum size of blocks in queue. This is the user block size sans MprMem header. */
+    MprMemSize          minSize;        /**< Minimum size of blocks in queue. This is the user block size sans 
+                                             MprMem header. */
 } MprFreeQueue;
 
 #define MPR_ALLOC_ALIGN(x)          (((x) + ME_MPR_ALLOC_ALIGN - 1) & ~(ME_MPR_ALLOC_ALIGN - 1))
@@ -4886,15 +4887,16 @@ typedef struct MprPath {
     MprTime         mtime;              /**< Modified time */
     MprOff          size;               /**< File length */
     int64           inode;              /**< Inode number */
-    bool            isDir;              /**< Set if directory */
-    bool            isLink;             /**< Set if a symbolic link  */
-    bool            isReg;              /**< Set if a regular file */
-    bool            caseMatters;        /**< Case comparisons matter */
     int             perms;              /**< Permission mask */
     int             owner;              /**< Owner ID */
     int             group;              /**< Group ID */
-    int             valid;              /**< Valid data bit */
-    int             checked;            /**< Path has been checked */
+    
+    bool            checked: 1;         /**< Path has been checked */
+    bool            isDir: 1;           /**< Set if directory */
+    bool            isLink: 1;          /**< Set if a symbolic link  */
+    bool            isReg: 1;           /**< Set if a regular file */
+    bool            caseMatters: 1;     /**< Case comparisons matter */
+    bool            valid: 1;           /**< Valid data bit */
 } MprPath;
 
 /**
@@ -4907,8 +4909,8 @@ typedef struct MprDirEntry {
     char            *name;              /**< Name of the file */
     MprTime         lastModified;       /**< Time the file was last modified */
     MprOff          size;               /**< Size of the file */
-    bool            isDir;              /**< True if the file is a directory */
-    bool            isLink;             /**< True if the file is a symbolic link */
+    bool            isDir: 1;           /**< True if the file is a directory */
+    bool            isLink: 1;          /**< True if the file is a symbolic link */
 } MprDirEntry;
 
 /*
@@ -6408,16 +6410,16 @@ typedef struct MprJsonCallback {
 typedef struct MprJsonParser {
     cchar           *input;             /* Current input (unmanaged) */
     cchar           *token;             /* Current parse token */
-    int             tokid;              /* Current tokend ID */
     cchar           *putback;           /* Putback parse token */
-    MprBuf          *buf;               /* Token buffer */
-    int             putid;              /* Putback token id */
     cchar           *errorMsg;          /* Parse error message */
-    int             lineNumber;         /* Current line number in path */
-    MprJsonCallback callback;           /* JSON parser callbacks */
-    int             state;              /* Parse state */
     void            *data;              /* Custom data handle (unmanaged) */
     cchar           *path;              /* Optional JSON filename */
+    MprBuf          *buf;               /* Token buffer */
+    MprJsonCallback callback;           /* JSON parser callbacks */
+    int             tokid;              /* Current tokend ID */
+    int             putid;              /* Putback token id */
+    int             lineNumber;         /* Current line number in path */
+    int             state;              /* Parse state */
     int             tolerant;           /* Tolerant parsing: unquoted names, comma before last property of object */
 } MprJsonParser;
 
@@ -8749,8 +8751,6 @@ typedef struct MprCmdFile {
     @stability Internal
  */
 typedef struct MprCmd {
-    /*  Ordered for debugging */
-
     cchar           *program;           /**< Program path name */
     int             pid;                /**< Process ID of the created process */
     int             originalPid;        /**< Persistent copy of the pid */
@@ -8758,16 +8758,16 @@ typedef struct MprCmd {
     int             flags;              /**< Control flags (userFlags not here) */
     int             eofCount;           /**< Count of end-of-files */
     int             requiredEof;        /**< Number of EOFs required for an exit */
-    int             complete;           /**< All channels EOF and status gathered */
-    int             stopped;            /**< Command stopped */
+    int             argc;               /**< Count of args in argv */
+    int             timedout;           /**< Request has timedout */
+    bool            complete: 1;        /**< All channels EOF and status gathered */
+    bool            stopped: 1;         /**< Command stopped */
     cchar           **makeArgv;         /**< Allocated argv */
     cchar           **argv;             /**< List of args. Null terminated */
-    MprList         *env;               /**< List of environment variables. Null terminated. */
     char            *dir;               /**< Current working dir for the process */
     cchar           **defaultEnv;       /**< Environment to use if no env passed to mprStartCmd */
     char            *searchPath;        /**< Search path to use to locate the command */
-    int             argc;               /**< Count of args in argv */
-    int             timedout;           /**< Request has timedout */
+    MprList         *env;               /**< List of environment variables. Null terminated. */
     MprCmdFile      files[MPR_CMD_MAX_PIPE]; /**< Stdin, stdout for the command */
     MprWaitHandler  *handlers[MPR_CMD_MAX_PIPE];
     MprDispatcher   *dispatcher;        /**< Dispatcher to use for wait events */
@@ -9498,11 +9498,6 @@ typedef void (*MprTerminator)(int state, int exitStrategy, int status);
  */
 typedef struct Mpr {
     MprHeap         *heap;                  /**< Memory heap control */
-    bool            debugMode;              /**< Run in debug mode (no timers) */
-    int             logLevel;               /**< Log trace level */
-    int             logBackup;              /**< Number of log files preserved when backing up */
-    ssize           logSize;                /**< Maximum log size */
-    cchar           *logPath;               /**< Log path name */
     MprLogHandler   logHandler;             /**< Current log handler callback */
     MprFile         *logFile;               /**< Log file */
     MprHash         *mimeTypes;             /**< Table of mime types */
@@ -9513,24 +9508,29 @@ typedef struct Mpr {
     MprFile         *stdOutput;             /**< Standard output file */
     MprTime         start;                  /**< When the MPR started */
     MprTicks        exitTimeout;            /**< Request timeout when exiting */
+    ssize           logSize;                /**< Maximum log size */
+    char            *appPath;               /**< Path name of application executable */
+    char            *appDir;                /**< Path of directory containing app executable */
+    cchar           **argv;                 /**< Application command line args (not alloced) */
+    char            **argBuf;               /**< Space for allocated argv */
+    cchar           *logPath;               /**< Log path name */
     char            *pathEnv;               /**< Cached PATH env var. Used by MprCmd */
     char            *name;                  /**< Product name */
     char            *title;                 /**< Product title */
     char            *version;               /**< Product version */
-    int             argc;                   /**< Count of command line args */
-    cchar           **argv;                 /**< Application command line args (not alloced) */
-    char            **argBuf;               /**< Space for allocated argv */
     char            *domainName;            /**< Domain portion */
     char            *hostName;              /**< Host name (fully qualified name) */
     char            *ip;                    /**< Public IP Address */
     char            *serverName;            /**< Server name portion (no domain) */
-    char            *appPath;               /**< Path name of application executable */
-    char            *appDir;                /**< Path of directory containing app executable */
+    int             argc;                   /**< Count of command line args */
     int             eventing;               /**< Servicing events thread is active */
     int             exitStrategy;           /**< How to exit the app */
     int             flags;                  /**< Misc flags */
     int             hasError;               /**< Mpr has an initialization error */
+    int             logLevel;               /**< Log trace level */
+    int             logBackup;              /**< Number of log files preserved when backing up */
     int             verifySsl;              /**< Default verification of SSL certificates */
+    bool            debugMode;              /**< Run in debug mode (no timers) */
 
     /*
         Service pointers
@@ -10388,28 +10388,28 @@ typedef struct MprTestDef {
     @stability Internal
  */
 typedef struct MprTestService {
-    int             argc;                   /**< Count of arguments */
     char            **argv;                 /**< Arguments for test (not alloced) */
-    int             activeThreadCount;      /**< Currently active test threads */
     char            *commandLine;
-    bool            continueOnFailures;     /**< Keep testing on failures */
-    bool            debugOnFailures;        /**< Break to the debugger */
-    int             echoCmdLine;            /**< Echo the command line */
-    int             firstArg;               /**< Count of arguments */
+    cchar           *name;                  /**< Name for entire test */
     MprList         *groups;                /**< Master list of test groups */
     MprList         *threadData;            /**< Per thread objects */
+    MprList         *testFilter;            /**< Test groups to run */
+    MprMutex        *mutex;                 /**< Multi-thread sync */
+    MprTime         start;                  /**< When testing began */
+    int             argc;                   /**< Count of arguments */
+    int             activeThreadCount;      /**< Currently active test threads */
+    int             firstArg;               /**< Count of arguments */
     int             iterations;             /**< Times to run the test */
-    bool            singleStep;             /**< Pause between tests */
-    cchar           *name;                  /**< Name for entire test */
     int             numThreads;             /**< Number of test threads */
     int             workers;                /**< Count of worker threads */
-    MprTime         start;                  /**< When testing began */
     int             testDepth;              /**< Depth of entire test */
     int             totalFailedCount;       /**< Total count of failing tests */
     int             totalTestCount;         /**< Total count of all tests */
-    MprList         *testFilter;            /**< Test groups to run */
     int             verbose;                /**< Output activity trace */
-    MprMutex        *mutex;                 /**< Multi-thread sync */
+    bool            continueOnFailures: 1;  /**< Keep testing on failures */
+    bool            debugOnFailures: 1;     /**< Break to the debugger */
+    int             echoCmdLine: 1;         /**< Echo the command line */
+    bool            singleStep: 1;          /**< Pause between tests */
 } MprTestService;
 
 /**
@@ -10465,32 +10465,31 @@ PUBLIC void mprReportTestResults(MprTestService *ts);
 typedef struct MprTestGroup {
     char            *name;                  /**< Name of test */
     char            *fullName;              /**< Fully qualified name of test */
-    int             testDepth;              /**< Depth at which test should run */
-    bool            skip;                   /**< Skip this test */
-    bool            skipWarned;             /**< Warned that test will be skipped */
-    bool            success;                /**< Result of last run */
-    int             failedCount;            /**< Total failures of this test */
-    int             testCount;              /**< Count of tests */
-    int             testComplete;           /**< Test complete signal */
-    MprList         *failures;              /**< List of all failures */
+    char            *content;               /**< Cached response content */
+    void            *data;                  /**< Test specific data */
 
+    MprList         *failures;              /**< List of all failures */
     MprTestService  *service;               /**< Reference to the service */
     MprDispatcher   *dispatcher;            /**< Per group thread dispatcher */
-    struct MprTestGroup *parent;            /**< Parent test group */
-    struct MprTestGroup *root;              /**< Top level test group parent */
-
     MprList         *groups;                /**< List of groups */
     MprList         *cases;                 /**< List of tests in this group */
     MprTestDef      *def;                   /**< Test definition ref */
+    MprMutex        *mutex;                 /**< Multi-thread sync */
 
+    struct MprTestGroup *parent;            /**< Parent test group */
+    struct MprTestGroup *root;              /**< Top level test group parent */
     struct Http     *http;                  /**< Http service */
     struct HttpConn *conn;                  /**< Http connection for this group */
-    char            *content;               /**< Cached response content */
 
-    void            *data;                  /**< Test specific data */
-    int             hasInternet;            /**< Convenience flag for internet available for use */
-    int             hasIPv6;                /**< Convenience flag for IPv6 service */
-    MprMutex        *mutex;                 /**< Multi-thread sync */
+    int             failedCount;            /**< Total failures of this test */
+    int             testCount;              /**< Count of tests */
+    int             testComplete;           /**< Test complete signal */
+    int             testDepth;              /**< Depth at which test should run */
+    bool            hasInternet: 1;         /**< Convenience flag for internet available for use */
+    bool            hasIPv6: 1;             /**< Convenience flag for IPv6 service */
+    bool            skip: 1;                /**< Skip this test */
+    bool            skipWarned: 1;          /**< Warned that test will be skipped */
+    bool            success: 1;             /**< Result of last run */
 } MprTestGroup;
 
 
