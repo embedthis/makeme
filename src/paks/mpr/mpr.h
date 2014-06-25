@@ -156,8 +156,10 @@ struct  MprXml;
 #define MPR_TIMEOUT_NO_BUSY     1000        /**< Wait period to minimize CPU drain */
 #define MPR_TIMEOUT_NAP         20          /**< Short pause */
 
-#define MPR_TICKS_PER_SEC       1000        /**< Time ticks per second */
 #define MPR_MAX_TIMEOUT         MAXINT64
+#if DEPRECATED || 1
+#define MPR_TICKS_PER_SEC       TPS        /**< Time ticks per second */
+#endif
 
 /*
     Default thread counts

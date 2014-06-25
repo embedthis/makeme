@@ -549,6 +549,8 @@ typedef void (*HttpTraceLogger)(struct HttpTrace *trace, cchar *buf, ssize len);
 typedef struct HttpTrace {
     cchar               *format;                        /**< Output format (used by Common Log Format) */
     cchar               *path;                          /**< Trace logger filename */
+    cchar               *lastTime;                      /**< Most recent time string */
+    MprTime             lastMark;                       /**< When lastTime was last updated */
     MprFile             *file;                          /**< Trace logger file object */
     int                 backupCount;                    /**< Trace logger backup count */
     int                 flags;                          /**< Trace control flags (append|anew) */
@@ -3894,10 +3896,10 @@ PUBLIC HttpUser *httpAddUser(HttpAuth *auth, cchar *user, cchar *password, cchar
 
 /**
     Authenticate a user
-    This routine authenticates a user by testing the user supplied session cookie against the server session store.
-    The result is saved in HttpRx.authenticated and supplied as a return result. Thereafter, #httpIsAuthenticated may be called
-    to test HttpRx.authenticated.
-    The httpAuthenticate call is not automatically performed by the request pipeline. Web Frameworks should call this if required.
+    @description This authenticates a user by testing the user supplied session cookie against the server session store.
+    The result is saved in HttpRx.authenticated and supplied as a return result. Thereafter, #httpIsAuthenticated may be
+    called to test HttpRx.authenticated. The httpAuthenticate call is not automatically performed by the request 
+    pipeline. Web Frameworks should call this if required.
     @param conn HttpConn connection object created via #httpCreateConn object.
     @return True if the user is authenticated.
  */
@@ -3943,8 +3945,7 @@ PUBLIC HttpAuth *httpCreateAuth();
 /**
     Test if the user is authenticated
     @param conn HttpConn connection object
-    @return True if the username and password have been authenticated and the user has the abilities required
-        to access the requested resource document.
+    @return True if the username and password have been authenticated.
     @ingroup HttpAuth
     @stability Evolving
  */
@@ -5985,7 +5986,6 @@ typedef struct HttpRx {
     char            *pathInfo;              /**< Path information after the scriptName (Decoded and normalized) */
     char            *scriptName;            /**< ScriptName portion of the uri (Decoded). May be empty or start with "/" */
     char            *extraPath;             /**< Extra path information (CGI|PHP) */
-    bool            eof;                    /**< All read data has been received (eof) */
     MprOff          bytesUploaded;          /**< Length of uploaded content by user */
     MprOff          bytesRead;              /**< Length of content read by user (includes bytesUloaded) */
     MprOff          length;                 /**< Content length header value (ENV: CONTENT_LENGTH) */
@@ -5994,7 +5994,6 @@ typedef struct HttpRx {
     HttpConn        *conn;                  /**< Connection object */
     HttpRoute       *route;                 /**< Route for request */
     HttpSession     *session;               /**< Session for request */
-    bool            sessionProbed;          /**< Session has been resolved */
     ssize           headerPacketLength;     /**< Size of the headers */
     int             seqno;                  /**< Unique request sequence number */
 
@@ -6006,18 +6005,22 @@ typedef struct HttpRx {
     MprHash         *requestData;           /**< General request data storage. Users must create hash table if required */
     MprTime         since;                  /**< If-Modified date */
 
-    bool            authenticated;          /**< Request has been authenticated */
     int             chunkState;             /**< Chunk encoding state */
     int             flags;                  /**< Rx modifiers */
-    bool            form;                   /**< Using mime-type application/x-www-form-urlencoded */
-    bool            needInputPipeline;      /**< Input pipeline required to process received data */
-    bool            ownParams;              /**< Do own parameter handling */
-    bool            skipTrace;              /**< Omit trace for this request */
-    bool            streaming;              /**< Stream incoming content. Forms typically buffer and dont stream */
-    bool            upload;                 /**< Request is using file upload */
 
-    bool            ifModified;             /**< If-Modified processing requested */
-    bool            ifMatch;                /**< If-Match processing requested */
+    bool            authenticateProbed: 1;  /**< Request has been authenticated */
+    bool            authenticated: 1;       /**< Request has been authenticated */
+    bool            autoDelete: 1;          /**< Automatically delete uploaded files */
+    bool            eof: 1;                 /**< All read data has been received (eof) */
+    bool            form: 1;                /**< Using mime-type application/x-www-form-urlencoded */
+    bool            ifModified: 1;          /**< If-Modified processing requested */
+    bool            ifMatch: 1;             /**< If-Match processing requested */
+    bool            needInputPipeline: 1;   /**< Input pipeline required to process received data */
+    bool            ownParams: 1;           /**< Do own parameter handling */
+    bool            sessionProbed: 1;       /**< Session has been resolved */
+    bool            skipTrace: 1;           /**< Omit trace for this request */
+    bool            streaming: 1;           /**< Stream incoming content. Forms typically buffer and dont stream */
+    bool            upload: 1;              /**< Request is using file upload */
 
     /*
         Incoming response line if a client request
@@ -6061,7 +6064,6 @@ typedef struct HttpRx {
         Upload details
      */
     MprHash         *files;                 /**< Uploaded files. Managed by the upload filter */
-    int             autoDelete;             /**< Automatically delete uploaded files */
 
     struct HttpWebSocket *webSocket;        /**< WebSocket state */
 
@@ -6583,6 +6585,7 @@ typedef struct HttpTx {
     HttpStage       *connector;             /**< Network connector to send / receive socket data */
     HttpQueue       *queue[2];              /**< Pipeline queue heads */
 
+    MprHash         *cookies;               /**< Browser cookies */
     MprHash         *headers;               /**< Transmission headers */
     HttpCache       *cache;                 /**< Cache control entry (only set if this request is being cached) */
     MprBuf          *cacheBuffer;           /**< Response caching buffer */

@@ -706,6 +706,11 @@ typedef int64 Time;
  */
 typedef int64 Ticks;
 
+/**
+    Time/Ticks units per second (milliseconds)
+ */
+#define TPS 1000
+
 /*********************************** Defines **********************************/
 
 #ifndef BITSPERBYTE

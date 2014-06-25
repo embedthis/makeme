@@ -6336,8 +6336,10 @@ static void defaultCmdCallback(MprCmd *cmd, int channel, void *data)
     }
     len = mprReadCmd(cmd, channel, mprGetBufEnd(buf), space);
     errCode = mprGetError();
+#if KEEP
     mprDebug("mpr cmd", 5, "defaultCmdCallback channel %d, read len %zd, pid %d, eof %d/%d", channel, len, cmd->pid, 
             cmd->eofCount, cmd->requiredEof);
+#endif
     if (len <= 0) {
         if (len == 0 || (len < 0 && !(errCode == EAGAIN || errCode == EWOULDBLOCK))) {
             mprCloseCmdFd(cmd, channel);

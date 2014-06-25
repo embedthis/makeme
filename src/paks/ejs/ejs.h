@@ -5297,8 +5297,6 @@ PUBLIC void ejsSetDispatcher(Ejs *ejs, MprDispatcher *dispatcher);
     @param ejs Interpreter to destroy
  */
 PUBLIC void ejsDestroyVM(Ejs *ejs);
-
-//  MOB
 PUBLIC void ejsDestroy(Ejs *ejs);
 
 /**

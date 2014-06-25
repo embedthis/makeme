@@ -161,6 +161,10 @@ PUBLIC void httpInitAuth()
 }
 
 
+/*
+    Authenticate a user using the session stored username. This will set HttpRx.authenticated if authentication succeeds.
+    Note: this does not call httpLogin except for auto-login cases where a password is not used.
+ */
 PUBLIC bool httpAuthenticate(HttpConn *conn)
 {
     HttpRx      *rx;
@@ -170,11 +174,13 @@ PUBLIC bool httpAuthenticate(HttpConn *conn)
     rx = conn->rx;
     auth = rx->route->auth;
 
-    if (!rx->authenticated) {
+    if (!rx->authenticateProbed) {
+        rx->authenticateProbed = 1;
         ip = httpGetSessionVar(conn, HTTP_SESSION_IP, 0);
         username = httpGetSessionVar(conn, HTTP_SESSION_USERNAME, 0);
         if (!smatch(ip, conn->ip) || !username) {
             if (auth->username && *auth->username) {
+                /* Auto-login */
                 httpLogin(conn, auth->username, NULL);
                 username = httpGetSessionVar(conn, HTTP_SESSION_USERNAME, 0);
             }
@@ -193,10 +199,7 @@ PUBLIC bool httpAuthenticate(HttpConn *conn)
 
 PUBLIC bool httpLoggedIn(HttpConn *conn)
 {
-    if (!conn->rx->authenticated) {
-        httpAuthenticate(conn);
-    }
-    return conn->rx->authenticated;
+    return httpAuthenticate(conn);
 }
 
 
@@ -279,6 +282,7 @@ PUBLIC bool httpLogin(HttpConn *conn, cchar *username, cchar *password)
         httpSetSessionVar(conn, HTTP_SESSION_IP, conn->ip);
     }
     rx->authenticated = 1;
+    rx->authenticateProbed = 1;
     conn->username = sclone(username);
     conn->encoded = 0;
     return 1;
@@ -13114,48 +13118,48 @@ PUBLIC HttpRx *httpCreateRx(HttpConn *conn)
 static void manageRx(HttpRx *rx, int flags)
 {
     if (flags & MPR_MANAGE_MARK) {
-        mprMark(rx->method);
-        mprMark(rx->uri);
-        mprMark(rx->pathInfo);
-        mprMark(rx->scriptName);
-        mprMark(rx->extraPath);
-        mprMark(rx->conn);
-        mprMark(rx->route);
-        mprMark(rx->session);
-        mprMark(rx->etags);
-        mprMark(rx->headerPacket);
-        mprMark(rx->headers);
-        mprMark(rx->inputPipeline);
-        mprMark(rx->parsedUri);
-        mprMark(rx->requestData);
-        mprMark(rx->statusMessage);
         mprMark(rx->accept);
         mprMark(rx->acceptCharset);
         mprMark(rx->acceptEncoding);
         mprMark(rx->acceptLanguage);
         mprMark(rx->authDetails);
-        mprMark(rx->cookie);
+        mprMark(rx->conn);
         mprMark(rx->connection);
         mprMark(rx->contentLength);
+        mprMark(rx->cookie);
+        mprMark(rx->etags);
+        mprMark(rx->extraPath);
+        mprMark(rx->files);
+        mprMark(rx->headerPacket);
+        mprMark(rx->headers);
         mprMark(rx->hostHeader);
-        mprMark(rx->pragma);
+        mprMark(rx->inputPipeline);
+        mprMark(rx->inputRange);
+        mprMark(rx->lang);
+        mprMark(rx->method);
         mprMark(rx->mimeType);
-        mprMark(rx->originalMethod);
         mprMark(rx->origin);
+        mprMark(rx->originalMethod);
         mprMark(rx->originalUri);
+        mprMark(rx->paramString);
+        mprMark(rx->params);
+        mprMark(rx->parsedUri);
+        mprMark(rx->passwordDigest);
+        mprMark(rx->pathInfo);
+        mprMark(rx->pragma);
         mprMark(rx->redirect);
         mprMark(rx->referrer);
+        mprMark(rx->requestData);
+        mprMark(rx->route);
+        mprMark(rx->scriptName);
         mprMark(rx->securityToken);
-        mprMark(rx->upgrade);
-        mprMark(rx->userAgent);
-        mprMark(rx->lang);
-        mprMark(rx->params);
+        mprMark(rx->session);
+        mprMark(rx->statusMessage);
         mprMark(rx->svars);
-        mprMark(rx->inputRange);
-        mprMark(rx->passwordDigest);
-        mprMark(rx->paramString);
-        mprMark(rx->files);
         mprMark(rx->target);
+        mprMark(rx->upgrade);
+        mprMark(rx->uri);
+        mprMark(rx->userAgent);
         mprMark(rx->webSocket);
     }
 }
@@ -17291,7 +17295,6 @@ PUBLIC HttpStage *httpCreateConnector(Http *http, cchar *name, MprModule *module
         errordoc
         session
             create
-            MOB - destory session
         xsrf
             error
         redirect
@@ -17368,6 +17371,7 @@ static void manageTrace(HttpTrace *trace, int flags)
     if (flags & MPR_MANAGE_MARK) {
         mprMark(trace->file);
         mprMark(trace->format);
+        mprMark(trace->lastTime);
         mprMark(trace->mutex);
         mprMark(trace->path);
         mprMark(trace->events);
@@ -17557,8 +17561,8 @@ PUBLIC bool httpTraceContent(HttpConn *conn, cchar *event, cchar *type, cchar *b
         return 0;
     }
     if (conn) {
-        if ((smatch(event, "rx.body.data") && (conn->rx->bytesRead >= conn->trace->size)) ||
-            (smatch(event, "tx.body.data") && (conn->tx->bytesWritten >= conn->trace->size))) {
+        if ((smatch(event, "rx.body.data") && (conn->rx->bytesRead >= conn->trace->maxContent)) ||
+            (smatch(event, "tx.body.data") && (conn->tx->bytesWritten >= conn->trace->maxContent))) {
             if (!conn->rx->webSocket) {
                 conn->rx->skipTrace = 1;
                 httpTrace(conn, event, type, "msg=\"Abbreviating body trace\"");
@@ -17642,7 +17646,8 @@ PUBLIC bool httpTraceProc(HttpConn *conn, cchar *event, cchar *type, cchar *valu
 
 
 
-PUBLIC void httpFormatTrace(HttpTrace *trace, HttpConn *conn, cchar *event, cchar *type, cchar *values, cchar *buf, ssize len)
+PUBLIC void httpFormatTrace(HttpTrace *trace, HttpConn *conn, cchar *event, cchar *type, cchar *values, cchar *buf, 
+    ssize len)
 {
     (trace->formatter)(trace, conn, event, type, values, buf, len);
 }
@@ -17687,7 +17692,8 @@ PUBLIC cchar *httpMakePrintable(HttpTrace *trace, HttpConn *conn, cchar *event, 
         start += 3;
         *lenp -= 3;
     }
-    //  MOB - must enforce trace->maxContent
+    len = max(len, trace->maxContent);
+
     for (i = 0; i < len; i++) {
         if (!isprint((uchar) start[i]) && start[i] != '\n' && start[i] != '\r' && start[i] != '\t') {
             data = mprAlloc(len * 3 + ((len / 16) + 1) + 1);
@@ -17714,8 +17720,10 @@ PUBLIC cchar *httpMakePrintable(HttpTrace *trace, HttpConn *conn, cchar *event, 
 /*
     Format a detailed request message
  */
-PUBLIC void httpDetailTraceFormatter(HttpTrace *trace, HttpConn *conn, cchar *event, cchar *type, cchar *values, cchar *data, ssize len)
+PUBLIC void httpDetailTraceFormatter(HttpTrace *trace, HttpConn *conn, cchar *event, cchar *type, cchar *values, 
+    cchar *data, ssize len)
 {
+    MprTime now;
     char    *boundary, buf[256];
     int     client, sessionSeqno;
 
@@ -17723,15 +17731,20 @@ PUBLIC void httpDetailTraceFormatter(HttpTrace *trace, HttpConn *conn, cchar *ev
     assert(event);
     assert(type);
 
+    lock(trace);
+    now = mprGetTime();
     if (conn) {
+        if (trace->lastMark < (now + TPS)) {
+            trace->lastTime = mprGetDate(MPR_LOG_DATE);
+            trace->lastMark = now;
+        }
         client = conn->address ? conn->address->seqno : 0;
         sessionSeqno = conn->rx->session ? (int) stoi(conn->rx->session->id) : 0;
-        fmt(buf, sizeof(buf), "\n%s %d-%d-%d-%d ", mprGetDate(MPR_LOG_DATE), client, sessionSeqno, conn->seqno,
+        fmt(buf, sizeof(buf), "\n%s %d-%d-%d-%d ", trace->lastTime, client, sessionSeqno, conn->seqno,
             conn->rx->seqno);
     } else {
-        fmt(buf, sizeof(buf), "\n%s 0-0-0-0 ", mprGetDate(MPR_LOG_DATE));
+        fmt(buf, sizeof(buf), "\n%s 0-0-0-0 ", trace->lastTime);
     }
-    lock(trace);
     httpWriteTrace(trace, buf, slen(buf));
     fmt(buf, sizeof(buf), "%s, ", event);
     httpWriteTrace(trace, buf, slen(buf));
@@ -18067,6 +18080,8 @@ PUBLIC HttpTx *httpCreateTx(HttpConn *conn, MprHash *headers)
     tx->length = -1;
     tx->entityLength = -1;
     tx->chunkSize = -1;
+    tx->cookies = mprCreateHash(HTTP_SMALL_HASH_SIZE, 0);
+    tx->headers = mprCreateHash(HTTP_SMALL_HASH_SIZE, 0);
     tx->queue[HTTP_QUEUE_TX] = httpCreateQueueHead(conn, "TxHead");
     conn->writeq = tx->queue[HTTP_QUEUE_TX]->nextQ;
     tx->queue[HTTP_QUEUE_RX] = httpCreateQueueHead(conn, "RxHead");
@@ -18107,6 +18122,7 @@ static void manageTx(HttpTx *tx, int flags)
         mprMark(tx->cachedContent);
         mprMark(tx->conn);
         mprMark(tx->connector);
+        mprMark(tx->cookies);
         mprMark(tx->currentRange);
         mprMark(tx->ext);
         mprMark(tx->etag);
@@ -18556,7 +18572,8 @@ PUBLIC void httpSetContentLength(HttpConn *conn, MprOff length)
     Set lifespan == 0 for no expiry.
     WARNING: Some browsers (Chrome, Firefox) do not delete session cookies when you exit the browser.
  */
-PUBLIC void httpSetCookie(HttpConn *conn, cchar *name, cchar *value, cchar *path, cchar *cookieDomain, MprTicks lifespan, int flags)
+PUBLIC void httpSetCookie(HttpConn *conn, cchar *name, cchar *value, cchar *path, cchar *cookieDomain, 
+    MprTicks lifespan, int flags)
 {
     HttpRx      *rx;
     char        *cp, *expiresAtt, *expires, *domainAtt, *domain, *secure, *httponly;
@@ -18596,11 +18613,9 @@ PUBLIC void httpSetCookie(HttpConn *conn, cchar *name, cchar *value, cchar *path
     secure = (conn->secure & (flags & HTTP_COOKIE_SECURE)) ? "; secure" : "";
     httponly = (flags & HTTP_COOKIE_HTTP) ?  "; httponly" : "";
 
-    /*
-       Allow multiple cookie headers. Even if the same name. Later definitions take precedence.
-     */
-    httpAppendHeaderString(conn, "Set-Cookie",
-        sjoin(name, "=", value, "; path=", path, domainAtt, domain, expiresAtt, expires, secure, httponly, NULL));
+    mprAddKey(conn->tx->cookies, name, 
+        sjoin(value, "; path=", path, domainAtt, domain, expiresAtt, expires, secure, httponly, NULL));
+
     if ((cp = mprLookupKey(conn->tx->headers, "Cache-Control")) == 0 || !scontains(cp, "no-cache")) {
         httpAppendHeader(conn, "Cache-Control", "no-cache=\"set-cookie\"");
     }
@@ -18609,7 +18624,7 @@ PUBLIC void httpSetCookie(HttpConn *conn, cchar *name, cchar *value, cchar *path
 
 PUBLIC void httpRemoveCookie(HttpConn *conn, cchar *name)
 {
-    httpSetCookie(conn, name, "", NULL, NULL, -1, 0);
+    mprAddKey(conn->tx->cookies, name, MPR->emptyString);
 }
 
 
@@ -18654,6 +18669,7 @@ static void setHeaders(HttpConn *conn, HttpPacket *packet)
     HttpRoute   *route;
     HttpRange   *range;
     MprKeyValue *item;
+    MprKey      *kp;
     MprOff      length;
     int         next;
 
@@ -18662,6 +18678,13 @@ static void setHeaders(HttpConn *conn, HttpPacket *packet)
     rx = conn->rx;
     tx = conn->tx;
     route = rx->route;
+
+    /*
+        Create headers for cookies
+     */
+    for (ITERATE_KEYS(tx->cookies, kp)) {
+        httpAppendHeaderString(conn, "Set-Cookie", sjoin(kp->key, "=", kp->data, NULL));
+    }
 
     /*
         Mandatory headers that must be defined here use httpSetHeader which overwrites existing values.
