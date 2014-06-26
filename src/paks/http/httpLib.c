@@ -14445,7 +14445,8 @@ PUBLIC cchar *httpGetCookie(HttpConn *conn, cchar *name)
     }
     nlen = slen(name);
     while ((value = strstr(cookie, name)) != 0) {
-        if ((value == cookie || value[-1] == ' ' || value[-1] == ';') && value[nlen] == '=') {
+        /* Ignore corrupt cookies of the form "name=;" */
+        if ((value == cookie || value[-1] == ' ' || value[-1] == ';') && value[nlen] == '=' && value[nlen+1] != ';') {
             break;
         }
         cookie += nlen;
