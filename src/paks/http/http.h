@@ -3666,6 +3666,55 @@ PUBLIC HttpLimits *httpSetUniqueConnLimits(HttpConn *conn);
 PUBLIC void httpUsePrimary(HttpConn *conn);
 PUBLIC void httpUseWorker(HttpConn *conn, MprDispatcher *dispatcher, MprEvent *event);
 
+/********************************** HttpAuthStore *********************************/
+/**
+    AuthStore callback Verify the user credentials
+    @param conn HttpConn connection object
+    @param username Users login name
+    @param password Actual user password
+    @return True if the user credentials can validate
+    @ingroup HttpAuth
+    @stability Evolving
+ */
+typedef bool (*HttpVerifyUser)(HttpConn *conn, cchar *username, cchar *password);
+
+/**
+    Password backend store. Support stores are: system, file
+    @ingroup HttpAuth
+    @stability Evolving
+    @see HttpAskLogin HttpParseAuth HttpSetAuth
+    httpCreateAuthStore httpSetAuthStore httpsetAuthStoreSessions
+ */
+typedef struct HttpAuthStore {
+    char            *name;                  /**< Authentication password store name: 'system', 'file' */
+    int             noSession;              /**< Do not create a session after login */
+    HttpVerifyUser  verifyUser;             /**< Default user verification routine */
+} HttpAuthStore;
+
+/**
+    Add an authorization store for password validation. The pre-supplied types are "config" and "system".
+    @description This creates an AuthType object with the defined name and callbacks.
+    @param name Unique authorization type name
+    @param verifyUser Callback to verify the username and password contained in the HttpConn object passed to the callback.
+    @return Auth store if successful, otherwise zero.
+    @ingroup HttpAuth
+    @stability Evolving
+ */
+PUBLIC HttpAuthStore *httpCreateAuthStore(cchar *name, HttpVerifyUser verifyUser);
+
+
+/**
+    Control whether sessions and session cookies are created for user logins
+    @description By default, a session and response cookie are created when a user is authenticated via #httpLogin.
+    This boosts performance because subsequent requests can supply the cookie and bypass authentication for each
+    subseqent request. This API permits the default behavior to be suppressed and thus no cookie or session will be created.
+    @param store AuthStore object created via #httpCreateAuthStore.
+    @param noSession Set to true to suppress creation of sessions or cookies.
+    @ingroup HttpAuth
+    @stability Prototype
+ */
+PUBLIC void httpSetAuthStoreSessions(HttpAuthStore *store, bool noSession);
+
 /********************************** HttpAuth *********************************/
 /*
     Authorization flags for HttpAuth.flags
@@ -3706,18 +3755,6 @@ typedef int (*HttpParseAuth)(HttpConn *conn, cchar **username, cchar **password)
 typedef bool (*HttpSetAuth)(HttpConn *conn, cchar *username, cchar *password);
 
 /**
-    AuthStore callback Verify the user credentials
-    @param conn HttpConn connection object
-    @param username Users login name
-    @param password Actual user password
-    @return True if the user credentials can validate
-    @ingroup HttpAuth
-    @stability Evolving
- */
-typedef bool (*HttpVerifyUser)(HttpConn *conn, cchar *username, cchar *password);
-
-
-/**
     Authentication Protocol. Supported protocols  are: basic, digest, form.
     @ingroup HttpAuth
     @stability Internal
@@ -3729,73 +3766,18 @@ typedef struct HttpAuthType {
     HttpSetAuth         setAuth;            /**< Callback to set the HTTP response authentication headers */
 } HttpAuthType;
 
-
-/**
-    Password backend store. Support stores are: system, file
-    @ingroup HttpAuth
-    @stability Internal
- */
-typedef struct HttpAuthStore {
-    char            *name;                  /**< Authentication password store name: 'system', 'file' */
-    int             noSession;              /**< Do not create a session after login */
-    HttpVerifyUser  verifyUser;             /**< Default user verification routine */
-} HttpAuthStore;
-
-/**
-    Per-request digest authorization data
-    @see HttpAuth
-    @ingroup HttpAuth
-    @stability Evolving
- */
-typedef struct HttpDigest {
-    char    *algorithm;
-    char    *cnonce;
-    char    *domain;
-    char    *nc;
-    char    *nonce;
-    char    *opaque;
-    char    *qop;
-    char    *realm;
-    char    *stale;
-    char    *uri;
-} HttpDigest;
-
-/**
-    User Authorization. A user has a name, password and a set of roles. These roles define a set of abilities.
-    @see HttpAuth
-    @ingroup HttpAuth
-    @stability Internal
- */
-typedef struct HttpUser {
-    char            *name;                  /**< User name */
-    char            *password;              /**< User password for "internal" auth store - (actually the password hash */
-    char            *roles;                 /**< Original list of roles */
-    MprHash         *abilities;             /**< User abilities */
-} HttpUser;
-
-/**
-    Authorization Roles. Roles are named sets of abilities.
-    @see HttpAuth
-    @ingroup HttpAuth
-    @stability Internal
- */
-typedef struct  HttpRole {
-    char            *name;                  /**< Role name */
-    MprHash         *abilities;             /**< Role's abilities */
-} HttpRole;
-
 /**
     Authorization
     @description HttpAuth is the foundation authorization object and is used by HttpRoute.
     It stores the authorization configuration information required to determine if a client request should be permitted
     access to a given resource.
     @defgroup HttpAuth HttpAuth
-    @see HttpAskLogin HttpAuth HttpAuthStore HttpAuthType HttpGetCredentials HttpRole HttpSetAuth HttpVerifyUser HttpUser
-        HttpVerifyUser httpAddAuthType httpAddAuthStore httpAddRole httpAddUser httpCanUser httpAuthenticate
+    @see HttpAskLogin HttpAuth HttpAuthType HttpGetCredentials HttpRole HttpSetAuth HttpVerifyUser HttpUser
+        HttpVerifyUser httpAddAuthType httpAddRole httpAddUser httpCanUser httpAuthenticate
         httpComputeAllUserAbilities httpComputeUserAbilities httpCreateRole httpCreateAuth httpAdduser
         httpIsAuthenticated httpLogin httpRemoveRole httpRemoveUser httpSetAuthAllow httpSetAuthAnyValidUser
         httpSetAuthUsername httpSetAuthDeny httpSetAuthOrder httpSetAuthPermittedUsers httpSetAuthForm httpSetAuthQop
-        httpSetAuthRealm httpSetAuthRequiredAbilities httpSetAuthStore httpSetAuthType
+        httpSetAuthRealm httpSetAuthRequiredAbilities httpSetAuthType
     @stability Internal
  */
 typedef struct HttpAuth {
@@ -3818,6 +3800,14 @@ typedef struct HttpAuth {
     HttpVerifyUser  verifyUser;             /**< Password verification */
 } HttpAuth;
 
+/**
+    Create an authentication object
+    @return An empty authentiction object
+    @ingroup HttpAuth
+    @stability Evolving
+    @internal
+ */
+PUBLIC HttpAuth *httpCreateAuth();
 
 /**
     Create an authorization protocol type. The pre-supplied types are 'basic', 'digest' and 'form'.
@@ -3837,40 +3827,34 @@ PUBLIC int httpCreateAuthType(cchar *name, HttpAskLogin askLogin, HttpParseAuth 
 #define httpAddAuthType httpCreateAuthType
 #endif
 
+/********************************* Users and Roles ***************************/
+
 /**
-    Add an authorization store for password validation. The pre-supplied types are "config" and "system".
-    @description This creates an AuthType object with the defined name and callbacks.
-    @param name Unique authorization type name
-    @param verifyUser Callback to verify the username and password contained in the HttpConn object passed to the callback.
-    @return Auth store if successful, otherwise zero.
-    @ingroup HttpAuth
-    @stability Evolving
+    User Authorization. A user has a name, password and a set of roles. These roles define a set of abilities.
+    @see HttpAuth
+    @group HttpAuth
+    @stability Internal
  */
-PUBLIC HttpAuthStore *httpCreateAuthStore(cchar *name, HttpVerifyUser verifyUser);
+typedef struct HttpUser {
+    char            *name;                  /**< User name */
+    char            *password;              /**< User password for "internal" auth store - (actually the password hash */
+    char            *roles;                 /**< Original list of roles */
+    MprHash         *abilities;             /**< User abilities */
+} HttpUser;
 
 /**
-    Control whether sessions are created for authenticated logins
-    @description By default, a session and response cookie are created when a user is authenticated via #httpLogin.
-    This boosts performance because subsequent requests that quote the cookie can bypass authentication.
-    This API permits the default behavior to be suppressed and thus no cookie or session will be created.
-    @param store AuthStore object created via #httpCreateAuthStore.
-    @param noSession Set to true to suppress creation of sessions or cookies.
+    Authorization Roles. Roles are named sets of abilities.
+    @see HttpAuth
     @ingroup HttpAuth
-    @stability Prototype
+    @stability Internal
  */
-PUBLIC void httpSetAuthStoreSessions(HttpAuthStore *store, bool noSession);
+typedef struct  HttpRole {
+    char            *name;                  /**< Role name */
+    MprHash         *abilities;             /**< Role's abilities */
+} HttpRole;
 
 /**
-    Set the verify callback for a authentication store
-    @param auth Auth object allocated by #httpCreateAuth.
-    @param verifyUser Verification callback
-    @ingroup HttpAuth
-    @stability Prototype
-  */
-PUBLIC void httpSetAuthVerify(HttpAuth *auth, HttpVerifyUser verifyUser);
-
-/**
-    Add a role
+    Add a role. If the role already exists, the role is updated.
     @description This creates the role with given abilities. Ability words can also be other roles.
     @param auth Auth object allocated by #httpCreateAuth.
     @param role Role name to add
@@ -3895,95 +3879,6 @@ PUBLIC HttpRole *httpAddRole(HttpAuth *auth, cchar *role, cchar *abilities);
 PUBLIC HttpUser *httpAddUser(HttpAuth *auth, cchar *user, cchar *password, cchar *abilities);
 
 /**
-    Authenticate a user
-    @description This authenticates a user by testing the user supplied session cookie against the server session store.
-    The result is saved in HttpRx.authenticated and supplied as a return result. Thereafter, #httpIsAuthenticated may be
-    called to test HttpRx.authenticated. The httpAuthenticate call is not automatically performed by the request 
-    pipeline. Web Frameworks should call this if required.
-    @param conn HttpConn connection object created via #httpCreateConn object.
-    @return True if the user is authenticated.
- */
-PUBLIC bool httpAuthenticate(HttpConn *conn);
-
-/**
-    Test if a user has the required abilities
-    @param conn HttpConn connection object created via #httpCreateConn object.
-    @param abilities Comma separated list of abilities to test for. If null, then use the required abilities defined
-        for the current request route.
-    @return True if the user has all the required abilities
-    @ingroup HttpAuth
-    @stability Evolving
- */
-PUBLIC bool httpCanUser(HttpConn *conn, cchar *abilities);
-
-/**
-    Compute all the user abilities for a route using the given auth
-    @param auth Auth object allocated by #httpCreateAuth
-    @ingroup HttpAuth
-    @stability Evolving
- */
-PUBLIC void httpComputeAllUserAbilities(HttpAuth *auth);
-
-/**
-    Compute the user abilities for a given user in a route using the given auth
-    @param auth Auth object allocated by #httpCreateAuth
-    @param user User object
-    @ingroup HttpAuth
-    @stability Evolving
- */
-PUBLIC void httpComputeUserAbilities(HttpAuth *auth, HttpUser *user);
-
-/**
-    Create an authentication object
-    @return An empty authentiction object
-    @ingroup HttpAuth
-    @stability Evolving
-    @internal
- */
-PUBLIC HttpAuth *httpCreateAuth();
-
-/**
-    Test if the user is authenticated
-    @param conn HttpConn connection object
-    @return True if the username and password have been authenticated.
-    @ingroup HttpAuth
-    @stability Evolving
- */
-PUBLIC bool httpIsAuthenticated(HttpConn *conn);
-
-/**
-    Log the user in.
-    @description This will verify the supplied username and password. If the user is successfully logged in,
-    the user identity will be stored in session state for fast authentication on subsequent requests.
-    Note: this does not verify any user abilities.
-    @param conn HttpConn connection object
-    @param username User name to authenticate
-    @param password Password for the user
-    @return True if the username and password have been authenticated.
-    @ingroup HttpAuth
-    @stability Evolving
- */
-PUBLIC bool httpLogin(HttpConn *conn, cchar *username, cchar *password);
-
-/**
-    Test if the client for the current request is logged in
-    @description This tests if there is a login session for the client
-    @param conn HttpConn connection object
-    @return True if the user is authenticated and logged in
-    @ingroup HttpAuth
-    @stability Prototype
-  */
-PUBLIC bool httpLoggedIn(HttpConn *conn);
-
-/**
-    Logout the user.
-    @param conn HttpConn connection object
-    @ingroup HttpAuth
-    @stability Prototype
- */
-PUBLIC void httpLogout(HttpConn *conn);
-
-/**
     Lookup a role by name
     @param auth HttpAuth object. Stored in HttpConn.rx.route.auth
     @param name Role name
@@ -3995,6 +3890,8 @@ PUBLIC HttpRole *httpLookupRole(HttpAuth *auth, cchar *name);
 
 /**
     Lookup a user by username
+    @description This looks up a user in the internal user store. 
+    This is only used i
     @param auth HttpAuth object. Stored in HttpConn.rx.route.auth
     @param name Username
     @return User object
@@ -4025,6 +3922,102 @@ PUBLIC int httpRemoveRole(HttpAuth *auth, cchar *role);
  */
 PUBLIC int httpRemoveUser(HttpAuth *auth, cchar *user);
 
+/**
+    Compute all the user abilities for a route using the given auth
+    @param auth Auth object allocated by #httpCreateAuth
+    @ingroup HttpAuth
+    @stability Evolving
+ */
+PUBLIC void httpComputeAllUserAbilities(HttpAuth *auth);
+
+/**
+    Compute the user abilities for a given user in a route using the given auth
+    @param auth Auth object allocated by #httpCreateAuth
+    @param user User object
+    @ingroup HttpAuth
+    @stability Evolving
+ */
+PUBLIC void httpComputeUserAbilities(HttpAuth *auth, HttpUser *user);
+
+/*
+    Internal
+ */
+PUBLIC char *httpRolesToAbilities(HttpAuth *auth, cchar *roles, cchar *separator);
+
+/********************************* Login *************************************/
+/**
+    Authenticate a user based on session data
+    @description This authenticates a user by testing the user supplied session cookie against login credentials 
+    stored in the server-side session store. The httpAuthenticate call is not automatically performed by the 
+    request pipeline. Web Frameworks should call this if required.
+    @param conn HttpConn connection object created via #httpCreateConn object.
+    @return True if the user is authenticated.
+ */
+PUBLIC bool httpAuthenticate(HttpConn *conn);
+
+/**
+    Test if a user has the required abilities
+    @param conn HttpConn connection object created via #httpCreateConn object.
+    @param abilities Comma separated list of abilities to test for. If null, then use the required abilities defined
+        for the current request route.
+    @return True if the user has all the required abilities
+    @ingroup HttpAuth
+    @stability Evolving
+ */
+PUBLIC bool httpCanUser(HttpConn *conn, cchar *abilities);
+
+/**
+    Test if the user is authenticated
+    @param conn HttpConn connection object
+    @return True if the username and password have been authenticated.
+    @ingroup HttpAuth
+    @stability Evolving
+ */
+PUBLIC bool httpIsAuthenticated(HttpConn *conn);
+
+/**
+    Log the user in.
+    @description This will verify the supplied username and password. If the user is successfully logged in,
+    the user identity will be stored in session state for fast authentication on subsequent requests.
+    Note: this does not verify any user abilities.
+    @param conn HttpConn connection object
+    @param username User name to authenticate
+    @param password Password for the user
+    @return True if the username and password have been authenticated.
+    @ingroup HttpAuth
+    @stability Evolving
+ */
+PUBLIC bool httpLogin(HttpConn *conn, cchar *username, cchar *password);
+
+#if DEPRECATED || 1
+#define httpLoggedIn httpIsAuthenticated
+#endif
+
+/**
+    Logout the user.
+    @param conn HttpConn connection object
+    @ingroup HttpAuth
+    @stability Prototype
+ */
+PUBLIC void httpLogout(HttpConn *conn);
+
+/**
+    Define the callbabcks for the 'form' authentication type.
+    @description This creates a new route for the login page.
+    @param parent Parent route from which to inherit when creating a route for the login page.
+    @param loginPage Web page URI for the user to enter username and password.
+    @param loginService URI to use for the internal login service. To use your own login URI, set to this the empty string.
+    @param logoutService URI to use to log the user out. To use your won logout URI, set this to the empty string.
+    @param loggedIn The client is redirected to this URI once logged in. Use a "referrer:" prefix to the URI to
+        redirect the user to the referring URI before the loginPage. If the referrer cannot be determined, the base
+        URI is utilized.
+    @ingroup HttpAuth
+    @stability Evolving
+ */
+PUBLIC void httpSetAuthForm(struct HttpRoute *parent, cchar *loginPage, cchar *loginService, cchar *logoutService,
+    cchar *loggedIn);
+
+/***************************** Auth Route ************************************/
 /**
     Allow access by a client IP IP address
     @param auth Authorization object allocated by #httpCreateAuth.
@@ -4072,22 +4065,6 @@ PUBLIC void httpSetAuthOrder(HttpAuth *auth, int order);
 PUBLIC void httpSetAuthPermittedUsers(HttpAuth *auth, cchar *users);
 
 /**
-    Define the callbabcks for the 'form' authentication type.
-    @description This creates a new route for the login page.
-    @param parent Parent route from which to inherit when creating a route for the login page.
-    @param loginPage Web page URI for the user to enter username and password.
-    @param loginService URI to use for the internal login service. To use your own login URI, set to this the empty string.
-    @param logoutService URI to use to log the user out. To use your won logout URI, set this to the empty string.
-    @param loggedIn The client is redirected to this URI once logged in. Use a "referrer:" prefix to the URI to
-        redirect the user to the referring URI before the loginPage. If the referrer cannot be determined, the base
-        URI is utilized.
-    @ingroup HttpAuth
-    @stability Evolving
- */
-PUBLIC void httpSetAuthForm(struct HttpRoute *parent, cchar *loginPage, cchar *loginService, cchar *logoutService,
-    cchar *loggedIn);
-
-/**
     Set the required quality of service for digest authentication
     @description This configures the basic or digest authentication for the auth object
     @param auth Auth object allocated by #httpCreateAuth.
@@ -4111,7 +4088,7 @@ PUBLIC void httpSetAuthRealm(HttpAuth *auth, cchar *realm);
 /**
     Set the required abilities for access
     @param auth Auth object allocated by #httpCreateAuth.
-    @param abilities Spaces separated list of all the required abilities.
+    @param abilities Space separated list of the required abilities. May supply roles in the abilities string.
     @ingroup HttpAuth
     @stability Evolving
  */
@@ -4127,7 +4104,7 @@ PUBLIC void httpSetAuthRequiredAbilities(HttpAuth *auth, cchar *abilities);
 PUBLIC int httpSetAuthStore(HttpAuth *auth, cchar *store);
 
 /**
-    Set the authentication protocol to use
+    Set the authentication protocol type to use
     @param auth Auth object allocated by #httpCreateAuth.
     @param proto Protocol name to use. Select from: 'basic', 'digest', 'form'
     @param details Extra protocol details.
@@ -4146,24 +4123,31 @@ PUBLIC int httpSetAuthType(HttpAuth *auth, cchar *proto, cchar *details);
  */
 PUBLIC void httpSetAuthUsername(HttpAuth *auth, cchar *username);
 
+/**
+    Set the verify callback for a authentication store
+    @param auth Auth object allocated by #httpCreateAuth.
+    @param verifyUser Verification callback
+    @ingroup HttpAuth
+    @stability Prototype
+  */
+PUBLIC void httpSetAuthVerify(HttpAuth *auth, HttpVerifyUser verifyUser);
+
 /*
     Internal
  */
 PUBLIC void httpBasicLogin(HttpConn *conn);
 PUBLIC int httpBasicParse(HttpConn *conn, cchar **username, cchar **password);
 PUBLIC bool httpBasicSetHeaders(HttpConn *conn, cchar *username, cchar *password);
+PUBLIC void httpComputeRoleAbilities(HttpAuth *auth, MprHash *abilities, cchar *role);
+PUBLIC HttpAuth *httpCreateInheritedAuth(HttpAuth *parent);
 PUBLIC void httpDigestLogin(HttpConn *conn);
 PUBLIC int httpDigestParse(HttpConn *conn, cchar **username, cchar **password);
 PUBLIC bool httpDigestSetHeaders(HttpConn *conn, cchar *username, cchar *password);
-PUBLIC bool httpPamVerifyUser(HttpConn *conn, cchar *username, cchar *password);
-PUBLIC bool httpInternalVerifyUser(HttpConn *conn, cchar *username, cchar *password);
-PUBLIC void httpComputeAllUserAbilities(HttpAuth *auth);
-PUBLIC void httpComputeUserAbilities(HttpAuth *auth, HttpUser *user);
-PUBLIC void httpInitAuth();
-PUBLIC HttpAuth *httpCreateInheritedAuth(HttpAuth *parent);
-PUBLIC HttpAuthType *httpLookupAuthType(cchar *type);
 PUBLIC bool httpGetCredentials(HttpConn *conn, cchar **username, cchar **password);
-PUBLIC void httpComputeUserAbilities(HttpAuth *auth, HttpUser *user);
+PUBLIC void httpInitAuth();
+PUBLIC bool httpInternalVerifyUser(HttpConn *conn, cchar *username, cchar *password);
+PUBLIC HttpAuthType *httpLookupAuthType(cchar *type);
+PUBLIC bool httpPamVerifyUser(HttpConn *conn, cchar *username, cchar *password);
 
 /********************************** HttpLang  ********************************/
 

@@ -6672,6 +6672,7 @@ PUBLIC MprJson *mprParseJsonInto(cchar *str, MprJson *obj);
         \n\n
         For arrays, to compare the array contents value iself, use "@". This is useful
         to select by array element values. For example: colors[@ == 'red'].
+        Use "$" to append an element to an array.
         \n\n
         Examples:
         \n\n
