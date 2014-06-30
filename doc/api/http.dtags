@@ -1597,7 +1597,6 @@
     <filename>group___http_auth.html</filename>
     <class kind="struct">HttpAuthStore</class>
     <class kind="struct">HttpAuthType</class>
-    <class kind="struct">HttpDigest</class>
     <class kind="struct">HttpRole</class>
     <class kind="struct">HttpUser</class>
     <member kind="typedef">
@@ -1689,13 +1688,6 @@
       <name>httpIsAuthenticated</name>
       <anchorfile>group___http_auth.html</anchorfile>
       <anchor>ga0858b254138c27234d8ab0fccba459ad</anchor>
-      <arglist>(HttpConn *conn)</arglist>
-    </member>
-    <member kind="function">
-      <type>bool</type>
-      <name>httpLoggedIn</name>
-      <anchorfile>group___http_auth.html</anchorfile>
-      <anchor>gad6e6e3774e141b97e2b2105d4c4ec31b</anchor>
       <arglist>(HttpConn *conn)</arglist>
     </member>
     <member kind="function">
@@ -3710,10 +3702,6 @@
       <anchor>ae14c5355858f2d10c1b94f8acb5c0435</anchor>
       <arglist></arglist>
     </member>
-  </compound>
-  <compound kind="struct">
-    <name>HttpDigest</name>
-    <filename>struct_http_digest.html</filename>
   </compound>
   <compound kind="struct">
     <name>HttpLang</name>

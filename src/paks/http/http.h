@@ -3832,7 +3832,7 @@ PUBLIC int httpCreateAuthType(cchar *name, HttpAskLogin askLogin, HttpParseAuth 
 /**
     User Authorization. A user has a name, password and a set of roles. These roles define a set of abilities.
     @see HttpAuth
-    @group HttpAuth
+    @ingroup HttpAuth
     @stability Internal
  */
 typedef struct HttpUser {
