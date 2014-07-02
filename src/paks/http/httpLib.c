@@ -4,7 +4,7 @@
     This file is a catenation of all the source code. Amalgamating into a
     single file makes embedding simpler and the resulting application faster.
 
-    Prepared by: orion
+    Prepared by: orion.local
  */
 
 #include "http.h"
@@ -2282,6 +2282,7 @@ PUBLIC int httpWait(HttpConn *conn, int state, MprTicks timeout)
 
 /************************************ Forwards ********************************/
 static void parseAll(HttpRoute *route, cchar *key, MprJson *prop);
+static void parseAuthRoles(HttpRoute *route, cchar *key, MprJson *prop);
 static void parseAuthStore(HttpRoute *route, cchar *key, MprJson *prop);
 static void postParse(HttpRoute *route);
 static void parseRoutes(HttpRoute *route, cchar *key, MprJson *prop);
@@ -2594,6 +2595,7 @@ static void parseDirectories(HttpRoute *route, cchar *key, MprJson *prop)
 static void parseAuth(HttpRoute *route, cchar *key, MprJson *prop)
 {
     if (prop->type & MPR_JSON_STRING) {
+        /* Permits auth: "app" to set the store */
         parseAuthStore(route, key, prop);
     } else if (prop->type == MPR_JSON_OBJ) {
         parseAll(route, key, prop);
@@ -2618,6 +2620,9 @@ static void parseAuthLoginRoles(HttpRoute *route, cchar *key, MprJson *prop)
     MprJson     *child, *job;
     int         ji;
 
+    if ((job = mprGetJsonObj(route->config, "app.http.auth.roles")) != 0) {
+        parseAuthRoles(route, "app.http.auth.roles", job);
+    }
     abilities = mprCreateHash(0, 0);
     for (ITERATE_CONFIG(route, prop, child, ji)) {
         httpComputeRoleAbilities(route->auth, abilities, child->value);
