@@ -664,8 +664,29 @@ print("SET BARE", field)
     }
 
     /*
+        Process a given mefile
+     */
+    function processMe(mefile: Path, platform, last = true) {
+        createMe(platform, mefile)
+        me.platform.last = last
+        if (me.package && me.package.version != me.settings.version) {
+            trace('Upgrade', 'Main.me has been updated, reconfiguring ...')
+            overlay('configure.es')
+            reconfigure()
+        }
+        if (options.configuration) {
+            showConfiguration()
+        }
+        prepBuild()
+        if (options.hasOwnProperty('get')) {
+            getValue()
+        } else {
+            build()
+        }
+    }
+
+    /*
         This function will do a quick load of 'mefile' and if it has platforms[], then it will load those instead.
-        TODO refactor, split into two functions one that loads a specific mefile and one that looks up platforms.
      */
     function process(mefile: Path) {
         if (!mefile.exists) {
@@ -676,39 +697,14 @@ print("SET BARE", field)
             platforms = me.platforms
             for (let [index,platform] in me.platforms) {
                 mefile = mefile.dirname.join(platform).joinExt('me')
-                createMe(platform, mefile)
-                if (index == (me.platforms.length - 1)) {
-                    me.platform.last = true
-                }
-                if (me.package && me.package.version != me.settings.version) {
-                    trace('Upgrade', 'Main.me has been updated, reconfiguring ...')
-                    overlay('configure.es')
-                    reconfigure()
-                }
-                if (options.configuration) {
-                    showConfiguration()
-                    continue
-                }
-                prepBuild()
-                if (options.hasOwnProperty('get')) {
-                    getValue()
-                } else {
-                    build()
-                }
+                processMe(mefile, platform, index == (me.platforms.length - 1))
                 if (!options.configure && (me.platforms.length > 1 || me.platform.cross)) {
                     trace('Complete', me.platform.name)
                 }
             }
         } else {
             platforms = me.platforms = [localPlatform]
-            createMe(localPlatform, mefile)
-            me.platform.last = true
-            prepBuild()
-            if (options.hasOwnProperty('get')) {
-                getValue()
-            } else {
-                build()
-            }
+            processPlatform(localPlatform, mefile)
         }
     }
 

@@ -67,16 +67,16 @@ me configure "$@"</pre>
         <p>MakeMe can also be invoked directly to configure your project:</p>
         <ul>
             <li>me configure</li>
-            <li>me -config</li>
+            <li>me -configure .</li>
         </ul>
         <p>Note that MakeMe switches can be prefixed with either a double "<em>--</em>" or a single "<em>-</em>" dashes.</p>
         <h2>Configuration Outputs</h2>
         <p>When configuring, MakeMe will determine the capabilities of your system and create a several files and 
         directories. These include:</p>
         <ul>
-            <li>A platform output directory for objects, libraries and executables: <em>OS-ARCH-PROFILE</em></li>
+            <li>A platform output directory for objects, libraries and executables: <em>build/OS-ARCH-PROFILE</em></li>
             <li>A startup MakeMe file: <em>start.me</em></li>
-            <li>A platform specific MakeMe file: <em>OS-ARCH-PROFILE.me</em></li>
+            <li>A platform specific MakeMe file: <em>build/OS-ARCH-PROFILE/OS-ARCH-PROFILE.me</em></li>
             <li>A source definitions header:<em>me.h</em></li>
         </ul>
         <p>MakeMe will use these files and output directory when performing subsequent builds and compiling sources.</p>

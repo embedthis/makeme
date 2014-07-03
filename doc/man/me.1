@@ -121,6 +121,8 @@ Me.load({
             sources: ['*.c'],
         },
     },
+.RE
+.RS 5
 })
 .RE
 .PP
@@ -172,27 +174,33 @@ MakeMe pre-defines several targets:
 .SH CONFIGURING
 To configure a product before building, run MakeMe using the 'me configure' target or alternatively use the '-config' switch.
 When configuring, MakeMe will load a 'main.me' file and use the details from the 'settings' properties to tailor 
-the configuration. The settings provide the product name, title, company, version number and what required and optional
-extension packages that should be discovered.
+the configuration. The settings provide a 'name', 'description', and 'version'.
 .PP
 For example, this is a typical 'settings' configuration.
 .PP
 .RS 5
 settings: {
-    product: 'mpr',
-    title: 'Multithreaded Portable Runtime',
-    company: 'Embedthis',
+    name: 'mpr',
+    description: 'Multithreaded Portable Runtime',
     version: '4.0.5',
-    '+required': [ 'utest' ],
-    '+discover': [ 'doxygen', 'man', 'man2html', 'md5', 'matrixssl', 'openssl', 'ssl' ],
+.RE
+.RS 5
+},
+.PP
+The 'configure' properties define the required and optional packages that should be discovered.
+.PP
+.RE
+.RS 5
+configure: {
+    requires: [ 'osdep' ],
+    discovers: [ 'ssl' ],
 .RE
 .RS 5
 },
 .RE
 .PP
-The 'required' property defines the extensions that are required to be present on the system to build. The 
-'discover' property defines those extensions that will be used if present, but are not required. The plus symbol before
-these properties indicates that these values should be added to pre-defined values.
+The 'requires' property defines the packages that are required to be present on the system to build. The 
+'discovers' property defines those packages that will be used if present, but are not required.
 
 .SH CROSS COMPILING
 To build a product for platform different to that of the local system is called cross compiling. Sometimes this
