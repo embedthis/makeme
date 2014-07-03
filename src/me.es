@@ -674,7 +674,12 @@ public class Me {
         if (me.platforms) {
             platforms = me.platforms
             for (let [index,platform] in me.platforms) {
-                mefile = mefile.dirname.join(platform).joinExt('me')
+                let bld = mefile.dirname.join('build')
+                if (bld.exists) {
+                    mefile = bld.join(platform, platform).joinExt('me')
+                } else {
+                    mefile = mefile.dirname.join(platform).joinExt('me')
+                }
                 createMe(platform, mefile)
                 if (index == (me.platforms.length - 1)) {
                     me.platform.last = true
@@ -2031,7 +2036,7 @@ public class Me {
         @hide
      */
     public function makeDirGlobals(base: Path? = null) {
-        for each (n in ['BIN', 'OUT', 'INC', 'LIB', 'OBJ', 'PAKS', 'PKG', 'REL', 'SRC', 'TOP']) {
+        for each (n in ['BIN', 'BLD', 'OUT', 'INC', 'LIB', 'OBJ', 'PAKS', 'PKG', 'REL', 'SRC', 'TOP']) {
             /* 
                 These globals are always in portable format so they can be used in build scripts. Windows back-slashes
                 require quoting! 
@@ -2834,7 +2839,12 @@ public class Me {
         let dir = me.dir
         dir.top = Path(dir.top)
         if (me.settings.configured || options.configure) {
-            dir.out  ||= Path(me.platform.name)
+            if (options.configure || Path('build').exists) {
+                dir.bld  ||= Path('build')
+            } else {
+                dir.bld  ||= Path('.')
+            }
+            dir.out  ||= dir.bld.join(me.platform.name)
             dir.bin  ||= dir.out.join('bin')
             dir.lib  ||= dir.bin
             dir.inc  ||= dir.out.join('inc')
@@ -2842,16 +2852,17 @@ public class Me {
             dir.paks ||= dir.top.join('src/paks')
             dir.pkg  ||= dir.out.join('pkg')
             dir.proj ||= dir.top.join('projects')
-            dir.rel  ||= dir.top.join('releases')
+            dir.rel  ||= dir.out.join('img')
         } else {
-            dir.out  ||=  Path('.')
+            dir.bld  ||= Path('.')
+            dir.out  ||= dir.bld
             dir.bin  ||= dir.out
             dir.lib  ||= dir.out
             dir.inc  ||= dir.out
             dir.obj  ||= dir.out
             dir.paks ||= dir.top.join('paks')
         }
-        dir.me   ||=   dir.bin
+        dir.me ||=   dir.bin
 
         for (let [key,value] in dir) {
             dir[key] = Path(value.toString().expand(me)).absolute
@@ -2909,20 +2920,19 @@ public class Me {
                 }
             }
         } else {
-            throw "Cannot open " + mefile
+            throw new Error("Cannot open " + mefile)
         }
         setDirs()
         if (!me.settings.configured && !options.configure) {
             loadMeFile(me.dir.me.join('simple.me'))
         }
         loadMeFile(me.dir.me.join('os/' + me.platform.os + '.me'))
-        loadPackage()
+        loadPackage(mefile)
 
         if (me.scripts && me.scripts.postloadall) {
             runScript(me.scripts, "postloadall")
             delete me.scripts.postloadall
         }
-
         if (kind == 'windows') {
             /*
                 If 32 bit, /Program Files
@@ -3003,13 +3013,14 @@ public class Me {
         return os1 == os2 && arch1 == arch2
     }
 
-    private function loadPackage() {
-        if (PACKAGE.exists) {
+    private function loadPackage(mefile) {
+        let pfile = mefile.dirname.join(PACKAGE)
+        if (pfile.exists) {
             let package
             try {
-                package = me.package = PACKAGE.readJSON()
+                package = me.package = pfile.readJSON()
             } catch (e) {
-                trace('WARN', 'Cannot parse: ' + PACKAGE + '\n' + e)
+                trace('WARN', 'Cannot parse: ' + pfile + '\n' + e)
             }
             try {
                 me.settings ||= {}
@@ -3042,7 +3053,7 @@ public class Me {
         global.me = me = makeBareMe()
         me.quickLoad = true
         loadMeFile(mefile)
-        loadPackage()
+        loadPackage(mefile)
     }
 
     /**
@@ -3353,7 +3364,11 @@ public class Me {
 
     /** @hide */
     public function changeDir(path: Path) {
-        App.chdir(path)
+        try {
+            App.chdir(path)
+        } catch (e) {
+            throw new Error("Cannot change directory to " + path)
+        }
     }
 
     /**

@@ -181,7 +181,12 @@ module embedthis.me {
         }
         b.runScript(me.scripts, 'postconfig')
         if (b.options.configure) {
-            let path: Path = Path(me.platform.name).joinExt('me')
+            let path: Path
+            if (me.dir.bld != me.dir.out) {
+                path = me.dir.bld.join(me.platform.name, me.platform.name).joinExt('me')
+            } else {
+                path = me.dir.bld.join(me.platform.name).joinExt('me')
+            }
             trace('Generate', path)
             let data = '/*\n    ' + path + ' -- MakeMe ' + me.settings.title + ' for ' + me.platform.name + 
                 '\n */\n\nMe.load(' + 
