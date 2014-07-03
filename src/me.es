@@ -203,13 +203,9 @@ public class Me {
             try {
                 b.createMe(Config.OS + '-' + Config.CPU, START)
                 global.me = me = b.me
-                let mefile: Path = START
                 for (let [index,platform] in me.platforms) {
-                    mefile = mefile.dirname.join(platform).joinExt('me')
-                    if (mefile.exists) {
-                        b.createMe(platform, mefile)
-                        b.prepBuild()
-                    }
+                    b.createMe(platform, START)
+                    b.prepBuild()
                     break
                 }
                 if (me.usage) {
@@ -641,6 +637,7 @@ public class Me {
             target.explicit = true
             target.essential = true
             if (!prior) {
+print("SET BARE", field)
                 target.bare = true
             }
             if (value) {
@@ -666,6 +663,10 @@ public class Me {
         }
     }
 
+    /*
+        This function will do a quick load of 'mefile' and if it has platforms[], then it will load those instead.
+        TODO refactor, split into two functions one that loads a specific mefile and one that looks up platforms.
+     */
     function process(mefile: Path) {
         if (!mefile.exists) {
             throw 'Cannot find ' + mefile
@@ -674,12 +675,7 @@ public class Me {
         if (me.platforms) {
             platforms = me.platforms
             for (let [index,platform] in me.platforms) {
-                let bld = mefile.dirname.join('build')
-                if (bld.exists) {
-                    mefile = bld.join(platform, platform).joinExt('me')
-                } else {
-                    mefile = mefile.dirname.join(platform).joinExt('me')
-                }
+                mefile = mefile.dirname.join(platform).joinExt('me')
                 createMe(platform, mefile)
                 if (index == (me.platforms.length - 1)) {
                     me.platform.last = true
@@ -2908,6 +2904,13 @@ public class Me {
         me.dir.me = base
 
         me.globals.PLATFORM = currentPlatform = platform
+
+        if (!mefile.exists) {
+            let bld = mefile.dirname.join('build')
+            if (bld.exists) {
+                mefile = bld.join(platform, mefile)
+            }
+        }
         if (mefile.exists) {
             loadMeFile(mefile)
             /*

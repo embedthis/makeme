@@ -25,9 +25,10 @@ module embedthis.me {
             generateMain()
             return
         }
-        if (Path(b.localPlatform + '.me').exists) {
+        if (me.dir.bld.join(b.localPlatform, b.localPlatform + '.me').exists) {
             b.createMe(b.localPlatform, b.localPlatform + '.me')
         } else {
+            /* Loading start.me */
             b.createMe(b.localPlatform, b.options.file)
         }
         me.settings.name ||= App.dir.basename.replace(/-/g, '_')
@@ -185,7 +186,7 @@ module embedthis.me {
         genout.writeLine('ARCH="' + me.platform.arch + '"')
         genout.writeLine('ARCH="`uname -m | sed \'s/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/\'`"')
         genout.writeLine('OS="' + me.platform.os + '"')
-        genout.writeLine('CONFIG="${OS}-${ARCH}-${PROFILE}' + '"')
+        genout.writeLine('CONFIG="build/${OS}-${ARCH}-${PROFILE}' + '"')
         genout.writeLine('CC="' + me.targets.compiler.path + '"')
         if (me.targets.link) {
             genout.writeLine('LD="' + me.targets.link.path + '"')
@@ -437,7 +438,7 @@ module embedthis.me {
         if (me.targets.link) {
             genout.writeLine('LD                    ?= ' + me.targets.link.path)
         }
-        genout.writeLine('CONFIG                ?= $(OS)-$(ARCH)-$(PROFILE)')
+        genout.writeLine('CONFIG                ?= build/$(OS)-$(ARCH)-$(PROFILE)')
         genout.writeLine('LBIN                  ?= $(CONFIG)/bin')
         genout.writeLine('PATH                  := $(LBIN):$(PATH)\n')
 
@@ -553,7 +554,7 @@ module embedthis.me {
         genout.writeLine('!ENDIF\n')
 
         genout.writeLine('!IF "$(CONFIG)" == ""')
-        genout.writeLine('CONFIG                = $(OS)-$(ARCH)-$(PROFILE)')
+        genout.writeLine('CONFIG                = build\\$(OS)-$(ARCH)-$(PROFILE)')
         genout.writeLine('!ENDIF\n')
         genout.writeLine('LBIN                  = $(CONFIG)\\bin\n')
 
