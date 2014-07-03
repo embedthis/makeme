@@ -146,7 +146,7 @@ configuration step. The 'start.me' file contains targets that specify the recipi
 Some products require a configuration phase prior to building with MakeMe. Configuration involves discovering 
 the tools and components available on the current system and the available compiler tool chain support.
 For configured products, 'me' is first invoked with a "configure" target. MakeMe then reads a 'main.me' file which
-describes the project, and generates a 'start.me' and platform MakeMe file that describes the system.
+describes the project, and generates a 'start.me' and 'platform.me' file that describes the system.
 
 .SH TARGETS
 MakeMe is typically invoked with zero or more targets to build. If invoked with zero targets, MakeMe will build all the
@@ -277,7 +277,7 @@ MakeMe has default command flags for the compiler, linker and other tools. These
 environment variables containing alternate flags to use. Use CFLAGS to provide compiler flags, DFLAGS for 
 pre-processor definitions, IFLAGS for compiler include paths and LDFLAGS for linker flags. If these flags are provided
 to 'me' when building, they apply to that run only. If the flags are provide when configuring, they are saved in the
-generated platform build file and apply to all subsequent runs. 
+generated platform file and apply to all subsequent runs. 
 
 .SH DEBUGGING
 With Make and other build tools, it is difficult to determine why a target is or is not being built. MakeMe 
@@ -306,10 +306,8 @@ Display the current configuration. This displays the configuration for each pack
 Configure the project to prepare for building. This configures MakeMe for building the project based on the instructions
 specified in a 'main.me' located in the specified path source tree. When run, 'me' will create a platform configuration 
 MakeMe file, a build output directory and me.h header. The configuration
-directory is of the form: OS-ARCH-PROFILE where OS may be freebsd, linux, macosx, solaris, vxworks, windows and ARCH is
-arm, mips, ppc, x64 or x86. PROFILE is typically set to debug or release. For example: 'macosx-x86_64-debug'. The
-configuration MakeMe file omits the
-PROFILE. For example: 'linux-x86.me'.
+directory is of the form: build/OS-ARCH-PROFILE where OS may be freebsd, linux, macosx, solaris, vxworks, windows and ARCH is
+arm, mips, ppc, x64 or x86. PROFILE is typically set to debug or release. For example: 'build/macosx-x64-debug'. 
 
 MakeMe will use the settings.required and settings.discover properties in the main.me for a list of packages to use. 
 When configuring, MakeMe will search for these packages and will create definitions in the configuration MakeMe file for
@@ -417,8 +415,8 @@ The opt prefix set installs with a prefix of "/opt".
 
 .TP
 \fB\--profile [debug|release|...]\fR
-Use the specified profile when building. This options is provided once when configuring and the result is saved in
-the platform.profile property in the configuration MakeMe file. Custom profiles can be added to the main.me or start.me
+Use the specified profile when building. This option is provided once when configuring and the result is saved in
+the platform.profile property in the platform.me file. Custom profiles can be added to the main.me or start.me
 files.
 
 .TP

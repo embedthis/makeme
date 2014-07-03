@@ -74,14 +74,14 @@ me configure "$@"</pre>
         <p>When configuring, MakeMe will determine the capabilities of your system and create a several files and 
         directories. These include:</p>
         <ul>
-            <li>A platform output directory for objects, libraries and executables: <em>build/OS-ARCH-PROFILE</em></li>
             <li>A startup MakeMe file: <em>start.me</em></li>
-            <li>A platform specific MakeMe file: <em>build/OS-ARCH-PROFILE/OS-ARCH-PROFILE.me</em></li>
-            <li>A source definitions header:<em>me.h</em></li>
+            <li>A platform output directory for objects, libraries and executables: <em>build/OS-ARCH-PROFILE</em></li>
+            <li>A platform specific MakeMe file: <em>build/OS-ARCH-PROFILE/platform.me</em></li>
+            <li>A source definitions header: <em>me.h</em></li>
         </ul>
         <p>MakeMe will use these files and output directory when performing subsequent builds and compiling sources.</p>
         <p>The <em>start.me</em> file is the primary MakeMe file that is invoked when MakeMe is run. For configured
-        projects, this simply loads the platform MakeMe file.</p>
+        projects, this simply loads the platform.me file.</p>
         <a name="customizing"></a>
         <h2 class="section">Customizing the Build</h2>
         <p>Before customizing, it can be helpful to see the current configuration. The following command will display
@@ -156,8 +156,8 @@ the form <em>--set KEY=VALUE</em>. For example:
         <h2>Outside Source Tree Builds</h2>
         <p>MakeMe supports building from read-only source trees. To do this, use <em>me -config path</em> when
         configuring. Run this from a writable directory and reference the read-only source tree via the
-        <em>-config</em> switch. MakeMe will create the start.me, platform MakeMe file and platform output build directory in the
-        writable (current) directory. Thereafter run <em>me</em> from the writable directory for all operations.</p>
+        <em>-config</em> switch. MakeMe will create the start.me, platform output directory and the platform.me file.
+        Thereafter run <em>me</em> from the writable directory for all operations.</p>
         <a name="cross"></a>
         <h2>Configuring for Cross-Compiling</h2>
         <p>To build a product for platform different to that of the local system is called cross compiling.

@@ -32,6 +32,12 @@ public class Me {
     public var platforms: Array
 
     /** @hide */
+    public static const BUILD: Path = Path('build')
+
+    /** @hide */
+    public static const PLATFORM: Path = Path('platform.me')
+
+    /** @hide */
     public static const START: Path = Path('start.me')
 
     /** @hide */
@@ -72,7 +78,7 @@ public class Me {
     private var bareMe: Object = { 
         platforms: [], 
         platform: {}, 
-        dir: {}, 
+        dir: { top: Path('.') }, 
         configure: { 
             requires: [], 
             discovers: [], 
@@ -201,10 +207,10 @@ public class Me {
             '')
         if (START.exists) {
             try {
-                b.createMe(Config.OS + '-' + Config.CPU, START)
+                b.createMe(START, Config.OS + '-' + Config.CPU)
                 global.me = me = b.me
                 for (let [index,platform] in me.platforms) {
-                    b.createMe(platform, START)
+                    b.createMe(START, platform)
                     b.prepBuild()
                     break
                 }
@@ -664,11 +670,10 @@ print("SET BARE", field)
     }
 
     /*
-        Process a given mefile
+        Process a given me file
      */
-    function processMe(mefile: Path, platform, last = true) {
-        createMe(platform, mefile)
-        me.platform.last = last
+    function processMe(mefile: Path, platform) {
+        createMe(mefile, platform)
         if (me.package && me.package.version != me.settings.version) {
             trace('Upgrade', 'Main.me has been updated, reconfiguring ...')
             overlay('configure.es')
@@ -686,7 +691,7 @@ print("SET BARE", field)
     }
 
     /*
-        This function will do a quick load of 'mefile' and if it has platforms[], then it will load those instead.
+        This function will do a quick load of a me file and if it has platforms[] then it will load those instead.
      */
     function process(mefile: Path) {
         if (!mefile.exists) {
@@ -696,15 +701,18 @@ print("SET BARE", field)
         if (me.platforms) {
             platforms = me.platforms
             for (let [index,platform] in me.platforms) {
-                mefile = mefile.dirname.join(platform).joinExt('me')
-                processMe(mefile, platform, index == (me.platforms.length - 1))
+                mefile = me.dir.top.join(BUILD, platform, PLATFORM)
+                if (!mefile.exists) {
+                    mefile = me.dir.top.join(platform).joinExt('me')
+                }
+                processMe(mefile, platform)
                 if (!options.configure && (me.platforms.length > 1 || me.platform.cross)) {
                     trace('Complete', me.platform.name)
                 }
             }
         } else {
             platforms = me.platforms = [localPlatform]
-            processPlatform(localPlatform, mefile)
+            processMe(mefile, localPlatform)
         }
     }
 
@@ -1068,7 +1076,7 @@ print("SET BARE", field)
     }
 
     function import() {
-        b.createMe(Config.OS + '-' + Config.CPU, START)
+        b.createMe(START, Config.OS + '-' + Config.CPU)
         mkdir(me.dir.top.join('me'), 0755)
         for each (src in Config.Bin.files('**', {relative: true})) {
             let dest = me.dir.top.join('me', src)
@@ -2830,12 +2838,12 @@ print("SET BARE", field)
     function setDirs() {
         let dir = me.dir
         dir.top = Path(dir.top)
+        if (options.configure || BUILD.exists) {
+            dir.bld  ||= BUILD
+        } else {
+            dir.bld  ||= Path('.')
+        }
         if (me.settings.configured || options.configure) {
-            if (options.configure || Path('build').exists) {
-                dir.bld  ||= Path('build')
-            } else {
-                dir.bld  ||= Path('.')
-            }
             dir.out  ||= dir.bld.join(me.platform.name)
             dir.bin  ||= dir.out.join('bin')
             dir.lib  ||= dir.bin
@@ -2846,7 +2854,6 @@ print("SET BARE", field)
             dir.proj ||= dir.top.join('projects')
             dir.rel  ||= dir.out.join('img')
         } else {
-            dir.bld  ||= Path('.')
             dir.out  ||= dir.bld
             dir.bin  ||= dir.out
             dir.lib  ||= dir.out
@@ -2859,18 +2866,24 @@ print("SET BARE", field)
         for (let [key,value] in dir) {
             dir[key] = Path(value.toString().expand(me)).absolute
         }
-        makeDir(dir.obj)
-        makeDir(dir.bin)
+    }
+
+    function makeDirs() {
+        makeDir(me.dir.obj)
+        makeDir(me.dir.bin)
     }
 
     /**
-        Make a me object. This will load the required me files.
+        Make a me object for the given platform from a me file
         @hide
      */
-    public function createMe(platform: String, mefile: Path) {
+    public function createMe(mefile: Path, platform: String) {
         let [os, arch, profile] = platform.split('-') 
         let [arch,cpu] = (arch || '').split(":")
         let kind = like(os)
+        if (!mefile.exists) {
+            throw new Error("Cannot open " + mefile)
+        }
         global.me = me = makeBareMe()
         me.dir.src = options.configure || Path('.')
         /*
@@ -2898,30 +2911,21 @@ print("SET BARE", field)
         let base = me.dir.src.join('me/standard.me').exists ?  me.dir.src.join('me') : Config.Bin.portable
         loadMeFile(base.join('standard.me'))
         me.dir.me = base
-
         me.globals.PLATFORM = currentPlatform = platform
 
-        if (!mefile.exists) {
-            let bld = mefile.dirname.join('build')
-            if (bld.exists) {
-                mefile = bld.join(platform, mefile)
+        loadMeFile(mefile)
+
+        /*
+            Customize me files must be applied after the enclosing me file is loaded so they can override anything.
+         */
+        for each (path in me.customize) {
+            let path = home.join(expand(path, {fill: '.'}))
+            if (path.exists) {
+                loadMeFile(path)
             }
-        }
-        if (mefile.exists) {
-            loadMeFile(mefile)
-            /*
-                Customize me files must be applied after the enclosing me file is loaded so they can override anything.
-             */
-            for each (path in me.customize) {
-                let path = home.join(expand(path, {fill: '.'}))
-                if (path.exists) {
-                    loadMeFile(path)
-                }
-            }
-        } else {
-            throw new Error("Cannot open " + mefile)
         }
         setDirs()
+        makeDirs()
         if (!me.settings.configured && !options.configure) {
             loadMeFile(me.dir.me.join('simple.me'))
         }

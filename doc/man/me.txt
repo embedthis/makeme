@@ -150,7 +150,8 @@ OVERVIEW
                         type: 'exe',
                         sources: ['*.c'],
                     },
-                }, })
+                },
+            })
 
        To build the rocket, enter:
 
@@ -177,7 +178,7 @@ CONFIGURED PRODUCTS
        available  on  the current system and the available compiler tool chain
        support.  For configured products, 'me' is first invoked with  a  "con-
        figure"  target. MakeMe then reads a 'main.me' file which describes the
-       project, and generates a  'start.me'  and  platform  MakeMe  file  that
+       project,  and  generates  a  'start.me'  and  'platform.me'  file  that
        describes the system.
 
 
@@ -207,24 +208,26 @@ CONFIGURING
        figure' target or alternatively use the '-config' switch.  When config-
        uring, MakeMe will load a 'main.me' file and use the details  from  the
        'settings' properties to tailor the configuration. The settings provide
-       the product name, title, company, version number and what required  and
-       optional extension packages that should be discovered.
+       a 'name', 'description', and 'version'.
 
        For example, this is a typical 'settings' configuration.
 
             settings: {
-                product: 'mpr',
-                title: 'Multithreaded Portable Runtime',
-                company: 'Embedthis',
+                name: 'mpr',
+                description: 'Multithreaded Portable Runtime',
                 version: '4.0.5',
-                '+required': [ 'utest' ],
-                '+discover':    [   'doxygen',   'man',   'man2html',   'md5',
-            'matrixssl', 'openssl', 'ssl' ],
             },
 
-       The 'required' property defines the extensions that are required to  be
-       present  on  the  system  to build. The these properties indicates that
-       these values should be added to pre-defined values.
+            The 'configure' properties define the required and optional  pack-
+            ages that should be discovered.
+
+            configure: {
+                requires: [ 'osdep' ],
+                discovers: [ 'ssl' ],
+            },
+
+       The  'requires'  property  defines the packages that are required to be
+       present on the system to build. The
 
 
 CROSS COMPILING
@@ -312,8 +315,8 @@ OVERRIDING
        DFLAGS for pre-processor definitions, IFLAGS for compiler include paths
        and  LDFLAGS for linker flags. If these flags are provided to 'me' when
        building, they apply to that run only. If the flags  are  provide  when
-       configuring,  they  are  saved in the generated platform build file and
-       apply to all subsequent runs.
+       configuring, they are saved in the generated platform file and apply to
+       all subsequent runs.
 
 
 DEBUGGING
@@ -350,20 +353,19 @@ OPTIONS
               fied  in  a 'main.me' located in the specified path source tree.
               When run, 'me' will create a platform configuration MakeMe file,
               a  build  output  directory  and  me.h header. The configuration
-              directory is of  the  form:  OS-ARCH-PROFILE  where  OS  may  be
+              directory is of the form: build/OS-ARCH-PROFILE where OS may  be
               freebsd,  linux,  macosx,  solaris, vxworks, windows and ARCH is
               arm, mips, ppc, x64 or x86. PROFILE is typically set to debug or
-              release.  For  example: 'macosx-x86_64-debug'. The configuration
-              MakeMe file omits the PROFILE. For example: 'linux-x86.me'.
+              release. For example: 'build/macosx-x64-debug'.
 
-              MakeMe will  use  the  settings.required  and  settings.discover
-              properties  in  the main.me for a list of packages to use.  When
+              MakeMe  will  use  the  settings.required  and settings.discover
+              properties in the main.me for a list of packages to  use.   When
               configuring, MakeMe will search for these packages and will cre-
-              ate  definitions in the configuration MakeMe file for later use.
+              ate definitions in the configuration MakeMe file for later  use.
 
 
        --continue
-              Continue to build despite any build errors. Normal operation  is
+              Continue  to build despite any build errors. Normal operation is
               to stop building if any build errors are encountered.
 
 
@@ -372,8 +374,8 @@ OPTIONS
 
 
        --deploy directory
-              Install  the product to the deployment directory. This is useful
-              to stage the required files to install on a system.  Use  --sets
+              Install the product to the deployment directory. This is  useful
+              to  stage the required files to install on a system.  Use --sets
               to define the file sets to deploy.
 
 
@@ -385,17 +387,17 @@ OPTIONS
               Run MakeMe with stack backtrace display on errors.
 
 
-       --dump Dump  the  aggregate  MakeMe  configuration  into  a single dump
+       --dump Dump the aggregate  MakeMe  configuration  into  a  single  dump
               MakeMe file.
 
 
        --endian [big|little]
-              Set the CPU endianness. This is normally detected  by  the  com-
+              Set  the  CPU  endianness. This is normally detected by the com-
               piler but may be overridden by this switch.
 
 
        --file filename
-              Use  the  alternate  named  MakeMe  file  instead of start.me or
+              Use the alternate named  MakeMe  file  instead  of  start.me  or
               main.me.
 
 
@@ -404,20 +406,20 @@ OPTIONS
 
 
        --gen [make|nmake|sh|vs|xcode|main|start]
-              Generate files. This option can  be  used  to  generate  initial
-              start.me  or  main.me  files  or IDE project and makefiles.  The
-              --gen start, option can be used to create a  stand-alone  sample
-              start.me  file.  The  --gen main, option can be used to create a
-              sample main.me file when starting a new product.  Project  files
-              are  created  under  the 'projects' directory.  The projects are
-              based  on  the  current   configuration.   If   cross-generating
+              Generate  files.  This  option  can  be used to generate initial
+              start.me or main.me files or IDE  project  and  makefiles.   The
+              --gen  start,  option can be used to create a stand-alone sample
+              start.me file. The --gen main, option can be used  to  create  a
+              sample  main.me file when starting a new product.  Project files
+              are created under the 'projects' directory.   The  projects  are
+              based   on   the   current  configuration.  If  cross-generating
               projects, you will typically need to also use -configure.
 
 
        --get field
               Get a field from the MakeMe DOM. This can be used to display any
-              MakeMe file value. Unlike --set, this applies to any MakeMe  DOM
-              value  and  not  just  to  settings. For example: 'me --get set-
+              MakeMe  file value. Unlike --set, this applies to any MakeMe DOM
+              value and not just to settings.  For  example:  'me  --get  set-
               tings.version'.
 
 
@@ -426,41 +428,41 @@ OPTIONS
               the local source tree.
 
 
-       --keep Keep  some  intermediate  build files. This is currently used by
+       --keep Keep some intermediate build files. This is  currently  used  by
               some documentation generation targets.
 
 
        --log logName[:logLevel]
-              Specify a file to log internal execution messages.  MakeMe  will
+              Specify  a  file to log internal execution messages. MakeMe will
               log execution related trace to the log file. The log level spec-
               ifies the desired verbosity of output. Level 0 is the least ver-
-              bose  and  level  9 is the most. The '-v' switch is an alias for
+              bose and level 9 is the most. The '-v' switch is  an  alias  for
               '--log stderr:2'.
 
 
        --nocross
-              Don't cross-build, rather build  natively  for  the  development
-              system.  This is useful when configuring for a platform that can
-              build and run natively on the development system.  For  example:
+              Don't  cross-build,  rather  build  natively for the development
+              system. This is useful when configuring for a platform that  can
+              build  and  run natively on the development system. For example:
               Linux  64-bit  systems  can  run  32-bit  applications,  so  'me
-              --nocross  --platform  linux-x86  configure'  may  be  able   to
-              directly  target  the  32-bit  platform  without cross-building.
-              Note: Products that require the building and execution of  local
+              --nocross   --platform  linux-x86  configure'  may  be  able  to
+              directly target  the  32-bit  platform  without  cross-building.
+              Note:  Products that require the building and execution of local
               tools MUST be able to run those tools on the development system.
 
 
        --out path
-              Save MakeMe trace output to a file instead of displaying to  the
+              Save  MakeMe trace output to a file instead of displaying to the
               console.
 
 
        --platform os-arch
-              Add  a  platform  to build for cross-compilation. Multiple plat-
-              forms can be added. You may use 'local' for the local  platform.
-              Options  specified  after  the platform apply to the prior plat-
+              Add a platform to build for  cross-compilation.  Multiple  plat-
+              forms  can be added. You may use 'local' for the local platform.
+              Options specified after the platform apply to  the  prior  plat-
               form. For example:
 
-                  me --platform linux-x86 --without all  --platform  linux-arm
+                  me  --platform  linux-x86 --without all --platform linux-arm
               --with ejscript configure
 
 
@@ -468,29 +470,29 @@ OPTIONS
 
 
        --prefix dir=path
-              Set  the installation directory prefix. Various products utilize
-              different prefixes. Typical prefixes  are:  root,  base,  state,
+              Set the installation directory prefix. Various products  utilize
+              different  prefixes.  Typical  prefixes  are: root, base, state,
               data, app, vapp, bin, etc, inc, log, spool, src, web.  For those
-              familiar with autoconf, the major autoconf prefixe switches  are
-              supported  and  mapped as follows: --prefix to root, --bindir to
-              bin, --libdir to lib, --includedir to inc, --sysconfdir to  etc,
-              --libexec  to  app, --logfiledir to log, --htdocsdir to web, and
+              familiar  with autoconf, the major autoconf prefixe switches are
+              supported and mapped as follows: --prefix to root,  --bindir  to
+              bin,  --libdir to lib, --includedir to inc, --sysconfdir to etc,
+              --libexec to app, --logfiledir to log, --htdocsdir to  web,  and
               --manualdir to man.
 
 
        --prefixes debian|embedthis|opt
-              Select an installation  prefix  package.  Debian  specifies  the
-              debian  recommended  installation  locations. Embedthis products
-              install by default with a prefix of  /usr/local/lib/PRODUCT  and
-              symlink  exectuables  to  /usr/local/bin.   The  opt  prefix set
+              Select  an  installation  prefix  package.  Debian specifies the
+              debian recommended installation  locations.  Embedthis  products
+              install  by  default with a prefix of /usr/local/lib/PRODUCT and
+              symlink exectuables  to  /usr/local/bin.   The  opt  prefix  set
               installs with a prefix of "/opt".
 
 
        --profile [debug|release|...]
-              Use the specified profile when building. This  options  is  pro-
-              vided once when configuring and the result is saved in the plat-
-              form.profile property in the configuration MakeMe  file.  Custom
-              profiles can be added to the main.me or start.me files.
+              Use the specified profile when building. This option is provided
+              once when configuring and the  result  is  saved  in  the  plat-
+              form.profile  property  in the platform.me file. Custom profiles
+              can be added to the main.me or start.me files.
 
 
        --quiet
@@ -509,21 +511,21 @@ OPTIONS
               Select the release profile. Same as --profile release.
 
 
-       --rom  Configure  setting  to  build for systems without a file system.
-              This enables the ROM file system.  Use the  makerom  utility  to
-              process  required files into C source code for building with the
+       --rom  Configure setting to build for systems without  a  file  system.
+              This  enables  the  ROM file system.  Use the makerom utility to
+              process required files into C source code for building with  the
               application.
 
 
        --set key=value
-              Set a settings property to a given value. For example: 'me  -set
-              version=1.0'  will  update  the  settings.version property.  Use
-              this when running 'me configure' to persist your changes in  the
+              Set  a settings property to a given value. For example: 'me -set
+              version=1.0' will update  the  settings.version  property.   Use
+              this  when running 'me configure' to persist your changes in the
               configuration MakeMe file.
 
 
        --sets [set,set,...]
-              Define  the  groups of files to install. Each product may define
+              Define the groups of files to install. Each product  may  define
               different groups. Typical groups are: core, web, doc, test, etc.
 
 
@@ -531,7 +533,7 @@ OPTIONS
 
 
        --static
-              Configure  to  build  using  static  linking  instead  of shared
+              Configure to  build  using  static  linking  instead  of  shared
               libraries. Same as --set static=true.
 
 
@@ -553,7 +555,7 @@ OPTIONS
 
 
        --watch msec
-              Watch  for  changes and rebuild if required. This will sleep for
+              Watch for changes and rebuild if required. This will  sleep  for
               the  requested  number  of  milliseconds  between  checking  for
               changes. This can also be invoked as 'me watch' which will check
               every second for changes.
@@ -563,9 +565,9 @@ OPTIONS
 
 
        --with PACK[=path]
-              Build with the named pack located at the optional path.  If  the
-              path  is ommitted, a search is performed for the pack at default
-              locations. Packs must have a  pack  description  file  installed
+              Build  with  the named pack located at the optional path. If the
+              path is ommitted, a search is performed for the pack at  default
+              locations.  Packs  must  have  a pack description file installed
               under 'makeme/packs' in the MakeMe installation.
 
 
@@ -578,7 +580,7 @@ REPORTING BUGS
        Report bugs to dev@embedthis.com.
 
 COPYRIGHT
-       Copyright  (C)  2004-2014 Embedthis Software. MakeMe and Ejscript are a
+       Copyright (C) 2004-2014 Embedthis Software. MakeMe and Ejscript  are  a
        trademarks of Embedthis Software.
 
 SEE ALSO

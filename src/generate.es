@@ -25,11 +25,12 @@ module embedthis.me {
             generateMain()
             return
         }
-        if (me.dir.bld.join(b.localPlatform, b.localPlatform + '.me').exists) {
-            b.createMe(b.localPlatform, b.localPlatform + '.me')
+        let mefile = me.dir.bld.join(b.localPlatform, Me.PLATFORM)
+        if (mefile.exists) {
+            b.createMe(mefile, b.localPlatform)
         } else {
             /* Loading start.me */
-            b.createMe(b.localPlatform, b.options.file)
+            b.createMe(b.options.file, b.localPlatform)
         }
         me.settings.name ||= App.dir.basename.replace(/-/g, '_')
 
@@ -42,7 +43,6 @@ module embedthis.me {
             if (d == 'makeme') continue
             me.dir[d] = me.dir[d].replace(me.original.platform.name, me.platform.name)
         }
-        me.platform.last = true
         b.prepBuild()
         me.generating = true
         generateProjects()
@@ -186,7 +186,8 @@ module embedthis.me {
         genout.writeLine('ARCH="' + me.platform.arch + '"')
         genout.writeLine('ARCH="`uname -m | sed \'s/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/\'`"')
         genout.writeLine('OS="' + me.platform.os + '"')
-        genout.writeLine('CONFIG="build/${OS}-${ARCH}-${PROFILE}' + '"')
+        genout.writeLine('CONFIG="${OS}-${ARCH}-${PROFILE}' + '"')
+        genout.writeLine('BUILD="' + Me.BUILD + '/${CONFIG}')
         genout.writeLine('CC="' + me.targets.compiler.path + '"')
         if (me.targets.link) {
             genout.writeLine('LD="' + me.targets.link.path + '"')
@@ -203,19 +204,19 @@ module embedthis.me {
         genout.writeLine('LDFLAGS="' + repvar(gen.linker).replace(/\$ORIGIN/g, '\\$$ORIGIN') + '"')
         genout.writeLine('LIBPATHS="' + repvar(gen.libpaths) + '"')
         genout.writeLine('LIBS="' + gen.libraries + '"\n')
-        genout.writeLine('[ ! -x ${CONFIG}/inc ] && ' + 'mkdir -p ${CONFIG}/inc\n')
-        genout.writeLine('[ ! -x ${CONFIG}/bin ] && ' + 'mkdir -p ${CONFIG}/bin\n')
-        genout.writeLine('[ ! -x ${CONFIG}/obj ] && ' + 'mkdir -p ${CONFIG}/obj\n')
+        genout.writeLine('[ ! -x ${BUILD}/inc ] && ' + 'mkdir -p ${BUILD}/inc\n')
+        genout.writeLine('[ ! -x ${BUILD}/bin ] && ' + 'mkdir -p ${BUILD}/bin\n')
+        genout.writeLine('[ ! -x ${BUILD}/obj ] && ' + 'mkdir -p ${BUILD}/obj\n')
         if (me.dir.src.join('src/paks/osdep/osdep.h').exists) {
-            genout.writeLine('[ ! -f ${CONFIG}/inc/osdep.h ] && cp ${SRC}/src/paks/osdep/osdep.h ${CONFIG}/inc/osdep.h')
+            genout.writeLine('[ ! -f ${BUILD}/inc/osdep.h ] && cp ${SRC}/src/paks/osdep/osdep.h ${BUILD}/inc/osdep.h')
         }
         if (me.dir.inc.join('me.h').exists) {
-            genout.writeLine('[ ! -f ${CONFIG}/inc/me.h ] && ' + 
-                'cp projects/' + me.settings.name + '-${OS}-${PROFILE}-me.h ${CONFIG}/inc/me.h')
-            genout.writeLine('if ! diff ${CONFIG}/inc/me.h projects/' + me.settings.name + 
+            genout.writeLine('[ ! -f ${BUILD}/inc/me.h ] && ' + 
+                'cp projects/' + me.settings.name + '-${OS}-${PROFILE}-me.h ${BUILD}/inc/me.h')
+            genout.writeLine('if ! diff ${BUILD}/inc/me.h projects/' + me.settings.name + 
                 '-${OS}-${PROFILE}-me.h >/dev/null ; then')
         }
-        genout.writeLine('\tcp projects/' + me.settings.name + '-${OS}-${PROFILE}-me.h ${CONFIG}/inc/me.h')
+        genout.writeLine('\tcp projects/' + me.settings.name + '-${OS}-${PROFILE}-me.h ${BUILD}/inc/me.h')
         genout.writeLine('fi\n')
         b.build()
         genout.close()
@@ -438,8 +439,9 @@ module embedthis.me {
         if (me.targets.link) {
             genout.writeLine('LD                    ?= ' + me.targets.link.path)
         }
-        genout.writeLine('CONFIG                ?= build/$(OS)-$(ARCH)-$(PROFILE)')
-        genout.writeLine('LBIN                  ?= $(CONFIG)/bin')
+        genout.writeLine('CONFIG                ?= $(OS)-$(ARCH)-$(PROFILE)')
+        genout.writeLine('BUILD                 ?= ' + Me.BUILD + '/$(CONFIG)')
+        genout.writeLine('LBIN                  ?= $(BUILD)/bin')
         genout.writeLine('PATH                  := $(LBIN):$(PATH)\n')
 
         let dflags = generateComponentDefs()
@@ -499,31 +501,31 @@ module embedthis.me {
             genout.writeLine('\t@if [ "$(WIND_HOST_TYPE)" = "" ] ; then echo WARNING: WIND_HOST_TYPE not set. Run wrenv.sh. ; exit 255 ; fi')
             genout.writeLine('\t@if [ "$(WIND_GNU_PATH)" = "" ] ; then echo WARNING: WIND_GNU_PATH not set. Run wrenv.sh. ; exit 255 ; fi')
         }
-        genout.writeLine('\t@[ ! -x $(CONFIG)/bin ] && ' + 'mkdir -p $(CONFIG)/bin; true')
-        genout.writeLine('\t@[ ! -x $(CONFIG)/inc ] && ' + 'mkdir -p $(CONFIG)/inc; true')
-        genout.writeLine('\t@[ ! -x $(CONFIG)/obj ] && ' + 'mkdir -p $(CONFIG)/obj; true')
+        genout.writeLine('\t@[ ! -x $(BUILD)/bin ] && ' + 'mkdir -p $(BUILD)/bin; true')
+        genout.writeLine('\t@[ ! -x $(BUILD)/inc ] && ' + 'mkdir -p $(BUILD)/inc; true')
+        genout.writeLine('\t@[ ! -x $(BUILD)/obj ] && ' + 'mkdir -p $(BUILD)/obj; true')
         if (me.dir.src.join('src/paks/osdep/osdep.h').exists) {
-            genout.writeLine('\t@[ ! -f $(CONFIG)/inc/osdep.h ] && cp src/paks/osdep/osdep.h $(CONFIG)/inc/osdep.h ; true')
-            genout.writeLine('\t@if ! diff $(CONFIG)/inc/osdep.h src/paks/osdep/osdep.h >/dev/null ; then\\')
-            genout.writeLine('\t\tcp src/paks/osdep/osdep.h $(CONFIG)/inc/osdep.h  ; \\')
+            genout.writeLine('\t@[ ! -f $(BUILD)/inc/osdep.h ] && cp src/paks/osdep/osdep.h $(BUILD)/inc/osdep.h ; true')
+            genout.writeLine('\t@if ! diff $(BUILD)/inc/osdep.h src/paks/osdep/osdep.h >/dev/null ; then\\')
+            genout.writeLine('\t\tcp src/paks/osdep/osdep.h $(BUILD)/inc/osdep.h  ; \\')
             genout.writeLine('\tfi; true')
         }
         if (me.dir.inc.join('me.h').exists) {
-            genout.writeLine('\t@[ ! -f $(CONFIG)/inc/me.h ] && ' + 'cp projects/' + pop + '-me.h $(CONFIG)/inc/me.h ; true')
-            genout.writeLine('\t@if ! diff $(CONFIG)/inc/me.h projects/' + pop + '-me.h >/dev/null ; then\\')
-            genout.writeLine('\t\tcp projects/' + pop + '-me.h $(CONFIG)/inc/me.h  ; \\')
+            genout.writeLine('\t@[ ! -f $(BUILD)/inc/me.h ] && ' + 'cp projects/' + pop + '-me.h $(BUILD)/inc/me.h ; true')
+            genout.writeLine('\t@if ! diff $(BUILD)/inc/me.h projects/' + pop + '-me.h >/dev/null ; then\\')
+            genout.writeLine('\t\tcp projects/' + pop + '-me.h $(BUILD)/inc/me.h  ; \\')
             genout.writeLine('\tfi; true')
         }
-        genout.writeLine('\t@if [ -f "$(CONFIG)/.makeflags" ] ; then \\')
-        genout.writeLine('\t\tif [ "$(MAKEFLAGS)" != " ` cat $(CONFIG)/.makeflags`" ] ; then \\')
-        genout.writeLine('\t\t\techo "   [Warning] Make flags have changed since the last build: \"`cat $(CONFIG)/.makeflags`\"" ; \\')
+        genout.writeLine('\t@if [ -f "$(BUILD)/.makeflags" ] ; then \\')
+        genout.writeLine('\t\tif [ "$(MAKEFLAGS)" != " ` cat $(BUILD)/.makeflags`" ] ; then \\')
+        genout.writeLine('\t\t\techo "   [Warning] Make flags have changed since the last build: \"`cat $(BUILD)/.makeflags`\"" ; \\')
         genout.writeLine('\t\tfi ; \\')
         genout.writeLine('\tfi')
-        genout.writeLine('\t@echo $(MAKEFLAGS) >$(CONFIG)/.makeflags\n')
+        genout.writeLine('\t@echo $(MAKEFLAGS) >$(BUILD)/.makeflags\n')
 
         genout.writeLine('clean:')
         builtin('cleanTargets')
-        genout.writeLine('\nclobber: clean\n\trm -fr ./$(CONFIG)\n')
+        genout.writeLine('\nclobber: clean\n\trm -fr ./$(BUILD)\n')
         b.build()
         genout.close()
     }
@@ -556,7 +558,12 @@ module embedthis.me {
         genout.writeLine('!IF "$(CONFIG)" == ""')
         genout.writeLine('CONFIG                = build\\$(OS)-$(ARCH)-$(PROFILE)')
         genout.writeLine('!ENDIF\n')
-        genout.writeLine('LBIN                  = $(CONFIG)\\bin\n')
+
+        genout.writeLine('!IF "$(BUILD)" == ""')
+        genout.writeLine('BUILD                 = ' + Me.BUILD + '\\$(CONFIG)')
+        genout.writeLine('!ENDIF\n')
+
+        genout.writeLine('LBIN                  = $(BUILD)\\bin\n')
 
         let dflags = generateComponentDefs()
 
@@ -595,11 +602,15 @@ module embedthis.me {
         if (me.prefixes.app) {
             genout.writeLine('!IF "$(ME_APP_PREFIX)" == ""\n\techo "ME_APP_PREFIX not set."\n\texit 255\n!ENDIF')
         }
-        genout.writeLine('\t@if not exist $(CONFIG)\\bin md $(CONFIG)\\bin')
-        genout.writeLine('\t@if not exist $(CONFIG)\\inc md $(CONFIG)\\inc')
-        genout.writeLine('\t@if not exist $(CONFIG)\\obj md $(CONFIG)\\obj')
+        genout.writeLine('\t@if not exist $(BUILD)\\bin md $(BUILD)\\bin')
+        genout.writeLine('\t@if not exist $(BUILD)\\inc md $(BUILD)\\inc')
+        genout.writeLine('\t@if not exist $(BUILD)\\obj md $(BUILD)\\obj')
+        if (me.dir.src.join('src/paks/osdep/osdep.h').exists) {
+            genout.writeLine('[ ! -f ${BUILD}/inc/osdep.h ] && cp ${SRC}/src/paks/osdep/osdep.h ${BUILD}/inc/osdep.h')
+            genout.writeLine('\t@if not exist $(BUILD ' + 'copy src\\paks\\osdep\\osdep.h $(BUILD)\\inc\\osdep.h\n')
+        }
         if (me.dir.inc.join('me.h').exists) {
-            genout.writeLine('\t@if not exist $(CONFIG)\\inc\\me.h ' + 'copy projects\\' + pop + '-me.h $(CONFIG)\\inc\\me.h\n')
+            genout.writeLine('\t@if not exist $(BUILD)\\inc\\me.h ' + 'copy projects\\' + pop + '-me.h $(BUILD)\\inc\\me.h\n')
         }
         genout.writeLine('clean:')
         builtin('cleanTargets')

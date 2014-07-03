@@ -65,7 +65,7 @@ module embedthis.me {
         for each (platform in b.platforms) {
             b.currentPlatform = platform
             trace('Configure', platform)
-            b.createMe(platform, b.options.configure.join(b.MAIN))
+            b.createMe(b.options.configure.join(b.MAIN), platform)
             findComponents()
             captureEnv()
             b.castDirTypes()
@@ -92,7 +92,7 @@ module embedthis.me {
             platforms = me.platforms
             for (let [index,platform] in me.platforms) {
                 let mefile = Path(platform).joinExt('me')
-                b.createMe(platform, mefile)
+                b.createMe(mefile, platform)
                 if (me.settings.configure) {
                     run(me.settings.configure)
                     return
@@ -183,7 +183,7 @@ module embedthis.me {
         if (b.options.configure) {
             let path: Path
             if (me.dir.bld != me.dir.out) {
-                path = me.dir.bld.join(me.platform.name, me.platform.name).joinExt('me')
+                path = me.dir.bld.join(me.platform.name, Me.PLATFORM)
             } else {
                 path = me.dir.bld.join(me.platform.name).joinExt('me')
             }

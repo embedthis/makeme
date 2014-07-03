@@ -137,9 +137,9 @@ configure -with php=/path/to/php</pre>
         then create the following files and directories:</p>
         <ul>
             <li>A startup MakeMe file: <em>start.me</em></li>
-            <li>A platform specific MakeMe file: <em>OS-ARCH-PROFILE.me</em></li>
+            <li>A platform output directory of the form: <em>build/OS-ARCH-PROFILE</em></li>
+            <li>A platform specific MakeMe file: <em>build/OS-ARCH-PROFILE/platform.me</em></li>
             <li>A source definitions header: <em>me.h</em></li>
-            <li>A platform output directory of the form: <em>OS-ARCH-PROFILE</em></li>
         </ul>
         <p>These files fully describe the desired build characteristics with the selected
         components and options. Subsequently when MakeMe is run, MakeMe will load the <em>start.me</em> file
