@@ -40,8 +40,7 @@ public function genProjects(extensions = '', profiles = ["default", "static"], p
                     run(cmd + ' -d -q -platform ' + platform + options + ' -configure ' + src + 
                         ' ' + extensions + '-gen vs', runopt)
                 }
-                rm(me.dir.top.join(platform + '.me'))
-                rmdir(me.dir.top.join(platform))
+                rmdir(me.dir.bld.join(platform))
             }
         }
     }
