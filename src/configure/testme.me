@@ -1,0 +1,52 @@
+/*
+    testme.me -- Appweb Extension
+ */
+Me.load({
+    targets: {
+        testme: {
+            description: 'TestMe Unit Test Framework',
+            config: function (target) {
+                let path: Path
+                if (me.options.gen) {
+                    if (me.platform.os == 'windows') {
+                        path = 'C:/Program Files/Embedthis MakeMe'
+                    } else {
+                        path = '/usr/local/lib/me/latest'
+                    }
+                    return {
+                        path:     path,
+                        libpaths: [ '$(ME_COM_APPWEB_PATH)/bin' ],
+                        includes: [ '$(ME_COM_APPWEB_PATH)/inc' ],
+                    }
+                }
+                let search = [ ]
+                if (target.withpath) {
+                    search.push(target.withpath)
+                }
+                for (let d: Path = '.'; d.parent != d; d = d.parent) {
+                    let sp = d.join(me.platform.name)
+                    if (sp.join('bin/libtestme.' + me.ext.shobj).exists) {
+                        search.push(sp)
+                        break
+                    }
+                }
+                let mepath = Cmd.locate('me')
+                if (mepath) {
+                    search.push(mepath.dirname.parent)
+                }
+                search.push('/usr/local/lib/me/latest')
+                if (me.platform.os == 'windows') {
+                    search.push(mepath.dir.programFiles32.join('Embedthis MakeMe'))
+                }
+                path = probe('bin/libtestme.' + me.ext.shobj, { search: search });
+                let bin = probe('libtestme.' + me.ext.shobj, {fullpath: true, search: path.join('bin')}).dirname
+                return {
+                    path:       path,
+                    libpaths:  [ bin ],
+                    libraries: [ 'testme' ],
+                    includes:  [ probe('testme.h', {search: path.join('inc')}) ],
+                }
+            },
+        },
+    },
+})

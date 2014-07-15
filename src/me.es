@@ -142,6 +142,7 @@ public class Me {
             'set': { range: String, separator: Array },
             sets: { range: String },
             show: { alias: 's'},
+            showPlatform: { },
             static: { },
             unicode: {},
             unset: { range: String, separator: Array },
@@ -160,7 +161,6 @@ public class Me {
         print('\nUsage: me [options] [targets|goals] ...\n' +
             '  Options:\n' + 
             '  --benchmark                              # Measure elapsed time\n' +
-            '  --chdir dir                              # Directory to build from\n' +
             '  --configure /path/to/source/tree         # Configure product\n' +
             '  --configuration                          # Display current configuration\n' +
             '  --continue                               # Continue on errors\n' +
@@ -385,16 +385,23 @@ public class Me {
         Parse arguments
      */
     function setup(args: Args) {
+        localPlatform =  Config.OS + '-' + Config.CPU + '-' + (options.release ? 'release' : 'debug')
         options.control = {}
-        if (options.chdir) {
-            App.chdir(options.chdir)
-        }
         if (options.version) {
             print(version)
             App.exit(0)
         }
         if (options.help || args.rest.contains('help')) {
             usage()
+            App.exit(0)
+        }
+        if (options.showPlatform) {
+            b.createMe(START, Config.OS + '-' + Config.CPU)
+            if (me.platforms && me.platforms.length > 0) {
+                print(me.platforms[0])
+            } else {
+                print(localPlatform)
+            }
             App.exit(0)
         }
         if (options.more) {
@@ -411,7 +418,6 @@ public class Me {
             App.mprLog.redirect(options.log)
         }
         out = (options.out) ? File(options.out, 'w') : stdout
-        localPlatform =  Config.OS + '-' + Config.CPU + '-' + (options.release ? 'release' : 'debug')
 
         if (args.rest.contains('configure')) {
             options.configure = Path('.')
