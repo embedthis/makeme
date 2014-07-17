@@ -461,11 +461,12 @@ Me.load({
 
         let exe, command
         if (ext == 'es') {
+            let mebin = Cmd.locate('me').dirname
             if (file.extension == 'com') {
-                let ejsc = Cmd.locate('ejsc')
+                let ejsc = mebin.join('ejsc')
                 let source = file.basename
                 let mod = tm.join(name).joinExt('mod', true)
-                command = ejsc + ' --search "testme:' + Cmd.locate('me').dirname + '" --out ' + mod + ' ' + source
+                command = ejsc + ' --search "testme:' + mebin + '" --out ' + mod + ' ' + source
                 tm.makeDir()
                 if (options.rebuild || !mod.exists || mod.modified < source.modified) {
                     if (options.rebuild) {
@@ -477,7 +478,7 @@ Me.load({
                     why('Target', mod + ' is up to date')
                 }
             } else {
-                command = Cmd.locate('ejs') + ' --require ejs.testme ' + file.basename
+                command = mebin.join('ejs') + ' --require ejs.testme ' + file.basename
             }
         } else if (ext == 'c') {
             exe = tm.join(name)
