@@ -1,0 +1,62 @@
+/*
+    testme.me -- MakeMe file for testme
+ */
+
+Me.load({
+    targets: {
+        libtestme: {
+            type: 'lib',
+            headers: [ '*.h' ],
+            sources: [ 'libtestme.c' ],
+        },
+
+        testme: {
+            type: 'exe',
+            path: '${BIN}/testme${EXE}',
+            sources: [ 'testme.c' ],
+            static: false,
+            active: true,
+            depends: [ 'libejs', 'testme.mod', 'ejs.testme.mod' ],
+        },
+
+        'testme.es': {
+            path: '${BIN}/testme.es',
+            files: [ 'testme.es' ],
+            build: `
+                trace('Export', me.target.files)
+                cp('testme.es', me.dir.bin)
+            `,
+            generate: 'cp testme.es ${BIN}',
+            platforms: [ 'local' ],
+        },
+
+        'testme.mod': {
+            path: '${BIN}/testme.mod',
+            files: [ 'testme.es' ],
+            run: '${BIN}/ejsc --debug --out ${BIN}/testme.mod --optimize 9 ${target.cmdfiles}',
+            'generate-nmake': `"${BIN}\\ejsc" --out "${BIN}/testme.mod" --optimize 9 ${target.cmdfiles}`,
+            'generate-sh': '${LBIN}/ejsc --out ${BIN}/testme.mod --optimize 9 ${target.cmdfiles}',
+            depends: [ 'ejsc' ],
+        },
+
+        'ejs.testme.es': {
+            path: '${BIN}/ejs.testme.es',
+            files: [ 'ejs.testme.es' ],
+            build: `
+                trace('Export', me.target.files)
+                cp('ejs.testme.es', me.dir.bin)
+            `,
+            generate: 'cp ejs.testme.es ${BIN}',
+            platforms: [ 'local' ],
+        },
+
+        'ejs.testme.mod': {
+            path: '${BIN}/ejs.testme.mod',
+            files: [ 'ejs.testme.es' ],
+            run: '${BIN}/ejsc --debug --out ${BIN}/ejs.testme.mod --optimize 9 ${target.cmdfiles}',
+            'generate-nmake': `"${BIN}\\ejsc" --out "${BIN}/ejs.testme.mod" --optimize 9 ${target.cmdfiles}`,
+            'generate-sh': '${LBIN}/ejsc --out ${BIN}/ejs.testme.mod --optimize 9 ${target.cmdfiles}',
+            depends: [ 'ejsc' ],
+        },
+    },
+})

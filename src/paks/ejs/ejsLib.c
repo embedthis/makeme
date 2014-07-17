@@ -39311,7 +39311,7 @@ static EjsNumber *lf_emit(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
         msg = srejoin(msg, arg, NULL);
     }
     if (msg) {
-        mprLog("ejs", level, "%s", msg);
+        mprLog(0, level, "%s", strim(msg, "\n", MPR_TRIM_END));
         written += slen(msg);
     }
     ejsUnblockGC(ejs, paused);
@@ -42106,14 +42106,13 @@ PUBLIC EjsArray *ejsGetPathFiles(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
         } 
     }
     for (i = 0; i < patterns->length; i++) {
-        /* 
-            Optimize by converting absolute pattern path prefixes into the base directory.
-            This allows path.files('/path/ *')
-         */
         pattern = ejsToMulti(ejs, ejsGetItem(ejs, patterns, i));
         path = fp->value;
         base = "";
+
+#if UNUSED
         if (mprIsPathAbs(pattern)) {
+#endif
             start = pattern;
             if ((special = strpbrk(start, "*?")) != 0) {
                 if (special > start) {
@@ -42132,7 +42131,9 @@ PUBLIC EjsArray *ejsGetPathFiles(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
                     base = start;
                 }
             }
+#if UNUSED
         }
+#endif
         if (!globPath(ejs, result, path, base, pattern, flags, exclude, include)) {
             return 0;
         }

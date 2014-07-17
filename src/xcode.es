@@ -8,14 +8,21 @@
     
 require ejs.unix
     
-var out: Stream             //  Project output file stream
+/*  
+    Project output file stream
+ */
+var out: Stream             
 
+/*
+    Project prep code. Copy project me.h into 'inc'
+ */
 const PREP_CODE = 
 "[ ! -x ${INC_DIR} ] && mkdir -p ${INC_DIR} ${OBJ_DIR} ${LIB_DIR} ${BIN_DIR}
-[ ! -f ${INC_DIR}/me.h ] && cp ${settings.name}-macosx-${platform.profile}-me.h ${INC_DIR}/me.h
-[ ! -f ${INC_DIR}/osdep.h ] && cp ${SRC_DIR}/src/paks/osdep/osdep.h ${INC_DIR}/osdep.h
-if ! diff ${INC_DIR}/me.h ${settings.name}-macosx-${platform.profile}-me.h >/dev/null ; then
-    cp ${settings.name}-macosx-${platform.profile}-me.h ${INC_DIR}/me.h
+[ ! -f ${INC_DIR}/me.h -a -f cp ${settings.name}-macosx-${platform.profile}-me.h ] && cp ${settings.name}-macosx-${platform.profile}-me.h ${INC_DIR}/me.h
+if [ -f ${settings.name}-macosx-${platform.profile}-me.h ] ; then
+    if ! diff ${INC_DIR}/me.h ${settings.name}-macosx-${platform.profile}-me.h >/dev/null 2>&1 ; then
+        cp ${settings.name}-macosx-${platform.profile}-me.h ${INC_DIR}/me.h
+    fi
 fi"
 
 var ids = {}                //  IDs stores the set of unique IDs used by generated Xcode projects. 
@@ -177,6 +184,11 @@ function init(base, name) {
                                '    cp ' + file.relativeTo(base) + ' ' + dep.path.relativeTo(base) + '\nfi'
                     }
                 }
+            }
+        } else if (target.type == 'header') {
+            for each (let file: Path in target.files) {
+                code += '\nif [ ' + file.relativeTo(base) + ' -nt ' + target.path.relativeTo(base) + ' ] ; then\n' +
+                   '    cp ' + file.relativeTo(base) + ' ' + target.path.relativeTo(base) + '\nfi'
             }
         }
     }
@@ -602,7 +614,7 @@ ${OUTPUTS}
             runTargetScript(target, 'build')
             genClose()
             let data = capture.readString()
-            cmd += data.replace(RegExp(me.dir.out.relativeTo(base), 'g'), '$${OUT_DIR}')
+            cmd += replacePath(cmd, me.dir.out.relativeTo(base), '$${OUT_DIR}')
             capture.remove()
             
         } else {
@@ -620,10 +632,10 @@ ${OUTPUTS}
             cmd = cmd.replace(/^[ \t]*[\r\n]+/m, '')
             cmd = cmd.replace(/^[ \t]*/mg, '').trim()
         }
-        cmd = cmd.replace(RegExp(me.dir.out.relativeTo(base), 'g'), '$${OUT_DIR}')
+        cmd = replacePath(cmd, me.dir.out.relativeTo(base), '$${OUT_DIR}')
 
         if (target.files && target.files.length > 0) {
-            inputs = target.files.map(function(f) f.relativeTo(base)).join(',\n')
+            inputs = target.files.map(function(f) smartPath(f, base)).join(',\n')
         }
         target.vars ||= {}
         if (target.path) {
@@ -758,6 +770,9 @@ function prepareSettings(base, o, debug: Boolean) {
             }
         }
         o.linker.compact()
+        if (me.platform.os == 'macosx') {
+            o.linker = o.linker.unique()
+        }
     }
     let staticTarget = o.target && o.target.static
     let flags = o.linker.filter(function(e) e != '-g') + 
@@ -785,11 +800,12 @@ function prepareSettings(base, o, debug: Boolean) {
     }
     if (o.includes.length > 0) {
         options.includes = '\n\t\t\t\tHEADER_SEARCH_PATHS = (\n' + 
-            o.includes.map(function(f) '\t\t\t\t\t"' + f.relativeTo(base) + '",').join('\n') + '\n\t\t\t\t\t"$(inherited)"\n\t\t\t\t);\n'
+            o.includes.map(function(f) '\t\t\t\t\t"' + smartPath(f, base) + '",').join('\n') +
+                '\n\t\t\t\t\t"$(inherited)"\n\t\t\t\t);\n'
     }
     if (o.libpaths.length > 0) {
         options.libpaths = '\n\t\t\t\tLIBRARY_SEARCH_PATHS = (\n' + 
-            o.libpaths.map(function(f) '\t\t\t\t\t"' + f.relativeTo(base) + '",').join('\n') + '\n\t\t\t\t\t"$(inherited)"\n\t\t\t\t);'
+            o.libpaths.map(function(f) '\t\t\t\t\t"' + smartPath(f, base) + '",').join('\n') + '\n\t\t\t\t\t"$(inherited)"\n\t\t\t\t);'
     }
     let defines = o.defines.clone()
     if (debug) {
@@ -799,7 +815,7 @@ function prepareSettings(base, o, debug: Boolean) {
     }
     if (defines.length > 0) {
         options.defines = '\t\t\t\tGCC_PREPROCESSOR_DEFINITIONS = (\n' + 
-            defines.map(function(f) '\t\t\t\t\t"' + f.replace('-D', '') + '",').join('\n') + '\n\t\t\t\t\t"$(inherited)"\n\t\t\t\t);'
+            defines.map(function(f) '\t\t\t\t\t"' + f.replace('-D', '').replace(/"/g, '\\\\\\"') + '",').join('\n') + '\n\t\t\t\t\t"$(inherited)"\n\t\t\t\t);'
     }
     let result = ''
     if (options.includes) result += options.includes
@@ -1052,6 +1068,24 @@ function makeid(src) {
 function getmakeid(src) {
     let id = ids[src] || uid()
     return ids[src] = id
+}
+
+function replacePath(str, path, substitute) {
+    if (path == '.') {
+        return str
+    }
+    let pattern = path.replace('.', '\\.')
+    return str.replace(RegExp(pattern, 'g'), substitute)
+}
+
+/*
+    Return a relative path to base unless the path is absolute
+ */
+function smartPath(path: Path, base: Path) {
+    if (path.isAbsolute) {
+        return path;
+    }
+    return path.relativeTo(base)
 }
 
 /*

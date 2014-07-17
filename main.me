@@ -5,7 +5,7 @@
 Me.load({
     blend: [
         "src/paks/*/*.me",
-        "testme/*.me",
+        "src/tm/*.me",
         "doc/doc.me",
     ],
 
@@ -110,7 +110,7 @@ Me.load({
             type: 'file',
             path: '${BIN}/',
             files: [ 'src/**' ],
-            exclude: /src\/me.c|src\/paks|\/$/,
+            exclude: /src\/me.c|src\/paks|src\/tm|\/$/,
             subtree: 'src',
             precious: true,
         },

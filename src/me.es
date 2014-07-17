@@ -125,6 +125,7 @@ public class Me {
             import: { },
             keep: { alias: 'k' },
             log: { alias: 'l', range: String },
+            name: { range: String },
             overwrite: { },
             out: { range: String },
             more: {alias: 'm'},
@@ -300,6 +301,11 @@ public class Me {
             }
             if (options.gen) {
                 overlay('generate.es')
+                if (!options.configure) {
+                    platforms = me.platforms = [localPlatform]
+                    createMe(options.file, localPlatform)
+                    prepBuild()
+                }
                 generate()
             } else if (options.watch) {
                 while (true) {
@@ -2865,6 +2871,7 @@ print("SET BARE", field)
             dir.lib  ||= dir.out
             dir.inc  ||= dir.out
             dir.obj  ||= dir.out
+            dir.proj ||= dir.out
             dir.paks ||= dir.top.join('paks')
         }
         dir.me ||=   dir.bin
@@ -2937,7 +2944,9 @@ print("SET BARE", field)
         }
         loadMeFile(me.dir.me.join('os/' + me.platform.os + '.me'))
         loadPackage(mefile)
-
+        if (options.name) {
+            me.settings.name = options.name
+        }
         if (me.scripts && me.scripts.postloadall) {
             runScript(me.scripts, "postloadall")
             delete me.scripts.postloadall

@@ -6,17 +6,21 @@ Me.load({
         appweb: {
             description: 'Appweb HTTP Server',
             config: function (target) {
-                let path: Path
-                if (me.options.gen) {
+                let appweb = Cmd.locate('appweb')
+                if (appweb) {
+                    appweb = appweb.dirname.path
+                } else {
                     if (me.platform.os == 'windows') {
-                        path = 'C:/Program Files/Embedthis Appweb'
+                        appweb = me.dir.programFiles32.join('Embedthis Appweb')
                     } else {
-                        path = '/usr/local/lib/appweb/latest'
+                        appweb = '/usr/local/lib/appweb/latest'
                     }
+                }
+                if (me.options.gen) {
                     return {
-                        path:     path,
-                        libpaths: [ '$(ME_COM_APPWEB_PATH)/bin' ],
-                        includes: [ '$(ME_COM_APPWEB_PATH)/inc' ],
+                        path:     appweb,
+                        libpaths: [ appweb.join('bin') ],
+                        includes: [ appweb.join('inc') ],
                     }
                 }
                 let search = [ ]
@@ -30,15 +34,8 @@ Me.load({
                         break
                     }
                 }
-                let appweb = Cmd.locate('appweb')
-                if (appweb) {
-                    search.push(appweb.dirname.parent)
-                }
-                search.push('/usr/local/lib/appweb/latest')
-                if (me.platform.os == 'windows') {
-                    search.push(me.dir.programFiles32.join('Embedthis Appweb'))
-                }
-                path = probe('bin/libappweb.' + me.ext.shobj, { search: search });
+                search.push(appweb)
+                let path = probe('bin/libappweb.' + me.ext.shobj, { search: search });
                 let bin = probe('libappweb.' + me.ext.shobj, {fullpath: true, search: path.join('bin')}).dirname
                 return {
                     path:       path,

@@ -562,7 +562,6 @@ module ejs {
                 If the 'separator' property is defined, multiple command line options of this name are permitted.
                 If 'separator' is set to a string, then the multiple command line option values are catenated
                 using the 'separator'. If set to array, the option values are stored in an array.
-            @option usage Function to invoke for argument parse errors 
             @option onerror
                 If set to 'throw', an exception will be thrown for argument parse errors. The usage function will not be 
                 called and no message will be written to the application log.
@@ -570,6 +569,7 @@ module ejs {
                 function will be invoked before exiting the application with a non-zero exit status.
             @option silent Don't emit any message on argument parse errors
             @option unknown Callback to invoke for unknown arguments
+            @option usage Function to invoke for argument parse errors 
             @example
 let args = Args({
     options: {
@@ -607,6 +607,11 @@ for each (file in args.rest) {
                             if (template.unknown) {
                                 i = (template.unknown)(argv, i)
                                 continue
+                            } else if (key == '?') {
+                                if (template.usage) {
+                                    template.usage()
+                                    break
+                                }
                             } else {
                                 throw "Undefined option '" + key + "'"
                             }

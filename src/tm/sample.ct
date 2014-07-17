@@ -1,0 +1,26 @@
+/*
+    Sample unit test file
+ */
+#include    "testme.h"
+
+static void c() {
+    ttrue(1 == 1);
+    tfalse(0 != 1);
+
+    tinfo("Error code %d", 42);
+    twrite("Big Warning");
+
+    cchar *value = tget("key", 0);
+    ttrue(value == 0);
+
+    tset("TM_NUMBER", "77");
+    tskip(1);
+}
+
+int main() 
+{
+    c();
+    if (tgetInt("TM_DEPTH", 0) > 2) {
+    }
+    return 0;
+}

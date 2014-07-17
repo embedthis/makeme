@@ -34,7 +34,11 @@ Me.load({
 
         files: [ 
             /* Binary Set */
-            {   from:   '${BIN}/me${EXE}',
+            {   from:   [
+                    '${BIN}/me${EXE}',
+                    '${BIN}/ejs${EXE}',
+                    '${BIN}/testme${EXE}',
+                ],
                 to:     '${abin}/',
                 linkin: '${bin}',
                 set:    'core',
@@ -46,6 +50,7 @@ Me.load({
                     '${BIN}/libmprssl${SHOBJ}',
                     '${BIN}/libpcre${SHOBJ}',
                     '${BIN}/libzlib${SHOBJ}',
+                    '${BIN}/libtestme${SHOBJ}',
                 ],
                 to:     '${abin}/',
                 set:    'libs',
@@ -81,6 +86,8 @@ Me.load({
                     '${BIN}/ca.crt',
                     '${BIN}/ejs.mod',
                     '${BIN}/me.mod',
+                    '${BIN}/testme.mod',
+                    '${BIN}/ejs.testme.mod',
                 ],
                 to:     '${abin}/',
                 set:    'core',
@@ -91,12 +98,10 @@ Me.load({
                 subtree:'src'
                 set:    'core',
 
-            },{ from:   '${BIN}/me.mod',
-                to:     '${abin}/',
-                set:    'core',
-                enable: false,
-
-            },{ from:   'doc/man/me.1',
+            },{ from:   [
+                    'doc/man/me.1',
+                    'doc/man/testme.1',
+                ],
                 to:     '${adoc}/man/man1/',
                 set:    'doc',
                 linkin: '${man}/man1',

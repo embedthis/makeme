@@ -1,22 +1,26 @@
 /*
-    testme.me -- Appweb Extension
+    testme.me -- TestMe Extension
  */
 Me.load({
     targets: {
         testme: {
             description: 'TestMe Unit Test Framework',
             config: function (target) {
-                let path: Path
-                if (me.options.gen) {
+                let mepath = Cmd.locate('me')
+                if (mepath) {
+                    mepath = mepath.dirname.parent
+                } else {
                     if (me.platform.os == 'windows') {
-                        path = 'C:/Program Files/Embedthis MakeMe'
+                        mepath = me.dir.programFiles32.join('Embedthis MakeMe')
                     } else {
-                        path = '/usr/local/lib/me/latest'
+                        mepath = '/usr/local/lib/me/latest'
                     }
+                }
+                if (me.options.gen) {
                     return {
-                        path:     path,
-                        libpaths: [ '$(ME_COM_APPWEB_PATH)/bin' ],
-                        includes: [ '$(ME_COM_APPWEB_PATH)/inc' ],
+                        path:     mepath,
+                        libpaths: [ mepath.join('bin') ],
+                        includes: [ mepath.join('inc') ],
                     }
                 }
                 let search = [ ]
@@ -30,15 +34,8 @@ Me.load({
                         break
                     }
                 }
-                let mepath = Cmd.locate('me')
-                if (mepath) {
-                    search.push(mepath.dirname.parent)
-                }
-                search.push('/usr/local/lib/me/latest')
-                if (me.platform.os == 'windows') {
-                    search.push(mepath.dir.programFiles32.join('Embedthis MakeMe'))
-                }
-                path = probe('bin/libtestme.' + me.ext.shobj, { search: search });
+                search.push(mepath)
+                let path = probe('bin/libtestme.' + me.ext.shobj, { search: search });
                 let bin = probe('libtestme.' + me.ext.shobj, {fullpath: true, search: path.join('bin')}).dirname
                 return {
                     path:       path,
