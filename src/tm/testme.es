@@ -209,7 +209,10 @@ enumerable class TestMe {
                     break
                 }
             }
-        } finally {
+        } catch (e) {
+            /* Exception in finally without this catch */
+        }
+        finally {
             for each (file in dir.files('*.set')) {
                 runTest('Finalize', file, env)
             }
@@ -229,7 +232,7 @@ enumerable class TestMe {
         let cont = true
         try {
             App.chdir(file.dirname)
-            cont = runTestFile(phase, file, env)
+            cont = runTestFile(phase, file, file.basename, env)
         } catch (e) {
             failedCount++
             throw e
@@ -239,12 +242,15 @@ enumerable class TestMe {
         return cont
     }
 
-    function runTestFile(phase, file: Path, env): Boolean {
-        vtrace('Testing', file)
+    /*
+        Run a test file with changed directory. topPath is the file from the original home.
+     */
+    function runTestFile(phase, topPath: Path, file: Path, env): Boolean {
+        vtrace('Testing', topPath)
         if (phase == 'Test') {
             this.testCount++
         }
-        let command = file.basename
+        let command = file
         let trimmed = file.trimExt()
 
         if (options.projects) {
@@ -254,14 +260,14 @@ enumerable class TestMe {
             return true
         }
         if (options.clean || options.clobber) {
-            clean(file)
+            clean(topPath, file)
             return true
         }
-        command = buildTest(phase, file, env)
-        if (options.compile) {
+        command = buildTest(phase, topPath, file, env)
+        if (options.compile && !file.exension == 'set') {
+            /* Must continue processing setup files */
             return true
         }
-
         let cont = true
         let prior = this.failedCount
         try {
@@ -288,15 +294,15 @@ enumerable class TestMe {
                 }
             }
         } catch (e) {
-            trace(phase, file + ' ... FAILED ' + e)
+            trace(phase, topPath + ' ... FAILED ' + e)
             this.failedCount++
             cont = false
         }
         if (prior == this.failedCount) {
             if (phase == 'Test') {
-                trace(phase, file + ' ... PASSED')
+                trace(phase, topPath + ' ... PASSED')
             } else if (!options.verbose) {
-                trace(phase, file)
+                trace(phase, topPath)
             }
             // App.log.debug(2, 'Elapsed', '%.2f' % ((startTest.elapsed / 1000)) + ' secs.')
         }
@@ -370,7 +376,6 @@ enumerable class TestMe {
         tm.join('.GENERATED').write()
         let mefile = tm.join(name).joinExt('me')
         if (!mefile.exists) {
-            let name = mefile.basename.trimExt()
             let libraries = env.libraries ? env.libraries.split(/ /) : []
             libraries.push(Path('testme'))
             libraries = serialize(libraries).replace(/"/g, "'")
@@ -404,41 +409,42 @@ Me.load({
         }
     }
 
-    function clean(file) {
+    function clean(topPath, file) {
         let tm = Path('testme')
         let ext = file.trimExt().extension
-        let name = file.basename.trimExt().trimExt()
+        let name = file.trimExt().trimExt()
         let mefile = tm.join(name).joinExt('me')
         let c = tm.join(name).joinExt('c')
         let exe = tm.join(name)
         if (Config.OS == 'windows') {
             exe = exe.joinExt('.exe')
         }
+        let base = topPath.dirname
         for each (f in tm.files(['*.o', '*.obj', '*.lib', '*.pdb', '*.exe', '*.mk', '*.sh', '*.mod'])) {
-            trace('Remove', f)
+            trace('Remove', base.join(f))
             f.remove()
         }
         for each (f in tm.files([name + '-*.xcodeproj'])) {
-            trace('Remove', f)
+            trace('Remove', base.join(f))
             f.removeAll()
         }
         if (exe && exe.exists) {
             exe.remove()
-            trace('Remove', exe)
+            trace('Remove', base.join(exe))
         }
         if (c.exists) {
             c.remove()
-            trace('Remove', c)
+            trace('Remove', base.join(c))
         }
         if (options.clobber) {
             if (mefile.exists) {
                 mefile.remove()
-                trace('Remove', mefile)
+                trace('Remove', base.join(mefile))
             }
             if (tm.join('.GENERATED').exists) {
                 tm.join('.GENERATED').remove()
                 if (tm.remove()) {
-                    trace('Remove', tm)
+                    trace('Remove', base.join(tm))
                 }
             }
         }
@@ -452,10 +458,10 @@ Me.load({
 
         Commands run from the directory containing the test.
      */
-    function buildTest(phase, file: Path, env): String? {
+    function buildTest(phase, topPath: Path, file: Path, env): String? {
         let tm = Path('testme')
         let ext = file.trimExt().extension
-        let name = file.basename.trimExt().trimExt()
+        let name = file.trimExt().trimExt()
         let mefile = tm.join(name).joinExt('me')
         let c = tm.join(name).joinExt('c')
 
@@ -464,21 +470,20 @@ Me.load({
             let mebin = Cmd.locate('me').dirname
             if (file.extension == 'com') {
                 let ejsc = mebin.join('ejsc')
-                let source = file.basename
                 let mod = tm.join(name).joinExt('mod', true)
-                command = ejsc + ' --search "testme:' + mebin + '" --out ' + mod + ' ' + source
+                command = ejsc + ' --search "testme:' + mebin + '" --out ' + mod + ' ' + file
                 tm.makeDir()
-                if (options.rebuild || !mod.exists || mod.modified < source.modified) {
+                if (options.rebuild || !mod.exists || mod.modified < file.modified) {
                     if (options.rebuild) {
                         why('Rebuild', mod + ' because --rebuild')
                     } else {
-                        why('Rebuild', mod + ' because ' + source + ' is newer')
+                        why('Rebuild', mod + ' because ' + file + ' is newer')
                     }
                 } else {
                     why('Target', mod + ' is up to date')
                 }
             } else {
-                command = mebin.join('ejs') + ' --require ejs.testme ' + file.basename
+                command = mebin.join('ejs') + ' --require ejs.testme ' + file
             }
         } else if (ext == 'c') {
             exe = tm.join(name)
@@ -508,7 +513,6 @@ Me.load({
                         log.write(result)
                     }
                 } catch (e) {
-    print("CATCH", e)
                     throw new Error('Cannot build ' + exe + '\n' + e)
                 }
             } else {

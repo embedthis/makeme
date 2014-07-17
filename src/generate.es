@@ -60,7 +60,7 @@ module embedthis.me {
         gen = {
             configuration:  me.platform.name
             compiler:       cflags,
-            defines :       cpack.defines.map(function(e) '-D' + e).join(' '),
+            defines :       cpack.defines.map(function(e) '-D' + e.replace(/"/, '\\"').join(' '),
             includes:       cpack.includes.map(function(e) '-I' + e).join(' '),
             linker:         cpack.linker.join(' '),
             libpaths:       b.mapLibPaths(cpack.libpaths)
@@ -517,7 +517,7 @@ module embedthis.me {
             genout.writeLine('\tfi; true')
         }
         genout.writeLine('\t@if [ -f "$(BUILD)/.makeflags" ] ; then \\')
-        genout.writeLine('\t\tif [ "$(MAKEFLAGS)" != " ` cat $(BUILD)/.makeflags`" ] ; then \\')
+        genout.writeLine('\t\tif [ "$(MAKEFLAGS)" != "`cat $(BUILD)/.makeflags`" ] ; then \\')
         genout.writeLine('\t\t\techo "   [Warning] Make flags have changed since the last build: \"`cat $(BUILD)/.makeflags`\"" ; \\')
         genout.writeLine('\t\tfi ; \\')
         genout.writeLine('\tfi')
