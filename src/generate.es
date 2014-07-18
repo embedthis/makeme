@@ -207,9 +207,6 @@ module embedthis.me {
         genout.writeLine('[ ! -x ${BUILD}/inc ] && ' + 'mkdir -p ${BUILD}/inc\n')
         genout.writeLine('[ ! -x ${BUILD}/bin ] && ' + 'mkdir -p ${BUILD}/bin\n')
         genout.writeLine('[ ! -x ${BUILD}/obj ] && ' + 'mkdir -p ${BUILD}/obj\n')
-        if (me.dir.src.join('src/paks/osdep/osdep.h').exists) {
-            genout.writeLine('[ ! -f ${BUILD}/inc/osdep.h ] && cp ${SRC}/src/paks/osdep/osdep.h ${BUILD}/inc/osdep.h')
-        }
         if (me.dir.inc.join('me.h').exists) {
             genout.writeLine('[ ! -f ${BUILD}/inc/me.h ] && ' + 
                 'cp projects/' + me.settings.name + '-${OS}-${PROFILE}-me.h ${BUILD}/inc/me.h')
@@ -504,12 +501,6 @@ module embedthis.me {
         genout.writeLine('\t@[ ! -x $(BUILD)/bin ] && ' + 'mkdir -p $(BUILD)/bin; true')
         genout.writeLine('\t@[ ! -x $(BUILD)/inc ] && ' + 'mkdir -p $(BUILD)/inc; true')
         genout.writeLine('\t@[ ! -x $(BUILD)/obj ] && ' + 'mkdir -p $(BUILD)/obj; true')
-        if (me.dir.src.join('src/paks/osdep/osdep.h').exists) {
-            genout.writeLine('\t@[ ! -f $(BUILD)/inc/osdep.h ] && cp src/paks/osdep/osdep.h $(BUILD)/inc/osdep.h ; true')
-            genout.writeLine('\t@if ! diff $(BUILD)/inc/osdep.h src/paks/osdep/osdep.h >/dev/null ; then\\')
-            genout.writeLine('\t\tcp src/paks/osdep/osdep.h $(BUILD)/inc/osdep.h  ; \\')
-            genout.writeLine('\tfi; true')
-        }
         if (me.dir.inc.join('me.h').exists) {
             genout.writeLine('\t@[ ! -f $(BUILD)/inc/me.h ] && ' + 'cp projects/' + pop + '-me.h $(BUILD)/inc/me.h ; true')
             genout.writeLine('\t@if ! diff $(BUILD)/inc/me.h projects/' + pop + '-me.h >/dev/null ; then\\')
@@ -605,10 +596,6 @@ module embedthis.me {
         genout.writeLine('\t@if not exist $(BUILD)\\bin md $(BUILD)\\bin')
         genout.writeLine('\t@if not exist $(BUILD)\\inc md $(BUILD)\\inc')
         genout.writeLine('\t@if not exist $(BUILD)\\obj md $(BUILD)\\obj')
-        if (me.dir.src.join('src/paks/osdep/osdep.h').exists) {
-            genout.writeLine('[ ! -f ${BUILD}/inc/osdep.h ] && cp ${SRC}/src/paks/osdep/osdep.h ${BUILD}/inc/osdep.h')
-            genout.writeLine('\t@if not exist $(BUILD ' + 'copy src\\paks\\osdep\\osdep.h $(BUILD)\\inc\\osdep.h\n')
-        }
         if (me.dir.inc.join('me.h').exists) {
             genout.writeLine('\t@if not exist $(BUILD)\\inc\\me.h ' + 'copy projects\\' + pop + '-me.h $(BUILD)\\inc\\me.h\n')
         }

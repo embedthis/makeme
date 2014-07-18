@@ -133,7 +133,7 @@ prep:
 		cp projects/me-linux-default-me.h $(BUILD)/inc/me.h  ; \
 	fi; true
 	@if [ -f "$(BUILD)/.makeflags" ] ; then \
-		if [ "$(MAKEFLAGS)" != " ` cat $(BUILD)/.makeflags`" ] ; then \
+		if [ "$(MAKEFLAGS)" != "`cat $(BUILD)/.makeflags`" ] ; then \
 			echo "   [Warning] Make flags have changed since the last build: "`cat $(BUILD)/.makeflags`"" ; \
 		fi ; \
 	fi

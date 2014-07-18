@@ -61,12 +61,12 @@ version:
 boot:
 	rm -fr $(OS)-$(ARCH)-*
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) compile
-	$(OS)-$(ARCH)-$(PROFILE)/bin/me --release configure build
+	build/$(OS)-$(ARCH)-$(PROFILE)/bin/me --release configure build
 
 update:
 	git pull
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) compile
-	$(OS)-$(ARCH)-$(PROFILE)/bin/me build
+	build/$(OS)-$(ARCH)-$(PROFILE)/bin/me build
 
 help:
 	@echo '' >&2
