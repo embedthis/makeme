@@ -878,7 +878,7 @@ function projectConfigSection(base) {
                 OBJ_DIR = "${OBJ}";
                 SRC_DIR = "${SRC}";
 
-                CONFIGURATION_TEMP_DIR = "$(OBJ_DIR)/tmp/$(CONFIGURATION)";
+                CONFIGURATION_TEMP_DIR = "$(OBJ_DIR)/${settings.name}-xcode/$(CONFIGURATION)";
                 CONFIGURATION_BUILD_DIR = "$(BIN_DIR)";
                 INSTALL_PATH = "/usr/lib/${settings.name}";
                 DSTROOT = "/tmp/${settings.name}.dst";

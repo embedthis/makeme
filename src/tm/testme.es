@@ -254,6 +254,13 @@ enumerable class TestMe {
         let command = file
         let trimmed = file.trimExt()
 
+        try {
+            command = buildTest(phase, topPath, file, env)
+        } catch (e) {
+            trace(phase, file + ' ... FAILED cannot build ' + topPath + '\n\n' + e.message)
+            this.failedCount++
+            return false
+        }
         if (file.extension == 'tst' && trimmed.extension == 'c') {
             if (options.projects) {
                 buildProject(phase, topPath, file, env)
@@ -274,13 +281,6 @@ enumerable class TestMe {
         if (options.clean || options.clobber) {
             clean(topPath, file)
             return true
-        }
-        try {
-            command = buildTest(phase, topPath, file, env)
-        } catch (e) {
-            trace(phase, file + ' ... FAILED cannot build ' + topPath + '\n\n' + e.message)
-            this.failedCount++
-            return false
         }
         if (options.compile && !file.exension == 'set') {
             /* Must continue processing setup files */

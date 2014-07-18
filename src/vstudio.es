@@ -14,12 +14,14 @@ const TOOLS_VERSION = '4.0'
 const PROJECT_FILE_VERSION = 10.0.30319.1
 const SOL_VERSION = '11.00'
 const XID = '{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}'
-var PREP = 'if not exist "$(ObjDir)" md "$(ObjDir)"
+var PREP = `if not exist "$(ObjDir)" md "$(ObjDir)"
 if not exist "$(BinDir)" md "$(BinDir)"
 if not exist "$(IncDir)" md "$(IncDir)"
-if not exist "$(IncDir)\\osdep.h" copy "..\\..\\src\\paks\\osdep\\osdep.h" "$(IncDir)\\osdep.h"
-if not exist "$(IncDir)\\me.h" copy "..\\${settings.name}-${platform.os}-${platform.profile}-me.h" "$(IncDir)\\me.h"
-'
+`
+if (me.dir.inc.join('me.h').exists) {
+    PREP += `if not exist "$(IncDir)\\me.h" copy "..\\${settings.name}-${platform.os}-${platform.profile}-me.h" "$(IncDir)\\me.h"`
+}
+
 var prepTarget
 var Base 
 
@@ -596,12 +598,20 @@ function output(line: String) {
     out.writeLine(line.expand(me))
 }
 
+function replacePath(str, path, substitute) {
+    if (path == '.') {
+        return str
+    }
+    let pattern = path.replace('.', '\\.')
+    return str.replace(RegExp(pattern, 'g'), substitute)
+}
+
 function wpath(path): Path {
     path = path.relative.name
-    path = path.replace(me.dir.inc.relativeTo(Base), '$(IncDir)')
-    path = path.replace(me.dir.obj.relativeTo(Base), '$(ObjDir)')
-    path = path.replace(me.dir.bin.relativeTo(Base), '$(BinDir)')
-    path = path.replace(me.platform.name, '$(Cfg)')
+    path = replacePath(path, me.dir.inc.relativeTo(Base), '$(IncDir)')
+    path = replace(path, me.dir.obj.relativeTo(Base), '$(ObjDir)')
+    path = replace(path, me.dir.bin.relativeTo(Base), '$(BinDir)')
+    path = replace(path, me.platform.name, '$(Cfg)')
     return Path(path.toString().replace(/\//g, '\\'))
 }
 
