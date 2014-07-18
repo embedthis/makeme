@@ -254,16 +254,22 @@ enumerable class TestMe {
         let command = file
         let trimmed = file.trimExt()
 
-        if (options.projects) {
-            if (trimmed.extension == 'c') {
+        if (file.extension == 'tst' && trimmed.extension == 'c') {
+            if (options.projects) {
                 buildProject(phase, topPath, file, env)
             }
-            return true
-        }
-        if (file.extension == 'tst' && trimmed.extension == 'c' && options.debug && Config.OS == 'macosx') {
-            strace('Run', '/usr/bin/open testme/' + file.basename.trimExt().trimExt() + '-macosx-debug.xcodeproj')
-            Cmd.run('/usr/bin/open testme/' + file.basename.trimExt().trimExt() + '-macosx-debug.xcodeproj')
-            return false
+            if (options.debug && Config.OS == 'macosx') {
+                let proj = Path('testme').join(file.basename.trimExt().trimExt() + '-macosx-debug.xcodeproj')
+                if (!proj.exists && !options.projects) {
+                    buildProject(phase, topPath, file, env)
+                }
+                strace('Run', '/usr/bin/open ' + proj)
+                Cmd.run('/usr/bin/open ' + proj)
+                return false
+            }
+            if (options.projects) {
+                return true
+            }
         }
         if (options.clean || options.clobber) {
             clean(topPath, file)
