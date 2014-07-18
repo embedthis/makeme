@@ -17,13 +17,16 @@
 #define TM_LINE2(s)             TM_LINE(s)
 #define TM_LINE3                TM_LINE2(__LINE__)
 #define TM_LOC                  __FILE__ "@" TM_LINE3
+#define TM_SHORT_NAP            (5 * 1000)
 
+#define tassert(E)             ttest(TM_LOC, #E, E)
+#define tfail(E)               ttest(TM_LOC, "assertion failed", 0)
 #define ttrue(E)               ttest(TM_LOC, #E, E)
 #define tfalse(E)              ttest(TM_LOC, #E, !(E))
 
 PUBLIC bool ttest(cchar *loc, cchar *expression, bool success);
 PUBLIC cchar *tget(cchar *key, cchar *def);
-PUBLIC int tgetInt(cchar *key, int def);
+PUBLIC int tgeti(cchar *key, int def);
 PUBLIC void tinfo(cchar *fmt, ...);
 PUBLIC void tset(cchar *key, cchar *value);
 PUBLIC void tskip(bool skip);

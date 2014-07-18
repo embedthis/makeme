@@ -60,7 +60,7 @@ module embedthis.me {
         gen = {
             configuration:  me.platform.name
             compiler:       cflags,
-            defines :       cpack.defines.map(function(e) '-D' + e.replace(/"/, '\\"').join(' '),
+            defines :       cpack.defines.map(function(e) '-D' + e.replace(/"/, '\\"')).join(' '),
             includes:       cpack.includes.map(function(e) '-I' + e).join(' '),
             linker:         cpack.linker.join(' '),
             libpaths:       b.mapLibPaths(cpack.libpaths)

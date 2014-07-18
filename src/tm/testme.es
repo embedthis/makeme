@@ -47,6 +47,7 @@ enumerable class TestMe {
             clean: {},
             clobber: {},
             'continue': { alias: 's' },
+            debug: { alias: 'd' },
             depth: { range: Number },
             log: { alias: 'l', range: String },
             noserver: { alias: 'n' },
@@ -255,15 +256,26 @@ enumerable class TestMe {
 
         if (options.projects) {
             if (trimmed.extension == 'c') {
-                buildProject(phase, file, env)
+                buildProject(phase, topPath, file, env)
             }
             return true
+        }
+        if (file.extension == 'tst' && trimmed.extension == 'c' && options.debug && Config.OS == 'macosx') {
+            strace('Run', '/usr/bin/open testme/' + file.basename.trimExt().trimExt() + '-macosx-debug.xcodeproj')
+            Cmd.run('/usr/bin/open testme/' + file.basename.trimExt().trimExt() + '-macosx-debug.xcodeproj')
+            return false
         }
         if (options.clean || options.clobber) {
             clean(topPath, file)
             return true
         }
-        command = buildTest(phase, topPath, file, env)
+        try {
+            command = buildTest(phase, topPath, file, env)
+        } catch (e) {
+            trace(phase, file + ' ... FAILED cannot build ' + topPath + '\n\n' + e.message)
+            this.failedCount++
+            return false
+        }
         if (options.compile && !file.exension == 'set') {
             /* Must continue processing setup files */
             return true
@@ -304,7 +316,8 @@ enumerable class TestMe {
             } else if (!options.verbose) {
                 trace(phase, topPath)
             }
-            // App.log.debug(2, 'Elapsed', '%.2f' % ((startTest.elapsed / 1000)) + ' secs.')
+        } else {
+            cont = false
         }
         return cont
     }
@@ -354,10 +367,10 @@ enumerable class TestMe {
             case '':
                 break
             default:
-                trace('Error', 'Bad output from ' + file + ':\n' + output)
                 success = false
                 this.failedCount++
                 trace('Test', file + ' ... FAILED')
+                trace('Stdout', '\n' + output)
                 return false
             }
         }
@@ -379,7 +392,8 @@ enumerable class TestMe {
             let libraries = env.libraries ? env.libraries.split(/ /) : []
             libraries.push(Path('testme'))
             libraries = serialize(libraries).replace(/"/g, "'")
-            let libpath = cfg.join('bin')
+            let bin = cfg.join('bin')
+            let inc = cfg.join('inc')
             let instructions = "
 Me.load({
     configure: {
@@ -390,13 +404,14 @@ Me.load({
             type: 'exe',
             sources: [ '" + name + ".c' ],
             depends: [ 'testme' ],
-            defines: [ 'BIN=\"" + libpath + "\"' ],
-            libpaths: [ '" + libpath + "' ],
+            defines: [ 'BIN=\"" + bin + "\"' ],
+            includes: [ '" + inc + "' ],
+            libpaths: [ '" + bin + "' ],
             libraries: " + libraries + ",
             scripts: {
                 prebuild: `
                     if (me.platform.like == 'unix') {
-                        me.target.linker.push('-Wl,-rpath," + libpath + "')
+                        me.target.linker.push('-Wl,-rpath," + bin + "')
                         me.target.linker.push('-Wl,-rpath,' + me.dir.me)
                     }
                 `
@@ -507,13 +522,10 @@ Me.load({
                 } else {
                     why('Rebuild', exe + ' because ' + c + ' is newer')
                 }
-                try {
-                    let result = run('me --chdir testme --file ' + mefile.basename + show)
-                    if (options.show) {
-                        log.write(result)
-                    }
-                } catch (e) {
-                    throw new Error('Cannot build ' + exe + '\n' + e)
+                strace('Build', 'me --chdir testme --file ' + mefile.basename + show)
+                let result = Cmd.run('me --chdir testme --file ' + mefile.basename + show)
+                if (options.show) {
+                    log.write(result)
                 }
             } else {
                 why('Target', exe + ' is up to date')
@@ -522,20 +534,25 @@ Me.load({
         return command
     }
 
-    function buildProject(phase, file: Path, env) {
+    function buildProject(phase, topPath, file: Path, env) {
         createMakeMe(file, env)
         let tm = Path('testme')
         let name = file.trimExt().trimExt()
         let mefile = tm.join(name).joinExt('me')
         trace('Generate', 'Projects ' + mefile.dirname.join(name))
-        run('me --chdir ' + mefile.dirname + ' --file ' + mefile.basename + ' --name ' + name + ' generate')
+        try {
+            run('me --chdir ' + mefile.dirname + ' --file ' + mefile.basename + ' --name ' + name + ' generate')
+        } catch (e) {
+            trace(phase, file + ' ... FAILED cannot generate project for ' + topPath + '\n\n' + e.message)
+        }
     }
 
     function summary() {
         if (!options.projects) {
             trace('Summary', ((failedCount == 0) ? 'PASSED' : 'FAILED') + ': ' + 
-                testCount + ' tests completed, ' + failedCount +
-                ' tests(s) failed, ' + skippedCount + ' tests(s) skipped. ' + 
+                failedCount + ' tests(s) failed, ' + 
+                testCount + ' tests passed, ' + 
+                skippedCount + ' tests(s) skipped. ' + 
                 'Elapsed time ' + ('%.2f' % ((Date.now() - start) / 1000)) + ' secs.')
         }
     }

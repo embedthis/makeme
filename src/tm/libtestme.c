@@ -13,7 +13,7 @@
 PUBLIC bool ttest(cchar *loc, cchar *expression, bool success)
 {
     if (success) {
-        printf("pass\n");
+        printf("pass in %s for \"%s\"\n", loc, expression);
     } else {
         printf("fail in %s for \"%s\"\n", loc, expression);
     }
@@ -52,7 +52,7 @@ PUBLIC cchar *tget(cchar *key, cchar *def)
 }
 
 
-PUBLIC int tgetInt(cchar *key, int def)
+PUBLIC int tgeti(cchar *key, int def)
 {
     cchar   *value;
 
