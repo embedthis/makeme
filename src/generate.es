@@ -547,7 +547,7 @@ module embedthis.me {
         genout.writeLine('!ENDIF\n')
 
         genout.writeLine('!IF "$(CONFIG)" == ""')
-        genout.writeLine('CONFIG                = build\\$(OS)-$(ARCH)-$(PROFILE)')
+        genout.writeLine('CONFIG                = $(OS)-$(ARCH)-$(PROFILE)')
         genout.writeLine('!ENDIF\n')
 
         genout.writeLine('!IF "$(BUILD)" == ""')
