@@ -31,7 +31,9 @@ public function vstudio(base: Path) {
     let saveDir = []
     for each (n in ["BIN", "OUT", "INC", "LIB", "OBJ", "PAKS", "PKG", "REL", "SRC", "TOP"]) {
         saveDir[n] = me.globals[n]
-        me.globals[n] = me.globals[n].relativeTo(base)
+        if (me.globals[n]) {
+            me.globals[n] = me.globals[n].relativeTo(base)
+        }
     }
     let projects = []
     /* Create a temporary prep target as the first target */

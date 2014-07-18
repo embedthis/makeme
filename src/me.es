@@ -2871,8 +2871,10 @@ print("SET BARE", field)
             dir.lib  ||= dir.out
             dir.inc  ||= dir.out
             dir.obj  ||= dir.out
-            dir.proj ||= dir.out
             dir.paks ||= dir.top.join('paks')
+            dir.pkg  ||= dir.out.join('pkg')
+            dir.proj ||= dir.out
+            dir.rel  ||= dir.out.join('img')
         }
         dir.me ||=   dir.bin
 

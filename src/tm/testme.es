@@ -392,8 +392,8 @@ enumerable class TestMe {
             let libraries = env.libraries ? env.libraries.split(/ /) : []
             libraries.push(Path('testme'))
             libraries = serialize(libraries).replace(/"/g, "'")
-            let bin = cfg.join('bin')
-            let inc = cfg.join('inc')
+            let bin = cfg.join('bin').portable
+            let inc = cfg.join('inc').portable
             let instructions = "
 Me.load({
     configure: {
@@ -404,15 +404,15 @@ Me.load({
             type: 'exe',
             sources: [ '" + name + ".c' ],
             depends: [ 'testme' ],
-            defines: [ 'BIN=\"" + bin + "\"' ],
-            includes: [ '" + inc + "' ],
-            libpaths: [ '" + bin + "' ],
-            libraries: " + libraries + ",
+            '+defines': [ 'BIN=\"" + bin + "\"' ],
+            '+includes': [ '" + inc + "' ],
+            '+libpaths': [ '" + bin + "' ],
+            '+libraries': " + libraries + ",
             scripts: {
                 prebuild: `
                     if (me.platform.like == 'unix') {
                         me.target.linker.push('-Wl,-rpath," + bin + "')
-                        me.target.linker.push('-Wl,-rpath,' + me.dir.me)
+                        me.target.linker.push('-Wl,-rpath,' + me.dir.me.portable)
                     }
                 `
             }
