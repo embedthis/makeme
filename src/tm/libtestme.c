@@ -35,7 +35,13 @@ PUBLIC void tinfo(cchar *fmt, ...)
 
 PUBLIC void tset(cchar *key, cchar *value)
 {
+#if ME_WIN_LIKE
+    char    buf[ME_MAX_BUFFER];
+    sprintf_s(buf, sizeof(buf), "%s=%s", key, value);
+    putenv(buf);
+#else
     setenv(key, value, 1);
+#endif
     printf("set %s %s\n", key, value);
 }
 
