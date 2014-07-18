@@ -109,7 +109,7 @@ Me.load({
                     }
                     if (testme) {
                         if (me.dir.src.join('src').exists) {
-                            run([testme, '-v', '-d', me.settings.depth], {noio: true, dir: me.dir.src.join('src')})
+                            run([testme, '-d', me.settings.depth], {noio: true})
                         }
                     } else {
                         trace('Test', 'The testme program cannot be located')

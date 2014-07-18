@@ -25,10 +25,6 @@
     <class kind="struct">MprSocketProvider</class>
     <class kind="struct">MprSocketService</class>
     <class kind="struct">MprSpin</class>
-    <class kind="struct">MprTestCase</class>
-    <class kind="struct">MprTestDef</class>
-    <class kind="struct">MprTestFailure</class>
-    <class kind="struct">MprTestGroup</class>
     <class kind="struct">MprThreadLocal</class>
     <class kind="struct">MprThreadService</class>
     <class kind="struct">MprWaitService</class>
@@ -354,6 +350,13 @@
       <name>MPR_DISPATCHER_AUTO</name>
       <anchorfile>mpr_8h.html</anchorfile>
       <anchor>ab0f3013da15539678a4c591e5ec15298</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>MPR_DISPATCHER_COMPLETE</name>
+      <anchorfile>mpr_8h.html</anchorfile>
+      <anchor>a125b0207b56f4d575518f349f532e3a7</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -1700,13 +1703,6 @@
       <anchor>a4a149b4f65cebcc40fe12a7361033781</anchor>
       <arglist></arglist>
     </member>
-    <member kind="define">
-      <type>#define</type>
-      <name>tassert</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>gad86e9187caa05e698fa5d0630e6d74f4</anchor>
-      <arglist>(C)</arglist>
-    </member>
     <member kind="typedef">
       <type>int(*</type>
       <name>MprBufProc</name>
@@ -1827,20 +1823,6 @@
       <arglist>)(int state, int exitStrategy, int status)</arglist>
     </member>
     <member kind="typedef">
-      <type>int(*</type>
-      <name>MprTestParser</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>gad9ed01b45cca9fda02f9eb692e28cd69</anchor>
-      <arglist>)(int argc, char **argv)</arglist>
-    </member>
-    <member kind="typedef">
-      <type>void(*</type>
-      <name>MprTestProc</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>ga484b47500c380dcfad3bf310058cf5f1</anchor>
-      <arglist>)(struct MprTestGroup *tp)</arglist>
-    </member>
-    <member kind="typedef">
       <type>void(*</type>
       <name>MprThreadProc</name>
       <anchorfile>group___mpr_thread.html</anchorfile>
@@ -1895,13 +1877,6 @@
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>ga80adc8087f3a20a2669565b281d57a38</anchor>
       <arglist>(bool cond)</arglist>
-    </member>
-    <member kind="function">
-      <type>bool</type>
-      <name>assertTrue</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>ga421431720587185f9865285e813a3cf8</anchor>
-      <arglist>(MprTestGroup *gp, cchar *loc, int success, cchar *msg)</arglist>
     </member>
     <member kind="function">
       <type>char *</type>
@@ -2056,13 +2031,6 @@
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>ga34490595fe86683f06e8d6e9abc72aa3</anchor>
       <arglist>(MprTerminator terminator)</arglist>
-    </member>
-    <member kind="function">
-      <type>MprTestGroup *</type>
-      <name>mprAddTestGroup</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>gacce17c35eeabad004c762116576636d6</anchor>
-      <arglist>(MprTestService *ts, MprTestDef *def)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -2553,13 +2521,6 @@
       <anchorfile>group___mpr_ssl.html</anchorfile>
       <anchor>gac6a41e387c7475251098f237f5f0a802</anchor>
       <arglist>(int server)</arglist>
-    </member>
-    <member kind="function">
-      <type>MprTestService *</type>
-      <name>mprCreateTestService</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>ga5f0e737ddfec241ca2387dee7cf068ee</anchor>
-      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>MprThread *</type>
@@ -4361,13 +4322,6 @@
       <arglist>(cchar *address, char **ip, int *port, int *secure, int defaultPort)</arglist>
     </member>
     <member kind="function">
-      <type>int</type>
-      <name>mprParseTestArgs</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>ga7cc536ed137426a2c12419fb71cfbad9</anchor>
-      <arglist>(MprTestService *ts, int argc, char **argv, MprTestParser extraParser)</arglist>
-    </member>
-    <member kind="function">
       <type>bool</type>
       <name>mprPathExists</name>
       <anchorfile>group___mpr_path.html</anchorfile>
@@ -4712,13 +4666,6 @@
     </member>
     <member kind="function">
       <type>void</type>
-      <name>mprReportTestResults</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>ga240dcddc4f94f7020a5f19f62f50c349</anchor>
-      <arglist>(MprTestService *ts)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
       <name>mprRescheduleEvent</name>
       <anchorfile>group___mpr_event.html</anchorfile>
       <anchor>ga1919da044dd4f62d999526175f76bdc2</anchor>
@@ -4744,13 +4691,6 @@
       <anchorfile>group___mpr_mem.html</anchorfile>
       <anchor>gaccaaba6bc0501553b0c44d8514795b7a</anchor>
       <arglist>()</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>mprResetTestGroup</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>gaeb846dc87e4083577ca675746525425a</anchor>
-      <arglist>(MprTestGroup *gp)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -4807,13 +4747,6 @@
       <anchorfile>group___mpr_cmd.html</anchorfile>
       <anchor>ga40c6d3c5980dd3db76189fa6ee38874a</anchor>
       <arglist>(MprCmd *cmd, int argc, cchar **argv, cchar **envp, cchar *in, char **out, char **err, MprTicks timeout, int flags)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>mprRunTests</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>ga7db4de7f1b7418ed3a955567fe67e893</anchor>
-      <arglist>(MprTestService *ts)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -5384,20 +5317,6 @@
     </member>
     <member kind="function">
       <type>void</type>
-      <name>mprSignalTest2Complete</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>gafc5c0f319089d68b7ddc4838aec22db1</anchor>
-      <arglist>(MprTestGroup *gp)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>mprSignalTestComplete</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>gabc396ef1ecce963fbcb17ee8d713d3c0</anchor>
-      <arglist>(MprTestGroup *gp)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
       <name>mprSleep</name>
       <anchorfile>group___mpr.html</anchorfile>
       <anchor>ga85c39ea54c27d4b13825ba78c2e7adda</anchor>
@@ -5752,20 +5671,6 @@
       <anchorfile>group___mpr_wait_handler.html</anchorfile>
       <anchor>ga0a93f3ae8149bd4904921ffb36e493c6</anchor>
       <arglist>(int fd, int mask, MprTicks timeout)</arglist>
-    </member>
-    <member kind="function">
-      <type>bool</type>
-      <name>mprWaitForTest2ToComplete</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>ga8de80fc08cc763d79fa85689c5eb212a</anchor>
-      <arglist>(MprTestGroup *gp, MprTicks timeout)</arglist>
-    </member>
-    <member kind="function">
-      <type>bool</type>
-      <name>mprWaitForTestToComplete</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>ga24a30e124641f6b6d7f2da514e4b948c</anchor>
-      <arglist>(MprTestGroup *gp, MprTicks timeout)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -10631,113 +10536,6 @@
       <arglist>(cchar *uri, int map)</arglist>
     </member>
   </compound>
-  <compound kind="group">
-    <name>MprTestService</name>
-    <title>MprTestService</title>
-    <filename>group___mpr_test_service.html</filename>
-    <class kind="struct">MprTestCase</class>
-    <class kind="struct">MprTestDef</class>
-    <class kind="struct">MprTestFailure</class>
-    <class kind="struct">MprTestGroup</class>
-    <member kind="define">
-      <type>#define</type>
-      <name>tassert</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>gad86e9187caa05e698fa5d0630e6d74f4</anchor>
-      <arglist>(C)</arglist>
-    </member>
-    <member kind="typedef">
-      <type>int(*</type>
-      <name>MprTestParser</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>gad9ed01b45cca9fda02f9eb692e28cd69</anchor>
-      <arglist>)(int argc, char **argv)</arglist>
-    </member>
-    <member kind="typedef">
-      <type>void(*</type>
-      <name>MprTestProc</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>ga484b47500c380dcfad3bf310058cf5f1</anchor>
-      <arglist>)(struct MprTestGroup *tp)</arglist>
-    </member>
-    <member kind="function">
-      <type>bool</type>
-      <name>assertTrue</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>ga421431720587185f9865285e813a3cf8</anchor>
-      <arglist>(MprTestGroup *gp, cchar *loc, int success, cchar *msg)</arglist>
-    </member>
-    <member kind="function">
-      <type>MprTestGroup *</type>
-      <name>mprAddTestGroup</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>gacce17c35eeabad004c762116576636d6</anchor>
-      <arglist>(MprTestService *ts, MprTestDef *def)</arglist>
-    </member>
-    <member kind="function">
-      <type>MprTestService *</type>
-      <name>mprCreateTestService</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>ga5f0e737ddfec241ca2387dee7cf068ee</anchor>
-      <arglist>()</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>mprParseTestArgs</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>ga7cc536ed137426a2c12419fb71cfbad9</anchor>
-      <arglist>(MprTestService *ts, int argc, char **argv, MprTestParser extraParser)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>mprReportTestResults</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>ga240dcddc4f94f7020a5f19f62f50c349</anchor>
-      <arglist>(MprTestService *ts)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>mprResetTestGroup</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>gaeb846dc87e4083577ca675746525425a</anchor>
-      <arglist>(MprTestGroup *gp)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>mprRunTests</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>ga7db4de7f1b7418ed3a955567fe67e893</anchor>
-      <arglist>(MprTestService *ts)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>mprSignalTest2Complete</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>gafc5c0f319089d68b7ddc4838aec22db1</anchor>
-      <arglist>(MprTestGroup *gp)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>mprSignalTestComplete</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>gabc396ef1ecce963fbcb17ee8d713d3c0</anchor>
-      <arglist>(MprTestGroup *gp)</arglist>
-    </member>
-    <member kind="function">
-      <type>bool</type>
-      <name>mprWaitForTest2ToComplete</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>ga8de80fc08cc763d79fa85689c5eb212a</anchor>
-      <arglist>(MprTestGroup *gp, MprTicks timeout)</arglist>
-    </member>
-    <member kind="function">
-      <type>bool</type>
-      <name>mprWaitForTestToComplete</name>
-      <anchorfile>group___mpr_test_service.html</anchorfile>
-      <anchor>ga24a30e124641f6b6d7f2da514e4b948c</anchor>
-      <arglist>(MprTestGroup *gp, MprTicks timeout)</arglist>
-    </member>
-  </compound>
   <compound kind="struct">
     <name>MprCmdChild</name>
     <filename>struct_mpr_cmd_child.html</filename>
@@ -11633,204 +11431,6 @@
   <compound kind="struct">
     <name>MprSpin</name>
     <filename>struct_mpr_spin.html</filename>
-  </compound>
-  <compound kind="struct">
-    <name>MprTestCase</name>
-    <filename>struct_mpr_test_case.html</filename>
-  </compound>
-  <compound kind="struct">
-    <name>MprTestDef</name>
-    <filename>struct_mpr_test_def.html</filename>
-  </compound>
-  <compound kind="struct">
-    <name>MprTestFailure</name>
-    <filename>struct_mpr_test_failure.html</filename>
-    <member kind="variable">
-      <type>char *</type>
-      <name>loc</name>
-      <anchorfile>struct_mpr_test_failure.html</anchorfile>
-      <anchor>a5fa993a2d306f2d0814f426cc1d67d86</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>char *</type>
-      <name>message</name>
-      <anchorfile>struct_mpr_test_failure.html</anchorfile>
-      <anchor>aede4e5e2e86ae7bedfdcc392426fce55</anchor>
-      <arglist></arglist>
-    </member>
-  </compound>
-  <compound kind="struct">
-    <name>MprTestGroup</name>
-    <filename>struct_mpr_test_group.html</filename>
-    <member kind="variable">
-      <type>MprList *</type>
-      <name>cases</name>
-      <anchorfile>struct_mpr_test_group.html</anchorfile>
-      <anchor>aff80b919de9cd47b0fd4b13aff73511b</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>struct HttpConn *</type>
-      <name>conn</name>
-      <anchorfile>struct_mpr_test_group.html</anchorfile>
-      <anchor>a2ec2646f86b1f23e2e453b1ca6d89f99</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>char *</type>
-      <name>content</name>
-      <anchorfile>struct_mpr_test_group.html</anchorfile>
-      <anchor>af4ebad3aef9112c8e554ae7514c3fd88</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>void *</type>
-      <name>data</name>
-      <anchorfile>struct_mpr_test_group.html</anchorfile>
-      <anchor>ac16dcdbfb0cd8c59c25b8624d12fe732</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>MprTestDef *</type>
-      <name>def</name>
-      <anchorfile>struct_mpr_test_group.html</anchorfile>
-      <anchor>a954e2fa82ffae656b99a6341997de64e</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>MprDispatcher *</type>
-      <name>dispatcher</name>
-      <anchorfile>struct_mpr_test_group.html</anchorfile>
-      <anchor>aa934e9ae29bee8744f747ff4244a3f01</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>failedCount</name>
-      <anchorfile>struct_mpr_test_group.html</anchorfile>
-      <anchor>a83efccd4b2a8477244afd48317cb7904</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>MprList *</type>
-      <name>failures</name>
-      <anchorfile>struct_mpr_test_group.html</anchorfile>
-      <anchor>a4069b42c53aec21ae4eed4407bc52251</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>char *</type>
-      <name>fullName</name>
-      <anchorfile>struct_mpr_test_group.html</anchorfile>
-      <anchor>af17d8e4bb2cf4b9cac38ab40bc25c9ca</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>MprList *</type>
-      <name>groups</name>
-      <anchorfile>struct_mpr_test_group.html</anchorfile>
-      <anchor>aaeb80f0e196802973535c136872dbaad</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>hasInternet</name>
-      <anchorfile>struct_mpr_test_group.html</anchorfile>
-      <anchor>a18c8a3014bb0eec71dac829c4929f77e</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>hasIPv6</name>
-      <anchorfile>struct_mpr_test_group.html</anchorfile>
-      <anchor>abfbde031553d4e650e6dfdb76aacf2e8</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>struct Http *</type>
-      <name>http</name>
-      <anchorfile>struct_mpr_test_group.html</anchorfile>
-      <anchor>a9d3a3e71bfc837537d4ddc2a38a5ef2e</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>MprMutex *</type>
-      <name>mutex</name>
-      <anchorfile>struct_mpr_test_group.html</anchorfile>
-      <anchor>a51c04fde00b53aa63c19927b605ad1d8</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>char *</type>
-      <name>name</name>
-      <anchorfile>struct_mpr_test_group.html</anchorfile>
-      <anchor>a5d910f01611091e1ab347093b96b3950</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>struct MprTestGroup *</type>
-      <name>parent</name>
-      <anchorfile>struct_mpr_test_group.html</anchorfile>
-      <anchor>aeef8e86637a041e6eb9528b8f8629e2c</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>struct MprTestGroup *</type>
-      <name>root</name>
-      <anchorfile>struct_mpr_test_group.html</anchorfile>
-      <anchor>a87527c8fde5d69a9f112971b243e4962</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>MprTestService *</type>
-      <name>service</name>
-      <anchorfile>struct_mpr_test_group.html</anchorfile>
-      <anchor>a676ff31afb92b0658b3fba658f8a7e13</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>bool</type>
-      <name>skip</name>
-      <anchorfile>struct_mpr_test_group.html</anchorfile>
-      <anchor>a222c330fb8af584d2ed57e2c5f9749f0</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>bool</type>
-      <name>skipWarned</name>
-      <anchorfile>struct_mpr_test_group.html</anchorfile>
-      <anchor>a8219810a284a984052d9f8f30e3694f4</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>bool</type>
-      <name>success</name>
-      <anchorfile>struct_mpr_test_group.html</anchorfile>
-      <anchor>a902e7d783792f75e6926fc6b9ecd4eb7</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>testComplete</name>
-      <anchorfile>struct_mpr_test_group.html</anchorfile>
-      <anchor>a8e156dada130b2af69535ce24763db99</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>testCount</name>
-      <anchorfile>struct_mpr_test_group.html</anchorfile>
-      <anchor>a66906362b6b0c3cfa2f45e83071e308f</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable">
-      <type>int</type>
-      <name>testDepth</name>
-      <anchorfile>struct_mpr_test_group.html</anchorfile>
-      <anchor>a394b1e310a95d8246b7669689eb8f9e3</anchor>
-      <arglist></arglist>
-    </member>
   </compound>
   <compound kind="struct">
     <name>MprThreadLocal</name>

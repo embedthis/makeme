@@ -21,7 +21,7 @@ ENTRY                 = _DllMainCRTStartup@12
 !ENDIF
 
 !IF "$(CONFIG)" == ""
-CONFIG                = build\$(OS)-$(ARCH)-$(PROFILE)
+CONFIG                = $(OS)-$(ARCH)-$(PROFILE)
 !ENDIF
 
 !IF "$(BUILD)" == ""

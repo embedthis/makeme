@@ -178,6 +178,7 @@ struct  MprXml;
 #define MPR_TIMER_TOLERANCE     2           /* Used in timer calculations */
 #define MPR_CMD_TIMER_PERIOD    5000        /* Check for expired commands */
 
+#if UNUSED
 /*
     Other tunable constants
  */
@@ -188,6 +189,7 @@ struct  MprXml;
 #define MPR_TEST_LONG_TIMEOUT   300000      /* 5 minutes */
 #define MPR_TEST_SHORT_TIMEOUT  200         /* 1/5 sec */
 #define MPR_TEST_NAP            50          /* Short timeout to prevent busy waiting */
+#endif
 
 /**
     Events
@@ -5825,6 +5827,7 @@ typedef struct MprEvent {
 #define MPR_DISPATCHER_WAITING    0x2   /**< Dispatcher waiting for an event in mprWaitForEvent */
 #define MPR_DISPATCHER_DESTROYED  0x4   /**< Dispatcher has been destroyed */
 #define MPR_DISPATCHER_AUTO       0x8   /**< Dispatcher was auto created in response to accept event */
+#define MPR_DISPATCHER_COMPLETE   0x10  /**< Test operation is complete */
 
 /**
     Event Dispatcher
@@ -6151,6 +6154,12 @@ PUBLIC void mprSetDispatcherImmediate(MprDispatcher *dispatcher);
 PUBLIC void mprStopEventService();
 PUBLIC void mprWakeDispatchers();
 PUBLIC void mprWakePendingDispatchers();
+
+/*
+    Used in testme scripts
+ */
+PUBLIC void mprSignalCompletion(MprDispatcher *dispatcher);
+PUBLIC bool mprWaitForCompletion(MprDispatcher *dispatcher, MprTicks timeout);
 
 /*********************************** XML **************************************/
 /*
@@ -7965,14 +7974,14 @@ PUBLIC ssize mprWriteSocketVector(MprSocket *sp, MprIOVec *iovec, int count);
     @stability Internal
  */
 typedef struct MprSsl {
-    char            *providerName;      /**< SSL provider to use - null if default */
+    cchar           *providerName;      /**< SSL provider to use - null if default */
     struct MprSocketProvider *provider; /**< Cached SSL provider to use */
-    char            *key;               /**< Key string */
-    char            *keyFile;           /**< Alternatively, locate the key in a file */
-    char            *certFile;          /**< Alternatively, locate the cert in a file */
-    char            *caFile;            /**< Certificate verification cert file or bundle */
-    char            *caPath;            /**< Certificate verification cert directory (OpenSSL only) */
-    char            *ciphers;           /**< Candidate ciphers to use */
+    cchar           *key;               /**< Key string */
+    cchar           *keyFile;           /**< Alternatively, locate the key in a file */
+    cchar           *certFile;          /**< Alternatively, locate the cert in a file */
+    cchar           *caFile;            /**< Certificate verification cert file or bundle */
+    cchar           *caPath;            /**< Certificate verification cert directory (OpenSSL only) */
+    cchar           *ciphers;           /**< Candidate ciphers to use */
     bool            verified;           /**< Peer has been verified */
     void            *config;            /**< Extended provider SSL configuration */
     bool            configured;         /**< Set if this SSL configuration has been processed */
@@ -8773,10 +8782,10 @@ typedef struct MprCmd {
     MprWaitHandler  *handlers[MPR_CMD_MAX_PIPE];
     MprDispatcher   *dispatcher;        /**< Dispatcher to use for wait events */
     MprCmdProc      callback;           /**< Handler for client output and completion */
-    void            *callbackData;
+    void            *callbackData;      /**< Managed callback data reference */
     MprForkCallback forkCallback;       /**< Forked client callback */
     MprSignal       *signal;            /**< Signal handler for SIGCHLD */
-    void            *forkData;
+    void            *forkData;          /**< Managed fork callback data reference */
     MprBuf          *stdoutBuf;         /**< Standard output from the client */
     MprBuf          *stderrBuf;         /**< Standard error output from the client */
     void            *userData;          /**< User data storage */
@@ -9558,7 +9567,6 @@ typedef struct Mpr {
     void            *ejsService;            /**< Ejscript service */
     void            *espService;            /**< ESP service object */
     void            *httpService;           /**< Http service object */
-    void            *testService;           /**< Test service object */
 
     MprTicks        shutdownStarted;        /**< When the shutdown started */
     MprList         *terminators;           /**< Termination callbacks */
@@ -10336,6 +10344,7 @@ PUBLIC int mprFindVxSym(SYMTAB_ID sid, char *name, char **pvalue);
  */
 PUBLIC void mprWriteToOsLog(cchar *msg, int level);
 
+#if UNUSED
 /************************************* Test ***********************************/
 
 struct MprTestGroup;
@@ -10581,6 +10590,7 @@ typedef struct MprTestFailure {
     char            *message;           /**< Failure message typically the assertion program text */
 } MprTestFailure;
 
+#endif /* UNUSED */
 
 #ifdef __cplusplus
 }
