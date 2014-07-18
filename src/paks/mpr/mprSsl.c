@@ -975,7 +975,7 @@ static int upgradeEst(MprSocket *sp, MprSsl *ssl, cchar *peerName)
             /*
                 Load a PEM format certificate file
              */
-            if (x509parse_crtfile((char*) &cfg->cert, (char*) ssl->certFile) != 0) {
+            if (x509parse_crtfile(&cfg->cert, (char*) ssl->certFile) != 0) {
                 sp->errorMsg = sfmt("Unable to parse certificate %s", ssl->certFile); 
                 unlock(ssl);
                 return MPR_ERR_CANT_READ;
@@ -986,7 +986,7 @@ static int upgradeEst(MprSocket *sp, MprSsl *ssl, cchar *peerName)
                 Load a decrypted PEM format private key
                 Last arg is password if you need to use an encrypted private key
              */
-            if (x509parse_keyfile((char*) &cfg->rsa, (char*) ssl->keyFile, 0) != 0) {
+            if (x509parse_keyfile(&cfg->rsa, (char*) ssl->keyFile, 0) != 0) {
                 sp->errorMsg = sfmt("Unable to parse key file %s", ssl->keyFile); 
                 unlock(ssl);
                 return MPR_ERR_CANT_READ;
