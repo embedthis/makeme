@@ -19,10 +19,10 @@
 #define TM_LOC                  __FILE__ "@" TM_LINE3
 #define TM_SHORT_NAP            (5 * 1000)
 
-#define tassert(E)             ttest(TM_LOC, #E, E)
+#define tassert(E)             ttest(TM_LOC, #E, (E) != 0)
 #define tfail(E)               ttest(TM_LOC, "assertion failed", 0)
-#define ttrue(E)               ttest(TM_LOC, #E, E)
-#define tfalse(E)              ttest(TM_LOC, #E, !(E))
+#define ttrue(E)               ttest(TM_LOC, #E, (E) != 0)
+#define tfalse(E)              ttest(TM_LOC, #E, (E) == 0)
 
 PUBLIC bool ttest(cchar *loc, cchar *expression, bool success);
 PUBLIC cchar *tget(cchar *key, cchar *def);

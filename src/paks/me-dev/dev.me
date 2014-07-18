@@ -103,16 +103,16 @@ Me.load({
             home: '${TOP}',
             action: `
                 if (!me.targets.test) {
-                    let utest = Cmd.locate('utest')
-                    if (!utest) {
-                        utest = Cmd.locate('utest', [me.dir.top.join(me.platform.name, 'bin/utest'), App.exeDir])
+                    let testme = Cmd.locate('testme')
+                    if (!testme) {
+                        testme = Cmd.locate('testme', [me.dir.top.join(me.platform.name, 'bin/testme'), App.exeDir])
                     }
-                    if (utest) {
+                    if (testme) {
                         if (me.dir.src.join('src').exists) {
-                            run([utest, '-v', '-d', me.settings.depth], {noio: true, dir: me.dir.src.join('src')})
+                            run([testme, '-v', '-d', me.settings.depth], {noio: true, dir: me.dir.src.join('src')})
                         }
                     } else {
-                        trace('Test', 'The utest program cannot be located')
+                        trace('Test', 'The testme program cannot be located')
                     }
                 }
             `,
