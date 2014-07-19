@@ -162,14 +162,18 @@ function debugPropBuild(base: Path) {
     let path = base.join('debug.props').relative
     trace('Generate', path)
     out = TextStream(File(path, 'wt'))
+    if (Config.OS == 'windows') {
+        pathenv = `    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      <LocalDebuggerEnvironment>PATH=` + App.exeDir + `;` + me.dir.bin + `;%PATH%;$(LocalDebugerEnvironment)</LocalDebuggerEnvironment>
+    </PropertyGroup>
 
     //  TODO - remove MultiThreadedDebugDll
-    output('<?xml version="1.0" encoding="utf-8"?>
+    output(`<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <Cfg>' + me.platform.profile + '</Cfg>
-  </PropertyGroup>
+    <Cfg>` + me.platform.profile + `</Cfg>
+  </PropertyGroup>` + pathenv + `
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>_DEBUG;ME_DEBUG;DEBUG_IDE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -187,7 +191,7 @@ function debugPropBuild(base: Path) {
     <EnvironmentVariable>true</EnvironmentVariable>
   </BuildMacro>
   </ItemGroup>
-</Project>')
+</Project>`)
     out.close()
 }
 
@@ -232,7 +236,7 @@ function archPropBuild(base: Path, arch) {
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <CfgDir>..\\..\\windows-' + arch + '-$(Cfg)</CfgDir>
+    <CfgDir>..\\${settings.name}-' + arch + '-$(Cfg)</CfgDir>
     <IncDir>$([System.IO.Path]::GetFullPath($(ProjectDir)\\$(CfgDir)\\inc))</IncDir>
     <ObjDir>$([System.IO.Path]::GetFullPath($(ProjectDir)\\$(CfgDir)\\obj))</ObjDir>
     <BinDir>$([System.IO.Path]::GetFullPath($(ProjectDir)\\$(CfgDir)\\bin))</BinDir>
@@ -604,16 +608,16 @@ function replacePath(str, path, substitute) {
     if (path == '.') {
         return str
     }
-    let pattern = path.replace('.', '\\.')
+    let pattern = path.replace(/\./g, '\\.')
     return str.replace(RegExp(pattern, 'g'), substitute)
 }
 
 function wpath(path): Path {
     path = path.relative.name
-    path = replacePath(path, me.dir.inc.relativeTo(Base), '$(IncDir)')
-    path = replace(path, me.dir.obj.relativeTo(Base), '$(ObjDir)')
-    path = replace(path, me.dir.bin.relativeTo(Base), '$(BinDir)')
-    path = replace(path, me.platform.name, '$(Cfg)')
+    path = replacePath(path, me.dir.inc.relativeTo(Base), '$$(IncDir)')
+    path = replacePath(path, me.dir.obj.relativeTo(Base), '$$(ObjDir)')
+    path = replacePath(path, me.dir.bin.relativeTo(Base), '$$(BinDir)')
+    path = replacePath(path, me.platform.name, '$$(Cfg)')
     return Path(path.toString().replace(/\//g, '\\'))
 }
 

@@ -1074,7 +1074,7 @@ function replacePath(str, path, substitute) {
     if (path == '.') {
         return str
     }
-    let pattern = path.replace('.', '\\.')
+    let pattern = path.replace(/\./g, '\\.')
     return str.replace(RegExp(pattern, 'g'), substitute)
 }
 
