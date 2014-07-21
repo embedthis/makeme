@@ -1286,7 +1286,7 @@ print("SET BARE", field)
         }
         if (selectedTargets.length == 0) {
             if (goal != 'all') {
-                vtrace('Info', 'No enabled targets for goal "' + goal + '"')
+                trace('Info', 'No enabled targets for goal "' + goal + '"')
             }
         }
         return selectedTargets
