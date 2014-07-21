@@ -52,6 +52,16 @@ public function vstudio(base: Path) {
         custom: PREP,
         includes: [], libraries: [], libpaths: [],
     }
+    let code = PREP
+    for each (target in me.targets) {
+        if (target.type == 'header') {
+            for each (let file: Path in target.files) {
+                code += '\ncopy /Y ' + wpath(file.relativeTo(target.home)) + ' ' + wpath(target.path.relativeTo(base).parent)
+            }
+        }
+    }
+    prepTarget.custom = code
+
     projBuild(projects, base, prepTarget)
     for each (target in me.targets) {
         projBuild(projects, base, target)
@@ -168,7 +178,7 @@ function debugPropBuild(base: Path) {
     out = TextStream(File(path, 'wt'))
     if (Config.OS == 'windows') {
         let defaults = blend({}, me.defaults, {combine: true})
-        let paths = defaults.libpaths.join(';')
+        let paths = defaults.libpaths ? defaults.libpaths.join(';') : []
         pathenv = `
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LocalDebuggerEnvironment>PATH=` + paths + `;%PATH%;$(LocalDebugerEnvironment)</LocalDebuggerEnvironment>

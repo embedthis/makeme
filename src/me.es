@@ -1317,6 +1317,8 @@ print("SET BARE", field)
                     target.path = me.dir.lib.join(name)
                 } else if (target.type == 'res') {
                     target.path = me.dir.res.join(name).joinExt(me.ext.res, true)
+                } else if (target.type == 'header') {
+                    target.path = me.dir.inc.join(name)
                 }
             }
             if (target.path) {
