@@ -16,7 +16,7 @@ enumerable class TestMe {
     var keepGoing: Boolean = false          //  Continue on errors 
     var topEnv: Object = {}                 //  Global env to pass to tests
     var filters: Array = []                 //  Filter tests by pattern x.y.z... 
-    var noserver: Boolean = false           //  Omit running a server (sets NOSERVER=1)
+    var noserver: Boolean = false           //  Omit running a server (sets TM_NOSERVER=1)
     var skipDirectory: Boolean              //  Skip current directory
     var options: Object                     //  Command line options
     var program: String                     //  Program name
@@ -166,64 +166,71 @@ enumerable class TestMe {
     function runDirTests(dir: Path, parentEnv): Boolean {
         skipDirectory = false
         let env = parentEnv.clone()
+        let cont = true
         for each (file in dir.files('*.set')) {
             if (!runTest('Setup', file, env)) {
                 return false
             }
         }
-        if (skipDirectory) {
-            skipDirectory = false
-            return true
-        }
         try {
-            if (!dir.exists) {
-                log.error('Cannot read directory: ' + dir)
-            }
-            for each (file in dir.files('*.com')) {
-                if (!runTest('Setup', file, env)) {
-                    return false
+            if (skipDirectory) {
+                skipDirectory = false
+            } else {
+                if (!dir.exists) {
+                    log.error('Cannot read directory: ' + dir)
                 }
-            }
-            for each (file in dir.files('*')) {
-                if (filters.length > 0) {
-                    let found
-                    for each (let filter: Path in filters) {
-                        if (file.isDir && filter.startsWith(file)) {
-                            found = true
+                for each (file in dir.files('*.com')) {
+                    if (!runTest('Setup', file, env)) {
+                        cont = false
+                        break
+                    }
+                }
+                if (cont) {
+                    for each (file in dir.files('*')) {
+                        if (filters.length > 0) {
+                            let found
+                            for each (let filter: Path in filters) {
+                                if (file.isDir && filter.startsWith(file)) {
+                                    found = true
+                                    break
+                                }
+                                if (file.startsWith(filter)) {
+                                    found = true
+                                    break
+                                }
+                            }
+                            if (!found) {
+                                continue
+                            }
+                        }
+                        if (file.isDir) {
+                            if (!runDirTests(file, env)) {
+                                cont = false
+                                break
+                            }
+                        } else if (file.extension == 'tst') {
+                            if (!runTest('Test', file, env)) {
+                                cont = false
+                                break
+                            }
+                        }
+                        if (skipDirectory) {
+                            skipDirectory = false
                             break
                         }
-                        if (file.startsWith(filter)) {
-                            found = true
-                            break
-                        }
                     }
-                    if (!found) {
-                        continue
-                    }
-                }
-                if (file.isDir) {
-                    if (!runDirTests(file, env)) {
-                        return false
-                    }
-                } else if (file.extension == 'tst') {
-                    if (!runTest('Test', file, env)) {
-                        return false
-                    }
-                }
-                if (skipDirectory) {
-                    skipDirectory = false
-                    break
                 }
             }
         } catch (e) {
             /* Exception in finally without this catch */
+            cont = false
         }
         finally {
             for each (file in dir.files('*.set')) {
                 runTest('Finalize', file, env)
             }
         }
-        return true
+        return cont
     }
 
     function runTest(phase, file: Path, env): Boolean {
@@ -495,7 +502,7 @@ Me.load({
             let mebin = Cmd.locate('me').dirname
             if (file.extension == 'com') {
                 let ejsc = mebin.join('ejsc')
-                let mod = tm.join(name).joinExt('mod', true)
+                let mod = Path(name).joinExt('mod', true)
                 command = ejsc + ' --search "testme:' + mebin + '" --out ' + mod + ' ' + file
                 tm.makeDir()
                 if (options.rebuild || !mod.exists || mod.modified < file.modified) {
