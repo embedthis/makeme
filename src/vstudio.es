@@ -18,25 +18,30 @@ var PREP = `if not exist "$(ObjDir)" md "$(ObjDir)"
 if not exist "$(BinDir)" md "$(BinDir)"
 if not exist "$(IncDir)" md "$(IncDir)"
 `
+
 if (me.dir.inc.join('me.h').exists) {
     PREP += `if not exist "$(IncDir)\\me.h" copy "..\\${settings.name}-${platform.os}-${platform.profile}-me.h" "$(IncDir)\\me.h"`
 }
 
 var prepTarget
-var Base 
+var Base: Path
 
 public function vstudio(base: Path) {
-    //  TODO refactor
-    Base = base
-    me.TOOLS_VERSION = TOOLS_VERSION
-    me.PROJECT_FILE_VERSION = PROJECT_FILE_VERSION
-    let saveDir = []
+    let saveGlobals = me.globals.clone()
+    let saveDirs = me.dir.clone()
     for each (n in ["BIN", "OUT", "INC", "LIB", "OBJ", "PAKS", "PKG", "REL", "SRC", "TOP"]) {
-        saveDir[n] = me.globals[n]
         if (me.globals[n]) {
             me.globals[n] = me.globals[n].relativeTo(base)
         }
     }
+    me.dir.bin = me.dir.out.join('bin')
+    me.dir.inc = me.dir.out.join('inc')
+    me.dir.obj = me.dir.out.join('obj')
+
+    Base = base
+    me.TOOLS_VERSION = TOOLS_VERSION
+    me.PROJECT_FILE_VERSION = PROJECT_FILE_VERSION
+
     let projects = []
     /* Create a temporary prep target as the first target */
     prepTarget = {
@@ -53,9 +58,8 @@ public function vstudio(base: Path) {
     }
     propBuild(base)
     solBuild(projects, base)
-    for (n in saveDir) {
-        me.globals[n] = saveDir[n]
-    }
+    me.globals = saveGlobals
+    me.dir = saveDirs
 }
 
 function solBuild(projects, base: Path) {
@@ -163,11 +167,14 @@ function debugPropBuild(base: Path) {
     trace('Generate', path)
     out = TextStream(File(path, 'wt'))
     if (Config.OS == 'windows') {
-        pathenv = `    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      <LocalDebuggerEnvironment>PATH=` + App.exeDir + `;` + me.dir.bin + `;%PATH%;$(LocalDebugerEnvironment)</LocalDebuggerEnvironment>
-    </PropertyGroup>
+        let defaults = blend({}, me.defaults, {combine: true})
+        let paths = defaults.libpaths.join(';')
+        pathenv = `
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LocalDebuggerEnvironment>PATH=` + paths + `;%PATH%;$(LocalDebugerEnvironment)</LocalDebuggerEnvironment>
+  </PropertyGroup>`
+    }
 
-    //  TODO - remove MultiThreadedDebugDll
     output(`<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
@@ -199,7 +206,6 @@ function releasePropBuild(base: Path) {
     let path = base.join('release.props').relative
     trace('Generate', path)
     out = TextStream(File(path, 'wt'))
-    //  TODO - remove MultiThreadedDebugDll
     output('<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
@@ -267,9 +273,9 @@ function projBuild(projects: Array, base: Path, target) {
     if (target.vsbuilt || !target.enable || target.nogen) {
         return
     }
-    //  TODO - refactor
     if (target.type != 'exe' && target.type != 'lib' && target.type != 'vsprep') {
-        if (!(target.type == 'build' || target.type == 'file' || (target.type == 'script' && target.goals.contains('all')))) {
+        if (!(target.type == 'build' || target.type == 'file' || 
+                (target.type == 'script' && target.goals.contains('all')))) {
             return
         }
     }
@@ -302,11 +308,8 @@ function projBuild(projects: Array, base: Path, target) {
 function projHeader(base, target) {
     me.SUBSYSTEM = (target.rule == 'gui') ? 'Windows' : 'Console'
     me.INC = target.includes ? target.includes.map(function(path) wpath(path.relativeTo(base))).join(';') : ''
-
     output('<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="${TOOLS_VERSION}" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">')
-
-
     if (target.type == 'lib' || target.type == 'exe') {
         output('
   <ItemDefinitionGroup>
@@ -612,13 +615,21 @@ function replacePath(str, path, substitute) {
     return str.replace(RegExp(pattern, 'g'), substitute)
 }
 
-function wpath(path): Path {
-    path = path.relative.name
-    path = replacePath(path, me.dir.inc.relativeTo(Base), '$$(IncDir)')
-    path = replacePath(path, me.dir.obj.relativeTo(Base), '$$(ObjDir)')
-    path = replacePath(path, me.dir.bin.relativeTo(Base), '$$(BinDir)')
-    path = replacePath(path, me.platform.name, '$$(Cfg)')
-    return Path(path.toString().replace(/\//g, '\\'))
+/*
+    Path is relative to Base
+ */
+function wpath(path: Path): Path {
+    name = path.relative.name
+    if (name.startsWith('..\\..')) {
+        /* Path outside local tree */
+        name = Base.join(path).absolute.name
+    } else {
+        name = replacePath(name, me.dir.inc.relativeTo(Base), '$$(IncDir)')
+        name = replacePath(name, me.dir.obj.relativeTo(Base), '$$(ObjDir)')
+        name = replacePath(name, me.dir.bin.relativeTo(Base), '$$(BinDir)')
+        name = replacePath(name, me.platform.name, '$$(Cfg)')
+    }
+    return Path(name.replace(/\//g, '\\'))
 }
 
 /*

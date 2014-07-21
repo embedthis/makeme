@@ -6627,7 +6627,7 @@ static int sanitizeArgs(MprCmd *cmd, int argc, cchar **argv, cchar **env, int fl
     for (ap = &argv[0]; *ap; ) {
         start = cp = *ap;
         quote = '"';
-        if (strchr(cp, ' ') != 0 && cp[0] != quote) {
+        if (cp[0] != quote && (strchr(cp, ' ') != 0 || strchr(cp, quote) != 0)) {
             for (*dp++ = quote; *cp; ) {
                 if (*cp == quote && !(cp > start && cp[-1] == '\\')) {
                     *dp++ = '\\';

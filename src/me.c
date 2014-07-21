@@ -29,7 +29,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
     Mpr         *mpr;
     Ejs         *ejs;
     EcCompiler  *ec;
-    char    *argp, *searchPath, *homeDir;
+    char    *argp, *searchPath, *homeDir, *logSpec;
     int     nextArg, err, flags;
 
     /*  
@@ -46,6 +46,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
     }
     err = 0;
     searchPath = 0;
+    logSpec = 0;
     argc = mpr->argc;
     argv = (char**) mpr->argv;
 
@@ -71,8 +72,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
             if (nextArg >= argc) {
                 err++;
             } else {
-                mprStartLogging(argv[++nextArg], 0);
-                mprSetCmdlineLogging(1);
+                logSpec = argv[++nextArg];
             }
 
         } else if (smatch(argp, "--name")) {
@@ -87,16 +87,23 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
             }
 
         } else if (smatch(argp, "--verbose") || smatch(argp, "-v")) {
-            mprStartLogging("stderr:1", 0);
-            mprSetCmdlineLogging(1);
+            logSpec = sclone("stderr:1");
 
         } else if (smatch(argp, "--version") || smatch(argp, "-V")) {
             mprPrintf("%s\n", ME_VERSION);
             return 0;
 
+        } else if (*argp == '-' && isdigit((uchar) argp[1])) {
+            if (!logSpec) {
+                logSpec = sfmt("stderr:%d", (int) stoi(&argp[1]));
+            }
+
         } else {
             /* Ignore */
         }
+    }
+    if (logSpec) {
+        mprStartLogging(logSpec, MPR_LOG_CMDLINE);
     }
     if ((app->script = findMe()) == 0) {
         mprLog("me", 0, "Cannot find me.es or me.mod");

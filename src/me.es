@@ -356,33 +356,38 @@ public class Me {
             htdocsdir: 'web',
             manualdir: 'man',
         }
-        let arg = argv[i]
+        let arg = argv[i].slice(argv[i].startsWith("--") ? 2 : 1)
         for (let [from, to] in map) {
-            if (arg.startsWith('--' + from)) {
+            if (arg.startsWith(from)) {
                 let value = arg.split('=')[1]
                 argv.splice(i, 1, '--prefix', to + '=' + value)
                 return --i
             }
-            if (arg.startsWith('--enable-')) {
+            if (arg.startsWith('enable-')) {
                 let feature = arg.trimStart('--enable-')
                 argv.splice(i, 1, '--set', feature + '=true')
                 return --i
             }
-            if (arg.startsWith('--disable-')) {
+            if (arg.startsWith('disable-')) {
                 let feature = arg.trimStart('--disable-')
                 argv.splice(i, 1, '--set', feature + '=false')
                 return --i
             }
-            if (arg.startsWith('--with-')) {
+            if (arg.startsWith('with-')) {
                 let component = arg.trimStart('--with-')
                 argv.splice(i, 1, '--with', component)
                 return --i
             }
-            if (arg.startsWith('--without-')) {
+            if (arg.startsWith('without-')) {
                 let component = arg.trimStart('--without-')
                 argv.splice(i, 1, '--without', component)
                 return --i
             }
+        }
+        if (arg == '?') {
+            b.usage()
+        } else if (!isNaN(parseInt(arg))) {
+            return i+1
         }
         throw "Undefined option '" + arg + "'"
     }
@@ -729,7 +734,6 @@ print("SET BARE", field)
     }
 
     function loadModules() {
-        App.log.debug(2, "Me Modules: " + serialize(me.modules, {pretty: true}))
         for each (let module in me.modules) {
             App.log.debug(2, "Load me module: " + module)
             try {
@@ -2876,7 +2880,7 @@ print("SET BARE", field)
             dir.proj ||= dir.out
             dir.rel  ||= dir.out.join('img')
         }
-        dir.me ||=   dir.bin
+        dir.me ||= dir.bin
 
         for (let [key,value] in dir) {
             dir[key] = Path(value.toString().expand(me)).absolute

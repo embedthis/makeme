@@ -51,6 +51,7 @@ enumerable class TestMe {
             depth: { range: Number },
             log: { alias: 'l', range: String },
             noserver: { alias: 'n' },
+            project: { },
             projects: { alias: 'p' },
             rebuild: { alias: 'r' },
             show: { alias: 's' },
@@ -105,6 +106,10 @@ enumerable class TestMe {
         }
         if (options.verbose) {
             verbosity++
+        }
+        if (options.project) {
+            /* Convenient alias */
+            options.projects = options.project
         }
         if (options.projects) {
             if (filters.length == 0) {
@@ -400,32 +405,31 @@ enumerable class TestMe {
             libraries = serialize(libraries).replace(/"/g, "'")
             let bin = cfg.join('bin').portable
             let inc = cfg.join('inc').portable
-            let instructions = "
+            let linker = '[]'
+            if (Config.OS != 'windows') {
+                linker = "'[-Wl,-rpath," + bin + ", '-Wl,-rpath," + App.exeDir.portable + "'],"
+            }
+            let instructions = `
 Me.load({
     configure: {
         requires: [ 'testme' ]
     },
+    defaults: {
+        '+defines': [ 'BIN="` + bin + `"' ],
+        '+includes': [ '` + inc + `' ],
+        '+libpaths': [ '` + bin + `', '` + App.exeDir.portable + `' ],
+        '+libraries': ` + libraries + `,
+        '+linker': ` + linker + `,
+    },
     targets: {
-        " + name + ": {
+        ` + name + `: {
             type: 'exe',
-            sources: [ '" + name + ".c' ],
+            sources: [ '` + name + `.c' ],
             depends: [ 'testme' ],
-            '+defines': [ 'BIN=\"" + bin + "\"' ],
-            '+includes': [ '" + inc + "' ],
-            '+libpaths': [ '" + bin + "' ],
-            '+libraries': " + libraries + ",
-            scripts: {
-                prebuild: `
-                    if (me.platform.like == 'unix') {
-                        me.target.linker.push('-Wl,-rpath," + bin + "')
-                        me.target.linker.push('-Wl,-rpath,' + me.dir.me.portable)
-                    }
-                `
-            }
         }
     }
 })
-"
+`
             Path(mefile).write(instructions)
         }
     }
