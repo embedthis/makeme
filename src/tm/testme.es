@@ -407,7 +407,7 @@ enumerable class TestMe {
             let inc = cfg.join('inc').portable
             let linker = '[]'
             if (Config.OS != 'windows') {
-                linker = "'[-Wl,-rpath," + bin + ", '-Wl,-rpath," + App.exeDir.portable + "'],"
+                linker = "[ '-Wl,-rpath," + bin + "', '-Wl,-rpath," + App.exeDir.portable + "']"
             }
             let instructions = `
 Me.load({
