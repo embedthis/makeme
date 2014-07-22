@@ -1382,6 +1382,13 @@
     </member>
     <member kind="function">
       <type>bool</type>
+      <name>httpRenderDirListing</name>
+      <anchorfile>group___http_conn.html</anchorfile>
+      <anchor>ga76efb00eef9f66c28c2ada344ac0fb93</anchor>
+      <arglist>(HttpConn *conn)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
       <name>httpRequestExpired</name>
       <anchorfile>group___http_conn.html</anchorfile>
       <anchor>ga4881adef12511e373fbf5c74756bfe1a</anchor>
@@ -3520,6 +3527,18 @@
       <anchorfile>group___http_web_socket.html</anchorfile>
       <anchor>gacb7184072bfb15ebf2c95f9ef6d0ba8c</anchor>
       <arglist>(HttpConn *conn)</arglist>
+    </member>
+  </compound>
+  <compound kind="group">
+    <name>HttpDir</name>
+    <title>HttpDir</title>
+    <filename>group___http_dir.html</filename>
+    <member kind="function">
+      <type>HttpDir *</type>
+      <name>httpGetDirObj</name>
+      <anchorfile>group___http_dir.html</anchorfile>
+      <anchor>ga633f288ca9c44c7a2874b64a522b594a</anchor>
+      <arglist>(HttpRoute *route)</arglist>
     </member>
   </compound>
   <compound kind="struct">

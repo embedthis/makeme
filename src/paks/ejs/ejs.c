@@ -325,6 +325,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
         mprStartLogging(logSpec, MPR_LOG_CMDLINE);
     }
     if (traceSpec) {
+        httpCreate(HTTP_CLIENT_SIDE | HTTP_SERVER_SIDE);
         httpStartTracing(traceSpec);
     }
     if ((ejs = ejsCreateVM(argc - nextArg, (cchar **) &argv[nextArg], 0)) == 0) {

@@ -6619,7 +6619,7 @@ static int sanitizeArgs(MprCmd *cmd, int argc, cchar **argv, cchar **env, int fl
     cmd->command[len] = '\0';
 
     /*
-        Add quotes around all args that have spaces and backquote [", ', \\]
+        Add quotes around all args that have spaces and backquote double quotes.
         Example:    ["showColors", "red", "light blue", "Cannot \"render\""]
         Becomes:    "showColors" "red" "light blue" "Cannot \"render\""
      */
@@ -12667,6 +12667,7 @@ PUBLIC MprJson *mprParseJsonEx(cchar *str, MprJsonCallback *callback, void *data
     parser->state = MPR_JSON_STATE_VALUE;
     parser->tolerant = 1;
     parser->buf = mprCreateBuf(128, 0); 
+    parser->lineNumber = 1;
 
     if ((result = jsonParse(parser, 0)) == 0) {
         if (errorMsg) {
@@ -12817,6 +12818,7 @@ static void eatRestOfComment(MprJsonParser *parser)
     cp = parser->input;
     if (*cp == '/') {
         for (cp++; *cp && *cp != '\n'; cp++) {}
+        parser->lineNumber++;
 
     } else if (*cp == '*') {
         for (cp++; cp[0] && (cp[0] != '*' || cp[1] != '/'); cp++) {
@@ -12957,7 +12959,8 @@ static int gettok(MprJsonParser *parser)
                         for (cp = parser->input; *cp; cp++) {
                             c = *cp;
                             if (c == '\\' && cp[1]) {
-                                if (isxdigit((uchar) cp[1]) && isxdigit((uchar) cp[2]) && isxdigit((uchar) cp[3]) && isxdigit((uchar) cp[4])) {
+                                if (isxdigit((uchar) cp[1]) && isxdigit((uchar) cp[2]) && 
+                                    isxdigit((uchar) cp[3]) && isxdigit((uchar) cp[4])) {
                                     c = (int) stoiradix(cp, 16, NULL);
                                     cp += 3;
                                 } else {

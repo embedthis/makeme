@@ -607,6 +607,11 @@ for each (file in args.rest) {
                             if (template.unknown) {
                                 i = (template.unknown)(argv, i)
                                 continue
+                            } else if (key == '?') {
+                                if (template.usage) {
+                                    template.usage()
+                                    break
+                                }
                             } else {
                                 throw "Undefined option '" + key + "'"
                             }
@@ -2791,8 +2796,10 @@ module ejs {
                 standard error output. 
          */
         static function run(command: Object, options: Object = {}, data: Object = null): String {
-            //  TODO - the above default arg should handle this
             options ||= {}
+            if (options.exception == null) {
+                options.exception = true
+            }
             let cmd = new Cmd
             cmd.start(command, blend({detach: true}, options))
             if (data) {
@@ -2800,7 +2807,7 @@ module ejs {
             }
             cmd.finalize()
             cmd.wait()
-            if (cmd.status != 0 && !options.exception) {
+            if (cmd.status != 0 && options.exception) {
                 throw new IOError(cmd.error)
             }
             return cmd.readString()
@@ -2816,7 +2823,7 @@ module ejs {
                 called to signify the end of data being written to the command's stdin.
             @options dir Path or String. Directory to set as the current working directory for the command.
             @options exception Boolean If true, throw exceptions if the command returns a non-zero status code. 
-                Defaults to false.
+                Defaults to true.
             @options timeout Number This is the default number of milliseconds for the command to complete.
             @options noio Don't capture stdout from the command. If true, the command's standard output will go to the 
                 application's current standard output. Defaults to false.
@@ -7245,8 +7252,9 @@ module ejs {
 
         /** 
             Redirect log output.
-            @param location Optional output stream or Logger to send messages to. If a parent Logger instance is 
-                provided for the output parameter, messages are sent to the parent for rendering.
+            @param location Optional output stream, Logger or location specification to send messages to. 
+                If a parent Logger instance is provided, messages are sent to the parent for rendering.
+                A location specification is of the form: file:level.
             @param level Optional integer verbosity level. Messages with a message level less than or equal to the defined
                 logger level will be emitted. Range is 0 (least verbose) to 9.
          */
@@ -7393,7 +7401,6 @@ module ejs {
         function info(...msgs): void
             emit("", Info, "INFO", msgs.join(" ") + "\n")
 
-        //  TODO - should activity take a level?
         /** 
             Emit an activity message
             @param tag Activity tag to prefix the message. The tag string is wraped in "[]".

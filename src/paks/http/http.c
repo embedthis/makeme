@@ -1004,6 +1004,9 @@ static int doRequest(HttpConn *conn, cchar *url, MprList *files)
     assert(url && *url);
 
     if (issueRequest(conn, url, files) < 0) {
+        if (conn->rx && conn->rx->status) {
+            reportResponse(conn, url);
+        }
         return MPR_ERR_CANT_CONNECT;
     }
     if (app->outFilename) {
