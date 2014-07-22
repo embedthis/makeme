@@ -7,25 +7,27 @@ module ejs.testme {
 
     const PIDFILE = '.testme-pidfile'
 
-    function ttrue(cond: Boolean) {
-        if (!cond) {
-            let error = new Error('Assertion failed')
-            let top = error.stack[0]
-            print('fail in ' + top.filename + '@' + top.lineno + ' for ' + top.code)
-        }
-        print('pass')
-    }
-
+    function tdepth(): Number
+        tget('TM_DEPTH') - 0
+        
     function tfalse(cond: Boolean) {
         ttrue(!cond)
     }
 
-    function tinfo(...args) {
-        print('info', ...args)
+    function tfail(msg = null) {
+        let error = new Error('Assertion failed')
+        let top = error.stack[1]
+        print('fail in ' + top.filename + '@' + top.lineno + ' for ' + top.code)
+        if (msg) {
+            print('info ' + msg)
+        }
     }
 
-    function twrite(...args) {
-        print('write', ...args)
+    function thas(key: String): Boolean
+        tget(key) - 0
+
+    function tinfo(...args) {
+        print('info', ...args)
     }
 
     function tget(key: String, def = null) {
@@ -41,51 +43,89 @@ module ejs.testme {
         
     function tset(key: String, value: String) {
         App.putenv(key, value)
+        print('set', key, value)
     }
 
     function tskip(...msg) {
         print('skip', ...msg)
+        App.exit(0)
+    }
+
+    function ttrue(cond: Boolean) {
+        if (!cond) {
+            let error = new Error('Assertion failed')
+            let top = error.stack[1]
+            print('fail ' + top.filename + '@' + top.lineno + ' for ' + top.code)
+        } else {
+            let ok = new Error()
+            let top = ok.stack[1]
+            print('pass ' + top.filename + '@' + top.lineno + ' for ' + top.code)
+        }
+    }
+
+    function tverbose(...args) {
+        print('verbose', ...args)
+    }
+
+    function twrite(...args) {
+        print('write', ...args)
+    }
+
+    public function connectToService(cmdline: String, options = {}, retries: Number = 1): Boolean {
+        stopService()
+        let pidfile = Path(options.pidfile || PIDFILE)
+        if (pidfile.exists) {
+            pid = pidfile.readString()
+        } else {
+            for each (program in Cmd.ps('/' + cmdline)) {
+                pid = program.pid
+            }
+        }
+        let address: Uri = Uri(options.address || tget('TM_HTTP') || App.config.uris.http).complete()
+        let connected
+        for (i in retries) {
+            try {
+                let sock = new Socket
+                sock.connect(address.host + ':' + address.port)
+                sock.close()
+                connected = true
+                tinfo('Connected', 'to ' + cmdline + ' (' + pid + ')')
+                return true
+            } catch (e) {
+                App.sleep(100)
+            }
+        }
+        return false
     }
 
     public function startService(cmdline: String, options = {}): Void {
-        stopService()
-        let pidfile = options.pidfile || PIDFILE
-        let address: Uri = Uri(options.address || tget('TM_HTTP') || App.config.uris.http).complete()
-        if (!tget('TM_NOSERVER')) {
+        let connected = connectToService(cmdline, options, 1)
+        if (!connected && ! tget('TM_NOSERVER')) {
+            let pidfile = options.pidfile || PIDFILE
+            let address: Uri = Uri(options.address || tget('TM_HTTP') || App.config.uris.http).complete()
             let cmd = new Cmd
             blend(options, {detach: true})
             cmd.start(cmdline, options)
             cmd.finalize()
             let pid = cmd.pid
             Path(pidfile).write(pid)
-        }
-        let connected
-        for (i in 50) {
-            try {
-                let sock = new Socket
-                sock.connect(address.host + ':' + address.port)
-                sock.close()
-                connected = true
-                tinfo('Started', cmdline)
-                break
-            } catch (e) {
-                App.sleep(100)
+            tinfo('Started', cmdline + ' (' + pid + ')')
+            if (!connectToService(cmdline, options, 50)) {
+                tinfo('Cannot connect to service: ' + cmdline + ' on ' + address)
             }
         }
-        if (!connected) {
-            ttrue(connected)
-            tinfo('Cannot connect to service: ' + cmdline + ' on ' + address)
-        }
+        ttrue(connected)
     }
 
     public function stopService(options = {}) {
+        if (tget('TM_NOSERVER')) return
         let pidfile = options.pidfile || PIDFILE
         if (Path(pidfile).exists) {
             pid = Path(pidfile).readString()
             Path(pidfile).remove()
             try { kill(pid, 9); } catch (e) { }
             App.sleep(500);
-            tinfo('Stopped', 'Pid ' + pid)
+            tinfo('Stopped', 'Process (' + pid + ')')
         }
     }
 
@@ -96,12 +136,17 @@ module ejs.testme {
     }
 
     public function startStopService(cmd: String, options = {}): Void {
+        if (tget('TM_NOSERVER')) return
         if (tphase() == 'Setup') {
-            failSafeKill(cmd)
             startService(cmd, options)
         } else {
             stopService()
-            failSafeKill(cmd)
+        }
+    }
+
+    function cleanDir(dir: Path) {
+        for each (file in dir.files()) {
+            file.remove()
         }
     }
 }

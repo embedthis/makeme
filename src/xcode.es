@@ -614,7 +614,7 @@ ${OUTPUTS}
             runTargetScript(target, 'build')
             genClose()
             let data = capture.readString()
-            cmd += replacePath(cmd, me.dir.out.relativeTo(base), '$${OUT_DIR}')
+            cmd += replacePath(data, me.dir.out.relativeTo(base), '$${OUT_DIR}')
             capture.remove()
             
         } else {

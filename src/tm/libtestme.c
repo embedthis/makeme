@@ -10,14 +10,44 @@
 
 /************************************ Code ************************************/
 
-PUBLIC bool ttest(cchar *loc, cchar *expression, bool success)
+PUBLIC int tdepth()
 {
-    if (success) {
-        printf("pass in %s for \"%s\"\n", loc, expression);
-    } else {
-        printf("fail in %s for \"%s\"\n", loc, expression);
+    cchar   *value;
+
+    if ((value = getenv("TM_DEPTH")) != 0) {
+        return atoi(value);
     }
-    return success;
+    return 0;
+}
+
+
+PUBLIC cchar *tget(cchar *key, cchar *def)
+{
+    cchar   *value;
+
+    if ((value = getenv(key)) != 0) {
+        return value;
+    } else {
+        return def;
+    }
+}
+
+
+PUBLIC int tgeti(cchar *key, int def)
+{
+    cchar   *value;
+
+    if ((value = getenv(key)) != 0) {
+        return atoi(value);
+    } else {
+        return def;
+    }
+}
+
+
+PUBLIC bool thas(cchar *key)
+{
+    return tgeti(key, 0);
 }
 
 
@@ -46,35 +76,32 @@ PUBLIC void tset(cchar *key, cchar *value)
 }
 
 
-PUBLIC cchar *tget(cchar *key, cchar *def)
+PUBLIC void tskip()
 {
-    cchar   *value;
-
-    if ((value = getenv(key)) != 0) {
-        return value;
-    } else {
-        return def;
-    }
+    printf("skip\n");
 }
 
 
-PUBLIC int tgeti(cchar *key, int def)
+PUBLIC bool ttest(cchar *loc, cchar *expression, bool success)
 {
-    cchar   *value;
-
-    if ((value = getenv(key)) != 0) {
-        return atoi(value);
+    if (success) {
+        printf("pass in %s for \"%s\"\n", loc, expression);
     } else {
-        return def;
+        printf("fail in %s for \"%s\"\n", loc, expression);
     }
+    return success;
 }
 
 
-PUBLIC void tskip(bool skip)
+PUBLIC void tverbose(cchar *fmt, ...)
 {
-    if (skip) {
-        printf("skip\n");
-    }
+    va_list     ap;
+    char        buf[ME_MAX_BUFFER];
+
+    va_start(ap, fmt);
+    vsnprintf(buf, sizeof(buf), fmt, ap);
+    va_end(ap);
+    printf("verbose %s\n", buf);
 }
 
 

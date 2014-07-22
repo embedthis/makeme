@@ -176,6 +176,7 @@ function debugPropBuild(base: Path) {
     let path = base.join('debug.props').relative
     trace('Generate', path)
     out = TextStream(File(path, 'wt'))
+    let pathenv = ''
     if (Config.OS == 'windows') {
         let defaults = blend({}, me.defaults, {combine: true})
         let paths = defaults.libpaths ? defaults.libpaths.join(';') : []

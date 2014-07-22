@@ -24,12 +24,15 @@
 #define ttrue(E)               ttest(TM_LOC, #E, (E) != 0)
 #define tfalse(E)              ttest(TM_LOC, #E, (E) == 0)
 
-PUBLIC bool ttest(cchar *loc, cchar *expression, bool success);
+PUBLIC int tdepth();
 PUBLIC cchar *tget(cchar *key, cchar *def);
 PUBLIC int tgeti(cchar *key, int def);
+PUBLIC bool thas(cchar *key);
 PUBLIC void tinfo(cchar *fmt, ...);
 PUBLIC void tset(cchar *key, cchar *value);
-PUBLIC void tskip(bool skip);
+PUBLIC void tskip();
+PUBLIC bool ttest(cchar *loc, cchar *expression, bool success);
+PUBLIC void tverbose(cchar *fmt, ...);
 PUBLIC void twrite(cchar *fmt, ...);
 
 #ifdef __cplusplus

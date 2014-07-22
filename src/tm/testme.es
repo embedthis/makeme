@@ -11,13 +11,15 @@ enumerable class TestMe {
     var cfg: Path?                          //  Path to configuration outputs directory
     var bin: Path                           //  Path to bin directory
     var depth: Number = 1                   //  Test level. Higher levels mean deeper testing.
-    var top: Path                           //  Path to top of source tree
+    var topDir: Path                        //  Path to top of source tree
+    var topTestDir: Path                    //  Path to top of test tree
+    var originalDir: Path                   //  Original current directory
 
     var keepGoing: Boolean = false          //  Continue on errors 
     var topEnv: Object = {}                 //  Global env to pass to tests
     var filters: Array = []                 //  Filter tests by pattern x.y.z... 
     var noserver: Boolean = false           //  Omit running a server (sets TM_NOSERVER=1)
-    var skipDirectory: Boolean              //  Skip current directory
+    var skipTest: Boolean                   //  Skip current test or directory
     var options: Object                     //  Command line options
     var program: String                     //  Program name
     var log: Logger = App.log
@@ -25,19 +27,23 @@ enumerable class TestMe {
     var startTest
     var verbosity: Number = 0
 
+    var done: Boolean = false
     var failedCount: Number = 0
     var passedCount: Number = 0
     var skippedCount: Number = 0
     var testCount: Number = 0
 
-    function unknownArg(argv, i) {
+    function unknownArg(argv, i, template) {
         let arg = argv[i].slice(argv[i].startsWith("--") ? 2 : 1)
         if (arg == '?') {
             tm.usage()
         } else if (isNaN(parseInt(arg))) {
             throw 'Unknown option: ' + arg
+        } else {
+            this.options.trace = 'stderr:' + arg
+            this.options.log = 'stderr:' + arg
         }
-        return i+1
+        return i
     }
 
     let argsTemplate = {
@@ -47,7 +53,8 @@ enumerable class TestMe {
             clean: {},
             clobber: {},
             'continue': { alias: 's' },
-            debug: { alias: 'd' },
+            debug: { alias: 'D' },
+            debugger: { alias: 'd' },
             depth: { range: Number },
             log: { alias: 'l', range: String },
             noserver: { alias: 'n' },
@@ -55,6 +62,7 @@ enumerable class TestMe {
             projects: { alias: 'p' },
             rebuild: { alias: 'r' },
             show: { alias: 's' },
+            trace: { alias: 't' },
             why: { alias: 'w' },
             verbose: { alias: 'v' },
             version: { },
@@ -77,6 +85,7 @@ enumerable class TestMe {
             '  --projects            # Generate IDE projects for tests\n' + 
             '  --rebuild             # Rebuild all tests before running\n' + 
             '  --show                # Show commands executed\n' +
+            '  --trace file:level    # HTTP request tracing\n' + 
             '  --verbose             # Verbose mode\n' + 
             '  --version             # Output version information\n' +
             '  --why                 # Show why commands are executed\n')
@@ -88,11 +97,17 @@ enumerable class TestMe {
         options = args.options
         filters += args.rest
 
+        originalDir = App.dir
         if (options.chdir) {
             App.chdir(options.chdir)
+        } else {
+            App.chdir(topTestDir)
         }
         if (options['continue']) {
             keepGoing = true
+        }
+        if (options.debug) {
+            Debug.mode = true
         }
         if (options.depth) {
             depth = options.depth
@@ -117,7 +132,7 @@ enumerable class TestMe {
                 App.exit(1)
             }
         }
-        if (options.version || options.log) {
+        if (options.version || options.log || options.trace) {
             /* Handled in C code */
         }
     }
@@ -125,16 +140,16 @@ enumerable class TestMe {
     function TestMe() {
         program = Path(App.args[0]).basename
         if ((path = searchUp('configure')) != null) {
-            top = path.dirname.absolute
+            topDir = path.dirname.absolute
             try {
-                if (top.join('start.me')) {
-                    cfg = top.join('build', Cmd.run('me --showPlatform', {dir: top}).trim())
+                if (topDir.join('start.me')) {
+                    cfg = topDir.join('build', Cmd.run('me --showPlatform', {dir: topDir}).trim())
                 }
             } catch {}
             if (!cfg) {
-                cfg = top.join('build').files(Config.OS + '-' + Config.CPU + '-*').sort()[0]
+                cfg = topDir.join('build').files(Config.OS + '-' + Config.CPU + '-*').sort()[0]
                 if (!cfg) {
-                    let hdr = top.files('build/*/inc/me.h').sort()[0]
+                    let hdr = topDir.files('build/*/inc/me.h').sort()[0]
                     if (hdr) {
                         cfg = hdr.trimEnd('/inc/me.h')
                     }
@@ -144,11 +159,17 @@ enumerable class TestMe {
                 parseMeConfig(cfg.join('inc/me.h'))
             }
         }
+        if ((path = searchUp('top.es.set')) != null) {
+            topTestDir = path.dirname.absolute.portable
+        } else {
+            topTestDir = topDir
+        }
     }
 
     function setupEnv() {
         blend(topEnv, {
-            TM_TOP: top, 
+            TM_TOP: topDir, 
+            TM_TOP_TEST: topTestDir, 
             TM_CFG: cfg, 
             TM_DEPTH: depth, 
         })
@@ -163,79 +184,65 @@ enumerable class TestMe {
         runDirTests('.', topEnv)
     }
 
-    function runDirTests(dir: Path, parentEnv): Boolean {
-        skipDirectory = false
+    function runDirTests(dir: Path, parentEnv) {
+        skipTest = false
         let env = parentEnv.clone()
-        let cont = true
         for each (file in dir.files('*.set')) {
-            if (!runTest('Setup', file, env)) {
-                return false
-            }
+            runTest('Setup', file, env)
         }
         try {
-            if (skipDirectory) {
-                skipDirectory = false
+            if (skipTest) {
+                /* Skip whole directory if skip used in *.set */
+                skipTest = false
             } else {
                 if (!dir.exists) {
                     log.error('Cannot read directory: ' + dir)
                 }
                 for each (file in dir.files('*.com')) {
-                    if (!runTest('Setup', file, env)) {
-                        cont = false
-                        break
-                    }
+                    runTest('Setup', file, env)
+                    if (done) break
                 }
-                if (cont) {
-                    for each (file in dir.files('*')) {
-                        if (filters.length > 0) {
-                            let found
-                            for each (let filter: Path in filters) {
-                                if (file.isDir && filter.startsWith(file)) {
-                                    found = true
-                                    break
-                                }
-                                if (file.startsWith(filter)) {
-                                    found = true
-                                    break
-                                }
-                            }
-                            if (!found) {
-                                continue
-                            }
-                        }
-                        if (file.isDir) {
-                            if (!runDirTests(file, env)) {
-                                cont = false
+                for each (file in dir.files('*')) {
+                    if (filters.length > 0) {
+                        let found
+                        for each (let filter: Path in filters) {
+                            if (file.isDir && filter.startsWith(file)) {
+                                found = true
                                 break
                             }
-                        } else if (file.extension == 'tst') {
-                            if (!runTest('Test', file, env)) {
-                                cont = false
+                            if (file.startsWith(filter)) {
+                                found = true
                                 break
                             }
                         }
-                        if (skipDirectory) {
-                            skipDirectory = false
-                            break
+                        if (!found) {
+                            continue
                         }
                     }
+                    if (file.isDir) {
+                        runDirTests(file, env)
+                    } else if (file.extension == 'tst') {
+                        runTest('Test', file, env)
+                    }
+                    if (done) break
                 }
             }
         } catch (e) {
             /* Exception in finally without this catch */
-            cont = false
+            if (!keepGoing) {
+                done = true
+            }
         }
         finally {
             for each (file in dir.files('*.set')) {
                 runTest('Finalize', file, env)
             }
         }
-        return cont
     }
 
-    function runTest(phase, file: Path, env): Boolean {
+    function runTest(phase, file: Path, env) {
         if (!file.exists) {
-            return true
+            return
         }
         blend(env, {
             TM_PHASE: phase,
@@ -245,20 +252,22 @@ enumerable class TestMe {
         let cont = true
         try {
             App.chdir(file.dirname)
-            cont = runTestFile(phase, file, file.basename, env)
+            runTestFile(phase, file, file.basename, env)
         } catch (e) {
             failedCount++
+            if (!keepGoing) {
+                done = true
+            }
             throw e
         } finally {
             App.chdir(home)
         }
-        return cont
     }
 
     /*
-        Run a test file with changed directory. topPath is the file from the original home.
+        Run a test file with changed directory. topPath is the file from the test top.
      */
-    function runTestFile(phase, topPath: Path, file: Path, env): Boolean {
+    function runTestFile(phase, topPath: Path, file: Path, env) {
         vtrace('Testing', topPath)
         if (phase == 'Test') {
             this.testCount++
@@ -269,7 +278,7 @@ enumerable class TestMe {
         try {
             command = buildTest(phase, topPath, file, env)
         } catch (e) {
-            trace(phase, file + ' ... FAILED cannot build ' + topPath + '\n\n' + e.message)
+            trace('FAIL', topPath + ' cannot build ' + topPath + '\n\n' + e.message)
             this.failedCount++
             return false
         }
@@ -298,7 +307,6 @@ enumerable class TestMe {
             /* Must continue processing setup files */
             return true
         }
-        let cont = true
         let prior = this.failedCount
         try {
             App.log.debug(5, serialize(env))
@@ -310,53 +318,58 @@ enumerable class TestMe {
             cmd.finalize()
             cmd.wait(TIMEOUT)
             if (cmd.status != 0) {
-                trace(phase, file + ' ... FAILED with bad exit status ' + cmd.status)
+                trace('FAIL', topPath + ' with bad exit status ' + cmd.status)
+                if (cmd.response) {
+                    trace('Stdout', '\n' + cmd.response)
+                }
                 if (cmd.error) {
                     trace('Stderr', '\n' + cmd.error)
                 }
                 this.failedCount++
-                cont = false
             } else {
                 let output = cmd.readString()
-                cont = parseOutput(phase, file, output, env)
+                parseOutput(phase, topPath, file, output, env)
                 if (cmd.error) {
                     trace('Stderr', '\n' + cmd.error)
                 }
             }
         } catch (e) {
-            trace(phase, topPath + ' ... FAILED ' + e)
+            trace('FAIL', topPath + ' ' + e)
             this.failedCount++
-            cont = false
         }
         if (prior == this.failedCount) {
             if (phase == 'Test') {
-                trace(phase, topPath + ' ... PASSED')
+                trace('Pass', topPath)
             } else if (!options.verbose) {
                 trace(phase, topPath)
             }
-        } else {
-            cont = false
+        } else if (!keepGoing) {
+            done = true
         }
-        return cont
     }
 
-    function parseOutput(phase, file, output, env) {
+    function parseOutput(phase, topPath, file, output, env) {
         let success
         let lines = output.split('\n')
         for each (line in lines) {
             let tokens = line.trim().split(/ +/)
             let kind = tokens[0]
             let rest = tokens.slice(1).join(' ')
+
             switch (kind) {
             case 'fail':
                 success = false
                 this.failedCount++
-                trace('Test', file + ' ... FAILED ' + rest)
+                trace('FAIL', topPath + ' ' + rest)
                 break
+
             case 'pass':
-                success = true
+                if (success == null) {
+                    success = true
+                }
                 this.passedCount++
                 break
+
             case 'info':
                 if (success) {
                     vtrace('Info', rest)
@@ -364,6 +377,7 @@ enumerable class TestMe {
                     trace('Info', rest)
                 }
                 break
+
             case 'set':
                 let parts = rest.split(' ')
                 let key = parts[0]
@@ -371,33 +385,42 @@ enumerable class TestMe {
                 env[key] = value
                 vtrace('Set', key, value)
                 break
+
             case 'skip':
                 success = true
                 skippedCount++
-                skipDirectory = true
+                skipTest = true
                 if (options.verbose || options.why) {
-                    trace('Skip', file.dirname + ', ' + rest)
+                    if (file.extension == 'set') {
+                        trace('Skip', 'Directory "' + topPath.dirname + '", ' + rest)
+                    } else {
+                        trace('Skip', 'Test "' + topPath + '", ' + rest)
+                    }
                 }
                 break
-            case 'write':
-                trace('Info', rest)
+
+            case 'verbose':
+                vtrace('Info', rest)
                 break
+
+            case 'write':
+                trace('Write', rest)
+                break
+
             case '':
                 break
+
             default:
                 success = false
                 this.failedCount++
-                trace('Test', file + ' ... FAILED')
+                trace('FAIL', topPath)
                 trace('Stdout', '\n' + output)
-                return false
             }
         }
         if (success == null) {
             /* Assume test passed if no result. Allows normal programs to be unit tests */
             this.passedCount++
-            success = true
         }
-        return keepGoing ? true : success
     }
 
     function createMakeMe(file: Path, env) {
@@ -515,7 +538,14 @@ Me.load({
                     why('Target', mod + ' is up to date')
                 }
             } else {
-                command = mebin.join('ejs') + ' --require ejs.testme ' + file
+                let switches = ''
+                if (options.log) {
+                    switches += '--log ' + options.log
+                }
+                if (options.trace) {
+                    switches += ' --trace ' + options.trace
+                }
+                command = mebin.join('ejs') + ' --require ejs.testme ' + switches + ' ' + file
             }
         } else if (ext == 'c') {
             exe = tm.join(name)
@@ -560,12 +590,15 @@ Me.load({
         try {
             run('me --chdir ' + mefile.dirname + ' --file ' + mefile.basename + ' --name ' + name + ' generate')
         } catch (e) {
-            trace(phase, file + ' ... FAILED cannot generate project for ' + topPath + '\n\n' + e.message)
+            trace('FAIL', topPath + ' cannot generate project for ' + topPath + '\n\n' + e.message)
         }
     }
 
     function summary() {
         if (!options.projects) {
+            if (testCount == 0 && filters.length > 0) {
+                trace('Missing', 'No tests match supplied filter: ' + filters.join(' '))
+            }
             trace('Summary', ((failedCount == 0) ? 'PASSED' : 'FAILED') + ': ' + 
                 failedCount + ' tests(s) failed, ' + 
                 testCount + ' tests passed, ' + 
@@ -588,7 +621,7 @@ Me.load({
             if (value == '1' || value == '0') {
                 value = value cast Number
             }
-            topEnv['TM_' + key] = value
+            topEnv['ME_' + key] = value
         }
         str = data.match(/export.*/g)
         env = {}

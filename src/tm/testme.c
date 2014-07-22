@@ -29,7 +29,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
     Mpr         *mpr;
     Ejs         *ejs;
     EcCompiler  *ec;
-    char        *argp, *searchPath, *homeDir, *logSpec;
+    char        *argp, *searchPath, *homeDir, *logSpec, *traceSpec;
     int         nextArg, err, flags;
 
     /*  
@@ -40,6 +40,10 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
     mprAddRoot(app);
     mprAddStandardSignals();
 
+    if (httpCreate(HTTP_CLIENT_SIDE | HTTP_SERVER_SIDE) < 0) {
+        mprLog("me", 0, "Cannot create HTTP services");
+        return EJS_ERR;
+    }
     if (mprStart(mpr) < 0) {
         mprLog("me", 0, "Cannot start mpr services");
         return EJS_ERR;
@@ -48,6 +52,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
     argv = (char**) mpr->argv;
     err = 0;
     logSpec = 0;
+    traceSpec = 0;
     searchPath = 0;
 
     for (nextArg = 1; nextArg < argc; nextArg++) {
@@ -86,6 +91,13 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
                 searchPath = argv[++nextArg];
             }
 
+        } else if (smatch(argp, "--trace") || smatch(argp, "-t")) {
+            if (nextArg >= argc) {
+                err++;
+            } else {
+                traceSpec = argv[++nextArg];
+            }
+
         } else if (smatch(argp, "--version") || smatch(argp, "-V")) {
             mprPrintf("%s\n", ME_VERSION);
             return 0;
@@ -94,6 +106,9 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
             if (!logSpec) {
                 logSpec = sfmt("stderr:%d", (int) stoi(&argp[1]));
             }
+            if (!traceSpec) {
+                traceSpec = sfmt("stderr:%d", (int) stoi(&argp[1]));
+            }
 
         } else {
             /* Ignore */
@@ -101,6 +116,9 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
     }
     if (logSpec) {
         mprStartLogging(logSpec, MPR_LOG_CMDLINE);
+    }
+    if (traceSpec) {
+        httpStartTracing(traceSpec);
     }
     if ((app->script = findTestMe()) == 0) {
         mprLog("me", 0, "Cannot find testme.es or testme.mod");
@@ -158,6 +176,7 @@ static cchar *findTestMe()
 {
     cchar    *path;
 
+/* UNUSED
     if (mprPathExists("makeme", X_OK)) {
         path = "makeme/testme.mod"; 
         if (mprPathExists(path, R_OK)) {
@@ -168,6 +187,7 @@ static cchar *findTestMe()
             return sclone(path);
         }
     }
+*/
     path = mprJoinPath(mprGetAppDir(), "testme.mod"); 
     if (mprPathExists(path, R_OK)) {
         return path;
