@@ -2,47 +2,47 @@
 .SH NAME
 http \- HTTP Client program
 .SH SYNOPSIS
-.B http [options] [files] url
-.PP
-[\fI--auth basic|digest \fR]
-[\fI--benchmark \fR]
-[\fI--cert file\fR]
-[\fI--chunk size \fR]
-[\fI--continue\fR] 
-[\fI--cookie cookieString\fR] 
-[\fI--data\fR] 
-[\fI--debugger\fR] 
-[\fI--delete\fR] 
-[\fI--form string\fR]
-[\fI--header 'key: value'\fR]
-[\fI--host hostName\fR]
-[\fI--iterations count\fR]
-[\fI--key file\fR]
-[\fI--log logSpec\fR]
-[\fI--method HTTP_METHOD\fR]
-[\fI--nofollow\fR]
-[\fI--noout\fR]
-[\fI--out file\fR]
-[\fI--password pass\fR]
-[\fI--post\fR]
-[\fI--printable\fR]
-[\fI--protocol version\fR]
-[\fI--provider name\fR]
-[\fI--put\fR]
-[\fI--range byteRanges\fR]
-[\fI--retries count\fR]
-[\fI--sequence\fR]
-[\fI--showHeaders\fR]
-[\fI--showStatus\fR]
-[\fI--single\fR]
-[\fI--threads count\fR]
-[\fI--timeout seconds\fR]
-[\fI--upload\fR]
-[\fI--user name\fR]
-[\fI--verify\fR]
-[\fI--verbose\fR]
-[\fI--workers count\fR]
-[\fI--zero\fR] 
+.B http 
+    \fB--auth basic|digest \fR
+    \fB--benchmark \fR
+    \fB--cert file\fR
+    \fB--chunk size \fR
+    \fB--continue\fR 
+    \fB--cookie cookieString\fR 
+    \fB--data\fR 
+    \fB--debugger\fR 
+    \fB--delete\fR 
+    \fB--form string\fR
+    \fB--header 'key: value'\fR
+    \fB--host hostName\fR
+    \fB--iterations count\fR
+    \fB--key file\fR
+    \fB--log logSpec\fR
+    \fB--method METHOD\fR
+    \fB--nofollow\fR
+    \fB--noout\fR
+    \fB--out file\fR
+    \fB--password pass\fR
+    \fB--post\fR
+    \fB--printable\fR
+    \fB--protocol version\fR
+    \fB--provider name\fR
+    \fB--put\fR
+    \fB--range byteRanges\fR
+    \fB--retries count\fR
+    \fB--sequence\fR
+    \fB--showHeaders\fR
+    \fB--showStatus\fR
+    \fB--single\fR
+    \fB--threads count\fR
+    \fB--timeout seconds\fR
+    \fB--upload\fR
+    \fB--user name\fR
+    \fB--verify\fR
+    \fB--verbose\fR
+    \fB--workers count\fR
+    \fB--zero\fR 
+    \fB[files] url\Fr
 .SH DESCRIPTION
 The http command issues HTTP commands to retrieve files from a web server. If "files" are provided on the command line
 these are included in the request body data. 
