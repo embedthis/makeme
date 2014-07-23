@@ -604,8 +604,8 @@ for each (file in args.rest) {
                         let [key,value] = name.split("=")
                         let item = template.options[key]
                         if (!item) {
-                            if (template.unknown) {
-                                i = (template.unknown)(argv, i)
+                            if (template.unknown is Function) {
+                                i = template.unknown.call(this, argv, i)
                                 continue
                             } else if (key == '?') {
                                 if (template.usage) {

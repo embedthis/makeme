@@ -10,6 +10,7 @@
 #include "me.h"
 #if ME_COM_EJS
 
+#undef PRINTF_ATTRIBUTE
 #define PRINTF_ATTRIBUTE(x,y)
 
 #include "osdep.h"

@@ -52,7 +52,7 @@ PUBLIC void httpDefineAction(cchar *name, HttpAction action)
 {
     HttpStage   *stage;
 
-    if ((stage = httpLookupStage(MPR->httpService, "actionHandler")) == 0) {
+    if ((stage = httpLookupStage("actionHandler")) == 0) {
         mprLog("error http action", 0, "Cannot find actionHandler");
         return;
     }
@@ -60,14 +60,14 @@ PUBLIC void httpDefineAction(cchar *name, HttpAction action)
 }
 
 
-PUBLIC int httpOpenActionHandler(Http *http)
+PUBLIC int httpOpenActionHandler()
 {
     HttpStage     *stage;
 
-    if ((stage = httpCreateHandler(http, "actionHandler", NULL)) == 0) {
+    if ((stage = httpCreateHandler("actionHandler", NULL)) == 0) {
         return MPR_ERR_CANT_CREATE;
     }
-    http->actionHandler = stage;
+    HTTP->actionHandler = stage;
     if ((stage->stageData = mprCreateHash(0, MPR_HASH_STATIC_VALUES)) == 0) {
         return MPR_ERR_MEMORY;
     }
@@ -317,7 +317,6 @@ PUBLIC bool httpCanUser(HttpConn *conn, cchar *abilities)
 
 PUBLIC HttpAuthStore *httpCreateAuthStore(cchar *name, HttpVerifyUser verifyUser)
 {
-    Http            *http;
     HttpAuthStore   *store;
 
     if ((store = mprAllocObj(HttpAuthStore, manageAuthStore)) == 0) {
@@ -325,8 +324,7 @@ PUBLIC HttpAuthStore *httpCreateAuthStore(cchar *name, HttpVerifyUser verifyUser
     }
     store->name = sclone(name);
     store->verifyUser = verifyUser;
-    http = MPR->httpService;
-    if (mprAddKey(http->authStores, name, store) == 0) {
+    if (mprAddKey(HTTP->authStores, name, store) == 0) {
         return 0;
     }
     return store;
@@ -336,10 +334,8 @@ PUBLIC HttpAuthStore *httpCreateAuthStore(cchar *name, HttpVerifyUser verifyUser
 
 PUBLIC int httpCreateAuthType(cchar *name, HttpAskLogin askLogin, HttpParseAuth parseAuth, HttpSetAuth setAuth)
 {
-    Http            *http;
     HttpAuthType    *type;
 
-    http = MPR->httpService;
     if ((type = mprAllocObj(HttpAuthType, manageAuthType)) == 0) {
         return MPR_ERR_CANT_CREATE;
     }
@@ -348,7 +344,7 @@ PUBLIC int httpCreateAuthType(cchar *name, HttpAskLogin askLogin, HttpParseAuth 
     type->parseAuth = parseAuth;
     type->setAuth = setAuth;
 
-    if (mprAddKey(http->authTypes, name, type) == 0) {
+    if (mprAddKey(HTTP->authTypes, name, type) == 0) {
         return MPR_ERR_CANT_CREATE;
     }
     return 0;
@@ -646,10 +642,7 @@ PUBLIC void httpSetAuthStoreSessions(HttpAuthStore *store, bool noSession)
 
 PUBLIC int httpSetAuthStore(HttpAuth *auth, cchar *store)
 {
-    Http    *http;
-
-    http = MPR->httpService;
-    if ((auth->store = mprLookupKey(http->authStores, store)) == 0) {
+    if ((auth->store = mprLookupKey(HTTP->authStores, store)) == 0) {
         return MPR_ERR_CANT_FIND;
     }
     if (smatch(store, "system")) {
@@ -670,10 +663,7 @@ PUBLIC int httpSetAuthStore(HttpAuth *auth, cchar *store)
 
 PUBLIC int httpSetAuthType(HttpAuth *auth, cchar *type, cchar *details)
 {
-    Http    *http;
-
-    http = MPR->httpService;
-    if ((auth->type = mprLookupKey(http->authTypes, type)) == 0) {
+    if ((auth->type = mprLookupKey(HTTP->authTypes, type)) == 0) {
         mprLog("critical http auth", 0, "Cannot find auth type %s", type);
         return MPR_ERR_CANT_FIND;
     }
@@ -695,10 +685,7 @@ PUBLIC void httpSetAuthUsername(HttpAuth *auth, cchar *username)
 
 PUBLIC HttpAuthType *httpLookupAuthType(cchar *type)
 {
-    Http    *http;
-
-    http = MPR->httpService;
-    return mprLookupKey(http->authTypes, type);
+    return mprLookupKey(HTTP->authTypes, type);
 }
 
 
@@ -921,27 +908,27 @@ static cchar *setHeadersFromCache(HttpConn *conn, cchar *content);
 
 /************************************ Code ************************************/
 
-PUBLIC int httpOpenCacheHandler(Http *http)
+PUBLIC int httpOpenCacheHandler()
 {
     HttpStage     *handler, *filter;
 
     /*
         Create the cache handler to serve cached content
      */
-    if ((handler = httpCreateHandler(http, "cacheHandler", NULL)) == 0) {
+    if ((handler = httpCreateHandler("cacheHandler", NULL)) == 0) {
         return MPR_ERR_CANT_CREATE;
     }
-    http->cacheHandler = handler;
+    HTTP->cacheHandler = handler;
     handler->match = matchCacheHandler;
     handler->ready = readyCacheHandler;
 
     /*
         Create the cache filter to capture and cache response content
      */
-    if ((filter = httpCreateFilter(http, "cacheFilter", NULL)) == 0) {
+    if ((filter = httpCreateFilter("cacheFilter", NULL)) == 0) {
         return MPR_ERR_CANT_CREATE;
     }
-    http->cacheFilter = filter;
+    HTTP->cacheFilter = filter;
     filter->match = matchCacheFilter;
     filter->outgoingService = outgoingCacheFilterService;
     return 0;
@@ -1482,7 +1469,7 @@ PUBLIC int httpOpenChunkFilter(Http *http)
 {
     HttpStage     *filter;
 
-    if ((filter = httpCreateFilter(http, "chunkFilter", NULL)) == 0) {
+    if ((filter = httpCreateFilter("chunkFilter", NULL)) == 0) {
         return MPR_ERR_CANT_CREATE;
     }
     http->chunkFilter = filter;
@@ -2073,16 +2060,13 @@ PUBLIC char *httpReadString(HttpConn *conn)
  */
 PUBLIC HttpConn *httpRequest(cchar *method, cchar *uri, cchar *data, char **err)
 {
-    Http        *http;
     HttpConn    *conn;
     ssize       len;
-
-    http = MPR->httpService;
 
     if (err) {
         *err = 0;
     }
-    conn = httpCreateConn(http, NULL, NULL);
+    conn = httpCreateConn(NULL, NULL);
     mprAddRoot(conn);
 
     /*
@@ -2300,12 +2284,10 @@ static void parseRoutes(HttpRoute *route, cchar *key, MprJson *prop);
 
 PUBLIC HttpParseCallback httpAddConfig(cchar *key, HttpParseCallback callback)
 {
-    Http                *http;
     HttpParseCallback   prior;
 
-    http = MPR->httpService;
-    prior = mprLookupKey(http->parsers, key);
-    mprAddKey(http->parsers, key, callback);
+    prior = mprLookupKey(HTTP->parsers, key);
+    mprAddKey(HTTP->parsers, key, callback);
     return prior;
 }
 
@@ -2567,12 +2549,10 @@ PUBLIC void httpSetDefaultDirs(HttpRoute *route)
 
 static void parseKey(HttpRoute *route, cchar *key, MprJson *prop)
 {
-    Http                *http;
     HttpParseCallback   parser;
 
-    http = MPR->httpService;
     key = key ? sjoin(key, ".", prop->name, NULL) : prop->name;
-    if ((parser = mprLookupKey(http->parsers, key)) != 0) {
+    if ((parser = mprLookupKey(HTTP->parsers, key)) != 0) {
         parser(route, key, prop);
     }
 }
@@ -3315,12 +3295,10 @@ static void parseRouteName(HttpRoute *route, cchar *key, MprJson *prop)
 
 PUBLIC HttpRouteSetProc httpDefineRouteSet(cchar *name, HttpRouteSetProc fn)
 {
-    Http                *http;
     HttpRouteSetProc    prior;
 
-    http = MPR->httpService;
-    prior = mprLookupKey(http->routeSets, name);
-    mprAddKey(http->routeSets, name, fn);
+    prior = mprLookupKey(HTTP->routeSets, name);
+    mprAddKey(HTTP->routeSets, name, fn);
     return prior;
 }
 
@@ -3846,10 +3824,7 @@ static void parseInclude(HttpRoute *route, cchar *key, MprJson *prop)
 
 PUBLIC int httpInitParser()
 {
-    Http    *http;
-
-    http = MPR->httpService;
-    http->parsers = mprCreateHash(0, MPR_HASH_STATIC_VALUES);
+    HTTP->parsers = mprCreateHash(0, MPR_HASH_STATIC_VALUES);
 
     httpAddConfig("app", parseAll);
     httpAddConfig("app.http", parseHttp);
@@ -4011,7 +3986,7 @@ static bool prepForNext(HttpConn *conn);
 /*
     Create a new connection object
  */
-PUBLIC HttpConn *httpCreateConn(Http *http, HttpEndpoint *endpoint, MprDispatcher *dispatcher)
+PUBLIC HttpConn *httpCreateConn(HttpEndpoint *endpoint, MprDispatcher *dispatcher)
 {
     HttpConn    *conn;
     HttpHost    *host;
@@ -4020,12 +3995,12 @@ PUBLIC HttpConn *httpCreateConn(Http *http, HttpEndpoint *endpoint, MprDispatche
     if ((conn = mprAllocObj(HttpConn, manageConn)) == 0) {
         return 0;
     }
-    conn->protocol = http->protocol;
-    conn->http = http;
+    conn->protocol = HTTP->protocol;
+    conn->http = HTTP;
     conn->port = -1;
     conn->retries = HTTP_RETRIES;
     conn->endpoint = endpoint;
-    conn->lastActivity = http->now;
+    conn->lastActivity = HTTP->now;
     conn->ioCallback = httpIOEvent;
 
     if (endpoint) {
@@ -4035,12 +4010,12 @@ PUBLIC HttpConn *httpCreateConn(Http *http, HttpEndpoint *endpoint, MprDispatche
             conn->limits = route->limits;
             conn->trace = route->trace;
         } else {
-            conn->limits = http->serverLimits;
-            conn->trace = http->trace;
+            conn->limits = HTTP->serverLimits;
+            conn->trace = HTTP->trace;
         }
     } else {
-        conn->limits = http->clientLimits;
-        conn->trace = http->trace;
+        conn->limits = HTTP->clientLimits;
+        conn->trace = HTTP->trace;
     }
     conn->keepAliveCount = conn->limits->keepAliveMax;
     conn->serviceq = httpCreateQueueHead(conn, "serviceq");
@@ -4055,7 +4030,7 @@ PUBLIC HttpConn *httpCreateConn(Http *http, HttpEndpoint *endpoint, MprDispatche
     conn->rx = httpCreateRx(conn);
     conn->tx = httpCreateTx(conn, NULL);
     httpSetState(conn, HTTP_STATE_BEGIN);
-    httpAddConn(http, conn);
+    httpAddConn(conn);
     return conn;
 }
 
@@ -4074,7 +4049,7 @@ PUBLIC void httpDestroyConn(HttpConn *conn)
                 conn->activeRequest = 0;
             }
         }
-        httpRemoveConn(conn->http, conn);
+        httpRemoveConn(conn);
         conn->input = 0;
         if (conn->tx) {
             httpClosePipeline(conn);
@@ -4347,7 +4322,7 @@ PUBLIC HttpConn *httpAcceptConn(HttpEndpoint *endpoint, MprEvent *event)
         mprCloseSocket(sock, 0);
         return 0;
     }
-    if ((conn = httpCreateConn(http, endpoint, event->dispatcher)) == 0) {
+    if ((conn = httpCreateConn(endpoint, event->dispatcher)) == 0) {
         mprCloseSocket(sock, 0);
         return 0;
     }
@@ -4600,7 +4575,7 @@ PUBLIC MprSocket *httpStealSocket(HttpConn *conn)
         sock = mprCloneSocket(conn->sock);
         (void) mprStealSocketHandle(conn->sock);
         mprRemoveSocketHandler(conn->sock);
-        httpRemoveConn(conn->http, conn);
+        httpRemoveConn(conn);
         httpDiscardData(conn, HTTP_QUEUE_TX);
         httpDiscardData(conn, HTTP_QUEUE_RX);
         httpSetState(conn, HTTP_STATE_COMPLETE);
@@ -5969,31 +5944,20 @@ PUBLIC HttpDir *httpGetDirObj(HttpRoute *route)
 /*
     Loadable module initialization
  */
-PUBLIC int httpOpenDirHandler(Http *http)
+PUBLIC int httpOpenDirHandler()
 {
     HttpStage   *handler;
     HttpDir     *dir;
 
-    if ((handler = httpCreateHandler(http, "dirHandler", NULL)) == 0) {
+    if ((handler = httpCreateHandler("dirHandler", NULL)) == 0) {
         return MPR_ERR_CANT_CREATE;
     }
     if ((handler->stageData = dir = mprAllocObj(HttpDir, manageDir)) == 0) {
         return MPR_ERR_MEMORY;
     }
     handler->start = startDir; 
-    http->dirHandler = handler;
+    HTTP->dirHandler = handler;
     dir->sortOrder = 1;
-
-#if MOB
-    /*
-        Declare configuration file directives
-     */
-    MaAppweb    *appweb;
-    appweb = httpGetContext(http);
-    maAddDirective(appweb, "IndexOrder", indexOrderDirective);
-    maAddDirective(appweb, "indexOptions", indexOptionsDirective);
-    maAddDirective(appweb, "Options", optionsDirective);
-#endif
     return 0;
 }
 
@@ -6045,21 +6009,18 @@ static int manageEndpoint(HttpEndpoint *endpoint, int flags);
 PUBLIC HttpEndpoint *httpCreateEndpoint(cchar *ip, int port, MprDispatcher *dispatcher)
 {
     HttpEndpoint    *endpoint;
-    Http            *http;
 
     if ((endpoint = mprAllocObj(HttpEndpoint, manageEndpoint)) == 0) {
         return 0;
     }
-    http = MPR->httpService;
-    endpoint->http = http;
+    endpoint->http = HTTP;
     endpoint->async = 1;
-    endpoint->http = http;
     endpoint->port = port;
     endpoint->ip = sclone(ip);
     endpoint->dispatcher = dispatcher;
     endpoint->hosts = mprCreateList(-1, MPR_LIST_STABLE);
     endpoint->mutex = mprCreateLock();
-    httpAddEndpoint(http, endpoint);
+    httpAddEndpoint(endpoint);
     return endpoint;
 }
 
@@ -6070,7 +6031,7 @@ PUBLIC void httpDestroyEndpoint(HttpEndpoint *endpoint)
         mprCloseSocket(endpoint->sock, 0);
         endpoint->sock = 0;
     }
-    httpRemoveEndpoint(MPR->httpService, endpoint);
+    httpRemoveEndpoint(endpoint);
 }
 
 
@@ -6096,17 +6057,20 @@ static int manageEndpoint(HttpEndpoint *endpoint, int flags)
  */
 PUBLIC HttpEndpoint *httpCreateConfiguredEndpoint(HttpHost *host, cchar *home, cchar *documents, cchar *ip, int port)
 {
-    Http            *http;
     HttpEndpoint    *endpoint;
     HttpRoute       *route;
 
-    http = MPR->httpService;
-
+    if (host == 0) {
+        host = httpGetDefaultHost();
+    }
+    if (host == 0) {
+        return 0;
+    }
     if (ip == 0 && port <= 0) {
         /*
             If no IP:PORT specified, find the first endpoint
          */
-        if ((endpoint = mprGetFirstItem(http->endpoints)) != 0) {
+        if ((endpoint = mprGetFirstItem(HTTP->endpoints)) != 0) {
             ip = endpoint->ip;
             port = endpoint->port;
         } else {
@@ -6118,24 +6082,17 @@ PUBLIC HttpEndpoint *httpCreateConfiguredEndpoint(HttpHost *host, cchar *home, c
                 return 0;
             }
         }
-    } else {
-        if ((endpoint = httpCreateEndpoint(ip, port, NULL)) == 0) {
-            return 0;
-        }
+    } else if ((endpoint = httpCreateEndpoint(ip, port, NULL)) == 0) {
+        return 0;
     }
-    if (!host) {
-        if ((host = httpCreateHost()) == 0) {
-            return 0;
-        }
-        if ((route = httpCreateRoute(host)) == 0) {
-            return 0;
-        }
-        httpSetHostDefaultRoute(host, route);
-    } else {
-        route = host->defaultRoute;
-    }
+    route = host->defaultRoute;
     httpAddHostToEndpoint(endpoint, host);
-    httpSetRouteDocuments(route, documents);
+    if (documents) {
+        httpSetRouteDocuments(route, documents);
+    }
+    if (home) {
+        httpSetRouteHome(route, home);
+    }
     httpFinalizeRoute(route);
     return endpoint;
 }
@@ -6147,14 +6104,12 @@ PUBLIC HttpEndpoint *httpCreateConfiguredEndpoint(HttpHost *host, cchar *home, c
 PUBLIC void httpAddHostToEndpoints(HttpHost *host)
 {
     HttpEndpoint    *endpoint;
-    Http            *http;
     int             next;
 
     if (host == 0) {
         return;
     }
-    http = MPR->httpService;
-    for (next = 0; (endpoint = mprGetNextItem(http->endpoints, &next)) != 0; ) {
+    for (next = 0; (endpoint = mprGetNextItem(HTTP->endpoints, &next)) != 0; ) {
         httpAddHostToEndpoint(endpoint, host);
         if (!host->name) {
             httpSetHostName(host, sfmt("%s:%d", endpoint->ip, endpoint->port));
@@ -6163,35 +6118,27 @@ PUBLIC void httpAddHostToEndpoints(HttpHost *host)
 }
 
 
-#if KEEP
-static int destroyEndpointConnections(HttpEndpoint *endpoint)
-{
-    HttpConn    *conn;
-    Http        *http;
-    int         next;
-
-    http = endpoint->http;
-    lock(http->connections);
-    for (next = 0; (conn = mprGetNextItem(http->connections, &next)) != 0; ) {
-        if (conn->endpoint == endpoint) {
-            /* Do not destroy conn here incase requests still running and code active with stack */
-            httpRemoveConn(http, conn);
-            next--;
-        }
-    }
-    unlock(http->connections);
-    return 0;
-}
-#endif
-
-
 static bool validateEndpoint(HttpEndpoint *endpoint)
 {
     HttpHost    *host;
+    HttpRoute   *route;
+    int         nextRoute;
 
     if ((host = mprGetFirstItem(endpoint->hosts)) == 0) {
-        mprLog("error http config", 0, "Missing host object on endpoint");
-        return 0;
+/* UNUSED
+        mprLog("error http config", 0, "Missing host object on endpoint %s:%d", endpoint->ip, endpoint->port);
+*/
+        host = httpGetDefaultHost();
+        httpAddHostToEndpoint(endpoint, host);
+        if (!host->name) {
+            httpSetHostName(host, sfmt("%s:%d", endpoint->ip, endpoint->port));
+        }
+        for (nextRoute = 0; (route = mprGetNextItem(host->routes, &nextRoute)) != 0; ) {
+            if (!mprLookupKey(route->extensions, "")) {
+                httpAddRouteHandler(route, "fileHandler", "");
+                httpAddRouteIndex(route, "index.html");
+            }
+        }
     }
     return 1;
 }
@@ -6303,7 +6250,7 @@ PUBLIC void httpMatchHost(HttpConn *conn)
     http = conn->http;
     listenSock = conn->sock->listenSock;
 
-    if ((endpoint = httpLookupEndpoint(http, listenSock->ip, listenSock->port)) == 0) {
+    if ((endpoint = httpLookupEndpoint(listenSock->ip, listenSock->port)) == 0) {
         mprLog("error http", 0, "No listening endpoint for request from %s:%d", listenSock->ip, listenSock->port);
         mprCloseSocket(conn->sock, 0);
         return;
@@ -6399,16 +6346,14 @@ PUBLIC int httpSecureEndpoint(HttpEndpoint *endpoint, struct MprSsl *ssl)
 PUBLIC int httpSecureEndpointByName(cchar *name, struct MprSsl *ssl)
 {
     HttpEndpoint    *endpoint;
-    Http            *http;
     char            *ip;
     int             port, next, count;
 
-    http = MPR->httpService;
     mprParseSocketAddress(name, &ip, &port, NULL, -1);
     if (ip == 0) {
         ip = "";
     }
-    for (count = 0, next = 0; (endpoint = mprGetNextItem(http->endpoints, &next)) != 0; ) {
+    for (count = 0, next = 0; (endpoint = mprGetNextItem(HTTP->endpoints, &next)) != 0; ) {
         if (endpoint->port <= 0 || port <= 0 || endpoint->port == port) {
             assert(endpoint->ip);
             if (*endpoint->ip == '\0' || *ip == '\0' || scmp(endpoint->ip, ip) == 0) {
@@ -6567,7 +6512,7 @@ static void makeAltBody(HttpConn *conn, int status)
     tx = conn->tx;
     assert(rx && tx);
 
-    statusMsg = httpLookupStatus(conn->http, status);
+    statusMsg = httpLookupStatus(status);
     msg = "";
     if (rx && (!rx->route || rx->route->flags & HTTP_ROUTE_SHOW_ERRORS)) {
         msg = conn->errorMsg;
@@ -6680,7 +6625,7 @@ PUBLIC cchar *httpGetError(HttpConn *conn)
     if (conn->errorMsg) {
         return conn->errorMsg;
     } else if (conn->state >= HTTP_STATE_FIRST) {
-        return httpLookupStatus(conn->http, conn->rx->status);
+        return httpLookupStatus(conn->rx->status);
     } else {
         return "";
     }
@@ -7204,14 +7149,14 @@ static int handleDirectory(HttpConn *conn)
 /*  
     Loadable module initialization
  */
-PUBLIC int httpOpenFileHandler(Http *http)
+PUBLIC int httpOpenFileHandler()
 {
     HttpStage     *handler;
 
     /* 
         This handler serves requests without using thread workers.
      */
-    if ((handler = httpCreateHandler(http, "fileHandler", NULL)) == 0) {
+    if ((handler = httpCreateHandler("fileHandler", NULL)) == 0) {
         return MPR_ERR_CANT_CREATE;
     }
     handler->rewrite = rewriteFileHandler;
@@ -7221,7 +7166,7 @@ PUBLIC int httpOpenFileHandler(Http *http)
     handler->ready = readyFileHandler;
     handler->outgoingService = outgoingFileService;
     handler->incoming = incomingFile;
-    http->fileHandler = handler;
+    HTTP->fileHandler = handler;
     return 0;
 }
 
@@ -7278,9 +7223,7 @@ static void manageHost(HttpHost *host, int flags);
 PUBLIC HttpHost *httpCreateHost()
 {
     HttpHost    *host;
-    Http        *http;
 
-    http = MPR->httpService;
     if ((host = mprAllocObj(HttpHost, manageHost)) == 0) {
         return 0;
     }
@@ -7294,7 +7237,7 @@ PUBLIC HttpHost *httpCreateHost()
     host->streams = mprCreateHash(HTTP_SMALL_HASH_SIZE, MPR_HASH_STABLE);
     httpSetStreaming(host, "application/x-www-form-urlencoded", NULL, 0);
     httpSetStreaming(host, "application/json", NULL, 0);
-    httpAddHost(http, host);
+    httpAddHost(host);
     return host;
 }
 
@@ -7302,9 +7245,6 @@ PUBLIC HttpHost *httpCreateHost()
 PUBLIC HttpHost *httpCloneHost(HttpHost *parent)
 {
     HttpHost    *host;
-    Http        *http;
-
-    http = MPR->httpService;
 
     if ((host = mprAllocObj(HttpHost, manageHost)) == 0) {
         return 0;
@@ -7320,7 +7260,7 @@ PUBLIC HttpHost *httpCloneHost(HttpHost *parent)
     host->streams = parent->streams;
     host->secureEndpoint = parent->secureEndpoint;
     host->defaultEndpoint = parent->defaultEndpoint;
-    httpAddHost(http, host);
+    httpAddHost(host);
     return host;
 }
 
@@ -7337,6 +7277,23 @@ static void manageHost(HttpHost *host, int flags)
         mprMark(host->secureEndpoint);
         mprMark(host->streams);
     }
+}
+
+
+PUBLIC HttpHost *httpCreateDefaultHost() 
+{
+    HttpHost    *host;
+    HttpRoute   *route;
+
+    if (defaultHost) {
+        return defaultHost;
+    }
+    defaultHost = host = httpCreateHost();
+    route = httpCreateRoute(host);
+    httpSetRouteName(route, "default");
+    httpSetHostDefaultRoute(host, route);
+    route->limits = route->http->serverLimits;
+    return host;
 }
 
 
@@ -7671,10 +7628,7 @@ static void stopMonitors();
 
 PUBLIC int httpAddCounter(cchar *name)
 {
-    Http    *http;
-
-    http = MPR->httpService;
-    return mprAddItem(http->counters, sclone(name));
+    return mprAddItem(HTTP->counters, sclone(name));
 }
 
 
@@ -7682,7 +7636,7 @@ PUBLIC void httpAddCounters()
 {
     Http    *http;
 
-    http = MPR->httpService;
+    http = HTTP;
     mprSetItem(http->counters, HTTP_COUNTER_ACTIVE_CLIENTS, sclone("ActiveClients"));
     mprSetItem(http->counters, HTTP_COUNTER_ACTIVE_CONNECTIONS, sclone("ActiveConnections"));
     mprSetItem(http->counters, HTTP_COUNTER_ACTIVE_REQUESTS, sclone("ActiveRequests"));
@@ -7801,7 +7755,7 @@ PUBLIC void httpPruneMonitors()
     MprTicks    period;
     MprKey      *kp;
 
-    http = MPR->httpService;
+    http = HTTP;
     period = max(http->monitorMaxPeriod, 15 * MPR_TICKS_PER_SEC);
     lock(http->addresses);
     for (ITERATE_KEY_DATA(http->addresses, kp, address)) {
@@ -7828,7 +7782,7 @@ static void checkMonitor(HttpMonitor *monitor, MprEvent *event)
     HttpCounter     c, *counter;
     MprKey          *kp;
 
-    http = monitor->http;
+    http = HTTP;
     http->now = mprGetTicks();
 
     if (monitor->counterIndex == HTTP_COUNTER_MEMORY) {
@@ -7892,7 +7846,7 @@ PUBLIC int httpAddMonitor(cchar *counterName, cchar *expr, uint64 limit, MprTick
     char            *tok;
     int             counterIndex, next;
 
-    http = MPR->httpService;
+    http = HTTP;
     if (period < HTTP_MONITOR_MIN_PERIOD) {
         return MPR_ERR_BAD_ARGS;
     }
@@ -7951,7 +7905,7 @@ static void startMonitors()
     if (mprGetDebugMode()) {
         return;
     }
-    http = MPR->httpService;
+    http = HTTP;
     lock(http);
     if (!http->monitorsStarted) {
         for (ITERATE_ITEMS(http->monitors, monitor, next)) {
@@ -7971,7 +7925,7 @@ static void stopMonitors()
     Http            *http;
     int             next;
 
-    http = MPR->httpService;
+    http = HTTP;
     lock(http);
     if (http->monitorsStarted) {
         for (ITERATE_ITEMS(http->monitors, monitor, next)) {
@@ -8076,7 +8030,7 @@ PUBLIC int httpAddDefense(cchar *name, cchar *remedy, cchar *remedyArgs)
 
     assert(name && *name);
 
-    http = MPR->httpService;
+    http = HTTP;
     args = mprCreateHash(0, MPR_HASH_STABLE);
     list = stolist(remedyArgs);
     for (ITERATE_ITEMS(list, arg, next)) {
@@ -8100,7 +8054,7 @@ PUBLIC int httpAddDefenseFromJson(cchar *name, cchar *remedy, MprJson *jargs)
 
     assert(name && *name);
 
-    http = MPR->httpService;
+    http = HTTP;
     args = mprCreateHash(0, MPR_HASH_STABLE);
     for (ITERATE_JSON(jargs, arg, next)) {
         mprAddKey(args, arg->name, arg->value);
@@ -8122,7 +8076,7 @@ PUBLIC void httpDumpCounters()
     cchar           *name;
     int             i;
 
-    http = MPR->httpService;
+    http = HTTP;
     mprLog(0, 0, "Monitor Counters:\n");
     mprLog(0, 0, "Memory counter     %'zd\n", mprGetMem());
     mprLog(0, 0, "Active processes   %d\n", mprGetListLength(MPR->cmdService->cmds));
@@ -8152,7 +8106,7 @@ PUBLIC int httpBanClient(cchar *ip, MprTicks period, int status, cchar *msg)
     HttpAddress     *address;
     MprTicks        banUntil;
 
-    http = MPR->httpService;
+    http = HTTP;
     if ((address = mprLookupKey(http->addresses, ip)) == 0) {
         mprLog("error http monitor", 1, "Cannot find client %s to ban", ip);
         return MPR_ERR_CANT_FIND;
@@ -8253,7 +8207,7 @@ static void delayRemedy(MprHash *args)
     cchar           *ip;
     int             delay;
 
-    http = MPR->httpService;
+    http = HTTP;
     if ((ip = mprLookupKey(args, "IP")) != 0) {
         if ((address = mprLookupKey(http->addresses, ip)) != 0) {
             delayUntil = http->now + lookupTicks(args, "PERIOD", ME_HTTP_DELAY_PERIOD);
@@ -8316,10 +8270,7 @@ static void restartRemedy(MprHash *args)
 
 PUBLIC int httpAddRemedy(cchar *name, HttpRemedyProc remedy)
 {
-    Http    *http;
-
-    http = MPR->httpService;
-    mprAddKey(http->remedies, name, remedy);
+    mprAddKey(HTTP->remedies, name, remedy);
     return 0;
 }
 
@@ -8393,7 +8344,7 @@ PUBLIC int httpOpenNetConnector(Http *http)
 {
     HttpStage     *stage;
 
-    if ((stage = httpCreateConnector(http, "netConnector", NULL)) == 0) {
+    if ((stage = httpCreateConnector("netConnector", NULL)) == 0) {
         return MPR_ERR_CANT_CREATE;
     }
     stage->close = netClose;
@@ -9459,21 +9410,21 @@ static void handleTrace(HttpConn *conn)
 }
 
 
-PUBLIC int httpOpenPassHandler(Http *http)
+PUBLIC int httpOpenPassHandler()
 {
     HttpStage     *stage;
 
-    if ((stage = httpCreateHandler(http, "passHandler", NULL)) == 0) {
+    if ((stage = httpCreateHandler("passHandler", NULL)) == 0) {
         return MPR_ERR_CANT_CREATE;
     }
-    http->passHandler = stage;
+    HTTP->passHandler = stage;
     stage->start = startPass;
     stage->ready = readyPass;
 
     /*
         PassHandler is an alias as the ErrorHandler too
      */
-    if ((stage = httpCreateHandler(http, "errorHandler", NULL)) == 0) {
+    if ((stage = httpCreateHandler("errorHandler", NULL)) == 0) {
         return MPR_ERR_CANT_CREATE;
     }
     stage->start = startPass;
@@ -10484,7 +10435,7 @@ PUBLIC int httpOpenRangeFilter(Http *http)
 {
     HttpStage     *filter;
 
-    if ((filter = httpCreateFilter(http, "rangeFilter", NULL)) == 0) {
+    if ((filter = httpCreateFilter("rangeFilter", NULL)) == 0) {
         return MPR_ERR_CANT_CREATE;
     }
     http->rangeFilter = filter;
@@ -10835,7 +10786,7 @@ PUBLIC HttpRoute *httpCreateRoute(HttpHost *host)
     Http        *http;
     HttpRoute   *route;
 
-    http = MPR->httpService;
+    http = HTTP;
     if ((route = mprAllocObj(HttpRoute, manageRoute)) == 0) {
         return 0;
     }
@@ -10849,7 +10800,7 @@ PUBLIC HttpRoute *httpCreateRoute(HttpHost *host)
 #endif
     route->update = 1;
     route->host = host;
-    route->http = MPR->httpService;
+    route->http = HTTP;
     route->lifespan = ME_MAX_CACHE_DURATION;
     route->pattern = MPR->emptyString;
     route->targetRule = sclone("run");
@@ -10881,6 +10832,7 @@ PUBLIC HttpRoute *httpCreateRoute(HttpHost *host)
     httpAddRouteResponseHeader(route, HTTP_ROUTE_ADD_HEADER, "X-Frame-Options", "SAMEORIGIN");
     httpAddRouteResponseHeader(route, HTTP_ROUTE_ADD_HEADER, "X-Content-Type-Options", "nosniff");
 
+//  MOB - review
     if (MPR->httpService) {
         route->limits = mprMemdup(http->serverLimits ? http->serverLimits : http->clientLimits, sizeof(HttpLimits));
     }
@@ -10938,7 +10890,7 @@ PUBLIC HttpRoute *httpCreateInheritedRoute(HttpRoute *parent)
     route->headers = parent->headers;
     route->home = parent->home;
     route->host = parent->host;
-    route->http = MPR->httpService;
+    route->http = HTTP;
     route->indexes = parent->indexes;
     route->inputStages = parent->inputStages;
     route->keepSource = parent->keepSource;
@@ -11563,7 +11515,7 @@ PUBLIC int httpAddRouteFilter(HttpRoute *route, cchar *name, cchar *extensions, 
             return 0;
         }
     }
-    stage = httpLookupStage(route->http, name);
+    stage = httpLookupStage(name);
     if (stage == 0) {
         mprLog("error http route", 0, "Cannot find filter %s", name);
         return MPR_ERR_CANT_FIND;
@@ -11571,7 +11523,7 @@ PUBLIC int httpAddRouteFilter(HttpRoute *route, cchar *name, cchar *extensions, 
     /*
         Clone an existing stage because each filter stores its own set of extensions to match against
      */
-    filter = httpCloneStage(route->http, stage);
+    filter = httpCloneStage(stage);
 
     if (extensions && *extensions) {
         filter->extensions = mprCreateHash(0, MPR_HASH_CASELESS | MPR_HASH_STABLE);
@@ -11616,7 +11568,7 @@ PUBLIC int httpAddRouteHandler(HttpRoute *route, cchar *name, cchar *extensions)
     assert(route);
 
     http = route->http;
-    if ((handler = httpLookupStage(http, name)) == 0) {
+    if ((handler = httpLookupStage(name)) == 0) {
         mprLog("error http route", 0, "Cannot find stage %s", name);
         return MPR_ERR_CANT_FIND;
     }
@@ -11854,7 +11806,7 @@ PUBLIC void httpDefineRouteTarget(cchar *key, HttpRouteProc *proc)
     assert(key && *key);
     assert(proc);
 
-    mprAddKey(((Http*) MPR->httpService)->routeTargets, key, proc);
+    mprAddKey(HTTP->routeTargets, key, proc);
 }
 
 
@@ -11863,7 +11815,7 @@ PUBLIC void httpDefineRouteCondition(cchar *key, HttpRouteProc *proc)
     assert(key && *key);
     assert(proc);
 
-    mprAddKey(((Http*) MPR->httpService)->routeConditions, key, proc);
+    mprAddKey(HTTP->routeConditions, key, proc);
 }
 
 
@@ -11872,7 +11824,7 @@ PUBLIC void httpDefineRouteUpdate(cchar *key, HttpRouteProc *proc)
     assert(key && *key);
     assert(proc);
 
-    mprAddKey(((Http*) MPR->httpService)->routeUpdates, key, proc);
+    mprAddKey(HTTP->routeUpdates, key, proc);
 }
 
 
@@ -11996,7 +11948,7 @@ PUBLIC int httpSetRouteConnector(HttpRoute *route, cchar *name)
 
     assert(route);
 
-    stage = httpLookupStage(route->http, name);
+    stage = httpLookupStage(name);
     if (stage == 0) {
         mprLog("error http route", 0, "Cannot find connector %s", name);
         return MPR_ERR_CANT_FIND;
@@ -12060,7 +12012,7 @@ PUBLIC int httpSetRouteHandler(HttpRoute *route, cchar *name)
     assert(route);
     assert(name && *name);
 
-    if ((handler = httpLookupStage(route->http, name)) == 0) {
+    if ((handler = httpLookupStage(name)) == 0) {
         mprLog("error http route", 0, "Cannot find handler %s", name);
         return MPR_ERR_CANT_FIND;
     }
@@ -14122,7 +14074,7 @@ PUBLIC HttpLimits *httpGraduateLimits(HttpRoute *route, HttpLimits *limits)
             if (route->parent->limits) {
                 limits = route->parent->limits;
             } else {
-                limits = ((Http*) MPR->httpService)->serverLimits;
+                limits = HTTP->serverLimits;
             }
         }
         route->limits = mprMemdup(limits, sizeof(HttpLimits));
@@ -15482,10 +15434,8 @@ static bool processCompletion(HttpConn *conn)
 
 PUBLIC void httpSetRequestCallback(HttpRequestCallback callback)
 {
-    Http    *http;
-
-    if ((http = MPR->httpService) != 0) {
-        http->requestCallback = callback;
+    if (HTTP) {
+        HTTP->requestCallback = callback;
     }
 }
 
@@ -16196,7 +16146,7 @@ PUBLIC int httpOpenSendConnector(Http *http)
 {
     HttpStage     *stage;
 
-    if ((stage = httpCreateConnector(http, "sendConnector", NULL)) == 0) {
+    if ((stage = httpCreateConnector("sendConnector", NULL)) == 0) {
         return MPR_ERR_CANT_CREATE;
     }
     stage->open = httpSendOpen;
@@ -16532,6 +16482,12 @@ PUBLIC void httpSendOutgoingService(HttpQueue *q) {}
 
 
 /********************************** Locals ************************************/
+/*
+    Public singleton
+ */
+#undef HTTP
+PUBLIC Http *HTTP;
+
 /**
     Standard HTTP error code table
  */
@@ -16613,7 +16569,7 @@ PUBLIC Http *httpCreate(int flags)
         mprGlobalUnlock();
         return 0;
     }
-    MPR->httpService = http;
+    MPR->httpService = HTTP = http;
     http->software = sclone(ME_HTTP_SOFTWARE);
     http->protocol = sclone("HTTP/1.1");
     http->mutex = mprCreateLock();
@@ -16661,23 +16617,24 @@ PUBLIC Http *httpCreate(int flags)
         http->addresses = mprCreateHash(-1, MPR_HASH_STABLE);
         http->defenses = mprCreateHash(-1, MPR_HASH_STABLE);
         http->remedies = mprCreateHash(-1, MPR_HASH_CASELESS | MPR_HASH_STATIC_VALUES | MPR_HASH_STABLE);
-        httpOpenUploadFilter(http);
-        httpOpenCacheHandler(http);
-        httpOpenPassHandler(http);
-        httpOpenActionHandler(http);
-        httpOpenDirHandler(http);
-        httpOpenFileHandler(http);
+        httpOpenUploadFilter();
+        httpOpenCacheHandler();
+        httpOpenPassHandler();
+        httpOpenActionHandler();
+        httpOpenDirHandler();
+        httpOpenFileHandler();
         http->serverLimits = httpCreateLimits(1);
         httpDefineRouteBuiltins();
         httpAddCounters();
         httpAddRemedies();
+        httpCreateDefaultHost();
     }
     if (flags & HTTP_CLIENT_SIDE) {
         http->defaultClientHost = sclone("127.0.0.1");
         http->defaultClientPort = 80;
         http->clientLimits = httpCreateLimits(0);
         http->clientRoute = httpCreateConfiguredRoute(0, 0);
-        http->clientHandler = httpCreateHandler(http, "client", 0);
+        http->clientHandler = httpCreateHandler("client", 0);
     }
     mprGlobalUnlock();
     return http;
@@ -16748,13 +16705,12 @@ static void manageHttp(Http *http, int flags)
 PUBLIC int httpStartEndpoints()
 {
     HttpEndpoint    *endpoint;
-    Http            *http;
     int             next;
 
-    if ((http = MPR->httpService) == 0) {
+    if (!HTTP) {
         return MPR_ERR_BAD_STATE;
     }
-    for (ITERATE_ITEMS(http->endpoints, endpoint, next)) {
+    for (ITERATE_ITEMS(HTTP->endpoints, endpoint, next)) {
         if (httpStartEndpoint(endpoint) < 0) {
             return MPR_ERR_CANT_OPEN;
         }
@@ -16769,7 +16725,7 @@ PUBLIC void httpStopEndpoints()
     Http            *http;
     int             next;
 
-    if ((http = MPR->httpService) == 0) {
+    if ((http = HTTP) == 0) {
         return;
     }
     lock(http->connections);
@@ -16789,7 +16745,7 @@ PUBLIC void httpStopConnections(void *data)
     HttpConn    *conn;
     int         next;
 
-    if ((http = MPR->httpService) == 0) {
+    if ((http = HTTP) == 0) {
         return;
     }
     lock(http->connections);
@@ -16810,7 +16766,7 @@ PUBLIC void httpDestroy()
 {
     Http            *http;
 
-    if ((http = MPR->httpService) == 0) {
+    if ((http = HTTP) == 0) {
         return;
     }
     httpStopConnections(0);
@@ -16874,24 +16830,22 @@ static bool isIdle(bool traceRequests)
 }
 
 
-PUBLIC void httpAddEndpoint(Http *http, HttpEndpoint *endpoint)
+PUBLIC void httpAddEndpoint(HttpEndpoint *endpoint)
 {
-    mprAddItem(http->endpoints, endpoint);
+    mprAddItem(HTTP->endpoints, endpoint);
 }
 
 
-PUBLIC void httpRemoveEndpoint(Http *http, HttpEndpoint *endpoint)
+PUBLIC void httpRemoveEndpoint(HttpEndpoint *endpoint)
 {
-    if (http) {
-        mprRemoveItem(http->endpoints, endpoint);
-    }
+    mprRemoveItem(HTTP->endpoints, endpoint);
 }
 
 
 /*
     Lookup a host address. If ipAddr is null or port is -1, then those elements are wild.
  */
-PUBLIC HttpEndpoint *httpLookupEndpoint(Http *http, cchar *ip, int port)
+PUBLIC HttpEndpoint *httpLookupEndpoint(cchar *ip, int port)
 {
     HttpEndpoint    *endpoint;
     int             next;
@@ -16899,7 +16853,7 @@ PUBLIC HttpEndpoint *httpLookupEndpoint(Http *http, cchar *ip, int port)
     if (ip == 0) {
         ip = "";
     }
-    for (next = 0; (endpoint = mprGetNextItem(http->endpoints, &next)) != 0; ) {
+    for (next = 0; (endpoint = mprGetNextItem(HTTP->endpoints, &next)) != 0; ) {
         if (endpoint->port <= 0 || port <= 0 || endpoint->port == port) {
             assert(endpoint->ip);
             if (*endpoint->ip == '\0' || *ip == '\0' || scmp(endpoint->ip, ip) == 0) {
@@ -16911,35 +16865,33 @@ PUBLIC HttpEndpoint *httpLookupEndpoint(Http *http, cchar *ip, int port)
 }
 
 
-PUBLIC HttpEndpoint *httpGetFirstEndpoint(Http *http)
+PUBLIC HttpEndpoint *httpGetFirstEndpoint()
 {
-    return mprGetFirstItem(http->endpoints);
+    return mprGetFirstItem(HTTP->endpoints);
 }
 
 
 /*
     WARNING: this should not be called by users as httpCreateHost will automatically call this.
  */
-PUBLIC void httpAddHost(Http *http, HttpHost *host)
+PUBLIC void httpAddHost(HttpHost *host)
 {
-    mprAddItem(http->hosts, host);
+    mprAddItem(HTTP->hosts, host);
 }
 
 
-PUBLIC void httpRemoveHost(Http *http, HttpHost *host)
+PUBLIC void httpRemoveHost(HttpHost *host)
 {
-    if (http) {
-        mprRemoveItem(http->hosts, host);
-    }
+    mprRemoveItem(HTTP->hosts, host);
 }
 
 
-PUBLIC HttpHost *httpLookupHost(Http *http, cchar *name)
+PUBLIC HttpHost *httpLookupHost(cchar *name)
 {
     HttpHost    *host;
     int         next;
 
-    for (next = 0; (host = mprGetNextItem(http->hosts, &next)) != 0; ) {
+    for (next = 0; (host = mprGetNextItem(HTTP->hosts, &next)) != 0; ) {
         if (smatch(name, host->name)) {
             return host;
         }
@@ -17026,42 +16978,45 @@ PUBLIC void httpEaseLimits(HttpLimits *limits)
 }
 
 
-PUBLIC void httpAddStage(Http *http, HttpStage *stage)
+PUBLIC void httpAddStage(HttpStage *stage)
 {
-    mprAddKey(http->stages, stage->name, stage);
+    mprAddKey(HTTP->stages, stage->name, stage);
 }
 
 
-PUBLIC HttpStage *httpLookupStage(Http *http, cchar *name)
+PUBLIC HttpStage *httpLookupStage(cchar *name)
 {
-    if (!http) {
+    if (!HTTP) {
         return 0;
     }
-    return mprLookupKey(http->stages, name);
+    return mprLookupKey(HTTP->stages, name);
 }
 
 
-PUBLIC void *httpLookupStageData(Http *http, cchar *name)
+PUBLIC void *httpLookupStageData(cchar *name)
 {
     HttpStage   *stage;
 
-    if (!http) {
+    if (!HTTP) {
         return 0;
     }
-    if ((stage = mprLookupKey(http->stages, name)) != 0) {
+    if ((stage = mprLookupKey(HTTP->stages, name)) != 0) {
         return stage->stageData;
     }
     return 0;
 }
 
 
-PUBLIC cchar *httpLookupStatus(Http *http, int status)
+PUBLIC cchar *httpLookupStatus(int status)
 {
     HttpStatusCode  *ep;
     char            *key;
 
+    if (!HTTP) {
+        return 0;
+    }
     key = itos(status);
-    ep = (HttpStatusCode*) mprLookupKey(http->statusCodes, key);
+    ep = (HttpStatusCode*) mprLookupKey(HTTP->statusCodes, key);
     if (ep == 0) {
         return "Custom error";
     }
@@ -17069,16 +17024,16 @@ PUBLIC cchar *httpLookupStatus(Http *http, int status)
 }
 
 
-PUBLIC void httpSetForkCallback(Http *http, MprForkCallback callback, void *data)
+PUBLIC void httpSetForkCallback(MprForkCallback callback, void *data)
 {
-    http->forkCallback = callback;
-    http->forkData = data;
+    HTTP->forkCallback = callback;
+    HTTP->forkData = data;
 }
 
 
-PUBLIC void httpSetListenCallback(Http *http, HttpListenCallback fn)
+PUBLIC void httpSetListenCallback(HttpListenCallback fn)
 {
-    http->listenCallback = fn;
+    HTTP->listenCallback = fn;
 }
 
 
@@ -17142,7 +17097,7 @@ static void httpTimer(Http *http, MprEvent *event)
             if (module->timeout) {
                 if (module->lastActivity + module->timeout < http->now) {
                     mprLog("info http", 2, "Unloading inactive module %s", module->name);
-                    if ((stage = httpLookupStage(http, module->name)) != 0) {
+                    if ((stage = httpLookupStage(module->name)) != 0) {
                         if (mprUnloadModule(module) < 0)  {
                             active++;
                         } else {
@@ -17185,7 +17140,7 @@ PUBLIC void httpSetTimestamp(MprTicks period)
 {
     Http    *http;
 
-    http = MPR->httpService;
+    http = HTTP;
     if (period < (10 * MPR_TICKS_PER_SEC)) {
         period = (10 * MPR_TICKS_PER_SEC);
     }
@@ -17199,8 +17154,11 @@ PUBLIC void httpSetTimestamp(MprTicks period)
 }
 
 
-PUBLIC void httpAddConn(Http *http, HttpConn *conn)
+PUBLIC void httpAddConn(HttpConn *conn)
 {
+    Http    *http;
+
+    http = HTTP;
     http->now = mprGetTicks();
     assert(http->now >= 0);
     conn->started = http->now;
@@ -17214,7 +17172,7 @@ PUBLIC void httpAddConn(Http *http, HttpConn *conn)
         if (!mprGetDebugMode())
 #endif
         {
-            http->timer = mprCreateTimerEvent(NULL, "httpTimer", HTTP_TIMER_PERIOD, httpTimer, http, 
+            http->timer = mprCreateTimerEvent(NULL, "httpTimer", HTTP_TIMER_PERIOD, httpTimer, 0, 
                 MPR_EVENT_CONTINUOUS | MPR_EVENT_QUICK);
         }
     }
@@ -17222,11 +17180,9 @@ PUBLIC void httpAddConn(Http *http, HttpConn *conn)
 }
 
 
-PUBLIC void httpRemoveConn(Http *http, HttpConn *conn)
+PUBLIC void httpRemoveConn(HttpConn *conn)
 {
-    if (http) {
-        mprRemoveItem(http->connections, conn);
-    }
+    mprRemoveItem(HTTP->connections, conn);
 }
 
 
@@ -17245,50 +17201,50 @@ PUBLIC char *httpGetDateString(MprPath *sbuf)
 
 PUBLIC void *httpGetContext(Http *http)
 {
-    return http->context;
+    return HTTP->context;
 }
 
 
-PUBLIC void httpSetContext(Http *http, void *context)
+PUBLIC void httpSetContext(void *context)
 {
-    http->context = context;
+    HTTP->context = context;
 }
 
 
 PUBLIC int httpGetDefaultClientPort(Http *http)
 {
-    return http->defaultClientPort;
+    return HTTP->defaultClientPort;
 }
 
 
 PUBLIC cchar *httpGetDefaultClientHost(Http *http)
 {
-    return http->defaultClientHost;
+    return HTTP->defaultClientHost;
 }
 
 
-PUBLIC void httpSetDefaultClientPort(Http *http, int port)
+PUBLIC void httpSetDefaultClientPort(int port)
 {
-    http->defaultClientPort = port;
+    HTTP->defaultClientPort = port;
 }
 
 
-PUBLIC void httpSetDefaultClientHost(Http *http, cchar *host)
+PUBLIC void httpSetDefaultClientHost(cchar *host)
 {
-    http->defaultClientHost = sclone(host);
+    HTTP->defaultClientHost = sclone(host);
 }
 
 
-PUBLIC void httpSetSoftware(Http *http, cchar *software)
+PUBLIC void httpSetSoftware(cchar *software)
 {
-    http->software = sclone(software);
+    HTTP->software = sclone(software);
 }
 
 
-PUBLIC void httpSetProxy(Http *http, cchar *host, int port)
+PUBLIC void httpSetProxy(cchar *host, int port)
 {
-    http->proxyHost = sclone(host);
-    http->proxyPort = port;
+    HTTP->proxyHost = sclone(host);
+    HTTP->proxyPort = port;
 }
 
 
@@ -17297,7 +17253,7 @@ static void updateCurrentDate()
     Http        *http;
     MprTicks    diff;
 
-    http = MPR->httpService;
+    http = HTTP;
     http->now = mprGetTicks();
     diff = http->now - http->currentTime;
     if (diff <= MPR_TICKS_PER_SEC || diff >= MPR_TICKS_PER_SEC) {
@@ -17320,7 +17276,7 @@ PUBLIC void httpGetStats(HttpStats *sp)
     ssize               memSessions;
 
     memset(sp, 0, sizeof(*sp));
-    http = MPR->httpService;
+    http = HTTP;
     ap = mprGetMemStats();
 
     sp->cpuUsage = ap->cpuUsage;
@@ -17421,7 +17377,7 @@ PUBLIC bool httpConfigure(HttpConfigureProc proc, void *data, MprTicks timeout)
     Http        *http;
     MprTicks    mark;
 
-    http = MPR->httpService;
+    http = HTTP;
     mark = mprGetTicks();
     if (timeout < 0) {
         timeout = http->serverLimits->requestTimeout;
@@ -17449,7 +17405,7 @@ PUBLIC int httpApplyUserGroup()
 #if ME_UNIX_LIKE
     Http    *http;
 
-    http = MPR->httpService;
+    http = HTTP;
     if (http->userChanged || http->groupChanged) {
         if (!smatch(MPR->logPath, "stdout") && !smatch(MPR->logPath, "stderr")) {
             if (chown(MPR->logPath, http->uid, http->gid) < 0) {
@@ -17496,7 +17452,7 @@ PUBLIC void httpGetUserGroup()
     struct passwd   *pp;
     struct group    *gp;
 
-    http = MPR->httpService;
+    http = HTTP;
     http->uid = getuid();
     if ((pp = getpwuid(http->uid)) == 0) {
         mprLog("critical http", 0, "Cannot read user credentials: %d. Check your /etc/passwd file.", http->uid);
@@ -17510,7 +17466,7 @@ PUBLIC void httpGetUserGroup()
         http->group = sclone(gp->gr_name);
     }
 #else
-    Http *http = MPR->httpService;
+    Http *http = HTTP;
     http->uid = http->gid = -1;
 #endif
 }
@@ -17520,7 +17476,7 @@ PUBLIC int httpSetUserAccount(cchar *newUser)
 {
     Http        *http;
 
-    http = MPR->httpService;
+    http = HTTP;
     if (smatch(newUser, "HTTP") || smatch(newUser, "APPWEB")) {
 #if ME_UNIX_LIKE
         /* Only change user if root */
@@ -17568,7 +17524,7 @@ PUBLIC int httpSetGroupAccount(cchar *newGroup)
 {
     Http    *http;
 
-    http = MPR->httpService;
+    http = HTTP;
     if (smatch(newGroup, "HTTP") || smatch(newGroup, "APPWEB")) {
 #if ME_UNIX_LIKE
         /* Only change group if root */
@@ -17625,7 +17581,7 @@ PUBLIC int httpApplyChangedUser()
 #if ME_UNIX_LIKE
     Http    *http;
 
-    http = MPR->httpService;
+    http = HTTP;
     if (http->userChanged && http->uid >= 0) {
         if (http->gid >= 0 && http->groupChanged) {
             if (setgroups(0, NULL) == -1) {
@@ -17666,7 +17622,7 @@ PUBLIC int httpApplyChangedGroup()
 #if ME_UNIX_LIKE
     Http    *http;
 
-    http = MPR->httpService;
+    http = HTTP;
     if (http->groupChanged && http->gid >= 0) {
         if (setgid(http->gid) != 0) {
             mprLog("critical http", 0, "Cannot change group to %s: %d\n"
@@ -17726,7 +17682,7 @@ PUBLIC int httpSetPlatform(cchar *platform)
     Http    *http;
     cchar   *junk;
 
-    http = MPR->httpService;
+    http = HTTP;
     if (platform && httpParsePlatform(platform, &junk, &junk, &junk) < 0) {
         return MPR_ERR_BAD_ARGS;
     }
@@ -17743,7 +17699,7 @@ PUBLIC int httpSetPlatformDir(cchar *path)
 {
     Http    *http;
 
-    http = MPR->httpService;
+    http = HTTP;
     if (path) {
         http->platformDir = mprGetAbsPath(path);
     } else {
@@ -17827,11 +17783,7 @@ static HttpSession *allocSessionObj(HttpConn *conn, cchar *id, cchar *data)
 
 PUBLIC bool httpLookupSessionID(cchar *id)
 {
-    Http    *http;
-
-    http = MPR->httpService;
-    assert(http);
-    return mprLookupCache(http->sessionCache, id, 0, 0) != 0;
+    return mprLookupCache(HTTP->sessionCache, id, 0, 0) != 0;
 }
 
 
@@ -17847,10 +17799,7 @@ PUBLIC HttpSession *httpCreateSession(HttpConn *conn)
 
 PUBLIC void httpSetSessionNotify(MprCacheProc callback)
 {
-    Http        *http;
-
-    http = MPR->httpService;
-    mprSetCacheNotify(http->sessionCache, callback);
+    mprSetCacheNotify(HTTP->sessionCache, callback);
 }
 
 
@@ -18293,14 +18242,13 @@ PUBLIC void httpDefaultOutgoingServiceStage(HttpQueue *q)
 }
 
 
-PUBLIC HttpStage *httpCreateStage(Http *http, cchar *name, int flags, MprModule *module)
+PUBLIC HttpStage *httpCreateStage(cchar *name, int flags, MprModule *module)
 {
     HttpStage     *stage;
 
-    assert(http);
     assert(name && *name);
 
-    if ((stage = httpLookupStage(http, name)) != 0) {
+    if ((stage = httpLookupStage(name)) != 0) {
         if (!(stage->flags & HTTP_STAGE_UNLOADED)) {
             mprLog("error http", 0, "Stage %s already exists", name);
             return 0;
@@ -18314,7 +18262,7 @@ PUBLIC HttpStage *httpCreateStage(Http *http, cchar *name, int flags, MprModule 
     stage->outgoing = outgoing;
     stage->outgoingService = httpDefaultOutgoingServiceStage;
     stage->module = module;
-    httpAddStage(http, stage);
+    httpAddStage(stage);
     return stage;
 }
 
@@ -18331,7 +18279,7 @@ static void manageStage(HttpStage *stage, int flags)
 }
 
 
-PUBLIC HttpStage *httpCloneStage(Http *http, HttpStage *stage)
+PUBLIC HttpStage *httpCloneStage(HttpStage *stage)
 {
     HttpStage   *clone;
 
@@ -18343,21 +18291,21 @@ PUBLIC HttpStage *httpCloneStage(Http *http, HttpStage *stage)
 }
 
 
-PUBLIC HttpStage *httpCreateHandler(Http *http, cchar *name, MprModule *module)
+PUBLIC HttpStage *httpCreateHandler(cchar *name, MprModule *module)
 {
-    return httpCreateStage(http, name, HTTP_STAGE_HANDLER, module);
+    return httpCreateStage(name, HTTP_STAGE_HANDLER, module);
 }
 
 
-PUBLIC HttpStage *httpCreateFilter(Http *http, cchar *name, MprModule *module)
+PUBLIC HttpStage *httpCreateFilter(cchar *name, MprModule *module)
 {
-    return httpCreateStage(http, name, HTTP_STAGE_FILTER, module);
+    return httpCreateStage(name, HTTP_STAGE_FILTER, module);
 }
 
 
-PUBLIC HttpStage *httpCreateConnector(Http *http, cchar *name, MprModule *module)
+PUBLIC HttpStage *httpCreateConnector(cchar *name, MprModule *module)
 {
-    return httpCreateStage(http, name, HTTP_STAGE_CONNECTOR, module);
+    return httpCreateStage(name, HTTP_STAGE_CONNECTOR, module);
 }
 
 
@@ -18576,10 +18524,7 @@ PUBLIC void httpSetTraceEventLevel(HttpTrace *trace, cchar *type, int level)
 
 PUBLIC int httpGetTraceLevel()
 {
-    Http    *http;
-
-    http = MPR->httpService;
-    return http->traceLevel;
+    return HTTP->traceLevel;
 }
 
 
@@ -18618,15 +18563,12 @@ PUBLIC void httpSetTraceFormatterName(HttpTrace *trace, cchar *name)
 
 PUBLIC void httpSetTraceLevel(int level)
 {
-    Http    *http;
-
     if (level < 0) {
         level = 0;
     } else if (level > 5) {
         level = 5;
     }
-    http = MPR->httpService;
-    http->traceLevel = level;
+    HTTP->traceLevel = level;
 }
 
 
@@ -18985,18 +18927,17 @@ PUBLIC int httpOpenTraceLogFile(HttpTrace *trace)
  */
 PUBLIC int httpStartTracing(cchar *traceSpec)
 {
-    Http        *http;
     HttpTrace   *trace;
     char        *lspec;
 
-    if ((http = MPR->httpService) == 0 || http->trace == 0 || traceSpec == 0 || *traceSpec == '\0') {
-        assert(http);
+    if (HTTP == 0 || HTTP->trace == 0 || traceSpec == 0 || *traceSpec == '\0') {
+        assert(HTTP);
         return MPR_ERR_BAD_STATE;
     }
-    trace = http->trace;
+    trace = HTTP->trace;
     trace->flags = MPR_LOG_ANEW | MPR_LOG_CMDLINE;
     trace->path = stok(sclone(traceSpec), ":", &lspec);
-    http->traceLevel = (int) stoi(lspec);
+    HTTP->traceLevel = (int) stoi(lspec);
     return httpOpenTraceLogFile(trace);
 }
 
@@ -19651,7 +19592,7 @@ PUBLIC void httpRedirect(HttpConn *conn, int status, cchar *targetUri)
         This may add "localhost" if the host is missing in the targetUri.
      */
     targetUri = httpLink(conn, targetUri);
-    msg = httpLookupStatus(conn->http, status);
+    msg = httpLookupStatus(status);
 
     if (300 <= status && status <= 399) {
         if (targetUri == 0) {
@@ -20043,7 +19984,7 @@ PUBLIC void httpWriteHeaders(HttpQueue *q, HttpPacket *packet)
         mprPutCharToBuf(buf, ' ');
         mprPutIntToBuf(buf, tx->status);
         mprPutCharToBuf(buf, ' ');
-        mprPutStringToBuf(buf, httpLookupStatus(http, tx->status));
+        mprPutStringToBuf(buf, httpLookupStatus(tx->status));
         /* Server tracing of status happens in the "complete" event */
 
     } else {
@@ -20295,7 +20236,7 @@ PUBLIC int httpOpenUploadFilter(Http *http)
 {
     HttpStage     *filter;
 
-    if ((filter = httpCreateFilter(http, "uploadFilter", NULL)) == 0) {
+    if ((filter = httpCreateFilter("uploadFilter", NULL)) == 0) {
         return MPR_ERR_CANT_CREATE;
     }
     http->uploadFilter = filter;
@@ -22606,7 +22547,7 @@ PUBLIC int httpOpenWebSockFilter(Http *http)
 
     assert(http);
 
-    if ((filter = httpCreateFilter(http, "webSocketFilter", NULL)) == 0) {
+    if ((filter = httpCreateFilter("webSocketFilter", NULL)) == 0) {
         return MPR_ERR_CANT_CREATE;
     }
     http->webSocketFilter = filter;

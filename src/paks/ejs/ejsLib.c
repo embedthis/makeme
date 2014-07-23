@@ -35599,7 +35599,7 @@ static EjsHttp *httpConstructor(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
     ejsLoadHttpService(ejs);
     hp->ejs = ejs;
 
-    if ((hp->conn = httpCreateConn(ejs->http, NULL, ejs->dispatcher)) == 0) {
+    if ((hp->conn = httpCreateConn(NULL, ejs->dispatcher)) == 0) {
         ejsThrowMemoryError(ejs);
         return 0;
     }
@@ -35697,7 +35697,7 @@ static EjsObj *http_close(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
         }
         sendHttpCloseEvent(ejs, hp);
         httpDestroyConn(hp->conn);
-        hp->conn = httpCreateConn(ejs->http, NULL, ejs->dispatcher);
+        hp->conn = httpCreateConn(NULL, ejs->dispatcher);
         httpPrepClientConn(hp->conn, 0);
         httpSetConnNotifier(hp->conn, httpEventChange);
         httpSetConnContext(hp->conn, hp);
@@ -39311,7 +39311,7 @@ static EjsNumber *lf_emit(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
         msg = srejoin(msg, arg, NULL);
     }
     if (msg) {
-        mprLog(0, level, "%s", strim(msg, "\n", MPR_TRIM_END));
+        mprLog(NULL, level, "%s", strim(msg, "\n", MPR_TRIM_END));
         written += slen(msg);
     }
     ejsUnblockGC(ejs, paused);
@@ -51300,7 +51300,7 @@ static EjsWebSocket *wsConstructor(Ejs *ejs, EjsWebSocket *ws, int argc, EjsObj 
             ws->certFile = ejsToMulti(ejs, argv[0]);
         }
     }
-    if ((ws->conn = httpCreateConn(MPR->httpService, NULL, ejs->dispatcher)) == 0) {
+    if ((ws->conn = httpCreateConn(NULL, ejs->dispatcher)) == 0) {
         ejsThrowMemoryError(ejs);
         return 0;
     }
@@ -55867,7 +55867,7 @@ static EjsVoid *hs_listen(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
         if (sp->name) {
             httpSetHostName(host, sp->name);
         }
-        httpSetSoftware(endpoint->http, EJS_HTTPSERVER_NAME);
+        httpSetSoftware(EJS_HTTPSERVER_NAME);
         httpSetEndpointAsync(endpoint, sp->async);
         httpSetEndpointContext(endpoint, sp);
         httpSetEndpointNotifier(endpoint, stateChangeNotifier);
@@ -56150,13 +56150,11 @@ static void setHttpPipeline(Ejs *ejs, EjsHttpServer *sp)
     EjsString       *vs;
     HttpHost        *host;
     HttpRoute       *route;
-    Http            *http;
     HttpStage       *stage;
     cchar           *name;
     int             i;
 
     assert(sp->endpoint);
-    http = sp->endpoint->http;
     host = mprGetFirstItem(sp->endpoint->hosts);
     route = mprGetFirstItem(host->routes);
 
@@ -56166,7 +56164,7 @@ static void setHttpPipeline(Ejs *ejs, EjsHttpServer *sp)
             vs = ejsGetProperty(ejs, sp->outgoingStages, i);
             if (vs && ejsIs(ejs, vs, String)) {
                 name = vs->value;
-                if (httpLookupStage(http, name) == 0) {
+                if (httpLookupStage(name) == 0) {
                     ejsThrowArgError(ejs, "Cannot find pipeline stage name %s", name);
                     return;
                 }
@@ -56180,7 +56178,7 @@ static void setHttpPipeline(Ejs *ejs, EjsHttpServer *sp)
             vs = ejsGetProperty(ejs, sp->incomingStages, i);
             if (vs && ejsIs(ejs, vs, String)) {
                 name = vs->value;
-                if (httpLookupStage(http, name) == 0) {
+                if (httpLookupStage(name) == 0) {
                     ejsThrowArgError(ejs, "Cannot find pipeline stage name %s", name);
                     return;
                 }
@@ -56189,7 +56187,7 @@ static void setHttpPipeline(Ejs *ejs, EjsHttpServer *sp)
         }
     }
     if (sp->connector) {
-        if ((stage = httpLookupStage(http, sp->connector)) == 0) {
+        if ((stage = httpLookupStage(sp->connector)) == 0) {
             ejsThrowArgError(ejs, "Cannot find pipeline stage name %s", sp->connector);
             return;
         }
@@ -56420,7 +56418,7 @@ HttpStage *ejsAddWebHandler(Http *http, MprModule *module)
 
     assert(http);
     if ((handler = http->ejsHandler) == 0) {
-        if ((handler = httpCreateHandler(http, "ejsHandler", module)) == 0) {
+        if ((handler = httpCreateHandler("ejsHandler", module)) == 0) {
             return 0;
         }
     }

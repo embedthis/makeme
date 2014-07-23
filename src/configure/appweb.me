@@ -8,7 +8,7 @@ Me.load({
             config: function (target) {
                 let appweb = Cmd.locate('appweb')
                 if (appweb) {
-                    appweb = appweb.dirname.path
+                    appweb = appweb.dirname.parent
                 } else {
                     if (me.platform.os == 'windows') {
                         appweb = me.dir.programFiles32.join('Embedthis Appweb')

@@ -321,13 +321,12 @@ typedef void (*HttpTimeoutCallback)(struct HttpConn *conn);
 
 /**
     Set the fork callback.
-    @param http Http service object.
     @param proc Fork callback procedure
     @param arg Argument to supply when the callback is invoked.
     @ingroup HttpConn
-    @stability Stable
+    @stability Evolving
  */
-PUBLIC void httpSetForkCallback(struct Http *http, MprForkCallback proc, void *arg);
+PUBLIC void httpSetForkCallback(MprForkCallback proc, void *arg);
 
 /********************************* HttpMonitor ************************************/
 /*
@@ -957,6 +956,7 @@ typedef struct Http {
     int             gid;                    /**< Group Id */
     int             userChanged;            /**< User name changed */
     int             groupChanged;           /**< Group name changed */
+    int             staticLink;             /**< Target platform is using a static linking */
     int             traceLevel;             /**< Current request trace level */
 
     /*
@@ -978,8 +978,11 @@ typedef struct Http {
         @stability Stable.
      */
     PUBLIC Http *HTTP;
+#elif ME_WIN_LIKE
+    PUBLIC Http *httpGetHttp();
+    #define HTTP httpGetHttp()
 #else
-    #define HTTP ((Http*) (MPR->httpService))
+    PUBLIC_DATA Http *HTTP;
 #endif
 
 /**
@@ -1058,12 +1061,11 @@ PUBLIC void httpDestroy();
 
 /**
     Get the http context object
-    @param http Http service object.
     @return The http context object defined via httpSetContext
     @ingroup Http
-    @stability Stable
+    @stability Evolving
  */
-PUBLIC void *httpGetContext(Http *http);
+PUBLIC void *httpGetContext();
 
 /**
     Get the time as an ISO date string
@@ -1094,34 +1096,31 @@ PUBLIC int httpInitParser();
 /**
     Lookup a Http status code
     @description Lookup the code and return the corresponding text message briefly expaining the status.
-    @param http Http object created via #httpCreate
     @param status Http status code
     @return Text message corresponding to the status code
     @ingroup Http
     @stability Stable
  */
-PUBLIC cchar *httpLookupStatus(Http *http, int status);
+PUBLIC cchar *httpLookupStatus(int status);
 
 /**
     Lookup a host by name
-    @param http Http object created via #httpCreate
     @param name The name of the host to find
     @return The corresponding host object
     @ingroup Http
-    @stability Stable
+    @stability Evolving
  */
-PUBLIC struct HttpHost *httpLookupHost(Http *http, cchar *name);
+PUBLIC struct HttpHost *httpLookupHost(cchar *name);
 
 /**
     Lookup a listening endpoint
-    @param http Http object created via #httpCreate
     @param ip Listening IP address to look for
     @param port Listening port number
     @return HttpEndpoint object
     @ingroup Http
-    @stability Stable
+    @stability Evolving
  */
-PUBLIC struct HttpEndpoint *httpLookupEndpoint(Http *http, cchar *ip, int port);
+PUBLIC struct HttpEndpoint *httpLookupEndpoint(cchar *ip, int port);
 
 /**
     Parse a platform string
@@ -1137,32 +1136,29 @@ PUBLIC int httpParsePlatform(cchar *platform, cchar **os, cchar **arch, cchar **
 
 /**
     Set the http context object
-    @param http Http object created via #httpCreate
     @param context New context object
     @ingroup Http
     @stability Stable
  */
-PUBLIC void httpSetContext(Http *http, void *context);
+PUBLIC void httpSetContext(void *context);
 
 /**
     Define a default client host
     @description Define a default host to use for client connections if the URI does not specify a host
-    @param http Http object created via #httpCreateConn
     @param host Host or IP address
     @ingroup Http
-    @stability Stable
+    @stability Evolving
  */
-PUBLIC void httpSetDefaultClientHost(Http *http, cchar *host);
+PUBLIC void httpSetDefaultClientHost(cchar *host);
 
 /**
     Define a default client port
     @description Define a default port to use for client connections if the URI does not define a port
-    @param http Http object created via #httpCreateConn
     @param port Integer port number
     @ingroup Http
-    @stability Stable
+    @stability Evolving
  */
-PUBLIC void httpSetDefaultClientPort(Http *http, int port);
+PUBLIC void httpSetDefaultClientPort(int port);
 
 /**
     Set the group account
@@ -1198,22 +1194,20 @@ PUBLIC int httpSetPlatformDir(cchar *platform);
 /**
     Define a Http proxy host to use for all client connect requests.
     @description Define a http proxy host to communicate via when accessing the net.
-    @param http Http object created via #httpCreate
     @param host Proxy host name or IP address
     @param port Proxy host port number.
     @ingroup Http
-    @stability Stable
+    @stability Evolving
  */
-PUBLIC void httpSetProxy(Http *http, cchar *host, int port);
+PUBLIC void httpSetProxy(cchar *host, int port);
 
 /**
     Set the software description
-    @param http Http object created via #httpCreate
     @param description String describing the Http software. By default, this is set to HTTP_NAME.
     @ingroup Http
-    @stability Stable
+    @stability Evolving
  */
-PUBLIC void httpSetSoftware(Http *http, cchar *description);
+PUBLIC void httpSetSoftware(cchar *description);
 
 /**
     Set the user account
@@ -1237,13 +1231,13 @@ PUBLIC int httpSetUserAccount(cchar *user);
 PUBLIC void httpStopConnections(void *data);
 
 /* Internal APIs */
-PUBLIC void httpAddConn(Http *http, struct HttpConn *conn);
-PUBLIC struct HttpEndpoint *httpGetFirstEndpoint(Http *http);
-PUBLIC void httpRemoveConn(Http *http, struct HttpConn *conn);
-PUBLIC void httpAddEndpoint(Http *http, struct HttpEndpoint *endpoint);
-PUBLIC void httpRemoveEndpoint(Http *http, struct HttpEndpoint *endpoint);
-PUBLIC void httpAddHost(Http *http, struct HttpHost *host);
-PUBLIC void httpRemoveHost(Http *http, struct HttpHost *host);
+PUBLIC void httpAddConn(struct HttpConn *conn);
+PUBLIC struct HttpEndpoint *httpGetFirstEndpoint();
+PUBLIC void httpRemoveConn(struct HttpConn *conn);
+PUBLIC void httpAddEndpoint(struct HttpEndpoint *endpoint);
+PUBLIC void httpRemoveEndpoint(struct HttpEndpoint *endpoint);
+PUBLIC void httpAddHost(struct HttpHost *host);
+PUBLIC void httpRemoveHost(struct HttpHost *host);
 PUBLIC void httpDefineRouteBuiltins();
 
 /*********************************** HttpStats ********************************/
@@ -2458,7 +2452,7 @@ PUBLIC void httpAssignQueue(HttpQueue *q, struct HttpStage *stage, int dir);
 #define HTTP_STAGE_RX             0x40000           /**< Stage to be used in the Rx direction */
 #define HTTP_STAGE_TX             0x80000           /**< Stage to be used in the Tx direction */
 
-typedef int (*HttpParse)(Http *http, cchar *key, char *value, void *state);
+typedef int (*HttpParse)(cchar *key, char *value, void *state);
 
 /**
     Pipeline Stages
@@ -2635,61 +2629,55 @@ typedef struct HttpStage {
 
 } HttpStage;
 
-
 /**
     Create a clone of an existing state. This is used when creating filters configured to match certain extensions.
-    @param http Http object returned from #httpCreate
     @param stage Stage object to clone
     @return A new stage object
     @ingroup HttpStage
-    @stability Stable
+    @stability Evolving
 */
-PUBLIC HttpStage *httpCloneStage(Http *http, HttpStage *stage);
+PUBLIC HttpStage *httpCloneStage(HttpStage *stage);
 
 /**
     Create a connector stage
     @description Create a new connector. Connectors are the final stage for outgoing data. Their job is to transmit
         outgoing data to the client.
-    @param http Http object returned from #httpCreate
     @param name Name of connector stage
     @param module Optional module object for loadable stages
     @return A new stage object
     @ingroup HttpStage
-    @stability Stable
+    @stability Evolving
  */
-PUBLIC HttpStage *httpCreateConnector(Http *http, cchar *name, MprModule *module);
+PUBLIC HttpStage *httpCreateConnector(cchar *name, MprModule *module);
 
 /**
     Create a filter stage
     @description Create a new filter. Filters transform data generated by handlers and before connectors transmit to
         the client. Filters can apply transformations to incoming, outgoing or bi-directional data.
-    @param http Http object
     @param name Name of connector stage
     @param module Optional module object for loadable stages
     @return A new stage object
     @ingroup HttpStage
-    @stability Stable
+    @stability Evolving
  */
-PUBLIC HttpStage *httpCreateFilter(Http *http, cchar *name, MprModule *module);
+PUBLIC HttpStage *httpCreateFilter(cchar *name, MprModule *module);
 
 /**
     Create a request handler stage
     @description Create a new handler. Handlers generate outgoing data and are the final stage for incoming data.
         Their job is to process requests and send outgoing data downstream toward the client consumer.
         There is ever only one handler for a request.
-    @param http Http object
     @param name Name of connector stage
     @param module Optional module object for loadable stages
     @return A new stage object
     @ingroup HttpStage
-    @stability Stable
+    @stability Evolving
  */
-PUBLIC HttpStage *httpCreateHandler(Http *http, cchar *name, MprModule *module);
+PUBLIC HttpStage *httpCreateHandler(cchar *name, MprModule *module);
 
 /**
     Create a connector stage
     @description Create a new stage.
-    @param http Http object returned from #httpCreate
     @param name Name of connector stage
     @param flags Stage flags
     @param module Optional module object for loadable stages
@@ -2697,17 +2685,16 @@ PUBLIC HttpStage *httpCreateHandler(Http *http, cchar *name, MprModule *module);
     @ingroup HttpStage
     @stability Stable
  */
-PUBLIC HttpStage *httpCreateStage(Http *http, cchar *name, int flags, MprModule *module);
+PUBLIC HttpStage *httpCreateStage(cchar *name, int flags, MprModule *module);
 
 /**
     Lookup a stage by name
-    @param http Http object
     @param name Name of stage to locate
     @return Stage or NULL if not found
     @ingroup HttpStage
-    @stability Stable
+    @stability Evolving
 */
-PUBLIC struct HttpStage *httpLookupStage(Http *http, cchar *name);
+PUBLIC struct HttpStage *httpLookupStage(cchar *name);
 
 /**
     Default incoming put callback.
@@ -2753,13 +2740,12 @@ PUBLIC void httpHandleOptions(struct HttpConn *conn);
 /**
     Lookup stage data
     @description This looks up the stage by name and returns the private stage data.
-    @param http Http object
     @param name Name of the stage concerned
     @return Reference to the stage data block.
     @ingroup HttpStage
-    @stability Stable
+    @stability Evolving
  */
-PUBLIC void *httpLookupStageData(Http *http, cchar *name);
+PUBLIC void *httpLookupStageData(cchar *name);
 
 /**
     Set stage data
@@ -2774,19 +2760,19 @@ PUBLIC void *httpLookupStageData(Http *http, cchar *name);
 PUBLIC void httpSetStageData(struct HttpConn *conn, cchar *key, cvoid *data);
 
 /* Internal APIs */
-PUBLIC void httpAddStage(Http *http, HttpStage *stage);
+PUBLIC void httpAddStage(HttpStage *stage);
 PUBLIC ssize httpFilterChunkData(HttpQueue *q, HttpPacket *packet);
-PUBLIC int httpOpenActionHandler(Http *http);
-PUBLIC int httpOpenChunkFilter(Http *http);
-PUBLIC int httpOpenCacheHandler(Http *http);
-PUBLIC int httpOpenDirHandler(Http *http);
-PUBLIC int httpOpenFileHandler(Http *http);
-PUBLIC int httpOpenPassHandler(Http *http);
-PUBLIC int httpOpenRangeFilter(Http *http);
-PUBLIC int httpOpenNetConnector(Http *http);
-PUBLIC int httpOpenSendConnector(Http *http);
-PUBLIC int httpOpenUploadFilter(Http *http);
-PUBLIC int httpOpenWebSockFilter(Http *http);
+PUBLIC int httpOpenActionHandler();
+PUBLIC int httpOpenChunkFilter();
+PUBLIC int httpOpenCacheHandler();
+PUBLIC int httpOpenDirHandler();
+PUBLIC int httpOpenFileHandler();
+PUBLIC int httpOpenPassHandler();
+PUBLIC int httpOpenRangeFilter();
+PUBLIC int httpOpenNetConnector();
+PUBLIC int httpOpenSendConnector();
+PUBLIC int httpOpenUploadFilter();
+PUBLIC int httpOpenWebSockFilter();
 PUBLIC int httpSendOpen(HttpQueue *q);
 PUBLIC void httpSendOutgoingService(HttpQueue *q);
 
@@ -3035,14 +3021,13 @@ PUBLIC void httpBorrowConn(HttpConn *conn);
     Create a connection object.
     @description Most interactions with the Http library are via a connection object. It is used for server-side
         communications when responding to client requests and it is used to initiate outbound client requests.
-    @param http Http object created via #httpCreate
     @param endpoint Endpoint object owning the connection.
     @param dispatcher Disptacher to use for I/O events on the connection
     @returns A new connection object
     @ingroup HttpConn
     @stability Internal
 */
-PUBLIC HttpConn *httpCreateConn(Http *http, struct HttpEndpoint *endpoint, MprDispatcher *dispatcher);
+PUBLIC HttpConn *httpCreateConn(struct HttpEndpoint *endpoint, MprDispatcher *dispatcher);
 
 /**
     Create the receive request pipeline
@@ -6719,14 +6704,15 @@ PUBLIC void httpFinalizeConnector(HttpConn *conn);
 /**
     Finalize transmission of the http response
     @description This routine should be called by clients and Handlers to signify the end of the body content being sent with
-        the request or response body. This call will force the transmission of buffered content to the peer.
-    HttpFinalizeOutput will set the finalizedOutput flag and write a final chunk trailer if using chunked transfers. If the
-    output is already finalized, this call does nothing.  Note that after finalization, incoming content may continue to be processed.
+    the request or response body. This call will force the transmission of buffered content to the peer. HttpFinalizeOutput
+    will set the finalizedOutput flag and write a final chunk trailer if using chunked transfers. If the output is already
+    finalized, this call does nothing.  Note that after finalization, incoming content may continue to be processed.
     i.e. httpFinalizeOutput can be called before all incoming data has been received.
     \n\n
-    The difference between #httpFinalize and #httpFinalizeOutput is that #httpFinalize implies that all request processing is also
-    complete whereas #httpFinalizeOutput implies that the output is generated. Note that while the output may be fully generated, it
-    may not be fully transmitted by the pipeline and connector. When the output is fully transmitted, the connector will call
+    The difference between #httpFinalize and #httpFinalizeOutput is that #httpFinalize implies that all request 
+    processing is also complete whereas #httpFinalizeOutput implies that the output is generated. Note that while the 
+    output may be fully generated, it may not be fully transmitted by the pipeline and connector. When the output is 
+    fully transmitted, the connector will call
     #httpFinalizeConnector.
     @param conn HttpConn connection object
     @ingroup HttpTx
@@ -7412,6 +7398,16 @@ PUBLIC HttpHost *httpCloneHost(HttpHost *parent);
     @stability Stable
  */
 PUBLIC HttpHost *httpCreateHost();
+
+/**
+    Create the default host
+    @description Create and define a default host. The host is added to the Http service's list of hosts.
+    A default route is created for the host
+    @return The new HttpHost object.
+    @ingroup HttpHost
+    @stability Prototype
+ */
+PUBLIC HttpHost *httpCreateDefaultHost();
 
 /**
     Get the default host defined via httpSetDefaultHost
