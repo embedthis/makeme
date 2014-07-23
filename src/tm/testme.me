@@ -33,7 +33,10 @@ Me.load({
         'testme.mod': {
             path: '${BIN}/testme.mod',
             files: [ 'testme.es' ],
-            run: '${BIN}/ejsc --debug --out ${BIN}/testme.mod --optimize 9 ${target.cmdfiles}',
+            build: `
+                trace('Compile', 'testme.mod')
+                run('${LBIN}/ejsc --out ${BIN}/testme.mod --optimize 9 testme.es')
+            `
             'generate-nmake': `"${BIN}\\ejsc" --out "${BIN}/testme.mod" --optimize 9 ${target.cmdfiles}`,
             'generate-sh': '${LBIN}/ejsc --out ${BIN}/testme.mod --optimize 9 ${target.cmdfiles}',
             depends: [ 'ejsc' ],
@@ -53,7 +56,10 @@ Me.load({
         'ejs.testme.mod': {
             path: '${BIN}/ejs.testme.mod',
             files: [ 'ejs.testme.es' ],
-            run: '${BIN}/ejsc --debug --out ${BIN}/ejs.testme.mod --optimize 9 ${target.cmdfiles}',
+            build: `
+                trace('Compile', 'ejs.testme.mod')
+                run('${LBIN}/ejsc --out ${BIN}/ejs.testme.mod --optimize 9 ejs.testme.es')
+            `
             'generate-nmake': `"${BIN}\\ejsc" --out "${BIN}/ejs.testme.mod" --optimize 9 ${target.cmdfiles}`,
             'generate-sh': '${LBIN}/ejsc --out ${BIN}/ejs.testme.mod --optimize 9 ${target.cmdfiles}',
             depends: [ 'ejsc' ],

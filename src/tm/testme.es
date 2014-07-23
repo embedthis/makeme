@@ -1,6 +1,8 @@
 /*
     testme.es -- MakeMe Unit Test
  */
+print("BEGIN")
+
 module ejs.testme {
 
 require ejs.unix
