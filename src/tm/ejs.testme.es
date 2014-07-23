@@ -74,6 +74,7 @@ module ejs.testme {
     public function connectToService(cmdline: String, options = {}, retries: Number = 1): Boolean {
         stopService()
         let pidfile = Path(options.pidfile || PIDFILE)
+        let pid
         if (pidfile.exists) {
             pid = pidfile.readString()
         } else {
@@ -92,6 +93,7 @@ module ejs.testme {
                 tinfo('Connected', 'to ' + cmdline + ' (' + pid + ')')
                 return true
             } catch (e) {
+                twrite('CATCH', e)
                 App.sleep(100)
             }
         }
