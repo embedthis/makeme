@@ -99,12 +99,17 @@ enumerable class TestMe {
 
         originalDir = App.dir
         if (options.chdir) {
-            App.chdir(options.chdir)
-        } else {
-            App.chdir(topTestDir)
+            topTestDir = options.chdir
         }
+        App.chdir(topTestDir)
         if (originalDir != App.dir) {
             trace('Chdir', App.dir)
+            let current = originalDir.relativeTo(App.dir)
+            if (filters.length > 0) {
+                filters.transform(function(f) current.join(f))
+            } else {
+                filters = [current]
+            }
         }
         if (options['continue']) {
             keepGoing = true
@@ -281,7 +286,6 @@ enumerable class TestMe {
         try {
             command = buildTest(phase, topPath, file, env)
         } catch (e) {
-trace('F3')
             trace('FAIL', topPath + ' cannot build ' + topPath + '\n\n' + e.message)
             this.failedCount++
             return false
@@ -322,7 +326,6 @@ trace('F3')
             cmd.finalize()
             cmd.wait(TIMEOUT)
             if (cmd.status != 0) {
-trace('F4')
                 trace('FAIL', topPath + ' with bad exit status ' + cmd.status)
                 if (cmd.response) {
                     trace('Stdout', '\n' + cmd.response)
@@ -370,7 +373,6 @@ trace('F5')
             case 'fail':
                 success = false
                 this.failedCount++
-trace('F1')
                 trace('FAIL', topPath + ' ' + rest)
                 break
 
