@@ -11526,13 +11526,11 @@ PUBLIC int httpAddRouteFilter(HttpRoute *route, cchar *name, cchar *extensions, 
 
 PUBLIC int httpAddRouteHandler(HttpRoute *route, cchar *name, cchar *extensions)
 {
-    Http            *http;
-    HttpStage       *handler, *prior;
-    char            *extlist, *word, *tok;
+    HttpStage   *handler, *prior;
+    char        *extlist, *word, *tok;
 
     assert(route);
 
-    http = route->http;
     if ((handler = httpLookupStage(name)) == 0) {
         mprLog("error http route", 0, "Cannot find stage %s", name);
         return MPR_ERR_CANT_FIND;
@@ -11585,22 +11583,6 @@ PUBLIC int httpAddRouteHandler(HttpRoute *route, cchar *name, cchar *extensions)
     }
     return 0;
 }
-
-
-#if KEEP
-PUBLIC void httpAddRouteLoad(HttpRoute *route, cchar *module, cchar *path)
-{
-    HttpRouteOp     *op;
-
-    GRADUATE_LIST(route, updates);
-    if ((op = createRouteOp("--load--", 0)) == 0) {
-        return;
-    }
-    op->var = sclone(module);
-    op->value = sclone(path);
-    mprAddItem(route->updates, op);
-}
-#endif
 
 
 PUBLIC void httpAddRouteMapping(HttpRoute *route, cchar *extensions, cchar *mappings)
