@@ -10,6 +10,18 @@
 
 /************************************ Code ************************************/
 
+PUBLIC void tdebug(cchar *fmt, ...)
+{
+    va_list     ap;
+    char        buf[ME_MAX_BUFFER];
+
+    va_start(ap, fmt);
+    vsnprintf(buf, sizeof(buf), fmt, ap);
+    va_end(ap);
+    printf("debug %s\n", buf);
+}
+
+
 PUBLIC int tdepth()
 {
     cchar   *value;

@@ -2,7 +2,7 @@
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{2ddcc749-d49b-42e6-8e4e-0ce105c6f507}</ProjectGuid>
+    <ProjectGuid>{c5b0b25e-707e-4027-9187-52d40c0127a7}</ProjectGuid>
     <RootNamespace />
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
@@ -72,47 +72,42 @@
     <_ProjectFileVersion>10</_ProjectFileVersion>
 
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(BinDir)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ObjDir)\prep\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ObjDir)\testme.mod\</IntDir>
     <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PreBuildEvent</CustomBuildBeforeTargets>
 
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(BinDir)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ObjDir)\prep\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ObjDir)\testme.mod\</IntDir>
     <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PreBuildEvent</CustomBuildBeforeTargets>
 
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(BinDir)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ObjDir)\prep\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ObjDir)\testme.mod\</IntDir>
     <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PreBuildEvent</CustomBuildBeforeTargets>
 
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(BinDir)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ObjDir)\prep\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ObjDir)\testme.mod\</IntDir>
     <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PreBuildEvent</CustomBuildBeforeTargets>
   </PropertyGroup>
 
   <ItemDefinitionGroup>
   <Link>
-    <AdditionalDependencies>;%(AdditionalDependencies)</AdditionalDependencies>
-    <AdditionalLibraryDirectories>$(OutDir);;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    <AdditionalDependencies>libejs.lib;libhttp.lib;libmpr.lib;libpcre.lib;libzlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    <AdditionalLibraryDirectories>$(OutDir);build\$(Cfg)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
   </Link>
 
   <CustomBuildStep>
-    <Command>if not exist "$(ObjDir)" md "$(ObjDir)"
-if not exist "$(BinDir)" md "$(BinDir)"
-if not exist "$(IncDir)" md "$(IncDir)"
-if not exist "$(IncDir)\me.h" copy "..\me-windows-default-me.h" "$(IncDir)\me.h"
-copy /Y ..\src\paks\ejs\ejs.h $(IncDir)
-copy /Y ..\src\paks\ejs\ejs.slots.h $(IncDir)
-copy /Y ..\src\paks\ejs\ejsByteGoto.h $(IncDir)
-copy /Y ..\src\paks\est\est.h $(IncDir)
-copy /Y ..\src\paks\http\http.h $(IncDir)
-copy /Y ..\build\$(Cfg)\inc\me.h $(IncDir)
-copy /Y ..\src\paks\mpr\mpr.h $(IncDir)
-copy /Y ..\src\paks\osdep\osdep.h $(IncDir)
-copy /Y ..\src\paks\pcre\pcre.h $(IncDir)
-copy /Y ..\src\tm\testme.h $(IncDir)
-copy /Y ..\src\paks\zlib\zlib.h $(IncDir)</Command>
-    <Outputs>\Users\mob\git\me\projects\me-windows-default\..\..\always</Outputs>
+    <Command>cd ..\..\src\tm
+"$(BinDir)\ejsc" --debug --out "$(BinDir)/testme.mod" --optimize 9 /Users/mob/git/me/src/tm/testme.es
+cd ..\..\projects\me-windows-default</Command>
+    <Outputs>$(BinDir)\testme.mod</Outputs>
   </CustomBuildStep>
   </ItemDefinitionGroup>
+
+<ItemGroup>
+  <ProjectReference Include="ejsc.vcxproj">
+  <Project>75a3c39b-7cd5-473d-8aa0-e3c369ab6b33</Project>
+  <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+  </ProjectReference>
+</ItemGroup>
 
   <Import Project="$(VCTargetsPath)Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

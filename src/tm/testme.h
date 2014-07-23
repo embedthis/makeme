@@ -24,6 +24,7 @@
 #define ttrue(E)               ttest(TM_LOC, #E, (E) != 0)
 #define tfalse(E)              ttest(TM_LOC, #E, (E) == 0)
 
+PUBLIC void tdebug(cchar *fmt, ...);
 PUBLIC int tdepth();
 PUBLIC cchar *tget(cchar *key, cchar *def);
 PUBLIC int tgeti(cchar *key, int def);

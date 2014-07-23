@@ -7,6 +7,10 @@ module ejs.testme {
 
     const PIDFILE = '.testme-pidfile'
 
+    function tdebug(...args) {
+        print('debug', ...args)
+    }
+
     function tdepth(): Number
         tget('TM_DEPTH') - 0
         
@@ -72,7 +76,6 @@ module ejs.testme {
     }
 
     public function connectToService(cmdline: String, options = {}, retries: Number = 1): Boolean {
-        stopService()
         let pidfile = Path(options.pidfile || PIDFILE)
         let pid
         if (pidfile.exists) {
@@ -93,8 +96,8 @@ module ejs.testme {
                 tinfo('Connected', 'to ' + cmdline + ' (' + pid + ')')
                 return true
             } catch (e) {
-                twrite('CATCH', e)
-                App.sleep(100)
+                // twrite('CATCH', e)
+                App.sleep(250)
             }
         }
         return false
@@ -112,7 +115,8 @@ module ejs.testme {
             let pid = cmd.pid
             Path(pidfile).write(pid)
             tinfo('Started', cmdline + ' (' + pid + ')')
-            if (!connectToService(cmdline, options, 50)) {
+            App.sleep(250)
+            if ((connected = connectToService(cmdline, options, 10)) != true) {
                 tinfo('Cannot connect to service: ' + cmdline + ' on ' + address)
             }
         }

@@ -103,6 +103,9 @@ enumerable class TestMe {
         } else {
             App.chdir(topTestDir)
         }
+        if (originalDir != App.dir) {
+            trace('Chdir', App.dir)
+        }
         if (options['continue']) {
             keepGoing = true
         }
@@ -278,6 +281,7 @@ enumerable class TestMe {
         try {
             command = buildTest(phase, topPath, file, env)
         } catch (e) {
+trace('F3')
             trace('FAIL', topPath + ' cannot build ' + topPath + '\n\n' + e.message)
             this.failedCount++
             return false
@@ -318,6 +322,7 @@ enumerable class TestMe {
             cmd.finalize()
             cmd.wait(TIMEOUT)
             if (cmd.status != 0) {
+trace('F4')
                 trace('FAIL', topPath + ' with bad exit status ' + cmd.status)
                 if (cmd.response) {
                     trace('Stdout', '\n' + cmd.response)
@@ -334,6 +339,7 @@ enumerable class TestMe {
                 }
             }
         } catch (e) {
+trace('F5')
             trace('FAIL', topPath + ' ' + e)
             this.failedCount++
         }
@@ -357,9 +363,14 @@ enumerable class TestMe {
             let rest = tokens.slice(1).join(' ')
 
             switch (kind) {
+            case 'debug':
+                trace('Debug', rest)
+                break
+
             case 'fail':
                 success = false
                 this.failedCount++
+trace('F1')
                 trace('FAIL', topPath + ' ' + rest)
                 break
 
@@ -392,9 +403,11 @@ enumerable class TestMe {
                 skipTest = true
                 if (true || options.verbose || options.why) {
                     if (file.extension == 'set') {
-                        trace('Skip', 'Directory "' + topPath.dirname + '", ' + rest)
+                        if (phase == 'Setup') {
+                            trace('Skip', 'Directory "' + topPath.dirname + '", ' + rest)
+                        }
                     } else {
-                        trace('Skip', 'Test "' + topPath + '", ' + rest)
+                        trace('Skip', topPath + ', ' + rest)
                     }
                 }
                 break
@@ -404,7 +417,7 @@ enumerable class TestMe {
                 break
 
             case 'write':
-                trace('Write', rest)
+                trace('Info', rest)
                 break
 
             case '':
@@ -413,7 +426,7 @@ enumerable class TestMe {
             default:
                 success = false
                 this.failedCount++
-                trace('FAIL', topPath)
+                trace('FAIL', 'Unexpected output from ' + topPath + ': ' + kind + ' ' + rest)
                 trace('Stdout', '\n' + output)
             }
         }
