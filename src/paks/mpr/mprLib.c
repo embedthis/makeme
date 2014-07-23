@@ -9712,14 +9712,6 @@ PUBLIC int mprWaitForEvent(MprDispatcher *dispatcher, MprTicks timeout)
 }
 
 
-#if UNUSED
-PUBLIC void mprResetCompletion(MprDispatcher *dispatcher)
-{
-    dispatcher->flags &= ~MPR_DISPATCHER_COMPLETE;
-}
-#endif
-
-
 PUBLIC void mprSignalCompletion(MprDispatcher *dispatcher)
 {
     if (dispatcher == 0) {

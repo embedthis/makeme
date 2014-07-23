@@ -1,8 +1,6 @@
 /*
     testme.es -- MakeMe Unit Test
  */
-print("BEGIN")
-
 module ejs.testme {
 
 require ejs.unix
@@ -161,7 +159,7 @@ enumerable class TestMe {
                 parseMeConfig(cfg.join('inc/me.h'))
             }
         }
-        if ((path = searchUp('top.es.set')) != null) {
+        if ((path = searchUp('TOP.es.set')) != null) {
             topTestDir = path.dirname.absolute.portable
         } else {
             topTestDir = topDir
@@ -342,7 +340,7 @@ enumerable class TestMe {
         if (prior == this.failedCount) {
             if (phase == 'Test') {
                 trace('Pass', topPath)
-            } else if (!options.verbose) {
+            } else if (!options.verbose && !skipTest) {
                 trace(phase, topPath)
             }
         } else if (!keepGoing) {
@@ -392,7 +390,7 @@ enumerable class TestMe {
                 success = true
                 skippedCount++
                 skipTest = true
-                if (options.verbose || options.why) {
+                if (true || options.verbose || options.why) {
                     if (file.extension == 'set') {
                         trace('Skip', 'Directory "' + topPath.dirname + '", ' + rest)
                     } else {
@@ -524,7 +522,11 @@ Me.load({
 
         let exe, command
         if (ext == 'es') {
-            let mebin = Cmd.locate('me').dirname
+            let me = Cmd.locate('me')
+            if (!me) {
+                throw 'Cannot locate "me"'
+            }
+            let mebin = me.dirname
             if (file.extension == 'com') {
                 let ejsc = mebin.join('ejsc')
                 let mod = Path(name).joinExt('mod', true)

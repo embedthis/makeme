@@ -1465,14 +1465,14 @@ static void setChunkPrefix(HttpQueue *q, HttpPacket *packet);
 /* 
    Loadable module initialization
  */
-PUBLIC int httpOpenChunkFilter(Http *http)
+PUBLIC int httpOpenChunkFilter()
 {
     HttpStage     *filter;
 
     if ((filter = httpCreateFilter("chunkFilter", NULL)) == 0) {
         return MPR_ERR_CANT_CREATE;
     }
-    http->chunkFilter = filter;
+    HTTP->chunkFilter = filter;
     filter->match = matchChunk; 
     filter->open = openChunk; 
     filter->outgoingService = outgoingChunkService; 
@@ -2516,34 +2516,6 @@ static void postParse(HttpRoute *route)
 }
 
 
-#if MOVED
-PUBLIC cchar *httpGetDir(HttpRoute *route, cchar *name)
-{
-    cchar   *key;
-
-    key = sjoin(supper(name), "_DIR", NULL);
-    return httpGetRouteVar(route, key);
-}
-
-
-PUBLIC void httpSetDir(HttpRoute *route, cchar *name, cchar *value)
-{
-    if (value == 0) {
-        value = name;
-    }
-    value = mprJoinPath(route->documents, value);
-    httpSetRouteVar(route, sjoin(supper(name), "_DIR", NULL), httpMakePath(route, 0, value));
-}
-
-
-PUBLIC void httpSetDefaultDirs(HttpRoute *route)
-{
-    httpSetDir(route, "cache", 0);
-    httpSetDir(route, "client", 0);
-    httpSetDir(route, "paks", "paks");
-}
-#endif
-
 /**************************************** Parser Callbacks ****************************************/
 
 
@@ -3333,16 +3305,6 @@ static void parseHttp(HttpRoute *route, cchar *key, MprJson *prop)
 
     setConfigDefaults(route);
     parseAll(route, key, prop);
-
-#if MOVED
-    MprJson     *routes;
-    /*
-        Property order is not guaranteed, so must ensure routes are processed after all outer properties.
-     */
-    if ((routes = mprGetJsonObj(prop, "routes")) != 0) {
-        parseRoutes(route, key, routes);
-    }
-#endif
 }
 
 
@@ -6125,9 +6087,6 @@ static bool validateEndpoint(HttpEndpoint *endpoint)
     int         nextRoute;
 
     if ((host = mprGetFirstItem(endpoint->hosts)) == 0) {
-/* UNUSED
-        mprLog("error http config", 0, "Missing host object on endpoint %s:%d", endpoint->ip, endpoint->port);
-*/
         host = httpGetDefaultHost();
         httpAddHostToEndpoint(endpoint, host);
         if (!host->name) {
@@ -8340,7 +8299,7 @@ static void netOutgoingService(HttpQueue *q);
 /*
     Initialize the net connector
  */
-PUBLIC int httpOpenNetConnector(Http *http)
+PUBLIC int httpOpenNetConnector()
 {
     HttpStage     *stage;
 
@@ -8349,7 +8308,7 @@ PUBLIC int httpOpenNetConnector(Http *http)
     }
     stage->close = netClose;
     stage->outgoingService = netOutgoingService;
-    http->netConnector = stage;
+    HTTP->netConnector = stage;
     return 0;
 }
 
@@ -10431,14 +10390,14 @@ static void startRange(HttpQueue *q);
 
 /*********************************** Code *************************************/
 
-PUBLIC int httpOpenRangeFilter(Http *http)
+PUBLIC int httpOpenRangeFilter()
 {
     HttpStage     *filter;
 
     if ((filter = httpCreateFilter("rangeFilter", NULL)) == 0) {
         return MPR_ERR_CANT_CREATE;
     }
-    http->rangeFilter = filter;
+    HTTP->rangeFilter = filter;
     filter->match = matchRange; 
     filter->start = startRange; 
     filter->outgoingService = outgoingRangeService; 
@@ -16142,7 +16101,7 @@ static void sendClose(HttpQueue *q);
 
 /*********************************** Code *************************************/
 
-PUBLIC int httpOpenSendConnector(Http *http)
+PUBLIC int httpOpenSendConnector()
 {
     HttpStage     *stage;
 
@@ -16152,7 +16111,7 @@ PUBLIC int httpOpenSendConnector(Http *http)
     stage->open = httpSendOpen;
     stage->close = sendClose;
     stage->outgoingService = httpSendOutgoingService;
-    http->sendConnector = stage;
+    HTTP->sendConnector = stage;
     return 0;
 }
 
@@ -16441,7 +16400,7 @@ static void adjustSendVec(HttpQueue *q, MprOff written)
 
 
 #else
-PUBLIC int httpOpenSendConnector(Http *http) { return 0; }
+PUBLIC int httpOpenSendConnector() { return 0; }
 PUBLIC int httpSendOpen(HttpQueue *q) {}
 PUBLIC void httpSendOutgoingService(HttpQueue *q) {}
 #endif /* !ME_ROM */
@@ -16596,12 +16555,12 @@ PUBLIC Http *httpCreate(int flags)
     httpGetUserGroup();
     httpInitParser();
     httpInitAuth();
-    httpOpenNetConnector(http);
-    httpOpenSendConnector(http);
-    httpOpenRangeFilter(http);
-    httpOpenChunkFilter(http);
+    httpOpenNetConnector();
+    httpOpenSendConnector();
+    httpOpenRangeFilter();
+    httpOpenChunkFilter();
 #if ME_HTTP_WEB_SOCKETS
-    httpOpenWebSockFilter(http);
+    httpOpenWebSockFilter();
 #endif
     mprSetIdleCallback(isIdle);
     mprAddTerminator(terminateHttp);
@@ -17172,7 +17131,7 @@ PUBLIC void httpAddConn(HttpConn *conn)
         if (!mprGetDebugMode())
 #endif
         {
-            http->timer = mprCreateTimerEvent(NULL, "httpTimer", HTTP_TIMER_PERIOD, httpTimer, 0, 
+            http->timer = mprCreateTimerEvent(NULL, "httpTimer", HTTP_TIMER_PERIOD, httpTimer, http, 
                 MPR_EVENT_CONTINUOUS | MPR_EVENT_QUICK);
         }
     }
@@ -17199,7 +17158,7 @@ PUBLIC char *httpGetDateString(MprPath *sbuf)
 }
 
 
-PUBLIC void *httpGetContext(Http *http)
+PUBLIC void *httpGetContext()
 {
     return HTTP->context;
 }
@@ -17211,13 +17170,13 @@ PUBLIC void httpSetContext(void *context)
 }
 
 
-PUBLIC int httpGetDefaultClientPort(Http *http)
+PUBLIC int httpGetDefaultClientPort()
 {
     return HTTP->defaultClientPort;
 }
 
 
-PUBLIC cchar *httpGetDefaultClientHost(Http *http)
+PUBLIC cchar *httpGetDefaultClientHost()
 {
     return HTTP->defaultClientHost;
 }
@@ -20232,14 +20191,14 @@ static int  processUploadData(HttpQueue *q);
 
 /************************************* Code ***********************************/
 
-PUBLIC int httpOpenUploadFilter(Http *http)
+PUBLIC int httpOpenUploadFilter()
 {
     HttpStage     *filter;
 
     if ((filter = httpCreateFilter("uploadFilter", NULL)) == 0) {
         return MPR_ERR_CANT_CREATE;
     }
-    http->uploadFilter = filter;
+    HTTP->uploadFilter = filter;
     filter->match = matchUpload;
     filter->open = openUpload;
     filter->close = closeUpload;
@@ -22541,16 +22500,14 @@ static void traceErrorProc(HttpConn *conn, cchar *fmt, ...);
 /*
    WebSocket Filter initialization
  */
-PUBLIC int httpOpenWebSockFilter(Http *http)
+PUBLIC int httpOpenWebSockFilter()
 {
     HttpStage     *filter;
-
-    assert(http);
 
     if ((filter = httpCreateFilter("webSocketFilter", NULL)) == 0) {
         return MPR_ERR_CANT_CREATE;
     }
-    http->webSocketFilter = filter;
+    HTTP->webSocketFilter = filter;
     filter->match = matchWebSock;
     filter->open = openWebSock;
     filter->ready = readyWebSock;
