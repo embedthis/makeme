@@ -81,7 +81,7 @@ module ejs.testme {
         if (pidfile.exists) {
             pid = pidfile.readString()
         } else {
-            for each (program in Cmd.ps('/' + cmdline)) {
+            for each (program in Cmd.ps(cmdline)) {
                 pid = program.pid
             }
         }

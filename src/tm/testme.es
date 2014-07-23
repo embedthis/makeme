@@ -327,11 +327,11 @@ enumerable class TestMe {
             cmd.wait(TIMEOUT)
             if (cmd.status != 0) {
                 trace('FAIL', topPath + ' with bad exit status ' + cmd.status)
-                if (cmd.response) {
-                    trace('Stdout', '\n' + cmd.response)
-                }
                 if (cmd.error) {
                     trace('Stderr', '\n' + cmd.error)
+                }
+                if (cmd.response) {
+                    trace('Stdout', '\n' + cmd.response)
                 }
                 this.failedCount++
             } else {
@@ -546,7 +546,6 @@ Me.load({
                 let ejsc = mebin.join('ejsc')
                 let mod = Path(name).joinExt('mod', true)
                 command = ejsc + ' --search "testme:' + mebin + '" --out ' + mod + ' ' + file
-                tm.makeDir()
                 if (options.rebuild || !mod.exists || mod.modified < file.modified) {
                     if (options.rebuild) {
                         why('Rebuild', mod + ' because --rebuild')

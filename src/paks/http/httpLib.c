@@ -3181,14 +3181,22 @@ static void parsePipelineFilters(HttpRoute *route, cchar *key, MprJson *prop)
 }
 
 
+/*
+    pipeline: {
+        handlers: 'espHandler',
+        handlers: {
+            espHandler: [ '*' },
+        },
+    },
+ */
 static void parsePipelineHandlers(HttpRoute *route, cchar *key, MprJson *prop)
 {
     MprJson     *child;
     int         ji;
 
     if (prop->type & MPR_JSON_STRING) {
-        if (httpAddRouteHandler(route, prop->name, 0) < 0) {
-            httpParseError(route, "Cannot add handler %s", prop->name);
+        if (httpSetRouteHandler(route, prop->value) < 0) {
+            httpParseError(route, "Cannot add handler %s", prop->value);
         }
 
     } else {
@@ -6204,9 +6212,7 @@ PUBLIC void httpMatchHost(HttpConn *conn)
     MprSocket       *listenSock;
     HttpEndpoint    *endpoint;
     HttpHost        *host;
-    Http            *http;
 
-    http = conn->http;
     listenSock = conn->sock->listenSock;
 
     if ((endpoint = httpLookupEndpoint(listenSock->ip, listenSock->port)) == 0) {
@@ -7341,7 +7347,7 @@ static void printRoute(HttpRoute *route, int next, bool full)
             }
         }
     } else {
-        mprLog(0, 1, "%-30s %-16s %-50s %-14s", route->name, methods ? methods : "*", pattern, target);
+        mprLog(0, 1, "%-30s %-22s %-50s %-14s", route->name, methods ? methods : "*", pattern, target);
     }
 }
 
@@ -7355,7 +7361,7 @@ PUBLIC void httpLogRoutes(HttpHost *host, bool full)
         host = httpGetDefaultHost();
     }
     if (!full) {
-        mprLog(0, 1, "%-30s %-16s %-50s %-14s", "Name", "Methods", "Pattern", "Target");
+        mprLog(0, 1, "%-30s %-22s %-50s %-14s", "Name", "Methods", "Pattern", "Target");
     }
     for (foundDefault = next = 0; (route = mprGetNextItem(host->routes, &next)) != 0; ) {
         printRoute(route, next - 1, full);
@@ -11548,7 +11554,9 @@ PUBLIC int httpAddRouteHandler(HttpRoute *route, cchar *name, cchar *extensions)
             mprAddKey(route->extensions, "", handler);
         } else {
             while (word) {
-                if (*word == '*' && word[1] == '.') {
+                if (*word == '*' && word[1] == '\0') {
+                    word++;
+                } else if (*word == '*' && word[1] == '.') {
                     word += 2;
                 } else if (*word == '.') {
                     word++;
@@ -13893,7 +13901,7 @@ PUBLIC void httpSetDir(HttpRoute *route, cchar *name, cchar *value)
     if (value == 0) {
         value = name;
     }
-    value = mprJoinPath(route->documents, value);
+    value = mprJoinPath(route->home, value);
     httpSetRouteVar(route, sjoin(supper(name), "_DIR", NULL), httpMakePath(route, 0, value));
 }
 
