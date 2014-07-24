@@ -317,34 +317,38 @@ enumerable class TestMe {
             return true
         }
         let prior = this.failedCount
-        try {
-            App.log.debug(5, serialize(env))
-            this.startTest = new Date
-            let cmd = new Cmd
-            cmd.env = env
-            strace('Run', command)
-            cmd.start(command, blend({detach: true}, options))
-            cmd.finalize()
-            cmd.wait(TIMEOUT)
-            if (cmd.status != 0) {
-                trace('FAIL', topPath + ' with bad exit status ' + cmd.status)
-                if (cmd.error) {
-                    trace('Stderr', '\n' + cmd.error)
+        if (command) {
+            try {
+                App.log.debug(5, serialize(env))
+                this.startTest = new Date
+                let cmd = new Cmd
+                cmd.env = env
+                strace('Run', command)
+                cmd.start(command, blend({detach: true}, options))
+                cmd.finalize()
+                cmd.wait(TIMEOUT)
+                if (cmd.status != 0) {
+                    trace('FAIL', topPath + ' with bad exit status ' + cmd.status)
+                    if (cmd.error) {
+                        trace('Stderr', '\n' + cmd.error)
+                    }
+                    if (cmd.response) {
+                        trace('Stdout', '\n' + cmd.response)
+                    }
+                    this.failedCount++
+                } else {
+                    let output = cmd.readString()
+                    parseOutput(phase, topPath, file, output, env)
+                    if (cmd.error) {
+                        trace('Stderr', '\n' + cmd.error)
+                    }
                 }
-                if (cmd.response) {
-                    trace('Stdout', '\n' + cmd.response)
-                }
+            } catch (e) {
+                trace('FAIL', topPath + ' ' + e)
                 this.failedCount++
-            } else {
-                let output = cmd.readString()
-                parseOutput(phase, topPath, file, output, env)
-                if (cmd.error) {
-                    trace('Stderr', '\n' + cmd.error)
-                }
             }
-        } catch (e) {
-trace('F5')
-            trace('FAIL', topPath + ' ' + e)
+        } else {
+            trace('FAIL', topPath + ' is not a valid test file')
             this.failedCount++
         }
         if (prior == this.failedCount) {
