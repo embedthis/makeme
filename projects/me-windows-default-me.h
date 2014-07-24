@@ -58,13 +58,13 @@
     #define ME_DESCRIPTION "Embedthis MakeMe"
 #endif
 #ifndef ME_EJS_DB
-    #define ME_EJS_DB 0
+    #define ME_EJS_DB 1
 #endif
 #ifndef ME_EJS_MAIL
-    #define ME_EJS_MAIL 0
+    #define ME_EJS_MAIL 1
 #endif
 #ifndef ME_EJS_MAPPER
-    #define ME_EJS_MAPPER 0
+    #define ME_EJS_MAPPER 1
 #endif
 #ifndef ME_EJS_SHELL
     #define ME_EJS_SHELL 1
@@ -73,10 +73,10 @@
     #define ME_EJS_TAR 1
 #endif
 #ifndef ME_EJS_TEMPLATE
-    #define ME_EJS_TEMPLATE 0
+    #define ME_EJS_TEMPLATE 1
 #endif
 #ifndef ME_EJS_WEB
-    #define ME_EJS_WEB 0
+    #define ME_EJS_WEB 1
 #endif
 #ifndef ME_EJS_ZLIB
     #define ME_EJS_ZLIB 1

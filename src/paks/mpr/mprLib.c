@@ -19423,7 +19423,7 @@ PUBLIC int mprLoadNativeModule(MprModule *mp)
         mp->path = at;
         mprGetPathInfo(mp->path, &info);
         mp->modified = info.mtime;
-        mprLog("info mpr", 2, "Loading native module %s", mprGetPathBase(mp->path));
+        mprLog("info mpr", 4, "Loading native module %s", mprGetPathBase(mp->path));
         if ((handle = dlopen(mp->path, RTLD_LAZY | RTLD_GLOBAL)) == 0) {
             mprLog("error mpr", 0, "Cannot load module %s, reason: \"%s\"", mp->path, dlerror());
             return MPR_ERR_CANT_OPEN;
@@ -19432,7 +19432,7 @@ PUBLIC int mprLoadNativeModule(MprModule *mp)
 #endif /* !ME_STATIC */
 
     } else if (mp->entry) {
-        mprLog("info mpr", 2, "Activating native module %s", mp->name);
+        mprLog("info mpr", 4, "Activating native module %s", mp->name);
     }
     if (mp->entry) {
         if ((fn = (MprModuleEntry) dlsym(handle, mp->entry)) != 0) {
@@ -27638,7 +27638,7 @@ PUBLIC int mprLoadNativeModule(MprModule *mp)
         mprGetPathInfo(mp->path, &info);
         mp->modified = info.mtime;
 
-        mprLog("info mpr", 2, "Loading native module %s", mp->path);
+        mprLog("info mpr", 4, "Loading native module %s", mp->path);
         if ((fd = open(mp->path, O_RDONLY, 0664)) < 0) {
             mprLog("error mpr", 0, "Cannot open module \"%s\"", mp->path);
             return MPR_ERR_CANT_OPEN;
@@ -29321,7 +29321,7 @@ PUBLIC int mprLoadNativeModule(MprModule *mp)
         mprGetPathInfo(mp->path, &info);
         mp->modified = info.mtime;
         baseName = mprGetPathBase(mp->path);
-        mprLog("info mpr", 2, "Loading native module %s", baseName);
+        mprLog("info mpr", 4, "Loading native module %s", baseName);
         if ((handle = LoadLibrary(wide(mp->path))) == 0) {
             mprLog("error mpr", 0, "Cannot load module %s, errno=\"%d\"", mp->path, mprGetOsError());
             return MPR_ERR_CANT_READ;
@@ -29330,7 +29330,7 @@ PUBLIC int mprLoadNativeModule(MprModule *mp)
 #endif /* !ME_STATIC */
 
     } else if (mp->entry) {
-        mprLog("info mpr", 2, "Activating native module %s", mp->name);
+        mprLog("info mpr", 4, "Activating native module %s", mp->name);
     }
     if (mp->entry) {
         if ((fn = (MprModuleEntry) GetProcAddress((HINSTANCE) handle, mp->entry)) == 0) {
