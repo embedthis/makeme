@@ -542,11 +542,11 @@ Me.load({
             if (!me) {
                 throw 'Cannot locate "me"'
             }
-            let mebin = me.dirname
+            let mebin = me.dirname.relative.portable
             if (file.extension == 'com') {
                 let ejsc = mebin.join('ejsc')
                 let mod = Path(name).joinExt('mod', true)
-                command = ejsc + ' --search "testme:' + mebin + '" --out ' + mod + ' ' + file
+                command = ejsc + ' --search "testme' + App.SearchSeparator + mebin + '" --out ' + mod + ' ' + file
                 if (options.rebuild || !mod.exists || mod.modified < file.modified) {
                     if (options.rebuild) {
                         why('Rebuild', mod + ' because --rebuild')
