@@ -179,6 +179,7 @@ enumerable class TestMe {
             TM_TOP: topDir, 
             TM_TOP_TEST: topTestDir, 
             TM_CFG: cfg, 
+            TM_BIN: bin, 
             TM_DEPTH: depth, 
         })
     }
