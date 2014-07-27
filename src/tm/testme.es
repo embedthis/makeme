@@ -54,7 +54,7 @@ enumerable class TestMe {
             clobber: {},
             'continue': { alias: 's' },
             debug: { alias: 'D' },
-            depth: { range: Number },
+            depth: { range: Number, alias: 'd' },
             ide: { alias: 'i' },
             log: { alias: 'l', range: String },
             noserver: { alias: 'n' },
