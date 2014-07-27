@@ -6,17 +6,47 @@ NAME
        http - HTTP Client program
 
 SYNOPSIS
-       http [options] [files] url
-
-       [--auth  basic|digest  ]  [--benchmark  ] [--cert file] [--chunk size ]
-       [--continue] [--cookie cookieString] [--data]  [--debugger]  [--delete]
-       [--form string] [--header 'key: value'] [--host hostName] [--iterations
-       count] [--key file] [--log logSpec] [--method HTTP_METHOD] [--nofollow]
-       [--noout] [--out file] [--password pass] [--post] [--printable] [--pro-
-       tocol  version]  [--provider   name]   [--put]   [--range   byteRanges]
-       [--retries  count]  [--sequence] [--showHeaders] [--showStatus] [--sin-
-       gle] [--threads count] [--timeout  seconds]  [--upload]  [--user  name]
-       [--verify] [--verbose] [--workers count] [--zero]
+       http
+           --auth basic|digest
+           --benchmark
+           --cert file
+           --chunk size
+           --continue
+           --cookie cookieString
+           --data
+           --debugger
+           --delete
+           --form string
+           --header 'key: value'
+           --host hostName
+           --iterations count
+           --key file
+           --log logSpec
+           --method METHOD
+           --nofollow
+           --noout
+           --out file
+           --password pass
+           --post
+           --printable
+           --protocol version
+           --provider name
+           --put
+           --range byteRanges
+           --retries count
+           --sequence
+           --showHeaders
+           --showStatus
+           --single
+           --threads count
+           --timeout seconds
+           --upload
+           --user name
+           --verify
+           --verbose
+           --workers count
+           --zero
+           [files] url
 
 DESCRIPTION
        The  http  command  issues  HTTP  commands to retrieve files from a web

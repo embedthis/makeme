@@ -54,8 +54,8 @@ enumerable class TestMe {
             clobber: {},
             'continue': { alias: 's' },
             debug: { alias: 'D' },
-            debugger: { alias: 'd' },
             depth: { range: Number },
+            ide: { alias: 'i' },
             log: { alias: 'l', range: String },
             noserver: { alias: 'n' },
             project: { },
@@ -63,9 +63,9 @@ enumerable class TestMe {
             rebuild: { alias: 'r' },
             show: { alias: 's' },
             trace: { alias: 't' },
-            why: { alias: 'w' },
             verbose: { alias: 'v' },
             version: { },
+            why: { alias: 'w' },
         },
         unknown: unknownArg,
         usage: usage,
@@ -79,7 +79,9 @@ enumerable class TestMe {
             '  --clobber             # Remove testme directories\n' + 
             '  --compile             # Compile all C tests\n' + 
             '  --continue            # Continue on errors\n' + 
+            '  --debug               # Run in debug mode. Sets TM_DEBUG\n' + 
             '  --depth number        # Zero == basic, 1 == throrough, 2 extensive\n' + 
+            '  --ide                 # Run the test in an IDE debugger\n' + 
             '  --log file:level      # Log output to file at verbosity level\n' + 
             '  --noserver            # Do not run server side of tests\n' + 
             '  --projects            # Generate IDE projects for tests\n' + 
@@ -182,6 +184,9 @@ enumerable class TestMe {
             TM_BIN: bin, 
             TM_DEPTH: depth, 
         })
+        if (options.debug) {
+            topEnv.TM_DEBUG = true
+        }
     }
 
     /*
@@ -295,7 +300,7 @@ enumerable class TestMe {
             if (options.projects) {
                 buildProject(phase, topPath, file, env)
             }
-            if (options.debug && Config.OS == 'macosx') {
+            if (options.ide && Config.OS == 'macosx') {
                 let proj = Path('testme').join(file.basename.trimExt().trimExt() + '-macosx-debug.xcodeproj')
                 if (!proj.exists && !options.projects) {
                     buildProject(phase, topPath, file, env)

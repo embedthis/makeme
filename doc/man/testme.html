@@ -11,12 +11,15 @@ TESTME(1)                        User Commands                       TESTME(1)
            <B>--clobber</B>
            <B>--compile</B>
            <B>--continue</B>
+           <B>--debug</B>
            <B>--depth level</B>
+           <B>--ide</B>
            <B>--log logSpec</B>
            <B>--noserver</B>
            <B>--projects</B>
            <B>--rebuild</B>
            <B>--show</B>
+           <B>--trace traceSpec</B>
            <B>--version</B>
            <B>--verbose</B>
            <B>--why</B>
@@ -74,14 +77,17 @@ TESTME(1)                        User Commands                       TESTME(1)
 <B>TEST ENVIRONMENT</B>
        TestMe communicates test parameters to unit tests via the  environment.
 
-             TM_NOSERVER  -- Set if testme invoked with --noserver. Do not run
-            server-side programs.
-             TM_TOP      -- Set to the top directory for the project.
+             TM_INB      -- Set to the local binary directory.
              TM_CFG      -- Set to the build output configuration directory.
+             TM_DEBUG     --  Set if testme invoked with --debug. Run in debug
+            mode.
              TM_DEPTH    -- Set to the test depth instructed via --depth.
-             TM_PHASE    -- Set to 'Setup', 'Finalize' or 'Test'.
              TM_DIR      -- Set to the directory containing the test.
-             TM_*        -- All defines in  the  me.h  are  converted  to  TM_
+             TM_NOSERVER -- Set if testme invoked with --noserver. Do not  run
+            server-side programs.
+             TM_PHASE    -- Set to 'Setup', 'Finalize' or 'Test'.
+             TM_TOP      -- Set to the top directory for the project.
+             TM_*         --  All  defines  in  the  me.h are converted to TM_
             defines.
 
 <B>TEST OUTPUT</B>
@@ -95,13 +101,13 @@ TESTME(1)                        User Commands                       TESTME(1)
              skip reason ...
              write message ...
 
-       A 'fail' command will typically terminate a test run unless  testme  is
-       invoked  with  --continue.   A 'pass' command will be counted and if no
-       'fail' commands are emitted by the unit test, the  unit  test  will  be
-       PASSED.   An 'info' command will echo information message to the testme
+       A  'fail'  command will typically terminate a test run unless testme is
+       invoked with --continue.  A 'pass' command will be counted  and  if  no
+       'fail'  commands  are  emitted  by the unit test, the unit test will be
+       PASSED.  An 'info' command will echo information message to the  testme
        output. A 'write' message will write raw messages to the testme output.
-       A  'set' command will define a key in the environment that is passed to
-       subsequent unit tests. The 'skip' command  will  cause  all  subsequent
+       A 'set' command will define a key in the environment that is passed  to
+       subsequent  unit  tests.  The  'skip' command will cause all subsequent
        unit tests in or below the current directory to be skipped.
 
 <B>TESTME UNIT TEST C API</B>
@@ -128,15 +134,22 @@ TESTME(1)                        User Commands                       TESTME(1)
               Remove all generated 'testme' directories.
 
        <B>--compile</B>
-              Compile  required  C unit tests but do not run. Use --rebuild to
-              force a recompile regardless of whether the unit test  file  has
+              Compile required C unit tests but do not run. Use  --rebuild  to
+              force  a  recompile regardless of whether the unit test file has
               been updated or not.
 
        <B>--continue</B>
               Continue to run tests despite any previous errors. Normal opera-
               tion is to stop testing if any tests fail.
 
-              <B>--depth level </B>Set the unit test depth level.
+       <B>--debug</B>
+              Run in debug mode. Sets TM_DEBUG in the environment.
+
+       <B>--depth level</B>
+              Set the unit test depth level.
+
+       <B>--ide  </B>Run  the specified test in an IDE debugger. Supported on Mac OSX
+              only.
 
        <B>--log logName[:logLevel]</B>
               Specify a file to log test messages. TestMe will  normally  dis-
@@ -157,6 +170,11 @@ TESTME(1)                        User Commands                       TESTME(1)
               Force a recompilation of all C unit tests.
 
        <B>--show </B>Show the actual commands executed by TestMe.
+
+       <B>--trace logName[:logLevel]</B>
+              Specify  a  file to trace HTTP requests. The level specifies the
+              desired verbosity of output.  Level 0 is the least  verbose  and
+              level 5 is the most.
 
        <B>--version</B>
               Print the <B>ejs </B>command version and exit.

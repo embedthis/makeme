@@ -5,17 +5,47 @@ HTTP(1)                          User Commands                         HTTP(1)
        http - HTTP Client program
 
 <B>SYNOPSIS</B>
-       <B>http [options] [files] url</B>
-
-       [<I>--auth  basic|digest  </I>]  [<I>--benchmark  </I>] [<I>--cert file</I>] [<I>--chunk size </I>]
-       [<I>--continue</I>] [<I>--cookie cookieString</I>] [<I>--data</I>]  [<I>--debugger</I>]  [<I>--delete</I>]
-       [<I>--form string</I>] [<I>--header 'key: value'</I>] [<I>--host hostName</I>] [<I>--iterations</I>
-       <I>count</I>] [<I>--key file</I>] [<I>--log logSpec</I>] [<I>--method HTTP_METHOD</I>] [<I>--nofollow</I>]
-       [<I>--noout</I>] [<I>--out file</I>] [<I>--password pass</I>] [<I>--post</I>] [<I>--printable</I>] [<I>--pro-</I>
-       <I>tocol  version</I>]  [<I>--provider   name</I>]   [<I>--put</I>]   [<I>--range   byteRanges</I>]
-       [<I>--retries  count</I>]  [<I>--sequence</I>] [<I>--showHeaders</I>] [<I>--showStatus</I>] [<I>--sin-</I>
-       <I>gle</I>] [<I>--threads count</I>] [<I>--timeout  seconds</I>]  [<I>--upload</I>]  [<I>--user  name</I>]
-       [<I>--verify</I>] [<I>--verbose</I>] [<I>--workers count</I>] [<I>--zero</I>]
+       <B>http</B>
+           <B>--auth basic|digest</B>
+           <B>--benchmark</B>
+           <B>--cert file</B>
+           <B>--chunk size</B>
+           <B>--continue</B>
+           <B>--cookie cookieString</B>
+           <B>--data</B>
+           <B>--debugger</B>
+           <B>--delete</B>
+           <B>--form string</B>
+           <B>--header 'key: value'</B>
+           <B>--host hostName</B>
+           <B>--iterations count</B>
+           <B>--key file</B>
+           <B>--log logSpec</B>
+           <B>--method METHOD</B>
+           <B>--nofollow</B>
+           <B>--noout</B>
+           <B>--out file</B>
+           <B>--password pass</B>
+           <B>--post</B>
+           <B>--printable</B>
+           <B>--protocol version</B>
+           <B>--provider name</B>
+           <B>--put</B>
+           <B>--range byteRanges</B>
+           <B>--retries count</B>
+           <B>--sequence</B>
+           <B>--showHeaders</B>
+           <B>--showStatus</B>
+           <B>--single</B>
+           <B>--threads count</B>
+           <B>--timeout seconds</B>
+           <B>--upload</B>
+           <B>--user name</B>
+           <B>--verify</B>
+           <B>--verbose</B>
+           <B>--workers count</B>
+           <B>--zero</B>
+           <B>[files] url</B>
 
 <B>DESCRIPTION</B>
        The  http  command  issues  HTTP  commands to retrieve files from a web

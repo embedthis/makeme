@@ -12,12 +12,15 @@ SYNOPSIS
            --clobber
            --compile
            --continue
+           --debug
            --depth level
+           --ide
            --log logSpec
            --noserver
            --projects
            --rebuild
            --show
+           --trace traceSpec
            --version
            --verbose
            --why
@@ -82,14 +85,17 @@ OPERATION
 TEST ENVIRONMENT
        TestMe communicates test parameters to unit tests via the  environment.
 
-             TM_NOSERVER  -- Set if testme invoked with --noserver. Do not run
-            server-side programs.
-             TM_TOP      -- Set to the top directory for the project.
+             TM_INB      -- Set to the local binary directory.
              TM_CFG      -- Set to the build output configuration directory.
+             TM_DEBUG     --  Set if testme invoked with --debug. Run in debug
+            mode.
              TM_DEPTH    -- Set to the test depth instructed via --depth.
-             TM_PHASE    -- Set to 'Setup', 'Finalize' or 'Test'.
              TM_DIR      -- Set to the directory containing the test.
-             TM_*        -- All defines in  the  me.h  are  converted  to  TM_
+             TM_NOSERVER -- Set if testme invoked with --noserver. Do not  run
+            server-side programs.
+             TM_PHASE    -- Set to 'Setup', 'Finalize' or 'Test'.
+             TM_TOP      -- Set to the top directory for the project.
+             TM_*         --  All  defines  in  the  me.h are converted to TM_
             defines.
 
 
@@ -105,13 +111,13 @@ TEST OUTPUT
              skip reason ...
              write message ...
 
-       A 'fail' command will typically terminate a test run unless  testme  is
-       invoked  with  --continue.   A 'pass' command will be counted and if no
-       'fail' commands are emitted by the unit test, the  unit  test  will  be
-       PASSED.   An 'info' command will echo information message to the testme
+       A  'fail'  command will typically terminate a test run unless testme is
+       invoked with --continue.  A 'pass' command will be counted  and  if  no
+       'fail'  commands  are  emitted  by the unit test, the unit test will be
+       PASSED.  An 'info' command will echo information message to the  testme
        output. A 'write' message will write raw messages to the testme output.
-       A  'set' command will define a key in the environment that is passed to
-       subsequent unit tests. The 'skip' command  will  cause  all  subsequent
+       A 'set' command will define a key in the environment that is passed  to
+       subsequent  unit  tests.  The  'skip' command will cause all subsequent
        unit tests in or below the current directory to be skipped.
 
 
@@ -144,8 +150,8 @@ OPTIONS
 
 
        --compile
-              Compile  required  C unit tests but do not run. Use --rebuild to
-              force a recompile regardless of whether the unit test  file  has
+              Compile required C unit tests but do not run. Use  --rebuild  to
+              force  a  recompile regardless of whether the unit test file has
               been updated or not.
 
 
@@ -153,7 +159,17 @@ OPTIONS
               Continue to run tests despite any previous errors. Normal opera-
               tion is to stop testing if any tests fail.
 
-              --depth level Set the unit test depth level.
+
+       --debug
+              Run in debug mode. Sets TM_DEBUG in the environment.
+
+
+       --depth level
+              Set the unit test depth level.
+
+
+       --ide  Run  the specified test in an IDE debugger. Supported on Mac OSX
+              only.
 
 
        --log logName[:logLevel]
@@ -178,6 +194,12 @@ OPTIONS
 
 
        --show Show the actual commands executed by TestMe.
+
+
+       --trace logName[:logLevel]
+              Specify  a  file to trace HTTP requests. The level specifies the
+              desired verbosity of output.  Level 0 is the least  verbose  and
+              level 5 is the most.
 
 
        --version

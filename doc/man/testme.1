@@ -8,12 +8,15 @@ testme \- TestMe -- Utility to run unit tests
     \fB--clobber\fR
     \fB--compile\fR
     \fB--continue\fR
+    \fB--debug\fR
     \fB--depth level\fR
+    \fB--ide\fR
     \fB--log logSpec\fR
     \fB--noserver\fR
     \fB--projects\fR
     \fB--rebuild\fR
     \fB--show\fR
+    \fB--trace traceSpec\fR
     \fB--version\fR
     \fB--verbose\fR
     \fB--why\fR
@@ -59,12 +62,14 @@ unit tests at that directory level or below.
 TestMe communicates test parameters to unit tests via the environment.
 
 .RS 5
- TM_NOSERVER -- Set if testme invoked with --noserver. Do not run server-side programs.
- TM_TOP      -- Set to the top directory for the project.
+ TM_INB      -- Set to the local binary directory.
  TM_CFG      -- Set to the build output configuration directory.
+ TM_DEBUG    -- Set if testme invoked with --debug. Run in debug mode.
  TM_DEPTH    -- Set to the test depth instructed via --depth.
- TM_PHASE    -- Set to 'Setup', 'Finalize' or 'Test'.
  TM_DIR      -- Set to the directory containing the test.
+ TM_NOSERVER -- Set if testme invoked with --noserver. Do not run server-side programs.
+ TM_PHASE    -- Set to 'Setup', 'Finalize' or 'Test'.
+ TM_TOP      -- Set to the top directory for the project.
  TM_*        -- All defines in the me.h are converted to TM_ defines.
 .RE
 .PP
@@ -124,8 +129,17 @@ Compile required C unit tests but do not run. Use --rebuild to force a recompile
 \fB\--continue\fR
 Continue to run tests despite any previous errors. Normal operation is to stop testing if any tests fail.
 
+.TP
+\fB\--debug\fR
+Run in debug mode. Sets TM_DEBUG in the environment.
+
+.TP
 \fB\--depth level\fR
 Set the unit test depth level.
+
+.TP
+\fB\--ide\fR
+Run the specified test in an IDE debugger. Supported on Mac OSX only.
 
 .TP
 \fB\--log logName[:logLevel]\fR
@@ -147,6 +161,11 @@ Force a recompilation of all C unit tests.
 .TP
 \fB\--show\fR
 Show the actual commands executed by TestMe.
+
+.TP
+\fB\--trace logName[:logLevel]\fR
+Specify a file to trace HTTP requests. The level specifies the desired verbosity of output. 
+Level 0 is the least verbose and level 5 is the most.
 
 .TP
 \fB\--version\fR
