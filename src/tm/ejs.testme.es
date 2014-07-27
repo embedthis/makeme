@@ -93,7 +93,7 @@ module ejs.testme {
                 sock.connect(address.host + ':' + address.port)
                 sock.close()
                 connected = true
-                tinfo('Connected', 'to ' + cmdline + ' (' + pid + ')')
+                tinfo('Connected', 'to ' + Path(cmdline).basename + ' (' + pid + ')')
                 return true
             } catch (e) {
                 // twrite('CATCH', e)
@@ -114,7 +114,7 @@ module ejs.testme {
             cmd.finalize()
             let pid = cmd.pid
             Path(pidfile).write(pid)
-            tinfo('Started', cmdline + ' (' + pid + ')')
+            tinfo('Started', Path(cmdline).basename + ' (' + pid + ')')
             App.sleep(250)
             if ((connected = connectToService(cmdline, options, 10)) != true) {
                 tinfo('Cannot connect to service: ' + cmdline + ' on ' + address)
