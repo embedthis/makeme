@@ -3132,6 +3132,13 @@
       <arglist>()</arglist>
     </member>
     <member kind="function">
+      <type>int64</type>
+      <name>mprGetEventMark</name>
+      <anchorfile>group___mpr_dispatcher.html</anchorfile>
+      <anchor>ga85ab494f065b00d321a75512ebdc1219</anchor>
+      <arglist>(MprDispatcher *dispatcher)</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>mprGetExitStatus</name>
       <anchorfile>group___mpr.html</anchorfile>
@@ -4540,13 +4547,6 @@
     </member>
     <member kind="function">
       <type>void</type>
-      <name>mprRelayEvent</name>
-      <anchorfile>mpr_8h.html</anchorfile>
-      <anchor>a14a802b66bf59a019a884710ce18bdaf</anchor>
-      <arglist>(MprDispatcher *dispatcher, void *proc, void *data, MprEvent *event)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
       <name>mprRelease</name>
       <anchorfile>group___mpr_mem.html</anchorfile>
       <anchor>ga4816868550ad8a21b914de2fbe720767</anchor>
@@ -5331,6 +5331,13 @@
     </member>
     <member kind="function">
       <type>bool</type>
+      <name>mprSocketHasBuffered</name>
+      <anchorfile>group___mpr_socket.html</anchorfile>
+      <anchor>ga8bd161da457c7cdc6eb4437d714534f6</anchor>
+      <arglist>(MprSocket *sp)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
       <name>mprSocketHasBufferedRead</name>
       <anchorfile>group___mpr_socket.html</anchorfile>
       <anchor>ga3083d9605d116fa97f48d7941da8648e</anchor>
@@ -5648,8 +5655,8 @@
       <type>int</type>
       <name>mprWaitForEvent</name>
       <anchorfile>group___mpr_dispatcher.html</anchorfile>
-      <anchor>ga7a997d3acde6a33b9367d14f4bc91d87</anchor>
-      <arglist>(MprDispatcher *dispatcher, MprTicks timeout)</arglist>
+      <anchor>gaa523c291209f9419ad27f8b7be4e231d</anchor>
+      <arglist>(MprDispatcher *dispatcher, MprTicks timeout, int64 mark)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -8618,6 +8625,13 @@
       <arglist>()</arglist>
     </member>
     <member kind="function">
+      <type>int64</type>
+      <name>mprGetEventMark</name>
+      <anchorfile>group___mpr_dispatcher.html</anchorfile>
+      <anchor>ga85ab494f065b00d321a75512ebdc1219</anchor>
+      <arglist>(MprDispatcher *dispatcher)</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>mprServiceEvents</name>
       <anchorfile>group___mpr_dispatcher.html</anchorfile>
@@ -8642,8 +8656,8 @@
       <type>int</type>
       <name>mprWaitForEvent</name>
       <anchorfile>group___mpr_dispatcher.html</anchorfile>
-      <anchor>ga7a997d3acde6a33b9367d14f4bc91d87</anchor>
-      <arglist>(MprDispatcher *dispatcher, MprTicks timeout)</arglist>
+      <anchor>gaa523c291209f9419ad27f8b7be4e231d</anchor>
+      <arglist>(MprDispatcher *dispatcher, MprTicks timeout, int64 mark)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -9297,6 +9311,13 @@
       <name>mprSocketHandshaking</name>
       <anchorfile>group___mpr_socket.html</anchorfile>
       <anchor>ga1a937447e0d16a18c8c4fd61df568d59</anchor>
+      <arglist>(MprSocket *sp)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>mprSocketHasBuffered</name>
+      <anchorfile>group___mpr_socket.html</anchorfile>
+      <anchor>ga8bd161da457c7cdc6eb4437d714534f6</anchor>
       <arglist>(MprSocket *sp)</arglist>
     </member>
     <member kind="function">

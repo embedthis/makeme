@@ -5827,11 +5827,12 @@ typedef struct MprDispatcher {
     MprEvent        *currentQ;          /**< Currently executing events */
     MprCond         *cond;              /**< Multi-thread sync */
     int             flags;              /**< Dispatcher control flags */
+    int64           mark;               /**< Last event sequence mark (may reuse over time) */
     struct MprDispatcher *next;         /**< Next dispatcher linkage */
     struct MprDispatcher *prev;         /**< Previous dispatcher linkage */
     struct MprDispatcher *parent;       /**< Queue pointer */
     struct MprEventService *service;    /**< Event service reference */
-    MprOsThread     owner;              /**< Owning thread of the dispatcher */
+    MprOsThread     owner;              /**< Thread currently dispatching events, otherwise zero */
 } MprDispatcher;
 
 
@@ -5936,15 +5937,36 @@ PUBLIC void mprSetEventServiceSleep(MprTicks delay);
 /**
     Wait for an event to occur on the given dispatcher
     @description Use this routine to wait for an event and service the event on the given dispatcher.
+    This routine should only be called in blocking code.
+    \n\n
     This routine yields to the garbage collector by calling #mprYield. Callers must retain all required memory.
+    \n\n
+    Note that an event may occur before or while invoking this API. To address this window of time, you should
+    call #mprGetEventMark to get a Dispatcher event mark and then test your application state to determine if 
+    waiting is required. If so, then pass the mark to mprWaitForEvent so it can detect
+    if any events have been processed since calling mprGetEventMark.
     @param dispatcher Event dispatcher to monitor
     @param timeout for waiting in milliseconds
+    @param mark Dispatcher mark returned from #mprGetEventMark
     @return Zero if successful and an event occurred before the timeout expired. Returns #MPR_ERR_TIMEOUT if no event
         is fired before the timeout expires.
     @ingroup MprDispatcher
-    @stability Stable
+    @stability Evolving
  */
-PUBLIC int mprWaitForEvent(MprDispatcher *dispatcher, MprTicks timeout);
+PUBLIC int mprWaitForEvent(MprDispatcher *dispatcher, MprTicks timeout, int64 mark);
+
+/**
+    Get an event mark for a dispatcher
+    @description An event mark indicates a point in time for a dispatcher. Event marks are incremented for each
+    event serviced. This API is used with #mprWaitForEvent to supply an event mark so that mprWaitForEvent can
+    detect if any events have been serviced since the mark was taken. This is important so that mprWaitForEvent
+    will not miss events that occur before or while invoking #mprWaitForEvent.
+    @param dispatcher Event dispatcher
+    @return Event mark 64 bit integer
+    @ingroup MprDispatcher
+    @stability Prototype
+*/
+PUBLIC int64 mprGetEventMark(MprDispatcher *dispatcher);
 
 /**
     Wake the event service
@@ -6093,18 +6115,9 @@ PUBLIC MprEvent *mprCreateTimerEvent(MprDispatcher *dispatcher, cchar *name, Mpr
 PUBLIC void mprRescheduleEvent(MprEvent *event, MprTicks period);
 
 /**
-    Relay an event to a dispatcher. This invokes the callback proc as though it was invoked from the given dispatcher.
-    @param dispatcher Dispatcher object created via #mprCreateDispatcher
-    @param proc Procedure to invoke
-    @param data Argument to proc
-    @param event Event object
-    @internal
-    @stability Internal
- */
-PUBLIC void mprRelayEvent(MprDispatcher *dispatcher, void *proc, void *data, MprEvent *event);
-
-/**
     Start a dispatcher by setting it on the run queue
+    @description This is used to ensure that all event activity will only happen on the thread that
+    calls mprStartDispatcher.
     @param dispatcher Dispatcher object created via #mprCreateDispatcher
     @return Zero if successful, otherwise a negative MPR status code.
     @stability Prototype
@@ -7110,9 +7123,9 @@ PUBLIC void mprWakeNotifier();
     PUBLIC void mprDestroyWindow(HWND hwnd);
     PUBLIC void mprDestroyWindowClass(ATOM wclass);
     PUBLIC HWND mprGetWindow(bool *created);
-    PUBLIC HWND mprSetNotifierThread(MprThread *tp);
+    PUBLIC HWND mprSetWindowsThread(MprThread *tp);
 #else
-    #define mprSetNotifierThread(tp)
+    #define mprSetWindowsThread(tp)
 #endif
 
 /**
@@ -7869,6 +7882,16 @@ PUBLIC int mprSetSocketNoDelay(MprSocket *sp, bool on);
     @stability Stable
  */
 PUBLIC bool mprSocketHandshaking(MprSocket *sp);
+
+/**
+    Test if the socket has buffered data.
+    @description Use this function to avoid waiting for incoming I/O if data is already buffered.
+    @param sp Socket object returned from #mprCreateSocket
+    @return True if the socket has pending data to read or write.
+    @ingroup MprSocket
+    @stability Prototype
+ */
+PUBLIC bool mprSocketHasBuffered(MprSocket *sp);
 
 /**
     Test if the socket has buffered read data.

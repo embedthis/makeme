@@ -26496,6 +26496,7 @@ static EjsNumber *app_pid(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 static EjsObj *app_run(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 {
     MprTicks    mark, remaining;
+    int64       dispatcherMark;
     int         rc, oneEvent, timeout;
 
     timeout = (argc > 0) ? ejsGetInt(ejs, argv[0]) : MAXINT;
@@ -26509,9 +26510,11 @@ static EjsObj *app_run(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
     }
     mark = mprGetTicks();
     remaining = timeout;
+    dispatcherMark = mprGetEventMark(ejs->dispatcher);
     do {
-        rc = mprWaitForEvent(ejs->dispatcher, remaining); 
+        rc = mprWaitForEvent(ejs->dispatcher, remaining, dispatcherMark); 
         remaining = mprGetRemainingTicks(mark, timeout);
+        dispatcherMark = mprGetEventMark(ejs->dispatcher);
     } while (!ejs->exception && !oneEvent && !ejs->exiting && remaining > 0 && !mprIsStopping());
     return (rc == 0) ? ESV(true) : ESV(false);
 }
@@ -26526,6 +26529,7 @@ static EjsObj *app_run(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 static EjsObj *app_sleep(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
 {
     MprTicks    mark, remaining;
+    int64       dispatcherMark;
     int         timeout;
 
     timeout = (argc > 0) ? ejsGetInt(ejs, argv[0]) : MAXINT;
@@ -26534,9 +26538,11 @@ static EjsObj *app_sleep(Ejs *ejs, EjsObj *unused, int argc, EjsObj **argv)
     }
     mark = mprGetTicks();
     remaining = timeout;
+    dispatcherMark = mprGetEventMark(ejs->dispatcher);
     do {
-        mprWaitForEvent(ejs->dispatcher, (int) remaining); 
+        mprWaitForEvent(ejs->dispatcher, remaining, dispatcherMark); 
         remaining = mprGetRemainingTicks(mark, timeout);
+        dispatcherMark = mprGetEventMark(ejs->dispatcher);
     } while (!ejs->exiting && remaining > 0 && !mprIsStopping());
     return 0;
 }
@@ -30856,7 +30862,6 @@ static EjsNumber *cmd_read(Ejs *ejs, EjsCmd *cmd, int argc, EjsObj **argv)
         nbytes = mprGetBufLength(cmd->stdoutBuf);
     }
     count = min(count, nbytes);
-    //  TODO - should use RC Value (== count)
     ejsCopyToByteArray(ejs, buffer, buffer->writePosition, (char*) mprGetBufStart(cmd->stdoutBuf), count);
     ejsSetByteArrayPositions(ejs, buffer, -1, buffer->writePosition + count);
     mprAdjustBufStart(cmd->stdoutBuf, count);
@@ -51813,11 +51818,12 @@ static bool waitForHttpState(EjsWebSocket *ws, int state, MprTicks timeout, int 
 
 static bool waitForReadyState(EjsWebSocket *ws, int state, MprTicks timeout, int throw)
 {
-    Ejs             *ejs;
-    HttpConn        *conn;
-    HttpRx          *rx;
-    MprTicks        mark, remaining, inactivityTimeout;
-    int             eventMask;
+    Ejs         *ejs;
+    HttpConn    *conn;
+    HttpRx      *rx;
+    MprTicks    mark, remaining, inactivityTimeout;
+    int64       dispatcherMark;
+    int         eventMask;
 
     ejs = ws->ejs;
     conn = ws->conn;
@@ -51844,12 +51850,14 @@ static bool waitForReadyState(EjsWebSocket *ws, int state, MprTicks timeout, int
     }
     mark = mprGetTicks();
     remaining = timeout;
+    dispatcherMark = mprGetEventMark(conn->dispatcher);
     while (conn->state < HTTP_STATE_CONTENT || rx->webSocket->state < state) {
         if (conn->error || ejs->exiting || mprIsStopping(conn) || remaining < 0) {
             break;
         }
-        mprWaitForEvent(conn->dispatcher, min(inactivityTimeout, remaining));
+        mprWaitForEvent(conn->dispatcher, min(inactivityTimeout, remaining), dispatcherMark);
         remaining = mprGetRemainingTicks(mark, timeout);
+        dispatcherMark = mprGetEventMark(conn->dispatcher);
     }
     return rx->webSocket->state >= state;
 }
@@ -52280,12 +52288,14 @@ static int reapJoins(Ejs *ejs, EjsObj *workers)
 static int join(Ejs *ejs, EjsObj *workers, int timeout)
 {
     MprTicks    mark;
+    int64       dispatcherMark;
     int         result, remaining;
 
     mprDebug("ejs worker", 5, "Worker.join: joining %d", ejs->joining);
     
     mark = mprGetTicks();
     remaining = timeout;
+    dispatcherMark = mprGetEventMark(ejs->dispatcher);
     do {
         ejs->joining = !reapJoins(ejs, workers);
         if (!ejs->joining) {
@@ -52295,8 +52305,9 @@ static int join(Ejs *ejs, EjsObj *workers, int timeout)
             ejsThrowStateError(ejs, "Program instructed to exit");
             break;
         }
-        mprWaitForEvent(ejs->dispatcher, remaining);
+        mprWaitForEvent(ejs->dispatcher, remaining, dispatcherMark);
         remaining = (int) mprGetRemainingTicks(mark, timeout);
+        dispatcherMark = mprGetEventMark(ejs->dispatcher);
     } while (remaining > 0 && !ejs->exception);
 
     if (ejs->exception) {
@@ -52684,8 +52695,8 @@ static EjsObj *workerTerminate(Ejs *ejs, EjsWorker *worker, int argc, EjsObj **a
  */
 static EjsBoolean *workerWaitForMessage(Ejs *ejs, EjsWorker *worker, int argc, EjsObj **argv)
 {
-    MprTicks    mark, remaining;
-    int         timeout;
+    MprTicks    mark, remaining, timeout;
+    int64       dispatcherMark;
 
     timeout = (argc > 0) ? ejsGetInt(ejs, argv[0]): MAXINT;
     if (timeout < 0) {
@@ -52695,9 +52706,11 @@ static EjsBoolean *workerWaitForMessage(Ejs *ejs, EjsWorker *worker, int argc, E
     remaining = timeout;
 
     worker->gotMessage = 0;
+    dispatcherMark = mprGetEventMark(ejs->dispatcher);
     do {
-        mprWaitForEvent(ejs->dispatcher, (int) remaining);
+        mprWaitForEvent(ejs->dispatcher, remaining, dispatcherMark);
         remaining = mprGetRemainingTicks(mark, timeout);
+        dispatcherMark = mprGetEventMark(ejs->dispatcher);
     } while (!worker->gotMessage && remaining > 0 && !ejs->exception);
 
     if (worker->gotMessage) {
@@ -55966,9 +55979,13 @@ static EjsNumber *hs_port(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
  */
 static EjsVoid *hs_run(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
 {
+    int64   dispatcherMark;
+
     if (!sp->hosted) {
+        dispatcherMark = mprGetEventMark(ejs->dispatcher);
         while (!ejs->exiting && !mprIsStopping()) {
-            mprWaitForEvent(ejs->dispatcher, MAXINT); 
+            mprWaitForEvent(ejs->dispatcher, MPR_MAX_TIMEOUT, dispatcherMark); 
+            dispatcherMark = mprGetEventMark(ejs->dispatcher);
         }
     }
     return 0;

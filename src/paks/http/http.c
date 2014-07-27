@@ -89,7 +89,6 @@ static cchar    *formatOutput(HttpConn *conn, cchar *buf, ssize *count);
 static void     manageApp(App *app, int flags);
 static void     manageThreadData(ThreadData *data, int flags);
 static int      parseArgs(int argc, char **argv);
-static int      processThread(HttpConn *conn, MprEvent *event);
 static void     threadMain(void *data, MprThread *tp);
 static char     *resolveUrl(HttpConn *conn, cchar *url);
 static int      setContentLength(HttpConn *conn, MprList *files);
@@ -681,7 +680,6 @@ static void processing()
             return;
         }
         mprAddItem(app->threadData, data);
-
         fmt(name, sizeof(name), "http.%d", j);
         tp = mprCreateThread(name, threadMain, NULL, 0); 
         tp->data = data;
@@ -705,31 +703,24 @@ static void manageThreadData(ThreadData *data, int flags)
  */ 
 static void threadMain(void *data, MprThread *tp)
 {
-    ThreadData      *td;
-    HttpConn        *conn;
-    MprEvent        e;
-
-    td = tp->data;
-    td->dispatcher = mprCreateDispatcher(tp->name, 0);
-    td->conn = conn = httpCreateConn(NULL, td->dispatcher);
-
-    /*
-        Relay to processThread via the dispatcher. This serializes all activity on the conn->dispatcher
-     */
-    e.mask = MPR_READABLE;
-    e.data = tp;
-    mprRelayEvent(conn->dispatcher, (MprEventProc) processThread, conn, &e);
-}
-
-
-static int processThread(HttpConn *conn, MprEvent *event)
-{
     ThreadData  *td;
+    HttpConn    *conn;
     cchar       *path;
     char        *url;
     int         next, count;
 
-    td = mprGetCurrentThread()->data;
+    td = tp->data;
+
+    /*
+        Create and start a dispatcher. This ensures that all activity on the connection in this thread will
+        be serialized with respect to all I/O events and httpProtocol work. This also ensures that I/O events
+        will be handled by this thread from httpWait.
+     */
+    td->dispatcher = mprCreateDispatcher(tp->name, 0);
+    mprStartDispatcher(td->dispatcher);
+
+    td->conn = conn = httpCreateConn(NULL, td->dispatcher);
+
     httpFollowRedirects(conn, !app->nofollow);
     httpSetTimeout(conn, app->timeout, app->timeout);
 
@@ -738,7 +729,6 @@ static int processThread(HttpConn *conn, MprEvent *event)
         httpSetProtocol(conn, "HTTP/1.0");
     }
     if (app->iterations == 1) {
-        // httpSetKeepAliveCount(conn, 0);
         conn->limits->keepAliveMax = 0;
     }
     if (app->username) {
@@ -789,8 +779,7 @@ static int processThread(HttpConn *conn, MprEvent *event)
     }
     httpDestroyConn(conn);
     mprDestroyDispatcher(conn->dispatcher);
-    finishThread((MprThread*) event->data);
-    return -1;
+    finishThread(tp);
 }
 
 

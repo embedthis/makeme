@@ -1290,6 +1290,13 @@
       <arglist>(HttpConn *conn)</arglist>
     </member>
     <member kind="function">
+      <type>int</type>
+      <name>httpGetConnEventMask</name>
+      <anchorfile>group___http_conn.html</anchorfile>
+      <anchor>gaccedea5910e4b4da7d0f5a438549f948</anchor>
+      <arglist>(HttpConn *conn)</arglist>
+    </member>
+    <member kind="function">
       <type>void *</type>
       <name>httpGetConnHost</name>
       <anchorfile>group___http_conn.html</anchorfile>
@@ -1326,9 +1333,16 @@
     </member>
     <member kind="function">
       <type>void void void void</type>
+      <name>httpIO</name>
+      <anchorfile>group___http_conn.html</anchorfile>
+      <anchor>ga6282b5931e91af3bb256f4167e623bff</anchor>
+      <arglist>(struct HttpConn *conn, int eventMask)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>httpIOEvent</name>
       <anchorfile>group___http_conn.html</anchorfile>
-      <anchor>gac39fc5a03de25f78f86491e4f5d8c804</anchor>
+      <anchor>ga0eb39378bf2194ee24c9b82347067ddd</anchor>
       <arglist>(struct HttpConn *conn, MprEvent *event)</arglist>
     </member>
     <member kind="function">

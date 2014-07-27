@@ -3144,10 +3144,20 @@ PUBLIC void httpLimitError(HttpConn *conn, int status, cchar *fmt, ...) PRINTF_A
 PUBLIC void httpBadRequestError(HttpConn *conn, int status, cchar *fmt, ...) PRINTF_ATTRIBUTE(3,4);
 
 /**
-    Respond to a HTTP IO event
-    @description This routine responds to an I/O event described by the supplied event. Event may be null.
+    Handle I/O on the connection
+    @description This routine responds to I/O described by the supplied eventMask.
     If any readable data is present, it allocates a standard sized packet and reads data into this and then invokes
     the #httpProtocol engine.
+    @param conn HttpConn object created via #httpCreateConn
+    @param eventMask Mask of MPR_READABLE or MPR_WRITABLE events of interest
+    @ingroup HttpConn
+    @stability Prototype
+ */
+PUBLIC void httpIO(struct HttpConn *conn, int eventMask);
+
+/**
+    Respond to a HTTP I/O event
+    @description This routine responds to an I/O event described by the supplied event and then invokes $httpIO.
     @param conn HttpConn object created via #httpCreateConn
     @param event Event structure
     @ingroup HttpConn
@@ -3181,6 +3191,15 @@ PUBLIC ssize httpGetChunkSize(HttpConn *conn);
     @stability Stable
  */
 PUBLIC void *httpGetConnContext(HttpConn *conn);
+
+/**
+    Get an IO event mask for events of interest to the connection
+    @param conn HttpConn object created via #httpCreateConn
+    @return Mask of MPR_READABLE and MPR_WRITABLE events.
+    @ingroup HttpConn
+    @stability Prototype
+ */
+PUBLIC int httpGetConnEventMask(HttpConn *conn);
 
 /**
     Get the connection host object
@@ -7063,6 +7082,10 @@ PUBLIC void httpSocketBlocked(HttpConn *conn);
     @description This call blocks until the connection reaches the desired state. It creates a wait handler and
         services events while waiting. This is useful for blocking client requests, and should never be used on
         server-side connections.
+        \n\n
+        It is often required to call mprStartDispatcher on the connection dispatcher after calling $httpCreateConn.
+        This ensures that all foreground activity on the connection is serialized with respect to work done in response
+        to I/O events while waiting in httpWait.
         \n\n
         This routine may invoke mprYield before it sleeps to consent for the garbage collector to turn. Callers must
         ensure they have retained all required temporary memory before invoking this routine.

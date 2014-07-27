@@ -3213,8 +3213,9 @@ PUBLIC ssize httpReadBlock(HttpConn *conn, char *buf, ssize size, MprTicks timeo
     HttpPacket  *packet;
     HttpQueue   *q;
     MprBuf      *content;
-    MprTime     mark;
+    MprTicks    start, delay;
     ssize       nbytes, len;
+    int64       dispatcherMark;
 
     q = conn->readq;
     assert(q->count >= 0);
@@ -3229,16 +3230,19 @@ PUBLIC ssize httpReadBlock(HttpConn *conn, char *buf, ssize size, MprTicks timeo
         timeout = MPR_MAX_TIMEOUT;
     }
     if (flags & HTTP_BLOCK) {
-        mark = conn->http->now;
+        start = conn->http->now;
+        dispatcherMark = mprGetEventMark(conn->dispatcher);
         while (q->count <= 0 && !conn->error && (conn->state <= HTTP_STATE_CONTENT)) {
             if (httpRequestExpired(conn, -1)) {
                 break;
             }
+            delay = min(conn->limits->inactivityTimeout, mprGetRemainingTicks(start, timeout));
             httpEnableConnEvents(conn);
-            mprWaitForEvent(conn->dispatcher, min(conn->limits->inactivityTimeout, mprGetRemainingTicks(mark, timeout)));
-            if (mprGetRemainingTicks(mark, timeout) <= 0) {
+            mprWaitForEvent(conn->dispatcher, delay, dispatcherMark);
+            if (mprGetRemainingTicks(start, timeout) <= 0) {
                 break;
             }
+            dispatcherMark = mprGetEventMark(conn->dispatcher);
         }
     }
     for (nbytes = 0; size > 0 && q->count > 0; ) {
@@ -3437,6 +3441,7 @@ PUBLIC ssize httpWriteUploadData(HttpConn *conn, MprList *fileData, MprList *for
 }
 
 
+#if OLD || 1
 /*
     Wait for the connection to reach a given state.
     Should only be used on the client side.
@@ -3446,21 +3451,23 @@ PUBLIC ssize httpWriteUploadData(HttpConn *conn, MprList *fileData, MprList *for
  */
 PUBLIC int httpWait(HttpConn *conn, int state, MprTicks timeout)
 {
-    MprTicks    mark;
+    MprTicks    delay, start;
+    int64       dispatcherMark;
     int         justOne;
 
-    if (httpServerConn(conn)) {
-        mprLog("error http client", 0, "Should not call httpWait on the server side");
+    if (conn->endpoint) {
+        assert(!conn->endpoint);
+        return MPR_ERR_BAD_STATE;
+    }
+    if (conn->state <= HTTP_STATE_BEGIN) {
         return MPR_ERR_BAD_STATE;
     }
     if (state == 0) {
+        /* Wait for just one I/O event */
         state = HTTP_STATE_FINALIZED;
         justOne = 1;
     } else {
         justOne = 0;
-    }
-    if (conn->state <= HTTP_STATE_BEGIN) {
-        return MPR_ERR_BAD_STATE;
     }
     if (conn->error) {
         if (conn->state >= state) {
@@ -3476,13 +3483,104 @@ PUBLIC int httpWait(HttpConn *conn, int state, MprTicks timeout)
     if (state > HTTP_STATE_CONTENT) {
         httpFinalizeOutput(conn);
     }
+    start = conn->http->now;
+    dispatcherMark = mprGetEventMark(conn->dispatcher);
+    while (conn->state < state && !conn->error && !mprIsSocketEof(conn->sock)) {
+        if (httpRequestExpired(conn, -1)) {
+            return MPR_ERR_TIMEOUT;
+        }
+        delay = min(conn->limits->inactivityTimeout, mprGetRemainingTicks(start, timeout));
+        httpEnableConnEvents(conn);
+        mprWaitForEvent(conn->dispatcher, delay, dispatcherMark);
+        if (justOne || mprGetRemainingTicks(start, timeout) <= 0) {
+            break;
+        }
+        dispatcherMark = mprGetEventMark(conn->dispatcher);
+    }
+    if (conn->error) {
+        return MPR_ERR_NOT_READY;
+    }
+    if (conn->state < state) {
+        if (mprGetRemainingTicks(start, timeout) <= 0) {
+            return MPR_ERR_TIMEOUT;
+        }
+        if (!justOne) {
+            return MPR_ERR_CANT_READ;
+        }
+    }
+    conn->lastActivity = conn->http->now;
+    return 0;
+}
+
+
+#else
+/*
+    Wait for the connection to reach a given state.
+    Should only be used on the client side.
+    @param state Desired state. Set to zero if you want to wait for one I/O event.
+    @param timeout Timeout in msec. If timeout is zero, wait forever. If timeout is < 0, use default inactivity
+        and duration timeouts.
+ */
+PUBLIC int httpWait(HttpConn *conn, int state, MprTicks timeout)
+{
+    MprTicks    mark, delay;
+    int         mask, justOne;
+
+    if (conn->endpoint) {
+        assert(!conn->endpoint);
+        return MPR_ERR_BAD_STATE;
+    }
+    if (conn->async) {
+        assert(!conn->async);
+        return MPR_ERR_BAD_STATE;
+    }
+    if (conn->dispatcher->owner && conn->dispatcher->owner != mprGetCurrentOsThread()) {
+        assert(!(conn->dispatcher->owner && conn->dispatcher->owner != mprGetCurrentOsThread()));
+        return MPR_ERR_BAD_STATE;
+    }
+    if (conn->state <= HTTP_STATE_BEGIN) {
+        return MPR_ERR_BAD_STATE;
+    }
+    if (state == 0) {
+        /* Wait for just one I/O event */
+        state = HTTP_STATE_FINALIZED;
+        justOne = 1;
+    } else {
+        justOne = 0;
+    }
+    if (conn->error) {
+        if (conn->state >= state) {
+            return 0;
+        }
+        return MPR_ERR_BAD_STATE;
+    }
+    if (timeout < 0) {
+        timeout = conn->limits->requestTimeout;
+    } else if (timeout == 0) {
+        timeout = MPR_MAX_TIMEOUT;
+    }
+    if (state > HTTP_STATE_CONTENT) {
+        httpFinalizeOutput(conn);
+    }
+    httpServiceQueues(conn, HTTP_BLOCK);
+
     mark = conn->http->now;
     while (conn->state < state && !conn->error && !mprIsSocketEof(conn->sock)) {
         if (httpRequestExpired(conn, -1)) {
             return MPR_ERR_TIMEOUT;
         }
-        httpEnableConnEvents(conn);
-        mprWaitForEvent(conn->dispatcher, min(conn->limits->inactivityTimeout, mprGetRemainingTicks(mark, timeout)));
+//  WRAP
+        mask = MPR_READABLE;
+        if (!conn->tx->finalizedConnector || mprSocketHasBufferedWrite(conn->sock)) {
+            mask |= MPR_WRITABLE;
+        }
+        if (!mprSocketHasBuffered(conn->sock)) {
+            delay = min(conn->limits->inactivityTimeout, mprGetRemainingTicks(mark, timeout));
+            mask = mprWaitForSingleIO(conn->sock->fd, mask, delay);
+        }
+        httpIO(conn, mask);
+//  WRAP
+
         if (justOne || mprGetRemainingTicks(mark, timeout) <= 0) {
             break;
         }
@@ -3490,15 +3588,18 @@ PUBLIC int httpWait(HttpConn *conn, int state, MprTicks timeout)
     if (conn->error) {
         return MPR_ERR_NOT_READY;
     }
-    if (httpRequestExpired(conn, -1)) {
-        return MPR_ERR_TIMEOUT;
-    }
-    if (!justOne && conn->state < state) {
-        return MPR_ERR_CANT_READ;
+    if (conn->state < state) {
+        if (mprGetRemainingTicks(mark, timeout) <= 0) {
+            return MPR_ERR_TIMEOUT;
+        }
+        if (!justOne) {
+            return MPR_ERR_CANT_READ;
+        }
     }
     conn->lastActivity = conn->http->now;
     return 0;
 }
+#endif
 
 
 /*
@@ -4426,7 +4527,7 @@ static void parsePipelineFilters(HttpRoute *route, cchar *key, MprJson *prop)
     int         flags, ji;
 
     for (ITERATE_CONFIG(route, prop, child, ji)) {
-        if (prop->type & MPR_JSON_STRING) {
+        if (child->type & MPR_JSON_STRING) {
             flags = HTTP_STAGE_RX | HTTP_STAGE_TX;
             extensions = 0;
             name = child->value;
@@ -4861,22 +4962,31 @@ static void parseSsl(HttpRoute *route, cchar *key, MprJson *prop)
 
 static void parseSslAuthorityFile(HttpRoute *route, cchar *key, MprJson *prop)
 {
-    //  MOB - should verify exists
-    mprSetSslCaFile(route->ssl, prop->value);
+    if (!mprPathExists(prop->value, R_OK)) {
+        httpParseError(route, "Cannot find file %s", prop->value);
+    } else {
+        mprSetSslCaFile(route->ssl, prop->value);
+    }
 }
 
 
 static void parseSslAuthorityDirectory(HttpRoute *route, cchar *key, MprJson *prop)
 {
-    //  MOB - should verify exists
-    mprSetSslCaPath(route->ssl, prop->value);
+    if (!mprPathExists(prop->value, R_OK)) {
+        httpParseError(route, "Cannot find file %s", prop->value);
+    } else {
+        mprSetSslCaPath(route->ssl, prop->value);
+    }
 }
 
 
 static void parseSslCertificate(HttpRoute *route, cchar *key, MprJson *prop)
 {
-    //  MOB - should verify exists
-    mprSetSslCertFile(route->ssl, prop->value);
+    if (!mprPathExists(prop->value, R_OK)) {
+        httpParseError(route, "Cannot find file %s", prop->value);
+    } else {
+        mprSetSslCertFile(route->ssl, prop->value);
+    }
 }
 
 
@@ -4888,8 +4998,11 @@ static void parseSslCiphers(HttpRoute *route, cchar *key, MprJson *prop)
 
 static void parseSslKey(HttpRoute *route, cchar *key, MprJson *prop)
 {
-    //  MOB - should verify exists
-    mprSetSslKeyFile(route->ssl, prop->value);
+    if (!mprPathExists(prop->value, R_OK)) {
+        httpParseError(route, "Cannot find file %s", prop->value);
+    } else {
+        mprSetSslKeyFile(route->ssl, prop->value);
+    }
 }
 
 
@@ -5646,12 +5759,11 @@ static void readPeerData(HttpConn *conn)
 
 
 /*
-    IO event handler. This is invoked by the wait subsystem in response to I/O events. It is also invoked via
-    relay when an accept event is received by the server. Initially the conn->dispatcher will be set to the
-    server->dispatcher and the first I/O event will be handled on the server thread (or main thread). A request handler
-    may create a new conn->dispatcher and transfer execution to a worker thread if required.
+    Handle IO on the connection. Initially the conn->dispatcher will be set to the server->dispatcher and the first 
+    I/O event will be handled on the server thread (or main thread). A request handler may create a new 
+    conn->dispatcher and transfer execution to a worker thread if required.
  */
-PUBLIC void httpIOEvent(HttpConn *conn, MprEvent *event)
+PUBLIC void httpIO(HttpConn *conn, int eventMask)
 {
     MprSocket   *sp;
 
@@ -5660,14 +5772,13 @@ PUBLIC void httpIOEvent(HttpConn *conn, MprEvent *event)
         /* Connection has been destroyed */
         return;
     }
-    assert(conn->dispatcher == event->dispatcher);
     assert(conn->tx);
     assert(conn->rx);
 
-    if ((event->mask & MPR_WRITABLE) && conn->connectorq) {
+    if ((eventMask & MPR_WRITABLE) && conn->connectorq) {
         httpResumeQueue(conn->connectorq);
     }
-    if (event->mask & MPR_READABLE) {
+    if (eventMask & MPR_READABLE) {
         readPeerData(conn);
     }
     if (sp->secured && !conn->secure) {
@@ -5700,7 +5811,17 @@ PUBLIC void httpIOEvent(HttpConn *conn, MprEvent *event)
 }
 
 
-PUBLIC void httpEnableConnEvents(HttpConn *conn)
+/*
+    Handle an IO event on the connection. This is invoked by the wait subsystem in response to I/O events. 
+    It is also invoked via relay when an accept event is received by the server. 
+*/
+PUBLIC void httpIOEvent(HttpConn *conn, MprEvent *event)
+{
+    httpIO(conn, event->mask);
+}
+
+
+PUBLIC int httpGetConnEventMask(HttpConn *conn)
 {
     HttpRx      *rx;
     HttpTx      *tx;
@@ -5712,18 +5833,6 @@ PUBLIC void httpEnableConnEvents(HttpConn *conn)
     rx = conn->rx;
     tx = conn->tx;
 
-    if (mprShouldAbortRequests() || conn->borrowed) {
-        return;
-    }
-    /*
-        Used by ejs
-     */
-    if (conn->workerEvent) {
-        MprEvent *event = conn->workerEvent;
-        conn->workerEvent = 0;
-        mprQueueEvent(conn->dispatcher, event);
-        return;
-    }
     eventMask = 0;
     if (rx) {
         if (conn->connError || (tx->writeBlocked) ||
@@ -5743,7 +5852,25 @@ PUBLIC void httpEnableConnEvents(HttpConn *conn)
     } else {
         eventMask |= MPR_READABLE;
     }
-    httpSetupWaitHandler(conn, eventMask);
+    return eventMask;
+}
+
+
+PUBLIC void httpEnableConnEvents(HttpConn *conn)
+{
+    if (mprShouldAbortRequests() || conn->borrowed) {
+        return;
+    }
+    /*
+        Used by ejs
+     */
+    if (conn->workerEvent) {
+        MprEvent *event = conn->workerEvent;
+        conn->workerEvent = 0;
+        mprQueueEvent(conn->dispatcher, event);
+        return;
+    }
+    httpSetupWaitHandler(conn, httpGetConnEventMask(conn));
 }
 
 
@@ -8618,7 +8745,7 @@ static void printRoute(HttpRoute *route, int next, bool full)
             }
         }
     } else {
-        mprLog(0, 0, "%-30s %-22s %-50s %-14s", route->name, methods ? methods : "*", pattern, target);
+        mprLog(0, 0, "%-34s %-22s %-50s %-14s", route->name, methods ? methods : "*", pattern, target);
     }
 }
 
@@ -8632,7 +8759,7 @@ PUBLIC void httpLogRoutes(HttpHost *host, bool full)
         host = httpGetDefaultHost();
     }
     if (!full) {
-        mprLog(0, 0, "%-30s %-22s %-50s %-14s", "Name", "Methods", "Pattern", "Target");
+        mprLog(0, 0, "%-34s %-22s %-50s %-14s", "Name", "Methods", "Pattern", "Target");
     }
     for (foundDefault = next = 0; (route = mprGetNextItem(host->routes, &next)) != 0; ) {
         printRoute(route, next - 1, full);
@@ -12068,7 +12195,6 @@ PUBLIC HttpRoute *httpCreateRoute(HttpHost *host)
     httpAddRouteResponseHeader(route, HTTP_ROUTE_ADD_HEADER, "X-Frame-Options", "SAMEORIGIN");
     httpAddRouteResponseHeader(route, HTTP_ROUTE_ADD_HEADER, "X-Content-Type-Options", "nosniff");
 
-//  MOB - review
     if (MPR->httpService) {
         route->limits = mprMemdup(http->serverLimits ? http->serverLimits : http->clientLimits, sizeof(HttpLimits));
     }
@@ -16349,9 +16475,10 @@ static ssize filterPacket(HttpConn *conn, HttpPacket *packet, int *more)
      */
     size = rx->bytesRead - rx->bytesUploaded;
     if (size >= conn->limits->receiveBodySize) {
-        httpLimitError(conn, HTTP_CLOSE | HTTP_CODE_REQUEST_TOO_LARGE,
-            "Receive body of %'lld bytes (sofar) is too big. Limit %'lld", size, conn->limits->receiveBodySize);
-
+        if (!rx->webSocket) {
+            httpLimitError(conn, HTTP_CLOSE | HTTP_CODE_REQUEST_TOO_LARGE,
+                "Receive body of %'lld bytes (sofar) is too big. Limit %'lld", size, conn->limits->receiveBodySize);
+        }
     } else if (rx->form && size >= conn->limits->receiveFormSize) {
         httpLimitError(conn, HTTP_CLOSE | HTTP_CODE_REQUEST_TOO_LARGE,
             "Receive form of %'lld bytes (sofar) is too big. Limit %'lld", size, conn->limits->receiveFormSize);
@@ -18792,7 +18919,9 @@ PUBLIC void httpDetailTraceFormatter(HttpTrace *trace, HttpConn *conn, cchar *ev
     } else {
         fmt(buf, sizeof(buf), "\n%s 0-0-0-0 ", trace->lastTime);
     }
+#if KEEP
     httpWriteTrace(trace, buf, slen(buf));
+#endif
     fmt(buf, sizeof(buf), "%s, ", event);
     httpWriteTrace(trace, buf, slen(buf));
 

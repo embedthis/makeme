@@ -2673,7 +2673,7 @@ PUBLIC Mpr *mprCreate(int argc, char **argv, int flags)
     if (flags & MPR_USER_EVENTS_THREAD) {
         if (!(flags & MPR_NO_WINDOW)) {
             /* Used by apps that need to use FindWindow after calling mprCreate() (appwebMonitor) */
-            mprSetNotifierThread(0);
+            mprSetWindowsThread(0);
         }
     } else {
         mprStartEventsThread();
@@ -3050,7 +3050,7 @@ PUBLIC int mprStartEventsThread()
 static void serviceEventsThread(void *data, MprThread *tp)
 {
     mprLog("info mpr", 2, "Service thread started");
-    mprSetNotifierThread(tp);
+    mprSetWindowsThread(tp);
     mprSignalCond(MPR->cond);
     mprServiceEvents(-1, 0);
     mprRescheduleDispatcher(MPR->dispatcher);
@@ -3578,7 +3578,7 @@ PUBLIC int mprCreateNotifierService(MprWaitService *ws)
 }
 
 
-PUBLIC HWND mprSetNotifierThread(MprThread *tp)
+PUBLIC HWND mprSetWindowsThread(MprThread *tp)
 {
     MprWaitService  *ws;
 
@@ -6169,12 +6169,10 @@ static void pollWinTimer(MprCmd *cmd, MprEvent *event)
  */
 PUBLIC int mprWaitForCmd(MprCmd *cmd, MprTicks timeout)
 {
-    MprThreadService    *ts;
-    MprTicks            expires, remaining, delay;
+    MprTicks    expires, remaining, delay;
+    int64       dispatcherMark;
 
     assert(cmd);
-    ts = MPR->threadService;
-
     if (timeout < 0) {
         timeout = MAXINT;
     }
@@ -6189,24 +6187,16 @@ PUBLIC int mprWaitForCmd(MprCmd *cmd, MprTicks timeout)
 
     /* Add root to allow callers to use mprRunCmd without first managing the cmd */
     mprAddRoot(cmd);
+    dispatcherMark = mprGetEventMark(cmd->dispatcher);
 
     while (!cmd->complete && remaining > 0) {
         if (mprShouldAbortRequests()) {
             break;
         }
         delay = (cmd->eofCount >= cmd->requiredEof) ? 10 : remaining;
-        if (!ts->eventsThread && mprGetCurrentThread() == ts->mainThread) {
-            /*
-                Main program without any events loop
-             */
-            mprServiceEvents(10, MPR_SERVICE_NO_BLOCK);
-        } else {
-            if (cmd->dispatcher->owner != mprGetCurrentOsThread()) {
-                delay = 10;
-            }
-            mprWaitForEvent(cmd->dispatcher, delay);
-        }
+        mprWaitForEvent(cmd->dispatcher, delay, dispatcherMark);
         remaining = (expires - mprGetTicks());
+        dispatcherMark = mprGetEventMark(cmd->dispatcher);
     }
     mprRemoveRoot(cmd);
     if (cmd->pid) {
@@ -9580,7 +9570,7 @@ PUBLIC int mprServiceEvents(MprTicks timeout, int flags)
     if (expires < 0) {
         expires = MPR_MAX_TIMEOUT;
     }
-    mprSetNotifierThread(0);
+    mprSetWindowsThread(0);
 
     while (es->now <= expires) {
         eventCount = es->eventCount;
@@ -9636,79 +9626,69 @@ PUBLIC int mprServiceEvents(MprTicks timeout, int flags)
 }
 
 
-/*
-    Must be called locked
- */
-static bool canRun(MprDispatcher *dispatcher)
+PUBLIC int64 mprGetEventMark(MprDispatcher *dispatcher)
 {
-    return !isRunning(dispatcher) || !dispatcher->owner || dispatcher->owner == mprGetCurrentOsThread();
+    int64   result;
+
+    /*
+        Ensure all writes are flushed so user state will be valid across all threads
+     */
+    result = dispatcher->mark;
+    mprAtomicBarrier();
+    return result;
 }
 
 
 /*
-    Wait for an event to occur and dispatch the event. This is not called by mprServiceEvents.
-    Return 0 if an event was signalled. Return MPR_ERR_TIMEOUT if no event was seen before the timeout.
+    Wait for an event to occur on the dispatcher and service the event. This is not called by mprServiceEvents.
+    The dispatcher may be "started" and owned by the thread, or it may be unowned.
+    WARNING: the event may have already happened by the time this API is invoked.
     WARNING: this will enable GC while sleeping.
  */
-PUBLIC int mprWaitForEvent(MprDispatcher *dispatcher, MprTicks timeout)
+PUBLIC int mprWaitForEvent(MprDispatcher *dispatcher, MprTicks timeout, int64 mark)
 {
     MprEventService     *es;
     MprTicks            expires, delay;
-    int                 signalled, wasRunning, runEvents, nevents;
-
-    es = MPR->eventService;
-    es->now = mprGetTicks();
+    int                 runEvents, changed;
 
     if (dispatcher == NULL) {
         dispatcher = MPR->dispatcher;
     }
-    assert(!(dispatcher->flags & MPR_DISPATCHER_WAITING));
-    if (dispatcher->flags & MPR_DISPATCHER_WAITING) {
-        return MPR_ERR_BUSY;
+    if ((runEvents = (dispatcher->owner == mprGetCurrentOsThread())) != 0) {
+        /* Called from an event on a running dispatcher */
+        assert(isRunning(dispatcher));
+        if (dispatchEvents(dispatcher)) {
+            return 0;
+        }
     }
+    es = MPR->eventService;
+    es->now = mprGetTicks();
     expires = timeout < 0 ? (es->now + MPR_MAX_TIMEOUT) : (es->now + timeout);
-    signalled = 0;
+    delay = expires - es->now;
 
     lock(es);
-    wasRunning = isRunning(dispatcher);
-    runEvents = canRun(dispatcher);
-    if (runEvents && !wasRunning) {
-        queueDispatcher(es->runQ, dispatcher);
-    }
+    delay = getDispatcherIdleTicks(dispatcher, delay);
+    dispatcher->flags |= MPR_DISPATCHER_WAITING;
+    changed = dispatcher->mark != mark && mark != -1;
     unlock(es);
 
-    for (; es->now <= expires && !mprIsDestroying(); es->now = mprGetTicks()) {
-        if (runEvents) {
-            if (dispatchEvents(dispatcher)) {
-                signalled++;
-                break;
-            }
-        }
-        lock(es);
-        delay = getDispatcherIdleTicks(dispatcher, expires - es->now);
-        dispatcher->flags |= MPR_DISPATCHER_WAITING;
-        unlock(es);
-
-        mprYield(MPR_YIELD_STICKY);
-
-        nevents = mprWaitForCond(dispatcher->cond, delay);
-        mprResetYield();
-        dispatcher->flags &= ~MPR_DISPATCHER_WAITING;
-
-        if (nevents == 0) {
-            if (runEvents) {
-                dispatchEvents(dispatcher);
-            }
-            signalled++;
-            break;
-        }
-        es->now = mprGetTicks();
+    if (changed) {
+        return 0;
     }
-    if (runEvents && !wasRunning) {
-        dequeueDispatcher(dispatcher);
-        mprScheduleDispatcher(dispatcher);
+    mprYield(MPR_YIELD_STICKY);
+    mprWaitForCond(dispatcher->cond, delay);
+    mprResetYield();
+    es->now = mprGetTicks();
+
+    lock(es);
+    dispatcher->flags &= ~MPR_DISPATCHER_WAITING;
+    unlock(es);
+
+    if (runEvents) {
+        dispatchEvents(dispatcher);
+        assert(isRunning(dispatcher));
     }
-    return signalled ? 0 : MPR_ERR_TIMEOUT;
+    return 0;
 }
 
 
@@ -9741,7 +9721,7 @@ PUBLIC bool mprWaitForCompletion(MprDispatcher *dispatcher, MprTicks timeout)
         timeout *= 100;
     }
     for (mark = mprGetTicks(); !(dispatcher->flags & MPR_DISPATCHER_COMPLETE) && mprGetElapsedTicks(mark) < timeout; ) {
-        mprWaitForEvent(dispatcher, 10);
+        mprWaitForEvent(dispatcher, 10, -1);
     }
     success = (dispatcher->flags & MPR_DISPATCHER_COMPLETE) ? 1 : 0;
     dispatcher->flags &= ~MPR_DISPATCHER_COMPLETE;
@@ -9794,6 +9774,11 @@ PUBLIC int mprDispatchersAreIdle()
 }
 
 
+/*
+    Start the dispatcher by putting it on the runQ. This prevents the event service from 
+    starting any events in parallel. The invoking thread should service events directly by
+    calling mprServiceEvents or mprWaitForEvent.
+ */
 PUBLIC int mprStartDispatcher(MprDispatcher *dispatcher)
 {
     if (dispatcher->owner && dispatcher->owner != mprGetCurrentOsThread()) {
@@ -9811,33 +9796,17 @@ PUBLIC int mprStartDispatcher(MprDispatcher *dispatcher)
 PUBLIC int mprStopDispatcher(MprDispatcher *dispatcher)
 {
     if (dispatcher->owner != mprGetCurrentOsThread()) {
+        assert(dispatcher->owner == mprGetCurrentOsThread());
         return MPR_ERR_BAD_STATE;
     }
     if (!isRunning(dispatcher)) {
+        assert(isRunning(dispatcher));
         return MPR_ERR_BAD_STATE;
     }
     dispatcher->owner = 0;
     dequeueDispatcher(dispatcher);
     mprScheduleDispatcher(dispatcher);
     return 0;
-}
-
-
-/*
-    Relay an event to a dispatcher. This invokes the callback proc as though it was invoked from the given dispatcher. 
- */
-PUBLIC void mprRelayEvent(MprDispatcher *dispatcher, void *proc, void *data, MprEvent *event)
-{
-    if (mprStartDispatcher(dispatcher) < 0) {
-        return;
-    }
-    if (proc) {
-        if (event) {
-            event->timestamp = dispatcher->service->now;
-        }
-        ((MprEventProc) proc)(data, event);
-    }
-    mprStopDispatcher(dispatcher);
 }
 
 
@@ -9858,16 +9827,16 @@ PUBLIC void mprScheduleDispatcher(MprDispatcher *dispatcher)
     }
     es = dispatcher->service;
     lock(es);
+    mustWakeWaitService = es->waiting;
+
     if (isRunning(dispatcher)) {
-        mustWakeWaitService = es->waiting;
+        mustWakeCond = dispatcher->flags & MPR_DISPATCHER_WAITING;
+
+    } else if (isEmpty(dispatcher)) {
+        queueDispatcher(es->idleQ, dispatcher);
         mustWakeCond = dispatcher->flags & MPR_DISPATCHER_WAITING;
 
     } else {
-        if (isEmpty(dispatcher)) {
-            queueDispatcher(es->idleQ, dispatcher);
-            unlock(es);
-            return;
-        }
         event = dispatcher->eventQ->next;
         mustWakeWaitService = mustWakeCond = 0;
         if (event->due > es->now) {
@@ -9932,6 +9901,8 @@ static int dispatchEvents(MprDispatcher *dispatcher)
         event->flags |= MPR_EVENT_RUNNING;
 
         assert(event->proc);
+        mprAtomicAdd64(&dispatcher->mark, 1);
+
         (event->proc)(event->data, event);
 
         if (dispatcher->flags & MPR_DISPATCHER_DESTROYED) {
@@ -15917,13 +15888,8 @@ PUBLIC void mprDefaultLogHandler(cchar *tags, int level, cchar *msg)
         if (len < width) {
             mprWriteFile(file, "                                          ", width - len);
         }
-    } else if (tags) {
-        if (level == 0) {
-            fmt(tbuf, sizeof(tbuf), "%s: error: ", MPR->name);
-        } else {
-            fmt(tbuf, sizeof(tbuf), "%s: ", MPR->name);
-        }
-        mprWriteFileString(file, tbuf);
+    } else if (tags && level == 0) {
+        mprWriteFileString(file, "error: ");
     }
     mprWriteFileString(file, msg);
     mprWriteFileString(file, "\n");
@@ -22728,6 +22694,12 @@ PUBLIC char *mprGetSocketState(MprSocket *sp)
         return 0;
     }
     return sp->provider->socketState(sp);
+}
+
+
+PUBLIC bool mprSocketHasBuffered(MprSocket *sp)
+{
+    return (sp->flags & (MPR_SOCKET_BUFFERED_READ | MPR_SOCKET_BUFFERED_WRITE)) ? 1 : 0;
 }
 
 
