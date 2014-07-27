@@ -165,7 +165,7 @@ enumerable class TestMe {
                     }
                 }
             }
-            let bin = cfg.join('bin').portable
+            bin = cfg.join('bin').portable
             if (cfg.join('inc/me.h').exists) {
                 parseMeConfig(cfg.join('inc/me.h'))
             }
