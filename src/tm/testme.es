@@ -169,6 +169,8 @@ enumerable class TestMe {
             if (cfg.join('inc/me.h').exists) {
                 parseMeConfig(cfg.join('inc/me.h'))
             }
+        } else {
+            topDir = App.dir
         }
         if ((path = searchUp('TOP.es.set')) != null) {
             topTestDir = path.dirname.absolute.portable
