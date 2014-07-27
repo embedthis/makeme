@@ -12103,6 +12103,7 @@ When static content is used for the transmission body, defining the entity lengt
   <div class="apiDetail">
 <p>Wait for the client connection to achieve the requested state.</p>
     <dl><dt><b>Description</b>:</dt><dd>This call blocks until the connection reaches the desired state. It creates a wait handler and services events while waiting. This is useful for blocking client requests, and should never be used on server-side connections. <br/><br/>
+ It is often required to call mprStartDispatcher on the connection dispatcher after calling $httpCreateConn. This ensures that all foreground activity on the connection is serialized with respect to work done in response to I/O events while waiting in httpWait. <br/><br/>
  This routine may invoke mprYield before it sleeps to consent for the garbage collector to turn. Callers must ensure they have retained all required temporary memory before invoking this routine.</dd></dl>
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">

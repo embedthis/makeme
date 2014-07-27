@@ -165,6 +165,7 @@ enumerable class TestMe {
                     }
                 }
             }
+            let bin = cfg.join('bin').portable
             if (cfg.join('inc/me.h').exists) {
                 parseMeConfig(cfg.join('inc/me.h'))
             }
@@ -458,7 +459,6 @@ enumerable class TestMe {
             let libraries = env.libraries ? env.libraries.split(/ /) : []
             libraries.push(Path('testme'))
             libraries = serialize(libraries).replace(/"/g, "'")
-            let bin = cfg.join('bin').portable
             let inc = cfg.join('inc').portable
             let linker = '[]'
             if (Config.OS != 'windows') {
