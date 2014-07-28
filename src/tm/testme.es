@@ -14,6 +14,7 @@ enumerable class TestMe {
     var topDir: Path                        //  Path to top of source tree
     var topTestDir: Path                    //  Path to top of test tree
     var originalDir: Path                   //  Original current directory
+    var mebin: Path                         //  Directory containing "me"
 
     var keepGoing: Boolean = false          //  Continue on errors 
     var topEnv: Object = {}                 //  Global env to pass to tests
@@ -184,12 +185,17 @@ enumerable class TestMe {
         if (!me) {
             throw 'Cannot locate "me"'
         }
+        if (me.isLink) {
+            me = me.linkTarget
+        }
+        mebin = me.dirname.relative.portable
         blend(topEnv, {
             TM_TOP: topDir, 
             TM_TOP_TEST: topTestDir, 
             TM_CFG: cfg, 
             TM_BIN: bin, 
             TM_DEPTH: depth, 
+            TM_MEBIN: mebin, 
         })
         if (options.debug) {
             topEnv.TM_DEBUG = true
@@ -559,8 +565,6 @@ Me.load({
 
         let exe, command
         if (ext == 'es') {
-            let me = Cmd.locate('me')
-            let mebin = me.dirname.relative.portable
             if (file.extension == 'com') {
                 let ejsc = mebin.join('ejsc')
                 let mod = Path(name).joinExt('mod', true)
