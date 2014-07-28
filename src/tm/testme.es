@@ -186,9 +186,9 @@ enumerable class TestMe {
             throw 'Cannot locate "me"'
         }
         if (me.isLink) {
-            me = me.linkTarget
+            me = me.dirname.join(me.linkTarget)
         }
-        mebin = me.dirname.relative.portable
+        mebin = me.dirname.portable
         blend(topEnv, {
             TM_TOP: topDir, 
             TM_TOP_TEST: topTestDir, 
