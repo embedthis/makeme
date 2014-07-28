@@ -15943,8 +15943,7 @@ static bool parseRequestLine(HttpConn *conn, HttpPacket *packet)
     conn->http->totalRequests++;
     httpSetState(conn, HTTP_STATE_FIRST);
     if (httpTracing(conn) && !traced) {
-        httpTrace(conn, "rx.first.server", "request", "uri=%s, method=%s, protocol=%s, peer=%s", 
-            rx->uri, rx->method, conn->protocol, conn->ip);
+        httpTrace(conn, "rx.first.server", "request", "uri=%s, method=%s, peer=%s", rx->uri, rx->method, conn->ip);
     }
     return 1;
 }
@@ -18866,7 +18865,7 @@ PUBLIC cchar *httpMakePrintable(HttpTrace *trace, HttpConn *conn, cchar *event, 
         start += 3;
         *lenp -= 3;
     }
-    len = max(len, trace->maxContent);
+    len = min(len, trace->maxContent);
 
     for (i = 0; i < len; i++) {
         if (!isprint((uchar) start[i]) && start[i] != '\n' && start[i] != '\r' && start[i] != '\t') {

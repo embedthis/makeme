@@ -769,8 +769,8 @@ PUBLIC int httpStartTracing(cchar *traceSpec);
     The context type is used for general information including http headers. The form type is used for POST form data.
     The body type is used for request body data.
     \n\n
-    Context type events may include a "msg" field. By convention, these messages should be aggregated by trace 
-    formatters so that subsequent context events do not overwrite prior messages. All errors, should be in 
+    Context type events may include a "msg" value field. By convention, these messages should be aggregated by trace 
+    formatters so that subsequent context events do not overwrite prior msg values.
     \n\n
     Event types are orthogonal to event names. 
     @param values Printf style format string. String should be comma separated key=value pairs
