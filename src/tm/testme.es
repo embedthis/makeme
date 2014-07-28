@@ -299,6 +299,10 @@ enumerable class TestMe {
         let command = file
         let trimmed = file.trimExt()
 
+        if (options.clean || options.clobber) {
+            clean(topPath, file)
+            return true
+        }
         try {
             command = buildTest(phase, topPath, file, env)
         } catch (e) {
@@ -322,10 +326,6 @@ enumerable class TestMe {
             if (options.projects) {
                 return true
             }
-        }
-        if (options.clean || options.clobber) {
-            clean(topPath, file)
-            return true
         }
         if (options.compile && !file.exension == 'set') {
             /* Must continue processing setup files */
@@ -461,8 +461,10 @@ enumerable class TestMe {
     function createMakeMe(file: Path, env) {
         let name = file.trimExt().trimExt()
         let tm = Path('testme')
-        tm.makeDir()
-        tm.join('.GENERATED').write()
+        if (!tm.exists) {
+            tm.makeDir()
+            tm.join('.GENERATED').write()
+        }
         let mefile = tm.join(name).joinExt('me')
         if (!mefile.exists) {
             let libraries = env.libraries ? env.libraries.split(/ /) : []
@@ -505,6 +507,7 @@ Me.load({
         let mefile = tm.join(name).joinExt('me')
         let c = tm.join(name).joinExt('c')
         let exe = tm.join(name)
+        let generated = tm.join('.GENERATED').exists
         if (Config.OS == 'windows') {
             exe = exe.joinExt('.exe')
         }
@@ -530,7 +533,7 @@ Me.load({
                 mefile.remove()
                 trace('Remove', base.join(mefile))
             }
-            if (tm.join('.GENERATED').exists) {
+            if (generated) {
                 tm.join('.GENERATED').remove()
                 if (tm.remove()) {
                     trace('Remove', base.join(tm))
@@ -587,7 +590,10 @@ Me.load({
                 exe = exe.joinExt('.exe')
             }
             command = exe
-            tm.makeDir()
+            if (!tm.exists) {
+                tm.makeDir()
+                tm.join('.GENERATED').write()
+            }
             createMakeMe(file, env)
             if (options.rebuild) {
                 why('Copy', 'Update ' + c + ' because --rebuild')
