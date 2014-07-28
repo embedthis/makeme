@@ -180,6 +180,10 @@ enumerable class TestMe {
     }
 
     function setupEnv() {
+        let me = Cmd.locate('me')
+        if (!me) {
+            throw 'Cannot locate "me"'
+        }
         blend(topEnv, {
             TM_TOP: topDir, 
             TM_TOP_TEST: topTestDir, 
@@ -190,6 +194,9 @@ enumerable class TestMe {
         if (options.debug) {
             topEnv.TM_DEBUG = true
         }
+        let sep = App.SearchSeparator
+        App.putenv('PATH', bin + sep + me.dirname + sep + App.getenv('PATH'))
+        App.log.debug(2, "PATH=" + App.getenv('PATH'))
     }
 
     /*
@@ -550,9 +557,6 @@ Me.load({
         let exe, command
         if (ext == 'es') {
             let me = Cmd.locate('me')
-            if (!me) {
-                throw 'Cannot locate "me"'
-            }
             let mebin = me.dirname.relative.portable
             if (file.extension == 'com') {
                 let ejsc = mebin.join('ejsc')
