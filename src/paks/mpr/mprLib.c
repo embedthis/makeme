@@ -8978,6 +8978,14 @@ static int makeDir(MprDiskFileSystem *fs, cchar *path, int perms, int owner, int
 {
     int     rc;
 
+#if ME_WIN_LIKE
+    if (sends(path, "/")) {
+        /* Windows mkdir fails with a trailing "/" */
+        path = strim(path, "/", MPR_TRIM_END);
+    } else if (sends(path, "\\")) {
+        path = strim(path, "\\", MPR_TRIM_END);
+    }
+#endif
 #if VXWORKS
     rc = mkdir((char*) path);
 #else
