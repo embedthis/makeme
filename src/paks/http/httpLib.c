@@ -3442,7 +3442,6 @@ PUBLIC ssize httpWriteUploadData(HttpConn *conn, MprList *fileData, MprList *for
 }
 
 
-#if OLD || 1
 /*
     Wait for the connection to reach a given state.
     Should only be used on the client side.
@@ -3513,95 +3512,6 @@ PUBLIC int httpWait(HttpConn *conn, int state, MprTicks timeout)
     conn->lastActivity = conn->http->now;
     return 0;
 }
-
-
-#else
-/*
-    Wait for the connection to reach a given state.
-    Should only be used on the client side.
-    @param state Desired state. Set to zero if you want to wait for one I/O event.
-    @param timeout Timeout in msec. If timeout is zero, wait forever. If timeout is < 0, use default inactivity
-        and duration timeouts.
- */
-PUBLIC int httpWait(HttpConn *conn, int state, MprTicks timeout)
-{
-    MprTicks    mark, delay;
-    int         mask, justOne;
-
-    if (conn->endpoint) {
-        assert(!conn->endpoint);
-        return MPR_ERR_BAD_STATE;
-    }
-    if (conn->async) {
-        assert(!conn->async);
-        return MPR_ERR_BAD_STATE;
-    }
-    if (conn->dispatcher->owner && conn->dispatcher->owner != mprGetCurrentOsThread()) {
-        assert(!(conn->dispatcher->owner && conn->dispatcher->owner != mprGetCurrentOsThread()));
-        return MPR_ERR_BAD_STATE;
-    }
-    if (conn->state <= HTTP_STATE_BEGIN) {
-        return MPR_ERR_BAD_STATE;
-    }
-    if (state == 0) {
-        /* Wait for just one I/O event */
-        state = HTTP_STATE_FINALIZED;
-        justOne = 1;
-    } else {
-        justOne = 0;
-    }
-    if (conn->error) {
-        if (conn->state >= state) {
-            return 0;
-        }
-        return MPR_ERR_BAD_STATE;
-    }
-    if (timeout < 0) {
-        timeout = conn->limits->requestTimeout;
-    } else if (timeout == 0) {
-        timeout = MPR_MAX_TIMEOUT;
-    }
-    if (state > HTTP_STATE_CONTENT) {
-        httpFinalizeOutput(conn);
-    }
-    httpServiceQueues(conn, HTTP_BLOCK);
-
-    mark = conn->http->now;
-    while (conn->state < state && !conn->error && !mprIsSocketEof(conn->sock)) {
-        if (httpRequestExpired(conn, -1)) {
-            return MPR_ERR_TIMEOUT;
-        }
-//  WRAP
-        mask = MPR_READABLE;
-        if (!conn->tx->finalizedConnector || mprSocketHasBufferedWrite(conn->sock)) {
-            mask |= MPR_WRITABLE;
-        }
-        if (!mprSocketHasBuffered(conn->sock)) {
-            delay = min(conn->limits->inactivityTimeout, mprGetRemainingTicks(mark, timeout));
-            mask = mprWaitForSingleIO(conn->sock->fd, mask, delay);
-        }
-        httpIO(conn, mask);
-//  WRAP
-
-        if (justOne || mprGetRemainingTicks(mark, timeout) <= 0) {
-            break;
-        }
-    }
-    if (conn->error) {
-        return MPR_ERR_NOT_READY;
-    }
-    if (conn->state < state) {
-        if (mprGetRemainingTicks(mark, timeout) <= 0) {
-            return MPR_ERR_TIMEOUT;
-        }
-        if (!justOne) {
-            return MPR_ERR_CANT_READ;
-        }
-    }
-    conn->lastActivity = conn->http->now;
-    return 0;
-}
-#endif
 
 
 /*
@@ -15891,7 +15801,6 @@ static bool parseRequestLine(HttpConn *conn, HttpPacket *packet)
     cchar       *endp;
     MprBuf      *content;
     ssize       len;
-    bool        traced = 0;
 
     rx = conn->rx;
     limits = conn->limits;
@@ -15943,7 +15852,7 @@ static bool parseRequestLine(HttpConn *conn, HttpPacket *packet)
         content = packet->content;
         endp = strstr((char*) content->start, "\r\n\r\n");
         len = (endp) ? (int) (endp - content->start + 2) : 0;
-        traced = httpTraceContent(conn, "rx.headers.server", "context", content->start, len, NULL);
+        httpTraceContent(conn, "rx.headers.server", "context", content->start, len, NULL);
     }
     return 1;
 }
@@ -15961,19 +15870,10 @@ static bool parseResponseLine(HttpConn *conn, HttpPacket *packet)
     cchar       *endp;
     char        *protocol, *status;
     ssize       len;
-    int         traced;
 
     rx = conn->rx;
     tx = conn->tx;
-    traced = 0;
 
-    if (httpTracing(conn)) {
-        content = packet->content;
-        endp = strstr((char*) content->start, "\r\n\r\n");
-        len = (endp) ? (int) (endp - content->start + 4) : 0;
-        httpTraceContent(conn, "rx.headers.client", "context", content->start, len, "rx");
-        traced = 1;
-    }
     protocol = conn->protocol = supper(getToken(conn, 0));
     if (strcmp(protocol, "HTTP/1.0") == 0) {
         conn->http10 = 1;
@@ -15998,8 +15898,12 @@ static bool parseResponseLine(HttpConn *conn, HttpPacket *packet)
             "Bad response. Status message too long. Length %zd vs limit %zd", len, conn->limits->uriSize);
         return 0;
     }
-    if (httpTracing(conn) && !traced) {
+    if (httpTracing(conn)) {
         httpTrace(conn, "rx.first.client", "request", "status: %d, protocol: '%s'", rx->status, protocol);
+        content = packet->content;
+        endp = strstr((char*) content->start, "\r\n\r\n");
+        len = (endp) ? (int) (endp - content->start + 4) : 0;
+        httpTraceContent(conn, "rx.headers.client", "context", content->start, len, NULL);
     }
     return 1;
 }
