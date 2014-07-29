@@ -5498,6 +5498,13 @@
       <arglist>()</arglist>
     </member>
     <member kind="function">
+      <type>void</type>
+      <name>mprSuspendThread</name>
+      <anchorfile>group___mpr_dispatcher.html</anchorfile>
+      <anchor>ga6468e63efbe2e8cdfbb147575641e058</anchor>
+      <arglist>(MprTicks timeout)</arglist>
+    </member>
+    <member kind="function">
       <type>char *</type>
       <name>mprTransformPath</name>
       <anchorfile>group___mpr_path.html</anchorfile>
@@ -8651,6 +8658,13 @@
       <anchorfile>group___mpr_dispatcher.html</anchorfile>
       <anchor>gac81ecb3239317f36c36c7d849d738540</anchor>
       <arglist>(MprDispatcher *dispatcher)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>mprSuspendThread</name>
+      <anchorfile>group___mpr_dispatcher.html</anchorfile>
+      <anchor>ga6468e63efbe2e8cdfbb147575641e058</anchor>
+      <arglist>(MprTicks timeout)</arglist>
     </member>
     <member kind="function">
       <type>int</type>

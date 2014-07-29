@@ -2544,7 +2544,7 @@ PUBLIC ssize httpUpdateCache(HttpConn *conn, cchar *uri, cchar *data, MprTicks l
     if (lifespan <= 0) {
         lifespan = conn->rx->route->lifespan;
     }
-    key = sfmt("http::response-%s", uri);
+    key = sfmt("http::response::%s", uri);
     if (data == 0 || lifespan <= 0) {
         mprRemoveCache(conn->host->responseCache, key);
         return 0;
@@ -2570,7 +2570,8 @@ PUBLIC void httpAddCache(HttpRoute *route, cchar *methods, cchar *uris, cchar *e
     cache = 0;
     if (!route->caching) {
         if (route->handler) {
-            mprLog("error http cache", 0, "Caching handler disabled because SetHandler used in route %s. Use AddHandler instead", route->name);
+            mprLog("error http cache", 0, 
+                "Caching handler disabled because SetHandler used in route %s. Use AddHandler instead", route->name);
         }
         httpAddRouteHandler(route, "cacheHandler", NULL);
         httpAddRouteFilter(route, "cacheFilter", "", HTTP_STAGE_TX);
@@ -2653,9 +2654,9 @@ static char *makeCacheKey(HttpConn *conn)
 
     rx = conn->rx;
     if (conn->tx->cache->flags & HTTP_CACHE_UNIQUE) {
-        return sfmt("http::response-%s?%s", rx->pathInfo, httpGetParamsString(conn));
+        return sfmt("http::response::%s%s?%s", rx->route->prefix, rx->pathInfo, httpGetParamsString(conn));
     } else {
-        return sfmt("http::response-%s", rx->pathInfo);
+        return sfmt("http::response::%s%s", rx->route->prefix, rx->pathInfo);
     }
 }
 
@@ -4553,9 +4554,9 @@ static void parsePipelineFilters(HttpRoute *route, cchar *key, MprJson *prop)
 
 /*
     pipeline: {
-        handlers: 'espHandler',
+        handlers: 'espHandler',                     //  For all extensions
         handlers: {
-            espHandler: [ '*' },
+            espHandler: [ '*.esp, '*.xesp' ],
         },
     },
  */
@@ -4565,7 +4566,7 @@ static void parsePipelineHandlers(HttpRoute *route, cchar *key, MprJson *prop)
     int         ji;
 
     if (prop->type & MPR_JSON_STRING) {
-        if (httpSetRouteHandler(route, prop->value) < 0) {
+        if (httpAddRouteHandler(route, prop->value, "") < 0) {
             httpParseError(route, "Cannot add handler %s", prop->value);
         }
 
@@ -12538,9 +12539,8 @@ static int matchRoute(HttpConn *conn, HttpRoute *route)
     rx = conn->rx;
     savePathInfo = 0;
 
-    /*
-        Remove the route prefix. Restore after matching.
-     */
+    //  TODO - remove first test
+    assert(route->prefix);
     if (route->prefix && *route->prefix) {
         if (!sstarts(rx->pathInfo, route->prefix)) {
             return HTTP_ROUTE_REJECT;
@@ -19067,11 +19067,11 @@ PUBLIC void httpWriteTraceLogFile(HttpTrace *trace, cchar *buf, ssize len)
     if (trace->backupCount > 0) {
         if ((++skipCheck % 50) == 0) {
             backupTraceLogFile(trace);
-            if (!trace->file && httpOpenTraceLogFile(trace) < 0) {
-                unlock(trace);
-                return;
-            }
         }
+    }
+    if (!trace->file && trace->path && httpOpenTraceLogFile(trace) < 0) {
+        unlock(trace);
+        return;
     }
     mprWriteFile(trace->file, buf, len);
     unlock(trace);

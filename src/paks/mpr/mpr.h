@@ -5935,6 +5935,15 @@ PUBLIC int mprServiceEvents(MprTicks delay, int flags);
 PUBLIC void mprSetEventServiceSleep(MprTicks delay);
 
 /**
+    Suspend the current thread
+    @description Suspend the current thread until the application is shutting down.
+    @param timeout Timeout to wait for shutdown.
+    @ingroup MprDispatcher
+    @stability Prototype
+ */
+PUBLIC void mprSuspendThread(MprTicks timeout);
+
+/**
     Wait for an event to occur on the given dispatcher
     @description Use this routine to wait for an event and service the event on the given dispatcher.
     This routine should only be called in blocking code.
@@ -9585,6 +9594,7 @@ typedef struct Mpr {
     MprMutex        *mutex;                 /**< Thread synchronization used for global lock */
     MprSpin         *spin;                  /**< Quick thread synchronization */
     MprCond         *cond;                  /**< Sync after starting events thread */
+    MprCond         *stopCond;              /**< Sync for stopping */
 
     char            *emptyString;           /**< "" string */
     char            *oneString;             /**< "1" string */

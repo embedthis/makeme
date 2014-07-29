@@ -3142,7 +3142,7 @@ URIs to cache.
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
     <tr><td class="param">conn</td><td>HttpConn connection object.</td>
-    <tr><td class="param">uri</td><td>The request URI for which to update the cache. The URI may contain the request parameters in sorted www-urlencoded format.</td>
+    <tr><td class="param">uri</td><td>The request URI for which to update the cache. The URI may contain the request parameters in sorted www-urlencoded format. The URI should include any route prefix.</td>
     <tr><td class="param">data</td><td>Data to cache for the URI. If you wish to cache response headers, include those at the start of the data followed by an additional new line. For example: &quot;Content-Type: text/plain\n\nHello World\n&quot;.</td>
     <tr><td class="param">lifespan</td><td>Lifespan in milliseconds for the cached content.</td>
     </table></dd></dl>
@@ -10757,6 +10757,9 @@ Number of busy workers that are yielded for GC.
     <tr><td class="param">int</td><td><td>backupCount</td><td>
 Trace logger backup count.
 </td>
+    <tr><td class="param">MprBuf *</td><td><td>buf</td><td>
+Output buffer.
+</td>
     <tr><td class="param"><a class="ref" href="#struct_mpr_hash" external="mpr.dtags">MprHash</a> *</td><td><td>events</td><td>
 Configuration of events.
 </td>
@@ -11124,7 +11127,7 @@ If the traceSpec is null, not tracing is enabled.</td>
     <tr><td class="param">conn</td><td>HttpConn connection object created via <a class="ref" href="#group___http_conn_1ga25308956e8946f7f26ee9adc396534d3">httpCreateConn</a></td>
     <tr><td class="param">event</td><td>Event name to trace.</td>
     <tr><td class="param">type</td><td>Event type to trace. Events are grouped into types that are traced at the same level. The standard set of types and their default trace levels are: request:1, result:2, context:3, form:4, body:5, debug:5. Users can create custom types. The request type is used for the initial http request line. The result type is used for the request status. The context type is used for general information including http headers. The form type is used for POST form data. The body type is used for request body data. <br/><br/>
- Context type events may include a &quot;msg&quot; field. By convention, these messages should be aggregated by trace formatters so that subsequent context events do not overwrite prior messages. All errors, should be in <br/><br/>
+ Context type events may include a &quot;msg&quot; value field. By convention, these messages should be aggregated by trace formatters so that subsequent context events do not overwrite prior msg values. <br/><br/>
  Event types are orthogonal to event names.</td>
     <tr><td class="param">values</td><td>Printf style format string. String should be comma separated key=value pairs.</td>
     </table></dd></dl>

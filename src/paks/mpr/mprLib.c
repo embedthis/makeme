@@ -2665,6 +2665,7 @@ PUBLIC Mpr *mprCreate(int argc, char **argv, int flags)
     mpr->socketService = mprCreateSocketService();
     mpr->pathEnv = sclone(getenv("PATH"));
     mpr->cond = mprCreateCond();
+    mpr->stopCond = mprCreateCond();
 
     mpr->dispatcher = mprCreateDispatcher("main", 0);
     mpr->nonBlock = mprCreateDispatcher("nonblock", 0);
@@ -2733,6 +2734,7 @@ static void manageMpr(Mpr *mpr, int flags)
         mprMark(mpr->mutex);
         mprMark(mpr->spin);
         mprMark(mpr->cond);
+        mprMark(mpr->stopCond);
         mprMark(mpr->emptyString);
         mprMark(mpr->oneString);
         mprMark(mpr->argv);
@@ -2791,6 +2793,7 @@ PUBLIC void mprShutdown(int how, int exitStatus, MprTicks timeout)
         return;
     }
     mprState = MPR_STOPPING;
+    mprSignalMultiCond(MPR->stopCond);
     mprGlobalUnlock();
 
     MPR->exitStrategy = how;
@@ -9631,6 +9634,12 @@ PUBLIC int mprServiceEvents(MprTicks timeout, int flags)
     MPR->eventing = 0;
     mprSignalCond(MPR->cond);
     return abs(es->eventCount - beginEventCount);
+}
+
+
+PUBLIC void mprSuspendThread(MprTicks timeout)
+{
+    mprWaitForMultiCond(MPR->stopCond, timeout);
 }
 
 

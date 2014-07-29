@@ -612,6 +612,7 @@
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___mpr_module_1gaa07f1efa0d8eb9f8cfe00749a2a8518f" class="nameRef">mprStopModule</a>(<a href="#group___mpr_module" class="ref">MprModule</a> *mp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Stop a module.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#mpr_8h_1a4a74ded985a5d974beb42618de5a07af" class="nameRef">mprStopModuleService</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Stop the module service.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___mpr_1gaba3a98bd9017492538bba54529d905d3" class="nameRef">mprStopOsService</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Stop the O/S dependent subsystem.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___mpr_dispatcher_1ga6468e63efbe2e8cdfbb147575641e058" class="nameRef">mprSuspendThread</a>(<a href="#mpr_8h_1adbceeccda24c35e7b4c6090db7065319" class="ref">MprTicks</a> timeout)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Suspend the current thread.</td></tr>
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___mpr_path_1ga7e21012e1efb9cd5b62fbcce55728deb" class="nameRef">mprTransformPath</a>(<a href="osdepBare.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *path, int flags)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Transform a path.</td></tr>
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___mpr_path_1ga625d47ce700463caf6fa3987c7a8583a" class="nameRef">mprTrimPathComponents</a>(<a href="osdepBare.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *path, int count)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Trim path components from a path.</td></tr>
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___mpr_path_1ga4945b9360d7d3cb11b490d2e67e580fc" class="nameRef">mprTrimPathDrive</a>(<a href="osdepBare.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *path)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Trim the drive from a path.</td></tr>
@@ -1887,6 +1888,9 @@ Standard input file.
 </td>
     <tr><td class="param">MprFile *</td><td><td>stdOutput</td><td>
 Standard output file.
+</td>
+    <tr><td class="param"><a class="ref" href="#struct_mpr_cond">MprCond</a> *</td><td><td>stopCond</td><td>
+Sync for stopping.
 </td>
     <tr><td class="param">MprList *</td><td><td>terminators</td><td>
 Termination callbacks.
@@ -5347,6 +5351,25 @@ This removes the dispatcher from any dispatcher queues and allows it to be garba
     <tr><td class="param">dispatcher</td><td>Event dispatcher to monitor.</td>
     </table></dd></dl>
     <dl><dt><b>API</b> Stability:</dt><dd>Internal.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___mpr_dispatcher_1ga6468e63efbe2e8cdfbb147575641e058"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    mprSuspendThread
+(<a href="#mpr_8h_1adbceeccda24c35e7b4c6090db7065319" class="ref">MprTicks</a> timeout)
+  </div>
+  <div class="apiDetail">
+<p>Suspend the current thread.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Suspend the current thread until the application is shutting down.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">timeout</td><td>Timeout to wait for shutdown.</td>
+    </table></dd></dl>
+    <dl><dt><b>API</b> Stability:</dt><dd>Prototype.</dd></dl>
     <dl><dt>See Also:</dt><dd>
     </dd></dl>
   </div>

@@ -4286,6 +4286,7 @@ PUBLIC void httpAddCache(struct HttpRoute *route, cchar *methods, cchar *uris, c
     @param conn HttpConn connection object
     @param uri The request URI for which to update the cache. The URI may
         contain the request parameters in sorted www-urlencoded format.
+        The URI should include any route prefix.
     @param data Data to cache for the URI. If you wish to cache response headers, include those at the start of the
     data followed by an additional new line. For example: "Content-Type: text/plain\n\nHello World\n".
     @param lifespan Lifespan in milliseconds for the cached content
