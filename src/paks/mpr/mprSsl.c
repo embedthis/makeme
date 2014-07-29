@@ -39,6 +39,7 @@
 /*
     Matrixssl defines int*, uint*, but does not provide HAS_XXX or any other means to disable. Ugh!
     So must include matrixsslApi.h first and then workaround. 
+    Indent includes to bypass MakeMe dependencies
  */
 #if WIN32
  #include   <winsock2.h>
@@ -788,8 +789,10 @@ void matrixsslDummy() {}
 #include    "mpr.h"
 
 #if ME_COM_EST
-
-#include    "est.h"
+ /*
+    Indent to bypass MakeMe dependencies
+  */
+ #include    "est.h"
 
 /************************************* Defines ********************************/
 /*
@@ -1390,11 +1393,14 @@ void estDummy() {}
 /* Clashes with WinCrypt.h */
 #undef OCSP_RESPONSE
 
-#include    <openssl/ssl.h>
-#include    <openssl/evp.h>
-#include    <openssl/rand.h>
-#include    <openssl/err.h>
-#include    <openssl/dh.h>
+ /*
+    Indent includes to bypass MakeMe dependencies
+  */
+ #include    <openssl/ssl.h>
+ #include    <openssl/evp.h>
+ #include    <openssl/rand.h>
+ #include    <openssl/err.h>
+ #include    <openssl/dh.h>
 
 /************************************* Defines ********************************/
 
@@ -2460,6 +2466,9 @@ void opensslDummy() {}
     __ENABLE_MOCANA_SSL_CLIENT__
 #endif
 
+/*
+    Indent includes to bypass MakeMe dependencies
+ */
 #if ME_COM_NANOSSL
  #include "common/moptions.h"
  #include "common/mdefs.h"
