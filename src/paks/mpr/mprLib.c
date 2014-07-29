@@ -9680,7 +9680,7 @@ PUBLIC int mprWaitForEvent(MprDispatcher *dispatcher, MprTicks timeout, int64 ma
     }
     es = MPR->eventService;
     es->now = mprGetTicks();
-    expires = timeout < 0 ? (es->now + MPR_MAX_TIMEOUT) : (es->now + timeout);
+    expires = timeout < 0 ? MPR_MAX_TIMEOUT : (es->now + timeout);
     delay = expires - es->now;
 
     lock(es);

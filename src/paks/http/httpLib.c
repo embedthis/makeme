@@ -3490,8 +3490,9 @@ PUBLIC int httpWait(HttpConn *conn, int state, MprTicks timeout)
         if (httpRequestExpired(conn, -1)) {
             return MPR_ERR_TIMEOUT;
         }
-        delay = min(conn->limits->inactivityTimeout, mprGetRemainingTicks(start, timeout));
         httpEnableConnEvents(conn);
+        delay = min(conn->limits->inactivityTimeout, mprGetRemainingTicks(start, timeout));
+        delay = max(delay, 0);
         mprWaitForEvent(conn->dispatcher, delay, dispatcherMark);
         if (justOne || mprGetRemainingTicks(start, timeout) <= 0) {
             break;
