@@ -7952,7 +7952,8 @@ PUBLIC int mprUpgradeSocket(MprSocket *sp, struct MprSsl *ssl, cchar *peerName);
     @param len Length of data to write. This may be less than the requested write length if the socket is in non-blocking
         mode. Will return a negative MPR error code on errors.
     @return A count of bytes actually written. Return a negative MPR error code on errors and if the socket cannot absorb any
-        more data. If the transport is saturated, will return a negative error and mprGetError() returns EAGAIN or EWOULDBLOCK
+        more data. If the transport is saturated, will return a negative error and mprGetError() returns EAGAIN 
+        or EWOULDBLOCK.
     @ingroup MprSocket
     @stability Stable
  */
