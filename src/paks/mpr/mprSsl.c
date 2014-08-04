@@ -1085,7 +1085,7 @@ static int handshakeEst(MprSocket *sp)
         sp->peerName = sclone(est->ctx.peer_cn);
     }
     sp->cipher = sclone(ssl_get_cipher(&est->ctx));
-    if (est->ctx.peer_cert) {
+    if (est->ctx.peer_cert && rc == 0) {
         x509parse_dn_gets("", cbuf, sizeof(cbuf), &est->ctx.peer_cert->subject);
         sp->peerCert = sclone(cbuf);
         x509parse_dn_gets("", cbuf, sizeof(cbuf), &est->ctx.peer_cert->issuer);
