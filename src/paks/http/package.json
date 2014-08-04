@@ -2,7 +2,7 @@
     "name": "http",
     "description": "Embedthis Http Library",
     "title": "Embedthis Http",
-    "version": "5.0.0",
+    "version": "5.1.0",
     "keywords": [
         "http",
         "webserver"
@@ -34,7 +34,7 @@
     ],
     "dependencies": {
         "me-dev": "~0.8",
-        "mpr": "~5.0",
+        "mpr": "~5",
         "osdep": "~0.8",
         "pcre": "~1.0"
     },

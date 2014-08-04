@@ -9,7 +9,7 @@ This software is also distributed under the Embedthis Open Source
 license which is an MIT style license if used with an Embedthis
 Commercial License.
 
-* [Embedthis OpenSource License](http://embedthis.com/licensing/open.html)
+* [Embedthis Extension License](http://embedthis.com/licensing/extension.html)
 
 Trademarks and Copyrights
 ---

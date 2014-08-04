@@ -1259,7 +1259,6 @@ static void invokeDestructors()
 
     for (region = heap->regions; region; region = region->next) {
         for (mp = region->start; mp < region->end; mp = GET_NEXT(mp)) {
-            assert(mp->size > 0);
             /*
                 OPT - could optimize by requiring a separate flag for managers that implement destructors.
              */
@@ -23333,6 +23332,9 @@ PUBLIC int mprLoadSsl()
     path = mprJoinPath(mprGetAppDir(), "libmprssl");
     if (!mprPathExists(path, R_OK)) {
         path = mprSearchForModule("libmprssl");
+    }
+    if (!path) {
+        return MPR_ERR_CANT_FIND;
     }
     if ((mp = mprCreateModule("sslModule", path, "mprSslInit", NULL)) == 0) {
         return MPR_ERR_CANT_CREATE;
