@@ -36,13 +36,18 @@ Me.load({
             /* Binary Set */
             {   from:   [
                     '${BIN}/me${EXE}',
-                    '${BIN}/ejs${EXE}',
-                    '${BIN}/ejsc${EXE}',
-                    '${BIN}/http${EXE}',
                     '${BIN}/testme${EXE}',
                 ],
                 to:     '${abin}/',
                 linkin: '${bin}',
+                set:    'core',
+
+            }, {   from:   [
+                    '${BIN}/ejs${EXE}',
+                    '${BIN}/ejsc${EXE}',
+                    '${BIN}/http${EXE}',
+                ],
+                to:     '${abin}/',
                 set:    'core',
 
             },{ from: [
