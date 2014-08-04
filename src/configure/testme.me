@@ -7,6 +7,9 @@ Me.load({
             description: 'TestMe Unit Test Framework',
             config: function (target) {
                 let mepath = Cmd.locate('me')
+                if (mepath.isLink) {
+                    mepath = mepath.dirname.join(mepath.linkTarget)
+                }
                 if (mepath) {
                     mepath = mepath.dirname.parent
                 } else {

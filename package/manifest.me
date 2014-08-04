@@ -13,13 +13,13 @@ Me.load({
         packages:   {
             install: {
                 inherit:    'package-manifest',
-                prefixes:   [ 'root', 'app', 'vapp', 'bin', 'man'],
+                prefixes:   [ 'root', 'app', 'vapp', 'bin', 'inc', 'man'],
                 sets:       [ 'core', 'libs', 'doc' ],
                 platforms:  [ 'windows', 'unix' ]
             },
             binary: {
                 inherit:    'package-manifest',
-                prefixes:   [ 'root', 'app', 'vapp', 'bin', 'man'],
+                prefixes:   [ 'root', 'app', 'vapp', 'bin', 'inc', 'man'],
                 formats:    [ 'native', 'tar' ],
                 sets:       [ 'core', 'libs', 'doc', 'package' ],
                 platforms:  [ 'freebsd', 'linux', 'windows', 'macosx' ]
@@ -92,6 +92,10 @@ Me.load({
                     '${BIN}/ejs.testme.mod',
                 ],
                 to:     '${abin}/',
+                set:    'core',
+
+            },{ from:   'src/tm/testme.h',
+                to:     '${vapp}/inc/',
                 set:    'core',
 
             },{ from:   'src/**',
