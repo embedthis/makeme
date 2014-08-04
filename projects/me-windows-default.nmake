@@ -3,7 +3,7 @@
 #
 
 NAME                  = me
-VERSION               = 0.8.2
+VERSION               = 0.8.3
 
 OS                    = windows
 PA                    = $(PROCESSOR_ARCHITECTURE)
@@ -780,7 +780,6 @@ build\$(CONFIG)\bin\libest.dll: $(DEPS_32)
 #
 DEPS_33 = $(DEPS_33) build\$(CONFIG)\inc\me.h
 DEPS_33 = $(DEPS_33) build\$(CONFIG)\inc\mpr.h
-DEPS_33 = $(DEPS_33) build\$(CONFIG)\inc\est.h
 
 build\$(CONFIG)\obj\mprSsl.obj: \
     src\paks\mpr\mprSsl.c $(DEPS_33)
@@ -1215,6 +1214,8 @@ installBinary: $(DEPS_50)
 	if not exist "$(ME_VAPP_PREFIX)\bin" md "$(ME_VAPP_PREFIX)\bin"
 	copy /Y build\$(CONFIG)\bin\me.exe "$(ME_VAPP_PREFIX)\bin\me.exe"
 	copy /Y build\$(CONFIG)\bin\ejs.exe "$(ME_VAPP_PREFIX)\bin\ejs.exe"
+	copy /Y build\$(CONFIG)\bin\ejsc.exe "$(ME_VAPP_PREFIX)\bin\ejsc.exe"
+	copy /Y build\$(CONFIG)\bin\http.exe "$(ME_VAPP_PREFIX)\bin\http.exe"
 	copy /Y build\$(CONFIG)\bin\testme.exe "$(ME_VAPP_PREFIX)\bin\testme.exe"
 	copy /Y build\$(CONFIG)\bin\libejs.dll "$(ME_VAPP_PREFIX)\bin\libejs.dll"
 	copy /Y build\$(CONFIG)\bin\libhttp.dll "$(ME_VAPP_PREFIX)\bin\libhttp.dll"
@@ -1235,6 +1236,8 @@ installBinary: $(DEPS_50)
 	copy /Y build\$(CONFIG)\bin\me.mod "$(ME_VAPP_PREFIX)\bin\me.mod"
 	copy /Y build\$(CONFIG)\bin\testme.mod "$(ME_VAPP_PREFIX)\bin\testme.mod"
 	copy /Y build\$(CONFIG)\bin\ejs.testme.mod "$(ME_VAPP_PREFIX)\bin\ejs.testme.mod"
+	if not exist "$(ME_VAPP_PREFIX)\inc" md "$(ME_VAPP_PREFIX)\inc"
+	copy /Y src\tm\testme.h "$(ME_VAPP_PREFIX)\inc\testme.h"
 	if not exist "$(ME_VAPP_PREFIX)\bin\configure" md "$(ME_VAPP_PREFIX)\bin\configure"
 	copy /Y src\configure\appweb.me "$(ME_VAPP_PREFIX)\bin\configure\appweb.me"
 	copy /Y src\configure\compiler.me "$(ME_VAPP_PREFIX)\bin\configure\compiler.me"
@@ -1297,6 +1300,7 @@ uninstall: $(DEPS_53)
 	cd .
 	if exist "$(ME_VAPP_PREFIX)" rd /Q /S "$(ME_VAPP_PREFIX)"
 	if exist "$(ME_VAPP_PREFIX)\bin" rd /Q "$(ME_VAPP_PREFIX)\bin"
+	if exist "$(ME_VAPP_PREFIX)\inc" rd /Q "$(ME_VAPP_PREFIX)\inc"
 	if exist "$(ME_VAPP_PREFIX)\man" rd /Q "$(ME_VAPP_PREFIX)\man"
 	if exist "$(ME_VAPP_PREFIX)\latest" del /Q "$(ME_VAPP_PREFIX)\latest"
 	if exist "$(ME_VAPP_PREFIX)" rd /Q "$(ME_VAPP_PREFIX)"
@@ -1307,6 +1311,6 @@ uninstall: $(DEPS_53)
 #
 version: $(DEPS_54)
 	cd build\macosx-x64-release\bin
-	echo 0.8.2
+	echo 0.8.3
 	cd ..\..\..
 

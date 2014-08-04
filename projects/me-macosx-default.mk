@@ -3,7 +3,7 @@
 #
 
 NAME                  := me
-VERSION               := 0.8.2
+VERSION               := 0.8.3
 PROFILE               ?= default
 ARCH                  ?= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 CC_ARCH               ?= $(shell echo $(ARCH) | sed 's/x86/i686/;s/x64/x86_64/')
@@ -715,7 +715,6 @@ endif
 #
 DEPS_33 += build/$(CONFIG)/inc/me.h
 DEPS_33 += build/$(CONFIG)/inc/mpr.h
-DEPS_33 += build/$(CONFIG)/inc/est.h
 
 build/$(CONFIG)/obj/mprSsl.o: \
     src/paks/mpr/mprSsl.c $(DEPS_33)
@@ -1132,7 +1131,7 @@ installBinary: $(DEPS_48)
 	cd .; \
 	mkdir -p "$(ME_APP_PREFIX)" ; \
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
-	ln -s "0.8.2" "$(ME_APP_PREFIX)/latest" ; \
+	ln -s "0.8.3" "$(ME_APP_PREFIX)/latest" ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
 	cp build/$(CONFIG)/bin/me $(ME_VAPP_PREFIX)/bin/me ; \
 	mkdir -p "$(ME_BIN_PREFIX)" ; \
@@ -1141,6 +1140,12 @@ installBinary: $(DEPS_48)
 	cp build/$(CONFIG)/bin/ejs $(ME_VAPP_PREFIX)/bin/ejs ; \
 	rm -f "$(ME_BIN_PREFIX)/ejs" ; \
 	ln -s "$(ME_VAPP_PREFIX)/bin/ejs" "$(ME_BIN_PREFIX)/ejs" ; \
+	cp build/$(CONFIG)/bin/ejsc $(ME_VAPP_PREFIX)/bin/ejsc ; \
+	rm -f "$(ME_BIN_PREFIX)/ejsc" ; \
+	ln -s "$(ME_VAPP_PREFIX)/bin/ejsc" "$(ME_BIN_PREFIX)/ejsc" ; \
+	cp build/$(CONFIG)/bin/http $(ME_VAPP_PREFIX)/bin/http ; \
+	rm -f "$(ME_BIN_PREFIX)/http" ; \
+	ln -s "$(ME_VAPP_PREFIX)/bin/http" "$(ME_BIN_PREFIX)/http" ; \
 	cp build/$(CONFIG)/bin/testme $(ME_VAPP_PREFIX)/bin/testme ; \
 	rm -f "$(ME_BIN_PREFIX)/testme" ; \
 	ln -s "$(ME_VAPP_PREFIX)/bin/testme" "$(ME_BIN_PREFIX)/testme" ; \
@@ -1163,6 +1168,8 @@ installBinary: $(DEPS_48)
 	cp build/$(CONFIG)/bin/me.mod $(ME_VAPP_PREFIX)/bin/me.mod ; \
 	cp build/$(CONFIG)/bin/testme.mod $(ME_VAPP_PREFIX)/bin/testme.mod ; \
 	cp build/$(CONFIG)/bin/ejs.testme.mod $(ME_VAPP_PREFIX)/bin/ejs.testme.mod ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/inc" ; \
+	cp src/tm/testme.h $(ME_VAPP_PREFIX)/inc/testme.h ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/configure" ; \
 	cp src/configure/appweb.me $(ME_VAPP_PREFIX)/bin/configure/appweb.me ; \
 	cp src/configure/compiler.me $(ME_VAPP_PREFIX)/bin/configure/compiler.me ; \
@@ -1241,6 +1248,6 @@ uninstall: $(DEPS_51)
 version: $(DEPS_52)
 	( \
 	cd build/macosx-x64-release/bin; \
-	echo 0.8.2 ; \
+	echo 0.8.3 ; \
 	)
 
