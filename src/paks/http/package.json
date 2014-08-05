@@ -1,0 +1,48 @@
+{
+    "name": "http",
+    "description": "Embedthis Http Library",
+    "title": "Embedthis Http",
+    "version": "5.1.0",
+    "keywords": [
+        "http",
+        "webserver"
+    ],
+    "author": {
+        "name": "Embedthis Software",
+        "email": "dev@embedthis.com",
+        "url": "http://embedthis.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/embedthis/http.git"
+    },
+    "bugs": {
+        "url": "http://github.com/embedthis/http/issues"
+    },
+    "export": [
+        "doc/**"
+    ],
+    "licenses": [
+        {
+            "type": "GPL",
+            "url": "http://www.gnu.org/licenses/gpl-2.0.html"
+        },
+        {
+            "type": "Commercial",
+            "url": "http://embedthis.com/licensing/"
+        }
+    ],
+    "dependencies": {
+        "me-dev": "~0.8",
+        "mpr": "~5",
+        "osdep": "~0.8",
+        "pcre": "~1.0"
+    },
+    "optionalDependencies": {
+        "est": "~0.6",
+        "me-ssl": "~0.8"
+    },
+    "directories": {
+        "paks": "src/paks"
+    }
+}
