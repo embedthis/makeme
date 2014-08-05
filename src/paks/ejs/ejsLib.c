@@ -48180,7 +48180,7 @@ PUBLIC void ejsDestroyIntern(EjsIntern *ip)
     for (i = ip->size - 1; i >= 0; i--) {
         head = &ip->buckets[i];
         for (sp = head->next; sp != head; sp = next) {
-            if (next == sp->next) break;
+            if (sp == sp->next) break;
             next = sp->next;
             ip->count--;
             unlinkString(sp);
