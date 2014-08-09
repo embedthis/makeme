@@ -1693,7 +1693,10 @@ static OpenConfig *createOpenSslConfig(MprSocket *sp)
 #ifdef SSL_MODE_RELEASE_BUFFERS                                                                                      
     SSL_CTX_set_mode(context, SSL_MODE_RELEASE_BUFFERS);                                                            
 #endif
-#if 0
+#ifdef SSL_OP_CIPHER_SERVER_PREFERENCE                                                                                      
+    SSL_CTX_set_mode(context, SSL_OP_CIPHER_SERVER_PREFERENCE);                                                            
+#endif
+#if KEEP
     SSL_CTX_set_read_ahead(context, 1);                                                                             
     SSL_CTX_set_info_callback(context, info_callback); 
 #endif
