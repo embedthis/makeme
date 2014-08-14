@@ -5226,6 +5226,7 @@ module ejs {
     /** 
         Evaluate a script. Not present in ejsvm.
         @param script Script string to evaluate
+        @param cache Path to cache file to save compiled script
         @returns the the script expression value.
      */
     native function eval(script: String, cache: String? = null): Object
@@ -9825,6 +9826,7 @@ module ejs {
             Create a regular expression object that can be used to process strings.
             @param pattern The pattern to associated with this regular expression.
             @param flags "g" for global match, "i" to ignore case, "m" match over multiple lines, "y" for sticky match.
+                "s" so that "." will match all characters.
          */
         native function RegExp(pattern: String, flags: String? = null)
 
@@ -10521,6 +10523,7 @@ module ejs {
          */
         native function remove(start: Number, end: Number = -1): String
 
+        //  TODO - need options to do a global replace when pattern is a string
         /**
             Search and replace. Search for the given pattern which can be either a string or a regular expression 
             and replace it with the replace text. If the pattern is a string, only the first occurrence is replaced.
@@ -16393,10 +16396,21 @@ module ejs.template  {
                         }
                         pos++
                         c = script[pos++]
-                        while (c.isAlpha || c.isDigit || c == '[' || c == ']' || c == '.' || c == '$' || c == '_' || 
-                                c == "'") {
-                            token.write(c)
+                        if (c == '{') {
                             c = script[pos++]
+                            while (c && c != '}') {
+                                token.write(c)
+                                c = script[pos++]
+                            }
+                            if (c == '}') {
+                                pos++;
+                            }
+                        } else {
+                            while (c.isAlpha || c.isDigit || c == '[' || c == ']' || c == '.' || c == '$' || c == '_' || 
+                                    c == "'") {
+                                token.write(c)
+                                c = script[pos++]
+                            }
                         }
                         pos--
                         return Token.Var
@@ -19520,7 +19534,6 @@ server.listen("127.0.0.1:7777")
             @param app Web application function 
          */
         function process(app: Function, request: Request, finalize: Boolean = true): Void {
-// let mark = new Date
             request.config = config
             try {
                 if (request.route && request.route.middleware) {
@@ -19561,7 +19574,6 @@ server.listen("127.0.0.1:7777")
                 App.log.debug(1, e)
                 request.writeError(Http.ServerError, e)
             }
-// App.log.debug(2, "LEAVE PROCESSING  " + mark.elapsed + " msec for " + request.uri)
         }
 
         private function processBody(request: Request, body: Object): Void {

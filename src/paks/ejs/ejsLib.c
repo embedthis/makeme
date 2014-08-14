@@ -9916,8 +9916,11 @@ static int finalizeToken(EcToken *tp)
 
 static int addCharToToken(EcToken *tp, int c)
 {
+    ssize   boost;
+    
     if (tp->length >= (tp->size - 1)) {
-        tp->size += EC_TOKEN_INCR;
+        boost = max(tp->size, EC_TOKEN_INCR);
+        tp->size += boost;
         if ((tp->text = mprRealloc(tp->text, tp->size * sizeof(wchar))) == 0) {
             return MPR_ERR_MEMORY;
         }

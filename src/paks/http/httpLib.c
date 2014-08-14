@@ -15848,7 +15848,8 @@ static bool parseRequestLine(HttpConn *conn, HttpPacket *packet)
     httpSetState(conn, HTTP_STATE_FIRST);
 
     if (httpTracing(conn)) {
-        httpTrace(conn, "rx.first.server", "request", "uri: '%s', method: '%s', peer: '%s'", rx->uri, rx->method, conn->ip);
+        httpTrace(conn, "rx.first.server", "request", "method: '%s', uri: '%s', protocol: '%s', peer: '%s'", 
+            rx->method, rx->uri, conn->protocol, conn->ip);
         content = packet->content;
         endp = strstr((char*) content->start, "\r\n\r\n");
         len = (endp) ? (int) (endp - content->start + 2) : 0;

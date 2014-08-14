@@ -14,12 +14,8 @@ Me.load({
 
     targets: {
         doc: {
-            depends: ['patch', 'manpages', 'api', 'clean-doc', 'ssi'],
+            depends: [ 'clean-doc', 'manpages', 'gen-doc', 'api' ],
         },
-
-        'patch': {},
-        'api': {},
-        'clean-doc': {},
 
         manpages: {
             depends: ['all'],
@@ -27,7 +23,7 @@ Me.load({
                 let man = Cmd.locate('man')
                 let man2html = Cmd.locate('man2html')
                 if (man && man2html) {
-                    for each (file in ls(['${SRC}/doc/man/*.1', '${SRC}/doc/man/*.3'])) {
+                    for each (file in ls(['${SRC}/doc/documents/man/*.1', '${SRC}/doc/documents/man/*.3'])) {
                         let name = file.basename
                         trace('Generate', 'Manual page for ' + name)
                         let response = run([man, file], {noshow: true})
@@ -43,44 +39,19 @@ Me.load({
             `,
         },
 
-        ssi: {
+        'gen-doc': {
+            home: '${TOP}/doc',
             action: `
-                let dsi = Cmd.locate('dsi')
-                if (dsi) {
-                    if (!me.dir.src.join('doc/dsi').exists) {
-                        trace('Skip', 'No server side includes')
-                    } else {
-                        trace('Process', 'Html server side includes (dsi)')
-                        let doc = me.dir.src.join('doc')
-                        for each (file in ls('${SRC}/doc/**.html')) {
-                            file = file.relativeTo(doc)
-                            vtrace('Patch', file)
-                            run([dsi, file], {dir: doc})
-                        }
-                    }
-                } else {
-                    trace('Skip', 'ssi bacause dsi cannot be located')
+                if (Path('egen.json').exists) {
+                    trace('Generate', 'egen generate')
+                    run('/Users/mob/git/ejs/build/macosx-x64-release/bin/ejs /Users/mob/git/egen/egen.es generate')
                 }
             `,
         },
 
-        tidy: {
-            depends: ['doc', 'ssi'],
-            enable: false,
-            action: `
-                let tidy = Cmd.locate('tidy')
-                if (tidy) {
-                    trace('Tidy', 'HTML doc')
-                    let doc = me.dir.src.join('doc')
-                    for each (file in ls('${SRC}/doc/**html')) {
-                        trace('Tidy', file)
-                        file = file.relativeTo(doc)
-                        run(tidy + ' -q -config tidy.conf ' + file)
-                    }
-                } else {
-                    trace('Skip', 'tidy bacause "tidy" cannot be located')
-                }
-            `,
-        },
+        'api': {},
+
+        'clean-doc': {},
+
     },
 })
