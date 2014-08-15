@@ -16425,9 +16425,21 @@ module ejs.template  {
                     tid = Token.Literal
                     break
 
+                case "\\":
+                    if (script[pos] == '@') {
+                        token.write('@')
+                        pos++
+                    } else if (script[pos] == '<' && script[pos+1] == '%') {
+                        token.write('<%')
+                        pos += 2
+                    } else {
+                        token.write('\\')
+                        token.write(c)
+                    }
+                    break
+
                 default:
-                    //  TODO - triple quotes would eliminate the need for this
-                    if (c == '\"' || c == '\\') {
+                    if (c == '\"') {
                         token.write('\\')
                     }
                     token.write(c)
@@ -16557,6 +16569,7 @@ module ejs.unix {
             list = base.files(pattern, options)
 
             if (!list || list.length == 0) {
+                //  TODO - this has downside that you cannot copy an empty directory
                 throw 'cp: Cannot find files to copy "' + pattern + '" to ' + dest
             }
             destIsDir = (dest.isDir || list.length > 1 || dest.name.endsWith('/'))
