@@ -1,0 +1,182 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis MakeMe 0.8.3 Documentation</title>
+    <meta name="keywords" content="MakeMe, Bit, GYP, autoconf"/>
+	<meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf."/>
+	<meta name="robots" content="index,follow" />
+	<link href="../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../iehacks.css" rel="stylesheet" type="text/css" />
+    </![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo"  href="http://embedthis.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form">Loading</div>
+                <div class="version">Embedthis MakeMe 0.8.3</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt;<a href="index.html">User Guide</a>&gt; <b>MakeMe</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            
+                <h1>Quick Nav </h1>
+                <ul>
+                    <li><a href="#events">Events</a></li>
+                    <li><a href="#scripts">Scripts</a></li>
+                </ul>
+<!-- BeginDsi "dsi/refSeeAlso.html" -->
+        <h1>See Also</h1>
+        <ul>
+            <li><a href="../../ref/makeme/syntax.html">MakeMe File Syntax</a></li>
+            <li><a href="../../ref/makeme/dom.html">MakeMe DOM</a></li>
+            <li><a href="../../ref/makeme/processing.html">MakeMe File Processing</a></li>
+            <li><a href="../../ref/makeme/commandline.html">MakeMe Command Line</a></li>
+            <li><a href="../../ref/makeme/events.html">MakeMe Events</a></li>
+            <li><a href="../../ref/makeme/targets.html">MakeMe Targets</a></li>
+
+            <li><a href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Ejscript Language</a></li>
+            <li><a href="http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a></li>
+        </ul>
+<!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+        <a id="events"></a>
+        <h2>MakeMe Events</h2>
+        <p>During processing, MakeMe will fire events that may trigger scripts to run. There are two groups of events:</p>
+        <ul>
+            <li>Global Events</li>
+            <li>Target Events</li>
+            <li>Pack Events</li>
+        </ul>
+        <p>The global events are triggered for general MakeMe processing and do not apply to a specific target. Target
+        events apply to the current target being built. The current target is defined in the <em>me.target</em> property or
+        the global TARGET property.</p>
+        <h3>Global Events</h3>
+        <table title="events">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>preblend</td><td>Fired before blending a MakeMe file into the DOM.</td></tr>
+                <tr><td>postload</td><td>Fired after loading and blending a MakeMe file into the DOM.</td></tr>
+                <tr><td>loaded</td><td>Fired after all the required MakeMe files are loaded.</td></tr>
+                <tr><td>preinherit</td><td>Fired after all MakeMe files are loaded and before before targets inherit default
+                    properties.</td></tr>
+                <tr><td>postconfig</td><td>Fired during configuration just prior to creating the platform MakeMe file.</td></tr>
+                <tr><td>preheader</td><td>Fired during configuration after creating the platform MakeMe file and just prior
+                    to creating the me.h file.</td></tr>
+                <tr><td>pregen</td><td>Fired during project generation after creating the output project file but 
+                    before emitting any content to the project.</td></tr> 
+                <tr><td>gencustom</td><td>Fired during project generation after emitting top level definitions but before
+                    emitting the targets. This event is the opportunity to write custom variables and targets to the
+                    project.</td></tr> 
+            </tbody>
+        </table>
+        <h3>Target Events</h3>
+        <p>Here are the target events in order of firing</p>
+        <table title="events">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>postblend</td><td>Fired after blending defaults into a target.</td></tr>
+                <tr><td>preresolve</td><td>Fired before resolving dependencies for a target</td></tr>
+                <tr><td>postresolve</td><td>Fired after resolving dependencies for a target</td></tr>
+                <tr><td>presource</td><td>Fired before expanding source wildcards and creating object targets</td></tr>
+                <tr><td>postsource</td><td>Fired after expanding source wildcards and creating object targets</td></tr>
+                <tr><td>precompile</td><td>Fired before compiling a source file used by a target</td></tr>
+                <tr><td>postcompile</td><td>Fired after compiling a source file used by a target</td></tr>
+                <tr><td>prebuild</td><td>Fired before building a target</td></tr>
+                <tr><td>build</td><td>Fired to build the target</td></tr>
+                <tr><td>postbuild</td><td>Fired after building a target</td></tr>
+            </tbody>
+        </table>
+        <h3>Pack Events</h3>
+        <p>Here are the pack events in order of firing.</p>
+        <table title="events">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>without</td><td>Fired when configuring and a pack is explicitly deselected via --without.</td></tr>
+                <tr><td>config</td><td>Fired when configuring a pack.</td></tr>
+                <tr><td>generate</td><td>Fired when generating during pack discovery.</td></tr>
+            </tbody>
+        </table>
+        <a name="scripts"></a>
+        <h2>Defining Scripts</h2>
+        <p>Scripts can be defined to run when the required event is triggered. 
+            <p>This can also be abbreviated by just supplying a string as script value. 
+            Be sure to use the <em>+</em> event aggregator to add to existing scripts for that event.</p>
+<pre class="ui code segment">
+rocket: {
+    type: 'exe',
+    sources: [ '*.c' ],
+    prebuild: "print('before building')",
+    postbuild: "print('after building')",
+},
+</pre>
+        <p>These scripts are actually translated into a lower-level form when the MakeMe file is loaded. 
+        Scripts are translated into the <em>scripts</em> collection using a property name of the desired event. 
+<pre class="ui code segment">
+rocket: {
+    scripts: {
+        prebuild: [{
+            script: "print('before building')",
+            home: '.',
+            interpreter: 'ejs',
+        }],
+    },
+    goals: ['rocket'],
+},
+</pre>
+            <p>For more details on how to set the home directory for the script or to specify 
+            a different script interpreter, see <a href="../../guide/makeme/developers/scripts.html">Scripts</a>
+            in the MakeMe User Guide.</p>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2014. 
+            All rights reserved. Embedthis MakeMe, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          'partner-pub-9935546676162772:ysvxxv4n9rx');
+
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-179169-5']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+</body>
+</html>

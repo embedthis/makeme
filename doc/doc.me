@@ -5,29 +5,8 @@
 Me.load({
 
     targets: {
-        patch: {
-            action: "
-                trace('Patch', 'Patch version string ${settings.version}')
-                let path = Path('product/version.html')
-                let settings = me.settings
-                path.write(path.readString().replace(/<body>.*<.body>/, '<body>' + settings.version + '</body>'))
-                path = Path('dsi/head.html')
-                path.write(path.readString().replace(/<title>.*<.title>/, 
-                    '<title>' + settings.title + ' ' + settings.version + ' Documentation</title>'))
-
-                trace('Patch', 'Expand DSI')
-                let path = Path('dsi/head.html')
-                path.write(path.readString().replace(/version\">.*</, 'version\">' + 
-                    settings.title + ' ' + settings.version + '<'))
-                for each (path in Path('.').files('**.html', {exclude: /Bare.html|dsi/})) {
-                    strace('Patch', path)
-                    Cmd.run('dsi -v -I. ' + path)
-                }
-            ",
-        },
-
         api: {
-            action: "
+            action: `
                 trace('Generate', 'Script library documentation')
                 let bin = Cmd.locate('ejsmod').dirname
                 let src = me.dir.src.join('src')
@@ -39,77 +18,29 @@ Me.load({
                 cp(me.dir.src.join('doc/api/masters/*.html'), edir)
                 cp(me.dir.src.join('doc/api/masters/*.jpg'), edir.join('images'))
                 docmod.remove()
-            ",
+            `,
         },
 
-        tidy: {
-            action: "
-                for each (path in Path('.').files('**.html', { exclude: /\\/$|dsi|Base|Bare/ })) {
-                    trace('Tidy', path)
-                    Cmd('tidy -q -config tidy.conf ' + path)
+        validate: {
+            depends: [ 'gen-doc' ],
+            action: `
+                for each (f in Path('out').files('**/*.html')) {
+                    let data = f.readString()
+                    data = data.replace('700|Open', '').
+                        replace(/appweb.download.html/g, 'download/appweb.html').
+                        replace(/developers.contributors.html/g, 'scripts/contributors.esp').
+                        replace(/nowrap="nowrap"/g, '').
+                        replace(/https:..embedthis.com.appweb.licensing.html/g, 'https://embedthis.com/').
+                        replace(/https:..embedthis.com.me.doc.guide.me.source.building.htm/g, 'https://embedthis.com/').
+                        replace(/https:..embedthis.com.developers./g, 'https://embedthis.com/').
+
+                        replace(/nowrap/g, '')
+                    trace('Patch', f)
+                    f.write(data)
                 }
-            ",
+                trace('Listen', 'exp --nogen')
+                Cmd.run('exp --nogen')
+            `
         },
-
-        'validate-doc': {
-            action: "
-                let vdir = me.dir.cfg.join('validate')
-                vdir.removeAll()
-                for each (file in Path('.').files('**', { exclude: /\\/$|dsi|Base|Bare/ })) {
-                    let out = vdir.join(file)
-                    out.dirname.makeDir()
-                    if (file.extension == 'html') {
-                        out.write(file.readString().replace(/<pre>((?!pre>)(?:.|\\s))*pre>/mg, '<pre>DELETED</pre>'))
-                    } else {
-                        out.write(file.readString())
-                    }
-                }
-                trace('Prepare', vdir)
-            ",
-        },
-
-        nativeApi: {
-            action: "
-                apidoc('api/ejs.dox', [
-                    '${SRC}/src/ejs.h',
-                    '${SRC}/src/jems/ejs.web/ejsWeb.h',
-                    '${SRC}/src/ejsCompiler.h',
-                    ], 'Ejscript API', 'api/*.tags')
-                for each (let f: Path in ['api/ejs.html', 'api/http.html', 'api/mpr.html']) {
-                    trace('Generate', f)
-                    apiwrap(f)
-                    f.write(f.readString().replace(/mprBare.html/g, 'mpr.html').
-                       replace(/httpBare.html/g, 'http.html').
-                       replace(/external=\"mpr.dtags\"/g, '').
-                       replace(/external=\"http.dtags\"/g, ''))
-                }
-            ",
-        }, 
-
-        scriptApi: {
-            action: "
-                trace('Generate', 'Script library documentation')
-                let src = me.dir.src.join('src')
-                let files = src.files('core/*.es')
-                //  FUTURE 'tar'
-                for each (p in ['unix', 'db', 'db.mapper', 'db.sqlite', 'web', 'template']) {
-                    files += src.files('jems/ejs.' + p + '/*.es')
-                }
-                let docmod = Path('').temp().replaceExt('mod')
-                run('ejsc --doc --bind --out ' + docmod + ' --require null ' + files.join(' '))
-                let edir = me.dir.src.join('doc/api/ejscript')
-                rmdir([edir.join('*.html'), edir.join('*.css'), edir.join('images/*')])
-                run('ejsmod --warn --html ' + edir + ' --require null ' + docmod)
-                docmod.remove()
-            ",
-        },
-
-        'clean-doc': {
-            type: 'clean',
-            action: "
-                rmdir(['../doc/api/html', '../doc/api/xml'])
-            "
-        },
-    
     },
 })

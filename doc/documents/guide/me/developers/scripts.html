@@ -1,0 +1,274 @@
+{
+    title:  "Build Scripts",
+    crumbs: [
+        { 'Developer Guide': 'index.html' },
+        { '': '' },
+    ],
+}
+        <h1>Build Scripts</h1>
+        <p>MakeMe targets can run scripts at various stages of the processing lifecycle. Scripts can be used to
+            create outputs, or modify the results of standard processing rules.</p>
+        <a name="engines"></a>
+        <h2>Script Engines</h2>
+        <p>Scripts can be written to execute in any installed script interpreter. This may be the Unix bash shell, Perl or
+        Ruby.  MakeMe also includes a powerful Javascript engine based on the 
+            <a href="http://ejscript.org">Ejscript</a> language environment. This allows portable, scalable scripting
+            without needing to create external process. Ejscripts can run portably on Windows and Unix like
+            systems. Ejscript also has an extensive <a
+            href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Library</a> of routines that
+            scale well when building projects without turning into a mess of shell script.</p>
+        <a name="forms"></a>
+        <h2>Script Forms</h2>
+        <p>MakeMe target scripts can also be specified using three forms:</p>
+        <ol>
+            <li>Shell scripts &mdash; that run using bash for Unix and Cygwin systems</li>
+            <li>Action target scripts &mdash; that use Ejscript</li>
+            <li>Build target scripts &mdash; that run for default builds using Ejscript</li>
+        </ol>
+        <a name="shell"></a>
+        <h2>Shell Scripts</h2>
+        <p>Shell scripts can be easily specified via the target shell property:</p>
+        <pre class="ui code segment">
+cleanup: {
+    <b>shell: '
+        date &gt;now.txt 
+        echo hello world
+    '</b>,
+},
+</pre>
+        <p>This translates into the following low level form. The script runs in the directory containing
+            the MakeMe file, using the <em>bash</em> shell script.</p>
+<pre class="ui code segment">
+cleanup: {
+    scripts: {
+        type: 'script',
+        build: [
+            {
+                home: '.',
+                interpreter: 'bash',
+                script: "
+                    date &gt;now.txt 
+                    echo hello world
+                "
+            },
+        ],
+    ',
+    goals: [ 'cleanup' ],
+},
+</pre>
+        <p>Because the goals property is set to <em>cleanup</em>, this script will be run only when the 
+        when goal 'cleanup' is specified on the MakeMe command line.</p>
+        <pre class="ui code segment">me cleanup</pre>
+        <p>If you need a shell script to run when a default build is initiated, use the low level form and set
+        the goals property to <em>['cleanup', 'all']</em> See the <a href="#low">Low level Scripts</a> section above for
+        details.</p>
+        <a name="action"></a>
+        <h2>Action Scripts</h2>
+        <p>An action script runs when explicitly requested. It operates similarly to a shell script except that it uses the
+        Ejscript interpreter for portable scripting.</p>
+        
+        <p>Action scripts are defined using the <em>action</em> property. For example:</p>
+<pre class="ui code segment">
+prep: {
+    action: "
+        require ejs.tar
+        let update = Http.fetch('http://example.com/update.tar)
+        let tmp = Path().temp()
+        tmp.write(update)
+        Tar(tmp).extract()
+    ",
+},
+</pre>
+        <p>Like shell script targets, actions do not run by for default builds. Rather, they are run when they are 
+        explicitly invoked on the command line or another goal/target is invoked that references them as a dependency. </p>
+        <p>Note that in Ejscript, quoted literals can span multiple lines. No backquoting at the end of the line is
+        required. Also, semicolon end-of-line terminators are optional.</p> 
+        <p>An action script translates into a target with a type of <em>action</em> and an event of <em>build</em>. 
+<pre class="ui code segment">
+prep: {
+    scripts: {
+        type: 'script',
+        build: [
+            {
+                home: '.',
+                interpreter: 'ejs',
+                script: "
+                    require ejs.tar
+                    let update = Http.fetch('http://example.com/update.tar)
+                    let tmp = Path().temp()
+                    tmp.write(update)
+                    Tar(tmp).extract()
+                "
+            },
+        ],
+    },
+    goals: ['prep'],
+},
+</pre>
+        <p>An action script can also be a pure Javascript function. For example:</p>
+        <pre class="ui code segment">
+prep: {
+    action: function() {
+        require ejs.tar
+        let update = Http.fetch('http://example.com/update.tar)
+        let tmp = Path().temp()
+        tmp.write(update)
+        Tar(tmp).extract()
+    },
+},
+</pre>
+        <p>It is sometimes easier to manage quotes if using a function instead of a string to specify the script.</p>
+        
+        <a name="build"></a>
+        <h2>Build Scripts</h2>
+        <p>Build scripts are a convenient way to express actions that should run for default builds. Build scripts
+        use Ejscript and are defined via the <em>build</em> property. For example:</p>
+<pre class="ui code segment">
+building: {
+    build: "
+        Http().post('http://example.com/buildbot', 'building')
+    ",
+}
+</pre>
+        <p>When <em>me</em> is invoked without specifying any goals on the command line, the script for the
+        <em>building</em> target will be run. The precise order of when the target runs will be dictated by its order
+        in the MakeMe file and whether other targets depend upon it.</p>
+        <p>A build script translates into a target with a type of <em>build</em> and an event of <em>build</em>.</p>
+<pre class="ui code segment">
+building: {
+    scripts: {
+        type: 'script',
+        build: [
+            {
+                home: '.',
+                interpreter: 'ejs',
+                script: "
+                    Http().post('http://example.com/buildbot', 'building')
+                "
+            },
+        ],
+    ',
+    goals: ['all', 'building'],
+},
+</pre>
+        <p>An build script can also be a pure Javascript function.</p>
+        <a name="low"></a>
+        <h2>Low Level Script Forms</h2>
+        <p>As you have seen, the <em>action</em>, <em>build</em> and <em>shell</em> script forms are translated into
+        a lower level form. You may use the lower level form directly, if you require more control.</p>
+        <p>The MakeMe DOM defines a collection of scripts to run at various stages of the MakeMe processing 
+        life cycle.  When a specific event is triggered, the corresponding scripts are run. For each event, there can be
+        multiple scripts that are run in-order. Each script has a <em>home</em> directory that becomes the current directory
+        for the script and it has a specified <em>interpreter</em> to execute the script. If unspecified, the default
+        directory is the directory containing the MakeMe file that specified the script. The default interpreter is ejs
+        (Ejscript).</p>
+        <pre class="ui code segment">
+'build-complete': {
+    type: 'script',
+    scripts: {
+        <b>build</b>: [ 
+            {
+                home: '.',
+                interpreter: 'bash',
+                script: "git pull ",
+            },
+            {
+                home: '.',
+                interpreter: 'ejs',
+                script: "print('Building started at ' + Date())",
+            },
+        ],
+    },
+    goals: [ 'all', 'build-complete' ]
+},
+</pre>
+        <p>Because the <em>goals</em> property includes <em>'all'</em>, this target and the scripts will be run for a 
+        default MakeMe invocation (without any explicit targets specified on the command line).</p>
+        <p>The <em>target.scripts</em> property is a collection that is indexed by an event named for when the script should
+        run. The standard events are described in <a href="../../../ref/makeme/events.html#events">MakeMe Events</a>.
+        <p>Here is another example of a shell script that runs just prior to building a library.
+<pre class="ui code segment">
+libglow: {
+    type: 'lib',
+    sources: '*.c',
+    scripts: {
+        prebuild: [ {
+            interpreter: 'bash',
+            script: './build-prep',
+        ],
+    },
+    goals: ['libglow'],
+}
+</pre>
+        <h2>Global Scripts</h2>
+        <p>Most events apply to targets, but there are some events which are global. The MakeMe DOM defines a global
+        set of scripts in the me.scripts property collection. These scripts follow the same property definition as
+        the target scripts. The <em>me.scripts</em> property is a collection that is indexed by an event named for when the
+        script should run. The global events are described in <a href="../../../ref/makeme/events.html#global">MakeMe
+        Global Events</a>.
+        <h2>Extension Scripts</h2>
+        <p>An extension can also respond to events. Extension scripts follow the same property definition as
+        the target scripts. The <em>me.scripts</em> property is a collection that is indexed by an event named for 
+        when the script should run. The extension events are described in 
+        <a href="../../../ref/makeme/events.html#extensions">MakeMe Global Events</a>.
+        <a name="targetPaths"></a>
+        <h3>Target Paths</h3>
+        <p>You can make a build script run only when it is out-of-date by adding a <em>path</em> property for 
+        a physical file that will be created by the target. In this way, the target will only be run if the
+        designated file does not exist or another target that depends on this target is more up-to-date than the
+        file.</p>
+<pre class="ui code segment">
+'build-complete': {
+    path: 'complete.tmp',
+    build: "
+        Path('complete.tmp').write('Completed at: ' + Date())
+    ",
+}
+</pre>
+        <a name="quoting"></a>
+        <h2>Quoting</h2>
+        <p>First a general note about quoting. Scripts can be expressed on one line or over multiple lines.
+        You can choose whether you use single quotes (''), double ("") or back-tick (``) quotes around your script. 
+        Inside the script you can then freely use alternate quote characters without needing to back-quote.  If you need
+        to use the outside quote within the script, quote it with a backslash <em>\</em> character.</p>
+        <p>It is typically best to use back-tick quotes around a shell script so that single and double quotes can be used inside.
+        For example:</p>
+<pre class="ui code segment">
+shell: `echo "Dont't panic"`, 
+</pre>
+        <a name="useful"></a>
+        <h2>Useful MakeMes</h2>
+        <p>Here are some useful parts of Ejscript to use in your scripts:</p>
+        <h3>List of Files</h3>
+        <p>Get a list of all files in all subdirectories</p>
+<pre class="ui code segment">let files = Path('some/dir').files('**')</pre>
+        <h3>Run an external command</h3>
+        <p>Get a list of all files in all subdirectories</p>
+<pre class="ui code segment">run('/usr/bin/program')</pre>
+        <h3>Write a file</h3>
+        <p>Get a list of all files in all subdirectories</p>
+<pre class="ui code segment">Path('filename').write('Hello World')</pre>
+        <h3>Read a file</h3>
+        <p>Read a file into a variable as a string</p>
+<pre class="ui code segment">let data = Path('filename').readString</pre>
+        <h3>Read a JSON file</h3>
+        <p>Read a JSON file as an object</p>
+<pre class="ui code segment">let name = Path('filename').readJSON().name</pre>
+        <h3>Work with Paths</h3>
+        <p>Here are some useful Path manipulation routines. Ejscript is great at this.</p>
+<pre class="ui code segment">
+let p = Path('/some/file.c')
+print('Basename', p.basename)
+print('Dirname', p.dirname)
+print('Extension', p.extension)
+print('Joining', p.dirname.join('other.c'))
+</pre>
+        <h3>Fetch from the Web</h3>
+<pre class="ui code segment">
+let data = Http.fetch('http://example.com/something.html')
+</pre>
+        <p>See the Ejscript <a href="http://ejscript.org/products/ejs/doc-2/api/ejscript/Path.html">Path</a> class for 
+        full details of manipulating paths. Similarly, for URLs, see:
+            <a href="http://ejscript.org/products/ejs/doc-2/api/ejscript/Uri.html">URI</a> class, and for Http requests, 
+            see the <a href="http://ejscript.org/products/ejs/doc-2/api/ejscript/Http.html">Http</a> class.</p>
+        <p>To learn more, read about <a href="copying.html">Copying Files</a>.</p>

@@ -1,0 +1,369 @@
+{
+    title:  "Configurable Projects",
+    crumbs: [
+        { 'Developer Guide': 'index.html' },
+        { '': '' },
+    ],
+}
+        <h2>Configurable Projects</h2>
+        <p>MakeMe supports you in creating highly configurable projects, whereby users 
+        can customize the project to suit their requirements and their local system. 
+        Users can select and deselect project components via the "<em>me -configure . </em>" command.</p>
+        <a name="configure"></a>
+        <h2>Configure Script</h2>
+        <p>Developers typically provide a familiar <em>configure</em> script to invoke MakeMe for
+        configuration.</p> 
+<pre class="ui code segment">
+# configure script
+me configure "$@"
+</pre>
+        <p>When <em>configure</em> is run, it examines the local system to determine and verify which components 
+        can be supported and whether required components are present.
+        Users can also select extra components via the <em>-with</em> switch and deselect via <em>-without</em>. 
+        For Example: </p>
+        <pre class="ui code segment">configure -with ssl --without php</pre>
+        <h2>Components</h2>
+        <p>Configurable components can provide libraries, programs, or any other desired resource. 
+        Example components are: the <a href="http://embedthis.com/products/esp/">ESP</a> web framework or the OpenSSL SSL stack.</p>
+        <p>Configurable components are implemented as MakeMe targets with the <em>configurable</em> property set to true.
+        This means that any MakeMe target can be a configurable component selectable by the user.</p>
+        <p>For example, here is a component MakeMe file for a mythical "rocket" component:</p>
+        <pre class="ui code segment">
+Me.load({
+    rocket: {
+        configurable: true,
+        description: 'Rocket Engine',
+        libraries: [ 'librocket' ],
+        includes: [ 'rocket.h' ],
+        defines: [ 'SATURNV' ],
+    },
+})
+</pre>
+        <h2>Referencing Components</h2>
+        <p>If a target specifies a component in its "<em>depends</em>" property, and the component is found and
+        enabled, then the component properties: defines, includes, libraries, linker and libpaths, will be 
+        inherited by the target. </p>
+        <p>If the target specifies the component via its "<em>ifdef</em>" property the target will only be built if the
+        component is enabled. Otherwise, the target will (silently) be omitted from the build. </p>
+        <p>For example, consider the earlier Rocket component definition. A target desiring to use this component
+        could be specified like this:</p>
+        <pre class="ui code segment">
+mars_mission: {
+    type: 'exe',
+    sources: 'mars.c',
+    <b>depends: ['rocket']</b>,
+    <b>ifdef: ['rocket']</b>,
+}</pre>
+        <h2>Configurable Projects</h2>
+        <p>Configurable projects are different from stand-alone MakeMe projects in that the 
+        <em>start.me</em> is generated based on a template MakeMe file called <em>main.me</em>. 
+        The main.me file supplies the full project definition including a list of required and 
+        optional components suitable for the project.</p>
+        <p>In the project's <em>main.me</em> file, the set of possible components is specified. For example:</p>
+<pre class="ui code segment">
+configure: {
+    requires:  [ 'pcre' ],
+    discovers: [ 'cgi', 'dir', 'esp', 'est', 'sqlite' ],
+    extra:     [ 'php' ],
+}
+</pre>
+        <p>Components are grouped into sets that the project <em>requires</em>, components that the project 
+        <em>discovers</em> or <em>extra</em> components that may be used. </p>
+        <p>Required components are essential for the basic operation of the product. Discoverable components are optional
+        components for which MakeMe will search the local system to see if the component resources are 
+        present. Extra components will not be automatically discovered and must be explicitly requested by the 
+        user when configuring via the
+        <em>--with</em> switch. For example:</p> 
+        <pre class="ui code segment">
+configure -with php
+configure -with php=/path/to/php</pre>
+        <h2>Configure Outputs</h2>
+        <p>When the user runs <em>configure</em>, MakeMe will find the set of components to incorporate and will 
+        then create the following files and directories:</p>
+        <ul>
+            <li>A startup MakeMe file: <em>start.me</em></li>
+            <li>A platform output directory of the form: <em>build/OS-ARCH-PROFILE</em></li>
+            <li>A platform specific MakeMe file: <em>build/OS-ARCH-PROFILE/platform.me</em></li>
+            <li>A source definitions header: <em>me.h</em></li>
+        </ul>
+        <p>These files fully describe the desired build characteristics with the selected
+        components and options. Subsequently when MakeMe is run, MakeMe will load the <em>start.me</em> file
+        which in turn loads the <em>OS-ARCH-PROFILE.me</em> file to manage the build.</p>
+        <h2>Component Discovery</h2>
+        <p>Under the hood, a component is really just a MakeMe target with a 
+        <em>configurable</em> property set to true. Components may be defined in any project MakeMe file. 
+        Alternatively, if not defined inline, the component target may be defined in a
+        separate MakeMe file that is only loaded when <em>configure</em> is run.</p>
+        <p>If a component is specified either by the user via <em>--with component</em> or via the main.me 
+        configure properties, MakeMe will first look for an inline configurable target of the same name as the
+        requested component. If an inline component target is found, it will be used. If not found, 
+        then a search begins for a MakeMe file describing the component.
+        MakeMe searches for a component file in the following order:</p>
+        <ol>
+        <li>src/paks/NAME/NAME.me</li>
+        <li>me/configure/NAME.me</li>
+        <li>me/configure/NAME/NAME.me</li>
+        <li>~/.me/configure/NAME.me</li>
+        <li>~/.me/configure/NAME/NAME.me</li>
+        <li>/usr/local/lib/me/latest/configure/NAME.me</li>
+        <li>/usr/local/lib/me/latest/configure/NAME/NAME.me</li>
+        </ol>
+        <h2>Standard Components</h2>
+        <p>Here is a partial list of the standard components supplied with MakeMe.</p>
+        <table title="extensions">
+        <thead>
+        <tr><th>Component</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>compiler</td><td>Compiler detection</td></tr>
+            <tr><td>lib</td><td>Library archive program (ar, lib)</td></tr>
+            <tr><td>link</td><td>Linker program</td></tr>
+            <tr><td>rc</td><td>Resource compiler tool on windows</td></tr>
+            <tr><td>vxworks</td><td>WindRiver VxWorks Development Environment</td></tr>
+            <tr><td>winsdk</td><td>Windows SDK</td></tr>
+        </tbody>
+        </table>
+        <p>Here is a partial list of the components available from the 
+            <a href="http://embedthis.com/catalog/">Pak Catalog</a>.</p>
+        <table title="paks">
+        <thead>
+        <tr><th>Component</th><th>Description</th></tr>
+        </thead>
+            <tr>
+                <td><a href="https://github.com/embedthis/me-dev">me-dev</a></td>
+                <td>Embedthis MakeMe Development Lifecycle</td>
+            </tr>
+            <tr>
+                <td><a href="https://github.com/embedthis/me-doc">me-doc</a></td>
+                <td>Embedthis Documentation Generation</td>
+            </tr>
+            <tr>
+                <td><a href="https://github.com/embedthis/me-package">me-package</a></td>
+                <td>Embedthis Installable Package Targets and Scripts</td>
+            </tr>
+            <tr>
+                <td><a href="https://github.com/embedthis/pak-ejs">pak-ejs</a></td>
+                <td>Ejscript Language Library</td>
+            </tr>
+            <tr>
+                <td><a href="https://github.com/embedthis/pak-esp">pak-esp</a></td>
+                <td>ESP C Language Web Framework</td>
+            </tr>
+            <tr>
+                <td><a href="https://github.com/embedthis/pak-est">pak-est</a></td>
+                <td>Embedded Security Transport (SSL)</td>
+            </tr>
+            <tr>
+                <td><a href="https://github.com/embedthis/pak-mpr">pak-mpr</a></td>
+                <td>Multithreaded Portable Runtime</td>
+            </tr>
+            <tr>
+                <td><a href="https://github.com/embedthis/pak-osdep">pak-osdep</a></td>
+                <td>Embedthis O/S Dependent Abstraction</td>
+            </tr>
+            <tr>
+                <td><a href="https://github.com/embedthis/pak-pcre">pak-pcre</a></td>
+                <td>PCRE regular expression library</td>
+            </tr>
+            <tr>
+                <td><a href="https://github.com/embedthis/pak-sqlite">pak-sqlite</a></td>
+                <td>SQLite library</td>
+            </tr>
+            <tr>
+                <td><a href="https://github.com/embedthis/ssl">ssl</a></td>
+                <td>SSL Interface. Includes component references for Est, MatrixSSL and OpenSSL</td>
+            </tr>
+            <tr>
+                <td><a href="https://github.com/embedthis/zlib">zlib</a></td>
+                <td>Zlib Compression library</td>
+            </tr>
+            </tbody>
+        </table>
+        <h2>Component Resolution</h2>
+        <p>Component resolution is the process to determine which components should be included in the build.
+        <p>The resolution process takes several steps:</p>
+        <ol>
+        <li><b>Loading</b> &mdash; Component MakeMe files are located and loaded based on the 
+            main.me <em>configure.requires</em>, <em>configure.discovers</em> and components named via 
+            <em>configure --with</em>. 
+           This creates a target for each component with the <em>configurable</em> property set to true. 
+           Inline components must set define this property explicitly.</li>
+        <li><b>Exclusion</b> &mdash; Components that have been explicitly excluded via a 
+            <em>configure --without</em> option will have their optional "<em>without</em>" function property invoked. 
+            This permits a component to take specific actions when it is excluded.
+            The function is passed the component target object as its only parameter.</li>
+        <li><b>Configuration</b> &mdash; If the component defines a "<em>config</em>" function property, 
+            it is invoked to search for the component resources and determine the component's target settings. 
+            The function is passed the component target object as its only parameter.
+            This function should return a Javascript object containing the properties to
+            define for the target. This typically includes "libraries", "includes", "defines", but may include
+            any desired target property.
+            If the component cannot be supported, the function should <em>throw</em> a suitable message to 
+            deselect the component. </li>
+        <li><b>Location</b> &mdash; If the component defines a "<em>path</em>" function property, it is invoked.
+            This can be a convenient way to configure simple program tools that only need to be located.
+            The component path should be the filename of the program if the component represents a 
+            simple tool (like zip). Otherwise, it should be the directory to the component if it 
+            represents something more complex like an SDK. </li>
+        </ol>
+        <h3>Resolution Result</h3>
+        <p>The end result of this resolution process is the component's <em>target.enable</em> being set to
+        true or false, and the optional<em>target.path</em> being set to the location of the component.</p>
+        <h3>Notes for Component Property Functions</h3>
+        <p>If configure is run and a component is explicitly requested via <em>--with=PATH</em>, that path is 
+            provided to the component target in its <em>target.withpath</em> property. For example, if configure 
+            is run using <em>--with</em>:</p>
+        <pre class="ui code segment">me -configure . --with NAME=/path</pre>
+        <p>Then the component script can access the requested path via its <em>target.withpath</em>. A common pattern for 
+            probing for component resources is to use the <em>withpath</em> as the default before probing:</p>
+            <pre class="ui code segment">path: function (target) {
+    return { 
+        path: <b>target.withpath || '/usr/local/bin/programName'</b> 
+    }
+},  
+</pre>
+        <h3>Exceptions</h3>
+        <p>If an exception is thrown by any component code during configuration, the exception will be caught and 
+        the component will be disabled. This is a common pattern, to throw exceptions if the component cannot 
+        be fully configured and enabled.</p>
+        <h3>The Probe API</h3>
+        <p>The <a href="../../../api/me/global.html#probe">probe</a> function
+        is useful to search for a program on the local system. It searches for a named program
+        and takes options for the search path (search), the default to return if the program cannot be found (default), and
+        whether to return the full path or just the dirname portion (fullpath).</p>
+         
+<pre class="ui code segment">let path = probe('gzip', { 
+    search: ['/bin', '/usr/bin' ],
+    default: 'bin/gzip'
+})
+</pre>
+        <h2>Component Target Properties</h2>
+        <p>As a configurable component is just a special case of target, you can use any target property in a component.
+        Here are the key properties used by components:
+        <ul>
+            <li>config &mdash; Function to locate component resources and define component settings.</li>
+            <li>description &mdash; Short, one-sentance description of the extension.</li>
+            <li>defines &mdash; Array of C preprocessor definitions for targets using this extension.</li>
+            <li>depends &mdash; Array of targets from which to inherit compiler, defines, libraries, libpaths and linker
+            settings. May contain extension names.</li>
+            <li>discovers &mdash; Array of other extensions that should be discovered and utilized by this extension if
+                available.</li>
+            <li>enable &mdash; Boolean true|false value to enable or disable the extension. May be initially set to a script or function that is run to yield a boolean result.
+            <li>ifdef &mdash; Array of other components that must be available for this extension to be enabled.</li>
+            <li>imports &mdash; Libraries, files and resources to import into the local source tree.</li>
+            <li>includes &mdash; Array of include paths necessary for targets using this extension.</li>
+            <li>libpaths &mdash; Array of linker library search paths for targets using this extension.</li>
+            <li>libraries &mdash; Array of required libraries for targets using this extension.</li>
+            <li>linker &mdash; Array of linker options for targets using this extension.</li>
+            <li>name &mdash; Component target name. Should equal the extension collection property name..</li>
+            <li>requires &mdash; A component may specify a list of other components to configure.</li>
+            <li>path &mdash; Path to primary extension resource or directory. May be the path to the binary for tools.</li>
+        </ul>
+        <a name="settings"></a>
+        <h2>Settings</h2>
+        <p>The other part of the configuration process is defining settings that the software and selected extensions
+        will use when building and running. These options are defined in the <em>settings</em> collection an may 
+        be modified via the <em>-set</em> option. For example:
+        <pre class="ui code segment">configure -set mpr.logging=true</pre>
+        <p>The default settings are specified in the main.me file. By convention, a component may create
+        a named collection under <em>settings</em> for its own properties. For example:</p>
+<pre class="ui code segment">
+settings: {
+    mode: 'fast',
+    mpr: {
+        logging: true,
+    },
+},
+</pre>
+        <p>Note that settings may be nested inside other collections to any depth. In such cases the feature is selected
+        using the normal dot notation.</p>
+        <p>During configuration, MakeMe it will convert every value in the settings collection into a definition in the
+        me.h header. Dots are converted to underscores. For example: mpr.logging is converted to "ME_MPR_LOGGING".
+        True|False values are converted to 1 or 0 as appropriate.</p>
+        <a name="usage"></a>
+        <h2>Usage Message</h2>
+        <p>Developers can tailor the usage message emitted by MakeMe to describe the various configurable options.
+        Users can get configuration help by invoking configure with a <em>help</em> target. For example:
+<pre class="ui code segment">
+$ <b>configure help</b>
+Usage: me [options] [targets|actions] ...
+  Options:
+  --benchmark  # Measure elapsed time
+  ...
+</pre>
+        <p>Additional usage messages may be specified in main.me in the <em>usage</em> property collection. For example:
+<pre class="ui code segment">
+usage: {
+    'ejs.db':        'Enable database support, ejs.db (true|false)',
+    'ejs.mail':      'Enable mail support, ejs.mail (true|false)',
+    'ejs.mapper':    'Enable database mapper support, ejs.mapper (true|false)',
+},
+</pre>
+        <h2>Generating Projects</h2>
+        <p>When generating conditional Makefiles, a component cannot know in advance what resources will 
+        be available on the local system where the Makefile will be run. So the component script cannot 
+        sleuth the system to determine the appropriate configuration.</p>
+        <p>To address this problem, components should have special code to handle the case when generating projects.
+        The components "<em>config</em>" callback can test the "<em>me.options.gen</em>" property which will be set
+        if generating. The <em>config</em> function can then attempt to generate generic component configuration that
+        will be suitable, if not optimial for all systems. For example:</p>
+            <pre class="ui code segment">
+openssl: {
+    config: function (target) {
+        if (me.options.gen) {
+            return {
+                path = '/opt/lib/openssl'
+                libpaths = [ '/opt/lib' ]
+                includes = [ '/usr/include/openssl' ],
+                libraries = [ 'crypto', 'ssl' ],
+            }
+        } else {
+            /* Normal case */
+        }
+    },
+}
+</pre>
+        <h2>Component Paks</h2>
+        <p>Components can be conveniently packaged and delivered using the 
+        <a href="http://embedthis.com/products/pak">Pak</a> tool. Pak is a package manager and distribution tool
+        for application components. These may be delivered either as part of the project, 
+        or they may be separately downloaded and installed by the user just prior to configuring. </p>
+        <p>Component paks define their detection and configuration logic inline in their MakeMe file. </p>
+        <h2>Importing MakeMe</h2>
+        <p>For developers who wish to <i>freeze</i> the MakeMe support for their product and guarantee the version
+        of MakeMe they have designed for, the MakeMe configuration can be imported into the product source tree via:</p>
+        <pre class="ui code segment">me -import</pre>
+        <p>This will copy the entire MakeMe directory into the local source under a "<em>me</em>" directory. 
+        This copied configuration will be used by MakeMe in preference over the install MakeMe files.  
+        The various MakeMe components and operating system configuration can be modified once imported.</p>
+        <p>Under the <em>me</em> directory will be the primary MakeMe script <em>me.es</em> and its compiled form
+        <em>me.mod</em>. If you need to hack me.es, remove the me.mod file and MakeMe will utilize your modifications.
+        When ready, you can compile me.es to create a new me.mod via:</p>
+        <pre class="ui code segment">/usr/local/bin/me/latest/bin/ejsc --optimize 9 --out me.mod me.es</pre>
+        <a name="samples"></a>
+        <h2>Samples</h2>
+        <p>Here is a sample configurable component in a separate MakeMe file.</p>
+        <pre class="ui code segment">
+Me.load({
+    myssl: {
+        configurable: true,
+        description: 'MySSL',
+        config: function (target) {
+            let path = target.withpath || Path('/usr/lib/myssl')
+            if (!path.exists) {
+                throw 'Cannot find MySSL'
+            }
+            return {
+                path: path,
+                includes: [ path.join('include') ],
+                libraries: [ 'myssl' ],
+                libpaths: [ path.join('lib') ],
+            }
+        },
+        ifdef: [ 'ssl' ],
+    },
+})
+</pre>
+        <h2>Samples</h2>
+        <p>The standard compnents are a good source of samples. View in the repository at
+        <a href="https://github.com/embedthis/me/tree/master/me/configure">MakeMe Components</a>.</p>
