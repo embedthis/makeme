@@ -1,58 +1,11 @@
-<!-- BeginDsi "dsi/head.html" -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Embedthis MakeMe 0.8.3 Documentation</title>
-    <meta name="keywords" content="MakeMe, Bit, GYP, autoconf"/>
-	<meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf."/>
-	<meta name="robots" content="index,follow" />
-	<link href="../../doc.css" rel="stylesheet" type="text/css" />
-	<link href="../../print.css" rel="stylesheet" type="text/css" media="print"/>
-    <!--[if IE]>
-    <link href="../../iehacks.css" rel="stylesheet" type="text/css" />
-    </![endif]-->
-    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
-</head>
-
-<body>
-    <div class="top">
-        <a class="logo"  href="http://embedthis.com/">&nbsp;</a>
-        <div class="topRight">
-            <div class="search">
-                <div id="cse-search-form">Loading</div>
-                <div class="version">Embedthis MakeMe 0.8.3</div>
-            </div>
-        </div>
-        <div class="crumbs">
-            <a href="../../index.html">Home</a>
-<!-- EndDsi -->
-             &gt;<a href="index.html">User Guide</a>&gt; <b>MakeMe File Processing</b>
-        </div>
-    </div>
-    <div class="content">
-        <div class="contentRight">
-            
-                <h1>Quick Nav </h1>
-                <ul>
-                    <li><a href="#processing">Processing</a></li>
-                </ul>
-<!-- BeginDsi "dsi/refSeeAlso.html" -->
-        <h1>See Also</h1>
-        <ul>
-            <li><a href="../../ref/makeme/syntax.html">MakeMe File Syntax</a></li>
-            <li><a href="../../ref/makeme/dom.html">MakeMe DOM</a></li>
-            <li><a href="../../ref/makeme/processing.html">MakeMe File Processing</a></li>
-            <li><a href="../../ref/makeme/commandline.html">MakeMe Command Line</a></li>
-            <li><a href="../../ref/makeme/events.html">MakeMe Events</a></li>
-            <li><a href="../../ref/makeme/targets.html">MakeMe Targets</a></li>
-
-            <li><a href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Ejscript Language</a></li>
-            <li><a href="http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a></li>
-        </ul>
-<!-- EndDsi -->
-        </div>
-        <a name="processing"></a>
-        <div class="contentLeft">
+{
+    title:  'Processing',
+    crumbs: [
+        { 'Reference Guide', 'index.html' },
+        { '', '' },
+    ],
+}
+        
         <h1>MakeMe File Processing</h1>
         <p>MakeMe builds targets according to a defined life cycle.</p>
         <ol>
@@ -84,6 +37,7 @@
             transition rules specified in <em>me.rules</em>. If the target has a <em>build</em> event script, 
             it is run.</li>
         </ol>
+
         <a id="selectingTargets"></a>
         <h2>Selecting Targets</h2>
         <p>MakeMe follows a simple process when selecting the targets to build.</p>
@@ -106,37 +60,3 @@
         </ul> 
         <p>When specifying a name that is a target, these must match the target name property. When specifying an action,
             these must match a target type property.</p>
-        </div>
-    </div>
-<!-- BeginDsi "dsi/bottom.html" -->
-	<div class="bottom">
-		<p class="footnote"> 
-            <a href="../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2014. 
-            All rights reserved. Embedthis MakeMe, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
-		</p>
-	</div>
-    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
-    <script type="text/javascript"> 
-      google.load('search', '1', {language : 'en'});
-      google.setOnLoadCallback(function() {
-        var customSearchControl = new google.search.CustomSearchControl(
-          'partner-pub-9935546676162772:ysvxxv4n9rx');
-
-        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
-        var options = new google.search.DrawOptions();
-        options.enableSearchboxOnly("http://embedthis.com/search.html");
-        customSearchControl.draw('cse-search-form', options);
-      }, true);
-    </script>
-    <script type="text/javascript">
-        var _gaq = _gaq || [];
-        _gaq.push(['_setAccount', 'UA-179169-5']);
-        _gaq.push(['_trackPageview']);
-        (function() {
-            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-        })();
-    </script>
-</body>
-</html>

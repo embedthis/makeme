@@ -23,7 +23,7 @@
             </div>
         </div>
         <div class="item">
-            <a href="@@{top}guide/me/users/index.html"><b>Users Guide</b></a>
+            <a href="@@{top}guide/me/users/index.html"><b>User's Guide</b></a>
             <div class="menu">
 
                 <a class="item" href="@@{top}guide/me/users/using.html">Using MakeMe</a>
@@ -34,7 +34,7 @@
             </div>
         </div>
         <div class="item">
-            <a href="@@{top}guide/me/developers/index.html">Developers Guide</a>
+            <a href="@@{top}guide/me/developers/index.html">Developer's Guide</a>
             <div class="menu">
                 <a class="item" href="@@{top}guide/me/developers/compiling.html">Compiling Sources</a>
                 <a class="item" href="@@{top}guide/me/developers/libraries.html">Creating Libraries</a>

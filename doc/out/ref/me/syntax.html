@@ -1,65 +1,157 @@
-<!-- BeginDsi "dsi/head.html" -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis MakeMe 0.8.3 Documentation</title>
-    <meta name="keywords" content="MakeMe, Bit, GYP, autoconf"/>
-	<meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf."/>
-	<meta name="robots" content="index,follow" />
-	<link href="../../doc.css" rel="stylesheet" type="text/css" />
-	<link href="../../print.css" rel="stylesheet" type="text/css" media="print"/>
-    <!--[if IE]>
-    <link href="../../iehacks.css" rel="stylesheet" type="text/css" />
-    </![endif]-->
-    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
-</head>
+    <title>Syntax</title>
+    <!-- Copyright Embedthis Software, LLC, 2003-2014. All Rights Reserved. -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="keywords" content="
+    <meta name="description" content="" />
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+        rel='stylesheet' type='text/css'>
+    <link href="../../lib/semantic/packaged/css/semantic.css" rel="stylesheet" type="text/css" />
+    <link href="../../css/all.css" rel="stylesheet" type="text/css" />
+    <link href="../../images/favicon.ico" rel="shortcut icon" />
 
+</head>
 <body>
-    <div class="top">
-        <a class="logo"  href="http://embedthis.com/">&nbsp;</a>
-        <div class="topRight">
-            <div class="search">
-                <div id="cse-search-form">Loading</div>
-                <div class="version">Embedthis MakeMe 0.8.3</div>
+        
+    <div class="ui large left vertical inverted labeled overlay sidebar menu">
+        <div class="item">
+            <a href="../../">
+                <b>General</b>
+            </a>
+            <div class="menu">
+                <a class="item" href="../../index.html">MakeMe Overview</a>
+                <a class="item" href="../../guide/me/features.html">MakeMe Features</a>
+                <a class="item" href="https://embedthis.com/me/download.html">Download</a> 
+                <a class="item" href="../../licenses/index.html">Licensing</a>
             </div>
         </div>
-        <div class="crumbs">
-            <a href="../../index.html">Home</a>
-<!-- EndDsi -->
-             &gt;<a href="index.html">User Guide</a>&gt; <b>MakeMe File Syntax</b>
+        <div class="item">
+            <a href="../../guide/install/index.html">
+                <b>Installation</b>
+            </a>
+            <div class="menu">
+                <a class="item" href="../../install/linux.html">Installing for Linux</a>
+                <a class="item" href="../../install/mac.html">Installing for Mac OS X</a>
+                <a class="item" href="../../install/windows.html">Installing for Windows</a>
+                <a class="item" href="../..//install/releaseNotes.html">Release Notes</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../../guide/me/users/index.html"><b>User's Guide</b></a>
+            <div class="menu">
+
+                <a class="item" href="../../guide/me/users/using.html">Using MakeMe</a>
+                <a class="item" href="../../guide/me/users/configuring.html">Running Configure</a>
+                <a class="item" href="../../guide/me/users/debugging.html">Debugging a Build</a>
+                <a class="item" href="../../guide/me/users/make.html">Using Generated Makefiles</a>
+                <a class="item" href="../../guide/me/users/cross.html">Cross-Compiling</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../../guide/me/developers/index.html">Developer's Guide</a>
+            <div class="menu">
+                <a class="item" href="../../guide/me/developers/compiling.html">Compiling Sources</a>
+                <a class="item" href="../../guide/me/developers/libraries.html">Creating Libraries</a>
+                <a class="item" href="../../guide/me/developers/executables.html">Creating Executables</a>
+                <a class="item" href="../../guide/me/developers/scripts.html">Build Scripts</a>
+                <a class="item" href="../../guide/me/developers/copying.html">Copying Files and Directories</a>
+                <a class="item" href="../../guide/me/developers/configurable.html">Configurable Projects</a>
+                <a class="item" href="../../guide/me/developers/plugins.html">MakeMe Plugins</a>
+                <a class="item" href="../../guide/me/developers/generating.html">Generating</a>
+                <a class="item" href="../../guide/me/developers/samples.html">Samples</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../../ref/me/index.html">Reference Guide</a>
+            <div class="menu">
+                <a class="item" href="../../ref/me/syntax.html">File Syntax</a>
+                <a class="item" href="../../ref/me/dom.html">MakeMe DOM</a>
+                <a class="item" href="../../api/me/index.html">MakeMe API</a>
+                <a class="item" href="../../ref/me/processing.html">File Processing</a>
+                <a class="item" href="../../ref/me/commandline.html">Command Line</a>
+                <a class="item" href="../../ref/me/events.html">Events</a>
+                <a class="item" href="../../ref/me/targets.html">Targets</a>
+                <a class="item" href="man/me.html">Manual Page</a>
+                <a class="item" href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">
+                    Language Reference</a>
+                <a class="item" href="http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../../guide/me/developers/project.html">Project Resources</a>
+            <div class="menu">
+                <a class="item" href="http://goo.gl/umR6dt">Official MakeMe News</a>
+                <a class="item" href="https://embedthis.com/me/">MakeMe Web Site</a>
+                <a class="item" href="https://github.com/embedthis/me">Source Code Repository</a>
+                <a class="item" href="https://github.com/embedthis/me/issues">Project Issue Database</a>
+                <a class="item" href="https://github.com/embedthis/me/releases">Change Log</a>
+                <a class="item" href="https://github.com/embedthis/me/milestones">Roadmap</a>
+                <a class="item" href="https://embedthis.com/developers/contributors.html">Contributors Agreement</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../../source/index.html">Built with MakeMe</a>
+            <div class="menu">
+                <a class="item" href="overview.html">Building Overview</a>
+                <a class="item" href="make.html">Building with Make</a>
+                <a class="item" href="me.html">Building with MakeMe</a>
+                <a class="item" href="ide.html">Building with an IDE</a>
+            </div>
+        </div>
+        <div class="item">
+            <b>Links</b>
+            <div class="menu">
+                <a class="item" href="https://embedthis.com/">Embedthis Web Site</a>
+                <a class="item" href="https://embedthis.com/blog/">Embedthis Blog</a>
+                <a class="item" href="http://twitter.com/mobstream">Twitter</a>
+            </div>
         </div>
     </div>
-    <div class="content">
-        <div class="contentRight">
-            
-                <h1>Quick Nav </h1>
-                <ul>
-                    <li><a href="#comments">Comments</a></li>
-                    <li><a href="#types">Property Types</a></li>
-                    <li><a href="#names">Object Property Names</a></li>
-                    <li><a href="#blending">Blending</a></li>
-                    <li><a href="#strings">Strings</a></li>
-                    <li><a href="#variables">Variables</a></li>
-                    <li><a href="#assigning">Assigning Variables</a></li>
-                </ul>
-<!-- BeginDsi "dsi/refSeeAlso.html" -->
-        <h1>See Also</h1>
-        <ul>
-            <li><a href="../../ref/makeme/syntax.html">MakeMe File Syntax</a></li>
-            <li><a href="../../ref/makeme/dom.html">MakeMe DOM</a></li>
-            <li><a href="../../ref/makeme/processing.html">MakeMe File Processing</a></li>
-            <li><a href="../../ref/makeme/commandline.html">MakeMe Command Line</a></li>
-            <li><a href="../../ref/makeme/events.html">MakeMe Events</a></li>
-            <li><a href="../../ref/makeme/targets.html">MakeMe Targets</a></li>
 
-            <li><a href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Ejscript Language</a></li>
-            <li><a href="http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a></li>
-        </ul>
-<!-- EndDsi -->
+    <div class="ui inverted masthead">
+                <div class="column">
+            <div class="inverted secondary pointing ui menu">
+                <div class="header left item">
+                    <!-- <a href="/index.html"><img src="/images/embedthis.png"></a> -->
+                    <a href="/index.html">MakeMe Documentation</a>
+                </div>
+                <div class="right menu">
+                    <div class="ui top right">
+                        <a class="item" href="https://embedthis.com/me/">MakeMe</a>
+                        <a class="item" href="https://github.com/embedthis/me">Repository</a>
+                        <a class="item" href="http://groups.google.com/group/makeme">Support</a>
+                    </div>
+                </div>
+            </div>
+            <div class="ui breadcrumb">
+                <a class="section" href="../../">Home</a>
+                
+                <div class="divider">/</div>
+                <a class="section " href="index.html">
+                    Reference Guide
+                </a>
+                
+                <div class="divider">/</div>
+                <a class="section active" href="syntax.html">
+                    Syntax
+                </a>
+                
+            </div>
         </div>
-        <div class="contentLeft">
-        <a id="syntax"></a>
-        <h1>MakeMe File Syntax</h1>
+        <div class="ui black small launch right attached toggle button" style="width: 40px;">
+            <i class="icon list layout">
+                <span class="text" style="display: none;">Menu</span>
+            </i>
+        </div>
+
+    </div>
+    <div class="content">
+<h1>MakeMe File Syntax</h1>
         <p>A MakeMe file is an <em>Javascript</em> (Ejscript) file that is loaded by the <em>me</em> program. MakeMe files 
         typically have a <em>.me</em> extension and contain a call to the static function <em>Me.load</em> to define build
         instructions.  The argument to Me.load is a object that conforms to the 
@@ -160,8 +252,7 @@ targets: {
         </ul>
         <p>MakeMe Globals are resolved from the <em>me.globals</em> collection, whereas MakeMe DOM fields are resolved relative
         to the <em>me</em> object itself. For example:
-        <pre class="ui code segment">
-{
+        <pre class="ui code segment">{
     settings: {
         version: '4.1.0',
     },
@@ -217,44 +308,25 @@ targets: {
 </pre>
         <h3>Platform Specific Files</h3>
         <p>A convenient use of MakeMe global variables is to create per operating system file targets. For example:
-        <pre class="ui code segment">
+        <p><pre class="ui code segment">
 cleanup: {
     type: 'exe'
     path: 'cleanup_${OS}',
     sources: [ 'dep_${OS}' ],
 },
-</pre>
-        </div>
+</pre></p>
     </div>
-<!-- BeginDsi "dsi/bottom.html" -->
-	<div class="bottom">
-		<p class="footnote"> 
-            <a href="../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2014. 
-            All rights reserved. Embedthis MakeMe, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
-		</p>
-	</div>
-    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
-    <script type="text/javascript"> 
-      google.load('search', '1', {language : 'en'});
-      google.setOnLoadCallback(function() {
-        var customSearchControl = new google.search.CustomSearchControl(
-          'partner-pub-9935546676162772:ysvxxv4n9rx');
+    <div class="ui basic center aligned segment" id="terms">
+        <p>&copy; Embedthis Software, 2003-2014. All rights reserved.
+            Generated on Aug 20, 2014.
+        </p>
+    </div>
 
-        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
-        var options = new google.search.DrawOptions();
-        options.enableSearchboxOnly("http://embedthis.com/search.html");
-        customSearchControl.draw('cse-search-form', options);
-      }, true);
-    </script>
-    <script type="text/javascript">
-        var _gaq = _gaq || [];
-        _gaq.push(['_setAccount', 'UA-179169-5']);
-        _gaq.push(['_trackPageview']);
-        (function() {
-            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-        })();
+    <script src="../../lib/jquery/jquery.js"></script>
+    <script src="../../lib/semantic/packaged/javascript/semantic.js"></script>
+    <script>
+        $('.sidebar').sidebar({overlay: false}).sidebar('toggle');
+        $('.sidebar').first().sidebar('attach events', '.toggle.button');
     </script>
 </body>
 </html>

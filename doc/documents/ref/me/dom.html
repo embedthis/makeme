@@ -1,66 +1,12 @@
-<!-- BeginDsi "dsi/head.html" -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Embedthis MakeMe 0.8.3 Documentation</title>
-    <meta name="keywords" content="MakeMe, Bit, GYP, autoconf"/>
-	<meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf."/>
-	<meta name="robots" content="index,follow" />
-	<link href="../../doc.css" rel="stylesheet" type="text/css" />
-	<link href="../../print.css" rel="stylesheet" type="text/css" media="print"/>
-    <!--[if IE]>
-    <link href="../../iehacks.css" rel="stylesheet" type="text/css" />
-    </![endif]-->
-    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
-</head>
+{
+    title:  "MakeMe DOM",
+    crumbs: [
+        { 'Reference Guide', 'index.html' },
+        { '', '' },
+    ],
+}
 
-<body>
-    <div class="top">
-        <a class="logo"  href="http://embedthis.com/">&nbsp;</a>
-        <div class="topRight">
-            <div class="search">
-                <div id="cse-search-form">Loading</div>
-                <div class="version">Embedthis MakeMe 0.8.3</div>
-            </div>
-        </div>
-        <div class="crumbs">
-            <a href="../../index.html">Home</a>
-<!-- EndDsi -->
-             &gt;<a href="index.html">MakeMe Reference</a>&gt; <b>MakeMe File DOM</b>
-        </div>
-    </div>
-    <div class="content">
-        <div class="contentRight">
-            
-                <h1>Quick Nav </h1>
-                <ul>
-                    <li><a href="#dom">DOM root</a></li>
-                    <li><a href="#top">me.*</a></li>
-                    <li><a href="#globals">me.globals</a></li>
-                    <li><a href="#platform">me.platform</a></li>
-                    <li><a href="#settings">me.settings</a></li>
-                    <li><a href="#targets">me.targets</a></li>
-                    <li><a href="#scripts">me.scripts</a></li>
-                    <li><a href="#tscripts">me.target.*.scripts</a></li>
-                </ul>
-<!-- BeginDsi "dsi/refSeeAlso.html" -->
-        <h1>See Also</h1>
-        <ul>
-            <li><a href="../../ref/makeme/syntax.html">MakeMe File Syntax</a></li>
-            <li><a href="../../ref/makeme/dom.html">MakeMe DOM</a></li>
-            <li><a href="../../ref/makeme/processing.html">MakeMe File Processing</a></li>
-            <li><a href="../../ref/makeme/commandline.html">MakeMe Command Line</a></li>
-            <li><a href="../../ref/makeme/events.html">MakeMe Events</a></li>
-            <li><a href="../../ref/makeme/targets.html">MakeMe Targets</a></li>
-
-            <li><a href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Ejscript Language</a></li>
-            <li><a href="http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a></li>
-        </ul>
-<!-- EndDsi -->
-        </div>
-        <div class="contentLeft">
-        <a name="dom"></a>
-        <h1>MakeMe File DOM</h1>
+        <h1>MakeMe DOM</h1>
         <p>The MakeMe DOM allows you to access and manipulate the entire MakeMe model for how to build a project. Every 
         target, rule and dependency are all stored and exposed via the MakeMe DOM.</p>
        
@@ -77,9 +23,10 @@
         <a name="top"></a>
         <h2>Top Level &mdash; me.*</h2>
         <p>Here is a non-exhaustive description of the important top-level MakeMe property collections. 
-        <table title="top-level collections" class="full">
+        <table title="top-level collections" class="ui table segment">
             <thead>
-                <tr><th>Name</th><th>Description</th>
+                <tr><th class="two wide">Name</th>
+                <th>Description</th>
             </thead>
             <tbody>
                 <tr><td>blend</td><td>MakeMe files to blend. 
@@ -146,9 +93,10 @@
         <a name="globals"></a>
         <h2>Globals &mdash; me.globals.*</h2>
         <p>The following me.globals.* are defined for use by tokens:</p>
-        <table title="globals" class="full">
+        <table title="globals" class="ui table segment">
             <thead>
-                <tr><th>Name</th><th>Description</th>
+                <tr><th class="two wide">Name</th>
+                <th>Description</th>
             </thead>
             <tbody>
             <tr><td>ARCH</td><td>CPU architecture: x86, x64, ppc, ...</td></tr>
@@ -173,9 +121,10 @@
         <a name="platform"></a>
         <h2>Platform Collection &mdash; me.platform.*</h2>
         <p>The platform collection defines properties for:
-        <table title="platform collection" class="full">
+        <table title="platform collection" class="ui table segment">
             <thead>
-                <tr><th>Name</th><th>Description</th>
+                <tr><th class="two wide">Name</th>
+                <th>Description</th>
             </thead>
             <tbody>
                 <tr><td>arch</td><td>CPU architecture: arm, ppc, x64, x86, ...</td></tr>
@@ -185,11 +134,13 @@
             </tbody>
         </table>
         <a name="configure"></a>
+
         <h2>Configure Collection &mdash; me.settings.*</h2>
         <p>The configure collection specifies the configurable targets used to extend the project.</p>
-        <table title="settings" class="full">
+        <table title="settings" class="ui table segment">
             <thead>
-                <tr><th>Name</th><th>Description</th>
+                <tr><th class="two wide">Name</th>
+                <th>Description</th>
             </thead>
             <tbody>
                 <tr><td>discovers</td><td>List of optional configurable targets to discover when configuring </td></tr>
@@ -201,9 +152,10 @@
         <a name="settings"></a>
         <h2>Settings Collection &mdash; me.settings.*</h2>
         <p>The settings collection specifies the top level project/product names. It is required in the main.me file.</p>
-        <table title="settings" class="full">
+        <table title="settings" class="ui table segment">
             <thead>
-                <tr><th>Name</th><th>Description</th>
+                <tr><th class="two wide">Name</th>
+                <th>Description</th>
             </thead>
             <tbody>
                 <tr><td>company</td><td>Company name</td></tr>
@@ -218,7 +170,7 @@
         </table>
         <a name="targets"></a>
         <h2>Targets Collection &mdash; me.targets.*</h2>
-        <table title="targets" class="full">
+        <table title="targets" class="ui table segment">
             <thead>
                 <tr><th>Name</th><th>Description</th>
             </thead>
@@ -285,7 +237,7 @@
         </table>
         <h3>Configurable Targets Collection &mdash; me.targets.*</h3>
         <p>These properties are relevant only if the target is configurable (has configurable == true)</p>
-        <table title="targets" class="full">
+        <table title="targets" class="ui table segment">
             <thead>
                 <tr><th>Name</th><th>Description</th>
             </thead>
@@ -301,11 +253,13 @@
                 <tr><td>withpath</td><td>Path supplied via a configure --with EXTENSION=PATH command line option</td></tr>
             </tbody>
         </table>
+
         <a name="scripts"></a>
         <h2>Scripts Collection &mdash; me.scripts.*</h2>
-        <table title="scripts" class="full">
+        <table title="scripts" class="ui table segment">
             <thead>
-                <tr><th>Name</th><th>Description</th>
+                <tr><th class="two wide">Name</th>
+                <th>Description</th>
             </thead>
             <tbody>
                 <tr><td>preblend</td><td>Array of scripts to run for the preblend event</td></tr>
@@ -320,9 +274,10 @@
         </table>
         <a name="tscripts"></a>
         <h2>Target Scripts Collection &mdash; me.targets.*scripts.*</h2>
-        <table title="tscripts" class="full">
+        <table title="tscripts" class="ui table segment">
             <thead>
-                <tr><th>Name</th><th>Description</th>
+                <tr><th class="two wide">Name</th>
+                <th>Description</th>
             </thead>
             <tbody>
                 <tr><td>postblend</td><td>Array of scripts to run for the postblend event</td></tr>
@@ -339,46 +294,13 @@
         </table>
         <a name="pscripts"></a>
         <h2>Configurable Target Scripts Collection &mdash; me.targets.*scripts.*</h2>
-        <table title="pscripts" class="full">
+        <table title="pscripts" class="ui table segment">
             <thead>
-                <tr><th>Name</th><th>Description</th>
+                <tr><th class="two wide">Name</th>
+                <th>Description</th>
             </thead>
             <tbody>
                 <tr><td>without</td><td>Array of scripts to run for the without event</td></tr>
                 <tr><td>config</td><td>Array of scripts to run for the config event</td></tr>
             </tbody>
         </table>
-        </div>
-    </div>
-<!-- BeginDsi "dsi/bottom.html" -->
-	<div class="bottom">
-		<p class="footnote"> 
-            <a href="../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2014. 
-            All rights reserved. Embedthis MakeMe, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
-		</p>
-	</div>
-    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
-    <script type="text/javascript"> 
-      google.load('search', '1', {language : 'en'});
-      google.setOnLoadCallback(function() {
-        var customSearchControl = new google.search.CustomSearchControl(
-          'partner-pub-9935546676162772:ysvxxv4n9rx');
-
-        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
-        var options = new google.search.DrawOptions();
-        options.enableSearchboxOnly("http://embedthis.com/search.html");
-        customSearchControl.draw('cse-search-form', options);
-      }, true);
-    </script>
-    <script type="text/javascript">
-        var _gaq = _gaq || [];
-        _gaq.push(['_setAccount', 'UA-179169-5']);
-        _gaq.push(['_trackPageview']);
-        (function() {
-            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-        })();
-    </script>
-</body>
-</html>
