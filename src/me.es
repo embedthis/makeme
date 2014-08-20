@@ -206,55 +206,52 @@ public class Me {
             '  --with NAME[=PATH]                       # Build with package at PATH\n' +
             '  --without NAME                           # Build without a package\n' +
             '')
-        if (START.exists) {
+        if (MAIN.exists) {
             try {
-                b.createMe(START, Config.OS + '-' + Config.CPU)
+                b.createMe(MAIN, Config.OS + '-' + Config.CPU)
                 global.me = me = b.me
-                for (let [index,platform] in me.platforms) {
-                    b.createMe(START, platform)
-                    b.prepBuild()
-                    break
-                }
-                if (me.usage) {
-                    print('Feature Selection:')
-                    for (let [item,msg] in me.usage) {
-                        msg ||= ''
-                        print('    --set %-32s # %s' % [item + '=value', msg])
-                    }
-                    print('')
-                }
-                if (me.targets) {
-                    let header
-                    Object.sortProperties(me.targets)
-                    b.overlay('configure.es')
-                    for each (target in me.targets) {
-                        if (!target.configurable) continue
-                        let desc = target.description
-                        if (!desc) {
-                            let path = findComponent(target.name)
-                            if (path) {
-                                let matches = path.readString().match(/description:.*'(.*)'|program\(.*, '(.*)'/m)
-                                if (matches) {
-                                    desc = matches[1]
-                                }
-                            } else {
-                                let path = me.dir.paks.join(target.name, PACKAGE)
-                                if (path.exists) {
-                                    desc = PACKAGE.readJSON().description
-                                }
-                            }
-                        }
-                        if (!me.configure.requires.contains(target.name) && desc) {
-                            if (!header) {
-                                print('Components (--with NAME, --without NAME):')
-                                header = true
-                            }
-                            desc ||= ''
-                            print('    %-38s # %s'.format([target.name, desc]))
-                        }
-                    }
-                }
             } catch (e) { print('CATCH: ' + e)}
+        } 
+        if (me) {
+            if (me.usage) {
+                print('Feature Selection:')
+                for (let [item,msg] in me.usage) {
+                    msg ||= ''
+                    print('    --set %-32s # %s' % [item + '=value', msg])
+                }
+                print('')
+            }
+            if (me.targets) {
+                let header
+                Object.sortProperties(me.targets)
+                b.overlay('configure.es')
+                for each (target in me.targets) {
+                    if (!target.configurable) continue
+                    let desc = target.description
+                    if (!desc) {
+                        let path = findComponent(target.name)
+                        if (path) {
+                            let matches = path.readString().match(/description:.*'(.*)'|program\(.*, '(.*)'/m)
+                            if (matches) {
+                                desc = matches[1]
+                            }
+                        } else {
+                            let path = me.dir.paks.join(target.name, PACKAGE)
+                            if (path.exists) {
+                                desc = path.readJSON().description
+                            }
+                        }
+                    }
+                    if (!me.configure.requires.contains(target.name) && desc) {
+                        if (!header) {
+                            print('Components (--with NAME, --without NAME):')
+                            header = true
+                        }
+                        desc ||= ''
+                        print('    %-38s # %s'.format([target.name, desc]))
+                    }
+                }
+            }
         }
         App.exit(1)
     }
@@ -633,7 +630,7 @@ public class Me {
                 throw 'Required component "' + field + '"" cannot be disabled.'
             }
             if (field == 'all' || field == 'default') {
-                let list = me.settings['without-' + field] || me.settings.discover
+                let list = me.settings['without-' + field] || me.configure.discovers
                 for each (f in list) {
                     let target = me.targets[f] ||= {}
                     target.name ||= f
@@ -660,7 +657,6 @@ public class Me {
             target.explicit = true
             target.essential = true
             if (!prior) {
-print("SET BARE", field)
                 target.bare = true
             }
             if (value) {
@@ -986,9 +982,8 @@ print("SET BARE", field)
             throw 'WARNING: settings.extensions is deprecated. Use "configure" instead'
         }
         if (settings.discover) {
-            throw 'WARNING: settings.discover is deprecated. Use "discovers" instead'
+            throw 'WARNING: settings.discover is deprecated. Use "configure.discovers" instead'
         }
-
         plus(configure, 'requires')
         plus(configure, 'discovers')
         plus(configure, 'extras')
@@ -3083,8 +3078,6 @@ print("SET BARE", field)
     }
 
     /**
-        TODO - should this be static?
-        Load but don't update "me"
         @hide
      */
     public function loadMe(mefile: Path) {
