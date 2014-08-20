@@ -3111,9 +3111,7 @@ PUBLIC ssize mprPutFmtToWideBuf(MprBuf *buf, cchar *fmt, ...) PRINTF_ATTRIBUTE(2
 /**
     Date for use in log files (compact)
  */
-#define MPR_LOG_DATE     "%D %T"
-// #define MPR_LOG_DATE     "%T-%F"
-// #define MPR_LOG_DATE        "%b %e %T"
+#define MPR_LOG_DATE        "%D %T"
 
 /********************************** Defines ***********************************/
 /**

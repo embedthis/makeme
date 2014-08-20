@@ -10,7 +10,7 @@
 
 /************************************************************************/
 /*
-    Start of file "build/macosx-x64-release/inc/ejs.cache.local.slots.h"
+    Start of file "build/macosx-x64-debug/inc/ejs.cache.local.slots.h"
  */
 /************************************************************************/
 
@@ -118,7 +118,7 @@
 
 /************************************************************************/
 /*
-    Start of file "build/macosx-x64-release/inc/ejs.db.sqlite.slots.h"
+    Start of file "build/macosx-x64-debug/inc/ejs.db.sqlite.slots.h"
  */
 /************************************************************************/
 
@@ -189,7 +189,7 @@
 
 /************************************************************************/
 /*
-    Start of file "build/macosx-x64-release/inc/ejs.slots.h"
+    Start of file "build/macosx-x64-debug/inc/ejs.slots.h"
  */
 /************************************************************************/
 
@@ -2622,7 +2622,7 @@
 
 /************************************************************************/
 /*
-    Start of file "build/macosx-x64-release/inc/ejs.web.slots.h"
+    Start of file "build/macosx-x64-debug/inc/ejs.web.slots.h"
  */
 /************************************************************************/
 
@@ -3048,10 +3048,11 @@
  */
 #define ES_ejs_web_Router__initializer___Router_                       0
 #define ES_ejs_web_Router_Top                                          1
-#define ES_ejs_web_Router_MaxRoute                                     2
-#define ES_ejs_web_Router_Restful                                      3
-#define ES_ejs_web_Router_isDir                                        4
-#define ES_ejs_web_Router_NUM_CLASS_PROP                               5
+#define ES_ejs_web_Router_WebSite                                      2
+#define ES_ejs_web_Router_MaxRoute                                     3
+#define ES_ejs_web_Router_Restful                                      4
+#define ES_ejs_web_Router_isDir                                        5
+#define ES_ejs_web_Router_NUM_CLASS_PROP                               6
 
 /*
    Prototype (instance) slots for "Router" type 
@@ -3246,13 +3247,13 @@
 #define ES_ejs_web_View_plainFormatter_value                           1
 #define ES_ejs_web_View_plainFormatter_options                         2
 
-#define _ES_CHECKSUM_ejs_web   832910
+#define _ES_CHECKSUM_ejs_web   834053
 
 #endif
 
 /************************************************************************/
 /*
-    Start of file "build/macosx-x64-release/inc/ejs.zlib.slots.h"
+    Start of file "build/macosx-x64-debug/inc/ejs.zlib.slots.h"
  */
 /************************************************************************/
 

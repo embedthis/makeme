@@ -55862,11 +55862,13 @@ static EjsVoid *hs_listen(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
         host = httpCreateHost(NULL);
         httpSetHostName(host, sfmt("%s:%d", sp->ip, sp->port));
         route = httpCreateConfiguredRoute(host, 1);
+
         httpAddRouteMethods(route, "DELETE, HEAD, OPTIONS, PUT");
         httpSetRouteName(route, "default");
         httpAddRouteHandler(route, "ejsHandler", "");
         httpSetRouteTarget(route, "run", 0);
         httpFinalizeRoute(route);
+
         httpSetHostDefaultRoute(host, route);
         httpAddHostToEndpoint(endpoint, host);
 
@@ -56497,7 +56499,7 @@ static EjsHttpServer *createHttpServer(Ejs *ejs, EjsType *type, int size)
     sp->ejs = ejs;
     sp->hosted = ejs->hosted;
     sp->async = 1;
-    sp->trace = httpCreateTrace(0);
+    sp->trace = httpCreateTrace(HTTP->trace);
     return sp;
 }
 

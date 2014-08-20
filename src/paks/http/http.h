@@ -959,6 +959,7 @@ typedef struct Http {
     int             groupChanged;           /**< Group name changed */
     int             staticLink;             /**< Target platform is using a static linking */
     int             traceLevel;             /**< Current request trace level */
+    int             startLevel;             /**< Start endpoint trace level */
 
     /*
         Callbacks
@@ -1240,6 +1241,7 @@ PUBLIC void httpRemoveEndpoint(struct HttpEndpoint *endpoint);
 PUBLIC void httpAddHost(struct HttpHost *host);
 PUBLIC void httpRemoveHost(struct HttpHost *host);
 PUBLIC void httpDefineRouteBuiltins();
+PUBLIC void httpSetEndpointStartLevel(int level);
 
 /*********************************** HttpStats ********************************/
 /**

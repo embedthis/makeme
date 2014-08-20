@@ -50,9 +50,9 @@ Me.load({
         'gen-doc': {
             home: '${TOP}/doc',
             action: `
-                if (Path('egen.json').exists) {
-                    trace('Generate', 'egen generate')
-                    run('/Users/mob/git/ejs/build/macosx-x64-release/bin/ejs /Users/mob/git/egen/egen.es generate')
+                if (Path('exp.json').exists) {
+                    trace('Generate', 'exp generate')
+                    run('exp')
                 }
             `,
         },

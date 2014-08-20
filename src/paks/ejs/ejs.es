@@ -17393,7 +17393,7 @@ module ejs.web {
                         response = "action"::missing()
                     }
                 } else {
-                    App.log.debug(4, "Run action " + actionName)
+                    App.log.debug(5, "Run action " + actionName)
                     response = (ns)::[actionName]()
                 }
                 if (response && !response.body) {
@@ -17774,7 +17774,7 @@ module ejs.web {
             @option layout Optional layout template. Defaults to config.dirs.layouts/default.ejs.
          */
         function writeTemplate(path: Path, options: Object = {}): Void {
-            log.debug(4, "writeTemplate: \"" + path + "\"")
+            log.debug(5, "writeTemplate: \"" + path + "\"")
             let saveFilename = request.filename
             request.filename = path
             request.setHeader("Content-Type", "text/html")
@@ -17793,7 +17793,7 @@ module ejs.web {
             @option layout Path layout template. Defaults to config.dirs.layouts/default.ejs.
          */
         function writeTemplateLiteral(page: String, options: Object = {}): Void {
-            log.debug(4, "writeTemplateLiteral")
+            log.debug(5, "writeTemplateLiteral")
             request.setHeader("Content-Type", "text/html")
             if (options.layout === undefined) {
                 options.layout = config.dirs.layouts.join(config.web.views.layout)
@@ -18053,14 +18053,14 @@ module ejs.web {
 /************************************************************************/
 
 /*
-    Dir.es - Directory content handler
+    Dir.es - Directory redirection handler
  */
 
 # Config.WEB
 module ejs.web {
 
     /** 
-        Directory content handler. This redirects requests for directories and serves directory index files.
+        Directory redirection handler. This redirects requests for directories and serves directory index files.
         If the request pathInfo ends with "/", the request is transparently redirected to an index file if one is present.
         The set of index files is defined by HttpServer.indicies. If the request is a directory but does not end in "/",
         the client is redirected to a URL equal to the pathInfo with a "/" appended.
@@ -19477,7 +19477,7 @@ server.listen("127.0.0.1:7777")
                 }
             }
             activeWorkers.push(w)
-            App.log.debug(4, "HttpServer.getWorker idle: " + idleWorkers.length + " active:" + activeWorkers.length)
+            App.log.debug(5, "HttpServer.getWorker idle: " + idleWorkers.length + " active:" + activeWorkers.length)
             return w
         }
 
@@ -19673,7 +19673,7 @@ server.listen("127.0.0.1:7777")
             if (config.cache.workers.enable) {
                 idleWorkers.push(w)
             }
-            App.log.debug(4, "HttpServer.releaseWorker idle: " + idleWorkers.length + " active:" + activeWorkers.length)
+            App.log.debug(5, "HttpServer.releaseWorker idle: " + idleWorkers.length + " active:" + activeWorkers.length)
         }
 
         /** 
@@ -19723,7 +19723,7 @@ server.listen("127.0.0.1:7777")
                     }
                     request.on("close", function() {
                         releaseWorker(w) 
-                        App.log.debug(3, "Elapsed " + request.mark.elapsed + " msec for " + request.uri)
+                        App.log.debug(5, "Elapsed " + request.mark.elapsed + " msec for " + request.uri)
                     })
                     passRequest(request, w)
                     /* Must not touch request from here on - the worker owns it now */
@@ -19731,7 +19731,7 @@ server.listen("127.0.0.1:7777")
                     //  TODO - rename response => responder
                     let mark = new Date
                     process(route.response, request)
-                    App.log.debug(3, "Elapsed " + mark.elapsed + " msec for " + request.uri)
+                    App.log.debug(5, "Elapsed " + mark.elapsed + " msec for " + request.uri)
                 }
             } catch (e) {
                 let status = request.status != Http.Ok ? request.status : Http.ServerError
@@ -20039,7 +20039,7 @@ module ejs.web {
           */
         public static function load(request: Request?, dir: Path = ".", config = App.config): Mvc {
             if ((mvc = Mvc.apps[dir]) == null) {
-                App.log.debug(2, "Load MVC application from \"" + dir + "\"")
+                App.log.debug(5, "Load MVC application from \"" + dir + "\"")
                 mvc = Mvc.apps[dir] = new Mvc(dir, config)
                 let appmod = config.dirs.cache.join(config.mvc.appmod)
 
@@ -20076,7 +20076,7 @@ module ejs.web {
             } else {
                 let ext = config.extensions
                 let dir = request.dir
-                request.log.debug(4, "MVC init at \"" + dir + "\"")
+                request.log.debug(5, "MVC init at \"" + dir + "\"")
 
                 /* Load App. Touch ejsrc triggers a complete reload */
                 let files, deps
@@ -20131,11 +20131,11 @@ module ejs.web {
                 request.log.debug(4, "Mvc.loadComponent: component already loaded: " + mod)
             } else {
                 try {
-                    request.log.debug(4, "Mvc.loadComponent: load component : " + mod)
+                    request.log.debug(5, "Mvc.loadComponent: load component : " + mod)
                     global.load(mod)
                     loaded[mod] = new Date
                 } catch (e) {
-                    request.log.debug(4, "Mvc.loadComponent: Load failed, rebuild component: " + mod)
+                    request.log.debug(5, "Mvc.loadComponent: Load failed, rebuild component: " + mod)
                     rebuildComponent(request, mod, files)
                 }
             }
@@ -20178,7 +20178,7 @@ module ejs.web {
                 }
                 code += path.readString()
             }
-            request.log.debug(4, "Rebuild component: " + mod + " files: " + files)
+            request.log.debug(5, "Rebuild component: " + mod + " files: " + files)
             eval(code, mod)
         }
 
@@ -21032,7 +21032,7 @@ r.link({product: "candy", quantity: "10", template: "/cart/{product}/{quantity}}
          */
         function setHeaders(headers: Object, overwrite: Boolean = true): Void {
             for (let [key,value] in headers) {
-                setHeader(key, value, overwrite)
+                setHeader(key, value || '', overwrite)
             }
         }
 
@@ -21214,7 +21214,7 @@ TODO - DEBUG
                     } catch {}
                 }
                 finalize()
-                log.debug(4, "Request error (" + status + ") for: \"" + uri + "\". " + msg)
+                log.debug(5, "Request error (" + status + ") for: \"" + uri + "\". " + msg)
             }
         }
 
@@ -21587,6 +21587,8 @@ module ejs.web {
          */ 
         public static const Top: String = "top"
 
+        public static const WebSite: String = "webSite"
+
         /**
             Max calls to route() per request
          */
@@ -21782,6 +21784,11 @@ module ejs.web {
                 addRestful()
                 addCatchall()
                 break
+            case WebSite:
+                add(/\.es$/i,  {name: "es",  response: ScriptApp, method: "*"})
+                add(/\.ejs$/i, {name: "ejs", module: "ejs.template", response: TemplateApp, method: "*"})
+                add(isDir,    {name: "dir", response: DirApp})
+                addCatchall()
             case null:
                 break
             default:
@@ -21951,7 +21958,7 @@ module ejs.web {
                 r.initialized = true
             }
             if (log.level >= 3) {
-                log.debug(4, "Matched route \"" + r.routeSetName + "/" + r.name + "\"")
+                log.debug(5, "Matched route \"" + r.routeSetName + "/" + r.name + "\"")
                 if (log.level >= 5) {
                     log.debug(5, "  Route params " + serialize(params, {pretty: true}))
                 }
@@ -22735,9 +22742,10 @@ module ejs.web {
         let filename = request.filename
         let status = Http.Ok, body
         let hdr
-
-        let headers = {
-            "Content-Type": Uri(request.uri).mimeType,
+        let headers = {}
+        let type = Uri(request.uri).mimeType
+        if (type) {
+            headers['Content-Type'] = type
         }
         if (request.method != "PUT") {
             if ((encoding = request.header("Accept-Encoding")) && encoding.contains("gzip")) {
@@ -22760,7 +22768,6 @@ module ejs.web {
             headers["ETag"] = etag
             headers["Last-Modified"] = filename.modified.toUTCString()
         }
-
         /*
             If a specified tag matches, then return the full resource
          */
@@ -22786,10 +22793,6 @@ module ejs.web {
                     match = false
                 }
             }
-            if (!match) {
-                status = Http.PrecondFailed
-                /* Keep going to allow If-Modified-Since to be analysed */
-            }
         }
 
         /*
@@ -22803,7 +22806,9 @@ module ejs.web {
             }
         }
         if (when = request.header("If-Unmodified-Since")) {
-            if (!filename.exists || Date.parse(when) < filename.modified) {
+            if (!filename.exists) {
+                status = Http.NotFound
+            } else if (Date.parse(when) < filename.modified) {
                 status = Http.PrecondFailed
             }
         }

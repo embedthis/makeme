@@ -15887,7 +15887,7 @@ PUBLIC void mprDefaultLogHandler(cchar *tags, int level, cchar *msg)
 {
     MprFile     *file;
     char        tbuf[128];
-    ssize       len, width;
+    ssize       len;
     static int  check = 0;
 
     if ((file = MPR->logFile) == 0) {
@@ -15900,12 +15900,16 @@ PUBLIC void mprDefaultLogHandler(cchar *tags, int level, cchar *msg)
         fmt(tbuf, sizeof(tbuf), "%s %d %s, ", mprGetDate(MPR_LOG_DATE), level, tags);
         mprWriteFileString(file, tbuf);
         len = slen(tbuf);
+#if UNUSED
         width = 40;
         if (len < width) {
             mprWriteFile(file, "                                          ", width - len);
         }
+#endif
+#if UNUSED
     } else if (tags && level == 0) {
         mprWriteFileString(file, "error: ");
+#endif
     }
     mprWriteFileString(file, msg);
     mprWriteFileString(file, "\n");
