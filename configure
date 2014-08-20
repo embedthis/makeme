@@ -17,7 +17,7 @@ if ! type me >/dev/null 2>&1 ; then
     make help
     exit 0
 fi
-if [ -f start.me ] ; then
+if [ -f start.me -a "$@" != "--help" ] ; then
     me clean >/dev/null 2>&1
 fi
 me configure "$@"
