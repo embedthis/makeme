@@ -14,7 +14,7 @@ Me.load({
                 run(bin.join('ejsc') + ' --doc --bind --out ' + docmod + ' ../src/me.es ../src/configure.es')
                 let edir = Path('documents/ref/me/api')
                 rmdir([edir.join('*.html'), edir.join('*.css'), edir.join('images/*')])
-                run(bin.join('ejsmod') + ' --warn --html ' + edir + ' ' + docmod)
+                run(bin.join('ejsmod') + ' --html ' + edir + ' ' + docmod)
                 cp('documents/ref/me/api/masters/*.html', edir)
                 cp('documents/ref/me/api/masters/*.jpg', edir.join('images'))
                 docmod.remove()
@@ -38,8 +38,12 @@ Me.load({
                     trace('Patch', f)
                     f.write(data)
                 }
-                let path = Path('documents/ref/me/api/index.html')
-                path.write('<html><body></body></html>\n')
+                for each (f in Path('out/man').files('*.html')) {
+                    f.write('<!DOCTYPE html><html><head><title>dummy</title></head>' + f.readString() + '</html>\n')
+                    f.write(f.readString().toLowerCase())
+                }
+                let path = Path('out/ref/me/api/index.html')
+                path.write('<!DOCTYPE html><html><head><title>dummy</title></head><body></body></html>\n')
                 trace('Listen', 'exp')
                 Cmd.run('exp')
             `

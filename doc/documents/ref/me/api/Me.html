@@ -14,7 +14,7 @@
 <a name='top'></a>
 <h1 class='className'>Me</h1>
 <div class='classBlock'>
-<table class='classHead' summary='Me'>
+<table class='classHead' title='Me'>
    <tr><td><strong>Module</strong></td><td>embedthis.me</td></tr>
    <tr><td><strong>Definition</strong></td><td> class Me</td></tr>
    <tr><td><strong>Inheritance</strong></td><td>Me <img src='images/inherit.gif' alt='inherit'/> <a href='Object.html'>Object</a><tr><td><strong>Stability</strong></td><td>Prototype.</td></tr>
@@ -30,7 +30,7 @@ This implements the "me" tool and provide access via the Me DOM.</p>
 <hr />
 <a name='Properties'></a>
 <h2 class='classSection'>Properties</h2>
-<table class='itemTable' summary='properties'>
+<table class='itemTable' title='properties'>
    <tr><th>Qualifiers</th><th>Property</th><th>Type</th><th width='95%'>Description</th></tr>
 </table>
 
@@ -39,7 +39,7 @@ This implements the "me" tool and provide access via the Me DOM.</p>
 <hr />
 <a name='ClassMethods'></a>
 <h2 class='classSection'>Me Class Methods</h2>
-<table class='apiIndex' summary='methods'>
+<table class='apiIndex' title='methods'>
    <tr><th>Qualifiers</th><th width='95%'>Method</th></tr>
    <tr class='apiDef'><td class='apiType'>static </td><td><a href='#load'><b>load</b></a>(obj: <a href='Object.html'>Object</a>, ns = null)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Load an object into the Me DOM.</td></tr>
 </table>
@@ -49,7 +49,7 @@ This implements the "me" tool and provide access via the Me DOM.</p>
 <hr />
 <a name='InstanceMethods'></a>
 <h2 class='classSection'>Me Instance Methods</h2>
-<table class='apiIndex' summary='methods'>
+<table class='apiIndex' title='methods'>
    <tr><th>Qualifiers</th><th width='95%'>Method</th></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#copy'><b>copy</b></a>(src, dest: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Copy files.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#copyFile'><b>copyFile</b></a>(src: <a href='Path.html'>Path</a>, dest: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Copy a file.</td></tr>
@@ -81,10 +81,10 @@ This is trace that is displayed if me --verbose is invoked.</td></tr>
 <div class='apiDetail'>
 <dl><dt>Description</dt></dd><dd>Copy files. </dd></dl>
 <dl><dt>Parameters</dt>
-<dd><table class='parameters' summary ='parameters'>
+<dd><table class='parameters' title='parameters'>
 <tr class='param'><td class='param'>src </td><td>Source files/directories to copy. This can be a String, Path or array of String/Paths.  The wildcards "*"", "***"" and "?" are the only wild card patterns supported. The "***"" pattern matches every directory and file. The Posix "[]" and "{a,b}" style expressions are not supported. If a src item is an existing directory, then the pattern appends slash '***'' subtree option is enabled. if a src item ends with "/", then the contents of that directory are copied without the directory itself.</td></tr><tr class='param'><td class='param'>dest: <a href='Path.html'>Path</a> </td><td>Destination file or directory. If multiple files are copied, dest is assumed to be a directory and will be created if required. If dest has a trailing "/", it is assumed to be a directory.</td></tr><tr class='param'><td class='param'>options </td><td>Processing and file options. [default: expression]</td></tr></table></dd>
 </dl><dl><dt>Options</dt>
-<dd><table class='parameters' summary ='options'>
+<dd><table class='parameters' title='options'>
 <td class='param'>active</td><td>If destination is an active executable or shared library, rename the active file using a '.old' extension and retry the copy.</td></tr>
 <td class='param'>compress</td><td>Compress target file.</td></tr>
 <td class='param'>copytemp</td><td>Copy files that look like temp files.</td></tr>
@@ -111,7 +111,7 @@ This is trace that is displayed if me --verbose is invoked.</td></tr>
 The routine uses <a href='#copy'>copy()</a> to implement the copying.
 This either copies files or if generating, emits code to copy files.</dd></dl>
 <dl><dt>Parameters</dt>
-<dd><table class='parameters' summary ='parameters'>
+<dd><table class='parameters' title='parameters'>
 <tr class='param'><td class='param'>src: <a href='Path.html'>Path</a> </td><td>Source file.</td></tr><tr class='param'><td class='param'>dest: <a href='Path.html'>Path</a> </td><td>Destination.</td></tr><tr class='param'><td class='param'>options </td><td>Options to pass to Me.copy(). These include user, group, uid, gid and  permissions. [default: expression]</td></tr></table></dd>
 </dl></div>
 </div>
@@ -125,10 +125,10 @@ This either copies files or if generating, emits code to copy files.</dd></dl>
 To preserve an <a href='#{token}'>{token}</a> unmodified, preceed the token with an extra ''. For example: ${token}.
 Calls <a href='String.html#expand'>String.expand</a> to expand variables from the me and me.globals objects.</dd></dl>
 <dl><dt>Parameters</dt>
-<dd><table class='parameters' summary ='parameters'>
+<dd><table class='parameters' title='parameters'>
 <tr class='param'><td class='param'>s: <a href='String.html'>String</a> </td><td>Input string.</td></tr><tr class='param'><td class='param'>options </td><td>Control options object. [default: expression]</td></tr></table></dd>
 </dl><dl><dt>Options</dt>
-<dd><table class='parameters' summary ='options'>
+<dd><table class='parameters' title='options'>
 <td class='param'>fill</td><td>Set to a string to use for missing properties. Set to undefined or omit options to throw an exception for missing properties. Set fill to '<a href='#{}''>{}'</a> to preserve undefined tokens as-is. This permits multi-pass expansions.</td></tr>
 <td class='param'>join</td><td>Character to use to join array elements. Defaults to space.</td></tr>
 </table></dd>
@@ -145,7 +145,7 @@ Calls <a href='String.html#expand'>String.expand</a> to expand variables from th
 <dl><dt>Description</dt></dd><dd>Emit "show" trace
 This is trace that is displayed if me --show is invoked. </dd></dl>
 <dl><dt>Parameters</dt>
-<dd><table class='parameters' summary ='parameters'>
+<dd><table class='parameters' title='parameters'>
 <tr class='param'><td class='param'>tag </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>args: <a href='Array.html'>Array</a> </td><td>Message args to display.</td></tr></table></dd>
 </dl></div>
 </div>
@@ -159,7 +159,7 @@ This is trace that is displayed if me --show is invoked. </dd></dl>
 The routine uses <a href='Path.html#link'>Path.link()</a> to implement the linking.
 This either links files or if generating, emits code to link files.</dd></dl>
 <dl><dt>Parameters</dt>
-<dd><table class='parameters' summary ='parameters'>
+<dd><table class='parameters' title='parameters'>
 <tr class='param'><td class='param'>src: <a href='Path.html'>Path</a> </td><td>Source file.</td></tr><tr class='param'><td class='param'>dest: <a href='Path.html'>Path</a> </td><td>Destination.</td></tr><tr class='param'><td class='param'>options </td><td>See <a href='#copy'>copy()</a> for supported options. [default: expression]</td></tr></table></dd>
 </dl></div>
 </div>
@@ -171,10 +171,10 @@ This either links files or if generating, emits code to link files.</dd></dl>
 <div class='apiDetail'>
 <dl><dt>Description</dt></dd><dd>Run a command and trace output if cmdOptions.true or options.show. </dd></dl>
 <dl><dt>Parameters</dt>
-<dd><table class='parameters' summary ='parameters'>
+<dd><table class='parameters' title='parameters'>
 <tr class='param'><td class='param'>command </td><td>Command to run. May be an array of args or a string.</td></tr><tr class='param'><td class='param'>cmdOptions </td><td>Options to pass to <a href='#Cmd'>Cmd</a>.  [default: expression]</td></tr></table></dd>
 </dl><dl><dt>Options</dt>
-<dd><table class='parameters' summary ='options'>
+<dd><table class='parameters' title='options'>
 <td class='param'>show</td><td>Show the command line before executing. Similar to me --show, but operates on just this command.</td></tr>
 <td class='param'>noshow</td><td>Do not show the command line before executing. Useful to override me --show for one command. noshow is used to hide command display and to suppress command output.</td></tr>
 <td class='param'>continueOnErrors</td><td>Continue processing even if this command is not successful.</td></tr>
@@ -189,7 +189,7 @@ This either links files or if generating, emits code to link files.</dd></dl>
 <div class='apiDetail'>
 <dl><dt>Description</dt></dd><dd>Emit trace. </dd></dl>
 <dl><dt>Parameters</dt>
-<dd><table class='parameters' summary ='parameters'>
+<dd><table class='parameters' title='parameters'>
 <tr class='param'><td class='param'>tag: <a href='String.html'>String</a> </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>args: <a href='Array.html'>Array</a> </td><td>Message args to display.</td></tr></table></dd>
 </dl></div>
 </div>
@@ -201,7 +201,7 @@ This either links files or if generating, emits code to link files.</dd></dl>
 <div class='apiDetail'>
 <dl><dt>Description</dt></dd><dd>Load an object into the Me DOM. </dd></dl>
 <dl><dt>Parameters</dt>
-<dd><table class='parameters' summary ='parameters'>
+<dd><table class='parameters' title='parameters'>
 <tr class='param'><td class='param'>obj: <a href='Object.html'>Object</a> </td><td>Object collection to load into the DOM.</td></tr><tr class='param'><td class='param'>ns </td><td>Reserved. [default: null]</td></tr></table></dd>
 </dl></div>
 </div>
@@ -214,8 +214,8 @@ This either links files or if generating, emits code to link files.</dd></dl>
 <dl><dt>Description</dt></dd><dd>Make a directory
 This creates a directory and all required parents. This either makes a directory or if generating, emits code to make directories.</dd></dl>
 <dl><dt>Parameters</dt>
-<dd><table class='parameters' summary ='parameters'>
-<tr class='param'><td class='param'>path: <a href='Path.html'>Path</a> </td><td>Directory path to make.</td></tr><tr class='param'><td class='param'>options </td><td>See <a href='#copy'>copy()</a> for supported options. [default: expression]</td></tr></table></dd>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>path: <a href='Path.html'>Path</a> </td><td>Directory path to make.</td></tr><tr class='param'><td class='param'>options </td><td>See <a href='#copy'>copy()</a> for supported options. 0. [default: expression]</td></tr></table></dd>
 </dl></div>
 </div>
 <hr />
@@ -228,10 +228,10 @@ This creates a directory and all required parents. This either makes a directory
 empty directories.
 This either removes directories or if generating, emits code to remove directories.</dd></dl>
 <dl><dt>Parameters</dt>
-<dd><table class='parameters' summary ='parameters'>
+<dd><table class='parameters' title='parameters'>
 <tr class='param'><td class='param'>path: <a href='Path.html'>Path</a> </td><td>Directory to remove.</td></tr><tr class='param'><td class='param'>options </td><td>Control options. [default: expression]</td></tr></table></dd>
 </dl><dl><dt>Options</dt>
-<dd><table class='parameters' summary ='options'>
+<dd><table class='parameters' title='options'>
 <td class='param'>empty</td><td>Remove the directory only if empty.</td></tr>
 </table></dd>
 </dl></div>
@@ -244,7 +244,7 @@ This either removes directories or if generating, emits code to remove directori
 <div class='apiDetail'>
 <dl><dt>Description</dt></dd><dd>Remove a file. This either removes files or if generating, emits code to remove files.</dd></dl>
 <dl><dt>Parameters</dt>
-<dd><table class='parameters' summary ='parameters'>
+<dd><table class='parameters' title='parameters'>
 <tr class='param'><td class='param'>path: <a href='Path.html'>Path</a> </td><td>File to remove.</td></tr><tr class='param'><td class='param'>options </td><td>Control options. [default: expression]</td></tr></table></dd>
 </dl></div>
 </div>
@@ -256,7 +256,7 @@ This either removes directories or if generating, emits code to remove directori
 <div class='apiDetail'>
 <dl><dt>Description</dt></dd><dd>Remove a file or directory. This removes a file or directory and all its contents including subdirectories.</dd></dl>
 <dl><dt>Parameters</dt>
-<dd><table class='parameters' summary ='parameters'>
+<dd><table class='parameters' title='parameters'>
 <tr class='param'><td class='param'>path: <a href='Path.html'>Path</a> </td><td>File or directory to remove.</td></tr></table></dd>
 </dl></div>
 </div>
@@ -269,7 +269,7 @@ This either removes directories or if generating, emits code to remove directori
 <dl><dt>Description</dt></dd><dd>Emit "verbose" trace
 This is trace that is displayed if me --verbose is invoked. </dd></dl>
 <dl><dt>Parameters</dt>
-<dd><table class='parameters' summary ='parameters'>
+<dd><table class='parameters' title='parameters'>
 <tr class='param'><td class='param'>tag </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>args: <a href='Array.html'>Array</a> </td><td>Message args to display.</td></tr></table></dd>
 </dl></div>
 </div>
@@ -281,7 +281,7 @@ This is trace that is displayed if me --verbose is invoked. </dd></dl>
 <div class='apiDetail'>
 <dl><dt>Description</dt></dd><dd>Emit trace for me --why on why a target is being rebuilt. </dd></dl>
 <dl><dt>Parameters</dt>
-<dd><table class='parameters' summary ='parameters'>
+<dd><table class='parameters' title='parameters'>
 <tr class='param'><td class='param'>path </td><td>Target path being considered.</td></tr><tr class='param'><td class='param'>tag </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>msg </td><td>Message to display 8.</td></tr></table></dd>
 </dl></div>
 </div>
@@ -293,14 +293,14 @@ This is trace that is displayed if me --verbose is invoked. </dd></dl>
 <div class='apiDetail'>
 <dl><dt>Description</dt></dd><dd>Emit trace for me --why on why a target is being skipped. </dd></dl>
 <dl><dt>Parameters</dt>
-<dd><table class='parameters' summary ='parameters'>
+<dd><table class='parameters' title='parameters'>
 <tr class='param'><td class='param'>path </td><td>Target path being considered.</td></tr><tr class='param'><td class='param'>msg </td><td>Message to display 0.</td></tr></table></dd>
 </dl></div>
 </div>
 <hr />
 <div class="terms">
    <p class="terms">
-       <a href="https://embedthis.com/">       Embedthis Software LLC, 2003-2014. All rights reserved. Embedthis is a trademark of Embedthis Software LLC.</a>
+       <a href="http://embedthis.com/">       Embedthis Software LLC, 2003-2014. All rights reserved. Embedthis is a trademark of Embedthis Software LLC.</a>
    </p>
 </div></div>
 </div>

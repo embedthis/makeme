@@ -19,19 +19,8 @@ body {
   font-family: "Open Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
   color: #555;
   text-rendering: optimizeLegibility;
+  background-image: -webkit-linear-gradient(45deg, #0a1855 0px, #da0024 100%);
   background-image: linear-gradient(45deg, #0a1855 0px, #da0024 100%);
-  background-image: -webkit-linear-gradient(45deg, #0A1855 0px, #DA0024 100%);
-
-  /* Green */
-  background-image: -webkit-linear-gradient(45deg, #081850 50px, #40A040 70%);
-
-  /* Blue teal */
-  background-image: -webkit-linear-gradient(45deg, #0A1450 50px, #24A0D0 100%);
-
-  /* Gold teal */
-  background-image: -webkit-linear-gradient(45deg, #801000 200px, #E0B000 75%);
-
-  -webkit-transition: none !important;
   -webkit-transition: none !important;
           transition: none !important;
 }
@@ -96,7 +85,7 @@ body {
 }
 
 .content {
-  min-height: 0px;
+  min-height: 400px;
   padding: 1rem 2rem 2rem 2rem;
   text-decoration: none;
   background: #FFF;
