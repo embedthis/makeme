@@ -10,7 +10,7 @@ See LICENSE.md for details.
   See doc/index.html
 
 ### Prerequisites:
-    MakeMe (http://embedthis.com/downloads/makeme/download.esp) for MakeMe to configure and build.
+    MakeMe (https://embedthis.com/downloads/makeme/download.esp) for MakeMe to configure and build.
 
 ### To Build:
 
@@ -43,7 +43,7 @@ This will run appweb in the src/server directory using the src/server/appweb.con
 
 Resources
 ---
-  - [Embedthis web site](http://embedthis.com/)
+  - [Embedthis web site](https://embedthis.com/)
   - [Appweb web site](http://appwebserver.org/)
   - [MPR GitHub repository](http://github.com/embedthis/mpr)
   - [Appweb GitHub repository](http://github.com/embedthis/appweb)

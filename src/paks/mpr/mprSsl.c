@@ -1642,7 +1642,7 @@ static OpenConfig *createOpenSslConfig(MprSocket *sp)
     }
     if (ssl->ciphers) {
         if (SSL_CTX_set_cipher_list(context, ssl->ciphers) != 1) {
-            sp->errorMsg = sfmt("Unable to set cipher list %s", getOssError(sp)); 
+            sp->errorMsg = sfmt("Unable to set cipher list \"%s\". %s", ssl->ciphers, getOssError(sp)); 
             SSL_CTX_free(context);
             return 0;
         }

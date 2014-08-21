@@ -37,7 +37,7 @@ directory in your PATH. This is under OS-ARCH-PROFILE/bin.
 Resources
 ---
   - [Ejscript web site](http://ejscript.org/)
-  - [Embedthis web site](http://embedthis.com/)
+  - [Embedthis web site](https://embedthis.com/)
   - [Ejscript GitHub repository](http://github.com/embedthis/ejs)
   - [Ejscript Mailing list](http://groups.google.com/groups/ejs)
 

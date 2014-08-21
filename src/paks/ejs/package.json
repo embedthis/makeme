@@ -37,6 +37,7 @@
     "dependencies": {
         "http": "~5",
         "me-dev": "~0.8",
+        "me-doc": "~0.8",
         "mpr": "~5",
         "osdep": "~0.8",
         "pcre": "~1.0",

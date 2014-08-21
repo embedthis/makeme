@@ -7,7 +7,7 @@ non-open source programs. Commercial licenses for this software and support
 services are available from Embedthis Software.
 
 * [GPL License](http://www.gnu.org/licenses/gpl-2.0.html)
-* [Embedthis Commercial License](http://embedthis.com/licensing/)
+* [Embedthis Commercial License](https://embedthis.com/licensing/)
 
 
 Third Party Licenses
@@ -38,7 +38,5 @@ The optional EST SSL stack includes code from TropicSSL in the est library.
 Trademarks and Copyrights
 ---
 Copyright (c) 2003-2014 Embedthis Software, LLC. All Rights Reserved.
-Embedthis, Appweb, Ejscript, ESP, Embedthis GoAhead and Embedthis MakeMe
-are trademarks of Embedthis Software, LLC. Other brands and their products
-are trademarks of their respective holders.
-
+Embedthis is a trademark of Embedthis Software, LLC. Other brands and their 
+products are trademarks of their respective holders.
