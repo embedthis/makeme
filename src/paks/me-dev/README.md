@@ -9,4 +9,4 @@ pak install me-dev
 
 ### Get Pak from
 
-[http://embedthis.com/products/pak](http://embedthis.com/products/pak)
+[https://embedthis.com/products/pak](https://embedthis.com/products/pak)
