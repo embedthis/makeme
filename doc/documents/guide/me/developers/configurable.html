@@ -24,7 +24,7 @@ me configure "$@"
         <pre class="ui code segment">configure -with ssl --without php</pre>
         <h2>Components</h2>
         <p>Configurable components can provide libraries, programs, or any other desired resource. 
-        Example components are: the <a href="http://embedthis.com/products/esp/">ESP</a> web framework or the OpenSSL SSL stack.</p>
+        Example components are: the <a href="https://embedthis.com/esp/">ESP</a> web framework or the OpenSSL SSL stack.</p>
         <p>Configurable components are implemented as MakeMe targets with the <em>configurable</em> property set to true.
         This means that any MakeMe target can be a configurable component selectable by the user.</p>
         <p>For example, here is a component MakeMe file for a mythical "rocket" component:</p>
@@ -110,7 +110,7 @@ configure -with php=/path/to/php</pre>
         </ol>
         <h2>Standard Components</h2>
         <p>Here is a partial list of the standard components supplied with MakeMe.</p>
-        <table title="extensions">
+        <table title="extensions" class="ui table segment">
         <thead>
         <tr><th>Component</th><th>Description</th></tr>
         </thead>
@@ -124,11 +124,12 @@ configure -with php=/path/to/php</pre>
         </tbody>
         </table>
         <p>Here is a partial list of the components available from the 
-            <a href="http://embedthis.com/catalog/">Pak Catalog</a>.</p>
-        <table title="paks">
+            <a href="https://embedthis.com/catalog/">Pak Catalog</a>.</p>
+        <table title="paks" class="ui table segment">
         <thead>
-        <tr><th>Component</th><th>Description</th></tr>
+            <tr><th>Component</th><th>Description</th></tr>
         </thead>
+        <tbody>
             <tr>
                 <td><a href="https://github.com/embedthis/me-dev">me-dev</a></td>
                 <td>Embedthis MakeMe Development Lifecycle</td>
@@ -170,15 +171,16 @@ configure -with php=/path/to/php</pre>
                 <td>SQLite library</td>
             </tr>
             <tr>
-                <td><a href="https://github.com/embedthis/ssl">ssl</a></td>
-                <td>SSL Interface. Includes component references for Est, MatrixSSL and OpenSSL</td>
+                <td><a href="https://github.com/embedthis/me-ssl">ssl</a></td>
+                <td>SSL Interface. Includes component references for Est and OpenSSL</td>
             </tr>
             <tr>
                 <td><a href="https://github.com/embedthis/zlib">zlib</a></td>
                 <td>Zlib Compression library</td>
             </tr>
-            </tbody>
+        </tbody>
         </table>
+
         <h2>Component Resolution</h2>
         <p>Component resolution is the process to determine which components should be included in the build.
         <p>The resolution process takes several steps:</p>
@@ -227,7 +229,7 @@ configure -with php=/path/to/php</pre>
         the component will be disabled. This is a common pattern, to throw exceptions if the component cannot 
         be fully configured and enabled.</p>
         <h3>The Probe API</h3>
-        <p>The <a href="../../../api/me/global.html#probe">probe</a> function
+        <p>The <a href="../../../ref/me/api/global.html#probe">probe</a> function
         is useful to search for a program on the local system. It searches for a named program
         and takes options for the search path (search), the default to return if the program cannot be found (default), and
         whether to return the full path or just the dirname portion (fullpath).</p>
@@ -325,7 +327,7 @@ openssl: {
 </pre>
         <h2>Component Paks</h2>
         <p>Components can be conveniently packaged and delivered using the 
-        <a href="http://embedthis.com/products/pak">Pak</a> tool. Pak is a package manager and distribution tool
+        <a href="https://embedthis.com/pak/">Pak</a> tool. Pak is a package manager and distribution tool
         for application components. These may be delivered either as part of the project, 
         or they may be separately downloaded and installed by the user just prior to configuring. </p>
         <p>Component paks define their detection and configuration logic inline in their MakeMe file. </p>
@@ -366,4 +368,4 @@ Me.load({
 </pre>
         <h2>Samples</h2>
         <p>The standard compnents are a good source of samples. View in the repository at
-        <a href="https://github.com/embedthis/me/tree/master/me/configure">MakeMe Components</a>.</p>
+        <a href="https://github.com/embedthis/me/tree/master/configure">MakeMe Components</a>.</p>

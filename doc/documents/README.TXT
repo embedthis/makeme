@@ -2,11 +2,11 @@ Embedthis MakeMe(TM)
 
 Welcome to the Embedthis MakeMe distribution. MakeMe is a modern replacement for the autoconf and make make build tools. MakeMe uses Javascript to simply describe projects with smart defaults. It then builds directly, or generates makefiles, and IDE projects.
 
-This document describes the installation procedure for the binary MakeMe package. This package contains the "me" tool and manual page. Documentation is available online at http://embedthis.com/products/makeme/doc/. 
+This document describes the installation procedure for the binary MakeMe package. This package contains the "me" tool and manual page. Documentation is available online at https://embedthis.com/me/doc/. 
 
 You can read the documentation for the latest release online at:
 
-    http://embedthis.com/products/makeme/doc/index.html
+    https://embedthis.com/me/doc/index.html
 
 This software is copyrighted and distributed under license. Please read the LICENSE.TXT for details.
 
@@ -91,7 +91,7 @@ Removing MakeMe on Mac OS X
 
 This is the procedure to remove MakeMe on all systems except Windows.
 
-   1. Change directory to the installation directory for MakeMe. This is usually /usr/local/lib/makeme.
+   1. Change directory to the installation directory for MakeMe. This is usually /usr/local/lib/me.
 
    2. Run the uninstall script in the install directory for MakeMe by typing 
 

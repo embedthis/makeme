@@ -7,9 +7,9 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <meta name="keywords" content="
-    <meta name="description" content="" />
-    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+    <meta name="keywords" content="MakeMe, Bit, GYP, autoconf, make, cake" />
+    <meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf." />
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,+Sans:300italic,400,300,700'
         rel='stylesheet' type='text/css'>
     <link href="../../../lib/semantic/packaged/css/semantic.css" rel="stylesheet" type="text/css" />
     <link href="../../../css/all.css" rel="stylesheet" type="text/css" />
@@ -26,12 +26,12 @@
             <div class="menu">
                 <a class="item" href="../../../index.html">MakeMe Overview</a>
                 <a class="item" href="../../../guide/me/features.html">MakeMe Features</a>
-                <a class="item" href="https://embedthis.com/me/download.html">Download</a> 
-                <a class="item" href="../../../licenses/index.html">Licensing</a>
+                <a class="item" href="https://embedthis.com/download/me.html">Download</a> 
+                <a class="item" href="../../../licensing/index.html">Licensing</a>
             </div>
         </div>
         <div class="item">
-            <a href="../../../guide/install/index.html">
+            <a href="../../../install/index.html">
                 <b>Installation</b>
             </a>
             <div class="menu">
@@ -71,15 +71,15 @@
             <div class="menu">
                 <a class="item" href="../../../ref/me/syntax.html">File Syntax</a>
                 <a class="item" href="../../../ref/me/dom.html">MakeMe DOM</a>
-                <a class="item" href="../../../api/me/index.html">MakeMe API</a>
+                <a class="item" href="../../../ref/me/api/index.html">MakeMe API</a>
                 <a class="item" href="../../../ref/me/processing.html">File Processing</a>
                 <a class="item" href="../../../ref/me/commandline.html">Command Line</a>
                 <a class="item" href="../../../ref/me/events.html">Events</a>
                 <a class="item" href="../../../ref/me/targets.html">Targets</a>
-                <a class="item" href="man/me.html">Manual Page</a>
-                <a class="item" href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">
+                <a class="item" href="../../..//man/me.html">Manual Page</a>
+                <a class="item" href="http://embedthis.com/ejs/doc/api/ejscript/index.html">
                     Language Reference</a>
-                <a class="item" href="http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a>
+                <a class="item" href="http://embedthis.com/ejs/doc/index.html">Ejscript Documentation</a>
             </div>
         </div>
         <div class="item">
@@ -91,16 +91,16 @@
                 <a class="item" href="https://github.com/embedthis/me/issues">Project Issue Database</a>
                 <a class="item" href="https://github.com/embedthis/me/releases">Change Log</a>
                 <a class="item" href="https://github.com/embedthis/me/milestones">Roadmap</a>
-                <a class="item" href="https://embedthis.com/developers/contributors.html">Contributors Agreement</a>
+                <a class="item" href="https://embedthis.com/scripts/contributors.esp">Contributors Agreement</a>
             </div>
         </div>
         <div class="item">
             <a href="../../../source/index.html">Built with MakeMe</a>
             <div class="menu">
-                <a class="item" href="overview.html">Building Overview</a>
-                <a class="item" href="make.html">Building with Make</a>
-                <a class="item" href="me.html">Building with MakeMe</a>
-                <a class="item" href="ide.html">Building with an IDE</a>
+                <a class="item" href="../../../source/overview.html">Building Overview</a>
+                <a class="item" href="../../../source/make.html">Building with Make</a>
+                <a class="item" href="../../../source/me.html">Building with MakeMe</a>
+                <a class="item" href="../../../source/ide.html">Building with an IDE</a>
             </div>
         </div>
         <div class="item">
@@ -163,9 +163,9 @@
             <li>And so on ...</li> 
         </ul>
         <p>Plugins are packaged and distributed using the
-            <a href="http://embedthis.com/products/pak">Pak</a> package manager tool. Pak will bundle together all the
+            <a href="https://embedthis.com/pak/">Pak</a> package manager tool. Pak will bundle together all the
             components of a plugin and then publish online for distribution via the 
-            <a href="http://embedthis.com/catalog">Pak Online Catalog</a>.
+            <a href="https://embedthis.com/catalog">Pak Online Catalog</a>.
         <h2>Plugin Elements</h2>
         <p>A MakeMe plugin consists of two mandatory elements:</p>
         <ul>
@@ -216,7 +216,7 @@ Me.load({
         <p>The plugin name must be a unique name in the Pak online catalog. 
         By convention, MakeMe plugins are named with a "<em>me-</em>" prefix. This makes it easy for users to 
         find suitable MakeMe plugins. You should also set your package.json keywords to include <em>"me-plugin"</em>
-        Search the <a href="http://embedthis.com/catalog">Pak Online Catalog</a> to pick a unique name.</p>
+        Search the <a href="https://embedthis.com/catalog">Pak Online Catalog</a> to pick a unique name.</p>
         <h3>Step 2 &mdash; Create the MakeMe File</h3>
         <p>Make a new directory for the plugin and create the MakeMe file there using the chosen name of your 
             plugin with a "<em>.me</em>" extension. Here is the MakeMe file:</p>
@@ -250,7 +250,7 @@ Me.load({
     "author": {
         "name": "Embedthis Software",
         "email": "dev@embedthis.com",
-        "url": "http://embedthis.com"
+        "url": "https://embedthis.com"
     },
     "repository": {
         "type": "git",
@@ -259,7 +259,7 @@ Me.load({
 }</pre>
         <h3>Step 4 &mdash; Publish the Plugin</h3>
         <p>Plugins may be optionally published to the 
-            <a href="http://embedthis.com/catalog">Pak Online Catalog</a> using the Pak tool. This is an optional step
+            <a href="https://embedthis.com/catalog">Pak Online Catalog</a> using the Pak tool. This is an optional step
         and the pack may simply be included in the projects <em>src/paks</em> directory without publishing online.
         To publish online, use the pak tool:</p>
         <pre class="ui code segment">pak publish</pre>

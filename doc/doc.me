@@ -12,11 +12,11 @@ Me.load({
                 let src = me.dir.src.join('src')
                 let docmod = Path('').temp().replaceExt('mod')
                 run(bin.join('ejsc') + ' --doc --bind --out ' + docmod + ' ../src/me.es ../src/configure.es')
-                let edir = me.dir.src.join('doc/api/makeme')
+                let edir = Path('documents/ref/me/api')
                 rmdir([edir.join('*.html'), edir.join('*.css'), edir.join('images/*')])
                 run(bin.join('ejsmod') + ' --warn --html ' + edir + ' ' + docmod)
-                cp(me.dir.src.join('doc/api/masters/*.html'), edir)
-                cp(me.dir.src.join('doc/api/masters/*.jpg'), edir.join('images'))
+                cp('documents/ref/me/api/masters/*.html', edir)
+                cp('documents/ref/me/api/masters/*.jpg', edir.join('images'))
                 docmod.remove()
             `,
         },
@@ -27,10 +27,10 @@ Me.load({
                 for each (f in Path('out').files('**/*.html')) {
                     let data = f.readString()
                     data = data.replace('700|Open', '').
-                        replace(/appweb.download.html/g, 'download/appweb.html').
+                        replace(/me.download.html/g, 'download/me.html').
                         replace(/developers.contributors.html/g, 'scripts/contributors.esp').
                         replace(/nowrap="nowrap"/g, '').
-                        replace(/https:..embedthis.com.appweb.licensing.html/g, 'https://embedthis.com/').
+                        replace(/https:..embedthis.com.me.licensing.html/g, 'https://embedthis.com/').
                         replace(/https:..embedthis.com.me.doc.guide.me.source.building.htm/g, 'https://embedthis.com/').
                         replace(/https:..embedthis.com.developers./g, 'https://embedthis.com/').
 
@@ -38,8 +38,10 @@ Me.load({
                     trace('Patch', f)
                     f.write(data)
                 }
-                trace('Listen', 'exp --nogen')
-                Cmd.run('exp --nogen')
+                let path = Path('documents/ref/me/api/index.html')
+                path.write('<html><body></body></html>\n')
+                trace('Listen', 'exp')
+                Cmd.run('exp')
             `
         },
     },

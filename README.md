@@ -9,7 +9,7 @@ See [LICENSE.md](https://github.com/embedthis/makeme/blob/master/LICENSE.md) for
 
 ### Documentation:
 
-    Coming soon at http://embedthis.com/products/makeme/doc/product/index.html
+    Coming soon at https://embedthis.com/products/makeme/doc/product/index.html
 
 ### To build first time:
 
@@ -29,5 +29,5 @@ See [LICENSE.md](https://github.com/embedthis/makeme/blob/master/LICENSE.md) for
 
 Resources
 ---
-  - [MakeMe Web Site](http://embedthis.com/products/makeme/)
+  - [MakeMe Web Site](https://embedthis.com/products/makeme/)
   - [MakeMe GitHub repository](https://github.com/embedthis/makeme)

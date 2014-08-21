@@ -63,8 +63,6 @@ Set to 0 to disable and 1 to enable:
   ME_COM_EJSCRIPT  # Enable the Ejscript handler
   ME_COM_ESP       # Enable the ESP web framework
   ME_COM_EST       # Enable the EST SSL stack
-  ME_COM_MATRIXSSL # Enable the MatrixSSL SSL stack
-  ME_COM_NANOSSL   # Enable the Mocana NanoSSL stack
   ME_COM_OPENSSL   # Enable the OpenSSL SSL stack
   ME_COM_PHP       # Enable the PHP framework
   ME_COM_SQLITE    # Enable the SQLite database
@@ -170,4 +168,4 @@ make CC=/opt/bin/ccarm.exe LD=/opt/bin/ccarm.exe ARCH=arm PROFILE=release
             <p>Once defined, you can invoke make.</p>
             <pre class="ui code segment">make OS=vxworks</pre>
             <p>If you require a static build, set the profile to "static".</p>
-            <p><pre class="ui code segment">make OS=vxworks PROFILE=static</pre></p>
+            <pre class="ui code segment">make OS=vxworks PROFILE=static</pre>

@@ -14,10 +14,12 @@
         list of platforms to be made when building. Multiple platforms may be specified and the <em>local</em> platform alias
         may be used for the local development platform.</p>
         <p>Some products require local building to make tools that are required to build for any platform. These
-        products add a "<em>platforms: ['local']</em>" property to their settings collection in the <em>main.me</em> file. This
-        automatically adds the local platform to the platforms list and is the same as adding <em>--platform local</em> on
-        the command line when configuring.</p>
-            <pre class="ui code segment">me --platform windows-x64-debug -configure .</pre>
+        products add a "<em>platforms: ['local']</em>" property to their settings collection in the <em>main.me</em> file. 
+        This automatically adds the local platform to the platforms list and is the same as adding 
+        <em>--platform local</em> on the command line when configuring.</p>
+
+        <pre class="ui code segment">me --platform windows-x64-debug -configure .</pre>
+
         <p>This will create a windows-x64-debug.me configuration file and a start.me that references it. The platform
         switch does not need to be restated after configuration.</p>
         <a name="environment"></a>
@@ -31,4 +33,4 @@
         provided to MakeMe when building, they apply to that run only. If the flags are provide when configuring, they are
         saved in the generated platform build file and apply to all subsequent runs.
         For example:</p>
-        <p><pre class="ui code segment">CC=/path/to/compiler CFLAGS=-w me configure</pre></p>
+        <pre class="ui code segment">CC=/path/to/compiler CFLAGS=-w me configure</pre>

@@ -52,15 +52,8 @@ me configure "$@"</pre>
 Usage: me [options] [targets|actions] ...
 ...
 Extension Packages (--with NAME, --without NAME):
-    doxygen             # Doxygen Documentation Generator
-    dsi                 # Developer Server Side Include Tool
     est                 # Embedded Security Transport (SSL)
-    man                 # Manual Page Formatting Tool
-    man2html            # Manual Page to HTML Converter
-    matrixssl           # MatrixSSL (SSL)
-    mocana              # Mocana NanoSSL (SSL)
     openssl             # OpenSSL (SSL)
-    pmaker              # Package Maker Tool
     sqlite              # SQLite Database
     zip                 # Zip Compression Tool
 </pre>
@@ -86,7 +79,7 @@ the form <em>--set KEY=VALUE</em>. For example:
     data: "/",
     state: "/var",
     app: "/usr/local/lib/makeme",
-    vapp: "/usr/local/lib/makeme/0.5.4",
+    vapp: "/usr/local/lib/me/0.5.4",
     bin: "/usr/local/bin",
     inc: "/usr/local/include",
     lib: "/usr/local/lib",
@@ -96,7 +89,7 @@ the form <em>--set KEY=VALUE</em>. For example:
     web: "/var/www/makeme-default",
     log: "/var/log/makeme",
     spool: "/var/spool/makeme",
-    cache: "/var/spool/makeme/cache",
+    cache: "/var/spool/me/cache",
 }
 </pre>
         <p>Depending on the project and target system, the installation prefixes may vary.</p>
@@ -151,9 +144,9 @@ the form <em>--set KEY=VALUE</em>. For example:
         The customize.me file can thus override any prior
         MakeMe setting. Projects should not ship this file and so
         users need not fear their customize.me file will be overwritten.</p>
-        <p><pre class="ui code segment">
+        <pre class="ui code segment">
 settings: {
     customize: [
         'custom.me',
     ],
-}</pre></p>
+}</pre>

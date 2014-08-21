@@ -3661,7 +3661,6 @@ require embedthis.me
 
 /**
     Me DOM object
-    @hide
  */
 public var b: Me = new Me
 

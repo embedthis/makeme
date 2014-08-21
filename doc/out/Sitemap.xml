@@ -55,12 +55,6 @@
         <priority>0.5</priority>
     </url>
     <url>
-        <loc>https://embedthis.com/esp/doc/guide/me/developers/projects.html</loc>
-        <lastmod>2014-08-19</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.5</priority>
-    </url>
-    <url>
         <loc>https://embedthis.com/esp/doc/guide/me/developers/samples.html</loc>
         <lastmod>2014-08-20</lastmod>
         <changefreq>weekly</changefreq>
@@ -74,36 +68,6 @@
     </url>
     <url>
         <loc>https://embedthis.com/esp/doc/guide/me/features.html</loc>
-        <lastmod>2014-08-20</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.5</priority>
-    </url>
-    <url>
-        <loc>https://embedthis.com/esp/doc/guide/me/source/building.html</loc>
-        <lastmod>2014-08-20</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.5</priority>
-    </url>
-    <url>
-        <loc>https://embedthis.com/esp/doc/guide/me/source/ide.html</loc>
-        <lastmod>2014-08-19</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.5</priority>
-    </url>
-    <url>
-        <loc>https://embedthis.com/esp/doc/guide/me/source/index.html</loc>
-        <lastmod>2014-08-19</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.5</priority>
-    </url>
-    <url>
-        <loc>https://embedthis.com/esp/doc/guide/me/source/make.html</loc>
-        <lastmod>2014-08-19</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.5</priority>
-    </url>
-    <url>
-        <loc>https://embedthis.com/esp/doc/guide/me/source/me.html</loc>
         <lastmod>2014-08-20</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.5</priority>
@@ -217,6 +181,78 @@
         <priority>0.5</priority>
     </url>
     <url>
+        <loc>https://embedthis.com/esp/doc/ref/me/api/__all-classes.html</loc>
+        <lastmod>2014-08-20</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>https://embedthis.com/esp/doc/ref/me/api/__all-namespaces.html</loc>
+        <lastmod>2014-08-20</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>https://embedthis.com/esp/doc/ref/me/api/__all.html</loc>
+        <lastmod>2014-08-20</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>https://embedthis.com/esp/doc/ref/me/api/__navigation-left.html</loc>
+        <lastmod>2014-08-20</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>https://embedthis.com/esp/doc/ref/me/api/__overview-page.html</loc>
+        <lastmod>2014-08-20</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>https://embedthis.com/esp/doc/ref/me/api/global.html</loc>
+        <lastmod>2014-08-20</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>https://embedthis.com/esp/doc/ref/me/api/index.html</loc>
+        <lastmod>2014-08-20</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>https://embedthis.com/esp/doc/ref/me/api/masters/__navigation-left.html</loc>
+        <lastmod>2014-08-20</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>https://embedthis.com/esp/doc/ref/me/api/masters/__overview-page.html</loc>
+        <lastmod>2014-08-20</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>https://embedthis.com/esp/doc/ref/me/api/masters/title.html</loc>
+        <lastmod>2014-08-20</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>https://embedthis.com/esp/doc/ref/me/api/Me.html</loc>
+        <lastmod>2014-08-20</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>https://embedthis.com/esp/doc/ref/me/api/title.html</loc>
+        <lastmod>2014-08-20</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.5</priority>
+    </url>
+    <url>
         <loc>https://embedthis.com/esp/doc/ref/me/commandline.html</loc>
         <lastmod>2014-08-20</lastmod>
         <changefreq>weekly</changefreq>
@@ -247,12 +283,6 @@
         <priority>0.5</priority>
     </url>
     <url>
-        <loc>https://embedthis.com/esp/doc/ref/me/samples.html</loc>
-        <lastmod>2014-08-20</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.5</priority>
-    </url>
-    <url>
         <loc>https://embedthis.com/esp/doc/ref/me/syntax.html</loc>
         <lastmod>2014-08-20</lastmod>
         <changefreq>weekly</changefreq>
@@ -260,12 +290,6 @@
     </url>
     <url>
         <loc>https://embedthis.com/esp/doc/ref/me/targets.html</loc>
-        <lastmod>2014-08-20</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.5</priority>
-    </url>
-    <url>
-        <loc>https://embedthis.com/esp/doc/source/building.html</loc>
         <lastmod>2014-08-20</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.5</priority>

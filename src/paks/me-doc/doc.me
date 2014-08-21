@@ -52,14 +52,16 @@ Me.load({
             action: `
                 if (Path('exp.json').exists) {
                     trace('Generate', 'exp generate')
-                    run('exp')
+                    run('exp generate')
                 }
             `,
         },
 
         'api': {},
 
-        'clean-doc': {},
-
+        'clean-doc': {
+            type: 'clean',
+            action: `rmdir(['../doc/api/html', '../doc/api/xml'])`
+        },
     },
 })

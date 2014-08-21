@@ -1,7 +1,7 @@
 {
     "name": "osdep",
     "description": "Embedthis O/S Dependent Layer",
-    "version": "0.8.2",
+    "version": "0.8.3",
     "keywords": [
         "osdep",
         "me"
@@ -43,10 +43,12 @@
         "osdep.h",
         "osdep.me",
         "doc/api/osdep.dtags",
-        "doc/api/osdepBare.tags",
-        "doc/api/osdepBare.html",
+        "doc/api/osdep.tags",
+        "doc/api/osdep.html"
     ],
     "ignore": [
         "start.me"
     ],
+    "dependencies": {
+    }
 }

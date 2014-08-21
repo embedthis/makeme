@@ -54,8 +54,8 @@ dom.targets.sources = Path('/some/path').files('**.c')
         </ul>
         <p>MakeMe object properties are composed of standard Javascript values with the enhancements noted below.
         For a full description of the capabilities of Ejscript, see the
-        <a href="http://ejscript.org/products/ejs/doc/api/ejscript/">Ejscript Language API</a>. and
-        <a href="http://www.ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a>.</p>
+        <a href="https://embedthis.com/ejs/doc/api/ejscript/">Ejscript Language API</a>. and
+        <a href="https://embedthis.com/ejs/doc/index.html">Ejscript Documentation</a>.</p>
         <a name="names"></a>
         <h2>Object Property Names</h2>
         <p>MakeMe objects are extend Javascript object syntax by allowing property names to omit quotes if they have no
@@ -162,10 +162,10 @@ targets: {
 </pre>
         <h3>Platform Specific Files</h3>
         <p>A convenient use of MakeMe global variables is to create per operating system file targets. For example:
-        <p><pre class="ui code segment">
+        <pre class="ui code segment">
 cleanup: {
     type: 'exe'
     path: 'cleanup_${OS}',
     sources: [ 'dep_${OS}' ],
 },
-</pre></p>
+</pre>

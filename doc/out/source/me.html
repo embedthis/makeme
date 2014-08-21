@@ -7,9 +7,9 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <meta name="keywords" content="
-    <meta name="description" content="" />
-    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+    <meta name="keywords" content="MakeMe, Bit, GYP, autoconf, make, cake" />
+    <meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf." />
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,+Sans:300italic,400,300,700'
         rel='stylesheet' type='text/css'>
     <link href="../lib/semantic/packaged/css/semantic.css" rel="stylesheet" type="text/css" />
     <link href="../css/all.css" rel="stylesheet" type="text/css" />
@@ -26,12 +26,12 @@
             <div class="menu">
                 <a class="item" href="../index.html">MakeMe Overview</a>
                 <a class="item" href="../guide/me/features.html">MakeMe Features</a>
-                <a class="item" href="https://embedthis.com/me/download.html">Download</a> 
-                <a class="item" href="../licenses/index.html">Licensing</a>
+                <a class="item" href="https://embedthis.com/download/me.html">Download</a> 
+                <a class="item" href="../licensing/index.html">Licensing</a>
             </div>
         </div>
         <div class="item">
-            <a href="../guide/install/index.html">
+            <a href="../install/index.html">
                 <b>Installation</b>
             </a>
             <div class="menu">
@@ -71,15 +71,15 @@
             <div class="menu">
                 <a class="item" href="../ref/me/syntax.html">File Syntax</a>
                 <a class="item" href="../ref/me/dom.html">MakeMe DOM</a>
-                <a class="item" href="../api/me/index.html">MakeMe API</a>
+                <a class="item" href="../ref/me/api/index.html">MakeMe API</a>
                 <a class="item" href="../ref/me/processing.html">File Processing</a>
                 <a class="item" href="../ref/me/commandline.html">Command Line</a>
                 <a class="item" href="../ref/me/events.html">Events</a>
                 <a class="item" href="../ref/me/targets.html">Targets</a>
-                <a class="item" href="man/me.html">Manual Page</a>
-                <a class="item" href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">
+                <a class="item" href="..//man/me.html">Manual Page</a>
+                <a class="item" href="http://embedthis.com/ejs/doc/api/ejscript/index.html">
                     Language Reference</a>
-                <a class="item" href="http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a>
+                <a class="item" href="http://embedthis.com/ejs/doc/index.html">Ejscript Documentation</a>
             </div>
         </div>
         <div class="item">
@@ -91,16 +91,16 @@
                 <a class="item" href="https://github.com/embedthis/me/issues">Project Issue Database</a>
                 <a class="item" href="https://github.com/embedthis/me/releases">Change Log</a>
                 <a class="item" href="https://github.com/embedthis/me/milestones">Roadmap</a>
-                <a class="item" href="https://embedthis.com/developers/contributors.html">Contributors Agreement</a>
+                <a class="item" href="https://embedthis.com/scripts/contributors.esp">Contributors Agreement</a>
             </div>
         </div>
         <div class="item">
             <a href="../source/index.html">Built with MakeMe</a>
             <div class="menu">
-                <a class="item" href="overview.html">Building Overview</a>
-                <a class="item" href="make.html">Building with Make</a>
-                <a class="item" href="me.html">Building with MakeMe</a>
-                <a class="item" href="ide.html">Building with an IDE</a>
+                <a class="item" href="../source/overview.html">Building Overview</a>
+                <a class="item" href="../source/make.html">Building with Make</a>
+                <a class="item" href="../source/me.html">Building with MakeMe</a>
+                <a class="item" href="../source/ide.html">Building with an IDE</a>
             </div>
         </div>
         <div class="item">
@@ -221,7 +221,7 @@ configure --release --without all
                     <td>Display the <em>me</em> program usage help.</td>
                 </tr>
                 <tr>
-                    <td class="nowrap">--set KEY=VALUE</td>
+                    <td class="">--set KEY=VALUE</td>
                     <td>Set the value of a property in the MakeMe <em>settings</em> collection. For example: "--set
                         mpr.tracing=false".</td>
                 </tr>
@@ -249,7 +249,7 @@ configure --release --without all
                 </thead>
                 <tbody>
                 <tr>
-                    <td class="nowrap">--platform OS-ARCH-PROFILE</td>
+                    <td class="">--platform OS-ARCH-PROFILE</td>
                     <td><p>Specify the target platform for which to build. For example "-platform linux-arm-debug". 
                         Supported operating systems are: freebsd, linux, macosx, vxworks and windows. 
                         Supported architectures are: arm, mips, ppc, x64 or x86.</p>
@@ -273,11 +273,11 @@ configure --release --without all
                 </thead>
                 <tbody>
                 <tr>
-                    <td class="nowrap">--without all</td>
+                    <td class="">--without all</td>
                     <td>Disable all non-essential possible packages.</td>
                 </tr>
                 <tr>
-                    <td class="nowrap">--set tune=MODE</td>
+                    <td class="">--set tune=MODE</td>
                     <td>Tune the build to optimize for "size", "speed". You can also select "balanced" for a balance
                     between speed and size. (Default is size).</td>
                 </tr>
@@ -293,7 +293,7 @@ configure --release --without all
                 </thead>
                 <tbody>
                 <tr>
-                    <td class="nowrap">--with PACKAGE[=dir]</td>
+                    <td class="">--with PACKAGE[=dir]</td>
                     <td>Specify if a PACKAGE should be included in the build. The optional directory is the path to
                         the source distribution of the package. If the directory is omitted, <em>me</em> will search the
                         local system for the package in well known places.</td>
@@ -315,7 +315,7 @@ configure --with openssl=/usr/src/openssl
 
             <h3>Packages</h3>
             <p>For a list of the available packages on your system that can be selected via configure, run 
-            <p><pre class="ui code segment">configure --help</pre></p>
+            <pre class="ui code segment">configure --help</pre>
             <p>This will display the MakeMe command options followed by a list of configurable features and components.</p>
 
             <p>You may also find additional packages for download from the 
@@ -384,7 +384,7 @@ CC=/opt/bin/ccarm configure
             
             <p>To display all configure options, use <em>configure --help</em>. This is the example output for the
 Appweb product</p>.
-<p><pre class="ui code segment">configure --help
+<pre class="ui code segment">configure --help
 Usage: me [options] [targets|goals] ...
   Options:
   --benchmark                              # Measure elapsed time
@@ -469,7 +469,7 @@ Components (--with NAME, --without NAME):
     vxworks                                # VxWorks SDK
     winsdk                                 # Windows SDK
     zlib                                   # Zlib Library
-</pre></p>
+</pre>
 
             <h3>Useful MakeMe options and targets</h3>
             <p>Here are some useful MakeMe examples:</p>

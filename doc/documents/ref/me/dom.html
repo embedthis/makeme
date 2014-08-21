@@ -210,7 +210,7 @@
                         for the local platform.</td></tr>
                 <tr><td>rule</td><td>Build command template to use when invoking compiler and linker. Typically not
                         explicitly set unless overriding for some reason. Set to: 'c-&gt;o', 'cpp-&gt;o', 'lib', 'exe', 'gui'.
-                        Rules are automatically selected for 'lib' and 'exe' targets. </td>
+                        Rules are automatically selected for 'lib' and 'exe' targets. </td></tr>
                 <tr><td>scripts</td><td>Scripts for the target. See <a href="#scripts">scripts</a> for details.</td></tr>
                 <tr><td>sources</td><td>Array of source file patterns to compile for the target. Use normal * as a
                         wild-card, ** as a wild-card that descends directories. Use the exclude property to exclude </td></tr>
@@ -227,11 +227,12 @@
                     <li>custom values &mdash; Targets may be set to any custom type. If MakeMe is invoked with a
                         type specified as a target, then all the targets of that type will be run.</li>
                 </ul>
+                </td></tr>
                 <tr><td>uses</td><td>Soft dependency. Array of other targets that may be used by this target. 
                     The specified targets are built first if enabled. This target will be built regardless of whether
                     the targets specified in "uses" are present or enabled or not.
                     The defines, includes, libraries and other properties of the depended upon targets
-                    are inherited by the target.</td></tr>
+                    are inherited by the target.
                 </td></tr>
             </tbody>
         </table>

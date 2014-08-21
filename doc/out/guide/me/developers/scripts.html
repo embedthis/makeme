@@ -7,9 +7,9 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <meta name="keywords" content="
-    <meta name="description" content="" />
-    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+    <meta name="keywords" content="MakeMe, Bit, GYP, autoconf, make, cake" />
+    <meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf." />
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,+Sans:300italic,400,300,700'
         rel='stylesheet' type='text/css'>
     <link href="../../../lib/semantic/packaged/css/semantic.css" rel="stylesheet" type="text/css" />
     <link href="../../../css/all.css" rel="stylesheet" type="text/css" />
@@ -26,12 +26,12 @@
             <div class="menu">
                 <a class="item" href="../../../index.html">MakeMe Overview</a>
                 <a class="item" href="../../../guide/me/features.html">MakeMe Features</a>
-                <a class="item" href="https://embedthis.com/me/download.html">Download</a> 
-                <a class="item" href="../../../licenses/index.html">Licensing</a>
+                <a class="item" href="https://embedthis.com/download/me.html">Download</a> 
+                <a class="item" href="../../../licensing/index.html">Licensing</a>
             </div>
         </div>
         <div class="item">
-            <a href="../../../guide/install/index.html">
+            <a href="../../../install/index.html">
                 <b>Installation</b>
             </a>
             <div class="menu">
@@ -71,15 +71,15 @@
             <div class="menu">
                 <a class="item" href="../../../ref/me/syntax.html">File Syntax</a>
                 <a class="item" href="../../../ref/me/dom.html">MakeMe DOM</a>
-                <a class="item" href="../../../api/me/index.html">MakeMe API</a>
+                <a class="item" href="../../../ref/me/api/index.html">MakeMe API</a>
                 <a class="item" href="../../../ref/me/processing.html">File Processing</a>
                 <a class="item" href="../../../ref/me/commandline.html">Command Line</a>
                 <a class="item" href="../../../ref/me/events.html">Events</a>
                 <a class="item" href="../../../ref/me/targets.html">Targets</a>
-                <a class="item" href="man/me.html">Manual Page</a>
-                <a class="item" href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">
+                <a class="item" href="../../..//man/me.html">Manual Page</a>
+                <a class="item" href="http://embedthis.com/ejs/doc/api/ejscript/index.html">
                     Language Reference</a>
-                <a class="item" href="http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a>
+                <a class="item" href="http://embedthis.com/ejs/doc/index.html">Ejscript Documentation</a>
             </div>
         </div>
         <div class="item">
@@ -91,16 +91,16 @@
                 <a class="item" href="https://github.com/embedthis/me/issues">Project Issue Database</a>
                 <a class="item" href="https://github.com/embedthis/me/releases">Change Log</a>
                 <a class="item" href="https://github.com/embedthis/me/milestones">Roadmap</a>
-                <a class="item" href="https://embedthis.com/developers/contributors.html">Contributors Agreement</a>
+                <a class="item" href="https://embedthis.com/scripts/contributors.esp">Contributors Agreement</a>
             </div>
         </div>
         <div class="item">
             <a href="../../../source/index.html">Built with MakeMe</a>
             <div class="menu">
-                <a class="item" href="overview.html">Building Overview</a>
-                <a class="item" href="make.html">Building with Make</a>
-                <a class="item" href="me.html">Building with MakeMe</a>
-                <a class="item" href="ide.html">Building with an IDE</a>
+                <a class="item" href="../../../source/overview.html">Building Overview</a>
+                <a class="item" href="../../../source/make.html">Building with Make</a>
+                <a class="item" href="../../../source/me.html">Building with MakeMe</a>
+                <a class="item" href="../../../source/ide.html">Building with an IDE</a>
             </div>
         </div>
         <div class="item">
@@ -158,10 +158,10 @@
         <h2>Script Engines</h2>
         <p>Scripts can be written to execute in any installed script interpreter. This may be the Unix bash shell, Perl or
         Ruby.  MakeMe also includes a powerful Javascript engine based on the 
-            <a href="http://ejscript.org">Ejscript</a> language environment. This allows portable, scalable scripting
+            <a href="https://embedthis.com/ejs/">Ejscript</a> language environment. This allows portable, scalable scripting
             without needing to create external process. Ejscripts can run portably on Windows and Unix like
             systems. Ejscript also has an extensive <a
-            href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Library</a> of routines that
+            href="https://embedthis.com/ejs/doc/api/ejscript/index.html">Library</a> of routines that
             scale well when building projects without turning into a mess of shell script.</p>
         <a name="forms"></a>
         <h2>Script Forms</h2>
@@ -331,7 +331,7 @@ building: {
         <p>Because the <em>goals</em> property includes <em>'all'</em>, this target and the scripts will be run for a 
         default MakeMe invocation (without any explicit targets specified on the command line).</p>
         <p>The <em>target.scripts</em> property is a collection that is indexed by an event named for when the script should
-        run. The standard events are described in <a href="../../../ref/makeme/events.html#events">MakeMe Events</a>.
+        run. The standard events are described in <a href="../../../ref/me/events.html#events">MakeMe Events</a>.
         <p>Here is another example of a shell script that runs just prior to building a library.
 <pre class="ui code segment">
 libglow: {
@@ -350,13 +350,13 @@ libglow: {
         <p>Most events apply to targets, but there are some events which are global. The MakeMe DOM defines a global
         set of scripts in the me.scripts property collection. These scripts follow the same property definition as
         the target scripts. The <em>me.scripts</em> property is a collection that is indexed by an event named for when the
-        script should run. The global events are described in <a href="../../../ref/makeme/events.html#global">MakeMe
+        script should run. The global events are described in <a href="../../../ref/me/events.html#global">MakeMe
         Global Events</a>.
         <h2>Extension Scripts</h2>
         <p>An extension can also respond to events. Extension scripts follow the same property definition as
         the target scripts. The <em>me.scripts</em> property is a collection that is indexed by an event named for 
         when the script should run. The extension events are described in 
-        <a href="../../../ref/makeme/events.html#extensions">MakeMe Global Events</a>.
+        <a href="../../../ref/me/events.html#extensions">MakeMe Global Events</a>.
         <a name="targetPaths"></a>
         <h3>Target Paths</h3>
         <p>You can make a build script run only when it is out-of-date by adding a <em>path</em> property for 
@@ -413,10 +413,10 @@ print('Joining', p.dirname.join('other.c'))
 <pre class="ui code segment">
 let data = Http.fetch('http://example.com/something.html')
 </pre>
-        <p>See the Ejscript <a href="http://ejscript.org/products/ejs/doc-2/api/ejscript/Path.html">Path</a> class for 
+        <p>See the Ejscript <a href="https://embedthis.com/ejs/doc/api/ejscript/Path.html">Path</a> class for 
         full details of manipulating paths. Similarly, for URLs, see:
-            <a href="http://ejscript.org/products/ejs/doc-2/api/ejscript/Uri.html">URI</a> class, and for Http requests, 
-            see the <a href="http://ejscript.org/products/ejs/doc-2/api/ejscript/Http.html">Http</a> class.</p>
+            <a href="https://embedthis.com/ejs/doc/api/ejscript/Uri.html">URI</a> class, and for Http requests, 
+            see the <a href="https://embedthis.com/ejs/doc/api/ejscript/Http.html">Http</a> class.</p>
         <p>To learn more, read about <a href="copying.html">Copying Files</a>.</p>
     </div>
     <div class="ui basic center aligned segment" id="terms">

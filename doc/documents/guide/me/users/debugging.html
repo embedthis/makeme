@@ -18,14 +18,14 @@
         reason why each target was or was not built. For example:</p>
      
         <pre class="ui code segment">$ me <b>--why</b> libmpr
-    [Target] /Users/mob/git/makeme/macosx-x64-release/inc/mpr.h is up to date
-    [Target] /Users/mob/git/makeme/macosx-x64-release/inc/me.h is up to date
-    [Target] /Users/mob/git/makeme/macosx-x64-release/inc/bitos.h is up to date
-   [Rebuild] /Users/mob/git/makeme/macosx-x64-release/obj/mprLib.o because input \
-             /Users/mob/git/makeme/src/deps/mpr/mprLib.c has been modified.
+    [Target] /Users/mob/git/me/macosx-x64-release/inc/mpr.h is up to date
+    [Target] /Users/mob/git/me/macosx-x64-release/inc/me.h is up to date
+    [Target] /Users/mob/git/me/macosx-x64-release/inc/bitos.h is up to date
+   [Rebuild] /Users/mob/git/me/macosx-x64-release/obj/mprLib.o because input \
+             /Users/mob/git/me/src/deps/mpr/mprLib.c has been modified.
    [Compile] src/deps/mpr/mprLib.c
-   [Rebuild] /Users/mob/git/makeme/macosx-x64-release/bin/libmpr.dylib because input \
-             /Users/mob/git/makeme/macosx-x64-release/obj/mprLib.o has been modified.
+   [Rebuild] /Users/mob/git/me/macosx-x64-release/bin/libmpr.dylib because input \
+             /Users/mob/git/me/macosx-x64-release/obj/mprLib.o has been modified.
       [Link] libmpr
 </pre>
         <a id="show"></a>
@@ -55,5 +55,4 @@
         <h2>Other Useful Bits</h2>
         <p>To build totally quietly, use the <em>--quiet</em>
             switch. To continue building despite build errors, use the <em>--continue</em> switch.</p>
-        </div>
         <p>To learn more, read about <a href="make.html">Using Generated Makefiles</a>.</p>
