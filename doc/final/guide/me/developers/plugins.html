@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>MakeMe Plugins</title>
+    <!-- Copyright Embedthis Software, LLC, 2003-2014. All Rights Reserved. -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="keywords" content="MakeMe, Bit, GYP, autoconf, make, cake" />
+    <meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf." />
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+        rel='stylesheet' type='text/css'>
+    <link href="../../../lib/semantic/packaged/css/semantic.css" rel="stylesheet" type="text/css" />
+    <link href="../../../css/all.css" rel="stylesheet" type="text/css" />
+    <link href="../../../images/favicon.ico" rel="shortcut icon" />
+
+</head>
+<body>
+        
+    <div class="ui large left vertical inverted labeled overlay sidebar menu">
+        <div class="item">
+            <a href="../../../">
+                <b>General</b>
+            </a>
+            <div class="menu">
+                <a class="item" href="../../../index.html">MakeMe Overview</a>
+                <a class="item" href="../../../guide/me/features.html">MakeMe Features</a>
+                <a class="item" href="https://embedthis.com/me/download.html">Download</a> 
+                <a class="item" href="../../../licensing/index.html">Licensing</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../../../install/index.html">
+                <b>Installation</b>
+            </a>
+            <div class="menu">
+                <a class="item" href="../../../install/linux.html">Installing for Linux</a>
+                <a class="item" href="../../../install/mac.html">Installing for Mac OS X</a>
+                <a class="item" href="../../../install/windows.html">Installing for Windows</a>
+                <a class="item" href="../../..//install/releaseNotes.html">Release Notes</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../../../guide/me/users/index.html"><b>User's Guide</b></a>
+            <div class="menu">
+
+                <a class="item" href="../../../guide/me/users/using.html">Using MakeMe</a>
+                <a class="item" href="../../../guide/me/users/configuring.html">Running Configure</a>
+                <a class="item" href="../../../guide/me/users/debugging.html">Debugging a Build</a>
+                <a class="item" href="../../../guide/me/users/make.html">Using Generated Makefiles</a>
+                <a class="item" href="../../../guide/me/users/cross.html">Cross-Compiling</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../../../guide/me/developers/index.html">Developer's Guide</a>
+            <div class="menu">
+                <a class="item" href="../../../guide/me/developers/compiling.html">Compiling Sources</a>
+                <a class="item" href="../../../guide/me/developers/libraries.html">Creating Libraries</a>
+                <a class="item" href="../../../guide/me/developers/executables.html">Creating Executables</a>
+                <a class="item" href="../../../guide/me/developers/scripts.html">Build Scripts</a>
+                <a class="item" href="../../../guide/me/developers/copying.html">Copying Files and Directories</a>
+                <a class="item" href="../../../guide/me/developers/configurable.html">Configurable Projects</a>
+                <a class="item" href="../../../guide/me/developers/plugins.html">MakeMe Plugins</a>
+                <a class="item" href="../../../guide/me/developers/generating.html">Generating</a>
+                <a class="item" href="../../../guide/me/developers/samples.html">Samples</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../../../ref/me/index.html">Reference Guide</a>
+            <div class="menu">
+                <a class="item" href="../../../ref/me/syntax.html">File Syntax</a>
+                <a class="item" href="../../../ref/me/dom.html">MakeMe DOM</a>
+                <a class="item" href="../../../ref/me/api/index.html">MakeMe API</a>
+                <a class="item" href="../../../ref/me/processing.html">File Processing</a>
+                <a class="item" href="../../../ref/me/commandline.html">Command Line</a>
+                <a class="item" href="../../../ref/me/events.html">Events</a>
+                <a class="item" href="../../../ref/me/targets.html">Targets</a>
+                <a class="item" href="../../..//man/me.html">Manual Page</a>
+                <a class="item" href="http://embedthis.com/ejs/doc/api/ejscript/index.html">
+                    Language Reference</a>
+                <a class="item" href="http://embedthis.com/ejs/doc/index.html">Ejscript Documentation</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../../../guide/me/developers/project.html">Project Resources</a>
+            <div class="menu">
+                <a class="item" href="http://goo.gl/umR6dt">Official MakeMe News</a>
+                <a class="item" href="https://embedthis.com/me/">MakeMe Web Site</a>
+                <a class="item" href="https://github.com/embedthis/me">Source Code Repository</a>
+                <a class="item" href="https://github.com/embedthis/me/issues">Project Issue Database</a>
+                <a class="item" href="https://github.com/embedthis/me/releases">Change Log</a>
+                <a class="item" href="https://github.com/embedthis/me/milestones">Roadmap</a>
+                <a class="item" href="https://embedthis.com/developers/contributors.html">Contributors Agreement</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../../../source/index.html">Built with MakeMe</a>
+            <div class="menu">
+                <a class="item" href="../../../source/overview.html">Building Overview</a>
+                <a class="item" href="../../../source/make.html">Building with Make</a>
+                <a class="item" href="../../../source/me.html">Building with MakeMe</a>
+                <a class="item" href="../../../source/ide.html">Building with an IDE</a>
+            </div>
+        </div>
+        <div class="item">
+            <b>Links</b>
+            <div class="menu">
+                <a class="item" href="https://embedthis.com/">Embedthis Web Site</a>
+                <a class="item" href="https://embedthis.com/blog/">Embedthis Blog</a>
+                <a class="item" href="http://twitter.com/mobstream">Twitter</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui inverted masthead">
+                <div class="column">
+            <div class="inverted secondary pointing ui menu">
+                <div class="header left item">
+                    <!-- <a href="/index.html"><img src="/images/embedthis.png"></a> -->
+                    <a href="/index.html">MakeMe Documentation</a>
+                </div>
+                <div class="right menu">
+                    <div class="ui top right">
+                        <a class="item" href="https://embedthis.com/me/">MakeMe</a>
+                        <a class="item" href="https://github.com/embedthis/me">Repository</a>
+                        <a class="item" href="http://groups.google.com/group/makeme">Support</a>
+                    </div>
+                </div>
+            </div>
+            <div class="ui breadcrumb">
+                <a class="section" href="../../../">Home</a>
+                
+                <div class="divider">/</div>
+                <a class="section " href="index.html">
+                    Developer Guide
+                </a>
+                
+                <div class="divider">/</div>
+                <a class="section active" href="plugins.html">
+                    MakeMe Plugins
+                </a>
+                
+            </div>
+        </div>
+        <div class="ui black small launch right attached toggle button" style="width: 40px;">
+            <i class="icon list layout">
+                <span class="text" style="display: none;">Menu</span>
+            </i>
+        </div>
+
+    </div>
+    <div class="content">
+<h2>MakeMe Plugins</h2>
+        <p>MakeMe can be extended via modular plugins that add functionality to the core MakeMe capabilities.
+        These functions are then available to any project that references the plugin. Plugins can contribute
+        standard targets, goals or scripts. Examples of plugins are:</p>
+        <ul>
+            <li>Targets to create installable packages</li> 
+            <li>Targets to Pak packages</li> 
+            <li>Targets to run a unit test framework</li> 
+            <li>Git integration targets</li> 
+            <li>And so on ...</li> 
+        </ul>
+        <p>Plugins are packaged and distributed using the
+            <a href="https://embedthis.com/pak/">Pak</a> package manager tool. Pak will bundle together all the
+            components of a plugin and then publish online for distribution via the 
+            <a href="https://embedthis.com/catalog">Pak Online Catalog</a>.
+        <h2>Plugin Elements</h2>
+        <p>A MakeMe plugin consists of two mandatory elements:</p>
+        <ul>
+            <li>A MakeMe file of the same name as the plugin pak.</li>
+            <li>A Pak package.json description file</li>
+        </ul>
+        <p>The <em>NAME.me</em> MakeMe file provides the plugin's functionality. It may contain targets, settings, and 
+        may reference other MakeMe files or scripts.</p>
+
+        <p>The Pak <em>package.json</em> file describes the pak and specifies its name, version and source code repository
+        location from which it can be downloaded.</p>
+        <p>A plugin may also include: </p>
+        <ul>
+            <li>Additional MakeMe files</li>
+            <li>MakeMe targets in any MakeMe file</li>
+            <li>Ejscript mixins referenced by the MakeMe file</li>
+            <li>Any additional files and resources</li>
+        </ul>
+        <p>For example:</p>
+        <pre class="ui code segment">
+Me.load({
+    blend: [
+        'extra/subsystem.me'
+    ],
+    modules: [
+        'scripts/package.es'
+    ]
+    mixin: `
+        function log(msg) {
+            Path('/var/spool/log/build.log').append(msg)
+        }
+    `
+    targets: {
+        'time': {
+            shell: `date`
+        },
+    },
+})
+</pre>
+        <h2>Sample Plugin</h2>
+        <p>This sample will walk through the steps to create a simple MakeMe plugin that displays the current time
+        when MakeMe is invoked to buidl the <em>time</em> target. For example:</p>
+
+        <pre class="ui code segment">me time
+<b>Thu Mar 13 17:04:49 PDT 2014</b></pre>
+
+        <h3>Step 1 &mdash; Name the Plugin</h3>
+        <p>The plugin name must be a unique name in the Pak online catalog. 
+        By convention, MakeMe plugins are named with a "<em>me-</em>" prefix. This makes it easy for users to 
+        find suitable MakeMe plugins. You should also set your package.json keywords to include <em>"me-plugin"</em>
+        Search the <a href="https://embedthis.com/catalog">Pak Online Catalog</a> to pick a unique name.</p>
+        <h3>Step 2 &mdash; Create the MakeMe File</h3>
+        <p>Make a new directory for the plugin and create the MakeMe file there using the chosen name of your 
+            plugin with a "<em>.me</em>" extension. Here is the MakeMe file:</p>
+<pre class="ui code segment">
+Me.load({
+    targets: {
+        'time': {
+            shell: `date`
+        },
+    },
+})
+</pre>
+        <h3>Step 3 &mdash; Create the Pak</h3>
+        <p>To package a MakeMe file as a Pak, run the <em>pak init</em> command:</p>
+        <pre class="ui code segment">pak init 'me-time' 1.0.0</pre>
+        <p>This creates a default <em>package.json</em> that you should edit to describe the plugin package.
+        To publish a pak in the catalog, you must provide at a minimum:</p>
+        <ul>
+        <li>Unique plugin pak name</li>
+        <li>Plugin pak description</li>
+        <li>Plugin pak author with contact details</li>
+        <li>Plugin pak repository location on GitHub</li>
+        <li>Plugin version</li>
+        </ul>
+        <p>Here is the edited package.json:</p>
+        <pre class="ui code segment">
+{
+    "name": "me-time",
+    "description": "MakeMe Time",
+    "version": "1.0.0",
+    "author": {
+        "name": "Embedthis Software",
+        "email": "dev@embedthis.com",
+        "url": "https://embedthis.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/embedthis/me-time.git"
+    },
+}</pre>
+        <h3>Step 4 &mdash; Publish the Plugin</h3>
+        <p>Plugins may be optionally published to the 
+            <a href="https://embedthis.com/catalog">Pak Online Catalog</a> using the Pak tool. This is an optional step
+        and the pack may simply be included in the projects <em>src/paks</em> directory without publishing online.
+        To publish online, use the pak tool:</p>
+        <pre class="ui code segment">pak publish</pre>
+        <p>This will prompt for a password that can subsequently be used to administer the plugin in the catalog. 
+        <em>REMEMBER</em> this password and save it in a safe place. You will need it to modify or delete the plugin 
+        should you need to do so.</p>
+        <h2>Using a Plugin</h2>
+        <p>Users can download and install plugins locally using the Pak tool. For example:</p>
+        <pre class="ui code segment">pak install NAME</pre>
+        <p>This will download and install the plugin into the current <em>src/paks</em> directory. The project 
+        <em>main.me</em> file should load this plugin via a <em>blend</em> property. For example:</p>
+<pre class="ui code segment">
+Me.load({
+    blend: [ "src/paks/me-time.me" ],
+    ...
+</pre>
+        <p>Alternatively and preferably, the project can be designed to load all paks under the <em>src/paks</em>
+        directory. In this manner, the <em>main.me</em> does not need to be edited.</p>
+<pre class="ui code segment">
+Me.load({
+    blend: [
+        "src/paks/*/*.me",
+    ],
+    ...
+</pre>
+        <p>You can also use a blend filename without any path. This will search the current directory and if not found
+            will search in <em>~/.paks</em>.</p>
+        <h2>Mixins</h2>
+        <p>Plugins may contribute scripts that are made available to target scripts or other MakeMe plugins. Plugin scripts
+        are Javascript (Ejscript) definitions or functions that are injected the MakeMe Javascript engine. There are two
+        methods of adding scripts.</p>
+        <ul>
+            <li>blend</li>
+            <li>mixin</li>
+        </ul>
+        <p>The MakeMe <em>blend</em> property is an array of external scripts to load. These paths may include
+        the wild-card "*" character to match a filename portion and "**" to match any file or directory at any depth
+        in the directory tree. If the filename is not found, "~/.paks" is searched for a matching Pak.</p>
+        <p>The <em>mixin</em> property is a 
+        literal Javascript string to load. These are both injected at the global scope.</p>
+        <h2>Install Events</h2>
+        <p>A plugin may need install libraries on its target system or otherwise may need to perform 
+        initialization tasks when first installed. The Pak <em>package.json</em> file contains 
+        a "<em>scripts.install</em>" and property that can be set to an Ejscript file that will be 
+        executed when the pak is first installed. Similarly the
+        "<em>scripts.uninstall</em>" property that can be set to an Ejscript that will be run when the script is 
+            uninstalled.</p>
+
+        <h2>Configurable Components</h2>
+        <p>A common use for plugins is to publish a component that can be configured by the user to add 
+        functionality to an existing project. The component will be expressed as a target with a 
+        <em>configurable</em> property set to true. See 
+        <a href="configurable.html">Configurable Projects</a> for more details.</p>
+    </div>
+    <div class="ui basic center aligned segment" id="terms">
+        <p>&copy; Embedthis Software, 2003-2014. All rights reserved.
+            Generated on Aug 21, 2014.
+        </p>
+    </div>
+
+    <script src="../../../lib/jquery/jquery.js"></script>
+    <script src="../../../lib/semantic/packaged/javascript/semantic.js"></script>
+    <script>
+        $('.sidebar').sidebar({overlay: false}).sidebar('toggle');
+        $('.sidebar').first().sidebar('attach events', '.toggle.button');
+    </script>
+</body>
+</html>

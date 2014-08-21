@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Building Overview</title>
+    <!-- Copyright Embedthis Software, LLC, 2003-2014. All Rights Reserved. -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="keywords" content="MakeMe, Bit, GYP, autoconf, make, cake" />
+    <meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf." />
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+        rel='stylesheet' type='text/css'>
+    <link href="../lib/semantic/packaged/css/semantic.css" rel="stylesheet" type="text/css" />
+    <link href="../css/all.css" rel="stylesheet" type="text/css" />
+    <link href="../images/favicon.ico" rel="shortcut icon" />
+
+</head>
+<body>
+        
+    <div class="ui large left vertical inverted labeled overlay sidebar menu">
+        <div class="item">
+            <a href="../">
+                <b>General</b>
+            </a>
+            <div class="menu">
+                <a class="item" href="../index.html">MakeMe Overview</a>
+                <a class="item" href="../guide/me/features.html">MakeMe Features</a>
+                <a class="item" href="https://embedthis.com/me/download.html">Download</a> 
+                <a class="item" href="../licensing/index.html">Licensing</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../install/index.html">
+                <b>Installation</b>
+            </a>
+            <div class="menu">
+                <a class="item" href="../install/linux.html">Installing for Linux</a>
+                <a class="item" href="../install/mac.html">Installing for Mac OS X</a>
+                <a class="item" href="../install/windows.html">Installing for Windows</a>
+                <a class="item" href="..//install/releaseNotes.html">Release Notes</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../guide/me/users/index.html"><b>User's Guide</b></a>
+            <div class="menu">
+
+                <a class="item" href="../guide/me/users/using.html">Using MakeMe</a>
+                <a class="item" href="../guide/me/users/configuring.html">Running Configure</a>
+                <a class="item" href="../guide/me/users/debugging.html">Debugging a Build</a>
+                <a class="item" href="../guide/me/users/make.html">Using Generated Makefiles</a>
+                <a class="item" href="../guide/me/users/cross.html">Cross-Compiling</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../guide/me/developers/index.html">Developer's Guide</a>
+            <div class="menu">
+                <a class="item" href="../guide/me/developers/compiling.html">Compiling Sources</a>
+                <a class="item" href="../guide/me/developers/libraries.html">Creating Libraries</a>
+                <a class="item" href="../guide/me/developers/executables.html">Creating Executables</a>
+                <a class="item" href="../guide/me/developers/scripts.html">Build Scripts</a>
+                <a class="item" href="../guide/me/developers/copying.html">Copying Files and Directories</a>
+                <a class="item" href="../guide/me/developers/configurable.html">Configurable Projects</a>
+                <a class="item" href="../guide/me/developers/plugins.html">MakeMe Plugins</a>
+                <a class="item" href="../guide/me/developers/generating.html">Generating</a>
+                <a class="item" href="../guide/me/developers/samples.html">Samples</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../ref/me/index.html">Reference Guide</a>
+            <div class="menu">
+                <a class="item" href="../ref/me/syntax.html">File Syntax</a>
+                <a class="item" href="../ref/me/dom.html">MakeMe DOM</a>
+                <a class="item" href="../ref/me/api/index.html">MakeMe API</a>
+                <a class="item" href="../ref/me/processing.html">File Processing</a>
+                <a class="item" href="../ref/me/commandline.html">Command Line</a>
+                <a class="item" href="../ref/me/events.html">Events</a>
+                <a class="item" href="../ref/me/targets.html">Targets</a>
+                <a class="item" href="..//man/me.html">Manual Page</a>
+                <a class="item" href="http://embedthis.com/ejs/doc/api/ejscript/index.html">
+                    Language Reference</a>
+                <a class="item" href="http://embedthis.com/ejs/doc/index.html">Ejscript Documentation</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../guide/me/developers/project.html">Project Resources</a>
+            <div class="menu">
+                <a class="item" href="http://goo.gl/umR6dt">Official MakeMe News</a>
+                <a class="item" href="https://embedthis.com/me/">MakeMe Web Site</a>
+                <a class="item" href="https://github.com/embedthis/me">Source Code Repository</a>
+                <a class="item" href="https://github.com/embedthis/me/issues">Project Issue Database</a>
+                <a class="item" href="https://github.com/embedthis/me/releases">Change Log</a>
+                <a class="item" href="https://github.com/embedthis/me/milestones">Roadmap</a>
+                <a class="item" href="https://embedthis.com/developers/contributors.html">Contributors Agreement</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../source/index.html">Built with MakeMe</a>
+            <div class="menu">
+                <a class="item" href="../source/overview.html">Building Overview</a>
+                <a class="item" href="../source/make.html">Building with Make</a>
+                <a class="item" href="../source/me.html">Building with MakeMe</a>
+                <a class="item" href="../source/ide.html">Building with an IDE</a>
+            </div>
+        </div>
+        <div class="item">
+            <b>Links</b>
+            <div class="menu">
+                <a class="item" href="https://embedthis.com/">Embedthis Web Site</a>
+                <a class="item" href="https://embedthis.com/blog/">Embedthis Blog</a>
+                <a class="item" href="http://twitter.com/mobstream">Twitter</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui inverted masthead">
+                <div class="column">
+            <div class="inverted secondary pointing ui menu">
+                <div class="header left item">
+                    <!-- <a href="/index.html"><img src="/images/embedthis.png"></a> -->
+                    <a href="/index.html">MakeMe Documentation</a>
+                </div>
+                <div class="right menu">
+                    <div class="ui top right">
+                        <a class="item" href="https://embedthis.com/me/">MakeMe</a>
+                        <a class="item" href="https://github.com/embedthis/me">Repository</a>
+                        <a class="item" href="http://groups.google.com/group/makeme">Support</a>
+                    </div>
+                </div>
+            </div>
+            <div class="ui breadcrumb">
+                <a class="section" href="../">Home</a>
+                
+                <div class="divider">/</div>
+                <a class="section " href="index.html">
+                    Built with MakeMe
+                </a>
+                
+                <div class="divider">/</div>
+                <a class="section active" href="overview.html">
+                    Building Overview
+                </a>
+                
+            </div>
+        </div>
+        <div class="ui black small launch right attached toggle button" style="width: 40px;">
+            <i class="icon list layout">
+                <span class="text" style="display: none;">Menu</span>
+            </i>
+        </div>
+
+    </div>
+    <div class="content">
+<h1>Building Overview</h1>
+            <p>This document describes the process to build the software from source for a supported platform.
+            The source distribution contains all the necessary source files, headers and tools to
+            reconfigure, build and verify the software. </p>
+            
+            <h2>Preparing the Environment</h2>
+            <p>Before building, you may need to install required tools such as cross-compilers, SDKs, and system
+            libraries. If you wish to build the software with the support of third-party packages such as 
+            OpenSSL, you may need to download the source from the relevant vendor and build the
+            required libraries for the software to utilize.</p>
+
+            <h3>Windows</h3>
+            <p>To build on Windows, you will need to install Microsoft Visual Studio 10.0 or later. Either the full 
+            product or the express editions will work fine. You will also need to 
+            install the <a href="http://msdn.microsoft.com/en-us/windowsserver/bb980924.aspx">Windows SDK</a>.
+            <p>Before building or configuring, you need to define certain Microsoft compiler environment variables as
+            described in the Microsoft Visual Studio installation. These variables are the PATH, INCLUDE and LIB
+            variables. They need to be
+            defined so they will contain references to where the Microsoft compiler and libraries are installed on your
+            system. The <em>vcvarsall.bat</em> command supplied with Visual Studio is the normal way to define these
+            variables.</p>
+
+            <h2>Build Overview</h2>
+            <p>The software supports three methods of building from source.
+            Building via <em>make</em> is the simplest and quickest way to build. Use make if you are looking to build
+            and move on. Choose make also, if you need to integrate the product into an existing make-based
+            build system.</p>
+            <p>Build with <em>MakeMe</em> is the better choice if you are cross-compiling or
+            will be working with the software for a longer period of time. MakeMe offers a more configurable build and is
+            faster and more flexible than make.  </p>
+            <p>Select the appropriate instructions:</p>
+            <ul>
+                <li><a href="me.html">Build with MakeMe</a></li>
+                <li><a href="make.html">Build with Make</a></li>
+                <li><a href="ide.html">Build with IDE</a></li>
+            </ul>
+
+            <a id="directories"></a>
+            <h2>Key Directories</h2>
+            <p>Source trees contain the following key directories under the top directory.</p>
+            <table title="dirs" class="ui table segment">
+                <thead>
+                    <tr>
+                        <th class="five wide">Directory</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="nowrap">build</td>
+                    <td>Build output directory.</td>
+                </tr>
+                <tr>
+                    <td class="nowrap">build/bin</td>
+                    <td>Binaries directory.</td>
+                </tr>
+                <tr>
+                    <td class="nowrap">build/obj</td>
+                    <td>Binaries directory.</td>
+                </tr>
+                <tr>
+                    <td class="nowrap">build/inc</td>
+                    <td>Include headers directory.</td>
+                </tr>
+                <tr>
+                    <td>package</td>
+                    <td>Scripts for creating release distribution images.</td>
+                </tr>
+                <tr>
+                    <td>projects</td>
+                    <td>Microsoft Visual Studio and Xcode project and workspace files.</td>
+                </tr>
+                <tr>
+                    <td>src</td>
+                    <td>Product source code.</td>
+                </tr>
+                <tr>
+                    <td>src/paks</td>
+                    <td>Imported packages.</td>
+                </tr>
+                <tr>
+                    <td>samples</td>
+                    <td>Sample source code and examples</td>
+                </tr>
+                <tr>
+                    <td>test</td>
+                    <td>Unit and integration tests.</td>
+                </tr>
+            </tbody>
+            </table>
+
+            <h3>Key Build Files</h3>
+            <table title="files" class="ui table segment">
+                <thead>
+                    <tr>
+                        <th class="five wide">Name</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>configure</td>
+                    <td>Build configuration script to use when building with MakeMe. This invokes MakeMe to 
+                       configure the software on the development system.</td>
+                </tr>
+                <tr>
+                    <td class="nowrap">build/OS-ARCH-PROFILE/platform.me</td>
+                    <td>Platform specific MakeMe file. There will be one platform MakeMe file for each target platform.</td>
+                </tr>
+                <tr>
+                    <td>package.json</td>
+                    <td>Package description file. It specifies the version and Pak dependencies.</td>
+                </tr>
+                <tr>
+                    <td>main.me</td>
+                    <td>Main MakeMe file. It specifies key product settings and configured options.</td>
+                </tr>
+                <tr>
+                    <td>start.me</td>
+                    <td>Startup MakeMe file. This file refers to the relevant MakeMe files for platforms.</td>
+                </tr>
+                <tr>
+                    <td>build/OS-ARCH-PLATFORM/inc/me.h</td>
+                    <td>Build header created by MakeMe and included in all source files.</td>
+                </tr>
+                </tbody>
+            </table>
+    </div>
+    <div class="ui basic center aligned segment" id="terms">
+        <p>&copy; Embedthis Software, 2003-2014. All rights reserved.
+            Generated on Aug 21, 2014.
+        </p>
+    </div>
+
+    <script src="../lib/jquery/jquery.js"></script>
+    <script src="../lib/semantic/packaged/javascript/semantic.js"></script>
+    <script>
+        $('.sidebar').sidebar({overlay: false}).sidebar('toggle');
+        $('.sidebar').first().sidebar('attach events', '.toggle.button');
+    </script>
+</body>
+</html>
