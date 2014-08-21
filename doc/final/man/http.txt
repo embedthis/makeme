@@ -149,7 +149,7 @@ OPTIONS
               Use  the  specified  HTTP protocol. httpVersion should be either
               '0' for HTTP/1.0 or 1 for HTTP/1.1.
 
-       --provider openssl|matrixssl
+       --provider est|openssl
               Select the SSL stack provider.
 
        --put  Issue a PUT request. This is an alias for --method PUT.

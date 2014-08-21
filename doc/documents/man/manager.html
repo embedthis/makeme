@@ -1,87 +1,93 @@
-<BODY><PRE>
-MANAGER(1)                       User Commands                      MANAGER(1)
+<!DOCTYPE html>
+<html lang="eng">
+<head>
+<title>Manager Man Page</title>
+</head>
+<body><pre>
+manager(1)                       user commands                      manager(1)
 
-<B>NAME</B>
-       manager - Manager program for services
+<b>name</b>
+       manager - manager program for services
 
-<B>SYNOPSIS</B>
-       <B>manager [options] [commands]</B>
-              [<I>--args arguments</I>] [<I>--console</I>] [<I>--daemon</I>] [<I>--heartBeat interval</I>]
-              [<I>--home directory</I>] [<I>--log logFile:level</I>] [<I>--name  Service  name</I>]
-              [<I>--pidfile path</I>] [<I>--program Service program</I>]
+<b>synopsis</b>
+       <b>manager [options] [commands]</b>
+              [<i>--args arguments</i>] [<i>--console</i>] [<i>--daemon</i>] [<i>--heartbeat interval</i>]
+              [<i>--home directory</i>] [<i>--log logfile:level</i>] [<i>--name  service  name</i>]
+              [<i>--pidfile path</i>] [<i>--program service program</i>]
 
-<B>DESCRIPTION</B>
-       The manager program is used to configure the running of system services
-       (daemons).   Manager  provides  a  generic  way  to  install/uninstall,
+<b>description</b>
+       the manager program is used to configure the running of system services
+       (daemons).   manager  provides  a  generic  way  to  install/uninstall,
        enable/disable,  start/stop, and run a service, regardless of the oper-
-       ating system. When used to run a service, it  starts  the  service  and
-       then  watches  over it, to restart it should it fail. Manager also pro-
+       ating system. when used to run a service, it  starts  the  service  and
+       then  watches  over it, to restart it should it fail. manager also pro-
        vides general management commands to enable, disable, start,  and  stop
        appweb.
 
-<B>COMMANDS</B>
-       <B>disable</B>
-              Disable  the service from automatically starting when the system
+<b>commands</b>
+       <b>disable</b>
+              disable  the service from automatically starting when the system
               is booted.
 
-       <B>enable </B>Enable the service to start automatically on system boot.
+       <b>enable </b>enable the service to start automatically on system boot.
 
-       <B>install</B>
-              Install the service.
+       <b>install</b>
+              install the service.
 
-       <B>run    </B>Run the service and monitor its execution. Manager will automat-
-              ically  restart  the service should it fail.  Manager will block
+       <b>run    </b>run the service and monitor its execution. manager will automat-
+              ically  restart  the service should it fail.  manager will block
               unless it is invoked with --daemon.
 
-       <B>start  </B>Start the service.
+       <b>start  </b>start the service.
 
-       <B>stop   </B>Stop the service.
+       <b>stop   </b>stop the service.
 
-       <B>uninstall</B>
-              Uninstall the service.
+       <b>uninstall</b>
+              uninstall the service.
 
-<B>OPTIONS</B>
-       <B>--args arguments</B>
-              Arguments to use for the service program command  line  when  it
+<b>options</b>
+       <b>--args arguments</b>
+              arguments to use for the service program command  line  when  it
               starts.
 
-       <B>--console</B>
-              Windows specific option to allow the manager process to interact
+       <b>--console</b>
+              windows specific option to allow the manager process to interact
               with the users desktop.
 
-       <B>--daemon</B>
-              Run the manager as a daemon process. This causes the manager  to
+       <b>--daemon</b>
+              run the manager as a daemon process. this causes the manager  to
               detach from the current shell and run in the background.
 
-       <B>--heartBeat interval</B>
-              Windows  specific option to set the frequency in seconds for the
-              manager to check on service.  This period should be short enough
+       <b>--heartbeat interval</b>
+              windows  specific option to set the frequency in seconds for the
+              manager to check on service.  this period should be short enough
               that  the  service will be quickly restarted should it fail, but
-              not so short that the manager process consumes  significant  CPU
-              resources.  If the service dies more than 30 times per hour, the
+              not so short that the manager process consumes  significant  cpu
+              resources.  if the service dies more than 30 times per hour, the
               manager will suspend restarting the service.
 
-       <B>--home directory</B>
-              Set the home directory in which to start the service.
+       <b>--home directory</b>
+              set the home directory in which to start the service.
 
-       <B>--log logFile:level</B>
-              Specify a file to use  for  log  messages.  The  level  argument
-              defines  the  message  verbosity. Zero is the least and 9 is the
+       <b>--log logfile:level</b>
+              specify a file to use  for  log  messages.  the  level  argument
+              defines  the  message  verbosity. zero is the least and 9 is the
               most verbose.
 
-       <B>--retries count</B>
-              Number of times to restart the service per hour.
+       <b>--retries count</b>
+              number of times to restart the service per hour.
 
-       <B>-v     </B>Output the product version number.
+       <b>-v     </b>output the product version number.
 
-<B>REPORTING BUGS</B>
-       Report bugs to &ltdev@embedthis.com&gt.
+<b>reporting bugs</b>
+       report bugs to dev@embedthis.com.
 
-<B>COPYRIGHT</B>
-       Copyright (C) 2003-2014 Embedthis Software.
+<b>copyright</b>
+       copyright (c) 2003-2014 embedthis software.
 
-<B>SEE ALSO</B>
+<b>see also</b>
        appweb
 
-manager                          November 2014                      MANAGER(1)
-</PRE></BODY>
+manager                          november 2014                      manager(1)
+</pre></body>
+</html>
