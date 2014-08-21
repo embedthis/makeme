@@ -13,7 +13,7 @@ Me.load({
 
         files: [
            {
-                from:       [ 'doc/documents/product/README.TXT', 'package/install.sh', 'package/uninstall.sh' ],
+                from:       [ 'doc/documents/README.TXT', 'package/install.sh', 'package/uninstall.sh' ],
                 to:         '${media}/',
                 expand:     true,
                 set:        'package',
@@ -35,7 +35,7 @@ Me.load({
                 enable:     "me.platform.os == 'windows'",
 
            }, {
-                from:       [ 'doc/documents/product/README.TXT' ],
+                from:       [ 'doc/documents/README.TXT' ],
                 to:         '${app}/',
                 fold:       true,
                 expand:     true,
