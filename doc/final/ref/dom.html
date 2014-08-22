@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>MakeMe DOM</title>
+    <!-- Copyright Embedthis Software, LLC, 2003-2014. All Rights Reserved. -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="keywords" content="MakeMe, Bit, GYP, autoconf, make, cake" />
+    <meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf." />
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+        rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
+    <link href="../lib/semantic/packaged/css/semantic.css" rel="stylesheet" type="text/css" />
+    <link href="../css/all.css" rel="stylesheet" type="text/css" />
+    <link href="../images/favicon.ico" rel="shortcut icon" />
+
+</head>
+<body>
+        
+    <div class="ui large left vertical inverted labeled overlay sidebar menu">
+        <div class="item">
+            <a href="../">
+                <b>General</b>
+            </a>
+            <div class="menu">
+                <a class="item" href="../index.html">MakeMe Overview</a>
+                <a class="item" href="../users/features.html">MakeMe Features</a>
+                <a class="item" href="https://embedthis.com/me/download.html">Download</a> 
+                <a class="item" href="../licensing/index.html">Licensing</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../start/index.html">
+                <b>Getting Started</b>
+            </a>
+            <div class="menu">
+                <a class="item" href="../start/index.html">Installing MakeMe</a>
+                <a class="item" href="../start/linux.html">Installing for Linux</a>
+                <a class="item" href="../start/mac.html">Installing for Mac OS X</a>
+                <a class="item" href="../start/windows.html">Installing for Windows</a>
+                <a class="item" href="../start/releaseNotes.html">Release Notes</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../users/index.html"><b>User's Guide</b></a>
+            <div class="menu">
+
+                <a class="item" href="../users/using.html">Using MakeMe</a>
+                <a class="item" href="../users/configuring.html">Running Configure</a>
+                <a class="item" href="../users/debugging.html">Debugging a Build</a>
+                <a class="item" href="../users/make.html">Using Generated Makefiles</a>
+                <a class="item" href="../users/cross.html">Cross-Compiling</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../developers/index.html">Developer's Guide</a>
+            <div class="menu">
+                <a class="item" href="../developers/compiling.html">Compiling Sources</a>
+                <a class="item" href="../developers/libraries.html">Creating Libraries</a>
+                <a class="item" href="../developers/executables.html">Creating Executables</a>
+                <a class="item" href="../developers/scripts.html">Build Scripts</a>
+                <a class="item" href="../developers/copying.html">Copying Files and Directories</a>
+                <a class="item" href="../developers/configurable.html">Configurable Projects</a>
+                <a class="item" href="../developers/plugins.html">MakeMe Plugins</a>
+                <a class="item" href="../developers/generating.html">Generating</a>
+                <a class="item" href="../developers/samples.html">Samples</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../ref/index.html">Reference Guide</a>
+            <div class="menu">
+                <a class="item" href="../ref/syntax.html">File Syntax</a>
+                <a class="item" href="../ref/dom.html">MakeMe DOM</a>
+                <a class="item" href="../ref/api/index.html">MakeMe API</a>
+                <a class="item" href="../ref/processing.html">File Processing</a>
+                <a class="item" href="../ref/commandline.html">Command Line</a>
+                <a class="item" href="../ref/events.html">Events</a>
+                <a class="item" href="../ref/targets.html">Targets</a>
+                <a class="item" href="../man/me.html">Manual Page</a>
+                <a class="item" href="http://embedthis.com/ejs/doc/api/ejscript/index.html">
+                    Language Reference</a>
+                <a class="item" href="http://embedthis.com/ejs/doc/index.html">Ejscript Documentation</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../developers/project.html">Project Resources</a>
+            <div class="menu">
+                <a class="item" href="http://goo.gl/umR6dt">Official MakeMe News</a>
+                <a class="item" href="https://embedthis.com/me/">MakeMe Web Site</a>
+                <a class="item" href="https://github.com/embedthis/me">Source Code Repository</a>
+                <a class="item" href="https://github.com/embedthis/me/issues">Project Issue Database</a>
+                <a class="item" href="https://github.com/embedthis/me/releases">Change Log</a>
+                <a class="item" href="https://github.com/embedthis/me/milestones">Roadmap</a>
+                <a class="item" href="https://embedthis.com/developers/contributors.html">Contributors Agreement</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../source/index.html">Built with MakeMe</a>
+            <div class="menu">
+                <a class="item" href="../source/overview.html">Building Overview</a>
+                <a class="item" href="../source/make.html">Building with Make</a>
+                <a class="item" href="../source/me.html">Building with MakeMe</a>
+                <a class="item" href="../source/ide.html">Building with an IDE</a>
+            </div>
+        </div>
+        <div class="item">
+            <b>Links</b>
+            <div class="menu">
+                <a class="item" href="https://embedthis.com/">Embedthis Web Site</a>
+                <a class="item" href="https://embedthis.com/blog/">Embedthis Blog</a>
+                <a class="item" href="http://twitter.com/mobstream">Twitter</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui inverted masthead">
+                <div class="column">
+            <div class="inverted secondary pointing ui menu">
+                <div class="header left item">
+                    <a href="/index.html">Embedthis MakeMe</a>
+                </div>
+                <div class="right menu">
+                    <div class="ui top right">
+                        <a class="item" href="https://embedthis.com/me/">MakeMe</a>
+                        <a class="item" href="https://github.com/embedthis/me">Repository</a>
+                        <a class="item" href="http://groups.google.com/group/makeme">Support</a>
+                    </div>
+                </div>
+            </div>
+            <div class="ui breadcrumb">
+                <a class="section" href="../">Home</a>
+                
+                <div class="divider">/</div>
+                <a class="section" href="index.html">
+                    Reference Guide
+                </a>
+                
+                <div class="divider">/</div>
+                <a class="section active" href="dom.html">MakeMe DOM</a>
+            </div>
+        </div>
+        <div class="ui black small launch right attached toggle button" style="width: 40px;">
+            <i class="icon list layout">
+                <span class="text" style="display: none;">Menu</span>
+            </i>
+        </div>
+
+    </div>
+    <div class="content">
+<h1>MakeMe DOM</h1>
+        <p>The MakeMe DOM allows you to access and manipulate the entire MakeMe model for how to build a project. Every 
+        target, rule and dependency are all stored and exposed via the MakeMe DOM.</p>
+       
+        <p>The DOM is created by loading one or more MakeMe files that provide portions of the DOM. Some of these MakeMe
+        files are provided internally by MakeMe to define operating system specific semantics and one or more are provided
+        by the user. All are blended into a single DOM object.</p>
+        <h2>DOM Root</h2>
+        <p>The root of the MakeMe DOM is a singleton global object called <em>me</em>. From it, all properties of the DOM
+        are accessible.  To see the entire DOM for your project, run: </p>
+<pre class="ui code segment">$ <b>me --dump</b>
+[Dump] Save MakeMe DOM to: macosx-x64-debug.dmp
+</pre>
+        
+        <a name="top"></a>
+        <h2>Top Level &mdash; me.*</h2>
+        <p>Here is a non-exhaustive description of the important top-level MakeMe property collections. 
+        <table title="top-level collections" class="ui table segment">
+            <thead>
+                <tr><th class="two wide">Name</th>
+                <th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>blend</td><td>MakeMe files to blend. 
+                    This is an array of files toload. These paths may include the wild-card "*" character to 
+                    match a filename portion and "**" to match any file or directory at any depth in the directory 
+                    tree. If the filename is not found, "~/.paks" is searched for a matching Pak.</td></tr>
+                <tr><td>customize</td><td>Optional MakeMe file to load after fully loading all blended MakeMe files</td></tr>
+                <tr><td>defaults</td><td>Default properties to be inherited by all targets</td></tr>
+                <tr><td>dir</td><td>Standard directories. These must be absolute paths so that they can be used
+                    when the current directory is changed while processing.
+                    <ul>
+                        <li>src &mdash; Path to the top of the source to build</li>
+                        <li>home &mdash; User's home directory</li>
+                        <li>top &mdash; Path to the current directory from where MakeMe is being initiated</li>
+                        <li>bld &mdash; Build directory the top directory</li>
+                        <li>out &mdash; Platform output directory under the bld directory</li>
+                        <li>bin &mdash; Platform output executables and libraries directory under the out directory</li>
+                        <li>inc &mdash; Platform includes directory/inc under the out directory</li>
+                        <li>obj &mdash; Platform objects directory under the out directory</li>
+                        <li>me &mdash; Path to the MakeMe scripts directory</li>
+                    </ul>
+                </td></tr>
+                <tr><td>env</td><td>Environment variables to set when compiling and linking</td></tr>
+                <tr><td>ext</td><td>File extensions</td></tr>
+                <tr><td>globals</td><td>Global values to use in property token expansion</td></tr>
+                <tr><td>internal</td><td>Default properties to be inherited by only the targets in the same MakeMe file</td></tr>
+                <tr><td>mixin</td><td>Literal script code to mixin.</td></tr>
+                <tr><td>modules</td><td>List of scripts or compiled scripts to pre-load</td></tr>
+                <tr><td>options</td><td>Supplied command line options</td></tr>
+                <tr><td>platform</td><td>Description of the current platform. Has properties for operating system
+                        and CPU architecture.</td></tr>
+                <tr><td>platforms</td><td>List of platforms to build. Platforms are of the form: OS-ARCH-PROFILE. The 
+                    special platform "local" is added internally.</td></tr>
+                <tr><td>prefixes</td><td>Installation directory prefixes and default values on Unix/Linux systems:
+                    <ul>
+                        <li>root &mdash; Root directory prefix: /</li>
+                        <li>base &mdash; Base installation prefix: /usr/local</li>
+                        <li>data &mdash; Installation prefix for modifiable data: /</li>
+                        <li>state &mdash; Base installation prefix: /var</li>
+                        <li>app &mdash; Base application directory: /usr/local/lib/${settings.product}</li>
+                        <li>vapp &mdash; Versioned application directory: ${prefixes.product}/${settings.version}</li>
+                        <li>etc &mdash; Configuration prefix: ${prefixes.data}/etc/${settings.product}</li>
+                        <li>bin &mdash; Binary directory: ${prefixes.base}/bin</li>
+                        <li>inc &mdash; Include directory: ${prefixes.base}/include</li>
+                        <li>lib &mdash; Product libraries: ${prefixes.base}/lib</li>
+                        <li>man &mdash; Product log files: ${prefixes.base/share/man</li>
+                        <li>sbin &mdash; System binaries: ${prefixes.base}/sbin</li>
+                        <li>log &mdash; Product log files ${prefixes.state}/log/${settings.product}</li>
+                        <li>spool &mdash; Product spool files ${prefixes.state}/spool/${settings.product}</li>
+                        <li>cache &mdash; Product spool files ${prefixes.state}/cache/${settings.product}</li>
+                        <li>web &mdash; Product log files ${prefixes.state}/www/${settings.product}-default</li>
+                        <li>src &mdash; Product source /usr/src/${settings.product}-${settings.version}</li>
+                    </ul>
+            
+            </td></tr>
+                <tr><td>profiles</td><td>Build profiles. Standard profiles are: debug and release</td></tr>
+                <tr><td>rules</td><td>Command rules for compiling, building libraries and executables</td></tr>
+                <tr><td>settings</td><td>Project top-level settings. This includes name, version, description. 
+                        See <a href="#settings">settings</a> collection below for full details.</td></tr>
+                <tr><td>targets</td><td>Targets to build. Each target is its own collection of properties</td></tr>
+                <tr><td>usage</td><td>Additional usage message to emit for MakeMe command line errors</td></tr>
+            </tbody>
+        </table>
+        <a name="globals"></a>
+        <h2>Globals &mdash; me.globals.*</h2>
+        <p>The following me.globals.* are defined for use by tokens:</p>
+        <table title="globals" class="ui table segment">
+            <thead>
+                <tr><th class="two wide">Name</th>
+                <th>Description</th>
+            </thead>
+            <tbody>
+            <tr><td>ARCH</td><td>CPU architecture: x86, x64, ppc, ...</td></tr>
+            <tr><td>BIN</td><td>Binary outputs directory: OS-ARCH-PROFILE/bin</td></tr>
+            <tr><td>CFG</td><td>Configuration outputs directory: OS-ARCH-PROFILE</td></tr>
+            <tr><td>CONFIG</td><td>Platform configuration: OS-ARCH-PROFILE</td></tr>
+            <tr><td>EXE</td><td>Executable extension: .exe</td></tr>
+            <tr><td>GCC_ARCH</td><td>CPU architecture mapped to a GCC architecture: x86_64, i686, ...</td></tr>
+            <tr><td>LIKE</td><td>Set to windows or posix if relevant</td></tr>
+            <tr><td>INC</td><td>Standard include directory</td></tr>
+            <tr><td>O</td><td>Compiled object file extension: .o, .obj</td></tr>
+            <tr><td>OBJ</td><td>Directory holding compiled files: OS-ARCH-PROFILE/obj</td></tr>
+            <tr><td>OS</td><td>Operating system: linux, windows, ...</td></tr>
+            <tr><td>PLATFORM</td><td>Platform string: OS-ARCH</td></tr>
+            <tr><td>SHLIB</td><td>Shared object library extension: .so, .lib</td></tr>
+            <tr><td>SHOBJ</td><td>Shared object extension: .so, .dll</td></tr>
+            <tr><td>SRC</td><td>Directory of the source tree to be built</td></tr>
+            <tr><td>TOP</td><td>Top directory where the project is being built</td></tr>
+            </tbody>
+        </table>
+        
+        <a name="platform"></a>
+        <h2>Platform Collection &mdash; me.platform.*</h2>
+        <p>The platform collection defines properties for:
+        <table title="platform collection" class="ui table segment">
+            <thead>
+                <tr><th class="two wide">Name</th>
+                <th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>arch</td><td>CPU architecture: arm, ppc, x64, x86, ...</td></tr>
+                <tr><td>like</td><td>Set to 'windows' or 'posix' or empty</td></tr>
+                <tr><td>os</td><td>Operating system: linux, windows, vxworks, ...</td></tr>
+                <tr><td>profile</td><td>Build profile selected: 'debug', 'release', ...</td></tr>
+            </tbody>
+        </table>
+        <a name="configure"></a>
+
+        <h2>Configure Collection &mdash; me.settings.*</h2>
+        <p>The configure collection specifies the configurable targets used to extend the project.</p>
+        <table title="settings" class="ui table segment">
+            <thead>
+                <tr><th class="two wide">Name</th>
+                <th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>discovers</td><td>List of optional configurable targets to discover when configuring </td></tr>
+                <tr><td>requires</td><td>List of required targets to discover when configuring </td></tr>
+                <tr><td>extras</td><td>List of targets that will not be discovered but can be included via
+                    <em>configure --with NAME</em></td></tr>
+            </tbody>
+        </table>
+        <a name="settings"></a>
+        <h2>Settings Collection &mdash; me.settings.*</h2>
+        <p>The settings collection specifies the top level project/product names. It is required in the main.me file.</p>
+        <table title="settings" class="ui table segment">
+            <thead>
+                <tr><th class="two wide">Name</th>
+                <th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>company</td><td>Company name</td></tr>
+                <tr><td>prefixes</td><td>Name of collection containing installation prefixes. 
+                    Set to debian|embedthis|opt or to a user-provided collection. This causes the requested prefix collection
+                    to be copied to the prefixes collection.</td></tr>
+                <tr><td>product</td><td>Product or project name. Should be one word, lower case without spaces</td></tr>
+                <tr><td>static</td><td>Build using static linking instead of building shared libraries</td></tr>
+                <tr><td>title</td><td>Descriptive one sentence title for the product</td></tr>
+                <tr><td>version</td><td>Product version string. Should be of the form: MAJOR.MINOR.PATCH </td></tr>
+            </tbody>
+        </table>
+        <a name="targets"></a>
+        <h2>Targets Collection &mdash; me.targets.*</h2>
+        <table title="targets" class="ui table segment">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>compiler</td><td>Array of compiler options</td></tr>
+                <tr><td>configurable</td><td>Boolean set to true if the target is a configurable target
+                used during the configure phase.</td></tr>
+                <tr><td>defines</td><td>Array of compiler pre-processor definitions</td></tr>
+                <tr><td>depends</td><td>Array of other targets that are used by this target. Dependencies are built first.
+                    The defines, includes, libraries and other properties of the depended upon targets
+                    are inherited by the target.</td></tr>
+                <tr><td>enable</td><td>Ejscript expression to evaluate to a boolean. Enable the target if true.
+                    This must be a quoted string to delay execution. Otherwise it will be evaluated when the
+                    MakeMe file is first loaded.</td></tr>
+                <tr><td>exclude</td><td>Regular expression of file patterns to exclude from the sources list
+                    This is a filter that is applied to the sources list after expanding the sources wildcards</td></tr>
+                <tr><td>goals</td><td>Array of goal targets for which this target will be built. This will typically
+                    include the name of the target itself. Other possible goals are: 'all' for default builds, 
+                    'generate' for targets that should be included in project generation.</td></tr>
+                <tr><td>headers</td><td>Header files to export to the platform/inc directory.</td></tr>
+                <tr><td>home</td><td>Home directory to use when resolving paths for this target</td></tr>
+                <tr><td>ifdef</td><td>List of targets that are needed by this target.  The target will not be built
+                    if any of the specified targets are missing or not enabled.</td></tr>
+                <tr><td>include</td><td>Regular expression of file patterns to include from the sources list. 
+                    This is a filter that is applied to the sources list after expanding the sources wildcards</td></tr>
+                <tr><td>includes</td><td>Array of compiler include directories</td></tr>
+                <tr><td>libraries</td><td>Array of libraries to link</td></tr>
+                <tr><td>libpaths</td><td>Array of link library search paths</td></tr>
+                <tr><td>linker</td><td>Array of linker options</td></tr>
+                <tr><td>message</td><td>Message to display when building. Can be a string that is displayed with
+                    the 'Info' tag, or it can be an array where the first element is the message tag and the
+                    remaining elements are joined to form the message.</td></tr>
+                <tr><td>name</td><td>Target name. This name is used rather than the collection name</td></tr>
+                <tr><td>path</td><td>Path to the result of building the target. If set, this is used for dependency
+                        calculations. If updated, all targets that depend on this target will be rebuilt.</td></tr>
+                <tr><td>platforms</td><td>Platforms for which this target should be built. Set to OS-ARCH or <em>local</em>
+                        for the local platform.</td></tr>
+                <tr><td>rule</td><td>Build command template to use when invoking compiler and linker. Typically not
+                        explicitly set unless overriding for some reason. Set to: 'c-&gt;o', 'cpp-&gt;o', 'lib', 'exe', 'gui'.
+                        Rules are automatically selected for 'lib' and 'exe' targets. </td></tr>
+                <tr><td>scripts</td><td>Scripts for the target. See <a href="#scripts">scripts</a> for details.</td></tr>
+                <tr><td>sources</td><td>Array of source file patterns to compile for the target. Use normal * as a
+                        wild-card, ** as a wild-card that descends directories. Use the exclude property to exclude </td></tr>
+                <tr><td>type</td><td>Type of target: exe, lib, action, obj, header, build and custom values.
+                <ul>
+                    <li>exe &mdash; Executable type</li>
+                    <li>lib &mdash; Library type</li>
+                    <li>obj &mdash; Object type from compiled source. These are dynamically created from 
+                        the sources property.</li>
+                    <li>header &mdash; Headers are dynamically discovered and created from source files.</li>
+                    <li>action &mdash; Script type that is run when explicitly specified as a target on the 
+                        MakeMe command line, or as a dependency for another target.</li>
+                    <li>build &mdash; Script type that is run for default builds.</li>
+                    <li>custom values &mdash; Targets may be set to any custom type. If MakeMe is invoked with a
+                        type specified as a target, then all the targets of that type will be run.</li>
+                </ul>
+                </td></tr>
+                <tr><td>uses</td><td>Soft dependency. Array of other targets that may be used by this target. 
+                    The specified targets are built first if enabled. This target will be built regardless of whether
+                    the targets specified in "uses" are present or enabled or not.
+                    The defines, includes, libraries and other properties of the depended upon targets
+                    are inherited by the target.
+                </td></tr>
+            </tbody>
+        </table>
+        <h3>Configurable Targets Collection &mdash; me.targets.*</h3>
+        <p>These properties are relevant only if the target is configurable (has configurable == true)</p>
+        <table title="targets" class="ui table segment">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>conflicts</td><td>Array of conflicting configurable targets</td></tr>
+                <tr><td>description</td><td>Descriptive name of the configurable target</td></tr>
+                <tr><td>requires</td><td>Array of targets to discover that are essential for this target</td></tr>
+                <tr><td>discovers</td><td>Array of targets to discover that may be optionally utilized by this target</td></tr>
+                <tr><td>enable</td><td>Set to true if the target was found on the system</td></tr>
+                <tr><td>file</td><td>File to the MakeMe file that defined the target</td></tr>
+                <tr><td>imports</td><td>Files to import for this target into the platform bin directory before building</td></tr>
+                <tr><td>path</td><td>If found, the path to the configurable target directory or binary</td></tr>
+                <tr><td>withpath</td><td>Path supplied via a configure --with EXTENSION=PATH command line option</td></tr>
+            </tbody>
+        </table>
+
+        <a name="scripts"></a>
+        <h2>Scripts Collection &mdash; me.scripts.*</h2>
+        <table title="scripts" class="ui table segment">
+            <thead>
+                <tr><th class="two wide">Name</th>
+                <th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>preblend</td><td>Array of scripts to run for the preblend event</td></tr>
+                <tr><td>postload</td><td>Array of scripts to run for the postload event</td></tr>
+                <tr><td>loaded</td><td>Array of scripts to run for the loaded event</td></tr>
+                <tr><td>preinherit</td><td>Array of scripts to run for the preinherit event</td></tr>
+                <tr><td>postconfig</td><td>Array of scripts to run for the postconfig event</td></tr>
+                <tr><td>preheader</td><td>Array of scripts to run for the preheader event</td></tr>
+                <tr><td>pregen</td><td>Array of scripts to run for the pregen event</td></tr>
+                <tr><td>gencustom</td><td>Array of scripts to run for the gencustom event</td></tr>
+            </tbody>
+        </table>
+        <a name="tscripts"></a>
+        <h2>Target Scripts Collection &mdash; me.targets.*scripts.*</h2>
+        <table title="tscripts" class="ui table segment">
+            <thead>
+                <tr><th class="two wide">Name</th>
+                <th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>postblend</td><td>Array of scripts to run for the postblend event</td></tr>
+                <tr><td>preresolve</td><td>Array of scripts to run for the preresolve event</td></tr>
+                <tr><td>postresolve</td><td>Array of scripts to run for the postresolve event</td></tr>
+                <tr><td>presource</td><td>Array of scripts to run for the presource event</td></tr>
+                <tr><td>postsource</td><td>Array of scripts to run for the postsource event</td></tr>
+                <tr><td>precompile</td><td>Array of scripts to run for the precompile event</td></tr>
+                <tr><td>postcompile</td><td>Array of scripts to run for the postcompile event</td></tr>
+                <tr><td>prebuild</td><td>Array of scripts to run for the prebuild event</td></tr>
+                <tr><td>build</td><td>Array of scripts to run for the build event</td></tr>
+                <tr><td>postbuild</td><td>Array of scripts to run for the postbuild event</td></tr>
+            </tbody>
+        </table>
+        <a name="pscripts"></a>
+        <h2>Configurable Target Scripts Collection &mdash; me.targets.*scripts.*</h2>
+        <table title="pscripts" class="ui table segment">
+            <thead>
+                <tr><th class="two wide">Name</th>
+                <th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>without</td><td>Array of scripts to run for the without event</td></tr>
+                <tr><td>config</td><td>Array of scripts to run for the config event</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="ui basic center aligned segment" id="terms">
+        <p>&copy; Embedthis Software, 2003-2014. All rights reserved.
+            Generated on Aug 22, 2014.
+        </p>
+    </div>
+
+    <script src="../lib/jquery/jquery.js"></script>
+    <script src="../lib/semantic/packaged/javascript/semantic.js"></script>
+    <script>
+        $('.sidebar').sidebar({overlay: false}).sidebar('toggle');
+        $('.sidebar').first().sidebar('attach events', '.toggle.button');
+    </script>
+</body>
+</html>

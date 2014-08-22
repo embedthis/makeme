@@ -451,7 +451,6 @@ module embedthis.me {
             }
 
         } catch (e) {
-            //  MOB - why try / catch here. What about enableComponents, configureComponents...
             if (!(e is String)) {
                 App.log.debug(0, e)
             }

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Build Scripts</title>
+    <!-- Copyright Embedthis Software, LLC, 2003-2014. All Rights Reserved. -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="keywords" content="MakeMe, Bit, GYP, autoconf, make, cake" />
+    <meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf." />
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+        rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
+    <link href="../lib/semantic/packaged/css/semantic.css" rel="stylesheet" type="text/css" />
+    <link href="../css/all.css" rel="stylesheet" type="text/css" />
+    <link href="../images/favicon.ico" rel="shortcut icon" />
+
+</head>
+<body>
+        
+    <div class="ui large left vertical inverted labeled overlay sidebar menu">
+        <div class="item">
+            <a href="../">
+                <b>General</b>
+            </a>
+            <div class="menu">
+                <a class="item" href="../index.html">MakeMe Overview</a>
+                <a class="item" href="../users/features.html">MakeMe Features</a>
+                <a class="item" href="https://embedthis.com/me/download.html">Download</a> 
+                <a class="item" href="../licensing/index.html">Licensing</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../start/index.html">
+                <b>Getting Started</b>
+            </a>
+            <div class="menu">
+                <a class="item" href="../start/index.html">Installing MakeMe</a>
+                <a class="item" href="../start/linux.html">Installing for Linux</a>
+                <a class="item" href="../start/mac.html">Installing for Mac OS X</a>
+                <a class="item" href="../start/windows.html">Installing for Windows</a>
+                <a class="item" href="../start/releaseNotes.html">Release Notes</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../users/index.html"><b>User's Guide</b></a>
+            <div class="menu">
+
+                <a class="item" href="../users/using.html">Using MakeMe</a>
+                <a class="item" href="../users/configuring.html">Running Configure</a>
+                <a class="item" href="../users/debugging.html">Debugging a Build</a>
+                <a class="item" href="../users/make.html">Using Generated Makefiles</a>
+                <a class="item" href="../users/cross.html">Cross-Compiling</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../developers/index.html">Developer's Guide</a>
+            <div class="menu">
+                <a class="item" href="../developers/compiling.html">Compiling Sources</a>
+                <a class="item" href="../developers/libraries.html">Creating Libraries</a>
+                <a class="item" href="../developers/executables.html">Creating Executables</a>
+                <a class="item" href="../developers/scripts.html">Build Scripts</a>
+                <a class="item" href="../developers/copying.html">Copying Files and Directories</a>
+                <a class="item" href="../developers/configurable.html">Configurable Projects</a>
+                <a class="item" href="../developers/plugins.html">MakeMe Plugins</a>
+                <a class="item" href="../developers/generating.html">Generating</a>
+                <a class="item" href="../developers/samples.html">Samples</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../ref/index.html">Reference Guide</a>
+            <div class="menu">
+                <a class="item" href="../ref/syntax.html">File Syntax</a>
+                <a class="item" href="../ref/dom.html">MakeMe DOM</a>
+                <a class="item" href="../ref/api/index.html">MakeMe API</a>
+                <a class="item" href="../ref/processing.html">File Processing</a>
+                <a class="item" href="../ref/commandline.html">Command Line</a>
+                <a class="item" href="../ref/events.html">Events</a>
+                <a class="item" href="../ref/targets.html">Targets</a>
+                <a class="item" href="../man/me.html">Manual Page</a>
+                <a class="item" href="http://embedthis.com/ejs/doc/api/ejscript/index.html">
+                    Language Reference</a>
+                <a class="item" href="http://embedthis.com/ejs/doc/index.html">Ejscript Documentation</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../developers/project.html">Project Resources</a>
+            <div class="menu">
+                <a class="item" href="http://goo.gl/umR6dt">Official MakeMe News</a>
+                <a class="item" href="https://embedthis.com/me/">MakeMe Web Site</a>
+                <a class="item" href="https://github.com/embedthis/me">Source Code Repository</a>
+                <a class="item" href="https://github.com/embedthis/me/issues">Project Issue Database</a>
+                <a class="item" href="https://github.com/embedthis/me/releases">Change Log</a>
+                <a class="item" href="https://github.com/embedthis/me/milestones">Roadmap</a>
+                <a class="item" href="https://embedthis.com/developers/contributors.html">Contributors Agreement</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../source/index.html">Built with MakeMe</a>
+            <div class="menu">
+                <a class="item" href="../source/overview.html">Building Overview</a>
+                <a class="item" href="../source/make.html">Building with Make</a>
+                <a class="item" href="../source/me.html">Building with MakeMe</a>
+                <a class="item" href="../source/ide.html">Building with an IDE</a>
+            </div>
+        </div>
+        <div class="item">
+            <b>Links</b>
+            <div class="menu">
+                <a class="item" href="https://embedthis.com/">Embedthis Web Site</a>
+                <a class="item" href="https://embedthis.com/blog/">Embedthis Blog</a>
+                <a class="item" href="http://twitter.com/mobstream">Twitter</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui inverted masthead">
+                <div class="column">
+            <div class="inverted secondary pointing ui menu">
+                <div class="header left item">
+                    <a href="/index.html">Embedthis MakeMe</a>
+                </div>
+                <div class="right menu">
+                    <div class="ui top right">
+                        <a class="item" href="https://embedthis.com/me/">MakeMe</a>
+                        <a class="item" href="https://github.com/embedthis/me">Repository</a>
+                        <a class="item" href="http://groups.google.com/group/makeme">Support</a>
+                    </div>
+                </div>
+            </div>
+            <div class="ui breadcrumb">
+                <a class="section" href="../">Home</a>
+                
+                <div class="divider">/</div>
+                <a class="section" href="index.html">
+                    Developer's Guide
+                </a>
+                
+                <div class="divider">/</div>
+                <a class="section active" href="scripts.html">Build Scripts</a>
+            </div>
+        </div>
+        <div class="ui black small launch right attached toggle button" style="width: 40px;">
+            <i class="icon list layout">
+                <span class="text" style="display: none;">Menu</span>
+            </i>
+        </div>
+
+    </div>
+    <div class="content">
+<h1>Build Scripts</h1>
+        <p>MakeMe targets can run scripts at various stages of the processing lifecycle. Scripts can be used to
+            create outputs, or modify the results of standard processing rules.</p>
+        <a name="engines"></a>
+        <h2>Script Engines</h2>
+        <p>Scripts can be written to execute in any installed script interpreter. This may be the Unix bash shell, Perl or
+        Ruby.  MakeMe also includes a powerful Javascript engine based on the 
+            <a href="https://embedthis.com/ejs/">Ejscript</a> language environment. This allows portable, scalable scripting
+            without needing to create external process. Ejscripts can run portably on Windows and Unix like
+            systems. Ejscript also has an extensive <a
+            href="https://embedthis.com/ejs/doc/api/ejscript/index.html">Library</a> of routines that
+            scale well when building projects without turning into a mess of shell script.</p>
+        <a name="forms"></a>
+        <h2>Script Forms</h2>
+        <p>MakeMe target scripts can also be specified using three forms:</p>
+        <ol>
+            <li>Shell scripts &mdash; that run using bash for Unix and Cygwin systems</li>
+            <li>Action target scripts &mdash; that use Ejscript</li>
+            <li>Build target scripts &mdash; that run for default builds using Ejscript</li>
+        </ol>
+        <a name="shell"></a>
+        <h2>Shell Scripts</h2>
+        <p>Shell scripts can be easily specified via the target shell property:</p>
+        <pre class="ui code segment">
+cleanup: {
+    <b>shell: '
+        date &gt;now.txt 
+        echo hello world
+    '</b>,
+},
+</pre>
+        <p>This translates into the following low level form. The script runs in the directory containing
+            the MakeMe file, using the <em>bash</em> shell script.</p>
+<pre class="ui code segment">
+cleanup: {
+    scripts: {
+        type: 'script',
+        build: [
+            {
+                home: '.',
+                interpreter: 'bash',
+                script: "
+                    date &gt;now.txt 
+                    echo hello world
+                "
+            },
+        ],
+    ',
+    goals: [ 'cleanup' ],
+},
+</pre>
+        <p>Because the goals property is set to <em>cleanup</em>, this script will be run only when the 
+        when goal 'cleanup' is specified on the MakeMe command line.</p>
+        <pre class="ui code segment">me cleanup</pre>
+        <p>If you need a shell script to run when a default build is initiated, use the low level form and set
+        the goals property to <em>['cleanup', 'all']</em> See the <a href="#low">Low level Scripts</a> section above for
+        details.</p>
+        <a name="action"></a>
+        <h2>Action Scripts</h2>
+        <p>An action script runs when explicitly requested. It operates similarly to a shell script except that it uses the
+        Ejscript interpreter for portable scripting.</p>
+        
+        <p>Action scripts are defined using the <em>action</em> property. For example:</p>
+<pre class="ui code segment">
+prep: {
+    action: "
+        require ejs.tar
+        let update = Http.fetch('http://example.com/update.tar)
+        let tmp = Path().temp()
+        tmp.write(update)
+        Tar(tmp).extract()
+    ",
+},
+</pre>
+        <p>Like shell script targets, actions do not run by for default builds. Rather, they are run when they are 
+        explicitly invoked on the command line or another goal/target is invoked that references them as a dependency. </p>
+        <p>Note that in Ejscript, quoted literals can span multiple lines. No backquoting at the end of the line is
+        required. Also, semicolon end-of-line terminators are optional.</p> 
+        <p>An action script translates into a target with a type of <em>action</em> and an event of <em>build</em>. 
+<pre class="ui code segment">
+prep: {
+    scripts: {
+        type: 'script',
+        build: [
+            {
+                home: '.',
+                interpreter: 'ejs',
+                script: "
+                    require ejs.tar
+                    let update = Http.fetch('http://example.com/update.tar)
+                    let tmp = Path().temp()
+                    tmp.write(update)
+                    Tar(tmp).extract()
+                "
+            },
+        ],
+    },
+    goals: ['prep'],
+},
+</pre>
+        <p>An action script can also be a pure Javascript function. For example:</p>
+        <pre class="ui code segment">
+prep: {
+    action: function() {
+        require ejs.tar
+        let update = Http.fetch('http://example.com/update.tar)
+        let tmp = Path().temp()
+        tmp.write(update)
+        Tar(tmp).extract()
+    },
+},
+</pre>
+        <p>It is sometimes easier to manage quotes if using a function instead of a string to specify the script.</p>
+        
+        <a name="build"></a>
+        <h2>Build Scripts</h2>
+        <p>Build scripts are a convenient way to express actions that should run for default builds. Build scripts
+        use Ejscript and are defined via the <em>build</em> property. For example:</p>
+<pre class="ui code segment">
+building: {
+    build: "
+        Http().post('http://example.com/buildbot', 'building')
+    ",
+}
+</pre>
+        <p>When <em>me</em> is invoked without specifying any goals on the command line, the script for the
+        <em>building</em> target will be run. The precise order of when the target runs will be dictated by its order
+        in the MakeMe file and whether other targets depend upon it.</p>
+        <p>A build script translates into a target with a type of <em>build</em> and an event of <em>build</em>.</p>
+<pre class="ui code segment">
+building: {
+    scripts: {
+        type: 'script',
+        build: [
+            {
+                home: '.',
+                interpreter: 'ejs',
+                script: "
+                    Http().post('http://example.com/buildbot', 'building')
+                "
+            },
+        ],
+    ',
+    goals: ['all', 'building'],
+},
+</pre>
+        <p>An build script can also be a pure Javascript function.</p>
+        <a name="low"></a>
+        <h2>Low Level Script Forms</h2>
+        <p>As you have seen, the <em>action</em>, <em>build</em> and <em>shell</em> script forms are translated into
+        a lower level form. You may use the lower level form directly, if you require more control.</p>
+        <p>The MakeMe DOM defines a collection of scripts to run at various stages of the MakeMe processing 
+        life cycle.  When a specific event is triggered, the corresponding scripts are run. For each event, there can be
+        multiple scripts that are run in-order. Each script has a <em>home</em> directory that becomes the current directory
+        for the script and it has a specified <em>interpreter</em> to execute the script. If unspecified, the default
+        directory is the directory containing the MakeMe file that specified the script. The default interpreter is ejs
+        (Ejscript).</p>
+        <pre class="ui code segment">
+'build-complete': {
+    type: 'script',
+    scripts: {
+        <b>build</b>: [ 
+            {
+                home: '.',
+                interpreter: 'bash',
+                script: "git pull ",
+            },
+            {
+                home: '.',
+                interpreter: 'ejs',
+                script: "print('Building started at ' + Date())",
+            },
+        ],
+    },
+    goals: [ 'all', 'build-complete' ]
+},
+</pre>
+        <p>Because the <em>goals</em> property includes <em>'all'</em>, this target and the scripts will be run for a 
+        default MakeMe invocation (without any explicit targets specified on the command line).</p>
+        <p>The <em>target.scripts</em> property is a collection that is indexed by an event named for when the script should
+        run. The standard events are described in <a href="../ref/events.html#events">MakeMe Events</a>.
+        <p>Here is another example of a shell script that runs just prior to building a library.
+<pre class="ui code segment">
+libglow: {
+    type: 'lib',
+    sources: '*.c',
+    scripts: {
+        prebuild: [ {
+            interpreter: 'bash',
+            script: './build-prep',
+        ],
+    },
+    goals: ['libglow'],
+}
+</pre>
+        <h2>Global Scripts</h2>
+        <p>Most events apply to targets, but there are some events which are global. The MakeMe DOM defines a global
+        set of scripts in the me.scripts property collection. These scripts follow the same property definition as
+        the target scripts. The <em>me.scripts</em> property is a collection that is indexed by an event named for when the
+        script should run. The global events are described in <a href="../ref/events.html#global">MakeMe
+        Global Events</a>.
+        <h2>Extension Scripts</h2>
+        <p>An extension can also respond to events. Extension scripts follow the same property definition as
+        the target scripts. The <em>me.scripts</em> property is a collection that is indexed by an event named for 
+        when the script should run. The extension events are described in 
+        <a href="../ref/events.html#extensions">MakeMe Global Events</a>.
+        <a name="targetPaths"></a>
+        <h3>Target Paths</h3>
+        <p>You can make a build script run only when it is out-of-date by adding a <em>path</em> property for 
+        a physical file that will be created by the target. In this way, the target will only be run if the
+        designated file does not exist or another target that depends on this target is more up-to-date than the
+        file.</p>
+<pre class="ui code segment">
+'build-complete': {
+    path: 'complete.tmp',
+    build: "
+        Path('complete.tmp').write('Completed at: ' + Date())
+    ",
+}
+</pre>
+        <a name="quoting"></a>
+        <h2>Quoting</h2>
+        <p>First a general note about quoting. Scripts can be expressed on one line or over multiple lines.
+        You can choose whether you use single quotes (''), double ("") or back-tick (``) quotes around your script. 
+        Inside the script you can then freely use alternate quote characters without needing to back-quote.  If you need
+        to use the outside quote within the script, quote it with a backslash <em>\</em> character.</p>
+        <p>It is typically best to use back-tick quotes around a shell script so that single and double quotes can be used inside.
+        For example:</p>
+<pre class="ui code segment">
+shell: `echo "Dont't panic"`, 
+</pre>
+        <a name="useful"></a>
+        <h2>Useful MakeMes</h2>
+        <p>Here are some useful parts of Ejscript to use in your scripts:</p>
+        <h3>List of Files</h3>
+        <p>Get a list of all files in all subdirectories</p>
+<pre class="ui code segment">let files = Path('some/dir').files('**')</pre>
+        <h3>Run an external command</h3>
+        <p>Get a list of all files in all subdirectories</p>
+<pre class="ui code segment">run('/usr/bin/program')</pre>
+        <h3>Write a file</h3>
+        <p>Get a list of all files in all subdirectories</p>
+<pre class="ui code segment">Path('filename').write('Hello World')</pre>
+        <h3>Read a file</h3>
+        <p>Read a file into a variable as a string</p>
+<pre class="ui code segment">let data = Path('filename').readString</pre>
+        <h3>Read a JSON file</h3>
+        <p>Read a JSON file as an object</p>
+<pre class="ui code segment">let name = Path('filename').readJSON().name</pre>
+        <h3>Work with Paths</h3>
+        <p>Here are some useful Path manipulation routines. Ejscript is great at this.</p>
+<pre class="ui code segment">
+let p = Path('/some/file.c')
+print('Basename', p.basename)
+print('Dirname', p.dirname)
+print('Extension', p.extension)
+print('Joining', p.dirname.join('other.c'))
+</pre>
+        <h3>Fetch from the Web</h3>
+<pre class="ui code segment">
+let data = Http.fetch('http://example.com/something.html')
+</pre>
+        <p>See the Ejscript <a href="https://embedthis.com/ejs/doc/api/ejscript/Path.html">Path</a> class for 
+        full details of manipulating paths. Similarly, for URLs, see:
+            <a href="https://embedthis.com/ejs/doc/api/ejscript/Uri.html">URI</a> class, and for Http requests, 
+            see the <a href="https://embedthis.com/ejs/doc/api/ejscript/Http.html">Http</a> class.</p>
+        <p>To learn more, read about <a href="copying.html">Copying Files</a>.</p>
+    </div>
+    <div class="ui basic center aligned segment" id="terms">
+        <p>&copy; Embedthis Software, 2003-2014. All rights reserved.
+            Generated on Aug 22, 2014.
+        </p>
+    </div>
+
+    <script src="../lib/jquery/jquery.js"></script>
+    <script src="../lib/semantic/packaged/javascript/semantic.js"></script>
+    <script>
+        $('.sidebar').sidebar({overlay: false}).sidebar('toggle');
+        $('.sidebar').first().sidebar('attach events', '.toggle.button');
+    </script>
+</body>
+</html>

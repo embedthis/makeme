@@ -12,11 +12,11 @@ Me.load({
                 let src = me.dir.src.join('src')
                 let docmod = Path('').temp().replaceExt('mod')
                 run(bin.join('ejsc') + ' --doc --bind --out ' + docmod + ' ../src/me.es ../src/configure.es')
-                let edir = Path('documents/ref/me/api')
+                let edir = Path('documents/ref/api')
                 rmdir([edir.join('*.html'), edir.join('*.css'), edir.join('images/*')])
                 run(bin.join('ejsmod') + ' --html ' + edir + ' ' + docmod)
-                cp('documents/ref/me/api/masters/*.html', edir)
-                cp('documents/ref/me/api/masters/*.jpg', edir.join('images'))
+                cp('documents/ref/api/masters/*.html', edir)
+                cp('documents/ref/api/masters/*.jpg', edir.join('images'))
                 docmod.remove()
             `,
         },
@@ -31,7 +31,7 @@ Me.load({
                         replace(/developers.contributors.html/g, 'scripts/contributors.esp').
                         replace(/nowrap="nowrap"/g, '').
                         replace(/https:..embedthis.com.me.licensing.html/g, 'https://embedthis.com/').
-                        replace(/https:..embedthis.com.me.doc.guide.me.source.building.htm/g, 'https://embedthis.com/').
+                        replace(/https:..embedthis.com.me.doc.source.building.htm/g, 'https://embedthis.com/').
                         replace(/https:..embedthis.com.developers./g, 'https://embedthis.com/').
 
                         replace(/nowrap/g, '')
@@ -39,13 +39,12 @@ Me.load({
                     f.write(data)
                 }
                 for each (f in Path('final/man').files('*.html')) {
-                    f.write('<!DOCTYPE html><html><head><title>dummy</title></head>' + f.readString() + '</html>\n')
                     f.write(f.readString().toLowerCase())
                 }
-                let path = Path('final/ref/me/api/index.html')
+                let path = Path('final/ref/api/index.html')
                 path.write('<!DOCTYPE html><html><head><title>dummy</title></head><body></body></html>\n')
-                trace('Listen', 'exp')
-                Cmd.run('exp')
+                trace('Listen', 'exp --nowatch')
+                Cmd.run('exp --nowatch')
             `
         },
     },

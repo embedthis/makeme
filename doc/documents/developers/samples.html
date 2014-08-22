@@ -1,0 +1,176 @@
+{
+    title:  "MakeMe Samples",
+    crumbs: [
+        { "Developer's Guide": 'index.html' },
+    ],
+}
+
+        <h1>MakeMe Samples</h1>
+        <p>Here are some actual, working sample MakeMe files from various projects. We've added comments to 
+        highlight various issues:</p>
+        <a name="live"></a>
+        <h2>Live MakeMe Files</h2>
+        <p>Here are some MakeMe files from live projects using MakeMe served directly 
+            from <a href="http://github.com">GitHub</a>.</p>
+        <table title="makemeFiles" class="ui table segment">
+            <thead>
+                <tr>
+                    <th>Project</th>
+                    <th>Purpose</th>
+                    <th class="three wide">URL</th></tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Embedthis Appweb</td>
+                <td>Project main.me</td>
+                <td><a href="http://github.com/embedthis/appweb/blob/master/main.me">main.me</a></td>
+            </tr>
+            <tr>
+                <td>Embedthis Appweb</td>
+                <td>Main library build</td>
+                <td><a href="http://github.com/embedthis/appweb/blob/master/src/libappweb.me">libappweb.me</a></td>
+            </tr>
+            <tr>
+                <td>Embedthis Appweb</td>
+                <td>Appweb loadable modules</td>
+                <td><a href="http://github.com/embedthis/appweb/blob/master/src/modules/modules.me">modules.me</a></td>
+            </tr>
+            <tr>
+                <td>Embedthis Appweb</td>
+                <td>Appweb main server program</td>
+                <td><a href="http://github.com/embedthis/appweb/blob/master/src/server/server.me">server.me</a></td>
+            </tr>
+            <tr>
+                <td>Embedthis Appweb</td>
+                <td>ESP module MakeMe file</td>
+                <td><a href="http://github.com/embedthis/appweb/blob/master/src/paks/esp/esp.me">esp.me</a></td>
+            </tr>
+            <tr>
+                <td>Embedthis Appweb</td>
+                <td>Packaging targets</td>
+                <td><a href="http://github.com/embedthis/appweb/blob/master/package/package.me">package.me</a></td>
+            </tr>
+            <tr>
+                <td>Embedthis Appweb</td>
+                <td>Test targets</td>
+                <td><a href="http://github.com/embedthis/appweb/blob/master/test/test.me">test.me</a></td>
+            </tr>
+            <tr>
+                <td>Embedthis Appweb</td>
+                <td>Stand-alone MakeMe file for SSL script targets</td>
+                <td><a href="http://github.com/embedthis/appweb/blob/master/test/crt/start.me">start.me</a></td>
+            </tr>
+            <tr>
+                <td>Embedthis GoAhead</td>
+                <td>Project main.me</td>
+                <td><a href="http://github.com/embedthis/goahead/blob/master/main.me">main.me</a></td>
+            </tr>
+            <tr>
+                <td>Embedthis Ejscript</td>
+                <td>Project main.me</td>
+                <td><a href="http://github.com/embedthis/ejs-2/blob/master/main.me">main.me</a></td>
+            </tr>
+            <tr>
+                <td>Embedthis Ejscript</td>
+                <td>Main library</td>
+                <td><a href="http://github.com/embedthis/ejs-2/blob/master/src/libejs.me">libejs.me</a></td>
+            </tr>
+            <tr>
+                <td>Embedthis Ejscript</td>
+                <td>Ejscript command programs</td>
+                <td><a href="http://github.com/embedthis/ejs-2/blob/master/src/cmd/cmd.me">cmd.me</a></td>
+            </tr>
+            <tr>
+                <td>Embedthis Ejscript</td>
+                <td>Ejscript class library</td>
+                <td><a href="http://github.com/embedthis/ejs-2/blob/master/src/core/core.me">core.me</a></td>
+            </tr>
+            </tbody>
+        </table>
+        <a name="snippets"></a>
+        <h2>Quick Snippets</h2>
+        <p>Here are some quick snippets that you can use in your MakeMe files.</p>
+        <a name="library"></a>
+        <h2>Building a Library.</h2>
+<pre class="ui code segment">
+targets: {
+    libmpr: {
+        type: 'lib',
+        defines: [ 'FAST_MODE=1' ],
+        sources: [ '*.c' ],
+        headers: [ '*.h' ],
+    },
+},
+</pre>
+        <p>This will compile the sources, export the header to the include directory and create the library.</p>
+        <a name="static"></a>
+        <h2>Building a Static Library.</h2>
+<pre class="ui code segment">
+targets: {
+    libmpr: {
+        type: 'lib',
+        sources: [ '*.c' ],
+        headers: [ '*.h' ],
+        <b>static: true</b>,
+    },
+},
+</pre>
+        <a name="executable"></a>
+        <h2>Building an Executable.</h2>
+        <p>Set the type to <em>exe</em> and nominate the dependent targets. Specify the required libraries.</p>
+<pre class="ui code segment">
+targets: {
+    appweb: {
+        type: 'exe',
+        depends: [ 'libappweb', 'libhttp', 'libmpr' ],
+        libraries: [ 'm' ],
+        sources: [ 'appweb.c' ],
+    },
+},
+</pre>
+        <a name="conditional"></a>
+        <h2>Conditional Building</h2>
+        <p>This will build only on windows.</p>
+<pre class="ui code segment">
+targets: {
+    manager: {
+        enable: "me.platform.like == "windows'",
+        type: 'exe',
+        rule: 'gui',
+        depends: [ 'libmpr' ],
+        sources: [ 'manager.c' ],
+    },
+}
+</pre>
+        <a name="inherit"></a>
+        <h2>Inheriting Shared Settings</h2>
+        <p>To share settings between multiple targets, define a collection of properties and then <em>inherit</em>
+        from the desired targets.</p>
+<pre class="ui code segment">
+{
+    'shared-settings': {
+        '+defines': [ 'NUMBER=42' ],
+    },
+    targets: {
+        rocket {
+            <b>inherit: ['shared-settings']</b>,
+            type: 'exe'
+            sources: '*.c',
+        },
+    }
+}
+</pre>
+        <a name="paths"></a>
+        <h2>Cross-Platform Target Paths</h2>
+        <p>On windows, executables have a <em>.exe</em> extension, whereas on Unix, there is typically no such extension.
+        MakeMe defines the EXE global variable to .exe on Windows and to empty on other platforms.
+<pre class="ui code segment">
+targets: {
+    rocket: {
+        type: 'exe',
+        path: '${BIN}/short-range-rocket${EXE}'
+    },
+},
+</pre>
+        <p>The path typically defaults to: <em>${BIN}/NAME${EXE}</em> where NAME is the target name. But sometimes you need
+        to override the output path. The <em>${EXE}</em> can be used to formulate the path portably across platforms.</p>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Debugging a Build</title>
+    <!-- Copyright Embedthis Software, LLC, 2003-2014. All Rights Reserved. -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="keywords" content="MakeMe, Bit, GYP, autoconf, make, cake" />
+    <meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf." />
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+        rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
+    <link href="../lib/semantic/packaged/css/semantic.css" rel="stylesheet" type="text/css" />
+    <link href="../css/all.css" rel="stylesheet" type="text/css" />
+    <link href="../images/favicon.ico" rel="shortcut icon" />
+
+</head>
+<body>
+        
+    <div class="ui large left vertical inverted labeled overlay sidebar menu">
+        <div class="item">
+            <a href="../">
+                <b>General</b>
+            </a>
+            <div class="menu">
+                <a class="item" href="../index.html">MakeMe Overview</a>
+                <a class="item" href="../users/features.html">MakeMe Features</a>
+                <a class="item" href="https://embedthis.com/me/download.html">Download</a> 
+                <a class="item" href="../licensing/index.html">Licensing</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../start/index.html">
+                <b>Getting Started</b>
+            </a>
+            <div class="menu">
+                <a class="item" href="../start/index.html">Installing MakeMe</a>
+                <a class="item" href="../start/linux.html">Installing for Linux</a>
+                <a class="item" href="../start/mac.html">Installing for Mac OS X</a>
+                <a class="item" href="../start/windows.html">Installing for Windows</a>
+                <a class="item" href="../start/releaseNotes.html">Release Notes</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../users/index.html"><b>User's Guide</b></a>
+            <div class="menu">
+
+                <a class="item" href="../users/using.html">Using MakeMe</a>
+                <a class="item" href="../users/configuring.html">Running Configure</a>
+                <a class="item" href="../users/debugging.html">Debugging a Build</a>
+                <a class="item" href="../users/make.html">Using Generated Makefiles</a>
+                <a class="item" href="../users/cross.html">Cross-Compiling</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../developers/index.html">Developer's Guide</a>
+            <div class="menu">
+                <a class="item" href="../developers/compiling.html">Compiling Sources</a>
+                <a class="item" href="../developers/libraries.html">Creating Libraries</a>
+                <a class="item" href="../developers/executables.html">Creating Executables</a>
+                <a class="item" href="../developers/scripts.html">Build Scripts</a>
+                <a class="item" href="../developers/copying.html">Copying Files and Directories</a>
+                <a class="item" href="../developers/configurable.html">Configurable Projects</a>
+                <a class="item" href="../developers/plugins.html">MakeMe Plugins</a>
+                <a class="item" href="../developers/generating.html">Generating</a>
+                <a class="item" href="../developers/samples.html">Samples</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../ref/index.html">Reference Guide</a>
+            <div class="menu">
+                <a class="item" href="../ref/syntax.html">File Syntax</a>
+                <a class="item" href="../ref/dom.html">MakeMe DOM</a>
+                <a class="item" href="../ref/api/index.html">MakeMe API</a>
+                <a class="item" href="../ref/processing.html">File Processing</a>
+                <a class="item" href="../ref/commandline.html">Command Line</a>
+                <a class="item" href="../ref/events.html">Events</a>
+                <a class="item" href="../ref/targets.html">Targets</a>
+                <a class="item" href="../man/me.html">Manual Page</a>
+                <a class="item" href="http://embedthis.com/ejs/doc/api/ejscript/index.html">
+                    Language Reference</a>
+                <a class="item" href="http://embedthis.com/ejs/doc/index.html">Ejscript Documentation</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../developers/project.html">Project Resources</a>
+            <div class="menu">
+                <a class="item" href="http://goo.gl/umR6dt">Official MakeMe News</a>
+                <a class="item" href="https://embedthis.com/me/">MakeMe Web Site</a>
+                <a class="item" href="https://github.com/embedthis/me">Source Code Repository</a>
+                <a class="item" href="https://github.com/embedthis/me/issues">Project Issue Database</a>
+                <a class="item" href="https://github.com/embedthis/me/releases">Change Log</a>
+                <a class="item" href="https://github.com/embedthis/me/milestones">Roadmap</a>
+                <a class="item" href="https://embedthis.com/developers/contributors.html">Contributors Agreement</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../source/index.html">Built with MakeMe</a>
+            <div class="menu">
+                <a class="item" href="../source/overview.html">Building Overview</a>
+                <a class="item" href="../source/make.html">Building with Make</a>
+                <a class="item" href="../source/me.html">Building with MakeMe</a>
+                <a class="item" href="../source/ide.html">Building with an IDE</a>
+            </div>
+        </div>
+        <div class="item">
+            <b>Links</b>
+            <div class="menu">
+                <a class="item" href="https://embedthis.com/">Embedthis Web Site</a>
+                <a class="item" href="https://embedthis.com/blog/">Embedthis Blog</a>
+                <a class="item" href="http://twitter.com/mobstream">Twitter</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui inverted masthead">
+                <div class="column">
+            <div class="inverted secondary pointing ui menu">
+                <div class="header left item">
+                    <a href="/index.html">Embedthis MakeMe</a>
+                </div>
+                <div class="right menu">
+                    <div class="ui top right">
+                        <a class="item" href="https://embedthis.com/me/">MakeMe</a>
+                        <a class="item" href="https://github.com/embedthis/me">Repository</a>
+                        <a class="item" href="http://groups.google.com/group/makeme">Support</a>
+                    </div>
+                </div>
+            </div>
+            <div class="ui breadcrumb">
+                <a class="section" href="../">Home</a>
+                
+                <div class="divider">/</div>
+                <a class="section" href="index.html">
+                    User's Guide
+                </a>
+                
+                <div class="divider">/</div>
+                <a class="section active" href="debugging.html">Debugging a Build</a>
+            </div>
+        </div>
+        <div class="ui black small launch right attached toggle button" style="width: 40px;">
+            <i class="icon list layout">
+                <span class="text" style="display: none;">Menu</span>
+            </i>
+        </div>
+
+    </div>
+    <div class="content">
+<h1>Debugging a Build</h1>
+        <p>MakeMe provides several switches that help you to see what MakeMe is doing and why. While MakeMe 
+        will automatically calculate many of the complex dependencies in a project, you may find situations when a 
+        target is not being build when you expected it to. Conversely a target may be built when you did not 
+        expect it to be. Why? 
+        
+        <a id="why"></a>
+        <h2>Why Targets are Building</h2>
+        <p>With Make and other build tools, it is difficult to determine why a target is or is not being built. MakeMe
+        provides a <em>--why</em> command line switch to diagnose problematic build sequences. This switch displays the
+        reason why each target was or was not built. For example:</p>
+     
+        <pre class="ui code segment">$ me <b>--why</b> libmpr
+    [Target] /Users/mob/git/me/macosx-x64-release/inc/mpr.h is up to date
+    [Target] /Users/mob/git/me/macosx-x64-release/inc/me.h is up to date
+    [Target] /Users/mob/git/me/macosx-x64-release/inc/bitos.h is up to date
+   [Rebuild] /Users/mob/git/me/macosx-x64-release/obj/mprLib.o because input \
+             /Users/mob/git/me/src/deps/mpr/mprLib.c has been modified.
+   [Compile] src/deps/mpr/mprLib.c
+   [Rebuild] /Users/mob/git/me/macosx-x64-release/bin/libmpr.dylib because input \
+             /Users/mob/git/me/macosx-x64-release/obj/mprLib.o has been modified.
+      [Link] libmpr
+</pre>
+        <a id="show"></a>
+        <h2>Showing Executed Commands</h2>
+        <p>MakeMe shows as little output as possible while building so you can easily see build errors such as compiler
+        warnings and errors. With other build systems, these are often lost in a swamp of trace.</p>
+        <p>However, sometimes youneed to see the exact command that MakeMe is issuing to build a target. 
+        To see the actual commands MakeMe is executing to compile sources and
+        link libraries, run "me" with the <em>--show</em> switch (this can be abbreviated to -s).
+<pre class="ui code segment">$ me <b>-s</b>
+   [Compile] src/deps/mpr/mprSsl.c
+       [Run] /usr/bin/clang -c -o macosx-x64-release/obj/mprSsl.o -arch x86_64 \
+             -Wall -Wno-deprecated-declarations -O3 -Wno-unused-result \
+             -Wshorten-64-to-32 -Imacosx-x64-release/inc \
+             src/deps/mpr/mprSsl.c
+      [Link] libmprssl
+</pre>
+        <a id="dump"></a>
+        <h2>Dumping the Project</h2>
+        <p>In a complex project containing many MakeMe files, it can be helpful to see the entire aggregated MakeMe 
+        configuration in one file. Use the <em>--dump</em> switch to save a copy of the entire configuration. In the dump, 
+        build defaults are fully expanded to each target contains the expanded configuration that will be used to build
+        the target. The dump will be saved to an OS-ARCH-PROFILE.dmp.</p>
+        <pre class="ui code segment">$ me <b>--dump</b></pre>
+            
+        <a id="useful"></a>
+        <h2>Other Useful Bits</h2>
+        <p>To build totally quietly, use the <em>--quiet</em>
+            switch. To continue building despite build errors, use the <em>--continue</em> switch.</p>
+        <p>To learn more, read about <a href="make.html">Using Generated Makefiles</a>.</p>
+    </div>
+    <div class="ui basic center aligned segment" id="terms">
+        <p>&copy; Embedthis Software, 2003-2014. All rights reserved.
+            Generated on Aug 22, 2014.
+        </p>
+    </div>
+
+    <script src="../lib/jquery/jquery.js"></script>
+    <script src="../lib/semantic/packaged/javascript/semantic.js"></script>
+    <script>
+        $('.sidebar').sidebar({overlay: false}).sidebar('toggle');
+        $('.sidebar').first().sidebar('attach events', '.toggle.button');
+    </script>
+</body>
+</html>

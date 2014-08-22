@@ -1,8 +1,7 @@
         <div class="column">
             <div class="inverted secondary pointing ui menu">
                 <div class="header left item">
-                    <!-- <a href="/index.html"><img src="/images/embedthis.png"></a> -->
-                    <a href="/index.html">MakeMe Documentation</a>
+                    <a href="/index.html">Embedthis MakeMe</a>
                 </div>
                 <div class="right menu">
                     <div class="ui top right">
@@ -17,10 +16,12 @@
                 <% for each (crumb in meta.crumbs ) { 
                     for (let [name, url] in crumb ) { %>
                 <div class="divider">/</div>
-                <a class="section <%= !url ? 'active' : '' %>" href="<%= url || meta.basename %>">
-                    <%= name || meta.title%>
+                <a class="section" href="<%= url %>">
+                    <%= name %>
                 </a>
                 <% } } %>
+                <div class="divider">/</div>
+                <a class="section active" href="<%= meta.basename %>"><%= meta.cookie || meta.title %></a>
             </div>
         </div>
         <div class="ui black small launch right attached toggle button" style="width: 40px;">

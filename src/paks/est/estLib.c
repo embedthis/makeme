@@ -33,8 +33,6 @@
 
 /*
     32-bit integer manipulation macros (little endian)
-    TODO - what about 64 bit?
-    TODO - use if/else
  */
 #ifndef GET_ULONG_LE
 #define GET_ULONG_LE(n,b,i)                     \
@@ -56,7 +54,6 @@
 }
 #endif
 
-//  TODO - map to a more unique name
 #define FSb AESFSb
 
 #if ME_EST_ROM_TABLES
@@ -450,7 +447,6 @@ void aes_setkey_enc(aes_context * ctx, uchar *key, int keysize)
         return;
     }
 
-    //  TODO - don't use defined
 #if defined(PADLOCK_ALIGN16)
     ctx->rk = RK = PADLOCK_ALIGN16(ctx->buf);
 #else
@@ -544,7 +540,6 @@ void aes_setkey_dec(aes_context * ctx, uchar *key, int keysize)
         return;
     }
 
-    //  TODO - don't use defined
 #if defined(PADLOCK_ALIGN16)
     ctx->rk = RK = PADLOCK_ALIGN16(ctx->buf);
 #else
@@ -631,7 +626,6 @@ void aes_crypt_ecb(aes_context * ctx, int mode, uchar input[16], uchar output[16
     int     i;
     ulong   *RK, X0, X1, X2, X3, Y0, Y1, Y2, Y3;
 
-//  TODO - don't use EST_HAVE_X86
 #if ME_EST_PADLOCK && defined(EST_HAVE_X86)
     if (padlock_supports(PADLOCK_ACE)) {
         if (padlock_xcryptecb(ctx, mode, input, output) == 0) {
@@ -2879,7 +2873,6 @@ cleanup:
 
 /*
     32-bit integer manipulation macros (big endian)
-    TODO - use if/else construct
  */
 #ifndef GET_ULONG_BE
 #define GET_ULONG_BE(n,b,i)                     \
@@ -3495,13 +3488,10 @@ void camellia_crypt_cfb128(camellia_context *ctx, int mode, int length, int *iv_
 /*
     certs.c -- X.509 test certificates
 
-    TODO - rename file
-
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
 
-//  TODO - remove
 #if ME_EST_TEST_CERTS
 
 char test_ca_crt[] =
@@ -3721,9 +3711,6 @@ char xyssl_ca_crt[] =
  */
 
 
-/*
-    TODO WARNING: snprintf does not null terminate and returns -1 on errors
- */
 #if defined _MSC_VER && !defined  snprintf
     #define snprintf  _snprintf
 #endif
@@ -3870,7 +3857,6 @@ void debug_print_mpi(ssl_context *ssl, int level, char *text, mpi * X)
             ssl->f_dbg(ssl->p_dbg, level, str);
         }
     }
-//  TODO - need to use a raw print
     ssl->f_dbg(ssl->p_dbg, level, "\n");
 }
 
@@ -5861,7 +5847,6 @@ void md5(uchar *input, int ilen, uchar output[16])
 
 /*
     output = MD5(file contents)
-    TODO - is this used
  */
 int md5_file(char *path, uchar output[16])
 {
@@ -6004,7 +5989,6 @@ void md5_hmac(uchar *key, int keylen, uchar *input, int ilen, uchar output[16])
 #if ME_EST_NET
 
 #if WINDOWS || WINCE
-    //  TODO defined in osdep
     #undef read
     #undef write
     #undef close
@@ -6035,7 +6019,6 @@ int net_connect(int *fd, char *host, int port)
 #if WINDOWS || WINCE
     WSADATA wsaData;
 
-    //  TODO - but where is this done in the MPR
     if (!wsa_init_done) {
         if (WSAStartup(MAKEWORD(2, 0), &wsaData) == SOCKET_ERROR) {
             return EST_ERR_NET_SOCKET_FAILED;
@@ -6043,7 +6026,6 @@ int net_connect(int *fd, char *host, int port)
         wsa_init_done = 1;
     }
 #else
-    //  TODO - clashes with MPR
     signal(SIGPIPE, SIG_IGN);
 #endif
 
@@ -6077,7 +6059,6 @@ int net_bind(int *fd, char *bind_ip, int port)
 #if defined(WIN32) || defined(_WIN32_WCE)
     WSADATA wsaData;
 
-    //  TODO - need some option to bypass WSAStartup. See Mpr.
     if (wsa_init_done == 0) {
         if (WSAStartup(MAKEWORD(2, 0), &wsaData) == SOCKET_ERROR) {
             return EST_ERR_NET_SOCKET_FAILED;
@@ -6152,7 +6133,6 @@ int net_accept(int bind_fd, int *client_fd, void *client_ip)
 {
     struct sockaddr_in client_addr;
 
-//  TODO EMBEDTHIS
 #if defined(__socklen_t_defined) || 1
     socklen_t n = (socklen_t) sizeof(client_addr);
 #else
@@ -6216,7 +6196,6 @@ void net_usleep(ulong usec)
  */
 int net_recv(void *ctx, uchar *buf, int len)
 {
-//  TODO - should use recv
     int ret = read(*((int *)ctx), buf, len);
 
     if (len > 0 && ret == 0) {
@@ -6612,7 +6591,6 @@ int rsa_private(rsa_context *ctx, uchar *input, uchar *output)
         mpi_free(&T, NULL);
         return EST_ERR_RSA_BAD_INPUT_DATA;
     }
-    //  TODO - why ?
 #if 0
     MPI_CHK(mpi_exp_mod(&T, &T, &ctx->D, &ctx->N, &ctx->RN));
 #else
@@ -8436,7 +8414,6 @@ static int ssl_parse_server_hello(ssl_context * ssl)
         SSL_DEBUG_MSG(1, ("bad server hello message"));
         return EST_ERR_SSL_BAD_HS_SERVER_HELLO;
     }
-    /* TODO: Process extensions */
     SSL_DEBUG_MSG(2, ("<= parse server hello"));
     return 0;
 }
@@ -9003,7 +8980,6 @@ static int ssl_parse_client_hello(ssl_context * ssl)
             return EST_ERR_SSL_BAD_HS_CLIENT_HELLO;
         }
         if ((ret = ssl_fetch_input(ssl, 5 + n)) != 0) {
-            //  TODO - move all this trace into fetch_input
             SSL_DEBUG_RET(3, "ssl_fetch_input", ret);
             return ret;
         }
@@ -9379,7 +9355,6 @@ static int ssl_parse_client_key_exchange(ssl_context * ssl)
     SSL_DEBUG_MSG(2, ("=> parse client key exchange"));
 
     if ((ret = ssl_read_record(ssl)) != 0) {
-        //  TODO - move all this trace into ssl_read_record
         SSL_DEBUG_RET(3, "ssl_read_record", ret);
         return ret;
     }
@@ -9666,7 +9641,6 @@ int ssl_handshake_server(ssl_context * ssl)
 
 #if ME_EST_SSL
 
-//  TODO - Merge these two
 int ssl_default_ciphers[] = {
 #if ME_EST_DHM
 #if ME_EST_AES
@@ -9733,7 +9707,6 @@ static EstCipher cipherList[] = {
 };
 
 
-//  TODO - should rename ssl_context vars from ssl to ctx
 char *ssl_get_cipher(ssl_context *ssl)
 {
     EstCipher   *cp;
@@ -9747,7 +9720,6 @@ char *ssl_get_cipher(ssl_context *ssl)
 }
 
 
-//  TODO - move to runtime.c
 static char *stok(char *str, char *delim, char **last)
 {
     char    *start, *end;
@@ -9807,7 +9779,6 @@ int *ssl_create_ciphers(cchar *cipherSuite)
         if (cp) {
             ciphers[i++] = cp->code;
         } else {
-            //  TODO - need some mprError() equivalent
             // SSL_DEBUG_MSG(0, ("Requested cipher %s is not supported", cipher));
         }
         suite = 0;
@@ -10892,7 +10863,6 @@ int ssl_parse_certificate(ssl_context * ssl)
         }
         ret = x509parse_verify(ssl->peer_cert, ssl->ca_chain, ssl->peer_cn, &ssl->verify_result);
         if (ret != 0) {
-            //  TODO - this trace is misleading if not verifying peer or issuer
             SSL_DEBUG_MSG(3, ("x509_verify_cert %d, verify_result %d", ret, ssl->verify_result));
         }
         if (ssl->authmode != SSL_VERIFY_REQUIRED) {
@@ -11262,7 +11232,6 @@ void ssl_set_dbg(ssl_context * ssl, void (*f_dbg) (void *, int, char *), void *p
     ssl->p_dbg = p_dbg;
 }
 
-//  TODO - should have typedefs for the recv, send args
 void ssl_set_bio(ssl_context * ssl,
      int (*f_recv) (void *, uchar *, int), void *p_recv,
      int (*f_send) (void *, uchar *, int), void *p_send)
@@ -11463,7 +11432,6 @@ int ssl_read(ssl_context * ssl, uchar *buf, int len)
         if (ssl->in_msglen == 0 && ssl->in_msgtype == SSL_MSG_APPLICATION_DATA) {
             /*
                OpenSSL sends empty messages to randomize the IV
-               TODO - why does this matter?
              */
             if ((ret = ssl_read_record(ssl)) != 0) {
                 SSL_DEBUG_RET(3, "ssl_read_record", ret);
@@ -11623,13 +11591,10 @@ void ssl_free(ssl_context * ssl)
 /*
     timing.c -- Portable interface to the CPU cycle counter
 
-    TODO - rename file
-
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
 
-//  TODO - MSVC won't work with this.
 #if ME_EST_TIMING
 
 #if WINDOWS
@@ -11643,7 +11608,6 @@ struct _hr_time {
 #endif
 
 #if WINDOWS
-//  TODO  64 bit
 ulong hardclock(void)
 {
     LARGE_INTEGER  now;
@@ -11786,7 +11750,6 @@ void m_sleep(int milliseconds)
 }
 
 
-//  TODO - needed for VxWorks too
 PUBLIC int gettimeofday(struct timeval *tv, struct timezone *tz)
 {
     #if ME_WIN_LIKE
@@ -12219,9 +12182,6 @@ static int x509_get_dates(uchar **p, uchar *end, x509_time *from, x509_time *to)
     }
     end = *p + len;
 
-    /*
-        TODO: also handle GeneralizedTime
-     */
     if ((ret = asn1_get_tag(p, end, &len, EST_ASN1_UTC_TIME)) != 0) {
         return EST_ERR_X509_CERT_INVALID_DATE | ret;
     }
@@ -12586,9 +12546,8 @@ int x509parse_crt(x509_cert * chain, uchar *buf, int buflen)
     }
     if (crt->sig_oid1.len != 9 || memcmp(crt->sig_oid1.p, OID_PKCS1, 8) != 0) {
         x509_free(crt);
-#if UNUSED && TODO
+#if UNUSED
 if (buflen > 0) {
-    //TODO temp just to skip certs
     goto error;
 }
 #endif
@@ -12596,9 +12555,8 @@ if (buflen > 0) {
     }
     if (crt->sig_oid1.p[8] < 2 || crt->sig_oid1.p[8] > 5) {
         x509_free(crt);
-#if UNUSED && TODO
+#if UNUSED
 if (buflen > 0) {
-    //TODO temp just to skip certs
     goto error;
 }
 #endif
@@ -12626,9 +12584,8 @@ if (buflen > 0) {
      */
     if ((ret = x509_get_dates(&p, end, &crt->valid_from, &crt->valid_to)) != 0) {
         x509_free(crt);
-#if UNUSED && TODO
+#if UNUSED
 if (buflen > 0) {
-    //TODO temp just to skip certs
     goto error;
 }
 #endif
@@ -12734,18 +12691,15 @@ if (buflen > 0) {
     memset(crt, 0, sizeof(x509_cert));
 
 #if UNUSED
-//TODO
 more:
 #endif
     if (buflen > 0) {
         int rc = x509parse_crt(crt, buf, buflen);
-        //  TODO - return true
         return 0;
     }
     return 0;
 
-#if UNUSED && TODO
-    //  TODO
+#if UNUSED
 error:
     {
         char msg[80], *cp;
@@ -13161,7 +13115,6 @@ int x509parse_dn_gets(char *prefix, char *buf, int bufsize, x509_name * dn)
  */
 char *x509parse_cert_info(char *prefix, char *buf, int bufsize, x509_cert *crt)
 {
-    //  TODO - should not use a static buffer pbuf
     char    *end, *p, *cipher, pbuf[5120];
     int     i, n;
 
@@ -13275,9 +13228,7 @@ int x509parse_verify(x509_cert *crt, x509_cert *trust_ca, char *cn, int *flags)
         name = &crt->subject;
         cn_len = strlen(cn);
 
-        //  TODO - should handle ALT_NAMES
         while (name != NULL) {
-            //  TODO - should handle wild cards
             if (memcmp(name->oid.p, OID_CN, 3) == 0) {
                 peer = (char*) name->val.p;
                 if (name->val.len == cn_len && memcmp(peer, cn, cn_len) == 0) {
@@ -13349,8 +13300,6 @@ int x509parse_verify(x509_cert *crt, x509_cert *trust_ca, char *cn, int *flags)
         }
         trust_ca = trust_ca->next;
     }
-    //  TODO - if can't find root cert above, should set error message
-
     if (*flags & BADCERT_NOT_TRUSTED) {
         if (crt->issuer_raw.len == crt->subject_raw.len && 
                 memcmp(crt->issuer_raw.p, crt->subject_raw.p, crt->issuer_raw.len) == 0) {
@@ -13425,8 +13374,6 @@ void x509_free(x509_cert * crt)
 /*
     xtea.c -- An 32-bit implementation of the XTEA algorithm
 
-    TODO - what about 64 bit?
-
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
@@ -13436,7 +13383,6 @@ void x509_free(x509_cert * crt)
 /*
    32-bit integer manipulation macros (big endian)
  */
-//  TODO - use if/else construct
 #ifndef GET_ULONG_BE
 #define GET_ULONG_BE(n,b,i)                     \
     {                                           \
@@ -13446,8 +13392,6 @@ void x509_free(x509_cert * crt)
             | ( (ulong) (b)[(i) + 3]       );   \
     }
 #endif
-
-//  TODO - use if/else construct
 
 #ifndef PUT_ULONG_BE
 #define PUT_ULONG_BE(n,b,i)                     \

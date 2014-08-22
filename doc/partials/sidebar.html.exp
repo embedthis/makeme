@@ -6,65 +6,66 @@
             </a>
             <div class="menu">
                 <a class="item" href="@@{top}index.html">MakeMe Overview</a>
-                <a class="item" href="@@{top}guide/me/features.html">MakeMe Features</a>
+                <a class="item" href="@@{top}users/features.html">MakeMe Features</a>
                 <a class="item" href="https://embedthis.com/me/download.html">Download</a> 
                 <a class="item" href="@@{top}licensing/index.html">Licensing</a>
             </div>
         </div>
         <div class="item">
-            <a href="@@{top}install/index.html">
-                <b>Installation</b>
+            <a href="@@{top}start/index.html">
+                <b>Getting Started</b>
             </a>
             <div class="menu">
-                <a class="item" href="@@{top}install/linux.html">Installing for Linux</a>
-                <a class="item" href="@@{top}install/mac.html">Installing for Mac OS X</a>
-                <a class="item" href="@@{top}install/windows.html">Installing for Windows</a>
-                <a class="item" href="@@{top}/install/releaseNotes.html">Release Notes</a>
+                <a class="item" href="@@{top}start/index.html">Installing MakeMe</a>
+                <a class="item" href="@@{top}start/linux.html">Installing for Linux</a>
+                <a class="item" href="@@{top}start/mac.html">Installing for Mac OS X</a>
+                <a class="item" href="@@{top}start/windows.html">Installing for Windows</a>
+                <a class="item" href="@@{top}start/releaseNotes.html">Release Notes</a>
             </div>
         </div>
         <div class="item">
-            <a href="@@{top}guide/me/users/index.html"><b>User's Guide</b></a>
+            <a href="@@{top}users/index.html"><b>User's Guide</b></a>
             <div class="menu">
 
-                <a class="item" href="@@{top}guide/me/users/using.html">Using MakeMe</a>
-                <a class="item" href="@@{top}guide/me/users/configuring.html">Running Configure</a>
-                <a class="item" href="@@{top}guide/me/users/debugging.html">Debugging a Build</a>
-                <a class="item" href="@@{top}guide/me/users/make.html">Using Generated Makefiles</a>
-                <a class="item" href="@@{top}guide/me/users/cross.html">Cross-Compiling</a>
+                <a class="item" href="@@{top}users/using.html">Using MakeMe</a>
+                <a class="item" href="@@{top}users/configuring.html">Running Configure</a>
+                <a class="item" href="@@{top}users/debugging.html">Debugging a Build</a>
+                <a class="item" href="@@{top}users/make.html">Using Generated Makefiles</a>
+                <a class="item" href="@@{top}users/cross.html">Cross-Compiling</a>
             </div>
         </div>
         <div class="item">
-            <a href="@@{top}guide/me/developers/index.html">Developer's Guide</a>
+            <a href="@@{top}developers/index.html">Developer's Guide</a>
             <div class="menu">
-                <a class="item" href="@@{top}guide/me/developers/compiling.html">Compiling Sources</a>
-                <a class="item" href="@@{top}guide/me/developers/libraries.html">Creating Libraries</a>
-                <a class="item" href="@@{top}guide/me/developers/executables.html">Creating Executables</a>
-                <a class="item" href="@@{top}guide/me/developers/scripts.html">Build Scripts</a>
-                <a class="item" href="@@{top}guide/me/developers/copying.html">Copying Files and Directories</a>
-                <a class="item" href="@@{top}guide/me/developers/configurable.html">Configurable Projects</a>
-                <a class="item" href="@@{top}guide/me/developers/plugins.html">MakeMe Plugins</a>
-                <a class="item" href="@@{top}guide/me/developers/generating.html">Generating</a>
-                <a class="item" href="@@{top}guide/me/developers/samples.html">Samples</a>
+                <a class="item" href="@@{top}developers/compiling.html">Compiling Sources</a>
+                <a class="item" href="@@{top}developers/libraries.html">Creating Libraries</a>
+                <a class="item" href="@@{top}developers/executables.html">Creating Executables</a>
+                <a class="item" href="@@{top}developers/scripts.html">Build Scripts</a>
+                <a class="item" href="@@{top}developers/copying.html">Copying Files and Directories</a>
+                <a class="item" href="@@{top}developers/configurable.html">Configurable Projects</a>
+                <a class="item" href="@@{top}developers/plugins.html">MakeMe Plugins</a>
+                <a class="item" href="@@{top}developers/generating.html">Generating</a>
+                <a class="item" href="@@{top}developers/samples.html">Samples</a>
             </div>
         </div>
         <div class="item">
-            <a href="@@{top}ref/me/index.html">Reference Guide</a>
+            <a href="@@{top}ref/index.html">Reference Guide</a>
             <div class="menu">
-                <a class="item" href="@@{top}ref/me/syntax.html">File Syntax</a>
-                <a class="item" href="@@{top}ref/me/dom.html">MakeMe DOM</a>
-                <a class="item" href="@@{top}ref/me/api/index.html">MakeMe API</a>
-                <a class="item" href="@@{top}ref/me/processing.html">File Processing</a>
-                <a class="item" href="@@{top}ref/me/commandline.html">Command Line</a>
-                <a class="item" href="@@{top}ref/me/events.html">Events</a>
-                <a class="item" href="@@{top}ref/me/targets.html">Targets</a>
-                <a class="item" href="@@{top}/man/me.html">Manual Page</a>
+                <a class="item" href="@@{top}ref/syntax.html">File Syntax</a>
+                <a class="item" href="@@{top}ref/dom.html">MakeMe DOM</a>
+                <a class="item" href="@@{top}ref/api/index.html">MakeMe API</a>
+                <a class="item" href="@@{top}ref/processing.html">File Processing</a>
+                <a class="item" href="@@{top}ref/commandline.html">Command Line</a>
+                <a class="item" href="@@{top}ref/events.html">Events</a>
+                <a class="item" href="@@{top}ref/targets.html">Targets</a>
+                <a class="item" href="@@{top}man/me.html">Manual Page</a>
                 <a class="item" href="http://embedthis.com/ejs/doc/api/ejscript/index.html">
                     Language Reference</a>
                 <a class="item" href="http://embedthis.com/ejs/doc/index.html">Ejscript Documentation</a>
             </div>
         </div>
         <div class="item">
-            <a href="@@{top}guide/me/developers/project.html">Project Resources</a>
+            <a href="@@{top}developers/project.html">Project Resources</a>
             <div class="menu">
                 <a class="item" href="http://goo.gl/umR6dt">Official MakeMe News</a>
                 <a class="item" href="https://embedthis.com/me/">MakeMe Web Site</a>

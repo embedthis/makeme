@@ -1,0 +1,35 @@
+{
+    title:  'Cross Compiling',
+    crumbs: [
+        { "User's Guide": 'index.html' },
+    ],
+}
+        <h2>Cross-Compiling</h2>
+        <p>To build a product for platform different to that of the local system is called cross-compiling.
+        Sometimes this cross-compiling is just for a different instruction set (say x64 instead of x86). Other times
+        it is for a completely different operating system and/or CPU architecture. In such cases, a cross-compiler
+        may be required to build for the target platform.</p>
+        <p>MakeMe supports cross-compiling via the <em>me --platform</em> switch. This adds a platform to the
+        list of platforms to be made when building. Multiple platforms may be specified and the <em>local</em> platform alias
+        may be used for the local development platform.</p>
+        <p>Some products require local building to make tools that are required to build for any platform. These
+        products add a "<em>platforms: ['local']</em>" property to their settings collection in the <em>main.me</em> file. 
+        This automatically adds the local platform to the platforms list and is the same as adding 
+        <em>--platform local</em> on the command line when configuring.</p>
+
+        <pre class="ui code segment">me --platform windows-x64-debug -configure .</pre>
+
+        <p>This will create a windows-x64-debug.me configuration file and a start.me that references it. The platform
+        switch does not need to be restated after configuration.</p>
+        <a name="environment"></a>
+        <h3>Environment Variables</h3>
+        <p>MakeMe has default command paths and command flags for the compiler, linker and other tools. These 
+        can be overridden by providing environment variables containing alternate flags to use. </p>
+        <p>Use the variables AR, CC and LD to specify the path to the archiver, compiler and linker tools.
+        Use CFLAGS to provide compiler flags, DFLAGS for
+        pre-processor definitions, IFLAGS for compiler include paths and LDFLAGS for linker flags.</p>
+        <p>If these flags are
+        provided to MakeMe when building, they apply to that run only. If the flags are provide when configuring, they are
+        saved in the generated platform build file and apply to all subsequent runs.
+        For example:</p>
+        <pre class="ui code segment">CC=/path/to/compiler CFLAGS=-w me configure</pre>
