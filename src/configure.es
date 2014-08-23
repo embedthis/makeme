@@ -711,7 +711,7 @@ module embedthis.me {
         @option nopath Don't use the system PATH to locate the file
         @option fullpath Return the full path to the located file
      */
-    public function probe(file: Path, control = {}): Path {
+    public function probe(file: Path, control = {}): Path? {
         let path: Path?
         let search = [], dir
         if (file.exists) {
@@ -742,6 +742,9 @@ module embedthis.me {
             }
             if (b.options['continue'] && control.default) {
                 return control.default
+            }
+            if (control.nothrow) {
+                return null
             }
             throw 'Cannot find "' + file + '" for component "' + currentComponent + '" on ' + b.currentPlatform + '.\n' + 
                 'Using search: ' + serialize(search, {pretty: true})

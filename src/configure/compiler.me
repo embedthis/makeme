@@ -73,16 +73,20 @@ function findWindowsCompiler(results) {
             The cross compile for 32 bit on 64 bit systems can use the default 32 bit bin + lib
             See: http://msdn.microsoft.com/en-us/library/x4d2c09s(v=vs.80).aspx
             Also: http://blogs.msdn.com/b/david.wang/archive/2006/03/26/howto-detect-process-bitness.aspx
+            Note: With VS 2013 (12), MS removed the 64 bit compilers from the express editions.
          */
         search = me.dir.programFiles32.files('Microsoft Visual Studio*/VC/Bin').sort(sortVersions).reverse()
         if (!search || search.length == 0) {
             throw 'Cannot find Visual Studio installation'
         }
-        vsdir = Path(search[0]).parent.parent
         if (me.platform.arch == 'x64') {
             if (Config.CPU == 'x64') {
                 /* Running on a 64 bit */
                 search = search.map(function(e) Path(e).join('amd64'))
+                if (!probe(path || 'cl.exe', {fullpath: true, search: search, nothrow: true})) {
+                    throw 'Missing 64 bit compiler. To select 32 bit compiler, run:\n' +
+                          'configure --with platform windows-x86 --nocross'
+                }
             } else {
                 /* Cross compile for 64 bits on 32 bits */
                 search = search.map(function(e) Path(e).join('x86_amd64'))
@@ -99,6 +103,7 @@ function findWindowsCompiler(results) {
     } else {
         path = probe(path || 'cl.exe', {fullpath: true, search: search})
         vsbin = path.dirname
+        vsdir = (me.platform.arch == 'x64') ? vsbin.parent.parent.parent : vsbin.parent.parent
         if (me.platform.arch == 'x64') {
             vslib = vsbin.join('../../lib/amd64').normalize
         } else {
