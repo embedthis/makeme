@@ -6,12 +6,13 @@ Me.load({
     targets: {
         mpr: {
             configurable: true,
-            depends:      [ 'libmpr' ],
-            uses:         [ 'ssl' ],
+            depends: [ 'libmpr' ],
+            uses:    [ 'ssl' ],
         },
 
         libmpr: {
             type: 'lib',
+            depends: [ 'osdep' ],
             sources: [ 'mprLib.c' ],
             headers: [ '*.h' ],
         },
