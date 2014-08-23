@@ -3018,6 +3018,10 @@ public class Me {
         castDirTypes()
         if (samePlatform(platform, localPlatform)) {
             me.globals.LBIN = localBin = me.dir.bin.portable
+        } else if (!localBin) {
+            if (me.platform.os == 'windows') {
+                me.globals.LBIN = localBin = me.dir.bin.portable
+            }
         }
         if (!me.settings.configured && !options.configure) {
             overlay('configure.es')
