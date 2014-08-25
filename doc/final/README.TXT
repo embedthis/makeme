@@ -1,6 +1,6 @@
 Embedthis MakeMe(TM)
 
-Welcome to the Embedthis MakeMe distribution. MakeMe is a modern replacement for the autoconf and make make build tools. MakeMe uses Javascript to simply describe projects with smart defaults. It then builds directly, or generates makefiles, and IDE projects.
+Welcome to Embedthis MakeMe. MakeMe is a modern replacement for the autoconf and make make build tools. MakeMe uses Javascript to simply describe projects with smart defaults. It then builds directly, or generates makefiles, and IDE projects.
 
 This document describes the installation procedure for the binary MakeMe package. This package contains the "me" tool and manual page. Documentation is available online at https://embedthis.com/me/doc/. 
 

@@ -16,7 +16,7 @@
                 <b>Getting Started</b>
             </a>
             <div class="menu">
-                <a class="item" href="@@{top}start/index.html">Installing MakeMe</a>
+                <a class="item" href="@@{top}start/installing.html">Installing MakeMe</a>
                 <a class="item" href="@@{top}start/linux.html">Installing for Linux</a>
                 <a class="item" href="@@{top}start/mac.html">Installing for Mac OS X</a>
                 <a class="item" href="@@{top}start/windows.html">Installing for Windows</a>
@@ -26,7 +26,6 @@
         <div class="item">
             <a href="@@{top}users/index.html"><b>User's Guide</b></a>
             <div class="menu">
-
                 <a class="item" href="@@{top}users/using.html">Using MakeMe</a>
                 <a class="item" href="@@{top}users/configuring.html">Running Configure</a>
                 <a class="item" href="@@{top}users/debugging.html">Debugging a Build</a>
