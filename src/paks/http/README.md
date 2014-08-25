@@ -10,8 +10,7 @@ See LICENSE.md for details.
   See doc/index.html
 
 ### Prerequisites:
-    MakeMe (https://embedthis.com/downloads/makeme/download.esp) for MakeMe to configure and build.
-    Ejscript (http://ejscript.org/downloads/ejs/download.esp) for utest to test.
+    MakeMe (https://embedthis.com/me/download.html) for MakeMe to configure and build.
 
 ### To Build:
 

@@ -10,36 +10,12 @@ See LICENSE.md for details.
   See doc/index.html
 
 ### Prerequisites:
-    MakeMe (https://embedthis.com/downloads/makeme/download.esp) for MakeMe to configure and build.
+    MakeMe (https://embedthis.com/me/download.html) for MakeMe to configure and build.
 
 ### To Build:
 
     ./configure
     me
-
-    Alternatively to build without Ejscript:
-
-    make
-
-Images are built into */bin. The build configuration is saved in */inc/me.h.
-
-### To Test:
-
-    me test
-
-### To Run:
-
-    me run
-
-This will run appweb in the src/server directory using the src/server/appweb.conf configuration file.
-
-### To Install:
-
-    me install
-
-### To Create Packages:
-
-    me package
 
 Resources
 ---

@@ -98,7 +98,7 @@ module embedthis.doc {
             return
         }
         emit('<div class="footnote">Generated on ' + new Date + '<br/>')
-        emit('  Copyright &copy; <a href="http://embedthis.com">Embedthis Software</a> ' + 
+        emit('  Copyright &copy; <a href="https://embedthis.com">Embedthis Software</a> ' + 
             new Date().year + '.')
         emit('</div></div></body></html>')
     }

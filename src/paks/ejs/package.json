@@ -9,11 +9,11 @@
         "javascript",
         "ecmascript"
     ],
-    "homepage": "http://embedthis.com/products/ejs/",
+    "homepage": "https://embedthis.com/products/ejs/",
     "author": {
         "name": "Embedthis Software",
         "email": "dev@embedthis.com",
-        "url": "http://embedthis.com"
+        "url": "https://embedthis.com"
     },
     "repository": {
         "type": "git",
@@ -30,7 +30,7 @@
         },
         {
             "type": "Commercial",
-            "url": "http://embedthis.com/licensing/"
+            "url": "https://embedthis.com/licensing/"
         }
     ],
     "pak": "~0.9",
