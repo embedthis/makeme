@@ -8,4 +8,13 @@
         "lib": "files/lib"
     },
     "import": true,
+    "optionalDependencies": {
+    },
+    "app": {
+        "client": {
+            "scripts": [
+                "files/lib/jquery/jquery.js"
+            ]
+        }
+    }
 }

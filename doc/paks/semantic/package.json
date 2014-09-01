@@ -8,10 +8,10 @@
     "export": [
         {
             from: [
-                "packaged/css/*",
-                "packaged/fonts/*",
-                "packaged/images/*",
-                "packaged/javascript/*",
+                "css/*",
+                "fonts/*",
+                "images/*",
+                "javascript/*",
             ],
             to: '${LIB}/semantic',
             overwrite: true,

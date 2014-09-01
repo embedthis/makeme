@@ -82,14 +82,14 @@ This is trace that is displayed if me --verbose is invoked.</td></tr>
 <dl><dt>Description</dt></dd><dd>Copy files. </dd></dl>
 <dl><dt>Parameters</dt>
 <dd><table class='parameters' title='parameters'>
-<tr class='param'><td class='param'>src </td><td>Source files/directories to copy. This can be a String, Path or array of String/Paths.  The wildcards "*"", "***"" and "?" are the only wild card patterns supported. The "***"" pattern matches every directory and file. The Posix "[]" and "{a,b}" style expressions are not supported. If a src item is an existing directory, then the pattern appends slash '***'' subtree option is enabled. if a src item ends with "/", then the contents of that directory are copied without the directory itself.</td></tr><tr class='param'><td class='param'>dest: <a href='Path.html'>Path</a> </td><td>Destination file or directory. If multiple files are copied, dest is assumed to be a directory and will be created if required. If dest has a trailing "/", it is assumed to be a directory.</td></tr><tr class='param'><td class='param'>options </td><td>Processing and file options. [default: expression]</td></tr></table></dd>
+<tr class='param'><td class='param'>src </td><td>Source files/directories to copy. This can be a String, Path or array of String/Paths. The wildcards "*"", "***"" and "?" are the only wild card patterns supported. The "***"" pattern matches every directory and file. The Posix "[]" and "{a,b}" style expressions are not supported. If a src item is an existing directory, then the pattern appends slash '***'' subtree option is enabled. if a src item ends with "/", then the contents of that directory are copied without the directory itself.</td></tr><tr class='param'><td class='param'>dest: <a href='Path.html'>Path</a> </td><td>Destination file or directory. If multiple files are copied, dest is assumed to be a directory and will be created if required. If dest has a trailing "/", it is assumed to be a directory.</td></tr><tr class='param'><td class='param'>options </td><td>Processing and file options. [default: expression]</td></tr></table></dd>
 </dl><dl><dt>Options</dt>
 <dd><table class='parameters' title='options'>
 <td class='param'>active</td><td>If destination is an active executable or shared library, rename the active file using a '.old' extension and retry the copy.</td></tr>
 <td class='param'>compress</td><td>Compress target file.</td></tr>
 <td class='param'>copytemp</td><td>Copy files that look like temp files.</td></tr>
 <td class='param'>exclude</td><td>Exclude files that match the pattern. The pattern should be in portable file format.</td></tr>
-<td class='param'>expand</td><td>Expand tokens. Set to true or an Object hash containing properties to use when replacing  tokens of the form <a href='#{token}'>{token}</a> in the src and dest filenames. If set to true, the 'me' object is used.</td></tr>
+<td class='param'>expand</td><td>Expand tokens. Set to true or an Object hash containing properties to use when replacing tokens of the form <a href='#{token}'>{token}</a> in the src and dest filenames. If set to true, the 'me' object is used.</td></tr>
 <td class='param'>fold</td><td>Fold long lines on windows at column 80 and convert new line endings.</td></tr>
 <td class='param'>group</td><td>Set file group.</td></tr>
 <td class='param'>include</td><td>Include files that match the pattern. The pattern should be in portable file format.</td></tr>
@@ -121,8 +121,8 @@ This either copies files or if generating, emits code to copy files.</dd></dl>
 <div class='apiSig'>    expand(s: <a href='String.html'>String</a>, options = expression): <a href='String.html'>String</a>
 </div>
 <div class='apiDetail'>
-<dl><dt>Description</dt></dd><dd>Expand tokens in a string. Tokens are represented by '<a href='#{field}''>{field}'</a> where field may contain '.'. For example {user.name}    
-To preserve an <a href='#{token}'>{token}</a> unmodified, preceed the token with an extra ''. For example: ${token}.
+<dl><dt>Description</dt></dd><dd>Expand tokens in a string. Tokens are represented by '<a href='#{field}''>{field}'</a> where field may contain '.'. For example {user.name}.
+ To preserve an <a href='#{token}'>{token}</a> unmodified, preceed the token with an extra ''. For example: ${token}.
 Calls <a href='String.html#expand'>String.expand</a> to expand variables from the me and me.globals objects.</dd></dl>
 <dl><dt>Parameters</dt>
 <dd><table class='parameters' title='parameters'>
@@ -160,7 +160,7 @@ The routine uses <a href='Path.html#link'>Path.link()</a> to implement the linki
 This either links files or if generating, emits code to link files.</dd></dl>
 <dl><dt>Parameters</dt>
 <dd><table class='parameters' title='parameters'>
-<tr class='param'><td class='param'>src: <a href='Path.html'>Path</a> </td><td>Source file.</td></tr><tr class='param'><td class='param'>dest: <a href='Path.html'>Path</a> </td><td>Destination.</td></tr><tr class='param'><td class='param'>options </td><td>See <a href='#copy'>copy()</a> for supported options. [default: expression]</td></tr></table></dd>
+<tr class='param'><td class='param'>src: <a href='Path.html'>Path</a> </td><td>Source file.</td></tr><tr class='param'><td class='param'>dest: <a href='Path.html'>Path</a> </td><td>Destination.</td></tr><tr class='param'><td class='param'>options </td><td>See <a href='#copy'>copy()</a> for supported options. H. [default: expression]</td></tr></table></dd>
 </dl></div>
 </div>
 <hr />

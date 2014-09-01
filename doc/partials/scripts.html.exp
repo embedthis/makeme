@@ -5,11 +5,13 @@
         $('.sidebar').sidebar({overlay: false}).sidebar('toggle');
         $('.sidebar').first().sidebar('attach events', '.toggle.button');
         $(function() {
-            var active = $('.sidebar a[href$="' + window.location.pathname +'"]');
+            var url = '@~' + window.location.pathname.slice(1);
+            var active = $('.sidebar a[href="' + url +'"]');
             active.addClass('active');
             var sidebar = $(".sidebar");
             var height = sidebar.height();
-            if (active.offset().top >= height) {
+            var offset = active.offset();
+            if (offset && offset.top >= height) {
                 var diff = height - active.offset().top;
                 sidebar.scrollTop(height);
             }
