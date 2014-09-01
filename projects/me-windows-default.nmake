@@ -48,6 +48,9 @@ ME_COM_NANOSSL        = 0
 !IF "$(ME_COM_OPENSSL)" == ""
 ME_COM_OPENSSL        = 0
 !ENDIF
+!IF "$(ME_COM_OSDEP)" == ""
+ME_COM_OSDEP          = 1
+!ENDIF
 !IF "$(ME_COM_PCRE)" == ""
 ME_COM_PCRE           = 1
 !ENDIF
@@ -97,7 +100,7 @@ CC                    = cl
 LD                    = link
 RC                    = rc
 CFLAGS                = -nologo -GR- -W3 -Zi -Od -MDd
-DFLAGS                = -D_REENTRANT -D_MT -DME_COM_EJS=$(ME_COM_EJS) -DME_COM_EST=$(ME_COM_EST) -DME_COM_HTTP=$(ME_COM_HTTP) -DME_COM_MATRIXSSL=$(ME_COM_MATRIXSSL) -DME_COM_NANOSSL=$(ME_COM_NANOSSL) -DME_COM_OPENSSL=$(ME_COM_OPENSSL) -DME_COM_PCRE=$(ME_COM_PCRE) -DME_COM_SQLITE=$(ME_COM_SQLITE) -DME_COM_SSL=$(ME_COM_SSL) -DME_COM_VXWORKS=$(ME_COM_VXWORKS) -DME_COM_ZLIB=$(ME_COM_ZLIB) 
+DFLAGS                = -D_REENTRANT -D_MT -DME_COM_EJS=$(ME_COM_EJS) -DME_COM_EST=$(ME_COM_EST) -DME_COM_HTTP=$(ME_COM_HTTP) -DME_COM_MATRIXSSL=$(ME_COM_MATRIXSSL) -DME_COM_NANOSSL=$(ME_COM_NANOSSL) -DME_COM_OPENSSL=$(ME_COM_OPENSSL) -DME_COM_OSDEP=$(ME_COM_OSDEP) -DME_COM_PCRE=$(ME_COM_PCRE) -DME_COM_SQLITE=$(ME_COM_SQLITE) -DME_COM_SSL=$(ME_COM_SSL) -DME_COM_VXWORKS=$(ME_COM_VXWORKS) -DME_COM_ZLIB=$(ME_COM_ZLIB) 
 IFLAGS                = -Ibuild\$(CONFIG)\inc
 LDFLAGS               = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
 LIBPATHS              = "-libpath:build\$(CONFIG)\bin"
@@ -861,6 +864,8 @@ build\$(CONFIG)\bin\libtestme.dll: $(DEPS_37)
 #
 #   me.mod
 #
+DEPS_38 = $(DEPS_38) src\me.es
+DEPS_38 = $(DEPS_38) src\paks\ejs-version\Version.es
 DEPS_38 = $(DEPS_38) build\$(CONFIG)\inc\mpr.h
 DEPS_38 = $(DEPS_38) build\$(CONFIG)\inc\me.h
 DEPS_38 = $(DEPS_38) build\$(CONFIG)\inc\osdep.h
@@ -895,141 +900,105 @@ DEPS_38 = $(DEPS_38) build\$(CONFIG)\bin\ejsc.exe
 
 build\$(CONFIG)\bin\me.mod: $(DEPS_38)
 	cd .
-	".\build\$(CONFIG)\bin\ejsc" --out ".\build\$(CONFIG)\bin\me.mod" --optimize 9 ./src/me.es ./src/paks/ejs-version/Version.es
+	"$(LBIN)\ejsc" --out ".\build\$(CONFIG)\bin\me.mod" --optimize 9 ./src/me.es ./src/paks/ejs-version/Version.es
 	cd .
-#
-#   me.mod
-#
-DEPS_39 = $(DEPS_39) build\$(CONFIG)\inc\mpr.h
-DEPS_39 = $(DEPS_39) build\$(CONFIG)\inc\me.h
-DEPS_39 = $(DEPS_39) build\$(CONFIG)\inc\osdep.h
-DEPS_39 = $(DEPS_39) build\$(CONFIG)\obj\mprLib.obj
-DEPS_39 = $(DEPS_39) build\$(CONFIG)\bin\libmpr.dll
-DEPS_39 = $(DEPS_39) build\$(CONFIG)\inc\pcre.h
-DEPS_39 = $(DEPS_39) build\$(CONFIG)\obj\pcre.obj
-!IF "$(ME_COM_PCRE)" == "1"
-DEPS_39 = $(DEPS_39) build\$(CONFIG)\bin\libpcre.dll
-!ENDIF
-DEPS_39 = $(DEPS_39) build\$(CONFIG)\inc\http.h
-DEPS_39 = $(DEPS_39) build\$(CONFIG)\obj\httpLib.obj
-!IF "$(ME_COM_HTTP)" == "1"
-DEPS_39 = $(DEPS_39) build\$(CONFIG)\bin\libhttp.dll
-!ENDIF
-DEPS_39 = $(DEPS_39) build\$(CONFIG)\inc\zlib.h
-DEPS_39 = $(DEPS_39) build\$(CONFIG)\obj\zlib.obj
-!IF "$(ME_COM_ZLIB)" == "1"
-DEPS_39 = $(DEPS_39) build\$(CONFIG)\bin\libzlib.dll
-!ENDIF
-DEPS_39 = $(DEPS_39) build\$(CONFIG)\inc\ejs.h
-DEPS_39 = $(DEPS_39) build\$(CONFIG)\inc\ejs.slots.h
-DEPS_39 = $(DEPS_39) build\$(CONFIG)\inc\ejsByteGoto.h
-DEPS_39 = $(DEPS_39) build\$(CONFIG)\obj\ejsLib.obj
-!IF "$(ME_COM_EJS)" == "1"
-DEPS_39 = $(DEPS_39) build\$(CONFIG)\bin\libejs.dll
-!ENDIF
-DEPS_39 = $(DEPS_39) build\$(CONFIG)\obj\ejsc.obj
-!IF "$(ME_COM_EJS)" == "1"
-DEPS_39 = $(DEPS_39) build\$(CONFIG)\bin\ejsc.exe
-!ENDIF
 
-me.mod: $(DEPS_39)
-	\Users\mob\git\me\build\windows-x86-default\bin/ejsc --out \Users\mob\git\me\build\windows-x86-default\bin/me.mod --optimize 9 /Users/mob/git/me/src/me.es /Users/mob/git/me/src/paks/ejs-version/Version.es
 #
 #   me.obj
 #
-DEPS_40 = $(DEPS_40) build\$(CONFIG)\inc\me.h
-DEPS_40 = $(DEPS_40) build\$(CONFIG)\inc\ejs.h
+DEPS_39 = $(DEPS_39) build\$(CONFIG)\inc\me.h
+DEPS_39 = $(DEPS_39) build\$(CONFIG)\inc\ejs.h
 
 build\$(CONFIG)\obj\me.obj: \
-    src\me.c $(DEPS_40)
+    src\me.c $(DEPS_39)
 	@echo '   [Compile] build/$(CONFIG)/obj/me.obj'
 	"$(CC)" -c -Fobuild\$(CONFIG)\obj\me.obj -Fdbuild\$(CONFIG)\obj\me.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\me.c
 
 #
 #   me
 #
-DEPS_41 = $(DEPS_41) build\$(CONFIG)\inc\mpr.h
-DEPS_41 = $(DEPS_41) build\$(CONFIG)\inc\me.h
-DEPS_41 = $(DEPS_41) build\$(CONFIG)\inc\osdep.h
-DEPS_41 = $(DEPS_41) build\$(CONFIG)\obj\mprLib.obj
-DEPS_41 = $(DEPS_41) build\$(CONFIG)\bin\libmpr.dll
-DEPS_41 = $(DEPS_41) build\$(CONFIG)\inc\pcre.h
-DEPS_41 = $(DEPS_41) build\$(CONFIG)\obj\pcre.obj
+DEPS_40 = $(DEPS_40) build\$(CONFIG)\inc\mpr.h
+DEPS_40 = $(DEPS_40) build\$(CONFIG)\inc\me.h
+DEPS_40 = $(DEPS_40) build\$(CONFIG)\inc\osdep.h
+DEPS_40 = $(DEPS_40) build\$(CONFIG)\obj\mprLib.obj
+DEPS_40 = $(DEPS_40) build\$(CONFIG)\bin\libmpr.dll
+DEPS_40 = $(DEPS_40) build\$(CONFIG)\inc\pcre.h
+DEPS_40 = $(DEPS_40) build\$(CONFIG)\obj\pcre.obj
 !IF "$(ME_COM_PCRE)" == "1"
-DEPS_41 = $(DEPS_41) build\$(CONFIG)\bin\libpcre.dll
+DEPS_40 = $(DEPS_40) build\$(CONFIG)\bin\libpcre.dll
 !ENDIF
-DEPS_41 = $(DEPS_41) build\$(CONFIG)\inc\http.h
-DEPS_41 = $(DEPS_41) build\$(CONFIG)\obj\httpLib.obj
+DEPS_40 = $(DEPS_40) build\$(CONFIG)\inc\http.h
+DEPS_40 = $(DEPS_40) build\$(CONFIG)\obj\httpLib.obj
 !IF "$(ME_COM_HTTP)" == "1"
-DEPS_41 = $(DEPS_41) build\$(CONFIG)\bin\libhttp.dll
+DEPS_40 = $(DEPS_40) build\$(CONFIG)\bin\libhttp.dll
 !ENDIF
-DEPS_41 = $(DEPS_41) build\$(CONFIG)\inc\zlib.h
-DEPS_41 = $(DEPS_41) build\$(CONFIG)\obj\zlib.obj
+DEPS_40 = $(DEPS_40) build\$(CONFIG)\inc\zlib.h
+DEPS_40 = $(DEPS_40) build\$(CONFIG)\obj\zlib.obj
 !IF "$(ME_COM_ZLIB)" == "1"
-DEPS_41 = $(DEPS_41) build\$(CONFIG)\bin\libzlib.dll
+DEPS_40 = $(DEPS_40) build\$(CONFIG)\bin\libzlib.dll
 !ENDIF
-DEPS_41 = $(DEPS_41) build\$(CONFIG)\inc\ejs.h
-DEPS_41 = $(DEPS_41) build\$(CONFIG)\inc\ejs.slots.h
-DEPS_41 = $(DEPS_41) build\$(CONFIG)\inc\ejsByteGoto.h
-DEPS_41 = $(DEPS_41) build\$(CONFIG)\obj\ejsLib.obj
+DEPS_40 = $(DEPS_40) build\$(CONFIG)\inc\ejs.h
+DEPS_40 = $(DEPS_40) build\$(CONFIG)\inc\ejs.slots.h
+DEPS_40 = $(DEPS_40) build\$(CONFIG)\inc\ejsByteGoto.h
+DEPS_40 = $(DEPS_40) build\$(CONFIG)\obj\ejsLib.obj
 !IF "$(ME_COM_EJS)" == "1"
-DEPS_41 = $(DEPS_41) build\$(CONFIG)\bin\libejs.dll
+DEPS_40 = $(DEPS_40) build\$(CONFIG)\bin\libejs.dll
 !ENDIF
-DEPS_41 = $(DEPS_41) build\$(CONFIG)\obj\ejsc.obj
+DEPS_40 = $(DEPS_40) build\$(CONFIG)\obj\ejsc.obj
 !IF "$(ME_COM_EJS)" == "1"
-DEPS_41 = $(DEPS_41) build\$(CONFIG)\bin\ejsc.exe
+DEPS_40 = $(DEPS_40) build\$(CONFIG)\bin\ejsc.exe
 !ENDIF
-DEPS_41 = $(DEPS_41) build\$(CONFIG)\bin\me.mod
-DEPS_41 = $(DEPS_41) build\$(CONFIG)\obj\me.obj
+DEPS_40 = $(DEPS_40) build\$(CONFIG)\bin\me.mod
+DEPS_40 = $(DEPS_40) build\$(CONFIG)\obj\me.obj
 
-LIBS_41 = $(LIBS_41) libmpr.lib
+LIBS_40 = $(LIBS_40) libmpr.lib
 !IF "$(ME_COM_HTTP)" == "1"
-LIBS_41 = $(LIBS_41) libhttp.lib
+LIBS_40 = $(LIBS_40) libhttp.lib
 !ENDIF
 !IF "$(ME_COM_PCRE)" == "1"
-LIBS_41 = $(LIBS_41) libpcre.lib
+LIBS_40 = $(LIBS_40) libpcre.lib
 !ENDIF
 !IF "$(ME_COM_EJS)" == "1"
-LIBS_41 = $(LIBS_41) libejs.lib
+LIBS_40 = $(LIBS_40) libejs.lib
 !ENDIF
 !IF "$(ME_COM_ZLIB)" == "1"
-LIBS_41 = $(LIBS_41) libzlib.lib
+LIBS_40 = $(LIBS_40) libzlib.lib
 !ENDIF
 
-build\$(CONFIG)\bin\me.exe: $(DEPS_41)
+build\$(CONFIG)\bin\me.exe: $(DEPS_40)
 	@echo '      [Link] build/$(CONFIG)/bin/me.exe'
-	"$(LD)" -out:build\$(CONFIG)\bin\me.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\me.obj" $(LIBPATHS_41) $(LIBS_41) $(LIBS_41) $(LIBS) 
+	"$(LD)" -out:build\$(CONFIG)\bin\me.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\me.obj" $(LIBPATHS_40) $(LIBS_40) $(LIBS_40) $(LIBS) 
 
 #
 #   me-core
 #
-DEPS_42 = $(DEPS_42) src\configure\appweb.me
-DEPS_42 = $(DEPS_42) src\configure\compiler.me
-DEPS_42 = $(DEPS_42) src\configure\lib.me
-DEPS_42 = $(DEPS_42) src\configure\link.me
-DEPS_42 = $(DEPS_42) src\configure\rc.me
-DEPS_42 = $(DEPS_42) src\configure\testme.me
-DEPS_42 = $(DEPS_42) src\configure\vxworks.me
-DEPS_42 = $(DEPS_42) src\configure\winsdk.me
-DEPS_42 = $(DEPS_42) src\configure.es
-DEPS_42 = $(DEPS_42) src\generate.es
-DEPS_42 = $(DEPS_42) src\master-main.me
-DEPS_42 = $(DEPS_42) src\master-start.me
-DEPS_42 = $(DEPS_42) src\me.es
-DEPS_42 = $(DEPS_42) src\os\freebsd.me
-DEPS_42 = $(DEPS_42) src\os\gcc.me
-DEPS_42 = $(DEPS_42) src\os\linux.me
-DEPS_42 = $(DEPS_42) src\os\macosx.me
-DEPS_42 = $(DEPS_42) src\os\solaris.me
-DEPS_42 = $(DEPS_42) src\os\unix.me
-DEPS_42 = $(DEPS_42) src\os\vxworks.me
-DEPS_42 = $(DEPS_42) src\os\windows.me
-DEPS_42 = $(DEPS_42) src\simple.me
-DEPS_42 = $(DEPS_42) src\standard.me
-DEPS_42 = $(DEPS_42) src\vstudio.es
-DEPS_42 = $(DEPS_42) src\xcode.es
+DEPS_41 = $(DEPS_41) src\configure\appweb.me
+DEPS_41 = $(DEPS_41) src\configure\compiler.me
+DEPS_41 = $(DEPS_41) src\configure\lib.me
+DEPS_41 = $(DEPS_41) src\configure\link.me
+DEPS_41 = $(DEPS_41) src\configure\rc.me
+DEPS_41 = $(DEPS_41) src\configure\testme.me
+DEPS_41 = $(DEPS_41) src\configure\vxworks.me
+DEPS_41 = $(DEPS_41) src\configure\winsdk.me
+DEPS_41 = $(DEPS_41) src\configure.es
+DEPS_41 = $(DEPS_41) src\generate.es
+DEPS_41 = $(DEPS_41) src\master-main.me
+DEPS_41 = $(DEPS_41) src\master-start.me
+DEPS_41 = $(DEPS_41) src\me.es
+DEPS_41 = $(DEPS_41) src\os\freebsd.me
+DEPS_41 = $(DEPS_41) src\os\gcc.me
+DEPS_41 = $(DEPS_41) src\os\linux.me
+DEPS_41 = $(DEPS_41) src\os\macosx.me
+DEPS_41 = $(DEPS_41) src\os\solaris.me
+DEPS_41 = $(DEPS_41) src\os\unix.me
+DEPS_41 = $(DEPS_41) src\os\vxworks.me
+DEPS_41 = $(DEPS_41) src\os\windows.me
+DEPS_41 = $(DEPS_41) src\simple.me
+DEPS_41 = $(DEPS_41) src\standard.me
+DEPS_41 = $(DEPS_41) src\vstudio.es
+DEPS_41 = $(DEPS_41) src\xcode.es
 
-build\$(CONFIG)\bin\.updated: $(DEPS_42)
+build\$(CONFIG)\bin\.updated: $(DEPS_41)
 	@echo '      [Copy] build/$(CONFIG)/bin'
 	if not exist "build\$(CONFIG)\bin\configure" md "build\$(CONFIG)\bin\configure"
 	copy /Y src\configure\appweb.me build\$(CONFIG)\bin\configure\appweb.me
@@ -1065,60 +1034,60 @@ build\$(CONFIG)\bin\.updated: $(DEPS_42)
 #
 #   removeFiles.obj
 #
-DEPS_43 = $(DEPS_43) build\$(CONFIG)\inc\me.h
+DEPS_42 = $(DEPS_42) build\$(CONFIG)\inc\me.h
 
 build\$(CONFIG)\obj\removeFiles.obj: \
-    package\windows\removeFiles.c $(DEPS_43)
+    package\windows\removeFiles.c $(DEPS_42)
 	@echo '   [Compile] build/$(CONFIG)/obj/removeFiles.obj'
 	"$(CC)" -c -Fobuild\$(CONFIG)\obj\removeFiles.obj -Fdbuild\$(CONFIG)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) package\windows\removeFiles.c
 
 #
 #   removeFiles
 #
-DEPS_44 = $(DEPS_44) build\$(CONFIG)\inc\me.h
-DEPS_44 = $(DEPS_44) build\$(CONFIG)\obj\removeFiles.obj
+DEPS_43 = $(DEPS_43) build\$(CONFIG)\inc\me.h
+DEPS_43 = $(DEPS_43) build\$(CONFIG)\obj\removeFiles.obj
 
-build\$(CONFIG)\bin\removeFiles.exe: $(DEPS_44)
+build\$(CONFIG)\bin\removeFiles.exe: $(DEPS_43)
 	@echo '      [Link] build/$(CONFIG)/bin/removeFiles.exe'
 	"$(LD)" -out:build\$(CONFIG)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:windows $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\removeFiles.obj" $(LIBS) 
 
 #
 #   testme.mod
 #
-DEPS_45 = $(DEPS_45) src\tm\testme.es
-DEPS_45 = $(DEPS_45) build\$(CONFIG)\inc\mpr.h
-DEPS_45 = $(DEPS_45) build\$(CONFIG)\inc\me.h
-DEPS_45 = $(DEPS_45) build\$(CONFIG)\inc\osdep.h
-DEPS_45 = $(DEPS_45) build\$(CONFIG)\obj\mprLib.obj
-DEPS_45 = $(DEPS_45) build\$(CONFIG)\bin\libmpr.dll
-DEPS_45 = $(DEPS_45) build\$(CONFIG)\inc\pcre.h
-DEPS_45 = $(DEPS_45) build\$(CONFIG)\obj\pcre.obj
+DEPS_44 = $(DEPS_44) src\tm\testme.es
+DEPS_44 = $(DEPS_44) build\$(CONFIG)\inc\mpr.h
+DEPS_44 = $(DEPS_44) build\$(CONFIG)\inc\me.h
+DEPS_44 = $(DEPS_44) build\$(CONFIG)\inc\osdep.h
+DEPS_44 = $(DEPS_44) build\$(CONFIG)\obj\mprLib.obj
+DEPS_44 = $(DEPS_44) build\$(CONFIG)\bin\libmpr.dll
+DEPS_44 = $(DEPS_44) build\$(CONFIG)\inc\pcre.h
+DEPS_44 = $(DEPS_44) build\$(CONFIG)\obj\pcre.obj
 !IF "$(ME_COM_PCRE)" == "1"
-DEPS_45 = $(DEPS_45) build\$(CONFIG)\bin\libpcre.dll
+DEPS_44 = $(DEPS_44) build\$(CONFIG)\bin\libpcre.dll
 !ENDIF
-DEPS_45 = $(DEPS_45) build\$(CONFIG)\inc\http.h
-DEPS_45 = $(DEPS_45) build\$(CONFIG)\obj\httpLib.obj
+DEPS_44 = $(DEPS_44) build\$(CONFIG)\inc\http.h
+DEPS_44 = $(DEPS_44) build\$(CONFIG)\obj\httpLib.obj
 !IF "$(ME_COM_HTTP)" == "1"
-DEPS_45 = $(DEPS_45) build\$(CONFIG)\bin\libhttp.dll
+DEPS_44 = $(DEPS_44) build\$(CONFIG)\bin\libhttp.dll
 !ENDIF
-DEPS_45 = $(DEPS_45) build\$(CONFIG)\inc\zlib.h
-DEPS_45 = $(DEPS_45) build\$(CONFIG)\obj\zlib.obj
+DEPS_44 = $(DEPS_44) build\$(CONFIG)\inc\zlib.h
+DEPS_44 = $(DEPS_44) build\$(CONFIG)\obj\zlib.obj
 !IF "$(ME_COM_ZLIB)" == "1"
-DEPS_45 = $(DEPS_45) build\$(CONFIG)\bin\libzlib.dll
+DEPS_44 = $(DEPS_44) build\$(CONFIG)\bin\libzlib.dll
 !ENDIF
-DEPS_45 = $(DEPS_45) build\$(CONFIG)\inc\ejs.h
-DEPS_45 = $(DEPS_45) build\$(CONFIG)\inc\ejs.slots.h
-DEPS_45 = $(DEPS_45) build\$(CONFIG)\inc\ejsByteGoto.h
-DEPS_45 = $(DEPS_45) build\$(CONFIG)\obj\ejsLib.obj
+DEPS_44 = $(DEPS_44) build\$(CONFIG)\inc\ejs.h
+DEPS_44 = $(DEPS_44) build\$(CONFIG)\inc\ejs.slots.h
+DEPS_44 = $(DEPS_44) build\$(CONFIG)\inc\ejsByteGoto.h
+DEPS_44 = $(DEPS_44) build\$(CONFIG)\obj\ejsLib.obj
 !IF "$(ME_COM_EJS)" == "1"
-DEPS_45 = $(DEPS_45) build\$(CONFIG)\bin\libejs.dll
+DEPS_44 = $(DEPS_44) build\$(CONFIG)\bin\libejs.dll
 !ENDIF
-DEPS_45 = $(DEPS_45) build\$(CONFIG)\obj\ejsc.obj
+DEPS_44 = $(DEPS_44) build\$(CONFIG)\obj\ejsc.obj
 !IF "$(ME_COM_EJS)" == "1"
-DEPS_45 = $(DEPS_45) build\$(CONFIG)\bin\ejsc.exe
+DEPS_44 = $(DEPS_44) build\$(CONFIG)\bin\ejsc.exe
 !ENDIF
 
-build\$(CONFIG)\bin\testme.mod: $(DEPS_45)
+build\$(CONFIG)\bin\testme.mod: $(DEPS_44)
 	cd src\tm
 	"..\..\build\$(CONFIG)\bin\ejsc" --debug --out "..\..\build\$(CONFIG)\bin\testme.mod" --optimize 9 ../../src/tm/testme.es
 	cd ..\..
@@ -1126,76 +1095,76 @@ build\$(CONFIG)\bin\testme.mod: $(DEPS_45)
 #
 #   testme.obj
 #
-DEPS_46 = $(DEPS_46) build\$(CONFIG)\inc\me.h
-DEPS_46 = $(DEPS_46) build\$(CONFIG)\inc\ejs.h
+DEPS_45 = $(DEPS_45) build\$(CONFIG)\inc\me.h
+DEPS_45 = $(DEPS_45) build\$(CONFIG)\inc\ejs.h
 
 build\$(CONFIG)\obj\testme.obj: \
-    src\tm\testme.c $(DEPS_46)
+    src\tm\testme.c $(DEPS_45)
 	@echo '   [Compile] build/$(CONFIG)/obj/testme.obj'
 	"$(CC)" -c -Fobuild\$(CONFIG)\obj\testme.obj -Fdbuild\$(CONFIG)\obj\testme.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\tm\testme.c
 
 #
 #   testme
 #
-DEPS_47 = $(DEPS_47) build\$(CONFIG)\inc\mpr.h
-DEPS_47 = $(DEPS_47) build\$(CONFIG)\inc\me.h
-DEPS_47 = $(DEPS_47) build\$(CONFIG)\inc\osdep.h
-DEPS_47 = $(DEPS_47) build\$(CONFIG)\obj\mprLib.obj
-DEPS_47 = $(DEPS_47) build\$(CONFIG)\bin\libmpr.dll
-DEPS_47 = $(DEPS_47) build\$(CONFIG)\inc\pcre.h
-DEPS_47 = $(DEPS_47) build\$(CONFIG)\obj\pcre.obj
+DEPS_46 = $(DEPS_46) build\$(CONFIG)\inc\mpr.h
+DEPS_46 = $(DEPS_46) build\$(CONFIG)\inc\me.h
+DEPS_46 = $(DEPS_46) build\$(CONFIG)\inc\osdep.h
+DEPS_46 = $(DEPS_46) build\$(CONFIG)\obj\mprLib.obj
+DEPS_46 = $(DEPS_46) build\$(CONFIG)\bin\libmpr.dll
+DEPS_46 = $(DEPS_46) build\$(CONFIG)\inc\pcre.h
+DEPS_46 = $(DEPS_46) build\$(CONFIG)\obj\pcre.obj
 !IF "$(ME_COM_PCRE)" == "1"
-DEPS_47 = $(DEPS_47) build\$(CONFIG)\bin\libpcre.dll
+DEPS_46 = $(DEPS_46) build\$(CONFIG)\bin\libpcre.dll
 !ENDIF
-DEPS_47 = $(DEPS_47) build\$(CONFIG)\inc\http.h
-DEPS_47 = $(DEPS_47) build\$(CONFIG)\obj\httpLib.obj
+DEPS_46 = $(DEPS_46) build\$(CONFIG)\inc\http.h
+DEPS_46 = $(DEPS_46) build\$(CONFIG)\obj\httpLib.obj
 !IF "$(ME_COM_HTTP)" == "1"
-DEPS_47 = $(DEPS_47) build\$(CONFIG)\bin\libhttp.dll
+DEPS_46 = $(DEPS_46) build\$(CONFIG)\bin\libhttp.dll
 !ENDIF
-DEPS_47 = $(DEPS_47) build\$(CONFIG)\inc\zlib.h
-DEPS_47 = $(DEPS_47) build\$(CONFIG)\obj\zlib.obj
+DEPS_46 = $(DEPS_46) build\$(CONFIG)\inc\zlib.h
+DEPS_46 = $(DEPS_46) build\$(CONFIG)\obj\zlib.obj
 !IF "$(ME_COM_ZLIB)" == "1"
-DEPS_47 = $(DEPS_47) build\$(CONFIG)\bin\libzlib.dll
+DEPS_46 = $(DEPS_46) build\$(CONFIG)\bin\libzlib.dll
 !ENDIF
-DEPS_47 = $(DEPS_47) build\$(CONFIG)\inc\ejs.h
-DEPS_47 = $(DEPS_47) build\$(CONFIG)\inc\ejs.slots.h
-DEPS_47 = $(DEPS_47) build\$(CONFIG)\inc\ejsByteGoto.h
-DEPS_47 = $(DEPS_47) build\$(CONFIG)\obj\ejsLib.obj
+DEPS_46 = $(DEPS_46) build\$(CONFIG)\inc\ejs.h
+DEPS_46 = $(DEPS_46) build\$(CONFIG)\inc\ejs.slots.h
+DEPS_46 = $(DEPS_46) build\$(CONFIG)\inc\ejsByteGoto.h
+DEPS_46 = $(DEPS_46) build\$(CONFIG)\obj\ejsLib.obj
 !IF "$(ME_COM_EJS)" == "1"
-DEPS_47 = $(DEPS_47) build\$(CONFIG)\bin\libejs.dll
+DEPS_46 = $(DEPS_46) build\$(CONFIG)\bin\libejs.dll
 !ENDIF
-DEPS_47 = $(DEPS_47) build\$(CONFIG)\obj\ejsc.obj
+DEPS_46 = $(DEPS_46) build\$(CONFIG)\obj\ejsc.obj
 !IF "$(ME_COM_EJS)" == "1"
-DEPS_47 = $(DEPS_47) build\$(CONFIG)\bin\ejsc.exe
+DEPS_46 = $(DEPS_46) build\$(CONFIG)\bin\ejsc.exe
 !ENDIF
-DEPS_47 = $(DEPS_47) build\$(CONFIG)\bin\testme.mod
-DEPS_47 = $(DEPS_47) build\$(CONFIG)\bin\ejs.testme.mod
-DEPS_47 = $(DEPS_47) build\$(CONFIG)\obj\testme.obj
+DEPS_46 = $(DEPS_46) build\$(CONFIG)\bin\testme.mod
+DEPS_46 = $(DEPS_46) build\$(CONFIG)\bin\ejs.testme.mod
+DEPS_46 = $(DEPS_46) build\$(CONFIG)\obj\testme.obj
 
 !IF "$(ME_COM_EJS)" == "1"
-LIBS_47 = $(LIBS_47) libejs.lib
+LIBS_46 = $(LIBS_46) libejs.lib
 !ENDIF
 !IF "$(ME_COM_HTTP)" == "1"
-LIBS_47 = $(LIBS_47) libhttp.lib
+LIBS_46 = $(LIBS_46) libhttp.lib
 !ENDIF
-LIBS_47 = $(LIBS_47) libmpr.lib
+LIBS_46 = $(LIBS_46) libmpr.lib
 !IF "$(ME_COM_PCRE)" == "1"
-LIBS_47 = $(LIBS_47) libpcre.lib
+LIBS_46 = $(LIBS_46) libpcre.lib
 !ENDIF
 !IF "$(ME_COM_ZLIB)" == "1"
-LIBS_47 = $(LIBS_47) libzlib.lib
+LIBS_46 = $(LIBS_46) libzlib.lib
 !ENDIF
 
-build\$(CONFIG)\bin\testme.exe: $(DEPS_47)
+build\$(CONFIG)\bin\testme.exe: $(DEPS_46)
 	@echo '      [Link] build/$(CONFIG)/bin/testme.exe'
-	"$(LD)" -out:build\$(CONFIG)\bin\testme.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\testme.obj" $(LIBPATHS_47) $(LIBS_47) $(LIBS_47) $(LIBS) 
+	"$(LD)" -out:build\$(CONFIG)\bin\testme.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\testme.obj" $(LIBPATHS_46) $(LIBS_46) $(LIBS_46) $(LIBS) 
 
 #
 #   testme.es
 #
-DEPS_48 = $(DEPS_48) src\tm\testme.es
+DEPS_47 = $(DEPS_47) src\tm\testme.es
 
-build\$(CONFIG)\bin\testme.es: $(DEPS_48)
+build\$(CONFIG)\bin\testme.es: $(DEPS_47)
 	cd src\tm
 	copy testme.es ..\..\build\$(CONFIG)\bin
 	cd ..\..
@@ -1203,20 +1172,20 @@ build\$(CONFIG)\bin\testme.es: $(DEPS_48)
 #
 #   stop
 #
-stop: $(DEPS_49)
+stop: $(DEPS_48)
 #  Omit build script stop
 
 #
 #   installBinary
 #
-installBinary: $(DEPS_50)
+installBinary: $(DEPS_49)
 	cd .
 	if not exist "$(ME_VAPP_PREFIX)\bin" md "$(ME_VAPP_PREFIX)\bin"
 	copy /Y build\$(CONFIG)\bin\me.exe "$(ME_VAPP_PREFIX)\bin\me.exe"
+	copy /Y build\$(CONFIG)\bin\testme.exe "$(ME_VAPP_PREFIX)\bin\testme.exe"
 	copy /Y build\$(CONFIG)\bin\ejs.exe "$(ME_VAPP_PREFIX)\bin\ejs.exe"
 	copy /Y build\$(CONFIG)\bin\ejsc.exe "$(ME_VAPP_PREFIX)\bin\ejsc.exe"
 	copy /Y build\$(CONFIG)\bin\http.exe "$(ME_VAPP_PREFIX)\bin\http.exe"
-	copy /Y build\$(CONFIG)\bin\testme.exe "$(ME_VAPP_PREFIX)\bin\testme.exe"
 	copy /Y build\$(CONFIG)\bin\libejs.dll "$(ME_VAPP_PREFIX)\bin\libejs.dll"
 	copy /Y build\$(CONFIG)\bin\libhttp.dll "$(ME_VAPP_PREFIX)\bin\libhttp.dll"
 	copy /Y build\$(CONFIG)\bin\libmpr.dll "$(ME_VAPP_PREFIX)\bin\libmpr.dll"
@@ -1278,25 +1247,25 @@ installBinary: $(DEPS_50)
 #
 #   start
 #
-start: $(DEPS_51)
+start: $(DEPS_50)
 #  Omit build script start
 
 #
 #   install
 #
-DEPS_52 = $(DEPS_52) stop
-DEPS_52 = $(DEPS_52) installBinary
-DEPS_52 = $(DEPS_52) start
+DEPS_51 = $(DEPS_51) stop
+DEPS_51 = $(DEPS_51) installBinary
+DEPS_51 = $(DEPS_51) start
 
-install: $(DEPS_52)
+install: $(DEPS_51)
 #  Omit build script install
 
 #
 #   uninstall
 #
-DEPS_53 = $(DEPS_53) stop
+DEPS_52 = $(DEPS_52) stop
 
-uninstall: $(DEPS_53)
+uninstall: $(DEPS_52)
 	cd .
 	if exist "$(ME_VAPP_PREFIX)" rd /Q /S "$(ME_VAPP_PREFIX)"
 	if exist "$(ME_VAPP_PREFIX)\bin" rd /Q "$(ME_VAPP_PREFIX)\bin"
@@ -1309,7 +1278,7 @@ uninstall: $(DEPS_53)
 #
 #   version
 #
-version: $(DEPS_54)
+version: $(DEPS_53)
 	cd build\macosx-x64-release\bin
 	echo 0.8.3
 	cd ..\..\..

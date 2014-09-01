@@ -16,9 +16,9 @@ Me.load({
     },
 
     customize: [
-        /* 
+        /*
             The optional custom.me file is loaded after main.me is fully processed. It can
-            thus override any setting. Feel free to create and customize. 
+            thus override any setting. Feel free to create and customize.
          */
         'custom.me',
     ],
@@ -36,11 +36,11 @@ Me.load({
             mail: true,
             mapper: true,
             shell: true,
-            tar: true,                                                                                     
+            tar: true,
             template: true,
             web: true,
             zlib: true,
-        }, 
+        },
 
         /*
             EST SSL stack configuration
@@ -60,13 +60,13 @@ Me.load({
             /* Use PAM (Plugable Authentication Module) to store passwords */
             pam: false,
         },
-                                                                                                           
-        mpr: {                                                                                             
-            /*                                                                                             
-                Enable logging via mprLog to the log file. Error messages are always enabled.              
-                The default is to enable logging for both debug and release builds.                        
-             */                                                                                            
-            logging: true,                                                                                 
+
+        mpr: {
+            /*
+                Enable logging via mprLog to the log file. Error messages are always enabled.
+                The default is to enable logging for both debug and release builds.
+             */
+            logging: true,
         },
 
         tune: 'speed',
@@ -86,8 +86,11 @@ Me.load({
             path: '${BIN}/me.mod',
             files: [ 'src/me.es', 'src/paks/ejs-version/Version.es' ],
             precious: true,
-            run: '${BIN}/ejsc --out ${BIN}/me.mod --optimize 9 ${target.cmdfiles}',
-            'generate-nmake': `"${BIN}\\ejsc" --out "${BIN}/me.mod" --optimize 9 ${target.cmdfiles}`,
+            build: `
+                trace('Compile', 'me.mod')
+                run('${LBIN}/ejsc --out ${BIN}/me.mod --optimize 9 ${target.cmdfiles}')
+            `,
+            'generate-nmake': `"${LBIN}\\ejsc" --out "${BIN}/me.mod" --optimize 9 ${target.cmdfiles}`,
             'generate-sh': '${LBIN}/ejsc --out ${BIN}/me.mod --optimize 9 ${target.cmdfiles}',
             depends: [ 'ejsc' ],
         },

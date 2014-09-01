@@ -113,6 +113,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libtestme", "me-windows-def
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "me.mod", "me-windows-default\me.mod.vcxproj", "{ACB37A37-1514-4B97-9FEA-C3AF2C0A360D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{75A3C39B-7CD5-473D-8AA0-E3C369AB6B33} = {75A3C39B-7CD5-473D-8AA0-E3C369AB6B33}
+	EndProjectSection
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "me", "me-windows-default\me.vcxproj", "{A8F3BAAD-9AA5-46F2-8F04-7A7DF00BB79B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
@@ -125,6 +133,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "me", "me-windows-default\me
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
 		{12F2348B-A901-4127-BE49-8E456FDA9002} = {12F2348B-A901-4127-BE49-8E456FDA9002}
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{ACB37A37-1514-4B97-9FEA-C3AF2C0A360D} = {ACB37A37-1514-4B97-9FEA-C3AF2C0A360D}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "me-core", "me-windows-default\me-core.vcxproj", "{FCEB311A-BA3F-4026-9245-2D74D8A77128}"
@@ -301,6 +312,14 @@ Global
 {87A78739-477D-4918-B23C-8C82E45FBE78}.Release|Win32.Build.0 = Release|Win32
 {87A78739-477D-4918-B23C-8C82E45FBE78}.Release|x64.ActiveCfg = Release|x64
 {87A78739-477D-4918-B23C-8C82E45FBE78}.Release|x64.Build.0 = Release|x64
+{ACB37A37-1514-4B97-9FEA-C3AF2C0A360D}.Debug|Win32.ActiveCfg = Debug|Win32
+{ACB37A37-1514-4B97-9FEA-C3AF2C0A360D}.Debug|Win32.Build.0 = Debug|Win32
+{ACB37A37-1514-4B97-9FEA-C3AF2C0A360D}.Debug|x64.ActiveCfg = Debug|x64
+{ACB37A37-1514-4B97-9FEA-C3AF2C0A360D}.Debug|x64.Build.0 = Debug|x64
+{ACB37A37-1514-4B97-9FEA-C3AF2C0A360D}.Release|Win32.ActiveCfg = Release|Win32
+{ACB37A37-1514-4B97-9FEA-C3AF2C0A360D}.Release|Win32.Build.0 = Release|Win32
+{ACB37A37-1514-4B97-9FEA-C3AF2C0A360D}.Release|x64.ActiveCfg = Release|x64
+{ACB37A37-1514-4B97-9FEA-C3AF2C0A360D}.Release|x64.Build.0 = Release|x64
 {A8F3BAAD-9AA5-46F2-8F04-7A7DF00BB79B}.Debug|Win32.ActiveCfg = Debug|Win32
 {A8F3BAAD-9AA5-46F2-8F04-7A7DF00BB79B}.Debug|Win32.Build.0 = Debug|Win32
 {A8F3BAAD-9AA5-46F2-8F04-7A7DF00BB79B}.Debug|x64.ActiveCfg = Debug|x64
