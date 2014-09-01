@@ -31,6 +31,10 @@
             overwrite: true,
             from: [ "*.less" ],
             to: 'doc/documents/css',
+        }, {
+            overwrite: true,
+            from: [ "partials/**" ],
+            to: 'doc',
         }
-    ],
+    ]
 }

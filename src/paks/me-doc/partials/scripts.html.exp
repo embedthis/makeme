@@ -1,0 +1,19 @@
+ 
+    <script src="@~lib/jquery/jquery.js"></script>
+    <script src="@~lib/semantic/javascript/semantic.js"></script>
+    <script>
+        $('.sidebar').sidebar({overlay: false}).sidebar('toggle');
+        $('.sidebar').first().sidebar('attach events', '.toggle.button');
+        $(function() {
+            var url = '@@{top}@@{meta.url}';
+            var active = $('.sidebar a[href="' + url +'"]');
+            active.addClass('active');
+            var sidebar = $(".sidebar");
+            var height = sidebar.height();
+            var offset = active.offset();
+            if (offset && offset.top >= height) {
+                var diff = height - active.offset().top;
+                sidebar.scrollTop(height);
+            }
+        });
+    </script>
