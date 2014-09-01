@@ -96,7 +96,7 @@
 
   <CustomBuildStep>
     <Command>cd ..\..
-"$(BinDir)\ejsc" --out "$(BinDir)/me.mod" --optimize 9 /Users/mob/git/me/src/me.es /Users/mob/git/me/src/paks/ejs-version/Version.es
+"$(BinDir)\ejsc" --out "$(BinDir)/me.mod" --optimize 9 src/me.es src/paks/ejs-version/Version.es}
 cd projects\me-windows-default</Command>
     <Outputs>$(BinDir)\me.mod</Outputs>
   </CustomBuildStep>

@@ -1578,7 +1578,7 @@ public class Me {
                 }
             }
             if (target.files) {
-                target.cmdfiles = target.files.join(' ')
+                target.cmdfiles = target.files.map(function(f) f.portable).join(' ')
             } else {
                 target.cmdfiles = ''
             }

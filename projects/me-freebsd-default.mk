@@ -834,7 +834,7 @@ endif
 build/$(CONFIG)/bin/me.mod: $(DEPS_38)
 	( \
 	cd .; \
-	$(LBIN)/ejsc --out ./build/$(CONFIG)/bin/me.mod --optimize 9 ./src/me.es ./src/paks/ejs-version/Version.es ; \
+	$(LBIN)/ejsc --out ./build/$(CONFIG)/bin/me.mod --optimize 9 src/me.es src/paks/ejs-version/Version.es} ; \
 	)
 
 #
