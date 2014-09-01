@@ -24,7 +24,7 @@ Me.load({
         validate: {
             depends: [ 'gen-doc' ],
             action: `
-                for each (f in Path('final').files('**/*.html')) {
+                for each (f in Path('public').files('**/*.html')) {
                     let data = f.readString()
                     data = data.replace('700|Open', '').
                         replace(/me.download.html/g, 'download/me.html').
@@ -38,10 +38,10 @@ Me.load({
                     trace('Patch', f)
                     f.write(data)
                 }
-                for each (f in Path('final/man').files('*.html')) {
+                for each (f in Path('public/man').files('*.html')) {
                     f.write(f.readString().toLowerCase())
                 }
-                let path = Path('final/ref/api/index.html')
+                let path = Path('public/ref/api/index.html')
                 path.write('<!DOCTYPE html><html><head><title>dummy</title></head><body></body></html>\n')
                 trace('Listen', 'exp --nowatch')
                 Cmd.run('exp --nowatch')
