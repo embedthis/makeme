@@ -1,6 +1,6 @@
  
     <script src="@~lib/jquery/jquery.js"></script>
-    <script src="@~lib/semantic/packaged/javascript/semantic.js"></script>
+    <script src="@~lib/semantic/javascript/semantic.js"></script>
     <script>
         $('.sidebar').sidebar({overlay: false}).sidebar('toggle');
         $('.sidebar').first().sidebar('attach events', '.toggle.button');

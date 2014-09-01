@@ -5,6 +5,7 @@
         "semantic": "~0.19"
     },
     "directories": {
-        "paks": "files/lib"
-    }
+        "lib": "files/lib"
+    },
+    "import": true,
 }
