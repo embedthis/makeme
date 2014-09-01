@@ -22,6 +22,7 @@
     "export": [
         "doc/**"
     ],
+    "import": true,
     "licenses": [
         {
             "type": "GPL",

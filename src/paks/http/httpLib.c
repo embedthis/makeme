@@ -1031,7 +1031,7 @@ PUBLIC int httpSetUserAccount(cchar *newUser)
 #if ME_UNIX_LIKE
         /* Only change user if root */
         if (getuid() != 0) {
-            mprLog("info http", 2, "Running as user account \"%s\"", http->user);
+            mprLog("info http", 2, "Running as user \"%s\"", http->user);
             return 0;
         }
 #endif
@@ -7564,7 +7564,7 @@ PUBLIC int httpIsEndpointAsync(HttpEndpoint *endpoint)
 }
 
 
-PUBLIC void httpSetEndpointAddress(HttpEndpoint *endpoint, cchar *ip, int port)
+PUBLIC int httpSetEndpointAddress(HttpEndpoint *endpoint, cchar *ip, int port)
 {
     assert(endpoint);
 
@@ -7576,8 +7576,11 @@ PUBLIC void httpSetEndpointAddress(HttpEndpoint *endpoint, cchar *ip, int port)
     }
     if (endpoint->sock) {
         httpStopEndpoint(endpoint);
-        httpStartEndpoint(endpoint);
+        if (httpStartEndpoint(endpoint) < 0) {
+            return MPR_ERR_CANT_OPEN;
+        }
     }
+    return 0;
 }
 
 
@@ -7681,7 +7684,7 @@ PUBLIC HttpHost *httpLookupHostOnEndpoint(HttpEndpoint *endpoint, cchar *hostHea
 }
 
 
-PUBLIC void httpSetEndpointStartLevel(int level)
+PUBLIC void httpSetInfoLevel(int level)
 {
     HTTP->startLevel = level;
 }
@@ -15210,7 +15213,10 @@ PUBLIC void httpSetDefaultDirs(HttpRoute *route)
 {
     httpSetDir(route, "cache", 0);
     httpSetDir(route, "client", 0);
-    httpSetDir(route, "paks", "paks");
+    httpSetDir(route, "paks", 0);
+#if FUTURE
+    httpSetDir(route, "public", 0);
+#endif
 }
 
 

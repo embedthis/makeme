@@ -2,7 +2,7 @@
     "name": "ejs",
     "description": "Embedthis Ejscript Javascript Language",
     "title": "Embedthis Ejscript",
-    "version": "2.4.1",
+    "version": "2.5.0",
     "keywords": [
         "ejs",
         "ejscript",
@@ -50,5 +50,6 @@
     },
     "directories": {
         "paks": "src/paks"
-    }
+    },
+    "import": true
 }

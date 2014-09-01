@@ -33,7 +33,7 @@
         }
     ],
     "dependencies": {
-        "ejs": "~2.4",
+        "ejs": "~2",
         "ejs-version": "~0.8",
         "est": "~0.6",
         "http": "~5",
@@ -49,5 +49,13 @@
     },
     "directories": {
         "paks": "src/paks"
+    },
+    "import": true,
+    "paks": {
+        "*": {
+            "ignore": [
+                "doc"
+            ]
+        }
     }
 }

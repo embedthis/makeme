@@ -1,31 +1,33 @@
+ 
         <div class="column">
-            <div class="inverted secondary pointing ui menu">
-                <div class="header left item">
-                    <a href="/index.html">Embedthis MakeMe</a>
+            <div class="ui inverted menu">
+                <div class="ui black small launch right attached toggle button">
+                    <i class="icon list layout"></i>
                 </div>
                 <div class="right menu">
-                    <div class="ui top right">
-                        <a class="item" href="https://embedthis.com/me/">MakeMe</a>
-                        <a class="item" href="https://github.com/embedthis/me">Repository</a>
-                        <a class="item" href="http://groups.google.com/group/makeme">Support</a>
-                    </div>
+                    <a class="item" href="https://embedthis.com/">Embedthis</a>
+                    <a class="item" href="https://embedthis.com/appweb/">Appweb Site</a>
+                    <a class="item" href="http://goo.gl/dGRDl4">Appweb News</a>
+                    <a class="item" href="https://github.com/embedthis/appweb">Repository</a>
+                    <a class="item" href="https://embedthis.com/blog/">Blog</a>
+                    <a class="item" href="https://twitter.com/mobstream">Twitter</a>
                 </div>
             </div>
+            <@ if (meta.crumbs ) { @>
             <div class="ui breadcrumb">
-                <a class="section" href="@@top">Home</a>
-                <% for each (crumb in meta.crumbs ) { 
-                    for (let [name, url] in crumb ) { %>
+                <a class="section" href="@~">Home</a>
+                <@ for each (crumb in meta.crumbs ) { 
+                    for (let [name, url] in crumb ) { @>
                 <div class="divider">/</div>
-                <a class="section" href="<%= url %>">
-                    <%= name %>
+                <a class="section" href="<@= url @>">
+                    <@= name @>
                 </a>
-                <% } } %>
+                <@ } } @>
                 <div class="divider">/</div>
-                <a class="section active" href="<%= meta.basename %>"><%= meta.cookie || meta.title %></a>
+                <a class="section active" href="<@= meta.basename @>"><@= meta.cookie || meta.title @></a>
             </div>
-        </div>
-        <div class="ui black small launch right attached toggle button" style="width: 40px;">
-            <i class="icon list layout">
-                <span class="text" style="display: none;">Menu</span>
-            </i>
+            <@ } @>
+            <div class="ui right floated basic segment version">
+                v<@= Path('../package.json').readJSON().version @>
+            </div>
         </div>

@@ -1,0 +1,21 @@
+{
+    "name": "jquery",
+    "description": "Client-side Javascript library for DOM manipulation",
+    "version": "1.11.1",
+    "keywords": [
+        "esp"
+    ],
+    "export": [
+        {
+            "from": "jquery.js",
+            "to": "${LIB}/jquery"
+        }
+    ],
+    "app": {
+        "client": {
+            "+scripts": [
+                "${LIB}/jquery/jquery.js"
+            ]
+        }
+    },
+}

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Syntax</title>
+    <!-- Copyright Embedthis Software, LLC, 2003-2014. All Rights Reserved. -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="keywords" content="MakeMe, Bit, GYP, autoconf, make, cake" />
+    <meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf." />
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+        rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
+    <link href="../lib/semantic/packaged/css/semantic.css" rel="stylesheet" type="text/css" />
+    <link href="../css/all.css" rel="stylesheet" type="text/css" />
+    <link href="../images/favicon.ico" rel="shortcut icon" />
+
+</head>
+<body>
+        
+    <div class="ui large left vertical inverted labeled overlay sidebar menu">
+        <div class="item">
+            <a href="/index.html" class="logo">MakeMe Docs</a>
+        </div>
+        <div class="item">
+            <a href="../index.html">
+                <b>General</b>
+            </a>
+            <div class="menu">
+                <a class="item" href="../index.html">MakeMe Overview</a>
+                <a class="item" href="../users/features.html">MakeMe Features</a>
+                <a class="item" href="https://embedthis.com/me/download.html">Download</a> 
+                <a class="item" href="../licensing/index.html">Licensing</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../start/index.html">
+                <b>Getting Started</b>
+            </a>
+            <div class="menu">
+                <a class="item" href="../start/installing.html">Installing MakeMe</a>
+                <a class="item" href="../start/linux.html">Installing for Linux</a>
+                <a class="item" href="../start/mac.html">Installing for Mac OS X</a>
+                <a class="item" href="../start/windows.html">Installing for Windows</a>
+                <a class="item" href="../start/releaseNotes.html">Release Notes</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../users/index.html"><b>User's Guide</b></a>
+            <div class="menu">
+                <a class="item" href="../users/using.html">Using MakeMe</a>
+                <a class="item" href="../users/configuring.html">Running Configure</a>
+                <a class="item" href="../users/debugging.html">Debugging a Build</a>
+                <a class="item" href="../users/make.html">Using Generated Makefiles</a>
+                <a class="item" href="../users/cross.html">Cross-Compiling</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../developers/index.html">Developer's Guide</a>
+            <div class="menu">
+                <a class="item" href="../developers/compiling.html">Compiling Sources</a>
+                <a class="item" href="../developers/libraries.html">Creating Libraries</a>
+                <a class="item" href="../developers/executables.html">Creating Executables</a>
+                <a class="item" href="../developers/scripts.html">Build Scripts</a>
+                <a class="item" href="../developers/copying.html">Copying Files and Directories</a>
+                <a class="item" href="../developers/configurable.html">Configurable Projects</a>
+                <a class="item" href="../developers/plugins.html">MakeMe Plugins</a>
+                <a class="item" href="../developers/generating.html">Generating</a>
+                <a class="item" href="../developers/samples.html">Samples</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../ref/index.html">Reference Guide</a>
+            <div class="menu">
+                <a class="item" href="../ref/syntax.html">File Syntax</a>
+                <a class="item" href="../ref/dom.html">MakeMe DOM</a>
+                <a class="item" href="../ref/api/index.html">MakeMe API</a>
+                <a class="item" href="../ref/processing.html">File Processing</a>
+                <a class="item" href="../ref/commandline.html">Command Line</a>
+                <a class="item" href="../ref/events.html">Events</a>
+                <a class="item" href="../ref/targets.html">Targets</a>
+                <a class="item" href="../man/me.html">Manual Page</a>
+                <a class="item" href="http://embedthis.com/ejs/doc/api/ejscript/index.html">
+                    Language Reference</a>
+                <a class="item" href="http://embedthis.com/ejs/doc/index.html">Ejscript Documentation</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../developers/project.html">Project Resources</a>
+            <div class="menu">
+                <a class="item" href="http://goo.gl/umR6dt">Official MakeMe News</a>
+                <a class="item" href="https://embedthis.com/me/">MakeMe Web Site</a>
+                <a class="item" href="https://github.com/embedthis/me">Source Code Repository</a>
+                <a class="item" href="https://github.com/embedthis/me/issues">Project Issue Database</a>
+                <a class="item" href="https://github.com/embedthis/me/releases">Change Log</a>
+                <a class="item" href="https://github.com/embedthis/me/milestones">Roadmap</a>
+                <a class="item" href="https://embedthis.com/developers/contributors.html">Contributors Agreement</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../source/index.html">Built with MakeMe</a>
+            <div class="menu">
+                <a class="item" href="../source/overview.html">Building Overview</a>
+                <a class="item" href="../source/make.html">Building with Make</a>
+                <a class="item" href="../source/me.html">Building with MakeMe</a>
+                <a class="item" href="../source/ide.html">Building with an IDE</a>
+            </div>
+        </div>
+        <div class="item">
+            <b>Links</b>
+            <div class="menu">
+                <a class="item" href="https://embedthis.com/">Embedthis Web Site</a>
+                <a class="item" href="https://embedthis.com/blog/">Embedthis Blog</a>
+                <a class="item" href="http://twitter.com/mobstream">Twitter</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui inverted masthead">
+         
+        <div class="column">
+            <div class="ui inverted menu">
+                <div class="ui black small launch right attached toggle button">
+                    <i class="icon list layout"></i>
+                </div>
+                <div class="right menu">
+                    <a class="item" href="https://embedthis.com/">Embedthis</a>
+                    <a class="item" href="https://embedthis.com/appweb/">Appweb Site</a>
+                    <a class="item" href="http://goo.gl/dGRDl4">Appweb News</a>
+                    <a class="item" href="https://github.com/embedthis/appweb">Repository</a>
+                    <a class="item" href="https://embedthis.com/blog/">Blog</a>
+                    <a class="item" href="https://twitter.com/mobstream">Twitter</a>
+                </div>
+            </div>
+            
+            <div class="ui breadcrumb">
+                <a class="section" href="../">Home</a>
+                
+                <div class="divider">/</div>
+                <a class="section" href="index.html">
+                    Reference Guide
+                </a>
+                
+                <div class="divider">/</div>
+                <a class="section active" href="syntax.html">Syntax</a>
+            </div>
+            
+            <div class="ui right floated basic segment version">
+                v0.8.3
+            </div>
+        </div>
+
+    </div>
+    <div class="content">
+
+        <h1>MakeMe File Syntax</h1>
+        <p>A MakeMe file is an <em>Javascript</em> (Ejscript) file that is loaded by the <em>me</em> program. MakeMe files 
+        typically have a <em>.me</em> extension and contain a call to the static function <em>Me.load</em> to define build
+        instructions.  The argument to Me.load is a object that conforms to the 
+        <a href="dom.html">MakeMe Document Object Model</a> (DOM).  For example: this is a typical MakeMe file with one simple
+        target.</p>
+        
+        <pre class="ui code segment">
+<b>Me.load</b>({
+    targets: {
+        hello: {
+            type: 'exe',
+            sources: [ 'hello.c' ],
+        },
+    },
+})
+</pre>
+        <p>Typically the DOM object argument is expressed as a Javascript object literal, but it could be constructed in
+        other ways via Javascript code.</p>
+<pre class="ui code segment">
+let dom = {targets: {}}
+dom.targets.hello = {type: 'exe'}
+dom.targets.sources = Path('/some/path').files('**.c')
+<b>Me.load</b>(dom)
+</pre>
+        <a name="comments"></a>
+        <h2>Comments and Lines</h2>
+        <p>You can use either Javascript comments in most places including inside the DOM object. Both the
+        <em>/* comment */</em> and the <em>// rest-of-line</em> forms are supported.</p>
+        <p>If you have a long line that you wish to split for formatting purposes, you can use a back-quote <em>\\</em>
+        at the end of the line. This is typically only required inside embedded shell or make scripts.</p>
+        <a name="types"></a>
+        <h2>Property Types</h2>
+        <p>MakeMe DOM objects consist of an object collection with properties that define targets that
+        specify what to build and instructions for how to build the project. 
+        
+        
+        There are four basic types used as values for DOM values:</p>
+        <ul>
+            <li>Strings</li>
+            <li>Objects</li>
+            <li>Arrays</li>
+            <li>Numbers</li>
+            <li>Booleans</li>
+            <li>Regular Expressions</li>
+            <li>Dates</li>
+        </ul>
+        <p>MakeMe object properties are composed of standard Javascript values with the enhancements noted below.
+        For a full description of the capabilities of Ejscript, see the
+        <a href="https://embedthis.com/ejs/doc/api/ejscript/">Ejscript Language API</a>. and
+        <a href="https://embedthis.com/ejs/doc/index.html">Ejscript Documentation</a>.</p>
+        <a name="names"></a>
+        <h2>Object Property Names</h2>
+        <p>MakeMe objects are extend Javascript object syntax by allowing property names to omit quotes if they have no
+        spaces. For example:
+<pre class="ui code segment">
+program: {
+    type: 'exe',
+},</pre>
+        <a name="blending"></a>
+        <h2>Blending</h2>
+        <p>When a MakeMe file is loaded, it is blended with existing MakeMe configuration from previously loaded MakeMe
+        files by overwriting or augmenting prior definitions. MakeMe facilitates this by extending the standard JSON syntax 
+        with aggregation prefixes (+, -, =, ?) to describe how to blend property values together.
+        The prefixes are uses at the start of the property name. For example:
+<pre class="ui code segment">
+targets: {
+    hello: {
+        '+defines: [ 'WHO=WORLD' ],
+    },
+},
+</pre>
+        <p>This adds the define WHO=WORLD to the existing inherited definitions for this target.</p>
+        <p>The valid prefixes are:
+        <ul>
+            <li><em>+</em> &nbsp; to append values</li>
+            <li><em>-</em> &nbsp; to subtract value</li>
+            <li><em>=</em> &nbsp; to overwrite values</li>
+            <li><em>?</em> &nbsp; to overwrite if not already set</li>
+        </ul>
+        <p>When combining objects, MakeMe will automatically use append collections and so you do not need to use <em>+</em>
+        on object properties.</p>
+        <a name="strings"></a>
+        <h2>Strings</h2>
+        <p>Strings are wrapped in single, double or back-tick quote characters. Enhancing Javascript, strings
+        can span multiple lines. Often it is best to use back-tick quotes as you are then free to embed either double 
+        or single quote characters without having to back quote.</p>
+        
+        <a name="variables"></a>
+        <h2>Variables</h2>
+        <p>MakeMe property names and property string values can embed MakeMe variables. These variables are embedded using
+        the format: <em>${name}</em>. MakeMe variables are are expanded just prior to execution of any command.
+        Note: you cannot (yet) use MakeMe variables in just any string.</p>
+        <p>MakeMe variables take their value from three sources:
+        <ul>
+            <li>MakeMe Globals</li>
+            <li>MakeMe DOM fields</li>
+            <li>Rule specific variables values when compiling or linking</li>
+        </ul>
+        <p>MakeMe Globals are resolved from the <em>me.globals</em> collection, whereas MakeMe DOM fields are resolved relative
+        to the <em>me</em> object itself. For example:
+        <pre class="ui code segment">{
+    settings: {
+        version: '4.1.0',
+    },
+    globals: {
+        ARCH: 'x64',
+    },
+    targets: {
+        rocket: {
+            path: '<b>output/rocket_${ARCH}_${settings.version}</b>',
+            /* ... */
+        },
+    },
+}
+</pre>
+        <a name="assigning"></a>
+        <h2>Assigning Variables</h2>
+        <p>Variables can be set simply by defining properties in the MakeMe DOM. This can be done literally when loading
+        the DOM object or programmatically in script code. For example:</p>
+<pre class="ui code segment">
+{
+    my: {
+        food: 'fish',
+    },
+    targets: {
+        dinner: {
+            path: '/meals/${my.food}.txt',
+        },
+    },
+}
+</pre>
+        <p>If variables are defined in the me.globals collection, they can be accessed without any dot notation. For example:</p>
+<pre class="ui code segment">
+{
+    globals: {
+        FOOD: 'fish',
+    },
+    targets: {
+        dinner: {
+            path: '/meals/${FOOD}.txt',
+        },
+    },
+}
+</pre>
+        <p>By convention, globals should be upper case.</p>
+        <p>To assign variables in script code
+        <pre class="ui code segment">
+{
+    action: "
+        me.globals.FOOD = 'fish'
+        me.my.food = 'steak';
+    ",
+},
+</pre>
+        <h3>Platform Specific Files</h3>
+        <p>A convenient use of MakeMe global variables is to create per operating system file targets. For example:
+        <pre class="ui code segment">
+cleanup: {
+    type: 'exe'
+    path: 'cleanup_${OS}',
+    sources: [ 'dep_${OS}' ],
+},
+</pre>
+
+    </div>
+    <div class="terms ui basic center aligned segment">
+        <p>&copy; Embedthis Software, 2003-2014. All rights reserved.
+            Generated on Aug 31, 2014.
+        </p>
+    </div>
+
+     
+    <script src="../lib/jquery/jquery.js"></script>
+    <script src="../lib/semantic/packaged/javascript/semantic.js"></script>
+    <script>
+        $('.sidebar').sidebar({overlay: false}).sidebar('toggle');
+        $('.sidebar').first().sidebar('attach events', '.toggle.button');
+        $(function() {
+            var active = $('.sidebar a[href$="' + window.location.pathname +'"]');
+            active.addClass('active');
+            var sidebar = $(".sidebar");
+            var height = sidebar.height();
+            if (active.offset().top >= height) {
+                var diff = height - active.offset().top;
+                sidebar.scrollTop(height);
+            }
+        });
+    </script>
+
+</body>
+</html>

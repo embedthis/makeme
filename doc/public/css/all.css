@@ -1,0 +1,237 @@
+/*
+    all.less - Aggregate all stylesheets
+ */
+
+/*
+    app.less - Embedthis Application Style Sheet
+ */
+
+html,
+body {
+  height: 100%;
+  font-size: 14px;
+}
+
+body {
+  min-width: 320px;
+  padding: 0;
+  margin: 0;
+  font-family: "Open Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+  text-rendering: optimizeLegibility;
+  background-attachment: fixed;
+  background-image: linear-gradient(45deg, #0a1855 0px, #da0024 100%);
+  transition: none !important;
+}
+
+.ui.sidebar {
+  width: 240px !important;
+  transition: none !important;
+}
+
+.ui.sidebar.inverted.menu {
+  background: rgba(51, 51, 51, 0.3);
+}
+
+.ui.sidebar.inverted.menu .logo {
+  display: inline-block;
+  font-family: 'Julius Sans One', sans-serif;
+  font-size: 1.9em;
+  color: #ffffff;
+}
+
+.ui.sidebar.inverted.menu .header.item {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  padding: 7px 21px 7px 10px;
+  font-size: 1.05em;
+  font-weight: bold;
+  background-color: transparent;
+}
+
+.ui.sidebar.inverted.menu .header.item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.ui.sidebar.inverted.menu a.item.active {
+  border-right: 6px solid #dd2222;
+}
+
+.masthead {
+  height: 70px;
+}
+
+.masthead .ui.inverted.menu {
+  margin: 0;
+  background-color: transparent;
+  border-bottom: none;
+}
+
+.masthead .ui.inverted.menu .right.menu {
+  margin-right: 10px;
+}
+
+.masthead .ui.inverted.menu .right.menu a.item {
+  padding: 1.1em 0.4em;
+  color: #ffffff;
+  opacity: 0.75;
+}
+
+.masthead .ui.inverted.menu .right.menu a.item:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.masthead .ui.inverted.menu .right.menu a.item.active:after {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: #dd2222;
+  content: "";
+}
+
+.masthead .version {
+  margin: -0.8rem 0.4rem 0 0;
+  font-size: 0.75rem;
+  color: #ffffff;
+  opacity: 0.75;
+}
+
+.masthead .ui.launch.button {
+  width: 40px;
+}
+
+.masthead .ui.breadcrumb {
+  margin: -5px 0 0 35px;
+}
+
+.masthead .ui.breadcrumb .section {
+  padding-bottom: .5rem;
+}
+
+.masthead .ui.breadcrumb .active.section {
+  font-weight: normal;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.masthead .ui.breadcrumb .divider {
+  color: #ffffff;
+}
+
+.masthead .ui.breadcrumb a {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.masthead .ui.breadcrumb a:hover,
+.masthead .ui.breadcrumb a:hover.active.section {
+  color: #ffffff;
+}
+
+.page {
+  padding: 1rem 3.0rem;
+}
+
+.ui.page.grid {
+  padding: 0 3.0rem;
+}
+
+.ui.page.grid .segment {
+  padding-top: 1.0rem;
+  padding-bottom: 3.5rem;
+}
+
+.content {
+  min-height: 80%;
+  padding: 1rem 2rem 2rem 2rem;
+  text-decoration: none;
+  background: #ffffff;
+}
+
+.terms {
+  height: 20px;
+  margin: 10px 0 26px 0;
+  font-size: 0.75rem;
+  color: #999999;
+}
+
+.terms a:link,
+.terms a:visited {
+  color: #c2c2c2;
+}
+
+.terms a:hover {
+  color: #ffffff;
+}
+
+a {
+  color: #6080a0;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: #40a0f0;
+  text-decoration: none;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-weight: normal;
+}
+
+h3 + ul {
+  margin-top: -0.85rem;
+}
+
+.centered {
+  display: block;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.ui.code.inverted.code.segment {
+  color: #93a1a1;
+  background: #002b36;
+}
+
+.ui.code.inverted.code.segment b {
+  font-weight: normal;
+  color: #2aa198;
+}
+
+.ui.code.segment {
+  color: #333333;
+  background: #eeeeee;
+  border: 1px solid #c2c2c2;
+  box-shadow: 2px 2px 2px #e8e8e8;
+}
+
+img.screen {
+  margin: 8px 0 4px 0;
+  border: 1px solid #999999;
+  border-radius: 7px;
+  box-shadow: 9px 9px 9px #999999;
+}
+
+img.bare-screen {
+  margin: 8px 0 10px 0;
+  border: 1px solid #999999;
+  border-radius: 7px;
+  box-shadow: 9px 9px 9px #999999;
+}
+
+img.shadow {
+  border-radius: 7px;
+  box-shadow: 5px 5px 9px #999999;
+}
+
+/*
+    theme.less - Default Embedthis Documentation Theme
+ */
+
+/*
+    override.less - Appweb Theme Overrides
+ */

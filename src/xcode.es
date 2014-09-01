@@ -33,7 +33,7 @@ var inext = 0               //  Next sequential ID
 public function xcode(base: Path) {
     let name = base.basename
     base = base.dirname
-    init(base, name)
+    xinit(base, name)
     projHeader(base)
     aggregates(base)
     sources(base)
@@ -84,7 +84,7 @@ function sortTargets(array: Array, first: Number, second: Number): Number {
     return 1
 }
 
-function init(base, name) {
+function xinit(base, name) {
     let dir = base.join(name).joinExt('xcodeproj').relative
     trace('Generate', dir)
     dir.makeDir()

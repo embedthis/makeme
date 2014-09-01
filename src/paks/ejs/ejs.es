@@ -8851,6 +8851,7 @@ module ejs {
 
         /**
             File extension portion of the path. The file extension is the portion after (and not including) the last ".".
+            Returns empty string if there is no extension
          */
         native function get extension(): String 
 
@@ -16565,12 +16566,18 @@ module ejs.unix {
                 base = pattern
                 pattern = Path('**')
                 options = blend({tree: true, relative: true}, options)
+
+            } else if (options.tree) {
+                base = pattern.dirname
+                pattern = pattern.basename
+                options.relative = true
             }
             list = base.files(pattern, options)
 
             if (!list || list.length == 0) {
-                //  TODO - this has downside that you cannot copy an empty directory
-                throw 'cp: Cannot find files to copy "' + pattern + '" to ' + dest
+                if (!options.nothrow) {
+                    throw 'cp: Cannot find files to copy "' + pattern + '" to ' + dest
+                }
             }
             destIsDir = (dest.isDir || list.length > 1 || dest.name.endsWith('/'))
 
@@ -16594,6 +16601,7 @@ module ejs.unix {
         }
         return count
     }
+
     /**
         Get the directory name portion of a file. The dirname name portion is the leading portion including all 
         directory elements and excluding the base name. On some systems, it will include a drive specifier.
@@ -19482,6 +19490,7 @@ server.listen("127.0.0.1:7777")
         }
 
         //  TODO - should take an array of endpoints (like GoAhead) and allow https:///
+        //  TODO - Should not throw
 
         /** 
             Listen for client connections. This creates a HTTP server listening on a single socket endpoint. It can

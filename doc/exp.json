@@ -4,38 +4,10 @@
     description: 'Embedthis MakeMe -- Fast, modern replacement for make and autoconf.',
     keywords:    'MakeMe, Bit, GYP, autoconf, make, cake',
 
-    exclude: [
-        'documents/css/app.less',
-        'documents/css/theme.less',
-    ],
-    copy: [
-        'documents/images/',
-        'documents/lib/',
-        'documents/scripts/',
-    ],
-    script: `
-        function menu(item) meta.menu == item ? 'active' : ''
-
-        function onchange(file, meta) {
-            let path = Path('documents/css/all.css.less')
-            if (file.extension == 'less' && file != path) {
-                touch(path)
-            }
-        }
-
-        function check(mark) {
-            for each (file in ['app.less', 'theme.less']) {
-                if (Path('documents/css').join(file).modified >= mark) {
-                    let path = Path('documents/css/all.css.less')
-                    vtrace('Touch', path)
-                    touch(path)
-                    break
-                }
-            }
-        }
-    `,
-    sitemap: {
-        include: /\.html/,
-        exclude: /\/doc-|docpad\//,
-    },
-},
+    control: {
+        copy:    [ 'images' ],
+        dependencies: { 'css/all.css.less': 'css/*.inc.less' },
+        exclude: [ '**.inc.less' ],
+        plugins: [ 'less' ],
+    }
+}

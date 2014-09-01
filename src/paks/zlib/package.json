@@ -42,5 +42,8 @@
     },
     "directories": {
         "paks": "src/paks"
+    },
+    "import": true,
+    "optionalDependencies": {
     }
 }

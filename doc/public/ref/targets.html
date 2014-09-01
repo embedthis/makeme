@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Targets</title>
+    <!-- Copyright Embedthis Software, LLC, 2003-2014. All Rights Reserved. -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="keywords" content="MakeMe, Bit, GYP, autoconf, make, cake" />
+    <meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf." />
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+        rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
+    <link href="../lib/semantic/packaged/css/semantic.css" rel="stylesheet" type="text/css" />
+    <link href="../css/all.css" rel="stylesheet" type="text/css" />
+    <link href="../images/favicon.ico" rel="shortcut icon" />
+
+</head>
+<body>
+        
+    <div class="ui large left vertical inverted labeled overlay sidebar menu">
+        <div class="item">
+            <a href="/index.html" class="logo">MakeMe Docs</a>
+        </div>
+        <div class="item">
+            <a href="../index.html">
+                <b>General</b>
+            </a>
+            <div class="menu">
+                <a class="item" href="../index.html">MakeMe Overview</a>
+                <a class="item" href="../users/features.html">MakeMe Features</a>
+                <a class="item" href="https://embedthis.com/me/download.html">Download</a> 
+                <a class="item" href="../licensing/index.html">Licensing</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../start/index.html">
+                <b>Getting Started</b>
+            </a>
+            <div class="menu">
+                <a class="item" href="../start/installing.html">Installing MakeMe</a>
+                <a class="item" href="../start/linux.html">Installing for Linux</a>
+                <a class="item" href="../start/mac.html">Installing for Mac OS X</a>
+                <a class="item" href="../start/windows.html">Installing for Windows</a>
+                <a class="item" href="../start/releaseNotes.html">Release Notes</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../users/index.html"><b>User's Guide</b></a>
+            <div class="menu">
+                <a class="item" href="../users/using.html">Using MakeMe</a>
+                <a class="item" href="../users/configuring.html">Running Configure</a>
+                <a class="item" href="../users/debugging.html">Debugging a Build</a>
+                <a class="item" href="../users/make.html">Using Generated Makefiles</a>
+                <a class="item" href="../users/cross.html">Cross-Compiling</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../developers/index.html">Developer's Guide</a>
+            <div class="menu">
+                <a class="item" href="../developers/compiling.html">Compiling Sources</a>
+                <a class="item" href="../developers/libraries.html">Creating Libraries</a>
+                <a class="item" href="../developers/executables.html">Creating Executables</a>
+                <a class="item" href="../developers/scripts.html">Build Scripts</a>
+                <a class="item" href="../developers/copying.html">Copying Files and Directories</a>
+                <a class="item" href="../developers/configurable.html">Configurable Projects</a>
+                <a class="item" href="../developers/plugins.html">MakeMe Plugins</a>
+                <a class="item" href="../developers/generating.html">Generating</a>
+                <a class="item" href="../developers/samples.html">Samples</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../ref/index.html">Reference Guide</a>
+            <div class="menu">
+                <a class="item" href="../ref/syntax.html">File Syntax</a>
+                <a class="item" href="../ref/dom.html">MakeMe DOM</a>
+                <a class="item" href="../ref/api/index.html">MakeMe API</a>
+                <a class="item" href="../ref/processing.html">File Processing</a>
+                <a class="item" href="../ref/commandline.html">Command Line</a>
+                <a class="item" href="../ref/events.html">Events</a>
+                <a class="item" href="../ref/targets.html">Targets</a>
+                <a class="item" href="../man/me.html">Manual Page</a>
+                <a class="item" href="http://embedthis.com/ejs/doc/api/ejscript/index.html">
+                    Language Reference</a>
+                <a class="item" href="http://embedthis.com/ejs/doc/index.html">Ejscript Documentation</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../developers/project.html">Project Resources</a>
+            <div class="menu">
+                <a class="item" href="http://goo.gl/umR6dt">Official MakeMe News</a>
+                <a class="item" href="https://embedthis.com/me/">MakeMe Web Site</a>
+                <a class="item" href="https://github.com/embedthis/me">Source Code Repository</a>
+                <a class="item" href="https://github.com/embedthis/me/issues">Project Issue Database</a>
+                <a class="item" href="https://github.com/embedthis/me/releases">Change Log</a>
+                <a class="item" href="https://github.com/embedthis/me/milestones">Roadmap</a>
+                <a class="item" href="https://embedthis.com/developers/contributors.html">Contributors Agreement</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../source/index.html">Built with MakeMe</a>
+            <div class="menu">
+                <a class="item" href="../source/overview.html">Building Overview</a>
+                <a class="item" href="../source/make.html">Building with Make</a>
+                <a class="item" href="../source/me.html">Building with MakeMe</a>
+                <a class="item" href="../source/ide.html">Building with an IDE</a>
+            </div>
+        </div>
+        <div class="item">
+            <b>Links</b>
+            <div class="menu">
+                <a class="item" href="https://embedthis.com/">Embedthis Web Site</a>
+                <a class="item" href="https://embedthis.com/blog/">Embedthis Blog</a>
+                <a class="item" href="http://twitter.com/mobstream">Twitter</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui inverted masthead">
+         
+        <div class="column">
+            <div class="ui inverted menu">
+                <div class="ui black small launch right attached toggle button">
+                    <i class="icon list layout"></i>
+                </div>
+                <div class="right menu">
+                    <a class="item" href="https://embedthis.com/">Embedthis</a>
+                    <a class="item" href="https://embedthis.com/appweb/">Appweb Site</a>
+                    <a class="item" href="http://goo.gl/dGRDl4">Appweb News</a>
+                    <a class="item" href="https://github.com/embedthis/appweb">Repository</a>
+                    <a class="item" href="https://embedthis.com/blog/">Blog</a>
+                    <a class="item" href="https://twitter.com/mobstream">Twitter</a>
+                </div>
+            </div>
+            
+            <div class="ui breadcrumb">
+                <a class="section" href="../">Home</a>
+                
+                <div class="divider">/</div>
+                <a class="section" href="index.html">
+                    Reference Guide
+                </a>
+                
+                <div class="divider">/</div>
+                <a class="section active" href="targets.html">Targets</a>
+            </div>
+            
+            <div class="ui right floated basic segment version">
+                v0.8.3
+            </div>
+        </div>
+
+    </div>
+    <div class="content">
+
+        <h1>Targets</h1>
+        <p>A MakeMe project may specify any number of targets to be built via the MakeMe DOM. A target represents 
+        a discrete item to build in the project. 
+        <p>A target is defined as a collection of properties under the targets property.</p>
+<pre class="ui code segment">
+targets {
+    rocket: {
+        type: 'exe'
+        sources: '*.c',
+    },
+},
+</pre>
+        <a name="dependencies"></a>
+        <h2>Target Dependencies</h2>
+        <p>MakeMe targets can depend on other targets that must be built first. Dependencies are expressed as an 
+        ordered list of targets in the <em>depends</em> property. 
+        For example:</p>
+<pre class="ui code segment">
+targets {
+    fuel: {
+        type: 'lib'
+        sources: 'fuel/*.c',
+    },
+    rocket: {
+        type: 'exe'
+        sources: '*.c',
+        <b>depends: ['libfuel']</b>,
+    },
+}
+</pre>
+        <p>The defines, includes, libraries, library paths and linker options defined by the depended upon target
+            are inherited by the target.</p>
+        <p>When MakeMe is invoked, it may nominate specific actions or targets to build on the command line. These
+        are called <em>goals</em>. If no goals are provided, a default build is run using the special goal called
+        <em>'all'</em>.</p>
+<pre class="ui code segment">
+$ me libfuel  # builds only libfuel
+$ me rocket   # builds libfuel then rocket
+$ me          # builds all targets
+</pre>
+        <h2>Goals</h2>
+        <p>When 'me' is invoked, the command line goals are used to select the targets to build. Each target has as
+        target.goals propery which is an array of goals for which the target should be built. For example:</p>
+<pre class="ui code segment">
+rocket: {
+    type: 'exe'
+    sources: '*.c',
+    <b>goals: ['all', 'rocket'],</b>
+},
+</pre>
+        <p>With the goals specified above, the rocket target will be built if invoked as:
+        <pre class="ui code segment">
+me         # to build all targets
+me rocket  # to build just the rocket
+</pre>
+        
+        <p>Target goals are automatically defined if not explicitly specified. In fact, most targets do not explicitly
+        define their goals. If unspecified, a default goals property will be defined for each target that minimally 
+        contains the name of the target. Executable, library and file targets will also have the special goal <em>'all'</em>
+        so that they are created for default builds.</p>
+        <a name="order"></a>
+        <h2>Target Build Order</h2>
+        <p>Before building, MakeMe parses the entire MakeMe file configuration and creates a build tree based on
+        which targets depend on what. MakeMe then builds the targets by doing a depth-first traversal of the build tree. It successfully detects and handles dependency loops.</p>
+        <a id="defaults"></a>
+        <h2>Target Default Properties</h2>
+        <p>Often targets need very similar configuration. MakeMe provides a <em>defaults</em> collection of properties that are
+        inherited by all exe, lib and obj targets.  For example:</p>
+<pre class="ui code segment">
+defaults: {
+    '+defines': [ 'TUNE=SPEED ],
+    '+libraries': [ 'math' ],
+}
+</pre>
+        <p>This will use the <em>TUNE=SPEED</em> compiler definition when compiling all source files, and the
+        <em>math</em> library when linking executables (and libraries on some systems).</p>
+        <p>MakeMe also provides an <em>internal</em> collection of properties that are inherited by only
+        the targets in the same MakeMe file. </p>
+<pre class="ui code segment">
+internal: {
+    '+defines': [ 'TUNE=SIZE ],
+}
+</pre>
+        <a id="enable"></a>
+        <h2>Enabling and Disabling Targets</h2>
+        <p>Targets can be selectively enabled or disabled based on the value of the <em>enable</em> property. 
+        The property may be set to a string containing an arbitrary script expression that is evaluated and if true
+        the target is enabled. For example:
+<pre class="ui code segment">
+appwebMonitor: {
+    <b>enable: "me.platform.like == 'windows'",</b>
+    type: 'exe',
+    sources: [ 'windows/appwebMonitor.c' ],
+},
+</pre>
+        <p>This will enable this target only if building for windows. Note that if you forget to wrap the
+            enable expression as a string, it will be evaluated when the MakeMe file is loaded, not when the target
+            is evaluated. In some cases, this will work if that portion of the DOM referenced in your expression
+            has been defined. Best to always wrap your enable expression in quotes.</p>
+        <h3>Enable Samples</h3>
+        <p>SSL has a special setting that can be tested for targets that require SSL before building</p>
+        <pre class="ui code segment">
+transact: {
+    /* Enable if SSL is enabled */
+    <b>enable: "me.settings.ssl",</b>
+    type: 'exe',
+    sources: [ '*.c' ],
+},
+</pre>
+        <p>This example tests if the CGI extension pack is enabled.</p>
+        <pre class="ui code segment">
+cgiProgram: {
+    /* Enable if SSL is enabled */
+    <b>enable: "me.packs.cgi.enable",</b>
+    type: 'exe',
+    sources: [ '*.c' ],
+},
+</pre>
+        <p>This target is only enabled if building for the local platform and not cross-building.</p>
+        <pre class="ui code segment">
+'tests': {
+    <b>enable: "!me.platform.cross",</b>
+    action: "run-tests()",
+},
+</pre>
+
+    </div>
+    <div class="terms ui basic center aligned segment">
+        <p>&copy; Embedthis Software, 2003-2014. All rights reserved.
+            Generated on Aug 31, 2014.
+        </p>
+    </div>
+
+     
+    <script src="../lib/jquery/jquery.js"></script>
+    <script src="../lib/semantic/packaged/javascript/semantic.js"></script>
+    <script>
+        $('.sidebar').sidebar({overlay: false}).sidebar('toggle');
+        $('.sidebar').first().sidebar('attach events', '.toggle.button');
+        $(function() {
+            var active = $('.sidebar a[href$="' + window.location.pathname +'"]');
+            active.addClass('active');
+            var sidebar = $(".sidebar");
+            var height = sidebar.height();
+            if (active.offset().top >= height) {
+                var diff = height - active.offset().top;
+                sidebar.scrollTop(height);
+            }
+        });
+    </script>
+
+</body>
+</html>

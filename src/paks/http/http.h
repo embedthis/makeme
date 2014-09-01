@@ -1241,7 +1241,7 @@ PUBLIC void httpRemoveEndpoint(struct HttpEndpoint *endpoint);
 PUBLIC void httpAddHost(struct HttpHost *host);
 PUBLIC void httpRemoveHost(struct HttpHost *host);
 PUBLIC void httpDefineRouteBuiltins();
-PUBLIC void httpSetEndpointStartLevel(int level);
+PUBLIC void httpSetInfoLevel(int level);
 
 /*********************************** HttpStats ********************************/
 /**
@@ -4585,7 +4585,7 @@ PUBLIC int httpLoadConfig(HttpRoute *route, cchar *path);
 
 /**
     Define the default directory route variables
-    @description This defines the default directories for the "cache", "client" and "pak" directories.
+    @description This defines the default directories for the "cache", "client", "pak" and "public" directories.
     @param route Route to modify
     @ingroup HttpRoute
     @stability Prototype
@@ -7296,10 +7296,11 @@ PUBLIC int httpSecureEndpointByName(cchar *name, struct MprSsl *ssl);
     @param endpoint HttpEndpoint object created via #httpCreateEndpoint
     @param ip IP address to use for the endpoint. Set to null to listen on all interfaces.
     @param port Listening port number to use for the endpoint
+    @returns "Zero" if successful, otherwise a negative MPR error code.
     @ingroup HttpEndpoint
     @stability Stable
  */
-PUBLIC void httpSetEndpointAddress(HttpEndpoint *endpoint, cchar *ip, int port);
+PUBLIC int httpSetEndpointAddress(HttpEndpoint *endpoint, cchar *ip, int port);
 
 /**
     Control if the endpoint is running in asynchronous mode

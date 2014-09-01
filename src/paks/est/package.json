@@ -39,5 +39,7 @@
     },
     "directories": {
         "paks": "src/paks"
+    },
+    "optionalDependencies": {
     }
 }

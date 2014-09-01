@@ -15769,21 +15769,22 @@ static EcNode *parseNullableTypeExpression(EcCompiler *cp)
         break;
 
     default:
-        np = parseTypeExpression(cp);
-        if (peekToken(cp) == T_QUERY) {
-            /* Allow Nulls */
-            getToken(cp);
-        } else if (cp->peekToken->tokenId == T_LOGICAL_NOT) {
-            /* Don't allow nulls */
-            getToken(cp);
-            np->attributes |= EJS_TRAIT_THROW_NULLS;
-        } else if (cp->peekToken->tokenId == T_TILDE) {
-            /* Cast nulls to type */
-            getToken(cp);
-            np->attributes |= EJS_TRAIT_CAST_NULLS;
-        } else {
-            /* Default is same as Type! */
-            np->attributes |= EJS_TRAIT_THROW_NULLS;
+        if ((np = parseTypeExpression(cp)) != 0) {
+            if (peekToken(cp) == T_QUERY) {
+                /* Allow Nulls */
+                getToken(cp);
+            } else if (cp->peekToken->tokenId == T_LOGICAL_NOT) {
+                /* Don't allow nulls */
+                getToken(cp);
+                np->attributes |= EJS_TRAIT_THROW_NULLS;
+            } else if (cp->peekToken->tokenId == T_TILDE) {
+                /* Cast nulls to type */
+                getToken(cp);
+                np->attributes |= EJS_TRAIT_CAST_NULLS;
+            } else {
+                /* Default is same as Type! */
+                np->attributes |= EJS_TRAIT_THROW_NULLS;
+            }
         }
         break;
     }
@@ -42171,9 +42172,8 @@ PUBLIC EjsArray *ejsGetPathFiles(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
 static int globMatch(Ejs *ejs, cchar *s, cchar *pat, int isDir, int flags, cchar *seps, int count, cchar **nextPartPattern)
 {
     int     match;
-//  TODO - need recursion limits
-    *nextPartPattern = 0;
 
+    *nextPartPattern = 0;
     while (*s && *pat && *pat != seps[0] && *pat != seps[1]) {
         match = (flags & FILES_CASELESS) ? (*pat == *s) : (tolower((uchar) *pat) == tolower((uchar) *s));
         if (match || *pat == '?') {
@@ -42186,6 +42186,14 @@ static int globMatch(Ejs *ejs, cchar *s, cchar *pat, int isDir, int flags, cchar
             if (*pat == '*') {
                 /* Double star - matches zero or more directories */
                 if (isDir) {
+                    /*
+                        Check if next segment matches and match that
+                     */
+                    if (pat[1] == seps[0] || pat[1] == seps[1]) {
+                        if (globMatch(ejs, s, &pat[2], isDir, flags, seps, count, nextPartPattern)) {
+                            return 1;
+                        }
+                    }
                     *nextPartPattern = pat - 1;
                     return 1;
                 }
@@ -64454,7 +64462,7 @@ static int initializeModule(Ejs *ejs, EjsModule *mp)
                 return MPR_ERR_CANT_INITIALIZE;
             }
             if (!(ejs->flags & EJS_FLAG_NO_INIT)) {
-                if (nativeModule->checksum != mp->checksum) {
+                if (mp->checksum != 0 && nativeModule->checksum != mp->checksum) {
                     ejsThrowIOError(ejs, "Module \"%s\" XXX does not match native code (%d, %d)", mp->path, 
                         nativeModule->checksum, mp->checksum);
                     return MPR_ERR_BAD_STATE;

@@ -75,21 +75,21 @@ public class Me {
     private var rest: Array
 
     private var home: Path
-    private var bareMe: Object = { 
-        platforms: [], 
-        platform: {}, 
-        dir: { top: Path('.') }, 
-        configure: { 
-            requires: [], 
-            discovers: [], 
-            extras: [], 
-        }, 
-        settings: { 
-            version: '1.0.0', 
+    private var bareMe: Object = {
+        platforms: [],
+        platform: {},
+        dir: { top: Path('.') },
+        configure: {
+            requires: [],
+            discovers: [],
+            extras: [],
         },
-        targets: {}, 
-        env: {}, 
-        globals: {}, 
+        settings: {
+            version: '1.0.0',
+        },
+        targets: {},
+        env: {},
+        globals: {},
         customSettings: {}
     }
 
@@ -160,58 +160,58 @@ public class Me {
 
     function usage(): Void {
         print('\nUsage: me [options] [targets|goals] ...\n' +
-            '  Options:\n' + 
-            '  --benchmark                              # Measure elapsed time\n' +
-            '  --configure /path/to/source/tree         # Configure product\n' +
-            '  --configuration                          # Display current configuration\n' +
-            '  --continue                               # Continue on errors\n' +
-            '  --debug                                  # Same as --profile debug\n' +
-            '  --deploy directory                       # Install to deploy directory\n' +
-            '  --depth level                            # Set utest depth level\n' +
-            '  --diagnose                               # Emit diagnostic trace \n' +
-            '  --dump                                   # Dump the full project\n' +
-            '  --endian [big|little]                    # Define the CPU endianness\n' +
-            '  --file file.me                           # Use the specified me file\n' +
-            '  --force                                  # Override warnings\n' +
-            '  --gen [make|nmake|sh|vs|xcode|main|start]# Generate project file\n' + 
-            '  --get field                              # Get and display a me field value\n' + 
-            '  --help                                   # Print help message\n' + 
-            '  --import                                 # Import standard me environment\n' + 
-            '  --keep                                   # Keep intermediate files\n' + 
-            '  --log logSpec                            # Save errors to a log file\n' +
-            '  --more                                   # Run output through more\n' +
-            '  --nocross                                # Build natively\n' +
-            '  --overwrite                              # Overwrite existing files\n' +
-            '  --out path                               # Save output to a file\n' +
-            '  --platform os-arch-profile               # Build for specified platform\n' +
-            '  --pre                                    # Pre-process a source file to stdout\n' +
-            '  --prefix dir=path                        # Define installation path prefixes\n' +
-            '  --prefixes [debian|opt|embedthis]        # Use a given prefix set\n' +
-            '  --profile [debug|release|...]            # Use the build profile\n' +
-            '  --quiet                                  # Quiet operation. Suppress trace \n' +
-            '  --rebuild                                # Rebuild all specified targets\n' +
-            '  --reconfigure                            # Reconfigure with existing settings\n' +
-            '  --release                                # Same as --profile release\n' +
-            '  --rom                                    # Build for ROM without a file system\n' +
-            '  --set [feature=value]                    # Enable and a feature\n' +
-            '  --sets [set,set,..]                      # File set to install/deploy\n' +
-            '  --show                                   # Show commands executed\n' +
-            '  --static                                 # Make static libraries\n' +
-            '  --unicode                                # Set char size to wide (unicode)\n' +
-            '  --unset feature                          # Unset a feature\n' +
-            '  --version                                # Display the me version\n' +
-            '  --verbose                                # Trace operations\n' +
-            '  --watch [sleep time]                     # Watch for changes and rebuild\n' +
-            '  --why                                    # Why a target was or was not built\n' +
-            '  --with NAME[=PATH]                       # Build with package at PATH\n' +
-            '  --without NAME                           # Build without a package\n' +
+            '  Options:\n' +
+            '  --benchmark                               # Measure elapsed time\n' +
+            '  --configure /path/to/source/tree          # Configure product\n' +
+            '  --configuration                           # Display current configuration\n' +
+            '  --continue                                # Continue on errors\n' +
+            '  --debug                                   # Same as --profile debug\n' +
+            '  --deploy directory                        # Install to deploy directory\n' +
+            '  --depth level                             # Set utest depth level\n' +
+            '  --diagnose                                # Emit diagnostic trace \n' +
+            '  --dump                                    # Dump the full project\n' +
+            '  --endian [big|little]                     # Define the CPU endianness\n' +
+            '  --file file.me                            # Use the specified me file\n' +
+            '  --force                                   # Override warnings\n' +
+            '  --gen [make|nmake|sh|vs|xcode|main|start] # Generate project file\n' +
+            '  --get field                               # Get and display a me field value\n' +
+            '  --help                                    # Print help message\n' +
+            '  --import                                  # Import standard me environment\n' +
+            '  --keep                                    # Keep intermediate files\n' +
+            '  --log logSpec                             # Save errors to a log file\n' +
+            '  --more                                    # Run output through more\n' +
+            '  --nocross                                 # Build natively\n' +
+            '  --overwrite                               # Overwrite existing files\n' +
+            '  --out path                                # Save output to a file\n' +
+            '  --platform os-arch-profile                # Build for specified platform\n' +
+            '  --pre                                     # Pre-process a source file to stdout\n' +
+            '  --prefix dir=path                         # Define installation path prefixes\n' +
+            '  --prefixes [debian|opt|embedthis]         # Use a given prefix set\n' +
+            '  --profile [debug|release|...]             # Use the build profile\n' +
+            '  --quiet                                   # Quiet operation. Suppress trace \n' +
+            '  --rebuild                                 # Rebuild all specified targets\n' +
+            '  --reconfigure                             # Reconfigure with existing settings\n' +
+            '  --release                                 # Same as --profile release\n' +
+            '  --rom                                     # Build for ROM without a file system\n' +
+            '  --set [feature=value]                     # Enable and a feature\n' +
+            '  --sets [set,set,..]                       # File set to install/deploy\n' +
+            '  --show                                    # Show commands executed\n' +
+            '  --static                                  # Make static libraries\n' +
+            '  --unicode                                 # Set char size to wide (unicode)\n' +
+            '  --unset feature                           # Unset a feature\n' +
+            '  --version                                 # Display the me version\n' +
+            '  --verbose                                 # Trace operations\n' +
+            '  --watch [sleep time]                      # Watch for changes and rebuild\n' +
+            '  --why                                     # Why a target was or was not built\n' +
+            '  --with NAME[=PATH]                        # Build with package at PATH\n' +
+            '  --without NAME                            # Build without a package\n' +
             '')
         if (MAIN.exists) {
             try {
                 b.createMe(MAIN, Config.OS + '-' + Config.CPU)
                 global.me = me = b.me
             } catch (e) { print('CATCH: ' + e)}
-        } 
+        }
         if (me) {
             if (me.usage) {
                 print('Feature Selection:')
@@ -282,11 +282,7 @@ public class Me {
             if (options.import) {
                 import()
                 App.exit()
-            } 
-            if (options.init) {
-                init()
-                App.exit()
-            } 
+            }
             if (options.reconfigure) {
                 overlay('configure.es')
                 reconfigure()
@@ -333,14 +329,14 @@ public class Me {
 
     /*
         Unknown args callback
-        
+
         Support Autoconf style args:
             --prefix, --bindir, --libdir, --sysconfdir, --includedir, --libexec
             --with-component
             --without-component
             --enable-feature
             --disable-feature
-     */ 
+     */
     function unknownArg(argv, i) {
         let map = {
             prefix: 'root',
@@ -413,7 +409,7 @@ public class Me {
             App.exit(0)
         }
         if (options.more) {
-            let cmd = App.exePath + ' ' + 
+            let cmd = App.exePath + ' ' +
                 App.args.slice(1).join(' ').replace(/[ \t]*-*more[ \t]*|[ \t]*-m[ \t]*/, ' ') + ' 2>&1 | more'
             if (options.show) {
                 print(cmd)
@@ -490,7 +486,7 @@ public class Me {
             /* Must continue if configure can't locate tools, but does know a default */
             options['continue'] = true
         }
-        let [os, arch] = localPlatform.split('-') 
+        let [os, arch] = localPlatform.split('-')
         validatePlatform(os, arch)
         local = {
             name: localPlatform,
@@ -500,7 +496,7 @@ public class Me {
         }
         if (args.rest.contains('deploy')) {
             options.deploy = Path(platforms[0]).join('deploy')
-        } 
+        }
         if (options.deploy) {
             options.deploy = Path(options.deploy).absolute
             options.prefix ||= []
@@ -619,14 +615,14 @@ public class Me {
             }
             let configure = me.configure.requires + me.configure.discovers
             if (configure.contains(field)) {
-                App.log.error("Using \"--set " + field + "\", but " + field + " is a configurable target. " + 
+                App.log.error("Using \"--set " + field + "\", but " + field + " is a configurable target. " +
                         "Use --with or --without instead.")
                 App.exit(1)
             }
             setSetting(me.settings, field, value)
         }
         for each (field in poptions['without']) {
-            if (me.configure.requires.contains(field)) { 
+            if (me.configure.requires.contains(field)) {
                 throw 'Required component "' + field + '"" cannot be disabled.'
             }
             if (field == 'all' || field == 'default') {
@@ -768,7 +764,7 @@ public class Me {
     function rebase(home: Path, o: Object, field: String) {
         if (!o) return
         if (!o[field]) {
-            field = '+' + field 
+            field = '+' + field
             if (!o[field]) {
                 return
             }
@@ -798,7 +794,7 @@ public class Me {
         Convert scripts collection into canonical long form
      */
     function fixScripts(o, topnames) {
-        if (!o) return 
+        if (!o) return
         /*
             Move top names inside scripts
          */
@@ -929,7 +925,7 @@ public class Me {
             Expand short-form scripts into the long-form. Set the target type if not defined to 'script'.
          */
         let build = target.build
-        for each (n in ['action', 'build', 'shell', 'postblend', 'preresolve', 'postresolve', 'presource', 'postsource', 
+        for each (n in ['action', 'build', 'shell', 'postblend', 'preresolve', 'postresolve', 'presource', 'postsource',
                 'precompile', 'postcompile', 'prebuild', 'postbuild', 'test']) {
             if (target[n] != undefined) {
                 target.type ||= 'script'
@@ -951,7 +947,7 @@ public class Me {
 
     function fixup(o, ns) {
         let home = currentMeFile ? currentMeFile.dirname : App.dir
-    
+
         /*
             Arrays must have a +prefix to blend
          */
@@ -1012,7 +1008,7 @@ public class Me {
             runScript(o.scripts, "preblend")
             delete o.scripts.preblend
         }
-        /* 
+        /*
             Blending is depth-first -- blend this me object after loading me files referenced in blend[]
             Special case for the local plaform me file to provide early definition of platform and dir properties
          */
@@ -1046,7 +1042,7 @@ public class Me {
             }
         }
         /*
-            Delay blending defaults into targets until blendDefaults. 
+            Delay blending defaults into targets until blendDefaults.
             This is because 'combine: true' erases the +/- property prefixes.
          */
         if (o.targets) {
@@ -1108,9 +1104,9 @@ public class Me {
             trace('Build', me.platform.name)
             vtrace('Targets', me.platform.name + ': ' + ((selectedTargets != '') ? selectedTargets: 'nothing to do'))
         }
-        /* 
+        /*
             When cross generating, certain wild cards can't be resolved.
-            Setting missing to empty will cause missing glob patterns to be replaced with the pattern itself 
+            Setting missing to empty will cause missing glob patterns to be replaced with the pattern itself
          */
         if (options.gen || options.configure) {
             missing = ''
@@ -1435,8 +1431,8 @@ public class Me {
                     resolve(dep)
                 }
                 if (dep.type == 'lib') {
-                    /* 
-                        Put dependent libraries first so system libraries are last (matters on linux) 
+                    /*
+                        Put dependent libraries first so system libraries are last (matters on linux)
                         Convert to a canonical form without a leading 'lib'.
                      */
                     target.libraries ||= []
@@ -1530,7 +1526,7 @@ public class Me {
                 for each (file in files) {
                     let header = me.dir.inc.join(file.basename)
                     /* Always overwrite dynamically created targets created via makeDepends */
-                    me.targets[header] = { name: header, enable: true, path: header, type: 'header', 
+                    me.targets[header] = { name: header, enable: true, path: header, type: 'header',
                         goals: [target.name], files: [ file ], includes: target.includes }
                     target.depends.push(header)
                 }
@@ -1543,7 +1539,7 @@ public class Me {
                         Create a target for each resource file
                      */
                     let res = me.dir.obj.join(file.replaceExt(me.ext.res).basename)
-                    let resTarget = { name : res, enable: true, path: res, type: 'resource', 
+                    let resTarget = { name : res, enable: true, path: res, type: 'resource',
                         goals: [target.name], files: [ file ], includes: target.includes, defines: target.defines }
                     if (me.targets[res]) {
                         resTarget = blend(me.targets[resTarget.name], resTarget, {combined: true})
@@ -1561,8 +1557,8 @@ public class Me {
                         Create a target for each source file
                      */
                     let obj = me.dir.obj.join(file.replaceExt(me.ext.o).basename)
-                    let objTarget = { name : obj, enable: true, path: obj, type: 'obj', 
-                        goals: [target.name], files: [ file ], 
+                    let objTarget = { name : obj, enable: true, path: obj, type: 'obj',
+                        goals: [target.name], files: [ file ],
                         compiler: target.compiler, defines: target.defines, includes: target.includes}
                     let precompile = (target.scripts && target.scripts.precompile) ?  target.scripts.precompile : null
                     if (precompile) {
@@ -1637,10 +1633,10 @@ public class Me {
                 }
             }
             runTargetScript(target, 'postblend')
-            if (target.type == 'obj') { 
-                delete target.linker 
-                delete target.libpaths 
-                delete target.libraries 
+            if (target.type == 'obj') {
+                delete target.linker
+                delete target.libpaths
+                delete target.libraries
             }
         }
     }
@@ -1763,7 +1759,7 @@ public class Me {
                 whySkip(target.path, 'is up to date')
             } else {
                 if (options.diagnose) {
-                    App.log.debug(3, "Target => " + 
+                    App.log.debug(3, "Target => " +
                         serialize(target, {pretty: true, commas: true, indent: 4, quotes: false}))
                 }
                 runTargetScript(target, 'prebuild')
@@ -2050,10 +2046,10 @@ public class Me {
      */
     public function makeDirGlobals(base: Path? = null) {
         for each (n in ['BIN', 'BLD', 'OUT', 'INC', 'LIB', 'OBJ', 'PAKS', 'PKG', 'REL', 'SRC', 'TOP']) {
-            /* 
+            /*
                 These globals are always in portable format so they can be used in build scripts. Windows back-slashes
-                require quoting! 
-             */ 
+                require quoting!
+             */
             let dir = me.dir[n.toLower()]
             if (!dir) continue
             dir = dir.portable
@@ -2258,8 +2254,8 @@ public class Me {
             }
         } else if (me.platform.os == 'vxworks') {
             libs = libs.clone()
-            /*  
-                Remove "*.out" libraries as they are resolved at load time only 
+            /*
+                Remove "*.out" libraries as they are resolved at load time only
              */
             for (i = 0; i < libs.length; i++) {
                 let name = libs[i]
@@ -2412,7 +2408,7 @@ public class Me {
             depends = [ meheader ]
         }
         /*
-            Resolve includes 
+            Resolve includes
          */
         for each (item in includes) {
             let ifile = item.replace(/#include.*"(.*)"/, '$1')
@@ -2546,7 +2542,7 @@ public class Me {
         return cmd.response
     }
 
-    /** 
+    /**
         @hide
      */
     public function sh(commands, cmdOptions = {noio: true}): String {
@@ -2576,7 +2572,7 @@ public class Me {
         Path(me.dir.out).join('test.setup').write('test.skip("Skip platform directory")\n')
     }
 
-    /** 
+    /**
         @hide
      */
     public function safeCopy(from: Path, to: Path) {
@@ -2598,7 +2594,7 @@ public class Me {
         cp(from, to)
     }
 
-    /** 
+    /**
         Emit trace
         @param tag Informational tag emitted before the message
         @param args Message args to display
@@ -2615,7 +2611,7 @@ public class Me {
         }
     }
 
-    /** 
+    /**
         Emit "show" trace
         This is trace that is displayed if me --show is invoked.
         @param tag Informational tag emitted before the message
@@ -2627,7 +2623,7 @@ public class Me {
         }
     }
 
-    /** 
+    /**
         Emit "verbose" trace
         This is trace that is displayed if me --verbose is invoked.
         @param tag Informational tag emitted before the message
@@ -2677,9 +2673,9 @@ public class Me {
         }
     }
 
-    /** 
+    /**
         Built-in commands
-        @hide 
+        @hide
      */
     public function builtin(cmd: String, actionOptions: Object = {}) {
         switch (cmd) {
@@ -2829,7 +2825,7 @@ public class Me {
     }
 
     function verifyPlatform(platform) {
-        let [os, arch, profile] = platform.split('-') 
+        let [os, arch, profile] = platform.split('-')
         if (!arch) {
             arch = Config.CPU
         }
@@ -2894,7 +2890,7 @@ public class Me {
         @hide
      */
     public function createMe(mefile: Path, platform: String) {
-        let [os, arch, profile] = platform.split('-') 
+        let [os, arch, profile] = platform.split('-')
         let [arch,cpu] = (arch || '').split(":")
         let kind = like(os)
         if (!mefile.exists) {
@@ -2911,11 +2907,11 @@ public class Me {
         me.options ||= {}
         let cross = ((os + '-' + arch) != (Config.OS + '-' + Config.CPU))
 
-        me.platform = { 
-            name: platform, 
+        me.platform = {
+            name: platform,
             os: os,
             arch: arch,
-            like: kind, 
+            like: kind,
             dist: dist(os),
             profile: profile,
             dev: localPlatform,
@@ -3112,7 +3108,7 @@ public class Me {
 
     /**
         Expand tokens in a string.
-        Tokens are represented by '${field}' where field may contain '.'. For example ${user.name}.    
+        Tokens are represented by '${field}' where field may contain '.'. For example ${user.name}.
         To preserve an ${token} unmodified, preceed the token with an extra '$'. For example: $${token}.
         Calls $String.expand to expand variables from the me and me.globals objects.
         @param s Input string
@@ -3124,8 +3120,8 @@ public class Me {
         @return Expanded string
      */
     public function expand(s: String, options = {fill: '${}'}) : String {
-        /* 
-            Do twice to allow tokens to use ${vars} 
+        /*
+            Do twice to allow tokens to use ${vars}
             Last time use real options to handle unfulfilled tokens as requested.
          */
         let eo = {fill: '${}'}
@@ -3144,7 +3140,7 @@ public class Me {
         return result
     }
 
-    let VER_FACTOR = 1000                                                                            
+    let VER_FACTOR = 1000
 
     /**
         @hide
@@ -3164,7 +3160,7 @@ public class Me {
 
     /**
         Copy files
-        @param src Source files/directories to copy. This can be a String, Path or array of String/Paths. 
+        @param src Source files/directories to copy. This can be a String, Path or array of String/Paths.
             The wildcards "*", "**" and "?" are the only wild card patterns supported. The "**" pattern matches
             every directory and file. The Posix "[]" and "{a,b}" style expressions are not supported.
             If a src item is an existing directory, then the pattern appends slash '**' subtree option is enabled.
@@ -3177,7 +3173,7 @@ public class Me {
         @option compress Compress target file
         @option copytemp Copy files that look like temp files
         @option exclude Exclude files that match the pattern. The pattern should be in portable file format.
-        @option expand Expand tokens. Set to true or an Object hash containing properties to use when replacing 
+        @option expand Expand tokens. Set to true or an Object hash containing properties to use when replacing
             tokens of the form ${token} in the src and dest filenames. If set to true, the 'me' object is used.
         @option fold Fold long lines on windows at column 80 and convert new line endings.
         @option group Set file group
@@ -3201,7 +3197,7 @@ public class Me {
                 files += Path('.').files(pat, {missing: undefined})
             }
             src = files.unique()
-        } 
+        }
         for each (let pattern: Path in src) {
             let dir: Path, destBase: Path
             pattern = Path(expand(pattern))
@@ -3366,8 +3362,8 @@ public class Me {
         This creates a symbolic link on systems that support symlinks.
         The routine uses $Path.link() to implement the linking.
         This either links files or if generating, emits code to link files.
-        @param src Source file 
-        @param dest Destination 
+        @param src Source file
+        @param dest Destination
         @param options See $copy() for supported options.
     */
     public function linkFile(src: Path, dest: Path, options = {}) {
@@ -3414,7 +3410,7 @@ public class Me {
                         print(e)
                         print("CANNOT MAKE DIR", path)
                         throw "Cannot make directory" + path
-                    } 
+                    }
                 }
                 if ((options.user || options.group || options.uid || options.gid) && App.uid == 0) {
                     path.setAttributes(options)
@@ -3488,7 +3484,7 @@ public class Me {
         This either removes directories or if generating, emits code to remove directories.
         @param path Directory to remove
         @param options Control options
-        @option empty Remove the directory only if empty. 
+        @option empty Remove the directory only if empty.
     */
     public function removeDir(path: Path, options = {}) {
         if (!me.generating) {
@@ -3554,8 +3550,8 @@ public class Me {
         Copy files to a destination.
         The routine uses $copy() to implement the copying.
         This either copies files or if generating, emits code to copy files.
-        @param src Source file 
-        @param dest Destination 
+        @param src Source file
+        @param dest Destination
         @param options Options to pass to Me.copy(). These include user, group, uid, gid and  permissions.
     */
     public function copyFile(src: Path, dest: Path, options = {}) {
@@ -3621,13 +3617,13 @@ public class Me {
             if (options.title) {
                 if (options.textfile) {
                     target.write('#\n' +
-                       '#   ' + target.basename + ' -- ' + options.title + '\n' + 
+                       '#   ' + target.basename + ' -- ' + options.title + '\n' +
                        '#\n')
                 } else {
                     target.write('/*\n' +
                        '    ' + target.basename + ' -- ' + options.title + '\n\n' +
                        '    This file is a catenation of all the source code. Amalgamating into a\n' +
-                       '    single file makes embedding simpler and the resulting application faster.\n\n' + 
+                       '    single file makes embedding simpler and the resulting application faster.\n\n' +
                        '    Prepared by: ' + System.hostname + '\n */\n\n')
                 }
             }
@@ -3674,7 +3670,7 @@ b.main()
 public function builtin(command: String, options = null)
     b.builtin(command, options)
 
-/** 
+/**
     Emit general trace
     @param tag Informational tag emitted before the message
     @param args Message args to display
@@ -3682,7 +3678,7 @@ public function builtin(command: String, options = null)
 public function trace(tag: String, ...args): Void
     b.trace(tag, ...args)
 
-/** 
+/**
     Emit "show" trace
     This is trace that is displayed if me --show is invoked.
     @param tag Informational tag emitted before the message
@@ -3690,7 +3686,7 @@ public function trace(tag: String, ...args): Void
 */
 public function strace(tag, ...args)
     b.strace(tag, ...args)
-    
+
 /** @duplicate Me.vtrace */
 public function vtrace(tag, ...args)
     b.vtrace(tag, ...args)
@@ -3810,7 +3806,7 @@ public function sortVersions(versions: Array)
     Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.

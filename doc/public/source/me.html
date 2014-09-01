@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Building with MakeMe</title>
+    <!-- Copyright Embedthis Software, LLC, 2003-2014. All Rights Reserved. -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="keywords" content="MakeMe, Bit, GYP, autoconf, make, cake" />
+    <meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf." />
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+        rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
+    <link href="../lib/semantic/packaged/css/semantic.css" rel="stylesheet" type="text/css" />
+    <link href="../css/all.css" rel="stylesheet" type="text/css" />
+    <link href="../images/favicon.ico" rel="shortcut icon" />
+
+</head>
+<body>
+        
+    <div class="ui large left vertical inverted labeled overlay sidebar menu">
+        <div class="item">
+            <a href="/index.html" class="logo">MakeMe Docs</a>
+        </div>
+        <div class="item">
+            <a href="../index.html">
+                <b>General</b>
+            </a>
+            <div class="menu">
+                <a class="item" href="../index.html">MakeMe Overview</a>
+                <a class="item" href="../users/features.html">MakeMe Features</a>
+                <a class="item" href="https://embedthis.com/me/download.html">Download</a> 
+                <a class="item" href="../licensing/index.html">Licensing</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../start/index.html">
+                <b>Getting Started</b>
+            </a>
+            <div class="menu">
+                <a class="item" href="../start/installing.html">Installing MakeMe</a>
+                <a class="item" href="../start/linux.html">Installing for Linux</a>
+                <a class="item" href="../start/mac.html">Installing for Mac OS X</a>
+                <a class="item" href="../start/windows.html">Installing for Windows</a>
+                <a class="item" href="../start/releaseNotes.html">Release Notes</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../users/index.html"><b>User's Guide</b></a>
+            <div class="menu">
+                <a class="item" href="../users/using.html">Using MakeMe</a>
+                <a class="item" href="../users/configuring.html">Running Configure</a>
+                <a class="item" href="../users/debugging.html">Debugging a Build</a>
+                <a class="item" href="../users/make.html">Using Generated Makefiles</a>
+                <a class="item" href="../users/cross.html">Cross-Compiling</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../developers/index.html">Developer's Guide</a>
+            <div class="menu">
+                <a class="item" href="../developers/compiling.html">Compiling Sources</a>
+                <a class="item" href="../developers/libraries.html">Creating Libraries</a>
+                <a class="item" href="../developers/executables.html">Creating Executables</a>
+                <a class="item" href="../developers/scripts.html">Build Scripts</a>
+                <a class="item" href="../developers/copying.html">Copying Files and Directories</a>
+                <a class="item" href="../developers/configurable.html">Configurable Projects</a>
+                <a class="item" href="../developers/plugins.html">MakeMe Plugins</a>
+                <a class="item" href="../developers/generating.html">Generating</a>
+                <a class="item" href="../developers/samples.html">Samples</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../ref/index.html">Reference Guide</a>
+            <div class="menu">
+                <a class="item" href="../ref/syntax.html">File Syntax</a>
+                <a class="item" href="../ref/dom.html">MakeMe DOM</a>
+                <a class="item" href="../ref/api/index.html">MakeMe API</a>
+                <a class="item" href="../ref/processing.html">File Processing</a>
+                <a class="item" href="../ref/commandline.html">Command Line</a>
+                <a class="item" href="../ref/events.html">Events</a>
+                <a class="item" href="../ref/targets.html">Targets</a>
+                <a class="item" href="../man/me.html">Manual Page</a>
+                <a class="item" href="http://embedthis.com/ejs/doc/api/ejscript/index.html">
+                    Language Reference</a>
+                <a class="item" href="http://embedthis.com/ejs/doc/index.html">Ejscript Documentation</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../developers/project.html">Project Resources</a>
+            <div class="menu">
+                <a class="item" href="http://goo.gl/umR6dt">Official MakeMe News</a>
+                <a class="item" href="https://embedthis.com/me/">MakeMe Web Site</a>
+                <a class="item" href="https://github.com/embedthis/me">Source Code Repository</a>
+                <a class="item" href="https://github.com/embedthis/me/issues">Project Issue Database</a>
+                <a class="item" href="https://github.com/embedthis/me/releases">Change Log</a>
+                <a class="item" href="https://github.com/embedthis/me/milestones">Roadmap</a>
+                <a class="item" href="https://embedthis.com/developers/contributors.html">Contributors Agreement</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../source/index.html">Built with MakeMe</a>
+            <div class="menu">
+                <a class="item" href="../source/overview.html">Building Overview</a>
+                <a class="item" href="../source/make.html">Building with Make</a>
+                <a class="item" href="../source/me.html">Building with MakeMe</a>
+                <a class="item" href="../source/ide.html">Building with an IDE</a>
+            </div>
+        </div>
+        <div class="item">
+            <b>Links</b>
+            <div class="menu">
+                <a class="item" href="https://embedthis.com/">Embedthis Web Site</a>
+                <a class="item" href="https://embedthis.com/blog/">Embedthis Blog</a>
+                <a class="item" href="http://twitter.com/mobstream">Twitter</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui inverted masthead">
+         
+        <div class="column">
+            <div class="ui inverted menu">
+                <div class="ui black small launch right attached toggle button">
+                    <i class="icon list layout"></i>
+                </div>
+                <div class="right menu">
+                    <a class="item" href="https://embedthis.com/">Embedthis</a>
+                    <a class="item" href="https://embedthis.com/appweb/">Appweb Site</a>
+                    <a class="item" href="http://goo.gl/dGRDl4">Appweb News</a>
+                    <a class="item" href="https://github.com/embedthis/appweb">Repository</a>
+                    <a class="item" href="https://embedthis.com/blog/">Blog</a>
+                    <a class="item" href="https://twitter.com/mobstream">Twitter</a>
+                </div>
+            </div>
+            
+            <div class="ui breadcrumb">
+                <a class="section" href="../">Home</a>
+                
+                <div class="divider">/</div>
+                <a class="section" href="index.html">
+                    Built with MakeMe
+                </a>
+                
+                <div class="divider">/</div>
+                <a class="section active" href="me.html">Building with MakeMe</a>
+            </div>
+            
+            <div class="ui right floated basic segment version">
+                v0.8.3
+            </div>
+        </div>
+
+    </div>
+    <div class="content">
+
+            <h1>Building with MakeMe</h1>
+            
+            <p>This document describes the process to build the software from source using MakeMe.
+                First make sure you have read the <a href="overview.html">Building Overview</a> to prepare your build
+                environment. </p>
+
+            <p>The procedure for building with MakeMe is the same for all supported platforms.</p>
+            
+            <a name="download"></a>
+            <h3>Download MakeMe</h3>
+            <p>You can download MakeMe from the 
+            <a href="https://embedthis.com/downloads/me/download.esp">Embedthis MakeMe Download</a> download site.
+            Packaged installations are provided for Windows and Mac. For Linux, use the source distribution.
+            Read <a href="../start/index.html">Installing MakeMe</a> for details.</p>
+            
+            <a id="configuring"></a>
+            <h3>Configuring</h3>
+            <p>Before building with MakeMe, you need to do a one-time <em>configuration</em> step.
+            This customizes the software to select features, options and third-party packages available on your system. 
+            The <em>configure</em> shell script simply invokes <em>me configure</em> and passes all command 
+            line options to <em>me</em>. On windows, you should use <em>me configure</em> instead 
+            unless you have cygwin installed.</p>
+            <pre class="ui code segment">me configure</pre> 
+           
+            <h3>Running Configure</h3>
+            <p>You may run the configure script with no options to accept the defaults &mdash; this is a good
+            starting point:</p> 
+            <pre class="ui code segment">configure</pre>
+            <p>You may also supply options to tailor the build:
+            <pre class="ui code segment">
+configure --release --without all
+</pre>
+            <p>The <em>--release</em> switch instructs MakeMe to build an optimized production release. 
+            The <em>--without all</em> switch will disable non-essential features and components to create 
+            a minimal build.</p>
+
+            <p>During configuration, MakeMe will create:</p>
+            <ul>
+                <li>A MakeMe file that specifies the platforms to build named: start.me</li>
+                <li>An output products directory for each platform named: build/OS-ARCH-PROFILE</li>
+                <li>A MakeMe file for each platform named: build/OS-ARCH-PROFILE/platform.me</li>
+                <li>A source header with for the build configuration named: build/OS-ARCH-PROFILE/inc/me.h</li>
+            </ul>
+            <p>OS is the name of the operating system, ARCH is the name of the cpu architecture and PROFILE
+            is the build profile name, typically "debug" or "release". For example: linux-x86-debug.</p>
+
+            <p>The generated MakeMe files are readable Javascript files that contain the settings to control the build
+            when MakeMe is run. When compiling, source code may include the <em>me.h</em> header to read the 
+            MakeMe configuration.</p>
+
+            <h2>Configure Options</h2>
+            <p>The tables below describe the key configuration options.
+            <h3>Basic Configure Options</h3>
+            <table title="options" class="ui table Segment">
+                <thead>
+                    <tr>
+                        <th class="four wide">Option</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>--debug</td>
+                    <td>Build a debug build. This builds a development, non-optimized build with debug symbols.</td>
+                </tr>
+                <tr>
+                    <td>--help</td>
+                    <td>Display the <em>me</em> program usage help.</td>
+                </tr>
+                <tr>
+                    <td class="nowrap">--set KEY=VALUE</td>
+                    <td>Set the value of a property in the MakeMe <em>settings</em> collection. For example: "--set
+                        mpr.tracing=false".</td>
+                </tr>
+                <tr>
+                    <td>--quiet, -q</td>
+                    <td>Run quietly without progress trace.</td>
+                </tr>
+                <tr>
+                    <td>--release</td>
+                    <td>Build a release build. This builds an optimized, production-ready build of the software.</td>
+                </tr>
+                <tr>
+                    <td>--verbose, -v</td>
+                    <td>Run verbosely and emit more detailed progress trace.</td>
+                </tr>
+                </tbody>
+            </table>
+            <h3>Cross Compiling</h3>
+            <table title="types" class="ui table Segment">
+                <thead>
+                    <tr>
+                        <th class="four wide">Option</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="nowrap">--platform OS-ARCH-PROFILE</td>
+                    <td><p>Specify the target platform for which to build. For example "-platform linux-arm-debug". 
+                        Supported operating systems are: freebsd, linux, macosx, vxworks and windows. 
+                        Supported architectures are: arm, mips, ppc, x64 or x86.</p>
+                        <p>If the -platform option is omitted, the local system is added as the target platform.  You may
+                        use the 'local' alias to indicate the local platform.  Multiple platforms may be specified. </p>
+                        <p>The ARCH component may specify a CPU instance to tune for. The CPU setting is used
+                        in a -DCPU=VALUE compiler define. For example: "-platform linux-arm:arm7tdmi-debug".</p>
+                        <p>NOTE: the platform switch is not a typical configure --host argument. i.e. The second 
+                        component is a system architecture and not a distribution name.</p>
+                    </td>
+                </tr>
+            </tbody>
+            </table>
+            <h3>Feature Options</h3>
+            <table title="options" class="ui table Segment">
+                <thead>
+                    <tr>
+                        <th class="four wide">Option</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="nowrap">--without all</td>
+                    <td>Disable all non-essential possible packages.</td>
+                </tr>
+                <tr>
+                    <td class="nowrap">--set tune=MODE</td>
+                    <td>Tune the build to optimize for "size", "speed". You can also select "balanced" for a balance
+                    between speed and size. (Default is size).</td>
+                </tr>
+                </tbody>
+            </table>
+            <h3>Optional Packages</h3>
+            <table title="packages" class="ui table Segment">
+                <thead>
+                    <tr>
+                        <th class="four wide">Option</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="nowrap">--with PACKAGE[=dir]</td>
+                    <td>Specify if a PACKAGE should be included in the build. The optional directory is the path to
+                        the source distribution of the package. If the directory is omitted, <em>me</em> will search the
+                        local system for the package in well known places.</td>
+                </tr>
+                <tr>
+                    <td>--without PACKAGE</td>
+                    <td>Do not include the PACKAGE in the build.</td>
+                </tr>
+                </tbody>
+            </table>
+            <h3>Example Use</h3>
+            <pre class="ui code segment">
+configure --with openssl=/usr/src/openssl
+</pre>
+            <a id="building"></a>
+            <h2>Building with MakeMe</h2>
+            <p>After configuring, you may proceed to build the source code by typing:</p>
+            <pre class="ui code segment">me</pre>
+
+            <h3>Packages</h3>
+            <p>For a list of the available packages on your system that can be selected via configure, run 
+            <pre class="ui code segment">configure --help</pre>
+            <p>This will display the MakeMe command options followed by a list of configurable features and components.</p>
+
+            <p>You may also find additional packages for download from the 
+            <a href="https://embedthis.com/catalog/">Pak Catalog</a>. These are packages that can be installed via the
+            <a href="https://embedthis.com/pak/">Pak</a> program. Once installed, configure can be run to enable the
+            package.</p>
+
+            <h3>Environment Variables</h3>
+            <p>When cross compiling, certain environment variables may be passed to the configure script and on to 
+            <em>me</em> to configure the compiler and linker paths and flags. </p>
+            <table title="env" class="ui table Segment">
+                <thead>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>AR</td>
+                    <td>Path to the archiver program to use to archive libraries for the target system.</td>
+                </tr>
+                <tr>
+                    <td>CC</td>
+                    <td>Path to the C/C++ compiler to use to compile for the target system.</td>
+                </tr>
+                <tr>
+                    <td>CFLAGS</td>
+                    <td>Compiler control flags.</td>
+                </tr>
+                <tr>
+                    <td>DFLAGS</td>
+                    <td>Compiler preprocessor defines.</td>
+                </tr>
+                <tr>
+                    <td>IFLAGS</td>
+                    <td>Include directory options.</td>
+                </tr>
+                <tr>
+                    <td>LD</td>
+                    <td>Path to the linker program to link objects for the target system.</td>
+                </tr>
+                <tr>
+                    <td>LDFLAGS</td>
+                    <td>Linker flags. E.g. -Ldir to specify a non-standard directory for libraries.</td>
+                </tr>
+                </tbody>
+            </table>
+            <h2>Examples</h2>
+            <pre class="ui code segment">
+CC=/opt/bin/ccarm configure
+</pre>
+            
+            <h3>MakeMe Configure Examples</h3>
+            <p>Here are some useful configure command options.</p>
+            <p>To configure for building outside a source tree. This supports building from source from a 
+                read-only file system.</p>
+            <pre class="ui code segment">configure --configure /path/to/source</pre>
+            <p>To configure for a debug build with debug symbols:</p>
+            <p>To configure without TLS/SSL:</p>
+            <pre class="ui code segment">configure --without ssl</pre>
+            <p>To configure using PHP from a specific source location:</p>
+            <pre class="ui code segment">configure --with php=/path/to/php-source</pre>
+            <p>To configure to build for 32-bit X86 (when on a 64-bit system):</p>
+            <pre class="ui code segment">configure --platform linux-x86-debug</pre>
+            
+            <p>To display all configure options, use <em>configure --help</em>. This is the example output for the
+Appweb product</p>.
+<pre class="ui code segment">configure --help
+Usage: me [options] [targets|goals] ...
+  Options:
+  --benchmark                              # Measure elapsed time
+  --configure /path/to/source/tree         # Configure product
+  --configuration                          # Display current configuration
+  --continue                               # Continue on errors
+  --debug                                  # Same as --profile debug
+  --deploy directory                       # Install to deploy directory
+  --depth level                            # Set utest depth level
+  --diagnose                               # Emit diagnostic trace
+  --dump                                   # Dump the full project
+  --endian [big|little]                    # Define the CPU endianness
+  --file file.me                           # Use the specified me file
+  --force                                  # Override warnings
+  --gen [make|nmake|sh|vs|xcode|main|start]# Generate project file
+  --get field                              # Get and display a me field value
+  --help                                   # Print help message
+  --import                                 # Import standard me environment
+  --keep                                   # Keep intermediate files
+  --log logSpec                            # Save errors to a log file
+  --more                                   # Run output through more
+  --nocross                                # Build natively
+  --overwrite                              # Overwrite existing files
+  --out path                               # Save output to a file
+  --platform os-arch-profile               # Build for specified platform
+  --pre                                    # Pre-process a source file to stdout
+  --prefix dir=path                        # Define installation path prefixes
+  --prefixes [debian|opt|embedthis]        # Use a given prefix set
+  --profile [debug|release|...]            # Use the build profile
+  --quiet                                  # Quiet operation. Suppress trace
+  --rebuild                                # Rebuild all specified targets
+  --reconfigure                            # Reconfigure with existing settings
+  --release                                # Same as --profile release
+  --rom                                    # Build for ROM without a file system
+  --set [feature=value]                    # Enable and a feature
+  --sets [set,set,..]                      # File set to install/deploy
+  --show                                   # Show commands executed
+  --static                                 # Make static libraries
+  --unicode                                # Set char size to wide (unicode)
+  --unset feature                          # Unset a feature
+  --version                                # Display the me version
+  --verbose                                # Trace operations
+  --watch [sleep time]                     # Watch for changes and rebuild
+  --why                                    # Why a target was or was not built
+  --with NAME[=PATH]                       # Build with package at PATH
+  --without NAME                           # Build without a package
+
+Feature Selection:
+    --set ejs.db=value                     # Enable database support, ejs.db (true|false)
+    --set ejs.mail=value                   # Enable mail support, ejs.mail (true|false)
+    --set ejs.mapper=value                 # Enable database mapper support, ejs.mapper (true|false)
+    --set ejs.tar=value                    # Enable tar support, ejs.tar (true|false)
+    --set ejs.template=value               # Enable template support, ejs.template (true|false)
+    --set ejs.web=value                    # Enable web support, ejs.web (true|false)
+    --set ejs.zlib=value                   # Enable zlib support, ejs.zlib (true|false)
+    --set est.camellia=value               # Enable the Camellia cipher (true|false)
+    --set est.des=value                    # Enable the 3DES cipher (true|false)
+    --set est.genPrime=value               # Enable generation of primes (true|false)
+    --set est.padlock=value                # Enable VIA Padlock acceleration (true|false)
+    --set est.romTables=value              # Enable ROM tables (true|false)
+    --set est.sslClient=value              # Enable SSL/TLS client side (true|false)
+    --set est.testCerts=value              # Enable generation of test certificates (true|false)
+    --set est.xtea=value                   # Enable XTEA (true|false)
+    --set http.pam=value                   # Enable Unix Pluggable Auth Module (true|false)
+    --set http.webSockets=value            # Enable WebSockets (true|false)
+    --set mpr.logging=value                # Enable application logging (true|false)
+    --set mpr.debug=value                  # Enable debug logging (true|false)
+    --set configFile=value                 # Path of the appweb.conf file
+    --set serverRoot=value                 # Home directory for the server
+
+Components (--with NAME, --without NAME):
+    cgi                                    # Common Gateway Interface Module
+    dir                                    # Directory Listing Module
+    ejs                                    # Embedthis Ejscript Javascript Language
+    esp                                    # Embedthis ESP, the amazingly fast C-Language web framework
+    est                                    # Embedthis Security Transport
+    mdb                                    # Embedthis MDB Database
+    openssl                                # OpenSSL
+    php                                    # PHP Web Framework
+    sqlite                                 # SQLite Library
+    ssl                                    # Secure Socket Layer Interface (OpenSSL)
+    vxworks                                # VxWorks SDK
+    winsdk                                 # Windows SDK
+    zlib                                   # Zlib Library
+</pre>
+
+            <h3>Useful MakeMe options and targets</h3>
+            <p>Here are some useful MakeMe examples:</p>
+            <pre class="ui code segment">me --show     # Show actual commands while building
+me --why      # Show why each target is or is not being built 
+me dump       # Dump the combined MakeMe configuration in one file
+me rebuild    # Rebuild all targets
+me clean      # Clean all built targets
+me rebuild    # Rebuild all targets
+me install    # Install the built software locally
+me help       # Show MakeMe usage</pre>
+
+            <a name="static"></a>
+            <h2>Static Linking</h2>
+            <p>On some platforms, it may be necessary to statically link the software. The default MakeMe configuration
+            will build using shared libraries. This is so that software can dynamically load modules at run-time.
+            It is generally recommended that you use dynamic linking, however,
+            if you must statically link, run configure with the
+            <i>--static</i> option and then rebuild.</p>
+<pre class="ui code segment">
+configure --static
+me
+</pre>
+
+            <a id="installing"></a>
+            <h2>Installing</h2>
+            <p>You can install the newly built software via <em>me</em>:</p>
+            <pre class="ui code segment">sudo me install</pre>
+            <p>You can remove by:</p>
+            <pre class="ui code segment">
+sudo me uninstall
+</pre>
+            <a id="cross"></a>
+            <h2>Cross Compiling</h2>
+            <p>To build a product for platform different to that of the local system is called <em>cross compiling</em>.
+            Sometimes this compiling is just for a different instruction set (say x64 instead of x86). Other
+            times, it is for a completely different operating system and/or CPU architecture. In such cases a
+            cross-compiler is typically required to build for the target platform.</p>
+            <p>MakeMe supports cross compiling via the <em>-platform PLATFORM</em> MakeMe configure option. 
+            This option adds a platform to the list of platforms to be made. Multiple platforms may be
+            specified and the 'local' platform alias may be used for the local development platform.</p>
+            <pre class="ui code segment">me -platform linux-arm-debug -configure . </pre>
+            <p>This will create a windows-x64.me configuration file and a start.es that references it. The
+            platform switch does not need to be restated after configuration.</p>
+            <h3>Platforms</h3>
+            <p>A platform specification is of the form OS-ARCH-PROFILE, where the
+            supported operating systems are: freebsd, linux, macosx, vxworks and windows. The ARCH field is
+            one of arm, mips, ppc, x64 or x86. X64 is the AMD/Intel 64-bit instruction set and x86 is the Intel X86
+            Pentium instruction set. You may also use i386 or i686 for specific Intel X86 instruction sets.</p>
+            <p>The ARCH field may contain an optional CPU field to specify a CPU to tune for. This is specified as a
+            <em>:CPU</em> suffix for the ARCH field.</p>
+            <p>Note the configuration options apply to the preceding platform. If not preceding platform, the option applies
+            to the local platform. For example:</p>
+            <pre class="ui code segment">configure -with ejscript -platform linux-arm-debug -without ejscript</pre>
+            <p>This will build with the Ejscript package for the local development system, and without Ejscript for 
+            the target.</p>
+
+            <h3>Environment Variables</h3>
+            <p>When cross compiling, you may need to inform <b>configure</b> about your cross-compilation tool chain.
+            MakeMe will do its best to discover the installed cross tool chain and will look in well known
+            directories to locate the compiler, linker and other required tools. If <em>me</em> cannot locate the 
+            tool chain, you can supply the tool chain details via the environment variables: CC, CFLAGS, DFLAGS, IFLAGS
+            LD and LDFLAGS. These will be used to define and configure the cross-compilation tool chain. 
+            <p>For example, here is a cross-compilation <b>configure</b> command line to create a debug build 
+            for Linux on ARM7:</p>
+            <pre class="ui code segment">
+CC=/opt/bin/cc.exe \
+LD=/opt/bin/cc.exe \
+CFLAGS=-I/opt/include \
+configure --debug --platform linux-arm:arm7tdi-debug
+</pre>
+            <h2>Create an Installable Release</h2>
+            <p>After building, MakeMe can create installable packages of the software:</p>
+            <pre class="ui code segment">me package</pre>
+            <p>The release packages are placed under the <em>build/*/img</em> directory.</p>
+           
+           <h2>Deploying</h2>
+            <p>If you are embedding into another application or installing to a target device, you can deploy the 
+            required software files to a staging directory.</p>
+            <pre class="ui code segment">me --sets core,lib deploy /tmp/deployed</pre>
+            <p>This will copy the core and library files to the <em>deploy</em> directory under the platform 
+            output directory.</p>
+
+    </div>
+    <div class="terms ui basic center aligned segment">
+        <p>&copy; Embedthis Software, 2003-2014. All rights reserved.
+            Generated on Aug 31, 2014.
+        </p>
+    </div>
+
+     
+    <script src="../lib/jquery/jquery.js"></script>
+    <script src="../lib/semantic/packaged/javascript/semantic.js"></script>
+    <script>
+        $('.sidebar').sidebar({overlay: false}).sidebar('toggle');
+        $('.sidebar').first().sidebar('attach events', '.toggle.button');
+        $(function() {
+            var active = $('.sidebar a[href$="' + window.location.pathname +'"]');
+            active.addClass('active');
+            var sidebar = $(".sidebar");
+            var height = sidebar.height();
+            if (active.offset().top >= height) {
+                var diff = height - active.offset().top;
+                sidebar.scrollTop(height);
+            }
+        });
+    </script>
+
+</body>
+</html>
