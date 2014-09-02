@@ -29,8 +29,8 @@
     ],
     "export": [ {
             overwrite: true,
-            from: [ "*.less" ],
-            to: 'doc/documents/css',
+            from: [ "css/*.less" ],
+            to: 'doc/documents',
         }, {
             overwrite: true,
             from: [ "partials/**" ],

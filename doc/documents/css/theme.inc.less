@@ -1,9 +1,8 @@
 /*
     theme.less - Default Embedthis Documentation Theme
  */
-@body-gradient-start:       #0A1855 0px;
-@body-gradient-end:         #DA0024 100%;
-@body-gradient-angle:       45deg;
+@body-highlight:            #E00020;
+@body-gradient:             45deg, #402020 0px, @body-highlight 100%;
 @body-min-width:            320px;
 
 @masthead-height:           70px;
@@ -47,10 +46,14 @@
 @band-teal-link:            #E0E0FF;
 
 //
-//  Font sizes
+//  Fonts
 //
-@font-family-sans-serif:    "Open Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
-@font-family-logo:          'Julius Sans One', sans-serif;
-@font-family:               @font-family-sans-serif;
+@font-sans-serif:           "Open Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+@font-logo:                 'Julius Sans One', sans-serif;
+// @font-logo:              'Audiowide;
+
+@font:                      @font-sans-serif;
 @font-size:                 15px;
+
+@font-logo-size:            1.6em;
 

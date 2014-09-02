@@ -10,47 +10,18 @@ html, body {
 body {
     margin: 0;
     padding: 0;
-    font-family: @font-family;
-    background-image: linear-gradient(@body-gradient-angle, @body-gradient-start, @body-gradient-end);
+    font-family: @font;
+    background-image: linear-gradient(@body-gradient);
     background-attachment: fixed;
     min-width: @body-min-width;
     text-rendering: optimizeLegibility;
     transition: none !important;
 }
 
-.ui.sidebar {
-    width: 240px !important;
-    transition: none !important;
-    &.inverted.menu {
-        background: fade(@gray-dark, 30%);
-        .logo {
-            display: inline-block;
-            font-family: @font-family-logo;
-            font-size: 1.9em;
-            color: @white;
-        }
-        .header.item {
-            position: relative;
-            display: inline-block;
-            width: 100%;
-            padding: 7px 21px 7px 10px;
-            font-weight: bold;
-            font-size: 1.05em;
-            background-color: transparent;
-            &:hover {
-              background: fade(@white, 10%);
-            }
-        }
-        a.item.active {
-            border-right: 6px solid @red;
-        }
-    }
-}
-
 .masthead {
     height: @masthead-height;
     .ui.inverted.menu {
-        background-color: transparent;
+        background-color: @gray-dark;
         border-bottom: none;
         margin: 0;
         .right.menu {
@@ -58,7 +29,7 @@ body {
             a.item {
                 color: @white;
                 opacity: @masthead-menu-opacity;
-                padding: 1.1em 0.4em;
+                padding: 0.8em 0.4em;
                 &:hover {
                     background: fade(@white, 20%);
                 }
@@ -76,7 +47,7 @@ body {
     }
     .version {
         font-size: 0.75rem;
-        margin: -0.8rem 0.4rem 0 0;
+        margin: 0 0.4rem 0 0;
         color: @white;
         opacity: 0.75;
     }
@@ -84,7 +55,7 @@ body {
         width: 40px;
     }
     .ui.breadcrumb {
-        margin: -5px 0 0 35px;
+        margin: 6px 0 0 35px;
         .section {
             padding-bottom: .5rem;
         }
@@ -101,6 +72,36 @@ body {
         a:hover,
         a:hover.active.section {
             color: @white;
+        }
+    }
+}
+
+
+.ui.sidebar {
+    width: 240px !important;
+    transition: none !important;
+    &.inverted.menu {
+        background: @gray-dark;
+        .logo {
+            display: inline-block;
+            font-family: @font-logo;
+            font-size: @font-logo-size;
+            color: @white;
+        }
+        .header.item {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            padding: 7px 21px 7px 10px;
+            font-weight: bold;
+            font-size: 1.05em;
+            background-color: transparent;
+            &:hover {
+              background: fade(@white, 10%);
+            }
+        }
+        a.item.active {
+            border-right: 6px solid @body-highlight;
         }
     }
 }

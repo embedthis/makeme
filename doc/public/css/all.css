@@ -19,42 +19,8 @@ body {
   font-family: "Open Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
   text-rendering: optimizeLegibility;
   background-attachment: fixed;
-  background-image: linear-gradient(45deg, #0a1855 0px, #da0024 100%);
+  background-image: linear-gradient(45deg, #9b1e1e 0px, #ff8602 80%);
   transition: none !important;
-}
-
-.ui.sidebar {
-  width: 240px !important;
-  transition: none !important;
-}
-
-.ui.sidebar.inverted.menu {
-  background: rgba(51, 51, 51, 0.3);
-}
-
-.ui.sidebar.inverted.menu .logo {
-  display: inline-block;
-  font-family: 'Julius Sans One', sans-serif;
-  font-size: 1.9em;
-  color: #ffffff;
-}
-
-.ui.sidebar.inverted.menu .header.item {
-  position: relative;
-  display: inline-block;
-  width: 100%;
-  padding: 7px 21px 7px 10px;
-  font-size: 1.05em;
-  font-weight: bold;
-  background-color: transparent;
-}
-
-.ui.sidebar.inverted.menu .header.item:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.ui.sidebar.inverted.menu a.item.active {
-  border-right: 6px solid #dd2222;
 }
 
 .masthead {
@@ -63,7 +29,7 @@ body {
 
 .masthead .ui.inverted.menu {
   margin: 0;
-  background-color: transparent;
+  background-color: #333333;
   border-bottom: none;
 }
 
@@ -72,7 +38,7 @@ body {
 }
 
 .masthead .ui.inverted.menu .right.menu a.item {
-  padding: 1.1em 0.4em;
+  padding: 0.8em 0.4em;
   color: #ffffff;
   opacity: 0.75;
 }
@@ -92,7 +58,7 @@ body {
 }
 
 .masthead .version {
-  margin: -0.8rem 0.4rem 0 0;
+  margin: 0 0.4rem 0 0;
   font-size: 0.75rem;
   color: #ffffff;
   opacity: 0.75;
@@ -103,7 +69,7 @@ body {
 }
 
 .masthead .ui.breadcrumb {
-  margin: -5px 0 0 35px;
+  margin: 6px 0 0 35px;
 }
 
 .masthead .ui.breadcrumb .section {
@@ -126,6 +92,40 @@ body {
 .masthead .ui.breadcrumb a:hover,
 .masthead .ui.breadcrumb a:hover.active.section {
   color: #ffffff;
+}
+
+.ui.sidebar {
+  width: 240px !important;
+  transition: none !important;
+}
+
+.ui.sidebar.inverted.menu {
+  background: #333333;
+}
+
+.ui.sidebar.inverted.menu .logo {
+  display: inline-block;
+  font-family: 'Julius Sans One', sans-serif;
+  font-size: 1.6em;
+  color: #ffffff;
+}
+
+.ui.sidebar.inverted.menu .header.item {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  padding: 7px 21px 7px 10px;
+  font-size: 1.05em;
+  font-weight: bold;
+  background-color: transparent;
+}
+
+.ui.sidebar.inverted.menu .header.item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.ui.sidebar.inverted.menu a.item.active {
+  border-right: 6px solid #ff8602;
 }
 
 .page {
@@ -233,5 +233,7 @@ img.shadow {
  */
 
 /*
-    override.less - Appweb Theme Overrides
+    override.less - MakeMe Theme Overrides
  */
+
+/* Orange */
