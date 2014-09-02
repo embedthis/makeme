@@ -518,7 +518,7 @@ Me.load({
             exe = exe.joinExt('.exe')
         }
         let base = topPath.dirname
-        for each (f in tm.files(['*.o', '*.obj', '*.lib', '*.pdb', '*.exe', '*.mk', '*.sh', '*.mod'])) {
+        for each (f in tm.files(['*.o', '*.obj', '*.lib', '*.pdb', '*.exe', '*.mk', '*.sh', '*.mod', '*.me'])) {
             trace('Remove', base.join(f))
             f.remove()
         }
