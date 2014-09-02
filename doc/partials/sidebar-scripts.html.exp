@@ -1,0 +1,21 @@
+<@
+    addItems('scripts', [
+        'lib/jquery/jquery.js',
+        'lib/semantic/javascript/query.js',
+        'lib/semantic/javascript/query.js',
+    ])
+    addItems('inline-scripts', `
+        $(function() {
+            var url = '@@{top}@@{meta.url}';
+            var active = $('.sidebar a[href="' + url +'"]');
+            active.addClass('active');
+            var sidebar = $(".sidebar");
+            var height = sidebar.height();
+            var offset = active.offset();
+            if (offset && offset.top >= height) {
+                var diff = height - active.offset().top;
+                sidebar.scrollTop(height);
+            }
+        });`
+    )
+@>
