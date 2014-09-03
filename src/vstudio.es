@@ -281,7 +281,7 @@ function archPropBuild(base: Path, arch) {
 }
 
 function projBuild(projects: Array, base: Path, target) {
-    if (target.vsbuilt || !target.enable || target.nogen) {
+    if (target.vsbuilt || !target.enable || !target.generate) {
         return
     }
     if (target.type != 'exe' && target.type != 'lib' && target.type != 'vsprep') {
@@ -519,7 +519,7 @@ function projCustomBuildStep(base, target) {
                 command += '\tcopy /Y ' + wpath(file.relativeTo(target.home)) + ' ' + wpath(path) + '\n'
             }
         }
-    } else if (target['generate-capture']) {
+    } else if (target.generate === true) {
         let capture = Path('me-vs.tmp')
         genOpen(capture)
         runTargetScript(target, 'build')

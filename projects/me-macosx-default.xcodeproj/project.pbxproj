@@ -1565,7 +1565,8 @@
 			shellPath = /bin/bash;
 			shellScript = "PATH=$PATH:/usr/local/bin
 cd ../src/paks/ejs
-../../../build/macosx-x64-default/bin/ejsc --out ../../../build/macosx-x64-default/bin/ejs.mod --optimize 9 --bind --require null ejs.es";
+	../../${OUT_DIR}/bin/ejsc --out ../../${OUT_DIR}/bin/ejs.mod --optimize 9 --bind --require null ejs.es
+";
 		};
 		D17998CCD179A83E0000000C /* ShellScript for ejs.testme.es */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1599,7 +1600,8 @@ cp ejs.testme.es ../../build/macosx-x64-default/bin";
 			shellPath = /bin/bash;
 			shellScript = "PATH=$PATH:/usr/local/bin
 cd ../src/tm
-../../build/macosx-x64-default/bin/ejsc --debug --out ../../build/macosx-x64-default/bin/ejs.testme.mod --optimize 9 /Users/mob/git/me/src/tm/ejs.testme.es";
+	../${OUT_DIR}/bin/ejsc --debug --out ../${OUT_DIR}/bin/ejs.testme.mod --optimize 9 ejs.testme.es
+";
 		};
 		D17998CCD179A83E00000015 /* ShellScript for http-ca-crt */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1728,7 +1730,8 @@ touch build/macosx-x64-default/bin/.updated
 			shellPath = /bin/bash;
 			shellScript = "PATH=$PATH:/usr/local/bin
 cd ..
-build/macosx-x64-default/bin/ejsc --out build/macosx-x64-default/bin/me.mod --optimize 9 src/me.es src/paks/ejs-version/Version.es";
+	build/macosx-x64-default/bin/ejsc --out build/macosx-x64-default/bin/me.mod --optimize 9 src/me.es src/paks/ejs-version/Version.es
+";
 		};
 		D17998CCD179A83E00000022 /* ShellScript for testme.es */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1762,7 +1765,8 @@ cp testme.es ../../build/macosx-x64-default/bin";
 			shellPath = /bin/bash;
 			shellScript = "PATH=$PATH:/usr/local/bin
 cd ../src/tm
-../../build/macosx-x64-default/bin/ejsc --debug --out ../../build/macosx-x64-default/bin/testme.mod --optimize 9 /Users/mob/git/me/src/tm/testme.es";
+	../${OUT_DIR}/bin/ejsc --debug --out ../${OUT_DIR}/bin/testme.mod --optimize 9 testme.es
+";
 		};
 		D17998CCD179A83E00000042 /* ShellScript for Prep */ = {
 			isa = PBXShellScriptBuildPhase;

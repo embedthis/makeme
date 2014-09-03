@@ -83,7 +83,7 @@ function findWindowsCompiler(results) {
             if (Config.CPU == 'x64') {
                 /* Running on a 64 bit */
                 search = search.map(function(e) Path(e).join('amd64'))
-                if (!probe(path || 'cl.exe', {fullpath: true, search: search, nothrow: true})) {
+                if (!probe(path || 'cl.exe', {fullpath: true, search: search, exceptions: false})) {
                     throw 'Missing 64 bit compiler. To select 32 bit compiler, run:\n' +
                           'configure --with platform windows-x86 --nocross'
                 }

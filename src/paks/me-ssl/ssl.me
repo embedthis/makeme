@@ -4,17 +4,14 @@
 
 Me.load({
     blend: [
-        'matrixssl.me',
         'openssl.me',
-        'nanossl.me',
     ],
-
     targets: {
         ssl: {
             configurable: true,
             description: 'Secure Socket Layer Interface',
-            discovers: [ 'openssl', 'est', 'matrixssl', 'nanossl' ],
-            uses:      [ 'openssl', 'est', 'matrixssl', 'nanossl' ],
+            discovers: [ 'openssl', 'est' ],
+            uses:      [ 'openssl', 'est' ],
             config: function (target) {
                 let provider
                 for each (p in target.discovers) {

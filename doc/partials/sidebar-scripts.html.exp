@@ -1,12 +1,13 @@
 <@
     addItems('scripts', [
         'lib/jquery/jquery.js',
-        'lib/semantic/javascript/query.js',
-        'lib/semantic/javascript/query.js',
+        'lib/semantic/javascript/semantic.js',
     ])
     addItems('inline-scripts', `
+        $('.sidebar').sidebar({overlay: false}).sidebar('toggle');
+        $('.sidebar').first().sidebar('attach events', '.toggle.button');
         $(function() {
-            var url = '@@{top}@@{meta.url}';
+            var url = '` + meta.top + meta.url + `';
             var active = $('.sidebar a[href="' + url +'"]');
             active.addClass('active');
             var sidebar = $(".sidebar");

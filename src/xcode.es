@@ -608,7 +608,7 @@ ${OUTPUTS}
             if (target.dest) {
                 cmd += 'touch ' + target.path.relativeTo(target.home) + '\n'
             }
-        } else if (target['generate-capture']) {
+        } else if (target.generate === true) {
             let capture = Path('me-xcode.tmp')
             genOpen(capture)
             runTargetScript(target, 'build')

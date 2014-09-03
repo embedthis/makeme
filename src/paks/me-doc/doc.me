@@ -26,7 +26,7 @@ Me.load({
                     for each (file in ls(['${SRC}/doc/documents/man/*.1', '${SRC}/doc/documents/man/*.3'])) {
                         let name = file.basename
                         trace('Generate', 'Manual page for ' + name)
-                        let response = run([man, file], {noshow: true})
+                        let response = run([man, file], {filter: true})
                         file.replaceExt('txt').write(response.replace(/.\b/g, ''))
                         let cmd = Cmd([man2html, '-u'], {detach: true})
                         cmd.write(response)

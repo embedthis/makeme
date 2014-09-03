@@ -112,7 +112,7 @@ module embedthis.me {
                 }
             }
         }
-        if (target.generateScript) {
+        if (target.generate) {
             generateScript(target)
         }
         if (target.type == 'lib') {
@@ -129,8 +129,10 @@ module embedthis.me {
             generateFile(target)
         } else if (target.type == 'resource') {
             generateResource(target)
+/* DONE IN generateScript
         } else if (target.type == 'run') {
             generateRun(target)
+*/
         } else if (target.dir) {
             generateDir(target, true)
         }
@@ -675,7 +677,7 @@ module embedthis.me {
     function genTargets() {
         let all = []
         for each (target in b.topTargets) {
-            if (target.path && target.enable && !target.nogen) {
+            if (target.path && target.enable && !target.generate) {
                 let path = target.path
                 if (target.ifdef) {
                     for each (pname in target.ifdef) {
@@ -742,7 +744,7 @@ module embedthis.me {
             command = genTargetLibs(target, repcmd(command))
             command = command.replace(/-arch *\S* /, '-arch $$(CC_ARCH) ')
             genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
-            gtrace('Link', target.path.natural.relative)
+            gtracePath('Link', target.path.natural.relative)
             generateDir(target)
             genout.writeLine('\t' + command)
         }
@@ -765,7 +767,7 @@ module embedthis.me {
             command = genTargetLibs(target, repcmd(command))
             command = command.replace(/-arch *\S* /, '-arch $$(CC_ARCH) ')
             genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
-            gtrace('Link', target.path.natural.relative)
+            gtracePath('Link', target.path.natural.relative)
             generateDir(target)
             genout.writeLine('\t' + command)
         }
@@ -787,7 +789,7 @@ module embedthis.me {
             command = repcmd(command)
             genTargetDeps(target)
             genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
-            gtrace('Link', target.path.natural.relative)
+            gtracePath('Link', target.path.natural.relative)
             generateDir(target)
             genout.writeLine('\t' + command)
         }
@@ -829,7 +831,7 @@ module embedthis.me {
                 command = command.replace(/-arch *\S* /, '-arch $$(CC_ARCH) ')
                 genTargetDeps(target)
                 genout.write(reppath(target.path) + ': \\\n    ' + file.relative + getDepsVar() + '\n')
-                gtrace('Compile', target.path.natural.relative)
+                gtracePath('Compile', target.path.natural.relative)
                 generateDir(target)
                 genout.writeLine('\t' + command)
 
@@ -838,7 +840,7 @@ module embedthis.me {
                 command = command.replace(/-arch *\S* /, '-arch $$(CC_ARCH) ')
                 genTargetDeps(target)
                 genout.write(reppath(target.path) + ': \\\n    ' + file.relative.windows + getDepsVar() + '\n')
-                gtrace('Compile', target.path.natural.relative)
+                gtracePath('Compile', target.path.natural.relative)
                 generateDir(target)
                 genout.writeLine('\t' + command)
             }
@@ -868,7 +870,7 @@ module embedthis.me {
                 command = repcmd(command)
                 genTargetDeps(target)
                 genout.write(reppath(target.path) + ': \\\n        ' + file.relative + getDepsVar() + '\n')
-                gtrace('Compile', target.path.natural.relative)
+                gtracePath('Compile', target.path.natural.relative)
                 generateDir(target)
                 genout.writeLine('\t' + command)
 
@@ -876,7 +878,7 @@ module embedthis.me {
                 command = repcmd(command)
                 genTargetDeps(target)
                 genout.write(reppath(target.path) + ': \\\n        ' + file.relative.windows + getDepsVar() + '\n')
-                gtrace('Compile', target.path.natural.relative)
+                gtracePath('Compile', target.path.natural.relative)
                 generateDir(target)
                 genout.writeLine('\t' + command)
             }
@@ -897,7 +899,7 @@ module embedthis.me {
             }
         }
         let dest = target.dest || target.path
-        gtrace('Copy', dest.relative.portable)
+        gtracePath('Copy', dest.relative)
 
         generateDir(target)
         for each (let file: Path in target.files) {
@@ -915,6 +917,7 @@ module embedthis.me {
     }
 
     function generateRun(target) {
+print("GR", target.name)
         let command = target.run.clone()
         if (command is Array) {
             for (let [key,value] in command) {
@@ -956,6 +959,7 @@ module embedthis.me {
                 command = command.replace(/^/mg, '\t')
             }
         } else if (me.generating == 'nmake') {
+            command = command.replace(/\//g, '\\').replace(/@\\/g, '/')
             command = prefix + command + suffix
             command = command.replace(/^[ \t]*/mg, '')
             command = command.replace(/^([^!])/mg, '\t$&')
@@ -985,7 +989,20 @@ module embedthis.me {
             prefix = suffix = ''
         }
         let cmd
-        if (target['generate-capture']) {
+        /*
+            Strategy:
+            If target.generate is true, then run script and capture commands
+            otherwise, interpret generate* as a command. Where FORMAT is: make, nmake, sh, vs or xcode:
+
+                generate-FORMAT-OS
+                generate-FORMAT
+                generate-make-OS
+                generate-make
+                generate-sh
+                generate
+                
+         */
+        if (target.generate === true) {
             capture = []
             runTargetScript(target, 'build')
             if (capture.length > 0) {
@@ -999,13 +1016,18 @@ module embedthis.me {
             }
             capture = null
         } else {
-            let sh = (me.generating == 'make' | me.generating == 'sh' || me.generating == 'xcode') ? target['generate-sh'] : null
+            let sh
+            if (me.generating == 'make' | me.generating == 'sh' || me.generating == 'xcode') {
+                sh = target['generate-sh']
+            }
             cmd = target['generate-' + kind + '-' + me.platform.os] || target['generate-' + kind] || 
                 target['generate-make-' + me.platform.os] || target['generate-make'] || sh || target.generate
             if (cmd && me.generating != 'nmake') {
+                /* TODO - alternative would be to pipe cmd into a shell */
                 cmd = cmd.trim().replace(/\n/mg, ' ; \\\n')
             }
         } 
+        cmd = '' + cmd
         if (me.generating == 'sh') {
             if (cmd) {
                 cmd = cmd.trim()
@@ -1075,6 +1097,7 @@ module embedthis.me {
                 cmd = cmd.replace(/^[ \t]*/mg, '')
                 cmd = cmd.replace(/^([^!])/mg, '\t$&')
                 let saveDir = []
+/* UNUSED
                 if (me.platform.os == 'windows') {
                     for (n in me.globals) {
                         if (me.globals[n] is Path) {
@@ -1083,6 +1106,7 @@ module embedthis.me {
                         }
                     }
                 }
+*/
                 me.globals.LBIN = me.dir.top.relativeTo(target.home).join('$(LBIN)').windows
                 try {
                     cmd = expand(cmd, {fill: null}).expand(target.vars, {fill: '${}'})
@@ -1091,11 +1115,13 @@ module embedthis.me {
                     print('Script:', cmd)
                     throw e
                 }
+/* UNUSED
                 if (me.platform.os == 'windows') {
                     for (n in saveDir) {
                         me.globals[n] = saveDir[n]
                     }
                 }
+*/
                 cmd = repvar2(cmd, target.home)
                 me.globals.LBIN = b.localBin
                 genWriteLine(cmd)
@@ -1536,6 +1562,14 @@ module embedthis.me {
         let msg = args.join(" ")
         let msg = "\t@echo '%12s %s'" % (["[" + tag + "]"] + [msg]) + "\n"
         genout.write(repvar(msg))
+    }
+
+    public function gtracePath(tag: String, path): Void {
+        if (me.generating == 'nmake') {
+            gtrace(tag, path.windows)
+        } else {
+            gtrace(tag, path.portable)
+        }
     }
 
     /** @hide */

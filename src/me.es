@@ -778,6 +778,7 @@ public class Me {
                         o[field][key] = home.join(value)
                     }
                 }
+                /* Comment to balance } */
             }
         } else if (o[field] && o[field].startsWith) {
             if (!o[field].startsWith('${') && !o[field].startsWith('$(')) {
@@ -787,6 +788,7 @@ public class Me {
                     o[field] = home.join(o[field])
                 }
             }
+            /* Comment to balance } */
         }
     }
 
@@ -846,9 +848,10 @@ public class Me {
         if (path && !path.startsWith('${')) {
             return path.absolute
         }
+        /* Comment to balance } */
         return path
     }
-
+ 
     function makeArray(a) {
         if (a && !(a is Array)) {
             return [a]
@@ -856,17 +859,19 @@ public class Me {
         return a
     }
 
-    function fixGoals(target, build) {
+    function fixGoals(target) {
         if (!target.goals) {
-            if (targetsToBuildByDefault[target.type] || build) {
+            if (targetsToBuildByDefault[target.type] || target.build) {
                 target.goals = [ALL, 'generate']
-            } else if (target.run) {
-                target.goals = ['generate']
+                if (!target.generate !== false) {
+                    target.generate ||= true
+                    target.goals.push('generate')
+                }
             } else {
                 target.goals = []
             }
         }
-        if (target.type && target.type != 'script' && target.type != 'run' && !target.goals.contains(target.type)) {
+        if (target.type && target.type != 'script' && !target.goals.contains(target.type)) {
             target.goals.push(target.type)
         }
         if (!target.goals.contains(target.name)) {
@@ -874,18 +879,21 @@ public class Me {
         }
         for (field in target) {
             if (field.startsWith('generate')) {
-                target.generateScript = true
+                if (!target.generate !== false) {
+                    target.generate ||= true
+                }
             }
         }
-        if (target.scripts && target.scripts.generate) {
-            target.generateScript = true
-        }
-        if (target.generateScript && !target.goals.contains('generate')) {
+        if (target.generate && !target.goals.contains('generate')) {
             target.goals.push('generate')
         }
     }
 
     function fixTarget(o, tname, target) {
+        if (target.nogen) {
+            trace('Warn', tname + ' is using nogen which is deprecated. Use generate instead')
+            target.generate = false
+        }
         target.home = absPath(target.home)
         let home = target.home
         if (target.path && !target.configurable) {
@@ -917,6 +925,12 @@ public class Me {
 
         if (target.run) {
             target.type ||= 'run'
+            if (target.run is Array) {
+                target.run = target.run.map(function(a) '"' + a + '"').join(' ')
+            }
+            target.run = target.run.replace(/`/g, '\\`')
+            target.action = 'run(`' + target.run + '`)'
+            delete target.run
         }
         if (target.test) {
             target.type ||= 'test'
@@ -924,7 +938,6 @@ public class Me {
         /*
             Expand short-form scripts into the long-form. Set the target type if not defined to 'script'.
          */
-        let build = target.build
         for each (n in ['action', 'build', 'shell', 'postblend', 'preresolve', 'postresolve', 'presource', 'postsource',
                 'precompile', 'postcompile', 'prebuild', 'postbuild', 'test']) {
             if (target[n] != undefined) {
@@ -934,11 +947,10 @@ public class Me {
                 target.scripts ||= {}
                 target.scripts[event] ||= []
                 target.scripts[event]  += [{ home: home, interpreter: (n == 'shell') ? 'bash' : 'ejs', script: script }]
-                delete target[n]
             }
         }
         fixScripts(target, ['config', 'without', 'postconfig'])
-        fixGoals(target, build)
+        fixGoals(target)
 
         if (o.internal) {
             target.internal = o.internal
@@ -1577,8 +1589,9 @@ public class Me {
                     makeDepends(objTarget)
                 }
             }
+            //  DEPRECATE
             if (target.files) {
-                target.cmdfiles = target.files.map(function(f) f.portable).join(' ')
+                target.cmdfiles = target.files.map(function(f) f.relative.portable).join(' ')
             } else {
                 target.cmdfiles = ''
             }
@@ -1740,6 +1753,12 @@ public class Me {
         }
         vtrace('Consider', target.name)
         global.TARGET = me.target = target
+        if (target.files) {
+            global.FILES = target.files.map(function(f) f.relative.portable).join(' ')
+        } else {
+            global.FILES = ''
+        }
+        me.globals['FILES'] = global.FILES
         target.building = true
         target.linker ||= []
         target.libpaths ||= []
@@ -1787,8 +1806,6 @@ public class Me {
                         buildFile(target)
                     } else if (target.type == 'resource') {
                         buildResource(target)
-                    } else if (target.type == 'run') {
-                        buildRun(target)
                     }
                 }
                 runTargetScript(target, 'postbuild')
@@ -1821,7 +1838,7 @@ public class Me {
         } else {
             safeRemove(target.path)
         }
-        run(command, {excludeOutput: /Creating library /})
+        run(command, {filter: /Creating library /})
     }
 
     function buildSharedLib(target) {
@@ -1841,7 +1858,7 @@ public class Me {
         } else {
             safeRemove(target.path)
         }
-        run(command, {excludeOutput: /Creating library /})
+        run(command, {filter: /Creating library /})
     }
 
     function buildStaticLib(target) {
@@ -1861,7 +1878,7 @@ public class Me {
         } else {
             safeRemove(target.path)
         }
-        run(command, {excludeOutput: /has no symbols|Creating library /})
+        run(command, {filter: /has no symbols|Creating library /})
     }
 
     /*
@@ -1918,7 +1935,7 @@ public class Me {
             let command = expandRule(target, rule)
             trace('Compile', target.path.natural.relative)
             if (me.platform.os == 'windows') {
-                run(command, {excludeOutput: /^[a-zA-Z0-9-]*.c\s*$/})
+                run(command, {filter: /^[a-zA-Z0-9-]*.c\s*$/})
             } else {
                 run(command)
             }
@@ -1942,27 +1959,6 @@ public class Me {
             let command = expandRule(target, rule)
             trace('Compile', target.path.relative)
             run(command)
-        }
-    }
-
-    function buildRun(target) {
-        let command = target.run.clone()
-        if (command is Array) {
-            for (let [key,value] in command) {
-                command[key] = expand(value)
-            }
-        } else {
-            command = expand(command)
-        }
-        trace('Run', command)
-        let pwd = App.dir
-        if (target.home && target.home != pwd) {
-            App.chdir(expand(target.home))
-        }
-        try {
-            run(command, {noio: true})
-        } finally {
-            App.chdir(pwd)
         }
     }
 
@@ -2212,12 +2208,7 @@ public class Me {
         let lines = script.match(/^.*$/mg).filter(function(l) l.length)
         let command = lines.join(';')
         strace('Run', command)
-        let interpreter = Cmd.locate(interpreter)
-        let cmd = new Cmd
-        cmd.start([interpreter, "-c", command.toString().trimEnd('\n')], {noio: true})
-        if (cmd.status != 0 && !options['continue']) {
-            throw 'Command failure: ' + command + '\nError: ' + cmd.error
-        }
+        run([Cmd.locate(interpreter), "-c", command.toString().trimEnd('\n')])
     }
 
     /**
@@ -2296,7 +2287,7 @@ public class Me {
      */
     function stale(target) {
         if (me.generating) {
-            return !target.nogen
+            return !target.generate
         }
         if (options.rebuild) {
             return true
@@ -2468,16 +2459,25 @@ public class Me {
     }
 
     /**
-        Run a command and trace output if cmdOptions.true or options.show
+        Run a command and trace output if copt.show or options.show
+
+        On windows, all "/" characters are converted to "\". To pass a "/", quote with @/.
         @param command Command to run. May be an array of args or a string.
-        @param cmdOptions Options to pass to $Cmd.
+        @param copt Options. These are also passed to $Cmd.
+        @option dir Change to given directory to run the command.
         @option show Show the command line before executing. Similar to me --show, but operates on just this command.
+        @option generate Generate in projects. Defaults to true.
         @option noshow Do not show the command line before executing. Useful to override me --show for one command.
-            noshow is used to hide command display and to suppress command output.
-        @option continueOnErrors Continue processing even if this command is not successful.
+            noshow is used to hide command display. 
+        @option nonstop Continue processing even if this command is not successful.
+        @option filter Hide output if it contains the specified pattern. Set to true to filter all output.
+        @option stream  Stream output to console
+        @option timeout Timeout for the command to complete
+
+        Note: do not use the Cmd options: noio, detach. Use Cmd APIs directly.
      */
-    public function run(command, cmdOptions = {}): String {
-        if (options.show || cmdOptions.show) {
+    public function run(command, copt = {}): String {
+        if ((options.show && !copt.noshow) || copt.show) {
             let cmdline: String
             if (command is Array) {
                 cmdline = command.join(' ')
@@ -2485,6 +2485,16 @@ public class Me {
                 cmdline = command
             }
             trace('Run', cmdline)
+        }
+        if (me.platform.os == 'windows') {
+            command = command.replace(/\//g, '\\').replace(/@\\/g, '/')
+        }
+        if (me.generating && copt.generate !== false) {
+            gencmd(command)
+            return ''
+        }
+        if (copt.noio || copt.nothrow) {
+            throw 'run option noio and nothrow options are not supported'
         }
         let cmd = new Cmd
         if (me.env) {
@@ -2510,48 +2520,57 @@ public class Me {
         }
         App.log.debug(2, "Command " + command)
         App.log.debug(3, "Env " + serialize(cmd.env, {pretty: true, indent: 4, commas: true, quotes: false}))
-        cmd.start(command, cmdOptions)
+
+        let results = new ByteArray
+        cmd.on('readable', function(event, cmd) {
+            let buf = new ByteArray
+            cmd.read(buf, -1)
+            if (!copt.filter) {
+                prints(buf)
+            }
+            results.write(buf)
+        })
+        cmd.start(command, copt)
+        cmd.wait()
+        let response = results.toString()
+
         if (cmd.status != 0) {
             let msg
             if (!cmd.error || cmd.error == '') {
-                msg = 'Command failure: ' + cmd.response + '\nCommand: ' + command
+                msg = 'Command failure: ' + response + '\nCommand: ' + command
             } else {
-                msg = 'Command failure: ' + cmd.error + '\n' + cmd.response + '\nCommand: ' + command
+                msg = 'Command failure: ' + cmd.error + '\n' + response + '\nCommand: ' + command
             }
-            if (cmdOptions.continueOnErrors || options['continue']) {
-                if (!cmdOptions.noshow) {
+            if (copt.nonstop || copt.continueOnErrors || options['continue']) {
+                if (!copt.filter) {
                     trace('Error', msg)
                 }
             } else {
                 throw msg
             }
-        } else if (!cmdOptions.noshow) {
-            if (!cmdOptions.filter || !cmdOptions.filter.test(command)) {
-                if (cmd.error) {
-                    if (!cmdOptions.excludeOutput || !cmdOptions.excludeOutput.test(cmd.error)) {
-                        print(cmd.error)
-                    }
+        } else if (copt.filter && !copt.noshow) {
+            if (copt.filter !== true) {
+                if (cmd.error && !copt.filter.test(cmd.error)) {
+                    prints(cmd.error)
                 }
-                if (cmd.response) {
-                    if (!cmdOptions.excludeOutput || !cmdOptions.excludeOutput.test(cmd.response)) {
-                        print(cmd.response)
-                    }
+                if (response && !copt.filter.test(response)) {
+                    prints(response)
                 }
             }
         }
-        return cmd.response
+        return response
     }
 
     /**
         @hide
      */
-    public function sh(commands, cmdOptions = {noio: true}): String {
+    public function sh(commands, copt = {}): String {
         let lines = commands.match(/^.*$/gm)
         for each (cmd in lines) {
             if (Config.OS == 'windows') {
-                response = run('cmd /c "' + cmd + '"', cmdOptions)
+                response = run('cmd /c "' + cmd + '"', copt)
             } else {
-                response = run('bash -c "' + cmd + '"', cmdOptions)
+                response = run('bash -c "' + cmd + '"', copt)
             }
         }
         return response
@@ -2681,7 +2700,7 @@ public class Me {
         switch (cmd) {
         case 'cleanTargets':
             for each (target in me.targets) {
-                if (target.enable && !target.precious && !target.nogen && target.path && targetsToClean[target.type]) {
+                if (target.enable && !target.precious && !target.generate && target.path && targetsToClean[target.type]) {
                     if (options.show) {
                         trace('Clean', target.path.relative)
                     }
@@ -3696,12 +3715,12 @@ public function copy(src, dest: Path, options = {})
     b.copy(src, dest, options)
 
 /** @duplicate Me.run */
-public function run(command, cmdOptions = {}): String
-    b.run(command, cmdOptions)
+public function run(command, copt = {}): String
+    b.run(command, copt)
 
 /** @hide */
-public function sh(commands, cmdOptions = {noio: true}): String
-    b.sh(commands, cmdOptions)
+public function sh(commands, copt = {}): String
+    b.sh(commands, copt)
 
 /** @hide */
 public function safeRemove(dir: Path)

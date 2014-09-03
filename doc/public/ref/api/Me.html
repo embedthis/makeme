@@ -57,7 +57,7 @@ This implements the "me" tool and provide access via the Me DOM.</p>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#strace'><b>strace</b></a>(tag, args: <a href='Array.html'>Array</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit "show" trace
 This is trace that is displayed if me --show is invoked.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#linkFile'><b>linkFile</b></a>(src: <a href='Path.html'>Path</a>, dest: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Link a file.</td></tr>
-   <tr class='apiDef'><td class='apiType'></td><td><a href='#run'><b>run</b></a>(command, cmdOptions = expression): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Run a command and trace output if cmdOptions.true or options.show.</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#run'><b>run</b></a>(command, copt = expression): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Run a command and trace output if copt.show or options.show<br/><br/>On windows, all "/" characters are converted to "\".</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#trace'><b>trace</b></a>(tag: <a href='String.html'>String</a>, args: <a href='Array.html'>Array</a>): <a href='Void.html'>Void</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit trace.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#makeDir'><b>makeDir</b></a>(path: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Make a directory
 This creates a directory and all required parents.</td></tr>
@@ -166,18 +166,23 @@ This either links files or if generating, emits code to link files.</dd></dl>
 <hr />
 <a name='run'></a>
 <div class='api'>
-<div class='apiSig'>    run(command, cmdOptions = expression): <a href='String.html'>String</a>
+<div class='apiSig'>    run(command, copt = expression): <a href='String.html'>String</a>
 </div>
 <div class='apiDetail'>
-<dl><dt>Description</dt></dd><dd>Run a command and trace output if cmdOptions.true or options.show. </dd></dl>
+<dl><dt>Description</dt></dd><dd>Run a command and trace output if copt.show or options.show<br/><br/>On windows, all "/" characters are converted to "\". To pass a "/", quote with.</dd></dl>
 <dl><dt>Parameters</dt>
 <dd><table class='parameters' title='parameters'>
-<tr class='param'><td class='param'>command </td><td>Command to run. May be an array of args or a string.</td></tr><tr class='param'><td class='param'>cmdOptions </td><td>Options to pass to <a href='#Cmd'>Cmd</a>.  [default: expression]</td></tr></table></dd>
+<tr class='param'><td class='param'>command </td><td>Command to run. May be an array of args or a string.</td></tr><tr class='param'><td class='param'>copt </td><td>Options. These are also passed to <a href='#Cmd'>Cmd</a>.  [default: expression]</td></tr></table></dd>
 </dl><dl><dt>Options</dt>
 <dd><table class='parameters' title='options'>
+<td class='param'>dir</td><td>Change to given directory to run the command.</td></tr>
 <td class='param'>show</td><td>Show the command line before executing. Similar to me --show, but operates on just this command.</td></tr>
-<td class='param'>noshow</td><td>Do not show the command line before executing. Useful to override me --show for one command. noshow is used to hide command display and to suppress command output.</td></tr>
-<td class='param'>continueOnErrors</td><td>Continue processing even if this command is not successful.</td></tr>
+<td class='param'>nogen</td><td>Do not use for generation.</td></tr>
+<td class='param'>noshow</td><td>Do not show the command line before executing. Useful to override me --show for one command. noshow is used to hide command display.</td></tr>
+<td class='param'>nonstop</td><td>Continue processing even if this command is not successful.</td></tr>
+<td class='param'>filter</td><td>Hide output if it contains the specified pattern. Set to true to filter all output.</td></tr>
+<td class='param'>stream</td><td>Stream output to console.</td></tr>
+<td class='param'>timeout</td><td>Timeout for the command to complete  Note: do not use the Cmd options: noio, detach. Use Cmd APIs directly.</td></tr>
 </table></dd>
 </dl></div>
 </div>

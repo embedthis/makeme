@@ -96,7 +96,7 @@
 
   <CustomBuildStep>
     <Command>cd ..\..\src\paks\ejs
-"$(BinDir)\ejsc" --out "$(BinDir)/ejs.mod" --optimize 9 --bind --require null ejs.es
+undefined\ejsc --out undefined\ejs.mod --optimize 9 --bind --require null ejs.es
 cd ..\..\..\projects\me-windows-default</Command>
     <Outputs>$(BinDir)\ejs.mod</Outputs>
   </CustomBuildStep>
