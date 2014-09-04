@@ -1583,7 +1583,9 @@ cd ../src/paks/ejs
 			shellPath = /bin/bash;
 			shellScript = "PATH=$PATH:/usr/local/bin
 cd ../src/tm
-cp ejs.testme.es ../../build/macosx-x64-default/bin";
+mkdir -p ../${OUT_DIR}/bin
+cp -r ejs.testme.es ../${OUT_DIR}/bin/ejs.testme.es
+";
 		};
 		D17998CCD179A83E00000010 /* ShellScript for ejs.testme.mod */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1748,7 +1750,9 @@ cd ..
 			shellPath = /bin/bash;
 			shellScript = "PATH=$PATH:/usr/local/bin
 cd ../src/tm
-cp testme.es ../../build/macosx-x64-default/bin";
+mkdir -p ../${OUT_DIR}/bin
+cp -r testme.es ../${OUT_DIR}/bin/testme.es
+";
 		};
 		D17998CCD179A83E00000026 /* ShellScript for testme.mod */ = {
 			isa = PBXShellScriptBuildPhase;

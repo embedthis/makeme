@@ -96,7 +96,8 @@
 
   <CustomBuildStep>
     <Command>cd ..\..\src\tm
-copy ejs.testme.es $(BinDir)
+if exist $(BinDir)\ejs.testme.es del /Q $(BinDir)\ejs.testme.es
+copy /Y ejs.testme.es $(BinDir)\ejs.testme.es
 cd ..\..\projects\me-windows-default</Command>
     <Outputs>$(BinDir)\ejs.testme.es</Outputs>
   </CustomBuildStep>

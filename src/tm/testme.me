@@ -22,11 +22,7 @@ Me.load({
         'testme.es': {
             path: '${BIN}/testme.es',
             files: [ 'testme.es' ],
-            build: `
-                trace('Export', me.target.files)
-                cp('testme.es', me.dir.bin)
-            `,
-            generate: 'cp testme.es ${BIN}',
+            type: 'file',
             platforms: [ 'local' ],
         },
 
@@ -34,22 +30,16 @@ Me.load({
             path: '${BIN}/testme.mod',
             files: [ 'testme.es' ],
             build: `
-                trace('Compile', 'testme.mod')
                 run('${LBIN}/ejsc --debug --out ${BIN}/testme.mod --optimize 9 testme.es')
-            `
-            'generate-nmake': `"${BIN}\\ejsc" --debug --out "${BIN}/testme.mod" --optimize 9 ${target.cmdfiles}`,
-            'generate-sh': '${LBIN}/ejsc --debug --out ${BIN}/testme.mod --optimize 9 ${target.cmdfiles}',
+            `,
+            message: [ 'Compile', 'testme.mod' ],
             depends: [ 'ejsc' ],
         },
 
         'ejs.testme.es': {
             path: '${BIN}/ejs.testme.es',
             files: [ 'ejs.testme.es' ],
-            build: `
-                trace('Export', me.target.files)
-                cp('ejs.testme.es', me.dir.bin)
-            `,
-            generate: 'cp ejs.testme.es ${BIN}',
+            type: 'file'
             platforms: [ 'local' ],
         },
 
@@ -57,11 +47,9 @@ Me.load({
             path: '${BIN}/ejs.testme.mod',
             files: [ 'ejs.testme.es' ],
             build: `
-                trace('Compile', 'ejs.testme.mod')
                 run('${LBIN}/ejsc --debug --out ${BIN}/ejs.testme.mod --optimize 9 ejs.testme.es')
-            `
-            'generate-nmake': `"${BIN}\\ejsc" --debug --out "${BIN}/ejs.testme.mod" --optimize 9 ${target.cmdfiles}`,
-            'generate-sh': '${LBIN}/ejsc --debug --out ${BIN}/ejs.testme.mod --optimize 9 ${target.cmdfiles}',
+            `,
+            message: [ 'Compile', 'ejs.testme.mod' ],
             depends: [ 'ejsc' ],
         },
     },

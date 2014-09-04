@@ -141,6 +141,7 @@ clean:
 	rm -f "build/$(CONFIG)/obj/pcre.o"
 	rm -f "build/$(CONFIG)/obj/testme.o"
 	rm -f "build/$(CONFIG)/obj/zlib.o"
+	rm -f "build/$(CONFIG)/bin/ejs.testme.es"
 	rm -f "build/$(CONFIG)/bin/ejsc"
 	rm -f "build/$(CONFIG)/bin/ejs"
 	rm -f "build/$(CONFIG)/bin/ca.crt"
@@ -154,6 +155,7 @@ clean:
 	rm -f "build/$(CONFIG)/bin/libtestme.dylib"
 	rm -f "build/$(CONFIG)/bin/libzlib.dylib"
 	rm -f "build/$(CONFIG)/bin/testme"
+	rm -f "build/$(CONFIG)/bin/testme.es"
 
 clobber: clean
 	rm -fr ./$(BUILD)
@@ -509,10 +511,9 @@ endif
 DEPS_23 += src/tm/ejs.testme.es
 
 build/$(CONFIG)/bin/ejs.testme.es: $(DEPS_23)
-	( \
-	cd src/tm; \
-	cp ejs.testme.es ../../build/$(CONFIG)/bin ; \
-	)
+	@echo '      [Copy] build/$(CONFIG)/bin/ejs.testme.es'
+	mkdir -p "build/$(CONFIG)/bin"
+	cp src/tm/ejs.testme.es build/$(CONFIG)/bin/ejs.testme.es
 
 #
 #   ejs.testme.mod
@@ -553,7 +554,8 @@ endif
 build/$(CONFIG)/bin/ejs.testme.mod: $(DEPS_24)
 	( \
 	cd src/tm; \
-	../../$(LBIN)/ejsc --debug --out ../../build/$(CONFIG)/bin/ejs.testme.mod --optimize 9 ../../src/tm/ejs.testme.es ; \
+	echo '   [Compile] ejs.testme.mod' ; \
+	../../build/$(CONFIG)/bin/ejsc --debug --out ../../build/$(CONFIG)/bin/ejs.testme.mod --optimize 9 ejs.testme.es ; \
 	)
 
 #
@@ -986,7 +988,8 @@ endif
 build/$(CONFIG)/bin/testme.mod: $(DEPS_42)
 	( \
 	cd src/tm; \
-	../../$(LBIN)/ejsc --debug --out ../../build/$(CONFIG)/bin/testme.mod --optimize 9 ../../src/tm/testme.es ; \
+	echo '   [Compile] testme.mod' ; \
+	../../build/$(CONFIG)/bin/ejsc --debug --out ../../build/$(CONFIG)/bin/testme.mod --optimize 9 testme.es ; \
 	)
 
 #
@@ -1062,10 +1065,9 @@ build/$(CONFIG)/bin/testme: $(DEPS_44)
 DEPS_45 += src/tm/testme.es
 
 build/$(CONFIG)/bin/testme.es: $(DEPS_45)
-	( \
-	cd src/tm; \
-	cp testme.es ../../build/$(CONFIG)/bin ; \
-	)
+	@echo '      [Copy] build/$(CONFIG)/bin/testme.es'
+	mkdir -p "build/$(CONFIG)/bin"
+	cp src/tm/testme.es build/$(CONFIG)/bin/testme.es
 
 #
 #   stop
