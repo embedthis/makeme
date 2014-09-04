@@ -915,7 +915,22 @@ module embedthis.me {
         setRuleVars(target, target.home)
         let prefix = ''
         let suffix = ''
+        let message
 
+        if (target.message) {
+            message = target.message
+            if (message is Array) {
+                tag = message[0]
+                message = message.slice(1)
+            } else {
+                tag = 'Info'
+            }
+            message = repvar(expand(message))
+            message = "echo '%12s %s'" % (["[" + tag + "]"] + [message])
+            if (me.generating == 'nmake') {
+                message = message.replace(/\//g, '\\')
+            }
+        }
         let kind = me.generating
         if (me.generating == 'sh' || me.generating == 'make') {
             prefix = 'cd ' + target.home.relative
@@ -944,12 +959,12 @@ module embedthis.me {
                 generate
                 
          */
-        let cmd, sh
+        let sh
         if (me.generating == 'make' | me.generating == 'sh' || me.generating == 'xcode') {
             sh = target['generate-sh']
         }
         cmd = target['generate-' + kind + '-' + me.platform.os] || target['generate-' + kind] || 
-            target['generate-make-' + me.platform.os] || target['generate-make'] || sh
+            target['generate-make-' + me.platform.os] || target['generate-make'] || sh || ''
         if (!cmd && target.generate is String) {
             cmd = target.generate
         }
@@ -957,6 +972,9 @@ module embedthis.me {
             capture = []
             runTargetScript(target, 'build')
             if (capture.length > 0) {
+                if (message) {
+                    capture.insert(0, message)
+                }
                 if (prefix && me.generating != 'nmake') {
                     cmd = capture.join(' ; \\\n\t')
                 } else {
@@ -972,6 +990,7 @@ module embedthis.me {
                 cmd = cmd.trim().replace(/\n/mg, ' ; \\\n')
             }
         } 
+
         cmd = '' + cmd
         if (me.generating == 'sh') {
             if (cmd) {
@@ -1005,16 +1024,6 @@ module embedthis.me {
             generateDir(target)
             if (cmd) {
                 cmd = cmd.trim().replace(/^\s*/mg, '\t')
-                /*
-                    cmd = cmd.replace(/^\t*(ifeq|ifneq|else|endif)/mg, '$1')
-                    if (prefix || suffix) {
-                        if (cmd.startsWith('\t@')) {
-                            cmd = cmd.slice(2).replace(/^\s*(.*)$/mg, '\t@' + prefix + '; $1 ; ' + suffix)
-                        } else {
-                            cmd = cmd.replace(/^\s(.*)$/mg, '\t' + prefix + '; $1 ; ' + suffix)
-                        }
-                    }
-                */
                 if (prefix) {
                     cmd = '\t( \\\n\t' + prefix + '; \\\n' + cmd + ' ; \\\n\t)'
                 }
@@ -1042,16 +1051,7 @@ module embedthis.me {
                 cmd = cmd.replace(/^[ \t]*/mg, '')
                 cmd = cmd.replace(/^([^!])/mg, '\t$&')
                 let saveDir = []
-/* UNUSED
-                if (me.platform.os == 'windows') {
-                    for (n in me.globals) {
-                        if (me.globals[n] is Path) {
-                            saveDir[n] = me.globals[n]
-                            me.globals[n] = me.globals[n].windows
-                        }
-                    }
-                }
-*/
+
                 me.globals.LBIN = me.dir.top.relativeTo(target.home).join('$(LBIN)').windows
                 try {
                     cmd = expand(cmd, {fill: null}).expand(target.vars, {fill: '${}'})
@@ -1060,13 +1060,6 @@ module embedthis.me {
                     print('Script:', cmd)
                     throw e
                 }
-/* UNUSED
-                if (me.platform.os == 'windows') {
-                    for (n in saveDir) {
-                        me.globals[n] = saveDir[n]
-                    }
-                }
-*/
                 cmd = repvar2(cmd, target.home)
                 me.globals.LBIN = b.localBin
                 genWriteLine(cmd)

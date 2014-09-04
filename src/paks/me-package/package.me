@@ -102,7 +102,7 @@ Me.load({
             home: '${TOP}',
             action: "installBinary()",
             depends: [ 'all' ],
-            'generate-capture': true,
+            generate: true,
         },
 
         installPackage: {
@@ -138,8 +138,7 @@ Me.load({
             home: '${TOP}',
             action: "uninstallBinary()",
             depends: [ 'all', 'stop' ],
-            'generate-capture': true,
-            generate: ' ',
+            generate: true,
         },
 
         uninstallPackage: {

@@ -735,6 +735,7 @@ public class Me {
             }
         }
         for each (let mix in me.mixin) {
+            App.log.debug(2, "Load me mixin")
             try {
                 global.eval(mix)
             } catch (e) {
@@ -2565,6 +2566,9 @@ public class Me {
             }
         } else if (copt.filter && !copt.noshow) {
             if (copt.filter !== true) {
+                if (!(copt.filter is RegExp)) {
+                    copt.filter = RegExp(copt.filter, "g")
+                }
                 if (cmd.error && !copt.filter.test(cmd.error)) {
                     prints(cmd.error)
                 }
@@ -2634,10 +2638,7 @@ public class Me {
         @param args Message args to display
      */
     public function trace(tag: String, ...args): Void {
-        if (me.generating && genout) {
-            gtrace(tag, ...args)
-
-        } else if (!options.quiet) {
+        if (!options.quiet) {
             let msg = args.join(" ")
             let msg = "%12s %s" % (["[" + tag + "]"] + [msg]) + "\n"
             if (out) {
@@ -3468,9 +3469,8 @@ public class Me {
                 path = path.relative
             }
             if (me.generating == 'nmake' || me.generating == 'vs') {
-                /* BUG FIX */
                 if (path.name.endsWith('/')) {
-                    gencmd('if not exist "' + path.windows + '/" md "' + path.windows + '/"')
+                    gencmd('if not exist "' + path.windows + '\\" md "' + path.windows + '\\"')
                 } else {
                     gencmd('if not exist "' + path.windows + '" md "' + path.windows + '"')
                 }
@@ -3625,7 +3625,7 @@ public class Me {
                 if (dest.contains(' ')) {
                     dest = '"' + dest + '"'
                 }
-                gencmd('copy /Y ' + src + ' ' + dest.windows)
+                gencmd('copy /Y ' + src + ' ' + dest)
             } else {
                 if (src.contains(' ')) {
                     src = '"' + src + '"'
