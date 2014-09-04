@@ -87,7 +87,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
             }
 
         } else if (smatch(argp, "--verbose") || smatch(argp, "-v")) {
-            logSpec = sclone("stderr:1");
+            logSpec = sclone("stdout:1");
 
         } else if (smatch(argp, "--version") || smatch(argp, "-V")) {
             mprPrintf("%s\n", ME_VERSION);
@@ -95,7 +95,7 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
 
         } else if (*argp == '-' && isdigit((uchar) argp[1])) {
             if (!logSpec) {
-                logSpec = sfmt("stderr:%d", (int) stoi(&argp[1]));
+                logSpec = sfmt("stdout:%d", (int) stoi(&argp[1]));
             }
 
         } else {

@@ -104,10 +104,10 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
 
         } else if (*argp == '-' && isdigit((uchar) argp[1])) {
             if (!logSpec) {
-                logSpec = sfmt("stderr:%d", (int) stoi(&argp[1]));
+                logSpec = sfmt("stdout:%d", (int) stoi(&argp[1]));
             }
             if (!traceSpec) {
-                traceSpec = sfmt("stderr:%d", (int) stoi(&argp[1]));
+                traceSpec = sfmt("stdout:%d", (int) stoi(&argp[1]));
             }
 
         } else {
@@ -116,6 +116,8 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
     }
     if (logSpec) {
         mprStartLogging(logSpec, MPR_LOG_CMDLINE);
+    } else {
+        mprStartLogging("stdout", MPR_LOG_CMDLINE);
     }
     if (traceSpec) {
         httpStartTracing(traceSpec);

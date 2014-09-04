@@ -112,9 +112,6 @@ module embedthis.me {
                 }
             }
         }
-        if (target.generate) {
-            generateScript(target)
-        }
         if (target.type == 'lib') {
             if (target.static) {
                 generateStaticLib(target)
@@ -129,12 +126,10 @@ module embedthis.me {
             generateFile(target)
         } else if (target.type == 'resource') {
             generateResource(target)
-/* DONE IN generateScript
-        } else if (target.type == 'run') {
-            generateRun(target)
-*/
         } else if (target.dir) {
             generateDir(target, true)
+        } else if (target.generate) {
+            generateScript(target)
         }
         if (target.ifdef) {
             for (i in target.ifdef.length) {
@@ -677,7 +672,7 @@ module embedthis.me {
     function genTargets() {
         let all = []
         for each (target in b.topTargets) {
-            if (target.path && target.enable && !target.generate) {
+            if (target.path && target.enable && target.generate) {
                 let path = target.path
                 if (target.ifdef) {
                     for each (pname in target.ifdef) {
@@ -916,58 +911,6 @@ module embedthis.me {
         delete target.made
     }
 
-    function generateRun(target) {
-print("GR", target.name)
-        let command = target.run.clone()
-        if (command is Array) {
-            for (let [key,value] in command) {
-                command[key] = expand(value)
-            }
-        } else {
-            command = expand(command)
-        }
-        if (command is Array) {
-            command = command.map(function(a) '"' + a + '"').join(' ')
-        }
-        let prefix, suffix
-        if (me.generating == 'sh' || me.generating == 'make') {
-            prefix = 'cd ' + target.home.relative
-            suffix = 'cd ' + me.dir.top.relativeTo(target.home)
-        } else if (me.generating == 'nmake') {
-            prefix = 'cd ' + target.home.relative.windows + '\n'
-            suffix = '\ncd ' + me.dir.src.relativeTo(target.home).windows
-        } else {
-            prefix = suffix = ''
-        }
-        let rhome = target.home.relative
-        if (rhome == '.' || rhome.startsWith('..')) {
-            /* Don't change directory out of source tree. Necessary for actions in standard.me */
-            prefix = suffix = ''
-        }
-        if (me.generating == 'make' || me.generating == 'nmake') {
-            genTargetDeps(target)
-            genout.write(reppath(target.name) + ':' + getDepsVar() + '\n')
-        }
-        if (me.generating == 'make' || me.generating == 'sh') {
-            if (prefix || suffix) {
-                if (command.startsWith('@')) {
-                    command = command.slice(1).replace(/^.*$/mg, '\t@' + prefix + '; $& ; ' + suffix)
-                } else {
-                    command = command.replace(/^.*$/mg, '\t' + prefix + '; $& ; ' + suffix)
-                }
-            } else {
-                command = command.replace(/^/mg, '\t')
-            }
-        } else if (me.generating == 'nmake') {
-            command = command.replace(/\//g, '\\').replace(/@\\/g, '/')
-            command = prefix + command + suffix
-            command = command.replace(/^[ \t]*/mg, '')
-            command = command.replace(/^([^!])/mg, '\t$&')
-        }
-        generateDir(target)
-        genout.write(command)
-    }
-
     function generateScript(target) {
         setRuleVars(target, target.home)
         let prefix = ''
@@ -988,7 +931,6 @@ print("GR", target.name)
             /* Don't change directory out of source tree. Necessary for actions in standard.me */
             prefix = suffix = ''
         }
-        let cmd
         /*
             Strategy:
             If target.generate is true, then run script and capture commands
@@ -1002,7 +944,16 @@ print("GR", target.name)
                 generate
                 
          */
-        if (target.generate === true) {
+        let cmd, sh
+        if (me.generating == 'make' | me.generating == 'sh' || me.generating == 'xcode') {
+            sh = target['generate-sh']
+        }
+        cmd = target['generate-' + kind + '-' + me.platform.os] || target['generate-' + kind] || 
+            target['generate-make-' + me.platform.os] || target['generate-make'] || sh
+        if (!cmd && target.generate is String) {
+            cmd = target.generate
+        }
+        if (target.generate === true && !cmd) {
             capture = []
             runTargetScript(target, 'build')
             if (capture.length > 0) {
@@ -1016,12 +967,6 @@ print("GR", target.name)
             }
             capture = null
         } else {
-            let sh
-            if (me.generating == 'make' | me.generating == 'sh' || me.generating == 'xcode') {
-                sh = target['generate-sh']
-            }
-            cmd = target['generate-' + kind + '-' + me.platform.os] || target['generate-' + kind] || 
-                target['generate-make-' + me.platform.os] || target['generate-make'] || sh || target.generate
             if (cmd && me.generating != 'nmake') {
                 /* TODO - alternative would be to pipe cmd into a shell */
                 cmd = cmd.trim().replace(/\n/mg, ' ; \\\n')

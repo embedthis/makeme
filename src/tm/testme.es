@@ -41,8 +41,8 @@ enumerable class TestMe {
         } else if (isNaN(parseInt(arg))) {
             throw 'Unknown option: ' + arg
         } else {
-            this.options.trace = 'stderr:' + arg
-            this.options.log = 'stderr:' + arg
+            this.options.trace = 'stdout:' + arg
+            this.options.log = 'stdout:' + arg
         }
         return i
     }

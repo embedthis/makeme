@@ -101,7 +101,7 @@ public class Me {
     private var unix = ['macosx', 'linux', 'unix', 'freebsd', 'solaris']
     private var windows = ['windows', 'wince']
     private var start: Date
-    private var targetsToBuildByDefault = { exe: true, file: true, lib: true }
+    private var targetsToBuildByDefault = { exe: true, file: true, lib: true, header: true }
     private var targetsToClean = { exe: true, file: true, lib: true, obj: true }
 
     private var argTemplate = {
@@ -1519,7 +1519,7 @@ public class Me {
                                 dest = Path(target.path).join(name)
                             }
                             me.targets[dest] = { name: name, type: 'file', enable: true, path: dest, files: [file],
-                                goals: ['all', 'generate', target.name], home: target.home }
+                                goals: ['all', 'generate', target.name], home: target.home, generate: true }
                         }
                         target.depends = files
                         target.files = []
@@ -1539,8 +1539,11 @@ public class Me {
                     let header = me.dir.inc.join(file.basename)
                     /* Always overwrite dynamically created targets created via makeDepends */
                     me.targets[header] = { name: header, enable: true, path: header, type: 'header',
-                        goals: [target.name], files: [ file ], includes: target.includes }
+                        goals: [target.name], files: [ file ], includes: target.includes, generate: true }
                     target.depends.push(header)
+                }
+                if (target.type == 'header') {
+                    target.generate = false;
                 }
             }
             if (target.resources) {
@@ -1552,7 +1555,7 @@ public class Me {
                      */
                     let res = me.dir.obj.join(file.replaceExt(me.ext.res).basename)
                     let resTarget = { name : res, enable: true, path: res, type: 'resource',
-                        goals: [target.name], files: [ file ], includes: target.includes, defines: target.defines }
+                        goals: [target.name], files: [ file ], includes: target.includes, defines: target.defines, generate: true }
                     if (me.targets[res]) {
                         resTarget = blend(me.targets[resTarget.name], resTarget, {combined: true})
                     }
@@ -1571,7 +1574,7 @@ public class Me {
                     let obj = me.dir.obj.join(file.replaceExt(me.ext.o).basename)
                     let objTarget = { name : obj, enable: true, path: obj, type: 'obj',
                         goals: [target.name], files: [ file ],
-                        compiler: target.compiler, defines: target.defines, includes: target.includes}
+                        compiler: target.compiler, defines: target.defines, includes: target.includes, generate: true}
                     let precompile = (target.scripts && target.scripts.precompile) ?  target.scripts.precompile : null
                     if (precompile) {
                         objTarget.scripts = {precompile: precompile}
@@ -2285,9 +2288,9 @@ public class Me {
     /*
         Test if a target is stale vs the inputs AND dependencies
      */
-    function stale(target) {
+    function stale(target): Boolean {
         if (me.generating) {
-            return !target.generate
+            return target.generate !== false
         }
         if (options.rebuild) {
             return true
@@ -2425,7 +2428,7 @@ public class Me {
         for each (header in depends) {
             if (!me.targets[header]) {
                 me.targets[header] = { name: header, enable: true, path: Path(header),
-                    type: 'header', goals: [target.name], files: [ header ], includes: target.includes }
+                    type: 'header', goals: [target.name], files: [ header ], includes: target.includes, generate: true }
             }
             let h = me.targets[header]
             if (h && !h.makedep) {
@@ -2471,7 +2474,6 @@ public class Me {
             noshow is used to hide command display. 
         @option nonstop Continue processing even if this command is not successful.
         @option filter Hide output if it contains the specified pattern. Set to true to filter all output.
-        @option stream  Stream output to console
         @option timeout Timeout for the command to complete
 
         Note: do not use the Cmd options: noio, detach. Use Cmd APIs directly.
@@ -2700,7 +2702,7 @@ public class Me {
         switch (cmd) {
         case 'cleanTargets':
             for each (target in me.targets) {
-                if (target.enable && !target.precious && !target.generate && target.path && targetsToClean[target.type]) {
+                if (target.enable && !target.precious && target.generate !== false && target.path && targetsToClean[target.type]) {
                     if (options.show) {
                         trace('Clean', target.path.relative)
                     }
