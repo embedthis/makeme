@@ -168,6 +168,7 @@ clean:
 	if exist "build\$(CONFIG)\obj\removeFiles.obj" del /Q "build\$(CONFIG)\obj\removeFiles.obj"
 	if exist "build\$(CONFIG)\obj\testme.obj" del /Q "build\$(CONFIG)\obj\testme.obj"
 	if exist "build\$(CONFIG)\obj\zlib.obj" del /Q "build\$(CONFIG)\obj\zlib.obj"
+	if exist "build\$(CONFIG)\bin\ejs.testme.es" del /Q "build\$(CONFIG)\bin\ejs.testme.es"
 	if exist "build\$(CONFIG)\bin\ejsc.exe" del /Q "build\$(CONFIG)\bin\ejsc.exe"
 	if exist "build\$(CONFIG)\bin\ejsc.lib" del /Q "build\$(CONFIG)\bin\ejsc.lib"
 	if exist "build\$(CONFIG)\bin\ejsc.pdb" del /Q "build\$(CONFIG)\bin\ejsc.pdb"
@@ -221,6 +222,7 @@ clean:
 	if exist "build\$(CONFIG)\bin\testme.lib" del /Q "build\$(CONFIG)\bin\testme.lib"
 	if exist "build\$(CONFIG)\bin\testme.pdb" del /Q "build\$(CONFIG)\bin\testme.pdb"
 	if exist "build\$(CONFIG)\bin\testme.exp" del /Q "build\$(CONFIG)\bin\testme.exp"
+	if exist "build\$(CONFIG)\bin\testme.es" del /Q "build\$(CONFIG)\bin\testme.es"
 
 
 #
@@ -572,9 +574,9 @@ build\$(CONFIG)\bin\ejs.mod: $(DEPS_22)
 DEPS_23 = $(DEPS_23) src\tm\ejs.testme.es
 
 build\$(CONFIG)\bin\ejs.testme.es: $(DEPS_23)
-	cd src\tm
-	copy ejs.testme.es ../../build/$(CONFIG)/bin
-	cd ..\..
+	@echo '      [Copy] build\$(CONFIG)\bin\ejs.testme.es'
+	if not exist "build\$(CONFIG)\bin" md "build\$(CONFIG)\bin"
+	copy /Y src\tm\ejs.testme.es build\$(CONFIG)\bin\ejs.testme.es
 
 #
 #   ejs.testme.mod
@@ -614,7 +616,8 @@ DEPS_24 = $(DEPS_24) build\$(CONFIG)\bin\ejsc.exe
 
 build\$(CONFIG)\bin\ejs.testme.mod: $(DEPS_24)
 	cd src\tm
-	"../../build/$(CONFIG)/bin\ejsc" --debug --out "../../build/$(CONFIG)/bin/ejs.testme.mod" --optimize 9 ../../src/tm/ejs.testme.es
+	echo '   [Compile] ejs.testme.mod'
+	..\..\build\$(CONFIG)\bin\ejsc --debug --out ..\..\build\$(CONFIG)\bin\ejs.testme.mod --optimize 9 ejs.testme.es
 	cd ..\..
 
 #
@@ -1065,7 +1068,8 @@ DEPS_44 = $(DEPS_44) build\$(CONFIG)\bin\ejsc.exe
 
 build\$(CONFIG)\bin\testme.mod: $(DEPS_44)
 	cd src\tm
-	"../../build/$(CONFIG)/bin\ejsc" --debug --out "../../build/$(CONFIG)/bin/testme.mod" --optimize 9 ../../src/tm/testme.es
+	echo '   [Compile] testme.mod'
+	..\..\build\$(CONFIG)\bin\ejsc --debug --out ..\..\build\$(CONFIG)\bin\testme.mod --optimize 9 testme.es
 	cd ..\..
 
 #
@@ -1141,9 +1145,9 @@ build\$(CONFIG)\bin\testme.exe: $(DEPS_46)
 DEPS_47 = $(DEPS_47) src\tm\testme.es
 
 build\$(CONFIG)\bin\testme.es: $(DEPS_47)
-	cd src\tm
-	copy testme.es ../../build/$(CONFIG)/bin
-	cd ..\..
+	@echo '      [Copy] build\$(CONFIG)\bin\testme.es'
+	if not exist "build\$(CONFIG)\bin" md "build\$(CONFIG)\bin"
+	copy /Y src\tm\testme.es build\$(CONFIG)\bin\testme.es
 
 #
 #   stop

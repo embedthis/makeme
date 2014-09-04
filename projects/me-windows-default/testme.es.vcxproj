@@ -96,7 +96,8 @@
 
   <CustomBuildStep>
     <Command>cd ..\..\src\tm
-copy testme.es $(BinDir)
+if exist $(BinDir)\testme.es del /Q $(BinDir)\testme.es
+copy /Y testme.es $(BinDir)\testme.es
 cd ..\..\projects\me-windows-default</Command>
     <Outputs>$(BinDir)\testme.es</Outputs>
   </CustomBuildStep>
