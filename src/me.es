@@ -2503,7 +2503,13 @@ public class Me {
             trace('Run', cmdline)
         }
         if (me.platform.os == 'windows') {
-            command = command.replace(/\//g, '\\').replace(/@\\/g, '/')
+            if (command is Array) {
+                for (let [index, value] in command) {
+                    command[index] = value.replace(/\//g, '\\').replace(/@\\/g, '/')
+                }
+            } else {
+                command = command.replace(/\//g, '\\').replace(/@\\/g, '/')
+            }
         }
         if (me.generating && copt.generate !== false) {
             gencmd(command)
@@ -2521,10 +2527,12 @@ public class Me {
                 }
                 if (me.platform.os == 'windows') {
                     /* Replacement may contain $(VS) */
-                    if (!me.targets.compiler.dir.contains('$'))
+                    if (!me.targets.compiler.dir.contains('$')) {
                         value = value.replace(/\$\(VS\)/g, me.targets.compiler.dir)
-                    if (!me.targets.winsdk.path.contains('$'))
+                    }
+                    if (!me.targets.winsdk.path.contains('$')) {
                         value = value.replace(/\$\(SDK\)/g, me.targets.winsdk.path)
+                    }
                 }
                 if (env[key] && (key == 'PATH' || key == 'INCLUDE' || key == 'LIB')) {
                     env[key] = value + App.SearchSeparator + env[key]

@@ -831,7 +831,7 @@ function packageWindows(prefixes) {
     let zipfile = outfile.joinExt('zip', true)
     zipfile.remove()
     trace('Package', zipfile)
-    run(['zip', '-q', zipfile.basename, outfile.basename], {dir: me.dir.rel})
+    run(['zip', '-q', zipfile.basename, outfile.basename], {dir: me.dir.rel, filter: true})
     me.dir.rel.join('md5-' + base).joinExt('exe.zip.txt', true).write(md5(zipfile.readString()))
     outfile.remove()
 }
