@@ -1388,7 +1388,7 @@ public class Me {
                 }
             }
         }
-        return files
+        return files.sort()
     }
 
     function inheritDep(target, dep, inheritCompiler = false) {
@@ -2732,7 +2732,7 @@ public class Me {
                         trace('Clean', target.path.relative)
                     }
                     let path: Path = (me.generating) ? reppath(target.path) : target.path
-                    if (target.path.toString().endsWith('/')) {
+                    if (target.path.toString().endsWith('/') || target.path.isDir) {
                         removeDir(path)
                     } else {
                         removeFile(path)

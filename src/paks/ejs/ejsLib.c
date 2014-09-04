@@ -42119,30 +42119,24 @@ PUBLIC EjsArray *ejsGetPathFiles(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
         path = fp->value;
         base = "";
 
-#if UNUSED
-        if (mprIsPathAbs(pattern)) {
-#endif
-            start = pattern;
-            if ((special = strpbrk(start, "*?")) != 0) {
-                if (special > start) {
-                    for (pattern = special; pattern > start && !strchr(fs->separators, *pattern); pattern--) { }
-                    if (pattern > start) {
-                        *pattern++ = '\0';
-                        path = mprJoinPath(path, start);
-                        base = start;
-                    }
-                }
-            } else {
-                pattern = (char*) mprGetPathBaseRef(start);
+        start = pattern;
+        if ((special = strpbrk(start, "*?")) != 0) {
+            if (special > start) {
+                for (pattern = special; pattern > start && !strchr(fs->separators, *pattern); pattern--) { }
                 if (pattern > start) {
-                    pattern[-1] = '\0';
+                    *pattern++ = '\0';
                     path = mprJoinPath(path, start);
                     base = start;
                 }
             }
-#if UNUSED
+        } else {
+            pattern = (char*) mprGetPathBaseRef(start);
+            if (pattern > start) {
+                pattern[-1] = '\0';
+                path = mprJoinPath(path, start);
+                base = start;
+            }
         }
-#endif
         if (!globPath(ejs, result, path, base, pattern, flags, exclude, include)) {
             return 0;
         }
