@@ -30995,11 +30995,13 @@ static int parseOptions(Ejs *ejs, EjsCmd *cmd)
     cmd->throw = 0;    
     flags = MPR_CMD_IN | MPR_CMD_OUT | MPR_CMD_ERR;
     if (cmd->options) {
+#if DEPRECATE || 1
         if ((value = ejsGetPropertyByName(ejs, cmd->options, EN("noio"))) != 0) {
             if (value == ESV(true)) {
                 flags &= ~(MPR_CMD_OUT | MPR_CMD_ERR);
             }
         }
+#endif
         if ((value = ejsGetPropertyByName(ejs, cmd->options, EN("detach"))) != 0) {
             if (value == ESV(true)) {
                 flags |= MPR_CMD_DETACH;
@@ -31011,7 +31013,7 @@ static int parseOptions(Ejs *ejs, EjsCmd *cmd)
                 mprSetCmdDir(cmd->mc, path->value);
             }
         }
-        if ((value = ejsGetPropertyByName(ejs, cmd->options, EN("exception"))) != 0) {
+        if ((value = ejsGetPropertyByName(ejs, cmd->options, EN("exceptions"))) != 0) {
             if (value == ESV(true)) {
                 cmd->throw = 1;
             }
