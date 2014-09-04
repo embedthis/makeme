@@ -1556,6 +1556,7 @@
 			files = (
 			);
 			inputPaths = (
+/Users/mob/git/me/src/configure.es,
 /Users/mob/git/me/src/configure/appweb.me,
 /Users/mob/git/me/src/configure/compiler.me,
 /Users/mob/git/me/src/configure/lib.me,
@@ -1564,7 +1565,6 @@
 /Users/mob/git/me/src/configure/testme.me,
 /Users/mob/git/me/src/configure/vxworks.me,
 /Users/mob/git/me/src/configure/winsdk.me,
-/Users/mob/git/me/src/configure.es,
 /Users/mob/git/me/src/generate.es,
 /Users/mob/git/me/src/master-main.me,
 /Users/mob/git/me/src/master-start.me,
@@ -1589,6 +1589,8 @@
 			shellPath = /bin/bash;
 			shellScript = "PATH=$PATH:/usr/local/bin
 cd ..
+mkdir -p build/macosx-x64-default/bin
+cp -r src/configure.es build/macosx-x64-default/bin/configure.es
 mkdir -p build/macosx-x64-default/bin/configure
 cp -r src/configure/appweb.me build/macosx-x64-default/bin/configure/appweb.me
 mkdir -p build/macosx-x64-default/bin/configure
@@ -1605,8 +1607,6 @@ mkdir -p build/macosx-x64-default/bin/configure
 cp -r src/configure/vxworks.me build/macosx-x64-default/bin/configure/vxworks.me
 mkdir -p build/macosx-x64-default/bin/configure
 cp -r src/configure/winsdk.me build/macosx-x64-default/bin/configure/winsdk.me
-mkdir -p build/macosx-x64-default/bin
-cp -r src/configure.es build/macosx-x64-default/bin/configure.es
 mkdir -p build/macosx-x64-default/bin
 cp -r src/generate.es build/macosx-x64-default/bin/generate.es
 mkdir -p build/macosx-x64-default/bin

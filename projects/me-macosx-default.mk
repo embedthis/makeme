@@ -164,6 +164,7 @@ clobber: clean
 #
 #   core
 #
+DEPS_1 += src/configure.es
 DEPS_1 += src/configure/appweb.me
 DEPS_1 += src/configure/compiler.me
 DEPS_1 += src/configure/lib.me
@@ -172,7 +173,6 @@ DEPS_1 += src/configure/rc.me
 DEPS_1 += src/configure/testme.me
 DEPS_1 += src/configure/vxworks.me
 DEPS_1 += src/configure/winsdk.me
-DEPS_1 += src/configure.es
 DEPS_1 += src/generate.es
 DEPS_1 += src/master-main.me
 DEPS_1 += src/master-start.me
@@ -192,6 +192,8 @@ DEPS_1 += src/xcode.es
 
 build/$(CONFIG)/bin/.updated: $(DEPS_1)
 	@echo '      [Copy] build/$(CONFIG)/bin'
+	mkdir -p "build/$(CONFIG)/bin"
+	cp src/configure.es build/$(CONFIG)/bin/configure.es
 	mkdir -p "build/$(CONFIG)/bin/configure"
 	cp src/configure/appweb.me build/$(CONFIG)/bin/configure/appweb.me
 	cp src/configure/compiler.me build/$(CONFIG)/bin/configure/compiler.me
@@ -201,8 +203,6 @@ build/$(CONFIG)/bin/.updated: $(DEPS_1)
 	cp src/configure/testme.me build/$(CONFIG)/bin/configure/testme.me
 	cp src/configure/vxworks.me build/$(CONFIG)/bin/configure/vxworks.me
 	cp src/configure/winsdk.me build/$(CONFIG)/bin/configure/winsdk.me
-	mkdir -p "build/$(CONFIG)/bin"
-	cp src/configure.es build/$(CONFIG)/bin/configure.es
 	cp src/generate.es build/$(CONFIG)/bin/generate.es
 	cp src/master-main.me build/$(CONFIG)/bin/master-main.me
 	cp src/master-start.me build/$(CONFIG)/bin/master-start.me
@@ -226,6 +226,8 @@ build/$(CONFIG)/bin/.updated: $(DEPS_1)
 #
 #   mpr.h
 #
+DEPS_2 += src/paks/mpr/mpr.h
+
 build/$(CONFIG)/inc/mpr.h: $(DEPS_2)
 	@echo '      [Copy] build/$(CONFIG)/inc/mpr.h'
 	mkdir -p "build/$(CONFIG)/inc"
@@ -240,6 +242,7 @@ build/$(CONFIG)/inc/me.h: $(DEPS_3)
 #
 #   osdep.h
 #
+DEPS_4 += src/paks/osdep/osdep.h
 DEPS_4 += build/$(CONFIG)/inc/me.h
 
 build/$(CONFIG)/inc/osdep.h: $(DEPS_4)
@@ -274,6 +277,8 @@ build/$(CONFIG)/bin/libmpr.dylib: $(DEPS_6)
 #
 #   pcre.h
 #
+DEPS_7 += src/paks/pcre/pcre.h
+
 build/$(CONFIG)/inc/pcre.h: $(DEPS_7)
 	@echo '      [Copy] build/$(CONFIG)/inc/pcre.h'
 	mkdir -p "build/$(CONFIG)/inc"
@@ -306,6 +311,8 @@ endif
 #
 #   http.h
 #
+DEPS_10 += src/paks/http/http.h
+
 build/$(CONFIG)/inc/http.h: $(DEPS_10)
 	@echo '      [Copy] build/$(CONFIG)/inc/http.h'
 	mkdir -p "build/$(CONFIG)/inc"
@@ -353,6 +360,8 @@ endif
 #
 #   zlib.h
 #
+DEPS_13 += src/paks/zlib/zlib.h
+
 build/$(CONFIG)/inc/zlib.h: $(DEPS_13)
 	@echo '      [Copy] build/$(CONFIG)/inc/zlib.h'
 	mkdir -p "build/$(CONFIG)/inc"
@@ -385,6 +394,8 @@ endif
 #
 #   ejs.h
 #
+DEPS_16 += src/paks/ejs/ejs.h
+
 build/$(CONFIG)/inc/ejs.h: $(DEPS_16)
 	@echo '      [Copy] build/$(CONFIG)/inc/ejs.h'
 	mkdir -p "build/$(CONFIG)/inc"
@@ -393,6 +404,8 @@ build/$(CONFIG)/inc/ejs.h: $(DEPS_16)
 #
 #   ejs.slots.h
 #
+DEPS_17 += src/paks/ejs/ejs.slots.h
+
 build/$(CONFIG)/inc/ejs.slots.h: $(DEPS_17)
 	@echo '      [Copy] build/$(CONFIG)/inc/ejs.slots.h'
 	mkdir -p "build/$(CONFIG)/inc"
@@ -401,6 +414,8 @@ build/$(CONFIG)/inc/ejs.slots.h: $(DEPS_17)
 #
 #   ejsByteGoto.h
 #
+DEPS_18 += src/paks/ejs/ejsByteGoto.h
+
 build/$(CONFIG)/inc/ejsByteGoto.h: $(DEPS_18)
 	@echo '      [Copy] build/$(CONFIG)/inc/ejsByteGoto.h'
 	mkdir -p "build/$(CONFIG)/inc"
@@ -734,6 +749,8 @@ endif
 #
 #   est.h
 #
+DEPS_31 += src/paks/est/est.h
+
 build/$(CONFIG)/inc/est.h: $(DEPS_31)
 	@echo '      [Copy] build/$(CONFIG)/inc/est.h'
 	mkdir -p "build/$(CONFIG)/inc"
@@ -811,6 +828,8 @@ build/$(CONFIG)/bin/libmprssl.dylib: $(DEPS_35)
 #
 #   testme.h
 #
+DEPS_36 += src/tm/testme.h
+
 build/$(CONFIG)/inc/testme.h: $(DEPS_36)
 	@echo '      [Copy] build/$(CONFIG)/inc/testme.h'
 	mkdir -p "build/$(CONFIG)/inc"

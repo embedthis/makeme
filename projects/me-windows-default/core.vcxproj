@@ -97,6 +97,8 @@
   <CustomBuildStep>
     <Command>cd ..\..
 if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\configure.es $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
 copy /Y src\configure\appweb.me $(BinDir)
 if exist $(BinDir) del /Q $(BinDir)
 copy /Y src\configure\compiler.me $(BinDir)
@@ -112,8 +114,6 @@ if exist $(BinDir) del /Q $(BinDir)
 copy /Y src\configure\vxworks.me $(BinDir)
 if exist $(BinDir) del /Q $(BinDir)
 copy /Y src\configure\winsdk.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\configure.es $(BinDir)
 if exist $(BinDir) del /Q $(BinDir)
 copy /Y src\generate.es $(BinDir)
 if exist $(BinDir) del /Q $(BinDir)

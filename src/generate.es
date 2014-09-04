@@ -1435,8 +1435,9 @@ module embedthis.me {
         nextID++
         genout.writeLine('#\n#   ' + Path(target.name).basename + '\n#')
         let found
-        if (target.type == 'file' || target.type == 'script') {
+        if (target.type == 'file' || target.type == 'script' || target.type == 'header') {
             for each (file in target.files) {
+                if (file == target.path) continue
                 if (me.platform.os == 'windows') {
                     genout.writeLine('DEPS_' + nextID + ' = $(DEPS_' + nextID + ') ' + reppath(file))
                 } else {
