@@ -105,11 +105,11 @@ Me.load({
             depends: [ 'libmpr', 'libhttp', 'libejs', 'me.mod' ],
         },
 
-        'me-core': {
+        'core': {
             type: 'file',
             path: '${BIN}/',
             files: [ 'src/**' ],
-            exclude: /src\/me.c|src\/paks|src\/tm|\/$/,
+            exclude: /src.me.c|src.paks|src.tm|\/$/,
             subtree: 'src',
             precious: true,
         },
