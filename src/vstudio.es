@@ -51,6 +51,7 @@ public function vstudio(base: Path) {
         enable: true,
         custom: PREP,
         includes: [], libraries: [], libpaths: [],
+        generate: true,
     }
     let code = PREP
     for each (target in me.targets) {

@@ -863,7 +863,7 @@ public class Me {
         if (!target.goals) {
             if (targetsToBuildByDefault[target.type] || target.build) {
                 target.goals = [ALL, 'generate']
-                if (!target.generate !== false) {
+                if (target.generate !== false) {
                     target.generate ||= true
                     target.goals.push('generate')
                 }
@@ -879,7 +879,7 @@ public class Me {
         }
         for (field in target) {
             if (field.startsWith('generate')) {
-                if (!target.generate !== false) {
+                if (target.generate !== false) {
                     target.generate ||= true
                 }
             }
@@ -1171,7 +1171,8 @@ public class Me {
             for each (item in target.ifdef) {
                 if (!me.targets[item] || !me.targets[item].enable) {
                     if (!(me.configure.extras.contains(item) && me.options.configurableProject)) {
-                        whySkip(target.name, 'disabled because the required target ' + item + ' is not enabled')
+                        target.why = 'disabled because the required target ' + item + ' is not enabled'
+                        // whySkip(target.name, 'disabled because the required target ' + item + ' is not enabled')
                         target.enable = false
                         reported = true
                     }
@@ -1187,7 +1188,8 @@ public class Me {
                 let script = expand(target.enable)
                 try {
                     if (!eval(script)) {
-                        whySkip(target.name, 'disabled on this platform')
+                        target.why = 'disabled on this platform'
+                        // whySkip(target.name, 'disabled on this platform')
                         target.enable = false
                     } else {
                         target.enable = true
@@ -1199,7 +1201,8 @@ public class Me {
                 }
 
             } else if (!reported) {
-                whySkip(target.name, 'disabled')
+                target.why = 'disabled'
+                // whySkip(target.name, 'disabled')
             }
             if (target.platforms) {
                 if (!target.platforms.contains(currentPlatform) &&
@@ -1276,6 +1279,13 @@ public class Me {
             if (goal !== true) {
                 topTargets.push(target)
             }
+        } else {
+            if (!options.verbose) {
+                target.why = null
+            }
+        }
+        if (target.why) {
+            whySkip(target.name, target.why)
         }
     }
 
@@ -1594,7 +1604,7 @@ public class Me {
             }
             //  DEPRECATE
             if (target.files) {
-                target.cmdfiles = target.files.map(function(f) f.relative.portable).join(' ')
+                target.cmdfiles = target.files.map(function(f) f.relativeTo(target.home).portable).join(' ')
             } else {
                 target.cmdfiles = ''
             }
@@ -1757,7 +1767,7 @@ public class Me {
         vtrace('Consider', target.name)
         global.TARGET = me.target = target
         if (target.files) {
-            global.FILES = target.files.map(function(f) f.relative.portable).join(' ')
+            global.FILES = target.files.map(function(f) f.relativeTo(target.home).portable).join(' ')
         } else {
             global.FILES = ''
         }
@@ -1769,17 +1779,20 @@ public class Me {
         target.libraries ||= []
         target.vars ||= {}
 
-        if (target.message) {
-            if (target.message is Array) {
-                trace(... target.message)
-            } else {
-                trace('Info', target.message)
-            }
-        }
         try {
             if (!stale(target)) {
                 whySkip(target.path, 'is up to date')
             } else {
+                if (target.message) {
+                    let message = target.message
+                    if (message is Array) {
+                        tag = message[0]
+                        message = message.slice(1)
+                        trace(tag, expand(message))
+                    } else {
+                        trace('Info', expand(target.message))
+                    }
+                }
                 if (options.diagnose) {
                     App.log.debug(3, "Target => " +
                         serialize(target, {pretty: true, commas: true, indent: 4, quotes: false}))
@@ -2621,7 +2634,10 @@ public class Me {
         @param args Message args to display
      */
     public function trace(tag: String, ...args): Void {
-        if (!options.quiet) {
+        if (me.generating && genout) {
+            gtrace(tag, ...args)
+
+        } else if (!options.quiet) {
             let msg = args.join(" ")
             let msg = "%12s %s" % (["[" + tag + "]"] + [msg]) + "\n"
             if (out) {
