@@ -509,13 +509,13 @@ public function installPackage() {
     if (Config.OS == 'macosx') {
         checkRoot()
         trace('Install', package.basename)
-        run('installer -target / -package ' + package, {noshow: true})
+        run('installer -target / -package ' + package, {filter: true})
 
     } else if (Config.OS == 'windows') {
         trace('Install', package.basename)
         package.trimExt().remove()
         run(['unzip', '-q', package], {dir: me.dir.rel})
-        run([package.trimExt(), '/verysilent'], {noshow: true})
+        run([package.trimExt(), '/verysilent'], {filter: true})
         package.trimExt().remove()
     }
 }
@@ -526,13 +526,13 @@ public function uninstallPackage() {
         checkRoot()
         if (me.prefixes.vapp.join('bin/uninstall').exists) {
             trace('Uninstall', me.prefixes.vapp.join('bin/uninstall'))
-            run([me.prefixes.vapp.join('bin/uninstall')], {noshow: true})
+            run([me.prefixes.vapp.join('bin/uninstall')], {filter: true})
         }
     } else {
         let uninstall = me.prefixes.vapp.files('unins*.exe')[0]
         if (uninstall) {
             trace('Uninstall', uninstall)
-            run([uninstall, '/verysilent'], {noshow: true})
+            run([uninstall, '/verysilent'], {filter: true})
         }
     }
 }
@@ -677,7 +677,7 @@ function packageMacosx(prefixes) {
             '--resources package/macosx ' + outfile)
 
         if (sign) {
-            run('pkgutil --check-signature ' + outfile, {noshow: true})
+            run('pkgutil --check-signature ' + outfile, {filter: true})
         }
     }
     me.dir.rel.join('md5-' + base).joinExt('pkg.txt', true).write(md5(outfile.readString()))
@@ -740,7 +740,7 @@ function packageFedora(prefixes) {
 %__os_install_post /usr/lib/rpm/brp-compress %{!?__debug_package:/usr/lib/rpm/brp-strip %{__strip}} /usr/lib/rpm/brp-strip-static-archive %{__strip} /usr/lib/rpm/brp-strip-comment-note %{__strip} %{__objdump} %{nil}')
     let outfile = me.dir.rel.join(base).joinExt('rpm', true)
     trace('Package', outfile)
-    run(pmaker + ' -ba --target ' + cpu + ' ' + spec.basename, {dir: RPM.join('SPECS'), noshow: true})
+    run(pmaker + ' -ba --target ' + cpu + ' ' + spec.basename, {dir: RPM.join('SPECS'), filter: true})
     let rpmfile = RPM.join('RPMS', cpu, [s.name, s.version].join('-')).joinExt(cpu + '.rpm', true)
     rpmfile.rename(outfile)
     me.dir.rel.join('md5-' + base).joinExt('rpm.txt', true).write(md5(outfile.readString()))
@@ -772,7 +772,7 @@ function packageUbuntu(prefixes) {
 
     let outfile = me.dir.rel.join(base).joinExt('deb', true)
     trace('Package', outfile)
-    run(pmaker + ' --build ' + DEBIAN.dirname + ' ' + outfile, {noshow: true})
+    run(pmaker + ' --build ' + DEBIAN.dirname + ' ' + outfile, {filter: true})
     me.dir.rel.join('md5-' + base).joinExt('deb.txt', true).write(md5(outfile.readString()))
 }
 
@@ -815,7 +815,7 @@ function packageWindows(prefixes) {
 
     let base = [s.name, s.version, me.platform.dist, me.platform.os, me.platform.arch].join('-')
     let outfile = me.dir.rel.join(base).joinExt('exe', true)
-    run([pmaker, iss], {noshow: true})
+    run([pmaker, iss], {filter: true})
     media.join('Output/setup.exe').copy(outfile)
 
     /* Sign */
@@ -825,7 +825,7 @@ function packageWindows(prefixes) {
         trace('Sign', outfile)
         Cmd.run([me.targets.winsdk.path.join('bin/x86/signtool.exe'),
             'sign', '/f', cert, '/p', pass, '/t', 'http://timestamp.verisign.com/scripts/timestamp.dll', outfile], 
-            {noshow: true})
+            {filter: true})
     }
     /* Wrap in a zip archive */
     let zipfile = outfile.joinExt('zip', true)
