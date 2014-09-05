@@ -3634,7 +3634,7 @@ public class Me {
                     dest = '"' + dest + '"'
                 }
                 /* Append empty to ensure modified time is updated */
-                gencmd('copy /Y ' + src + '+modified ' + dest + ' >>build\\nmake.log')
+                gencmd('copy /Y ' + src + '+modified ' + dest + ' $(LOG)')
             } else {
                 if (src.contains(' ')) {
                     src = '"' + src + '"'

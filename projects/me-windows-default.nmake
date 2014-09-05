@@ -7,7 +7,7 @@ VERSION               = 0.8.3
 
 OS                    = windows
 PA                    = $(PROCESSOR_ARCHITECTURE)
-LOG                   = build\nmake.log
+LOG                   = >>build\nmake.log
 
 !IF "$(PROFILE)" == ""
 PROFILE               = default
@@ -155,8 +155,8 @@ prep:
 	@if not exist $(BUILD)\obj md $(BUILD)\obj
 	@if not exist $(BUILD)\inc\me.h copy projects\me-windows-default-me.h $(BUILD)\inc\me.h
 
-!IF "$(LOG) != ""
-	@echo See build\nmake.log for any build error details.
+!IF "$(LOG)" != ""
+	@echo ..... [Info] See build\nmake.log for any build errors.
 !ENDIF
 clean:
 	if exist "build\$(CONFIG)\obj\ejs.obj" del /Q "build\$(CONFIG)\obj\ejs.obj"
@@ -260,35 +260,35 @@ DEPS_1 = $(DEPS_1) src\vstudio.es
 DEPS_1 = $(DEPS_1) src\xcode.es
 
 build\$(CONFIG)\bin\.updated: $(DEPS_1)
-	@echo '      [Copy] build\$(CONFIG)\bin'
+	@echo ..... [Copy] build\$(CONFIG)\bin
 	if not exist "build\$(CONFIG)\bin" md "build\$(CONFIG)\bin"
-	copy /Y src\configure.es+modified build\$(CONFIG)\bin\configure.es >>build\nmake.log
+	copy /Y src\configure.es+modified build\$(CONFIG)\bin\configure.es $(LOG)
 	if not exist "build\$(CONFIG)\bin\configure" md "build\$(CONFIG)\bin\configure"
-	copy /Y src\configure\appweb.me+modified build\$(CONFIG)\bin\configure\appweb.me >>build\nmake.log
-	copy /Y src\configure\compiler.me+modified build\$(CONFIG)\bin\configure\compiler.me >>build\nmake.log
-	copy /Y src\configure\lib.me+modified build\$(CONFIG)\bin\configure\lib.me >>build\nmake.log
-	copy /Y src\configure\link.me+modified build\$(CONFIG)\bin\configure\link.me >>build\nmake.log
-	copy /Y src\configure\rc.me+modified build\$(CONFIG)\bin\configure\rc.me >>build\nmake.log
-	copy /Y src\configure\testme.me+modified build\$(CONFIG)\bin\configure\testme.me >>build\nmake.log
-	copy /Y src\configure\vxworks.me+modified build\$(CONFIG)\bin\configure\vxworks.me >>build\nmake.log
-	copy /Y src\configure\winsdk.me+modified build\$(CONFIG)\bin\configure\winsdk.me >>build\nmake.log
-	copy /Y src\generate.es+modified build\$(CONFIG)\bin\generate.es >>build\nmake.log
-	copy /Y src\master-main.me+modified build\$(CONFIG)\bin\master-main.me >>build\nmake.log
-	copy /Y src\master-start.me+modified build\$(CONFIG)\bin\master-start.me >>build\nmake.log
-	copy /Y src\me.es+modified build\$(CONFIG)\bin\me.es >>build\nmake.log
+	copy /Y src\configure\appweb.me+modified build\$(CONFIG)\bin\configure\appweb.me $(LOG)
+	copy /Y src\configure\compiler.me+modified build\$(CONFIG)\bin\configure\compiler.me $(LOG)
+	copy /Y src\configure\lib.me+modified build\$(CONFIG)\bin\configure\lib.me $(LOG)
+	copy /Y src\configure\link.me+modified build\$(CONFIG)\bin\configure\link.me $(LOG)
+	copy /Y src\configure\rc.me+modified build\$(CONFIG)\bin\configure\rc.me $(LOG)
+	copy /Y src\configure\testme.me+modified build\$(CONFIG)\bin\configure\testme.me $(LOG)
+	copy /Y src\configure\vxworks.me+modified build\$(CONFIG)\bin\configure\vxworks.me $(LOG)
+	copy /Y src\configure\winsdk.me+modified build\$(CONFIG)\bin\configure\winsdk.me $(LOG)
+	copy /Y src\generate.es+modified build\$(CONFIG)\bin\generate.es $(LOG)
+	copy /Y src\master-main.me+modified build\$(CONFIG)\bin\master-main.me $(LOG)
+	copy /Y src\master-start.me+modified build\$(CONFIG)\bin\master-start.me $(LOG)
+	copy /Y src\me.es+modified build\$(CONFIG)\bin\me.es $(LOG)
 	if not exist "build\$(CONFIG)\bin\os" md "build\$(CONFIG)\bin\os"
-	copy /Y src\os\freebsd.me+modified build\$(CONFIG)\bin\os\freebsd.me >>build\nmake.log
-	copy /Y src\os\gcc.me+modified build\$(CONFIG)\bin\os\gcc.me >>build\nmake.log
-	copy /Y src\os\linux.me+modified build\$(CONFIG)\bin\os\linux.me >>build\nmake.log
-	copy /Y src\os\macosx.me+modified build\$(CONFIG)\bin\os\macosx.me >>build\nmake.log
-	copy /Y src\os\solaris.me+modified build\$(CONFIG)\bin\os\solaris.me >>build\nmake.log
-	copy /Y src\os\unix.me+modified build\$(CONFIG)\bin\os\unix.me >>build\nmake.log
-	copy /Y src\os\vxworks.me+modified build\$(CONFIG)\bin\os\vxworks.me >>build\nmake.log
-	copy /Y src\os\windows.me+modified build\$(CONFIG)\bin\os\windows.me >>build\nmake.log
-	copy /Y src\simple.me+modified build\$(CONFIG)\bin\simple.me >>build\nmake.log
-	copy /Y src\standard.me+modified build\$(CONFIG)\bin\standard.me >>build\nmake.log
-	copy /Y src\vstudio.es+modified build\$(CONFIG)\bin\vstudio.es >>build\nmake.log
-	copy /Y src\xcode.es+modified build\$(CONFIG)\bin\xcode.es >>build\nmake.log
+	copy /Y src\os\freebsd.me+modified build\$(CONFIG)\bin\os\freebsd.me $(LOG)
+	copy /Y src\os\gcc.me+modified build\$(CONFIG)\bin\os\gcc.me $(LOG)
+	copy /Y src\os\linux.me+modified build\$(CONFIG)\bin\os\linux.me $(LOG)
+	copy /Y src\os\macosx.me+modified build\$(CONFIG)\bin\os\macosx.me $(LOG)
+	copy /Y src\os\solaris.me+modified build\$(CONFIG)\bin\os\solaris.me $(LOG)
+	copy /Y src\os\unix.me+modified build\$(CONFIG)\bin\os\unix.me $(LOG)
+	copy /Y src\os\vxworks.me+modified build\$(CONFIG)\bin\os\vxworks.me $(LOG)
+	copy /Y src\os\windows.me+modified build\$(CONFIG)\bin\os\windows.me $(LOG)
+	copy /Y src\simple.me+modified build\$(CONFIG)\bin\simple.me $(LOG)
+	copy /Y src\standard.me+modified build\$(CONFIG)\bin\standard.me $(LOG)
+	copy /Y src\vstudio.es+modified build\$(CONFIG)\bin\vstudio.es $(LOG)
+	copy /Y src\xcode.es+modified build\$(CONFIG)\bin\xcode.es $(LOG)
 	if exist "build\$(CONFIG)\bin\.updated" rd /Q /S "build\$(CONFIG)\bin\.updated"
 	if not exist "build\$(CONFIG)\bin\.updated" md "build\$(CONFIG)\bin\.updated"
 
@@ -298,15 +298,15 @@ build\$(CONFIG)\bin\.updated: $(DEPS_1)
 DEPS_2 = $(DEPS_2) src\paks\mpr\mpr.h
 
 build\$(CONFIG)\inc\mpr.h: $(DEPS_2)
-	@echo '      [Copy] build\$(CONFIG)\inc\mpr.h'
+	@echo ..... [Copy] build\$(CONFIG)\inc\mpr.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\mpr\mpr.h+modified build\$(CONFIG)\inc\mpr.h >>build\nmake.log
+	copy /Y src\paks\mpr\mpr.h+modified build\$(CONFIG)\inc\mpr.h $(LOG)
 
 #
 #   me.h
 #
 build\$(CONFIG)\inc\me.h: $(DEPS_3)
-	@echo '      [Copy] build\$(CONFIG)\inc\me.h'
+	@echo ..... [Copy] build\$(CONFIG)\inc\me.h
 
 #
 #   osdep.h
@@ -315,9 +315,9 @@ DEPS_4 = $(DEPS_4) src\paks\osdep\osdep.h
 DEPS_4 = $(DEPS_4) build\$(CONFIG)\inc\me.h
 
 build\$(CONFIG)\inc\osdep.h: $(DEPS_4)
-	@echo '      [Copy] build\$(CONFIG)\inc\osdep.h'
+	@echo ..... [Copy] build\$(CONFIG)\inc\osdep.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\osdep\osdep.h+modified build\$(CONFIG)\inc\osdep.h >>build\nmake.log
+	copy /Y src\paks\osdep\osdep.h+modified build\$(CONFIG)\inc\osdep.h $(LOG)
 
 #
 #   mprLib.obj
@@ -328,7 +328,7 @@ DEPS_5 = $(DEPS_5) build\$(CONFIG)\inc\osdep.h
 
 build\$(CONFIG)\obj\mprLib.obj: \
     src\paks\mpr\mprLib.c $(DEPS_5)
-	@echo '   [Compile] build\$(CONFIG)\obj\mprLib.obj'
+	@echo .. [Compile] build\$(CONFIG)\obj\mprLib.obj
 	"$(CC)" -c -Fobuild\$(CONFIG)\obj\mprLib.obj -Fdbuild\$(CONFIG)\obj\mprLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\paks\mpr\mprLib.c $(LOG)
 
 #
@@ -340,7 +340,7 @@ DEPS_6 = $(DEPS_6) build\$(CONFIG)\inc\osdep.h
 DEPS_6 = $(DEPS_6) build\$(CONFIG)\obj\mprLib.obj
 
 build\$(CONFIG)\bin\libmpr.dll: $(DEPS_6)
-	@echo '      [Link] build\$(CONFIG)\bin\libmpr.dll'
+	@echo ..... [Link] build\$(CONFIG)\bin\libmpr.dll
 	"$(LD)" -dll -out:build\$(CONFIG)\bin\libmpr.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\mprLib.obj" $(LIBS)  $(LOG)
 
 #
@@ -349,9 +349,9 @@ build\$(CONFIG)\bin\libmpr.dll: $(DEPS_6)
 DEPS_7 = $(DEPS_7) src\paks\pcre\pcre.h
 
 build\$(CONFIG)\inc\pcre.h: $(DEPS_7)
-	@echo '      [Copy] build\$(CONFIG)\inc\pcre.h'
+	@echo ..... [Copy] build\$(CONFIG)\inc\pcre.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\pcre\pcre.h+modified build\$(CONFIG)\inc\pcre.h >>build\nmake.log
+	copy /Y src\paks\pcre\pcre.h+modified build\$(CONFIG)\inc\pcre.h $(LOG)
 
 #
 #   pcre.obj
@@ -361,7 +361,7 @@ DEPS_8 = $(DEPS_8) build\$(CONFIG)\inc\pcre.h
 
 build\$(CONFIG)\obj\pcre.obj: \
     src\paks\pcre\pcre.c $(DEPS_8)
-	@echo '   [Compile] build\$(CONFIG)\obj\pcre.obj'
+	@echo .. [Compile] build\$(CONFIG)\obj\pcre.obj
 	"$(CC)" -c -Fobuild\$(CONFIG)\obj\pcre.obj -Fdbuild\$(CONFIG)\obj\pcre.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\paks\pcre\pcre.c $(LOG)
 
 !IF "$(ME_COM_PCRE)" == "1"
@@ -373,7 +373,7 @@ DEPS_9 = $(DEPS_9) build\$(CONFIG)\inc\me.h
 DEPS_9 = $(DEPS_9) build\$(CONFIG)\obj\pcre.obj
 
 build\$(CONFIG)\bin\libpcre.dll: $(DEPS_9)
-	@echo '      [Link] build\$(CONFIG)\bin\libpcre.dll'
+	@echo ..... [Link] build\$(CONFIG)\bin\libpcre.dll
 	"$(LD)" -dll -out:build\$(CONFIG)\bin\libpcre.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\pcre.obj" $(LIBS)  $(LOG)
 !ENDIF
 
@@ -383,9 +383,9 @@ build\$(CONFIG)\bin\libpcre.dll: $(DEPS_9)
 DEPS_10 = $(DEPS_10) src\paks\http\http.h
 
 build\$(CONFIG)\inc\http.h: $(DEPS_10)
-	@echo '      [Copy] build\$(CONFIG)\inc\http.h'
+	@echo ..... [Copy] build\$(CONFIG)\inc\http.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\http\http.h+modified build\$(CONFIG)\inc\http.h >>build\nmake.log
+	copy /Y src\paks\http\http.h+modified build\$(CONFIG)\inc\http.h $(LOG)
 
 #
 #   httpLib.obj
@@ -396,7 +396,7 @@ DEPS_11 = $(DEPS_11) build\$(CONFIG)\inc\mpr.h
 
 build\$(CONFIG)\obj\httpLib.obj: \
     src\paks\http\httpLib.c $(DEPS_11)
-	@echo '   [Compile] build\$(CONFIG)\obj\httpLib.obj'
+	@echo .. [Compile] build\$(CONFIG)\obj\httpLib.obj
 	"$(CC)" -c -Fobuild\$(CONFIG)\obj\httpLib.obj -Fdbuild\$(CONFIG)\obj\httpLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\paks\http\httpLib.c $(LOG)
 
 !IF "$(ME_COM_HTTP)" == "1"
@@ -422,7 +422,7 @@ LIBS_12 = $(LIBS_12) libpcre.lib
 !ENDIF
 
 build\$(CONFIG)\bin\libhttp.dll: $(DEPS_12)
-	@echo '      [Link] build\$(CONFIG)\bin\libhttp.dll'
+	@echo ..... [Link] build\$(CONFIG)\bin\libhttp.dll
 	"$(LD)" -dll -out:build\$(CONFIG)\bin\libhttp.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\httpLib.obj" $(LIBPATHS_12) $(LIBS_12) $(LIBS_12) $(LIBS)  $(LOG)
 !ENDIF
 
@@ -432,9 +432,9 @@ build\$(CONFIG)\bin\libhttp.dll: $(DEPS_12)
 DEPS_13 = $(DEPS_13) src\paks\zlib\zlib.h
 
 build\$(CONFIG)\inc\zlib.h: $(DEPS_13)
-	@echo '      [Copy] build\$(CONFIG)\inc\zlib.h'
+	@echo ..... [Copy] build\$(CONFIG)\inc\zlib.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\zlib\zlib.h+modified build\$(CONFIG)\inc\zlib.h >>build\nmake.log
+	copy /Y src\paks\zlib\zlib.h+modified build\$(CONFIG)\inc\zlib.h $(LOG)
 
 #
 #   zlib.obj
@@ -444,7 +444,7 @@ DEPS_14 = $(DEPS_14) build\$(CONFIG)\inc\zlib.h
 
 build\$(CONFIG)\obj\zlib.obj: \
     src\paks\zlib\zlib.c $(DEPS_14)
-	@echo '   [Compile] build\$(CONFIG)\obj\zlib.obj'
+	@echo .. [Compile] build\$(CONFIG)\obj\zlib.obj
 	"$(CC)" -c -Fobuild\$(CONFIG)\obj\zlib.obj -Fdbuild\$(CONFIG)\obj\zlib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\paks\zlib\zlib.c $(LOG)
 
 !IF "$(ME_COM_ZLIB)" == "1"
@@ -456,7 +456,7 @@ DEPS_15 = $(DEPS_15) build\$(CONFIG)\inc\me.h
 DEPS_15 = $(DEPS_15) build\$(CONFIG)\obj\zlib.obj
 
 build\$(CONFIG)\bin\libzlib.dll: $(DEPS_15)
-	@echo '      [Link] build\$(CONFIG)\bin\libzlib.dll'
+	@echo ..... [Link] build\$(CONFIG)\bin\libzlib.dll
 	"$(LD)" -dll -out:build\$(CONFIG)\bin\libzlib.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\zlib.obj" $(LIBS)  $(LOG)
 !ENDIF
 
@@ -466,9 +466,9 @@ build\$(CONFIG)\bin\libzlib.dll: $(DEPS_15)
 DEPS_16 = $(DEPS_16) src\paks\ejs\ejs.h
 
 build\$(CONFIG)\inc\ejs.h: $(DEPS_16)
-	@echo '      [Copy] build\$(CONFIG)\inc\ejs.h'
+	@echo ..... [Copy] build\$(CONFIG)\inc\ejs.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\ejs\ejs.h+modified build\$(CONFIG)\inc\ejs.h >>build\nmake.log
+	copy /Y src\paks\ejs\ejs.h+modified build\$(CONFIG)\inc\ejs.h $(LOG)
 
 #
 #   ejs.slots.h
@@ -476,9 +476,9 @@ build\$(CONFIG)\inc\ejs.h: $(DEPS_16)
 DEPS_17 = $(DEPS_17) src\paks\ejs\ejs.slots.h
 
 build\$(CONFIG)\inc\ejs.slots.h: $(DEPS_17)
-	@echo '      [Copy] build\$(CONFIG)\inc\ejs.slots.h'
+	@echo ..... [Copy] build\$(CONFIG)\inc\ejs.slots.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\ejs\ejs.slots.h+modified build\$(CONFIG)\inc\ejs.slots.h >>build\nmake.log
+	copy /Y src\paks\ejs\ejs.slots.h+modified build\$(CONFIG)\inc\ejs.slots.h $(LOG)
 
 #
 #   ejsByteGoto.h
@@ -486,9 +486,9 @@ build\$(CONFIG)\inc\ejs.slots.h: $(DEPS_17)
 DEPS_18 = $(DEPS_18) src\paks\ejs\ejsByteGoto.h
 
 build\$(CONFIG)\inc\ejsByteGoto.h: $(DEPS_18)
-	@echo '      [Copy] build\$(CONFIG)\inc\ejsByteGoto.h'
+	@echo ..... [Copy] build\$(CONFIG)\inc\ejsByteGoto.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\ejs\ejsByteGoto.h+modified build\$(CONFIG)\inc\ejsByteGoto.h >>build\nmake.log
+	copy /Y src\paks\ejs\ejsByteGoto.h+modified build\$(CONFIG)\inc\ejsByteGoto.h $(LOG)
 
 #
 #   ejsLib.obj
@@ -504,7 +504,7 @@ DEPS_19 = $(DEPS_19) build\$(CONFIG)\inc\zlib.h
 
 build\$(CONFIG)\obj\ejsLib.obj: \
     src\paks\ejs\ejsLib.c $(DEPS_19)
-	@echo '   [Compile] build\$(CONFIG)\obj\ejsLib.obj'
+	@echo .. [Compile] build\$(CONFIG)\obj\ejsLib.obj
 	"$(CC)" -c -Fobuild\$(CONFIG)\obj\ejsLib.obj -Fdbuild\$(CONFIG)\obj\ejsLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\paks\ejs\ejsLib.c $(LOG)
 
 !IF "$(ME_COM_EJS)" == "1"
@@ -548,7 +548,7 @@ LIBS_20 = $(LIBS_20) libzlib.lib
 !ENDIF
 
 build\$(CONFIG)\bin\libejs.dll: $(DEPS_20)
-	@echo '      [Link] build\$(CONFIG)\bin\libejs.dll'
+	@echo ..... [Link] build\$(CONFIG)\bin\libejs.dll
 	"$(LD)" -dll -out:build\$(CONFIG)\bin\libejs.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\ejsLib.obj" $(LIBPATHS_20) $(LIBS_20) $(LIBS_20) $(LIBS)  $(LOG)
 !ENDIF
 
@@ -560,7 +560,7 @@ DEPS_21 = $(DEPS_21) build\$(CONFIG)\inc\ejs.h
 
 build\$(CONFIG)\obj\ejsc.obj: \
     src\paks\ejs\ejsc.c $(DEPS_21)
-	@echo '   [Compile] build\$(CONFIG)\obj\ejsc.obj'
+	@echo .. [Compile] build\$(CONFIG)\obj\ejsc.obj
 	"$(CC)" -c -Fobuild\$(CONFIG)\obj\ejsc.obj -Fdbuild\$(CONFIG)\obj\ejsc.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\paks\ejs\ejsc.c $(LOG)
 
 !IF "$(ME_COM_EJS)" == "1"
@@ -607,8 +607,8 @@ LIBS_22 = $(LIBS_22) libzlib.lib
 !ENDIF
 
 build\$(CONFIG)\bin\ejsc.exe: $(DEPS_22)
-	@echo '      [Link] build\$(CONFIG)\bin\ejsc.exe'
-	"$(LD)" -out:build\$(CONFIG)\bin\ejsc.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\ejsc.obj" $(LIBPATHS_22) $(LIBS_22) $(LIBS_22) $(LIBS) 
+	@echo ..... [Link] build\$(CONFIG)\bin\ejsc.exe
+	"$(LD)" -out:build\$(CONFIG)\bin\ejsc.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\ejsc.obj" $(LIBPATHS_22) $(LIBS_22) $(LIBS_22) $(LIBS)  $(LOG)
 !ENDIF
 
 !IF "$(ME_COM_EJS)" == "1"
@@ -656,9 +656,9 @@ build\$(CONFIG)\bin\ejs.mod: $(DEPS_23)
 DEPS_24 = $(DEPS_24) src\tm\ejs.testme.es
 
 build\$(CONFIG)\bin\ejs.testme.es: $(DEPS_24)
-	@echo '      [Copy] build\$(CONFIG)\bin\ejs.testme.es'
+	@echo ..... [Copy] build\$(CONFIG)\bin\ejs.testme.es
 	if not exist "build\$(CONFIG)\bin" md "build\$(CONFIG)\bin"
-	copy /Y src\tm\ejs.testme.es+modified build\$(CONFIG)\bin\ejs.testme.es >>build\nmake.log
+	copy /Y src\tm\ejs.testme.es+modified build\$(CONFIG)\bin\ejs.testme.es $(LOG)
 
 #
 #   ejs.testme.mod
@@ -698,7 +698,7 @@ DEPS_25 = $(DEPS_25) build\$(CONFIG)\bin\ejsc.exe
 
 build\$(CONFIG)\bin\ejs.testme.mod: $(DEPS_25)
 	cd src\tm
-	echo '   [Compile] ejs.testme.mod'
+	@echo .. [Compile] ejs.testme.mod
 	..\..\build\$(CONFIG)\bin\ejsc --debug --out ..\..\build\$(CONFIG)\bin\ejs.testme.mod --optimize 9 ejs.testme.es
 	cd ..\..
 
@@ -710,7 +710,7 @@ DEPS_26 = $(DEPS_26) build\$(CONFIG)\inc\ejs.h
 
 build\$(CONFIG)\obj\ejs.obj: \
     src\paks\ejs\ejs.c $(DEPS_26)
-	@echo '   [Compile] build\$(CONFIG)\obj\ejs.obj'
+	@echo .. [Compile] build\$(CONFIG)\obj\ejs.obj
 	"$(CC)" -c -Fobuild\$(CONFIG)\obj\ejs.obj -Fdbuild\$(CONFIG)\obj\ejs.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\paks\ejs\ejs.c $(LOG)
 
 !IF "$(ME_COM_EJS)" == "1"
@@ -757,8 +757,8 @@ LIBS_27 = $(LIBS_27) libzlib.lib
 !ENDIF
 
 build\$(CONFIG)\bin\ejs.exe: $(DEPS_27)
-	@echo '      [Link] build\$(CONFIG)\bin\ejs.exe'
-	"$(LD)" -out:build\$(CONFIG)\bin\ejs.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\ejs.obj" $(LIBPATHS_27) $(LIBS_27) $(LIBS_27) $(LIBS) 
+	@echo ..... [Link] build\$(CONFIG)\bin\ejs.exe
+	"$(LD)" -out:build\$(CONFIG)\bin\ejs.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\ejs.obj" $(LIBPATHS_27) $(LIBS_27) $(LIBS_27) $(LIBS)  $(LOG)
 !ENDIF
 
 
@@ -768,9 +768,9 @@ build\$(CONFIG)\bin\ejs.exe: $(DEPS_27)
 DEPS_28 = $(DEPS_28) src\paks\http\ca.crt
 
 build\$(CONFIG)\bin\ca.crt: $(DEPS_28)
-	@echo '      [Copy] build\$(CONFIG)\bin\ca.crt'
+	@echo ..... [Copy] build\$(CONFIG)\bin\ca.crt
 	if not exist "build\$(CONFIG)\bin" md "build\$(CONFIG)\bin"
-	copy /Y src\paks\http\ca.crt+modified build\$(CONFIG)\bin\ca.crt >>build\nmake.log
+	copy /Y src\paks\http\ca.crt+modified build\$(CONFIG)\bin\ca.crt $(LOG)
 
 #
 #   http.obj
@@ -780,7 +780,7 @@ DEPS_29 = $(DEPS_29) build\$(CONFIG)\inc\http.h
 
 build\$(CONFIG)\obj\http.obj: \
     src\paks\http\http.c $(DEPS_29)
-	@echo '   [Compile] build\$(CONFIG)\obj\http.obj'
+	@echo .. [Compile] build\$(CONFIG)\obj\http.obj
 	"$(CC)" -c -Fobuild\$(CONFIG)\obj\http.obj -Fdbuild\$(CONFIG)\obj\http.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\paks\http\http.c $(LOG)
 
 !IF "$(ME_COM_HTTP)" == "1"
@@ -809,8 +809,8 @@ LIBS_30 = $(LIBS_30) libpcre.lib
 !ENDIF
 
 build\$(CONFIG)\bin\http.exe: $(DEPS_30)
-	@echo '      [Link] build\$(CONFIG)\bin\http.exe'
-	"$(LD)" -out:build\$(CONFIG)\bin\http.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\http.obj" $(LIBPATHS_30) $(LIBS_30) $(LIBS_30) $(LIBS) 
+	@echo ..... [Link] build\$(CONFIG)\bin\http.exe
+	"$(LD)" -out:build\$(CONFIG)\bin\http.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\http.obj" $(LIBPATHS_30) $(LIBS_30) $(LIBS_30) $(LIBS)  $(LOG)
 !ENDIF
 
 #
@@ -819,9 +819,9 @@ build\$(CONFIG)\bin\http.exe: $(DEPS_30)
 DEPS_31 = $(DEPS_31) src\paks\est\est.h
 
 build\$(CONFIG)\inc\est.h: $(DEPS_31)
-	@echo '      [Copy] build\$(CONFIG)\inc\est.h'
+	@echo ..... [Copy] build\$(CONFIG)\inc\est.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\est\est.h+modified build\$(CONFIG)\inc\est.h >>build\nmake.log
+	copy /Y src\paks\est\est.h+modified build\$(CONFIG)\inc\est.h $(LOG)
 
 #
 #   estLib.obj
@@ -832,7 +832,7 @@ DEPS_32 = $(DEPS_32) build\$(CONFIG)\inc\osdep.h
 
 build\$(CONFIG)\obj\estLib.obj: \
     src\paks\est\estLib.c $(DEPS_32)
-	@echo '   [Compile] build\$(CONFIG)\obj\estLib.obj'
+	@echo .. [Compile] build\$(CONFIG)\obj\estLib.obj
 	"$(CC)" -c -Fobuild\$(CONFIG)\obj\estLib.obj -Fdbuild\$(CONFIG)\obj\estLib.pdb -nologo -GR- -Zi -Od -MDd $(DFLAGS) $(IFLAGS) src\paks\est\estLib.c $(LOG)
 
 !IF "$(ME_COM_EST)" == "1"
@@ -845,7 +845,7 @@ DEPS_33 = $(DEPS_33) build\$(CONFIG)\inc\osdep.h
 DEPS_33 = $(DEPS_33) build\$(CONFIG)\obj\estLib.obj
 
 build\$(CONFIG)\bin\libest.dll: $(DEPS_33)
-	@echo '      [Link] build\$(CONFIG)\bin\libest.dll'
+	@echo ..... [Link] build\$(CONFIG)\bin\libest.dll
 	"$(LD)" -dll -out:build\$(CONFIG)\bin\libest.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\estLib.obj" $(LIBS)  $(LOG)
 !ENDIF
 
@@ -857,7 +857,7 @@ DEPS_34 = $(DEPS_34) build\$(CONFIG)\inc\mpr.h
 
 build\$(CONFIG)\obj\mprSsl.obj: \
     src\paks\mpr\mprSsl.c $(DEPS_34)
-	@echo '   [Compile] build\$(CONFIG)\obj\mprSsl.obj'
+	@echo .. [Compile] build\$(CONFIG)\obj\mprSsl.obj
 	"$(CC)" -c -Fobuild\$(CONFIG)\obj\mprSsl.obj -Fdbuild\$(CONFIG)\obj\mprSsl.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" src\paks\mpr\mprSsl.c $(LOG)
 
 #
@@ -889,7 +889,7 @@ LIBS_35 = $(LIBS_35) libest.lib
 !ENDIF
 
 build\$(CONFIG)\bin\libmprssl.dll: $(DEPS_35)
-	@echo '      [Link] build\$(CONFIG)\bin\libmprssl.dll'
+	@echo ..... [Link] build\$(CONFIG)\bin\libmprssl.dll
 	"$(LD)" -dll -out:build\$(CONFIG)\bin\libmprssl.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS)  "build\$(CONFIG)\obj\mprSsl.obj" $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS)  $(LOG)
 
 #
@@ -898,9 +898,9 @@ build\$(CONFIG)\bin\libmprssl.dll: $(DEPS_35)
 DEPS_36 = $(DEPS_36) src\tm\testme.h
 
 build\$(CONFIG)\inc\testme.h: $(DEPS_36)
-	@echo '      [Copy] build\$(CONFIG)\inc\testme.h'
+	@echo ..... [Copy] build\$(CONFIG)\inc\testme.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\tm\testme.h+modified build\$(CONFIG)\inc\testme.h >>build\nmake.log
+	copy /Y src\tm\testme.h+modified build\$(CONFIG)\inc\testme.h $(LOG)
 
 #
 #   libtestme.obj
@@ -911,7 +911,7 @@ DEPS_37 = $(DEPS_37) build\$(CONFIG)\inc\osdep.h
 
 build\$(CONFIG)\obj\libtestme.obj: \
     src\tm\libtestme.c $(DEPS_37)
-	@echo '   [Compile] build\$(CONFIG)\obj\libtestme.obj'
+	@echo .. [Compile] build\$(CONFIG)\obj\libtestme.obj
 	"$(CC)" -c -Fobuild\$(CONFIG)\obj\libtestme.obj -Fdbuild\$(CONFIG)\obj\libtestme.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\tm\libtestme.c $(LOG)
 
 #
@@ -923,7 +923,7 @@ DEPS_38 = $(DEPS_38) build\$(CONFIG)\inc\osdep.h
 DEPS_38 = $(DEPS_38) build\$(CONFIG)\obj\libtestme.obj
 
 build\$(CONFIG)\bin\libtestme.dll: $(DEPS_38)
-	@echo '      [Link] build\$(CONFIG)\bin\libtestme.dll'
+	@echo ..... [Link] build\$(CONFIG)\bin\libtestme.dll
 	"$(LD)" -dll -out:build\$(CONFIG)\bin\libtestme.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\libtestme.obj" $(LIBS)  $(LOG)
 
 #
@@ -976,7 +976,7 @@ DEPS_40 = $(DEPS_40) build\$(CONFIG)\inc\ejs.h
 
 build\$(CONFIG)\obj\me.obj: \
     src\me.c $(DEPS_40)
-	@echo '   [Compile] build\$(CONFIG)\obj\me.obj'
+	@echo .. [Compile] build\$(CONFIG)\obj\me.obj
 	"$(CC)" -c -Fobuild\$(CONFIG)\obj\me.obj -Fdbuild\$(CONFIG)\obj\me.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\me.c $(LOG)
 
 #
@@ -1031,8 +1031,8 @@ LIBS_41 = $(LIBS_41) libzlib.lib
 !ENDIF
 
 build\$(CONFIG)\bin\me.exe: $(DEPS_41)
-	@echo '      [Link] build\$(CONFIG)\bin\me.exe'
-	"$(LD)" -out:build\$(CONFIG)\bin\me.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\me.obj" $(LIBPATHS_41) $(LIBS_41) $(LIBS_41) $(LIBS) 
+	@echo ..... [Link] build\$(CONFIG)\bin\me.exe
+	"$(LD)" -out:build\$(CONFIG)\bin\me.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\me.obj" $(LIBPATHS_41) $(LIBS_41) $(LIBS_41) $(LIBS)  $(LOG)
 
 #
 #   removeFiles.obj
@@ -1041,7 +1041,7 @@ DEPS_42 = $(DEPS_42) build\$(CONFIG)\inc\me.h
 
 build\$(CONFIG)\obj\removeFiles.obj: \
     package\windows\removeFiles.c $(DEPS_42)
-	@echo '   [Compile] build\$(CONFIG)\obj\removeFiles.obj'
+	@echo .. [Compile] build\$(CONFIG)\obj\removeFiles.obj
 	"$(CC)" -c -Fobuild\$(CONFIG)\obj\removeFiles.obj -Fdbuild\$(CONFIG)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) package\windows\removeFiles.c $(LOG)
 
 #
@@ -1051,8 +1051,8 @@ DEPS_43 = $(DEPS_43) build\$(CONFIG)\inc\me.h
 DEPS_43 = $(DEPS_43) build\$(CONFIG)\obj\removeFiles.obj
 
 build\$(CONFIG)\bin\removeFiles.exe: $(DEPS_43)
-	@echo '      [Link] build\$(CONFIG)\bin\removeFiles.exe'
-	"$(LD)" -out:build\$(CONFIG)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:windows $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\removeFiles.obj" $(LIBS) 
+	@echo ..... [Link] build\$(CONFIG)\bin\removeFiles.exe
+	"$(LD)" -out:build\$(CONFIG)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:windows $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\removeFiles.obj" $(LIBS)  $(LOG)
 
 #
 #   testme.mod
@@ -1092,7 +1092,7 @@ DEPS_44 = $(DEPS_44) build\$(CONFIG)\bin\ejsc.exe
 
 build\$(CONFIG)\bin\testme.mod: $(DEPS_44)
 	cd src\tm
-	echo '   [Compile] testme.mod'
+	@echo .. [Compile] testme.mod
 	..\..\build\$(CONFIG)\bin\ejsc --debug --out ..\..\build\$(CONFIG)\bin\testme.mod --optimize 9 testme.es
 	cd ..\..
 
@@ -1104,7 +1104,7 @@ DEPS_45 = $(DEPS_45) build\$(CONFIG)\inc\ejs.h
 
 build\$(CONFIG)\obj\testme.obj: \
     src\tm\testme.c $(DEPS_45)
-	@echo '   [Compile] build\$(CONFIG)\obj\testme.obj'
+	@echo .. [Compile] build\$(CONFIG)\obj\testme.obj
 	"$(CC)" -c -Fobuild\$(CONFIG)\obj\testme.obj -Fdbuild\$(CONFIG)\obj\testme.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\tm\testme.c $(LOG)
 
 #
@@ -1160,8 +1160,8 @@ LIBS_46 = $(LIBS_46) libzlib.lib
 !ENDIF
 
 build\$(CONFIG)\bin\testme.exe: $(DEPS_46)
-	@echo '      [Link] build\$(CONFIG)\bin\testme.exe'
-	"$(LD)" -out:build\$(CONFIG)\bin\testme.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\testme.obj" $(LIBPATHS_46) $(LIBS_46) $(LIBS_46) $(LIBS) 
+	@echo ..... [Link] build\$(CONFIG)\bin\testme.exe
+	"$(LD)" -out:build\$(CONFIG)\bin\testme.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\testme.obj" $(LIBPATHS_46) $(LIBS_46) $(LIBS_46) $(LIBS)  $(LOG)
 
 #
 #   testme.es
@@ -1169,9 +1169,9 @@ build\$(CONFIG)\bin\testme.exe: $(DEPS_46)
 DEPS_47 = $(DEPS_47) src\tm\testme.es
 
 build\$(CONFIG)\bin\testme.es: $(DEPS_47)
-	@echo '      [Copy] build\$(CONFIG)\bin\testme.es'
+	@echo ..... [Copy] build\$(CONFIG)\bin\testme.es
 	if not exist "build\$(CONFIG)\bin" md "build\$(CONFIG)\bin"
-	copy /Y src\tm\testme.es+modified build\$(CONFIG)\bin\testme.es >>build\nmake.log
+	copy /Y src\tm\testme.es+modified build\$(CONFIG)\bin\testme.es $(LOG)
 
 #
 #   stop
@@ -1185,67 +1185,67 @@ stop: $(DEPS_48)
 installBinary: $(DEPS_49)
 	cd .
 	if not exist "$(ME_VAPP_PREFIX)\bin" md "$(ME_VAPP_PREFIX)\bin"
-	copy /Y build\$(CONFIG)\bin\me.exe+modified "$(ME_VAPP_PREFIX)\bin\me.exe" >>build\nmake.log
-	copy /Y build\$(CONFIG)\bin\testme.exe+modified "$(ME_VAPP_PREFIX)\bin\testme.exe" >>build\nmake.log
-	copy /Y build\$(CONFIG)\bin\ejs.exe+modified "$(ME_VAPP_PREFIX)\bin\ejs.exe" >>build\nmake.log
-	copy /Y build\$(CONFIG)\bin\ejsc.exe+modified "$(ME_VAPP_PREFIX)\bin\ejsc.exe" >>build\nmake.log
-	copy /Y build\$(CONFIG)\bin\http.exe+modified "$(ME_VAPP_PREFIX)\bin\http.exe" >>build\nmake.log
-	copy /Y build\$(CONFIG)\bin\libejs.dll+modified "$(ME_VAPP_PREFIX)\bin\libejs.dll" >>build\nmake.log
-	copy /Y build\$(CONFIG)\bin\libhttp.dll+modified "$(ME_VAPP_PREFIX)\bin\libhttp.dll" >>build\nmake.log
-	copy /Y build\$(CONFIG)\bin\libmpr.dll+modified "$(ME_VAPP_PREFIX)\bin\libmpr.dll" >>build\nmake.log
-	copy /Y build\$(CONFIG)\bin\libmprssl.dll+modified "$(ME_VAPP_PREFIX)\bin\libmprssl.dll" >>build\nmake.log
-	copy /Y build\$(CONFIG)\bin\libpcre.dll+modified "$(ME_VAPP_PREFIX)\bin\libpcre.dll" >>build\nmake.log
-	copy /Y build\$(CONFIG)\bin\libzlib.dll+modified "$(ME_VAPP_PREFIX)\bin\libzlib.dll" >>build\nmake.log
-	copy /Y build\$(CONFIG)\bin\libtestme.dll+modified "$(ME_VAPP_PREFIX)\bin\libtestme.dll" >>build\nmake.log
+	copy /Y build\$(CONFIG)\bin\me.exe+modified "$(ME_VAPP_PREFIX)\bin\me.exe" $(LOG)
+	copy /Y build\$(CONFIG)\bin\testme.exe+modified "$(ME_VAPP_PREFIX)\bin\testme.exe" $(LOG)
+	copy /Y build\$(CONFIG)\bin\ejs.exe+modified "$(ME_VAPP_PREFIX)\bin\ejs.exe" $(LOG)
+	copy /Y build\$(CONFIG)\bin\ejsc.exe+modified "$(ME_VAPP_PREFIX)\bin\ejsc.exe" $(LOG)
+	copy /Y build\$(CONFIG)\bin\http.exe+modified "$(ME_VAPP_PREFIX)\bin\http.exe" $(LOG)
+	copy /Y build\$(CONFIG)\bin\libejs.dll+modified "$(ME_VAPP_PREFIX)\bin\libejs.dll" $(LOG)
+	copy /Y build\$(CONFIG)\bin\libhttp.dll+modified "$(ME_VAPP_PREFIX)\bin\libhttp.dll" $(LOG)
+	copy /Y build\$(CONFIG)\bin\libmpr.dll+modified "$(ME_VAPP_PREFIX)\bin\libmpr.dll" $(LOG)
+	copy /Y build\$(CONFIG)\bin\libmprssl.dll+modified "$(ME_VAPP_PREFIX)\bin\libmprssl.dll" $(LOG)
+	copy /Y build\$(CONFIG)\bin\libpcre.dll+modified "$(ME_VAPP_PREFIX)\bin\libpcre.dll" $(LOG)
+	copy /Y build\$(CONFIG)\bin\libzlib.dll+modified "$(ME_VAPP_PREFIX)\bin\libzlib.dll" $(LOG)
+	copy /Y build\$(CONFIG)\bin\libtestme.dll+modified "$(ME_VAPP_PREFIX)\bin\libtestme.dll" $(LOG)
 !IF "$(ME_COM_EST)" == "1"
-	copy /Y build\$(CONFIG)\bin\libest.dll+modified "$(ME_VAPP_PREFIX)\bin\libest.dll" >>build\nmake.log
+	copy /Y build\$(CONFIG)\bin\libest.dll+modified "$(ME_VAPP_PREFIX)\bin\libest.dll" $(LOG)
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
-	copy /Y build\$(CONFIG)\bin\libeay32.dll+modified "$(ME_VAPP_PREFIX)\bin\libeay32.dll" >>build\nmake.log
-	copy /Y build\$(CONFIG)\bin\ssleay32.dll+modified "$(ME_VAPP_PREFIX)\bin\ssleay32.dll" >>build\nmake.log
+	copy /Y build\$(CONFIG)\bin\libeay32.dll+modified "$(ME_VAPP_PREFIX)\bin\libeay32.dll" $(LOG)
+	copy /Y build\$(CONFIG)\bin\ssleay32.dll+modified "$(ME_VAPP_PREFIX)\bin\ssleay32.dll" $(LOG)
 !ENDIF
-	copy /Y build\$(CONFIG)\bin\ca.crt+modified "$(ME_VAPP_PREFIX)\bin\ca.crt" >>build\nmake.log
-	copy /Y build\$(CONFIG)\bin\ejs.mod+modified "$(ME_VAPP_PREFIX)\bin\ejs.mod" >>build\nmake.log
-	copy /Y build\$(CONFIG)\bin\me.mod+modified "$(ME_VAPP_PREFIX)\bin\me.mod" >>build\nmake.log
-	copy /Y build\$(CONFIG)\bin\testme.mod+modified "$(ME_VAPP_PREFIX)\bin\testme.mod" >>build\nmake.log
-	copy /Y build\$(CONFIG)\bin\ejs.testme.mod+modified "$(ME_VAPP_PREFIX)\bin\ejs.testme.mod" >>build\nmake.log
+	copy /Y build\$(CONFIG)\bin\ca.crt+modified "$(ME_VAPP_PREFIX)\bin\ca.crt" $(LOG)
+	copy /Y build\$(CONFIG)\bin\ejs.mod+modified "$(ME_VAPP_PREFIX)\bin\ejs.mod" $(LOG)
+	copy /Y build\$(CONFIG)\bin\me.mod+modified "$(ME_VAPP_PREFIX)\bin\me.mod" $(LOG)
+	copy /Y build\$(CONFIG)\bin\testme.mod+modified "$(ME_VAPP_PREFIX)\bin\testme.mod" $(LOG)
+	copy /Y build\$(CONFIG)\bin\ejs.testme.mod+modified "$(ME_VAPP_PREFIX)\bin\ejs.testme.mod" $(LOG)
 	if not exist "$(ME_VAPP_PREFIX)\inc" md "$(ME_VAPP_PREFIX)\inc"
-	copy /Y src\tm\testme.h+modified "$(ME_VAPP_PREFIX)\inc\testme.h" >>build\nmake.log
+	copy /Y src\tm\testme.h+modified "$(ME_VAPP_PREFIX)\inc\testme.h" $(LOG)
 	if not exist "$(ME_VAPP_PREFIX)\bin\configure" md "$(ME_VAPP_PREFIX)\bin\configure"
-	copy /Y src\configure\appweb.me+modified "$(ME_VAPP_PREFIX)\bin\configure\appweb.me" >>build\nmake.log
-	copy /Y src\configure\compiler.me+modified "$(ME_VAPP_PREFIX)\bin\configure\compiler.me" >>build\nmake.log
-	copy /Y src\configure\lib.me+modified "$(ME_VAPP_PREFIX)\bin\configure\lib.me" >>build\nmake.log
-	copy /Y src\configure\link.me+modified "$(ME_VAPP_PREFIX)\bin\configure\link.me" >>build\nmake.log
-	copy /Y src\configure\rc.me+modified "$(ME_VAPP_PREFIX)\bin\configure\rc.me" >>build\nmake.log
-	copy /Y src\configure\testme.me+modified "$(ME_VAPP_PREFIX)\bin\configure\testme.me" >>build\nmake.log
-	copy /Y src\configure\vxworks.me+modified "$(ME_VAPP_PREFIX)\bin\configure\vxworks.me" >>build\nmake.log
-	copy /Y src\configure\winsdk.me+modified "$(ME_VAPP_PREFIX)\bin\configure\winsdk.me" >>build\nmake.log
-	copy /Y src\configure.es+modified "$(ME_VAPP_PREFIX)\bin\configure.es" >>build\nmake.log
-	copy /Y src\generate.es+modified "$(ME_VAPP_PREFIX)\bin\generate.es" >>build\nmake.log
-	copy /Y src\master-main.me+modified "$(ME_VAPP_PREFIX)\bin\master-main.me" >>build\nmake.log
-	copy /Y src\master-start.me+modified "$(ME_VAPP_PREFIX)\bin\master-start.me" >>build\nmake.log
-	copy /Y src\me.es+modified "$(ME_VAPP_PREFIX)\bin\me.es" >>build\nmake.log
+	copy /Y src\configure\appweb.me+modified "$(ME_VAPP_PREFIX)\bin\configure\appweb.me" $(LOG)
+	copy /Y src\configure\compiler.me+modified "$(ME_VAPP_PREFIX)\bin\configure\compiler.me" $(LOG)
+	copy /Y src\configure\lib.me+modified "$(ME_VAPP_PREFIX)\bin\configure\lib.me" $(LOG)
+	copy /Y src\configure\link.me+modified "$(ME_VAPP_PREFIX)\bin\configure\link.me" $(LOG)
+	copy /Y src\configure\rc.me+modified "$(ME_VAPP_PREFIX)\bin\configure\rc.me" $(LOG)
+	copy /Y src\configure\testme.me+modified "$(ME_VAPP_PREFIX)\bin\configure\testme.me" $(LOG)
+	copy /Y src\configure\vxworks.me+modified "$(ME_VAPP_PREFIX)\bin\configure\vxworks.me" $(LOG)
+	copy /Y src\configure\winsdk.me+modified "$(ME_VAPP_PREFIX)\bin\configure\winsdk.me" $(LOG)
+	copy /Y src\configure.es+modified "$(ME_VAPP_PREFIX)\bin\configure.es" $(LOG)
+	copy /Y src\generate.es+modified "$(ME_VAPP_PREFIX)\bin\generate.es" $(LOG)
+	copy /Y src\master-main.me+modified "$(ME_VAPP_PREFIX)\bin\master-main.me" $(LOG)
+	copy /Y src\master-start.me+modified "$(ME_VAPP_PREFIX)\bin\master-start.me" $(LOG)
+	copy /Y src\me.es+modified "$(ME_VAPP_PREFIX)\bin\me.es" $(LOG)
 	if not exist "$(ME_VAPP_PREFIX)\bin\os" md "$(ME_VAPP_PREFIX)\bin\os"
-	copy /Y src\os\freebsd.me+modified "$(ME_VAPP_PREFIX)\bin\os\freebsd.me" >>build\nmake.log
-	copy /Y src\os\gcc.me+modified "$(ME_VAPP_PREFIX)\bin\os\gcc.me" >>build\nmake.log
-	copy /Y src\os\linux.me+modified "$(ME_VAPP_PREFIX)\bin\os\linux.me" >>build\nmake.log
-	copy /Y src\os\macosx.me+modified "$(ME_VAPP_PREFIX)\bin\os\macosx.me" >>build\nmake.log
-	copy /Y src\os\solaris.me+modified "$(ME_VAPP_PREFIX)\bin\os\solaris.me" >>build\nmake.log
-	copy /Y src\os\unix.me+modified "$(ME_VAPP_PREFIX)\bin\os\unix.me" >>build\nmake.log
-	copy /Y src\os\vxworks.me+modified "$(ME_VAPP_PREFIX)\bin\os\vxworks.me" >>build\nmake.log
-	copy /Y src\os\windows.me+modified "$(ME_VAPP_PREFIX)\bin\os\windows.me" >>build\nmake.log
-	copy /Y src\simple.me+modified "$(ME_VAPP_PREFIX)\bin\simple.me" >>build\nmake.log
-	copy /Y src\standard.me+modified "$(ME_VAPP_PREFIX)\bin\standard.me" >>build\nmake.log
+	copy /Y src\os\freebsd.me+modified "$(ME_VAPP_PREFIX)\bin\os\freebsd.me" $(LOG)
+	copy /Y src\os\gcc.me+modified "$(ME_VAPP_PREFIX)\bin\os\gcc.me" $(LOG)
+	copy /Y src\os\linux.me+modified "$(ME_VAPP_PREFIX)\bin\os\linux.me" $(LOG)
+	copy /Y src\os\macosx.me+modified "$(ME_VAPP_PREFIX)\bin\os\macosx.me" $(LOG)
+	copy /Y src\os\solaris.me+modified "$(ME_VAPP_PREFIX)\bin\os\solaris.me" $(LOG)
+	copy /Y src\os\unix.me+modified "$(ME_VAPP_PREFIX)\bin\os\unix.me" $(LOG)
+	copy /Y src\os\vxworks.me+modified "$(ME_VAPP_PREFIX)\bin\os\vxworks.me" $(LOG)
+	copy /Y src\os\windows.me+modified "$(ME_VAPP_PREFIX)\bin\os\windows.me" $(LOG)
+	copy /Y src\simple.me+modified "$(ME_VAPP_PREFIX)\bin\simple.me" $(LOG)
+	copy /Y src\standard.me+modified "$(ME_VAPP_PREFIX)\bin\standard.me" $(LOG)
 	if not exist "$(ME_VAPP_PREFIX)\bin\tm" md "$(ME_VAPP_PREFIX)\bin\tm"
-	copy /Y src\tm\ejs.testme.es+modified "$(ME_VAPP_PREFIX)\bin\tm\ejs.testme.es" >>build\nmake.log
-	copy /Y src\tm\libtestme.c+modified "$(ME_VAPP_PREFIX)\bin\tm\libtestme.c" >>build\nmake.log
-	copy /Y src\tm\sample.ct+modified "$(ME_VAPP_PREFIX)\bin\tm\sample.ct" >>build\nmake.log
-	copy /Y src\tm\testme.c+modified "$(ME_VAPP_PREFIX)\bin\tm\testme.c" >>build\nmake.log
-	copy /Y src\tm\testme.es+modified "$(ME_VAPP_PREFIX)\bin\tm\testme.es" >>build\nmake.log
-	copy /Y src\tm\testme.h+modified "$(ME_VAPP_PREFIX)\bin\tm\testme.h" >>build\nmake.log
-	copy /Y src\tm\testme.me+modified "$(ME_VAPP_PREFIX)\bin\tm\testme.me" >>build\nmake.log
-	copy /Y src\vstudio.es+modified "$(ME_VAPP_PREFIX)\bin\vstudio.es" >>build\nmake.log
-	copy /Y src\xcode.es+modified "$(ME_VAPP_PREFIX)\bin\xcode.es" >>build\nmake.log
+	copy /Y src\tm\ejs.testme.es+modified "$(ME_VAPP_PREFIX)\bin\tm\ejs.testme.es" $(LOG)
+	copy /Y src\tm\libtestme.c+modified "$(ME_VAPP_PREFIX)\bin\tm\libtestme.c" $(LOG)
+	copy /Y src\tm\sample.ct+modified "$(ME_VAPP_PREFIX)\bin\tm\sample.ct" $(LOG)
+	copy /Y src\tm\testme.c+modified "$(ME_VAPP_PREFIX)\bin\tm\testme.c" $(LOG)
+	copy /Y src\tm\testme.es+modified "$(ME_VAPP_PREFIX)\bin\tm\testme.es" $(LOG)
+	copy /Y src\tm\testme.h+modified "$(ME_VAPP_PREFIX)\bin\tm\testme.h" $(LOG)
+	copy /Y src\tm\testme.me+modified "$(ME_VAPP_PREFIX)\bin\tm\testme.me" $(LOG)
+	copy /Y src\vstudio.es+modified "$(ME_VAPP_PREFIX)\bin\vstudio.es" $(LOG)
+	copy /Y src\xcode.es+modified "$(ME_VAPP_PREFIX)\bin\xcode.es" $(LOG)
 	cd .
 
 #

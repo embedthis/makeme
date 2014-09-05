@@ -529,7 +529,7 @@ module embedthis.me {
         genout.writeLine('VERSION               = ' + me.settings.version + '\n')
         genout.writeLine('OS                    = ' + me.platform.os)
         genout.writeLine('PA                    = $(PROCESSOR_ARCHITECTURE)')
-        genout.writeLine('LOG                   = build\\nmake.log\n')
+        genout.writeLine('LOG                   = >>build\\nmake.log\n')
 
         genout.writeLine('!IF "$(PROFILE)" == ""')
         genout.writeLine('PROFILE               = ' + me.platform.profile)
@@ -597,8 +597,8 @@ module embedthis.me {
         if (me.dir.inc.join('me.h').exists) {
             genout.writeLine('\t@if not exist $(BUILD)\\inc\\me.h ' + 'copy projects\\' + pop + '-me.h $(BUILD)\\inc\\me.h\n')
         }
-        genout.writeLine('!IF "$(LOG) != ""')
-        genout.writeLine('\t@echo See build\\nmake.log for any build error details.')
+        genout.writeLine('!IF "$(LOG)" != ""')
+        gtrace('Info', 'See build\\nmake.log for any build errors.')
         genout.writeLine('!ENDIF')
 
         genout.writeLine('clean:')
@@ -746,7 +746,11 @@ module embedthis.me {
             genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
             gtracePath('Link', target.path.natural.relative)
             generateDir(target)
-            genout.writeLine('\t' + command)
+            if (me.generating == 'nmake') {
+                genout.writeLine('\t' + command + ' $(LOG)')
+            } else {
+                genout.writeLine('\t' + command)
+            }
         }
     }
 
@@ -939,7 +943,11 @@ module embedthis.me {
                 tag = 'Info'
             }
             message = repvar(expand(message))
-            message = "echo '%12s %s'" % (["[" + tag + "]"] + [message])
+            if (me.generating == 'nmake') {
+                message = '\t@echo ' + '.'.times(9 - tag.length) + ' [' + tag + '] ' + message
+            } else {
+                message = "echo '%12s %s'" % (["[" + tag + "]"] + [message])
+            }
             if (me.generating == 'nmake') {
                 message = message.replace(/\//g, '\\')
             }
@@ -1512,7 +1520,11 @@ module embedthis.me {
      */
     public function gtrace(tag: String, ...args): Void {
         let msg = args.join(" ")
-        let msg = "\t@echo '%12s %s'" % (["[" + tag + "]"] + [msg]) + "\n"
+        if (me.generating == 'nmake') {
+            msg = '\t@echo ' + '.'.times(9 - tag.length) + ' [' + tag + '] ' + msg + '\n'
+        } else {
+            msg = "\t@echo '%12s %s'" % (["[" + tag + "]"] + [msg]) + "\n"
+        }
         genout.write(repvar(msg))
     }
 
