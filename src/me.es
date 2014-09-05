@@ -3633,9 +3633,8 @@ public class Me {
                 if (dest.contains(' ')) {
                     dest = '"' + dest + '"'
                 }
-                gencmd('copy /Y ' + src + ' ' + dest)
-                /* Ensure the modified time is updated */
-                gencmd('copy /Y /B ' + dest + ' +,,')
+                /* Append empty to ensure modified time is updated */
+                gencmd('copy /Y ' + src + '+projects\empty ' + dest)
             } else {
                 if (src.contains(' ')) {
                     src = '"' + src + '"'
