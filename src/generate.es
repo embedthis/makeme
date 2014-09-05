@@ -769,7 +769,11 @@ module embedthis.me {
             genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
             gtracePath('Link', target.path.natural.relative)
             generateDir(target)
-            genout.writeLine('\t' + command + ' $(LOG)')
+            if (me.generating == 'nmake') {
+                genout.writeLine('\t' + command + ' $(LOG)')
+            } else {
+                genout.writeLine('\t' + command)
+            }
         }
     }
 
@@ -791,7 +795,11 @@ module embedthis.me {
             genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
             gtracePath('Link', target.path.natural.relative)
             generateDir(target)
-            genout.writeLine('\t' + command + ' $(LOG)')
+            if (me.generating == 'nmake') {
+                genout.writeLine('\t' + command + ' $(LOG)')
+            } else {
+                genout.writeLine('\t' + command)
+            }
         }
     }
 
