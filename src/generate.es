@@ -529,6 +529,7 @@ module embedthis.me {
         genout.writeLine('VERSION               = ' + me.settings.version + '\n')
         genout.writeLine('OS                    = ' + me.platform.os)
         genout.writeLine('PA                    = $(PROCESSOR_ARCHITECTURE)')
+        genout.writeLine('LOG                   = build\\nmake.log\n')
 
         genout.writeLine('!IF "$(PROFILE)" == ""')
         genout.writeLine('PROFILE               = ' + me.platform.profile)
@@ -596,6 +597,10 @@ module embedthis.me {
         if (me.dir.inc.join('me.h').exists) {
             genout.writeLine('\t@if not exist $(BUILD)\\inc\\me.h ' + 'copy projects\\' + pop + '-me.h $(BUILD)\\inc\\me.h\n')
         }
+        genout.writeLine('!IF "$(LOG) != ""')
+        genout.writeLine('\t@echo See build\\nmake.log for any build error details.')
+        genout.writeLine('!ENDIF')
+
         genout.writeLine('clean:')
         builtin('cleanTargets')
         genout.writeLine('')
@@ -764,7 +769,7 @@ module embedthis.me {
             genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
             gtracePath('Link', target.path.natural.relative)
             generateDir(target)
-            genout.writeLine('\t' + command)
+            genout.writeLine('\t' + command + ' $(LOG)')
         }
     }
 
@@ -786,7 +791,7 @@ module embedthis.me {
             genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
             gtracePath('Link', target.path.natural.relative)
             generateDir(target)
-            genout.writeLine('\t' + command)
+            genout.writeLine('\t' + command + ' $(LOG)')
         }
     }
 
@@ -837,7 +842,7 @@ module embedthis.me {
                 genout.write(reppath(target.path) + ': \\\n    ' + file.relative.windows + getDepsVar() + '\n')
                 gtracePath('Compile', target.path.natural.relative)
                 generateDir(target)
-                genout.writeLine('\t' + command)
+                genout.writeLine('\t' + command + ' $(LOG)')
             }
         }
         runTargetScript(target, 'postcompile')
