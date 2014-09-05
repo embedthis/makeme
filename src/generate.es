@@ -65,6 +65,8 @@ module embedthis.me {
             linker:         cpack.linker.join(' '),
             libpaths:       b.mapLibPaths(cpack.libpaths)
             libraries:      b.mapLibs(null, cpack.libraries).join(' ')
+            lbin:           me.globals.lbin
+            build:          Me.BUILD + '/' + me.platform.name
         }
         blend(gen, me.prefixes)
         for each (item in b.options.gen) {
@@ -1136,6 +1138,8 @@ module embedthis.me {
             /* Twice because libraries are repeated and replace only changes the first occurrence */
             command = rep(command, gen.libraries, '$(LIBS)')
             command = rep(command, gen.libraries, '$(LIBS)')
+            command = rep(command, gen.lbin, '$$(LBIN)')
+            command = rep(command, gen.lbin, '$$(BUILD)')
             command = rep(command, RegExp(gen.configuration, 'g'), '$$(CONFIG)')
             if (me.targets.compiler) {
                 command = repCmd(command, me.targets.compiler.path, '$(CC)')
@@ -1257,6 +1261,26 @@ module embedthis.me {
             path = path.portable 
         }
         return repvar(path)
+    }
+
+    public function genruncmd(s) {
+        if (me.target) {
+            s = repvar2(s, me.target.home)
+        } else {
+            s = repvar2(s, me.dir.top)
+        }
+        if (me.generating == 'nmake') {
+            if (s[0] != '"') {
+                let parts = s.split(' ')
+                s = parts[0].replace(/\//g, '\\') + ' ' + parts.slice(1).join(' ')
+            }
+        }
+        if (capture) {
+            capture.push(s)
+        } else {
+            /* Coming here for builtins like clean: */
+            genout.writeLine('\t' + s)
+        }
     }
 
     public function gencmd(s) {

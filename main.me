@@ -87,11 +87,9 @@ Me.load({
             files: [ 'src/me.es', 'src/paks/ejs-version/Version.es' ],
             precious: true,
             build: `
-                trace('Compile', 'me.mod')
-                run('${LBIN}/ejsc --out ${BIN}/me.mod --optimize 9 src/me.es src/paks/ejs-version/Version.es')
+                run('${LBIN}/ejsc --out ${BIN}/me.mod --optimize 9 ${FILES}')
             `,
-            'generate-nmake': `"${LBIN}\\ejsc" --out "${BIN}/me.mod" --optimize 9 src/me.es src/paks/ejs-version/Version.es`,
-            'generate-sh': '${LBIN}/ejsc --out ${BIN}/me.mod --optimize 9 src/me.es src/paks/ejs-version/Version.es',
+            messages: [ 'Compile', 'me.mod' ],
             depends: [ 'ejsc' ],
         },
 

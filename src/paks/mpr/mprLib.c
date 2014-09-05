@@ -18393,8 +18393,10 @@ PUBLIC char *mprGetRelPath(cchar *destArg, cchar *originArg)
             break;
         }
     }
-    assert(commonSegments >= 0);
-
+	if (commonSegments < 0) {
+		/* Different Drives */
+		return dest;
+	}
     if ((*op && *dp) || (*op && *dp && !isSep(fs, *op) && !isSep(fs, *dp))) {
         /*
             Cases:

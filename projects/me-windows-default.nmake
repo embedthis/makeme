@@ -646,7 +646,7 @@ DEPS_23 = $(DEPS_23) build\$(CONFIG)\bin\ejsc.exe
 
 build\$(CONFIG)\bin\ejs.mod: $(DEPS_23)
 	cd src\paks\ejs
-	..\..\..\build\$(CONFIG)\bin\ejsc --out ..\..\..\build\$(CONFIG)\bin\ejs.mod --optimize 9 --bind --require null ejs.es
+	..\..\..\build\$(CONFIG)\bin\ejsc --out ../../../build/$(CONFIG)/bin/ejs.mod --optimize 9 --bind --require null ejs.es
 	cd ..\..\..
 !ENDIF
 
@@ -699,7 +699,7 @@ DEPS_25 = $(DEPS_25) build\$(CONFIG)\bin\ejsc.exe
 build\$(CONFIG)\bin\ejs.testme.mod: $(DEPS_25)
 	cd src\tm
 	@echo .. [Compile] ejs.testme.mod
-	..\..\build\$(CONFIG)\bin\ejsc --debug --out ..\..\build\$(CONFIG)\bin\ejs.testme.mod --optimize 9 ejs.testme.es
+	..\..\build\$(CONFIG)\bin\ejsc --debug --out ../../build/$(CONFIG)/bin/ejs.testme.mod --optimize 9 ejs.testme.es
 	cd ..\..
 
 #
@@ -965,7 +965,7 @@ DEPS_39 = $(DEPS_39) build\$(CONFIG)\bin\ejsc.exe
 
 build\$(CONFIG)\bin\me.mod: $(DEPS_39)
 	cd .
-	"$(LBIN)\ejsc" --out "./build/$(CONFIG)/bin/me.mod" --optimize 9 src/me.es src/paks/ejs-version/Version.es
+	.\build\$(CONFIG)\bin\ejsc --out ./build/$(CONFIG)/bin/me.mod --optimize 9 src/me.es src/paks/ejs-version/Version.es
 	cd .
 
 #
@@ -1093,7 +1093,7 @@ DEPS_44 = $(DEPS_44) build\$(CONFIG)\bin\ejsc.exe
 build\$(CONFIG)\bin\testme.mod: $(DEPS_44)
 	cd src\tm
 	@echo .. [Compile] testme.mod
-	..\..\build\$(CONFIG)\bin\ejsc --debug --out ..\..\build\$(CONFIG)\bin\testme.mod --optimize 9 testme.es
+	..\..\build\$(CONFIG)\bin\ejsc --debug --out ../../build/$(CONFIG)/bin/testme.mod --optimize 9 testme.es
 	cd ..\..
 
 #

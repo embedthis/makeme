@@ -34,6 +34,7 @@ public function vstudio(base: Path) {
             me.globals[n] = me.globals[n].relativeTo(base)
         }
     }
+    me.globals.LBIN = me.globals.BIN
     me.dir.bin = me.dir.out.join('bin')
     me.dir.inc = me.dir.out.join('inc')
     me.dir.obj = me.dir.out.join('obj')
@@ -523,6 +524,12 @@ function projCustomBuildStep(base, target) {
     } else if (target.generate === true) {
         let capture = Path('me-vs.tmp')
         genOpen(capture)
+        if (target.files) {
+            global.FILES = target.files.map(function(f) f.relativeTo(target.home).portable).join(' ')
+        } else {
+            global.FILES = ''
+        }
+        me.globals.FILES = global.FILES
         runTargetScript(target, 'build')
         genClose()
         let data = capture.readString() + '\n'

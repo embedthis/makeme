@@ -96,7 +96,7 @@
 
   <CustomBuildStep>
     <Command>cd ..\..\src\tm
-undefined\ejsc --debug --out undefined\testme.mod --optimize 9 testme.es
+../../build/windows-x86-default/bin/ejsc --debug --out ../../build/windows-x86-default/bin/testme.mod --optimize 9 testme.es
 cd ..\..\projects\me-windows-default</Command>
     <Outputs>$(BinDir)\testme.mod</Outputs>
   </CustomBuildStep>

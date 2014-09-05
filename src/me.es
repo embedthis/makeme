@@ -2502,6 +2502,7 @@ public class Me {
             }
             trace('Run', cmdline)
         }
+        /* UNUSED
         if (me.platform.os == 'windows') {
             if (command is Array) {
                 for (let [index, value] in command) {
@@ -2510,9 +2511,9 @@ public class Me {
             } else {
                 command = command.replace(/\//g, '\\').replace(/@\\/g, '/')
             }
-        }
+        } */
         if (me.generating && copt.generate !== false) {
-            gencmd(command)
+            genruncmd(command)
             return ''
         }
         if (copt.noio || copt.nothrow) {
@@ -3171,8 +3172,8 @@ public class Me {
             Last time use real options to handle unfulfilled tokens as requested.
          */
         let eo = {fill: '${}'}
-        s = s.expand(me, eo)
         s = s.expand(me.globals, eo)
+        s = s.expand(me, eo)
         s = s.expand(me, eo)
         return s.expand(me.globals, options)
     }
