@@ -59,13 +59,13 @@ version:
 	@$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@
 
 boot:
-	rm -fr $(OS)-$(ARCH)-*
-	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) compile
+	rm -fr build/$(OS)-$(ARCH)-*
+	@$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) compile
 	build/$(OS)-$(ARCH)-$(PROFILE)/bin/me --release configure build
 
 update:
 	git pull
-	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) compile
+	@$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) compile
 	build/$(OS)-$(ARCH)-$(PROFILE)/bin/me build
 
 help:

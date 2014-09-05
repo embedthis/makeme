@@ -262,33 +262,33 @@ DEPS_1 = $(DEPS_1) src\xcode.es
 build\$(CONFIG)\bin\.updated: $(DEPS_1)
 	@echo ..... [Copy] build\$(CONFIG)\bin
 	if not exist "build\$(CONFIG)\bin" md "build\$(CONFIG)\bin"
-	copy /Y src\configure.es+modified build\$(CONFIG)\bin\configure.es $(LOG)
+	copy /Y /B src\configure.es+modified build\$(CONFIG)\bin\configure.es $(LOG)
 	if not exist "build\$(CONFIG)\bin\configure" md "build\$(CONFIG)\bin\configure"
-	copy /Y src\configure\appweb.me+modified build\$(CONFIG)\bin\configure\appweb.me $(LOG)
-	copy /Y src\configure\compiler.me+modified build\$(CONFIG)\bin\configure\compiler.me $(LOG)
-	copy /Y src\configure\lib.me+modified build\$(CONFIG)\bin\configure\lib.me $(LOG)
-	copy /Y src\configure\link.me+modified build\$(CONFIG)\bin\configure\link.me $(LOG)
-	copy /Y src\configure\rc.me+modified build\$(CONFIG)\bin\configure\rc.me $(LOG)
-	copy /Y src\configure\testme.me+modified build\$(CONFIG)\bin\configure\testme.me $(LOG)
-	copy /Y src\configure\vxworks.me+modified build\$(CONFIG)\bin\configure\vxworks.me $(LOG)
-	copy /Y src\configure\winsdk.me+modified build\$(CONFIG)\bin\configure\winsdk.me $(LOG)
-	copy /Y src\generate.es+modified build\$(CONFIG)\bin\generate.es $(LOG)
-	copy /Y src\master-main.me+modified build\$(CONFIG)\bin\master-main.me $(LOG)
-	copy /Y src\master-start.me+modified build\$(CONFIG)\bin\master-start.me $(LOG)
-	copy /Y src\me.es+modified build\$(CONFIG)\bin\me.es $(LOG)
+	copy /Y /B src\configure\appweb.me+modified build\$(CONFIG)\bin\configure\appweb.me $(LOG)
+	copy /Y /B src\configure\compiler.me+modified build\$(CONFIG)\bin\configure\compiler.me $(LOG)
+	copy /Y /B src\configure\lib.me+modified build\$(CONFIG)\bin\configure\lib.me $(LOG)
+	copy /Y /B src\configure\link.me+modified build\$(CONFIG)\bin\configure\link.me $(LOG)
+	copy /Y /B src\configure\rc.me+modified build\$(CONFIG)\bin\configure\rc.me $(LOG)
+	copy /Y /B src\configure\testme.me+modified build\$(CONFIG)\bin\configure\testme.me $(LOG)
+	copy /Y /B src\configure\vxworks.me+modified build\$(CONFIG)\bin\configure\vxworks.me $(LOG)
+	copy /Y /B src\configure\winsdk.me+modified build\$(CONFIG)\bin\configure\winsdk.me $(LOG)
+	copy /Y /B src\generate.es+modified build\$(CONFIG)\bin\generate.es $(LOG)
+	copy /Y /B src\master-main.me+modified build\$(CONFIG)\bin\master-main.me $(LOG)
+	copy /Y /B src\master-start.me+modified build\$(CONFIG)\bin\master-start.me $(LOG)
+	copy /Y /B src\me.es+modified build\$(CONFIG)\bin\me.es $(LOG)
 	if not exist "build\$(CONFIG)\bin\os" md "build\$(CONFIG)\bin\os"
-	copy /Y src\os\freebsd.me+modified build\$(CONFIG)\bin\os\freebsd.me $(LOG)
-	copy /Y src\os\gcc.me+modified build\$(CONFIG)\bin\os\gcc.me $(LOG)
-	copy /Y src\os\linux.me+modified build\$(CONFIG)\bin\os\linux.me $(LOG)
-	copy /Y src\os\macosx.me+modified build\$(CONFIG)\bin\os\macosx.me $(LOG)
-	copy /Y src\os\solaris.me+modified build\$(CONFIG)\bin\os\solaris.me $(LOG)
-	copy /Y src\os\unix.me+modified build\$(CONFIG)\bin\os\unix.me $(LOG)
-	copy /Y src\os\vxworks.me+modified build\$(CONFIG)\bin\os\vxworks.me $(LOG)
-	copy /Y src\os\windows.me+modified build\$(CONFIG)\bin\os\windows.me $(LOG)
-	copy /Y src\simple.me+modified build\$(CONFIG)\bin\simple.me $(LOG)
-	copy /Y src\standard.me+modified build\$(CONFIG)\bin\standard.me $(LOG)
-	copy /Y src\vstudio.es+modified build\$(CONFIG)\bin\vstudio.es $(LOG)
-	copy /Y src\xcode.es+modified build\$(CONFIG)\bin\xcode.es $(LOG)
+	copy /Y /B src\os\freebsd.me+modified build\$(CONFIG)\bin\os\freebsd.me $(LOG)
+	copy /Y /B src\os\gcc.me+modified build\$(CONFIG)\bin\os\gcc.me $(LOG)
+	copy /Y /B src\os\linux.me+modified build\$(CONFIG)\bin\os\linux.me $(LOG)
+	copy /Y /B src\os\macosx.me+modified build\$(CONFIG)\bin\os\macosx.me $(LOG)
+	copy /Y /B src\os\solaris.me+modified build\$(CONFIG)\bin\os\solaris.me $(LOG)
+	copy /Y /B src\os\unix.me+modified build\$(CONFIG)\bin\os\unix.me $(LOG)
+	copy /Y /B src\os\vxworks.me+modified build\$(CONFIG)\bin\os\vxworks.me $(LOG)
+	copy /Y /B src\os\windows.me+modified build\$(CONFIG)\bin\os\windows.me $(LOG)
+	copy /Y /B src\simple.me+modified build\$(CONFIG)\bin\simple.me $(LOG)
+	copy /Y /B src\standard.me+modified build\$(CONFIG)\bin\standard.me $(LOG)
+	copy /Y /B src\vstudio.es+modified build\$(CONFIG)\bin\vstudio.es $(LOG)
+	copy /Y /B src\xcode.es+modified build\$(CONFIG)\bin\xcode.es $(LOG)
 	if exist "build\$(CONFIG)\bin\.updated" rd /Q /S "build\$(CONFIG)\bin\.updated"
 	if not exist "build\$(CONFIG)\bin\.updated" md "build\$(CONFIG)\bin\.updated"
 
@@ -300,7 +300,7 @@ DEPS_2 = $(DEPS_2) src\paks\mpr\mpr.h
 build\$(CONFIG)\inc\mpr.h: $(DEPS_2)
 	@echo ..... [Copy] build\$(CONFIG)\inc\mpr.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\mpr\mpr.h+modified build\$(CONFIG)\inc\mpr.h $(LOG)
+	copy /Y /B src\paks\mpr\mpr.h+modified build\$(CONFIG)\inc\mpr.h $(LOG)
 
 #
 #   me.h
@@ -317,7 +317,7 @@ DEPS_4 = $(DEPS_4) build\$(CONFIG)\inc\me.h
 build\$(CONFIG)\inc\osdep.h: $(DEPS_4)
 	@echo ..... [Copy] build\$(CONFIG)\inc\osdep.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\osdep\osdep.h+modified build\$(CONFIG)\inc\osdep.h $(LOG)
+	copy /Y /B src\paks\osdep\osdep.h+modified build\$(CONFIG)\inc\osdep.h $(LOG)
 
 #
 #   mprLib.obj
@@ -351,7 +351,7 @@ DEPS_7 = $(DEPS_7) src\paks\pcre\pcre.h
 build\$(CONFIG)\inc\pcre.h: $(DEPS_7)
 	@echo ..... [Copy] build\$(CONFIG)\inc\pcre.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\pcre\pcre.h+modified build\$(CONFIG)\inc\pcre.h $(LOG)
+	copy /Y /B src\paks\pcre\pcre.h+modified build\$(CONFIG)\inc\pcre.h $(LOG)
 
 #
 #   pcre.obj
@@ -385,7 +385,7 @@ DEPS_10 = $(DEPS_10) src\paks\http\http.h
 build\$(CONFIG)\inc\http.h: $(DEPS_10)
 	@echo ..... [Copy] build\$(CONFIG)\inc\http.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\http\http.h+modified build\$(CONFIG)\inc\http.h $(LOG)
+	copy /Y /B src\paks\http\http.h+modified build\$(CONFIG)\inc\http.h $(LOG)
 
 #
 #   httpLib.obj
@@ -434,7 +434,7 @@ DEPS_13 = $(DEPS_13) src\paks\zlib\zlib.h
 build\$(CONFIG)\inc\zlib.h: $(DEPS_13)
 	@echo ..... [Copy] build\$(CONFIG)\inc\zlib.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\zlib\zlib.h+modified build\$(CONFIG)\inc\zlib.h $(LOG)
+	copy /Y /B src\paks\zlib\zlib.h+modified build\$(CONFIG)\inc\zlib.h $(LOG)
 
 #
 #   zlib.obj
@@ -468,7 +468,7 @@ DEPS_16 = $(DEPS_16) src\paks\ejs\ejs.h
 build\$(CONFIG)\inc\ejs.h: $(DEPS_16)
 	@echo ..... [Copy] build\$(CONFIG)\inc\ejs.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\ejs\ejs.h+modified build\$(CONFIG)\inc\ejs.h $(LOG)
+	copy /Y /B src\paks\ejs\ejs.h+modified build\$(CONFIG)\inc\ejs.h $(LOG)
 
 #
 #   ejs.slots.h
@@ -478,7 +478,7 @@ DEPS_17 = $(DEPS_17) src\paks\ejs\ejs.slots.h
 build\$(CONFIG)\inc\ejs.slots.h: $(DEPS_17)
 	@echo ..... [Copy] build\$(CONFIG)\inc\ejs.slots.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\ejs\ejs.slots.h+modified build\$(CONFIG)\inc\ejs.slots.h $(LOG)
+	copy /Y /B src\paks\ejs\ejs.slots.h+modified build\$(CONFIG)\inc\ejs.slots.h $(LOG)
 
 #
 #   ejsByteGoto.h
@@ -488,7 +488,7 @@ DEPS_18 = $(DEPS_18) src\paks\ejs\ejsByteGoto.h
 build\$(CONFIG)\inc\ejsByteGoto.h: $(DEPS_18)
 	@echo ..... [Copy] build\$(CONFIG)\inc\ejsByteGoto.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\ejs\ejsByteGoto.h+modified build\$(CONFIG)\inc\ejsByteGoto.h $(LOG)
+	copy /Y /B src\paks\ejs\ejsByteGoto.h+modified build\$(CONFIG)\inc\ejsByteGoto.h $(LOG)
 
 #
 #   ejsLib.obj
@@ -658,7 +658,7 @@ DEPS_24 = $(DEPS_24) src\tm\ejs.testme.es
 build\$(CONFIG)\bin\ejs.testme.es: $(DEPS_24)
 	@echo ..... [Copy] build\$(CONFIG)\bin\ejs.testme.es
 	if not exist "build\$(CONFIG)\bin" md "build\$(CONFIG)\bin"
-	copy /Y src\tm\ejs.testme.es+modified build\$(CONFIG)\bin\ejs.testme.es $(LOG)
+	copy /Y /B src\tm\ejs.testme.es+modified build\$(CONFIG)\bin\ejs.testme.es $(LOG)
 
 #
 #   ejs.testme.mod
@@ -770,7 +770,7 @@ DEPS_28 = $(DEPS_28) src\paks\http\ca.crt
 build\$(CONFIG)\bin\ca.crt: $(DEPS_28)
 	@echo ..... [Copy] build\$(CONFIG)\bin\ca.crt
 	if not exist "build\$(CONFIG)\bin" md "build\$(CONFIG)\bin"
-	copy /Y src\paks\http\ca.crt+modified build\$(CONFIG)\bin\ca.crt $(LOG)
+	copy /Y /B src\paks\http\ca.crt+modified build\$(CONFIG)\bin\ca.crt $(LOG)
 
 #
 #   http.obj
@@ -821,7 +821,7 @@ DEPS_31 = $(DEPS_31) src\paks\est\est.h
 build\$(CONFIG)\inc\est.h: $(DEPS_31)
 	@echo ..... [Copy] build\$(CONFIG)\inc\est.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\est\est.h+modified build\$(CONFIG)\inc\est.h $(LOG)
+	copy /Y /B src\paks\est\est.h+modified build\$(CONFIG)\inc\est.h $(LOG)
 
 #
 #   estLib.obj
@@ -900,7 +900,7 @@ DEPS_36 = $(DEPS_36) src\tm\testme.h
 build\$(CONFIG)\inc\testme.h: $(DEPS_36)
 	@echo ..... [Copy] build\$(CONFIG)\inc\testme.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\tm\testme.h+modified build\$(CONFIG)\inc\testme.h $(LOG)
+	copy /Y /B src\tm\testme.h+modified build\$(CONFIG)\inc\testme.h $(LOG)
 
 #
 #   libtestme.obj
@@ -1171,7 +1171,7 @@ DEPS_47 = $(DEPS_47) src\tm\testme.es
 build\$(CONFIG)\bin\testme.es: $(DEPS_47)
 	@echo ..... [Copy] build\$(CONFIG)\bin\testme.es
 	if not exist "build\$(CONFIG)\bin" md "build\$(CONFIG)\bin"
-	copy /Y src\tm\testme.es+modified build\$(CONFIG)\bin\testme.es $(LOG)
+	copy /Y /B src\tm\testme.es+modified build\$(CONFIG)\bin\testme.es $(LOG)
 
 #
 #   stop
@@ -1185,67 +1185,67 @@ stop: $(DEPS_48)
 installBinary: $(DEPS_49)
 	cd .
 	if not exist "$(ME_VAPP_PREFIX)\bin" md "$(ME_VAPP_PREFIX)\bin"
-	copy /Y build\$(CONFIG)\bin\me.exe+modified "$(ME_VAPP_PREFIX)\bin\me.exe" $(LOG)
-	copy /Y build\$(CONFIG)\bin\testme.exe+modified "$(ME_VAPP_PREFIX)\bin\testme.exe" $(LOG)
-	copy /Y build\$(CONFIG)\bin\ejs.exe+modified "$(ME_VAPP_PREFIX)\bin\ejs.exe" $(LOG)
-	copy /Y build\$(CONFIG)\bin\ejsc.exe+modified "$(ME_VAPP_PREFIX)\bin\ejsc.exe" $(LOG)
-	copy /Y build\$(CONFIG)\bin\http.exe+modified "$(ME_VAPP_PREFIX)\bin\http.exe" $(LOG)
-	copy /Y build\$(CONFIG)\bin\libejs.dll+modified "$(ME_VAPP_PREFIX)\bin\libejs.dll" $(LOG)
-	copy /Y build\$(CONFIG)\bin\libhttp.dll+modified "$(ME_VAPP_PREFIX)\bin\libhttp.dll" $(LOG)
-	copy /Y build\$(CONFIG)\bin\libmpr.dll+modified "$(ME_VAPP_PREFIX)\bin\libmpr.dll" $(LOG)
-	copy /Y build\$(CONFIG)\bin\libmprssl.dll+modified "$(ME_VAPP_PREFIX)\bin\libmprssl.dll" $(LOG)
-	copy /Y build\$(CONFIG)\bin\libpcre.dll+modified "$(ME_VAPP_PREFIX)\bin\libpcre.dll" $(LOG)
-	copy /Y build\$(CONFIG)\bin\libzlib.dll+modified "$(ME_VAPP_PREFIX)\bin\libzlib.dll" $(LOG)
-	copy /Y build\$(CONFIG)\bin\libtestme.dll+modified "$(ME_VAPP_PREFIX)\bin\libtestme.dll" $(LOG)
+	copy /Y /B build\$(CONFIG)\bin\me.exe+modified "$(ME_VAPP_PREFIX)\bin\me.exe" $(LOG)
+	copy /Y /B build\$(CONFIG)\bin\testme.exe+modified "$(ME_VAPP_PREFIX)\bin\testme.exe" $(LOG)
+	copy /Y /B build\$(CONFIG)\bin\ejs.exe+modified "$(ME_VAPP_PREFIX)\bin\ejs.exe" $(LOG)
+	copy /Y /B build\$(CONFIG)\bin\ejsc.exe+modified "$(ME_VAPP_PREFIX)\bin\ejsc.exe" $(LOG)
+	copy /Y /B build\$(CONFIG)\bin\http.exe+modified "$(ME_VAPP_PREFIX)\bin\http.exe" $(LOG)
+	copy /Y /B build\$(CONFIG)\bin\libejs.dll+modified "$(ME_VAPP_PREFIX)\bin\libejs.dll" $(LOG)
+	copy /Y /B build\$(CONFIG)\bin\libhttp.dll+modified "$(ME_VAPP_PREFIX)\bin\libhttp.dll" $(LOG)
+	copy /Y /B build\$(CONFIG)\bin\libmpr.dll+modified "$(ME_VAPP_PREFIX)\bin\libmpr.dll" $(LOG)
+	copy /Y /B build\$(CONFIG)\bin\libmprssl.dll+modified "$(ME_VAPP_PREFIX)\bin\libmprssl.dll" $(LOG)
+	copy /Y /B build\$(CONFIG)\bin\libpcre.dll+modified "$(ME_VAPP_PREFIX)\bin\libpcre.dll" $(LOG)
+	copy /Y /B build\$(CONFIG)\bin\libzlib.dll+modified "$(ME_VAPP_PREFIX)\bin\libzlib.dll" $(LOG)
+	copy /Y /B build\$(CONFIG)\bin\libtestme.dll+modified "$(ME_VAPP_PREFIX)\bin\libtestme.dll" $(LOG)
 !IF "$(ME_COM_EST)" == "1"
-	copy /Y build\$(CONFIG)\bin\libest.dll+modified "$(ME_VAPP_PREFIX)\bin\libest.dll" $(LOG)
+	copy /Y /B build\$(CONFIG)\bin\libest.dll+modified "$(ME_VAPP_PREFIX)\bin\libest.dll" $(LOG)
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
-	copy /Y build\$(CONFIG)\bin\libeay32.dll+modified "$(ME_VAPP_PREFIX)\bin\libeay32.dll" $(LOG)
-	copy /Y build\$(CONFIG)\bin\ssleay32.dll+modified "$(ME_VAPP_PREFIX)\bin\ssleay32.dll" $(LOG)
+	copy /Y /B build\$(CONFIG)\bin\libeay32.dll+modified "$(ME_VAPP_PREFIX)\bin\libeay32.dll" $(LOG)
+	copy /Y /B build\$(CONFIG)\bin\ssleay32.dll+modified "$(ME_VAPP_PREFIX)\bin\ssleay32.dll" $(LOG)
 !ENDIF
-	copy /Y build\$(CONFIG)\bin\ca.crt+modified "$(ME_VAPP_PREFIX)\bin\ca.crt" $(LOG)
-	copy /Y build\$(CONFIG)\bin\ejs.mod+modified "$(ME_VAPP_PREFIX)\bin\ejs.mod" $(LOG)
-	copy /Y build\$(CONFIG)\bin\me.mod+modified "$(ME_VAPP_PREFIX)\bin\me.mod" $(LOG)
-	copy /Y build\$(CONFIG)\bin\testme.mod+modified "$(ME_VAPP_PREFIX)\bin\testme.mod" $(LOG)
-	copy /Y build\$(CONFIG)\bin\ejs.testme.mod+modified "$(ME_VAPP_PREFIX)\bin\ejs.testme.mod" $(LOG)
+	copy /Y /B build\$(CONFIG)\bin\ca.crt+modified "$(ME_VAPP_PREFIX)\bin\ca.crt" $(LOG)
+	copy /Y /B build\$(CONFIG)\bin\ejs.mod+modified "$(ME_VAPP_PREFIX)\bin\ejs.mod" $(LOG)
+	copy /Y /B build\$(CONFIG)\bin\me.mod+modified "$(ME_VAPP_PREFIX)\bin\me.mod" $(LOG)
+	copy /Y /B build\$(CONFIG)\bin\testme.mod+modified "$(ME_VAPP_PREFIX)\bin\testme.mod" $(LOG)
+	copy /Y /B build\$(CONFIG)\bin\ejs.testme.mod+modified "$(ME_VAPP_PREFIX)\bin\ejs.testme.mod" $(LOG)
 	if not exist "$(ME_VAPP_PREFIX)\inc" md "$(ME_VAPP_PREFIX)\inc"
-	copy /Y src\tm\testme.h+modified "$(ME_VAPP_PREFIX)\inc\testme.h" $(LOG)
+	copy /Y /B src\tm\testme.h+modified "$(ME_VAPP_PREFIX)\inc\testme.h" $(LOG)
 	if not exist "$(ME_VAPP_PREFIX)\bin\configure" md "$(ME_VAPP_PREFIX)\bin\configure"
-	copy /Y src\configure\appweb.me+modified "$(ME_VAPP_PREFIX)\bin\configure\appweb.me" $(LOG)
-	copy /Y src\configure\compiler.me+modified "$(ME_VAPP_PREFIX)\bin\configure\compiler.me" $(LOG)
-	copy /Y src\configure\lib.me+modified "$(ME_VAPP_PREFIX)\bin\configure\lib.me" $(LOG)
-	copy /Y src\configure\link.me+modified "$(ME_VAPP_PREFIX)\bin\configure\link.me" $(LOG)
-	copy /Y src\configure\rc.me+modified "$(ME_VAPP_PREFIX)\bin\configure\rc.me" $(LOG)
-	copy /Y src\configure\testme.me+modified "$(ME_VAPP_PREFIX)\bin\configure\testme.me" $(LOG)
-	copy /Y src\configure\vxworks.me+modified "$(ME_VAPP_PREFIX)\bin\configure\vxworks.me" $(LOG)
-	copy /Y src\configure\winsdk.me+modified "$(ME_VAPP_PREFIX)\bin\configure\winsdk.me" $(LOG)
-	copy /Y src\configure.es+modified "$(ME_VAPP_PREFIX)\bin\configure.es" $(LOG)
-	copy /Y src\generate.es+modified "$(ME_VAPP_PREFIX)\bin\generate.es" $(LOG)
-	copy /Y src\master-main.me+modified "$(ME_VAPP_PREFIX)\bin\master-main.me" $(LOG)
-	copy /Y src\master-start.me+modified "$(ME_VAPP_PREFIX)\bin\master-start.me" $(LOG)
-	copy /Y src\me.es+modified "$(ME_VAPP_PREFIX)\bin\me.es" $(LOG)
+	copy /Y /B src\configure\appweb.me+modified "$(ME_VAPP_PREFIX)\bin\configure\appweb.me" $(LOG)
+	copy /Y /B src\configure\compiler.me+modified "$(ME_VAPP_PREFIX)\bin\configure\compiler.me" $(LOG)
+	copy /Y /B src\configure\lib.me+modified "$(ME_VAPP_PREFIX)\bin\configure\lib.me" $(LOG)
+	copy /Y /B src\configure\link.me+modified "$(ME_VAPP_PREFIX)\bin\configure\link.me" $(LOG)
+	copy /Y /B src\configure\rc.me+modified "$(ME_VAPP_PREFIX)\bin\configure\rc.me" $(LOG)
+	copy /Y /B src\configure\testme.me+modified "$(ME_VAPP_PREFIX)\bin\configure\testme.me" $(LOG)
+	copy /Y /B src\configure\vxworks.me+modified "$(ME_VAPP_PREFIX)\bin\configure\vxworks.me" $(LOG)
+	copy /Y /B src\configure\winsdk.me+modified "$(ME_VAPP_PREFIX)\bin\configure\winsdk.me" $(LOG)
+	copy /Y /B src\configure.es+modified "$(ME_VAPP_PREFIX)\bin\configure.es" $(LOG)
+	copy /Y /B src\generate.es+modified "$(ME_VAPP_PREFIX)\bin\generate.es" $(LOG)
+	copy /Y /B src\master-main.me+modified "$(ME_VAPP_PREFIX)\bin\master-main.me" $(LOG)
+	copy /Y /B src\master-start.me+modified "$(ME_VAPP_PREFIX)\bin\master-start.me" $(LOG)
+	copy /Y /B src\me.es+modified "$(ME_VAPP_PREFIX)\bin\me.es" $(LOG)
 	if not exist "$(ME_VAPP_PREFIX)\bin\os" md "$(ME_VAPP_PREFIX)\bin\os"
-	copy /Y src\os\freebsd.me+modified "$(ME_VAPP_PREFIX)\bin\os\freebsd.me" $(LOG)
-	copy /Y src\os\gcc.me+modified "$(ME_VAPP_PREFIX)\bin\os\gcc.me" $(LOG)
-	copy /Y src\os\linux.me+modified "$(ME_VAPP_PREFIX)\bin\os\linux.me" $(LOG)
-	copy /Y src\os\macosx.me+modified "$(ME_VAPP_PREFIX)\bin\os\macosx.me" $(LOG)
-	copy /Y src\os\solaris.me+modified "$(ME_VAPP_PREFIX)\bin\os\solaris.me" $(LOG)
-	copy /Y src\os\unix.me+modified "$(ME_VAPP_PREFIX)\bin\os\unix.me" $(LOG)
-	copy /Y src\os\vxworks.me+modified "$(ME_VAPP_PREFIX)\bin\os\vxworks.me" $(LOG)
-	copy /Y src\os\windows.me+modified "$(ME_VAPP_PREFIX)\bin\os\windows.me" $(LOG)
-	copy /Y src\simple.me+modified "$(ME_VAPP_PREFIX)\bin\simple.me" $(LOG)
-	copy /Y src\standard.me+modified "$(ME_VAPP_PREFIX)\bin\standard.me" $(LOG)
+	copy /Y /B src\os\freebsd.me+modified "$(ME_VAPP_PREFIX)\bin\os\freebsd.me" $(LOG)
+	copy /Y /B src\os\gcc.me+modified "$(ME_VAPP_PREFIX)\bin\os\gcc.me" $(LOG)
+	copy /Y /B src\os\linux.me+modified "$(ME_VAPP_PREFIX)\bin\os\linux.me" $(LOG)
+	copy /Y /B src\os\macosx.me+modified "$(ME_VAPP_PREFIX)\bin\os\macosx.me" $(LOG)
+	copy /Y /B src\os\solaris.me+modified "$(ME_VAPP_PREFIX)\bin\os\solaris.me" $(LOG)
+	copy /Y /B src\os\unix.me+modified "$(ME_VAPP_PREFIX)\bin\os\unix.me" $(LOG)
+	copy /Y /B src\os\vxworks.me+modified "$(ME_VAPP_PREFIX)\bin\os\vxworks.me" $(LOG)
+	copy /Y /B src\os\windows.me+modified "$(ME_VAPP_PREFIX)\bin\os\windows.me" $(LOG)
+	copy /Y /B src\simple.me+modified "$(ME_VAPP_PREFIX)\bin\simple.me" $(LOG)
+	copy /Y /B src\standard.me+modified "$(ME_VAPP_PREFIX)\bin\standard.me" $(LOG)
 	if not exist "$(ME_VAPP_PREFIX)\bin\tm" md "$(ME_VAPP_PREFIX)\bin\tm"
-	copy /Y src\tm\ejs.testme.es+modified "$(ME_VAPP_PREFIX)\bin\tm\ejs.testme.es" $(LOG)
-	copy /Y src\tm\libtestme.c+modified "$(ME_VAPP_PREFIX)\bin\tm\libtestme.c" $(LOG)
-	copy /Y src\tm\sample.ct+modified "$(ME_VAPP_PREFIX)\bin\tm\sample.ct" $(LOG)
-	copy /Y src\tm\testme.c+modified "$(ME_VAPP_PREFIX)\bin\tm\testme.c" $(LOG)
-	copy /Y src\tm\testme.es+modified "$(ME_VAPP_PREFIX)\bin\tm\testme.es" $(LOG)
-	copy /Y src\tm\testme.h+modified "$(ME_VAPP_PREFIX)\bin\tm\testme.h" $(LOG)
-	copy /Y src\tm\testme.me+modified "$(ME_VAPP_PREFIX)\bin\tm\testme.me" $(LOG)
-	copy /Y src\vstudio.es+modified "$(ME_VAPP_PREFIX)\bin\vstudio.es" $(LOG)
-	copy /Y src\xcode.es+modified "$(ME_VAPP_PREFIX)\bin\xcode.es" $(LOG)
+	copy /Y /B src\tm\ejs.testme.es+modified "$(ME_VAPP_PREFIX)\bin\tm\ejs.testme.es" $(LOG)
+	copy /Y /B src\tm\libtestme.c+modified "$(ME_VAPP_PREFIX)\bin\tm\libtestme.c" $(LOG)
+	copy /Y /B src\tm\sample.ct+modified "$(ME_VAPP_PREFIX)\bin\tm\sample.ct" $(LOG)
+	copy /Y /B src\tm\testme.c+modified "$(ME_VAPP_PREFIX)\bin\tm\testme.c" $(LOG)
+	copy /Y /B src\tm\testme.es+modified "$(ME_VAPP_PREFIX)\bin\tm\testme.es" $(LOG)
+	copy /Y /B src\tm\testme.h+modified "$(ME_VAPP_PREFIX)\bin\tm\testme.h" $(LOG)
+	copy /Y /B src\tm\testme.me+modified "$(ME_VAPP_PREFIX)\bin\tm\testme.me" $(LOG)
+	copy /Y /B src\vstudio.es+modified "$(ME_VAPP_PREFIX)\bin\vstudio.es" $(LOG)
+	copy /Y /B src\xcode.es+modified "$(ME_VAPP_PREFIX)\bin\xcode.es" $(LOG)
 	cd .
 
 #

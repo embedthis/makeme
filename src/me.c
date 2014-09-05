@@ -143,7 +143,9 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
     }
     app->ejs = 0;
     ejsDestroyVM(ejs);
+#if !ME_WIN_LIKE
     mprDestroy();
+#endif
     return mprGetExitStatus();
 }
 
