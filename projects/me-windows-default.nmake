@@ -257,33 +257,33 @@ DEPS_1 = $(DEPS_1) src\xcode.es
 build\$(CONFIG)\bin\.updated: $(DEPS_1)
 	@echo '      [Copy] build\$(CONFIG)\bin'
 	if not exist "build\$(CONFIG)\bin" md "build\$(CONFIG)\bin"
-	copy /Y src\configure.es+projectsempty build\$(CONFIG)\bin\configure.es
+	copy /Y src\configure.es+projects\empty build\$(CONFIG)\bin\configure.es
 	if not exist "build\$(CONFIG)\bin\configure" md "build\$(CONFIG)\bin\configure"
-	copy /Y src\configure\appweb.me+projectsempty build\$(CONFIG)\bin\configure\appweb.me
-	copy /Y src\configure\compiler.me+projectsempty build\$(CONFIG)\bin\configure\compiler.me
-	copy /Y src\configure\lib.me+projectsempty build\$(CONFIG)\bin\configure\lib.me
-	copy /Y src\configure\link.me+projectsempty build\$(CONFIG)\bin\configure\link.me
-	copy /Y src\configure\rc.me+projectsempty build\$(CONFIG)\bin\configure\rc.me
-	copy /Y src\configure\testme.me+projectsempty build\$(CONFIG)\bin\configure\testme.me
-	copy /Y src\configure\vxworks.me+projectsempty build\$(CONFIG)\bin\configure\vxworks.me
-	copy /Y src\configure\winsdk.me+projectsempty build\$(CONFIG)\bin\configure\winsdk.me
-	copy /Y src\generate.es+projectsempty build\$(CONFIG)\bin\generate.es
-	copy /Y src\master-main.me+projectsempty build\$(CONFIG)\bin\master-main.me
-	copy /Y src\master-start.me+projectsempty build\$(CONFIG)\bin\master-start.me
-	copy /Y src\me.es+projectsempty build\$(CONFIG)\bin\me.es
+	copy /Y src\configure\appweb.me+projects\empty build\$(CONFIG)\bin\configure\appweb.me
+	copy /Y src\configure\compiler.me+projects\empty build\$(CONFIG)\bin\configure\compiler.me
+	copy /Y src\configure\lib.me+projects\empty build\$(CONFIG)\bin\configure\lib.me
+	copy /Y src\configure\link.me+projects\empty build\$(CONFIG)\bin\configure\link.me
+	copy /Y src\configure\rc.me+projects\empty build\$(CONFIG)\bin\configure\rc.me
+	copy /Y src\configure\testme.me+projects\empty build\$(CONFIG)\bin\configure\testme.me
+	copy /Y src\configure\vxworks.me+projects\empty build\$(CONFIG)\bin\configure\vxworks.me
+	copy /Y src\configure\winsdk.me+projects\empty build\$(CONFIG)\bin\configure\winsdk.me
+	copy /Y src\generate.es+projects\empty build\$(CONFIG)\bin\generate.es
+	copy /Y src\master-main.me+projects\empty build\$(CONFIG)\bin\master-main.me
+	copy /Y src\master-start.me+projects\empty build\$(CONFIG)\bin\master-start.me
+	copy /Y src\me.es+projects\empty build\$(CONFIG)\bin\me.es
 	if not exist "build\$(CONFIG)\bin\os" md "build\$(CONFIG)\bin\os"
-	copy /Y src\os\freebsd.me+projectsempty build\$(CONFIG)\bin\os\freebsd.me
-	copy /Y src\os\gcc.me+projectsempty build\$(CONFIG)\bin\os\gcc.me
-	copy /Y src\os\linux.me+projectsempty build\$(CONFIG)\bin\os\linux.me
-	copy /Y src\os\macosx.me+projectsempty build\$(CONFIG)\bin\os\macosx.me
-	copy /Y src\os\solaris.me+projectsempty build\$(CONFIG)\bin\os\solaris.me
-	copy /Y src\os\unix.me+projectsempty build\$(CONFIG)\bin\os\unix.me
-	copy /Y src\os\vxworks.me+projectsempty build\$(CONFIG)\bin\os\vxworks.me
-	copy /Y src\os\windows.me+projectsempty build\$(CONFIG)\bin\os\windows.me
-	copy /Y src\simple.me+projectsempty build\$(CONFIG)\bin\simple.me
-	copy /Y src\standard.me+projectsempty build\$(CONFIG)\bin\standard.me
-	copy /Y src\vstudio.es+projectsempty build\$(CONFIG)\bin\vstudio.es
-	copy /Y src\xcode.es+projectsempty build\$(CONFIG)\bin\xcode.es
+	copy /Y src\os\freebsd.me+projects\empty build\$(CONFIG)\bin\os\freebsd.me
+	copy /Y src\os\gcc.me+projects\empty build\$(CONFIG)\bin\os\gcc.me
+	copy /Y src\os\linux.me+projects\empty build\$(CONFIG)\bin\os\linux.me
+	copy /Y src\os\macosx.me+projects\empty build\$(CONFIG)\bin\os\macosx.me
+	copy /Y src\os\solaris.me+projects\empty build\$(CONFIG)\bin\os\solaris.me
+	copy /Y src\os\unix.me+projects\empty build\$(CONFIG)\bin\os\unix.me
+	copy /Y src\os\vxworks.me+projects\empty build\$(CONFIG)\bin\os\vxworks.me
+	copy /Y src\os\windows.me+projects\empty build\$(CONFIG)\bin\os\windows.me
+	copy /Y src\simple.me+projects\empty build\$(CONFIG)\bin\simple.me
+	copy /Y src\standard.me+projects\empty build\$(CONFIG)\bin\standard.me
+	copy /Y src\vstudio.es+projects\empty build\$(CONFIG)\bin\vstudio.es
+	copy /Y src\xcode.es+projects\empty build\$(CONFIG)\bin\xcode.es
 	if exist "build\$(CONFIG)\bin\.updated" rd /Q /S "build\$(CONFIG)\bin\.updated"
 	if not exist "build\$(CONFIG)\bin\.updated" md "build\$(CONFIG)\bin\.updated"
 
@@ -295,7 +295,7 @@ DEPS_2 = $(DEPS_2) src\paks\mpr\mpr.h
 build\$(CONFIG)\inc\mpr.h: $(DEPS_2)
 	@echo '      [Copy] build\$(CONFIG)\inc\mpr.h'
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\mpr\mpr.h+projectsempty build\$(CONFIG)\inc\mpr.h
+	copy /Y src\paks\mpr\mpr.h+projects\empty build\$(CONFIG)\inc\mpr.h
 
 #
 #   me.h
@@ -312,7 +312,7 @@ DEPS_4 = $(DEPS_4) build\$(CONFIG)\inc\me.h
 build\$(CONFIG)\inc\osdep.h: $(DEPS_4)
 	@echo '      [Copy] build\$(CONFIG)\inc\osdep.h'
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\osdep\osdep.h+projectsempty build\$(CONFIG)\inc\osdep.h
+	copy /Y src\paks\osdep\osdep.h+projects\empty build\$(CONFIG)\inc\osdep.h
 
 #
 #   mprLib.obj
@@ -346,7 +346,7 @@ DEPS_7 = $(DEPS_7) src\paks\pcre\pcre.h
 build\$(CONFIG)\inc\pcre.h: $(DEPS_7)
 	@echo '      [Copy] build\$(CONFIG)\inc\pcre.h'
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\pcre\pcre.h+projectsempty build\$(CONFIG)\inc\pcre.h
+	copy /Y src\paks\pcre\pcre.h+projects\empty build\$(CONFIG)\inc\pcre.h
 
 #
 #   pcre.obj
@@ -380,7 +380,7 @@ DEPS_10 = $(DEPS_10) src\paks\http\http.h
 build\$(CONFIG)\inc\http.h: $(DEPS_10)
 	@echo '      [Copy] build\$(CONFIG)\inc\http.h'
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\http\http.h+projectsempty build\$(CONFIG)\inc\http.h
+	copy /Y src\paks\http\http.h+projects\empty build\$(CONFIG)\inc\http.h
 
 #
 #   httpLib.obj
@@ -429,7 +429,7 @@ DEPS_13 = $(DEPS_13) src\paks\zlib\zlib.h
 build\$(CONFIG)\inc\zlib.h: $(DEPS_13)
 	@echo '      [Copy] build\$(CONFIG)\inc\zlib.h'
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\zlib\zlib.h+projectsempty build\$(CONFIG)\inc\zlib.h
+	copy /Y src\paks\zlib\zlib.h+projects\empty build\$(CONFIG)\inc\zlib.h
 
 #
 #   zlib.obj
@@ -463,7 +463,7 @@ DEPS_16 = $(DEPS_16) src\paks\ejs\ejs.h
 build\$(CONFIG)\inc\ejs.h: $(DEPS_16)
 	@echo '      [Copy] build\$(CONFIG)\inc\ejs.h'
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\ejs\ejs.h+projectsempty build\$(CONFIG)\inc\ejs.h
+	copy /Y src\paks\ejs\ejs.h+projects\empty build\$(CONFIG)\inc\ejs.h
 
 #
 #   ejs.slots.h
@@ -473,7 +473,7 @@ DEPS_17 = $(DEPS_17) src\paks\ejs\ejs.slots.h
 build\$(CONFIG)\inc\ejs.slots.h: $(DEPS_17)
 	@echo '      [Copy] build\$(CONFIG)\inc\ejs.slots.h'
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\ejs\ejs.slots.h+projectsempty build\$(CONFIG)\inc\ejs.slots.h
+	copy /Y src\paks\ejs\ejs.slots.h+projects\empty build\$(CONFIG)\inc\ejs.slots.h
 
 #
 #   ejsByteGoto.h
@@ -483,7 +483,7 @@ DEPS_18 = $(DEPS_18) src\paks\ejs\ejsByteGoto.h
 build\$(CONFIG)\inc\ejsByteGoto.h: $(DEPS_18)
 	@echo '      [Copy] build\$(CONFIG)\inc\ejsByteGoto.h'
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\ejs\ejsByteGoto.h+projectsempty build\$(CONFIG)\inc\ejsByteGoto.h
+	copy /Y src\paks\ejs\ejsByteGoto.h+projects\empty build\$(CONFIG)\inc\ejsByteGoto.h
 
 #
 #   ejsLib.obj
@@ -653,7 +653,7 @@ DEPS_24 = $(DEPS_24) src\tm\ejs.testme.es
 build\$(CONFIG)\bin\ejs.testme.es: $(DEPS_24)
 	@echo '      [Copy] build\$(CONFIG)\bin\ejs.testme.es'
 	if not exist "build\$(CONFIG)\bin" md "build\$(CONFIG)\bin"
-	copy /Y src\tm\ejs.testme.es+projectsempty build\$(CONFIG)\bin\ejs.testme.es
+	copy /Y src\tm\ejs.testme.es+projects\empty build\$(CONFIG)\bin\ejs.testme.es
 
 #
 #   ejs.testme.mod
@@ -765,7 +765,7 @@ DEPS_28 = $(DEPS_28) src\paks\http\ca.crt
 build\$(CONFIG)\bin\ca.crt: $(DEPS_28)
 	@echo '      [Copy] build\$(CONFIG)\bin\ca.crt'
 	if not exist "build\$(CONFIG)\bin" md "build\$(CONFIG)\bin"
-	copy /Y src\paks\http\ca.crt+projectsempty build\$(CONFIG)\bin\ca.crt
+	copy /Y src\paks\http\ca.crt+projects\empty build\$(CONFIG)\bin\ca.crt
 
 #
 #   http.obj
@@ -816,7 +816,7 @@ DEPS_31 = $(DEPS_31) src\paks\est\est.h
 build\$(CONFIG)\inc\est.h: $(DEPS_31)
 	@echo '      [Copy] build\$(CONFIG)\inc\est.h'
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\paks\est\est.h+projectsempty build\$(CONFIG)\inc\est.h
+	copy /Y src\paks\est\est.h+projects\empty build\$(CONFIG)\inc\est.h
 
 #
 #   estLib.obj
@@ -895,7 +895,7 @@ DEPS_36 = $(DEPS_36) src\tm\testme.h
 build\$(CONFIG)\inc\testme.h: $(DEPS_36)
 	@echo '      [Copy] build\$(CONFIG)\inc\testme.h'
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y src\tm\testme.h+projectsempty build\$(CONFIG)\inc\testme.h
+	copy /Y src\tm\testme.h+projects\empty build\$(CONFIG)\inc\testme.h
 
 #
 #   libtestme.obj
@@ -1166,7 +1166,7 @@ DEPS_47 = $(DEPS_47) src\tm\testme.es
 build\$(CONFIG)\bin\testme.es: $(DEPS_47)
 	@echo '      [Copy] build\$(CONFIG)\bin\testme.es'
 	if not exist "build\$(CONFIG)\bin" md "build\$(CONFIG)\bin"
-	copy /Y src\tm\testme.es+projectsempty build\$(CONFIG)\bin\testme.es
+	copy /Y src\tm\testme.es+projects\empty build\$(CONFIG)\bin\testme.es
 
 #
 #   stop
@@ -1180,67 +1180,67 @@ stop: $(DEPS_48)
 installBinary: $(DEPS_49)
 	cd .
 	if not exist "$(ME_VAPP_PREFIX)\bin" md "$(ME_VAPP_PREFIX)\bin"
-	copy /Y build\$(CONFIG)\bin\me.exe+projectsempty "$(ME_VAPP_PREFIX)\bin\me.exe"
-	copy /Y build\$(CONFIG)\bin\testme.exe+projectsempty "$(ME_VAPP_PREFIX)\bin\testme.exe"
-	copy /Y build\$(CONFIG)\bin\ejs.exe+projectsempty "$(ME_VAPP_PREFIX)\bin\ejs.exe"
-	copy /Y build\$(CONFIG)\bin\ejsc.exe+projectsempty "$(ME_VAPP_PREFIX)\bin\ejsc.exe"
-	copy /Y build\$(CONFIG)\bin\http.exe+projectsempty "$(ME_VAPP_PREFIX)\bin\http.exe"
-	copy /Y build\$(CONFIG)\bin\libejs.dll+projectsempty "$(ME_VAPP_PREFIX)\bin\libejs.dll"
-	copy /Y build\$(CONFIG)\bin\libhttp.dll+projectsempty "$(ME_VAPP_PREFIX)\bin\libhttp.dll"
-	copy /Y build\$(CONFIG)\bin\libmpr.dll+projectsempty "$(ME_VAPP_PREFIX)\bin\libmpr.dll"
-	copy /Y build\$(CONFIG)\bin\libmprssl.dll+projectsempty "$(ME_VAPP_PREFIX)\bin\libmprssl.dll"
-	copy /Y build\$(CONFIG)\bin\libpcre.dll+projectsempty "$(ME_VAPP_PREFIX)\bin\libpcre.dll"
-	copy /Y build\$(CONFIG)\bin\libzlib.dll+projectsempty "$(ME_VAPP_PREFIX)\bin\libzlib.dll"
-	copy /Y build\$(CONFIG)\bin\libtestme.dll+projectsempty "$(ME_VAPP_PREFIX)\bin\libtestme.dll"
+	copy /Y build\$(CONFIG)\bin\me.exe+projects\empty "$(ME_VAPP_PREFIX)\bin\me.exe"
+	copy /Y build\$(CONFIG)\bin\testme.exe+projects\empty "$(ME_VAPP_PREFIX)\bin\testme.exe"
+	copy /Y build\$(CONFIG)\bin\ejs.exe+projects\empty "$(ME_VAPP_PREFIX)\bin\ejs.exe"
+	copy /Y build\$(CONFIG)\bin\ejsc.exe+projects\empty "$(ME_VAPP_PREFIX)\bin\ejsc.exe"
+	copy /Y build\$(CONFIG)\bin\http.exe+projects\empty "$(ME_VAPP_PREFIX)\bin\http.exe"
+	copy /Y build\$(CONFIG)\bin\libejs.dll+projects\empty "$(ME_VAPP_PREFIX)\bin\libejs.dll"
+	copy /Y build\$(CONFIG)\bin\libhttp.dll+projects\empty "$(ME_VAPP_PREFIX)\bin\libhttp.dll"
+	copy /Y build\$(CONFIG)\bin\libmpr.dll+projects\empty "$(ME_VAPP_PREFIX)\bin\libmpr.dll"
+	copy /Y build\$(CONFIG)\bin\libmprssl.dll+projects\empty "$(ME_VAPP_PREFIX)\bin\libmprssl.dll"
+	copy /Y build\$(CONFIG)\bin\libpcre.dll+projects\empty "$(ME_VAPP_PREFIX)\bin\libpcre.dll"
+	copy /Y build\$(CONFIG)\bin\libzlib.dll+projects\empty "$(ME_VAPP_PREFIX)\bin\libzlib.dll"
+	copy /Y build\$(CONFIG)\bin\libtestme.dll+projects\empty "$(ME_VAPP_PREFIX)\bin\libtestme.dll"
 !IF "$(ME_COM_EST)" == "1"
-	copy /Y build\$(CONFIG)\bin\libest.dll+projectsempty "$(ME_VAPP_PREFIX)\bin\libest.dll"
+	copy /Y build\$(CONFIG)\bin\libest.dll+projects\empty "$(ME_VAPP_PREFIX)\bin\libest.dll"
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
-	copy /Y build\$(CONFIG)\bin\libeay32.dll+projectsempty "$(ME_VAPP_PREFIX)\bin\libeay32.dll"
-	copy /Y build\$(CONFIG)\bin\ssleay32.dll+projectsempty "$(ME_VAPP_PREFIX)\bin\ssleay32.dll"
+	copy /Y build\$(CONFIG)\bin\libeay32.dll+projects\empty "$(ME_VAPP_PREFIX)\bin\libeay32.dll"
+	copy /Y build\$(CONFIG)\bin\ssleay32.dll+projects\empty "$(ME_VAPP_PREFIX)\bin\ssleay32.dll"
 !ENDIF
-	copy /Y build\$(CONFIG)\bin\ca.crt+projectsempty "$(ME_VAPP_PREFIX)\bin\ca.crt"
-	copy /Y build\$(CONFIG)\bin\ejs.mod+projectsempty "$(ME_VAPP_PREFIX)\bin\ejs.mod"
-	copy /Y build\$(CONFIG)\bin\me.mod+projectsempty "$(ME_VAPP_PREFIX)\bin\me.mod"
-	copy /Y build\$(CONFIG)\bin\testme.mod+projectsempty "$(ME_VAPP_PREFIX)\bin\testme.mod"
-	copy /Y build\$(CONFIG)\bin\ejs.testme.mod+projectsempty "$(ME_VAPP_PREFIX)\bin\ejs.testme.mod"
+	copy /Y build\$(CONFIG)\bin\ca.crt+projects\empty "$(ME_VAPP_PREFIX)\bin\ca.crt"
+	copy /Y build\$(CONFIG)\bin\ejs.mod+projects\empty "$(ME_VAPP_PREFIX)\bin\ejs.mod"
+	copy /Y build\$(CONFIG)\bin\me.mod+projects\empty "$(ME_VAPP_PREFIX)\bin\me.mod"
+	copy /Y build\$(CONFIG)\bin\testme.mod+projects\empty "$(ME_VAPP_PREFIX)\bin\testme.mod"
+	copy /Y build\$(CONFIG)\bin\ejs.testme.mod+projects\empty "$(ME_VAPP_PREFIX)\bin\ejs.testme.mod"
 	if not exist "$(ME_VAPP_PREFIX)\inc" md "$(ME_VAPP_PREFIX)\inc"
-	copy /Y src\tm\testme.h+projectsempty "$(ME_VAPP_PREFIX)\inc\testme.h"
+	copy /Y src\tm\testme.h+projects\empty "$(ME_VAPP_PREFIX)\inc\testme.h"
 	if not exist "$(ME_VAPP_PREFIX)\bin\configure" md "$(ME_VAPP_PREFIX)\bin\configure"
-	copy /Y src\configure\appweb.me+projectsempty "$(ME_VAPP_PREFIX)\bin\configure\appweb.me"
-	copy /Y src\configure\compiler.me+projectsempty "$(ME_VAPP_PREFIX)\bin\configure\compiler.me"
-	copy /Y src\configure\lib.me+projectsempty "$(ME_VAPP_PREFIX)\bin\configure\lib.me"
-	copy /Y src\configure\link.me+projectsempty "$(ME_VAPP_PREFIX)\bin\configure\link.me"
-	copy /Y src\configure\rc.me+projectsempty "$(ME_VAPP_PREFIX)\bin\configure\rc.me"
-	copy /Y src\configure\testme.me+projectsempty "$(ME_VAPP_PREFIX)\bin\configure\testme.me"
-	copy /Y src\configure\vxworks.me+projectsempty "$(ME_VAPP_PREFIX)\bin\configure\vxworks.me"
-	copy /Y src\configure\winsdk.me+projectsempty "$(ME_VAPP_PREFIX)\bin\configure\winsdk.me"
-	copy /Y src\configure.es+projectsempty "$(ME_VAPP_PREFIX)\bin\configure.es"
-	copy /Y src\generate.es+projectsempty "$(ME_VAPP_PREFIX)\bin\generate.es"
-	copy /Y src\master-main.me+projectsempty "$(ME_VAPP_PREFIX)\bin\master-main.me"
-	copy /Y src\master-start.me+projectsempty "$(ME_VAPP_PREFIX)\bin\master-start.me"
-	copy /Y src\me.es+projectsempty "$(ME_VAPP_PREFIX)\bin\me.es"
+	copy /Y src\configure\appweb.me+projects\empty "$(ME_VAPP_PREFIX)\bin\configure\appweb.me"
+	copy /Y src\configure\compiler.me+projects\empty "$(ME_VAPP_PREFIX)\bin\configure\compiler.me"
+	copy /Y src\configure\lib.me+projects\empty "$(ME_VAPP_PREFIX)\bin\configure\lib.me"
+	copy /Y src\configure\link.me+projects\empty "$(ME_VAPP_PREFIX)\bin\configure\link.me"
+	copy /Y src\configure\rc.me+projects\empty "$(ME_VAPP_PREFIX)\bin\configure\rc.me"
+	copy /Y src\configure\testme.me+projects\empty "$(ME_VAPP_PREFIX)\bin\configure\testme.me"
+	copy /Y src\configure\vxworks.me+projects\empty "$(ME_VAPP_PREFIX)\bin\configure\vxworks.me"
+	copy /Y src\configure\winsdk.me+projects\empty "$(ME_VAPP_PREFIX)\bin\configure\winsdk.me"
+	copy /Y src\configure.es+projects\empty "$(ME_VAPP_PREFIX)\bin\configure.es"
+	copy /Y src\generate.es+projects\empty "$(ME_VAPP_PREFIX)\bin\generate.es"
+	copy /Y src\master-main.me+projects\empty "$(ME_VAPP_PREFIX)\bin\master-main.me"
+	copy /Y src\master-start.me+projects\empty "$(ME_VAPP_PREFIX)\bin\master-start.me"
+	copy /Y src\me.es+projects\empty "$(ME_VAPP_PREFIX)\bin\me.es"
 	if not exist "$(ME_VAPP_PREFIX)\bin\os" md "$(ME_VAPP_PREFIX)\bin\os"
-	copy /Y src\os\freebsd.me+projectsempty "$(ME_VAPP_PREFIX)\bin\os\freebsd.me"
-	copy /Y src\os\gcc.me+projectsempty "$(ME_VAPP_PREFIX)\bin\os\gcc.me"
-	copy /Y src\os\linux.me+projectsempty "$(ME_VAPP_PREFIX)\bin\os\linux.me"
-	copy /Y src\os\macosx.me+projectsempty "$(ME_VAPP_PREFIX)\bin\os\macosx.me"
-	copy /Y src\os\solaris.me+projectsempty "$(ME_VAPP_PREFIX)\bin\os\solaris.me"
-	copy /Y src\os\unix.me+projectsempty "$(ME_VAPP_PREFIX)\bin\os\unix.me"
-	copy /Y src\os\vxworks.me+projectsempty "$(ME_VAPP_PREFIX)\bin\os\vxworks.me"
-	copy /Y src\os\windows.me+projectsempty "$(ME_VAPP_PREFIX)\bin\os\windows.me"
-	copy /Y src\simple.me+projectsempty "$(ME_VAPP_PREFIX)\bin\simple.me"
-	copy /Y src\standard.me+projectsempty "$(ME_VAPP_PREFIX)\bin\standard.me"
+	copy /Y src\os\freebsd.me+projects\empty "$(ME_VAPP_PREFIX)\bin\os\freebsd.me"
+	copy /Y src\os\gcc.me+projects\empty "$(ME_VAPP_PREFIX)\bin\os\gcc.me"
+	copy /Y src\os\linux.me+projects\empty "$(ME_VAPP_PREFIX)\bin\os\linux.me"
+	copy /Y src\os\macosx.me+projects\empty "$(ME_VAPP_PREFIX)\bin\os\macosx.me"
+	copy /Y src\os\solaris.me+projects\empty "$(ME_VAPP_PREFIX)\bin\os\solaris.me"
+	copy /Y src\os\unix.me+projects\empty "$(ME_VAPP_PREFIX)\bin\os\unix.me"
+	copy /Y src\os\vxworks.me+projects\empty "$(ME_VAPP_PREFIX)\bin\os\vxworks.me"
+	copy /Y src\os\windows.me+projects\empty "$(ME_VAPP_PREFIX)\bin\os\windows.me"
+	copy /Y src\simple.me+projects\empty "$(ME_VAPP_PREFIX)\bin\simple.me"
+	copy /Y src\standard.me+projects\empty "$(ME_VAPP_PREFIX)\bin\standard.me"
 	if not exist "$(ME_VAPP_PREFIX)\bin\tm" md "$(ME_VAPP_PREFIX)\bin\tm"
-	copy /Y src\tm\ejs.testme.es+projectsempty "$(ME_VAPP_PREFIX)\bin\tm\ejs.testme.es"
-	copy /Y src\tm\libtestme.c+projectsempty "$(ME_VAPP_PREFIX)\bin\tm\libtestme.c"
-	copy /Y src\tm\sample.ct+projectsempty "$(ME_VAPP_PREFIX)\bin\tm\sample.ct"
-	copy /Y src\tm\testme.c+projectsempty "$(ME_VAPP_PREFIX)\bin\tm\testme.c"
-	copy /Y src\tm\testme.es+projectsempty "$(ME_VAPP_PREFIX)\bin\tm\testme.es"
-	copy /Y src\tm\testme.h+projectsempty "$(ME_VAPP_PREFIX)\bin\tm\testme.h"
-	copy /Y src\tm\testme.me+projectsempty "$(ME_VAPP_PREFIX)\bin\tm\testme.me"
-	copy /Y src\vstudio.es+projectsempty "$(ME_VAPP_PREFIX)\bin\vstudio.es"
-	copy /Y src\xcode.es+projectsempty "$(ME_VAPP_PREFIX)\bin\xcode.es"
+	copy /Y src\tm\ejs.testme.es+projects\empty "$(ME_VAPP_PREFIX)\bin\tm\ejs.testme.es"
+	copy /Y src\tm\libtestme.c+projects\empty "$(ME_VAPP_PREFIX)\bin\tm\libtestme.c"
+	copy /Y src\tm\sample.ct+projects\empty "$(ME_VAPP_PREFIX)\bin\tm\sample.ct"
+	copy /Y src\tm\testme.c+projects\empty "$(ME_VAPP_PREFIX)\bin\tm\testme.c"
+	copy /Y src\tm\testme.es+projects\empty "$(ME_VAPP_PREFIX)\bin\tm\testme.es"
+	copy /Y src\tm\testme.h+projects\empty "$(ME_VAPP_PREFIX)\bin\tm\testme.h"
+	copy /Y src\tm\testme.me+projects\empty "$(ME_VAPP_PREFIX)\bin\tm\testme.me"
+	copy /Y src\vstudio.es+projects\empty "$(ME_VAPP_PREFIX)\bin\vstudio.es"
+	copy /Y src\xcode.es+projects\empty "$(ME_VAPP_PREFIX)\bin\xcode.es"
 	cd .
 
 #
