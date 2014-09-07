@@ -47,7 +47,7 @@ public function vstudio(base: Path) {
     /* Create a temporary prep target as the first target */
     prepTarget = {
         type: 'vsprep',
-        path: Path('always'),
+        // path: Path('always'),
         name: 'prep',
         enable: true,
         custom: PREP,
@@ -58,7 +58,11 @@ public function vstudio(base: Path) {
     for each (target in me.targets) {
         if (target.type == 'header') {
             for each (let file: Path in target.files) {
-                code += '\ncopy /Y ' + wpath(file.relativeTo(target.home)) + ' ' + wpath(target.path.relativeTo(base).parent)
+                if (file == target.path) {
+                    continue
+                }
+                code += '\ncopy /Y /B ' + wpath(file.relativeTo(base)) + ' ' + 
+                    wpath(target.path.relativeTo(base).parent)
             }
         }
     }
@@ -73,6 +77,28 @@ public function vstudio(base: Path) {
     me.globals = saveGlobals
     me.dir = saveDirs
 }
+
+/* TODO - should be a generic fuction */
+function getAllDeps(target): Array {
+    let list = []
+    for each (name in target.depends) {
+        let dep = b.getDep(name) 
+        if (dep.enable) {
+            list += getAllDeps(dep)
+        }
+    }
+    for each (name in target.uses) {
+        let dep = b.getDep(name) 
+        if (dep.enable && dep.selected) {
+            list += getAllDeps(dep)
+        }
+    }
+    if (target.guid) {
+      list.push(target.name)
+    }
+    return list.unique()
+}
+
 
 function solBuild(projects, base: Path) {
     let path = base.joinExt('sln').relative
@@ -93,7 +119,8 @@ function solBuild(projects, base: Path) {
             output('\t\t{' + dep.guid + '} = {' + dep.guid + '}')
             output('\tEndProjectSection')
         }
-        for each (dname in target.depends) {
+        let depends = getAllDeps(target)
+        for each (dname in depends) {
             let dep = b.getDep(dname)
             if (!dep) continue
             if (dep.type == 'extension') {
@@ -107,7 +134,9 @@ function solBuild(projects, base: Path) {
                     }
                 }
             } else {
-                if (!dep.guid) continue
+                if (!dep.guid) {
+                    continue
+                }
                 dep.guid = dep.guid.toUpper()
                 output('\tProjectSection(ProjectDependencies) = postProject')
                 output('\t\t{' + dep.guid + '} = {' + dep.guid + '}')
@@ -490,7 +519,7 @@ function projLink(base, target) {
     Emit a custom build step for exporting headers and the prep build step
  */
 function projCustomBuildStep(base, target) {
-    let outfile
+    let outfile: Path
     if (target.path) {
         me.OUT = outfile = wpath(target.path.relativeTo(base))
     } else {
@@ -512,7 +541,7 @@ function projCustomBuildStep(base, target) {
     if (target.type == 'file') {
         for each (let file: Path in target.files) {
             let path = target.dest || target.path
-            let path = path.relativeTo(Base)
+            path = path.relativeTo(Base)
             command += 'if exist ' + wpath(path) + ' del /Q ' + wpath(path) + '\n'
             if (file.isDir) {
                 command += '\tif not exist ' + wpath(path) + ' md ' + wpath(path) + '\n'
@@ -560,7 +589,7 @@ function projCustomBuildStep(base, target) {
         output('
   <CustomBuildStep>
     <Command>' + command + '</Command>
-    <Outputs>' + wpath(outfile) + '</Outputs>
+    <Outputs>' + wpath(outfile.relative) + '</Outputs>
   </CustomBuildStep>')
         me.BIN = saveLbin
         me.LBIN = saveBin
@@ -579,7 +608,7 @@ function exportHeaders(base, target) {
                 cmd += 'xcopy /Y /S /D ' + wpath(file.relativeTo(target.home)) + ' ' + 
                     wpath(dep.path.relativeTo(base).parent) + '\n'
             } else {
-                cmd += '\tcopy /Y ' + wpath(file.relativeTo(target.home)) + ' ' + 
+                cmd += '\tcopy /Y /B ' + wpath(file.relativeTo(target.home)) + ' ' + 
                     wpath(dep.path.relativeTo(base).parent) + '\n'
             }
         }
@@ -639,10 +668,13 @@ function replacePath(str, path, substitute) {
  */
 function wpath(path: Path): Path {
     name = path.relative.name
+/* UNUSED
     if (name.startsWith('..\\..')) {
-        /* Path outside local tree */
+        // Path outside local tree 
         name = Base.join(path).absolute.name
-    } else {
+    } else 
+*/
+    {
         name = replacePath(name, me.dir.inc.relativeTo(Base), '$$(IncDir)')
         name = replacePath(name, me.dir.obj.relativeTo(Base), '$$(ObjDir)')
         name = replacePath(name, me.dir.bin.relativeTo(Base), '$$(BinDir)')

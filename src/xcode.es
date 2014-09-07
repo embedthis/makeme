@@ -611,6 +611,12 @@ ${OUTPUTS}
         } else if (target.generate === true) {
             let capture = Path('me-xcode.tmp')
             genOpen(capture)
+            if (target.files) {
+                global.FILES = target.files.map(function(f) f.relativeTo(target.home).portable).join(' ')
+            } else {
+                global.FILES = ''
+            }
+            me.globals.FILES = global.FILES
             runTargetScript(target, 'build')
             genClose()
             let data = capture.readString()
@@ -1078,13 +1084,7 @@ function replacePath(str, path, substitute) {
     return str.replace(RegExp(pattern, 'g'), substitute)
 }
 
-/*
-    Return a relative path to base unless the path is absolute
- */
 function smartPath(path: Path, base: Path) {
-    if (path.isAbsolute) {
-        return path;
-    }
     return path.relativeTo(base)
 }
 

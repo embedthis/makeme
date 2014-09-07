@@ -3474,8 +3474,8 @@ public class Me {
                 options.made[path] = true
             }
             let pwd = App.dir
-            if (path.startsWith(pwd)) {
-                path = path.relative
+            if (path.startsWith(me.dir.top)) {
+                path = path.relativeTo(pwd)
             }
             if (me.generating == 'nmake' || me.generating == 'vs') {
                 if (path.name.endsWith('/')) {
@@ -3619,9 +3619,14 @@ public class Me {
             if (src.startsWith(pwd)) {
                 src = src.relativeTo(me.dir.top)
             }
+            if (dest.startsWith(me.dir.top)) {
+                dest = dest.relativeTo(pwd)
+            }
+/* UNUSED
             if (dest.startsWith(pwd)) {
                 dest = dest.relativeTo(me.dir.top)
             }
+*/
             if (src == dest) {
                 throw new Error('Cannot copy file. Source is the same as destination: ' + src)
             }
