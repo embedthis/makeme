@@ -115,7 +115,7 @@
 
   <CustomBuildStep>
     <Command>cd ..\..\src\tm
-copy /Y testme.h $(IncDir)
+copy /Y /B testme.h $(IncDir)
 cd ..\..\projects\me-windows-default</Command>
     <Outputs>$(BinDir)\libtestme.dll</Outputs>
   </CustomBuildStep>

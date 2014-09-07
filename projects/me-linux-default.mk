@@ -578,6 +578,7 @@ DEPS_23 += build/$(CONFIG)/bin/ejsc
 build/$(CONFIG)/bin/ejs.mod: $(DEPS_23)
 	( \
 	cd src/paks/ejs; \
+	echo '   [Compile] ejs.mod' ; \
 	../../../build/$(CONFIG)/bin/ejsc --out ../../../build/$(CONFIG)/bin/ejs.mod --optimize 9 --bind --require null ejs.es ; \
 	)
 endif

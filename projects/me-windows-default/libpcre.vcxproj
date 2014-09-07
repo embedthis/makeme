@@ -115,7 +115,7 @@
 
   <CustomBuildStep>
     <Command>cd ..\..\src\paks\pcre
-copy /Y pcre.h $(IncDir)
+copy /Y /B pcre.h $(IncDir)
 cd ..\..\..\projects\me-windows-default</Command>
     <Outputs>$(BinDir)\libpcre.dll</Outputs>
   </CustomBuildStep>

@@ -1556,31 +1556,31 @@
 			files = (
 			);
 			inputPaths = (
-/Users/mob/git/me/src/configure.es,
-/Users/mob/git/me/src/configure/appweb.me,
-/Users/mob/git/me/src/configure/compiler.me,
-/Users/mob/git/me/src/configure/lib.me,
-/Users/mob/git/me/src/configure/link.me,
-/Users/mob/git/me/src/configure/rc.me,
-/Users/mob/git/me/src/configure/testme.me,
-/Users/mob/git/me/src/configure/vxworks.me,
-/Users/mob/git/me/src/configure/winsdk.me,
-/Users/mob/git/me/src/generate.es,
-/Users/mob/git/me/src/master-main.me,
-/Users/mob/git/me/src/master-start.me,
-/Users/mob/git/me/src/me.es,
-/Users/mob/git/me/src/os/freebsd.me,
-/Users/mob/git/me/src/os/gcc.me,
-/Users/mob/git/me/src/os/linux.me,
-/Users/mob/git/me/src/os/macosx.me,
-/Users/mob/git/me/src/os/solaris.me,
-/Users/mob/git/me/src/os/unix.me,
-/Users/mob/git/me/src/os/vxworks.me,
-/Users/mob/git/me/src/os/windows.me,
-/Users/mob/git/me/src/simple.me,
-/Users/mob/git/me/src/standard.me,
-/Users/mob/git/me/src/vstudio.es,
-/Users/mob/git/me/src/xcode.es
+../src/configure.es,
+../src/configure/appweb.me,
+../src/configure/compiler.me,
+../src/configure/lib.me,
+../src/configure/link.me,
+../src/configure/rc.me,
+../src/configure/testme.me,
+../src/configure/vxworks.me,
+../src/configure/winsdk.me,
+../src/generate.es,
+../src/master-main.me,
+../src/master-start.me,
+../src/me.es,
+../src/os/freebsd.me,
+../src/os/gcc.me,
+../src/os/linux.me,
+../src/os/macosx.me,
+../src/os/solaris.me,
+../src/os/unix.me,
+../src/os/vxworks.me,
+../src/os/windows.me,
+../src/simple.me,
+../src/standard.me,
+../src/vstudio.es,
+../src/xcode.es
 			);
 			outputPaths = (
 ../build/macosx-x64-default/bin/.updated
@@ -1648,7 +1648,7 @@ touch build/macosx-x64-default/bin/.updated
 			files = (
 			);
 			inputPaths = (
-/Users/mob/git/me/src/paks/ejs/ejs.es
+../src/paks/ejs/ejs.es
 			);
 			outputPaths = (
 ../build/macosx-x64-default/bin/ejs.mod
@@ -1666,7 +1666,7 @@ cd ../src/paks/ejs
 			files = (
 			);
 			inputPaths = (
-/Users/mob/git/me/src/tm/ejs.testme.es
+../src/tm/ejs.testme.es
 			);
 			outputPaths = (
 ../build/macosx-x64-default/bin/ejs.testme.es
@@ -1685,7 +1685,7 @@ cp -r ejs.testme.es ../${OUT_DIR}/bin/ejs.testme.es
 			files = (
 			);
 			inputPaths = (
-/Users/mob/git/me/src/tm/ejs.testme.es
+../src/tm/ejs.testme.es
 			);
 			outputPaths = (
 ../build/macosx-x64-default/bin/ejs.testme.mod
@@ -1703,7 +1703,7 @@ cd ../src/tm
 			files = (
 			);
 			inputPaths = (
-/Users/mob/git/me/src/paks/http/ca.crt
+../src/paks/http/ca.crt
 			);
 			outputPaths = (
 ../build/macosx-x64-default/bin/ca.crt
@@ -1722,8 +1722,8 @@ cp -r ca.crt ../../${OUT_DIR}/bin/ca.crt
 			files = (
 			);
 			inputPaths = (
-/Users/mob/git/me/src/me.es,
-/Users/mob/git/me/src/paks/ejs-version/Version.es
+../src/me.es,
+../src/paks/ejs-version/Version.es
 			);
 			outputPaths = (
 ../build/macosx-x64-default/bin/me.mod
@@ -1732,7 +1732,7 @@ cp -r ca.crt ../../${OUT_DIR}/bin/ca.crt
 			shellPath = /bin/bash;
 			shellScript = "PATH=$PATH:/usr/local/bin
 cd ..
-	build/macosx-x64-default/bin/ejsc --out build/macosx-x64-default/bin/me.mod --optimize 9 
+	build/macosx-x64-default/bin/ejsc --out build/macosx-x64-default/bin/me.mod --optimize 9 src/me.es src/paks/ejs-version/Version.es
 ";
 		};
 		D17998CCD179A83E00000022 /* ShellScript for testme.es */ = {
@@ -1741,7 +1741,7 @@ cd ..
 			files = (
 			);
 			inputPaths = (
-/Users/mob/git/me/src/tm/testme.es
+../src/tm/testme.es
 			);
 			outputPaths = (
 ../build/macosx-x64-default/bin/testme.es
@@ -1760,7 +1760,7 @@ cp -r testme.es ../${OUT_DIR}/bin/testme.es
 			files = (
 			);
 			inputPaths = (
-/Users/mob/git/me/src/tm/testme.es
+../src/tm/testme.es
 			);
 			outputPaths = (
 ../build/macosx-x64-default/bin/testme.mod
@@ -2574,7 +2574,7 @@ fi";
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (
-					"/Users/mob/git/me/build/macosx-x64-default/inc",
+					"../build/macosx-x64-default/inc",
 					"$(inherited)"
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2582,7 +2582,7 @@ fi";
 					"$(inherited)"
 				);
 				LIBRARY_SEARCH_PATHS = (
-					"/Users/mob/git/me/build/macosx-x64-default/bin",
+					"../build/macosx-x64-default/bin",
 					"$(inherited)"
 				);
 				OTHER_LDFLAGS = (
@@ -2644,12 +2644,12 @@ fi";
 				GCC_OPTIMIZATION_LEVEL = s;
                 GCC_WARN_UNINITIALIZED_AUTOS = NO;
 				HEADER_SEARCH_PATHS = (
-					"/Users/mob/git/me/build/macosx-x64-default/inc",
+					"../build/macosx-x64-default/inc",
 					"$(inherited)"
 				);
 
 				LIBRARY_SEARCH_PATHS = (
-					"/Users/mob/git/me/build/macosx-x64-default/bin",
+					"../build/macosx-x64-default/bin",
 					"$(inherited)"
 				);
 				OTHER_LDFLAGS = (

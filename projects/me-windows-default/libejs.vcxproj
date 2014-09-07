@@ -123,9 +123,9 @@
 
   <CustomBuildStep>
     <Command>cd ..\..\src\paks\ejs
-copy /Y ejs.h $(IncDir)
-copy /Y ejs.slots.h $(IncDir)
-copy /Y ejsByteGoto.h $(IncDir)
+copy /Y /B ejs.h $(IncDir)
+copy /Y /B ejs.slots.h $(IncDir)
+copy /Y /B ejsByteGoto.h $(IncDir)
 cd ..\..\..\projects\me-windows-default</Command>
     <Outputs>$(BinDir)\libejs.dll</Outputs>
   </CustomBuildStep>

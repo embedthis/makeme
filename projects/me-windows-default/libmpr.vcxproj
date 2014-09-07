@@ -115,7 +115,7 @@
 
   <CustomBuildStep>
     <Command>cd ..\..\src\paks\mpr
-copy /Y mpr.h $(IncDir)
+copy /Y /B mpr.h $(IncDir)
 cd ..\..\..\projects\me-windows-default</Command>
     <Outputs>$(BinDir)\libmpr.dll</Outputs>
   </CustomBuildStep>

@@ -115,7 +115,7 @@
 
   <CustomBuildStep>
     <Command>cd ..\..\src\paks\est
-copy /Y est.h $(IncDir)
+copy /Y /B est.h $(IncDir)
 cd ..\..\..\projects\me-windows-default</Command>
     <Outputs>$(BinDir)\libest.dll</Outputs>
   </CustomBuildStep>

@@ -115,7 +115,7 @@
 
   <CustomBuildStep>
     <Command>cd ..\..\src\paks\zlib
-copy /Y zlib.h $(IncDir)
+copy /Y /B zlib.h $(IncDir)
 cd ..\..\..\projects\me-windows-default</Command>
     <Outputs>$(BinDir)\libzlib.dll</Outputs>
   </CustomBuildStep>

@@ -99,18 +99,17 @@
 if not exist "$(BinDir)" md "$(BinDir)"
 if not exist "$(IncDir)" md "$(IncDir)"
 if not exist "$(IncDir)\me.h" copy "..\me-windows-default-me.h" "$(IncDir)\me.h"
-copy /Y ..\src\paks\ejs\ejs.h $(IncDir)
-copy /Y ..\src\paks\ejs\ejs.slots.h $(IncDir)
-copy /Y ..\src\paks\ejs\ejsByteGoto.h $(IncDir)
-copy /Y ..\src\paks\est\est.h $(IncDir)
-copy /Y ..\src\paks\http\http.h $(IncDir)
-copy /Y ..\build\$(Cfg)\inc\me.h $(IncDir)
-copy /Y ..\src\paks\mpr\mpr.h $(IncDir)
-copy /Y ..\src\paks\osdep\osdep.h $(IncDir)
-copy /Y ..\src\paks\pcre\pcre.h $(IncDir)
-copy /Y ..\src\tm\testme.h $(IncDir)
-copy /Y ..\src\paks\zlib\zlib.h $(IncDir)</Command>
-    <Outputs>\Users\mob\git\me\projects\me-windows-default\..\..\always</Outputs>
+copy /Y /B ..\..\src\paks\ejs\ejs.h $(IncDir)
+copy /Y /B ..\..\src\paks\ejs\ejs.slots.h $(IncDir)
+copy /Y /B ..\..\src\paks\ejs\ejsByteGoto.h $(IncDir)
+copy /Y /B ..\..\src\paks\est\est.h $(IncDir)
+copy /Y /B ..\..\src\paks\http\http.h $(IncDir)
+copy /Y /B ..\..\src\paks\mpr\mpr.h $(IncDir)
+copy /Y /B ..\..\src\paks\osdep\osdep.h $(IncDir)
+copy /Y /B ..\..\src\paks\pcre\pcre.h $(IncDir)
+copy /Y /B ..\..\src\tm\testme.h $(IncDir)
+copy /Y /B ..\..\src\paks\zlib\zlib.h $(IncDir)</Command>
+    <Outputs>always</Outputs>
   </CustomBuildStep>
   </ItemDefinitionGroup>
 

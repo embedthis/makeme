@@ -7,8 +7,6 @@ VERSION               = 0.8.3
 
 OS                    = windows
 PA                    = $(PROCESSOR_ARCHITECTURE)
-LOG                   = >>build\nmake.log
-
 !IF "$(PROFILE)" == ""
 PROFILE               = default
 !ENDIF
@@ -155,9 +153,13 @@ prep:
 	@if not exist $(BUILD)\obj md $(BUILD)\obj
 	@if not exist $(BUILD)\inc\me.h copy projects\me-windows-default-me.h $(BUILD)\inc\me.h
 
-!IF "$(LOG)" != ""
-	@echo ..... [Info] See build\nmake.log for any build errors.
+!IF "$(SHOW)" != ""
+	@echo ..... [Info] Use "make SHOW=1" to trace executed commands and errors.
+LOG =
+!ELSE
+LOG = >nul
 !ENDIF
+
 clean:
 	if exist "build\$(CONFIG)\obj\ejs.obj" del /Q "build\$(CONFIG)\obj\ejs.obj"
 	if exist "build\$(CONFIG)\obj\ejsLib.obj" del /Q "build\$(CONFIG)\obj\ejsLib.obj"
@@ -646,6 +648,7 @@ DEPS_23 = $(DEPS_23) build\$(CONFIG)\bin\ejsc.exe
 
 build\$(CONFIG)\bin\ejs.mod: $(DEPS_23)
 	cd src\paks\ejs
+	@echo .. [Compile] ejs.mod
 	..\..\..\build\$(CONFIG)\bin\ejsc --out ../../../build/$(CONFIG)/bin/ejs.mod --optimize 9 --bind --require null ejs.es
 	cd ..\..\..
 !ENDIF
