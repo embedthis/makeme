@@ -18393,10 +18393,11 @@ PUBLIC char *mprGetRelPath(cchar *destArg, cchar *originArg)
             break;
         }
     }
-	if (commonSegments < 0) {
-		/* Different Drives */
-		return dest;
-	}
+    if (commonSegments < 0) {
+        /* Different drives - must return absolute path */
+        return dest;
+    }
+
     if ((*op && *dp) || (*op && *dp && !isSep(fs, *op) && !isSep(fs, *dp))) {
         /*
             Cases:
@@ -18692,8 +18693,10 @@ PUBLIC int mprMakeDir(cchar *path, int perms, int owner, int group, bool makeMis
     }
     if (makeMissing && !isRoot(fs, path)) {
         parent = mprGetPathParent(path);
-        if ((rc = mprMakeDir(parent, perms, owner, group, makeMissing)) < 0) {
-            return rc;
+        if (!mprPathExists(parent, X_OK)) {
+            if ((rc = mprMakeDir(parent, perms, owner, group, makeMissing)) < 0) {
+                return rc;
+            }
         }
         return fs->makeDir(fs, path, perms, owner, group);
     }

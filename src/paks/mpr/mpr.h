@@ -5153,7 +5153,8 @@ PUBLIC char *mprGetPortablePath(cchar *path);
 
 /**
     Get a relative path
-    @description Get a relative path path from an origin path to a destination.
+    @description Get a relative path path from an origin path to a destination. If a relative path cannot be obtained,
+        an absolute path to the destination will be returned. This happens if the paths cross drives.
     @param dest Destination file
     @param origin Starting location from which to compute a relative path to the destination
         If the origin is null, use the application's current working directory as the origin.
