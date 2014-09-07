@@ -159,8 +159,10 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
         mprSetExitStatus(err);
     }
     app->ejs = 0;
+#if UNUSED
     ejsDestroyVM(ejs);
     mprDestroy();
+#endif
     return mprGetExitStatus();
 }
 
