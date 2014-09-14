@@ -20133,7 +20133,6 @@ typedef struct Upload {
     char            *name;              /* Form field name keyword value */
 } Upload;
 
-
 /********************************** Forwards **********************************/
 
 static void closeUpload(HttpQueue *q);

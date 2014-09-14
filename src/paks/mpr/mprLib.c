@@ -1301,6 +1301,7 @@ static void invokeDestructors()
 
 static void invokeAllDestructors()
 {
+#if FUTURE
     MprRegion   *region;
     MprMem      *mp;
     MprManager  mgr;
@@ -1319,6 +1320,7 @@ static void invokeAllDestructors()
             }
         }
     }
+#endif
 }
 
 
@@ -27906,7 +27908,6 @@ static void manageWaitService(MprWaitService *ws, int flags)
 
 PUBLIC void mprStopWaitService()
 {
-    Mpr             *mpr;
 #if ME_WIN_LIKE
     MprWaitService  *ws;
 
