@@ -492,7 +492,7 @@ public function installPackage() {
         trace('Install', package.basename)
         package.trimExt().remove()
         run(['unzip', '-q', package], {dir: me.dir.rel})
-        run([package.trimExt(), '@/verysilent'], {filter: true})
+        run([package.trimExt(), '/verysilent'], {filter: true})
         package.trimExt().remove()
     }
 }
@@ -509,7 +509,7 @@ public function uninstallPackage() {
         let uninstall = me.prefixes.vapp.files('unins*.exe')[0]
         if (uninstall) {
             trace('Uninstall', uninstall)
-            run([uninstall, '@/verysilent'], {filter: true})
+            run([uninstall, '/verysilent'], {filter: true})
         }
     }
 }

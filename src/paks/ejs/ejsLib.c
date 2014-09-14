@@ -48188,7 +48188,6 @@ PUBLIC void ejsDestroyIntern(EjsIntern *ip)
             if (sp == sp->next) break;
             next = sp->next;
             ip->count--;
-            assert(ip->count >= 0);
             unlinkString(sp);
         }
     }
