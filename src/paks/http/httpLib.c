@@ -20130,7 +20130,7 @@ typedef struct Upload {
     int             contentState;       /* Input states */
     char            *clientFilename;    /* Current file filename */
     char            *tmpPath;           /* Current temp filename for upload data */
-    char            *id;                /* Current name keyword value */
+    char            *name;              /* Form field name keyword value */
 } Upload;
 
 
@@ -20251,7 +20251,6 @@ static void manageUpload(Upload *up, int flags)
         mprMark(up->boundary);
         mprMark(up->clientFilename);
         mprMark(up->tmpPath);
-        mprMark(up->id);
     }
 }
 
@@ -20268,12 +20267,12 @@ static void closeUpload(HttpQueue *q)
     rx = q->conn->rx;
     up = q->queueData;
 
+    if (rx->autoDelete) {
+        httpRemoveAllUploadedFiles(q->conn);
+    }
     if (up->currentFile) {
         file = up->currentFile;
         file->filename = 0;
-    }
-    if (rx->autoDelete) {
-        httpRemoveAllUploadedFiles(q->conn);
     }
 }
 
@@ -20451,7 +20450,7 @@ static int processUploadHeader(HttpQueue *q, char *line)
             ---boundary
          */
         key = rest;
-        up->id = up->clientFilename = 0;
+        up->name = up->clientFilename = 0;
         while (key && stok(key, ";\r\n", &nextPair)) {
 
             key = strim(key, " ", MPR_TRIM_BOTH);
@@ -20462,10 +20461,10 @@ static int processUploadHeader(HttpQueue *q, char *line)
                 /* Nothing to do */
 
             } else if (scaselesscmp(key, "name") == 0) {
-                up->id = sclone(value);
+                up->name = sclone(value);
 
             } else if (scaselesscmp(key, "filename") == 0) {
-                if (up->id == 0) {
+                if (up->name == 0) {
                     httpError(conn, HTTP_CODE_BAD_REQUEST, "Bad upload state. Missing name field");
                     return MPR_ERR_BAD_STATE;
                 }
@@ -20495,8 +20494,10 @@ static int processUploadHeader(HttpQueue *q, char *line)
                     Create the files[id]
                  */
                 file = up->currentFile = mprAllocObj(HttpUploadFile, manageHttpUploadFile);
-                file->clientFilename = sclone(up->clientFilename);
-                file->filename = sclone(up->tmpPath);
+                file->clientFilename = up->clientFilename;
+                file->filename = up->tmpPath;
+                file->name = up->name;
+                httpAddUploadFile(conn, file);
             }
             key = nextPair;
         }
@@ -20516,6 +20517,7 @@ static void manageHttpUploadFile(HttpUploadFile *file, int flags)
         mprMark(file->filename);
         mprMark(file->clientFilename);
         mprMark(file->contentType);
+        mprMark(file->name);
     }
 }
 
@@ -20535,16 +20537,16 @@ static void defineFileFields(HttpQueue *q, Upload *up)
     }
     up = q->queueData;
     file = up->currentFile;
-    key = sjoin("FILE_CLIENT_FILENAME_", up->id, NULL);
+    key = sjoin("FILE_CLIENT_FILENAME_", up->name, NULL);
     httpSetParam(conn, key, file->clientFilename);
 
-    key = sjoin("FILE_CONTENT_TYPE_", up->id, NULL);
+    key = sjoin("FILE_CONTENT_TYPE_", up->name, NULL);
     httpSetParam(conn, key, file->contentType);
 
-    key = sjoin("FILE_FILENAME_", up->id, NULL);
+    key = sjoin("FILE_FILENAME_", up->name, NULL);
     httpSetParam(conn, key, file->filename);
 
-    key = sjoin("FILE_SIZE_", up->id, NULL);
+    key = sjoin("FILE_SIZE_", up->name, NULL);
     httpSetIntParam(conn, key, (int) file->size);
 }
 
@@ -20650,7 +20652,9 @@ static int processUploadData(HttpQueue *q)
             if (writeToFile(q, data, dataLen) < 0) {
                 return MPR_ERR_CANT_WRITE;
             }
-            httpAddUploadFile(conn, up->id, file);
+#if MOVED
+            httpAddUploadFile(conn, file);
+#endif
             defineFileFields(q, up);
 
         } else {
@@ -20659,9 +20663,9 @@ static int processUploadData(HttpQueue *q)
              */
             data[dataLen] = '\0';
 #if KEEP
-            httpTrace(conn, "request.upload.variables", "context", "'%s':'%s'", up->id, data);
+            httpTrace(conn, "request.upload.variables", "context", "'%s':'%s'", up->name, data);
 #endif
-            key = mprUriDecode(up->id);
+            key = mprUriDecode(up->name);
             data = mprUriDecode(data);
             httpSetParam(conn, key, data);
 
@@ -20677,7 +20681,7 @@ static int processUploadData(HttpQueue *q)
                 conn->rx->mimeType = sclone("application/x-www-form-urlencoded");
 
             }
-            mprPutToBuf(packet->content, "%s=%s", up->id, data);
+            mprPutToBuf(packet->content, "%s=%s", up->name, data);
         }
     }
     if (up->clientFilename) {
@@ -21986,11 +21990,10 @@ PUBLIC void httpCreateCGIParams(HttpConn *conn)
     HttpRx          *rx;
     HttpTx          *tx;
     HttpHost        *host;
-    HttpUploadFile  *up;
+    HttpUploadFile  *file;
     MprSocket       *sock;
     MprHash         *svars;
     MprJson         *params;
-    MprKey          *kp;
     int             index;
 
     rx = conn->rx;
@@ -22051,13 +22054,12 @@ PUBLIC void httpCreateCGIParams(HttpConn *conn)
     if (rx->files) {
         params = httpGetParams(conn);
         assert(params);
-        for (index = 0, kp = 0; (kp = mprGetNextKey(rx->files, kp)) != 0; index++) {
-            up = (HttpUploadFile*) kp->data;
-            mprSetJson(params, sfmt("FILE_%d_FILENAME", index), up->filename);
-            mprSetJson(params, sfmt("FILE_%d_CLIENT_FILENAME", index), up->clientFilename);
-            mprSetJson(params, sfmt("FILE_%d_CONTENT_TYPE", index), up->contentType);
-            mprSetJson(params, sfmt("FILE_%d_NAME", index), kp->key);
-            mprSetJson(params, sfmt("FILE_%d_SIZE", index), sfmt("%zd", up->size));
+        for (ITERATE_ITEMS(rx->files, file, index)) {
+            mprSetJson(params, sfmt("FILE_%d_FILENAME", index), file->filename);
+            mprSetJson(params, sfmt("FILE_%d_CLIENT_FILENAME", index), file->clientFilename);
+            mprSetJson(params, sfmt("FILE_%d_CONTENT_TYPE", index), file->contentType);
+            mprSetJson(params, sfmt("FILE_%d_NAME", index), file->name);
+            mprSetJson(params, sfmt("FILE_%d_SIZE", index), sfmt("%zd", file->size));
         }
     }
     if (conn->http->envCallback) {
@@ -22273,46 +22275,30 @@ PUBLIC bool httpMatchParam(HttpConn *conn, cchar *var, cchar *value)
 }
 
 
-PUBLIC void httpAddUploadFile(HttpConn *conn, cchar *id, HttpUploadFile *upfile)
+PUBLIC void httpAddUploadFile(HttpConn *conn, HttpUploadFile *upfile)
 {
     HttpRx   *rx;
 
     rx = conn->rx;
     if (rx->files == 0) {
-        rx->files = mprCreateHash(-1, MPR_HASH_STABLE);
+        rx->files = mprCreateList(0, MPR_LIST_STABLE);
     }
-    mprAddKey(rx->files, id, upfile);
-}
-
-
-PUBLIC void httpRemoveUploadFile(HttpConn *conn, cchar *id)
-{
-    HttpRx    *rx;
-    HttpUploadFile  *upfile;
-
-    rx = conn->rx;
-
-    upfile = (HttpUploadFile*) mprLookupKey(rx->files, id);
-    if (upfile) {
-        mprDeletePath(upfile->filename);
-        upfile->filename = 0;
-    }
+    mprAddItem(rx->files, upfile);
 }
 
 
 PUBLIC void httpRemoveAllUploadedFiles(HttpConn *conn)
 {
     HttpRx          *rx;
-    HttpUploadFile  *upfile;
-    MprKey          *kp;
+    HttpUploadFile  *file;
+    int             index;
 
     rx = conn->rx;
 
-    for (kp = 0; rx->files && (kp = mprGetNextKey(rx->files, kp)) != 0; ) {
-        upfile = (HttpUploadFile*) kp->data;
-        if (upfile->filename) {
-            mprDeletePath(upfile->filename);
-            upfile->filename = 0;
+    for (ITERATE_ITEMS(rx->files, file, index)) {
+        if (file->filename) {
+            mprDeletePath(file->filename);
+            file->filename = 0;
         }
     }
 }

@@ -295,29 +295,6 @@ public function packageSource() {
 }
 
 
-/* UNUSED
-function flatten(options) {
-    let flat: Path = me.dir.flat
-    safeRemove(flat)
-    let vflat = flat.join(me.platform.vname)
-    vflat.makeDir()
-    for each (f in me.dir.pkg.files('**', {exclude: /\/$/, missing: undefined})) {
-        f.copy(vflat.join(f.basename))
-    }
-}
-
-
-public function publish() {
-    let [manifest, package, prefixes] = setupPackage('pak')
-    if (package) {
-        trace('Package', me.settings.title + ' Pak')
-        deploy(manifest, prefixes, package)
-        publishPackage(package, prefixes, 'pak')
-    }
-}
-*/
-
-
 function cachePackage(package, prefixes, fmt) {
     let staging = prefixes.staging.absolute
     let base = staging.join(me.platform.vname)
@@ -515,7 +492,7 @@ public function installPackage() {
         trace('Install', package.basename)
         package.trimExt().remove()
         run(['unzip', '-q', package], {dir: me.dir.rel})
-        run([package.trimExt(), '/verysilent'], {filter: true})
+        run([package.trimExt(), '@/verysilent'], {filter: true})
         package.trimExt().remove()
     }
 }
@@ -532,7 +509,7 @@ public function uninstallPackage() {
         let uninstall = me.prefixes.vapp.files('unins*.exe')[0]
         if (uninstall) {
             trace('Uninstall', uninstall)
-            run([uninstall, '/verysilent'], {filter: true})
+            run([uninstall, '@/verysilent'], {filter: true})
         }
     }
 }

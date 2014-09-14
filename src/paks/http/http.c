@@ -103,6 +103,7 @@ MAIN(httpMain, int argc, char **argv, char **envp)
 {
     MprTime     start;
     double      elapsed;
+    int         success;
 
     if (mprCreate(argc, argv, MPR_USER_EVENTS_THREAD) == 0) {
         return MPR_ERR_MEMORY;
@@ -151,8 +152,9 @@ MAIN(httpMain, int argc, char **argv, char **envp)
     if (!app->success && app->verbose) {
         mprLog("error http", 0, "Request failed");
     }
+    success = app->success;
     mprDestroy();
-    return (app->success) ? 0 : 255;
+    return success ? 0 : 255;
 }
 
 

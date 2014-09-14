@@ -2,7 +2,7 @@
     "name": "doc",
     "dependencies": {
         "jquery": "~1.11",
-        "semantic": "~0.19"
+        "semantic": "~0.50"
     },
     "directories": {
         "lib": "files/lib"

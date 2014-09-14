@@ -34,3 +34,4 @@ testme
 start.me
 /build/
 .gitattributes
+*.mod

@@ -1,28 +1,25 @@
  
-        <div class="column">
-            <div class="ui inverted menu">
-                <div class="ui black small launch right attached toggle button">
-                    <i class="icon list layout"></i>
-                </div>
-                <div class="right menu">
-                    <@ partial('menu') @>
-                </div>
+        <div class="ui inverted menu">
+            <div class="right menu">
+                <@ partial('menu') @>
             </div>
-            <@ if (meta.crumbs ) { @>
-            <div class="ui breadcrumb">
-                <a class="section" href="@~">Home</a>
-                <@ for each (crumb in meta.crumbs ) { 
-                    for (let [name, url] in crumb ) { @>
-                <div class="divider">/</div>
-                <a class="section" href="<@= url @>">
-                    <@= name @>
-                </a>
-                <@ } } @>
-                <div class="divider">/</div>
-                <a class="active section" href="<@= meta.basename @>"><@= meta.cookie || meta.title @></a>
-            </div>
+        </div>
+        <@ if (meta.crumbs ) { @>
+        <div class="ui breadcrumb">
+            <a class="section" href="@~">Home</a>
+            <@ for each (crumb in meta.crumbs ) { 
+                for (let [name, url] in crumb ) { @>
+            <div class="divider">/</div>
+            <a class="section" href="<@= url @>">
+                <@= name @>
+            </a>
+            <@ } } @>
+            <@ if (meta.url.path != 'index.html') { @>
+            <div class="divider">/</div>
+            <a class="active section" href="<@= meta.basename @>"><@= meta.cookie || meta.title @></a>
             <@ } @>
-            <div class="ui right floated basic segment version">
-                v<@= Path('../package.json').readJSON().version @>
-            </div>
+        </div>
+        <@ } @>
+        <div class="ui right floated basic segment version">
+            v<@= Path('../package.json').readJSON().version @>
         </div>

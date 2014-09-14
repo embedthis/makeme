@@ -45,22 +45,6 @@ public function apidoc(dox: Path, headers, title: String, tags) {
 }
 
 
-/* UNUSED
-public function apiwrap(patterns) {
-    let files = Path('.').files(patterns)
-    if (files.length == 0) {
-        files = [Path(patterns)]
-    }
-    for each (dfile in files) {
-        let name = dfile.replace('.html', '')
-        let data = Path(name + 'Bare.html').readString()
-        let contents = Path(name + 'Header.tem').readString() + data + 
-            Path(name).dirname.join('apiFooter.tem').readString() + '\n'
-        dfile.joinExt('html').write(contents)
-    }
-}
-*/
-
 public function apiLayout(from: Path, to: Path)
 {
     trace('Generate', to)

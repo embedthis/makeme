@@ -16,6 +16,9 @@ body {
     min-width: @body-min-width;
     text-rendering: optimizeLegibility;
     transition: none !important;
+    &.show-sidebar {
+        margin-left: 240px;
+    }
 }
 
 .masthead {
@@ -24,8 +27,9 @@ body {
         background-color: @gray-dark;
         border-bottom: none;
         margin: 0;
-        .right.menu {
-            margin-right: 10px;
+        .right {
+            display: block;
+            padding-right: 10px;
             a.item {
                 color: @white;
                 opacity: @masthead-menu-opacity;
@@ -51,23 +55,20 @@ body {
         color: @white;
         opacity: 0.75;
     }
-    .ui.launch.button {
-        width: 40px;
-    }
     .ui.breadcrumb {
         margin: 6px 0 0 35px;
         .section {
             padding-bottom: .5rem;
         }
         .active.section {
-            color: fade(@white, 80%);
+            color: fade(@white, 90%);
             font-weight: normal;
         }
         .divider {
             color: @white;
         }
         a {
-            color: fade(@white, 50%);
+            color: fade(@white, 70%);
         }
         a:hover,
         a:hover.active.section {
@@ -77,10 +78,15 @@ body {
 }
 
 
-.ui.sidebar {
-    width: 240px !important;
-    transition: none !important;
-    &.inverted.menu {
+.sidebar {
+    position: fixed;
+    left: 0;
+    width: 240px;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    visibility: hidden;
+    .ui.vertical.menu {
         background: @gray-dark;
         .logo {
             display: inline-block;
@@ -88,7 +94,10 @@ body {
             font-size: @font-logo-size;
             color: @white;
         }
-        .header.item {
+        .menu .item {
+            font-size: 1.0rem;
+        }
+        .menu .header.item {
             position: relative;
             display: inline-block;
             width: 100%;
@@ -101,10 +110,21 @@ body {
             }
         }
         a.item.active {
-            border-right: 6px solid @body-highlight;
+            border-left: 6px solid @body-highlight;
+            text-indent: -6px;
         }
     }
 }
+
+.ui.sidebar-launch.button {
+    position: relative;
+    width: 40px;
+    padding: 0.8em 0.6em 0.8em 1.1em;
+    background-color: #566166;
+    color: white;
+    float: left;
+}
+
 
 .page {
     padding: 1rem 3.0rem;

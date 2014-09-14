@@ -56823,10 +56823,9 @@ static EjsObj *createEnv(Ejs *ejs, EjsRequest *req)
 
 static EjsObj *createFiles(Ejs *ejs, EjsRequest *req)
 {
-    HttpUploadFile  *up;
+    HttpUploadFile  *uf;
     HttpConn        *conn;
     EjsObj          *files, *file;
-    MprKey          *kp;
     int             index;
 
     if (req->files == 0) {
@@ -56838,15 +56837,14 @@ static EjsObj *createFiles(Ejs *ejs, EjsRequest *req)
             return ESV(null);
         }
         req->files = files = (EjsObj*) ejsCreateEmptyPot(ejs);
-        for (index = 0, kp = 0; (kp = mprGetNextKey(conn->rx->files, kp)) != 0; index++) {
-            up = (HttpUploadFile*) kp->data;
+        for (ITERATE_ITEMS(conn->rx->files, uf, index)) {
             file = (EjsObj*) ejsCreateEmptyPot(ejs);
-            ejsSetPropertyByName(ejs, file, EN("filename"), ejsCreatePathFromAsc(ejs, up->filename));
-            ejsSetPropertyByName(ejs, file, EN("clientFilename"), ejsCreateStringFromAsc(ejs, up->clientFilename));
-            ejsSetPropertyByName(ejs, file, EN("contentType"), ejsCreateStringFromAsc(ejs, up->contentType));
-            ejsSetPropertyByName(ejs, file, EN("name"), ejsCreateStringFromAsc(ejs, kp->key));
-            ejsSetPropertyByName(ejs, file, EN("size"), ejsCreateNumber(ejs, (MprNumber) up->size));
-            ejsSetPropertyByName(ejs, files, EN(kp->key), file);
+            ejsSetPropertyByName(ejs, file, EN("filename"), ejsCreatePathFromAsc(ejs, uf->filename));
+            ejsSetPropertyByName(ejs, file, EN("clientFilename"), ejsCreateStringFromAsc(ejs, uf->clientFilename));
+            ejsSetPropertyByName(ejs, file, EN("contentType"), ejsCreateStringFromAsc(ejs, uf->contentType));
+            ejsSetPropertyByName(ejs, file, EN("name"), ejsCreateStringFromAsc(ejs, uf->name));
+            ejsSetPropertyByName(ejs, file, EN("size"), ejsCreateNumber(ejs, (MprNumber) uf->size));
+            ejsSetPropertyByName(ejs, files, EN(uf->name), file);
         }
     }
     return (EjsObj*) req->files;

@@ -1564,6 +1564,7 @@ PUBLIC void mprCheckBlock(MprMem *bp);
 /*
     Internal APIs
  */
+PUBLIC void mprDestroyMemService();
 PUBLIC void mprStartGCService();
 PUBLIC void mprStopGCService();
 PUBLIC void *mprAllocFast(size_t usize);
@@ -6145,7 +6146,6 @@ PUBLIC int mprStopDispatcher(MprDispatcher *dispatcher);
 /* Internal API */
 PUBLIC MprEvent *mprCreateEventQueue();
 PUBLIC MprEventService *mprCreateEventService();
-PUBLIC void mprDestroyEventService();
 PUBLIC void mprDedicateWorkerToDispatcher(MprDispatcher *dispatcher, struct MprWorker *worker);
 PUBLIC void mprDequeueEvent(MprEvent *event);
 PUBLIC bool mprDispatcherHasEvents(MprDispatcher *dispatcher);
@@ -7107,8 +7107,7 @@ typedef struct MprWaitService {
  */
 PUBLIC MprWaitService *mprCreateWaitService();
 PUBLIC void mprTermOsWait(MprWaitService *ws);
-PUBLIC int  mprStartWaitService(MprWaitService *ws);
-PUBLIC int  mprStopWaitService(MprWaitService *ws);
+PUBLIC void mprStopWaitService();
 PUBLIC void mprSetWaitServiceThread(MprWaitService *ws, MprThread *thread);
 PUBLIC void mprWakeNotifier();
 #if MPR_EVENT_ASYNC

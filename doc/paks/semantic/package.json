@@ -1,20 +1,20 @@
 {
     "name": "semantic",
-    "description": "Bootstrap client-side web styles",
-    "version": "0.19.0",
+    "description": "Semantic UI library",
+    "version": "0.50.0",
     "keywords": [
         "esp",
     ],
-    "export": [
-        {
-            from: [
-                "css/*",
-                "fonts/*",
-                "images/*",
-                "javascript/*",
-            ],
-            to: '${LIB}/semantic',
-            overwrite: true,
-        }
+    "export": [ {
+        from: [
+            "js/**",
+            "themes/**",
+        ],
+        to: '${LIB}/semantic',
+        overwrite: true,
+    } ],
+    "ignore": [
+        "distribution",
+        "src",
     ],
 }
