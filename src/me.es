@@ -2477,8 +2477,6 @@ public class Me {
 
     /**
         Run a command and trace output if copt.show or options.show
-
-        On windows, all "/" characters are converted to "\". To pass a "/", quote with @/.
         @param command Command to run. May be an array of args or a string.
         @param copt Options. These are also passed to $Cmd.
         @option dir Change to given directory to run the command.
@@ -2502,16 +2500,6 @@ public class Me {
             }
             trace('Run', cmdline)
         }
-        /* UNUSED
-        if (me.platform.os == 'windows') {
-            if (command is Array) {
-                for (let [index, value] in command) {
-                    command[index] = value.replace(/\//g, '\\').replace(/@\\/g, '/')
-                }
-            } else {
-                command = command.replace(/\//g, '\\').replace(/@\\/g, '/')
-            }
-        } */
         if (me.generating && copt.generate !== false) {
             genruncmd(command)
             return ''
