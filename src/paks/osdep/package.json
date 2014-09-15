@@ -49,7 +49,7 @@
     "ignore": [
         "start.me"
     ],
-    import: true,
+    "import": true,
     "dependencies": {
     }
 }

@@ -5,9 +5,9 @@ Licensing
 ---
 See LICENSE.md for details.
 
-### To Cache
+### To Install
 
-    pak -f cache
+    pak install pak-osdep
 
 Resources
 ---
