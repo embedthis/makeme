@@ -1306,6 +1306,9 @@ static void invokeAllDestructors()
     MprMem      *mp;
     MprManager  mgr;
 
+    if (MPR->flags & MPR_NOT_ALL) {
+        return;
+    }
     for (region = heap->regions; region; region = region->next) {
         for (mp = region->start; mp < region->end; mp = GET_NEXT(mp)) {
             if (!mp->free && mp->hasManager) {
@@ -2970,7 +2973,6 @@ PUBLIC bool mprDestroy()
     mprStopOsService();
 
     if (MPR->exitStrategy & MPR_EXIT_RESTART) {
-//  MOB - leaks MPR*
         mprRestart();
     }
     mprDestroyMemService();

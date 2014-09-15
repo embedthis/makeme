@@ -67380,8 +67380,13 @@ Ejs *ejsCreateVM(int argc, cchar **argv, int flags)
     ejs->dontExit = sp->dontExit;
     ejs->flags |= (flags & (EJS_FLAG_NO_INIT | EJS_FLAG_DOC | EJS_FLAG_HOSTED));
     ejs->hosted = (flags & EJS_FLAG_HOSTED) ? 1 : 0;
-
     ejs->global = ejsCreateBlock(ejs, 0);
+
+    /*
+        Use conservative GC shutdown
+     */
+    MPR->flags |= MPR_NOT_ALL;
+
     mprSetName(ejs->global, "global");
     ejsDefineGlobalNamespaces(ejs);
 
