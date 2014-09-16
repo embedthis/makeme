@@ -69,6 +69,9 @@
 #ifndef ME_EJS_SHELL
     #define ME_EJS_SHELL 1
 #endif
+#ifndef ME_EJS_SQLITE
+    #define ME_EJS_SQLITE 1
+#endif
 #ifndef ME_EJS_TAR
     #define ME_EJS_TAR 1
 #endif

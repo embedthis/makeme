@@ -5862,19 +5862,19 @@ static int addCmdHandlers(MprCmd *cmd)
 
     if (stdinFd >= 0 && cmd->handlers[MPR_CMD_STDIN] == 0) {
         if ((cmd->handlers[MPR_CMD_STDIN] = mprCreateWaitHandler(stdinFd, MPR_WRITABLE, cmd->dispatcher,
-                stdinCallback, cmd, 0)) == 0) {
+                stdinCallback, cmd, MPR_WAIT_NOT_SOCKET)) == 0) {
             return MPR_ERR_CANT_OPEN;
         }
     }
     if (stdoutFd >= 0 && cmd->handlers[MPR_CMD_STDOUT] == 0) {
         if ((cmd->handlers[MPR_CMD_STDOUT] = mprCreateWaitHandler(stdoutFd, MPR_READABLE, cmd->dispatcher,
-                stdoutCallback, cmd,0)) == 0) {
+                stdoutCallback, cmd, MPR_WAIT_NOT_SOCKET)) == 0) {
             return MPR_ERR_CANT_OPEN;
         }
     }
     if (stderrFd >= 0 && cmd->handlers[MPR_CMD_STDERR] == 0) {
         if ((cmd->handlers[MPR_CMD_STDERR] = mprCreateWaitHandler(stderrFd, MPR_READABLE, cmd->dispatcher,
-                stderrCallback, cmd,0)) == 0) {
+                stderrCallback, cmd, MPR_WAIT_NOT_SOCKET)) == 0) {
             return MPR_ERR_CANT_OPEN;
         }
     }
@@ -9619,6 +9619,10 @@ PUBLIC int mprServiceEvents(MprTicks timeout, int flags)
         return 0;
     }
     MPR->eventing = 1;
+    mprAtomicBarrier();
+    if (mprIsDestroying()) {
+        return 0;
+    }
     es = MPR->eventService;
     beginEventCount = eventCount = es->eventCount;
     es->now = mprGetTicks();
@@ -15390,6 +15394,7 @@ PUBLIC MprMutex *mprInitLock(MprMutex *lock)
 
 #elif ME_WIN_LIKE
     InitializeCriticalSectionAndSpinCount(&lock->cs, ME_MPR_SPIN_COUNT);
+    lock->freed = 0;
 
 #elif VXWORKS
     lock->cs = semMCreate(SEM_Q_PRIORITY | SEM_DELETE_SAFE);
