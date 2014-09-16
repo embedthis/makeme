@@ -57,7 +57,7 @@ This implements the "me" tool and provide access via the Me DOM.</p>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#strace'><b>strace</b></a>(tag, args: <a href='Array.html'>Array</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit "show" trace
 This is trace that is displayed if me --show is invoked.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#linkFile'><b>linkFile</b></a>(src: <a href='Path.html'>Path</a>, dest: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Link a file.</td></tr>
-   <tr class='apiDef'><td class='apiType'></td><td><a href='#run'><b>run</b></a>(command, copt = expression): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Run a command and trace output if copt.show or options.show<br/><br/>On windows, all "/" characters are converted to "\".</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#run'><b>run</b></a>(command, copt = expression): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Run a command and trace output if copt.show or options.show.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#trace'><b>trace</b></a>(tag: <a href='String.html'>String</a>, args: <a href='Array.html'>Array</a>): <a href='Void.html'>Void</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit trace.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#makeDir'><b>makeDir</b></a>(path: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Make a directory
 This creates a directory and all required parents.</td></tr>
@@ -169,7 +169,7 @@ This either links files or if generating, emits code to link files.</dd></dl>
 <div class='apiSig'>    run(command, copt = expression): <a href='String.html'>String</a>
 </div>
 <div class='apiDetail'>
-<dl><dt>Description</dt></dd><dd>Run a command and trace output if copt.show or options.show<br/><br/>On windows, all "/" characters are converted to "\". To pass a "/", quote with.</dd></dl>
+<dl><dt>Description</dt></dd><dd>Run a command and trace output if copt.show or options.show. </dd></dl>
 <dl><dt>Parameters</dt>
 <dd><table class='parameters' title='parameters'>
 <tr class='param'><td class='param'>command </td><td>Command to run. May be an array of args or a string.</td></tr><tr class='param'><td class='param'>copt </td><td>Options. These are also passed to <a href='#Cmd'>Cmd</a>.  [default: expression]</td></tr></table></dd>

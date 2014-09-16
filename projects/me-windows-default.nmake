@@ -968,7 +968,7 @@ DEPS_39 = $(DEPS_39) build\$(CONFIG)\bin\ejsc.exe
 
 build\$(CONFIG)\bin\me.mod: $(DEPS_39)
 	cd .
-	.\build\$(CONFIG)\bin\ejsc --out ./build/$(CONFIG)/bin/me.mod --optimize 9 src/me.es src/paks/ejs-version/Version.es
+	.\build\$(CONFIG)\bin\ejsc --debug --out ./build/$(CONFIG)/bin/me.mod --optimize 9 src/me.es src/paks/ejs-version/Version.es
 	cd .
 
 #

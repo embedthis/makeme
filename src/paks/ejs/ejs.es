@@ -2457,7 +2457,7 @@ module ejs {
             @options detach Boolean If true, run the command and return immediately. If detached, finalize() must be
                 called to signify the end of data being written to the command's stdin.
             @options dir Path or String. Directory to set as the current working directory for the command.
-            @options exception Boolean If true, throw exceptions if the command returns a non-zero status code. 
+            @options exceptions Boolean If true, throw exceptions if the command returns a non-zero status code. 
                 Defaults to false.
             @options timeout Number This is the default number of milliseconds for the command to complete.
          */
@@ -2781,7 +2781,7 @@ module ejs {
             @param command Command or program to execute
             @param options Command options hash. Supported options are:
             @options detach Boolean If true, run the command and return immediately. If detached, finalize() must be
-                called to signify the end of data being written to the command's stdin.
+                called to signify the end of data being written to the command's stdin. In this case, run returns null.
             @options dir Path or String. Directory to set as the current working directory for the command.
             @options exceptions Boolean If true, throw exceptions if the command returns a non-zero status code. 
                 Defaults to true.
@@ -2792,7 +2792,7 @@ module ejs {
             @throws IOError if the command exits with non-zero status. The exception object will contain the command's
                 standard error output. 
          */
-        static function run(command: Object, options: Object = {}, data: Object = null): String {
+        static function run(command: Object, options: Object = {}, data: Object = null): String? {
             options ||= {}
             let cmd = new Cmd
             let results = new ByteArray
@@ -2805,13 +2805,16 @@ module ejs {
                 results.write(buf)
             })
             cmd.start(command, blend({detach: true}, options))
+            if (options.detach) {
+                return null
+            }
             if (data) {
                 cmd.write(data)
             }
             cmd.finalize()
             cmd.wait()
             if (cmd.status != 0 && options.exceptions !== false) {
-                throw new IOError(cmd.error)
+                throw new IOError('Command failed, status ' + cmd.status + '\n' + cmd.error)
             }
             return results.toString()
         }
@@ -2823,7 +2826,7 @@ module ejs {
                 an array of arguments. 
             @param options Command options hash. Supported options are:
             @options detach Boolean If true, run the command and return immediately. If detached, finalize() must be
-                called to signify the end of data being written to the command's stdin.
+                called to signify the end of data being written to the command's stdin. In this case, sh returns null.
             @options dir Path or String. Directory to set as the current working directory for the command.
             @options exceptions Boolean If true, throw exceptions if the command returns a non-zero status code. 
                 Defaults to true.
@@ -8827,9 +8830,9 @@ module ejs {
             @param destination New file location
             @param options Object hash
             @options permissions Set to a numeric Posix permissions mask. Not implemented.
-            @options user String representing the file user name
+            @options user String representing the file user name or numeric user id.
                 If both user and uid are specified, user takes precedence. 
-            @options group String representing the file group name
+            @options group String representing the file group name or numeric group id.
                 If both group and gid are specified, group takes precedence.
             @options uid Number representing the file user id
             @options gid Number representing the file group id
@@ -8885,13 +8888,15 @@ module ejs {
         /**
             Do Posix glob style file matching.
             @param patterns Pattern to match files. This can be a String, Path or array of String/Paths. 
+            If the Path is a directory, then files that match the specified patterns are returned.
+            If the Path is not a directory, then the path itself is matched against the pattern.
             The wildcard '?' matches any single character, '*' matches zero or more characters in a filename or 
                 directory, '** /' matches zero or more files or directories and matches recursively in a directory
                 tree.  If a pattern terminates with "/" it will only match directories. 
                 The pattern '**' is equivalent to '** / *' (ignore spaces). 
                 The Posix "[]" and "{a,b}" style expressions are not supported.
             @param options Optional properties to control the matching.
-            @option depthFirst Do a depth first traversal. If "dirs" is specified, the directories will be shown after
+            @option depthFirst Do a depth first traversal of directories. If true, then the directories will be shown after
                 the files in the directory. Otherwise, directories will be listed first.
             @option exclude Regular expression pattern of files to exclude from the results. Matches the entire path.
                 Only for the purpose of this match, directories will have "/" appended. To exclude directories in the
@@ -8904,7 +8909,7 @@ module ejs {
                 by throwing an exception. Set to any non-null value to be used in the results when there are no matching
                 files or directories. Set to the empty string to use the patterns in the results and set
                 to null to do nothing.
-            @option relative Return paths relative to the Path, otherwise result entries include the Path. Defaults to false.
+            @option relative Return matching files relative to the Path, otherwise results include the Path. Defaults to false.
             @return An Array of Path objects for each file in the directory.
          */
         native function files(patterns: Object! = '*', options: Object? = null): Array 
@@ -9344,11 +9349,9 @@ module ejs {
         native function same(other: Object): Boolean
 
         /**
-            The path separator for this path. This will return the first valid path separator used by the path
-            or the default file system path separator if the path has no separators. On Windows, a path may contain
-            "/" and "\" separators.  This will be set to a string containing the first separator found in the path.
-            Will typically be either "/" or "/\\" depending on the path, platform and file system.
-            Use $natural, $portable or $windows to create a new path with different path separators.
+            The path separator for this path. This will return the first path separator used by the path
+            or the default file system path separator if the path has no separators. On Windows, a path may use
+            "/" or "\" separators. Use $natural, $portable or $windows to create a new path with different path separators.
          */
         native function get separator(): String
 

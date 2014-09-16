@@ -2483,8 +2483,7 @@ public class Me {
         @option show Show the command line before executing. Similar to me --show, but operates on just this command.
         @option generate Generate in projects. Defaults to true.
         @option noshow Do not show the command line before executing. Useful to override me --show for one command.
-            noshow is used to hide command display. 
-        @option nonstop Continue processing even if this command is not successful.
+        @option nostop Continue processing even if this command is not successful.
         @option filter Hide output if it contains the specified pattern. Set to true to filter all output.
         @option timeout Timeout for the command to complete
 
@@ -2505,7 +2504,7 @@ public class Me {
             return ''
         }
         if (copt.noio || copt.nothrow) {
-            throw 'run option noio and nothrow options are not supported'
+            throw 'run option noio and nothrow options are not supported. Use filter and exceptions instead.'
         }
         let cmd = new Cmd
         if (me.env) {
@@ -2554,7 +2553,8 @@ public class Me {
             } else {
                 msg = 'Command failure: ' + cmd.error + '\n' + response + '\nCommand: ' + command
             }
-            if (copt.nonstop || copt.continueOnErrors || options['continue']) {
+            //  DEPRECATED - continue, nonstop, continueOnErrors
+            if (copt.nostop || copt.nonstop || copt.continueOnErrors || options['continue']) {
                 if (!copt.filter) {
                     trace('Error', msg)
                 }
@@ -2885,8 +2885,9 @@ public class Me {
         if (options.configure || BUILD.exists) {
             dir.bld  ||= BUILD
         } else {
-            dir.bld  ||= Path('.')
+            dir.bld ||= Path('.')
         }
+        dir.bld = Path(dir.bld)
         if (me.settings.configured || options.configure) {
             dir.out  ||= dir.bld.join(me.platform.name)
             dir.bin  ||= dir.out.join('bin')
@@ -3208,8 +3209,8 @@ public class Me {
         @option compress Compress target file
         @option copytemp Copy files that look like temp files
         @option exclude Exclude files that match the pattern. The pattern should be in portable file format.
-        @option expand Expand tokens. Set to true or an Object hash containing properties to use when replacing
-            tokens of the form ${token} in the src and dest filenames. If set to true, the 'me' object is used.
+        @option expand Expand tokens in copied files. Set to true or an Object hash containing properties to use when 
+            replacing tokens of the form ${token}. If set to true, the 'me' object is used.
         @option fold Fold long lines on windows at column 80 and convert new line endings.
         @option group Set file group
         @option include Include files that match the pattern. The pattern should be in portable file format.

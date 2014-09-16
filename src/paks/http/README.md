@@ -1,4 +1,4 @@
-Embedthis Multithreaded Portable Runtime (MPR) 4.X
+Embedthis Http
 ===
 
 Licensing
@@ -44,5 +44,5 @@ This will run appweb in the src/server directory using the src/server/appweb.con
 Resources
 ---
   - [Embedthis web site](https://embedthis.com/)
-  - [MPR GitHub repository](http://github.com/embedthis/mpr-4)
+  - [Http GitHub repository](http://github.com/embedthis/http)
   - [MakeMe GitHub repository](http://github.com/embedthis/makeme)

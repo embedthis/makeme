@@ -273,6 +273,7 @@
     #define     _CRT_SECURE_NO_DEPRECATE 1
     #undef      _CRT_SECURE_NO_WARNINGS
     #define     _CRT_SECURE_NO_WARNINGS 1
+    #define     _WINSOCK_DEPRECATED_NO_WARNINGS 1
     #ifndef     _WIN32_WINNT
         /* Target Windows 7 by default */
         #define _WIN32_WINNT 0x601

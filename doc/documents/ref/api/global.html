@@ -71,7 +71,7 @@ This is trace that is displayed if me --verbose is invoked.0.</td></tr>
 <td class='param'>compress</td><td>Compress target file.</td></tr>
 <td class='param'>copytemp</td><td>Copy files that look like temp files.</td></tr>
 <td class='param'>exclude</td><td>Exclude files that match the pattern. The pattern should be in portable file format.</td></tr>
-<td class='param'>expand</td><td>Expand tokens. Set to true or an Object hash containing properties to use when replacing tokens of the form <a href='#{token}'>{token}</a> in the src and dest filenames. If set to true, the 'me' object is used.</td></tr>
+<td class='param'>expand</td><td>Expand tokens in copied files. Set to true or an Object hash containing properties to use when  replacing tokens of the form {token}. If set to true, the 'me' object is used.</td></tr>
 <td class='param'>fold</td><td>Fold long lines on windows at column 80 and convert new line endings.</td></tr>
 <td class='param'>group</td><td>Set file group.</td></tr>
 <td class='param'>include</td><td>Include files that match the pattern. The pattern should be in portable file format.</td></tr>
@@ -125,8 +125,8 @@ This creates a directory and all required parents. This either makes a directory
 <td class='param'>dir</td><td>Change to given directory to run the command.</td></tr>
 <td class='param'>show</td><td>Show the command line before executing. Similar to me --show, but operates on just this command.</td></tr>
 <td class='param'>generate</td><td>Generate in projects. Defaults to true.</td></tr>
-<td class='param'>noshow</td><td>Do not show the command line before executing. Useful to override me --show for one command. noshow is used to hide command display.</td></tr>
-<td class='param'>nonstop</td><td>Continue processing even if this command is not successful.</td></tr>
+<td class='param'>noshow</td><td>Do not show the command line before executing. Useful to override me --show for one command.</td></tr>
+<td class='param'>nostop</td><td>Continue processing even if this command is not successful.</td></tr>
 <td class='param'>filter</td><td>Hide output if it contains the specified pattern. Set to true to filter all output.</td></tr>
 <td class='param'>timeout</td><td>Timeout for the command to complete  Note: do not use the Cmd options: noio, detach. Use Cmd APIs directly.</td></tr>
 </table></dd>

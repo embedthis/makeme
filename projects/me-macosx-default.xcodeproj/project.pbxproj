@@ -1732,7 +1732,7 @@ cp -r ca.crt ../../${OUT_DIR}/bin/ca.crt
 			shellPath = /bin/bash;
 			shellScript = "PATH=$PATH:/usr/local/bin
 cd ..
-	build/macosx-x64-default/bin/ejsc --out build/macosx-x64-default/bin/me.mod --optimize 9 src/me.es src/paks/ejs-version/Version.es
+	build/macosx-x64-default/bin/ejsc --debug --out build/macosx-x64-default/bin/me.mod --optimize 9 src/me.es src/paks/ejs-version/Version.es
 ";
 		};
 		D17998CCD179A83E00000022 /* ShellScript for testme.es */ = {
