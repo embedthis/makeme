@@ -1451,6 +1451,7 @@ PUBLIC HttpAuth *httpCreateInheritedAuth(HttpAuth *parent)
     if (parent) {
         //  OPT. Structure assignment
         auth->allow = parent->allow;
+        auth->cipher = parent->cipher;
         auth->deny = parent->deny;
         auth->type = parent->type;
         auth->store = parent->store;
@@ -1474,19 +1475,20 @@ PUBLIC HttpAuth *httpCreateInheritedAuth(HttpAuth *parent)
 static void manageAuth(HttpAuth *auth, int flags)
 {
     if (flags & MPR_MANAGE_MARK) {
+        mprMark(auth->cipher);
+        mprMark(auth->realm);
         mprMark(auth->allow);
         mprMark(auth->deny);
-        mprMark(auth->loggedIn);
-        mprMark(auth->loginPage);
-        mprMark(auth->permittedUsers);
-        mprMark(auth->qop);
-        mprMark(auth->realm);
-        mprMark(auth->abilities);
-        mprMark(auth->store);
-        mprMark(auth->type);
         mprMark(auth->userCache);
         mprMark(auth->roles);
+        mprMark(auth->abilities);
+        mprMark(auth->permittedUsers);
+        mprMark(auth->loginPage);
+        mprMark(auth->loggedIn);
         mprMark(auth->username);
+        mprMark(auth->qop);
+        mprMark(auth->type);
+        mprMark(auth->store);
     }
 }
 
@@ -5335,31 +5337,31 @@ static void manageConn(HttpConn *conn, int flags)
     assert(conn);
 
     if (flags & MPR_MANAGE_MARK) {
-        mprMark(conn->workerEvent);
-        mprMark(conn->address);
         mprMark(conn->rx);
         mprMark(conn->tx);
-        mprMark(conn->endpoint);
-        mprMark(conn->host);
+        mprMark(conn->readq);
+        mprMark(conn->writeq);
+        mprMark(conn->sock);
         mprMark(conn->limits);
         mprMark(conn->http);
         mprMark(conn->dispatcher);
         mprMark(conn->newDispatcher);
         mprMark(conn->oldDispatcher);
-        mprMark(conn->sock);
+        mprMark(conn->address);
         mprMark(conn->serviceq);
         mprMark(conn->currentq);
+        mprMark(conn->endpoint);
+        mprMark(conn->host);
         mprMark(conn->input);
-        mprMark(conn->readq);
-        mprMark(conn->writeq);
         mprMark(conn->connectorq);
         mprMark(conn->timeoutEvent);
+        mprMark(conn->workerEvent);
         mprMark(conn->context);
         mprMark(conn->ejs);
         mprMark(conn->pool);
         mprMark(conn->mark);
-        mprMark(conn->data);
         mprMark(conn->reqData);
+        mprMark(conn->data);
         mprMark(conn->grid);
         mprMark(conn->record);
         mprMark(conn->boundary);
@@ -5367,14 +5369,13 @@ static void manageConn(HttpConn *conn, int flags)
         mprMark(conn->ip);
         mprMark(conn->protocol);
         mprMark(conn->protocols);
-        mprMark(conn->headersCallbackArg);
         mprMark(conn->trace);
-
         mprMark(conn->authType);
         mprMark(conn->authData);
         mprMark(conn->username);
         mprMark(conn->password);
         mprMark(conn->user);
+        mprMark(conn->headersCallbackArg);
     }
 }
 
@@ -7323,9 +7324,9 @@ static int manageEndpoint(HttpEndpoint *endpoint, int flags)
     if (flags & MPR_MANAGE_MARK) {
         mprMark(endpoint->http);
         mprMark(endpoint->hosts);
-        mprMark(endpoint->limits);
         mprMark(endpoint->ip);
         mprMark(endpoint->context);
+        mprMark(endpoint->limits);
         mprMark(endpoint->sock);
         mprMark(endpoint->dispatcher);
         mprMark(endpoint->ssl);
@@ -9117,6 +9118,7 @@ static void checkMonitor(HttpMonitor *monitor, MprEvent *event)
 static int manageMonitor(HttpMonitor *monitor, int flags)
 {
     if (flags & MPR_MANAGE_MARK) {
+        mprMark(monitor->counterName);
         mprMark(monitor->defenses);
         mprMark(monitor->timer);
     }
@@ -9977,7 +9979,7 @@ static void managePacket(HttpPacket *packet, int flags)
     if (flags & MPR_MANAGE_MARK) {
         mprMark(packet->prefix);
         mprMark(packet->content);
-        /* Don't mark next packet. List owner will mark */
+        /* Don't mark next packet, list owner will mark */
     }
 }
 
@@ -11245,14 +11247,14 @@ static void manageQueue(HttpQueue *q, int flags)
 
     if (flags & MPR_MANAGE_MARK) {
         mprMark(q->name);
+        mprMark(q->nextQ);
         for (packet = q->first; packet; packet = packet->next) {
             mprMark(packet);
         }
+        mprMark(q->conn);
         mprMark(q->last);
-        mprMark(q->nextQ);
         mprMark(q->prevQ);
         mprMark(q->stage);
-        mprMark(q->conn);
         mprMark(q->scheduleNext);
         mprMark(q->schedulePrev);
         mprMark(q->pair);
@@ -18374,9 +18376,9 @@ static void manageTrace(HttpTrace *trace, int flags)
         mprMark(trace->format);
         mprMark(trace->lastTime);
         mprMark(trace->buf);
-        mprMark(trace->mutex);
         mprMark(trace->path);
         mprMark(trace->events);
+        mprMark(trace->mutex);
     }
 }
 
@@ -20250,6 +20252,7 @@ static void manageUpload(Upload *up, int flags)
         mprMark(up->boundary);
         mprMark(up->clientFilename);
         mprMark(up->tmpPath);
+        mprMark(up->name);
     }
 }
 
@@ -20513,10 +20516,10 @@ static int processUploadHeader(HttpQueue *q, char *line)
 static void manageHttpUploadFile(HttpUploadFile *file, int flags)
 {
     if (flags & MPR_MANAGE_MARK) {
+        mprMark(file->name);
         mprMark(file->filename);
         mprMark(file->clientFilename);
         mprMark(file->contentType);
-        mprMark(file->name);
     }
 }
 
@@ -22611,6 +22614,7 @@ static void manageWebSocket(HttpWebSocket *ws, int flags)
         mprMark(ws->tailMessage);
         mprMark(ws->pingEvent);
         mprMark(ws->subProtocol);
+        mprMark(ws->errorMsg);
         mprMark(ws->closeReason);
         mprMark(ws->data);
     }

@@ -8791,7 +8791,7 @@ typedef struct MprCmd {
     bool            complete: 1;        /**< All channels EOF and status gathered */
     bool            stopped: 1;         /**< Command stopped */
     cchar           **makeArgv;         /**< Allocated argv */
-    cchar           **argv;             /**< List of args. Null terminated. (unmanaged) */
+    cchar           **argv;             /**< List of args. Null terminated */
     char            *dir;               /**< Current working dir for the process */
     cchar           **defaultEnv;       /**< Environment to use if no env passed to mprStartCmd */
     char            *searchPath;        /**< Search path to use to locate the command */

@@ -2744,7 +2744,6 @@ PUBLIC Mpr *mprCreate(int argc, char **argv, int flags)
 static void manageMpr(Mpr *mpr, int flags)
 {
     if (flags & MPR_MANAGE_MARK) {
-        mprMark(mpr->heap);
         mprMark(mpr->logFile);
         mprMark(mpr->mimeTypes);
         mprMark(mpr->timeTokens);
@@ -9623,11 +9622,11 @@ PUBLIC int mprServiceEvents(MprTicks timeout, int flags)
         mprLog("warn mpr event", 0, "mprServiceEvents called reentrantly");
         return 0;
     }
-    MPR->eventing = 1;
     mprAtomicBarrier();
     if (mprIsDestroying()) {
         return 0;
     }
+    MPR->eventing = 1;
     es = MPR->eventService;
     beginEventCount = eventCount = es->eventCount;
     es->now = mprGetTicks();
@@ -11276,11 +11275,9 @@ static void manageFile(MprFile *file, int flags)
     if (flags & MPR_MANAGE_MARK) {
         mprMark(file->buf);
         mprMark(file->path);
-        /* No need to mark file system which is centrally referenced */
 #if ME_ROM
         mprMark(file->inode);
 #endif
-
     } else if (flags & MPR_MANAGE_FREE) {
         if (!file->attached) {
             /* Prevent flushing */
@@ -15402,10 +15399,11 @@ PUBLIC MprMutex *mprInitLock(MprMutex *lock)
 
 #elif ME_WIN_LIKE && !ME_DEBUG && CRITICAL_SECTION_NO_DEBUG_INFO && ME_64 && _WIN32_WINNT >= 0x0600
     InitializeCriticalSectionEx(&lock->cs, ME_MPR_SPIN_COUNT, CRITICAL_SECTION_NO_DEBUG_INFO);
+    lock-freed = 0;
 
 #elif ME_WIN_LIKE
     InitializeCriticalSectionAndSpinCount(&lock->cs, ME_MPR_SPIN_COUNT);
-    lock->freed = 0;
+    lock-freed = 0;
 
 #elif VXWORKS
     lock->cs = semMCreate(SEM_Q_PRIORITY | SEM_DELETE_SAFE);
@@ -20628,8 +20626,8 @@ static void manageRomFile(MprFile *file, int flags)
 {
     if (flags & MPR_MANAGE_MARK) {
         mprMark(file->path);
-        mprMark(file->fileSystem);
         mprMark(file->buf);
+        mprMark(file->fileSystem);
         mprMark(file->inode);
     }
 }

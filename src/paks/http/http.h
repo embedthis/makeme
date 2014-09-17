@@ -4503,7 +4503,7 @@ typedef struct HttpRouteOp {
     char            *details;               /**< General route operation details */
     char            *var;                   /**< Var to set */
     char            *value;                 /**< Value to assign to var */
-    void            *mdata;                 /**< pcre_ data managed by malloc() */
+    void            *mdata;                 /**< pcre_ data (unmanaged) */
     int             flags;                  /**< Route flags to control freeing mdata */
 } HttpRouteOp;
 
