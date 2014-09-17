@@ -3855,8 +3855,8 @@ PUBLIC MprList *mprSortList(MprList *list, MprSortProc compare, void *ctx);
     @stability Stable
  */
 typedef struct MprKeyValue {
-    void        *key;               /**< Key string */
-    void        *value;             /**< Associated value for the key */
+    void        *key;               /**< Key string (managed) */
+    void        *value;             /**< Associated value for the key (managed) */
     int         flags;              /**< General flags word */
 } MprKeyValue;
 
@@ -4482,9 +4482,9 @@ typedef struct  MprRomInode {
 } MprRomInode;
 
 typedef struct MprRomFileSystem {
-    MprFileSystem   fileSystem;
+    MprFileSystem   fileSystem;         /**< Extends MprFileSystem */
     MprHash         *fileIndex;
-    MprRomInode     *romInodes;
+    MprRomInode     *romInodes;         /**< File inode data (unmanaged) */
     int             rootLen;
 } MprRomFileSystem;
 
@@ -5528,7 +5528,7 @@ PUBLIC void mprStopOsService();
 typedef struct MprModuleService {
     MprList     *modules;               /**< List of defined modules */
     char        *searchPath;            /**< Module search path to locate modules */
-    struct MprMutex *mutex;
+    MprMutex    *mutex;
 } MprModuleService;
 
 
@@ -7300,7 +7300,7 @@ typedef int (*MprSocketProc)(void *data, int mask);
  */
 typedef struct MprSocketProvider {
     char    *name;                              /**< Socket provider name */
-    void    *data;                              /**< Socket provider private data */
+    void    *data;                              /**< Socket provider private data (unmanaged) */
 
     /**
         Close a socket
@@ -8710,8 +8710,8 @@ typedef void (*MprForkCallback)(void *arg);
     @stability Internal
  */
 typedef struct MprCmdService {
-    MprList         *cmds;              /* List of all commands. This is a static list and elements are not retained for GC */
-    MprMutex        *mutex;             /* Multithread sync */
+    MprList         *cmds;          /* List of all commands. This is a static list and elements are not retained for GC */
+    MprMutex        *mutex;         /* Multithread sync */
 } MprCmdService;
 
 /*
@@ -8791,7 +8791,7 @@ typedef struct MprCmd {
     bool            complete: 1;        /**< All channels EOF and status gathered */
     bool            stopped: 1;         /**< Command stopped */
     cchar           **makeArgv;         /**< Allocated argv */
-    cchar           **argv;             /**< List of args. Null terminated */
+    cchar           **argv;             /**< List of args. Null terminated. (unmanaged) */
     char            *dir;               /**< Current working dir for the process */
     cchar           **defaultEnv;       /**< Environment to use if no env passed to mprStartCmd */
     char            *searchPath;        /**< Search path to use to locate the command */

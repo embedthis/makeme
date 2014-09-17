@@ -273,9 +273,9 @@ PUBLIC int main(int argc, char *argv[])
 static void manageApp(void *ptr, int flags)
 {
     if (flags & MPR_MANAGE_MARK) {
+        mprMark(app->command);
         mprMark(app->error);
         mprMark(app->output);
-        mprMark(app->command);
         mprMark(app->logSpec);
         mprMark(app->pidDir);
         mprMark(app->pidPath);
@@ -286,8 +286,6 @@ static void manageApp(void *ptr, int flags)
         mprMark(app->serviceProgram);
     }
 }
-
-
 
 
 static void setAppDefaults()
@@ -947,13 +945,13 @@ int APIENTRY WinMain(HINSTANCE inst, HINSTANCE junk, char *args, int junk2)
 static void manageApp(void *ptr, int flags)
 {
     if (flags & MPR_MANAGE_MARK) {
+        mprMark(app->logSpec);
         mprMark(app->company);
+        mprMark(app->serviceArgs);
         mprMark(app->serviceHome);
         mprMark(app->serviceName);
         mprMark(app->serviceProgram);
         mprMark(app->serviceTitle);
-        mprMark(app->serviceArgs);
-        mprMark(app->logSpec);
     }
 }
 
@@ -1106,7 +1104,8 @@ static void run()
         if (app->servicePid == 0 && !app->serviceStopped) {
             if (app->restartCount >= RESTART_MAX) {
                 if (! app->restartWarned) {
-                    mprLog("error mpr manager", 0, "Too many restarts for %s, %d in last hour", mprGetAppName(), app->restartCount);
+                    mprLog("error mpr manager", 0, "Too many restarts for %s, %d in last hour", 
+                        mprGetAppName(), app->restartCount);
                     app->restartWarned++;
                 }
                 /*
