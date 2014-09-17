@@ -42256,7 +42256,6 @@ static EjsArray *globPath(Ejs *ejs, EjsArray *results, cchar *path, cchar *base,
     cchar           *filename, *nextPartPattern, *nextPath, *matchFile;
     int             next, add;
 
-
     if ((list = mprGetPathFiles(path, flags | MPR_PATH_RELATIVE)) == 0) {
         if (flags & FILES_NOMATCH_EXC) {
             ejsThrowIOError(ejs, "Cannot read directory");
