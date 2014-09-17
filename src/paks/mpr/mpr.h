@@ -9442,7 +9442,6 @@ PUBLIC MprHash *mprCreateMimeTypes(cchar *path);
  */
 PUBLIC cchar *mprGetMimeProgram(MprHash *table, cchar *mimeType);
 
-//  FUTURE - rename mprGetMime
 /**
     Get the mime type for an extension.
     This call will return the mime type from a limited internal set of mime types for the given path or extension.

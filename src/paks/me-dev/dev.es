@@ -51,9 +51,10 @@ public function genProjects(extensions = '', profiles = ["default", "static"], p
 
 
 /*
-    Publish a pak to a git pak repository
+    Commit a repository to a git "pak-NAME" repository
+    This is used by repositories to publish "pak" versions of its source code.
  */
-public function publishToGit() {
+public function commitToPakRepo() {
     let [manifest, package, prefixes] = setupPackage('pak')
     let staging = prefixes.staging.absolute
     let base = staging.join(me.platform.vname)
@@ -74,11 +75,11 @@ public function publishToGit() {
         staging.join('pak-' + name, '.git').rename(base.join('.git'))
         App.chdir(base)
         run('git add -A *')
-        run('git commit -q -mPublish-' + version + ' -a', {noshow: true, continueOnErrors: true})
-        run('git tag -d v' + version, {noshow: true, continueOnErrors: true })
-        run('git push -q origin :refs/tags/v' + version, {noshow: true, continueOnErrors: true})
+        run('git commit -q -mPublish-' + version + ' -a', {noshow: true, nostop: true})
+        run('git tag -d v' + version, {noshow: true, nostop: true })
+        run('git push -q origin :refs/tags/v' + version, {noshow: true, nostop: true})
         run('git tag v' + version)
-        run('git push --tags -u origin master', {noshow: true})
+        run('git push --tags -u origin master', {noshow: true, filter: true})
         
     } finally {
         App.chdir(home)

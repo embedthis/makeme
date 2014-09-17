@@ -2,7 +2,7 @@
     "name": "mpr",
     "description": "Embedthis Multithreaded Portable Runtime",
     "title": "Embedthis MPR",
-    "version": "5.2.0",
+    "version": "6.0.0",
     "directories": {
         "paks": "src/paks"
     },

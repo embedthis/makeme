@@ -208,7 +208,7 @@ MAIN(ejscMain, int argc, char **argv, char **envp)
             }
 
         } else if (strcmp(argp, "--version") == 0 || strcmp(argp, "-V") == 0) {
-            mprPrintf("%s\n", ME_TITLE, EJS_VERSION);
+            mprPrintf("%s\n", EJS_VERSION);
             return 0;
 
         } else if (strcmp(argp, "--warn") == 0) {

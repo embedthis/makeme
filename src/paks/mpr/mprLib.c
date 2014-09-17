@@ -12133,7 +12133,6 @@ static void manageHashTable(MprHash *hash, int flags)
 }
 
 
-//  FUTURE - rename mprSetKey
 /*
     Insert an entry into the hash hash. If the entry already exists, update its value.  Order of insertion is not preserved.
  */
@@ -12181,8 +12180,6 @@ PUBLIC MprKey *mprAddKey(MprHash *hash, cvoid *key, cvoid *ptr)
     return sp;
 }
 
-
-//  FUTURE - rename mprSetKeyWithType
 
 PUBLIC MprKey *mprAddKeyWithType(MprHash *hash, cvoid *key, cvoid *ptr, int type)
 {
@@ -19076,7 +19073,6 @@ PUBLIC int mprSamePath(cchar *path1, cchar *path2)
 
     /*
         Convert to absolute (normalized) paths to compare. 
-        FUTURE - resolve symlinks.
      */
     if (!isFullPath(fs, path1)) {
         path1 = mprGetAbsPath(path1);
@@ -19117,7 +19113,6 @@ PUBLIC int mprSamePathCount(cchar *path1, cchar *path2, ssize len)
 
     /*
         Convert to absolute paths to compare. 
-        FUTURE - resolve symlinks.
      */
     if (!isFullPath(fs, path1)) {
         path1 = mprGetAbsPath(path1);

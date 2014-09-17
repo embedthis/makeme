@@ -265,6 +265,10 @@ PUBLIC int httpStartEndpoints()
             return MPR_ERR_CANT_OPEN;
         }
     }
+    if (httpApplyUserGroup() < 0) {
+        httpStopEndpoints();
+        return MPR_ERR_CANT_OPEN;
+    }
     return 0;
 }
 
@@ -5303,7 +5307,7 @@ PUBLIC HttpConn *httpCreateConn(HttpEndpoint *endpoint, MprDispatcher *dispatche
 
 
 /*
-    Destroy a connection. This removes the connection from the list of connections. Should GC after that.
+    Destroy a connection. This removes the connection from the list of connections.
  */
 PUBLIC void httpDestroyConn(HttpConn *conn)
 {

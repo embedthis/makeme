@@ -35,10 +35,10 @@
     ],
     "pak": "~0.9",
     "dependencies": {
-        "http": "~5",
+        "http": "~6",
         "me-dev": "~0.8",
         "me-doc": "~0.8",
-        "mpr": "~5",
+        "mpr": "~6",
         "osdep": "~0.8",
         "pcre": "~1.0",
         "zlib": "~1.0"

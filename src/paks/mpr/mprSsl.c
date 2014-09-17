@@ -932,10 +932,12 @@ static void closeEst(MprSocket *sp, bool gracefully)
     EstSocket       *est;
 
     est = sp->sslSocket;
+    lock(sp);
+    sp->service->standardProvider->closeSocket(sp, gracefully);
     if (!(sp->flags & MPR_SOCKET_EOF)) {
         ssl_close_notify(&est->ctx);
     }
-    sp->service->standardProvider->closeSocket(sp, gracefully);
+    unlock(sp);
 }
 
 
@@ -1783,9 +1785,11 @@ static void closeOss(MprSocket *sp, bool gracefully)
     OpenSocket    *osp;
 
     osp = sp->sslSocket;
+    lock(sp);
+    sp->service->standardProvider->closeSocket(sp, gracefully);
     SSL_free(osp->handle);
     osp->handle = 0;
-    sp->service->standardProvider->closeSocket(sp, gracefully);
+    unlock(sp);
 }
 
 
@@ -2627,11 +2631,13 @@ static void nanoClose(MprSocket *sp, bool gracefully)
     NanoSocket      *np;
 
     np = sp->sslSocket;
+    lock(sp);
+    sp->service->standardProvider->closeSocket(sp, gracefully);
     if (np->handle) {
         SSL_closeConnection(np->handle);
         np->handle = 0;
     }
-    sp->service->standardProvider->closeSocket(sp, gracefully);
+    unlock(sp);
 }
 
 
