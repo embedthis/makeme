@@ -3204,8 +3204,10 @@ public class Me {
         @param dest Destination file or directory. If multiple files are copied, dest is assumed to be a directory and
             will be created if required. If dest has a trailing "/", it is assumed to be a directory.
         @param options Processing and file options
+
         @option active If destination is an active executable or shared library, rename the active file using a
             '.old' extension and retry the copy.
+        @option append Boolean Set to true to append all input files into a single destination.
         @option compress Compress target file
         @option copytemp Copy files that look like temp files
         @option exclude Exclude files that match the pattern. The pattern should be in portable file format.
@@ -3611,11 +3613,6 @@ public class Me {
             if (dest.startsWith(me.dir.top)) {
                 dest = dest.relativeTo(pwd)
             }
-/* UNUSED
-            if (dest.startsWith(pwd)) {
-                dest = dest.relativeTo(me.dir.top)
-            }
-*/
             if (src == dest) {
                 throw new Error('Cannot copy file. Source is the same as destination: ' + src)
             }

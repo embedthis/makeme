@@ -8824,10 +8824,10 @@ module ejs {
         function contains(pattern: String): Boolean
             name.contains(pattern)
 
-        //  TODO - should allow destination to be a directory.
         /**
             Copy a file to the destination
-            @param destination New file location
+            @param destination New file location. If the destination is a directory or ends with the file separator ("/"), 
+                the file is copied to that directory using the basename portion of the source filename.
             @param options Object hash
             @options permissions Set to a numeric Posix permissions mask. Not implemented.
             @options user String representing the file user name or numeric user id.
@@ -8938,6 +8938,14 @@ module ejs {
                 for each (f in Path("."))
          */
         override iterator native function getValues(): Iterator
+
+        /**
+            Test if the path matches a 'glob' style pattern
+            @return True if the path matches the pattern.
+            @hide
+         */
+        function glob(pattern: String): Boolean
+            this.dirname.files(pattern, {relative: true}).contains(this.basename)
 
         /**
             Does the file path have a drive spec (C:) in it's name. Only relevant on Windows like systems.
@@ -9397,6 +9405,292 @@ module ejs {
             @return a string representing the path.
          */
         native override function toString(): String
+
+        /**
+            Process a directory tree.
+            This may be used to copy, move or process entire directory trees.
+            This API supports thee different arguments formats:
+
+                Path.tree(from, to, options = {}): Number
+                Path.tree(object): Number
+                Path.tree([object, object, ...]): Number
+
+            @return The number of files processed.
+            @param from Path|String|Object|Array This may be a String or Path containing the source directory/file to 
+                process. Or it may be an object that supplies 'from', 'to' and 'options' as processing instructions. 
+                It may also be an array of Paths, Strings or Objects. The patterns may contain:
+                    *
+                    **
+                    ?
+                    {}  Comma separated patterns
+                    !   Negates pattern. This removes matching patterns from the set. These are applied after all source
+                        patterns have been processed.
+                    If item starts with !, adds to exclusion set. !! to escape.
+                    If item is a directory, then appends / **
+            @param to String|Path|Undefined Destination target. If 'from' is a Path or String, then the 'to' argument must 
+                be a destination Path or String. If 'from' is an Object or Array of instructions, then 'to' may be omitted
+                and will be ignored. If multiple source files are specified or the destination ends in the separator ("/"), 
+                the destination is assumed to be a directory. If the destination is a directory, the destination filename 
+                is created by appending the the source path to the directory.
+            @param options Object of additional processing instructions.
+
+            @option action Function Callback function to implement a single action. 
+                Function(from: Path, to: Path, options: Object): Void
+            @option active Boolean If destination is an active executable or library, rename the active file using a '.old' 
+                extension and retry.
+            @option append Boolean Set to true to append all input files into a single destination.
+            @option compress Boolean Compress destination file using Zlib. Results in a ".gz" extension.
+            @option depthFirst Boolean: Do a depth first traversal. If true, the directories will be visited after
+                the files in the directory. Otherwise, directories will be visited first.
+            @option dot String Specifies where the filename extension begins for filenames with multiple dots. Set to 
+                'first' or 'last'.
+            @option exclude RegExp Regular expression of files to exclude from the results.
+                For the purpose of this match only, directories are assumed to have have "/" appended. To exclude directories 
+                use {exclude: /\/$/}.
+            @option expand Object. Expand tokens in filenames using this object. Object hash containing properties to use 
+                when replacing tokens of the form ${token} in the src and dest filenames. 
+            @option extension String|Path Extension to use for the destination filenames.
+            @option files Array Output array to contain a list of processed destination filenames
+            @option filter Function Callback function to test if a file should be processed.
+                Function(from: Path, to: Path, options: Object): Boolean
+            @option flatten Boolean Flatten the input source tree to a single level. Defaults to false.
+            @option group String | Number System group name or number to use for the destination files.
+            @option hidden Boolean Include hidden files starting with ".". Defaults to false.
+            @option include RegExp Regular expression pattern of files to include in the results.
+            @option keep Boolean Keep uncompressed file after compressing
+            @option missing String Determine what happens if source patterns do not match any files.
+                Set to undefined to report patterns that don't resolve by throwing an exception. 
+                Set to any non-null value to be used in the results when there are no matching files or directories. 
+                Set to the empty string to use the patterns in the results and set to null to do nothing.
+            @option noneg Boolean Do not process negated file patterns.
+            @option move Boolean If true, do a move instead of a copy.
+            @option patch Object. Expand file contents tokens using this object. Object hash containing properties to use 
+                when replacing tokens of the form ${token} in file contents.
+            @option perms Number Posix style permissions mask. E.g. 0644.
+            @option relative String|Path Create paths relative to this path option when constructing destination paths.
+            @option rename Function Callback function to provide a new destination filename. 
+                Function(from, to, options):Path
+            @option symlink String|Path Create a symbolic link to the destination in this directory
+            @option strip Boolean Run 'strip' on the destination files.
+            @option trim Number of path components to trim from the start of the source filename. Does not apply when using
+                    'flatten'
+            @option temp Boolean Include files that look like temp files. Defaults to false.
+            @option user String | Number System user account name or number to use for destination files.
+            @option verbose true | function. If true, then trace to stdout. Otherwise call function for each item.
+*/
+        function tree(from, to, options): Number {
+            let instructions
+            if (to == undefined) {
+                instructions = from
+            } else {
+                options ||= {}
+                instructions = [ blend(options.clone(), { from: from, to: to }) ]
+            }
+            if (!(instructions is Array)) {
+                instructions = [instructions]
+            }
+            let destHash = {}
+
+            let files = []
+            for each (options in instructions) {
+                let from = options.from
+                let to = Path(options.to)
+                let trace = options.verbose
+                if (trace && !(trace is Function)) {
+                    trace = function(...args) {
+                        let msg = args.slice(1).join(" ")
+                        let msg = "%12s %s" % (["[" + args[0] + "]"] + [msg]) + "\n"
+                        stdout.write(msg)
+                    }
+                }
+                let home = options.home
+                let sep = to.separator
+
+                if (!(from is Array)) from = [from]
+                if (options.expand) {
+                    /* Do twice to allow two levels of nest */
+                    let eo = {fill: '${}'}
+                    to = Path(to.name.expand(options.expand, eo).expand(options.expand, eo))
+                }
+                for each (let pattern: Path in from) {
+                    if (pattern.isDir || pattern.endsWith('/')) {
+                        pattern = Path(pattern.name + sep + '**')
+                    }
+                    if (pattern.startsWith('!') && !options.noneg) {
+                        continue
+                    }
+                    if (options.flatten && !pattern.contains(sep)) {
+                        pattern = Path('**' + sep + pattern.name)
+                    }
+                    /*
+                        Get list of matching files
+                     */
+                    list = this.files(pattern, blend({relative: true}, options, {overwrite: false}))
+                    if (!list || list.length == 0) {
+                        if (options.exceptions !== false) {
+                            throw 'Cannot find files to copy from "' + this.join(pattern) + '" to ' + to
+                        }
+                    }
+                    let toDir = (to.isDir || from.length > 1 || list.length > 1 || to.name.endsWith(sep))
+
+                    /* 
+                        Process matching files and build list of files to copy in "files"
+                     */
+                    for each (let src: Path in list) {
+                        let dest
+                        if (toDir) {
+                            if (options.flatten) {
+                                dest = to.join(src.basename)
+                            } else if (options.relative) {
+                                dest = to.join(this.join(src).relativeTo(options.relative))
+                            } else if (options.trim) {
+                                dest = to.join(this.join(src).components.slice(options.trim).join(to.separator))
+                            } else if (src.isAbsolute) {
+                                dest = Path(to.name + src.name)
+                            } else {
+                                dest = to.join(src)
+                            }
+                        } else {
+                            dest = to
+                        }
+                        if (options.extension) {
+                            if (options.dot == 'first') {
+                                dest = dest.split('.')[0].joinExt(options.extension)
+                            } else {
+                                dest = dest.replaceExt(options.extension)
+                            }
+                        }
+                        if (options.rename) {
+                            dest = options.rename(src, dest, options)
+                        }
+                        if (destHash[dest]) {
+                            continue
+                        }
+                        if (options.filter) {
+                            if (!options.filter(src, dest, options)) {
+                                continue
+                            }
+                        }
+                        files.push({from: src, to: dest, base: this, options: options})
+                        destHash[dest] = true
+                    }
+                }
+                /*
+                    Remove negated patterns
+                 */
+                if (!options.noneg) {
+                    for each (let pattern: Path in from) {
+                        if (!pattern.startsWith('!')) {
+                            continue
+                        }
+                        pattern = Path(pattern.name.slice(1))
+                        if (pattern.isDir || pattern.endsWith(sep)) {
+                            pattern = Path(pattern.name + sep + '**')
+                        }
+                        for (let [i, item] in files) {
+                            if (this.join(item.from).glob(pattern)) {
+                                files[i] = null
+                            }
+                        }
+                    }
+                }
+                files.compact()
+                if (options.debug) {
+                    dump('Tree', files)
+                }
+
+                /*
+                    Process all qualifying files
+                 */
+                let data = []
+                for each (item in files) {
+                    let src = this.join(item.from)
+                    let dest = item.to
+                    if (options.dryrun) {
+                        print('DryRun', '\n    From:    ' + src + '\n    To:      ' + dest + '\n    Options: ' + 
+                            serialize(options, {pretty: true}))
+                    } else if (options.action) {
+                        options.action(src, dest, options)
+                    } else if (options.move) {
+                        //  MOB - what if cross filesystem
+                        src.rename(dest)
+                    } else if (options.append) {
+                        data.push(src.readString())
+                    } else {
+                        if (dest.endsWith(sep)) {
+                            dest.makeDir()
+                        } else {
+                            dest.dirname.makeDir()
+                        }
+                        if (src.isDir) {
+                            dest.makeDir()
+                        } else {
+                            try {
+                                trace && trace('Copy', src + ' => ' + dest)
+                                src.copy(dest, options)
+                            } catch (e) {
+                                if (options.active) {
+                                    let active = dest.replaceExt('old')
+                                    active.remove()
+                                    try { dest.rename(active) } catch {}
+                                }
+                                src.copy(dest, options)
+                            }
+                        }
+                    }
+                }
+                if (options.append) {
+                    files = files.slice(0, 1)
+                    files.to.write(data.join('\n'))
+                }
+                /*
+                    Post processing: patch, strip, compress, symlink
+                 */
+                for each (item in files) {
+                    let to = item.to
+                    if (options.patch) {
+                        to.write(to.readString().expand(options.patch, {fill: '${}'}))
+                        to.setAttributes(attributes)
+                    }
+                    if (options.strip) {
+                        Cmd.run('strip', to)
+                    }
+                    if (options.compress) {
+                        let zname = Path(to.name + '.gz')
+                        zname.remove()
+                        Zlib.compress(to.name, zname)
+                        if (!options.keep) {
+                            to.remove()
+                            item.to = zname
+                        }
+                    }
+                    if (options.symlink) {
+                        let symlink = Path(options.symlink)
+                        symlink.makeDir(options)
+                        let lto = symlink.join(to.basename)
+                        linkFile(to.relativeTo(lto.dirname), lto, options)
+                        item.to = lto
+                    }
+                    if (options.post) {
+                        options.post(item.from, to, options)
+                    }
+                }
+                /*
+                    Return the expanded instruct list of files to process
+                 */
+                if (options.files) {
+                    for each (item in files) {
+                        options.files.push(item.to)
+                    }
+                }
+                if (options.instructions) {
+                    for each (item in files) {
+                        options.instructions.push(item)
+                    }
+                }
+            }
+            return files.length
+        }
 
         /**
             Trim the requested number of path components from the start or end of the path
