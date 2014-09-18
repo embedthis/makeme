@@ -1,0 +1,114 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis MakeMe 0.8.2 Documentation</title>
+    <meta name="keywords" content="MakeMe, Bit, GYP, autoconf"/>
+	<meta name="description" content="Embedthis MakeMe -- Fast, modern replacement for make and autoconf."/>
+	<meta name="robots" content="index,follow" />
+	<link href="../../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../../iehacks.css" rel="stylesheet" type="text/css" />
+    </![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo"  href="http://embedthis.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form">Loading</div>
+                <div class="version">Embedthis MakeMe 0.8.2</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt;<a href="index.html">User Guide</a>&gt; <b>Cross Compiling</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            
+                <h1>Quick Nav </h1>
+                <ul>
+                    <li><a href="#environment">Environment</a></li>
+                </ul>
+<!-- BeginDsi "dsi/userSeeAlso.html" -->
+            <h1>See Also</h1>
+            <ul>
+                <li><a href="../../../guide/makeme/users/using.html">Using MakeMe</a></li>
+                <li><a href="../../../guide/makeme/users/configuring.html">Configuring a Project</a></li>
+                <li><a href="../../../guide/makeme/users/make.html">Using Makefiles</a></li>
+                <li><a href="../../../guide/makeme/users/cross.html">Cross-Compiling</a></li>
+
+                <li><a href="http://ejscript.org/products/ejs/doc/api/ejscript/index.html">Ejscript Language</a></li>
+                <li><a href="http://ejscript.org/products/ejs/doc/index.html">Ejscript Documentation</a></li>
+            </ul>
+<!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+        <a id="crossCompiling"></a>
+        <h2>Cross-Compiling</h2>
+        <p>To build a product for platform different to that of the local system is called cross-compiling.
+        Sometimes this cross-compiling is just for a different instruction set (say x64 instead of x86). Other times
+        it is for a completely different operating system and/or CPU architecture. In such cases, a cross-compiler
+        may be required to build for the target platform.</p>
+        <p>MakeMe supports cross-compiling via the <em>me --platform</em> switch. This adds a platform to the
+        list of platforms to be made when building. Multiple platforms may be specified and the <em>local</em> platform alias
+        may be used for the local development platform.</p>
+        <p>Some products require local building to make tools that are required to build for any platform. These
+        products add a "<em>platforms: ['local']</em>" property to their settings collection in the <em>main.me</em> file. This
+        automatically adds the local platform to the platforms list and is the same as adding <em>--platform local</em> on
+        the command line when configuring.</p>
+            <pre>me --platform windows-x64-debug -configure .</pre>
+        <p>This will create a windows-x64-debug.me configuration file and a start.me that references it. The platform
+        switch does not need to be restated after configuration.</p>
+        <a name="environment"></a>
+        <h3>Environment Variables</h3>
+        <p>MakeMe has default command paths and command flags for the compiler, linker and other tools. These can be overridden
+        by providing environment variables containing alternate flags to use. </p>
+        <p>Use the variables AR, CC and LD to specify the path to the archiver, compiler and linker tools.
+        Use CFLAGS to provide compiler flags, DFLAGS for
+        pre-processor definitions, IFLAGS for compiler include paths and LDFLAGS for linker flags.</p>
+        <p>If these flags are
+        provided to MakeMe when building, they apply to that run only. If the flags are provide when configuring, they are
+        saved in the generated platform build file and apply to all subsequent runs.
+        For example:
+            <pre>CC=/path/to/compiler CFLAGS=-w me configure</pre>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2014. 
+            All rights reserved. Embedthis MakeMe, Ejscript and Appweb are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          'partner-pub-9935546676162772:ysvxxv4n9rx');
+
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-179169-5']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+</body>
+</html>
