@@ -8898,9 +8898,9 @@ module ejs {
             @param options Optional properties to control the matching.
             @option depthFirst Do a depth first traversal of directories. If true, then the directories will be shown after
                 the files in the directory. Otherwise, directories will be listed first.
-            @option exclude Regular expression pattern of files to exclude from the results. Matches the entire path.
-                Only for the purpose of this match, directories will have "/" appended. To exclude directories in the
-                results, use {exclude: /\/$/}. The trailing "/" will not be returned in the results.
+            @option exclude String|Regular RegExp pattern of files to exclude from the results. Matches the entire path.
+                Only for the purpose of this match, directories will have "/" appended. May be set to the string
+                "directories" to exclude directories from the results which are by default included.
             @option hidden Include hidden files starting with "."
             @option include Regular expression pattern of files to include in the results. Matches the entire returned path.
                 Only for the purpose of this match, directories will have "/" appended. To include only directories in the
@@ -9444,9 +9444,9 @@ module ejs {
                 the files in the directory. Otherwise, directories will be visited first.
             @option dot String Specifies where the filename extension begins for filenames with multiple dots. Set to 
                 'first' or 'last'.
-            @option exclude RegExp Regular expression of files to exclude from the results.
-                For the purpose of this match only, directories are assumed to have have "/" appended. To exclude directories 
-                use {exclude: /\/$/}.
+            @option exclude String|Regular RegExp pattern of files to exclude from the results. Matches the entire path.
+                Only for the purpose of this match, directories will have "/" appended. May be set to the string
+                "directories" to exclude directories from the results which are by default included.
             @option expand Object. Expand tokens in filenames using this object. Object hash containing properties to use 
                 when replacing tokens of the form ${token} in the src and dest filenames. 
             @option extension String|Path Extension to use for the destination filenames.
@@ -9466,7 +9466,7 @@ module ejs {
             @option move Boolean If true, do a move instead of a copy.
             @option patch Object. Expand file contents tokens using this object. Object hash containing properties to use 
                 when replacing tokens of the form ${token} in file contents.
-            @option perms Number Posix style permissions mask. E.g. 0644.
+            @option permissions Number Posix style permissions mask. E.g. 0644.
             @option relative String|Path Create paths relative to this path option when constructing destination paths.
             @option rename Function Callback function to provide a new destination filename. 
                 Function(from, to, options):Path
@@ -9474,10 +9474,9 @@ module ejs {
             @option strip Boolean Run 'strip' on the destination files.
             @option trim Number of path components to trim from the start of the source filename. Does not apply when using
                     'flatten'
-            @option temp Boolean Include files that look like temp files. Defaults to false.
             @option user String | Number System user account name or number to use for destination files.
             @option verbose true | function. If true, then trace to stdout. Otherwise call function for each item.
-*/
+        */
         function tree(from, to, options): Number {
             let instructions
             if (to == undefined) {
@@ -9570,6 +9569,8 @@ module ejs {
                             if (!options.filter(src, dest, options)) {
                                 continue
                             }
+                        } else if (options.temp && src.name.match(options.temp)) {
+                            continue
                         }
                         files.push({from: src, to: dest, base: this, options: options})
                         destHash[dest] = true
@@ -9612,7 +9613,6 @@ module ejs {
                     } else if (options.action) {
                         options.action(src, dest, options)
                     } else if (options.move) {
-                        //  MOB - what if cross filesystem
                         src.rename(dest)
                     } else if (options.append) {
                         data.push(src.readString())
@@ -16868,6 +16868,13 @@ module ejs.unix {
         @return Number of files copied
     */
     function cp(src, dest: Path, options = {}): Number {
+        options = options.clone()
+        options.flatten = !options.tree
+        return Path('.').tree(src, dest, options)
+    }
+
+/* UNUSED
+    function cp(src, dest: Path, options = {}): Number {
         if (!(src is Array)) src = [src]
         let count = 0
         for each (let pattern: Path in src) {
@@ -16911,6 +16918,7 @@ module ejs.unix {
         }
         return count
     }
+*/
 
     /**
         Get the directory name portion of a file. The dirname name portion is the leading portion including all 
@@ -16968,12 +16976,17 @@ module ejs.unix {
             The wildcards "*", "**" and "?" are the only wild card patterns supported. The "**" pattern matches
             every directory. The Posix "[]" and "{a,b}" style expressions are not supported.
         @param options If set to true, then files will include sub-directories in the returned list of files.
-        @option dirs Include directories in the file list
-        @option depthFirst Do a depth first traversal. If "dirs" is specified, the directories will be shown after
-        the files in the directory. Otherwise, directories will be listed first.
-        @option exclude Regular expression pattern of files to exclude from the results. Matches the entire path.
+        @option depthFirst Do a depth first traversal of directories. If true, then the directories will be shown after
+            the files in the directory. Otherwise, directories will be listed first.
+        @option exclude String|Regular RegExp pattern of files to exclude from the results. Matches the entire path.
+            Only for the purpose of this match, directories will have "/" appended. May be set to the string
+            "directories" to exclude directories from the results which are by default included.
         @option hidden Show hidden files starting with "."
         @option include Regular expression pattern of files to include in the results. Matches the entire returned path.
+        @option missing Set to undefined to report patterns that don't resolve into any files or directories 
+            by throwing an exception. Set to any non-null value to be used in the results when there are no matching
+            files or directories. Set to the empty string to use the patterns in the results and set
+            to null to do nothing.
         @return An Array of Path objects for each matching file.
      */
     function ls(patterns = "*", options: Object? = null): Array {
@@ -17002,11 +17015,11 @@ module ejs.unix {
             The pattern '**' is equivalent to '** / *' (ignore spaces). 
             The Posix "[]" and "{a,b}" style expressions are not supported.
         @param options Optional properties to control the matching.
-        @option depthFirst Do a depth first traversal. If "dirs" is specified, the directories will be shown after
+        @option depthFirst Do a depth first traversal of directories. If true, then the directories will be shown after
             the files in the directory. Otherwise, directories will be listed first.
-        @option exclude Regular expression pattern of files to exclude from the results. Matches the entire path.
-            Only for the purpose of this match, directories will have "/" appended. To exclude directories in the
-            results, use {exclude: /\/$/}. The trailing "/" will not be returned in the results.
+        @option exclude String|Regular RegExp pattern of files to exclude from the results. Matches the entire path.
+            Only for the purpose of this match, directories will have "/" appended. May be set to the string
+            "directories" to exclude directories from the results which are by default included.
         @option hidden Include hidden files starting with "."
         @option include Regular expression pattern of files to include in the results. Matches the entire returned path.
             Only for the purpose of this match, directories will have "/" appended. To include only directories in the

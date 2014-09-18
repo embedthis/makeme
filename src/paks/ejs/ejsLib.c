@@ -42067,8 +42067,8 @@ PUBLIC EjsArray *ejsGetPathFiles(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
     EjsObj          *options;
     EjsArray        *result, *patterns;
     EjsRegExp       *exclude, *include;
+    cchar           *path, *base, *pat;
     char            *pattern, *start, *special;
-    cchar           *path, *base;
     int             flags, i;
 
     options = (argc >= 2) ? argv[1]: 0;
@@ -42095,12 +42095,20 @@ PUBLIC EjsArray *ejsGetPathFiles(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
             flags |= FILES_HIDDEN;
         }
         exclude = ejsGetPropertyByName(ejs, options, EN("exclude"));
-        if (exclude && !ejsIs(ejs, exclude, RegExp)) {
-            if (ejsIsDefined(ejs, exclude)) {
-                ejsThrowArgError(ejs, "Exclude option must be a regular expression");
-                return 0;
+        if (exclude) {
+            if (ejsIs(ejs, exclude, String)) {
+                pat = ejsToMulti(ejs, exclude);
+                if (smatch(pat, "directories")) {
+                    exclude = ejsParseRegExp(ejs, "/\\/$/");
+                }
+            } 
+            if (exclude && !ejsIs(ejs, exclude, RegExp)) {
+                if (ejsIsDefined(ejs, exclude)) {
+                    ejsThrowArgError(ejs, "Exclude option must be a regular expression");
+                    return 0;
+                }
+                exclude = 0;
             }
-            exclude = 0;
         }
         include = ejsGetPropertyByName(ejs, options, EN("include"));
         if (include && !ejsIs(ejs, include, RegExp)) {
