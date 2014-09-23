@@ -155,7 +155,7 @@
         </div>
         
         <div class="ui right floated basic segment version">
-            v0.8.3
+            v0.8.4
         </div>
 
     </div>
@@ -216,9 +216,7 @@ bingo: {
 
     </div>
     <div class="terms ui basic center aligned segment">
-        <p>&copy; Embedthis Software, 2003-2014. All rights reserved.
-            Generated on Sep 17, 2014.
-        </p>
+        <p>&copy; Embedthis Software, 2003-2014. All rights reserved.</p>
     </div>
 
     <script src="../lib/jquery/jquery.js"></script>
@@ -236,18 +234,14 @@ bingo: {
             }
         });
         $('.sidebar-launch').trigger('click');
-
+        $('.sidebar a.item').click(function(e) {
+            sessionStorage.setItem('scroll-top', $('.sidebar').scrollTop());
+        });
         $(function() {
             var url = '../developers/executables.html';
             var active = $('.sidebar a[href="' + url +'"]');
             active.addClass('active');
-            var sidebar = $(".sidebar");
-            var height = sidebar.height();
-            var offset = active.offset();
-            if (offset && offset.top >= height) {
-                var diff = height - active.offset().top;
-                sidebar.scrollTop(height);
-            }
+            $('.sidebar').scrollTop(sessionStorage.getItem('scroll-top'));
         });
     </script> 
 
