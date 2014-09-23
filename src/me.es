@@ -3681,8 +3681,8 @@ public class Me {
                '/************************************************************************/\n\n')
         }
         let data = from.readString()
-        if (options.filter) {
-            data = data.replace(options.filter, '')
+        if (options.remove) {
+            data = data.replace(options.remove, '')
         }
         target.append(data)
         target.setAttributes(options)
