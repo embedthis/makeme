@@ -201,6 +201,11 @@ function setupManifest(kind, package, prefixes) {
         if (item.ifdef && !(item.ifdef is Array)) {
             item.ifdef = [item.ifdef]
         }
+        if (item.filter && item.filter is RegExp) {
+            print('Warning: manfiest contains deprecated "filter" regular expression. Use "remove" instead.')
+            item.remove = item.filter
+            delete item.filter
+        }
     }
     return manifest
 }

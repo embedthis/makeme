@@ -4863,7 +4863,7 @@ PUBLIC ssize mprWriteFileString(MprFile *file, cchar *str);
     @see MprDirEntry MprFile MprPath mprCopyPath mprDeletePath mprGetAbsPath mprGetCurrentPath
         mprGetFirstPathSeparator mprGetLastPathSeparator mprGetNativePath mprGetPathBase
         mprGetPathDir mprGetPathExt mprGetPathFiles mprGetPathLink mprGetPathNewline mprGetPathParent
-        mprGetPathSeparators mprGetPortablePath mprGetRelPath mprGetTempPath mprGetWinPath mprIsAbsPath
+        mprGetPathSeparators mprGetPortablePath mprGetRelPath mprGetTempPath mprGetWinPath mprIsPathAbs
         mprIsRelPath mprJoinPath mprJoinPaths mprJoinPathExt mprMakeDir mprMakeLink mprMapSeparators mprNormalizePath
         mprPathExists mprReadPathContents mprReplacePathExt mprResolvePath mprSamePath mprSamePathCount mprSearchPath
         mprTransformPath mprTrimPathExt mprTruncatePath
@@ -5494,6 +5494,12 @@ PUBLIC char *mprTrimPathDrive(cchar *path);
     @stability Stable
  */
 PUBLIC ssize mprWritePathContents(cchar *path, cchar *buf, ssize len, int mode);
+
+/*
+    Internal - prototype
+ */
+PUBLIC bool mprMatchPath(cchar *path, cchar *pattern);
+PUBLIC int mprMatchPartPath(cchar *path, int isDir, cchar *pattern, cchar **nextPartPattern, int count, int flags);
 
 /********************************** O/S Dep ***********************************/
 /**

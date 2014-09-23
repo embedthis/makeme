@@ -35,6 +35,8 @@
     "directories": {
         "paks": "src/paks"
     },
+    "dependencies": {
+    },
     "optionalDependencies": {
         "me-dev": "~0.8",
         "me-doc": "~0.8"
@@ -50,6 +52,13 @@
         "start.me"
     ],
     "import": true,
-    "dependencies": {
+    "paks": {
+        "me-doc": {
+            "ignore": [
+                "partials",
+                "layouts",
+                "css"
+            ]
+        }
     }
 }

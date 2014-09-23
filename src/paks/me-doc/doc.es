@@ -20,7 +20,7 @@ public function apidoc(dox: Path, headers, title: String, tags) {
     rmdir([api.join('html'), api.join('xml')])
     tags = Path('.').files(tags)
 
-    let doxtmp = Path('').temp().replaceExt('dox')
+    let doxtmp = Path('').temp()
     let data = api.join(name + '.dox').readString().replace(/^INPUT .*=.*$/m, 'INPUT = ' + headers)
     Path(doxtmp).write(data)
     trace('Generate', name.toPascal() + ' documentation')

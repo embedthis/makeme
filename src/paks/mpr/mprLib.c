@@ -17332,6 +17332,11 @@ PUBLIC char *mprSearchForModule(cchar *filename)
 
 #define defaultSep(fs)          (fs->separators[0])
 
+/************************************ Forwards ********************************/
+
+static MprList *globPathFiles(MprFileSystem *fs, MprList *results, cchar *path, cchar *base, cchar *pattern, 
+    cchar *exclude, int flags);
+
 /************************************* Code ***********************************/
 
 static ME_INLINE bool isSep(MprFileSystem *fs, int c) 
@@ -17939,7 +17944,6 @@ static MprList *getDirFiles(cchar *dir)
     if (h == INVALID_HANDLE_VALUE) {
         return list;
     }
-
     do {
         if (findData.cFileName[0] == '.' && (findData.cFileName[1] == '\0' || findData.cFileName[1] == '.')) {
             continue;
@@ -18109,144 +18113,7 @@ PUBLIC MprList *mprGetPathFiles(cchar *dir, int flags)
 
 
 /*
-    Match a string against a pattern using glob style matching.
-    Pat may contain a fully path of patterns. Only the first portion up to a file separator is used. The remaining portion
-        is returned in nextPartPattern.
-    seps contains the file system separator characters
-
-    Wildcard Patterns:
-    "?"         Matches any single character
-    "*"         Matches zero or more characters of the file or directory
-    "**"/       Matches zero or more directories
-    "**"        Matches zero or more files or directories
-    trailing/   Trailing slash matches only directory
- */
-static int globMatch(MprFileSystem *fs, cchar *s, cchar *pat, int isDir, int flags, int count, cchar **nextPartPattern)
-{
-    int     match;
-
-    *nextPartPattern = 0;
-    while (*s && *pat && *pat != fs->separators[0] && *pat != fs->separators[1]) {
-        match = (!fs->caseSensitive) ? (*pat == *s) : (tolower((uchar) *pat) == tolower((uchar) *s));
-        if (match || *pat == '?') {
-            ++pat; ++s;
-        } else if (*pat == '*') {
-            if (*++pat == '\0') {
-                /* Terminal star matches files and directories */
-                return 1;
-            }
-            if (*pat == '*') {
-                /* Double star - matches zero or more directories */
-                if (isDir) {
-                    *nextPartPattern = pat - 1;
-                    return 1;
-                }
-                if (pat[1] && (pat[1] == fs->separators[0] || pat[1] == fs->separators[1])) {
-                    /* Double star/ */
-                    if (pat[2] == '\0') {
-                        /* Trailing slash and not a directory */
-                        return 0;
-                    }
-                    pat += 2;
-                } else {
-                    /* Plain double star matches all (alias for ** / *) */
-                    if (pat[1] == '\0') {
-                        *nextPartPattern = pat - 1;
-                        return 1;
-                    }
-                }
-            } else {
-                /* Single star */
-                if (count > 2000) {
-                    mprDebug("debug mpr", 0, "Glob file match is too recursive");
-                    return 0;
-                }
-                if (*pat == fs->separators[0] || *pat == fs->separators[1]) {
-                    s = "";
-                    break;
-                }
-                while (*s) {
-                    if (globMatch(fs, s++, pat, isDir, flags, count + 1, nextPartPattern)) {
-                        return 1;
-                    }
-                }
-                return 0;
-            }
-        } else {
-            return 0;
-        }
-    }
-    if (*pat == '*') {
-        ++pat;
-    }
-    if (*s) {
-        return 0;
-    }
-    if (*pat == '\0') {
-        return 1;
-    }
-    if (*pat && (*pat == fs->separators[0] || *pat == fs->separators[1])) {
-        if (*++pat == '\0') {
-            /* Terminal / matches only directories */
-            return isDir;
-        }
-        *nextPartPattern = pat;
-        return 1;
-    }
-    return 0;
-}
-
-
-/*
-    path    - Directory to search
-    pattern - Search pattern with optional wildcards
-    base    - Return filenames relative to this directory base. May be "".
-    exclude - Exclusion pattern for filename basenames.
- */
-static MprList *globPath(MprFileSystem *fs, MprList *results, cchar *path, cchar *base, cchar *pattern, cchar *exclude, int flags)
-{
-    MprDirEntry     *dp;
-    MprList         *list;
-    cchar           *filename, *nextPartPattern, *nextPath, *nextPartExclude;
-    int             next, add;
-
-    if ((list = mprGetPathFiles(path, flags | MPR_PATH_RELATIVE)) == 0) {
-        return results;
-    }
-    for (next = 0; (dp = mprGetNextItem(list, &next)) != 0; ) {
-        if (!globMatch(fs, dp->name, pattern, dp->isDir, flags, 0, &nextPartPattern)) {
-            continue;
-        }
-        add = 1;
-        if (nextPartPattern && strcmp(nextPartPattern, "**") != 0 && strcmp(nextPartPattern, "**/") != 0
-                   && strcmp(nextPartPattern, "**/*") != 0) {
-            /* Double star matches zero or more components */
-            add = 0;
-        }
-        filename = (flags & MPR_PATH_RELATIVE) ? mprJoinPath(base, dp->name) : mprJoinPath(path, dp->name);
-        if (add && exclude) {
-            if (globMatch(fs, dp->name, exclude, dp->isDir, flags, 0, &nextPartExclude)) {
-                continue;
-            }
-        }
-        if (!(flags & MPR_PATH_DEPTH_FIRST) && add) {
-            /* Exclude mid-pattern directories and terminal directories if only "files" */
-            mprAddItem(results, filename);
-        }
-        if (dp->isDir && nextPartPattern) {
-            nextPath = (flags & MPR_PATH_RELATIVE) ? mprJoinPath(path, dp->name) : filename;
-            globPath(fs, results, nextPath, filename, nextPartPattern, exclude, flags);
-        }
-        if ((flags & MPR_PATH_DEPTH_FIRST) && add) {
-            mprAddItem(results, filename);
-        }
-    }
-    return results;
-}
-
-
-/*
-    Get the files in a directory and subdirectories
+    Get the files in a directory and subdirectories using glob-style matching
  */
 PUBLIC MprList *mprGlobPathFiles(cchar *path, cchar *patterns, int flags)
 {
@@ -18288,11 +18155,217 @@ PUBLIC MprList *mprGlobPathFiles(cchar *path, cchar *patterns, int flags)
         if (*pattern == '!') {
             exclude = &pattern[1];
         }
-        if (!globPath(fs, result, path, base, pattern, exclude, flags)) {
+        if (!globPathFiles(fs, result, path, base, pattern, exclude, flags)) {
             return 0;
         }
     }
     return result;
+}
+
+
+/*
+    Test if a path matches a glob-style pattern
+ */
+PUBLIC bool mprMatchPath(cchar *path, cchar *pattern)
+{
+    MprFileSystem   *fs;
+    cchar           *nextPartPattern;
+    char            *cp, *name;
+    bool            isDir;
+
+    fs = mprLookupFileSystem(path);
+    if (!path || !pattern) {
+        return 1;
+    }
+    for (cp = name = sclone(path); *cp; cp++) {
+        if (*cp == fs->separators[0] || *cp == fs->separators[1]) {
+            *cp++ = '\0';
+            if (!mprMatchPartPath(name, 1, pattern, &nextPartPattern, 0, 0)) {
+                return 0;
+            }
+            if (!nextPartPattern) {
+                return 1;
+            }
+            pattern = nextPartPattern;
+            name = cp;
+        }
+    }
+    if (name < cp) {
+        if (!pattern) {
+            return 1;
+        }
+        if (!mprMatchPartPath(name, 0, pattern, &nextPartPattern, 0, 0)) {
+            return 0;
+        }
+        if (nextPartPattern && *nextPartPattern) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+
+/*
+    Glob a full multi-segment path and return a list of matching files
+
+    path    - Directory to search
+    pattern - Search pattern with optional wildcards
+    base    - Return filenames relative to this directory base. May be "".
+    exclude - Exclusion pattern for filename basenames.
+ */
+static MprList *globPathFiles(MprFileSystem *fs, MprList *results, cchar *path, cchar *base, cchar *pattern, 
+    cchar *exclude, int flags)
+{
+    MprDirEntry     *dp;
+    MprList         *list;
+    cchar           *filename, *nextPartPattern, *nextPath, *nextPartExclude;
+    int             next, add;
+
+    if ((list = mprGetPathFiles(path, flags | MPR_PATH_RELATIVE)) == 0) {
+        return results;
+    }
+    for (next = 0; (dp = mprGetNextItem(list, &next)) != 0; ) {
+        if (!mprMatchPartPath(dp->name, dp->isDir, pattern, &nextPartPattern, 0, flags)) {
+            continue;
+        }
+        add = 1;
+        if (nextPartPattern && strcmp(nextPartPattern, "**") != 0 && strcmp(nextPartPattern, "**/") != 0
+                   && strcmp(nextPartPattern, "**/*") != 0) {
+            /* Double star matches zero or more components */
+            add = 0;
+        }
+        filename = (flags & MPR_PATH_RELATIVE) ? mprJoinPath(base, dp->name) : mprJoinPath(path, dp->name);
+        if (add && exclude) {
+            if (mprMatchPartPath(dp->name, dp->isDir, exclude, &nextPartExclude, 0, flags)) {
+                continue;
+            }
+        }
+        if (!(flags & MPR_PATH_DEPTH_FIRST) && add) {
+            /* Exclude mid-pattern directories and terminal directories if only "files" */
+            mprAddItem(results, filename);
+        }
+        if (dp->isDir && nextPartPattern) {
+            nextPath = (flags & MPR_PATH_RELATIVE) ? mprJoinPath(path, dp->name) : filename;
+            globPathFiles(fs, results, nextPath, filename, nextPartPattern, exclude, flags);
+        }
+        if ((flags & MPR_PATH_DEPTH_FIRST) && add) {
+            mprAddItem(results, filename);
+        }
+    }
+    return results;
+}
+
+
+/*
+    Partial glob matching.  Match a string against a pattern in parts using glob style matching.
+    This is not a full glob match. It matches only the next glob portion up to a file separator. 
+
+    Pat may contain a full path of patterns. Only the first portion up to a file separator is used. The remaining portion
+        is returned in nextPartPattern.
+    Thick arg interface to be as fast as possible.
+
+    Wildcard Patterns:
+    "?"         Matches any single character
+    "*"         Matches zero or more characters of the file or directory
+    "**"/       Matches zero or more directories
+    "**"        Matches zero or more files or directories
+    trailing/   Trailing slash matches only directory
+ */
+PUBLIC int mprMatchPartPath(cchar *path, int isDir, cchar *pattern, cchar **nextPartPattern, int count, int flags)
+{
+    MprFileSystem   *fs;
+    cchar           *pat, *pp;
+    int             match;
+
+    fs = mprLookupFileSystem(path);
+    *nextPartPattern = 0;
+    pat = pattern;
+    pp = path;
+
+    while (*pp && *pat && *pat != fs->separators[0] && *pat != fs->separators[1]) {
+        match = (!fs->caseSensitive) ? (*pat == *pp) : (tolower((uchar) *pat) == tolower((uchar) *pp));
+        if (match || *pat == '?') {
+            ++pat; ++pp;
+        } else if (*pat == '*') {
+            if (*++pat == '\0') {
+                /* Terminal star matches files and directories */
+                return 1;
+            }
+            if (*pat == '*') {
+                /* Double-star - matches zero or more directories */
+                if (isDir) {
+#if KEEP && EJS
+                    /*
+                        Check if next segment matches and match that
+                     */
+                    if (pat[1] == fs->separators[0] || pat[1] == fs->separators[1]) {
+                        if (mprMatchPartPath(pp, isDir, &pat[2], nextPartPattern, count, flags)) {
+                            return 1;
+                        }
+                    }
+#endif
+                    *nextPartPattern = pat - 1;
+                    return 1;
+
+                } else if (pat[1] && (pat[1] == fs->separators[0] || pat[1] == fs->separators[1])) {
+                    /* Double-star/ */
+                    if (pat[2] == '\0') {
+                        /* Trailing slash and not a directory */
+                        return 0;
+                    }
+                    pat += 2;
+
+                } else {
+                    /* Plain double.star matches all (alias for ** / *) */
+                    if (pat[1] == '\0') {
+                        *nextPartPattern = pat - 1;
+                        return 1;
+                    }
+                }
+            } else {
+                /* Single star */
+                if (count > 2000) {
+                    mprDebug("debug mpr", 0, "Glob file match is too recursive");
+                    return 0;
+                }
+                if (*pat == fs->separators[0] || *pat == fs->separators[1]) {
+                    pp = "";
+                    break;
+                }
+                while (*pp) {
+                    if (mprMatchPartPath(pp++, isDir, pat, nextPartPattern, count + 1, flags)) {
+                        return 1;
+                    }
+                }
+                return 0;
+            }
+        } else {
+            return 0;
+        }
+    }
+    /* 
+        Left overs
+     */
+    while (*pat == '*') {
+        ++pat;
+    }
+    if (*pp) {
+        /* Pattern too short - fail to match */
+        return 0;
+    }
+    if (*pat == '\0') {
+        return 1;
+    }
+    if (*pat && (*pat == fs->separators[0] || *pat == fs->separators[1])) {
+        if (*++pat == '\0') {
+            /* Terminal / matches only directories */
+            return isDir;
+        }
+        /* This portion of the pattern has matched this portion of the filename */
+        *nextPartPattern = pat;
+        return 1;
+    }
+    return 0;
 }
 
 
