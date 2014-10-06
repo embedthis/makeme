@@ -122,7 +122,7 @@ prep:
 			echo "   [Warning] Make flags have changed since the last build: "`cat $(BUILD)/.makeflags`"" ; \
 		fi ; \
 	fi
-	@echo "XX $(MAKEFLAGS)"" >$(BUILD)/.makeflags
+	@echo "$(MAKEFLAGS)" >$(BUILD)/.makeflags
 
 clean:
 	rm -f "build/$(CONFIG)/obj/ejs.o"
@@ -161,9 +161,33 @@ clobber: clean
 #
 #   core
 #
-DEPS_1 += src/**
+DEPS_1 += src/configure/appweb.me
+DEPS_1 += src/configure/compiler.me
+DEPS_1 += src/configure/lib.me
+DEPS_1 += src/configure/link.me
+DEPS_1 += src/configure/rc.me
+DEPS_1 += src/configure/testme.me
+DEPS_1 += src/configure/vxworks.me
+DEPS_1 += src/configure/winsdk.me
+DEPS_1 += src/configure.es
+DEPS_1 += src/generate.es
+DEPS_1 += src/master-main.me
+DEPS_1 += src/master-start.me
+DEPS_1 += src/me.es
+DEPS_1 += src/os/freebsd.me
+DEPS_1 += src/os/gcc.me
+DEPS_1 += src/os/linux.me
+DEPS_1 += src/os/macosx.me
+DEPS_1 += src/os/solaris.me
+DEPS_1 += src/os/unix.me
+DEPS_1 += src/os/vxworks.me
+DEPS_1 += src/os/windows.me
+DEPS_1 += src/simple.me
+DEPS_1 += src/standard.me
+DEPS_1 += src/vstudio.es
+DEPS_1 += src/xcode.es
 
-build/$(CONFIG)/bin: $(DEPS_1)
+build/$(CONFIG)/.updated-core: $(DEPS_1)
 	@echo '      [Copy] build/$(CONFIG)/bin'
 	mkdir -p "build/$(CONFIG)/bin/configure"
 	cp src/configure/appweb.me build/$(CONFIG)/bin/configure/appweb.me
@@ -533,7 +557,7 @@ build/$(CONFIG)/bin/ejs.mod: $(DEPS_29)
 	( \
 	cd src/paks/ejs; \
 	echo '   [Compile] ejs.mod' ; \
-	../../../build/$(CONFIG)/bin/ejsc --out ../../../build/$(CONFIG)/bin/ejs.mod --optimize 9 --bind --require null ejs.es ; \
+	../../../build/$(CONFIG)/bin/ejsc --debug --out ../../../build/$(CONFIG)/bin/ejs.mod --optimize 9 --bind --require null ejs.es ; \
 	)
 endif
 
