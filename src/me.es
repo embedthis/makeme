@@ -1374,11 +1374,9 @@ public class Me {
             }
             target.home = Path(expand(target.home || me.dir.src))
             target.files ||= []
-/* UNUSED
             if (target.path && target.path.isDir) {
                 target.touch = target.path.dirname.join('.updated-' + Path(target.name).basename)
             }
-*/
             Object.sortProperties(target)
         }
     }
