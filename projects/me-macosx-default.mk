@@ -187,7 +187,9 @@ DEPS_1 += src/standard.me
 DEPS_1 += src/vstudio.es
 DEPS_1 += src/xcode.es
 
-build/$(CONFIG)/bin: $(DEPS_1)
+.force: .PHONY
+
+build/$(CONFIG)/bin: $(DEPS_1) .force
 	@echo '      [Copy] build/$(CONFIG)/bin'
 	mkdir -p "build/$(CONFIG)/bin/configure"
 	cp src/configure/appweb.me build/$(CONFIG)/bin/configure/appweb.me
