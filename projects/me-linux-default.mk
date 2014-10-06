@@ -187,7 +187,7 @@ DEPS_1 += src/standard.me
 DEPS_1 += src/vstudio.es
 DEPS_1 += src/xcode.es
 
-build/$(CONFIG)/.updated-core: $(DEPS_1)
+build/$(CONFIG)/bin: $(DEPS_1)
 	@echo '      [Copy] build/$(CONFIG)/bin'
 	mkdir -p "build/$(CONFIG)/bin/configure"
 	cp src/configure/appweb.me build/$(CONFIG)/bin/configure/appweb.me

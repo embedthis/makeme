@@ -187,7 +187,7 @@ DEPS_1 += src/standard.me
 DEPS_1 += src/vstudio.es
 DEPS_1 += src/xcode.es
 
-build/$(CONFIG)/.updated-core: $(DEPS_1)
+build/$(CONFIG)/bin: $(DEPS_1)
 	@echo '      [Copy] build/$(CONFIG)/bin'
 	mkdir -p "build/$(CONFIG)/bin/configure"
 	cp src/configure/appweb.me build/$(CONFIG)/bin/configure/appweb.me
@@ -269,43 +269,53 @@ build/$(CONFIG)/inc/mpr.h: $(DEPS_4)
 	cp src/paks/mpr/mpr.h build/$(CONFIG)/inc/mpr.h
 
 #
+#   mpr.h
+#
+src/paks/mpr/mpr.h: $(DEPS_5)
+
+#
 #   mprLib.o
 #
-DEPS_5 += build/$(CONFIG)/inc/mpr.h
+DEPS_6 += src/paks/mpr/mpr.h
 
 build/$(CONFIG)/obj/mprLib.o: \
-    src/paks/mpr/mprLib.c $(DEPS_5)
+    src/paks/mpr/mprLib.c $(DEPS_6)
 	@echo '   [Compile] build/$(CONFIG)/obj/mprLib.o'
 	$(CC) -c $(DFLAGS) -o build/$(CONFIG)/obj/mprLib.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) src/paks/mpr/mprLib.c
 
 #
 #   libmpr
 #
-DEPS_6 += build/$(CONFIG)/inc/mpr.h
-DEPS_6 += build/$(CONFIG)/obj/mprLib.o
+DEPS_7 += build/$(CONFIG)/inc/mpr.h
+DEPS_7 += build/$(CONFIG)/obj/mprLib.o
 
-build/$(CONFIG)/bin/libmpr.dylib: $(DEPS_6)
+build/$(CONFIG)/bin/libmpr.dylib: $(DEPS_7)
 	@echo '      [Link] build/$(CONFIG)/bin/libmpr.dylib'
 	$(CC) -dynamiclib -o build/$(CONFIG)/bin/libmpr.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libmpr.dylib -compatibility_version 0.8 -current_version 0.8 "build/$(CONFIG)/obj/mprLib.o" $(LIBS) 
 
 #
 #   pcre.h
 #
-DEPS_7 += src/paks/pcre/pcre.h
+DEPS_8 += src/paks/pcre/pcre.h
 
-build/$(CONFIG)/inc/pcre.h: $(DEPS_7)
+build/$(CONFIG)/inc/pcre.h: $(DEPS_8)
 	@echo '      [Copy] build/$(CONFIG)/inc/pcre.h'
 	mkdir -p "build/$(CONFIG)/inc"
 	cp src/paks/pcre/pcre.h build/$(CONFIG)/inc/pcre.h
 
 #
+#   pcre.h
+#
+src/paks/pcre/pcre.h: $(DEPS_9)
+
+#
 #   pcre.o
 #
-DEPS_8 += build/$(CONFIG)/inc/me.h
-DEPS_8 += build/$(CONFIG)/inc/pcre.h
+DEPS_10 += build/$(CONFIG)/inc/me.h
+DEPS_10 += src/paks/pcre/pcre.h
 
 build/$(CONFIG)/obj/pcre.o: \
-    src/paks/pcre/pcre.c $(DEPS_8)
+    src/paks/pcre/pcre.c $(DEPS_10)
 	@echo '   [Compile] build/$(CONFIG)/obj/pcre.o'
 	$(CC) -c $(DFLAGS) -o build/$(CONFIG)/obj/pcre.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) src/paks/pcre/pcre.c
 
@@ -313,10 +323,10 @@ ifeq ($(ME_COM_PCRE),1)
 #
 #   libpcre
 #
-DEPS_9 += build/$(CONFIG)/inc/pcre.h
-DEPS_9 += build/$(CONFIG)/obj/pcre.o
+DEPS_11 += build/$(CONFIG)/inc/pcre.h
+DEPS_11 += build/$(CONFIG)/obj/pcre.o
 
-build/$(CONFIG)/bin/libpcre.dylib: $(DEPS_9)
+build/$(CONFIG)/bin/libpcre.dylib: $(DEPS_11)
 	@echo '      [Link] build/$(CONFIG)/bin/libpcre.dylib'
 	$(CC) -dynamiclib -o build/$(CONFIG)/bin/libpcre.dylib -arch $(CC_ARCH) $(LDFLAGS) -compatibility_version 0.8 -current_version 0.8 $(LIBPATHS) -install_name @rpath/libpcre.dylib -compatibility_version 0.8 -current_version 0.8 "build/$(CONFIG)/obj/pcre.o" $(LIBS) 
 endif
@@ -324,21 +334,26 @@ endif
 #
 #   http.h
 #
-DEPS_10 += src/paks/http/http.h
-DEPS_10 += build/$(CONFIG)/inc/mpr.h
+DEPS_12 += src/paks/http/http.h
+DEPS_12 += build/$(CONFIG)/inc/mpr.h
 
-build/$(CONFIG)/inc/http.h: $(DEPS_10)
+build/$(CONFIG)/inc/http.h: $(DEPS_12)
 	@echo '      [Copy] build/$(CONFIG)/inc/http.h'
 	mkdir -p "build/$(CONFIG)/inc"
 	cp src/paks/http/http.h build/$(CONFIG)/inc/http.h
 
 #
+#   http.h
+#
+src/paks/http/http.h: $(DEPS_13)
+
+#
 #   httpLib.o
 #
-DEPS_11 += build/$(CONFIG)/inc/http.h
+DEPS_14 += src/paks/http/http.h
 
 build/$(CONFIG)/obj/httpLib.o: \
-    src/paks/http/httpLib.c $(DEPS_11)
+    src/paks/http/httpLib.c $(DEPS_14)
 	@echo '   [Compile] build/$(CONFIG)/obj/httpLib.o'
 	$(CC) -c $(DFLAGS) -o build/$(CONFIG)/obj/httpLib.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) src/paks/http/httpLib.c
 
@@ -346,42 +361,47 @@ ifeq ($(ME_COM_HTTP),1)
 #
 #   libhttp
 #
-DEPS_12 += build/$(CONFIG)/bin/libmpr.dylib
+DEPS_15 += build/$(CONFIG)/bin/libmpr.dylib
 ifeq ($(ME_COM_PCRE),1)
-    DEPS_12 += build/$(CONFIG)/bin/libpcre.dylib
+    DEPS_15 += build/$(CONFIG)/bin/libpcre.dylib
 endif
-DEPS_12 += build/$(CONFIG)/inc/http.h
-DEPS_12 += build/$(CONFIG)/obj/httpLib.o
+DEPS_15 += build/$(CONFIG)/inc/http.h
+DEPS_15 += build/$(CONFIG)/obj/httpLib.o
 
-LIBS_12 += -lmpr
+LIBS_15 += -lmpr
 ifeq ($(ME_COM_PCRE),1)
-    LIBS_12 += -lpcre
+    LIBS_15 += -lpcre
 endif
 
-build/$(CONFIG)/bin/libhttp.dylib: $(DEPS_12)
+build/$(CONFIG)/bin/libhttp.dylib: $(DEPS_15)
 	@echo '      [Link] build/$(CONFIG)/bin/libhttp.dylib'
-	$(CC) -dynamiclib -o build/$(CONFIG)/bin/libhttp.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libhttp.dylib -compatibility_version 0.8 -current_version 0.8 "build/$(CONFIG)/obj/httpLib.o" $(LIBPATHS_12) $(LIBS_12) $(LIBS_12) $(LIBS) 
+	$(CC) -dynamiclib -o build/$(CONFIG)/bin/libhttp.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libhttp.dylib -compatibility_version 0.8 -current_version 0.8 "build/$(CONFIG)/obj/httpLib.o" $(LIBPATHS_15) $(LIBS_15) $(LIBS_15) $(LIBS) 
 endif
 
 #
 #   zlib.h
 #
-DEPS_13 += src/paks/zlib/zlib.h
-DEPS_13 += build/$(CONFIG)/inc/me.h
+DEPS_16 += src/paks/zlib/zlib.h
+DEPS_16 += build/$(CONFIG)/inc/me.h
 
-build/$(CONFIG)/inc/zlib.h: $(DEPS_13)
+build/$(CONFIG)/inc/zlib.h: $(DEPS_16)
 	@echo '      [Copy] build/$(CONFIG)/inc/zlib.h'
 	mkdir -p "build/$(CONFIG)/inc"
 	cp src/paks/zlib/zlib.h build/$(CONFIG)/inc/zlib.h
 
 #
+#   zlib.h
+#
+src/paks/zlib/zlib.h: $(DEPS_17)
+
+#
 #   zlib.o
 #
-DEPS_14 += build/$(CONFIG)/inc/me.h
-DEPS_14 += build/$(CONFIG)/inc/zlib.h
+DEPS_18 += build/$(CONFIG)/inc/me.h
+DEPS_18 += src/paks/zlib/zlib.h
 
 build/$(CONFIG)/obj/zlib.o: \
-    src/paks/zlib/zlib.c $(DEPS_14)
+    src/paks/zlib/zlib.c $(DEPS_18)
 	@echo '   [Compile] build/$(CONFIG)/obj/zlib.o'
 	$(CC) -c $(DFLAGS) -o build/$(CONFIG)/obj/zlib.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) src/paks/zlib/zlib.c
 
@@ -389,10 +409,10 @@ ifeq ($(ME_COM_ZLIB),1)
 #
 #   libzlib
 #
-DEPS_15 += build/$(CONFIG)/inc/zlib.h
-DEPS_15 += build/$(CONFIG)/obj/zlib.o
+DEPS_19 += build/$(CONFIG)/inc/zlib.h
+DEPS_19 += build/$(CONFIG)/obj/zlib.o
 
-build/$(CONFIG)/bin/libzlib.dylib: $(DEPS_15)
+build/$(CONFIG)/bin/libzlib.dylib: $(DEPS_19)
 	@echo '      [Link] build/$(CONFIG)/bin/libzlib.dylib'
 	$(CC) -dynamiclib -o build/$(CONFIG)/bin/libzlib.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libzlib.dylib -compatibility_version 0.8 -current_version 0.8 "build/$(CONFIG)/obj/zlib.o" $(LIBS) 
 endif
@@ -400,50 +420,60 @@ endif
 #
 #   ejs.slots.h
 #
-DEPS_16 += src/paks/ejs/ejs.slots.h
-
-build/$(CONFIG)/inc/ejs.slots.h: $(DEPS_16)
-	@echo '      [Copy] build/$(CONFIG)/inc/ejs.slots.h'
-	mkdir -p "build/$(CONFIG)/inc"
-	cp src/paks/ejs/ejs.slots.h build/$(CONFIG)/inc/ejs.slots.h
+src/paks/ejs/ejs.slots.h: $(DEPS_20)
 
 #
 #   ejs.h
 #
-DEPS_17 += src/paks/ejs/ejs.h
-DEPS_17 += build/$(CONFIG)/inc/me.h
-DEPS_17 += build/$(CONFIG)/inc/osdep.h
-DEPS_17 += build/$(CONFIG)/inc/mpr.h
-DEPS_17 += build/$(CONFIG)/inc/http.h
-DEPS_17 += build/$(CONFIG)/inc/ejs.slots.h
-DEPS_17 += build/$(CONFIG)/inc/pcre.h
-DEPS_17 += build/$(CONFIG)/inc/zlib.h
+DEPS_21 += src/paks/ejs/ejs.h
+DEPS_21 += build/$(CONFIG)/inc/me.h
+DEPS_21 += build/$(CONFIG)/inc/osdep.h
+DEPS_21 += build/$(CONFIG)/inc/mpr.h
+DEPS_21 += build/$(CONFIG)/inc/http.h
+DEPS_21 += src/paks/ejs/ejs.slots.h
+DEPS_21 += build/$(CONFIG)/inc/pcre.h
+DEPS_21 += build/$(CONFIG)/inc/zlib.h
 
-build/$(CONFIG)/inc/ejs.h: $(DEPS_17)
+build/$(CONFIG)/inc/ejs.h: $(DEPS_21)
 	@echo '      [Copy] build/$(CONFIG)/inc/ejs.h'
 	mkdir -p "build/$(CONFIG)/inc"
 	cp src/paks/ejs/ejs.h build/$(CONFIG)/inc/ejs.h
 
 #
+#   ejs.slots.h
+#
+DEPS_22 += src/paks/ejs/ejs.slots.h
+
+build/$(CONFIG)/inc/ejs.slots.h: $(DEPS_22)
+	@echo '      [Copy] build/$(CONFIG)/inc/ejs.slots.h'
+	mkdir -p "build/$(CONFIG)/inc"
+	cp src/paks/ejs/ejs.slots.h build/$(CONFIG)/inc/ejs.slots.h
+
+#
 #   ejsByteGoto.h
 #
-DEPS_18 += src/paks/ejs/ejsByteGoto.h
+DEPS_23 += src/paks/ejs/ejsByteGoto.h
 
-build/$(CONFIG)/inc/ejsByteGoto.h: $(DEPS_18)
+build/$(CONFIG)/inc/ejsByteGoto.h: $(DEPS_23)
 	@echo '      [Copy] build/$(CONFIG)/inc/ejsByteGoto.h'
 	mkdir -p "build/$(CONFIG)/inc"
 	cp src/paks/ejs/ejsByteGoto.h build/$(CONFIG)/inc/ejsByteGoto.h
 
 #
+#   ejs.h
+#
+src/paks/ejs/ejs.h: $(DEPS_24)
+
+#
 #   ejsLib.o
 #
-DEPS_19 += build/$(CONFIG)/inc/ejs.h
-DEPS_19 += build/$(CONFIG)/inc/mpr.h
-DEPS_19 += build/$(CONFIG)/inc/pcre.h
-DEPS_19 += build/$(CONFIG)/inc/me.h
+DEPS_25 += src/paks/ejs/ejs.h
+DEPS_25 += build/$(CONFIG)/inc/mpr.h
+DEPS_25 += build/$(CONFIG)/inc/pcre.h
+DEPS_25 += build/$(CONFIG)/inc/me.h
 
 build/$(CONFIG)/obj/ejsLib.o: \
-    src/paks/ejs/ejsLib.c $(DEPS_19)
+    src/paks/ejs/ejsLib.c $(DEPS_25)
 	@echo '   [Compile] build/$(CONFIG)/obj/ejsLib.o'
 	$(CC) -c $(DFLAGS) -o build/$(CONFIG)/obj/ejsLib.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) src/paks/ejs/ejsLib.c
 
@@ -452,43 +482,43 @@ ifeq ($(ME_COM_EJS),1)
 #   libejs
 #
 ifeq ($(ME_COM_HTTP),1)
-    DEPS_20 += build/$(CONFIG)/bin/libhttp.dylib
+    DEPS_26 += build/$(CONFIG)/bin/libhttp.dylib
 endif
 ifeq ($(ME_COM_PCRE),1)
-    DEPS_20 += build/$(CONFIG)/bin/libpcre.dylib
+    DEPS_26 += build/$(CONFIG)/bin/libpcre.dylib
 endif
-DEPS_20 += build/$(CONFIG)/bin/libmpr.dylib
+DEPS_26 += build/$(CONFIG)/bin/libmpr.dylib
 ifeq ($(ME_COM_ZLIB),1)
-    DEPS_20 += build/$(CONFIG)/bin/libzlib.dylib
+    DEPS_26 += build/$(CONFIG)/bin/libzlib.dylib
 endif
-DEPS_20 += build/$(CONFIG)/inc/ejs.h
-DEPS_20 += build/$(CONFIG)/inc/ejs.slots.h
-DEPS_20 += build/$(CONFIG)/inc/ejsByteGoto.h
-DEPS_20 += build/$(CONFIG)/obj/ejsLib.o
+DEPS_26 += build/$(CONFIG)/inc/ejs.h
+DEPS_26 += build/$(CONFIG)/inc/ejs.slots.h
+DEPS_26 += build/$(CONFIG)/inc/ejsByteGoto.h
+DEPS_26 += build/$(CONFIG)/obj/ejsLib.o
 
 ifeq ($(ME_COM_HTTP),1)
-    LIBS_20 += -lhttp
+    LIBS_26 += -lhttp
 endif
-LIBS_20 += -lmpr
+LIBS_26 += -lmpr
 ifeq ($(ME_COM_PCRE),1)
-    LIBS_20 += -lpcre
+    LIBS_26 += -lpcre
 endif
 ifeq ($(ME_COM_ZLIB),1)
-    LIBS_20 += -lzlib
+    LIBS_26 += -lzlib
 endif
 
-build/$(CONFIG)/bin/libejs.dylib: $(DEPS_20)
+build/$(CONFIG)/bin/libejs.dylib: $(DEPS_26)
 	@echo '      [Link] build/$(CONFIG)/bin/libejs.dylib'
-	$(CC) -dynamiclib -o build/$(CONFIG)/bin/libejs.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libejs.dylib -compatibility_version 0.8 -current_version 0.8 "build/$(CONFIG)/obj/ejsLib.o" $(LIBPATHS_20) $(LIBS_20) $(LIBS_20) $(LIBS) 
+	$(CC) -dynamiclib -o build/$(CONFIG)/bin/libejs.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libejs.dylib -compatibility_version 0.8 -current_version 0.8 "build/$(CONFIG)/obj/ejsLib.o" $(LIBPATHS_26) $(LIBS_26) $(LIBS_26) $(LIBS) 
 endif
 
 #
 #   ejsc.o
 #
-DEPS_21 += build/$(CONFIG)/inc/ejs.h
+DEPS_27 += src/paks/ejs/ejs.h
 
 build/$(CONFIG)/obj/ejsc.o: \
-    src/paks/ejs/ejsc.c $(DEPS_21)
+    src/paks/ejs/ejsc.c $(DEPS_27)
 	@echo '   [Compile] build/$(CONFIG)/obj/ejsc.o'
 	$(CC) -c $(DFLAGS) -o build/$(CONFIG)/obj/ejsc.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) src/paks/ejs/ejsc.c
 
@@ -496,34 +526,34 @@ ifeq ($(ME_COM_EJS),1)
 #
 #   ejsc
 #
-DEPS_22 += build/$(CONFIG)/bin/libejs.dylib
-DEPS_22 += build/$(CONFIG)/obj/ejsc.o
+DEPS_28 += build/$(CONFIG)/bin/libejs.dylib
+DEPS_28 += build/$(CONFIG)/obj/ejsc.o
 
-LIBS_22 += -lejs
+LIBS_28 += -lejs
 ifeq ($(ME_COM_HTTP),1)
-    LIBS_22 += -lhttp
+    LIBS_28 += -lhttp
 endif
-LIBS_22 += -lmpr
+LIBS_28 += -lmpr
 ifeq ($(ME_COM_PCRE),1)
-    LIBS_22 += -lpcre
+    LIBS_28 += -lpcre
 endif
 ifeq ($(ME_COM_ZLIB),1)
-    LIBS_22 += -lzlib
+    LIBS_28 += -lzlib
 endif
 
-build/$(CONFIG)/bin/ejsc: $(DEPS_22)
+build/$(CONFIG)/bin/ejsc: $(DEPS_28)
 	@echo '      [Link] build/$(CONFIG)/bin/ejsc'
-	$(CC) -o build/$(CONFIG)/bin/ejsc -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) "build/$(CONFIG)/obj/ejsc.o" $(LIBPATHS_22) $(LIBS_22) $(LIBS_22) $(LIBS) 
+	$(CC) -o build/$(CONFIG)/bin/ejsc -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) "build/$(CONFIG)/obj/ejsc.o" $(LIBPATHS_28) $(LIBS_28) $(LIBS_28) $(LIBS) 
 endif
 
 ifeq ($(ME_COM_EJS),1)
 #
 #   ejs.mod
 #
-DEPS_23 += src/paks/ejs/ejs.es
-DEPS_23 += build/$(CONFIG)/bin/ejsc
+DEPS_29 += src/paks/ejs/ejs.es
+DEPS_29 += build/$(CONFIG)/bin/ejsc
 
-build/$(CONFIG)/bin/ejs.mod: $(DEPS_23)
+build/$(CONFIG)/bin/ejs.mod: $(DEPS_29)
 	( \
 	cd src/paks/ejs; \
 	echo '   [Compile] ejs.mod' ; \
@@ -534,9 +564,9 @@ endif
 #
 #   ejs.testme.es
 #
-DEPS_24 += src/tm/ejs.testme.es
+DEPS_30 += src/tm/ejs.testme.es
 
-build/$(CONFIG)/bin/ejs.testme.es: $(DEPS_24)
+build/$(CONFIG)/bin/ejs.testme.es: $(DEPS_30)
 	@echo '      [Copy] build/$(CONFIG)/bin/ejs.testme.es'
 	mkdir -p "build/$(CONFIG)/bin"
 	cp src/tm/ejs.testme.es build/$(CONFIG)/bin/ejs.testme.es
@@ -544,12 +574,12 @@ build/$(CONFIG)/bin/ejs.testme.es: $(DEPS_24)
 #
 #   ejs.testme.mod
 #
-DEPS_25 += src/tm/ejs.testme.es
+DEPS_31 += src/tm/ejs.testme.es
 ifeq ($(ME_COM_EJS),1)
-    DEPS_25 += build/$(CONFIG)/bin/ejsc
+    DEPS_31 += build/$(CONFIG)/bin/ejsc
 endif
 
-build/$(CONFIG)/bin/ejs.testme.mod: $(DEPS_25)
+build/$(CONFIG)/bin/ejs.testme.mod: $(DEPS_31)
 	( \
 	cd src/tm; \
 	echo '   [Compile] ejs.testme.mod' ; \
@@ -559,10 +589,10 @@ build/$(CONFIG)/bin/ejs.testme.mod: $(DEPS_25)
 #
 #   ejs.o
 #
-DEPS_26 += build/$(CONFIG)/inc/ejs.h
+DEPS_32 += src/paks/ejs/ejs.h
 
 build/$(CONFIG)/obj/ejs.o: \
-    src/paks/ejs/ejs.c $(DEPS_26)
+    src/paks/ejs/ejs.c $(DEPS_32)
 	@echo '   [Compile] build/$(CONFIG)/obj/ejs.o'
 	$(CC) -c $(DFLAGS) -o build/$(CONFIG)/obj/ejs.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) src/paks/ejs/ejs.c
 
@@ -570,33 +600,33 @@ ifeq ($(ME_COM_EJS),1)
 #
 #   ejscmd
 #
-DEPS_27 += build/$(CONFIG)/bin/libejs.dylib
-DEPS_27 += build/$(CONFIG)/obj/ejs.o
+DEPS_33 += build/$(CONFIG)/bin/libejs.dylib
+DEPS_33 += build/$(CONFIG)/obj/ejs.o
 
-LIBS_27 += -lejs
+LIBS_33 += -lejs
 ifeq ($(ME_COM_HTTP),1)
-    LIBS_27 += -lhttp
+    LIBS_33 += -lhttp
 endif
-LIBS_27 += -lmpr
+LIBS_33 += -lmpr
 ifeq ($(ME_COM_PCRE),1)
-    LIBS_27 += -lpcre
+    LIBS_33 += -lpcre
 endif
 ifeq ($(ME_COM_ZLIB),1)
-    LIBS_27 += -lzlib
+    LIBS_33 += -lzlib
 endif
 
-build/$(CONFIG)/bin/ejs: $(DEPS_27)
+build/$(CONFIG)/bin/ejs: $(DEPS_33)
 	@echo '      [Link] build/$(CONFIG)/bin/ejs'
-	$(CC) -o build/$(CONFIG)/bin/ejs -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) "build/$(CONFIG)/obj/ejs.o" $(LIBPATHS_27) $(LIBS_27) $(LIBS_27) $(LIBS) -ledit 
+	$(CC) -o build/$(CONFIG)/bin/ejs -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) "build/$(CONFIG)/obj/ejs.o" $(LIBPATHS_33) $(LIBS_33) $(LIBS_33) $(LIBS) -ledit 
 endif
 
 
 #
 #   http-ca-crt
 #
-DEPS_28 += src/paks/http/ca.crt
+DEPS_34 += src/paks/http/ca.crt
 
-build/$(CONFIG)/bin/ca.crt: $(DEPS_28)
+build/$(CONFIG)/bin/ca.crt: $(DEPS_34)
 	@echo '      [Copy] build/$(CONFIG)/bin/ca.crt'
 	mkdir -p "build/$(CONFIG)/bin"
 	cp src/paks/http/ca.crt build/$(CONFIG)/bin/ca.crt
@@ -604,10 +634,10 @@ build/$(CONFIG)/bin/ca.crt: $(DEPS_28)
 #
 #   http.o
 #
-DEPS_29 += build/$(CONFIG)/inc/http.h
+DEPS_35 += src/paks/http/http.h
 
 build/$(CONFIG)/obj/http.o: \
-    src/paks/http/http.c $(DEPS_29)
+    src/paks/http/http.c $(DEPS_35)
 	@echo '   [Compile] build/$(CONFIG)/obj/http.o'
 	$(CC) -c $(DFLAGS) -o build/$(CONFIG)/obj/http.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) src/paks/http/http.c
 
@@ -615,39 +645,42 @@ ifeq ($(ME_COM_HTTP),1)
 #
 #   httpcmd
 #
-DEPS_30 += build/$(CONFIG)/bin/libhttp.dylib
-DEPS_30 += build/$(CONFIG)/obj/http.o
+DEPS_36 += build/$(CONFIG)/bin/libhttp.dylib
+DEPS_36 += build/$(CONFIG)/obj/http.o
 
-LIBS_30 += -lhttp
-LIBS_30 += -lmpr
+LIBS_36 += -lhttp
+LIBS_36 += -lmpr
 ifeq ($(ME_COM_PCRE),1)
-    LIBS_30 += -lpcre
+    LIBS_36 += -lpcre
 endif
 
-build/$(CONFIG)/bin/http: $(DEPS_30)
+build/$(CONFIG)/bin/http: $(DEPS_36)
 	@echo '      [Link] build/$(CONFIG)/bin/http'
-	$(CC) -o build/$(CONFIG)/bin/http -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) "build/$(CONFIG)/obj/http.o" $(LIBPATHS_30) $(LIBS_30) $(LIBS_30) $(LIBS) 
+	$(CC) -o build/$(CONFIG)/bin/http -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) "build/$(CONFIG)/obj/http.o" $(LIBPATHS_36) $(LIBS_36) $(LIBS_36) $(LIBS) 
 endif
 
 #
 #   est.h
 #
-DEPS_31 += src/paks/est/est.h
-DEPS_31 += build/$(CONFIG)/inc/me.h
-DEPS_31 += build/$(CONFIG)/inc/osdep.h
+DEPS_37 += src/paks/est/est.h
 
-build/$(CONFIG)/inc/est.h: $(DEPS_31)
+build/$(CONFIG)/inc/est.h: $(DEPS_37)
 	@echo '      [Copy] build/$(CONFIG)/inc/est.h'
 	mkdir -p "build/$(CONFIG)/inc"
 	cp src/paks/est/est.h build/$(CONFIG)/inc/est.h
 
 #
+#   est.h
+#
+src/paks/est/est.h: $(DEPS_38)
+
+#
 #   estLib.o
 #
-DEPS_32 += build/$(CONFIG)/inc/est.h
+DEPS_39 += src/paks/est/est.h
 
 build/$(CONFIG)/obj/estLib.o: \
-    src/paks/est/estLib.c $(DEPS_32)
+    src/paks/est/estLib.c $(DEPS_39)
 	@echo '   [Compile] build/$(CONFIG)/obj/estLib.o'
 	$(CC) -c $(DFLAGS) -o build/$(CONFIG)/obj/estLib.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) src/paks/est/estLib.c
 
@@ -655,10 +688,10 @@ ifeq ($(ME_COM_EST),1)
 #
 #   libest
 #
-DEPS_33 += build/$(CONFIG)/inc/est.h
-DEPS_33 += build/$(CONFIG)/obj/estLib.o
+DEPS_40 += build/$(CONFIG)/inc/est.h
+DEPS_40 += build/$(CONFIG)/obj/estLib.o
 
-build/$(CONFIG)/bin/libest.dylib: $(DEPS_33)
+build/$(CONFIG)/bin/libest.dylib: $(DEPS_40)
 	@echo '      [Link] build/$(CONFIG)/bin/libest.dylib'
 	$(CC) -dynamiclib -o build/$(CONFIG)/bin/libest.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libest.dylib -compatibility_version 0.8 -current_version 0.8 "build/$(CONFIG)/obj/estLib.o" $(LIBS) 
 endif
@@ -666,78 +699,82 @@ endif
 #
 #   mprSsl.o
 #
-DEPS_34 += build/$(CONFIG)/inc/me.h
-DEPS_34 += build/$(CONFIG)/inc/mpr.h
+DEPS_41 += build/$(CONFIG)/inc/me.h
+DEPS_41 += src/paks/mpr/mpr.h
 
 build/$(CONFIG)/obj/mprSsl.o: \
-    src/paks/mpr/mprSsl.c $(DEPS_34)
+    src/paks/mpr/mprSsl.c $(DEPS_41)
 	@echo '   [Compile] build/$(CONFIG)/obj/mprSsl.o'
 	$(CC) -c $(DFLAGS) -o build/$(CONFIG)/obj/mprSsl.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/paks/mpr/mprSsl.c
 
 #
 #   libmprssl
 #
-DEPS_35 += build/$(CONFIG)/bin/libmpr.dylib
-DEPS_35 += build/$(CONFIG)/obj/mprSsl.o
+DEPS_42 += build/$(CONFIG)/bin/libmpr.dylib
+DEPS_42 += build/$(CONFIG)/obj/mprSsl.o
 
-LIBS_35 += -lmpr
+LIBS_42 += -lmpr
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_35 += -lssl
-    LIBPATHS_35 += -L$(ME_COM_OPENSSL_PATH)
+    LIBS_42 += -lssl
+    LIBPATHS_42 += -L$(ME_COM_OPENSSL_PATH)
 endif
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_35 += -lcrypto
-    LIBPATHS_35 += -L$(ME_COM_OPENSSL_PATH)
+    LIBS_42 += -lcrypto
+    LIBPATHS_42 += -L$(ME_COM_OPENSSL_PATH)
 endif
 ifeq ($(ME_COM_EST),1)
-    LIBS_35 += -lest
+    LIBS_42 += -lest
 endif
 
-build/$(CONFIG)/bin/libmprssl.dylib: $(DEPS_35)
+build/$(CONFIG)/bin/libmprssl.dylib: $(DEPS_42)
 	@echo '      [Link] build/$(CONFIG)/bin/libmprssl.dylib'
-	$(CC) -dynamiclib -o build/$(CONFIG)/bin/libmprssl.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)  -install_name @rpath/libmprssl.dylib -compatibility_version 0.8 -current_version 0.8 "build/$(CONFIG)/obj/mprSsl.o" $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) 
+	$(CC) -dynamiclib -o build/$(CONFIG)/bin/libmprssl.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)  -install_name @rpath/libmprssl.dylib -compatibility_version 0.8 -current_version 0.8 "build/$(CONFIG)/obj/mprSsl.o" $(LIBPATHS_42) $(LIBS_42) $(LIBS_42) $(LIBS) 
 
 #
 #   testme.h
 #
-DEPS_36 += src/tm/testme.h
-DEPS_36 += build/$(CONFIG)/inc/osdep.h
+DEPS_43 += src/tm/testme.h
 
-build/$(CONFIG)/inc/testme.h: $(DEPS_36)
+build/$(CONFIG)/inc/testme.h: $(DEPS_43)
 	@echo '      [Copy] build/$(CONFIG)/inc/testme.h'
 	mkdir -p "build/$(CONFIG)/inc"
 	cp src/tm/testme.h build/$(CONFIG)/inc/testme.h
 
 #
+#   testme.h
+#
+src/tm/testme.h: $(DEPS_44)
+
+#
 #   libtestme.o
 #
-DEPS_37 += build/$(CONFIG)/inc/testme.h
+DEPS_45 += src/tm/testme.h
 
 build/$(CONFIG)/obj/libtestme.o: \
-    src/tm/libtestme.c $(DEPS_37)
+    src/tm/libtestme.c $(DEPS_45)
 	@echo '   [Compile] build/$(CONFIG)/obj/libtestme.o'
 	$(CC) -c $(DFLAGS) -o build/$(CONFIG)/obj/libtestme.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) src/tm/libtestme.c
 
 #
 #   libtestme
 #
-DEPS_38 += build/$(CONFIG)/inc/testme.h
-DEPS_38 += build/$(CONFIG)/obj/libtestme.o
+DEPS_46 += build/$(CONFIG)/inc/testme.h
+DEPS_46 += build/$(CONFIG)/obj/libtestme.o
 
-build/$(CONFIG)/bin/libtestme.dylib: $(DEPS_38)
+build/$(CONFIG)/bin/libtestme.dylib: $(DEPS_46)
 	@echo '      [Link] build/$(CONFIG)/bin/libtestme.dylib'
 	$(CC) -dynamiclib -o build/$(CONFIG)/bin/libtestme.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libtestme.dylib -compatibility_version 0.8 -current_version 0.8 "build/$(CONFIG)/obj/libtestme.o" $(LIBS) 
 
 #
 #   me.mod
 #
-DEPS_39 += src/me.es
-DEPS_39 += src/paks/ejs-version/Version.es
+DEPS_47 += src/me.es
+DEPS_47 += src/paks/ejs-version/Version.es
 ifeq ($(ME_COM_EJS),1)
-    DEPS_39 += build/$(CONFIG)/bin/ejsc
+    DEPS_47 += build/$(CONFIG)/bin/ejsc
 endif
 
-build/$(CONFIG)/bin/me.mod: $(DEPS_39)
+build/$(CONFIG)/bin/me.mod: $(DEPS_47)
 	( \
 	cd .; \
 	echo '   [Compile] me.mod' ; \
@@ -747,53 +784,53 @@ build/$(CONFIG)/bin/me.mod: $(DEPS_39)
 #
 #   me.o
 #
-DEPS_40 += build/$(CONFIG)/inc/ejs.h
+DEPS_48 += build/$(CONFIG)/inc/ejs.h
 
 build/$(CONFIG)/obj/me.o: \
-    src/me.c $(DEPS_40)
+    src/me.c $(DEPS_48)
 	@echo '   [Compile] build/$(CONFIG)/obj/me.o'
 	$(CC) -c $(DFLAGS) -o build/$(CONFIG)/obj/me.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) src/me.c
 
 #
 #   me
 #
-DEPS_41 += build/$(CONFIG)/bin/libmpr.dylib
+DEPS_49 += build/$(CONFIG)/bin/libmpr.dylib
 ifeq ($(ME_COM_HTTP),1)
-    DEPS_41 += build/$(CONFIG)/bin/libhttp.dylib
+    DEPS_49 += build/$(CONFIG)/bin/libhttp.dylib
 endif
 ifeq ($(ME_COM_EJS),1)
-    DEPS_41 += build/$(CONFIG)/bin/libejs.dylib
+    DEPS_49 += build/$(CONFIG)/bin/libejs.dylib
 endif
-DEPS_41 += build/$(CONFIG)/bin/me.mod
-DEPS_41 += build/$(CONFIG)/obj/me.o
+DEPS_49 += build/$(CONFIG)/bin/me.mod
+DEPS_49 += build/$(CONFIG)/obj/me.o
 
-LIBS_41 += -lmpr
+LIBS_49 += -lmpr
 ifeq ($(ME_COM_HTTP),1)
-    LIBS_41 += -lhttp
+    LIBS_49 += -lhttp
 endif
 ifeq ($(ME_COM_PCRE),1)
-    LIBS_41 += -lpcre
+    LIBS_49 += -lpcre
 endif
 ifeq ($(ME_COM_EJS),1)
-    LIBS_41 += -lejs
+    LIBS_49 += -lejs
 endif
 ifeq ($(ME_COM_ZLIB),1)
-    LIBS_41 += -lzlib
+    LIBS_49 += -lzlib
 endif
 
-build/$(CONFIG)/bin/me: $(DEPS_41)
+build/$(CONFIG)/bin/me: $(DEPS_49)
 	@echo '      [Link] build/$(CONFIG)/bin/me'
-	$(CC) -o build/$(CONFIG)/bin/me -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) "build/$(CONFIG)/obj/me.o" $(LIBPATHS_41) $(LIBS_41) $(LIBS_41) $(LIBS) 
+	$(CC) -o build/$(CONFIG)/bin/me -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) "build/$(CONFIG)/obj/me.o" $(LIBPATHS_49) $(LIBS_49) $(LIBS_49) $(LIBS) 
 
 #
 #   testme.mod
 #
-DEPS_42 += src/tm/testme.es
+DEPS_50 += src/tm/testme.es
 ifeq ($(ME_COM_EJS),1)
-    DEPS_42 += build/$(CONFIG)/bin/ejsc
+    DEPS_50 += build/$(CONFIG)/bin/ejsc
 endif
 
-build/$(CONFIG)/bin/testme.mod: $(DEPS_42)
+build/$(CONFIG)/bin/testme.mod: $(DEPS_50)
 	( \
 	cd src/tm; \
 	echo '   [Compile] testme.mod' ; \
@@ -803,10 +840,10 @@ build/$(CONFIG)/bin/testme.mod: $(DEPS_42)
 #
 #   testme.o
 #
-DEPS_43 += build/$(CONFIG)/inc/ejs.h
+DEPS_51 += build/$(CONFIG)/inc/ejs.h
 
 build/$(CONFIG)/obj/testme.o: \
-    src/tm/testme.c $(DEPS_43)
+    src/tm/testme.c $(DEPS_51)
 	@echo '   [Compile] build/$(CONFIG)/obj/testme.o'
 	$(CC) -c $(DFLAGS) -o build/$(CONFIG)/obj/testme.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) src/tm/testme.c
 
@@ -814,36 +851,36 @@ build/$(CONFIG)/obj/testme.o: \
 #   testme
 #
 ifeq ($(ME_COM_EJS),1)
-    DEPS_44 += build/$(CONFIG)/bin/libejs.dylib
+    DEPS_52 += build/$(CONFIG)/bin/libejs.dylib
 endif
-DEPS_44 += build/$(CONFIG)/bin/testme.mod
-DEPS_44 += build/$(CONFIG)/bin/ejs.testme.mod
-DEPS_44 += build/$(CONFIG)/obj/testme.o
+DEPS_52 += build/$(CONFIG)/bin/testme.mod
+DEPS_52 += build/$(CONFIG)/bin/ejs.testme.mod
+DEPS_52 += build/$(CONFIG)/obj/testme.o
 
 ifeq ($(ME_COM_EJS),1)
-    LIBS_44 += -lejs
+    LIBS_52 += -lejs
 endif
 ifeq ($(ME_COM_HTTP),1)
-    LIBS_44 += -lhttp
+    LIBS_52 += -lhttp
 endif
-LIBS_44 += -lmpr
+LIBS_52 += -lmpr
 ifeq ($(ME_COM_PCRE),1)
-    LIBS_44 += -lpcre
+    LIBS_52 += -lpcre
 endif
 ifeq ($(ME_COM_ZLIB),1)
-    LIBS_44 += -lzlib
+    LIBS_52 += -lzlib
 endif
 
-build/$(CONFIG)/bin/testme: $(DEPS_44)
+build/$(CONFIG)/bin/testme: $(DEPS_52)
 	@echo '      [Link] build/$(CONFIG)/bin/testme'
-	$(CC) -o build/$(CONFIG)/bin/testme -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) "build/$(CONFIG)/obj/testme.o" $(LIBPATHS_44) $(LIBS_44) $(LIBS_44) $(LIBS) 
+	$(CC) -o build/$(CONFIG)/bin/testme -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) "build/$(CONFIG)/obj/testme.o" $(LIBPATHS_52) $(LIBS_52) $(LIBS_52) $(LIBS) 
 
 #
 #   testme.es
 #
-DEPS_45 += src/tm/testme.es
+DEPS_53 += src/tm/testme.es
 
-build/$(CONFIG)/bin/testme.es: $(DEPS_45)
+build/$(CONFIG)/bin/testme.es: $(DEPS_53)
 	@echo '      [Copy] build/$(CONFIG)/bin/testme.es'
 	mkdir -p "build/$(CONFIG)/bin"
 	cp src/tm/testme.es build/$(CONFIG)/bin/testme.es
@@ -851,59 +888,33 @@ build/$(CONFIG)/bin/testme.es: $(DEPS_45)
 #
 #   stop
 #
-stop: $(DEPS_46)
+stop: $(DEPS_54)
 
 #
 #   installBinary
 #
-installBinary: $(DEPS_47)
+installBinary: $(DEPS_55)
 	( \
 	cd .; \
 	mkdir -p "$(ME_APP_PREFIX)" ; \
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
 	ln -s "0.8.4" "$(ME_APP_PREFIX)/latest" ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin" ; \
-	cp build/$(CONFIG)/bin/me $(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin/me ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin" ; \
-	cp build/$(CONFIG)/bin/testme $(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin/testme ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin" ; \
-	cp build/$(CONFIG)/bin/ejs $(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin/ejs ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin" ; \
-	cp build/$(CONFIG)/bin/ejsc $(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin/ejsc ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin" ; \
-	cp build/$(CONFIG)/bin/http $(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin/http ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin" ; \
-	cp build/$(CONFIG)/bin/libejs.dylib $(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin/libejs.dylib ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin" ; \
-	cp build/$(CONFIG)/bin/libhttp.dylib $(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin/libhttp.dylib ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin" ; \
-	cp build/$(CONFIG)/bin/libmpr.dylib $(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin/libmpr.dylib ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin" ; \
-	cp build/$(CONFIG)/bin/libmprssl.dylib $(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin/libmprssl.dylib ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin" ; \
-	cp build/$(CONFIG)/bin/libpcre.dylib $(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin/libpcre.dylib ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin" ; \
-	cp build/$(CONFIG)/bin/libzlib.dylib $(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin/libzlib.dylib ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin" ; \
-	cp build/$(CONFIG)/bin/libtestme.dylib $(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin/libtestme.dylib ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin/./build/$(CONFIG)/bin/me,./build/$(CONFIG)/bin" ; \
+	cp build/$(CONFIG)/bin/me,./build/$(CONFIG)/bin/testme $(ME_VAPP_PREFIX)/bin/./build/$(CONFIG)/bin/me,./build/$(CONFIG)/bin/testme ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin/./build/$(CONFIG)/bin/ejs,./build/$(CONFIG)/bin/ejsc,./build/$(CONFIG)/bin" ; \
+	cp build/$(CONFIG)/bin/ejs,./build/$(CONFIG)/bin/ejsc,./build/$(CONFIG)/bin/http $(ME_VAPP_PREFIX)/bin/./build/$(CONFIG)/bin/ejs,./build/$(CONFIG)/bin/ejsc,./build/$(CONFIG)/bin/http ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin/./build/$(CONFIG)/bin/libejs.dylib,./build/$(CONFIG)/bin/libhttp.dylib,./build/$(CONFIG)/bin/libmpr.dylib,./build/$(CONFIG)/bin/libmprssl.dylib,./build/$(CONFIG)/bin/libpcre.dylib,./build/$(CONFIG)/bin/libzlib.dylib,./build/$(CONFIG)/bin" ; \
+	cp build/$(CONFIG)/bin/libejs.dylib,./build/$(CONFIG)/bin/libhttp.dylib,./build/$(CONFIG)/bin/libmpr.dylib,./build/$(CONFIG)/bin/libmprssl.dylib,./build/$(CONFIG)/bin/libpcre.dylib,./build/$(CONFIG)/bin/libzlib.dylib,./build/$(CONFIG)/bin/libtestme.dylib $(ME_VAPP_PREFIX)/bin/./build/$(CONFIG)/bin/libejs.dylib,./build/$(CONFIG)/bin/libhttp.dylib,./build/$(CONFIG)/bin/libmpr.dylib,./build/$(CONFIG)/bin/libmprssl.dylib,./build/$(CONFIG)/bin/libpcre.dylib,./build/$(CONFIG)/bin/libzlib.dylib,./build/$(CONFIG)/bin/libtestme.dylib ; \
 	if [ "$(ME_COM_EST)" = 1 ]; then true ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin" ; \
-	cp build/$(CONFIG)/bin/libest.dylib $(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin/libest.dylib ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin/./build/$(CONFIG)/bin" ; \
+	cp build/$(CONFIG)/bin/libest.dylib $(ME_VAPP_PREFIX)/bin/./build/$(CONFIG)/bin/libest.dylib ; \
 	fi ; \
 	if [ "$(ME_COM_OPENSSL)" = 1 ]; then true ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/./build/$(CONFIG)/bin/libssl*.dylib*,./build/$(CONFIG)/bin" ; \
 	cp build/$(CONFIG)/bin/libssl*.dylib*,./build/$(CONFIG)/bin/libcrypto*.dylib* $(ME_VAPP_PREFIX)/bin/./build/$(CONFIG)/bin/libssl*.dylib*,./build/$(CONFIG)/bin/libcrypto*.dylib* ; \
 	fi ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin" ; \
-	cp build/$(CONFIG)/bin/ca.crt $(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin/ca.crt ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin" ; \
-	cp build/$(CONFIG)/bin/ejs.mod $(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin/ejs.mod ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin" ; \
-	cp build/$(CONFIG)/bin/me.mod $(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin/me.mod ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin" ; \
-	cp build/$(CONFIG)/bin/testme.mod $(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin/testme.mod ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin" ; \
-	cp build/$(CONFIG)/bin/ejs.testme.mod $(ME_VAPP_PREFIX)/bin/build/$(CONFIG)/bin/ejs.testme.mod ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin/./build/$(CONFIG)/bin/ca.crt,./build/$(CONFIG)/bin/ejs.mod,./build/$(CONFIG)/bin/me.mod,./build/$(CONFIG)/bin/testme.mod,./build/$(CONFIG)/bin" ; \
+	cp build/$(CONFIG)/bin/ca.crt,./build/$(CONFIG)/bin/ejs.mod,./build/$(CONFIG)/bin/me.mod,./build/$(CONFIG)/bin/testme.mod,./build/$(CONFIG)/bin/ejs.testme.mod $(ME_VAPP_PREFIX)/bin/./build/$(CONFIG)/bin/ca.crt,./build/$(CONFIG)/bin/ejs.mod,./build/$(CONFIG)/bin/me.mod,./build/$(CONFIG)/bin/testme.mod,./build/$(CONFIG)/bin/ejs.testme.mod ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/inc/src/tm" ; \
 	cp src/tm/testme.h $(ME_VAPP_PREFIX)/inc/src/tm/testme.h ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/src/configure" ; \
@@ -979,23 +990,23 @@ installBinary: $(DEPS_47)
 #
 #   start
 #
-start: $(DEPS_48)
+start: $(DEPS_56)
 
 #
 #   install
 #
-DEPS_49 += stop
-DEPS_49 += installBinary
-DEPS_49 += start
+DEPS_57 += stop
+DEPS_57 += installBinary
+DEPS_57 += start
 
-install: $(DEPS_49)
+install: $(DEPS_57)
 
 #
 #   uninstall
 #
-DEPS_50 += stop
+DEPS_58 += stop
 
-uninstall: $(DEPS_50)
+uninstall: $(DEPS_58)
 	( \
 	cd .; \
 	rm -fr "$(ME_VAPP_PREFIX)" ; \
@@ -1006,7 +1017,7 @@ uninstall: $(DEPS_50)
 #
 #   version
 #
-version: $(DEPS_51)
+version: $(DEPS_59)
 	( \
 	cd build/macosx-x64-debug/bin; \
 	echo 0.8.4 ; \

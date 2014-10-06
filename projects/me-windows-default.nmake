@@ -256,7 +256,7 @@ DEPS_1 = $(DEPS_1) src\standard.me
 DEPS_1 = $(DEPS_1) src\vstudio.es
 DEPS_1 = $(DEPS_1) src\xcode.es
 
-build\$(CONFIG)\.updated-core: $(DEPS_1)
+build\$(CONFIG)\bin: $(DEPS_1)
 	@echo ..... [Copy] build\$(CONFIG)\bin
 	if not exist "build\$(CONFIG)\bin\configure" md "build\$(CONFIG)\bin\configure"
 	copy /Y /B src\configure\appweb.me+modified build\$(CONFIG)\bin\configure\appweb.me $(LOG)
