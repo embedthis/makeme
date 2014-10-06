@@ -2,7 +2,7 @@
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{0c197f7c-4e9b-4560-85aa-79636accbb72}</ProjectGuid>
+    <ProjectGuid>{3fcd6d2f-beb1-4ee4-9a9a-e9983f7b5557}</ProjectGuid>
     <RootNamespace />
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
@@ -97,57 +97,9 @@
   <CustomBuildStep>
     <Command>cd ..\..
 if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\configure.es $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\configure\appweb.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\configure\compiler.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\configure\lib.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\configure\link.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\configure\rc.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\configure\testme.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\configure\vxworks.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\configure\winsdk.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\generate.es $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\master-main.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\master-start.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\me.es $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\os\freebsd.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\os\gcc.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\os\linux.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\os\macosx.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\os\solaris.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\os\unix.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\os\vxworks.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\os\windows.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\simple.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\standard.me $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\vstudio.es $(BinDir)
-if exist $(BinDir) del /Q $(BinDir)
-copy /Y src\xcode.es $(BinDir)
+copy /Y src\** $(BinDir)
 cd projects\me-windows-default</Command>
-    <Outputs>$(BinDir)\.updated</Outputs>
+    <Outputs>$(BinDir)</Outputs>
   </CustomBuildStep>
   </ItemDefinitionGroup>
 

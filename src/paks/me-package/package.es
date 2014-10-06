@@ -8,9 +8,6 @@ require ejs.tar
 require ejs.unix
 require ejs.zlib
 
-/*
-    Deploy files to a directory
- */
 public function deploy(manifest, prefixes, package): Array {
     let sets = me.options.sets 
     if (me.options.deploy) {
@@ -27,6 +24,7 @@ public function deploy(manifest, prefixes, package): Array {
         sets = RegExp(sets.toString().replace(/[ ,]/g, '|'))
     }
     let filelist = []
+    //  MOB - made is used during generation. But path.operate now has destHash so may not be needed.
     let made = {}
     for each (item in manifest.files) {
         if (me.options.verbose) {
@@ -91,6 +89,7 @@ public function deploy(manifest, prefixes, package): Array {
             enable = false
         }
         if (enable) {
+            //  MOB Path.operate.pre should suffice
             if (item.precopy) {
                 eval('require ejs.unix\n' + expand(item.precopy))
             }
@@ -114,8 +113,9 @@ public function deploy(manifest, prefixes, package): Array {
                 eval('require ejs.unix\n' + expand(item.copy))
             }
             if (item.from) {
-                copy(item.from, item.to, item)
+                copyTargetFiles('.', item.from, item.to, item)
             }
+            //  MOB - can this be pushed into Path.operate
             if (item.write) {
                 item.to = Path(expand(item.to))
                 let data = expand(item.write)
@@ -139,6 +139,7 @@ public function deploy(manifest, prefixes, package): Array {
                     }
                 }
             }
+            //  MOB Path.operate.post should suffice
             if (item.postcopy) {
                 eval('require ejs.unix\n' + expand(item.postcopy))
             }
@@ -201,11 +202,13 @@ function setupManifest(kind, package, prefixes) {
         if (item.ifdef && !(item.ifdef is Array)) {
             item.ifdef = [item.ifdef]
         }
+/* UNUSED
         if (item.filter && item.filter is RegExp) {
             print('Warning: manfiest contains deprecated "filter" regular expression. Use "remove" instead.')
             item.remove = item.filter
             delete item.filter
         }
+*/
     }
     return manifest
 }
@@ -310,7 +313,7 @@ function cachePackage(package, prefixes, fmt) {
     try {
         trace('Cache', me.settings.title + ' ' + version)
         App.chdir(staging)
-        run('pak -f cache ' + me.platform.vname)
+        run('pak -q -f cache ' + me.platform.vname)
     } finally {
         App.chdir(home)
     }
@@ -460,13 +463,13 @@ function makeSimplePackage(package, prefixes, fmt) {
     if (!me.options.keep) {
         name.remove()
     }
-    trace('Package', zname)
+    trace('Package', zname.relativeTo(me.dir.top))
 
     let generic = me.dir.rel.join(me.settings.name + '-' + fmt + '.tgz')
     generic.remove()
     zname.link(generic)
     me.dir.rel.join('md5-' + me.platform.vname + '-' + fmt + '.tgz.txt').write(md5(zname.readString()))
-    trace('Package', generic)
+    trace('Package', generic.relativeTo(me.dir.top))
 }
 
 
@@ -812,7 +815,6 @@ function packageWindows(prefixes) {
     /* Wrap in a zip archive */
     let zipfile = outfile.joinExt('zip', true)
     zipfile.remove()
-    trace('Package', zipfile)
     run(['zip', '-q', zipfile.basename, outfile.basename], {dir: me.dir.rel, filter: true})
     me.dir.rel.join('md5-' + base).joinExt('exe.zip.txt', true).write(md5(zipfile.readString()))
     outfile.remove()

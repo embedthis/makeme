@@ -5153,7 +5153,7 @@ PUBLIC char mprGetPathSeparator(cchar *path);
 PUBLIC char *mprGetPortablePath(cchar *path);
 
 /**
-    Get a relative path
+    Get a path relative to another path.
     @description Get a relative path path from an origin path to a destination. If a relative path cannot be obtained,
         an absolute path to the destination will be returned. This happens if the paths cross drives.
     @param dest Destination file
@@ -7022,8 +7022,8 @@ PUBLIC int mprStartThread(MprThread *thread);
     When calling a blocking routine, you should call mprYield(MPR_YIELD_STICK) to put the thread into a yielded state.
     When the blocking call returns, you should call mprResetYield()
     \n\n
-    While yielded, all transient memory must have references from "managed" objects (see mprAlloc) to ensure required memory is
-    retained. All other memory will be reclaimed.
+    While yielded, all transient memory must have references from "managed" objects (see mprAlloc) to ensure required 
+    memory is retained. All other memory will be reclaimed.
     \n\n
     If a thread blocks and does not yield, it will prevent garbage collection and the applications memory size will grow
     unnecessarily.

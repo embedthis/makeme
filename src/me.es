@@ -1,4 +1,4 @@
-#!/usr/bin/env ejs
+#!usr/bin/env ejs
 /*
     me.es -- Embedthis MakeMe
 
@@ -892,11 +892,35 @@ public class Me {
 
     function fixTarget(o, tname, target) {
         if (target.nogen) {
-            trace('Warn', tname + ' is using nogen which is deprecated. Use generate instead')
+            trace('Warn', tname + ' is using "nogen" which is deprecated. Use "generate" instead')
             target.generate = false
         }
-        target.home = absPath(target.home)
+        if (target.subtree) {
+            trace('Warn', tname + ' is using "subtree" which is deprecated. Use "relative" instead')
+            target.relative = target.subtree
+        }
+        if (target.expand) {
+            trace('Warn', 'Target using "expand" option in copy, use "patch" instead')
+            target.patch = true
+        }
+        if (target.cat) {
+            trace('Warn', 'Target using "cat" option in copy, use "append" instead')
+            target.append = target.cat
+            delete target.cat
+        }
+        if (target.title) {
+            trace('Warn', 'Target using "title" option, use "header" instead')
+            target.header ||= ''
+            target.header = target.title + '\n' + target.header
+            delete target.title
+        }
+
+        /*
+            At this stage, home may have ${tokens}
+         */
+        // let home = target.home = absPath(target.home)
         let home = target.home
+
         if (target.path && !target.configurable) {
             //  Because compiler.path was changing 'clang'
             rebase(home, target, 'path')
@@ -922,7 +946,7 @@ public class Me {
         rebase(home, target, 'resources')
         rebase(home, target, 'sources')
         rebase(home, target, 'files')
-        rebase(home, target, 'subtree')
+        rebase(home, target, 'relative')
 
         if (target.run) {
             target.type ||= 'run'
@@ -1131,10 +1155,15 @@ public class Me {
         makeDirGlobals()
         enableTargets()
         blendDefaults()
+
+        //  MOB - get rid of need for this
+        setTargetPaths()
         resolveDependencies()
         expandWildcards()
-        castTargetTypes()
+
+        /* Repeat after creating header targets */
         setTargetPaths()
+        castTargetTypes()
 
         Object.sortProperties(me.targets)
         Object.sortProperties(me)
@@ -1173,7 +1202,6 @@ public class Me {
                 if (!me.targets[item] || !me.targets[item].enable) {
                     if (!(me.configure.extras.contains(item) && me.options.configurableProject)) {
                         target.why = 'disabled because the required target ' + item + ' is not enabled'
-                        // whySkip(target.name, 'disabled because the required target ' + item + ' is not enabled')
                         target.enable = false
                         reported = true
                     }
@@ -1190,7 +1218,6 @@ public class Me {
                 try {
                     if (!eval(script)) {
                         target.why = 'disabled on this platform'
-                        // whySkip(target.name, 'disabled on this platform')
                         target.enable = false
                     } else {
                         target.enable = true
@@ -1203,7 +1230,6 @@ public class Me {
 
             } else if (!reported) {
                 target.why = 'disabled'
-                // whySkip(target.name, 'disabled')
             }
             if (target.platforms) {
                 if (!target.platforms.contains(currentPlatform) &&
@@ -1257,6 +1283,7 @@ public class Me {
                             selectDependentTargets(dep, true)
                         }
                     } else if (!Path(dname).exists && !me.targets[dname]) {
+                        print("DEPS", target.depends)
                         throw 'Unknown dependency "' + dname + '" in target "' + target.name + '"'
                     }
                 }
@@ -1311,7 +1338,7 @@ public class Me {
     }
 
     /*
-        Set target output paths. Uses the default locations for libraries, executables and files
+        Set target output paths. Uses the default locations for libraries, executables and files.
      */
     function setTargetPaths() {
         for each (target in me.targets) {
@@ -1335,11 +1362,8 @@ public class Me {
                     target.path = me.dir.inc.join(name)
                 }
             }
-            if (target.path) {
+            if (target.path && !(target.path is Function)) {
                 target.path = Path(expand(target.path))
-            }
-            if (target.home) {
-                target.home = Path(expand(target.home))
             }
             for (let [when, item] in target.scripts) {
                 for each (script in item) {
@@ -1348,47 +1372,22 @@ public class Me {
                     }
                 }
             }
+            target.home = Path(expand(target.home || me.dir.src))
+            target.files ||= []
+            if (target.path && target.path.isDir) {
+                target.touch = target.path.dirname.join('.updated-' + Path(target.name).basename)
+            }
             Object.sortProperties(target)
         }
     }
 
-    /*
-        Build a file list and apply include/exclude filters
-        Include may be an array. Exclude will only ever be a RegExp|String
-     */
-    function buildFileList(target, include, exclude = null) {
-        if (!target.copytemp) {
-            if (exclude) {
-                /* Join exclude patterns. Strip leading and trailing slashes and change \/ to / */
-                let ex = (TempFilter.toString().slice(1, -1) + '|' + exclude.toString().slice(1, -1)).replace(/\\\//g, '/')
-                exclude = RegExp(ex)
-            } else {
-                exclude = TempFilter
-            }
+    function buildFileList(target, patterns) {
+        let list = me.dir.src.operate(patterns, me.dir.bin,
+            blend({ operation: 'list', contents: true, directories: false, expand: expand, missing: missing }, target))
+        if (list.length == 0 && me.generating) {
+            list = [patterns]
         }
-        let files
-        if (include is RegExp) {
-            /* Fast path */
-            if (exclude is RegExp) {
-                files = Path(me.dir.src).files('*', {include: include, exclude: exclude, missing: missing})
-            } else {
-                files = Path(me.dir.src).files('*', {include: include, missing: missing})
-            }
-        } else {
-            if (!(include is Array)) {
-                include = [ include ]
-            }
-            files = []
-            for each (ipat in include) {
-                ipat = expand(ipat)
-                if (exclude is RegExp) {
-                    files += Path('.').files(ipat, {exclude: exclude, missing: ''})
-                } else {
-                    files += Path('.').files(ipat, {missing: ''})
-                }
-            }
-        }
-        return files.sort()
+        return list
     }
 
     function inheritDep(target, dep, inheritCompiler = false) {
@@ -1500,116 +1499,103 @@ public class Me {
     }
 
     /*
+        Target properties:
+            name - mandatory
+            path - optional
+            home - mandatory (defaults to src)
+            files - mandatory (defaults to [])
+     */
+    function createTarget(options) {
+        let target = options.clone()
+        if (target.enable === undefined) {
+            target.enable = true
+        }
+        target.files ||= []
+        if (target.path && !(target.path is Function)) {
+            target.path = Path(target.path)
+        }
+        target.home ||= me.dir.src
+        if (me.targets[target.name]) {
+            target = blend(me.targets[target.name], target, {combined: true})
+        }
+        me.targets[target.name] = target
+        return target
+    }
+
+    /*
         Expand resources, sources and headers. Support include+exclude and create target.files[]
      */
     function expandWildcards() {
-        let index
+        let target
+
         for each (target in me.targets) {
             if (!target.enable) {
                 continue
             }
             runTargetScript(target, 'presource')
-            if (target.files) {
-                let files = buildFileList(target, target.files, target.exclude)
-                if (target.path) {
-                    target.path = Path(expand(target.path))
-                }
-                if (target.type == 'file' && files.length > 1) {
-                    if (me.options.gen && !me.options.configurableTarget) {
-                        target.dest = target.path
-                        target.path = target.path.join('.updated')
-                        target.files = files
-                    } else {
-                        for each (file in files) {
-                            let dest, name
-                            if (target.subtree) {
-                                name = file.relativeTo(target.subtree)
-                                dest = Path(target.path).join(name)
-                            } else {
-                                name = file.relative
-                                dest = Path(target.path).join(name)
-                            }
-                            me.targets[dest] = { name: name, type: 'file', enable: true, path: dest, files: [file],
-                                goals: ['all', 'generate', target.name], home: target.home, generate: true }
-                        }
-                        target.depends = files
-                        target.files = []
-                        target.type = 'group'
-                    }
-                } else {
-                    target.files = files
-                }
-            }
+            target.files = buildFileList(target, target.files)
             if (target.headers) {
-                /*
-                    Create a target for each header file
-                 */
-                target.files ||= []
-                let files = buildFileList(target, target.headers, target.exclude)
+                let files = buildFileList(target, target.headers)
                 for each (file in files) {
                     let header = me.dir.inc.join(file.basename)
-                    /* Always overwrite dynamically created targets created via makeDepends */
-                    me.targets[header] = { name: header, enable: true, path: header, type: 'header',
-                        goals: [target.name], files: [ file ], includes: target.includes, generate: true }
+                    createTarget({ name: header, path: header, type: 'header', home: target.home,
+                        goals: [target.name], files: [ file ], includes: target.includes, generate: true })
                     target.depends.push(header)
                 }
                 if (target.type == 'header') {
                     target.generate = false;
                 }
             }
+            //  MOB temp
+            delete target.makedep
+        }
+
+        for each (target in me.targets) {
+            if (!target.enable) {
+                continue
+            }
             if (target.resources) {
-                target.files ||= []
-                let files = buildFileList(target, target.resources, target.exclude)
+                let files = buildFileList(target, target.resources)
                 for each (file in files) {
-                    /*
-                        Create a target for each resource file
-                     */
                     let res = me.dir.obj.join(file.replaceExt(me.ext.res).basename)
-                    let resTarget = { name : res, enable: true, path: res, type: 'resource',
-                        goals: [target.name], files: [ file ], includes: target.includes, defines: target.defines, generate: true }
-                    if (me.targets[res]) {
-                        resTarget = blend(me.targets[resTarget.name], resTarget, {combined: true})
-                    }
-                    me.targets[resTarget.name] = resTarget
+                    createTarget({ name : res, path: res, enable: true, home: target.home, type: 'resource',
+                        goals: [target.name], files: [ file ], includes: target.includes, defines: target.defines, 
+                        generate: true })
                     target.files.push(res)
                     target.depends.push(res)
                 }
             }
             if (target.sources) {
-                target.files ||= []
-                let files = buildFileList(target, target.sources, target.exclude)
+                let files = buildFileList(target, target.sources)
                 for each (file in files) {
                     /*
                         Create a target for each source file
                      */
                     let obj = me.dir.obj.join(file.replaceExt(me.ext.o).basename)
-                    let objTarget = { name : obj, enable: true, path: obj, type: 'obj',
+                    let objTarget = createTarget({ name : obj, path: obj, type: 'obj', home: target.home,
                         goals: [target.name], files: [ file ],
-                        compiler: target.compiler, defines: target.defines, includes: target.includes, generate: true}
-                    let precompile = (target.scripts && target.scripts.precompile) ?  target.scripts.precompile : null
+                        compiler: target.compiler, defines: target.defines, includes: target.includes, generate: true })
+                    /*
+                        Inherit pre-compile options from target
+                     */
+                    let precompile = (target.scripts && target.scripts.precompile) ? target.scripts.precompile : null
                     if (precompile) {
                         objTarget.scripts = {precompile: precompile}
                     }
-                    if (me.targets[obj]) {
-                        objTarget = blend(me.targets[objTarget.name], objTarget, {combined: true})
-                    }
-                    me.targets[objTarget.name] = objTarget
                     target.files.push(obj)
                     target.depends.push(obj)
 
                     /*
                         Create targets for each header (if not already present)
                      */
-                    makeDepends(objTarget)
+                    makeSourceDepends(objTarget)
                 }
             }
-            //  DEPRECATE
-            if (target.files) {
-                target.cmdfiles = target.files.map(function(f) f.relativeTo(target.home).portable).join(' ')
-            } else {
-                target.cmdfiles = ''
-            }
             runTargetScript(target, 'postsource')
+        }
+        for each (target in me.targets) {
+            //  MOB temp
+            delete target.makedep
         }
     }
 
@@ -1673,8 +1659,8 @@ public class Me {
      */
     public function castDirTypes() {
         /*
-            Use absolute patsh so they will apply anywhere in the source tree. Rules change directory and build
-            locally for each directory, so it is essential these be absolute.
+            Use absolute paths so they will apply anywhere in the source tree. Scripts change directory 
+            so it is essential that all script-accessible properties be absolute.
          */
         for (let [key,value] in me.blend) {
             me.blend[key] = Path(value).absolute.portable
@@ -1714,14 +1700,16 @@ public class Me {
 
     function castTargetTypes() {
         for each (target in me.targets) {
-            if (target.path) {
-                target.path = Path(target.path)
+            /*
+                Home and path MUST be absolute so scripts can access despite changing cwd
+             */
+            target.home = Path(target.home).absolute
+            //  MOB - testing configurable to stop "clang" being turn
+            if (target.path && target.path.exists) {
+                target.path = Path(target.path).absolute
             }
-            if (target.home) {
-                target.home = Path(target.home)
-            }
-            if (target.subtree) {
-                target.subtree = Path(target.subtree)
+            if (target.relative) {
+                target.relative = Path(target.relative)
             }
             for (i in target.includes) {
                 target.includes[i] = Path(target.includes[i])
@@ -1740,6 +1728,7 @@ public class Me {
             }
             target.depends ||= []
             target.uses ||= []
+            target.files ||= []
         }
     }
 
@@ -1980,32 +1969,58 @@ public class Me {
     }
 
     /*
-        Copy files[] to path
+        Copy files[] to path. Used for headers too.
      */
     function buildFile(target) {
-        if (target.path.exists && !target.path.isDir && !target.type == 'header') {
-            if (target.active && me.platform.like == 'windows') {
-                let active = target.path.relative.replaceExt('old')
-                trace('Preserve', 'Active target ' + target.path.relative + ' as ' + active)
-                active.remove()
-                try { target.path.rename(target.path.replaceExt('old')) } catch {}
-            } else {
-                safeRemove(target.path)
-            }
+        let files = target.files.map(function(e) e.relativeTo(target.home))
+        copyTargetFiles(target.home, files, target.path, target)
+
+        //  MOB - add to Path.touch()
+        if (target.touch) {
+            target.touch.remove()
+            target.touch.write()
         }
-        if (target.type != 'header') {
-            trace('Copy', target.path.natural.relative)
-        }
-        for each (let file: Path in target.files) {
-            if (file == target.path) {
-                /* Auto-generated headers targets for includes have file == target.path */
-                continue
-            }
-            copy(file, target.path, target)
-        }
+        /* UNUSED
         if (target.path.isDir && !me.generating) {
             touchDir(target.path)
         }
+        */
+    }
+
+    public function copyTargetFiles(base, from, to: Path, control) {
+        let count = base.operate(from, to, blend(control.clone(), {
+            verbose: options.verbose,
+            contents: true,
+            directories: false,
+            expand: function (str, o) {
+                return expand(str).expand(o)
+            }
+            /* Replaces missing with the pattern */
+            missing: '', 
+            action: function(from, to, control) {
+                if (me.generating) {
+                    b.makeDir(to.dirname)
+                    from = from.relativeTo(this)
+                    if (from.isDir) {
+                        b.makeDir(to, control)
+                    } else {
+                        b.copyFile(from, to, control)
+                    }
+                    if (control.symlink && me.platform.like == 'unix') {
+                        b.linkFile(to, Path(expand(control.symlink)).join(to.basename), control)
+                    }
+                    return true
+                } else {
+                    return false
+                }
+            },
+            post: function (from, to, control) {
+                if (control.fold) {
+                    strace('Fold', to)
+                    b.foldLines(to)
+                }
+            }
+        }, {functions: true}))
     }
 
     function touchDir(path: Path) {
@@ -2300,7 +2315,7 @@ public class Me {
     }
 
     /*
-        Test if a target is stale vs the inputs AND dependencies
+        Test if a target is stale vs dependencies
      */
     function stale(target): Boolean {
         if (me.generating) {
@@ -2312,16 +2327,21 @@ public class Me {
         if (!target.path) {
             return true
         }
-        let path = target.path
-         if (!path.modified) {
+        let path = target.touch || target.path
+
+        if (!path.modified) {
             whyRebuild(target.name, 'Rebuild', target.path + ' is missing.')
             return true
         }
         for each (file in target.files) {
-             if (target.subtree) {
-                let p = path.join(file.trimStart(target.subtree + target.subtree.separator[0]))
+            /* UNUSED
+             if (target.relative) {
+                let p = path.join(file.trimStart(target.relative + target.relative.separator[0]))
                 if (!file.isDir && file.modified > p.modified) {
-                    whyRebuild(path, 'Rebuild', 'input ' + file + ' has been modified.')
+                    whyRebuild(path, 'Rebuild', 'file ' + file + ' 1 has been modified.')
+                    print("PATH", target.path)
+                    print("TOUcH", target.touch)
+                    print("PP", )
                     if (options.why && options.verbose) {
                         print(file, file.modified)
                         print(path, path.modified)
@@ -2329,10 +2349,11 @@ public class Me {
                     return true
                 }
 
-            } else if (file.isDir) {
+            } else */
+            if (file.isDir) {
                 for each (f in file.files('**')) {
                      if (f.modified > path.modified) {
-                        whyRebuild(path, 'Rebuild', 'input ' + f + ' has been modified.')
+                        whyRebuild(path, 'Rebuild', 'file ' + f + ' 2 has been modified.')
                         if (options.why && options.verbose) {
                             print(f, f.modified)
                             print(path, path.modified)
@@ -2342,7 +2363,7 @@ public class Me {
                 }
             } else {
                 if (file.modified > path.modified) {
-                    whyRebuild(path, 'Rebuild', 'input ' + file + ' has been modified.')
+                    whyRebuild(path, 'Rebuild', 'file ' + file + ' 3 has been modified.')
                     if (options.why && options.verbose) {
                         print(file, file.modified)
                         print(path, path.modified)
@@ -2364,7 +2385,7 @@ public class Me {
                     return true
                 }
                 if (dname.modified > path.modified) {
-                    whyRebuild(path, 'Rebuild', 'dependency ' + dname + ' has been modified.')
+                    whyRebuild(path, 'Rebuild', 'dependency ' + dname + ' 5 has been modified.')
                     return true
                 }
                 return false
@@ -2388,7 +2409,7 @@ public class Me {
                     continue
                 }
                 if (file.modified > path.modified) {
-                    whyRebuild(path, 'Rebuild', 'dependent ' + file + ' has been modified.')
+                    whyRebuild(path, 'Rebuild', 'dependent ' + file + ' 6 has been modified.')
                     return true
                 }
             }
@@ -2399,9 +2420,15 @@ public class Me {
     /*
         Create an array of header dependencies for source files
      */
-    function makeDepends(target) {
+    function makeSourceDepends(target) {
         let includes: Array = []
-        for each (path in target.files) {
+        let files = target.files
+        /* UNUSED - can't have self in files
+        if (target.type == 'header' && files.length == 0) {
+            files.push(target.path)
+        }
+        */
+        for each (path in files) {
             if (path.exists) {
                 let str = path.readString()
                 let more = str.match(/^#include.*"$/gm)
@@ -2411,17 +2438,22 @@ public class Me {
             }
         }
         let depends = [ ]
+        /* UNUSED
         let meheader = me.dir.inc.join('me.h')
         if ((target.type == 'obj' || target.type == 'lib' || target.type == 'exe') && target.name != meheader) {
             depends = [ meheader ]
-        }
+        } */
         /*
             Resolve includes
          */
         for each (item in includes) {
-            let ifile = item.replace(/#include.*"(.*)"/, '$1')
             let path
-            for each (dir in target.includes) {
+            let ifile = item.replace(/#include.*"(.*)"/, '$1')
+            if (target.includes == null) {
+                target.includes = [me.dir.inc]
+            }
+            let dirs = target.includes + [target.home]
+            for each (dir in dirs) {
                 path = Path(dir).join(ifile)
                 if (path.exists && !path.isDir) {
                     break
@@ -2439,19 +2471,20 @@ public class Me {
             }
         }
         target.makedep = true
+
         for each (header in depends) {
             if (!me.targets[header]) {
-                me.targets[header] = { name: header, enable: true, path: Path(header),
-                    type: 'header', goals: [target.name], files: [ header ], includes: target.includes, generate: true }
+                createTarget({ name: header, enable: true, path: Path(header), home: target.home,
+                    type: 'header', goals: [target.name], includes: target.includes, generate: true })
             }
             let h = me.targets[header]
-            if (h && !h.makedep) {
-                makeDepends(h)
-                if (h.depends && target.path.extension != 'h') {
-                    /* Pull up nested headers */
-                    depends = (depends + h.depends).unique()
-                    delete h.depends
-                }
+            if (!h.makedep) {
+                makeSourceDepends(h)
+            }
+            //  MOB UNUSED
+            if (false && h.depends && target.path.extension != 'h') {
+                /* Copy up nested headers */
+                depends = (depends + h.depends).unique()
             }
         }
         if (depends.length > 0) {
@@ -3194,181 +3227,6 @@ public class Me {
         return (((major * VER_FACTOR) + minor) * VER_FACTOR) + patch
     }
 
-    /**
-        Copy files
-        @param src Source files/directories to copy. This can be a String, Path or array of String/Paths.
-            The wildcards "*", "**" and "?" are the only wild card patterns supported. The "**" pattern matches
-            every directory and file. The Posix "[]" and "{a,b}" style expressions are not supported.
-            If a src item is an existing directory, then the pattern appends slash '**' subtree option is enabled.
-            if a src item ends with "/", then the contents of that directory are copied without the directory itself.
-        @param dest Destination file or directory. If multiple files are copied, dest is assumed to be a directory and
-            will be created if required. If dest has a trailing "/", it is assumed to be a directory.
-        @param options Processing and file options
-
-        @option active If destination is an active executable or shared library, rename the active file using a
-            '.old' extension and retry the copy.
-        @option append Boolean Set to true to append all input files into a single destination.
-        @option compress Compress target file
-        @option copytemp Copy files that look like temp files
-        @option exclude Exclude files that match the pattern. The pattern should be in portable file format.
-        @option expand Expand tokens in copied files. Set to true or an Object hash containing properties to use when 
-            replacing tokens of the form ${token}. If set to true, the 'me' object is used.
-        @option fold Fold long lines on windows at column 80 and convert new line endings.
-        @option group Set file group
-        @option include Include files that match the pattern. The pattern should be in portable file format.
-        @option linkin Add a symbolic link to the destination in this directory
-        @option permissions Set file permissions
-        @option strip Strip object or executable
-        @option subtree If tree is enabled, trim the subtree portion off destination filenames.
-        @option user Set file file user
-     */
-    public function copy(src, dest: Path, options = {}) {
-        let to
-        dest = Path(expand(dest))
-        if (!(src is Array)) src = [src]
-        let subtree = options.subtree
-
-        if (options.cat) {
-            let files = []
-            for each (pat in src) {
-                pat = Path(expand(pat))
-                files += Path('.').files(pat, {missing: undefined})
-            }
-            src = files.unique()
-        }
-        for each (let pattern: Path in src) {
-            let dir: Path, destBase: Path
-            pattern = Path(expand(pattern))
-            let doContents = pattern.name.endsWith('/')
-            pattern = pattern.trimEnd('/')
-            if (pattern.isDir) {
-                if (doContents) {
-                    subtree = pattern.normalize.portable
-                } else {
-                    subtree = pattern.normalize.dirname.portable
-                }
-                pattern = Path(pattern.normalize.name + '/**')
-                options = blend({exclude: /\/$/}, options, {overwrite: false})
-            }
-            /*
-                Build file list
-             */
-            list = me.dir.src.files(pattern, blend({relative: true}, options))
-            if (me.options.verbose) {
-                dump('Copy-Files', list)
-            }
-            if (!list || list.length == 0) {
-                if (me.generating) {
-                    list = [pattern]
-                } else if (!options.cat && src.length > 0) {
-                    throw 'cp: Cannot find files to copy for "' + pattern + '" to ' + dest
-                }
-            }
-            let destIsDir = (dest.isDir || (!options.cat && list.length > 1) || dest.name.endsWith('/'))
-
-            for each (let from: Path in list) {
-                let from = from.portable
-                if (subtree) {
-                    to = dest.join(from.trimStart(Path(subtree).portable.name + '/'))
-                } else if (destIsDir) {
-                    to = dest.join(from.basename)
-                } else {
-                    to = dest
-                }
-                from = from.relative.portable
-                if (!options.copytemp && from.match(TempFilter)) {
-                    vtrace('Skip', 'Copying temp file', from)
-                    continue
-                }
-                attributes = options.clone()
-                if (!me.generating) {
-                    attributes.permissions ||= from.attributes.permissions
-                }
-                if (me.generating) {
-                    if (options.cat || options.expand || options.fold || options.compress) {
-                        App.log.error('Cannot use options for copy() when generating')
-                        App.log.error('Skipping', src)
-                        continue
-                    }
-                    /* Must not use full options as it contains perms for the dest */
-                    makeDir(to.dirname, {made: options.made})
-                    if (from.isDir) {
-                        makeDir(to, options)
-                    } else {
-                        copyFile(from, to, options)
-                    }
-                    if (options.linkin && me.platform.like == 'unix') {
-                        linkFile(to, Path(expand(options.linkin)).join(to.basename), options)
-                    }
-
-                } else {
-                    makeDir(to.dirname)
-                    if (options.cat) {
-                        catenate(from, to, attributes)
-                    } else {
-                        if (from.isDir) {
-                            makeDir(to, options)
-                        } else {
-                            try {
-                                copyFile(from, to, attributes)
-                            } catch (e) {
-                                if (options.active) {
-                                    let active = to.replaceExt('old')
-                                    active.remove()
-                                    try { to.rename(active) } catch {}
-                                }
-                                copyFile(from, to, attributes)
-                            }
-                        }
-                    }
-                    if (options.expand) {
-                        strace('Expand', to)
-                        let o = me
-                        if (options.expand != true) {
-                            o = options.expand
-                        }
-                        to.write(to.readString().expand(o, {fill: '${}'}))
-                        to.setAttributes(attributes)
-                    }
-                    if (options.fold) {
-                        strace('Fold', to)
-                        foldLines(to)
-                        to.setAttributes(attributes)
-                    }
-                    if (options.strip && me.targets.strip && me.platform.profile == 'release') {
-                        strace('Strip', to)
-                        Cmd.run(me.targets.strip.path + ' ' + to)
-                    }
-                    if (options.compress) {
-                        let zname = Path(to.name + '.gz')
-                        strace('Compress', zname)
-                        zname.remove()
-                        Zlib.compress(to.name, zname)
-                        to.remove()
-                        to = zname
-                    }
-                    if (options.filelist) {
-                        if (!to.isDir) {
-                            options.filelist.push(to)
-                        }
-                    }
-                    if (options.linkin && me.platform.like == 'unix') {
-                        let linkin = Path(expand(options.linkin))
-                        linkin.makeDir(options)
-                        let lto = linkin.join(to.basename)
-                        linkFile(to.relativeTo(lto.dirname), lto, options)
-                        if (options.filelist) {
-                            options.filelist.push(lto)
-                        }
-                    }
-                }
-            }
-        }
-        if (options.cat && options.footer && to) {
-            to.append(options.footer + '\n')
-        }
-    }
-
     /*
         Fold long lines at column 80. On windows, will also convert line terminatations to <CR><LF>.
      */
@@ -3647,47 +3505,6 @@ public class Me {
         }
     }
 
-
-    /** @hide */
-    public function catenate(from, target, options) {
-        strace('Combine', from.relative)
-        if (!target.exists) {
-            if (options.title) {
-                if (options.textfile) {
-                    target.write('#\n' +
-                       '#   ' + target.basename + ' -- ' + options.title + '\n' +
-                       '#\n')
-                } else {
-                    target.write('/*\n' +
-                       '    ' + target.basename + ' -- ' + options.title + '\n\n' +
-                       '    This file is a catenation of all the source code. Amalgamating into a\n' +
-                       '    single file makes embedding simpler and the resulting application faster.\n\n' +
-                       '    Prepared by: ' + System.hostname + '\n */\n\n')
-                }
-            }
-            if (options.header) {
-                target.append(options.header + '\n')
-            }
-        }
-        if (options.textfile) {
-            target.append('\n' +
-               '#\n' +
-               '#   Start of file \"' + from.relative + '\"\n' +
-               '#\n')
-        } else {
-            target.append('\n' +
-               '/************************************************************************/\n' +
-               '/*\n    Start of file \"' + from.relative + '\"\n */\n' +
-               '/************************************************************************/\n\n')
-        }
-        let data = from.readString()
-        if (options.remove) {
-            data = data.replace(options.remove, '')
-        }
-        target.append(data)
-        target.setAttributes(options)
-    }
-
 } /* me class */
 
 } /* embedthis.me module */
@@ -3729,10 +3546,6 @@ public function strace(tag, ...args)
 public function vtrace(tag, ...args)
     b.vtrace(tag, ...args)
 
-/** @duplicate Me.copy */
-public function copy(src, dest: Path, options = {})
-    b.copy(src, dest, options)
-
 /** @duplicate Me.run */
 public function run(command, copt = {}): String
     b.run(command, copt)
@@ -3758,12 +3571,17 @@ public function makeDirGlobals(base: Path? = null)
     b.makeDirGlobals(base)
 
 /** @duplicate Me.makeDir */
-public function makeDir(path: Path, options = {})
+public function makeDir(path: Path, options = {}) {
     b.makeDir(path, options)
+}
 
 /** @duplicate Me.copyFile */
 public function copyFile(src: Path, dest: Path, options = {})
     b.copyFile(src, dest, options)
+
+/** @duplicate Me.copyTargetFiles */
+public function copyTargetFiles(base: Path, from, to, options = {})
+    b.copyTargetFiles(base, from, to, options)
 
 /** @duplicate Me.linkFile */
 public function linkFile(src: Path, dest: Path, options = {})
@@ -3857,3 +3675,5 @@ public function sortVersions(versions: Array)
 
     @end
  */
+
+

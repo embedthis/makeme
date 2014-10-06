@@ -111,11 +111,11 @@ module embedthis.me {
                         cp(file, me.dir.inc)
                     } else {
                         if (me.platform.like == 'windows') {
-                            let target = me.dir.lib.join(file.basename).relative
-                            let old = target.replaceExt('old')
-                            vtrace('Preserve', 'Active library ' + target + ' as ' + old)
+                            let tname = me.dir.lib.join(file.basename).relative
+                            let old = tname.replaceExt('old')
+                            vtrace('Preserve', 'Active library ' + tname + ' as ' + old)
                             old.remove()
-                            try { target.rename(old) } catch {}
+                            try { tname.rename(old) } catch {}
                         }
                         cp(file, me.dir.lib)
                     }

@@ -1,18 +1,10 @@
-/*
-    mprSsl.c -- Embedthis MPR SSL Source
-
-    This file is a catenation of all the source code. Amalgamating into a
-    single file makes embedding simpler and the resulting application faster.
-
-    Prepared by: orion.local
- */
+/* Embedthis MPR SSL Source */
 
 
-/************************************************************************/
-/*
-    Start of file "src/ssl/matrixssl.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/ssl/matrixssl.c ************/
+
 
 /*
     matrixssl.c -- Support for secure sockets via MatrixSSL
@@ -770,11 +762,10 @@ void matrixsslDummy() {}
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/ssl/est.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/ssl/est.c ************/
+
 
 /*
     est.c - Embedded Secure Transport
@@ -1374,11 +1365,10 @@ void estDummy() {}
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/ssl/openssl.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/ssl/openssl.c ************/
+
 
 /*
     openssl.c - Support for secure sockets via OpenSSL
@@ -2439,11 +2429,10 @@ void opensslDummy() {}
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/ssl/nanossl.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/ssl/nanossl.c ************/
+
 
 /*
     nanossl.c - Mocana NanoSSL
@@ -2990,11 +2979,10 @@ void nanosslDummy() {}
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/ssl/ssl.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/ssl/ssl.c ************/
+
 
 /**
     ssl.c -- Initialization for libmprssl. Load the SSL provider.

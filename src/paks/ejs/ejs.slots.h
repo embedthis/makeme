@@ -1,18 +1,12 @@
 /*
-    ejs.slots.h -- Embedthis Ejscript Object Slot Definitions
-
-    This file is a catenation of all the source code. Amalgamating into a
-    single file makes embedding simpler and the resulting application faster.
-
-    Prepared by: orion.local
+ * Embedthis Ejscript Object Slot Definitions
  */
 
 
-/************************************************************************/
-/*
-    Start of file "build/macosx-x64-debug/inc/ejs.cache.local.slots.h"
- */
-/************************************************************************/
+
+
+/********* Start of file build/macosx-x64-debug/inc/ejs.cache.local.slots.h ************/
+
 
 /*
    ejs.cache.local.slots.h -- Native property slot definitions for the "ejs.cache.local" module
@@ -116,11 +110,10 @@
 
 #endif
 
-/************************************************************************/
-/*
-    Start of file "build/macosx-x64-debug/inc/ejs.db.sqlite.slots.h"
- */
-/************************************************************************/
+
+
+/********* Start of file build/macosx-x64-debug/inc/ejs.db.sqlite.slots.h ************/
+
 
 /*
    ejs.db.sqlite.slots.h -- Native property slot definitions for the "ejs.db.sqlite" module
@@ -187,11 +180,10 @@
 
 #endif
 
-/************************************************************************/
-/*
-    Start of file "build/macosx-x64-debug/inc/ejs.slots.h"
- */
-/************************************************************************/
+
+
+/********* Start of file build/macosx-x64-debug/inc/ejs.slots.h ************/
+
 
 /*
    /Users/mob/git/ejs/build/macosx-x64-debug/inc/ejs.slots.h -- Native property slot definitions for the "ejs" module
@@ -1983,81 +1975,82 @@
 #define ES_Path_attributes                                             3
 #define ES_Path_setAttributes                                          4
 #define ES_Path_basename                                               5
-#define ES_Path_components                                             6
-#define ES_Path_contains                                               7
-#define ES_Path_copy                                                   8
-#define ES_Path_created                                                9
-#define ES_Path_dirname                                                10
-#define ES_Path_endsWith                                               11
-#define ES_Path_exists                                                 12
-#define ES_Path_extension                                              13
-#define ES_Path_findAbove                                              14
-#define ES_Path_files                                                  15
-#define ES_Path_fileSystem                                             16
-#define ES_Path_iterator_get                                           17
-#define ES_Path_iterator_getValues                                     18
-#define ES_Path_glob                                                   19
-#define ES_Path_hasDrive                                               20
-#define ES_Path_isAbsolute                                             21
-#define ES_Path_isDir                                                  22
-#define ES_Path_isLink                                                 23
-#define ES_Path_isRegular                                              24
-#define ES_Path_isRelative                                             25
-#define ES_Path_join                                                   26
-#define ES_Path_joinExt                                                27
-#define ES_Path_length                                                 28
-#define ES_Path_link                                                   29
-#define ES_Path_linkTarget                                             30
-#define ES_Path_makeDir                                                31
-#define ES_Path_makeLink                                               32
-#define ES_Path_temp                                                   33
-#define ES_Path_map                                                    34
-#define ES_Path_match                                                  35
-#define ES_Path_mimeType                                               36
-#define ES_Path_modified                                               37
-#define ES_Path_name                                                   38
-#define ES_Path_natural                                                39
-#define ES_Path_normalize                                              40
-#define ES_Path_open                                                   41
-#define ES_Path_openTextStream                                         42
-#define ES_Path_openBinaryStream                                       43
-#define ES_Path_parent                                                 44
-#define ES_Path_perms                                                  45
-#define ES_Path_portable                                               46
-#define ES_Path_readBytes                                              47
-#define ES_Path_readJSON                                               48
-#define ES_Path_readLines                                              49
-#define ES_Path_readString                                             50
-#define ES_Path_readXML                                                51
-#define ES_Path_relative                                               52
-#define ES_Path_relativeTo                                             53
-#define ES_Path_remove                                                 54
-#define ES_Path_removeAll                                              55
-#define ES_Path_removeDrive                                            56
-#define ES_Path_rename                                                 57
-#define ES_Path_replaceExt                                             58
-#define ES_Path_replace                                                59
-#define ES_Path_resolve                                                60
-#define ES_Path_root                                                   61
-#define ES_Path_same                                                   62
-#define ES_Path_separator                                              63
-#define ES_Path_size                                                   64
-#define ES_Path_startsWith                                             65
-#define ES_Path_symlink                                                66
-#define ES_Path_toJSON                                                 67
-#define ES_Path_toLowerCase                                            68
-#define ES_Path_toString                                               69
-#define ES_Path_tree                                                   70
-#define ES_Path_trimComponents                                         71
-#define ES_Path_trimEnd                                                72
-#define ES_Path_trimExt                                                73
-#define ES_Path_trimStart                                              74
-#define ES_Path_truncate                                               75
-#define ES_Path_windows                                                76
-#define ES_Path_write                                                  77
-#define ES_Path_makeTemp                                               78
-#define ES_Path_compact                                                79
-#define ES_Path_NUM_INSTANCE_PROP                                      80
+#define ES_Path_childOf                                                6
+#define ES_Path_components                                             7
+#define ES_Path_contains                                               8
+#define ES_Path_copy                                                   9
+#define ES_Path_created                                                10
+#define ES_Path_dirname                                                11
+#define ES_Path_endsWith                                               12
+#define ES_Path_exists                                                 13
+#define ES_Path_extension                                              14
+#define ES_Path_findAbove                                              15
+#define ES_Path_files                                                  16
+#define ES_Path_fileSystem                                             17
+#define ES_Path_iterator_get                                           18
+#define ES_Path_iterator_getValues                                     19
+#define ES_Path_glob                                                   20
+#define ES_Path_hasDrive                                               21
+#define ES_Path_isAbsolute                                             22
+#define ES_Path_isDir                                                  23
+#define ES_Path_isLink                                                 24
+#define ES_Path_isRegular                                              25
+#define ES_Path_isRelative                                             26
+#define ES_Path_join                                                   27
+#define ES_Path_joinExt                                                28
+#define ES_Path_length                                                 29
+#define ES_Path_link                                                   30
+#define ES_Path_linkTarget                                             31
+#define ES_Path_makeDir                                                32
+#define ES_Path_makeLink                                               33
+#define ES_Path_temp                                                   34
+#define ES_Path_map                                                    35
+#define ES_Path_match                                                  36
+#define ES_Path_mimeType                                               37
+#define ES_Path_modified                                               38
+#define ES_Path_name                                                   39
+#define ES_Path_natural                                                40
+#define ES_Path_normalize                                              41
+#define ES_Path_open                                                   42
+#define ES_Path_openTextStream                                         43
+#define ES_Path_openBinaryStream                                       44
+#define ES_Path_parent                                                 45
+#define ES_Path_perms                                                  46
+#define ES_Path_portable                                               47
+#define ES_Path_readBytes                                              48
+#define ES_Path_readJSON                                               49
+#define ES_Path_readLines                                              50
+#define ES_Path_readString                                             51
+#define ES_Path_readXML                                                52
+#define ES_Path_relative                                               53
+#define ES_Path_relativeTo                                             54
+#define ES_Path_remove                                                 55
+#define ES_Path_removeAll                                              56
+#define ES_Path_removeDrive                                            57
+#define ES_Path_rename                                                 58
+#define ES_Path_replaceExt                                             59
+#define ES_Path_replace                                                60
+#define ES_Path_resolve                                                61
+#define ES_Path_root                                                   62
+#define ES_Path_same                                                   63
+#define ES_Path_separator                                              64
+#define ES_Path_size                                                   65
+#define ES_Path_startsWith                                             66
+#define ES_Path_symlink                                                67
+#define ES_Path_toJSON                                                 68
+#define ES_Path_toLowerCase                                            69
+#define ES_Path_toString                                               70
+#define ES_Path_operate                                                71
+#define ES_Path_trimComponents                                         72
+#define ES_Path_trimEnd                                                73
+#define ES_Path_trimExt                                                74
+#define ES_Path_trimStart                                              75
+#define ES_Path_truncate                                               76
+#define ES_Path_windows                                                77
+#define ES_Path_write                                                  78
+#define ES_Path_makeTemp                                               79
+#define ES_Path_compact                                                80
+#define ES_Path_NUM_INSTANCE_PROP                                      81
 #define ES_Path_NUM_INHERITED_PROP                                     0
 
 
@@ -2620,15 +2613,14 @@
 #define ES_XMLList_NUM_INSTANCE_PROP                                   20
 #define ES_XMLList_NUM_INHERITED_PROP                                  0
 
-#define _ES_CHECKSUM_ejs   1539891
+#define _ES_CHECKSUM_ejs   1547603
 
 #endif
 
-/************************************************************************/
-/*
-    Start of file "build/macosx-x64-debug/inc/ejs.web.slots.h"
- */
-/************************************************************************/
+
+
+/********* Start of file build/macosx-x64-debug/inc/ejs.web.slots.h ************/
+
 
 /*
    ejs.web.slots.h -- Native property slot definitions for the "ejs.web" module
@@ -3255,11 +3247,10 @@
 
 #endif
 
-/************************************************************************/
-/*
-    Start of file "build/macosx-x64-debug/inc/ejs.zlib.slots.h"
- */
-/************************************************************************/
+
+
+/********* Start of file build/macosx-x64-debug/inc/ejs.zlib.slots.h ************/
+
 
 /*
    ejs.zlib.slots.h -- Native property slot definitions for the "ejs.zlib" module

@@ -595,8 +595,8 @@ ${OUTPUTS}
             let dest: Path = (target.dest || target.path).relativeTo(target.home)
             for each (let file: Path in target.files) {
                 let to
-                if (target.subtree) {
-                    to = dest.join(file.trimStart(Path(target.subtree).portable.name + '/'))
+                if (target.relative) {
+                    to = dest.join(file.trimStart(Path(target.relative).portable.name + '/'))
                 } else if (dest.isDir) {
                     to = dest.join(file.basename)
                 } else {

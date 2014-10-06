@@ -89,7 +89,7 @@ Me.load({
             build: `
                 run('${LBIN}/ejsc --debug --out ${BIN}/me.mod --optimize 9 ${FILES}')
             `,
-            messages: [ 'Compile', 'me.mod' ],
+            message: [ 'Compile', 'me.mod' ],
             depends: [ 'ejsc' ],
         },
 
@@ -108,7 +108,8 @@ Me.load({
             path: '${BIN}/',
             files: [ 'src/**' ],
             exclude: /src.me.c|src.paks|src.tm|\/$/,
-            subtree: 'src',
+            relative: 'src',
+            message: [ 'Copy', 'src/' ],
             precious: true,
         },
 

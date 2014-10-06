@@ -102,9 +102,10 @@ module embedthis.me {
             return
         }
         global.TARGET = me.target = target
+        /* UNUSED
         if (target.files) {
             target.cmdfiles = target.files.join(' ')
-        }
+        } */
         if (target.ifdef) {
             for each (r in target.ifdef) {
                 if (me.platform.os == 'windows') {
@@ -386,8 +387,7 @@ module embedthis.me {
         genout.writeLine('')
 
         /*
-            Emit configurable paths
-         */
+            UNUSED Emit configurable paths
         for each (let target in me.targets) {
             if (!target.configurable) continue
             if (target.path) {
@@ -398,6 +398,7 @@ module embedthis.me {
                 }
             }
         }
+         */
         genout.writeLine('')
 
         /*
@@ -511,7 +512,7 @@ module embedthis.me {
         genout.writeLine('\t\t\techo "   [Warning] Make flags have changed since the last build: \"`cat $(BUILD)/.makeflags`\"" ; \\')
         genout.writeLine('\t\tfi ; \\')
         genout.writeLine('\tfi')
-        genout.writeLine('\t@echo $(MAKEFLAGS) >$(BUILD)/.makeflags\n')
+        genout.writeLine('\t@echo "$(MAKEFLAGS)" >$(BUILD)/.makeflags\n')
 
         genout.writeLine('clean:')
         builtin('cleanTargets')
@@ -723,7 +724,8 @@ module embedthis.me {
             } else if (me.generating == 'make' || me.generating == 'nmake') {
                 if (solo) {
                     genTargetDeps(target)
-                    genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
+                    let path = target.path
+                    genout.write(reppath(path) + ':' + getDepsVar() + '\n')
                 }
                 makeDir(target.dir)
             }
@@ -915,15 +917,19 @@ module embedthis.me {
             }
         }
         let dest = target.dest || target.path
-        gtracePath('Copy', dest.relative)
-
+        if (target.files.length > 0) {
+            gtracePath('Copy', dest.relative)
+        }
         generateDir(target)
+        //  MOB - reviese
         for each (let file: Path in target.files) {
             /* Auto-generated headers targets for includes have file == target.path */
             if (file == target.path) {
+                print("WARNING: path in files", target.name)
+                dump(target)
                 continue
             }
-            copy(file, dest, target)
+            copyTargetFiles(target.home, file, dest, target)
         }
         if (target.dest) {
             removeDir(target.path)
@@ -1460,9 +1466,12 @@ module embedthis.me {
             }
             if (!result.contains(dname)) {
                 let dep = me.targets[dname]
+                /* UNUSED
                 if (dep && dep.enable) {
-                    getAllDeps(top, dep, result)
-                }
+                    if (dep.path && dep.path.extension == 'h') {
+                        getAllDeps(top, dep, result)
+                    }
+                } */
                 if (!dep || !dep.configurable) {
                     result.push(dname)
                 }

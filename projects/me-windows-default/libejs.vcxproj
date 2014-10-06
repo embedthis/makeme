@@ -154,7 +154,7 @@ cd ..\..\..\projects\me-windows-default</Command>
 
 <ItemGroup>
   <ProjectReference Include="libzlib.vcxproj">
-  <Project>cb7a943f-b210-498c-80dd-8ba85d017f7e</Project>
+  <Project>54534ab4-6f0c-4103-a5a3-b01c9c230bab</Project>
   <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
   </ProjectReference>
 </ItemGroup>
