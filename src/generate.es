@@ -910,7 +910,7 @@ module embedthis.me {
         target.made ||= {}
         if (me.generating == 'make' || me.generating == 'nmake') {
             genTargetDeps(target)
-            if (target.touch) {
+            if (false && target.touch) {
                 genout.write(reppath(target.touch) + ':' + getDepsVar() + '\n')
             } else {
                 genout.write(reppath(target.path) + ':' + getDepsVar() + '\n')
