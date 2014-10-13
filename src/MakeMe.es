@@ -111,19 +111,19 @@ public class MakeMe {
                 App.exit()
             }
             if (options.reconfigure) {
-                overlay('configure.es')
+                overlay('Configure.es')
                 let configure = Configure()
                 options.file = Loader.START
                 configure.reconfigure(options.file)
             }
             if (options.configure) {
-                overlay('configure.es')
+                overlay('Configure.es')
                 let configure = Configure()
                 configure.configure()
                 options.file = Loader.START
             }
             if (options.gen) {
-                overlay('generator.es')
+                overlay('Generator.es')
                 generator = Generator()
                 if (options.gen == 'start') {
                     generatorstart()
@@ -541,7 +541,7 @@ public class MakeMe {
         if (me.targets) {
             let header
             Object.sortProperties(me.targets)
-            makeme.overlay('configure.es')
+            makeme.overlay('Configure.es')
             for each (target in me.targets) {
                 if (!target.configurable) continue
                 let desc = target.description
