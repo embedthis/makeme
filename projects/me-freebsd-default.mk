@@ -752,13 +752,11 @@ $(BUILD)/bin/libtestme.so: $(DEPS_47)
 #   me.mod
 #
 DEPS_48 += src/Builder.es
-DEPS_48 += src/generate.es
 DEPS_48 += src/Loader.es
 DEPS_48 += src/MakeMe.es
 DEPS_48 += src/Me.es
 DEPS_48 += src/Script.es
 DEPS_48 += src/Target.es
-DEPS_48 += src/xcode.es
 DEPS_48 += src/paks/ejs-version/Version.es
 ifeq ($(ME_COM_EJS),1)
     DEPS_48 += $(BUILD)/bin/ejs.mod
@@ -768,7 +766,7 @@ $(BUILD)/bin/me.mod: $(DEPS_48)
 	( \
 	cd .; \
 	echo '   [Compile] me.mod' ; \
-	./build/macosx-x64-debug/bin/ejsc --debug --out ./$(BUILD)/bin/me.mod --optimize 9 src/Builder.es src/generate.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es src/xcode.es src/paks/ejs-version/Version.es ; \
+	./build/macosx-x64-debug/bin/ejsc --debug --out ./$(BUILD)/bin/me.mod --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es src/paks/ejs-version/Version.es ; \
 	)
 
 #

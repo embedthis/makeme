@@ -828,13 +828,11 @@ build\$(CONFIG)\bin\libtestme.dll: $(DEPS_48)
 #   me.mod
 #
 DEPS_49 = $(DEPS_49) src\Builder.es
-DEPS_49 = $(DEPS_49) src\generate.es
 DEPS_49 = $(DEPS_49) src\Loader.es
 DEPS_49 = $(DEPS_49) src\MakeMe.es
 DEPS_49 = $(DEPS_49) src\Me.es
 DEPS_49 = $(DEPS_49) src\Script.es
 DEPS_49 = $(DEPS_49) src\Target.es
-DEPS_49 = $(DEPS_49) src\xcode.es
 DEPS_49 = $(DEPS_49) src\paks\ejs-version\Version.es
 !IF "$(ME_COM_EJS)" == "1"
 DEPS_49 = $(DEPS_49) build\$(CONFIG)\bin\ejs.mod
@@ -843,7 +841,7 @@ DEPS_49 = $(DEPS_49) build\$(CONFIG)\bin\ejs.mod
 build\$(CONFIG)\bin\me.mod: $(DEPS_49)
 	cd .
 	@echo .. [Compile] me.mod
-	.\build\macosx-x64-debug\bin\ejsc --debug --out ./$(BUILD)/bin/me.mod --optimize 9 src/Builder.es src/generate.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es src/xcode.es src/paks/ejs-version/Version.es
+	.\build\macosx-x64-debug\bin\ejsc --debug --out ./$(BUILD)/bin/me.mod --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es src/paks/ejs-version/Version.es
 	cd .
 
 #
