@@ -679,11 +679,8 @@ ifeq ($(ME_COM_EJS),1)
 endif
 
 $(BUILD)/bin/me.mod: $(DEPS_40)
-	( \
-	cd .; \
 	echo '   [Compile] me.mod' ; \
-	./$(BUILD)/bin/ejsc --debug --out ./$(BUILD)/bin/me.mod --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es src/paks/ejs-version/Version.es ; \
-	)
+	./$(BUILD)/bin/ejsc --debug --out ./$(BUILD)/bin/me.mod --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es src/paks/ejs-version/Version.es
 
 #
 #   runtime
@@ -835,8 +832,6 @@ $(BUILD)/bin/testme.es: $(DEPS_45)
 #   installBinary
 #
 installBinary: $(DEPS_46)
-	( \
-	cd .; \
 	mkdir -p "$(ME_APP_PREFIX)" ; \
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
 	ln -s "0.8.4" "$(ME_APP_PREFIX)/latest" ; \
@@ -878,37 +873,37 @@ installBinary: $(DEPS_46)
 	cp $(BUILD)/bin/ejs.testme.mod $(ME_VAPP_PREFIX)/bin/ejs.testme.mod ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/inc" ; \
 	cp src/tm/testme.h $(ME_VAPP_PREFIX)/inc/testme.h ; \
-	mkdir -p "/usr/src/runtime" ; \
-	cp src/runtime/configure /usr/src/runtime/configure ; \
-	mkdir -p "/usr/src/runtime/configure" ; \
-	cp src/runtime/configure/appweb.me /usr/src/runtime/configure/appweb.me ; \
-	cp src/runtime/configure/compiler.me /usr/src/runtime/configure/compiler.me ; \
-	cp src/runtime/configure/lib.me /usr/src/runtime/configure/lib.me ; \
-	cp src/runtime/configure/link.me /usr/src/runtime/configure/link.me ; \
-	cp src/runtime/configure/rc.me /usr/src/runtime/configure/rc.me ; \
-	cp src/runtime/configure/testme.me /usr/src/runtime/configure/testme.me ; \
-	cp src/runtime/configure/vxworks.me /usr/src/runtime/configure/vxworks.me ; \
-	cp src/runtime/configure/winsdk.me /usr/src/runtime/configure/winsdk.me ; \
-	cp src/runtime/master-main.me /usr/src/runtime/master-main.me ; \
-	cp src/runtime/master-start.me /usr/src/runtime/master-start.me ; \
-	cp src/runtime/os /usr/src/runtime/os ; \
-	mkdir -p "/usr/src/runtime/os" ; \
-	cp src/runtime/os/freebsd.me /usr/src/runtime/os/freebsd.me ; \
-	cp src/runtime/os/gcc.me /usr/src/runtime/os/gcc.me ; \
-	cp src/runtime/os/linux.me /usr/src/runtime/os/linux.me ; \
-	cp src/runtime/os/macosx.me /usr/src/runtime/os/macosx.me ; \
-	cp src/runtime/os/solaris.me /usr/src/runtime/os/solaris.me ; \
-	cp src/runtime/os/unix.me /usr/src/runtime/os/unix.me ; \
-	cp src/runtime/os/vxworks.me /usr/src/runtime/os/vxworks.me ; \
-	cp src/runtime/os/windows.me /usr/src/runtime/os/windows.me ; \
-	cp src/runtime/plugins /usr/src/runtime/plugins ; \
-	mkdir -p "/usr/src/runtime/plugins" ; \
-	cp src/runtime/plugins/Configure.es /usr/src/runtime/plugins/Configure.es ; \
-	cp src/runtime/plugins/Generator.es /usr/src/runtime/plugins/Generator.es ; \
-	cp src/runtime/plugins/Vstudio.es /usr/src/runtime/plugins/Vstudio.es ; \
-	cp src/runtime/plugins/Xcode.es /usr/src/runtime/plugins/Xcode.es ; \
-	cp src/runtime/simple.me /usr/src/runtime/simple.me ; \
-	cp src/runtime/standard.me /usr/src/runtime/standard.me ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
+	cp src/runtime/configure $(ME_VAPP_PREFIX)/bin/configure ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin/configure" ; \
+	cp src/runtime/configure/appweb.me $(ME_VAPP_PREFIX)/bin/configure/appweb.me ; \
+	cp src/runtime/configure/compiler.me $(ME_VAPP_PREFIX)/bin/configure/compiler.me ; \
+	cp src/runtime/configure/lib.me $(ME_VAPP_PREFIX)/bin/configure/lib.me ; \
+	cp src/runtime/configure/link.me $(ME_VAPP_PREFIX)/bin/configure/link.me ; \
+	cp src/runtime/configure/rc.me $(ME_VAPP_PREFIX)/bin/configure/rc.me ; \
+	cp src/runtime/configure/testme.me $(ME_VAPP_PREFIX)/bin/configure/testme.me ; \
+	cp src/runtime/configure/vxworks.me $(ME_VAPP_PREFIX)/bin/configure/vxworks.me ; \
+	cp src/runtime/configure/winsdk.me $(ME_VAPP_PREFIX)/bin/configure/winsdk.me ; \
+	cp src/runtime/master-main.me $(ME_VAPP_PREFIX)/bin/master-main.me ; \
+	cp src/runtime/master-start.me $(ME_VAPP_PREFIX)/bin/master-start.me ; \
+	cp src/runtime/os $(ME_VAPP_PREFIX)/bin/os ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin/os" ; \
+	cp src/runtime/os/freebsd.me $(ME_VAPP_PREFIX)/bin/os/freebsd.me ; \
+	cp src/runtime/os/gcc.me $(ME_VAPP_PREFIX)/bin/os/gcc.me ; \
+	cp src/runtime/os/linux.me $(ME_VAPP_PREFIX)/bin/os/linux.me ; \
+	cp src/runtime/os/macosx.me $(ME_VAPP_PREFIX)/bin/os/macosx.me ; \
+	cp src/runtime/os/solaris.me $(ME_VAPP_PREFIX)/bin/os/solaris.me ; \
+	cp src/runtime/os/unix.me $(ME_VAPP_PREFIX)/bin/os/unix.me ; \
+	cp src/runtime/os/vxworks.me $(ME_VAPP_PREFIX)/bin/os/vxworks.me ; \
+	cp src/runtime/os/windows.me $(ME_VAPP_PREFIX)/bin/os/windows.me ; \
+	cp src/runtime/plugins $(ME_VAPP_PREFIX)/bin/plugins ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin/plugins" ; \
+	cp src/runtime/plugins/Configure.es $(ME_VAPP_PREFIX)/bin/plugins/Configure.es ; \
+	cp src/runtime/plugins/Generator.es $(ME_VAPP_PREFIX)/bin/plugins/Generator.es ; \
+	cp src/runtime/plugins/Vstudio.es $(ME_VAPP_PREFIX)/bin/plugins/Vstudio.es ; \
+	cp src/runtime/plugins/Xcode.es $(ME_VAPP_PREFIX)/bin/plugins/Xcode.es ; \
+	cp src/runtime/simple.me $(ME_VAPP_PREFIX)/bin/simple.me ; \
+	cp src/runtime/standard.me $(ME_VAPP_PREFIX)/bin/standard.me ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/doc/man/man1" ; \
 	cp doc/public/man/me.1 $(ME_VAPP_PREFIX)/doc/man/man1/me.1 ; \
 	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \
@@ -917,8 +912,7 @@ installBinary: $(DEPS_46)
 	cp doc/public/man/testme.1 $(ME_VAPP_PREFIX)/doc/man/man1/testme.1 ; \
 	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \
 	rm -f "$(ME_MAN_PREFIX)/man1/testme.1" ; \
-	ln -s "$(ME_VAPP_PREFIX)/doc/man/man1/testme.1" "$(ME_MAN_PREFIX)/man1/testme.1" ; \
-	)
+	ln -s "$(ME_VAPP_PREFIX)/doc/man/man1/testme.1" "$(ME_MAN_PREFIX)/man1/testme.1"
 
 
 #
@@ -936,19 +930,13 @@ install: $(DEPS_47)
 DEPS_48 += stop
 
 uninstall: $(DEPS_48)
-	( \
-	cd .; \
 	rm -fr "$(ME_VAPP_PREFIX)" ; \
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
-	rmdir -p "$(ME_APP_PREFIX)" 2>/dev/null ; true ; \
-	)
+	rmdir -p "$(ME_APP_PREFIX)" 2>/dev/null ; true
 
 #
 #   version
 #
 version: $(DEPS_49)
-	( \
-	cd .; \
-	echo 0.8.4 ; \
-	)
+	echo 0.8.4
 

@@ -779,10 +779,8 @@ DEPS_48 = $(DEPS_48) build\$(CONFIG)\bin\ejs.mod
 !ENDIF
 
 build\$(CONFIG)\bin\me.mod: $(DEPS_48)
-	cd .
 	@echo .. [Compile] me.mod
 	.\$(BUILD)\bin\ejsc --debug --out ./$(BUILD)/bin/me.mod --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es src/paks/ejs-version/Version.es
-	cd .
 
 #
 #   runtime
@@ -854,7 +852,7 @@ DEPS_50 = $(DEPS_50) build\$(CONFIG)\bin\libhttp.dll
 DEPS_50 = $(DEPS_50) build\$(CONFIG)\bin\libejs.dll
 !ENDIF
 DEPS_50 = $(DEPS_50) build\$(CONFIG)\bin\me.mod
-DEPS_50 = $(DEPS_50) build\$(CONFIG)\bin
+DEPS_50 = $(DEPS_50) build\$(CONFIG)\.modify-runtime
 DEPS_50 = $(DEPS_50) build\$(CONFIG)\obj\me.obj
 
 LIBS_50 = $(LIBS_50) libmpr.lib
@@ -931,7 +929,6 @@ build\$(CONFIG)\bin\testme.exe: $(DEPS_53)
 #   installBinary
 #
 installBinary: $(DEPS_54)
-	cd .
 	if not exist "$(ME_VAPP_PREFIX)\bin" md "$(ME_VAPP_PREFIX)\bin"
 	copy /Y /B build\$(CONFIG)\bin\me.exe+modified "$(ME_VAPP_PREFIX)\bin\me.exe" $(LOG)
 	copy /Y /B build\$(CONFIG)\bin\testme.exe+modified "$(ME_VAPP_PREFIX)\bin\testme.exe" $(LOG)
@@ -964,38 +961,37 @@ installBinary: $(DEPS_54)
 	copy /Y /B build\$(CONFIG)\bin\ejs.testme.mod+modified "$(ME_VAPP_PREFIX)\bin\ejs.testme.mod" $(LOG)
 	if not exist "$(ME_VAPP_PREFIX)\inc" md "$(ME_VAPP_PREFIX)\inc"
 	copy /Y /B src\tm\testme.h+modified "$(ME_VAPP_PREFIX)\inc\testme.h" $(LOG)
-	if not exist "..\src\runtime" md "..\src\runtime"
-	copy /Y /B src\runtime\configure+modified ..\src\runtime\configure $(LOG)
-	if not exist "..\src\runtime\configure" md "..\src\runtime\configure"
-	copy /Y /B src\runtime\configure\appweb.me+modified ..\src\runtime\configure\appweb.me $(LOG)
-	copy /Y /B src\runtime\configure\compiler.me+modified ..\src\runtime\configure\compiler.me $(LOG)
-	copy /Y /B src\runtime\configure\lib.me+modified ..\src\runtime\configure\lib.me $(LOG)
-	copy /Y /B src\runtime\configure\link.me+modified ..\src\runtime\configure\link.me $(LOG)
-	copy /Y /B src\runtime\configure\rc.me+modified ..\src\runtime\configure\rc.me $(LOG)
-	copy /Y /B src\runtime\configure\testme.me+modified ..\src\runtime\configure\testme.me $(LOG)
-	copy /Y /B src\runtime\configure\vxworks.me+modified ..\src\runtime\configure\vxworks.me $(LOG)
-	copy /Y /B src\runtime\configure\winsdk.me+modified ..\src\runtime\configure\winsdk.me $(LOG)
-	copy /Y /B src\runtime\master-main.me+modified ..\src\runtime\master-main.me $(LOG)
-	copy /Y /B src\runtime\master-start.me+modified ..\src\runtime\master-start.me $(LOG)
-	copy /Y /B src\runtime\os+modified ..\src\runtime\os $(LOG)
-	if not exist "..\src\runtime\os" md "..\src\runtime\os"
-	copy /Y /B src\runtime\os\freebsd.me+modified ..\src\runtime\os\freebsd.me $(LOG)
-	copy /Y /B src\runtime\os\gcc.me+modified ..\src\runtime\os\gcc.me $(LOG)
-	copy /Y /B src\runtime\os\linux.me+modified ..\src\runtime\os\linux.me $(LOG)
-	copy /Y /B src\runtime\os\macosx.me+modified ..\src\runtime\os\macosx.me $(LOG)
-	copy /Y /B src\runtime\os\solaris.me+modified ..\src\runtime\os\solaris.me $(LOG)
-	copy /Y /B src\runtime\os\unix.me+modified ..\src\runtime\os\unix.me $(LOG)
-	copy /Y /B src\runtime\os\vxworks.me+modified ..\src\runtime\os\vxworks.me $(LOG)
-	copy /Y /B src\runtime\os\windows.me+modified ..\src\runtime\os\windows.me $(LOG)
-	copy /Y /B src\runtime\plugins+modified ..\src\runtime\plugins $(LOG)
-	if not exist "..\src\runtime\plugins" md "..\src\runtime\plugins"
-	copy /Y /B src\runtime\plugins\Configure.es+modified ..\src\runtime\plugins\Configure.es $(LOG)
-	copy /Y /B src\runtime\plugins\Generator.es+modified ..\src\runtime\plugins\Generator.es $(LOG)
-	copy /Y /B src\runtime\plugins\Vstudio.es+modified ..\src\runtime\plugins\Vstudio.es $(LOG)
-	copy /Y /B src\runtime\plugins\Xcode.es+modified ..\src\runtime\plugins\Xcode.es $(LOG)
-	copy /Y /B src\runtime\simple.me+modified ..\src\runtime\simple.me $(LOG)
-	copy /Y /B src\runtime\standard.me+modified ..\src\runtime\standard.me $(LOG)
-	cd .
+	if not exist "$(ME_VAPP_PREFIX)\bin" md "$(ME_VAPP_PREFIX)\bin"
+	copy /Y /B src\runtime\configure+modified "$(ME_VAPP_PREFIX)\bin\configure" $(LOG)
+	if not exist "$(ME_VAPP_PREFIX)\bin\configure" md "$(ME_VAPP_PREFIX)\bin\configure"
+	copy /Y /B src\runtime\configure\appweb.me+modified "$(ME_VAPP_PREFIX)\bin\configure\appweb.me" $(LOG)
+	copy /Y /B src\runtime\configure\compiler.me+modified "$(ME_VAPP_PREFIX)\bin\configure\compiler.me" $(LOG)
+	copy /Y /B src\runtime\configure\lib.me+modified "$(ME_VAPP_PREFIX)\bin\configure\lib.me" $(LOG)
+	copy /Y /B src\runtime\configure\link.me+modified "$(ME_VAPP_PREFIX)\bin\configure\link.me" $(LOG)
+	copy /Y /B src\runtime\configure\rc.me+modified "$(ME_VAPP_PREFIX)\bin\configure\rc.me" $(LOG)
+	copy /Y /B src\runtime\configure\testme.me+modified "$(ME_VAPP_PREFIX)\bin\configure\testme.me" $(LOG)
+	copy /Y /B src\runtime\configure\vxworks.me+modified "$(ME_VAPP_PREFIX)\bin\configure\vxworks.me" $(LOG)
+	copy /Y /B src\runtime\configure\winsdk.me+modified "$(ME_VAPP_PREFIX)\bin\configure\winsdk.me" $(LOG)
+	copy /Y /B src\runtime\master-main.me+modified "$(ME_VAPP_PREFIX)\bin\master-main.me" $(LOG)
+	copy /Y /B src\runtime\master-start.me+modified "$(ME_VAPP_PREFIX)\bin\master-start.me" $(LOG)
+	copy /Y /B src\runtime\os+modified "$(ME_VAPP_PREFIX)\bin\os" $(LOG)
+	if not exist "$(ME_VAPP_PREFIX)\bin\os" md "$(ME_VAPP_PREFIX)\bin\os"
+	copy /Y /B src\runtime\os\freebsd.me+modified "$(ME_VAPP_PREFIX)\bin\os\freebsd.me" $(LOG)
+	copy /Y /B src\runtime\os\gcc.me+modified "$(ME_VAPP_PREFIX)\bin\os\gcc.me" $(LOG)
+	copy /Y /B src\runtime\os\linux.me+modified "$(ME_VAPP_PREFIX)\bin\os\linux.me" $(LOG)
+	copy /Y /B src\runtime\os\macosx.me+modified "$(ME_VAPP_PREFIX)\bin\os\macosx.me" $(LOG)
+	copy /Y /B src\runtime\os\solaris.me+modified "$(ME_VAPP_PREFIX)\bin\os\solaris.me" $(LOG)
+	copy /Y /B src\runtime\os\unix.me+modified "$(ME_VAPP_PREFIX)\bin\os\unix.me" $(LOG)
+	copy /Y /B src\runtime\os\vxworks.me+modified "$(ME_VAPP_PREFIX)\bin\os\vxworks.me" $(LOG)
+	copy /Y /B src\runtime\os\windows.me+modified "$(ME_VAPP_PREFIX)\bin\os\windows.me" $(LOG)
+	copy /Y /B src\runtime\plugins+modified "$(ME_VAPP_PREFIX)\bin\plugins" $(LOG)
+	if not exist "$(ME_VAPP_PREFIX)\bin\plugins" md "$(ME_VAPP_PREFIX)\bin\plugins"
+	copy /Y /B src\runtime\plugins\Configure.es+modified "$(ME_VAPP_PREFIX)\bin\plugins\Configure.es" $(LOG)
+	copy /Y /B src\runtime\plugins\Generator.es+modified "$(ME_VAPP_PREFIX)\bin\plugins\Generator.es" $(LOG)
+	copy /Y /B src\runtime\plugins\Vstudio.es+modified "$(ME_VAPP_PREFIX)\bin\plugins\Vstudio.es" $(LOG)
+	copy /Y /B src\runtime\plugins\Xcode.es+modified "$(ME_VAPP_PREFIX)\bin\plugins\Xcode.es" $(LOG)
+	copy /Y /B src\runtime\simple.me+modified "$(ME_VAPP_PREFIX)\bin\simple.me" $(LOG)
+	copy /Y /B src\runtime\standard.me+modified "$(ME_VAPP_PREFIX)\bin\standard.me" $(LOG)
 
 
 #
@@ -1014,20 +1010,16 @@ install: $(DEPS_55)
 DEPS_56 = $(DEPS_56) stop
 
 uninstall: $(DEPS_56)
-	cd .
 	if exist "$(ME_VAPP_PREFIX)" rd /Q /S "$(ME_VAPP_PREFIX)"
 	if exist "$(ME_VAPP_PREFIX)\bin" rd /Q "$(ME_VAPP_PREFIX)\bin"
 	if exist "$(ME_VAPP_PREFIX)\inc" rd /Q "$(ME_VAPP_PREFIX)\inc"
 	if exist "$(ME_VAPP_PREFIX)\man" rd /Q "$(ME_VAPP_PREFIX)\man"
 	if exist "$(ME_VAPP_PREFIX)\latest" del /Q "$(ME_VAPP_PREFIX)\latest"
 	if exist "$(ME_VAPP_PREFIX)" rd /Q "$(ME_VAPP_PREFIX)"
-	cd .
 
 #
 #   version
 #
 version: $(DEPS_57)
-	cd .
 	echo 0.8.4
-	cd .
 
