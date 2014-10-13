@@ -3,6 +3,11 @@
  */
 #include "ejs.h"
 
+
+
+/********* Start of file ../../../src/cmd/ejsc.c ************/
+
+
 /* 
     ejsc.c - Ejscript Compiler main program
 

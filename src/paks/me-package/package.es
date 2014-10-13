@@ -682,7 +682,7 @@ function packageMacosx(prefixes) {
         run('productbuild --quiet ' + sign + ' ' +
             '--distribution ' + staging.join('distribution.xml') + ' ' + 
             '--package-path ' + staging + ' ' + 
-            '--resources . ' + outfile)
+            '--resources ' + staging + ' ' + outfile)
 
         if (sign) {
             run('pkgutil --check-signature ' + outfile, {filter: true})

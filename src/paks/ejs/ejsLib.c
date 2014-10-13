@@ -6,6 +6,11 @@
 
 #if ME_COM_EJS
 
+
+
+/********* Start of file ../../../src/cmd/romFiles.c ************/
+
+
 /*
  *  romFiles -- Compiled Files
  */
@@ -42,6 +47,11 @@ MprRomInode romFiles[] = {
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/compiler/ecAst.c ************/
+
 
 /**
     ecAst.c - Process AST nodes and define all variables.
@@ -4023,6 +4033,11 @@ static void badAst(EcCompiler *cp, EcNode *np)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/compiler/ecCodeGen.c ************/
+
 
 /**
     ecCodeGen.c - Ejscript code generator
@@ -8443,6 +8458,11 @@ static void badNode(EcCompiler *cp, EcNode *np)
     @end
  */
 
+
+
+/********* Start of file ../../../src/compiler/ecCompiler.c ************/
+
+
 /**
     ecCompile.c - Interface to the compiler
 
@@ -8946,6 +8966,11 @@ PUBLIC void ecSetRequire(EcCompiler *cp, MprList *modules)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/compiler/ecLex.c ************/
+
 
 /**
     ecLex.c - Lexical analyzer
@@ -10128,6 +10153,11 @@ PUBLIC void ecCloseStream(EcCompiler *cp)
     @end
  */
 
+
+
+/********* Start of file ../../../src/compiler/ecModuleWrite.c ************/
+
+
 /**
     ejsModuleWrite.c - Routines to encode and emit Ejscript byte code.
 
@@ -11270,6 +11300,11 @@ static int sumString(EjsString *name)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/compiler/ecParser.c ************/
+
 
 /**
     ecParser. Parse ejscript source files.
@@ -21686,6 +21721,11 @@ static void dummy(int junk) { }
     @end
  */
 
+
+
+/********* Start of file ../../../src/compiler/ecState.c ************/
+
+
 /**
     ecState.c - Manage state for the parser
 
@@ -21781,6 +21821,11 @@ PUBLIC EcNode *ecLeaveStateWithResult(EcCompiler *cp, EcNode *np)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/core/src/dtoa.c ************/
+
 
 /* 
     Source from: http://www.netlib.org/fp/dtoa.c
@@ -26177,6 +26222,11 @@ dtoa
     @end
  */
 
+
+
+/********* Start of file ../../../src/core/src/ejsApp.c ************/
+
+
 /*
     ejsApp.c -- App class
     Copyright (c) All Rights Reserved. See details at the end of the file.
@@ -26560,6 +26610,11 @@ PUBLIC void ejsConfigureAppType(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/core/src/ejsArray.c ************/
+
 
 /**
     ejsArray.c - Ejscript Array class
@@ -28475,6 +28530,11 @@ PUBLIC void ejsConfigureArrayType(Ejs *ejs)
     @end
  */
 
+
+
+/********* Start of file ../../../src/core/src/ejsBlock.c ************/
+
+
 /**
     ejsBlock.c - Lexical block
 
@@ -28673,6 +28733,11 @@ PUBLIC void ejsConfigureBlockType(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/core/src/ejsBoolean.c ************/
+
 
 /**
     ejsBoolean.c - Boolean native class
@@ -28945,6 +29010,11 @@ PUBLIC void ejsConfigureBooleanType(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/core/src/ejsByteArray.c ************/
+
 
 /*
     ejsByteArray.c - Ejscript ByteArray class
@@ -30406,6 +30476,11 @@ PUBLIC void ejsConfigureByteArrayType(Ejs *ejs)
     @end
  */
 
+
+
+/********* Start of file ../../../src/core/src/ejsCache.c ************/
+
+
 /**
     ejsCache.c - API for the Cache class
 
@@ -30538,6 +30613,11 @@ PUBLIC EjsNumber *ejsCacheWriteObj(Ejs *ejs, EjsObj *cache, EjsString *key, EjsA
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/core/src/ejsCmd.c ************/
+
 
 /*
     ejsCmd.c -- Cmd class
@@ -31259,6 +31339,11 @@ PUBLIC void ejsConfigureCmdType(Ejs *ejs)
     @end
  */
 
+
+
+/********* Start of file ../../../src/core/src/ejsConfig.c ************/
+
+
 /*
     ejsConfig.c -- Config class
   
@@ -31365,6 +31450,11 @@ PUBLIC void ejsDefineConfigProperties(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/core/src/ejsDate.c ************/
+
 
 /**
     ejsDate.c - Date type class
@@ -32479,6 +32569,11 @@ PUBLIC void ejsConfigureDateType(Ejs *ejs)
     @end
  */
 
+
+
+/********* Start of file ../../../src/core/src/ejsDebug.c ************/
+
+
 /*
     ejsDebug.c - Debug.Debug class
 
@@ -32560,6 +32655,11 @@ PUBLIC void ejsConfigureDebugType(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/core/src/ejsError.c ************/
+
 
 /**
     ejsError.c - Error Exception class
@@ -32736,6 +32836,11 @@ PUBLIC void ejsConfigureErrorType(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/core/src/ejsFile.c ************/
+
 
 /**
     ejsFile.c - File class.
@@ -33690,6 +33795,11 @@ PUBLIC void ejsConfigureFileType(Ejs *ejs)
     @end
  */
 
+
+
+/********* Start of file ../../../src/core/src/ejsFileSystem.c ************/
+
+
 /**
     ejsFileSystem.c - FileSystem class.
 
@@ -33961,6 +34071,11 @@ PUBLIC void ejsConfigureFileSystemType(Ejs *ejs)
     @end
  */
 
+
+
+/********* Start of file ../../../src/core/src/ejsFrame.c ************/
+
+
 /**
     ejsFrame.c - Activation frame class
 
@@ -34143,6 +34258,11 @@ PUBLIC void ejsConfigureFrameType(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/core/src/ejsFunction.c ************/
+
 
 /**
     ejsFunction.c - Function class
@@ -34738,6 +34858,11 @@ PUBLIC void ejsConfigureFunctionType(Ejs *ejs)
     @end
  */
 
+
+
+/********* Start of file ../../../src/core/src/ejsGC.c ************/
+
+
 /**
     ejsGC.c - Garbage collector class for the EJS Object Model
 
@@ -34853,6 +34978,11 @@ PUBLIC void ejsConfigureGCType(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/core/src/ejsGlobal.c ************/
+
 
 /**
     ejsGlobal.c - Global functions and variables
@@ -35421,6 +35551,11 @@ PUBLIC void ejsConfigureGlobalBlock(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/core/src/ejsHttp.c ************/
+
 
 /**
     ejsHttp.c - Http client class
@@ -37130,6 +37265,11 @@ PUBLIC void ejsConfigureHttpType(Ejs *ejs)
     @end
  */
 
+
+
+/********* Start of file ../../../src/core/src/ejsIterator.c ************/
+
+
 /**
     ejsIterator.c - Iterator class
 
@@ -37270,6 +37410,11 @@ PUBLIC void ejsConfigureIteratorType(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/core/src/ejsJSON.c ************/
+
 
 /**
     ejsJSON.c - JSON encoding and decoding
@@ -37985,6 +38130,11 @@ PUBLIC void ejsConfigureJSONType(Ejs *ejs)
     @end
  */
 
+
+
+/********* Start of file ../../../src/core/src/ejsLocalCache.c ************/
+
+
 /**
     ejsEjsLocalCache.c - Native code for the Local cache class.
 
@@ -38597,6 +38747,11 @@ PUBLIC void ejsConfigureLocalCacheType(Ejs *ejs)
     @end
  */
 
+
+
+/********* Start of file ../../../src/core/src/ejsMath.c ************/
+
+
 /**
     ejsMath.c - Math type class
 
@@ -38904,6 +39059,11 @@ PUBLIC void ejsConfigureMathType(Ejs *ejs)
     @end
  */
 
+
+
+/********* Start of file ../../../src/core/src/ejsMemory.c ************/
+
+
 /*
     ejsMemory.c - Memory class
 
@@ -39080,6 +39240,11 @@ PUBLIC void ejsConfigureMemoryType(Ejs *ejs)
     @end
  */
 
+
+
+/********* Start of file ../../../src/core/src/ejsMprLog.c ************/
+
+
 /*
     ejsMprLog.c -- MprLog class
 
@@ -39241,6 +39406,11 @@ PUBLIC void ejsConfigureMprLogType(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/core/src/ejsNamespace.c ************/
+
 
 /**
     ejsNamespace.c - Ejscript Namespace class
@@ -39431,6 +39601,11 @@ PUBLIC void ejsConfigureNamespaceType(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/core/src/ejsNull.c ************/
+
 
 /**
     ejsNull.c - Ejscript Null class
@@ -39657,6 +39832,11 @@ PUBLIC void ejsConfigureNullType(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/core/src/ejsNumber.c ************/
+
 
 /**
     ejsNumber.c - Number type class
@@ -40357,6 +40537,11 @@ PUBLIC void ejsConfigureNumberType(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/core/src/ejsObject.c ************/
+
 
 /**
     ejsObject.c - Object class
@@ -41335,6 +41520,11 @@ PUBLIC void ejsConfigureObjectType(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/core/src/ejsPath.c ************/
+
 
 /*
     ejsPath.c - Path class.
@@ -43294,6 +43484,11 @@ PUBLIC void ejsConfigurePathType(Ejs *ejs)
     @end
  */
 
+
+
+/********* Start of file ../../../src/core/src/ejsPot.c ************/
+
+
 /**
     ejsPot.c - Property Object class (Objects with properties)
 
@@ -44379,6 +44574,11 @@ PUBLIC void ejsCreatePotHelpers(Ejs *ejs)
     @end
  */
 
+
+
+/********* Start of file ../../../src/core/src/ejsRegExp.c ************/
+
+
 /**
     ejsRegExp.c - RegExp type class
 
@@ -44824,6 +45024,11 @@ PUBLIC void ejsConfigureRegExpType(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/core/src/ejsSocket.c ************/
+
 
 /**
     ejsSocket.c - Socket class. This implements TCP/IP v4 and v6 connectivity.
@@ -45280,6 +45485,11 @@ PUBLIC void ejsConfigureSocketType(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/core/src/ejsString.c ************/
+
 
 /**
     ejsString.c - Ejscript string class
@@ -48222,6 +48432,11 @@ PUBLIC void ejsConfigureStringType(Ejs *ejs)
     @end
  */
 
+
+
+/********* Start of file ../../../src/core/src/ejsSystem.c ************/
+
+
 /*
     ejsSystem.c -- System class
 
@@ -48351,6 +48566,11 @@ PUBLIC void ejsConfigureSystemType(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/core/src/ejsTimer.c ************/
+
 
 /*
     ejsTimer.c -- Timer class
@@ -48603,6 +48823,11 @@ PUBLIC void ejsConfigureTimerType(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/core/src/ejsType.c ************/
+
 
 /**
     ejsType.c - Type class
@@ -49650,6 +49875,11 @@ PUBLIC void ejsInitTypeType(Ejs *ejs, EjsType *type)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/core/src/ejsUri.c ************/
+
 
 /*
     ejsUri.c - Uri class.
@@ -50903,6 +51133,11 @@ PUBLIC void ejsConfigureUriType(Ejs *ejs)
     @end
  */
 
+
+
+/********* Start of file ../../../src/core/src/ejsVoid.c ************/
+
+
 /**
     ejsVoid.c - Ejscript Void class (aka undefined)
 
@@ -51131,6 +51366,11 @@ PUBLIC void ejsConfigureVoidType(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/core/src/ejsWebSocket.c ************/
+
 
 /**
     ejsWebSocket.c - WebSocket class
@@ -51822,6 +52062,11 @@ PUBLIC void ejsConfigureWebSocketType(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/core/src/ejsWorker.c ************/
+
 
 /*
     ejsWorker - VM Worker thread classes
@@ -52733,6 +52978,11 @@ PUBLIC void ejsConfigureWorkerType(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/core/src/ejsXML.c ************/
+
 
 /**
     ejsXML.c - XML type.
@@ -53851,6 +54101,11 @@ PUBLIC void ejsConfigureXMLType(Ejs *ejs)
     @end
  */
 
+
+
+/********* Start of file ../../../src/core/src/ejsXMLList.c ************/
+
+
 /**
     ejsXMLList.c - XMLList type.
 
@@ -54712,6 +54967,11 @@ PUBLIC void ejsConfigureXMLListType(Ejs *ejs)
     @end
  */
 
+
+
+/********* Start of file ../../../src/core/src/ejsXMLLoader.c ************/
+
+
 /**
     ejsXMLLoader.c - Load and save XML data.
  *
@@ -55018,6 +55278,11 @@ static void indent(MprBuf *bp, int level)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/ejs.db.sqlite/ejsSqlite.c ************/
+
 
 /*
     ejsSqlite.c -- SQLite Database class
@@ -55475,6 +55740,11 @@ PUBLIC int ejs_db_sqlite_Init(Ejs *ejs, MprModule *mp)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/ejs.web/ejsHttpServer.c ************/
+
 
 /*
     ejsHttpServer.c -- Ejscript Http Server.
@@ -56462,6 +56732,11 @@ void ejsConfigureHttpServerType(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/ejs.web/ejsRequest.c ************/
+
 
 /*
     ejsRequest.c -- Ejscript web framework.
@@ -58074,6 +58349,11 @@ void ejsConfigureRequestType(Ejs *ejs)
     @end
  */
 
+
+
+/********* Start of file ../../../src/ejs.web/ejsSession.c ************/
+
+
 /**
     ejsSession.c - Native code for the Session class.
 
@@ -58343,6 +58623,11 @@ void ejsConfigureSessionType(Ejs *ejs)
     @end
  */
 
+
+
+/********* Start of file ../../../src/ejs.web/ejsWeb.c ************/
+
+
 /*
     ejsWeb.c -- Ejscript web framework.
 
@@ -58419,6 +58704,11 @@ int ejs_web_Init(Ejs *ejs, MprModule *mp)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/ejs.zlib/ejsZlib.c ************/
+
 
 /*
     ejsZlib.c -- Zlib compression 
@@ -58788,6 +59078,11 @@ PUBLIC int ejs_zlib_Init(Ejs *ejs, MprModule *mp)
     @end
  */
 
+
+
+/********* Start of file ../../../src/vm/ejsByteCode.c ************/
+
+
 /**
     ejsByteCode.c - Definition of the byte code table.
   
@@ -58827,6 +59122,11 @@ PUBLIC EjsOptable *ejsGetOptable()
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/vm/ejsException.c ************/
+
 
 /**
     ejsException.c - Error Exception class
@@ -59246,6 +59546,11 @@ EjsObj *ejsGetException(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/vm/ejsHelper.c ************/
+
 
 /**
     ejsHelper.c - Helper methods for types.
@@ -60305,6 +60610,11 @@ void ejsMarkName(EjsName *qname)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/vm/ejsInterp.c ************/
+
 
 /*
     ejsInterp.c - Virtual Machine Interpreter for Ejscript.
@@ -62962,7 +63272,7 @@ EjsAny *ejsRunFunction(Ejs *ejs, EjsFunction *fun, EjsAny *thisObj, int argc, vo
     assert(ejs);
     assert(fun);
     assert(ejsIsFunction(ejs, fun));
-#if UNUSED
+#if KEEP
     if (ejs->exception) {
         mprDebug("ejs vm", 0, "STOP");
     }
@@ -64144,6 +64454,11 @@ void ejsShowOpFrequency(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/vm/ejsLoader.c ************/
+
 
 /**
     ejsLoader.c - Ejscript module file file loader
@@ -65770,6 +66085,11 @@ static void popScope(EjsModule *mp, int keepScope)
     @end
  */
 
+
+
+/********* Start of file ../../../src/vm/ejsModule.c ************/
+
+
 /**
     ejsModule.c - Ejscript module management
 
@@ -66690,6 +67010,11 @@ double ejsSwapDouble(Ejs *ejs, double a)
     @end
  */
 
+
+
+/********* Start of file ../../../src/vm/ejsScope.c ************/
+
+
 /**
     ejsScope.c - Lookup variables in the scope chain.
   
@@ -67051,6 +67376,11 @@ void ejsShowCurrentScope(Ejs *ejs)
 
     @end
  */
+
+
+
+/********* Start of file ../../../src/vm/ejsService.c ************/
+
 
 /**
     ejsService.c - Ejscript interpreter factory

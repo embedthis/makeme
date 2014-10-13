@@ -15,6 +15,11 @@
 #include "zlib.h"
 
 
+
+
+/********* Start of file src/ejsByteCode.h ************/
+
+
 /*
     ejsByteCode.h - Ejscript VM Byte Code
   
@@ -257,6 +262,11 @@ typedef enum EjsOpCode {
 
     @end
  */
+
+
+
+/********* Start of file src/ejsByteCodeTable.h ************/
+
 
 /**
     ejsByteCodeTable.h - Master Byte Code Table
@@ -546,6 +556,11 @@ PUBLIC EjsOptable *ejsGetOptable();
 
     @end
  */
+
+
+
+/********* Start of file src/ejs.h ************/
+
 
 /*
     ejs.h - Ejscript header
@@ -5997,6 +6012,11 @@ PUBLIC int64 ejsSwapInt64(Ejs *ejs, int64 word);
     @end
  */
 
+
+
+/********* Start of file src/ejs.web/ejsWeb.h ************/
+
+
 /**
     ejsWeb.h -- Header for the Ejscript Web Framework
     Copyright (c) All Rights Reserved. See details at the end of the file.
@@ -6221,6 +6241,11 @@ extern void ejsSendRequestErrorEvent(Ejs *ejs, EjsRequest *req);
 
     @end
  */
+
+
+
+/********* Start of file src/ejsCompiler.h ************/
+
 
 /*
     ejsCompiler.h - Internal compiler header.
