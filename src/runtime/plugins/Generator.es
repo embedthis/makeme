@@ -723,7 +723,6 @@ class Generator {
         let all = []
         for each (target in topTargets) {
             let path = target.modify || target.path
-            print("TOP", target.name)
             if (path && target.enable && target.generate) {
                 if (target.ifdef) {
                     for each (pname in target.ifdef) {
@@ -960,19 +959,14 @@ class Generator {
             }
         }
         let kind = makeme.generating
-        if (generating == 'sh' || generating == 'make') {
-            prefix = 'cd ' + target.home.relative
-            suffix = 'cd ' + me.dir.top.relativeTo(target.home)
-        } else if (generating == 'nmake') {
-            prefix = 'cd ' + target.home.relative.windows + '\n'
-            suffix = '\ncd ' + me.dir.src.relativeTo(target.home).windows
-        } else {
-            prefix = suffix = ''
-        }
-        let rhome = target.home.relative
-        if (rhome.startsWith('..')) {
-            /* Don't change directory out of source tree. Necessary for actions in standard.me */
-            prefix = suffix = ''
+        if (!target.home.same('.')) {
+            if (generating == 'sh' || generating == 'make') {
+                prefix = 'cd ' + target.home.relative
+                suffix = 'cd ' + me.dir.top.relativeTo(target.home)
+            } else if (generating == 'nmake') {
+                prefix = 'cd ' + target.home.relative.windows + '\n'
+                suffix = '\ncd ' + me.dir.src.relativeTo(target.home).windows
+            }
         }
         /*
             Strategy: If target.generate is true, then run script and capture commands
