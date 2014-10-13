@@ -102,13 +102,6 @@ cd ..\..\projects\me-windows-default</Command>
       </CustomBuildStep>
   </ItemDefinitionGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="ejsc.vcxproj">
-      <Project>75a3c39b-7cd5-473d-8aa0-e3c369ab6b33</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-      </ProjectReference>
-    </ItemGroup>
-
   <Import Project="$(VCTargetsPath)Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

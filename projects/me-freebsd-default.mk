@@ -73,7 +73,6 @@ ME_CACHE_PREFIX       ?= $(ME_ROOT_PREFIX)/var/spool/$(NAME)/cache
 ME_SRC_PREFIX         ?= $(ME_ROOT_PREFIX)$(NAME)-$(VERSION)
 
 
-TARGETS               += $(BUILD)/.modify-core
 ifeq ($(ME_COM_EJS),1)
     TARGETS           += $(BUILD)/bin/ejs.mod
 endif
@@ -81,6 +80,7 @@ TARGETS               += $(BUILD)/bin/ejs.testme.mod
 ifeq ($(ME_COM_EJS),1)
     TARGETS           += $(BUILD)/bin/ejs
 endif
+TARGETS               += $(BUILD)/.modify-export
 TARGETS               += $(BUILD)/bin/ca.crt
 ifeq ($(ME_COM_HTTP),1)
     TARGETS           += $(BUILD)/bin/http
@@ -447,34 +447,202 @@ $(BUILD)/obj/zlib.o: \
 	$(CC) -c -o $(BUILD)/obj/zlib.o $(LDFLAGS) $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/zlib/zlib.c
 
 #
-#   core
+#   libmpr
 #
-DEPS_33 += src/export/configure/appweb.me
-DEPS_33 += src/export/configure/compiler.me
-DEPS_33 += src/export/configure/lib.me
-DEPS_33 += src/export/configure/link.me
-DEPS_33 += src/export/configure/rc.me
-DEPS_33 += src/export/configure/testme.me
-DEPS_33 += src/export/configure/vxworks.me
-DEPS_33 += src/export/configure/winsdk.me
-DEPS_33 += src/export/master-main.me
-DEPS_33 += src/export/master-start.me
-DEPS_33 += src/export/os/freebsd.me
-DEPS_33 += src/export/os/gcc.me
-DEPS_33 += src/export/os/linux.me
-DEPS_33 += src/export/os/macosx.me
-DEPS_33 += src/export/os/solaris.me
-DEPS_33 += src/export/os/unix.me
-DEPS_33 += src/export/os/vxworks.me
-DEPS_33 += src/export/os/windows.me
-DEPS_33 += src/export/plugins/Configure.es
-DEPS_33 += src/export/plugins/Generator.es
-DEPS_33 += src/export/plugins/Vstudio.es
-DEPS_33 += src/export/plugins/Xcode.es
-DEPS_33 += src/export/simple.me
-DEPS_33 += src/export/standard.me
+DEPS_33 += $(BUILD)/inc/mpr.h
+DEPS_33 += $(BUILD)/obj/mprLib.o
 
-$(BUILD)/.modify-core: $(DEPS_33)
+$(BUILD)/bin/libmpr.so: $(DEPS_33)
+	@echo '      [Link] $(BUILD)/bin/libmpr.so'
+	$(CC) -shared -o $(BUILD)/bin/libmpr.so $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/mprLib.o" $(LIBS) 
+
+ifeq ($(ME_COM_PCRE),1)
+#
+#   libpcre
+#
+DEPS_34 += $(BUILD)/inc/pcre.h
+DEPS_34 += $(BUILD)/obj/pcre.o
+
+$(BUILD)/bin/libpcre.so: $(DEPS_34)
+	@echo '      [Link] $(BUILD)/bin/libpcre.so'
+	$(CC) -shared -o $(BUILD)/bin/libpcre.so $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/pcre.o" $(LIBS) 
+endif
+
+ifeq ($(ME_COM_HTTP),1)
+#
+#   libhttp
+#
+DEPS_35 += $(BUILD)/bin/libmpr.so
+ifeq ($(ME_COM_PCRE),1)
+    DEPS_35 += $(BUILD)/bin/libpcre.so
+endif
+DEPS_35 += $(BUILD)/inc/http.h
+DEPS_35 += $(BUILD)/obj/httpLib.o
+
+LIBS_35 += -lmpr
+ifeq ($(ME_COM_PCRE),1)
+    LIBS_35 += -lpcre
+endif
+
+$(BUILD)/bin/libhttp.so: $(DEPS_35)
+	@echo '      [Link] $(BUILD)/bin/libhttp.so'
+	$(CC) -shared -o $(BUILD)/bin/libhttp.so $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/httpLib.o" $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) 
+endif
+
+ifeq ($(ME_COM_ZLIB),1)
+#
+#   libzlib
+#
+DEPS_36 += $(BUILD)/inc/zlib.h
+DEPS_36 += $(BUILD)/obj/zlib.o
+
+$(BUILD)/bin/libzlib.so: $(DEPS_36)
+	@echo '      [Link] $(BUILD)/bin/libzlib.so'
+	$(CC) -shared -o $(BUILD)/bin/libzlib.so $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/zlib.o" $(LIBS) 
+endif
+
+ifeq ($(ME_COM_EJS),1)
+#
+#   libejs
+#
+ifeq ($(ME_COM_HTTP),1)
+    DEPS_37 += $(BUILD)/bin/libhttp.so
+endif
+ifeq ($(ME_COM_PCRE),1)
+    DEPS_37 += $(BUILD)/bin/libpcre.so
+endif
+DEPS_37 += $(BUILD)/bin/libmpr.so
+ifeq ($(ME_COM_ZLIB),1)
+    DEPS_37 += $(BUILD)/bin/libzlib.so
+endif
+DEPS_37 += $(BUILD)/inc/ejs.h
+DEPS_37 += $(BUILD)/inc/ejs.slots.h
+DEPS_37 += $(BUILD)/inc/ejsByteGoto.h
+DEPS_37 += $(BUILD)/obj/ejsLib.o
+
+ifeq ($(ME_COM_HTTP),1)
+    LIBS_37 += -lhttp
+endif
+LIBS_37 += -lmpr
+ifeq ($(ME_COM_PCRE),1)
+    LIBS_37 += -lpcre
+endif
+ifeq ($(ME_COM_ZLIB),1)
+    LIBS_37 += -lzlib
+endif
+
+$(BUILD)/bin/libejs.so: $(DEPS_37)
+	@echo '      [Link] $(BUILD)/bin/libejs.so'
+	$(CC) -shared -o $(BUILD)/bin/libejs.so $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/ejsLib.o" $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) 
+endif
+
+ifeq ($(ME_COM_EJS),1)
+#
+#   ejsc
+#
+DEPS_38 += $(BUILD)/bin/libejs.so
+DEPS_38 += $(BUILD)/obj/ejsc.o
+
+LIBS_38 += -lejs
+ifeq ($(ME_COM_HTTP),1)
+    LIBS_38 += -lhttp
+endif
+LIBS_38 += -lmpr
+ifeq ($(ME_COM_PCRE),1)
+    LIBS_38 += -lpcre
+endif
+ifeq ($(ME_COM_ZLIB),1)
+    LIBS_38 += -lzlib
+endif
+
+$(BUILD)/bin/ejsc: $(DEPS_38)
+	@echo '      [Link] $(BUILD)/bin/ejsc'
+	$(CC) -o $(BUILD)/bin/ejsc $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/ejsc.o" $(LIBPATHS_38) $(LIBS_38) $(LIBS_38) $(LIBS) $(LIBS) 
+endif
+
+ifeq ($(ME_COM_EJS),1)
+#
+#   ejs.mod
+#
+DEPS_39 += src/paks/ejs/ejs.es
+DEPS_39 += $(BUILD)/bin/ejsc
+
+$(BUILD)/bin/ejs.mod: $(DEPS_39)
+	( \
+	cd src/paks/ejs; \
+	echo '   [Compile] ejs.mod' ; \
+	../../../build/macosx-x64-debug/bin/ejsc --out ../../../$(BUILD)/bin/ejs.mod --optimize 9 --bind --require null ejs.es ; \
+	)
+endif
+
+#
+#   ejs.testme.mod
+#
+DEPS_40 += src/tm/ejs.testme.es
+ifeq ($(ME_COM_EJS),1)
+    DEPS_40 += $(BUILD)/bin/ejs.mod
+endif
+
+$(BUILD)/bin/ejs.testme.mod: $(DEPS_40)
+	( \
+	cd src/tm; \
+	echo '   [Compile] ejs.testme.mod' ; \
+	../../build/macosx-x64-debug/bin/ejsc --debug --out ../../$(BUILD)/bin/ejs.testme.mod --optimize 9 ejs.testme.es ; \
+	)
+
+ifeq ($(ME_COM_EJS),1)
+#
+#   ejscmd
+#
+DEPS_41 += $(BUILD)/bin/libejs.so
+DEPS_41 += $(BUILD)/obj/ejs.o
+
+LIBS_41 += -lejs
+ifeq ($(ME_COM_HTTP),1)
+    LIBS_41 += -lhttp
+endif
+LIBS_41 += -lmpr
+ifeq ($(ME_COM_PCRE),1)
+    LIBS_41 += -lpcre
+endif
+ifeq ($(ME_COM_ZLIB),1)
+    LIBS_41 += -lzlib
+endif
+
+$(BUILD)/bin/ejs: $(DEPS_41)
+	@echo '      [Link] $(BUILD)/bin/ejs'
+	$(CC) -o $(BUILD)/bin/ejs $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/ejs.o" $(LIBPATHS_41) $(LIBS_41) $(LIBS_41) $(LIBS) $(LIBS) 
+endif
+
+#
+#   export
+#
+DEPS_42 += src/export/configure/appweb.me
+DEPS_42 += src/export/configure/compiler.me
+DEPS_42 += src/export/configure/lib.me
+DEPS_42 += src/export/configure/link.me
+DEPS_42 += src/export/configure/rc.me
+DEPS_42 += src/export/configure/testme.me
+DEPS_42 += src/export/configure/vxworks.me
+DEPS_42 += src/export/configure/winsdk.me
+DEPS_42 += src/export/master-main.me
+DEPS_42 += src/export/master-start.me
+DEPS_42 += src/export/os/freebsd.me
+DEPS_42 += src/export/os/gcc.me
+DEPS_42 += src/export/os/linux.me
+DEPS_42 += src/export/os/macosx.me
+DEPS_42 += src/export/os/solaris.me
+DEPS_42 += src/export/os/unix.me
+DEPS_42 += src/export/os/vxworks.me
+DEPS_42 += src/export/os/windows.me
+DEPS_42 += src/export/plugins/Configure.es
+DEPS_42 += src/export/plugins/Generator.es
+DEPS_42 += src/export/plugins/Vstudio.es
+DEPS_42 += src/export/plugins/Xcode.es
+DEPS_42 += src/export/simple.me
+DEPS_42 += src/export/standard.me
+
+$(BUILD)/.modify-export: $(DEPS_42)
 	@echo '      [Copy] $(BUILD)/bin'
 	mkdir -p "$(BUILD)/bin/configure"
 	cp src/export/configure/appweb.me $(BUILD)/bin/configure/appweb.me
@@ -504,175 +672,7 @@ $(BUILD)/.modify-core: $(DEPS_33)
 	cp src/export/plugins/Xcode.es $(BUILD)/bin/plugins/Xcode.es
 	cp src/export/simple.me $(BUILD)/bin/simple.me
 	cp src/export/standard.me $(BUILD)/bin/standard.me
-	touch "./$(BUILD)/.modify-core"
-
-#
-#   libmpr
-#
-DEPS_34 += $(BUILD)/inc/mpr.h
-DEPS_34 += $(BUILD)/obj/mprLib.o
-
-$(BUILD)/bin/libmpr.so: $(DEPS_34)
-	@echo '      [Link] $(BUILD)/bin/libmpr.so'
-	$(CC) -shared -o $(BUILD)/bin/libmpr.so $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/mprLib.o" $(LIBS) 
-
-ifeq ($(ME_COM_PCRE),1)
-#
-#   libpcre
-#
-DEPS_35 += $(BUILD)/inc/pcre.h
-DEPS_35 += $(BUILD)/obj/pcre.o
-
-$(BUILD)/bin/libpcre.so: $(DEPS_35)
-	@echo '      [Link] $(BUILD)/bin/libpcre.so'
-	$(CC) -shared -o $(BUILD)/bin/libpcre.so $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/pcre.o" $(LIBS) 
-endif
-
-ifeq ($(ME_COM_HTTP),1)
-#
-#   libhttp
-#
-DEPS_36 += $(BUILD)/bin/libmpr.so
-ifeq ($(ME_COM_PCRE),1)
-    DEPS_36 += $(BUILD)/bin/libpcre.so
-endif
-DEPS_36 += $(BUILD)/inc/http.h
-DEPS_36 += $(BUILD)/obj/httpLib.o
-
-LIBS_36 += -lmpr
-ifeq ($(ME_COM_PCRE),1)
-    LIBS_36 += -lpcre
-endif
-
-$(BUILD)/bin/libhttp.so: $(DEPS_36)
-	@echo '      [Link] $(BUILD)/bin/libhttp.so'
-	$(CC) -shared -o $(BUILD)/bin/libhttp.so $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/httpLib.o" $(LIBPATHS_36) $(LIBS_36) $(LIBS_36) $(LIBS) 
-endif
-
-ifeq ($(ME_COM_ZLIB),1)
-#
-#   libzlib
-#
-DEPS_37 += $(BUILD)/inc/zlib.h
-DEPS_37 += $(BUILD)/obj/zlib.o
-
-$(BUILD)/bin/libzlib.so: $(DEPS_37)
-	@echo '      [Link] $(BUILD)/bin/libzlib.so'
-	$(CC) -shared -o $(BUILD)/bin/libzlib.so $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/zlib.o" $(LIBS) 
-endif
-
-ifeq ($(ME_COM_EJS),1)
-#
-#   libejs
-#
-ifeq ($(ME_COM_HTTP),1)
-    DEPS_38 += $(BUILD)/bin/libhttp.so
-endif
-ifeq ($(ME_COM_PCRE),1)
-    DEPS_38 += $(BUILD)/bin/libpcre.so
-endif
-DEPS_38 += $(BUILD)/bin/libmpr.so
-ifeq ($(ME_COM_ZLIB),1)
-    DEPS_38 += $(BUILD)/bin/libzlib.so
-endif
-DEPS_38 += $(BUILD)/inc/ejs.h
-DEPS_38 += $(BUILD)/inc/ejs.slots.h
-DEPS_38 += $(BUILD)/inc/ejsByteGoto.h
-DEPS_38 += $(BUILD)/obj/ejsLib.o
-
-ifeq ($(ME_COM_HTTP),1)
-    LIBS_38 += -lhttp
-endif
-LIBS_38 += -lmpr
-ifeq ($(ME_COM_PCRE),1)
-    LIBS_38 += -lpcre
-endif
-ifeq ($(ME_COM_ZLIB),1)
-    LIBS_38 += -lzlib
-endif
-
-$(BUILD)/bin/libejs.so: $(DEPS_38)
-	@echo '      [Link] $(BUILD)/bin/libejs.so'
-	$(CC) -shared -o $(BUILD)/bin/libejs.so $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/ejsLib.o" $(LIBPATHS_38) $(LIBS_38) $(LIBS_38) $(LIBS) 
-endif
-
-ifeq ($(ME_COM_EJS),1)
-#
-#   ejsc
-#
-DEPS_39 += $(BUILD)/bin/libejs.so
-DEPS_39 += $(BUILD)/obj/ejsc.o
-
-LIBS_39 += -lejs
-ifeq ($(ME_COM_HTTP),1)
-    LIBS_39 += -lhttp
-endif
-LIBS_39 += -lmpr
-ifeq ($(ME_COM_PCRE),1)
-    LIBS_39 += -lpcre
-endif
-ifeq ($(ME_COM_ZLIB),1)
-    LIBS_39 += -lzlib
-endif
-
-$(BUILD)/bin/ejsc: $(DEPS_39)
-	@echo '      [Link] $(BUILD)/bin/ejsc'
-	$(CC) -o $(BUILD)/bin/ejsc $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/ejsc.o" $(LIBPATHS_39) $(LIBS_39) $(LIBS_39) $(LIBS) $(LIBS) 
-endif
-
-ifeq ($(ME_COM_EJS),1)
-#
-#   ejs.mod
-#
-DEPS_40 += src/paks/ejs/ejs.es
-DEPS_40 += $(BUILD)/bin/ejsc
-
-$(BUILD)/bin/ejs.mod: $(DEPS_40)
-	( \
-	cd src/paks/ejs; \
-	echo '   [Compile] ejs.mod' ; \
-	../../../build/macosx-x64-debug/bin/ejsc --out ../../../$(BUILD)/bin/ejs.mod --optimize 9 --bind --require null ejs.es ; \
-	)
-endif
-
-#
-#   ejs.testme.mod
-#
-DEPS_41 += src/tm/ejs.testme.es
-ifeq ($(ME_COM_EJS),1)
-    DEPS_41 += $(BUILD)/bin/ejsc
-endif
-
-$(BUILD)/bin/ejs.testme.mod: $(DEPS_41)
-	( \
-	cd src/tm; \
-	echo '   [Compile] ejs.testme.mod' ; \
-	../../build/macosx-x64-debug/bin/ejsc --debug --out ../../$(BUILD)/bin/ejs.testme.mod --optimize 9 ejs.testme.es ; \
-	)
-
-ifeq ($(ME_COM_EJS),1)
-#
-#   ejscmd
-#
-DEPS_42 += $(BUILD)/bin/libejs.so
-DEPS_42 += $(BUILD)/obj/ejs.o
-
-LIBS_42 += -lejs
-ifeq ($(ME_COM_HTTP),1)
-    LIBS_42 += -lhttp
-endif
-LIBS_42 += -lmpr
-ifeq ($(ME_COM_PCRE),1)
-    LIBS_42 += -lpcre
-endif
-ifeq ($(ME_COM_ZLIB),1)
-    LIBS_42 += -lzlib
-endif
-
-$(BUILD)/bin/ejs: $(DEPS_42)
-	@echo '      [Link] $(BUILD)/bin/ejs'
-	$(CC) -o $(BUILD)/bin/ejs $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/ejs.o" $(LIBPATHS_42) $(LIBS_42) $(LIBS_42) $(LIBS) $(LIBS) 
-endif
+	touch "./$(BUILD)/.modify-export"
 
 
 #
@@ -752,21 +752,23 @@ $(BUILD)/bin/libtestme.so: $(DEPS_47)
 #   me.mod
 #
 DEPS_48 += src/Builder.es
+DEPS_48 += src/generate.es
 DEPS_48 += src/Loader.es
 DEPS_48 += src/MakeMe.es
 DEPS_48 += src/Me.es
 DEPS_48 += src/Script.es
 DEPS_48 += src/Target.es
+DEPS_48 += src/xcode.es
 DEPS_48 += src/paks/ejs-version/Version.es
 ifeq ($(ME_COM_EJS),1)
-    DEPS_48 += $(BUILD)/bin/ejsc
+    DEPS_48 += $(BUILD)/bin/ejs.mod
 endif
 
 $(BUILD)/bin/me.mod: $(DEPS_48)
 	( \
 	cd .; \
 	echo '   [Compile] me.mod' ; \
-	./build/macosx-x64-debug/bin/ejsc --debug --out ./$(BUILD)/bin/me.mod --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es src/paks/ejs-version/Version.es ; \
+	./build/macosx-x64-debug/bin/ejsc --debug --out ./$(BUILD)/bin/me.mod --optimize 9 src/Builder.es src/generate.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es src/xcode.es src/paks/ejs-version/Version.es ; \
 	)
 
 #
@@ -780,6 +782,7 @@ ifeq ($(ME_COM_EJS),1)
     DEPS_49 += $(BUILD)/bin/libejs.so
 endif
 DEPS_49 += $(BUILD)/bin/me.mod
+DEPS_49 += $(BUILD)/bin
 DEPS_49 += $(BUILD)/obj/me.o
 
 LIBS_49 += -lmpr
@@ -805,7 +808,7 @@ $(BUILD)/bin/me: $(DEPS_49)
 #
 DEPS_50 += src/tm/testme.es
 ifeq ($(ME_COM_EJS),1)
-    DEPS_50 += $(BUILD)/bin/ejsc
+    DEPS_50 += $(BUILD)/bin/ejs.mod
 endif
 
 $(BUILD)/bin/testme.mod: $(DEPS_50)
@@ -862,9 +865,11 @@ installBinary: $(DEPS_52)
 	mkdir -p "$(ME_BIN_PREFIX)" ; \
 	rm -f "$(ME_BIN_PREFIX)/testme" ; \
 	ln -s "$(ME_VAPP_PREFIX)/bin/testme" "$(ME_BIN_PREFIX)/testme" ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
 	cp $(BUILD)/bin/ejs $(ME_VAPP_PREFIX)/bin/ejs ; \
 	cp $(BUILD)/bin/ejsc $(ME_VAPP_PREFIX)/bin/ejsc ; \
 	cp $(BUILD)/bin/http $(ME_VAPP_PREFIX)/bin/http ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
 	cp $(BUILD)/bin/libejs.so $(ME_VAPP_PREFIX)/bin/libejs.so ; \
 	cp $(BUILD)/bin/libhttp.so $(ME_VAPP_PREFIX)/bin/libhttp.so ; \
 	cp $(BUILD)/bin/libmpr.so $(ME_VAPP_PREFIX)/bin/libmpr.so ; \
@@ -873,12 +878,15 @@ installBinary: $(DEPS_52)
 	cp $(BUILD)/bin/libzlib.so $(ME_VAPP_PREFIX)/bin/libzlib.so ; \
 	cp $(BUILD)/bin/libtestme.so $(ME_VAPP_PREFIX)/bin/libtestme.so ; \
 	if [ "$(ME_COM_EST)" = 1 ]; then true ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
 	cp $(BUILD)/bin/libest.so $(ME_VAPP_PREFIX)/bin/libest.so ; \
 	fi ; \
 	if [ "$(ME_COM_OPENSSL)" = 1 ]; then true ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
 	cp $(BUILD)/bin/libssl*.so* $(ME_VAPP_PREFIX)/bin/libssl*.so* ; \
 	cp $(BUILD)/bin/libcrypto*.so* $(ME_VAPP_PREFIX)/bin/libcrypto*.so* ; \
 	fi ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
 	cp $(BUILD)/bin/ca.crt $(ME_VAPP_PREFIX)/bin/ca.crt ; \
 	cp $(BUILD)/bin/ejs.mod $(ME_VAPP_PREFIX)/bin/ejs.mod ; \
 	cp $(BUILD)/bin/me.mod $(ME_VAPP_PREFIX)/bin/me.mod ; \
@@ -886,42 +894,46 @@ installBinary: $(DEPS_52)
 	cp $(BUILD)/bin/ejs.testme.mod $(ME_VAPP_PREFIX)/bin/ejs.testme.mod ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/inc" ; \
 	cp src/tm/testme.h $(ME_VAPP_PREFIX)/inc/testme.h ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin/configure" ; \
-	cp src/export/configure/appweb.me $(ME_VAPP_PREFIX)/bin/configure/appweb.me ; \
-	cp src/export/configure/compiler.me $(ME_VAPP_PREFIX)/bin/configure/compiler.me ; \
-	cp src/export/configure/lib.me $(ME_VAPP_PREFIX)/bin/configure/lib.me ; \
-	cp src/export/configure/link.me $(ME_VAPP_PREFIX)/bin/configure/link.me ; \
-	cp src/export/configure/rc.me $(ME_VAPP_PREFIX)/bin/configure/rc.me ; \
-	cp src/export/configure/testme.me $(ME_VAPP_PREFIX)/bin/configure/testme.me ; \
-	cp src/export/configure/vxworks.me $(ME_VAPP_PREFIX)/bin/configure/vxworks.me ; \
-	cp src/export/configure/winsdk.me $(ME_VAPP_PREFIX)/bin/configure/winsdk.me ; \
-	cp src/export/master-main.me $(ME_VAPP_PREFIX)/bin/master-main.me ; \
-	cp src/export/master-start.me $(ME_VAPP_PREFIX)/bin/master-start.me ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin/os" ; \
-	cp src/export/os/freebsd.me $(ME_VAPP_PREFIX)/bin/os/freebsd.me ; \
-	cp src/export/os/gcc.me $(ME_VAPP_PREFIX)/bin/os/gcc.me ; \
-	cp src/export/os/linux.me $(ME_VAPP_PREFIX)/bin/os/linux.me ; \
-	cp src/export/os/macosx.me $(ME_VAPP_PREFIX)/bin/os/macosx.me ; \
-	cp src/export/os/solaris.me $(ME_VAPP_PREFIX)/bin/os/solaris.me ; \
-	cp src/export/os/unix.me $(ME_VAPP_PREFIX)/bin/os/unix.me ; \
-	cp src/export/os/vxworks.me $(ME_VAPP_PREFIX)/bin/os/vxworks.me ; \
-	cp src/export/os/windows.me $(ME_VAPP_PREFIX)/bin/os/windows.me ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin/plugins" ; \
-	cp src/export/plugins/Configure.es $(ME_VAPP_PREFIX)/bin/plugins/Configure.es ; \
-	cp src/export/plugins/Generator.es $(ME_VAPP_PREFIX)/bin/plugins/Generator.es ; \
-	cp src/export/plugins/Vstudio.es $(ME_VAPP_PREFIX)/bin/plugins/Vstudio.es ; \
-	cp src/export/plugins/Xcode.es $(ME_VAPP_PREFIX)/bin/plugins/Xcode.es ; \
-	cp src/export/simple.me $(ME_VAPP_PREFIX)/bin/simple.me ; \
-	cp src/export/standard.me $(ME_VAPP_PREFIX)/bin/standard.me ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/doc/man/man1/doc/public/man" ; \
-	cp doc/public/man/me.1 $(ME_VAPP_PREFIX)/doc/man/man1/doc/public/man/me.1 ; \
+	mkdir -p "/usr/src/export" ; \
+	cp src/export/configure /usr/src/export/configure ; \
+	mkdir -p "/usr/src/export/configure" ; \
+	cp src/export/configure/appweb.me /usr/src/export/configure/appweb.me ; \
+	cp src/export/configure/compiler.me /usr/src/export/configure/compiler.me ; \
+	cp src/export/configure/lib.me /usr/src/export/configure/lib.me ; \
+	cp src/export/configure/link.me /usr/src/export/configure/link.me ; \
+	cp src/export/configure/rc.me /usr/src/export/configure/rc.me ; \
+	cp src/export/configure/testme.me /usr/src/export/configure/testme.me ; \
+	cp src/export/configure/vxworks.me /usr/src/export/configure/vxworks.me ; \
+	cp src/export/configure/winsdk.me /usr/src/export/configure/winsdk.me ; \
+	cp src/export/master-main.me /usr/src/export/master-main.me ; \
+	cp src/export/master-start.me /usr/src/export/master-start.me ; \
+	cp src/export/os /usr/src/export/os ; \
+	mkdir -p "/usr/src/export/os" ; \
+	cp src/export/os/freebsd.me /usr/src/export/os/freebsd.me ; \
+	cp src/export/os/gcc.me /usr/src/export/os/gcc.me ; \
+	cp src/export/os/linux.me /usr/src/export/os/linux.me ; \
+	cp src/export/os/macosx.me /usr/src/export/os/macosx.me ; \
+	cp src/export/os/solaris.me /usr/src/export/os/solaris.me ; \
+	cp src/export/os/unix.me /usr/src/export/os/unix.me ; \
+	cp src/export/os/vxworks.me /usr/src/export/os/vxworks.me ; \
+	cp src/export/os/windows.me /usr/src/export/os/windows.me ; \
+	cp src/export/plugins /usr/src/export/plugins ; \
+	mkdir -p "/usr/src/export/plugins" ; \
+	cp src/export/plugins/Configure.es /usr/src/export/plugins/Configure.es ; \
+	cp src/export/plugins/Generator.es /usr/src/export/plugins/Generator.es ; \
+	cp src/export/plugins/Vstudio.es /usr/src/export/plugins/Vstudio.es ; \
+	cp src/export/plugins/Xcode.es /usr/src/export/plugins/Xcode.es ; \
+	cp src/export/simple.me /usr/src/export/simple.me ; \
+	cp src/export/standard.me /usr/src/export/standard.me ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/doc/man/man1" ; \
+	cp doc/public/man/me.1 $(ME_VAPP_PREFIX)/doc/man/man1/me.1 ; \
 	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \
 	rm -f "$(ME_MAN_PREFIX)/man1/me.1" ; \
-	ln -s "$(ME_VAPP_PREFIX)/doc/man/man1/doc/public/man/me.1" "$(ME_MAN_PREFIX)/man1/me.1" ; \
-	cp doc/public/man/testme.1 $(ME_VAPP_PREFIX)/doc/man/man1/doc/public/man/testme.1 ; \
+	ln -s "$(ME_VAPP_PREFIX)/doc/man/man1/me.1" "$(ME_MAN_PREFIX)/man1/me.1" ; \
+	cp doc/public/man/testme.1 $(ME_VAPP_PREFIX)/doc/man/man1/testme.1 ; \
 	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \
 	rm -f "$(ME_MAN_PREFIX)/man1/testme.1" ; \
-	ln -s "$(ME_VAPP_PREFIX)/doc/man/man1/doc/public/man/testme.1" "$(ME_MAN_PREFIX)/man1/testme.1" ; \
+	ln -s "$(ME_VAPP_PREFIX)/doc/man/man1/testme.1" "$(ME_MAN_PREFIX)/man1/testme.1" ; \
 	)
 
 

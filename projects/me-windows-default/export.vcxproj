@@ -2,7 +2,7 @@
     <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
       <PropertyGroup Label="Globals">
-        <ProjectGuid>{f81f9516-2ecc-4e5c-9409-289054e1fb73}</ProjectGuid>
+        <ProjectGuid>{6cd7826f-1396-464b-b96b-0aced47698d4}</ProjectGuid>
         <RootNamespace />
         <Keyword>Win32Proj</Keyword>
       </PropertyGroup>
@@ -72,33 +72,80 @@
         <_ProjectFileVersion>10</_ProjectFileVersion>
 
         <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(BinDir)\</OutDir>
-        <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ObjDir)\me.mod\</IntDir>
+        <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ObjDir)\export\</IntDir>
         <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PreBuildEvent</CustomBuildBeforeTargets>
 
         <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(BinDir)\</OutDir>
-        <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ObjDir)\me.mod\</IntDir>
+        <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ObjDir)\export\</IntDir>
         <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PreBuildEvent</CustomBuildBeforeTargets>
 
         <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(BinDir)\</OutDir>
-        <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ObjDir)\me.mod\</IntDir>
+        <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ObjDir)\export\</IntDir>
         <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PreBuildEvent</CustomBuildBeforeTargets>
 
         <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(BinDir)\</OutDir>
-        <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ObjDir)\me.mod\</IntDir>
+        <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ObjDir)\export\</IntDir>
         <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PreBuildEvent</CustomBuildBeforeTargets>
   </PropertyGroup>
 
       <ItemDefinitionGroup>
       <Link>
-        <AdditionalDependencies>libejs.lib;libhttp.lib;libmpr.lib;libpcre.lib;libzlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-        <AdditionalLibraryDirectories>$(OutDir);build\$(Cfg)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+        <AdditionalDependencies>;%(AdditionalDependencies)</AdditionalDependencies>
+        <AdditionalLibraryDirectories>$(OutDir);;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       </Link>
 
       <CustomBuildStep>
         <Command>cd ..\..
-./build/macosx-x64-debug/bin/ejsc --debug --out ./build/windows-x86-default/bin/me.mod --optimize 9 src/Builder.es src/generate.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es src/xcode.es src/paks/ejs-version/Version.es
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\export\configure\appweb.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\export\configure\compiler.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\export\configure\lib.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\export\configure\link.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\export\configure\rc.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\export\configure\testme.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\export\configure\vxworks.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\export\configure\winsdk.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\export\master-main.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\export\master-start.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\export\os\freebsd.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\export\os\gcc.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\export\os\linux.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\export\os\macosx.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\export\os\solaris.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\export\os\unix.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\export\os\vxworks.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\export\os\windows.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\export\plugins\Configure.es $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\export\plugins\Generator.es $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\export\plugins\Vstudio.es $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\export\plugins\Xcode.es $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\export\simple.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y src\export\standard.me $(BinDir)
 cd projects\me-windows-default</Command>
-        <Outputs>$(BinDir)\me.mod</Outputs>
+        <Outputs>$(BinDir)</Outputs>
       </CustomBuildStep>
   </ItemDefinitionGroup>
 
