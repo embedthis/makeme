@@ -1228,8 +1228,6 @@ public class Loader {
             } else if (type == 'exe') {
                 target.path = me.dir.bin.join(name).joinExt(me.ext.exe, true)
             } else if (type == 'file') {
-dump(me.dir)
-dump("TARGET", target)
                 target.path = me.dir.bin.join(name)
             } else if (type == 'res') {
                 target.path = me.dir.res.join(name).joinExt(me.ext.res, true)
