@@ -551,9 +551,11 @@ public function touchFile(path: Path) {
 public function trace(tag: String, ...args): Void
     makeme.trace(tag, ...args)
 
+public function traceFile(msg, path): Void
+    makeme.traceFile(msg, path)
+
 public function vtrace(tag, ...args)
     makeme.vtrace(tag, ...args)
-
 
 //  MOB - refactor
 

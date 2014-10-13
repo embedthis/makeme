@@ -100,15 +100,15 @@ Me.load({
             static: false,
             active: true,
             precious: true,
-            depends: [ 'libmpr', 'libhttp', 'libejs', 'me.mod', 'export' ],
+            depends: [ 'libmpr', 'libhttp', 'libejs', 'me.mod', 'runtime' ],
         },
 
-        'export': {
+        'runtime': {
             type: 'file',
             path: '${BIN}/',
-            files: [ 'src/export/**' ],
-            relative: 'src/export',
-            message: 'Copy: exports',
+            files: [ 'src/runtime/**' ],
+            relative: 'src/runtime',
+            message: 'Copy: runtime',
             precious: true,
         },
 

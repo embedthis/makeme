@@ -432,12 +432,28 @@ class Configure {
         }
     } 
 
+    /*
+        Find components in the following directories:
+            paks/name/name.me
+            ~/.paks/name/name.me
+            ./makeme/configure/name.me, ./makeme/configure/name/name.me
+            ~/.me/configure/name.me, ~/.me/configure/name/name.me
+            mebin/configure/name.me, mebin/configure/name/name.me
+     */
     function findComponent(name) {
         let path = Path(me.dir.me.join('configure', name + '.me'))
         if (path.exists) {
             return path
         }
         path = Path(me.dir.me.join('configure', name, name + '.me'))
+        if (path.exists) {
+            return path
+        }
+        path = Path(me.dir.src.join('makeme/configure', name + '.me'))
+        if (path.exists) {
+            return path
+        }
+        path = Path(me.dir.home.join('makeme/configure', name, name + '.me'))
         if (path.exists) {
             return path
         }
@@ -536,9 +552,11 @@ class Configure {
                 }
             }
             if (!target.loaded) {
+                //  MOB - push this into findComponent
                 path = me.dir.paks.join(target.name)
                 pak = path.join(target.name + '.me')
                 if (pak.exists) {
+                    Configure.currentComponent = target.name
                     me.blendFile(pak)
                     target.path ||= path
                     target.home = pak.dirname
@@ -548,6 +566,7 @@ class Configure {
                     if (path) {
                         vtrace('Found', 'Component at:' + path)
                         target.diagnostic = 'Found component: ' + path
+                        //  MOB - who uses target.file
                         target.file = path.portable
                         target.home = path.dirname
                         Configure.currentComponent = target.name

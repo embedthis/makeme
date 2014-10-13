@@ -81,7 +81,6 @@ TARGETS               += $(BUILD)/bin/ejs.testme.mod
 ifeq ($(ME_COM_EJS),1)
     TARGETS           += $(BUILD)/bin/ejs
 endif
-TARGETS               += $(BUILD)/.modify-export
 TARGETS               += $(BUILD)/bin/ca.crt
 ifeq ($(ME_COM_HTTP),1)
     TARGETS           += $(BUILD)/bin/http
@@ -628,73 +627,13 @@ $(BUILD)/bin/ejs: $(DEPS_42)
 	$(CC) -o $(BUILD)/bin/ejs -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/ejs.o" $(LIBPATHS_42) $(LIBS_42) $(LIBS_42) $(LIBS) -ledit 
 endif
 
-#
-#   export
-#
-DEPS_43 += src/export/configure/appweb.me
-DEPS_43 += src/export/configure/compiler.me
-DEPS_43 += src/export/configure/lib.me
-DEPS_43 += src/export/configure/link.me
-DEPS_43 += src/export/configure/rc.me
-DEPS_43 += src/export/configure/testme.me
-DEPS_43 += src/export/configure/vxworks.me
-DEPS_43 += src/export/configure/winsdk.me
-DEPS_43 += src/export/master-main.me
-DEPS_43 += src/export/master-start.me
-DEPS_43 += src/export/os/freebsd.me
-DEPS_43 += src/export/os/gcc.me
-DEPS_43 += src/export/os/linux.me
-DEPS_43 += src/export/os/macosx.me
-DEPS_43 += src/export/os/solaris.me
-DEPS_43 += src/export/os/unix.me
-DEPS_43 += src/export/os/vxworks.me
-DEPS_43 += src/export/os/windows.me
-DEPS_43 += src/export/plugins/Configure.es
-DEPS_43 += src/export/plugins/Generator.es
-DEPS_43 += src/export/plugins/Vstudio.es
-DEPS_43 += src/export/plugins/Xcode.es
-DEPS_43 += src/export/simple.me
-DEPS_43 += src/export/standard.me
-
-$(BUILD)/.modify-export: $(DEPS_43)
-	@echo '      [Copy] $(BUILD)/bin'
-	mkdir -p "$(BUILD)/bin/configure"
-	cp src/export/configure/appweb.me $(BUILD)/bin/configure/appweb.me
-	cp src/export/configure/compiler.me $(BUILD)/bin/configure/compiler.me
-	cp src/export/configure/lib.me $(BUILD)/bin/configure/lib.me
-	cp src/export/configure/link.me $(BUILD)/bin/configure/link.me
-	cp src/export/configure/rc.me $(BUILD)/bin/configure/rc.me
-	cp src/export/configure/testme.me $(BUILD)/bin/configure/testme.me
-	cp src/export/configure/vxworks.me $(BUILD)/bin/configure/vxworks.me
-	cp src/export/configure/winsdk.me $(BUILD)/bin/configure/winsdk.me
-	mkdir -p "$(BUILD)/bin"
-	cp src/export/master-main.me $(BUILD)/bin/master-main.me
-	cp src/export/master-start.me $(BUILD)/bin/master-start.me
-	mkdir -p "$(BUILD)/bin/os"
-	cp src/export/os/freebsd.me $(BUILD)/bin/os/freebsd.me
-	cp src/export/os/gcc.me $(BUILD)/bin/os/gcc.me
-	cp src/export/os/linux.me $(BUILD)/bin/os/linux.me
-	cp src/export/os/macosx.me $(BUILD)/bin/os/macosx.me
-	cp src/export/os/solaris.me $(BUILD)/bin/os/solaris.me
-	cp src/export/os/unix.me $(BUILD)/bin/os/unix.me
-	cp src/export/os/vxworks.me $(BUILD)/bin/os/vxworks.me
-	cp src/export/os/windows.me $(BUILD)/bin/os/windows.me
-	mkdir -p "$(BUILD)/bin/plugins"
-	cp src/export/plugins/Configure.es $(BUILD)/bin/plugins/Configure.es
-	cp src/export/plugins/Generator.es $(BUILD)/bin/plugins/Generator.es
-	cp src/export/plugins/Vstudio.es $(BUILD)/bin/plugins/Vstudio.es
-	cp src/export/plugins/Xcode.es $(BUILD)/bin/plugins/Xcode.es
-	cp src/export/simple.me $(BUILD)/bin/simple.me
-	cp src/export/standard.me $(BUILD)/bin/standard.me
-	touch "./$(BUILD)/.modify-export"
-
 
 #
 #   http-ca-crt
 #
-DEPS_44 += src/paks/http/ca.crt
+DEPS_43 += src/paks/http/ca.crt
 
-$(BUILD)/bin/ca.crt: $(DEPS_44)
+$(BUILD)/bin/ca.crt: $(DEPS_43)
 	@echo '      [Copy] $(BUILD)/bin/ca.crt'
 	mkdir -p "$(BUILD)/bin"
 	cp src/paks/http/ca.crt $(BUILD)/bin/ca.crt
@@ -703,28 +642,28 @@ ifeq ($(ME_COM_HTTP),1)
 #
 #   httpcmd
 #
-DEPS_45 += $(BUILD)/bin/libhttp.dylib
-DEPS_45 += $(BUILD)/obj/http.o
+DEPS_44 += $(BUILD)/bin/libhttp.dylib
+DEPS_44 += $(BUILD)/obj/http.o
 
-LIBS_45 += -lhttp
-LIBS_45 += -lmpr
+LIBS_44 += -lhttp
+LIBS_44 += -lmpr
 ifeq ($(ME_COM_PCRE),1)
-    LIBS_45 += -lpcre
+    LIBS_44 += -lpcre
 endif
 
-$(BUILD)/bin/http: $(DEPS_45)
+$(BUILD)/bin/http: $(DEPS_44)
 	@echo '      [Link] $(BUILD)/bin/http'
-	$(CC) -o $(BUILD)/bin/http -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/http.o" $(LIBPATHS_45) $(LIBS_45) $(LIBS_45) $(LIBS) 
+	$(CC) -o $(BUILD)/bin/http -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/http.o" $(LIBPATHS_44) $(LIBS_44) $(LIBS_44) $(LIBS) 
 endif
 
 ifeq ($(ME_COM_EST),1)
 #
 #   libest
 #
-DEPS_46 += $(BUILD)/inc/est.h
-DEPS_46 += $(BUILD)/obj/estLib.o
+DEPS_45 += $(BUILD)/inc/est.h
+DEPS_45 += $(BUILD)/obj/estLib.o
 
-$(BUILD)/bin/libest.dylib: $(DEPS_46)
+$(BUILD)/bin/libest.dylib: $(DEPS_45)
 	@echo '      [Link] $(BUILD)/bin/libest.dylib'
 	$(CC) -dynamiclib -o $(BUILD)/bin/libest.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libest.dylib -compatibility_version 0.8 -current_version 0.8 "$(BUILD)/obj/estLib.o" $(LIBS) 
 endif
@@ -732,56 +671,116 @@ endif
 #
 #   libmprssl
 #
-DEPS_47 += $(BUILD)/bin/libmpr.dylib
-DEPS_47 += $(BUILD)/obj/mprSsl.o
+DEPS_46 += $(BUILD)/bin/libmpr.dylib
+DEPS_46 += $(BUILD)/obj/mprSsl.o
 
-LIBS_47 += -lmpr
+LIBS_46 += -lmpr
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_47 += -lssl
-    LIBPATHS_47 += -L$(ME_COM_OPENSSL_PATH)
+    LIBS_46 += -lssl
+    LIBPATHS_46 += -L$(ME_COM_OPENSSL_PATH)
 endif
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_47 += -lcrypto
-    LIBPATHS_47 += -L$(ME_COM_OPENSSL_PATH)
+    LIBS_46 += -lcrypto
+    LIBPATHS_46 += -L$(ME_COM_OPENSSL_PATH)
 endif
 ifeq ($(ME_COM_EST),1)
-    LIBS_47 += -lest
+    LIBS_46 += -lest
 endif
 
-$(BUILD)/bin/libmprssl.dylib: $(DEPS_47)
+$(BUILD)/bin/libmprssl.dylib: $(DEPS_46)
 	@echo '      [Link] $(BUILD)/bin/libmprssl.dylib'
-	$(CC) -dynamiclib -o $(BUILD)/bin/libmprssl.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)  -install_name @rpath/libmprssl.dylib -compatibility_version 0.8 -current_version 0.8 "$(BUILD)/obj/mprSsl.o" $(LIBPATHS_47) $(LIBS_47) $(LIBS_47) $(LIBS) 
+	$(CC) -dynamiclib -o $(BUILD)/bin/libmprssl.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)  -install_name @rpath/libmprssl.dylib -compatibility_version 0.8 -current_version 0.8 "$(BUILD)/obj/mprSsl.o" $(LIBPATHS_46) $(LIBS_46) $(LIBS_46) $(LIBS) 
 
 #
 #   libtestme
 #
-DEPS_48 += $(BUILD)/inc/testme.h
-DEPS_48 += $(BUILD)/obj/libtestme.o
+DEPS_47 += $(BUILD)/inc/testme.h
+DEPS_47 += $(BUILD)/obj/libtestme.o
 
-$(BUILD)/bin/libtestme.dylib: $(DEPS_48)
+$(BUILD)/bin/libtestme.dylib: $(DEPS_47)
 	@echo '      [Link] $(BUILD)/bin/libtestme.dylib'
 	$(CC) -dynamiclib -o $(BUILD)/bin/libtestme.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libtestme.dylib -compatibility_version 0.8 -current_version 0.8 "$(BUILD)/obj/libtestme.o" $(LIBS) 
 
 #
 #   me.mod
 #
-DEPS_49 += src/Builder.es
-DEPS_49 += src/Loader.es
-DEPS_49 += src/MakeMe.es
-DEPS_49 += src/Me.es
-DEPS_49 += src/Script.es
-DEPS_49 += src/Target.es
-DEPS_49 += src/paks/ejs-version/Version.es
+DEPS_48 += src/Builder.es
+DEPS_48 += src/Loader.es
+DEPS_48 += src/MakeMe.es
+DEPS_48 += src/Me.es
+DEPS_48 += src/Script.es
+DEPS_48 += src/Target.es
+DEPS_48 += src/paks/ejs-version/Version.es
 ifeq ($(ME_COM_EJS),1)
-    DEPS_49 += $(BUILD)/bin/ejs.mod
+    DEPS_48 += $(BUILD)/bin/ejs.mod
 endif
 
-$(BUILD)/bin/me.mod: $(DEPS_49)
+$(BUILD)/bin/me.mod: $(DEPS_48)
 	( \
 	cd .; \
 	echo '   [Compile] me.mod' ; \
 	./$(BUILD)/bin/ejsc --debug --out ./$(BUILD)/bin/me.mod --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es src/paks/ejs-version/Version.es ; \
 	)
+
+#
+#   runtime
+#
+DEPS_49 += src/runtime/configure/appweb.me
+DEPS_49 += src/runtime/configure/compiler.me
+DEPS_49 += src/runtime/configure/lib.me
+DEPS_49 += src/runtime/configure/link.me
+DEPS_49 += src/runtime/configure/rc.me
+DEPS_49 += src/runtime/configure/testme.me
+DEPS_49 += src/runtime/configure/vxworks.me
+DEPS_49 += src/runtime/configure/winsdk.me
+DEPS_49 += src/runtime/master-main.me
+DEPS_49 += src/runtime/master-start.me
+DEPS_49 += src/runtime/os/freebsd.me
+DEPS_49 += src/runtime/os/gcc.me
+DEPS_49 += src/runtime/os/linux.me
+DEPS_49 += src/runtime/os/macosx.me
+DEPS_49 += src/runtime/os/solaris.me
+DEPS_49 += src/runtime/os/unix.me
+DEPS_49 += src/runtime/os/vxworks.me
+DEPS_49 += src/runtime/os/windows.me
+DEPS_49 += src/runtime/plugins/Configure.es
+DEPS_49 += src/runtime/plugins/Generator.es
+DEPS_49 += src/runtime/plugins/Vstudio.es
+DEPS_49 += src/runtime/plugins/Xcode.es
+DEPS_49 += src/runtime/simple.me
+DEPS_49 += src/runtime/standard.me
+
+$(BUILD)/.modify-runtime: $(DEPS_49)
+	@echo '      [Copy] $(BUILD)/bin'
+	mkdir -p "$(BUILD)/bin/configure"
+	cp src/runtime/configure/appweb.me $(BUILD)/bin/configure/appweb.me
+	cp src/runtime/configure/compiler.me $(BUILD)/bin/configure/compiler.me
+	cp src/runtime/configure/lib.me $(BUILD)/bin/configure/lib.me
+	cp src/runtime/configure/link.me $(BUILD)/bin/configure/link.me
+	cp src/runtime/configure/rc.me $(BUILD)/bin/configure/rc.me
+	cp src/runtime/configure/testme.me $(BUILD)/bin/configure/testme.me
+	cp src/runtime/configure/vxworks.me $(BUILD)/bin/configure/vxworks.me
+	cp src/runtime/configure/winsdk.me $(BUILD)/bin/configure/winsdk.me
+	mkdir -p "$(BUILD)/bin"
+	cp src/runtime/master-main.me $(BUILD)/bin/master-main.me
+	cp src/runtime/master-start.me $(BUILD)/bin/master-start.me
+	mkdir -p "$(BUILD)/bin/os"
+	cp src/runtime/os/freebsd.me $(BUILD)/bin/os/freebsd.me
+	cp src/runtime/os/gcc.me $(BUILD)/bin/os/gcc.me
+	cp src/runtime/os/linux.me $(BUILD)/bin/os/linux.me
+	cp src/runtime/os/macosx.me $(BUILD)/bin/os/macosx.me
+	cp src/runtime/os/solaris.me $(BUILD)/bin/os/solaris.me
+	cp src/runtime/os/unix.me $(BUILD)/bin/os/unix.me
+	cp src/runtime/os/vxworks.me $(BUILD)/bin/os/vxworks.me
+	cp src/runtime/os/windows.me $(BUILD)/bin/os/windows.me
+	mkdir -p "$(BUILD)/bin/plugins"
+	cp src/runtime/plugins/Configure.es $(BUILD)/bin/plugins/Configure.es
+	cp src/runtime/plugins/Generator.es $(BUILD)/bin/plugins/Generator.es
+	cp src/runtime/plugins/Vstudio.es $(BUILD)/bin/plugins/Vstudio.es
+	cp src/runtime/plugins/Xcode.es $(BUILD)/bin/plugins/Xcode.es
+	cp src/runtime/simple.me $(BUILD)/bin/simple.me
+	cp src/runtime/standard.me $(BUILD)/bin/standard.me
+	touch "./$(BUILD)/.modify-runtime"
 
 #
 #   me
@@ -916,37 +915,37 @@ installBinary: $(DEPS_54)
 	cp $(BUILD)/bin/ejs.testme.mod $(ME_VAPP_PREFIX)/bin/ejs.testme.mod ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/inc" ; \
 	cp src/tm/testme.h $(ME_VAPP_PREFIX)/inc/testme.h ; \
-	mkdir -p "/usr/src/export" ; \
-	cp src/export/configure /usr/src/export/configure ; \
-	mkdir -p "/usr/src/export/configure" ; \
-	cp src/export/configure/appweb.me /usr/src/export/configure/appweb.me ; \
-	cp src/export/configure/compiler.me /usr/src/export/configure/compiler.me ; \
-	cp src/export/configure/lib.me /usr/src/export/configure/lib.me ; \
-	cp src/export/configure/link.me /usr/src/export/configure/link.me ; \
-	cp src/export/configure/rc.me /usr/src/export/configure/rc.me ; \
-	cp src/export/configure/testme.me /usr/src/export/configure/testme.me ; \
-	cp src/export/configure/vxworks.me /usr/src/export/configure/vxworks.me ; \
-	cp src/export/configure/winsdk.me /usr/src/export/configure/winsdk.me ; \
-	cp src/export/master-main.me /usr/src/export/master-main.me ; \
-	cp src/export/master-start.me /usr/src/export/master-start.me ; \
-	cp src/export/os /usr/src/export/os ; \
-	mkdir -p "/usr/src/export/os" ; \
-	cp src/export/os/freebsd.me /usr/src/export/os/freebsd.me ; \
-	cp src/export/os/gcc.me /usr/src/export/os/gcc.me ; \
-	cp src/export/os/linux.me /usr/src/export/os/linux.me ; \
-	cp src/export/os/macosx.me /usr/src/export/os/macosx.me ; \
-	cp src/export/os/solaris.me /usr/src/export/os/solaris.me ; \
-	cp src/export/os/unix.me /usr/src/export/os/unix.me ; \
-	cp src/export/os/vxworks.me /usr/src/export/os/vxworks.me ; \
-	cp src/export/os/windows.me /usr/src/export/os/windows.me ; \
-	cp src/export/plugins /usr/src/export/plugins ; \
-	mkdir -p "/usr/src/export/plugins" ; \
-	cp src/export/plugins/Configure.es /usr/src/export/plugins/Configure.es ; \
-	cp src/export/plugins/Generator.es /usr/src/export/plugins/Generator.es ; \
-	cp src/export/plugins/Vstudio.es /usr/src/export/plugins/Vstudio.es ; \
-	cp src/export/plugins/Xcode.es /usr/src/export/plugins/Xcode.es ; \
-	cp src/export/simple.me /usr/src/export/simple.me ; \
-	cp src/export/standard.me /usr/src/export/standard.me ; \
+	mkdir -p "/usr/src/runtime" ; \
+	cp src/runtime/configure /usr/src/runtime/configure ; \
+	mkdir -p "/usr/src/runtime/configure" ; \
+	cp src/runtime/configure/appweb.me /usr/src/runtime/configure/appweb.me ; \
+	cp src/runtime/configure/compiler.me /usr/src/runtime/configure/compiler.me ; \
+	cp src/runtime/configure/lib.me /usr/src/runtime/configure/lib.me ; \
+	cp src/runtime/configure/link.me /usr/src/runtime/configure/link.me ; \
+	cp src/runtime/configure/rc.me /usr/src/runtime/configure/rc.me ; \
+	cp src/runtime/configure/testme.me /usr/src/runtime/configure/testme.me ; \
+	cp src/runtime/configure/vxworks.me /usr/src/runtime/configure/vxworks.me ; \
+	cp src/runtime/configure/winsdk.me /usr/src/runtime/configure/winsdk.me ; \
+	cp src/runtime/master-main.me /usr/src/runtime/master-main.me ; \
+	cp src/runtime/master-start.me /usr/src/runtime/master-start.me ; \
+	cp src/runtime/os /usr/src/runtime/os ; \
+	mkdir -p "/usr/src/runtime/os" ; \
+	cp src/runtime/os/freebsd.me /usr/src/runtime/os/freebsd.me ; \
+	cp src/runtime/os/gcc.me /usr/src/runtime/os/gcc.me ; \
+	cp src/runtime/os/linux.me /usr/src/runtime/os/linux.me ; \
+	cp src/runtime/os/macosx.me /usr/src/runtime/os/macosx.me ; \
+	cp src/runtime/os/solaris.me /usr/src/runtime/os/solaris.me ; \
+	cp src/runtime/os/unix.me /usr/src/runtime/os/unix.me ; \
+	cp src/runtime/os/vxworks.me /usr/src/runtime/os/vxworks.me ; \
+	cp src/runtime/os/windows.me /usr/src/runtime/os/windows.me ; \
+	cp src/runtime/plugins /usr/src/runtime/plugins ; \
+	mkdir -p "/usr/src/runtime/plugins" ; \
+	cp src/runtime/plugins/Configure.es /usr/src/runtime/plugins/Configure.es ; \
+	cp src/runtime/plugins/Generator.es /usr/src/runtime/plugins/Generator.es ; \
+	cp src/runtime/plugins/Vstudio.es /usr/src/runtime/plugins/Vstudio.es ; \
+	cp src/runtime/plugins/Xcode.es /usr/src/runtime/plugins/Xcode.es ; \
+	cp src/runtime/simple.me /usr/src/runtime/simple.me ; \
+	cp src/runtime/standard.me /usr/src/runtime/standard.me ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/doc/man/man1" ; \
 	cp doc/public/man/me.1 $(ME_VAPP_PREFIX)/doc/man/man1/me.1 ; \
 	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \
@@ -986,7 +985,7 @@ uninstall: $(DEPS_56)
 #
 version: $(DEPS_57)
 	( \
-	cd build/macosx-x64-debug/bin; \
+	cd build/macosx-x64-release/bin; \
 	echo 0.8.4 ; \
 	)
 

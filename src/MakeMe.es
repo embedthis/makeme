@@ -180,10 +180,10 @@ public class MakeMe {
 
     function import() {
         me = Me()
-        me.loadFile(Loader.START)
+        loader.loadFile(Loader.START)
         mkdir(me.dir.top.join('me'), 0755)
         for each (src in Config.Bin.files('**', {relative: true})) {
-            let dest = me.dir.top.join('me', src)
+            let dest = me.dir.top.join('makeme', src)
             if (Config.Bin.join(src).isDir) {
                 mkdir(dest.dirname, 0755)
             } else {
@@ -415,7 +415,7 @@ public class MakeMe {
         }
     }
 
-    function traceFile(msg: String, path: String): Void
+    public function traceFile(msg: String, path: String): Void
         trace(msg, '"' + path + '"')
 
 /*
