@@ -351,9 +351,9 @@ class Configure {
 
     function createStartFile(platforms) {
         trace('Create', Loader.START)
-        let pstr 
-        platforms = platforms.transform(function(e) e == loader.localPlatform ? 'local' : e)
-        pstr = serialize(platforms, {pretty: true, indent: 4, commas: true, nulls: false, quotes: false})
+        let profile = makeme.options.release ? 'release' : 'debug'
+        platforms = platforms.transform(function(p) p == loader.localPlatform ? 'local-' + profile : p)
+        let pstr = serialize(platforms, {pretty: true, indent: 4, commas: true, nulls: false, quotes: false})
         pstr = pstr.replace(/^/mg, '    ').trimStart(' ')
         let cmdline = 'me ' + App.args.slice(1).join(' ')
         let data = '/*\n    start.me -- MakeMe Startup File\n */\n\nMe.load({\n    platforms: ' + pstr + ',\n' +

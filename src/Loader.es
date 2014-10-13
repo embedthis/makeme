@@ -540,6 +540,10 @@ public class Loader {
                 for each (platform in platforms) {
                     if (platform == 'local') {
                         platform = localPlatform
+                    } else if (platform == 'local-debug') {
+                        platform = Config.OS + '-' + Config.CPU + '-debug'
+                    } else if (platform == 'local-release') {
+                        platform = Config.OS + '-' + Config.CPU + '-release'
                     }
                     files.push(BUILD.join(platform, PLATFORM))
                 }
