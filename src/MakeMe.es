@@ -326,21 +326,23 @@ public class MakeMe {
                 poptions.disable.push(App.args[++i])
             }
         }
-        if (options.depth) {
-            poptions.enable ||= []
-            poptions.enable.push('depth=' + options.depth)
-        }
-        if (options.static) {
-            poptions.enable ||= []
-            poptions.enable.push('static=true')
-        }
-        if (options.rom) {
-            poptions.enable ||= []
-            poptions.enable.push('rom=true')
-        }
-        if (options.unicode) {
-            poptions.enable ||= []
-            poptions.enable.push(Config.OS == 'windows' ? 'charLen=2' : 'charLen=4')
+        if (poptions) {
+            if (options.depth) {
+                poptions.enable ||= []
+                poptions.enable.push('depth=' + options.depth)
+            }
+            if (options.static) {
+                poptions.enable ||= []
+                poptions.enable.push('static=true')
+            }
+            if (options.rom) {
+                poptions.enable ||= []
+                poptions.enable.push('rom=true')
+            }
+            if (options.unicode) {
+                poptions.enable ||= []
+                poptions.enable.push(Config.OS == 'windows' ? 'charLen=2' : 'charLen=4')
+            }
         }
         builder.goals = args.rest
     }
