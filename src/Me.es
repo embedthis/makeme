@@ -54,7 +54,8 @@ dynamic enumerable public class Me {
         dir.home = Path(App.getenv('HOME') || App.getenv('HOMEPATH') || '.').portable.absolute
         dir.top = Path('.').absolute
         dir.src = Path(options.configure || App.dir).absolute
-        dir.me = dir.src.join('me/standard.me').exists ?  dir.src.join('me') : Config.Bin.portable
+        dir.me = App.exeDir
+        // UNUSED dir.me = dir.src.join('makeme/standard.me').exists ? dir.src.join('me') : Config.Bin.portable
     }
 
     /*

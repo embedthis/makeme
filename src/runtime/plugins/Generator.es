@@ -722,8 +722,9 @@ class Generator {
         let topTargets = builder.topTargets
         let all = []
         for each (target in topTargets) {
-            if (target.path && target.enable && target.generate) {
-                let path = target.modify || target.path
+            let path = target.modify || target.path
+            print("TOP", target.name)
+            if (path && target.enable && target.generate) {
                 if (target.ifdef) {
                     for each (pname in target.ifdef) {
                         if (me.platform.os == 'windows') {
@@ -1046,8 +1047,8 @@ class Generator {
                 me.globals.LBIN = me.dir.top.relativeTo(target.home).join('$(LBIN)')
                 cmd = loader.expand(cmd, {missing: true}).expand(target.vars, {missing: ''})
                 cmd = repvar2(cmd, target.home)
-                me.globals.LBIN = me.localBin
                 genWriteLine(cmd)
+                me.globals.LBIN = me.localBin
             }
 
         } else if (generating == 'nmake') {
@@ -1266,7 +1267,8 @@ class Generator {
         for each (let dname in depends) {
             dep = builder.getDep(dname)
             if (dep && dep.enable) {
-                let d = (dep.path) ? reppath(dep.path) : dep.name
+                let path = dep.modify || dep.path
+                let d = (path) ? reppath(path) : dep.name
                 if (dep.ifdef) {
                     let indent = ''
                     for each (r in dep.ifdef) {

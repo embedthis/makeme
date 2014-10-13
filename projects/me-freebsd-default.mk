@@ -570,7 +570,7 @@ $(BUILD)/bin/ejs.mod: $(DEPS_39)
 	( \
 	cd src/paks/ejs; \
 	echo '   [Compile] ejs.mod' ; \
-	../../../build/macosx-x64-debug/bin/ejsc --out ../../../$(BUILD)/bin/ejs.mod --optimize 9 --bind --require null ejs.es ; \
+	../../../$(BUILD)/bin/ejsc --out ../../../$(BUILD)/bin/ejs.mod --optimize 9 --bind --require null ejs.es ; \
 	)
 endif
 
@@ -586,7 +586,7 @@ $(BUILD)/bin/ejs.testme.mod: $(DEPS_40)
 	( \
 	cd src/tm; \
 	echo '   [Compile] ejs.testme.mod' ; \
-	../../build/macosx-x64-debug/bin/ejsc --debug --out ../../$(BUILD)/bin/ejs.testme.mod --optimize 9 ejs.testme.es ; \
+	../../$(BUILD)/bin/ejsc --debug --out ../../$(BUILD)/bin/ejs.testme.mod --optimize 9 ejs.testme.es ; \
 	)
 
 ifeq ($(ME_COM_EJS),1)
@@ -705,7 +705,7 @@ $(BUILD)/bin/me.mod: $(DEPS_47)
 	( \
 	cd .; \
 	echo '   [Compile] me.mod' ; \
-	./build/macosx-x64-debug/bin/ejsc --debug --out ./$(BUILD)/bin/me.mod --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es src/paks/ejs-version/Version.es ; \
+	./$(BUILD)/bin/ejsc --debug --out ./$(BUILD)/bin/me.mod --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es src/paks/ejs-version/Version.es ; \
 	)
 
 #
@@ -812,7 +812,7 @@ $(BUILD)/bin/testme.mod: $(DEPS_50)
 	( \
 	cd src/tm; \
 	echo '   [Compile] testme.mod' ; \
-	../../build/macosx-x64-debug/bin/ejsc --debug --out ../../$(BUILD)/bin/testme.mod --optimize 9 testme.es ; \
+	../../$(BUILD)/bin/ejsc --debug --out ../../$(BUILD)/bin/testme.mod --optimize 9 testme.es ; \
 	)
 
 #
@@ -961,7 +961,7 @@ uninstall: $(DEPS_54)
 #
 version: $(DEPS_55)
 	( \
-	cd build/macosx-x64-release/bin; \
+	cd .; \
 	echo 0.8.4 ; \
 	)
 

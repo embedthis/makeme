@@ -185,29 +185,29 @@ public class Loader {
      */
     public function blendObj(obj): Object {
         obj.origin ||= me.dir.top
-        let home = obj.origin.dirname
-        /*
-            Blend includes first
-         */
         blendIncludes(obj)
         fixupProperties(obj)
+
         /*
-            Blend properties sans-targets. Targets are specially crafted via  create() 
-            so that inherited defaults can be applied.
+            Blend properties sans-targets. Targets are specially crafted via create() for inherited defaults.
          */
         let targets = obj.targets
         delete obj.targets
 
         global.blend(me, obj, {functions: true, combine: true, overwrite: true})
-
+        if (obj.dir) {
+            /* Got new directories */
+            castDirPaths()
+            makeDirectoryGlobals()
+        }
         /*
             Create targets
          */
         for (let [name, props] in targets) {
             props.origin = obj.origin
             props.name ||= name
-            props.home ||= home
-            props.tip = true
+            props.home ||= obj.origin.dirname
+            props.topLevel = true
             let target = me.targets[name]
             if (target) {
                 makeme.builder.runTargetScript(target, 'preblend')
@@ -220,6 +220,13 @@ public class Loader {
         return obj
     }
     
+    function castDirPaths() {
+        let dir = me.dir
+        for (let [key,value] in dir) {
+            dir[key] = Path(value)
+        }
+    }
+
     function castArray(a) {
         if (a && !(a is Array)) {
             return [a]
@@ -227,6 +234,9 @@ public class Loader {
         return a
     }
 
+    /*
+        Cast all array elements to be Paths. This modifies the array in-situ. Returns the array for chaining.
+     */
     function castArrayOfPaths(array) {
         if (array) {
             if (!(array is Array)) {
@@ -238,10 +248,10 @@ public class Loader {
     }
 
     /*
-        Cast the directory properties to be Paths. Use absolute paths so they will apply anywhere in the source tree. 
+        Resolve directory properties to be absolute Paths so they can apply anywhere in the source tree. 
         Scripts change directory so it is essential that all script-accessible properties be absolute.
      */
-    function castDirTypes() {
+    function resolveDirectories() {
         for (let [key,value] in me.blend) {
             me.blend[key] = Path(value).absolute.portable
         }
@@ -288,13 +298,14 @@ public class Loader {
     }
 
     function castTargetProperties(target: Target) {
-        /*
+        /* UNUSED - defer making home absolute until dirs are defined
             Home and path MUST be absolute so scripts can access despite changing cwd
-         */
         target.home = Path(expand(target.home)).absolute
         if (target.path && target.path.exists) {
             target.path  = Path(target.path).absolute
         }
+         */
+        target.home      = castPath(target.home)
         target.relative  = castPath(target.relative)
         target.includes  = castArrayOfPaths(target.includes)
         target.libpaths  = castArrayOfPaths(target.libpaths)
@@ -605,13 +616,13 @@ public class Loader {
     }
 
     /*
-        Define the platform. This parses either a platform string or a platform object.
-        Also defines directory references for the platform
+        Define the platform. The platform spec is either a platform string or a platform object.
+        Also defines directory references for the platform.
      */
     public function initPlatform(spec) {
         let name
         if (spec == null) {
-            name = localPlatform
+            name = spec = localPlatform
         } else if (spec is String) {
             name = spec
         } else if (spec.platform) {
@@ -635,6 +646,7 @@ public class Loader {
         if (cpu) {
             platform.cpu = cpu
         }
+        setDirectories(spec.dir)
     }
 
     public function like(os) {
@@ -654,10 +666,11 @@ public class Loader {
 
     /*
         Inner 'instance' method
+        Notes:
+            platform files will typically have directories. Once loaded, must cast to Path and define globals
      */
     function loadFileInner(path) {
         let obj = readFile(path)
-        let configured = ((obj.settings && obj.settings.configured) || options.configure)
         if (!me.platform || !me.platform.name) {
             initPlatform(obj)
         }
@@ -671,16 +684,15 @@ public class Loader {
             6. Any 'main' file
          */
         blendFile(me.dir.me.join('os/' + me.platform.os + '.me'))
-        blendFile(me.dir.me.join(configured ? 'standard.me' : 'simple.me'))
-
-        setDirs(configured)
-        makeGlobals()
+        blendFile(me.dir.me.join(!me.dir.bin.same(me.dir.out) ? 'standard.me' : 'simple.me'))
+        setExtensions()
 
         loadPackage(path)
         blendObj(obj)
         if (obj.main) {
             blendFile(obj.main)
         }
+        makeGlobals()
 
         /*
             Loaded, now process
@@ -690,7 +702,7 @@ public class Loader {
         loadModules()
         applyPlatformProfile()
         applyCommandLine()
-        castDirTypes()
+        resolveDirectories()
         runScriptOnce('loaded')
     }
 
@@ -761,42 +773,59 @@ public class Loader {
     }
 
     /*
-        Also called by Xcode to rebase directories
+        Make globals used when doing string expansion
+        Also called by Xcode
      */
     public function makeGlobals(base: Path? = null) {
         let platform = me.platform
         let g = me.globals
-        let ext = me.ext
         g.PLATFORM = platform.name
         g.OS = platform.os
         g.CPU = platform.cpu || 'generic'
         g.ARCH = platform.arch
+        g.PROFILE = platform.profile
         /* Apple gcc only */
         if (platform['arch-map']) {
             g.CC_ARCH = platform['arch-map'][platform.arch] || platform.arch
         }
         g.CONFIG = platform.name
-        g.EXE = ext.dotexe
-        g.LIKE = platform.like
-        g.O = ext.doto
-        g.SHOBJ = ext.dotshobj
-        g.SHLIB = ext.dotshlib
+
         if (me.settings.hasMtune && platform.cpu) {
             g.MTUNE = '-mtune=' + platform.cpu
         }
+        if (base) {
+            /* Called from Xcode */
+            makeExtensionGlobals()
+        }
+    }
+
+    public function makeDirectoryGlobals(base: Path? = null) {
+        let tokens
         for each (n in ['BIN', 'BLD', 'OUT', 'INC', 'LIB', 'OBJ', 'PAKS', 'PKG', 'REL', 'SRC', 'TOP', 'LBIN']) {
             /*
                 In portable format so they can be used in build scripts. Windows back-slashes require quoting!
              */
             let path = me.dir[n.toLower()]
             if (!path) continue
-            path = path.portable
+            path = Path(path).portable
             if (base) {
                 path = path.relativeTo(base)
             }
-            global[n] = g[n] = path
+            global[n] = me.globals[n] = path
+            if (path.contains('${')) tokens = true
         }
-        g.ME = me.dir.me
+        me.globals.ME = me.dir.me
+        return !tokens
+    }
+
+    public function makeExtensionGlobals() {
+        let g = me.globals
+        let ext = me.ext
+        g.EXE = ext.dotexe
+        g.LIKE = me.platform.like
+        g.O = ext.doto
+        g.SHOBJ = ext.dotshobj
+        g.SHLIB = ext.dotshlib
     }
 
 //  MOB - refactor and order this file
@@ -1082,47 +1111,57 @@ public class Loader {
     }
 
     /*
-        The the directories and extensions based on whether this is a configured project or not.
+        Only called from initPlatform
      */
-    public function setDirs(configured) {
+    function setDirectories(directories) {
         let dir = me.dir
-        for (let [key,value] in dir) {
-            dir[key] = Path(value)
-        }
-        if (configured) {
-            dir.bld  ||= dir.top.join(Loader.BUILD)
-            dir.out  ||= dir.bld.join(me.platform.name)
-            dir.bin  ||= dir.out.join('bin')
-            dir.inc  ||= dir.out.join('inc')
-            dir.obj  ||= dir.out.join('obj')
-            dir.paks ||= dir.top.join('src/paks')
-            dir.proj ||= dir.top.join('projects')
-            dir.lbin ||= (me.platform.os == Config.OS) ? dir.bin : dir.bld.join(localPlatform, 'bin')
+        if (directories) {
+            dir = blend(dir, directories)
+            castDirPaths()
         } else {
-            dir.bld  ||= Path('.')
-            dir.out  ||= dir.bld
-            dir.bin  ||= dir.out
-            dir.inc  ||= dir.out
-            dir.obj  ||= dir.out
-            dir.paks ||= dir.top.join('paks')
-            dir.proj ||= dir.out
-            dir.lbin ||= dir.bin
+            castDirPaths()
+            if (options.configure) {
+                /* Before configure - set default directories */
+                dir.bld  ||= dir.top.join(Loader.BUILD)
+                dir.out  ||= dir.bld.join(me.platform.name)
+                dir.bin  ||= dir.out.join('bin')
+                dir.inc  ||= dir.out.join('inc')
+                dir.lbin ||= (options.gen || me.platform.os == Config.OS) ? dir.bin : dir.bld.join(localPlatform, 'bin')
+                dir.lib  ||= dir.bin
+                dir.obj  ||= dir.out.join('obj')
+                dir.paks ||= dir.top.join('src/paks')
+                dir.proj ||= dir.top.join('projects')
+                dir.pkg  ||= dir.out.join('pkg')
+                dir.rel  ||= dir.out.join('img')
+            } else {
+                dir.bld  ||= Path('.')
+                dir.out  ||= dir.bld
+                dir.bin  ||= dir.out
+                dir.lbin ||= dir.bin
+                dir.lib  ||= dir.bin
+                dir.inc  ||= dir.out
+                dir.obj  ||= dir.out
+                dir.paks ||= dir.src.join('paks')
+                dir.proj ||= dir.out
+                dir.pkg  ||= dir.out.join('pkg')
+                dir.rel  ||= dir.out.join('img')
+            }
         }
-        //  DEPRECATE lib
-        dir.lib  ||= dir.bin
-        dir.pkg  ||= dir.out.join('pkg')
-        dir.rel  ||= dir.out.join('img')
-
+        // UNUSED dir.me = dir.src.join('makeme/standard.me').exists ? dir.src.join('me') : Config.Bin.portable
+        dir.me = App.exeDir
         if (me.platform.like == 'windows') {
             dir.programFiles32 = makeme.programFiles32()
             dir.programFiles = Path(dir.programFiles32.name.replace(' (x86)', ''))
         }
-        dir.bin.makeDir()
-        dir.inc.makeDir()
-        dir.obj.makeDir()
         for (let [key,value] in dir) {
             dir[key] = Path(value.toString().expand(this)).absolute
         }
+        dir.bin.makeDir()
+        dir.inc.makeDir()
+        dir.obj.makeDir()
+    }
+
+    function setExtensions() {
         let ext = me.ext
         for (let [key,value] in ext.clone()) {
             if (value) {
@@ -1131,6 +1170,7 @@ public class Loader {
                 ext['dot' + key] = value
             }
         }
+        makeExtensionGlobals()
     }
 
     function setPrefixes() {

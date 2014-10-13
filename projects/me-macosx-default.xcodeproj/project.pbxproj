@@ -2584,12 +2584,12 @@ fi";
     				MACOSX_DEPLOYMENT_TARGET = 10.7;
     				SDKROOT = macosx;
 
-                    OUT_DIR = "../build/macosx-x64-default";
-                    BIN_DIR = "../build/macosx-x64-default/bin";
-                    LIB_DIR = "../build/macosx-x64-default/bin";
-                    INC_DIR = "../build/macosx-x64-default/inc";
-                    OBJ_DIR = "../build/macosx-x64-default/obj";
-                    SRC_DIR = "..";
+                    OUT_DIR = "/Users/mob/git/me/build/macosx-x64-default";
+                    BIN_DIR = "/Users/mob/git/me/build/macosx-x64-default/bin";
+                    LIB_DIR = "/Users/mob/git/me/build/macosx-x64-default/bin";
+                    INC_DIR = "/Users/mob/git/me/build/macosx-x64-default/inc";
+                    OBJ_DIR = "/Users/mob/git/me/build/macosx-x64-default/obj";
+                    SRC_DIR = "/Users/mob/git/me";
 
                     CONFIGURATION_TEMP_DIR = "$(OBJ_DIR)/me-xcode/$(CONFIGURATION)";
                     CONFIGURATION_BUILD_DIR = "$(BIN_DIR)";
@@ -2653,12 +2653,12 @@ fi";
     				MACOSX_DEPLOYMENT_TARGET = 10.7;
     				SDKROOT = macosx;
 
-                    OUT_DIR = "../build/macosx-x64-default";
-                    BIN_DIR = "../build/macosx-x64-default/bin";
-                    LIB_DIR = "../build/macosx-x64-default/bin";
-                    INC_DIR = "../build/macosx-x64-default/inc";
-                    OBJ_DIR = "../build/macosx-x64-default/obj";
-                    SRC_DIR = "..";
+                    OUT_DIR = "/Users/mob/git/me/build/macosx-x64-default";
+                    BIN_DIR = "/Users/mob/git/me/build/macosx-x64-default/bin";
+                    LIB_DIR = "/Users/mob/git/me/build/macosx-x64-default/bin";
+                    INC_DIR = "/Users/mob/git/me/build/macosx-x64-default/inc";
+                    OBJ_DIR = "/Users/mob/git/me/build/macosx-x64-default/obj";
+                    SRC_DIR = "/Users/mob/git/me";
 
                     CONFIGURATION_TEMP_DIR = "$(OBJ_DIR)/me-xcode/$(CONFIGURATION)";
                     CONFIGURATION_BUILD_DIR = "$(BIN_DIR)";

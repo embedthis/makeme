@@ -96,7 +96,7 @@
 
       <CustomBuildStep>
         <Command>cd ..\..\src\tm
-../../build/macosx-x64-debug/bin/ejsc --debug --out ../../build/windows-x86-default/bin/ejs.testme.mod --optimize 9 ejs.testme.es
+../../build/windows-x86-default/bin/ejsc --debug --out ../../build/windows-x86-default/bin/ejs.testme.mod --optimize 9 ejs.testme.es
 cd ..\..\projects\me-windows-default</Command>
         <Outputs>$(BinDir)\ejs.testme.mod</Outputs>
       </CustomBuildStep>

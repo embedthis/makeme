@@ -619,7 +619,8 @@ class Xcode {
                 cmd += replacePath(data, me.dir.out.relativeTo(base), '$${OUT_DIR}')
                 cmdtmp.remove()
 
-            } else if (target['generate-xcode'] || target['generate-sh'] || (target['generate'] && target.generate !== true)) {
+            } else if (target['generate-xcode'] || target['generate-sh'] || 
+                    (target['generate'] && target.generate !== true)) {
                 /* MOB - put this before target.generate === true because Xcode prep has target.generate == true and 
                 target.generate-xcode set */
                 let gencmd = target['generate-xcode'] || target['generate-sh'] || target['generate']

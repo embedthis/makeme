@@ -170,7 +170,6 @@ class Configure {
             trace('Configure', platform)
             Me()
             loader.initPlatform(platform)
-            loader.setDirs(true)
             loader.loadFile(main)
             checkMain()
             findComponents()
@@ -287,12 +286,9 @@ class Configure {
         blend(nme, {
             main: '${SRC}/main.me',
             platform: me.platform,
-            dir: { 
-                src: me.dir.src.absolute.portable,
-                top: me.dir.top.portable,
-            },
-            settings: { configured: true },
+            dir: me.dir,
             prefixes: me.prefixes,
+            settings: { configured: true },
             targets: getConfigurableTargets(),
             env: me.env,
         })

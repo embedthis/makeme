@@ -648,7 +648,7 @@ DEPS_40 = $(DEPS_40) build\$(CONFIG)\bin\ejsc.exe
 build\$(CONFIG)\bin\ejs.mod: $(DEPS_40)
 	cd src\paks\ejs
 	@echo .. [Compile] ejs.mod
-	..\..\..\build\macosx-x64-debug\bin\ejsc --out ../../../$(BUILD)/bin/ejs.mod --optimize 9 --bind --require null ejs.es
+	..\..\..\$(BUILD)\bin\ejsc --out ../../../$(BUILD)/bin/ejs.mod --optimize 9 --bind --require null ejs.es
 	cd ..\..\..
 !ENDIF
 
@@ -663,7 +663,7 @@ DEPS_41 = $(DEPS_41) build\$(CONFIG)\bin\ejs.mod
 build\$(CONFIG)\bin\ejs.testme.mod: $(DEPS_41)
 	cd src\tm
 	@echo .. [Compile] ejs.testme.mod
-	..\..\build\macosx-x64-debug\bin\ejsc --debug --out ../../$(BUILD)/bin/ejs.testme.mod --optimize 9 ejs.testme.es
+	..\..\$(BUILD)\bin\ejsc --debug --out ../../$(BUILD)/bin/ejs.testme.mod --optimize 9 ejs.testme.es
 	cd ..\..
 
 !IF "$(ME_COM_EJS)" == "1"
@@ -781,7 +781,7 @@ DEPS_48 = $(DEPS_48) build\$(CONFIG)\bin\ejs.mod
 build\$(CONFIG)\bin\me.mod: $(DEPS_48)
 	cd .
 	@echo .. [Compile] me.mod
-	.\build\macosx-x64-debug\bin\ejsc --debug --out ./$(BUILD)/bin/me.mod --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es src/paks/ejs-version/Version.es
+	.\$(BUILD)\bin\ejsc --debug --out ./$(BUILD)/bin/me.mod --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es src/paks/ejs-version/Version.es
 	cd .
 
 #
@@ -895,7 +895,7 @@ DEPS_52 = $(DEPS_52) build\$(CONFIG)\bin\ejs.mod
 build\$(CONFIG)\bin\testme.mod: $(DEPS_52)
 	cd src\tm
 	@echo .. [Compile] testme.mod
-	..\..\build\macosx-x64-debug\bin\ejsc --debug --out ../../$(BUILD)/bin/testme.mod --optimize 9 testme.es
+	..\..\$(BUILD)\bin\ejsc --debug --out ../../$(BUILD)/bin/testme.mod --optimize 9 testme.es
 	cd ..\..
 
 #
@@ -1027,7 +1027,7 @@ uninstall: $(DEPS_56)
 #   version
 #
 version: $(DEPS_57)
-	cd build\macosx-x64-release\bin
+	cd .
 	echo 0.8.4
-	cd ..\..\..
+	cd .
 

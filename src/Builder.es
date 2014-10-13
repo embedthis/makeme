@@ -946,6 +946,10 @@ public class Builder {
         return result
     }
 
+
+    /*
+        Called with the desired goal. Goal will be set to true when being called for a required dependent
+     */
     function selectDependentTargets(target, goal) {
         if (target.selected || !target.enable) {
             return
@@ -984,7 +988,7 @@ public class Builder {
                 }
             }
             selectedTargets.push(target)
-            if (goal !== true && target.tip) {
+            if (goal !== true && target.topLevel) {
                 topTargets.push(target)
             }
         } else {
