@@ -1,21 +1,10 @@
 /*
-    estLib.c -- Embethis EST Library Source
-
-    This file is a catenation of all the source code. Amalgamating into a
-    single file makes embedding simpler and the resulting application faster.
-
-    Prepared by: orion.local
+ * Embethis EST Library Source
  */
 
 #include "est.h"
 
 #if ME_COM_EST
-
-/************************************************************************/
-/*
-    Start of file "src/aes.c"
- */
-/************************************************************************/
 
 /*
     aes.c -- FIPS-197 compliant AES implementation
@@ -814,12 +803,6 @@ void aes_crypt_cfb128(aes_context *ctx, int mode, int length, int *iv_off, uchar
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/arc4.c"
- */
-/************************************************************************/
-
 /*
     arc4.c -- An implementation of the ARCFOUR algorithm
 
@@ -908,12 +891,6 @@ void arc4_crypt(arc4_context *ctx, uchar *buf, int buflen)
 
     @end
  */
-
-/************************************************************************/
-/*
-    Start of file "src/base64.c"
- */
-/************************************************************************/
 
 /*
     base64.c -- RFC 1521 base64 encoding/decoding
@@ -1092,12 +1069,6 @@ int base64_decode(uchar *dst, int *dlen, uchar *src, int slen)
 
     @end
  */
-
-/************************************************************************/
-/*
-    Start of file "src/bignum.c"
- */
-/************************************************************************/
 
 /*
     bignum.c -- Multi-precision integer library
@@ -2853,12 +2824,6 @@ cleanup:
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/camellia.c"
- */
-/************************************************************************/
-
 /*
     camellia.c -- Header for the Multithreaded Portable Runtime (MPR).
 
@@ -3479,12 +3444,6 @@ void camellia_crypt_cfb128(camellia_context *ctx, int mode, int length, int *iv_
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/certs.c"
- */
-/************************************************************************/
-
 /*
     certs.c -- X.509 test certificates
 
@@ -3698,12 +3657,6 @@ char xyssl_ca_crt[] =
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/debug.c"
- */
-/************************************************************************/
-
 /*
     debug.c -- Debugging routines
 
@@ -3904,12 +3857,6 @@ void debug_print_crt(ssl_context *ssl, int level, char *text, x509_cert * crt)
 
     @end
  */
-
-/************************************************************************/
-/*
-    Start of file "src/des.c"
- */
-/************************************************************************/
 
 /*
     des.c -- FIPS-46-3 compliant Triple-DES implementation
@@ -4499,12 +4446,6 @@ void des3_crypt_cbc(des3_context *ctx, int mode, int length, uchar iv[8], uchar 
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/dhm.c"
- */
-/************************************************************************/
-
 /*
     dhm.c -- Diffie-Hellman-Merkle key exchange
 
@@ -4726,12 +4667,6 @@ void dhm_free(dhm_context * ctx)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/havege.c"
- */
-/************************************************************************/
-
 /*
     havege.c -- Hardware Volatile Entropy Gathering and Expansion
 
@@ -4936,12 +4871,6 @@ int havege_rand(void *p_rng)
 
     @end
  */
-
-/************************************************************************/
-/*
-    Start of file "src/md2.c"
- */
-/************************************************************************/
 
 /*
     md2.c -- RFC 1115/1319 compliant MD2 implementation
@@ -5204,12 +5133,6 @@ void md2_hmac(uchar *key, int keylen, uchar *input, int ilen, uchar output[16])
 
     @end
  */
-
-/************************************************************************/
-/*
-    Start of file "src/md4.c"
- */
-/************************************************************************/
 
 /*
     md4.c -- RFC 1186/1320 compliant MD4 implementation
@@ -5579,12 +5502,6 @@ void md4_hmac(uchar *key, int keylen, uchar *input, int ilen, uchar output[16])
 
     @end
  */
-
-/************************************************************************/
-/*
-    Start of file "src/md5.c"
- */
-/************************************************************************/
 
 /*
     md5.c -- RFC 1321 compliant MD5 implementation
@@ -5973,12 +5890,6 @@ void md5_hmac(uchar *key, int keylen, uchar *input, int ilen, uchar output[16])
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/net.c"
- */
-/************************************************************************/
-
 /*
     net.c -- Network routines
 
@@ -6283,12 +6194,6 @@ void net_close(int fd)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/padlock.c"
- */
-/************************************************************************/
-
 /*
     padlock.c -- Header VIA padlock suport
 
@@ -6400,12 +6305,6 @@ asm("pushfl; popfl         \n" "movl    %%ebx, %0     \n" "movl    %2, %%ecx    
 
     @end
  */
-
-/************************************************************************/
-/*
-    Start of file "src/rsa.c"
- */
-/************************************************************************/
 
 /*
     rsa.c -- The RSA public-key cryptosystem
@@ -6896,12 +6795,6 @@ void rsa_free(rsa_context *ctx)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/sha1.c"
- */
-/************************************************************************/
-
 /*
     sha1.c -- FIPS-180-1 compliant SHA-1 implementation
 
@@ -7322,12 +7215,6 @@ void sha1_hmac(uchar *key, int keylen, uchar *input, int ilen, uchar output[20])
 
     @end
  */
-
-/************************************************************************/
-/*
-    Start of file "src/sha2.c"
- */
-/************************************************************************/
 
 /*
     sha2.c -- FIPS-180-2 compliant SHA-256 implementation
@@ -7750,12 +7637,6 @@ void sha2_hmac(uchar *key, int keylen, uchar *input, int ilen, uchar output[32],
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/sha4.c"
- */
-/************************************************************************/
-
 /*
     sha4.c -- FIPS-180-2 compliant SHA-384/512 implementation
 
@@ -8177,12 +8058,6 @@ void sha4_hmac(uchar *key, int keylen, uchar *input, int ilen, uchar output[64],
 
     @end
  */
-
-/************************************************************************/
-/*
-    Start of file "src/ssl_cli.c"
- */
-/************************************************************************/
 
 /*
     ssl_cli.c -- SSLv3/TLSv1 client-side functions
@@ -8827,12 +8702,6 @@ int ssl_handshake_client(ssl_context * ssl)
 
     @end
  */
-
-/************************************************************************/
-/*
-    Start of file "src/ssl_srv.c"
- */
-/************************************************************************/
 
 /*
     ssl_srv.c -- SSLv3/TLSv1 server-side functions
@@ -9620,12 +9489,6 @@ int ssl_handshake_server(ssl_context * ssl)
 
     @end
  */
-
-/************************************************************************/
-/*
-    Start of file "src/ssl_tls.c"
- */
-/************************************************************************/
 
 /*
     ssl_tls.c -- SSLv3/TLSv1 shared functions
@@ -11582,12 +11445,6 @@ void ssl_free(ssl_context * ssl)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/timing.c"
- */
-/************************************************************************/
-
 /*
     timing.c -- Portable interface to the CPU cycle counter
 
@@ -11871,12 +11728,6 @@ void m_sleep(int milliseconds)
 
     @end
  */
-
-/************************************************************************/
-/*
-    Start of file "src/x509parse.c"
- */
-/************************************************************************/
 
 /*
     x509parse.c -- X.509 certificate and private key decoding
@@ -13365,12 +13216,6 @@ void x509_free(x509_cert * crt)
 
 #endif
 
-/************************************************************************/
-/*
-    Start of file "src/xtea.c"
- */
-/************************************************************************/
-
 /*
     xtea.c -- An 32-bit implementation of the XTEA algorithm
 
@@ -13471,4 +13316,5 @@ void xtea_crypt_ecb(xtea_context *ctx, int mode, uchar input[8], uchar output[8]
 
     @end
  */
+
 #endif /* ME_COM_EST */

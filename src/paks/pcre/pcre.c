@@ -1,20 +1,9 @@
 /*
-    pcre.c -- PCRE Library Library Source
-
-    This file is a catenation of all the source code. Amalgamating into a
-    single file makes embedding simpler and the resulting application faster.
-
-    Prepared by: orion.local
+ * PCRE Library Library Source
  */
 
 #include "me.h"
 #include "pcre.h"
-
-/************************************************************************/
-/*
-    Start of file "src/config.h"
- */
-/************************************************************************/
 
 /* config.h.  Generated from config.h.in by configure.  */
 /* config.h.in.  Generated from configure.ac by autoheader.  */
@@ -258,12 +247,6 @@ them both to 0; an emulation function will be used. */
 
 /* Define to `unsigned int' if <sys/types.h> does not define. */
 /* #undef size_t */
-
-/************************************************************************/
-/*
-    Start of file "src/pcre_internal.h"
- */
-/************************************************************************/
 
 /*************************************************
 *      Perl-Compatible Regular Expressions       *
@@ -1499,12 +1482,6 @@ extern BOOL         _pcre_xclass(int, const uschar *);
 /* End of pcre_internal.h */
 #endif /* ME_COM_PCRE */
 
-/************************************************************************/
-/*
-    Start of file "src/ucp.h"
- */
-/************************************************************************/
-
 /*************************************************
 *          Unicode Property Table handler        *
 *************************************************/
@@ -1644,12 +1621,6 @@ enum {
 /* End of ucp.h */
 #endif /* ME_COM_PCRE */
 
-/************************************************************************/
-/*
-    Start of file "src/ucpinternal.h"
- */
-/************************************************************************/
-
 /*************************************************
 *           Unicode Property Table handler       *
 *************************************************/
@@ -1747,12 +1718,6 @@ When searching the data, proceed as follows:
 #endif /* _UCPINTERNAL_H */
 
 /* End of ucpinternal.h */
-
-/************************************************************************/
-/*
-    Start of file "src/ucptable.h"
- */
-/************************************************************************/
 
 /* This source module is automatically generated from the Unicode
 property table. See ucpinternal.h for a description of the layout.
@@ -4850,12 +4815,6 @@ static const cnode ucp_table[] = {
 #endif /* ME_COM_PCRE */
 
 
-/************************************************************************/
-/*
-    Start of file "src/pcre_chartables.c"
- */
-/************************************************************************/
-
 /*************************************************
 *      Perl-Compatible Regular Expressions       *
 *************************************************/
@@ -5056,12 +5015,6 @@ graph, print, punct, and cntrl. Other classes are built from combinations. */
 
 /* End of pcre_chartables.c */
 #endif /* ME_COM_PCRE */
-
-/************************************************************************/
-/*
-    Start of file "src/pcre_compile.c"
- */
-/************************************************************************/
 
 /*************************************************
 *      Perl-Compatible Regular Expressions       *
@@ -11503,12 +11456,6 @@ return (pcre *)re;
 /* End of pcre_compile.c */
 #endif /* ME_COM_PCRE */
 
-/************************************************************************/
-/*
-    Start of file "src/pcre_exec.c"
- */
-/************************************************************************/
-
 /*************************************************
 *      Perl-Compatible Regular Expressions       *
 *************************************************/
@@ -16495,12 +16442,6 @@ else
 /* End of pcre_exec.c */
 #endif /* ME_COM_PCRE */
 
-/************************************************************************/
-/*
-    Start of file "src/pcre_globals.c"
- */
-/************************************************************************/
-
 /*************************************************
 *      Perl-Compatible Regular Expressions       *
 *************************************************/
@@ -16565,12 +16506,6 @@ PCRE_EXP_DATA_DEFN int   (*pcre_callout)(pcre_callout_block *) = NULL;
 
 /* End of pcre_globals.c */
 #endif /* ME_COM_PCRE */
-
-/************************************************************************/
-/*
-    Start of file "src/pcre_newline.c"
- */
-/************************************************************************/
 
 /*************************************************
 *      Perl-Compatible Regular Expressions       *
@@ -16738,12 +16673,6 @@ else switch(c)
 /* End of pcre_newline.c */
 #endif /* ME_COM_PCRE */
 
-/************************************************************************/
-/*
-    Start of file "src/pcre_ord2utf8.c"
- */
-/************************************************************************/
-
 /*************************************************
 *      Perl-Compatible Regular Expressions       *
 *************************************************/
@@ -16830,12 +16759,6 @@ return 0;   /* Keep compiler happy; this function won't ever be */
 
 /* End of pcre_ord2utf8.c */
 #endif /* ME_COM_PCRE */
-
-/************************************************************************/
-/*
-    Start of file "src/pcre_tables.c"
- */
-/************************************************************************/
 
 /*************************************************
 *      Perl-Compatible Regular Expressions       *
@@ -17157,12 +17080,6 @@ const int _pcre_utt_size = sizeof(_pcre_utt)/sizeof(ucp_type_table);
 /* End of pcre_tables.c */
 #endif /* ME_COM_PCRE */
 
-/************************************************************************/
-/*
-    Start of file "src/pcre_try_flipped.c"
- */
-/************************************************************************/
-
 /*************************************************
 *      Perl-Compatible Regular Expressions       *
 *************************************************/
@@ -17301,12 +17218,6 @@ return internal_re;
 
 /* End of pcre_tryflipped.c */
 #endif /* ME_COM_PCRE */
-
-/************************************************************************/
-/*
-    Start of file "src/pcre_ucp_searchfuncs.c"
- */
-/************************************************************************/
 
 /*************************************************
 *      Perl-Compatible Regular Expressions       *
@@ -17489,12 +17400,6 @@ return (offset == 0)? NOTACHAR : c + offset;
 /* End of pcre_ucp_searchfuncs.c */
 #endif /* ME_COM_PCRE */
 
-/************************************************************************/
-/*
-    Start of file "src/pcre_valid_utf8.c"
- */
-/************************************************************************/
-
 /*************************************************
 *      Perl-Compatible Regular Expressions       *
 *************************************************/
@@ -17658,12 +17563,6 @@ return -1;
 
 /* End of pcre_valid_utf8.c */
 #endif /* ME_COM_PCRE */
-
-/************************************************************************/
-/*
-    Start of file "src/pcre_xclass.c"
- */
-/************************************************************************/
 
 /*************************************************
 *      Perl-Compatible Regular Expressions       *

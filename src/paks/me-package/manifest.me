@@ -11,86 +11,82 @@ Me.load({
             },
         },
 
-        files: [
-           {
-                from:       [ 'doc/documents/README.TXT', 'package/install.sh', 'package/uninstall.sh' ],
-                to:         '${media}/',
-                expand:     true,
-                set:        'package',
+        sets: {
+            core: [
+                {
+                    perform: function(from, to, options) {
+                        linkFile('${settings.version}', '${app}/latest')
+                    },
+                    symlink:    '${app}',
+                    enable:     "me.platform.like == 'unix'",
+                }
+            ],
+            package: [
+                {
+                    from: [ 
+                                '${SRC}/doc/documents/README.TXT', 
+                                '${SRC}/package/install.sh', 
+                                '${SRC}/package/uninstall.sh' 
+                    ],
+                    to:         '${media}/',
+                    expand:     true,
 
-           }, {
-                from:       [ 'package/windows/LICENSE.TXT' ],
-                to:         '${media}/',
-                expand:     true,
-                fold:       true,
-                set:        'package',
-                enable:     "me.platform.os == 'windows'",
+               }, {
+                    from:       '${SRC}/package/windows/LICENSE.TXT',
+                    to:         '${media}/',
+                    expand:     true,
+                    fold:       true,
+                    enable:     "me.platform.os == 'windows'",
 
-           }, {
-                from:       [ 'package/windows/LICENSE.TXT' ],
-                to:         '${app}/LICENSE.TXT',
-                textfile:   true,
-                fold:       true,
-                set:        'package',
-                enable:     "me.platform.os == 'windows'",
+               }, {
+                    from:       '${SRC}/doc/documents/README.TXT',
+                    to:         '${app}/',
+                    fold:       true,
+                    expand:     true,
 
-           }, {
-                from:       [ 'doc/documents/README.TXT' ],
-                to:         '${app}/',
-                fold:       true,
-                expand:     true,
-                set:        'package',
+               }, {
+                    from:       '${SRC}/package/install.sh',
+                    to:         '${abin}/install',
+                    expand:     true,
+                    permissions: 0755,
 
-           }, {
-                from:       [ 'package/install.sh' ],
-                to:         '${abin}/install',
-                expand:     true,
-                permissions: 0755,
-                set:        'package',
+               }, {
+                    from:       '${SRC}/package/uninstall.sh',
+                    to:         '${abin}/uninstall',
+                    expand:     true,
+                    permissions: 0755,
 
-           }, {
-                from:       [ 'package/uninstall.sh' ],
-                to:         '${abin}/uninstall',
-                expand:     true,
-                permissions: 0755,
-                set:        'package',
+                }, {
+                    from:       '${targets.compiler.vsdir}/VC/redist/${platform.arch}/Microsoft.VC${targets.compiler.crt}.CRT/msvcr${targets.compiler.crt}.dll',
+                    to:         '${abin}',
+                    enable:     "me.platform.os == 'windows' && !makeme.generating",
 
-            }, {
-                postcopy:    "linkFile('${settings.version}', '${app}/latest')",
-                linkin:     '${app}',
-                set:        'core',
-                enable:     "me.platform.like == 'unix'",
+                }, {
+                    from:        '${BIN}/removeFiles${EXE}',
+                    to:          '${abin}/',
+                    enable:      "me.platform.os == 'windows' && Path('package/windows/removeFiles.c').exists",
+                }
+            ],
+            pak: [
+                {
+                    from: [ 
+                                '${SRC}/LICENSE.md', 
+                                '${SRC}/README.md' 
+                    ],
+                    to:         '${src}/',
 
-            }, {
-                from: '${targets.compiler.dir}/VC/redist/${platform.arch}/Microsoft.VC${targets.compiler.crt}.CRT/msvcr${targets.compiler.crt}.dll',
-                to:         '${abin}',
-                set:        'package',
-                enable:     "me.platform.os == 'windows' && !me.generating",
+                }, {
+                    from:       '${SRC}/package/package.json',
+                    to:         '${src}/',
+                    enable:      "Path('${SRC}/package/package.json').exists",
 
-            }, {
-                from:        '${BIN}/removeFiles${EXE}',
-                to:          '${abin}/',
-                set:         'package',
-                enable:      "me.platform.os == 'windows' && Path('package/windows/removeFiles.c').exists",
-
-            /* Standard files for a Pak */
-            }, {
-                from:       [ 'LICENSE.md', 'README.md' ],
-                to:         '${src}/',
-                set:        'pak',
-
-            }, {
-                from:       [ 'package/package.json' ],
-                to:         '${src}/',
-                set:        'pak',
-                enable:      "Path('package/package.json').exists",
-            }, {
-                from:       [ 'package.json' ],
-                to:         '${src}/',
-                set:        'pak',
-                enable:      "!Path('package/package.json').exists && Path('package.json').exists",
-           },
-        ],
+                }, {
+                    from:       '${SRC}/package.json',
+                    to:         '${src}/',
+                    enable:      "!Path('${SRC}/package/package.json').exists && Path('${SRC}/package.json').exists",
+                },
+            ],
+        },
     },
 })
 

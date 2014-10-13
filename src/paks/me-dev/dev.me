@@ -29,28 +29,6 @@ Me.load({
             enable: `me.platform.like == 'windows' && Path('package/windows/removeFiles.c').exists`,
         },
 
-        projects: {
-            action: `genProjects()`,
-            home: '${TOP}',
-        },
-
-        /*
-            Target to build a personal project for the current configuration
-         */
-        mine: {
-            action: `
-                let cmd = Cmd.locate('me')
-                let runopt = {dir: me.dir.src, show: true}
-                /* Xcode and VS use separate profiles */
-                if (me.platform.name == 'macosx-x64-debug') {
-                    run(cmd + ' -q -d -platform macosx-x64-mine -configure . -gen xcode', runopt)
-                } else if (me.platform.name == 'windows-x86-debug') {
-                    run(cmd + ' -q -d -platform windows-x86-mine -configure . -gen vs', runopt)
-                }
-                run(cmd + ' -q -configure . ', runopt)
-            `,
-        },
-
         'projects-clobber': {
             action: `
                 rm(['${dir.proj}/*.mk', '${dir.proj}/*.sh'])

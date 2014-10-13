@@ -20,9 +20,9 @@ Me.load({
         },
 
         'testme.es': {
+            type: 'file',
             path: '${BIN}/testme.es',
             files: [ 'testme.es' ],
-            type: 'file',
             platforms: [ 'local' ],
         },
 
@@ -32,14 +32,14 @@ Me.load({
             build: `
                 run('${LBIN}/ejsc --debug --out ${BIN}/testme.mod --optimize 9 testme.es')
             `,
-            message: [ 'Compile', 'testme.mod' ],
-            depends: [ 'ejsc' ],
+            message: 'Compile: testme.mod',
+            depends: [ 'ejs.mod' ],
         },
 
         'ejs.testme.es': {
+            type: 'file'
             path: '${BIN}/ejs.testme.es',
             files: [ 'ejs.testme.es' ],
-            type: 'file'
             platforms: [ 'local' ],
         },
 
@@ -49,8 +49,8 @@ Me.load({
             build: `
                 run('${LBIN}/ejsc --debug --out ${BIN}/ejs.testme.mod --optimize 9 ejs.testme.es')
             `,
-            message: [ 'Compile', 'ejs.testme.mod' ],
-            depends: [ 'ejsc' ],
+            message: 'Compile: ejs.testme.mod',
+            depends: [ 'ejs.mod' ],
         },
     },
 })

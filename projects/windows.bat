@@ -10,5 +10,4 @@ for /l %%v in (9, 1, 14) do (
 )
 :DONE
 
-echo nmake -C %2 %3 %4 %5 %6 %7 %8 %9
 nmake -C %2 %3 %4 %5 %6 %7 %8 %9

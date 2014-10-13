@@ -9,7 +9,7 @@ Me.load({
         The sets used are: binary, service, test, doc, dev, package, source
      */
     manifest: {
-        home: me.dir.src,
+        home: me.dir.bin,
         packages:   {
             install: {
                 inherit:    'package-manifest',
@@ -32,109 +32,121 @@ Me.load({
             },
         },
 
-        files: [ 
-            /* Binary Set */
-            {   from:   [
-                    '${BIN}/me${EXE}',
-                    '${BIN}/testme${EXE}',
-                ],
-                to:     '${abin}/',
-                linkin: '${bin}',
-                set:    'core',
+        sets: { 
+            core: [
+                {   
+                    from:   [
+                                'me${EXE}',
+                                'testme${EXE}',
+                    ],
+                    to:         '${abin}/',
+                    symlink:    '${bin}',
 
-            }, {   from:   [
-                    '${BIN}/ejs${EXE}',
-                    '${BIN}/ejsc${EXE}',
-                    '${BIN}/http${EXE}',
-                ],
-                to:     '${abin}/',
-                set:    'core',
+                }, {   
+                    from: [
+                                'ejs${EXE}',
+                                'ejsc${EXE}',
+                                'http${EXE}',
+                    ],
+                    to:         '${abin}/',
+                }
+            ],
+            libs: [
+                { 
+                    from: [
+                                'libejs${SHOBJ}',
+                                'libhttp${SHOBJ}',
+                                'libmpr${SHOBJ}',
+                                'libmprssl${SHOBJ}',
+                                'libpcre${SHOBJ}',
+                                'libzlib${SHOBJ}',
+                                'libtestme${SHOBJ}',
+                    ],
+                    to:         '${abin}/',
+                    enable:     '!me.settings.static',
 
-            },{ from: [
-                    '${BIN}/libejs${SHOBJ}',
-                    '${BIN}/libhttp${SHOBJ}',
-                    '${BIN}/libmpr${SHOBJ}',
-                    '${BIN}/libmprssl${SHOBJ}',
-                    '${BIN}/libpcre${SHOBJ}',
-                    '${BIN}/libzlib${SHOBJ}',
-                    '${BIN}/libtestme${SHOBJ}',
-                ],
-                to:     '${abin}/',
-                set:    'libs',
-                enable: '!me.settings.static',
+                }, { 
+                    from:       'libest${SHOBJ}',
+                    to:         '${abin}/',
+                    enable:     '!me.settings.static',
+                    ifdef:      'est',
 
-            },{ from: [
-                    '${BIN}/libest${SHOBJ}',
-                ],
-                to:     '${abin}/',
-                set:    'libs',
-                enable: '!me.settings.static',
-                ifdef:  'est',
+                }, { 
+                    from: [
+                                'libssl*${SHOBJ}*',
+                                'libcrypto*${SHOBJ}*',
+                    ],
+                    to:         '${abin}/',
+                    enable:     'me.platform.os != "windows"',
+                    ifdef:      'openssl',
 
-            },{ from: [
-                    '${BIN}/libssl*${SHOBJ}*',
-                    '${BIN}/libcrypto*${SHOBJ}*',
-                ],
-                to:     '${abin}/',
-                set:    'libs',
-                enable: 'me.platform.os != "windows"',
-                ifdef:  'openssl',
+                }, { 
+                    from: [
+                                'libeay32${SHOBJ}',
+                                'ssleay32${SHOBJ}',
+                    ],
+                    to:         '${abin}/',
+                    enable:     'me.platform.os == "windows"',
+                    ifdef:      'openssl',
 
-            },{ from: [
-                    '${BIN}/libeay32${SHOBJ}',
-                    '${BIN}/ssleay32${SHOBJ}',
-                ],
-                to:     '${abin}/',
-                set:    'libs',
-                enable: 'me.platform.os == "windows"',
-                ifdef:  'openssl',
+                }, { from: [
+                                'ca.crt',
+                                'ejs.mod',
+                                'me.mod',
+                                'testme.mod',
+                                'ejs.testme.mod',
+                    ],
+                    to:         '${abin}/',
 
-            },{ from: [
-                    '${BIN}/ca.crt',
-                    '${BIN}/ejs.mod',
-                    '${BIN}/me.mod',
-                    '${BIN}/testme.mod',
-                    '${BIN}/ejs.testme.mod',
-                ],
-                to:     '${abin}/',
-                set:    'core',
+                }, { 
+                    from:       '${SRC}/src/tm/testme.h',
+                    to:         '${vapp}/inc/',
 
-            },{ from:   'src/tm/testme.h',
-                to:     '${vapp}/inc/',
-                set:    'core',
+                }, { 
+                    from:       '${SRC}/src/export/**',
+                    to:         '${abin}/',
+                    relative:   'src/export',
+                    flatten:    false,
+                }
+            ],
+            doc: [
+                { 
+                    from: [
+                                '${SRC}/doc/public/man/me.1',
+                                '${SRC}/doc/public/man/testme.1',
+                    ],
+                    to:         '${adoc}/man/man1/',
+                    symlink:    '${man}/man1',
+                    enable:     "me.platform.like == 'unix'",
+                }
+            ],
+            source: [
+                { 
+                    from:       '${SRC}/*.md',
+                    to:         '${src}/',
+                    fold:       true,
+                    patch:      true,
 
-            },{ from:   'src/**',
-                to:     '${abin}/',
-                exclude: /src\/me.c|src\/paks|\/$/,
-                subtree:'src'
-                set:    'core',
+                }, { 
+                    from:       '${SRC}/configure',
+                    to:         '${src}/',
+                    permissions: 0755,     
 
-            },{ from:   [
-                    'doc/public/man/me.1',
-                    'doc/public/man/testme.1',
-                ],
-                to:     '${adoc}/man/man1/',
-                set:    'doc',
-                linkin: '${man}/man1',
-                enable: "me.platform.like == 'unix'",
-
-            /* Source Set */
-            },{ from:   [ '*.md' ],
-                to:     '${src}/',
-                fold:   true,
-                expand: true,
-                set:    'source',
-
-            },{ from:   [ 'configure' ],
-                to:     '${src}/',
-                permissions: 0755,     
-                set:    'source',
-
-            },{ from:   [ 'Makefile', 'make.bat', 'main.me', , 'package.json',
-                          'src', 'doc', 'projects', 'package' ],
-                to:     '${src}/',
-                set:    'source',
-            },
-        ],
+                }, { 
+                    home:       '${SRC}',
+                    from: [ 
+                                'Makefile', 
+                                'make.bat', 
+                                'main.me', 
+                                'package.json',
+                                'src', 
+                                'doc', 
+                                'projects', 
+                                'package'
+                    ],
+                    to:     '${src}/',
+                },
+            ],
+        }
     },
 })

@@ -1,19 +1,7 @@
 /*
-    ejsc.c -- Embedthis Ejscript Compiler
-
-    This file is a catenation of all the source code. Amalgamating into a
-    single file makes embedding simpler and the resulting application faster.
-
-    Prepared by: orion.local
+ * Embedthis Ejscript Compiler
  */
-
 #include "ejs.h"
-
-/************************************************************************/
-/*
-    Start of file "src/cmd/ejsc.c"
- */
-/************************************************************************/
 
 /* 
     ejsc.c - Ejscript Compiler main program

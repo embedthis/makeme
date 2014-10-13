@@ -15,8 +15,8 @@ Me.load({
                 let edir = Path('documents/ref/api')
                 rmdir([edir.join('*.html'), edir.join('*.css'), edir.join('images/*')])
                 run(bin.join('ejsmod') + ' --html ' + edir + ' ' + docmod)
-                cp('documents/ref/api/masters/*.html', edir, {flatten: true})
-                cp('documents/ref/api/masters/*.jpg', edir.join('images'), {flatten: true})
+                cp('documents/ref/api/masters/*.html', edir)
+                cp('documents/ref/api/masters/*.jpg', edir.join('images'))
                 docmod.remove()
             `,
         },

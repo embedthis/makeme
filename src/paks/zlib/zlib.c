@@ -1,22 +1,11 @@
 /*
-    zlib.c -- Zlib Library Library Source
-
-    This file is a catenation of all the source code. Amalgamating into a
-    single file makes embedding simpler and the resulting application faster.
-
-    Prepared by: orion.local
+ * Zlib Library Library Source
  */
 
 #define local static
 #define NO_DUMMY_DECL
 #include "me.h"
 #include "zlib.h"
-
-/************************************************************************/
-/*
-    Start of file "src/winmap.h"
- */
-/************************************************************************/
 
 /* winmap.h -- Fixups for windows compilation
  */
@@ -54,12 +43,6 @@
     // extern int _getch();
 #endif
 #endif /* WINMAP_H */
-
-/************************************************************************/
-/*
-    Start of file "src/adler32.c"
- */
-/************************************************************************/
 
 /* adler32.c -- compute the Adler-32 checksum of a data stream
  * Copyright (C) 1995-2011 Mark Adler
@@ -252,12 +235,6 @@ uLong ZEXPORT adler32_combine64(adler1, adler2, len2)
 #undef DO8
 #undef DO16
 
-/************************************************************************/
-/*
-    Start of file "src/compress.c"
- */
-/************************************************************************/
-
 /* compress.c -- compress a memory buffer
  * Copyright (C) 1995-2005 Jean-loup Gailly.
  * For conditions of distribution and use, see copyright notice in zlib.h
@@ -341,12 +318,6 @@ uLong ZEXPORT compressBound (sourceLen)
     return sourceLen + (sourceLen >> 12) + (sourceLen >> 14) +
            (sourceLen >> 25) + 13;
 }
-
-/************************************************************************/
-/*
-    Start of file "src/crc32.c"
- */
-/************************************************************************/
 
 /* crc32.c -- compute the CRC-32 of a data stream
  * Copyright (C) 1995-2006, 2010, 2011 Mark Adler
@@ -1250,12 +1221,6 @@ uLong ZEXPORT crc32_combine64(crc1, crc2, len2)
 #undef DOBIG4
 #undef DOBIG32
 #undef GF2_DIM
-
-/************************************************************************/
-/*
-    Start of file "src/deflate.c"
- */
-/************************************************************************/
 
 /* deflate.c -- compress data using the deflation algorithm
  * Copyright (C) 1995-2012 Jean-loup Gailly and Mark Adler
@@ -3225,12 +3190,6 @@ local block_state deflate_huff(s, flush)
     return block_done;
 }
 
-/************************************************************************/
-/*
-    Start of file "src/gzclose.c"
- */
-/************************************************************************/
-
 /* gzclose.c -- zlib gzclose() function
  * Copyright (C) 2004, 2010 Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib.h
@@ -3256,12 +3215,6 @@ int ZEXPORT gzclose(file)
     return gzclose_r(file);
 #endif
 }
-
-/************************************************************************/
-/*
-    Start of file "src/gzlib.c"
- */
-/************************************************************************/
 
 /* gzlib.c -- zlib functions common to reading and writing gzip files
  * Copyright (C) 2004, 2010, 2011 Mark Adler
@@ -3827,12 +3780,6 @@ unsigned ZLIB_INTERNAL gz_intmax()
     return q >> 1;
 }
 #endif
-
-/************************************************************************/
-/*
-    Start of file "src/gzread.c"
- */
-/************************************************************************/
 
 /* gzread.c -- zlib functions for reading gzip files
  * Copyright (C) 2004, 2005, 2010, 2011 Mark Adler
@@ -4418,12 +4365,6 @@ int ZEXPORT gzclose_r(file)
     free(state);
     return ret ? Z_ERRNO : err;
 }
-
-/************************************************************************/
-/*
-    Start of file "src/gzwrite.c"
- */
-/************************************************************************/
 
 /* gzwrite.c -- zlib functions for writing gzip files
  * Copyright (C) 2004, 2005, 2010, 2011, 2012 Mark Adler
@@ -5018,12 +4959,6 @@ unsigned long ZEXPORT gzflags()
 #endif
     return flags;
 }
-
-/************************************************************************/
-/*
-    Start of file "src/infback.c"
- */
-/************************************************************************/
 
 /* infback.c -- inflate using a call-back interface
  * Copyright (C) 1995-2011 Mark Adler
@@ -5670,12 +5605,6 @@ z_streamp strm;
 #undef PULLBYTE
 #undef LOWBITS
 
-/************************************************************************/
-/*
-    Start of file "src/inffast.c"
- */
-/************************************************************************/
-
 /* inffast.c -- fast decoding
  * Copyright (C) 1995-2008, 2010 Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib.h
@@ -6016,12 +5945,6 @@ unsigned start;         /* inflate()'s starting value for strm->avail_out */
  */
 
 #endif /* !ASMINF */
-
-/************************************************************************/
-/*
-    Start of file "src/inflate.c"
- */
-/************************************************************************/
 
 /* inflate.c -- zlib decompression
  * Copyright (C) 1995-2011 Mark Adler
@@ -7533,12 +7456,6 @@ z_streamp strm;
 #undef fixedtables
 #undef PULLBYTE
 
-/************************************************************************/
-/*
-    Start of file "src/inftrees.c"
- */
-/************************************************************************/
-
 /* inftrees.c -- generate Huffman trees for efficient decoding
  * Copyright (C) 1995-2012 Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib.h
@@ -7845,12 +7762,6 @@ unsigned short FAR *work;
     *bits = root;
     return 0;
 }
-
-/************************************************************************/
-/*
-    Start of file "src/trees.c"
- */
-/************************************************************************/
 
 /* trees.c -- output deflated data using Huffman coding
  * Copyright (C) 1995-2012 Jean-loup Gailly
@@ -9206,12 +9117,6 @@ local void copy_block(s, buf, len, header)
     }
 }
 
-/************************************************************************/
-/*
-    Start of file "src/uncompr.c"
- */
-/************************************************************************/
-
 /* uncompr.c -- decompress a memory buffer
  * Copyright (C) 1995-2003, 2010 Jean-loup Gailly.
  * For conditions of distribution and use, see copyright notice in zlib.h
@@ -9274,12 +9179,6 @@ int ZEXPORT uncompress (dest, destLen, source, sourceLen)
     err = inflateEnd(&stream);
     return err;
 }
-
-/************************************************************************/
-/*
-    Start of file "src/zutil.c"
- */
-/************************************************************************/
 
 /* zutil.c -- target dependent utility functions for the compression library
  * Copyright (C) 1995-2005, 2010, 2011 Jean-loup Gailly.

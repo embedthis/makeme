@@ -36,6 +36,7 @@
         "paks": "src/paks"
     },
     "dependencies": {
+        "me-package": "~0.8"
     },
     "optionalDependencies": {
         "me-dev": "~0.8",

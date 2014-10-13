@@ -1,19 +1,13 @@
 /*
-    mprLib.c -- Embedthis MPR Library Source
-
-    This file is a catenation of all the source code. Amalgamating into a
-    single file makes embedding simpler and the resulting application faster.
-
-    Prepared by: orion.local
- */
+ * Embedthis MPR Library Source 
+*/
 
 #include "mpr.h"
 
-/************************************************************************/
-/*
-    Start of file "src/mem.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/mem.c ************/
+
 
 /**
     mem.c - Memory Allocator and Garbage Collector. 
@@ -2631,11 +2625,10 @@ static void monitorStack()
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/mpr.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/mpr.c ************/
+
 
 /*
     mpr.c - Multithreaded Portable Runtime (MPR). Initialization, start/stop and control of the MPR.
@@ -3599,11 +3592,10 @@ PUBLIC void *mprGetKey(cchar *key)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/async.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/async.c ************/
+
 
 /**
     async.c - Wait for I/O on Windows.
@@ -3973,11 +3965,10 @@ void asyncDummy() {}
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/atomic.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/atomic.c ************/
+
 
 /**
     atomic.c - Atomic operations
@@ -4223,11 +4214,10 @@ PUBLIC void mprAtomicListInsert(void **head, void **link, void *item)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/buf.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/buf.c ************/
+
 
 /**
     buf.c - Dynamic buffer module
@@ -4877,11 +4867,10 @@ PUBLIC ssize mprPutStringToWideBuf(MprBuf *bp, cchar *str)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/cache.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/cache.c ************/
+
 
 /**
     cache.c - In-process caching
@@ -5456,11 +5445,10 @@ PUBLIC void mprGetCacheStats(MprCache *cache, int *numKeys, ssize *mem)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/cmd.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/cmd.c ************/
+
 
 /*
     cmd.c - Run external commands
@@ -7154,11 +7142,10 @@ static void closeFiles(MprCmd *cmd)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/cond.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/cond.c ************/
+
 
 /**
     cond.c - Thread Conditional variables
@@ -7474,11 +7461,10 @@ PUBLIC void mprSignalMultiCond(MprCond *cp)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/crypt.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/crypt.c ************/
+
 
 /*
     crypt.c - Base-64 encoding and decoding and MD5 support.
@@ -8806,11 +8792,10 @@ PUBLIC char *mprGetPassword(cchar *prompt)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/disk.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/disk.c ************/
+
 
 /**
     disk.c - File services for systems with a (disk) based file system.
@@ -9385,11 +9370,10 @@ PUBLIC MprDiskFileSystem *mprCreateDiskFileSystem(cchar *path)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/dispatcher.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/dispatcher.c ************/
+
 
 /*
     dispatcher.c - Event dispatch services
@@ -10230,11 +10214,10 @@ PUBLIC bool mprDispatcherHasEvents(MprDispatcher *dispatcher)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/encode.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/encode.c ************/
+
 
 /*
     encode.c - URI encode and decode routines
@@ -10568,11 +10551,10 @@ PUBLIC char *mprEscapeSQL(cchar *cmd)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/epoll.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/epoll.c ************/
+
 
 /**
     epoll.c - Wait for I/O by using epoll on unix like systems.
@@ -10900,11 +10882,10 @@ void epollDummy() {}
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/event.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/event.c ************/
+
 
 /*
     event.c - Event and dispatch services
@@ -11226,11 +11207,10 @@ PUBLIC void mprDequeueEvent(MprEvent *event)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/file.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/file.c ************/
+
 
 /**
     file.c - File services.
@@ -11854,11 +11834,10 @@ PUBLIC int mprGetFileFd(MprFile *file)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/fs.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/fs.c ************/
+
 
 /**
     fs.c - File system services.
@@ -12020,11 +11999,10 @@ PUBLIC void mprSetPathNewline(cchar *path, cchar *newline)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/hash.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/hash.c ************/
+
 
 /*
     hash.c - Fast hashing hash lookup module
@@ -12556,11 +12534,10 @@ PUBLIC char *mprHashKeysToString(MprHash *hash, cchar *join)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/json.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/json.c ************/
+
 
 /**
     json.c - A JSON parser, serializer and query language.
@@ -14189,11 +14166,10 @@ PUBLIC MprHash *mprJsonToHash(MprJson *json)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/kqueue.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/kqueue.c ************/
+
 
 /**
     kevent.c - Wait for I/O by using kevent on MacOSX Unix systems.
@@ -14500,11 +14476,10 @@ void kqueueDummy() {}
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/list.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/list.c ************/
+
 
 /**
     list.c - Simple list type.
@@ -15335,11 +15310,10 @@ PUBLIC char *mprListToString(MprList *list, cchar *join)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/lock.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/lock.c ************/
+
 
 /**
     lock.c - Thread Locking Support
@@ -15680,11 +15654,10 @@ PUBLIC void mprSpinUnlock(MprSpin *lock)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/log.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/log.c ************/
+
 
 /**
     log.c - Multithreaded Portable Runtime (MPR) Logging and error reporting.
@@ -16259,11 +16232,10 @@ PUBLIC int _cmp(char *s1, char *s2)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/mime.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/mime.c ************/
+
 
 /* 
     mime.c - Mime type handling
@@ -16510,11 +16482,10 @@ PUBLIC cchar *mprLookupMime(MprHash *table, cchar *ext)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/mixed.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/mixed.c ************/
+
 
 /**
     mixed.c - Mixed mode strings. Unicode results with ascii args.
@@ -16954,11 +16925,10 @@ PUBLIC void dummyWide() {}
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/module.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/module.c ************/
+
 
 /**
     module.c - Dynamic module loading support.
@@ -17302,11 +17272,10 @@ PUBLIC char *mprSearchForModule(cchar *filename)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/path.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/path.c ************/
+
 
 /**
     path.c - Path (filename) services.
@@ -18171,7 +18140,6 @@ PUBLIC bool mprMatchPath(cchar *path, cchar *pattern)
     MprFileSystem   *fs;
     cchar           *nextPartPattern;
     char            *cp, *name;
-    bool            isDir;
 
     fs = mprLookupFileSystem(path);
     if (!path || !pattern) {
@@ -18197,7 +18165,7 @@ PUBLIC bool mprMatchPath(cchar *path, cchar *pattern)
         if (!mprMatchPartPath(name, 0, pattern, &nextPartPattern, 0, 0)) {
             return 0;
         }
-        if (nextPartPattern && *nextPartPattern) {
+        if (nextPartPattern && *nextPartPattern && !smatch(nextPartPattern, "**")) {
             return 0;
         }
     }
@@ -18451,7 +18419,9 @@ PUBLIC char *mprGetPortablePath(cchar *path)
 
 
 /*
-    This returns a path relative to the current working directory for the given path
+    Get a relative path path from an origin path to a destination. If a relative path cannot be obtained,
+    an absolute path to the destination will be returned. This happens if the paths cross drives.
+    Returns the supplied destArg modified to be relative to originArg.
  */
 PUBLIC char *mprGetRelPath(cchar *destArg, cchar *originArg)
 {
@@ -19422,11 +19392,10 @@ PUBLIC ssize mprWritePathContents(cchar *path, cchar *buf, ssize len, int mode)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/posix.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/posix.c ************/
+
 
 /**
     posix.c - Posix specific adaptions
@@ -19663,11 +19632,10 @@ PUBLIC void mprSetFilesLimit(int limit)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/printf.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/printf.c ************/
+
 
 /**
     printf.c - Printf routines safe for embedded programming
@@ -20635,11 +20603,10 @@ PUBLIC ssize print(cchar *fmt, ...)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/rom.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/rom.c ************/
+
 
 /*
     rom.c - ROM File system
@@ -20956,11 +20923,10 @@ void romDummy() {}
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/select.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/select.c ************/
+
 
 /**
     select.c - Wait for I/O by using select.
@@ -21298,11 +21264,10 @@ void selectDummy() {}
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/signal.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/signal.c ************/
+
 
 /**
     signal.c - Signal handling for Unix systems
@@ -21685,11 +21650,10 @@ static void standardSignalHandler(void *ignored, MprSignal *sp)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/socket.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/socket.c ************/
+
 
 /**
     socket.c - Convenience class for the management of sockets
@@ -23650,11 +23614,10 @@ PUBLIC void mprVerifySslDepth(MprSsl *ssl, int depth)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/string.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/string.c ************/
+
 
 /**
     string.c - String routines safe for embedded programming
@@ -24751,11 +24714,10 @@ PUBLIC void serase(char *str)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/thread.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/thread.c ************/
+
 
 /**
     thread.c - Primitive multi-threading support for Windows
@@ -25820,11 +25782,10 @@ PUBLIC ssize mprGetBusyWorkerCount()
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/time.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/time.c ************/
+
 
 /**
     time.c - Date and Time handling
@@ -27658,11 +27619,10 @@ PUBLIC int gettimeofday(struct timeval *tv, struct timezone *tz)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/vxworks.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/vxworks.c ************/
+
 
 /**
     vxworks.c - Vxworks specific adaptions
@@ -27909,11 +27869,10 @@ void vxworksDummy() {}
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/wait.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/wait.c ************/
+
 
 /*
     wait.c - Wait for I/O service.
@@ -28238,11 +28197,10 @@ PUBLIC void mprDoWaitRecall(MprWaitService *ws)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/wide.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/wide.c ************/
+
 
 /**
     unicode.c - Unicode support
@@ -29363,11 +29321,10 @@ PUBLIC char *awtom(wchar *src, ssize *len)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/win.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/win.c ************/
+
 
 /**
     win.c - Windows specific adaptions
@@ -29788,11 +29745,10 @@ void winDummy() {}
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/xml.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/xml.c ************/
+
 
 /**
     xml.c - A simple SAX style XML parser

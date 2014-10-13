@@ -151,7 +151,7 @@
     #define ME_TUNE "speed"
 #endif
 #ifndef ME_VERSION
-    #define ME_VERSION "0.8.3"
+    #define ME_VERSION "0.8.4"
 #endif
 
 /* Prefixes */
@@ -159,52 +159,52 @@
     #define ME_ROOT_PREFIX "/"
 #endif
 #ifndef ME_BASE_PREFIX
-    #define ME_BASE_PREFIX "/usr/local"
+    #define ME_BASE_PREFIX "${prefixes.root}/usr/local"
 #endif
 #ifndef ME_DATA_PREFIX
-    #define ME_DATA_PREFIX "/"
+    #define ME_DATA_PREFIX "${prefixes.root}"
 #endif
 #ifndef ME_STATE_PREFIX
-    #define ME_STATE_PREFIX "/var"
+    #define ME_STATE_PREFIX "${prefixes.root}/var"
 #endif
 #ifndef ME_APP_PREFIX
-    #define ME_APP_PREFIX "/usr/local/lib/me"
+    #define ME_APP_PREFIX "${prefixes.base}/lib/me"
 #endif
 #ifndef ME_VAPP_PREFIX
-    #define ME_VAPP_PREFIX "/usr/local/lib/me/0.8.3"
+    #define ME_VAPP_PREFIX "${prefixes.app}/0.8.4"
 #endif
 #ifndef ME_BIN_PREFIX
-    #define ME_BIN_PREFIX "/usr/local/bin"
+    #define ME_BIN_PREFIX "${prefixes.base}/bin"
 #endif
 #ifndef ME_INC_PREFIX
-    #define ME_INC_PREFIX "/usr/local/include"
+    #define ME_INC_PREFIX "${prefixes.base}/include"
 #endif
 #ifndef ME_LIB_PREFIX
-    #define ME_LIB_PREFIX "/usr/local/lib"
+    #define ME_LIB_PREFIX "${prefixes.base}/lib"
 #endif
 #ifndef ME_MAN_PREFIX
-    #define ME_MAN_PREFIX "/usr/local/share/man"
+    #define ME_MAN_PREFIX "${prefixes.base}/share/man"
 #endif
 #ifndef ME_SBIN_PREFIX
-    #define ME_SBIN_PREFIX "/usr/local/sbin"
+    #define ME_SBIN_PREFIX "${prefixes.base}/sbin"
 #endif
 #ifndef ME_ETC_PREFIX
-    #define ME_ETC_PREFIX "/etc/me"
+    #define ME_ETC_PREFIX "${prefixes.data}/etc/me"
 #endif
 #ifndef ME_WEB_PREFIX
-    #define ME_WEB_PREFIX "/var/www/me-default"
+    #define ME_WEB_PREFIX "${prefixes.state}/www/me"
 #endif
 #ifndef ME_LOG_PREFIX
-    #define ME_LOG_PREFIX "/var/log/me"
+    #define ME_LOG_PREFIX "${prefixes.state}/log/me"
 #endif
 #ifndef ME_SPOOL_PREFIX
-    #define ME_SPOOL_PREFIX "/var/spool/me"
+    #define ME_SPOOL_PREFIX "${prefixes.state}/spool/me"
 #endif
 #ifndef ME_CACHE_PREFIX
-    #define ME_CACHE_PREFIX "/var/spool/me/cache"
+    #define ME_CACHE_PREFIX "${prefixes.state}/spool/me/cache"
 #endif
 #ifndef ME_SRC_PREFIX
-    #define ME_SRC_PREFIX "me-0.8.3"
+    #define ME_SRC_PREFIX "me-0.8.4"
 #endif
 
 /* Suffixes */
@@ -226,7 +226,7 @@
 
 /* Profile */
 #ifndef ME_CONFIG_CMD
-    #define ME_CONFIG_CMD "me -d -q -platform macosx-x64-default -configure . --with est -gen xcode"
+    #define ME_CONFIG_CMD "me -d -q -platform macosx-x64-default -configure . --with est -gen make"
 #endif
 #ifndef ME_ME_PRODUCT
     #define ME_ME_PRODUCT 1
@@ -246,10 +246,10 @@
     #define ME_MINOR_VERSION 8
 #endif
 #ifndef ME_PATCH_VERSION
-    #define ME_PATCH_VERSION 3
+    #define ME_PATCH_VERSION 4
 #endif
 #ifndef ME_VNUM
-    #define ME_VNUM 03
+    #define ME_VNUM 04
 #endif
 
 /* Components */

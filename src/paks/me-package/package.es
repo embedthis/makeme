@@ -9,138 +9,167 @@ require ejs.unix
 require ejs.zlib
 
 /*
-    Deploy files to a directory
+    Deploy processes a manifest and copies files as directed.
+    Manifest items are NOT targets. But they share the same property set as 'file' type targets.
+    Manifest items support the following extra options:
+
+    set     The file set the item is part of
+    write   Write an expanded string literal to the destination
  */
-public function deploy(manifest, prefixes, package): Array {
+public function deploy(manifest, package): Array {
     let sets = me.options.sets 
     if (me.options.deploy) {
+        //  MOB - what is this?
         sets ||= package['sets-cross'] 
     } else {
         sets ||= package.sets
     }
-    trace('Copy', 'File sets: ' + sets)
+    if (!makeme.generating) {
+        trace('Copy', 'File sets: ' + sets)
+    }
     let home = App.dir
     if (manifest.home) {
         App.chdir(manifest.home)
     }
-    if (!(sets is RegExp)) {
-        sets = RegExp(sets.toString().replace(/[ ,]/g, '|'))
-    }
     let filelist = []
-    let made = {}
-    for each (item in manifest.files) {
-        if (me.options.verbose) {
-            dump("Consider", item)
-        }
-        let prior = App.dir
-        if (item.home) {
-            App.chdir(expand(item.home))
-        }
-        for (let [key,value] in item) {
-            if (value is String && value.contains('${')) {
-                item[key] = expand(value)
+    for each (let set in sets) {
+        let set = manifest.sets[set]
+        for each (item in set) {
+            if (item.linkin) {
+                trace('Warn', 'Manifest uses "linkin" property. Use "symlink" instead')
+                dump(item)
             }
-        }
-        item.made = made
-        item.filelist = filelist
-        let name = item.name
-        if (item.from && !(item.from is Array)) {
-            item.from = [item.from]
-        }
-        if (item.dir && !(item.dir is Array)) {
-            item.dir = [item.dir]
-        }
-        let name = item.name || serialize(item)
-        let enable = true
+            if (item.dir) {
+                print('WARNING: using deprecated "dir" property in manifest. Use "mkdir" instead')
+                dump(item)
+            }
+            if (item.copy) {
+                print('WARNING: using deprecated "copy" property in manifest. Use "perform" instead')
+                dump(item)
+            }
+            if (item.precopy) {
+                print('WARNING: using deprecated "precopy" property in manifest. Use "prePerform" instead')
+                item.prePerform = eval('(function(from, to, options) {' + item.precopy + ';})')
+            }
+            if (item.postcopy) {
+                print('WARNING: using deprecated "postcopy" property in manifest. Use "postPerform" instead')
+                print("EVAL", 'function(from, to, options) {' + item.postcopy + '\n}')
+                item.postPerform = eval('(function(from, to, options) {' + item.postcopy + ';})')
+            }
+            for (let [key,value] in item) {
+                if (value is String && value.contains('${') /*}*/) {
+                    item[key] = makeme.loader.expand(value)
+                }
+            }
+            if (me.options.verbose) {
+                dump("Consider", item)
+            }
+            let prior = App.dir
+            if (item.home) {
+                App.chdir(makeme.loader.expand(item.home))
+            }
+            if (item.ifdef && !(item.ifdef is Array)) {
+                item.ifdef = [item.ifdef]
+            }
+            if (item.mkdir && !(item.mkdir is Array)) {
+                item.mkdir = [item.mkdir]
+            }
+            item.filelist = filelist
+            let name = item.name || item.from || serialize(item)
+            let enable = true
 
-        for each (r in item.ifdef) {
-            if (!me.generating) {
-                if ((!me.targets[r] || !me.targets[r].enable)) {
-                    skip(name, 'Required extension ' + r + ' is not enabled')
-                    enable = false
-                    break
+            for each (r in item.ifdef) {
+                if (!makeme.generating) {
+                    if ((!me.targets[r] || !me.targets[r].enable)) {
+                        skip(name, 'Required component ' + r + ' is not enabled')
+                        enable = false
+                        break
+                    }
                 }
-            }
-        } 
-        if (enable && item.enable) {
-            if (!(item.enable is Boolean)) {
-                let script = expand(item.enable)
-                try {
-                    enable = eval(script) cast Boolean
-                } catch (e) {
-                    vtrace('Enable', 'Cannot run enable script for ' + name)
-                    App.log.debug(3, e)
-                    skip(name, 'Enable script failed to run')
-                    enable = false
+            } 
+            if (enable && item.enable) {
+                if (!(item.enable is Boolean)) {
+                    let script = makeme.loader.expand(item.enable)
+                    try {
+                        enable = eval(script) cast Boolean
+                    } catch (e) {
+                        vtrace('Enable', 'Cannot run enable script for ' + name)
+                        App.log.debug(3, e)
+                        skip(name, 'Enable script failed to run')
+                        enable = false
+                    }
                 }
+            } else if (item.enable === false) {
+                enable = false
             }
-        } else if (item.enable === false) {
-            enable = false
-        }
-        if (enable && sets) {
-            if (item.set) {
+/* UNUSED
+            if (enable && sets && item.set) {
                 if (!sets.exec(item.set)) {
                     enable = false
                     skip(name, 'Not in the requested file set: ' + sets)
                 }
             }
-        }
-        if (enable && App.uid != 0 && item.root && me.installing && !me.generating) {
-            trace('Skip', 'Must be root to copy ' + name)
-            skip(name, 'Must be administrator')
-            enable = false
-        }
-        if (enable) {
-            if (item.precopy) {
-                eval('require ejs.unix\n' + expand(item.precopy))
+*/
+            if (enable && App.uid != 0 && item.root && me.installing && !makeme.generating) {
+                trace('Skip', 'Must be root to copy ' + name)
+                skip(name, 'Must be administrator')
+                enable = false
             }
-            if (item.ifdef && me.generating) {
-                for each (r in item.ifdef) {
-                    if (me.platform.os == 'windows') {
-                        gencmd('!IF "$(ME_COM_' + r.toUpper() + ')" == "1"')
-                    } else {
-                        gencmd('if [ "$(ME_COM_' + r.toUpper() + ')" = 1 ]; then true')
+            if (enable) {
+                if (!item.from && item.prePerform) {
+                    item.prePerform.call(me.dir.src, item.from, item.to, item)
+                }
+                if (item.ifdef && makeme.generating) {
+                    for each (r in item.ifdef) {
+                        if (me.platform.os == 'windows') {
+                            genCmd('!IF "$(ME_COM_' + r.toUpper() + ')" == "1"')
+                        } else {
+                            genCmd('if [ "$(ME_COM_' + r.toUpper() + ')" = 1 ]; then true')
+                        }
                     }
                 }
-            }
-            if (item.dir) {
-                for each (let dir:Path in item.dir) {
-                    dir = expand(dir)
-                    makeDir(dir, item)
+                for each (let dir:Path in item.mkdir) {
+                    dir = makeme.loader.expand(dir)
                     strace('Create', dir.relativeTo(me.dir.top))
+                    makeDirectory(dir, item)
                 }
-            }
-            if (item.copy) {
-                eval('require ejs.unix\n' + expand(item.copy))
-            }
-            if (item.from) {
-                copy(item.from, item.to, item)
-            }
-            if (item.write) {
-                item.to = Path(expand(item.to))
-                let data = expand(item.write)
-                if (me.generating) {
-                    data = data.replace(/\n/g, '\\n')
-                    genScript("echo '" + data + "' >" + item.to)
-                } else {
-                    strace('Create', item.to)
-                    item.to.write(data)
-                    if (filelist) {
+
+                try {
+                    if (item.from) {
+                        copyFiles(item.from, item.to, item, '.')
+                    } else if (item.perform) {
+                        item.prePerform && item.prePerform.call(me.dir.src, item.from, item.to, item)
+                        item.perform.call(me.dir.src, item.from, item.to, item)
+                    }
+                } catch (e) {
+                    print('Error in deploy: ' + e)
+                    dump('ITEM', item)
+                    throw e
+                }
+                if (item.write) {
+                    item.to = Path(makeme.loader.expand(item.to))
+                    let data = makeme.loader.expand(item.write)
+                    if (makeme.generating) {
+                        data = data.replace(/\n/g, '\\n')
+                        genScript("echo '" + data + "' >" + item.to)
+                    } else {
+                        strace('Create', item.to)
+                        item.to.write(data)
                         filelist.push(item.to)
                     }
                 }
-            }
-            if (item.ifdef && me.generating) {
-                for each (r in item.ifdef.length) {
-                    if (me.platform.os == 'windows') {
-                        gencmd('!ENDIF')
-                    } else {
-                        gencmd('fi')
+                if (item.ifdef && makeme.generating) {
+                    for each (r in item.ifdef.length) {
+                        if (me.platform.os == 'windows') {
+                            genCmd('!ENDIF')
+                        } else {
+                            genCmd('fi')
+                        }
                     }
                 }
-            }
-            if (item.postcopy) {
-                eval('require ejs.unix\n' + expand(item.postcopy))
+                if (!item.from && item.postPerform) {
+                    item.postPerform.call(me.dir.src, item.from, item.to, item)
+                }
             }
             App.chdir(prior)
         }
@@ -154,22 +183,23 @@ function setupGlobals(manifest, package, prefixes) {
     for (pname in prefixes) {
         if (package.prefixes.contains(pname)) {
             me.globals[pname] = prefixes[pname]
-            if (!me.generating) {
+            if (!makeme.generating) {
                 if (me.target.name != 'uninstall') {
                     let prefix = Path(prefixes[pname])
-                    if (prefix.exists) {
-                        if (prefix.toString().contains(me.settings.name)) {
-                            safeRemove(prefix)
+                    if (pname == 'vapp' || pname == 'web' || pname == 'spool' || pname == 'src' || pname == 'staging') {
+                        if (prefix.exists) {
+                            if (prefix.toString().contains(me.settings.name)) {
+                                safeRemove(prefix)
+                            }
                         }
                     }
                     //  TODO - there should be an option in settings to require root
-                    if (Config.OS != 'windows' && App.uid != 0 && me.installing && !me.generating) {
+                    if (Config.OS != 'windows' && App.uid != 0 && me.installing) {
                         throw 'Must run as root. Use "sudo me install"'
                     }
-                    //  TODO remove generating here 
-                    if (me.generating || !prefixes[pname].exists) {
+                    if (!prefixes[pname].exists) {
                         if (prefixes[pname].contains(me.settings.name)) {
-                            makeDir(prefixes[pname])
+                            prefixes[pname].makeDir()
                         }
                     }
                 }
@@ -191,21 +221,17 @@ function setupManifest(kind, package, prefixes) {
     let manifest
     if (package.inherit) {
         let inherit = me[package.inherit]
-        manifest = blend(inherit.clone(), me.manifest.clone(), {combine: true})
-        manifest.files = (inherit.files + me.manifest.files).clone(true)
+        manifest = me.manifest.clone()
+        for (let [key,value] in manifest.sets) {
+            if (!key.match(/^[\+\-\=]/)) {
+                manifest.sets['+' + key] = value
+                delete manifest.sets[key]
+            }
+        }
+        manifest = blend(inherit.clone(), manifest, {combine: true})
         package.prefixes = (inherit.packages[kind].prefixes + package.prefixes).unique()
     } else {
         manifest = me.manifest.clone()
-    }
-    for each (item in manifest.files) {
-        if (item.ifdef && !(item.ifdef is Array)) {
-            item.ifdef = [item.ifdef]
-        }
-        if (item.filter && item.filter is RegExp) {
-            print('Warning: manfiest contains deprecated "filter" regular expression. Use "remove" instead.')
-            item.remove = item.filter
-            delete item.filter
-        }
     }
     return manifest
 }
@@ -242,8 +268,8 @@ function setupPackagePrefixes(kind, package) {
 
 public function setupPackage(kind) {
     if (me.settings.manifest) {
-        b.loadMeFile(me.dir.src.join(me.settings.manifest))
-        b.runScript(me.scripts, "loaded")
+        makeme.loader.blendFile(me.dir.src.join(me.settings.manifest))
+        makeme.loader.runScript('loaded')
     }
     let package = me.manifest.packages[kind]
     if (package && package.platforms) {
@@ -267,7 +293,7 @@ public function setupPackage(kind) {
 
 
 function makeFiles(where, root, files, prefixes) {
-    if (!me.generating && !me.options.deploy) {
+    if (!makeme.generating && !me.options.deploy) {
         let flog = where.join('files.log')
         files += [flog]
         files = files.sort().unique().filter(function(f) f.startsWith(root))
@@ -281,7 +307,7 @@ public function packageBinary() {
     let [manifest, package, prefixes] = setupPackage('binary')
     if (package) {
         trace('Create', me.settings.title + ' Binary')
-        let files = deploy(manifest, prefixes, package)
+        let files = deploy(manifest, package)
         makeFiles(prefixes.vapp, prefixes.root, files, prefixes)
         /* Do Tar first as native package will add files */
         makeTarPackage(prefixes)
@@ -294,7 +320,7 @@ public function packageSource() {
     let [manifest, package, prefixes] = setupPackage('source')
     if (package) {
         trace('Create', me.settings.title + ' Source')
-        deploy(manifest, prefixes, package)
+        deploy(manifest, package)
         makeSimplePackage(package, prefixes, 'src')
     }
 }
@@ -310,7 +336,7 @@ function cachePackage(package, prefixes, fmt) {
     try {
         trace('Cache', me.settings.title + ' ' + version)
         App.chdir(staging)
-        run('pak -f cache ' + me.platform.vname)
+        run('pak -q -f cache ' + me.platform.vname)
     } finally {
         App.chdir(home)
     }
@@ -321,7 +347,7 @@ public function cache() {
     let [manifest, package, prefixes] = setupPackage('pak')
     if (package) {
         trace('Package', me.settings.title + ' Pak')
-        deploy(manifest, prefixes, package)
+        deploy(manifest, package)
         cachePackage(package, prefixes, 'pak')
     }
 }
@@ -330,14 +356,14 @@ public function packagePak() {
     let [manifest, package, prefixes] = setupPackage('pak')
     if (package) {
         trace('Package', me.settings.title + ' Pak')
-        deploy(manifest, prefixes, package)
+        deploy(manifest, package)
         makeSimplePackage(package, prefixes, 'pak')
     }
 }
 
 
 function checkRoot() {
-    if (Config.OS != 'windows' && App.uid != 0 && me.prefixes.root.same('/') && !me.generating) {
+    if (Config.OS != 'windows' && App.uid != 0 && me.prefixes.root.same('/') && !makeme.generating) {
         throw 'Must run as root. Use "sudo me install"'
     }
 }
@@ -352,16 +378,16 @@ public function installBinary() {
     let [manifest, package, prefixes] = setupPackage('install')
     if (package) {
         checkRoot()
-        if (!me.generating) {
+        if (!makeme.generating) {
             if (me.options.deploy) {
                 trace('Deploy', me.settings.title + ' to "' + me.prefixes.root + '"')
             } else {
                 trace('Install', me.settings.title)
             }
         }
-        files = deploy(manifest, me.prefixes, package) 
+        files = deploy(manifest, package) 
         makeFiles(prefixes.vapp, prefixes.root, files, me.prefixes)
-        if (!me.generating) {
+        if (!makeme.generating) {
             trace('Complete', me.settings.title + ' installed')
         }
     }
@@ -374,12 +400,12 @@ public function uninstallBinary() {
     let name = (me.platform.os == 'windows') ? me.settings.title : me.settings.name
     if (package) {
         checkRoot()
-        if (!me.generating) {
+        if (!makeme.generating) {
             trace('Uninstall', me.settings.title)
         }
         let fileslog = me.prefixes.vapp.join('files.log')
 
-        if (me.generating) {
+        if (makeme.generating) {
             for each (n in ['web', 'spool', 'cache', 'log']) {
                 if (package.prefixes.contains(n)) {
                     removeDir(me.prefixes[n])
@@ -411,7 +437,7 @@ public function uninstallBinary() {
             if (!package.prefixes.contains(key)) {
                 continue
             }
-            if (me.generating) {
+            if (makeme.generating) {
                 if (key == 'vapp') {
                     continue
                 }
@@ -424,7 +450,7 @@ public function uninstallBinary() {
         }
         updateLatestLink()
         removeDir(me.prefixes.app, {empty: true})
-        if (!me.generating) {
+        if (!makeme.generating) {
             trace('Complete', me.settings.title + ' uninstalled')
         }
     }
@@ -435,7 +461,7 @@ public function uninstallBinary() {
 function updateLatestLink() {
     let latest = me.prefixes.app.join('latest')
     let version
-    if (!me.generating) {
+    if (!makeme.generating) {
         version = me.prefixes.app.files('*', {include: /\d+\.\d+\.\d+/}).sort().pop()
     }
     if (version) {
@@ -460,13 +486,13 @@ function makeSimplePackage(package, prefixes, fmt) {
     if (!me.options.keep) {
         name.remove()
     }
-    trace('Package', zname)
+    trace('Package', zname.relativeTo(me.dir.top))
 
     let generic = me.dir.rel.join(me.settings.name + '-' + fmt + '.tgz')
     generic.remove()
     zname.link(generic)
     me.dir.rel.join('md5-' + me.platform.vname + '-' + fmt + '.tgz.txt').write(md5(zname.readString()))
-    trace('Package', generic)
+    trace('Package', generic.relativeTo(me.dir.top))
 }
 
 
@@ -607,19 +633,19 @@ function packageMacosx(prefixes) {
     }
     me.PACKAGE_SIZE = size
     let opak = me.dir.src.join('package/macosx')
-    copy(opak.join('background.png'), staging)
+    copyFiles(opak.join('background.png'), staging)
     for each (f in opak.files('*.rtf')) {
-        copy(f, staging)
+        copyFiles(f, staging)
     }
     let pm = s.name + '.pmdoc'
     let pmdoc = staging.join(pm)
     if (opak.join(pm).exists) {
-        copy(opak.join(pm + '/*'), pmdoc, {expand: true, hidden: true})
+        copyFiles(opak.join(pm + '/*'), pmdoc, {patch: true, hidden: true})
         createMacContents(prefixes)
     }
     let scripts = staging.join('scripts')
     scripts.makeDir()
-    copy(opak.join('scripts/*'), scripts, {expand: true})
+    copyFiles(opak.join('scripts/*'), scripts, {patch: true})
 
     /* Remove extended attributes */
     Cmd.sh("cd " + staging + "; for i in $(ls -Rl@ | grep '^    ' | awk '{print $1}' | sort -u); do \
@@ -642,21 +668,21 @@ function packageMacosx(prefixes) {
             ' --id com.' + s.company + '.' + s.name + '.pkg --root-volume-only --no-relocate' +
             ' --discard-forks --out ' + outfile)
     } else {
-        copy(opak.join('distribution.xml'), staging, {expand: true})
+        copyFiles(opak.join('distribution.xml'), staging, {patch: true})
         let sign = ''
         if (App.uid == 0) {
             sign += '--sign "Developer ID Installer: ' + s.company + '"'
         }
         run('pkgbuild --quiet --install-location / ' + 
             '--root ' + staging.join(s.name + '-' + s.version, 'contents') + ' ' + 
-            '--identifier com.' + s.who + '.' + s.name + '.pkg ' +
-            '--version ' + b.makeVersion(s.version) + ' ' +
+            '--identifier com.' + s.company + '.' + s.name + '.pkg ' +
+            '--version ' + makeVersion(s.version) + ' ' +
             '--scripts ' + scripts + ' ' + staging.join(s.name + '.pkg'))
 
         run('productbuild --quiet ' + sign + ' ' +
             '--distribution ' + staging.join('distribution.xml') + ' ' + 
             '--package-path ' + staging + ' ' + 
-            '--resources package/macosx ' + outfile)
+            '--resources . ' + outfile)
 
         if (sign) {
             run('pkgutil --check-signature ' + outfile, {filter: true})
@@ -695,7 +721,7 @@ function packageFedora(prefixes) {
 
     let opak = me.dir.src.join('package/' + me.platform.os)
     let spec = RPM.join('SPECS', base).joinExt('spec', true)
-    copy(opak.join('rpm.spec'), spec, {expand: true, permissions: 0644})
+    copyFiles(opak.join('rpm.spec'), spec, {patch: true, permissions: 0644})
 
     let files = prefixes.root.files('**')
     let fileList = RPM.join('BUILD/binFiles.txt')
@@ -748,9 +774,9 @@ function packageUbuntu(prefixes) {
     let DEBIAN = prefixes.root.join('DEBIAN')
     let opak = me.dir.src.join('package/' + me.platform.os)
 
-    copy(opak.join('deb.bin/conffiles'), DEBIAN.join('conffiles'), {expand: true, permissions: 0644})
-    copy(opak.join('deb.bin/control'), DEBIAN, {expand: true, permissions: 0755})
-    copy(opak.join('deb.bin/p*'), DEBIAN, {expand: true, permissions: 0755})
+    copyFiles(opak.join('deb.bin/conffiles'), DEBIAN.join('conffiles'), {patch: true, permissions: 0644})
+    copyFiles(opak.join('deb.bin/control'), DEBIAN, {patch: true, permissions: 0755})
+    copyFiles(opak.join('deb.bin/p*'), DEBIAN, {patch: true, permissions: 0755})
 
     let outfile = me.dir.rel.join(base).joinExt('deb', true)
     trace('Package', outfile)
@@ -769,9 +795,9 @@ function packageWindows(prefixes) {
     let wpak = me.dir.src.join('package/' + me.platform.os)
     let media = prefixes.media
 
-    copy(me.dir.src.join('LICENSE.md'), media)
+    copyFiles(me.dir.src.join('LICENSE.md'), media)
     let iss = media.join('install.iss')
-    copy(wpak.join('install.iss'), iss, {expand: true})
+    copyFiles(wpak.join('install.iss'), iss, {patch: true})
 
     let files = prefixes.root.files('**', {exclude: /\/$/, missing: undefined})
 
@@ -812,7 +838,6 @@ function packageWindows(prefixes) {
     /* Wrap in a zip archive */
     let zipfile = outfile.joinExt('zip', true)
     zipfile.remove()
-    trace('Package', zipfile)
     run(['zip', '-q', zipfile.basename, outfile.basename], {dir: me.dir.rel, filter: true})
     me.dir.rel.join('md5-' + base).joinExt('exe.zip.txt', true).write(md5(zipfile.readString()))
     outfile.remove()
@@ -879,6 +904,21 @@ function skip(name, msg) {
     }
 }
 
+
+let VER_FACTOR = 1000
+
+public function makeVersion(version: String): Number {
+    let parts = version.trim().split(".")
+    let patch = 0, minor = 0
+    let major = parts[0] cast Number
+    if (parts.length > 1) {
+        minor = parts[1] cast Number
+    }
+    if (parts.length > 2) {
+        patch = parts[2] cast Number
+    }
+    return (((major * VER_FACTOR) + minor) * VER_FACTOR) + patch
+}
 
 /*
     @copy   default

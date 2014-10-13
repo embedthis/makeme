@@ -1,12 +1,6 @@
 /*
-    ejs.h -- Embedthis Ejscript Library Source
-
-    This file is a catenation of all the source code. Amalgamating into a
-    single file makes embedding simpler and the resulting application faster.
-
-    Prepared by: orion.local
+ * Embedthis Ejscript Library Source
  */
-
 #include "me.h"
 #if ME_COM_EJS
 
@@ -20,12 +14,6 @@
 #include "pcre.h"
 #include "zlib.h"
 
-
-/************************************************************************/
-/*
-    Start of file "src/ejsByteCode.h"
- */
-/************************************************************************/
 
 /*
     ejsByteCode.h - Ejscript VM Byte Code
@@ -269,12 +257,6 @@ typedef enum EjsOpCode {
 
     @end
  */
-
-/************************************************************************/
-/*
-    Start of file "src/ejsByteCodeTable.h"
- */
-/************************************************************************/
 
 /**
     ejsByteCodeTable.h - Master Byte Code Table
@@ -564,12 +546,6 @@ PUBLIC EjsOptable *ejsGetOptable();
 
     @end
  */
-
-/************************************************************************/
-/*
-    Start of file "src/ejs.h"
- */
-/************************************************************************/
 
 /*
     ejs.h - Ejscript header
@@ -1924,6 +1900,7 @@ PUBLIC struct EjsString *ejsObjToJSON(Ejs *ejs, EjsObj *obj, int argc, EjsObj **
 #define EJS_BLEND_SUB           0x100       /**< Flag for ejsBlendObject for "-" property blend */
 #define EJS_BLEND_ASSIGN        0x200       /**< Flag for ejsBlendObject for "=" property blend */
 #define EJS_BLEND_COND_ASSIGN   0x400       /**< Flag for ejsBlendObject for "?" property blend */
+#define EJS_BLEND_PUBLIC        0x800       /**< Flag for ejsBlendObject for blending into public properties */
 
 //  TODO - rename ejsBlend
 /**
@@ -2294,6 +2271,7 @@ PUBLIC EjsString *ejsToJSON(Ejs *ejs, EjsAny *obj, EjsObj *options);
 #define EJS_JSON_SHOW_SUBCLASSES    0x10    /**< ejsSerialize flag to include subclass properties */
 #define EJS_JSON_SHOW_NOQUOTES      0x20    /**< ejsSerialize flag to omit quotes if property has no spaces */
 #define EJS_JSON_SHOW_REGEXP        0x40    /**< ejsSerialize flag to emit native RegExp literals */
+#define EJS_JSON_SHOW_NULLS         0x80    /**< ejsSerialize flag to emit null properties */
 
 /**
     Serialize a variable into JSON format
@@ -2305,6 +2283,7 @@ PUBLIC EjsString *ejsToJSON(Ejs *ejs, EjsAny *obj, EjsObj *options);
         <li> EJS_JSON_SHOW_HIDDEN - Include hidden properties </li>
         <li> EJS_JSON_SHOW_NOQUOTES - Omit quotes on properties if possible</li> 
         <li> EJS_JSON_SHOW_NAMESPACES - Include namespaces in property names </li>
+        <li> EJS_JSON_SHOW_NULLS      - Include null properties </li>
         <li> EJS_JSON_SHOW_REGEXP - Emit native regular expression literals</li>
         <li> EJS_JSON_SHOW_PRETTY - Use human-readable multiline presentation </li> 
         <li> EJS_JSON_SHOW_SUBCLASSES - Include subclass properties </li>
@@ -6018,12 +5997,6 @@ PUBLIC int64 ejsSwapInt64(Ejs *ejs, int64 word);
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/ejs.web/ejsWeb.h"
- */
-/************************************************************************/
-
 /**
     ejsWeb.h -- Header for the Ejscript Web Framework
     Copyright (c) All Rights Reserved. See details at the end of the file.
@@ -6248,12 +6221,6 @@ extern void ejsSendRequestErrorEvent(Ejs *ejs, EjsRequest *req);
 
     @end
  */
-
-/************************************************************************/
-/*
-    Start of file "src/ejsCompiler.h"
- */
-/************************************************************************/
 
 /*
     ejsCompiler.h - Internal compiler header.
@@ -7165,4 +7132,5 @@ PUBLIC void     ecAdjustCodeLength(EcCompiler *cp, int adj);
 
     @end
  */
+
 #endif /* ME_COM_EJS */

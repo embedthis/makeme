@@ -14,7 +14,7 @@ public function apidoc(dox: Path, headers, title: String, tags) {
     let output
     if (headers is Array) {
         output = api.join(name + '.h')
-        copy(headers, output, { cat: true, })
+        copy(headers, output, { append: true, })
         headers = output
     }
     rmdir([api.join('html'), api.join('xml')])

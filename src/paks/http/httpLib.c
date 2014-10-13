@@ -1,19 +1,13 @@
 /*
-    httpLib.c -- Embedthis Http Library Source
-
-    This file is a catenation of all the source code. Amalgamating into a
-    single file makes embedding simpler and the resulting application faster.
-
-    Prepared by: orion.local
+ * Embedthis Http Library Source
  */
 
 #include "http.h"
 
-/************************************************************************/
-/*
-    Start of file "src/service.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/service.c ************/
+
 
 /*
     service.c -- Http service. Includes timer for expired requests.
@@ -1283,11 +1277,10 @@ PUBLIC int httpSetPlatformDir(cchar *path)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/actionHandler.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/actionHandler.c ************/
+
 
 /*
     actionHandler.c -- Action handler
@@ -1370,11 +1363,10 @@ PUBLIC int httpOpenActionHandler()
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/auth.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/auth.c ************/
+
 
 /*
 
@@ -2051,11 +2043,10 @@ PUBLIC int formParse(HttpConn *conn, cchar **username, cchar **password)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/basic.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/basic.c ************/
+
 
 /*
     basic.c - Basic Authorization 
@@ -2148,11 +2139,10 @@ PUBLIC bool httpBasicSetHeaders(HttpConn *conn, cchar *username, cchar *password
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/cache.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/cache.c ************/
+
 
 /*
     cache.c -- Http request route caching
@@ -2715,11 +2705,10 @@ static cchar *setHeadersFromCache(HttpConn *conn, cchar *content)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/chunkFilter.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/chunkFilter.c ************/
+
 
 /*
     chunkFilter.c - Transfer chunk endociding filter.
@@ -2985,11 +2974,10 @@ static void setChunkPrefix(HttpQueue *q, HttpPacket *packet)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/client.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/client.c ************/
+
 
 /*
     client.c -- Client side specific support.
@@ -3541,11 +3529,10 @@ PUBLIC int httpWait(HttpConn *conn, int state, MprTicks timeout)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/config.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/config.c ************/
+
 
 /*
     config.c -- Http JSON Configuration File Parsing
@@ -5232,11 +5219,10 @@ PUBLIC int httpInitParser()
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/conn.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/conn.c ************/
+
 
 /*
     conn.c -- Connection module to handle individual HTTP connections.
@@ -6209,11 +6195,10 @@ PUBLIC void httpSetConnReqData(HttpConn *conn, void *data)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/digest.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/digest.c ************/
+
 
 /*
     digest.c - Digest Authorization
@@ -6624,11 +6609,10 @@ static char *calcDigest(HttpConn *conn, HttpDigest *dp, cchar *username)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/dirHandler.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/dirHandler.c ************/
+
 
 /*
     dirHandler.c - Directory listing handler
@@ -7270,11 +7254,10 @@ PUBLIC int httpOpenDirHandler()
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/endpoint.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/endpoint.c ************/
+
 
 /*
     endpoint.c -- Create and manage listening endpoints.
@@ -7714,11 +7697,10 @@ PUBLIC void httpSetInfoLevel(int level)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/error.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/error.c ************/
+
 
 /*
     error.c -- Http error handling
@@ -7949,11 +7931,10 @@ PUBLIC void httpMemoryError(HttpConn *conn)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/fileHandler.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/fileHandler.c ************/
+
 
 /*
     fileHandler.c -- Static file content handler
@@ -8484,11 +8465,10 @@ PUBLIC int httpOpenFileHandler()
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/host.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/host.c ************/
+
 
 /*
     host.c -- Host class for all HTTP hosts
@@ -8893,11 +8873,10 @@ PUBLIC void httpSetStreaming(HttpHost *host, cchar *mime, cchar *uri, bool enabl
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/monitor.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/monitor.c ************/
+
 
 /*
     monitor.c -- Monitor and defensive management.
@@ -9602,11 +9581,10 @@ PUBLIC int httpAddRemedies()
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/netConnector.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/netConnector.c ************/
+
 
 /*
     netConnector.c -- General network connector.
@@ -9936,11 +9914,10 @@ static void adjustNetVec(HttpQueue *q, ssize written)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/packet.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/packet.c ************/
+
 
 /*
     packet.c -- Queue support routines. Queues are the bi-directional data flow channels for the pipeline.
@@ -10460,11 +10437,10 @@ bool httpIsLastPacket(HttpPacket *packet)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/pam.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/pam.c ************/
+
 
 /*
     authPam.c - Authorization using PAM (Pluggable Authorization Module)
@@ -10622,11 +10598,10 @@ static int pamChat(int msgCount, const struct pam_message **msg, struct pam_resp
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/passHandler.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/passHandler.c ************/
+
 
 /*
     passHandler.c -- Pass through handler
@@ -10747,11 +10722,10 @@ PUBLIC int httpOpenPassHandler()
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/pipeline.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/pipeline.c ************/
+
 
 /*
     pipeline.c -- HTTP pipeline processing. 
@@ -11184,11 +11158,10 @@ static bool matchFilter(HttpConn *conn, HttpStage *filter, HttpRoute *route, int
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/queue.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/queue.c ************/
+
 
 /*
     queue.c -- Queue support routines. Queues are the bi-directional data flow channels for the pipeline.
@@ -11693,11 +11666,10 @@ PUBLIC bool httpVerifyQueue(HttpQueue *q)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/rangeFilter.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/rangeFilter.c ************/
+
 
 /*
     rangeFilter.c - Ranged request filter.
@@ -12010,11 +11982,10 @@ static bool fixRangeLength(HttpConn *conn)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/route.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/route.c ************/
+
 
 /*
     route.c -- Http request routing 
@@ -15431,11 +15402,10 @@ PUBLIC MprTicks httpGetTicks(cchar *value)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/rx.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/rx.c ************/
+
 
 /*
     rx.c -- Http receiver. Parses http requests and client responses.
@@ -17393,11 +17363,10 @@ static int sendContinue(HttpConn *conn)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/sendConnector.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/sendConnector.c ************/
+
 
 /*
     sendConnector.c -- Send file connector.
@@ -17748,11 +17717,10 @@ PUBLIC void httpSendOutgoingService(HttpQueue *q) {}
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/session.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/session.c ************/
+
 
 /**
     session.c - Session data storage
@@ -18172,11 +18140,10 @@ PUBLIC bool httpCheckSecurityToken(HttpConn *conn)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/stage.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/stage.c ************/
+
 
 /*
     stage.c -- Stages are the building blocks of the Http request pipeline.
@@ -18347,11 +18314,10 @@ PUBLIC HttpStage *httpCreateConnector(cchar *name, MprModule *module)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/trace.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/trace.c ************/
+
 
 /*
     trace.c -- Trace data
@@ -19060,11 +19026,10 @@ PUBLIC void httpCommonTraceFormatter(HttpTrace *trace, HttpConn *conn, cchar *ty
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/tx.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/tx.c ************/
+
 
 /*
     tx.c - Http transmitter for server responses and client requests.
@@ -20098,11 +20063,10 @@ PUBLIC ssize httpWrite(HttpQueue *q, cchar *fmt, ...)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/uploadFilter.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/uploadFilter.c ************/
+
 
 /*
     uploadFilter.c - Upload file filter.
@@ -20760,11 +20724,10 @@ static char *getBoundary(char *buf, ssize bufLen, char *boundary, ssize boundary
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/uri.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/uri.c ************/
+
 
 /*
     uri.c - URI manipulation routines
@@ -21725,11 +21688,10 @@ static char *actionRoute(HttpRoute *route, cchar *controller, cchar *action)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/user.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/user.c ************/
+
 
 /*
     user.c - User and Role management
@@ -21968,11 +21930,10 @@ PUBLIC void httpSetConnUser(HttpConn *conn, HttpUser *user)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/var.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/var.c ************/
+
 
 /*
     var.c -- Manage the request variables
@@ -22329,11 +22290,10 @@ PUBLIC void httpRemoveAllUploadedFiles(HttpConn *conn)
     @end
  */
 
-/************************************************************************/
-/*
-    Start of file "src/webSockFilter.c"
- */
-/************************************************************************/
+
+
+/********* Start of file src/webSockFilter.c ************/
+
 
 /*
     webSockFilter.c - WebSockets filter support

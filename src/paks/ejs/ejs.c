@@ -1,19 +1,7 @@
 /*
-    ejs.c -- Embedthis Ejscript Shell Command
-
-    This file is a catenation of all the source code. Amalgamating into a
-    single file makes embedding simpler and the resulting application faster.
-
-    Prepared by: orion.local
+ * Embedthis Ejscript Shell Command
  */
-
 #include "ejs.h"
-
-/************************************************************************/
-/*
-    Start of file "src/cmd/ejs.c"
- */
-/************************************************************************/
 
 /**
     ejs.c - Ejscript shell

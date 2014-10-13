@@ -18,12 +18,12 @@ Me.load({
             depends: [ 'libmpr', 'libpcre' ],
             ifdef:   [ 'http' ],
             scripts: {
-                postblend: "
+                postblend: `
                     let s = me.settings
-                    if (me.settings.compiler.hasPam && me.settings.http && me.settings.http.pam) {
+                    if (s && s.compiler && s.compiler.hasPam && s.http && s.http.pam) {
                         me.target.libraries.push('pam')
                     }
-                ",
+                `,
             },
         },
 

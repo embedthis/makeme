@@ -75,7 +75,7 @@ function findWindowsCompiler(results) {
             Also: http://blogs.msdn.com/b/david.wang/archive/2006/03/26/howto-detect-process-bitness.aspx
             Note: With VS 2013 (12), MS removed the 64 bit compilers from the express editions.
          */
-        search = me.dir.programFiles32.files('Microsoft Visual Studio*/VC/Bin').sort(sortVersions).reverse()
+        search = me.dir.programFiles32.files('Microsoft Visual Studio*/VC/*in').sort(sortVersions).reverse()
         if (!search || search.length == 0) {
             throw 'Cannot find Visual Studio installation'
         }
@@ -97,7 +97,7 @@ function findWindowsCompiler(results) {
     if (Config.OS != 'windows') {
         path = 'cl.exe'
         vsdir = Path('$(VS)')
-        vsbin = vsdir.join('VC/Bin'),
+        vsbin = vsdir.join('VC/bin'),
         vslib = vsdir.join('VC/lib')
         version = '0'
     } else {
@@ -131,7 +131,7 @@ function findWindowsCompiler(results) {
     results.definitions = definitions
     results.version = version
     results.crt = version.replace('.', '')
-    results.dir = vsdir
+    results.vsdir = vsdir
     results.search = search
 
     return results
@@ -218,7 +218,7 @@ function setCompilerOptions(results, settings) {
     let platform = me.platform
     let arch = platform.arch
 
-    Me.load({ settings: { compiler: settings }})
+    makeme.loader.blendObj({ settings: { compiler: settings }})
 
     results.compiler =  [ ]
     results.defines =   [ ]

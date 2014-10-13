@@ -5,21 +5,21 @@
 Me.load({
     targets: {
         clean: {
-            action: "
+            action: `
                 builtin('cleanTargets')
                 safeRemove('${REL}')
                 safeRemove('${PKG}')
-            ",
+            `,
         },
 
         clobber: {
             depends: ['clean'],
-            action: "
+            action: `
                 rmdir(['${TOP}/*-*-debug', '${TOP}/*-*-release'])
                 rm('${TOP}/*-*.me')
                 rm('${TOP}/*.dmp')
                 rmdir('${TOP}/releases')
-            "
+            `
         },
 
         /* Compatibility for those familiar with make */

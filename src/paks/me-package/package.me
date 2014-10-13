@@ -3,18 +3,17 @@
  */
 
 Me.load({
-    blend: [
-        'manifest.me',
-    ],
-
     modules: [
         'package.es',
     ],
 
     scripts: {
-        postloadall: `
+        loaded: `
             if (me.platform.like == 'windows') {
                 me.prefixes = me['windows-prefixes']
+                for (let [name,value] in me.prefixes) {
+                    me.prefixes[name] = Path(value)
+                }
             }
         `,
     },
@@ -39,7 +38,7 @@ Me.load({
         sbin:       '${prefixes.base}/sbin',
 
         etc:        '${prefixes.data}/etc/${settings.name}',
-        web:        '${prefixes.state}/www/${settings.name}-default',
+        web:        '${prefixes.state}/www/${settings.name}',
         log:        '${prefixes.state}/log/${settings.name}',
         spool:      '${prefixes.state}/spool/${settings.name}',
         cache:      '${prefixes.state}/spool/${settings.name}/cache',
