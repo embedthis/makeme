@@ -636,7 +636,7 @@ public class Builder {
     public function prepBuild() {
         if (!me.settings.configured && !options.configure) {
             /* Auto configure */
-            makeme.overlay('configure.es')
+            makeme.overlay('Configure.es')
             let configure = new Configure
             configure.findComponents()
         }
