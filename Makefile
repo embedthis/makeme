@@ -29,7 +29,7 @@ ifeq ($(ARCH),)
 endif
 
 ifeq ($(OS),windows)
-    MAKE	:= MAKEFLAGS= projects/windows.bat $(ARCH)
+    MAKE	:= MAKEFLAGS= projects/windows.bat $(ARCH) nmake nmake
     EXT 	:= nmake
 else
 	MAKE    := $(shell if which gmake >/dev/null 2>&1; then echo gmake ; else echo make ; fi) --no-print-directory
@@ -60,6 +60,7 @@ version:
 
 boot:
 	@rm -fr build/$(OS)-$(ARCH)-*
+	echo MAKE IS $(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) compile
 	@$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) compile
 	build/$(OS)-$(ARCH)-$(PROFILE)/bin/me --release configure build
 
