@@ -11,19 +11,27 @@ require ejs.version
 require embedthis.me.script
 
 /**
-    Builder Class
-    This implements the core building functions for MakeMe
+    The Builder Class implements the core building functions for MakeMe.
     @stability Prototype
   */
 public class Builder {
     
+    /** Default goal to build all. Set to 'all' */
     public static const ALL = 'all'
 
+    /** List of targets to build by default. Defaults to 'exe', 'file', 'lib' and 'header' */
     public static const TargetsToBuildByDefault = { exe: true, file: true, lib: true, header: true }
+
+    /** List of targets to clean by default. Defaults to 'exe', 'file', 'lib' and 'obj' */
     public static const TargetsToClean = { exe: true, file: true, lib: true, obj: true }
 
+    /** List of goals for this build */
     public var goals: Array = []
+
+    /** Local platform string of the form OS-ARCH-PROFILE */
     public var localPlatform: String
+
+    /** Top-level targets to build */
     public var topTargets: Array
 
     private var expandMissing = null
@@ -32,6 +40,9 @@ public class Builder {
     private var options: Object 
     private var selectedTargets: Array
 
+    /** Builder constructor 
+        @hide
+    */
     function Builder() {
         this.loader = makeme.loader
         options = makeme.options
@@ -56,6 +67,9 @@ public class Builder {
         }
     }
 
+    /**
+        Build all required targets for the requested goals
+     */
     public function build() {
         if (options.hasOwnProperty('get')) {
             eval('print(serialize(me.' + options.get + ', {pretty: true, quotes: false}))')
@@ -326,7 +340,7 @@ public class Builder {
         def.write('LIBRARY ' + target.path.basename + '\nEXPORTS\n  ' + result.sort().join('\n  ') + '\n')
     }
 
-    public function enableTarget(target: Target) {
+    function enableTarget(target: Target) {
         let reported = false
         for each (item in target.ifdef) {
             if (!me.targets[item] || !me.targets[item].enable) {
@@ -564,6 +578,12 @@ public class Builder {
         }
     }
 
+    /**
+        Map library paths to a base
+        @param libpaths Array of library search paths
+        @param base Base directory from which the paths should be resolved. Defaults to the current directory.
+        @return Linker library search path options
+     */
     public function mapLibPaths(libpaths: Array, base: Path = App.dir): String {
         if (me.platform.os == 'windows') {
             return libpaths.map(function(p) '"-libpath:' + p.compact(base).portable + '"').join(' ')
@@ -633,12 +653,21 @@ public class Builder {
         return libs
     }
 
+    /**
+        Prepare for a build Must be called before $build.
+        @hide
+     */
     public function prepBuild() {
         if (!me.settings.configured && !options.configure) {
             /* Auto configure */
             makeme.overlay('Configure.es')
             let configure = new Configure
             configure.findComponents()
+            for each (target in me.targets) {
+                if (target.type == 'exe' || target.type == 'lib' || target.type == 'obj') {
+                    loader.inheritCompSettings(target, me.targets.compiler, true)
+                }
+            }
         }
         setPathEnvVar()
         makeDirs()
@@ -656,13 +685,7 @@ public class Builder {
         if (options.gen == 'make' || options.gen == 'nmake') {
             options.configurableProject = true
         }
-        /* UNUSED
-        //  MOB - should be static and Me.makeGlobals
-        me.makeGlobals()
-        */
         enableTargets()
-        loader.runScript("preinherit")
-
         resolveDependencies()
         expandWildcards()
 
@@ -688,6 +711,10 @@ public class Builder {
         }
     }
 
+    /**
+        Watch for changes and rebuild as required.
+        The sleep period is defined via --watch.
+     */
     public function watch(start: Path) {
         if (!start.exists) {
             throw 'Cannot find ' + start
@@ -713,8 +740,9 @@ public class Builder {
         }
     }
 
-    /*
+    /**
         Process a top level MakeMe file
+        @hide
      */
     public function process(start: Path) {
         if (!start.exists) {
@@ -1001,6 +1029,11 @@ public class Builder {
         }
     }
 
+    /**
+        Select the targets to build for a goal
+        @return A list of targets
+        @hide
+     */
     public function selectTargets(goal): Array {
         selectedTargets = []
         topTargets = []
@@ -1209,23 +1242,23 @@ public class Builder {
     }
  
     /**
-        Emit trace for me --why on why a target is being rebuilt
-        @param path Target path being considered
-        @param tag Informational tag emitted before the message
-        @param msg Message to display
+        Emit trace for me --why on why a target is being rebuilt.
+        @param path Target path being considered.
+        @param tag Informational tag emitted before the message.
+        @param msg Message to display.
      */
-    public function whyRebuild(path, tag, msg) {
+    public function whyRebuild(path: Path, tag: String, msg: String) {
         if (options.why) {
             trace(tag, path + ' because ' + msg)
         }
     }
 
     /**
-        Emit trace for me --why on why a target is being skipped
-        @param path Target path being considered
-        @param msg Message to display
+        Emit trace for me --why on why a target is being skipped.
+        @param path Target path being considered.
+        @param msg Message to display.
      */
-    public function whySkip(name, msg) {
+    public function whySkip(name: String, msg: String) {
         if (options.why) {
             trace('Target', name + ' ' + msg)
         }

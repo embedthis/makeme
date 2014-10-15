@@ -5,6 +5,10 @@
  */
 module embedthis.me {
 
+/**
+    The Target class implements MakeMe buildable targets. Targets are the basic "atoms" for building projects.
+    @stability Prototype
+ */
 dynamic enumerable public class Target {
 
     use default namespace ''
@@ -55,7 +59,7 @@ dynamic enumerable public class Target {
     /** List of goal names for which this target will be built */
     var goals: Array = []        /* of Strings */
 
-    /* List of header files required for this target. May include wildcards. */
+    /** List of header files required for this target. May include wildcards. */
     var headers: Array?
 
     /** Home directory for the target */
@@ -117,10 +121,10 @@ dynamic enumerable public class Target {
     /** List of components the configurable target requires to be enabled */
     var requires: Array?
 
-    /* List of resource files required for this target. May include wildcards. */
+    /** List of resource files required for this target. May include wildcards. */
     var resources: Array?
 
-    /* Name of the build rule. Defaults to 'exe' */
+    /** Name of the build rule. Defaults to 'exe' */
     var rule: String?
 
     /** 
@@ -135,10 +139,10 @@ dynamic enumerable public class Target {
     /** Suppress configuration trace for this target */
     var silent: Boolean?
 
-    /* List of source files to build with this target. May include wild cards. */
+    /** List of source files to build with this target. May include wild cards. */
     var sources: Array?
 
-    /* Use static linking for this target */
+    /** Use static linking for this target */
     var static: Boolean?
 
     /** 
@@ -177,10 +181,12 @@ dynamic enumerable public class Target {
     /** List of libraries provided by this target */
     var ownLibraries: Array
 
-    //  Variables for expanding build rules
+    /** Variables for expanding build rules. 
+        @hide */
     var vars: Object = {}
 
-    /* Target has been excluded via a configure --without option */
+    /** Target has been excluded via a configure --without option 
+        @hide */
     var without: String
 
     /** Target was configured usinag a --with path */
@@ -201,48 +207,45 @@ dynamic enumerable public class Target {
      */
 
     /* 
-        Subset of Path.operate properties
-     */
-    var relative: Path?
-
-    /* 
         Path.operate options 
-    var action: Boolean
-    var active: Boolean
-    var append: Boolean
-    var contents: Boolean
-    var compress: Boolean
-    var depthFirst: Boolean
-    var directories: Boolean
-    var dir: Boolean
-    var dot: String
-    var extension: String
-    var exclude: Object      // RegExp | String | Function
-    var expand: Object
-    var filter: RegExp
-    var flatten: Boolean
-    var footer: String
-    var from: Object         //  Path | String | Object | Array
-    var group: Object        //  String | Number
-    var header: String
-    var hidden: Boolean
-    var include: Object      // RegExp | String | Function
-    var keep: Boolean
-    var missing: String
-    var noneg: Boolean
-    var operation: String
-    var patch: Object
-    var pre: Function
-    var post: Function
-    var rename: Function
-    var separator            //  String || Boolean
-    var strip: Boolean
-    var synmlink: Path
-    var to: Path
-    var trim: Number
-    var user: Object         //  String | Number
-    var verbose: Object      //  Boolean | Function
-    */
+
+        var action: Boolean
+        var active: Boolean
+        var append: Boolean
+        var contents: Boolean
+        var compress: Boolean
+        var depthFirst: Boolean
+        var directories: Boolean
+        var dir: Boolean
+        var dot: String
+        var extension: String
+        var exclude: Object      // RegExp | String | Function
+        var expand: Object
+        var filter: RegExp
+        var flatten: Boolean
+        var footer: String
+        var from: Object         //  Path | String | Object | Array
+        var group: Object        //  String | Number
+        var header: String
+        var hidden: Boolean
+        var include: Object      // RegExp | String | Function
+        var keep: Boolean
+        var missing: String
+        var noneg: Boolean
+        var operation: String
+        var patch: Object
+        var pre: Function
+        var post: Function
+        var relative: Path?
+        var rename: Function
+        var separator            //  String || Boolean
+        var strip: Boolean
+        var synmlink: Path
+        var to: Path
+        var trim: Number
+        var user: Object         //  String | Number
+        var verbose: Object      //  Boolean | Function
+*/
 
 
 } /* class Target */

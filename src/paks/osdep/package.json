@@ -35,10 +35,8 @@
     "directories": {
         "paks": "src/paks"
     },
-    "dependencies": {
-        "me-package": "~0.8"
-    },
     "optionalDependencies": {
+        "me-package": "~0.8",
         "me-dev": "~0.8",
         "me-doc": "~0.8"
     },

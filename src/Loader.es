@@ -5,8 +5,14 @@
  */
 module embedthis.me {
 
+require ejs.version
+
+/**
+    The Loader class loads MakeMe files and creates the MakeMe Document Object Model (DOM).
+    @stability Prototype
+ */
 public class Loader {
-    
+    /** Some doc */
     public static const BUILD: Path = Path('build')
     public static const MAIN: Path = Path('main.me')
     public static const PACKAGE: Path = Path('package.json')
@@ -14,18 +20,19 @@ public class Loader {
     public static const START: Path = Path('start.me')
     public static const Unix = ['macosx', 'linux', 'unix', 'freebsd', 'solaris']
     public static const Windows = ['windows', 'wince']
-    
-    private static var loadObj
 
-    private var options: Object
     public var localPlatform: String
+    private static var loadObj
+    private var options: Object
+    private var loaded: Object
 
     function Loader() {
         options = makeme.options
         localPlatform = Config.OS + '-' + Config.CPU + '-' + (options.release ? 'release' : 'debug')
+        reset()
     }
 
-    /*
+    /**
         Apply command line --with/--without --enable/--disable options
      */
     public function applyCommandLine() {
@@ -39,13 +46,16 @@ public class Loader {
         if (me.settings.debug == undefined) {
             me.settings.debug = true
         }
-        /* 
-            Disable/enable was originally --unset|--set 
-         */
+        if (!options.platforms) {
+            return
+        }
         var poptions = options.platforms[me.platform.name]
         if (!poptions) {
             return
         }
+        /* 
+            Disable/enable was originally --unset|--set 
+         */
         for each (field in poptions.disable) {
             me.settings[field] = false
         }
@@ -65,8 +75,8 @@ public class Loader {
             }
             let configure = me.configure.requires + me.configure.discovers
             if (configure.contains(field)) {
-                App.log.error("Using \"--set " + field + "\", but " + field + " is a configurable target. " +
-                        "Use --with or --without instead.")
+                App.log.error('Using "--set ' + field + '", but ' + field + ' is a configurable target. ' +
+                        'Use --with or --without instead.')
                 App.exit(1)
             }
             makeme.setSetting(me.settings, field, value)
@@ -153,6 +163,12 @@ public class Loader {
         Blend a MakeMe file and into an existing 'me'. Use loadFile for loading the top level MakeMe file.
      */
     public function blendFile(path: Path): Void {
+        path = Path(expand(path, {missing: '.'})).absolute
+        if (loaded[path]) {
+            vtrace('Info', 'MakeMe file "' + path + '" already loaded')
+            return
+        }
+        loaded[path] = true
         let prior = loadObj
         blendObj(readFile(path))
         loadObj = prior
@@ -185,6 +201,11 @@ public class Loader {
      */
     public function blendObj(obj): Object {
         obj.origin ||= me.dir.top
+        if (obj.settings && obj.settings.overlay) {
+            vtrace('Info', 'Delay loading "' + obj.origin + '" until required')
+            return obj
+        }
+        blendPlugins(obj)
         blendIncludes(obj)
         fixupProperties(obj)
 
@@ -220,6 +241,48 @@ public class Loader {
         return obj
     }
     
+    /*
+        Search for a plugin. Search locally first then in the pak cache.
+            src/paks/name
+            ~/.paks/name
+            mebin/paks/name
+     */
+    public function findPlugin(name) {
+        let fullname = 'me-' + name
+        var path = me.dir.paks.join(fullname)
+        if (path && path.exists) {
+            return path
+        }
+        let pakcache = App.home.join('.paks')
+        var path = Version.sort(pakcache.join(fullname).files('*'), -1)[0]
+        if (path && path.exists) {
+            return path
+        }
+        var path = me.dir.me.join(fullname)
+        if (path && path.exists) {
+            return path
+        }
+        return null
+    }
+
+    function blendPlugins(obj) {
+        for each (plugin in obj.plugins) {
+            let path
+            if (plugin.startsWith('?')) {
+                plugin = plugin.slice(1)
+                path = findPlugin(plugin)
+            } else {
+                if ((path = findPlugin(plugin)) == null) {
+                    throw 'Cannot find plugin: "' + plugin + '"'
+                }
+            }
+            if (path) {
+                vtrace('Locate', 'Plugin "' + plugin + '" at "' + path + '"')
+                blendFile(path.join(plugin + '.me'))
+            }
+        }
+    }
+
     function castDirPaths() {
         let dir = me.dir
         for (let [key,value] in dir) {
@@ -474,12 +537,10 @@ public class Loader {
                 trace('Warn', origin + ' uses "postblend" which is deprecated"')
             }
             if (o.scripts.preload) {
-                trace('Warn', origin + ' uses "preload" which is deprecated. Use "preblend" instead"')
-                o.scripts.preblend = o.scripts.preload
+                trace('Warn', origin + ' uses "preload" which is deprecated.')
             }
             if (o.scripts.postload) {
-                trace('Warn', origin + ' uses "postload" which is deprecated. Use "postblend" instead"')
-                o.scripts.postblend = o.scripts.postload
+                trace('Warn', origin + ' uses "postload" which is deprecated.')
             }
             if (o.scripts.postloadall) {
                 trace('Warn', origin + ' uses "postloadall" which is deprecated. Use "loaded" instead"')
@@ -631,7 +692,7 @@ public class Loader {
             name = localPlatform
         }
         let [os, arch, profile] = name.split('-')
-        let [arch, cpu] = (arch || '').split(":")
+        let [arch, cpu] = (arch || '').split(':')
         let cross = ((os + '-' + arch) != (Config.OS + '-' + Config.CPU))
         let platform = me.platform = {
             name: name,
@@ -651,42 +712,35 @@ public class Loader {
 
     public function like(os) {
         if (Unix.contains(os)) {
-            return "unix"
+            return 'unix'
         } else if (Windows.contains(os)) {
-            return "windows"
+            return 'windows'
         }
-        return ""
+        return ''
     }
 
     /*
-        Load a top-level MakeMe file: start.me or main.me
+        Load a top-level MakeMe file: start.me or main.me.
+        This will load all referenced MakeMe files in this order:
+            1. O/S file
+            2. standard/simple file
+            3. Package.json
+            4. Plugins
+            5. Blend[] files - these load before the invoking file
+            6. File itself
+            7. Any 'main' file
      */
     public static function loadFile(path)
         makeme.loader.loadFileInner(path)
 
-    /*
-        Inner 'instance' method
-        Notes:
-            platform files will typically have directories. Once loaded, must cast to Path and define globals
-     */
     function loadFileInner(path) {
         let obj = readFile(path)
         if (!me.platform || !me.platform.name) {
             initPlatform(obj)
-        }
-        /*
-            Order matters here, must load in this order:
-            1. O/S file
-            2. standard/simple file
-            3. Package.json
-            4. Blend[] files - these load before the invoking file
-            5. File itself
-            6. Any 'main' file
-         */
+        } 
         blendFile(me.dir.me.join('os/' + me.platform.os + '.me'))
         blendFile(me.dir.me.join(!me.dir.bin.same(me.dir.out) ? 'standard.me' : 'simple.me'))
         setExtensions()
-
         loadPackage(path)
         blendObj(obj)
         if (obj.main) {
@@ -714,7 +768,7 @@ public class Loader {
      */
     function loadModules() {
         for each (let module in me.modules) {
-            App.log.debug(2, "Load me module: " + module)
+            App.log.debug(2, 'Load me module: ' + module)
             try {
                 global.load(module)
             } catch (e) {
@@ -722,7 +776,7 @@ public class Loader {
             }
         }
         for each (let mix in me.mixin) {
-            App.log.debug(2, "Load me mixin")
+            App.log.debug(2, 'Load me mixin')
             try {
                 global.eval(mix)
             } catch (e) {
@@ -796,6 +850,7 @@ public class Loader {
         if (base) {
             /* Called from Xcode */
             makeExtensionGlobals()
+            makeDirectoryGlobals(base)
         }
     }
 
@@ -812,7 +867,7 @@ public class Loader {
                 path = path.relativeTo(base)
             }
             global[n] = me.globals[n] = path
-            if (path.contains('${')) tokens = true
+            if (path.contains('${') /*}*/) tokens = true
         }
         me.globals.ME = me.dir.me
         return !tokens
@@ -906,6 +961,7 @@ public class Loader {
             run = run.replace(/`/g, '\\`')
             p.action = 'run(`' + run + '`)'
         }
+        /* These are target events */
         for each (n in ['action', 'build', 'shell', 'preblend', 'postblend', 'prebuild', 'postbuild', 
                 'precompile', 'postcompile', 'preresolve', 'postresolve', 'presource', 'postsource', 'test']) {
             if (p[n] != undefined) {
@@ -947,7 +1003,6 @@ public class Loader {
         /*
             Inherit defaults
          */
-//  MOB - should defaults not apply just to targets?
         if (Object.getOwnPropertyCount(me.defaults)) {
             //  MOB - is this required?
             for (let [key,value] in me.defaults) {
@@ -993,7 +1048,7 @@ public class Loader {
     public function readFile(path: Path): Object {
         path = expand(path, {missing: '.'})
         if (!path.exists) {
-            throw new Error("Cannot open " + path)
+            throw new Error('Cannot open ' + path)
         }
         let result
         try {
@@ -1069,6 +1124,10 @@ public class Loader {
             target.libpaths ||= []
         }
         Object.sortProperties(target)
+    }
+
+    public function reset() {
+        loaded = {}
     }
 
     public function runScriptOnce(event) {
@@ -1180,7 +1239,7 @@ public class Loader {
         if (options.prefixes) {
             let pset = options.prefixes + '-prefixes'
             if (!me[pset]) {
-                throw "Cannot find prefix set for " + pset
+                throw 'Cannot find prefix set for ' + pset
             }
             settings.prefixes = pset
             global.blend(prefixes, me[pset])
@@ -1284,10 +1343,11 @@ public class Loader {
 
 } /* module embedthis.me */
 
-//  MOB - move to builder
+/* //  MOB - move to builder
 function dumpTarget(target, ...msg) {
     print(msg.join(' ') + ' ' + serialize(target, {nulls: false, pretty: true}))
 }
+*/
 
 /*
     @copy   default

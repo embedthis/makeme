@@ -20,16 +20,24 @@ public class MakeMe {
     static const SupportedOS = ['freebsd', 'linux', 'macosx', 'solaris', 'vxworks', 'windows']
     static const SupportedArch = ['arm', 'i64', 'mips', 'sparc', 'x64', 'x86']
     
-    /*
-        Singletons
-     */
+    /** Singleton $Builder reference */
     public var builder: Builder
-    public var loader: Loader
-    public var generator
-    public var generating
-    //  MOB - rename configure to configurator?
+
+    /** Singleton $Configure reference */
     public var configure
-    public var options: Object
+
+    /** Singleton $Loader reference */
+    public var loader: Loader
+
+    /** Singleton $Generator reference */
+    public var generator
+
+    /** Set to the project type being generated */
+    public var generating
+
+    /** Application command line options from Args.options */
+    public var options: Object = {}
+
     private var out: Stream
     private var args: Args
 
@@ -87,6 +95,10 @@ public class MakeMe {
         usage: usage
     }
 
+    /** 
+        MakeMe constructor 
+        @hide 
+     */
     function MakeMe() {
         global.makeme = this
         let start = new Date
@@ -193,6 +205,7 @@ public class MakeMe {
     }
 
     //  MOB - fix with real plugins and dynamic loading
+    /** @hide */
     public function overlay(name) {
         let src = options.configure || Path('.')
         //  TODO SHOULD be done once centrally
@@ -347,8 +360,8 @@ public class MakeMe {
         builder.goals = args.rest
     }
 
-    /*
-        Return the program files for 32 me. 
+    /**
+        The MakeMe location on windows under Program Files. 
         Will be either /Program Files for 32-bit, or /Program Files (x86) for 64-bit
      */
     public function programFiles32(): Path {
@@ -378,6 +391,7 @@ public class MakeMe {
         return programs.portable
     }
 
+    /** @hide */
     public function setSetting(obj, key, value) {
         if (key.contains('.')) {
             let [,name,rest] = (key.match(/([^\.]*)\.(.*)/))
@@ -389,12 +403,12 @@ public class MakeMe {
     }        
 
     /**
-        Emit "show" trace
+        Emit "show" trace.
         This is trace that is displayed if me --show is invoked.
         @param tag Informational tag emitted before the message
         @param args Message args to display
     */
-    public function strace(tag, ...args) {
+    public function strace(tag: String, ...args) {
         if (options.show) {
             trace(tag, ...args)
         }
@@ -417,6 +431,7 @@ public class MakeMe {
         }
     }
 
+    /** @hide */
     public function traceFile(msg: String, path: String): Void
         trace(msg, '"' + path + '"')
 
@@ -527,9 +542,14 @@ public class MakeMe {
             '')
 
         let me = Me()
+        makeme.options = {}
+        makeme.loader = Loader()
+        makeme.builder = Builder()
+        makeme.loader.initPlatform()
+
         if (Loader.MAIN.exists) {
             try {
-                me.loadFile(Loader.MAIN)
+                makeme.loader.loadFile(Loader.MAIN)
             } catch (e) { print('CATCH: ' + e)}
         }
         if (me.usage) {
@@ -544,11 +564,12 @@ public class MakeMe {
             let header
             Object.sortProperties(me.targets)
             makeme.overlay('Configure.es')
+            let configure = Configure()
             for each (target in me.targets) {
                 if (!target.configurable) continue
                 let desc = target.description
                 if (!desc) {
-                    let path = findComponent(target.name)
+                    let path = configure.findComponent(target.name)
                     if (path) {
                         let matches = path.readString().match(/description:.*'(.*)'|program\(.*, '(.*)'/m)
                         if (matches) {
@@ -584,6 +605,7 @@ public class MakeMe {
         }
     }
 
+    /** @hide */
     public function verifyPlatform(platform) {
         let [os, arch, profile] = platform.split('-')
         if (!arch) {
@@ -596,7 +618,7 @@ public class MakeMe {
     }
 
     /**
-        Emit "verbose" trace
+        Emit "verbose" trace.
         This is trace that is displayed if me --verbose is invoked.
         @param tag Informational tag emitted before the message
         @param args Message args to display

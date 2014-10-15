@@ -8,26 +8,21 @@
         <h1>MakeMe File Processing</h1>
         <p>MakeMe builds targets according to a defined life cycle.</p>
         <ol>
-            <li>The MakeMe DOM object (<em>me</em>is created and initialized.</li>
-            <li>The <em>standard.me</em> file is loaded to supply with the standard MakeMe definitions.</li>
-            <li>The <em>os/OS.me</em> file is loaded to supply O/S specific rules and definitions</li>
-            <li>The start.me file is loaded.</li>
-            <li>All MakeMe files referenced in the start.me blend[] collection are loaded. This continues recursively,
-                depth first.</li>
-            <li>All relative paths in the target properties: includes, headers, resources, sources and files are
-            rebased relative to the MakeMe file directory. If the path contains a variable ${token}, then it is not
-            rebased.</li>
-            <li>All scripts lacking a home directory property have one defined to the directory containing the 
-            MakeMe file.</li>
-            <li>For each platform specified in the start.me platform[] collection, the following steps below
-                are executed.</li>
-            <li>The platform MakeMe file is loaded and all MakeMe files referenced in blend[] are loaded depth-first.</li>
+            <li>The MakeMe DOM object <em>me</em> is created and initialized.</li>
+            <li>The start.me file is read to determine which platforms to build.
+            For each platform specified in the start.me 'platforms' collection, the following steps below are executed.</li>
             <li>The directories collection <em>dir</em>, and <em>me.global</em> properties are initialized.</li>
+            <li>The <em>os/OS.me</em> file is loaded for the required platform to supply O/S specific rules and definitions</li>
+            <li>The <em>standard.me</em> file is loaded to supply with the standard MakeMe definitions.</li>
+            <li>The platform MakeMe file is loaded and all MakeMe files referenced in blend[] are loaded depth-first.
+                This continues recursively, depth first.</li>
+            <li>All relative paths in the target properties: includes, headers, resources, sources and files are
+                rebased relative to the directory supplying the MakeMe file. Scripts lacking a home directory property 
+                default to the directory containing the MakeMe file.</li>
             <li>Targets are enabled or disabled depending on their <em>enable</em> property expression.</li>
             <li>A list of top-level targets to build is created based on the MakeMe commandline and target dependencies.
                 See below <a href="#selectingTargets">Selecting Targets</a> for more details.</li>
-            <li>The targets to build are examined and their properties are blended with the defaults/internal
-                properties.</li>
+            <li>The targets to build are examined and their properties are blended with the defaults/internal properties.</li>
             <li>The target dependencies are resolved and added to the target list.</li>
             <li>The target sources have wild-cards expanded. Targets are dynamically created for all objects to be
             built. The C/C++ source files are parsed and header targets are built for non-system include directives that

@@ -45999,7 +45999,7 @@ static int getTokenValue(Ejs *ejs, EjsObj *obj, cchar *fullToken, cchar *token, 
 static EjsString *expandString(Ejs *ejs, EjsString *sp, int argc, EjsObj **argv)
 {
     MprBuf      *buf;
-    EjsAny      *missing, *obj, *options, *vp;
+    EjsAny      *missing, *obj, *options;
     EjsString   *join;
     char        *src, *cp, *tok;
 

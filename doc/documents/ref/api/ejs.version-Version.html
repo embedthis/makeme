@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <title>Class Version</title>
+
+   <link rel="stylesheet" type="text/css" href="doc.css" />
+</head>
+
+<body>
+<div class='body'>
+
+<div class="content">
+
+<a name='top'></a>
+<h1 class='className'>Version</h1>
+<div class='classBlock'>
+<table class='classHead' title='Version'>
+   <tr><td><strong>Module</strong></td><td>ejs.version</td></tr>
+   <tr><td><strong>Definition</strong></td><td> class Version</td></tr>
+   <tr><td><strong>Inheritance</strong></td><td>Version <img src='images/inherit.gif' alt='inherit'/> <a href='Object.html'>Object</a><tr><td><strong>Stability</strong></td><td>Prototype.</td></tr>
+       </td></tr>
+</table>
+
+<p class='classBrief'>Version class supporting Semantic Versioning 2.0.0.</p>
+
+</div>
+
+
+<hr />
+<a name='Properties'></a>
+<h2 class='classSection'>Properties</h2>
+<table class='itemTable' title='properties'>
+   <tr><th>Qualifiers</th><th>Property</th><th>Type</th><th width='95%'>Description</th></tr>
+<a name='compatible'></a>
+   <tr><td nowrap align='center'> get </td><td>compatible</td><td>&nbsp;</td><td>The major.minor API compatible version number. </td></tr>
+<a name='debug'></a>
+   <tr><td nowrap align='center'> get </td><td>debug</td><td><a href='Boolean.html'>Boolean</a></td><td>The version is a pre-release version
+This may be due to the version having a pre-release suffix, or if not a pure SemVer version,
+it may have non-number components that indicate a pre-release. </td></tr>
+<a name='major'></a>
+   <tr><td nowrap align='center'> get </td><td>major</td><td>&nbsp;</td><td>The major release number portion of the version
+8. </td></tr>
+<a name='minor'></a>
+   <tr><td nowrap align='center'> get </td><td>minor</td><td>&nbsp;</td><td>The minor release number portion of the version
+8. </td></tr>
+<a name='number'></a>
+   <tr><td nowrap align='center'> get </td><td>number</td><td>&nbsp;</td><td>The version as a single number. </td></tr>
+<a name='patch'></a>
+   <tr><td nowrap align='center'> get </td><td>patch</td><td>&nbsp;</td><td>The minor release number portion of the version
+8. </td></tr>
+<a name='pre'></a>
+   <tr><td nowrap align='center'> get </td><td>pre</td><td>&nbsp;</td><td>The pre-release portion of the version. </td></tr>
+<a name='valid'></a>
+   <tr><td nowrap align='center'> get </td><td>valid</td><td>&nbsp;</td><td>Test if the constructed version is valid. </td></tr>
+<a name='version'></a>
+   <tr><td nowrap align='center'> get </td><td>version</td><td>&nbsp;</td><td>The public portion of the version without any prereleases qualification
+8. </td></tr>
+</table>
+
+<p class='inheritedLink'><a href='Object.html#Properties'><i>Inherited Properties</i></a></p>
+
+<hr />
+<a name='ClassMethods'></a>
+<h2 class='classSection'>Version Class Methods</h2>
+<table class='apiIndex' title='methods'>
+   <tr><th>Qualifiers</th><th width='95%'>Method</th></tr>
+   <tr class='apiDef'><td class='apiType'> static </td><td><a href='#sort'><b>sort</b></a>(versions, direction = 1): <a href='Array.html'>Array</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Sort an array of versions.</td></tr>
+</table>
+
+<p class='inheritedLink'><a href='Object.html#InstanceMethods'><i>Inherited Methods</i></a></p>
+
+<hr />
+<a name='InstanceMethods'></a>
+<h2 class='classSection'>Version Instance Methods</h2>
+<table class='apiIndex' title='methods'>
+   <tr><th>Qualifiers</th><th width='95%'>Method</th></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#Version'><b>Version</b></a>(version: <a href='String.html'>String</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Create and parse a version
+Use valid() to test if the version string was a valid SemVer version.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#acceptable'><b>acceptable</b></a>(criteria): <a href='Boolean.html'>Boolean</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Test if the version is acceptable based on the supplied critera.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#same'><b>same</b></a>(other: <a href='String.html'>String</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Compare versions.</td></tr>
+   <tr class='apiDef'><td class='apiType'> override </td><td><a href='#toString'><b>toString</b></a>()</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+</table>
+
+<p class='inheritedLink'><a href='Object.html#InstanceMethods'><i>Inherited Methods</i></a></p>
+
+<hr />
+<h2>Method Detail</h2>
+<a name='Version'></a>
+<div class='api'>
+<div class='apiSig'>  ejs.version  Version(version: <a href='String.html'>String</a>)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Create and parse a version
+Use valid() to test if the version string was a valid SemVer version. </dd></dl>
+</div>
+</div>
+<hr />
+<a name='acceptable'></a>
+<div class='api'>
+<div class='apiSig'>    acceptable(criteria): <a href='Boolean.html'>Boolean</a>
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Test if the version is acceptable based on the supplied critera. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>criteria </td><td>The acceptable formats for criteria are: <pre> VER                             Allows prereleases ^ VER                           Same as >=1.2.3 <2.0.0 (does not allow prereleases) ~ VER                           Same as >=1.2.3 <2.0.0 (allows prereleases) 1.2.X                           Any version starting with 1.2 (allows prereleases) [>, >=, <, <=, ==, !=] VER EXPR || EXPR ... EXPR && EXPR ... EXPR EXPR ... </pre></td></tr></table></dd>
+</dl><dl><dt>Returns</dt>
+<dd>True if the version is acceptable.</dd></dl>
+</div>
+</div>
+<hr />
+<a name='same'></a>
+<div class='api'>
+<div class='apiSig'>    same(other: <a href='String.html'>String</a>)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Compare versions. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>other: <a href='String.html'>String</a> </td><td>Other version to compare with this one Can be a version or a string.</td></tr></table></dd>
+</dl><dl><dt>Returns</dt>
+<dd>True if the versions are identical.</dd></dl>
+</div>
+</div>
+<hr />
+<a name='sort'></a>
+<div class='api'>
+<div class='apiSig'>static     sort(versions, direction = 1): <a href='Array.html'>Array</a>
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Sort an array of versions. The version strings can be pathnames where the basename is the version.</dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>direction </td><td>null [default: 1]</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<div class="terms">
+   <p class="terms">
+       <a href="https://embedthis.com/">       Embedthis Software LLC, 2003-2014. All rights reserved. Embedthis is a trademark of Embedthis Software LLC.</a>
+   </p>
+</div></div>
+</div>
+</body>
+</html>

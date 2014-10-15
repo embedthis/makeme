@@ -15,9 +15,8 @@ Me.load({
             core: [
                 {
                     perform: function(from, to, options) {
-                        linkFile('${settings.version}', '${app}/latest')
+                        linkFile(me.settings.version, me.prefixes.app.join('latest'))
                     },
-                    symlink:    '${app}',
                     enable:     "me.platform.like == 'unix'",
                 }
             ],

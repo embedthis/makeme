@@ -195,7 +195,7 @@ class Configure {
                 platforms = (settings.platforms + platforms).unique()
             }
             createStartFile(platforms)
-            trace('Info', 'Type "me" to build. Use "me configuration" to see current settings.')
+            trace('Info', 'Type "me" to build.')
         }
     }
 
@@ -296,9 +296,7 @@ class Configure {
             /* Copy over non-standard settings. These include compiler sleuthing settings */
             nme.settings[key] = value
         }
-        blend(nme.settings, me.customSettings)
         nme.settings.configure = 'me ' + App.args.slice(1).join(' ')
-
         if (envSettings) {
             blend(nme, envSettings, {combine: true})
         }
@@ -429,6 +427,7 @@ class Configure {
     } 
 
     /*
+        MOB - replace this with findPlugin
         Find components in the following directories:
             paks/name/name.me
             ~/.paks/name/name.me
@@ -436,28 +435,28 @@ class Configure {
             ~/.me/configure/name.me, ~/.me/configure/name/name.me
             mebin/configure/name.me, mebin/configure/name/name.me
      */
-    function findComponent(name) {
-        let path = Path(me.dir.me.join('configure', name + '.me'))
+    public function findComponent(name) {
+        let path = me.dir.me.join('configure', name + '.me')
         if (path.exists) {
             return path
         }
-        path = Path(me.dir.me.join('configure', name, name + '.me'))
+        path = me.dir.me.join('configure', name, name + '.me')
         if (path.exists) {
             return path
         }
-        path = Path(me.dir.src.join('makeme/configure', name + '.me'))
+        path = me.dir.src.join('makeme/configure', name + '.me')
         if (path.exists) {
             return path
         }
-        path = Path(me.dir.home.join('makeme/configure', name, name + '.me'))
+        path = me.dir.home.join('makeme/configure', name, name + '.me')
         if (path.exists) {
             return path
         }
-        path = Path(me.dir.home.join('.me/configure', name + '.me'))
+        path = me.dir.home.join('.me/configure', name + '.me')
         if (path.exists) {
             return path
         }
-        path = Path(me.dir.home.join('.me/configure', name, name + '.me'))
+        path = me.dir.home.join('.me/configure', name, name + '.me')
         if (path.exists) {
             return path
         }

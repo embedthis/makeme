@@ -358,7 +358,6 @@ class Xcode {
                  */
                 if (obj && obj.type == 'obj') {
                     for each (src in obj.files) {
-                        //  TODO - can this emit duplicates?
                         let path = src.relativeTo(me.dir.src)
                         let ref = getid('ID_TargetSrc:' + src)
                         output(source.expand({REF: ref, NAME: src.basename, PATH: path}))

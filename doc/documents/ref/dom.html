@@ -29,12 +29,12 @@
             </thead>
             <tbody>
                 <tr><td>blend</td><td>MakeMe files to blend. 
-                    This is an array of files toload. These paths may include the wild-card "*" character to 
+                    This is an array of files to load. These paths may include the wild-card "*" character to 
                     match a filename portion and "**" to match any file or directory at any depth in the directory 
                     tree. If the filename is not found, "~/.paks" is searched for a matching Pak.</td></tr>
-                <tr><td>customize</td><td>Optional MakeMe file to load after fully loading all blended MakeMe files</td></tr>
+                <tr><td>customize</td><td>Optional MakeMe files to load after fully loading all blended MakeMe files</td></tr>
                 <tr><td>defaults</td><td>Default properties to be inherited by all targets</td></tr>
-                <tr><td>dir</td><td>Standard directories. These must be absolute paths so that they can be used
+                <tr><td>dir</td><td>Directories used by MakeMe. These must be absolute paths so that they can be used
                     when the current directory is changed while processing.
                     <ul>
                         <li>src &mdash; Path to the top of the source to build</li>
@@ -49,7 +49,7 @@
                     </ul>
                 </td></tr>
                 <tr><td>env</td><td>Environment variables to set when compiling and linking</td></tr>
-                <tr><td>ext</td><td>File extensions</td></tr>
+                <tr><td>ext</td><td>File extensions indexed by file type</td></tr>
                 <tr><td>globals</td><td>Global values to use in property token expansion</td></tr>
                 <tr><td>internal</td><td>Default properties to be inherited by only the targets in the same MakeMe file</td></tr>
                 <tr><td>mixin</td><td>Literal script code to mixin.</td></tr>
@@ -57,8 +57,6 @@
                 <tr><td>options</td><td>Supplied command line options</td></tr>
                 <tr><td>platform</td><td>Description of the current platform. Has properties for operating system
                         and CPU architecture.</td></tr>
-                <tr><td>platforms</td><td>List of platforms to build. Platforms are of the form: OS-ARCH-PROFILE. The 
-                    special platform "local" is added internally.</td></tr>
                 <tr><td>prefixes</td><td>Installation directory prefixes and default values on Unix/Linux systems:
                     <ul>
                         <li>root &mdash; Root directory prefix: /</li>
@@ -83,8 +81,10 @@
             </td></tr>
                 <tr><td>profiles</td><td>Build profiles. Standard profiles are: debug and release</td></tr>
                 <tr><td>rules</td><td>Command rules for compiling, building libraries and executables</td></tr>
+                <tr><td>scripts</td><td>Project top-level scripts.</td></tr>
                 <tr><td>settings</td><td>Project top-level settings. This includes name, version, description. 
                         See <a href="#settings">settings</a> collection below for full details.</td></tr>
+                <tr><td>target</td><td>Reference to the currently building target.</td></tr>
                 <tr><td>targets</td><td>Targets to build. Each target is its own collection of properties</td></tr>
                 <tr><td>usage</td><td>Additional usage message to emit for MakeMe command line errors</td></tr>
             </tbody>
@@ -142,10 +142,10 @@
                 <th>Description</th>
             </thead>
             <tbody>
-                <tr><td>discovers</td><td>List of optional configurable targets to discover when configuring </td></tr>
-                <tr><td>requires</td><td>List of required targets to discover when configuring </td></tr>
-                <tr><td>extras</td><td>List of targets that will not be discovered but can be included via
-                    <em>configure --with NAME</em></td></tr>
+                <tr><td>discovers</td><td>List of optional configurable components to discover when configuring </td></tr>
+                <tr><td>requires</td><td>List of required components to discover when configuring </td></tr>
+                <tr><td>extras</td><td>List of components that but can be included via an explicit
+                    <em>configure --with NAME</em> command.</td></tr>
             </tbody>
         </table>
         <a name="settings"></a>
