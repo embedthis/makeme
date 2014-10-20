@@ -767,7 +767,7 @@ DEPS_48 += src/paks/me-xcode/README.md
 DEPS_48 += src/paks/me-xcode/Xcode.es
 DEPS_48 += src/paks/me-xcode/xcode.me
 
-$(BUILD)/bin: $(DEPS_48)
+$(BUILD)/.modify-runtime: $(DEPS_48)
 	@echo '      [Copy] $(BUILD)/bin'
 	mkdir -p "$(BUILD)/bin"
 	cp src/master-main.me $(BUILD)/bin/master-main.me
@@ -824,6 +824,7 @@ $(BUILD)/bin: $(DEPS_48)
 	cp src/paks/me-xcode/README.md $(BUILD)/bin/paks/me-xcode/README.md
 	cp src/paks/me-xcode/Xcode.es $(BUILD)/bin/paks/me-xcode/Xcode.es
 	cp src/paks/me-xcode/xcode.me $(BUILD)/bin/paks/me-xcode/xcode.me
+	touch "$(BUILD)/.modify-runtime"
 
 #
 #   me
@@ -836,7 +837,7 @@ ifeq ($(ME_COM_EJS),1)
     DEPS_49 += $(BUILD)/bin/libejs.so
 endif
 DEPS_49 += $(BUILD)/bin/me.mod
-DEPS_49 += $(BUILD)/bin
+DEPS_49 += $(BUILD)/.modify-runtime
 DEPS_49 += $(BUILD)/obj/me.o
 
 LIBS_49 += -lmpr
