@@ -1,0 +1,52 @@
+/*
+    appweb.me -- Appweb Component
+ */
+Me.load({
+    targets: {
+        appweb: {
+            description: 'Appweb HTTP Server',
+            config: function (target) {
+                if (me.targets.appweb && me.targets.appweb.configurable) {
+                    return {}
+                }
+                let appweb = Cmd.locate('appweb')
+                if (appweb) {
+                    appweb = appweb.dirname.parent
+                } else {
+                    if (me.platform.os == 'windows') {
+                        appweb = me.dir.programFiles32.join('Embedthis Appweb')
+                    } else {
+                        appweb = '/usr/local/lib/appweb/latest'
+                    }
+                }
+                if (me.options.gen) {
+                    return {
+                        path:     appweb,
+                        libpaths: [ appweb.join('bin') ],
+                        includes: [ appweb.join('inc') ],
+                    }
+                }
+                let search = [ ]
+                if (target.withpath) {
+                    search.push(target.withpath)
+                }
+                for (let d: Path = '.'; d.parent != d; d = d.parent) {
+                    let sp = d.join(me.platform.name)
+                    if (sp.join('bin/libappweb.' + me.ext.shobj).exists) {
+                        search.push(sp)
+                        break
+                    }
+                }
+                search.push(appweb)
+                let path = probe('bin/libappweb.' + me.ext.shobj, { search: search });
+                let bin = probe('libappweb.' + me.ext.shobj, {fullpath: true, search: path.join('bin')}).dirname
+                return {
+                    path:       path,
+                    libpaths:  [ bin ],
+                    libraries: [ 'appweb', 'http', 'mpr', 'pcre' ],
+                    includes:  [ probe('appweb.h', {search: path.join('inc')}) ],
+                }
+            },
+        },
+    },
+})

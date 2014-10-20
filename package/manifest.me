@@ -99,14 +99,23 @@ Me.load({
                     to:         '${abin}/',
 
                 }, { 
-                    from:       '${SRC}/src/tm/testme.h',
+                    from:       '${SRC}/src/testme/testme.h',
                     to:         '${vapp}/inc/',
 
                 }, { 
-                    home:       '${SRC}/src/runtime',
+                    home:       '${SRC}/src',
                     from:       '**',
                     to:         '${abin}/',
-                    flatten:    false,
+
+                }, { 
+                    home:       '${SRC}/src',
+                    from:       [
+                                'paks/me-components/',
+                                'paks/me-configure/',
+                                'paks/me-generate/',
+                                'paks/me-os/',
+                    ],
+                    to:         '${abin}/',
                 }
             ],
             doc: [

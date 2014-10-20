@@ -100,7 +100,7 @@
   </PropertyGroup>
   
       <ItemGroup>
-    <ClCompile Include="..\..\src\tm\libtestme.c" />
+    <ClCompile Include="..\..\src\testme\libtestme.c" />
   </ItemGroup>
 
       <ItemGroup>
@@ -114,7 +114,7 @@
       </Link>
 
       <CustomBuildStep>
-        <Command>cd ..\..\src\tm
+        <Command>cd ..\..\src\testme
 copy /Y /B testme.h $(IncDir)
 cd ..\..\projects\me-windows-default</Command>
         <Outputs>$(BinDir)\libtestme.dll</Outputs>

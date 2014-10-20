@@ -115,7 +115,18 @@ dynamic enumerable public class Me {
         dir.top = Path('.').absolute
         dir.src = Path(options.configure || App.dir).absolute
         dir.me = App.exeDir
-        makeme.loader.reset()
+        let path = me.dir.src.join(Loader.PACKAGE)
+        if (path.exists) {
+            try {
+                package = path.readJSON()
+                if (package.directories && package.directories.paks) {
+                    dir.paks = Path(package.directories.paks).absolute
+                }
+            } catch (e) {
+                trace('Warn', 'Cannot parse: ' + path + '\n' + e)
+            }
+        }
+        dir.paks ||= dir.src.join('paks')
     }
 
     /**

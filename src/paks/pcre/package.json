@@ -25,13 +25,4 @@
             "url": "https://github.com/embedthis/zlib/blob/master/LICENSE.md"
         }
     ],
-    "directories": {
-        "paks": "src/paks"
-    },
-    "dependencies": {
-        "me-dev": "~0.8"
-    },
-    "import": true,
-    "optionalDependencies": {
-    }
 }

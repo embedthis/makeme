@@ -29,17 +29,19 @@ public class MakeMe {
     /** Singleton $Loader reference */
     public var loader: Loader
 
-    /** Singleton $Generator reference */
-    public var generator
-
     /** Set to the project type being generated */
     public var generating
 
     /** Application command line options from Args.options */
     public var options: Object = {}
 
+    //  MOB - rethink
+    /** Singleton $Project reference */
+    public var project
+
     private var out: Stream
     private var args: Args
+    private var goals: Array
 
     private var argTemplate = {
         options: {
@@ -110,46 +112,37 @@ public class MakeMe {
 
     function main() {
         try {
+            Me()
             parseArgs(args)
-            if (!options.file && !options.configure) {
-                let file = findStart()
-                if (file) {
-                    App.chdir(file.dirname)
-                    options.file = file.basename
-                }
-            }
+            let file = options.file = Path(options.file || findMakeMeFile())
+            App.chdir(options.file.dirname)
+
             if (options.import) {
                 import()
                 App.exit()
             }
-            if (options.reconfigure) {
-                overlay('Configure.es')
-                let configure = Configure()
-                options.file = Loader.START
-                configure.reconfigure(options.file)
-            }
-            if (options.configure) {
-                overlay('Configure.es')
-                let configure = Configure()
-                configure.configure()
-                options.file = Loader.START
-            }
-            if (options.gen) {
-                overlay('Generator.es')
-                generator = Generator()
-                if (options.gen == 'start') {
-                    generatorstart()
-                } else if (options.gen == 'main') {
-                    generator.main()
-                } else {
-                    generator.projects()
+            if (goals.contains('configure')) {
+                /* The configure goal is special, must be done separately and first */
+                builder.process(file, ['configure'])
+                goals.removeElements('configure')
+                if (goals.length == 0) {
+                    return
                 }
-
-            } else if (options.watch) {
-                builder.watch(options.file)
-
+                file = options.file = Loader.START
+            }
+            if (goals.contains('generate')) {
+                /* The configure goal is special, must be done separately and first */
+                builder.process(file, ['generate'])
+                goals.removeElements('generate')
+                if (goals.length == 0) {
+                    return
+                }
+                file = options.file = Loader.START
+            }
+            if (options.watch) {
+                builder.watch(file, goals)
             } else {
-                builder.process(options.file)
+                builder.process(file, goals)
             }
         } catch (e) {
             let msg: String
@@ -165,27 +158,27 @@ public class MakeMe {
         }
     }
 
-    function findStart(): Path? {
-        let lp = Loader.START
-        if (lp.exists) {
-            return lp
-        }
+    function findMakeMeFile(): Path? {
+        let start = Loader.START
+        let main = Loader.MAIN
+        /*
+            Look up the tree for a start/main
+         */
         let base: Path = options.configure || '.'
         for (let d: Path = base; d.parent != d; d = d.parent) {
-            let f: Path = d.join(lp)
-            if (f.exists) {
-                vtrace('Info', 'Using me file ' + f)
-                return f
-            }
-        }
-        if (!options.configure) {
-            if (Path(Loader.MAIN).exists) {
-                throw 'Cannot find suitable ' + Loader.START + '.\nRun "me configure" first.'
-            } else {
-                if (options.gen != 'start' && options.gen != 'main') {
-                    throw 'Cannot find suitable ' + Loader.START + '.\nRun "me --gen start" to create stub start.me'
+            let names = options.configure ? ([main]) : ([start, main])
+            for each (name in names) {
+                let path = d.join(name)
+                if (path.exists) {
+                    vtrace('Info', 'Using: ' + path)
+                    return path
                 }
             }
+        }
+        if (main.exists) {
+            throw 'Cannot find suitable ' + start + '.\nRun "me configure" first.'
+        } else if (options.gen != 'start' && options.gen != 'main') {
+            throw 'Cannot find suitable ' + start + '.\nRun "me --gen start" to create stub start.me'
         }
         return null
     }
@@ -202,15 +195,6 @@ public class MakeMe {
                 safeCopy(Config.Bin.join(src), dest)
             }
         }
-    }
-
-    //  MOB - fix with real plugins and dynamic loading
-    /** @hide */
-    public function overlay(name) {
-        let src = options.configure || Path('.')
-        //  TODO SHOULD be done once centrally
-        let base = src.join('me/standard.me').exists ? src.join('me') : Config.Bin
-        global.load(base.join('plugins', name))
     }
 
     function parseArgs(args: Args) {
@@ -357,7 +341,7 @@ public class MakeMe {
                 poptions.enable.push(Config.OS == 'windows' ? 'charLen=2' : 'charLen=4')
             }
         }
-        builder.goals = args.rest
+        goals = args.rest
     }
 
     /**
@@ -505,7 +489,7 @@ public class MakeMe {
             '  --diagnose                                # Emit diagnostic trace \n' +
             '  --dump                                    # Dump the full project\n' +
             '  --endian [big|little]                     # Define the CPU endianness\n' +
-            '  --file file.me                            # Use the specified me file\n' +
+            '  --file file.me                            # Use the specified MakeMe file\n' +
             '  --force                                   # Override warnings\n' +
             '  --gen [make|nmake|sh|vs|xcode|main|start] # Generate project file\n' +
             '  --get field                               # Get and display a me field value\n' +
@@ -543,13 +527,13 @@ public class MakeMe {
 
         let me = Me()
         makeme.options = {}
-        makeme.loader = Loader()
+        let loader = makeme.loader = Loader()
         makeme.builder = Builder()
-        makeme.loader.initPlatform()
+        loader.initPlatform()
 
         if (Loader.MAIN.exists) {
             try {
-                makeme.loader.loadFile(Loader.MAIN)
+                loader.loadFile(Loader.MAIN)
             } catch (e) { print('CATCH: ' + e)}
         }
         if (me.usage) {
@@ -561,15 +545,13 @@ public class MakeMe {
             print('')
         }
         if (me.targets) {
-            let header
             Object.sortProperties(me.targets)
-            makeme.overlay('Configure.es')
-            let configure = Configure()
+            let header
             for each (target in me.targets) {
                 if (!target.configurable) continue
                 let desc = target.description
                 if (!desc) {
-                    let path = configure.findComponent(target.name)
+                    let path = loader.findPlugin(target.name, false)
                     if (path) {
                         let matches = path.readString().match(/description:.*'(.*)'|program\(.*, '(.*)'/m)
                         if (matches) {

@@ -35,11 +35,6 @@
     "directories": {
         "paks": "src/paks"
     },
-    "optionalDependencies": {
-        "me-package": "~0.8",
-        "me-dev": "~0.8",
-        "me-doc": "~0.8"
-    },
     "files": [
         "osdep.h",
         "osdep.me",
@@ -51,13 +46,4 @@
         "start.me"
     ],
     "import": true,
-    "paks": {
-        "me-doc": {
-            "ignore": [
-                "partials",
-                "layouts",
-                "css"
-            ]
-        }
-    }
 }

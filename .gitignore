@@ -30,7 +30,7 @@ projects/.flags
 me.sublime-*
 project.xcworkspace
 xcuserdata/
-testme
+/test/testme
 start.me
 /build/
 .gitattributes

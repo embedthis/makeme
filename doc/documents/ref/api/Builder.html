@@ -37,8 +37,8 @@
    <tr><td nowrap align='center'>static const </td><td>TargetsToBuildByDefault</td><td>&nbsp;</td><td>List of targets to build by default. Defaults to 'exe', 'file', 'lib' and 'header'.</td></tr>
 <a name='TargetsToClean'></a>
    <tr><td nowrap align='center'>static const </td><td>TargetsToClean</td><td>&nbsp;</td><td>List of targets to clean by default. Defaults to 'exe', 'file', 'lib' and 'obj'.</td></tr>
-<a name='goals'></a>
-   <tr><td nowrap align='center'></td><td>goals</td><td><a href='Array.html'>Array</a></td><td>List of goals for this build (. </td></tr>
+<a name='goal'></a>
+   <tr><td nowrap align='center'></td><td>goal</td><td><a href='String.html'>String</a></td><td>Current goal. </td></tr>
 <a name='localPlatform'></a>
    <tr><td nowrap align='center'></td><td>localPlatform</td><td><a href='String.html'>String</a></td><td>Local platform string of the form OS-ARCH-PROFILE. </td></tr>
 <a name='topTargets'></a>
@@ -61,10 +61,10 @@
 <h2 class='classSection'>Builder Instance Methods</h2>
 <table class='apiIndex' title='methods'>
    <tr><th>Qualifiers</th><th width='95%'>Method</th></tr>
-   <tr class='apiDef'><td class='apiType'></td><td><a href='#build'><b>build</b></a>()</tr><tr class='apiBrief'><td>&nbsp;</td><td>Build all required targets for the requested goals.</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#build'><b>build</b></a>(goals: <a href='Array.html'>Array</a> = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Build all required targets for the requested goals.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#mapLibPaths'><b>mapLibPaths</b></a>(libpaths: <a href='Array.html'>Array</a>, base: <a href='Path.html'>Path</a> = expression): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Map library paths to a base.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#run'><b>run</b></a>(command, copt = expression): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Run a command and trace output if copt.show or options.show.</td></tr>
-   <tr class='apiDef'><td class='apiType'></td><td><a href='#watch'><b>watch</b></a>(start: <a href='Path.html'>Path</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Watch for changes and rebuild as required.</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#watch'><b>watch</b></a>(start: <a href='Path.html'>Path</a>, goals = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Watch for changes and rebuild as required.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#whyRebuild'><b>whyRebuild</b></a>(path: <a href='Path.html'>Path</a>, tag: <a href='String.html'>String</a>, msg: <a href='String.html'>String</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit trace for me --why on why a target is being rebuilt.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#whySkip'><b>whySkip</b></a>(name: <a href='String.html'>String</a>, msg: <a href='String.html'>String</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit trace for me --why on why a target is being skipped.</td></tr>
 </table>
@@ -75,11 +75,14 @@
 <h2>Method Detail</h2>
 <a name='build'></a>
 <div class='api'>
-<div class='apiSig'>    build()
+<div class='apiSig'>    build(goals: <a href='Array.html'>Array</a> = expression)
 </div>
 <div class='apiDetail'>
 <dl><dt>Description</dt></dd><dd>Build all required targets for the requested goals. </dd></dl>
-</div>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>goals: <a href='Array.html'>Array</a> </td><td>null [default: expression]</td></tr></table></dd>
+</dl></div>
 </div>
 <hr />
 <a name='mapLibPaths'></a>
@@ -120,11 +123,14 @@
 <hr />
 <a name='watch'></a>
 <div class='api'>
-<div class='apiSig'>    watch(start: <a href='Path.html'>Path</a>)
+<div class='apiSig'>    watch(start: <a href='Path.html'>Path</a>, goals = expression)
 </div>
 <div class='apiDetail'>
 <dl><dt>Description</dt></dd><dd>Watch for changes and rebuild as required. The sleep period is defined via --watch.</dd></dl>
-</div>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>goals </td><td>null [default: expression]</td></tr></table></dd>
+</dl></div>
 </div>
 <hr />
 <a name='whyRebuild'></a>

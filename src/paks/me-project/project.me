@@ -1,0 +1,32 @@
+/*
+    project.me - MakeMe Project Generator Plugin
+
+    This project and Vstudio / Xcode demand load their scripts.
+ */
+
+Me.load({
+    blend: [
+        'vstudio',
+        'xcode',
+    ],
+
+    targets: {
+        generate: {
+            home: '${TOP}',
+            action: `
+                load('${ORIGIN}/Project.es')
+                require embedthis.me
+                /* Share with Script - should move Script code back here */
+                let project = makeme.project = Project()
+                let options = makeme.options
+                if (options.gen == 'start') {
+                    project.start()
+                } else if (options.gen == 'main') {
+                    project.main()
+                } else {
+                    project.generate()
+                }
+            `
+        }
+    }
+})

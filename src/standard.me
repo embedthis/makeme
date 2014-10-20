@@ -1,0 +1,58 @@
+/*
+    standard.me -- Standard Settings and Targets
+ */
+
+Me.load({
+    targets: {
+        clean: {
+            action: `
+                builtin('cleanTargets')
+                safeRemove('${REL}')
+                safeRemove('${PKG}')
+            `,
+        },
+
+        clobber: {
+            depends: ['clean'],
+            action: `
+                rmdir(['${TOP}/*-*-debug', '${TOP}/*-*-release'])
+                rm('${TOP}/*-*.me')
+                rm('${TOP}/*.dmp')
+                rmdir('${TOP}/releases')
+            `
+        },
+
+        /* Compatibility for those familiar with make */
+        compile: {
+            depends: ['all'],
+        },
+
+        build: {
+            depends: ['all'],
+        },
+
+        //  MOB - move to me-package
+        deploy: {
+            type: 'deploy',
+        },
+
+        dump: {
+            type: 'dump',
+        },
+
+        generate: {
+            type: 'generate',
+        },
+
+        rebuild: {
+            type: 'rebuild',
+        },
+
+        version: {
+            /* Set directory so that a local platform does not get generated in projects */
+            home:   '${TOP}',
+            action: `print(me.settings.version)`,
+            generate: `echo ${settings.version}`,
+        },
+    },
+})

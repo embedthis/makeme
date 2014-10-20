@@ -1,0 +1,32 @@
+{
+    "name": "ssl",
+    "description": "Embedthis SSL Interface",
+    "title": "Embedthis Development",
+    "version": "0.8.0",
+    "keywords": [
+        "me",
+        "ssl",
+    ],
+    "author": {
+        "name": "Embedthis Software",
+        "email": "dev@embedthis.com",
+        "url": "https://embedthis.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/embedthis/ssl.git"
+    },
+    "bugs": {
+        "url": "http://github.com/embedthis/ssl/issues"
+    },
+    "licenses": [
+        {
+            "type": "GPL",
+            "url": "http://www.gnu.org/licenses/gpl-2.0.html"
+        },
+        {
+            "type": "Commercial",
+            "url": "https://embedthis.com/licensing/"
+        }
+    ]
+}

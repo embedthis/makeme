@@ -1,0 +1,100 @@
+/*
+    vxworks.me - VxWorks Component
+ */
+
+Me.load({
+    targets: {
+        vxworks: {
+            description: 'VxWorks SDK'
+            config: function (target) {
+                if (me.platform.os != 'vxworks') {
+                    throw 'vxworks component only relevant if building for VxWorks'
+                }
+                let path: Path? = target.withpath
+                let includes
+                let env = {}
+                if (!path) {
+                    if (me.options.gen) {
+                        env.WIND_HOME = '$(WIND_BASE)/..'
+                        path = target.path = Path('$(WIND_BASE)')
+                        return {
+                            path:     path,
+                            includes: [ path.join('target/h'), path.join('target/h/wrn/coreip') ]
+                            env:      env,
+                        }
+                    }
+                    /*
+                        Search for WorkBench/Tornado in common places
+                     */
+                    let search = []
+                    let base = App.getenv('WIND_BASE')
+                    if (base) {
+                        search += [base]
+                    }
+                    for each (drive in (FileSystem.drives() - ['A', 'B'])) {
+                        search += Path(drive + ':/').files('WindRiver/vxworks-*')
+                    }
+                    search += Path('/WindRiver').files('vxworks-*') +
+                        Path('/usr/src/WindRiver').files('vxworks-*') +
+                        Path(App.getenv('HOME') + '/WindRiver').files('vxworks-*')
+                    path = probe('target/h/vxWorks.h', {search: search.sort().reverse()})
+                }
+
+                env.WIND_BASE = path
+                env.WIND_HOME = path.dirname
+
+                if (Config.OS == 'windows') {
+                    env.WIND_HOST_TYPE = 'x86-win32'
+
+                } else if (Config.OS == 'linux') {
+                    if (path.join('host/x86-linux').exists) {
+                        env.WIND_HOST_TYPE = 'x86-linux'
+                    } else if (path.join('host/x86-linux2').exists) {
+                        env.WIND_HOST_TYPE = 'x86-linux2'
+                    } else {
+                        throw 'Cannot determine the WIND_HOST_TYPE'
+                    }
+
+                } else if (Config.OS == 'solaris') {
+                    env.WIND_HOST_TYPE = 'solaris2'
+                }
+                /* VxWorks 6.9 needs to fix: get_feature error on liblmapi.so */
+                env.LD_LIBRARY_PATH = env.WIND_HOME + '/lmapi-5.0/' + env.WIND_HOST_TYPE + '/lib'
+
+                let version: String = path.basename.toString().split('-')[1]
+                let major: Number = version.split('.')[0] cast Number
+                let vsearch
+
+                if (major >= 6) {
+                    env.WIND_HOME = path.dirname
+                    let windPlatform = path.basename
+                    env.WIND_GNU_PATH = path.dirname.files('gnu/*-' + windPlatform).sort().reverse()[0]
+                    vsearch = [
+                        env.WIND_GNU_PATH.join(env.WIND_HOST_TYPE, 'bin'),
+                        env.WIND_GNU_PATH.join(env.WIND_HOST_TYPE, me.platform.arch + '-wrs-vxworks/bin'),
+                        env.WIND_BASE.join('host', env.WIND_HOST_TYPE, 'bin'),
+                        env.WIND_BASE.join('/host/resource/hutils/tcl'),
+                        env.WIND_HOME.files('workbench*/foundation/' + env.WIND_HOST_TYPE + '/bin').sort().reverse()[0],
+                    ]
+                } else {
+                    env.WIND_HOME = path
+                    env.WIND_GNU_PATH = ''
+                    vsearch = [
+                        env.WIND_BASE.join('host', env.WIND_HOST_TYPE, 'bin'),
+                        env.WIND_BASE.join('/host/resource/hutils/tcl'),
+                        env.WIND_HOME.files('workbench*/foundation/' + env.WIND_HOST_TYPE + '/bin').sort().reverse()[0],
+                    ]
+                }
+                env.DIST = 'WindRiver'
+                env.DIST_VER = version
+
+                return {
+                    path:     path,
+                    includes: [ path.join('target/h'), path.join('target/h/wrn/coreip') ]
+                    search:   vsearch,
+                    env:      env,
+                }
+            },
+        },
+    },
+})

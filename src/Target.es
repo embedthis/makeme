@@ -169,8 +169,8 @@ dynamic enumerable public class Target {
     var bare: Boolean
     /* Target has been enabled or disabled via explicit user configuration command */
 
-    /** Component explicitly included via configure --with */
-    var explicit: Boolean
+    /** Component explicitly excluded or included via configure --with/--without. Set to 'with' or 'without' */
+    var explicit: String
 
     /** List of top level MakeMe collections from which to inherit properties for this target */
     var inherit: Object?         //  String | Array
@@ -187,7 +187,7 @@ dynamic enumerable public class Target {
 
     /** Target has been excluded via a configure --without option 
         @hide */
-    var without: String
+    var without: Boolean
 
     /** Target was configured usinag a --with path */
     var withpath: String

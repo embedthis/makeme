@@ -33,9 +33,8 @@
     ],
     "pak": "~0.9",
     "dependencies": {
-        "me-dev": "~0.8",
-        "me-ssl": "~0.8",
-        "osdep": "~0.8"
+        "osdep": "~0.8",
+        "ssl": "~0.8"
     },
     "directories": {
         "paks": "src/paks"

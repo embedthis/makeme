@@ -60,7 +60,6 @@ version:
 
 boot:
 	@rm -fr build/$(OS)-$(ARCH)-*
-	echo MAKE IS $(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) compile
 	@$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) compile
 	build/$(OS)-$(ARCH)-$(PROFILE)/bin/me --release configure build
 

@@ -1,0 +1,52 @@
+/*
+    testme.me -- TestMe Component
+ */
+Me.load({
+    targets: {
+        testme: {
+            description: 'TestMe Unit Test Framework',
+            config: function (target) {
+                let mepath = Cmd.locate('me')
+                if (mepath.isLink) {
+                    mepath = mepath.dirname.join(mepath.linkTarget)
+                }
+                if (mepath) {
+                    mepath = mepath.dirname.parent
+                } else {
+                    if (me.platform.os == 'windows') {
+                        mepath = me.dir.programFiles32.join('Embedthis MakeMe')
+                    } else {
+                        mepath = '/usr/local/lib/me/latest'
+                    }
+                }
+                if (me.options.gen) {
+                    return {
+                        path:     mepath,
+                        libpaths: [ mepath.join('bin') ],
+                        includes: [ mepath.join('inc') ],
+                    }
+                }
+                let search = [ ]
+                if (target.withpath) {
+                    search.push(target.withpath)
+                }
+                for (let d: Path = '.'; d.parent != d; d = d.parent) {
+                    let sp = d.join(me.platform.name)
+                    if (sp.join('bin/libtestme.' + me.ext.shobj).exists) {
+                        search.push(sp)
+                        break
+                    }
+                }
+                search.push(mepath)
+                let path = probe('bin/libtestme.' + me.ext.shobj, { search: search });
+                let bin = probe('libtestme.' + me.ext.shobj, {fullpath: true, search: path.join('bin')}).dirname
+                return {
+                    path:       path,
+                    libpaths:  [ bin ],
+                    libraries: [ 'testme' ],
+                    includes:  [ probe('testme.h', {search: path.join('inc')}) ],
+                }
+            },
+        },
+    },
+})

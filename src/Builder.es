@@ -25,8 +25,8 @@ public class Builder {
     /** List of targets to clean by default. Defaults to 'exe', 'file', 'lib' and 'obj' */
     public static const TargetsToClean = { exe: true, file: true, lib: true, obj: true }
 
-    /** List of goals for this build */
-    public var goals: Array = []
+    /** Current goal */
+    public var goal: String
 
     /** Local platform string of the form OS-ARCH-PROFILE */
     public var localPlatform: String
@@ -70,20 +70,24 @@ public class Builder {
     /**
         Build all required targets for the requested goals
      */
-    public function build() {
-        if (options.hasOwnProperty('get')) {
-            eval('print(serialize(me.' + options.get + ', {pretty: true, quotes: false}))')
-            return
-        }
+    public function build(goals: Array = []) {
         if (goals.length == 0) {
             goals.push(Builder.ALL)
+        } 
+        if (goals != 'configure') {
+            makeDirs()
         }
+        //  MOB - eliminate 
+        let save = gates['build']
         for each (goal in goals) {
+            vtrace('Build', goal)
             admitSetup('build')
+            this.goal = goal
             for each (target in selectTargets(goal)) {
                 buildTarget(target)
             }
         }
+        gates['build'] = save
     }
 
     function buildFileList(target, patterns) {
@@ -123,7 +127,7 @@ public class Builder {
             } else {
                 if (target.message && !makeme.generating) {
                     let [,tag, msg] = target.message.match(/([^:]*) *: *(.*)/)
-                    trace(tag || 'Info', loader.expand(target.message))
+                    trace(tag || 'Info', loader.expand(msg))
                 }
                 if (options.diagnose) {
                     App.log.debug(3, "Target => " +
@@ -133,7 +137,7 @@ public class Builder {
 
 //  MOB - should operate on a plugin switch callback
                 if (makeme.generating) {
-                    makeme.generator.generateTarget(target)
+                    makeme.project.generateTarget(target)
                 } else {
                     if (target.mkdir) {
                         buildDirs(target)
@@ -200,11 +204,14 @@ public class Builder {
             various Path.operate properties will be interpreted locally.
         */
         let files = target.files.map(function(e) e.relativeTo(target.home))
-        trace('Copy', target.name)
-        copyFiles(files, target.path, target)
-        if (target.modify) {
-            target.modify.remove()
-            target.modify.write()
+        if (files.length) {
+            trace('Copy', Path(target.path).compact())
+            target.verbose = true
+            copyFiles(files, target.path, target)
+            if (target.modify) {
+                target.modify.remove()
+                target.modify.write()
+            }
         }
     }
 
@@ -560,6 +567,7 @@ public class Builder {
 
         for each (header in depends) {
             if (!me.targets[header]) {
+                /* Create a stub header target */
                 loader.createTarget({ name: header, enable: true, path: Path(header), home: target.home,
                     type: 'header', goals: [target.name], includes: target.includes, generate: true })
             }
@@ -654,15 +662,19 @@ public class Builder {
     }
 
     /**
-        Prepare for a build Must be called before $build.
+        Prepare for a build. Must be called before calling $build.
         @hide
      */
     public function prepBuild() {
+        //  MOB - functionalize
         if (!me.settings.configured && !options.configure) {
-            /* Auto configure */
-            makeme.overlay('Configure.es')
-            let configure = new Configure
-            configure.findComponents()
+            /* 
+                Auto configure 
+             */
+            let path = loader.findPlugin('configuration')
+            load(path.dirname.join('Configuration.es'))
+            Configuration().autoConfigure()
+
             for each (target in me.targets) {
                 if (target.type == 'exe' || target.type == 'lib' || target.type == 'obj') {
                     loader.inheritCompSettings(target, me.targets.compiler, true)
@@ -670,19 +682,19 @@ public class Builder {
             }
         }
         setPathEnvVar()
-        makeDirs()
-
         if (options.configuration) {
             showConfiguration()
         }
         /*
             When cross generating, certain wild cards can't be resolved.
             Setting missing to empty will cause missing glob patterns to be replaced with the pattern itself
+            MOB - move this somewhere?
          */
         if (options.gen || options.configure) {
             expandMissing = ''
         }
         if (options.gen == 'make' || options.gen == 'nmake') {
+            //  MOB - who uses this and why?
             options.configurableProject = true
         }
         enableTargets()
@@ -692,6 +704,7 @@ public class Builder {
         Object.sortProperties(me.targets)
         Object.sortProperties(me)
 
+        //  MOB - functionalize
         if (options.dump) {
             let path = Path(me.platform.name + '.dmp')
             if (me.configure) {
@@ -707,7 +720,7 @@ public class Builder {
                 Object.sortProperties(target)
             }
             path.write(serialize(me, {pretty: true, commas: true, indent: 4, nulls: false, quotes: false}))
-            trace('Dump', 'Save Me DOM to: ' + path)
+            trace('Dump', path)
         }
     }
 
@@ -715,13 +728,17 @@ public class Builder {
         Watch for changes and rebuild as required.
         The sleep period is defined via --watch.
      */
-    public function watch(start: Path) {
+    public function watch(start: Path, goals = []) {
         if (!start.exists) {
             throw 'Cannot find ' + start
         }
         if (options.configure || options.gen) {
             throw 'Cannot watch and configure or generate'
         }
+        if (!(goals is Array)) {
+            goals = [goals]
+        }
+        this.goals = goals
         let files = loader.getPlatformFiles(start)
         if (files.length > 1) {
             throw 'Cannot watch multiple platforms'
@@ -732,7 +749,7 @@ public class Builder {
         while (true) {
             vtrace('Check', 'for changes')
             try {
-                build()
+                build(goals)
             } catch (e) {
                 print(e)
             }
@@ -744,21 +761,30 @@ public class Builder {
         Process a top level MakeMe file
         @hide
      */
-    public function process(start: Path) {
-        if (!start.exists) {
-            throw 'Cannot find ' + start
+    public function process(first: Path, goals = []) {
+        if (!first.exists) {
+            throw 'Cannot find ' + first
         }
-        let pfiles = loader.getPlatformFiles(start)
+        if (!(goals is Array)) {
+            goals = [goals]
+        }
+        let pfiles = loader.getPlatformFiles(first)
         for each (path in pfiles) {
             Me()
+            vtrace('Process', path)
+            loader.reset()
             loader.loadFile(path)
             if (!options.configure && (pfiles.length > 1 || me.platform.cross)) {
                 trace('Build', me.platform.name)
                 vtrace('Targets', me.platform.name + ': ' + ((selectedTargets != '') ? selectedTargets: 'nothing to do'))
             }
+            if (options.hasOwnProperty('get')) {
+                eval('print(serialize(me.' + options.get + ', {pretty: true, quotes: false}))')
+                break
+            }
             prepBuild()
-            build()
-            trace('Complete', me.platform.name)
+            build(goals)
+            trace('Complete', goals)
         }
     }
 
@@ -946,8 +972,11 @@ public class Builder {
         for each (item in target.scripts[event]) {
             let pwd = App.dir
             if (item.home && item.home != pwd) {
-                changeDir(loader.expand(item.home))
+                let path = loader.expand(item.home)
+                changeDir(path)
             }
+            me.globals.HOME = App.dir
+            me.globals.ORIGIN = target.origin
             try {
                 if (item.interpreter == 'ejs') {
                     if (item.script is Function) {
@@ -969,6 +998,7 @@ public class Builder {
             } finally {
                 changeDir(pwd)
                 delete me.target
+                delete me.globals.HOME
             }
         }
         return result
@@ -976,10 +1006,19 @@ public class Builder {
 
 
     /*
-        Called with the desired goal. Goal will be set to true when being called for a required dependent
+        Called with the desired goal. Goal will be set to true when being called for a required dependent.
      */
     function selectDependentTargets(target, goal) {
-        if (target.selected || !target.enable) {
+        /*
+            Optimize by only processing dependents once
+         */
+        if (goal === true && !admit(target, 'select')) {
+            return
+        }
+        if (target.selected) {
+            return
+        }
+        if (!target.enable) {
             return
         }
         if (goal === true || target.goals.contains(goal)) {
@@ -1037,6 +1076,7 @@ public class Builder {
     public function selectTargets(goal): Array {
         selectedTargets = []
         topTargets = []
+        admitSetup('select')
         for each (target in me.targets) {
             target.selected = false
         }
@@ -1170,7 +1210,7 @@ public class Builder {
         }
         let path = target.modify || target.path
         if (!path.modified) {
-            whyRebuild(target.name, 'Rebuild', target.path + ' is missing.')
+            whyRebuild(target.name, 'Rebuild', path + ' is missing.')
             return true
         }
         for each (file in target.files) {

@@ -93,21 +93,20 @@ public function builtin(cmd: String, actionOptions: Object = {}) {
     switch (cmd) {
     case 'cleanTargets':
         for each (target in me.targets) {
-            if (target.enable && !target.precious && target.generate !== false && target.path && 
+            if (target.enable && target.path && !target.precious && target.generate !== false &&
                     Builder.TargetsToClean[target.type]) {
-                if (me.options.show) {
-                    trace('Clean', target.path.relative)
+                let path: Path = target.modify || target.path 
+                path = (makeme.generating) ? reppath(path) : path
+                if (path.exists) {
+                    trace('Clean', path)
                 }
-                let path: Path = (makeme.generating) ? reppath(target.path) : target.path
-                if (target.modify) {
-                    removeFile(target.modify)
-                } else if (target.path.toString().endsWith('/') || target.path.isDir) {
+                if (path.toString().endsWith('/') || path.isDir) {
                     removeDir(path)
                 } else {
                     removeFile(path)
                 }
                 if (me.platform.os == 'windows') {
-                    let ext = target.path.extension
+                    let ext = path.extension
                     if (ext == me.ext.shobj || ext == me.ext.exe) {
                         removeFile(path.replaceExt('lib'))
                         removeFile(path.replaceExt('pdb'))
@@ -229,6 +228,7 @@ public function copyFiles(from, to: Path, topOptions = {}, base = null) {
                     strace('Copy', 'cp ' + from + ' ' + to)
                 }
             }
+            print("POST", from, to)
         }
     }, topOptions, {overwrite: false, functions: true})
 
@@ -602,6 +602,7 @@ public function genClose()
     genout.close()
 
 public function genCmd(s) {
+    //  MOB - ugly
     if (me.target) {
         s = repvar2(s, me.target.home)
     } else {
@@ -716,9 +717,9 @@ internal function repCmd(s: String, pattern, replacement): String {
 public function repcmd(command: String): String {
     //  MOB - test makeme.generator
     //  generator.settings == gen
-    let mappings = makeme.generator.mappings
+    let mappings = makeme.project.mappings
     let generating = makeme.generating
-    let minimalCflags = makeme.generator.minimalCflags
+    let minimalCflags = makeme.project.minimalCflags
     if (generating == 'make' || generating == 'nmake') {
         //  MOB - use repset
         if (mappings.linker != '') {
@@ -815,7 +816,7 @@ public function repcmd(command: String): String {
  */
 public function repvar(command: String): String {
     let generating = makeme.generating
-    let mappings = makeme.generator.mappings
+    let mappings = makeme.project.mappings
     command = command.replace(RegExp(me.dir.top + '/', 'g'), '')
     if (generating == 'make') {
         command = command.replace(RegExp(mappings.build, 'g'), '$$(BUILD)')
@@ -843,7 +844,7 @@ public function repvar(command: String): String {
 public function repvar2(command: String, home: Path? = null): String {
         //  MOB - should be via repvar
     let generating = makeme.generating
-    let mappings = makeme.generator.mappings
+    let mappings = makeme.project.mappings
     if (home) {
         command = command.replace(RegExp(me.dir.top, 'g'), me.dir.top.relativeTo(home))
     }

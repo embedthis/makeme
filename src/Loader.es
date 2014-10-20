@@ -23,8 +23,8 @@ public class Loader {
 
     public var localPlatform: String
     private static var loadObj
-    private var options: Object
     private var loaded: Object
+    private var options: Object
 
     function Loader() {
         options = makeme.options
@@ -93,19 +93,18 @@ public class Loader {
                         type: 'component',
                         without: true,
                         enable: false,
-                        explicit: true,
+                        explicit: 'without',
                         diagnostic: 'Component disabled via --without ' + f + '.'
                     })
                 }
                 continue
             }
-            createTarget({
+            let target = createTarget({
                 name: field,
                 type: 'component',
-                without: true,
                 enable: false,
-                explicit: true,
-                diagnostic: 'Component disabled via --without ' + f + '.'
+                explicit: 'without',
+                diagnostic: 'Component disabled via --without ' + field '.'
             })
         }
         let requires = []
@@ -113,10 +112,10 @@ public class Loader {
             let [field,value] = field.split('=')
             let target = me.targets[field]
             if (!target) {
-                let target = createTarget({
+                target = createTarget({
                     name: field,
                     type: 'component',
-                    home: me.dir.src,
+                    explicit: 'with',
                     bare: true,
                 })
             }
@@ -146,11 +145,39 @@ public class Loader {
     }
 
     /*
+        Blend files referenced by the 'blend' property.
+        These are blended before the parent file is blended
+     */
+    function blendBlends(obj) {
+        let home = obj.origin
+        for each (let name in obj.blend) {
+            let optional
+            if (name.startsWith('?')) {
+                name = name.slice(1)
+                optional = true
+            }
+            name = expand(name, {missing: null})
+            let files = home.files(name)
+            if (files.length == 0) {
+                if ((path = findPlugin(name, false)) != null) {
+                    files = [path]
+                }
+            }
+            if (files.length == 0 && !optional) {
+                throw 'Cannot find blended module: ' + path
+            }
+            for each (let file in files) {
+                blendFile(file)
+            }
+        }
+    }
+
+    /*
         Blend files nominated in the customize[] property into 'me'. 
         These are applied after the parent file is loaded. No errors if the file ddoes not exist.
      */
     function blendCustomize(obj) {
-        let home = obj.origin.dirname
+        let home = obj.origin
         for each (cpath in me.customize) {
             cpath = home.join(expand(cpath, {missing: '.'}))
             if (cpath.exists) {
@@ -165,33 +192,58 @@ public class Loader {
     public function blendFile(path: Path): Void {
         path = Path(expand(path, {missing: '.'})).absolute
         if (loaded[path]) {
-            vtrace('Info', 'MakeMe file "' + path + '" already loaded')
+            vtrace('Info', 'MakeMe file "' + path.relative + '" already loaded')
             return
         }
         loaded[path] = true
-        let prior = loadObj
+        let priorObj = loadObj
         blendObj(readFile(path))
-        loadObj = prior
+        loadObj = priorObj
     }
 
     /*
-        Blend files referenced by the 'blend' property.
-        These are blended before the parent file is blended
+        Load modules and mixins
      */
-    function blendIncludes(obj) {
-        let home = obj.origin.dirname
-        for each (let path in obj.blend) {
-            let files
-            if (path.startsWith('?')) {
-                files = home.files(expand(path.slice(1), {missing: null}))
-            } else {
-                files = home.files(expand(path, {missing: null}))
-                if (files.length == 0) {
-                    throw 'Cannot find blended module: ' + path
+    public function blendModules(obj) {
+        let home = obj.origin
+        if (obj.modules) {
+            if (!(obj.modules is Array)) {
+                obj.modules = [obj.modules]
+            }
+            for each (let name in obj.modules) {
+                //  MOB - should support wildcards and ?
+                let optional
+                if (name.startsWith('?')) {
+                    name = name.slice(1)
+                    optional = true
+                }
+                name = expand(name, {missing: null})
+                let files = home.files(name)
+                if (files.length == 0 && !optional) {
+                    throw 'Cannot find blended module: "' + name + '"'
+                }
+                for each (let path in files) {
+                    vtrace('Module', path)
+                    try {
+                        me.globals.ORIGIN = path.dirname
+                        global.load(path)
+                    } catch (e) {
+                        throw new Error('When loading: ' + path + '\n' + e)
+                    }
                 }
             }
-            for each (let file in files) {
-                blendFile(file)
+        }
+        if (obj.mixin) {
+            if (!(obj.mixin is Array)) {
+                obj.mixin = [obj.mixin]
+            }
+            for each (let mix in obj.mixin) {
+                App.log.debug(2, 'Load mixin from: ' + obj.origin)
+                try {
+                    global.eval(mix)
+                } catch (e) {
+                    throw new Error('When loading mixin' + e)
+                }
             }
         }
     }
@@ -201,12 +253,9 @@ public class Loader {
      */
     public function blendObj(obj): Object {
         obj.origin ||= me.dir.top
-        if (obj.settings && obj.settings.overlay) {
-            vtrace('Info', 'Delay loading "' + obj.origin + '" until required')
-            return obj
-        }
         blendPlugins(obj)
-        blendIncludes(obj)
+        blendBlends(obj)
+        blendModules(obj)
         fixupProperties(obj)
 
         /*
@@ -225,9 +274,9 @@ public class Loader {
             Create targets
          */
         for (let [name, props] in targets) {
-            props.origin = obj.origin
             props.name ||= name
-            props.home ||= obj.origin.dirname
+            props.origin = obj.origin
+            props.home ||= obj.origin
             props.topLevel = true
             let target = me.targets[name]
             if (target) {
@@ -240,45 +289,28 @@ public class Loader {
         blendCustomize(obj)
         return obj
     }
-    
-    /*
-        Search for a plugin. Search locally first then in the pak cache.
-            src/paks/name
-            ~/.paks/name
-            mebin/paks/name
-     */
-    public function findPlugin(name) {
-        let fullname = 'me-' + name
-        var path = me.dir.paks.join(fullname)
-        if (path && path.exists) {
-            return path
-        }
-        let pakcache = App.home.join('.paks')
-        var path = Version.sort(pakcache.join(fullname).files('*'), -1)[0]
-        if (path && path.exists) {
-            return path
-        }
-        var path = me.dir.me.join(fullname)
-        if (path && path.exists) {
-            return path
-        }
-        return null
-    }
+
 
     function blendPlugins(obj) {
-        for each (plugin in obj.plugins) {
-            let path
-            if (plugin.startsWith('?')) {
-                plugin = plugin.slice(1)
-                path = findPlugin(plugin)
-            } else {
-                if ((path = findPlugin(plugin)) == null) {
-                    throw 'Cannot find plugin: "' + plugin + '"'
-                }
+        let plugins = obj.plugins || []
+        if (obj.master) {
+            /*
+                Get extra (horizontal) plugins from ejsrc
+             */
+            let extras = App.config.makemePlugins
+            if (extras) {
+                extras = castArray(extras)
+                plugins = (plugins + extras).unique()
             }
+            if (App.env.MAKE_PLUGINS) {
+                extras = App.env.MAKE_PLUGINS.split(',')
+                plugins = (plugins + extras).unique()
+            }
+        }
+        for each (plugin in plugins) {
+            let path = findPlugin(plugin)
             if (path) {
-                vtrace('Locate', 'Plugin "' + plugin + '" at "' + path + '"')
-                blendFile(path.join(plugin + '.me'))
+                blendFile(path)
             }
         }
     }
@@ -308,49 +340,6 @@ public class Loader {
             array = array.transform(function(e) Path(e))
         }
         return array
-    }
-
-    /*
-        Resolve directory properties to be absolute Paths so they can apply anywhere in the source tree. 
-        Scripts change directory so it is essential that all script-accessible properties be absolute.
-     */
-    function resolveDirectories() {
-        for (let [key,value] in me.blend) {
-            me.blend[key] = Path(value).absolute.portable
-        }
-        for (let [key,value] in me.dir) {
-            me.dir[key] = Path(value).absolute
-        }
-        //  MOB - should not need to do on every file?
-        let defaults = me.targets.compiler
-        if (defaults) {
-            for (let [key,value] in defaults.includes) {
-                defaults.includes[key] = Path(value).absolute
-            }
-            for (let [key,value] in defaults.libpaths) {
-                defaults.libpaths[key] = Path(value).absolute
-            }
-        }
-        //  MOB - should not need to do on every file?
-        let defaults = me.defaults
-        if (defaults) {
-            for (let [key,value] in defaults.includes) {
-                defaults.includes[key] = Path(value).absolute
-            }
-            for (let [key,value] in defaults.libpaths) {
-                defaults.libpaths[key] = Path(value).absolute
-            }
-        }
-        for (let [pname, prefix] in me.prefixes) {
-            me.prefixes[pname] = Path(prefix)
-            if (me.platform.os == 'windows') {
-                if (Config.OS == 'windows') {
-                    me.prefixes[pname] = me.prefixes[pname].absolute
-                }
-            } else {
-                me.prefixes[pname] = me.prefixes[pname].normalize
-            }
-        }
     }
 
     function castPath(path) {
@@ -394,7 +383,6 @@ public class Loader {
             throw e
         }
         if (!target.home) {
-            trace('Warn', 'Target "' + target.name + '" does not have a home')
             target.home = me.dir.src
         }
         castTargetProperties(target)
@@ -472,6 +460,7 @@ public class Loader {
     function expandTokens(o) {
         let x 
         if (me.targets.removeFiles) {
+            //  MOB - remove this
             if (me.targets.removeFiles.enable is String) x = 1
         }
         for (let [key,value] in o) {
@@ -491,17 +480,6 @@ public class Loader {
         Fix legacy properties and prepend combine prefixes to properties that must be aggregated
      */
     function fixupProperties(o) {
-        /*
-            Arrays must have a +prefix to blend
-         */
-        if (o.mixin) {
-            if (!(o.mixin is Array)) {
-                o.mixin = [o.mixin]
-            }
-            plus(o, 'mixin')
-        }
-        plus(o, 'modules')
-
         //  MOB - required?
         plus(o.defaults, 'includes')
         plus(o.internal, 'includes')
@@ -513,9 +491,6 @@ public class Loader {
         let origin = o.origin
 
         //  LEGACY
-        if (o.modules) {
-            trace('Warn', origin + ' uses "modules" which is deprecated, use mix instead')
-        }
         if (o.extensions) {
             trace('Warn', origin + ' uses "extensions" which is deprecated, use "configure" instead')
         }
@@ -567,6 +542,46 @@ public class Loader {
     }
 
     /*
+        Search for a plugin. Search locally first then in the pak cache.
+            src/paks/name
+            ~/.paks/name
+            /usr/local/bin/me/latest/bin/paks/name
+     */
+    public function findPlugin(name, exceptions = true): Path? {
+        let path: Path?
+        let optional = false
+        if (name.startsWith('?')) {
+            name = name.slice(1)
+            optional = true
+        }
+        name = expand(name, {missing: '.'})
+        if (!name.startsWith('me-')) {
+            path = findPlugin('me-' + name, false)
+        }
+        let base = Path(name.trimStart('me-')).joinExt('me')
+        if (!path || !path.exists) {
+            path = me.dir.paks.join(name, base)
+        }
+        if (!path || !path.exists) {
+            let pakcache = App.home.join('.paks')
+            path = pakcache.join(name)
+            if (path.exists) {
+                path = Path(Version.sort(pakcache.join(name).files('*'), -1)[0]).join(base)
+            }
+        }
+        if (!path || !path.exists) {
+            path = me.dir.me.join('paks', name, base)
+        }
+        if (!path || !path.exists) {
+            if (exceptions && !optional) {
+                throw 'Cannot find: "' + name + '"'
+            }
+            path = null
+        }
+        return path
+    }
+
+    /*
         Convert scripts collection into canonical long form
      */
     public function fixScripts(o, topnames) {
@@ -585,19 +600,28 @@ public class Loader {
             /*
                 Convert to canonical long form
              */
-            let home = o.origin.dirname
+            let home = o.origin
             for (let [event, item] in o.scripts) {
                 if (item is String || item is Function) {
                     o.scripts[event] = [{ home: home, interpreter: 'ejs', script: item }]
                 } else if (item is Array) {
-                    for (let [i,elt] in item) {
-                        if ((elt is String) || (elt is Function)) {
-                            item[i] = { home: home, interpreter: 'ejs', script: elt }
-                        } else if (elt is Function) {
-                            item[i] = { home: home, interpreter: 'fun', script: elt }
+                    for (let [key, value] in item) {
+                        if ((value is String) || (value is Function)) {
+                            item[key] = { home: home, interpreter: 'ejs', script: value }
+                        } else if (value is Function) {
+                            item[key] = { home: home, interpreter: 'fun', script: value }
                         } else {
-                            elt.home ||= home
+                            value.home ||= home
                         }
+                    }
+                }
+            }
+            for (let [event, scripts] in o.scripts) {
+                for each (item in scripts) {
+                    if (item.script is String) {
+                        me.globals.HOME = item.home
+                        me.globals.ORIGIN = o.origin
+                        item.script = expand(item.script)
                     }
                 }
             }
@@ -607,7 +631,8 @@ public class Loader {
     public function getPlatformFiles(path): Array {
         let files = []
         if (path.exists) {
-            platforms = readFile(path).platforms
+            global.load(expand(path, {missing: '.'}))
+            platforms = loadObj.platforms
             if (platforms) {
                 for each (platform in platforms) {
                     if (platform == 'local') {
@@ -730,15 +755,14 @@ public class Loader {
             6. File itself
             7. Any 'main' file
      */
-    public static function loadFile(path)
-        makeme.loader.loadFileInner(path)
-
-    function loadFileInner(path) {
+    public function loadFile(path) {
         let obj = readFile(path)
+        obj.master = true
         if (!me.platform || !me.platform.name) {
             initPlatform(obj)
         } 
-        blendFile(me.dir.me.join('os/' + me.platform.os + '.me'))
+        blendFile(findPlugin('os'))
+        //  MOB - find a better way to detect if configured
         blendFile(me.dir.me.join(!me.dir.bin.same(me.dir.out) ? 'standard.me' : 'simple.me'))
         setExtensions()
         loadPackage(path)
@@ -753,7 +777,6 @@ public class Loader {
          */
         expandTokens(me)
         setPrefixes()
-        loadModules()
         applyPlatformProfile()
         applyCommandLine()
         resolveDirectories()
@@ -762,28 +785,6 @@ public class Loader {
 
     public static function loading(obj)
         loadObj = obj
-
-    /*
-        Load plugins (modules and mixins). MOB - need to convert to plugins
-     */
-    function loadModules() {
-        for each (let module in me.modules) {
-            App.log.debug(2, 'Load me module: ' + module)
-            try {
-                global.load(module)
-            } catch (e) {
-                throw new Error('When loading: ' + module + '\n' + e)
-            }
-        }
-        for each (let mix in me.mixin) {
-            App.log.debug(2, 'Load me mixin')
-            try {
-                global.eval(mix)
-            } catch (e) {
-                throw new Error('When loading mixin' + e)
-            }
-        }
-    }
 
     /*
         Load the Package.json and extract product description and definition
@@ -805,8 +806,8 @@ public class Loader {
                 settings.version = package.version
                 settings.author = package.author ? package.author.name : package.name
                 settings.company = package.company
-                if (package.dirs && package.dirs.paks) {
-                    dir.paks = package.dirs.paks
+                if (package.directories && package.directories.paks) {
+                    dir.paks = Path(package.directories.paks)
                 }
             } catch {}
         }
@@ -815,8 +816,6 @@ public class Loader {
         if (dir.paks && !dir.paks.exists) {
             if (Path('src/paks').exists) {
                 dir.paks = Path('src/paks')
-            } else if (Path('src/deps').exists) {
-                dir.paks = Path('src/deps')
             }
         }
         if (settings.version) {
@@ -825,6 +824,25 @@ public class Loader {
             settings.compatible ||= majmin
         }
     }
+
+    public function makeDirectoryGlobals(base: Path? = null) {
+        let tokens
+        for each (n in ['BIN', 'BLD', 'OUT', 'INC', 'LIB', 'OBJ', 'PAKS', 'PKG', 'REL', 'SRC', 'TOP', 'LBIN']) {
+            /*
+                In portable format so they can be used in build scripts. Windows back-slashes require quoting!
+             */
+            let path = me.dir[n.toLower()]
+            if (!path) continue
+            path = Path(path).portable
+            if (base) {
+                path = path.relativeTo(base)
+            }
+            global[n] = me.globals[n] = path
+            if (path.contains('${') /*}*/) tokens = true
+        }
+        me.globals.ME = me.dir.me
+        return !tokens
+    } 
 
     /*
         Make globals used when doing string expansion
@@ -854,25 +872,6 @@ public class Loader {
         }
     }
 
-    public function makeDirectoryGlobals(base: Path? = null) {
-        let tokens
-        for each (n in ['BIN', 'BLD', 'OUT', 'INC', 'LIB', 'OBJ', 'PAKS', 'PKG', 'REL', 'SRC', 'TOP', 'LBIN']) {
-            /*
-                In portable format so they can be used in build scripts. Windows back-slashes require quoting!
-             */
-            let path = me.dir[n.toLower()]
-            if (!path) continue
-            path = Path(path).portable
-            if (base) {
-                path = path.relativeTo(base)
-            }
-            global[n] = me.globals[n] = path
-            if (path.contains('${') /*}*/) tokens = true
-        }
-        me.globals.ME = me.dir.me
-        return !tokens
-    }
-
     public function makeExtensionGlobals() {
         let g = me.globals
         let ext = me.ext
@@ -884,6 +883,7 @@ public class Loader {
     }
 
 //  MOB - refactor and order this file
+//  MOB - rename "p"
 
     function mapTargetProperties(p) {
         for (let [key,value] in p) {
@@ -945,6 +945,17 @@ public class Loader {
                 delete p.from
             }
         }
+
+/* UNUSED
+        for (let [key,value] in p) {
+            if (key.startsWith('generate')) {
+                trace('Warn', 'Target "' + name + '" using "' + key + '" option, use "gen-" instead')
+                delete p[key]
+                key = key.replace(/^generate/, '')
+                p[key] = value
+            }
+        }
+*/
         setTargetGoals(p)
 
         /*
@@ -1052,10 +1063,10 @@ public class Loader {
         }
         let result
         try {
-            vtrace('Loading', path)
+            vtrace('Load', path.compact())
             global.load(path)
             result = loadObj
-            result.origin = path
+            result.origin = path.dirname
         }
         return result
     }
@@ -1130,6 +1141,49 @@ public class Loader {
         loaded = {}
     }
 
+    /*
+        Resolve directory properties to be absolute Paths so they can apply anywhere in the source tree. 
+        Scripts change directory so it is essential that all script-accessible properties be absolute.
+     */
+    function resolveDirectories() {
+        for (let [key,value] in me.blend) {
+            me.blend[key] = Path(value).absolute.portable
+        }
+        for (let [key,value] in me.dir) {
+            me.dir[key] = Path(value).absolute
+        }
+        //  MOB - should not need to do on every file?
+        let defaults = me.targets.compiler
+        if (defaults) {
+            for (let [key,value] in defaults.includes) {
+                defaults.includes[key] = Path(value).absolute
+            }
+            for (let [key,value] in defaults.libpaths) {
+                defaults.libpaths[key] = Path(value).absolute
+            }
+        }
+        //  MOB - should not need to do on every file?
+        let defaults = me.defaults
+        if (defaults) {
+            for (let [key,value] in defaults.includes) {
+                defaults.includes[key] = Path(value).absolute
+            }
+            for (let [key,value] in defaults.libpaths) {
+                defaults.libpaths[key] = Path(value).absolute
+            }
+        }
+        for (let [pname, prefix] in me.prefixes) {
+            me.prefixes[pname] = Path(prefix)
+            if (me.platform.os == 'windows') {
+                if (Config.OS == 'windows') {
+                    me.prefixes[pname] = me.prefixes[pname].absolute
+                }
+            } else {
+                me.prefixes[pname] = me.prefixes[pname].normalize
+            }
+        }
+    }
+
     public function runScriptOnce(event) {
         if (me.scripts && me.scripts[event]) {
             runScriptFromObj(me.scripts, event)
@@ -1188,8 +1242,8 @@ public class Loader {
                 dir.lbin ||= (options.gen || me.platform.os == Config.OS) ? dir.bin : dir.bld.join(localPlatform, 'bin')
                 dir.lib  ||= dir.bin
                 dir.obj  ||= dir.out.join('obj')
-                dir.paks ||= dir.top.join('src/paks')
-                dir.proj ||= dir.top.join('projects')
+                dir.paks ||= dir.src.join('src/paks')
+                dir.proj ||= dir.src.join('projects')
                 dir.pkg  ||= dir.out.join('pkg')
                 dir.rel  ||= dir.out.join('img')
             } else {
@@ -1215,9 +1269,7 @@ public class Loader {
         for (let [key,value] in dir) {
             dir[key] = Path(value.toString().expand(this)).absolute
         }
-        dir.bin.makeDir()
-        dir.inc.makeDir()
-        dir.obj.makeDir()
+        makeDirectoryGlobals()
     }
 
     function setExtensions() {
@@ -1271,6 +1323,7 @@ public class Loader {
         }
     }
 
+//  MOB - move this to prepBuild
     function setTargetGoals(target) {
         let goals = target.goals || []
         let type = target.type
@@ -1279,18 +1332,13 @@ public class Loader {
                 goals = [Builder.ALL]
                 if (target.generate !== false) {
                     target.generate ||= true
-                    goals.push('generate')
+                    goals.push('gen')
                 }
             } else {
                 goals = []
             }
         }
-        if (type && type != 'script' && !goals.contains(type)) {
-            goals.push(type)
-        }
-        if (!goals.contains(target.name)) {
-            goals.push(target.name)
-        }
+        //  MOB - could all this be done via an event
         for (field in target) {
             if (field.startsWith('generate-')) {
                 if (target.generate !== false) {
@@ -1298,8 +1346,14 @@ public class Loader {
                 }
             }
         }
-        if (target.generate && !goals.contains('generate')) {
-            goals.push('generate')
+        if (target.generate && !goals.contains('gen')) {
+            goals.push('gen')
+        }
+        if (type && type != 'script' && !goals.contains(type)) {
+            goals.push(type)
+        }
+        if (!goals.contains(target.name)) {
+            goals.push(target.name.toString())
         }
         target.goals = goals
     }

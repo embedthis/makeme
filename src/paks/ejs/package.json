@@ -36,9 +36,7 @@
     "pak": "~0.9",
     "dependencies": {
         "http": "~6",
-        "me-dev": "~0.8",
-        "me-doc": "~0.8",
-        "me-package": "~0.8",
+        "me-docstyle": "~0.8",
         "mpr": "~6",
         "osdep": "~0.8",
         "pcre": "~1.0",
@@ -46,8 +44,8 @@
     },
     "optionalDependencies": {
         "est": "~0.6",
-        "me-ssl": "~0.8",
-        "sqlite": "~1.0"
+        "sqlite": "~1.0",
+        "ssl": "~0.8"
     },
     "directories": {
         "paks": "src/paks"

@@ -1,0 +1,55 @@
+/*
+    openssl.me -- OpenSSL Component
+ */
+
+Me.load({ 
+    targets: {
+        openssl: {
+            description: 'OpenSSL',
+            config: function (target) {
+                if (me.options.gen) {
+                    return {
+                        path: target.withpath || Path('/usr/src/openssl'),
+                        includes: [ '$(ME_COM_OPENSSL_PATH)/include' ],
+                        libpaths: [ '$(ME_COM_OPENSSL_PATH)' ],
+                        libraries: me.platform.os == 'windows' 
+                            ? ([ 'libeay32.lib', 'ssleay32.lib' ]) : ([ 'ssl', 'crypto' ]),
+                    }
+                }
+                let lib, libraries, libpaths, imports, includes, path
+                let search = getComponentSearch(target, 'openssl')
+                if (me.platform.os == 'windows') {
+                    for (let [index, item] in search) {
+                        search[index] = Path(item).join('out32dll')
+                    }
+                    lib = probe('libeay32.dll', {fullpath: true, search: search, nopath: true}).absolute
+                    libraries = [ 'libeay32.lib', 'ssleay32.lib' ]
+                    libpaths = [ lib.parent ]
+                    imports = [ lib.parent.join('libeay32.dll'), lib.parent.join('libeay32.lib'),
+                        lib.parent.join('ssleay32.dll'), lib.parent.join('ssleay32.lib') ]
+                    path = lib.dirname.parent
+                    includes = [ probe('openssl/ssl.h', {search: [path.join('inc32')]}).absolute ]
+
+                } else {
+                    lib = probe('libcrypto.' + me.ext.shobj, {fullpath: true, search: search, nopath: true}).absolute
+                    path = lib.dirname
+                    libraries = [ 'ssl', 'crypto' ]
+                    libpaths = [ lib.parent ]
+                    imports = lib.parent.files('libssl*.' + me.ext.shobj + '*') + 
+                        lib.parent.files('libcrypto*.' + me.ext.shobj + '*')
+                    includes = [ probe('openssl/ssl.h', {search: [ path.join('include'), '/usr/include']}).absolute ]
+                }
+                return {
+                    path:       lib.dirname,
+                    imports:    imports,
+                    includes:   includes,
+                    libpaths:   libpaths,
+                    libraries,  libraries,
+                }
+            },
+            ifdef: [ 'ssl' ],
+            conflicts: [ 'est' ],
+        },
+    },
+})
+
