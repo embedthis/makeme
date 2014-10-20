@@ -1115,11 +1115,11 @@ public class Builder {
             tv.LIBPATHS = mapLibPaths(target.libpaths, base)
         }
         if (me.platform.os == 'windows') {
-            let entry = target.entry || me.targets.compiler.entry
+            let entry = target.entry || (me.targets.compiler && me.targets.compiler.entry)
             if (entry) {
                 tv.ENTRY = entry[target.rule || target.type]
             }
-            let subsystem = target.subsystem || me.targets.compiler.subsystem
+            let subsystem = target.subsystem || (me.targets.compiler && me.targets.compiler.subsystem)
             if (subsystem) {
                 tv.SUBSYSTEM = subsystem[target.rule || target.type]
             }
