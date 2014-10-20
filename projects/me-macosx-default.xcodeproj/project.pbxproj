@@ -994,8 +994,8 @@
 		025E1F6C025E4DEC00000056 /* pcre.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pcre.c; path = src/paks/pcre/pcre.c; sourceTree = "<group>"; };
 		025E1F6C025E4DEC00000109 /* pcre.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pcre.h; path = src/paks/pcre/pcre.h; sourceTree = "<group>"; };
 		025E1F6C025E4DEC00000066 /* libpcre */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpcre.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		025E1F6C025E4DEC00000058 /* libtestme.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = libtestme.c; path = src/testme/libtestme.c; sourceTree = "<group>"; };
-		025E1F6C025E4DEC0000010A /* testme.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = testme.h; path = src/testme/testme.h; sourceTree = "<group>"; };
+		025E1F6C025E4DEC00000058 /* libtestme.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = libtestme.c; path = src/tm/libtestme.c; sourceTree = "<group>"; };
+		025E1F6C025E4DEC0000010A /* testme.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = testme.h; path = src/tm/testme.h; sourceTree = "<group>"; };
 		025E1F6C025E4DEC0000010B /* libtestme */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libtestme.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		025E1F6C025E4DEC0000005A /* zlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = zlib.c; path = src/paks/zlib/zlib.c; sourceTree = "<group>"; };
 		025E1F6C025E4DEC0000010C /* zlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zlib.h; path = src/paks/zlib/zlib.h; sourceTree = "<group>"; };
@@ -1003,7 +1003,7 @@
 		025E1F6C025E4DEC0000005C /* me.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = me.c; path = src/me.c; sourceTree = "<group>"; };
 		025E1F6C025E4DEC0000010D /* ejs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ejs.h; path = build/macosx-x64-default/inc/ejs.h; sourceTree = "<group>"; };
 		025E1F6C025E4DEC0000010E /* me */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = me; sourceTree = BUILT_PRODUCTS_DIR; };
-		025E1F6C025E4DEC0000005E /* testme.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = testme.c; path = src/testme/testme.c; sourceTree = "<group>"; };
+		025E1F6C025E4DEC0000005E /* testme.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = testme.c; path = src/tm/testme.c; sourceTree = "<group>"; };
 		025E1F6C025E4DEC0000010F /* testme */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = testme; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -1605,7 +1605,7 @@ cd ../src/paks/ejs
     			files = (
     			);
     			inputPaths = (
-    ../src/testme/ejs.testme.es
+    ../src/tm/ejs.testme.es
     			);
     			outputPaths = (
     ../build/macosx-x64-default/bin/ejs.testme.es
@@ -1615,7 +1615,7 @@ cd ../src/paks/ejs
     			shellScript = "PATH=$PATH:/usr/local/bin
 cd ..
 	mkdir -p \"build/macosx-x64-default/bin\"
-	cp src/testme/ejs.testme.es build/macosx-x64-default/bin/ejs.testme.es
+	cp src/tm/ejs.testme.es build/macosx-x64-default/bin/ejs.testme.es
 ";
     		};
 		025E1F6C025E4DEC00000010 /* ShellScript for ejs.testme.mod */ = {
@@ -1624,7 +1624,7 @@ cd ..
     			files = (
     			);
     			inputPaths = (
-    ../src/testme/ejs.testme.es
+    ../src/tm/ejs.testme.es
     			);
     			outputPaths = (
     ../build/macosx-x64-default/bin/ejs.testme.mod
@@ -1632,7 +1632,7 @@ cd ..
     			runOnlyForDeploymentPostprocessing = 0;
     			shellPath = /bin/bash;
     			shellScript = "PATH=$PATH:/usr/local/bin
-cd ../src/testme
+cd ../src/tm
 	../${OUT_DIR}/bin/ejsc --debug --out ../${OUT_DIR}/bin/ejs.testme.mod --optimize 9 ejs.testme.es
 ";
     		};
@@ -1804,7 +1804,7 @@ cd ..
     			files = (
     			);
     			inputPaths = (
-    ../src/testme/testme.es
+    ../src/tm/testme.es
     			);
     			outputPaths = (
     ../build/macosx-x64-default/bin/testme.es
@@ -1814,7 +1814,7 @@ cd ..
     			shellScript = "PATH=$PATH:/usr/local/bin
 cd ..
 	mkdir -p \"build/macosx-x64-default/bin\"
-	cp src/testme/testme.es build/macosx-x64-default/bin/testme.es
+	cp src/tm/testme.es build/macosx-x64-default/bin/testme.es
 ";
     		};
 		025E1F6C025E4DEC00000026 /* ShellScript for testme.mod */ = {
@@ -1823,7 +1823,7 @@ cd ..
     			files = (
     			);
     			inputPaths = (
-    ../src/testme/testme.es
+    ../src/tm/testme.es
     			);
     			outputPaths = (
     ../build/macosx-x64-default/bin/testme.mod
@@ -1831,7 +1831,7 @@ cd ..
     			runOnlyForDeploymentPostprocessing = 0;
     			shellPath = /bin/bash;
     			shellScript = "PATH=$PATH:/usr/local/bin
-cd ../src/testme
+cd ../src/tm
 	../${OUT_DIR}/bin/ejsc --debug --out ../${OUT_DIR}/bin/testme.mod --optimize 9 testme.es
 ";
     		};
@@ -1880,8 +1880,8 @@ fi
 if [ ../src/paks/pcre/pcre.h -nt ${OUT_DIR}/inc/pcre.h ] ; then
 cp ../src/paks/pcre/pcre.h ${OUT_DIR}/inc/pcre.h
 fi
-if [ ../src/testme/testme.h -nt ${OUT_DIR}/inc/testme.h ] ; then
-cp ../src/testme/testme.h ${OUT_DIR}/inc/testme.h
+if [ ../src/tm/testme.h -nt ${OUT_DIR}/inc/testme.h ] ; then
+cp ../src/tm/testme.h ${OUT_DIR}/inc/testme.h
 fi
 if [ ../src/paks/zlib/zlib.h -nt ${OUT_DIR}/inc/zlib.h ] ; then
 cp ../src/paks/zlib/zlib.h ${OUT_DIR}/inc/zlib.h
@@ -1907,8 +1907,8 @@ fi
 if [ ../src/paks/pcre/pcre.h -nt ${OUT_DIR}/inc/pcre.h ] ; then
 cp ../src/paks/pcre/pcre.h ${OUT_DIR}/inc/pcre.h
 fi
-if [ ../src/testme/testme.h -nt ${OUT_DIR}/inc/testme.h ] ; then
-cp ../src/testme/testme.h ${OUT_DIR}/inc/testme.h
+if [ ../src/tm/testme.h -nt ${OUT_DIR}/inc/testme.h ] ; then
+cp ../src/tm/testme.h ${OUT_DIR}/inc/testme.h
 fi
 if [ ../src/paks/zlib/zlib.h -nt ${OUT_DIR}/inc/zlib.h ] ; then
 cp ../src/paks/zlib/zlib.h ${OUT_DIR}/inc/zlib.h

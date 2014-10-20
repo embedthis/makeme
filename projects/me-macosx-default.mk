@@ -272,12 +272,12 @@ $(BUILD)/inc/est.h: $(DEPS_11)
 #
 #   testme.h
 #
-DEPS_12 += src/testme/testme.h
+DEPS_12 += src/tm/testme.h
 
 $(BUILD)/inc/testme.h: $(DEPS_12)
 	@echo '      [Copy] $(BUILD)/inc/testme.h'
 	mkdir -p "$(BUILD)/inc"
-	cp src/testme/testme.h $(BUILD)/inc/testme.h
+	cp src/tm/testme.h $(BUILD)/inc/testme.h
 
 #
 #   ejs.h
@@ -364,17 +364,17 @@ $(BUILD)/obj/httpLib.o: \
 #   testme.h
 #
 
-src/testme/testme.h: $(DEPS_22)
+src/tm/testme.h: $(DEPS_22)
 
 #
 #   libtestme.o
 #
-DEPS_23 += src/testme/testme.h
+DEPS_23 += src/tm/testme.h
 
 $(BUILD)/obj/libtestme.o: \
-    src/testme/libtestme.c $(DEPS_23)
+    src/tm/libtestme.c $(DEPS_23)
 	@echo '   [Compile] $(BUILD)/obj/libtestme.o'
-	$(CC) -c $(DFLAGS) -o $(BUILD)/obj/libtestme.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) src/testme/libtestme.c
+	$(CC) -c $(DFLAGS) -o $(BUILD)/obj/libtestme.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) src/tm/libtestme.c
 
 #
 #   me.o
@@ -436,9 +436,9 @@ $(BUILD)/obj/pcre.o: \
 DEPS_30 += $(BUILD)/inc/ejs.h
 
 $(BUILD)/obj/testme.o: \
-    src/testme/testme.c $(DEPS_30)
+    src/tm/testme.c $(DEPS_30)
 	@echo '   [Compile] $(BUILD)/obj/testme.o'
-	$(CC) -c $(DFLAGS) -o $(BUILD)/obj/testme.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) src/testme/testme.c
+	$(CC) -c $(DFLAGS) -o $(BUILD)/obj/testme.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) src/tm/testme.c
 
 #
 #   zlib.h
@@ -589,24 +589,24 @@ endif
 #
 #   ejs.testme.es
 #
-DEPS_40 += src/testme/ejs.testme.es
+DEPS_40 += src/tm/ejs.testme.es
 
 $(BUILD)/bin/ejs.testme.es: $(DEPS_40)
 	@echo '      [Copy] $(BUILD)/bin/ejs.testme.es'
 	mkdir -p "$(BUILD)/bin"
-	cp src/testme/ejs.testme.es $(BUILD)/bin/ejs.testme.es
+	cp src/tm/ejs.testme.es $(BUILD)/bin/ejs.testme.es
 
 #
 #   ejs.testme.mod
 #
-DEPS_41 += src/testme/ejs.testme.es
+DEPS_41 += src/tm/ejs.testme.es
 ifeq ($(ME_COM_EJS),1)
     DEPS_41 += $(BUILD)/bin/ejs.mod
 endif
 
 $(BUILD)/bin/ejs.testme.mod: $(DEPS_41)
 	( \
-	cd src/testme; \
+	cd src/tm; \
 	echo '   [Compile] ejs.testme.mod' ; \
 	../../$(BUILD)/bin/ejsc --debug --out ../../$(BUILD)/bin/ejs.testme.mod --optimize 9 ejs.testme.es ; \
 	)
@@ -781,7 +781,7 @@ DEPS_49 += src/paks/me-xcode/README.md
 DEPS_49 += src/paks/me-xcode/Xcode.es
 DEPS_49 += src/paks/me-xcode/xcode.me
 
-$(BUILD)/.modify-runtime: $(DEPS_49)
+$(BUILD)/bin: $(DEPS_49)
 	@echo '      [Copy] $(BUILD)/bin'
 	mkdir -p "$(BUILD)/bin"
 	cp src/master-main.me $(BUILD)/bin/master-main.me
@@ -838,7 +838,6 @@ $(BUILD)/.modify-runtime: $(DEPS_49)
 	cp src/paks/me-xcode/README.md $(BUILD)/bin/paks/me-xcode/README.md
 	cp src/paks/me-xcode/Xcode.es $(BUILD)/bin/paks/me-xcode/Xcode.es
 	cp src/paks/me-xcode/xcode.me $(BUILD)/bin/paks/me-xcode/xcode.me
-	touch "$(BUILD)/.modify-runtime"
 
 #
 #   me
@@ -851,7 +850,7 @@ ifeq ($(ME_COM_EJS),1)
     DEPS_50 += $(BUILD)/bin/libejs.dylib
 endif
 DEPS_50 += $(BUILD)/bin/me.mod
-DEPS_50 += $(BUILD)/.modify-runtime
+DEPS_50 += $(BUILD)/bin
 DEPS_50 += $(BUILD)/obj/me.o
 
 LIBS_50 += -lmpr
@@ -875,14 +874,14 @@ $(BUILD)/bin/me: $(DEPS_50)
 #
 #   testme.mod
 #
-DEPS_51 += src/testme/testme.es
+DEPS_51 += src/tm/testme.es
 ifeq ($(ME_COM_EJS),1)
     DEPS_51 += $(BUILD)/bin/ejs.mod
 endif
 
 $(BUILD)/bin/testme.mod: $(DEPS_51)
 	( \
-	cd src/testme; \
+	cd src/tm; \
 	echo '   [Compile] testme.mod' ; \
 	../../$(BUILD)/bin/ejsc --debug --out ../../$(BUILD)/bin/testme.mod --optimize 9 testme.es ; \
 	)
@@ -918,12 +917,12 @@ $(BUILD)/bin/testme: $(DEPS_52)
 #
 #   testme.es
 #
-DEPS_53 += src/testme/testme.es
+DEPS_53 += src/tm/testme.es
 
 $(BUILD)/bin/testme.es: $(DEPS_53)
 	@echo '      [Copy] $(BUILD)/bin/testme.es'
 	mkdir -p "$(BUILD)/bin"
-	cp src/testme/testme.es $(BUILD)/bin/testme.es
+	cp src/tm/testme.es $(BUILD)/bin/testme.es
 
 
 #
@@ -973,7 +972,7 @@ installBinary: $(DEPS_54)
 	cp $(BUILD)/bin/testme.mod $(ME_VAPP_PREFIX)/bin/testme.mod ; \
 	cp $(BUILD)/bin/ejs.testme.mod $(ME_VAPP_PREFIX)/bin/ejs.testme.mod ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/inc" ; \
-	cp src/testme/testme.h $(ME_VAPP_PREFIX)/inc/testme.h ; \
+	cp src/tm/testme.h $(ME_VAPP_PREFIX)/inc/testme.h ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
 	cp src/Builder.es $(ME_VAPP_PREFIX)/bin/Builder.es ; \
 	cp src/Loader.es $(ME_VAPP_PREFIX)/bin/Loader.es ; \
@@ -1109,13 +1108,13 @@ installBinary: $(DEPS_54)
 	cp src/simple.me $(ME_VAPP_PREFIX)/bin/simple.me ; \
 	cp src/standard.me $(ME_VAPP_PREFIX)/bin/standard.me ; \
 	cp src/Target.es $(ME_VAPP_PREFIX)/bin/Target.es ; \
-	cp src/testme/ejs.testme.es $(ME_VAPP_PREFIX)/bin/ejs.testme.es ; \
-	cp src/testme/libtestme.c $(ME_VAPP_PREFIX)/bin/libtestme.c ; \
-	cp src/testme/sample.ct $(ME_VAPP_PREFIX)/bin/sample.ct ; \
-	cp src/testme/testme.c $(ME_VAPP_PREFIX)/bin/testme.c ; \
-	cp src/testme/testme.es $(ME_VAPP_PREFIX)/bin/testme.es ; \
-	cp src/testme/testme.h $(ME_VAPP_PREFIX)/bin/testme.h ; \
-	cp src/testme/testme.me $(ME_VAPP_PREFIX)/bin/testme.me ; \
+	cp src/tm/ejs.testme.es $(ME_VAPP_PREFIX)/bin/ejs.testme.es ; \
+	cp src/tm/libtestme.c $(ME_VAPP_PREFIX)/bin/libtestme.c ; \
+	cp src/tm/sample.ct $(ME_VAPP_PREFIX)/bin/sample.ct ; \
+	cp src/tm/testme.c $(ME_VAPP_PREFIX)/bin/testme.c ; \
+	cp src/tm/testme.es $(ME_VAPP_PREFIX)/bin/testme.es ; \
+	cp src/tm/testme.h $(ME_VAPP_PREFIX)/bin/testme.h ; \
+	cp src/tm/testme.me $(ME_VAPP_PREFIX)/bin/testme.me ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
 	cp src/paks/me-components/appweb.me $(ME_VAPP_PREFIX)/bin/appweb.me ; \
 	cp src/paks/me-components/compiler.me $(ME_VAPP_PREFIX)/bin/compiler.me ; \

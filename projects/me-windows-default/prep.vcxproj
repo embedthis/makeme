@@ -108,7 +108,7 @@ copy /Y /B ..\..\src\paks\http\http.h $(IncDir)
 copy /Y /B ..\..\src\paks\mpr\mpr.h $(IncDir)
 copy /Y /B ..\..\src\paks\osdep\osdep.h $(IncDir)
 copy /Y /B ..\..\src\paks\pcre\pcre.h $(IncDir)
-copy /Y /B ..\..\src\testme\testme.h $(IncDir)
+copy /Y /B ..\..\src\tm\testme.h $(IncDir)
 copy /Y /B ..\..\src\paks\zlib\zlib.h $(IncDir)
 cd projects\me-windows-default</Command>
         <Outputs>always</Outputs>

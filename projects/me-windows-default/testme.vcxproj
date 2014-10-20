@@ -100,7 +100,7 @@
   </PropertyGroup>
   
       <ItemGroup>
-    <ClCompile Include="..\..\src\testme\testme.c" />
+    <ClCompile Include="..\..\src\tm\testme.c" />
   </ItemGroup>
 
       <ItemDefinitionGroup>

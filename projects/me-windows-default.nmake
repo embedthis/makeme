@@ -550,13 +550,13 @@ build\$(CONFIG)\bin\ejs.mod: $(DEPS_28)
 #
 #   ejs.testme.mod
 #
-DEPS_29 = $(DEPS_29) src\testme\ejs.testme.es
+DEPS_29 = $(DEPS_29) src\tm\ejs.testme.es
 !IF "$(ME_COM_EJS)" == "1"
 DEPS_29 = $(DEPS_29) build\$(CONFIG)\bin\ejs.mod
 !ENDIF
 
 build\$(CONFIG)\bin\ejs.testme.mod: $(DEPS_29)
-	cd src\testme
+	cd src\tm
 	@echo .. [Compile] ejs.testme.mod
 	..\..\$(BUILD)\bin\ejsc --debug --out ../../$(BUILD)/bin/ejs.testme.mod --optimize 9 ejs.testme.es
 	cd ..\..
@@ -711,28 +711,28 @@ build\$(CONFIG)\bin\libmprssl.dll: $(DEPS_40)
 #
 #   testme.h
 #
-DEPS_41 = $(DEPS_41) src\testme\testme.h
+DEPS_41 = $(DEPS_41) src\tm\testme.h
 
 build\$(CONFIG)\inc\testme.h: $(DEPS_41)
 	@echo ..... [Copy] build\$(CONFIG)\inc\testme.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y /B src\testme\testme.h+modified build\$(CONFIG)\inc\testme.h $(LOG)
+	copy /Y /B src\tm\testme.h+modified build\$(CONFIG)\inc\testme.h $(LOG)
 
 #
 #   testme.h
 #
 
-src\testme\testme.h: $(DEPS_42)
+src\tm\testme.h: $(DEPS_42)
 
 #
 #   libtestme.obj
 #
-DEPS_43 = $(DEPS_43) src\testme\testme.h
+DEPS_43 = $(DEPS_43) src\tm\testme.h
 
 build\$(CONFIG)\obj\libtestme.obj: \
-    src\testme\libtestme.c $(DEPS_43)
+    src\tm\libtestme.c $(DEPS_43)
 	@echo .. [Compile] build\$(CONFIG)\obj\libtestme.obj
-	"$(CC)" -c -Fo$(BUILD)\obj\libtestme.obj -Fd$(BUILD)\obj\libtestme.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\testme\libtestme.c $(LOG)
+	"$(CC)" -c -Fo$(BUILD)\obj\libtestme.obj -Fd$(BUILD)\obj\libtestme.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\tm\libtestme.c $(LOG)
 
 #
 #   libtestme
@@ -814,7 +814,7 @@ DEPS_46 = $(DEPS_46) src\paks\me-xcode\README.md
 DEPS_46 = $(DEPS_46) src\paks\me-xcode\Xcode.es
 DEPS_46 = $(DEPS_46) src\paks\me-xcode\xcode.me
 
-build\$(CONFIG)\.modify-runtime: $(DEPS_46)
+build\$(CONFIG)\bin: $(DEPS_46)
 	@echo ..... [Copy] build\$(CONFIG)\bin
 	if not exist "build\$(CONFIG)\bin" md "build\$(CONFIG)\bin"
 	copy /Y /B src\master-main.me+modified build\$(CONFIG)\bin\master-main.me $(LOG)
@@ -893,7 +893,7 @@ DEPS_48 = $(DEPS_48) build\$(CONFIG)\bin\libhttp.dll
 DEPS_48 = $(DEPS_48) build\$(CONFIG)\bin\libejs.dll
 !ENDIF
 DEPS_48 = $(DEPS_48) build\$(CONFIG)\bin\me.mod
-DEPS_48 = $(DEPS_48) build\$(CONFIG)\.modify-runtime
+DEPS_48 = $(DEPS_48) build\$(CONFIG)\bin
 DEPS_48 = $(DEPS_48) build\$(CONFIG)\obj\me.obj
 
 LIBS_48 = $(LIBS_48) libmpr.lib
@@ -936,13 +936,13 @@ build\$(CONFIG)\bin\removeFiles.exe: $(DEPS_50)
 #
 #   testme.mod
 #
-DEPS_51 = $(DEPS_51) src\testme\testme.es
+DEPS_51 = $(DEPS_51) src\tm\testme.es
 !IF "$(ME_COM_EJS)" == "1"
 DEPS_51 = $(DEPS_51) build\$(CONFIG)\bin\ejs.mod
 !ENDIF
 
 build\$(CONFIG)\bin\testme.mod: $(DEPS_51)
-	cd src\testme
+	cd src\tm
 	@echo .. [Compile] testme.mod
 	..\..\$(BUILD)\bin\ejsc --debug --out ../../$(BUILD)/bin/testme.mod --optimize 9 testme.es
 	cd ..\..
@@ -953,9 +953,9 @@ build\$(CONFIG)\bin\testme.mod: $(DEPS_51)
 DEPS_52 = $(DEPS_52) build\$(CONFIG)\inc\ejs.h
 
 build\$(CONFIG)\obj\testme.obj: \
-    src\testme\testme.c $(DEPS_52)
+    src\tm\testme.c $(DEPS_52)
 	@echo .. [Compile] build\$(CONFIG)\obj\testme.obj
-	"$(CC)" -c -Fo$(BUILD)\obj\testme.obj -Fd$(BUILD)\obj\testme.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\testme\testme.c $(LOG)
+	"$(CC)" -c -Fo$(BUILD)\obj\testme.obj -Fd$(BUILD)\obj\testme.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\tm\testme.c $(LOG)
 
 #
 #   testme
