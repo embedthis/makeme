@@ -42,6 +42,8 @@
         "me-docstyle": "~0.8",
         "me-os": "0.8.4",
         "me-project": "0.8.4",
+        "me-vstudio": "~0.8",
+        "me-xcode": "~0.8",
         "mpr": "~6",
         "osdep": "~0.8",
         "pcre": "~1.0",

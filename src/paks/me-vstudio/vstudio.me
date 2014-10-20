@@ -1,0 +1,16 @@
+/*
+    vstudio.me - MakeMe Project Generator Plugin
+ */
+
+Me.load({ 
+    scripts: {
+        loaded: `
+            me.projects ||= []
+            me.projects.vs = function(base) {
+                require embedthis.me
+                load('${ORIGIN}/Vstudio.es')
+                Vstudio().generate(base)
+            }
+        `,
+    }
+})
