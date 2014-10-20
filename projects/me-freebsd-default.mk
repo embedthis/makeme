@@ -722,6 +722,11 @@ DEPS_48 += src/master-main.me
 DEPS_48 += src/master-start.me
 DEPS_48 += src/simple.me
 DEPS_48 += src/standard.me
+DEPS_48 += src/paks/me-configuration/Configuration.es
+DEPS_48 += src/paks/me-configuration/configuration.me
+DEPS_48 += src/paks/me-configuration/LICENSE.md
+DEPS_48 += src/paks/me-configuration/package.json
+DEPS_48 += src/paks/me-configuration/README.md
 DEPS_48 += src/paks/me-components/appweb.me
 DEPS_48 += src/paks/me-components/compiler.me
 DEPS_48 += src/paks/me-components/components.me
@@ -751,14 +756,30 @@ DEPS_48 += src/paks/me-os/solaris.me
 DEPS_48 += src/paks/me-os/unix.me
 DEPS_48 += src/paks/me-os/vxworks.me
 DEPS_48 += src/paks/me-os/windows.me
+DEPS_48 += src/paks/me-vstudio/LICENSE.md
+DEPS_48 += src/paks/me-vstudio/package.json
+DEPS_48 += src/paks/me-vstudio/README.md
+DEPS_48 += src/paks/me-vstudio/Vstudio.es
+DEPS_48 += src/paks/me-vstudio/vstudio.me
+DEPS_48 += src/paks/me-xcode/LICENSE.md
+DEPS_48 += src/paks/me-xcode/package.json
+DEPS_48 += src/paks/me-xcode/README.md
+DEPS_48 += src/paks/me-xcode/Xcode.es
+DEPS_48 += src/paks/me-xcode/xcode.me
 
-$(BUILD)/.modify-runtime: $(DEPS_48)
+$(BUILD)/bin: $(DEPS_48)
 	@echo '      [Copy] $(BUILD)/bin'
 	mkdir -p "$(BUILD)/bin"
 	cp src/master-main.me $(BUILD)/bin/master-main.me
 	cp src/master-start.me $(BUILD)/bin/master-start.me
 	cp src/simple.me $(BUILD)/bin/simple.me
 	cp src/standard.me $(BUILD)/bin/standard.me
+	mkdir -p "$(BUILD)/bin/paks/me-configuration"
+	cp src/paks/me-configuration/Configuration.es $(BUILD)/bin/paks/me-configuration/Configuration.es
+	cp src/paks/me-configuration/configuration.me $(BUILD)/bin/paks/me-configuration/configuration.me
+	cp src/paks/me-configuration/LICENSE.md $(BUILD)/bin/paks/me-configuration/LICENSE.md
+	cp src/paks/me-configuration/package.json $(BUILD)/bin/paks/me-configuration/package.json
+	cp src/paks/me-configuration/README.md $(BUILD)/bin/paks/me-configuration/README.md
 	mkdir -p "$(BUILD)/bin/paks/me-components"
 	cp src/paks/me-components/appweb.me $(BUILD)/bin/paks/me-components/appweb.me
 	cp src/paks/me-components/compiler.me $(BUILD)/bin/paks/me-components/compiler.me
@@ -791,7 +812,18 @@ $(BUILD)/.modify-runtime: $(DEPS_48)
 	cp src/paks/me-os/unix.me $(BUILD)/bin/paks/me-os/unix.me
 	cp src/paks/me-os/vxworks.me $(BUILD)/bin/paks/me-os/vxworks.me
 	cp src/paks/me-os/windows.me $(BUILD)/bin/paks/me-os/windows.me
-	touch "$(BUILD)/.modify-runtime"
+	mkdir -p "$(BUILD)/bin/paks/me-vstudio"
+	cp src/paks/me-vstudio/LICENSE.md $(BUILD)/bin/paks/me-vstudio/LICENSE.md
+	cp src/paks/me-vstudio/package.json $(BUILD)/bin/paks/me-vstudio/package.json
+	cp src/paks/me-vstudio/README.md $(BUILD)/bin/paks/me-vstudio/README.md
+	cp src/paks/me-vstudio/Vstudio.es $(BUILD)/bin/paks/me-vstudio/Vstudio.es
+	cp src/paks/me-vstudio/vstudio.me $(BUILD)/bin/paks/me-vstudio/vstudio.me
+	mkdir -p "$(BUILD)/bin/paks/me-xcode"
+	cp src/paks/me-xcode/LICENSE.md $(BUILD)/bin/paks/me-xcode/LICENSE.md
+	cp src/paks/me-xcode/package.json $(BUILD)/bin/paks/me-xcode/package.json
+	cp src/paks/me-xcode/README.md $(BUILD)/bin/paks/me-xcode/README.md
+	cp src/paks/me-xcode/Xcode.es $(BUILD)/bin/paks/me-xcode/Xcode.es
+	cp src/paks/me-xcode/xcode.me $(BUILD)/bin/paks/me-xcode/xcode.me
 
 #
 #   me
@@ -804,7 +836,7 @@ ifeq ($(ME_COM_EJS),1)
     DEPS_49 += $(BUILD)/bin/libejs.so
 endif
 DEPS_49 += $(BUILD)/bin/me.mod
-DEPS_49 += $(BUILD)/.modify-runtime
+DEPS_49 += $(BUILD)/bin
 DEPS_49 += $(BUILD)/obj/me.o
 
 LIBS_49 += -lmpr
