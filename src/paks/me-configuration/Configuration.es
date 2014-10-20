@@ -177,7 +177,10 @@ class Configuration {
         let platforms = Object.getOwnPropertyNames(options.platforms)
         let obj = loader.readFile(main)
         let settings = obj.settings
-        if (settings && settings.platforms) {
+        /*
+            If generating, don't configure other platforms
+         */
+        if (settings && settings.platforms && !options.gen) {
             if (!(settings.platforms is Array)) {
                 settings.platforms = [settings.platforms]
             }
@@ -643,7 +646,10 @@ class Configuration {
 
         f.writeLine('\n/* Prefixes */')
         for (let [name, prefix] in me.prefixes) {
-            def(f, 'ME_' + name.toUpper() + '_PREFIX', '"' + prefix.portable + '"')
+            let path = loader.expand(loader.expand(prefix.portable))
+            path = loader.expand(path)
+            path = Path(path).normalize
+            def(f, 'ME_' + name.toUpper() + '_PREFIX', '"' + path + '"')
         }
 
         /* Suffixes */

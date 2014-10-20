@@ -17139,7 +17139,11 @@ PUBLIC void mprSetModuleSearchPath(char *searchPath)
 
     ms = MPR->moduleService;
     if (searchPath == 0) {
+#ifdef ME_VAPP_PREFIX
         ms->searchPath = sjoin(mprGetAppDir(), MPR_SEARCH_SEP, mprGetAppDir(), MPR_SEARCH_SEP, ME_VAPP_PREFIX "/bin", NULL);
+#else
+        ms->searchPath = sjoin(mprGetAppDir(), MPR_SEARCH_SEP, mprGetAppDir(), NULL);
+#endif
     } else {
         ms->searchPath = sclone(searchPath);
     }
