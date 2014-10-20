@@ -164,7 +164,7 @@ public class Loader {
                 }
             }
             if (files.length == 0 && !optional) {
-                throw 'Cannot find blended module: ' + path
+                throw 'Cannot find blended module: ' + name
             }
             for each (let file in files) {
                 blendFile(file)
