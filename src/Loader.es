@@ -570,7 +570,7 @@ public class Loader {
         }
         if (!path || !path.exists) {
             if (exceptions && !optional) {
-                throw 'Cannot find: "' + name + '"'
+                throw 'Cannot find plugin: "' + name + '"'
             }
             path = null
         }
