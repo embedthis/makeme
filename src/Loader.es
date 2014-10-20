@@ -382,7 +382,6 @@ public class Loader {
             target.home = me.dir.src
         }
         castTargetProperties(target)
-
         if (!target.type) {
             target.type = 'component'
         }
@@ -941,17 +940,6 @@ public class Loader {
                 delete p.from
             }
         }
-
-/* UNUSED
-        for (let [key,value] in p) {
-            if (key.startsWith('generate')) {
-                trace('Warn', 'Target "' + name + '" using "' + key + '" option, use "gen-" instead')
-                delete p[key]
-                key = key.replace(/^generate/, '')
-                p[key] = value
-            }
-        }
-*/
         setTargetGoals(p)
 
         /*
@@ -1360,7 +1348,7 @@ public class Loader {
             /* MOB CLANG clang Clang issue - was testing configurable */
             if (!(target.path is Function)) {
                 target.path = Path(expand(target.path))
-                if (!(target.configurable && target.path.isRelative)) {
+                if (target.path.isRelative && !target.configurable) {
                     target.path = target.home.join(target.path).absolute
                 }
             }
@@ -1384,7 +1372,7 @@ public class Loader {
                 target.path = me.dir.inc.join(name)
             }
         }
-        if (target.path && target.type == 'file' && target.path.isDir) {
+        if (target.path && target.type == 'file' && (target.path.isDir || target.path.name.endsWith('/'))) {
             target.modify = target.path.dirname.join('.modify-' + Path(name).basename)
         }
     }

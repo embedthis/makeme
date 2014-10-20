@@ -1690,9 +1690,11 @@ cd ..
 ../src/paks/me-components/compiler.me,
 ../src/paks/me-components/components.me,
 ../src/paks/me-components/lib.me,
+../src/paks/me-components/LICENSE.md,
 ../src/paks/me-components/link.me,
 ../src/paks/me-components/package.json,
 ../src/paks/me-components/rc.me,
+../src/paks/me-components/README.md,
 ../src/paks/me-components/testme.me,
 ../src/paks/me-components/vxworks.me,
 ../src/paks/me-components/winsdk.me,
@@ -1703,10 +1705,12 @@ cd ..
 ../src/paks/me-project/README.md,
 ../src/paks/me-os/freebsd.me,
 ../src/paks/me-os/gcc.me,
+../src/paks/me-os/LICENSE.md,
 ../src/paks/me-os/linux.me,
 ../src/paks/me-os/macosx.me,
 ../src/paks/me-os/os.me,
 ../src/paks/me-os/package.json,
+../src/paks/me-os/README.md,
 ../src/paks/me-os/solaris.me,
 ../src/paks/me-os/unix.me,
 ../src/paks/me-os/vxworks.me,
@@ -1729,9 +1733,11 @@ cd ..
 	cp src/paks/me-components/compiler.me build/macosx-x64-default/bin/paks/me-components/compiler.me
 	cp src/paks/me-components/components.me build/macosx-x64-default/bin/paks/me-components/components.me
 	cp src/paks/me-components/lib.me build/macosx-x64-default/bin/paks/me-components/lib.me
+	cp src/paks/me-components/LICENSE.md build/macosx-x64-default/bin/paks/me-components/LICENSE.md
 	cp src/paks/me-components/link.me build/macosx-x64-default/bin/paks/me-components/link.me
 	cp src/paks/me-components/package.json build/macosx-x64-default/bin/paks/me-components/package.json
 	cp src/paks/me-components/rc.me build/macosx-x64-default/bin/paks/me-components/rc.me
+	cp src/paks/me-components/README.md build/macosx-x64-default/bin/paks/me-components/README.md
 	cp src/paks/me-components/testme.me build/macosx-x64-default/bin/paks/me-components/testme.me
 	cp src/paks/me-components/vxworks.me build/macosx-x64-default/bin/paks/me-components/vxworks.me
 	cp src/paks/me-components/winsdk.me build/macosx-x64-default/bin/paks/me-components/winsdk.me
@@ -1744,10 +1750,12 @@ cd ..
 	mkdir -p \"build/macosx-x64-default/bin/paks/me-os\"
 	cp src/paks/me-os/freebsd.me build/macosx-x64-default/bin/paks/me-os/freebsd.me
 	cp src/paks/me-os/gcc.me build/macosx-x64-default/bin/paks/me-os/gcc.me
+	cp src/paks/me-os/LICENSE.md build/macosx-x64-default/bin/paks/me-os/LICENSE.md
 	cp src/paks/me-os/linux.me build/macosx-x64-default/bin/paks/me-os/linux.me
 	cp src/paks/me-os/macosx.me build/macosx-x64-default/bin/paks/me-os/macosx.me
 	cp src/paks/me-os/os.me build/macosx-x64-default/bin/paks/me-os/os.me
 	cp src/paks/me-os/package.json build/macosx-x64-default/bin/paks/me-os/package.json
+	cp src/paks/me-os/README.md build/macosx-x64-default/bin/paks/me-os/README.md
 	cp src/paks/me-os/solaris.me build/macosx-x64-default/bin/paks/me-os/solaris.me
 	cp src/paks/me-os/unix.me build/macosx-x64-default/bin/paks/me-os/unix.me
 	cp src/paks/me-os/vxworks.me build/macosx-x64-default/bin/paks/me-os/vxworks.me

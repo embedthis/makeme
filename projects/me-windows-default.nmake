@@ -773,9 +773,11 @@ DEPS_46 = $(DEPS_46) src\paks\me-components\appweb.me
 DEPS_46 = $(DEPS_46) src\paks\me-components\compiler.me
 DEPS_46 = $(DEPS_46) src\paks\me-components\components.me
 DEPS_46 = $(DEPS_46) src\paks\me-components\lib.me
+DEPS_46 = $(DEPS_46) src\paks\me-components\LICENSE.md
 DEPS_46 = $(DEPS_46) src\paks\me-components\link.me
 DEPS_46 = $(DEPS_46) src\paks\me-components\package.json
 DEPS_46 = $(DEPS_46) src\paks\me-components\rc.me
+DEPS_46 = $(DEPS_46) src\paks\me-components\README.md
 DEPS_46 = $(DEPS_46) src\paks\me-components\testme.me
 DEPS_46 = $(DEPS_46) src\paks\me-components\vxworks.me
 DEPS_46 = $(DEPS_46) src\paks\me-components\winsdk.me
@@ -786,16 +788,18 @@ DEPS_46 = $(DEPS_46) src\paks\me-project\project.me
 DEPS_46 = $(DEPS_46) src\paks\me-project\README.md
 DEPS_46 = $(DEPS_46) src\paks\me-os\freebsd.me
 DEPS_46 = $(DEPS_46) src\paks\me-os\gcc.me
+DEPS_46 = $(DEPS_46) src\paks\me-os\LICENSE.md
 DEPS_46 = $(DEPS_46) src\paks\me-os\linux.me
 DEPS_46 = $(DEPS_46) src\paks\me-os\macosx.me
 DEPS_46 = $(DEPS_46) src\paks\me-os\os.me
 DEPS_46 = $(DEPS_46) src\paks\me-os\package.json
+DEPS_46 = $(DEPS_46) src\paks\me-os\README.md
 DEPS_46 = $(DEPS_46) src\paks\me-os\solaris.me
 DEPS_46 = $(DEPS_46) src\paks\me-os\unix.me
 DEPS_46 = $(DEPS_46) src\paks\me-os\vxworks.me
 DEPS_46 = $(DEPS_46) src\paks\me-os\windows.me
 
-build\$(CONFIG)\bin: $(DEPS_46)
+build\$(CONFIG)\.modify-runtime: $(DEPS_46)
 	@echo ..... [Copy] build\$(CONFIG)\bin
 	if not exist "build\$(CONFIG)\bin" md "build\$(CONFIG)\bin"
 	copy /Y /B src\master-main.me+modified build\$(CONFIG)\bin\master-main.me $(LOG)
@@ -807,9 +811,11 @@ build\$(CONFIG)\bin: $(DEPS_46)
 	copy /Y /B src\paks\me-components\compiler.me+modified build\$(CONFIG)\bin\paks\me-components\compiler.me $(LOG)
 	copy /Y /B src\paks\me-components\components.me+modified build\$(CONFIG)\bin\paks\me-components\components.me $(LOG)
 	copy /Y /B src\paks\me-components\lib.me+modified build\$(CONFIG)\bin\paks\me-components\lib.me $(LOG)
+	copy /Y /B src\paks\me-components\LICENSE.md+modified build\$(CONFIG)\bin\paks\me-components\LICENSE.md $(LOG)
 	copy /Y /B src\paks\me-components\link.me+modified build\$(CONFIG)\bin\paks\me-components\link.me $(LOG)
 	copy /Y /B src\paks\me-components\package.json+modified build\$(CONFIG)\bin\paks\me-components\package.json $(LOG)
 	copy /Y /B src\paks\me-components\rc.me+modified build\$(CONFIG)\bin\paks\me-components\rc.me $(LOG)
+	copy /Y /B src\paks\me-components\README.md+modified build\$(CONFIG)\bin\paks\me-components\README.md $(LOG)
 	copy /Y /B src\paks\me-components\testme.me+modified build\$(CONFIG)\bin\paks\me-components\testme.me $(LOG)
 	copy /Y /B src\paks\me-components\vxworks.me+modified build\$(CONFIG)\bin\paks\me-components\vxworks.me $(LOG)
 	copy /Y /B src\paks\me-components\winsdk.me+modified build\$(CONFIG)\bin\paks\me-components\winsdk.me $(LOG)
@@ -822,10 +828,12 @@ build\$(CONFIG)\bin: $(DEPS_46)
 	if not exist "build\$(CONFIG)\bin\paks\me-os" md "build\$(CONFIG)\bin\paks\me-os"
 	copy /Y /B src\paks\me-os\freebsd.me+modified build\$(CONFIG)\bin\paks\me-os\freebsd.me $(LOG)
 	copy /Y /B src\paks\me-os\gcc.me+modified build\$(CONFIG)\bin\paks\me-os\gcc.me $(LOG)
+	copy /Y /B src\paks\me-os\LICENSE.md+modified build\$(CONFIG)\bin\paks\me-os\LICENSE.md $(LOG)
 	copy /Y /B src\paks\me-os\linux.me+modified build\$(CONFIG)\bin\paks\me-os\linux.me $(LOG)
 	copy /Y /B src\paks\me-os\macosx.me+modified build\$(CONFIG)\bin\paks\me-os\macosx.me $(LOG)
 	copy /Y /B src\paks\me-os\os.me+modified build\$(CONFIG)\bin\paks\me-os\os.me $(LOG)
 	copy /Y /B src\paks\me-os\package.json+modified build\$(CONFIG)\bin\paks\me-os\package.json $(LOG)
+	copy /Y /B src\paks\me-os\README.md+modified build\$(CONFIG)\bin\paks\me-os\README.md $(LOG)
 	copy /Y /B src\paks\me-os\solaris.me+modified build\$(CONFIG)\bin\paks\me-os\solaris.me $(LOG)
 	copy /Y /B src\paks\me-os\unix.me+modified build\$(CONFIG)\bin\paks\me-os\unix.me $(LOG)
 	copy /Y /B src\paks\me-os\vxworks.me+modified build\$(CONFIG)\bin\paks\me-os\vxworks.me $(LOG)
@@ -852,7 +860,7 @@ DEPS_48 = $(DEPS_48) build\$(CONFIG)\bin\libhttp.dll
 DEPS_48 = $(DEPS_48) build\$(CONFIG)\bin\libejs.dll
 !ENDIF
 DEPS_48 = $(DEPS_48) build\$(CONFIG)\bin\me.mod
-DEPS_48 = $(DEPS_48) build\$(CONFIG)\bin
+DEPS_48 = $(DEPS_48) build\$(CONFIG)\.modify-runtime
 DEPS_48 = $(DEPS_48) build\$(CONFIG)\obj\me.obj
 
 LIBS_48 = $(LIBS_48) libmpr.lib

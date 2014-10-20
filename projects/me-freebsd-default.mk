@@ -726,9 +726,11 @@ DEPS_48 += src/paks/me-components/appweb.me
 DEPS_48 += src/paks/me-components/compiler.me
 DEPS_48 += src/paks/me-components/components.me
 DEPS_48 += src/paks/me-components/lib.me
+DEPS_48 += src/paks/me-components/LICENSE.md
 DEPS_48 += src/paks/me-components/link.me
 DEPS_48 += src/paks/me-components/package.json
 DEPS_48 += src/paks/me-components/rc.me
+DEPS_48 += src/paks/me-components/README.md
 DEPS_48 += src/paks/me-components/testme.me
 DEPS_48 += src/paks/me-components/vxworks.me
 DEPS_48 += src/paks/me-components/winsdk.me
@@ -739,16 +741,18 @@ DEPS_48 += src/paks/me-project/project.me
 DEPS_48 += src/paks/me-project/README.md
 DEPS_48 += src/paks/me-os/freebsd.me
 DEPS_48 += src/paks/me-os/gcc.me
+DEPS_48 += src/paks/me-os/LICENSE.md
 DEPS_48 += src/paks/me-os/linux.me
 DEPS_48 += src/paks/me-os/macosx.me
 DEPS_48 += src/paks/me-os/os.me
 DEPS_48 += src/paks/me-os/package.json
+DEPS_48 += src/paks/me-os/README.md
 DEPS_48 += src/paks/me-os/solaris.me
 DEPS_48 += src/paks/me-os/unix.me
 DEPS_48 += src/paks/me-os/vxworks.me
 DEPS_48 += src/paks/me-os/windows.me
 
-$(BUILD)/bin: $(DEPS_48)
+$(BUILD)/.modify-runtime: $(DEPS_48)
 	@echo '      [Copy] $(BUILD)/bin'
 	mkdir -p "$(BUILD)/bin"
 	cp src/master-main.me $(BUILD)/bin/master-main.me
@@ -760,9 +764,11 @@ $(BUILD)/bin: $(DEPS_48)
 	cp src/paks/me-components/compiler.me $(BUILD)/bin/paks/me-components/compiler.me
 	cp src/paks/me-components/components.me $(BUILD)/bin/paks/me-components/components.me
 	cp src/paks/me-components/lib.me $(BUILD)/bin/paks/me-components/lib.me
+	cp src/paks/me-components/LICENSE.md $(BUILD)/bin/paks/me-components/LICENSE.md
 	cp src/paks/me-components/link.me $(BUILD)/bin/paks/me-components/link.me
 	cp src/paks/me-components/package.json $(BUILD)/bin/paks/me-components/package.json
 	cp src/paks/me-components/rc.me $(BUILD)/bin/paks/me-components/rc.me
+	cp src/paks/me-components/README.md $(BUILD)/bin/paks/me-components/README.md
 	cp src/paks/me-components/testme.me $(BUILD)/bin/paks/me-components/testme.me
 	cp src/paks/me-components/vxworks.me $(BUILD)/bin/paks/me-components/vxworks.me
 	cp src/paks/me-components/winsdk.me $(BUILD)/bin/paks/me-components/winsdk.me
@@ -775,14 +781,17 @@ $(BUILD)/bin: $(DEPS_48)
 	mkdir -p "$(BUILD)/bin/paks/me-os"
 	cp src/paks/me-os/freebsd.me $(BUILD)/bin/paks/me-os/freebsd.me
 	cp src/paks/me-os/gcc.me $(BUILD)/bin/paks/me-os/gcc.me
+	cp src/paks/me-os/LICENSE.md $(BUILD)/bin/paks/me-os/LICENSE.md
 	cp src/paks/me-os/linux.me $(BUILD)/bin/paks/me-os/linux.me
 	cp src/paks/me-os/macosx.me $(BUILD)/bin/paks/me-os/macosx.me
 	cp src/paks/me-os/os.me $(BUILD)/bin/paks/me-os/os.me
 	cp src/paks/me-os/package.json $(BUILD)/bin/paks/me-os/package.json
+	cp src/paks/me-os/README.md $(BUILD)/bin/paks/me-os/README.md
 	cp src/paks/me-os/solaris.me $(BUILD)/bin/paks/me-os/solaris.me
 	cp src/paks/me-os/unix.me $(BUILD)/bin/paks/me-os/unix.me
 	cp src/paks/me-os/vxworks.me $(BUILD)/bin/paks/me-os/vxworks.me
 	cp src/paks/me-os/windows.me $(BUILD)/bin/paks/me-os/windows.me
+	touch "$(BUILD)/.modify-runtime"
 
 #
 #   me
@@ -795,7 +804,7 @@ ifeq ($(ME_COM_EJS),1)
     DEPS_49 += $(BUILD)/bin/libejs.so
 endif
 DEPS_49 += $(BUILD)/bin/me.mod
-DEPS_49 += $(BUILD)/bin
+DEPS_49 += $(BUILD)/.modify-runtime
 DEPS_49 += $(BUILD)/obj/me.o
 
 LIBS_49 += -lmpr
@@ -952,9 +961,11 @@ installBinary: $(DEPS_52)
 	cp src/paks/me-components/compiler.me $(ME_VAPP_PREFIX)/bin/compiler.me ; \
 	cp src/paks/me-components/components.me $(ME_VAPP_PREFIX)/bin/components.me ; \
 	cp src/paks/me-components/lib.me $(ME_VAPP_PREFIX)/bin/lib.me ; \
+	cp src/paks/me-components/LICENSE.md $(ME_VAPP_PREFIX)/bin/LICENSE.md ; \
 	cp src/paks/me-components/link.me $(ME_VAPP_PREFIX)/bin/link.me ; \
 	cp src/paks/me-components/package.json $(ME_VAPP_PREFIX)/bin/package.json ; \
 	cp src/paks/me-components/rc.me $(ME_VAPP_PREFIX)/bin/rc.me ; \
+	cp src/paks/me-components/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
 	cp src/paks/me-components/testme.me $(ME_VAPP_PREFIX)/bin/testme.me ; \
 	cp src/paks/me-components/vxworks.me $(ME_VAPP_PREFIX)/bin/vxworks.me ; \
 	cp src/paks/me-components/winsdk.me $(ME_VAPP_PREFIX)/bin/winsdk.me ; \
@@ -979,10 +990,12 @@ installBinary: $(DEPS_52)
 	cp src/paks/me-docstyle/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
 	cp src/paks/me-os/freebsd.me $(ME_VAPP_PREFIX)/bin/freebsd.me ; \
 	cp src/paks/me-os/gcc.me $(ME_VAPP_PREFIX)/bin/gcc.me ; \
+	cp src/paks/me-os/LICENSE.md $(ME_VAPP_PREFIX)/bin/LICENSE.md ; \
 	cp src/paks/me-os/linux.me $(ME_VAPP_PREFIX)/bin/linux.me ; \
 	cp src/paks/me-os/macosx.me $(ME_VAPP_PREFIX)/bin/macosx.me ; \
 	cp src/paks/me-os/os.me $(ME_VAPP_PREFIX)/bin/os.me ; \
 	cp src/paks/me-os/package.json $(ME_VAPP_PREFIX)/bin/package.json ; \
+	cp src/paks/me-os/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
 	cp src/paks/me-os/solaris.me $(ME_VAPP_PREFIX)/bin/solaris.me ; \
 	cp src/paks/me-os/unix.me $(ME_VAPP_PREFIX)/bin/unix.me ; \
 	cp src/paks/me-os/vxworks.me $(ME_VAPP_PREFIX)/bin/vxworks.me ; \
@@ -992,6 +1005,16 @@ installBinary: $(DEPS_52)
 	cp src/paks/me-project/Project.es $(ME_VAPP_PREFIX)/bin/Project.es ; \
 	cp src/paks/me-project/project.me $(ME_VAPP_PREFIX)/bin/project.me ; \
 	cp src/paks/me-project/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
+	cp src/paks/me-vstudio/LICENSE.md $(ME_VAPP_PREFIX)/bin/LICENSE.md ; \
+	cp src/paks/me-vstudio/package.json $(ME_VAPP_PREFIX)/bin/package.json ; \
+	cp src/paks/me-vstudio/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
+	cp src/paks/me-vstudio/Vstudio.es $(ME_VAPP_PREFIX)/bin/Vstudio.es ; \
+	cp src/paks/me-vstudio/vstudio.me $(ME_VAPP_PREFIX)/bin/vstudio.me ; \
+	cp src/paks/me-xcode/LICENSE.md $(ME_VAPP_PREFIX)/bin/LICENSE.md ; \
+	cp src/paks/me-xcode/package.json $(ME_VAPP_PREFIX)/bin/package.json ; \
+	cp src/paks/me-xcode/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
+	cp src/paks/me-xcode/Xcode.es $(ME_VAPP_PREFIX)/bin/Xcode.es ; \
+	cp src/paks/me-xcode/xcode.me $(ME_VAPP_PREFIX)/bin/xcode.me ; \
 	cp src/paks/mpr/LICENSE.md $(ME_VAPP_PREFIX)/bin/LICENSE.md ; \
 	cp src/paks/mpr/makerom.c $(ME_VAPP_PREFIX)/bin/makerom.c ; \
 	cp src/paks/mpr/manager.c $(ME_VAPP_PREFIX)/bin/manager.c ; \
@@ -1041,18 +1064,22 @@ installBinary: $(DEPS_52)
 	cp src/paks/me-components/compiler.me $(ME_VAPP_PREFIX)/bin/compiler.me ; \
 	cp src/paks/me-components/components.me $(ME_VAPP_PREFIX)/bin/components.me ; \
 	cp src/paks/me-components/lib.me $(ME_VAPP_PREFIX)/bin/lib.me ; \
+	cp src/paks/me-components/LICENSE.md $(ME_VAPP_PREFIX)/bin/LICENSE.md ; \
 	cp src/paks/me-components/link.me $(ME_VAPP_PREFIX)/bin/link.me ; \
 	cp src/paks/me-components/package.json $(ME_VAPP_PREFIX)/bin/package.json ; \
 	cp src/paks/me-components/rc.me $(ME_VAPP_PREFIX)/bin/rc.me ; \
+	cp src/paks/me-components/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
 	cp src/paks/me-components/testme.me $(ME_VAPP_PREFIX)/bin/testme.me ; \
 	cp src/paks/me-components/vxworks.me $(ME_VAPP_PREFIX)/bin/vxworks.me ; \
 	cp src/paks/me-components/winsdk.me $(ME_VAPP_PREFIX)/bin/winsdk.me ; \
 	cp src/paks/me-os/freebsd.me $(ME_VAPP_PREFIX)/bin/freebsd.me ; \
 	cp src/paks/me-os/gcc.me $(ME_VAPP_PREFIX)/bin/gcc.me ; \
+	cp src/paks/me-os/LICENSE.md $(ME_VAPP_PREFIX)/bin/LICENSE.md ; \
 	cp src/paks/me-os/linux.me $(ME_VAPP_PREFIX)/bin/linux.me ; \
 	cp src/paks/me-os/macosx.me $(ME_VAPP_PREFIX)/bin/macosx.me ; \
 	cp src/paks/me-os/os.me $(ME_VAPP_PREFIX)/bin/os.me ; \
 	cp src/paks/me-os/package.json $(ME_VAPP_PREFIX)/bin/package.json ; \
+	cp src/paks/me-os/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
 	cp src/paks/me-os/solaris.me $(ME_VAPP_PREFIX)/bin/solaris.me ; \
 	cp src/paks/me-os/unix.me $(ME_VAPP_PREFIX)/bin/unix.me ; \
 	cp src/paks/me-os/vxworks.me $(ME_VAPP_PREFIX)/bin/vxworks.me ; \
