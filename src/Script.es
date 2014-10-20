@@ -215,7 +215,7 @@ public function copyFiles(from, to: Path, topOptions = {}, base = null) {
         /* If patterns/files are missing, then keep the pattern itself */
         missing: '', 
 
-        post: function (from, to, control) {
+        postPerform: function (from, to, control) {
             if (control.filelist) {
                 control.filelist.push(to)
             }
@@ -228,7 +228,6 @@ public function copyFiles(from, to: Path, topOptions = {}, base = null) {
                     strace('Copy', 'cp ' + from + ' ' + to)
                 }
             }
-            print("POST", from, to)
         }
     }, topOptions, {overwrite: false, functions: true})
 

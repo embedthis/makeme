@@ -240,7 +240,8 @@ public class Loader {
             for each (let mix in obj.mixin) {
                 App.log.debug(2, 'Load mixin from: ' + obj.origin)
                 try {
-                    global.eval(mix)
+                    me.globals.ORIGIN = obj.origin
+                    global.eval(expand(mix))
                 } catch (e) {
                     throw new Error('When loading mixin' + e)
                 }
@@ -350,13 +351,6 @@ public class Loader {
     }
 
     function castTargetProperties(target: Target) {
-        /* UNUSED - defer making home absolute until dirs are defined
-            Home and path MUST be absolute so scripts can access despite changing cwd
-        target.home = Path(expand(target.home)).absolute
-        if (target.path && target.path.exists) {
-            target.path  = Path(target.path).absolute
-        }
-         */
         target.home      = castPath(target.home)
         target.relative  = castPath(target.relative)
         target.includes  = castArrayOfPaths(target.includes)
