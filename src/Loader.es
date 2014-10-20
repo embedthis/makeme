@@ -298,13 +298,15 @@ public class Loader {
             /*
                 Get extra (horizontal) plugins from ejsrc
              */
-            let extras = App.config.makemePlugins
-            if (extras) {
-                extras = castArray(extras)
-                plugins = (plugins + extras).unique()
+            if (App.config.makeme) {
+                let extras = App.config.makeme.plugins
+                if (extras) {
+                    extras = castArray(extras)
+                    plugins = (plugins + extras).unique()
+                }
             }
-            if (App.env.MAKE_PLUGINS) {
-                extras = App.env.MAKE_PLUGINS.split(',')
+            if (App.env.MAKEME_PLUGINS) {
+                extras = App.env.MAKEME_PLUGINS.split(',')
                 plugins = (plugins + extras).unique()
             }
         }
