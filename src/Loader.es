@@ -311,7 +311,7 @@ public class Loader {
             }
         }
         for each (plugin in plugins) {
-            let path = findPlugin(plugin)
+            let path = findPlugin(plugin, false)
             if (path) {
                 blendFile(path)
             }
@@ -552,7 +552,7 @@ public class Loader {
         }
         name = expand(name, {missing: '.'})
         if (!name.startsWith('me-')) {
-            path = findPlugin('me-' + name, false)
+            path = findPlugin('me-' + name, undefined)
         }
         let base = Path(name.trimStart('me-')).joinExt('me')
         if (!path || !path.exists) {
@@ -569,8 +569,12 @@ public class Loader {
             path = me.dir.me.join('paks', name, base)
         }
         if (!path || !path.exists) {
-            if (exceptions && !optional) {
-                throw 'Cannot find plugin: "' + name + '"'
+            if (!optional) {
+                if (exceptions === true) {
+                    throw new Error('Cannot find plugin: "' + name + '"')
+                } else if (exceptions === false) {
+                    trace('Warn', 'Cannot find plugin: "' + name + '" ... continuing')
+                }
             }
             path = null
         }
