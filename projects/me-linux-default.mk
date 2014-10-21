@@ -767,7 +767,7 @@ DEPS_48 += src/paks/me-xcode/README.md
 DEPS_48 += src/paks/me-xcode/Xcode.es
 DEPS_48 += src/paks/me-xcode/xcode.me
 
-$(BUILD)/bin: $(DEPS_48)
+$(BUILD)/.modify-runtime: $(DEPS_48)
 	@echo '      [Copy] $(BUILD)/bin'
 	mkdir -p "$(BUILD)/bin"
 	cp src/master-main.me $(BUILD)/bin/master-main.me
@@ -824,6 +824,7 @@ $(BUILD)/bin: $(DEPS_48)
 	cp src/paks/me-xcode/README.md $(BUILD)/bin/paks/me-xcode/README.md
 	cp src/paks/me-xcode/Xcode.es $(BUILD)/bin/paks/me-xcode/Xcode.es
 	cp src/paks/me-xcode/xcode.me $(BUILD)/bin/paks/me-xcode/xcode.me
+	touch "$(BUILD)/.modify-runtime"
 
 #
 #   me
@@ -836,7 +837,7 @@ ifeq ($(ME_COM_EJS),1)
     DEPS_49 += $(BUILD)/bin/libejs.so
 endif
 DEPS_49 += $(BUILD)/bin/me.mod
-DEPS_49 += $(BUILD)/bin
+DEPS_49 += $(BUILD)/.modify-runtime
 DEPS_49 += $(BUILD)/obj/me.o
 
 LIBS_49 += -lmpr
@@ -907,7 +908,7 @@ $(BUILD)/bin/testme: $(DEPS_51)
 
 installBinary: $(DEPS_52)
 	( \
-	cd ../../.paks/me-package/0.8.3; \
+	cd ../../.paks/me-package/0.8.4; \
 	mkdir -p "$(ME_APP_PREFIX)" ; \
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
 	ln -s "0.8.4" "$(ME_APP_PREFIX)/latest" ; \
@@ -950,172 +951,60 @@ installBinary: $(DEPS_52)
 	mkdir -p "$(ME_VAPP_PREFIX)/inc" ; \
 	cp src/tm/testme.h $(ME_VAPP_PREFIX)/inc/testme.h ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
-	cp src/Builder.es $(ME_VAPP_PREFIX)/bin/Builder.es ; \
-	cp src/Loader.es $(ME_VAPP_PREFIX)/bin/Loader.es ; \
-	cp src/MakeMe.es $(ME_VAPP_PREFIX)/bin/MakeMe.es ; \
 	cp src/master-main.me $(ME_VAPP_PREFIX)/bin/master-main.me ; \
 	cp src/master-start.me $(ME_VAPP_PREFIX)/bin/master-start.me ; \
-	cp src/me.c $(ME_VAPP_PREFIX)/bin/me.c ; \
-	cp src/Me.es $(ME_VAPP_PREFIX)/bin/Me.es ; \
-	cp src/paks/ejs/ejs.c $(ME_VAPP_PREFIX)/bin/ejs.c ; \
-	cp src/paks/ejs/ejs.es $(ME_VAPP_PREFIX)/bin/ejs.es ; \
-	cp src/paks/ejs/ejs.h $(ME_VAPP_PREFIX)/bin/ejs.h ; \
-	cp src/paks/ejs/ejs.me $(ME_VAPP_PREFIX)/bin/ejs.me ; \
-	cp src/paks/ejs/ejs.slots.h $(ME_VAPP_PREFIX)/bin/ejs.slots.h ; \
-	cp src/paks/ejs/ejsByteGoto.h $(ME_VAPP_PREFIX)/bin/ejsByteGoto.h ; \
-	cp src/paks/ejs/ejsc.c $(ME_VAPP_PREFIX)/bin/ejsc.c ; \
-	cp src/paks/ejs/ejsLib.c $(ME_VAPP_PREFIX)/bin/ejsLib.c ; \
-	cp src/paks/ejs/LICENSE.md $(ME_VAPP_PREFIX)/bin/LICENSE.md ; \
-	cp src/paks/ejs/package.json $(ME_VAPP_PREFIX)/bin/package.json ; \
-	cp src/paks/ejs/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
-	cp src/paks/ejs-version/ejs.version.mod $(ME_VAPP_PREFIX)/bin/ejs.version.mod ; \
-	cp src/paks/ejs-version/LICENSE.md $(ME_VAPP_PREFIX)/bin/LICENSE.md ; \
-	cp src/paks/ejs-version/package.json $(ME_VAPP_PREFIX)/bin/package.json ; \
-	cp src/paks/ejs-version/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
-	cp src/paks/ejs-version/start.me $(ME_VAPP_PREFIX)/bin/start.me ; \
-	cp src/paks/ejs-version/Version.es $(ME_VAPP_PREFIX)/bin/Version.es ; \
-	cp src/paks/est/ca.crt $(ME_VAPP_PREFIX)/bin/ca.crt ; \
-	cp src/paks/est/est.h $(ME_VAPP_PREFIX)/bin/est.h ; \
-	cp src/paks/est/est.me $(ME_VAPP_PREFIX)/bin/est.me ; \
-	cp src/paks/est/estLib.c $(ME_VAPP_PREFIX)/bin/estLib.c ; \
-	cp src/paks/est/LICENSE.md $(ME_VAPP_PREFIX)/bin/LICENSE.md ; \
-	cp src/paks/est/package.json $(ME_VAPP_PREFIX)/bin/package.json ; \
-	cp src/paks/est/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
-	cp src/paks/http/ca.crt $(ME_VAPP_PREFIX)/bin/ca.crt ; \
-	cp src/paks/http/http.c $(ME_VAPP_PREFIX)/bin/http.c ; \
-	cp src/paks/http/http.h $(ME_VAPP_PREFIX)/bin/http.h ; \
-	cp src/paks/http/http.me $(ME_VAPP_PREFIX)/bin/http.me ; \
-	cp src/paks/http/httpLib.c $(ME_VAPP_PREFIX)/bin/httpLib.c ; \
-	cp src/paks/http/LICENSE.md $(ME_VAPP_PREFIX)/bin/LICENSE.md ; \
-	cp src/paks/http/package.json $(ME_VAPP_PREFIX)/bin/package.json ; \
-	cp src/paks/http/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
-	cp src/paks/me-components/appweb.me $(ME_VAPP_PREFIX)/bin/appweb.me ; \
-	cp src/paks/me-components/compiler.me $(ME_VAPP_PREFIX)/bin/compiler.me ; \
-	cp src/paks/me-components/components.me $(ME_VAPP_PREFIX)/bin/components.me ; \
-	cp src/paks/me-components/lib.me $(ME_VAPP_PREFIX)/bin/lib.me ; \
-	cp src/paks/me-components/LICENSE.md $(ME_VAPP_PREFIX)/bin/LICENSE.md ; \
-	cp src/paks/me-components/link.me $(ME_VAPP_PREFIX)/bin/link.me ; \
-	cp src/paks/me-components/package.json $(ME_VAPP_PREFIX)/bin/package.json ; \
-	cp src/paks/me-components/rc.me $(ME_VAPP_PREFIX)/bin/rc.me ; \
-	cp src/paks/me-components/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
-	cp src/paks/me-components/testme.me $(ME_VAPP_PREFIX)/bin/testme.me ; \
-	cp src/paks/me-components/vxworks.me $(ME_VAPP_PREFIX)/bin/vxworks.me ; \
-	cp src/paks/me-components/winsdk.me $(ME_VAPP_PREFIX)/bin/winsdk.me ; \
-	cp src/paks/me-configuration/Configuration.es $(ME_VAPP_PREFIX)/bin/Configuration.es ; \
-	cp src/paks/me-configuration/configuration.me $(ME_VAPP_PREFIX)/bin/configuration.me ; \
-	cp src/paks/me-configuration/LICENSE.md $(ME_VAPP_PREFIX)/bin/LICENSE.md ; \
-	cp src/paks/me-configuration/package.json $(ME_VAPP_PREFIX)/bin/package.json ; \
-	cp src/paks/me-configuration/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
-	cp src/paks/me-docstyle/css/all.css.less $(ME_VAPP_PREFIX)/bin/all.css.less ; \
-	cp src/paks/me-docstyle/css/app.inc.less $(ME_VAPP_PREFIX)/bin/app.inc.less ; \
-	cp src/paks/me-docstyle/css/theme.inc.less $(ME_VAPP_PREFIX)/bin/theme.inc.less ; \
-	cp src/paks/me-docstyle/docstyle.me $(ME_VAPP_PREFIX)/bin/docstyle.me ; \
-	cp src/paks/me-docstyle/layouts/api.html.exp $(ME_VAPP_PREFIX)/bin/api.html.exp ; \
-	cp src/paks/me-docstyle/layouts/default.html.exp $(ME_VAPP_PREFIX)/bin/default.html.exp ; \
-	cp src/paks/me-docstyle/LICENSE.md $(ME_VAPP_PREFIX)/bin/LICENSE.md ; \
-	cp src/paks/me-docstyle/package.json $(ME_VAPP_PREFIX)/bin/package.json ; \
-	cp src/paks/me-docstyle/partials/head.html.exp $(ME_VAPP_PREFIX)/bin/head.html.exp ; \
-	cp src/paks/me-docstyle/partials/nav.html.exp $(ME_VAPP_PREFIX)/bin/nav.html.exp ; \
-	cp src/paks/me-docstyle/partials/scripts.html.exp $(ME_VAPP_PREFIX)/bin/scripts.html.exp ; \
-	cp src/paks/me-docstyle/partials/sidebar-scripts.html.exp $(ME_VAPP_PREFIX)/bin/sidebar-scripts.html.exp ; \
-	cp src/paks/me-docstyle/partials/terms.html.exp $(ME_VAPP_PREFIX)/bin/terms.html.exp ; \
-	cp src/paks/me-docstyle/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
-	cp src/paks/me-os/freebsd.me $(ME_VAPP_PREFIX)/bin/freebsd.me ; \
-	cp src/paks/me-os/gcc.me $(ME_VAPP_PREFIX)/bin/gcc.me ; \
-	cp src/paks/me-os/LICENSE.md $(ME_VAPP_PREFIX)/bin/LICENSE.md ; \
-	cp src/paks/me-os/linux.me $(ME_VAPP_PREFIX)/bin/linux.me ; \
-	cp src/paks/me-os/macosx.me $(ME_VAPP_PREFIX)/bin/macosx.me ; \
-	cp src/paks/me-os/os.me $(ME_VAPP_PREFIX)/bin/os.me ; \
-	cp src/paks/me-os/package.json $(ME_VAPP_PREFIX)/bin/package.json ; \
-	cp src/paks/me-os/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
-	cp src/paks/me-os/solaris.me $(ME_VAPP_PREFIX)/bin/solaris.me ; \
-	cp src/paks/me-os/unix.me $(ME_VAPP_PREFIX)/bin/unix.me ; \
-	cp src/paks/me-os/vxworks.me $(ME_VAPP_PREFIX)/bin/vxworks.me ; \
-	cp src/paks/me-os/windows.me $(ME_VAPP_PREFIX)/bin/windows.me ; \
-	cp src/paks/me-project/LICENSE.md $(ME_VAPP_PREFIX)/bin/LICENSE.md ; \
-	cp src/paks/me-project/package.json $(ME_VAPP_PREFIX)/bin/package.json ; \
-	cp src/paks/me-project/Project.es $(ME_VAPP_PREFIX)/bin/Project.es ; \
-	cp src/paks/me-project/project.me $(ME_VAPP_PREFIX)/bin/project.me ; \
-	cp src/paks/me-project/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
-	cp src/paks/me-vstudio/LICENSE.md $(ME_VAPP_PREFIX)/bin/LICENSE.md ; \
-	cp src/paks/me-vstudio/package.json $(ME_VAPP_PREFIX)/bin/package.json ; \
-	cp src/paks/me-vstudio/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
-	cp src/paks/me-vstudio/Vstudio.es $(ME_VAPP_PREFIX)/bin/Vstudio.es ; \
-	cp src/paks/me-vstudio/vstudio.me $(ME_VAPP_PREFIX)/bin/vstudio.me ; \
-	cp src/paks/me-xcode/LICENSE.md $(ME_VAPP_PREFIX)/bin/LICENSE.md ; \
-	cp src/paks/me-xcode/package.json $(ME_VAPP_PREFIX)/bin/package.json ; \
-	cp src/paks/me-xcode/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
-	cp src/paks/me-xcode/Xcode.es $(ME_VAPP_PREFIX)/bin/Xcode.es ; \
-	cp src/paks/me-xcode/xcode.me $(ME_VAPP_PREFIX)/bin/xcode.me ; \
-	cp src/paks/mpr/LICENSE.md $(ME_VAPP_PREFIX)/bin/LICENSE.md ; \
-	cp src/paks/mpr/makerom.c $(ME_VAPP_PREFIX)/bin/makerom.c ; \
-	cp src/paks/mpr/manager.c $(ME_VAPP_PREFIX)/bin/manager.c ; \
-	cp src/paks/mpr/mpr.h $(ME_VAPP_PREFIX)/bin/mpr.h ; \
-	cp src/paks/mpr/mpr.me $(ME_VAPP_PREFIX)/bin/mpr.me ; \
-	cp src/paks/mpr/mprLib.c $(ME_VAPP_PREFIX)/bin/mprLib.c ; \
-	cp src/paks/mpr/mprSsl.c $(ME_VAPP_PREFIX)/bin/mprSsl.c ; \
-	cp src/paks/mpr/package.json $(ME_VAPP_PREFIX)/bin/package.json ; \
-	cp src/paks/mpr/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
-	cp src/paks/osdep/LICENSE.md $(ME_VAPP_PREFIX)/bin/LICENSE.md ; \
-	cp src/paks/osdep/osdep.h $(ME_VAPP_PREFIX)/bin/osdep.h ; \
-	cp src/paks/osdep/osdep.me $(ME_VAPP_PREFIX)/bin/osdep.me ; \
-	cp src/paks/osdep/package.json $(ME_VAPP_PREFIX)/bin/package.json ; \
-	cp src/paks/osdep/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
-	cp src/paks/pcre/LICENSE.md $(ME_VAPP_PREFIX)/bin/LICENSE.md ; \
-	cp src/paks/pcre/package.json $(ME_VAPP_PREFIX)/bin/package.json ; \
-	cp src/paks/pcre/pcre.c $(ME_VAPP_PREFIX)/bin/pcre.c ; \
-	cp src/paks/pcre/pcre.h $(ME_VAPP_PREFIX)/bin/pcre.h ; \
-	cp src/paks/pcre/pcre.me $(ME_VAPP_PREFIX)/bin/pcre.me ; \
-	cp src/paks/pcre/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
-	cp src/paks/ssl/LICENSE.md $(ME_VAPP_PREFIX)/bin/LICENSE.md ; \
-	cp src/paks/ssl/matrixssl.me $(ME_VAPP_PREFIX)/bin/matrixssl.me ; \
-	cp src/paks/ssl/nanossl.me $(ME_VAPP_PREFIX)/bin/nanossl.me ; \
-	cp src/paks/ssl/openssl.me $(ME_VAPP_PREFIX)/bin/openssl.me ; \
-	cp src/paks/ssl/package.json $(ME_VAPP_PREFIX)/bin/package.json ; \
-	cp src/paks/ssl/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
-	cp src/paks/ssl/ssl.me $(ME_VAPP_PREFIX)/bin/ssl.me ; \
-	cp src/paks/zlib/LICENSE.md $(ME_VAPP_PREFIX)/bin/LICENSE.md ; \
-	cp src/paks/zlib/package.json $(ME_VAPP_PREFIX)/bin/package.json ; \
-	cp src/paks/zlib/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
-	cp src/paks/zlib/zlib.c $(ME_VAPP_PREFIX)/bin/zlib.c ; \
-	cp src/paks/zlib/zlib.h $(ME_VAPP_PREFIX)/bin/zlib.h ; \
-	cp src/paks/zlib/zlib.me $(ME_VAPP_PREFIX)/bin/zlib.me ; \
-	cp src/Script.es $(ME_VAPP_PREFIX)/bin/Script.es ; \
 	cp src/simple.me $(ME_VAPP_PREFIX)/bin/simple.me ; \
 	cp src/standard.me $(ME_VAPP_PREFIX)/bin/standard.me ; \
-	cp src/Target.es $(ME_VAPP_PREFIX)/bin/Target.es ; \
-	cp src/tm/ejs.testme.es $(ME_VAPP_PREFIX)/bin/ejs.testme.es ; \
-	cp src/tm/libtestme.c $(ME_VAPP_PREFIX)/bin/libtestme.c ; \
-	cp src/tm/sample.ct $(ME_VAPP_PREFIX)/bin/sample.ct ; \
-	cp src/tm/testme.c $(ME_VAPP_PREFIX)/bin/testme.c ; \
-	cp src/tm/testme.es $(ME_VAPP_PREFIX)/bin/testme.es ; \
-	cp src/tm/testme.h $(ME_VAPP_PREFIX)/bin/testme.h ; \
-	cp src/tm/testme.me $(ME_VAPP_PREFIX)/bin/testme.me ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
-	cp src/paks/me-components/appweb.me $(ME_VAPP_PREFIX)/bin/appweb.me ; \
-	cp src/paks/me-components/compiler.me $(ME_VAPP_PREFIX)/bin/compiler.me ; \
-	cp src/paks/me-components/components.me $(ME_VAPP_PREFIX)/bin/components.me ; \
-	cp src/paks/me-components/lib.me $(ME_VAPP_PREFIX)/bin/lib.me ; \
-	cp src/paks/me-components/LICENSE.md $(ME_VAPP_PREFIX)/bin/LICENSE.md ; \
-	cp src/paks/me-components/link.me $(ME_VAPP_PREFIX)/bin/link.me ; \
-	cp src/paks/me-components/package.json $(ME_VAPP_PREFIX)/bin/package.json ; \
-	cp src/paks/me-components/rc.me $(ME_VAPP_PREFIX)/bin/rc.me ; \
-	cp src/paks/me-components/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
-	cp src/paks/me-components/testme.me $(ME_VAPP_PREFIX)/bin/testme.me ; \
-	cp src/paks/me-components/vxworks.me $(ME_VAPP_PREFIX)/bin/vxworks.me ; \
-	cp src/paks/me-components/winsdk.me $(ME_VAPP_PREFIX)/bin/winsdk.me ; \
-	cp src/paks/me-os/freebsd.me $(ME_VAPP_PREFIX)/bin/freebsd.me ; \
-	cp src/paks/me-os/gcc.me $(ME_VAPP_PREFIX)/bin/gcc.me ; \
-	cp src/paks/me-os/LICENSE.md $(ME_VAPP_PREFIX)/bin/LICENSE.md ; \
-	cp src/paks/me-os/linux.me $(ME_VAPP_PREFIX)/bin/linux.me ; \
-	cp src/paks/me-os/macosx.me $(ME_VAPP_PREFIX)/bin/macosx.me ; \
-	cp src/paks/me-os/os.me $(ME_VAPP_PREFIX)/bin/os.me ; \
-	cp src/paks/me-os/package.json $(ME_VAPP_PREFIX)/bin/package.json ; \
-	cp src/paks/me-os/README.md $(ME_VAPP_PREFIX)/bin/README.md ; \
-	cp src/paks/me-os/solaris.me $(ME_VAPP_PREFIX)/bin/solaris.me ; \
-	cp src/paks/me-os/unix.me $(ME_VAPP_PREFIX)/bin/unix.me ; \
-	cp src/paks/me-os/vxworks.me $(ME_VAPP_PREFIX)/bin/vxworks.me ; \
-	cp src/paks/me-os/windows.me $(ME_VAPP_PREFIX)/bin/windows.me ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-components" ; \
+	cp src/paks/me-components/appweb.me $(ME_VAPP_PREFIX)/bin/paks/me-components/appweb.me ; \
+	cp src/paks/me-components/compiler.me $(ME_VAPP_PREFIX)/bin/paks/me-components/compiler.me ; \
+	cp src/paks/me-components/components.me $(ME_VAPP_PREFIX)/bin/paks/me-components/components.me ; \
+	cp src/paks/me-components/lib.me $(ME_VAPP_PREFIX)/bin/paks/me-components/lib.me ; \
+	cp src/paks/me-components/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-components/LICENSE.md ; \
+	cp src/paks/me-components/link.me $(ME_VAPP_PREFIX)/bin/paks/me-components/link.me ; \
+	cp src/paks/me-components/package.json $(ME_VAPP_PREFIX)/bin/paks/me-components/package.json ; \
+	cp src/paks/me-components/rc.me $(ME_VAPP_PREFIX)/bin/paks/me-components/rc.me ; \
+	cp src/paks/me-components/README.md $(ME_VAPP_PREFIX)/bin/paks/me-components/README.md ; \
+	cp src/paks/me-components/testme.me $(ME_VAPP_PREFIX)/bin/paks/me-components/testme.me ; \
+	cp src/paks/me-components/vxworks.me $(ME_VAPP_PREFIX)/bin/paks/me-components/vxworks.me ; \
+	cp src/paks/me-components/winsdk.me $(ME_VAPP_PREFIX)/bin/paks/me-components/winsdk.me ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-configuration" ; \
+	cp src/paks/me-configuration/Configuration.es $(ME_VAPP_PREFIX)/bin/paks/me-configuration/Configuration.es ; \
+	cp src/paks/me-configuration/configuration.me $(ME_VAPP_PREFIX)/bin/paks/me-configuration/configuration.me ; \
+	cp src/paks/me-configuration/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-configuration/LICENSE.md ; \
+	cp src/paks/me-configuration/package.json $(ME_VAPP_PREFIX)/bin/paks/me-configuration/package.json ; \
+	cp src/paks/me-configuration/README.md $(ME_VAPP_PREFIX)/bin/paks/me-configuration/README.md ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-os" ; \
+	cp src/paks/me-os/freebsd.me $(ME_VAPP_PREFIX)/bin/paks/me-os/freebsd.me ; \
+	cp src/paks/me-os/gcc.me $(ME_VAPP_PREFIX)/bin/paks/me-os/gcc.me ; \
+	cp src/paks/me-os/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-os/LICENSE.md ; \
+	cp src/paks/me-os/linux.me $(ME_VAPP_PREFIX)/bin/paks/me-os/linux.me ; \
+	cp src/paks/me-os/macosx.me $(ME_VAPP_PREFIX)/bin/paks/me-os/macosx.me ; \
+	cp src/paks/me-os/os.me $(ME_VAPP_PREFIX)/bin/paks/me-os/os.me ; \
+	cp src/paks/me-os/package.json $(ME_VAPP_PREFIX)/bin/paks/me-os/package.json ; \
+	cp src/paks/me-os/README.md $(ME_VAPP_PREFIX)/bin/paks/me-os/README.md ; \
+	cp src/paks/me-os/solaris.me $(ME_VAPP_PREFIX)/bin/paks/me-os/solaris.me ; \
+	cp src/paks/me-os/unix.me $(ME_VAPP_PREFIX)/bin/paks/me-os/unix.me ; \
+	cp src/paks/me-os/vxworks.me $(ME_VAPP_PREFIX)/bin/paks/me-os/vxworks.me ; \
+	cp src/paks/me-os/windows.me $(ME_VAPP_PREFIX)/bin/paks/me-os/windows.me ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-project" ; \
+	cp src/paks/me-project/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-project/LICENSE.md ; \
+	cp src/paks/me-project/package.json $(ME_VAPP_PREFIX)/bin/paks/me-project/package.json ; \
+	cp src/paks/me-project/Project.es $(ME_VAPP_PREFIX)/bin/paks/me-project/Project.es ; \
+	cp src/paks/me-project/project.me $(ME_VAPP_PREFIX)/bin/paks/me-project/project.me ; \
+	cp src/paks/me-project/README.md $(ME_VAPP_PREFIX)/bin/paks/me-project/README.md ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-vstudio" ; \
+	cp src/paks/me-vstudio/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-vstudio/LICENSE.md ; \
+	cp src/paks/me-vstudio/package.json $(ME_VAPP_PREFIX)/bin/paks/me-vstudio/package.json ; \
+	cp src/paks/me-vstudio/README.md $(ME_VAPP_PREFIX)/bin/paks/me-vstudio/README.md ; \
+	cp src/paks/me-vstudio/Vstudio.es $(ME_VAPP_PREFIX)/bin/paks/me-vstudio/Vstudio.es ; \
+	cp src/paks/me-vstudio/vstudio.me $(ME_VAPP_PREFIX)/bin/paks/me-vstudio/vstudio.me ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-xcode" ; \
+	cp src/paks/me-xcode/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-xcode/LICENSE.md ; \
+	cp src/paks/me-xcode/package.json $(ME_VAPP_PREFIX)/bin/paks/me-xcode/package.json ; \
+	cp src/paks/me-xcode/README.md $(ME_VAPP_PREFIX)/bin/paks/me-xcode/README.md ; \
+	cp src/paks/me-xcode/Xcode.es $(ME_VAPP_PREFIX)/bin/paks/me-xcode/Xcode.es ; \
+	cp src/paks/me-xcode/xcode.me $(ME_VAPP_PREFIX)/bin/paks/me-xcode/xcode.me ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/doc/man/man1" ; \
 	cp doc/public/man/me.1 $(ME_VAPP_PREFIX)/doc/man/man1/me.1 ; \
 	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \
@@ -1144,7 +1033,7 @@ DEPS_54 += stop
 
 uninstall: $(DEPS_54)
 	( \
-	cd ../../.paks/me-package/0.8.3; \
+	cd ../../.paks/me-package/0.8.4; \
 	rm -fr "$(ME_VAPP_PREFIX)" ; \
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
 	rmdir -p "$(ME_APP_PREFIX)" 2>/dev/null ; true ; \
