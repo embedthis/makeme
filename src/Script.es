@@ -533,9 +533,9 @@ public function touchFile(path: Path) {
             path.append('')
             strace('Touch', path)
         }
-    } else if (makeme.generating != 'nmake' && makeme.generating != 'vs') {
+    } else {
         if (makeme.generating == 'nmake' || makeme.generating == 'vs') {
-            genCmd('copy /Y /B nul+modified ' + path + ' $(LOG)')
+            genCmd('copy /Y /B nul+modified ' + path.windows + ' $(LOG)')
         } else {
             genCmd('touch "' + path + '"')
         }
