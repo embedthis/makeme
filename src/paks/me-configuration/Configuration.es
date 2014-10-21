@@ -741,7 +741,6 @@ module embedthis.me.script {
     require embedthis.me
     require ejs.version
 
-//  MOB - refactor
     public function getComponentSearch(target, component, objdir = '.') {
         if (target.withpath) {
             return [Path(target.withpath).join(objdir)]
@@ -758,7 +757,7 @@ module embedthis.me.script {
                 ~/.paks/NAME/NEWEST-VERSION
              */
             path = me.dir.home.join('.paks', component)
-            if (path) {
+            if (path.exists) {
                 path = Path(Version.sort(path.files('*'), -1)[0])
                 if (path) {
                     search.push(path.join(objdir))
@@ -768,7 +767,7 @@ module embedthis.me.script {
                 /usr/local/lib/me/LATEST/bin/paks/NAME
              */
             path = me.dir.me.join('paks', component)
-            if (path) {
+            if (path.exists) {
                 search.push(path.join(objdir))
             }
         }
