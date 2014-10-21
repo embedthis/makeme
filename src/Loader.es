@@ -161,6 +161,8 @@ public class Loader {
             if (files.length == 0) {
                 if ((path = findPlugin(name, false)) != null) {
                     files = [path]
+                } else if (!optional) {
+                    trace('Warn', 'BB Cannot find plugin: "' + name + '" ... continuing')
                 }
             }
             if (files.length == 0 && !optional) {
@@ -314,6 +316,8 @@ public class Loader {
             let path = findPlugin(plugin, false)
             if (path) {
                 blendFile(path)
+            } else if (!plugin.startsWith('?')) {
+                trace('Warn', 'Cannot find plugin: "' + plugin + '" ... continuing')
             }
         }
     }
@@ -572,8 +576,6 @@ public class Loader {
             if (!optional) {
                 if (exceptions === true) {
                     throw new Error('Cannot find plugin: "' + name + '"')
-                } else if (exceptions === false) {
-                    trace('Warn', 'Cannot find plugin: "' + name + '" ... continuing')
                 }
             }
             path = null
