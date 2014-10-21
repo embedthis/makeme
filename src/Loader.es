@@ -227,7 +227,7 @@ public class Loader {
                 for each (let path in files) {
                     vtrace('Module', path)
                     try {
-                        me.globals.ORIGIN = path.dirname
+                        makeItemGlobals(path.dirname)
                         global.load(path)
                     } catch (e) {
                         throw new Error('When loading: ' + path + '\n' + e)
@@ -242,7 +242,7 @@ public class Loader {
             for each (let mix in obj.mixin) {
                 App.log.debug(2, 'Load mixin from: ' + obj.origin)
                 try {
-                    me.globals.ORIGIN = obj.origin
+                    makeItemGlobals(obj.origin)
                     global.eval(expand(mix))
                 } catch (e) {
                     throw new Error('When loading mixin' + e)
@@ -621,8 +621,7 @@ public class Loader {
             for (let [event, scripts] in o.scripts) {
                 for each (item in scripts) {
                     if (item.script is String) {
-                        me.globals.HOME = item.home
-                        me.globals.ORIGIN = o.origin
+                        makeItemGlobals(o.origin, item.home)
                         item.script = expand(item.script)
                     }
                 }
@@ -884,8 +883,14 @@ public class Loader {
         g.SHLIB = ext.dotshlib
     }
 
-//  MOB - refactor and order this file
-//  MOB - rename "p"
+    function makeItemGlobals(origin: Path?, home: Path?) {
+        if (home) {
+            me.globals.HOME = Path(home).portable
+        }
+        if (origin) {
+            me.globals.ORIGIN = Path(origin).portable
+        }
+    }
 
     function mapTargetProperties(p) {
         for (let [key,value] in p) {
@@ -1251,7 +1256,6 @@ public class Loader {
                 dir.rel  ||= dir.out.join('img')
             }
         }
-        // UNUSED dir.me = dir.src.join('makeme/standard.me').exists ? dir.src.join('me') : Config.Bin.portable
         dir.me = App.exeDir
         if (me.platform.like == 'windows') {
             dir.programFiles32 = makeme.programFiles32()
