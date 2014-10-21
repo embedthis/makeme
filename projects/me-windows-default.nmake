@@ -84,8 +84,8 @@ LDFLAGS               = -nologo -nodefaultlib -incremental:no -debug -machine:$(
 LIBPATHS              = "-libpath:$(BUILD)\bin"
 LIBS                  = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
 
-ME_ROOT_PREFIX        = C:
-ME_BASE_PREFIX        = $(ME_ROOT_PREFIX)\Program Files
+ME_ROOT_PREFIX        = 
+ME_BASE_PREFIX        = $(ME_ROOT_PREFIX)$(ME_BASE_PREFIX)
 ME_APP_PREFIX         = $(ME_BASE_PREFIX)\Embedthis MakeMe
 ME_VAPP_PREFIX        = $(ME_APP_PREFIX)
 ME_DATA_PREFIX        = $(ME_VAPP_PREFIX)
@@ -769,7 +769,7 @@ DEPS_38 = $(DEPS_38) src\paks\me-xcode\README.md
 DEPS_38 = $(DEPS_38) src\paks\me-xcode\Xcode.es
 DEPS_38 = $(DEPS_38) src\paks\me-xcode\xcode.me
 
-build\$(CONFIG)\.modify-runtime: $(DEPS_38)
+build\$(CONFIG)\.runtime-modified: $(DEPS_38)
 	@echo ..... [Copy] build\$(CONFIG)\bin
 	if not exist "build\$(CONFIG)\bin" md "build\$(CONFIG)\bin"
 	copy /Y /B src\master-main.me+modified build\$(CONFIG)\bin\master-main.me $(LOG)
@@ -826,7 +826,7 @@ build\$(CONFIG)\.modify-runtime: $(DEPS_38)
 	copy /Y /B src\paks\me-xcode\README.md+modified build\$(CONFIG)\bin\paks\me-xcode\README.md $(LOG)
 	copy /Y /B src\paks\me-xcode\Xcode.es+modified build\$(CONFIG)\bin\paks\me-xcode\Xcode.es $(LOG)
 	copy /Y /B src\paks\me-xcode\xcode.me+modified build\$(CONFIG)\bin\paks\me-xcode\xcode.me $(LOG)
-	copy /Y /B nul+modified build\$(CONFIG)\.modify-runtime $(LOG)
+	copy /Y /B nul+modified build\$(CONFIG)\.runtime-modified $(LOG)
 
 #
 #   me.obj
@@ -849,7 +849,7 @@ DEPS_40 = $(DEPS_40) build\$(CONFIG)\bin\libhttp.dll
 DEPS_40 = $(DEPS_40) build\$(CONFIG)\bin\libejs.dll
 !ENDIF
 DEPS_40 = $(DEPS_40) build\$(CONFIG)\bin\me.mod
-DEPS_40 = $(DEPS_40) build\$(CONFIG)\.modify-runtime
+DEPS_40 = $(DEPS_40) build\$(CONFIG)\.runtime-modified
 DEPS_40 = $(DEPS_40) build\$(CONFIG)\obj\me.obj
 
 LIBS_40 = $(LIBS_40) libmpr.lib

@@ -41,6 +41,7 @@
         "me-configuration": "0.8.4",
         "me-docstyle": "~0.8",
         "me-os": "0.8.4",
+        "me-package": "~0.8",
         "me-project": "0.8.4",
         "me-vstudio": "~0.8",
         "me-xcode": "~0.8",

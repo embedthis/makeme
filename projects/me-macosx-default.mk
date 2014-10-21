@@ -781,7 +781,7 @@ DEPS_49 += src/paks/me-xcode/README.md
 DEPS_49 += src/paks/me-xcode/Xcode.es
 DEPS_49 += src/paks/me-xcode/xcode.me
 
-$(BUILD)/.modify-runtime: $(DEPS_49)
+$(BUILD)/.runtime-modified: $(DEPS_49)
 	@echo '      [Copy] $(BUILD)/bin'
 	mkdir -p "$(BUILD)/bin"
 	cp src/master-main.me $(BUILD)/bin/master-main.me
@@ -838,7 +838,7 @@ $(BUILD)/.modify-runtime: $(DEPS_49)
 	cp src/paks/me-xcode/README.md $(BUILD)/bin/paks/me-xcode/README.md
 	cp src/paks/me-xcode/Xcode.es $(BUILD)/bin/paks/me-xcode/Xcode.es
 	cp src/paks/me-xcode/xcode.me $(BUILD)/bin/paks/me-xcode/xcode.me
-	touch "$(BUILD)/.modify-runtime"
+	touch "$(BUILD)/.runtime-modified"
 
 #
 #   me
@@ -851,7 +851,7 @@ ifeq ($(ME_COM_EJS),1)
     DEPS_50 += $(BUILD)/bin/libejs.dylib
 endif
 DEPS_50 += $(BUILD)/bin/me.mod
-DEPS_50 += $(BUILD)/.modify-runtime
+DEPS_50 += $(BUILD)/.runtime-modified
 DEPS_50 += $(BUILD)/obj/me.o
 
 LIBS_50 += -lmpr
@@ -932,7 +932,7 @@ $(BUILD)/bin/testme.es: $(DEPS_53)
 
 installBinary: $(DEPS_54)
 	( \
-	cd ../../.paks/me-package/0.8.4; \
+	cd src/paks/me-package; \
 	mkdir -p "$(ME_APP_PREFIX)" ; \
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
 	ln -s "0.8.4" "$(ME_APP_PREFIX)/latest" ; \
@@ -1057,7 +1057,7 @@ DEPS_56 += stop
 
 uninstall: $(DEPS_56)
 	( \
-	cd ../../.paks/me-package/0.8.4; \
+	cd src/paks/me-package; \
 	rm -fr "$(ME_VAPP_PREFIX)" ; \
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
 	rmdir -p "$(ME_APP_PREFIX)" 2>/dev/null ; true ; \
