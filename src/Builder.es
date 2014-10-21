@@ -205,7 +205,7 @@ public class Builder {
         */
         let files = target.files.map(function(e) e.relativeTo(target.home))
         if (files.length) {
-            trace('Copy', Path(target.path).compact())
+            trace('Copy', Path(target.modify || target.path).compact())
             target.verbose = true
             copyFiles(files, target.path, target)
             if (target.modify) {

@@ -1380,7 +1380,7 @@ public class Loader {
             }
         }
         if (target.path && target.type == 'file' && (target.path.isDir || target.path.name.endsWith('/'))) {
-            target.modify = target.path.dirname.join('.modify-' + Path(name).basename)
+            target.modify = target.path.dirname.join('.' + Path(name).basename + '-modified')
         }
     }
 
