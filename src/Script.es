@@ -212,8 +212,8 @@ public function copyFiles(from, to: Path, topOptions = {}, base = null) {
             let eo = {missing: true}
             return makeme.loader.expand(str, eo).expand(o, eo)
         }
-        /* If patterns/files are missing, then keep the pattern itself */
-        missing: undefined,
+        /* If generating, keep the pattern */
+        missing: makeme.generating ? '' : undefined,
 
         postPerform: function (from, to, control) {
             if (control.filelist) {
