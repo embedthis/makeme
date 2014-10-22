@@ -8857,6 +8857,8 @@ module ejs {
                 <li>The wildcard '?' matches any single character</li>
                 <li>* matches zero or more characters in a filename or directory</li>
                 <li>** matches zero or more files or directories and matches recursively in a directory tree</li>
+                <li>! Negates pattern. This removes matching patterns from the set. These are applied after all source
+                      patterns have been processed. Use !! to escape or set noneg in options.
             </ul>
             If a pattern ends with '/', then all the directory contents will match. 
 
@@ -8905,10 +8907,12 @@ module ejs {
                 The file argument is the filename being considered, it include the Path value.
                 The value of "this" is set to the Path value.
 
-            @option missing String Determine what happens if patterns do not match any files.
+            @option missing String Determine what happens if a pattern does not match any files.
                 Set to undefined to report patterns that don't resolve by throwing an exception. 
-                Set to any non-null value to be used in the results when there are no matching files or directories. 
-                Set to the empty string to use the patterns in the results and set to null to do nothing.
+                Set to any non-null value to be used in the results in place of the pattern when there are no matching 
+                    files or directories. 
+                Set to the empty string to use the pattern itself in the results.
+                Set to null to do nothing and omit the pattern.
                 Default is null.
 
             @option noneg Boolean Do not process negated file patterns.
@@ -9443,7 +9447,6 @@ module ejs {
                     *
                     **
                     ?
-                    {}  Comma separated patterns
                     !   Negates pattern. This removes matching patterns from the set. These are applied after all source
                         patterns have been processed. Use !! to escape.
                 If item is a directory or ends with '/', then "**" is automatically appended to match the directory 
@@ -9463,6 +9466,8 @@ module ejs {
                 extension and retry.
 
             @option compress Boolean Compress destination file using Zlib. Results in a '.gz' extension.
+
+            @option divider String Divider text to use between appended files.
 
             @option extension String | Path Extension to use for the destination filenames.
 
@@ -9511,8 +9516,6 @@ module ejs {
 
             @option rename Function Callback function to provide a new destination filename. 
                 Function(from, to, options): Path
-
-            @option separator String Separator to use between appended files.
 
             @option strip Boolean Run 'strip' on the destination files.
 

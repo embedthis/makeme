@@ -213,7 +213,7 @@ public function copyFiles(from, to: Path, topOptions = {}, base = null) {
             return makeme.loader.expand(str, eo).expand(o, eo)
         }
         /* If patterns/files are missing, then keep the pattern itself */
-        missing: '', 
+        missing: undefined,
 
         postPerform: function (from, to, control) {
             if (control.filelist) {
