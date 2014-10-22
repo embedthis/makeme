@@ -15,20 +15,29 @@
             <li>Git integration targets</li> 
             <li>And so on ...</li> 
         </ul>
+        <p>Plugins are referenced by project via the <em>plugins</em> property. For example:
+        <pre class="ui code segment">
+ Me.load({
+    plugins: [ 'configuration', 'package'],
+    targets: {}
+})
+</pre>
+        <p>This loads the <em>configuration</em> and <em>package</em> plugins.</p>
+
+        <h2>Plugin Packaging</h2>
         <p>Plugins are packaged and distributed using the
             <a href="https://embedthis.com/pak/">Pak</a> package manager tool. Pak will bundle together all the
             components of a plugin and then publish online for distribution via the 
             <a href="https://embedthis.com/catalog">Pak Online Catalog</a>.
-        <h2>Plugin Elements</h2>
+        <h3>Plugin Elements</h3>
         <p>A MakeMe plugin consists of two mandatory elements:</p>
         <ul>
             <li>A MakeMe file of the same name as the plugin pak.</li>
             <li>A Pak package.json description file</li>
         </ul>
         <p>The <em>NAME.me</em> MakeMe file provides the plugin's functionality. It may contain targets, settings, and 
-        may reference other MakeMe files or scripts.</p>
-
-        <p>The Pak <em>package.json</em> file describes the pak and specifies its name, version and source code repository
+        may reference other MakeMe files or scripts.
+        The Pak <em>package.json</em> file describes the pak and specifies its name, version and source code repository
         location from which it can be downloaded.</p>
         <p>A plugin may also include: </p>
         <ul>
@@ -59,10 +68,9 @@ Me.load({
 })
 </pre>
         <h2>Sample Plugin</h2>
-        <p>This sample will walk through the steps to create a simple MakeMe plugin that displays the current time
-        when MakeMe is invoked to buidl the <em>time</em> target. For example:</p>
+        <p>To demonstrate, this section will walk through the steps to create a simple MakeMe plugin that displays the current time when MakeMe is invoked to build the <em>time</em> target. For example:</p>
 
-        <pre class="ui code segment">me time
+        <pre class="ui code segment">$ me time
 <b>Thu Mar 13 17:04:49 PDT 2014</b></pre>
 
         <h3>Step 1 &mdash; Name the Plugin</h3>
@@ -123,23 +131,12 @@ Me.load({
         <p>Users can download and install plugins locally using the Pak tool. For example:</p>
         <pre class="ui code segment">pak install NAME</pre>
         <p>This will download and install the plugin into the current <em>src/paks</em> directory. The project 
-        <em>main.me</em> file should load this plugin via a <em>blend</em> property. For example:</p>
+        <em>main.me</em> file should load this plugin via the <em>plugins</em> property. For example:</p>
 <pre class="ui code segment">
 Me.load({
-    blend: [ "src/paks/me-time.me" ],
+    plugins: [ 'time' ],
     ...
 </pre>
-        <p>Alternatively and preferably, the project can be designed to load all paks under the <em>src/paks</em>
-        directory. In this manner, the <em>main.me</em> does not need to be edited.</p>
-<pre class="ui code segment">
-Me.load({
-    blend: [
-        "src/paks/*/*.me",
-    ],
-    ...
-</pre>
-        <p>You can also use a blend filename without any path. This will search the current directory and if not found
-            will search in <em>~/.paks</em>.</p>
         <h2>Mixins</h2>
         <p>Plugins may contribute scripts that are made available to target scripts or other MakeMe plugins. Plugin scripts
         are Javascript (Ejscript) definitions or functions that are injected the MakeMe Javascript engine. There are two
@@ -151,8 +148,9 @@ Me.load({
         <p>The MakeMe <em>blend</em> property is an array of external scripts to load. These paths may include
         the wild-card "*" character to match a filename portion and "**" to match any file or directory at any depth
         in the directory tree. If the filename is not found, "~/.paks" is searched for a matching Pak.</p>
-        <p>The <em>mixin</em> property is a 
-        literal Javascript string to load. These are both injected at the global scope.</p>
+
+        <p>The <em>mixin</em> property is a literal Javascript string to load. These are both injected at the global scope.</p>
+        
         <h2>Install Events</h2>
         <p>A plugin may need install libraries on its target system or otherwise may need to perform 
         initialization tasks when first installed. The Pak <em>package.json</em> file contains 

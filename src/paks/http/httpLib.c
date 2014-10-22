@@ -1856,7 +1856,7 @@ PUBLIC void httpSetAuthForm(HttpRoute *parent, cchar *loginPage, cchar *loginSer
         }
     }
     if (logoutService && *logoutService) {
-        if (sstarts(logoutService, "https://")) {
+        if (sstarts(logoutService, "https:///")) {
             logoutService = &logoutService[8];
             secure = 1;
         }

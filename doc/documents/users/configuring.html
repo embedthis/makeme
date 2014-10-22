@@ -6,7 +6,7 @@
 }
         <h2>Running Configure</h2>
         <p>If your project has been designed for configuring, it will have a <em>main.me</em> file
-        that describes the project, what it requires to build, and which extensions it can utilize.</p>
+        that describes the project, what it requires to build, and which configurable components it can utilize.</p>
         <p>For configurable products, developers typically provide a configure script to mimic the familiar autoconf 
         configure pattern. This script minimally invokes MakeMe using the configure target:
         <pre class="ui code segment">
@@ -29,33 +29,32 @@ me configure "$@"</pre>
         </ul>
         <p>MakeMe will use these files and output directory when performing subsequent builds and compiling sources.</p>
         <p>The <em>start.me</em> file is the primary MakeMe file that is invoked when MakeMe is run. For configured
-        projects, this simply loads the platform.me file.</p>
+        projects, this simply loads the platform.me file which in turn loads the main.me file.</p>
         <a name="customizing"></a>
         <h2>Customizing the Build</h2>
-        <p>Before customizing, it can be helpful to see the current configuration. The following command will display
-        the complete, current configuration:</p>
-        <pre class="ui code segment">me configuration</pre>
-        <p>When running "me configure", you can modify the configuration by adding or removing extensions and enabling or
-           disabling various features.</p> 
-        <h3>Extensions</h3>
-        <p>If a discoverable extension is installed in a non-standard location, you may need to inform MakeMe of its 
-       whereabouts. Do this via: <pre class="ui code segment">configure --with NAME=/path/to/extension</pre>
-        <p>Some extensions that are neither required nor discoverable, may still supported by your project.
-           These extensions but must be explicitly requested via the <em>-with</em> switch for them to be configured. 
-           For example, Appweb supports Ejscript but it is not enabled by default. To build with Ejscript, you request it like this:</p>
-        <pre class="ui code segment">configure -with ejs</pre>
-        <p>You can explicitly disable an extension  that has been discovered on your system, via the <em>-without</em> switch
-        <pre class="ui code segment">configure -without ssl</pre>
-        <p>To see a list of supported extensions, run <em>configure --help</em>.</p>
+        <p>When running "me configure", you can select or deselect configurable components and 
+            enable or disable various features.</p> 
+
+        <p>To see a list of supported components, run <em>configure --help</em>.</p>
         <pre class="ui code segment">$ <b>configure --help</b>
 Usage: me [options] [targets|actions] ...
 ...
-Extension Packages (--with NAME, --without NAME):
+Components (--with NAME, --without NAME):
     est                 # Embedded Security Transport (SSL)
     openssl             # OpenSSL (SSL)
     sqlite              # SQLite Database
     zip                 # Zip Compression Tool
 </pre>
+        <p>If a discoverable component is installed in a non-standard location, you may need to inform MakeMe of its 
+       whereabouts. Do this via: <pre class="ui code segment">configure --with NAME=/path/to/component</pre>
+        <p>Some components that are neither required nor discoverable, may still supported by your project.
+           These components but must be explicitly requested via the <em>-with</em> switch for them to be configured. 
+           For example, Appweb supports Ejscript but it is not enabled by default. To build with Ejscript, you request it like this:</p>
+        <pre class="ui code segment">configure -with ejs</pre>
+        <p>You can explicitly disable a component  that has been discovered on your system, via the 
+        <em>-without</em> switch
+        <pre class="ui code segment">configure -without ssl</pre>
+        
         <h3>Features</h3>
         <p>Most projects have configurable options that can be tailored via the configure <em>--set</em> switch. This takes
 the form <em>--set KEY=VALUE</em>. For example:
@@ -144,7 +143,7 @@ the form <em>--set KEY=VALUE</em>. For example:
         MakeMe setting. Projects should not ship this file and so
         users need not fear their customize.me file will be overwritten.</p>
         <pre class="ui code segment">
-settings: {
+{
     customize: [
         'custom.me',
     ],

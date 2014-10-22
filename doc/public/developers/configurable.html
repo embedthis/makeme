@@ -64,7 +64,7 @@
                     <a class="item" href="../developers/libraries.html">Creating Libraries</a>
                     <a class="item" href="../developers/executables.html">Creating Executables</a>
                     <a class="item" href="../developers/scripts.html">Build Scripts</a>
-                    <a class="item" href="../developers/copying.html">Copying Files and Directories</a>
+                    <a class="item" href="../developers/copying.html">Copying Files</a>
                     <a class="item" href="../developers/configurable.html">Configurable Projects</a>
                     <a class="item" href="../developers/plugins.html">MakeMe Plugins</a>
                     <a class="item" href="../developers/generating.html">Generating</a>
@@ -82,7 +82,7 @@
                     <a class="item" href="../ref/events.html">Events</a>
                     <a class="item" href="../ref/targets.html">Targets</a>
                     <a class="item" href="../man/me.html">Manual Page</a>
-                    <a class="item" href="http://embedthis.com/ejs/doc/api/ejscript/index.html">
+                    <a class="item" href="http://embedthis.com/ejscript/doc/ref/api/ejscript/index.html">
                         Language Reference</a>
                     <a class="item" href="http://embedthis.com/ejscript/doc/index.html">Ejscript Documentation</a>
                 </div>
@@ -161,7 +161,7 @@
     </div>
     <div class="content">
 
-        <h2>Configurable Projects</h2>
+        <h1>Configurable Projects</h1>
         <p>MakeMe supports you in creating highly configurable projects, whereby users 
         can customize the project to suit their requirements and their local system. 
         Users can select and deselect project components via the "<em>me -configure . </em>" command.</p>
@@ -199,7 +199,7 @@ Me.load({
         <p>If a target specifies a component in its "<em>depends</em>" property, and the component is found and
         enabled, then the component properties: defines, includes, libraries, linker and libpaths, will be 
         inherited by the target. </p>
-        <p>If the target specifies the component via its "<em>ifdef</em>" property the target will only be built if the
+        <p>If the target specifies the component via its "<em>ifdef</em>" property, the target will only be built if the
         component is enabled. Otherwise, the target will (silently) be omitted from the build. </p>
         <p>For example, consider the earlier Rocket component definition. A target desiring to use this component
         could be specified like this:</p>
@@ -210,6 +210,10 @@ mars_mission: {
     <b>depends: ['rocket']</b>,
     <b>ifdef: ['rocket']</b>,
 }</pre>
+        <p>If a target may depend on components that are optional, the can list them in its "<em>uses</em>" property. 
+        In this manner, the component properties: defines, includes, libraries, linker and libpaths, will be 
+        inherited by the target if the component is defined and enabled.</p>
+
         <h2>Configurable Projects</h2>
         <p>Configurable projects are different from stand-alone MakeMe projects in that the 
         <em>start.me</em> is generated based on a template MakeMe file called <em>main.me</em>. 
@@ -256,13 +260,9 @@ configure -with php=/path/to/php</pre>
         then a search begins for a MakeMe file describing the component.
         MakeMe searches for a component file in the following order:</p>
         <ol>
-        <li>src/paks/NAME/NAME.me</li>
-        <li>me/configure/NAME.me</li>
-        <li>me/configure/NAME/NAME.me</li>
-        <li>~/.me/configure/NAME.me</li>
-        <li>~/.me/configure/NAME/NAME.me</li>
-        <li>/usr/local/lib/me/latest/configure/NAME.me</li>
-        <li>/usr/local/lib/me/latest/configure/NAME/NAME.me</li>
+            <li>src/paks/NAME/NAME.me</li>
+            <li>~/.paks/NAME/NAME.me</li>
+            <li>/usr/local/lib/me/latest/bin/paks/NAME/NAME.me</li>
         </ol>
         <h2>Standard Components</h2>
         <p>Here is a partial list of the standard components supplied with MakeMe.</p>
@@ -279,6 +279,10 @@ configure -with php=/path/to/php</pre>
             <tr><td>winsdk</td><td>Windows SDK</td></tr>
         </tbody>
         </table>
+
+        <p>MakeMe also uses plugins to implement internal functions such as: O/S specifics, configuration, 
+            and project generation.</p>
+
         <p>Here is a partial list of the components available from the 
             <a href="https://embedthis.com/catalog/">Pak Catalog</a>.</p>
         <table title="paks" class="ui table segment">
@@ -287,43 +291,31 @@ configure -with php=/path/to/php</pre>
         </thead>
         <tbody>
             <tr>
-                <td><a href="https://github.com/embedthis/me-dev">me-dev</a></td>
-                <td>Embedthis MakeMe Development Lifecycle</td>
-            </tr>
-            <tr>
-                <td><a href="https://github.com/embedthis/me-doc">me-doc</a></td>
-                <td>Embedthis Documentation Generation</td>
-            </tr>
-            <tr>
-                <td><a href="https://github.com/embedthis/me-package">me-package</a></td>
-                <td>Embedthis Installable Package Targets and Scripts</td>
-            </tr>
-            <tr>
-                <td><a href="https://github.com/embedthis/pak-ejs">pak-ejs</a></td>
+                <td><a href="https://github.com/embedthis/pak-ejs">ejs</a></td>
                 <td>Ejscript Language Library</td>
             </tr>
             <tr>
-                <td><a href="https://github.com/embedthis/pak-esp">pak-esp</a></td>
+                <td><a href="https://github.com/embedthis/pak-esp">esp</a></td>
                 <td>ESP C Language Web Framework</td>
             </tr>
             <tr>
-                <td><a href="https://github.com/embedthis/pak-est">pak-est</a></td>
+                <td><a href="https://github.com/embedthis/pak-est">est</a></td>
                 <td>Embedded Security Transport (SSL)</td>
             </tr>
             <tr>
-                <td><a href="https://github.com/embedthis/pak-mpr">pak-mpr</a></td>
+                <td><a href="https://github.com/embedthis/pak-mpr">mpr</a></td>
                 <td>Multithreaded Portable Runtime</td>
             </tr>
             <tr>
-                <td><a href="https://github.com/embedthis/pak-osdep">pak-osdep</a></td>
+                <td><a href="https://github.com/embedthis/pak-osdep">osdep</a></td>
                 <td>Embedthis O/S Dependent Abstraction</td>
             </tr>
             <tr>
-                <td><a href="https://github.com/embedthis/pak-pcre">pak-pcre</a></td>
+                <td><a href="https://github.com/embedthis/pak-pcre">pcre</a></td>
                 <td>PCRE regular expression library</td>
             </tr>
             <tr>
-                <td><a href="https://github.com/embedthis/pak-sqlite">pak-sqlite</a></td>
+                <td><a href="https://github.com/embedthis/pak-sqlite">sqlite</a></td>
                 <td>SQLite library</td>
             </tr>
             <tr>
@@ -485,8 +477,8 @@ openssl: {
         <p>Components can be conveniently packaged and delivered using the 
         <a href="https://embedthis.com/pak/">Pak</a> tool. Pak is a package manager and distribution tool
         for application components. These may be delivered either as part of the project, 
-        or they may be separately downloaded and installed by the user just prior to configuring. </p>
-        <p>Component paks define their detection and configuration logic inline in their MakeMe file. </p>
+        or they may be separately downloaded and installed by the user just prior to configuring.
+        Component paks define their detection and configuration logic inline in their MakeMe file. </p>
         <h2>Importing MakeMe</h2>
         <p>For developers who wish to <i>freeze</i> the MakeMe support for their product and guarantee the version
         of MakeMe they have designed for, the MakeMe configuration can be imported into the product source tree via:</p>

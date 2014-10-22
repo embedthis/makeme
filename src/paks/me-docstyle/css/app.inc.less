@@ -162,6 +162,23 @@ body {
 
 /////////// Element styles
 
+table.directive {
+    width: 100%;
+    background: @white;
+    margin: 1em 0em;
+    border: 1px solid @gray-lighter;
+    border-radius: 0.25em;
+    color: rgba(0, 0, 0, 0.8);
+    border-collapse: separate;
+    border-spacing: 0px;
+
+    td {
+        border-bottom: 1px solid lighten(@gray-lighter, 12%);
+        padding: 0.7em 0.8em;
+        vertical-align: middle;
+    }
+}
+
 a {
     color: @link-color;
     text-decoration: none;

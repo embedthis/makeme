@@ -16,6 +16,7 @@ Me.load({
         libest: {
             type: 'lib',
             headers: [ '*.h' ],
+            depends: [ 'osdep' ],
             sources: [ 'estLib.c' ],
             '-compiler': [
                 '-Wall',

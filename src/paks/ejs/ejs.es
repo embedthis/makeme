@@ -1109,14 +1109,14 @@ module ejs {
             splice(start, end - start + 1)
         }
 
-        //  MOB - should return array to permit chaining
         /**
             Remove specified elements from the array. The elements are removed and not just set 
             to undefined as the delete operator will do. Indicies are renumbered. 
             @param elts List of elements to remove.
+            @return The original array
             @spec ejs
          */
-        native function removeElements(...elts): Void
+        native function removeElements(...elts): Array
 
         /**
             Reverse the order of the objects in the array. The elements are reversed in the original array.
@@ -8755,7 +8755,7 @@ module ejs {
         native function get basename(): Path
 
         function childOf(parent: Path): Boolean
-            absolute.startsWith(parent)
+            absolute.startsWith(parent.absolute)
         
         /**
             Path components. The path is normalized and then broken into components for each directory level. 
@@ -8766,12 +8766,12 @@ module ejs {
         native function get components(): Array
   
         /**
-            Test if the path name contains a substring
+            Test if the path name contains a substring. The pattern must be in portable format.
             @param pattern String pattern to search for
             @return Boolean True if found.
          */
         function contains(pattern: String): Boolean
-            name.contains(pattern)
+            portable.name.contains(pattern)
 
         /**
             Copy a file to the destination
@@ -9898,7 +9898,6 @@ module ejs {
         function makeTemp(): Path
             temp()
 
-        //  MOB - much better if this had no arg and was a getter.
         /**
             Return a compact representation of the path
             This returns a relative path if the path is under the given home directory. Otherwise it returns an 

@@ -64,7 +64,7 @@
                     <a class="item" href="../developers/libraries.html">Creating Libraries</a>
                     <a class="item" href="../developers/executables.html">Creating Executables</a>
                     <a class="item" href="../developers/scripts.html">Build Scripts</a>
-                    <a class="item" href="../developers/copying.html">Copying Files and Directories</a>
+                    <a class="item" href="../developers/copying.html">Copying Files</a>
                     <a class="item" href="../developers/configurable.html">Configurable Projects</a>
                     <a class="item" href="../developers/plugins.html">MakeMe Plugins</a>
                     <a class="item" href="../developers/generating.html">Generating</a>
@@ -82,7 +82,7 @@
                     <a class="item" href="../ref/events.html">Events</a>
                     <a class="item" href="../ref/targets.html">Targets</a>
                     <a class="item" href="../man/me.html">Manual Page</a>
-                    <a class="item" href="http://embedthis.com/ejs/doc/api/ejscript/index.html">
+                    <a class="item" href="http://embedthis.com/ejscript/doc/ref/api/ejscript/index.html">
                         Language Reference</a>
                     <a class="item" href="http://embedthis.com/ejscript/doc/index.html">Ejscript Documentation</a>
                 </div>
@@ -169,9 +169,7 @@
         
         <a id="why"></a>
         <h2>Why Targets are Building</h2>
-        <p>With Make and other build tools, it is difficult to determine why a target is or is not being built. MakeMe
-        provides a <em>--why</em> command line switch to diagnose problematic build sequences. This switch displays the
-        reason why each target was or was not built. For example:</p>
+        <p>With Make and other build tools, it is often difficult to determine why a target is or is not being built. MakeMe provides a <em>--why</em> command line switch to diagnose problematic build sequences. This switch displays the reason why each target was or was not built. For example:</p>
      
         <pre class="ui code segment">$ me <b>--why</b> libmpr
     [Target] /Users/mob/git/me/macosx-x64-release/inc/mpr.h is up to date

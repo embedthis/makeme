@@ -64,7 +64,7 @@
                     <a class="item" href="../developers/libraries.html">Creating Libraries</a>
                     <a class="item" href="../developers/executables.html">Creating Executables</a>
                     <a class="item" href="../developers/scripts.html">Build Scripts</a>
-                    <a class="item" href="../developers/copying.html">Copying Files and Directories</a>
+                    <a class="item" href="../developers/copying.html">Copying Files</a>
                     <a class="item" href="../developers/configurable.html">Configurable Projects</a>
                     <a class="item" href="../developers/plugins.html">MakeMe Plugins</a>
                     <a class="item" href="../developers/generating.html">Generating</a>
@@ -82,7 +82,7 @@
                     <a class="item" href="../ref/events.html">Events</a>
                     <a class="item" href="../ref/targets.html">Targets</a>
                     <a class="item" href="../man/me.html">Manual Page</a>
-                    <a class="item" href="http://embedthis.com/ejs/doc/api/ejscript/index.html">
+                    <a class="item" href="http://embedthis.com/ejscript/doc/ref/api/ejscript/index.html">
                         Language Reference</a>
                     <a class="item" href="http://embedthis.com/ejscript/doc/index.html">Ejscript Documentation</a>
                 </div>
@@ -198,7 +198,7 @@ MakeMe.load({
         will be brought up to date.</p>
         <p>To build several named targets:</p>
         <pre class="ui code segment">me libengine librocket space-program</pre>
-        <p>To do an all-targets (default) build, type:: </p>
+        <p>To do an all-targets (default) build, type: </p>
         <pre class="ui code segment">me</pre>
         <p>This is equivalent to:
         <pre class="ui code segment">me build</pre>
@@ -241,25 +241,25 @@ MakeMe.load({
         </ul>
         <a name="standalone"></a>
         <h3>Stand-Alone Use</h3>
-        <p>A stand-alone <em>start.me</em> file may be used to express simple build targets that do not requiring any prior
-        configuration. The start.me file contains targets that specify the recipes to build those targets.
+        <p>A stand-alone <em>start.me</em> file may be used to express simple build targets that do not requiring any prior configuration. The start.me file contains targets that specify the recipes to build those targets.
         The full capabilities of MakeMe are available and you can compile sources, build libraries and executables or
         run scripts.</p>
         <a name="configured"></a>
         <h3>Configured Projects</h3>
         <p>Some projects require a configuration phase prior to building with MakeMe. MakeMe configuration of a
-        project discovers the available tools and components, and customizes the project to best run on the local
-        system.  </p>
+        project discovers the available tools and configurable components, and customizes the project to best 
+        run on the local system. </p>
         
         <p>For configured products, MakeMe is first invoked with a <em>configure</em> target. MakeMe 
-        a <em>main.me</em> file which describes the project, before it discovers the local tools and components.
+        then searches for a <em>main.me</em> file that describes the project, before it discovers the 
+        local tools and components.
         Finally, it generates a <em>start.me</em> and a <em>platform.me</em> file that describes the 
         project build and system. </p>
         <a id="errors"></a>
         <h2>Seeing Errors</h2>
         <p>By default, MakeMe is fairly terse. It does not spew endless command lines that scroll off the screen.
         With traditional Make builds, it is too easy to miss critical compiler and linker warnings that are lost
-        in pages of trace. In contrast, MakeMe displays the essential minimum. Only what it is doing to which target. 
+        in pages of trace. In contrast, MakeMe displays the essential minimum -- only what it is doing to which target. 
         For example:
         <pre class="ui code segment">$ me
    [Compile] src/deps/mpr/mprLib.c
@@ -285,7 +285,7 @@ Command: /usr/bin/clang -c -o macosx-x64-debug/obj/mpr.o -arch x86_64 -Wall
         <a name="tracing"></a>
         <h2>Tracing Commands</h2>
         <p>Sometimes you need to see the all the exact commands that MakeMe is issuing to build targets. 
-        To see these, run "me" with the <em>--show</em> switch (this can be abbreviated to -s).
+        To see these, run <em>me</em> the <em>--show</em> switch (this can be abbreviated to -s).
 <pre class="ui code segment">$ me <b>-s</b>
    [Compile] src/deps/mpr/mprSsl.c
        [Run] /usr/bin/clang -c -o macosx-x64-release/obj/mprSsl.o -arch x86_64 \

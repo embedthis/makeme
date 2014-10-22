@@ -788,7 +788,9 @@ public class Builder {
             }
             prepBuild()
             build(goals)
-            trace('Complete', goals)
+            if (goals != 'version') {
+                trace('Complete', goals)
+            }
         }
     }
 

@@ -545,7 +545,7 @@ public class Loader {
         Search for a plugin. Search locally first then in the pak cache.
             src/paks/name
             ~/.paks/name
-            /usr/local/bin/me/latest/bin/paks/name
+            /usr/local/lib/me/latest/bin/paks/name
      */
     public function findPlugin(name, exceptions = true): Path? {
         let path: Path?

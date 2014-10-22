@@ -1706,6 +1706,12 @@ cd ..
 ../src/paks/me-components/testme.me,
 ../src/paks/me-components/vxworks.me,
 ../src/paks/me-components/winsdk.me,
+../src/paks/me-package/LICENSE.md,
+../src/paks/me-package/manifest.me,
+../src/paks/me-package/Package.es,
+../src/paks/me-package/package.json,
+../src/paks/me-package/package.me,
+../src/paks/me-package/README.md,
 ../src/paks/me-project/LICENSE.md,
 ../src/paks/me-project/package.json,
 ../src/paks/me-project/Project.es,
@@ -1765,6 +1771,13 @@ cd ..
 	cp src/paks/me-components/testme.me build/macosx-x64-default/bin/paks/me-components/testme.me
 	cp src/paks/me-components/vxworks.me build/macosx-x64-default/bin/paks/me-components/vxworks.me
 	cp src/paks/me-components/winsdk.me build/macosx-x64-default/bin/paks/me-components/winsdk.me
+	mkdir -p \"build/macosx-x64-default/bin/paks/me-package\"
+	cp src/paks/me-package/LICENSE.md build/macosx-x64-default/bin/paks/me-package/LICENSE.md
+	cp src/paks/me-package/manifest.me build/macosx-x64-default/bin/paks/me-package/manifest.me
+	cp src/paks/me-package/Package.es build/macosx-x64-default/bin/paks/me-package/Package.es
+	cp src/paks/me-package/package.json build/macosx-x64-default/bin/paks/me-package/package.json
+	cp src/paks/me-package/package.me build/macosx-x64-default/bin/paks/me-package/package.me
+	cp src/paks/me-package/README.md build/macosx-x64-default/bin/paks/me-package/README.md
 	mkdir -p \"build/macosx-x64-default/bin/paks/me-project\"
 	cp src/paks/me-project/LICENSE.md build/macosx-x64-default/bin/paks/me-project/LICENSE.md
 	cp src/paks/me-project/package.json build/macosx-x64-default/bin/paks/me-project/package.json

@@ -1701,12 +1701,10 @@ static OpenConfig *createOpenSslConfig(MprSocket *sp)
 
     /*
         Select the required protocols
-        Disable SSLv2 by default -- it is insecure.
+        Disable SSLv2 and SSLv3 by default -- they are insecure.
      */
     SSL_CTX_set_options(context, SSL_OP_NO_SSLv2);
-    if (!(ssl->protocols & MPR_PROTO_SSLV3)) {
-        SSL_CTX_set_options(context, SSL_OP_NO_SSLv3);
-    }
+    SSL_CTX_set_options(context, SSL_OP_NO_SSLv3);
     if (!(ssl->protocols & MPR_PROTO_TLSV1)) {
         SSL_CTX_set_options(context, SSL_OP_NO_TLSv1);
     }

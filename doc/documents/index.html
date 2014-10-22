@@ -55,8 +55,7 @@ Me.load({
         <p>MakeMe replaces both autoconf and make with a single utility. MakeMe provides a higher level of
         abstraction to easily specify the targets to build (libraries and executables) and can build directly on Linux,
         Mac OS X or Windows and cross compile for other platforms. It will generate native projects for Visual Studio,
-        XCode, Make, Nmake and shell scripts. MakeMe builds fast without the complexity of autoconf and
-        make.</p>
+        XCode, Make and Nmake projects. MakeMe builds fast without the complexity of autoconf and make.</p>
 
         <h3>History</h3>
         <p>MakeMe was initiated after evaluating Make, CMake and GYP for use by the 
@@ -76,8 +75,8 @@ Me.load({
             <li>Generate native projects for IDE integration</li>
             <li>Build quickly, reliably and flexibly on windows without relying on Cygwin</li>
             <li>Support the entire build cycle: C dependencies, compilation, test and packaging</li>
-            <li>Support the modular discovery, configuration and integration of tools and third-party extensions</li>
-            <li>Be hackable and extendable and eventually usable by all</li>
+            <li>Support the modular discovery, configuration and integration of tools and third-party plugins</li>
+            <li>Be hackable and extendable and usable by all</li>
         </ul>
         <a id="differences"></a>
         <h2>MakeMe vs Make</h2>
@@ -97,16 +96,15 @@ Me.load({
             <li>MakeMe provides in-built understanding of how to build common targets like libraries and executables.
                 With make, you have to specifically express the link command lines.</li>
             <li>Makefiles are often a mess. MakeMe files are terse and because MakeMe has a high-level understanding of
-            how to build libraries and executables, there are little boiler-plate build rules.</li>
+            how to build libraries and executables, you don't have to repeat common boiler-plate rules.</li>
             <li>Make and autoconf try to run on every possible Unix, but don't run on Windows (except for Cygwin which
             is too unreliable for production use). MakeMe supports the major Unix flavors: Linux, BSD and Mac OS X. 
             But it also supports Windows with ease.
 
-            <li>Autoconf is incomprehensible. Just Google&trade; "hate autoconf". It is a mess of legacy shell scripts that
-            try to address building on all possible systems, but fail at building well on the common platforms. 
-            MakeMe does not try to create the universal config.h header to mange obscure C compilers. 
-           It instead focuses on the dominant platforms. MakeMe provides an open, extensible framework for searching for 
-           extensions that makes it easy to configure a build based on the extensions available on the target computer.</li>
+            <li>Autoconf is incomprehensible. Just Google&trade; "hate autoconf". It is a mess of legacy shell scripts 
+            that try to address building on all possible systems. but Autoconf fails at building simply and well on the 
+            common platforms. MakeMe does not try to create the universal <em>config.h</em> header to mange obscure 
+            C compilers. It instead focuses on the dominant platforms. MakeMe provides an open, plugin framework for searching for components. This makes it easy to configure a build based on the components available on the target computer.</li>
             <li>MakeMe is fast &mdash; typically much faster than autoconf and make. Because it uses Ejscript internally, 
             file copy and script commands can be executed without spawning a shell. This also means that you can have
             a uniform scripting environment on Windows.</li>

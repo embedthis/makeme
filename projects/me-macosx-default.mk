@@ -460,6 +460,7 @@ $(BUILD)/obj/zlib.o: \
 #
 #   libmpr
 #
+DEPS_33 += $(BUILD)/inc/osdep.h
 DEPS_33 += $(BUILD)/inc/mpr.h
 DEPS_33 += $(BUILD)/obj/mprLib.o
 
@@ -667,6 +668,7 @@ ifeq ($(ME_COM_EST),1)
 #
 #   libest
 #
+DEPS_45 += $(BUILD)/inc/osdep.h
 DEPS_45 += $(BUILD)/inc/est.h
 DEPS_45 += $(BUILD)/obj/estLib.o
 
@@ -753,6 +755,12 @@ DEPS_49 += src/paks/me-components/README.md
 DEPS_49 += src/paks/me-components/testme.me
 DEPS_49 += src/paks/me-components/vxworks.me
 DEPS_49 += src/paks/me-components/winsdk.me
+DEPS_49 += src/paks/me-package/LICENSE.md
+DEPS_49 += src/paks/me-package/manifest.me
+DEPS_49 += src/paks/me-package/Package.es
+DEPS_49 += src/paks/me-package/package.json
+DEPS_49 += src/paks/me-package/package.me
+DEPS_49 += src/paks/me-package/README.md
 DEPS_49 += src/paks/me-project/LICENSE.md
 DEPS_49 += src/paks/me-project/package.json
 DEPS_49 += src/paks/me-project/Project.es
@@ -807,6 +815,13 @@ $(BUILD)/.runtime-modified: $(DEPS_49)
 	cp src/paks/me-components/testme.me $(BUILD)/bin/paks/me-components/testme.me
 	cp src/paks/me-components/vxworks.me $(BUILD)/bin/paks/me-components/vxworks.me
 	cp src/paks/me-components/winsdk.me $(BUILD)/bin/paks/me-components/winsdk.me
+	mkdir -p "$(BUILD)/bin/paks/me-package"
+	cp src/paks/me-package/LICENSE.md $(BUILD)/bin/paks/me-package/LICENSE.md
+	cp src/paks/me-package/manifest.me $(BUILD)/bin/paks/me-package/manifest.me
+	cp src/paks/me-package/Package.es $(BUILD)/bin/paks/me-package/Package.es
+	cp src/paks/me-package/package.json $(BUILD)/bin/paks/me-package/package.json
+	cp src/paks/me-package/package.me $(BUILD)/bin/paks/me-package/package.me
+	cp src/paks/me-package/README.md $(BUILD)/bin/paks/me-package/README.md
 	mkdir -p "$(BUILD)/bin/paks/me-project"
 	cp src/paks/me-project/LICENSE.md $(BUILD)/bin/paks/me-project/LICENSE.md
 	cp src/paks/me-project/package.json $(BUILD)/bin/paks/me-project/package.json
@@ -1011,6 +1026,13 @@ installBinary: $(DEPS_54)
 	cp src/paks/me-os/unix.me $(ME_VAPP_PREFIX)/bin/paks/me-os/unix.me ; \
 	cp src/paks/me-os/vxworks.me $(ME_VAPP_PREFIX)/bin/paks/me-os/vxworks.me ; \
 	cp src/paks/me-os/windows.me $(ME_VAPP_PREFIX)/bin/paks/me-os/windows.me ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-package" ; \
+	cp src/paks/me-package/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-package/LICENSE.md ; \
+	cp src/paks/me-package/manifest.me $(ME_VAPP_PREFIX)/bin/paks/me-package/manifest.me ; \
+	cp src/paks/me-package/Package.es $(ME_VAPP_PREFIX)/bin/paks/me-package/Package.es ; \
+	cp src/paks/me-package/package.json $(ME_VAPP_PREFIX)/bin/paks/me-package/package.json ; \
+	cp src/paks/me-package/package.me $(ME_VAPP_PREFIX)/bin/paks/me-package/package.me ; \
+	cp src/paks/me-package/README.md $(ME_VAPP_PREFIX)/bin/paks/me-package/README.md ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-project" ; \
 	cp src/paks/me-project/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-project/LICENSE.md ; \
 	cp src/paks/me-project/package.json $(ME_VAPP_PREFIX)/bin/paks/me-project/package.json ; \
