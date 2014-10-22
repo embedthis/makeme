@@ -164,7 +164,7 @@ public class Builder {
                 runTargetScript(target, 'postbuild')
             }
         } catch (e) {
-            throw new Error('Building target ' + target.name + '\n' + e)
+            throw 'Building target ' + target.name + '\n' + e
         }
         global.TARGET = me.target = null
     }
