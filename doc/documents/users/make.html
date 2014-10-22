@@ -70,9 +70,9 @@ nmake -f projects\appweb-windows.nmake
             <pre class="ui code segment">$ <b>ME_EXT_EST=0</b> make</pre>
             <p>On linux and unix, you can supply the overrides as environment variables or on the make command line. 
             On Windows, you must supply the overrides as environment variables only.</p>
-            <p>Extensions are enabled by setting their corresponing ME_EXT_<em>NAME</em> option to 1. Disable by setting
-                to zero. Some extensions require a path to locate their libraries and headers. Use ME_EXT_NAME_PATH to define
-                the path to the extension.</p>
+            <p>Configurable components are enabled by setting their corresponing ME_EXT_<em>NAME</em> option to 1. 
+            Disable by setting to zero. Some components require a path to locate their libraries and headers. 
+            Use ME_EXT_NAME_PATH to define the path to the component.</p>
             <p>By defining make variables such as CC and CFLAGS, you can modify the compiler options. This is the
                 also the technique used when cross-compiling.</p>
             <h3>Make Install</h3>

@@ -163,8 +163,8 @@
 
         <h1>Configurable Projects</h1>
         <p>MakeMe supports you in creating highly configurable projects, whereby users 
-        can customize the project to suit their requirements and their local system. 
-        Users can select and deselect project components via the "<em>me -configure . </em>" command.</p>
+        can customize the project to suit the requirements and their local system. 
+        Users can select and deselect components via the "<em>me -configure . </em>" command.</p>
         <a name="configure"></a>
         <h2>Configure Script</h2>
         <p>Developers typically provide a familiar <em>configure</em> script to invoke MakeMe for
@@ -178,11 +178,15 @@ me configure "$@"
         Users can also select extra components via the <em>-with</em> switch and deselect via <em>-without</em>. 
         For Example: </p>
         <pre class="ui code segment">configure -with ssl --without php</pre>
+
         <h2>Components</h2>
-        <p>Configurable components can provide libraries, programs, or any other desired resource. 
-        Example components are: the <a href="https://embedthis.com/esp/">ESP</a> web framework or the OpenSSL SSL stack.</p>
+        <p>MakeMe configurable components are configurable targets that provide libraries, programs, or any 
+        other desired resource. Example components are: the <a href="https://embedthis.com/esp/">ESP</a> web 
+        framework or the OpenSSL SSL stack.</p>
+
         <p>Configurable components are implemented as MakeMe targets with the <em>configurable</em> property set to true.
         This means that any MakeMe target can be a configurable component selectable by the user.</p>
+
         <p>For example, here is a component MakeMe file for a mythical "rocket" component:</p>
         <pre class="ui code segment">
 Me.load({
@@ -195,9 +199,10 @@ Me.load({
     },
 })
 </pre>
+
         <h2>Referencing Components</h2>
-        <p>If a target specifies a component in its "<em>depends</em>" property, and the component is found and
-        enabled, then the component properties: defines, includes, libraries, linker and libpaths, will be 
+        <p>If a target wishes to utilize component, it can specify it in its <em>depends</em> property. In this
+        manner, the the component properties: defines, includes, libraries, linker and libpaths, will be 
         inherited by the target. </p>
         <p>If the target specifies the component via its "<em>ifdef</em>" property, the target will only be built if the
         component is enabled. Otherwise, the target will (silently) be omitted from the build. </p>
@@ -210,9 +215,9 @@ mars_mission: {
     <b>depends: ['rocket']</b>,
     <b>ifdef: ['rocket']</b>,
 }</pre>
-        <p>If a target may depend on components that are optional, the can list them in its "<em>uses</em>" property. 
-        In this manner, the component properties: defines, includes, libraries, linker and libpaths, will be 
-        inherited by the target if the component is defined and enabled.</p>
+        <p>If a target may also depend on optional components by specifying the component in its "<em>uses</em>" 
+        property. In this manner, the component properties: defines, includes, libraries, linker and libpaths, will be 
+        inherited by the target if the component is configured and enabled.</p>
 
         <h2>Configurable Projects</h2>
         <p>Configurable projects are different from stand-alone MakeMe projects in that the 
@@ -266,7 +271,7 @@ configure -with php=/path/to/php</pre>
         </ol>
         <h2>Standard Components</h2>
         <p>Here is a partial list of the standard components supplied with MakeMe.</p>
-        <table title="extensions" class="ui table segment">
+        <table title="components" class="ui table segment">
         <thead>
         <tr><th>Component</th><th>Description</th></tr>
         </thead>
@@ -333,15 +338,17 @@ configure -with php=/path/to/php</pre>
         <p>Component resolution is the process to determine which components should be included in the build.
         <p>The resolution process takes several steps:</p>
         <ol>
-        <li><b>Loading</b> &mdash; Component MakeMe files are located and loaded based on the 
-            main.me <em>configure.requires</em>, <em>configure.discovers</em> and components named via 
-            <em>configure --with</em>. 
-           This creates a target for each component with the <em>configurable</em> property set to true. 
+        <li><b>Loading</b> &mdash; Component MakeMe files are located and loaded as specified by the 
+            main.me properties: <em>configure.requires</em> <em>configure.discovers</em> and 
+            <em>configure.extra</em>.
+           A target is created for component with the <em>configurable</em> property set to true. 
            Inline components must set define this property explicitly.</li>
+
         <li><b>Exclusion</b> &mdash; Components that have been explicitly excluded via a 
             <em>configure --without</em> option will have their optional "<em>without</em>" function property invoked. 
             This permits a component to take specific actions when it is excluded.
             The function is passed the component target object as its only parameter.</li>
+
         <li><b>Configuration</b> &mdash; If the component defines a "<em>config</em>" function property, 
             it is invoked to search for the component resources and determine the component's target settings. 
             The function is passed the component target object as its only parameter.
@@ -350,15 +357,17 @@ configure -with php=/path/to/php</pre>
             any desired target property.
             If the component cannot be supported, the function should <em>throw</em> a suitable message to 
             deselect the component. </li>
+
         <li><b>Location</b> &mdash; If the component defines a "<em>path</em>" function property, it is invoked.
             This can be a convenient way to configure simple program tools that only need to be located.
             The component path should be the filename of the program if the component represents a 
             simple tool (like zip). Otherwise, it should be the directory to the component if it 
             represents something more complex like an SDK. </li>
         </ol>
-        <h3>Resolution Result</h3>
+
         <p>The end result of this resolution process is the component's <em>target.enable</em> being set to
         true or false, and the optional<em>target.path</em> being set to the location of the component.</p>
+        
         <h3>Notes for Component Property Functions</h3>
         <p>If configure is run and a component is explicitly requested via <em>--with=PATH</em>, that path is 
             provided to the component target in its <em>target.withpath</em> property. For example, if configure 
@@ -392,26 +401,26 @@ configure -with php=/path/to/php</pre>
         Here are the key properties used by components:
         <ul>
             <li>config &mdash; Function to locate component resources and define component settings.</li>
-            <li>description &mdash; Short, one-sentance description of the extension.</li>
-            <li>defines &mdash; Array of C preprocessor definitions for targets using this extension.</li>
+            <li>description &mdash; Short, one-sentance description of the component.</li>
+            <li>defines &mdash; Array of C preprocessor definitions for targets using this component.</li>
             <li>depends &mdash; Array of targets from which to inherit compiler, defines, libraries, libpaths and linker
-            settings. May contain extension names.</li>
-            <li>discovers &mdash; Array of other extensions that should be discovered and utilized by this extension if
+            settings. May contain component names.</li>
+            <li>discovers &mdash; Array of other components that should be discovered and utilized by this component if
                 available.</li>
-            <li>enable &mdash; Boolean true|false value to enable or disable the extension. May be initially set to a script or function that is run to yield a boolean result.
-            <li>ifdef &mdash; Array of other components that must be available for this extension to be enabled.</li>
+            <li>enable &mdash; Boolean true|false value to enable or disable the component. May be initially set to a script or function that is run to yield a boolean result.
+            <li>ifdef &mdash; Array of other components that must be available for this component to be enabled.</li>
             <li>imports &mdash; Libraries, files and resources to import into the local source tree.</li>
-            <li>includes &mdash; Array of include paths necessary for targets using this extension.</li>
-            <li>libpaths &mdash; Array of linker library search paths for targets using this extension.</li>
-            <li>libraries &mdash; Array of required libraries for targets using this extension.</li>
-            <li>linker &mdash; Array of linker options for targets using this extension.</li>
-            <li>name &mdash; Component target name. Should equal the extension collection property name..</li>
+            <li>includes &mdash; Array of include paths necessary for targets using this component.</li>
+            <li>libpaths &mdash; Array of linker library search paths for targets using this component.</li>
+            <li>libraries &mdash; Array of required libraries for targets using this component.</li>
+            <li>linker &mdash; Array of linker options for targets using this component.</li>
+            <li>name &mdash; Component target name. Should equal the component collection property name..</li>
             <li>requires &mdash; A component may specify a list of other components to configure.</li>
-            <li>path &mdash; Path to primary extension resource or directory. May be the path to the binary for tools.</li>
+            <li>path &mdash; Path to primary component resource or directory. May be the path to the binary for tools.</li>
         </ul>
         <a name="settings"></a>
         <h2>Settings</h2>
-        <p>The other part of the configuration process is defining settings that the software and selected extensions
+        <p>The other part of the configuration process is defining settings that the software and selected components
         will use when building and running. These options are defined in the <em>settings</em> collection an may 
         be modified via the <em>-set</em> option. For example:
         <pre class="ui code segment">configure -set mpr.logging=true</pre>

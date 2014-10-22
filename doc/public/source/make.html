@@ -192,9 +192,11 @@ nmake -f projects\NAME-windows.nmake
             values defined by the projects/NAME-OS-default.mk makefile and by the projects/NAME-OS-debug-me.h file. 
             For example, to disable use of SQLite:</p>
             <pre class="ui code segment">$ make <b>ME_COM_SQLITE=0</b> </pre>
-            <p>Extension packs are enabled by setting their corresponding ME_COM_NAME option to 1. Disable by setting
-            to zero. Some packs requires a path to locate libraries and headers. Use ME_COM_NAME_PATH to define
-            the path to the extension pack.</p>
+
+            <p>Configurable components are enabled by setting their corresponding ME_COM_NAME option to 1. 
+            Disable by setting to zero. Some components requires a path to locate libraries and headers. 
+            Use ME_COM_NAME_PATH to define the path to the component.</p>
+
             <p>By defining make variables such as CC and CFLAGS, you can modify the compiler options. This is the
                 also the technique used when cross-compiling.</p>
             <p>To see the list of configurable options, run <em>make help</em>:</p>

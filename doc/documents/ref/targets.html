@@ -113,11 +113,11 @@ transact: {
     sources: [ '*.c' ],
 },
 </pre>
-        <p>This example tests if the CGI extension pack is enabled.</p>
+        <p>This example tests if the CGI configurable component is enabled.</p>
         <pre class="ui code segment">
 cgiProgram: {
     /* Enable if SSL is enabled */
-    <b>enable: "me.packs.cgi.enable",</b>
+    <b>enable: "me.targets.cgi.enable",</b>
     type: 'exe',
     sources: [ '*.c' ],
 },

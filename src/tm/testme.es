@@ -192,7 +192,9 @@ enumerable class TestMe {
         blend(topEnv, {
             TM_TOP: topDir, 
             TM_TOP_TEST: topTestDir, 
+            //  DEPRECATE
             TM_CFG: cfg, 
+            TM_OUT: cfg, 
             TM_BIN: bin, 
             TM_DEPTH: depth, 
             TM_MEBIN: mebin, 

@@ -134,15 +134,15 @@ stest: {
         product <em>me.h</em> configuration header.  For example:
         <pre class="ui code segment">$ <b>ME_EXT_EST=0</b> make</pre>
         <p>This will disable use of the EST (Embedded Security Transport SSL).</p>
-        <p>The <em>extensions</em> target property is used to specify what extensions are required by a target before it 
+        <p>The <em>ifdef</em> target property is used to specify what components are required by a target before it 
         will be built. 
 <pre class="ui code segment">
 rocket: {
     type: 'exe'
     sources: '*.c',
-    extensions: [ 'ssl' ],
+    ifdef: [ 'ssl' ],
 },
 </pre>
-        <p>Only if the SSL extension is enabled, will the generated Makefile build the rocket target.</p>
+        <p>Only if the ssl component is enabled, will the generated Makefile build the rocket target.</p>
         <h2>Learn More</h2>
         <p>To learn more, read some actual <a href="samples.html">MakeMe Samples</a>.</p>

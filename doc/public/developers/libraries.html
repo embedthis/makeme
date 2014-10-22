@@ -210,20 +210,23 @@ libappweb: {
         <p>Note: the names in the depends property these are the target names (target.name property) and not
         the library name. To specify external libraries that are not built with MakeMe, use the <em>libraries</em> 
         property collection.</p>
-        <h2>Extensions</h2>
-        <p>Products are sometimes configured with extensions that provide libraries to augment the product. For
-        example: the PHP extension adds the libphp5 library. To conditionally build a target only if an specific
-        extension is available, use the <em>extensions</em> property. For example:</p>
+
+        <h2>Configurable Components</h2>
+        <p>Products are sometimes configured with components that provide libraries to augment the product. For
+        example: the PHP component adds the libphp5 library. To conditionally build a target only if an specific
+        component is available, use the <em>ifdef</em> property. For example:</p>
 <pre class="ui code segment">
 librocket: {
     type: 'lib',
     sources: [ '*.c' ],
     headers: [ '*.h' ],
-    <b>extensions: [ 'fuel' ]</b>,
+    <b>ifdef: [ 'fuel' ]</b>,
 </pre>
-        <p>The <em>extensions</em> property indicates that this target should only be built if the <em>fuel</em> extension is
+        <p>The <em>ifdef</em> property indicates that this target should only be built if the <em>fuel</em> component is
         enabled. Note this will not import any defined libraries, library paths, include paths or compiler definitions to
-        this target. To do that, you need to use the <em>depends</em> property</p>
+        this target. To do that, you need to use the <em>depends</em> property or the <em>uses</em> property for 
+        optional components.</p>
+
         <a name="static"></a>
         <h2>Static Libraries</h2>
         <p>By default, MakeMe will build a shared library for a library target. To build a static library, set the 

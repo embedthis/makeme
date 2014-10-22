@@ -163,30 +163,22 @@
 
         <h2>MakeMe Plugins</h2>
         <p>MakeMe can be extended via modular plugins that add functionality to the core MakeMe capabilities.
-        These functions are then available to any project that references the plugin. Plugins can contribute
+        These capabilities are then available to any project that references the plugin. Plugins can contribute
         standard targets, goals or scripts. Examples of plugins are:</p>
         <ul>
             <li>Targets to create installable packages</li> 
-            <li>Targets to Pak packages</li> 
             <li>Targets to run a unit test framework</li> 
             <li>Git integration targets</li> 
             <li>And so on ...</li> 
         </ul>
-        <p>Plugins are referenced by project via the <em>plugins</em> property. For example:
+        <p>Plugins are referenced by the project via the <em>plugins</em> property. For example:
         <pre class="ui code segment">
  Me.load({
     plugins: [ 'configuration', 'package'],
     targets: {}
 })
 </pre>
-        <p>This loads the <em>configuration</em> and <em>package</em> plugins.</p>
-
-        <h2>Plugin Packaging</h2>
-        <p>Plugins are packaged and distributed using the
-            <a href="https://embedthis.com/pak/">Pak</a> package manager tool. Pak will bundle together all the
-            components of a plugin and then publish online for distribution via the 
-            <a href="https://embedthis.com/catalog">Pak Online Catalog</a>.
-        <h3>Plugin Elements</h3>
+        <h2>Plugin Elements</h2>
         <p>A MakeMe plugin consists of two mandatory elements:</p>
         <ul>
             <li>A MakeMe file of the same name as the plugin pak.</li>
@@ -224,8 +216,9 @@ Me.load({
     },
 })
 </pre>
+
         <h2>Sample Plugin</h2>
-        <p>To demonstrate, this section will walk through the steps to create a simple MakeMe plugin that displays the current time when MakeMe is invoked to build the <em>time</em> target. For example:</p>
+        <p>For example, here are the steps to create a simple MakeMe plugin that displays the current time.</p>
 
         <pre class="ui code segment">$ me time
 <b>Thu Mar 13 17:04:49 PDT 2014</b></pre>
@@ -247,8 +240,14 @@ Me.load({
     },
 })
 </pre>
-        <h3>Step 3 &mdash; Create the Pak</h3>
-        <p>To package a MakeMe file as a Pak, run the <em>pak init</em> command:</p>
+
+        <h3>Step 3 &mdash; Package the Plugin</h3>
+        <p>Plugins are packaged and distributed using the
+            <a href="https://embedthis.com/pak/">Pak</a> package manager tool. Pak will bundle together all the
+            components of a plugin and then publish online for distribution via the 
+            <a href="https://embedthis.com/catalog">Pak Online Catalog</a>.
+
+        <p>To package a MakeMe file as a Pak, first run the <em>pak init</em> command:</p>
         <pre class="ui code segment">pak init 'me-time' 1.0.0</pre>
         <p>This creates a default <em>package.json</em> that you should edit to describe the plugin package.
         To publish a pak in the catalog, you must provide at a minimum:</p>

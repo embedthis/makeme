@@ -10,7 +10,7 @@
 <pre class="ui code segment">
 setup: {
     from: 'web/readme.html',
-    to: '${CFG}/web/',
+    to: '${OUT}/web/',
 },
 </pre>
         <p>This example will copy the specified readme file to the web directory under the platform output
@@ -22,19 +22,19 @@ setup: {
         If the <em>to</em> property has a trailing "/", it will be assumed to be a directory and will be 
         created if it does not exist. </p>
 
-        <h3>Copying Files or Trees</h3>
+        <h2>Copying Files or Trees</h2>
         <p>By default, the copy file target operates in "flatten" mode where all matching files are copied to the
         destination directory without copying the source directory structure. This mode is useful to copy a single file or to collect a group of files into a single output directory. When you need to copy a directory and contents, set the <em>flatten</em> property to <em>false</em>.</p>
         <pre class="ui code segment">
 setup: {
     from: 'web/**',
-    to: '${CFG}/public/',
+    to: '${OUT}/public/',
     flatten: true,
 },
 </pre>
         <p>This copies the entire <em>web</em> directory and contents to the <em>public</em> directory.</p>
 
-        <h3>Under the Hood</h3>
+        <h2>Under the Hood</h2>
         <p>File targets with <em>from</em> and <em>to</em> properties are converted to a canonical form before
         processing. The <em>from</em> property is converted to the <em>files</em> property and the <em>to</em> property
         is converted to the <em>path</em> property. The target type is also set to <em>file</em>.
@@ -42,12 +42,12 @@ setup: {
 <pre class="ui code segment">
 setup: {
     files: [ 'web/readme.html' ],
-    path: '${CFG}/web',
+    path: '${OUT}/web',
     type: 'file',
 },
 </pre>
 
-        <h3>File Selection Patterns</h3>
+        <h2>File Selection Patterns</h2>
         <p>The <em>from</em> property may be a single file or an array of files or directories. These files can 
         include wild cards which are expanded using the Ejscript 
         <a href="https://embedthis.com/ejscript/doc/ref/api/ejscript/Path.html#files">Path.files</a>
@@ -72,13 +72,22 @@ setup: {
         <p>If a pattern in the files property is a directory, then the directory and all the files in that 
         directory will be copied. In other words, the pattern will automatically be converted to <em>path/**</em>. 
         If a pattern has a trailing "/" then the contents of the directory will be copied.</p>
-
-        <h3>Stale Targets</h3>
+        <p>Here is an example that copies a directory and its structure, excludes temp files and trims the first
+        part of the directory name 'web'.</p>
+<pre class="ui code segment">
+setup: {
+    from: [ 'web/**', '!**.tmp' ],
+    to: '${OUT}/web',
+    flatten: false,
+    relative: 'web',
+},
+</pre>
+        <h2>Stale Targets</h2>
         <p>If the destination path specified by the <em>to</em> or <em>path</em> property is 
         is up-to-date, meaning that no input files have been modified after the destination, then the 
         files will not be copied.</p>
 
-        <h3>File Target Properties</h3>
+        <h2>File Target Properties</h2>
         <p>File targets can modify the behavior of the copying by including other optional properties:</p>
         <table class="ui table">
             <thead><tr>

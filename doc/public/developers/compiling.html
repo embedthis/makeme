@@ -365,7 +365,7 @@ rocket {
         For example:</p>
 <pre class="ui code segment">
 rules: {
-    'c-&gt;o': '${extensions.compiler.path} -c -o ${OUT} ${CFLAGS} ${DEFINES} ${INCLUDES} ${IN}',
+    'c-&gt;o': '${targets.compiler.path} -c -o ${OUT} ${CFLAGS} ${DEFINES} ${INCLUDES} ${IN}',
 },
 </pre>
         <p>The various <em>${token}</em> values are expanded by MakeMe using the compiler properties.

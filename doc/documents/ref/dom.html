@@ -52,11 +52,13 @@
                 <tr><td>ext</td><td>File extensions indexed by file type</td></tr>
                 <tr><td>globals</td><td>Global values to use in property token expansion</td></tr>
                 <tr><td>internal</td><td>Default properties to be inherited by only the targets in the same MakeMe file</td></tr>
+                <tr><td>main</td><td>Path to the <em>main.me</em> file. Used in platform MakeMe files.</td></tr>
                 <tr><td>mixin</td><td>Literal script code to mixin.</td></tr>
                 <tr><td>modules</td><td>List of scripts or compiled scripts to pre-load</td></tr>
                 <tr><td>options</td><td>Supplied command line options</td></tr>
                 <tr><td>platform</td><td>Description of the current platform. Has properties for operating system
                         and CPU architecture.</td></tr>
+                <tr><td>plugins</td><td>List of required plugins. These are listed without '.me' extensions.</td></tr>
                 <tr><td>prefixes</td><td>Installation directory prefixes and default values on Unix/Linux systems:
                     <ul>
                         <li>root &mdash; Root directory prefix: /</li>
@@ -100,16 +102,23 @@
             <tbody>
             <tr><td>ARCH</td><td>CPU architecture: x86, x64, ppc, ...</td></tr>
             <tr><td>BIN</td><td>Binary outputs directory: OS-ARCH-PROFILE/bin</td></tr>
-            <tr><td>CFG</td><td>Configuration outputs directory: OS-ARCH-PROFILE</td></tr>
+            <tr><td>BLD</td><td>Build output directory</td></tr>
             <tr><td>CONFIG</td><td>Platform configuration: OS-ARCH-PROFILE</td></tr>
             <tr><td>EXE</td><td>Executable extension: .exe</td></tr>
             <tr><td>GCC_ARCH</td><td>CPU architecture mapped to a GCC architecture: x86_64, i686, ...</td></tr>
             <tr><td>LIKE</td><td>Set to windows or posix if relevant</td></tr>
             <tr><td>INC</td><td>Standard include directory</td></tr>
+            <tr><td>LBIN</td><td>Binary output directory for the local platform</td></tr>
             <tr><td>O</td><td>Compiled object file extension: .o, .obj</td></tr>
             <tr><td>OBJ</td><td>Directory holding compiled files: OS-ARCH-PROFILE/obj</td></tr>
             <tr><td>OS</td><td>Operating system: linux, windows, ...</td></tr>
+            <tr><td>OUT</td><td>Per-platform output directory: build/OS-ARCH-PROFILE</td></tr>
+            <tr><td>PAKS</td><td>Local Paks directory: src/paks</td></tr>
+            <tr><td>PKG</td><td>Package directory: build/OS-ARCH-PROFILE/pkg</td></tr>
             <tr><td>PLATFORM</td><td>Platform string: OS-ARCH</td></tr>
+            <tr><td>PROFILE</td><td>Selected build profile. Typically 'debug' or 'release'</td></tr>
+            <tr><td>PROJ</td><td>Generated projects directory. Typically 'projects'</td></tr>
+            <tr><td>REL</td><td>Release image directory: build/OS-ARCH-PROFILE/img</td></tr>
             <tr><td>SHLIB</td><td>Shared object library extension: .so, .lib</td></tr>
             <tr><td>SHOBJ</td><td>Shared object extension: .so, .dll</td></tr>
             <tr><td>SRC</td><td>Directory of the source tree to be built</td></tr>
@@ -168,71 +177,276 @@
             </tbody>
         </table>
         <a name="targets"></a>
-        <h2>Targets Collection &mdash; me.targets.*</h2>
+        <h2>Targets Properties &mdash; me.targets[].*</h2>
         <table title="targets" class="ui table segment">
             <thead>
                 <tr><th>Name</th><th>Description</th>
             </thead>
             <tbody>
-                <tr><td>compiler</td><td>Array of compiler options</td></tr>
-                <tr><td>configurable</td><td>Boolean set to true if the target is a configurable target
-                used during the configure phase.</td></tr>
-                <tr><td>defines</td><td>Array of compiler pre-processor definitions</td></tr>
-                <tr><td>depends</td><td>Array of other targets that are used by this target. Dependencies are built first.
+                <tr>
+                    <td>compiler</td>
+                    <td>Array of compiler options</td>
+                </tr>
+                <tr>
+                    <td>configurable</td>
+                    <td>Boolean set to true if the target is a configurable target used during the 
+                    configure phase.</td>
+                </tr>
+                <tr>
+                    <td>defines</td>
+                    <td>Array of compiler pre-processor definitions</td>
+                </tr>
+                <tr>
+                    <td>depends</td>
+                    <td>Array of other targets that are used by this target. Dependencies are built first.
                     The defines, includes, libraries and other properties of the depended upon targets
-                    are inherited by the target.</td></tr>
-                <tr><td>enable</td><td>Ejscript expression to evaluate to a boolean. Enable the target if true.
-                    This must be a quoted string to delay execution. Otherwise it will be evaluated when the
-                    MakeMe file is first loaded.</td></tr>
-                <tr><td>exclude</td><td>Regular expression of file patterns to exclude from the sources list
-                    This is a filter that is applied to the sources list after expanding the sources wildcards</td></tr>
-                <tr><td>goals</td><td>Array of goal targets for which this target will be built. This will typically
+                    are inherited by the target.</td>
+                </tr>
+                <tr>
+                    <td>enable</td>
+                    <td>Ejscript expression to evaluate to a boolean. Enable the target if true.
+                        This must be a quoted string to delay execution. Otherwise it will be evaluated when the
+                        MakeMe file is first loaded.</td>
+                </tr>
+                <tr>
+                    <td>exclude</td>
+                    <td>Regular expression of file patterns to exclude from the sources list
+                    This is a filter that is applied to the sources list after expanding the sources wildcards</td>
+                </tr>
+                <tr>
+                    <td>goals</td>
+                    <td>Array of goal targets for which this target will be built. This will typically
                     include the name of the target itself. Other possible goals are: 'all' for default builds, 
-                    'generate' for targets that should be included in project generation.</td></tr>
-                <tr><td>headers</td><td>Header files to export to the platform/inc directory.</td></tr>
-                <tr><td>home</td><td>Home directory to use when resolving paths for this target</td></tr>
-                <tr><td>ifdef</td><td>List of targets that are needed by this target.  The target will not be built
-                    if any of the specified targets are missing or not enabled.</td></tr>
-                <tr><td>include</td><td>Regular expression of file patterns to include from the sources list. 
-                    This is a filter that is applied to the sources list after expanding the sources wildcards</td></tr>
-                <tr><td>includes</td><td>Array of compiler include directories</td></tr>
-                <tr><td>libraries</td><td>Array of libraries to link</td></tr>
-                <tr><td>libpaths</td><td>Array of link library search paths</td></tr>
-                <tr><td>linker</td><td>Array of linker options</td></tr>
-                <tr><td>message</td><td>Message to display when building. Can be a string that is displayed with
-                    the 'Info' tag, or it can be an array where the first element is the message tag and the
-                    remaining elements are joined to form the message.</td></tr>
-                <tr><td>name</td><td>Target name. This name is used rather than the collection name</td></tr>
-                <tr><td>path</td><td>Path to the result of building the target. If set, this is used for dependency
-                        calculations. If updated, all targets that depend on this target will be rebuilt.</td></tr>
-                <tr><td>platforms</td><td>Platforms for which this target should be built. Set to OS-ARCH or <em>local</em>
-                        for the local platform.</td></tr>
-                <tr><td>rule</td><td>Build command template to use when invoking compiler and linker. Typically not
-                        explicitly set unless overriding for some reason. Set to: 'c-&gt;o', 'cpp-&gt;o', 'lib', 'exe', 'gui'.
-                        Rules are automatically selected for 'lib' and 'exe' targets. </td></tr>
-                <tr><td>scripts</td><td>Scripts for the target. See <a href="#scripts">scripts</a> for details.</td></tr>
-                <tr><td>sources</td><td>Array of source file patterns to compile for the target. Use normal * as a
-                        wild-card, ** as a wild-card that descends directories. Use the exclude property to exclude </td></tr>
-                <tr><td>type</td><td>Type of target: exe, lib, action, obj, header, build and custom values.
-                <ul>
-                    <li>exe &mdash; Executable type</li>
-                    <li>lib &mdash; Library type</li>
-                    <li>obj &mdash; Object type from compiled source. These are dynamically created from 
-                        the sources property.</li>
-                    <li>header &mdash; Headers are dynamically discovered and created from source files.</li>
-                    <li>action &mdash; Script type that is run when explicitly specified as a target on the 
-                        MakeMe command line, or as a dependency for another target.</li>
-                    <li>build &mdash; Script type that is run for default builds.</li>
-                    <li>custom values &mdash; Targets may be set to any custom type. If MakeMe is invoked with a
-                        type specified as a target, then all the targets of that type will be run.</li>
-                </ul>
-                </td></tr>
-                <tr><td>uses</td><td>Soft dependency. Array of other targets that may be used by this target. 
+                    'generate' for targets that should be included in project generation.</td>
+                </tr>
+                <tr>
+                    <td>headers</td>
+                    <td>Header files to export to the platform/inc directory.</td>
+                </tr>
+                <tr>
+                    <td>home</td>
+                    <td>Home directory to use when resolving paths for this target</td>
+                </tr>
+                <tr>
+                    <td>ifdef</td>
+                    <td>List of targets that are needed by this target.  The target will not be built
+                    if any of the specified targets are missing or not enabled.</td>
+                </tr>
+                <tr>
+                    <td>include</td>
+                    <td>Regular expression of file patterns to include from the sources list. 
+                    This is a filter that is applied to the sources list after expanding the sources wildcards</td>
+                </tr>
+                <tr>
+                    <td>includes</td>
+                    <td>Array of compiler include directories</td>
+                </tr>
+                <tr>
+                    <td>libraries</td>
+                    <td>Array of libraries to link</td>
+                </tr>
+                <tr>
+                    <td>libpaths</td>
+                    <td>Array of link library search paths</td>
+                </tr>
+                <tr>
+                    <td>linker</td>
+                    <td>Array of linker options</td>
+                </tr>
+                <tr>
+                    <td>message</td>
+                    <td>Message to display when building. Should be of the form: "Tag: Message".</td>
+                </tr>
+                <tr>
+                    <td>name</td>
+                    <td>Target name. This name is used rather than the collection name</td>
+                </tr>
+                <tr>
+                    <td>path</td>
+                    <td>Path to the result of building the target. If set, this is used for dependency
+                        calculations. If updated, all targets that depend on this target will be rebuilt.</td>
+                </tr>
+                <tr>
+                    <td>platforms</td>
+                    <td>Platforms for which this target should be built. Set to OS-ARCH or <em>local</em>
+                        for the local platform.</td>
+                </tr>
+                <tr>
+                    <td>rule</td>
+                    <td>Build command template to use when invoking compiler and linker. Typically not
+                        explicitly set unless overriding for some reason. Set to: 'c-&gt;o', 'cpp-&gt;o', 'lib', 'exe', 'gui'. Rules are automatically selected for 'lib' and 'exe' targets. </td>
+                    </tr>
+                <tr>
+                    <td>scripts</td>
+                    <td>Scripts for the target. See <a href="#scripts">scripts</a> for details.</td>
+                </tr>
+                <tr>
+                    <td>sources</td>
+                    <td>Array of source file patterns to compile for the target. Use normal * as a
+                        wild-card, ** as a wild-card that descends directories. Use the exclude property to exclude </td>
+                </tr>
+                <tr>
+                    <td>type</td>
+                    <td>Type of target: exe, lib, action, obj, header, build and custom values.
+                    <ul>
+                        <li>exe &mdash; Executable type</li>
+                        <li>lib &mdash; Library type</li>
+                        <li>obj &mdash; Object type from compiled source. These are dynamically created from 
+                            the sources property.</li>
+                        <li>header &mdash; Headers are dynamically discovered and created from source files.</li>
+                        <li>action &mdash; Script type that is run when explicitly specified as a target on the 
+                            MakeMe command line, or as a dependency for another target.</li>
+                        <li>build &mdash; Script type that is run for default builds.</li>
+                        <li>custom values &mdash; Targets may be set to any custom type. If MakeMe is invoked with a
+                            type specified as a target, then all the targets of that type will be run.</li>
+                    </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>uses</td>
+                    <td>Soft dependency. Array of other targets that may be used by this target. 
                     The specified targets are built first if enabled. This target will be built regardless of whether
                     the targets specified in "uses" are present or enabled or not.
                     The defines, includes, libraries and other properties of the depended upon targets
-                    are inherited by the target.
-                </td></tr>
+                    are inherited by the target.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <a name="files"></a>
+        <h2>Additional Target Properties for File Targets &mdash; me.targets[].*</h2>
+        <table title="targets" class="ui table segment">
+            <thead>
+                <tr><th>Name</th><th class="two wide">Type</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>active</td>
+                    <td>Boolean</td>
+                    <td>If a destination file is an active executable or library, rename the active file using 
+                        a '.old' extension and retry.</td>
+                </tr>
+                <tr>
+                    <td>append</td>
+                    <td>Boolean</td>
+                    <td>Set the operation to catenate input files into a single output file. Same as 
+                        'operation: "append"'</td>
+                </tr>
+                <tr>
+                    <td>compress</td>
+                    <td>Boolean</td>
+                    <td>Compress destination files using Zlib. Results in a '.gz' extension.</td>
+                </tr>
+                <tr>
+                    <td>divider</td>
+                    <td>String</td>
+                    <td>Divider text to use between appended files.</td>
+                </tr>               
+                <tr>
+                    <td>extension</td>
+                    <td>String | Path</td>
+                    <td>Extension to use for the destination filenames.</td>
+                </tr>
+                <tr>
+                    <td>extensionDot</td>
+                    <td>String</td>
+                    <td>Specifies where the filename extension begins for filenames with multiple dots. 
+                        Set to 'first' or 'last'.</td>
+                </tr>
+                <tr>
+                    <td>filter</td>
+                    <td>RegExp</td>
+                    <td>Pattern of lines to filter out from appended files.</td>
+                </tr>
+                <tr>
+                    <td>flatten</td>
+                    <td>Boolean</td>
+                    <td>Flatten the input source tree to a single level. Defaults to true.</td>
+                </tr>
+                <tr>
+                    <td>footer</td>
+                    <td>String</td>
+                    <td>Footer to append when appending files.</td>
+                </tr>
+                <tr>
+                    <td>group</td>
+                    <td>String | Number</td>
+                    <td>Group permission name or number to use for the destination files.</td>
+                </tr>
+                <tr>
+                    <td>header</td>
+                    <td>String</td>
+                    <td>Header prepend when appending files.</td>
+                </tr>
+                <tr>
+                    <td>isDir</td>
+                    <td>Boolean</td>
+                    <td>Assume the destination is a directory. Create if it does not exist. Same as appending a 
+                        trailing '/' to the 'to' argument.</td>
+                </tr>
+                <tr>
+                    <td>keep</td>
+                    <td>Boolean</td>
+                    <td>Keep uncompressed file after compressing.</td>
+                </tr>
+                <tr>
+                    <td>operation</td>
+                    <td>String</td>
+                    <td>Set to 'append' to append files, 'copy' to copy files and 'move' to move files.
+                    Set to 'list' to return a file list in options.list and perform no operations. Defaults to 'copy' if unset.</td>
+                </tr>
+                <tr>
+                    <td>patch</td>
+                    <td>Object</td>
+                    <td>Expand file contents tokens using this object. Object hash containing properties to use 
+                    when replacing tokens of the form ${token} in file contents.</td>
+                </tr>
+                <tr>
+                    <td>permissions</td>
+                    <td>Number</td>
+                    <td>Posix style permissions mask. E.g. 0644.</td>
+                </tr>
+                <tr>
+                    <td>relative</td>
+                    <td>Boolean | String | Path</td>
+                    <td>Create destination filenames relative to the path provided by the 
+                    'relative' option, otherwise destination filenames include the Path value. If set to true, the destination
+                     will be relative to the current directory. If set, implies flatten == false. Defaults to false.</td>
+                </tr>
+                <tr>
+                    <td>rename</td>
+                    <td>Function</td>
+                    <td>Callback function to provide a new destination filename. Calling sequence:
+                    Function(from, to, options): Path.</td>
+                </tr>
+                <tr>
+                    <td>divider</td>
+                    <td>Boolean</td>
+                    <td>Keep uncompressed file after compressing.</td>
+                </tr>
+                <tr>
+                    <td>strip</td>
+                    <td>Boolean</td>
+                    <td>Run 'strip' on the destination files.</td>
+                </tr>
+                <tr>
+                    <td>symlink</td>
+                    <td>String | Path</td>
+                    <td>Create a symbolic link to the destination. If symlink has a trailing '/'
+                    a link is created in the directory specified by 'symlink' using the source file 
+                    basename as the link name.</td>
+                </tr>
+                <tr>
+                    <td>trim</td>
+                    <td>Number</td>
+                    <td>Number of path components to trim from the start of the source filename. 
+                        If set, implies flatten == false.</td>
+                </tr>
+                <tr>
+                    <td>user</td>
+                    <td>String | Number</td>
+                    <td>User account name or number to use for destination files.</td>
+                </tr>
             </tbody>
         </table>
         <h3>Configurable Targets Collection &mdash; me.targets.*</h3>
@@ -273,7 +487,7 @@
             </tbody>
         </table>
         <a name="tscripts"></a>
-        <h2>Target Scripts Collection &mdash; me.targets.*scripts.*</h2>
+        <h2>Target Scripts Collection &mdash; me.targets[].scripts.*</h2>
         <table title="tscripts" class="ui table segment">
             <thead>
                 <tr><th class="two wide">Name</th>
@@ -293,7 +507,7 @@
             </tbody>
         </table>
         <a name="pscripts"></a>
-        <h2>Configurable Target Scripts Collection &mdash; me.targets.*scripts.*</h2>
+        <h2>Configurable Target Scripts Collection &mdash; me.targets[].scripts.*</h2>
         <table title="pscripts" class="ui table segment">
             <thead>
                 <tr><th class="two wide">Name</th>
