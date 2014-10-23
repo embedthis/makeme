@@ -563,10 +563,13 @@ public class Loader {
             path = me.dir.paks.join(name, base)
         }
         if (!path || !path.exists) {
-            let pakcache = App.home.join('.paks')
-            path = pakcache.join(name)
-            if (path.exists) {
-                path = Path(Version.sort(pakcache.join(name).files('*'), -1)[0]).join(base)
+            let home = App.home
+            if (home) {
+                let pakcache = App.home.join('.paks')
+                path = pakcache.join(name)
+                if (path.exists) {
+                    path = Path(Version.sort(pakcache.join(name).files('*'), -1)[0]).join(base)
+                }
             }
         }
         if (!path || !path.exists) {
