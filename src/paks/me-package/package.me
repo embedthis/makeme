@@ -194,10 +194,10 @@ Me.load({
                 makeme.loader.blendFile('manifest.me')
                 let package = Package()
                 let name = package.packageName()
-                if (!name || !name.exists || me.settings.depth < 2) {
-                    trace('Test', 'testPackage -- SKIPPED (No package to install)')
-                } else if (me.settings.depth < 2) {
+                if (makeme.options.depth < 2) {
                     trace('Test', 'testPackage -- SKIPPED (Runs at depth 2 on windows or macosx)')
+                } else if (!name || !name.exists) {
+                    trace('Test', 'testPackage -- SKIPPED (No package to install)')
                 } else {
                     if (Config.OS == 'macosx' && App.uid != 0) {
                         trace('Test', 'testPackage -- SKIPPED (Must run as root)')
@@ -214,12 +214,14 @@ Me.load({
                         }
                         trace('Test', me.settings.name + ' -V')
                         assert(Cmd.run([me.prefixes.bin.join(me.settings.name), '-V']).trim() == me.settings.version)
-                        package.uninstallPackage()
-                        if (Config.OS == 'windows') App.sleep(1000)
-                        if (existing = package.checkUninstalled()) {
-                            trace('Warning', 'The uninstall for testPackage was not clean: ' + existing)
-                        } else {
-                            trace('Test', 'Uninstall is clean')
+                        if (me.settings.name != 'me' && me.settings.name != 'ejs' && me.settings.name != 'pak') {
+                            package.uninstallPackage()
+                            if (Config.OS == 'windows') App.sleep(1000)
+                            if (existing = package.checkUninstalled()) {
+                                trace('Warning', 'The uninstall for testPackage was not clean: ' + existing)
+                            } else {
+                                trace('Test', 'Uninstall is clean')
+                            }
                         }
                     }
                 }
