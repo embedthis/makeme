@@ -40,7 +40,7 @@ Me.load({
                                 'testme${EXE}',
                     ],
                     to:         '${abin}/',
-                    symlink:    '${bin}',
+                    symlink:    '${bin}/',
 
                 }, {   
                     from: [
@@ -125,7 +125,7 @@ Me.load({
                                 '${SRC}/doc/public/man/testme.1',
                     ],
                     to:         '${adoc}/man/man1/',
-                    symlink:    '${man}/man1',
+                    symlink:    '${man}/man1/',
                     enable:     "me.platform.like == 'unix'",
                 }
             ],
