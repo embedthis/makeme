@@ -28,12 +28,12 @@ Me.load({
                                 '${SRC}/package/uninstall.sh' 
                     ],
                     to:         '${media}/',
-                    expand:     true,
+                    patch:      true,
 
                }, {
                     from:       '${SRC}/package/windows/LICENSE.TXT',
                     to:         '${media}/',
-                    expand:     true,
+                    patch:      true,
                     fold:       true,
                     enable:     "me.platform.os == 'windows'",
 
@@ -41,18 +41,18 @@ Me.load({
                     from:       '${SRC}/doc/documents/README.TXT',
                     to:         '${app}/',
                     fold:       true,
-                    expand:     true,
+                    patch:      true,
 
                }, {
                     from:       '${SRC}/package/install.sh',
                     to:         '${abin}/install',
-                    expand:     true,
+                    patch:      true,
                     permissions: 0755,
 
                }, {
                     from:       '${SRC}/package/uninstall.sh',
                     to:         '${abin}/uninstall',
-                    expand:     true,
+                    patch:      true,
                     permissions: 0755,
 
                 }, {

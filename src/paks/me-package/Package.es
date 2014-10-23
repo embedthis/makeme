@@ -370,9 +370,6 @@ class PackageInner {
             }
             files = deploy(manifest, package) 
             makeFiles(prefixes.vapp, prefixes.root, files, me.prefixes)
-            if (!makeme.generating) {
-                trace('Complete', me.settings.title + ' installed')
-            }
         }
         delete me.installing
     }
@@ -432,9 +429,6 @@ class PackageInner {
             }
             updateLatestLink()
             removeDir(me.prefixes.app, {empty: true})
-            if (!makeme.generating) {
-                trace('Complete', me.settings.title + ' uninstalled')
-            }
         }
     }
 

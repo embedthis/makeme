@@ -39,6 +39,9 @@ public class MakeMe {
     /** Singleton $Project reference */
     public var project
 
+    /** Default exit status */
+    public var status = 0
+
     private var out: Stream
     private var args: Args
     private var goals: Array
@@ -155,6 +158,10 @@ public class MakeMe {
         }
         if (options.benchmark) {
             trace('Benchmark', 'Elapsed time %.2f' % ((start.elapsed / 1000)) + ' secs.')
+        }
+        if (status) {
+            trace('Error', 'Exiting with non-zero status')
+            App.exit(status)
         }
     }
 

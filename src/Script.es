@@ -216,7 +216,7 @@ public function copyFiles(from, to: Path, topOptions = {}, base = null) {
         missing: makeme.generating ? '' : undefined,
 
         postPerform: function (from, to, control) {
-            if (control.filelist) {
+            if (control.filelist && !to.isDir) {
                 control.filelist.push(to)
             }
             if (control.fold) {

@@ -78,7 +78,7 @@ Me.load({
                 let missing = Package().checkInstalled()
                 if (missing) {
                     trace('Missing', missing)
-                    throw 'Missing directories: \n' + missing.join('\n')
+                    makeme.status = 1
                 } else {
                     trace('Installed', 'Products directories are created')
                 }
@@ -90,7 +90,7 @@ Me.load({
                 let existing = Package().checkUninstalled()
                 if (existing) {
                     trace('Existing', existing)
-                    throw 'Existing directories: \n' + existing.join('\n')
+                    makeme.status = 1
                 } else {
                     trace('Info', 'Product is not installed')
                 }
