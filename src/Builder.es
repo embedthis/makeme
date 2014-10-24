@@ -742,7 +742,6 @@ public class Builder {
         if (!(goals is Array)) {
             goals = [goals]
         }
-        this.goals = goals
         let files = loader.getPlatformFiles(start)
         if (files.length > 1) {
             throw 'Cannot watch multiple platforms'

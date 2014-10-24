@@ -309,23 +309,23 @@ public class MakeMe {
             let arg = App.args[i]
             if (arg == '--platform' || arg == '-platform') {
                 platform = verifyPlatform(App.args[++i])
-                poptions = options.platforms[platform] = {}
+                poptions = options.platforms[platform] ||= {}
             } else if (arg == '--with' || arg == '-with') {
-                poptions = options.platforms[platform] = {}
+                poptions = options.platforms[platform] ||= {}
                 poptions['with'] ||= []
                 poptions['with'].push(App.args[++i])
             } else if (arg == '--without' || arg == '-without') {
-                poptions = options.platforms[platform] = {}
+                poptions = options.platforms[platform] ||= {}
                 poptions.without ||= []
                 poptions.without.push(App.args[++i])
             } else if (arg == '--set' || arg == '-set') {
                 /* Map set to enable */
-                poptions = options.platforms[platform] = {}
+                poptions = options.platforms[platform] ||= {}
                 poptions.enable ||= []
                 poptions.enable.push(App.args[++i])
             } else if (arg == '--unset' || arg == '-unset') {
                 /* Map set to disable */
-                poptions = options.platforms[platform] = {}
+                poptions = options.platforms[platform] ||= {}
                 poptions.disable ||= []
                 poptions.disable.push(App.args[++i])
             }
