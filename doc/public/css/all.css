@@ -150,6 +150,21 @@ body.show-sidebar {
 .terms a:hover {
   color: #ffffff;
 }
+table.directive {
+  width: 100%;
+  background: #ffffff;
+  margin: 1em 0em;
+  border: 1px solid #c2c2c2;
+  border-radius: 0.25em;
+  color: rgba(0, 0, 0, 0.8);
+  border-collapse: separate;
+  border-spacing: 0px;
+}
+table.directive td {
+  border-bottom: 1px solid #e0e0e0;
+  padding: 0.7em 0.8em;
+  vertical-align: middle;
+}
 a {
   color: #6080a0;
   text-decoration: none;
