@@ -222,12 +222,15 @@ Me.load({
                         }
                         trace('Test', me.settings.name + ' -V')
                         assert(Cmd.run([me.prefixes.bin.join(me.settings.name), '-V']).trim() == me.settings.version)
-                        package.uninstallPackage()
-                        if (Config.OS == 'windows') App.sleep(1000)
-                        if (existing = package.checkUninstalled()) {
-                            trace('Warning', 'The uninstall for testPackage was not clean: ' + existing)
-                        } else {
-                            trace('Test', 'Uninstall is clean')
+                        let name = me.settings.name
+                        if (name != 'me' && name != 'ejs' && name != 'pak') {
+                            package.uninstallPackage()
+                            if (Config.OS == 'windows') App.sleep(1000)
+                            if (existing = package.checkUninstalled()) {
+                                trace('Warning', 'The uninstall for testPackage was not clean: ' + existing)
+                            } else {
+                                trace('Test', 'Uninstall is clean')
+                            }
                         }
                     }
                 }
