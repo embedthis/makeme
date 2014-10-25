@@ -30,11 +30,11 @@
     "export": [ {
             overwrite: true,
             from: [ "css/*.less" ],
-            to: 'doc/documents',
+            to: 'doc/documents/',
         }, {
             overwrite: true,
             from: [ "partials/**" ],
-            to: 'doc',
+            to: 'doc/',
         }
     ]
 }

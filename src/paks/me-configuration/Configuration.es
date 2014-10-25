@@ -399,6 +399,14 @@ class Configuration {
         if (!admit(target, 'enable')) {
             return
         }
+        if (target.explicit) {
+            for each (dname in target.depends) {
+                let dep = me.targets[dname]
+                if (dep) {
+                    dep.explicit = true
+                }
+            }
+        }
         if (me.configure.extras.contains(target.name) && !target.explicit) {
             target.enable = false
             target.diagnostic = 'Component must be explicitly included via --with'
@@ -424,16 +432,6 @@ class Configuration {
 
     function enableComponents() {
         admitSetup('enable')
-        for each (target in me.targets) {
-            if (target.explicit) {
-                for each (dname in target.depends) {
-                    let dep = me.targets[dname]
-                    if (dep) {
-                        dep.explicit = true
-                    }
-                }
-            }
-        }
         for each (target in me.targets) {
             if (target.configurable) {
                 enableComponent(target)
@@ -760,7 +758,7 @@ module embedthis.me.script {
                 ~/.paks/NAME/NEWEST-VERSION
              */
             path = me.dir.home.join('.paks', component)
-            if (path.exists) {
+            if (path) {
                 path = Path(Version.sort(path.files('*'), -1)[0])
                 if (path) {
                     search.push(path.join(objdir))
@@ -770,7 +768,7 @@ module embedthis.me.script {
                 /usr/local/lib/me/LATEST/bin/paks/NAME
              */
             path = me.dir.me.join('paks', component)
-            if (path.exists) {
+            if (path) {
                 search.push(path.join(objdir))
             }
         }
