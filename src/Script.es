@@ -250,13 +250,14 @@ public function copyFiles(from, to: Path, topOptions = {}, base = null) {
                 The 'from' path is relative to the control.base path. Must convert the 'from' path to be relative to 
                 the 'src' directory. Note: file targets do not change directory to target.home like scripts do.
              */
-            from = from.relativeTo(me.dir.src)
             if (from.isDir) {
+                from = from.relativeTo(me.dir.src)
                 if (topOptions.made[from]) {
                     topOptions.made[from] = true
                     makeDirectory(from, control)
                 }
             } else {
+                from = from.relativeTo(me.dir.src)
                 copyFile(from, to, control)
             }
             if (control.symlink && me.platform.like == 'unix') {
