@@ -106,19 +106,21 @@ Me.load({
         installBinary: {
             action: `
                 require embedthis.me
-                makeme.loader.blendFile('manifest.me')
+                makeme.loader.blendFile('${ORIGIN}/manifest.me')
                 Package().installBinary()
             `,
             depends: [ 'all' ],
             generate: true,
+            home: '${TOP}',
         },
 
         installPackage: {
             action: `
                 require embedthis.me
-                makeme.loader.blendFile('manifest.me')
+                makeme.loader.blendFile('${ORIGIN}/manifest.me')
                 Package().installPackage()
             `,
+            home: '${TOP}',
         },
 
         package: {
@@ -130,16 +132,17 @@ Me.load({
             depends: ['all'],
             action: `
                 require embedthis.me
-                makeme.loader.blendFile('manifest.me')
+                makeme.loader.blendFile('${ORIGIN}/manifest.me')
                 Package().packageBinary()
             `,
+            home: '${TOP}',
         },
 
         packageSource: {
             depends: ['all'],
             action: `
                 require embedthis.me
-                makeme.loader.blendFile('manifest.me')
+                makeme.loader.blendFile('${ORIGIN}/manifest.me')
                 Package().packageSource()
             `,
         },
@@ -148,27 +151,30 @@ Me.load({
             depends: ['all'],
             action: `
                 require embedthis.me
-                makeme.loader.blendFile('manifest.me')
+                makeme.loader.blendFile('${ORIGIN}/manifest.me')
                 Package().packagePak()
             `,
+            home: '${TOP}',
         },
 
         uninstall: {
             depends: [ 'all', 'stop' ],
             action: `
                 require embedthis.me
-                makeme.loader.blendFile('manifest.me')
+                makeme.loader.blendFile('${ORIGIN}/manifest.me')
                 Package().uninstallBinary()
             `,
+            home: '${TOP}',
             generate: true,
         },
 
         uninstallPackage: {
             action: `
                 require embedthis.me
-                makeme.loader.blendFile('manifest.me')
+                makeme.loader.blendFile('${ORIGIN}/manifest.me')
                 Package().uninstallPackage()
             `,
+            home: '${TOP}',
         },
 
         whatsInstalled: {
@@ -176,28 +182,30 @@ Me.load({
                 require embedthis.me
                 Package().whatsInstalled()
             `,
+            home: '${TOP}',
         },
 
         cache: {
             depends: ['all'],
             action: `
                 require embedthis.me
-                makeme.loader.blendFile('manifest.me')
+                makeme.loader.blendFile('${ORIGIN}/manifest.me')
                 Package().cache()
             `,
+            home: '${TOP}',
         },
 
         testPackage: {
             type: 'test',
             action: `
                 require embedthis.me
-                makeme.loader.blendFile('manifest.me')
+                makeme.loader.blendFile('${ORIGIN}/manifest.me')
                 let package = Package()
                 let name = package.packageName()
-                if (makeme.options.depth < 2) {
-                    trace('Test', 'testPackage -- SKIPPED (Runs at depth 2 on windows or macosx)')
-                } else if (!name || !name.exists) {
+                if (!name || !name.exists || me.settings.depth < 2) {
                     trace('Test', 'testPackage -- SKIPPED (No package to install)')
+                } else if (me.settings.depth < 2) {
+                    trace('Test', 'testPackage -- SKIPPED (Runs at depth 2 on windows or macosx)')
                 } else {
                     if (Config.OS == 'macosx' && App.uid != 0) {
                         trace('Test', 'testPackage -- SKIPPED (Must run as root)')
@@ -214,18 +222,17 @@ Me.load({
                         }
                         trace('Test', me.settings.name + ' -V')
                         assert(Cmd.run([me.prefixes.bin.join(me.settings.name), '-V']).trim() == me.settings.version)
-                        if (me.settings.name != 'me' && me.settings.name != 'ejs' && me.settings.name != 'pak') {
-                            package.uninstallPackage()
-                            if (Config.OS == 'windows') App.sleep(1000)
-                            if (existing = package.checkUninstalled()) {
-                                trace('Warning', 'The uninstall for testPackage was not clean: ' + existing)
-                            } else {
-                                trace('Test', 'Uninstall is clean')
-                            }
+                        package.uninstallPackage()
+                        if (Config.OS == 'windows') App.sleep(1000)
+                        if (existing = package.checkUninstalled()) {
+                            trace('Warning', 'The uninstall for testPackage was not clean: ' + existing)
+                        } else {
+                            trace('Test', 'Uninstall is clean')
                         }
                     }
                 }
             `,
+            home: '${TOP}',
         },
 
         /* Default stubs */
