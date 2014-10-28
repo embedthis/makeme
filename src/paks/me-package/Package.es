@@ -789,9 +789,9 @@ class PackageInner {
         media.join('Output/setup.exe').copy(outfile)
 
         /* Sign */
-        let cert = '/crt/signing.pfx'
+        let cert = 'c:/crt/signing.pfx'
         if (Path(cert).exists) {
-            let pass = Path('/crt/signing.pass').readString().trim()
+            let pass = Path('c:/crt/signing.pass').readString().trim()
             trace('Sign', outfile)
             Cmd.run([me.targets.winsdk.path.join('bin/x86/signtool.exe'),
                 'sign', '/f', cert, '/p', pass, '/t', 'http://timestamp.verisign.com/scripts/timestamp.dll', outfile], 
