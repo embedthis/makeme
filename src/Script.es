@@ -629,7 +629,7 @@ public function genRun(s) {
     } else {
         s = repvar2(s, me.dir.top)
     }
-    if (makeme.generating == 'nmake') {
+    if (makeme.generating == 'nmake' || makeme.generating == 'vs') {
         if (s[0] != '"') {
             let parts = s.split(' ')
             s = parts[0].replace(/\//g, '\\') + ' ' + parts.slice(1).join(' ')
@@ -747,9 +747,6 @@ public function repcmd(command: String): String {
         command = rep(command, mappings.libraries, '$(LIBS)')
         command = rep(command, RegExp(mappings.build, 'g'), '$$(BUILD)')
         command = rep(command, RegExp(mappings.configuration, 'g'), '$$(CONFIG)')
-        /* UNUSED
-        command = rep(command, mappings.lbin, '$$(LBIN)')
-        */
         if (me.targets.compiler) {
             command = repCmd(command, me.targets.compiler.path, '$(CC)')
         }

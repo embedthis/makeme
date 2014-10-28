@@ -388,7 +388,7 @@ public class Builder {
                 target.why = 'disabled'
             }
         }
-        if (target.platforms) {
+        if (target.platforms && !options.gen) {
             let pname = me.platform.name
             if (!target.platforms.contains(pname) &&
                 !(loader.samePlatform(pname, loader.localPlatform) && target.platforms.contains('local')) &&
@@ -1014,6 +1014,7 @@ public class Builder {
         Called with the desired goal. Goal will be set to true when being called for a required dependent.
      */
     function selectDependentTargets(target, goal) {
+
         /*
             Optimize by only processing dependents once
          */
