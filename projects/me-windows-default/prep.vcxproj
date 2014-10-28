@@ -27,19 +27,19 @@
   </ItemGroup>
     
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-        <ConfigurationType>DynamicLibrary</ConfigurationType>
+        <ConfigurationType></ConfigurationType>
         <CharacterSet>NotSet</CharacterSet>
       </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-        <ConfigurationType>DynamicLibrary</ConfigurationType>
+        <ConfigurationType></ConfigurationType>
         <CharacterSet>NotSet</CharacterSet>
       </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-        <ConfigurationType>DynamicLibrary</ConfigurationType>
+        <ConfigurationType></ConfigurationType>
         <CharacterSet>NotSet</CharacterSet>
       </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-        <ConfigurationType>DynamicLibrary</ConfigurationType>
+        <ConfigurationType></ConfigurationType>
         <CharacterSet>NotSet</CharacterSet>
       </PropertyGroup>
 
@@ -95,7 +95,7 @@
       </Link>
 
       <CustomBuildStep>
-        <Command>cd ..\..
+        <Command>cd .
 if not exist "$(ObjDir)" md "$(ObjDir)"
 if not exist "$(BinDir)" md "$(BinDir)"
 if not exist "$(IncDir)" md "$(IncDir)"
@@ -110,7 +110,7 @@ copy /Y /B ..\..\src\paks\osdep\osdep.h $(IncDir)
 copy /Y /B ..\..\src\paks\pcre\pcre.h $(IncDir)
 copy /Y /B ..\..\src\tm\testme.h $(IncDir)
 copy /Y /B ..\..\src\paks\zlib\zlib.h $(IncDir)
-cd projects\me-windows-default</Command>
+cd .</Command>
         <Outputs>always</Outputs>
       </CustomBuildStep>
   </ItemDefinitionGroup>

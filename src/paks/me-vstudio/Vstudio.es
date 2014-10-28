@@ -5,7 +5,6 @@
 
    Copyright (c) All Rights Reserved. See copyright notice at the bottom of the file.
 */     
-
 module embedthis.me {
     
 require ejs.unix
@@ -60,9 +59,8 @@ if not exist "$(IncDir)" md "$(IncDir)"
         /* Create a temporary prep target as the first target */
         prepTarget = loader.createTarget({
             type: 'vsprep',
-            // path: Path('always'),
             name: 'prep',
-            home: '.',
+            home: base,
             enable: true,
             custom: PREP,
             includes: [], libraries: [], libpaths: [],
@@ -103,16 +101,26 @@ if not exist "$(IncDir)" md "$(IncDir)"
         }
         for each (name in target.uses) {
             let dep = builder.getDep(name) 
+            if (dep.enable) {
+                list += getAllDeps(dep)
+            }
+        }
+        for each (name in target.uses) {
+            let dep = builder.getDep(name) 
             if (dep.enable && dep.selected) {
                 list += getAllDeps(dep)
             }
         }
         if (target.guid) {
-          list.push(target.name)
+            list.push(target.name)
+        }
+        if (target.type == 'component' && target.depends.length > 0) {
+            for each (dep in target.depends) {
+                list += getAllDeps(dep)
+            }
         }
         return list.unique()
     }
-
 
     function solBuild(projects, base: Path) {
         let path = base.joinExt('sln').relative
@@ -298,7 +306,7 @@ if not exist "$(IncDir)" md "$(IncDir)"
     <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
       <ImportGroup Label="PropertySheets" />
       <PropertyGroup Label="UserMacros">
-        <CfgDir>..\\${settings.name}-' + arch + '-$(Cfg)</CfgDir>
+        <CfgDir>..\\..\\build\\windows-' + arch + '-$(Cfg)</CfgDir>
         <IncDir>$([System.IO.Path]::GetFullPath($(ProjectDir)\\$(CfgDir)\\inc))</IncDir>
         <ObjDir>$([System.IO.Path]::GetFullPath($(ProjectDir)\\$(CfgDir)\\obj))</ObjDir>
         <BinDir>$([System.IO.Path]::GetFullPath($(ProjectDir)\\$(CfgDir)\\bin))</BinDir>
@@ -383,7 +391,13 @@ if not exist "$(IncDir)" md "$(IncDir)"
     }
 
     function projConfig(base, target) {
-        me.PTYPE = (target.type == 'exe') ? 'Application' : 'DynamicLibrary'
+        if (target.type == 'exe') {
+            me.PTYPE = 'Application'
+        } else if (target.type == 'lib') {
+            me.PTYPE = 'DynamicLibrary'
+        } else {
+            me.PTYPE = ''
+        }
         let guid = me.dir.proj.join('.' + target.name + '.guid')
         if (guid.exists) {
             target.guid = guid.readString().trim()
@@ -398,7 +412,7 @@ if not exist "$(IncDir)" md "$(IncDir)"
         me.OTOK = '$(OutDir)'
         me.UTOK = '$(UserRootDir)'
         me.VTOK = '$(VCTargetsPath)'
-        me.NAME = target.name
+        me.NAME = target.pname ? target.pname : target.name
         me.OUTDIR = wpath(me.dir.out.relativeTo(base))
 
         output('
@@ -474,6 +488,17 @@ if not exist "$(IncDir)" md "$(IncDir)"
             }
         }
         output('  </PropertyGroup>')
+
+/* KEEP - set target name by path 
+        if (target.type == 'exe' && Path(me.NAME).trimExt() != target.name) {
+            output('    <PropertyGroup>
+        <TargetName>' + me.NAME + '</TargetName>
+ */
+        if (target.pname) {
+            output('    <PropertyGroup>
+        <TargetName>' + target.pname + '</TargetName>
+    </PropertyGroup>')
+        }
     }
 
     function projSourceHeaders(base, target) {
