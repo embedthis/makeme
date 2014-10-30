@@ -1305,7 +1305,7 @@ public class Builder {
 
     /**
         Emit trace for me --why on why a target is being skipped.
-        @param path Target path being considered.
+        @param name Target path being considered.
         @param msg Message to display.
      */
     public function whySkip(name: String, msg: String) {
