@@ -1623,6 +1623,7 @@ extern "C" {
 
 /*
     Various constants
+    TODO - change to correspond to TLS version numbers
  */
 #define SSL_MAJOR_VERSION_3             3
 #define SSL_MINOR_VERSION_0             0   /**< SSL v3.0 */
