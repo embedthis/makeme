@@ -3021,6 +3021,9 @@ static HttpConn *openConnection(HttpConn *conn, struct MprSsl *ssl)
     if (conn && conn->sock) {
         if (conn->keepAliveCount-- <= 0 || port != conn->port || strcmp(ip, conn->ip) != 0 ||
                 uri->secure != (conn->sock->ssl != 0) || conn->sock->ssl != ssl) {
+            /* 
+                Cannot reuse current socket. Close and open a new one below.
+             */
             mprCloseSocket(conn->sock, 0);
             conn->sock = 0;
         } else {
@@ -5618,8 +5621,8 @@ PUBLIC HttpConn *httpAcceptConn(HttpEndpoint *endpoint, MprEvent *event)
     }
     if (endpoint->ssl) {
         if (mprUpgradeSocket(sock, endpoint->ssl, 0) < 0) {
+            httpDisconnect(conn);
             httpTrace(conn, "connection.upgrade.error", "error", "msg:'Cannot upgrade socket. %s'", sock->errorMsg);
-            mprCloseSocket(sock, 0);
             httpMonitorEvent(conn, HTTP_COUNTER_SSL_ERRORS, 1);
             httpDestroyConn(conn);
             return 0;
@@ -6732,7 +6735,7 @@ static void parseQuery(HttpConn *conn)
 {
     HttpRx      *rx;
     HttpDir     *dir;
-    char        *value, *query, *next, *tok;
+    char        *value, *query, *next, *tok, *field;
 
     rx = conn->rx;
     dir = conn->reqData;
@@ -6746,14 +6749,17 @@ static void parseQuery(HttpConn *conn)
         if ((value = strchr(tok, '=')) != 0) {
             *value++ = '\0';
             if (*tok == 'C') {                  /* Sort column */
+                field = 0;
                 if (*value == 'N') {
-                    dir->sortField = "Name";
+                    field = "Name";
                 } else if (*value == 'M') {
-                    dir->sortField = "Date";
+                    field = "Date";
                 } else if (*value == 'S') {
-                    dir->sortField = "Size";
+                    field = "Size";
                 }
-                dir->sortField = sclone(dir->sortField);
+                if (field) {
+                    dir->sortField = sclone(field);
+                }
 
             } else if (*tok == 'O') {           /* Sort order */
                 if (*value == 'A') {
@@ -7517,15 +7523,15 @@ PUBLIC void httpMatchHost(HttpConn *conn)
     listenSock = conn->sock->listenSock;
 
     if ((endpoint = httpLookupEndpoint(listenSock->ip, listenSock->port)) == 0) {
-        mprLog("error http", 0, "No listening endpoint for request from %s:%d", listenSock->ip, listenSock->port);
-        mprCloseSocket(conn->sock, 0);
+        conn->host = mprGetFirstItem(endpoint->hosts);
+        httpError(conn, HTTP_CODE_NOT_FOUND, "No listening endpoint for request from %s:%d", 
+            listenSock->ip, listenSock->port);
         return;
     }
     host = httpLookupHostOnEndpoint(endpoint, conn->rx->hostHeader);
     if (host == 0) {
-        httpSetConnHost(conn, 0);
-        httpError(conn, HTTP_CODE_NOT_FOUND, "No host to serve request. Searching for %s", conn->rx->hostHeader);
         conn->host = mprGetFirstItem(endpoint->hosts);
+        httpError(conn, HTTP_CODE_NOT_FOUND, "No host to serve request. Searching for %s", conn->rx->hostHeader);
         return;
     }
     conn->host = host;
@@ -18594,7 +18600,6 @@ PUBLIC bool httpTraceProc(HttpConn *conn, cchar *event, cchar *type, cchar *valu
     HttpTrace   *trace;
     va_list     ap;
 
-    assert(conn);
     assert(event && *event);
     assert(type && *type);
 
@@ -18709,7 +18714,7 @@ PUBLIC void httpDetailTraceFormatter(HttpTrace *trace, HttpConn *conn, cchar *ev
 
     if (conn) {
         now = mprGetTime();
-        if (trace->lastMark < (now + TPS)) {
+        if (trace->lastMark < (now + TPS) || trace->lastTime == 0) {
             trace->lastTime = mprGetDate("%T");
             trace->lastMark = now;
         }

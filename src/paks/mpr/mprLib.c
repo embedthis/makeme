@@ -6879,7 +6879,7 @@ static void cmdChildDeath(MprCmd *cmd, MprSignal *sp)
 static int startProcess(MprCmd *cmd)
 {
     MprCmdFile      *files;
-    int             rc, i, err;
+    int             i;
 
     files = cmd->files;
     if (!cmd->signal) {
@@ -6934,13 +6934,10 @@ static int startProcess(MprCmd *cmd)
         }
         cmd->forkCallback(cmd->forkData);
         if (cmd->env) {
-            rc = execve(cmd->program, (char**) cmd->argv, (char**) &cmd->env->items[0]);
+            (void) execve(cmd->program, (char**) cmd->argv, (char**) &cmd->env->items[0]);
         } else {
-            rc = execv(cmd->program, (char**) cmd->argv);
+            (void) execv(cmd->program, (char**) cmd->argv);
         }
-        err = errno;
-        printf("Cannot exec %s, rc %d, err %d\n", cmd->program, rc, err);
-
         /*
             Use _exit to avoid flushing I/O any other I/O.
          */
@@ -16313,6 +16310,7 @@ static char *standardMimeTypes[] = {
     "wav",   "audio/x-wav",
     "woff",  "application/font-woff",
     "xls",   "application/vnd.ms-excel",
+    "xml",   "application/xml",
     "zip",   "application/zip",
     0,       0,
 };
@@ -21395,14 +21393,17 @@ static void signalHandler(int signo, siginfo_t *info, void *arg)
     MprSignalInfo       *ip;
     int                 saveErrno;
 
-    if (signo <= 0 || signo >= MPR_MAX_SIGNALS || MPR == 0) {
-        return;
-    }
     if (signo == SIGINT) {
         /* Fixes command line recall to complete the line */
         printf("\n");
         exit(1);
     }
+    if (signo <= 0 || signo >= MPR_MAX_SIGNALS || MPR == 0 || mprIsStopped()) {
+        return;
+    }
+    /*
+        Cannot save siginfo, because there is no reliable and scalable way to save siginfo state for multiple threads.
+     */
     ssp = MPR->signalService;
     ip = &ssp->info[signo];
     ip->triggered = 1;
@@ -21412,9 +21413,8 @@ static void signalHandler(int signo, siginfo_t *info, void *arg)
     errno = saveErrno;
 }
 
-
 /*
-    Called by mprServiceEvents after a signal has been received. Create an event and queue on the appropriate dispatcher
+    Called by mprServiceEvents after a signal has been received. Create an event and queue on the appropriate dispatcher.
  */
 PUBLIC void mprServiceSignals()
 {
@@ -21425,56 +21425,53 @@ PUBLIC void mprServiceSignals()
 
     ssp = MPR->signalService;
     if (ssp->hasSignals) {
+        lock(ssp);
         ssp->hasSignals = 0;
         for (ip = ssp->info; ip < &ssp->info[MPR_MAX_SIGNALS]; ip++) {
             if (ip->triggered) {
                 ip->triggered = 0;
                 /*
-                    Create an event for the head of the signal handler chain for this signal
-                    Copy info from Thread.sigInfo to MprSignal structure.
+                    Create events for all registered handlers
                  */
                 signo = (int) (ip - ssp->info);
-                if ((sp = ssp->signals[signo]) != 0) {
+                for (sp = ssp->signals[signo]; sp; sp = sp->next) {
                     mprCreateEvent(sp->dispatcher, "signalEvent", 0, signalEvent, sp, 0);
                 }
             }
         }
+        unlock(ssp);
     }
 }
 
 
 /*
-    Invoke the next signal handler. Runs from the dispatcher so signal handlers don't have to be async-safe.
+    Process the signal event. Runs from the dispatcher so signal handlers don't have to be async-safe.
  */
 static void signalEvent(MprSignal *sp, MprEvent *event)
 {
-    MprSignal   *np;
-
     assert(sp);
     assert(event);
 
     mprDebug("mpr signal", 5, "Received signal %d, flags %x", sp->signo, sp->flags);
-    np = sp->next;
 
+    /*
+        Return if the handler has been removed since it the event was created
+     */
+    if (sp->signo == 0) {
+        return;
+    }
     if (sp->flags & MPR_SIGNAL_BEFORE) {
         (sp->handler)(sp->data, sp);
     } 
     if (sp->sigaction && (sp->sigaction != SIG_IGN && sp->sigaction != SIG_DFL)) {
         /*
             Call the original (foreign) action handler. Cannot pass on siginfo, because there is no reliable and scalable
-            way to save siginfo state when the signalHandler is reentrant for a given signal across multiple threads.
+            way to save siginfo state when the signalHandler is reentrant across multiple threads.
          */
         (sp->sigaction)(sp->signo, NULL, NULL);
     }
     if (sp->flags & MPR_SIGNAL_AFTER) {
         (sp->handler)(sp->data, sp);
-    }
-    if (np) {
-        /* 
-            Call all chained signal handlers. Create new event for each handler so we get the right dispatcher.
-            WARNING: sp may have been removed and so sp->next may be null. That is why we capture np = sp->next above.
-         */
-        mprCreateEvent(np->dispatcher, "signalEvent", 0, signalEvent, np, MPR_EVENT_QUICK);
     }
 }
 
@@ -21505,12 +21502,11 @@ static void unlinkSignalHandler(MprSignal *sp)
             } else {
                 ssp->signals[sp->signo] = sp->next;
             }
+            sp->signo = 0;
             break;
         }
         prev = np;
     }
-    assert(np);
-    sp->next = 0;
     unlock(ssp);
 }
 
@@ -21551,13 +21547,18 @@ static void manageSignal(MprSignal *sp, int flags)
         /* Don't mark next as it will prevent other signal handlers being reclaimed */
         mprMark(sp->data);
         mprMark(sp->dispatcher);
+
+    } else if (flags & MPR_MANAGE_FREE) {
+        if (sp->signo) {
+            unlinkSignalHandler(sp);
+        }
     }
 }
 
 
 PUBLIC void mprRemoveSignalHandler(MprSignal *sp)
 {
-    if (sp) {
+    if (sp && sp->signo) {
         unlinkSignalHandler(sp);
     }
 }
@@ -27808,8 +27809,9 @@ PUBLIC void mprWriteToOsLog(cchar *message, int level)
 }
 
 
-PUBLIC uint mprGetpid(void) {
-    return taskIdSelf();
+PUBLIC pid_t mprGetPid(void) 
+{
+    return (pid_t) taskIdSelf();
 }
 
 

@@ -1029,7 +1029,6 @@ typedef int64 Ticks;
         #define SHUT_RDWR 2
     #endif
     #define HAVE_SOCKLEN_T
-    #define getpid mprGetpid
     #if _DIAB_TOOL
         #define inline __inline__
         #define MPR_INLINE __inline__
@@ -1232,7 +1231,6 @@ extern "C" {
     #if _WRS_VXWORKS_MAJOR < 6 || (_WRS_VXWORKS_MAJOR == 6 && _WRS_VXWORKS_MINOR < 9)
         PUBLIC int gettimeofday(struct timeval *tv, struct timezone *tz);
     #endif
-    PUBLIC uint mprGetpid();
     PUBLIC char *strdup(const char *);
     PUBLIC int sysClkRateGet();
 
@@ -1292,7 +1290,7 @@ extern "C" {
     extern long _get_osfhandle(int handle);
     extern char *getcwd(char* buffer, int maxlen);
     extern char *getenv(cchar *charstuff);
-    extern uint getpid();
+    extern pid_t getpid();
     extern long lseek(int handle, long offset, int origin);
     extern int mkdir(cchar *dir, int mode);
     extern time_t mktime(struct tm *pt);

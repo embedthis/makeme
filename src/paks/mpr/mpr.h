@@ -8726,15 +8726,6 @@ typedef struct MprCmdService {
 PUBLIC MprCmdService *mprCreateCmdService();
 PUBLIC void mprStopCmdService();
 
-/**
-    Child status structure. Designed to be async-thread safe.
-    @stability Internal
- */
-typedef struct MprCmdChild {
-    ulong           pid;                /*  Process ID */
-    int             exitStatus;         /*  Exit status */
-} MprCmdChild;
-
 #define MPR_CMD_EOF_COUNT       2
 #define MPR_CMD_VXWORKS_EOF     "_ _EOF_ _"     /**< Special string for VxWorks CGI to emit to signal EOF */
 #define MPR_CMD_VXWORKS_EOF_LEN 9               /**< Length of MPR_CMD_VXWORKS_EOF */
@@ -10362,6 +10353,7 @@ PUBLIC int mprWriteRegistry(cchar *key, cchar *name, cchar *value);
 
 #if VXWORKS
 PUBLIC int mprFindVxSym(SYMTAB_ID sid, char *name, char **pvalue);
+PUBLIC pid_t mprGetPid();
 #endif
 
 /*
