@@ -860,11 +860,11 @@ public class Builder {
         @param command Command to run. May be an array of args or a string.
         @param copt Options. These are also passed to $Cmd.
         @option dir Change to given directory to run the command.
-        @option show Show the command line before executing. Similar to me --show, but operates on just this command.
+        @option filter Hide output if it contains the specified pattern. Set to true to filter all output.
         @option generate Generate in projects. Defaults to true.
         @option noshow Do not show the command line before executing. Useful to override me --show for one command.
         @option nostop Continue processing even if this command is not successful.
-        @option filter Hide output if it contains the specified pattern. Set to true to filter all output.
+        @option show Show the command line before executing. Similar to me --show, but operates on just this command.
         @option timeout Timeout for the command to complete
 
         Note: do not use the Cmd options: noio, detach. Use Cmd APIs directly.
@@ -941,18 +941,22 @@ public class Builder {
             } else {
                 throw msg
             }
-        } else if (copt.filter && !copt.noshow) {
-            if (copt.filter !== true) {
-                if (!(copt.filter is RegExp)) {
-                    copt.filter = RegExp(copt.filter, "g")
-                }
-                if (cmd.error && !copt.filter.test(cmd.error)) {
-                    prints(cmd.error)
-                }
-                if (response && !copt.filter.test(response)) {
-                    prints(response)
+        } else if (copt.filter) {
+            if (!copt.noshow) {
+                if (copt.filter !== true) {
+                    if (!(copt.filter is RegExp)) {
+                        copt.filter = RegExp(copt.filter, "g")
+                    }
+                    if (cmd.error && !copt.filter.test(cmd.error)) {
+                        prints(cmd.error)
+                    }
+                    if (response && !copt.filter.test(response)) {
+                        prints(response)
+                    }
                 }
             }
+        } else if (cmd.error) {
+            prints(cmd.error)
         }
         return response
     }
