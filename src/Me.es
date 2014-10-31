@@ -111,7 +111,7 @@ dynamic enumerable public class Me {
          */
         global.me = this
         options = makeme.options
-        dir.home = Path(App.getenv('HOME') || App.getenv('HOMEPATH') || '.').portable.absolute
+        dir.home = App.home.portable.absolute
         dir.top = Path('.').absolute
         dir.src = Path(options.configure || App.dir).absolute
         dir.me = App.exeDir

@@ -229,7 +229,9 @@ module ejs {
             The user's home directory
             @return the path to the home directory
          */
-        static function get home(): Path App.getenv('HOME')
+        static function get home(): Path {
+            return App.getenv('HOME') || App.getenv('HOMEPATH') || App.getenv('USERPROFILE') || '.'
+        }
 
         /** 
             Set the standard input stream. Changing the input stream will close and reopen stdin.
