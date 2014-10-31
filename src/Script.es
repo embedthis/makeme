@@ -485,7 +485,7 @@ public function sh(command, copt = {}): String
 
 public function safeCopy(from: Path, to: Path) {
     let p: Path = new Path(to)
-    if (to.exists && !options.overwrite) {
+    if (to.exists && !makeme.options.overwrite) {
         if (!from.isDir) {
             traceFile('Exists', to)
         }

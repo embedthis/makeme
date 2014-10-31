@@ -65,6 +65,7 @@ public class MakeMe {
             get: { range: String },
             help: { },
             import: { },
+            init: { },
             keep: { alias: 'k' },
             log: { alias: 'l', range: String },
             name: { range: String },
@@ -117,12 +118,22 @@ public class MakeMe {
         try {
             Me()
             parseArgs(args)
-            let file = options.file = Path(options.file || findMakeMeFile())
+            let file = options.file = Path(options.file || findMakeMeFile() || Loader.START)
             App.chdir(options.file.dirname)
 
             if (options.import) {
                 import()
                 App.exit()
+            }
+            if (options.gen == 'start' || options.gen == 'main') {
+                let path = loader.findPlugin('project')
+                load(path.dirname.join('Project.es'))
+                if (options.gen == 'start') {
+                    Project().start()
+                } else {
+                    Project().main()
+                }
+                return
             }
             if (goals.contains('configure')) {
                 /* The configure goal is special, must be done separately and first */
@@ -233,6 +244,10 @@ public class MakeMe {
             App.mprLog.redirect(options.log)
         }
         out = (options.out) ? File(options.out, 'w') : stdout
+
+        if (options.init || args.rest.contains('init')) {
+            options.gen ||= 'start'
+        }
         /*
             --configure /path/to/source
          */
