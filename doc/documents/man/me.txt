@@ -26,8 +26,8 @@ SYNOPSIS
            --keep
            --log logSpec
            --nocross
-           --overwrite
            --out path
+           --overwrite
            --platform os-arch
            --pre
            --prefix dir=path
@@ -401,24 +401,25 @@ OPTIONS
 
 
        --force
-              Override warnings and proceed with the operation.
+              Override warnings and proceed with the  operation.  See  --over-
+              write to write over existing files.
 
 
        --gen [make|nmake|sh|vs|xcode|main|start]
-              Generate files. This option can  be  used  to  generate  initial
-              start.me  or  main.me  files  or IDE project and makefiles.  The
-              --gen start, option can be used to create a  stand-alone  sample
-              start.me  file.  The  --gen main, option can be used to create a
-              sample main.me file when starting a new product.  Project  files
-              are  created  under  the 'projects' directory.  The projects are
-              based  on  the  current   configuration.   If   cross-generating
+              Generate  files.  This  option  can  be used to generate initial
+              start.me or main.me files or IDE  project  and  makefiles.   The
+              --gen  start,  option can be used to create a stand-alone sample
+              start.me file. The --gen main, option can be used  to  create  a
+              sample  main.me file when starting a new product.  Project files
+              are created under the 'projects' directory.   The  projects  are
+              based   on   the   current  configuration.  If  cross-generating
               projects, you will typically need to also use -configure.
 
 
        --get field
               Get a field from the MakeMe DOM. This can be used to display any
-              MakeMe file value. Unlike --set, this applies to any MakeMe  DOM
-              value  and  not  just  to  settings. For example: 'me --get set-
+              MakeMe  file value. Unlike --set, this applies to any MakeMe DOM
+              value and not just to settings.  For  example:  'me  --get  set-
               tings.version'.
 
 
@@ -427,41 +428,45 @@ OPTIONS
               the local source tree.
 
 
-       --keep Keep  some  intermediate  build files. This is currently used by
+       --keep Keep some intermediate build files. This is  currently  used  by
               some documentation generation targets.
 
 
        --log logName[:logLevel]
-              Specify a file to log internal execution messages.  MakeMe  will
+              Specify  a  file to log internal execution messages. MakeMe will
               log execution related trace to the log file. The log level spec-
               ifies the desired verbosity of output. Level 0 is the least ver-
-              bose  and  level  5 is the most. The '-v' switch is an alias for
+              bose and level 5 is the most. The '-v' switch is  an  alias  for
               '--log stderr:2'.
 
 
        --nocross
-              Don't cross-build, rather build  natively  for  the  development
-              system.  This is useful when configuring for a platform that can
-              build and run natively on the development system.  For  example:
+              Don't  cross-build,  rather  build  natively for the development
+              system. This is useful when configuring for a platform that  can
+              build  and  run natively on the development system. For example:
               Linux  64-bit  systems  can  run  32-bit  applications,  so  'me
-              --nocross  --platform  linux-x86  configure'  may  be  able   to
-              directly  target  the  32-bit  platform  without cross-building.
-              Note: Products that require the building and execution of  local
+              --nocross   --platform  linux-x86  configure'  may  be  able  to
+              directly target  the  32-bit  platform  without  cross-building.
+              Note:  Products that require the building and execution of local
               tools MUST be able to run those tools on the development system.
 
 
        --out path
-              Save MakeMe trace output to a file instead of displaying to  the
+              Save  MakeMe trace output to a file instead of displaying to the
               console.
 
 
+       --overwrite
+              Overwrite existing files.
+
+
        --platform os-arch
-              Add  a  platform  to build for cross-compilation. Multiple plat-
-              forms can be added. You may use 'local' for the local  platform.
-              Options  specified  after  the platform apply to the prior plat-
+              Add a platform to build for  cross-compilation.  Multiple  plat-
+              forms  can be added. You may use 'local' for the local platform.
+              Options specified after the platform apply to  the  prior  plat-
               form. For example:
 
-                  me --platform linux-x86 --without all  --platform  linux-arm
+                  me  --platform  linux-x86 --without all --platform linux-arm
               --with ejscript configure
 
 
@@ -469,28 +474,28 @@ OPTIONS
 
 
        --prefix dir=path
-              Set  the installation directory prefix. Various products utilize
-              different prefixes. Typical prefixes  are:  root,  base,  state,
+              Set the installation directory prefix. Various products  utilize
+              different  prefixes.  Typical  prefixes  are: root, base, state,
               data, app, vapp, bin, etc, inc, log, spool, src, web.  For those
-              familiar with autoconf, the major autoconf prefixe switches  are
-              supported  and  mapped as follows: --prefix to root, --bindir to
-              bin, --libdir to lib, --includedir to inc, --sysconfdir to  etc,
-              --libexec  to  app, --logfiledir to log, --htdocsdir to web, and
+              familiar  with autoconf, the major autoconf prefixe switches are
+              supported and mapped as follows: --prefix to root,  --bindir  to
+              bin,  --libdir to lib, --includedir to inc, --sysconfdir to etc,
+              --libexec to app, --logfiledir to log, --htdocsdir to  web,  and
               --manualdir to man.
 
 
        --prefixes debian|embedthis|opt
-              Select an installation  prefix  package.  Debian  specifies  the
-              debian  recommended  installation  locations. Embedthis products
-              install by default with a prefix of  /usr/local/lib/PRODUCT  and
-              symlink  exectuables  to  /usr/local/bin.   The  opt  prefix set
+              Select  an  installation  prefix  package.  Debian specifies the
+              debian recommended installation  locations.  Embedthis  products
+              install  by  default with a prefix of /usr/local/lib/PRODUCT and
+              symlink exectuables  to  /usr/local/bin.   The  opt  prefix  set
               installs with a prefix of "/opt".
 
 
        --profile [debug|release|...]
               Use the specified profile when building. This option is provided
-              once  when  configuring  and  the  result  is saved in the plat-
-              form.profile property in the platform.me file.  Custom  profiles
+              once when configuring and the  result  is  saved  in  the  plat-
+              form.profile  property  in the platform.me file. Custom profiles
               can be added to the main.me or start.me files.
 
 
@@ -510,21 +515,21 @@ OPTIONS
               Select the release profile. Same as --profile release.
 
 
-       --rom  Configure  setting  to  build for systems without a file system.
-              This enables the ROM file system.  Use the  makerom  utility  to
-              process  required files into C source code for building with the
+       --rom  Configure setting to build for systems without  a  file  system.
+              This  enables  the  ROM file system.  Use the makerom utility to
+              process required files into C source code for building with  the
               application.
 
 
        --set key=value
-              Set a settings property to a given value. For example: 'me  -set
-              version=1.0'  will  update  the  settings.version property.  Use
-              this when running 'me configure' to persist your changes in  the
+              Set  a settings property to a given value. For example: 'me -set
+              version=1.0' will update  the  settings.version  property.   Use
+              this  when running 'me configure' to persist your changes in the
               configuration MakeMe file.
 
 
        --sets [set,set,...]
-              Define  the  groups of files to install. Each product may define
+              Define the groups of files to install. Each product  may  define
               different groups. Typical groups are: core, web, doc, test, etc.
 
 
@@ -532,7 +537,7 @@ OPTIONS
 
 
        --static
-              Configure  to  build  using  static  linking  instead  of shared
+              Configure to  build  using  static  linking  instead  of  shared
               libraries. Same as --set static=true.
 
 
@@ -554,7 +559,7 @@ OPTIONS
 
 
        --watch msec
-              Watch  for  changes and rebuild if required. This will sleep for
+              Watch for changes and rebuild if required. This will  sleep  for
               the  requested  number  of  milliseconds  between  checking  for
               changes. This can also be invoked as 'me watch' which will check
               every second for changes.
@@ -564,9 +569,9 @@ OPTIONS
 
 
        --with PACK[=path]
-              Build with the named pack located at the optional path.  If  the
-              path  is ommitted, a search is performed for the pack at default
-              locations. Packs must have a  pack  description  file  installed
+              Build  with  the named pack located at the optional path. If the
+              path is ommitted, a search is performed for the pack at  default
+              locations.  Packs  must  have  a pack description file installed
               under 'makeme/packs' in the MakeMe installation.
 
 
@@ -579,7 +584,7 @@ REPORTING BUGS
        Report bugs to dev@embedthis.com.
 
 COPYRIGHT
-       Copyright  (C)  2004-2014 Embedthis Software. MakeMe and Ejscript are a
+       Copyright (C) 2004-2014 Embedthis Software. MakeMe and Ejscript  are  a
        trademarks of Embedthis Software.
 
 SEE ALSO

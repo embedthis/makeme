@@ -30,8 +30,8 @@ me(1)                            user commands                           me(1)
            <b>--keep</b>
            <b>--log logspec</b>
            <b>--nocross</b>
-           <b>--overwrite</b>
            <b>--out path</b>
+           <b>--overwrite</b>
            <b>--platform os-arch</b>
            <b>--pre</b>
            <b>--prefix dir=path</b>
@@ -377,84 +377,88 @@ me(1)                            user commands                           me(1)
               main.me.
 
        <b>--force</b>
-              override warnings and proceed with the operation.
+              override warnings and proceed with the  operation.  see  --over-
+              write to write over existing files.
 
        <b>--gen [make|nmake|sh|vs|xcode|main|start]</b>
-              generate files. this option can  be  used  to  generate  initial
-              start.me  or  main.me  files  or ide project and makefiles.  the
-              --gen start, option can be used to create a  stand-alone  sample
-              start.me  file.  the  --gen main, option can be used to create a
-              sample main.me file when starting a new product.  project  files
-              are  created  under  the 'projects' directory.  the projects are
-              based  on  the  current   configuration.   if   cross-generating
+              generate  files.  this  option  can  be used to generate initial
+              start.me or main.me files or ide  project  and  makefiles.   the
+              --gen  start,  option can be used to create a stand-alone sample
+              start.me file. the --gen main, option can be used  to  create  a
+              sample  main.me file when starting a new product.  project files
+              are created under the 'projects' directory.   the  projects  are
+              based   on   the   current  configuration.  if  cross-generating
               projects, you will typically need to also use -configure.
 
        <b>--get field</b>
               get a field from the makeme dom. this can be used to display any
-              makeme file value. unlike --set, this applies to any makeme  dom
-              value  and  not  just  to  settings. for example: 'me --get set-
+              makeme  file value. unlike --set, this applies to any makeme dom
+              value and not just to settings.  for  example:  'me  --get  set-
               tings.version'.
 
        <b>--import</b>
               import the standard makeme configuration "makeme" directory into
               the local source tree.
 
-       <b>--keep </b>keep  some  intermediate  build files. this is currently used by
+       <b>--keep </b>keep some intermediate build files. this is  currently  used  by
               some documentation generation targets.
 
        <b>--log logname[:loglevel]</b>
-              specify a file to log internal execution messages.  makeme  will
+              specify  a  file to log internal execution messages. makeme will
               log execution related trace to the log file. the log level spec-
               ifies the desired verbosity of output. level 0 is the least ver-
-              bose  and  level  5 is the most. the '-v' switch is an alias for
+              bose and level 5 is the most. the '-v' switch is  an  alias  for
               '--log stderr:2'.
 
        <b>--nocross</b>
-              don't cross-build, rather build  natively  for  the  development
-              system.  this is useful when configuring for a platform that can
-              build and run natively on the development system.  for  example:
+              don't  cross-build,  rather  build  natively for the development
+              system. this is useful when configuring for a platform that  can
+              build  and  run natively on the development system. for example:
               linux  64-bit  systems  can  run  32-bit  applications,  so  'me
-              --nocross  --platform  linux-x86  configure'  may  be  able   to
-              directly  target  the  32-bit  platform  without cross-building.
-              note: products that require the building and execution of  local
+              --nocross   --platform  linux-x86  configure'  may  be  able  to
+              directly target  the  32-bit  platform  without  cross-building.
+              note:  products that require the building and execution of local
               tools must be able to run those tools on the development system.
 
        <b>--out path</b>
-              save makeme trace output to a file instead of displaying to  the
+              save  makeme trace output to a file instead of displaying to the
               console.
 
+       <b>--overwrite</b>
+              overwrite existing files.
+
        <b>--platform os-arch</b>
-              add  a  platform  to build for cross-compilation. multiple plat-
-              forms can be added. you may use 'local' for the local  platform.
-              options  specified  after  the platform apply to the prior plat-
+              add a platform to build for  cross-compilation.  multiple  plat-
+              forms  can be added. you may use 'local' for the local platform.
+              options specified after the platform apply to  the  prior  plat-
               form. for example:
 
-                  me --platform linux-x86 --without all  --platform  linux-arm
+                  me  --platform  linux-x86 --without all --platform linux-arm
               --with ejscript configure
 
        <b>--pre  </b>pre-process a source file to stdout.
 
        <b>--prefix dir=path</b>
-              set  the installation directory prefix. various products utilize
-              different prefixes. typical prefixes  are:  root,  base,  state,
+              set the installation directory prefix. various products  utilize
+              different  prefixes.  typical  prefixes  are: root, base, state,
               data, app, vapp, bin, etc, inc, log, spool, src, web.  for those
-              familiar with autoconf, the major autoconf prefixe switches  are
-              supported  and  mapped as follows: --prefix to root, --bindir to
-              bin, --libdir to lib, --includedir to inc, --sysconfdir to  etc,
-              --libexec  to  app, --logfiledir to log, --htdocsdir to web, and
+              familiar  with autoconf, the major autoconf prefixe switches are
+              supported and mapped as follows: --prefix to root,  --bindir  to
+              bin,  --libdir to lib, --includedir to inc, --sysconfdir to etc,
+              --libexec to app, --logfiledir to log, --htdocsdir to  web,  and
               --manualdir to man.
 
        <b>--prefixes debian|embedthis|opt</b>
-              select an installation  prefix  package.  debian  specifies  the
-              debian  recommended  installation  locations. embedthis products
-              install by default with a prefix of  /usr/local/lib/product  and
-              symlink  exectuables  to  /usr/local/bin.   the  opt  prefix set
+              select  an  installation  prefix  package.  debian specifies the
+              debian recommended installation  locations.  embedthis  products
+              install  by  default with a prefix of /usr/local/lib/product and
+              symlink exectuables  to  /usr/local/bin.   the  opt  prefix  set
               installs with a prefix of "/opt".
 
        <b>--profile [debug|release|...]</b>
               use the specified profile when building. this option is provided
-              once  when  configuring  and  the  result  is saved in the plat-
-              form.profile property in the platform.me file.  custom  profiles
+              once when configuring and the  result  is  saved  in  the  plat-
+              form.profile  property  in the platform.me file. custom profiles
               can be added to the main.me or start.me files.
 
        <b>--quiet</b>
@@ -469,25 +473,25 @@ me(1)                            user commands                           me(1)
        <b>--release</b>
               select the release profile. same as --profile release.
 
-       <b>--rom  </b>configure  setting  to  build for systems without a file system.
-              this enables the rom file system.  use the  makerom  utility  to
-              process  required files into c source code for building with the
+       <b>--rom  </b>configure setting to build for systems without  a  file  system.
+              this  enables  the  rom file system.  use the makerom utility to
+              process required files into c source code for building with  the
               application.
 
        <b>--set key=value</b>
-              set a settings property to a given value. for example: 'me  -set
-              version=1.0'  will  update  the  settings.version property.  use
-              this when running 'me configure' to persist your changes in  the
+              set  a settings property to a given value. for example: 'me -set
+              version=1.0' will update  the  settings.version  property.   use
+              this  when running 'me configure' to persist your changes in the
               configuration makeme file.
 
        <b>--sets [set,set,...]</b>
-              define  the  groups of files to install. each product may define
+              define the groups of files to install. each product  may  define
               different groups. typical groups are: core, web, doc, test, etc.
 
        <b>--show </b>show the actual commands executed by makeme.
 
        <b>--static</b>
-              configure  to  build  using  static  linking  instead  of shared
+              configure to  build  using  static  linking  instead  of  shared
               libraries. same as --set static=true.
 
        <b>--unicode</b>
@@ -504,7 +508,7 @@ me(1)                            user commands                           me(1)
               run in verbose mode with more trace about makeme activities.
 
        <b>--watch msec</b>
-              watch  for  changes and rebuild if required. this will sleep for
+              watch for changes and rebuild if required. this will  sleep  for
               the  requested  number  of  milliseconds  between  checking  for
               changes. this can also be invoked as 'me watch' which will check
               every second for changes.
@@ -512,9 +516,9 @@ me(1)                            user commands                           me(1)
        <b>--why  </b>display why each target was or was not built.
 
        <b>--with pack[=path]</b>
-              build with the named pack located at the optional path.  if  the
-              path  is ommitted, a search is performed for the pack at default
-              locations. packs must have a  pack  description  file  installed
+              build  with  the named pack located at the optional path. if the
+              path is ommitted, a search is performed for the pack at  default
+              locations.  packs  must  have  a pack description file installed
               under 'makeme/packs' in the makeme installation.
 
        <b>--without pack</b>
@@ -524,7 +528,7 @@ me(1)                            user commands                           me(1)
        report bugs to dev@embedthis.com.
 
 <b>copyright</b>
-       copyright  (c)  2004-2014 embedthis software. makeme and ejscript are a
+       copyright (c) 2004-2014 embedthis software. makeme and ejscript  are  a
        trademarks of embedthis software.
 
 <b>see also</b>

@@ -22,8 +22,8 @@ me \- MakeMe -- Utility to make and manage programs and products
     \fB--keep\fR
     \fB--log logSpec\fR
     \fB--nocross\fR
-    \fB--overwrite\fR
     \fB--out path\fR
+    \fB--overwrite\fR
     \fB--platform os-arch\fR
     \fB--pre\fR
     \fB--prefix dir=path\fR
@@ -347,7 +347,7 @@ Use the alternate named MakeMe file instead of start.me or main.me.
 
 .TP
 \fB\--force\fR
-Override warnings and proceed with the operation.
+Override warnings and proceed with the operation. See --overwrite to write over existing files.
 
 .TP
 \fB\--gen [make|nmake|sh|vs|xcode|main|start] \fR
@@ -386,6 +386,10 @@ Note: Products that require the building and execution of local tools MUST be ab
 .TP
 \fB\--out path\fR
 Save MakeMe trace output to a file instead of displaying to the console.
+
+.TP
+\fB\--overwrite\fR
+Overwrite existing files.
 
 .TP
 \fB\--platform os-arch\fR

@@ -111,11 +111,11 @@
 </dl><dl><dt>Options</dt>
 <dd><table class='parameters' title='options'>
 <td class='param'>dir</td><td>Change to given directory to run the command.</td></tr>
-<td class='param'>show</td><td>Show the command line before executing. Similar to me --show, but operates on just this command.</td></tr>
+<td class='param'>filter</td><td>Hide output if it contains the specified pattern. Set to true to filter all output.</td></tr>
 <td class='param'>generate</td><td>Generate in projects. Defaults to true.</td></tr>
 <td class='param'>noshow</td><td>Do not show the command line before executing. Useful to override me --show for one command.</td></tr>
 <td class='param'>nostop</td><td>Continue processing even if this command is not successful.</td></tr>
-<td class='param'>filter</td><td>Hide output if it contains the specified pattern. Set to true to filter all output.</td></tr>
+<td class='param'>show</td><td>Show the command line before executing. Similar to me --show, but operates on just this command.</td></tr>
 <td class='param'>timeout</td><td>Timeout for the command to complete  Note: do not use the Cmd options: noio, detach. Use Cmd APIs directly.</td></tr>
 </table></dd>
 </dl></div>
@@ -153,7 +153,7 @@
 <dl><dt>Description</dt></dd><dd>Emit trace for me --why on why a target is being skipped. </dd></dl>
 <dl><dt>Parameters</dt>
 <dd><table class='parameters' title='parameters'>
-</td></tr><tr class='param'><td class='param'>msg: <a href='String.html'>String</a> </td><td>Message to display.</td></tr></table></dd>
+<tr class='param'><td class='param'>name: <a href='String.html'>String</a> </td><td>Target path being considered.</td></tr><tr class='param'><td class='param'>msg: <a href='String.html'>String</a> </td><td>Message to display.</td></tr></table></dd>
 </dl></div>
 </div>
 <hr />
