@@ -5260,7 +5260,7 @@ module ejs {
      */
     native function print(...args): void
 
-    /* 
+    /**
         Print the arguments to the standard output without a new line appended. This call evaluates the arguments, 
         converts the result to strings and prints the result to the standard output. Arguments are converted to 
         strings by calling their toString method. 
