@@ -42118,7 +42118,6 @@ static EjsArray *getFilesWithInstructions(Ejs *ejs, EjsPath *fp, EjsObj *instruc
     EjsArray        *patterns, *list;
     EjsRegExp       *exclude, *include;
     EjsString       *pattern, *relative;
-    EjsFunction     *filter;
     MprList         *negate;
     cchar           *path, *base;
     char            *start, *special, *pat, *bp;
@@ -42128,7 +42127,6 @@ static EjsArray *getFilesWithInstructions(Ejs *ejs, EjsPath *fp, EjsObj *instruc
     include = exclude = 0;
     expand = 0;
     missing = 0;
-    filter = 0;
     relative = 0;
     flags = 0;
     pat = 0;
@@ -42327,14 +42325,13 @@ static EjsArray *getFiles(Ejs *ejs, EjsArray *results, EjsPath *thisPath, cchar 
     MprDirEntry     *dp;
     MprList         *list;
     cchar           *filename, *fullname, *name, *nextPartPattern, *matchFile, *npat;
-    int             add, matched, next, i;
+    int             add, next, i;
 
     if ((list = mprGetPathFiles(dir, flags | MPR_PATH_RELATIVE)) != 0) {
-        for (matched = next = 0; (dp = mprGetNextItem(list, &next)) != 0; ) {
+        for (next = 0; (dp = mprGetNextItem(list, &next)) != 0; ) {
             if (!mprMatchPartPath(dp->name, dp->isDir, pattern, &nextPartPattern, 0, flags)) {
                 continue;
             }
-            matched = 1;
             add = 1;
             if (nextPartPattern && strcmp(nextPartPattern, "**") != 0 && strcmp(nextPartPattern, "**/") != 0
                    && strcmp(nextPartPattern, "**/*") != 0) {

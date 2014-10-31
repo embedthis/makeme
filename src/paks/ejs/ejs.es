@@ -8754,8 +8754,13 @@ module ejs {
          */
         native function get basename(): Path
 
-        function childOf(parent: Path): Boolean
-            absolute.startsWith(parent.absolute)
+        /**
+            Test if the path is a child of a given directory
+            @param dir Path Parent directory to test
+            @return true if the Path is a child of the specified parent directory.
+         */
+        function childOf(dir: Path): Boolean
+            absolute.startsWith(dir.absolute)
         
         /**
             Path components. The path is normalized and then broken into components for each directory level. 
@@ -9459,7 +9464,7 @@ module ejs {
                 destination is a directory, the destination filename is created by appending the the source path to the 
                 directory.
 
-            @param options Additional processing instructions. All the options provided by #Path.files are 
+            @param control Additional processing instructions. All the options provided by #Path.files are 
                 also supported.
 
             @option active Boolean If destination is an active executable or library, rename the active file using a '.old' 
