@@ -153,7 +153,9 @@ Me.load({
                                 'projects', 
                                 'package'
                     ],
-                    to:     '${src}/',
+                    exclude:    /\.old$|\.tmp$|xcuserdata|xcworkspace|project.guid|-mine/,
+                    to:         '${src}/',
+                    flatten:    false,
                 },
             ],
         }
