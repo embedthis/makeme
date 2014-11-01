@@ -1,7 +1,7 @@
 {
     "name": "me-docstyle",
     "description": "Documentation Style",
-    "version": "0.8.3",
+    "version": "0.8.4",
     "keywords": [
         "me",
     ],
@@ -28,13 +28,17 @@
         }
     ],
     "export": [ {
-            overwrite: true,
-            from: [ "css/*.less" ],
+            from: [ "css/" ],
             to: 'doc/documents/',
-        }, {
             overwrite: true,
-            from: [ "partials/**" ],
+        }, {
+            from: [ "partials/" ],
             to: 'doc/',
+            overwrite: true,
+        }, {
+            from: [ "lib/" ],
+            to: 'doc/files/',
+            overwrite: true,
         }
     ]
 }

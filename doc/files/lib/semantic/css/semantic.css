@@ -910,7 +910,7 @@
   content: '';
   width: 100%;
   height: 100%;
-  background: rgba(255, 255, 255, 0.6) url("../../themes/packages/default/assets/images/loader-large.gif") no-repeat 50% 50%;
+  background: rgba(255, 255, 255, 0.6) url("../images/loader-large.gif") no-repeat 50% 50%;
   visibility: visible;
 }
 /*******************************
@@ -959,7 +959,7 @@
   color: #ffffff;
 }
 .ui.inverted.form.loading:after {
-  background: rgba(0, 0, 0, 0.8) url("../../themes/packages/default/assets/images/loader-large-inverted.gif") no-repeat 50% 50%;
+  background: rgba(0, 0, 0, 0.8) url("../images/loader-large-inverted.gif") no-repeat 50% 50%;
 }
 /*--------------------
      Field Groups
@@ -2884,7 +2884,7 @@ body > .ui.grid:not(.page) {
   content: '';
   width: 100%;
   height: 100%;
-  background: rgba(255, 255, 255, 0.8) url("../../themes/packages/default/assets/images/loader-large.gif") no-repeat 50% 50%;
+  background: rgba(255, 255, 255, 0.8) url("../images/loader-large.gif") no-repeat 50% 50%;
   visibility: visible;
 }
 /*******************************
@@ -5765,7 +5765,7 @@ body > .ui.grid:not(.page) {
   width: 100%;
   height: 100%;
   content: '';
-  background: transparent url("../../themes/packages/default/assets/images/loader-mini.gif") no-repeat 50% 50%;
+  background: transparent url("../images/loader-mini.gif") no-repeat 50% 50%;
 }
 .ui.labeled.icon.loading.button .icon {
   background-color: transparent;
@@ -6147,7 +6147,7 @@ body > .ui.grid:not(.page) {
 /* Loading Resize */
 .ui.huge.loading.button:after,
 .ui.huge.loading.button.active:after {
-  background-image: url("../../themes/packages/default/assets/images/loader-small.gif");
+  background-image: url("../images/loader-small.gif");
 }
 .ui.massive.buttons .loading.button:after,
 .ui.gigantic.buttons .loading.button:after,
@@ -6157,7 +6157,7 @@ body > .ui.grid:not(.page) {
 .ui.gigantic.buttons .loading.button.active:after,
 .ui.massive.loading.button.active:after,
 .ui.gigantic.loading.button.active:after {
-  background-image: url("../../themes/packages/default/assets/images/loader-medium.gif");
+  background-image: url("../images/loader-medium.gif");
 }
 /*--------------
     Icon Only
@@ -8075,7 +8075,7 @@ body > .ui.grid:not(.page) {
 -------------------*/
 i.flag {
   display: inline-block;
-  background: url("../../themes/packages/default/assets/images/flags.png") no-repeat 0px 0px;
+  background: url("../images/flags.png") no-repeat 0px 0px;
   width: 16px;
   height: 11px;
   line-height: 11px;
@@ -9964,8 +9964,8 @@ a.ui.inverted.yellow.header:hover {
 *******************************/
 @font-face {
   font-family: 'Icons';
-  src: url("../../themes/packages/default/assets/fonts/icons.eot");
-  src: url("../../themes/packages/default/assets/fonts/icons.eot?#iefix") format('embedded-opentype'), url("../../themes/packages/default/assets/fonts/icons.svg#icons") format('svg'), url("../../themes/packages/default/assets/fonts/icons.woff") format('woff'), url("../../themes/packages/default/assets/fonts/icons.ttf") format('truetype');
+  src: url("../fonts/icons.eot");
+  src: url("../fonts/icons.eot?#iefix") format('embedded-opentype'), url("../fonts/icons.svg#icons") format('svg'), url("../fonts/icons.woff") format('woff'), url("../fonts/icons.ttf") format('truetype');
   font-style: normal;
   font-weight: normal;
   font-variant: normal;
@@ -12684,7 +12684,7 @@ img.ui.bordered.image {
         Loading
 ---------------------*/
 .ui.loading.input > .icon {
-  background: url("../../themes/packages/default/assets/images/loader-mini.gif") no-repeat 50% 50%;
+  background: url("../images/loader-mini.gif") no-repeat 50% 50%;
 }
 .ui.loading.input > .icon:before,
 .ui.loading.input > .icon:after {
@@ -15177,7 +15177,7 @@ ol.ui.horizontal.list li:before,
   width: 16px;
   height: 16px;
   font-size: 0.8em;
-  background-image: url("../../themes/packages/default/assets/images/loader-mini.gif");
+  background-image: url("../images/loader-mini.gif");
 }
 /* Small Size */
 .ui.inverted.dimmer .ui.small.loader,
@@ -15185,14 +15185,14 @@ ol.ui.horizontal.list li:before,
   width: 24px;
   height: 24px;
   font-size: 0.875em;
-  background-image: url("../../themes/packages/default/assets/images/loader-small.gif");
+  background-image: url("../images/loader-small.gif");
 }
 .ui.inverted.dimmer .ui.loader,
 .ui.loader {
   width: 32px;
   height: 32px;
   font-size: 1em;
-  background: url("../../themes/packages/default/assets/images/loader-medium.gif") no-repeat;
+  background: url("../images/loader-medium.gif") no-repeat;
   background-position: 50% 0px;
 }
 /* Large Size */
@@ -15201,7 +15201,7 @@ ol.ui.horizontal.list li:before,
   width: 64px;
   height: 64px;
   font-size: 1.2em;
-  background-image: url("../../themes/packages/default/assets/images/loader-large.gif");
+  background-image: url("../images/loader-large.gif");
 }
 /*-------------------
        Inverted
@@ -15212,22 +15212,22 @@ ol.ui.horizontal.list li:before,
 /* Tiny Size */
 .ui.dimmer .mini.ui.loader,
 .ui.inverted .mini.ui.loader {
-  background-image: url("../../themes/packages/default/assets/images/loader-mini-inverted.gif");
+  background-image: url("../images/loader-mini-inverted.gif");
 }
 /* Small Size */
 .ui.dimmer .small.ui.loader,
 .ui.inverted .small.ui.loader {
-  background-image: url("../../themes/packages/default/assets/images/loader-small-inverted.gif");
+  background-image: url("../images/loader-small-inverted.gif");
 }
 /* Standard Size */
 .ui.dimmer .ui.loader,
 .ui.inverted.loader {
-  background-image: url("../../themes/packages/default/assets/images/loader-medium-inverted.gif");
+  background-image: url("../images/loader-medium-inverted.gif");
 }
 /* Large Size */
 .ui.dimmer .large.ui.loader,
 .ui.inverted .large.ui.loader {
-  background-image: url("../../themes/packages/default/assets/images/loader-large-inverted.gif");
+  background-image: url("../images/loader-large-inverted.gif");
 }
 /*-------------------
        Inline
@@ -22505,7 +22505,7 @@ a.ui.nag {
      Loading
 ---------------*/
 .ui.search.loading .input .icon {
-  background: url("../../themes/packages/default/assets/images/loader-mini.gif") no-repeat 50% 50%;
+  background: url("../images/loader-mini.gif") no-repeat 50% 50%;
 }
 .ui.search.loading .input .icon:before,
 .ui.search.loading .input .icon:after {
@@ -24002,7 +24002,7 @@ a.ui.nag {
   height: 100%;
   padding-top: 50px;
   text-align: center;
-  background: url(../../themes/packages/default/assets/images/loader-large.gif) no-repeat 50% 0px;
+  background: url(../images/loader-large.gif) no-repeat 50% 0px;
   visibility: visible;
 }
 /*******************************
