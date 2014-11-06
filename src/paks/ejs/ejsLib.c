@@ -30975,6 +30975,7 @@ static int parseOptions(Ejs *ejs, EjsCmd *cmd)
     if (cmd->options) {
 #if DEPRECATE || 1
         if ((value = ejsGetPropertyByName(ejs, cmd->options, EN("noio"))) != 0) {
+            mprLog("error ejs cmd", 0, "Using deprecated \"noio\" option with Cmd");
             if (value == ESV(true)) {
                 flags &= ~(MPR_CMD_OUT | MPR_CMD_ERR);
             }
@@ -41540,7 +41541,7 @@ PUBLIC void ejsConfigureObjectType(Ejs *ejs)
 static EjsArray *getFilesWithInstructions(Ejs *ejs, EjsPath *fp, EjsObj *instructions, EjsArray *results);
 static cchar *getPathString(Ejs *ejs, EjsObj *vp);
 static void getUserGroup(Ejs *ejs, EjsObj *attributes, int *uid, int *gid);
-static EjsArray *getFiles(Ejs *ejs, EjsArray *results, EjsPath *thisPath, cchar *base, cchar *path, cchar *pattern, 
+static EjsArray *getFiles(Ejs *ejs, EjsArray *results, EjsPath *path, cchar *pattern, EjsAny *missing,
     EjsString *relative, MprList *negate, EjsRegExp *exclude, EjsRegExp *include, EjsObj *options, int flags);
 
 /************************************ Helpers *********************************/
@@ -42100,15 +42101,13 @@ static EjsString *expandPath(Ejs *ejs, EjsPath *thisPath, EjsString *path, EjsAn
 /*
     Flags
  */
-#define FILES_DESCEND           MPR_PATH_DESCEND
 #define FILES_DEPTH_FIRST       MPR_PATH_DEPTH_FIRST
 #define FILES_HIDDEN            MPR_PATH_INC_HIDDEN 
 #define FILES_RELATIVE          MPR_PATH_RELATIVE
+#define FILES_NO_DIRECTORIES    MPR_PATH_NO_DIRS
 #define FILES_NOMATCH_EXC       0x10000                 /* Throw an exception if no matching files */
-#define FILES_CASELESS          0x20000
 #define FILES_NONEG             0x40000
 #define FILES_CONTENTS          0x80000
-#define FILES_NO_DIRECTORIES    0x100000
 
 static EjsArray *getFilesWithInstructions(Ejs *ejs, EjsPath *fp, EjsObj *instructions, EjsArray *results)
 {
@@ -42119,9 +42118,9 @@ static EjsArray *getFilesWithInstructions(Ejs *ejs, EjsPath *fp, EjsObj *instruc
     EjsRegExp       *exclude, *include;
     EjsString       *pattern, *relative;
     MprList         *negate;
-    cchar           *path, *base;
-    char            *start, *special, *pat, *bp;
-    int             prior, flags, i, lastc;
+    cchar           *s;
+    char            *pat;
+    int             flags, i, lastc;
 
     fs = mprLookupFileSystem(fp->value);
     include = exclude = 0;
@@ -42158,6 +42157,16 @@ static EjsArray *getFilesWithInstructions(Ejs *ejs, EjsPath *fp, EjsObj *instruc
         exclude = ejsGetPropertyByName(ejs, options, EN("exclude"));
         if (!ejsIsDefined(ejs, exclude)) {
             exclude = 0;
+        } else {
+            if (!ejsIs(ejs, exclude, RegExp) && !ejsIs(ejs, exclude, Function)) {
+                s = ejsToMulti(ejs, exclude);
+                if (smatch(s, "directories")) {
+                    exclude = ejsParseRegExp(ejs, ejsCreateStringFromAsc(ejs, "/\\/$/"));
+                } else {
+                    exclude = ejsParseRegExp(ejs, ejsToString(ejs, exclude));
+                }
+            }
+
         }
         expand = ejsGetPropertyByName(ejs, options, EN("expand"));
         if (!ejsIsDefined(ejs, expand)) {
@@ -42166,6 +42175,15 @@ static EjsArray *getFilesWithInstructions(Ejs *ejs, EjsPath *fp, EjsObj *instruc
         include = ejsGetPropertyByName(ejs, options, EN("include"));
         if (!ejsIsDefined(ejs, include)) {
             include = 0;
+        } else {
+            if (!ejsIs(ejs, include, RegExp) && !ejsIs(ejs, include, Function)) {
+                s = ejsToMulti(ejs, include);
+                if (smatch(s, "directories")) {
+                    include = ejsParseRegExp(ejs, ejsCreateStringFromAsc(ejs, "/\\/$/"));
+                } else {
+                    include = ejsParseRegExp(ejs, ejsToString(ejs, include));
+                }
+            }
         }
         if ((vp = ejsGetPropertyByName(ejs, options, EN("missing"))) != 0) {
             if (vp == ESV(undefined)) {
@@ -42197,7 +42215,7 @@ static EjsArray *getFilesWithInstructions(Ejs *ejs, EjsPath *fp, EjsObj *instruc
                 negate = mprCreateList(0, 0);
             }
             pat = ejsToMulti(ejs, pattern);
-            mprAddItem(negate, &pat[1]);
+            mprAddItem(negate, mprJoinPath(fp->value, &pat[1]));
         }
     }
     for (i = 0; i < patterns->length; i++) {
@@ -42214,53 +42232,8 @@ static EjsArray *getFilesWithInstructions(Ejs *ejs, EjsPath *fp, EjsObj *instruc
                 pat = mprJoinPath(pat, "**");
             }
         }
-        start = pat;
-        path = fp->value;
-        base = "";
-        /*
-            Optimization. Move static part of pattern into base directory.
-            Split the pattern into a [directory, pattern], the directory portion is joined to the path.
-         */
-        if ((special = strpbrk(start, "*?")) != 0) {
-            if (special > start) {
-                for (pat = special; pat > start && !strchr(fs->separators, *pat); pat--) { }
-                if (pat > start) {
-                    *pat++ = '\0';
-                    path = mprJoinPath(path, start);
-                    base = start;
-                }
-            }
-        } else {
-            bp = (char*) mprGetPathBaseRef(start);
-            if (bp > start) {
-                if (*bp) {
-                    bp[-1] = '\0';
-                    path = mprJoinPath(path, start);
-                    base = start;
-                    pat = bp;
-                } else if (*start) {
-                    /* Trim trailing separator */
-                    start[slen(start) - 1] = '\0';
-                    base = mprGetPathDir(start);
-                    path = mprJoinPath(path, base);
-                    pat = mprGetPathBase(start);
-                }
-            }
-        }
-        prior = results->length;
-        if (!getFiles(ejs, results, fp, base, path, pat, relative, negate, exclude, include, options, flags)
-                || prior == results->length) {
-            if (flags & FILES_NOMATCH_EXC) {
-                ejsThrowIOError(ejs, "Cannot find any matching files for pattern: %s", pat);
-                return 0;
-            }
-            if (missing) {
-                if (missing == ESV(empty)) {
-                    ejsSetProperty(ejs, results, -1, ejsCreatePathFromAsc(ejs, pat));
-                } else if (missing != ESV(null)) {
-                    ejsSetProperty(ejs, results, -1, missing);
-                }
-            }
+        if (!getFiles(ejs, results, fp, pat, missing, relative, negate, exclude, include, options, flags)) {
+            return 0;
         }
     }
     if (ejsGetLength(ejs, results) == 0) {
@@ -42280,7 +42253,6 @@ static bool matchPath(Ejs *ejs, EjsPath *thisPath, EjsAny *matcher, cchar *path,
 {
     EjsRegExp   *re;
     EjsAny      *argv[2];
-    cchar       *ex;
     int         match, paused;
 
     match = 1;
@@ -42293,19 +42265,13 @@ static bool matchPath(Ejs *ejs, EjsPath *thisPath, EjsAny *matcher, cchar *path,
             match = 0;
         }
         ejsUnblockGC(ejs, paused);
-    } else if (ejsIsDefined(ejs, matcher)) {
-        if (!ejsIs(ejs, matcher, RegExp)) {
-            ex = ejsToMulti(ejs, matcher);
-            if (smatch(ex, "directories")) {
-                matcher = ejsParseRegExp(ejs, ejsCreateStringFromAsc(ejs, "/\\/$/"));
-            } else {
-                matcher = ejsParseRegExp(ejs, ejsToString(ejs, matcher));
-            }
-        }
+
+    } else if (ejsIs(ejs, matcher, RegExp)) {
         re = matcher;
-        assert(re->compiled);
-        if (pcre_exec(re->compiled, NULL, path, (int) slen(path), 0, 0, NULL, 0) < 0) {
-            match = 0;
+        if (re && re->compiled) {
+            if (pcre_exec(re->compiled, NULL, path, (int) slen(path), 0, 0, NULL, 0) < 0) {
+                match = 0;
+            }
         }
     }
     return match;
@@ -42315,69 +42281,64 @@ static bool matchPath(Ejs *ejs, EjsPath *thisPath, EjsAny *matcher, cchar *path,
 /*
     Get the files matching a pattern. This recurses down the directory tree.
 
-    base        Base directory for the glob. Resultant files have this prepended unless relative.
     dir         Directory to match.
     pattern     Glob pattern.
  */
-static EjsArray *getFiles(Ejs *ejs, EjsArray *results, EjsPath *thisPath, cchar *base, cchar *dir, cchar *pattern, 
+static EjsArray *getFiles(Ejs *ejs, EjsArray *results, EjsPath *thisPath, cchar *pattern, EjsAny *missing,
     EjsString *relative, MprList *negate, EjsRegExp *exclude, EjsRegExp *include, EjsObj *options, int flags)
 {
-    MprDirEntry     *dp;
-    MprList         *list;
-    cchar           *filename, *fullname, *name, *nextPartPattern, *matchFile, *npat;
-    int             add, next, i;
+    MprList     *list;
+    MprPath     info;
+    cchar       *path, *matchFile, *npat;
+    int         add, i, index, count;
 
-    if ((list = mprGetPathFiles(dir, flags | MPR_PATH_RELATIVE)) != 0) {
-        for (next = 0; (dp = mprGetNextItem(list, &next)) != 0; ) {
-            if (!mprMatchPartPath(dp->name, dp->isDir, pattern, &nextPartPattern, 0, flags)) {
-                continue;
-            }
-            add = 1;
-            if (nextPartPattern && strcmp(nextPartPattern, "**") != 0 && strcmp(nextPartPattern, "**/") != 0
-                   && strcmp(nextPartPattern, "**/*") != 0) {
-                /* Double star matches zero or more */
-                add = 0;
-            }
-            filename = mprJoinPath(base, dp->name);
-
-            if (add && (flags & FILES_NO_DIRECTORIES) && dp->isDir && !dp->isLink) {
-                add = 0;
-            } else if (add && (exclude || include || negate)) {
-                if (include) {
-                    matchFile = (dp->isDir && !dp->isLink) ? sjoin(filename, "/", NULL) : filename;
-                    add = matchPath(ejs, thisPath, include, matchFile, options);
-                }
-                if (add && exclude) {
-                    matchFile = (dp->isDir && !dp->isLink) ? sjoin(filename, "/", NULL) : filename;
-                    add = !matchPath(ejs, thisPath, exclude, matchFile, options);
-                }
-                if (add && negate) {
-                    for (ITERATE_ITEMS(negate, npat, i)) {
-                        if (mprMatchPath(filename, npat)) {
-                            add = 0;
-                            break;
-                        }
-                    }
+    count = 0;
+    list = mprGlobPathFiles(thisPath->value, pattern, flags);
+    for (ITERATE_ITEMS(list, path, index)) {
+        add = 1;
+        if (include) {
+            mprGetPathInfo(path, &info);
+            matchFile = (info.isDir && !info.isLink) ? sjoin(path, "/", NULL) : path;
+            add = matchPath(ejs, thisPath, include, matchFile, options);
+        }
+        if (add && exclude) {
+            mprGetPathInfo(path, &info);
+            matchFile = (info.isDir && !info.isLink) ? sjoin(path, "/", NULL) : path;
+            add = !matchPath(ejs, thisPath, exclude, matchFile, options);
+        }
+        if (add) {
+            for (ITERATE_ITEMS(negate, npat, i)) {
+                if (mprMatchPath(path, npat)) {
+                    add = 0;
+                    break;
                 }
             }
-            fullname = mprJoinPath(dir, dp->name);
-            name = (flags & MPR_PATH_RELATIVE) ? filename : fullname;
+        }
+        if (add) {
             if (relative) {
                 if (relative == ESV(true)) {
-                    name = mprGetRelPath(name, 0);
+                    path = mprGetRelPath(path, 0);
                 } else if (ejsIsDefined(ejs, relative)) {
-                    name = mprGetRelPath(name, ejsToString(ejs, relative)->value);
+                    path = mprGetRelPath(path, ejsToString(ejs, relative)->value);
                 }
             }
-            if (!(flags & FILES_DEPTH_FIRST) && add) {
-                ejsSetProperty(ejs, results, -1, ejsCreatePathFromAsc(ejs, name));
-            }
-            if (dp->isDir && nextPartPattern) {
-                getFiles(ejs, results, thisPath, filename, fullname, nextPartPattern, relative, negate, exclude, 
-                    include, options, flags);
-            }
-            if ((flags & FILES_DEPTH_FIRST) && add) {
-                ejsSetProperty(ejs, results, -1, ejsCreatePathFromAsc(ejs, name));
+            ejsSetProperty(ejs, results, -1, ejsCreatePathFromAsc(ejs, path));
+        }
+        count += add;
+    }
+    if (ejs->exception) {
+        return 0;
+    }
+    if (count == 0) {
+        if (flags & FILES_NOMATCH_EXC) {
+            ejsThrowIOError(ejs, "Cannot find any matching files for pattern: %s", pattern);
+            return 0;
+        }
+        if (missing) {
+            if (missing == ESV(empty)) {
+                ejsSetProperty(ejs, results, -1, ejsCreatePathFromAsc(ejs, pattern));
+            } else if (missing != ESV(null)) {
+                ejsSetProperty(ejs, results, -1, missing);
             }
         }
     }

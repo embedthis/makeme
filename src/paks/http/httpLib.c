@@ -1975,6 +1975,9 @@ static bool configVerifyUser(HttpConn *conn, cchar *username, cchar *password)
         return 0;
     }
     if (password) {
+        if (auth->realm == 0 || *auth->realm == '\0') {
+            mprLog("error http auth", 0, "No AuthRealm defined");
+        }
         requiredPassword = (rx->passwordDigest) ? rx->passwordDigest : conn->user->password;
         if (sncmp(requiredPassword, "BF", 2) == 0 && slen(requiredPassword) > 4 && isdigit(requiredPassword[2]) &&
                 requiredPassword[3] == ':') {
@@ -3327,18 +3330,22 @@ PUBLIC char *httpReadString(HttpConn *conn)
 
 
 /*
-    Issue a client http request.
+    Convenience method to issue a client http request.
     Assumes the Mpr and Http services are created and initialized.
  */
 PUBLIC HttpConn *httpRequest(cchar *method, cchar *uri, cchar *data, char **err)
 {
-    HttpConn    *conn;
-    ssize       len;
+    HttpConn        *conn;
+    MprDispatcher   *dispatcher;
+    ssize           len;
 
     if (err) {
         *err = 0;
     }
-    conn = httpCreateConn(NULL, NULL);
+    dispatcher = mprCreateDispatcher("httpRequest", MPR_DISPATCHER_AUTO);
+    mprStartDispatcher(dispatcher);
+
+    conn = httpCreateConn(NULL, dispatcher);
     mprAddRoot(conn);
 
     /*
@@ -3346,6 +3353,7 @@ PUBLIC HttpConn *httpRequest(cchar *method, cchar *uri, cchar *data, char **err)
      */
     if (httpConnect(conn, method, uri, NULL) < 0) {
         mprRemoveRoot(conn);
+        httpDestroyConn(conn);
         *err = sfmt("Cannot connect to %s", uri);
         return 0;
     }
@@ -3358,6 +3366,7 @@ PUBLIC HttpConn *httpRequest(cchar *method, cchar *uri, cchar *data, char **err)
     httpFinalizeOutput(conn);
     if (httpWait(conn, HTTP_STATE_CONTENT, MPR_MAX_TIMEOUT) < 0) {
         mprRemoveRoot(conn);
+        httpDestroyConn(conn);
         *err = sclone("No response");
         return 0;
     }
@@ -16618,7 +16627,6 @@ static void createErrorRequest(HttpConn *conn)
 
     packet = httpCreateDataPacket(ME_MAX_BUFFER);
     mprPutToBuf(packet->content, "%s %s %s\r\n", rx->method, tx->errorDocument, conn->protocol);
-    buf = rx->headerPacket->content;
     /*
         Sever the old Rx and Tx for GC
      */
@@ -16633,6 +16641,7 @@ static void createErrorRequest(HttpConn *conn)
     /*
         Ensure buffer always has a trailing null (one past buf->end)
      */
+    buf = rx->headerPacket->content;
     mprAddNullToBuf(buf);
     for (cp = buf->data; cp < &buf->end[-1]; cp++) {
         if (*cp == '\0') {
@@ -16653,13 +16662,12 @@ static void createErrorRequest(HttpConn *conn)
             }
         }
     }
-    if (headers && headers < buf->end) {
-        mprPutStringToBuf(packet->content, headers);
-        conn->input = packet;
-        conn->state = HTTP_STATE_CONNECTED;
-    } else {
-        httpBadRequestError(conn, HTTP_ABORT | HTTP_CODE_BAD_REQUEST, "Cannot reconstruct headers");
+    if (!headers || headers >= buf->end) {
+        headers = "\r\n";
     }
+    mprPutStringToBuf(packet->content, headers);
+    conn->input = packet;
+    conn->state = HTTP_STATE_CONNECTED;
 }
 
 

@@ -5033,17 +5033,17 @@ PUBLIC char *mprGetPathExt(cchar *path);
 #define MPR_PATH_DESCEND        0x1             /**< Flag for mprGetPathFiles to traverse subdirectories */
 #define MPR_PATH_DEPTH_FIRST    0x2             /**< Flag for mprGetPathFiles to do a depth-first traversal */
 #define MPR_PATH_INC_HIDDEN     0x4             /**< Flag for mprGetPathFiles to include hidden files */
-#define MPR_PATH_NODIRS         0x8             /**< Flag for mprGetPathFiles to exclude subdirectories */
+#define MPR_PATH_NO_DIRS        0x8             /**< Flag for mprGetPathFiles to exclude subdirectories */
 #define MPR_PATH_RELATIVE       0x10            /**< Flag for mprGetPathFiles to return paths relative to the directory */
 
 /**
     Create a list of files in a directory or subdirectories. This call returns a list of MprDirEntry objects.
     @description Get the list of files in a directory and return a list.
     @param dir Directory to list.
-    @param flags The flags may be set to #MPR_PATH_DESCEND to traverse subdirectories. Set #MPR_PATH_NODIRS
-        to exclude directories from the results. Set to MPR_PATH_HIDDEN to include hidden files that start with ".".
-        Set to MPR_PATH_DEPTH_FIRST to do a depth-first traversal, i.e. traverse subdirectories before considering
-        adding the directory to the list.
+    @param flags The flags may be set to #MPR_PATH_DESCEND to traverse subdirectories. This effectively appends
+        '**' to the path. Set #MPR_PATH_NO_DIRS to exclude directories from the results. Set to MPR_PATH_HIDDEN 
+        to include hidden files that start with ".". Set to MPR_PATH_DEPTH_FIRST to do a depth-first traversal, 
+        i.e. traverse subdirectories before considering adding the directory to the list.
     @returns A list (MprList) of MprDirEntry objects.
     @ingroup MprPath
     @stability Stable
@@ -5060,10 +5060,9 @@ PUBLIC MprList *mprGetPathFiles(cchar *dir, int flags);
     An exclusion pattern may be specified to apply to subsequent patterns by appending with "!".
     @param path Directory to list.
     @param patterns Wild card patterns to match.
-    @param flags The flags may be set to #MPR_PATH_DESCEND to traverse subdirectories. Set #MPR_PATH_NODIRS
-        to exclude directories from the results. Set to MPR_PATH_HIDDEN to include hidden files that start with ".".
-        Set to MPR_PATH_DEPTH_FIRST to do a depth-first traversal, i.e. traverse subdirectories before considering
-        adding the directory to the list.
+    @param flags Set to MPR_PATH_HIDDEN to include hidden files that start with ".". Set to MPR_PATH_DEPTH_FIRST to do a 
+        depth-first traversal, i.e. traverse subdirectories before considering adding the directory to the list.
+        Set MPR_PATH_RELATIVE to return files relative to the given path. Set MPR_PATH_NO_DIRS to omit directories.
     @returns A list (MprList) of filenames.
     @ingroup MprPath
     @stability Stable
@@ -5499,7 +5498,9 @@ PUBLIC ssize mprWritePathContents(cchar *path, cchar *buf, ssize len, int mode);
     Internal - prototype
  */
 PUBLIC bool mprMatchPath(cchar *path, cchar *pattern);
+#if UNUSED
 PUBLIC int mprMatchPartPath(cchar *path, int isDir, cchar *pattern, cchar **nextPartPattern, int count, int flags);
+#endif
 
 /********************************** O/S Dep ***********************************/
 /**

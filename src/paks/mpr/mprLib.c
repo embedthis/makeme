@@ -3679,10 +3679,17 @@ PUBLIC int mprNotifyOn(MprWaitHandler *wp, int mask)
                 mprDebug("mpr event", 5, "mprNotifyOn WSAAsyncSelect failed %d, errno %d", rc, GetLastError());
             }
         }
+#if UNUSED
+        /*
+            Disabled because mprRemoteEvent schedules the dispatcher AND lockes the event service.
+            This may cause deadlocks and specifically, mprRemoveEvent may crash while it races with event service
+            on another thread.
+         */ 
         if (wp->event) {
             mprRemoveEvent(wp->event);
             wp->event = 0;
         }
+#endif
     }
     unlock(ws);
     return 0;
@@ -10670,10 +10677,17 @@ PUBLIC int mprNotifyOn(MprWaitHandler *wp, int mask)
             }
         }
         wp->desiredMask = mask;
+#if UNUSED
+        /*
+            Disabled because mprRemoteEvent schedules the dispatcher AND lockes the event service.
+            This may cause deadlocks and specifically, mprRemoveEvent may crash while it races with event service
+            on another thread.
+         */
         if (wp->event) {
             mprRemoveEvent(wp->event);
             wp->event = 0;
         }
+#endif
         mprSetItem(ws->handlerMap, fd, mask ? wp : 0);
     }
     unlock(ws);
@@ -14254,10 +14268,17 @@ PUBLIC int mprNotifyOn(MprWaitHandler *wp, int mask)
             kp++;
         }
         wp->desiredMask = mask;
+#if UNUSED
+        /*
+            Disabled because mprRemoteEvent schedules the dispatcher AND lockes the event service.
+            This may cause deadlocks and specifically, mprRemoveEvent may crash while it races with event service
+            on another thread.
+         */
         if (wp->event) {
             mprRemoveEvent(wp->event);
             wp->event = 0;
         }
+#endif
         if (kevent(ws->kq, interest, (int) (kp - interest), NULL, 0, NULL) < 0) {
             /*
                 Reissue and get results. Test for broken pipe case.
@@ -17305,10 +17326,12 @@ PUBLIC char *mprSearchForModule(cchar *filename)
 
 #define defaultSep(fs)          (fs->separators[0])
 
-/************************************ Forwards ********************************/
+/*********************************** Forwards *********************************/
 
-static MprList *globPathFiles(MprFileSystem *fs, MprList *results, cchar *path, cchar *base, cchar *pattern, 
-    cchar *exclude, int flags);
+static MprList *globPathFiles(MprList *results, cchar *base, cchar *path, char *pattern, cchar *exclude, int flags);
+static bool matchFile(cchar *filename, cchar *pattern);
+static char *ptok(char *str, cchar *delim, char **last);
+static char *rewritePattern(cchar *pattern, int flags);
 
 /************************************* Code ***********************************/
 
@@ -18040,7 +18063,7 @@ static MprList *findFiles(MprList *list, cchar *dir, cchar *base, int flags)
         name = dp->name;
         dp->name = mprJoinPath(base, name);
 
-        if (!(flags & MPR_PATH_DEPTH_FIRST) && !(dp->isDir && flags & MPR_PATH_NODIRS)) {
+        if (!(flags & MPR_PATH_DEPTH_FIRST) && !(dp->isDir && flags & MPR_PATH_NO_DIRS)) {
             mprAddItem(list, dp);
         }
         if (dp->isDir) {
@@ -18048,7 +18071,7 @@ static MprList *findFiles(MprList *list, cchar *dir, cchar *base, int flags)
                 findFiles(list, mprJoinPath(dir, name), mprJoinPath(base, name), flags);
             } 
         }
-        if ((flags & MPR_PATH_DEPTH_FIRST) && (!(dp->isDir && flags & MPR_PATH_NODIRS))) {
+        if ((flags & MPR_PATH_DEPTH_FIRST) && (!(dp->isDir && flags & MPR_PATH_NO_DIRS))) {
             mprAddItem(list, dp);
         }
     }
@@ -18066,7 +18089,7 @@ static MprList *findFiles(MprList *list, cchar *dir, cchar *base, int flags)
     MPR_PATH_DESCEND        to traverse subdirectories
     MPR_PATH_DEPTH_FIRST    to do a depth-first traversal
     MPR_PATH_INC_HIDDEN     to include hidden files
-    MPR_PATH_NODIRS         to exclude subdirectories
+    MPR_PATH_NO_DIRS        to exclude subdirectories
     MPR_PATH_RELATIVE       to return paths relative to the initial directory
  */
 PUBLIC MprList *mprGetPathFiles(cchar *dir, int flags)
@@ -18085,95 +18108,32 @@ PUBLIC MprList *mprGetPathFiles(cchar *dir, int flags)
 }
 
 
-/*
-    Get the files in a directory and subdirectories using glob-style matching
+/* 
+    Skip over double wilds to the next non-double wild segment
+    Return the first pattern segment as a result.
+    Return in reference arg the following pattern and set *dwild if a double wild was skipped.
+    This routine clones the original pattern to preserve it.
  */
-PUBLIC MprList *mprGlobPathFiles(cchar *path, cchar *patterns, int flags)
+static char *getNextPattern(char *pattern, char **nextPat, bool *dwild)
 {
     MprFileSystem   *fs;
-    MprList         *result;
-    cchar           *base, *exclude;
-    char            *start, *special, *tok, *pattern;
+    char            *thisPat;
 
-    fs = mprLookupFileSystem(path);
-    result = mprCreateList(0, 0);
-    exclude = NULL;
-    base = "";
+    fs = mprLookupFileSystem(pattern);
+    pattern = sclone(pattern);
+    *dwild = 0; 
 
-    for (pattern = stok(sclone(patterns), ",", &tok); pattern; pattern = stok(0, ",", &tok)) {
-        if (mprIsPathAbs(pattern)) {
-            start = pattern;
-            if ((special = strpbrk(start, "*?")) != 0) {
-                if (special > start) {
-                    for (pattern = special; pattern > start && !strchr(fs->separators, *pattern); pattern--) { }
-                    if (pattern > start) {
-                        *pattern++ = '\0';
-                        if (flags & MPR_PATH_RELATIVE) {
-                            base = mprGetRelPath(start, path);
-                        } else {
-                            base = start;
-                        }
-                        path = start;
-                    }
-                }
-            } else {
-                pattern = (char*) mprGetPathBaseRef(start);
-                if (pattern > start) {
-                    pattern[-1] = '\0';
-                    path = mprJoinPath(path, start);
-                    base = start;
-                }
-            }
+    while (true) {
+        thisPat = ptok(pattern, fs->separators, &pattern); 
+        if (smatch(thisPat, "**") == 0) {
+            break;
         }
-        if (*pattern == '!') {
-            exclude = &pattern[1];
-        }
-        if (!globPathFiles(fs, result, path, base, pattern, exclude, flags)) {
-            return 0;
-        }
+        *dwild = 1;
     }
-    return result;
-}
-
-
-/*
-    Test if a path matches a glob-style pattern
- */
-PUBLIC bool mprMatchPath(cchar *path, cchar *pattern)
-{
-    MprFileSystem   *fs;
-    cchar           *nextPartPattern;
-    char            *cp, *name;
-
-    fs = mprLookupFileSystem(path);
-    if (!path || !pattern) {
-        return 1;
+    if (nextPat) {
+        *nextPat = pattern;
     }
-    for (cp = name = sclone(path); *cp; cp++) {
-        if (*cp == fs->separators[0] || *cp == fs->separators[1]) {
-            *cp++ = '\0';
-            if (!mprMatchPartPath(name, 1, pattern, &nextPartPattern, 0, 0)) {
-                return 0;
-            }
-            if (!nextPartPattern) {
-                return 1;
-            }
-            pattern = nextPartPattern;
-            name = cp;
-        }
-    }
-    if (name < cp) {
-        if (!pattern) {
-            return 1;
-        }
-        if (!mprMatchPartPath(name, 0, pattern, &nextPartPattern, 0, 0)) {
-            return 0;
-        }
-        if (nextPartPattern && *nextPartPattern && !smatch(nextPartPattern, "**")) {
-            return 0;
-        }
-    }
-    return 1;
+    return thisPat;
 }
 
 
@@ -18183,44 +18143,54 @@ PUBLIC bool mprMatchPath(cchar *path, cchar *pattern)
     path    - Directory to search
     pattern - Search pattern with optional wildcards
     base    - Return filenames relative to this directory base. May be "".
-    exclude - Exclusion pattern for filename basenames.
+    exclude - Exclusion pattern.
  */
-static MprList *globPathFiles(MprFileSystem *fs, MprList *results, cchar *path, cchar *base, cchar *pattern, 
-    cchar *exclude, int flags)
+static MprList *globPathFiles(MprList *results, cchar *base, cchar *path, char *pattern, cchar *exclude, int flags)
 {
     MprDirEntry     *dp;
     MprList         *list;
-    cchar           *filename, *nextPartPattern, *nextPath, *nextPartExclude;
-    int             next, add;
+    cchar           *filename, *nextPath;
+    char            *thisPat, *nextPat;
+    bool            dwild;
+    int             add, matched, next;
 
-    if ((list = mprGetPathFiles(path, flags | MPR_PATH_RELATIVE)) == 0) {
+    if ((list = mprGetPathFiles(path, (flags & ~MPR_PATH_NO_DIRS) | MPR_PATH_RELATIVE)) == 0) {
         return results;
     }
+    thisPat = getNextPattern(pattern, &nextPat, &dwild);
+
     for (next = 0; (dp = mprGetNextItem(list, &next)) != 0; ) {
-        if (!mprMatchPartPath(dp->name, dp->isDir, pattern, &nextPartPattern, 0, flags)) {
-            continue;
-        }
-        add = 1;
-        if (nextPartPattern && strcmp(nextPartPattern, "**") != 0 && strcmp(nextPartPattern, "**/") != 0
-                   && strcmp(nextPartPattern, "**/*") != 0) {
-            /* Double star matches zero or more components */
-            add = 0;
-        }
-        filename = (flags & MPR_PATH_RELATIVE) ? mprJoinPath(base, dp->name) : mprJoinPath(path, dp->name);
-        if (add && exclude) {
-            if (mprMatchPartPath(dp->name, dp->isDir, exclude, &nextPartExclude, 0, flags)) {
-                continue;
+        if ((matched = matchFile(dp->name, thisPat)) == 0) {
+            if (dwild) {
+                if (thisPat == 0) {
+                    matched = 1;
+                } else {
+                    /* Match failed, so backup the pattern and try the double wild for this filename (only) */
+                    globPathFiles(results, base, mprJoinPath(path, dp->name), pattern, exclude, flags);
+                    continue;
+                }
             }
         }
-        if (!(flags & MPR_PATH_DEPTH_FIRST) && add) {
-            /* Exclude mid-pattern directories and terminal directories if only "files" */
+        filename = (flags & MPR_PATH_RELATIVE) ? mprJoinPath(base, dp->name) : mprJoinPath(path, dp->name);
+        add = (matched && (!nextPat || smatch(nextPat, "**")));
+        if (add && exclude && matchFile(filename, exclude)) {
+            continue;
+        }
+        if (add && dp->isDir && (flags & MPR_PATH_NO_DIRS)) {
+            add = 0;
+        }
+        if (add && !(flags & MPR_PATH_DEPTH_FIRST)) {
             mprAddItem(results, filename);
         }
-        if (dp->isDir && nextPartPattern) {
+        if (dp->isDir) {
             nextPath = (flags & MPR_PATH_RELATIVE) ? mprJoinPath(path, dp->name) : filename;
-            globPathFiles(fs, results, nextPath, filename, nextPartPattern, exclude, flags);
+            if (dwild) {
+                globPathFiles(results, filename, nextPath, pattern, exclude, flags);
+            } else if (matched) {
+                globPathFiles(results, filename, nextPath, nextPat, exclude, flags);
+            }
         }
-        if ((flags & MPR_PATH_DEPTH_FIRST) && add) {
+        if (add && (flags & MPR_PATH_DEPTH_FIRST)) {
             mprAddItem(results, filename);
         }
     }
@@ -18229,116 +18199,237 @@ static MprList *globPathFiles(MprFileSystem *fs, MprList *results, cchar *path, 
 
 
 /*
-    Partial glob matching.  Match a string against a pattern in parts using glob style matching.
-    This is not a full glob match. It matches only the next glob portion up to a file separator. 
-
-    Pat may contain a full path of patterns. Only the first portion up to a file separator is used. The remaining portion
-        is returned in nextPartPattern.
-    Thick arg interface to be as fast as possible.
-
-    Wildcard Patterns:
-    "?"         Matches any single character
-    "*"         Matches zero or more characters of the file or directory
-    "**"/       Matches zero or more directories
-    "**"        Matches zero or more files or directories
-    trailing/   Trailing slash matches only directory
+    Get the files in a directory and subdirectories using glob-style matching
  */
-PUBLIC int mprMatchPartPath(cchar *path, int isDir, cchar *pattern, cchar **nextPartPattern, int count, int flags)
+PUBLIC MprList *mprGlobPathFiles(cchar *path, cchar *pattern, int flags)
 {
     MprFileSystem   *fs;
-    cchar           *pat, *pp;
-    int             match;
+    MprList         *result;
+    cchar           *base, *exclude;
+    char            *pat, *special, *start;
 
-    fs = mprLookupFileSystem(path);
-    *nextPartPattern = 0;
-    pat = pattern;
-    pp = path;
-
-    while (*pp && *pat && *pat != fs->separators[0] && *pat != fs->separators[1]) {
-        match = (!fs->caseSensitive) ? (*pat == *pp) : (tolower((uchar) *pat) == tolower((uchar) *pp));
-        if (match || *pat == '?') {
-            ++pat; ++pp;
-        } else if (*pat == '*') {
-            if (*++pat == '\0') {
-                /* Terminal star matches files and directories */
-                return 1;
-            }
-            if (*pat == '*') {
-                /* Double-star - matches zero or more directories */
-                if (isDir) {
-#if KEEP && EJS
-                    /*
-                        Check if next segment matches and match that
-                     */
-                    if (pat[1] == fs->separators[0] || pat[1] == fs->separators[1]) {
-                        if (mprMatchPartPath(pp, isDir, &pat[2], nextPartPattern, count, flags)) {
-                            return 1;
+    result = mprCreateList(0, 0);
+    if (path && pattern) {
+        base = "";
+        exclude = 0;
+        pat = 0;
+        if (mprIsPathAbs(pattern)) {
+            fs = mprLookupFileSystem(pattern);
+            start = sclone(pattern);
+            if ((special = strpbrk(start, "*?")) != 0) {
+                if (special > start) {
+                    for (pat = special; pat > start && !strchr(fs->separators, *pat); pat--) { }
+                    if (pat > start) {
+                        *pat++ = '\0';
+                        if (flags & MPR_PATH_RELATIVE) {
+                            base = mprGetRelPath(start, path);
+                        } else {
+                            base = start;
                         }
+                        path = start;
                     }
-#endif
-                    *nextPartPattern = pat - 1;
-                    return 1;
-
-                } else if (pat[1] && (pat[1] == fs->separators[0] || pat[1] == fs->separators[1])) {
-                    /* Double-star/ */
-                    if (pat[2] == '\0') {
-                        /* Trailing slash and not a directory */
-                        return 0;
-                    }
-                    pat += 2;
-
-                } else {
-                    /* Plain double.star matches all (alias for ** / *) */
-                    if (pat[1] == '\0') {
-                        *nextPartPattern = pat - 1;
-                        return 1;
-                    }
+                    pattern = pat;
                 }
             } else {
-                /* Single star */
-                if (count > 2000) {
-                    mprDebug("debug mpr", 0, "Glob file match is too recursive");
+                pat = (char*) mprGetPathBaseRef(start);
+                if (pat > start) {
+                    pat[-1] = '\0';
+                    path = mprJoinPath(path, start);
+                    base = start;
+                }
+                pattern = pat;
+            }
+        }
+        if (*pattern == '!') {
+            exclude = &pattern[1];
+        }
+        globPathFiles(result, base, path, rewritePattern(pattern, flags), exclude, flags);
+    }
+    return result;
+}
+
+
+/*
+    Special version of stok that does not skip leading delimiters.
+    Need this to handle leading "/path". This is handled as an empty "" filename segment
+    This then works (automagically) for windows drives "C:/"
+ */
+static char *ptok(char *str, cchar *delim, char **last)
+{
+    char    *start, *end;
+    ssize   i;
+
+    assert(delim);
+    start = (str || !last) ? str : *last;
+    if (start == 0) {
+        if (last) {
+            *last = 0;
+        }
+        return 0;
+    }
+    /* Don't skip delimiters at the start 
+    i = strspn(start, delim);
+    start += i;
+    */
+    if (*start == '\0') {
+        if (last) {
+            *last = 0;
+        }
+        return 0;
+    }
+    end = strpbrk(start, delim);
+    if (end) {
+        *end++ = '\0';
+        i = strspn(end, delim);
+        end += i;
+    }
+    if (last) {
+        *last = end;
+    }
+    return start;
+}
+
+
+/*
+    Convert pattern to canonical form:
+    abc** => abc* / **
+    **abc => ** / *abc
+ */
+static char *rewritePattern(cchar *pat, int flags)
+{
+    MprFileSystem   *fs;
+    MprBuf          *buf;
+    char            *cp, *pattern;
+
+    fs = mprLookupFileSystem(pat);
+    pattern = sclone(pat);
+    if (flags & MPR_PATH_DESCEND) {
+        pattern = mprJoinPath(pattern, "**");
+    }
+    if (!scontains(pattern, "**")) {
+        return pattern;
+    }
+    buf = mprCreateBuf(0, 0);
+    for (cp = pattern; *cp; cp++) {
+        if (cp[0] == '*' && cp[1] == '*') {
+            if (isSep(fs, cp[2]) && cp[3] == '*' && cp[4] == '*') {
+                /* Remove redundant ** */
+                cp += 3;
+            }
+            if (cp > pattern && !isSep(fs, cp[-1])) {
+                // abc** => abc*/**
+                mprPutCharToBuf(buf, '*');
+                mprPutCharToBuf(buf, fs->separators[0]);
+            } 
+            mprPutCharToBuf(buf, '*');
+            mprPutCharToBuf(buf, '*');
+            if (cp[2] && !isSep(fs, cp[2])) {
+                // **abc  => **/*abc
+                mprPutCharToBuf(buf, fs->separators[0]);
+                mprPutCharToBuf(buf, '*');
+            }
+            cp++;
+        } else {
+            mprPutCharToBuf(buf, *cp);
+        }
+    }
+    mprAddNullToBuf(buf);
+    return mprGetBufStart(buf);
+}
+
+
+
+/*
+    Match a single filename (without separators) to a pattern (without separators).
+    This supports the wildcards '?' and '*'. This routine does not handle double wild.
+    If filename or pattern are null, returns false.
+    Pattern may be an empty string -- will only match an empty filename. Used for matching leading "/".
+ */
+static bool matchFile(cchar *filename, cchar *pattern)
+{
+    MprFileSystem   *fs;
+    cchar           *fp, *pp;
+
+    if (filename == pattern) {
+        return 1;
+    }
+    if (!filename || !pattern) {
+        return 0;
+    }
+    fs = mprLookupFileSystem(filename);
+    for (fp = filename, pp = pattern; *fp && *pp; fp++, pp++) {
+        if (*pp == '?') {
+            continue;
+        } else if (*pp == '*') {
+            if (matchFile(&fp[1], pp)) {
+                return 1;
+            }
+            fp--;
+            continue;
+        } else {
+            if (fs->caseSensitive) {
+                if (*fp != *pp) {
                     return 0;
                 }
-                if (*pat == fs->separators[0] || *pat == fs->separators[1]) {
-                    pp = "";
-                    break;
-                }
-                while (*pp) {
-                    if (mprMatchPartPath(pp++, isDir, pat, nextPartPattern, count + 1, flags)) {
-                        return 1;
-                    }
-                }
+            } else if (tolower((uchar) *fp) != tolower((uchar) *pp)) {
                 return 0;
             }
-        } else {
+        }
+    }
+    if (*fp) {
+        return 0;
+    }
+    if (*pp) {
+        /* Trailing '*' or '**' */
+        if (!((pp[0] == '*' && pp[1] == '\0') || (pp[0] == '*' && pp[1] == '*' && pp[2] == '\0'))) {
             return 0;
         }
     }
-    /* 
-        Left overs
-     */
-    while (*pat == '*') {
-        ++pat;
+    return 1;
+}
+
+
+/*
+    Pattern is in canonical form where "**" is always a segment by itself
+ */
+static bool matchPath(MprFileSystem *fs, char *path, char *pattern)
+{
+    char    *nextPat, *thisFile, *thisPat;
+    bool    dwild;
+
+    assert(path);
+    assert(pattern);
+
+    while (pattern && path) {
+        thisFile = ptok(path, fs->separators, &path);
+        thisPat = getNextPattern(pattern, &nextPat, &dwild);
+        if (!matchFile(thisFile, thisPat)) {
+            if (dwild) {
+                if (path) {
+                    return matchPath(fs, path, pattern);
+                } else {
+                    return thisPat ? 0 : 1;
+                }
+            }
+            return 0;
+        }
+        pattern = nextPat;
     }
-    if (*pp) {
-        /* Pattern too short - fail to match */
+    return (pattern && *pattern) ? 0 : 1;
+}
+
+
+PUBLIC bool mprMatchPath(cchar *path, cchar *pattern)
+{
+    MprFileSystem   *fs;
+
+    if (!path || !pattern) {
         return 0;
     }
-    if (*pat == '\0') {
-        return 1;
-    }
-    if (*pat && (*pat == fs->separators[0] || *pat == fs->separators[1])) {
-        if (*++pat == '\0') {
-            /* Terminal / matches only directories */
-            return isDir;
-        }
-        /* This portion of the pattern has matched this portion of the filename */
-        *nextPartPattern = pat;
-        return 1;
-    }
-    return 0;
+    fs = mprLookupFileSystem(path);
+    return matchPath(fs, sclone(path), rewritePattern(pattern, 0));
 }
+
 
 
 /*
@@ -19191,7 +19282,7 @@ PUBLIC void mprSetAppPath(cchar *path)
 }
 
 
-static char* checkPath(cchar *path, int flags) 
+static char *checkPath(cchar *path, int flags) 
 {
     MprPath     info;
     int         access;
@@ -21061,10 +21152,17 @@ PUBLIC int mprNotifyOn(MprWaitHandler *wp, int mask)
             }
             ws->highestFd = fd;
         }
+#if UNUSED
+        /*
+            Disabled because mprRemoteEvent schedules the dispatcher AND lockes the event service.
+            This may cause deadlocks and specifically, mprRemoveEvent may crash while it races with event service
+            on another thread.
+         */
         if (wp->event) {
             mprRemoveEvent(wp->event);
             wp->event = 0;
         }
+#endif
         mprSetItem(ws->handlerMap, fd, mask ? wp : 0);
     }
     mprWakeEventService();
