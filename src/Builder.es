@@ -77,7 +77,6 @@ public class Builder {
         if (goals != 'configure') {
             makeDirs()
         }
-        //  MOB - eliminate 
         let save = gates['build']
         for each (goal in goals) {
             vtrace('Build', goal)
@@ -97,9 +96,12 @@ public class Builder {
             BuildFile applies the relative property  
          */
         delete options.relative
+        if (!(patterns is Array)) {
+            patterns = [patterns]
+        }
         let list = me.dir.src.files(patterns, options)
         if (list.length == 0 && makeme.generating) {
-            list = [patterns]
+            list = patterns
         }
         return list
     }
