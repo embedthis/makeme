@@ -58,6 +58,7 @@ enumerable class TestMe {
             depth: { range: Number, alias: 'd' },
             ide: { alias: 'i' },
             log: { alias: 'l', range: String },
+            more: { alias: 'm' },
             noserver: { alias: 'n' },
             project: { },
             projects: { alias: 'p' },
@@ -84,6 +85,7 @@ enumerable class TestMe {
             '  --depth number        # Zero == basic, 1 == throrough, 2 extensive\n' + 
             '  --ide                 # Run the test in an IDE debugger\n' + 
             '  --log file:level      # Log output to file at verbosity level\n' + 
+            '  --more                # Pass output through "more"\n' + 
             '  --noserver            # Do not run server side of tests\n' + 
             '  --projects            # Generate IDE projects for tests\n' + 
             '  --rebuild             # Rebuild all tests before running\n' + 
@@ -142,6 +144,15 @@ enumerable class TestMe {
                 App.log.error('Must specify at least one test')
                 App.exit(1)
             }
+        }
+        if (options.more) {
+            let cmd = App.exePath + ' ' +
+                App.args.slice(1).join(' ').replace(/[ \t]*-*more[ \t]*|[ \t]*-m[ \t]*/, ' ') + ' 2>&1 | more'
+            if (options.show) {
+                print(cmd)
+            }
+            Cmd.sh(cmd)
+            App.exit(0)
         }
         if (options.version || options.log || options.trace) {
             /* Handled in C code */
@@ -616,7 +627,11 @@ Me.load({
                     why('Rebuild', exe + ' because ' + c + ' is newer')
                 }
                 strace('Build', 'me --chdir testme --file ' + mefile.basename + show)
-                let result = Cmd.run('me --chdir testme --file ' + mefile.basename + show)
+                let ropt = {error: true}
+                let result = Cmd.run('me --chdir testme --file ' + mefile.basename + show, ropt)
+                if (ropt.error !== true) {
+                    log.write(ropt.error)
+                }
                 if (options.show) {
                     log.write(result)
                 }

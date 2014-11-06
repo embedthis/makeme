@@ -35,7 +35,6 @@ public class MakeMe {
     /** Application command line options from Args.options */
     public var options: Object = {}
 
-    //  MOB - rethink
     /** Singleton $Project reference */
     public var project
 
@@ -519,7 +518,7 @@ public class MakeMe {
             '  --import                                  # Import standard me environment\n' +
             '  --keep                                    # Keep intermediate files\n' +
             '  --log logSpec                             # Save errors to a log file\n' +
-            '  --more                                    # Run output through more\n' +
+            '  --more                                    # Pass output through "more"\n' +
             '  --nocross                                 # Build natively\n' +
             '  --overwrite                               # Overwrite existing files\n' +
             '  --out path                                # Save output to a file\n' +
