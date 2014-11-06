@@ -151,7 +151,7 @@ enumerable class TestMe {
             if (options.show) {
                 print(cmd)
             }
-            Cmd.sh(cmd)
+            Cmd.sh(cmd, {noio: true})
             App.exit(0)
         }
         if (options.version || options.log || options.trace) {
