@@ -18123,7 +18123,7 @@ static char *getNextPattern(char *pattern, char **nextPat, bool *dwild)
     pattern = sclone(pattern);
     *dwild = 0; 
 
-    while (true) {
+    while (1) {
         thisPat = ptok(pattern, fs->separators, &pattern); 
         if (smatch(thisPat, "**") == 0) {
             break;
@@ -18143,7 +18143,7 @@ static char *getNextPattern(char *pattern, char **nextPat, bool *dwild)
     path    - Directory to search
     pattern - Search pattern with optional wildcards
     base    - Return filenames relative to this directory base. May be "".
-    exclude - Exclusion pattern.
+    exclude - Exclusion pattern (not currently implemented as there is no API to pass in an exluded pattern).
  */
 static MprList *globPathFiles(MprList *results, cchar *base, cchar *path, char *pattern, cchar *exclude, int flags)
 {

@@ -8844,8 +8844,8 @@ module ejs {
         }
 
         /**
-            Get a list of matching files. This does
-            Posix style glob file matching on supplied patterns and returns an array of matching files.
+            Get a list of matching files. This does Posix style glob file matching on supplied patterns and returns an 
+            array of matching files.
 
             This method supports several invocation forms:
             <ul>
@@ -8871,7 +8871,7 @@ module ejs {
                 <li>! Negates pattern. This removes matching patterns from the set. These are applied after all source
                       patterns have been processed. Use !! to escape or set noneg in options.
             </ul>
-            If a pattern ends with '/', then the directory contents will also match. 
+            If a pattern ends with '/', then the directory contents will also match and be returned. 
 
             @param options Optional properties to control the matching.
             @option contents Boolean If contents is set to true and the path pattern matches a directory, then return the

@@ -700,7 +700,6 @@ class Project {
         if (platforms.length == 0) {
             generateProjects()
         } else {
-            // UNUSED (not present for release builds) platforms.push(loader.localPlatform)
             for each (platform in platforms) {
                 Me()
                 loader.reset()
