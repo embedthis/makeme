@@ -3,7 +3,7 @@
 #
 
 NAME                  := me
-VERSION               := 0.8.4
+VERSION               := 0.8.5
 PROFILE               ?= default
 ARCH                  ?= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 CC_ARCH               ?= $(shell echo $(ARCH) | sed 's/x86/i686/;s/x64/x86_64/')
@@ -952,7 +952,7 @@ stop: $(DEPS_54)
 installBinary: $(DEPS_55)
 	mkdir -p "$(ME_APP_PREFIX)" ; \
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
-	ln -s "0.8.4" "$(ME_APP_PREFIX)/latest" ; \
+	ln -s "0.8.5" "$(ME_APP_PREFIX)/latest" ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
 	cp $(BUILD)/bin/me $(ME_VAPP_PREFIX)/bin/me ; \
 	mkdir -p "$(ME_BIN_PREFIX)" ; \
@@ -1005,6 +1005,7 @@ installBinary: $(DEPS_55)
 	cp src/master-start.me $(ME_VAPP_PREFIX)/bin/master-start.me ; \
 	cp src/simple.me $(ME_VAPP_PREFIX)/bin/simple.me ; \
 	cp src/standard.me $(ME_VAPP_PREFIX)/bin/standard.me ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks" ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-components" ; \
 	cp src/paks/me-components/appweb.me $(ME_VAPP_PREFIX)/bin/paks/me-components/appweb.me ; \
 	cp src/paks/me-components/compiler.me $(ME_VAPP_PREFIX)/bin/paks/me-components/compiler.me ; \
@@ -1102,5 +1103,5 @@ uninstall: $(DEPS_58)
 #
 
 version: $(DEPS_59)
-	echo 0.8.4
+	echo 0.8.5
 
