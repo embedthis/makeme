@@ -939,7 +939,7 @@ public class Builder {
                         copt.filter = RegExp(copt.filter, "g")
                     }
                     if (cmd.error && !copt.filter.test(cmd.error)) {
-                        prints(cmd.error)
+                        App.errorStream.write(cmd.error)
                     }
                     if (response && !copt.filter.test(response)) {
                         prints(response)
@@ -947,7 +947,7 @@ public class Builder {
                 }
             }
         } else if (cmd.error) {
-            prints(cmd.error)
+            App.errorStream.write(cmd.error)
         }
         return response
     }
