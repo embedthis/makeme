@@ -1097,11 +1097,12 @@ public class Loader {
         setTargetPath(target)
 
         let home = target.home
-        rebasePaths(home, target, 'includes')
-        rebasePaths(home, target, 'headers')
-        rebasePaths(home, target, 'resources')
-        rebasePaths(home, target, 'sources')
-        rebasePaths(home, target, 'files')
+        rebasePaths(home.relative, target, 'includes')
+        rebasePaths(home.relative, target, 'headers')
+        rebasePaths(home.relative, target, 'resources')
+        rebasePaths(home.relative, target, 'sources')
+        rebasePaths(home.relative, target, 'files')
+
         rebasePaths(home, target, 'relative')
 
         for (let [when, item] in target.scripts) {
