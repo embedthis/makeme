@@ -805,6 +805,7 @@ public class Loader {
                 }
             } catch {}
         }
+        settings.name ||= options.name || ''
         settings.author ||= ''
         settings.company ||= settings.author.split(' ')[0].toLowerCase()
         if (dir.paks && !dir.paks.exists) {
@@ -816,6 +817,9 @@ public class Loader {
             let ver = settings.version.split('-')[0]
             let majmin = ver.split('.').slice(0,2).join('.')
             settings.compatible ||= majmin
+        } else {
+            settings.version = '1.0.0'
+            settings.compatible = '1.0'
         }
     }
 
