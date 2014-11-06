@@ -135,7 +135,6 @@ public class Builder {
                 }
                 runTargetScript(target, 'prebuild')
 
-//  MOB - should operate on a plugin switch callback
                 if (makeme.generating) {
                     makeme.project.generateTarget(target)
                 } else {
@@ -461,9 +460,6 @@ public class Builder {
                         Create a target for each source file
                      */
                     let obj = me.dir.obj.join(file.replaceExt(me.ext.o).basename)
-/*
-    MOB - this defines empty compiler, defines includes arrays
- */
                     let props = { name : obj, enable: true, path: obj, type: 'obj', home: target.home,
                         goals: [target.name], files: [ file ],
                         generate: true }
@@ -579,7 +575,6 @@ public class Builder {
             if (admit(h, 'depend')) {
                 makeSourceDepends(h)
             }
-            //  MOB UNUSED
             if (false && h.depends && target.path.extension != 'h') {
                 /* Copy up nested headers */
                 depends = (depends + h.depends).unique()
@@ -670,7 +665,6 @@ public class Builder {
         @hide
      */
     public function prepBuild() {
-        //  MOB - functionalize
         if (!me.settings.configured && !options.configure) {
             /* 
                 Auto configure 
@@ -678,7 +672,7 @@ public class Builder {
             let path = loader.findPlugin('configuration')
             load(path.dirname.join('Configuration.es'))
             Configuration().autoConfigure()
-
+            me.settings.configured = true
             for each (target in me.targets) {
                 if (target.type == 'exe' || target.type == 'lib' || target.type == 'obj') {
                     loader.inheritCompSettings(target, me.targets.compiler, true)
@@ -692,13 +686,11 @@ public class Builder {
         /*
             When cross generating, certain wild cards can't be resolved.
             Setting missing to empty will cause missing glob patterns to be replaced with the pattern itself
-            MOB - move this somewhere?
          */
         if (options.gen || options.configure) {
             expandMissing = ''
         }
         if (options.gen == 'make' || options.gen == 'nmake') {
-            //  MOB - who uses this and why?
             options.configurableProject = true
         }
         enableTargets()
@@ -708,7 +700,6 @@ public class Builder {
         Object.sortProperties(me.targets)
         Object.sortProperties(me)
 
-        //  MOB - functionalize
         if (options.dump) {
             let path = Path(me.platform.name + '.dmp')
             if (me.configure) {
