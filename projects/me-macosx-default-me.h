@@ -226,7 +226,7 @@
 
 /* Profile */
 #ifndef ME_CONFIG_CMD
-    #define ME_CONFIG_CMD "me -d -q -platform macosx-x64-default -configure . --with est -gen xcode"
+    #define ME_CONFIG_CMD "me -d -q -platform macosx-x64-default -configure . -with est -gen make"
 #endif
 #ifndef ME_ME_PRODUCT
     #define ME_ME_PRODUCT 1
