@@ -33,9 +33,6 @@ dynamic enumerable public class Me {
     /** Optional MakeMe files to load after fully loading all blended MakeMe files */
     var customize: Array?
     
-/* UNUSED
-    var customSettings: Object = {}
-*/
     /** Default properties to be inherited by all targets */
     var defaults: Object?
 
@@ -61,14 +58,8 @@ dynamic enumerable public class Me {
     /** List of scripts or compiled scripts to pre-load */
     var modules: Array
 
-    /* UNUSED
-    var newTargets: Array = [] */
-
     /** Reference to the MakeMe command line options object */
     var options: Object
-
-    /* UNUSED
-    var package: Object */
 
     /** Description of the current platform. Has properties for operating system and CPU architecture. */
     var platform: Object = {}

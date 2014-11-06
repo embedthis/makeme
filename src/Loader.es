@@ -213,7 +213,6 @@ public class Loader {
                 obj.modules = [obj.modules]
             }
             for each (let name in obj.modules) {
-                //  MOB - should support wildcards and ?
                 let optional
                 if (name.startsWith('?')) {
                     name = name.slice(1)
@@ -423,9 +422,7 @@ public class Loader {
         return dist
     }
 
-    //  MOB - should do N times to expand all tokens
     /**
-        MOB - this should more logically be in Builder.
         Expand tokens in a string.
         Tokens are represented by '${field}' where field may contain '.'. For example ${user.name}.
         To preserve an ${token} unmodified, preceed the token with an extra '$'. For example: $${token}.
@@ -455,12 +452,10 @@ public class Loader {
 
     /*
         Expand tokens in all fields in an object hash. This is used to expand tokens in me file objects.
-        MOB - this should more logically be in Builder.
      */
     function expandTokens(o) {
         let x 
         if (me.targets.removeFiles) {
-            //  MOB - remove this
             if (me.targets.removeFiles.enable is String) x = 1
         }
         for (let [key,value] in o) {
@@ -480,7 +475,6 @@ public class Loader {
         Fix legacy properties and prepend combine prefixes to properties that must be aggregated
      */
     function fixupProperties(o) {
-        //  MOB - required?
         plus(o.defaults, 'includes')
         plus(o.internal, 'includes')
 
@@ -531,8 +525,6 @@ public class Loader {
 
         let home = o.origin.dirname
         rebasePaths(home, o, 'modules')
-
-        //  MOB - required?
         rebasePaths(home, o.defaults, 'includes')
         rebasePaths(home, o.internal, 'includes')
 
@@ -655,7 +647,6 @@ public class Loader {
         return files
     }
 
-//  MOB - should this be in Builder?
     /*
         Inherit compilation properties from a dependent target (libraries, defines, compiler settings)
         Also used to inhert the compiler default settings
@@ -766,7 +757,6 @@ public class Loader {
             initPlatform(obj)
         } 
         blendFile(findPlugin('os'))
-        //  MOB - find a better way to detect if configured
         blendFile(me.dir.me.join(!me.dir.bin.same(me.dir.out) ? 'standard.me' : 'simple.me'))
         setExtensions()
         loadPackage(path)
@@ -959,7 +949,6 @@ public class Loader {
 
         /*
             Expand short-form scripts into the long-form. Set the target type if not defined to 'script'.
-            MOB - review
          */
         if (p.run) {
             let run = p.run
@@ -1014,7 +1003,6 @@ public class Loader {
             Inherit defaults
          */
         if (Object.getOwnPropertyCount(me.defaults)) {
-            //  MOB - is this required?
             for (let [key,value] in me.defaults) {
                 if (!key.startsWith('+')) {
                     me.defaults['+' + key] = me.defaults[key]
@@ -1123,7 +1111,6 @@ public class Loader {
                 }
             }
         } 
-        //  MOB - why are these here
         target.files ||= []
         if (target.type == 'exe' || target.type == 'lib') {
             target.defines ||= []
@@ -1151,7 +1138,6 @@ public class Loader {
         for (let [key,value] in me.dir) {
             me.dir[key] = Path(value).absolute
         }
-        //  MOB - should not need to do on every file?
         let defaults = me.targets.compiler
         if (defaults) {
             for (let [key,value] in defaults.includes) {
@@ -1161,7 +1147,6 @@ public class Loader {
                 defaults.libpaths[key] = Path(value).absolute
             }
         }
-        //  MOB - should not need to do on every file?
         let defaults = me.defaults
         if (defaults) {
             for (let [key,value] in defaults.includes) {
@@ -1321,7 +1306,6 @@ public class Loader {
         }
     }
 
-//  MOB - move this to prepBuild
     function setTargetGoals(target) {
         let goals = target.goals || []
         let type = target.type
@@ -1336,7 +1320,6 @@ public class Loader {
                 goals = []
             }
         }
-        //  MOB - could all this be done via an event
         for (field in target) {
             if (field.startsWith('generate-')) {
                 if (target.generate !== false) {
@@ -1359,7 +1342,6 @@ public class Loader {
     function setTargetPath(target) {
         let name = target.name
         if (target.path) {
-            /* MOB CLANG clang Clang issue - was testing configurable */
             if (!(target.path is Function)) {
                 target.path = Path(expand(target.path))
                 if (target.path.isRelative && !target.configurable) {
@@ -1394,12 +1376,6 @@ public class Loader {
 } /* class Loader */
 
 } /* module embedthis.me */
-
-/* //  MOB - move to builder
-function dumpTarget(target, ...msg) {
-    print(msg.join(' ') + ' ' + serialize(target, {nulls: false, pretty: true}))
-}
-*/
 
 /*
     @copy   default

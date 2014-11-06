@@ -131,7 +131,6 @@ class Xcode {
         /*
             Create groups of targets for the xcode project
             NOTE: not yet using the x[] arrays. Should use these instead of iterating through targets[] all the time
-            MOB - document what are xtargets, xgroups, xbinaries, xscripts
          */
         me.xtargets = []
         me.xgroups = []
@@ -430,7 +429,6 @@ class Xcode {
         let groupItem = '\t\t\t\t${REF} /* ${NAME} */,'
         for each (target in me.xgroups) {
             let ref = makeid('ID_TargetGroup:' + target.name)
-            //  MOB - same in both cases
             let name = target.name != 'Products' ? (target.name) : target.name
             output(groupItem.expand({REF: ref, NAME: name}))
         }
@@ -449,7 +447,6 @@ class Xcode {
                 continue
             }
             let gid = getid('ID_TargetGroup:' + target.name)
-            //  MOB - same in both cases
             let name = target.name != 'Products' ? (target.name) : target.name
             output(section.expand({GID: gid, NAME: name}))
             let headers = {}
@@ -620,8 +617,6 @@ class Xcode {
 
             } else if (target['generate-xcode'] || target['generate-sh'] || 
                     (target['generate'] && target.generate !== true)) {
-                /* MOB - put this before target.generate === true because Xcode prep has target.generate == true and 
-                target.generate-xcode set */
                 let gencmd = target['generate-xcode'] || target['generate-sh'] || target['generate']
                 if (gencmd) {
                     cmd += gencmd

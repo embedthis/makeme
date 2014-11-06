@@ -127,7 +127,6 @@ public function changeDir(path: Path) {
     }
 }
 
-//  MOB - need better architecture for these functions that generate and act directly
 /**
     Copy a file.
     Copy files to a destination.
@@ -557,8 +556,6 @@ public function traceFile(msg, path): Void
 public function vtrace(tag, ...args)
     makeme.vtrace(tag, ...args)
 
-//  MOB - refactor
-
 var capture: Array?
 var genout: TextStream
 
@@ -586,13 +583,6 @@ public function genStopCapture(target): String {
         } else {
             result = capture.join(' ; \\\n\t')
         }
-        /* UNUSED
-        if (prefix && generating != 'nmake') {
-            result = capture.join(' ; \\\n\t')
-        } else {
-            result = capture.join('\n\t')
-        }
-        */
     }
     capture = null
     return result
@@ -602,7 +592,6 @@ public function genClose()
     genout.close()
 
 public function genCmd(s) {
-    //  MOB - ugly
     if (me.target) {
         s = repvar2(s, me.target.home)
     } else {
@@ -715,13 +704,11 @@ internal function repCmd(s: String, pattern, replacement): String {
     Makefiles and script to be use variables to control various flag settings.
  */
 public function repcmd(command: String): String {
-    //  MOB - test makeme.generator
     //  generator.settings == gen
     let mappings = makeme.project.mappings
     let generating = makeme.generating
     let minimalCflags = makeme.project.minimalCflags
     if (generating == 'make' || generating == 'nmake') {
-        //  MOB - use repset
         if (mappings.linker != '') {
             /* Linker has -g which is also in minimal C flags */
             command = rep(command, mappings.linker, '$(LDFLAGS)')
@@ -780,7 +767,6 @@ public function repcmd(command: String): String {
         command = rep(command, mappings.libpaths, '${LIBPATHS}')
         command = rep(command, mappings.includes, '${IFLAGS}')
         /* Twice because libraries are repeated and replace only changes the first occurrence */
-        //  MOB - convert to use count
         command = rep(command, mappings.libraries, '${LIBS}')
         command = rep(command, mappings.libraries, '${LIBS}')
         command = rep(command, RegExp(mappings.build, 'g'), '$${BUILD}')
@@ -809,7 +795,6 @@ public function repcmd(command: String): String {
 /*
     Replace with variables where possible.
     Replaces the top directory and the CONFIGURATION
-//  MOB - refactor
  */
 public function repvar(command: String): String {
     let generating = makeme.generating
@@ -837,9 +822,7 @@ public function repvar(command: String): String {
     return command
 }
 
-//  MOB - blend back into repvar
 public function repvar2(command: String, home: Path? = null): String {
-        //  MOB - should be via repvar
     let generating = makeme.generating
     let mappings = makeme.project.mappings
     if (home) {

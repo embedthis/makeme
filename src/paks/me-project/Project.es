@@ -29,7 +29,6 @@ class Project {
 
     /*
         Generate conditional definitions for component targets
-        MOB - rename or split function
      */
     function componentDefs() {
         let needed = {}
@@ -225,7 +224,6 @@ class Project {
         }
     }
 
-    //  MOB - order file
     function findLib(libraries, lib) {
         let name
         if (libraries) {
@@ -315,7 +313,6 @@ class Project {
         environment()
 
         let cflags = mappings.compiler
-        //  MOB - should be via repvar
         for each (word in minimalCflags) {
             cflags = cflags.replace(word + ' ', ' ')
         }
@@ -485,12 +482,8 @@ class Project {
     }
 
     function generateProjects() {
-        builder.prepBuild()
-
-        //  functionalize
         let cpack = me.targets.compiler
         let cflags = cpack.compiler.join(' ')
-        //  MOB - should be via repvar
         for each (word in minimalCflags) {
             cflags = cflags.replace(word + ' ', ' ')
         }
@@ -563,7 +556,6 @@ class Project {
             genWriteLine('LD="' + me.targets.link.path + '"')
         }
         let cflags = mappings.compiler
-        //  MOB - should be via repvar
         for each (word in minimalCflags) {
             cflags = cflags.replace(word + ' ', ' ')
         }
@@ -722,21 +714,7 @@ class Project {
         safeCopy(Config.Bin.join('master-start.me'), 'start.me')
     }
 
-/*
-    function sortTopTargets(top, result, ) {
-        for (target in top) {
-            for each (dep in target.depends) {
-                if (top.contains(dep)) {
-                    result.push(dep)
-                }
-            }
-        }
-    }
-    topTargets = sortTopTargets(
-*/
-
     function genTargets() {
-        //  MOB - better API
         builder.selectTargets('gen')
         let topTargets = builder.topTargets
 
@@ -775,14 +753,6 @@ class Project {
         }
         genWriteLine('')
     }
-
-/* UNUSED
-    function generateVstudioProject(base: Path) {
-        trace('Generate', 'project file: ' + base.relative)
-        base.makeDir()
-        Vstudio().generate(base)
-    }
-*/
 
     function generateSharedLib(target) {
         let transition = target.rule || 'shlib'
@@ -1021,7 +991,6 @@ class Project {
                 cmd = cmd.trim()
                 cmd = cmd.replace(/\\\n/mg, '')
                 if (prefix) {
-                    //  MOB - is this used?
                     if (cmd.startsWith('@')) {
                         cmd = cmd.slice(1).replace(/^.*$/mg, '\t@' + prefix + '; $& ; ' + suffix)
                     } else {

@@ -13,7 +13,6 @@ dynamic enumerable public class Target {
 
     use default namespace ''
 
-    //  MOB - pre-initialize mandatory fields here
     /** Compiler switchs to use when building the target */
     var compiler: Array?     /* of Strings */
 
@@ -46,13 +45,11 @@ dynamic enumerable public class Target {
     var entry: Object?
 
     /** File that defined the target */
-    //  MOB - rename origin
     var file: Path
 
     /** List of input files for this target. This may include wild cards. */
     var files: Array = []        /* of Paths */
 
-    //  MOB - better to make this a pure boolean
     /** Whether to generate this target for projects */
     var generate: Object
 
@@ -147,7 +144,6 @@ dynamic enumerable public class Target {
 
     /** 
         Target type: 'exe', 'file', 'group', 'header', 'lib', 'obj', 'resource', 'script'.
-        MOB - add 'component'
      */
     var type: String
 
@@ -163,8 +159,6 @@ dynamic enumerable public class Target {
     /* 
      ****************   Internal properties **************
      */
-    // MOB - review are these still used? reduce these
-
     /** Bare component created during configuration */
     var bare: Boolean
     /* Target has been enabled or disabled via explicit user configuration command */
