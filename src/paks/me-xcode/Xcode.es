@@ -21,7 +21,7 @@ class Xcode {
      */
     const PREP_CODE = 
     "[ ! -x ${INC_DIR} ] && mkdir -p ${INC_DIR} ${OBJ_DIR} ${LIB_DIR} ${BIN_DIR}
-    [ ! -f ${INC_DIR}/me.h -a -f cp ${settings.name}-macosx-${platform.profile}-me.h ] && cp ${settings.name}-macosx-${platform.profile}-me.h ${INC_DIR}/me.h
+    [ ! -f ${INC_DIR}/me.h -a -f ${settings.name}-macosx-${platform.profile}-me.h ] && cp ${settings.name}-macosx-${platform.profile}-me.h ${INC_DIR}/me.h
     if [ -f ${settings.name}-macosx-${platform.profile}-me.h ] ; then
         if ! diff ${INC_DIR}/me.h ${settings.name}-macosx-${platform.profile}-me.h >/dev/null 2>&1 ; then
             cp ${settings.name}-macosx-${platform.profile}-me.h ${INC_DIR}/me.h

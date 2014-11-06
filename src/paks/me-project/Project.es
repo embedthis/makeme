@@ -698,15 +698,20 @@ class Project {
     public function generate() {
         let platforms = Object.getOwnPropertyNames(options.platforms)
         if (platforms.length == 0) {
-            platforms.push(loader.localPlatform)
-        }
-        for each (platform in platforms) {
-            Me()
-            loader.reset()
-            loader.initPlatform(platform)
-            let path = Loader.BUILD.join(platform, Loader.PLATFORM)
-            loader.loadFile(path)
             generateProjects()
+        } else {
+            // UNUSED (not present for release builds) platforms.push(loader.localPlatform)
+            for each (platform in platforms) {
+                Me()
+                loader.reset()
+                loader.initPlatform(platform)
+                let path = Loader.BUILD.join(platform, Loader.PLATFORM)
+                if (path.exists) {
+                    loader.loadFile(path)
+                }
+                builder.prepBuild()
+                generateProjects()
+            }
         }
     }
 
