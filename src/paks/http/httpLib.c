@@ -21458,7 +21458,7 @@ PUBLIC HttpUri *httpResolveUri(HttpUri *base, int argc, HttpUri **others, bool l
         if (other->port) {
             current->port = other->port;
         }
-        if (other->path || 1) {
+        if (other->path) {
             trimPathToDirname(current);
             httpJoinUriPath(current, current, other);
         }

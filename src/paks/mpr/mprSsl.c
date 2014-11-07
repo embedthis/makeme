@@ -397,6 +397,9 @@ static ssize readEst(MprSocket *sp, void *buf, ssize len)
     assert(est);
     assert(est->cfg);
 
+    if (sp->fd == INVALID_SOCKET) {
+        return -1;
+    }
     if (est->ctx.state != SSL_HANDSHAKE_OVER) {
         if ((rc = handshakeEst(sp)) <= 0) {
             return rc;
@@ -1271,7 +1274,6 @@ static ssize readOss(MprSocket *sp, void *buf, ssize len)
     assert(osp);
 
     if (osp->handle == 0) {
-        assert(osp->handle);
         unlock(sp);
         return -1;
     }

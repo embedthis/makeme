@@ -17328,7 +17328,7 @@ PUBLIC char *mprSearchForModule(cchar *filename)
 
 /*********************************** Forwards *********************************/
 
-static MprList *globPathFiles(MprList *results, cchar *base, cchar *path, char *pattern, cchar *exclude, int flags);
+static MprList *globPathFiles(MprList *results, cchar *path, char *pattern, ssize rlen, cchar *exclude, int flags);
 static bool matchFile(cchar *filename, cchar *pattern);
 static char *ptok(char *str, cchar *delim, char **last);
 static char *rewritePattern(cchar *pattern, int flags);
@@ -18140,16 +18140,18 @@ static char *getNextPattern(char *pattern, char **nextPat, bool *dwild)
 /*
     Glob a full multi-segment path and return a list of matching files
 
-    path    - Directory to search
-    pattern - Search pattern with optional wildcards
-    base    - Return filenames relative to this directory base. May be "".
-    exclude - Exclusion pattern (not currently implemented as there is no API to pass in an exluded pattern).
+    MOB relativeTo  - Relative files are relative to this directory.
+    path        - Directory to search. Will be a physical directory path.
+    pattern     - Search pattern with optional wildcards.
+    exclude     - Exclusion pattern (not currently implemented as there is no API to pass in an exluded pattern).
+
+    As this routine recurses, 'relativeTo' does not change, but path and pattern will.
  */
-static MprList *globPathFiles(MprList *results, cchar *base, cchar *path, char *pattern, cchar *exclude, int flags)
+static MprList *globPathFiles(MprList *results, cchar *path, char *pattern, ssize trimStart, cchar *exclude, int flags)
 {
     MprDirEntry     *dp;
     MprList         *list;
-    cchar           *filename, *nextPath;
+    cchar           *dir, *filename;
     char            *thisPat, *nextPat;
     bool            dwild;
     int             add, matched, next;
@@ -18160,19 +18162,21 @@ static MprList *globPathFiles(MprList *results, cchar *base, cchar *path, char *
     thisPat = getNextPattern(pattern, &nextPat, &dwild);
 
     for (next = 0; (dp = mprGetNextItem(list, &next)) != 0; ) {
+        dir = (trimStart && path[trimStart]) ? &path[trimStart + 1] : &path[trimStart];
+        filename = mprJoinPath(dir, dp->name);
         if ((matched = matchFile(dp->name, thisPat)) == 0) {
             if (dwild) {
                 if (thisPat == 0) {
                     matched = 1;
                 } else {
                     /* Match failed, so backup the pattern and try the double wild for this filename (only) */
-                    globPathFiles(results, base, mprJoinPath(path, dp->name), pattern, exclude, flags);
+                    globPathFiles(results, mprJoinPath(path, dp->name), pattern, trimStart, exclude, flags);
                     continue;
                 }
             }
         }
-        filename = (flags & MPR_PATH_RELATIVE) ? mprJoinPath(base, dp->name) : mprJoinPath(path, dp->name);
         add = (matched && (!nextPat || smatch(nextPat, "**")));
+        //  MOB _ is this right using filename?  surely need to use dp->name?
         if (add && exclude && matchFile(filename, exclude)) {
             continue;
         }
@@ -18183,11 +18187,11 @@ static MprList *globPathFiles(MprList *results, cchar *base, cchar *path, char *
             mprAddItem(results, filename);
         }
         if (dp->isDir) {
-            nextPath = (flags & MPR_PATH_RELATIVE) ? mprJoinPath(path, dp->name) : filename;
+            //  MOB -- same
             if (dwild) {
-                globPathFiles(results, filename, nextPath, pattern, exclude, flags);
-            } else if (matched) {
-                globPathFiles(results, filename, nextPath, nextPat, exclude, flags);
+                globPathFiles(results, mprJoinPath(path, dp->name), pattern, trimStart, exclude, flags);
+            } else if (matched && nextPat) {
+                globPathFiles(results, mprJoinPath(path, dp->name), nextPat, trimStart, exclude, flags);
             }
         }
         if (add && (flags & MPR_PATH_DEPTH_FIRST)) {
@@ -18205,45 +18209,48 @@ PUBLIC MprList *mprGlobPathFiles(cchar *path, cchar *pattern, int flags)
 {
     MprFileSystem   *fs;
     MprList         *result;
-    cchar           *base, *exclude;
+    cchar           *exclude;
     char            *pat, *special, *start;
+    ssize           trimStart;
 
     result = mprCreateList(0, 0);
     if (path && pattern) {
-        base = "";
         exclude = 0;
         pat = 0;
-        if (mprIsPathAbs(pattern)) {
-            fs = mprLookupFileSystem(pattern);
-            start = sclone(pattern);
-            if ((special = strpbrk(start, "*?")) != 0) {
-                if (special > start) {
-                    for (pat = special; pat > start && !strchr(fs->separators, *pat); pat--) { }
-                    if (pat > start) {
-                        *pat++ = '\0';
-                        if (flags & MPR_PATH_RELATIVE) {
-                            base = mprGetRelPath(start, path);
-                        } else {
-                            base = start;
-                        }
-                        path = start;
-                    }
-                    pattern = pat;
-                }
-            } else {
-                pat = (char*) mprGetPathBaseRef(start);
+        trimStart = (flags & MPR_PATH_RELATIVE) ? slen(path) : 0;
+
+        /*
+            Adjust path to include any fixed segements from the pattern
+         */
+        fs = mprLookupFileSystem(pattern);
+        start = sclone(pattern);
+        if ((special = strpbrk(start, "*?")) != 0) {
+            if (special > start) {
+                for (pat = special; pat > start && !strchr(fs->separators, *pat); pat--) { }
                 if (pat > start) {
-                    pat[-1] = '\0';
+                    *pat++ = '\0';
                     path = mprJoinPath(path, start);
-                    base = start;
                 }
                 pattern = pat;
             }
+        } else {
+            pat = (char*) mprGetPathBaseRef(start);
+            if (pat > start) {
+                pat[-1] = '\0';
+                path = mprJoinPath(path, start);
+                if (trimStart) {
+                    trimStart += pat - start;
+                }
+            }
+            pattern = pat;
         }
+        // printf("PATH %s PATTERN %s", path, pattern);
+        // printf(" => PATH %s PATTERN %s, TRIM-START %zd\n", path, pattern, trimStart);
+
         if (*pattern == '!') {
             exclude = &pattern[1];
         }
-        globPathFiles(result, base, path, rewritePattern(pattern, flags), exclude, flags);
+        globPathFiles(result, path, rewritePattern(pattern, flags), trimStart, exclude, flags);
     }
     return result;
 }
