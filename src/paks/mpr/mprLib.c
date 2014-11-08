@@ -18238,15 +18238,9 @@ PUBLIC MprList *mprGlobPathFiles(cchar *path, cchar *pattern, int flags)
             if (pat > start) {
                 pat[-1] = '\0';
                 path = mprJoinPath(path, start);
-                if (trimStart) {
-                    trimStart += pat - start;
-                }
             }
             pattern = pat;
         }
-        // printf("PATH %s PATTERN %s", path, pattern);
-        // printf(" => PATH %s PATTERN %s, TRIM-START %zd\n", path, pattern, trimStart);
-
         if (*pattern == '!') {
             exclude = &pattern[1];
         }
