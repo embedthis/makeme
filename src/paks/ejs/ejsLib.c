@@ -42294,12 +42294,20 @@ static EjsArray *getFiles(Ejs *ejs, EjsArray *results, EjsPath *thisPath, cchar 
     for (ITERATE_ITEMS(list, path, index)) {
         add = 1;
         if (include) {
-            mprGetPathInfo(path, &info);
+            if (flags & MPR_PATH_RELATIVE) {
+                mprGetPathInfo(mprJoinPath(thisPath->value, path), &info);
+            } else {
+                mprGetPathInfo(path, &info);
+            }
             matchFile = (info.isDir && !info.isLink) ? sjoin(path, "/", NULL) : path;
             add = matchPath(ejs, thisPath, include, matchFile, options);
         }
         if (add && exclude) {
-            mprGetPathInfo(path, &info);
+            if (flags & MPR_PATH_RELATIVE) {
+                mprGetPathInfo(mprJoinPath(thisPath->value, path), &info);
+            } else {
+                mprGetPathInfo(path, &info);
+            }
             matchFile = (info.isDir && !info.isLink) ? sjoin(path, "/", NULL) : path;
             add = !matchPath(ejs, thisPath, exclude, matchFile, options);
         }
