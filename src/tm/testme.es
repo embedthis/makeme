@@ -128,6 +128,10 @@ enumerable class TestMe {
                 depth = 1
             }
         }
+        if (options.ide && filters.length == 0) {
+            App.log.error('Must specify at least one test')
+            App.exit(1)
+        }
         if (options.noserver) {
             noserver = true
             topEnv.TM_NOSERVER = '1';
