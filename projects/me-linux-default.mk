@@ -1005,6 +1005,7 @@ installBinary: $(DEPS_55)
 	cp src/master-start.me $(ME_VAPP_PREFIX)/bin/master-start.me ; \
 	cp src/simple.me $(ME_VAPP_PREFIX)/bin/simple.me ; \
 	cp src/standard.me $(ME_VAPP_PREFIX)/bin/standard.me ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks" ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-components" ; \
 	cp src/paks/me-components/appweb.me $(ME_VAPP_PREFIX)/bin/paks/me-components/appweb.me ; \
 	cp src/paks/me-components/compiler.me $(ME_VAPP_PREFIX)/bin/paks/me-components/compiler.me ; \
