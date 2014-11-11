@@ -42212,7 +42212,11 @@ static EjsArray *getFilesWithInstructions(Ejs *ejs, EjsPath *fp, EjsObj *instruc
                 negate = mprCreateList(0, 0);
             }
             pat = ejsToMulti(ejs, pattern);
-            mprAddItem(negate, mprJoinPath(fp->value, &pat[1]));
+            if (flags & FILES_RELATIVE) {
+                mprAddItem(negate, &pat[1]);
+            } else {
+                mprAddItem(negate, mprJoinPath(fp->value, &pat[1]));
+            }
         }
     }
     for (i = 0; i < patterns->length; i++) {

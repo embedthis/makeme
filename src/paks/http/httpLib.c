@@ -4611,6 +4611,7 @@ static void parseRoutes(HttpRoute *route, cchar *key, MprJson *prop)
 {
     MprJson     *child;
     HttpRoute   *newRoute;
+    cchar       *pattern;
     int         ji;
 
     if (route->loaded) {
@@ -4627,16 +4628,21 @@ static void parseRoutes(HttpRoute *route, cchar *key, MprJson *prop)
                 httpAddRouteSet(route, child->value);
 
             } else if (child->type & MPR_JSON_OBJ) {
-                /*
-                    Create a new route
-                 */
-                newRoute = httpCreateInheritedRoute(route);
-                httpSetRouteHost(newRoute, route->host);
+                newRoute = 0;
+                if ((pattern = mprLookupJson(child, "pattern")) != 0) {
+                   newRoute = httpLookupRouteByPattern(route->host, pattern);
+                }
+                if (!newRoute) {
+                    newRoute = httpCreateInheritedRoute(route);
+                    httpSetRouteHost(newRoute, route->host);
+                }
                 parseAll(newRoute, key, child);
                 if (newRoute->error) {
                     break;
                 }
-                httpFinalizeRoute(newRoute);
+                if (pattern) {
+                    httpFinalizeRoute(newRoute);
+                }
             }
         }
     }
@@ -16115,7 +16121,7 @@ static bool parseHeaders(HttpConn *conn, HttpPacket *packet)
                  */
                 if (!conn->http10) {
                     if (strcasecmp(value, "100-continue") != 0) {
-                        httpBadRequestError(conn, HTTP_CODE_EXPECTATION_FAILED, "Expect header value \"%s\" is unsupported", value);
+                        httpBadRequestError(conn, HTTP_CODE_EXPECTATION_FAILED, "Expect header value is not supported");
                     } else {
                         rx->flags |= HTTP_EXPECT_CONTINUE;
                     }
