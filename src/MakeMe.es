@@ -115,6 +115,7 @@ public class MakeMe {
 
     function main() {
         try {
+            App.log.name = 'me'
             Me()
             parseArgs(args)
             let file = options.file = Path(options.file || findMakeMeFile() || Loader.START)
@@ -187,6 +188,9 @@ public class MakeMe {
             for each (name in names) {
                 let path = d.join(name)
                 if (path.exists) {
+                    if (name == main && !options.configure) {
+                        throw 'Cannot find suitable ' + start + '.\nRun "me configure" first.'
+                    }
                     vtrace('Info', 'Using: ' + path)
                     return path
                 }

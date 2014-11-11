@@ -766,6 +766,13 @@ public class Builder {
         }
         let pfiles = loader.getPlatformFiles(first)
         for each (path in pfiles) {
+            if (!path.exists) {
+                if (path != Loader.START) {
+                    throw 'Cannot find ' + path + '.\nRun "me configure" to repair.'
+                } else {
+                    throw 'Cannot find ' + path
+                }
+            }
             Me()
             vtrace('Process', path)
             loader.reset()
