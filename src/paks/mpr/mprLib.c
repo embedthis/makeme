@@ -17328,7 +17328,7 @@ PUBLIC char *mprSearchForModule(cchar *filename)
 
 /*********************************** Forwards *********************************/
 
-static MprList *globPathFiles(MprList *results, cchar *path, char *pattern, ssize rlen, cchar *exclude, int flags);
+static MprList *globPathFiles(MprList *results, cchar *path, char *pattern, cchar *relativeTo, cchar *exclude, int flags);
 static bool matchFile(cchar *filename, cchar *pattern);
 static char *ptok(char *str, cchar *delim, char **last);
 static char *rewritePattern(cchar *pattern, int flags);
@@ -18147,11 +18147,11 @@ static char *getNextPattern(char *pattern, char **nextPat, bool *dwild)
 
     As this routine recurses, 'relativeTo' does not change, but path and pattern will.
  */
-static MprList *globPathFiles(MprList *results, cchar *path, char *pattern, ssize trimStart, cchar *exclude, int flags)
+static MprList *globPathFiles(MprList *results, cchar *path, char *pattern, cchar *relativeTo, cchar *exclude, int flags)
 {
     MprDirEntry     *dp;
     MprList         *list;
-    cchar           *dir, *filename;
+    cchar           *filename;
     char            *thisPat, *nextPat;
     bool            dwild;
     int             add, matched, next;
@@ -18162,15 +18162,18 @@ static MprList *globPathFiles(MprList *results, cchar *path, char *pattern, ssiz
     thisPat = getNextPattern(pattern, &nextPat, &dwild);
 
     for (next = 0; (dp = mprGetNextItem(list, &next)) != 0; ) {
-        dir = (trimStart && path[trimStart]) ? &path[trimStart + 1] : &path[trimStart];
-        filename = mprJoinPath(dir, dp->name);
+        if (flags & MPR_PATH_RELATIVE) {
+            filename = mprGetRelPath(mprJoinPath(path, dp->name), relativeTo);
+        } else {
+            filename = mprJoinPath(path, dp->name);
+        }
         if ((matched = matchFile(dp->name, thisPat)) == 0) {
             if (dwild) {
                 if (thisPat == 0) {
                     matched = 1;
                 } else {
                     /* Match failed, so backup the pattern and try the double wild for this filename (only) */
-                    globPathFiles(results, mprJoinPath(path, dp->name), pattern, trimStart, exclude, flags);
+                    globPathFiles(results, mprJoinPath(path, dp->name), pattern, relativeTo, exclude, flags);
                     continue;
                 }
             }
@@ -18189,9 +18192,9 @@ static MprList *globPathFiles(MprList *results, cchar *path, char *pattern, ssiz
         if (dp->isDir) {
             //  MOB -- same
             if (dwild) {
-                globPathFiles(results, mprJoinPath(path, dp->name), pattern, trimStart, exclude, flags);
+                globPathFiles(results, mprJoinPath(path, dp->name), pattern, relativeTo, exclude, flags);
             } else if (matched && nextPat) {
-                globPathFiles(results, mprJoinPath(path, dp->name), nextPat, trimStart, exclude, flags);
+                globPathFiles(results, mprJoinPath(path, dp->name), nextPat, relativeTo, exclude, flags);
             }
         }
         if (add && (flags & MPR_PATH_DEPTH_FIRST)) {
@@ -18209,20 +18212,18 @@ PUBLIC MprList *mprGlobPathFiles(cchar *path, cchar *pattern, int flags)
 {
     MprFileSystem   *fs;
     MprList         *result;
-    cchar           *exclude;
+    cchar           *exclude, *relativeTo;
     char            *pat, *special, *start;
-    ssize           trimStart;
 
     result = mprCreateList(0, 0);
     if (path && pattern) {
+        fs = mprLookupFileSystem(pattern);
         exclude = 0;
         pat = 0;
-        trimStart = (flags & MPR_PATH_RELATIVE) ? slen(path) : 0;
-
+        relativeTo = (flags & MPR_PATH_RELATIVE) ? path : 0;
         /*
             Adjust path to include any fixed segements from the pattern
          */
-        fs = mprLookupFileSystem(pattern);
         start = sclone(pattern);
         if ((special = strpbrk(start, "*?")) != 0) {
             if (special > start) {
@@ -18244,7 +18245,7 @@ PUBLIC MprList *mprGlobPathFiles(cchar *path, cchar *pattern, int flags)
         if (*pattern == '!') {
             exclude = &pattern[1];
         }
-        globPathFiles(result, path, rewritePattern(pattern, flags), trimStart, exclude, flags);
+        globPathFiles(result, path, rewritePattern(pattern, flags), relativeTo, exclude, flags);
     }
     return result;
 }
