@@ -9,9 +9,17 @@ Me.load({
             config: function (target) {
                 if (me.options.gen) {
                     return {
+                        /*
+                            Static configuration to work for standard installations under /usr/lib and /usr/include
+                            and in a custom user directory.
+                         */
                         path: target.withpath || Path('/usr/src/openssl'),
+                        defines: [ 'ME_COM_OPENSSL_PATH=/usr' ],
                         includes: [ '$(ME_COM_OPENSSL_PATH)/include' ],
-                        libpaths: [ '$(ME_COM_OPENSSL_PATH)' ],
+                        libpaths: [ 
+                            '$(ME_COM_OPENSSL_PATH)/lib',
+                            '$(ME_COM_OPENSSL_PATH)', 
+                        ],
                         libraries: me.platform.os == 'windows' 
                             ? ([ 'libeay32.lib', 'ssleay32.lib' ]) : ([ 'ssl', 'crypto' ]),
                     }

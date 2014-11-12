@@ -78,7 +78,7 @@ Me.load({
                                 'libcrypto*${SHOBJ}*',
                     ],
                     to:         '${abin}/',
-                    enable:     'me.platform.os != "windows"',
+                    enable:     'me.platform.os != "windows" && !makeme.options.gen',
                     ifdef:      'openssl',
 
                 }, { 
