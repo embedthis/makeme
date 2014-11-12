@@ -100,7 +100,18 @@ Me.load({
         install: {
             action: ' ',
             generate: ' ',
-            depends: [ 'all', 'stop', 'installBinary', 'start' ],
+            depends: [ 'all', 'installPrep', 'stop', 'installBinary', 'start' ],
+        },
+
+        installPrep: {
+            action: ' ',
+            home: '${TOP}',
+            'generate-make': '
+                if [ "`id -u`" != 0 ]
+                then echo "Must run as root. Rerun with \"sudo\""
+                    exit 255
+                fi
+            '
         },
 
         installBinary: {
