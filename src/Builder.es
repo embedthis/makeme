@@ -860,7 +860,9 @@ public class Builder {
         @param command Command to run. May be an array of args or a string.
         @param copt Options. These are also passed to $Cmd.
         @option dir Change to given directory to run the command.
-        @option filter Hide output if it contains the specified pattern. Set to true to filter all output.
+        @option filter Do not display output to the console if it contains the specified filter pattern. 
+            Set to true to filter (not display) any output. Note the command always returns the command output 
+            as the function result.
         @option generate Generate in projects. Defaults to true.
         @option noshow Do not show the command line before executing. Useful to override me --show for one command.
         @option nostop Continue processing even if this command is not successful.
