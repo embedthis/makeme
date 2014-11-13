@@ -111,6 +111,9 @@
 #ifndef ME_HTTP_PAM
     #define ME_HTTP_PAM 0
 #endif
+#ifndef ME_INTEGRATE
+    #define ME_INTEGRATE 1
+#endif
 #ifndef ME_MANIFEST
     #define ME_MANIFEST "package/manifest.me"
 #endif
