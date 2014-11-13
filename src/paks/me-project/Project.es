@@ -29,11 +29,14 @@ class Project {
 
     /*
         Generate conditional definitions for component targets
+        TODO - this should really work recursively and go N deep
      */
     function componentDefs() {
         let needed = {}
         for each (target in me.targets) {
+/*  UNUSED - must not use for openssl
             if (target.configurable) continue
+*/
             if (target.explicit || target.enable) {
                 needed[target.name] = true
             }
@@ -68,10 +71,11 @@ class Project {
                 }
             }
         }
+        Object.sortProperties(me.targets)
+
         /*
             Emit ME_COM_* definitions 
          */
-        Object.sortProperties(me.targets)
         for each (let target in me.targets) {
             if (!target.configurable) {
                 continue
@@ -84,6 +88,35 @@ class Project {
                     genWriteLine('!ENDIF')
                 } else {
                     genWriteLine('%-21s ?= %s'.format(['ME_COM_' + name.toUpper(), target.enable ? 1 : 0]))
+                }
+            }
+        }
+        genWriteLine('')
+
+        /*
+            Emit defines
+         */
+        let defined = {}
+        for each (let target in me.targets) {
+            if (!target.configurable) {
+                continue
+            }
+            let name = target.name
+            if (needed[name]) {
+                for each (define in target.defines) {
+                    let [key,value] = define.split('=')
+                    if (!key.contains('ME_COM')) continue
+                    value ||= ''
+                    if (!defined[key]) {
+                        if (me.platform.os == 'windows' ) {
+                            genWriteLine('!IF "$(ME_COM_' + name.toUpper() + ')" == ""')
+                            genWriteLine('%-21s = %s'.format([key, '"' + value + '"']))
+                            genWriteLine('!ENDIF')
+                        } else {
+                            genWriteLine('%-21s ?= %s'.format([key, '"' + value + '"']))
+                        }
+                        defined[key] = true
+                    }
                 }
             }
         }
@@ -515,7 +548,6 @@ class Project {
             trace('Generate', 'project header: ' + hfile.relative)
             path.copy(hfile)
         }
-
         for each (item in options.gen) {
             makeme.generating = generating = item
             trace('Generate', generating + ' file: ' + base.relative)
@@ -597,6 +629,17 @@ class Project {
                 }
             }
         }
+        target.prorDefines = target.defines
+        if (target.defines) {
+            target.defines = target.defines.map(function(e) {
+                let [key,value] = e.split('=')
+                if (key.contains('ME_COM')) {
+                    return key + '="$(' + key + ')' + '"'
+                } else {
+                    return e
+                }
+            })
+        }
         if (target.type == 'lib') {
             if (target.static) {
                 generateStaticLib(target)
@@ -626,6 +669,7 @@ class Project {
             }
         }
         genWriteLine('')
+        target.defines = target.priorDefines
         global.TARGET = me.target = null
     }
 
@@ -1157,7 +1201,7 @@ class Project {
                         if (component) {
                             for each (path in component.libpaths) {
                                 if (path != me.dir.bin) {
-                                    genWriteLine(indent + 'LIBPATHS_' + nextID + ' += -L' + path)
+                                    genWriteLine(indent + 'LIBPATHS_' + nextID + ' += -L"' + path + '"')
                                     command = command.replace('-L' + path, '')
                                 }
                             }
