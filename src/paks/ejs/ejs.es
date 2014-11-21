@@ -4998,7 +4998,7 @@ module ejs {
 /********* Start of file src/core/Global.es ************/
 
 
-/*
+/**
     Global.es -- Global variables, namespaces and functions.
 
     Copyright (c) All Rights Reserved. See details at the end of the file.

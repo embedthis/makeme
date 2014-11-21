@@ -2454,6 +2454,7 @@ PUBLIC void httpAssignQueue(HttpQueue *q, struct HttpStage *stage, int dir);
 #define HTTP_STAGE_UNLOADED       0x20000           /**< Stage module library has been unloaded */
 #define HTTP_STAGE_RX             0x40000           /**< Stage to be used in the Rx direction */
 #define HTTP_STAGE_TX             0x80000           /**< Stage to be used in the Tx direction */
+#define HTTP_STAGE_INTERNAL       0x100000          /**< Internal stage - hidden */
 
 typedef int (*HttpParse)(cchar *key, char *value, void *state);
 
@@ -3721,7 +3722,6 @@ typedef struct HttpAuthStore {
  */
 PUBLIC HttpAuthStore *httpCreateAuthStore(cchar *name, HttpVerifyUser verifyUser);
 
-
 /**
     Control whether sessions and session cookies are created for user logins
     @description By default, a session and response cookie are created when a user is authenticated via #httpLogin.
@@ -3738,11 +3738,12 @@ PUBLIC void httpSetAuthStoreSessions(HttpAuthStore *store, bool noSession);
 /*
     Authorization flags for HttpAuth.flags
  */
-#define HTTP_ALLOW_DENY     0x1           /**< Run allow checks before deny checks */
-#define HTTP_DENY_ALLOW     0x2           /**< Run deny checks before allow checks */
+#define HTTP_ALLOW_DENY         0x1         /**< Run allow checks before deny checks */
+#define HTTP_DENY_ALLOW         0x2         /**< Run deny checks before allow checks */
+#define HTTP_AUTH_NO_SESSION    0x4         /**< Do not create a session when authenticated */
 
-#define HTTP_BLOW_ROUNDS    16
-#define HTTP_BLOW_SALT      16
+#define HTTP_BLOW_ROUNDS        16          /***< Cipher rounds for blowfish encryption */
+#define HTTP_BLOW_SALT          16          /***< Bytes of salt for blowfish encryption */
 
 /**
     AuthType callback to generate a response requesting the user login
@@ -3795,7 +3796,7 @@ typedef struct HttpAuthType {
         HttpVerifyUser httpAddAuthType httpAddRole httpAddUser httpCanUser httpAuthenticate
         httpComputeAllUserAbilities httpComputeUserAbilities httpCreateRole httpCreateAuth httpAdduser
         httpIsAuthenticated httpLogin httpRemoveRole httpRemoveUser httpSetAuthAllow httpSetAuthAnyValidUser
-        httpSetAuthUsername httpSetAuthDeny httpSetAuthOrder httpSetAuthPermittedUsers httpSetAuthForm httpSetAuthQop
+        httpSetAuthUsername httpSetAuthDeny httpSetAuthOrder httpSetAuthPermittedUsers httpSetAuthLogin httpSetAuthQop
         httpSetAuthRealm httpSetAuthRequiredAbilities httpSetAuthType
     @stability Internal
  */
@@ -3811,7 +3812,8 @@ typedef struct HttpAuth {
     MprHash         *abilities;             /**< Set of required abilities (all are required) */
     MprHash         *permittedUsers;        /**< Set of valid users */
     char            *loginPage;             /**< Web page for user login for 'form' type */
-    char            *loggedIn;              /**< Target URI after logging in */
+    char            *loggedInPage;          /**< Target URI after logging in */
+    char            *loggedOutPage;         /**< Target URI after logging out */
     char            *username;              /**< Automatic login username. Password not required if defined */
     char            *qop;                   /**< Quality of service */
     HttpAuthType    *type;                  /**< Authorization protocol type (basic|digest|form|custom)*/
@@ -3841,6 +3843,18 @@ PUBLIC HttpAuth *httpCreateAuth();
     @stability Evolving
  */
 PUBLIC int httpCreateAuthType(cchar *name, HttpAskLogin askLogin, HttpParseAuth parse, HttpSetAuth setAuth);
+
+/**
+    Control whether a session and session cookie will be created for user logins for this authentication route
+    @description By default, a session and response cookie are created when a user is authenticated via #httpLogin.
+    This boosts performance because subsequent requests can supply the cookie and bypass authentication for each
+    subseqent request. This API permits the default behavior to be suppressed and thus no cookie or session will be created.
+    @param auth Auth object created via #httpCreateAuth.
+    @param noSession Set to true to suppress creation of sessions or cookies.
+    @ingroup HttpAuth
+    @stability Prototype
+ */
+PUBLIC void httpSetAuthSession(HttpAuth *auth, bool noSession);
 
 #if DEPRECATE || 1
 #define httpAddAuthType httpCreateAuthType
@@ -4020,21 +4034,6 @@ PUBLIC bool httpLogin(HttpConn *conn, cchar *username, cchar *password);
  */
 PUBLIC void httpLogout(HttpConn *conn);
 
-/**
-    Define the callbabcks for the 'form' authentication type.
-    @description This creates a new route for the login page.
-    @param parent Parent route from which to inherit when creating a route for the login page.
-    @param loginPage Web page URI for the user to enter username and password.
-    @param loginService URI to use for the internal login service. To use your own login URI, set to this the empty string.
-    @param logoutService URI to use to log the user out. To use your won logout URI, set this to the empty string.
-    @param loggedIn The client is redirected to this URI once logged in. Use a "referrer:" prefix to the URI to
-        redirect the user to the referring URI before the loginPage. If the referrer cannot be determined, the base
-        URI is utilized.
-    @ingroup HttpAuth
-    @stability Evolving
- */
-PUBLIC void httpSetAuthForm(struct HttpRoute *parent, cchar *loginPage, cchar *loginService, cchar *logoutService,
-    cchar *loggedIn);
 
 /***************************** Auth Route ************************************/
 /**
@@ -4063,6 +4062,37 @@ PUBLIC void httpSetAuthAnyValidUser(HttpAuth *auth);
     @stability Evolving
  */
 PUBLIC void httpSetAuthDeny(HttpAuth *auth, cchar *ip);
+
+/**
+    Define login service URLs for use with "form" authentication.
+    @description This defines the login form URL and login/out service URLs. 
+        Set arguments to null if they are not required because the application is implementing its own redirection 
+        management during login. This API should not be used for web frameworks like ESP or PHP that define their own
+        login/out services.
+    @param route Route from which to inherit when creating a route for the login pages and services.
+    @param loginPage Web page URI for the user to enter username and password.
+    @param loginService URI to use for the internal login service. To use your own login URI, set to this the empty string.
+    @param logoutService URI to use to log the user out. To use your won logout URI, set this to the empty string.
+    @param loggedInPage The client is redirected to this URI once logged in. Use a "referrer:" prefix to the URI to
+        redirect the user to the referring URI before the loginPage. If the referrer cannot be determined, the base
+        URI is utilized.
+    @param loggedOutPage The client is redirected to this URI once logged in. Use a "referrer:" prefix to the URI to
+        redirect the user to the referring URI before the loginPage. If the referrer cannot be determined, the base
+        URI is utilized.
+    @ingroup HttpAuth
+    @stability Evolving
+ */
+PUBLIC void httpSetAuthFormDetails(struct HttpRoute *route, cchar *loginPage, cchar *loginService, cchar *logoutService,
+    cchar *loggedInPage, cchar *loggedOutPage);
+
+/**
+    Define the login page for use with authentication
+    @param auth Authorization object allocated by #httpCreateAuth.
+    @param uri URI for the login page. Can use "https:///page" to specify the SSL protocol with the current domain.
+    @ingroup HttpAuth
+    @stability Prototype
+ */
+PUBLIC void httpSetAuthLogin(HttpAuth *auth, cchar *value);
 
 /**
     Set the auth allow/deny order
@@ -4125,7 +4155,8 @@ PUBLIC int httpSetAuthStore(HttpAuth *auth, cchar *store);
 /**
     Set the authentication protocol type to use
     @param auth Auth object allocated by #httpCreateAuth.
-    @param proto Protocol name to use. Select from: 'basic', 'digest', 'form'
+    @param proto Protocol name to use. Select from: 'basic', 'digest', 'form' or 'none'. Set to NULL or 'none' to disable
+        authentication.
     @param details Extra protocol details.
     @ingroup HttpAuth
     @stability Evolving
@@ -4226,40 +4257,40 @@ typedef struct HttpCache {
     If manual server-side caching is requested, the response will be automatically cached, but subsequent requests will
     require the handler to explicitly send cached content by calling #httpWriteCached.
     \n\n
-    If client-side caching is requested, a "Cache-Control" Http header will be sent to the client with the caching
-    "max-age" set to the lifespan argument value (converted to seconds). This causes the client to serve client-cached
+    If client-side caching is requested, a 'Cache-Control' Http header will be sent to the client with the caching
+    'max-age' set to the lifespan argument value (converted to seconds). This causes the client to serve client-cached
     content and to not contact the server at all until the max-age expires.
-    Alternatively, you can use #httpSetHeader to explicitly set a "Cache-Control header. For your reference, here are
+    Alternatively, you can use #httpSetHeader to explicitly set a 'Cache-Control' header. For your reference, here are
     some keywords that can be used in the Cache-Control Http header.
     \n\n
-        "max-age" Maximum time in seconds the resource is considered fresh.
-        "s-maxage" Maximum time in seconds the resource is considered fresh from a shared cache.
-        "public" marks authenticated responses as cacheable.
-        "private" shared caches may not store the response.
-        "no-cache" cache must re-submit request for validation before using cached copy.
-        "no-store" response may not be stored in a cache.
-        "must-revalidate" forces clients to revalidate the request with the server.
-        "proxy-revalidate" similar to must-revalidate except only for proxy caches.
+        'max-age' Maximum time in seconds the resource is considered fresh.
+        's-maxage' Maximum time in seconds the resource is considered fresh from a shared cache.
+        'public' marks authenticated responses as cacheable.
+        'private' shared caches may not store the response.
+        'no-cache' cache must re-submit request for validation before using cached copy.
+        'no-store' response may not be stored in a cache.
+        'must-revalidate' forces clients to revalidate the request with the server.
+        'proxy-revalidate' similar to must-revalidate except only for proxy caches.
     \n\n
-    Use client-side caching for static content that will rarely change or for content for which using "reload" in
+    Use client-side caching for static content that will rarely change or for content for which using 'reload' in
     the browser is an adequate solution to force a refresh. Use manual server-side caching for situations where you need to
     explicitly control when and how cached data is returned to the client. For most other situations, use server-side
     caching.
     @param route HttpRoute object
     @param methods List of methods for which caching should be enabled. Set to a comma or space separated list
-        of method names. Method names can be any case. Set to null or "*" for all methods. Example:
-        "GET, POST".
+        of method names. Method names can be any case. Set to null or '*' for all methods. Example:
+        'GET, POST'.
     @param uris Set of URIs to cache.
-        If the URI is set to "*" all URIs for that action are uniquely cached. If the request has POST data,
+        If the URI is set to '*' all URIs for that action are uniquely cached. If the request has POST data,
         the URI may include such post data in a sorted query format. E.g. {uri: /buy?item=scarf&quantity=1}.
     @param extensions List of document extensions for which caching should be enabled. Set to a comma or space
-        separated list of extensions. Extensions should not have a period prefix. Set to null or "*" for all extensions.
-        Example: "html, css, js". The URI may include request parameters in sorted www-urlencoded format. For example:
+        separated list of extensions. Extensions should not have a period prefix. Set to null or '*' for all extensions.
+        Example: 'html, css, js'. The URI may include request parameters in sorted www-urlencoded format. For example:
         /example.esp?hobby=sailing&name=john.
     @param types List of document mime types for which caching should be enabled. Set to a comma or space
         separated list of types. The mime types are those that correspond to the document extension and NOT the
-        content type defined by the handler serving the document. Set to null or "*" for all types.
-        Example: "image/gif, application/x-php".
+        content type defined by the handler serving the document. Set to null or '*' for all types.
+        Example: image/gif, application/x-php.
     @param clientLifespan Lifespan of client cache items in milliseconds. If not set to positive integer,
         the lifespan will default to the route lifespan.
     @param serverLifespan Lifespan of server cache items in milliseconds. If not set to positive integer,
@@ -4267,8 +4298,8 @@ typedef struct HttpCache {
     @param flags Cache control flags. Select HTTP_CACHE_MANUAL to enable manual mode. In manual mode, cached content
         will not be automatically sent. Use #httpWriteCached in the request handler to write previously cached content.
         \n\n
-        Select HTTP_CACHE_CLIENT to enable client-side caching. In this mode a "Cache-Control" Http header will be
-        sent to the client with the caching "max-age". WARNING: the client will not send any request for this URI
+        Select HTTP_CACHE_CLIENT to enable client-side caching. In this mode a 'Cache-Control' Http header will be
+        sent to the client with the caching 'max-age'. WARNING: the client will not send any request for this URI
         until the max-age timeout has expired.
         \n\n
         Select HTTP_CACHE_RESET to first reset existing caching configuration for this route.
@@ -4290,7 +4321,7 @@ PUBLIC void httpAddCache(struct HttpRoute *route, cchar *methods, cchar *uris, c
         contain the request parameters in sorted www-urlencoded format.
         The URI should include any route prefix.
     @param data Data to cache for the URI. If you wish to cache response headers, include those at the start of the
-    data followed by an additional new line. For example: "Content-Type: text/plain\n\nHello World\n".
+    data followed by an additional new line. For example: 'Content-Type: text/plain\n\nHello World\n'.
     @param lifespan Lifespan in milliseconds for the cached content
     @ingroup HttpCache
     @stability Evolving
@@ -4310,7 +4341,7 @@ PUBLIC ssize httpWriteCached(HttpConn *conn);
 /******************************** Action Handler *************************************/
 /**
     Action handler callback signature
-    @description The Action Handler provides a simple mechanism to bind "C" callback functions with URIs.
+    @description The Action Handler provides a simple mechanism to bind 'C' callback functions with URIs.
     @param conn HttpConn connection object created via #httpCreateConn
     @defgroup HttpConn HttpConn
     @stability Evolving
@@ -4372,6 +4403,8 @@ PUBLIC void httpSetStreaming(struct HttpHost *host, cchar *mime, cchar *uri, boo
 #define HTTP_ROUTE_HIDDEN               0x800       /**< Hide this route in route tables. */
 #define HTTP_ROUTE_ENV_ESCAPE           0x1000      /**< Escape env vars */
 #define HTTP_ROUTE_DOTNET_DIGEST_FIX    0x2000      /**< .NET digest auth omits query in MD5 */
+#define HTTP_ROUTE_REDIRECT             0x4000      /**< Redirect secureCondition */
+#define HTTP_ROUTE_STRICT_TLS           0x8000      /**< Emit Strict-Transport-Security header */
 
 /**
     Route Control
@@ -4399,7 +4432,7 @@ typedef struct HttpRoute {
     char            *startSegment;          /**< Starting literal segment of pattern (includes prefix) */
     char            *startWith;             /**< Starting literal segment of pattern (includes prefix) */
     char            *optimizedPattern;      /**< Processed pattern (excludes prefix) */
-    char            *prefix;                /**< Application scriptName prefix. Set to "" for "/". Always set */
+    char            *prefix;                /**< Application scriptName prefix. Set to '' for '/'. Always set */
     char            *serverPrefix;          /**< Prefix for the server-side. Does not include prefix. Always set */
     char            *tplate;                /**< URI template for forming links based on this route (includes prefix) */
     char            *targetRule;            /**< Target rule */
@@ -4425,7 +4458,7 @@ typedef struct HttpRoute {
     cchar           *responseFormat;        /**< Client response format */
     cchar           *client;                /**< Configuration to send to the client */
 
-    bool            combine: 1;             /**< Compile the application in "combine" mode */
+    bool            combine: 1;             /**< Compile the application in 'combine' mode */
     bool            error: 1;               /**< Parse or runtime error */
     bool            keepSource: 1;          /**< Preserve generated source */
     bool            loaded: 1;              /**< App has been loaded */
@@ -4564,7 +4597,7 @@ PUBLIC HttpRouteSetProc httpDefineRouteSet(cchar *name, HttpRouteSetProc fn);
     Get a route directory variable
     @description This looks up the value of the directory
     @param route Route to modify
-    @param name Lower case name of the directory. This should not include the "_DIR" suffix.
+    @param name Lower case name of the directory. This should not include the '_DIR' suffix.
     @return Directory path
     @ingroup HttpRoute
     @stability Prototype
@@ -4577,7 +4610,7 @@ PUBLIC cchar *httpGetDir(HttpRoute *route, cchar *name);
     @param route Parent route to configure
     @param path Filename of the JSON configuration file. If this is a relative path, it will be resolved relative
         to the routes home directory.
-    @return "Zero" if successful, otherwise a negative MPR error code.
+    @return 'Zero' if successful, otherwise a negative MPR error code.
     @ingroup HttpRoute
     @stability Prototype
  */
@@ -4585,7 +4618,7 @@ PUBLIC int httpLoadConfig(HttpRoute *route, cchar *path);
 
 /**
     Define the default directory route variables
-    @description This defines the default directories for the "cache", "client", "pak" and "public" directories.
+    @description This defines the default directories for the 'cache', 'client', 'pak' and 'public' directories.
     @param route Route to modify
     @ingroup HttpRoute
     @stability Prototype
@@ -4611,7 +4644,7 @@ PUBLIC void httpSetDir(HttpRoute *route, cchar *name, cchar *value);
         <tr><td>home</td><td>GET,POST,PUT</td><td>^/$</td><td>index.esp</td></tr>
     </table>
     @param route Parent route from which to inherit configuration.
-    @param set Route set to select. Use "angular-mvc", or "html-mvc".
+    @param set Route set to select. Use 'angular-mvc', or 'html-mvc'.
     @ingroup HttpRoute
     @stability Prototype
  */
