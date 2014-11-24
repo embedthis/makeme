@@ -1501,7 +1501,7 @@ PUBLIC cchar *httpLookupMimeType(cchar *ext);
     Normalize a URI
     @description Validate and canonicalize a URI. This invokes httpNormalizeUriPath to normalize the URI path.
     @param uri URI object to normalize
-    @return The supplied uri so it can be used in chaining.
+    @return The supplied uri so it can be used in chaining. Returns null if the URI cannot be normalized.
     @ingroup HttpUri
     @stability Stable
  */
@@ -1512,7 +1512,7 @@ PUBLIC HttpUri *httpNormalizeUri(HttpUri *uri);
     @description Validate and canonicalize a URI path. This removes redundant "./" sequences and simplifies "../dir"
         references.
     @param uri Uri path string to normalize. This is the URI path portion without scheme, host and port components.
-    @return A new validated uri string.
+    @return A new validated uri string. Returns null if the URI cannot be normalized.
     @ingroup HttpUri
     @stability Stable
  */
@@ -1658,6 +1658,7 @@ PUBLIC char *httpUriToString(HttpUri *uri, int flags);
     @param uri URI to validate.
     @return A validated, normalized URI path
     @stability Evolving
+    @ingroup HttpUri
  */
 PUBLIC char *httpValidateUriPath(cchar *uri);
 
@@ -1669,6 +1670,7 @@ PUBLIC char *httpValidateUriPath(cchar *uri);
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%"
     @param uri Uri to test
     @return True if the URI string is comprised of legal URI characters.
+    @ingroup HttpUri
   */
 PUBLIC bool httpValidUriChars(cchar *uri);
 

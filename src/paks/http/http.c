@@ -497,7 +497,7 @@ static int parseArgs(int argc, char **argv)
             if (nextArg >= argc) {
                 return showUsage();
             } else {
-                app->username = argv[++nextArg];
+                app->username = sclone(argv[++nextArg]);
             }
 
         } else if (smatch(argp, "--verify")) {
@@ -909,7 +909,8 @@ static int issueRequest(HttpConn *conn, cchar *url, MprList *files)
     if (conn->error) {
         msg = (conn->errorMsg) ? conn->errorMsg : "";
         sep = (msg && *msg) ? "\n" : "";
-        mprLog("error http", 0, "Failed \"%s\" request for %s after %d attempt(s).%s%s", app->method, url, count, sep, msg);
+        mprLog("error http", 0, "Failed \"%s\" request for %s after %d attempt(s).%s%s", 
+            app->method, url, count + 1, sep, msg);
         return MPR_ERR_CANT_CONNECT;
     }
     return 0;
