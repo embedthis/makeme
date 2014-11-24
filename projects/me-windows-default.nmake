@@ -136,6 +136,7 @@ ME_CACHE_PREFIX       = $(ME_VAPP_PREFIX)\cache
 ME_SRC_PREFIX         = $(ME_VAPP_PREFIX)\src
 
 
+TARGETS               = $(TARGETS) init
 !IF "$(ME_COM_EJS)" == "1"
 TARGETS               = $(TARGETS) build\$(CONFIG)\bin\ejs.mod
 !ENDIF

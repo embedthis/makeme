@@ -4094,7 +4094,7 @@ PUBLIC void httpSetAuthFormDetails(struct HttpRoute *route, cchar *loginPage, cc
     @ingroup HttpAuth
     @stability Prototype
  */
-PUBLIC void httpSetAuthLogin(HttpAuth *auth, cchar *value);
+PUBLIC void httpSetAuthLogin(HttpAuth *auth, cchar *uri);
 
 /**
     Set the auth allow/deny order
@@ -4323,7 +4323,7 @@ PUBLIC void httpAddCache(struct HttpRoute *route, cchar *methods, cchar *uris, c
         contain the request parameters in sorted www-urlencoded format.
         The URI should include any route prefix.
     @param data Data to cache for the URI. If you wish to cache response headers, include those at the start of the
-    data followed by an additional new line. For example: 'Content-Type: text/plain\n\nHello World\n'.
+    data followed by an additional new line.
     @param lifespan Lifespan in milliseconds for the cached content
     @ingroup HttpCache
     @stability Evolving
