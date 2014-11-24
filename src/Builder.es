@@ -1020,7 +1020,6 @@ public class Builder {
         Called with the desired goal. Goal will be set to true when being called for a required dependent.
      */
     function selectDependentTargets(target, goal) {
-
         /*
             Optimize by only processing dependents once
          */
@@ -1093,7 +1092,14 @@ public class Builder {
             target.selected = false
         }
         for each (target in me.targets) {
-            selectDependentTargets(target, goal)
+            if (target.first) {
+                selectDependentTargets(target, goal)
+            }
+        }
+        for each (target in me.targets) {
+            if (!target.first) {
+                selectDependentTargets(target, goal)
+            }
         }
         if (selectedTargets.length == 0) {
             if (goal != 'all') {
