@@ -5,11 +5,11 @@ Embedthis MakeMe. A modern replacement for autoconf/make.
 
 Licensing
 ---
-See [LICENSE.md](https://github.com/embedthis/me/blob/master/LICENSE.md) for details.
+See [LICENSE.md](https://github.com/embedthis/makeme/blob/master/LICENSE.md) for details.
 
 ### Documentation:
 
-    Coming soon at https://embedthis.com/me/doc/index.html
+    Coming soon at https://embedthis.com/makeme/doc/index.html
 
 ### To build first time:
 
@@ -29,5 +29,5 @@ See [LICENSE.md](https://github.com/embedthis/me/blob/master/LICENSE.md) for det
 
 Resources
 ---
-  - [MakeMe Web Site](https://embedthis.com/me/)
+  - [MakeMe Web Site](https://embedthis.com/makeme/)
   - [MakeMe GitHub repository](https://github.com/embedthis/me)
