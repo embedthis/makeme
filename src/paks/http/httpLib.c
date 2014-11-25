@@ -4596,7 +4596,7 @@ static void parseRedirect(HttpRoute *route, cchar *key, MprJson *prop)
     int         ji;
 
     if (prop->type & MPR_JSON_STRING) {
-        if (smatch(prop->value, "secure")) {
+        if (smatch(prop->value, "secure") ||smatch(prop->value, "https://")) {
             httpAddRouteCondition(route, "secure", "https://", HTTP_ROUTE_REDIRECT);
         } else {
             createRedirectAlias(route, 0, "/", prop->value);
