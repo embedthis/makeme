@@ -7393,6 +7393,8 @@ PUBLIC void httpStopEndpoint(HttpEndpoint *endpoint);
 #define HTTP_HOST_VHOST         0x1         /**< Host flag to signify host is a virtual host */
 #define HTTP_HOST_NAMED_VHOST   0x2         /**< Host flag for a named virtual host */
 #define HTTP_HOST_NO_TRACE      0x10        /**< Host flag to disable the of TRACE HTTP method */
+#define HTTP_HOST_WILD_STARTS   0x20        /**< Host header starts with pattern */
+#define HTTP_HOST_WILD_CONTAINS 0x40        /**< Host header contains the host name */
 
 /**
     Host Object

@@ -7827,12 +7827,16 @@ PUBLIC HttpHost *httpLookupHostOnEndpoint(HttpEndpoint *endpoint, cchar *hostHea
         if (smatch(host->name, hostHeader)) {
             return host;
         }
-        if (*host->name == '*') {
-            if (host->name[1] == '\0') {
-                /* Match all hosts */
+        if (*host->name == '\0') {
+            /* Match all hosts */
+            return host;
+        }
+        if (host->flags & HTTP_HOST_WILD_STARTS) {
+            if (sstarts(hostHeader, host->name)) {
                 return host;
             }
-            if (scontains(hostHeader, &host->name[1])) {
+        } else if (host->flags & HTTP_HOST_WILD_CONTAINS) {
+            if (scontains(hostHeader, host->name)) {
                 return host;
             }
         }
@@ -8880,7 +8884,16 @@ PUBLIC void httpLogRoutes(HttpHost *host, bool full)
 
 PUBLIC void httpSetHostName(HttpHost *host, cchar *name)
 {
-    host->name = sclone(name);
+    if (!name || *name == '\0') {
+        mprLog("error http", 0, "Host name is empty");
+    }
+    if (sends(name, "*")) {
+        host->flags |= HTTP_HOST_WILD_STARTS;
+
+    } else if (name && *name == '*') {
+        host->flags |= HTTP_HOST_WILD_CONTAINS;
+    }
+    host->name = strim(name, "*", 0);
 }
 
 

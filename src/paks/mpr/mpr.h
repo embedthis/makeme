@@ -4029,7 +4029,7 @@ PUBLIC MprLogHandler mprGetLogHandler();
     @param level Logging level for this message. The level is 0-5 with five being the most verbose.
     @param fmt Printf style format string. Variable number of arguments to
     @param ... Variable number of arguments for printf data
-    @remarks mprLog is highly useful as a debugging aid when integrating or when developing new modules.
+    @remarks mprLog is highly useful as a debugging aid.
     @ingroup MprLog
     @stability Evolving
  */
@@ -9481,7 +9481,9 @@ PUBLIC int mprSetMimeProgram(MprHash *table, cchar *mimeType, cchar *program);
 #define MPR_LOG_CONFIG      0x2         /**< Show the configuration at the start of the log */
 #define MPR_LOG_CMDLINE     0x4         /**< Command line log switch uses */
 #define MPR_LOG_DETAILED    0x8         /**< Use detailed log formatting with timestamps and tags */
-#define MPR_NOT_ALL         0x10        /**< Don't invoke all destructors when terminating */
+#define MPR_LOG_TAGGED      0x10        /**< Use tagged message formatting */
+
+#define MPR_NOT_ALL         0x20        /**< Don't invoke all destructors when terminating */
 
 typedef bool (*MprIdleCallback)(bool traceRequests);
 

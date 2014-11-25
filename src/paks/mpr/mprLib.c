@@ -15763,7 +15763,7 @@ PUBLIC int mprStartLogging(cchar *logSpec, int flags)
         }
 #endif
     }
-    MPR->flags |= (flags & (MPR_LOG_DETAILED | MPR_LOG_ANEW | MPR_LOG_CONFIG | MPR_LOG_CMDLINE));
+    MPR->flags |= (flags & (MPR_LOG_DETAILED | MPR_LOG_ANEW | MPR_LOG_CONFIG | MPR_LOG_CMDLINE | MPR_LOG_TAGGED));
 
     if (level >= 0) {
         mprSetLogLevel(level);
@@ -15920,17 +15920,7 @@ static void backupLog()
 /*
     If MPR_LOG_DETAILED with tags, the format is:
         MM/DD/YY HH:MM:SS LEVEL TAGS, Message
-
-    else if tags provided and level 0
-        ProgramName: error: Message
-
-    else if level > 0
-        ProgramName: Message
-
-    else if tags are provided, output format is:
-
-    else if tags == null, the format is:
-        Message
+    Otherwise just the message is output
  */
 PUBLIC void mprDefaultLogHandler(cchar *tags, int level, cchar *msg)
 {
@@ -15944,9 +15934,19 @@ PUBLIC void mprDefaultLogHandler(cchar *tags, int level, cchar *msg)
     if (MPR->logBackup && MPR->logSize && (check++ % 1000) == 0) {
         backupLog();
     }
-    if (MPR->flags & MPR_LOG_DETAILED && tags && *tags) {
-        fmt(tbuf, sizeof(tbuf), "%s %d %s, ", mprGetDate(MPR_LOG_DATE), level, tags);
-        mprWriteFileString(file, tbuf);
+    if (tags && *tags) {
+        if (MPR->flags & MPR_LOG_DETAILED) {
+            fmt(tbuf, sizeof(tbuf), "%s %d %s, ", mprGetDate(MPR_LOG_DATE), level, tags);
+            mprWriteFileString(file, tbuf);
+        } else if (MPR->flags & MPR_LOG_TAGGED) {
+            if (schr(tags, ' ')) {
+                tags = stok(sclone(tags), " ", NULL);
+            }
+            if (!isupper((uchar) *tags)) {
+                tags = stitle(tags);
+            }
+            mprWriteFileFmt(file, "%12s ", sfmt("[%s]", tags));
+        }
     }
     mprWriteFileString(file, msg);
     mprWriteFileString(file, "\n");
