@@ -476,12 +476,36 @@ public function removePath(path: Path) {
     }
 }
 
+
+/**
+    Run a command and trace output if copt.show or options.show
+    @param command Command to run. May be an array of args or a string.
+    @param copt Options. These are also passed to $Cmd.
+    @option dir Change to given directory to run the command.
+    @option filter Do not display output to the console if it contains the specified filter pattern.
+        Set to true to filter (not display) any output. Note the command always returns the command output
+        as the function result.
+    @option generate Generate in projects. Defaults to true.
+    @option noshow Do not show the command line before executing. Useful to override me --show for one command.
+    @option nostop Continue processing even if this command is not successful.
+    @option show Show the command line before executing. Similar to me --show, but operates on just this command.
+    @option timeout Timeout for the command to complete
+
+    Note: do not use the Cmd options: noio, detach. Use Cmd APIs directly.
+ */
 public function run(command, copt = {}): String
     makeme.builder.run(command, copt)
 
+/**
+    @hide
+ */
 public function sh(command, copt = {}): String
     makeme.builder.sh(command, copt)
 
+/**
+    Safely copy a file. This protects against overwriting the target unless the "overwrite" command line
+    option was specified. Copies are traced to the console.
+ */
 public function safeCopy(from: Path, to: Path) {
     let p: Path = new Path(to)
     if (to.exists && !makeme.options.overwrite) {
@@ -501,6 +525,9 @@ public function safeCopy(from: Path, to: Path) {
     cp(from, to)
 }
 
+/**
+    Safely remove a directory. This protects against removing some major system directories.
+ */
 public function safeRemove(dir: Path) {
     if (sysdirs[dir]) {
         App.log.error("prevent removal of", dir)
@@ -518,6 +545,10 @@ public function safeRemove(dir: Path) {
 public function strace(tag, ...args)
     makeme.strace(tag, ...args)
 
+/**
+    Touch a directory and update its last modified time
+    @param path Directory path to modify
+ */
 function touchDir(path: Path) {
     if (path.isDir) {
         let touch = path.join('.touch')
@@ -527,6 +558,10 @@ function touchDir(path: Path) {
     }
 }
 
+/**
+    Touch a file and update its last modified time
+    @param path File path to modify
+ */
 public function touchFile(path: Path) {
     if (!makeme.generating) {
         if (!options.dry) {
@@ -550,9 +585,19 @@ public function touchFile(path: Path) {
 public function trace(tag: String, ...args): Void
     makeme.trace(tag, ...args)
 
+/**
+    Emit trace for a path
+    @param msg Message to display
+    @param path Filename to to trace
+ */
 public function traceFile(msg, path): Void
     makeme.traceFile(msg, path)
 
+/**
+    Emit verbose trace
+    @param tag Informational tag emitted before the message
+    @param args Message args to display
+ */
 public function vtrace(tag, ...args)
     makeme.vtrace(tag, ...args)
 
@@ -699,9 +744,10 @@ internal function repCmd(s: String, pattern, replacement): String {
     return s
 }
 
-/*
+/**
     Replace default defines, includes, libraries etc with token equivalents. This allows
     Makefiles and script to be use variables to control various flag settings.
+    @hide
  */
 public function repcmd(command: String): String {
     //  generator.settings == gen
