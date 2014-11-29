@@ -337,17 +337,8 @@ static bool exists(cchar *fmt, ...)
 }
 
 
-static void report(bool success, cchar *activity, cchar *fmt, ...)
+static void report(bool success, cchar *activity)
 {
-    va_list     args;
-    cchar       *msg;
-
-    msg = "";
-    if (fmt) {
-        va_start(args, fmt);
-        msg = sfmtv(fmt, args);
-        va_end(args);
-    }
     mprLog("run", 2, "%s", app->command);
     if (!success) {
         mprLog("error", 1, "Failed to %s. %s", activity, app->error);
@@ -357,18 +348,6 @@ static void report(bool success, cchar *activity, cchar *fmt, ...)
     if (app->output && *app->output) {
         mprLog("output", 2, "%s", app->output);
     }
-#if 0
-    if (!rc && app->error && *app->error) {
-        mprLog("error manager", 0, "Cannot run command: %s, %s", app->command, app->error);
-    }
-    /* Logging at level one will be visible if appman -v is used */
-    if (app->error && *app->error) {
-        mprLog("error manager", 1, "Error: %s", app->error);
-    }
-    if (app->output && *app->output) {
-        mprLog("error manager", 1, "Output: %s", app->output);
-    }
-#endif
 }
 
 
@@ -595,7 +574,7 @@ static bool process(cchar *operation, bool quiet)
     } else {
         mprLog("error manager", 0, "Unknown command: \"%s\"", operation);
     }
-    report(rc, verb, NULL);
+    report(rc, verb);
     return rc;
 }
 

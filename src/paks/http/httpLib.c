@@ -3707,15 +3707,15 @@ static void blendMode(HttpRoute *route, MprJson *config)
     MprJson     *currentMode, *app;
     cchar       *mode;
 
-    mode = mprReadJson(config, "app.mode");
+    mode = mprGetJson(config, "app.mode");
     if (!mode) {
         mode = sclone("debug");
     }
     route->debug = smatch(mode, "debug");
-    if ((currentMode = mprReadJsonObj(config, sfmt("app.modes.%s", mode))) != 0) {
+    if ((currentMode = mprGetJsonObj(config, sfmt("app.modes.%s", mode))) != 0) {
         app = mprReadJsonObj(config, "app");
         mprBlendJson(app, currentMode, MPR_JSON_OVERWRITE);
-        mprWriteJson(app, "app.mode", mode);
+        mprSetJson(app, "app.mode", mode);
     }
 }
 
@@ -3784,17 +3784,17 @@ static void clientCopy(HttpRoute *route, MprJson *dest, MprJson *obj)
         if (child->type & MPR_JSON_OBJ) {
             job = mprCreateJson(MPR_JSON_OBJ);
             clientCopy(route, job, child);
-            mprWriteJsonObj(dest, child->name, job);
+            mprSetJsonObj(dest, child->name, job);
         } else {
             key = child->value;
             if (sends(key, "|time")) {
                 key = ssplit(sclone(key), " \t|", NULL);
-                if ((value = mprReadJson(route->config, key)) != 0) {
-                    mprWriteJson(dest, child->name, itos(httpGetTicks(value)));
+                if ((value = mprGetJson(route->config, key)) != 0) {
+                    mprSetJson(dest, child->name, itos(httpGetTicks(value)));
                 }
             } else {
-                if ((jvalue = mprReadJsonObj(route->config, key)) != 0) {
-                    mprWriteJsonObj(dest, child->name, mprCloneJson(jvalue));
+                if ((jvalue = mprGetJsonObj(route->config, key)) != 0) {
+                    mprSetJsonObj(dest, child->name, mprCloneJson(jvalue));
                 }
             }
         }
@@ -3814,12 +3814,12 @@ static void postParse(HttpRoute *route)
         return;
     }
     http = route->http;
-    route->mode = mprReadJson(route->config, "app.mode");
+    route->mode = mprGetJson(route->config, "app.mode");
 
     /*
         Create a subset, optimized configuration to send to the client
      */
-    if ((mappings = mprReadJsonObj(route->config, "app.client.mappings")) != 0) {
+    if ((mappings = mprGetJsonObj(route->config, "app.client.mappings")) != 0) {
         client = mprCreateJson(MPR_JSON_OBJ);
         clientCopy(route, client, mappings);
         mprWriteJson(client, "prefix", route->prefix);
@@ -3924,7 +3924,7 @@ static void parseAuthAutoRoles(HttpRoute *route, cchar *key, MprJson *prop)
     MprJson     *child, *job;
     int         ji;
 
-    if ((job = mprReadJsonObj(route->config, "app.http.auth.roles")) != 0) {
+    if ((job = mprGetJsonObj(route->config, "app.http.auth.roles")) != 0) {
         parseAuthRoles(route, "app.http.auth.roles", job);
     }
     abilities = mprCreateHash(0, 0);
@@ -3936,7 +3936,7 @@ static void parseAuthAutoRoles(HttpRoute *route, cchar *key, MprJson *prop)
         for (ITERATE_KEYS(abilities, kp)) {
             mprSetJson(job, "$", kp->key);
         }
-        mprWriteJsonObj(route->config, "app.http.auth.auto.abilities", job);
+        mprSetJsonObj(route->config, "app.http.auth.auto.abilities", job);
     }
 }
 
@@ -4121,7 +4121,7 @@ static void parseContentCompress(HttpRoute *route, cchar *key, MprJson *prop)
     int         ji;
 
     for (ITERATE_CONFIG(route, prop, child, ji)) {
-        if (mprReadJson(route->config, sfmt("app.http.content.minify[@ = '%s']", child->value))) {
+        if (mprGetJson(route->config, sfmt("app.http.content.minify[@ = '%s']", child->value))) {
             httpAddRouteMapping(route, child->value, "${1}.gz, min.${1}.gz, min.${1}");
         } else {
             httpAddRouteMapping(route, child->value, "${1}.gz");
@@ -4133,7 +4133,7 @@ static void parseContentCompress(HttpRoute *route, cchar *key, MprJson *prop)
 #if DEPRECATED || 1
 static void parseContentKeep(HttpRoute *route, cchar *key, MprJson *prop)
 {
-    if (mprReadJson(prop, "[@=c]")) {
+    if (mprGetJson(prop, "[@=c]")) {
         route->keepSource = 1;
     }
 }
@@ -4149,7 +4149,7 @@ static void parseContentMinify(HttpRoute *route, cchar *key, MprJson *prop)
         /*
             Compressed and minified is handled in parseContentCompress
          */
-        if (mprReadJson(route->config, sfmt("app.http.content.compress[@ = '%s']", child->value)) == 0) {
+        if (mprGetJson(route->config, sfmt("app.http.content.compress[@ = '%s']", child->value)) == 0) {
             httpAddRouteMapping(route, child->value, "min.${1}");
         }
     }
@@ -4676,7 +4676,7 @@ PUBLIC void httpAddRouteSet(HttpRoute *route, cchar *set)
 
 static void setConfigDefaults(HttpRoute *route)
 {
-    route->mode = mprReadJson(route->config, "app.mode");
+    route->mode = mprGetJson(route->config, "app.mode");
     if (smatch(route->mode, "debug")) {
         httpSetRouteShowErrors(route, 1);
         route->keepSource = 1;
