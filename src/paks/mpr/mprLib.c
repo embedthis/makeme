@@ -12130,8 +12130,8 @@ PUBLIC MprKey *mprAddKey(MprHash *hash, cvoid *key, cvoid *ptr)
     MprKey      *sp, *prevSp;
     int         index;
 
-    if (hash == 0) {
-        assert(hash);
+    if (hash == 0 || key == 0) {
+        assert(hash && key);
         return 0;
     }
     lock(hash);
@@ -13228,7 +13228,7 @@ PUBLIC int mprBlendJson(MprJson *dest, MprJson *src, int flags)
                         trimmedName = &sp->name[1];
                     }
                 }
-                if ((dp = mprLookupJsonObj(dest, trimmedName)) == 0) {
+                if ((dp = mprReadJsonObj(dest, trimmedName)) == 0) {
                     /* Absent in destination */
                     if (pflags & MPR_JSON_COMBINE && sp->type == MPR_JSON_OBJ) {
                         dp = mprCreateJson(sp->type);
@@ -13260,7 +13260,7 @@ PUBLIC int mprBlendJson(MprJson *dest, MprJson *src, int flags)
     } else if (src->type & MPR_JSON_ARRAY) {
         if (flags & MPR_JSON_REPLACE) {
             for (ITERATE_JSON(src, sp, si)) {
-                if ((child = mprLookupJsonValue(dest, sp->value)) != 0) {
+                if ((child = mprReadJsonValue(dest, sp->value)) != 0) {
                     mprRemoveJsonChild(dest, child);
                 }
             }
@@ -13268,7 +13268,7 @@ PUBLIC int mprBlendJson(MprJson *dest, MprJson *src, int flags)
             ;
         } else if (flags & MPR_JSON_APPEND) {
             for (ITERATE_JSON(src, sp, si)) {
-                if ((child = mprLookupJsonValue(dest, sp->value)) == 0) {
+                if ((child = mprReadJsonValue(dest, sp->value)) == 0) {
                     appendProperty(dest, mprCloneJson(sp));
                 }
             }
@@ -13301,7 +13301,7 @@ PUBLIC int mprBlendJson(MprJson *dest, MprJson *src, int flags)
 /*
     Simple one-level lookup. Returns the actual JSON object and not a clone.
  */
-PUBLIC MprJson *mprLookupJsonObj(MprJson *obj, cchar *name)
+PUBLIC MprJson *mprReadJsonObj(MprJson *obj, cchar *name)
 {
     MprJson      *child;
     int         i, index;
@@ -13334,18 +13334,18 @@ PUBLIC MprJson *mprLookupJsonObj(MprJson *obj, cchar *name)
 }
 
 
-PUBLIC cchar *mprLookupJson(MprJson *obj, cchar *name)
+PUBLIC cchar *mprReadJson(MprJson *obj, cchar *name)
 {
     MprJson     *item;
 
-    if ((item = mprLookupJsonObj(obj, name)) != 0 && item->type & MPR_JSON_VALUE) {
+    if ((item = mprReadJsonObj(obj, name)) != 0 && item->type & MPR_JSON_VALUE) {
         return item->value;
     }
     return 0;
 }
 
 
-PUBLIC MprJson *mprLookupJsonValue(MprJson *obj, cchar *value)
+PUBLIC MprJson *mprReadJsonValue(MprJson *obj, cchar *value)
 {
     MprJson     *child;
     int         i;
@@ -13462,7 +13462,13 @@ static char *splitExpression(char *property, int *operator, char **value)
     char    *seps, *op, *end, *vp;
     ssize   i;
 
+    assert(property);
+    assert(operator);
+    assert(value);
+
     seps = JSON_EXPR_CHARS " \t";
+    *value = 0;
+
     if ((op = spbrk(property, seps)) == 0) {
         return 0;
     }
@@ -13526,7 +13532,9 @@ static bool matchExpression(MprJson *obj, int operator, char *value)
     if (!(obj->type & MPR_JSON_VALUE)) {
         return 0;
     }
-    value = stok(value, "'\"", NULL);
+    if ((value = stok(value, "'\"", NULL)) == 0) {
+        return 0;
+    }
     switch (operator) {
     case JSON_OP_EQ:
         return smatch(obj->value, value);
@@ -13682,7 +13690,9 @@ static MprJson *queryRange(MprJson *obj, char *property, cchar *rest, MprJson *v
     if (!(obj->type & MPR_JSON_ARRAY)) {
         return result;
     }
-    s = stok(property, ": \t", &e);
+    if ((s = stok(property, ": \t", &e)) == 0) {
+        return result;
+    }
     start = (ssize) stoi(s);
     end = (ssize) stoi(e);
     if (start < 0) {
@@ -13781,13 +13791,13 @@ static MprJson *queryLeaf(MprJson *obj, cchar *property, MprJson *value, int fla
         return 0;
 
     } else if (flags & MPR_JSON_REMOVE) {
-        if ((child = mprLookupJsonObj(obj, property)) != 0) {
+        if ((child = mprReadJsonObj(obj, property)) != 0) {
             return mprRemoveJsonChild(obj, child);
         }
         return 0;
 
     } else {
-        return mprCloneJson(mprLookupJsonObj(obj, property));
+        return mprCloneJson(mprReadJsonObj(obj, property));
     }   
 }
 
@@ -13842,7 +13852,7 @@ static MprJson *queryCore(MprJson *obj, cchar *key, MprJson *value, int flags)
             appendItem(result, queryLeaf(obj, property, value, flags));
             break;
 
-        } else if ((child = mprLookupJsonObj(obj, property)) == 0) {
+        } else if ((child = mprReadJsonObj(obj, property)) == 0) {
             if (value) {
                 child = mprCreateJson(termType & JSON_PROP_ARRAY ? MPR_JSON_ARRAY : MPR_JSON_OBJ);
                 setProperty(obj, sclone(property), child);
@@ -13869,7 +13879,7 @@ PUBLIC MprJson *mprGetJsonObj(MprJson *obj, cchar *key)
     MprJson      *result;
 
     if (key && !strpbrk(key, ".[]*")) {
-        return mprLookupJsonObj(obj, key);
+        return mprReadJsonObj(obj, key);
     }
     if ((result = mprQueryJson(obj, key, 0, 0)) != 0 && result->children) {
         return result->children;
@@ -13883,7 +13893,7 @@ PUBLIC cchar *mprGetJson(MprJson *obj, cchar *key)
     MprJson      *result;
 
     if (key && !strpbrk(key, ".[]*")) {
-        return mprLookupJson(obj, key);
+        return mprReadJson(obj, key);
     }
     if ((result = mprQueryJson(obj, key, 0, 0)) != 0) {
         if (result->length == 1 && result->children->type & MPR_JSON_VALUE) {
@@ -13989,7 +13999,7 @@ static MprJson *setProperty(MprJson *obj, cchar *name, MprJson *child)
     if (!obj || !child) {
         return 0;
     }
-    if ((existing = mprLookupJsonObj(obj, name)) != 0) {
+    if ((existing = mprReadJsonObj(obj, name)) != 0) {
         existing->value = child->value;
         existing->children = child->children;
         existing->type = child->type;
@@ -14156,6 +14166,25 @@ PUBLIC MprHash *mprJsonToHash(MprJson *json)
     }
     return hash;
 }
+
+
+PUBLIC int mprWriteJson(MprJson *obj, cchar *key, cchar *value)
+{
+    if (setProperty(obj, sclone(key), createJsonValue(value)) == 0) {
+        return MPR_ERR_CANT_WRITE;
+    }
+    return 0;
+}
+
+
+PUBLIC int mprWriteJsonObj(MprJson *obj, cchar *key, MprJson *value)
+{
+    if (setProperty(obj, sclone(key), value) == 0) {
+        return MPR_ERR_CANT_WRITE;
+    }
+    return 0;
+}
+
 
 /*
     @copy   default
@@ -15940,7 +15969,7 @@ PUBLIC void mprDefaultLogHandler(cchar *tags, int level, cchar *msg)
             mprWriteFileString(file, tbuf);
         } else if (MPR->flags & MPR_LOG_TAGGED) {
             if (schr(tags, ' ')) {
-                tags = stok(sclone(tags), " ", NULL);
+                tags = ssplit(sclone(tags), " ", NULL);
             }
             if (!isupper((uchar) *tags)) {
                 tags = stitle(tags);
@@ -24411,6 +24440,38 @@ PUBLIC char *sreplace(cchar *str, cchar *pattern, cchar *replacement)
     }
     mprAddNullToBuf(buf);
     return sclone(mprGetBufStart(buf));
+}
+
+
+/*
+    Split a string at a delimiter and return the parts.
+    This differs from stok in that it never returns null. Also, stok eats leading deliminators, whereas 
+    ssplit will return an empty string if there are leading deliminators.
+    Note: Modifies the original string and returns the string for chaining.
+ */
+PUBLIC char *ssplit(char *str, cchar *delim, char **last)
+{
+    char    *end;
+
+    if (last) {
+        *last = MPR->emptyString;
+    }
+    if (str == 0) {
+        return MPR->emptyString;
+    }
+    if (delim == 0 || *delim == '\0') {
+        return str;
+    }
+    if ((end = strpbrk(str, delim)) != 0) {
+        *end++ = '\0';
+        end += strspn(end, delim);
+    } else {
+        end = MPR->emptyString;
+    }
+    if (last) {
+        *last = end;
+    }
+    return str;
 }
 
 

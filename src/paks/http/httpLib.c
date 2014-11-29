@@ -2717,7 +2717,7 @@ static cchar *setHeadersFromCache(HttpConn *conn, cchar *content)
         headers = snclone(content, data - content);
         data += 2;
         for (header = stok(headers, "\n", &tok); header; header = stok(NULL, "\n", &tok)) {
-            key = stok(header, ": ", &value);
+            key = ssplit(header, ": ", &value);
             if (smatch(key, "X-Status")) {
                 conn->tx->status = (int) stoi(value);
             } else {
@@ -3461,7 +3461,7 @@ PUBLIC ssize httpWriteUploadData(HttpConn *conn, MprList *fileData, MprList *for
     rc = 0;
     if (formData) {
         for (rc = next = 0; rc >= 0 && (pair = mprGetNextItem(formData, &next)) != 0; ) {
-            key = stok(sclone(pair), "=", &value);
+            key = ssplit(sclone(pair), "=", &value);
             rc += httpWrite(conn->writeq, "%s\r\nContent-Disposition: form-data; name=\"%s\";\r\n", conn->boundary, key);
             rc += httpWrite(conn->writeq, "Content-Type: application/x-www-form-urlencoded\r\n\r\n%s\r\n", value);
         }
@@ -3707,15 +3707,15 @@ static void blendMode(HttpRoute *route, MprJson *config)
     MprJson     *currentMode, *app;
     cchar       *mode;
 
-    mode = mprGetJson(config, "app.mode");
+    mode = mprReadJson(config, "app.mode");
     if (!mode) {
         mode = sclone("debug");
     }
     route->debug = smatch(mode, "debug");
-    if ((currentMode = mprGetJsonObj(config, sfmt("app.modes.%s", mode))) != 0) {
-        app = mprLookupJsonObj(config, "app");
+    if ((currentMode = mprReadJsonObj(config, sfmt("app.modes.%s", mode))) != 0) {
+        app = mprReadJsonObj(config, "app");
         mprBlendJson(app, currentMode, MPR_JSON_OVERWRITE);
-        mprSetJson(app, "app.mode", mode);
+        mprWriteJson(app, "app.mode", mode);
     }
 }
 
@@ -3784,17 +3784,17 @@ static void clientCopy(HttpRoute *route, MprJson *dest, MprJson *obj)
         if (child->type & MPR_JSON_OBJ) {
             job = mprCreateJson(MPR_JSON_OBJ);
             clientCopy(route, job, child);
-            mprSetJsonObj(dest, child->name, job);
+            mprWriteJsonObj(dest, child->name, job);
         } else {
             key = child->value;
             if (sends(key, "|time")) {
-                key = stok(sclone(key), " \t|", NULL);
-                if ((value = mprGetJson(route->config, key)) != 0) {
-                    mprSetJson(dest, child->name, itos(httpGetTicks(value)));
+                key = ssplit(sclone(key), " \t|", NULL);
+                if ((value = mprReadJson(route->config, key)) != 0) {
+                    mprWriteJson(dest, child->name, itos(httpGetTicks(value)));
                 }
             } else {
-                if ((jvalue = mprGetJsonObj(route->config, key)) != 0) {
-                    mprSetJsonObj(dest, child->name, mprCloneJson(jvalue));
+                if ((jvalue = mprReadJsonObj(route->config, key)) != 0) {
+                    mprWriteJsonObj(dest, child->name, mprCloneJson(jvalue));
                 }
             }
         }
@@ -3814,15 +3814,15 @@ static void postParse(HttpRoute *route)
         return;
     }
     http = route->http;
-    route->mode = mprGetJson(route->config, "app.mode");
+    route->mode = mprReadJson(route->config, "app.mode");
 
     /*
         Create a subset, optimized configuration to send to the client
      */
-    if ((mappings = mprGetJsonObj(route->config, "app.client.mappings")) != 0) {
+    if ((mappings = mprReadJsonObj(route->config, "app.client.mappings")) != 0) {
         client = mprCreateJson(MPR_JSON_OBJ);
         clientCopy(route, client, mappings);
-        mprSetJson(client, "prefix", route->prefix);
+        mprWriteJson(client, "prefix", route->prefix);
         route->client = mprJsonToString(client, MPR_JSON_QUOTES);
     }
     httpAddHostToEndpoints(route->host);
@@ -3874,7 +3874,7 @@ static void parseAll(HttpRoute *route, cchar *key, MprJson *prop)
     /*
         Property order is not guaranteed, so must ensure routes are processed after all outer properties.
      */
-    if ((routes = mprGetJsonObj(prop, "routes")) != 0) {
+    if ((routes = mprReadJsonObj(prop, "routes")) != 0) {
         parseRoutes(route, key, routes);
     }
 }
@@ -3924,7 +3924,7 @@ static void parseAuthAutoRoles(HttpRoute *route, cchar *key, MprJson *prop)
     MprJson     *child, *job;
     int         ji;
 
-    if ((job = mprGetJsonObj(route->config, "app.http.auth.roles")) != 0) {
+    if ((job = mprReadJsonObj(route->config, "app.http.auth.roles")) != 0) {
         parseAuthRoles(route, "app.http.auth.roles", job);
     }
     abilities = mprCreateHash(0, 0);
@@ -3936,7 +3936,7 @@ static void parseAuthAutoRoles(HttpRoute *route, cchar *key, MprJson *prop)
         for (ITERATE_KEYS(abilities, kp)) {
             mprSetJson(job, "$", kp->key);
         }
-        mprSetJsonObj(route->config, "app.http.auth.auto.abilities", job);
+        mprWriteJsonObj(route->config, "app.http.auth.auto.abilities", job);
     }
 }
 
@@ -4052,8 +4052,8 @@ static void parseAuthUsers(HttpRoute *route, cchar *key, MprJson *prop)
     int         ji;
 
     for (ITERATE_CONFIG(route, prop, child, ji)) {
-        password = mprGetJson(child, "password");
-        roles = getList(mprGetJsonObj(child, "roles"));
+        password = mprReadJson(child, "password");
+        roles = getList(mprReadJsonObj(child, "roles"));
         if (httpAddUser(route->auth, child->name, password, roles) < 0) {
             httpParseError(route, "Cannot add user %s", child->name);
             break;
@@ -4075,24 +4075,24 @@ static void parseCache(HttpRoute *route, cchar *key, MprJson *prop)
     clientLifespan = serverLifespan = 0;
     for (ITERATE_CONFIG(route, prop, child, ji)) {
         flags = 0;
-        if ((client = mprGetJson(child, "client")) != 0) {
+        if ((client = mprReadJson(child, "client")) != 0) {
             flags |= HTTP_CACHE_CLIENT;
             clientLifespan = httpGetTicks(client);
         }
-        if ((server = mprGetJson(child, "server")) != 0) {
+        if ((server = mprReadJson(child, "server")) != 0) {
             flags |= HTTP_CACHE_SERVER;
             serverLifespan = httpGetTicks(server);
         }
-        methods = getList(mprGetJsonObj(child, "methods"));
-        extensions = getList(mprGetJsonObj(child, "extensions"));
-        uris = getList(mprGetJsonObj(child, "uris"));
-        mimeTypes = getList(mprGetJsonObj(child, "mime"));
+        methods = getList(mprReadJsonObj(child, "methods"));
+        extensions = getList(mprReadJsonObj(child, "extensions"));
+        uris = getList(mprReadJsonObj(child, "uris"));
+        mimeTypes = getList(mprReadJsonObj(child, "mime"));
 
-        if (smatch(mprGetJson(child, "unique"), "true")) {
+        if (smatch(mprReadJson(child, "unique"), "true")) {
             /* Uniquely cache requests with different params */
             flags |= HTTP_CACHE_UNIQUE;
         }
-        if (smatch(mprGetJson(child, "manual"), "true")) {
+        if (smatch(mprReadJson(child, "manual"), "true")) {
             /* User must manually call httpWriteCache */
             flags |= HTTP_CACHE_MANUAL;
         }
@@ -4121,7 +4121,7 @@ static void parseContentCompress(HttpRoute *route, cchar *key, MprJson *prop)
     int         ji;
 
     for (ITERATE_CONFIG(route, prop, child, ji)) {
-        if (mprGetJson(route->config, sfmt("app.http.content.minify[@ = '%s']", child->value))) {
+        if (mprReadJson(route->config, sfmt("app.http.content.minify[@ = '%s']", child->value))) {
             httpAddRouteMapping(route, child->value, "${1}.gz, min.${1}.gz, min.${1}");
         } else {
             httpAddRouteMapping(route, child->value, "${1}.gz");
@@ -4133,7 +4133,7 @@ static void parseContentCompress(HttpRoute *route, cchar *key, MprJson *prop)
 #if DEPRECATED || 1
 static void parseContentKeep(HttpRoute *route, cchar *key, MprJson *prop)
 {
-    if (mprGetJson(prop, "[@=c]")) {
+    if (mprReadJson(prop, "[@=c]")) {
         route->keepSource = 1;
     }
 }
@@ -4149,7 +4149,7 @@ static void parseContentMinify(HttpRoute *route, cchar *key, MprJson *prop)
         /*
             Compressed and minified is handled in parseContentCompress
          */
-        if (mprGetJson(route->config, sfmt("app.http.content.compress[@ = '%s']", child->value)) == 0) {
+        if (mprReadJson(route->config, sfmt("app.http.content.compress[@ = '%s']", child->value)) == 0) {
             httpAddRouteMapping(route, child->value, "min.${1}");
         }
     }
@@ -4280,16 +4280,16 @@ static void parseLanguages(HttpRoute *route, cchar *key, MprJson *prop)
     int         ji;
 
     for (ITERATE_CONFIG(route, prop, child, ji)) {
-        if ((prefix = mprGetJson(child, "prefix")) != 0) {
+        if ((prefix = mprReadJson(child, "prefix")) != 0) {
             httpAddRouteLanguageSuffix(route, child->name, child->value, HTTP_LANG_BEFORE);
         }
-        if ((suffix = mprGetJson(child, "suffix")) != 0) {
+        if ((suffix = mprReadJson(child, "suffix")) != 0) {
             httpAddRouteLanguageSuffix(route, child->name, child->value, HTTP_LANG_AFTER);
         }
-        if ((path = mprGetJson(child, "path")) != 0) {
+        if ((path = mprReadJson(child, "path")) != 0) {
             httpAddRouteLanguageDir(route, child->name, mprGetAbsPath(path));
         }
-        if (smatch(mprGetJson(child, "default"), "default")) {
+        if (smatch(mprReadJson(child, "default"), "default")) {
             httpSetRouteDefaultLanguage(route, child->name);
         }
     }
@@ -4484,9 +4484,9 @@ static void parseParams(HttpRoute *route, cchar *key, MprJson *prop)
     int         not, ji;
 
     for (ITERATE_CONFIG(route, prop, child, ji)) {
-        name = mprGetJson(child, "name");
-        value = mprGetJson(child, "value");
-        not = smatch(mprGetJson(child, "equals"), "true") ? 0 : HTTP_ROUTE_NOT;
+        name = mprReadJson(child, "name");
+        value = mprReadJson(child, "value");
+        not = smatch(mprReadJson(child, "equals"), "true") ? 0 : HTTP_ROUTE_NOT;
         httpAddRouteParam(route, name, value, not);
     }
 }
@@ -4510,10 +4510,10 @@ static void parsePipelineFilters(HttpRoute *route, cchar *key, MprJson *prop)
             extensions = 0;
             name = child->value;
         } else {
-            name = mprGetJson(child, "name");
-            extensions = getList(mprGetJsonObj(child, "extensions"));
+            name = mprReadJson(child, "name");
+            extensions = getList(mprReadJsonObj(child, "extensions"));
 #if KEEP
-            direction = mprGetJson(child, "direction");
+            direction = mprReadJson(child, "direction");
             flags |= smatch(direction, "input") ? HTTP_STAGE_RX : 0;
             flags |= smatch(direction, "output") ? HTTP_STAGE_TX : 0;
             flags |= smatch(direction, "both") ? HTTP_STAGE_RX | HTTP_STAGE_TX : 0;
@@ -4609,9 +4609,9 @@ static void parseRedirect(HttpRoute *route, cchar *key, MprJson *prop)
                 to = child->value;
                 status = "302";
             } else {
-                from = mprGetJson(child, "from");
-                to = mprGetJson(child, "to");
-                status = mprGetJson(child, "status");
+                from = mprReadJson(child, "from");
+                to = mprReadJson(child, "to");
+                status = mprReadJson(child, "status");
             }
             if (smatch(child->value, "secure")) {
                 httpAddRouteCondition(route, "secure", "https://", HTTP_ROUTE_REDIRECT);
@@ -4631,17 +4631,17 @@ static void parseResources(HttpRoute *route, cchar *key, MprJson *prop)
     MprJson     *child, *groups, *singletons, *sets;
     int         ji;
 
-    if ((sets = mprGetJsonObj(prop, "sets")) != 0) {
+    if ((sets = mprReadJsonObj(prop, "sets")) != 0) {
         for (ITERATE_CONFIG(route, sets, child, ji)) {
             httpAddRouteSet(route, child->value);
         }
     }
-    if ((groups = mprGetJsonObj(prop, "groups")) != 0) {
+    if ((groups = mprReadJsonObj(prop, "groups")) != 0) {
         for (ITERATE_CONFIG(route, groups, child, ji)) {
             httpAddResourceGroup(route, route->serverPrefix, child->value);
         }
     }
-    if ((singletons = mprGetJsonObj(prop, "singletons")) != 0) {
+    if ((singletons = mprReadJsonObj(prop, "singletons")) != 0) {
         for (ITERATE_CONFIG(route, singletons, child, ji)) {
             httpAddResource(route, route->serverPrefix, child->value);
         }
@@ -4676,7 +4676,7 @@ PUBLIC void httpAddRouteSet(HttpRoute *route, cchar *set)
 
 static void setConfigDefaults(HttpRoute *route)
 {
-    route->mode = mprGetJson(route->config, "app.mode");
+    route->mode = mprReadJson(route->config, "app.mode");
     if (smatch(route->mode, "debug")) {
         httpSetRouteShowErrors(route, 1);
         route->keepSource = 1;
@@ -4717,7 +4717,7 @@ static void parseRoutes(HttpRoute *route, cchar *key, MprJson *prop)
 
             } else if (child->type & MPR_JSON_OBJ) {
                 newRoute = 0;
-                pattern = mprLookupJson(child, "pattern");
+                pattern = mprReadJson(child, "pattern");
                 if (pattern) {
                     newRoute = httpLookupRouteByPattern(route->host, pattern);
                     if (!newRoute) {
@@ -4763,12 +4763,12 @@ static void parseServerAccount(HttpRoute *route, cchar *key, MprJson *prop)
 {
     cchar       *value;
 
-    if ((value = mprGetJson(prop, "user")) != 0) {
+    if ((value = mprReadJson(prop, "user")) != 0) {
         if (!smatch(value, "_unchanged_") && !mprGetDebugMode()) {
             httpSetGroupAccount(value);
         }
     }
-    if ((value = mprGetJson(prop, "user")) != 0) {
+    if ((value = mprReadJson(prop, "user")) != 0) {
         if (!smatch(value, "_unchanged_") && !mprGetDebugMode()) {
             httpSetUserAccount(value);
         }
@@ -4882,12 +4882,12 @@ static void parseServerLog(HttpRoute *route, cchar *key, MprJson *prop)
         mprLog("warn http config", 4, "Already logging. Ignoring log configuration");
         return;
     }
-    location = mprGetJson(prop, "location");
-    level = (int) stoi(mprGetJson(prop, "level"));
-    backup = (int) stoi(mprGetJson(prop, "backup"));
-    anew = smatch(mprGetJson(prop, "anew"), "true");
-    size = (ssize) httpGetNumber(mprGetJson(prop, "size"));
-    timestamp = httpGetNumber(mprGetJson(prop, "timestamp"));
+    location = mprReadJson(prop, "location");
+    level = (int) stoi(mprReadJson(prop, "level"));
+    backup = (int) stoi(mprReadJson(prop, "backup"));
+    anew = smatch(mprReadJson(prop, "anew"), "true");
+    size = (ssize) httpGetNumber(mprReadJson(prop, "size"));
+    timestamp = httpGetNumber(mprReadJson(prop, "timestamp"));
 
     if (size < HTTP_TRACE_MIN_LOG_SIZE) {
         size = HTTP_TRACE_MIN_LOG_SIZE;
@@ -4921,9 +4921,9 @@ static void parseServerMonitors(HttpRoute *route, cchar *key, MprJson *prop)
     int         ji;
 
     for (ITERATE_CONFIG(route, prop, child, ji)) {
-        defenses = mprGetJson(child, "defenses");
-        expression = mprGetJson(child, "expression");
-        period = httpGetTicks(mprGetJson(child, "period"));
+        defenses = mprReadJson(child, "defenses");
+        expression = mprReadJson(child, "expression");
+        period = httpGetTicks(mprReadJson(child, "period"));
 
         if (!httpTokenize(route, expression, "%S %S %S", &counter, &relation, &limit)) {
             httpParseError(route, "Cannot add monitor: %s", prop->name);
@@ -5102,8 +5102,8 @@ static void parseTarget(HttpRoute *route, cchar *key, MprJson *prop)
     cchar   *name, *args;
 
     if (prop->type & MPR_JSON_OBJ) {
-        name = mprGetJson(prop, "operation");
-        args = mprGetJson(prop, "args");
+        name = mprReadJson(prop, "operation");
+        args = mprReadJson(prop, "args");
     } else {
         name = "run";
         args = prop->value;
@@ -5170,14 +5170,14 @@ static void parseTrace(HttpRoute *route, cchar *key, MprJson *prop)
         mprLog("info http config", 4, "Already tracing. Ignoring trace configuration");
         return;
     }
-    size = (ssize) httpGetNumber(mprGetJson(prop, "size"));
-    format = mprGetJson(prop, "format");
-    formatter = mprGetJson(prop, "formatter");
-    location = mprGetJson(prop, "location");
-    level = (char) stoi(mprGetJson(prop, "level"));
-    backup = (int) stoi(mprGetJson(prop, "backup"));
-    anew = smatch(mprGetJson(prop, "anew"), "true");
-    maxContent = (ssize) httpGetNumber(mprGetJson(prop, "content"));
+    size = (ssize) httpGetNumber(mprReadJson(prop, "size"));
+    format = mprReadJson(prop, "format");
+    formatter = mprReadJson(prop, "formatter");
+    location = mprReadJson(prop, "location");
+    level = (char) stoi(mprReadJson(prop, "level"));
+    backup = (int) stoi(mprReadJson(prop, "backup"));
+    anew = smatch(mprReadJson(prop, "anew"), "true");
+    maxContent = (ssize) httpGetNumber(mprReadJson(prop, "content"));
 
     if (level < 0) {
         level = 0;
@@ -5195,7 +5195,7 @@ static void parseTrace(HttpRoute *route, cchar *key, MprJson *prop)
     if (!smatch(location, "stdout") && !smatch(location, "stderr")) {
         location = httpMakePath(route, 0, location);
     }
-    if ((levels = mprGetJsonObj(prop, "levels")) != 0) {
+    if ((levels = mprReadJsonObj(prop, "levels")) != 0) {
         for (ITERATE_CONFIG(route, prop, child, ji)) {
             httpSetTraceEventLevel(route->trace, child->name, (int) stoi(child->value));
         }
@@ -6152,7 +6152,7 @@ PUBLIC void httpSetCredentials(HttpConn *conn, cchar *username, cchar *password,
 
     httpResetCredentials(conn);
     if (password == NULL && strchr(username, ':') != 0) {
-        conn->username = stok(sclone(username), ":", &ptok);
+        conn->username = ssplit(sclone(username), ":", &ptok);
         conn->password = sclone(ptok);
     } else {
         conn->username = sclone(username);
@@ -9033,7 +9033,7 @@ PUBLIC bool httpGetStreaming(HttpHost *host, cchar *mime, cchar *uri)
     assert(host->streams);
 
     if (schr(mime, ';')) {
-        mime = stok(sclone(mime), ";", 0);
+        mime = ssplit(sclone(mime), ";", 0);
     }
     if ((kp = mprLookupKeyEntry(host->streams, mime)) != 0) {
         if (kp->data == NULL || sstarts(uri, kp->data)) {
@@ -9512,7 +9512,7 @@ PUBLIC int httpAddDefense(cchar *name, cchar *remedy, cchar *remedyArgs)
     args = mprCreateHash(0, MPR_HASH_STABLE);
     list = stolist(remedyArgs);
     for (ITERATE_ITEMS(list, arg, next)) {
-        key = stok(arg, "=", &value);
+        key = ssplit(arg, "=", &value);
         mprAddKey(args, key, strim(value, "\"'", 0));
     }
     if (!remedy) {
@@ -9641,7 +9641,7 @@ static void cmdRemedy(MprHash *args)
     command = sclone(mprLookupKey(args, "CMD"));
     data = 0;
     if (scontains(command, "|")) {
-        data = stok(command, "|", &command);
+        data = ssplit(command, "|", &command);
         data = stemplate(data, args);
     }
     command = strim(command, " \t", MPR_TRIM_BOTH);
@@ -14145,7 +14145,7 @@ PUBLIC char *httpTemplate(HttpConn *conn, cchar *template, MprHash *options)
                 if (options && (value = httpGetOption(options, key, 0)) != 0) {
                     mprPutStringToBuf(buf, value);
 
-                } else if ((value = mprLookupJson(rx->params, key)) != 0) {
+                } else if ((value = mprReadJson(rx->params, key)) != 0) {
                     mprPutStringToBuf(buf, value);
                 }
                 if (value == 0) {
@@ -14968,8 +14968,9 @@ static char *expandRequestTokens(HttpConn *conn, char *str)
         if ((key = stok(&tok[2], ".:}", &value)) == 0) {
             continue;
         }
-        stok(value, "}", &cp);
-
+        if ((stok(value, "}", &cp)) == 0) {
+            continue;
+        }
         if (smatch(key, "header")) {
             header = stok(value, "=", &defaultValue);
             if ((value = (char*) httpGetHeader(conn, header)) == 0) {
@@ -17333,9 +17334,7 @@ static bool parseRange(HttpConn *conn, char *value)
 
     tx = conn->tx;
     value = sclone(value);
-    if (value == 0) {
-        return 0;
-    }
+
     /*
         Step over the "bytes="
      */
@@ -17348,7 +17347,9 @@ static bool parseRange(HttpConn *conn, char *value)
         /*
             A range "-7" will set the start to -1 and end to 8
          */
-        tok = stok(value, ",", &value);
+        if ((tok = stok(value, ",", &value)) == 0) {
+            return 0;
+        }
         if (*tok != '-') {
             range->start = (ssize) stoi(tok);
         } else {
@@ -18963,6 +18964,9 @@ PUBLIC void httpDetailTraceFormatter(HttpTrace *trace, HttpConn *conn, cchar *ev
             mprPutCharToBuf(buf, '\n');
         }
         mprPutToBuf(buf, "----\n");
+    }
+    if (!values && !data) {
+        mprPutCharToBuf(buf, '\n');
     }
     httpWriteTrace(trace, mprGetBufStart(buf), mprGetBufLength(buf));
     unlock(trace);
@@ -22245,11 +22249,11 @@ PUBLIC void httpCreateCGIParams(HttpConn *conn)
         params = httpGetParams(conn);
         assert(params);
         for (ITERATE_ITEMS(rx->files, file, index)) {
-            mprSetJson(params, sfmt("FILE_%d_FILENAME", index), file->filename);
-            mprSetJson(params, sfmt("FILE_%d_CLIENT_FILENAME", index), file->clientFilename);
-            mprSetJson(params, sfmt("FILE_%d_CONTENT_TYPE", index), file->contentType);
-            mprSetJson(params, sfmt("FILE_%d_NAME", index), file->name);
-            mprSetJson(params, sfmt("FILE_%d_SIZE", index), sfmt("%zd", file->size));
+            mprWriteJson(params, sfmt("FILE_%d_FILENAME", index), file->filename);
+            mprWriteJson(params, sfmt("FILE_%d_CLIENT_FILENAME", index), file->clientFilename);
+            mprWriteJson(params, sfmt("FILE_%d_CONTENT_TYPE", index), file->contentType);
+            mprWriteJson(params, sfmt("FILE_%d_NAME", index), file->name);
+            mprWriteJson(params, sfmt("FILE_%d_SIZE", index), sfmt("%zd", file->size));
         }
     }
     if (conn->http->envCallback) {
@@ -22287,7 +22291,11 @@ static void addParamsFromBuf(HttpConn *conn, cchar *buf, ssize len)
             /*
                 Append to existing keywords
              */
-            prior = mprLookupJsonObj(params, keyword);
+            prior = mprReadJsonObj(params, keyword);
+#if ME_EJS_PRODUCT
+            /*
+                Just for ejscript, we allow embedded ".[]" in the keys
+             */
             if (prior && prior->type == MPR_JSON_VALUE) {
                 if (*value) {
                     newValue = sjoin(prior->value, " ", value, NULL);
@@ -22296,6 +22304,16 @@ static void addParamsFromBuf(HttpConn *conn, cchar *buf, ssize len)
             } else {
                 mprSetJson(params, keyword, value);
             }
+#else
+            if (prior && prior->type == MPR_JSON_VALUE) {
+                if (*value) {
+                    newValue = sjoin(prior->value, " ", value, NULL);
+                    mprWriteJson(params, keyword, newValue);
+                }
+            } else {
+                mprWriteJson(params, keyword, value);
+            }
+#endif
         }
         keyword = stok(0, "&", &tok);
     }
@@ -22368,7 +22386,7 @@ PUBLIC MprJson *httpGetParams(HttpConn *conn)
 
 PUBLIC int httpTestParam(HttpConn *conn, cchar *var)
 {
-    return mprLookupJsonObj(httpGetParams(conn), var) != 0;
+    return mprReadJsonObj(httpGetParams(conn), var) != 0;
 }
 
 
@@ -22376,7 +22394,7 @@ PUBLIC cchar *httpGetParam(HttpConn *conn, cchar *var, cchar *defaultValue)
 {
     cchar       *value;
 
-    value = mprLookupJson(httpGetParams(conn), var);
+    value = mprReadJson(httpGetParams(conn), var);
     return (value) ? value : defaultValue;
 }
 
@@ -22385,7 +22403,7 @@ PUBLIC int httpGetIntParam(HttpConn *conn, cchar *var, int defaultValue)
 {
     cchar       *value;
 
-    value = mprLookupJson(httpGetParams(conn), var);
+    value = mprReadJson(httpGetParams(conn), var);
     return (value) ? (int) stoi(value) : defaultValue;
 }
 
@@ -22449,13 +22467,13 @@ PUBLIC void httpRemoveParam(HttpConn *conn, cchar *var)
 
 PUBLIC void httpSetParam(HttpConn *conn, cchar *var, cchar *value) 
 {
-    mprSetJson(httpGetParams(conn), var, value);
+    mprWriteJson(httpGetParams(conn), var, value);
 }
 
 
 PUBLIC void httpSetIntParam(HttpConn *conn, cchar *var, int value) 
 {
-    mprSetJson(httpGetParams(conn), var, sfmt("%d", value));
+    mprWriteJson(httpGetParams(conn), var, sfmt("%d", value));
 }
 
 

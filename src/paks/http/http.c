@@ -1170,7 +1170,7 @@ static void addFormVars(cchar *buf)
     char    *pair, *tok;
 
     pair = stok(sclone(buf), "&", &tok);
-    while (pair != 0) {
+    while (pair) {
         mprAddItem(app->formData, sclone(pair));
         pair = stok(0, "&", &tok);
     }

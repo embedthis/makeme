@@ -1445,7 +1445,7 @@ PUBLIC void mprVirtFree(void *ptr, size_t size);
         specified via mprCreate will be called to allow global recovery.
     @remarks Do not mix calls to palloc and malloc.
     @ingroup MprMem
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void *palloc(size_t size);
 
@@ -1455,7 +1455,7 @@ PUBLIC void *palloc(size_t size);
     @param ptr Pointer to the block
     @remarks Do not mix calls to pfree and free.
     @ingroup MprMem
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void pfree(void *ptr);
 
@@ -1468,7 +1468,7 @@ PUBLIC void pfree(void *ptr);
         specified via mprCreate will be called to allow global recovery.
     @remarks Do not mix calls to prealloc and malloc.
     @ingroup MprMem
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void *prealloc(void *ptr, size_t size);
 
@@ -1477,7 +1477,7 @@ PUBLIC void *prealloc(void *ptr, size_t size);
     @param ptr Pointer to the block
     @return Size of the allocated block.
     @ingroup MprMem
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC size_t psize(void *ptr);
 
@@ -1925,7 +1925,7 @@ PUBLIC bool sends(cchar *str, cchar *suffix);
     Erase the contents of a string
     @param str String to erase
     @ingroup MprString
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void serase(char *str);
 
@@ -2123,7 +2123,7 @@ PUBLIC bool sfnumber(cchar *s);
     @description The supported format is: [(+|-)][0][(x|X)][HEX_DIGITS]
     @return true if all characters are digits or 'x' or 'X'
     @ingroup MprString
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC bool shnumber(cchar *s);
 
@@ -2210,9 +2210,26 @@ PUBLIC char *sreplace(cchar *str, cchar *pattern, cchar *replacement);
     Test if a string is all white space
     @return true if all characters are ' ', '\t', '\n', '\r'. True if the string is empty.
     @ingroup MprString
-    @stability Prototype
+    @stability Stable
  */
 PUBLIC bool sspace(cchar *s);
+
+/**
+    Split a string at a delimiter
+    @description Split a string and return parts. The string is modified.
+        This routiner never returns null. If there are leading delimiters, the empty string will be returned
+        and *last will be set to the portion after the delimiters.
+        If str is null, a managed reference to the empty string will be returned.
+        If there are no characters after the delimiter, then *last will be set to the empty string.
+    @param str String to tokenize.
+    @param delim Set of characters that are used as token separators.
+    @param last Reference to the portion after the delimiters. Will return an empty string if is not trailing portion.
+    @return Returns a pointer to the first part before the delimiters. If the string begins with delimiters, the empty
+        string will be returned.
+    @ingroup MprString
+    @stability Prototype
+ */
+PUBLIC char *ssplit(char *str, cchar *delim, char **last);
 
 /**
     Find the end of a spanning prefix
@@ -2305,7 +2322,7 @@ PUBLIC char *stok(char *str, cchar *delim, char **last);
    @param src Source string to parse
    @return List of arguments
    @ingroup MprString
-   @stability Evolving
+   @stability Stable
  */
 PUBLIC struct MprList *stolist(cchar *src);
 
@@ -2510,7 +2527,7 @@ PUBLIC wchar    *mtrim(wchar *str, cchar *set, int where);
     @param ... Variable arguments to format
     @return Returns the number of bytes written
     @ingroup MprString
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize mprEprintf(cchar *fmt, ...) PRINTF_ATTRIBUTE(1,2);
 
@@ -2936,7 +2953,7 @@ PUBLIC ssize mprPutIntToBuf(MprBuf *buf, int64 i);
     @param count Count of pad characters to put
     @returns Zero if successful and otherwise a negative error code
     @ingroup MprBuf
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize mprPutPadToBuf(MprBuf *buf, int c, ssize count);
 
@@ -3583,7 +3600,7 @@ PUBLIC MprList *mprCreateList(int size, int flags);
     @param str String containing white space or comma separated words
     @return Returns a list of words
     @ingroup MprList
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC MprList *mprCreateListFromWords(cchar *str);
 
@@ -3659,7 +3676,7 @@ PUBLIC void *mprGetNextItem(MprList *list, int *lastIndex);
     @param lastIndex Pointer to an integer that will hold the last index retrieved.
     @ingroup MprList
     @internal
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void *mprGetNextStableItem(MprList *list, int *lastIndex);
 
@@ -3707,7 +3724,7 @@ PUBLIC int mprInsertItemAtPos(MprList *list, int index, cvoid *item);
     @param list List pointer returned from mprCreateList.
     @param join String to use as the element join string. May be null.
     @ingroup MprList
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *mprListToString(MprList *list, cchar *join);
 
@@ -4040,7 +4057,7 @@ PUBLIC void mprLogProc(cchar *tags, int level, cchar *fmt, ...) PRINTF_ATTRIBUTE
 /**
     Show the product configuration at the start of the log file
     @ingroup MprLog
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void mprLogConfig();
 
@@ -4072,7 +4089,7 @@ PUBLIC void mprSetLogFile(struct MprFile *file);
         the debug channel, the log handler will be invoked to accept the output message.
     @param handler Callback handler
     @return Prior log handler
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC MprLogHandler mprSetLogHandler(MprLogHandler handler);
 
@@ -4380,7 +4397,7 @@ PUBLIC MprHash *mprBlendHash(MprHash *target, MprHash *other);
     @param join String to use as the element join string.
     @return String consisting of the joined hash values
     @ingroup MprHash
-    @stability Evolving
+    @stability Stable
 */
 PUBLIC char *mprHashToString(MprHash *hash, cchar *join);
 
@@ -4390,7 +4407,7 @@ PUBLIC char *mprHashToString(MprHash *hash, cchar *join);
     @param join String to use as the element join string.
     @return String consisting of the joined hash keys
     @ingroup MprHash
-    @stability Evolving
+    @stability Stable
 */
 PUBLIC char *mprHashKeysToString(MprHash *hash, cchar *join);
 
@@ -5262,7 +5279,7 @@ PUBLIC char *mprJoinPath(cchar *base, cchar *path);
     @param ... Other paths to join to the base path. List of other paths must be NULL terminated.
     @returns Allocated string containing the resolved path.
     @ingroup MprPath
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *mprJoinPaths(cchar *base, ...);
 
@@ -5867,7 +5884,7 @@ typedef struct MprEventService {
 /**
     Clear the event service waiting flag
     @ingroup MprDispatcher
-    @stability Evolving
+    @stability Stable
     @internal
  */
 PUBLIC void mprClearWaiting();
@@ -5946,7 +5963,7 @@ PUBLIC void mprSetEventServiceSleep(MprTicks delay);
     @description Suspend the current thread until the application is shutting down.
     @param timeout Timeout to wait for shutdown.
     @ingroup MprDispatcher
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void mprSuspendThread(MprTicks timeout);
 
@@ -5980,7 +5997,7 @@ PUBLIC int mprWaitForEvent(MprDispatcher *dispatcher, MprTicks timeout, int64 ma
     @param dispatcher Event dispatcher
     @return Event mark 64 bit integer
     @ingroup MprDispatcher
-    @stability Prototype
+    @stability Evolving
 */
 PUBLIC int64 mprGetEventMark(MprDispatcher *dispatcher);
 
@@ -6136,7 +6153,7 @@ PUBLIC void mprRescheduleEvent(MprEvent *event, MprTicks period);
     calls mprStartDispatcher.
     @param dispatcher Dispatcher object created via #mprCreateDispatcher
     @return Zero if successful, otherwise a negative MPR status code.
-    @stability Prototype
+    @stability Evolving
     @ingroup MprEvent
  */
 PUBLIC int mprStartDispatcher(MprDispatcher *dispatcher);
@@ -6145,7 +6162,7 @@ PUBLIC int mprStartDispatcher(MprDispatcher *dispatcher);
     Stop a dispatcher by removing it from the run queue
     @param dispatcher Dispatcher object created via #mprCreateDispatcher
     @return Zero if successful, otherwise a negative MPR status code.
-    @stability Prototype
+    @stability Evolving
     @ingroup MprEvent
  */
 PUBLIC int mprStopDispatcher(MprDispatcher *dispatcher);
@@ -6377,9 +6394,10 @@ PUBLIC void mprXmlSetParserHandler(MprXml *xp, MprXmlHandler h);
 /**
     JSON Object
     @defgroup MprJson MprJson
-    @stability Prototype
+    @stability Evolving
     @see mprBlendJson mprGetJsonObj mprGetJson mprGetJsonLength mprLoadJson mprParseJson mprSetJsonError
         mprParseJsonEx mprParseJsonInto mprQueryJson mprRemoveJson mprSetJsonObj mprSetJson mprJsonToString mprLogJson
+        mprReadJson mprWriteJsonObj mprWriteJson mprWriteJsonObj
  */
 typedef struct MprJson {
     cchar           *name;              /**< Property name for this object */
@@ -6464,18 +6482,18 @@ typedef struct MprJsonParser {
             conditionally overwrite are supported if the MPR_JSON_COMBINE flag is present.
     @param dest Parsed JSON object. This is the destination object. The "src" object will be blended into this object.
     @param src Source JSON object to blend into dest. Parsed JSON object returned by mprJsonParser.
-    @param flags The MPR_JSON_COMBINE flag enables property name prefixes: '+', '=', '-', '?' to append, overwrite, replace and
-            and conditionally overwrite key values if not already present. When adding string properties, values will be
-            appended using a space separator. Extra spaces will not be removed on replacement.
+    @param flags The MPR_JSON_COMBINE flag enables property name prefixes: '+', '=', '-', '?' to append, overwrite, 
+        replace and and conditionally overwrite key values if not already present. When adding string properties, values 
+        will be appended using a space separator. Extra spaces will not be removed on replacement.
             \n\n
         Without MPR_JSON_COMBINE or for properties without a prefix, the default is to blend objects by creating new
         properties if not already existing in the destination, and to treat overwrite arrays and strings.
-        Use the MPR_JSON_OVERWRITE flag to override the default appending of objects and rather overwrite existing properties.
-        Use the MPR_JSON_APPEND flag to override the default of overwriting arrays and strings and rather append to
-        existing properties.
+        Use the MPR_JSON_OVERWRITE flag to override the default appending of objects and rather overwrite existing 
+        properties. Use the MPR_JSON_APPEND flag to override the default of overwriting arrays and strings and rather 
+        append to existing properties.
     @return Zero if successful.
     @ingroup MprJson
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC int mprBlendJson(MprJson *dest, MprJson *src, int flags);
 
@@ -6484,7 +6502,7 @@ PUBLIC int mprBlendJson(MprJson *dest, MprJson *src, int flags);
     @description This does a deep copy of a JSON object tree. This copies all properties and their sub-properties.
     @return A new JSON object that replices the input object.
     @ingroup MprJson
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC MprJson *mprCloneJson(MprJson *obj);
 
@@ -6494,7 +6512,7 @@ PUBLIC MprJson *mprCloneJson(MprJson *obj);
         for a value. Note: all values are stored as strings.
     @return JSON object
     @ingroup MprJson
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC MprJson *mprCreateJson(int type);
 
@@ -6518,18 +6536,18 @@ PUBLIC MprHash *mprDeserialize(cchar *str);
 PUBLIC MprHash *mprDeserializeInto(cchar *str, MprHash *hash);
 
 /**
-    Lookup a parsed JSON object for a key value
+    Get a parsed JSON object for a key value
     @param obj Parsed JSON object returned by mprJsonParser
     @param key Property name to search for. This may include ".". For example: "settings.mode".
         See #mprQueryJson for a full description of key formats.
     @return Returns the property value as an object, otherwise NULL if not found or not the correct type.
     @ingroup MprJson
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC MprJson *mprGetJsonObj(MprJson *obj, cchar *key);
 
 /**
-    Lookup a JSON key and return a string value.
+    Get a JSON key and return a string value.
     @description This routine is useful to querying JSON property or object values.
         If the supplied key is an array or object, or matches more than one property, the
         result is a string representation of the array or object.
@@ -6541,7 +6559,7 @@ PUBLIC MprJson *mprGetJsonObj(MprJson *obj, cchar *key);
         matches more than one property, the result is a JSON string representation.
         If nothing is matched, null is returned.
     @ingroup MprJson
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC cchar *mprGetJson(MprJson *obj, cchar *key);
 
@@ -6550,7 +6568,7 @@ PUBLIC cchar *mprGetJson(MprJson *obj, cchar *key);
     @param obj Parsed JSON object returned by mprParseJson
     @return The number of direct dependent child properties
     @ingroup MprJson
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC ssize mprGetJsonLength(MprJson *obj);
 
@@ -6559,7 +6577,7 @@ PUBLIC ssize mprGetJsonLength(MprJson *obj);
     @param hash MprHash object
     @return An MprJson instance
     @ingroup MprJson
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC MprJson *mprHashToJson(MprHash *hash);
 
@@ -6568,7 +6586,7 @@ PUBLIC MprJson *mprHashToJson(MprHash *hash);
     @param json JSON object tree
     @return An MprHash instance
     @ingroup MprJson
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC MprHash *mprJsonToHash(MprJson *json);
 
@@ -6589,51 +6607,19 @@ PUBLIC char *mprJsonToString(MprJson *obj, int flags);
     @param path Filename path containing a JSON string to load
     @return JSON object tree
     @ingroup MprJson
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC MprJson *mprLoadJson(cchar *path);
 
 /**
-    Lookup a JSON object
-    @description This is a low-level simple JSON property lookup routine. This does a one-level property lookup and
-    returns the actual JSON object and not a clone. Be careful with this API. Objects returned by this API cannot be
-    modified or inserted into another JSON object without corrupting the original JSON object. Use #mprQueryJson or
-    mprGetJson to lookup properties and return a clone of the object.
-    @param obj Parsed JSON object returned by mprParseJson
-    @param name Name of the property to lookup.
-    @return The matching JSON object. Returns NULL if a matching property is not found.
-        Note this is a reference to the actaul JSON object and not a clone of the object.
+    Trace the JSON object to the debug log
+    @param level Debug trace level
+    @param obj Object to trace
+    @param fmt Printf style format and args
     @ingroup MprJson
-    @stability prototype
+    @stability Evolving
  */
-PUBLIC MprJson *mprLookupJsonObj(MprJson *obj, cchar *name);
-
-/**
-    Lookup a JSON property
-    @description This is a low-level simple JSON property lookup routine. It does a one-level property lookup.
-    Use #mprQueryJson or mprGetJson to lookup properties that are not direct properties at the top level of
-    the given object i.e. those that contain ".".
-    @param obj Parsed JSON object returned by mprParseJson
-    @param name Name of the property to lookup.
-    @return The property value as a string. Returns NULL if a matching property is not found.
-        Note this is a reference to the actaul JSON property value and not a clone of the value.
-    @ingroup MprJson
-    @stability prototype
- */
-PUBLIC cchar *mprLookupJson(MprJson *obj, cchar *name);
-
-/**
-    Lookup a JSON object by value
-    @description This is a low-level simple JSON property lookup routine that searches for a property in the JSON object
-    by value. It does a one-level property lookup. Use #mprQueryJson or mprGetJson to lookup properties that are not
-    direct properties at the top level of the given object i.e. those that contain ".".
-    @param obj Parsed JSON object returned by mprParseJson
-    @param value Value to search for.
-    @return The JSON object or null if not found.
-    @ingroup MprJson
-    @stability prototype
- */
-PUBLIC MprJson *mprLookupJsonValue(MprJson *obj, cchar *value);
+PUBLIC void mprLogJson(int level, MprJson *obj, cchar *fmt, ...) PRINTF_ATTRIBUTE(3,4);
 
 /**
     Parse a JSON string into an object tree.
@@ -6723,9 +6709,57 @@ PUBLIC MprJson *mprParseJsonInto(cchar *str, MprJson *obj);
         If setting properties, the original object is returned if the properties can be successfully defined. Otherwise,
         null is returned.
     @ingroup MprJson
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC MprJson *mprQueryJson(MprJson *obj, cchar *key, cchar *value, int flags);
+
+/**
+    Read a JSON object
+    @description This is a low-level simple JSON property lookup routine. This does a one-level property lookup and
+    returns the actual JSON object and not a clone. Be careful with this API. Objects returned by this API cannot be
+    modified or inserted into another JSON object without corrupting the original JSON object. Use #mprQueryJson or
+    mprGetJson to lookup properties and return a clone of the object.
+    @param obj Parsed JSON object returned by mprParseJson
+    @param name Name of the property to lookup.
+    @return The matching JSON object. Returns NULL if a matching property is not found.
+        Note this is a reference to the actaul JSON object and not a clone of the object.
+    @ingroup MprJson
+    @stability prototype
+ */
+PUBLIC MprJson *mprReadJsonObj(MprJson *obj, cchar *name);
+
+/**
+    Read a JSON property
+    @description This is a low-level simple JSON property lookup routine. It does a one-level property lookup.
+    Use #mprQueryJson or mprGetJson to lookup properties that are not direct properties at the top level of
+    the given object i.e. those that contain ".".
+    @param obj Parsed JSON object returned by mprParseJson
+    @param name Name of the property to lookup.
+    @return The property value as a string. Returns NULL if a matching property is not found.
+        Note this is a reference to the actaul JSON property value and not a clone of the value.
+    @ingroup MprJson
+    @stability prototype
+ */
+PUBLIC cchar *mprReadJson(MprJson *obj, cchar *name);
+
+/**
+    Read a JSON object by value
+    @description This is a low-level simple JSON property lookup routine that searches for a property in the JSON object
+    by value. It does a one-level property lookup. Use #mprQueryJson or mprGetJson to lookup properties that are not
+    direct properties at the top level of the given object i.e. those that contain ".".
+    @param obj Parsed JSON object returned by mprParseJson
+    @param value Value to search for.
+    @return The JSON object or null if not found.
+    @ingroup MprJson
+    @stability prototype
+ */
+PUBLIC MprJson *mprReadJsonValue(MprJson *obj, cchar *value);
+
+#if DEPRECATED
+#define mprLookupJsonObj mprReadJsonObj
+#define mprLookupJson mprReadJson
+#define mprLookupJsonValue mprReadJsonValue
+#endif
 
 /**
     Remove a property from a JSON object
@@ -6735,7 +6769,7 @@ PUBLIC MprJson *mprQueryJson(MprJson *obj, cchar *key, cchar *value, int flags);
     @return Returns a JSON object array of all removed properties. Array will be empty if not qualifying
         properties were found and removed.
     @ingroup MprJson
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC MprJson *mprRemoveJson(MprJson *obj, cchar *key);
 
@@ -6746,7 +6780,7 @@ PUBLIC MprJson *mprRemoveJson(MprJson *obj, cchar *key);
     @param child JSON child to remove
     @return The removed child element.
     @ingroup MprJson
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC MprJson *mprRemoveJsonChild(MprJson *obj, MprJson *child);
 
@@ -6757,7 +6791,7 @@ PUBLIC MprJson *mprRemoveJsonChild(MprJson *obj, MprJson *child);
     @param flags Same flags as for #mprJsonToString: MPR_JSON_PRETTY, MPR_JSON_QUOTES, MPR_JSON_STRINGS.
     @return Zero if successful, otherwise a negative MPR error code.
     @ingroup MprJson
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC int mprSaveJson(MprJson *obj, cchar *path, int flags);
 
@@ -6793,32 +6827,47 @@ PUBLIC void mprSetJsonError(MprJsonParser *jp, cchar *fmt, ...) PRINTF_ATTRIBUTE
     @param value Property value to set.
     @return Zero if updated successfully.
     @ingroup MprJson
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC int mprSetJsonObj(MprJson *obj, cchar *key, MprJson *value);
 
 /**
     Update a key/value in the JSON object with a string value
     @description This call takes a multipart property name and will operate at any level of depth in the JSON object.
+        This routine supports the mprQueryJson key syntax.
     @param obj Parsed JSON object returned by mprParseJson
-    @param key Property name to add/update. This may include ".". For example: "settings.mode".
-        See #mprQueryJson for a full description of key formats.
+    @param key Property name to add/update. This may include "." and the full mprQueryJson syntax. 
+        For example: "settings.mode".  See #mprQueryJson for a full description of key formats.
     @param value Character string value.
     @return Zero if updated successfully.
     @ingroup MprJson
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC int mprSetJson(MprJson *obj, cchar *key, cchar *value);
 
 /**
-    Trace the JSON object to the debug log
-    @param level Debug trace level
-    @param obj Object to trace
-    @param fmt Printf style format and args
+    Write a property in a JSON object
+    @description This is a low-level update of Json property using simple (non-query) keys.
+    @param obj Parsed JSON object returned by mprParseJson
+    @param key Property name to add/update. 
+    @param value Property value to set.
+    @return Zero if updated successfully.
     @ingroup MprJson
-    @stability Prototype
+    @stability Evolving
  */
-PUBLIC void mprLogJson(int level, MprJson *obj, cchar *fmt, ...) PRINTF_ATTRIBUTE(3,4);
+PUBLIC int mprWriteJsonObj(MprJson *obj, cchar *key, MprJson *value);
+
+/**
+    Write a key/value in the JSON object with a string value
+    @description This is a low-level update of a Json property using simple (non-query) keys.
+    @param obj Parsed JSON object returned by mprParseJson
+    @param key Property name to add/update.
+    @param value Character string value.
+    @return Zero if updated successfully.
+    @ingroup MprJson
+    @stability Evolving
+ */
+PUBLIC int mprWriteJson(MprJson *obj, cchar *key, cchar *value);
 
 /********************************* Threads ************************************/
 /**
@@ -7040,7 +7089,7 @@ PUBLIC void mprYield(int flags);
 /**
     Test if a thread should call mprYield
     @description This call tests if a thread should yield to the garbage collector.
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC bool mprNeedYield();
 #else
@@ -7559,7 +7608,7 @@ PUBLIC MprWaitHandler *mprAddSocketHandler(MprSocket *sp, int mask, MprDispatche
     If the original socket has an SSL configuration, the new socket will share the same SSL configuration object.
     @return A new socket object
     @ingroup MprSocket
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC MprSocket *mprCloneSocket(MprSocket *sp);
 
@@ -7903,7 +7952,7 @@ PUBLIC bool mprSocketHandshaking(MprSocket *sp);
     @param sp Socket object returned from #mprCreateSocket
     @return True if the socket has pending data to read or write.
     @ingroup MprSocket
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC bool mprSocketHasBuffered(MprSocket *sp);
 
@@ -7933,7 +7982,7 @@ PUBLIC bool mprSocketHasBufferedWrite(MprSocket *sp);
     This enables callers to use the O/S socket handle for their own purposes.
     @param sp Socket object returned from #mprCreateSocket
     @ingroup MprSocket
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC Socket mprStealSocketHandle(MprSocket *sp);
 
@@ -8973,7 +9022,7 @@ PUBLIC void mprPollWinCmd(MprCmd *cmd, MprTicks timeout);
    @description This is useful for detached commands.
    @param cmd MprCmd object created via mprCreateCmd
    @ingroup MprCmd
-   @stability Prototype
+   @stability Evolving
  */
 PUBLIC void mprStartWinPollTimer(MprCmd *cmd);
 #endif

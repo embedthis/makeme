@@ -294,7 +294,7 @@ static void manageApp(void *ptr, int flags)
 
 static void setAppDefaults()
 {
-    app->company = stok(slower(ME_COMPANY), " ", NULL);
+    app->company = ssplit(slower(ME_COMPANY), " ", NULL);
     app->serviceProgram = sclone(SERVICE_PROGRAM);
     app->serviceName = sclone(SERVICE_NAME);
     app->serviceHome = mprGetNativePath(SERVICE_HOME);

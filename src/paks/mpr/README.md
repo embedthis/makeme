@@ -18,7 +18,7 @@ See LICENSE.md for details.
     ./configure
     me
 
-    Alternatively to build without MakeMe:
+Alternatively to build without MakeMe:
 
     make
 

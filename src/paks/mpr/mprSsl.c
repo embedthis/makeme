@@ -1134,7 +1134,7 @@ static void parseCertFields(MprBuf *buf, char *prefix, char *prefix2, char *info
         c = *cp;
         if (c == '/' || c == '\0') {
             *cp = '\0';
-            key = stok(term, "=", &value);
+            key = ssplit(term, "=", &value);
             if (smatch(key, "emailAddress")) {
                 key = "EMAIL";
             }

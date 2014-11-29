@@ -26382,7 +26382,7 @@ static EjsAny *app_env(Ejs *ejs, EjsObj *app, int argc, EjsObj **argv)
     result = ejsCreatePot(ejs, ESV(Object), 0);
     for (ep = environ; ep && *ep; ep++) {
         pair = sclone(*ep);
-        key = stok(pair, "=", &value);
+        key = ssplit(pair, "=", &value);
         ejsSetPropertyByName(ejs, result, EN(key), ejsCreateStringFromAsc(ejs, value));
     }
     return result;
@@ -35950,7 +35950,7 @@ static EjsObj *http_info(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
     if (hp->conn && hp->conn->sock) {
         obj = ejsCreateEmptyPot(ejs);
         for (key = stok(mprGetSocketState(hp->conn->sock), ",", &next); key; key = stok(NULL, ",", &next)) {
-            stok(key, "=", &value);
+            ssplit(key, "=", &value);
             ejsSetPropertyByName(ejs, obj, EN(key), ejsCreateStringFromAsc(ejs, value));
         }
         return obj;
@@ -45902,12 +45902,12 @@ static int getTokenValue(Ejs *ejs, EjsObj *obj, cchar *fullToken, cchar *token, 
     char        *rest, *first, *str;
 
     rest = (char*) (schr(token, '.') ? sclone(token) : token);
-    first = stok(rest, ".", &rest);
+    first = ssplit(rest, ".", &rest);
     
     qname.name = ejsCreateStringFromAsc(ejs, first);
     qname.space = 0;
     if ((vp = ejsGetPropertyByName(ejs, obj, qname)) != 0) {
-        if (rest && ejsIsPot(ejs, vp)) {
+        if (rest && *rest && ejsIsPot(ejs, vp)) {
             return getTokenValue(ejs, vp, fullToken, rest, buf, missing, join);
         } else {
             if (ejsIs(ejs, vp, Array)) {
