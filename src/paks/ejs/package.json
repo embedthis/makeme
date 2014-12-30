@@ -2,7 +2,8 @@
     "name": "ejs",
     "description": "Embedthis Ejscript Javascript Language",
     "title": "Embedthis Ejscript",
-    "version": "2.5.1",
+    "version": "2.5.2",
+    "pak": ">=0.10",
     "keywords": [
         "ejs",
         "ejscript",
@@ -33,10 +34,8 @@
             "url": "https://embedthis.com/licensing/"
         }
     ],
-    "pak": "~0.9",
     "dependencies": {
         "http": "~6.0",
-        "me-docstyle": "~0.8",
         "mpr": "~6.0",
         "osdep": "~0.8",
         "pcre": "~1.0",
@@ -49,6 +48,5 @@
     },
     "directories": {
         "paks": "src/paks"
-    },
-    "import": true
+    }
 }

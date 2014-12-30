@@ -3,6 +3,7 @@
     "description": "Embedthis Security Transport",
     "title": "Embethis EST",
     "version": "0.6.3",
+    "pak": "~0.10",
     "keywords": [
         "est",
         "ssl",
@@ -31,14 +32,11 @@
             "url": "https://embedthis.com/licensing/"
         }
     ],
-    "pak": "~0.9",
     "dependencies": {
         "osdep": "~0.8",
         "ssl": "~0.8"
     },
     "directories": {
         "paks": "src/paks"
-    },
-    "optionalDependencies": {
     }
 }

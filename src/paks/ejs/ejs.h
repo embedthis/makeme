@@ -2549,6 +2549,17 @@ PUBLIC int ejsRemoveLastItem(Ejs *ejs, EjsArray *ap);
  */
 PUBLIC int ejsRemoveItemAtPos(Ejs *ejs, EjsArray *ap, int index, int compact);
 
+/** 
+    Remove items from the array
+    @description This will remove items from the array. The array will be compacted.
+    @param ejs Ejs reference returned from #ejsCreateVM
+    @param ap Source array to modify
+    @param items Array items to remove
+    @return The original array
+    @ingroup EjsArray
+ */
+PUBLIC EjsArray *ejsRemoveItems(Ejs *ejs, EjsArray *ap, EjsArray *items);
+
 /*
     Internal
  */

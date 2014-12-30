@@ -1,7 +1,8 @@
 {
     "name": "osdep",
     "description": "Embedthis O/S Dependent Layer",
-    "version": "0.8.3",
+    "version": "0.8.4",
+    "pak": ">=0.10.0",
     "keywords": [
         "osdep",
         "me"
@@ -18,10 +19,13 @@
     "bugs": {
         "url": "http://github.com/embedthis/osdep/issues"
     },
-    "export": [
-        "src/osdep.h",
-        "doc/**"
-    ],
+    "export": [ {
+        "from": [
+            "src/osdep.h",
+            "doc/**"
+        ],
+        "to": "${TOP}"
+    } ],
     "licenses": [
         {
             "type": "GPL",
@@ -44,6 +48,5 @@
     ],
     "ignore": [
         "start.me"
-    ],
-    "import": true,
+    ]
 }

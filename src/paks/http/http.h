@@ -4228,7 +4228,8 @@ typedef struct HttpLang {
 
 /**
     Cache Control
-    @description Configuration is not thread safe and must occur at initialization time when the application is single threaded.
+    @description Configuration is not thread safe and must occur at initialization time when the application is 
+        single threaded.
     If the configuration is modified when the application is multithreaded, all requests must be first be quiesced.
     @defgroup HttpCache HttpCache
     @see HttpCache httpAddCache httpUpdateCache httpWriteCache
@@ -4286,7 +4287,7 @@ typedef struct HttpCache {
         If the URI is set to '*' all URIs for that action are uniquely cached. If the request has POST data,
         the URI may include such post data in a sorted query format. E.g. {uri: /buy?item=scarf&quantity=1}.
     @param extensions List of document extensions for which caching should be enabled. Set to a comma or space
-        separated list of extensions. Extensions should not have a period prefix. Set to null or '*' for all extensions.
+        separated list of extensions. Extensions should not have a period prefix. Set to null, '' or '*' for all extensions.
         Example: 'html, css, js'. The URI may include request parameters in sorted www-urlencoded format. For example:
         /example.esp?hobby=sailing&name=john.
     @param types List of document mime types for which caching should be enabled. Set to a comma or space
@@ -4410,7 +4411,8 @@ PUBLIC void httpSetStreaming(struct HttpHost *host, cchar *mime, cchar *uri, boo
 
 /**
     Route Control
-    @description Configuration is not thread safe and must occur at initialization time when the application is single threaded.
+    @description Configuration is not thread safe and must occur at initialization time when the application is 
+        single threaded.
     If the configuration is modified when the application is multithreaded, all requests must be first be quiesced.
     @defgroup HttpRoute HttpRoute
     @see HttpRoute httpAddRouteCondition httpAddRouteErrorDocument
@@ -4453,14 +4455,12 @@ typedef struct HttpRoute {
     ssize           startSegmentLen;        /**< Prefix length */
 
     MprJson         *config;                /**< Configuration file content */
-    MprTime         configLoaded;           /**< When package.json was last loaded */
     cchar           *mode;                  /**< Application run mode (debug|release) */
 
     cchar           *database;              /**< Name of database for route */
     cchar           *responseFormat;        /**< Client response format */
-    cchar           *client;                /**< Configuration to send to the client */
+    cchar           *clientConfig;         /**< Configuration to send to the client */
 
-    bool            combine: 1;             /**< Compile the application in 'combine' mode */
     bool            error: 1;               /**< Parse or runtime error */
     bool            keepSource: 1;          /**< Preserve generated source */
     bool            loaded: 1;              /**< App has been loaded */
@@ -4521,8 +4521,6 @@ typedef struct HttpRoute {
     MprList         *headers;               /**< Response header values */
 
     struct MprSsl   *ssl;                   /**< SSL configuration */
-    MprMutex        *mutex;                 /**< Multithread sync */
-
     char            *webSocketsProtocol;    /**< WebSockets sub-protocol */
     MprTicks        webSocketsPingPeriod;   /**< Time between pings (msec) */
 
@@ -4596,49 +4594,6 @@ PUBLIC HttpParseCallback httpAddConfig(cchar *key, HttpParseCallback callback);
 PUBLIC HttpRouteSetProc httpDefineRouteSet(cchar *name, HttpRouteSetProc fn);
 
 /**
-    Get a route directory variable
-    @description This looks up the value of the directory
-    @param route Route to modify
-    @param name Lower case name of the directory. This should not include the '_DIR' suffix.
-    @return Directory path
-    @ingroup HttpRoute
-    @stability Prototype
- */
-PUBLIC cchar *httpGetDir(HttpRoute *route, cchar *name);
-
-/**
-    Load a JSON configuration file
-    @description This loads the JSON configuration file.
-    @param route Parent route to configure
-    @param path Filename of the JSON configuration file. If this is a relative path, it will be resolved relative
-        to the routes home directory.
-    @return 'Zero' if successful, otherwise a negative MPR error code.
-    @ingroup HttpRoute
-    @stability Prototype
- */
-PUBLIC int httpLoadConfig(HttpRoute *route, cchar *path);
-
-/**
-    Define the default directory route variables
-    @description This defines the default directories for the 'cache', 'client', 'pak' and 'public' directories.
-    @param route Route to modify
-    @ingroup HttpRoute
-    @stability Prototype
- */
-PUBLIC void httpSetDefaultDirs(HttpRoute *route);
-
-/**
-    Define a route directory path variable
-    @description This creates an upper case route variable with a _DIR suffix for the given name.
-    @param route Route to modify
-    @param name Name of the directory to define
-    @param value Directory path value.
-    @ingroup HttpRoute
-    @stability Prototype
- */
-PUBLIC void httpSetDir(HttpRoute *route, cchar *name, cchar *value);
-
-/**
     Add a route set
     @description This will add a set of routes. It will add a home route and optional routes depending on the route set.
     <table>
@@ -4693,6 +4648,17 @@ PUBLIC void httpAddResource(HttpRoute *parent, cchar *prefix, cchar *resource);
 PUBLIC void httpAddPermResource(HttpRoute *parent, cchar *prefix, cchar *resource);
 
 /**
+    Add a route for the public directory
+    The public directory is defined via the {PUBLIC_DIR} route var.
+    @param parent Parent route from which to inherit configuration.
+    @param prefix URI prefix to append to the application prefix when constructing route URIs.
+    @param name Route name.
+    @ingroup HttpRoute
+    @stability Evolving
+ */
+PUBLIC void httpAddPublicRoute(HttpRoute *parent, cchar *prefix, cchar *name);
+
+/**
     Add routes for a group of resources
     @description This routing adds a set of RESTful routes for a resource group. It will add the following routes:
     <table>
@@ -4715,17 +4681,6 @@ PUBLIC void httpAddPermResource(HttpRoute *parent, cchar *prefix, cchar *resourc
     @stability Evolving
  */
 PUBLIC void httpAddResourceGroup(HttpRoute *parent, cchar *prefix, cchar *resource);
-
-/**
-    Add a route for the client directory
-    The client directory is defined via the {CLIENT_DIR} route var.
-    @param parent Parent route from which to inherit configuration.
-    @param prefix URI prefix to append to the application prefix when constructing route URIs.
-    @param name Route name.
-    @ingroup HttpRoute
-    @stability Evolving
- */
-PUBLIC void httpAddClientRoute(HttpRoute *parent, cchar *prefix, cchar *name);
 
 /**
     Add a route condition
@@ -5033,7 +4988,8 @@ PUBLIC HttpRoute *httpCreateRoute(struct HttpHost *host);
     @ingroup HttpRoute
     @stability Evolving
  */
-PUBLIC HttpRoute *httpDefineRoute(HttpRoute *parent, cchar *name, cchar *methods, cchar *pattern, cchar *target, cchar *source);
+PUBLIC HttpRoute *httpDefineRoute(HttpRoute *parent, cchar *name, cchar *methods, cchar *pattern, cchar *target, 
+    cchar *source);
 
 /**
     Define a RESTful route
@@ -5101,6 +5057,28 @@ PUBLIC cchar *httpExpandRouteVars(HttpRoute *route, cchar *str);
     @stability Evolving
  */
 PUBLIC void httpFinalizeRoute(HttpRoute *route);
+
+/**
+    Finalize loading JSON configuration files
+    @description This performs final processing of configuration files. It blends in the app.modes[] properties,
+    processes the app.http.mappings to create a client mappings string and registers defined endpoints.
+    @param route Parent route to configure
+    @return 'Zero' if successful, otherwise a negative MPR error code.
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC int httpFinalizeConfig(HttpRoute *route);
+
+/**
+    Get a route directory variable
+    @description This looks up the value of the directory
+    @param route Route to modify
+    @param name Lower case name of the directory. This should not include the '_DIR' suffix.
+    @return Directory path
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC cchar *httpGetDir(HttpRoute *route, cchar *name);
 
 /**
     Parse a boolean token
@@ -5184,6 +5162,26 @@ PUBLIC HttpLimits *httpGraduateLimits(HttpRoute *route, HttpLimits *limits);
 PUBLIC void httpHideRoute(HttpRoute *route, bool on);
 
 /**
+    Initialize and prepare to load configuration files.
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC void httpInitConfig(HttpRoute *route);
+
+/**
+    Load a JSON configuration file
+    @description This loads the JSON configuration file.
+    @param route Parent route to configure
+    @param rootKey Top level json property key at which to locate the json file contents.
+    @param path Filename of the JSON configuration file. If this is a relative path, it will be resolved relative
+        to the routes home directory.
+    @return 'Zero' if successful, otherwise a negative MPR error code.
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC int httpLoadConfig(HttpRoute *route, cchar *rootKey, cchar *path);
+
+/**
     Lookup an error document by HTTP status code
     @description This looks up error documents configured via #httpAddRouteErrorDocument
     @param route Route to modify
@@ -5225,14 +5223,24 @@ PUBLIC char *httpMakePath(HttpRoute *route, cchar *dir, cchar *path);
     \n\n
     If route maps have been defined, the filename may be mapped to a preferred compressed or minified filename to serve.
     \n\n
-    After computing the filename, this routine calls #httpSetFilename to set the HttpTx.filename, ext, etag and fileInfo fields.
-    If a filename has already been defined by a prior call to httpMapFile or #httpSetFilename, this routine will do nothing.
-    To reset a prior filename, use #httpSetFilename with a null argument.
+    After computing the filename, this routine calls #httpSetFilename to set the HttpTx.filename, ext, etag and fileInfo 
+    fields. If a filename has already been defined by a prior call to httpMapFile or #httpSetFilename, this routine will 
+    do nothing.  To reset a prior filename, use #httpSetFilename with a null argument.
     @param conn HttpConn connection object
     @ingroup HttpRoute
     @stability Evolving
  */
 PUBLIC void httpMapFile(HttpConn *conn);
+
+/**
+    Parse all the properties under the given key
+    @param route Parent route to configure
+    @param key Json property key
+    @param prop Json property value
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC void httpParseAll(HttpRoute *route, cchar *key, MprJson *prop);
 
 /**
     Remove HTTP methods for the route
@@ -5258,6 +5266,26 @@ PUBLIC void httpResetRouteIndexes(HttpRoute *route);
     @stability Evolving
  */
 PUBLIC void httpResetRoutePipeline(HttpRoute *route);
+
+/**
+    Define the default directory route variables
+    @description This defines the default directories for the 'cache', 'client', 'pak' and 'public' directories.
+    @param route Route to modify
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC void httpSetDefaultDirs(HttpRoute *route);
+
+/**
+    Define a route directory path variable
+    @description This creates an upper case route variable with a _DIR suffix for the given name.
+    @param route Route to modify
+    @param name Name of the directory to define
+    @param value Directory path value.
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC void httpSetDir(HttpRoute *route, cchar *name, cchar *value);
 
 /**
     Set the route authentication

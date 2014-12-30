@@ -5,7 +5,4 @@
     "keywords": [
         "ejs",
     ],
-    "scripts": {
-        "install": "install.es"
-    }
 }

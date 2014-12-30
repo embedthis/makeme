@@ -2,7 +2,8 @@
     "name": "mpr",
     "description": "Embedthis Multithreaded Portable Runtime",
     "title": "Embedthis MPR",
-    "version": "6.0.1",
+    "version": "6.0.2",
+    "pak": ">=0.10.0",
     "directories": {
         "paks": "src/paks"
     },
@@ -28,9 +29,11 @@
         "url": "http://github.com/embedthis/mpr-4/issues"
     },
     "export": [
-        "doc/**"
+        {
+            "from": "doc/**",
+            "to": "${TOP}"
+        }
     ],
-    "import": true,
     "licenses": [
         {
             "type": "GPL",
@@ -41,6 +44,4 @@
             "url": "https://embedthis.com/licensing/"
         }
     ],
-    "optionalDependencies": {
-    }
 }

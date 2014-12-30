@@ -8971,8 +8971,6 @@ module ejs {
                 <li>The wildcard '?' matches any single character</li>
                 <li>* matches zero or more characters in a filename or directory</li>
                 <li>** matches zero or more files or directories and matches recursively in a directory tree</li>
-                <li>! Negates pattern. This removes matching patterns from the set. These are applied after all source
-                      patterns have been processed.
             </ul>
             If a pattern ends with '/', the path must exist and be a directory.
             @return True if the path matches the pattern.
@@ -16965,7 +16963,8 @@ module ejs.unix {
         of its options.
 
         The 'src' argument can be a Path or String or an array of Strings/Paths representing files/directories to copy and
-        may include wildcards. If a src element is a directory, then it all files and subdirectories underneath will be copied. 
+        may include wildcards. If a src element is a directory, then it all files and subdirectories underneath will be
+         copied. 
 
         By default, this method operates in 'flatten' mode where the source directory structure is not copied. To
         copy an entire directory tree, set 'flatten' to false in the options. In this case, the entire source path is 
@@ -16982,7 +16981,6 @@ module ejs.unix {
             !   Negates pattern. This removes matching patterns from the set. These are applied after all source
                 patterns have been processed. Use !! to escape.
         If item is a directory, then '**' is automatically appended.
-
 
         @param dest Destination file or directory. If multiple files are copied, dest is assumed to be a directory and 
             will be created if required.  If dest has a trailing '/', it is assumed to be a directory.
@@ -21426,7 +21424,10 @@ r.link({product: "candy", quantity: "10", template: "/cart/{product}/{quantity}}
          */
         function setHeaders(headers: Object, overwrite: Boolean = true): Void {
             for (let [key,value] in headers) {
-                setHeader(key, value || '', overwrite)
+                if (value == null) {
+                    value = ''
+                }
+                setHeader(key, value, overwrite)
             }
         }
 

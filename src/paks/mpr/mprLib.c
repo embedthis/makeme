@@ -3679,17 +3679,6 @@ PUBLIC int mprNotifyOn(MprWaitHandler *wp, int mask)
                 mprDebug("mpr event", 5, "mprNotifyOn WSAAsyncSelect failed %d, errno %d", rc, GetLastError());
             }
         }
-#if UNUSED
-        /*
-            Disabled because mprRemoteEvent schedules the dispatcher AND lockes the event service.
-            This may cause deadlocks and specifically, mprRemoveEvent may crash while it races with event service
-            on another thread.
-         */ 
-        if (wp->event) {
-            mprRemoveEvent(wp->event);
-            wp->event = 0;
-        }
-#endif
     }
     unlock(ws);
     return 0;
@@ -10677,17 +10666,6 @@ PUBLIC int mprNotifyOn(MprWaitHandler *wp, int mask)
             }
         }
         wp->desiredMask = mask;
-#if UNUSED
-        /*
-            Disabled because mprRemoteEvent schedules the dispatcher AND lockes the event service.
-            This may cause deadlocks and specifically, mprRemoveEvent may crash while it races with event service
-            on another thread.
-         */
-        if (wp->event) {
-            mprRemoveEvent(wp->event);
-            wp->event = 0;
-        }
-#endif
         mprSetItem(ws->handlerMap, fd, mask ? wp : 0);
     }
     unlock(ws);
@@ -10816,17 +10794,6 @@ static void serviceIO(MprWaitService *ws, struct epoll_event *events, int count)
             mask |= MPR_WRITABLE;
         }
         wp->presentMask = mask & wp->desiredMask;
-
-#if KEEP
-        if (ev->events & EPOLLERR) {
-            int error = 0;
-            socklen_t errlen = sizeof(error);
-            getsockopt(wp->fd, SOL_SOCKET, SO_ERROR, (void*) &error, &errlen);
-            printf("error %d\n", error);
-            /* Get EPOLLERR for broken pipe */
-            mprRemoveWaitHandler(wp);
-        }
-#endif
         if (wp->presentMask) {
             if (wp->flags & MPR_WAIT_IMMEDIATE) {
                 (wp->proc)(wp->handlerData, NULL);
@@ -12232,9 +12199,6 @@ PUBLIC int mprRemoveKey(MprHash *hash, cvoid *key)
     MprKey      *sp, *prevSp;
     int         index;
 
-#if KEEP
-    assert(!(MPR->heap->sweeper == mprGetCurrentThread()));
-#endif
     assert(hash);
     assert(key);
 
@@ -14297,17 +14261,6 @@ PUBLIC int mprNotifyOn(MprWaitHandler *wp, int mask)
             kp++;
         }
         wp->desiredMask = mask;
-#if UNUSED
-        /*
-            Disabled because mprRemoteEvent schedules the dispatcher AND lockes the event service.
-            This may cause deadlocks and specifically, mprRemoveEvent may crash while it races with event service
-            on another thread.
-         */
-        if (wp->event) {
-            mprRemoveEvent(wp->event);
-            wp->event = 0;
-        }
-#endif
         if (kevent(ws->kq, interest, (int) (kp - interest), NULL, 0, NULL) < 0) {
             /*
                 Reissue and get results. Test for broken pipe case.
@@ -14859,9 +14812,6 @@ PUBLIC int mprRemoveItem(MprList *lp, cvoid *item)
 {
     int     index;
 
-#if KEEP
-    assert(!(MPR->heap->sweeper == mprGetCurrentThread()));
-#endif
     if (!lp) {
         return -1;
     }
@@ -16315,6 +16265,7 @@ static char *standardMimeTypes[] = {
     "doc",   "application/msword",
     "ejs",   "text/html",
     "eof",   "application/vnd.ms-fontobject",
+    "eot",   "application/vnd.ms-fontobject",
     "esp",   "text/html",
     "eps",   "application/postscript",
     "es",    "application/x-javascript",
@@ -16355,6 +16306,7 @@ static char *standardMimeTypes[] = {
     "tar",   "application/x-tar",
     "tgz",   "application/x-gzip",
     "tiff",  "image/tiff",
+    "otf",   "application/x-font-opentype",
     "ttf",   "application/x-font-ttf",
     "txt",   "text/plain",
     "wav",   "audio/x-wav",
@@ -18169,7 +18121,7 @@ static char *getNextPattern(char *pattern, char **nextPat, bool *dwild)
 /*
     Glob a full multi-segment path and return a list of matching files
 
-    MOB relativeTo  - Relative files are relative to this directory.
+    relativeTo  - Relative files are relative to this directory.
     path        - Directory to search. Will be a physical directory path.
     pattern     - Search pattern with optional wildcards.
     exclude     - Exclusion pattern (not currently implemented as there is no API to pass in an exluded pattern).
@@ -18208,7 +18160,6 @@ static MprList *globPathFiles(MprList *results, cchar *path, char *pattern, ccha
             }
         }
         add = (matched && (!nextPat || smatch(nextPat, "**")));
-        //  MOB _ is this right using filename?  surely need to use dp->name?
         if (add && exclude && matchFile(filename, exclude)) {
             continue;
         }
@@ -18219,7 +18170,6 @@ static MprList *globPathFiles(MprList *results, cchar *path, char *pattern, ccha
             mprAddItem(results, filename);
         }
         if (dp->isDir) {
-            //  MOB -- same
             if (dwild) {
                 globPathFiles(results, mprJoinPath(path, dp->name), pattern, relativeTo, exclude, flags);
             } else if (matched && nextPat) {
@@ -21183,17 +21133,6 @@ PUBLIC int mprNotifyOn(MprWaitHandler *wp, int mask)
             }
             ws->highestFd = fd;
         }
-#if UNUSED
-        /*
-            Disabled because mprRemoteEvent schedules the dispatcher AND lockes the event service.
-            This may cause deadlocks and specifically, mprRemoveEvent may crash while it races with event service
-            on another thread.
-         */
-        if (wp->event) {
-            mprRemoveEvent(wp->event);
-            wp->event = 0;
-        }
-#endif
         mprSetItem(ws->handlerMap, fd, mask ? wp : 0);
     }
     mprWakeEventService();
@@ -22073,7 +22012,7 @@ PUBLIC Socket mprListenOnSocket(MprSocket *sp, cchar *ip, int port, int flags)
     struct sockaddr     *addr;
     Socklen             addrlen;
     cchar               *sip;
-    int                 datagram, family, protocol, rc, only;
+    int                 datagram, family, protocol, enable, rc;
 
     lock(sp);
     resetSocket(sp);
@@ -22109,11 +22048,20 @@ PUBLIC Socket mprListenOnSocket(MprSocket *sp, cchar *ip, int port, int flags)
 #endif
 
     if (!(sp->flags & MPR_SOCKET_NOREUSE)) {
-        rc = 1;
+        enable = 1;
 #if ME_UNIX_LIKE || VXWORKS
-        setsockopt(sp->fd, SOL_SOCKET, SO_REUSEADDR, (char*) &rc, sizeof(rc));
+        if (setsockopt(sp->fd, SOL_SOCKET, SO_REUSEADDR, (char*) &enable, sizeof(enable)) != 0) {
+            mprLog("error mpr socket", 3, "Cannot set reuseaddr, errno %d", errno);
+        }
+#if defined(SO_REUSEPORT)
+        if (setsockopt(sp->fd, SOL_SOCKET, SO_REUSEPORT, (char*) &enable, sizeof(enable)) != 0) {
+            mprLog("error mpr socket", 3, "Cannot set reuseport, errno %d", errno);
+        }
+#endif
 #elif ME_WIN_LIKE && defined(SO_EXCLUSIVEADDRUSE)
-        setsockopt(sp->fd, SOL_SOCKET, SO_REUSEADDR | SO_EXCLUSIVEADDRUSE, (char*) &rc, sizeof(rc));
+        if (setsockopt(sp->fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char*) &enable, sizeof(enable)) != 0) {
+            mprLog("error mpr socket", 3, "Cannot set exclusiveaddr, errno %d", errno);
+        }
 #endif
     }
     /*
@@ -22123,11 +22071,11 @@ PUBLIC Socket mprListenOnSocket(MprSocket *sp, cchar *ip, int port, int flags)
 #if defined(IPV6_V6ONLY)
     if (MPR->socketService->hasIPv6) {
         if (ip == 0 || *ip == '\0') {
-            only = 0;
-            setsockopt(sp->fd, IPPROTO_IPV6, IPV6_V6ONLY, (char*) &only, sizeof(only));
+            enable = 0;
+            setsockopt(sp->fd, IPPROTO_IPV6, IPV6_V6ONLY, (char*) &enable, sizeof(enable));
         } else if (ipv6(ip)) {
-            only = 1;
-            setsockopt(sp->fd, IPPROTO_IPV6, IPV6_V6ONLY, (char*) &only, sizeof(only));
+            enable = 1;
+            setsockopt(sp->fd, IPPROTO_IPV6, IPV6_V6ONLY, (char*) &enable, sizeof(enable));
         }
     }
 #endif
@@ -22170,8 +22118,8 @@ PUBLIC Socket mprListenOnSocket(MprSocket *sp, cchar *ip, int port, int flags)
         Delay setting reuse until now so that we can be assured that we have exclusive use of the port.
      */
     if (!(sp->flags & MPR_SOCKET_NOREUSE)) {
-        int rc = 1;
-        setsockopt(sp->fd, SOL_SOCKET, SO_REUSEADDR, (char*) &rc, sizeof(rc));
+        enable = 1;
+        setsockopt(sp->fd, SOL_SOCKET, SO_REUSEADDR, (char*) &enable, sizeof(enable));
     }
 #endif
     mprSetSocketBlockingMode(sp, (bool) (sp->flags & MPR_SOCKET_BLOCK));

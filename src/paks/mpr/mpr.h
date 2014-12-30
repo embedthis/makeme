@@ -5515,9 +5515,6 @@ PUBLIC ssize mprWritePathContents(cchar *path, cchar *buf, ssize len, int mode);
     Internal - prototype
  */
 PUBLIC bool mprMatchPath(cchar *path, cchar *pattern);
-#if UNUSED
-PUBLIC int mprMatchPartPath(cchar *path, int isDir, cchar *pattern, cchar **nextPartPattern, int count, int flags);
-#endif
 
 /********************************** O/S Dep ***********************************/
 /**

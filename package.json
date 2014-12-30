@@ -1,7 +1,8 @@
 {
     "name": "me",
     "description": "Embedthis MakeMe",
-    "version": "0.8.5",
+    "version": "0.8.6",
+    "pak": ">=0.10",
     "keywords": [
         "me",
         "makeme",
@@ -39,7 +40,6 @@
         "http": "~6.0",
         "me-components": "~0.8",
         "me-configuration": "~0.8",
-        "me-docstyle": "~0.8",
         "me-os": "~0.8",
         "me-package": "~0.8",
         "me-project": "~0.8",
@@ -51,17 +51,14 @@
         "ssl": "~0.8",
         "zlib": "~1.0"
     },
-    "optionalDependencies": {
-    },
     "directories": {
         "paks": "src/paks"
     },
-    "import": true,
-    "paks": {
+    "app": {
         "*": {
             "ignore": [
                 "doc"
             ]
         }
-    }
+    },
 }

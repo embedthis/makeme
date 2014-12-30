@@ -26641,7 +26641,6 @@ static EjsString *arrayToString(Ejs *ejs, EjsArray *ap, int argc, EjsObj **argv)
 
 static EjsArray *makeIntersection(Ejs *ejs, EjsArray *lhs, EjsArray *rhs);
 static EjsArray *makeUnion(Ejs *ejs, EjsArray *lhs, EjsArray *rhs);
-static EjsArray *removeArrayElements(Ejs *ejs, EjsArray *lhs, EjsArray *rhs);
 static EjsObj *setArrayLength(Ejs *ejs, EjsArray *ap, int argc, EjsObj **argv);
 
 /******************************************************************************/
@@ -26929,7 +26928,7 @@ static EjsAny *invokeArrayOperator(Ejs *ejs, EjsAny *lhs, int opcode, EjsAny *rh
         return pushArray(ejs, lhs, 1, &rhs);
 
     case EJS_OP_SUB:
-        return removeArrayElements(ejs, lhs, rhs);
+        return ejsRemoveItems(ejs, lhs, rhs);
 
     default:
         ejsThrowTypeError(ejs, "Opcode %d not implemented for type %@", opcode, TYPE(lhs)->qname.name);
@@ -27053,7 +27052,7 @@ static EjsArray *makeUnion(Ejs *ejs, EjsArray *lhs, EjsArray *rhs)
 }
 
 
-static EjsArray *removeArrayElements(Ejs *ejs, EjsArray *lhs, EjsArray *rhs)
+PUBLIC EjsArray *ejsRemoveItems(Ejs *ejs, EjsArray *lhs, EjsArray *rhs)
 {
     EjsObj  **l, **r;
     int     i, j, k;
@@ -27720,7 +27719,7 @@ static EjsNumber *pushArray(Ejs *ejs, EjsArray *ap, int argc, EjsAny **argv)
  */
 static EjsArray *removeElements(Ejs *ejs, EjsArray *ap, int argc, EjsArray **argv)
 {
-    return removeArrayElements(ejs, ap, argv[0]);
+    return ejsRemoveItems(ejs, ap, argv[0]);
 }
 
 
@@ -37951,7 +37950,7 @@ static EjsString *serialize(Ejs *ejs, EjsAny *vp, Json *json)
     EjsObj      *pp, *obj, *replacerArgs[2];
     wchar       *cp;
     cchar       *key;
-    int         c, isArray, i, count, slotNum, quotes, sameline;
+    int         c, isArray, i, count, slotNum, quotes, sameline, items;
 
     /*
         The main code below can handle Arrays, Objects, objects derrived from Object and also native classes with properties.
@@ -37981,6 +37980,7 @@ static EjsString *serialize(Ejs *ejs, EjsAny *vp, Json *json)
     if (json->pretty && !sameline) {
         mprPutCharToWideBuf(json->buf, '\n');
     }
+    items = 0;
     if (++ejs->serializeDepth <= json->depth && !VISITED(obj)) {
         SET_VISITED(obj, 1);
         for (slotNum = 0; slotNum < count && !ejs->exception; slotNum++) {
@@ -38070,14 +38070,21 @@ static EjsString *serialize(Ejs *ejs, EjsAny *vp, Json *json)
                 }
                 mprPutBlockToBuf(json->buf, sv->value, sv->length * sizeof(wchar));
             }
-            if ((slotNum + 1) < count || json->commas) {
-                mprPutCharToWideBuf(json->buf, ',');
-            }
+            mprPutCharToWideBuf(json->buf, ',');
             if (json->pretty && !sameline) {
                 mprPutCharToWideBuf(json->buf, '\n');
             }
+            items++;
         }
         SET_VISITED(obj, 0);
+        if (items > 0 && !json->commas) {
+            if (json->pretty && !sameline) {
+                mprAdjustBufEnd(json->buf, - (2 * sizeof(wchar)));
+                mprPutCharToWideBuf(json->buf, '\n');
+            } else {
+                mprAdjustBufEnd(json->buf, - sizeof(wchar));
+            }
+        }
     }
     --ejs->serializeDepth; 
     if (json->pretty && !sameline) {
@@ -41539,7 +41546,7 @@ static EjsArray *getFilesWithInstructions(Ejs *ejs, EjsPath *fp, EjsObj *instruc
 static cchar *getPathString(Ejs *ejs, EjsObj *vp);
 static void getUserGroup(Ejs *ejs, EjsObj *attributes, int *uid, int *gid);
 static EjsArray *getFiles(Ejs *ejs, EjsArray *results, EjsPath *path, cchar *pattern, EjsAny *missing,
-    EjsString *relative, MprList *negate, EjsRegExp *exclude, EjsRegExp *include, EjsObj *options, int flags);
+    EjsString *relative, EjsRegExp *exclude, EjsRegExp *include, EjsObj *options, int flags);
 
 /************************************ Helpers *********************************/
 
@@ -42111,10 +42118,9 @@ static EjsArray *getFilesWithInstructions(Ejs *ejs, EjsPath *fp, EjsObj *instruc
     MprFileSystem   *fs;
     EjsAny          *vp, *missing;
     EjsObj          *options, *expand;
-    EjsArray        *patterns, *list;
+    EjsArray        *patterns, *list, *negate;
     EjsRegExp       *exclude, *include;
     EjsString       *pattern, *relative;
-    MprList         *negate;
     cchar           *s;
     char            *pat;
     int             flags, i, lastc;
@@ -42201,24 +42207,6 @@ static EjsArray *getFilesWithInstructions(Ejs *ejs, EjsPath *fp, EjsObj *instruc
             flags |= FILES_CONTENTS;
         } 
     }
-    negate = 0;
-    for (i = 0; i < patterns->length; i++) {
-        pattern = ejsToString(ejs, ejsGetItem(ejs, patterns, i));
-        if (pattern->value[0] == '!' && !(flags & FILES_NONEG)) {
-            if (expand) {
-                pattern = expandPath(ejs, fp, pattern, expand, options);
-            }
-            if (!negate) {
-                negate = mprCreateList(0, 0);
-            }
-            pat = ejsToMulti(ejs, pattern);
-            if (flags & FILES_RELATIVE) {
-                mprAddItem(negate, &pat[1]);
-            } else {
-                mprAddItem(negate, mprJoinPath(fp->value, &pat[1]));
-            }
-        }
-    }
     for (i = 0; i < patterns->length; i++) {
         pattern = ejsToString(ejs, ejsGetItem(ejs, patterns, i));
         if (expand) {
@@ -42233,8 +42221,16 @@ static EjsArray *getFilesWithInstructions(Ejs *ejs, EjsPath *fp, EjsObj *instruc
                 pat = mprJoinPath(pat, "**");
             }
         }
-        if (!getFiles(ejs, results, fp, pat, missing, relative, negate, exclude, include, options, flags)) {
-            return 0;
+        if (pat[0] == '!' && !(flags & FILES_NONEG)) {
+            negate = ejsCreateArray(ejs, 0);
+            if (!getFiles(ejs, negate, fp, &pat[1], 0, relative, exclude, include, options, flags & ~FILES_NOMATCH_EXC)) {
+                return 0;
+            }
+            ejsRemoveItems(ejs, results, negate);
+        } else {
+            if (!getFiles(ejs, results, fp, pat, missing, relative, exclude, include, options, flags)) {
+                return 0;
+            }
         }
     }
     if (ejsGetLength(ejs, results) == 0) {
@@ -42286,12 +42282,12 @@ static bool matchPath(Ejs *ejs, EjsPath *thisPath, EjsAny *matcher, cchar *path,
     pattern     Glob pattern.
  */
 static EjsArray *getFiles(Ejs *ejs, EjsArray *results, EjsPath *thisPath, cchar *pattern, EjsAny *missing,
-    EjsString *relative, MprList *negate, EjsRegExp *exclude, EjsRegExp *include, EjsObj *options, int flags)
+    EjsString *relative, EjsRegExp *exclude, EjsRegExp *include, EjsObj *options, int flags)
 {
     MprList     *list;
     MprPath     info;
-    cchar       *path, *matchFile, *npat;
-    int         add, i, index, count;
+    cchar       *path, *matchFile;
+    int         add, index, count;
 
     count = 0;
     list = mprGlobPathFiles(thisPath->value, pattern, flags);
@@ -42314,14 +42310,6 @@ static EjsArray *getFiles(Ejs *ejs, EjsArray *results, EjsPath *thisPath, cchar 
             }
             matchFile = (info.isDir && !info.isLink) ? sjoin(path, "/", NULL) : path;
             add = !matchPath(ejs, thisPath, exclude, matchFile, options);
-        }
-        if (add) {
-            for (ITERATE_ITEMS(negate, npat, i)) {
-                if (mprMatchPath(path, npat)) {
-                    add = 0;
-                    break;
-                }
-            }
         }
         if (add) {
             if (relative) {
@@ -46695,18 +46683,13 @@ static EjsString *replace(Ejs *ejs, EjsString *sp, int argc, EjsObj **argv)
                 result = buildString(ejs, result, lastReplace, (int) (cp - lastReplace));
             }
             endLastMatch = matches[1];
-            if (startNextMatch == endLastMatch) {
-                if (rp->multiline) {
-                    if ((cp = strchr(&sp->value[endLastMatch], '\n')) != 0) {
-                        startNextMatch = (int) (cp - sp->value + 1);
-                    } else {
-                        break;
-                    }
-                } else {
-                    startNextMatch++;
-                }
-            } else {
-                startNextMatch = endLastMatch;
+            startNextMatch = endLastMatch;
+            if (matches[0] == matches[1]) {
+                /* 
+                    A pattern may match but have no length. Step over the position always.
+                    E.g. multline matching ^ or $, or an optional pattern
+                 */
+                startNextMatch++;
             }
         } while (rp->global);
 
