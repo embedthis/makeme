@@ -19356,7 +19356,6 @@ PUBLIC char *mprTransformPath(cchar *path, int flags)
     return result;
 }
 
-//  TODO - should these really return cchar
 
 PUBLIC char *mprTrimPathComponents(cchar *path, int count)
 {
@@ -22053,7 +22052,10 @@ PUBLIC Socket mprListenOnSocket(MprSocket *sp, cchar *ip, int port, int flags)
         if (setsockopt(sp->fd, SOL_SOCKET, SO_REUSEADDR, (char*) &enable, sizeof(enable)) != 0) {
             mprLog("error mpr socket", 3, "Cannot set reuseaddr, errno %d", errno);
         }
-#if defined(SO_REUSEPORT)
+#if defined(SO_REUSEPORT) && KEEP
+        /*
+            This permits multiple servers listening on the same endpoint
+         */
         if (setsockopt(sp->fd, SOL_SOCKET, SO_REUSEPORT, (char*) &enable, sizeof(enable)) != 0) {
             mprLog("error mpr socket", 3, "Cannot set reuseport, errno %d", errno);
         }
@@ -25697,7 +25699,6 @@ static int getNextThreadNum(MprWorkerService *ws)
 {
     int     rc;
 
-    //  TODO Atomic
     lock(ws);
     rc = ws->nextThreadNum++;
     unlock(ws);

@@ -815,7 +815,7 @@ static int prepRequest(HttpConn *conn, MprList *files, int retry)
         httpSetHeaderString(conn, "Range", app->ranges);
     }
     if (app->formData) {
-        httpSetHeaderString(conn, "Content-Type", "application/x-www-form-urlencoded");
+        httpSetContentType(conn, "application/x-www-form-urlencoded");
     }
     if (setContentLength(conn, files) < 0) {
         return MPR_ERR_CANT_OPEN;
@@ -896,7 +896,6 @@ static int issueRequest(HttpConn *conn, cchar *url, MprList *files)
             }
         }
         if ((rx = conn->rx) != 0) {
-            /* TODO - better define what requests are retried */
             if (rx->status == HTTP_CODE_REQUEST_TOO_LARGE || rx->status == HTTP_CODE_REQUEST_URL_TOO_LARGE ||
                 rx->status == HTTP_CODE_NOT_ACCEPTABLE || 
                 (rx->status == HTTP_CODE_UNAUTHORIZED && conn->username == 0)) {

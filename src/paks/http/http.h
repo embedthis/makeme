@@ -182,9 +182,13 @@ struct HttpWebSocket;
 #ifndef ME_MAX_PING_DURATION
     #define ME_MAX_PING_DURATION   (30 * 1000)         /**< WSS ping defeat Keep-Alive timeouts (30 sec) */
 #endif
+
+#if DEPRECATE || 1
 #ifndef ME_SERVER_PREFIX_CHAR
     #define ME_SERVER_PREFIX_CHAR '|'                  /**< URI prefix character for server prefix */
 #endif
+#endif
+
 #ifndef ME_XSRF_COOKIE
     #define ME_XSRF_COOKIE        "XSRF-TOKEN"         /**< CSRF token cookie name */
 #endif
@@ -2781,6 +2785,7 @@ PUBLIC int httpOpenUploadFilter();
 PUBLIC int httpOpenWebSockFilter();
 PUBLIC int httpSendOpen(HttpQueue *q);
 PUBLIC void httpSendOutgoingService(HttpQueue *q);
+PUBLIC int httpHandleDirectory(struct HttpConn *conn);
 
 /********************************** HttpConn *********************************/
 /**
@@ -2889,8 +2894,8 @@ PUBLIC void httpSetIOCallback(struct HttpConn *conn, HttpIOCallback fn);
         httpGetConnHost httpGetError httpGetExt httpGetKeepAliveCount httpGetWriteQueueCount httpMatchHost httpMemoryError
         httpAfterEvent httpPrepClientConn httpResetCredentials httpRouteRequest httpRunHandlerReady httpService
         httpSetAsync httpSetChunkSize httpSetConnContext httpSetConnHost httpSetConnNotifier httpSetCredentials
-        httpSetKeepAliveCount httpSetProtocol httpSetRetries httpSetSendConnector httpSetState httpSetTimeout
-        httpSetTimestamp httpStartPipeline
+        httpSetFileHandler httpSetKeepAliveCount httpSetProtocol httpSetRetries httpSetSendConnector httpSetState 
+        httpSetTimeout httpSetTimestamp httpStartPipeline
     @stability Internal
  */
 typedef struct HttpConn {
@@ -3528,6 +3533,17 @@ PUBLIC void httpSetConnUser(HttpConn *conn, struct HttpUser *user);
     @stability Stable
  */
 PUBLIC void httpSetCredentials(HttpConn *conn, cchar *user, cchar *password, cchar *authType);
+
+/**
+    Set the "fileHandler" to process the request
+    @description This is used by handlers to relay file requests to the file handler. Should be called from the other
+        handlers start entry point.
+    @param conn HttpConn connection object created via #httpCreateConn
+    @param path Optional filename to serve. If null, use HttpTx.filename.
+    @ingroup HttpConn
+    @stability Prototype
+ */
+PUBLIC void httpSetFileHandler(HttpConn *conn, cchar *path);
 
 /**
     Control Http Keep-Alive for the connection.
@@ -4225,6 +4241,7 @@ typedef struct HttpLang {
 #define HTTP_CACHE_RESET            0x8     /**< Don't inherit cache config from outer routes */
 #define HTTP_CACHE_UNIQUE           0x10    /**< Uniquely cache request with different params */
 #define HTTP_CACHE_HAS_PARAMS       0x20    /**< Cache definition has params */
+#define HTTP_CACHE_STATIC           0x40    /**< Cache extensions: css, gif, ico, jpg, js, html, pdf, ttf, txt, xml, woff */
 
 /**
     Cache Control
@@ -4401,13 +4418,17 @@ PUBLIC void httpSetStreaming(struct HttpHost *host, cchar *mime, cchar *uri, boo
 #define HTTP_ROUTE_CORS                 0x40        /**< Cross-Origin resource sharing */
 #define HTTP_ROUTE_STEALTH              0x80        /**< Stealth mode */
 #define HTTP_ROUTE_SHOW_ERRORS          0x100       /**< Show errors to the client */
-#define HTTP_ROUTE_VISIBLE_SESSION      0x200       /**< Create a session cookie visible to client Javascript (not httponly) */
+#define HTTP_ROUTE_VISIBLE_SESSION      0x200       /**< Create a session cookie visible to client Javascript */
 #define HTTP_ROUTE_PRESERVE_FRAMES      0x400       /**< Preserve WebSocket frame boundaries */
 #define HTTP_ROUTE_HIDDEN               0x800       /**< Hide this route in route tables. */
 #define HTTP_ROUTE_ENV_ESCAPE           0x1000      /**< Escape env vars */
 #define HTTP_ROUTE_DOTNET_DIGEST_FIX    0x2000      /**< .NET digest auth omits query in MD5 */
 #define HTTP_ROUTE_REDIRECT             0x4000      /**< Redirect secureCondition */
 #define HTTP_ROUTE_STRICT_TLS           0x8000      /**< Emit Strict-Transport-Security header */
+
+#if DEPRECATE || 1
+#define HTTP_ROUTE_SET_DEFINED          0x10000     /**< Route set defined */
+#endif
 
 /**
     Route Control
@@ -4423,7 +4444,7 @@ PUBLIC void httpSetStreaming(struct HttpHost *host, cchar *mime, cchar *uri, boo
         httpGetRouteDocuments httpLookupRouteErrorDocument httpMakePath httpResetRoutePipeline
         httpSetRouteAuth httpSetRouteAutoDelete httpSetRouteConnector httpSetRouteData
         httpSetRouteDefaultLanguage httpSetRouteDocuments httpSetRouteFlags httpSetRouteHandler httpSetRouteHost
-        httpSetRouteIndex httpSetRouteMethods httpSetRouteName httpSetRouteVar httpSetRoutePattern
+        httpSetRouteIndex httpSetRouteMethods httpSetRouteVar httpSetRoutePattern
         httpSetRoutePrefix httpSetRouteScript httpSetRouteSource httpSetRouteTarget httpSetRouteWorkers httpTemplate
         httpTokenize httpTokenizev httpLink httpLinkEx
     @stability Internal
@@ -4431,19 +4452,20 @@ PUBLIC void httpSetStreaming(struct HttpHost *host, cchar *mime, cchar *uri, boo
 typedef struct HttpRoute {
     /* Ordered for debugging */
     struct HttpRoute *parent;               /**< Parent route */
-    char            *name;                  /**< Route name */
     char            *pattern;               /**< Original matching URI pattern for the route (includes prefix) */
-    char            *startSegment;          /**< Starting literal segment of pattern (includes prefix) */
-    char            *startWith;             /**< Starting literal segment of pattern (includes prefix) */
+    char            *startSegment;          /**< First starting literal segment of pattern */
+    char            *startWith;             /**< Starting literal portion of pattern */
     char            *optimizedPattern;      /**< Processed pattern (excludes prefix) */
     char            *prefix;                /**< Application scriptName prefix. Set to '' for '/'. Always set */
+#if DEPRECATE || 1
     char            *serverPrefix;          /**< Prefix for the server-side. Does not include prefix. Always set */
+#endif
     char            *tplate;                /**< URI template for forming links based on this route (includes prefix) */
     char            *targetRule;            /**< Target rule */
     char            *target;                /**< Route target details */
 
-    char            *documents;             /**< Documents directory */
-    char            *home;                  /**< Home directory for configuration files */
+    cchar           *documents;             /**< Documents directory */
+    cchar           *home;                  /**< Home directory for configuration files */
     char            *envPrefix;             /**< Environment strings prefix */
     MprList         *indexes;               /**< Directory index documents */
     HttpStage       *handler;               /**< Fixed handler */
@@ -4622,12 +4644,11 @@ PUBLIC void httpAddRouteSet(HttpRoute *route, cchar *set);
     </tr>
     </table>
     @param parent Parent route from which to inherit configuration.
-    @param prefix URI prefix to append to the application prefix when constructing route URIs.
     @param resource Resource name. This should be a lower case, single word, alphabetic resource name.
     @ingroup HttpRoute
     @stability Evolving
  */
-PUBLIC void httpAddResource(HttpRoute *parent, cchar *prefix, cchar *resource);
+PUBLIC void httpAddResource(HttpRoute *parent, cchar *resource);
 
 /**
     Add routes for a permanent resource
@@ -4640,23 +4661,11 @@ PUBLIC void httpAddResource(HttpRoute *parent, cchar *prefix, cchar *resource);
     </tr>
     </table>
     @param parent Parent route from which to inherit configuration.
-    @param prefix URI prefix to append to the application prefix when constructing route URIs.
     @param resource Resource name. This should be a lower case, single word, alphabetic resource name.
     @ingroup HttpRoute
     @stability Evolving
  */
-PUBLIC void httpAddPermResource(HttpRoute *parent, cchar *prefix, cchar *resource);
-
-/**
-    Add a route for the public directory
-    The public directory is defined via the {PUBLIC_DIR} route var.
-    @param parent Parent route from which to inherit configuration.
-    @param prefix URI prefix to append to the application prefix when constructing route URIs.
-    @param name Route name.
-    @ingroup HttpRoute
-    @stability Evolving
- */
-PUBLIC void httpAddPublicRoute(HttpRoute *parent, cchar *prefix, cchar *name);
+PUBLIC void httpAddPermResource(HttpRoute *parent, cchar *resource);
 
 /**
     Add routes for a group of resources
@@ -4675,12 +4684,11 @@ PUBLIC void httpAddPublicRoute(HttpRoute *parent, cchar *prefix, cchar *name);
     </tr>
     </table>
     @param parent Parent route from which to inherit configuration.
-    @param prefix URI prefix to append to the application prefix when constructing route URIs.
     @param resource Resource name. This should be a lower case, single word, alphabetic resource name.
     @ingroup HttpRoute
     @stability Evolving
  */
-PUBLIC void httpAddResourceGroup(HttpRoute *parent, cchar *prefix, cchar *resource);
+PUBLIC void httpAddResourceGroup(HttpRoute *parent, cchar *resource);
 
 /**
     Add a route condition
@@ -4795,10 +4803,13 @@ PUBLIC int httpAddRouteLanguageSuffix(HttpRoute *route, cchar *language, cchar *
 /**
     Add a route mapping
     @description Route mappings will map the request filename by changing the default extension to the mapped extension.
-    This is used primarily to select compressed content.
+        This is used primarily to select compressed content.
     @param route Route to modify
-    @param extensions Comma separated list of extensions to map
-    @param mappings New file extension to use. This may include a "${1}" token to replace the previous extension.
+    @param extensions Comma separated list of extensions to map. For example: "css,html,js,less,txt,xml"
+        Set to "*" or the empty string to match all extensions.
+    @param mappings List of new file extensions to consider. This may include a "${1}" token to replace the 
+        previous extension. The extensions are searched in order and the first matching extensions for which there is
+        an existing file will be selected. For example: "${1}.gz, min.${1}.gz, min.${1}".
     @ingroup HttpRoute
     @stability Evolving
  */
@@ -4885,13 +4896,12 @@ PUBLIC int httpAddRouteUpdate(HttpRoute *route, cchar *name, cchar *details, int
 /**
     Add a route using the WebSockets filter
     @param parent Parent route from which to inherit configuration.
-    @param prefix URI prefix to append to the application prefix when constructing route URIs.
-    @param name Route name.
+    @param name Action to invoke on the controller.
     @return The new route object.
     @ingroup HttpRoute
     @stability Evolving
  */
-PUBLIC HttpRoute *httpAddWebSocketsRoute(HttpRoute *parent, cchar *prefix, cchar *name);
+PUBLIC HttpRoute *httpAddWebSocketsRoute(HttpRoute *parent, cchar *action);
 
 
 /**
@@ -4978,7 +4988,6 @@ PUBLIC HttpRoute *httpCreateRoute(struct HttpHost *host);
     @description This creates a route and then configures it using the given parameters. The route is finalized and
         added to the parent host.
     @param parent Parent route from which to inherit configuration.
-    @param name Route name to define.
     @param methods Http methods for which this route is active
     @param pattern Matching URI pattern for which this route will qualify
     @param target Route target string expression. This is used by handlers to determine the physical or virtual resource
@@ -4988,16 +4997,13 @@ PUBLIC HttpRoute *httpCreateRoute(struct HttpHost *host);
     @ingroup HttpRoute
     @stability Evolving
  */
-PUBLIC HttpRoute *httpDefineRoute(HttpRoute *parent, cchar *name, cchar *methods, cchar *pattern, cchar *target, 
-    cchar *source);
+PUBLIC HttpRoute *httpDefineRoute(HttpRoute *parent, cchar *methods, cchar *pattern, cchar *target, cchar *source);
 
 /**
     Define a RESTful route
     @description This creates a restful route and then configures it using the given parameters. The route is finalized and
         added to the parent host.
     @param parent Parent route from which to inherit configuration.
-    @param prefix URI prefix to use after the route prefix.
-    @param action Controller action name
     @param methods Http methods for which this route is active
     @param pattern Matching URI pattern for which this route will qualify
     @param target Route target string expression. This is used by handlers to determine the physical or virtual resource
@@ -5007,8 +5013,7 @@ PUBLIC HttpRoute *httpDefineRoute(HttpRoute *parent, cchar *name, cchar *methods
     @ingroup HttpRoute
     @stability Evolving
  */
-PUBLIC HttpRoute *httpAddRestfulRoute(HttpRoute *parent, cchar *prefix, cchar *action, cchar *methods, cchar *pattern,
-    cchar * target, cchar *resource);
+PUBLIC HttpRoute *httpAddRestfulRoute(HttpRoute *parent, cchar *methods, cchar *pattern, cchar * target, cchar *resource);
 
 /**
     Define a route condition rule
@@ -5172,14 +5177,13 @@ PUBLIC void httpInitConfig(HttpRoute *route);
     Load a JSON configuration file
     @description This loads the JSON configuration file.
     @param route Parent route to configure
-    @param rootKey Top level json property key at which to locate the json file contents.
     @param path Filename of the JSON configuration file. If this is a relative path, it will be resolved relative
         to the routes home directory.
     @return 'Zero' if successful, otherwise a negative MPR error code.
     @ingroup HttpRoute
     @stability Prototype
  */
-PUBLIC int httpLoadConfig(HttpRoute *route, cchar *rootKey, cchar *path);
+PUBLIC int httpLoadConfig(HttpRoute *route, cchar *path);
 
 /**
     Lookup an error document by HTTP status code
@@ -5214,6 +5218,17 @@ PUBLIC cchar *httpLookupRouteErrorDocument(HttpRoute *route, int status);
     @stability Evolving
  */
 PUBLIC char *httpMakePath(HttpRoute *route, cchar *dir, cchar *path);
+
+/**
+    Map a content filename 
+    @description Test a filename for alternative extension mappings. This is used to server compressed or minified 
+        content intead of "vanilla" files.
+    @param conn HttpConn connection object
+    @param filename Base filename.
+    @ingroup HttpRoute
+    @stability Internal
+ */
+PUBLIC cchar *httpMapContent(HttpConn *conn, cchar *filename);
 
 /**
     Map the request URI to a filename in physical storage for a handler.
@@ -5267,6 +5282,7 @@ PUBLIC void httpResetRouteIndexes(HttpRoute *route);
  */
 PUBLIC void httpResetRoutePipeline(HttpRoute *route);
 
+#if DEPRECATED
 /**
     Define the default directory route variables
     @description This defines the default directories for the 'cache', 'client', 'pak' and 'public' directories.
@@ -5275,6 +5291,7 @@ PUBLIC void httpResetRoutePipeline(HttpRoute *route);
     @stability Prototype
  */
 PUBLIC void httpSetDefaultDirs(HttpRoute *route);
+#endif
 
 /**
     Define a route directory path variable
@@ -5460,16 +5477,6 @@ PUBLIC void httpSetRouteMethods(HttpRoute *route, cchar *methods);
 PUBLIC void httpSetRouteCookie(HttpRoute *route, cchar *cookie);
 
 /**
-    Set the route name
-    @description Symbolic route names are used by httpLink and when displaying route tables.
-    @param route Route to modify
-    @param name Unique symbolic name for the route. If a name is not defined, the route pattern will be used as the name.
-    @ingroup HttpRoute
-    @stability Evolving
- */
-PUBLIC void httpSetRouteName(HttpRoute *route, cchar *name);
-
-/**
     Set the route pattern
     @description This call defines the route regular expression pattern that is used to match against the request URI.
         The route pattern is an enhanced JavaScript-compatibile regular expression. It is enhanced by optionally
@@ -5497,6 +5504,7 @@ PUBLIC void httpSetRoutePattern(HttpRoute *route, cchar *pattern, int flags);
  */
 PUBLIC void httpSetRoutePrefix(HttpRoute *route, cchar *prefix);
 
+#if DEPRECATE || 1
 /**
     Set the route prefix for server-side URIs
     @description The server-side route prefix is appended to the route prefix to create the complete prefix
@@ -5507,6 +5515,7 @@ PUBLIC void httpSetRoutePrefix(HttpRoute *route, cchar *prefix);
     @stability Evolving
  */
 PUBLIC void httpSetRouteServerPrefix(HttpRoute *route, cchar *prefix);
+#endif
 
 /**
     Set the route to preserve WebSocket frames boundaries
@@ -5664,6 +5673,7 @@ PUBLIC void httpSetRouteTemplate(HttpRoute *route, cchar *tplate);
  */
 PUBLIC void httpSetRouteVar(HttpRoute *route, cchar *token, cchar *value);
 
+#if DEPRECATED || 1
 /**
     Set the default upload directory for file uploads
     @param route Route to modify
@@ -5672,6 +5682,7 @@ PUBLIC void httpSetRouteVar(HttpRoute *route, cchar *token, cchar *value);
     @stability Evolving
  */
 PUBLIC void httpSetRouteUploadDir(HttpRoute *route, cchar *dir);
+#endif
 
 /**
     Define the maximum number of workers for a route
@@ -5697,7 +5708,7 @@ PUBLIC void httpSetRouteXsrf(HttpRoute *route, bool enable);
 /**
     Expand a template string using given options
     @description This expands a string with embedded tokens of the form "${token}" using values from the given options.
-    This routine also understands the leading aliases: "~" for the route prefix and "^" for the top server URL (prefix+serverPrefix).
+    This routine also understands the leading aliases: "~" for the route prefix.
     @param conn HttpConn connection object created via #httpCreateConn
     @param tplate Template string to process
     @param options Hash of option values for embedded tokens.
@@ -6087,7 +6098,6 @@ typedef struct HttpRx {
 
     /*
         Header values
-        TODO - these should be cchar
      */
     char            *accept;                /**< Accept header */
     char            *acceptCharset;         /**< Accept-Charset header */
@@ -6591,6 +6601,7 @@ PUBLIC void httpProcessWriteEvent(HttpConn *conn);
 #define HTTP_TX_NO_LENGTH           0x20    /**< Do not emit a content length (used for TRACE) */
 #define HTTP_TX_NO_MAP              0x40    /**< Do not map the filename to compressed or minified alternatives */
 #define HTTP_TX_PIPELINE            0x80    /**< Created Tx pipeline */
+#define HTTP_TX_HAS_FILTERS         0x100   /**< Has output filters */
 
 /**
     Http Tx
@@ -7428,7 +7439,8 @@ PUBLIC void httpStopEndpoint(HttpEndpoint *endpoint);
     Host Object
     @description A Host object represents a logical host. Several logical hosts may share a single HttpEndpoint.
     @defgroup HttpHost HttpHost
-    @see HttpHost httpAddRoute httpCloneHost httpCreateHost httpResetRoutes httpSetHostHome httpSetHostName httpSetHostProtocol
+    @see HttpHost httpAddRoute httpCloneHost httpCreateHost httpResetRoutes httpSetHostHome 
+        httpSetHostName httpSetHostProtocol
     @stability Internal
 */
 typedef struct HttpHost {
@@ -7529,22 +7541,13 @@ PUBLIC HttpRoute *httpGetHostDefaultRoute(HttpHost *host);
 PUBLIC void httpLogRoutes(HttpHost *host, bool full);
 
 /**
-    Lookup a route by name
-    @param host HttpHost object owning the route table
-    @param name Route name to find. If null or empty, look for "default"
-    @ingroup HttpRoute
-    @stability Stable
- */
-PUBLIC HttpRoute *httpLookupRoute(HttpHost *host, cchar *name);
-
-/**
     Lookup a route by pattern
     @param host HttpHost object owning the route table
     @param pattern Route pattern to find. If null or empty, look for "/"
     @ingroup HttpRoute
     @stability Stable
   */
-PUBLIC HttpRoute *httpLookupRouteByPattern(HttpHost *host, cchar *pattern);
+PUBLIC HttpRoute *httpLookupRoute(HttpHost *host, cchar *pattern);
 
 /**
     Reset the list of routes for the host
@@ -7790,26 +7793,26 @@ PUBLIC ssize httpSend(HttpConn *conn, cchar *fmt, ...) PRINTF_ATTRIBUTE(2,3);
     Send a message of a given type to the WebSocket peer
     @description This is the lower-level message send routine. It permits control of message types and message framing.
     \n\n
-    This routine can operate in a blocking, non-blocking or buffered mode. Blocking mode is specified via the HTTP_BLOCK flag.
-    When blocking, the call will wait until it has written all the data. The call will either accept and write all the data
-    or it will fail, it will never return "short" with a partial write. If in blocking mode, the call may block for up to the
-    inactivity timeout specified in the conn->limits->inactivityTimeout value.
+    This routine can operate in a blocking, non-blocking or buffered mode. Blocking mode is specified via the HTTP_BLOCK 
+    flag. When blocking, the call will wait until it has written all the data. The call will either accept and write all 
+    the data or it will fail, it will never return "short" with a partial write. If in blocking mode, the call may block 
+    for up to the inactivity timeout specified in the conn->limits->inactivityTimeout value.
     \n\n
     Non-blocking mode is specified via the HTTP_NON_BLOCK flag. In this mode, the call will consume that amount of data
-    that will fit within the outgoing WebSocket queues. Consequently, it may return "short" with a partial write. If this occurs
-    the next call to httpSendBlock should set the message type to WS_MSG_CONT to indicate a continued message. This is required
-    by the WebSockets specification.
+    that will fit within the outgoing WebSocket queues. Consequently, it may return "short" with a partial write. If this 
+    occurs the next call to httpSendBlock should set the message type to WS_MSG_CONT to indicate a continued message. 
+    This is required by the WebSockets specification.
     \n\n
-    Buffered mode is the default and may be explicitly specified via the HTTP_BUFFER flag. In buffered mode, the entire message
-    will be accepted and will be buffered if required.
+    Buffered mode is the default and may be explicitly specified via the HTTP_BUFFER flag. In buffered mode, the entire 
+    message will be accepted and will be buffered if required.
     \n\n
     This API may split the message into frames such that no frame is larger than the limit conn->limits->webSocketsFrameSize.
-    However, if the HTTP_MORE flag is specified to indicate there is more data to complete this entire message, the data provided
-    to this call will not be split into frames and will not be aggregated with previous or subsequent messages. i.e. frame
-    boundaries will be presserved and sent as-is to the peer.
+    However, if the HTTP_MORE flag is specified to indicate there is more data to complete this entire message, the data 
+    provided to this call will not be split into frames and will not be aggregated with previous or subsequent messages. 
+    i.e. frame boundaries will be presserved and sent as-is to the peer.
     \n\n
-    In blocking mode, this routine may invoke mprYield before blocking to consent for the garbage collector to run. Callers must
-        ensure they have retained all required temporary memory before invoking this routine.
+    In blocking mode, this routine may invoke mprYield before blocking to consent for the garbage collector to run. Callers 
+    must ensure they have retained all required temporary memory before invoking this routine.
 
     @param conn HttpConn connection object created via #httpCreateConn
     @param type Web socket message type. Choose from WS_MSG_TEXT, WS_MSG_BINARY or WS_MSG_PING.

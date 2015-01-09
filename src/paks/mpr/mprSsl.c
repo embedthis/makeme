@@ -245,8 +245,6 @@ static int upgradeEst(MprSocket *sp, MprSsl *ssl, cchar *peerName)
     }
     unlock(ssl);
 
-    //  TODO - convert to proper entropy source API
-    //  TODO - cannot put this in cfg yet as it is not thread safe
     ssl_free(&est->ctx);
     havege_init(&est->hs);
     ssl_init(&est->ctx);
@@ -256,7 +254,6 @@ static int upgradeEst(MprSocket *sp, MprSsl *ssl, cchar *peerName)
     ssl_set_dbg(&est->ctx, estTrace, NULL);
     ssl_set_bio(&est->ctx, net_recv, &sp->fd, net_send, &sp->fd);
 
-    //  TODO - better if the API took a handle (est)
     ssl_set_scb(&est->ctx, getSession, setSession);
     ssl_set_ciphers(&est->ctx, cfg->ciphers);
 
@@ -330,7 +327,6 @@ static int handshakeEst(MprSocket *sp)
         Analyze the handshake result
      */
     if (rc < 0) {
-        //  TODO - more codes here or have est set a textual message (better)
         if (rc == EST_ERR_SSL_PRIVATE_KEY_REQUIRED && !(sp->ssl->keyFile || sp->ssl->certFile)) {
             sp->errorMsg = sclone("Peer requires a certificate");
         } else {

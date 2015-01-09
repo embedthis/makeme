@@ -1072,7 +1072,6 @@ PUBLIC int httpSetUserAccount(cchar *newUser)
 }
 
 
-//  TODO - this should be pushed down into http
 PUBLIC int httpSetGroupAccount(cchar *newGroup)
 {
     Http    *http;
@@ -1691,7 +1690,7 @@ PUBLIC bool httpLogin(HttpConn *conn, cchar *username, cchar *password)
         }
     }
     if (!verifyUser) {
-        mprLog("error http auth", 0, "No user verification routine defined on route %s", rx->route->name);
+        mprLog("error http auth", 0, "No user verification routine defined on route %s", rx->route->pattern);
         return 0;
     }
     if (auth->username && *auth->username) {
@@ -1816,7 +1815,6 @@ static HttpRoute *createLoginRoute(HttpRoute *route, cchar *pattern, HttpAction 
             route->handler = route->http->actionHandler;
             httpDefineAction(pattern, action);
         }
-        httpSetRouteName(route, strim(pattern, "^$", 0));
         httpFinalizeRoute(route);
     }
     return route;
@@ -2612,7 +2610,7 @@ PUBLIC void httpAddCache(HttpRoute *route, cchar *methods, cchar *uris, cchar *e
     if (!route->caching) {
         if (route->handler) {
             mprLog("error http cache", 0, 
-                "Caching handler disabled because SetHandler used in route %s. Use AddHandler instead", route->name);
+                "Caching handler disabled because SetHandler used in route %s. Use AddHandler instead", route->pattern);
         }
         httpAddRouteHandler(route, "cacheHandler", NULL);
         httpAddRouteFilter(route, "cacheFilter", "", HTTP_STAGE_TX);
@@ -2645,7 +2643,8 @@ PUBLIC void httpAddCache(HttpRoute *route, cchar *methods, cchar *uris, cchar *e
                 mprAddKey(cache->types, item, cache);
             }
         }
-    } else {
+    } else if (flags & HTTP_CACHE_STATIC) {
+        cache->types = mprCreateHash(0, MPR_HASH_STABLE);
         mprAddKey(cache->types, "css", cache);
         mprAddKey(cache->types, "gif", cache);
         mprAddKey(cache->types, "ico", cache);
@@ -2823,10 +2822,8 @@ static int matchChunk(HttpConn *conn, HttpRoute *route, int dir)
         if (tx->length >= 0 || tx->chunkSize == 0) {
             return HTTP_ROUTE_OMIT_FILTER;
         }
-        return HTTP_ROUTE_OK;
-    } else {
-        return HTTP_ROUTE_OK;
     }
+    return HTTP_ROUTE_OK;
 }
 
 
@@ -3625,9 +3622,6 @@ static void parseRoutes(HttpRoute *route, cchar *key, MprJson *prop);
 /************************************** Code **********************************/
 /*
     Define a configuration callbacks. The key is specified as it is used in json files.
-    When blended the json file is blended into route->config, the json file components will be located under "app" 
-    or elsewhere in the json tree. Consequently, when doing mprGetJson to lookup a specific key, you must use the 
-    "located" key name that typically includes the "app" prefix.
  */
 
 PUBLIC HttpParseCallback httpAddConfig(cchar *key, HttpParseCallback callback)
@@ -3720,9 +3714,9 @@ static void blendMode(HttpRoute *route, MprJson *config)
 }
 
 
-PUBLIC int parseFile(HttpRoute *route, cchar *root, cchar *path)
+PUBLIC int parseFile(HttpRoute *route, cchar *path)
 {
-    MprJson     *config, *obj;
+    MprJson     *config;
     cchar       *data, *errorMsg;
 
     if ((data = mprReadPathContents(path, NULL)) == 0) {
@@ -3734,22 +3728,10 @@ PUBLIC int parseFile(HttpRoute *route, cchar *root, cchar *path)
         return MPR_ERR_CANT_READ;
     }
     blendMode(route, config);
-    if (root) {
-        if (route->config) {
-            if ((obj = mprGetJsonObj(route->config, root)) == 0) {
-                obj = mprCreateJson(MPR_JSON_OBJ);
-                mprSetJsonObj(route->config, root, obj);
-            }
-        } else {
-            route->config = obj = mprCreateJson(MPR_JSON_OBJ);
-        }
-        mprBlendJson(obj, config, MPR_JSON_COMBINE);
+    if (route->config) {
+        mprBlendJson(route->config, config, MPR_JSON_COMBINE);
     } else {
-        if (route->config) {
-            mprBlendJson(route->config, config, MPR_JSON_COMBINE);
-        } else {
-            route->config = config;
-        }
+        route->config = config;
     }
     httpParseAll(route, 0, config);
     return 0;
@@ -3763,10 +3745,10 @@ PUBLIC void httpInitConfig(HttpRoute *route)
 }
 
 
-PUBLIC int httpLoadConfig(HttpRoute *route, cchar *root, cchar *path)
+PUBLIC int httpLoadConfig(HttpRoute *route, cchar *path)
 {
     route->error = 0;
-    if (parseFile(route, root, path) < 0) {
+    if (parseFile(route, path) < 0) {
         return MPR_ERR_CANT_READ;
     }
     if (route->error) {
@@ -3790,14 +3772,14 @@ PUBLIC int httpFinalizeConfig(HttpRoute *route)
     /*
         Property order is not guaranteed, so must ensure routes are processed after all outer properties.
      */
-    if ((routes = mprGetJsonObj(route->config, "app.http.routes")) != 0) {
+    if ((routes = mprGetJsonObj(route->config, "http.routes")) != 0) {
         parseRoutes(route, "http.routes", routes);
     }
 
     /*
         Create a subset, optimized configuration to send to the client
      */
-    if ((obj = mprGetJsonObj(route->config, "app.http.mappings")) != 0) {
+    if ((obj = mprGetJsonObj(route->config, "http.mappings")) != 0) {
         mappings = mprCreateJson(MPR_JSON_OBJ);
         copyMappings(route, mappings, obj);
         mprWriteJson(mappings, "prefix", route->prefix);
@@ -3884,7 +3866,7 @@ PUBLIC void httpParseAll(HttpRoute *route, cchar *key, MprJson *prop)
 
 static void parseApp(HttpRoute *route, cchar *key, MprJson *prop)
 {
-    httpParseAll(route, strim(key, "app.", MPR_TRIM_START), prop);
+    httpParseAll(route, 0, prop);
 }
 
 
@@ -3932,8 +3914,8 @@ static void parseAuthAutoRoles(HttpRoute *route, cchar *key, MprJson *prop)
     MprJson     *child, *job;
     int         ji;
 
-    if ((job = mprGetJsonObj(route->config, "app.http.auth.roles")) != 0) {
-        parseAuthRoles(route, "app.http.auth.roles", job);
+    if ((job = mprGetJsonObj(route->config, "http.auth.roles")) != 0) {
+        parseAuthRoles(route, "http.auth.roles", job);
     }
     abilities = mprCreateHash(0, 0);
     for (ITERATE_CONFIG(route, prop, child, ji)) {
@@ -3944,7 +3926,7 @@ static void parseAuthAutoRoles(HttpRoute *route, cchar *key, MprJson *prop)
         for (ITERATE_KEYS(abilities, kp)) {
             mprSetJson(job, "$", kp->key);
         }
-        mprSetJsonObj(route->config, "app.http.auth.auto.abilities", job);
+        mprSetJsonObj(route->config, "http.auth.auto.abilities", job);
     }
 }
 
@@ -4082,7 +4064,7 @@ static void parseCache(HttpRoute *route, cchar *key, MprJson *prop)
 
     clientLifespan = serverLifespan = 0;
     if (prop->type & MPR_JSON_STRING && smatch(prop->value, "true")) {
-        httpAddCache(route, 0, 0, 0, 0, 86400 * 1000, 0, HTTP_CACHE_CLIENT);
+        httpAddCache(route, 0, 0, 0, 0, 86400 * 1000, 0, HTTP_CACHE_CLIENT | HTTP_CACHE_STATIC);
     } else {
         for (ITERATE_CONFIG(route, prop, child, ji)) {
             flags = 0;
@@ -4120,61 +4102,6 @@ static void parseCompress(HttpRoute *route, cchar *key, MprJson *prop)
         httpAddRouteMapping(route, mprJsonToString(prop, 0), "${1}.gz, min.${1}.gz, min.${1}");
     }
 }
-
-
-#if KEEP && UNUSED
-static void parseContentCombine(HttpRoute *route, cchar *key, MprJson *prop)
-{
-    MprJson     *child;
-    int         ji;
-
-    for (ITERATE_CONFIG(route, prop, child, ji)) {
-        if (smatch(child->value, "c")) {
-            route->combine = 1;
-            break;
-        }
-    }
-}
-
-
-static void parseContentCompress(HttpRoute *route, cchar *key, MprJson *prop)
-{
-    MprJson     *child;
-    int         ji;
-
-    for (ITERATE_CONFIG(route, prop, child, ji)) {
-        if (mprGetJson(route->config, sfmt("app.http.content.minify[@ = '%s']", child->value))) {
-            httpAddRouteMapping(route, child->value, "${1}.gz, min.${1}.gz, min.${1}");
-        } else {
-            httpAddRouteMapping(route, child->value, "${1}.gz");
-        }
-    }
-}
-
-
-static void parseContentKeep(HttpRoute *route, cchar *key, MprJson *prop)
-{
-    if (mprGetJson(prop, "[@=c]")) {
-        route->keepSource = 1;
-    }
-}
-
-
-static void parseContentMinify(HttpRoute *route, cchar *key, MprJson *prop)
-{
-    MprJson     *child;
-    int         ji;
-
-    for (ITERATE_CONFIG(route, prop, child, ji)) {
-        /*
-            Compressed and minified is handled in parseContentCompress
-         */
-        if (mprGetJson(route->config, sfmt("app.http.content.compress[@ = '%s']", child->value)) == 0) {
-            httpAddRouteMapping(route, child->value, "min.${1}");
-        }
-    }
-}
-#endif
 
 
 static void parseDatabase(HttpRoute *route, cchar *key, MprJson *prop)
@@ -4489,12 +4416,6 @@ static void parseMode(HttpRoute *route, cchar *key, MprJson *prop)
 }
 
 
-static void parseName(HttpRoute *route, cchar *key, MprJson *prop)
-{
-    httpSetRouteName(route, prop->value);
-}
-
-
 /*
     Match route only if param matches
  */
@@ -4600,7 +4521,6 @@ static void createRedirectAlias(HttpRoute *route, int status, cchar *from, cchar
         pattern = sfmt("^%s%s(?:/)*(.*)$", route->prefix, from);
     }
     alias = httpCreateAliasRoute(route, pattern, 0, 0);
-    httpSetRouteName(alias, "redirect");
     httpSetRouteMethods(alias, "*");
     httpSetRouteTarget(alias, "redirect", sfmt("%d %s/$1", status, to));
     if (sstarts(to, "https")) {
@@ -4659,12 +4579,12 @@ static void parseResources(HttpRoute *route, cchar *key, MprJson *prop)
     }
     if ((groups = mprReadJsonObj(prop, "groups")) != 0) {
         for (ITERATE_CONFIG(route, groups, child, ji)) {
-            httpAddResourceGroup(route, route->serverPrefix, child->value);
+            httpAddResourceGroup(route, child->value);
         }
     }
     if ((singletons = mprReadJsonObj(prop, "singletons")) != 0) {
         for (ITERATE_CONFIG(route, singletons, child, ji)) {
-            httpAddResource(route, route->serverPrefix, child->value);
+            httpAddResource(route, child->value);
         }
     }
 }
@@ -4728,7 +4648,7 @@ static void parseRoutes(HttpRoute *route, cchar *key, MprJson *prop)
                 newRoute = 0;
                 pattern = mprReadJson(child, "pattern");
                 if (pattern) {
-                    newRoute = httpLookupRouteByPattern(route->host, pattern);
+                    newRoute = httpLookupRoute(route->host, pattern);
                     if (!newRoute) {
                         newRoute = httpCreateInheritedRoute(route);
                         httpSetRouteHost(newRoute, route->host);
@@ -4946,10 +4866,12 @@ static void parseServerMonitors(HttpRoute *route, cchar *key, MprJson *prop)
 }
 
 
+#if DEPRECATE || 1
 static void parseServerPrefix(HttpRoute *route, cchar *key, MprJson *prop)
 {
     httpSetRouteServerPrefix(route, prop->value);
 }
+#endif
 
 
 static void parseShowErrors(HttpRoute *route, cchar *key, MprJson *prop)
@@ -5236,7 +5158,7 @@ static void parseInclude(HttpRoute *route, cchar *key, MprJson *prop)
     int         ji;
 
     for (ITERATE_CONFIG(route, prop, child, ji)) {
-        parseFile(route, 0, child->value);
+        parseFile(route, child->value);
     }
 }
 
@@ -5247,9 +5169,6 @@ PUBLIC int httpInitParser()
 
     /*
         Parse callbacks keys are specified as they are defined in the json files
-        When blended, various json components may be located under "app" or elsewhere in the tree.
-        Consequently, when doing mprGetJson to lookup a specific key, you must use the "located" key name that typically
-        includes the "app" prefix.
      */
     httpAddConfig("app", parseApp);
     httpAddConfig("http", parseHttp);
@@ -5322,7 +5241,6 @@ PUBLIC int httpInitParser()
     httpAddConfig("http.limits.workers", parseLimitsWorkers);
     httpAddConfig("http.methods", parseMethods);
     httpAddConfig("http.mode", parseMode);
-    httpAddConfig("http.name", parseName);
     httpAddConfig("http.params", parseParams);
     httpAddConfig("http.pattern", parsePattern);
     httpAddConfig("http.pipeline", httpParseAll);
@@ -5355,7 +5273,9 @@ PUBLIC int httpInitParser()
 
     httpAddConfig("http.showErrors", parseShowErrors);
     httpAddConfig("http.source", parseSource);
+#if DEPRECATE || 1
     httpAddConfig("http.serverPrefix", parseServerPrefix);
+#endif
     httpAddConfig("http.stealth", parseStealth);
     httpAddConfig("http.target", parseTarget);
     httpAddConfig("http.timeouts", parseTimeouts);
@@ -6878,9 +6798,9 @@ static void startDir(HttpQueue *q)
         httpError(conn, HTTP_CODE_BAD_METHOD, "Bad method");
         return;
     }
+    httpSetContentType(conn, "text/html");
     httpSetHeaderString(conn, "Cache-Control", "no-cache");
     httpSetHeaderString(conn, "Last-Modified", conn->http->currentDate);
-    httpSetHeaderString(conn, "Content-Type", "text/html");
     parseQuery(conn);
 
     if ((list = mprGetPathFiles(tx->filename, MPR_PATH_RELATIVE)) == 0) {
@@ -8147,7 +8067,6 @@ PUBLIC void httpMemoryError(HttpConn *conn)
 
 static void handleDeleteRequest(HttpQueue *q);
 static void handlePutRequest(HttpQueue *q);
-static int handleDirectory(HttpConn *conn);
 static ssize readFileData(HttpQueue *q, HttpPacket *packet, MprOff pos, ssize size);
 
 /*********************************** Code *************************************/
@@ -8171,7 +8090,7 @@ static int rewriteFileHandler(HttpConn *conn)
         return HTTP_ROUTE_OK;
     }
     if (info->isDir) {
-        return handleDirectory(conn);
+        return httpHandleDirectory(conn);
     }
     if (rx->flags & (HTTP_GET | HTTP_HEAD | HTTP_POST) && info->valid && tx->length < 0) {
         /*
@@ -8547,7 +8466,7 @@ static void handleDeleteRequest(HttpQueue *q)
 }
 
 
-static int handleDirectory(HttpConn *conn)
+PUBLIC int httpHandleDirectory(HttpConn *conn)
 {
     HttpRx      *rx;
     HttpTx      *tx;
@@ -8754,7 +8673,6 @@ PUBLIC HttpHost *httpCreateDefaultHost()
     }
     defaultHost = host = httpCreateHost();
     route = httpCreateRoute(host);
-    httpSetRouteName(route, "default");
     httpSetHostDefaultRoute(host, route);
     route->limits = route->http->serverLimits;
     return host;
@@ -8803,31 +8721,32 @@ static void printRoute(HttpRoute *route, int next, bool full)
     HttpAuth    *auth;
     MprKey      *kp;
     cchar       *methods, *pattern, *target, *index;
-    int         authLen, methodsLen, nameLen, patternLen, nextIndex;
+    int         methodsLen, patternLen, targetLen, nextIndex;
 
     if (route->flags & HTTP_ROUTE_HIDDEN) {
         return;
     }
     if (!full) {
         if (next == 0) {
-            authLen = methodsLen = nameLen = patternLen = 0;
+            methodsLen = (int) slen("Methods");
+            patternLen = (int) slen("Route");
+            targetLen = (int) slen("$&");
             for (next = 0; (rp = mprGetNextItem(route->host->routes, &next)) != 0; ) {
-                authLen = (int) max(authLen, rp->auth->type ? slen(rp->auth->type->name) : 0);
-                nameLen = (int) max(nameLen, slen(rp->name));
+                targetLen = (int) max(targetLen, slen(rp->target));
                 patternLen = (int) max(patternLen, slen(rp->pattern));
                 methodsLen = (int) max(methodsLen, slen(httpGetRouteMethods(rp)));
             }
-            printf("%-*s %-*s %-*s %-*s %-14s\n", nameLen, "Route", methodsLen, "Methods", 
-                authLen, "Auth", patternLen, "Pattern", "Target");
+            printf("%-*s %-*s %-*s\n", patternLen, "Route", methodsLen, "Methods", targetLen, "Target");
         }
     }
     auth = route->auth;
     methods = httpGetRouteMethods(route);
     methods = methods ? methods : "*";
-    pattern = (route->pattern && *route->pattern) ? route->pattern : "^/";
+    pattern = (route->pattern && *route->pattern) ? route->pattern : "^.*$";
     target = (route->target && *route->target) ? route->target : "$&";
+
     if (full) {
-        printf("\n Route [%d]. %s\n", next, route->name);
+        printf("\n Route [%d]. %s\n", next, route->pattern);
         printf("    Pattern:      %s\n", pattern);
         if (route->prefix && *route->prefix) {
             printf("    RegExp:       %s\n", route->optimizedPattern);
@@ -8869,8 +8788,7 @@ static void printRoute(HttpRoute *route, int next, bool full)
             }
         }
     } else {
-        printf("%-*s %-*s %-*s %-*s %-14s\n", nameLen, route->name, methodsLen, methods ? methods : "*", 
-            authLen, auth->type ? auth->type->name : "none", patternLen, pattern, target);
+        printf("%-*s %-*s %-*s\n", patternLen, pattern, methodsLen, methods ? methods : "*", targetLen, target);
     }
 }
 
@@ -8954,32 +8872,14 @@ PUBLIC int httpAddRoute(HttpHost *host, HttpRoute *route)
 }
 
 
-PUBLIC HttpRoute *httpLookupRoute(HttpHost *host, cchar *name)
+PUBLIC HttpRoute *httpLookupRoute(HttpHost *host, cchar *pattern)
 {
     HttpRoute   *route;
     int         next;
 
-    if (name == 0 || *name == '\0') {
-        name = "default";
+    if (smatch(pattern, "default")) {
+        pattern = "";
     }
-    if (!host && (host = httpGetDefaultHost()) == 0) {
-        return 0;
-    }
-    for (next = 0; (route = mprGetNextItem(host->routes, &next)) != 0; ) {
-        assert(route->name);
-        if (smatch(route->name, name)) {
-            return route;
-        }
-    }
-    return 0;
-}
-
-
-PUBLIC HttpRoute *httpLookupRouteByPattern(HttpHost *host, cchar *pattern)
-{
-    HttpRoute   *route;
-    int         next;
-
     if (smatch(pattern, "/") || smatch(pattern, "^/") || smatch(pattern, "^/$")) {
         pattern = "";
     }
@@ -10991,7 +10891,7 @@ PUBLIC void httpCreateTxPipeline(HttpConn *conn, HttpRoute *route)
     HttpRx      *rx;
     HttpQueue   *q;
     HttpStage   *stage, *filter;
-    int         next, hasOutputFilters;
+    int         next;
 
     assert(conn);
     assert(route);
@@ -11007,19 +10907,18 @@ PUBLIC void httpCreateTxPipeline(HttpConn *conn, HttpRoute *route)
         }
         mprAddItem(tx->outputPipeline, tx->handler);
     }
-    hasOutputFilters = 0;
     if (route->outputStages) {
         for (next = 0; (filter = mprGetNextItem(route->outputStages, &next)) != 0; ) {
             if (matchFilter(conn, filter, route, HTTP_STAGE_TX) == HTTP_ROUTE_OK) {
                 mprAddItem(tx->outputPipeline, filter);
-                hasOutputFilters = 1;
+                tx->flags |= HTTP_TX_HAS_FILTERS;
             }
         }
     }
     if (tx->connector == 0) {
 #if !ME_ROM
-        if (tx->handler == http->fileHandler && (rx->flags & HTTP_GET) && !hasOutputFilters && !conn->secure && 
-                !httpTracing(conn)) {
+        if (tx->handler == http->fileHandler && (rx->flags & HTTP_GET) && !(tx->flags & HTTP_TX_HAS_FILTERS) && 
+                !conn->secure && !httpTracing(conn)) {
             tx->connector = http->sendConnector;
         } else 
 #endif
@@ -11063,7 +10962,7 @@ PUBLIC void httpCreateTxPipeline(HttpConn *conn, HttpRoute *route)
     if (conn->endpoint) {
         httpTrace(conn, "request.pipeline", "context",  
             "route:'%s',handler:'%s',target:'%s',endpoint:'%s:%d',host:'%s',referrer:'%s',filename:'%s'",
-            rx->route->name, tx->handler->name, rx->route->targetRule, conn->endpoint->ip, conn->endpoint->port,
+            rx->route->pattern, tx->handler->name, rx->route->targetRule, conn->endpoint->ip, conn->endpoint->port,
             conn->host->name ? conn->host->name : "default", rx->referrer ? rx->referrer : "", 
             tx->filename ? tx->filename : "");
     }
@@ -11197,6 +11096,30 @@ PUBLIC void httpSetSendConnector(HttpConn *conn, cchar *path)
 #else
     mprLog("error http config", 0, "Send connector not available if ROMFS enabled");
 #endif
+}
+
+
+PUBLIC void httpSetFileHandler(HttpConn *conn, cchar *path)
+{
+    HttpStage   *fp;
+
+    HttpTx      *tx;
+
+    tx = conn->tx;
+    if (path && path != tx->filename) {
+        httpSetFilename(conn, path, 0);
+    }
+    fp = tx->handler = HTTP->fileHandler;
+//  MOB TEMP - can only do this if only the chunk filter has been added
+    tx->flags &= ~HTTP_TX_HAS_FILTERS;
+    if ((conn->rx->flags & HTTP_GET) && !(tx->flags & HTTP_TX_HAS_FILTERS) && !conn->secure && !httpTracing(conn)) {
+        tx->flags |= HTTP_TX_SENDFILE;
+        tx->connector = HTTP->sendConnector;
+    }
+    httpSetEntityLength(conn, tx->fileInfo.size);
+    fp->open(conn->writeq);
+    fp->start(conn->writeq);
+    conn->writeq->service = fp->outgoingService;
 }
 
 
@@ -12295,8 +12218,10 @@ PUBLIC HttpRoute *httpCreateRoute(HttpHost *host)
     route->autoDelete = 1;
     route->workers = -1;
     route->prefix = MPR->emptyString;
-    route->serverPrefix = MPR->emptyString;
     route->trace = http->trace;
+#if DEPRECATE || 1
+    route->serverPrefix = MPR->emptyString;
+#endif
 
     route->headers = mprCreateList(-1, MPR_LIST_STABLE);
     route->handlers = mprCreateList(-1, MPR_LIST_STABLE);
@@ -12328,7 +12253,6 @@ PUBLIC HttpRoute *httpCreateRoute(HttpHost *host)
         route->mimeTypes = MPR->mimeTypes;
     }
     definePathVars(route);
-    httpSetDefaultDirs(route);
     return route;
 }
 
@@ -12398,7 +12322,6 @@ PUBLIC HttpRoute *httpCreateInheritedRoute(HttpRoute *parent)
     route->responseStatus = parent->responseStatus;
     route->script = parent->script;
     route->scriptPath = parent->scriptPath;
-    route->serverPrefix = parent->serverPrefix;
     route->sourceName = parent->sourceName;
     route->ssl = parent->ssl;
     route->target = parent->target;
@@ -12409,6 +12332,9 @@ PUBLIC HttpRoute *httpCreateInheritedRoute(HttpRoute *parent)
     route->updates = parent->updates;
     route->vars = parent->vars;
     route->workers = parent->workers;
+#if DEPRECATE || 1
+    route->serverPrefix = parent->serverPrefix;
+#endif
     return route;
 }
 
@@ -12449,7 +12375,6 @@ static void manageRoute(HttpRoute *route, int flags)
         mprMark(route->methods);
         mprMark(route->mimeTypes);
         mprMark(route->mode);
-        mprMark(route->name);
         mprMark(route->optimizedPattern);
         mprMark(route->outputStages);
         mprMark(route->params);
@@ -12460,7 +12385,6 @@ static void manageRoute(HttpRoute *route, int flags)
         mprMark(route->responseFormat);
         mprMark(route->script);
         mprMark(route->scriptPath);
-        mprMark(route->serverPrefix);
         mprMark(route->sourceName);
         mprMark(route->ssl);
         mprMark(route->startSegment);
@@ -12473,6 +12397,9 @@ static void manageRoute(HttpRoute *route, int flags)
         mprMark(route->updates);
         mprMark(route->vars);
         mprMark(route->webSocketsProtocol);
+#if DEPRECATE || 1
+        mprMark(route->serverPrefix);
+#endif
 
     } else if (flags & MPR_MANAGE_FREE) {
         if (route->patternCompiled && (route->flags & HTTP_ROUTE_FREE_PATTERN)) {
@@ -12490,7 +12417,6 @@ PUBLIC HttpRoute *httpCreateDefaultRoute(HttpHost *host)
     if ((route = httpCreateRoute(host)) == 0) {
         return 0;
     }
-    httpSetRouteName(route, "default");
     httpFinalizeRoute(route);
     return route;
 }
@@ -12554,7 +12480,6 @@ PUBLIC HttpRoute *httpCreateActionRoute(HttpRoute *parent, cchar *pattern, HttpA
         httpSetRoutePattern(route, pattern, 0);
         name = strim(pattern, "^$", 0);
         httpDefineAction(name, action);
-        httpSetRouteName(route, name);
         httpFinalizeRoute(route);
     }
     return route;
@@ -12661,7 +12586,6 @@ static int matchRoute(HttpConn *conn, HttpRoute *route)
     rx = conn->rx;
     savePathInfo = 0;
 
-    //  TODO - remove first test
     assert(route->prefix);
     if (route->prefix && *route->prefix) {
         if (!sstarts(rx->pathInfo, route->prefix)) {
@@ -12738,8 +12662,9 @@ static int checkRoute(HttpConn *conn, HttpRoute *route)
     assert(route);
     rx = conn->rx;
     tx = conn->tx;
+    assert(rx->pathInfo[0]);
 
-    rx->target = route->target ? expandTokens(conn, route->target) : sclone(&conn->rx->pathInfo[1]);
+    rx->target = route->target ? expandTokens(conn, route->target) : sclone(&rx->pathInfo[1]);
 
     if (route->requestHeaders) {
         for (next = 0; (op = mprGetNextItem(route->requestHeaders, &next)) != 0; ) {
@@ -12801,7 +12726,7 @@ static int checkRoute(HttpConn *conn, HttpRoute *route)
     if (route->tokens) {
         for (next = 0; (token = mprGetNextItem(route->tokens, &next)) != 0; ) {
             int index = rx->matches[next * 2];
-            if (index >= 0 && rx->pathInfo[index]) {
+            if (index >= 0) {
                 value = snclone(&rx->pathInfo[index], rx->matches[(next * 2) + 1] - index);
                 httpSetParam(conn, token, value);
             }
@@ -12871,11 +12796,12 @@ PUBLIC void httpSetHandler(HttpConn *conn, HttpStage *handler)
 }
 
 
-static cchar *mapContent(HttpConn *conn, cchar *filename)
+PUBLIC cchar *httpMapContent(HttpConn *conn, cchar *filename)
 {
     HttpRoute   *route;
     HttpRx      *rx;
     HttpTx      *tx;
+    MprKey      *kp;
     MprList     *extensions;
     MprPath     *info;
     bool        acceptGzip, zipped;
@@ -12888,17 +12814,22 @@ static cchar *mapContent(HttpConn *conn, cchar *filename)
     info = &tx->fileInfo;
 
     if (route->map && !(tx->flags & HTTP_TX_NO_MAP)) {
-        if ((extensions = mprLookupKey(route->map, tx->ext)) == 0) {
-            extensions = mprLookupKey(route->map, "");
+        if ((kp = mprLookupKeyEntry(route->map, tx->ext)) == 0) {
+            kp = mprLookupKeyEntry(route->map, "");
         }
-        if (extensions) {
+        if (kp) {
+            extensions = (MprList*) kp->data;
             acceptGzip = scontains(rx->acceptEncoding, "gzip") != 0;
             for (ITERATE_ITEMS(extensions, ext, next)) {
                 zipped = sends(ext, "gz");
                 if (zipped && !acceptGzip) {
                     continue;
                 }
-                path = mprReplacePathExt(filename, ext);
+                if (kp->key[0]) {
+                    path = mprReplacePathExt(filename, ext);
+                } else {
+                    path = sjoin(filename, ext, NULL);
+                }
                 if (mprGetPathInfo(path, info) == 0) {
                     httpTrace(conn, "request.map", "context", "originalFilename:'%s',filename:'%s'", filename, path);
                     filename = path;
@@ -12930,7 +12861,7 @@ PUBLIC void httpMapFile(HttpConn *conn)
         filename = mprJoinPath(lang->path, filename);
     }
     filename = mprJoinPath(conn->rx->route->documents, filename);
-    filename = mapContent(conn, filename);
+    filename = httpMapContent(conn, filename);
 #if ME_ROM
     filename = mprGetRelPath(filename, NULL);
 #endif
@@ -12982,7 +12913,8 @@ PUBLIC int httpAddRouteCondition(HttpRoute *route, cchar *name, cchar *details, 
 
     } else if (scaselessmatch(name, "secure")) {
         if (!details || *details == '\0') {
-            mprLog("error http config", 0, "Secure route condition is missing a redirect target in route \"%s\"", route->name);
+            mprLog("error http config", 0, "Secure route condition is missing a redirect target in route \"%s\"", 
+                route->pattern);
         }
         op->details = finalizeReplacement(route, details);
     }
@@ -13003,7 +12935,7 @@ PUBLIC int httpAddRouteFilter(HttpRoute *route, cchar *name, cchar *extensions, 
     for (ITERATE_ITEMS(route->outputStages, stage, next)) {
         if (smatch(stage->name, name)) {
             mprLog("warn http route", 0, "Stage \"%s\" is already configured for the route \"%s\". Ignoring.", 
-                name, route->name);
+                name, route->pattern);
             return 0;
         }
     }
@@ -13064,7 +12996,7 @@ PUBLIC int httpAddRouteHandler(HttpRoute *route, cchar *name, cchar *extensions)
     }
     if (route->handler) {
         mprLog("error http route", 0, "Cannot add handler \"%s\" to route \"%s\" once SetHandler used.", 
-            handler->name, route->name);
+            handler->name, route->pattern);
     }
     if (!extensions && !handler->match) {
         mprLog("info http route", 2, "Adding handler \"%s\" without extensions to match", handler->name);
@@ -13091,7 +13023,7 @@ PUBLIC int httpAddRouteHandler(HttpRoute *route, cchar *name, cchar *extensions)
                 prior = mprLookupKey(route->extensions, word);
                 if (prior && prior != handler) {
                     mprLog("warn http route", 0, "Route \"%s\" has multiple handlers defined for extension \"%s\". "
-                            "Handlers: \"%s\", \"%s\".", route->name, word, handler->name, 
+                            "Handlers: \"%s\", \"%s\".", route->pattern, word, handler->name, 
                             ((HttpStage*) mprLookupKey(route->extensions, word))->name);
                 } else {
                     mprAddKey(route->extensions, word, handler);
@@ -13125,8 +13057,8 @@ PUBLIC void httpAddRouteMapping(HttpRoute *route, cchar *extensions, cchar *mapp
     if (*extensions == '[') {
         extensions = strim(extensions, "[]", 0);
     }
-    if (smatch(extensions, "*")) {
-        extensions = "";
+    if (smatch(extensions, "*") || *extensions == '\0') {
+        extensions = ".";
     }
     if (!route->map) {
         route->map = mprCreateHash(ME_MAX_ROUTE_MAP_HASH, MPR_HASH_STABLE);
@@ -13454,11 +13386,7 @@ PUBLIC void httpSetRouteData(HttpRoute *route, cchar *key, void *data)
 
 PUBLIC void httpSetRouteDocuments(HttpRoute *route, cchar *path)
 {
-    assert(route);
-    assert(path && *path);
-
-    route->documents = httpMakePath(route, route->home, path);
-    httpSetRouteVar(route, "DOCUMENTS", route->documents);
+    httpSetDir(route, "DOCUMENTS", path);
 }
 
 
@@ -13502,11 +13430,7 @@ PUBLIC int httpSetRouteHandler(HttpRoute *route, cchar *name)
 
 PUBLIC void httpSetRouteHome(HttpRoute *route, cchar *path)
 {
-    assert(route);
-    assert(path && *path);
-
-    route->home = httpMakePath(route, ".", path);
-    httpSetRouteVar(route, "HOME", route->home);
+    httpSetDir(route, "HOME", path);
 }
 
 
@@ -13603,15 +13527,6 @@ PUBLIC void httpSetRouteCookie(HttpRoute *route, cchar *cookie)
 }
 
 
-PUBLIC void httpSetRouteName(HttpRoute *route, cchar *name)
-{
-    assert(route);
-    assert(name && *name);
-
-    route->name = sclone(name);
-}
-
-
 PUBLIC void httpSetRoutePattern(HttpRoute *route, cchar *pattern, int flags)
 {
     assert(route);
@@ -13660,6 +13575,7 @@ PUBLIC void httpSetRoutePreserveFrames(HttpRoute *route, bool on)
 }
 
 
+#if DEPRECATE || 1
 PUBLIC void httpSetRouteServerPrefix(HttpRoute *route, cchar *prefix)
 {
     assert(route);
@@ -13676,6 +13592,7 @@ PUBLIC void httpSetRouteServerPrefix(HttpRoute *route, cchar *prefix)
     }
     assert(route->serverPrefix);
 }
+#endif
 
 
 PUBLIC void httpSetRouteSessionVisibility(HttpRoute *route, bool visible)
@@ -13791,10 +13708,12 @@ PUBLIC void httpSetRouteTemplate(HttpRoute *route, cchar *tplate)
 }
 
 
+#if DEPRECATED || 1
 PUBLIC void httpSetRouteUploadDir(HttpRoute *route, cchar *dir)
 {
-    httpSetDir(route, "upload", dir);
+    httpSetDir(route, "UPLOAD", dir);
 }
+#endif
 
 
 PUBLIC void httpSetRouteWorkers(HttpRoute *route, int workers)
@@ -13848,9 +13767,6 @@ static void finalizePattern(HttpRoute *route)
     pattern = mprCreateBuf(-1, -1);
     startPattern = route->pattern[0] == '^' ? &route->pattern[1] : route->pattern;
 
-    if (route->name == 0) {
-        route->name = sclone(startPattern);
-    }
     if (route->tplate == 0) {
         /* Do this while the prefix is still in the route pattern */
         route->tplate = finalizeTemplate(route);
@@ -14131,7 +14047,8 @@ PUBLIC void httpFinalizeRoute(HttpRoute *route)
     Expect a template with embedded tokens of the form: "/${controller}/${action}/${other}"
     Understands the following aliases:
         ~   For ${PREFIX}
-        ^   For ${PREFIX}${SERVER_PREFIX}
+        |   For ${PREFIX}${SERVER_PREFIX}
+
     The options is a hash of token values.
  */
 PUBLIC char *httpTemplate(HttpConn *conn, cchar *template, MprHash *options)
@@ -14152,9 +14069,13 @@ PUBLIC char *httpTemplate(HttpConn *conn, cchar *template, MprHash *options)
         if (cp == template && *cp == '~') {
             mprPutStringToBuf(buf, route->prefix);
 
+#if DEPRECATE || 1
         } else if (cp == template && *cp == ME_SERVER_PREFIX_CHAR) {
             mprPutStringToBuf(buf, route->prefix);
+            //  DEPRECATE in version 6
             mprPutStringToBuf(buf, route->serverPrefix);
+            assert(*cp != ME_SERVER_PREFIX_CHAR);
+#endif
 
         } else if (*cp == '$' && cp[1] == '{' && (cp == template || cp[-1] != '\\')) {
             cp += 2;
@@ -14425,6 +14346,9 @@ static int unauthorizedCondition(HttpConn *conn, HttpRoute *route, HttpRouteOp *
 }
 
 
+/*
+    Test if the condition parameters evaluate to a directory
+ */
 static int directoryCondition(HttpConn *conn, HttpRoute *route, HttpRouteOp *op)
 {
     HttpTx      *tx;
@@ -14434,14 +14358,16 @@ static int directoryCondition(HttpConn *conn, HttpRoute *route, HttpRouteOp *op)
     assert(conn);
     assert(route);
     assert(op);
+    tx = conn->tx;
 
     /* 
-        Must have tx->filename set when expanding op->details, so map target now 
+        Must have tx->filename set when expanding op->details, so map target now.
+        Then reset the filename and extension.
      */
-    tx = conn->tx;
     httpMapFile(conn);
     path = mprJoinPath(route->documents, expandTokens(conn, op->details));
     tx->ext = tx->filename = 0;
+
     mprGetPathInfo(path, &info);
     if (info.isDir) {
         return HTTP_ROUTE_OK;
@@ -14469,6 +14395,7 @@ static int existsCondition(HttpConn *conn, HttpRoute *route, HttpRouteOp *op)
     httpMapFile(conn);
     path = mprJoinPath(route->documents, expandTokens(conn, op->details));
     tx->ext = tx->filename = 0;
+
     if (mprPathExists(path, R_OK)) {
         return HTTP_ROUTE_OK;
     }
@@ -14644,9 +14571,6 @@ static int redirectTarget(HttpConn *conn, HttpRoute *route, HttpRouteOp *op)
 
 static int runTarget(HttpConn *conn, HttpRoute *route, HttpRouteOp *op)
 {
-    /*
-        Need to re-compute output string as updates may have run to define params which affect the route->target tokens
-     */
     conn->rx->target = route->target ? expandTokens(conn, route->target) : sclone(&conn->rx->pathInfo[1]);
     return HTTP_ROUTE_OK;
 }
@@ -14675,16 +14599,24 @@ static int writeTarget(HttpConn *conn, HttpRoute *route, HttpRouteOp *op)
 
 /************************************************** Route Convenience ****************************************************/
 
-PUBLIC HttpRoute *httpDefineRoute(HttpRoute *parent, cchar *name, cchar *methods, cchar *pattern, cchar *target, cchar *source)
+PUBLIC HttpRoute *httpDefineRoute(HttpRoute *parent, cchar *methods, cchar *pattern, cchar *target, cchar *source)
 {
     HttpRoute   *route;
 
     if ((route = httpCreateInheritedRoute(parent)) == 0) {
         return 0;
     }
-    if (name) {
-        httpSetRouteName(route, name);
-    }
+#if DEPRECATE || 1
+    /* Keep till version 6 */
+        /*
+            Keep till version 6
+         */
+        if (schr(target, '-')) {
+            char   *controller, *action;
+            controller = ssplit(sclone(target), "-", &action);
+            target = sjoin(controller, "/", action, NULL);
+        }
+#endif
     httpSetRoutePattern(route, pattern, 0);
     if (methods) {
         httpSetRouteMethods(route, methods);
@@ -14698,121 +14630,103 @@ PUBLIC HttpRoute *httpDefineRoute(HttpRoute *parent, cchar *name, cchar *methods
 }
 
 
-PUBLIC HttpRoute *httpAddRestfulRoute(HttpRoute *parent, cchar *uprefix, cchar *action, cchar *methods, cchar *pattern, 
-        cchar *target, cchar *resource)
+PUBLIC HttpRoute *httpAddRestfulRoute(HttpRoute *parent, cchar *methods, cchar *pattern, cchar *target, cchar *resource)
 {
-    cchar       *name, *nameResource, *source, *routePrefix;
+    cchar   *nameResource, *source;
 
-    routePrefix = parent->prefix;
-    if (!uprefix) {
-        uprefix = parent->serverPrefix;
-    }
     nameResource = smatch(resource, "{controller}") ? "*" : resource;
-    name = sfmt("%s%s/%s/%s", routePrefix, uprefix, nameResource, action);
+#if DEPRECATE || 1
     if (*resource == '{') {
-        pattern = sfmt("^%s%s/%s%s", routePrefix, uprefix, resource, pattern);
+        pattern = sfmt("^%s%s/%s%s", parent->prefix, parent->serverPrefix, resource, pattern);
     } else {
-        pattern = sfmt("^%s%s/{controller=%s}%s", routePrefix, uprefix, resource, pattern);
+        pattern = sfmt("^%s%s/{controller=%s}%s", parent->prefix, parent->serverPrefix, resource, pattern);
+    }
+#else
+    if (*resource == '{') {
+        pattern = sfmt("^%s/%s%s", parent->prefix, resource, pattern);
+    } else {
+        pattern = sfmt("^%s/{controller=%s}%s", parent->prefix, resource, pattern);
+    }
+#endif
+    if (target && *target) {
+        target = sjoin("/", target, NULL);
     }
     if (*resource == '{') {
-        target = sfmt("$%s-%s", resource, target);
+        target = sfmt("$%s%s", resource, target);
         source = sfmt("$%s.c", resource);
     } else {
-        target = sfmt("%s-%s", resource, target);
+        target = sfmt("%s%s", resource, target);
         source = sfmt("%s.c", resource);
     }
-    return httpDefineRoute(parent, name, methods, pattern, target, source);
+    return httpDefineRoute(parent, methods, pattern, target, source);
 }
 
 
-PUBLIC void httpAddResourceGroup(HttpRoute *parent, cchar *uprefix, cchar *resource)
+PUBLIC void httpAddResourceGroup(HttpRoute *parent, cchar *resource)
 {
     /* Delete is a POST method alternative to remove */
-    httpAddRestfulRoute(parent, uprefix, "delete",    "POST",    "/{id=[0-9]+}/delete$",        "delete",          resource);
-    httpAddRestfulRoute(parent, uprefix, "create",    "POST",    "(/)*$",                       "create",          resource);
-    httpAddRestfulRoute(parent, uprefix, "edit",      "GET",     "/{id=[0-9]+}/edit$",          "edit",            resource);
-    httpAddRestfulRoute(parent, uprefix, "get",       "GET",     "/{id=[0-9]+}$",               "get",             resource);
-    httpAddRestfulRoute(parent, uprefix, "init",      "GET",     "/init$",                      "init",            resource);
-    httpAddRestfulRoute(parent, uprefix, "list",      "GET",     "/list$",                      "list",            resource);
-    httpAddRestfulRoute(parent, uprefix, "remove",    "DELETE",  "/{id=[0-9]+}$",               "remove",          resource);
-    httpAddRestfulRoute(parent, uprefix, "update",    "POST",    "/{id=[0-9]+}$",               "update",          resource);
-    httpAddRestfulRoute(parent, uprefix, "action",    "GET,POST","/{id=[0-9]+}/{action}(/)*$",  "${action}",       resource);
-    httpAddRestfulRoute(parent, uprefix, "default",   "GET,POST","/{action}(/)*$",              "cmd-${action}",   resource);
+    httpAddRestfulRoute(parent, "GET",     "$",                           "",          resource);
+    httpAddRestfulRoute(parent, "POST",    "/{id=[0-9]+}/delete$",        "delete",    resource);
+    httpAddRestfulRoute(parent, "POST",    "(/)*$",                       "create",    resource);
+    httpAddRestfulRoute(parent, "GET",     "/{id=[0-9]+}/edit$",          "edit",      resource);
+    httpAddRestfulRoute(parent, "GET",     "/{id=[0-9]+}$",               "get",       resource);
+    httpAddRestfulRoute(parent, "GET",     "/init$",                      "init",      resource);
+    httpAddRestfulRoute(parent, "GET",     "/list$",                      "list",      resource);
+    httpAddWebSocketsRoute(parent, "stream");
+    httpAddRestfulRoute(parent, "DELETE",  "/{id=[0-9]+}$",               "remove",    resource);
+    httpAddRestfulRoute(parent, "POST",    "/{id=[0-9]+}$",               "update",    resource);
+    httpAddRestfulRoute(parent, "GET,POST","/{id=[0-9]+}/{action}(/)*$",  "${action}", resource);
+    httpAddRestfulRoute(parent, "GET,POST","/{action}(/)*$",              "${action}", resource);
 }
 
 
-PUBLIC void httpAddResource(HttpRoute *parent, cchar *uprefix, cchar *resource)
+/*
+    Singleton resource
+ */
+PUBLIC void httpAddResource(HttpRoute *parent, cchar *resource)
 {
     /* Delete is a POST method alternative to remove */
-    httpAddRestfulRoute(parent, uprefix, "delete",    "POST",    "/delete$",       "delete",     resource);
-    httpAddRestfulRoute(parent, uprefix, "create",    "POST",    "(/)*$",          "create",     resource);
-    httpAddRestfulRoute(parent, uprefix, "edit",      "GET",     "/edit$",         "edit",       resource);
-    httpAddRestfulRoute(parent, uprefix, "get",       "GET",     "(/)*$",          "get",        resource);
-    httpAddRestfulRoute(parent, uprefix, "init",      "GET",     "/init$",         "init",       resource);
-    httpAddRestfulRoute(parent, uprefix, "update",    "POST",    "(/)*$",          "update",     resource);
-    httpAddRestfulRoute(parent, uprefix, "remove",    "DELETE",  "(/)*$",          "remove",     resource);
-    httpAddRestfulRoute(parent, uprefix, "default",   "GET,POST","/{action}(/)*$", "${action}",  resource);
+    httpAddRestfulRoute(parent, "GET",     "$",              "",           resource);
+    httpAddRestfulRoute(parent, "POST",    "/delete$",       "delete",     resource);
+    httpAddRestfulRoute(parent, "POST",    "(/)*$",          "create",     resource);
+    httpAddRestfulRoute(parent, "GET",     "/edit$",         "edit",       resource);
+    httpAddRestfulRoute(parent, "GET",     "(/)*$",          "get",        resource);
+    httpAddRestfulRoute(parent, "GET",     "/init$",         "init",       resource);
+    httpAddRestfulRoute(parent, "POST",    "(/)*$",          "update",     resource);
+    httpAddRestfulRoute(parent, "DELETE",  "(/)*$",          "remove",     resource);
+    httpAddWebSocketsRoute(parent, "stream");
+    httpAddRestfulRoute(parent, "GET,POST","/{action}(/)*$", "${action}",  resource);
 }
 
 
 /*
     Add routes for a permanent resource. Cannot create or remove.
  */
-PUBLIC void httpAddPermResource(HttpRoute *parent, cchar *uprefix, cchar *resource)
+PUBLIC void httpAddPermResource(HttpRoute *parent, cchar *resource)
 {
-    httpAddRestfulRoute(parent, uprefix, "get",       "GET",     "(/)*$",          "get",        resource);
-    httpAddRestfulRoute(parent, uprefix, "update",    "POST",    "(/)*$",          "update",     resource);
-    httpAddRestfulRoute(parent, uprefix, "default",   "GET,POST","/{action}(/)*$", "${action}",  resource);
+    httpAddRestfulRoute(parent, "GET",     "$",              "",           resource);
+    httpAddRestfulRoute(parent, "GET",     "(/)*$",          "get",        resource);
+    httpAddRestfulRoute(parent, "POST",    "(/)*$",          "update",     resource);
+    httpAddWebSocketsRoute(parent, "stream");
+    httpAddRestfulRoute(parent, "GET,POST","/{action}(/)*$", "${action}",  resource);
 }
 
 
-PUBLIC void httpAddPublicRoute(HttpRoute *parent, cchar *uprefix, cchar *name)
+PUBLIC HttpRoute *httpAddWebSocketsRoute(HttpRoute *parent, cchar *action)
 {
     HttpRoute   *route;
     cchar       *path, *pattern;
 
-    if (!uprefix) {
-        uprefix = "";
-    }
-    if (parent->prefix) {
-        uprefix = sjoin(parent->prefix, uprefix, NULL);
-        name = sjoin(parent->prefix, name, NULL);
-    }
-    pattern = sfmt("^%s(/.*)", uprefix);
-    path = sjoin(mprGetRelPath(stemplate("${PUBLIC_DIR}", parent->vars), parent->documents), "$1", NULL);
-    route = httpDefineRoute(parent, name, "GET", pattern, path, parent->sourceName);
-    httpAddRouteHandler(route, "fileHandler", "");
-}
-
-
-PUBLIC void httpAddHomeRoute(HttpRoute *parent)
-{
-    cchar   *source, *name, *path, *pattern;
-
-    source = parent->sourceName;
-    name = sjoin(parent->prefix, "/home", NULL);
-    path = stemplate("${PUBLIC_DIR}/index.esp", parent->vars);
-    pattern = sfmt("^%s(/)$", parent->prefix);
-    httpDefineRoute(parent, name, "GET,POST", pattern, path, source);
-}
-
-
-PUBLIC HttpRoute *httpAddWebSocketsRoute(HttpRoute *parent, cchar *uprefix, cchar *name)
-{
-    HttpRoute   *route;
-    cchar       *pattern;
-
-    if (!uprefix) {
-        uprefix = parent->serverPrefix;
-    }
-    if (parent->prefix) {
-        name = sjoin(parent->prefix, name, NULL);
-    }
-    pattern = sfmt("^%s%s/{controller}/stream", parent->prefix, uprefix);
-    route = httpDefineRoute(parent, name, "GET", pattern, "$1-cmd-stream", "${controller}.c");
+#if DEPRECATE || 1
+    pattern = sfmt("^%s%s/{controller}/%s", parent->prefix, parent->serverPrefix, action);
+#else
+    pattern = sfmt("^%s/{controller}/%s", parent->prefix, action);
+#endif
+    path = sjoin("$1/", action, NULL);
+    route = httpDefineRoute(parent, "GET", pattern, path, "${controller}.c");
     httpAddRouteFilter(route, "webSocketFilter", "", HTTP_STAGE_RX | HTTP_STAGE_TX);
-
     httpGraduateLimits(route, 0);
+
     /*
         Set some reasonable defaults. 5 minutes for inactivity and no request timeout limit
      */
@@ -15420,21 +15334,29 @@ PUBLIC cchar *httpGetDir(HttpRoute *route, cchar *name)
 
 PUBLIC void httpSetDir(HttpRoute *route, cchar *name, cchar *value)
 {
+    cchar   *path, *rpath;
+
     if (value == 0) {
         value = slower(name);
     }
-    value = mprJoinPath(route->home, value);
-    httpSetRouteVar(route, sjoin(supper(name), "_DIR", NULL), httpMakePath(route, 0, value));
-}
+    path = httpMakePath(route, 0, value);
+    path = mprJoinPath(route->home, path);
+    rpath = mprGetRelPath(path, 0);
+    name = supper(name);
+    httpSetRouteVar(route, sjoin(name, "_DIR", NULL), rpath);
 
-
-PUBLIC void httpSetDefaultDirs(HttpRoute *route)
-{
-#if UNUSED
-    httpSetDir(route, "cache", 0);
-    httpSetDir(route, "paks", 0);
-    httpSetDir(route, "public", 0);
-#endif
+    /*
+        Home and documents are stored as absolute paths
+     */
+    if (smatch(name, "HOME")) {
+        httpSetRouteVar(route, name, rpath);
+        route->home = path;
+    } else if (smatch(name, "DOCUMENTS")) {
+        httpSetRouteVar(route, name, rpath);
+        route->documents = path;
+    } else if (smatch(name, "UPLOAD")) {
+        httpSetRouteVar(route, name, rpath);
+    }
 }
 
 
@@ -20015,8 +19937,9 @@ PUBLIC void httpSetEntityLength(HttpConn *conn, int64 len)
 
 
 /*
-    Set the filename. The filename may be outside the route documents. So caller must take care.
-    This will update HttpTx.ext and HttpTx.fileInfo.
+    Low level routine to set the filename to serve. The filename may be outside the route documents, so caller 
+    must take care if the HTTP_TX_NO_CHECK flag is used.  This will update HttpTx.ext and HttpTx.fileInfo.
+    This does not implement per-language directories. For that, see httpMapFile.
  */
 PUBLIC void httpSetFilename(HttpConn *conn, cchar *filename, int flags)
 {
@@ -21886,9 +21809,13 @@ static cchar *expandRouteName(HttpConn *conn, cchar *routeName)
     if (sstarts(routeName, "${app}")) {
         return sjoin(route->prefix, &routeName[6], NULL);
     }
+#if DEPRECATE || 1
+    //  DEPRECATE in version 6
     if (routeName[0] == ME_SERVER_PREFIX_CHAR) {
-        return sjoin(route->prefix, route->serverPrefix, &routeName[1], NULL);
+        assert(routeName[0] != ME_SERVER_PREFIX_CHAR);
+        return sjoin(route->prefix, &routeName[1], NULL);
     }
+#endif
     return routeName;
 }
 
@@ -21905,9 +21832,9 @@ static char *actionRoute(HttpRoute *route, cchar *controller, cchar *action)
     }
     if (controller) {
         controllerPrefix = (controller && smatch(controller, "{controller}")) ? "*" : controller;
-        return sjoin(route->prefix, route->serverPrefix, "/", controllerPrefix, "/", action, NULL);
+        return sjoin("^", route->prefix, "/", controllerPrefix, "/", action, NULL);
     } else {
-        return sjoin(route->prefix, route->serverPrefix, "/", action, NULL);
+        return sjoin("^", route->prefix, "/", action, NULL);
     }
 }
 

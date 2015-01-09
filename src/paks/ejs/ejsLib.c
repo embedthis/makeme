@@ -55925,7 +55925,6 @@ static EjsVoid *hs_listen(Ejs *ejs, EjsHttpServer *sp, int argc, EjsObj **argv)
         route = httpCreateConfiguredRoute(host, 1);
 
         httpAddRouteMethods(route, "DELETE, HEAD, OPTIONS, PUT");
-        httpSetRouteName(route, "default");
         httpAddRouteHandler(route, "ejsHandler", "");
         httpSetRouteTarget(route, "run", 0);
         httpFinalizeRoute(route);

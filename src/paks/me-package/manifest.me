@@ -23,7 +23,7 @@ Me.load({
             package: [
                 {
                     from: [ 
-                                '${SRC}/doc/documents/README.TXT', 
+                                '${SRC}/doc/source/README.TXT', 
                                 '${SRC}/package/install.sh', 
                                 '${SRC}/package/uninstall.sh' 
                     ],
@@ -38,7 +38,7 @@ Me.load({
                     enable:     "me.platform.os == 'windows'",
 
                }, {
-                    from:       '${SRC}/doc/documents/README.TXT',
+                    from:       '${SRC}/doc/source/README.TXT',
                     to:         '${app}/',
                     fold:       true,
                     patch:      true,
