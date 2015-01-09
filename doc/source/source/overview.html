@@ -1,0 +1,134 @@
+{
+    title:  'Building Overview',
+    crumbs: [ 
+        { 'Built with MakeMe': 'index.html' },
+    ],
+}
+
+            <h1>Building Overview</h1>
+            <p>This document describes the process to build the software from source for a supported platform.
+            The source distribution contains all the necessary source files, headers and tools to
+            reconfigure, build and verify the software. </p>
+            
+            <h2>Preparing the Environment</h2>
+            <p>Before building, you may need to install required tools such as cross-compilers, SDKs, and system
+            libraries. If you wish to build the software with the support of third-party packages such as 
+            OpenSSL, you may need to download the source from the relevant vendor and build the
+            required libraries for the software to utilize.</p>
+
+            <h3>Windows</h3>
+            <p>To build on Windows, you will need to install Microsoft Visual Studio 10.0 or later. Either the full 
+            product or the express editions will work fine. You will also need to 
+            install the <a href="http://msdn.microsoft.com/en-us/windowsserver/bb980924.aspx">Windows SDK</a>.
+            <p>Before building or configuring, you need to define certain Microsoft compiler environment variables as
+            described in the Microsoft Visual Studio installation. These variables are the PATH, INCLUDE and LIB
+            variables. They need to be
+            defined so they will contain references to where the Microsoft compiler and libraries are installed on your
+            system. The <em>vcvarsall.bat</em> command supplied with Visual Studio is the normal way to define these
+            variables.</p>
+
+            <h2>Build Overview</h2>
+            <p>The software supports three methods of building from source.
+            Building via <em>make</em> is the simplest and quickest way to build. Use make if you are looking to build
+            and move on. Choose make also, if you need to integrate the product into an existing make-based
+            build system.</p>
+            <p>Build with <em>MakeMe</em> is the better choice if you are cross-compiling or
+            will be working with the software for a longer period of time. MakeMe offers a more configurable build and is
+            faster and more flexible than make.  </p>
+            <p>Select the appropriate instructions:</p>
+            <ul>
+                <li><a href="me.html">Build with MakeMe</a></li>
+                <li><a href="make.html">Build with Make</a></li>
+                <li><a href="ide.html">Build with IDE</a></li>
+            </ul>
+
+            <a id="directories"></a>
+            <h2>Key Directories</h2>
+            <p>Source trees contain the following key directories under the top directory.</p>
+            <table title="dirs" class="ui table segment">
+                <thead>
+                    <tr>
+                        <th class="five wide">Directory</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="nowrap">build</td>
+                    <td>Build output directory.</td>
+                </tr>
+                <tr>
+                    <td class="nowrap">build/bin</td>
+                    <td>Binaries directory.</td>
+                </tr>
+                <tr>
+                    <td class="nowrap">build/obj</td>
+                    <td>Binaries directory.</td>
+                </tr>
+                <tr>
+                    <td class="nowrap">build/inc</td>
+                    <td>Include headers directory.</td>
+                </tr>
+                <tr>
+                    <td>package</td>
+                    <td>Scripts for creating release distribution images.</td>
+                </tr>
+                <tr>
+                    <td>projects</td>
+                    <td>Microsoft Visual Studio and Xcode project and workspace files.</td>
+                </tr>
+                <tr>
+                    <td>src</td>
+                    <td>Product source code.</td>
+                </tr>
+                <tr>
+                    <td>src/paks</td>
+                    <td>Imported packages.</td>
+                </tr>
+                <tr>
+                    <td>samples</td>
+                    <td>Sample source code and examples</td>
+                </tr>
+                <tr>
+                    <td>test</td>
+                    <td>Unit and integration tests.</td>
+                </tr>
+            </tbody>
+            </table>
+
+            <h3>Key Build Files</h3>
+            <table title="files" class="ui table segment">
+                <thead>
+                    <tr>
+                        <th class="five wide">Name</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>configure</td>
+                    <td>Build configuration script to use when building with MakeMe. This invokes MakeMe to 
+                       configure the software on the development system.</td>
+                </tr>
+                <tr>
+                    <td class="nowrap">build/OS-ARCH-PROFILE/platform.me</td>
+                    <td>Platform specific MakeMe file. There will be one platform MakeMe file for each target platform.</td>
+                </tr>
+                <tr>
+                    <td>package.json</td>
+                    <td>Package description file. It specifies the version and Pak dependencies.</td>
+                </tr>
+                <tr>
+                    <td>main.me</td>
+                    <td>Main MakeMe file. It specifies key product settings and configured options.</td>
+                </tr>
+                <tr>
+                    <td>start.me</td>
+                    <td>Startup MakeMe file. This file refers to the relevant MakeMe files for platforms.</td>
+                </tr>
+                <tr>
+                    <td>build/OS-ARCH-PLATFORM/inc/me.h</td>
+                    <td>Build header created by MakeMe and included in all source files.</td>
+                </tr>
+                </tbody>
+            </table>

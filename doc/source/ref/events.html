@@ -1,0 +1,95 @@
+{
+    title:  "Events",
+    crumbs: [
+        { 'Reference Guide': 'index.html' },
+    ],
+}
+
+        <h2>MakeMe Events</h2>
+        <p>During processing, MakeMe will fire events that may trigger scripts to run. There are two groups of events:</p>
+        <ul>
+            <li>Global Events</li>
+            <li>Target Events</li>
+            <li>Pack Events</li>
+        </ul>
+        <p>The global events are triggered for general MakeMe processing and do not apply to a specific target. Target
+        events apply to the current target being built. The current target is defined in the <em>me.target</em> property or
+        the global TARGET property.</p>
+        <h3>Global Events</h3>
+        <table title="events" class="ui table segment">
+            <thead>
+                <tr><th class="three wide">Name</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>loaded</td><td>Fired after all the required MakeMe files are loaded.</td></tr>
+                <tr><td>postconfig</td><td>Fired during configuration just prior to creating the platform MakeMe file.</td></tr>
+                <tr><td>preheader</td><td>Fired during configuration after creating the platform MakeMe file and just prior
+                    to creating the me.h file.</td></tr>
+                <tr><td>pregen</td><td>Fired during project generation after creating the output project file but 
+                    before emitting any content to the project.</td></tr> 
+                <tr><td>gencustom</td><td>Fired during project generation after emitting top level definitions but before
+                    emitting the targets. This event is the opportunity to write custom variables and targets to the
+                    project.</td></tr> 
+            </tbody>
+        </table>
+        <h3>Target Events</h3>
+        <p>Here are the target events in order of firing</p>
+        <table title="events" class="ui table segment">
+            <thead>
+                <tr><th>Name</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>postblend</td><td>Fired after blending defaults into a target.</td></tr>
+                <tr><td>preresolve</td><td>Fired before resolving dependencies for a target</td></tr>
+                <tr><td>postresolve</td><td>Fired after resolving dependencies for a target</td></tr>
+                <tr><td>presource</td><td>Fired before expanding source wildcards and creating object targets</td></tr>
+                <tr><td>postsource</td><td>Fired after expanding source wildcards and creating object targets</td></tr>
+                <tr><td>precompile</td><td>Fired before compiling a source file used by a target</td></tr>
+                <tr><td>postcompile</td><td>Fired after compiling a source file used by a target</td></tr>
+                <tr><td>prebuild</td><td>Fired before building a target</td></tr>
+                <tr><td>build</td><td>Fired to build the target</td></tr>
+                <tr><td>postbuild</td><td>Fired after building a target</td></tr>
+            </tbody>
+        </table>
+        <h3>Pack Events</h3>
+        <p>Here are the pack events in order of firing.</p>
+        <table title="events" class="ui table segment">
+            <thead>
+                <tr><th class="three wide">Name</th><th>Description</th>
+            </thead>
+            <tbody>
+                <tr><td>without</td><td>Fired when configuring and a pack is explicitly deselected via --without.</td></tr>
+                <tr><td>config</td><td>Fired when configuring a pack.</td></tr>
+                <tr><td>generate</td><td>Fired when generating during pack discovery.</td></tr>
+            </tbody>
+        </table>
+        <a name="scripts"></a>
+        <h2>Defining Scripts</h2>
+        <p>Scripts can be defined to run when the required event is triggered. 
+            <p>This can also be abbreviated by just supplying a string as script value. 
+            Be sure to use the <em>+</em> event aggregator to add to existing scripts for that event.</p>
+<pre class="ui code segment">
+rocket: {
+    type: 'exe',
+    sources: [ '*.c' ],
+    prebuild: "print('before building')",
+    postbuild: "print('after building')",
+},
+</pre>
+        <p>These scripts are actually translated into a lower-level form when the MakeMe file is loaded. 
+        Scripts are translated into the <em>scripts</em> collection using a property name of the desired event. 
+<pre class="ui code segment">
+rocket: {
+    scripts: {
+        prebuild: [{
+            script: "print('before building')",
+            home: '.',
+            interpreter: 'ejs',
+        }],
+    },
+    goals: ['rocket'],
+},
+</pre>
+            <p>For more details on how to set the home directory for the script or to specify 
+            a different script interpreter, see <a href="../developers/scripts.html">Scripts</a>
+            in the MakeMe User Guide.</p>

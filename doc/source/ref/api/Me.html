@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <title>Class Me</title>
+
+   <link rel="stylesheet" type="text/css" href="doc.css" />
+</head>
+
+<body>
+<div class='body'>
+
+<div class="content">
+
+<a name='top'></a>
+<h1 class='className'>Me</h1>
+<div class='classBlock'>
+<table class='classHead' title='Me'>
+   <tr><td><strong>Module</strong></td><td>embedthis.me</td></tr>
+   <tr><td><strong>Definition</strong></td><td>dynamic  class Me</td></tr>
+   <tr><td><strong>Inheritance</strong></td><td>Me <img src='images/inherit.gif' alt='inherit'/> <a href='Object.html'>Object</a><tr><td><strong>Stability</strong></td><td>Prototype.</td></tr>
+       </td></tr>
+</table>
+
+<p class='classBrief'>The Me class is the MakeMe Document Object Model (DOM).</p>
+
+<p class='classDescription'>This class defined core properties and exposes no methods. Instances are dynamic and may create new
+properties at runtime.</p>
+
+</div>
+
+
+<hr />
+<a name='Properties'></a>
+<h2 class='classSection'>Properties</h2>
+<table class='itemTable' title='properties'>
+   <tr><th>Qualifiers</th><th>Property</th><th>Type</th><th width='95%'>Description</th></tr>
+<a name='blend'></a>
+   <tr><td nowrap align='center'> </td><td>blend</td><td><a href='Array.html'>Array</a></td><td>Array of files to load. These paths may include the wild-card "*"" character to 
+match a filename portion and "***"" to match any file or directory at any depth in the directory 
+tree. If the filename is not found, "~/.paks" is searched for a matching Pak.</td></tr>
+<a name='configure'></a>
+   <tr><td nowrap align='center'> </td><td>configure</td><td><a href='Object.html'>Object</a></td><td>The configure collection specifies the configurable targets used to extend the project. The 'discovers' property
+The 'discovers' property lists optional configurable targets to discover when configuring.
+The 'requires' property lists required targets to discover when configuring.
+The 'extras' property lists components that will not be discovered but can be included via an explicit
+'configure --with NAME'.</td></tr>
+<a name='customize'></a>
+   <tr><td nowrap align='center'> </td><td>customize</td><td><a href='Array.html'>Array</a></td><td>Optional MakeMe files to load after fully loading all blended MakeMe files. </td></tr>
+<a name='defaults'></a>
+   <tr><td nowrap align='center'> </td><td>defaults</td><td><a href='Object.html'>Object</a></td><td>Default properties to be inherited by all targets. </td></tr>
+<a name='dir'></a>
+   <tr><td nowrap align='center'> </td><td>dir</td><td><a href='Object.html'>Object</a></td><td>Directories used by MakeMe. These must be absolute paths so that they can be used when the 
+current directory is changed while processing.</td></tr>
+<a name='env'></a>
+   <tr><td nowrap align='center'> </td><td>env</td><td><a href='Object.html'>Object</a></td><td>Environment variables to set when compiling and linking. </td></tr>
+<a name='ext'></a>
+   <tr><td nowrap align='center'> </td><td>ext</td><td><a href='Object.html'>Object</a></td><td>File extensions indexed by file type. </td></tr>
+<a name='globals'></a>
+   <tr><td nowrap align='center'> </td><td>globals</td><td><a href='Object.html'>Object</a></td><td>Global values to use in property token expansion. </td></tr>
+<a name='internal'></a>
+   <tr><td nowrap align='center'> </td><td>internal</td><td><a href='Object.html'>Object</a></td><td>Default properties to be inherited by only the targets in the same MakeMe file. </td></tr>
+<a name='mixin'></a>
+   <tr><td nowrap align='center'> </td><td>mixin</td><td><a href='Array.html'>Array</a></td><td>Literal script code to mixin. The script is injected into the global scope.</td></tr>
+<a name='modules'></a>
+   <tr><td nowrap align='center'> </td><td>modules</td><td><a href='Array.html'>Array</a></td><td>List of scripts or compiled scripts to pre-load. </td></tr>
+<a name='options'></a>
+   <tr><td nowrap align='center'> </td><td>options</td><td><a href='Object.html'>Object</a></td><td>Reference to the MakeMe command line options object. </td></tr>
+<a name='platform'></a>
+   <tr><td nowrap align='center'> </td><td>platform</td><td><a href='Object.html'>Object</a></td><td>Description of the current platform. Has properties for operating system and CPU architecture.</td></tr>
+<a name='prefixes'></a>
+   <tr><td nowrap align='center'> </td><td>prefixes</td><td><a href='Object.html'>Object</a></td><td>Installation directory prefixes and default values on Unix/Linux systems. </td></tr>
+<a name='profiles'></a>
+   <tr><td nowrap align='center'> </td><td>profiles</td><td><a href='Object.html'>Object</a></td><td>Build profiles. Standard profiles are: debug and release.</td></tr>
+<a name='rules'></a>
+   <tr><td nowrap align='center'> </td><td>rules</td><td><a href='Object.html'>Object</a></td><td>Command rules for compiling, building libraries and executables. </td></tr>
+<a name='scripts'></a>
+   <tr><td nowrap align='center'> </td><td>scripts</td><td><a href='Object.html'>Object</a></td><td>Top-level scripts to execute (. </td></tr>
+<a name='settings'></a>
+   <tr><td nowrap align='center'> </td><td>settings</td><td><a href='Object.html'>Object</a></td><td>Project top-level settings. This includes name, version, description. See settings collection below for full details.</td></tr>
+<a name='target'></a>
+   <tr><td nowrap align='center'> </td><td>target</td><td><a href='Target.html'>Target</a></td><td>Reference to the currently building target. </td></tr>
+<a name='targets'></a>
+   <tr><td nowrap align='center'> </td><td>targets</td><td><a href='Object.html'>Object</a></td><td>Targets to build. Each target is its own collection of properties.</td></tr>
+<a name='usage'></a>
+   <tr><td nowrap align='center'> </td><td>usage</td><td><a href='Object.html'>Object</a></td><td>Additional usage message to emit for MakeMe command line errors. </td></tr>
+</table>
+
+<p class='inheritedLink'><a href='Object.html#Properties'><i>Inherited Properties</i></a></p>
+
+<hr />
+<a name='ClassMethods'></a>
+<h2 class='classSection'>Me Class Methods</h2>
+<table class='apiIndex' title='methods'>
+   <tr><th>Qualifiers</th><th width='95%'>Method</th></tr>
+   <tr class='apiDef'><td class='apiType'>static </td><td><a href='#load'><b>load</b></a>(obj: <a href='Object.html'>Object</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Load a MakeMe literal object.</td></tr>
+</table>
+
+<p class='inheritedLink'><a href='Object.html#InstanceMethods'><i>Inherited Methods</i></a></p>
+
+<hr />
+<a name='InstanceMethods'></a>
+<h2 class='classSection'>Me Instance Methods</h2>
+<table class='apiIndex' title='methods'>
+   <tr><th>Qualifiers</th><th width='95%'>Method</th></tr>
+   <p>(No own instance methods defined)</p></table>
+
+<p class='inheritedLink'><a href='Object.html#InstanceMethods'><i>Inherited Methods</i></a></p>
+
+<hr />
+<h2>Method Detail</h2>
+<a name='load'></a>
+<div class='api'>
+<div class='apiSig'>static  load(obj: <a href='Object.html'>Object</a>)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Load a MakeMe literal object. Called by MakeMe files via "Me.load()" to load the MakeMe literal definition.
+This simply saves a reference to the object that is processed later.</dd></dl>
+</div>
+</div>
+<hr />
+<div class="terms">
+   <p class="terms">
+       <a href="https://embedthis.com/">       Embedthis Software LLC, 2003-2014. All rights reserved. Embedthis is a trademark of Embedthis Software LLC.</a>
+   </p>
+</div></div>
+</div>
+</body>
+</html>

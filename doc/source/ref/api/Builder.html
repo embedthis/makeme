@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <title>Class Builder</title>
+
+   <link rel="stylesheet" type="text/css" href="doc.css" />
+</head>
+
+<body>
+<div class='body'>
+
+<div class="content">
+
+<a name='top'></a>
+<h1 class='className'>Builder</h1>
+<div class='classBlock'>
+<table class='classHead' title='Builder'>
+   <tr><td><strong>Module</strong></td><td>embedthis.me</td></tr>
+   <tr><td><strong>Definition</strong></td><td> class Builder</td></tr>
+   <tr><td><strong>Inheritance</strong></td><td>Builder <img src='images/inherit.gif' alt='inherit'/> <a href='Object.html'>Object</a><tr><td><strong>Stability</strong></td><td>Prototype.</td></tr>
+       </td></tr>
+</table>
+
+<p class='classBrief'>The Builder Class implements the core building functions for MakeMe.</p>
+
+</div>
+
+
+<hr />
+<a name='Properties'></a>
+<h2 class='classSection'>Properties</h2>
+<table class='itemTable' title='properties'>
+   <tr><th>Qualifiers</th><th>Property</th><th>Type</th><th width='95%'>Description</th></tr>
+<a name='ALL'></a>
+   <tr><td nowrap align='center'>static const </td><td>ALL</td><td>&nbsp;</td><td>Default goal to build all. Set to 'all'.</td></tr>
+<a name='TargetsToBuildByDefault'></a>
+   <tr><td nowrap align='center'>static const </td><td>TargetsToBuildByDefault</td><td>&nbsp;</td><td>List of targets to build by default. Defaults to 'exe', 'file', 'lib' and 'header'.</td></tr>
+<a name='TargetsToClean'></a>
+   <tr><td nowrap align='center'>static const </td><td>TargetsToClean</td><td>&nbsp;</td><td>List of targets to clean by default. Defaults to 'exe', 'file', 'lib' and 'obj'.</td></tr>
+<a name='goal'></a>
+   <tr><td nowrap align='center'></td><td>goal</td><td><a href='String.html'>String</a></td><td>Current goal. </td></tr>
+<a name='localPlatform'></a>
+   <tr><td nowrap align='center'></td><td>localPlatform</td><td><a href='String.html'>String</a></td><td>Local platform string of the form OS-ARCH-PROFILE. </td></tr>
+<a name='topTargets'></a>
+   <tr><td nowrap align='center'></td><td>topTargets</td><td><a href='Array.html'>Array</a></td><td>Top-level targets to build. </td></tr>
+</table>
+
+<p class='inheritedLink'><a href='Object.html#Properties'><i>Inherited Properties</i></a></p>
+
+<hr />
+<a name='ClassMethods'></a>
+<h2 class='classSection'>Builder Class Methods</h2>
+<table class='apiIndex' title='methods'>
+   <tr><th>Qualifiers</th><th width='95%'>Method</th></tr>
+   <p>(No own class methods defined)</p></table>
+
+<p class='inheritedLink'><a href='Object.html#InstanceMethods'><i>Inherited Methods</i></a></p>
+
+<hr />
+<a name='InstanceMethods'></a>
+<h2 class='classSection'>Builder Instance Methods</h2>
+<table class='apiIndex' title='methods'>
+   <tr><th>Qualifiers</th><th width='95%'>Method</th></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#build'><b>build</b></a>(goals: <a href='Array.html'>Array</a> = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Build all required targets for the requested goals.</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#mapLibPaths'><b>mapLibPaths</b></a>(libpaths: <a href='Array.html'>Array</a>, base: <a href='Path.html'>Path</a> = expression): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Map library paths to a base.</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#run'><b>run</b></a>(command, copt = expression): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Run a command and trace output if copt.show or options.show.</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#watch'><b>watch</b></a>(start: <a href='Path.html'>Path</a>, goals = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Watch for changes and rebuild as required.</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#whyRebuild'><b>whyRebuild</b></a>(path: <a href='Path.html'>Path</a>, tag: <a href='String.html'>String</a>, msg: <a href='String.html'>String</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit trace for me --why on why a target is being rebuilt.</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#whySkip'><b>whySkip</b></a>(name: <a href='String.html'>String</a>, msg: <a href='String.html'>String</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit trace for me --why on why a target is being skipped.</td></tr>
+</table>
+
+<p class='inheritedLink'><a href='Object.html#InstanceMethods'><i>Inherited Methods</i></a></p>
+
+<hr />
+<h2>Method Detail</h2>
+<a name='build'></a>
+<div class='api'>
+<div class='apiSig'>    build(goals: <a href='Array.html'>Array</a> = expression)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Build all required targets for the requested goals. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>goals: <a href='Array.html'>Array</a> </td><td>null [default: expression]</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='mapLibPaths'></a>
+<div class='api'>
+<div class='apiSig'>    mapLibPaths(libpaths: <a href='Array.html'>Array</a>, base: <a href='Path.html'>Path</a> = expression): <a href='String.html'>String</a>
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Map library paths to a base. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>libpaths: <a href='Array.html'>Array</a> </td><td>Array of library search paths.</td></tr><tr class='param'><td class='param'>base: <a href='Path.html'>Path</a> </td><td>Base directory from which the paths should be resolved. Defaults to the current directory. [default: expression]</td></tr></table></dd>
+</dl><dl><dt>Returns</dt>
+<dd>Linker library search path options.</dd></dl>
+</div>
+</div>
+<hr />
+<a name='run'></a>
+<div class='api'>
+<div class='apiSig'>    run(command, copt = expression): <a href='String.html'>String</a>
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Run a command and trace output if copt.show or options.show. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>command </td><td>Command to run. May be an array of args or a string.</td></tr><tr class='param'><td class='param'>copt </td><td>Options. These are also passed to <a href='#Cmd'>Cmd</a>.  [default: expression]</td></tr></table></dd>
+</dl><dl><dt>Options</dt>
+<dd><table class='parameters' title='options'>
+<td class='param'>dir</td><td>Change to given directory to run the command.</td></tr>
+<td class='param'>filter</td><td>Do not display output to the console if it contains the specified filter pattern.  Set to true to filter (not display) any output. Note the command always returns the command output  as the function result.</td></tr>
+<td class='param'>generate</td><td>Generate in projects. Defaults to true.</td></tr>
+<td class='param'>noshow</td><td>Do not show the command line before executing. Useful to override me --show for one command.</td></tr>
+<td class='param'>nostop</td><td>Continue processing even if this command is not successful.</td></tr>
+<td class='param'>show</td><td>Show the command line before executing. Similar to me --show, but operates on just this command.</td></tr>
+<td class='param'>timeout</td><td>Timeout for the command to complete  Note: do not use the Cmd options: noio, detach. Use Cmd APIs directly.</td></tr>
+</table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='watch'></a>
+<div class='api'>
+<div class='apiSig'>    watch(start: <a href='Path.html'>Path</a>, goals = expression)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Watch for changes and rebuild as required. The sleep period is defined via --watch.</dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>goals </td><td>null [default: expression]</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='whyRebuild'></a>
+<div class='api'>
+<div class='apiSig'>    whyRebuild(path: <a href='Path.html'>Path</a>, tag: <a href='String.html'>String</a>, msg: <a href='String.html'>String</a>)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Emit trace for me --why on why a target is being rebuilt. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>path: <a href='Path.html'>Path</a> </td><td>Target path being considered.</td></tr><tr class='param'><td class='param'>tag: <a href='String.html'>String</a> </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>msg: <a href='String.html'>String</a> </td><td>Message to display.</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='whySkip'></a>
+<div class='api'>
+<div class='apiSig'>    whySkip(name: <a href='String.html'>String</a>, msg: <a href='String.html'>String</a>)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Emit trace for me --why on why a target is being skipped. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>name: <a href='String.html'>String</a> </td><td>Target path being considered.</td></tr><tr class='param'><td class='param'>msg: <a href='String.html'>String</a> </td><td>Message to display.</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<div class="terms">
+   <p class="terms">
+       <a href="https://embedthis.com/">       Embedthis Software LLC, 2003-2014. All rights reserved. Embedthis is a trademark of Embedthis Software LLC.</a>
+   </p>
+</div></div>
+</div>
+</body>
+</html>

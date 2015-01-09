@@ -1,0 +1,120 @@
+{
+    title:  'Using Generated Makefiles',
+    crumbs: [
+        { "User's Guide", 'index.html' },
+    ],
+}
+            <h1>Using Generated Makefiles</h1>
+            <p>This document describes how to work with MakeMe generated Makefiles and how to tailor them to 
+            to suit your needs.</p>
+            <p>MakeMe can be used to generate complete Makefiles and projects for building via: make, nmake, 
+                Visual Studio or Xcode projects. Developers can then include these projects to 
+                building their code on specific platforms.</p>
+            <h2>Building with the Makefile</h2>
+            <p>To build with make, simply type:
+<pre class="ui code segment">$ <b>make</b>
+       [Run] make --no-print-directory -f projects/appweb-macosx-default.mk all
+      [Info] Use make SHOW=1 to trace executed commands.
+      [File] macosx-x64-default/inc/mpr.h
+   [Compile] src/deps/mpr/mprLib.c
+      [Link] libmpr
+</pre>
+            <p>Note the output is simplified so that build errors and compiler warnings are more obvious. If you wish to
+            see the full compiler, linker and other build commands, include the <em>SHOW=1</em> option:
+<pre class="ui code segment">$ make <b>SHOW=1</b>
+       [Run] make --no-print-directory -f projects/appweb-macosx-default.mk all
+      [Info] Use make SHOW=1 to trace executed commands.
+   [Compile] src/deps/mpr/mprLib.c
+/usr/bin/clang -c -o macosx-x64-default/obj/mprLib.o -w -g -DME_DEBUG \
+-Imacosx-x64-default/inc src/deps/mpr/mprLib.c
+      [Link] libmpr
+/usr/bin/clang -dynamiclib -o macosx-x64-default/bin/libmpr.dylib \
+'-Wl,-rpath,@executable_path/' '-Wl,-rpath,@loader_path/' -g \
+-compatibility_version 4.3.0 -current_version 4.3.0 \
+-Lmacosx-x64-default/bin -install_name @rpath/libmpr.dylib \
+macosx-x64-default/obj/mprLib.o -lpthread -lm -ldl
+</pre>
+            <a name="platform"></a>
+            <h2>Platform Makefiles</h2>
+            <p>MakeMe eschews creating Makefiles that will work on all the possible platforms, rather it generates
+                dedicated, simple, fast, non-recursive Makefiles that run quickly and simply for the dominant platforms: 
+               Linux, Mac OSX, Windows, and BSD. There is one Makefile for each platform. Developers can then easily 
+               extend for other platforms if required.</p>
+            <p>Developers typically deliver these per-platform Makefiles and IDE projects under the a <em>projects</em>
+            directory and provide a top-level Makefile that detects your operating system and CPU architecture and
+            then invokes the relevant per-platform Makefile for your system. For example:</p>
+<pre class="ui code segment">$ <b>make</b>
+make -f projects/appweb-macosx-default.mk all
+</pre>
+            <a name="selecting"></a>
+            <h3>Selecting a Platform Makefile</h3>
+            <p>Invoking the top-level Makefile will automatically invoke the appropriate platform makefile for the
+                current system architecture. Some products provide optional <em>static</em> build makefiles. These
+                are named: PRODUCT-OS-static.mk. If provided, you can select a static build via:</p>
+                <pre class="ui code segment">$ make PROFILE=static</pre>
+                
+            <a name="nmake"></a>
+            <h3>Windows Nmake</h3>
+            <p>MakeMe can generate a Makefile for Nmake which is the Windows variant of Make. This has a <em>.nmake</em>
+            extension. 
+            <p>To build on Windows with nmake, you need to define the Visual Studio environment variables (via the
+            Visual Studio <em>vsvarsall.bat</em> and then type:
+            <pre class="ui code segment">$ <b>make</b>
+nmake -f projects\appweb-windows.nmake
+</pre>
+            <a name="modifying"></a>
+            <h2>Modifying Makefile Defaults</h2>
+            <p>Generated Makefiles to not require the use of a configure program and provide a limited means of 
+            tailoring the build by suppling configuration options directly to <em>make</em>. These options override 
+           default values defined in the platform makefile. For example:
+            <pre class="ui code segment">$ <b>ME_EXT_EST=0</b> make</pre>
+            <p>On linux and unix, you can supply the overrides as environment variables or on the make command line. 
+            On Windows, you must supply the overrides as environment variables only.</p>
+            <p>Configurable components are enabled by setting their corresponing ME_EXT_<em>NAME</em> option to 1. 
+            Disable by setting to zero. Some components require a path to locate their libraries and headers. 
+            Use ME_EXT_NAME_PATH to define the path to the component.</p>
+            <p>By defining make variables such as CC and CFLAGS, you can modify the compiler options. This is the
+                also the technique used when cross-compiling.</p>
+            <h3>Make Install</h3>
+            <p>If using make to install the product after compiling, use <em>make install</em>. However,
+                it is essential when invoking <em>make install</em>, that you provide the same make flags and options
+                as you did when compiling. This is because the Makefile will conditionally install only the selected
+                components for those options.</p>
+            <p>For example, to build and install OpenSSL:</p>
+                <pre class="ui code segment">$ <b>ME_EXT_OPENSSL=1 ME_EXT_OPENSSL_PATH=/usr/src/openssl</b> make compile
+$ sudo <b>ME_EXT_OPENSSL=1 ME_EXT_OPENSSL_PATH=/usr/src/openssl</b> make install</pre>
+            <a id="cross"></a>
+            <h2>Cross Compiling with Make</h2>
+            <p>Building a product for a platform different to that of the local system is called <em>cross compiling</em>.
+            Sometimes this compiling is just for a different instruction set (say x64 instead of x86). Other
+            times, it is for a completely different operating system and/or CPU architecture. In such cases, a
+            cross-compiler is typically required to build for the target platform.</p>
+            <p>Appweb supplies makefiles for Linux, Windows, FreeBSD, MAC OSX and VxWorks. To cross compile, you invoke 
+            the relevant project makefile and pass the required CPU architecture as a make variable. For example, to 
+            cross compile for VxWorks on ARM:</p>
+            <pre class="ui code segment">
+make -f projects/appweb-vxworks-default.mk ARCH=x86 PROFILE=debug
+</pre>
+            <p>When make runs, it places the output products (executables, libraries and objects) in a platform-specific 
+            output directory. This directory is named using the form: OS-ARCH-PROFILE. For example: vxworks-x86-debug. 
+            In this manner, make can be invoked multiple times, once for each target platform and the results will be
+            captured in separate platform output directories. Some of the supported architectures for the ARCH field are:
+            arm, mips, ppc, x64 and x86. The PROFILE is a descriptive name chosen by you for your configuration.</p>
+            <p>If there is not a makefile for your  target operating system, you may be able to copy the closest makefile 
+            and edit to suit your target platform.</p>
+            <h3>Specifying the CPU</h3>
+            <p>Make will use a generic CPU type within the specified architecture. To override the default choice and
+            specify a CPU type within an architecture, use the CPU variable. For example:</p>
+            <pre class="ui code segment">make OS=vxworks ARCH=arm CPU=arm7tdmi</pre>
+            <h3>Specifying a Tool Chain</h3>
+            <p>You may need to specify where Make can locate your cross-compiler and other tools.
+            You can supply these via the make variables: CC, CFLAGS, DFLAGS, IFLAGS, LD and LDFLAGS. 
+            <p>For example:</p>
+            <pre class="ui code segment">CC=/opt/bin/ccarm.exe \
+LD=/opt/bin/ccarm.exe \
+ARCH=arm \
+CPU=arm7tdmi \
+PROFILE=release \
+make -f projects/appweb-vxworks-default.mk
+</pre>
+        <p>To learn more, read about <a href="cross.html">Cross Compiling with MakeMe</a>.</p>

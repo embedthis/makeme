@@ -1,0 +1,131 @@
+{
+    title:  'Targets',
+    crumbs: [
+        { 'Reference Guide': 'index.html' },
+    ],
+}
+        <h1>Targets</h1>
+        <p>A MakeMe project may specify any number of targets to be built via the MakeMe DOM. A target represents 
+        a discrete item to build in the project. 
+        <p>A target is defined as a collection of properties under the targets property.</p>
+<pre class="ui code segment">
+targets {
+    rocket: {
+        type: 'exe'
+        sources: '*.c',
+    },
+},
+</pre>
+        <a name="dependencies"></a>
+        <h2>Target Dependencies</h2>
+        <p>MakeMe targets can depend on other targets that must be built first. Dependencies are expressed as an 
+        ordered list of targets in the <em>depends</em> property. 
+        For example:</p>
+<pre class="ui code segment">
+targets {
+    fuel: {
+        type: 'lib'
+        sources: 'fuel/*.c',
+    },
+    rocket: {
+        type: 'exe'
+        sources: '*.c',
+        <b>depends: ['libfuel']</b>,
+    },
+}
+</pre>
+        <p>The defines, includes, libraries, library paths and linker options defined by the depended upon target
+            are inherited by the target.</p>
+        <p>When MakeMe is invoked, it may nominate specific actions or targets to build on the command line. These
+        are called <em>goals</em>. If no goals are provided, a default build is run using the special goal called
+        <em>'all'</em>.</p>
+<pre class="ui code segment">
+$ me libfuel  # builds only libfuel
+$ me rocket   # builds libfuel then rocket
+$ me          # builds all targets
+</pre>
+        <h2>Goals</h2>
+        <p>When 'me' is invoked, the command line goals are used to select the targets to build. Each target has as
+        target.goals propery which is an array of goals for which the target should be built. For example:</p>
+<pre class="ui code segment">
+rocket: {
+    type: 'exe'
+    sources: '*.c',
+    <b>goals: ['all', 'rocket'],</b>
+},
+</pre>
+        <p>With the goals specified above, the rocket target will be built if invoked as:
+        <pre class="ui code segment">
+me         # to build all targets
+me rocket  # to build just the rocket
+</pre>
+        
+        <p>Target goals are automatically defined if not explicitly specified. In fact, most targets do not explicitly
+        define their goals. If unspecified, a default goals property will be defined for each target that minimally 
+        contains the name of the target. Executable, library and file targets will also have the special goal <em>'all'</em>
+        so that they are created for default builds.</p>
+        <a name="order"></a>
+        <h2>Target Build Order</h2>
+        <p>Before building, MakeMe parses the entire MakeMe file configuration and creates a build tree based on
+        which targets depend on what. MakeMe then builds the targets by doing a depth-first traversal of the build tree. It successfully detects and handles dependency loops.</p>
+        <a id="defaults"></a>
+        <h2>Target Default Properties</h2>
+        <p>Often targets need very similar configuration. MakeMe provides a <em>defaults</em> collection of properties that are
+        inherited by all exe, lib and obj targets.  For example:</p>
+<pre class="ui code segment">
+defaults: {
+    '+defines': [ 'TUNE=SPEED ],
+    '+libraries': [ 'math' ],
+}
+</pre>
+        <p>This will use the <em>TUNE=SPEED</em> compiler definition when compiling all source files, and the
+        <em>math</em> library when linking executables (and libraries on some systems).</p>
+        <p>MakeMe also provides an <em>internal</em> collection of properties that are inherited by only
+        the targets in the same MakeMe file. </p>
+<pre class="ui code segment">
+internal: {
+    '+defines': [ 'TUNE=SIZE ],
+}
+</pre>
+        <a id="enable"></a>
+        <h2>Enabling and Disabling Targets</h2>
+        <p>Targets can be selectively enabled or disabled based on the value of the <em>enable</em> property. 
+        The property may be set to a string containing an arbitrary script expression that is evaluated and if true
+        the target is enabled. For example:
+<pre class="ui code segment">
+appwebMonitor: {
+    <b>enable: "me.platform.like == 'windows'",</b>
+    type: 'exe',
+    sources: [ 'windows/appwebMonitor.c' ],
+},
+</pre>
+        <p>This will enable this target only if building for windows. Note that if you forget to wrap the
+            enable expression as a string, it will be evaluated when the MakeMe file is loaded, not when the target
+            is evaluated. In some cases, this will work if that portion of the DOM referenced in your expression
+            has been defined. Best to always wrap your enable expression in quotes.</p>
+        <h3>Enable Samples</h3>
+        <p>SSL has a special setting that can be tested for targets that require SSL before building</p>
+        <pre class="ui code segment">
+transact: {
+    /* Enable if SSL is enabled */
+    <b>enable: "me.settings.ssl",</b>
+    type: 'exe',
+    sources: [ '*.c' ],
+},
+</pre>
+        <p>This example tests if the CGI configurable component is enabled.</p>
+        <pre class="ui code segment">
+cgiProgram: {
+    /* Enable if SSL is enabled */
+    <b>enable: "me.targets.cgi.enable",</b>
+    type: 'exe',
+    sources: [ '*.c' ],
+},
+</pre>
+        <p>This target is only enabled if building for the local platform and not cross-building.</p>
+        <pre class="ui code segment">
+'tests': {
+    <b>enable: "!me.platform.cross",</b>
+    action: "run-tests()",
+},
+</pre>

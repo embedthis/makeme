@@ -1,0 +1,165 @@
+{
+    title:  "MakeMe Plugins",
+    crumbs: [
+        { "Developer's Guide": 'index.html' },
+    ],
+}
+        <h2>MakeMe Plugins</h2>
+        <p>MakeMe can be extended via modular plugins that add functionality to the core MakeMe capabilities.
+        These capabilities are then available to any project that references the plugin. Plugins can contribute
+        standard targets, goals or scripts. Examples of plugins are:</p>
+        <ul>
+            <li>Targets to create installable packages</li> 
+            <li>Targets to run a unit test framework</li> 
+            <li>Git integration targets</li> 
+            <li>And so on ...</li> 
+        </ul>
+        <p>Plugins are referenced by the project via the <em>plugins</em> property. For example:
+        <pre class="ui code segment">
+ Me.load({
+    plugins: [ 'configuration', 'package'],
+    targets: {}
+})
+</pre>
+        <h2>Plugin Elements</h2>
+        <p>A MakeMe plugin consists of two mandatory elements:</p>
+        <ul>
+            <li>A MakeMe file of the same name as the plugin pak.</li>
+            <li>A Pak package.json description file</li>
+        </ul>
+        <p>The <em>NAME.me</em> MakeMe file provides the plugin's functionality. It may contain targets, settings, and 
+        may reference other MakeMe files or scripts.
+        The Pak <em>package.json</em> file describes the pak and specifies its name, version and source code repository
+        location from which it can be downloaded.</p>
+        <p>A plugin may also include: </p>
+        <ul>
+            <li>Additional MakeMe files</li>
+            <li>MakeMe targets in any MakeMe file</li>
+            <li>Ejscript mixins referenced by the MakeMe file</li>
+            <li>Any additional files and resources</li>
+        </ul>
+        <p>For example:</p>
+        <pre class="ui code segment">
+Me.load({
+    blend: [
+        'extra/subsystem.me'
+    ],
+    modules: [
+        'scripts/package.es'
+    ]
+    mixin: `
+        function log(msg) {
+            Path('/var/spool/log/build.log').append(msg)
+        }
+    `
+    targets: {
+        'time': {
+            shell: `date`
+        },
+    },
+})
+</pre>
+
+        <h2>Sample Plugin</h2>
+        <p>For example, here are the steps to create a simple MakeMe plugin that displays the current time.</p>
+
+        <pre class="ui code segment">$ me time
+<b>Thu Mar 13 17:04:49 PDT 2014</b></pre>
+
+        <h3>Step 1 &mdash; Name the Plugin</h3>
+        <p>The plugin name must be a unique name in the Pak online catalog. 
+        By convention, MakeMe plugins are named with a "<em>me-</em>" prefix. This makes it easy for users to 
+        find suitable MakeMe plugins. You should also set your package.json keywords to include <em>"me-plugin"</em>
+        Search the <a href="https://embedthis.com/catalog">Pak Online Catalog</a> to pick a unique name.</p>
+        <h3>Step 2 &mdash; Create the MakeMe File</h3>
+        <p>Make a new directory for the plugin and create the MakeMe file there using the chosen name of your 
+            plugin with a "<em>.me</em>" extension. Here is the MakeMe file:</p>
+<pre class="ui code segment">
+Me.load({
+    targets: {
+        'time': {
+            shell: `date`
+        },
+    },
+})
+</pre>
+
+        <h3>Step 3 &mdash; Package the Plugin</h3>
+        <p>Plugins are packaged and distributed using the
+            <a href="https://embedthis.com/pak/">Pak</a> package manager tool. Pak will bundle together all the
+            components of a plugin and then publish online for distribution via the 
+            <a href="https://embedthis.com/catalog">Pak Online Catalog</a>.
+
+        <p>To package a MakeMe file as a Pak, first run the <em>pak init</em> command:</p>
+        <pre class="ui code segment">pak init 'me-time' 1.0.0</pre>
+        <p>This creates a default <em>package.json</em> that you should edit to describe the plugin package.
+        To publish a pak in the catalog, you must provide at a minimum:</p>
+        <ul>
+        <li>Unique plugin pak name</li>
+        <li>Plugin pak description</li>
+        <li>Plugin pak author with contact details</li>
+        <li>Plugin pak repository location on GitHub</li>
+        <li>Plugin version</li>
+        </ul>
+        <p>Here is the edited package.json:</p>
+        <pre class="ui code segment">
+{
+    "name": "me-time",
+    "description": "MakeMe Time",
+    "version": "1.0.0",
+    "author": {
+        "name": "Embedthis Software",
+        "email": "dev@embedthis.com",
+        "url": "https://embedthis.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/embedthis/me-time.git"
+    },
+}</pre>
+        <h3>Step 4 &mdash; Publish the Plugin</h3>
+        <p>Plugins may be optionally published to the 
+            <a href="https://embedthis.com/catalog">Pak Online Catalog</a> using the Pak tool. This is an optional step
+        and the pack may simply be included in the projects <em>src/paks</em> directory without publishing online.
+        To publish online, use the pak tool:</p>
+        <pre class="ui code segment">pak publish</pre>
+        <p>This will prompt for a password that can subsequently be used to administer the plugin in the catalog. 
+        <em>REMEMBER</em> this password and save it in a safe place. You will need it to modify or delete the plugin 
+        should you need to do so.</p>
+        <h2>Using a Plugin</h2>
+        <p>Users can download and install plugins locally using the Pak tool. For example:</p>
+        <pre class="ui code segment">pak install NAME</pre>
+        <p>This will download and install the plugin into the current <em>src/paks</em> directory. The project 
+        <em>main.me</em> file should load this plugin via the <em>plugins</em> property. For example:</p>
+<pre class="ui code segment">
+Me.load({
+    plugins: [ 'time' ],
+    ...
+</pre>
+        <h2>Mixins</h2>
+        <p>Plugins may contribute scripts that are made available to target scripts or other MakeMe plugins. Plugin scripts
+        are Javascript (Ejscript) definitions or functions that are injected the MakeMe Javascript engine. There are two
+        methods of adding scripts.</p>
+        <ul>
+            <li>blend</li>
+            <li>mixin</li>
+        </ul>
+        <p>The MakeMe <em>blend</em> property is an array of external scripts to load. These paths may include
+        the wild-card "*" character to match a filename portion and "**" to match any file or directory at any depth
+        in the directory tree. If the filename is not found, "~/.paks" is searched for a matching Pak.</p>
+
+        <p>The <em>mixin</em> property is a literal Javascript string to load. These are both injected at the global scope.</p>
+        
+        <h2>Install Events</h2>
+        <p>A plugin may need install libraries on its target system or otherwise may need to perform 
+        initialization tasks when first installed. The Pak <em>package.json</em> file contains 
+        a "<em>scripts.install</em>" and property that can be set to an Ejscript file that will be 
+        executed when the pak is first installed. Similarly the
+        "<em>scripts.uninstall</em>" property that can be set to an Ejscript that will be run when the script is 
+            uninstalled.</p>
+
+        <h2>Configurable Components</h2>
+        <p>A common use for plugins is to publish a component that can be configured by the user to add 
+        functionality to an existing project. The component will be expressed as a target with a 
+        <em>configurable</em> property set to true. See 
+        <a href="configurable.html">Configurable Projects</a> for more details.</p>

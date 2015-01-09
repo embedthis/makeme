@@ -1,0 +1,86 @@
+{
+    title:  "Installing on Windows",
+    crumbs: [
+        { 'Getting Started', 'index.html' },
+    ],
+}
+            <h1>Installing on Windows</h1>
+            <p>The MakeMe install package for Windows is an installation executable compressed in a ZIP file 
+                available <a href="https://embedthis.com/makeme/download.html">here</a>.</p>
+            <p>The distribution image contains the binary distribution and documentation 
+            headers in one package.</p>
+            
+            <a id="exe"></a>
+            <h2>Installing the Image</h2>
+            <ol>
+                <li>Login with administrator privileges.</li>
+                <li>Run winzip (or other similar tool) and extract the contents of the zipped EXE install image to a 
+                    folder of your choosing.</li>
+                <li>Browse to the location holding the EXE install image and run it.</li>
+            </ol>
+            
+            <a id="removing"></a>
+            <h2>Removing MakeMe</h2>
+            <ol>
+                <li>Login with administrator privileges</li>
+                <li>Run the <b>Add / Remove Programs</b> applet from the <b>control panel</b>.</li>
+                <li>Select <b>Embedthis MakeMe</b> and click remove.</li>
+            </ol>
+
+            <a id="silentInstallation"></a>
+            <h2>Silent Installation</h2>
+            <p>If you need to do batch or unattended installations, you can install MakeMe silently. Use the /silent
+            switch to suppress questions and /verysilent to suppress all visual output.</p>
+
+            <a id="running"></a>
+            <h2>Running MakeMe</h2>
+            <p>You can invoke MakeMe simply as <em>me</em>
+            <pre class="ui code segment"><b>$ me</b>
+me.es: ERROR: Can't find suitable start.me.
+Run "me --gen start" to create stub start.me
+</pre>
+            <p>This indicates you are ready to start by creating your first <em>start.me</em> file.
+            To learn more, read the <a href="../index.html ">MakeMe Overview</a>.</p>
+            <p>To display the various MakeMe command options, type:</p>
+            <pre class="ui code segment"><b>$ me help</b>
+Usage: me [options] [targets|actions] ...
+  Options:
+  --benchmark                              # Measure elapsed time
+  --configure path-to-source               # Configure for building
+  --continue                               # Continue on errors
+  --debug                                  # Same as --profile debug
+  --depth level                            # Set utest depth level
+  --diagnose                               # Emit diagnostic trace 
+  --dump                                   # Dump the full project me file
+  --endian [big|little]                    # Define the CPU endianness
+  --file file.me                           # Use the specified me file
+  --force                                  # Override warnings
+  --gen [make|nmake|sh|vs|xcode|main|start]# Generate project file
+  --help                                   # Print help message
+  --import                                 # Import standard me environment
+  --keep                                   # Keep intermediate files
+  --log logSpec                            # Save errors to a log file
+  --nocross                                # Build natively
+  --overwrite                              # Overwrite existing files
+  --out path                               # Save output to a file
+  --platform os-arch-profile               # Build for specified platform
+  --pre                                    # Pre-process a source file to stdout
+  --prefix dir=path                        # Define installation path prefixes
+  --profile [debug|release|...]            # Use the build profile
+  --quiet                                  # Quiet operation. Suppress trace 
+  --rebuild                                # Rebuild all specified targets
+  --reconfigure                            # Reconfigure with existing settings
+  --release                                # Same as --profile release
+  --rom                                    # Build for ROM without a file system
+  --set [feature=value]                    # Enable and a feature
+  --show                                   # Show commands executed
+  --static                                 # Make static libraries
+  --unicode                                # Set char size to wide (unicode)
+  --unset feature                          # Unset a feature
+  --version                                # Display the me version
+  --verbose                                # Trace operations
+  --watch [sleep time]                     # Watch for changes and rebuild
+  --why                                    # Why a target was or was not built
+  --with PACK[=PATH]                       # Build with package at PATH
+  --without PACK                           # Build without a package
+</pre>

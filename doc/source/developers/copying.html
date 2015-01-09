@@ -1,0 +1,228 @@
+{
+    title:  "Copying Files",
+    crumbs: [
+        { "Developer's Guide": 'index.html' },
+    ],
+}
+        <h1>Copying Files</h1>
+        <p>You can copy files at build time by using a copy 'file' target that specifies a set of input files and an output
+        destination. For example:</p>
+<pre class="ui code segment">
+setup: {
+    from: 'web/readme.html',
+    to: '${OUT}/web/',
+},
+</pre>
+        <p>This example will copy the specified readme file to the web directory under the platform output
+            directory.</p>
+
+        <p>The <em>from</em> property may be a single filename or an array of files or directories. It may contain 
+        wildcards to match multiple files or directories. If the <em>from</em> property selects multiple files 
+        or if the <em>to</em> property is a directory, the specified files will be copied into that directory.
+        If the <em>to</em> property has a trailing "/", it will be assumed to be a directory and will be 
+        created if it does not exist. </p>
+
+        <h2>Copying Files or Trees</h2>
+        <p>By default, the copy file target operates in "flatten" mode where all matching files are copied to the
+        destination directory without copying the source directory structure. This mode is useful to copy a single file or to collect a group of files into a single output directory. When you need to copy a directory and contents, set the <em>flatten</em> property to <em>false</em>.</p>
+        <pre class="ui code segment">
+setup: {
+    from: 'web/**',
+    to: '${OUT}/public/',
+    flatten: true,
+},
+</pre>
+        <p>This copies the entire <em>web</em> directory and contents to the <em>public</em> directory.</p>
+
+        <h2>Under the Hood</h2>
+        <p>File targets with <em>from</em> and <em>to</em> properties are converted to a canonical form before
+        processing. The <em>from</em> property is converted to the <em>files</em> property and the <em>to</em> property
+        is converted to the <em>path</em> property. The target type is also set to <em>file</em>.
+        So a fully described file target actually is converted to the following:</p>
+<pre class="ui code segment">
+setup: {
+    files: [ 'web/readme.html' ],
+    path: '${OUT}/web',
+    type: 'file',
+},
+</pre>
+
+        <h2>File Selection Patterns</h2>
+        <p>The <em>from</em> property may be a single file or an array of files or directories. These files can 
+        include wild cards which are expanded using the Ejscript 
+        <a href="https://embedthis.com/ejscript/doc/ref/api/ejscript/Path.html#files">Path.files</a>
+        routine. The supported wild cards are:
+
+        <table class="ui table">
+        <thead>
+            <tr>
+                <th>Pattern</th><th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>?</td><td>matches any single character</td></tr>
+            <tr><td>*</td><td>matches zero or more characters in a filename or directory</td></tr>
+            <tr><td>**</td><td>zero or more files or directories and matches recursively in a directory tree</td></tr>
+            <tr><td>!</td><td>negates pattern. This removes matching patterns from the file set. These are applied after 
+                all patterns have been processed. Use !! to escape a ! character or set the <em>noneg</em> property to 
+                to disable processing negated patterns.</td></tr>
+            <tr><td>/</td><td>If a pattern terminates with / it will only match directories.</td></tr>
+        </tbody>
+        </table>
+        <p>If a pattern in the files property is a directory, then the directory and all the files in that 
+        directory will be copied. In other words, the pattern will automatically be converted to <em>path/**</em>. 
+        If a pattern has a trailing "/" then the contents of the directory will be copied.</p>
+        <p>Here is an example that copies a directory and its structure, excludes temp files and trims the first
+        part of the directory name 'web'.</p>
+<pre class="ui code segment">
+setup: {
+    from: [ 'web/**', '!**.tmp' ],
+    to: '${OUT}/web',
+    flatten: false,
+    relative: 'web',
+},
+</pre>
+        <h2>Stale Targets</h2>
+        <p>If the destination path specified by the <em>to</em> or <em>path</em> property is 
+        is up-to-date, meaning that no input files have been modified after the destination, then the 
+        files will not be copied.</p>
+
+        <h2>File Target Properties</h2>
+        <p>File targets can modify the behavior of the copying by including other optional properties:</p>
+        <table class="ui table">
+            <thead><tr>
+                <th>Property</th>
+                <th class="two wide">Type</th>
+                <th>Description</th></tr> </thead>
+            <tbody>
+            <tr>
+                <td>active</td>
+                <td>Boolean</td>
+                <td>If a destination file is an active executable or library, rename the active file using 
+                    a '.old' extension and retry.</td>
+            </tr>
+            <tr>
+                <td>append</td>
+                <td>Boolean</td>
+                <td>Set the operation to catenate input files into a single output file. Same as 
+                    'operation: "append"'</td>
+            </tr>
+            <tr>
+                <td>compress</td>
+                <td>Boolean</td>
+                <td>Compress destination files using Zlib. Results in a '.gz' extension.</td>
+            </tr>
+            <tr>
+                <td>divider</td>
+                <td>String</td>
+                <td>Divider text to use between appended files.</td>
+            </tr>
+            <tr>
+                <td>extension</td>
+                <td>String | Path</td>
+                <td>Extension to use for the destination filenames.</td>
+            </tr>
+            <tr>
+                <td>extensionDot</td>
+                <td>String</td>
+                <td>Specifies where the filename extension begins for filenames with multiple dots. 
+                    Set to 'first' or 'last'.</td>
+            </tr>
+            <tr>
+                <td>filter</td>
+                <td>RegExp</td>
+                <td>Pattern of lines to filter out from appended files.</td>
+            </tr>
+            <tr>
+                <td>flatten</td>
+                <td>Boolean</td>
+                <td>Flatten the input source tree to a single level. Defaults to true.</td>
+            </tr>
+            <tr>
+                <td>footer</td>
+                <td>String</td>
+                <td>Footer to append when appending files.</td>
+            </tr>
+            <tr>
+                <td>group</td>
+                <td>String | Number</td>
+                <td>Group permission name or number to use for the destination files.</td>
+            </tr>
+            <tr>
+                <td>header</td>
+                <td>String</td>
+                <td>Header prepend when appending files.</td>
+            </tr>
+            <tr>
+                <td>isDir</td>
+                <td>Boolean</td>
+                <td>Assume the destination is a directory. Create if it does not exist. Same as appending a 
+                    trailing '/' to the 'to' argument.</td>
+            </tr>
+            <tr>
+                <td>keep</td>
+                <td>Boolean</td>
+                <td>Keep uncompressed file after compressing.</td>
+            </tr>
+            <tr>
+                <td>operation</td>
+                <td>String</td>
+                <td>Set to 'append' to append files, 'copy' to copy files and 'move' to move files.
+                Set to 'list' to return a file list in options.list and perform no operations. Defaults to 'copy' if unset.</td>
+            </tr>
+            <tr>
+                <td>patch</td>
+                <td>Object</td>
+                <td>Expand file contents tokens using this object. Object hash containing properties to use 
+                when replacing tokens of the form ${token} in file contents.</td>
+            </tr>
+            <tr>
+                <td>permissions</td>
+                <td>Number</td>
+                <td>Posix style permissions mask. E.g. 0644.</td>
+            </tr>
+            <tr>
+                <td>relative</td>
+                <td>Boolean | String | Path</td>
+                <td>Create destination filenames relative to the path provided by the 
+                'relative' option, otherwise destination filenames include the Path value. If set to true, the destination
+                 will be relative to the current directory. If set, implies flatten == false. Defaults to false.</td>
+            </tr>
+            <tr>
+                <td>rename</td>
+                <td>Function</td>
+                <td>Callback function to provide a new destination filename. Calling sequence:
+                Function(from, to, options): Path.</td>
+            </tr>
+            <tr>
+                <td>divider</td>
+                <td>Boolean</td>
+                <td>Keep uncompressed file after compressing.</td>
+            </tr>
+            <tr>
+                <td>strip</td>
+                <td>Boolean</td>
+                <td>Run 'strip' on the destination files.</td>
+            </tr>
+            <tr>
+                <td>symlink</td>
+                <td>String | Path</td>
+                <td>Create a symbolic link to the destination. If symlink has a trailing '/'
+                a link is created in the directory specified by 'symlink' using the source file 
+                basename as the link name.</td>
+            </tr>
+            <tr>
+                <td>trim</td>
+                <td>Number</td>
+                <td>Number of path components to trim from the start of the source filename. 
+                    If set, implies flatten == false.</td>
+            </tr>
+            <tr>
+                <td>user</td>
+                <td>String | Number</td>
+                <td>User account name or number to use for destination files.</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p>To learn more about MakeMe, read about <a href="configurable.html">Creating a Configurable Project</a>.</p>

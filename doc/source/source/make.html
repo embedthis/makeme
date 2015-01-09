@@ -1,0 +1,172 @@
+{
+    title:  'Building with Make',
+    crumbs: [ 
+        { 'Built with MakeMe', 'index.html' }, 
+    ],
+}
+            <h1>Building with Make or Nmake</h1>
+            <p>This document describes the process to build the software from source using Make or Nmake on Windows.
+                First make sure you have read the <a href="overview.html">Building Overview</a> to prepare your build
+                environment. </p>
+            
+            <a name="makefiles"></a>
+            <h2>Platform Makefiles</h2>
+            <p>MakeMe can create a suite of generated, pre-configured Makefiles for common platforms. 
+            These are simple makefiles that build a default configuration for a specific operating
+            system. These makefiles are typically provided under the <em>./projects</em> directory.</p>
+            <p> A top level Makefile is also provided that detects your operating system and CPU architecture and
+            then invokes the appropriate project Makefile for your system. For example:</p>
+<pre class="ui code segment">$ <b>make</b>
+make --no-print-directory -f projects/NAME-macosx-default.mk all
+</pre>
+            <a name="nmake"></a>
+            <h3>Windows Nmake</h3>
+            <p>On Windows, a <em>make.bat</em> file is provided to to invoke nmake. The make.bat file first invokes
+            <em>projects/windows.bat</em> which runs the Visual Studio <em>vcvarsall.bat</em> procedure
+            to setup the necessary Visual Studio environment variables for compiling.</p>
+            <p>To build on Windows with nmake, type:
+            <pre class="ui code segment">$ <b>make</b>
+nmake -f projects\NAME-windows.nmake
+</pre>
+            <a name="modifying"></a>
+            <h3>Modifying the Makefile Defaults</h3>
+            <p>You do not use a <em>configure</em> program when building via Make, that is used only for building 
+            with MakeMe. Rather, you supply configuration options directly to Make. These options override default 
+            values defined by the projects/NAME-OS-default.mk makefile and by the projects/NAME-OS-debug-me.h file. 
+            For example, to disable use of SQLite:</p>
+            <pre class="ui code segment">$ make <b>ME_COM_SQLITE=0</b> </pre>
+
+            <p>Configurable components are enabled by setting their corresponding ME_COM_NAME option to 1. 
+            Disable by setting to zero. Some components requires a path to locate libraries and headers. 
+            Use ME_COM_NAME_PATH to define the path to the component.</p>
+
+            <p>By defining make variables such as CC and CFLAGS, you can modify the compiler options. This is the
+                also the technique used when cross-compiling.</p>
+            <p>To see the list of configurable options, run <em>make help</em>:</p>
+            <pre class="ui code segment">$ <b>make help</b>
+usage: make [clean, compile, install, run, uninstall]
+The default configuration can be modified by setting make variables
+Set to 0 to disable and 1 to enable:
+  PROFILE          # Select default or static for static linking
+  ME_EJS_DB        # Enable database support, ejs.db
+  ME_EJS_MAIL      # Enable mail support, ejs.mail
+  ME_EJS_MAPPER    # Enable database mapper support, ejs.mapper
+  ME_EJS_TAR       # Enable tar support, ejs.tar
+  ME_EJS_TEMPLATE  # Enable template support, ejs.template
+  ME_EJS_WEB       # Enable web support, ejs.web
+  ME_EJS_ZLIB      # Enable zlib support, ejs.zlib
+  ME_ESP_MDB       # Enable ESP MDB database support
+  ME_ESP_SDB       # Enable ESP SQLite database support
+  ME_MPR_LOGGING   # Enable application logging
+  ME_MPR_TRACING   # Enable debug tracing
+  ME_COM_CGI       # Enable the CGI handler
+  ME_COM_DIR       # Enable the directory listing handler
+  ME_COM_EJSCRIPT  # Enable the Ejscript handler
+  ME_COM_ESP       # Enable the ESP web framework
+  ME_COM_EST       # Enable the EST SSL stack
+  ME_COM_OPENSSL   # Enable the OpenSSL SSL stack
+  ME_COM_PHP       # Enable the PHP framework
+  ME_COM_SQLITE    # Enable the SQLite database
+  ME_ROM           # Build for ROM without a file system
+
+For example, to disable CGI:
+  ME_COM_CGI=0 make
+
+Other make variables:
+  ARCH               # CPU architecture (x86, x64, ppc, ...)
+  OS                 # Operating system (linux, macosx, windows, vxworks)
+  CC                 # Compiler to use 
+  LD                 # Linker to use
+  DEBUG              # Set to debug or release for debug or optimized builds
+  CONFIG             # Output directory for built items.
+  CFLAGS             # Add compiler options. For example: -Wall
+  DFLAGS             # Add compiler defines. For example: -DCOLOR=blue
+  IFLAGS             # Add compiler include directories.
+  LDFLAGS            # Add linker options
+  LIBPATHS           # Add linker library search directories.
+  LIBS               # Add linker libraries. For example: -lpthreads
+  PROFILE            # Build profile, used in output products directory name
+</pre>
+
+            <h2>Installing with Make</h2>
+            <p>You can install the newly built software via:</p>
+            <pre class="ui code segment">sudo make install</pre>
+            <p>You can remove by:</p>
+            <pre class="ui code segment">
+sudo make uninstall
+</pre>
+            <div class="ui icon red message">
+                <i class="ok warning icon"></i>
+                <div class="header">Must Use Exact Same Options</div>
+                <p>It is essential when invoking <em>make install</em>, that you provide the same make flags and options
+                    as you did when compiling. This is because the Makefile will conditionally install only the selected
+                    components for those options.</p>
+            </div>
+            <p>For example, to build and install PHP, use the same options for the compile and install commands:</p>
+                <pre class="ui code segment">$ make <b>ME_COM_PHP=1 ME_COM_PHP_PATH=/usr/src/php</b> compile
+$ sudo make <b>ME_COM_PHP=1 ME_COM_PHP_PATH=/usr/src/php</b> install</pre>
+
+            <h3>Deploying</h3>
+            <p>If you need to deploy to a different system or capture the build products, you can install to a specific
+            directory via: </p>
+            <pre class="ui code segment">make deploy</pre>
+            <p>This will install to the <em>deploy</em> directory under the output platform directory.</p>
+
+            <a id="cross"></a>
+            <h2>Cross Compiling with Make</h2>
+            <p>Building a product for platform different to that of the local system is called <em>cross compiling</em>.
+            Sometimes this compiling is just for a different instruction set (say x64 instead of x86). Other
+            times, it is for a completely different operating system and/or CPU architecture. In such cases, a
+            cross-compiler is typically required to build for the target platform.</p>
+            <p>To cross compile, you invoke the relevant project makefile and pass the required CPU architecture as a 
+            make variable. For example, to cross compile for VxWorks on ARM:
+            <pre class="ui code segment">
+make -f projects/NAME-vxworks-default.mk ARCH=arm PROFILE=debug
+</pre>
+            <p>When make runs, it places the output products (executables, libraries and objects) in a platform-specific 
+            output directory. This is named using the form: OS-ARCH-PROFILE. For example: vxworks-arm-debug. In this 
+            manner, make can be invoked multiple times, once for each target platform and the results will be captured
+            in separate platform output directories. Some of the supported architectures for the ARCH field are:
+            arm, mips, ppc, x64 and x86. The PROFILE is a descriptive name chosen by you for your configuration.</p>
+            <p>If there is not a makefile for your  target operating system, copy the closest makefile and edit to 
+            suit your target platform.</p>
+            <h3>Specifying the CPU</h3>
+            <p>The build will use the generic CPU type within the specified architecture.
+            To override the default choice and specify a CPU type within an architecture, use the CPU variable.
+            For example:</p>
+            <pre class="ui code segment">make OS=vxworks ARCH=arm CPU=arm7tdmi</pre>
+            <a name="toolchain"></a>
+            <h3>Specifying a Tool Chain</h3>
+            <p>You may need to specify where Make can locate your cross-compiler and other tools.
+            You can supply these via the make variables: CC, CFLAGS, DFLAGS, IFLAGS, LD and LDFLAGS. 
+            <p>For example:</p>
+            <pre class="ui code segment">
+make CC=/opt/bin/ccarm.exe LD=/opt/bin/ccarm.exe ARCH=arm PROFILE=release
+    -f projects/NAME-vxworks-default.mk 
+</pre>
+
+            <h2>Supporting OpenSSL</h2>
+            <p>If OpenSSL is required to provide SSL support, you must specify the path to the OpenSSL source
+              directory. For example:</p>
+            <pre class="ui code segment">make ME_COM_OPENSSL=1 ME_COM_OPENSSL_PATH=/path/to/openssl compile</pre>
+            <p>If you are using a binary OpenSSL distribution, provide the path where the OpenSSL libraries are located
+              (typically /usr/lib).</p>
+            <pre class="ui code segment">make ME_COM_OPENSSL=1 ME_COM_OPENSSL_PATH=/usr/lib compile</pre>
+
+            <h2>Static Building</h2>
+            <p>If you require a static build without the ability to dynamically load modules, use the <em>static</em>
+                makefile profile. For example:</p>
+                <pre class="ui code segment">make PROFILE=static</pre>
+            <p>Some web frameworks such as ESP and Ejscript may have reduced functionality in static builds.</p>
+            <a name="vxworks"></a>
+            <h2>Building for VxWorks</h2>
+            <p>Before building for VxWorks, you must define the WIND_* environment variables via the 
+              <em>wrenv.sh</em> script provided with VxWorks. This defines the WIND_BASE, WIND_HOST_TYPE and 
+              other required environment variables.</p>
+              <p>The command below runs wrenv.sh and defines the WIND variables
+              in the current shell's environment.</p>
+            <pre class="ui code segment">eval `/WindRiver/wrenv.sh -p vxworks-6.8 -o print_env -f sh`</pre>
+            <p>Once defined, you can invoke make.</p>
+            <pre class="ui code segment">make OS=vxworks</pre>
+            <p>If you require a static build, set the profile to "static".</p>
+            <pre class="ui code segment">make OS=vxworks PROFILE=static</pre>

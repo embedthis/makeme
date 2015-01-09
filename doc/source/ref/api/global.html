@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <title>Global Functions and Variables</title>
+
+   <link rel="stylesheet" type="text/css" href="doc.css" />
+</head>
+
+<body>
+<div class='body'>
+
+<div class="content">
+
+<a name='top'></a>
+<h1 class='className'>Global Functions and Variables</h1>
+<div class='classBlock'>
+<p class='classBrief'>Global object containing all global functions and variables.</p>
+
+</div>
+
+
+<hr />
+<a name='Properties'></a>
+<h2 class='classSection'>Properties</h2>
+<table class='itemTable' title='properties'>
+   <tr><th>Qualifiers</th><th>Property</th><th>Type</th><th width='95%'>Description</th></tr>
+<a name='MaxVer'></a>
+   <tr><td nowrap align='center'>ejs.version const </td><td>MaxVer</td><td><a href='Number.html'>Number</a></td><td>null </td></tr>
+<a name='SemCriteria'></a>
+   <tr><td nowrap align='center'>ejs.version const </td><td>SemCriteria</td><td>&nbsp;</td><td>null </td></tr>
+<a name='SemExpr'></a>
+   <tr><td nowrap align='center'>ejs.version const </td><td>SemExpr</td><td>&nbsp;</td><td>null </td></tr>
+<a name='SemVer'></a>
+   <tr><td nowrap align='center'>ejs.version const </td><td>SemVer</td><td>&nbsp;</td><td>null </td></tr>
+<a name='StrictSemVer'></a>
+   <tr><td nowrap align='center'>ejs.version const </td><td>StrictSemVer</td><td>&nbsp;</td><td>null </td></tr>
+<a name='VerFactor'></a>
+   <tr><td nowrap align='center'>ejs.version const </td><td>VerFactor</td><td><a href='Number.html'>Number</a></td><td>null </td></tr>
+<a name='capture'></a>
+   <tr><td nowrap align='center'>embedthis.me.script </td><td>capture</td><td><a href='Array.html'>Array</a></td><td>null </td></tr>
+<a name='genout'></a>
+   <tr><td nowrap align='center'>embedthis.me.script </td><td>genout</td><td><a href='TextStream.html'>TextStream</a></td><td>null </td></tr>
+<a name='sysdirs'></a>
+   <tr><td nowrap align='center'>embedthis.me.script </td><td>sysdirs</td><td>&nbsp;</td><td>null </td></tr>
+</table>
+
+<hr />
+<a name='ClassMethods'></a>
+<h2 class='classSection'>Global Class Methods</h2>
+<table class='apiIndex' title='methods'>
+   <tr><th>Qualifiers</th><th width='95%'>Method</th></tr>
+   <p>(No own class methods defined)</p></table>
+
+<hr />
+<a name='InstanceMethods'></a>
+<h2 class='classSection'>Global Instance Methods</h2>
+<table class='apiIndex' title='methods'>
+   <tr><th>Qualifiers</th><th width='95%'>Method</th></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#Target'><b>Target</b></a>()</tr>   <tr class='apiDef'><td class='apiType'>ejs.version </td><td><a href='#Version'><b>Version</b></a>(version: <a href='String.html'>String</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Create and parse a version
+Use valid() to test if the version string was a valid SemVer version.</td></tr>
+   <tr class='apiDef'><td class='apiType'>ejs.unix </td><td><a href='#basename'><b>basename</b></a>(path: <a href='String.html'>String</a>): <a href='Path.html'>Path</a></tr>   <tr class='apiDef'><td class='apiType'> </td><td><a href='#builtin'><b>builtin</b></a>(cmd: <a href='String.html'>String</a>, actionOptions: <a href='Object.html'>Object</a> = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#changeDir'><b>changeDir</b></a>(path: <a href='Path.html'>Path</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'>ejs.unix </td><td><a href='#chdir'><b>chdir</b></a>(dir: <a href='Object.html'>Object</a>): <a href='Void.html'>Void</a></tr>   <tr class='apiDef'><td class='apiType'>ejs.unix </td><td><a href='#chmod'><b>chmod</b></a>(path: <a href='String.html'>String</a>, perms: <a href='Number.html'>Number</a>): <a href='Void.html'>Void</a></tr>   <tr class='apiDef'><td class='apiType'>ejs.unix </td><td><a href='#cp'><b>cp</b></a>(src, dest: <a href='Path.html'>Path</a>, options): <a href='Number.html'>Number</a></tr>   <tr class='apiDef'><td class='apiType'>ejs.unix </td><td><a href='#dirname'><b>dirname</b></a>(path: <a href='String.html'>String</a>): <a href='Path.html'>Path</a></tr>   <tr class='apiDef'><td class='apiType'>ejs.unix </td><td><a href='#exists'><b>exists</b></a>(path: <a href='String.html'>String</a>): <a href='Boolean.html'>Boolean</a></tr>   <tr class='apiDef'><td class='apiType'>ejs.unix </td><td><a href='#extension'><b>extension</b></a>(path: <a href='String.html'>String</a>): <a href='String.html'>String</a></tr>   <tr class='apiDef'><td class='apiType'>ejs.unix </td><td><a href='#find'><b>find</b></a>(path: <a href='Object.html'>Object</a>, patterns: <a href='Object.html'>Object</a>, options): <a href='Array.html'>Array</a></tr>   <tr class='apiDef'><td class='apiType'> </td><td><a href='#copy'><b>copy</b></a>(from, to: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#copyFile'><b>copyFile</b></a>(src: <a href='Path.html'>Path</a>, dest: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Copy a file.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#copyFiles'><b>copyFiles</b></a>(from, to: <a href='Path.html'>Path</a>, topOptions = expression, base = null)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'>embedthis.me.script </td><td><a href='#foldLines'><b>foldLines</b></a>(path: <a href='Path.html'>Path</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'>ejs.unix </td><td><a href='#freeSpace'><b>freeSpace</b></a>(path: <a href='String.html'>String</a>): <a href='Number.html'>Number</a></tr>   <tr class='apiDef'><td class='apiType'> </td><td><a href='#genClose'><b>genClose</b></a>()</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#genCmd'><b>genCmd</b></a>(s)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#genOpen'><b>genOpen</b></a>(path: <a href='Path.html'>Path</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#genRawWriteLine'><b>genRawWriteLine</b></a>(args: <a href='Array.html'>Array</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#genPathTrace'><b>genPathTrace</b></a>(tag: <a href='String.html'>String</a>, path)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#genRun'><b>genRun</b></a>(s)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#genStartCapture'><b>genStartCapture</b></a>(target)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#genScript'><b>genScript</b></a>(str: <a href='String.html'>String</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#genStopCapture'><b>genStopCapture</b></a>(target): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#genTrace'><b>genTrace</b></a>(tag: <a href='String.html'>String</a>, args: <a href='Array.html'>Array</a>): <a href='Void.html'>Void</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Generate a trace line.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#genWrite'><b>genWrite</b></a>(args: <a href='Array.html'>Array</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'>ejs.unix </td><td><a href='#isDir'><b>isDir</b></a>(path: <a href='String.html'>String</a>): <a href='Boolean.html'>Boolean</a></tr>   <tr class='apiDef'><td class='apiType'> </td><td><a href='#genWriteLine'><b>genWriteLine</b></a>(args: <a href='Array.html'>Array</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'>ejs.unix </td><td><a href='#kill'><b>kill</b></a>(pid: <a href='Number.html'>Number</a>, signal: <a href='Number.html'>Number</a>): <a href='Void.html'>Void</a></tr>   <tr class='apiDef'><td class='apiType'> </td><td><a href='#linkFile'><b>linkFile</b></a>(src: <a href='Path.html'>Path</a>, dest: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Link a file.</td></tr>
+   <tr class='apiDef'><td class='apiType'>ejs.unix </td><td><a href='#ls'><b>ls</b></a>(patterns, options: <a href='Object.html'>Object</a>): <a href='Array.html'>Array</a></tr>   <tr class='apiDef'><td class='apiType'> </td><td><a href='#makeDir'><b>makeDir</b></a>(path: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#makeDirectory'><b>makeDirectory</b></a>(path: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Make a directory
+This creates a directory and all required parents.</td></tr>
+   <tr class='apiDef'><td class='apiType'>ejs.unix </td><td><a href='#mkdir'><b>mkdir</b></a>(path: <a href='String.html'>String</a>, permissions: <a href='Number.html'>Number</a>): <a href='Void.html'>Void</a></tr>   <tr class='apiDef'><td class='apiType'>ejs.unix </td><td><a href='#mv'><b>mv</b></a>(fromFile: <a href='String.html'>String</a>, toFile: <a href='String.html'>String</a>): <a href='Void.html'>Void</a></tr>   <tr class='apiDef'><td class='apiType'>ejs.unix </td><td><a href='#pwd'><b>pwd</b></a>(): <a href='Path.html'>Path</a></tr>   <tr class='apiDef'><td class='apiType'> </td><td><a href='#removeDir'><b>removeDir</b></a>(path: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Remove a directory.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#removeFile'><b>removeFile</b></a>(path: <a href='Path.html'>Path</a>, options = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Remove a file.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#removePath'><b>removePath</b></a>(path: <a href='Path.html'>Path</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Remove a file or directory.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#reppath'><b>reppath</b></a>(path: <a href='Path.html'>Path</a>): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#repvar'><b>repvar</b></a>(command: <a href='String.html'>String</a>): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#repvar2'><b>repvar2</b></a>(command: <a href='String.html'>String</a>, home: <a href='Path.html'>Path</a> = null): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>null</td></tr>
+   <tr class='apiDef'><td class='apiType'>ejs.unix </td><td><a href='#rm'><b>rm</b></a>(patterns, options): <a href='Boolean.html'>Boolean</a></tr>   <tr class='apiDef'><td class='apiType'>ejs.unix </td><td><a href='#rmdir'><b>rmdir</b></a>(patterns, options): <a href='Boolean.html'>Boolean</a></tr>   <tr class='apiDef'><td class='apiType'> </td><td><a href='#run'><b>run</b></a>(command, copt = expression): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Run a command and trace output if copt.show or options.show.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#safeCopy'><b>safeCopy</b></a>(from: <a href='Path.html'>Path</a>, to: <a href='Path.html'>Path</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Safely copy a file.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#safeRemove'><b>safeRemove</b></a>(dir: <a href='Path.html'>Path</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Safely remove a directory.</td></tr>
+   <tr class='apiDef'><td class='apiType'>ejs.unix </td><td><a href='#sleep'><b>sleep</b></a>(delay: <a href='Number.html'>Number</a>): <a href='Void.html'>Void</a></tr>   <tr class='apiDef'><td class='apiType'> </td><td><a href='#strace'><b>strace</b></a>(tag, args: <a href='Array.html'>Array</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit "show" trace
+This is trace that is displayed if me --show is invoked.</td></tr>
+   <tr class='apiDef'><td class='apiType'>ejs.unix </td><td><a href='#tempname'><b>tempname</b></a>(directory: <a href='String.html'>String</a>): <a href='File.html'>File</a></tr>   <tr class='apiDef'><td class='apiType'>embedthis.me.script </td><td><a href='#touchDir'><b>touchDir</b></a>(path: <a href='Path.html'>Path</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Touch a directory and update its last modified time.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#touchFile'><b>touchFile</b></a>(path: <a href='Path.html'>Path</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Touch a file and update its last modified time.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#trace'><b>trace</b></a>(tag: <a href='String.html'>String</a>, args: <a href='Array.html'>Array</a>): <a href='Void.html'>Void</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit general trace.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#traceFile'><b>traceFile</b></a>(msg, path): <a href='Void.html'>Void</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit trace for a path.</td></tr>
+   <tr class='apiDef'><td class='apiType'> </td><td><a href='#vtrace'><b>vtrace</b></a>(tag, args: <a href='Array.html'>Array</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit verbose trace.</td></tr>
+</table>
+
+<hr />
+<h2>Method Detail</h2>
+<a name='Version'></a>
+<div class='api'>
+<div class='apiSig'>  ejs.version  Version(version: <a href='String.html'>String</a>)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Create and parse a version
+Use valid() to test if the version string was a valid SemVer version. </dd></dl>
+</div>
+</div>
+<hr />
+<a name='copyFile'></a>
+<div class='api'>
+<div class='apiSig'>    copyFile(src: <a href='Path.html'>Path</a>, dest: <a href='Path.html'>Path</a>, options = expression)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Copy a file. Copy files to a destination.
+The routine uses <a href='#copy'>copy()</a> to implement the copying.
+This either copies files or if generating, emits code to copy files.</dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>src: <a href='Path.html'>Path</a> </td><td>Source file.</td></tr><tr class='param'><td class='param'>dest: <a href='Path.html'>Path</a> </td><td>Destination.</td></tr><tr class='param'><td class='param'>options </td><td>Options to pass to Me.copy(). These include user, group, uid, gid and  permissions. [default: expression]</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='genTrace'></a>
+<div class='api'>
+<div class='apiSig'>    genTrace(tag: <a href='String.html'>String</a>, args: <a href='Array.html'>Array</a>): <a href='Void.html'>Void</a>
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Generate a trace line. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>tag: <a href='String.html'>String</a> </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>args: <a href='Array.html'>Array</a> </td><td>Message args to display.</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='linkFile'></a>
+<div class='api'>
+<div class='apiSig'>    linkFile(src: <a href='Path.html'>Path</a>, dest: <a href='Path.html'>Path</a>, options = expression)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Link a file. This creates a symbolic link on systems that support symlinks.
+The routine uses <a href='Path.html#link'>Path.link()</a> to implement the linking.
+This either links files or if generating, emits code to link files.</dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>src: <a href='Path.html'>Path</a> </td><td>Source file.</td></tr><tr class='param'><td class='param'>dest: <a href='Path.html'>Path</a> </td><td>Destination.</td></tr><tr class='param'><td class='param'>options </td><td>See <a href='#copy'>copy()</a> for supported options. H. [default: expression]</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='makeDirectory'></a>
+<div class='api'>
+<div class='apiSig'>    makeDirectory(path: <a href='Path.html'>Path</a>, options = expression)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Make a directory
+This creates a directory and all required parents. This either makes a directory or if generating, emits code to make directories.</dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>path: <a href='Path.html'>Path</a> </td><td>Directory path to make.</td></tr><tr class='param'><td class='param'>options </td><td>See <a href='#copy'>copy()</a> for supported options. H. [default: expression]</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='removeDir'></a>
+<div class='api'>
+<div class='apiSig'>    removeDir(path: <a href='Path.html'>Path</a>, options = expression)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Remove a directory. This removes a file or directory and all its contents include subdirectories. Use the 'empty' option to only remove
+empty directories.
+This either removes directories or if generating, emits code to remove directories.</dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>path: <a href='Path.html'>Path</a> </td><td>Directory to remove.</td></tr><tr class='param'><td class='param'>options </td><td>Control options. [default: expression]</td></tr></table></dd>
+</dl><dl><dt>Options</dt>
+<dd><table class='parameters' title='options'>
+<td class='param'>empty</td><td>Remove the directory only if empty.</td></tr>
+</table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='removeFile'></a>
+<div class='api'>
+<div class='apiSig'>    removeFile(path: <a href='Path.html'>Path</a>, options = expression)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Remove a file. This either removes files or if generating, emits code to remove files.</dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>path: <a href='Path.html'>Path</a> </td><td>File to remove.</td></tr><tr class='param'><td class='param'>options </td><td>Control options. [default: expression]</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='removePath'></a>
+<div class='api'>
+<div class='apiSig'>    removePath(path: <a href='Path.html'>Path</a>)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Remove a file or directory. This removes a file or directory and all its contents including subdirectories.</dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>path: <a href='Path.html'>Path</a> </td><td>File or directory to remove.</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='run'></a>
+<div class='api'>
+<div class='apiSig'>    run(command, copt = expression): <a href='String.html'>String</a>
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Run a command and trace output if copt.show or options.show. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>command </td><td>Command to run. May be an array of args or a string.</td></tr><tr class='param'><td class='param'>copt </td><td>Options. These are also passed to <a href='#Cmd'>Cmd</a>.  [default: expression]</td></tr></table></dd>
+</dl><dl><dt>Options</dt>
+<dd><table class='parameters' title='options'>
+<td class='param'>dir</td><td>Change to given directory to run the command.</td></tr>
+<td class='param'>filter</td><td>Do not display output to the console if it contains the specified filter pattern. Set to true to filter (not display) any output. Note the command always returns the command output as the function result.</td></tr>
+<td class='param'>generate</td><td>Generate in projects. Defaults to true.</td></tr>
+<td class='param'>noshow</td><td>Do not show the command line before executing. Useful to override me --show for one command.</td></tr>
+<td class='param'>nostop</td><td>Continue processing even if this command is not successful.</td></tr>
+<td class='param'>show</td><td>Show the command line before executing. Similar to me --show, but operates on just this command.</td></tr>
+<td class='param'>timeout</td><td>Timeout for the command to complete  Note: do not use the Cmd options: noio, detach. Use Cmd APIs directly.</td></tr>
+</table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='safeCopy'></a>
+<div class='api'>
+<div class='apiSig'>    safeCopy(from: <a href='Path.html'>Path</a>, to: <a href='Path.html'>Path</a>)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Safely copy a file. This protects against overwriting the target unless the "overwrite" command line
+option was specified. Copies are traced to the console.</dd></dl>
+</div>
+</div>
+<hr />
+<a name='safeRemove'></a>
+<div class='api'>
+<div class='apiSig'>    safeRemove(dir: <a href='Path.html'>Path</a>)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Safely remove a directory. This protects against removing some major system directories.</dd></dl>
+</div>
+</div>
+<hr />
+<a name='strace'></a>
+<div class='api'>
+<div class='apiSig'>    strace(tag, args: <a href='Array.html'>Array</a>)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Emit "show" trace
+This is trace that is displayed if me --show is invoked. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>tag </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>args: <a href='Array.html'>Array</a> </td><td>Message args to display.</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='touchDir'></a>
+<div class='api'>
+<div class='apiSig'>  embedthis.me.script  touchDir(path: <a href='Path.html'>Path</a>)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Touch a directory and update its last modified time. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>path: <a href='Path.html'>Path</a> </td><td>Directory path to modify.</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='touchFile'></a>
+<div class='api'>
+<div class='apiSig'>    touchFile(path: <a href='Path.html'>Path</a>)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Touch a file and update its last modified time. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>path: <a href='Path.html'>Path</a> </td><td>File path to modify.</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='trace'></a>
+<div class='api'>
+<div class='apiSig'>    trace(tag: <a href='String.html'>String</a>, args: <a href='Array.html'>Array</a>): <a href='Void.html'>Void</a>
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Emit general trace. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>tag: <a href='String.html'>String</a> </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>args: <a href='Array.html'>Array</a> </td><td>Message args to display.</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='traceFile'></a>
+<div class='api'>
+<div class='apiSig'>    traceFile(msg, path): <a href='Void.html'>Void</a>
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Emit trace for a path. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>msg </td><td>Message to display.</td></tr><tr class='param'><td class='param'>path </td><td>Filename to to trace.</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='vtrace'></a>
+<div class='api'>
+<div class='apiSig'>    vtrace(tag, args: <a href='Array.html'>Array</a>)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Emit verbose trace. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>tag </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>args: <a href='Array.html'>Array</a> </td><td>Message args to display.</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<div class="terms">
+   <p class="terms">
+       <a href="https://embedthis.com/">       Embedthis Software LLC, 2003-2014. All rights reserved. Embedthis is a trademark of Embedthis Software LLC.</a>
+   </p>
+</div></div>
+</div>
+</body>
+</html>

@@ -1,0 +1,56 @@
+{
+    title:  'Processing',
+    crumbs: [
+        { 'Reference Guide': 'index.html' },
+    ],
+}
+        
+        <h1>MakeMe File Processing</h1>
+        <p>MakeMe builds targets according to a defined life cycle.</p>
+        <ol>
+            <li>The MakeMe DOM object <em>me</em> is created and initialized.</li>
+            <li>The start.me file is read to determine which platforms to build.
+            For each platform specified in the start.me 'platforms' collection, the following steps below are executed.</li>
+            <li>The directories collection <em>dir</em>, and <em>me.global</em> properties are initialized.</li>
+            <li>The <em>os/OS.me</em> file is loaded for the required platform to supply O/S specific rules and definitions</li>
+            <li>The <em>standard.me</em> file is loaded to supply with the standard MakeMe definitions.</li>
+            <li>The platform MakeMe file is loaded and all MakeMe files referenced in blend[] are loaded depth-first.
+                This continues recursively, depth first.</li>
+            <li>All relative paths in the target properties: includes, headers, resources, sources and files are
+                rebased relative to the directory supplying the MakeMe file. Scripts lacking a home directory property 
+                default to the directory containing the MakeMe file.</li>
+            <li>Targets are enabled or disabled depending on their <em>enable</em> property expression.</li>
+            <li>A list of top-level targets to build is created based on the MakeMe commandline and target dependencies.
+                See below <a href="#selectingTargets">Selecting Targets</a> for more details.</li>
+            <li>The targets to build are examined and their properties are blended with the defaults/internal properties.</li>
+            <li>The target dependencies are resolved and added to the target list.</li>
+            <li>The target sources have wild-cards expanded. Targets are dynamically created for all objects to be
+            built. The C/C++ source files are parsed and header targets are built for non-system include directives that
+            have no leading spaces. i.e. #include "filename" starting in column 0.</li>
+            <li>The target is built. If the target is an executable, library, or object, it is built using the
+            transition rules specified in <em>me.rules</em>. If the target has a <em>build</em> event script, 
+            it is run.</li>
+        </ol>
+
+        <a id="selectingTargets"></a>
+        <h2>Selecting Targets</h2>
+        <p>MakeMe follows a simple process when selecting the targets to build.</p>
+        <ol>
+            <li>The set of names specified on the MakeMe command line is used as a starting target list. If the name 
+                does not match a target name, the list of targets is search to see if the name matches any targets with
+            a type of that name. All matching targets are added to the list. For example: this allows targets of type
+            <em>clean</em> to be run when <em>me clean</em> is invoked.</li>
+            <li>If no names are specified on the MakeMe command line, a default build is performed. A list of 
+            candidate targets to build is populated with all executables, libraries, files and scripts with a type of
+            "build".</li>
+            <li>Targets that are disabled (<em>enable</em> property evaluates to false) are removed from the list</li>
+            <li>Targets referenced in the <em>depends</em> property are added to the list (recursively)</li>
+            <li>Additional targets are created dynamically for source items to be compiled and include headers</li>
+        </ol>
+        <p>To reiterate, there are thus two paradigms when invoking MakeMe:</p>
+        <ul> 
+            <li><em>me target ...</em></li>
+            <li><em>me action ...</em></li>
+        </ul> 
+        <p>When specifying a name that is a target, these must match the target name property. When specifying an action,
+            these must match a target type property.</p>

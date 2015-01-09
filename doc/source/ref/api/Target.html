@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <title>Class Target</title>
+
+   <link rel="stylesheet" type="text/css" href="doc.css" />
+</head>
+
+<body>
+<div class='body'>
+
+<div class="content">
+
+<a name='top'></a>
+<h1 class='className'>Target</h1>
+<div class='classBlock'>
+<table class='classHead' title='Target'>
+   <tr><td><strong>Module</strong></td><td>embedthis.me</td></tr>
+   <tr><td><strong>Definition</strong></td><td>dynamic  class Target</td></tr>
+   <tr><td><strong>Inheritance</strong></td><td>Target <img src='images/inherit.gif' alt='inherit'/> <a href='Object.html'>Object</a><tr><td><strong>Stability</strong></td><td>Prototype.</td></tr>
+       </td></tr>
+</table>
+
+<p class='classBrief'>The Target class implements MakeMe buildable targets.</p>
+
+<p class='classDescription'>Targets are the basic "atoms" for building projects.</p>
+
+</div>
+
+
+<hr />
+<a name='Properties'></a>
+<h2 class='classSection'>Properties</h2>
+<table class='itemTable' title='properties'>
+   <tr><th>Qualifiers</th><th>Property</th><th>Type</th><th width='95%'>Description</th></tr>
+<a name='bare'></a>
+   <tr><td nowrap align='center'> </td><td>bare</td><td><a href='Boolean.html'>Boolean</a></td><td>Bare component created during configuration. </td></tr>
+<a name='compiler'></a>
+   <tr><td nowrap align='center'> </td><td>compiler</td><td><a href='Array.html'>Array</a></td><td>Compiler switchs to use when building the target. </td></tr>
+<a name='configurable'></a>
+   <tr><td nowrap align='center'> </td><td>configurable</td><td><a href='Boolean.html'>Boolean</a></td><td>Defines whether a target is configurable component that can be selected/deselected via configure. </td></tr>
+<a name='conflicts'></a>
+   <tr><td nowrap align='center'> </td><td>conflicts</td><td><a href='Array.html'>Array</a></td><td>List of other enabled targets that this target conflicts with this target. Configure will select
+only one target from a set of conflicting targets.</td></tr>
+<a name='defines'></a>
+   <tr><td nowrap align='center'> </td><td>defines</td><td><a href='Array.html'>Array</a></td><td>Symbolic C-preprocessor defintions to use when building the target. </td></tr>
+<a name='depends'></a>
+   <tr><td nowrap align='center'> </td><td>depends</td><td><a href='Array.html'>Array</a></td><td>Names of targets on which this target depends to function. </td></tr>
+<a name='description'></a>
+   <tr><td nowrap align='center'> </td><td>description</td><td><a href='String.html'>String</a></td><td>Target description used for configurable components in usage messages. </td></tr>
+<a name='diagnostic'></a>
+   <tr><td nowrap align='center'> </td><td>diagnostic</td><td><a href='String.html'>String</a></td><td>Configurable component error message if this target cannot be configured. </td></tr>
+<a name='discovers'></a>
+   <tr><td nowrap align='center'> </td><td>discovers</td><td><a href='Array.html'>Array</a></td><td>List of configurable components that should be discovered when configuring. </td></tr>
+<a name='enable'></a>
+   <tr><td nowrap align='center'> </td><td>enable</td><td><a href='Object.html'>Object</a></td><td>Whether this target is enabled for building. </td></tr>
+<a name='entry'></a>
+   <tr><td nowrap align='center'> </td><td>entry</td><td><a href='Object.html'>Object</a></td><td>Executable entry points, indexed by target type. Used when linking on windows.</td></tr>
+<a name='file'></a>
+   <tr><td nowrap align='center'> </td><td>file</td><td><a href='Path.html'>Path</a></td><td>File that defined the target . </td></tr>
+<a name='files'></a>
+   <tr><td nowrap align='center'> </td><td>files</td><td><a href='Array.html'>Array</a></td><td>List of input files for this target. This may include wild cards.</td></tr>
+<a name='generate'></a>
+   <tr><td nowrap align='center'> </td><td>generate</td><td><a href='Object.html'>Object</a></td><td>Whether to generate this target for projects. </td></tr>
+<a name='explicit'></a>
+   <tr><td nowrap align='center'> </td><td>explicit</td><td><a href='String.html'>String</a></td><td>Component explicitly excluded or included via configure --with/--without. Set to 'with' or 'without'.</td></tr>
+<a name='headers'></a>
+   <tr><td nowrap align='center'> </td><td>headers</td><td><a href='Array.html'>Array</a></td><td>List of header files required for this target. May include wildcards.</td></tr>
+<a name='home'></a>
+   <tr><td nowrap align='center'> </td><td>home</td><td><a href='Path.html'>Path</a></td><td>Home directory for the target. </td></tr>
+<a name='ifdef'></a>
+   <tr><td nowrap align='center'> </td><td>ifdef</td><td><a href='Array.html'>Array</a></td><td>List of configurable components that are required for this target to be enabled for building. If a specified component is not configured, the target is not built.</td></tr>
+<a name='goals'></a>
+   <tr><td nowrap align='center'> </td><td>goals</td><td><a href='Array.html'>Array</a></td><td>List of goal names for which this target will be built. </td></tr>
+<a name='imports'></a>
+   <tr><td nowrap align='center'> </td><td>imports</td><td><a href='Array.html'>Array</a></td><td>List of external resources to import when configuring. </td></tr>
+<a name='includes'></a>
+   <tr><td nowrap align='center'> </td><td>includes</td><td><a href='Array.html'>Array</a></td><td>List of directories for include files. </td></tr>
+<a name='inherit'></a>
+   <tr><td nowrap align='center'> </td><td>inherit</td><td><a href='Object.html'>Object</a></td><td>List of top level MakeMe collections from which to inherit properties for this target. </td></tr>
+<a name='libpaths'></a>
+   <tr><td nowrap align='center'> </td><td>libpaths</td><td><a href='Array.html'>Array</a></td><td>List of linker library include paths to use when linking. </td></tr>
+<a name='libraries'></a>
+   <tr><td nowrap align='center'> </td><td>libraries</td><td><a href='Array.html'>Array</a></td><td>List of libraries to link with. </td></tr>
+<a name='linker'></a>
+   <tr><td nowrap align='center'> </td><td>linker</td><td><a href='Array.html'>Array</a></td><td>List of link switches to use when linking. </td></tr>
+<a name='loaded'></a>
+   <tr><td nowrap align='center'> </td><td>loaded</td><td><a href='Boolean.html'>Boolean</a></td><td>Component file loaded. </td></tr>
+<a name='message'></a>
+   <tr><td nowrap align='center'> </td><td>message</td><td><a href='String.html'>String</a></td><td>Message to emit when building. Should be of the form 'Tag: Message...'.</td></tr>
+<a name='mkdir'></a>
+   <tr><td nowrap align='center'> </td><td>mkdir</td><td><a href='Array.html'>Array</a></td><td>Directories to make before building the target. </td></tr>
+<a name='platforms'></a>
+   <tr><td nowrap align='center'> </td><td>platforms</td><td><a href='Array.html'>Array</a></td><td>List of platforms to build this target. Includes platform names and 'local'.</td></tr>
+<a name='precious'></a>
+   <tr><td nowrap align='center'> </td><td>precious</td><td><a href='Boolean.html'>Boolean</a></td><td>Precious targets are retained and not cleaned via 'me clean'. </td></tr>
+<a name='requires'></a>
+   <tr><td nowrap align='center'> </td><td>requires</td><td><a href='Array.html'>Array</a></td><td>List of components the configurable target requires to be enabled. </td></tr>
+<a name='resources'></a>
+   <tr><td nowrap align='center'> </td><td>resources</td><td><a href='Array.html'>Array</a></td><td>List of resource files required for this target. May include wildcards.</td></tr>
+<a name='modify'></a>
+   <tr><td nowrap align='center'> </td><td>modify</td><td><a href='Path.html'>Path</a></td><td>File that is modified by building. Used in stale() to test if a target needs building.</td></tr>
+<a name='name'></a>
+   <tr><td nowrap align='center'> </td><td>name</td><td><a href='String.html'>String</a></td><td>Name of the target. Same as the entry in Me.targets[].</td></tr>
+<a name='rule'></a>
+   <tr><td nowrap align='center'> </td><td>rule</td><td><a href='String.html'>String</a></td><td>Name of the build rule. Defaults to 'exe'.</td></tr>
+<a name='scripts'></a>
+   <tr><td nowrap align='center'> </td><td>scripts</td><td><a href='Object.html'>Object</a></td><td>Hash of scripts used when building the target. The following MakeMe file properties 
+are converted into script properties on loading:.</td></tr>
+<a name='ownLibraries'></a>
+   <tr><td nowrap align='center'> </td><td>ownLibraries</td><td><a href='Array.html'>Array</a></td><td>List of libraries provided by this target. </td></tr>
+<a name='selected'></a>
+   <tr><td nowrap align='center'> </td><td>selected</td><td><a href='Boolean.html'>Boolean</a></td><td>Target selected for building. </td></tr>
+<a name='silent'></a>
+   <tr><td nowrap align='center'> </td><td>silent</td><td><a href='Boolean.html'>Boolean</a></td><td>Suppress configuration trace for this target. </td></tr>
+<a name='sources'></a>
+   <tr><td nowrap align='center'> </td><td>sources</td><td><a href='Array.html'>Array</a></td><td>List of source files to build with this target. May include wild cards.</td></tr>
+<a name='path'></a>
+   <tr><td nowrap align='center'> </td><td>path</td><td><a href='Path.html'>Path</a></td><td>Destination path for the target. May be null if the target does build a discrete resource.
+When loaded from a MakeMe file, it may contain '<a href='#{tokens}''>{tokens}'</a> that are expanded on loading.
+May be a function that is run on loading to compute a path.
+May be a directory that holds a collection of resources built by the target.
+The path is used to compute if the target is stale and must be rebuilt if 'files[]' are newer 
+than 'path'.</td></tr>
+<a name='static'></a>
+   <tr><td nowrap align='center'> </td><td>static</td><td><a href='Boolean.html'>Boolean</a></td><td>Use static linking for this target. </td></tr>
+<a name='type'></a>
+   <tr><td nowrap align='center'> </td><td>type</td><td><a href='String.html'>String</a></td><td>Target type: 'exe', 'file', 'group', 'header', 'lib', 'obj', 'resource', 'script'. </td></tr>
+<a name='uses'></a>
+   <tr><td nowrap align='center'> </td><td>uses</td><td><a href='Array.html'>Array</a></td><td>List of targets that can be utilized by this target if they are enabled. The utilized targets will be built before the target.</td></tr>
+<a name='why'></a>
+   <tr><td nowrap align='center'> </td><td>why</td><td><a href='String.html'>String</a></td><td>Why the target is not being built. </td></tr>
+<a name='withpath'></a>
+   <tr><td nowrap align='center'> </td><td>withpath</td><td><a href='String.html'>String</a></td><td>Target was configured usinag a --with path. </td></tr>
+</table>
+
+<p class='inheritedLink'><a href='Object.html#Properties'><i>Inherited Properties</i></a></p>
+
+<hr />
+<a name='ClassMethods'></a>
+<h2 class='classSection'>Target Class Methods</h2>
+   <p>(No own class methods defined)</p></table>
+
+<p class='inheritedLink'><a href='Object.html#InstanceMethods'><i>Inherited Methods</i></a></p>
+
+<hr />
+<a name='InstanceMethods'></a>
+<h2 class='classSection'>Target Instance Methods</h2>
+   <p>(No own instance methods defined)</p></table>
+
+<p class='inheritedLink'><a href='Object.html#InstanceMethods'><i>Inherited Methods</i></a></p>
+
+<hr />
+<div class="terms">
+   <p class="terms">
+       <a href="https://embedthis.com/">       Embedthis Software LLC, 2003-2014. All rights reserved. Embedthis is a trademark of Embedthis Software LLC.</a>
+   </p>
+</div></div>
+</div>
+</body>
+</html>

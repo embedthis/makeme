@@ -1,0 +1,87 @@
+{
+    title:  "Creating Libraries",
+    crumbs: [
+        { "Developer's Guide": 'index.html' },
+    ],
+}
+        <h2>Creating Libraries</h2>
+        <p>MakeMe creates libraries by specifying the sources to compile in a library target. For example:
+<pre class="ui code segment">
+targets {
+    libdemo: {
+        type: 'lib',
+        sources: '*.c',
+    },
+}
+</pre>
+        
+        <p>The <em>sources</em> property is set to the list of files to compile. See <a href="compiling.html">Compiling
+            Sources</a> for how to use the sources property.</p>
+        <p>Building this target will then compile the specified source files and build
+        the named library with the relevant compiled objects.</p>
+<pre class="ui code segment">
+me libdemo
+</pre>
+        <p>When building, MakeMe transparently creates targets for each of the compiled source files and for 
+        any include files referenced by the sources. If the source file or its include files are updated, the 
+        relevant source file or files will be recompiled and library rebuilt.</p>
+        <a name="dependencies"></a>
+        <h2>Dependencies</h2>
+        <p>On some platforms, linking a library will require that all unresolved references in other libraries be
+        resolved before the link can successfully complete. Such library dependencies are specified via the
+        <em>depends</em> property. The depends property takes a list of other targets that must be built before
+        the current target can complete. Furthermore, the compiler, defines includes, libraries, libpaths and linker 
+        properties from the other target are imported into the current target. For example, given::</p>
+<pre class="ui code segment">
+libsqlite3: {
+    type: 'lib',
+    defines: [ 'FTS4' ],
+    includes : [ /usr/include/sqlite ],
+    sources: [ '*.c' ],
+},
+</pre>
+        <p>Then the following library target will depend on libsqlite3. It will automatically link with libsqlite3,
+        and when the source for libappweb is compiled, it will use the exported defines and includes from libsqlite3.</p>
+<pre class="ui code segment">
+libappweb: {
+    type: 'lib',
+    sources: [ '*.c' ],
+    headers: [ '*.h' ],
+    depends: [ 'libsqlite3' ],
+},
+</pre>
+        <p>Note: the names in the depends property these are the target names (target.name property) and not
+        the library name. To specify external libraries that are not built with MakeMe, use the <em>libraries</em> 
+        property collection.</p>
+
+        <h2>Configurable Components</h2>
+        <p>Products are sometimes configured with components that provide libraries to augment the product. For
+        example: the PHP component adds the libphp5 library. To conditionally build a target only if an specific
+        component is available, use the <em>ifdef</em> property. For example:</p>
+<pre class="ui code segment">
+librocket: {
+    type: 'lib',
+    sources: [ '*.c' ],
+    headers: [ '*.h' ],
+    <b>ifdef: [ 'fuel' ]</b>,
+</pre>
+        <p>The <em>ifdef</em> property indicates that this target should only be built if the <em>fuel</em> component is
+        enabled. Note this will not import any defined libraries, library paths, include paths or compiler definitions to
+        this target. To do that, you need to use the <em>depends</em> property or the <em>uses</em> property for 
+        optional components.</p>
+
+        <a name="static"></a>
+        <h2>Static Libraries</h2>
+        <p>By default, MakeMe will build a shared library for a library target. To build a static library, set the 
+                <i>static</i> property to true.</p>
+<pre class="ui code segment">
+libname: {
+    type: 'lib',
+    sources: '*.c',
+    static: true,
+},
+</pre>
+        <p>A complete static build is also possible via the <em>--static</em> configure option. This will cause
+        all targets of type '<em>lib</em>' to be static libraries instead of shared libraries.</p>
+<pre class="ui code segment">configure --static</pre>
+        <p>To learn more, read about <a href="executables.html">Creating Executables</a>.</p>
