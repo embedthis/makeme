@@ -1295,7 +1295,7 @@ static void invokeDestructors()
 
 static void invokeAllDestructors()
 {
-#if FUTURE
+#if KEEP
     MprRegion   *region;
     MprMem      *mp;
     MprManager  mgr;
@@ -3672,9 +3672,6 @@ PUBLIC int mprNotifyOn(MprWaitHandler *wp, int mask)
         wp->desiredMask = mask;
         assert(ws->hwnd);
         if (!(wp->flags & MPR_WAIT_NOT_SOCKET)) {
-            /* 
-                FUTURE: should use WaitForMultipleObjects in a wait thread for non-socket handles
-             */
             if ((rc = WSAAsyncSelect(wp->fd, ws->hwnd, ws->socketMessage, winMask)) != 0) {
                 mprDebug("mpr event", 5, "mprNotifyOn WSAAsyncSelect failed %d, errno %d", rc, GetLastError());
             }
@@ -11838,9 +11835,6 @@ PUBLIC MprFileSystem *mprCreateFileSystem(cchar *path)
     MprFileSystem   *fs;
     char            *cp;
 
-    /*
-        FUTURE: evolve this to support multiple file systems in a single system
-     */
 #if ME_ROM
     fs = (MprFileSystem*) mprCreateRomFileSystem(path);
 #else
@@ -12527,17 +12521,28 @@ PUBLIC char *mprHashKeysToString(MprHash *hash, cchar *join)
 /*
     JSON parse tokens
  */
-#define JTOK_LBRACE     1
-#define JTOK_RBRACE     2
-#define JTOK_LBRACKET   3
-#define JTOK_RBRACKET   4
-#define JTOK_COMMA      5
-#define JTOK_COLON      6
-#define JTOK_STRING     7
-#define JTOK_EOF        8
-#define JTOK_ERR        9
+#define JTOK_COLON      1
+#define JTOK_COMMA      2
+#define JTOK_EOF        3
+#define JTOK_ERR        4
+#define JTOK_FALSE      5
+#define JTOK_LBRACE     6
+#define JTOK_LBRACKET   7
+#define JTOK_NULL       8
+#define JTOK_NUMBER     9
+#define JTOK_RBRACE     10
+#define JTOK_RBRACKET   11
+#define JTOK_REGEXP     12
+#define JTOK_STRING     13
+#define JTOK_TRUE       14
+#define JTOK_UNDEFINED  15
 
 #define JSON_EXPR_CHARS "<>=!~"
+
+/* 
+    Remove matching properties 
+ */
+#define JSON_REMOVE     0x1
 
 /****************************** Forward Declarations **************************/
 
@@ -12554,7 +12559,7 @@ static void puttok(MprJsonParser *parser);
 static MprJson *queryCore(MprJson *obj, cchar *key, MprJson *value, int flags);
 static MprJson *queryLeaf(MprJson *obj, cchar *property, MprJson *value, int flags);
 static MprJson *setProperty(MprJson *obj, cchar *name, MprJson *child);
-static void setValue(MprJson *obj, cchar *value);
+static void setValue(MprJson *obj, cchar *value, int type);
 static int setValueCallback(MprJsonParser *parser, MprJson *obj, cchar *name, MprJson *child);
 static void spaces(MprBuf *buf, int count);
 
@@ -12575,17 +12580,14 @@ static void manageJson(MprJson *obj, int flags)
 /*
     If value is null, return null so query can detect "set" operations
  */
-static MprJson *createJsonValue(cchar *value)
+PUBLIC MprJson *mprCreateJsonValue(cchar *value, int type)
 {
     MprJson  *obj;
 
-    if (!value) {
-        return 0;
-    }
     if ((obj = mprAllocObj(MprJson, manageJson)) == 0) {
         return 0;
     }
-    setValue(obj, value);
+    setValue(obj, value, type);
     return obj;
 }
 
@@ -12689,9 +12691,9 @@ PUBLIC MprJson *mprParseJson(cchar *str)
  */
 static MprJson *jsonParse(MprJsonParser *parser, MprJson *obj)
 {
-    MprJson      *child;
+    MprJson     *child;
     cchar       *name;
-    int         tokid;
+    int         tokid, type;
 
     name = 0;
     while (1) {
@@ -12720,10 +12722,7 @@ static MprJson *jsonParse(MprJsonParser *parser, MprJson *obj)
             break;
 
         case MPR_JSON_STATE_VALUE:
-            if (tokid == JTOK_STRING) {
-                child = createJsonValue(parser->token);
-
-            } else if (tokid == JTOK_LBRACE) {
+            if (tokid == JTOK_LBRACE) {
                 parser->state = MPR_JSON_STATE_NAME;
                 if (name && parser->callback.checkBlock(parser, name, 0) < 0) {
                     return 0;
@@ -12758,8 +12757,34 @@ static MprJson *jsonParse(MprJsonParser *parser, MprJson *obj)
                 return obj;
 
             } else {
-                mprSetJsonError(parser, "Unexpected input");
-                return 0;
+                switch (tokid) {
+                case JTOK_FALSE:
+                    type = MPR_JSON_FALSE;
+                    break;
+                case JTOK_NULL:
+                    type = MPR_JSON_NULL;
+                    break;
+                case JTOK_NUMBER:
+                    type = MPR_JSON_NUMBER;
+                    break;
+                case JTOK_REGEXP:
+                    type = MPR_JSON_REGEXP;
+                    break;
+                case JTOK_TRUE:
+                    type = MPR_JSON_TRUE;
+                    break;
+                case JTOK_UNDEFINED:
+                    type = MPR_JSON_UNDEFINED;
+                    break;
+                case JTOK_STRING:
+                    type = MPR_JSON_STRING;
+                    break;
+                default:
+                    mprSetJsonError(parser, "Unexpected input");
+                    return 0;
+                    break;
+                }
+                child = mprCreateJsonValue(parser->token, type);
             }
             if (child == 0) {
                 return 0;
@@ -12847,7 +12872,7 @@ static void puttok(MprJsonParser *parser)
  */
 static int gettok(MprJsonParser *parser)
 {
-    cchar   *cp;
+    cchar   *cp, *value;
     ssize   len;
     int     c;
 
@@ -12965,8 +12990,25 @@ static int gettok(MprJsonParser *parser)
                         cp = &parser->input[slen(parser->input)];
                     }
                     len = cp - parser->input;
+                    value = mprGetBufStart(parser->buf);
                     mprPutBlockToBuf(parser->buf, parser->input, len);
-                    parser->tokid = JTOK_STRING;
+                    mprAddNullToBuf(parser->buf);
+
+                    if (scaselessmatch(value, "false")) {
+                        parser->tokid = JTOK_FALSE;
+                    } else if (scaselessmatch(value, "null")) {
+                        parser->tokid = JTOK_NULL;
+                    } else if (scaselessmatch(value, "true")) {
+                        parser->tokid = JTOK_TRUE;
+                    } else if (scaselessmatch(value, "undefined")) {
+                        parser->tokid = JTOK_UNDEFINED;
+                    } else if (sfnumber(value)) {
+                        parser->tokid = JTOK_NUMBER;
+                    } else if (*value == '/' && value[slen(value) - 1] == '/') {
+                        parser->tokid = JTOK_REGEXP;
+                    } else {
+                        parser->tokid = JTOK_STRING;
+                    }
                     parser->input += len;
 
                 } else {
@@ -13051,29 +13093,28 @@ PUBLIC char *mprJsonToString(MprJson *obj, int flags)
 }
 
 
-static void setValue(MprJson *obj, cchar *value)
+static void setValue(MprJson *obj, cchar *value, int type)
 {
-    if (value == 0) {
-        value = "";
+    if (type == 0) {
+        if (scaselessmatch(value, "false")) {
+            type |= MPR_JSON_FALSE;
+        } else if (value == 0 || scaselessmatch(value, "null")) {
+            type |= MPR_JSON_NULL;
+            value = 0;
+        } else if (scaselessmatch(value, "true")) {
+            type |= MPR_JSON_TRUE;
+        } else if (scaselessmatch(value, "undefined")) {
+            type |= MPR_JSON_UNDEFINED;
+        } else if (sfnumber(value)) {
+            type |= MPR_JSON_NUMBER;
+        } else if (*value == '/' && value[slen(value) - 1] == '/') {
+            type |= MPR_JSON_REGEXP;
+        } else {
+            type |= MPR_JSON_STRING;
+        }
     }
-    obj->type = MPR_JSON_VALUE;
-    if (scaselessmatch(value, "false")) {
-        obj->type |= MPR_JSON_FALSE;
-    } else if (scaselessmatch(value, "null")) {
-        obj->type |= MPR_JSON_NULL;
-        value = 0;
-    } else if (scaselessmatch(value, "true")) {
-        obj->type |= MPR_JSON_TRUE;
-    } else if (scaselessmatch(value, "undefined")) {
-        obj->type |= MPR_JSON_UNDEFINED;
-    } else if (sfnumber(value)) {
-        obj->type |= MPR_JSON_NUMBER;
-    } else if (*value == '/' && value[slen(value) - 1] == '/') {
-        obj->type |= MPR_JSON_REGEXP;
-    } else {
-        obj->type |= MPR_JSON_STRING;
-    }
-    obj->value = value ? sclone(value) : 0;
+    obj->value = sclone(value);
+    obj->type = MPR_JSON_VALUE | type;
 }
 
 
@@ -13091,20 +13132,32 @@ static void formatValue(MprBuf *buf, MprJson *obj, int flags)
         }
         return;
     }
-    mprPutCharToBuf(buf, '"');
-    for (cp = obj->value; *cp; cp++) {
-        if (*cp == '\"' || *cp == '\\') {
-            mprPutCharToBuf(buf, '\\');
-            mprPutCharToBuf(buf, *cp);
-        } else if (*cp == '\r') {
-            mprPutStringToBuf(buf, "\\\\r");
-        } else if (*cp == '\n') {
-            mprPutStringToBuf(buf, "\\\\n");
-        } else {
-            mprPutCharToBuf(buf, *cp);
+    switch (obj->type & MPR_JSON_DATA_TYPE) {
+    case MPR_JSON_FALSE:
+    case MPR_JSON_NUMBER:
+    case MPR_JSON_TRUE:
+    case MPR_JSON_NULL:
+    case MPR_JSON_UNDEFINED:
+        mprPutStringToBuf(buf, obj->value);
+        break;
+    case MPR_JSON_REGEXP:
+    case MPR_JSON_STRING:
+    default:
+        mprPutCharToBuf(buf, '"');
+        for (cp = obj->value; *cp; cp++) {
+            if (*cp == '\"' || *cp == '\\') {
+                mprPutCharToBuf(buf, '\\');
+                mprPutCharToBuf(buf, *cp);
+            } else if (*cp == '\r') {
+                mprPutStringToBuf(buf, "\\\\r");
+            } else if (*cp == '\n') {
+                mprPutStringToBuf(buf, "\\\\n");
+            } else {
+                mprPutCharToBuf(buf, *cp);
+            }
         }
+        mprPutCharToBuf(buf, '"');
     }
-    mprPutCharToBuf(buf, '"');
 }
 
 
@@ -13162,7 +13215,7 @@ PUBLIC int mprBlendJson(MprJson *dest, MprJson *src, int flags)
     if (dest == 0) {
         dest = mprCreateJson(MPR_JSON_OBJ);
     }
-    if ((MPR_JSON_TYPE_MASK & dest->type) != (MPR_JSON_TYPE_MASK & src->type)) {
+    if ((MPR_JSON_OBJ_TYPE & dest->type) != (MPR_JSON_OBJ_TYPE & src->type)) {
         if (flags & (MPR_JSON_APPEND | MPR_JSON_REPLACE)) {
             return 0;
         }
@@ -13209,7 +13262,7 @@ PUBLIC int mprBlendJson(MprJson *dest, MprJson *src, int flags)
                     }
                 } else if (!(pflags & MPR_JSON_CREATE)) {
                     /* Already present in destination */
-                    if (sp->type & MPR_JSON_OBJ && (MPR_JSON_TYPE_MASK & dp->type) != (MPR_JSON_TYPE_MASK & sp->type)) {
+                    if (sp->type & MPR_JSON_OBJ && (MPR_JSON_OBJ_TYPE & dp->type) != (MPR_JSON_OBJ_TYPE & sp->type)) {
                         dp = setProperty(dest, dp->name, mprCreateJson(sp->type));
                     }
                     mprBlendJson(dp, sp, pflags);
@@ -13247,9 +13300,9 @@ PUBLIC int mprBlendJson(MprJson *dest, MprJson *src, int flags)
         /* Ordinary string value */
         if (src->value) {
             if (flags & MPR_JSON_APPEND) {
-                setValue(dest, sjoin(dest->value, " ", src->value, NULL));
+                setValue(dest, sjoin(dest->value, " ", src->value, NULL), src->type);
             } else if (flags & MPR_JSON_REPLACE) {
-                setValue(dest, sreplace(dest->value, src->value, NULL));
+                setValue(dest, sreplace(dest->value, src->value, NULL), src->type);
             } else if (flags & MPR_JSON_CREATE) {
                 /* Do nothing */
             } else {
@@ -13352,9 +13405,8 @@ PUBLIC MprJson *mprReadJsonValue(MprJson *obj, cchar *value)
     Delimitor characters are: . .. [ ]
     Properties may be simple expressions (field OP value)
     Returns the next property token.
-    If value is set, the operation is a "set"
  */
-PUBLIC char *getNextTerm(MprJson *obj, MprJson *value, char *str, char **rest, int *termType)
+PUBLIC char *getNextTerm(MprJson *obj, char *str, char **rest, int *termType)
 {
     char    *start, *end, *seps, *dot, *expr;
     ssize   i;
@@ -13624,7 +13676,7 @@ static MprJson *queryContents(MprJson *obj, char *property, cchar *rest, MprJson
     for (ITERATE_JSON(obj, child, index)) {
         if (matchExpression(child, operator, v)) {
             if (rest == 0) {
-                if (flags & MPR_JSON_REMOVE) {
+                if (flags & JSON_REMOVE) {
                     appendItem(result, mprRemoveJsonChild(obj, child));
                 } else {
                     appendItem(result, queryLeaf(obj, itosbuf(ibuf, sizeof(ibuf), index, 10), value, flags));
@@ -13669,7 +13721,7 @@ static MprJson *queryRange(MprJson *obj, char *property, cchar *rest, MprJson *v
         if (index < start) continue;
         if (index > end) break;
         if (rest == 0) {
-            if (flags & MPR_JSON_REMOVE) {
+            if (flags & JSON_REMOVE) {
                 appendItem(result, mprRemoveJsonChild(obj, child));
             } else {
                 appendItem(result, queryLeaf(obj, itosbuf(ibuf, sizeof(ibuf), index, 10), value, flags));
@@ -13700,7 +13752,7 @@ static MprJson *queryExpr(MprJson *obj, char *property, cchar *rest, MprJson *va
         for (ITERATE_JSON(child, prop, pi)) {
             if (matchExpression(prop, operator, v)) {
                 if (rest == 0) {
-                    if (flags & MPR_JSON_REMOVE) {
+                    if (flags & JSON_REMOVE) {
                         appendItem(result, mprRemoveJsonChild(obj, child));
                     } else {
                         appendItem(result, queryLeaf(obj, property, value, flags));
@@ -13754,7 +13806,7 @@ static MprJson *queryLeaf(MprJson *obj, cchar *property, MprJson *value, int fla
         setProperty(obj, sclone(property), value);
         return 0;
 
-    } else if (flags & MPR_JSON_REMOVE) {
+    } else if (flags & JSON_REMOVE) {
         if ((child = mprReadJsonObj(obj, property)) != 0) {
             return mprRemoveJsonChild(obj, child);
         }
@@ -13782,7 +13834,7 @@ static MprJson *queryLeaf(MprJson *obj, cchar *property, MprJson *value, int fla
         people..[name == 'john']    //  Elipsis descends down multiple levels
 
     If a value is provided, the property described by the keyPath is set to the value.
-    If flags includes MPR_JSON_REMOVE, the property described by the keyPath is removed.
+    If flags is set to JSON_REMOVE, the property described by the keyPath is removed.
     If doing a get, the properties described by the keyPath are cloned and returned as the result.
     If doing a set, ....
     If doing a remove, the removed properties are returned.
@@ -13804,7 +13856,7 @@ static MprJson *queryCore(MprJson *obj, cchar *key, MprJson *value, int flags)
         return 0;
     }
     result = 0;
-    for (property = getNextTerm(obj, value, sclone(key), &rest, &termType); property; ) {
+    for (property = getNextTerm(obj, sclone(key), &rest, &termType); property; ) {
         if (termType & JSON_PROP_COMPOUND) {
             result = queryCompound(obj, property, rest, value, flags, termType);
             break;
@@ -13826,15 +13878,15 @@ static MprJson *queryCore(MprJson *obj, cchar *key, MprJson *value, int flags)
             }
         }
         obj = (MprJson*) child;
-        property = getNextTerm(obj, value, 0, &rest, &termType);
+        property = getNextTerm(obj, 0, &rest, &termType);
     }
     return result ? result : mprCreateJson(MPR_JSON_ARRAY);
 }
 
 
-PUBLIC MprJson *mprQueryJson(MprJson *obj, cchar *key, cchar *value, int flags)
+PUBLIC MprJson *mprQueryJson(MprJson *obj, cchar *key, cchar *value, int type)
 {
-    return queryCore(obj, key, createJsonValue(value), flags);
+    return queryCore(obj, key, value ? mprCreateJsonValue(value, type) : 0, 0);
 }
 
 
@@ -13883,13 +13935,13 @@ PUBLIC int mprSetJsonObj(MprJson *obj, cchar *key, MprJson *value)
 }
 
 
-PUBLIC int mprSetJson(MprJson *obj, cchar *key, cchar *value)
+PUBLIC int mprSetJson(MprJson *obj, cchar *key, cchar *value, int type)
 {
     if (key && !strpbrk(key, ".[]*")) {
-        if (setProperty(obj, sclone(key), createJsonValue(value)) == 0) {
+        if (setProperty(obj, sclone(key), mprCreateJsonValue(value, type)) == 0) {
             return MPR_ERR_CANT_WRITE;
         }
-    } else if (queryCore(obj, key, createJsonValue(value), 0) == 0) {
+    } else if (queryCore(obj, key, mprCreateJsonValue(value, type), 0) == 0) {
         return MPR_ERR_CANT_WRITE;
     }
     return 0;
@@ -13898,7 +13950,7 @@ PUBLIC int mprSetJson(MprJson *obj, cchar *key, cchar *value)
 
 PUBLIC MprJson *mprRemoveJson(MprJson *obj, cchar *key)
 {
-    return mprQueryJson(obj, key, 0, MPR_JSON_REMOVE);
+    return queryCore(obj, key, 0, JSON_REMOVE);
 }
 
 
@@ -14095,7 +14147,7 @@ PUBLIC char *mprSerialize(MprHash *hash, int flags)
     obj = mprCreateJson(MPR_JSON_OBJ);
     for (ITERATE_KEYS(hash, kp)) {
         key = (hash->flags & MPR_HASH_STATIC_KEYS) ? sclone(kp->key) : kp->key;
-        setProperty(obj, key, createJsonValue(kp->data));
+        setProperty(obj, key, mprCreateJsonValue(kp->data, 0));
     }
     return mprJsonToString(obj, flags);
 }
@@ -14110,7 +14162,7 @@ PUBLIC MprJson *mprHashToJson(MprHash *hash)
     obj = mprCreateJson(0);
     for (ITERATE_KEYS(hash, kp)) {
         key = (hash->flags & MPR_HASH_STATIC_KEYS) ? sclone(kp->key) : kp->key;
-        setProperty(obj, key, createJsonValue(kp->data));
+        setProperty(obj, key, mprCreateJsonValue(kp->data, 0));
     }
     return obj;
 }
@@ -14132,9 +14184,9 @@ PUBLIC MprHash *mprJsonToHash(MprJson *json)
 }
 
 
-PUBLIC int mprWriteJson(MprJson *obj, cchar *key, cchar *value)
+PUBLIC int mprWriteJson(MprJson *obj, cchar *key, cchar *value, int type)
 {
-    if (setProperty(obj, sclone(key), createJsonValue(value)) == 0) {
+    if (setProperty(obj, sclone(key), mprCreateJsonValue(value, type)) == 0) {
         return MPR_ERR_CANT_WRITE;
     }
     return 0;
@@ -22192,8 +22244,6 @@ PUBLIC void mprHiddenSocketData(MprSocket *sp, ssize len, int dir)
     unlock(sp);
 }
 
-
-//  FUTURE rename to mprWaitOnSocket
 
 PUBLIC void mprEnableSocketEvents(MprSocket *sp, int mask)
 {

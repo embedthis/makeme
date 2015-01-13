@@ -3779,10 +3779,17 @@ PUBLIC int httpFinalizeConfig(HttpRoute *route)
     /*
         Create a subset, optimized configuration to send to the client
      */
-    if ((obj = mprGetJsonObj(route->config, "http.mappings")) != 0) {
+    if ((obj = mprGetJsonObj(route->config, "http.client.mappings")) == 0) {
+#if DEPRECATED || 1
+        if ((obj = mprGetJsonObj(route->config, "http.mappings")) != 0) {
+            mprLog("warn http", 0, "Using deprecated http.mappings. use http.client.mappings instead");
+        }
+#endif
+    }
+    if (obj) {
         mappings = mprCreateJson(MPR_JSON_OBJ);
         copyMappings(route, mappings, obj);
-        mprWriteJson(mappings, "prefix", route->prefix);
+        mprWriteJson(mappings, "prefix", route->prefix, 0);
         route->clientConfig = mprJsonToString(mappings, MPR_JSON_QUOTES);
     }
     httpAddHostToEndpoints(route->host);
@@ -3828,7 +3835,7 @@ static void copyMappings(HttpRoute *route, MprJson *dest, MprJson *obj)
             if (sends(key, "|time")) {
                 key = ssplit(sclone(key), " \t|", NULL);
                 if ((value = mprGetJson(route->config, key)) != 0) {
-                    mprSetJson(dest, child->name, itos(httpGetTicks(value)));
+                    mprSetJson(dest, child->name, itos(httpGetTicks(value)), MPR_JSON_NUMBER);
                 }
             } else {
                 if ((jvalue = mprGetJsonObj(route->config, key)) != 0) {
@@ -3924,7 +3931,7 @@ static void parseAuthAutoRoles(HttpRoute *route, cchar *key, MprJson *prop)
     if (mprGetHashLength(abilities) > 0) {
         job = mprCreateJson(MPR_JSON_ARRAY);
         for (ITERATE_KEYS(abilities, kp)) {
-            mprSetJson(job, "$", kp->key);
+            mprSetJson(job, "$", kp->key, 0);
         }
         mprSetJsonObj(route->config, "http.auth.auto.abilities", job);
     }
@@ -4710,6 +4717,9 @@ static void parseServerChroot(HttpRoute *route, cchar *key, MprJson *prop)
 #if ME_UNIX_LIKE
     char        *home;
 
+    if (!prop->value && !*prop->value) {
+        return;
+    }
     home = httpMakePath(route, 0, prop->value);
     if (chdir(home) < 0) {
         httpParseError(route, "Cannot change working directory to %s", home);
@@ -14070,11 +14080,10 @@ PUBLIC char *httpTemplate(HttpConn *conn, cchar *template, MprHash *options)
             mprPutStringToBuf(buf, route->prefix);
 
 #if DEPRECATE || 1
-        } else if (cp == template && *cp == ME_SERVER_PREFIX_CHAR) {
+        } else if (cp == template && *cp == '|') {
             mprPutStringToBuf(buf, route->prefix);
             //  DEPRECATE in version 6
             mprPutStringToBuf(buf, route->serverPrefix);
-            assert(*cp != ME_SERVER_PREFIX_CHAR);
 #endif
 
         } else if (*cp == '$' && cp[1] == '{' && (cp == template || cp[-1] != '\\')) {
@@ -21811,8 +21820,8 @@ static cchar *expandRouteName(HttpConn *conn, cchar *routeName)
     }
 #if DEPRECATE || 1
     //  DEPRECATE in version 6
-    if (routeName[0] == ME_SERVER_PREFIX_CHAR) {
-        assert(routeName[0] != ME_SERVER_PREFIX_CHAR);
+    if (routeName[0] == '|') {
+        assert(routeName[0] != '|');
         return sjoin(route->prefix, &routeName[1], NULL);
     }
 #endif
@@ -22193,11 +22202,11 @@ PUBLIC void httpCreateCGIParams(HttpConn *conn)
         params = httpGetParams(conn);
         assert(params);
         for (ITERATE_ITEMS(rx->files, file, index)) {
-            mprWriteJson(params, sfmt("FILE_%d_FILENAME", index), file->filename);
-            mprWriteJson(params, sfmt("FILE_%d_CLIENT_FILENAME", index), file->clientFilename);
-            mprWriteJson(params, sfmt("FILE_%d_CONTENT_TYPE", index), file->contentType);
-            mprWriteJson(params, sfmt("FILE_%d_NAME", index), file->name);
-            mprWriteJson(params, sfmt("FILE_%d_SIZE", index), sfmt("%zd", file->size));
+            mprWriteJson(params, sfmt("FILE_%d_FILENAME", index), file->filename, MPR_JSON_STRING);
+            mprWriteJson(params, sfmt("FILE_%d_CLIENT_FILENAME", index), file->clientFilename, MPR_JSON_STRING);
+            mprWriteJson(params, sfmt("FILE_%d_CONTENT_TYPE", index), file->contentType, MPR_JSON_STRING);
+            mprWriteJson(params, sfmt("FILE_%d_NAME", index), file->name, MPR_JSON_STRING);
+            mprWriteJson(params, sfmt("FILE_%d_SIZE", index), sfmt("%zd", file->size), MPR_JSON_NUMBER);
         }
     }
     if (conn->http->envCallback) {
@@ -22243,19 +22252,19 @@ static void addParamsFromBuf(HttpConn *conn, cchar *buf, ssize len)
             if (prior && prior->type == MPR_JSON_VALUE) {
                 if (*value) {
                     newValue = sjoin(prior->value, " ", value, NULL);
-                    mprSetJson(params, keyword, newValue);
+                    mprSetJson(params, keyword, newValue, MPR_JSON_STRING);
                 }
             } else {
-                mprSetJson(params, keyword, value);
+                mprSetJson(params, keyword, value, MPR_JSON_STRING);
             }
 #else
             if (prior && prior->type == MPR_JSON_VALUE) {
                 if (*value) {
                     newValue = sjoin(prior->value, " ", value, NULL);
-                    mprWriteJson(params, keyword, newValue);
+                    mprWriteJson(params, keyword, newValue, MPR_JSON_STRING);
                 }
             } else {
-                mprWriteJson(params, keyword, value);
+                mprWriteJson(params, keyword, value, MPR_JSON_STRING);
             }
 #endif
         }
@@ -22411,13 +22420,13 @@ PUBLIC void httpRemoveParam(HttpConn *conn, cchar *var)
 
 PUBLIC void httpSetParam(HttpConn *conn, cchar *var, cchar *value) 
 {
-    mprWriteJson(httpGetParams(conn), var, value);
+    mprWriteJson(httpGetParams(conn), var, value, 0);
 }
 
 
 PUBLIC void httpSetIntParam(HttpConn *conn, cchar *var, int value) 
 {
-    mprWriteJson(httpGetParams(conn), var, sfmt("%d", value));
+    mprWriteJson(httpGetParams(conn), var, sfmt("%d", value), MPR_JSON_NUMBER);
 }
 
 

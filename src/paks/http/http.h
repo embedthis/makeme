@@ -182,13 +182,6 @@ struct HttpWebSocket;
 #ifndef ME_MAX_PING_DURATION
     #define ME_MAX_PING_DURATION   (30 * 1000)         /**< WSS ping defeat Keep-Alive timeouts (30 sec) */
 #endif
-
-#if DEPRECATE || 1
-#ifndef ME_SERVER_PREFIX_CHAR
-    #define ME_SERVER_PREFIX_CHAR '|'                  /**< URI prefix character for server prefix */
-#endif
-#endif
-
 #ifndef ME_XSRF_COOKIE
     #define ME_XSRF_COOKIE        "XSRF-TOKEN"         /**< CSRF token cookie name */
 #endif
@@ -4895,13 +4888,13 @@ PUBLIC int httpAddRouteUpdate(HttpRoute *route, cchar *name, cchar *details, int
 
 /**
     Add a route using the WebSockets filter
-    @param parent Parent route from which to inherit configuration.
-    @param name Action to invoke on the controller.
+    @param route Parent route from which to inherit configuration.
+    @param action Name of the action to invoke on the route
     @return The new route object.
     @ingroup HttpRoute
     @stability Evolving
  */
-PUBLIC HttpRoute *httpAddWebSocketsRoute(HttpRoute *parent, cchar *action);
+PUBLIC HttpRoute *httpAddWebSocketsRoute(HttpRoute *route, cchar *action);
 
 
 /**

@@ -257,8 +257,6 @@ static int upgradeEst(MprSocket *sp, MprSsl *ssl, cchar *peerName)
     ssl_set_scb(&est->ctx, getSession, setSession);
     ssl_set_ciphers(&est->ctx, cfg->ciphers);
 
-    /* FUTURE - set protocol versions */
-
     ssl_set_session(&est->ctx, 1, 0, &est->session);
     memset(&est->session, 0, sizeof(ssl_session));
 

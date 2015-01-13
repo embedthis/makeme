@@ -6356,11 +6356,6 @@ PUBLIC void mprXmlSetParserHandler(MprXml *xp, MprXmlHandler h);
 #define MPR_JSON_STRINGS        0x4         /**< Emit all values as quoted strings */
 
 /*
-    Flags for mprQueryJson
- */
-#define MPR_JSON_REMOVE         0x1         /**< Remove matching properties */
-
-/*
     Data types for obj property values
  */
 #define MPR_JSON_OBJ            0x1         /**< The property is an object */
@@ -6373,17 +6368,13 @@ PUBLIC void mprXmlSetParserHandler(MprXml *xp, MprXmlHandler h);
 #define MPR_JSON_STRING         0x80        /**< The property is a string. MPR_JSON_VALUE also set. */
 #define MPR_JSON_TRUE           0x100       /**< The property is true. MPR_JSON_VALUE also set. */
 #define MPR_JSON_UNDEFINED      0x200       /**< The property is undefined. MPR_JSON_VALUE also set. */
-#define MPR_JSON_TYPE_MASK      0x7         /**< Mask for core type */
+#define MPR_JSON_OBJ_TYPE       0x7         /**< Mask for core type of obj (obj|array|value) */
+#define MPR_JSON_DATA_TYPE      0xFF8       /**< Mask for core type of obj (obj|array|value) */
 
 #define MPR_JSON_STATE_EOF      1           /* End of input */
 #define MPR_JSON_STATE_ERR      2           /* Some parse error */
 #define MPR_JSON_STATE_NAME     3           /* Expecting a name: */
 #define MPR_JSON_STATE_VALUE    4           /* Expecting a value */
-
-/*
-    mprQueryJson flags
- */
-#define MPR_JSON_QUERY_REMOVE   0x1         /* Remove matching properties */
 
 #define ITERATE_JSON(obj, child, index) \
     index = 0, child = obj ? obj->children: 0; obj && index < obj->length; child = child->next, index++
@@ -6456,6 +6447,7 @@ typedef struct MprJsonParser {
     MprBuf          *buf;               /* Token buffer */
     MprJsonCallback callback;           /* JSON parser callbacks */
     int             tokid;              /* Current tokend ID */
+    int             type;               /* Extra type information */
     int             putid;              /* Putback token id */
     int             lineNumber;         /* Current line number in path */
     int             state;              /* Parse state */
@@ -6507,11 +6499,26 @@ PUBLIC MprJson *mprCloneJson(MprJson *obj);
     Create a JSON object
     @param type Set JSON object type to MPR_JSON_OBJ for an object, MPR_JSON_ARRAY for an array or MPR_JSON_VALUE
         for a value. Note: all values are stored as strings.
+        Additional type information may be ored into the type for: MPR_JSON_NUMBER, MPR_JSON_TRUE, MPR_JSON_FALSE,
+        MPR_JSON_NULL, MPR_JSON_UNDEFINED.
     @return JSON object
     @ingroup MprJson
     @stability Evolving
  */
 PUBLIC MprJson *mprCreateJson(int type);
+
+/**
+    Create a JSON object value
+    @param value String value of the json object.
+    @param type Set JSON object type to MPR_JSON_OBJ for an object, MPR_JSON_ARRAY for an array or MPR_JSON_VALUE
+        for a value. Note: all values are stored as strings.
+        Additional type information may be ored into the type for: MPR_JSON_NUMBER, MPR_JSON_TRUE, MPR_JSON_FALSE,
+        MPR_JSON_NULL, MPR_JSON_UNDEFINED.
+    @return JSON object
+    @ingroup MprJson
+    @stability Evolving
+ */
+PUBLIC MprJson *mprCreateJsonValue(cchar *value, int type);
 
 /**
     Deserialize a simple JSON string and return a hash of properties
@@ -6698,7 +6705,10 @@ PUBLIC MprJson *mprParseJsonInto(cchar *str, MprJson *obj);
         </pre>
     @param value If a value is provided, the property described by the key is set to the value.
         If getting property values, or removing, set to NULL.
-    @param flags If flags includes MPR_JSON_REMOVE, the properties described by the key are removed.
+    @param type Value data type used when setting a value. Set to MPR_JSON_FALSE, MPR_JSON_NULL, MPR_JSON_NUMBER, 
+        MPR_JSON_STRING, MPR_JSON_TRUE, MPR_JSON_UNDEFINED. Set to zero to sleuth the data type based on the supplied 
+        value. Note: if the type is zero, numeric values will be set to MPR_JSON_NUMBER and "true", "false", "null" 
+        and "undefined" will have the corresponding data types.
     @return If getting properties, the selected properties are cloned and returned in a JSON array.
         Note: these are not references into the original properties. If the requested properties are not found
         an empty array is returned. If removing properties, the selected properties are removed and returned
@@ -6708,7 +6718,7 @@ PUBLIC MprJson *mprParseJsonInto(cchar *str, MprJson *obj);
     @ingroup MprJson
     @stability Evolving
  */
-PUBLIC MprJson *mprQueryJson(MprJson *obj, cchar *key, cchar *value, int flags);
+PUBLIC MprJson *mprQueryJson(MprJson *obj, cchar *key, cchar *value, int type);
 
 /**
     Read a JSON object
@@ -6836,11 +6846,12 @@ PUBLIC int mprSetJsonObj(MprJson *obj, cchar *key, MprJson *value);
     @param key Property name to add/update. This may include "." and the full mprQueryJson syntax. 
         For example: "settings.mode".  See #mprQueryJson for a full description of key formats.
     @param value Character string value.
+    @param type Set to MPR_JSON_FALSE, MPR_JSON_NULL, MPR_JSON_NUMBER, MPR_JSON_STRING, MPR_JSON_TRUE, MPR_JSON_UNDEFINED.
     @return Zero if updated successfully.
     @ingroup MprJson
     @stability Evolving
  */
-PUBLIC int mprSetJson(MprJson *obj, cchar *key, cchar *value);
+PUBLIC int mprSetJson(MprJson *obj, cchar *key, cchar *value, int type);
 
 /**
     Write a property in a JSON object
@@ -6860,11 +6871,12 @@ PUBLIC int mprWriteJsonObj(MprJson *obj, cchar *key, MprJson *value);
     @param obj Parsed JSON object returned by mprParseJson
     @param key Property name to add/update.
     @param value Character string value.
+    @param type Set to MPR_JSON_FALSE, MPR_JSON_NULL, MPR_JSON_NUMBER, MPR_JSON_STRING, MPR_JSON_TRUE, MPR_JSON_UNDEFINED.
     @return Zero if updated successfully.
     @ingroup MprJson
     @stability Evolving
  */
-PUBLIC int mprWriteJson(MprJson *obj, cchar *key, cchar *value);
+PUBLIC int mprWriteJson(MprJson *obj, cchar *key, cchar *value, int type);
 
 /********************************* Threads ************************************/
 /**
