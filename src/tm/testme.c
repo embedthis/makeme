@@ -159,10 +159,6 @@ MAIN(ejsMain, int argc, char **argv, char **envp)
         mprSetExitStatus(err);
     }
     app->ejs = 0;
-#if UNUSED
-    ejsDestroyVM(ejs);
-    mprDestroy();
-#endif
     return mprGetExitStatus();
 }
 
@@ -180,18 +176,6 @@ static cchar *findTestMe()
 {
     cchar    *path;
 
-/* UNUSED
-    if (mprPathExists("makeme", X_OK)) {
-        path = "makeme/testme.mod"; 
-        if (mprPathExists(path, R_OK)) {
-            return sclone(path);
-        }
-        path = "makeme/testme.es"; 
-        if (mprPathExists(path, R_OK)) {
-            return sclone(path);
-        }
-    }
-*/
     path = mprJoinPath(mprGetAppDir(), "testme.mod"); 
     if (mprPathExists(path, R_OK)) {
         return path;

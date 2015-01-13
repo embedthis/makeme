@@ -100,6 +100,11 @@ PUBLIC bool ttest(cchar *loc, cchar *expression, bool success)
         printf("pass in %s for \"%s\"\n", loc, expression);
     } else {
         printf("fail in %s for \"%s\"\n", loc, expression);
+        if (getenv("TESTME_SLEEP")) {
+            sleep(60);
+        } else if (getenv("TESTME_STOP")) {
+            abort();
+        }
     }
     return success;
 }
