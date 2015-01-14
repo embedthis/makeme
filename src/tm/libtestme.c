@@ -101,9 +101,17 @@ PUBLIC bool ttest(cchar *loc, cchar *expression, bool success)
     } else {
         printf("fail in %s for \"%s\"\n", loc, expression);
         if (getenv("TESTME_SLEEP")) {
+#if ME_WIN_LIKE
+            DebugBreak();
+#else
             sleep(60);
+#endif
         } else if (getenv("TESTME_STOP")) {
+#if ME_WIN_LIKE
+            DebugBreak();
+#else
             abort();
+#endif
         }
     }
     return success;
