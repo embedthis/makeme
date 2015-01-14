@@ -2819,7 +2819,7 @@ static int matchChunk(HttpConn *conn, HttpRoute *route, int dir)
             If content length is defined, don't need chunking. Also disable chunking if explicitly turned off vi 
             the X_APPWEB_CHUNK_SIZE header which may set the chunk size to zero.
          */
-        if (tx->length >= 0 || tx->chunkSize == 0) {
+        if ((tx->length >= 0 && tx->chunkSize < 0) || tx->chunkSize == 0) {
             return HTTP_ROUTE_OMIT_FILTER;
         }
     }
@@ -8102,12 +8102,12 @@ static int rewriteFileHandler(HttpConn *conn)
     if (info->isDir) {
         return httpHandleDirectory(conn);
     }
-    if (rx->flags & (HTTP_GET | HTTP_HEAD | HTTP_POST) && info->valid && tx->length < 0) {
+    if (rx->flags & (HTTP_GET | HTTP_HEAD | HTTP_POST) && info->valid) {
         /*
             The sendFile connector is optimized on some platforms to use the sendfile() system call.
             Set the entity length for the sendFile connector to utilize.
          */
-        httpSetEntityLength(conn, tx->fileInfo.size);
+        tx->entityLength = tx->fileInfo.size;
     }
     return HTTP_ROUTE_OK;
 }
@@ -8233,7 +8233,7 @@ static void startFileHandler(HttpQueue *q)
     } else if (!(tx->flags & HTTP_TX_NO_BODY)) {
         /* Create a single data packet based on the entity length */
         packet = httpCreateEntityPacket(0, tx->entityLength, readFileData);
-        if (!tx->outputRanges) {
+        if (!tx->outputRanges && tx->chunkSize < 0) {
             /* Can set a content length */
             tx->length = tx->entityLength;
         }
@@ -8503,6 +8503,10 @@ PUBLIC int httpHandleDirectory(HttpConn *conn)
         pathInfo = sjoin(req->path, "/", NULL);
         uri = httpFormatUri(req->scheme, req->host, req->port, pathInfo, req->reference, req->query, 0);
         httpRedirect(conn, HTTP_CODE_MOVED_PERMANENTLY, uri);
+        if (tx->finalized) {
+            /* This allows handlers to call httpHandleDirectory after routing (esp does this) */
+            tx->handler = conn->http->passHandler;
+        }
         return HTTP_ROUTE_OK;
     }
     if (route->indexes) {
@@ -10346,11 +10350,10 @@ PUBLIC void httpJoinPackets(HttpQueue *q, ssize size)
         /*
             Copy the data and free all other packets
          */
-        for (p = packet->next; p && size > 0; p = p->next) {
-            if (p->content == 0 || (len = httpGetPacketLength(p)) == 0) {
-                break;
+        for (p = packet->next; p && (p->flags & HTTP_PACKET_DATA); p = p->next) {
+            if ((len = httpGetPacketLength(p)) > 0) {
+                httpJoinPacket(packet, p);
             }
-            httpJoinPacket(packet, p);
             /* Unlink the packet */
             packet->next = p->next;
             if (q->last == p) {
@@ -11109,6 +11112,9 @@ PUBLIC void httpSetSendConnector(HttpConn *conn, cchar *path)
 }
 
 
+/*
+    Set the fileHandler as the selected handler for the request
+ */
 PUBLIC void httpSetFileHandler(HttpConn *conn, cchar *path)
 {
     HttpStage   *fp;
@@ -11119,14 +11125,13 @@ PUBLIC void httpSetFileHandler(HttpConn *conn, cchar *path)
     if (path && path != tx->filename) {
         httpSetFilename(conn, path, 0);
     }
-    fp = tx->handler = HTTP->fileHandler;
-//  MOB TEMP - can only do this if only the chunk filter has been added
-    tx->flags &= ~HTTP_TX_HAS_FILTERS;
     if ((conn->rx->flags & HTTP_GET) && !(tx->flags & HTTP_TX_HAS_FILTERS) && !conn->secure && !httpTracing(conn)) {
         tx->flags |= HTTP_TX_SENDFILE;
         tx->connector = HTTP->sendConnector;
     }
-    httpSetEntityLength(conn, tx->fileInfo.size);
+    tx->entityLength = tx->fileInfo.size;
+
+    fp = tx->handler = HTTP->fileHandler;
     fp->open(conn->writeq);
     fp->start(conn->writeq);
     conn->writeq->service = fp->outgoingService;
@@ -11893,7 +11898,7 @@ static void startRange(HttpQueue *q)
     /*
         The httpContentNotModified routine can set outputRanges to zero if returning not-modified.
      */
-    if (tx->outputRanges == 0 || tx->status != HTTP_CODE_OK || !fixRangeLength(conn)) {
+    if (tx->outputRanges == 0 || tx->status != HTTP_CODE_OK) {
         httpRemoveQueue(q);
         tx->outputRanges = 0;
     } else {
@@ -11914,6 +11919,15 @@ static void outgoingRangeService(HttpQueue *q)
     conn = q->conn;
     tx = conn->tx;
 
+    if (!(q->flags & HTTP_QUEUE_SERVICED)) {
+        /*
+            The httpContentNotModified routine can set outputRanges to zero if returning not-modified.
+         */
+        if (!fixRangeLength(conn)) {
+            httpRemoveQueue(q);
+            tx->outputRanges = 0;
+        }
+    }
     for (packet = httpGetPacket(q); packet; packet = httpGetPacket(q)) {
         if (packet->flags & HTTP_PACKET_DATA) {
             if (!applyRange(q, packet)) {
@@ -19866,7 +19880,7 @@ static void setHeaders(HttpConn *conn, HttpPacket *packet)
             httpAddHeader(conn, "Content-Length", "%lld", length);
         }
 
-    } else if (tx->length < 0 && tx->chunkSize > 0) {
+    } else if (tx->chunkSize > 0) {
         httpSetHeaderString(conn, "Transfer-Encoding", "chunked");
 
     } else if (httpServerConn(conn)) {
@@ -19950,7 +19964,7 @@ PUBLIC void httpSetEntityLength(HttpConn *conn, int64 len)
     must take care if the HTTP_TX_NO_CHECK flag is used.  This will update HttpTx.ext and HttpTx.fileInfo.
     This does not implement per-language directories. For that, see httpMapFile.
  */
-PUBLIC void httpSetFilename(HttpConn *conn, cchar *filename, int flags)
+PUBLIC bool httpSetFilename(HttpConn *conn, cchar *filename, int flags)
 {
     HttpTx      *tx;
     MprPath     *info;
@@ -19966,14 +19980,14 @@ PUBLIC void httpSetFilename(HttpConn *conn, cchar *filename, int flags)
         tx->filename = 0;
         tx->ext = 0;
         info->checked = info->valid = 0;
-        return;
+        return 0;
     }
     if (!(tx->flags & HTTP_TX_NO_CHECK)) {
         if (!mprIsAbsPathContained(filename, conn->rx->route->documents)) {
             info->checked = 1;
             info->valid = 0;
             httpError(conn, HTTP_CODE_BAD_REQUEST, "Filename outside published documents");
-            return;
+            return 0;
         }
     }
     if (!tx->ext || tx->ext[0] == '\0') {
@@ -19981,8 +19995,7 @@ PUBLIC void httpSetFilename(HttpConn *conn, cchar *filename, int flags)
     }
     mprGetPathInfo(filename, info);
     if (info->valid) {
-        //  OPT - using inodes mean this is harder to cache when served from multiple servers.
-        tx->etag = sfmt("\"%llx-%llx-%llx\"", (int64) info->inode, (int64) info->size, (int64) info->mtime);
+        tx->etag = sfmt("\"%llx\"", (int64) info->inode + (int64) info->size + (int64) info->mtime);
     }
     tx->filename = sclone(filename);
 
@@ -19990,6 +20003,7 @@ PUBLIC void httpSetFilename(HttpConn *conn, cchar *filename, int flags)
         /* Filename being revised after pipeline created */
         httpTrace(conn, "request.document", "context", "filename:'%s'", tx->filename);
     }
+    return info->valid;
 }
 
 
@@ -20097,7 +20111,7 @@ PUBLIC void httpWriteHeaders(HttpQueue *q, HttpPacket *packet)
     /*
         By omitting the "\r\n" delimiter after the headers, chunks can emit "\r\nSize\r\n" as a single chunk delimiter
      */
-    if (tx->length >= 0 || tx->chunkSize <= 0) {
+    if (tx->chunkSize <= 0) {
         mprPutStringToBuf(buf, "\r\n");
     }
     tx->headerSize = mprGetBufLength(buf);

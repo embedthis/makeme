@@ -7065,10 +7065,11 @@ PUBLIC void httpSetEntityLength(HttpConn *conn, MprOff len);
     @param filename Tx filename to define. Set to NULL to reset the filename.
     @param flags Flags word. Or together the desired flags. Include to HTTP_TX_NO_CHECK to bypass checking if the
         filename resides inside the route documents directory.
+    @return True if the filename exists and is readable.
     @ingroup HttpTx
     @stability Evolving
  */
-PUBLIC void httpSetFilename(HttpConn *conn, cchar *filename, int flags);
+PUBLIC bool httpSetFilename(HttpConn *conn, cchar *filename, int flags);
 
 /**
     Set the handler for this request
