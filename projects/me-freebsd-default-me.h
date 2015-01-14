@@ -283,9 +283,6 @@
 #ifndef ME_COM_PCRE
     #define ME_COM_PCRE 1
 #endif
-#ifndef ME_COM_SQLITE
-    #define ME_COM_SQLITE 0
-#endif
 #ifndef ME_COM_SSL
     #define ME_COM_SSL 1
 #endif

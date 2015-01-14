@@ -23,7 +23,6 @@ ME_COM_MPR            ?= 1
 ME_COM_OPENSSL        ?= 1
 ME_COM_OSDEP          ?= 1
 ME_COM_PCRE           ?= 1
-ME_COM_SQLITE         ?= 0
 ME_COM_SSL            ?= 1
 ME_COM_VXWORKS        ?= 0
 ME_COM_WINSDK         ?= 1
@@ -45,7 +44,7 @@ ifeq ($(ME_COM_EJS),1)
 endif
 
 CFLAGS                += -fPIC -w
-DFLAGS                += -D_REENTRANT -DPIC $(patsubst %,-D%,$(filter ME_%,$(MAKEFLAGS))) -DME_COM_COMPILER=$(ME_COM_COMPILER) -DME_COM_EJS=$(ME_COM_EJS) -DME_COM_EST=$(ME_COM_EST) -DME_COM_HTTP=$(ME_COM_HTTP) -DME_COM_LIB=$(ME_COM_LIB) -DME_COM_MPR=$(ME_COM_MPR) -DME_COM_OPENSSL=$(ME_COM_OPENSSL) -DME_COM_OSDEP=$(ME_COM_OSDEP) -DME_COM_PCRE=$(ME_COM_PCRE) -DME_COM_SQLITE=$(ME_COM_SQLITE) -DME_COM_SSL=$(ME_COM_SSL) -DME_COM_VXWORKS=$(ME_COM_VXWORKS) -DME_COM_WINSDK=$(ME_COM_WINSDK) -DME_COM_ZLIB=$(ME_COM_ZLIB) 
+DFLAGS                += -D_REENTRANT -DPIC $(patsubst %,-D%,$(filter ME_%,$(MAKEFLAGS))) -DME_COM_COMPILER=$(ME_COM_COMPILER) -DME_COM_EJS=$(ME_COM_EJS) -DME_COM_EST=$(ME_COM_EST) -DME_COM_HTTP=$(ME_COM_HTTP) -DME_COM_LIB=$(ME_COM_LIB) -DME_COM_MPR=$(ME_COM_MPR) -DME_COM_OPENSSL=$(ME_COM_OPENSSL) -DME_COM_OSDEP=$(ME_COM_OSDEP) -DME_COM_PCRE=$(ME_COM_PCRE) -DME_COM_SSL=$(ME_COM_SSL) -DME_COM_VXWORKS=$(ME_COM_VXWORKS) -DME_COM_WINSDK=$(ME_COM_WINSDK) -DME_COM_ZLIB=$(ME_COM_ZLIB) 
 IFLAGS                += "-I$(BUILD)/inc"
 LDFLAGS               += '-rdynamic' '-Wl,--enable-new-dtags' '-Wl,-rpath,$$ORIGIN/'
 LIBPATHS              += -L$(BUILD)/bin
@@ -1042,11 +1041,11 @@ installBinary: $(DEPS_53)
 	cp src/paks/me-xcode/Xcode.es $(ME_VAPP_PREFIX)/bin/paks/me-xcode/Xcode.es ; \
 	cp src/paks/me-xcode/xcode.me $(ME_VAPP_PREFIX)/bin/paks/me-xcode/xcode.me ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/doc/man/man1" ; \
-	cp doc/public/man/me.1 $(ME_VAPP_PREFIX)/doc/man/man1/me.1 ; \
+	cp doc/documents/man/me.1 $(ME_VAPP_PREFIX)/doc/man/man1/me.1 ; \
 	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \
 	rm -f "$(ME_MAN_PREFIX)/man1/me.1" ; \
 	ln -s "$(ME_VAPP_PREFIX)/doc/man/man1/me.1" "$(ME_MAN_PREFIX)/man1/me.1" ; \
-	cp doc/public/man/testme.1 $(ME_VAPP_PREFIX)/doc/man/man1/testme.1 ; \
+	cp doc/documents/man/testme.1 $(ME_VAPP_PREFIX)/doc/man/man1/testme.1 ; \
 	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \
 	rm -f "$(ME_MAN_PREFIX)/man1/testme.1" ; \
 	ln -s "$(ME_VAPP_PREFIX)/doc/man/man1/testme.1" "$(ME_MAN_PREFIX)/man1/testme.1"

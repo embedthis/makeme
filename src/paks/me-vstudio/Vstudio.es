@@ -101,13 +101,13 @@ if not exist "$(IncDir)" md "$(IncDir)"
         }
         for each (name in target.uses) {
             let dep = builder.getDep(name) 
-            if (dep.enable) {
+            if (dep && dep.enable) {
                 list += getAllDeps(dep)
             }
         }
         for each (name in target.uses) {
             let dep = builder.getDep(name) 
-            if (dep.enable && dep.selected) {
+            if (dep && dep.enable && dep.selected) {
                 list += getAllDeps(dep)
             }
         }
