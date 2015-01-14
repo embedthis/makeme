@@ -2816,8 +2816,9 @@ static int matchChunk(HttpConn *conn, HttpRoute *route, int dir)
     }
     if (dir & HTTP_STAGE_TX) {
         /* 
-            If content length is defined, don't need chunking. Also disable chunking if explicitly turned off vi 
-            the X_APPWEB_CHUNK_SIZE header which may set the chunk size to zero.
+            If content length is defined, don't need chunking - but only if chunking not explicitly asked for. 
+            Disable chunking if explicitly turned off via the X_APPWEB_CHUNK_SIZE header which may set the 
+            chunk size to zero.
          */
         if ((tx->length >= 0 && tx->chunkSize < 0) || tx->chunkSize == 0) {
             return HTTP_ROUTE_OMIT_FILTER;
@@ -2941,7 +2942,7 @@ static void outgoingChunkService(HttpQueue *q)
 
     if (!(q->flags & HTTP_QUEUE_SERVICED)) {
         /*
-            If we don't know the content length (tx->length < 0) and if the last packet is the end packet. Then
+            If we don't know the content length yet (tx->length < 0) and if the last packet is the end packet. Then
             we have all the data. Thus we can determine the actual content length and can bypass the chunk handler.
          */
         if (tx->length < 0 && (value = mprLookupKey(tx->headers, "Content-Length")) != 0) {
@@ -3727,6 +3728,19 @@ PUBLIC int parseFile(HttpRoute *route, cchar *path)
         mprLog("error http config", 0, "Cannot parse %s: error %s", path, errorMsg);
         return MPR_ERR_CANT_READ;
     }
+#if DEPRECATE || 1
+{
+    MprJson *obj;
+    if ((obj = mprGetJsonObj(config, "app.http")) != 0) {
+        mprRemoveJson(config, "app.http");
+        mprSetJsonObj(config, "http", obj);
+    }
+    if ((obj = mprGetJsonObj(config, "app.esp")) != 0) {
+        mprRemoveJson(config, "app.esp");
+        mprSetJsonObj(config, "esp", obj);
+    }
+}
+#endif
     blendMode(route, config);
     if (route->config) {
         mprBlendJson(route->config, config, MPR_JSON_COMBINE);
@@ -8154,7 +8168,6 @@ static int openFileHandler(HttpQueue *q)
         if (httpContentNotModified(conn)) {
             httpSetStatus(conn, HTTP_CODE_NOT_MODIFIED);
             httpOmitBody(conn);
-            tx->length = -1;
         }
         if (!tx->fileInfo.isReg && !tx->fileInfo.isLink) {
             httpTrace(conn, "request.document.error", "error", "msg:'Document is not a regular file',filename:'%s'", 
@@ -8231,14 +8244,16 @@ static void startFileHandler(HttpQueue *q)
         httpHandleOptions(q->conn);
         
     } else if (!(tx->flags & HTTP_TX_NO_BODY)) {
-        /* Create a single data packet based on the entity length */
-        packet = httpCreateEntityPacket(0, tx->entityLength, readFileData);
-        if (!tx->outputRanges && tx->chunkSize < 0) {
-            /* Can set a content length */
-            tx->length = tx->entityLength;
+        if (tx->entityLength >= 0) {
+            /* 
+                Create a single data packet based on the actual entity (file) length 
+             */
+            packet = httpCreateEntityPacket(0, tx->entityLength, readFileData);
+            if (!tx->outputRanges && tx->chunkSize < 0) {
+                tx->length = tx->entityLength;
+            }
+            httpPutForService(q, packet, 0);
         }
-        /* Add to the output service queue */
-        httpPutForService(q, packet, 0);
     }
 }
 
@@ -9881,7 +9896,7 @@ static MprOff buildNetVec(HttpQueue *q)
     for (packet = prev = q->first; packet && !(packet->flags & HTTP_PACKET_END); packet = packet->next) {
         if (packet->flags & HTTP_PACKET_HEADER) {
             if (tx->chunkSize <= 0 && q->count > 0 && tx->length < 0) {
-                /* Incase no chunking filter and we've not seen all the data yet */
+                /* No content length, but not chunking. So have to close the connection to signify the content end */
                 conn->keepAliveCount = 0;
             }
             httpWriteHeaders(q, packet);
@@ -11130,7 +11145,6 @@ PUBLIC void httpSetFileHandler(HttpConn *conn, cchar *path)
         tx->connector = HTTP->sendConnector;
     }
     tx->entityLength = tx->fileInfo.size;
-
     fp = tx->handler = HTTP->fileHandler;
     fp->open(conn->writeq);
     fp->start(conn->writeq);
@@ -19733,7 +19747,9 @@ PUBLIC void httpSetContentLength(HttpConn *conn, MprOff length)
         return;
     }
     tx->length = length;
+#if UNUSED
     httpSetHeader(conn, "Content-Length", "%lld", tx->length);
+#endif
 }
 
 

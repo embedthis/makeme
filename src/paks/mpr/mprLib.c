@@ -17884,8 +17884,7 @@ PUBLIC char *mprGetPathDir(cchar *path)
 
 
 /*
-    Return the extension portion of a pathname.
-    Return the extension without the "."
+    Return the extension portion of a pathname. Returns the extension without the ".". Returns null if no extension.
  */
 PUBLIC char *mprGetPathExt(cchar *path)
 {

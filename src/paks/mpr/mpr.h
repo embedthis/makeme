@@ -5036,9 +5036,9 @@ PUBLIC char *mprGetPathDir(cchar *path);
 /**
     Get the file extension portion of a path
     @description Get the file extension portion of a path. The file extension is the portion starting with the last "."
-        in the path. It thus includes "." as the first charcter.
+        in the path. It thus does not include the "." as the first charcter.
     @param path Path name to examine
-    @returns A path extension.
+    @returns A path extension without the ".". Returns null if no extension exists.
     @ingroup MprPath
     @stability Stable
  */
