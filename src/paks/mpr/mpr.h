@@ -5370,13 +5370,13 @@ PUBLIC char *mprReadPathContents(cchar *path, ssize *lenp);
 /**
     Replace an extension to a path
     @description Remove any existing path extension and then add the given path extension.
-    @param dir Directory path name to test use as the base/dir.
+    @param path Path filename to modify
     @param ext Extension to add. The extension should not have a period prefix.
     @returns Allocated string containing the resolved path.
     @ingroup MprPath
     @stability Stable
  */
-PUBLIC char *mprReplacePathExt(cchar *dir, cchar *ext);
+PUBLIC char *mprReplacePathExt(cchar *path, cchar *ext);
 
 /**
     Resolve paths
@@ -10430,7 +10430,7 @@ PUBLIC void mprWriteToOsLog(cchar *msg, int level);
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a

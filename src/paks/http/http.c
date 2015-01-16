@@ -509,8 +509,8 @@ static int parseArgs(int argc, char **argv)
 
         } else if (smatch(argp, "--version") || smatch(argp, "-V")) {
             mprEprintf("%s %s\n"
-                "Copyright (C) Embedthis Software 2003-2014\n"
-                "Copyright (C) Michael O'Brien 2003-2014\n",
+                "Copyright (C) Embedthis Software\n"
+                "Copyright (C) Michael O'Brien\n",
                ME_TITLE, ME_VERSION);
             exit(0);
 
@@ -1344,7 +1344,7 @@ PUBLIC int _exit() {
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 

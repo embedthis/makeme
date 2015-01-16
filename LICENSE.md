@@ -62,6 +62,6 @@ More licenses under src/paks/*/LICENSE.md.
 
 Trademarks and Copyrights
 ---
-Copyright (c) 2003-2014 Embedthis Software, LLC. All Rights Reserved.
+Copyright (c) Embedthis Software. All Rights Reserved.
 Embedthis and MakeMe are trademarks of Embedthis Software, LLC. Other 
 brands and their products are trademarks of their respective holders.

@@ -38079,10 +38079,10 @@ static EjsString *serialize(Ejs *ejs, EjsAny *vp, Json *json)
         SET_VISITED(obj, 0);
         if (items > 0 && !json->commas) {
             if (json->pretty && !sameline) {
-                mprAdjustBufEnd(json->buf, - (2 * sizeof(wchar)));
+                mprAdjustBufEnd(json->buf, - (int) (2 * sizeof(wchar)));
                 mprPutCharToWideBuf(json->buf, '\n');
             } else {
-                mprAdjustBufEnd(json->buf, - sizeof(wchar));
+                mprAdjustBufEnd(json->buf, - (int) sizeof(wchar));
             }
         }
     }

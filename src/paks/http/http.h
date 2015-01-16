@@ -1023,7 +1023,6 @@ PUBLIC int httpApplyUserGroup();
  */
 #define HTTP_CLIENT_SIDE    0x1             /**< Initialize the client-side support */
 #define HTTP_SERVER_SIDE    0x2             /**< Initialize the server-side support */
-#define HTTP_UTILITY        0x4             /**< Http engine for utilities (esp) */
 
 /**
     Alter the configuration by first quiescing all Http activity. This waits until there are no open connections
@@ -4418,6 +4417,8 @@ PUBLIC void httpSetStreaming(struct HttpHost *host, cchar *mime, cchar *uri, boo
 #define HTTP_ROUTE_DOTNET_DIGEST_FIX    0x2000      /**< .NET digest auth omits query in MD5 */
 #define HTTP_ROUTE_REDIRECT             0x4000      /**< Redirect secureCondition */
 #define HTTP_ROUTE_STRICT_TLS           0x8000      /**< Emit Strict-Transport-Security header */
+#define HTTP_ROUTE_HOSTED               0x10000     /**< Route being hosted (appweb) */
+#define HTTP_ROUTE_UTILITY              0x20000     /**< Not listening on endpoints */
 
 #if DEPRECATE || 1
 #define HTTP_ROUTE_SET_DEFINED          0x10000     /**< Route set defined */
@@ -4572,6 +4573,25 @@ typedef struct HttpRouteOp {
     @stability Prototype
   */
 typedef void (*HttpParseCallback)(struct HttpRoute *route, cchar *key, MprJson *child);
+
+/*
+    Emit a parse error message
+    @description This aborts processing further configuration.
+    @param route Current route
+    @fmt Printf style format string
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC void httpParseError(HttpRoute *route, cchar *fmt, ...);
+
+/*
+    Emit a parse warning message
+    @param route Current route
+    @fmt Printf style format string
+    @ingroup HttpRoute
+    @stability Prototype
+ */
+PUBLIC void httpParseWarn(HttpRoute *route, cchar *fmt, ...);
 
 /**
     General route procedure. Used by targets, conditions and updates.
@@ -8024,7 +8044,7 @@ PUBLIC void httpSetOption(MprHash *options, cchar *field, cchar *value);
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a

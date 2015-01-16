@@ -37,6 +37,6 @@ The optional EST SSL stack includes code from TropicSSL in the est library.
 
 Trademarks and Copyrights
 ---
-Copyright (c) 2003-2014 Embedthis Software, LLC. All Rights Reserved.
+Copyright (c) Embedthis Software. All Rights Reserved.
 Embedthis is a trademark of Embedthis Software, LLC. Other brands and their 
 products are trademarks of their respective holders.

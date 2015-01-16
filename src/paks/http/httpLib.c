@@ -1264,7 +1264,7 @@ PUBLIC int httpSetPlatformDir(cchar *path)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 
@@ -1350,7 +1350,7 @@ PUBLIC int httpOpenActionHandler()
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 
@@ -2063,7 +2063,7 @@ PUBLIC int formParse(HttpConn *conn, cchar **username, cchar **password)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a
@@ -2164,7 +2164,7 @@ PUBLIC bool httpBasicSetHeaders(HttpConn *conn, cchar *username, cchar *password
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 
@@ -2744,7 +2744,7 @@ static cchar *setHeadersFromCache(HttpConn *conn, cchar *content)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a
@@ -3012,7 +3012,7 @@ static void setChunkPrefix(HttpQueue *q, HttpPacket *packet)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 
@@ -3576,7 +3576,7 @@ PUBLIC int httpWait(HttpConn *conn, int state, MprTicks timeout)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a
@@ -3635,7 +3635,7 @@ PUBLIC HttpParseCallback httpAddConfig(cchar *key, HttpParseCallback callback)
 }
 
 
-static void httpParseError(HttpRoute *route, cchar *fmt, ...)
+PUBLIC void httpParseError(HttpRoute *route, cchar *fmt, ...)
 {
     HttpRoute   *rp;
     va_list     args;
@@ -3649,6 +3649,18 @@ static void httpParseError(HttpRoute *route, cchar *fmt, ...)
     for (rp = route; rp; rp = rp->parent) {
         rp->error = 1;
     }
+}
+
+
+PUBLIC void httpParseWarn(HttpRoute *route, cchar *fmt, ...)
+{
+    va_list     args;
+    char        *msg;
+
+    va_start(args, fmt);
+    msg = sfmtv(fmt, args);
+    mprLog("warn http config", 1, "%s", msg);
+    va_end(args);
 }
 
 
@@ -3715,9 +3727,34 @@ static void blendMode(HttpRoute *route, MprJson *config)
 }
 
 
+PUBLIC int parseInclude(HttpRoute *route, MprJson *config, MprJson *inc)
+{
+    MprJson     *child, *obj;
+    MprList     *files;
+    cchar       *data, *errorMsg, *path;
+    int         ji, next;
+
+    for (ITERATE_CONFIG(route, inc, child, ji)) {
+        files = mprGlobPathFiles(".", child->value, MPR_PATH_NO_DIRS | MPR_PATH_RELATIVE);
+        for (ITERATE_ITEMS(files, path, next)) {
+            if ((data = mprReadPathContents(path, NULL)) == 0) {
+                httpParseError(route, "Cannot read configuration from \"%s\"", path);
+                return MPR_ERR_CANT_READ;
+            }
+            if ((obj = mprParseJsonEx(data, 0, 0, 0, &errorMsg)) == 0) {
+                httpParseError(route, "Cannot parse %s: error %s", path, errorMsg);
+                return MPR_ERR_CANT_READ;
+            }
+            mprBlendJson(config, obj, MPR_JSON_COMBINE);
+        }
+    }
+    return 0;
+}
+
+
 PUBLIC int parseFile(HttpRoute *route, cchar *path)
 {
-    MprJson     *config;
+    MprJson     *config, *obj;
     cchar       *data, *errorMsg;
 
     if ((data = mprReadPathContents(path, NULL)) == 0) {
@@ -3727,6 +3764,9 @@ PUBLIC int parseFile(HttpRoute *route, cchar *path)
     if ((config = mprParseJsonEx(data, 0, 0, 0, &errorMsg)) == 0) {
         mprLog("error http config", 0, "Cannot parse %s: error %s", path, errorMsg);
         return MPR_ERR_CANT_READ;
+    }
+    if ((obj = mprGetJsonObj(config, "include")) != 0) {
+        parseInclude(route, config, obj);
     }
 #if DEPRECATE || 1
 {
@@ -3777,7 +3817,8 @@ PUBLIC int httpFinalizeConfig(HttpRoute *route)
 {
     HttpHost    *host;
     HttpRoute   *rp;
-    MprJson     *obj, *mappings, *routes;
+    MprJson     *apps, *obj, *mappings, *routes;
+    cchar       *home;
     int         nextHost, nextRoute;
 
     if (route->error) {
@@ -3790,13 +3831,17 @@ PUBLIC int httpFinalizeConfig(HttpRoute *route)
         parseRoutes(route, "http.routes", routes);
     }
 
+    if ((apps = mprGetJsonObj(route->config, "http.apps")) != 0) {
+        parseRoutes(route, "http.apps", apps);
+    }
+
     /*
         Create a subset, optimized configuration to send to the client
      */
     if ((obj = mprGetJsonObj(route->config, "http.client.mappings")) == 0) {
 #if DEPRECATED || 1
         if ((obj = mprGetJsonObj(route->config, "http.mappings")) != 0) {
-            mprLog("warn http", 0, "Using deprecated http.mappings. use http.client.mappings instead");
+            mprLog("warn http", 0, "Using deprecated http.mappings. use http.client.mappings instead.");
         }
 #endif
     }
@@ -3825,6 +3870,29 @@ PUBLIC int httpFinalizeConfig(HttpRoute *route)
             }
         }
     }
+#if ME_UNIX_LIKE
+    if ((home = mprGetJson(route->config, "http.server.chroot")) != 0) {
+        home = httpMakePath(route, 0, home);
+        if (chdir(home) < 0) {
+            httpParseError(route, "Cannot change working directory to %s", home);
+            return MPR_ERR_BAD_STATE;
+        }
+        if (route->flags & HTTP_ROUTE_UTILITY) {
+            /* Not running a web server but rather a utility like the "esp" generator program */
+            mprLog("info http config", 2, "Change directory to: \"%s\"", home);
+        } else {
+            if (chroot(home) < 0) {
+                if (errno == EPERM) {
+                    httpParseError(route, "Must be super user to use chroot\n");
+                } else {
+                    httpParseError(route, "Cannot change change root directory to %s, errno %d\n", home, errno);
+                }
+            } else {
+                mprLog("info http config", 2, "Chroot to: \"%s\"", home);
+            }
+        }
+    }
+#endif
     if (route->error) {
         route->config = 0;
         return MPR_ERR_BAD_STATE;
@@ -3885,10 +3953,12 @@ PUBLIC void httpParseAll(HttpRoute *route, cchar *key, MprJson *prop)
 }
 
 
+#if DEPRECATED || 1
 static void parseApp(HttpRoute *route, cchar *key, MprJson *prop)
 {
     httpParseAll(route, 0, prop);
 }
+#endif
 
 
 static void parseDirectories(HttpRoute *route, cchar *key, MprJson *prop)
@@ -3903,6 +3973,40 @@ static void parseDirectories(HttpRoute *route, cchar *key, MprJson *prop)
             httpSetRouteHome(route, child->value);
         }
         httpSetDir(route, child->name, child->value);
+    }
+}
+
+
+static void parseAliases(HttpRoute *route, cchar *key, MprJson *prop)
+{
+    MprJson     *child;
+    HttpRoute   *alias;
+    MprPath     info;
+    cchar       *path, *prefix;
+    int         ji;
+
+    for (ITERATE_CONFIG(route, prop, child, ji)) {
+        prefix = child->name;
+        path = child->value;
+        if (!path || !prefix) {
+            httpParseError(route, "Alias is missing path or prefix properties");
+            break;
+        }
+        mprGetPathInfo(path, &info);
+        if (info.isDir) {
+            alias = httpCreateAliasRoute(route, prefix, path, 0);
+            if (sends(prefix, "/")) {
+                httpSetRoutePattern(alias, sfmt("^%s(.*)$", prefix), 0);
+            } else {
+                /* Add a non-capturing optional trailing "/" */
+                httpSetRoutePattern(alias, sfmt("^%s(?:/)*(.*)$", prefix), 0);
+            }
+            httpSetRouteTarget(alias, "run", "$1");
+        } else {
+            alias = httpCreateAliasRoute(route, sjoin("^", prefix, NULL), 0, 0);
+            httpSetRouteTarget(alias, "run", path);
+        }
+        httpFinalizeRoute(alias);
     }
 }
 
@@ -4115,6 +4219,18 @@ static void parseCache(HttpRoute *route, cchar *key, MprJson *prop)
 }
 
 
+static void parseCgiEscape(HttpRoute *route, cchar *key, MprJson *prop)
+{
+    httpSetRouteEnvEscape(route, prop->type & MPR_JSON_TRUE);
+}
+
+
+static void parseCgiPrefix(HttpRoute *route, cchar *key, MprJson *prop)
+{
+    httpSetRouteEnvPrefix(route, prop->value);
+}
+
+
 static void parseCompress(HttpRoute *route, cchar *key, MprJson *prop)
 {
     if (smatch(prop->value, "true")) {
@@ -4173,7 +4289,7 @@ static void parseFormatsResponse(HttpRoute *route, cchar *key, MprJson *prop)
 static void parseHandler(HttpRoute *route, cchar *key, MprJson *prop)
 {
     if (httpSetRouteHandler(route, prop->value) < 0) {
-        httpParseError(route, "Cannot add handler %s", prop->value);
+        httpParseError(route, "Cannot add handler \"%s\"", prop->value);
     }
 }
 
@@ -4319,6 +4435,30 @@ static void parseLimitsFiles(HttpRoute *route, cchar *key, MprJson *prop)
     mprSetFilesLimit(getint(prop->value));
 }
 
+
+static void parseLimitsDepletion(HttpRoute *route, cchar *key, MprJson *prop)
+{
+    cchar   *policy;
+    int     flags;
+
+    flags = MPR_ALLOC_POLICY_EXIT;
+    policy = prop->value;
+
+    if (scmp(policy, "restart") == 0) {
+#if VXWORKS
+        flags = MPR_ALLOC_POLICY_RESTART;
+#else
+        /* Appman will restart */
+        flags = MPR_ALLOC_POLICY_EXIT;
+#endif
+    } else if (scmp(policy, "continue") == 0) {
+        flags = MPR_ALLOC_POLICY_PRUNE;
+    } else {
+        httpParseError(route, "Unknown limit depletion policy '%s'", policy);
+        return;
+    }
+    mprSetMemPolicy(flags);
+}
 
 static void parseLimitsKeepAlive(HttpRoute *route, cchar *key, MprJson *prop)
 {
@@ -4485,8 +4625,7 @@ static void parsePipelineFilters(HttpRoute *route, cchar *key, MprJson *prop)
 #endif
         }
         if (httpAddRouteFilter(route, name, extensions, flags) < 0) {
-            httpParseError(route, "Cannot add filter %s", name);
-            break;
+            httpParseWarn(route, "Cannot add filter %s", name);
         }
     }
 }
@@ -4507,14 +4646,13 @@ static void parsePipelineHandlers(HttpRoute *route, cchar *key, MprJson *prop)
 
     if (prop->type & MPR_JSON_STRING) {
         if (httpAddRouteHandler(route, prop->value, "") < 0) {
-            httpParseError(route, "Cannot add handler %s", prop->value);
+            httpParseWarn(route, "Handler \"%s\" is not available", prop->name);
         }
 
     } else {
         for (ITERATE_CONFIG(route, prop, child, ji)) {
             if (httpAddRouteHandler(route, child->name, getList(child)) < 0) {
-                httpParseError(route, "Cannot add handler %s", child->name);
-                break;
+                httpParseWarn(route, "Handler \"%s\" is not available", child->name);
             }
         }
     }
@@ -4698,21 +4836,13 @@ static void parseScheme(HttpRoute *route, cchar *key, MprJson *prop)
 }
 
 
-/*
-    The server collection is only parsed for utilities and not if hosted
- */
-static void parseServer(HttpRoute *route, cchar *key, MprJson *prop)
-{
-    if (route->http->flags & HTTP_UTILITY) {
-        httpParseAll(route, key, prop);
-    }
-}
-
-
 static void parseServerAccount(HttpRoute *route, cchar *key, MprJson *prop)
 {
     cchar       *value;
 
+    if (route->flags & HTTP_ROUTE_HOSTED) {
+        return;
+    }
     if ((value = mprReadJson(prop, "user")) != 0) {
         if (!smatch(value, "_unchanged_") && !mprGetDebugMode()) {
             httpSetGroupAccount(value);
@@ -4723,39 +4853,6 @@ static void parseServerAccount(HttpRoute *route, cchar *key, MprJson *prop)
             httpSetUserAccount(value);
         }
     }
-}
-
-
-static void parseServerChroot(HttpRoute *route, cchar *key, MprJson *prop)
-{
-#if ME_UNIX_LIKE
-    char        *home;
-
-    if (!prop->value && !*prop->value) {
-        return;
-    }
-    home = httpMakePath(route, 0, prop->value);
-    if (chdir(home) < 0) {
-        httpParseError(route, "Cannot change working directory to %s", home);
-        return;
-    }
-    if (route->http->flags & HTTP_UTILITY) {
-        /* Not running a web server but rather a utility like the "esp" generator program */
-        mprLog("info http config", 2, "Change directory to: \"%s\"", home);
-    } else {
-        if (chroot(home) < 0) {
-            if (errno == EPERM) {
-                httpParseError(route, "Must be super user to use chroot\n");
-            } else {
-                httpParseError(route, "Cannot change change root directory to %s, errno %d\n", home, errno);
-            }
-            return;
-        }
-        mprLog("info http config", 2, "Chroot to: \"%s\"", home);
-    }
-#else
-    mprLog("info http config", 2, "Chroot directive not supported on this operating system\n");
-#endif
 }
 
 
@@ -4778,6 +4875,9 @@ static void parseServerListen(HttpRoute *route, cchar *key, MprJson *prop)
     char            *ip;
     int             ji, port, secure;
 
+    if (route->flags & HTTP_ROUTE_HOSTED) {
+        return;
+    }
     host = route->host;
     for (ITERATE_CONFIG(route, prop, child, ji)) {
         mprParseSocketAddress(child->value, &ip, &port, &secure, 80);
@@ -4831,6 +4931,9 @@ static void parseServerLog(HttpRoute *route, cchar *key, MprJson *prop)
     ssize       size;
     int         level, anew, backup;
 
+    if (route->flags & HTTP_ROUTE_HOSTED) {
+        return;
+    }
     if (mprGetCmdlineLogging()) {
         mprLog("warn http config", 4, "Already logging. Ignoring log configuration");
         return;
@@ -4865,6 +4968,43 @@ static void parseServerLog(HttpRoute *route, cchar *key, MprJson *prop)
     }
 }
 
+
+static void parseServerModules(HttpRoute *route, cchar *key, MprJson *prop)
+{
+    MprModule   *module;
+    MprJson     *child;
+    cchar       *entry, *name, *path;
+    int         ji;
+
+    for (ITERATE_CONFIG(route, prop, child, ji)) {
+        name = mprGetJson(child, "name");
+        path = mprGetJson(child, "path");
+        if (!name) {
+            name = path;
+        }
+        if (!path) {
+            path = sjoin("libmod_", name, ME_SHOBJ, NULL);
+        }
+        if ((module = mprLookupModule(name)) != 0) {
+#if ME_STATIC
+            mprLog("info http config", 2, "Activating module (Builtin) %s", name);
+#endif
+            continue;
+        }
+        entry = sfmt("http%sInit", stitle(name));
+        module = mprCreateModule(name, path, entry, HTTP);
+
+        if (mprLoadModule(module) < 0) {
+#if DEPRECATED || 1
+            module->entry = sfmt("ma%sInit", stitle(name));
+            if (mprLoadModule(module) < 0) {
+                httpParseError(route, "Cannot load module: %s", path);
+            }
+#endif
+            break;
+        }
+    }
+}
 
 static void parseServerMonitors(HttpRoute *route, cchar *key, MprJson *prop)
 {
@@ -4914,6 +5054,9 @@ static void parseSsl(HttpRoute *route, cchar *key, MprJson *prop)
 {
     HttpRoute   *parent;
 
+    if (route->flags & HTTP_ROUTE_HOSTED) {
+        return;
+    }
     parent = route->parent;
     if (route->ssl == 0) {
         if (parent && parent->ssl) {
@@ -5176,17 +5319,6 @@ static void parseXsrf(HttpRoute *route, cchar *key, MprJson *prop)
 }
 
 
-static void parseInclude(HttpRoute *route, cchar *key, MprJson *prop)
-{
-    MprJson     *child;
-    int         ji;
-
-    for (ITERATE_CONFIG(route, prop, child, ji)) {
-        parseFile(route, child->value);
-    }
-}
-
-
 PUBLIC int httpInitParser()
 {
     HTTP->parsers = mprCreateHash(0, MPR_HASH_STATIC_VALUES);
@@ -5194,8 +5326,11 @@ PUBLIC int httpInitParser()
     /*
         Parse callbacks keys are specified as they are defined in the json files
      */
+#if DEPRECATED || 1
     httpAddConfig("app", parseApp);
+#endif
     httpAddConfig("http", parseHttp);
+    httpAddConfig("http.aliases", parseAliases);
     httpAddConfig("http.auth", parseAuth);
     httpAddConfig("http.auth.auto", httpParseAll);
     httpAddConfig("http.auth.auto.name", parseAuthAutoName);
@@ -5212,6 +5347,9 @@ PUBLIC int httpInitParser()
     httpAddConfig("http.auth.type", parseAuthType);
     httpAddConfig("http.auth.users", parseAuthUsers);
     httpAddConfig("http.cache", parseCache);
+    httpAddConfig("http.cgi", httpParseAll);
+    httpAddConfig("http.cgi.escape", parseCgiEscape);
+    httpAddConfig("http.cgi.prefix", parseCgiPrefix);
 #if KEEP
     httpAddConfig("http.content", httpParseAll);
     httpAddConfig("http.content.combine", parseContentCombine);
@@ -5246,6 +5384,7 @@ PUBLIC int httpInitParser()
     httpAddConfig("http.limits.chunk", parseLimitsChunk);
     httpAddConfig("http.limits.clients", parseLimitsClients);
     httpAddConfig("http.limits.connections", parseLimitsConnections);
+    httpAddConfig("http.limits.depletion", parseLimitsDepletion);
     httpAddConfig("http.limits.keepAlive", parseLimitsKeepAlive);
     httpAddConfig("http.limits.files", parseLimitsFiles);
     httpAddConfig("http.limits.memory", parseLimitsMemory);
@@ -5275,12 +5414,12 @@ PUBLIC int httpInitParser()
     httpAddConfig("http.resources", parseResources);
     httpAddConfig("http.scheme", parseScheme);
 
-    httpAddConfig("http.server", parseServer);
+    httpAddConfig("http.server", httpParseAll);
     httpAddConfig("http.server.account", parseServerAccount);
-    httpAddConfig("http.server.chroot", parseServerChroot);
     httpAddConfig("http.server.defenses", parseServerDefenses);
     httpAddConfig("http.server.listen", parseServerListen);
     httpAddConfig("http.server.log", parseServerLog);
+    httpAddConfig("http.server.modules", parseServerModules);
     httpAddConfig("http.server.monitors", parseServerMonitors);
     httpAddConfig("http.server.ssl", parseSsl);
     httpAddConfig("http.server.ssl.authority", httpParseAll);
@@ -5312,7 +5451,6 @@ PUBLIC int httpInitParser()
     httpAddConfig("http.update", parseUpdate);
     httpAddConfig("http.xsrf", parseXsrf);
     httpAddConfig("directories", parseDirectories);
-    httpAddConfig("include", parseInclude);
 
     return 0;
 }
@@ -5320,7 +5458,7 @@ PUBLIC int httpInitParser()
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a
@@ -6296,7 +6434,7 @@ PUBLIC void httpSetConnReqData(HttpConn *conn, void *data)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a
@@ -6716,7 +6854,7 @@ static char *calcDigest(HttpConn *conn, HttpDigest *dp, cchar *username)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a
@@ -7368,7 +7506,7 @@ PUBLIC int httpOpenDirHandler()
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 
@@ -7815,7 +7953,7 @@ PUBLIC void httpSetInfoLevel(int level)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 
@@ -8049,7 +8187,7 @@ PUBLIC void httpMemoryError(HttpConn *conn)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 
@@ -8587,7 +8725,7 @@ PUBLIC int httpOpenFileHandler()
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 
@@ -9008,7 +9146,7 @@ PUBLIC void httpSetStreaming(HttpHost *host, cchar *mime, cchar *uri, bool enabl
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 
@@ -9716,7 +9854,7 @@ PUBLIC int httpAddRemedies()
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 
@@ -10049,7 +10187,7 @@ static void adjustNetVec(HttpQueue *q, ssize written)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a
@@ -10571,7 +10709,7 @@ bool httpIsLastPacket(HttpPacket *packet)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 
@@ -10732,7 +10870,7 @@ static int pamChat(int msgCount, const struct pam_message **msg, struct pam_resp
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 
@@ -10856,7 +10994,7 @@ PUBLIC int httpOpenPassHandler()
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 
@@ -11316,7 +11454,7 @@ static bool matchFilter(HttpConn *conn, HttpStage *filter, HttpRoute *route, int
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 
@@ -11824,7 +11962,7 @@ PUBLIC bool httpVerifyQueue(HttpQueue *q)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 
@@ -12149,7 +12287,7 @@ static bool fixRangeLength(HttpConn *conn)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 
@@ -12246,6 +12384,12 @@ PUBLIC HttpRoute *httpCreateRoute(HttpHost *host)
 #if ME_DEBUG
     route->flags |= HTTP_ROUTE_SHOW_ERRORS;
     route->keepSource = 1;
+#endif
+
+#if FUTURE
+    /* Enable in version 6 */
+    route->flags |= HTTP_ROUTE_ENV_ESCAPE;
+    route->envPrefix = sclone("CGI_");
 #endif
     route->update = 1;
     route->host = host;
@@ -13029,7 +13173,6 @@ PUBLIC int httpAddRouteHandler(HttpRoute *route, cchar *name, cchar *extensions)
     assert(route);
 
     if ((handler = httpLookupStage(name)) == 0) {
-        mprLog("error http route", 0, "Cannot find stage %s", name);
         return MPR_ERR_CANT_FIND;
     }
     if (route->handler) {
@@ -15391,8 +15534,6 @@ PUBLIC void httpSetDir(HttpRoute *route, cchar *name, cchar *value)
     } else if (smatch(name, "DOCUMENTS")) {
         httpSetRouteVar(route, name, rpath);
         route->documents = path;
-    } else if (smatch(name, "UPLOAD")) {
-        httpSetRouteVar(route, name, rpath);
     }
 }
 
@@ -15585,7 +15726,7 @@ PUBLIC MprTicks httpGetTicks(cchar *value)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 
@@ -17545,7 +17686,7 @@ static int sendContinue(HttpConn *conn)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a
@@ -17899,7 +18040,7 @@ PUBLIC void httpSendOutgoingService(HttpQueue *q) {}
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a
@@ -18322,7 +18463,7 @@ PUBLIC bool httpCheckSecurityToken(HttpConn *conn)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 
@@ -18496,7 +18637,7 @@ PUBLIC HttpStage *httpCreateConnector(cchar *name, MprModule *module)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 
@@ -19213,7 +19354,7 @@ PUBLIC void httpCommonTraceFormatter(HttpTrace *trace, HttpConn *conn, cchar *ty
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a
@@ -20254,7 +20395,7 @@ PUBLIC ssize httpWrite(HttpQueue *q, cchar *fmt, ...)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a
@@ -20910,7 +21051,7 @@ static char *getBoundary(char *buf, ssize bufLen, char *boundary, ssize boundary
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a
@@ -21881,7 +22022,7 @@ static char *actionRoute(HttpRoute *route, cchar *controller, cchar *action)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 
@@ -22123,7 +22264,7 @@ PUBLIC void httpSetConnUser(HttpConn *conn, HttpUser *user)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a
@@ -22497,7 +22638,7 @@ PUBLIC void httpRemoveAllUploadedFiles(HttpConn *conn)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 
@@ -23738,7 +23879,7 @@ static void traceErrorProc(HttpConn *conn, cchar *fmt, ...)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
+    Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a
