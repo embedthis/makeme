@@ -130,7 +130,7 @@ License and Copyright Information
 
 This software is supplied under license. Both a GNU and commercial license are available. Please read LICENSE.TXT for details. This documentation and the software described in this document may be used and copied only in accordance with the terms of the accompanying license agreement. Product and technical information in this document is subject to change without notice and does not represent a commitment on the part of Embedthis Software LLC.
 
-Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
+Copyright (c) Embedthis Software. All Rights Reserved.
 
 Embedthis is a trademark of Embedthis Software LLC. Embedthis and Embedthis MakeMe are trademarks of Embedthis Software. All other brand or product names are the trademarks or registered trademarks of their respective holders.
 

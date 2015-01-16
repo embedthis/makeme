@@ -4,10 +4,8 @@
     "title": "Embedthis Development",
     "version": "0.8.6",
     "keywords": [
-        "me",
+        "me"
     ],
-    "dependencies": {
-    },
     "author": {
         "name": "Embedthis Software",
         "email": "dev@embedthis.com",

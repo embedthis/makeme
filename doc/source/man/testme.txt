@@ -219,8 +219,8 @@ REPORTING BUGS
        Report bugs to dev@embedthis.com.
 
 COPYRIGHT
-       Copyright (C) 2004-2014 Embedthis Software. TestMe and Ejscript  are  a
-       trademarks of Embedthis Software.
+       Copyright (C) Embedthis Software. TestMe and Ejscript are a  trademarks
+       of Embedthis Software.
 
 SEE ALSO
        me pak

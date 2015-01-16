@@ -3,6 +3,6 @@
     "description": "Version parsing for SemVer versions",
     "version": "0.8.3",
     "keywords": [
-        "ejs",
-    ],
+        "ejs"
+    ]
 }
