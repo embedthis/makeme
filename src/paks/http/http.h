@@ -5076,6 +5076,7 @@ PUBLIC cchar *httpExpandRouteVars(HttpRoute *route, cchar *str);
  */
 PUBLIC void httpFinalizeRoute(HttpRoute *route);
 
+#if UNUSED
 /**
     Finalize loading JSON configuration files
     @description This performs final processing of configuration files. It blends in the app.modes[] properties,
@@ -5086,6 +5087,7 @@ PUBLIC void httpFinalizeRoute(HttpRoute *route);
     @stability Prototype
  */
 PUBLIC int httpFinalizeConfig(HttpRoute *route);
+#endif
 
 /**
     Get a route directory variable
