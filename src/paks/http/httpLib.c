@@ -3857,8 +3857,8 @@ PUBLIC int httpFinalizeConfig(HttpRoute *route)
             httpParseError(route, "Cannot change working directory to %s", home);
             return MPR_ERR_BAD_STATE;
         }
-        if (route->flags & HTTP_ROUTE_UTILITY) {
-            /* Not running a web server but rather a utility like the "esp" generator program */
+        if (route->flags & HTTP_ROUTE_NO_LISTEN) {
+            /* Not running a web server */
             mprLog("info http config", 2, "Change directory to: \"%s\"", home);
         } else {
             if (chroot(home) < 0) {
@@ -4550,7 +4550,7 @@ static void parseLimitsWorkers(HttpRoute *route, cchar *key, MprJson *prop)
 
 static void parseMethods(HttpRoute *route, cchar *key, MprJson *prop)
 {
-    httpSetRouteMethods(route, getList(prop));
+    httpSetRouteMethods(route, supper(getList(prop)));
 }
 
 
@@ -4763,11 +4763,37 @@ static void parseHttp(HttpRoute *route, cchar *key, MprJson *prop)
 }
 
 
+static void parseRoute(HttpRoute *route, cchar *key, MprJson *prop)
+{
+    HttpRoute   *newRoute;
+    cchar       *pattern;
+
+    if (prop->type & MPR_JSON_STRING) {
+        httpAddRouteSet(route, prop->value);
+
+    } else if (prop->type & MPR_JSON_OBJ) {
+        newRoute = 0;
+        pattern = mprReadJson(prop, "pattern");
+        if (pattern) {
+            newRoute = httpLookupRoute(route->host, pattern);
+            if (!newRoute) {
+                newRoute = httpCreateInheritedRoute(route);
+                httpSetRouteHost(newRoute, route->host);
+            }
+        } else {
+            newRoute = route;
+        }
+        httpParseAll(newRoute, key, prop);
+        if (pattern) {
+            httpFinalizeRoute(newRoute);
+        }
+    }
+}
+
+
 static void parseRoutes(HttpRoute *route, cchar *key, MprJson *prop)
 {
     MprJson     *child;
-    HttpRoute   *newRoute;
-    cchar       *pattern;
     int         ji;
 
     if (route->loaded) {
@@ -4777,32 +4803,14 @@ static void parseRoutes(HttpRoute *route, cchar *key, MprJson *prop)
     if (prop->type & MPR_JSON_STRING) {
         httpAddRouteSet(route, prop->value);
 
+    } else if (prop->type & MPR_JSON_OBJ) {
+        key = sreplace(key, ".routes", "");
+        parseRoute(route, key, prop);
+
     } else if (prop->type & MPR_JSON_ARRAY) {
         key = sreplace(key, ".routes", "");
         for (ITERATE_CONFIG(route, prop, child, ji)) {
-            if (child->type & MPR_JSON_STRING) {
-                httpAddRouteSet(route, child->value);
-
-            } else if (child->type & MPR_JSON_OBJ) {
-                newRoute = 0;
-                pattern = mprReadJson(child, "pattern");
-                if (pattern) {
-                    newRoute = httpLookupRoute(route->host, pattern);
-                    if (!newRoute) {
-                        newRoute = httpCreateInheritedRoute(route);
-                        httpSetRouteHost(newRoute, route->host);
-                    }
-                } else {
-                    newRoute = route;
-                }
-                httpParseAll(newRoute, key, child);
-                if (newRoute->error) {
-                    break;
-                }
-                if (pattern) {
-                    httpFinalizeRoute(newRoute);
-                }
-            }
+            parseRoute(route, key, child);
         }
     }
 }
@@ -11265,6 +11273,7 @@ PUBLIC void httpSetFileHandler(HttpConn *conn, cchar *path)
     fp->open(conn->writeq);
     fp->start(conn->writeq);
     conn->writeq->service = fp->outgoingService;
+    conn->readq->put = fp->incoming;
 }
 
 
@@ -15498,8 +15507,12 @@ PUBLIC void httpSetDir(HttpRoute *route, cchar *name, cchar *value)
     }
     path = httpMakePath(route, 0, value);
     path = mprJoinPath(route->home, path);
-    rpath = mprGetRelPath(path, 0);
     name = supper(name);
+
+    /*
+        Define the variable as a relative path to the route home
+     */
+    rpath = mprGetRelPath(path, route->home);
     httpSetRouteVar(route, sjoin(name, "_DIR", NULL), rpath);
 
     /*

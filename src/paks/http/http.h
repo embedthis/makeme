@@ -4418,7 +4418,7 @@ PUBLIC void httpSetStreaming(struct HttpHost *host, cchar *mime, cchar *uri, boo
 #define HTTP_ROUTE_REDIRECT             0x4000      /**< Redirect secureCondition */
 #define HTTP_ROUTE_STRICT_TLS           0x8000      /**< Emit Strict-Transport-Security header */
 #define HTTP_ROUTE_HOSTED               0x10000     /**< Route being hosted (appweb) */
-#define HTTP_ROUTE_UTILITY              0x20000     /**< Not listening on endpoints */
+#define HTTP_ROUTE_NO_LISTEN            0x20000     /**< Not listening on endpoints */
 
 #if DEPRECATE || 1
 #define HTTP_ROUTE_SET_DEFINED          0x10000     /**< Route set defined */
@@ -4833,7 +4833,7 @@ PUBLIC void httpAddRouteMapping(HttpRoute *route, cchar *extensions, cchar *mapp
     @description This defines additional HTTP methods for requests to match this route
     @param route Route to modify
     @param methods Set to a comma or space separated list of methods. Can also set to "All" or "*" for all possible
-        methods.  Typical methods include: "DELETE, GET, OPTIONS, POST, PUT, TRACE".
+        methods. Typical methods include: "DELETE, GET, OPTIONS, POST, PUT, TRACE". Must be upper case.
     @ingroup HttpRoute
     @stability Evolving
  */
