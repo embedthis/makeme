@@ -363,6 +363,7 @@ public class Loader {
         target.headers   = castArrayOfPaths(target.headers)
         target.files     = castArrayOfPaths(target.files)
         target.resources = castArrayOfPaths(target.resources)
+        target.sources   = castArrayOfPaths(target.sources)
         target.mkdir     = castArrayOfPaths(target.mkdir)
 
         target.ifdef = castArray(target.ifdef)

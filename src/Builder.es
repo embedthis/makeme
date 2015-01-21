@@ -1104,6 +1104,7 @@ public class Builder {
         if (selectedTargets.length == 0) {
             if (goal != 'all') {
                 trace('Info', 'No enabled targets for goal "' + goal + '"')
+                App.exit(1)
             }
         }
         return selectedTargets
