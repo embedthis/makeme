@@ -1,20 +1,12 @@
 {
-    "name": "doc",
+    "name": "makemedoc",
+    "title": "Embedthis MakeMe Documentation",
+    "description": "Embedthis MakeMe -- Fast, modern replacement for make and autoconf.",
     "dependencies": {
+        "exp-css": "~0.2",
+        "exp-js": "~0.2",
+        "exp-less": "~0.2",
         "jquery": "~1.11",
         "semantic": "~0.50"
-    },
-    "directories": {
-        "lib": "files/lib"
-    },
-    "import": true,
-    "optionalDependencies": {
-    },
-    "app": {
-        "client": {
-            "scripts": [
-                "files/lib/jquery/jquery.js"
-            ]
-        }
     }
 }
