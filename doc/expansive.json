@@ -1,0 +1,8 @@
+{
+    meta: {
+        url: 'https://embedthis.com/esp/doc/',
+    },
+    control: {
+        copy:    [ 'images' ],
+    }
+}
