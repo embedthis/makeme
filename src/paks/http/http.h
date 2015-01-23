@@ -4479,7 +4479,9 @@ typedef struct HttpRoute {
 
     bool            error: 1;               /**< Parse or runtime error */
     bool            keepSource: 1;          /**< Preserve generated source */
+#if UNUSED
     bool            loaded: 1;              /**< App has been loaded */
+#endif
     bool            update: 1;              /**< Auto-update modified ESP source */
     bool            debug: 1;               /**< Application running in debug mode */
     bool            ignoreEncodingErrors: 1;/**< Ignore UTF8 encoding errors */
