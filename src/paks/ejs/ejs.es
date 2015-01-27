@@ -209,7 +209,8 @@ module ejs {
                 A application is idle when it has no running commands, sockets, Http requests or worker threads.
                 An option of "safe" will try to exit, but if after the timeout expires the application is still not idle, 
                 the exit will be cancelled and this routine will return false. 
-            @param timeout Time period in milliseconds to wait for the application to become idle before exiting. Defaults to zero.
+            @param timeout Time period in milliseconds to wait for the application to become idle before exiting. 
+                Defaults to zero.
          */
         native static function exit(status: Number = 0, how: String = "normal", timeout: Number = 0): Boolean
 
