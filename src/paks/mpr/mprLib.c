@@ -5462,17 +5462,19 @@ static int makeChannel(MprCmd *cmd, int index);
 static int makeCmdIO(MprCmd *cmd);
 static void manageCmdService(MprCmdService *cmd, int flags);
 static void manageCmd(MprCmd *cmd, int flags);
+static void prepWinCommand(MprCmd *cmd);
+static void prepWinProgram(MprCmd *cmd);
 static void reapCmd(MprCmd *cmd, bool finalizing);
 static void resetCmd(MprCmd *cmd, bool finalizing);
-static int sanitizeArgs(MprCmd *cmd, int argc, cchar **argv, cchar **env, int flags);
 static int startProcess(MprCmd *cmd);
 static void stdinCallback(MprCmd *cmd, MprEvent *event);
 static void stdoutCallback(MprCmd *cmd, MprEvent *event);
 static void stderrCallback(MprCmd *cmd, MprEvent *event);
+
 #if ME_WIN_LIKE
+static cchar *makeWinEnvBlock(MprCmd *cmd);
 static void pollWinCmd(MprCmd *cmd, MprTicks timeout);
 static void pollWinTimer(MprCmd *cmd, MprEvent *event);
-static cchar *makeWinEnvBlock(MprCmd *cmd);
 #endif
 
 #if VXWORKS
@@ -5537,6 +5539,7 @@ PUBLIC MprCmd *mprCreateCmd(MprDispatcher *dispatcher)
     cmd->forkCallback = (MprForkCallback) closeFiles;
     cmd->dispatcher = dispatcher ? dispatcher : MPR->dispatcher;
     cmd->status = -1;
+    cmd->searchPath = MPR->pathEnv;
 
 #if VXWORKS
     cmd->startCond = semCCreate(SEM_Q_PRIORITY, SEM_EMPTY);
@@ -5586,8 +5589,11 @@ static void manageCmd(MprCmd *cmd, int flags)
         mprMark(cmd->searchPath);
 #if ME_WIN_LIKE
         mprMark(cmd->command);
-        mprMark(cmd->arg0);
 #endif
+        mprMark(cmd->argv);
+        for (i = 0; i < cmd->argc; i++) {
+            mprMark(cmd->argv[i]);
+        }
 
     } else if (flags & MPR_MANAGE_FREE) {
         resetCmd(cmd, 1);
@@ -5742,7 +5748,8 @@ PUBLIC int mprRun(MprDispatcher *dispatcher, cchar *command, cchar *input, char 
 /*
     Run a simple blocking command. See arg usage below in mprRunCmdV.
  */
-PUBLIC int mprRunCmd(MprCmd *cmd, cchar *command, cchar **envp, cchar *in, char **out, char **err, MprTicks timeout, int flags)
+PUBLIC int mprRunCmd(MprCmd *cmd, cchar *command, cchar **envp, cchar *in, char **out, char **err, MprTicks timeout, 
+    int flags)
 {
     cchar   **argv;
     int     argc;
@@ -5766,7 +5773,8 @@ PUBLIC int mprRunCmd(MprCmd *cmd, cchar *command, cchar **envp, cchar *in, char 
         MPR_CMD_SHOW            Show the commands window on Windows
         MPR_CMD_IN              Connect to stdin
  */
-PUBLIC int mprRunCmdV(MprCmd *cmd, int argc, cchar **argv, cchar **envp, cchar *in, char **out, char **err, MprTicks timeout, int flags)
+PUBLIC int mprRunCmdV(MprCmd *cmd, int argc, cchar **argv, cchar **envp, cchar *in, char **out, char **err, 
+    MprTicks timeout, int flags)
 {
     ssize   len;
     int     rc, status;
@@ -5892,7 +5900,7 @@ PUBLIC void mprSetCmdSearchPath(MprCmd *cmd, cchar *search)
 PUBLIC int mprStartCmd(MprCmd *cmd, int argc, cchar **argv, cchar **envp, int flags)
 {
     MprPath     info;
-    cchar       *program, *search, *pair;
+    cchar       *pair;
     int         rc, next, i;
 
     assert(cmd);
@@ -5902,31 +5910,36 @@ PUBLIC int mprStartCmd(MprCmd *cmd, int argc, cchar **argv, cchar **envp, int fl
         return MPR_ERR_BAD_ARGS;
     }
     resetCmd(cmd, 0);
-    program = argv[0];
-    cmd->program = sclone(program);
-    cmd->flags = flags;
 
-    if (sanitizeArgs(cmd, argc, argv, envp, flags) < 0) {
-        return MPR_ERR_MEMORY;
+    cmd->flags = flags;
+    cmd->argc = argc;
+    cmd->argv = mprAlloc((argc + 1) * sizeof(char*));
+    for (i = 0; i < argc; i++) {
+        cmd->argv[i] = sclone(argv[i]);
     }
+    cmd->argv[i] = 0;
+
+    prepWinProgram(cmd);
+
+    if ((cmd->program = mprSearchPath(cmd->argv[0], MPR_SEARCH_EXE, cmd->searchPath, NULL)) == 0) {
+        mprLog("error mpr cmd", 0, "Cannot access %s, errno %d", cmd->argv[0], mprGetOsError());
+        return MPR_ERR_CANT_ACCESS;
+    }
+    if (mprGetPathInfo(cmd->program, &info) == 0 && info.isDir) {
+        mprLog("error mpr cmd", 0, "Program \"%s\", is a directory", cmd->program);
+        return MPR_ERR_CANT_ACCESS;
+    }
+    mprLog("info mpr cmd", 5, "Program: %s", cmd->program);
+    cmd->argv[0] = cmd->program;
+
+    prepWinCommand(cmd);
+
     if (envp == 0) {
         envp = cmd->defaultEnv;
     }
     if (blendEnv(cmd, envp, flags) < 0) {
         return MPR_ERR_MEMORY;
     }
-    search = cmd->searchPath ? cmd->searchPath : MPR->pathEnv;
-    if ((program = mprSearchPath(program, MPR_SEARCH_EXE, search, NULL)) == 0) {
-        mprLog("error mpr cmd", 0, "Cannot access %s, errno %d", cmd->program, mprGetOsError());
-        return MPR_ERR_CANT_ACCESS;
-    }
-    cmd->program = cmd->argv[0] = program;
-
-    if (mprGetPathInfo(program, &info) == 0 && info.isDir) {
-        mprLog("error mpr cmd", 0, "Program \"%s\", is a directory", program);
-        return MPR_ERR_CANT_ACCESS;
-    }
-    mprLog("info mpr cmd", 5, "Program: %s", cmd->program);
     for (i = 0; i < cmd->argc; i++) {
         mprLog("info mpr cmd", 5, "    arg[%d]: %s", i, cmd->argv[i]);
     }
@@ -6585,15 +6598,95 @@ static cchar *makeWinEnvBlock(MprCmd *cmd)
 
 
 /*
-    Sanitize args. Convert "/" to "\" and converting '\r' and '\n' to spaces, quote all args and put the program as argv[0].
+    Determine the windows program to invoke.
+    Support UNIX style "#!/program" bang directives on windows.
+    Also supports ".cmd" and ".bat" alternatives.
  */
-static int sanitizeArgs(MprCmd *cmd, int argc, cchar **argv, cchar **env, int flags)
+static void prepWinProgram(MprCmd *cmd)
 {
-#if ME_UNIX_LIKE || VXWORKS
-    cmd->argv = argv;
-    cmd->argc = argc;
-#endif
+#if ME_WIN_LIKE
+    MprFile     *file;
+    cchar       *bat, *ext, *shell, *cp, *start;
+    char        bang[ME_MAX_FNAME + 1], *path, *pp;
+    int         i;
 
+    /*
+        Map separators, convert carriage-returns and newlines to spaces and remove quotes on the command
+     */
+    path = mprAlloc(slen(cmd->argv[0]) * 2 + 1);
+    strcpy(path, cmd->argv[0]);
+    for (pp = path; *pp; pp++) {
+        if (*pp == '/') {
+            *pp = '\\';
+        } else if (*pp == '\r' || *pp == '\n') {
+            *pp = ' ';
+        }
+    }
+    if (*path == '\"') {
+        if ((pp = strrchr(++path, '"')) != 0) {
+            *pp = '\0';
+        }
+        path = sclone(path);
+    }
+    cmd->argv[0] = path;
+
+    /*
+        Support ".cmd" and ".bat" files that take precedence
+     */
+    if ((ext = mprGetPathExt(path)) == 0) {
+        if ((bat = mprSearchPath(mprJoinPathExt(path, ".cmd"), MPR_SEARCH_EXE, cmd->searchPath, NULL)) == 0) {
+            bat = mprSearchPath(mprJoinPathExt(path, ".bat"), MPR_SEARCH_EXE, cmd->searchPath, NULL);
+        }
+        if (bat) {
+            if ((shell = getenv("COMSPEC")) == 0) {
+                shell = "cmd.exe";
+            }
+            cmd->argv = mprRealloc((void*) cmd->argv, (cmd->argc + 4) * sizeof(char*));
+            memmove((void*) &cmd->argv[3], (void*) cmd->argv, sizeof(char*) * (cmd->argc + 1));
+            cmd->argv[0] = sclone(shell);
+            cmd->argv[1] = sclone("/Q");
+            cmd->argv[2] = sclone("/C");
+            cmd->argv[3] = bat;
+            cmd->argc += 3;
+            cmd->argv[cmd->argc] = 0;
+            return;
+        }
+    }
+    if ((file = mprOpenFile(path, O_RDONLY, 0)) != 0) {
+        if (mprReadFile(file, bang, ME_MAX_FNAME) > 0) {
+            mprCloseFile(file);
+            bang[ME_MAX_FNAME] = '\0';
+            if (bang[0] == '#' && bang[1] == '!') {
+                cp = start = &bang[2];
+                shell = ssplit(&bang[2], "\r\n", NULL);
+                if (!mprIsPathAbs(shell)) {
+                    /*
+                        If we cannot access the command shell and the command is not an absolute path, 
+                        look in the same directory as the script.
+                     */
+                    if (mprPathExists(shell, X_OK)) {
+                        shell = mprJoinPath(mprGetPathDir(path), shell);
+                    }
+                }
+                cmd->argv = mprRealloc((void*) cmd->argv, (cmd->argc + 2) * sizeof(char*));
+                memmove((void*) &cmd->argv[1], (void*) cmd->argv, sizeof(char*) * cmd->argc);
+                cmd->argv[0] = sclone(shell);
+                cmd->argv[1] = path;
+                cmd->argc += 1;
+            }
+        } else {
+            mprCloseFile(file);
+        }
+    }
+#endif
+}
+
+
+/*
+    Create a single string command to invoke - windows doesn't support exec(argv)
+ */
+static void prepWinCommand(MprCmd *cmd)
+{
 #if ME_WIN_LIKE
     /*
         WARNING: If starting a program compiled with Cygwin, there is a bug in Cygwin's parsing of the command
@@ -6604,44 +6697,16 @@ static int sanitizeArgs(MprCmd *cmd, int argc, cchar **argv, cchar **env, int fl
             Cygwin will parse as  argv[1] == c:/path \a \b
             Windows will parse as argv[1] == c:/path "a b"
      */
-    cchar       *saveArg0, **ap, *start, *cp;
-    char        *pp, *program, *dp, *localArgv[2];
-    ssize       len;
-    int         quote;
+    cchar   **ap, *start, *cp;
+    char    *dp;
+    ssize   len;
+    int     argc, quote;
 
-    assert(argc > 0 && argv[0] != NULL);
-
-    cmd->argv = argv;
-    cmd->argc = argc;
-
-    program = cmd->arg0 = mprAlloc(slen(argv[0]) * 2 + 1);
-    strcpy(program, argv[0]);
-
-    for (pp = program; *pp; pp++) {
-        if (*pp == '/') {
-            *pp = '\\';
-        } else if (*pp == '\r' || *pp == '\n') {
-            *pp = ' ';
-        }
-    }
-    if (*program == '\"') {
-        if ((pp = strrchr(++program, '"')) != 0) {
-            *pp = '\0';
-        }
-    }
-    if (argv == 0) {
-        argv = localArgv;
-        argv[1] = 0;
-        saveArg0 = program;
-    } else {
-        saveArg0 = argv[0];
-    }
     /*
-        Set argv[0] to the program name while creating the command line. Restore later.
+        Create the command line
      */
-    argv[0] = program;
     argc = 0;
-    for (len = 0, ap = argv; *ap; ap++) {
+    for (len = 0, ap = cmd->argv; *ap; ap++) {
         len += (slen(*ap) * 2) + 1 + 2;         /* Space and possible quotes and worst case backquoting */
         argc++;
     }
@@ -6654,7 +6719,7 @@ static int sanitizeArgs(MprCmd *cmd, int argc, cchar **argv, cchar **env, int fl
         Becomes:    "showColors" "red" "light blue" "Cannot \"render\""
      */
     dp = cmd->command;
-    for (ap = &argv[0]; *ap; ) {
+    for (ap = &cmd->argv[0]; *ap; ) {
         start = cp = *ap;
         quote = '"';
         if (cp[0] != quote && (strchr(cp, ' ') != 0 || strchr(cp, quote) != 0)) {
@@ -6674,10 +6739,8 @@ static int sanitizeArgs(MprCmd *cmd, int argc, cchar **argv, cchar **env, int fl
         }
     }
     *dp = '\0';
-    argv[0] = saveArg0;
     mprLog("info mpr cmd", 5, "Windows command line: %s", cmd->command);
 #endif /* ME_WIN_LIKE */
-    return 0;
 }
 
 
