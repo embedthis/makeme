@@ -48,6 +48,8 @@ public class MakeMe {
     private var argTemplate = {
         options: {
             benchmark: { alias: 'b' },
+            /* Implemented in me.c */
+            chdir: { range: String },
             configure: { range: String },
             configuration: { },
             'continue': { alias: 'c' },
@@ -506,6 +508,7 @@ public class MakeMe {
         print('\nUsage: me [options] [targets|goals] ...\n' +
             '  Options:\n' +
             '  --benchmark                               # Measure elapsed time\n' +
+            '  --chdir directory                         # Change to directory first\n' +
             '  --configure /path/to/source/tree          # Configure product\n' +
             '  --configuration                           # Display current configuration\n' +
             '  --continue                                # Continue on errors\n' +
