@@ -100,7 +100,7 @@
   </PropertyGroup>
   
       <ItemGroup>
-    <ClCompile Include="..\..\src\paks\ejs\ejsc.c" />
+    <ClCompile Include="..\..\paks\ejs\dist\ejsc.c" />
   </ItemGroup>
 
       <ItemDefinitionGroup>

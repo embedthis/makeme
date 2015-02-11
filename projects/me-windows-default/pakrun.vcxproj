@@ -2,7 +2,7 @@
     <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
       <PropertyGroup Label="Globals">
-        <ProjectGuid>{021a2f07-f535-4f16-ac9b-5826aa765eb1}</ProjectGuid>
+        <ProjectGuid>{ed880c97-4985-44d3-8f95-7e85a8e95849}</ProjectGuid>
         <RootNamespace />
         <Keyword>Win32Proj</Keyword>
       </PropertyGroup>
@@ -72,19 +72,19 @@
         <_ProjectFileVersion>10</_ProjectFileVersion>
 
         <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(BinDir)\</OutDir>
-        <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ObjDir)\runtime\</IntDir>
+        <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ObjDir)\pakrun\</IntDir>
         <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PreBuildEvent</CustomBuildBeforeTargets>
 
         <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(BinDir)\</OutDir>
-        <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ObjDir)\runtime\</IntDir>
+        <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ObjDir)\pakrun\</IntDir>
         <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PreBuildEvent</CustomBuildBeforeTargets>
 
         <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(BinDir)\</OutDir>
-        <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ObjDir)\runtime\</IntDir>
+        <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ObjDir)\pakrun\</IntDir>
         <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PreBuildEvent</CustomBuildBeforeTargets>
 
         <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(BinDir)\</OutDir>
-        <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ObjDir)\runtime\</IntDir>
+        <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ObjDir)\pakrun\</IntDir>
         <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PreBuildEvent</CustomBuildBeforeTargets>
   </PropertyGroup>
 
@@ -95,16 +95,108 @@
       </Link>
 
       <CustomBuildStep>
-        <Command>cd ..\..\src
+        <Command>cd ..\..
 if exist $(BinDir) del /Q $(BinDir)
-copy /Y master-main.me $(BinDir)
+copy /Y paks\me-components\appweb.me $(BinDir)
 if exist $(BinDir) del /Q $(BinDir)
-copy /Y master-start.me $(BinDir)
+copy /Y paks\me-components\compiler.me $(BinDir)
 if exist $(BinDir) del /Q $(BinDir)
-copy /Y simple.me $(BinDir)
+copy /Y paks\me-components\components.me $(BinDir)
 if exist $(BinDir) del /Q $(BinDir)
-copy /Y standard.me $(BinDir)
-cd ..\projects\me-windows-default</Command>
+copy /Y paks\me-components\lib.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-components\LICENSE.md $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-components\link.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-components\package.json $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-components\rc.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-components\README.md $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-components\testme.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-components\vxworks.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-components\winsdk.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-configuration\Configuration.es $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-configuration\configuration.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-configuration\LICENSE.md $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-configuration\package.json $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-configuration\README.md $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-installs\Installs.es $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-installs\installs.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-installs\LICENSE.md $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-installs\manifest.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-installs\package.json $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-installs\README.md $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-os\freebsd.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-os\gcc.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-os\LICENSE.md $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-os\linux.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-os\macosx.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-os\os.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-os\package.json $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-os\README.md $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-os\solaris.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-os\unix.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-os\vxworks.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-os\windows.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-project\LICENSE.md $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-project\package.json $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-project\Project.es $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-project\project.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-project\README.md $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-vstudio\LICENSE.md $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-vstudio\package.json $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-vstudio\README.md $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-vstudio\Vstudio.es $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-vstudio\vstudio.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-xcode\LICENSE.md $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-xcode\package.json $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-xcode\README.md $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-xcode\Xcode.es $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-xcode\xcode.me $(BinDir)
+cd projects\me-windows-default</Command>
         <Outputs>$(BinDir)</Outputs>
       </CustomBuildStep>
   </ItemDefinitionGroup>

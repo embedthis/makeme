@@ -177,100 +177,100 @@ $(BUILD)/inc/me.h: $(DEPS_2)
 #
 #   osdep.h
 #
-DEPS_3 += src/paks/osdep/osdep.h
+DEPS_3 += paks/osdep/dist/osdep.h
 DEPS_3 += $(BUILD)/inc/me.h
 
 $(BUILD)/inc/osdep.h: $(DEPS_3)
 	@echo '      [Copy] $(BUILD)/inc/osdep.h'
 	mkdir -p "$(BUILD)/inc"
-	cp src/paks/osdep/osdep.h $(BUILD)/inc/osdep.h
+	cp paks/osdep/dist/osdep.h $(BUILD)/inc/osdep.h
 
 #
 #   mpr.h
 #
-DEPS_4 += src/paks/mpr/mpr.h
+DEPS_4 += paks/mpr/dist/mpr.h
 DEPS_4 += $(BUILD)/inc/me.h
 DEPS_4 += $(BUILD)/inc/osdep.h
 
 $(BUILD)/inc/mpr.h: $(DEPS_4)
 	@echo '      [Copy] $(BUILD)/inc/mpr.h'
 	mkdir -p "$(BUILD)/inc"
-	cp src/paks/mpr/mpr.h $(BUILD)/inc/mpr.h
+	cp paks/mpr/dist/mpr.h $(BUILD)/inc/mpr.h
 
 #
 #   http.h
 #
-DEPS_5 += src/paks/http/http.h
+DEPS_5 += paks/http/dist/http.h
 DEPS_5 += $(BUILD)/inc/mpr.h
 
 $(BUILD)/inc/http.h: $(DEPS_5)
 	@echo '      [Copy] $(BUILD)/inc/http.h'
 	mkdir -p "$(BUILD)/inc"
-	cp src/paks/http/http.h $(BUILD)/inc/http.h
+	cp paks/http/dist/http.h $(BUILD)/inc/http.h
 
 #
 #   ejs.slots.h
 #
 
-src/paks/ejs/ejs.slots.h: $(DEPS_6)
+paks/ejs/dist/ejs.slots.h: $(DEPS_6)
 
 #
 #   pcre.h
 #
-DEPS_7 += src/paks/pcre/pcre.h
+DEPS_7 += paks/pcre/dist/pcre.h
 
 $(BUILD)/inc/pcre.h: $(DEPS_7)
 	@echo '      [Copy] $(BUILD)/inc/pcre.h'
 	mkdir -p "$(BUILD)/inc"
-	cp src/paks/pcre/pcre.h $(BUILD)/inc/pcre.h
+	cp paks/pcre/dist/pcre.h $(BUILD)/inc/pcre.h
 
 #
 #   zlib.h
 #
-DEPS_8 += src/paks/zlib/zlib.h
+DEPS_8 += paks/zlib/dist/zlib.h
 DEPS_8 += $(BUILD)/inc/me.h
 
 $(BUILD)/inc/zlib.h: $(DEPS_8)
 	@echo '      [Copy] $(BUILD)/inc/zlib.h'
 	mkdir -p "$(BUILD)/inc"
-	cp src/paks/zlib/zlib.h $(BUILD)/inc/zlib.h
+	cp paks/zlib/dist/zlib.h $(BUILD)/inc/zlib.h
 
 #
 #   ejs.h
 #
-DEPS_9 += src/paks/ejs/ejs.h
+DEPS_9 += paks/ejs/dist/ejs.h
 DEPS_9 += $(BUILD)/inc/me.h
 DEPS_9 += $(BUILD)/inc/osdep.h
 DEPS_9 += $(BUILD)/inc/mpr.h
 DEPS_9 += $(BUILD)/inc/http.h
-DEPS_9 += src/paks/ejs/ejs.slots.h
+DEPS_9 += paks/ejs/dist/ejs.slots.h
 DEPS_9 += $(BUILD)/inc/pcre.h
 DEPS_9 += $(BUILD)/inc/zlib.h
 
 $(BUILD)/inc/ejs.h: $(DEPS_9)
 	@echo '      [Copy] $(BUILD)/inc/ejs.h'
 	mkdir -p "$(BUILD)/inc"
-	cp src/paks/ejs/ejs.h $(BUILD)/inc/ejs.h
+	cp paks/ejs/dist/ejs.h $(BUILD)/inc/ejs.h
 
 #
 #   ejs.slots.h
 #
-DEPS_10 += src/paks/ejs/ejs.slots.h
+DEPS_10 += paks/ejs/dist/ejs.slots.h
 
 $(BUILD)/inc/ejs.slots.h: $(DEPS_10)
 	@echo '      [Copy] $(BUILD)/inc/ejs.slots.h'
 	mkdir -p "$(BUILD)/inc"
-	cp src/paks/ejs/ejs.slots.h $(BUILD)/inc/ejs.slots.h
+	cp paks/ejs/dist/ejs.slots.h $(BUILD)/inc/ejs.slots.h
 
 #
 #   ejsByteGoto.h
 #
-DEPS_11 += src/paks/ejs/ejsByteGoto.h
+DEPS_11 += paks/ejs/dist/ejsByteGoto.h
 
 $(BUILD)/inc/ejsByteGoto.h: $(DEPS_11)
 	@echo '      [Copy] $(BUILD)/inc/ejsByteGoto.h'
 	mkdir -p "$(BUILD)/inc"
-	cp src/paks/ejs/ejsByteGoto.h $(BUILD)/inc/ejsByteGoto.h
+	cp paks/ejs/dist/ejsByteGoto.h $(BUILD)/inc/ejsByteGoto.h
 
 #
 #   testme.h
@@ -286,66 +286,66 @@ $(BUILD)/inc/testme.h: $(DEPS_12)
 #   ejs.h
 #
 
-src/paks/ejs/ejs.h: $(DEPS_13)
+paks/ejs/dist/ejs.h: $(DEPS_13)
 
 #
 #   ejs.o
 #
-DEPS_14 += src/paks/ejs/ejs.h
+DEPS_14 += paks/ejs/dist/ejs.h
 
 $(BUILD)/obj/ejs.o: \
-    src/paks/ejs/ejs.c $(DEPS_14)
+    paks/ejs/dist/ejs.c $(DEPS_14)
 	@echo '   [Compile] $(BUILD)/obj/ejs.o'
-	$(CC) -c -o $(BUILD)/obj/ejs.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/ejs/ejs.c
+	$(CC) -c -o $(BUILD)/obj/ejs.o $(CFLAGS) $(DFLAGS) $(IFLAGS) paks/ejs/dist/ejs.c
 
 #
 #   ejsLib.o
 #
-DEPS_15 += src/paks/ejs/ejs.h
+DEPS_15 += paks/ejs/dist/ejs.h
 DEPS_15 += $(BUILD)/inc/mpr.h
 DEPS_15 += $(BUILD)/inc/pcre.h
 DEPS_15 += $(BUILD)/inc/me.h
 
 $(BUILD)/obj/ejsLib.o: \
-    src/paks/ejs/ejsLib.c $(DEPS_15)
+    paks/ejs/dist/ejsLib.c $(DEPS_15)
 	@echo '   [Compile] $(BUILD)/obj/ejsLib.o'
-	$(CC) -c -o $(BUILD)/obj/ejsLib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/ejs/ejsLib.c
+	$(CC) -c -o $(BUILD)/obj/ejsLib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) paks/ejs/dist/ejsLib.c
 
 #
 #   ejsc.o
 #
-DEPS_16 += src/paks/ejs/ejs.h
+DEPS_16 += paks/ejs/dist/ejs.h
 
 $(BUILD)/obj/ejsc.o: \
-    src/paks/ejs/ejsc.c $(DEPS_16)
+    paks/ejs/dist/ejsc.c $(DEPS_16)
 	@echo '   [Compile] $(BUILD)/obj/ejsc.o'
-	$(CC) -c -o $(BUILD)/obj/ejsc.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/ejs/ejsc.c
+	$(CC) -c -o $(BUILD)/obj/ejsc.o $(CFLAGS) $(DFLAGS) $(IFLAGS) paks/ejs/dist/ejsc.c
 
 #
 #   http.h
 #
 
-src/paks/http/http.h: $(DEPS_17)
+paks/http/dist/http.h: $(DEPS_17)
 
 #
 #   http.o
 #
-DEPS_18 += src/paks/http/http.h
+DEPS_18 += paks/http/dist/http.h
 
 $(BUILD)/obj/http.o: \
-    src/paks/http/http.c $(DEPS_18)
+    paks/http/dist/http.c $(DEPS_18)
 	@echo '   [Compile] $(BUILD)/obj/http.o'
-	$(CC) -c -o $(BUILD)/obj/http.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/http/http.c
+	$(CC) -c -o $(BUILD)/obj/http.o $(CFLAGS) $(DFLAGS) $(IFLAGS) paks/http/dist/http.c
 
 #
 #   httpLib.o
 #
-DEPS_19 += src/paks/http/http.h
+DEPS_19 += paks/http/dist/http.h
 
 $(BUILD)/obj/httpLib.o: \
-    src/paks/http/httpLib.c $(DEPS_19)
+    paks/http/dist/httpLib.c $(DEPS_19)
 	@echo '   [Compile] $(BUILD)/obj/httpLib.o'
-	$(CC) -c -o $(BUILD)/obj/httpLib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/http/httpLib.c
+	$(CC) -c -o $(BUILD)/obj/httpLib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) paks/http/dist/httpLib.c
 
 #
 #   testme.h
@@ -377,44 +377,44 @@ $(BUILD)/obj/me.o: \
 #   mpr.h
 #
 
-src/paks/mpr/mpr.h: $(DEPS_23)
+paks/mpr/dist/mpr.h: $(DEPS_23)
 
 #
 #   mprLib.o
 #
-DEPS_24 += src/paks/mpr/mpr.h
+DEPS_24 += paks/mpr/dist/mpr.h
 
 $(BUILD)/obj/mprLib.o: \
-    src/paks/mpr/mprLib.c $(DEPS_24)
+    paks/mpr/dist/mprLib.c $(DEPS_24)
 	@echo '   [Compile] $(BUILD)/obj/mprLib.o'
-	$(CC) -c -o $(BUILD)/obj/mprLib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/mpr/mprLib.c
+	$(CC) -c -o $(BUILD)/obj/mprLib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) paks/mpr/dist/mprLib.c
 
 #
 #   mprSsl.o
 #
-DEPS_25 += src/paks/mpr/mpr.h
+DEPS_25 += paks/mpr/dist/mpr.h
 
 $(BUILD)/obj/mprSsl.o: \
-    src/paks/mpr/mprSsl.c $(DEPS_25)
+    paks/mpr/dist/mprSsl.c $(DEPS_25)
 	@echo '   [Compile] $(BUILD)/obj/mprSsl.o'
-	$(CC) -c -o $(BUILD)/obj/mprSsl.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/paks/mpr/mprSsl.c
+	$(CC) -c -o $(BUILD)/obj/mprSsl.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" paks/mpr/dist/mprSsl.c
 
 #
 #   pcre.h
 #
 
-src/paks/pcre/pcre.h: $(DEPS_26)
+paks/pcre/dist/pcre.h: $(DEPS_26)
 
 #
 #   pcre.o
 #
 DEPS_27 += $(BUILD)/inc/me.h
-DEPS_27 += src/paks/pcre/pcre.h
+DEPS_27 += paks/pcre/dist/pcre.h
 
 $(BUILD)/obj/pcre.o: \
-    src/paks/pcre/pcre.c $(DEPS_27)
+    paks/pcre/dist/pcre.c $(DEPS_27)
 	@echo '   [Compile] $(BUILD)/obj/pcre.o'
-	$(CC) -c -o $(BUILD)/obj/pcre.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/pcre/pcre.c
+	$(CC) -c -o $(BUILD)/obj/pcre.o $(CFLAGS) $(DFLAGS) $(IFLAGS) paks/pcre/dist/pcre.c
 
 #
 #   testme.o
@@ -430,18 +430,18 @@ $(BUILD)/obj/testme.o: \
 #   zlib.h
 #
 
-src/paks/zlib/zlib.h: $(DEPS_29)
+paks/zlib/dist/zlib.h: $(DEPS_29)
 
 #
 #   zlib.o
 #
 DEPS_30 += $(BUILD)/inc/me.h
-DEPS_30 += src/paks/zlib/zlib.h
+DEPS_30 += paks/zlib/dist/zlib.h
 
 $(BUILD)/obj/zlib.o: \
-    src/paks/zlib/zlib.c $(DEPS_30)
+    paks/zlib/dist/zlib.c $(DEPS_30)
 	@echo '   [Compile] $(BUILD)/obj/zlib.o'
-	$(CC) -c -o $(BUILD)/obj/zlib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/paks/zlib/zlib.c
+	$(CC) -c -o $(BUILD)/obj/zlib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) paks/zlib/dist/zlib.c
 
 #
 #   libmpr
@@ -562,12 +562,12 @@ ifeq ($(ME_COM_EJS),1)
 #
 #   ejs.mod
 #
-DEPS_37 += src/paks/ejs/ejs.es
+DEPS_37 += paks/ejs/dist/ejs.es
 DEPS_37 += $(BUILD)/bin/ejsc
 
 $(BUILD)/bin/ejs.mod: $(DEPS_37)
 	( \
-	cd src/paks/ejs; \
+	cd paks/ejs/dist; \
 	echo '   [Compile] ejs.mod' ; \
 	../../../$(BUILD)/bin/ejsc --out ../../../$(BUILD)/bin/ejs.mod --optimize 9 --bind --require null ejs.es ; \
 	)
@@ -625,12 +625,12 @@ endif
 #
 #   http-ca-crt
 #
-DEPS_41 += src/paks/http/ca.crt
+DEPS_41 += paks/http/dist/ca.crt
 
 $(BUILD)/bin/ca.crt: $(DEPS_41)
 	@echo '      [Copy] $(BUILD)/bin/ca.crt'
 	mkdir -p "$(BUILD)/bin"
-	cp src/paks/http/ca.crt $(BUILD)/bin/ca.crt
+	cp paks/http/dist/ca.crt $(BUILD)/bin/ca.crt
 
 ifeq ($(ME_COM_HTTP),1)
 #
@@ -694,180 +694,189 @@ DEPS_45 += src/MakeMe.es
 DEPS_45 += src/Me.es
 DEPS_45 += src/Script.es
 DEPS_45 += src/Target.es
-DEPS_45 += src/paks/ejs-version/Version.es
+DEPS_45 += paks/ejs-version/Version.es
 ifeq ($(ME_COM_EJS),1)
     DEPS_45 += $(BUILD)/bin/ejs.mod
 endif
 
 $(BUILD)/bin/me.mod: $(DEPS_45)
 	echo '   [Compile] me.mod' ; \
-	./$(BUILD)/bin/ejsc --debug --out ./$(BUILD)/bin/me.mod --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es src/paks/ejs-version/Version.es
+	./$(BUILD)/bin/ejsc --debug --out ./$(BUILD)/bin/me.mod --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es paks/ejs-version/Version.es
+
+#
+#   pakrun
+#
+DEPS_46 += paks/me-components/appweb.me
+DEPS_46 += paks/me-components/compiler.me
+DEPS_46 += paks/me-components/components.me
+DEPS_46 += paks/me-components/lib.me
+DEPS_46 += paks/me-components/LICENSE.md
+DEPS_46 += paks/me-components/link.me
+DEPS_46 += paks/me-components/package.json
+DEPS_46 += paks/me-components/rc.me
+DEPS_46 += paks/me-components/README.md
+DEPS_46 += paks/me-components/testme.me
+DEPS_46 += paks/me-components/vxworks.me
+DEPS_46 += paks/me-components/winsdk.me
+DEPS_46 += paks/me-configuration/Configuration.es
+DEPS_46 += paks/me-configuration/configuration.me
+DEPS_46 += paks/me-configuration/LICENSE.md
+DEPS_46 += paks/me-configuration/package.json
+DEPS_46 += paks/me-configuration/README.md
+DEPS_46 += paks/me-installs/Installs.es
+DEPS_46 += paks/me-installs/installs.me
+DEPS_46 += paks/me-installs/LICENSE.md
+DEPS_46 += paks/me-installs/manifest.me
+DEPS_46 += paks/me-installs/package.json
+DEPS_46 += paks/me-installs/README.md
+DEPS_46 += paks/me-os/freebsd.me
+DEPS_46 += paks/me-os/gcc.me
+DEPS_46 += paks/me-os/LICENSE.md
+DEPS_46 += paks/me-os/linux.me
+DEPS_46 += paks/me-os/macosx.me
+DEPS_46 += paks/me-os/os.me
+DEPS_46 += paks/me-os/package.json
+DEPS_46 += paks/me-os/README.md
+DEPS_46 += paks/me-os/solaris.me
+DEPS_46 += paks/me-os/unix.me
+DEPS_46 += paks/me-os/vxworks.me
+DEPS_46 += paks/me-os/windows.me
+DEPS_46 += paks/me-project/LICENSE.md
+DEPS_46 += paks/me-project/package.json
+DEPS_46 += paks/me-project/Project.es
+DEPS_46 += paks/me-project/project.me
+DEPS_46 += paks/me-project/README.md
+DEPS_46 += paks/me-vstudio/LICENSE.md
+DEPS_46 += paks/me-vstudio/package.json
+DEPS_46 += paks/me-vstudio/README.md
+DEPS_46 += paks/me-vstudio/Vstudio.es
+DEPS_46 += paks/me-vstudio/vstudio.me
+DEPS_46 += paks/me-xcode/LICENSE.md
+DEPS_46 += paks/me-xcode/package.json
+DEPS_46 += paks/me-xcode/README.md
+DEPS_46 += paks/me-xcode/Xcode.es
+DEPS_46 += paks/me-xcode/xcode.me
+
+$(BUILD)/.pakrun-modified: $(DEPS_46)
+	@echo '      [Copy] $(BUILD)/bin'
+	mkdir -p "$(BUILD)/bin/paks/me-components"
+	cp paks/me-components/appweb.me $(BUILD)/bin/paks/me-components/appweb.me
+	cp paks/me-components/compiler.me $(BUILD)/bin/paks/me-components/compiler.me
+	cp paks/me-components/components.me $(BUILD)/bin/paks/me-components/components.me
+	cp paks/me-components/lib.me $(BUILD)/bin/paks/me-components/lib.me
+	cp paks/me-components/LICENSE.md $(BUILD)/bin/paks/me-components/LICENSE.md
+	cp paks/me-components/link.me $(BUILD)/bin/paks/me-components/link.me
+	cp paks/me-components/package.json $(BUILD)/bin/paks/me-components/package.json
+	cp paks/me-components/rc.me $(BUILD)/bin/paks/me-components/rc.me
+	cp paks/me-components/README.md $(BUILD)/bin/paks/me-components/README.md
+	cp paks/me-components/testme.me $(BUILD)/bin/paks/me-components/testme.me
+	cp paks/me-components/vxworks.me $(BUILD)/bin/paks/me-components/vxworks.me
+	cp paks/me-components/winsdk.me $(BUILD)/bin/paks/me-components/winsdk.me
+	mkdir -p "$(BUILD)/bin/paks/me-configuration"
+	cp paks/me-configuration/Configuration.es $(BUILD)/bin/paks/me-configuration/Configuration.es
+	cp paks/me-configuration/configuration.me $(BUILD)/bin/paks/me-configuration/configuration.me
+	cp paks/me-configuration/LICENSE.md $(BUILD)/bin/paks/me-configuration/LICENSE.md
+	cp paks/me-configuration/package.json $(BUILD)/bin/paks/me-configuration/package.json
+	cp paks/me-configuration/README.md $(BUILD)/bin/paks/me-configuration/README.md
+	mkdir -p "$(BUILD)/bin/paks/me-installs"
+	cp paks/me-installs/Installs.es $(BUILD)/bin/paks/me-installs/Installs.es
+	cp paks/me-installs/installs.me $(BUILD)/bin/paks/me-installs/installs.me
+	cp paks/me-installs/LICENSE.md $(BUILD)/bin/paks/me-installs/LICENSE.md
+	cp paks/me-installs/manifest.me $(BUILD)/bin/paks/me-installs/manifest.me
+	cp paks/me-installs/package.json $(BUILD)/bin/paks/me-installs/package.json
+	cp paks/me-installs/README.md $(BUILD)/bin/paks/me-installs/README.md
+	mkdir -p "$(BUILD)/bin/paks/me-os"
+	cp paks/me-os/freebsd.me $(BUILD)/bin/paks/me-os/freebsd.me
+	cp paks/me-os/gcc.me $(BUILD)/bin/paks/me-os/gcc.me
+	cp paks/me-os/LICENSE.md $(BUILD)/bin/paks/me-os/LICENSE.md
+	cp paks/me-os/linux.me $(BUILD)/bin/paks/me-os/linux.me
+	cp paks/me-os/macosx.me $(BUILD)/bin/paks/me-os/macosx.me
+	cp paks/me-os/os.me $(BUILD)/bin/paks/me-os/os.me
+	cp paks/me-os/package.json $(BUILD)/bin/paks/me-os/package.json
+	cp paks/me-os/README.md $(BUILD)/bin/paks/me-os/README.md
+	cp paks/me-os/solaris.me $(BUILD)/bin/paks/me-os/solaris.me
+	cp paks/me-os/unix.me $(BUILD)/bin/paks/me-os/unix.me
+	cp paks/me-os/vxworks.me $(BUILD)/bin/paks/me-os/vxworks.me
+	cp paks/me-os/windows.me $(BUILD)/bin/paks/me-os/windows.me
+	mkdir -p "$(BUILD)/bin/paks/me-project"
+	cp paks/me-project/LICENSE.md $(BUILD)/bin/paks/me-project/LICENSE.md
+	cp paks/me-project/package.json $(BUILD)/bin/paks/me-project/package.json
+	cp paks/me-project/Project.es $(BUILD)/bin/paks/me-project/Project.es
+	cp paks/me-project/project.me $(BUILD)/bin/paks/me-project/project.me
+	cp paks/me-project/README.md $(BUILD)/bin/paks/me-project/README.md
+	mkdir -p "$(BUILD)/bin/paks/me-vstudio"
+	cp paks/me-vstudio/LICENSE.md $(BUILD)/bin/paks/me-vstudio/LICENSE.md
+	cp paks/me-vstudio/package.json $(BUILD)/bin/paks/me-vstudio/package.json
+	cp paks/me-vstudio/README.md $(BUILD)/bin/paks/me-vstudio/README.md
+	cp paks/me-vstudio/Vstudio.es $(BUILD)/bin/paks/me-vstudio/Vstudio.es
+	cp paks/me-vstudio/vstudio.me $(BUILD)/bin/paks/me-vstudio/vstudio.me
+	mkdir -p "$(BUILD)/bin/paks/me-xcode"
+	cp paks/me-xcode/LICENSE.md $(BUILD)/bin/paks/me-xcode/LICENSE.md
+	cp paks/me-xcode/package.json $(BUILD)/bin/paks/me-xcode/package.json
+	cp paks/me-xcode/README.md $(BUILD)/bin/paks/me-xcode/README.md
+	cp paks/me-xcode/Xcode.es $(BUILD)/bin/paks/me-xcode/Xcode.es
+	cp paks/me-xcode/xcode.me $(BUILD)/bin/paks/me-xcode/xcode.me
+	touch "$(BUILD)/.pakrun-modified"
 
 #
 #   runtime
 #
-DEPS_46 += src/master-main.me
-DEPS_46 += src/master-start.me
-DEPS_46 += src/simple.me
-DEPS_46 += src/standard.me
-DEPS_46 += src/paks/me-configuration/Configuration.es
-DEPS_46 += src/paks/me-configuration/configuration.me
-DEPS_46 += src/paks/me-configuration/LICENSE.md
-DEPS_46 += src/paks/me-configuration/package.json
-DEPS_46 += src/paks/me-configuration/README.md
-DEPS_46 += src/paks/me-components/appweb.me
-DEPS_46 += src/paks/me-components/compiler.me
-DEPS_46 += src/paks/me-components/components.me
-DEPS_46 += src/paks/me-components/lib.me
-DEPS_46 += src/paks/me-components/LICENSE.md
-DEPS_46 += src/paks/me-components/link.me
-DEPS_46 += src/paks/me-components/package.json
-DEPS_46 += src/paks/me-components/rc.me
-DEPS_46 += src/paks/me-components/README.md
-DEPS_46 += src/paks/me-components/testme.me
-DEPS_46 += src/paks/me-components/vxworks.me
-DEPS_46 += src/paks/me-components/winsdk.me
-DEPS_46 += src/paks/me-package/LICENSE.md
-DEPS_46 += src/paks/me-package/manifest.me
-DEPS_46 += src/paks/me-package/Package.es
-DEPS_46 += src/paks/me-package/package.json
-DEPS_46 += src/paks/me-package/package.me
-DEPS_46 += src/paks/me-package/README.md
-DEPS_46 += src/paks/me-project/LICENSE.md
-DEPS_46 += src/paks/me-project/package.json
-DEPS_46 += src/paks/me-project/Project.es
-DEPS_46 += src/paks/me-project/project.me
-DEPS_46 += src/paks/me-project/README.md
-DEPS_46 += src/paks/me-os/freebsd.me
-DEPS_46 += src/paks/me-os/gcc.me
-DEPS_46 += src/paks/me-os/LICENSE.md
-DEPS_46 += src/paks/me-os/linux.me
-DEPS_46 += src/paks/me-os/macosx.me
-DEPS_46 += src/paks/me-os/os.me
-DEPS_46 += src/paks/me-os/package.json
-DEPS_46 += src/paks/me-os/README.md
-DEPS_46 += src/paks/me-os/solaris.me
-DEPS_46 += src/paks/me-os/unix.me
-DEPS_46 += src/paks/me-os/vxworks.me
-DEPS_46 += src/paks/me-os/windows.me
-DEPS_46 += src/paks/me-vstudio/LICENSE.md
-DEPS_46 += src/paks/me-vstudio/package.json
-DEPS_46 += src/paks/me-vstudio/README.md
-DEPS_46 += src/paks/me-vstudio/Vstudio.es
-DEPS_46 += src/paks/me-vstudio/vstudio.me
-DEPS_46 += src/paks/me-xcode/LICENSE.md
-DEPS_46 += src/paks/me-xcode/package.json
-DEPS_46 += src/paks/me-xcode/README.md
-DEPS_46 += src/paks/me-xcode/Xcode.es
-DEPS_46 += src/paks/me-xcode/xcode.me
+DEPS_47 += src/master-main.me
+DEPS_47 += src/master-start.me
+DEPS_47 += src/simple.me
+DEPS_47 += src/standard.me
+DEPS_47 += $(BUILD)/.pakrun-modified
 
-$(BUILD)/.runtime-modified: $(DEPS_46)
+$(BUILD)/.runtime-modified: $(DEPS_47)
 	@echo '      [Copy] $(BUILD)/bin'
 	mkdir -p "$(BUILD)/bin"
 	cp src/master-main.me $(BUILD)/bin/master-main.me
 	cp src/master-start.me $(BUILD)/bin/master-start.me
 	cp src/simple.me $(BUILD)/bin/simple.me
 	cp src/standard.me $(BUILD)/bin/standard.me
-	mkdir -p "$(BUILD)/bin/paks/me-configuration"
-	cp src/paks/me-configuration/Configuration.es $(BUILD)/bin/paks/me-configuration/Configuration.es
-	cp src/paks/me-configuration/configuration.me $(BUILD)/bin/paks/me-configuration/configuration.me
-	cp src/paks/me-configuration/LICENSE.md $(BUILD)/bin/paks/me-configuration/LICENSE.md
-	cp src/paks/me-configuration/package.json $(BUILD)/bin/paks/me-configuration/package.json
-	cp src/paks/me-configuration/README.md $(BUILD)/bin/paks/me-configuration/README.md
-	mkdir -p "$(BUILD)/bin/paks/me-components"
-	cp src/paks/me-components/appweb.me $(BUILD)/bin/paks/me-components/appweb.me
-	cp src/paks/me-components/compiler.me $(BUILD)/bin/paks/me-components/compiler.me
-	cp src/paks/me-components/components.me $(BUILD)/bin/paks/me-components/components.me
-	cp src/paks/me-components/lib.me $(BUILD)/bin/paks/me-components/lib.me
-	cp src/paks/me-components/LICENSE.md $(BUILD)/bin/paks/me-components/LICENSE.md
-	cp src/paks/me-components/link.me $(BUILD)/bin/paks/me-components/link.me
-	cp src/paks/me-components/package.json $(BUILD)/bin/paks/me-components/package.json
-	cp src/paks/me-components/rc.me $(BUILD)/bin/paks/me-components/rc.me
-	cp src/paks/me-components/README.md $(BUILD)/bin/paks/me-components/README.md
-	cp src/paks/me-components/testme.me $(BUILD)/bin/paks/me-components/testme.me
-	cp src/paks/me-components/vxworks.me $(BUILD)/bin/paks/me-components/vxworks.me
-	cp src/paks/me-components/winsdk.me $(BUILD)/bin/paks/me-components/winsdk.me
-	mkdir -p "$(BUILD)/bin/paks/me-package"
-	cp src/paks/me-package/LICENSE.md $(BUILD)/bin/paks/me-package/LICENSE.md
-	cp src/paks/me-package/manifest.me $(BUILD)/bin/paks/me-package/manifest.me
-	cp src/paks/me-package/Package.es $(BUILD)/bin/paks/me-package/Package.es
-	cp src/paks/me-package/package.json $(BUILD)/bin/paks/me-package/package.json
-	cp src/paks/me-package/package.me $(BUILD)/bin/paks/me-package/package.me
-	cp src/paks/me-package/README.md $(BUILD)/bin/paks/me-package/README.md
-	mkdir -p "$(BUILD)/bin/paks/me-project"
-	cp src/paks/me-project/LICENSE.md $(BUILD)/bin/paks/me-project/LICENSE.md
-	cp src/paks/me-project/package.json $(BUILD)/bin/paks/me-project/package.json
-	cp src/paks/me-project/Project.es $(BUILD)/bin/paks/me-project/Project.es
-	cp src/paks/me-project/project.me $(BUILD)/bin/paks/me-project/project.me
-	cp src/paks/me-project/README.md $(BUILD)/bin/paks/me-project/README.md
-	mkdir -p "$(BUILD)/bin/paks/me-os"
-	cp src/paks/me-os/freebsd.me $(BUILD)/bin/paks/me-os/freebsd.me
-	cp src/paks/me-os/gcc.me $(BUILD)/bin/paks/me-os/gcc.me
-	cp src/paks/me-os/LICENSE.md $(BUILD)/bin/paks/me-os/LICENSE.md
-	cp src/paks/me-os/linux.me $(BUILD)/bin/paks/me-os/linux.me
-	cp src/paks/me-os/macosx.me $(BUILD)/bin/paks/me-os/macosx.me
-	cp src/paks/me-os/os.me $(BUILD)/bin/paks/me-os/os.me
-	cp src/paks/me-os/package.json $(BUILD)/bin/paks/me-os/package.json
-	cp src/paks/me-os/README.md $(BUILD)/bin/paks/me-os/README.md
-	cp src/paks/me-os/solaris.me $(BUILD)/bin/paks/me-os/solaris.me
-	cp src/paks/me-os/unix.me $(BUILD)/bin/paks/me-os/unix.me
-	cp src/paks/me-os/vxworks.me $(BUILD)/bin/paks/me-os/vxworks.me
-	cp src/paks/me-os/windows.me $(BUILD)/bin/paks/me-os/windows.me
-	mkdir -p "$(BUILD)/bin/paks/me-vstudio"
-	cp src/paks/me-vstudio/LICENSE.md $(BUILD)/bin/paks/me-vstudio/LICENSE.md
-	cp src/paks/me-vstudio/package.json $(BUILD)/bin/paks/me-vstudio/package.json
-	cp src/paks/me-vstudio/README.md $(BUILD)/bin/paks/me-vstudio/README.md
-	cp src/paks/me-vstudio/Vstudio.es $(BUILD)/bin/paks/me-vstudio/Vstudio.es
-	cp src/paks/me-vstudio/vstudio.me $(BUILD)/bin/paks/me-vstudio/vstudio.me
-	mkdir -p "$(BUILD)/bin/paks/me-xcode"
-	cp src/paks/me-xcode/LICENSE.md $(BUILD)/bin/paks/me-xcode/LICENSE.md
-	cp src/paks/me-xcode/package.json $(BUILD)/bin/paks/me-xcode/package.json
-	cp src/paks/me-xcode/README.md $(BUILD)/bin/paks/me-xcode/README.md
-	cp src/paks/me-xcode/Xcode.es $(BUILD)/bin/paks/me-xcode/Xcode.es
-	cp src/paks/me-xcode/xcode.me $(BUILD)/bin/paks/me-xcode/xcode.me
 	touch "$(BUILD)/.runtime-modified"
 
 #
 #   me
 #
-DEPS_47 += $(BUILD)/bin/libmpr.so
+DEPS_48 += $(BUILD)/bin/libmpr.so
 ifeq ($(ME_COM_HTTP),1)
-    DEPS_47 += $(BUILD)/bin/libhttp.so
+    DEPS_48 += $(BUILD)/bin/libhttp.so
 endif
 ifeq ($(ME_COM_EJS),1)
-    DEPS_47 += $(BUILD)/bin/libejs.so
+    DEPS_48 += $(BUILD)/bin/libejs.so
 endif
-DEPS_47 += $(BUILD)/bin/me.mod
-DEPS_47 += $(BUILD)/.runtime-modified
-DEPS_47 += $(BUILD)/obj/me.o
+DEPS_48 += $(BUILD)/bin/me.mod
+DEPS_48 += $(BUILD)/.runtime-modified
+DEPS_48 += $(BUILD)/obj/me.o
 
-LIBS_47 += -lmpr
+LIBS_48 += -lmpr
 ifeq ($(ME_COM_HTTP),1)
-    LIBS_47 += -lhttp
+    LIBS_48 += -lhttp
 endif
 ifeq ($(ME_COM_PCRE),1)
-    LIBS_47 += -lpcre
+    LIBS_48 += -lpcre
 endif
 ifeq ($(ME_COM_EJS),1)
-    LIBS_47 += -lejs
+    LIBS_48 += -lejs
 endif
 ifeq ($(ME_COM_ZLIB),1)
-    LIBS_47 += -lzlib
+    LIBS_48 += -lzlib
 endif
 
-$(BUILD)/bin/me: $(DEPS_47)
+$(BUILD)/bin/me: $(DEPS_48)
 	@echo '      [Link] $(BUILD)/bin/me'
-	$(CC) -o $(BUILD)/bin/me $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/me.o" $(LIBPATHS_47) $(LIBS_47) $(LIBS_47) $(LIBS) $(LIBS) 
+	$(CC) -o $(BUILD)/bin/me $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/me.o" $(LIBPATHS_48) $(LIBS_48) $(LIBS_48) $(LIBS) $(LIBS) 
 
 #
 #   testme.mod
 #
-DEPS_48 += src/tm/testme.es
+DEPS_49 += src/tm/testme.es
 ifeq ($(ME_COM_EJS),1)
-    DEPS_48 += $(BUILD)/bin/ejs.mod
+    DEPS_49 += $(BUILD)/bin/ejs.mod
 endif
 
-$(BUILD)/bin/testme.mod: $(DEPS_48)
+$(BUILD)/bin/testme.mod: $(DEPS_49)
 	( \
 	cd src/tm; \
 	echo '   [Compile] testme.mod' ; \
@@ -878,36 +887,36 @@ $(BUILD)/bin/testme.mod: $(DEPS_48)
 #   testme
 #
 ifeq ($(ME_COM_EJS),1)
-    DEPS_49 += $(BUILD)/bin/libejs.so
+    DEPS_50 += $(BUILD)/bin/libejs.so
 endif
-DEPS_49 += $(BUILD)/bin/testme.mod
-DEPS_49 += $(BUILD)/bin/ejs.testme.mod
-DEPS_49 += $(BUILD)/obj/testme.o
+DEPS_50 += $(BUILD)/bin/testme.mod
+DEPS_50 += $(BUILD)/bin/ejs.testme.mod
+DEPS_50 += $(BUILD)/obj/testme.o
 
 ifeq ($(ME_COM_EJS),1)
-    LIBS_49 += -lejs
+    LIBS_50 += -lejs
 endif
 ifeq ($(ME_COM_HTTP),1)
-    LIBS_49 += -lhttp
+    LIBS_50 += -lhttp
 endif
-LIBS_49 += -lmpr
+LIBS_50 += -lmpr
 ifeq ($(ME_COM_PCRE),1)
-    LIBS_49 += -lpcre
+    LIBS_50 += -lpcre
 endif
 ifeq ($(ME_COM_ZLIB),1)
-    LIBS_49 += -lzlib
+    LIBS_50 += -lzlib
 endif
 
-$(BUILD)/bin/testme: $(DEPS_49)
+$(BUILD)/bin/testme: $(DEPS_50)
 	@echo '      [Link] $(BUILD)/bin/testme'
-	$(CC) -o $(BUILD)/bin/testme $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/testme.o" $(LIBPATHS_49) $(LIBS_49) $(LIBS_49) $(LIBS) $(LIBS) 
+	$(CC) -o $(BUILD)/bin/testme $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/testme.o" $(LIBPATHS_50) $(LIBS_50) $(LIBS_50) $(LIBS) $(LIBS) 
 
 #
 #   testme.es
 #
-DEPS_50 += src/tm/testme.es
+DEPS_51 += src/tm/testme.es
 
-$(BUILD)/bin/testme.es: $(DEPS_50)
+$(BUILD)/bin/testme.es: $(DEPS_51)
 	@echo '      [Copy] $(BUILD)/bin/testme.es'
 	mkdir -p "$(BUILD)/bin"
 	cp src/tm/testme.es $(BUILD)/bin/testme.es
@@ -916,7 +925,7 @@ $(BUILD)/bin/testme.es: $(DEPS_50)
 #   installPrep
 #
 
-installPrep: $(DEPS_51)
+installPrep: $(DEPS_52)
 	if [ "`id -u`" != 0 ] ; \
 	then echo "Must run as root. Rerun with "sudo"" ; \
 	exit 255 ; \
@@ -926,13 +935,13 @@ installPrep: $(DEPS_51)
 #   stop
 #
 
-stop: $(DEPS_52)
+stop: $(DEPS_53)
 
 #
 #   installBinary
 #
 
-installBinary: $(DEPS_53)
+installBinary: $(DEPS_54)
 	mkdir -p "$(ME_APP_PREFIX)" ; \
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
 	ln -s "0.8.6" "$(ME_APP_PREFIX)/latest" ; \
@@ -984,68 +993,25 @@ installBinary: $(DEPS_53)
 	cp src/simple.me $(ME_VAPP_PREFIX)/bin/simple.me ; \
 	cp src/standard.me $(ME_VAPP_PREFIX)/bin/standard.me ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-components" ; \
-	cp src/paks/me-components/appweb.me $(ME_VAPP_PREFIX)/bin/paks/me-components/appweb.me ; \
-	cp src/paks/me-components/compiler.me $(ME_VAPP_PREFIX)/bin/paks/me-components/compiler.me ; \
-	cp src/paks/me-components/components.me $(ME_VAPP_PREFIX)/bin/paks/me-components/components.me ; \
-	cp src/paks/me-components/lib.me $(ME_VAPP_PREFIX)/bin/paks/me-components/lib.me ; \
-	cp src/paks/me-components/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-components/LICENSE.md ; \
-	cp src/paks/me-components/link.me $(ME_VAPP_PREFIX)/bin/paks/me-components/link.me ; \
-	cp src/paks/me-components/package.json $(ME_VAPP_PREFIX)/bin/paks/me-components/package.json ; \
-	cp src/paks/me-components/rc.me $(ME_VAPP_PREFIX)/bin/paks/me-components/rc.me ; \
-	cp src/paks/me-components/README.md $(ME_VAPP_PREFIX)/bin/paks/me-components/README.md ; \
-	cp src/paks/me-components/testme.me $(ME_VAPP_PREFIX)/bin/paks/me-components/testme.me ; \
-	cp src/paks/me-components/vxworks.me $(ME_VAPP_PREFIX)/bin/paks/me-components/vxworks.me ; \
-	cp src/paks/me-components/winsdk.me $(ME_VAPP_PREFIX)/bin/paks/me-components/winsdk.me ; \
+	cp $(BUILD)/bin/paks/me-components/** $(ME_VAPP_PREFIX)/bin/paks/me-components/** ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-configuration" ; \
-	cp src/paks/me-configuration/Configuration.es $(ME_VAPP_PREFIX)/bin/paks/me-configuration/Configuration.es ; \
-	cp src/paks/me-configuration/configuration.me $(ME_VAPP_PREFIX)/bin/paks/me-configuration/configuration.me ; \
-	cp src/paks/me-configuration/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-configuration/LICENSE.md ; \
-	cp src/paks/me-configuration/package.json $(ME_VAPP_PREFIX)/bin/paks/me-configuration/package.json ; \
-	cp src/paks/me-configuration/README.md $(ME_VAPP_PREFIX)/bin/paks/me-configuration/README.md ; \
+	cp $(BUILD)/bin/paks/me-configuration/** $(ME_VAPP_PREFIX)/bin/paks/me-configuration/** ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-os" ; \
-	cp src/paks/me-os/freebsd.me $(ME_VAPP_PREFIX)/bin/paks/me-os/freebsd.me ; \
-	cp src/paks/me-os/gcc.me $(ME_VAPP_PREFIX)/bin/paks/me-os/gcc.me ; \
-	cp src/paks/me-os/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-os/LICENSE.md ; \
-	cp src/paks/me-os/linux.me $(ME_VAPP_PREFIX)/bin/paks/me-os/linux.me ; \
-	cp src/paks/me-os/macosx.me $(ME_VAPP_PREFIX)/bin/paks/me-os/macosx.me ; \
-	cp src/paks/me-os/os.me $(ME_VAPP_PREFIX)/bin/paks/me-os/os.me ; \
-	cp src/paks/me-os/package.json $(ME_VAPP_PREFIX)/bin/paks/me-os/package.json ; \
-	cp src/paks/me-os/README.md $(ME_VAPP_PREFIX)/bin/paks/me-os/README.md ; \
-	cp src/paks/me-os/solaris.me $(ME_VAPP_PREFIX)/bin/paks/me-os/solaris.me ; \
-	cp src/paks/me-os/unix.me $(ME_VAPP_PREFIX)/bin/paks/me-os/unix.me ; \
-	cp src/paks/me-os/vxworks.me $(ME_VAPP_PREFIX)/bin/paks/me-os/vxworks.me ; \
-	cp src/paks/me-os/windows.me $(ME_VAPP_PREFIX)/bin/paks/me-os/windows.me ; \
+	cp $(BUILD)/bin/paks/me-os/** $(ME_VAPP_PREFIX)/bin/paks/me-os/** ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-package" ; \
-	cp src/paks/me-package/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-package/LICENSE.md ; \
-	cp src/paks/me-package/manifest.me $(ME_VAPP_PREFIX)/bin/paks/me-package/manifest.me ; \
-	cp src/paks/me-package/Package.es $(ME_VAPP_PREFIX)/bin/paks/me-package/Package.es ; \
-	cp src/paks/me-package/package.json $(ME_VAPP_PREFIX)/bin/paks/me-package/package.json ; \
-	cp src/paks/me-package/package.me $(ME_VAPP_PREFIX)/bin/paks/me-package/package.me ; \
-	cp src/paks/me-package/README.md $(ME_VAPP_PREFIX)/bin/paks/me-package/README.md ; \
+	cp $(BUILD)/bin/paks/me-package/** $(ME_VAPP_PREFIX)/bin/paks/me-package/** ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-project" ; \
-	cp src/paks/me-project/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-project/LICENSE.md ; \
-	cp src/paks/me-project/package.json $(ME_VAPP_PREFIX)/bin/paks/me-project/package.json ; \
-	cp src/paks/me-project/Project.es $(ME_VAPP_PREFIX)/bin/paks/me-project/Project.es ; \
-	cp src/paks/me-project/project.me $(ME_VAPP_PREFIX)/bin/paks/me-project/project.me ; \
-	cp src/paks/me-project/README.md $(ME_VAPP_PREFIX)/bin/paks/me-project/README.md ; \
+	cp $(BUILD)/bin/paks/me-project/** $(ME_VAPP_PREFIX)/bin/paks/me-project/** ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-vstudio" ; \
-	cp src/paks/me-vstudio/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-vstudio/LICENSE.md ; \
-	cp src/paks/me-vstudio/package.json $(ME_VAPP_PREFIX)/bin/paks/me-vstudio/package.json ; \
-	cp src/paks/me-vstudio/README.md $(ME_VAPP_PREFIX)/bin/paks/me-vstudio/README.md ; \
-	cp src/paks/me-vstudio/Vstudio.es $(ME_VAPP_PREFIX)/bin/paks/me-vstudio/Vstudio.es ; \
-	cp src/paks/me-vstudio/vstudio.me $(ME_VAPP_PREFIX)/bin/paks/me-vstudio/vstudio.me ; \
+	cp $(BUILD)/bin/paks/me-vstudio/** $(ME_VAPP_PREFIX)/bin/paks/me-vstudio/** ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-xcode" ; \
-	cp src/paks/me-xcode/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-xcode/LICENSE.md ; \
-	cp src/paks/me-xcode/package.json $(ME_VAPP_PREFIX)/bin/paks/me-xcode/package.json ; \
-	cp src/paks/me-xcode/README.md $(ME_VAPP_PREFIX)/bin/paks/me-xcode/README.md ; \
-	cp src/paks/me-xcode/Xcode.es $(ME_VAPP_PREFIX)/bin/paks/me-xcode/Xcode.es ; \
-	cp src/paks/me-xcode/xcode.me $(ME_VAPP_PREFIX)/bin/paks/me-xcode/xcode.me ; \
+	cp $(BUILD)/bin/paks/me-xcode/** $(ME_VAPP_PREFIX)/bin/paks/me-xcode/** ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/doc/man/man1" ; \
-	cp doc/documents/man/me.1 $(ME_VAPP_PREFIX)/doc/man/man1/me.1 ; \
+	cp doc/dist/man/me.1 $(ME_VAPP_PREFIX)/doc/man/man1/me.1 ; \
 	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \
 	rm -f "$(ME_MAN_PREFIX)/man1/me.1" ; \
 	ln -s "$(ME_VAPP_PREFIX)/doc/man/man1/me.1" "$(ME_MAN_PREFIX)/man1/me.1" ; \
-	cp doc/documents/man/testme.1 $(ME_VAPP_PREFIX)/doc/man/man1/testme.1 ; \
+	cp doc/dist/man/testme.1 $(ME_VAPP_PREFIX)/doc/man/man1/testme.1 ; \
 	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \
 	rm -f "$(ME_MAN_PREFIX)/man1/testme.1" ; \
 	ln -s "$(ME_VAPP_PREFIX)/doc/man/man1/testme.1" "$(ME_MAN_PREFIX)/man1/testme.1"
@@ -1054,24 +1020,24 @@ installBinary: $(DEPS_53)
 #   start
 #
 
-start: $(DEPS_54)
+start: $(DEPS_55)
 
 #
 #   install
 #
-DEPS_55 += installPrep
-DEPS_55 += stop
-DEPS_55 += installBinary
-DEPS_55 += start
+DEPS_56 += installPrep
+DEPS_56 += stop
+DEPS_56 += installBinary
+DEPS_56 += start
 
-install: $(DEPS_55)
+install: $(DEPS_56)
 
 #
 #   uninstall
 #
-DEPS_56 += stop
+DEPS_57 += stop
 
-uninstall: $(DEPS_56)
+uninstall: $(DEPS_57)
 	rm -fr "$(ME_VAPP_PREFIX)" ; \
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
 	rmdir -p "$(ME_APP_PREFIX)" 2>/dev/null ; true
@@ -1080,6 +1046,6 @@ uninstall: $(DEPS_56)
 #   version
 #
 
-version: $(DEPS_57)
+version: $(DEPS_58)
 	echo 0.8.6
 

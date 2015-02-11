@@ -130,7 +130,7 @@
     #define ME_INTEGRATE 1
 #endif
 #ifndef ME_MANIFEST
-    #define ME_MANIFEST "package/manifest.me"
+    #define ME_MANIFEST "installs/manifest.me"
 #endif
 #ifndef ME_MPR_LOGGING
     #define ME_MPR_LOGGING 1
@@ -142,7 +142,7 @@
     #define ME_PLATFORMS "local"
 #endif
 #ifndef ME_PREFIXES
-    #define ME_PREFIXES "package-prefixes"
+    #define ME_PREFIXES "install-prefixes"
 #endif
 #ifndef ME_STATIC
     #define ME_STATIC 0
