@@ -1,0 +1,28 @@
+{
+    "name": "sqlite",
+    "description": "SQLite Library",
+    "title": "SQLite Library",
+    "version": "1.0.2",
+    "keywords": [
+        "sqlite",
+        "me"
+    ],
+    "author": {
+        "name": "Embedthis Software",
+        "email": "dev@embedthis.com",
+        "url": "https://embedthis.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/embedthis/sqlite.git"
+    },
+    "bugs": {
+        "url": "http://github.com/embedthis/sqlite/issues"
+    },
+    "licenses": [
+        {
+            "type": "PUBLIC",
+            "url": "https://github.com/embedthis/sqlite/blob/master/LICENSE.md"
+        }
+    ]
+}

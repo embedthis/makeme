@@ -102,11 +102,14 @@ dynamic enumerable public class Me {
          */
         global.me = this
         options = makeme.options
+/* UNUSED
         dir.home = App.home.portable.absolute
-        dir.top = Path('.').absolute
-        dir.src = Path(options.configure || App.dir).absolute
+*/
+//  MOB - temp
         dir.me = App.exeDir
-        let path = me.dir.src.join(Loader.PACKAGE)
+        dir.work = Path('.').absolute
+        dir.top = Path(options.configure || App.dir).absolute
+        let path = me.dir.top.join(Loader.PACKAGE)
         if (path.exists) {
             try {
                 package = path.readJSON()
@@ -117,7 +120,7 @@ dynamic enumerable public class Me {
                 trace('Warn', 'Cannot parse: ' + path + '\n' + e)
             }
         }
-        dir.paks ||= dir.src.join('paks')
+        dir.paks ||= dir.top.join('paks')
     }
 
     /**

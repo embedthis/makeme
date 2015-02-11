@@ -12,13 +12,13 @@ Me.load({
                 let src = me.dir.src.join('src')
                 let docmod = Path('').temp().replaceExt('mod')
                 let files = Path('../src').files('*.es')
-                files.push('../src/paks/ejs-version/Version.es')
+                files.push('../paks/ejs-version/Version.es')
                 run(bin.join('ejsc') + ' --doc --bind --out ' + docmod + ' ' + files.join(' '))
-                let edir = Path('documents/ref/api')
+                let edir = Path('dist/ref/api')
                 rmdir([edir.join('*.html'), edir.join('*.css'), edir.join('images/*')])
                 run(bin.join('ejsmod') + ' --html ' + edir + ' ' + docmod)
-                cp('documents/ref/api/masters/*.html', edir)
-                cp('documents/ref/api/masters/*.jpg', edir.join('images'))
+                cp('dist/ref/api/masters/*.html', edir)
+                cp('dist/ref/api/masters/*.jpg', edir.join('images'))
                 docmod.remove()
             `,
         },
@@ -26,24 +26,24 @@ Me.load({
         validate: {
             depends: [ 'gen-doc' ],
             action: `
-                for each (f in Path('documents').files('**/*.html')) {
+                for each (f in Path('dist').files('**/*.html')) {
                     let data = f.readString()
                     data = data.replace('700|Open', '').
                         replace(/me.download.html/g, 'download/me.html').
                         replace(/developers.contributors.html/g, 'scripts/contributors.esp').
                         replace(/nowrap="nowrap"/g, '').
                         replace(/https:..embedthis.com.makeme.licensing.html/g, 'https://embedthis.com/').
-                        replace(/https:..embedthis.com.makeme.doc.source.building.htm/g, 'https://embedthis.com/').
+                        replace(/https:..embedthis.com.makeme.doc.contents.building.htm/g, 'https://embedthis.com/').
                         replace(/https:..embedthis.com.developers./g, 'https://embedthis.com/').
 
                         replace(/nowrap/g, '')
                     trace('Patch', f)
                     f.write(data)
                 }
-                for each (f in Path('documents/man').files('*.html')) {
+                for each (f in Path('dist/man').files('*.html')) {
                     f.write(f.readString().toLowerCase())
                 }
-                let path = Path('documents/ref/api/index.html')
+                let path = Path('dist/ref/api/index.html')
                 path.write('<!DOCTYPE html><html><head><title>dummy</title></head><body></body></html>\n')
                 trace('Listen', 'exp --nowatch')
                 Cmd.run('exp --nowatch')

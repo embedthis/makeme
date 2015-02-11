@@ -15,7 +15,7 @@ require embedthis.me.script
     @stability Prototype
   */
 public class Builder {
-    
+
     /** Default goal to build all. Set to 'all' */
     public static const ALL = 'all'
 
@@ -37,10 +37,10 @@ public class Builder {
     private var expandMissing = null
     private var gates: Object = {}
     private var loader: Loader
-    private var options: Object 
+    private var options: Object
     private var selectedTargets: Array
 
-    /** Builder constructor 
+    /** Builder constructor
         @hide
     */
     function Builder() {
@@ -73,7 +73,7 @@ public class Builder {
     public function build(goals: Array = []) {
         if (goals.length == 0) {
             goals.push(Builder.ALL)
-        } 
+        }
         if (goals != 'configure') {
             makeDirs()
         }
@@ -91,15 +91,15 @@ public class Builder {
 
     function buildFileList(target, patterns) {
         let options = blend({directories: false, expand: loader.expand, missing: expandMissing}, target)
-        /* 
+        /*
             Files must be absolute at this stage because scripts may change directory before executing.
-            BuildFile applies the relative property  
+            BuildFile applies the relative property
          */
         delete options.relative
         if (!(patterns is Array)) {
             patterns = [patterns]
         }
-        let list = me.dir.src.files(patterns, options)
+        let list = me.dir.top.files(patterns, options)
         if (list.length == 0 && makeme.generating) {
             list = patterns
         }
@@ -200,8 +200,8 @@ public class Builder {
         Copy files[] to path. Used for headers too.
      */
     function buildFile(target) {
-        /* 
-            The target.files list is absolute. Convert to be relative to the target.home so the 
+        /*
+            The target.files list is absolute. Convert to be relative to the target.home so the
             various Path.operate properties will be interpreted locally.
         */
         let files = target.files.map(function(e) e.relativeTo(target.home))
@@ -404,7 +404,7 @@ public class Builder {
             enableTarget(target)
         }
     }
-    
+
     /**
         @hide
      */
@@ -431,7 +431,7 @@ public class Builder {
                 for each (file in files) {
                     let header = me.dir.inc.join(file.basename)
                     loader.createTarget({ name: header, enable: true, path: header, type: 'header', home: target.home,
-                        goals: [target.name], files: [ file ], includes: target.includes, 
+                        goals: [target.name], files: [ file ], includes: target.includes,
                         generate: true })
                     target.depends.push(header)
                 }
@@ -448,8 +448,8 @@ public class Builder {
                 let files = buildFileList(target, target.resources)
                 for each (file in files) {
                     let res = me.dir.obj.join(file.replaceExt(me.ext.res).basename)
-                    loader.createTarget({ name : res, enable: true, path: res, enable: true, home: target.home, 
-                        type: 'resource', goals: [target.name], files: [ file ], includes: target.includes, 
+                    loader.createTarget({ name : res, enable: true, path: res, enable: true, home: target.home,
+                        type: 'resource', goals: [target.name], files: [ file ], includes: target.includes,
                         defines: target.defines, generate: true })
                     target.files.push(res)
                     target.depends.push(res)
@@ -514,7 +514,7 @@ public class Builder {
 
     function makeDirs() {
         for (let [name, dir] in me.dir) {
-            if (dir.startsWith(me.dir.top) || dir.startsWith(me.dir.src)) {
+            if (dir.startsWith(me.dir.bld)) {
                 if (name == 'bin' || name == 'inc' || name == 'obj') {
                     dir.makeDir()
                 }
@@ -611,7 +611,7 @@ public class Builder {
             libs = libs.clone()
             for (let [i,name] in libs) {
                 let libname = Path('lib' + name).joinExt(me.ext.shlib)
-                if (me.targets['lib' + name] || me.dir.lib.join(libname).exists) {
+                if (me.targets['lib' + name] || me.dir.bin.join(libname).exists) {
                     libs[i] = libname
                 } else {
                     let libpaths = target ? target.libpaths : me.targets.compiler.libpaths
@@ -640,7 +640,7 @@ public class Builder {
                 }
             }
             for (i in libs) {
-                let llib = me.dir.lib.join("lib" + libs[i]).joinExt(me.ext.shlib).relative
+                let llib = me.dir.bin.join("lib" + libs[i]).joinExt(me.ext.shlib).relative
                 if (llib.exists) {
                     libs[i] = llib
                 } else {
@@ -668,8 +668,8 @@ public class Builder {
      */
     public function prepBuild() {
         if (!me.settings.configured && !options.configure) {
-            /* 
-                Auto configure 
+            /*
+                Auto configure
              */
             let path = loader.findPlugin('configuration')
             load(path.dirname.join('Configuration.es'))
@@ -860,8 +860,8 @@ public class Builder {
         @param command Command to run. May be an array of args or a string.
         @param copt Options. These are also passed to $Cmd.
         @option dir Change to given directory to run the command.
-        @option filter Do not display output to the console if it contains the specified filter pattern. 
-            Set to true to filter (not display) any output. Note the command always returns the command output 
+        @option filter Do not display output to the console if it contains the specified filter pattern.
+            Set to true to filter (not display) any output. Note the command always returns the command output
             as the function result.
         @option generate Generate in projects. Defaults to true.
         @option noshow Do not show the command line before executing. Useful to override me --show for one command.
@@ -969,7 +969,7 @@ public class Builder {
         strace('Run', command)
         run([Cmd.locate(interpreter), "-c", command.toString().trimEnd('\n')])
     }
-    
+
     /**
         Run an event script in the directory of the me file
         @hide
@@ -993,7 +993,7 @@ public class Builder {
                     if (item.script is Function) {
                         result = item.script(target)
                     } else {
-                        result = eval('require ejs.unix\nrequire embedthis.me.script\n' + 
+                        result = eval('require ejs.unix\nrequire embedthis.me.script\n' +
                             loader.expand(item.script, {missing: ''}))
                     }
                 } else {
@@ -1171,7 +1171,8 @@ public class Builder {
                 tv.INCLUDES = (target.includes) ? target.includes.map(function(p) '"-I' + p.compact(base).portable + '"') : ''
             }
             tv.PDB = tv.OUTPUT.replaceExt('pdb')
-            if (me.dir.home.join('.embedthis').exists && !makeme.generating) {
+            let home = App.home.portable.absolute
+            if (home.join('.embedthis').exists && !makeme.generating) {
                 tv.CFLAGS += ' -DEMBEDTHIS=1'
             }
 
@@ -1298,7 +1299,7 @@ public class Builder {
         }
         return false
     }
- 
+
     /**
         Emit trace for me --why on why a target is being rebuilt.
         @param path Target path being considered.
@@ -1347,5 +1348,3 @@ public class Builder {
 
     @end
  */
-
-

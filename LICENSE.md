@@ -58,7 +58,7 @@ ZLIB - [MIT Style License](http://www.zlib.net/zlib_license.html)
 
 ### Other Licenses
 
-More licenses under src/paks/*/LICENSE.md.
+More licenses under paks/*/LICENSE.md.
 
 Trademarks and Copyrights
 ---

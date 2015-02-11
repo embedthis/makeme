@@ -162,7 +162,7 @@ public class Loader {
                 if ((path = findPlugin(name, false)) != null) {
                     files = [path]
                 } else if (!optional) {
-                    trace('Warn', 'BB Cannot find plugin: "' + name + '" ... continuing')
+                    trace('Warn', 'Cannot find plugin: "' + name + '" ... continuing')
                 }
             }
             if (files.length == 0 && !optional) {
@@ -292,7 +292,6 @@ public class Loader {
         return obj
     }
 
-
     function blendPlugins(obj) {
         let plugins = obj.plugins || []
         if (obj.master) {
@@ -383,7 +382,7 @@ public class Loader {
             throw e
         }
         if (!target.home) {
-            target.home = me.dir.src
+            target.home = me.dir.top
         }
         castTargetProperties(target)
         if (!target.type) {
@@ -536,7 +535,8 @@ public class Loader {
 
     /*
         Search for a plugin. Search locally first then in the pak cache.
-            src/paks/name
+            lib/name
+            paks/name
             ~/.paks/name
             /usr/local/lib/me/latest/bin/paks/name
      */
@@ -552,16 +552,25 @@ public class Loader {
             path = findPlugin('me-' + name, undefined)
         }
         let base = Path(name.trimStart('me-')).joinExt('me')
+
         if (!path || !path.exists) {
             path = me.dir.paks.join(name, base)
+        }
+        if (!path || !path.exists) {
+            path = me.dir.paks.join(name, 'dist', base)
         }
         if (!path || !path.exists) {
             let home = App.home
             if (home) {
                 let pakcache = App.home.join('.paks')
-                path = pakcache.join(name)
+                //  MOB - should not be hard coding embedthis
+                path = pakcache.join(name, 'embedthis')
+                if (!path.exists) {
+                    //  DEPRECATE - check without 'embedthis' directory
+                    path = pakcache.join(name)
+                }
                 if (path.exists) {
-                    path = Path(Version.sort(pakcache.join(name).files('*'), -1)[0]).join(base)
+                    path = Path(Version.sort(path.files('*'), -1)[0]).join(base)
                 }
             }
         }
@@ -1098,7 +1107,7 @@ public class Loader {
     }
 
     public function rebaseTarget(target: Target) {
-        target.home = Path(expand(target.home || me.dir.src))
+        target.home = Path(expand(target.home || me.dir.top))
         setTargetPath(target)
 
         let home = target.home
@@ -1225,15 +1234,21 @@ public class Loader {
             castDirPaths()
             if (options.configure) {
                 /* Before configure - set default directories */
-                dir.bld  ||= dir.top.join(Loader.BUILD)
+                dir.bld  ||= App.dir.join(Loader.BUILD)
                 dir.out  ||= dir.bld.join(me.platform.name)
                 dir.bin  ||= dir.out.join('bin')
                 dir.inc  ||= dir.out.join('inc')
                 dir.lbin ||= (options.gen || me.platform.os == Config.OS) ? dir.bin : dir.bld.join(localPlatform, 'bin')
-                dir.lib  ||= dir.bin
+                dir.lib  ||= dir.top.join('lib')
                 dir.obj  ||= dir.out.join('obj')
-                dir.paks ||= dir.src.join('src/paks')
-                dir.proj ||= dir.src.join('projects')
+                dir.src  ||= dir.top.join('src')
+                //  DEPRECATE
+                if (dir.top.join('src/paks').exists) {
+                    dir.paks ||= dir.top.join('src/paks')
+                } else {
+                    dir.paks ||= dir.top.join('paks')
+                }
+                dir.proj ||= dir.top.join('projects')
                 dir.pkg  ||= dir.out.join('pkg')
                 dir.rel  ||= dir.out.join('img')
             } else {
@@ -1241,10 +1256,10 @@ public class Loader {
                 dir.out  ||= dir.bld
                 dir.bin  ||= dir.out
                 dir.lbin ||= dir.bin
-                dir.lib  ||= dir.bin
+                dir.lib  ||= dir.top.join('lib')
                 dir.inc  ||= dir.out
                 dir.obj  ||= dir.out
-                dir.paks ||= dir.src.join('paks')
+                dir.paks ||= dir.top.join('paks')
                 dir.proj ||= dir.out
                 dir.pkg  ||= dir.out.join('pkg')
                 dir.rel  ||= dir.out.join('img')
@@ -1358,9 +1373,9 @@ public class Loader {
             let type = target.type
             if (type == 'lib') {
                 if (this.static) {
-                    target.path = me.dir.lib.join(name).joinExt(me.ext.lib, true)
+                    target.path = me.dir.bin.join(name).joinExt(me.ext.lib, true)
                 } else {
-                    target.path = me.dir.lib.join(name).joinExt(me.ext.shobj, true)
+                    target.path = me.dir.bin.join(name).joinExt(me.ext.shobj, true)
                 }
             } else if (type == 'obj') {
                 target.path = me.dir.obj.join(name).joinExt(me.ext.o, true)

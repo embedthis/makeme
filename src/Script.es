@@ -98,7 +98,7 @@ public function builtin(cmd: String, actionOptions: Object = {}) {
                 let path: Path = target.modify || target.path 
                 path = (makeme.generating) ? reppath(path) : path
                 if (path.exists) {
-                    trace('Clean', path.relativeTo(me.dir.top))
+                    trace('Clean', path.relative)
                 }
                 if (path.toString().endsWith('/') || path.isDir) {
                     removeDir(path)
@@ -152,10 +152,13 @@ public function copyFile(src: Path, dest: Path, options = {}) {
         }
     } else {
         let pwd = App.dir
+        //  MOB - what is this for. Why is dest reversed relative to src
         if (src.startsWith(pwd)) {
+            //  MOB - why not relative to me.dir.top?
             src = src.relativeTo(me.dir.top)
         }
         if (dest.startsWith(me.dir.top)) {
+            //  MOB - why not relative to me.dir.top?
             dest = dest.relativeTo(pwd)
         }
         if (src == dest) {
@@ -201,7 +204,7 @@ public function copy(from, to: Path, options = {}) {
     Wrapper for Path.operate 
  */
 public function copyFiles(from, to: Path, topOptions = {}, base = null) {
-    base ||= topOptions.home || me.dir.src
+    base ||= topOptions.home || me.dir.top
     base = Path(base)
     let options = blend({
         verbose: makeme.options.verbose,
@@ -250,13 +253,13 @@ public function copyFiles(from, to: Path, topOptions = {}, base = null) {
                 the 'src' directory. Note: file targets do not change directory to target.home like scripts do.
              */
             if (from.isDir) {
-                from = from.relativeTo(me.dir.src)
+                from = from.relativeTo(me.dir.top)
                 if (topOptions.made[from]) {
                     topOptions.made[from] = true
                     makeDirectory(from, control)
                 }
             } else {
-                from = from.relativeTo(me.dir.src)
+                from = from.relativeTo(me.dir.top)
                 copyFile(from, to, control)
             }
             if (control.symlink && me.platform.like == 'unix') {
@@ -356,6 +359,7 @@ public function makeDirectory(path: Path, options = {}) {
         /* Generating */
         let pwd = App.dir
         if (path.startsWith(me.dir.top)) {
+            //  MOB - why not relative to me.dir.top?
             path = path.relativeTo(pwd)
         }
         if (makeme.generating == 'nmake' || makeme.generating == 'vs') {

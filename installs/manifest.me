@@ -1,0 +1,170 @@
+/*
+    manifest.me - MakeMe file for MakeMe Manifest 
+ */
+
+Me.load({
+    /*
+        Package manifest instructions
+
+        The sets used are: binary, service, test, doc, dev, package, source
+     */
+    manifest: {
+        home: me.dir.bin,
+        packages:   {
+            install: {
+                inherit:    'package-manifest',
+                prefixes:   [ 'root', 'app', 'vapp', 'bin', 'inc', 'man'],
+                sets:       [ 'core', 'libs', 'doc' ],
+                platforms:  [ 'windows', 'unix' ]
+            },
+            binary: {
+                inherit:    'package-manifest',
+                prefixes:   [ 'root', 'app', 'vapp', 'bin', 'inc', 'man'],
+                formats:    [ 'native', 'tar' ],
+                sets:       [ 'core', 'libs', 'doc', 'package' ],
+                platforms:  [ 'freebsd', 'linux', 'windows', 'macosx' ]
+            },
+            source: {
+                inherit:    'package-manifest',
+                prefixes:   [ 'root', 'src'],
+                formats:    [ 'tar' ],
+                sets:       [ 'source' ],
+            },
+        },
+
+        sets: { 
+            core: [
+                {   
+                    from:   [
+                                'me${EXE}',
+                                'testme${EXE}',
+                    ],
+                    to:         '${abin}/',
+                    symlink:    '${bin}/',
+
+                }, {   
+                    from: [
+                                'ejs${EXE}',
+                                'ejsc${EXE}',
+                                'http${EXE}',
+                    ],
+                    to:         '${abin}/',
+                    symlink:    '${bin}/',
+                }
+            ],
+            libs: [
+                { 
+                    from: [
+                                'libejs${SHOBJ}',
+                                'libhttp${SHOBJ}',
+                                'libmpr${SHOBJ}',
+                                'libmprssl${SHOBJ}',
+                                'libpcre${SHOBJ}',
+                                'libzlib${SHOBJ}',
+                                'libtestme${SHOBJ}',
+                    ],
+                    to:         '${abin}/',
+                    enable:     '!me.settings.static',
+
+                }, { 
+                    from:       'libest${SHOBJ}',
+                    to:         '${abin}/',
+                    enable:     '!me.settings.static',
+                    ifdef:      'est',
+
+                }, { 
+                    from: [
+                                'libssl*${SHOBJ}*',
+                                'libcrypto*${SHOBJ}*',
+                    ],
+                    to:         '${abin}/',
+                    enable:     'me.platform.os != "windows" && !makeme.options.gen',
+                    ifdef:      'openssl',
+
+                }, { 
+                    from: [
+                                'libeay32${SHOBJ}',
+                                'ssleay32${SHOBJ}',
+                    ],
+                    to:         '${abin}/',
+                    enable:     'me.platform.os == "windows"',
+                    ifdef:      'openssl',
+
+                }, { from: [
+                                'ca.crt',
+                                'ejs.mod',
+                                'me.mod',
+                                'testme.mod',
+                                'ejs.testme.mod',
+                    ],
+                    to:         '${abin}/',
+
+                }, { 
+                    from:       '${TOP}/src/tm/testme.h',
+                    to:         '${vapp}/inc/',
+
+                }, {
+                    home:       '${TOP}/src',
+                    from:       [
+                                '*.me',
+                    ],
+                    to:         '${abin}/',
+                    flatten:    false,
+                
+                }, {
+                    from:       [
+                                'paks/me-components/',
+                                'paks/me-configuration/',
+                                'paks/me-os/',
+                                'paks/me-package/',
+                                'paks/me-project/',
+                                'paks/me-vstudio/',
+                                'paks/me-xcode/',
+                    ],
+                    to:         '${abin}/',
+                    flatten:    false,
+                }
+            ],
+            doc: [
+                { 
+                    from: [
+                                '${TOP}/doc/dist/man/me.1',
+                                '${TOP}/doc/dist/man/testme.1',
+                    ],
+                    to:         '${adoc}/man/man1/',
+                    symlink:    '${man}/man1/',
+                    enable:     "me.platform.like == 'unix'",
+                }
+            ],
+            source: [
+                { 
+                    from:       '${TOP}/*.md',
+                    to:         '${src}/',
+                    fold:       true,
+                    patch:      true,
+
+                }, { 
+                    from:       '${TOP}/configure',
+                    to:         '${src}/',
+                    permissions: 0755,     
+
+                }, { 
+                    home:       '${TOP}',
+                    from: [ 
+                                'Makefile', 
+                                'make.bat', 
+                                'main.me', 
+                                'package.json',
+                                'src', 
+                                'doc', 
+                                'projects', 
+                                'installs'
+                    ],
+                    exclude:    /\.old$|\.tmp$|xcuserdata|xcworkspace|project.guid|-mine/,
+                    to:         '${src}/',
+                    flatten:    false,
+                },
+            ],
+        }
+    },
+})

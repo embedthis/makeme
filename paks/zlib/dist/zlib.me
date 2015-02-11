@@ -1,0 +1,22 @@
+/*
+    zlib.me -- MakeMe file for the zlib library
+ */
+
+Me.load({
+    targets: {
+        zlib: {
+            configurable: true,
+            depends: [ 'libzlib' ],
+        },
+
+        libzlib: {
+            type: 'lib',
+            sources: [ '*.c' ],
+            headers: [ 'zlib.h' ],
+            ifdef:   [ 'zlib' ],
+            '-compiler': [
+                '-Wunreachable-code',
+            ],
+        },
+	},
+})

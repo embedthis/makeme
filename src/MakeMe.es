@@ -48,7 +48,6 @@ public class MakeMe {
     private var argTemplate = {
         options: {
             benchmark: { alias: 'b' },
-            chdir: { range: String },
             configure: { range: String },
             configuration: { },
             'continue': { alias: 'c' },
@@ -118,9 +117,11 @@ public class MakeMe {
             App.log.name = 'me'
             Me()
             parseArgs(args)
-            let file = options.file = Path(options.file || findMakeMeFile() || Loader.START)
-            App.chdir(options.file.dirname)
-
+            options.file = Path(options.file || findMakeMeFile() || Loader.START)
+            if (!options.configure && options.gen != 'start') {
+                /* Must not change directory for init or out-of-tree configurations */
+                App.chdir(options.file.dirname)
+            }
             if (options.import) {
                 import()
                 App.exit()
@@ -137,26 +138,26 @@ public class MakeMe {
             }
             if (goals.contains('configure')) {
                 /* The configure goal is special, must be done separately and first */
-                builder.process(file, ['configure'])
+                builder.process(options.file, ['configure'])
                 goals.removeElements('configure')
                 if (goals.length == 0) {
                     return
                 }
-                file = options.file = Loader.START
+                options.file = options.file.dirname.join(Loader.START)
             }
             if (goals.contains('generate')) {
                 /* The configure goal is special, must be done separately and first */
-                builder.process(file, ['generate'])
+                builder.process(options.file, ['generate'])
                 goals.removeElements('generate')
                 if (goals.length == 0) {
                     return
                 }
-                file = options.file = Loader.START
+                options.file = options.file.dirname.join(Loader.START)
             }
             if (options.watch) {
-                builder.watch(file, goals)
+                builder.watch(options.file, goals)
             } else {
-                builder.process(file, goals)
+                builder.process(options.file, goals)
             }
         } catch (e) {
             let msg: String
@@ -207,7 +208,7 @@ public class MakeMe {
     function import() {
         me = Me()
         loader.loadFile(Loader.START)
-        mkdir(me.dir.top.join('me'), 0755)
+        mkdir(me.dir.top.join('makeme'), 0755)
         for each (src in Config.Bin.files('**', {relative: true})) {
             let dest = me.dir.top.join('makeme', src)
             if (Config.Bin.join(src).isDir) {

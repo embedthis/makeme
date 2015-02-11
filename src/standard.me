@@ -12,16 +12,6 @@ Me.load({
             `,
         },
 
-        clobber: {
-            depends: ['clean'],
-            action: `
-                rmdir(['${TOP}/*-*-debug', '${TOP}/*-*-release'])
-                rm('${TOP}/*-*.me')
-                rm('${TOP}/*.dmp')
-                rmdir('${TOP}/releases')
-            `
-        },
-
         /* Compatibility for those familiar with make */
         compile: {
             depends: ['all'],

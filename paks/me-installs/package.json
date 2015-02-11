@@ -1,0 +1,21 @@
+{
+    "name": "me-installs",
+    "description": "Packaging Targets",
+    "version": "0.8.5",
+    "keywords": [
+        "me"
+    ],
+    "author": {
+        "name": "Embedthis Software",
+        "email": "dev@embedthis.com",
+        "url": "https://embedthis.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/embedthis/me-installs.git"
+    },
+    "bugs": {
+        "url": "http://github.com/embedthis/me-installs/issues"
+    },
+    "licenses": "GPL"
+}

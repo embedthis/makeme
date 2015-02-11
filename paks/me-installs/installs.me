@@ -1,0 +1,256 @@
+/*
+    package.me -- me-package MakeMe file
+ */
+
+Me.load({
+    mixin: `
+        public class Installs {
+            function Installs() {
+                require embedthis.me
+                load('${ORIGIN}/Installs.es')
+                return InstallsInner()
+            }
+        }
+    `
+
+    scripts: {
+        loaded: `
+            if (me.platform.like == 'windows') {
+                me.prefixes = me['windows-prefixes']
+                for (let [name,value] in me.prefixes) {
+                    me.prefixes[name] = Path(value)
+                }
+            }
+        `,
+    },
+
+    internal: {
+        platforms: [ 'local' ],
+    },
+
+    'install-prefixes': {
+        root:       '/',
+        base:       '${prefixes.root}/usr/local',
+        data:       '${prefixes.root}',
+        state:      '${prefixes.root}/var',
+
+        app:        '${prefixes.base}/lib/${settings.name}',
+        vapp:       '${prefixes.app}/${settings.version}',
+
+        bin:        '${prefixes.base}/bin',
+        inc:        '${prefixes.base}/include',
+        lib:        '${prefixes.base}/lib',
+        man:        '${prefixes.base}/share/man',
+        sbin:       '${prefixes.base}/sbin',
+
+        etc:        '${prefixes.data}/etc/${settings.name}',
+        web:        '${prefixes.state}/www/${settings.name}',
+        log:        '${prefixes.state}/log/${settings.name}',
+        spool:      '${prefixes.state}/spool/${settings.name}',
+        cache:      '${prefixes.state}/spool/${settings.name}/cache',
+
+        src:        '${settings.name}-${settings.version}',
+    },
+
+    targets: {
+        check: {
+            action: `
+                let package = Installs()
+                let missing = package.checkInstalled()
+                if (missing) {
+                    let existing = package.checkUninstalled()
+                    if (existing) {
+                        trace('Status', 'Product partially removed, existing: ' + existing.join(' '))
+                        for each (f in existing) {
+                            dump(f, f.files())
+                        }
+                    } else {
+                        trace('Status', 'Not installed')
+                    }
+                } else {
+                    trace('Status', 'Installed')
+                }
+            `,
+        },
+
+        checkInstalled: {
+            action: `
+                let missing = Installs().checkInstalled()
+                if (missing) {
+                    trace('Missing', missing)
+                    makeme.status = 1
+                } else {
+                    trace('Installed', 'Products directories are created')
+                }
+            `,
+        },
+
+        checkUninstalled: {
+            action: `
+                let existing = Installs().checkUninstalled()
+                if (existing) {
+                    trace('Existing', existing)
+                    makeme.status = 1
+                } else {
+                    trace('Info', 'Product is not installed')
+                }
+            `,
+        },
+
+        install: {
+            action: ' ',
+            generate: ' ',
+            depends: [ 'all', 'installPrep', 'stop', 'installBinary', 'start' ],
+        },
+
+        installPrep: {
+            action: ' ',
+            home: '${TOP}',
+            'generate-make': '
+                if [ "`id -u`" != 0 ]
+                then echo "Must run as root. Rerun with \"sudo\""
+                    exit 255
+                fi
+            '
+        },
+
+        installBinary: {
+            action: `
+                require embedthis.me
+                makeme.loader.blendFile('${ORIGIN}/manifest.me')
+                Installs().installBinary()
+            `,
+            depends: [ 'all' ],
+            generate: true,
+            home: '${TOP}',
+        },
+
+        installPackage: {
+            action: `
+                require embedthis.me
+                makeme.loader.blendFile('${ORIGIN}/manifest.me')
+                Installs().installPackage()
+            `,
+            home: '${TOP}',
+        },
+
+        package: {
+            enable: "'${OS}.match(/linux|macosx|windows/)",
+            depends: ['packageBinary', 'packageSource', 'packagePak'],
+        },
+
+        packageBinary: {
+            depends: ['all'],
+            action: `
+                require embedthis.me
+                makeme.loader.blendFile('${ORIGIN}/manifest.me')
+                Installs().packageBinary()
+            `,
+            home: '${TOP}',
+        },
+
+        packageSource: {
+            depends: ['all'],
+            action: `
+                require embedthis.me
+                makeme.loader.blendFile('${ORIGIN}/manifest.me')
+                Installs().packageSource()
+            `,
+        },
+
+        packagePak: {
+            depends: ['all'],
+            action: `
+                require embedthis.me
+                makeme.loader.blendFile('${ORIGIN}/manifest.me')
+                Installs().packagePak()
+            `,
+            home: '${TOP}',
+        },
+
+        uninstall: {
+            depends: [ 'all', 'stop' ],
+            action: `
+                require embedthis.me
+                makeme.loader.blendFile('${ORIGIN}/manifest.me')
+                Installs().uninstallBinary()
+            `,
+            home: '${TOP}',
+            generate: true,
+        },
+
+        uninstallPackage: {
+            action: `
+                require embedthis.me
+                makeme.loader.blendFile('${ORIGIN}/manifest.me')
+                Installs().uninstallPackage()
+            `,
+            home: '${TOP}',
+        },
+
+        whatsInstalled: {
+            action: `
+                require embedthis.me
+                Installs().whatsInstalled()
+            `,
+            home: '${TOP}',
+        },
+
+        cache: {
+            depends: ['all'],
+            action: `
+                require embedthis.me
+                makeme.loader.blendFile('${ORIGIN}/manifest.me')
+                Installs().cache()
+            `,
+            home: '${TOP}',
+        },
+
+        testPackage: {
+            type: 'test',
+            action: `
+                require embedthis.me
+                makeme.loader.blendFile('${ORIGIN}/manifest.me')
+                let package = Installs()
+                let name = package.packageName()
+                if (!name || !name.exists || me.settings.depth < 2) {
+                    trace('Test', 'testPackage -- SKIPPED (No package to install)')
+                } else if (me.settings.depth < 2) {
+                    trace('Test', 'testPackage -- SKIPPED (Runs at depth 2 on windows or macosx)')
+                } else {
+                    if (Config.OS == 'macosx' && App.uid != 0) {
+                        trace('Test', 'testPackage -- SKIPPED (Must run as root)')
+                    } else {
+                        trace('Test', 'testPackage')
+                        if (me.prefixes.bin.join('uninstall').exists) {
+                            trace('Test', 'Cleanup prior to installation')
+                            package.uninstallPackage()
+                            package.checkUninstalled()
+                        }
+                        package.installPackage()
+                        if (missing = package.checkInstalled()) {
+                            trace('Test', 'Install is missing files: ' + missing)
+                        }
+                        trace('Test', me.settings.name + ' -V')
+                        assert(Cmd.run([me.prefixes.bin.join(me.settings.name), '-V']).trim() == me.settings.version)
+                        let name = me.settings.name
+                        if (name != 'me' && name != 'ejs' && name != 'pak') {
+                            package.uninstallPackage()
+                            if (Config.OS == 'windows') App.sleep(1000)
+                            if (existing = package.checkUninstalled()) {
+                                trace('Warning', 'The uninstall for testPackage was not clean: ' + existing)
+                            } else {
+                                trace('Test', 'Uninstall is clean')
+                            }
+                        }
+                    }
+                }
+            `,
+            home: '${TOP}',
+        },
+
+        /* Default stubs */
+        start: { action: ' ', generate: ' '},
+        stop:  { action: ' ', generate: ' '},
+    },
+})

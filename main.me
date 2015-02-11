@@ -3,7 +3,7 @@
  */
 
 Me.load({
-    plugins: [ 'configuration', 'package' ],
+    plugins: [ 'configuration', 'installs' ],
 
     blend: [
         'ejs',
@@ -73,8 +73,8 @@ Me.load({
 
         tune: 'speed',
 
-        prefixes: 'package-prefixes',
-        manifest: 'package/manifest.me',
+        prefixes: 'install-prefixes',
+        manifest: 'installs/manifest.me',
     },
 
     scripts: {
@@ -98,7 +98,7 @@ Me.load({
         },
         'me.mod': {
             path: '${BIN}/me.mod',
-            files: [ 'src/*.es', 'src/paks/ejs-version/Version.es' ],
+            files: [ 'src/*.es', 'paks/ejs-version/Version.es' ],
             precious: true,
             build: `
                 run('${LBIN}/ejsc --debug --out ${BIN}/me.mod --optimize 9 ${FILES}')
@@ -117,22 +117,21 @@ Me.load({
             depends: [ 'libmpr', 'libhttp', 'libejs', 'me.mod', 'runtime' ],
         },
 
+        pakrun: {
+            type: 'file',
+            path: '${BIN}/',
+            files: 'paks/me-*/**',
+            flatten: false,
+            precious: true,
+        },
+
         runtime: {
             type: 'file',
             path: '${BIN}/',
             home: 'src',
-            files: [ 
-                '*.me',
-                'paks/me-configuration/**',
-                'paks/me-components/**',
-                'paks/me-package/**',
-                'paks/me-project/**',
-                'paks/me-os/**',
-                'paks/me-vstudio/**',
-                'paks/me-xcode/**',
-            ],
-            flatten: false,
+            files: '*.me',
             precious: true,
+            depends: [ 'pakrun' ],
         },
 
         projects: {

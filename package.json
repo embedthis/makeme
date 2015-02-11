@@ -2,14 +2,17 @@
     "name": "me",
     "description": "Embedthis MakeMe",
     "version": "0.8.6",
-    "pak": ">=0.10",
+    "pak": {
+        "import": true,
+        "version": ">=0.10.0"
+    },
     "keywords": [
         "me",
         "makeme",
         "build",
         "make"
     ],
-    "homepage": "http://embedthis.com/products/me/",
+    "homepage": "https://embedthis.com/makeme/",
     "author": {
         "name": "Embedthis Software",
         "email": "dev@embedthis.com",
@@ -40,8 +43,8 @@
         "http": "~6.0",
         "me-components": "~0.8",
         "me-configuration": "~0.8",
+        "me-installs": "~0.8",
         "me-os": "~0.8",
-        "me-package": "~0.8",
         "me-project": "~0.8",
         "me-vstudio": "~0.8",
         "me-xcode": "~0.8",
@@ -50,16 +53,5 @@
         "pcre": "~1.0",
         "ssl": "~0.8",
         "zlib": "~1.0"
-    },
-    "directories": {
-        "paks": "src/paks"
-    },
-    "app": {
-        "*": {
-            "ignore": [
-                "doc**"
-            ],
-            "noblend": true
-        }
     }
 }
