@@ -4,5 +4,10 @@
     },
     control: {
         copy:    [ 'images' ],
+        collections: {
+            styles: [
+                'css/all.css',
+            ]
+        }
     }
 }
