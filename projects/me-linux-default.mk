@@ -998,8 +998,8 @@ installBinary: $(DEPS_54)
 	cp $(BUILD)/bin/paks/me-configuration/** $(ME_VAPP_PREFIX)/bin/paks/me-configuration/** ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-os" ; \
 	cp $(BUILD)/bin/paks/me-os/** $(ME_VAPP_PREFIX)/bin/paks/me-os/** ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-package" ; \
-	cp $(BUILD)/bin/paks/me-package/** $(ME_VAPP_PREFIX)/bin/paks/me-package/** ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-installs" ; \
+	cp $(BUILD)/bin/paks/me-installs/** $(ME_VAPP_PREFIX)/bin/paks/me-installs/** ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-project" ; \
 	cp $(BUILD)/bin/paks/me-project/** $(ME_VAPP_PREFIX)/bin/paks/me-project/** ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-vstudio" ; \
