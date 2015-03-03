@@ -4,5 +4,12 @@
     "version": "0.8.3",
     "keywords": [
         "ejs"
-    ]
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/embedthis/ejs-version.git"
+    },
+    "pak": {
+        "origin": "embedthis/ejs-version"
+    }
 }

@@ -3098,7 +3098,7 @@ static HttpConn *openConnection(HttpConn *conn, struct MprSsl *ssl)
         New socket
      */
     if ((sp = mprCreateSocket()) == 0) {
-        httpError(conn, HTTP_ABORT | HTTP_CODE_COMMS_ERROR, "Cannot create socket for %s", uri->uri);
+        httpError(conn, HTTP_ABORT | HTTP_CODE_COMMS_ERROR, "Cannot create socket for %s", httpUriToString(uri, 0));
         return 0;
     }
     if ((rc = mprConnectSocket(sp, ip, port, MPR_SOCKET_NODELAY)) < 0) {
@@ -7643,7 +7643,6 @@ PUBLIC void httpAddHostToEndpoints(HttpHost *host)
     for (next = 0; (endpoint = mprGetNextItem(HTTP->endpoints, &next)) != 0; ) {
         httpAddHostToEndpoint(endpoint, host);
         if (!host->name) {
-            mprLog("warn http", 0, "Route does not have a name, using IP:PORT by default");
             httpSetHostName(host, sfmt("%s:%d", endpoint->ip, endpoint->port));
         }
     }
@@ -7660,7 +7659,6 @@ static bool validateEndpoint(HttpEndpoint *endpoint)
         host = httpGetDefaultHost();
         httpAddHostToEndpoint(endpoint, host);
         if (!host->name) {
-            mprLog("warn http", 0, "Route does not have a name, using IP:PORT by default");
             httpSetHostName(host, sfmt("%s:%d", endpoint->ip, endpoint->port));
         }
         for (nextRoute = 0; (route = mprGetNextItem(host->routes, &nextRoute)) != 0; ) {
@@ -21115,7 +21113,7 @@ PUBLIC HttpUri *httpCreateUri(cchar *uri, int flags)
     if ((up = mprAllocObj(HttpUri, manageUri)) == 0) {
         return 0;
     }
-    tok = up->uri = sclone(uri);
+    tok = sclone(uri);
 
     /*
         [scheme://][hostname[:port]][/path[.ext]][#ref][?query]
@@ -21235,7 +21233,6 @@ static void manageUri(HttpUri *uri, int flags)
         mprMark(uri->ext);
         mprMark(uri->reference);
         mprMark(uri->query);
-        mprMark(uri->uri);
     }
 }
 

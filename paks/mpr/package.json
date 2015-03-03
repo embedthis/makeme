@@ -30,9 +30,9 @@
         }
     ],
     "dependencies": {
-        "est": "~0.6",
-        "osdep": "~0.8",
-        "ssl": "~0.8"
+        "est": "^0.6",
+        "osdep": "^0.8",
+        "ssl": "^0.8"
     },
     "files": [
         "dist/",

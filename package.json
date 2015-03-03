@@ -37,21 +37,14 @@
         }
     ],
     "dependencies": {
-        "ejs": "~2.5",
-        "ejs-version": "~0.8",
-        "est": "~0.6",
-        "http": "~6.0",
-        "me-components": "~0.8",
-        "me-configuration": "~0.8",
-        "me-installs": "~0.8",
-        "me-os": "~0.8",
-        "me-project": "~0.8",
-        "me-vstudio": "~0.8",
-        "me-xcode": "~0.8",
-        "mpr": "~6.0",
-        "osdep": "~0.8",
-        "pcre": "~1.0",
-        "ssl": "~0.8",
-        "zlib": "~1.0"
+        "ejs": "^2.5",
+        "ejs-version": "^0.8",
+        "me-components": "^0.8",
+        "me-configuration": "^0.8",
+        "me-installs": "^0.8",
+        "me-os": "^0.8",
+        "me-project": "^0.8",
+        "me-vstudio": "^0.8",
+        "me-xcode": "^0.8"
     }
 }

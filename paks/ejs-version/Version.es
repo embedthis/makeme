@@ -9,6 +9,7 @@ module ejs.version {
 
 const MaxVer: Number = 1000000000
 const VerFactor: Number = 1000
+const Strict = false
 const StrictSemVer = /(\d+\.\d+\.\d+)(-.*)*$/
 const SemVer = /(\d[^.\-]*\.\d[^.\-]*\.\d[^.\-]*)(-.*)*/
 const SemCriteria = /((?:\d[^.\-]*|[xX*])\.(?:\d[^.\-]*|[xX*])\.(?:\d[^.\-]*|[xX*]))(-.*)*|(\*)|(^$)/
@@ -39,10 +40,12 @@ class Version {
         try {
             [,baseVersion,preVersion] = version.match(SemVer)
             preVersion ||= ''
-            /* Cannot use this for versions like 1.0.1e (OpenSSL)
+            if (Strict) {
+                // Cannot use this for versions like 1.0.1e (OpenSSL)
                 publicVersion = (!preVersion && version.match(StrictSemVer)) || false
-             */
-            publicVersion = (!preVersion) || false
+            } else {
+                publicVersion = (!preVersion) || false
+            }
             numberVersion = asNumber(baseVersion)
             let [maj,min,pat] = baseVersion.split('.')
             majorVersion = maj
@@ -65,9 +68,15 @@ class Version {
         @param criteria  The acceptable formats for criteria are:
         <pre>
         VER                             Allows prereleases
-        ^ VER                           Same as >=1.2.3 <2.0.0 (does not allow prereleases)
-        ~ VER                           Same as >=1.2.3 <2.0.0 (allows prereleases)
+        ~ VER                           Compatible with VER and reasonably close (Same minor number).
+                                        ~1.2.3 == 1.2.3-0 <= VER < 1.3.0-0
+                WAS Same as >=1.2.3 <2.0.0 (allows prereleases)
+        ^ VER                           Compatible with VER and compatible (Same major number).
+                                        ^1.2.3 == 1.2.3-0 <= VER < 2.0.0-0
+                WAS . Same as >=1.2.3 <2.0.0 (does not allow prereleases)
         1.2.X                           Any version starting with 1.2 (allows prereleases)
+        1.2.x                           Same
+        1.2.*                           Same
         [>, >=, <, <=, ==, !=] VER
         EXPR || EXPR ...
         EXPR && EXPR ...
@@ -102,22 +111,25 @@ class Version {
         try {
             [,op,partial] = expr.match(SemExpr)
             if (partial == '*') {
-                op = '~'
+                op ||= '~'
                 partial = 'x'
             }
             ver = complete(partial)
             [,base,pre] = ver.match(SemCriteria)
             if (op == '~' || op == '^') {
-                if (op == '^' && !publicVersion) {
-                    return false
+                if (op == '^') {
+                    if ((preVersion && !pre) || (!preVersion && pre)) {
+                        return false
+                    }
                 }
                 let base = partial.split(/(\.)*[xX*]/)[0].split('-')[0]
                 return baseVersion.startsWith(base)
             }
-            if (base.match(/[xX]/)) {
-                let low = base.replace(/[xX]/, '0')
-                let high = base.replace(/[xX]/, VerFactor - 1)
-                return publicVersion && inRange('>=' + low) && inRange('<' + high)
+            if (base.match(/[xX*]/)) {
+                let low = base.replace(/[xX*]/g, '0')
+                let high = base.replace(/[xX*]/g, VerFactor - 1)
+                let ps = pre ? pre : ''
+                return inRange('>=' + low + ps) && inRange('<' + high + ps)
             }
         } catch {
             return false
@@ -304,6 +316,7 @@ class Version {
 
 /*
     TODO - could enable via conditional compilation
+*/
 
 require ejs.version
 let v
@@ -389,17 +402,31 @@ assert(Version('1.2.3-debug').acceptable('~1.2.3'))
 assert(!Version('1.2.3-debug').acceptable('^1.2.3'))
 assert(!Version('1.2.3-debug').acceptable('^*'))
 
-assert(!Version('1.2.3-debug').acceptable('*'))
+assert(Version('1.2.3-debug').acceptable('*'))
 assert(Version('1.2.3-debug').acceptable('~*'))
-
-assert(!Version('1.2b.3').acceptable('^*'))
-assert(!Version('1.2rc1.4').acceptable('^*'))
-assert(!Version('1.2.4rc1').acceptable('^*'))
-assert(!Version('1.0a').acceptable('1.0.0'))
+assert(!Version('1.2.3-debug').acceptable('^*'))
 
 assert(!Version('v1.2.6-build.1988+sha.b0474cb').acceptable('1.2.x'))
 assert(!Version('v1.2.6-build.1988+sha.b0474cb').acceptable('1.2.*'))
 assert(Version('v1.2.6-build.1988+sha.b0474cb').acceptable('~1.2.*'))
-assert(Version('v1.2.6-build.1988+sha.b0474cb').acceptable('1.2.*-build'))
+assert(Version('v1.2.6-build.1988+sha.b0474cb').acceptable('1.2.*-build.1988+sha.b0474cb'))
 
+assert(Version('1.2.3').acceptable('*'))
+assert(Version('1.2.3').acceptable('x.x.x'))
+
+assert(Version('1.4.0-beta.4').acceptable('*'))
+assert(!Version('1.4.0-beta.4').acceptable('^*'))
+
+assert(Version('0.1.0').acceptable('0.*'))
+
+assert(Version('1.0.7-1.2.3').acceptable('^1.0.7-1.2.3'))
+assert(Version('1.9.1').acceptable('^*'))
+
+/* STRICT 
+assert(!Version('1.2b.3').acceptable('^*'))
+assert(!Version('1.2rc1.4').acceptable('^*'))
+assert(!Version('1.2.4rc1').acceptable('^*'))
+assert(!Version('1.0a').acceptable('1.0.0'))
 */
+
+

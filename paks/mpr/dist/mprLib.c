@@ -6097,13 +6097,24 @@ PUBLIC ssize mprWriteCmdBlock(MprCmd *cmd, int channel, cchar *buf, ssize bufsiz
 {
 #if ME_UNIX_LIKE
     MprCmdFile  *file;
-    ssize       wrote;
+    ssize       total, wrote;
 
     file = &cmd->files[channel];
+    /*
+        Workaround for Mac OSX that seems to sometimes not full block on writes
+     */
     fcntl(file->fd, F_SETFL, fcntl(file->fd, F_GETFL) & ~O_NONBLOCK);
-    wrote = mprWriteCmd(cmd, channel, buf, bufsize);
+    total = 0;
+    while (bufsize > 0) {
+        if ((wrote = mprWriteCmd(cmd, channel, buf, bufsize)) < 0) {
+            return wrote;
+        }
+        buf += wrote;
+        bufsize -= wrote;
+        total += wrote;
+    }
     fcntl(file->fd, F_SETFL, fcntl(file->fd, F_GETFL) | O_NONBLOCK);
-    return wrote;
+    return total;
 #else
     return mprWriteCmd(cmd, channel, buf, bufsize);
 #endif
@@ -6608,7 +6619,6 @@ static void prepWinProgram(MprCmd *cmd)
     MprFile     *file;
     cchar       *bat, *ext, *shell, *cp, *start;
     char        bang[ME_MAX_FNAME + 1], *path, *pp;
-    int         i;
 
     /*
         Map separators, convert carriage-returns and newlines to spaces and remove quotes on the command
@@ -18510,7 +18520,7 @@ static bool matchPath(MprFileSystem *fs, char *path, char *pattern)
         }
         pattern = nextPat;
     }
-    return (pattern && *pattern) ? 0 : 1;
+    return ((pattern && *pattern) || (path && *path)) ? 0 : 1;
 }
 
 
