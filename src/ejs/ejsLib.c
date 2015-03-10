@@ -42385,6 +42385,7 @@ static EjsBoolean *pathGlob(Ejs *ejs, EjsPath *fp, int argc, EjsObj **argv)
     if (!ejsIsDefined(ejs, options)) {
         options = 0;
     }
+    expand = 0;
     if (options) {
         expand = ejsGetPropertyByName(ejs, options, EN("expand"));
     }
