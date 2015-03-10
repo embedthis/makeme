@@ -17,8 +17,5 @@
     "bugs": {
         "url": "http://github.com/embedthis/me-installs/issues"
     },
-    "licenses": "GPL",
-    "pak": {
-        "origin": "embedthis/me-installs"
-    }
+    "licenses": "GPL"
 }

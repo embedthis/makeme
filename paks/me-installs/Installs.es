@@ -804,6 +804,8 @@ class InstallsInner {
         if (Path(cert).exists) {
             let pass = Path('c:/crt/signing.pass').readString().trim()
             trace('Sign', outfile)
+            trace('Run', [me.targets.winsdk.path.join('bin/x86/signtool.exe'),
+                'sign', '/f', cert, '/p', pass, '/t', 'http://timestamp.verisign.com/scripts/timestamp.dll', outfile])
             Cmd.run([me.targets.winsdk.path.join('bin/x86/signtool.exe'),
                 'sign', '/f', cert, '/p', pass, '/t', 'http://timestamp.verisign.com/scripts/timestamp.dll', outfile], 
                 {filter: true})

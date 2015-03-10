@@ -13,8 +13,8 @@ body {
   margin: 0;
   padding: 0;
   font-family: "Open Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
-  background-image: -webkit-linear-gradient(45deg, #007a70 0px, #01d3d3 100%);
-  background-image: linear-gradient(45deg, #007a70 0px, #01d3d3 100%);
+  background-image: -webkit-linear-gradient(45deg, #a20300 0px, #ed0500 80%);
+  background-image: linear-gradient(45deg, #a20300 0px, #ed0500 80%);
   background-attachment: fixed;
   min-width: 320px;
   text-rendering: optimizeLegibility;
@@ -25,7 +25,7 @@ body.show-sidebar {
   margin-left: 240px;
 }
 .masthead {
-  height: 70px;
+  height: 44px;
 }
 .masthead .ui.inverted.menu {
   background-color: #333333;
@@ -82,6 +82,7 @@ body.show-sidebar {
 .sidebar {
   position: fixed;
   left: 0;
+  padding-top: 35px;
   width: 240px;
   height: 100%;
   overflow-y: auto;
@@ -113,15 +114,19 @@ body.show-sidebar {
   background: rgba(255, 255, 255, 0.1);
 }
 .sidebar .ui.vertical.menu a.item.active {
-  border-right: 18px solid #01d3d3;
+  border-right: 18px solid #ed0500;
 }
 .ui.sidebar-launch.button {
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 40px;
-  padding: 0.8em 0.6em 0.8em 1.1em;
-  background-color: #566166;
+  padding: 0.8em 0.6em 0.5em 1.1em;
+  background-color: #333;
+  border-radius: 0;
   color: white;
   float: left;
+  z-index: 100;
 }
 .page {
   padding: 1rem 3.0rem;
@@ -222,11 +227,20 @@ img.shadow {
   border-radius: 7px;
   box-shadow: 5px 5px 9px #999999;
 }
+@media (min-width: 900px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
+@media (max-width: 900px) {
+  .desktop-only {
+    display: none !important;
+  }
+}
 /*
     theme.less - Default Embedthis Documentation Theme
  */
 /*
     override.less - MakeMe Theme Overrides
  */
-/* Orange */
-/* Teal */
+/* Red */

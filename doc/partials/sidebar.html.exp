@@ -99,7 +99,4 @@
         </div>
     </div>
 
-    <div class="ui sidebar-launch button">
-        <i class="icon list layout"></i>
-    </div>
 <@ partial('sidebar-scripts') @>

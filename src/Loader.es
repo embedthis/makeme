@@ -194,7 +194,7 @@ public class Loader {
     public function blendFile(path: Path): Void {
         path = Path(expand(path, {missing: '.'})).absolute
         if (loaded[path]) {
-            vtrace('Info', 'MakeMe file "' + path.relative + '" already loaded')
+            // vtrace('Info', 'MakeMe file "' + path.relative + '" already loaded')
             return
         }
         loaded[path] = true
@@ -537,6 +537,8 @@ public class Loader {
         Search for a plugin. Search locally first then in the pak cache.
             lib/name
             paks/name
+            paks/name/dist
+            ~/.paks/name
             ~/.paks/name
             /usr/local/lib/me/latest/bin/paks/name
      */
@@ -548,11 +550,14 @@ public class Loader {
             optional = true
         }
         name = expand(name, {missing: '.'})
+        let base = Path(name.trimStart('me-')).joinExt('me')
+
         if (!name.startsWith('me-')) {
             path = findPlugin('me-' + name, undefined)
         }
-        let base = Path(name.trimStart('me-')).joinExt('me')
-
+        if (!path || !path.exists) {
+            path = me.dir.lib.join(name, base)
+        }
         if (!path || !path.exists) {
             path = me.dir.paks.join(name, base)
         }
@@ -563,11 +568,14 @@ public class Loader {
             let home = App.home
             if (home) {
                 let pakcache = App.home.join('.paks')
-                //  MOB - should not be hard coding embedthis
                 path = pakcache.join(name, 'embedthis')
                 if (!path.exists) {
-                    //  DEPRECATE - check without 'embedthis' directory
+                    //  TODO - must check all owner directories
                     path = pakcache.join(name)
+                }
+                //  TODO check dist directory more consistently
+                if (!path.exists) {
+                    path = pakcache.join(name, 'dist')
                 }
                 if (path.exists) {
                     path = Path(Version.sort(path.files('*'), -1)[0]).join(base)
@@ -1239,7 +1247,11 @@ public class Loader {
                 dir.bin  ||= dir.out.join('bin')
                 dir.inc  ||= dir.out.join('inc')
                 dir.lbin ||= (options.gen || me.platform.os == Config.OS) ? dir.bin : dir.bld.join(localPlatform, 'bin')
-                dir.lib  ||= dir.top.join('lib')
+                if (!dir.top.join('lib').exists && dir.top.join('src').exists) {
+                    dir.lib  ||= dir.top.join('src')
+                } else {
+                    dir.lib  ||= dir.top.join('lib')
+                }
                 dir.obj  ||= dir.out.join('obj')
                 dir.src  ||= dir.top.join('src')
                 //  DEPRECATE
