@@ -95,9 +95,9 @@
       </Link>
 
       <CustomBuildStep>
-        <Command>cd ..\..\paks\ejs\dist
-..\..\..\build\windows-x86-default\bin\ejsc --out ../../../build/windows-x86-default/bin/ejs.mod --optimize 9 --bind --require null ejs.es
-cd ..\..\..\projects\me-windows-default</Command>
+        <Command>cd ..\..\src\ejs
+..\..\build\windows-x86-default\bin\ejsc --out ../../build/windows-x86-default/bin/ejs.mod --optimize 9 --bind --require null ejs.es
+cd ..\..\projects\me-windows-default</Command>
         <Outputs>$(BinDir)\ejs.mod</Outputs>
       </CustomBuildStep>
   </ItemDefinitionGroup>

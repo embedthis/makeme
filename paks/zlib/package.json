@@ -27,7 +27,6 @@
         }
     ],
     "pak": {
-        "version": ">=0.10.0",
-        "origin": "embedthis/zlib"
+        "version": ">=0.10.0"
     }
 }

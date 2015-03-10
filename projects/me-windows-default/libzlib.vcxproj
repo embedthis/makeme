@@ -100,7 +100,7 @@
   </PropertyGroup>
   
       <ItemGroup>
-    <ClCompile Include="..\..\paks\zlib\dist\zlib.c" />
+    <ClCompile Include="..\..\src\zlib\zlib.c" />
   </ItemGroup>
 
       <ItemGroup>
@@ -114,9 +114,9 @@
       </Link>
 
       <CustomBuildStep>
-        <Command>cd ..\..\paks\zlib\dist
+        <Command>cd ..\..\src\zlib
 copy /Y /B zlib.h $(IncDir)
-cd ..\..\..\projects\me-windows-default</Command>
+cd ..\..\projects\me-windows-default</Command>
         <Outputs>$(BinDir)\libzlib.dll</Outputs>
       </CustomBuildStep>
   </ItemDefinitionGroup>
