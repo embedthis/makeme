@@ -743,7 +743,6 @@ module embedthis.me.script {
     require embedthis.me
     require ejs.version
 
-//  MOB - refactor
     public function getComponentSearch(target, component, objdir = '.') {
         if (target.withpath) {
             return [Path(target.withpath).join(objdir)]

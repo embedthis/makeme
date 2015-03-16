@@ -535,7 +535,7 @@ public class Loader {
 
     /*
         Search for a plugin. Search locally first then in the pak cache.
-            lib/name
+            [lib|src]/name
             paks/name
             paks/name/dist
             ~/.paks/name

@@ -37418,7 +37418,7 @@ PUBLIC void ejsConfigureIteratorType(Ejs *ejs)
 
 
 
-/********* Start of file ../../../src/core/src/ejsJSON.c ************/
+/********* Start of file ../../../src/core/src/ejsJson.c ************/
 
 
 /**
@@ -37454,6 +37454,7 @@ typedef struct Json {
     int         nulls;
     int         regexp;             /* Emit native regular expression types */
     int         quotes;
+    int         multiline;          /* Multiline strings permitted */
     int         pretty;
     int         nest;               /* Json serialize nest level */
 } Json;
@@ -37869,11 +37870,12 @@ PUBLIC EjsString *ejsSerializeWithOptions(Ejs *ejs, EjsAny *vp, EjsObj *options)
     Json        json;
     EjsObj      *arg;
     EjsString   *result;
-    int         i;
+    int         i, enable;
 
     memset(&json, 0, sizeof(Json));
     json.depth = 99;
     json.quotes = 1;
+    json.multiline = 1;
     json.nulls = 1;
     json.indent = sclone("    ");
 
@@ -37917,8 +37919,17 @@ PUBLIC EjsString *ejsSerializeWithOptions(Ejs *ejs, EjsAny *vp, EjsObj *options)
         if ((arg = ejsGetPropertyByName(ejs, options, EN("quotes"))) != 0) {
             json.quotes = (arg != ESV(false));
         }
+        if ((arg = ejsGetPropertyByName(ejs, options, EN("multiline"))) != 0) {
+            json.multiline = (arg != ESV(false));
+        }
         if ((arg = ejsGetPropertyByName(ejs, options, EN("pretty"))) != 0) {
             json.pretty = (arg == ESV(true));
+        }
+        if ((arg = ejsGetPropertyByName(ejs, options, EN("strict"))) != 0) {
+            enable = (arg != ESV(false));
+            json.multiline = !enable;
+            json.quotes = enable;
+            json.pretty = !enable;
         }
         json.replacer = ejsGetPropertyByName(ejs, options, EN("replacer"));
         if (!ejsIsFunction(ejs, json.replacer)) {
@@ -38078,7 +38089,18 @@ static EjsString *serialize(Ejs *ejs, EjsAny *vp, Json *json)
                     /* function replacer(key: String, value: String): String */
                     sv = ejsRunFunction(ejs, json->replacer, obj, 2, (EjsObj**) replacerArgs);
                 }
-                mprPutBlockToBuf(json->buf, sv->value, sv->length * sizeof(wchar));
+                if (json->multiline) {
+                    mprPutBlockToBuf(json->buf, sv->value, sv->length * sizeof(wchar));
+                } else {
+                    for (cp = sv->value; cp < &sv->value[sv->length]; cp++) {
+                        if (*cp == '\n') {
+                            mprPutCharToWideBuf(json->buf, '\\');
+                            mprPutCharToWideBuf(json->buf, 'n');
+                        } else {
+                            mprPutCharToWideBuf(json->buf, *cp);
+                        }
+                    }
+                }
             }
             mprPutCharToWideBuf(json->buf, ',');
             if (json->pretty && !sameline) {
