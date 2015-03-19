@@ -274,7 +274,7 @@ function setCompilerOptions(results, settings) {
         }
 
     } else if (platform.os == 'macosx') {
-        /* PHP, SQLITE warn with this
+        /* 
             results.compiler.push('-Wunreachable-code')
          */
         results.linker.push('-Wl,-rpath,@executable_path/', '-Wl,-rpath,@loader_path/')

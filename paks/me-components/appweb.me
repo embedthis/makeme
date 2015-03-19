@@ -13,6 +13,9 @@ Me.load({
                 }
 */
                 let appweb = Cmd.locate('appweb')
+                if (appweb.isLink) {
+                    appweb = appweb.dirname.join(appweb.linkTarget)
+                }
                 if (appweb) {
                     appweb = appweb.dirname.parent
                 } else {
@@ -41,15 +44,19 @@ Me.load({
                     }
                 }
                 search.push(appweb)
-                let path = probe('bin/libappweb.' + me.ext.shobj, { search: search });
+                let path = probe('bin/libappweb.' + me.ext.shobj, { search: search })
                 let bin = probe('libappweb.' + me.ext.shobj, {fullpath: true, search: path.join('bin')}).dirname
+                if (me.platform.like == 'unix') {
+                    linker = [ '-Wl,-rpath,' + bin + '/' ]
+                }
                 return {
                     path:       path,
                     libpaths:  [ bin ],
                     libraries: [ 'appweb', 'http', 'mpr', 'pcre' ],
+                    linker:    linker,
                     includes:  [ probe('appweb.h', {search: path.join('inc')}) ],
                 }
-            },
-        },
-    },
+            }
+        }
+    }
 })

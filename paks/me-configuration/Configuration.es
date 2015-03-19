@@ -832,7 +832,7 @@ module embedthis.me.script {
                 return null
             }
             throw 'Cannot find "' + file + '" for component "' + Configuration.currentComponent + 
-                    '" on ' + makeme.currentPlatform + '.\n' + 'Using search: ' + serialize(search, {pretty: true})
+                    '".\n' + 'Using search: ' + serialize(search, {pretty: true})
         }
         vtrace('Probe', 'Component "' + Configuration.currentComponent + '" found: "' + path)
         if (control.fullpath) {
