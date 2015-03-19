@@ -186,10 +186,7 @@ class InstallsInner {
                                 }
                             }
                         }
-                        //  TODO - there should be an option in settings to require root
-                        if (Config.OS != 'windows' && App.uid != 0 && me.installing) {
-                            throw 'Must run as root. Use "sudo me install"'
-                        }
+                        checkRoot(manifest)
                         if (!prefixes[pname].exists) {
                             if (prefixes[pname].contains(me.settings.name)) {
                                 prefixes[pname].makeDir()
@@ -357,8 +354,8 @@ class InstallsInner {
         }
     }
 
-    function checkRoot() {
-        if (Config.OS != 'windows' && App.uid != 0 && me.prefixes.root.same('/') && !makeme.generating) {
+    function checkRoot(manifest) {
+        if (!makeme.generating && me.prefixes.root.same('/') && manifest.root && App.uid != 0 && Config.OS != 'windows') {
             throw 'Must run as root. Use "sudo me install"'
         }
     }
@@ -371,7 +368,7 @@ class InstallsInner {
         me.installing = true
         let [manifest, package, prefixes] = setupInstall('install')
         if (package) {
-            checkRoot()
+            checkRoot(manifest)
             if (!makeme.generating) {
                 if (me.options.deploy) {
                     trace('Deploy', me.settings.title + ' to "' + me.prefixes.root + '"')
@@ -389,7 +386,7 @@ class InstallsInner {
         let [manifest, package, prefixes] = setupInstall('binary', true)
         let name = (me.platform.os == 'windows') ? me.settings.title : me.settings.name
         if (package) {
-            checkRoot()
+            checkRoot(manifest)
             if (!makeme.generating) {
                 trace('Uninstall', me.settings.title)
             }
@@ -497,7 +494,7 @@ class InstallsInner {
         let s = me.settings
         let package = packageName()
         if (Config.OS == 'macosx') {
-            checkRoot()
+            checkRoot(manifest)
             trace('Install', package.basename)
             run('installer -target / -package ' + package, {filter: true})
 
@@ -512,7 +509,7 @@ class InstallsInner {
 
     public function uninstallPackage() {
         if (Config.OS == 'macosx') {
-            checkRoot()
+            checkRoot(manifest)
             if (me.prefixes.vapp.join('bin/uninstall').exists) {
                 trace('Uninstall', me.prefixes.vapp.join('bin/uninstall'))
                 run([me.prefixes.vapp.join('bin/uninstall')], {filter: true})
