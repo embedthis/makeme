@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <title>Class MakeMe</title>
+
+   <link rel="stylesheet" type="text/css" href="doc.css" />
+</head>
+
+<body>
+<div class='body'>
+
+<div class="content">
+
+<a name='top'></a>
+<h1 class='className'>MakeMe</h1>
+<div class='classBlock'>
+<table class='classHead' title='MakeMe'>
+   <tr><td><strong>Module</strong></td><td>embedthis.me</td></tr>
+   <tr><td><strong>Definition</strong></td><td> class MakeMe</td></tr>
+   <tr><td><strong>Inheritance</strong></td><td>MakeMe <img src='images/inherit.gif' alt='inherit'/> <a href='Object.html'>Object</a><tr><td><strong>Stability</strong></td><td>Prototype.</td></tr>
+       </td></tr>
+</table>
+
+<p class='classBrief'>MakeMe Class
+This implements the MakeMe 'me' tool and provides constant definitions.</p>
+
+</div>
+
+
+<hr />
+<a name='Properties'></a>
+<h2 class='classSection'>Properties</h2>
+<table class='itemTable' title='properties'>
+   <tr><th>Qualifiers</th><th>Property</th><th>Type</th><th width='95%'>Description</th></tr>
+<a name='builder'></a>
+   <tr><td nowrap align='center'></td><td>builder</td><td><a href='Builder.html'>Builder</a></td><td>Singleton <a href='#Builder'>Builder</a> reference (. </td></tr>
+<a name='configure'></a>
+   <tr><td nowrap align='center'></td><td>configure</td><td>&nbsp;</td><td>Singleton <a href='#Configure'>Configure</a> reference. </td></tr>
+<a name='generating'></a>
+   <tr><td nowrap align='center'></td><td>generating</td><td>&nbsp;</td><td>Set to the project type being generated. </td></tr>
+<a name='loader'></a>
+   <tr><td nowrap align='center'></td><td>loader</td><td><a href='Loader.html'>Loader</a></td><td>Singleton <a href='#Loader'>Loader</a> reference. </td></tr>
+<a name='options'></a>
+   <tr><td nowrap align='center'></td><td>options</td><td><a href='Object.html'>Object</a></td><td>Application command line options from Args.options. </td></tr>
+<a name='project'></a>
+   <tr><td nowrap align='center'></td><td>project</td><td>&nbsp;</td><td>Singleton <a href='#Project'>Project</a> reference. </td></tr>
+<a name='status'></a>
+   <tr><td nowrap align='center'></td><td>status</td><td>&nbsp;</td><td>Default exit status. </td></tr>
+</table>
+
+<p class='inheritedLink'><a href='Object.html#Properties'><i>Inherited Properties</i></a></p>
+
+<hr />
+<a name='ClassMethods'></a>
+<h2 class='classSection'>MakeMe Class Methods</h2>
+<table class='apiIndex' title='methods'>
+   <tr><th>Qualifiers</th><th width='95%'>Method</th></tr>
+   <p>(No own class methods defined)</p></table>
+
+<p class='inheritedLink'><a href='Object.html#InstanceMethods'><i>Inherited Methods</i></a></p>
+
+<hr />
+<a name='InstanceMethods'></a>
+<h2 class='classSection'>MakeMe Instance Methods</h2>
+<table class='apiIndex' title='methods'>
+   <tr><th>Qualifiers</th><th width='95%'>Method</th></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#programFiles32'><b>programFiles32</b></a>(): <a href='Path.html'>Path</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>The MakeMe location on windows under Program Files.</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#strace'><b>strace</b></a>(tag: <a href='String.html'>String</a>, args: <a href='Array.html'>Array</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit "show" trace.</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#trace'><b>trace</b></a>(tag: <a href='String.html'>String</a>, args: <a href='Array.html'>Array</a>): <a href='Void.html'>Void</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit trace.</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#vtrace'><b>vtrace</b></a>(tag, args: <a href='Array.html'>Array</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit "verbose" trace.</td></tr>
+</table>
+
+<p class='inheritedLink'><a href='Object.html#InstanceMethods'><i>Inherited Methods</i></a></p>
+
+<hr />
+<h2>Method Detail</h2>
+<a name='programFiles32'></a>
+<div class='api'>
+<div class='apiSig'>    programFiles32(): <a href='Path.html'>Path</a>
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>The MakeMe location on windows under Program Files. Will be either /Program Files for 32-bit, or /Program Files (x86) for 64-bit.</dd></dl>
+</div>
+</div>
+<hr />
+<a name='strace'></a>
+<div class='api'>
+<div class='apiSig'>    strace(tag: <a href='String.html'>String</a>, args: <a href='Array.html'>Array</a>)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Emit "show" trace. This is trace that is displayed if me --show is invoked.</dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>tag: <a href='String.html'>String</a> </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>args: <a href='Array.html'>Array</a> </td><td>Message args to display.</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='trace'></a>
+<div class='api'>
+<div class='apiSig'>    trace(tag: <a href='String.html'>String</a>, args: <a href='Array.html'>Array</a>): <a href='Void.html'>Void</a>
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Emit trace. </dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>tag: <a href='String.html'>String</a> </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>args: <a href='Array.html'>Array</a> </td><td>Message args to display.</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<a name='vtrace'></a>
+<div class='api'>
+<div class='apiSig'>    vtrace(tag, args: <a href='Array.html'>Array</a>)
+</div>
+<div class='apiDetail'>
+<dl><dt>Description</dt></dd><dd>Emit "verbose" trace. This is trace that is displayed if me --verbose is invoked.</dd></dl>
+<dl><dt>Parameters</dt>
+<dd><table class='parameters' title='parameters'>
+<tr class='param'><td class='param'>tag </td><td>Informational tag emitted before the message.</td></tr><tr class='param'><td class='param'>args: <a href='Array.html'>Array</a> </td><td>Message args to display.</td></tr></table></dd>
+</dl></div>
+</div>
+<hr />
+<div class="terms">
+   <p class="terms">
+       <a href="https://embedthis.com/">       Embedthis Software LLC, 2003-2014. All rights reserved. Embedthis is a trademark of Embedthis Software LLC.</a>
+   </p>
+</div></div>
+</div>
+</body>
+</html>
