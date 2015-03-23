@@ -186,7 +186,9 @@ class InstallsInner {
                                 }
                             }
                         }
-                        checkRoot(manifest)
+                        if (me.installing) {
+                            checkRoot(manifest)
+                        }
                         if (!prefixes[pname].exists) {
                             if (prefixes[pname].contains(me.settings.name)) {
                                 prefixes[pname].makeDir()

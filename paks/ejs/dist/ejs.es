@@ -9047,7 +9047,8 @@ module ejs {
         native function link(target: Path, hard: Boolean = false): Void
 
         /**
-            The target pointed to if this path is a symbolic link. Not available on some platforms such as Windows and 
+            Symbolic link target. This is the actual symbolic link. If relative, use this.dirname.join(linkTarget) to 
+            get the actual target of the symbolic link. Not available on some platforms such as Windows and 
             VxWorks. If the path is not a symbolic link, it is set to null.
          */
         native function get linkTarget(): Path?
