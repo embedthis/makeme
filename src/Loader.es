@@ -578,7 +578,10 @@ public class Loader {
                     path = pakcache.join(name, 'dist')
                 }
                 if (path.exists) {
-                    path = Path(Version.sort(path.files('*'), -1)[0]).join(base)
+                    let files = path.files('*')
+                    if (files.length > 0) {
+                        path = Path(Version.sort(files, -1)[0]).join(base)
+                    }
                 }
             }
         }
