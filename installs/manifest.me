@@ -43,10 +43,15 @@ Me.load({
                     to:         '${abin}/',
                     symlink:    '${bin}/',
 
-                }, {   
+                }, {
                     from: [
                                 'ejs${EXE}',
                                 'ejsc${EXE}',
+                    ],
+                    to:         '${abin}/',
+
+                }, {
+                    from: [
                                 'http${EXE}',
                     ],
                     to:         '${abin}/',
