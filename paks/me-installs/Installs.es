@@ -496,7 +496,7 @@ class InstallsInner {
         let s = me.settings
         let package = packageName()
         if (Config.OS == 'macosx') {
-            checkRoot(manifest)
+            checkRoot()
             trace('Install', package.basename)
             run('installer -target / -package ' + package, {filter: true})
 
@@ -511,7 +511,7 @@ class InstallsInner {
 
     public function uninstallPackage() {
         if (Config.OS == 'macosx') {
-            checkRoot(manifest)
+            checkRoot()
             if (me.prefixes.vapp.join('bin/uninstall').exists) {
                 trace('Uninstall', me.prefixes.vapp.join('bin/uninstall'))
                 run([me.prefixes.vapp.join('bin/uninstall')], {filter: true})
