@@ -356,7 +356,7 @@ class InstallsInner {
         }
     }
 
-    function checkRoot(manifest) {
+    function checkRoot(manifest = { root: true }) {
         if (!makeme.generating && me.prefixes.root.same('/') && manifest.root && App.uid != 0 && Config.OS != 'windows') {
             throw 'Must run as root. Use "sudo me install"'
         }
