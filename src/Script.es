@@ -98,7 +98,7 @@ public function builtin(cmd: String, actionOptions: Object = {}) {
                 let path: Path = target.modify || target.path 
                 path = (makeme.generating) ? reppath(path) : path
                 if (path.exists) {
-                    trace('Clean', path.relative)
+                    trace('Clean', path.relativeTo(me.dir.top))
                 }
                 if (path.toString().endsWith('/') || path.isDir) {
                     removeDir(path)
