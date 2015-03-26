@@ -1050,7 +1050,7 @@ public class Loader {
                 p.inherit = [ p.inherit ]
             }
             for each (from in p.inherit) {
-                blend(target, me[from], {combine: true})
+                blend(base, me[from], {combine: true})
             }
         }
         /*  Blend the properties over the base */
@@ -1387,7 +1387,7 @@ public class Loader {
         } else {
             let type = target.type
             if (type == 'lib') {
-                if (this.static) {
+                if (target.static) {
                     target.path = me.dir.bin.join(name).joinExt(me.ext.lib, true)
                 } else {
                     target.path = me.dir.bin.join(name).joinExt(me.ext.shobj, true)

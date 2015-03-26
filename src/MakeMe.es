@@ -324,8 +324,13 @@ public class MakeMe {
             The --set|unset|with|without switches apply to the previous --platform switch
          */
         let platform = localPlatform
-        let poptions
         options.platforms = {}
+        let poptions = options.platforms[localPlatform] ||= {}
+        if (options.depth) {
+            poptions.enable ||= []
+            poptions.enable.push('depth=' + options.depth)
+        }
+
         for (i = 1; i < App.args.length; i++) {
             let arg = App.args[i]
             if (arg == '--platform' || arg == '-platform') {
@@ -349,22 +354,16 @@ public class MakeMe {
                 poptions = options.platforms[platform] ||= {}
                 poptions.disable ||= []
                 poptions.disable.push(App.args[++i])
-            }
-        }
-        if (poptions) {
-            if (options.depth) {
-                poptions.enable ||= []
-                poptions.enable.push('depth=' + options.depth)
-            }
-            if (options.static) {
+            } else if (arg == '--static') {
+                poptions = options.platforms[platform] ||= {}
                 poptions.enable ||= []
                 poptions.enable.push('static=true')
-            }
-            if (options.rom) {
+            } else if (arg == '--rom') {
+                poptions = options.platforms[platform] ||= {}
                 poptions.enable ||= []
                 poptions.enable.push('rom=true')
-            }
-            if (options.unicode) {
+            } else if (arg == '--unicode') {
+                poptions = options.platforms[platform] ||= {}
                 poptions.enable ||= []
                 poptions.enable.push(Config.OS == 'windows' ? 'charLen=2' : 'charLen=4')
             }
