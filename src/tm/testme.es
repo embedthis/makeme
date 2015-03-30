@@ -469,10 +469,14 @@ enumerable class TestMe {
                 break
 
             default:
-                success = false
-                this.failedCount++
-                trace('FAIL', 'Unexpected output from ' + topPath + ': ' + kind + ' ' + rest)
-                trace('Stdout', '\n' + output)
+                /* 
+                    Now just ignore unexpected output
+
+                    success = false
+                    this.failedCount++
+                    trace('FAIL', 'Unexpected output from ' + topPath + ': ' + kind + ' ' + rest)
+                 */
+                print(line)
             }
         }
         if (success == null) {

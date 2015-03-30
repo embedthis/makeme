@@ -324,9 +324,10 @@ public class MakeMe {
             The --set|unset|with|without switches apply to the previous --platform switch
          */
         let platform = localPlatform
+        let poptions
         options.platforms = {}
-        let poptions = options.platforms[localPlatform] ||= {}
         if (options.depth) {
+            poptions = options.platforms[localPlatform] ||= {}
             poptions.enable ||= []
             poptions.enable.push('depth=' + options.depth)
         }

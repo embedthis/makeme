@@ -26,7 +26,6 @@ Me.load({
 
     settings: {
         platforms: [ 'local' ],
-        static: false,
         tune: 'size',
         integrate: true,
 
@@ -111,7 +110,6 @@ Me.load({
             type: 'exe',
             path: '${BIN}/me${EXE}',
             sources: [ 'src/*.c' ],
-            static: false,
             active: true,
             precious: true,
             depends: [ 'libmpr', 'libhttp', 'libejs', 'me.mod', 'runtime' ],

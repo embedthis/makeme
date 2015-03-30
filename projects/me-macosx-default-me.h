@@ -144,9 +144,6 @@
 #ifndef ME_PREFIXES
     #define ME_PREFIXES "install-prefixes"
 #endif
-#ifndef ME_STATIC
-    #define ME_STATIC 0
-#endif
 #ifndef ME_TITLE
     #define ME_TITLE "Embedthis MakeMe"
 #endif
@@ -229,7 +226,7 @@
 
 /* Profile */
 #ifndef ME_CONFIG_CMD
-    #define ME_CONFIG_CMD "me -d -q -platform macosx-x64-default -configure . --with openssl -gen xcode"
+    #define ME_CONFIG_CMD "me -d -q -platform macosx-x64-default -configure . --with openssl -gen make"
 #endif
 #ifndef ME_ME_PRODUCT
     #define ME_ME_PRODUCT 1
