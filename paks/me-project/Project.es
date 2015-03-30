@@ -34,9 +34,6 @@ class Project {
     function componentDefs() {
         let needed = {}
         for each (target in me.targets) {
-/*  UNUSED - must not use for openssl
-            if (target.configurable) continue
-*/
             if (target.explicit || target.enable) {
                 needed[target.name] = true
             }
