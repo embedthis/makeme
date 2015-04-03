@@ -96,7 +96,6 @@ module ejs.testme {
                 tinfo('Connected', 'to ' + Path(cmdline).basename + ' (' + pid + ')')
                 return true
             } catch (e) {
-                // twrite('CATCH', e)
                 App.sleep(250)
             }
         }
@@ -110,11 +109,12 @@ module ejs.testme {
             let address: Uri = Uri(options.address || tget('TM_HTTP') || App.config.uris.http).complete()
             let cmd = new Cmd
             blend(options, {detach: true})
+            //  tinfo("Command", Cmd.locate(cmdline.split(' ')[0]))
             cmd.start(cmdline, options)
             cmd.finalize()
             let pid = cmd.pid
             Path(pidfile).write(pid)
-            tinfo('Started', Path(cmdline).basename + ' (' + pid + ')')
+            tinfo('Started', cmdline + ' (' + pid + ')')
             App.sleep(250)
             if ((connected = connectToService(cmdline, options, 10)) != true) {
                 tinfo('Cannot connect to service: ' + cmdline + ' on ' + address)
