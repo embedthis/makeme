@@ -123,6 +123,9 @@ body {
             border-right: 18px solid @body-highlight;
         }
     }
+    &::-webkit-scrollbar {
+        width: 0px !important;
+    }
 }
 
 .ui.sidebar-launch.button {
@@ -155,7 +158,7 @@ body {
 	min-height: 95%;
     text-decoration: none;
     background: @white;
-    padding: 70px 2rem 2rem 2rem;
+    padding: 100px 2rem 2rem 2rem;
     .floated {
       overflow: auto;
     }
@@ -218,18 +221,23 @@ h3 + ul {
   margin-top: -0.85rem;
 }
 
+li {
+    padding-bottom: 0.75em;
+}
+
 em {
-    padding: 2px 6px;
+    padding: 3px;
     font-family: monospace;
     font-style: normal;
     background-color: #F2F2FF;
     color: #404080;
     border-radius: 4px;
+    white-space: nowrap;
 }
 
 code {
     display: block;
-    white-space: pre;
+    white-space: pre-wrap;
     margin: 1rem 0;
     padding: 1rem 1rem;
     font-family: monospace;
@@ -244,8 +252,28 @@ code {
         color: @inverted-code-color;
         b {
             color: @inverted-code-bold;
-            font-weight: bold;
+            font-weight: normal;
         }
+    }
+}
+
+pre.code {
+    display: block;
+    white-space: pre-wrap;
+    margin: 1rem 0;
+    padding: 1rem 1rem;
+    font-family: monospace;
+    font-style: normal;
+    border: 1px solid #C2C2C2;
+    border-radius: 0.3rem;
+    line-height: 1.25em;
+    background-color: #EEE;
+    color: #333;
+    background: @inverted-code-background;
+    color: @inverted-code-color;
+    b {
+        color: @inverted-code-bold;
+        font-weight: normal;
     }
 }
 
