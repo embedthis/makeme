@@ -16259,6 +16259,18 @@ module ejs.tar {
                 App.chdir(home)
             }
             archive.close()
+
+            if (path.extension == 'tgz' || path.extension == 'gz') {
+                let plain = path.joinExt('plain', true)
+                path.rename(plain)
+                Zlib.compress(plain, path)
+                plain.remove()
+            } else if (options.compress) {
+                let plain = path.joinExt('plain', true)
+                path.rename(plain)
+                Zlib.compress(plain, path)
+                plain.remove()
+            }
         }
 
         function operate(files: Array, operation) {
