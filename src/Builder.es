@@ -1110,7 +1110,7 @@ public class Builder {
     }
 
     function setPathEnvVar() {
-        let bin = Path('.').join(me.platform.name, 'bin').absolute
+        let bin = me.dir.bin.absolute
         let sep = App.SearchSeparator
         if (makeme.generating) {
             bin = bin.relative
