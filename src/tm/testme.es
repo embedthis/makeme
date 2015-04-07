@@ -62,6 +62,7 @@ enumerable class TestMe {
             noserver: { alias: 'n' },
             project: { },
             projects: { alias: 'p' },
+            quiet: { alias: 'q' },
             rebuild: { alias: 'r' },
             show: { alias: 's' },
             trace: { alias: 't' },
@@ -88,6 +89,7 @@ enumerable class TestMe {
             '  --more                # Pass output through "more"\n' + 
             '  --noserver            # Do not run server side of tests\n' + 
             '  --projects            # Generate IDE projects for tests\n' + 
+            '  --quiet               # Quiet mode\n' + 
             '  --rebuild             # Rebuild all tests before running\n' + 
             '  --show                # Show commands executed\n' +
             '  --trace file:level    # HTTP request tracing\n' + 
@@ -724,11 +726,13 @@ Me.load({
     }
 
     function trace(tag: String, ...args): Void {
-        log.activity(tag, ...args)
+        if (!options.quiet) {
+            log.activity(tag, ...args)
+        }
     }
 
     function strace(tag: String, ...args): Void {
-        if (options.show) {
+        if (options.show && !options.quiet) {
             log.activity(tag, ...args)
         }
     }

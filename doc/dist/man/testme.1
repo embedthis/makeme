@@ -14,6 +14,7 @@ testme \- TestMe -- Utility to run unit tests
     \fB--log logSpec\fR
     \fB--noserver\fR
     \fB--projects\fR
+    \fB--quiet\fR
     \fB--rebuild\fR
     \fB--show\fR
     \fB--trace traceSpec\fR
@@ -153,6 +154,10 @@ Do not run server side support code. This emits TM_NOSERVER into the environment
 \fB\--projects\fR
 Generate IDE projects for the specified unit tests. At least one test must be specified by name on the command line.
 The IDE projects are generated in the 'testme' directory.
+
+.TP
+\fB\--quiet\fR
+Run in quiet mode without trace.
 
 .TP
 \fB\--rebuild\fR

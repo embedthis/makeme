@@ -18,6 +18,7 @@ SYNOPSIS
            --log logSpec
            --noserver
            --projects
+           --quiet
            --rebuild
            --show
            --trace traceSpec
@@ -187,6 +188,10 @@ OPTIONS
               --projects  Generate  IDE projects for the specified unit tests.
               At least one test must be specified by name on the command line.
               The IDE projects are generated in the 'testme' directory.
+
+
+       --quiet
+              Run in quiet mode without trace.
 
 
        --rebuild
