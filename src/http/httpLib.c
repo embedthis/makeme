@@ -16795,7 +16795,7 @@ static ssize filterPacket(HttpConn *conn, HttpPacket *packet, int *more)
             assert(rx->remainingContent == 0);
         }
     } else {
-        nbytes = min((ssize) rx->remainingContent, conn->lastRead);
+        nbytes = (ssize) min(rx->remainingContent, conn->lastRead);
         if (!conn->upgraded && (rx->remainingContent - nbytes) <= 0) {
             httpSetEof(conn);
         }
