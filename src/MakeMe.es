@@ -233,7 +233,9 @@ public class MakeMe {
         let localPlatform = Config.OS + '-' + Config.CPU + '-' + (options.release ? 'release' : 'debug')
 
         if (options.showPlatform) {
-            print(Me().readFile(Loader.START).platforms || localPlatform)
+            me = Me()
+            let platforms = loader.readFile(Loader.START).platforms || [localPlatform]
+            print(platforms[0].replace('local-', Config.OS + '-' + Config.CPU + '-'))
             App.exit(0)
         }
         if (options.more) {
