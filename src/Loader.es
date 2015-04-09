@@ -1274,6 +1274,7 @@ public class Loader {
                 dir.lib  ||= dir.top.join('lib')
                 dir.inc  ||= dir.out
                 dir.obj  ||= dir.out
+                dir.src  ||= dir.top
                 dir.paks ||= dir.top.join('paks')
                 dir.proj ||= dir.out
                 dir.pkg  ||= dir.out.join('pkg')
