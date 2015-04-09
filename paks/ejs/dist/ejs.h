@@ -589,7 +589,7 @@ PUBLIC EjsOptable *ejsGetOptable();
 extern "C" {
 #endif
 
-/******************************* Tunable Constants ****************************/
+/************************************ Constants *******************************/
 
 #ifndef ME_XML_MAX_NODE_DEPTH
     #define ME_XML_MAX_NODE_DEPTH  64
@@ -748,6 +748,7 @@ struct EjsVoid;
  */
 #define ME_NUM_TYPE double
 typedef ME_NUM_TYPE MprNumber;
+#define EJS_MAX_INT 9007199254740992
 
 /*  
     Sizes (in bytes) of encoded types in a ByteArray

@@ -162,7 +162,7 @@ static ME_INLINE void setbitmap(size_t *bitmap, int bindex);
 static ME_INLINE int sizetoq(size_t size);
 static void sweep();
 static void sweeperThread(void *unused, MprThread *tp);
-static ME_INLINE void triggerGC();
+static ME_INLINE void triggerGC(int always);
 static ME_INLINE void unlinkBlock(MprMem *mp);
 static void *vmalloc(size_t size, int mode);
 static void vmfree(void *ptr, size_t size);
@@ -532,7 +532,7 @@ static MprMem *allocMem(size_t required)
                             ATOMIC_INC(splits);
                         }
                         if (!heap->gcRequested && heap->workDone > heap->workQuota) {
-                            triggerGC();
+                            triggerGC(0);
                         }
                         ATOMIC_INC(reuse);
                         assert(mp->size >= required);
@@ -594,7 +594,7 @@ static MprMem *growHeap(size_t required)
     size_t      size, rsize, spareLen;
 
     if (required < MPR_ALLOC_MAX_BLOCK && (heap->workDone > heap->workQuota)) {
-        triggerGC();
+        triggerGC(0);
     }
     if (required >= MPR_ALLOC_MAX) {
         allocException(MPR_MEM_TOO_BIG, required);
@@ -933,9 +933,9 @@ PUBLIC void mprWakeGCService()
 }
 
 
-static ME_INLINE void triggerGC()
+static ME_INLINE void triggerGC(int always)
 {
-    if (!heap->gcRequested && heap->gcEnabled && !pauseGC) {
+    if (always || (!heap->gcRequested && heap->gcEnabled && !pauseGC)) {
         heap->gcRequested = 1;
         heap->mustYield = 1;
         mprSignalCond(heap->gcCond);
@@ -953,15 +953,9 @@ static ME_INLINE void triggerGC()
  */
 PUBLIC int mprGC(int flags)
 {
-    MprThreadService    *ts;
-
-    ts = MPR->threadService;
     heap->freedBlocks = 0;
     if ((flags & (MPR_GC_FORCE | MPR_GC_COMPLETE)) || (heap->workDone > heap->workQuota)) {
-        assert(!heap->marking);
-        lock(ts->threads);
-        triggerGC();
-        unlock(ts->threads);
+        triggerGC(flags & (MPR_GC_FORCE | MPR_GC_COMPLETE));
     }
     if (!(flags & MPR_GC_NO_BLOCK)) {
         mprYield((flags & MPR_GC_COMPLETE) ? MPR_YIELD_COMPLETE : 0);
@@ -1001,8 +995,6 @@ PUBLIC void mprYield(int flags)
     }
     /*
         Double test to be lock free for the common case
-        - but mustYield may not be set and gcRequested is
-        - must handle waitForSweeper
      */
     if (heap->mustYield && heap->sweeper) {
         lock(ts->threads);
@@ -1066,6 +1058,7 @@ PUBLIC void mprResetYield()
         if (heap->marking && !pauseGC) {
             tp->yielded = 0;
             unlock(ts->threads);
+
             mprYield(0);
             assert(!tp->yielded);
         } else {
@@ -2903,6 +2896,8 @@ PUBLIC bool mprDestroy()
     if (mprState < MPR_STOPPING) {
         mprShutdown(MPR->exitStrategy, mprExitStatus, MPR->exitTimeout);
     }
+    mprGC(MPR_GC_FORCE | MPR_GC_COMPLETE);
+
     timeout = MPR->exitTimeout;
     if (MPR->shutdownStarted) {
         timeout -= (mprGetTicks() - MPR->shutdownStarted);
@@ -20671,7 +20666,7 @@ static void outNum(Format *fmt, cchar *prefix, uint64 value)
 #if ME_FLOAT
 static void outFloat(Format *fmt, char specChar, double value)
 {
-    char    result[256], *cp;
+    char    result[ME_DOUBLE_BUFFER], *cp;
     int     c, fill, i, len, index;
 
     result[0] = '\0';
@@ -22494,7 +22489,7 @@ static void disconnectSocket(MprSocket *sp)
     if (!(sp->flags & MPR_SOCKET_EOF)) {
         /*
             Read a reasonable amount of outstanding data to minimize resets. Then do a shutdown to send a FIN and read 
-            outstanding data.  All non-blocking.
+            outstanding data. All non-blocking.
          */
         mprSetSocketBlockingMode(sp, 0);
         for (i = 0; i < 16; i++) {
