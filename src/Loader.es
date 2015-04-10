@@ -166,6 +166,7 @@ public class Loader {
                 }
             }
             if (files.length == 0 && !optional) {
+dump("OBJ", obj)
                 throw 'Cannot find blended module: ' + name
             }
             for each (let file in files) {
