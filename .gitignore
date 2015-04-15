@@ -35,3 +35,4 @@ start.me
 /build/
 .gitattributes
 *.mod
+.cdrc
