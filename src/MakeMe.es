@@ -222,10 +222,6 @@ public class MakeMe {
     }
 
     function parseArgs(args: Args) {
-        if (options.version) {
-            print(version)
-            App.exit(0)
-        }
         if (options.help || args.rest.contains('help')) {
             usage()
             App.exit(0)

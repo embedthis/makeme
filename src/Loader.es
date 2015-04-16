@@ -166,7 +166,6 @@ public class Loader {
                 }
             }
             if (files.length == 0 && !optional) {
-dump("OBJ", obj)
                 throw 'Cannot find blended module: ' + name
             }
             for each (let file in files) {
@@ -650,6 +649,10 @@ dump("OBJ", obj)
         let files = []
         if (path.exists) {
             global.load(expand(path, {missing: '.'}))
+            if (loadObj.makeme && !Version(Config.Version).acceptable(loadObj.makeme)) {
+                throw path + ' requires MakeMe ' + loadObj.makeme + '. MakeMe version ' + Config.Version +
+                                ' BB is not compatible with this requirement.' + '\n'
+            }
             platforms = loadObj.platforms
             if (platforms) {
                 for each (platform in platforms) {
@@ -774,6 +777,10 @@ dump("OBJ", obj)
      */
     public function loadFile(path) {
         let obj = readFile(path)
+        if (obj.makeme && !Version(Config.Version).acceptable(obj.makeme)) {
+            throw path + ' requires MakeMe ' + obj.makeme + '. MakeMe version ' + Config.Version +
+                            ' is not compatible with this requirement.' + '\n'
+        }
         obj.master = true
         if (!me.platform || !me.platform.name) {
             initPlatform(obj)
