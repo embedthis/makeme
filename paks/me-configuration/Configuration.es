@@ -365,8 +365,11 @@ class Configuration {
         let pstr = serialize(platforms, {pretty: true, indent: 4, commas: true, nulls: false, quotes: false})
         pstr = pstr.replace(/^/mg, '    ').trimStart(' ')
         let cmdline = 'me ' + App.args.slice(1).join(' ')
-        let data = '/*\n    start.me -- MakeMe Startup File\n */\n\nMe.load({\n    platforms: ' + pstr + ',\n' +
-            '    configure: "' + cmdline + '",\n})\n'
+        let meVer = me.makeme ? ('    makeme: "' + me.makeme + '",\n') : ''
+        let data = '/*\n    start.me -- MakeMe Startup File\n */\n\nMe.load({\n' + 
+                   meVer + 
+                   '    platforms: ' + pstr + ',\n' +
+                   '    configure: "' + cmdline + '",\n})\n'
         Loader.START.write(data)
     }
 

@@ -1,11 +1,7 @@
 {
     "name": "me",
     "description": "Embedthis MakeMe",
-    "version": "0.8.6",
-    "pak": {
-        "import": true,
-        "version": ">=0.10.0"
-    },
+    "version": "0.8.7",
     "keywords": [
         "me",
         "makeme",
@@ -46,5 +42,9 @@
         "me-project": "^0.8",
         "me-vstudio": "^0.8",
         "me-xcode": "^0.8"
+    },
+    "pak": {
+        "import": true,
+        "pak": ">=0.10.0"
     }
 }

@@ -37456,7 +37456,7 @@ PUBLIC void ejsConfigureIteratorType(Ejs *ejs)
 
 
 
-/********* Start of file ../../../src/core/src/ejsJson.c ************/
+/********* Start of file ../../../src/core/src/ejsJSON.c ************/
 
 
 /**
@@ -47752,8 +47752,8 @@ PUBLIC int ejsContainsString(Ejs *ejs, EjsString *sp, EjsString *pat)
     assert(pat);
     assert(pat->value);
 
-    if (pat == 0 || pat->value == 0) {
-        return 0;
+    if (pat == 0) {
+        return -1;
     }
     for (i = 0; i < sp->length; i++) {
         for (j = 0, k = i; j < pat->length; j++, k++) {
@@ -47762,7 +47762,7 @@ PUBLIC int ejsContainsString(Ejs *ejs, EjsString *sp, EjsString *pat)
             }
         }
         if (j == pat->length) {
-            return 1;
+            return i;
         }
     }
     return -1;

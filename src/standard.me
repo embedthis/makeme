@@ -41,6 +41,7 @@ Me.load({
             /* Set directory so that a local platform does not get generated in projects */
             home:   '${TOP}',
             action: `print(me.settings.version)`,
+            'generate-make': `echo $(VERSION)`,
             generate: `echo ${settings.version}`,
         },
     },

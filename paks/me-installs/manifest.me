@@ -15,7 +15,8 @@ Me.load({
             core: [
                 {
                     perform: function(from, to, options) {
-                        linkFile(me.settings.version, me.globals.app.join('latest'))
+                        let version = makeme.generating == 'make' ? '$(VERSION)' : me.settings.version
+                        linkFile(version, me.globals.app.join('latest'))
                     },
                     enable:     "me.platform.like == 'unix'",
                 }

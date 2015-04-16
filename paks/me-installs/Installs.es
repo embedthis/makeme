@@ -26,7 +26,6 @@ class InstallsInner {
     public function deploy(manifest, package): Array {
         let sets = me.options.sets 
         if (me.options.deploy) {
-            //  MOB - what is this?
             sets ||= package['sets-cross'] 
         } else {
             sets ||= package.sets
