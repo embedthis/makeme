@@ -11869,7 +11869,7 @@ module ejs {
 
         /** 
             Create and parse a Uri object. 
-            @param uri A string or object hash that describes the URI. The $uri specify a complete absolute URI string or
+            @param uri A string or object hash that describes the URI. The $uri may specify a complete absolute URI string or
             it may specify a partial URI where missing elements take the normal defaults. The $uri argument may also be 
             an object hash with the following properties.
             @option scheme String URI protocol scheme (http or https)

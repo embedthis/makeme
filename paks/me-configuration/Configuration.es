@@ -366,8 +366,8 @@ class Configuration {
         pstr = pstr.replace(/^/mg, '    ').trimStart(' ')
         let cmdline = 'me ' + App.args.slice(1).join(' ')
         let meVer = me.makeme ? ('    makeme: "' + me.makeme + '",\n') : ''
-        let data = '/*\n    start.me -- MakeMe Startup File\n */\n\nMe.load({\n' + 
-                   meVer + 
+        let data = '/*\n    start.me -- MakeMe Startup File\n */\n\nMe.load({\n' +
+                   meVer +
                    '    platforms: ' + pstr + ',\n' +
                    '    configure: "' + cmdline + '",\n})\n'
         Loader.START.write(data)
