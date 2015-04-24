@@ -36,3 +36,4 @@ start.me
 .gitattributes
 *.mod
 .cdrc
+doc/.expansive-lastgen

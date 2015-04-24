@@ -161,9 +161,11 @@ body.show-sidebar {
   overflow: auto;
 }
 .ui.segment.terms {
-  margin: 6px 0 16px 0;
+  margin: 0;
+  padding: 10px 0 20px 0;
   height: 20px;
   color: #eeeeee;
+  background: rgba(255, 255, 255, 0.75);
   font-size: 0.75rem;
 }
 .ui.segment.terms a:link,

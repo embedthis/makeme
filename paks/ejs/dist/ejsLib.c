@@ -35352,8 +35352,8 @@ PUBLIC int ejsBlendObject(Ejs *ejs, EjsObj *dest, EjsObj *src, int flags)
             /* 
                 NOTE: non-combine blend treats arrays as primitive types 
              */
-            if (deep && !ejsIs(ejs, vp, Array) && !ejsIsXML(ejs, vp) && ejsGetLength(ejs, vp) > 0) {
-                if ((dp = ejsGetPropertyByName(ejs, dest, qname)) == 0 || ejsGetLength(ejs, dp) == 0) {
+            if (deep && !ejsIs(ejs, vp, Array) && !ejsIsXML(ejs, vp) && ejsIsPot(ejs, vp) && !ejsIsFunction(ejs, vp)) {
+                if ((dp = ejsGetPropertyByName(ejs, dest, qname)) == 0 || !ejsIsPot(ejs, dp)) {
                     setBlendProperty(ejs, dest, qname, ejsClonePot(ejs, vp, deep));
                 } else {
                     ejsBlendObject(ejs, dp, vp, flags);
