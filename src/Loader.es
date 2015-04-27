@@ -1248,46 +1248,44 @@ public class Loader {
         let dir = me.dir
         if (directories) {
             dir = blend(dir, directories)
-            castDirPaths()
-        } else {
-            castDirPaths()
-            if (options.configure) {
-                /* Before configure - set default directories */
-                dir.bld  ||= App.dir.join(Loader.BUILD)
-                dir.out  ||= dir.bld.join(me.platform.name)
-                dir.bin  ||= dir.out.join('bin')
-                dir.inc  ||= dir.out.join('inc')
-                dir.lbin ||= (options.gen || me.platform.os == Config.OS) ? dir.bin : dir.bld.join(localPlatform, 'bin')
-                if (!dir.top.join('lib').exists && dir.top.join('src').exists) {
-                    dir.lib  ||= dir.top.join('src')
-                } else {
-                    dir.lib  ||= dir.top.join('lib')
-                }
-                dir.obj  ||= dir.out.join('obj')
-                dir.src  ||= dir.top.join('src')
-                //  DEPRECATE
-                if (dir.top.join('src/paks').exists) {
-                    dir.paks ||= dir.top.join('src/paks')
-                } else {
-                    dir.paks ||= dir.top.join('paks')
-                }
-                dir.proj ||= dir.top.join('projects')
-                dir.pkg  ||= dir.out.join('pkg')
-                dir.rel  ||= dir.out.join('img')
+        }
+        castDirPaths()
+        if (options.configure) {
+            /* Before configure - set default directories */
+            dir.bld  ||= App.dir.join(Loader.BUILD)
+            dir.out  ||= dir.bld.join(me.platform.name)
+            dir.bin  ||= dir.out.join('bin')
+            dir.inc  ||= dir.out.join('inc')
+            dir.lbin ||= (options.gen || me.platform.os == Config.OS) ? dir.bin : dir.bld.join(localPlatform, 'bin')
+            if (!dir.top.join('lib').exists && dir.top.join('src').exists) {
+                dir.lib  ||= dir.top.join('src')
             } else {
-                dir.bld  ||= Path('.')
-                dir.out  ||= dir.bld
-                dir.bin  ||= dir.out
-                dir.lbin ||= dir.bin
                 dir.lib  ||= dir.top.join('lib')
-                dir.inc  ||= dir.out
-                dir.obj  ||= dir.out
-                dir.src  ||= dir.top
-                dir.paks ||= dir.top.join('paks')
-                dir.proj ||= dir.out
-                dir.pkg  ||= dir.out.join('pkg')
-                dir.rel  ||= dir.out.join('img')
             }
+            dir.obj  ||= dir.out.join('obj')
+            dir.src  ||= dir.top.join('src')
+            //  DEPRECATE
+            if (dir.top.join('src/paks').exists) {
+                dir.paks ||= dir.top.join('src/paks')
+            } else {
+                dir.paks ||= dir.top.join('paks')
+            }
+            dir.proj ||= dir.top.join('projects')
+            dir.pkg  ||= dir.out.join('pkg')
+            dir.rel  ||= dir.out.join('img')
+        } else {
+            dir.bld  ||= Path('.')
+            dir.out  ||= dir.bld
+            dir.bin  ||= dir.out
+            dir.lbin ||= dir.bin
+            dir.lib  ||= dir.top.join('lib')
+            dir.inc  ||= dir.out
+            dir.obj  ||= dir.out
+            dir.src  ||= dir.top
+            dir.paks ||= dir.top.join('paks')
+            dir.proj ||= dir.out
+            dir.pkg  ||= dir.out.join('pkg')
+            dir.rel  ||= dir.out.join('img')
         }
         dir.me = App.exeDir
         if (me.platform.like == 'windows') {
