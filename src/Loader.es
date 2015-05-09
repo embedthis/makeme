@@ -975,15 +975,15 @@ public class Loader {
         if (p.from || p.to) {
             p.type ||= 'file'
             if (p.type == 'file') {
-            if (p.to && !p.path) {
-                p.path = p.to
-                delete p.to
+                if (p.to && !p.path) {
+                    p.path = p.to
+                    delete p.to
+                }
+                if (p.from && !p.files) {
+                    p.files = p.from
+                    delete p.from
+                }
             }
-            if (p.from && !p.files) {
-                p.files = p.from
-                delete p.from
-            }
-        }
         }
         setTargetGoals(p)
 

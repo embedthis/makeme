@@ -10,7 +10,9 @@
 
 #if ME_COM_OPENSSL
 
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#if ME_UNIX_LIKE
+    #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 /* Clashes with WinCrypt.h */
 #undef OCSP_RESPONSE

@@ -1,11 +1,11 @@
 /*
-    openssl.me -- OpenSSL Component
+    openssl.me -- OpenSSL Component for the MPR
  */
 
 Me.load({ 
     targets: {
         openssl: {
-            description: 'OpenSSL',
+            description: 'OpenSSL Support',
             config: function (target) {
                 if (me.options.gen) {
                     let result = {
@@ -17,6 +17,11 @@ Me.load({
                         includes: [ me.dir.inc ],
                         libraries: me.platform.os == 'windows' 
                             ? ([ 'libeay32.lib', 'ssleay32.lib' ]) : ([ 'ssl', 'crypto' ]),
+                    }
+                    if (me.options.gen == 'make') {
+                        result.defines = ['ME_COM_OPENSSL_PATH=/usr/lib']
+                    } else if (me.options.gen == 'nmake') {
+                        result.defines = ['ME_COM_OPENSSL_PATH=']
                     }
                     if (me.options.gen == 'make' || me.options.gen == 'nmake') {
                         result.includes.push('$(ME_COM_OPENSSL_PATH)/include')
@@ -49,7 +54,7 @@ Me.load({
                 }
                 includes.push(me.dir.inc)
                 return {
-                    from:       path,
+                    location:   path,
                     path:       me.dir.bin.join('libopenssl').joinExt(me.ext.lib),
                     imports:    imports,
                     includes:   includes,

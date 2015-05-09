@@ -7,7 +7,7 @@ Me.load({
 
     blend: [
         'ejs',
-        'src/tm/testme.me',
+        'src/*/*.me',
         'doc/doc.me',
     ],
 
@@ -74,12 +74,6 @@ Me.load({
 
         prefixes: 'install-prefixes',
         manifest: 'installs/manifest.me',
-    },
-
-    scripts: {
-        loaded: `
-            me.targets.makerom.enable = false
-        `
     },
 
     targets: {

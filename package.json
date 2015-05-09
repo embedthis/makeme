@@ -41,7 +41,14 @@
         "me-os": "^0.8",
         "me-project": "^0.8",
         "me-vstudio": "^0.8",
-        "me-xcode": "^0.8"
+        "me-xcode": "^0.8",
+        "mpr": "^6.0",
+        "ssl": "^0.9"
+    },
+    "optionalDependencies": {
+        "est": "^0.6",
+        "mpr-est": "^0.1",
+        "mpr-openssl": "^0.1"
     },
     "pak": {
         "import": true,
