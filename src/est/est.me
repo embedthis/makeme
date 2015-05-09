@@ -6,13 +6,6 @@ Me.load({
     blend: [ 'osdep' ],
 
     targets: {
-        est: {
-            configurable: true,
-            depends:      [ 'libest' ],
-            ifdef:        [ 'ssl' ],
-            conflicts:    [ 'openssl' ],
-        },
-
         libest: {
             type: 'lib',
             headers: [ '*.h' ],

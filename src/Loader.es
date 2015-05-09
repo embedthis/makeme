@@ -73,11 +73,13 @@ public class Loader {
             if (value == undefined) {
                 value = true
             }
-            let configure = me.configure.requires + me.configure.discovers
-            if (configure.contains(field)) {
-                App.log.error('Using "--set ' + field + '", but ' + field + ' is a configurable target. ' +
-                        'Use --with or --without instead.')
-                App.exit(1)
+            if (me.configure) {
+                let configure = me.configure.requires + me.configure.discovers
+                if (configure.contains(field)) {
+                    App.log.error('Using "--set ' + field + '", but ' + field + ' is a configurable target. ' +
+                            'Use --with or --without instead.')
+                    App.exit(1)
+                }
             }
             makeme.setSetting(me.settings, field, value)
         }
@@ -116,6 +118,7 @@ public class Loader {
                     name: field,
                     type: 'component',
                     explicit: 'with',
+                    enable: false,
                     bare: true,
                 })
             }
@@ -125,7 +128,8 @@ public class Loader {
                 target.withpath = Path(value)
             }
             target.diagnostic = ''
-            if (!me.configure.requires.contains(field) && !me.configure.discovers.contains(field)) {
+            if (!(me.configure.requires && me.configure.requires.contains(field)) && 
+                !(me.configure.discovers && me.configure.discovers.contains(field))) {
                 requires.push(field)
             }
         }
@@ -651,7 +655,7 @@ public class Loader {
             global.load(expand(path, {missing: '.'}))
             if (loadObj.makeme && !Version(Config.Version).acceptable(loadObj.makeme)) {
                 throw path + ' requires MakeMe ' + loadObj.makeme + '. MakeMe version ' + Config.Version +
-                                ' BB is not compatible with this requirement.' + '\n'
+                                ' is not compatible with this requirement.' + '\n'
             }
             platforms = loadObj.platforms
             if (platforms) {
@@ -1273,6 +1277,7 @@ public class Loader {
             dir.proj ||= dir.top.join('projects')
             dir.pkg  ||= dir.out.join('pkg')
             dir.rel  ||= dir.out.join('img')
+
         } else {
             dir.bld  ||= Path('.')
             dir.out  ||= dir.bld
@@ -1353,7 +1358,7 @@ public class Loader {
         let goals = target.goals || []
         let type = target.type
         if (goals.length == 0) {
-            if (Builder.TargetsToBuildByDefault[type] || target.build) {
+            if ((Builder.TargetsToBuildByDefault[type] || target.build) && !target.action) {
                 goals = [Builder.ALL]
                 if (target.generate !== false) {
                     target.generate ||= true

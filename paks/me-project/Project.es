@@ -613,7 +613,7 @@ class Project {
     }
 
     public function generateTarget(target) {
-        if (target.configurable) {
+        if (target.type == 'component') {
             return
         }
         global.TARGET = me.target = target

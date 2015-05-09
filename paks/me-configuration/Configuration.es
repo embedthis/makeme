@@ -270,7 +270,6 @@ class Configuration {
             if (target.scripts && target.scripts.generate) {
                 print("WARNING: generate scripts are deprecated: ", target.name)
             }
-            //  MOB - why here
             if (target.path) {
                 target.path = Path(target.path)
             }
@@ -383,7 +382,14 @@ class Configuration {
                 target.type ||= 'component'
                 target.configurable = true
             } else {
-                loader.createTarget({name: name, enable: true, home: '.', type: 'component', bare: true, configurable: true})
+                loader.createTarget({
+                    name: name,
+                    enable: false,
+                    home: '.',
+                    type: 'component',
+                    bare: true,
+                    configurable: true
+                })
             }
         }
     }
@@ -620,11 +626,12 @@ class Configuration {
             let description = target.description ? (': ' + target.description) : ''
             let diagnostic = target.diagnostic ? (': ' + target.diagnostic) : ''
             if (target.enable && !target.silent) {
-                if (target.path) {
+                if (target.location || target.path) {
+                    let location = Path(target.location || target.path).compact()
                     if (makeme.options.verbose) {
-                        trace('Found', name + description + ' at: ' + target.path.compact())
+                        trace('Found', name + description + ' at: ' + location)
                     } else if (!target.quiet) {
-                        trace('Found', name + description + ': ' + target.path.compact())
+                        trace('Found', name + description + ': ' + location)
                     }
                 } else {
                     trace('Found', name + description)
@@ -764,9 +771,12 @@ module embedthis.me.script {
             let home = App.home.portable.absolute
             path = home.join('.paks', component)
             if (path.exists) {
-                path = Path(Version.sort(path.files('*/*'), -1)[0])
-                if (path) {
-                    search.push(path.join(objdir))
+                let versions = Version.sort(path.files('*/*'), -1)
+                if (versions && versions.length >= 1) {
+                    path = Path(versions[0])
+                    if (path) {
+                        search.push(path.join(objdir))
+                    }
                 }
             }
             /*

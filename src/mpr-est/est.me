@@ -1,0 +1,22 @@
+/*
+    est.me -- EST Component
+ */
+
+Me.load({ 
+    targets: {
+        est: {
+            configurable: true,
+            depends:      [ 'libest' ],
+            ifdef:        [ 'ssl' ],
+            conflicts:    [ 'openssl', 'matrixssl', 'nanossl' ]
+        },
+        libmprest: {
+            description: 'EST SSL',
+            path: '${BIN}/libmprssl${SHOBJ}',
+            type: 'lib',
+            sources: [ '*.c' ],
+            depends: [ 'mpr' ],
+            ifdef:   [ 'est' ],
+        }
+    }
+})

@@ -71,9 +71,9 @@ class Version {
         ~ VER                           Compatible with VER and reasonably close (Same minor number).
                                         ~1.2.3 == 1.2.3-0 <= VER < 1.3.0-0
                 WAS Same as >=1.2.3 <2.0.0 (allows prereleases)
-        ^ VER                           Compatible with VER and compatible (Same major number).
+        ^ VER                           Compatible with VER (Same major number).
                                         ^1.2.3 == 1.2.3-0 <= VER < 2.0.0-0
-                WAS . Same as >=1.2.3 <2.0.0 (does not allow prereleases)
+                WAS Same as >=1.2.3 <2.0.0 (does not allow prereleases)
         1.2.X                           Any version starting with 1.2 (allows prereleases)
         1.2.x                           Same
         1.2.*                           Same

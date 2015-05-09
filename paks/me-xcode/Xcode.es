@@ -138,6 +138,8 @@ class Xcode {
         me.xscripts = []
         for each (target in me.targets) {
             if (!target.enable) continue
+            if (target.action) continue
+            if (target.generate === false) continue
             let type = target.type
             if (type == 'lib' || type == 'exe') {
                 target.xbinary = true
@@ -769,7 +771,7 @@ class Xcode {
                 continue
             }
             dep = me.targets[lname.replace(/\.dylib/, '')]
-            if (dep && dep.type == 'lib') {
+            if (dep && dep.type == 'lib' && !dep.static) {
                 continue
             }
             libs.push(lname)
@@ -993,10 +995,12 @@ class Xcode {
             overridable += appendSetting(overridable, ts.compiler, 
                 ['GCC_WARN_UNUSED_VARIABLE', 'GCC_WARN_UNUSED_FUNCTION', 'GCC_WARN_UNUSED_LABEL'], 'unused-result')
             overridable += appendSetting(overridable, ts.compiler, ['GCC_WARN_INHIBIT_ALL_WARNINGS'], '-w')
-            if (target.type == 'lib' && me.settings.static) {
+            if (target.type == 'lib' && (target.static || me.settings.static)) {
                 overridable += '\t\t\t\tEXECUTABLE_EXTENSION = a;\n'
             }
-            let pname = target.pname ? target.pname : target.name
+            let pname = Path(target.path ? target.path : target.name).basename.trimExt()
+            pname = target.pname ? target.pname : pname
+
             output(section.expand({PNAME: pname, TNAME: target.name, TARGET_DEBUG: tdid, TARGET_RELEASE: trid, 
                 OVERRIDABLE_SETTINGS: overridable,
                 DEBUG_SETTINGS: prepareSettings(base, ts, true),

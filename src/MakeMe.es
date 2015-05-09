@@ -129,6 +129,7 @@ public class MakeMe {
                 App.exit()
             }
             if (options.gen == 'start' || options.gen == 'main') {
+                loader.initPlatform()
                 let path = loader.findPlugin('project')
                 load(path.dirname.join('Project.es'))
                 if (options.gen == 'start') {

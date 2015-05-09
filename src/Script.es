@@ -92,28 +92,42 @@ var operate = {
 public function builtin(cmd: String, actionOptions: Object = {}) {
     switch (cmd) {
     case 'cleanTargets':
-        for each (target in me.targets) {
-            if (target.enable && target.path && !target.precious && target.generate !== false &&
-                    Builder.TargetsToClean[target.type]) {
-                let path: Path = target.modify || target.path 
-                path = (makeme.generating) ? reppath(path) : path
-                if (path.exists) {
-                    trace('Clean', path.relativeTo(me.dir.top))
-                }
-                if (path.toString().endsWith('/') || path.isDir) {
-                    removeDir(path)
-                } else {
-                    removeFile(path)
-                }
-                if (me.platform.os == 'windows') {
-                    let ext = path.extension
-                    if (ext == me.ext.shobj || ext == me.ext.exe) {
-                        removeFile(path.replaceExt('lib'))
-                        removeFile(path.replaceExt('pdb'))
-                        removeFile(path.replaceExt('exp'))
+        let from = App.dir
+        try {
+            App.chdir(me.dir.top)
+            for each (target in me.targets) {
+                if (target.enable && target.path && !target.precious && target.generate !== false &&
+                        Builder.TargetsToClean[target.type]) {
+                    let path: Path = target.modify || target.path 
+                    path = (makeme.generating) ? reppath(path) : path
+                    if (sysdirs[path]) {
+                        App.log.error("prevent removal of", path)
+                        continue
+                    }
+                    if (!path.childOf(me.dir.bld) && !makeme.generating) {
+                        App.log.error("prevent removal of", path)
+                        continue
+                    }
+                    if (path.exists) {
+                        trace('Clean', path.relativeTo(me.dir.top))
+                    }
+                    if (path.toString().endsWith('/') || path.isDir) {
+                        removeDir(path)
+                    } else {
+                        removeFile(path)
+                    }
+                    if (me.platform.os == 'windows') {
+                        let ext = path.extension
+                        if (ext == me.ext.shobj || ext == me.ext.exe) {
+                            removeFile(path.replaceExt('lib'))
+                            removeFile(path.replaceExt('pdb'))
+                            removeFile(path.replaceExt('exp'))
+                        }
                     }
                 }
             }
+        } finally {
+            App.chdir(from)
         }
         break
     }
