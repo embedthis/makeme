@@ -906,11 +906,12 @@ public class Loader {
     public function makeExtensionGlobals() {
         let g = me.globals
         let ext = me.ext
-        g.EXE = ext.dotexe
         g.LIKE = me.platform.like
+        g.EXE = ext.dotexe
         g.O = ext.doto
         g.SHOBJ = ext.dotshobj
         g.SHLIB = ext.dotshlib
+        g.ARLIB = ext.dotlib
     }
 
     function makeItemGlobals(origin: Path?, home: Path?) {
@@ -973,6 +974,7 @@ public class Loader {
          */
         if (p.from || p.to) {
             p.type ||= 'file'
+            if (p.type == 'file') {
             if (p.to && !p.path) {
                 p.path = p.to
                 delete p.to
@@ -981,6 +983,7 @@ public class Loader {
                 p.files = p.from
                 delete p.from
             }
+        }
         }
         setTargetGoals(p)
 
