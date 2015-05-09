@@ -30,7 +30,7 @@ Me.load({
             path: '${BIN}/testme.mod',
             files: [ 'testme.es' ],
             build: `
-                run('${LBIN}/ejsc --debug --out ${BIN}/testme.mod --optimize 9 testme.es')
+                run('"${LBIN}/ejsc" --debug --out "${BIN}/testme.mod" --optimize 9 testme.es')
             `,
             message: 'Compile: testme.mod',
             depends: [ 'ejs.mod' ],
@@ -47,7 +47,7 @@ Me.load({
             path: '${BIN}/ejs.testme.mod',
             files: [ 'ejs.testme.es' ],
             build: `
-                run('${LBIN}/ejsc --debug --out ${BIN}/ejs.testme.mod --optimize 9 ejs.testme.es')
+                run('"${LBIN}/ejsc" --debug --out "${BIN}/ejs.testme.mod" --optimize 9 ejs.testme.es')
             `,
             message: 'Compile: ejs.testme.mod',
             depends: [ 'ejs.mod' ],
