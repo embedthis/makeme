@@ -100,7 +100,7 @@ Me.load({
             files: [ 'src/*.es', 'paks/ejs-version/Version.es' ],
             precious: true,
             build: `
-                run('${LBIN}/ejsc --debug --out ${BIN}/me.mod --optimize 9 ${FILES}')
+                run('"${LBIN}/ejsc" --debug --out "${BIN}/me.mod" --optimize 9 ${FILES}')
             `,
             message: 'Compile: me.mod',
             depends: [ 'ejs.mod' ],
