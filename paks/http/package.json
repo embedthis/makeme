@@ -32,11 +32,13 @@
     "dependencies": {
         "mpr": "^6.0",
         "osdep": "^0.8",
-        "pcre": "^1.0"
+        "pcre": "^1.0",
+        "ssl": "^0.9"
     },
     "optionalDependencies": {
-        "mpr-openssl": "^0.1",
-        "ssl": "^0.9"
+        "est": "^0.6",
+        "mpr-est": "^0.1",
+        "mpr-openssl": "^0.1"
     },
     "files": [
         "dist/",

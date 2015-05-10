@@ -8133,8 +8133,8 @@ PUBLIC int mprGetSslCipherCode(cchar *cipher);
 
 /**
     Convert a list of ciphers into an integer array of cipher codes
-    @param cipher Cipher IANA name
-    @param count Integer reference to hold the number of codes in the return array
+    @param ciphers IANA cipher name. Ciphers may be space, tab, comma or colon separated.
+    @param len Integer reference to hold the number of cipher codes in the return array
     @return String integers representing the IANA cipher codes. Null terminated.
     @stability Prototype
     @ingroup MprSsl

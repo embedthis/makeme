@@ -21892,9 +21892,6 @@ static void standardSignalHandler(void *ignored, MprSignal *sp)
 
 
 #if !VXWORKS
-/*
-    On MAC OS X, getaddrinfo is not thread-safe and crashes when called by a 2nd thread at any time. ie. locking wont help.
- */
 #define ME_COMPILER_HAS_GETADDRINFO 1
 #endif
 
@@ -23457,10 +23454,10 @@ PUBLIC int mprGetSocketInfo(cchar *ip, int port, int *family, int *protocol, str
  */
 static int getSocketIpAddr(struct sockaddr *addr, int addrlen, char *ip, int ipLen, int *port)
 {
-#if (ME_UNIX_LIKE || WIN)
+#if (ME_UNIX_LIKE || ME_WIN_LIKE)
     char    service[NI_MAXSERV];
 
-#ifdef IN6_IS_ADDR_V4MAPPED
+#if ME_WIN_LIKE || defined(IN6_IS_ADDR_V4MAPPED)
     if (addr->sa_family == AF_INET6) {
         struct sockaddr_in6* addr6 = (struct sockaddr_in6*) addr;
         if (IN6_IS_ADDR_V4MAPPED(&addr6->sin6_addr)) {
@@ -23537,8 +23534,16 @@ static int ipv6(cchar *ip)
 PUBLIC int mprParseSocketAddress(cchar *address, char **pip, int *pport, int *psecure, int defaultPort)
 {
     char    *ip, *cp;
+    ssize   pos;
     int     port;
 
+    if (!address || *address == 0) {
+        return MPR_ERR_BAD_ARGS;
+    }
+    pos = strspn(address, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%");
+    if (pos < slen(address)) {
+        return MPR_ERR_BAD_ARGS;
+    }
     ip = 0;
     if (defaultPort < 0) {
         defaultPort = 80;

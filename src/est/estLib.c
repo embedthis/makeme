@@ -13442,4 +13442,4 @@ void xtea_crypt_ecb(xtea_context *ctx, int mode, uchar input[8], uchar output[8]
     @end
  */
 
-#endif /* ME_COM_EST */
+#endif /* ME_COM_ESTXX */
