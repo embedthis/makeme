@@ -3389,3 +3389,4 @@ void ZLIB_INTERNAL _tr_stored_block OF((deflate_state *s, charf *buf,
 #endif
 
 #endif /* DEFLATE_H */
+

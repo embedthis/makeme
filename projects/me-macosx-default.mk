@@ -314,6 +314,7 @@ $(BUILD)/obj/http.o: \
 #   httpLib.o
 #
 DEPS_15 += $(BUILD)/inc/http.h
+DEPS_15 += $(BUILD)/inc/pcre.h
 
 $(BUILD)/obj/httpLib.o: \
     src/http/httpLib.c $(DEPS_15)
@@ -605,7 +606,7 @@ $(BUILD)/bin/ejs.mod: $(DEPS_30)
 	( \
 	cd src/ejs; \
 	echo '   [Compile] ejs.mod' ; \
-	../../$(BUILD)/bin/ejsc --out ../../$(BUILD)/bin/ejs.mod --optimize 9 --bind --require null ejs.es ; \
+	"../../$(BUILD)/bin/ejsc" --out "../../$(BUILD)/bin/ejs.mod" --optimize 9 --bind --require null ejs.es ; \
 	)
 endif
 
@@ -631,7 +632,7 @@ $(BUILD)/bin/ejs.testme.mod: $(DEPS_32)
 	( \
 	cd src/tm; \
 	echo '   [Compile] ejs.testme.mod' ; \
-	../../$(BUILD)/bin/ejsc --debug --out ../../$(BUILD)/bin/ejs.testme.mod --optimize 9 ejs.testme.es ; \
+	"../../$(BUILD)/bin/ejsc" --debug --out "../../$(BUILD)/bin/ejs.testme.mod" --optimize 9 ejs.testme.es ; \
 	)
 
 ifeq ($(ME_COM_EJS),1)
@@ -748,7 +749,7 @@ endif
 
 $(BUILD)/bin/me.mod: $(DEPS_37)
 	echo '   [Compile] me.mod' ; \
-	./$(BUILD)/bin/ejsc --debug --out ./$(BUILD)/bin/me.mod --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es paks/ejs-version/Version.es
+	"./$(BUILD)/bin/ejsc" --debug --out "./$(BUILD)/bin/me.mod" --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es paks/ejs-version/Version.es
 
 #
 #   pakrun
@@ -945,7 +946,7 @@ $(BUILD)/bin/testme.mod: $(DEPS_41)
 	( \
 	cd src/tm; \
 	echo '   [Compile] testme.mod' ; \
-	../../$(BUILD)/bin/ejsc --debug --out ../../$(BUILD)/bin/testme.mod --optimize 9 testme.es ; \
+	"../../$(BUILD)/bin/ejsc" --debug --out "../../$(BUILD)/bin/testme.mod" --optimize 9 testme.es ; \
 	)
 
 #
@@ -1070,19 +1071,62 @@ installBinary: $(DEPS_46)
 	cp src/simple.me $(ME_VAPP_PREFIX)/bin/simple.me ; \
 	cp src/standard.me $(ME_VAPP_PREFIX)/bin/standard.me ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-components" ; \
-	cp $(BUILD)/bin/paks/me-components/** $(ME_VAPP_PREFIX)/bin/paks/me-components/** ; \
+	cp $(BUILD)/bin/paks/me-components/appweb.me $(ME_VAPP_PREFIX)/bin/paks/me-components/appweb.me ; \
+	cp $(BUILD)/bin/paks/me-components/compiler.me $(ME_VAPP_PREFIX)/bin/paks/me-components/compiler.me ; \
+	cp $(BUILD)/bin/paks/me-components/components.me $(ME_VAPP_PREFIX)/bin/paks/me-components/components.me ; \
+	cp $(BUILD)/bin/paks/me-components/lib.me $(ME_VAPP_PREFIX)/bin/paks/me-components/lib.me ; \
+	cp $(BUILD)/bin/paks/me-components/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-components/LICENSE.md ; \
+	cp $(BUILD)/bin/paks/me-components/link.me $(ME_VAPP_PREFIX)/bin/paks/me-components/link.me ; \
+	cp $(BUILD)/bin/paks/me-components/package.json $(ME_VAPP_PREFIX)/bin/paks/me-components/package.json ; \
+	cp $(BUILD)/bin/paks/me-components/rc.me $(ME_VAPP_PREFIX)/bin/paks/me-components/rc.me ; \
+	cp $(BUILD)/bin/paks/me-components/README.md $(ME_VAPP_PREFIX)/bin/paks/me-components/README.md ; \
+	cp $(BUILD)/bin/paks/me-components/testme.me $(ME_VAPP_PREFIX)/bin/paks/me-components/testme.me ; \
+	cp $(BUILD)/bin/paks/me-components/vxworks.me $(ME_VAPP_PREFIX)/bin/paks/me-components/vxworks.me ; \
+	cp $(BUILD)/bin/paks/me-components/winsdk.me $(ME_VAPP_PREFIX)/bin/paks/me-components/winsdk.me ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-configuration" ; \
-	cp $(BUILD)/bin/paks/me-configuration/** $(ME_VAPP_PREFIX)/bin/paks/me-configuration/** ; \
+	cp $(BUILD)/bin/paks/me-configuration/Configuration.es $(ME_VAPP_PREFIX)/bin/paks/me-configuration/Configuration.es ; \
+	cp $(BUILD)/bin/paks/me-configuration/configuration.me $(ME_VAPP_PREFIX)/bin/paks/me-configuration/configuration.me ; \
+	cp $(BUILD)/bin/paks/me-configuration/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-configuration/LICENSE.md ; \
+	cp $(BUILD)/bin/paks/me-configuration/package.json $(ME_VAPP_PREFIX)/bin/paks/me-configuration/package.json ; \
+	cp $(BUILD)/bin/paks/me-configuration/README.md $(ME_VAPP_PREFIX)/bin/paks/me-configuration/README.md ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-os" ; \
-	cp $(BUILD)/bin/paks/me-os/** $(ME_VAPP_PREFIX)/bin/paks/me-os/** ; \
+	cp $(BUILD)/bin/paks/me-os/freebsd.me $(ME_VAPP_PREFIX)/bin/paks/me-os/freebsd.me ; \
+	cp $(BUILD)/bin/paks/me-os/gcc.me $(ME_VAPP_PREFIX)/bin/paks/me-os/gcc.me ; \
+	cp $(BUILD)/bin/paks/me-os/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-os/LICENSE.md ; \
+	cp $(BUILD)/bin/paks/me-os/linux.me $(ME_VAPP_PREFIX)/bin/paks/me-os/linux.me ; \
+	cp $(BUILD)/bin/paks/me-os/macosx.me $(ME_VAPP_PREFIX)/bin/paks/me-os/macosx.me ; \
+	cp $(BUILD)/bin/paks/me-os/os.me $(ME_VAPP_PREFIX)/bin/paks/me-os/os.me ; \
+	cp $(BUILD)/bin/paks/me-os/package.json $(ME_VAPP_PREFIX)/bin/paks/me-os/package.json ; \
+	cp $(BUILD)/bin/paks/me-os/README.md $(ME_VAPP_PREFIX)/bin/paks/me-os/README.md ; \
+	cp $(BUILD)/bin/paks/me-os/solaris.me $(ME_VAPP_PREFIX)/bin/paks/me-os/solaris.me ; \
+	cp $(BUILD)/bin/paks/me-os/unix.me $(ME_VAPP_PREFIX)/bin/paks/me-os/unix.me ; \
+	cp $(BUILD)/bin/paks/me-os/vxworks.me $(ME_VAPP_PREFIX)/bin/paks/me-os/vxworks.me ; \
+	cp $(BUILD)/bin/paks/me-os/windows.me $(ME_VAPP_PREFIX)/bin/paks/me-os/windows.me ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-installs" ; \
-	cp $(BUILD)/bin/paks/me-installs/** $(ME_VAPP_PREFIX)/bin/paks/me-installs/** ; \
+	cp $(BUILD)/bin/paks/me-installs/Installs.es $(ME_VAPP_PREFIX)/bin/paks/me-installs/Installs.es ; \
+	cp $(BUILD)/bin/paks/me-installs/installs.me $(ME_VAPP_PREFIX)/bin/paks/me-installs/installs.me ; \
+	cp $(BUILD)/bin/paks/me-installs/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-installs/LICENSE.md ; \
+	cp $(BUILD)/bin/paks/me-installs/manifest.me $(ME_VAPP_PREFIX)/bin/paks/me-installs/manifest.me ; \
+	cp $(BUILD)/bin/paks/me-installs/package.json $(ME_VAPP_PREFIX)/bin/paks/me-installs/package.json ; \
+	cp $(BUILD)/bin/paks/me-installs/README.md $(ME_VAPP_PREFIX)/bin/paks/me-installs/README.md ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-project" ; \
-	cp $(BUILD)/bin/paks/me-project/** $(ME_VAPP_PREFIX)/bin/paks/me-project/** ; \
+	cp $(BUILD)/bin/paks/me-project/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-project/LICENSE.md ; \
+	cp $(BUILD)/bin/paks/me-project/package.json $(ME_VAPP_PREFIX)/bin/paks/me-project/package.json ; \
+	cp $(BUILD)/bin/paks/me-project/Project.es $(ME_VAPP_PREFIX)/bin/paks/me-project/Project.es ; \
+	cp $(BUILD)/bin/paks/me-project/project.me $(ME_VAPP_PREFIX)/bin/paks/me-project/project.me ; \
+	cp $(BUILD)/bin/paks/me-project/README.md $(ME_VAPP_PREFIX)/bin/paks/me-project/README.md ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-vstudio" ; \
-	cp $(BUILD)/bin/paks/me-vstudio/** $(ME_VAPP_PREFIX)/bin/paks/me-vstudio/** ; \
+	cp $(BUILD)/bin/paks/me-vstudio/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-vstudio/LICENSE.md ; \
+	cp $(BUILD)/bin/paks/me-vstudio/package.json $(ME_VAPP_PREFIX)/bin/paks/me-vstudio/package.json ; \
+	cp $(BUILD)/bin/paks/me-vstudio/README.md $(ME_VAPP_PREFIX)/bin/paks/me-vstudio/README.md ; \
+	cp $(BUILD)/bin/paks/me-vstudio/Vstudio.es $(ME_VAPP_PREFIX)/bin/paks/me-vstudio/Vstudio.es ; \
+	cp $(BUILD)/bin/paks/me-vstudio/vstudio.me $(ME_VAPP_PREFIX)/bin/paks/me-vstudio/vstudio.me ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin/paks/me-xcode" ; \
-	cp $(BUILD)/bin/paks/me-xcode/** $(ME_VAPP_PREFIX)/bin/paks/me-xcode/** ; \
+	cp $(BUILD)/bin/paks/me-xcode/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-xcode/LICENSE.md ; \
+	cp $(BUILD)/bin/paks/me-xcode/package.json $(ME_VAPP_PREFIX)/bin/paks/me-xcode/package.json ; \
+	cp $(BUILD)/bin/paks/me-xcode/README.md $(ME_VAPP_PREFIX)/bin/paks/me-xcode/README.md ; \
+	cp $(BUILD)/bin/paks/me-xcode/Xcode.es $(ME_VAPP_PREFIX)/bin/paks/me-xcode/Xcode.es ; \
+	cp $(BUILD)/bin/paks/me-xcode/xcode.me $(ME_VAPP_PREFIX)/bin/paks/me-xcode/xcode.me ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/doc/man/man1" ; \
 	cp doc/dist/man/me.1 $(ME_VAPP_PREFIX)/doc/man/man1/me.1 ; \
 	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \

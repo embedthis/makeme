@@ -331,6 +331,7 @@ $(BUILD)/obj/http.o: \
 #   httpLib.o
 #
 DEPS_18 += src/http/http.h
+DEPS_18 += $(BUILD)/inc/pcre.h
 
 $(BUILD)/obj/httpLib.o: \
     src/http/httpLib.c $(DEPS_18)
@@ -646,7 +647,7 @@ $(BUILD)/bin/ejs.mod: $(DEPS_37)
 	( \
 	cd src/ejs; \
 	echo '   [Compile] ejs.mod' ; \
-	../../$(BUILD)/bin/ejsc --out ../../$(BUILD)/bin/ejs.mod --optimize 9 --bind --require null ejs.es ; \
+	"../../$(BUILD)/bin/ejsc" --out "../../$(BUILD)/bin/ejs.mod" --optimize 9 --bind --require null ejs.es ; \
 	)
 endif
 
@@ -672,7 +673,7 @@ $(BUILD)/bin/ejs.testme.mod: $(DEPS_39)
 	( \
 	cd src/tm; \
 	echo '   [Compile] ejs.testme.mod' ; \
-	../../$(BUILD)/bin/ejsc --debug --out ../../$(BUILD)/bin/ejs.testme.mod --optimize 9 ejs.testme.es ; \
+	"../../$(BUILD)/bin/ejsc" --debug --out "../../$(BUILD)/bin/ejs.testme.mod" --optimize 9 ejs.testme.es ; \
 	)
 
 ifeq ($(ME_COM_EJS),1)
@@ -789,7 +790,7 @@ endif
 
 $(BUILD)/bin/me.mod: $(DEPS_44)
 	echo '   [Compile] me.mod' ; \
-	./$(BUILD)/bin/ejsc --debug --out ./$(BUILD)/bin/me.mod --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es paks/ejs-version/Version.es
+	"./$(BUILD)/bin/ejsc" --debug --out "./$(BUILD)/bin/me.mod" --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es paks/ejs-version/Version.es
 
 #
 #   pakrun
@@ -986,7 +987,7 @@ $(BUILD)/bin/testme.mod: $(DEPS_48)
 	( \
 	cd src/tm; \
 	echo '   [Compile] testme.mod' ; \
-	../../$(BUILD)/bin/ejsc --debug --out ../../$(BUILD)/bin/testme.mod --optimize 9 testme.es ; \
+	"../../$(BUILD)/bin/ejsc" --debug --out "../../$(BUILD)/bin/testme.mod" --optimize 9 testme.es ; \
 	)
 
 #

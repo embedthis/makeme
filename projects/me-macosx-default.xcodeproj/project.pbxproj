@@ -1283,6 +1283,7 @@
                 isa = PBXGroup;
                 children = (
 				025E1F6C025E4DEC0000010C /* http.h */,
+				025E1F6C025E4DEC0000010F /* pcre.h */,
 				025E1F6C025E4DEC00000053 /* httpLib.c */,
 			);
                 name = "libhttp";
@@ -1652,7 +1653,7 @@
     			shellPath = /bin/bash;
     			shellScript = "PATH=$PATH:/usr/local/bin
 cd ../src/ejs
-	../${OUT_DIR}/bin/ejsc --out ../${OUT_DIR}/bin/ejs.mod --optimize 9 --bind --require null ejs.es
+	\"../${OUT_DIR}/bin/ejsc\" --out \"../${OUT_DIR}/bin/ejs.mod\" --optimize 9 --bind --require null ejs.es
 ";
     		};
 		025E1F6C025E4DEC0000000C /* ShellScript for ejs.testme.es */ = {
@@ -1689,7 +1690,7 @@ cd ..
     			shellPath = /bin/bash;
     			shellScript = "PATH=$PATH:/usr/local/bin
 cd ../src/tm
-	../${OUT_DIR}/bin/ejsc --debug --out ../${OUT_DIR}/bin/ejs.testme.mod --optimize 9 ejs.testme.es
+	\"../${OUT_DIR}/bin/ejsc\" --debug --out \"../${OUT_DIR}/bin/ejs.testme.mod\" --optimize 9 ejs.testme.es
 ";
     		};
 		025E1F6C025E4DEC00000015 /* ShellScript for http-ca-crt */ = {
@@ -1732,7 +1733,7 @@ cd ..
     			shellPath = /bin/bash;
     			shellScript = "PATH=$PATH:/usr/local/bin
 cd ..
-	./build/macosx-x64-default/bin/ejsc --debug --out ./build/macosx-x64-default/bin/me.mod --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es paks/ejs-version/Version.es
+	\"./build/macosx-x64-default/bin/ejsc\" --debug --out \"./build/macosx-x64-default/bin/me.mod\" --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es paks/ejs-version/Version.es
 ";
     		};
 		025E1F6C025E4DEC0000001E /* ShellScript for pakrun */ = {
@@ -1917,7 +1918,7 @@ cd ..
     			shellPath = /bin/bash;
     			shellScript = "PATH=$PATH:/usr/local/bin
 cd ../src/tm
-	../${OUT_DIR}/bin/ejsc --debug --out ../${OUT_DIR}/bin/testme.mod --optimize 9 testme.es
+	\"../${OUT_DIR}/bin/ejsc\" --debug --out \"../${OUT_DIR}/bin/testme.mod\" --optimize 9 testme.es
 ";
     		};
 		025E1F6C025E4DEC00000049 /* ShellScript for Prep */ = {

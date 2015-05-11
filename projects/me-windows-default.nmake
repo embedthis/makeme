@@ -427,6 +427,7 @@ build\$(CONFIG)\inc\http.h: $(DEPS_14)
 #   httpLib.obj
 #
 DEPS_15 = $(DEPS_15) build\$(CONFIG)\inc\http.h
+DEPS_15 = $(DEPS_15) build\$(CONFIG)\inc\pcre.h
 
 build\$(CONFIG)\obj\httpLib.obj: \
     src\http\httpLib.c $(DEPS_15)
@@ -671,7 +672,7 @@ DEPS_27 = $(DEPS_27) build\$(CONFIG)\bin\ejsc.exe
 build\$(CONFIG)\bin\ejs.mod: $(DEPS_27)
 	cd src\ejs
 	@echo .. [Compile] ejs.mod
-	..\..\$(BUILD)\bin\ejsc --out ../../$(BUILD)/bin/ejs.mod --optimize 9 --bind --require null ejs.es
+	"../../$(BUILD)/bin/ejsc" --out "../../$(BUILD)/bin/ejs.mod" --optimize 9 --bind --require null ejs.es
 	cd ..\..
 !ENDIF
 
@@ -696,7 +697,7 @@ DEPS_29 = $(DEPS_29) build\$(CONFIG)\bin\ejs.mod
 build\$(CONFIG)\bin\ejs.testme.mod: $(DEPS_29)
 	cd src\tm
 	@echo .. [Compile] ejs.testme.mod
-	..\..\$(BUILD)\bin\ejsc --debug --out ../../$(BUILD)/bin/ejs.testme.mod --optimize 9 ejs.testme.es
+	"../../$(BUILD)/bin/ejsc" --debug --out "../../$(BUILD)/bin/ejs.testme.mod" --optimize 9 ejs.testme.es
 	cd ..\..
 
 #
@@ -854,7 +855,7 @@ DEPS_38 = $(DEPS_38) build\$(CONFIG)\bin\ejs.mod
 
 build\$(CONFIG)\bin\me.mod: $(DEPS_38)
 	@echo .. [Compile] me.mod
-	.\$(BUILD)\bin\ejsc --debug --out ./$(BUILD)/bin/me.mod --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es paks/ejs-version/Version.es
+	"./$(BUILD)/bin/ejsc" --debug --out "./$(BUILD)/bin/me.mod" --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es paks/ejs-version/Version.es
 
 #
 #   pakrun
@@ -1060,7 +1061,7 @@ DEPS_43 = $(DEPS_43) build\$(CONFIG)\bin\ejs.mod
 build\$(CONFIG)\bin\testme.mod: $(DEPS_43)
 	cd src\tm
 	@echo .. [Compile] testme.mod
-	..\..\$(BUILD)\bin\ejsc --debug --out ../../$(BUILD)/bin/testme.mod --optimize 9 testme.es
+	"../../$(BUILD)/bin/ejsc" --debug --out "../../$(BUILD)/bin/testme.mod" --optimize 9 testme.es
 	cd ..\..
 
 #
