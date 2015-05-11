@@ -609,7 +609,7 @@ public class Builder {
         if (me.platform.os == 'windows') {
             libs = libs.clone()
             for (let [i,name] in libs) {
-                let libname = Path('lib' + name).joinExt(me.ext.shlib)
+                let libname = Path('lib' + name).joinExt(me.ext.shlib, true)
                 if (me.targets['lib' + name] || me.dir.bin.join(libname).exists) {
                     libs[i] = libname
                 } else {
