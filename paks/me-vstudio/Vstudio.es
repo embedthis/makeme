@@ -209,7 +209,7 @@ if not exist "$(IncDir)" md "$(IncDir)"
         trace('Generate', path)
         out = TextStream(File(path, 'wt'))
         output('<?xml version="1.0" encoding="utf-8"?>
-    <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
       <ImportGroup Label="PropertySheets" />
       <ItemDefinitionGroup>
         <ClCompile>
@@ -394,7 +394,11 @@ if not exist "$(IncDir)" md "$(IncDir)"
         if (target.type == 'exe') {
             me.PTYPE = 'Application'
         } else if (target.type == 'lib') {
-            me.PTYPE = 'DynamicLibrary'
+            if (target.static) {
+                me.PTYPE = 'StaticLibrary'
+            } else {
+                me.PTYPE = 'DynamicLibrary'
+            }
         } else {
             me.PTYPE = ''
         }
@@ -445,6 +449,7 @@ if not exist "$(IncDir)" md "$(IncDir)"
                 output('  <PropertyGroup Condition="\'${CTOK}|${PTOK}\'==\'${VOUT}|${VTYPE}\'" Label="Configuration">
         <ConfigurationType>${PTYPE}</ConfigurationType>
         <CharacterSet>NotSet</CharacterSet>
+        <PlatformToolset>v120</PlatformToolset>
       </PropertyGroup>')
             }
         }

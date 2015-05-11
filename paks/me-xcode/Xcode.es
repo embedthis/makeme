@@ -444,6 +444,7 @@ class Xcode {
                 sourceTree = SOURCE_ROOT;
             };'
 
+        let headers = {}
         for each (target in me.targets) {
             if (!target.xgroup) {
                 continue
@@ -451,13 +452,18 @@ class Xcode {
             let gid = getid('ID_TargetGroup:' + target.name)
             let name = target.name != 'Products' ? (target.name) : target.name
             output(section.expand({GID: gid, NAME: name}))
-            let headers = {}
             for each (item in target.depends) {
                 let dep = me.targets[item]
                 if (dep && dep.type == 'obj') {
                     for each (hdr in dep.depends) {
                         if (headers[hdr]) continue
                         if (hdr is Path && hdr.extension == 'h') {
+                            let htarget = me.targets[hdr]
+                            if (htarget) {
+                                if (htarget.belongs != name && htarget.belongs != dep.name) {
+                                    continue
+                                }
+                            }
                             let ref = getid('ID_TargetHdr:' + hdr)
                             output(groupItem.expand({REF: ref, NAME: hdr.basename}))
                         }

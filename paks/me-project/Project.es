@@ -1130,7 +1130,6 @@ class Project {
 
     function genTargetLibs(target, command): String {
         let found
-        /* This makes matching easier */
         command += ' '
 
         /*
@@ -1240,7 +1239,8 @@ class Project {
         if (found) {
             genWriteLine('')
             if (command.contains('$(LIBS)')) {
-                command = command.replace('$(LIBS)', '$(LIBPATHS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS)')
+                command = command.replace('$(LIBS)', 
+                    '$(LIBPATHS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS)')
             } else {
                 command += ' $(LIBPATHS_' + nextID + ') $(LIBS_' + nextID + ') $(LIBS_' + nextID + ')'
             }

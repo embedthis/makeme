@@ -430,8 +430,8 @@ public class Builder {
                 for each (file in files) {
                     let header = me.dir.inc.join(file.basename)
                     loader.createTarget({ name: header, enable: true, path: header, type: 'header', home: target.home,
-                        goals: [target.name], files: [ file ], includes: target.includes,
-                        generate: true })
+                        goals: [target.name], files: [ file ], includes: target.includes, generate: true, 
+                        belongs: target.name })
                     target.depends.push(header)
                 }
                 if (target.type == 'header') {
@@ -449,7 +449,7 @@ public class Builder {
                     let res = me.dir.obj.join(file.replaceExt(me.ext.res).basename)
                     loader.createTarget({ name : res, enable: true, path: res, enable: true, home: target.home,
                         type: 'resource', goals: [target.name], files: [ file ], includes: target.includes,
-                        defines: target.defines, generate: true })
+                        defines: target.defines, generate: true, belongs: target.name })
                     target.files.push(res)
                     target.depends.push(res)
                 }
@@ -463,7 +463,7 @@ public class Builder {
                     let obj = me.dir.obj.join(file.replaceExt(me.ext.o).basename)
                     let props = { name : obj, enable: true, path: obj, type: 'obj', home: target.home,
                         goals: [target.name], files: [ file ],
-                        generate: true }
+                        generate: true, belongs: target.name }
                     for each (n in ['compiler', 'defines', 'includes', 'libraries', 'linker', 'libpaths']) {
                         if (target[n] && target[n].length > 0) {
                             props[n] = target[n]
@@ -570,7 +570,7 @@ public class Builder {
             if (!me.targets[header]) {
                 /* Create a stub header target */
                 loader.createTarget({ name: header, enable: true, path: Path(header), home: target.home,
-                    type: 'header', goals: [target.name], includes: target.includes, generate: true })
+                    type: 'header', goals: [target.name], includes: target.includes, generate: true, belongs: target.name })
             }
             let h = me.targets[header]
             if (admit(h, 'depend')) {
