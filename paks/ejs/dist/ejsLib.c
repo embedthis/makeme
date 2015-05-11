@@ -36975,7 +36975,10 @@ static bool waitForState(EjsHttp *hp, int state, MprTicks timeout, int throw)
             if (httpNeedRetry(conn, &url)) {
                 if (url) {
                     httpRemoveHeader(conn, "Host");
-                    location = httpCreateUri(url, 0);
+                    if ((location = httpCreateUri(url, 0)) == 0) {
+                        ejsThrowIOError(ejs, "Bad location Uri");
+                        return 0;
+                    }
                     uri = httpJoinUri(conn->tx->parsedUri, 1, &location);
                     hp->uri = httpUriToString(uri, HTTP_COMPLETE_URI);
                 }
@@ -51153,7 +51156,9 @@ PUBLIC void ejsConfigureUriType(Ejs *ejs)
         ejsBindMethod(ejs, type, ES_Uri_encode, uri_encode);
         ejsBindMethod(ejs, type, ES_Uri_encodeComponent, uri_encodeComponent);
         ejsBindMethod(ejs, type, ES_Uri_template, uri_template);
+#if ES_Uri_templateString
         ejsBindMethod(ejs, type, ES_Uri_templateString, uri_templateString);
+#endif
 
         prototype = type->prototype;
         ejsBindConstructor(ejs, type, uri_constructor);
