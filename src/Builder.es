@@ -410,8 +410,7 @@ public class Builder {
      */
     public function expandRule(target, rule) {
         setRuleVars(target)
-        let result = loader.expand(rule).expand(target.vars, {missing: ''})
-        return result
+        return loader.expand(rule).expand(target.vars, {missing: ''})
     }
 
     /*
@@ -832,12 +831,12 @@ public class Builder {
                     }
                     target.libraries ||= []
                     if (!target.libraries.contains(lpath)) {
-                        target.libraries = target.libraries + [lpath]
+                        target.libraries = [lpath] + target.libraries
                     }
                 } else if (dep.configurable) {
                     if (dep.libraries) {
                         target.libraries ||= []
-                        target.libraries = (target.libraries + dep.libraries).unique()
+                        target.libraries = (dep.libraries + target.libraries).unique()
                     }
                 }
                 loader.inheritCompSettings(target, dep)

@@ -105,7 +105,7 @@
 
       <ItemDefinitionGroup>
       <Link>
-        <AdditionalDependencies>libmpr.lib;libestssl.lib;libest.lib;libhttp.lib;libpcre.lib;libejs.lib;libzlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+        <AdditionalDependencies>libejs.lib;libhttp.lib;libmpr.lib;libest.lib;estssl;libpcre.lib;libzlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
         <AdditionalLibraryDirectories>$(OutDir);build\$(Cfg)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       </Link>
   </ItemDefinitionGroup>
