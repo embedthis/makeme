@@ -6053,7 +6053,7 @@ FUTURE & KEEP
             for (let [key,file] in files) {
                 write('--' + boundary + "\r\n")
                 write('Content-Disposition: form-data; name=' + key + '; filename=' + Path(file).basename + "\r\n")
-                write('Content-Type: ' + Uri(file).mimeType + "\r\n\r\n")
+                write('Content-Type: ' + Uri(Path(file).portable.basename).mimeType + "\r\n\r\n")
 
                 let f = File(file, "r")
                 let data = new ByteArray(System.Bufsize, false)
