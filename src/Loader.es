@@ -148,6 +148,16 @@ public class Loader {
         }
     }
 
+    function applySettings() {
+        for each (target in me.targets) {
+            if (target.type == 'exe' || target.type == 'lib') {
+                if (target.static == undefined) {
+                    target.static = me.settings.static
+                }
+            }
+        }
+    }
+
     /*
         Blend files referenced by the 'blend' property.
         These are blended before the parent file is blended
@@ -806,6 +816,7 @@ public class Loader {
         setPrefixes()
         applyPlatformProfile()
         applyCommandLine()
+        applySettings()
         resolveDirectories()
         runScriptOnce('loaded')
     }

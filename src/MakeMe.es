@@ -354,15 +354,15 @@ public class MakeMe {
                 poptions = options.platforms[platform] ||= {}
                 poptions.disable ||= []
                 poptions.disable.push(App.args[++i])
-            } else if (arg == '--static') {
+            } else if (arg == '--static' || arg == '-static') {
                 poptions = options.platforms[platform] ||= {}
                 poptions.enable ||= []
                 poptions.enable.push('static=true')
-            } else if (arg == '--rom') {
+            } else if (arg == '--rom' || arg == '-rom') {
                 poptions = options.platforms[platform] ||= {}
                 poptions.enable ||= []
                 poptions.enable.push('rom=true')
-            } else if (arg == '--unicode') {
+            } else if (arg == '--unicode' || arg == '-unicode') {
                 poptions = options.platforms[platform] ||= {}
                 poptions.enable ||= []
                 poptions.enable.push(Config.OS == 'windows' ? 'charLen=2' : 'charLen=4')
