@@ -51012,6 +51012,7 @@ static int same(Ejs *ejs, HttpUri *u1, HttpUri *u2, int exact)
 
 static HttpUri *createHttpUriFromHash(Ejs *ejs, EjsObj *arg, int flags)
 {
+    HttpUri     *uri;
     EjsObj      *schemeObj, *hostObj, *portObj, *pathObj, *referenceObj, *queryObj, *uriObj;
     cchar       *scheme, *host, *path, *reference, *query;
     int         port;
@@ -51046,7 +51047,12 @@ static HttpUri *createHttpUriFromHash(Ejs *ejs, EjsObj *arg, int flags)
     queryObj = ejsGetPropertyByName(ejs, arg, EN("query"));
     query = ejsIs(ejs, queryObj, String) ? ejsToMulti(ejs, queryObj) : 0;
 
-    return httpCreateUriFromParts(scheme, host, port, path, reference, query, flags);
+    uri = httpCreateUriFromParts(scheme, host, port, path, reference, query, flags);
+    if (!uri || !uri->valid) {
+        ejsThrowArgError(ejs, "Invalid URI");
+        return 0;
+    }
+    return uri;
 }
 
 
@@ -51122,8 +51128,8 @@ PUBLIC EjsUri *ejsCreateUriFromAsc(Ejs *ejs, cchar *path)
 }
 
 
-PUBLIC EjsUri *ejsCreateUriFromParts(Ejs *ejs, cchar *scheme, cchar *host, int port, cchar *path, cchar *query, cchar *reference, 
-    int flags)
+PUBLIC EjsUri *ejsCreateUriFromParts(Ejs *ejs, cchar *scheme, cchar *host, int port, cchar *path, cchar *query, 
+    cchar *reference, int flags)
 {
     EjsUri      *up;
 
@@ -51131,6 +51137,10 @@ PUBLIC EjsUri *ejsCreateUriFromParts(Ejs *ejs, cchar *scheme, cchar *host, int p
         return 0;
     }
     up->uri = httpCreateUriFromParts(scheme, host, port, path, reference, query, flags);
+    if (!up->uri || !up->uri->valid) {
+        ejsThrowArgError(ejs, "Invalid URI");
+        return 0;
+    }
     return up;
 }
 
