@@ -1004,9 +1004,13 @@ class Xcode {
             if (target.type == 'lib' && (target.static || me.settings.static)) {
                 overridable += '\t\t\t\tEXECUTABLE_EXTENSION = a;\n'
             }
-            let pname = Path(target.path ? target.path : target.name).basename.trimExt()
-            pname = target.pname ? target.pname : pname
-
+            /*
+                Set the name using the basename of the target path
+             */
+            let pname = target.pname
+            if (!pname) {
+                pname = Path(target.path ? target.path : target.name).basename.trimExt().name || target.name
+            }
             output(section.expand({PNAME: pname, TNAME: target.name, TARGET_DEBUG: tdid, TARGET_RELEASE: trid, 
                 OVERRIDABLE_SETTINGS: overridable,
                 DEBUG_SETTINGS: prepareSettings(base, ts, true),

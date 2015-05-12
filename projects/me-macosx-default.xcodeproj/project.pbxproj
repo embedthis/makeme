@@ -3367,7 +3367,7 @@ fi";
 		B84AA19AB84ABC44000001C1 /* Debug */ = {
     			isa = XCBuildConfiguration;
     			buildSettings = {
-    				PRODUCT_NAME = ;
+    				PRODUCT_NAME = pakrun;
     
     				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ME_DEBUG",
@@ -3379,7 +3379,7 @@ fi";
     		B84AA19AB84ABC44000001C2 /* Release */ = {
     			isa = XCBuildConfiguration;
     			buildSettings = {
-    				PRODUCT_NAME = ;
+    				PRODUCT_NAME = pakrun;
     
     
     			};
@@ -3388,7 +3388,7 @@ fi";
 		B84AA19AB84ABC44000001C3 /* Debug */ = {
     			isa = XCBuildConfiguration;
     			buildSettings = {
-    				PRODUCT_NAME = ;
+    				PRODUCT_NAME = runtime;
     
     				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ME_DEBUG",
@@ -3400,7 +3400,7 @@ fi";
     		B84AA19AB84ABC44000001C4 /* Release */ = {
     			isa = XCBuildConfiguration;
     			buildSettings = {
-    				PRODUCT_NAME = ;
+    				PRODUCT_NAME = runtime;
     
     
     			};
