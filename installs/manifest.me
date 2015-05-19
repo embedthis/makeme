@@ -77,24 +77,6 @@ Me.load({
                     enable:     '!me.settings.static',
                     ifdef:      'est',
 
-                }, { 
-                    from: [
-                                'libssl*${SHOBJ}*',
-                                'libcrypto*${SHOBJ}*',
-                    ],
-                    to:         '${abin}/',
-                    enable:     'me.platform.os != "windows" && !makeme.options.gen',
-                    ifdef:      'openssl',
-
-                }, { 
-                    from: [
-                                'libeay32${SHOBJ}',
-                                'ssleay32${SHOBJ}',
-                    ],
-                    to:         '${abin}/',
-                    enable:     'me.platform.os == "windows"',
-                    ifdef:      'openssl',
-
                 }, { from: [
                                 'ca.crt',
                                 'ejs.mod',
