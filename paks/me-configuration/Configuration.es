@@ -808,6 +808,7 @@ module embedthis.me.script {
         @option search Array of paths to search for the file
         @option nopath Don't use the system PATH to locate the file
         @option fullpath Return the full path to the located file
+        @option nothrow Do not throw an exception
      */
     public function probe(file: Path, control = {}): Path? {
         let path: Path?

@@ -128,8 +128,12 @@ public class Builder {
                 whySkip(target.name, 'is up to date')
             } else {
                 if (target.message && !makeme.generating) {
-                    let [,tag, msg] = target.message.match(/([^:]*) *: *(.*)/)
-                    trace(tag || 'Info', loader.expand(msg))
+                    if (target.message.contains(':')) {
+                        let [,tag, msg] = target.message.match(/([^:]*) *: *(.*)/)
+                        trace(tag || 'Info', loader.expand(msg))
+                    } else {
+                        trace('Info', loader.expand(target.message))
+                    }
                 }
                 if (options.diagnose) {
                     App.log.debug(3, "Target => " +
@@ -870,7 +874,7 @@ public class Builder {
 
         Note: do not use the Cmd options: noio, detach. Use Cmd APIs directly.
      */
-    public function run(command, copt = {}): String {
+    public function run(command, copt = {}, data = null): String {
         if ((options.show && !copt.noshow) || copt.show) {
             let cmdline: String
             if (command is Array) {
@@ -923,7 +927,14 @@ public class Builder {
             }
             results.write(buf)
         })
+        if (data) {
+            copt = blend({detach: true}, copt)
+        }
         cmd.start(command, copt)
+        if (data) {
+            let written = cmd.write(data)
+            cmd.finalize()
+        }
         cmd.wait()
         let response = results.toString()
 
@@ -963,10 +974,13 @@ public class Builder {
     }
 
     function runShell(target, interpreter, script) {
+/* OLD
         let lines = script.match(/^.*$/mg).filter(function(l) l.length)
         let command = lines.join(';')
         strace('Run', command)
         run([Cmd.locate(interpreter), "-c", command.toString().trimEnd('\n')])
+*/
+        run(Cmd.locate(interpreter), {}, script )
     }
 
     /**
@@ -1276,6 +1290,19 @@ public class Builder {
             } else if (dep.configurable) {
                 if (!dep.enable) {
                     continue
+                }
+                for each (let sname: Path in (dep.depends + dep.uses)) {
+                    let sub = getDep(sname)
+                    if (sub && sub.enable) {
+                        if (stale(sub)) {
+                            whyRebuild(path, 'Rebuild', 'dependent target ' + sname + ' is stale, for "' + dname + '"')
+                            return true
+                        }
+                        if (sub.path && sub.path.modified > path.modified) {
+                            whyRebuild(path, 'Rebuild', 'dependent target ' + sname + ' has been modified, for "' + dname + '"')
+                            return true
+                        }
+                    }
                 }
                 file = dep.path
                 if (!file) {

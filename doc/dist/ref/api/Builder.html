@@ -63,7 +63,7 @@
    <tr><th>Qualifiers</th><th width='95%'>Method</th></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#build'><b>build</b></a>(goals: <a href='Array.html'>Array</a> = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Build all required targets for the requested goals.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#mapLibPaths'><b>mapLibPaths</b></a>(libpaths: <a href='Array.html'>Array</a>, base: <a href='Path.html'>Path</a> = expression): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Map library paths to a base.</td></tr>
-   <tr class='apiDef'><td class='apiType'></td><td><a href='#run'><b>run</b></a>(command, copt = expression): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Run a command and trace output if copt.show or options.show.</td></tr>
+   <tr class='apiDef'><td class='apiType'></td><td><a href='#run'><b>run</b></a>(command, copt = expression, data = null): <a href='String.html'>String</a></tr><tr class='apiBrief'><td>&nbsp;</td><td>Run a command and trace output if copt.show or options.show.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#watch'><b>watch</b></a>(start: <a href='Path.html'>Path</a>, goals = expression)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Watch for changes and rebuild as required.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#whyRebuild'><b>whyRebuild</b></a>(path: <a href='Path.html'>Path</a>, tag: <a href='String.html'>String</a>, msg: <a href='String.html'>String</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit trace for me --why on why a target is being rebuilt.</td></tr>
    <tr class='apiDef'><td class='apiType'></td><td><a href='#whySkip'><b>whySkip</b></a>(name: <a href='String.html'>String</a>, msg: <a href='String.html'>String</a>)</tr><tr class='apiBrief'><td>&nbsp;</td><td>Emit trace for me --why on why a target is being skipped.</td></tr>
@@ -101,13 +101,13 @@
 <hr />
 <a name='run'></a>
 <div class='api'>
-<div class='apiSig'>    run(command, copt = expression): <a href='String.html'>String</a>
+<div class='apiSig'>    run(command, copt = expression, data = null): <a href='String.html'>String</a>
 </div>
 <div class='apiDetail'>
 <dl><dt>Description</dt></dd><dd>Run a command and trace output if copt.show or options.show. </dd></dl>
 <dl><dt>Parameters</dt>
 <dd><table class='parameters' title='parameters'>
-<tr class='param'><td class='param'>command </td><td>Command to run. May be an array of args or a string.</td></tr><tr class='param'><td class='param'>copt </td><td>Options. These are also passed to <a href='#Cmd'>Cmd</a>.  [default: expression]</td></tr></table></dd>
+<tr class='param'><td class='param'>command </td><td>Command to run. May be an array of args or a string.</td></tr><tr class='param'><td class='param'>copt </td><td>Options. These are also passed to <a href='#Cmd'>Cmd</a>.  [default: expression]</td></tr><tr class='param'><td class='param'>data </td><td>null [default: null]</td></tr></table></dd>
 </dl><dl><dt>Options</dt>
 <dd><table class='parameters' title='options'>
 <td class='param'>dir</td><td>Change to given directory to run the command.</td></tr>

@@ -971,14 +971,13 @@ public class Loader {
             p.header = p.title + '\n' + p.header
             delete p.title
         }
-        if (p.message is Array) {
-            trace('Warn', 'Target "' + name + '" using Array "message" option, should be String')
-            p.message = p.message.join(':')
-        }
         if (p.linkin) {
             trace('Warn', 'Target "' + name + '" using "linkin" option, use "symlink" instead')
             p.symlink = p.linkin
             delete p.linkin
+        }
+        if (p.message is Array) {
+            p.message = p.message.join(':')
         }
         /*
             Map from/to to files/path and set type to 'file'

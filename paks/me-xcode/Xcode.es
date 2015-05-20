@@ -877,7 +877,27 @@ class Xcode {
     }
 
     function projectConfigSection(base) {
-        let common_settings = '
+        /*
+            Extract $(VAR) defintiions in includes and libpaths
+         */
+        let defs = []
+        for each (target in me.targets) {
+            for each (item in target.includes) {
+                if (item.contains('$(')) {
+                    defs.push(item.replace(/\$\(([^\)]*)\).*/, '$1') + ' = "";\n')
+                }
+            }
+            for each (item in target.libpaths) {
+                if (item.contains('$(')) {
+                    defs.push(item.replace(/\$\(([^\)]*)\).*/, '$1') + ' = "";\n')
+                }
+            }
+        }
+        let common_settings = ''
+        if (defs.length > 0) {
+            common_settings += defs.unique().join('')
+        }
+        common_settings += '
                     /* Common Settings */
     				ALWAYS_SEARCH_USER_PATHS = NO;
                     ONLY_ACTIVE_ARCH = YES;
@@ -1104,6 +1124,9 @@ class Xcode {
     }
 
     function smartPath(path: Path, base: Path) {
+        if (path.startsWith('$(')) {
+            return path
+        }
         return path.relativeTo(base)
     }
 

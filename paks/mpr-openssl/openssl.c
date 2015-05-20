@@ -1,6 +1,8 @@
 /*
     openssl.c - Support for secure sockets via OpenSSL
 
+    This is the interface between the MPR Socket layer and the OpenSSL stack.
+
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
@@ -11,6 +13,9 @@
 #if ME_COM_OPENSSL
 
 #if ME_UNIX_LIKE
+    /*
+        Mac OS X stack is deprecated. Suppress those warnings.
+     */
     #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
@@ -27,7 +32,9 @@
  #include    <openssl/dh.h>
 
 /************************************* Defines ********************************/
-
+/*
+    Configuration for a route/host
+ */
 typedef struct OpenConfig {
     SSL_CTX         *context;
     RSA             *rsaKey512;
@@ -94,7 +101,7 @@ static DH       *get_dh1024();
 
 /************************************* Code ***********************************/
 /*
-    Create the Openssl module. This is called only once
+    Initialize the MPR SSL layer
  */
 PUBLIC int mprSslInit(void *unused, MprModule *module)
 {
@@ -150,7 +157,6 @@ PUBLIC int mprSslInit(void *unused, MprModule *module)
         CRYPTO_set_dynlock_destroy_callback(sslDestroyDynLock);
         CRYPTO_set_dynlock_lock_callback(sslDynLock);
 #if !ME_WIN_LIKE
-        /* OPT - Should be a configure option to specify desired ciphers */
         OpenSSL_add_all_algorithms();
 #endif
         /*
@@ -163,10 +169,13 @@ PUBLIC int mprSslInit(void *unused, MprModule *module)
 }
 
 
+/*
+    MPR Garbage collector manager callback for OpenConfig. Called on each GC sweep.
+ */
 static void manageOpenConfig(OpenConfig *cfg, int flags)
 {
     if (flags & MPR_MANAGE_MARK) {
-        ;
+        /* Nothing to do  */
     } else if (flags & MPR_MANAGE_FREE) {
         if (cfg->context != 0) {
             SSL_CTX_free(cfg->context);
@@ -194,6 +203,9 @@ static void manageOpenConfig(OpenConfig *cfg, int flags)
 }
 
 
+/*
+    MPR Garbage collector manager callback for MprSocketProvider. Called on each GC sweep.
+ */
 static void manageOpenProvider(MprSocketProvider *provider, int flags)
 {
     int     i;
@@ -248,9 +260,6 @@ static OpenConfig *createOpenSslConfig(MprSocket *sp)
         return 0;
     }
     SSL_CTX_set_app_data(context, (void*) ssl);
-    SSL_CTX_sess_set_cache_size(context, 512);
-    RAND_bytes(resume, sizeof(resume));
-    SSL_CTX_set_session_id_context(context, resume, sizeof(resume));
 
     if (ssl->verifyPeer && !(ssl->caFile || ssl->caPath)) {
         sp->errorMsg = sfmt("Cannot verify peer due to undefined CA certificates");
@@ -310,6 +319,9 @@ static OpenConfig *createOpenSslConfig(MprSocket *sp)
     SSL_CTX_set_tmp_rsa_callback(context, rsaCallback);
     SSL_CTX_set_tmp_dh_callback(context, dhCallback);
 
+    /*
+        Elliptic Curve initialization
+     */
 #if SSL_OP_SINGLE_ECDH_USE
 {
     EC_KEY  *ecdh;
@@ -338,18 +350,9 @@ static OpenConfig *createOpenSslConfig(MprSocket *sp)
     /* SSL_OP_ALL enables this. Only needed for ancient browsers like IE-6 */
     SSL_CTX_clear_options(context, SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS);
 #endif
-#ifdef SSL_OP_NO_TICKET
-    SSL_CTX_set_options(context, SSL_OP_NO_TICKET);
-#endif
-#ifdef SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION
-    SSL_CTX_set_options(context, SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION);
-#endif
     SSL_CTX_set_mode(context, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_AUTO_RETRY | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
 #ifdef SSL_OP_MSIE_SSLV2_RSA_PADDING
     SSL_CTX_set_options(context, SSL_OP_MSIE_SSLV2_RSA_PADDING);
-#endif
-#ifdef SSL_OP_NO_COMPRESSION
-    SSL_CTX_set_options(context, SSL_OP_NO_COMPRESSION);
 #endif
 #ifdef SSL_MODE_RELEASE_BUFFERS
     SSL_CTX_set_mode(context, SSL_MODE_RELEASE_BUFFERS);
@@ -360,6 +363,38 @@ static OpenConfig *createOpenSslConfig(MprSocket *sp)
 #if KEEP
     SSL_CTX_set_read_ahead(context, 1);
     SSL_CTX_set_info_callback(context, info_callback);
+#endif
+
+    /*
+        Options set via main.me mpr.ssl.*
+     */
+#if defined(ME_MPR_SSL_TICKET) && defined(SSL_OP_NO_TICKET)
+    if (ME_MPR_SSL_TICKET) {
+        SSL_CTX_clear_options(context, SSL_OP_NO_TICKET);
+    } else {
+        SSL_CTX_set_options(context, SSL_OP_NO_TICKET);
+    }
+#endif
+#if defined(ME_MPR_SSL_COMPRESSION) && defined(SSL_OP_NO_COMPRESSION)
+    if (ME_MPR_SSL_COMPRESSION) {
+        SSL_CTX_clear_options(context, SSL_OP_NO_COMPRESSION);
+    } else {
+        SSL_CTX_set_options(context, SSL_OP_NO_COMPRESSION);
+    }
+#endif
+#if defined(ME_MPR_SSL_RENEGOTIATE)
+    RAND_bytes(resume, sizeof(resume));
+    SSL_CTX_set_session_id_context(context, resume, sizeof(resume));
+    #if defined(SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION)
+        if (ME_MPR_SSL_RENEGOTIATE) {
+            SSL_CTX_clear_options(context, SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION);
+        } else {
+            SSL_CTX_set_options(context, SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION);
+        }
+    #endif
+#endif
+#if defined(ME_MPR_SSL_CACHE)
+    SSL_CTX_sess_set_cache_size(context, ME_MPR_SSL_CACHE);
 #endif
 
     /*
@@ -426,6 +461,9 @@ static int configureCertificateFiles(MprSsl *ssl, SSL_CTX *ctx, char *key, char 
 }
 
 
+/*
+    MPR Garbage collector manager callback for OpenSocket. Called on each GC sweep.
+ */
 static void manageOpenSocket(OpenSocket *osp, int flags)
 {
     if (flags & MPR_MANAGE_MARK) {
@@ -446,9 +484,14 @@ static void manageOpenSocket(OpenSocket *osp, int flags)
 static void closeOss(MprSocket *sp, bool gracefully)
 {
     OpenSocket    *osp;
+    int rc;
 
     osp = sp->sslSocket;
+    /*
+        Locking not really required as use of the socket should be single-threaded on a dispatcher.
+     */
     lock(sp);
+    SSL_shutdown(osp->handle);
     sp->service->standardProvider->closeSocket(sp, gracefully);
     SSL_free(osp->handle);
     osp->handle = 0;
@@ -530,7 +573,7 @@ static int upgradeOss(MprSocket *sp, MprSsl *ssl, cchar *requiredPeerName)
     /*
         Disable renegotiation after the initial handshake if renegotiate is explicitly set to false (CVE-2009-3555).
         Note: this really is a bogus CVE as disabling renegotiation is not required nor does it enhance security if
-        used with up-to-date (patched) SSL stacks
+        used with up-to-date (patched) SSL stacks.
      */
     if (osp->handle->s3) {
         osp->handle->s3->flags |= SSL3_FLAGS_NO_RENEGOTIATE_CIPHERS;
@@ -541,42 +584,71 @@ static int upgradeOss(MprSocket *sp, MprSsl *ssl, cchar *requiredPeerName)
 
 
 /*
-    Parse the cert info and write properties to the buffer
-    Modifies the info argument
+    Parse the cert info and write properties to the buffer. Modifies the info argument.
  */
 static void parseCertFields(MprBuf *buf, char *prefix, char *prefix2, char *info)
 {
     char    c, *cp, *term, *key, *value;
 
-    term = cp = info;
-    do {
-        c = *cp;
-        if (c == '/' || c == '\0') {
-            *cp = '\0';
-            key = ssplit(term, "=", &value);
-            if (smatch(key, "emailAddress")) {
-                key = "EMAIL";
+    if (info) {
+        term = cp = info;
+        do {
+            c = *cp;
+            if (c == '/' || c == '\0') {
+                *cp = '\0';
+                key = ssplit(term, "=", &value);
+                if (smatch(key, "emailAddress")) {
+                    key = "EMAIL";
+                }
+                mprPutToBuf(buf, "%s%s%s=%s,", prefix, prefix2, key, value);
+                term = &cp[1];
+                *cp = c;
             }
-            mprPutToBuf(buf, "%s%s%s=%s,", prefix, prefix2, key, value);
-            term = &cp[1];
-            *cp = c;
-        }
-    } while (*cp++ != '\0');
+        } while (*cp++ != '\0');
+    }
 }
 
 
+static char *getOssSession(MprSocket *sp) 
+{
+    SSL_SESSION     *sess;
+    OpenSocket      *osp;
+    MprBuf          *buf;
+    int             i;
+
+    osp = sp->sslSocket;
+
+    if ((sess = SSL_get0_session(osp->handle)) != 0) {
+        if (sess->session_id_length == 0 && osp->handle->tlsext_ticket_expected) {
+            return sclone("ticket");
+        }
+        buf = mprCreateBuf((sess->session_id_length * 2) + 1, 0);
+        assert(buf->start);
+        for (i = 0; i < sess->session_id_length; i++) {
+            mprPutToBuf(buf, "%02X", (uchar) sess->session_id[i]);
+        }
+        return mprBufToString(buf);
+    }
+    return 0;
+}
+
+
+/*
+    Get the SSL state of the socket in a buffer
+ */
 static char *getOssState(MprSocket *sp)
 {
     OpenSocket      *osp;
     MprBuf          *buf;
     X509_NAME       *xSubject;
     X509            *cert;
-    char            *prefix;
-    char            subject[512], issuer[512], peer[512];
+    char            *prefix, subject[512], issuer[512], peer[512];
 
     osp = sp->sslSocket;
     buf = mprCreateBuf(0, 0);
-    mprPutToBuf(buf, "PROVIDER=openssl,CIPHER=%s,", SSL_get_cipher(osp->handle));
+
+    mprPutToBuf(buf, "PROVIDER=openssl,CIPHER=%s,SESSION=%s,REUSE=%d,",
+        SSL_get_cipher(osp->handle), sp->session, (int) SSL_session_reused(osp->handle));
 
     if ((cert = SSL_get_peer_certificate(osp->handle)) == 0) {
         mprPutToBuf(buf, "%s=\"none\",", sp->acceptIp ? "CLIENT_CERT" : "SERVER_CERT");
@@ -614,15 +686,17 @@ static void disconnectOss(MprSocket *sp)
 
 
 /*
-    Check the certificate peer name
+    Check the certificate peer name validates and matches the desired name
  */
 static int checkCert(MprSocket *sp)
 {
     MprSsl      *ssl;
+    MprBuf      *buf;
     OpenSocket  *osp;
     X509        *cert;
     X509_NAME   *xSubject;
     char        subject[512], issuer[512], peerName[512], *target, *certName, *tp;
+    int         i;
 
     ssl = sp->ssl;
     osp = (OpenSocket*) sp->sslSocket;
@@ -674,6 +748,7 @@ static int checkCert(MprSocket *sp)
             return -1;
         }
     }
+    sp->session = getOssSession(sp);
     return 0;
 }
 
@@ -687,7 +762,9 @@ static ssize readOss(MprSocket *sp, void *buf, ssize len)
     OpenSocket      *osp;
     int             rc, error, retries, i;
 
-    //  OPT - should not need these locks
+    /*
+        Locks not really needed. Should be single-threaded on dispatcher
+     */
     lock(sp);
     osp = (OpenSocket*) sp->sslSocket;
     assert(osp);
@@ -723,7 +800,6 @@ static ssize readOss(MprSocket *sp, void *buf, ssize len)
         if (error == SSL_ERROR_WANT_READ) {
             rc = 0;
         } else if (error == SSL_ERROR_WANT_WRITE) {
-            mprNap(10);
             rc = 0;
         } else if (error == SSL_ERROR_ZERO_RETURN) {
             sp->flags |= MPR_SOCKET_EOF;
@@ -755,7 +831,6 @@ static ssize writeOss(MprSocket *sp, cvoid *buf, ssize len)
     ssize       totalWritten;
     int         rc;
 
-    //  OPT - should not need these locks
     lock(sp);
     osp = (OpenSocket*) sp->sslSocket;
 
@@ -899,8 +974,6 @@ static ulong sslThreadId()
 }
 
 
-//  OPT - should not need these locks
-
 static void sslStaticLock(int mode, int n, const char *file, int line)
 {
     assert(0 <= n && n < numLocks);
@@ -915,7 +988,6 @@ static void sslStaticLock(int mode, int n, const char *file, int line)
 }
 
 
-//  OPT - should not need these locks
 static DynLock *sslCreateDynLock(const char *file, int line)
 {
     DynLock     *dl;

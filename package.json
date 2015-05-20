@@ -33,6 +33,7 @@
         }
     ],
     "dependencies": {
+        "certs": "^0.1",
         "ejs": "^2.5",
         "ejs-version": "^0.8",
         "me-components": "^0.8",

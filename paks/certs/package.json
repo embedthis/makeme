@@ -1,10 +1,12 @@
 {
-    "name": "me-xcode",
-    "description": "MakeMe Project Generation",
-    "title": "Embedthis Development",
-    "version": "0.8.5",
+    "name": "certs",
+    "title": "Test Certificates",
+    "description": "Test Certificates",
+    "version": "0.1.0",
     "keywords": [
-        "me"
+        "me",
+        "ssl",
+        "openssl"
     ],
     "author": {
         "name": "Embedthis Software",
@@ -13,10 +15,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "git://github.com/embedthis/me-xcode.git"
+        "url": "git://github.com/embedthis/certs.git"
     },
     "bugs": {
-        "url": "http://github.com/embedthis/me-xcode/issues"
+        "url": "http://github.com/embedthis/certs/issues"
     },
     "licenses": [
         {
@@ -29,6 +31,15 @@
         }
     ],
     "pak": {
-        "origin": "embedthis/me-xcode"
+        "export": [
+            "*.key",
+            "*.crt",
+            "*.ca",
+            "*.ans",
+            "*.srl",
+            "*.me",
+            "*.conf"
+        ],
+        "origin": "embedthis/certs"
     }
 }

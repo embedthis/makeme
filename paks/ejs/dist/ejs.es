@@ -2439,13 +2439,14 @@ module ejs {
 
         /**
             Create an Cmd object. If a command line is provided, the command is immediately started.
-            @param command The (optional) command line to initialize with. If a command line is provided, the start()
+            @param command The (optional) command line to initialize with. If a command line is provided, the $start
                 method is automatically invoked after the command is constructed. The command may be either a string or
                 an array of arguments. Using an array of args can simplify quoting if the args have embedded spaces or
                 quotes.
             @param options. Command options hash. Supported options are:
-            @options detach Boolean If true, run the command and return immediately. If detached, finalize() must be
-                called to signify the end of data being written to the command's stdin.
+            @options detach Boolean If true, run the command and return immediately. If detached, $finalize must be
+                called to signify the end of data being written to the command's stdin. Detach must be used if using
+                $write.
             @options dir Path or String. Directory to set as the current working directory for the command.
             @options exceptions Boolean If true, throw exceptions if the command returns a non-zero status code. 
                 Defaults to false.
@@ -11882,7 +11883,7 @@ module ejs {
 
         /** 
             Create a complete absolute URI from "this" URI with all mandatory components present including 
-            scheme and host.  The resulting URI path will be normalized and any missing components will be 
+            scheme and host. The resulting URI path will be normalized and any missing components will be
             completed with values from the given $base URI. If "this" URI path is relative, it will be joined to base 
             URI's path.
             Any query component of "this" URI is discarded in the result. This is because the query component of "this" URI

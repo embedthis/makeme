@@ -1,0 +1,14 @@
+/*
+    certs.me - Test certificate generation
+ */
+Me.load({
+    blend: ['start.me'],
+
+    targets: {
+        'roots.crt': {
+            type: 'file',
+            files: [ 'roots.crt' ],
+            path: '${BIN}/roots.crt',
+        }
+    }
+})
