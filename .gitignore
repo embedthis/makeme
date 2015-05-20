@@ -16,7 +16,7 @@
 *.out
 *.app
 releases
-start.me
+/start.me
 projects/.flags
 /*-*-*/
 /*-*-*.me
@@ -31,7 +31,6 @@ me.sublime-*
 project.xcworkspace
 xcuserdata/
 /test/testme
-start.me
 /build/
 .gitattributes
 *.mod
