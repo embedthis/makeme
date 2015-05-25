@@ -31816,7 +31816,7 @@ static EjsObj *date_set_day(Ejs *ejs, EjsDate *dp, int argc, EjsObj **argv)
     day = ejsGetNumber(ejs, argv[0]);
     mprDecodeLocalTime(&tm, dp->value);
     dayDiff = day - tm.tm_wday;
-    dp->value += dayDiff * 86400 * MPR_TICKS_PER_SEC;
+    dp->value += dayDiff * 86400 * TPS;
     return 0;
 }
 
@@ -31846,7 +31846,7 @@ static EjsObj *date_set_dayOfYear(Ejs *ejs, EjsDate *dp, int argc, EjsObj **argv
     day = ejsGetNumber(ejs, argv[0]);
     mprDecodeLocalTime(&tm, dp->value);
     dayDiff = day - tm.tm_yday;
-    dp->value += dayDiff * 86400 * MPR_TICKS_PER_SEC;
+    dp->value += dayDiff * 86400 * TPS;
     return 0;
 }
 
@@ -31876,7 +31876,7 @@ static EjsObj *date_set_date(Ejs *ejs, EjsDate *dp, int argc, EjsObj **argv)
     day = ejsGetNumber(ejs, argv[0]);
     mprDecodeLocalTime(&tm, dp->value);
     dayDiff = day - tm.tm_mday;
-    dp->value += dayDiff * 86400 * MPR_TICKS_PER_SEC;
+    dp->value += dayDiff * 86400 * TPS;
     return 0;
 }
 
@@ -31931,7 +31931,7 @@ static EjsDate *date_future(Ejs *ejs, EjsDate *dp, int argc, EjsObj **argv)
 */
 static EjsNumber *date_getTimezoneOffset(Ejs *ejs, EjsDate *dp, int argc, EjsObj **argv)
 {
-    return ejsCreateNumber(ejs, -mprGetTimeZoneOffset(dp->value) / (MPR_TICKS_PER_SEC * 60));
+    return ejsCreateNumber(ejs, -mprGetTimeZoneOffset(dp->value) / (TPS * 60));
 }
 
 
@@ -31993,7 +31993,7 @@ static EjsNumber *date_getUTCHours(Ejs *ejs, EjsDate *dp, int argc, EjsObj **arg
  */
 static EjsNumber *date_getUTCMilliseconds(Ejs *ejs, EjsDate *dp, int argc, EjsObj **argv)
 {
-    return ejsCreateNumber(ejs, ((int64) dp->value) % MPR_TICKS_PER_SEC);
+    return ejsCreateNumber(ejs, ((int64) dp->value) % TPS);
 }
 
 
@@ -32069,7 +32069,7 @@ static EjsObj *date_set_hours(Ejs *ejs, EjsDate *dp, int argc, EjsObj **argv)
  */
 static EjsNumber *date_milliseconds(Ejs *ejs, EjsDate *dp, int argc, EjsObj **argv)
 {
-    return ejsCreateNumber(ejs, ((int64) dp->value) % MPR_TICKS_PER_SEC);
+    return ejsCreateNumber(ejs, ((int64) dp->value) % TPS);
 }
 
 
@@ -32078,7 +32078,7 @@ static EjsNumber *date_milliseconds(Ejs *ejs, EjsDate *dp, int argc, EjsObj **ar
  */
 static EjsObj *date_set_milliseconds(Ejs *ejs, EjsDate *dp, int argc, EjsObj **argv)
 {
-    dp->value = (dp->value / MPR_TICKS_PER_SEC  * MPR_TICKS_PER_SEC) + ejsGetNumber(ejs, argv[0]);
+    dp->value = (dp->value / TPS  * TPS) + ejsGetNumber(ejs, argv[0]);
     return 0;
 }
 
@@ -32259,7 +32259,7 @@ static EjsObj *date_setUTCDate(Ejs *ejs, EjsDate *dp, int argc, EjsObj **argv)
     day = ejsGetNumber(ejs, argv[0]);
     mprDecodeUniversalTime(&tm, dp->value);
     dayDiff = day - tm.tm_mday;
-    dp->value += dayDiff * 86400 * MPR_TICKS_PER_SEC;
+    dp->value += dayDiff * 86400 * TPS;
     return 0;
 }
 
@@ -32298,7 +32298,7 @@ static EjsObj *date_setUTCHours(Ejs *ejs, EjsDate *dp, int argc, EjsObj **argv)
 static EjsObj *date_setUTCMilliseconds(Ejs *ejs, EjsDate *dp, int argc, EjsObj **argv)
 {
     /* Same as set_milliseconds */
-    dp->value = (dp->value / MPR_TICKS_PER_SEC  * MPR_TICKS_PER_SEC) + ejsGetNumber(ejs, argv[0]);
+    dp->value = (dp->value / TPS  * TPS) + ejsGetNumber(ejs, argv[0]);
     return 0;
 }
 
@@ -32342,7 +32342,7 @@ static EjsObj *date_setUTCSeconds(Ejs *ejs, EjsDate *dp, int argc, EjsObj **argv
     tm.tm_sec = (int) ejsGetNumber(ejs, argv[0]);
     dp->value = mprMakeUniversalTime(&tm);
     if (argc >= 2) {
-        dp->value = (dp->value / MPR_TICKS_PER_SEC  * MPR_TICKS_PER_SEC) + ejsGetNumber(ejs, argv[1]);
+        dp->value = (dp->value / TPS  * TPS) + ejsGetNumber(ejs, argv[1]);
     }
     return 0;
 }
@@ -32388,9 +32388,9 @@ static EjsString *date_toISOString(Ejs *ejs, EjsDate *dp, int argc, EjsObj **arg
 
     base = mprFormatUniversalTime("%Y-%m-%dT%H:%M:%S", dp->value);
 #if UNUSED
-    str = sfmt("%s.%03dZ", base, dp->value % MPR_TICKS_PER_SEC);
+    str = sfmt("%s.%03dZ", base, dp->value % TPS);
 #else
-    int offset = mprGetTimeZoneOffset(dp->value) / (MPR_TICKS_PER_SEC * 60);
+    int offset = mprGetTimeZoneOffset(dp->value) / (TPS * 60);
     str = sfmt("%s%+03d:%02d", base, offset / 60, offset % 60);
 #endif
     return ejsCreateStringFromAsc(ejs, str);
@@ -38230,9 +38230,9 @@ PUBLIC void ejsConfigureJSONType(Ejs *ejs)
 
 //  TODO - should this be refactored to use MprCache?
 
-#define CACHE_TIMER_PERIOD  (60 * MPR_TICKS_PER_SEC)
+#define CACHE_TIMER_PERIOD  (60 * TPS)
 #define CACHE_HASH_SIZE     257
-#define CACHE_LIFESPAN      (86400 * MPR_TICKS_PER_SEC)
+#define CACHE_LIFESPAN      (86400 * TPS)
 
 typedef struct EjsLocalCache
 {
@@ -38397,7 +38397,7 @@ static EjsPot *sl_limits(Ejs *ejs, EjsLocalCache *cache, int argc, EjsObj **argv
     ejsSetPropertyByName(ejs, result, EN("keys"), 
         ejsCreateNumber(ejs, (MprNumber) (cache->maxKeys == MAXSSIZE ? 0 : cache->maxKeys)));
     ejsSetPropertyByName(ejs, result, EN("lifespan"), 
-        ejsCreateNumber(ejs, (MprNumber) (cache->lifespan / MPR_TICKS_PER_SEC)));
+        ejsCreateNumber(ejs, (MprNumber) (cache->lifespan / TPS)));
     ejsSetPropertyByName(ejs, result, EN("memory"), 
         ejsCreateNumber(ejs, (MprNumber) (cache->maxMem == MAXSSIZE ? 0 : cache->maxMem)));
     return result;
@@ -38509,7 +38509,7 @@ static void setLocalLimits(Ejs *ejs, EjsLocalCache *cache, EjsPot *options)
         }
     }
     if ((vp = ejsGetPropertyByName(ejs, options, EN("lifespan"))) != 0) {
-        cache->lifespan = (ssize) ejsGetInt64(ejs, vp) * MPR_TICKS_PER_SEC;
+        cache->lifespan = (ssize) ejsGetInt64(ejs, vp) * TPS;
     }
     if ((vp = ejsGetPropertyByName(ejs, options, EN("memory"))) != 0) {
         cache->maxMem = (ssize) ejsGetInt64(ejs, vp);
@@ -38570,7 +38570,7 @@ static EjsNumber *sl_write(Ejs *ejs, EjsLocalCache *cache, int argc, EjsAny **ar
     if (argc >= 3 && argv[2] != ESV(null)) {
         options = argv[2];
         if ((vp = ejsGetPropertyByName(ejs, options, EN("lifespan"))) != 0) {
-            lifespan = ejsGetInt64(ejs, vp) * MPR_TICKS_PER_SEC;
+            lifespan = ejsGetInt64(ejs, vp) * TPS;
         }
         if ((vp = ejsGetPropertyByName(ejs, options, EN("expires"))) != 0 && ejsIs(ejs, vp, Date)) {
             expires = ejsGetDate(ejs, vp);
@@ -58618,7 +58618,7 @@ static int setSessionProperty(Ejs *ejs, EjsSession *sp, int slotNum, EjsAny *val
     if (sp->options == 0) {
         sp->options = ejsCreateEmptyPot(ejs);
         ejsSetPropertyByName(ejs, sp->options, EN("lifespan"), 
-            ejsCreateNumber(ejs, (MprNumber) (sp->timeout / MPR_TICKS_PER_SEC)));
+            ejsCreateNumber(ejs, (MprNumber) (sp->timeout / TPS)));
     }
     if (ejsCacheWriteObj(ejs, sp->cache, sp->key, sp, sp->options) == 0) {
         return EJS_ERR;
@@ -58651,7 +58651,7 @@ static EjsSession *sess_constructor(Ejs *ejs, EjsSession *sp, int argc, EjsAny *
     if (argc > 0) {
         options = argv[0];
         vp = ejsGetPropertyByName(ejs, options, EN("lifespan"));
-        timeout = ejsGetInt(ejs, vp) * MPR_TICKS_PER_SEC;
+        timeout = ejsGetInt(ejs, vp) * TPS;
     }
     return initSession(ejs, sp, sp->key, timeout);
 }

@@ -14,6 +14,10 @@
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
+/** Product singleton object */
+
+public var ejs = {}
+
 module ejs {
     /** 
         Standard error text stream. Use write(), writeLine() and other TextStream methods.
@@ -80,6 +84,7 @@ module ejs {
             cache: {
                 app: { enable: false },
             },
+            /* DEPRECATE dirs and rename to directories */
             dirs: {
                 cache: Path("cache"),
             },
@@ -271,6 +276,7 @@ module ejs {
          */
         # FUTURE
         native static function get locale(): String
+
         # FUTURE
         native static function set locale(locale: String): Void
 
@@ -472,6 +478,9 @@ module ejs {
             //  TODO - should there be a config.cache.enable instead
             App.cache = new Cache(null, blend({shared: true}, config.cache))
         }
+        /* DEPRECATE app.config.dirs */
+        App.config.directories = App.config.dirs
+        ejs.directories = App.config.directories
     }
 
     appInit()
@@ -2486,7 +2495,7 @@ module ejs {
 
         /** 
             Signal the end of writing data to the command. The finalize() call must be invoked to properly 
-            signify the end of write data.
+            signify the end of write data for detached commands.
          */
         native function finalize(): Void 
 
@@ -2636,7 +2645,7 @@ module ejs {
         /**
             @duplicate Stream.write
             Call finalize() to signify the end of write data. Failure to call finalize() may prevent some commands 
-            from exiting.
+            from exiting. The command must be started in detached mode to be able to write data.
          */
         native function write(...data): Number
 
@@ -5019,7 +5028,7 @@ module ejs {
         The "ejs" namespace used for the core library
         @spec ejs
      */
-    public namespace ejs
+    // public namespace ejs
 
     /** 
         The public namespace used to make entities visible accross modules.
