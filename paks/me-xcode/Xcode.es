@@ -882,6 +882,9 @@ class Xcode {
          */
         let defs = []
         for each (target in me.targets) {
+            if (!target.enable) {
+                continue
+            }
             for each (item in target.includes) {
                 if (item.contains('$(')) {
                     defs.push(item.replace(/\$\(([^\)]*)\).*/, '$1') + ' = "";\n')
