@@ -95,7 +95,6 @@ ifeq ($(ME_COM_HTTP),1)
 endif
 TARGETS               += $(BUILD)/bin/libtestme.so
 TARGETS               += $(BUILD)/bin/me
-TARGETS               += $(BUILD)/bin/roots.crt
 TARGETS               += $(BUILD)/bin/testme
 TARGETS               += $(BUILD)/bin/testme.es
 
@@ -151,7 +150,6 @@ clean:
 	rm -f "$(BUILD)/bin/libtestme.so"
 	rm -f "$(BUILD)/bin/libzlib.so"
 	rm -f "$(BUILD)/bin/libopenssl.a"
-	rm -f "$(BUILD)/bin/roots.crt"
 	rm -f "$(BUILD)/bin/testme"
 	rm -f "$(BUILD)/bin/testme.es"
 
@@ -833,7 +831,7 @@ DEPS_44 += paks/me-vstudio/vstudio.me
 DEPS_44 += paks/me-xcode/LICENSE.md
 DEPS_44 += paks/me-xcode/package.json
 DEPS_44 += paks/me-xcode/README.md
-DEPS_44 += paks/me-xcode/Xcode.es
+DEPS_44 += paks/me-xcode/xcode.es
 DEPS_44 += paks/me-xcode/xcode.me
 
 $(BUILD)/.pakrun-modified: $(DEPS_44)
@@ -893,7 +891,7 @@ $(BUILD)/.pakrun-modified: $(DEPS_44)
 	cp paks/me-xcode/LICENSE.md $(BUILD)/bin/paks/me-xcode/LICENSE.md
 	cp paks/me-xcode/package.json $(BUILD)/bin/paks/me-xcode/package.json
 	cp paks/me-xcode/README.md $(BUILD)/bin/paks/me-xcode/README.md
-	cp paks/me-xcode/Xcode.es $(BUILD)/bin/paks/me-xcode/Xcode.es
+	cp paks/me-xcode/xcode.es $(BUILD)/bin/paks/me-xcode/xcode.es
 	cp paks/me-xcode/xcode.me $(BUILD)/bin/paks/me-xcode/xcode.me
 	touch "$(BUILD)/.pakrun-modified"
 
@@ -966,24 +964,14 @@ $(BUILD)/bin/me: $(DEPS_46)
 	$(CC) -o $(BUILD)/bin/me $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/me.o" $(LIBPATHS_46) $(LIBS_46) $(LIBS_46) $(LIBS) $(LIBS) 
 
 #
-#   roots.crt
-#
-DEPS_47 += src/certs/roots.crt
-
-$(BUILD)/bin/roots.crt: $(DEPS_47)
-	@echo '      [Copy] $(BUILD)/bin/roots.crt'
-	mkdir -p "$(BUILD)/bin"
-	cp src/certs/roots.crt $(BUILD)/bin/roots.crt
-
-#
 #   testme.mod
 #
-DEPS_48 += src/tm/testme.es
+DEPS_47 += src/tm/testme.es
 ifeq ($(ME_COM_EJS),1)
-    DEPS_48 += $(BUILD)/bin/ejs.mod
+    DEPS_47 += $(BUILD)/bin/ejs.mod
 endif
 
-$(BUILD)/bin/testme.mod: $(DEPS_48)
+$(BUILD)/bin/testme.mod: $(DEPS_47)
 	( \
 	cd src/tm; \
 	echo '   [Compile] testme.mod' ; \
@@ -994,54 +982,54 @@ $(BUILD)/bin/testme.mod: $(DEPS_48)
 #   testme
 #
 ifeq ($(ME_COM_EJS),1)
-    DEPS_49 += $(BUILD)/bin/libejs.so
+    DEPS_48 += $(BUILD)/bin/libejs.so
 endif
-DEPS_49 += $(BUILD)/bin/testme.mod
-DEPS_49 += $(BUILD)/bin/ejs.testme.mod
-DEPS_49 += $(BUILD)/obj/testme.o
+DEPS_48 += $(BUILD)/bin/testme.mod
+DEPS_48 += $(BUILD)/bin/ejs.testme.mod
+DEPS_48 += $(BUILD)/obj/testme.o
 
 ifeq ($(ME_COM_EJS),1)
-    LIBS_49 += -lejs
+    LIBS_48 += -lejs
 endif
 ifeq ($(ME_COM_ZLIB),1)
-    LIBS_49 += -lzlib
+    LIBS_48 += -lzlib
 endif
 ifeq ($(ME_COM_HTTP),1)
-    LIBS_49 += -lhttp
+    LIBS_48 += -lhttp
 endif
 ifeq ($(ME_COM_PCRE),1)
-    LIBS_49 += -lpcre
+    LIBS_48 += -lpcre
 endif
-LIBS_49 += -lmpr
+LIBS_48 += -lmpr
 ifeq ($(ME_COM_EST),1)
-    LIBS_49 += -lestssl
+    LIBS_48 += -lestssl
 endif
 ifeq ($(ME_COM_EST),1)
-    LIBS_49 += -lest
+    LIBS_48 += -lest
 endif
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_49 += -lopenssl
-    LIBPATHS_49 += -L"$(ME_COM_OPENSSL_PATH)"
+    LIBS_48 += -lopenssl
+    LIBPATHS_48 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_49 += -lssl
-    LIBPATHS_49 += -L"$(ME_COM_OPENSSL_PATH)"
+    LIBS_48 += -lssl
+    LIBPATHS_48 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_49 += -lcrypto
-    LIBPATHS_49 += -L"$(ME_COM_OPENSSL_PATH)"
+    LIBS_48 += -lcrypto
+    LIBPATHS_48 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 
-$(BUILD)/bin/testme: $(DEPS_49)
+$(BUILD)/bin/testme: $(DEPS_48)
 	@echo '      [Link] $(BUILD)/bin/testme'
-	$(CC) -o $(BUILD)/bin/testme $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/testme.o" $(LIBPATHS_49) $(LIBS_49) $(LIBS_49) $(LIBS) $(LIBS) 
+	$(CC) -o $(BUILD)/bin/testme $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/testme.o" $(LIBPATHS_48) $(LIBS_48) $(LIBS_48) $(LIBS) $(LIBS) 
 
 #
 #   testme.es
 #
-DEPS_50 += src/tm/testme.es
+DEPS_49 += src/tm/testme.es
 
-$(BUILD)/bin/testme.es: $(DEPS_50)
+$(BUILD)/bin/testme.es: $(DEPS_49)
 	@echo '      [Copy] $(BUILD)/bin/testme.es'
 	mkdir -p "$(BUILD)/bin"
 	cp src/tm/testme.es $(BUILD)/bin/testme.es
@@ -1050,7 +1038,7 @@ $(BUILD)/bin/testme.es: $(DEPS_50)
 #   installPrep
 #
 
-installPrep: $(DEPS_51)
+installPrep: $(DEPS_50)
 	if [ "`id -u`" != 0 ] ; \
 	then echo "Must run as root. Rerun with "sudo"" ; \
 	exit 255 ; \
@@ -1060,13 +1048,13 @@ installPrep: $(DEPS_51)
 #   stop
 #
 
-stop: $(DEPS_52)
+stop: $(DEPS_51)
 
 #
 #   installBinary
 #
 
-installBinary: $(DEPS_53)
+installBinary: $(DEPS_52)
 	mkdir -p "$(ME_APP_PREFIX)" ; \
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
 	ln -s "$(VERSION)" "$(ME_APP_PREFIX)/latest" ; \
@@ -1099,7 +1087,7 @@ installBinary: $(DEPS_53)
 	cp $(BUILD)/bin/libest.so $(ME_VAPP_PREFIX)/bin/libest.so ; \
 	fi ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
-	cp src/certs/roots.crt $(ME_VAPP_PREFIX)/bin/roots.crt ; \
+	cp $(BUILD)/bin/roots.crt $(ME_VAPP_PREFIX)/bin/roots.crt ; \
 	cp $(BUILD)/bin/ejs.mod $(ME_VAPP_PREFIX)/bin/ejs.mod ; \
 	cp $(BUILD)/bin/me.mod $(ME_VAPP_PREFIX)/bin/me.mod ; \
 	cp $(BUILD)/bin/testme.mod $(ME_VAPP_PREFIX)/bin/testme.mod ; \
@@ -1139,24 +1127,24 @@ installBinary: $(DEPS_53)
 #   start
 #
 
-start: $(DEPS_54)
+start: $(DEPS_53)
 
 #
 #   install
 #
-DEPS_55 += installPrep
-DEPS_55 += stop
-DEPS_55 += installBinary
-DEPS_55 += start
+DEPS_54 += installPrep
+DEPS_54 += stop
+DEPS_54 += installBinary
+DEPS_54 += start
 
-install: $(DEPS_55)
+install: $(DEPS_54)
 
 #
 #   uninstall
 #
-DEPS_56 += stop
+DEPS_55 += stop
 
-uninstall: $(DEPS_56)
+uninstall: $(DEPS_55)
 	rm -fr "$(ME_VAPP_PREFIX)" ; \
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
 	rmdir -p "$(ME_APP_PREFIX)" 2>/dev/null ; true
@@ -1165,6 +1153,6 @@ uninstall: $(DEPS_56)
 #   version
 #
 
-version: $(DEPS_57)
+version: $(DEPS_56)
 	echo $(VERSION)
 

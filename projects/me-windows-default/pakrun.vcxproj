@@ -197,7 +197,7 @@ copy /Y paks\me-xcode\package.json $(BinDir)
 if exist $(BinDir) del /Q $(BinDir)
 copy /Y paks\me-xcode\README.md $(BinDir)
 if exist $(BinDir) del /Q $(BinDir)
-copy /Y paks\me-xcode\Xcode.es $(BinDir)
+copy /Y paks\me-xcode\xcode.es $(BinDir)
 if exist $(BinDir) del /Q $(BinDir)
 copy /Y paks\me-xcode\xcode.me $(BinDir)
 cd projects\me-windows-default</Command>
