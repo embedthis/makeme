@@ -1009,6 +1009,7 @@ public class Loader {
             }
             run = run.replace(/`/g, '\\`')
             p.action = 'run(`' + run + '`)'
+            p.message ||= 'Run: ' + run
         }
         /* These are target events */
         for each (n in ['action', 'build', 'shell', 'preblend', 'postblend', 'prebuild', 'postbuild', 
