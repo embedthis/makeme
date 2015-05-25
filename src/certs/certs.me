@@ -61,6 +61,7 @@ Me.load({
     `,
     targets: {
         'generate-certs': {
+            build: true,
             depends: [ 'regenerate-certs' ],
             enable: 'me.dir.bin.join("ca.crt").exists == false',
         },
