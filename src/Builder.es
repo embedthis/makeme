@@ -368,6 +368,7 @@ public class Builder {
                 }
             }
         }
+        global.TARGET = me.target = target
         if (target.enable == undefined) {
             target.enable = true
         } else if (target.enable is Function) {
@@ -974,12 +975,6 @@ public class Builder {
     }
 
     function runShell(target, interpreter, script) {
-/* OLD
-        let lines = script.match(/^.*$/mg).filter(function(l) l.length)
-        let command = lines.join(';')
-        strace('Run', command)
-        run([Cmd.locate(interpreter), "-c", command.toString().trimEnd('\n')])
-*/
         run(Cmd.locate(interpreter), {}, script )
     }
 
@@ -1123,7 +1118,6 @@ public class Builder {
     }
 
     function setPathEnvVar() {
-        // UNUSED let bin = Path('.').join(me.platform.name, 'bin').absolute
         let bin = me.dir.bin.absolute
         let sep = App.SearchSeparator
         if (makeme.generating) {
