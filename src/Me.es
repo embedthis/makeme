@@ -102,10 +102,6 @@ dynamic enumerable public class Me {
          */
         global.me = this
         options = makeme.options
-/* UNUSED
-        dir.home = App.home.portable.absolute
-*/
-//  MOB - temp
         dir.me = App.exeDir
         dir.work = Path('.').absolute
         dir.top = Path(options.configure || App.dir).absolute
@@ -121,6 +117,7 @@ dynamic enumerable public class Me {
             }
         }
         dir.paks ||= dir.top.join('paks')
+        makeme.directories = dir
     }
 
     /**

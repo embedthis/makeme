@@ -26,6 +26,9 @@ public class MakeMe {
     /** Singleton $Configure reference */
     public var configure
 
+    /** Configured directories to use */
+    public var directories
+
     /** Singleton $Loader reference */
     public var loader: Loader
 
