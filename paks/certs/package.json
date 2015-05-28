@@ -35,13 +35,9 @@
             "certs.me",
             "ossl",
             "*.ans",
-            "*.conf"
+            "*.conf",
+            "samples/**"
         ],
         "origin": "embedthis/certs"
-    },
-    "scripts": {
-        "UNUSEDinstall": {
-            "script": "Cmd.run('me generate-certs') }"
-        }
     }
 }

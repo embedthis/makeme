@@ -748,7 +748,7 @@ struct EjsVoid;
  */
 #define ME_NUM_TYPE double
 typedef ME_NUM_TYPE MprNumber;
-#define EJS_MAX_INT 9007199254740992
+#define EJS_MAX_INT UINT64(9007199254740992)
 
 /*  
     Sizes (in bytes) of encoded types in a ByteArray

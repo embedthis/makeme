@@ -14,7 +14,7 @@
 
 #if ME_UNIX_LIKE
     /*
-        Mac OS X stack is deprecated. Suppress those warnings.
+        Mac OS X OpenSSL stack is deprecated. Suppress those warnings.
      */
     #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
@@ -36,7 +36,7 @@
     Default ciphers from Mozilla (https://wiki.mozilla.org/Security/Server_Side_TLS) without SSLv3 ciphers.
     TLSv1 and TLSv2 only. Recommended RSA and DH parameter size: 2048 bits.
  */
-#define OPENSSL_CIPHERS "ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4:!SSLv3"
+#define OPENSSL_DEFAULT_CIPHERS "ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4:!SSLv3"
 
 /*
     Configuration for a route/host
@@ -62,7 +62,9 @@ typedef struct RandBuf {
 static MprSocketProvider *openProvider;
 static OpenConfig *defaultOpenConfig;
 
-#if UNUSED
+/*
+    OpenSSL uses shared data and will crash if multithread locks are not used
+ */
 static int      numLocks;
 static MprMutex **olocks;
 
@@ -70,7 +72,6 @@ struct CRYPTO_dynlock_value {
     MprMutex    *mutex;
 };
 typedef struct CRYPTO_dynlock_value DynLock;
-#endif
 
 #ifndef ME_MPR_SSL_CURVE
     #define ME_MPR_SSL_CURVE "prime256v1"
@@ -91,17 +92,15 @@ static void     manageOpenConfig(OpenConfig *cfg, int flags);
 static void     manageOpenProvider(MprSocketProvider *provider, int flags);
 static void     manageOpenSocket(OpenSocket *ssp, int flags);
 static ssize    readOss(MprSocket *sp, void *buf, ssize len);
+static DynLock  *sslCreateDynLock(cchar *file, int line);
+static void     sslDynLock(int mode, DynLock *dl, cchar *file, int line);
+static void     sslDestroyDynLock(DynLock *dl, cchar *file, int line);
+static void     sslStaticLock(int mode, int n, cchar *file, int line);
+static ulong    sslThreadId(void);
 static int      upgradeOss(MprSocket *sp, MprSsl *ssl, cchar *requiredPeerName);
 static int      verifyPeerCertificate(int ok, X509_STORE_CTX *ctx);
 static ssize    writeOss(MprSocket *sp, cvoid *buf, ssize len);
 
-#if UNUSED
-static DynLock  *sslCreateDynLock(const char *file, int line);
-static void     sslDynLock(int mode, DynLock *dl, const char *file, int line);
-static void     sslDestroyDynLock(DynLock *dl, const char *file, int line);
-static void     sslStaticLock(int mode, int n, const char *file, int line);
-static ulong    sslThreadId(void);
-#endif
 
 /************************************* Code ***********************************/
 /*
@@ -135,8 +134,8 @@ PUBLIC int mprSslInit(void *unused, MprModule *module)
         Configure the SSL library. Use the crypto ID as a one-time test. This allows
         users to configure the library and have their configuration used instead.
      */
+    mprGlobalLock();
     if (CRYPTO_get_id_callback() == 0) {
-#if UNUSED
         numLocks = CRYPTO_num_locks();
         if ((olocks = mprAlloc(numLocks * sizeof(MprMutex*))) == 0) {
             return MPR_ERR_MEMORY;
@@ -150,7 +149,6 @@ PUBLIC int mprSslInit(void *unused, MprModule *module)
         CRYPTO_set_dynlock_create_callback(sslCreateDynLock);
         CRYPTO_set_dynlock_destroy_callback(sslDestroyDynLock);
         CRYPTO_set_dynlock_lock_callback(sslDynLock);
-#endif
 #if !ME_WIN_LIKE
         OpenSSL_add_all_algorithms();
 #endif
@@ -160,6 +158,7 @@ PUBLIC int mprSslInit(void *unused, MprModule *module)
         SSL_library_init();
         SSL_load_error_strings();
     }
+    mprGlobalUnlock();
     return 0;
 }
 
@@ -195,7 +194,6 @@ static void manageOpenProvider(MprSocketProvider *provider, int flags)
     int     i;
 
     if (flags & MPR_MANAGE_MARK) {
-#if UNUSED
         /* Mark global locks */
         if (olocks) {
             mprMark(olocks);
@@ -203,14 +201,11 @@ static void manageOpenProvider(MprSocketProvider *provider, int flags)
                 mprMark(olocks[i]);
             }
         }
-#endif
         mprMark(defaultOpenConfig);
         mprMark(provider->name);
 
     } else if (flags & MPR_MANAGE_FREE) {
-#if UNUSED
         olocks = 0;
-#endif
     }
 }
 
@@ -278,7 +273,7 @@ static OpenConfig *createOpenSslConfig(MprSocket *sp)
         }
     }
     if (!ssl->ciphers) {
-        ssl->ciphers = sclone(OPENSSL_CIPHERS);
+        ssl->ciphers = sclone(OPENSSL_DEFAULT_CIPHERS);
         mprLog("info openssl", 2, "Using OpenSSL ciphers: %s", ssl->ciphers);
     }
     if (SSL_CTX_set_cipher_list(context, ssl->ciphers) != 1) {
@@ -310,6 +305,16 @@ static OpenConfig *createOpenSslConfig(MprSocket *sp)
                 SSL_CTX_set_client_CA_list(context, certNames);
             }
         }
+#if FUTURE || 1
+{
+        X509_STORE *store = SSL_CTX_get_cert_store(context);
+        if (ssl->revokeList && !X509_STORE_load_locations(store, ssl->revokeList, 0)) {
+                mprLog("error openssl", 0, "Cannot load certificate revoke list: %s", ssl->revokeList);
+                SSL_CTX_free(context);
+                return 0;
+        }
+}
+#endif
         if (sp->flags & MPR_SOCKET_SERVER) {
             SSL_CTX_set_verify_depth(context, ssl->verifyDepth);
         }
@@ -509,7 +514,6 @@ static void manageOpenSocket(OpenSocket *osp, int flags)
 static void closeOss(MprSocket *sp, bool gracefully)
 {
     OpenSocket    *osp;
-    int rc;
 
     osp = sp->sslSocket;
     if (osp->handle) {
@@ -789,7 +793,7 @@ static char *getOssState(MprSocket *sp)
     osp = sp->sslSocket;
     buf = mprCreateBuf(0, 0);
 
-    mprPutToBuf(buf, "PROVIDER=openssl,CIPHER=%s,SESSION=%s,REUSE=%d,",
+    mprPutToBuf(buf, "PROVIDER=openssl,CIPHER=%s,SESSION=%s,RESUMED=%d,",
         SSL_get_cipher(osp->handle), sp->session, (int) SSL_session_reused(osp->handle));
 
     if ((cert = SSL_get_peer_certificate(osp->handle)) == 0) {
@@ -827,12 +831,10 @@ static char *getOssState(MprSocket *sp)
 static int checkCertificateName(MprSocket *sp)
 {
     MprSsl      *ssl;
-    MprBuf      *buf;
     OpenSocket  *osp;
     X509        *cert;
     X509_NAME   *xSubject;
     char        subject[512], issuer[512], peerName[512], *target, *certName, *tp;
-    int         i;
 
     ssl = sp->ssl;
     osp = (OpenSocket*) sp->sslSocket;
@@ -885,6 +887,7 @@ static int checkCertificateName(MprSocket *sp)
     }
     sp->session = getOssSession(sp);
     sp->secured = 1;
+    sp->flags |= (SSL_session_reused(osp->handle) ? MPR_SOCKET_RESUMED : 0);
     return 0;
 }
 
@@ -979,14 +982,13 @@ static int verifyPeerCertificate(int ok, X509_STORE_CTX *xContext)
 }
 
 
-#if UNUSED
 static ulong sslThreadId()
 {
     return (long) mprGetCurrentOsThread();
 }
 
 
-static void sslStaticLock(int mode, int n, const char *file, int line)
+static void sslStaticLock(int mode, int n, cchar *file, int line)
 {
     assert(0 <= n && n < numLocks);
 
@@ -1000,7 +1002,7 @@ static void sslStaticLock(int mode, int n, const char *file, int line)
 }
 
 
-static DynLock *sslCreateDynLock(const char *file, int line)
+static DynLock *sslCreateDynLock(cchar *file, int line)
 {
     DynLock     *dl;
 
@@ -1011,7 +1013,7 @@ static DynLock *sslCreateDynLock(const char *file, int line)
 }
 
 
-static void sslDestroyDynLock(DynLock *dl, const char *file, int line)
+static void sslDestroyDynLock(DynLock *dl, cchar *file, int line)
 {
     if (dl->mutex) {
         mprRelease(dl->mutex);
@@ -1020,7 +1022,7 @@ static void sslDestroyDynLock(DynLock *dl, const char *file, int line)
 }
 
 
-static void sslDynLock(int mode, DynLock *dl, const char *file, int line)
+static void sslDynLock(int mode, DynLock *dl, cchar *file, int line)
 {
     if (mode & CRYPTO_LOCK) {
         mprLock(dl->mutex);
@@ -1028,7 +1030,6 @@ static void sslDynLock(int mode, DynLock *dl, const char *file, int line)
         mprUnlock(dl->mutex);
     }
 }
-#endif
 
 
 static char *getOssError(MprSocket *sp)
@@ -1114,7 +1115,6 @@ static DH *dhcallback(SSL *handle, int isExport, int keyLength)
 {
     OpenSocket      *osp;
     OpenConfig      *cfg;
-    DH              *key;
 
     osp = (OpenSocket*) SSL_get_app_data(handle);
     cfg = osp->sock->ssl->config;

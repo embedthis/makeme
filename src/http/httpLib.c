@@ -5194,10 +5194,12 @@ static void parseSslCertificate(HttpRoute *route, cchar *key, MprJson *prop)
     cchar   *path;
 
     path = httpExpandRouteVars(route, prop->value);
-    if (!mprPathExists(path, R_OK)) {
-        httpParseError(route, "Cannot find file %s", path);
-    } else {
-        mprSetSslCertFile(route->ssl, path);
+    if (path && *path) {
+        if (!mprPathExists(path, R_OK)) {
+            httpParseError(route, "Cannot find file %s", path);
+        } else {
+            mprSetSslCertFile(route->ssl, path);
+        }
     }
 }
 
@@ -5213,10 +5215,12 @@ static void parseSslDh(HttpRoute *route, cchar *key, MprJson *prop)
     cchar   *path;
 
     path = httpExpandRouteVars(route, prop->value);
-    if (!mprPathExists(path, R_OK)) {
-        httpParseError(route, "Cannot find file %s", path);
-    } else {
-        mprSetSslDhFile(route->ssl, path);
+    if (path && *path) {
+        if (!mprPathExists(path, R_OK)) {
+            httpParseError(route, "Cannot find file %s", path);
+        } else {
+            mprSetSslDhFile(route->ssl, path);
+        }
     }
 }
 
@@ -5226,10 +5230,12 @@ static void parseSslKey(HttpRoute *route, cchar *key, MprJson *prop)
     cchar   *path;
 
     path = httpExpandRouteVars(route, prop->value);
-    if (!mprPathExists(path, R_OK)) {
-        httpParseError(route, "Cannot find file %s", path);
-    } else {
-        mprSetSslKeyFile(route->ssl, path);
+    if (path && *path) {
+        if (!mprPathExists(path, R_OK)) {
+            httpParseError(route, "Cannot find file %s", path);
+        } else {
+            mprSetSslKeyFile(route->ssl, path);
+        }
     }
 }
 
@@ -6152,12 +6158,12 @@ PUBLIC void httpIO(HttpConn *conn, int eventMask)
         conn->secure = 1;
         if (sp->peerCert) {
             httpTrace(conn, "connection.ssl", "context", "msg:'Connection secured with peer certificate'," \
-                "secure:true,cipher:'%s',peerName:'%s',subject:'%s',issuer:'%s',session:'%s'",
-                sp->cipher, sp->peerName, sp->peerCert, sp->peerCertIssuer, sp->session);
+                "secure:true,cipher:'%s',peerName:'%s',subject:'%s',issuer:'%s',session:'%s',resumed:%d",
+                sp->cipher, sp->peerName, sp->peerCert, sp->peerCertIssuer, sp->session, mprGetSocketResumed(sp));
         } else {
             httpTrace(conn, "connection.ssl", "context",
-                "msg:'Connection secured without peer certificate',secure:true,cipher:'%s',session:'%s'",
-                sp->cipher, sp->session);
+                "msg:'Connection secured without peer certificate',secure:true,cipher:'%s',session:'%s',resumed:%d",
+                sp->cipher, sp->session, mprGetSocketResumed(sp));
         }
         if (mprGetLogLevel() >= 5) {
             mprLog("info http ssl", 5, "SSL State: %s", mprGetSocketState(sp));
