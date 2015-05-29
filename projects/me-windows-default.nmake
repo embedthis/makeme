@@ -150,6 +150,9 @@ TARGETS               = $(TARGETS) build\$(CONFIG)\bin\ejs.exe
 !IF "$(ME_COM_HTTP)" == "1"
 TARGETS               = $(TARGETS) build\$(CONFIG)\bin\http.exe
 !ENDIF
+!IF "$(ME_COM_SSL)" == "1"
+TARGETS               = $(TARGETS) build\$(CONFIG)\bin
+!ENDIF
 TARGETS               = $(TARGETS) build\$(CONFIG)\bin\libtestme.dll
 TARGETS               = $(TARGETS) build\$(CONFIG)\bin\me.exe
 TARGETS               = $(TARGETS) build\$(CONFIG)\bin\testme.exe
@@ -211,6 +214,7 @@ clean:
 	if exist "build\$(CONFIG)\bin\http.lib" del /Q "build\$(CONFIG)\bin\http.lib"
 	if exist "build\$(CONFIG)\bin\http.pdb" del /Q "build\$(CONFIG)\bin\http.pdb"
 	if exist "build\$(CONFIG)\bin\http.exp" del /Q "build\$(CONFIG)\bin\http.exp"
+	if exist "build\$(CONFIG)\bin" del /Q "build\$(CONFIG)\bin"
 	if exist "build\$(CONFIG)\bin\libejs.dll" del /Q "build\$(CONFIG)\bin\libejs.dll"
 	if exist "build\$(CONFIG)\bin\libejs.lib" del /Q "build\$(CONFIG)\bin\libejs.lib"
 	if exist "build\$(CONFIG)\bin\libejs.pdb" del /Q "build\$(CONFIG)\bin\libejs.pdb"
@@ -834,12 +838,42 @@ build\$(CONFIG)\bin\http.exe: $(DEPS_40)
 	"$(LD)" -nologo -out:$(BUILD)\bin\http.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\http.obj" $(LIBPATHS_40) $(LIBS_40) $(LIBS_40) $(LIBS)  $(LOG)
 !ENDIF
 
+!IF "$(ME_COM_SSL)" == "1"
+#
+#   install-certs
+#
+DEPS_41 = $(DEPS_41) src\certs\samples\ca.crt
+DEPS_41 = $(DEPS_41) src\certs\samples\ca.key
+DEPS_41 = $(DEPS_41) src\certs\samples\dh.pem
+DEPS_41 = $(DEPS_41) src\certs\samples\ec.crt
+DEPS_41 = $(DEPS_41) src\certs\samples\ec.key
+DEPS_41 = $(DEPS_41) src\certs\samples\roots.crt
+DEPS_41 = $(DEPS_41) src\certs\samples\self.crt
+DEPS_41 = $(DEPS_41) src\certs\samples\self.key
+DEPS_41 = $(DEPS_41) src\certs\samples\test.crt
+DEPS_41 = $(DEPS_41) src\certs\samples\test.key
+
+build\$(CONFIG)\bin: $(DEPS_41)
+	@echo ..... [Copy] build\$(CONFIG)\bin
+	if not exist "build\$(CONFIG)\bin" md "build\$(CONFIG)\bin"
+	copy /Y /B src\certs\samples\ca.crt+modified build\$(CONFIG)\bin\ca.crt $(LOG)
+	copy /Y /B src\certs\samples\ca.key+modified build\$(CONFIG)\bin\ca.key $(LOG)
+	copy /Y /B src\certs\samples\dh.pem+modified build\$(CONFIG)\bin\dh.pem $(LOG)
+	copy /Y /B src\certs\samples\ec.crt+modified build\$(CONFIG)\bin\ec.crt $(LOG)
+	copy /Y /B src\certs\samples\ec.key+modified build\$(CONFIG)\bin\ec.key $(LOG)
+	copy /Y /B src\certs\samples\roots.crt+modified build\$(CONFIG)\bin\roots.crt $(LOG)
+	copy /Y /B src\certs\samples\self.crt+modified build\$(CONFIG)\bin\self.crt $(LOG)
+	copy /Y /B src\certs\samples\self.key+modified build\$(CONFIG)\bin\self.key $(LOG)
+	copy /Y /B src\certs\samples\test.crt+modified build\$(CONFIG)\bin\test.crt $(LOG)
+	copy /Y /B src\certs\samples\test.key+modified build\$(CONFIG)\bin\test.key $(LOG)
+!ENDIF
+
 #
 #   testme.h
 #
-DEPS_41 = $(DEPS_41) src\tm\testme.h
+DEPS_42 = $(DEPS_42) src\tm\testme.h
 
-build\$(CONFIG)\inc\testme.h: $(DEPS_41)
+build\$(CONFIG)\inc\testme.h: $(DEPS_42)
 	@echo ..... [Copy] build\$(CONFIG)\inc\testme.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
 	copy /Y /B src\tm\testme.h+modified build\$(CONFIG)\inc\testme.h $(LOG)
@@ -848,101 +882,101 @@ build\$(CONFIG)\inc\testme.h: $(DEPS_41)
 #   testme.h
 #
 
-src\tm\testme.h: $(DEPS_42)
+src\tm\testme.h: $(DEPS_43)
 
 #
 #   libtestme.obj
 #
-DEPS_43 = $(DEPS_43) src\tm\testme.h
+DEPS_44 = $(DEPS_44) src\tm\testme.h
 
 build\$(CONFIG)\obj\libtestme.obj: \
-    src\tm\libtestme.c $(DEPS_43)
+    src\tm\libtestme.c $(DEPS_44)
 	@echo .. [Compile] build\$(CONFIG)\obj\libtestme.obj
 	"$(CC)" -c -Fo$(BUILD)\obj\libtestme.obj -Fd$(BUILD)\obj\libtestme.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\tm\libtestme.c $(LOG)
 
 #
 #   libtestme
 #
-DEPS_44 = $(DEPS_44) build\$(CONFIG)\inc\testme.h
-DEPS_44 = $(DEPS_44) build\$(CONFIG)\obj\libtestme.obj
+DEPS_45 = $(DEPS_45) build\$(CONFIG)\inc\testme.h
+DEPS_45 = $(DEPS_45) build\$(CONFIG)\obj\libtestme.obj
 
-build\$(CONFIG)\bin\libtestme.dll: $(DEPS_44)
+build\$(CONFIG)\bin\libtestme.dll: $(DEPS_45)
 	@echo ..... [Link] build\$(CONFIG)\bin\libtestme.dll
 	"$(LD)" -dll -out:$(BUILD)\bin\libtestme.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "$(BUILD)\obj\libtestme.obj" $(LIBS)  $(LOG)
 
 #
 #   me.mod
 #
-DEPS_45 = $(DEPS_45) src\Builder.es
-DEPS_45 = $(DEPS_45) src\Loader.es
-DEPS_45 = $(DEPS_45) src\MakeMe.es
-DEPS_45 = $(DEPS_45) src\Me.es
-DEPS_45 = $(DEPS_45) src\Script.es
-DEPS_45 = $(DEPS_45) src\Target.es
-DEPS_45 = $(DEPS_45) paks\ejs-version\Version.es
+DEPS_46 = $(DEPS_46) src\Builder.es
+DEPS_46 = $(DEPS_46) src\Loader.es
+DEPS_46 = $(DEPS_46) src\MakeMe.es
+DEPS_46 = $(DEPS_46) src\Me.es
+DEPS_46 = $(DEPS_46) src\Script.es
+DEPS_46 = $(DEPS_46) src\Target.es
+DEPS_46 = $(DEPS_46) paks\ejs-version\Version.es
 !IF "$(ME_COM_EJS)" == "1"
-DEPS_45 = $(DEPS_45) build\$(CONFIG)\bin\ejs.mod
+DEPS_46 = $(DEPS_46) build\$(CONFIG)\bin\ejs.mod
 !ENDIF
 
-build\$(CONFIG)\bin\me.mod: $(DEPS_45)
+build\$(CONFIG)\bin\me.mod: $(DEPS_46)
 	@echo .. [Compile] me.mod
 	"./$(BUILD)/bin/ejsc" --debug --out "./$(BUILD)/bin/me.mod" --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es paks/ejs-version/Version.es
 
 #
 #   pakrun
 #
-DEPS_46 = $(DEPS_46) paks\me-components\appweb.me
-DEPS_46 = $(DEPS_46) paks\me-components\compiler.me
-DEPS_46 = $(DEPS_46) paks\me-components\components.me
-DEPS_46 = $(DEPS_46) paks\me-components\lib.me
-DEPS_46 = $(DEPS_46) paks\me-components\LICENSE.md
-DEPS_46 = $(DEPS_46) paks\me-components\link.me
-DEPS_46 = $(DEPS_46) paks\me-components\package.json
-DEPS_46 = $(DEPS_46) paks\me-components\rc.me
-DEPS_46 = $(DEPS_46) paks\me-components\README.md
-DEPS_46 = $(DEPS_46) paks\me-components\testme.me
-DEPS_46 = $(DEPS_46) paks\me-components\vxworks.me
-DEPS_46 = $(DEPS_46) paks\me-components\winsdk.me
-DEPS_46 = $(DEPS_46) paks\me-configuration\Configuration.es
-DEPS_46 = $(DEPS_46) paks\me-configuration\configuration.me
-DEPS_46 = $(DEPS_46) paks\me-configuration\LICENSE.md
-DEPS_46 = $(DEPS_46) paks\me-configuration\package.json
-DEPS_46 = $(DEPS_46) paks\me-configuration\README.md
-DEPS_46 = $(DEPS_46) paks\me-installs\Installs.es
-DEPS_46 = $(DEPS_46) paks\me-installs\installs.me
-DEPS_46 = $(DEPS_46) paks\me-installs\LICENSE.md
-DEPS_46 = $(DEPS_46) paks\me-installs\manifest.me
-DEPS_46 = $(DEPS_46) paks\me-installs\package.json
-DEPS_46 = $(DEPS_46) paks\me-installs\README.md
-DEPS_46 = $(DEPS_46) paks\me-os\freebsd.me
-DEPS_46 = $(DEPS_46) paks\me-os\gcc.me
-DEPS_46 = $(DEPS_46) paks\me-os\LICENSE.md
-DEPS_46 = $(DEPS_46) paks\me-os\linux.me
-DEPS_46 = $(DEPS_46) paks\me-os\macosx.me
-DEPS_46 = $(DEPS_46) paks\me-os\os.me
-DEPS_46 = $(DEPS_46) paks\me-os\package.json
-DEPS_46 = $(DEPS_46) paks\me-os\README.md
-DEPS_46 = $(DEPS_46) paks\me-os\solaris.me
-DEPS_46 = $(DEPS_46) paks\me-os\unix.me
-DEPS_46 = $(DEPS_46) paks\me-os\vxworks.me
-DEPS_46 = $(DEPS_46) paks\me-os\windows.me
-DEPS_46 = $(DEPS_46) paks\me-project\LICENSE.md
-DEPS_46 = $(DEPS_46) paks\me-project\package.json
-DEPS_46 = $(DEPS_46) paks\me-project\Project.es
-DEPS_46 = $(DEPS_46) paks\me-project\project.me
-DEPS_46 = $(DEPS_46) paks\me-project\README.md
-DEPS_46 = $(DEPS_46) paks\me-vstudio\LICENSE.md
-DEPS_46 = $(DEPS_46) paks\me-vstudio\package.json
-DEPS_46 = $(DEPS_46) paks\me-vstudio\README.md
-DEPS_46 = $(DEPS_46) paks\me-vstudio\Vstudio.es
-DEPS_46 = $(DEPS_46) paks\me-vstudio\vstudio.me
-DEPS_46 = $(DEPS_46) paks\me-xcode\LICENSE.md
-DEPS_46 = $(DEPS_46) paks\me-xcode\package.json
-DEPS_46 = $(DEPS_46) paks\me-xcode\README.md
-DEPS_46 = $(DEPS_46) paks\me-xcode\xcode.es
-DEPS_46 = $(DEPS_46) paks\me-xcode\xcode.me
+DEPS_47 = $(DEPS_47) paks\me-components\appweb.me
+DEPS_47 = $(DEPS_47) paks\me-components\compiler.me
+DEPS_47 = $(DEPS_47) paks\me-components\components.me
+DEPS_47 = $(DEPS_47) paks\me-components\lib.me
+DEPS_47 = $(DEPS_47) paks\me-components\LICENSE.md
+DEPS_47 = $(DEPS_47) paks\me-components\link.me
+DEPS_47 = $(DEPS_47) paks\me-components\package.json
+DEPS_47 = $(DEPS_47) paks\me-components\rc.me
+DEPS_47 = $(DEPS_47) paks\me-components\README.md
+DEPS_47 = $(DEPS_47) paks\me-components\testme.me
+DEPS_47 = $(DEPS_47) paks\me-components\vxworks.me
+DEPS_47 = $(DEPS_47) paks\me-components\winsdk.me
+DEPS_47 = $(DEPS_47) paks\me-configuration\Configuration.es
+DEPS_47 = $(DEPS_47) paks\me-configuration\configuration.me
+DEPS_47 = $(DEPS_47) paks\me-configuration\LICENSE.md
+DEPS_47 = $(DEPS_47) paks\me-configuration\package.json
+DEPS_47 = $(DEPS_47) paks\me-configuration\README.md
+DEPS_47 = $(DEPS_47) paks\me-installs\Installs.es
+DEPS_47 = $(DEPS_47) paks\me-installs\installs.me
+DEPS_47 = $(DEPS_47) paks\me-installs\LICENSE.md
+DEPS_47 = $(DEPS_47) paks\me-installs\manifest.me
+DEPS_47 = $(DEPS_47) paks\me-installs\package.json
+DEPS_47 = $(DEPS_47) paks\me-installs\README.md
+DEPS_47 = $(DEPS_47) paks\me-os\freebsd.me
+DEPS_47 = $(DEPS_47) paks\me-os\gcc.me
+DEPS_47 = $(DEPS_47) paks\me-os\LICENSE.md
+DEPS_47 = $(DEPS_47) paks\me-os\linux.me
+DEPS_47 = $(DEPS_47) paks\me-os\macosx.me
+DEPS_47 = $(DEPS_47) paks\me-os\os.me
+DEPS_47 = $(DEPS_47) paks\me-os\package.json
+DEPS_47 = $(DEPS_47) paks\me-os\README.md
+DEPS_47 = $(DEPS_47) paks\me-os\solaris.me
+DEPS_47 = $(DEPS_47) paks\me-os\unix.me
+DEPS_47 = $(DEPS_47) paks\me-os\vxworks.me
+DEPS_47 = $(DEPS_47) paks\me-os\windows.me
+DEPS_47 = $(DEPS_47) paks\me-project\LICENSE.md
+DEPS_47 = $(DEPS_47) paks\me-project\package.json
+DEPS_47 = $(DEPS_47) paks\me-project\Project.es
+DEPS_47 = $(DEPS_47) paks\me-project\project.me
+DEPS_47 = $(DEPS_47) paks\me-project\README.md
+DEPS_47 = $(DEPS_47) paks\me-vstudio\LICENSE.md
+DEPS_47 = $(DEPS_47) paks\me-vstudio\package.json
+DEPS_47 = $(DEPS_47) paks\me-vstudio\README.md
+DEPS_47 = $(DEPS_47) paks\me-vstudio\Vstudio.es
+DEPS_47 = $(DEPS_47) paks\me-vstudio\vstudio.me
+DEPS_47 = $(DEPS_47) paks\me-xcode\LICENSE.md
+DEPS_47 = $(DEPS_47) paks\me-xcode\package.json
+DEPS_47 = $(DEPS_47) paks\me-xcode\README.md
+DEPS_47 = $(DEPS_47) paks\me-xcode\Xcode.es
+DEPS_47 = $(DEPS_47) paks\me-xcode\xcode.me
 
-build\$(CONFIG)\.pakrun-modified: $(DEPS_46)
+build\$(CONFIG)\.pakrun-modified: $(DEPS_47)
 	@echo ..... [Copy] build\$(CONFIG)\bin
 	if not exist "build\$(CONFIG)\bin\paks\me-components" md "build\$(CONFIG)\bin\paks\me-components"
 	copy /Y /B paks\me-components\appweb.me+modified build\$(CONFIG)\bin\paks\me-components\appweb.me $(LOG)
@@ -999,20 +1033,20 @@ build\$(CONFIG)\.pakrun-modified: $(DEPS_46)
 	copy /Y /B paks\me-xcode\LICENSE.md+modified build\$(CONFIG)\bin\paks\me-xcode\LICENSE.md $(LOG)
 	copy /Y /B paks\me-xcode\package.json+modified build\$(CONFIG)\bin\paks\me-xcode\package.json $(LOG)
 	copy /Y /B paks\me-xcode\README.md+modified build\$(CONFIG)\bin\paks\me-xcode\README.md $(LOG)
-	copy /Y /B paks\me-xcode\xcode.es+modified build\$(CONFIG)\bin\paks\me-xcode\xcode.es $(LOG)
+	copy /Y /B paks\me-xcode\Xcode.es+modified build\$(CONFIG)\bin\paks\me-xcode\Xcode.es $(LOG)
 	copy /Y /B paks\me-xcode\xcode.me+modified build\$(CONFIG)\bin\paks\me-xcode\xcode.me $(LOG)
 	copy /Y /B nul+modified build\$(CONFIG)\.pakrun-modified $(LOG)
 
 #
 #   runtime
 #
-DEPS_47 = $(DEPS_47) src\master-main.me
-DEPS_47 = $(DEPS_47) src\master-start.me
-DEPS_47 = $(DEPS_47) src\simple.me
-DEPS_47 = $(DEPS_47) src\standard.me
-DEPS_47 = $(DEPS_47) build\$(CONFIG)\.pakrun-modified
+DEPS_48 = $(DEPS_48) src\master-main.me
+DEPS_48 = $(DEPS_48) src\master-start.me
+DEPS_48 = $(DEPS_48) src\simple.me
+DEPS_48 = $(DEPS_48) src\standard.me
+DEPS_48 = $(DEPS_48) build\$(CONFIG)\.pakrun-modified
 
-build\$(CONFIG)\.runtime-modified: $(DEPS_47)
+build\$(CONFIG)\.runtime-modified: $(DEPS_48)
 	@echo ..... [Copy] build\$(CONFIG)\bin
 	if not exist "build\$(CONFIG)\bin" md "build\$(CONFIG)\bin"
 	copy /Y /B src\master-main.me+modified build\$(CONFIG)\bin\master-main.me $(LOG)
@@ -1024,72 +1058,72 @@ build\$(CONFIG)\.runtime-modified: $(DEPS_47)
 #
 #   me.obj
 #
-DEPS_48 = $(DEPS_48) build\$(CONFIG)\inc\ejs.h
+DEPS_49 = $(DEPS_49) build\$(CONFIG)\inc\ejs.h
 
 build\$(CONFIG)\obj\me.obj: \
-    src\me.c $(DEPS_48)
+    src\me.c $(DEPS_49)
 	@echo .. [Compile] build\$(CONFIG)\obj\me.obj
 	"$(CC)" -c -Fo$(BUILD)\obj\me.obj -Fd$(BUILD)\obj\me.pdb $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" src\me.c $(LOG)
 
 #
 #   me
 #
-DEPS_49 = $(DEPS_49) build\$(CONFIG)\bin\libmpr.dll
+DEPS_50 = $(DEPS_50) build\$(CONFIG)\bin\libmpr.dll
 !IF "$(ME_COM_HTTP)" == "1"
-DEPS_49 = $(DEPS_49) build\$(CONFIG)\bin\libhttp.dll
+DEPS_50 = $(DEPS_50) build\$(CONFIG)\bin\libhttp.dll
 !ENDIF
 !IF "$(ME_COM_EJS)" == "1"
-DEPS_49 = $(DEPS_49) build\$(CONFIG)\bin\libejs.dll
+DEPS_50 = $(DEPS_50) build\$(CONFIG)\bin\libejs.dll
 !ENDIF
-DEPS_49 = $(DEPS_49) build\$(CONFIG)\bin\me.mod
-DEPS_49 = $(DEPS_49) build\$(CONFIG)\.runtime-modified
-DEPS_49 = $(DEPS_49) build\$(CONFIG)\obj\me.obj
+DEPS_50 = $(DEPS_50) build\$(CONFIG)\bin\me.mod
+DEPS_50 = $(DEPS_50) build\$(CONFIG)\.runtime-modified
+DEPS_50 = $(DEPS_50) build\$(CONFIG)\obj\me.obj
 
 !IF "$(ME_COM_EJS)" == "1"
-LIBS_49 = $(LIBS_49) libejs.lib
+LIBS_50 = $(LIBS_50) libejs.lib
 !ENDIF
 !IF "$(ME_COM_HTTP)" == "1"
-LIBS_49 = $(LIBS_49) libhttp.lib
+LIBS_50 = $(LIBS_50) libhttp.lib
 !ENDIF
-LIBS_49 = $(LIBS_49) libmpr.lib
+LIBS_50 = $(LIBS_50) libmpr.lib
 !IF "$(ME_COM_EST)" == "1"
-LIBS_49 = $(LIBS_49) libestssl.lib
+LIBS_50 = $(LIBS_50) libestssl.lib
 !ENDIF
 !IF "$(ME_COM_EST)" == "1"
-LIBS_49 = $(LIBS_49) libest.lib
+LIBS_50 = $(LIBS_50) libest.lib
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
-LIBS_49 = $(LIBS_49) libopenssl.lib
-LIBPATHS_49 = $(LIBPATHS_49) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBS_50 = $(LIBS_50) libopenssl.lib
+LIBPATHS_50 = $(LIBPATHS_50) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
-LIBS_49 = $(LIBS_49) libeay32.lib
-LIBPATHS_49 = $(LIBPATHS_49) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBS_50 = $(LIBS_50) libeay32.lib
+LIBPATHS_50 = $(LIBPATHS_50) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
-LIBS_49 = $(LIBS_49) libssleay32.lib
-LIBPATHS_49 = $(LIBPATHS_49) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBS_50 = $(LIBS_50) libssleay32.lib
+LIBPATHS_50 = $(LIBPATHS_50) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
 !IF "$(ME_COM_PCRE)" == "1"
-LIBS_49 = $(LIBS_49) libpcre.lib
+LIBS_50 = $(LIBS_50) libpcre.lib
 !ENDIF
 !IF "$(ME_COM_ZLIB)" == "1"
-LIBS_49 = $(LIBS_49) libzlib.lib
+LIBS_50 = $(LIBS_50) libzlib.lib
 !ENDIF
 
-build\$(CONFIG)\bin\me.exe: $(DEPS_49)
+build\$(CONFIG)\bin\me.exe: $(DEPS_50)
 	@echo ..... [Link] build\$(CONFIG)\bin\me.exe
-	"$(LD)" -nologo -out:$(BUILD)\bin\me.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\me.obj" $(LIBPATHS_49) $(LIBS_49) $(LIBS_49) $(LIBS)  $(LOG)
+	"$(LD)" -nologo -out:$(BUILD)\bin\me.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\me.obj" $(LIBPATHS_50) $(LIBS_50) $(LIBS_50) $(LIBS)  $(LOG)
 
 #
 #   testme.mod
 #
-DEPS_50 = $(DEPS_50) src\tm\testme.es
+DEPS_51 = $(DEPS_51) src\tm\testme.es
 !IF "$(ME_COM_EJS)" == "1"
-DEPS_50 = $(DEPS_50) build\$(CONFIG)\bin\ejs.mod
+DEPS_51 = $(DEPS_51) build\$(CONFIG)\bin\ejs.mod
 !ENDIF
 
-build\$(CONFIG)\bin\testme.mod: $(DEPS_50)
+build\$(CONFIG)\bin\testme.mod: $(DEPS_51)
 	cd src\tm
 	@echo .. [Compile] testme.mod
 	"../../$(BUILD)/bin/ejsc" --debug --out "../../$(BUILD)/bin/testme.mod" --optimize 9 testme.es
@@ -1098,10 +1132,10 @@ build\$(CONFIG)\bin\testme.mod: $(DEPS_50)
 #
 #   testme.obj
 #
-DEPS_51 = $(DEPS_51) build\$(CONFIG)\inc\ejs.h
+DEPS_52 = $(DEPS_52) build\$(CONFIG)\inc\ejs.h
 
 build\$(CONFIG)\obj\testme.obj: \
-    src\tm\testme.c $(DEPS_51)
+    src\tm\testme.c $(DEPS_52)
 	@echo .. [Compile] build\$(CONFIG)\obj\testme.obj
 	"$(CC)" -c -Fo$(BUILD)\obj\testme.obj -Fd$(BUILD)\obj\testme.pdb $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" src\tm\testme.c $(LOG)
 
@@ -1109,54 +1143,54 @@ build\$(CONFIG)\obj\testme.obj: \
 #   testme
 #
 !IF "$(ME_COM_EJS)" == "1"
-DEPS_52 = $(DEPS_52) build\$(CONFIG)\bin\libejs.dll
+DEPS_53 = $(DEPS_53) build\$(CONFIG)\bin\libejs.dll
 !ENDIF
-DEPS_52 = $(DEPS_52) build\$(CONFIG)\bin\testme.mod
-DEPS_52 = $(DEPS_52) build\$(CONFIG)\bin\ejs.testme.mod
-DEPS_52 = $(DEPS_52) build\$(CONFIG)\obj\testme.obj
+DEPS_53 = $(DEPS_53) build\$(CONFIG)\bin\testme.mod
+DEPS_53 = $(DEPS_53) build\$(CONFIG)\bin\ejs.testme.mod
+DEPS_53 = $(DEPS_53) build\$(CONFIG)\obj\testme.obj
 
 !IF "$(ME_COM_EJS)" == "1"
-LIBS_52 = $(LIBS_52) libejs.lib
+LIBS_53 = $(LIBS_53) libejs.lib
 !ENDIF
 !IF "$(ME_COM_ZLIB)" == "1"
-LIBS_52 = $(LIBS_52) libzlib.lib
+LIBS_53 = $(LIBS_53) libzlib.lib
 !ENDIF
 !IF "$(ME_COM_HTTP)" == "1"
-LIBS_52 = $(LIBS_52) libhttp.lib
+LIBS_53 = $(LIBS_53) libhttp.lib
 !ENDIF
 !IF "$(ME_COM_PCRE)" == "1"
-LIBS_52 = $(LIBS_52) libpcre.lib
+LIBS_53 = $(LIBS_53) libpcre.lib
 !ENDIF
-LIBS_52 = $(LIBS_52) libmpr.lib
+LIBS_53 = $(LIBS_53) libmpr.lib
 !IF "$(ME_COM_EST)" == "1"
-LIBS_52 = $(LIBS_52) libestssl.lib
+LIBS_53 = $(LIBS_53) libestssl.lib
 !ENDIF
 !IF "$(ME_COM_EST)" == "1"
-LIBS_52 = $(LIBS_52) libest.lib
+LIBS_53 = $(LIBS_53) libest.lib
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
-LIBS_52 = $(LIBS_52) libopenssl.lib
-LIBPATHS_52 = $(LIBPATHS_52) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBS_53 = $(LIBS_53) libopenssl.lib
+LIBPATHS_53 = $(LIBPATHS_53) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
-LIBS_52 = $(LIBS_52) libeay32.lib
-LIBPATHS_52 = $(LIBPATHS_52) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBS_53 = $(LIBS_53) libeay32.lib
+LIBPATHS_53 = $(LIBPATHS_53) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
-LIBS_52 = $(LIBS_52) libssleay32.lib
-LIBPATHS_52 = $(LIBPATHS_52) -libpath:$(ME_COM_OPENSSL_PATH)
+LIBS_53 = $(LIBS_53) libssleay32.lib
+LIBPATHS_53 = $(LIBPATHS_53) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
 
-build\$(CONFIG)\bin\testme.exe: $(DEPS_52)
+build\$(CONFIG)\bin\testme.exe: $(DEPS_53)
 	@echo ..... [Link] build\$(CONFIG)\bin\testme.exe
-	"$(LD)" -nologo -out:$(BUILD)\bin\testme.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\testme.obj" $(LIBPATHS_52) $(LIBS_52) $(LIBS_52) $(LIBS)  $(LOG)
+	"$(LD)" -nologo -out:$(BUILD)\bin\testme.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\testme.obj" $(LIBPATHS_53) $(LIBS_53) $(LIBS_53) $(LIBS)  $(LOG)
 
 #
 #   testme.es
 #
-DEPS_53 = $(DEPS_53) src\tm\testme.es
+DEPS_54 = $(DEPS_54) src\tm\testme.es
 
-build\$(CONFIG)\bin\testme.es: $(DEPS_53)
+build\$(CONFIG)\bin\testme.es: $(DEPS_54)
 	@echo ..... [Copy] build\$(CONFIG)\bin\testme.es
 	if not exist "build\$(CONFIG)\bin" md "build\$(CONFIG)\bin"
 	copy /Y /B src\tm\testme.es+modified build\$(CONFIG)\bin\testme.es $(LOG)
