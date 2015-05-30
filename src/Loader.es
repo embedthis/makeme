@@ -93,6 +93,7 @@ public class Loader {
                     let target = createTarget({
                         name: f,
                         type: 'component',
+                        configurable: true,
                         without: true,
                         enable: false,
                         explicit: 'without',
@@ -104,6 +105,7 @@ public class Loader {
             let target = createTarget({
                 name: field,
                 type: 'component',
+                configurable: true,
                 enable: false,
                 explicit: 'without',
                 diagnostic: 'Component disabled via --without ' + field '.'
