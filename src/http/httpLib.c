@@ -5210,21 +5210,6 @@ static void parseSslCiphers(HttpRoute *route, cchar *key, MprJson *prop)
 }
 
 
-static void parseSslDh(HttpRoute *route, cchar *key, MprJson *prop)
-{
-    cchar   *path;
-
-    path = httpExpandRouteVars(route, prop->value);
-    if (path && *path) {
-        if (!mprPathExists(path, R_OK)) {
-            httpParseError(route, "Cannot find file %s", path);
-        } else {
-            mprSetSslDhFile(route->ssl, path);
-        }
-    }
-}
-
-
 static void parseSslKey(HttpRoute *route, cchar *key, MprJson *prop)
 {
     cchar   *path;
@@ -5640,7 +5625,6 @@ PUBLIC int httpInitParser()
     httpAddConfig("http.server.ssl.authority.directory", parseSslAuthorityDirectory);
     httpAddConfig("http.server.ssl.certificate", parseSslCertificate);
     httpAddConfig("http.server.ssl.ciphers", parseSslCiphers);
-    httpAddConfig("http.server.ssl.dh", parseSslDh);
     httpAddConfig("http.server.ssl.key", parseSslKey);
     httpAddConfig("http.server.ssl.provider", parseSslProvider);
     httpAddConfig("http.server.ssl.protocols", parseSslProtocols);
@@ -6881,7 +6865,7 @@ PUBLIC int httpDigestParse(HttpConn *conn, cchar **username, cchar **password)
         realm = secret = 0;
         when = 0;
         parseDigestNonce(dp->nonce, &secret, &realm, &when);
-        if (!smatch(secret, secret)) {
+        if (!smatch(conn->http->secret, secret)) {
             httpTrace(conn, "auth.digest.error", "error", "msg:'Access denied, Nonce mismatch'");
             return MPR_ERR_BAD_STATE;
 

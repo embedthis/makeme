@@ -6,11 +6,11 @@ Me.load({
     targets: {
         est: {
             configurable: true,
-            conflicts:    [ 'openssl', 'matrixssl', 'nanossl' ]
-            depends:      [ 'libestssl' ],
+            conflicts:    [ 'openssl', 'matrixssl', 'mbedtls', 'nanossl' ]
+            depends:      [ 'libmpr-estssl' ],
             ifdef:        [ 'ssl' ],
         },
-        libestssl: {
+        'libmpr-estssl': {
             type:         'lib',
             static:       true,
             sources:      [ '*.c' ],
