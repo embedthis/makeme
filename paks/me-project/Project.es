@@ -10,7 +10,7 @@ class Project {
     public var mappings: Object = {}
 
     var builder: Builder
-    var generating: String
+    var generating: String?
     var gen: Object
     var loader: Loader
     var options: Object
@@ -408,7 +408,8 @@ class Project {
         }
         genWriteLine('\t@if [ -f "$(BUILD)/.makeflags" ] ; then \\')
         genWriteLine('\t\tif [ "$(MAKEFLAGS)" != "`cat $(BUILD)/.makeflags`" ] ; then \\')
-        genWriteLine('\t\t\techo "   [Warning] Make flags have changed since the last build: \"`cat $(BUILD)/.makeflags`\"" ; \\')
+        genWriteLine('\t\t\techo "   [Warning] Make flags have changed since the last build" ; \\')
+        genWriteLine('\t\t\techo "   [Warning] Previous build command: \"`cat $(BUILD)/.makeflags`\"" ; \\')
         genWriteLine('\t\tfi ; \\')
         genWriteLine('\tfi')
         genWriteLine('\t@echo "$(MAKEFLAGS)" >$(BUILD)/.makeflags\n')
@@ -737,6 +738,7 @@ class Project {
         Generate projects. Top-level entry point for plugin.
      */
     public function generate() {
+        makeme.generating = generating = true
         let platforms = Object.getOwnPropertyNames(options.platforms)
         if (platforms.length == 0) {
             generateProjects()
@@ -753,6 +755,7 @@ class Project {
                 generateProjects()
             }
         }
+        makeme.generating = generating = null
     }
 
     public function start() {
@@ -1128,14 +1131,16 @@ class Project {
         return ' $(LIBS_' + nextID + ')'
     }
 
-    function getDisabledLibraries(target) {
+    function getAllLibraries(base, target) {
         let libraries = []
         for each (dname in (target.depends + target.uses)) {
             let dep = builder.getDep(dname)
-            libraries += getDisabledLibraries(dep)
+            if (dep) {
+                libraries += getAllLibraries(base, dep)
+            }
         }
-        if (target.configurable && !target.enable) {
-            if (target.type == 'lib') {
+        if (target.type == 'lib') {
+            if (target != base) {
                 libraries.push(target.libname || target.name)
             }
             if (target.libraries) {
@@ -1152,7 +1157,7 @@ class Project {
         let found
         command += ' '
 
-        let libraries = (target.libraries + getDisabledLibraries(target)).unique()
+        let libraries = getAllLibraries(target, target).unique()
 
         /*
             Search the libraries to find what configurable targets they require.
@@ -1197,9 +1202,7 @@ class Project {
                 }
             }
             if (name) {
-                if (me.platform.os == 'windows') {
-                    lib = lib.replace(/^lib/, '').replace(/\.lib$/, '')
-                }
+                lib = lib.replace(/^lib/, '').replace(/\.lib$/, '')
                 if (ifdef) {
                     let indent = ''
                     for each (r in ifdef) {

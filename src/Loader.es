@@ -1415,6 +1415,7 @@ public class Loader {
         } else {
             let type = target.type
             if (type == 'lib') {
+                name = target.libname || target.name
                 if (target.static) {
                     target.path = me.dir.bin.join(name).joinExt(me.ext.lib, true)
                 } else {

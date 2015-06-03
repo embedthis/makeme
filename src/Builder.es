@@ -425,7 +425,7 @@ public class Builder {
         let target
         admitSetup('depend')
         for each (target in me.targets) {
-            if (!target.enable) {
+            if (!target.enable && !(makeme.generating && options.configurableProject)) {
                 continue
             }
             runTargetScript(target, 'presource')
@@ -445,7 +445,7 @@ public class Builder {
             }
         }
         for each (target in me.targets) {
-            if (!target.enable) {
+            if (!target.enable && !(makeme.generating && options.configurableProject)) {
                 continue
             }
             if (target.resources) {
@@ -540,7 +540,7 @@ public class Builder {
                     includes += more
                 }
             } else {
-                print('Cannot find', path, 'in target', target.name)
+                vtrace('Warn', 'Cannot find', path, 'in target', target.name)
             }
         }
         let depends = [ ]
@@ -1037,7 +1037,7 @@ public class Builder {
         if (target.selected) {
             return
         }
-        if (!target.enable) {
+        if (!target.enable && !(makeme.generating && options.configurableProject)) {
             return
         }
         if (goal === true || target.goals.contains(goal)) {

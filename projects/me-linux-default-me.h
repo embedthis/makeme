@@ -280,6 +280,9 @@
 #ifndef ME_COM_MATRIXSSL
     #define ME_COM_MATRIXSSL 0
 #endif
+#ifndef ME_COM_MBEDTLS
+    #define ME_COM_MBEDTLS 0
+#endif
 #ifndef ME_COM_MPR
     #define ME_COM_MPR 1
 #endif
