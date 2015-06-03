@@ -18,7 +18,7 @@ require ejs.version
   */
 public class MakeMe {
     static const SupportedOS = ['freebsd', 'linux', 'macosx', 'solaris', 'vxworks', 'windows']
-    static const SupportedArch = ['arm', 'i64', 'mips', 'sparc', 'x64', 'x86']
+    static const SupportedArch = ['arm', 'i64', 'mips', 'ppc', 'sparc', 'x64', 'x86']
     
     /** Singleton $Builder reference */
     public var builder: Builder
@@ -152,7 +152,7 @@ public class MakeMe {
                 options.file = options.file.dirname.join(Loader.START)
             }
             if (goals.contains('generate')) {
-                /* The configure goal is special, must be done separately and first */
+                /* The configure goal is special, must be done separately */
                 builder.process(options.file, ['generate'])
                 goals.removeElements('generate')
                 if (goals.length == 0) {
