@@ -1128,14 +1128,36 @@ class Project {
         return ' $(LIBS_' + nextID + ')'
     }
 
+    function getDisabledLibraries(target) {
+        let libraries = []
+        for each (dname in (target.depends + target.uses)) {
+            let dep = builder.getDep(dname)
+            libraries += getDisabledLibraries(dep)
+        }
+        if (target.configurable && !target.enable) {
+            if (target.type == 'lib') {
+                libraries.push(target.libname || target.name)
+            }
+            if (target.libraries) {
+                libraries += target.libraries
+            }
+        }
+        return libraries
+    }
+
+    /*
+        This should use the same strategy as genTargetDepItems and not look at target.libraries
+     */
     function genTargetLibs(target, command): String {
         let found
         command += ' '
 
+        let libraries = (target.libraries + getDisabledLibraries(target)).unique()
+
         /*
-            Search the target libraries to find what configurable targets they require.
+            Search the libraries to find what configurable targets they require.
          */
-        for each (lib in target.libraries) {
+        for each (lib in libraries) {
             let name, dep, ifdef, component
             name = component = null
             if (me.targets.compiler.libraries.contains(lib)) {
@@ -1153,6 +1175,14 @@ class Project {
                     Check components that provide the library
                  */
                 for each (p in me.targets) {
+                    if (p.libname == lib || p.libname == ('lib' + lib)) {
+                        component = p
+                        name = p.libname
+                        if (p.configurable) {
+                            ifdef = [p.name]
+                        }
+                        break
+                    }
                     if (!p.configurable) continue
                     /* Own libraries are the libraries defined by a target, but not inherited from dependents */
                     name = findLib(p.ownLibraries, lib)
@@ -1182,6 +1212,14 @@ class Project {
                             indent = '    '
                         }
                     }
+                    if (dep && dep.configurable && (!target.ifdef || !target.ifdef.contains(dep.name))) {
+                        if (me.platform.os == 'windows') {
+                            genWriteLine('!IF "$(ME_COM_' + dep.name.toUpper() + ')" == "1"')
+                        } else {
+                            genWriteLine('ifeq ($(ME_COM_' + dep.name.toUpper() + '),1)')
+                        }
+                        indent = '    '
+                    }
                     if (me.platform.os == 'windows') {
                         genWriteLine('LIBS_' + nextID + ' = $(LIBS_' + nextID + ') lib' + lib + '.lib')
                         if (component) {
@@ -1201,6 +1239,13 @@ class Project {
                                     command = command.replace('-L' + path, '')
                                 }
                             }
+                        }
+                    }
+                    if (dep && dep.configurable && (!target.ifdef || !target.ifdef.contains(dep.name))) {
+                        if (me.platform.os == 'windows') {
+                            genWriteLine('!ENDIF')
+                        } else {
+                            genWriteLine('endif')
                         }
                     }
                     for each (r in ifdef) {
@@ -1255,7 +1300,7 @@ class Project {
     function genTargetDepItems(target, depends) {
         for each (let dname in depends) {
             dep = builder.getDep(dname)
-            if (dep && dep.enable) {
+            if (dep && (dep.enable || options.configurableProject)) {
                 let path = dep.modify || dep.path
                 let d = (path) ? reppath(path) : dep.name
                 if (dep.ifdef && dep.type != 'component') {
@@ -1270,10 +1315,25 @@ class Project {
                             indent = '    '
                         }
                     }
+                    if (dep.configurable && (!target.ifdef || !target.ifdef.contains(dep.name))) {
+                        if (me.platform.os == 'windows') {
+                            genWriteLine('!IF "$(ME_COM_' + dep.name.toUpper() + ')" == "1"')
+                        } else {
+                            genWriteLine('ifeq ($(ME_COM_' + dep.name.toUpper() + '),1)')
+                        }
+                        indent = '    '
+                    }
                     if (me.platform.os == 'windows') {
                         genWriteLine('DEPS_' + nextID + ' = $(DEPS_' + nextID + ') ' + d)
                     } else {
                         genWriteLine(indent + 'DEPS_' + nextID + ' += ' + d)
+                    }
+                    if (dep.configurable && (!target.ifdef || !target.ifdef.contains(dep.name))) {
+                        if (me.platform.os == 'windows') {
+                            genWriteLine('!ENDIF')
+                        } else {
+                            genWriteLine('endif')
+                        }
                     }
                     for each (r in dep.ifdef) {
                         if (!target.ifdef || !target.ifdef.contains(r)) {

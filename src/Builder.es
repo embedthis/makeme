@@ -697,6 +697,7 @@ public class Builder {
             expandMissing = ''
         }
         if (options.gen == 'make' || options.gen == 'nmake') {
+            /* Generated project is configurable via Make variables */
             options.configurableProject = true
         }
         enableTargets()
@@ -809,9 +810,7 @@ public class Builder {
             let dep = getDep(dname)
             if (dep) {
                 if (!dep.enable) {
-                    if (!options.configurableProject) {
-                        continue
-                    }
+                    continue
                 }
                 resolve(dep)
 
@@ -821,17 +820,18 @@ public class Builder {
                         Convert to a canonical form without a leading 'lib'.
                      */
                     let lpath
+                    let libname = dep.libname || dep.name 
                     if (dep.static) {
-                        if (dname.startsWith('lib')) {
-                            lpath = dname.replace(/^lib/, '')
+                        if (libname.startsWith('lib')) {
+                            lpath = libname.replace(/^lib/, '')
                         } else {
-                            lpath = dname
+                            lpath = libname
                         }
                     } else {
-                        if (dname.startsWith('lib')) {
-                            lpath = dname.replace(/^lib/, '')
+                        if (libname.startsWith('lib')) {
+                            lpath = libname.replace(/^lib/, '')
                         } else {
-                            lpath = dname
+                            lpath = libname
                         }
                     }
                     target.libraries ||= []
@@ -1287,7 +1287,7 @@ public class Builder {
                 }
                 for each (let sname: Path in (dep.depends + dep.uses)) {
                     let sub = getDep(sname)
-                    if (sub && sub.enable) {
+                    if (sub && sub.enable && sub.name != target.name) {
                         if (stale(sub)) {
                             whyRebuild(path, 'Rebuild', 'dependent target ' + sname + ' is stale, for "' + dname + '"')
                             return true
