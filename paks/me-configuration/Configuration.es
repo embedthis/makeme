@@ -496,7 +496,10 @@ class Configuration {
     function importComponentFiles() {
         for each (target in me.targets) {
             if (target.configurable && target.enable) {
-                for each (file in target.imports) {
+                for each (let file: Path in target.imports) {
+                    if (!file.exists) {
+                        throw 'Cannot import: ' + file
+                    }
                     vtrace('Import', file)
                     if (file.extension == 'h') {
                         me.dir.inc.makeDir()
