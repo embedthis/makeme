@@ -425,7 +425,7 @@ public class Builder {
         let target
         admitSetup('depend')
         for each (target in me.targets) {
-            if (!target.enable && !(makeme.generating && options.configurableProject)) {
+            if (!target.enable && !(target.ifdef && makeme.generating && options.configurableProject)) {
                 continue
             }
             runTargetScript(target, 'presource')
@@ -445,7 +445,7 @@ public class Builder {
             }
         }
         for each (target in me.targets) {
-            if (!target.enable && !(makeme.generating && options.configurableProject)) {
+            if (!target.enable && !(target.ifdef && makeme.generating && options.configurableProject)) {
                 continue
             }
             if (target.resources) {
@@ -1037,7 +1037,7 @@ public class Builder {
         if (target.selected) {
             return
         }
-        if (!target.enable && !(makeme.generating && options.configurableProject)) {
+        if (!target.enable && !(target.ifdef && makeme.generating && options.configurableProject)) {
             return
         }
         if (goal === true || target.goals.contains(goal)) {

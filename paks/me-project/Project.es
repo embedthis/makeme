@@ -1133,6 +1133,9 @@ class Project {
 
     function getAllLibraries(base, target) {
         let libraries = []
+        if (!target.enable && !target.ifdef) {
+            return libraries
+        }
         for each (dname in (target.depends + target.uses)) {
             let dep = builder.getDep(dname)
             if (dep) {
