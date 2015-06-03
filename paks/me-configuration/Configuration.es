@@ -246,6 +246,13 @@ class Configuration {
                     target.path = result
                 } else if (Object.getOwnPropertyCount(result) > 0) {
                     blend(target, result, {combine: true})
+                    if (me.platform.os == 'windows') {
+                        for (let [index, lib] in target.libraries) {
+                            if (!lib.endsWith('.lib')) {
+                                target.libraries[index] = lib + '.lib'
+                            }
+                        }
+                    }
                 }
             }
             if (target.path is Function) {
