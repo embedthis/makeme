@@ -80,11 +80,13 @@ class Project {
             let name = target.name
             if (needed[name]) {
                 let enable = target.enable
-                if (me.platform.os == 'windows' ) {
 // TEMP - generate ssl targets disabled. Need a generic way to do this.
-if (target.name == 'ssl' || target.name == 'openssl') {
-    enable = false
-}
+                if (me.platform.os == 'windows' || me.platform.os == 'vxworks') {
+                    if (target.name == 'ssl' || target.name == 'openssl') {
+                        enable = false
+                    }
+                }
+                if (me.platform.os == 'windows' ) {
                     genWriteLine('!IF "$(ME_COM_' + name.toUpper() + ')" == ""')
                     genWriteLine('%-21s = %s'.format(['ME_COM_' + name.toUpper(), enable ? 1 : 0]))
                     genWriteLine('!ENDIF')

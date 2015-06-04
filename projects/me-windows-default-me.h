@@ -223,7 +223,7 @@
 
 /* Profile */
 #ifndef ME_CONFIG_CMD
-    #define ME_CONFIG_CMD "me -d -q -platform windows-x86-default -configure . --without ssl -gen vs"
+    #define ME_CONFIG_CMD "me -d -q -platform windows-x86-default -configure . --with openssl -gen vs"
 #endif
 #ifndef ME_ME_PRODUCT
     #define ME_ME_PRODUCT 1
@@ -256,6 +256,9 @@
 #ifndef ME_COM_EJS
     #define ME_COM_EJS 1
 #endif
+#ifndef ME_COM_EST
+    #define ME_COM_EST 0
+#endif
 #ifndef ME_COM_HTTP
     #define ME_COM_HTTP 1
 #endif
@@ -265,8 +268,20 @@
 #ifndef ME_COM_LINK
     #define ME_COM_LINK 1
 #endif
+#ifndef ME_COM_MATRIXSSL
+    #define ME_COM_MATRIXSSL 0
+#endif
+#ifndef ME_COM_MBEDTLS
+    #define ME_COM_MBEDTLS 0
+#endif
 #ifndef ME_COM_MPR
     #define ME_COM_MPR 1
+#endif
+#ifndef ME_COM_NANOSSL
+    #define ME_COM_NANOSSL 0
+#endif
+#ifndef ME_COM_OPENSSL
+    #define ME_COM_OPENSSL 1
 #endif
 #ifndef ME_COM_OSDEP
     #define ME_COM_OSDEP 1
@@ -278,7 +293,7 @@
     #define ME_COM_RC 1
 #endif
 #ifndef ME_COM_SSL
-    #define ME_COM_SSL 0
+    #define ME_COM_SSL 1
 #endif
 #ifndef ME_COM_VXWORKS
     #define ME_COM_VXWORKS 0
