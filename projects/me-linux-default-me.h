@@ -235,7 +235,7 @@
 
 /* Profile */
 #ifndef ME_CONFIG_CMD
-    #define ME_CONFIG_CMD "me -d -q -platform linux-x86-default -configure . --with openssl -gen make"
+    #define ME_CONFIG_CMD "me -d -q -platform linux-x86-default -configure . -gen make"
 #endif
 #ifndef ME_ME_PRODUCT
     #define ME_ME_PRODUCT 1
