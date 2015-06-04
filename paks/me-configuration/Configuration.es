@@ -799,9 +799,9 @@ module embedthis.me.script {
         }
         if (me.platform.like == 'unix') {
             if (me.platform.arch == 'x64') {
-                search += ['/usr/lib64', '/lib64']
+                search += [Path('/usr/lib64'), Path('/lib64')]
             }
-            search += ['/usr/lib', '/lib' ]
+            search += [Path('/usr/lib'), Path('/lib') ]
         }
         if (me.platform.os == 'linux') {
             search += Path('/usr/lib').files('*-linux-gnu') + Path('/lib').files('*-linux-gnu')
