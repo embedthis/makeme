@@ -71,15 +71,15 @@ ME_COM_ZLIB           = 1
 !ENDIF
 
 
-!IF "$(ME_COM_COMPILER)" == ""
+!IF "$(ME_COM_LIB)" == "1"
 ME_COM_COMPILER       = 1
 !ENDIF
 
-!IF "$(ME_COM_COMPILER)" == ""
+!IF "$(ME_COM_LINK)" == "1"
 ME_COM_COMPILER       = 1
 !ENDIF
 
-!IF "$(ME_COM_WINSDK)" == ""
+!IF "$(ME_COM_RC)" == "1"
 ME_COM_WINSDK         = 1
 !ENDIF
 

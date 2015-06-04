@@ -79,12 +79,17 @@ class Project {
             }
             let name = target.name
             if (needed[name]) {
+                let enable = target.enable
                 if (me.platform.os == 'windows' ) {
+// TEMP - generate ssl targets disabled. Need a generic way to do this.
+if (target.name == 'ssl' || target.name == 'openssl') {
+    enable = false
+}
                     genWriteLine('!IF "$(ME_COM_' + name.toUpper() + ')" == ""')
-                    genWriteLine('%-21s = %s'.format(['ME_COM_' + name.toUpper(), target.enable ? 1 : 0]))
+                    genWriteLine('%-21s = %s'.format(['ME_COM_' + name.toUpper(), enable ? 1 : 0]))
                     genWriteLine('!ENDIF')
                 } else {
-                    genWriteLine('%-21s ?= %s'.format(['ME_COM_' + name.toUpper(), target.enable ? 1 : 0]))
+                    genWriteLine('%-21s ?= %s'.format(['ME_COM_' + name.toUpper(), enable ? 1 : 0]))
                 }
             }
         }
@@ -128,7 +133,7 @@ class Project {
             if (needed[name] && target.ifdef) {
                 if (me.platform.os == 'windows' ) {
                     for each (r in target.ifdef) {
-                        genWriteLine('!IF "$(ME_COM_' + r.toUpper() + ')" == ""')
+                        genWriteLine('!IF "$(ME_COM_' + name.toUpper() + ')" == "1"')
                         genWriteLine('%-21s = 1'.format(['ME_COM_' + r.toUpper()]))
                         genWriteLine('!ENDIF\n')
                     }
@@ -627,6 +632,13 @@ class Project {
                 }
             }
         }
+        if (target.configurable) {
+            if (me.platform.os == 'windows') {
+                genWriteLine('!IF "$(ME_COM_' + target.name.toUpper() + ')" == "1"')
+            } else {
+                genWriteLine('ifeq ($(ME_COM_' + target.name.toUpper() + '),1)')
+            }
+        }
         target.prorDefines = target.defines
         if (target.defines) {
             target.defines = target.defines.map(function(e) {
@@ -656,6 +668,13 @@ class Project {
             generateDir(target, true)
         } else if (target.generate) {
             generateScript(target)
+        }
+        if (target.configurable) {
+            if (me.platform.os == 'windows') {
+                genWriteLine('!ENDIF')
+            } else {
+                genWriteLine('endif')
+            }
         }
         if (target.ifdef) {
             for (i in target.ifdef.length) {
