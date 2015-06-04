@@ -93,7 +93,7 @@ ifeq ($(ME_COM_HTTP),1)
     TARGETS           += $(BUILD)/bin/http
 endif
 ifeq ($(ME_COM_SSL),1)
-    TARGETS           += $(BUILD)/bin
+    TARGETS           += $(BUILD)/.install-certs-modified
 endif
 TARGETS               += $(BUILD)/bin/libtestme.so
 TARGETS               += $(BUILD)/bin/me
@@ -146,7 +146,7 @@ clean:
 	rm -f "$(BUILD)/bin/ejsc"
 	rm -f "$(BUILD)/bin/ejs"
 	rm -f "$(BUILD)/bin/http"
-	rm -f "$(BUILD)/bin"
+	rm -f "$(BUILD)/.install-certs-modified"
 	rm -f "$(BUILD)/bin/libejs.so"
 	rm -f "$(BUILD)/bin/libhttp.so"
 	rm -f "$(BUILD)/bin/libmpr.so"
@@ -823,7 +823,7 @@ DEPS_43 += src/certs/samples/self.key
 DEPS_43 += src/certs/samples/test.crt
 DEPS_43 += src/certs/samples/test.key
 
-$(BUILD)/bin: $(DEPS_43)
+$(BUILD)/.install-certs-modified: $(DEPS_43)
 	@echo '      [Copy] $(BUILD)/bin'
 	mkdir -p "$(BUILD)/bin"
 	cp src/certs/samples/ca.crt $(BUILD)/bin/ca.crt
@@ -836,6 +836,7 @@ $(BUILD)/bin: $(DEPS_43)
 	cp src/certs/samples/self.key $(BUILD)/bin/self.key
 	cp src/certs/samples/test.crt $(BUILD)/bin/test.crt
 	cp src/certs/samples/test.key $(BUILD)/bin/test.key
+	touch "$(BUILD)/.install-certs-modified"
 endif
 
 #
