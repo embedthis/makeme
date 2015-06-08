@@ -806,7 +806,7 @@ module embedthis.me.script {
         if (me.platform.os == 'linux') {
             search += Path('/usr/lib').files('*-linux-gnu') + Path('/lib').files('*-linux-gnu')
         }
-        return search
+        return search.transform(function(path) path.absolute)
     }
 
     /**
