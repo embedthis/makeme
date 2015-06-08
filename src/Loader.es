@@ -1331,7 +1331,7 @@ public class Loader {
         makeExtensionGlobals()
     }
 
-    function setPrefixes() {
+    public function setPrefixes() {
         let options = me.options
         let prefixes = me.prefixes
         let settings = me.settings
