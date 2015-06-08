@@ -160,7 +160,7 @@ class InstallsInner {
                             }
                         }
                     }
-                    if (!item.from && item.postPerform) {
+                    if (item.postPerform) {
                         item.postPerform.call(me.dir.top, item.from, item.to, item)
                     }
                 }
