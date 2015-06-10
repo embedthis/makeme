@@ -263,8 +263,9 @@
                 </tr>
                 <tr>
                     <td>path</td>
-                    <td>Path to the result of building the target. If set, this is used for dependency
-                        calculations. If updated, all targets that depend on this target will be rebuilt.</td>
+                    <td>Path to the result of building the target. If unset, MakeMe computes the output path
+                        based on the target name and the target type. If the path is set, it overrides the default
+                        and defines the output filename or directory for the target.</p>
                 </tr>
                 <tr>
                     <td>platforms</td>

@@ -14,6 +14,19 @@ bingo: {
     depends: [ 'libgame'],
 },
 </pre>
+        <p>This will compile and link the bingo.c source and save an executable called <em>bingo</em> or
+        <em>bingo.exe</em> for windows in the current directory.</p>
+        <p>You can modify the output filename by defining a <em>path</em> property. For example:</p>
+<pre class="ui code segment">
+bingo: {
+    type: 'exe',
+    path: 'output/bingo',
+    sources: [ 'bingo.c' ],
+    depends: [ 'libgame'],
+},
+</pre>
+        <p>Without a path property, MakeMe computes one from the name of the property target.</p>
+
         <a name="dependencies"></a>
         <h2>Dependencies</h2>
         <p>Dependent libraries are specified via the <em>depends</em> property. This property takes a list of other targets
