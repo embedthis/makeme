@@ -595,7 +595,7 @@ class Configuration {
             }
             target.enable = false
             target.diagnostic = '' + e
-            vtrace('Configure', target.name + ' failed: ' + target.diagnostic)
+            vtrace('Configure', target.name + ': ' + target.diagnostic)
         }
     }
     
