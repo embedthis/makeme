@@ -2451,7 +2451,7 @@ module ejs {
             @param command The (optional) command line to initialize with. If a command line is provided, the $start
                 method is automatically invoked after the command is constructed. The command may be either a string or
                 an array of arguments. Using an array of args can simplify quoting if the args have embedded spaces or
-                quotes.
+                quotes. Use $response to read the response.
             @param options. Command options hash. Supported options are:
             @options detach Boolean If true, run the command and return immediately. If detached, $finalize must be
                 called to signify the end of data being written to the command's stdin. Detach must be used if using
