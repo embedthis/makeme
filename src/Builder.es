@@ -34,7 +34,7 @@ public class Builder {
     /** Top-level targets to build */
     public var topTargets: Array
 
-    private var expandMissing = null
+    private var expandMissing = undefined
     private var gates: Object = {}
     private var loader: Loader
     private var options: Object
