@@ -405,7 +405,7 @@ Usage: me [options] [targets|goals] ...
   --continue                               # Continue on errors
   --debug                                  # Same as --profile debug
   --deploy directory                       # Install to deploy directory
-  --depth level                            # Set utest depth level
+  --depth level                            # Set test depth level
   --diagnose                               # Emit diagnostic trace
   --dump                                   # Dump the full project
   --endian [big|little]                    # Define the CPU endianness
@@ -452,18 +452,9 @@ Feature Selection:
     --set ejs.template=value               # Enable template support, ejs.template (true|false)
     --set ejs.web=value                    # Enable web support, ejs.web (true|false)
     --set ejs.zlib=value                   # Enable zlib support, ejs.zlib (true|false)
-    --set est.camellia=value               # Enable the Camellia cipher (true|false)
-    --set est.des=value                    # Enable the 3DES cipher (true|false)
-    --set est.genPrime=value               # Enable generation of primes (true|false)
-    --set est.padlock=value                # Enable VIA Padlock acceleration (true|false)
-    --set est.romTables=value              # Enable ROM tables (true|false)
-    --set est.sslClient=value              # Enable SSL/TLS client side (true|false)
-    --set est.testCerts=value              # Enable generation of test certificates (true|false)
-    --set est.xtea=value                   # Enable XTEA (true|false)
     --set http.pam=value                   # Enable Unix Pluggable Auth Module (true|false)
     --set http.webSockets=value            # Enable WebSockets (true|false)
     --set mpr.logging=value                # Enable application logging (true|false)
-    --set mpr.debug=value                  # Enable debug logging (true|false)
     --set configFile=value                 # Path of the appweb.conf file
     --set serverRoot=value                 # Home directory for the server
 
@@ -472,7 +463,6 @@ Components (--with NAME, --without NAME):
     dir                                    # Directory Listing Module
     ejs                                    # Embedthis Ejscript Javascript Language
     esp                                    # Embedthis ESP, the amazingly fast C-Language web framework
-    est                                    # Embedthis Security Transport
     mdb                                    # Embedthis MDB Database
     openssl                                # OpenSSL
     php                                    # PHP Web Framework
