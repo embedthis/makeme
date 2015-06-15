@@ -619,6 +619,8 @@ public function traceFile(msg, path): Void
 public function vtrace(tag, ...args)
     makeme.vtrace(tag, ...args)
 
+
+//  MOB - move to Generate?
 var capture: Array?
 var genout: TextStream
 
@@ -769,9 +771,9 @@ internal function repCmd(s: String, pattern, replacement): String {
  */
 public function repcmd(command: String): String {
     //  generator.settings == gen
-    let mappings = makeme.project.mappings
+    let mappings = makeme.generate.mappings
     let generating = makeme.generating
-    let minimalCflags = makeme.project.minimalCflags
+    let minimalCflags = makeme.generate.minimalCflags
     if (generating == 'make' || generating == 'nmake') {
         if (mappings.linker != '') {
             /* Linker has -g which is also in minimal C flags */
@@ -862,7 +864,7 @@ public function repcmd(command: String): String {
  */
 public function repvar(command: String): String {
     let generating = makeme.generating
-    let mappings = makeme.project.mappings
+    let mappings = makeme.generate.mappings
     command = command.replace(RegExp(me.dir.top + '/', 'g'), '')
     if (generating == 'make') {
         command = command.replace(RegExp(mappings.build, 'g'), '$$(BUILD)')
@@ -888,7 +890,7 @@ public function repvar(command: String): String {
 
 public function repvar2(command: String, home: Path? = null): String {
     let generating = makeme.generating
-    let mappings = makeme.project.mappings
+    let mappings = makeme.generate.mappings
     if (home) {
         command = command.replace(RegExp(me.dir.top, 'g'), me.dir.top.relativeTo(home))
     }

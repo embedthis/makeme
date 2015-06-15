@@ -801,6 +801,9 @@ public class Loader {
         if (!me.platform || !me.platform.name) {
             initPlatform(obj)
         } 
+        /*
+            Load me-os/
+         */
         blendFile(findPlugin('os'))
         blendFile(me.dir.me.join(!me.dir.bin.same(me.dir.out) ? 'standard.me' : 'simple.me'))
         setExtensions()

@@ -4,13 +4,15 @@
 
 Me.load({ 
     scripts: {
-        loaded: `
-            me.projects ||= []
-            me.projects.xcode = function(base) {
-                require embedthis.me
-                load('${ORIGIN}/Xcode.es')
-                Xcode().generate(base)
+        generator: `
+            require embedthis.me
+            load('${ORIGIN}/Xcode.es')
+            var xcode = Xcode()
+            makeme.generators.xcode = {
+                project: function(base) {
+                    xcode.generate(base)
+                }
             }
-        `,
+        `
     }
 })

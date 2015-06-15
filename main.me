@@ -3,7 +3,7 @@
  */
 
 Me.load({
-    plugins: [ 'configuration', 'installs' ],
+    plugins: [ 'installs' ],
 
     blend: [
         'src/*/*.me',
@@ -76,7 +76,15 @@ Me.load({
         },
         'me.mod': {
             path: '${BIN}/me.mod',
-            files: [ 'src/*.es', 'paks/ejs-version/Version.es' ],
+            files: [
+                'src/Builder.es',
+                'src/Loader.es',
+                'src/MakeMe.es',
+                'src/Me.es',
+                'src/Script.es',
+                'src/Target.es',
+                'paks/ejs-version/Version.es'
+            ],
             precious: true,
             build: `
                 run('"${LBIN}/ejsc" --debug --out "${BIN}/me.mod" --optimize 9 ${FILES}')
@@ -97,8 +105,16 @@ Me.load({
         pakrun: {
             type: 'file',
             path: '${BIN}/',
-            files: 'paks/me-*/**',
+            files: [ 'paks/me-*/**', '!**/*.md', '!**/package.json' ],
             flatten: false,
+            precious: true,
+        },
+
+        extras: {
+            type: 'file',
+            path: '${BIN}/',
+            files: [ 'src/Configure.es', 'src/Generate.es' ],
+            flatten: true,
             precious: true,
         },
 

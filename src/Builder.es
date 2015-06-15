@@ -142,7 +142,9 @@ public class Builder {
                 runTargetScript(target, 'prebuild')
 
                 if (makeme.generating) {
-                    makeme.project.generateTarget(target)
+                    if (makeme.generate.generator.target) {
+                        makeme.generate.generator.target(target)
+                    }
                 } else {
                     if (target.mkdir) {
                         buildDirs(target)
@@ -675,9 +677,8 @@ public class Builder {
             /*
                 Auto configure
              */
-            let path = loader.findPlugin('configuration')
-            load(path.dirname.join('Configuration.es'))
-            Configuration().autoConfigure()
+            load(me.dir.me.join('Configure.es'))
+            Configure().autoConfigure()
             me.settings.configured = true
             for each (target in me.targets) {
                 if (target.type == 'exe' || target.type == 'lib' || target.type == 'obj') {
@@ -1209,17 +1210,21 @@ public class Builder {
     }
 
     function showConfiguration() {
-        print("// Configuration for Platform: " + me.platform.name)
-        print("\nConfigurable Components:")
-        let configurable = []
-        for each (target in me.targets) {
-            if (target.configurable) {
-                configurable.push(target)
+        if (me.settings.configure && !options.verbose) {
+            trace('Config', me.settings.configure)
+        } else {
+            print("// Configuration for Platform: " + me.platform.name)
+            print("\nConfigurable Components:")
+            let configurable = []
+            for each (target in me.targets) {
+                if (target.configurable) {
+                    configurable.push(target)
+                }
             }
+            print(serialize(configurable, {pretty: true, quotes: false}))
+            print("\nsettings:")
+            print(serialize(me.settings, {pretty: true, quotes: false}))
         }
-        print(serialize(configurable, {pretty: true, quotes: false}))
-        print("\nsettings:")
-        print(serialize(me.settings, {pretty: true, quotes: false}))
     }
 
     /*

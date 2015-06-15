@@ -1,5 +1,5 @@
 /*
-    Configuration.es -- Configuration plugin for MakeMe
+    Configure.es -- MakeMe Configure support
 
     Copyright (c) All Rights Reserved. See copyright notice at the bottom of the file.
  */
@@ -8,7 +8,7 @@ module embedthis.me {
 require ejs.unix
 require ejs.version
 
-class Configuration {
+class Configure {
 
     public static var currentComponent: String?
 
@@ -39,7 +39,7 @@ class Configuration {
     var loader: Loader
     var builder: Builder
 
-    function Configuration() {
+    function Configure() {
         loader = makeme.loader
         builder = makeme.builder
     }
@@ -197,6 +197,9 @@ class Configuration {
             loader.initPlatform(platform)
             loader.loadFile(main)
             vtrace('Load', 'Standard configurable components')
+            /*
+                Load me-components/
+             */
             loader.blendFile(loader.findPlugin('components'), true)
             checkMain()
             findComponents()
@@ -238,7 +241,7 @@ class Configuration {
             }
         }
         /* Just for probe() which needs the context */
-        Configuration.currentComponent = target.name
+        Configure.currentComponent = target.name
         try {
             if (target.scripts && target.scripts.config) {
                 let result = makeme.builder.runTargetScript(target, 'config', {rethrow: true})
@@ -357,7 +360,7 @@ class Configuration {
         let path = me.dir.inc.join('me.h').relative
         trace('Create', path)
         let f = TextStream(File(path, 'w'))
-        f.writeLine('/*\n    me.h -- MakeMe Configuration Header for ' + me.platform.name + '\n\n' +
+        f.writeLine('/*\n    me.h -- MakeMe Configure Header for ' + me.platform.name + '\n\n' +
                 '    This header is created by Me during configuration. To change settings, re-run\n' +
                 '    configure or define variables in your Makefile to override these default values.\n */')
         writeDefinitions(f)
@@ -553,7 +556,7 @@ class Configuration {
                     target.home = path.dirname
                     target.path = path
                     target.diagnostic = 'Load component from: ' + path
-                    Configuration.currentComponent = target.name
+                    Configure.currentComponent = target.name
                     loader.blendFile(path)
                 } else {
                     throw 'Cannot find definition for component: ' + target.name + '.me'
@@ -618,6 +621,7 @@ class Configuration {
         } 
     }
 
+/* UNUSED
     public function reconfigure(path) {
         let obj = loader.readFile(path)
         if (obj && obj.configure) {
@@ -626,6 +630,7 @@ class Configuration {
         }
         App.log.error('No prior configuration to use')
     }
+*/
 
     function traceComponents() {
         let disabled = {}
@@ -756,7 +761,7 @@ class Configuration {
         }
     }
 
-} /* Configuration class */
+} /* Configure class */
 } /* embedthis.me */
 
 module embedthis.me.script {
@@ -826,7 +831,7 @@ module embedthis.me.script {
         if (file.exists) {
             path = file
         } else {
-            if ((dir = me.targets[Configuration.currentComponent].path) && !(dir is Function)) {
+            if ((dir = me.targets[Configure.currentComponent].path) && !(dir is Function)) {
                 search.push(dir)
             }
             if (control.search) {
@@ -847,7 +852,7 @@ module embedthis.me.script {
         }
         if (!path) {
             if (makeme.options.why) {
-                trace('Missing', 'Component "' + Configuration.currentComponent + '" cannot find: "' + file + '"\n')
+                trace('Missing', 'Component "' + Configure.currentComponent + '" cannot find: "' + file + '"\n')
             }
             if (makeme.options['continue'] && control.default) {
                 return control.default
@@ -855,10 +860,10 @@ module embedthis.me.script {
             if (control.nothrow) {
                 return null
             }
-            throw 'Cannot find "' + file + '" for component "' + Configuration.currentComponent + 
+            throw 'Cannot find "' + file + '" for component "' + Configure.currentComponent + 
                     '".\n' + 'Using search: ' + serialize(search, {pretty: true})
         }
-        vtrace('Probe', 'Component "' + Configuration.currentComponent + '" found: "' + path)
+        vtrace('Probe', 'Component "' + Configure.currentComponent + '" found: "' + path)
         if (control.fullpath) {
             return path.portable
         }

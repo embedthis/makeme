@@ -1,0 +1,23 @@
+/*
+    make.me - Makefile Generator Plugin
+ */
+
+Me.load({
+    scripts: {
+        generator: `
+            require embedthis.me
+            load('${ORIGIN}/Make.es')
+            var make = Make()
+            makeme.generators.make = {
+                project: function(base, kind) {
+                    make.generate(base, kind)
+                },
+                target: function(target) {
+                    make.generateTarget(target)
+                }
+            }
+            makeme.generators.nmake = makeme.generators.make
+            makeme.generators.sh = makeme.generators.make
+        `
+    }
+})

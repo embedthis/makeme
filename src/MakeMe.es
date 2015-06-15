@@ -32,14 +32,17 @@ public class MakeMe {
     /** Singleton $Loader reference */
     public var loader: Loader
 
-    /** Set to the project type being generated */
-    public var generating
-
     /** Application command line options from Args.options */
     public var options: Object = {}
 
-    /** Singleton $Project reference */
-    public var project
+    /** Singleton $Generate reference */
+    public var generate
+
+    /** Set to the project type being generated */
+    public var generating
+
+    /** Project generators */
+    public var generators = {}
 
     /** Default exit status */
     public var status = 0
@@ -81,7 +84,9 @@ public class MakeMe {
             pre: { },
             prefix: { range: String, separator: Array },
             prefixes: { range: String },
+/* UNUSED
             reconfigure: { },
+*/
             rebuild: { alias: 'r'},
             release: {},
             rom: { },
@@ -124,7 +129,7 @@ public class MakeMe {
             parseArgs(args)
             options.file = Path(options.file || findMakeMeFile() || Loader.START)
             if (!options.configure && options.gen != 'start') {
-                /* Must not change directory for init or out-of-tree configurations */
+                /* Must not change directory for init or out-of-tree source */
                 App.chdir(options.file.dirname)
             }
             if (options.import) {
@@ -133,27 +138,32 @@ public class MakeMe {
             }
             if (options.gen == 'start' || options.gen == 'main') {
                 loader.initPlatform()
-                let path = loader.findPlugin('project')
-                load(path.dirname.join('Project.es'))
-                if (options.gen == 'start') {
-                    Project().start()
-                } else {
-                    Project().main()
-                }
+                load(me.dir.me.join('Generate.es'))
+                Generate().init(options.gen)
                 return
             }
+            let configured 
             if (goals.contains('configure')) {
                 /* The configure goal is special, must be done separately and first */
-                builder.process(options.file, ['configure'])
+                load(me.dir.me.join('Configure.es'))
+                Configure().configure()
                 goals.removeElements('configure')
                 if (goals.length == 0) {
                     return
                 }
                 options.file = options.file.dirname.join(Loader.START)
+                configured = true
             }
             if (goals.contains('generate')) {
-                /* The configure goal is special, must be done separately */
-                builder.process(options.file, ['generate'])
+                /* The generate goal is special, must be done separately */
+                load(me.dir.me.join('Generate.es'))
+                makeme.generate = Generate()
+                let options = makeme.options
+                if (!configured) {
+                    /* Load current configuration */
+                    builder.process(options.file)
+                }
+                makeme.generate.projects()
                 goals.removeElements('generate')
                 if (goals.length == 0) {
                     return
@@ -269,10 +279,12 @@ public class MakeMe {
             options.configuration = true
         } else if (args.rest.contains('configuration')) {
             options.configuration = true
+/* UNUSED
         } else if (args.rest.contains('reconfigure')) {
             options.reconfigure = true
         } else if (options.reconfigure) {
             args.rest.push('configure')
+*/
         }
         if (args.rest.contains('generate')) {
             if (Config.OS == 'windows') {
@@ -539,7 +551,9 @@ public class MakeMe {
             '  --profile [debug|release|...]             # Use the build profile\n' +
             '  --quiet                                   # Quiet operation. Suppress trace \n' +
             '  --rebuild                                 # Rebuild all specified targets\n' +
+/* UNUSED
             '  --reconfigure                             # Reconfigure with existing settings\n' +
+*/
             '  --release                                 # Same as --profile release\n' +
             '  --rom                                     # Build for ROM without a file system\n' +
             '  --set [feature=value]                     # Enable and a feature\n' +

@@ -1,13 +1,11 @@
 /*
-    Project.es -- Project class to generate MakeMe native projects
+    Make.es -- Generate Makefiles
 
     Copyright (c) All Rights Reserved. See copyright notice at the bottom of the file.
  */
 module embedthis.me {
 
-class Project {
-
-    public var mappings: Object = {}
+class Make {
 
     var builder: Builder
     var generating: String?
@@ -21,10 +19,22 @@ class Project {
 
     var targetsToClean = { exe: true, file: true, lib: true, obj: true }
 
-    function Project() {
+    public function Make() {
         loader = makeme.loader
         builder = makeme.builder
         options = makeme.options
+    }
+
+    public function generate(base: Path, kind) {
+        if (kind == 'make') {
+            generateMakeProject(base)
+
+        } else if (kind == 'nmake') {
+            generateNmakeProject(base)
+
+        } else if (kind == 'shell') {
+            generateNmakeProject(base)
+        }
     }
 
     /*
@@ -319,7 +329,7 @@ class Project {
         }
     }
 
-    function generateMakeProject(base: Path) {
+    public function generateMakeProject(base: Path) {
         trace('Generate', 'project file: ' + base.relative + '.mk')
         let path = base.joinExt('mk')
         genOpen(path)
@@ -349,6 +359,7 @@ class Project {
         let dflags = componentDefs()
         environment()
 
+        let mappings = makeme.generate.mappings
         let cflags = mappings.compiler
         for each (word in minimalCflags) {
             cflags = cflags.replace(word + ' ', ' ')
@@ -428,8 +439,9 @@ class Project {
         genClose()
     }
 
-    function generateNmakeProject(base: Path) {
+    public function generateNmakeProject(base: Path) {
         trace('Generate', 'project file: ' + base.relative + '.nmake')
+        let mappings = makeme.generate.mappings
         let path = base.joinExt('nmake')
         genOpen(path)
         genWriteLine('#\n#   ' + path.basename + ' -- Makefile to build ' + me.settings.title + 
@@ -519,62 +531,7 @@ class Project {
         genClose()
     }
 
-    function generateProjects() {
-        let cpack = me.targets.compiler
-        let cflags = cpack.compiler.join(' ')
-        for each (word in minimalCflags) {
-            cflags = cflags.replace(word + ' ', ' ')
-        }
-        cflags = cflags.replace(/^ */, '')
-        mappings = {
-            configuration:  me.platform.name
-            compiler:       cflags,
-            defines :       cpack.defines.map(function(e) '-D' + e.replace(/"/, '\\"')).join(' '),
-            includes:       cpack.includes.map(function(e) '-I' + e).join(' '),
-            linker:         cpack.linker.join(' '),
-            libpaths:       builder.mapLibPaths(cpack.libpaths),
-            libraries:      builder.mapLibs(null, cpack.libraries).join(' '),
-            build:          loader.BUILD + '/' + me.platform.name,
-            lbin:           me.globals.LBIN ? me.globals.LBIN.relative : me.globals.BIN,
-        }
-        blend(mappings, me.prefixes)
-
-        me.settings.name ||= 'app'
-        let base = me.dir.proj.join(me.settings.name + '-' + me.platform.os + '-' + me.platform.profile)
-        base.dirname.makeDir()
-
-        /*
-            Create project per-platform prototype me.h header
-         */
-        let path = me.dir.inc.join('me.h')
-        let hfile = me.dir.top.join('projects', 
-                me.settings.name + '-' + me.platform.os + '-' + me.platform.profile + '-me.h')
-        if (path.exists) {
-            trace('Generate', 'project header: ' + hfile.relative)
-            path.copy(hfile)
-        }
-        for each (item in options.gen) {
-            makeme.generating = generating = item
-            trace('Generate', generating + ' file: ' + base.relative)
-            base.makeDir()
-
-            if (generating == 'sh') {
-                generateShellProject(base)
-            } else if (generating == 'make') {
-                generateMakeProject(base)
-            } else if (generating == 'nmake') {
-                generateNmakeProject(base)
-            } else if (generating == 'vstudio' || generating == 'vs') {
-                me.projects[generating](base)
-            } else if (generating == 'xcode') {
-                me.projects[generating](base)
-            } else {
-                throw 'Unknown generation format: ' + makeme.generating
-            }
-        }
-    }
-
-   function generateShellProject(base: Path) {
+    public function generateShellProject(base: Path) {
         trace('Generate', 'project file: ' + base.relative + '.sh')
         let path = base.joinExt('sh')
         genOpen(path)
@@ -592,6 +549,7 @@ class Project {
         if (me.targets.link) {
             genWriteLine('LD="' + me.targets.link.path + '"')
         }
+        let mappings = makeme.generate.mappings
         let cflags = mappings.compiler
         for each (word in minimalCflags) {
             cflags = cflags.replace(word + ' ', ' ')
@@ -753,30 +711,6 @@ class Project {
             prefixes[name] = Path(value.toString())
         }
         return prefixes
-    }
-
-    /*
-        Generate projects. Top-level entry point for plugin.
-     */
-    public function generate() {
-        makeme.generating = generating = true
-        let platforms = Object.getOwnPropertyNames(options.platforms)
-        if (platforms.length == 0) {
-            generateProjects()
-        } else {
-            for each (platform in platforms) {
-                Me()
-                loader.reset()
-                loader.initPlatform(platform)
-                let path = Loader.BUILD.join(platform, Loader.PLATFORM)
-                if (path.exists) {
-                    loader.loadFile(path)
-                }
-                builder.prepBuild()
-                generateProjects()
-            }
-        }
-        makeme.generating = generating = null
     }
 
     public function start() {

@@ -1,8 +1,8 @@
 {
-    "name": "me-configuration",
-    "description": "MakeMe Configuration Plugin",
+    "name": "me-make",
+    "description": "MakeMe Makefile Generation",
     "title": "Embedthis Development",
-    "version": "0.8.5",
+    "version": "0.1.0",
     "keywords": [
         "me"
     ],
@@ -13,10 +13,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "git://github.com/embedthis/me-configuration.git"
+        "url": "git://github.com/embedthis/me-make.git"
     },
     "bugs": {
-        "url": "http://github.com/embedthis/me-configuration/issues"
+        "url": "http://github.com/embedthis/me-make/issues"
     },
     "licenses": [
         {
@@ -29,6 +29,6 @@
         }
     ],
     "pak": {
-        "origin": "embedthis/me-configuration"
+        "origin": "embedthis/me-make"
     }
 }
