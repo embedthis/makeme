@@ -26,6 +26,9 @@
             "url": "https://github.com/embedthis/zlib/blob/master/LICENSE.md"
         }
     ],
+    "files": [
+        "dist/**"
+    ],
     "pak": {
         "version": ">=0.10.0",
         "origin": "embedthis/zlib"
