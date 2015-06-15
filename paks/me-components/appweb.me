@@ -6,12 +6,6 @@ Me.load({
         appweb: {
             description: 'Appweb HTTP Server',
             config: function (target) {
-/*
-    Breaks appweb samples
-                if (me.targets.appweb && me.targets.appweb.configurable) {
-                    return {}
-                }
-*/
                 let appweb = Cmd.locate('appweb')
                 if (appweb.isLink) {
                     appweb = appweb.dirname.join(appweb.linkTarget)
