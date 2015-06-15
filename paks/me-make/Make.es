@@ -26,6 +26,7 @@ class Make {
     }
 
     public function generate(base: Path, kind) {
+        generating = kind
         if (kind == 'make') {
             generateMakeProject(base)
 
