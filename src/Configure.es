@@ -69,7 +69,7 @@ class Configure {
         Note: setting CFLAGS, DFLAGS etc overwrites internal me settings for compiler, defines etc.
      */
     function defineEnv() {
-        if (!platforms.length > 1 && !me.platform.cross) {
+        if (platforms.length > 1 && !me.platform.cross) {
             /* If building cross, then only apply env to cross build, not to native dev platform build */
             return
         }
@@ -154,8 +154,16 @@ class Configure {
                 throw Loader.MAIN + ' is missing settings.' + field
             }
         }
-        if (settings.me && !Version(Config.Version).acceptable(settings.me)) {
-            throw '' + settings.title + ' requires MakeMe ' + settings.me + '. MakeMe version ' + Config.Version +
+        let package = me.dir.top.join(Loader.PACKAGE)
+        let criteria
+        if (package.exists) {
+            let spec = package.readJSON()
+            criteria = spec.devDependencies ? spec.devDependencies.makeme : null
+        }
+        //  DEPRECATE
+        criteria ||= me.makeme || me.me || settings.makeme || settings.me
+        if (criteria && !Version(Config.Version).acceptable(criteria)) {
+            throw '' + settings.title + ' requires MakeMe ' + criteria + '. MakeMe version ' + Config.Version +
                 ' is not compatible with this requirement.' + '\n'
         }
     }
@@ -174,7 +182,7 @@ class Configure {
             Compute the platforms from the command line switches and the main.me settings.platforms property.
             If none specified, use the local platform. Ensure local is first to build dev tools.
         */
-        let platforms = Object.getOwnPropertyNames(options.platforms)
+        platforms = Object.getOwnPropertyNames(options.platforms)
         let obj = loader.readFile(main)
         let settings = obj.settings
         /*
@@ -193,6 +201,7 @@ class Configure {
         for each (platform in platforms) {
             trace('Configure', platform)
             Me()
+            me.dir.work = home
             loader.reset()
             loader.initPlatform(platform)
             loader.loadFile(main)
@@ -209,11 +218,11 @@ class Configure {
             createMeHeader()
             postConfig()
         }
+        App.chdir(home)
         if (!options.gen) {
             createStartFile(platforms)
             trace('Info', 'Type "me" to build.')
         }
-        App.chdir(home)
     }
 
     function configureComponent(target) {

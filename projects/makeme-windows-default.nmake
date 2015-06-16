@@ -1,9 +1,9 @@
 #
-#   me-windows-default.nmake -- Makefile to build Embedthis MakeMe for windows
+#   makeme-windows-default.nmake -- Makefile to build Embedthis MakeMe for windows
 #
 
-NAME                  = me
-VERSION               = 0.8.10
+NAME                  = makeme
+VERSION               = 0.9.0
 
 OS                    = windows
 PA                    = $(PROCESSOR_ARCHITECTURE)
@@ -175,7 +175,7 @@ prep:
 	@if not exist $(BUILD)\bin md $(BUILD)\bin
 	@if not exist $(BUILD)\inc md $(BUILD)\inc
 	@if not exist $(BUILD)\obj md $(BUILD)\obj
-	@if not exist $(BUILD)\inc\me.h copy projects\me-windows-default-me.h $(BUILD)\inc\me.h
+	@if not exist $(BUILD)\inc\me.h copy projects\makeme-windows-default-me.h $(BUILD)\inc\me.h
 
 !IF "$(SHOW)" != ""
 	@echo ..... [Info] Use "make SHOW=1" to trace executed commands and errors.

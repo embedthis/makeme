@@ -13,7 +13,7 @@
       </ItemDefinitionGroup>
 
       <PropertyGroup Label="Globals">
-        <ProjectGuid>{54534ab4-6f0c-4103-a5a3-b01c9c230bab}</ProjectGuid>
+        <ProjectGuid>{2a157fbb-ee06-4fcd-8ed9-2b52cdbef6fc}</ProjectGuid>
         <RootNamespace />
         <Keyword>Win32Proj</Keyword>
       </PropertyGroup>
@@ -87,28 +87,28 @@
         <_ProjectFileVersion>10</_ProjectFileVersion>
 
         <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(BinDir)\</OutDir>
-        <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ObjDir)\libzlib\</IntDir>
+        <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ObjDir)\libtestme\</IntDir>
         <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PreBuildEvent</CustomBuildBeforeTargets>
 
         <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(BinDir)\</OutDir>
-        <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ObjDir)\libzlib\</IntDir>
+        <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ObjDir)\libtestme\</IntDir>
         <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PreBuildEvent</CustomBuildBeforeTargets>
 
         <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(BinDir)\</OutDir>
-        <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ObjDir)\libzlib\</IntDir>
+        <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ObjDir)\libtestme\</IntDir>
         <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PreBuildEvent</CustomBuildBeforeTargets>
 
         <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(BinDir)\</OutDir>
-        <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ObjDir)\libzlib\</IntDir>
+        <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ObjDir)\libtestme\</IntDir>
         <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PreBuildEvent</CustomBuildBeforeTargets>
   </PropertyGroup>
   
       <ItemGroup>
-    <ClCompile Include="..\..\src\zlib\zlib.c" />
+    <ClCompile Include="..\..\src\tm\libtestme.c" />
   </ItemGroup>
 
       <ItemGroup>
-    <ClInclude Include="$(IncDir)\zlib.h" />
+    <ClInclude Include="$(IncDir)\testme.h" />
   </ItemGroup>
 
       <ItemDefinitionGroup>
@@ -118,10 +118,10 @@
       </Link>
 
       <CustomBuildStep>
-        <Command>cd ..\..\src\zlib
-copy /Y /B zlib.h $(IncDir)
-cd ..\..\projects\me-windows-default</Command>
-        <Outputs>$(BinDir)\libzlib.dll</Outputs>
+        <Command>cd ..\..\src\tm
+copy /Y /B testme.h $(IncDir)
+cd ..\..\projects\makeme-windows-default</Command>
+        <Outputs>$(BinDir)\libtestme.dll</Outputs>
       </CustomBuildStep>
   </ItemDefinitionGroup>
 

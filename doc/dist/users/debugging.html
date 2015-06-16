@@ -157,7 +157,7 @@
         </div>
         
         <div class="version desktop-only">
-            v0.8.10
+            v0.9.0
         </div>
 
     </div>
@@ -174,14 +174,13 @@
         <p>With Make and other build tools, it is often difficult to determine why a target is or is not being built. MakeMe provides a <em>--why</em> command line switch to diagnose problematic build sequences. This switch displays the reason why each target was or was not built. For example:</p>
      
         <pre class="ui code segment">$ me <b>--why</b> libmpr
-    [Target] /Users/mob/git/me/macosx-x64-release/inc/mpr.h is up to date
-    [Target] /Users/mob/git/me/macosx-x64-release/inc/me.h is up to date
-    [Target] /Users/mob/git/me/macosx-x64-release/inc/bitos.h is up to date
-   [Rebuild] /Users/mob/git/me/macosx-x64-release/obj/mprLib.o because input \
-             /Users/mob/git/me/src/deps/mpr/mprLib.c has been modified.
+    [Target] macosx-x64-release/inc/mpr.h is up to date
+    [Target] macosx-x64-release/inc/me.h is up to date
+    [Target] macosx-x64-release/inc/bitos.h is up to date
+   [Rebuild] macosx-x64-release/obj/mprLib.o because input src/deps/mpr/mprLib.c has been modified.
    [Compile] src/deps/mpr/mprLib.c
-   [Rebuild] /Users/mob/git/me/macosx-x64-release/bin/libmpr.dylib because input \
-             /Users/mob/git/me/macosx-x64-release/obj/mprLib.o has been modified.
+   [Rebuild] macosx-x64-release/bin/libmpr.dylib because input \
+             macosx-x64-release/obj/mprLib.o has been modified.
       [Link] libmpr
 </pre>
         <a id="show"></a>

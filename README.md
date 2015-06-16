@@ -30,4 +30,4 @@ See [LICENSE.md](https://github.com/embedthis/makeme/blob/master/LICENSE.md) for
 Resources
 ---
   - [MakeMe Web Site](https://embedthis.com/makeme/)
-  - [MakeMe GitHub repository](https://github.com/embedthis/me)
+  - [MakeMe GitHub repository](https://github.com/embedthis/makeme)

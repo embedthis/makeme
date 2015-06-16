@@ -1,8 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
     <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+      <ItemDefinitionGroup>
+        <ClCompile>
+          <AdditionalIncludeDirectories>$(IncDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+          <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+          <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+          <SubSystem>Console</SubSystem>
+    </Link>
+      </ItemDefinitionGroup>
+
       <PropertyGroup Label="Globals">
-        <ProjectGuid>{2ddcc749-d49b-42e6-8e4e-0ce105c6f507}</ProjectGuid>
+        <ProjectGuid>{4bdd6f9c-78f4-4f4c-9a4b-9ebd713d1d00}</ProjectGuid>
         <RootNamespace />
         <Keyword>Win32Proj</Keyword>
       </PropertyGroup>
@@ -27,22 +38,22 @@
   </ItemGroup>
     
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-        <ConfigurationType></ConfigurationType>
+        <ConfigurationType>DynamicLibrary</ConfigurationType>
         <CharacterSet>NotSet</CharacterSet>
         <PlatformToolset>v120</PlatformToolset>
       </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-        <ConfigurationType></ConfigurationType>
+        <ConfigurationType>DynamicLibrary</ConfigurationType>
         <CharacterSet>NotSet</CharacterSet>
         <PlatformToolset>v120</PlatformToolset>
       </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-        <ConfigurationType></ConfigurationType>
+        <ConfigurationType>DynamicLibrary</ConfigurationType>
         <CharacterSet>NotSet</CharacterSet>
         <PlatformToolset>v120</PlatformToolset>
       </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-        <ConfigurationType></ConfigurationType>
+        <ConfigurationType>DynamicLibrary</ConfigurationType>
         <CharacterSet>NotSet</CharacterSet>
         <PlatformToolset>v120</PlatformToolset>
       </PropertyGroup>
@@ -76,45 +87,41 @@
         <_ProjectFileVersion>10</_ProjectFileVersion>
 
         <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(BinDir)\</OutDir>
-        <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ObjDir)\prep\</IntDir>
+        <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ObjDir)\libpcre\</IntDir>
         <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PreBuildEvent</CustomBuildBeforeTargets>
 
         <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(BinDir)\</OutDir>
-        <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ObjDir)\prep\</IntDir>
+        <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ObjDir)\libpcre\</IntDir>
         <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PreBuildEvent</CustomBuildBeforeTargets>
 
         <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(BinDir)\</OutDir>
-        <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ObjDir)\prep\</IntDir>
+        <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ObjDir)\libpcre\</IntDir>
         <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PreBuildEvent</CustomBuildBeforeTargets>
 
         <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(BinDir)\</OutDir>
-        <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ObjDir)\prep\</IntDir>
+        <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ObjDir)\libpcre\</IntDir>
         <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PreBuildEvent</CustomBuildBeforeTargets>
   </PropertyGroup>
+  
+      <ItemGroup>
+    <ClCompile Include="..\..\src\pcre\pcre.c" />
+  </ItemGroup>
+
+      <ItemGroup>
+    <ClInclude Include="$(IncDir)\pcre.h" />
+  </ItemGroup>
 
       <ItemDefinitionGroup>
       <Link>
         <AdditionalDependencies>;%(AdditionalDependencies)</AdditionalDependencies>
-        <AdditionalLibraryDirectories>$(OutDir);;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+        <AdditionalLibraryDirectories>$(OutDir);build\$(Cfg)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       </Link>
 
       <CustomBuildStep>
-        <Command>cd .
-if not exist "$(ObjDir)" md "$(ObjDir)"
-if not exist "$(BinDir)" md "$(BinDir)"
-if not exist "$(IncDir)" md "$(IncDir)"
-if not exist "$(IncDir)\me.h" copy "..\me-windows-default-me.h" "$(IncDir)\me.h"
-copy /Y /B ..\..\src\ejs\ejs.h $(IncDir)
-copy /Y /B ..\..\src\ejs\ejs.slots.h $(IncDir)
-copy /Y /B ..\..\src\ejs\ejsByteGoto.h $(IncDir)
-copy /Y /B ..\..\src\http\http.h $(IncDir)
-copy /Y /B ..\..\src\mpr\mpr.h $(IncDir)
-copy /Y /B ..\..\src\osdep\osdep.h $(IncDir)
-copy /Y /B ..\..\src\pcre\pcre.h $(IncDir)
-copy /Y /B ..\..\src\tm\testme.h $(IncDir)
-copy /Y /B ..\..\src\zlib\zlib.h $(IncDir)
-cd .</Command>
-        <Outputs>always</Outputs>
+        <Command>cd ..\..\src\pcre
+copy /Y /B pcre.h $(IncDir)
+cd ..\..\projects\makeme-windows-default</Command>
+        <Outputs>$(BinDir)\libpcre.dll</Outputs>
       </CustomBuildStep>
   </ItemDefinitionGroup>
 

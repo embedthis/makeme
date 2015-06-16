@@ -2,7 +2,7 @@
     <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
       <PropertyGroup Label="Globals">
-        <ProjectGuid>{58abbb3c-af93-4c4c-b6fa-a27e1603a1c9}</ProjectGuid>
+        <ProjectGuid>{ed880c97-4985-44d3-8f95-7e85a8e95849}</ProjectGuid>
         <RootNamespace />
         <Keyword>Win32Proj</Keyword>
       </PropertyGroup>
@@ -76,42 +76,88 @@
         <_ProjectFileVersion>10</_ProjectFileVersion>
 
         <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(BinDir)\</OutDir>
-        <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ObjDir)\ejs.mod\</IntDir>
+        <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ObjDir)\pakrun\</IntDir>
         <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PreBuildEvent</CustomBuildBeforeTargets>
 
         <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(BinDir)\</OutDir>
-        <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ObjDir)\ejs.mod\</IntDir>
+        <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ObjDir)\pakrun\</IntDir>
         <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PreBuildEvent</CustomBuildBeforeTargets>
 
         <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(BinDir)\</OutDir>
-        <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ObjDir)\ejs.mod\</IntDir>
+        <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ObjDir)\pakrun\</IntDir>
         <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PreBuildEvent</CustomBuildBeforeTargets>
 
         <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(BinDir)\</OutDir>
-        <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ObjDir)\ejs.mod\</IntDir>
+        <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ObjDir)\pakrun\</IntDir>
         <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PreBuildEvent</CustomBuildBeforeTargets>
   </PropertyGroup>
 
       <ItemDefinitionGroup>
       <Link>
-        <AdditionalDependencies>libejs.lib;libzlib.lib;libhttp.lib;libpcre.lib;libmpr.lib;%(AdditionalDependencies)</AdditionalDependencies>
-        <AdditionalLibraryDirectories>$(OutDir);build\$(Cfg)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+        <AdditionalDependencies>;%(AdditionalDependencies)</AdditionalDependencies>
+        <AdditionalLibraryDirectories>$(OutDir);;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       </Link>
 
       <CustomBuildStep>
-        <Command>cd ..\..\src\ejs
-"../../build/windows-x86-default/bin/ejsc" --out "../../build/windows-x86-default/bin/ejs.mod" --optimize 9 --bind --require null ejs.es
-cd ..\..\projects\me-windows-default</Command>
-        <Outputs>$(BinDir)\ejs.mod</Outputs>
+        <Command>cd ..\..
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-components\appweb.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-components\compiler.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-components\components.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-components\lib.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-components\link.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-components\rc.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-components\testme.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-components\vxworks.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-components\winsdk.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-installs\Installs.es $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-installs\installs.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-installs\manifest.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-make\Make.es $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-make\make.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-os\freebsd.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-os\gcc.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-os\linux.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-os\macosx.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-os\os.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-os\solaris.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-os\unix.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-os\vxworks.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-os\windows.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-vstudio\Vstudio.es $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-vstudio\vstudio.me $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-xcode\Xcode.es $(BinDir)
+if exist $(BinDir) del /Q $(BinDir)
+copy /Y paks\me-xcode\xcode.me $(BinDir)
+cd projects\makeme-windows-default</Command>
+        <Outputs>$(BinDir)</Outputs>
       </CustomBuildStep>
   </ItemDefinitionGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="ejsc.vcxproj">
-      <Project>75a3c39b-7cd5-473d-8aa0-e3c369ab6b33</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-      </ProjectReference>
-    </ItemGroup>
 
   <Import Project="$(VCTargetsPath)Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

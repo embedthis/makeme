@@ -36100,6 +36100,7 @@ static EjsHttp *http_post(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 }
 
 
+#if UNUSED
 /*
     function get provider(): String
  */
@@ -36153,6 +36154,7 @@ static EjsArray *http_providers(Ejs *ejs, EjsHttp *hp, int argc, EjsObj **argv)
 #endif
     return result;
 }
+#endif
 
 
 /*  
@@ -37240,8 +37242,10 @@ PUBLIC void ejsConfigureHttpType(Ejs *ejs)
     }
     prototype = type->prototype;
     ejsBindConstructor(ejs, type, httpConstructor);
+#if UNUSED
 #if ES_Http_providers
     ejsBindMethod(ejs, type, ES_Http_providers, http_providers);
+#endif
 #endif
 
     ejsBindAccess(ejs, prototype, ES_Http_async, http_async, http_set_async);
@@ -37274,7 +37278,9 @@ PUBLIC void ejsConfigureHttpType(Ejs *ejs)
     ejsBindMethod(ejs, prototype, ES_Http_off, http_off);
     ejsBindMethod(ejs, prototype, ES_Http_on, http_on);
     ejsBindMethod(ejs, prototype, ES_Http_post, http_post);
+#if UNUSED
     ejsBindAccess(ejs, prototype, ES_Http_provider, http_provider, http_set_provider);
+#endif
     ejsBindMethod(ejs, prototype, ES_Http_put, http_put);
     ejsBindMethod(ejs, prototype, ES_Http_read, http_read);
     ejsBindMethod(ejs, prototype, ES_Http_readString, http_readString);

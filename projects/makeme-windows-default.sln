@@ -1,11 +1,11 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "prep", "me-windows-default\prep.vcxproj", "{2DDCC749-D49B-42E6-8E4E-0CE105C6F507}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "prep", "makeme-windows-default\prep.vcxproj", "{2DDCC749-D49B-42E6-8E4E-0CE105C6F507}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmpr", "me-windows-default\libmpr.vcxproj", "{02CA7374-D1AA-425D-8F85-9AD8320980E7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmpr", "makeme-windows-default\libmpr.vcxproj", "{02CA7374-D1AA-425D-8F85-9AD8320980E7}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
 	EndProjectSection
@@ -13,7 +13,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmpr", "me-windows-defaul
 		{02CA7374-D1AA-425D-8F85-9AD8320980E7} = {02CA7374-D1AA-425D-8F85-9AD8320980E7}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpcre", "me-windows-default\libpcre.vcxproj", "{4BDD6F9C-78F4-4F4C-9A4B-9EBD713D1D00}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpcre", "makeme-windows-default\libpcre.vcxproj", "{4BDD6F9C-78F4-4F4C-9A4B-9EBD713D1D00}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
 	EndProjectSection
@@ -21,7 +21,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpcre", "me-windows-defau
 		{4BDD6F9C-78F4-4F4C-9A4B-9EBD713D1D00} = {4BDD6F9C-78F4-4F4C-9A4B-9EBD713D1D00}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libhttp", "me-windows-default\libhttp.vcxproj", "{55D3272A-C6B1-45CB-9B3B-7BD1FF9B0ED9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libhttp", "makeme-windows-default\libhttp.vcxproj", "{55D3272A-C6B1-45CB-9B3B-7BD1FF9B0ED9}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
 	EndProjectSection
@@ -35,7 +35,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libhttp", "me-windows-defau
 		{55D3272A-C6B1-45CB-9B3B-7BD1FF9B0ED9} = {55D3272A-C6B1-45CB-9B3B-7BD1FF9B0ED9}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libzlib", "me-windows-default\libzlib.vcxproj", "{54534AB4-6F0C-4103-A5A3-B01C9C230BAB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libzlib", "makeme-windows-default\libzlib.vcxproj", "{54534AB4-6F0C-4103-A5A3-B01C9C230BAB}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
 	EndProjectSection
@@ -43,7 +43,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libzlib", "me-windows-defau
 		{54534AB4-6F0C-4103-A5A3-B01C9C230BAB} = {54534AB4-6F0C-4103-A5A3-B01C9C230BAB}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libejs", "me-windows-default\libejs.vcxproj", "{12F2348B-A901-4127-BE49-8E456FDA9002}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libejs", "makeme-windows-default\libejs.vcxproj", "{12F2348B-A901-4127-BE49-8E456FDA9002}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
 	EndProjectSection
@@ -63,7 +63,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libejs", "me-windows-defaul
 		{12F2348B-A901-4127-BE49-8E456FDA9002} = {12F2348B-A901-4127-BE49-8E456FDA9002}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ejsc", "me-windows-default\ejsc.vcxproj", "{75A3C39B-7CD5-473D-8AA0-E3C369AB6B33}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ejsc", "makeme-windows-default\ejsc.vcxproj", "{75A3C39B-7CD5-473D-8AA0-E3C369AB6B33}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
 	EndProjectSection
@@ -86,7 +86,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ejsc", "me-windows-default\
 		{75A3C39B-7CD5-473D-8AA0-E3C369AB6B33} = {75A3C39B-7CD5-473D-8AA0-E3C369AB6B33}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ejs.mod", "me-windows-default\ejs.mod.vcxproj", "{58ABBB3C-AF93-4C4C-B6FA-A27E1603A1C9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ejs.mod", "makeme-windows-default\ejs.mod.vcxproj", "{58ABBB3C-AF93-4C4C-B6FA-A27E1603A1C9}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
 	EndProjectSection
@@ -112,7 +112,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ejs.mod", "me-windows-defau
 		{58ABBB3C-AF93-4C4C-B6FA-A27E1603A1C9} = {58ABBB3C-AF93-4C4C-B6FA-A27E1603A1C9}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ejs.testme.es", "me-windows-default\ejs.testme.es.vcxproj", "{3E9F050E-A95B-4E9A-AD30-849BEC32D1B2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ejs.testme.es", "makeme-windows-default\ejs.testme.es.vcxproj", "{3E9F050E-A95B-4E9A-AD30-849BEC32D1B2}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
 	EndProjectSection
@@ -120,7 +120,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ejs.testme.es", "me-windows
 		{3E9F050E-A95B-4E9A-AD30-849BEC32D1B2} = {3E9F050E-A95B-4E9A-AD30-849BEC32D1B2}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ejs.testme.mod", "me-windows-default\ejs.testme.mod.vcxproj", "{F40A2B6C-E156-49F9-8F3B-03EF28AADE2B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ejs.testme.mod", "makeme-windows-default\ejs.testme.mod.vcxproj", "{F40A2B6C-E156-49F9-8F3B-03EF28AADE2B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
 	EndProjectSection
@@ -149,7 +149,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ejs.testme.mod", "me-window
 		{F40A2B6C-E156-49F9-8F3B-03EF28AADE2B} = {F40A2B6C-E156-49F9-8F3B-03EF28AADE2B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ejscmd", "me-windows-default\ejscmd.vcxproj", "{BC0D539C-45A0-4868-983F-D3685CA59758}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ejscmd", "makeme-windows-default\ejscmd.vcxproj", "{BC0D539C-45A0-4868-983F-D3685CA59758}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
 	EndProjectSection
@@ -172,7 +172,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ejscmd", "me-windows-defaul
 		{BC0D539C-45A0-4868-983F-D3685CA59758} = {BC0D539C-45A0-4868-983F-D3685CA59758}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "extras", "me-windows-default\extras.vcxproj", "{9E84B52C-61E3-4947-93DD-BD30D2C3D434}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "extras", "makeme-windows-default\extras.vcxproj", "{9E84B52C-61E3-4947-93DD-BD30D2C3D434}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
 	EndProjectSection
@@ -180,7 +180,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "extras", "me-windows-defaul
 		{9E84B52C-61E3-4947-93DD-BD30D2C3D434} = {9E84B52C-61E3-4947-93DD-BD30D2C3D434}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "httpcmd", "me-windows-default\httpcmd.vcxproj", "{001426E5-10E6-4ECC-986E-550254CD270D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "httpcmd", "makeme-windows-default\httpcmd.vcxproj", "{001426E5-10E6-4ECC-986E-550254CD270D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
 	EndProjectSection
@@ -197,7 +197,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "httpcmd", "me-windows-defau
 		{001426E5-10E6-4ECC-986E-550254CD270D} = {001426E5-10E6-4ECC-986E-550254CD270D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libtestme", "me-windows-default\libtestme.vcxproj", "{2A157FBB-EE06-4FCD-8ED9-2B52CDBEF6FC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libtestme", "makeme-windows-default\libtestme.vcxproj", "{2A157FBB-EE06-4FCD-8ED9-2B52CDBEF6FC}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
 	EndProjectSection
@@ -205,7 +205,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libtestme", "me-windows-def
 		{2A157FBB-EE06-4FCD-8ED9-2B52CDBEF6FC} = {2A157FBB-EE06-4FCD-8ED9-2B52CDBEF6FC}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "me.mod", "me-windows-default\me.mod.vcxproj", "{F81F9516-2ECC-4E5C-9409-289054E1FB73}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "me.mod", "makeme-windows-default\me.mod.vcxproj", "{F81F9516-2ECC-4E5C-9409-289054E1FB73}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
 	EndProjectSection
@@ -234,7 +234,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "me.mod", "me-windows-defaul
 		{F81F9516-2ECC-4E5C-9409-289054E1FB73} = {F81F9516-2ECC-4E5C-9409-289054E1FB73}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pakrun", "me-windows-default\pakrun.vcxproj", "{ED880C97-4985-44D3-8F95-7E85A8E95849}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pakrun", "makeme-windows-default\pakrun.vcxproj", "{ED880C97-4985-44D3-8F95-7E85A8E95849}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
 	EndProjectSection
@@ -242,7 +242,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pakrun", "me-windows-defaul
 		{ED880C97-4985-44D3-8F95-7E85A8E95849} = {ED880C97-4985-44D3-8F95-7E85A8E95849}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "runtime", "me-windows-default\runtime.vcxproj", "{021A2F07-F535-4F16-AC9B-5826AA765EB1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "runtime", "makeme-windows-default\runtime.vcxproj", "{021A2F07-F535-4F16-AC9B-5826AA765EB1}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
 	EndProjectSection
@@ -253,7 +253,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "runtime", "me-windows-defau
 		{021A2F07-F535-4F16-AC9B-5826AA765EB1} = {021A2F07-F535-4F16-AC9B-5826AA765EB1}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "me", "me-windows-default\me.vcxproj", "{9E40C777-A7E5-42D9-A0D2-76BEA04068BD}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "me", "makeme-windows-default\me.vcxproj", "{9E40C777-A7E5-42D9-A0D2-76BEA04068BD}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
 	EndProjectSection
@@ -291,7 +291,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "me", "me-windows-default\me
 		{9E40C777-A7E5-42D9-A0D2-76BEA04068BD} = {9E40C777-A7E5-42D9-A0D2-76BEA04068BD}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testme.mod", "me-windows-default\testme.mod.vcxproj", "{951284FC-9542-4372-8DD8-139AF6C4F589}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testme.mod", "makeme-windows-default\testme.mod.vcxproj", "{951284FC-9542-4372-8DD8-139AF6C4F589}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
 	EndProjectSection
@@ -320,7 +320,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testme.mod", "me-windows-de
 		{951284FC-9542-4372-8DD8-139AF6C4F589} = {951284FC-9542-4372-8DD8-139AF6C4F589}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testme", "me-windows-default\testme.vcxproj", "{851E0875-5AC3-4621-96CE-6915332327B1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testme", "makeme-windows-default\testme.vcxproj", "{851E0875-5AC3-4621-96CE-6915332327B1}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
 	EndProjectSection
@@ -355,7 +355,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testme", "me-windows-defaul
 		{851E0875-5AC3-4621-96CE-6915332327B1} = {851E0875-5AC3-4621-96CE-6915332327B1}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testme.es", "me-windows-default\testme.es.vcxproj", "{3B67AD0F-4093-4121-B290-DF0386240ADE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testme.es", "makeme-windows-default\testme.es.vcxproj", "{3B67AD0F-4093-4121-B290-DF0386240ADE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2DDCC749-D49B-42E6-8E4E-0CE105C6F507} = {2DDCC749-D49B-42E6-8E4E-0CE105C6F507}
 	EndProjectSection

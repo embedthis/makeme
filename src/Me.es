@@ -76,7 +76,8 @@ dynamic enumerable public class Me {
     /** Top-level scripts to execute */
     var scripts: Object = {}
 
-    /** Project top-level settings. This includes name, version, description. See settings collection below for full details. */
+    /** Project top-level settings. This includes name, version, description. See settings collection below for 
+        full details. */
     var settings: Object = {}
 
     /** Reference to the currently building target */

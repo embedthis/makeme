@@ -157,7 +157,7 @@
         </div>
         
         <div class="version desktop-only">
-            v0.8.10
+            v0.9.0
         </div>
 
     </div>
@@ -196,15 +196,16 @@
                 <tr><td>dir</td><td>Directories used by MakeMe. These must be absolute paths so that they can be used
                     when the current directory is changed while processing.
                     <ul>
-                        <li>src &mdash; Path to the top of the source to build</li>
+                        <li>work &mdash; Path to the current directory from where MakeMe is being initiated</li>
+                        <li>top &mdash; Path to the top of the source to build</li>
+                        <li>src &mdash; Path to a "src" directory under top where the pure source code lives</li>
                         <li>home &mdash; User's home directory</li>
-                        <li>top &mdash; Path to the current directory from where MakeMe is being initiated</li>
-                        <li>bld &mdash; Build directory the top directory</li>
-                        <li>out &mdash; Platform output directory under the bld directory</li>
-                        <li>bin &mdash; Platform output executables and libraries directory under the out directory</li>
-                        <li>inc &mdash; Platform includes directory/inc under the out directory</li>
-                        <li>obj &mdash; Platform objects directory under the out directory</li>
-                        <li>me &mdash; Path to the MakeMe scripts directory</li>
+                        <li>bld &mdash; Build output directory under "work"</li>
+                        <li>out &mdash; Platform output directory under the "bld" directory</li>
+                        <li>bin &mdash; Platform output executables and libraries directory under the "out" directory</li>
+                        <li>inc &mdash; Platform includes "inc" directory under the "out" directory</li>
+                        <li>obj &mdash; Platform objects directory under the "out" directory</li>
+                        <li>me &mdash; Path to the MakeMe product scripts directory</li>
                     </ul>
                 </td></tr>
                 <tr><td>env</td><td>Environment variables to set when compiling and linking</td></tr>

@@ -91,7 +91,7 @@ Removing MakeMe on Mac OS X
 
 This is the procedure to remove MakeMe on all systems except Windows.
 
-   1. Change directory to the installation directory for MakeMe. This is usually /usr/local/lib/me.
+   1. Change directory to the installation directory for MakeMe. This is usually /usr/local/lib/makeme.
 
    2. Run the uninstall script in the install directory for MakeMe by typing 
 

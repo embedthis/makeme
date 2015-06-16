@@ -108,7 +108,7 @@ if exist $(BinDir) del /Q $(BinDir)
 copy /Y simple.me $(BinDir)
 if exist $(BinDir) del /Q $(BinDir)
 copy /Y standard.me $(BinDir)
-cd ..\projects\me-windows-default</Command>
+cd ..\projects\makeme-windows-default</Command>
         <Outputs>$(BinDir)</Outputs>
       </CustomBuildStep>
   </ItemDefinitionGroup>

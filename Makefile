@@ -12,7 +12,7 @@
 #	DFLAGS and will then override the me.h default values. Use "make help" for a list of available 
 #	make variable options.
 #
-NAME    := me
+NAME    := makeme
 OS      := $(shell uname | sed 's/CYGWIN.*/windows/;s/Darwin/macosx/' | tr '[A-Z]' '[a-z]')
 PROFILE := default
 

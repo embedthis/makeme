@@ -43,9 +43,13 @@
     },
     "optionalDependencies": {
         "certs": "^0.1",
-        "mpr-openssl": "^0.1",
+        "mpr-openssl": "^0.3",
         "sqlite": "^1.0",
         "watchdog": "^0.1"
+    },
+    "devDependencies": {
+        "makeme": ">=0.9.0",
+        "pak": ">=0.11.0"
     },
     "files": [
         "dist/",
@@ -53,7 +57,7 @@
     ],
     "pak": {
         "import": true,
-        "pak": ">=0.10.0",
+        "pak": ">=0.11.0",
         "origin": "embedthis/ejs"
     }
 }

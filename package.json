@@ -1,5 +1,5 @@
 {
-    "name": "me",
+    "name": "makeme",
     "description": "Embedthis MakeMe",
     "version": "0.9.0",
     "keywords": [
@@ -20,7 +20,7 @@
     },
     "bugs": {
         "email": "dev@embedthis.com",
-        "url": "http://github.com/embedthis/me/issues"
+        "url": "http://github.com/embedthis/makeme/issues"
     },
     "licenses": [
         {
@@ -46,10 +46,12 @@
         "ssl": "^0.9"
     },
     "optionalDependencies": {
-        "mpr-openssl": "^0.1"
+        "mpr-openssl": "^0.3"
+    },
+    "devDependencies": {
+        "pak": ">=0.11.0"
     },
     "pak": {
-        "import": true,
-        "pak": ">=0.10.0"
+        "import": true
     }
 }

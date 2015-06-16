@@ -71,7 +71,7 @@ mars_mission: {
 <pre class="ui code segment">
 configure: {
     requires:  [ 'pcre' ],
-    discovers: [ 'cgi', 'dir', 'esp', 'est', 'sqlite' ],
+    discovers: [ 'cgi', 'dir', 'esp', 'sqlite' ],
     extra:     [ 'php' ],
 }
 </pre>
@@ -110,7 +110,7 @@ configure -with php=/path/to/php</pre>
         <ol>
             <li>src/paks/NAME/NAME.me</li>
             <li>~/.paks/NAME/NAME.me</li>
-            <li>/usr/local/lib/me/latest/bin/paks/NAME/NAME.me</li>
+            <li>/usr/local/lib/makeme/latest/bin/paks/NAME/NAME.me</li>
         </ol>
         <h2>Standard Components</h2>
         <p>Here is a partial list of the standard components supplied with MakeMe.</p>
@@ -145,10 +145,6 @@ configure -with php=/path/to/php</pre>
             <tr>
                 <td><a href="https://github.com/embedthis/esp">esp</a></td>
                 <td>ESP C Language Web Framework</td>
-            </tr>
-            <tr>
-                <td><a href="https://github.com/embedthis/est">est</a></td>
-                <td>Embedded Security Transport (SSL)</td>
             </tr>
             <tr>
                 <td><a href="https://github.com/embedthis/mpr">mpr</a></td>
@@ -341,7 +337,7 @@ openssl: {
         <p>Under the <em>me</em> directory will be the primary MakeMe script <em>me.es</em> and its compiled form
         <em>me.mod</em>. If you need to hack me.es, remove the me.mod file and MakeMe will utilize your modifications.
         When ready, you can compile me.es to create a new me.mod via:</p>
-        <pre class="ui code segment">/usr/local/bin/me/latest/bin/ejsc --optimize 9 --out me.mod me.es</pre>
+        <pre class="ui code segment">/usr/local/bin/makeme/latest/bin/ejsc --optimize 9 --out me.mod me.es</pre>
         <a name="samples"></a>
         <h2>Samples</h2>
         <p>Here is a sample configurable component in a separate MakeMe file.</p>
@@ -368,4 +364,4 @@ Me.load({
 </pre>
         <h2>Samples</h2>
         <p>The standard compnents are a good source of samples. View in the repository at
-        <a href="https://github.com/embedthis/me/tree/master/configure">MakeMe Components</a>.</p>
+        <a href="https://github.com/embedthis/makeme/tree/master/configure">MakeMe Components</a>.</p>

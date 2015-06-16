@@ -661,14 +661,19 @@ public class Loader {
         }
     }
 
+    public function checkVersion(path, obj) {
+        let criteria = (obj.devDependencies) ? obj.devDependencies.makeme : obj.makeme
+        if (criteria && !Version(Config.Version).acceptable(criteria)) {
+            throw path + ' requires MakeMe ' + criteria + '. MakeMe version ' + Config.Version +
+                            ' is not compatible with this requirement.' + '\n'
+        }
+    }
+
     public function getPlatformFiles(path): Array {
         let files = []
         if (path.exists) {
             global.load(expand(path, {missing: '.'}))
-            if (loadObj.makeme && !Version(Config.Version).acceptable(loadObj.makeme)) {
-                throw path + ' requires MakeMe ' + loadObj.makeme + '. MakeMe version ' + Config.Version +
-                                ' is not compatible with this requirement.' + '\n'
-            }
+            checkVersion(path, loadObj);
             platforms = loadObj.platforms
             if (platforms) {
                 for each (platform in platforms) {
@@ -793,10 +798,7 @@ public class Loader {
      */
     public function loadFile(path) {
         let obj = readFile(path)
-        if (obj.makeme && !Version(Config.Version).acceptable(obj.makeme)) {
-            throw path + ' requires MakeMe ' + obj.makeme + '. MakeMe version ' + Config.Version +
-                            ' is not compatible with this requirement.' + '\n'
-        }
+        checkVersion(path, obj)
         obj.master = true
         if (!me.platform || !me.platform.name) {
             initPlatform(obj)
@@ -837,6 +839,7 @@ public class Loader {
         let settings = me.settings
         let dir = me.dir
         if (pfile.exists) {
+            let package
             try {
                 package = pfile.readJSON()
             } catch (e) {
@@ -1275,7 +1278,7 @@ public class Loader {
         castDirPaths()
         if (options.configure) {
             /* Before configure - set default directories */
-            dir.bld  ||= App.dir.join(Loader.BUILD)
+            dir.bld  ||= dir.work.join(Loader.BUILD)
             dir.out  ||= dir.bld.join(me.platform.name)
             dir.bin  ||= dir.out.join('bin')
             dir.inc  ||= dir.out.join('inc')
