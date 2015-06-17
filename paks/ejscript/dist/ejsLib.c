@@ -37068,7 +37068,7 @@ static EjsNumber *limitToNumber(Ejs *ejs, uint64 n)
     if (n == HTTP_UNLIMITED || n > EJS_MAX_INT) {
         return ESV(infinity);
     } else {
-        return ejsCreateNumber(ejs, n);
+        return ejsCreateNumber(ejs, (MprNumber) n);
     }
 }
 
