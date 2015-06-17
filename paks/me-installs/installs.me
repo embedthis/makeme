@@ -232,7 +232,11 @@ Me.load({
                             trace('Test', 'Install is missing files: ' + missing)
                         }
                         trace('Test', me.settings.name + ' -V')
-                        assert(Cmd.run([me.prefixes.bin.join(me.settings.name), '-V']).trim() == me.settings.version)
+                        let cmd = me.settings.name
+                        if (cmd == 'ejscript') {
+                            cmd = 'ejs'
+                        }
+                        assert(Cmd.run([me.prefixes.bin.join(cmd), '-V']).trim() == me.settings.version)
                         let name = me.settings.name
                         if (name != 'makeme' && name != 'ejscript' && name != 'pak') {
                             package.uninstallPackage()
