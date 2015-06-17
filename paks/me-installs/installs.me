@@ -213,9 +213,10 @@ Me.load({
                 makeme.loader.blendFile('${ORIGIN}/manifest.me')
                 let package = Installs()
                 let name = package.packageName()
-                if (!name || !name.exists || me.settings.depth < 2) {
+                let depth = makeme.options.depth || App.getenv('BUILD_DEPTH') || me.settings.depth || 0
+                if (!name || !name.exists) {
                     trace('Test', 'testPackage -- SKIPPED (No package to install)')
-                } else if (me.settings.depth < 2) {
+                } else if (depth < 2) {
                     trace('Test', 'testPackage -- SKIPPED (Runs at depth 2 on windows or macosx)')
                 } else {
                     if (Config.OS == 'macosx' && App.uid != 0) {
