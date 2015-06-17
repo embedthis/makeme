@@ -237,6 +237,9 @@ Me.load({
                         if (cmd == 'ejscript') {
                             cmd = 'ejs'
                         }
+                        if (cmd == 'makeme') {
+                            cmd = 'me'
+                        }
                         assert(Cmd.run([me.prefixes.bin.join(cmd), '-V']).trim() == me.settings.version)
                         let name = me.settings.name
                         if (name != 'makeme' && name != 'ejscript' && name != 'pak') {
