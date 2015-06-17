@@ -31414,13 +31414,13 @@ PUBLIC void ejsDefineConfigProperties(Ejs *ejs)
     ejsDefineProperty(ejs, type, -1, N("public", "Legacy"), 0, att, ejsCreateBoolean(ejs, 0));
     ejsDefineProperty(ejs, type, -1, N("public", "SSL"), 0, att, ejsCreateBoolean(ejs, ME_COM_SSL));
     ejsDefineProperty(ejs, type, -1, N("public", "SQLITE"), 0, att, ejsCreateBoolean(ejs, ME_COM_SQLITE));
-#if defined(ME_EJS_DB)
-    ejsDefineProperty(ejs, type, -1, N("public", "DB"), 0, att, ejsCreateBoolean(ejs, ME_EJS_DB));
-    ejsDefineProperty(ejs, type, -1, N("public", "MAPPER"), 0, att, ejsCreateBoolean(ejs, ME_EJS_MAPPER));
-    ejsDefineProperty(ejs, type, -1, N("public", "WEB"), 0, att, ejsCreateBoolean(ejs, ME_EJS_WEB));
-    ejsDefineProperty(ejs, type, -1, N("public", "MAIL"), 0, att, ejsCreateBoolean(ejs, ME_EJS_MAIL));
-    ejsDefineProperty(ejs, type, -1, N("public", "TEMPLATE"), 0, att, ejsCreateBoolean(ejs, ME_EJS_TEMPLATE));
-    ejsDefineProperty(ejs, type, -1, N("public", "TAR"), 0, att, ejsCreateBoolean(ejs, ME_EJS_TAR));
+#if defined(ME_EJSCRIPT_DB)
+    ejsDefineProperty(ejs, type, -1, N("public", "DB"), 0, att, ejsCreateBoolean(ejs, ME_EJSCRIPT_DB));
+    ejsDefineProperty(ejs, type, -1, N("public", "MAPPER"), 0, att, ejsCreateBoolean(ejs, ME_EJSCRIPT_MAPPER));
+    ejsDefineProperty(ejs, type, -1, N("public", "WEB"), 0, att, ejsCreateBoolean(ejs, ME_EJSCRIPT_WEB));
+    ejsDefineProperty(ejs, type, -1, N("public", "MAIL"), 0, att, ejsCreateBoolean(ejs, ME_EJSCRIPT_MAIL));
+    ejsDefineProperty(ejs, type, -1, N("public", "TEMPLATE"), 0, att, ejsCreateBoolean(ejs, ME_EJSCRIPT_TEMPLATE));
+    ejsDefineProperty(ejs, type, -1, N("public", "TAR"), 0, att, ejsCreateBoolean(ejs, ME_EJSCRIPT_TAR));
 #endif
 
 #ifdef ME_VAPP_PREFIX
@@ -55404,7 +55404,7 @@ static void indent(MprBuf *bp, int level)
 
 
 
-#if ME_COM_SQLITE && ME_EJS_DB
+#if ME_COM_SQLITE && ME_EJSCRIPT_DB
     /* Indent to no create dependency */
     #include    "sqlite3.h"
 
@@ -55862,7 +55862,7 @@ PUBLIC int ejs_db_sqlite_Init(Ejs *ejs, MprModule *mp)
 
 #include    "me.h"
 
-#if ME_EJS_WEB
+#if ME_EJSCRIPT_WEB
 
 
 
@@ -56853,7 +56853,7 @@ void ejsConfigureHttpServerType(Ejs *ejs)
 
 #include    "me.h"
 
-#if ME_EJS_WEB
+#if ME_EJSCRIPT_WEB
 
 
 
@@ -58470,7 +58470,7 @@ void ejsConfigureRequestType(Ejs *ejs)
 
 #include    "me.h"
 
-#if ME_EJS_WEB
+#if ME_EJSCRIPT_WEB
 
 
 
@@ -58743,7 +58743,7 @@ void ejsConfigureSessionType(Ejs *ejs)
 
 #include    "me.h"
 
-#if ME_EJS_WEB
+#if ME_EJSCRIPT_WEB
 
 
 
@@ -58826,7 +58826,7 @@ int ejs_web_Init(Ejs *ejs, MprModule *mp)
 
 
 
-#if ME_EJS_ZLIB
+#if ME_EJSCRIPT_ZLIB
 
 
 
@@ -59162,7 +59162,7 @@ PUBLIC int ejs_zlib_Init(Ejs *ejs, MprModule *mp)
 {
     return ejsAddNativeModule(ejs, "ejs.zlib", configureZlibTypes, _ES_CHECKSUM_ejs_zlib, EJS_LOADER_ETERNAL);
 }
-#endif /* ME_EJS_ZLIB */
+#endif /* ME_EJSCRIPT_ZLIB */
 
 /*
     @copy   default
@@ -68012,14 +68012,14 @@ static void defineSharedTypes(Ejs *ejs)
     ejsCreateGlobalNamespaces(ejs);
     ejsAddNativeModule(ejs, "ejs", configureEjs, _ES_CHECKSUM_ejs, 0);
 
-#if ME_EJS_ONE_MODULE
-    #if ME_COM_SQLITE && ME_EJS_DB
+#if ME_EJS_ONE_MODULE || ME_EJSCRIPT_ONE_MODULE
+    #if ME_COM_SQLITE && ME_EJSCRIPT_DB
         ejs_db_sqlite_Init(ejs, NULL);
     #endif
-#if ME_EJS_WEB
+#if ME_EJSCRIPT_WEB
     ejs_web_Init(ejs, NULL);
 #endif
-#if ME_EJS_ZLIB
+#if ME_EJSCRIPT_ZLIB
     ejs_zlib_Init(ejs, NULL);
 #endif
 #endif
