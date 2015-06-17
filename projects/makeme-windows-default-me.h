@@ -66,32 +66,32 @@
 #ifndef ME_DESCRIPTION
     #define ME_DESCRIPTION "Embedthis MakeMe"
 #endif
-#ifndef ME_EJS_DB
-    #define ME_EJS_DB 1
-#endif
-#ifndef ME_EJS_MAIL
-    #define ME_EJS_MAIL 1
-#endif
-#ifndef ME_EJS_MAPPER
-    #define ME_EJS_MAPPER 1
-#endif
-#ifndef ME_EJS_SHELL
-    #define ME_EJS_SHELL 1
-#endif
-#ifndef ME_EJS_TAR
-    #define ME_EJS_TAR 1
-#endif
-#ifndef ME_EJS_TEMPLATE
-    #define ME_EJS_TEMPLATE 1
-#endif
-#ifndef ME_EJS_WEB
-    #define ME_EJS_WEB 1
-#endif
-#ifndef ME_EJS_ZLIB
-    #define ME_EJS_ZLIB 1
-#endif
 #ifndef ME_EJS_ONE_MODULE
     #define ME_EJS_ONE_MODULE 1
+#endif
+#ifndef ME_EJSCRIPT_DB
+    #define ME_EJSCRIPT_DB 1
+#endif
+#ifndef ME_EJSCRIPT_MAIL
+    #define ME_EJSCRIPT_MAIL 1
+#endif
+#ifndef ME_EJSCRIPT_MAPPER
+    #define ME_EJSCRIPT_MAPPER 1
+#endif
+#ifndef ME_EJSCRIPT_SHELL
+    #define ME_EJSCRIPT_SHELL 1
+#endif
+#ifndef ME_EJSCRIPT_TAR
+    #define ME_EJSCRIPT_TAR 1
+#endif
+#ifndef ME_EJSCRIPT_TEMPLATE
+    #define ME_EJSCRIPT_TEMPLATE 1
+#endif
+#ifndef ME_EJSCRIPT_WEB
+    #define ME_EJSCRIPT_WEB 1
+#endif
+#ifndef ME_EJSCRIPT_ZLIB
+    #define ME_EJSCRIPT_ZLIB 1
 #endif
 #ifndef ME_HTTP_PAM
     #define ME_HTTP_PAM 0
