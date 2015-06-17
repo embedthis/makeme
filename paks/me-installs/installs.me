@@ -234,7 +234,7 @@ Me.load({
                         trace('Test', me.settings.name + ' -V')
                         assert(Cmd.run([me.prefixes.bin.join(me.settings.name), '-V']).trim() == me.settings.version)
                         let name = me.settings.name
-                        if (name != 'me' && name != 'ejs' && name != 'pak') {
+                        if (name != 'makeme' && name != 'ejscript' && name != 'pak') {
                             package.uninstallPackage()
                             if (Config.OS == 'windows') App.sleep(1000)
                             if (existing = package.checkUninstalled()) {

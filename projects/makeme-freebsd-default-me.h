@@ -244,6 +244,9 @@
 #ifndef ME_COM_EJS
     #define ME_COM_EJS 1
 #endif
+#ifndef ME_COM_EJSCRIPT
+    #define ME_COM_EJSCRIPT 1
+#endif
 #ifndef ME_COM_HTTP
     #define ME_COM_HTTP 1
 #endif

@@ -1,0 +1,64 @@
+/*
+    ejscript.me -- MakeMe file for Ejscript
+ */
+
+Me.load({
+    blend: [ 'http', 'zlib' ],
+
+    settings: {
+        ejsOneModule: true,
+    },
+
+    targets: {
+        ejscript: {
+            configurable: true,
+            depends:      [ 'libejs', 'zlib' ],
+            requires:     [ 'zlib' ],
+            uses:         [ 'sqlite' ],
+        },
+
+        libejs: {
+            type:   'lib',
+            sources: [ 'ejsLib.c' ],
+            headers: [ '*.h' ],
+            depends: [ 'libhttp', 'libpcre', 'libmpr', 'libzlib' ],
+            uses:    [ 'sqlite' ],
+            ifdef:   [ 'ejscript' ],
+        },
+
+        ejscmd: {
+            pname:  'ejs',
+            path:   '${BIN}/ejs${EXE}',
+            type:   'exe',
+            sources: [ 'ejs.c' ],
+            scripts: {
+                prebuild: `
+                    if (me.settings.compiler.hasLibEdit) {
+                        me.target.libraries.push('edit')
+                    }
+                `,
+            },
+            depends: [ 'libejs' ],
+            ifdef:   [ 'ejscript' ],
+            enable: 'me.settings.ejs.shell',
+        },
+
+        ejsc: {
+            type:   'exe',
+            sources: [ 'ejsc.c' ],
+            depends: [ 'libejs' ],
+            ifdef:   [ 'ejscript' ],
+        },
+
+		'ejs.mod': {
+            files: [ 'ejs.es' ],
+            path: "${BIN}/ejs.mod",
+            build: `
+                run('"${LBIN}/ejsc" --out "${BIN}/ejs.mod" --optimize 9 --bind --require null ${FILES}')
+            `,
+            message: 'Compile: ejs.mod',
+            depends: [ 'ejsc' ],
+            ifdef:   [ 'ejscript' ],
+		}
+    }
+})

@@ -38,5 +38,5 @@ Resources
 ---
   - [Ejscript web site](http://embedthis.com/ejscript/)
   - [Embedthis web site](https://embedthis.com/)
-  - [Ejscript GitHub repository](http://github.com/embedthis/ejs)
+  - [Ejscript GitHub repository](http://github.com/embedthis/ejscript)
 

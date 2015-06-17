@@ -16,6 +16,7 @@ PATH                  := $(LBIN):$(PATH)
 
 ME_COM_COMPILER       ?= 1
 ME_COM_EJS            ?= 1
+ME_COM_EJSCRIPT       ?= 1
 ME_COM_HTTP           ?= 1
 ME_COM_LIB            ?= 1
 ME_COM_MATRIXSSL      ?= 0
@@ -41,9 +42,12 @@ endif
 ifeq ($(ME_COM_EJS),1)
     ME_COM_ZLIB := 1
 endif
+ifeq ($(ME_COM_EJSCRIPT),1)
+    ME_COM_ZLIB := 1
+endif
 
 CFLAGS                += -g -w
-DFLAGS                +=  $(patsubst %,-D%,$(filter ME_%,$(MAKEFLAGS))) -DME_COM_COMPILER=$(ME_COM_COMPILER) -DME_COM_EJS=$(ME_COM_EJS) -DME_COM_HTTP=$(ME_COM_HTTP) -DME_COM_LIB=$(ME_COM_LIB) -DME_COM_MATRIXSSL=$(ME_COM_MATRIXSSL) -DME_COM_MBEDTLS=$(ME_COM_MBEDTLS) -DME_COM_MPR=$(ME_COM_MPR) -DME_COM_NANOSSL=$(ME_COM_NANOSSL) -DME_COM_OPENSSL=$(ME_COM_OPENSSL) -DME_COM_OSDEP=$(ME_COM_OSDEP) -DME_COM_PCRE=$(ME_COM_PCRE) -DME_COM_SSL=$(ME_COM_SSL) -DME_COM_VXWORKS=$(ME_COM_VXWORKS) -DME_COM_WINSDK=$(ME_COM_WINSDK) -DME_COM_ZLIB=$(ME_COM_ZLIB) 
+DFLAGS                +=  $(patsubst %,-D%,$(filter ME_%,$(MAKEFLAGS))) -DME_COM_COMPILER=$(ME_COM_COMPILER) -DME_COM_EJS=$(ME_COM_EJS) -DME_COM_EJSCRIPT=$(ME_COM_EJSCRIPT) -DME_COM_HTTP=$(ME_COM_HTTP) -DME_COM_LIB=$(ME_COM_LIB) -DME_COM_MATRIXSSL=$(ME_COM_MATRIXSSL) -DME_COM_MBEDTLS=$(ME_COM_MBEDTLS) -DME_COM_MPR=$(ME_COM_MPR) -DME_COM_NANOSSL=$(ME_COM_NANOSSL) -DME_COM_OPENSSL=$(ME_COM_OPENSSL) -DME_COM_OSDEP=$(ME_COM_OSDEP) -DME_COM_PCRE=$(ME_COM_PCRE) -DME_COM_SSL=$(ME_COM_SSL) -DME_COM_VXWORKS=$(ME_COM_VXWORKS) -DME_COM_WINSDK=$(ME_COM_WINSDK) -DME_COM_ZLIB=$(ME_COM_ZLIB) 
 IFLAGS                += "-I$(BUILD)/inc"
 LDFLAGS               += '-Wl,-rpath,@executable_path/' '-Wl,-rpath,@loader_path/'
 LIBPATHS              += -L$(BUILD)/bin
@@ -79,12 +83,12 @@ ME_CACHE_PREFIX       ?= $(ME_ROOT_PREFIX)/var/spool/$(NAME)/cache
 ME_SRC_PREFIX         ?= $(ME_ROOT_PREFIX)$(NAME)-$(VERSION)
 
 
-ifeq ($(ME_COM_EJS),1)
+ifeq ($(ME_COM_EJSCRIPT),1)
     TARGETS           += $(BUILD)/bin/ejs.mod
 endif
 TARGETS               += $(BUILD)/bin/ejs.testme.es
 TARGETS               += $(BUILD)/bin/ejs.testme.mod
-ifeq ($(ME_COM_EJS),1)
+ifeq ($(ME_COM_EJSCRIPT),1)
     TARGETS           += $(BUILD)/bin/ejs
 endif
 TARGETS               += $(BUILD)/.extras-modified
@@ -203,7 +207,7 @@ $(BUILD)/inc/http.h: $(DEPS_4)
 #   ejs.slots.h
 #
 
-src/ejs/ejs.slots.h: $(DEPS_5)
+src/ejscript/ejs.slots.h: $(DEPS_5)
 
 #
 #   pcre.h
@@ -229,39 +233,39 @@ $(BUILD)/inc/zlib.h: $(DEPS_7)
 #
 #   ejs.h
 #
-DEPS_8 += src/ejs/ejs.h
+DEPS_8 += src/ejscript/ejs.h
 DEPS_8 += $(BUILD)/inc/me.h
 DEPS_8 += $(BUILD)/inc/osdep.h
 DEPS_8 += $(BUILD)/inc/mpr.h
 DEPS_8 += $(BUILD)/inc/http.h
-DEPS_8 += src/ejs/ejs.slots.h
+DEPS_8 += src/ejscript/ejs.slots.h
 DEPS_8 += $(BUILD)/inc/pcre.h
 DEPS_8 += $(BUILD)/inc/zlib.h
 
 $(BUILD)/inc/ejs.h: $(DEPS_8)
 	@echo '      [Copy] $(BUILD)/inc/ejs.h'
 	mkdir -p "$(BUILD)/inc"
-	cp src/ejs/ejs.h $(BUILD)/inc/ejs.h
+	cp src/ejscript/ejs.h $(BUILD)/inc/ejs.h
 
 #
 #   ejs.slots.h
 #
-DEPS_9 += src/ejs/ejs.slots.h
+DEPS_9 += src/ejscript/ejs.slots.h
 
 $(BUILD)/inc/ejs.slots.h: $(DEPS_9)
 	@echo '      [Copy] $(BUILD)/inc/ejs.slots.h'
 	mkdir -p "$(BUILD)/inc"
-	cp src/ejs/ejs.slots.h $(BUILD)/inc/ejs.slots.h
+	cp src/ejscript/ejs.slots.h $(BUILD)/inc/ejs.slots.h
 
 #
 #   ejsByteGoto.h
 #
-DEPS_10 += src/ejs/ejsByteGoto.h
+DEPS_10 += src/ejscript/ejsByteGoto.h
 
 $(BUILD)/inc/ejsByteGoto.h: $(DEPS_10)
 	@echo '      [Copy] $(BUILD)/inc/ejsByteGoto.h'
 	mkdir -p "$(BUILD)/inc"
-	cp src/ejs/ejsByteGoto.h $(BUILD)/inc/ejsByteGoto.h
+	cp src/ejscript/ejsByteGoto.h $(BUILD)/inc/ejsByteGoto.h
 
 #
 #   testme.h
@@ -277,40 +281,40 @@ $(BUILD)/inc/testme.h: $(DEPS_11)
 #   ejs.h
 #
 
-src/ejs/ejs.h: $(DEPS_12)
+src/ejscript/ejs.h: $(DEPS_12)
 
 #
 #   ejs.o
 #
-DEPS_13 += src/ejs/ejs.h
+DEPS_13 += src/ejscript/ejs.h
 
 $(BUILD)/obj/ejs.o: \
-    src/ejs/ejs.c $(DEPS_13)
+    src/ejscript/ejs.c $(DEPS_13)
 	@echo '   [Compile] $(BUILD)/obj/ejs.o'
-	$(CC) -c $(DFLAGS) -o $(BUILD)/obj/ejs.o -arch $(CC_ARCH) $(CFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/ejs/ejs.c
+	$(CC) -c $(DFLAGS) -o $(BUILD)/obj/ejs.o -arch $(CC_ARCH) $(CFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/ejscript/ejs.c
 
 #
 #   ejsLib.o
 #
-DEPS_14 += src/ejs/ejs.h
+DEPS_14 += src/ejscript/ejs.h
 DEPS_14 += $(BUILD)/inc/mpr.h
 DEPS_14 += $(BUILD)/inc/pcre.h
 DEPS_14 += $(BUILD)/inc/me.h
 
 $(BUILD)/obj/ejsLib.o: \
-    src/ejs/ejsLib.c $(DEPS_14)
+    src/ejscript/ejsLib.c $(DEPS_14)
 	@echo '   [Compile] $(BUILD)/obj/ejsLib.o'
-	$(CC) -c $(DFLAGS) -o $(BUILD)/obj/ejsLib.o -arch $(CC_ARCH) $(CFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/ejs/ejsLib.c
+	$(CC) -c $(DFLAGS) -o $(BUILD)/obj/ejsLib.o -arch $(CC_ARCH) $(CFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/ejscript/ejsLib.c
 
 #
 #   ejsc.o
 #
-DEPS_15 += src/ejs/ejs.h
+DEPS_15 += src/ejscript/ejs.h
 
 $(BUILD)/obj/ejsc.o: \
-    src/ejs/ejsc.c $(DEPS_15)
+    src/ejscript/ejsc.c $(DEPS_15)
 	@echo '   [Compile] $(BUILD)/obj/ejsc.o'
-	$(CC) -c $(DFLAGS) -o $(BUILD)/obj/ejsc.o -arch $(CC_ARCH) $(CFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/ejs/ejsc.c
+	$(CC) -c $(DFLAGS) -o $(BUILD)/obj/ejsc.o -arch $(CC_ARCH) $(CFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/ejscript/ejsc.c
 
 #
 #   http.h
@@ -565,7 +569,7 @@ $(BUILD)/bin/libhttp.dylib: $(DEPS_34)
 	$(CC) -dynamiclib -o $(BUILD)/bin/libhttp.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)  -install_name @rpath/libhttp.dylib -compatibility_version 0.9 -current_version 0.9 "$(BUILD)/obj/httpLib.o" $(LIBPATHS_34) $(LIBS_34) $(LIBS_34) $(LIBS) 
 endif
 
-ifeq ($(ME_COM_EJS),1)
+ifeq ($(ME_COM_EJSCRIPT),1)
 #
 #   libejs
 #
@@ -628,7 +632,7 @@ $(BUILD)/bin/libejs.dylib: $(DEPS_35)
 	$(CC) -dynamiclib -o $(BUILD)/bin/libejs.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)  -install_name @rpath/libejs.dylib -compatibility_version 0.9 -current_version 0.9 "$(BUILD)/obj/ejsLib.o" $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) 
 endif
 
-ifeq ($(ME_COM_EJS),1)
+ifeq ($(ME_COM_EJSCRIPT),1)
 #
 #   ejsc
 #
@@ -680,17 +684,18 @@ $(BUILD)/bin/ejsc: $(DEPS_36)
 	$(CC) -o $(BUILD)/bin/ejsc -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/ejsc.o" $(LIBPATHS_36) $(LIBS_36) $(LIBS_36) $(LIBS) 
 endif
 
-ifeq ($(ME_COM_EJS),1)
+ifeq ($(ME_COM_EJSCRIPT),1)
 #
 #   ejs.mod
 #
-DEPS_37 += src/ejs/ejs.es
+DEPS_37 += src/ejscript/ejs.es
 DEPS_37 += $(BUILD)/bin/ejsc
 
 $(BUILD)/bin/ejs.mod: $(DEPS_37)
 	( \
-	cd src/ejs; \
+	cd src/ejscript; \
 	echo '   [Compile] ejs.mod' ; \
+	"../../$(BUILD)/bin/ejsc" --out "../../$(BUILD)/bin/ejs.mod" --optimize 9 --bind --require null ejs.es ; \
 	"../../$(BUILD)/bin/ejsc" --out "../../$(BUILD)/bin/ejs.mod" --optimize 9 --bind --require null ejs.es ; \
 	)
 endif
@@ -709,7 +714,7 @@ $(BUILD)/bin/ejs.testme.es: $(DEPS_38)
 #   ejs.testme.mod
 #
 DEPS_39 += src/tm/ejs.testme.es
-ifeq ($(ME_COM_EJS),1)
+ifeq ($(ME_COM_EJSCRIPT),1)
     DEPS_39 += $(BUILD)/bin/ejs.mod
 endif
 
@@ -720,7 +725,7 @@ $(BUILD)/bin/ejs.testme.mod: $(DEPS_39)
 	"../../$(BUILD)/bin/ejsc" --debug --out "../../$(BUILD)/bin/ejs.testme.mod" --optimize 9 ejs.testme.es ; \
 	)
 
-ifeq ($(ME_COM_EJS),1)
+ifeq ($(ME_COM_EJSCRIPT),1)
 #
 #   ejscmd
 #
@@ -880,7 +885,7 @@ DEPS_45 += src/Me.es
 DEPS_45 += src/Script.es
 DEPS_45 += src/Target.es
 DEPS_45 += paks/ejs-version/Version.es
-ifeq ($(ME_COM_EJS),1)
+ifeq ($(ME_COM_EJSCRIPT),1)
     DEPS_45 += $(BUILD)/bin/ejs.mod
 endif
 
@@ -981,7 +986,7 @@ DEPS_48 += $(BUILD)/bin/libmpr.dylib
 ifeq ($(ME_COM_HTTP),1)
     DEPS_48 += $(BUILD)/bin/libhttp.dylib
 endif
-ifeq ($(ME_COM_EJS),1)
+ifeq ($(ME_COM_EJSCRIPT),1)
     DEPS_48 += $(BUILD)/bin/libejs.dylib
 endif
 DEPS_48 += $(BUILD)/bin/me.mod
@@ -1023,7 +1028,7 @@ ifeq ($(ME_COM_PCRE),1)
     LIBS_48 += -lpcre
 endif
 LIBS_48 += -lmpr
-ifeq ($(ME_COM_EJS),1)
+ifeq ($(ME_COM_EJSCRIPT),1)
     LIBS_48 += -lejs
 endif
 ifeq ($(ME_COM_HTTP),1)
@@ -1038,7 +1043,7 @@ $(BUILD)/bin/me: $(DEPS_48)
 #   testme.mod
 #
 DEPS_49 += src/tm/testme.es
-ifeq ($(ME_COM_EJS),1)
+ifeq ($(ME_COM_EJSCRIPT),1)
     DEPS_49 += $(BUILD)/bin/ejs.mod
 endif
 
@@ -1052,7 +1057,7 @@ $(BUILD)/bin/testme.mod: $(DEPS_49)
 #
 #   testme
 #
-ifeq ($(ME_COM_EJS),1)
+ifeq ($(ME_COM_EJSCRIPT),1)
     DEPS_50 += $(BUILD)/bin/libejs.dylib
 endif
 DEPS_50 += $(BUILD)/bin/testme.mod
@@ -1094,7 +1099,7 @@ ifeq ($(ME_COM_PCRE),1)
     LIBS_50 += -lpcre
 endif
 LIBS_50 += -lmpr
-ifeq ($(ME_COM_EJS),1)
+ifeq ($(ME_COM_EJSCRIPT),1)
     LIBS_50 += -lejs
 endif
 ifeq ($(ME_COM_HTTP),1)

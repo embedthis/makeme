@@ -107,7 +107,7 @@
     </PropertyGroup>
   
       <ItemGroup>
-    <ClCompile Include="..\..\src\ejs\ejs.c" />
+    <ClCompile Include="..\..\src\ejscript\ejs.c" />
   </ItemGroup>
 
       <ItemDefinitionGroup>

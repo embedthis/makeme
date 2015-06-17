@@ -36,6 +36,9 @@ ME_COM_COMPILER       = 1
 !IF "$(ME_COM_EJS)" == ""
 ME_COM_EJS            = 1
 !ENDIF
+!IF "$(ME_COM_EJSCRIPT)" == ""
+ME_COM_EJSCRIPT       = 1
+!ENDIF
 !IF "$(ME_COM_HTTP)" == ""
 ME_COM_HTTP           = 1
 !ENDIF
@@ -106,12 +109,16 @@ ME_COM_WINSDK         = 1
 ME_COM_ZLIB           = 1
 !ENDIF
 
+!IF "$(ME_COM_ZLIB)" == ""
+ME_COM_ZLIB           = 1
+!ENDIF
+
 
 CC                    = cl
 LD                    = link
 RC                    = rc
 CFLAGS                = -nologo -GR- -W3 -Zi -Od -MDd
-DFLAGS                = -D_REENTRANT -D_MT -DME_COM_COMPILER=$(ME_COM_COMPILER) -DME_COM_EJS=$(ME_COM_EJS) -DME_COM_HTTP=$(ME_COM_HTTP) -DME_COM_LIB=$(ME_COM_LIB) -DME_COM_LINK=$(ME_COM_LINK) -DME_COM_MATRIXSSL=$(ME_COM_MATRIXSSL) -DME_COM_MBEDTLS=$(ME_COM_MBEDTLS) -DME_COM_MPR=$(ME_COM_MPR) -DME_COM_NANOSSL=$(ME_COM_NANOSSL) -DME_COM_OPENSSL=$(ME_COM_OPENSSL) -DME_COM_OSDEP=$(ME_COM_OSDEP) -DME_COM_PCRE=$(ME_COM_PCRE) -DME_COM_RC=$(ME_COM_RC) -DME_COM_SSL=$(ME_COM_SSL) -DME_COM_VXWORKS=$(ME_COM_VXWORKS) -DME_COM_WINSDK=$(ME_COM_WINSDK) -DME_COM_ZLIB=$(ME_COM_ZLIB) 
+DFLAGS                = -D_REENTRANT -D_MT -DME_COM_COMPILER=$(ME_COM_COMPILER) -DME_COM_EJS=$(ME_COM_EJS) -DME_COM_EJSCRIPT=$(ME_COM_EJSCRIPT) -DME_COM_HTTP=$(ME_COM_HTTP) -DME_COM_LIB=$(ME_COM_LIB) -DME_COM_LINK=$(ME_COM_LINK) -DME_COM_MATRIXSSL=$(ME_COM_MATRIXSSL) -DME_COM_MBEDTLS=$(ME_COM_MBEDTLS) -DME_COM_MPR=$(ME_COM_MPR) -DME_COM_NANOSSL=$(ME_COM_NANOSSL) -DME_COM_OPENSSL=$(ME_COM_OPENSSL) -DME_COM_OSDEP=$(ME_COM_OSDEP) -DME_COM_PCRE=$(ME_COM_PCRE) -DME_COM_RC=$(ME_COM_RC) -DME_COM_SSL=$(ME_COM_SSL) -DME_COM_VXWORKS=$(ME_COM_VXWORKS) -DME_COM_WINSDK=$(ME_COM_WINSDK) -DME_COM_ZLIB=$(ME_COM_ZLIB) 
 IFLAGS                = -Ibuild\$(CONFIG)\inc
 LDFLAGS               = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
 LIBPATHS              = "-libpath:$(BUILD)\bin"
@@ -135,12 +142,12 @@ ME_CACHE_PREFIX       = $(ME_VAPP_PREFIX)\cache
 ME_SRC_PREFIX         = $(ME_VAPP_PREFIX)\src
 
 
-!IF "$(ME_COM_EJS)" == "1"
+!IF "$(ME_COM_EJSCRIPT)" == "1"
 TARGETS               = $(TARGETS) build\$(CONFIG)\bin\ejs.mod
 !ENDIF
 TARGETS               = $(TARGETS) build\$(CONFIG)\bin\ejs.testme.es
 TARGETS               = $(TARGETS) build\$(CONFIG)\bin\ejs.testme.mod
-!IF "$(ME_COM_EJS)" == "1"
+!IF "$(ME_COM_EJSCRIPT)" == "1"
 TARGETS               = $(TARGETS) build\$(CONFIG)\bin\ejs.exe
 !ENDIF
 TARGETS               = $(TARGETS) build\$(CONFIG)\.extras-modified
@@ -518,65 +525,65 @@ build\$(CONFIG)\bin\libhttp.dll: $(DEPS_20)
 #   ejs.slots.h
 #
 
-src\ejs\ejs.slots.h: $(DEPS_21)
+src\ejscript\ejs.slots.h: $(DEPS_21)
 
 #
 #   ejs.h
 #
-DEPS_22 = $(DEPS_22) src\ejs\ejs.h
+DEPS_22 = $(DEPS_22) src\ejscript\ejs.h
 DEPS_22 = $(DEPS_22) build\$(CONFIG)\inc\me.h
 DEPS_22 = $(DEPS_22) build\$(CONFIG)\inc\osdep.h
 DEPS_22 = $(DEPS_22) build\$(CONFIG)\inc\mpr.h
 DEPS_22 = $(DEPS_22) build\$(CONFIG)\inc\http.h
-DEPS_22 = $(DEPS_22) src\ejs\ejs.slots.h
+DEPS_22 = $(DEPS_22) src\ejscript\ejs.slots.h
 DEPS_22 = $(DEPS_22) build\$(CONFIG)\inc\pcre.h
 DEPS_22 = $(DEPS_22) build\$(CONFIG)\inc\zlib.h
 
 build\$(CONFIG)\inc\ejs.h: $(DEPS_22)
 	@echo ..... [Copy] build\$(CONFIG)\inc\ejs.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y /B src\ejs\ejs.h+modified build\$(CONFIG)\inc\ejs.h $(LOG)
+	copy /Y /B src\ejscript\ejs.h+modified build\$(CONFIG)\inc\ejs.h $(LOG)
 
 #
 #   ejs.slots.h
 #
-DEPS_23 = $(DEPS_23) src\ejs\ejs.slots.h
+DEPS_23 = $(DEPS_23) src\ejscript\ejs.slots.h
 
 build\$(CONFIG)\inc\ejs.slots.h: $(DEPS_23)
 	@echo ..... [Copy] build\$(CONFIG)\inc\ejs.slots.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y /B src\ejs\ejs.slots.h+modified build\$(CONFIG)\inc\ejs.slots.h $(LOG)
+	copy /Y /B src\ejscript\ejs.slots.h+modified build\$(CONFIG)\inc\ejs.slots.h $(LOG)
 
 #
 #   ejsByteGoto.h
 #
-DEPS_24 = $(DEPS_24) src\ejs\ejsByteGoto.h
+DEPS_24 = $(DEPS_24) src\ejscript\ejsByteGoto.h
 
 build\$(CONFIG)\inc\ejsByteGoto.h: $(DEPS_24)
 	@echo ..... [Copy] build\$(CONFIG)\inc\ejsByteGoto.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y /B src\ejs\ejsByteGoto.h+modified build\$(CONFIG)\inc\ejsByteGoto.h $(LOG)
+	copy /Y /B src\ejscript\ejsByteGoto.h+modified build\$(CONFIG)\inc\ejsByteGoto.h $(LOG)
 
 #
 #   ejs.h
 #
 
-src\ejs\ejs.h: $(DEPS_25)
+src\ejscript\ejs.h: $(DEPS_25)
 
 #
 #   ejsLib.obj
 #
-DEPS_26 = $(DEPS_26) src\ejs\ejs.h
+DEPS_26 = $(DEPS_26) src\ejscript\ejs.h
 DEPS_26 = $(DEPS_26) build\$(CONFIG)\inc\mpr.h
 DEPS_26 = $(DEPS_26) build\$(CONFIG)\inc\pcre.h
 DEPS_26 = $(DEPS_26) build\$(CONFIG)\inc\me.h
 
 build\$(CONFIG)\obj\ejsLib.obj: \
-    src\ejs\ejsLib.c $(DEPS_26)
+    src\ejscript\ejsLib.c $(DEPS_26)
 	@echo .. [Compile] build\$(CONFIG)\obj\ejsLib.obj
-	"$(CC)" -c -Fo$(BUILD)\obj\ejsLib.obj -Fd$(BUILD)\obj\ejsLib.pdb $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" src\ejs\ejsLib.c $(LOG)
+	"$(CC)" -c -Fo$(BUILD)\obj\ejsLib.obj -Fd$(BUILD)\obj\ejsLib.pdb $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" src\ejscript\ejsLib.c $(LOG)
 
-!IF "$(ME_COM_EJS)" == "1"
+!IF "$(ME_COM_EJSCRIPT)" == "1"
 #
 #   libejs
 #
@@ -644,14 +651,14 @@ build\$(CONFIG)\bin\libejs.dll: $(DEPS_27)
 #
 #   ejsc.obj
 #
-DEPS_28 = $(DEPS_28) src\ejs\ejs.h
+DEPS_28 = $(DEPS_28) src\ejscript\ejs.h
 
 build\$(CONFIG)\obj\ejsc.obj: \
-    src\ejs\ejsc.c $(DEPS_28)
+    src\ejscript\ejsc.c $(DEPS_28)
 	@echo .. [Compile] build\$(CONFIG)\obj\ejsc.obj
-	"$(CC)" -c -Fo$(BUILD)\obj\ejsc.obj -Fd$(BUILD)\obj\ejsc.pdb $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" src\ejs\ejsc.c $(LOG)
+	"$(CC)" -c -Fo$(BUILD)\obj\ejsc.obj -Fd$(BUILD)\obj\ejsc.pdb $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" src\ejscript\ejsc.c $(LOG)
 
-!IF "$(ME_COM_EJS)" == "1"
+!IF "$(ME_COM_EJSCRIPT)" == "1"
 #
 #   ejsc
 #
@@ -705,16 +712,17 @@ build\$(CONFIG)\bin\ejsc.exe: $(DEPS_29)
 	"$(LD)" -nologo -out:$(BUILD)\bin\ejsc.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\ejsc.obj" $(LIBPATHS_29) $(LIBS_29) $(LIBS_29) $(LIBS)  $(LOG)
 !ENDIF
 
-!IF "$(ME_COM_EJS)" == "1"
+!IF "$(ME_COM_EJSCRIPT)" == "1"
 #
 #   ejs.mod
 #
-DEPS_30 = $(DEPS_30) src\ejs\ejs.es
+DEPS_30 = $(DEPS_30) src\ejscript\ejs.es
 DEPS_30 = $(DEPS_30) build\$(CONFIG)\bin\ejsc.exe
 
 build\$(CONFIG)\bin\ejs.mod: $(DEPS_30)
-	cd src\ejs
+	cd src\ejscript
 	@echo .. [Compile] ejs.mod
+	"../../$(BUILD)/bin/ejsc" --out "../../$(BUILD)/bin/ejs.mod" --optimize 9 --bind --require null ejs.es
 	"../../$(BUILD)/bin/ejsc" --out "../../$(BUILD)/bin/ejs.mod" --optimize 9 --bind --require null ejs.es
 	cd ..\..
 !ENDIF
@@ -733,7 +741,7 @@ build\$(CONFIG)\bin\ejs.testme.es: $(DEPS_31)
 #   ejs.testme.mod
 #
 DEPS_32 = $(DEPS_32) src\tm\ejs.testme.es
-!IF "$(ME_COM_EJS)" == "1"
+!IF "$(ME_COM_EJSCRIPT)" == "1"
 DEPS_32 = $(DEPS_32) build\$(CONFIG)\bin\ejs.mod
 !ENDIF
 
@@ -746,14 +754,14 @@ build\$(CONFIG)\bin\ejs.testme.mod: $(DEPS_32)
 #
 #   ejs.obj
 #
-DEPS_33 = $(DEPS_33) src\ejs\ejs.h
+DEPS_33 = $(DEPS_33) src\ejscript\ejs.h
 
 build\$(CONFIG)\obj\ejs.obj: \
-    src\ejs\ejs.c $(DEPS_33)
+    src\ejscript\ejs.c $(DEPS_33)
 	@echo .. [Compile] build\$(CONFIG)\obj\ejs.obj
-	"$(CC)" -c -Fo$(BUILD)\obj\ejs.obj -Fd$(BUILD)\obj\ejs.pdb $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" src\ejs\ejs.c $(LOG)
+	"$(CC)" -c -Fo$(BUILD)\obj\ejs.obj -Fd$(BUILD)\obj\ejs.pdb $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" src\ejscript\ejs.c $(LOG)
 
-!IF "$(ME_COM_EJS)" == "1"
+!IF "$(ME_COM_EJSCRIPT)" == "1"
 #
 #   ejscmd
 #
@@ -953,7 +961,7 @@ DEPS_43 = $(DEPS_43) src\Me.es
 DEPS_43 = $(DEPS_43) src\Script.es
 DEPS_43 = $(DEPS_43) src\Target.es
 DEPS_43 = $(DEPS_43) paks\ejs-version\Version.es
-!IF "$(ME_COM_EJS)" == "1"
+!IF "$(ME_COM_EJSCRIPT)" == "1"
 DEPS_43 = $(DEPS_43) build\$(CONFIG)\bin\ejs.mod
 !ENDIF
 
@@ -1064,7 +1072,7 @@ DEPS_47 = $(DEPS_47) build\$(CONFIG)\bin\libmpr.dll
 !IF "$(ME_COM_HTTP)" == "1"
 DEPS_47 = $(DEPS_47) build\$(CONFIG)\bin\libhttp.dll
 !ENDIF
-!IF "$(ME_COM_EJS)" == "1"
+!IF "$(ME_COM_EJSCRIPT)" == "1"
 DEPS_47 = $(DEPS_47) build\$(CONFIG)\bin\libejs.dll
 !ENDIF
 DEPS_47 = $(DEPS_47) build\$(CONFIG)\bin\me.mod
@@ -1108,7 +1116,7 @@ LIBS_47 = $(LIBS_47) libhttp.lib
 LIBS_47 = $(LIBS_47) libpcre.lib
 !ENDIF
 LIBS_47 = $(LIBS_47) libmpr.lib
-!IF "$(ME_COM_EJS)" == "1"
+!IF "$(ME_COM_EJSCRIPT)" == "1"
 LIBS_47 = $(LIBS_47) libejs.lib
 !ENDIF
 !IF "$(ME_COM_HTTP)" == "1"
@@ -1123,7 +1131,7 @@ build\$(CONFIG)\bin\me.exe: $(DEPS_47)
 #   testme.mod
 #
 DEPS_48 = $(DEPS_48) src\tm\testme.es
-!IF "$(ME_COM_EJS)" == "1"
+!IF "$(ME_COM_EJSCRIPT)" == "1"
 DEPS_48 = $(DEPS_48) build\$(CONFIG)\bin\ejs.mod
 !ENDIF
 
@@ -1146,7 +1154,7 @@ build\$(CONFIG)\obj\testme.obj: \
 #
 #   testme
 #
-!IF "$(ME_COM_EJS)" == "1"
+!IF "$(ME_COM_EJSCRIPT)" == "1"
 DEPS_50 = $(DEPS_50) build\$(CONFIG)\bin\libejs.dll
 !ENDIF
 DEPS_50 = $(DEPS_50) build\$(CONFIG)\bin\testme.mod
@@ -1190,7 +1198,7 @@ LIBS_50 = $(LIBS_50) libhttp.lib
 LIBS_50 = $(LIBS_50) libpcre.lib
 !ENDIF
 LIBS_50 = $(LIBS_50) libmpr.lib
-!IF "$(ME_COM_EJS)" == "1"
+!IF "$(ME_COM_EJSCRIPT)" == "1"
 LIBS_50 = $(LIBS_50) libejs.lib
 !ENDIF
 !IF "$(ME_COM_HTTP)" == "1"

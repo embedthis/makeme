@@ -2,7 +2,7 @@
  * Embedthis Ejscript Library Source
  */
 #include "me.h"
-#if ME_COM_EJS
+#if ME_COM_EJSCRIPT
 
 #undef PRINTF_ATTRIBUTE
 #define PRINTF_ATTRIBUTE(x,y)
@@ -7170,4 +7170,4 @@ PUBLIC void     ecAdjustCodeLength(EcCompiler *cp, int adj);
     @end
  */
 
-#endif /* ME_COM_EJS */
+#endif /* ME_COM_EJSCRIPT */

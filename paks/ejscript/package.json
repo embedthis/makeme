@@ -1,15 +1,15 @@
 {
-    "name": "ejs",
+    "name": "ejscript",
     "description": "Embedthis Ejscript Javascript Language",
     "title": "Embedthis Ejscript",
-    "version": "2.5.4",
+    "version": "2.6.0",
     "keywords": [
         "ejs",
         "ejscript",
         "javascript",
         "ecmascript"
     ],
-    "homepage": "https://embedthis.com/ejs/",
+    "homepage": "https://embedthis.com/ejscript/",
     "author": {
         "name": "Embedthis Software",
         "email": "dev@embedthis.com",
@@ -17,11 +17,11 @@
     },
     "repository": {
         "type": "git",
-        "url": "git://github.com/embedthis/ejs.git"
+        "url": "git://github.com/embedthis/ejscript.git"
     },
     "bugs": {
         "email": "dev@embedthis.com",
-        "url": "http://github.com/embedthis/ejs/issues"
+        "url": "http://github.com/embedthis/ejscript/issues"
     },
     "licenses": [
         {
@@ -58,6 +58,6 @@
     "pak": {
         "import": true,
         "pak": ">=0.11.0",
-        "origin": "embedthis/ejs"
+        "origin": "embedthis/ejscript"
     }
 }

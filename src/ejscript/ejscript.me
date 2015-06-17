@@ -1,5 +1,5 @@
 /*
-    ejs.me -- MakeMe file for Ejscript
+    ejscript.me -- MakeMe file for Ejscript
  */
 
 Me.load({
@@ -10,7 +10,7 @@ Me.load({
     },
 
     targets: {
-        ejs: {
+        ejscript: {
             configurable: true,
             depends:      [ 'libejs', 'zlib' ],
             requires:     [ 'zlib' ],
@@ -23,7 +23,7 @@ Me.load({
             headers: [ '*.h' ],
             depends: [ 'libhttp', 'libpcre', 'libmpr', 'libzlib' ],
             uses:    [ 'sqlite' ],
-            ifdef:   [ 'ejs' ],
+            ifdef:   [ 'ejscript' ],
         },
 
         ejscmd: {
@@ -39,7 +39,7 @@ Me.load({
                 `,
             },
             depends: [ 'libejs' ],
-            ifdef:   [ 'ejs' ],
+            ifdef:   [ 'ejscript' ],
             enable: 'me.settings.ejs.shell',
         },
 
@@ -47,7 +47,7 @@ Me.load({
             type:   'exe',
             sources: [ 'ejsc.c' ],
             depends: [ 'libejs' ],
-            ifdef:   [ 'ejs' ],
+            ifdef:   [ 'ejscript' ],
         },
 
 		'ejs.mod': {
@@ -58,7 +58,7 @@ Me.load({
             `,
             message: 'Compile: ejs.mod',
             depends: [ 'ejsc' ],
-            ifdef:   [ 'ejs' ],
+            ifdef:   [ 'ejscript' ],
 		}
     }
 })

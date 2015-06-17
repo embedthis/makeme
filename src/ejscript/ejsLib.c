@@ -4,7 +4,7 @@
 #define EJS_DEFINE_OPTABLE 1
 #include "ejs.h"
 
-#if ME_COM_EJS
+#if ME_COM_EJSCRIPT
 
 
 
@@ -70299,4 +70299,4 @@ PUBLIC void stubManager() {
     @end
  */
 
-#endif /* ME_COM_EJS */
+#endif /* ME_COM_EJSCRIPT */

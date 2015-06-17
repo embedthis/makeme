@@ -104,7 +104,7 @@
   </PropertyGroup>
   
       <ItemGroup>
-    <ClCompile Include="..\..\src\ejs\ejsLib.c" />
+    <ClCompile Include="..\..\src\ejscript\ejsLib.c" />
   </ItemGroup>
 
       <ItemGroup>
@@ -126,7 +126,7 @@
       </Link>
 
       <CustomBuildStep>
-        <Command>cd ..\..\src\ejs
+        <Command>cd ..\..\src\ejscript
 copy /Y /B ejs.h $(IncDir)
 copy /Y /B ejs.slots.h $(IncDir)
 copy /Y /B ejsByteGoto.h $(IncDir)
