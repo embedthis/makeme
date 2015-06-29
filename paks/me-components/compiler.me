@@ -357,6 +357,10 @@ function compile(cc: Path, command: String, contents: String = null): Boolean {
             file.write(contents + '\n')
             command += ' -c ' + file
         }
+        let cc = 'cc'
+        if (me.platform.cross) {
+            cc = App.getenv('CC') || cc
+        }
         command = '' + cc + ' -Werror -Wall ' + command
         strace('Compile', command)
         strace('Program', contents)
