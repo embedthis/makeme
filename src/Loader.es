@@ -1282,7 +1282,8 @@ public class Loader {
             dir.out  ||= dir.bld.join(me.platform.name)
             dir.bin  ||= dir.out.join('bin')
             dir.inc  ||= dir.out.join('inc')
-            dir.lbin ||= (options.gen || me.platform.os == Config.OS) ? dir.bin : dir.bld.join(localPlatform, 'bin')
+            dir.lbin ||= (options.gen || (me.platform.os == Config.OS && me.platform.arch == Config.CPU)) ? 
+                dir.bin : dir.bld.join(localPlatform, 'bin')
             if (!dir.top.join('lib').exists && dir.top.join('src').exists) {
                 dir.lib  ||= dir.top.join('src')
             } else {
@@ -1406,7 +1407,7 @@ public class Loader {
         if (!goals.contains(target.name)) {
             goals.push(target.name.toString())
         }
-        target.goals = goals
+        target.goals ||= goals
     }
 
     function setTargetPath(target) {
