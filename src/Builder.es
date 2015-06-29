@@ -217,6 +217,7 @@ public class Builder {
             } else {
                 trace('Copy', target.path.compact())
             }
+            target.path.dirname.makeDir()
             target.verbose = true
             copyFiles(files, target.path, target)
             if (target.modify) {
