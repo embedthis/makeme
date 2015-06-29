@@ -16,6 +16,7 @@ enumerable class TestMe {
     var originalDir: Path                   //  Original current directory
     var mebin: Path                         //  Directory containing "me"
 
+    var ejsVersion: String                  //  The ejs command version
     var keepGoing: Boolean = false          //  Continue on errors 
     var topEnv: Object = {}                 //  Global env to pass to tests
     var filters: Array = []                 //  Filter tests by pattern x.y.z... 
@@ -195,6 +196,7 @@ enumerable class TestMe {
         } else {
             topTestDir = topDir
         }
+        ejsVersion = Cmd.run('ejs -V').trim()
     }
 
     function setupEnv() {
@@ -587,7 +589,7 @@ Me.load({
         let c = tm.join(name).joinExt('c')
 
         let exe, command
-        if (ext == 'es') {
+        if (ext == 'es' || ext == 'js') {
             if (file.extension == 'com') {
                 let ejsc = mebin.join('ejsc')
                 let mod = Path(name).joinExt('mod', true)
@@ -609,7 +611,11 @@ Me.load({
                 if (options.trace) {
                     switches += ' --trace ' + options.trace
                 }
-                command = mebin.join('ejs') + ' --require ejs.testme ' + switches + ' ' + file
+                if (ejsVersion[0] >= '3' && topDir.basename == 'ejscript') {
+                    command = mebin.join('ejs') + switches + ' ' + file
+                } else {
+                    command = mebin.join('ejs') + ' --require ejs.testme ' + switches + ' ' + file
+                }
             }
         } else if (ext == 'c') {
             exe = tm.join(name)
