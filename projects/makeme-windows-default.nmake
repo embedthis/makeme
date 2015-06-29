@@ -3,7 +3,7 @@
 #
 
 NAME                  = makeme
-VERSION               = 0.9.0
+VERSION               = 0.9.1
 
 OS                    = windows
 PA                    = $(PROCESSOR_ARCHITECTURE)
@@ -975,6 +975,7 @@ build\$(CONFIG)\bin\me.mod: $(DEPS_43)
 DEPS_44 = $(DEPS_44) paks\me-components\appweb.me
 DEPS_44 = $(DEPS_44) paks\me-components\compiler.me
 DEPS_44 = $(DEPS_44) paks\me-components\components.me
+DEPS_44 = $(DEPS_44) paks\me-components\ejscript.me
 DEPS_44 = $(DEPS_44) paks\me-components\lib.me
 DEPS_44 = $(DEPS_44) paks\me-components\link.me
 DEPS_44 = $(DEPS_44) paks\me-components\rc.me
@@ -1006,6 +1007,7 @@ build\$(CONFIG)\.pakrun-modified: $(DEPS_44)
 	copy /Y /B paks\me-components\appweb.me+modified build\$(CONFIG)\bin\paks\me-components\appweb.me $(LOG)
 	copy /Y /B paks\me-components\compiler.me+modified build\$(CONFIG)\bin\paks\me-components\compiler.me $(LOG)
 	copy /Y /B paks\me-components\components.me+modified build\$(CONFIG)\bin\paks\me-components\components.me $(LOG)
+	copy /Y /B paks\me-components\ejscript.me+modified build\$(CONFIG)\bin\paks\me-components\ejscript.me $(LOG)
 	copy /Y /B paks\me-components\lib.me+modified build\$(CONFIG)\bin\paks\me-components\lib.me $(LOG)
 	copy /Y /B paks\me-components\link.me+modified build\$(CONFIG)\bin\paks\me-components\link.me $(LOG)
 	copy /Y /B paks\me-components\rc.me+modified build\$(CONFIG)\bin\paks\me-components\rc.me $(LOG)

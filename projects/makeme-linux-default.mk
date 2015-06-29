@@ -3,7 +3,7 @@
 #
 
 NAME                  := makeme
-VERSION               := 0.9.0
+VERSION               := 0.9.1
 PROFILE               ?= default
 ARCH                  ?= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 CC_ARCH               ?= $(shell echo $(ARCH) | sed 's/x86/i686/;s/x64/x86_64/')
@@ -910,6 +910,7 @@ $(BUILD)/bin/me.mod: $(DEPS_46)
 DEPS_47 += paks/me-components/appweb.me
 DEPS_47 += paks/me-components/compiler.me
 DEPS_47 += paks/me-components/components.me
+DEPS_47 += paks/me-components/ejscript.me
 DEPS_47 += paks/me-components/lib.me
 DEPS_47 += paks/me-components/link.me
 DEPS_47 += paks/me-components/rc.me
@@ -941,6 +942,7 @@ $(BUILD)/.pakrun-modified: $(DEPS_47)
 	cp paks/me-components/appweb.me $(BUILD)/bin/paks/me-components/appweb.me
 	cp paks/me-components/compiler.me $(BUILD)/bin/paks/me-components/compiler.me
 	cp paks/me-components/components.me $(BUILD)/bin/paks/me-components/components.me
+	cp paks/me-components/ejscript.me $(BUILD)/bin/paks/me-components/ejscript.me
 	cp paks/me-components/lib.me $(BUILD)/bin/paks/me-components/lib.me
 	cp paks/me-components/link.me $(BUILD)/bin/paks/me-components/link.me
 	cp paks/me-components/rc.me $(BUILD)/bin/paks/me-components/rc.me
@@ -1198,6 +1200,7 @@ installBinary: $(DEPS_55)
 	cp paks/me-components/appweb.me $(ME_VAPP_PREFIX)/bin/paks/me-components/appweb.me ; \
 	cp paks/me-components/compiler.me $(ME_VAPP_PREFIX)/bin/paks/me-components/compiler.me ; \
 	cp paks/me-components/components.me $(ME_VAPP_PREFIX)/bin/paks/me-components/components.me ; \
+	cp paks/me-components/ejscript.me $(ME_VAPP_PREFIX)/bin/paks/me-components/ejscript.me ; \
 	cp paks/me-components/lib.me $(ME_VAPP_PREFIX)/bin/paks/me-components/lib.me ; \
 	cp paks/me-components/LICENSE.md $(ME_VAPP_PREFIX)/bin/paks/me-components/LICENSE.md ; \
 	cp paks/me-components/link.me $(ME_VAPP_PREFIX)/bin/paks/me-components/link.me ; \

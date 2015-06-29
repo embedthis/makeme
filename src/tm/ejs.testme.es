@@ -27,19 +27,19 @@ module ejs.testme {
         }
     }
 
-    function thas(key: String): Boolean
-        tget(key) - 0
-
-    function tinfo(...args) {
-        print('info', ...args)
-    }
-
     function tget(key: String, def = null) {
         let value = App.getenv(key)
         if (value == null) {
             value = def
         }
         return value
+    }
+
+    function thas(key: String): Boolean
+        tget(key) - 0
+
+    function tinfo(...args) {
+        print('info', ...args)
     }
 
     function tphase(): String?

@@ -1,0 +1,59 @@
+/*
+    ejscript.me -- Ejscript Component
+ */
+Me.load({
+    targets: {
+        ejscript: {
+            description: 'Ejscript Language',
+            config: function (target) {
+                if (me.targets.libejs) {
+                    return me.targets.ejscript
+                }
+                let ejs = Cmd.locate('ejs')
+                if (ejs.isLink) {
+                    ejs = ejs.dirname.join(ejs.linkTarget)
+                }
+                if (ejs) {
+                    ejs = ejs.dirname.parent
+                } else {
+                    if (me.platform.os == 'windows') {
+                        ejs = me.dir.programFiles32.join('Embedthis Ejscript')
+                    } else {
+                        ejs = '/usr/local/lib/ejscript/latest'
+                    }
+                }
+                if (me.options.gen) {
+                    return {
+                        path:     ejs,
+                        libpaths: [ ejs.join('bin') ],
+                        includes: [ ejs.join('inc') ],
+                    }
+                }
+                let search = [ ]
+                if (target.withpath) {
+                    search.push(target.withpath)
+                }
+                for (let d: Path = '.'; d.parent != d; d = d.parent) {
+                    let sp = d.join(me.platform.name)
+                    if (sp.join('bin/libejs.' + me.ext.shobj).exists) {
+                        search.push(sp)
+                        break
+                    }
+                }
+                search.push(ejs)
+                let path = probe('bin/libejs.' + me.ext.shobj, { search: search })
+                let bin = probe('libejs.' + me.ext.shobj, {fullpath: true, search: path.join('bin')}).dirname
+                if (me.platform.like == 'unix') {
+                    linker = [ '-Wl,-rpath,' + bin + '/' ]
+                }
+                return {
+                    path:       path,
+                    libpaths:  [ bin ],
+                    libraries: [ 'ejs', 'http', 'mpr', 'pcre' ],
+                    linker:    linker,
+                    includes:  [ probe('ejs.h', {search: path.join('inc')}) ],
+                }
+            }
+        }
+    }
+})

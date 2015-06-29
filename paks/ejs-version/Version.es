@@ -162,8 +162,9 @@ class Version {
             return '0.0.0'
         }
         ver = ver.split('.')
-        for (i = ver.length; i < 3; i++)
+        for (i = ver.length; i < 3; i++) {
             ver.push('0')
+        }
         return ver.join('.')
     }
 
@@ -266,6 +267,7 @@ class Version {
     public function get pre() preVersion
 
     private static function sortCallback(versions, i, j): Number {
+        //  OPT - this is slow - could be sped up if versions[] contains Versions
         let a = Version(Path(versions[i]).basename)
         let b = Version(Path(versions[j]).basename)
         if (a.major < b.major) {
@@ -316,7 +318,7 @@ class Version {
 
 /*
     TODO - could enable via conditional compilation
-*/
+    TODO - separate out
 
 require ejs.version
 let v
@@ -421,6 +423,7 @@ assert(Version('0.1.0').acceptable('0.*'))
 
 assert(Version('1.0.7-1.2.3').acceptable('^1.0.7-1.2.3'))
 assert(Version('1.9.1').acceptable('^*'))
+*/
 
 /* STRICT 
 assert(!Version('1.2b.3').acceptable('^*'))
