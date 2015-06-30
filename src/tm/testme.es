@@ -16,6 +16,9 @@ enumerable class TestMe {
     var originalDir: Path                   //  Original current directory
     var mebin: Path                         //  Directory containing "me"
 
+    //  TODO temporary until makeme has ejscript 3
+    var ejsbin: Path                        //  Directory containing "ejs"
+
     var ejsVersion: String                  //  The ejs command version
     var keepGoing: Boolean = false          //  Continue on errors 
     var topEnv: Object = {}                 //  Global env to pass to tests
@@ -196,7 +199,6 @@ enumerable class TestMe {
         } else {
             topTestDir = topDir
         }
-        ejsVersion = Cmd.run('ejs -V').trim()
     }
 
     function setupEnv() {
@@ -208,6 +210,9 @@ enumerable class TestMe {
             me = me.dirname.join(me.linkTarget)
         }
         mebin = me.dirname.portable
+        ejsbin = Cmd.locate('ejs').dirname.portable
+        ejsVersion = Cmd.run('ejs -V').trim()
+
         blend(topEnv, {
             TM_TOP: topDir, 
             TM_TOP_TEST: topTestDir, 
@@ -217,6 +222,7 @@ enumerable class TestMe {
             TM_BIN: bin, 
             TM_DEPTH: depth, 
             TM_MEBIN: mebin, 
+            TM_EJSBIN: ejsbin, 
         })
         if (options.debug) {
             topEnv.TM_DEBUG = true
@@ -591,9 +597,9 @@ Me.load({
         let exe, command
         if (ext == 'es' || ext == 'js') {
             if (file.extension == 'com') {
-                let ejsc = mebin.join('ejsc')
+                let ejsc = ejsbin.join('ejsc')
                 let mod = Path(name).joinExt('mod', true)
-                command = ejsc + ' --search "testme' + App.SearchSeparator + mebin + '" --out ' + mod + ' ' + file
+                command = ejsc + ' --search "testme' + App.SearchSeparator + ejsbin + '" --out ' + mod + ' ' + file
                 if (options.rebuild || !mod.exists || mod.modified < file.modified) {
                     if (options.rebuild) {
                         why('Rebuild', mod + ' because --rebuild')
@@ -612,9 +618,9 @@ Me.load({
                     switches += ' --trace ' + options.trace
                 }
                 if (ejsVersion[0] >= '3' && topDir.basename == 'ejscript') {
-                    command = mebin.join('ejs') + switches + ' ' + file
+                    command = ejsbin.join('ejs') + switches + ' ' + file
                 } else {
-                    command = mebin.join('ejs') + ' --require ejs.testme ' + switches + ' ' + file
+                    command = ejsbin.join('ejs') + ' --require ejs.testme ' + switches + ' ' + file
                 }
             }
         } else if (ext == 'c') {
