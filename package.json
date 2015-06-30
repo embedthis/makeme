@@ -33,20 +33,20 @@
         }
     ],
     "dependencies": {
-        "certs": "^0.1",
-        "ejscript": "^2.6",
-        "ejs-version": "^0.8",
-        "me-components": "^0.8",
-        "me-installs": "^0.8",
-        "me-make": "^0.1",
-        "me-os": "^0.8",
-        "me-vstudio": "^0.8",
-        "me-xcode": "^0.8",
-        "mpr": "^6.0",
-        "ssl": "^0.9"
+        "certs": "~0.1",
+        "ejscript": "~2.6",
+        "ejs-version": "~0.8",
+        "me-components": "~0.8",
+        "me-installs": "~0.8",
+        "me-make": "~0.1",
+        "me-os": "~0.8",
+        "me-vstudio": "~0.8",
+        "me-xcode": "~0.8",
+        "mpr": "~6.0",
+        "ssl": "~0.9"
     },
     "optionalDependencies": {
-        "mpr-openssl": "^0.3"
+        "mpr-openssl": "~0.3"
     },
     "devDependencies": {
         "pak": ">=0.11.0"
