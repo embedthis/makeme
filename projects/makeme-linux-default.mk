@@ -217,8 +217,12 @@ $(BUILD)/inc/http.h: $(DEPS_5)
 #
 #   ejs.slots.h
 #
+DEPS_6 += src/ejscript/ejs.slots.h
 
-src/ejscript/ejs.slots.h: $(DEPS_6)
+$(BUILD)/inc/ejs.slots.h: $(DEPS_6)
+	@echo '      [Copy] $(BUILD)/inc/ejs.slots.h'
+	mkdir -p "$(BUILD)/inc"
+	cp src/ejscript/ejs.slots.h $(BUILD)/inc/ejs.slots.h
 
 #
 #   pcre.h
@@ -249,7 +253,7 @@ DEPS_9 += $(BUILD)/inc/me.h
 DEPS_9 += $(BUILD)/inc/osdep.h
 DEPS_9 += $(BUILD)/inc/mpr.h
 DEPS_9 += $(BUILD)/inc/http.h
-DEPS_9 += src/ejscript/ejs.slots.h
+DEPS_9 += $(BUILD)/inc/ejs.slots.h
 DEPS_9 += $(BUILD)/inc/pcre.h
 DEPS_9 += $(BUILD)/inc/zlib.h
 
@@ -259,21 +263,11 @@ $(BUILD)/inc/ejs.h: $(DEPS_9)
 	cp src/ejscript/ejs.h $(BUILD)/inc/ejs.h
 
 #
-#   ejs.slots.h
-#
-DEPS_10 += src/ejscript/ejs.slots.h
-
-$(BUILD)/inc/ejs.slots.h: $(DEPS_10)
-	@echo '      [Copy] $(BUILD)/inc/ejs.slots.h'
-	mkdir -p "$(BUILD)/inc"
-	cp src/ejscript/ejs.slots.h $(BUILD)/inc/ejs.slots.h
-
-#
 #   ejsByteGoto.h
 #
-DEPS_11 += src/ejscript/ejsByteGoto.h
+DEPS_10 += src/ejscript/ejsByteGoto.h
 
-$(BUILD)/inc/ejsByteGoto.h: $(DEPS_11)
+$(BUILD)/inc/ejsByteGoto.h: $(DEPS_10)
 	@echo '      [Copy] $(BUILD)/inc/ejsByteGoto.h'
 	mkdir -p "$(BUILD)/inc"
 	cp src/ejscript/ejsByteGoto.h $(BUILD)/inc/ejsByteGoto.h
@@ -281,172 +275,137 @@ $(BUILD)/inc/ejsByteGoto.h: $(DEPS_11)
 #
 #   testme.h
 #
-DEPS_12 += src/tm/testme.h
+DEPS_11 += src/tm/testme.h
+DEPS_11 += $(BUILD)/inc/osdep.h
 
-$(BUILD)/inc/testme.h: $(DEPS_12)
+$(BUILD)/inc/testme.h: $(DEPS_11)
 	@echo '      [Copy] $(BUILD)/inc/testme.h'
 	mkdir -p "$(BUILD)/inc"
 	cp src/tm/testme.h $(BUILD)/inc/testme.h
 
 #
-#   ejs.h
-#
-
-src/ejscript/ejs.h: $(DEPS_13)
-
-#
 #   ejs.o
 #
-DEPS_14 += src/ejscript/ejs.h
+DEPS_12 += $(BUILD)/inc/ejs.h
 
 $(BUILD)/obj/ejs.o: \
-    src/ejscript/ejs.c $(DEPS_14)
+    src/ejscript/ejs.c $(DEPS_12)
 	@echo '   [Compile] $(BUILD)/obj/ejs.o'
 	$(CC) -c -o $(BUILD)/obj/ejs.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/ejscript/ejs.c
 
 #
 #   ejsLib.o
 #
-DEPS_15 += src/ejscript/ejs.h
-DEPS_15 += $(BUILD)/inc/mpr.h
-DEPS_15 += $(BUILD)/inc/pcre.h
-DEPS_15 += $(BUILD)/inc/me.h
+DEPS_13 += $(BUILD)/inc/ejs.h
+DEPS_13 += $(BUILD)/inc/mpr.h
+DEPS_13 += $(BUILD)/inc/pcre.h
+DEPS_13 += $(BUILD)/inc/me.h
 
 $(BUILD)/obj/ejsLib.o: \
-    src/ejscript/ejsLib.c $(DEPS_15)
+    src/ejscript/ejsLib.c $(DEPS_13)
 	@echo '   [Compile] $(BUILD)/obj/ejsLib.o'
 	$(CC) -c -o $(BUILD)/obj/ejsLib.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/ejscript/ejsLib.c
 
 #
 #   ejsc.o
 #
-DEPS_16 += src/ejscript/ejs.h
+DEPS_14 += $(BUILD)/inc/ejs.h
 
 $(BUILD)/obj/ejsc.o: \
-    src/ejscript/ejsc.c $(DEPS_16)
+    src/ejscript/ejsc.c $(DEPS_14)
 	@echo '   [Compile] $(BUILD)/obj/ejsc.o'
 	$(CC) -c -o $(BUILD)/obj/ejsc.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/ejscript/ejsc.c
 
 #
-#   http.h
-#
-
-src/http/http.h: $(DEPS_17)
-
-#
 #   http.o
 #
-DEPS_18 += src/http/http.h
+DEPS_15 += $(BUILD)/inc/http.h
 
 $(BUILD)/obj/http.o: \
-    src/http/http.c $(DEPS_18)
+    src/http/http.c $(DEPS_15)
 	@echo '   [Compile] $(BUILD)/obj/http.o'
 	$(CC) -c -o $(BUILD)/obj/http.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/http/http.c
 
 #
 #   httpLib.o
 #
-DEPS_19 += src/http/http.h
-DEPS_19 += $(BUILD)/inc/pcre.h
+DEPS_16 += $(BUILD)/inc/http.h
+DEPS_16 += $(BUILD)/inc/pcre.h
 
 $(BUILD)/obj/httpLib.o: \
-    src/http/httpLib.c $(DEPS_19)
+    src/http/httpLib.c $(DEPS_16)
 	@echo '   [Compile] $(BUILD)/obj/httpLib.o'
 	$(CC) -c -o $(BUILD)/obj/httpLib.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/http/httpLib.c
 
 #
-#   testme.h
-#
-
-src/tm/testme.h: $(DEPS_20)
-
-#
 #   libtestme.o
 #
-DEPS_21 += src/tm/testme.h
+DEPS_17 += $(BUILD)/inc/testme.h
 
 $(BUILD)/obj/libtestme.o: \
-    src/tm/libtestme.c $(DEPS_21)
+    src/tm/libtestme.c $(DEPS_17)
 	@echo '   [Compile] $(BUILD)/obj/libtestme.o'
 	$(CC) -c -o $(BUILD)/obj/libtestme.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/tm/libtestme.c
 
 #
 #   me.o
 #
-DEPS_22 += $(BUILD)/inc/ejs.h
+DEPS_18 += $(BUILD)/inc/ejs.h
 
 $(BUILD)/obj/me.o: \
-    src/me.c $(DEPS_22)
+    src/me.c $(DEPS_18)
 	@echo '   [Compile] $(BUILD)/obj/me.o'
 	$(CC) -c -o $(BUILD)/obj/me.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/me.c
 
 #
-#   mpr.h
-#
-
-src/mpr/mpr.h: $(DEPS_23)
-
-#
 #   mprLib.o
 #
-DEPS_24 += src/mpr/mpr.h
+DEPS_19 += $(BUILD)/inc/mpr.h
 
 $(BUILD)/obj/mprLib.o: \
-    src/mpr/mprLib.c $(DEPS_24)
+    src/mpr/mprLib.c $(DEPS_19)
 	@echo '   [Compile] $(BUILD)/obj/mprLib.o'
 	$(CC) -c -o $(BUILD)/obj/mprLib.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/mpr/mprLib.c
 
 #
 #   openssl.o
 #
-DEPS_25 += $(BUILD)/inc/mpr.h
+DEPS_20 += $(BUILD)/inc/mpr.h
 
 $(BUILD)/obj/openssl.o: \
-    src/mpr-openssl/openssl.c $(DEPS_25)
+    src/mpr-openssl/openssl.c $(DEPS_20)
 	@echo '   [Compile] $(BUILD)/obj/openssl.o'
 	$(CC) -c -o $(BUILD)/obj/openssl.o $(CFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/mpr-openssl/openssl.c
 
 #
-#   pcre.h
-#
-
-src/pcre/pcre.h: $(DEPS_26)
-
-#
 #   pcre.o
 #
-DEPS_27 += $(BUILD)/inc/me.h
-DEPS_27 += src/pcre/pcre.h
+DEPS_21 += $(BUILD)/inc/me.h
+DEPS_21 += $(BUILD)/inc/pcre.h
 
 $(BUILD)/obj/pcre.o: \
-    src/pcre/pcre.c $(DEPS_27)
+    src/pcre/pcre.c $(DEPS_21)
 	@echo '   [Compile] $(BUILD)/obj/pcre.o'
 	$(CC) -c -o $(BUILD)/obj/pcre.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/pcre/pcre.c
 
 #
 #   testme.o
 #
-DEPS_28 += $(BUILD)/inc/ejs.h
+DEPS_22 += $(BUILD)/inc/ejs.h
 
 $(BUILD)/obj/testme.o: \
-    src/tm/testme.c $(DEPS_28)
+    src/tm/testme.c $(DEPS_22)
 	@echo '   [Compile] $(BUILD)/obj/testme.o'
 	$(CC) -c -o $(BUILD)/obj/testme.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/tm/testme.c
 
 #
-#   zlib.h
-#
-
-src/zlib/zlib.h: $(DEPS_29)
-
-#
 #   zlib.o
 #
-DEPS_30 += $(BUILD)/inc/me.h
-DEPS_30 += src/zlib/zlib.h
+DEPS_23 += $(BUILD)/inc/me.h
+DEPS_23 += $(BUILD)/inc/zlib.h
 
 $(BUILD)/obj/zlib.o: \
-    src/zlib/zlib.c $(DEPS_30)
+    src/zlib/zlib.c $(DEPS_23)
 	@echo '   [Compile] $(BUILD)/obj/zlib.o'
 	$(CC) -c -o $(BUILD)/obj/zlib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/zlib/zlib.c
 
@@ -455,9 +414,9 @@ ifeq ($(ME_COM_OPENSSL),1)
 #
 #   openssl
 #
-DEPS_31 += $(BUILD)/obj/openssl.o
+DEPS_24 += $(BUILD)/obj/openssl.o
 
-$(BUILD)/bin/libmpr-openssl.a: $(DEPS_31)
+$(BUILD)/bin/libmpr-openssl.a: $(DEPS_24)
 	@echo '      [Link] $(BUILD)/bin/libmpr-openssl.a'
 	ar -cr $(BUILD)/bin/libmpr-openssl.a "$(BUILD)/obj/openssl.o"
 endif
@@ -467,10 +426,10 @@ ifeq ($(ME_COM_ZLIB),1)
 #
 #   libzlib
 #
-DEPS_32 += $(BUILD)/inc/zlib.h
-DEPS_32 += $(BUILD)/obj/zlib.o
+DEPS_25 += $(BUILD)/inc/zlib.h
+DEPS_25 += $(BUILD)/obj/zlib.o
 
-$(BUILD)/bin/libzlib.so: $(DEPS_32)
+$(BUILD)/bin/libzlib.so: $(DEPS_25)
 	@echo '      [Link] $(BUILD)/bin/libzlib.so'
 	$(CC) -shared -o $(BUILD)/bin/libzlib.so $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/zlib.o" $(LIBS) 
 endif
@@ -478,55 +437,55 @@ endif
 #
 #   libmpr
 #
-DEPS_33 += $(BUILD)/inc/osdep.h
+DEPS_26 += $(BUILD)/inc/osdep.h
 ifeq ($(ME_COM_SSL),1)
 ifeq ($(ME_COM_OPENSSL),1)
-    DEPS_33 += $(BUILD)/bin/libmpr-openssl.a
+    DEPS_26 += $(BUILD)/bin/libmpr-openssl.a
 endif
 endif
 ifeq ($(ME_COM_ZLIB),1)
-    DEPS_33 += $(BUILD)/bin/libzlib.so
+    DEPS_26 += $(BUILD)/bin/libzlib.so
 endif
-DEPS_33 += $(BUILD)/inc/mpr.h
-DEPS_33 += $(BUILD)/obj/mprLib.o
+DEPS_26 += $(BUILD)/inc/mpr.h
+DEPS_26 += $(BUILD)/obj/mprLib.o
 
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_33 += -lmpr-openssl
-    LIBPATHS_33 += -L"$(ME_COM_OPENSSL_PATH)"
+    LIBS_26 += -lmpr-openssl
+    LIBPATHS_26 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 ifeq ($(ME_COM_OPENSSL),1)
 ifeq ($(ME_COM_SSL),1)
-    LIBS_33 += -lssl
-    LIBPATHS_33 += -L"$(ME_COM_OPENSSL_PATH)"
+    LIBS_26 += -lssl
+    LIBPATHS_26 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 endif
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_33 += -lcrypto
-    LIBPATHS_33 += -L"$(ME_COM_OPENSSL_PATH)"
+    LIBS_26 += -lcrypto
+    LIBPATHS_26 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 ifeq ($(ME_COM_ZLIB),1)
-    LIBS_33 += -lzlib
+    LIBS_26 += -lzlib
 endif
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_33 += -lmpr-openssl
-    LIBPATHS_33 += -L"$(ME_COM_OPENSSL_PATH)"
+    LIBS_26 += -lmpr-openssl
+    LIBPATHS_26 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 ifeq ($(ME_COM_ZLIB),1)
-    LIBS_33 += -lzlib
+    LIBS_26 += -lzlib
 endif
 
-$(BUILD)/bin/libmpr.so: $(DEPS_33)
+$(BUILD)/bin/libmpr.so: $(DEPS_26)
 	@echo '      [Link] $(BUILD)/bin/libmpr.so'
-	$(CC) -shared -o $(BUILD)/bin/libmpr.so $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/mprLib.o" $(LIBPATHS_33) $(LIBS_33) $(LIBS_33) $(LIBS) 
+	$(CC) -shared -o $(BUILD)/bin/libmpr.so $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/mprLib.o" $(LIBPATHS_26) $(LIBS_26) $(LIBS_26) $(LIBS) 
 
 ifeq ($(ME_COM_PCRE),1)
 #
 #   libpcre
 #
-DEPS_34 += $(BUILD)/inc/pcre.h
-DEPS_34 += $(BUILD)/obj/pcre.o
+DEPS_27 += $(BUILD)/inc/pcre.h
+DEPS_27 += $(BUILD)/obj/pcre.o
 
-$(BUILD)/bin/libpcre.so: $(DEPS_34)
+$(BUILD)/bin/libpcre.so: $(DEPS_27)
 	@echo '      [Link] $(BUILD)/bin/libpcre.so'
 	$(CC) -shared -o $(BUILD)/bin/libpcre.so $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/pcre.o" $(LIBS) 
 endif
@@ -535,49 +494,49 @@ ifeq ($(ME_COM_HTTP),1)
 #
 #   libhttp
 #
-DEPS_35 += $(BUILD)/bin/libmpr.so
+DEPS_28 += $(BUILD)/bin/libmpr.so
 ifeq ($(ME_COM_PCRE),1)
-    DEPS_35 += $(BUILD)/bin/libpcre.so
+    DEPS_28 += $(BUILD)/bin/libpcre.so
 endif
-DEPS_35 += $(BUILD)/inc/http.h
-DEPS_35 += $(BUILD)/obj/httpLib.o
+DEPS_28 += $(BUILD)/inc/http.h
+DEPS_28 += $(BUILD)/obj/httpLib.o
 
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_35 += -lmpr-openssl
-    LIBPATHS_35 += -L"$(ME_COM_OPENSSL_PATH)"
+    LIBS_28 += -lmpr-openssl
+    LIBPATHS_28 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 ifeq ($(ME_COM_OPENSSL),1)
 ifeq ($(ME_COM_SSL),1)
-    LIBS_35 += -lssl
-    LIBPATHS_35 += -L"$(ME_COM_OPENSSL_PATH)"
+    LIBS_28 += -lssl
+    LIBPATHS_28 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 endif
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_35 += -lcrypto
-    LIBPATHS_35 += -L"$(ME_COM_OPENSSL_PATH)"
+    LIBS_28 += -lcrypto
+    LIBPATHS_28 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 ifeq ($(ME_COM_ZLIB),1)
-    LIBS_35 += -lzlib
+    LIBS_28 += -lzlib
 endif
-LIBS_35 += -lmpr
+LIBS_28 += -lmpr
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_35 += -lmpr-openssl
-    LIBPATHS_35 += -L"$(ME_COM_OPENSSL_PATH)"
+    LIBS_28 += -lmpr-openssl
+    LIBPATHS_28 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 ifeq ($(ME_COM_ZLIB),1)
-    LIBS_35 += -lzlib
+    LIBS_28 += -lzlib
 endif
 ifeq ($(ME_COM_PCRE),1)
-    LIBS_35 += -lpcre
+    LIBS_28 += -lpcre
 endif
 ifeq ($(ME_COM_PCRE),1)
-    LIBS_35 += -lpcre
+    LIBS_28 += -lpcre
 endif
-LIBS_35 += -lmpr
+LIBS_28 += -lmpr
 
-$(BUILD)/bin/libhttp.so: $(DEPS_35)
+$(BUILD)/bin/libhttp.so: $(DEPS_28)
 	@echo '      [Link] $(BUILD)/bin/libhttp.so'
-	$(CC) -shared -o $(BUILD)/bin/libhttp.so $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/httpLib.o" $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) 
+	$(CC) -shared -o $(BUILD)/bin/libhttp.so $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/httpLib.o" $(LIBPATHS_28) $(LIBS_28) $(LIBS_28) $(LIBS) 
 endif
 
 ifeq ($(ME_COM_EJSCRIPT),1)
@@ -585,19 +544,228 @@ ifeq ($(ME_COM_EJSCRIPT),1)
 #   libejs
 #
 ifeq ($(ME_COM_HTTP),1)
-    DEPS_36 += $(BUILD)/bin/libhttp.so
+    DEPS_29 += $(BUILD)/bin/libhttp.so
 endif
 ifeq ($(ME_COM_PCRE),1)
-    DEPS_36 += $(BUILD)/bin/libpcre.so
+    DEPS_29 += $(BUILD)/bin/libpcre.so
 endif
-DEPS_36 += $(BUILD)/bin/libmpr.so
+DEPS_29 += $(BUILD)/bin/libmpr.so
 ifeq ($(ME_COM_ZLIB),1)
-    DEPS_36 += $(BUILD)/bin/libzlib.so
+    DEPS_29 += $(BUILD)/bin/libzlib.so
 endif
-DEPS_36 += $(BUILD)/inc/ejs.h
-DEPS_36 += $(BUILD)/inc/ejs.slots.h
-DEPS_36 += $(BUILD)/inc/ejsByteGoto.h
-DEPS_36 += $(BUILD)/obj/ejsLib.o
+DEPS_29 += $(BUILD)/inc/ejs.h
+DEPS_29 += $(BUILD)/inc/ejs.slots.h
+DEPS_29 += $(BUILD)/inc/ejsByteGoto.h
+DEPS_29 += $(BUILD)/obj/ejsLib.o
+
+ifeq ($(ME_COM_OPENSSL),1)
+    LIBS_29 += -lmpr-openssl
+    LIBPATHS_29 += -L"$(ME_COM_OPENSSL_PATH)"
+endif
+ifeq ($(ME_COM_OPENSSL),1)
+ifeq ($(ME_COM_SSL),1)
+    LIBS_29 += -lssl
+    LIBPATHS_29 += -L"$(ME_COM_OPENSSL_PATH)"
+endif
+endif
+ifeq ($(ME_COM_OPENSSL),1)
+    LIBS_29 += -lcrypto
+    LIBPATHS_29 += -L"$(ME_COM_OPENSSL_PATH)"
+endif
+ifeq ($(ME_COM_ZLIB),1)
+    LIBS_29 += -lzlib
+endif
+LIBS_29 += -lmpr
+ifeq ($(ME_COM_OPENSSL),1)
+    LIBS_29 += -lmpr-openssl
+    LIBPATHS_29 += -L"$(ME_COM_OPENSSL_PATH)"
+endif
+ifeq ($(ME_COM_ZLIB),1)
+    LIBS_29 += -lzlib
+endif
+ifeq ($(ME_COM_PCRE),1)
+    LIBS_29 += -lpcre
+endif
+ifeq ($(ME_COM_HTTP),1)
+    LIBS_29 += -lhttp
+endif
+ifeq ($(ME_COM_PCRE),1)
+    LIBS_29 += -lpcre
+endif
+LIBS_29 += -lmpr
+ifeq ($(ME_COM_HTTP),1)
+    LIBS_29 += -lhttp
+endif
+
+$(BUILD)/bin/libejs.so: $(DEPS_29)
+	@echo '      [Link] $(BUILD)/bin/libejs.so'
+	$(CC) -shared -o $(BUILD)/bin/libejs.so $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/ejsLib.o" $(LIBPATHS_29) $(LIBS_29) $(LIBS_29) $(LIBS) 
+endif
+
+ifeq ($(ME_COM_EJSCRIPT),1)
+#
+#   ejsc
+#
+DEPS_30 += $(BUILD)/bin/libejs.so
+DEPS_30 += $(BUILD)/obj/ejsc.o
+
+ifeq ($(ME_COM_OPENSSL),1)
+    LIBS_30 += -lmpr-openssl
+    LIBPATHS_30 += -L"$(ME_COM_OPENSSL_PATH)"
+endif
+ifeq ($(ME_COM_OPENSSL),1)
+ifeq ($(ME_COM_SSL),1)
+    LIBS_30 += -lssl
+    LIBPATHS_30 += -L"$(ME_COM_OPENSSL_PATH)"
+endif
+endif
+ifeq ($(ME_COM_OPENSSL),1)
+    LIBS_30 += -lcrypto
+    LIBPATHS_30 += -L"$(ME_COM_OPENSSL_PATH)"
+endif
+ifeq ($(ME_COM_ZLIB),1)
+    LIBS_30 += -lzlib
+endif
+LIBS_30 += -lmpr
+ifeq ($(ME_COM_OPENSSL),1)
+    LIBS_30 += -lmpr-openssl
+    LIBPATHS_30 += -L"$(ME_COM_OPENSSL_PATH)"
+endif
+ifeq ($(ME_COM_ZLIB),1)
+    LIBS_30 += -lzlib
+endif
+ifeq ($(ME_COM_PCRE),1)
+    LIBS_30 += -lpcre
+endif
+ifeq ($(ME_COM_HTTP),1)
+    LIBS_30 += -lhttp
+endif
+ifeq ($(ME_COM_PCRE),1)
+    LIBS_30 += -lpcre
+endif
+LIBS_30 += -lmpr
+LIBS_30 += -lejs
+ifeq ($(ME_COM_HTTP),1)
+    LIBS_30 += -lhttp
+endif
+
+$(BUILD)/bin/ejsc: $(DEPS_30)
+	@echo '      [Link] $(BUILD)/bin/ejsc'
+	$(CC) -o $(BUILD)/bin/ejsc $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/ejsc.o" $(LIBPATHS_30) $(LIBS_30) $(LIBS_30) $(LIBS) $(LIBS) 
+endif
+
+ifeq ($(ME_COM_EJSCRIPT),1)
+#
+#   ejs.mod
+#
+DEPS_31 += src/ejscript/ejs.es
+DEPS_31 += $(BUILD)/bin/ejsc
+
+$(BUILD)/bin/ejs.mod: $(DEPS_31)
+	( \
+	cd src/ejscript; \
+	echo '   [Compile] ejs.mod' ; \
+	"../../$(BUILD)/bin/ejsc" --out "../../$(BUILD)/bin/ejs.mod" --optimize 9 --bind --require null ejs.es ; \
+	"../../$(BUILD)/bin/ejsc" --out "../../$(BUILD)/bin/ejs.mod" --optimize 9 --bind --require null ejs.es ; \
+	)
+endif
+
+#
+#   ejs.testme.es
+#
+DEPS_32 += src/tm/ejs.testme.es
+
+$(BUILD)/bin/ejs.testme.es: $(DEPS_32)
+	@echo '      [Copy] $(BUILD)/bin/ejs.testme.es'
+	mkdir -p "$(BUILD)/bin"
+	cp src/tm/ejs.testme.es $(BUILD)/bin/ejs.testme.es
+
+#
+#   ejs.testme.mod
+#
+DEPS_33 += src/tm/ejs.testme.es
+ifeq ($(ME_COM_EJSCRIPT),1)
+    DEPS_33 += $(BUILD)/bin/ejs.mod
+endif
+
+$(BUILD)/bin/ejs.testme.mod: $(DEPS_33)
+	( \
+	cd src/tm; \
+	echo '   [Compile] ejs.testme.mod' ; \
+	"../../$(BUILD)/bin/ejsc" --debug --out "../../$(BUILD)/bin/ejs.testme.mod" --optimize 9 ejs.testme.es ; \
+	)
+
+ifeq ($(ME_COM_EJSCRIPT),1)
+#
+#   ejscmd
+#
+DEPS_34 += $(BUILD)/bin/libejs.so
+DEPS_34 += $(BUILD)/obj/ejs.o
+
+ifeq ($(ME_COM_OPENSSL),1)
+    LIBS_34 += -lmpr-openssl
+    LIBPATHS_34 += -L"$(ME_COM_OPENSSL_PATH)"
+endif
+ifeq ($(ME_COM_OPENSSL),1)
+ifeq ($(ME_COM_SSL),1)
+    LIBS_34 += -lssl
+    LIBPATHS_34 += -L"$(ME_COM_OPENSSL_PATH)"
+endif
+endif
+ifeq ($(ME_COM_OPENSSL),1)
+    LIBS_34 += -lcrypto
+    LIBPATHS_34 += -L"$(ME_COM_OPENSSL_PATH)"
+endif
+ifeq ($(ME_COM_ZLIB),1)
+    LIBS_34 += -lzlib
+endif
+LIBS_34 += -lmpr
+ifeq ($(ME_COM_OPENSSL),1)
+    LIBS_34 += -lmpr-openssl
+    LIBPATHS_34 += -L"$(ME_COM_OPENSSL_PATH)"
+endif
+ifeq ($(ME_COM_ZLIB),1)
+    LIBS_34 += -lzlib
+endif
+ifeq ($(ME_COM_PCRE),1)
+    LIBS_34 += -lpcre
+endif
+ifeq ($(ME_COM_HTTP),1)
+    LIBS_34 += -lhttp
+endif
+ifeq ($(ME_COM_PCRE),1)
+    LIBS_34 += -lpcre
+endif
+LIBS_34 += -lmpr
+LIBS_34 += -lejs
+ifeq ($(ME_COM_HTTP),1)
+    LIBS_34 += -lhttp
+endif
+
+$(BUILD)/bin/ejs: $(DEPS_34)
+	@echo '      [Link] $(BUILD)/bin/ejs'
+	$(CC) -o $(BUILD)/bin/ejs $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/ejs.o" $(LIBPATHS_34) $(LIBS_34) $(LIBS_34) $(LIBS) $(LIBS) 
+endif
+
+#
+#   extras
+#
+DEPS_35 += src/Configure.es
+DEPS_35 += src/Generate.es
+
+$(BUILD)/.extras-modified: $(DEPS_35)
+	@echo '      [Copy] $(BUILD)/bin'
+	mkdir -p "$(BUILD)/bin"
+	cp src/Configure.es $(BUILD)/bin/Configure.es
+	cp src/Generate.es $(BUILD)/bin/Generate.es
+	touch "$(BUILD)/.extras-modified"
+
+ifeq ($(ME_COM_HTTP),1)
+#
+#   httpcmd
+#
+DEPS_36 += $(BUILD)/bin/libhttp.so
+DEPS_36 += $(BUILD)/obj/http.o
 
 ifeq ($(ME_COM_OPENSSL),1)
     LIBS_36 += -lmpr-openssl
@@ -627,241 +795,32 @@ endif
 ifeq ($(ME_COM_PCRE),1)
     LIBS_36 += -lpcre
 endif
-ifeq ($(ME_COM_HTTP),1)
-    LIBS_36 += -lhttp
-endif
+LIBS_36 += -lhttp
 ifeq ($(ME_COM_PCRE),1)
     LIBS_36 += -lpcre
 endif
 LIBS_36 += -lmpr
-ifeq ($(ME_COM_HTTP),1)
-    LIBS_36 += -lhttp
-endif
 
-$(BUILD)/bin/libejs.so: $(DEPS_36)
-	@echo '      [Link] $(BUILD)/bin/libejs.so'
-	$(CC) -shared -o $(BUILD)/bin/libejs.so $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/ejsLib.o" $(LIBPATHS_36) $(LIBS_36) $(LIBS_36) $(LIBS) 
-endif
-
-ifeq ($(ME_COM_EJSCRIPT),1)
-#
-#   ejsc
-#
-DEPS_37 += $(BUILD)/bin/libejs.so
-DEPS_37 += $(BUILD)/obj/ejsc.o
-
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_37 += -lmpr-openssl
-    LIBPATHS_37 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-ifeq ($(ME_COM_OPENSSL),1)
-ifeq ($(ME_COM_SSL),1)
-    LIBS_37 += -lssl
-    LIBPATHS_37 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-endif
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_37 += -lcrypto
-    LIBPATHS_37 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-ifeq ($(ME_COM_ZLIB),1)
-    LIBS_37 += -lzlib
-endif
-LIBS_37 += -lmpr
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_37 += -lmpr-openssl
-    LIBPATHS_37 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-ifeq ($(ME_COM_ZLIB),1)
-    LIBS_37 += -lzlib
-endif
-ifeq ($(ME_COM_PCRE),1)
-    LIBS_37 += -lpcre
-endif
-ifeq ($(ME_COM_HTTP),1)
-    LIBS_37 += -lhttp
-endif
-ifeq ($(ME_COM_PCRE),1)
-    LIBS_37 += -lpcre
-endif
-LIBS_37 += -lmpr
-LIBS_37 += -lejs
-ifeq ($(ME_COM_HTTP),1)
-    LIBS_37 += -lhttp
-endif
-
-$(BUILD)/bin/ejsc: $(DEPS_37)
-	@echo '      [Link] $(BUILD)/bin/ejsc'
-	$(CC) -o $(BUILD)/bin/ejsc $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/ejsc.o" $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) $(LIBS) 
-endif
-
-ifeq ($(ME_COM_EJSCRIPT),1)
-#
-#   ejs.mod
-#
-DEPS_38 += src/ejscript/ejs.es
-DEPS_38 += $(BUILD)/bin/ejsc
-
-$(BUILD)/bin/ejs.mod: $(DEPS_38)
-	( \
-	cd src/ejscript; \
-	echo '   [Compile] ejs.mod' ; \
-	"../../$(BUILD)/bin/ejsc" --out "../../$(BUILD)/bin/ejs.mod" --optimize 9 --bind --require null ejs.es ; \
-	"../../$(BUILD)/bin/ejsc" --out "../../$(BUILD)/bin/ejs.mod" --optimize 9 --bind --require null ejs.es ; \
-	)
-endif
-
-#
-#   ejs.testme.es
-#
-DEPS_39 += src/tm/ejs.testme.es
-
-$(BUILD)/bin/ejs.testme.es: $(DEPS_39)
-	@echo '      [Copy] $(BUILD)/bin/ejs.testme.es'
-	mkdir -p "$(BUILD)/bin"
-	cp src/tm/ejs.testme.es $(BUILD)/bin/ejs.testme.es
-
-#
-#   ejs.testme.mod
-#
-DEPS_40 += src/tm/ejs.testme.es
-ifeq ($(ME_COM_EJSCRIPT),1)
-    DEPS_40 += $(BUILD)/bin/ejs.mod
-endif
-
-$(BUILD)/bin/ejs.testme.mod: $(DEPS_40)
-	( \
-	cd src/tm; \
-	echo '   [Compile] ejs.testme.mod' ; \
-	"../../$(BUILD)/bin/ejsc" --debug --out "../../$(BUILD)/bin/ejs.testme.mod" --optimize 9 ejs.testme.es ; \
-	)
-
-ifeq ($(ME_COM_EJSCRIPT),1)
-#
-#   ejscmd
-#
-DEPS_41 += $(BUILD)/bin/libejs.so
-DEPS_41 += $(BUILD)/obj/ejs.o
-
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_41 += -lmpr-openssl
-    LIBPATHS_41 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-ifeq ($(ME_COM_OPENSSL),1)
-ifeq ($(ME_COM_SSL),1)
-    LIBS_41 += -lssl
-    LIBPATHS_41 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-endif
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_41 += -lcrypto
-    LIBPATHS_41 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-ifeq ($(ME_COM_ZLIB),1)
-    LIBS_41 += -lzlib
-endif
-LIBS_41 += -lmpr
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_41 += -lmpr-openssl
-    LIBPATHS_41 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-ifeq ($(ME_COM_ZLIB),1)
-    LIBS_41 += -lzlib
-endif
-ifeq ($(ME_COM_PCRE),1)
-    LIBS_41 += -lpcre
-endif
-ifeq ($(ME_COM_HTTP),1)
-    LIBS_41 += -lhttp
-endif
-ifeq ($(ME_COM_PCRE),1)
-    LIBS_41 += -lpcre
-endif
-LIBS_41 += -lmpr
-LIBS_41 += -lejs
-ifeq ($(ME_COM_HTTP),1)
-    LIBS_41 += -lhttp
-endif
-
-$(BUILD)/bin/ejs: $(DEPS_41)
-	@echo '      [Link] $(BUILD)/bin/ejs'
-	$(CC) -o $(BUILD)/bin/ejs $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/ejs.o" $(LIBPATHS_41) $(LIBS_41) $(LIBS_41) $(LIBS) $(LIBS) 
-endif
-
-#
-#   extras
-#
-DEPS_42 += src/Configure.es
-DEPS_42 += src/Generate.es
-
-$(BUILD)/.extras-modified: $(DEPS_42)
-	@echo '      [Copy] $(BUILD)/bin'
-	mkdir -p "$(BUILD)/bin"
-	cp src/Configure.es $(BUILD)/bin/Configure.es
-	cp src/Generate.es $(BUILD)/bin/Generate.es
-	touch "$(BUILD)/.extras-modified"
-
-ifeq ($(ME_COM_HTTP),1)
-#
-#   httpcmd
-#
-DEPS_43 += $(BUILD)/bin/libhttp.so
-DEPS_43 += $(BUILD)/obj/http.o
-
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_43 += -lmpr-openssl
-    LIBPATHS_43 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-ifeq ($(ME_COM_OPENSSL),1)
-ifeq ($(ME_COM_SSL),1)
-    LIBS_43 += -lssl
-    LIBPATHS_43 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-endif
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_43 += -lcrypto
-    LIBPATHS_43 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-ifeq ($(ME_COM_ZLIB),1)
-    LIBS_43 += -lzlib
-endif
-LIBS_43 += -lmpr
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_43 += -lmpr-openssl
-    LIBPATHS_43 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-ifeq ($(ME_COM_ZLIB),1)
-    LIBS_43 += -lzlib
-endif
-ifeq ($(ME_COM_PCRE),1)
-    LIBS_43 += -lpcre
-endif
-LIBS_43 += -lhttp
-ifeq ($(ME_COM_PCRE),1)
-    LIBS_43 += -lpcre
-endif
-LIBS_43 += -lmpr
-
-$(BUILD)/bin/http: $(DEPS_43)
+$(BUILD)/bin/http: $(DEPS_36)
 	@echo '      [Link] $(BUILD)/bin/http'
-	$(CC) -o $(BUILD)/bin/http $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/http.o" $(LIBPATHS_43) $(LIBS_43) $(LIBS_43) $(LIBS) $(LIBS) 
+	$(CC) -o $(BUILD)/bin/http $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/http.o" $(LIBPATHS_36) $(LIBS_36) $(LIBS_36) $(LIBS) $(LIBS) 
 endif
 
 ifeq ($(ME_COM_SSL),1)
 #
 #   install-certs
 #
-DEPS_44 += src/certs/samples/ca.crt
-DEPS_44 += src/certs/samples/ca.key
-DEPS_44 += src/certs/samples/ec.crt
-DEPS_44 += src/certs/samples/ec.key
-DEPS_44 += src/certs/samples/roots.crt
-DEPS_44 += src/certs/samples/self.crt
-DEPS_44 += src/certs/samples/self.key
-DEPS_44 += src/certs/samples/test.crt
-DEPS_44 += src/certs/samples/test.key
+DEPS_37 += src/certs/samples/ca.crt
+DEPS_37 += src/certs/samples/ca.key
+DEPS_37 += src/certs/samples/ec.crt
+DEPS_37 += src/certs/samples/ec.key
+DEPS_37 += src/certs/samples/roots.crt
+DEPS_37 += src/certs/samples/self.crt
+DEPS_37 += src/certs/samples/self.key
+DEPS_37 += src/certs/samples/test.crt
+DEPS_37 += src/certs/samples/test.key
 
-$(BUILD)/.install-certs-modified: $(DEPS_44)
+$(BUILD)/.install-certs-modified: $(DEPS_37)
 	@echo '      [Copy] $(BUILD)/bin'
 	mkdir -p "$(BUILD)/bin"
 	cp src/certs/samples/ca.crt $(BUILD)/bin/ca.crt
@@ -879,64 +838,64 @@ endif
 #
 #   libtestme
 #
-DEPS_45 += $(BUILD)/inc/testme.h
-DEPS_45 += $(BUILD)/obj/libtestme.o
+DEPS_38 += $(BUILD)/inc/testme.h
+DEPS_38 += $(BUILD)/obj/libtestme.o
 
-$(BUILD)/bin/libtestme.so: $(DEPS_45)
+$(BUILD)/bin/libtestme.so: $(DEPS_38)
 	@echo '      [Link] $(BUILD)/bin/libtestme.so'
 	$(CC) -shared -o $(BUILD)/bin/libtestme.so $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/libtestme.o" $(LIBS) 
 
 #
 #   me.mod
 #
-DEPS_46 += src/Builder.es
-DEPS_46 += src/Loader.es
-DEPS_46 += src/MakeMe.es
-DEPS_46 += src/Me.es
-DEPS_46 += src/Script.es
-DEPS_46 += src/Target.es
-DEPS_46 += paks/ejs-version/Version.es
+DEPS_39 += src/Builder.es
+DEPS_39 += src/Loader.es
+DEPS_39 += src/MakeMe.es
+DEPS_39 += src/Me.es
+DEPS_39 += src/Script.es
+DEPS_39 += src/Target.es
+DEPS_39 += paks/ejs-version/Version.es
 ifeq ($(ME_COM_EJSCRIPT),1)
-    DEPS_46 += $(BUILD)/bin/ejs.mod
+    DEPS_39 += $(BUILD)/bin/ejs.mod
 endif
 
-$(BUILD)/bin/me.mod: $(DEPS_46)
+$(BUILD)/bin/me.mod: $(DEPS_39)
 	echo '   [Compile] me.mod' ; \
 	"./$(BUILD)/bin/ejsc" --debug --out "./$(BUILD)/bin/me.mod" --optimize 9 src/Builder.es src/Loader.es src/MakeMe.es src/Me.es src/Script.es src/Target.es paks/ejs-version/Version.es
 
 #
 #   pakrun
 #
-DEPS_47 += paks/me-components/appweb.me
-DEPS_47 += paks/me-components/compiler.me
-DEPS_47 += paks/me-components/components.me
-DEPS_47 += paks/me-components/ejscript.me
-DEPS_47 += paks/me-components/lib.me
-DEPS_47 += paks/me-components/link.me
-DEPS_47 += paks/me-components/rc.me
-DEPS_47 += paks/me-components/testme.me
-DEPS_47 += paks/me-components/vxworks.me
-DEPS_47 += paks/me-components/winsdk.me
-DEPS_47 += paks/me-installs/Installs.es
-DEPS_47 += paks/me-installs/installs.me
-DEPS_47 += paks/me-installs/manifest.me
-DEPS_47 += paks/me-make/Make.es
-DEPS_47 += paks/me-make/make.me
-DEPS_47 += paks/me-os/freebsd.me
-DEPS_47 += paks/me-os/gcc.me
-DEPS_47 += paks/me-os/linux.me
-DEPS_47 += paks/me-os/macosx.me
-DEPS_47 += paks/me-os/os.me
-DEPS_47 += paks/me-os/solaris.me
-DEPS_47 += paks/me-os/unix.me
-DEPS_47 += paks/me-os/vxworks.me
-DEPS_47 += paks/me-os/windows.me
-DEPS_47 += paks/me-vstudio/Vstudio.es
-DEPS_47 += paks/me-vstudio/vstudio.me
-DEPS_47 += paks/me-xcode/Xcode.es
-DEPS_47 += paks/me-xcode/xcode.me
+DEPS_40 += paks/me-components/appweb.me
+DEPS_40 += paks/me-components/compiler.me
+DEPS_40 += paks/me-components/components.me
+DEPS_40 += paks/me-components/ejscript.me
+DEPS_40 += paks/me-components/lib.me
+DEPS_40 += paks/me-components/link.me
+DEPS_40 += paks/me-components/rc.me
+DEPS_40 += paks/me-components/testme.me
+DEPS_40 += paks/me-components/vxworks.me
+DEPS_40 += paks/me-components/winsdk.me
+DEPS_40 += paks/me-installs/Installs.es
+DEPS_40 += paks/me-installs/installs.me
+DEPS_40 += paks/me-installs/manifest.me
+DEPS_40 += paks/me-make/Make.es
+DEPS_40 += paks/me-make/make.me
+DEPS_40 += paks/me-os/freebsd.me
+DEPS_40 += paks/me-os/gcc.me
+DEPS_40 += paks/me-os/linux.me
+DEPS_40 += paks/me-os/macosx.me
+DEPS_40 += paks/me-os/os.me
+DEPS_40 += paks/me-os/solaris.me
+DEPS_40 += paks/me-os/unix.me
+DEPS_40 += paks/me-os/vxworks.me
+DEPS_40 += paks/me-os/windows.me
+DEPS_40 += paks/me-vstudio/Vstudio.es
+DEPS_40 += paks/me-vstudio/vstudio.me
+DEPS_40 += paks/me-xcode/Xcode.es
+DEPS_40 += paks/me-xcode/xcode.me
 
-$(BUILD)/.pakrun-modified: $(DEPS_47)
+$(BUILD)/.pakrun-modified: $(DEPS_40)
 	@echo '      [Copy] $(BUILD)/bin'
 	mkdir -p "$(BUILD)/bin/paks/me-components"
 	cp paks/me-components/appweb.me $(BUILD)/bin/paks/me-components/appweb.me
@@ -977,13 +936,13 @@ $(BUILD)/.pakrun-modified: $(DEPS_47)
 #
 #   runtime
 #
-DEPS_48 += src/master-main.me
-DEPS_48 += src/master-start.me
-DEPS_48 += src/simple.me
-DEPS_48 += src/standard.me
-DEPS_48 += $(BUILD)/.pakrun-modified
+DEPS_41 += src/master-main.me
+DEPS_41 += src/master-start.me
+DEPS_41 += src/simple.me
+DEPS_41 += src/standard.me
+DEPS_41 += $(BUILD)/.pakrun-modified
 
-$(BUILD)/.runtime-modified: $(DEPS_48)
+$(BUILD)/.runtime-modified: $(DEPS_41)
 	@echo '      [Copy] $(BUILD)/bin'
 	mkdir -p "$(BUILD)/bin"
 	cp src/master-main.me $(BUILD)/bin/master-main.me
@@ -995,72 +954,72 @@ $(BUILD)/.runtime-modified: $(DEPS_48)
 #
 #   me
 #
-DEPS_49 += $(BUILD)/bin/libmpr.so
+DEPS_42 += $(BUILD)/bin/libmpr.so
 ifeq ($(ME_COM_HTTP),1)
-    DEPS_49 += $(BUILD)/bin/libhttp.so
+    DEPS_42 += $(BUILD)/bin/libhttp.so
 endif
 ifeq ($(ME_COM_EJSCRIPT),1)
-    DEPS_49 += $(BUILD)/bin/libejs.so
+    DEPS_42 += $(BUILD)/bin/libejs.so
 endif
-DEPS_49 += $(BUILD)/bin/me.mod
-DEPS_49 += $(BUILD)/.runtime-modified
-DEPS_49 += $(BUILD)/obj/me.o
+DEPS_42 += $(BUILD)/bin/me.mod
+DEPS_42 += $(BUILD)/.runtime-modified
+DEPS_42 += $(BUILD)/obj/me.o
 
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_49 += -lmpr-openssl
-    LIBPATHS_49 += -L"$(ME_COM_OPENSSL_PATH)"
+    LIBS_42 += -lmpr-openssl
+    LIBPATHS_42 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 ifeq ($(ME_COM_OPENSSL),1)
 ifeq ($(ME_COM_SSL),1)
-    LIBS_49 += -lssl
-    LIBPATHS_49 += -L"$(ME_COM_OPENSSL_PATH)"
+    LIBS_42 += -lssl
+    LIBPATHS_42 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 endif
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_49 += -lcrypto
-    LIBPATHS_49 += -L"$(ME_COM_OPENSSL_PATH)"
+    LIBS_42 += -lcrypto
+    LIBPATHS_42 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 ifeq ($(ME_COM_ZLIB),1)
-    LIBS_49 += -lzlib
+    LIBS_42 += -lzlib
 endif
-LIBS_49 += -lmpr
+LIBS_42 += -lmpr
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_49 += -lmpr-openssl
-    LIBPATHS_49 += -L"$(ME_COM_OPENSSL_PATH)"
+    LIBS_42 += -lmpr-openssl
+    LIBPATHS_42 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 ifeq ($(ME_COM_ZLIB),1)
-    LIBS_49 += -lzlib
+    LIBS_42 += -lzlib
 endif
 ifeq ($(ME_COM_PCRE),1)
-    LIBS_49 += -lpcre
+    LIBS_42 += -lpcre
 endif
 ifeq ($(ME_COM_HTTP),1)
-    LIBS_49 += -lhttp
+    LIBS_42 += -lhttp
 endif
 ifeq ($(ME_COM_PCRE),1)
-    LIBS_49 += -lpcre
+    LIBS_42 += -lpcre
 endif
-LIBS_49 += -lmpr
+LIBS_42 += -lmpr
 ifeq ($(ME_COM_EJSCRIPT),1)
-    LIBS_49 += -lejs
+    LIBS_42 += -lejs
 endif
 ifeq ($(ME_COM_HTTP),1)
-    LIBS_49 += -lhttp
+    LIBS_42 += -lhttp
 endif
 
-$(BUILD)/bin/me: $(DEPS_49)
+$(BUILD)/bin/me: $(DEPS_42)
 	@echo '      [Link] $(BUILD)/bin/me'
-	$(CC) -o $(BUILD)/bin/me $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/me.o" $(LIBPATHS_49) $(LIBS_49) $(LIBS_49) $(LIBS) $(LIBS) 
+	$(CC) -o $(BUILD)/bin/me $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/me.o" $(LIBPATHS_42) $(LIBS_42) $(LIBS_42) $(LIBS) $(LIBS) 
 
 #
 #   testme.mod
 #
-DEPS_50 += src/tm/testme.es
+DEPS_43 += src/tm/testme.es
 ifeq ($(ME_COM_EJSCRIPT),1)
-    DEPS_50 += $(BUILD)/bin/ejs.mod
+    DEPS_43 += $(BUILD)/bin/ejs.mod
 endif
 
-$(BUILD)/bin/testme.mod: $(DEPS_50)
+$(BUILD)/bin/testme.mod: $(DEPS_43)
 	( \
 	cd src/tm; \
 	echo '   [Compile] testme.mod' ; \
@@ -1071,64 +1030,64 @@ $(BUILD)/bin/testme.mod: $(DEPS_50)
 #   testme
 #
 ifeq ($(ME_COM_EJSCRIPT),1)
-    DEPS_51 += $(BUILD)/bin/libejs.so
+    DEPS_44 += $(BUILD)/bin/libejs.so
 endif
-DEPS_51 += $(BUILD)/bin/testme.mod
-DEPS_51 += $(BUILD)/bin/ejs.testme.mod
-DEPS_51 += $(BUILD)/obj/testme.o
+DEPS_44 += $(BUILD)/bin/testme.mod
+DEPS_44 += $(BUILD)/bin/ejs.testme.mod
+DEPS_44 += $(BUILD)/obj/testme.o
 
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_51 += -lmpr-openssl
-    LIBPATHS_51 += -L"$(ME_COM_OPENSSL_PATH)"
+    LIBS_44 += -lmpr-openssl
+    LIBPATHS_44 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 ifeq ($(ME_COM_OPENSSL),1)
 ifeq ($(ME_COM_SSL),1)
-    LIBS_51 += -lssl
-    LIBPATHS_51 += -L"$(ME_COM_OPENSSL_PATH)"
+    LIBS_44 += -lssl
+    LIBPATHS_44 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 endif
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_51 += -lcrypto
-    LIBPATHS_51 += -L"$(ME_COM_OPENSSL_PATH)"
+    LIBS_44 += -lcrypto
+    LIBPATHS_44 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 ifeq ($(ME_COM_ZLIB),1)
-    LIBS_51 += -lzlib
+    LIBS_44 += -lzlib
 endif
-LIBS_51 += -lmpr
+LIBS_44 += -lmpr
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_51 += -lmpr-openssl
-    LIBPATHS_51 += -L"$(ME_COM_OPENSSL_PATH)"
+    LIBS_44 += -lmpr-openssl
+    LIBPATHS_44 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 ifeq ($(ME_COM_ZLIB),1)
-    LIBS_51 += -lzlib
+    LIBS_44 += -lzlib
 endif
 ifeq ($(ME_COM_PCRE),1)
-    LIBS_51 += -lpcre
+    LIBS_44 += -lpcre
 endif
 ifeq ($(ME_COM_HTTP),1)
-    LIBS_51 += -lhttp
+    LIBS_44 += -lhttp
 endif
 ifeq ($(ME_COM_PCRE),1)
-    LIBS_51 += -lpcre
+    LIBS_44 += -lpcre
 endif
-LIBS_51 += -lmpr
+LIBS_44 += -lmpr
 ifeq ($(ME_COM_EJSCRIPT),1)
-    LIBS_51 += -lejs
+    LIBS_44 += -lejs
 endif
 ifeq ($(ME_COM_HTTP),1)
-    LIBS_51 += -lhttp
+    LIBS_44 += -lhttp
 endif
 
-$(BUILD)/bin/testme: $(DEPS_51)
+$(BUILD)/bin/testme: $(DEPS_44)
 	@echo '      [Link] $(BUILD)/bin/testme'
-	$(CC) -o $(BUILD)/bin/testme $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/testme.o" $(LIBPATHS_51) $(LIBS_51) $(LIBS_51) $(LIBS) $(LIBS) 
+	$(CC) -o $(BUILD)/bin/testme $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/testme.o" $(LIBPATHS_44) $(LIBS_44) $(LIBS_44) $(LIBS) $(LIBS) 
 
 #
 #   testme.es
 #
-DEPS_52 += src/tm/testme.es
+DEPS_45 += src/tm/testme.es
 
-$(BUILD)/bin/testme.es: $(DEPS_52)
+$(BUILD)/bin/testme.es: $(DEPS_45)
 	@echo '      [Copy] $(BUILD)/bin/testme.es'
 	mkdir -p "$(BUILD)/bin"
 	cp src/tm/testme.es $(BUILD)/bin/testme.es
@@ -1137,7 +1096,7 @@ $(BUILD)/bin/testme.es: $(DEPS_52)
 #   installPrep
 #
 
-installPrep: $(DEPS_53)
+installPrep: $(DEPS_46)
 	if [ "`id -u`" != 0 ] ; \
 	then echo "Must run as root. Rerun with "sudo"" ; \
 	exit 255 ; \
@@ -1147,13 +1106,13 @@ installPrep: $(DEPS_53)
 #   stop
 #
 
-stop: $(DEPS_54)
+stop: $(DEPS_47)
 
 #
 #   installBinary
 #
 
-installBinary: $(DEPS_55)
+installBinary: $(DEPS_48)
 	mkdir -p "$(ME_APP_PREFIX)" ; \
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
 	ln -s "$(VERSION)" "$(ME_APP_PREFIX)/latest" ; \
@@ -1262,24 +1221,24 @@ installBinary: $(DEPS_55)
 #   start
 #
 
-start: $(DEPS_56)
+start: $(DEPS_49)
 
 #
 #   install
 #
-DEPS_57 += installPrep
-DEPS_57 += stop
-DEPS_57 += installBinary
-DEPS_57 += start
+DEPS_50 += installPrep
+DEPS_50 += stop
+DEPS_50 += installBinary
+DEPS_50 += start
 
-install: $(DEPS_57)
+install: $(DEPS_50)
 
 #
 #   uninstall
 #
-DEPS_58 += stop
+DEPS_51 += stop
 
-uninstall: $(DEPS_58)
+uninstall: $(DEPS_51)
 	rm -fr "$(ME_VAPP_PREFIX)" ; \
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
 	rmdir -p "$(ME_APP_PREFIX)" 2>/dev/null ; true
@@ -1288,6 +1247,6 @@ uninstall: $(DEPS_58)
 #   version
 #
 
-version: $(DEPS_59)
+version: $(DEPS_52)
 	echo $(VERSION)
 
