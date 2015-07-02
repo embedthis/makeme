@@ -212,7 +212,9 @@ enumerable class TestMe {
         mebin = me.dirname.portable
         ejsbin = Cmd.locate('ejs').dirname.portable
         ejsVersion = Cmd.run('ejs -V').trim()
-
+        if (ejsVersion[0] < '3') {
+            ejsbin = mebin
+        }
         blend(topEnv, {
             TM_TOP: topDir, 
             TM_TOP_TEST: topTestDir, 
