@@ -57,3 +57,42 @@ Me.load({
         }
     }
 })
+
+public function ejsCompile(name: Path, ...files) {
+    if (name.extension != 'mod') {
+        name.joinExt('mod', true)
+    }
+    let ejsc: Path = App.getenv('EJSC') || Cmd.locate('ejsc')
+    run(ejsc + ' --out ' + name + ' --debug --optimize 9 ' + files.join(' '))
+    let ejsmod: Path = App.getenv('EJSMOD') || Cmd.locate('ejsmod')
+    run(ejsmod + ' --cslots ' + name)
+    trace('Compile', name)
+}
+
+
+public function ejsInstall(name: Path, version = null) {
+    if (name.extension == 'mod') {
+        name.trimExt('mod')
+    }
+    let src = name.joinExt('mod', true)
+    let ejsVersion = Cmd.run('ejsc -V').trim()
+    cache = App.home.join('.ejs').join('ejscript', ejsVersion)
+    let package = Path('package.json')
+    if (!version && package.exists) {
+        version = package.readJSON().version
+    }
+    version ||= '0.0.1'
+    let dest = cache.join(name + '#' + version + '.mod')
+    if (src.modified > dest.modified) {
+        trace('Install', dest)
+        cache.makeDir()
+        src.copy(dest)
+    }
+    src = Path('lib' + name + '.' + me.ext.shobj)
+    dest = cache.join('lib' + name + '#' + version + '.' + me.ext.shobj)
+    if (src.modified > dest.modified) {
+        trace('Install', dest)
+        cache.makeDir()
+        src.copy(dest)
+    }
+}

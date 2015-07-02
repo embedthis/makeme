@@ -617,7 +617,7 @@ Me.load({
                 if (options.trace) {
                     switches += ' --trace ' + options.trace
                 }
-                if (ejsVersion[0] >= '3' && topDir.basename == 'ejscript') {
+                if (ejsVersion[0] >= '3') {
                     command = ejsbin.join('ejs') + switches + ' ' + file
                 } else {
                     command = ejsbin.join('ejs') + ' --require ejs.testme ' + switches + ' ' + file

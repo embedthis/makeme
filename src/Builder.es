@@ -212,10 +212,11 @@ public class Builder {
         */
         let files = target.files.map(function(e) e.relativeTo(target.home))
         if (files.length) {
+            let tag = target.append ? 'Append' : 'Copy'
             if (target.modify) {
-                trace('Copy', target.name + ' => ' + target.path.compact())
+                trace(tag, target.name + ' => ' + target.path.compact())
             } else {
-                trace('Copy', target.path.compact())
+                trace(tag, target.path.compact())
             }
             target.path.dirname.makeDir()
             target.verbose = true
