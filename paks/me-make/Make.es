@@ -605,7 +605,11 @@ class Make {
             target.defines = target.defines.map(function(e) {
                 let [key,value] = e.split('=')
                 if (key.contains('ME_COM')) {
-                    return key + '="$(' + key + ')' + '"'
+                    /*
+                        Ignore the value as the key will be a definition at the top of the Makefile
+                        Quotes should be added above in the definition
+                     */
+                    return key + '=$(' + key + ')'
                 } else {
                     return e
                 }
