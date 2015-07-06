@@ -166,13 +166,10 @@ public function copyFile(src: Path, dest: Path, options = {}) {
         }
     } else {
         let pwd = App.dir
-        //  MOB - what is this for. Why is dest reversed relative to src
         if (src.startsWith(pwd)) {
-            //  MOB - why not relative to me.dir.top?
             src = src.relativeTo(me.dir.top)
         }
         if (dest.startsWith(me.dir.top)) {
-            //  MOB - why not relative to me.dir.top?
             dest = dest.relativeTo(pwd)
         }
         if (src == dest) {
@@ -373,7 +370,6 @@ public function makeDirectory(path: Path, options = {}) {
         /* Generating */
         let pwd = App.dir
         if (path.startsWith(me.dir.top)) {
-            //  MOB - why not relative to me.dir.top?
             path = path.relativeTo(pwd)
         }
         if (makeme.generating == 'nmake' || makeme.generating == 'vs') {
@@ -620,7 +616,6 @@ public function vtrace(tag, ...args)
     makeme.vtrace(tag, ...args)
 
 
-//  MOB - move to Generate?
 var capture: Array?
 var genout: TextStream
 

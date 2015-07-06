@@ -11,10 +11,6 @@ class Generate {
     public var generator: Object
 
     var builder: Builder
-//  MOB - is this used?
-/* UNUSED
-    var gen: Object
-*/
     var loader: Loader
     var options: Object
 

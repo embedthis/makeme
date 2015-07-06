@@ -630,17 +630,6 @@ class Configure {
         } 
     }
 
-/* UNUSED
-    public function reconfigure(path) {
-        let obj = loader.readFile(path)
-        if (obj && obj.configure) {
-            builder.run(obj.configure)
-            return
-        }
-        App.log.error('No prior configuration to use')
-    }
-*/
-
     function traceComponents() {
         let disabled = {}
         if (!makeme.options.configure && !makeme.options.verbose) return

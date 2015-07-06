@@ -84,9 +84,6 @@ public class MakeMe {
             pre: { },
             prefix: { range: String, separator: Array },
             prefixes: { range: String },
-/* UNUSED
-            reconfigure: { },
-*/
             rebuild: { alias: 'r'},
             release: {},
             rom: { },
@@ -279,12 +276,6 @@ public class MakeMe {
             options.configuration = true
         } else if (args.rest.contains('configuration')) {
             options.configuration = true
-/* UNUSED
-        } else if (args.rest.contains('reconfigure')) {
-            options.reconfigure = true
-        } else if (options.reconfigure) {
-            args.rest.push('configure')
-*/
         }
         if (args.rest.contains('generate')) {
             if (Config.OS == 'windows') {
@@ -551,9 +542,6 @@ public class MakeMe {
             '  --profile [debug|release|...]             # Use the build profile\n' +
             '  --quiet                                   # Quiet operation. Suppress trace \n' +
             '  --rebuild                                 # Rebuild all specified targets\n' +
-/* UNUSED
-            '  --reconfigure                             # Reconfigure with existing settings\n' +
-*/
             '  --release                                 # Same as --profile release\n' +
             '  --rom                                     # Build for ROM without a file system\n' +
             '  --set [feature=value]                     # Enable and a feature\n' +
