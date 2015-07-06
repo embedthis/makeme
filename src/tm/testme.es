@@ -15,11 +15,6 @@ enumerable class TestMe {
     var topTestDir: Path                    //  Path to top of test tree
     var originalDir: Path                   //  Original current directory
     var mebin: Path                         //  Directory containing "me"
-
-    //  TODO temporary until makeme has ejscript 3
-    var ejsbin: Path                        //  Directory containing "ejs"
-
-    var ejsVersion: String                  //  The ejs command version
     var keepGoing: Boolean = false          //  Continue on errors 
     var topEnv: Object = {}                 //  Global env to pass to tests
     var filters: Array = []                 //  Filter tests by pattern x.y.z... 
@@ -37,6 +32,9 @@ enumerable class TestMe {
     var passedCount: Number = 0
     var skippedCount: Number = 0
     var testCount: Number = 0
+
+    //  TODO - remove when ejscript 3 is released
+    var needTestMeMod: Boolean
 
     function unknownArg(argv, i, template) {
         let arg = argv[i].slice(argv[i].startsWith("--") ? 2 : 1)
@@ -171,7 +169,7 @@ enumerable class TestMe {
 
     function TestMe() {
         program = Path(App.args[0]).basename
-        if ((path = searchUp('configure')) != null) {
+        if ((path = searchUp('package.json')) != null) {
             topDir = path.dirname.absolute
             try {
                 if (topDir.join('start.me')) {
@@ -210,11 +208,29 @@ enumerable class TestMe {
             me = me.dirname.join(me.linkTarget)
         }
         mebin = me.dirname.portable
-        ejsbin = Cmd.locate('ejs').dirname.portable
-        ejsVersion = Cmd.run('ejs -V').trim()
-        if (ejsVersion[0] < '3') {
-            ejsbin = mebin
+
+        /*
+            TODO - remove this code when ejscript 3 is released
+         */
+        needTestMeMod = true
+        let package = topDir.join('package.json')
+        if (package.exists) {
+            let p = package.readJSON()
+            if (p.name.startsWith('ejs.') ||
+               (p.name == 'ejscript' && p.version[0] >= '3') ||
+               (p.pak && p.pak.testejs == '3')) {
+                ejsVersion = Cmd.run('ejs -V').trim()
+                if (ejsVersion[0] < '3') {
+                    throw 'Cannot run unit tests with old ejs: ' + Cmd.locate('ejs')
+                }
+                needTestMeMod = false
+            }
         }
+        let ejsVer = Cmd.run('ejs -V').trim()
+        if (needTestMeMod && ejsVer[0] >= '3') {
+            throw 'This product requires ejs 2.x to run unit tests. Ejs ' + Cmd.locate('ejs')
+        }
+
         blend(topEnv, {
             TM_TOP: topDir, 
             TM_TOP_TEST: topTestDir, 
@@ -224,7 +240,6 @@ enumerable class TestMe {
             TM_BIN: bin, 
             TM_DEPTH: depth, 
             TM_MEBIN: mebin, 
-            TM_EJSBIN: ejsbin, 
         })
         if (options.debug) {
             topEnv.TM_DEBUG = true
@@ -595,13 +610,23 @@ Me.load({
         let name = file.trimExt().trimExt()
         let mefile = tm.join(name).joinExt('me')
         let c = tm.join(name).joinExt('c')
+        let exe, command, ejs, ejsc
 
-        let exe, command
+        if (needTestMeMod) {
+            ejs = mebin.join('makeme-ejs')
+            ejsc = mebin.join('makeme-ejsc')
+        } else {
+            ejs = Cmd.locate('ejs')
+            ejsc = ejs.dirname.join('ejsc')
+        }
         if (ext == 'es' || ext == 'js') {
             if (file.extension == 'com') {
-                let ejsc = ejsbin.join('ejsc')
                 let mod = Path(name).joinExt('mod', true)
-                command = ejsc + ' --search "testme' + App.SearchSeparator + ejsbin + '" --out ' + mod + ' ' + file
+                if (needTestMeMod) {
+                    command = ejsc + ' --search "testme' + App.SearchSeparator + mebin + '" --out ' + mod + ' ' + file
+                } else {
+                    command = ejsc + ' --out ' + mod + ' ' + file
+                }
                 if (options.rebuild || !mod.exists || mod.modified < file.modified) {
                     if (options.rebuild) {
                         why('Rebuild', mod + ' because --rebuild')
@@ -619,10 +644,10 @@ Me.load({
                 if (options.trace) {
                     switches += ' --trace ' + options.trace
                 }
-                if (ejsVersion[0] >= '3') {
-                    command = ejsbin.join('ejs') + switches + ' ' + file
+                if (needTestMeMod) {
+                    command = ejs + ' --require ejs.testme ' + switches + ' ' + file
                 } else {
-                    command = ejsbin.join('ejs') + ' --require ejs.testme ' + switches + ' ' + file
+                    command = ejs + switches + ' ' + file
                 }
             }
         } else if (ext == 'c') {
