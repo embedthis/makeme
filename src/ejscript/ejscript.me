@@ -27,8 +27,7 @@ Me.load({
         },
 
         ejscmd: {
-            pname:  'ejs',
-            path:   '${BIN}/ejs${EXE}',
+            path:   '${BIN}/${settings.name}-ejs${EXE}',
             type:   'exe',
             sources: [ 'ejs.c' ],
             scripts: {
@@ -44,6 +43,7 @@ Me.load({
         },
 
         ejsc: {
+            path:   '${BIN}/${settings.name}-ejsc${EXE}',
             type:   'exe',
             sources: [ 'ejsc.c' ],
             depends: [ 'libejs' ],
@@ -54,7 +54,7 @@ Me.load({
             files: [ 'ejs.es' ],
             path: "${BIN}/ejs.mod",
             build: `
-                run('"${LBIN}/ejsc" --out "${BIN}/ejs.mod" --optimize 9 --bind --require null ${FILES}')
+                run('"${LBIN}/${settings.name}-ejsc" --out "${BIN}/ejs.mod" ${settings.ejscript.compile} --optimize 9 --bind --require null ${FILES}')
             `,
             message: 'Compile: ejs.mod',
             depends: [ 'ejsc' ],

@@ -11,7 +11,7 @@ Me.load({
     ],
 
     configure: {
-        requires:  [ 'osdep', 'ejs', 'mpr', 'http', 'pcre', 'zlib' ],
+        requires:  [ 'osdep', 'ejscript', 'mpr', 'http', 'pcre', 'zlib' ],
         discovers: [ 'ssl' ],
     },
 
@@ -29,9 +29,6 @@ Me.load({
         integrate: true,
 
         ejscript: {
-            /*
-                Control if ejs.* is enabled or disabled
-             */
             db: true,
             mail: true,
             mapper: true,
@@ -44,6 +41,7 @@ Me.load({
 
         http: {
             /* Use PAM (Plugable Authentication Module) to store passwords */
+            cmd: true,
             pam: false,
         },
 
@@ -87,7 +85,7 @@ Me.load({
             ],
             precious: true,
             build: `
-                run('"${LBIN}/ejsc" --debug --out "${BIN}/me.mod" --optimize 9 ${FILES}')
+                run('"${LBIN}/makeme-ejsc" ${settings.ejscript.compile} --out "${BIN}/me.mod" --optimize 9 ${FILES}')
             `,
             message: 'Compile: me.mod',
             depends: [ 'ejs.mod' ],
