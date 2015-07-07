@@ -69,6 +69,9 @@
 #ifndef ME_EJS_ONE_MODULE
     #define ME_EJS_ONE_MODULE 1
 #endif
+#ifndef ME_EJSCRIPT_COMPILE
+    #define ME_EJSCRIPT_COMPILE "--optimize 9"
+#endif
 #ifndef ME_EJSCRIPT_DB
     #define ME_EJSCRIPT_DB 1
 #endif
@@ -92,6 +95,9 @@
 #endif
 #ifndef ME_EJSCRIPT_ZLIB
     #define ME_EJSCRIPT_ZLIB 1
+#endif
+#ifndef ME_HTTP_CMD
+    #define ME_HTTP_CMD 1
 #endif
 #ifndef ME_HTTP_PAM
     #define ME_HTTP_PAM 0
@@ -228,9 +234,6 @@
 /* Components */
 #ifndef ME_COM_CC
     #define ME_COM_CC 1
-#endif
-#ifndef ME_COM_EJS
-    #define ME_COM_EJS 1
 #endif
 #ifndef ME_COM_EJSCRIPT
     #define ME_COM_EJSCRIPT 1
