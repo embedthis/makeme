@@ -54,7 +54,7 @@ Me.load({
             files: [ 'ejs.es' ],
             path: "${BIN}/ejs.mod",
             build: `
-                run('"${LBIN}/${settings.name}-ejsc" --out "${BIN}/ejs.mod" ${settings.ejscript.compile} --optimize 9 --bind --require null ${FILES}')
+                run('"${LBIN}/${settings.name}-ejsc" --out "${BIN}/ejs.mod" ${settings.ejscript.compile} --bind --require null ${FILES}')
             `,
             message: 'Compile: ejs.mod',
             depends: [ 'ejsc' ],
