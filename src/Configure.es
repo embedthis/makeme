@@ -771,6 +771,9 @@ module embedthis.me.script {
             return [Path(target.withpath).join(objdir)]
         } 
         let search = []
+        if (me.platform.cross) {
+            return search
+        }
         if (me.dir) {
             if (me.dir.paks) {
                 /*
@@ -829,7 +832,7 @@ module embedthis.me.script {
         if (file.exists) {
             path = file
         } else {
-            if ((dir = me.targets[Configure.currentComponent].path) && !(dir is Function)) {
+            if ((dir = me.targets[Configure.currentComponent].path) && !(dir is Function) && Path(dir).exists) {
                 search.push(dir)
             }
             if (control.search) {
