@@ -1160,6 +1160,12 @@ installBinary: $(DEPS_54)
 	chmod 755 "$(ME_BIN_PREFIX)" ; \
 	rm -f "$(ME_BIN_PREFIX)/makeme-ejs" ; \
 	ln -s "$(ME_VAPP_PREFIX)/bin/makeme-ejs" "$(ME_BIN_PREFIX)/makeme-ejs" ; \
+	cp $(BUILD)/bin/makeme-ejsc $(ME_VAPP_PREFIX)/bin/makeme-ejsc ; \
+	chmod 755 "$(ME_VAPP_PREFIX)/bin/makeme-ejsc" ; \
+	mkdir -p "$(ME_BIN_PREFIX)" ; \
+	chmod 755 "$(ME_BIN_PREFIX)" ; \
+	rm -f "$(ME_BIN_PREFIX)/makeme-ejsc" ; \
+	ln -s "$(ME_VAPP_PREFIX)/bin/makeme-ejsc" "$(ME_BIN_PREFIX)/makeme-ejsc" ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
 	cp $(BUILD)/bin/http $(ME_VAPP_PREFIX)/bin/http ; \
 	chmod 755 "$(ME_VAPP_PREFIX)/bin/http" ; \
