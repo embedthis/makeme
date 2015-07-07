@@ -613,12 +613,8 @@ Me.load({
         let exe, command, ejs, ejsc
 
         if (needTestMeMod) {
-/*
             ejs = mebin.join('makeme-ejs')
             ejsc = mebin.join('makeme-ejsc')
-*/
-            ejs = Cmd.locate('ejs')
-            ejsc = ejs.dirname.join('ejsc')
         } else {
             ejs = Cmd.locate('ejs')
             ejsc = ejs.dirname.join('ejsc')
