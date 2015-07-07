@@ -715,7 +715,7 @@ DEPS_30 = $(DEPS_30) build\$(CONFIG)\bin\makeme-ejsc.exe
 build\$(CONFIG)\bin\ejs.mod: $(DEPS_30)
 	cd src\ejscript
 	@echo .. [Compile] ejs.mod
-	"../../$(BUILD)/bin/makeme-ejsc" --out "../../$(BUILD)/bin/ejs.mod" --optimize 9 --optimize 9 --bind --require null ejs.es
+	"../../$(BUILD)/bin/makeme-ejsc" --out "../../$(BUILD)/bin/ejs.mod" --optimize 9 --bind --require null ejs.es
 	cd ..\..
 !ENDIF
 
