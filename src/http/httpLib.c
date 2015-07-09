@@ -14554,8 +14554,6 @@ PUBLIC void httpFinalizeRoute(HttpRoute *route)
     Expect a template with embedded tokens of the form: "/${controller}/${action}/${other}"
     Understands the following aliases:
         ~   For ${PREFIX}
-        |   For ${PREFIX}${SERVER_PREFIX}
-
     The options is a hash of token values.
  */
 PUBLIC char *httpTemplate(HttpConn *conn, cchar *template, MprHash *options)

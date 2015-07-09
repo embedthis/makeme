@@ -3130,7 +3130,7 @@ fi";
 		48C2837448C29E02000001B9 /* Debug */ = {
     			isa = XCBuildConfiguration;
     			buildSettings = {
-    				PRODUCT_NAME = makeme-ejs;
+    				PRODUCT_NAME = ejs;
     
     				HEADER_SEARCH_PATHS = (
 					"$(ME_COM_OPENSSL_PATH)/include",
@@ -3158,7 +3158,7 @@ fi";
     		48C2837448C29E02000001BA /* Release */ = {
     			isa = XCBuildConfiguration;
     			buildSettings = {
-    				PRODUCT_NAME = makeme-ejs;
+    				PRODUCT_NAME = ejs;
     
     				HEADER_SEARCH_PATHS = (
 					"$(ME_COM_OPENSSL_PATH)/include",
